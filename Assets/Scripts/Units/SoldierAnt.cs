@@ -82,6 +82,19 @@ namespace AntColony.Units
                 return;
             }
 
+            // Attack-move: 별도 목표 없이 이동 중일 때도 주기적으로 주변 적을 살펴 자동 교전한다.
+            autoEngageTimer -= Time.deltaTime;
+            if (autoEngageTimer <= 0f)
+            {
+                autoEngageTimer = autoEngageCheckInterval;
+                var nearby = World.WildMonster.FindNearest(transform.position, autoEngageRadius);
+                if (nearby != null)
+                {
+                    CommandAttack(nearby);
+                    return;
+                }
+            }
+
             if (!Agent.pathPending && Agent.remainingDistance <= Agent.stoppingDistance)
             {
                 state = State.Idle;

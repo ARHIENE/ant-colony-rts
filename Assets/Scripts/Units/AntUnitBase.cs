@@ -6,6 +6,7 @@ using UnityEngine.AI;
 namespace AntColony.Units
 {
     [RequireComponent(typeof(NavMeshAgent))]
+    [RequireComponent(typeof(SelectableObject))]
     public class AntUnitBase : MonoBehaviour, IDamageable
     {
         public UnitData Data { get; private set; }

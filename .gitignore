@@ -20,3 +20,6 @@ ProfilerCaptures/
 *.tmp
 sysinfo.txt
 crashlytics-build.properties
+
+# unity-cli 스크린샷 캡처(작업용, 커밋 불필요)
+.unity/

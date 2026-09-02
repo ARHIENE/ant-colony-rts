@@ -1,33 +1,29 @@
-using System.Collections.Generic;
-using AntColony.World;
+using AntColony.Core;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
 namespace AntColony.Units
 {
+    // 선택 자체는 SelectionManager(드래그/클릭/Shift 추가선택)가 담당하고,
+    // 이 스크립트는 선택된 SoldierAnt들에게 우클릭으로 이동/공격 명령만 내린다.
     public class UnitSelectionController : MonoBehaviour
     {
         [SerializeField] private LayerMask groundMask = ~0;
+        [SerializeField] private SelectionManager selectionManager;
+        [SerializeField] private float formationSpacing = 1.5f;
 
-        private readonly List<SoldierAnt> selected = new List<SoldierAnt>();
-        private Vector2 dragStart;
-        private bool isDragging;
+        private UnityEngine.Camera cam;
+
+        private void Awake()
+        {
+            cam = UnityEngine.Camera.main;
+            if (selectionManager == null) selectionManager = FindFirstObjectByType<SelectionManager>();
+        }
 
         private void Update()
         {
             var mouse = Mouse.current;
-            if (mouse == null) return;
-
-            if (mouse.leftButton.wasPressedThisFrame)
-            {
-                dragStart = mouse.position.ReadValue();
-                isDragging = true;
-            }
-            else if (mouse.leftButton.wasReleasedThisFrame && isDragging)
-            {
-                isDragging = false;
-                SelectWithin(dragStart, mouse.position.ReadValue());
-            }
+            if (mouse == null || selectionManager == null) return;
 
             if (mouse.rightButton.wasPressedThisFrame)
             {
@@ -35,45 +31,40 @@ namespace AntColony.Units
             }
         }
 
-        private void SelectWithin(Vector2 a, Vector2 b)
-        {
-            selected.Clear();
-            var min = Vector2.Min(a, b);
-            var max = Vector2.Max(a, b);
-            var cam = UnityEngine.Camera.main;
-            if (cam == null) return;
-
-            foreach (var soldier in FindObjectsByType<SoldierAnt>(FindObjectsSortMode.None))
-            {
-                var screenPos = cam.WorldToScreenPoint(soldier.transform.position);
-                if (screenPos.x >= min.x && screenPos.x <= max.x && screenPos.y >= min.y && screenPos.y <= max.y)
-                {
-                    selected.Add(soldier);
-                }
-            }
-        }
-
         private void IssueCommand(Vector2 screenPos)
         {
-            if (selected.Count == 0) return;
-            var cam = UnityEngine.Camera.main;
             if (cam == null) return;
+
+            var selected = selectionManager.GetSelectedObjects();
+            if (selected.Count == 0) return;
 
             var ray = cam.ScreenPointToRay(screenPos);
             if (!Physics.Raycast(ray, out var hit, 500f, groundMask)) return;
 
-            var target = hit.collider.GetComponentInParent<WildMonster>();
-            foreach (var soldier in selected)
+            // 적(IDamageable, 야생 몬스터/보스 등)을 직접 클릭하면 전원 그 타겟을 공격.
+            var target = hit.collider.GetComponentInParent<IDamageable>();
+
+            var cols = Mathf.CeilToInt(Mathf.Sqrt(selected.Count));
+            var index = 0;
+
+            foreach (var selectable in selected)
             {
+                if (selectable == null) continue;
+                var soldier = selectable.GetComponent<SoldierAnt>();
                 if (soldier == null) continue;
+
                 if (target != null)
                 {
                     soldier.CommandAttack(target);
                 }
                 else
                 {
-                    soldier.CommandMove(hit.point);
+                    var col = index % cols;
+                    var row = index / cols;
+                    var offset = new Vector3((col - (cols - 1) / 2f) * formationSpacing, 0f, row * -formationSpacing);
+                    soldier.CommandMove(hit.point + offset);
                 }
+                index++;
             }
         }
     }
