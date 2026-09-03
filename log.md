@@ -12,6 +12,9 @@
 ## 한 줄 컨셉
 플레이어는 개미 여왕의 지휘자가 되어 일개미로 자원을 캐고 소굴을 확장하며, 병정개미로 야생 몬스터를 상대하거나 다른 개미집을 약탈하고 거대 보스를 물량으로 레이드하는 RTS.
 
+## 목표 (2026-09-04 확정)
+**MVP가 아니라 Notion "기획(스펙 문서)" 페이지에 적힌 내용 전체 구현이 목표.** 지금까지 구현한 건 그 중 극히 일부(여왕방/병영/창고/자원노드 각 1개, 일개미·병정개미 단일종)뿐 — 역할군별 병영 분리, 카테고리별 강화 트리, 농사/낚시, 특수자원, 약탈, 보스 레이드, 유지비/반란 등 대부분 미구현. 기획이 개발 중 바뀌면 Notion 해당 하위 페이지를 교체(추가 아님)하고 관련 페이지도 같이 동기화할 것.
+
 ## 현재 상태 (세션 2 종료 시점 — 2026-09-04)
 - **`AntColony.unity` 씬이 SIMUL-TeaamProject의 실제 3DScene(400x400, 텍스처/장식 프리팹 1만개+ 이미 배치됨) 기반으로 완전히 교체됨.** 기존 세션 1의 10x10 자체 맵은 `Assets/Scenes/AntColony_MVP_backup.unity`로 보존(롤백용).
 - 건물(QueenChamber/Barracks/Storage/DigSite)/자원노드(FoodNode1-2/SoilNode1-2)/WildMonster/GameSystems/SelectionSystem/HUD/Main Camera 전부 새 씬으로 이전 완료.
