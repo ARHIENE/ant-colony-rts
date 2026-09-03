@@ -14,10 +14,10 @@ public static class SnapToTerrainMenu
     [MenuItem("Tools/Ant Colony/Snap Scene Objects To Terrain")]
     public static void SnapAll()
     {
-        var terrainGo = GameObject.Find("MapGenerator");
+        var terrainGo = GameObject.Find("MapGenerator") ?? GameObject.Find("TerrainGenerator");
         if (terrainGo == null)
         {
-            Debug.LogWarning("[SnapToTerrainMenu] MapGenerator not found in scene.");
+            Debug.LogWarning("[SnapToTerrainMenu] MapGenerator/TerrainGenerator not found in scene.");
             return;
         }
 

@@ -151,3 +151,36 @@ Boss(8개 파일)+Selection(2개 파일)+SoldierAnt 수정 후 컴파일 확인 
 - 스크립트는 컴파일 통과 여부만 이번 세션에 확인 가능(씬 미구성) — 위 체크리스트 진행 후 실제 플레이 테스트는 다음 세션에서 확인
 - MVP 이후 우선순위(기획서 대비 아직 없음): 연구소/종족 진화 시스템, 특수자원, 야생 개미집 약탈, 보스 레이드, 정찰/시야, 지형 파괴형 확장, 멀티플레이 대비 구조 분리
 - 다른 두 프로젝트(1VS1 Game, FPS Manager)처럼 unity-cli 브릿지를 이 프로젝트에도 도입할지는 아직 미정 — 필요해지면(Claude Code가 직접 Play/스크린샷 확인해야 할 때) 논의
+
+---
+
+# 2026-09-03~04 (세션 2)
+
+## 개요
+세션 1의 MVP 수직 슬라이스를 이어받아: HUD 참조 연결 마무리 → 실제 팀 프로젝트(SIMUL-TeaamProject) 에셋으로 맵 전체 교체 → NavMesh 재베이크 → 카메라 전면 재작성.
+
+## HUD 참조 자동 연결
+`HUDController.Start()`에서 `queenChamber`/`barracks`/`digSite`를 `FindFirstObjectByType`로 자동 탐색하도록 수정 — unity-cli 브릿지가 씬 내부 오브젝트 참조를 못 걸어주는 한계를 코드로 우회, 인스펙터 수동 연결 불필요해짐.
+
+## SIMUL-TeaamProject 맵 통째로 반입 → AntColony.unity 교체
+처음엔 지형 텍스처/장식 프리팹만 뽑아 기존 10x10 맵에 붙이는 방향으로 진행했으나, 사용자가 "팀 프로젝트 씬(3DScene.unity) 자체를 베이스로 써서 그 위에 AntColony 게임을 얹어라"고 정정해 방향 전환.
+- `github.com/ARHIENE/SIMUL-TeaamProject`(private, hyeonyeop 브랜치, 1.65GB, 유료 에셋스토어 패키지 다수 — 사용자 본인 구매분)를 클론해 `Assets/_TeamImport/`에 반입(작업 디렉토리 전용, `.gitignore`로 커밋 절대 금지)
+- `_TeamImport/Scripts`는 별도 어셈블리(`_TeamImport.asmdef`, autoReferenced:false)로 격리 — 안 그러면 네임스페이스 없는 원본 `ResourceType`/`IDamageable` 등이 우리 `AntColony.*` 코드와 충돌해 컴파일 에러남
+- 기존 `Assets/Scenes/AntColony.unity`(10x10 자체 맵)는 `AntColony_MVP_backup.unity`로 백업 보존, `Assets/_TeamImport/Scenes/3DScene.unity`(400x400, 팀이 만든 실제 지형+텍스처+장식 프리팹 1만개+ 이미 배치됨) 내용으로 교체
+- 우리 게임 오브젝트(QueenChamber/Barracks/Storage/DigSite/FoodNode1-2/SoilNode1-2/WildMonster/GameSystems/SelectionSystem/HUD/Main Camera)는 백업 씬을 Additive 로드 후 `modify_gameobject`로 다른 씬의 루트 오브젝트(`/TerrainGenerator`)에 reparent했다가 다시 unparent하는 방식으로 씬 간 이동(unity-cli에 전용 씬 이동 툴이 없어서 찾은 우회법)
+- 팀 원본의 자체 게임플레이 오브젝트(Ant/Canvas/GameManager/SpawnPoint/GameDataManager/Sparrow/팀 자체 카메라)는 우리 게임과 무관해 삭제
+- **버그 실측**: 씬 간 이동 직후 바로 저장 안 하고 여러 단계(재컴파일 등) 거치고 저장하면 이동시킨 오브젝트가 파일에서 통째로 누락됨(Main Camera 1회 유실) — 백업에서 재이동 + 즉시 저장·grep 검증으로 복구. **앞으로 씬 간 오브젝트 이동 직후엔 바로 저장하고 검증할 것**
+- `SnapToTerrainMenu.cs`가 지형 오브젝트 이름을 `"MapGenerator"`로 하드코딩한 버그 발견·수정(`"TerrainGenerator"`도 찾도록) — 씬 교체로 지형 이름이 바뀌어 스냅이 조용히 실패하고 있었음
+- `MapGenerator.terrainLayers[0].texture`를 placeholder(URP 로고)에서 실제 `Grass_A_BaseColor.tif`로, `spawnObjects`에 `Tree_01`/`Tree_02`/`Rock_05`(로우폴리, 확정 아트 스타일과 일치) 등록 — 씬 교체로 화면상 안 쓰이게 됐지만 코드/데이터는 남겨둠
+
+## NavMesh 베이크 — Play 시 "GetRemainingDistance" 에러 수정
+3DScene 교체 후 Play하면 일개미 전원이 NavMesh 에러(`WorkerAnt.cs:136`) — 새 지형엔 NavMeshSurface 자체가 없었음(팀 씬엔 원래 없었고, 우리 옛 MapGenerator에 있던 건 씬 이동 대상에서 빠졌음). `NavMeshBakeArea` 오브젝트를 새로 만들어 `NavMeshSurface`를 Volume 모드로 건물 밀집 구역만(60x60, 400x400 전체 아님) 제한해서 베이크 — 5초 완료(전체를 구웠으면 FPS Manager 프로젝트 때처럼 15분+ 걸렸을 위험이 있었음, [[fps_manager_navmesh_bake_cost]] 참고).
+
+## 카메라 전면 재작성 — 스타크래프트식 RTS 카메라
+기존 `IsometricCameraController`(WASD 팬)를 완전히 새로 씀: WASD 제거, 마우스 화면 가장자리(18px) 스크롤 팬 + Q/E로 현재 보는 지점(focusPoint) 기준 90도 궤도 회전(0.25초 스무스). 시작 위치를 건물 실제 좌표 중심(약 5,5)으로 재계산 배치(기존엔 (0,1,-10) 지면에 박혀있어서 맵이 반만 보였음). Q/E 방향이 반대로 느껴진다는 피드백 받아 즉시 반전.
+
+## unity-cli 브릿지 데드락 — 맵 크기/코드와 무관함을 최종 확인
+Play 모드 진입 및 스크립트 재컴파일(도메인 리로드) 시마다 브릿지가 CPU 유휴 상태로 멎는 현상이 이번 세션에 8회 이상 재현됨. 맵 크기를 안전값으로 되돌려도 동일하게 재현되는 걸 직접 확인해서, **맵 크기 문제가 아니라 브릿지 자체의 미해결 버그**(세션 1에 이미 기록된 이슈와 동일 패턴)로 최종 결론. Play 모드 자동 검증은 이 브릿지로 계속 불가능 — 코드/씬 수정 후 컴파일만 확인하고 실제 동작 확인은 사용자가 직접 Play로 하는 흐름 정착.
+
+## Notion 연동 — ant 프로젝트도 SAVE 시 개발일지 기록하도록 CLAUDE.md에 추가
+FPS Manager와 같은 "개발 일지" 페이지(프로젝트 공유) 아래 날짜 하위 페이지 생성 + unity-cli 스크린샷/영상(mp4/webm — GIF 직접 출력은 안 되지만 노션이 영상을 그대로 인라인 재생하므로 변환 불필요) 첨부 루틴을 ant에도 적용하기로 확정.

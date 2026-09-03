@@ -23,3 +23,11 @@ crashlytics-build.properties
 
 # unity-cli 스크린샷 캡처(작업용, 커밋 불필요)
 .unity/
+
+# 프리팹은 커밋하지 않음(사용자 요청, 2026-09-03)
+*.prefab
+*.prefab.meta
+
+# SIMUL-TeaamProject에서 반입한 씬/에셋(유료 에셋스토어 패키지 포함, 작업 디렉토리 전용, 절대 커밋 금지, 2026-09-03)
+Assets/_TeamImport/
+Assets/_TeamImport.meta

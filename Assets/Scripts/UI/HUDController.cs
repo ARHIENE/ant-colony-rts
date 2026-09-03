@@ -19,6 +19,10 @@ namespace AntColony.UI
 
         private void Start()
         {
+            if (queenChamber == null) queenChamber = FindFirstObjectByType<QueenChamber>();
+            if (barracks == null) barracks = FindFirstObjectByType<Barracks>();
+            if (digSite == null) digSite = FindFirstObjectByType<DigSite>();
+
             BuildCanvas();
 
             if (ResourceManager.Instance != null)
