@@ -47,6 +47,13 @@ namespace AntColony.Boss
 
         private void Die()
         {
+            var loop = GetComponent<BossBasicPatternLoop>();
+            if (loop != null) loop.enabled = false;
+
+            var sequence = GetComponent<BossPatternSequenceSimple>();
+            if (sequence != null) sequence.enabled = false;
+
+            GameManager.Instance?.ReportBossDefeated();
             onDead?.Invoke();
         }
     }

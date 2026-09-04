@@ -184,3 +184,35 @@ Play 모드 진입 및 스크립트 재컴파일(도메인 리로드) 시마다 
 
 ## Notion 연동 — ant 프로젝트도 SAVE 시 개발일지 기록하도록 CLAUDE.md에 추가
 FPS Manager와 같은 "개발 일지" 페이지(프로젝트 공유) 아래 날짜 하위 페이지 생성 + unity-cli 스크린샷/영상(mp4/webm — GIF 직접 출력은 안 되지만 노션이 영상을 그대로 인라인 재생하므로 변환 불필요) 첨부 루틴을 ant에도 적용하기로 확정.
+
+---
+
+# 2026-09-04~05 (세션 3)
+
+## 개요
+전투/레이드 시스템 첫 구현(보스 실전 배치) + 자원 유지비/반란 + 유닛 조작 UX 보강. 동시에 unity-cli 브릿지 데드락의 실제 근본 원인 2가지(도메인 리로드 타이밍 버그, `runInBackground` 꺼짐)를 규명하고 고침 — 지금까지 "원인 불명"으로만 기록돼 있던 이슈가 대부분 해소됨.
+
+## 보스 레이드 — MiniBirdBoss 실전 배치
+- `Ants`(9)/`Ground`(8) Unity Layer 신설, WorkerAnt/SoldierAnt 프리팹과 지형을 각각 배정(지형이 원래 numeric layer 6을 쓰고 있던 걸 몰라서 처음에 이름이 꼬였다가 재수정함)
+- 팀 원본 에셋의 `Sparrow` 모델로 `MiniBirdBoss` 생성(3배 스케일, `(25, 8.5, 25)` 배치) → `BossHealth`+`BossPatternSequenceSimple`(원형→부채꼴→직선 순환)+AoE 3종 부착
+- `BossHealth.Die()`가 패턴 컴포넌트 비활성화 + `GameManager.ReportBossDefeated()` 자동 호출하도록 코드 연결(기존엔 원본 그대로 포팅돼서 보스 죽어도 공격 계속되는 상태였음)
+- **텔레그래프(바닥 경고 장판) 연결**: 원본 팀 프로젝트 프리팹은 우리 것과 다른(네임스페이스 없는) `GroundTelegraphCircle` 등을 참조하고 있어서 `Resources.Load`로 못 찾는 문제 발견 → 우리 `AntColony.Boss.Telegraph.*` 컴포넌트로 새로 프리팹 3종(원형/부채꼴/직선) 제작해 `Assets/Resources/Telegraph/`에 배치, `WarningMat`(빨강 반투명) 적용, 각 AoE 스크립트 `Awake()`에서 `Resources.Load` 폴백으로 자동 연결
+- 실전 Play 테스트로 검증: 보스가 근처 일개미를 실제로 탐지→원형 공격 캐스팅→데미지 판정까지 정상 수행해 일개미 3마리를 전멸시킴 확인(공격 데미지 25 > 일개미 기본 체력 20이라 한 방에 즉사 — 밸런스 참고)
+- **사용자 피드백으로 수치 조정**: 처음엔 보스 3배 스케일에 맞춰 공격범위도 1.5배(반지름 4→6 등)로 키웠으나 "너무 크다"는 피드백 받고 원본 수치(반지름4/부채꼴사거리6/직선길이8·폭3)로 롤백. 탐지 반경(`searchRadius`)도 원본 30 → 10 → 7로 재차 축소(너무 멀리서부터 탐지·공격한다는 피드백)
+
+## 자원 유지비 / 반란 — `UpkeepManager` 신규
+- `UnitData.foodUpkeep` 필드 추가, `AntUnitBase`에 활성 유닛 정적 레지스트리(`Active`) + `Rebel()`(플레이어 통제 이탈 → 그 자리에서 `WildMonster`로 전환) 추가
+- `UpkeepManager`(`GameSystems`에 부착): 30초 주기로 전체 유지비 합산 → 식량 부족 시 무작위 개체 1마리를 아사 또는 반란 처리(기획서 "반란" 요구사항 반영)
+
+## 유닛 조작 UX — 원본 팀 프로젝트 대비 누락분 보강
+- **일개미 우클릭 이동 안 되던 버그 수정**: `UnitSelectionController`가 `SoldierAnt`만 처리하던 걸 `WorkerAnt`도 포함하도록 확장(`WorkerAnt.CommandMove` 신규)
+- **어택무브(A키) 신규**: 원본엔 있었지만 포팅 안 됐던 기능. `AttackMoveController` 신설 — A키로 어택 모드 진입 후 좌클릭 시 적이면 직접 공격, 빈 땅이면 어택무브(경로상 적 자동 교전, 처치 후 원래 목적지로 이동 재개). `SelectionManager`가 어택 모드 중엔 좌클릭 선택 처리를 건너뛰도록 보정(원본엔 없던 조율이지만 안 하면 어택 클릭과 동시에 선택도 바뀌는 문제가 있어서 추가)
+- **이동 확인 마커 신규**: `MoveMarker.cs` — 우클릭 이동 지점에 초록색 원판이 스폰돼 0.4초간 줄어들며 사라짐(스타크래프트류), 프리팹 없이 프리미티브로 런타임 생성
+- **일개미 자동 채집 완전 제거 (세션 막바지, 사용자 요청)**: `WorkerAnt.TickIdle()`을 빈 메서드로 변경 — 이제 일개미는 우클릭으로 직접 이동시키기 전까진 가만히 있음, 도착해도 자동으로 채집/반납하지 않음(순수 이동만). **주의**: 이 변경으로 자원 채집 루프 자체가 현재 막혀있는 상태 — 다음 세션에서 수동 채집 지시 방식(예: 자원노드 우클릭 시 그 자리에서 채집 시작) 등 대안 설계 필요
+
+## unity-cli 브릿지 데드락 — 근본 원인 2가지 규명 및 수정
+자세한 진단 과정/코드 위치는 메모리([[unity_cli_bridge_local_patch]], [[project_ant_teamimport_and_bridge_deadlock]]) 참고. 이 프로젝트 안에는 코드 변경 없음(전부 `E:\Git\_tools\unity-cli`와 `ProjectSettings/*.asset` 쪽 수정).
+1. **`refresh_assets` 커맨드가 자기 응답을 만드는 도중 동기적으로 도메인 리로드를 유발해서 그 응답을 영영 못 보내는 버그**를 브릿지 소스(`BridgeCommandRouter.cs`)에서 발견·수정(`EditorApplication.update` 기반 1회성 지연 콜백으로 교체, `delayCall`은 창 포커스 없을 때 실행 자체가 안 되는 걸 확인해서 폐기)
+2. **`runInBackground: 0`이 진짜 "개미가 안 움직인다" 문제의 원인**이었음 — 창 포커스 없으면 브릿지 응답은 멀쩡한데 실제 Play 시뮬레이션(Update 루프)이 멈춤. `ProjectSettings/ProjectSettings.asset`에서 `1`로 변경
+3. Play 진입 시 강제 도메인 리로드하던 `EnterPlayModeOptions`도 꺼서(`ProjectSettings/EditorSettings.asset`) Play 진입 자체가 트리거가 되는 경우를 줄임
+- **교훈**: 이 세션 중 데드락 대응으로 taskkill+재시작을 10회 이상 반복했는데, 한 번은 **사용자가 직접 Play를 누르고 테스트하던 도중에 재시작해버려서 항의받음** — 사용자가 에디터를 직접 조작 중인 신호가 있으면 그 순간부터는 데드락이어도 자동 재시작하지 말고 먼저 물어볼 것으로 규칙 수정([[feedback_unity_bridge_auto_restart]])

@@ -30,5 +30,8 @@ namespace AntColony.Data
         public float attackDamage = 5f;
         public float attackRange = 1.5f;
         public float attackInterval = 1f;
+
+        [Header("Upkeep")]
+        public int foodUpkeep = 1;
     }
 }

@@ -13,17 +13,24 @@ namespace AntColony.Units
             MovingToNode,
             Gathering,
             ReturningToStorage,
-            Depositing
+            Depositing,
+            MovingByCommand
         }
-
-        [SerializeField] private float searchInterval = 1f;
 
         private State state = State.Idle;
         private ResourceNode targetNode;
         private BuildingBase targetDeposit;
         private float carriedAmount;
         private AntColony.Data.ResourceType carriedType;
-        private float searchTimer;
+
+        // 플레이어가 우클릭으로 직접 이동을 지시하면 채집 루프를 중단하고 그 위치로 이동한다.
+        // 도착하면 다시 자동 채집 루프(Idle)로 복귀한다.
+        public void CommandMove(Vector3 destination)
+        {
+            targetNode = null;
+            Agent.SetDestination(destination);
+            state = State.MovingByCommand;
+        }
 
         private void Update()
         {
@@ -44,20 +51,23 @@ namespace AntColony.Units
                 case State.Depositing:
                     Deposit();
                     break;
+                case State.MovingByCommand:
+                    TickMovingByCommand();
+                    break;
             }
         }
 
+        private void TickMovingByCommand()
+        {
+            if (HasArrived())
+            {
+                state = State.Idle;
+            }
+        }
+
+        // 자동 채집 없음: 플레이어가 우클릭으로 직접 움직여주기 전까지는 가만히 있는다.
         private void TickIdle()
         {
-            searchTimer -= Time.deltaTime;
-            if (searchTimer > 0f) return;
-            searchTimer = searchInterval;
-
-            targetNode = ResourceNode.FindNearestActive(transform.position);
-            if (targetNode == null) return;
-
-            Agent.SetDestination(targetNode.transform.position);
-            state = State.MovingToNode;
         }
 
         private void TickMovingToNode()

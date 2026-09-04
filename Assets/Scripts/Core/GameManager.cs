@@ -8,8 +8,10 @@ namespace AntColony.Core
         public static GameManager Instance { get; private set; }
 
         public event Action OnLoopComplete;
+        public event Action OnBossDefeated;
 
         private bool loopCompleted;
+        private bool bossDefeated;
 
         private void Awake()
         {
@@ -26,6 +28,13 @@ namespace AntColony.Core
             if (loopCompleted) return;
             loopCompleted = true;
             OnLoopComplete?.Invoke();
+        }
+
+        public void ReportBossDefeated()
+        {
+            if (bossDefeated) return;
+            bossDefeated = true;
+            OnBossDefeated?.Invoke();
         }
     }
 }

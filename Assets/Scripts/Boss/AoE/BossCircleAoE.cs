@@ -22,6 +22,15 @@ namespace AntColony.Boss.AoE
 
         public bool IsCasting { get; private set; }
 
+        private void Awake()
+        {
+            // 인스펙터에서 못 걸어둔 경우, Resources에서 텔레그래프 프리팹을 자동으로 찾아 쓴다.
+            if (telegraphPrefab == null)
+            {
+                telegraphPrefab = Resources.Load<GroundTelegraphCircle>("Telegraph/BossTelegraphCircle");
+            }
+        }
+
         public void CastAt(Vector3 center)
         {
             if (!gameObject.activeInHierarchy || IsCasting) return;

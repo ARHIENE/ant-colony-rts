@@ -28,6 +28,14 @@ namespace AntColony.Boss.AoE
 
         public bool IsCasting { get; private set; }
 
+        private void Awake()
+        {
+            if (telegraphPrefab == null)
+            {
+                telegraphPrefab = Resources.Load<GroundTelegraphLine>("Telegraph/BossTelegraphLine");
+            }
+        }
+
         public void CastFrom(Vector3 origin, Vector3 forward)
         {
             if (!gameObject.activeInHierarchy || IsCasting) return;

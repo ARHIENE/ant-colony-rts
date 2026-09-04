@@ -14,7 +14,7 @@ namespace AntColony.Boss
 
         [Header("Target Search")]
         [SerializeField] private LayerMask antLayerMask;
-        [SerializeField] private float searchRadius = 30f;
+        [SerializeField] private float searchRadius = 7f;
         [SerializeField] private float searchInterval = 0.2f;
 
         [Header("Timing")]
@@ -32,6 +32,10 @@ namespace AntColony.Boss
 
         private void Start()
         {
+            if (circleAttack == null) circleAttack = GetComponent<BossCircleAoE>();
+            if (coneAttack == null) coneAttack = GetComponent<BossConeAoE>();
+            if (lineAttack == null) lineAttack = GetComponent<BossLineAoE>();
+
             castTimer = firstCastDelay;
             searchTimer = 0f;
         }

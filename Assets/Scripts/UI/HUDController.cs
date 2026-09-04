@@ -1,3 +1,4 @@
+using AntColony.Boss;
 using AntColony.Buildings;
 using AntColony.Core;
 using AntColony.Data;
@@ -13,15 +14,18 @@ namespace AntColony.UI
         [SerializeField] private QueenChamber queenChamber;
         [SerializeField] private Barracks barracks;
         [SerializeField] private DigSite digSite;
+        [SerializeField] private BossHealth boss;
 
         private Text resourceText;
         private Text messageText;
+        private Text bossHealthText;
 
         private void Start()
         {
             if (queenChamber == null) queenChamber = FindFirstObjectByType<QueenChamber>();
             if (barracks == null) barracks = FindFirstObjectByType<Barracks>();
             if (digSite == null) digSite = FindFirstObjectByType<DigSite>();
+            if (boss == null) boss = FindFirstObjectByType<BossHealth>();
 
             BuildCanvas();
 
@@ -32,6 +36,12 @@ namespace AntColony.UI
             if (GameManager.Instance != null)
             {
                 GameManager.Instance.OnLoopComplete += ShowVictoryMessage;
+                GameManager.Instance.OnBossDefeated += ShowBossDefeatedMessage;
+            }
+            if (boss != null)
+            {
+                boss.onHPChanged.AddListener(UpdateBossHealthText);
+                UpdateBossHealthText(boss.CurrentHp, boss.MaxHp);
             }
 
             UpdateResourceText();
@@ -54,6 +64,8 @@ namespace AntColony.UI
 
             resourceText = CreateText(canvasGO.transform, new Vector2(0f, 1f), new Vector2(160f, 20f), new Vector2(10f, -10f));
             messageText = CreateText(canvasGO.transform, new Vector2(0.5f, 1f), new Vector2(300f, 20f), new Vector2(0f, -10f));
+            bossHealthText = CreateText(canvasGO.transform, new Vector2(1f, 1f), new Vector2(220f, 20f), new Vector2(-10f, -10f));
+            bossHealthText.alignment = TextAnchor.UpperRight;
 
             CreateButton(canvasGO.transform, new Vector2(10f, 10f), "Produce Worker", () => queenChamber?.TryProduceWorker());
             CreateButton(canvasGO.transform, new Vector2(150f, 10f), "Produce Soldier", () => barracks?.TryProduceSoldier());
@@ -127,6 +139,18 @@ namespace AntColony.UI
         {
             if (messageText == null) return;
             messageText.text = "Loop Complete: Wild Monster Defeated!";
+        }
+
+        private void UpdateBossHealthText(float current, float max)
+        {
+            if (bossHealthText == null) return;
+            bossHealthText.text = $"Boss HP {Mathf.CeilToInt(current)} / {Mathf.CeilToInt(max)}";
+        }
+
+        private void ShowBossDefeatedMessage()
+        {
+            if (bossHealthText != null) bossHealthText.text = "Boss Defeated!";
+            if (messageText != null) messageText.text = "Raid Complete: Boss Defeated!";
         }
     }
 }

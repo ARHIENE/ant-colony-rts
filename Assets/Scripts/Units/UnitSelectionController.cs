@@ -11,6 +11,7 @@ namespace AntColony.Units
         [SerializeField] private LayerMask groundMask = ~0;
         [SerializeField] private SelectionManager selectionManager;
         [SerializeField] private float formationSpacing = 1.5f;
+        [SerializeField] private Color moveMarkerColor = Color.green;
 
         private UnityEngine.Camera cam;
 
@@ -46,25 +47,45 @@ namespace AntColony.Units
 
             var cols = Mathf.CeilToInt(Mathf.Sqrt(selected.Count));
             var index = 0;
+            var issuedMove = false;
 
             foreach (var selectable in selected)
             {
                 if (selectable == null) continue;
-                var soldier = selectable.GetComponent<SoldierAnt>();
-                if (soldier == null) continue;
 
-                if (target != null)
+                var col = index % cols;
+                var row = index / cols;
+                var offset = new Vector3((col - (cols - 1) / 2f) * formationSpacing, 0f, row * -formationSpacing);
+
+                var soldier = selectable.GetComponent<SoldierAnt>();
+                if (soldier != null)
                 {
-                    soldier.CommandAttack(target);
+                    if (target != null)
+                    {
+                        soldier.CommandAttack(target);
+                    }
+                    else
+                    {
+                        soldier.CommandMove(hit.point + offset);
+                        issuedMove = true;
+                    }
+                    index++;
+                    continue;
                 }
-                else
+
+                var worker = selectable.GetComponent<WorkerAnt>();
+                if (worker != null)
                 {
-                    var col = index % cols;
-                    var row = index / cols;
-                    var offset = new Vector3((col - (cols - 1) / 2f) * formationSpacing, 0f, row * -formationSpacing);
-                    soldier.CommandMove(hit.point + offset);
+                    // 일개미는 전투 유닛이 아니므로 적을 클릭해도 공격 대신 그 위치로 이동만 한다.
+                    worker.CommandMove(hit.point + offset);
+                    issuedMove = true;
+                    index++;
                 }
-                index++;
+            }
+
+            if (issuedMove)
+            {
+                MoveMarker.Spawn(hit.point, moveMarkerColor);
             }
         }
     }
