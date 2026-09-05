@@ -5,7 +5,11 @@ namespace AntColony.Data
     public enum UnitRole
     {
         Worker,
-        Soldier
+        Melee,
+        Ranged,
+        Defense,
+        Flying,
+        Support
     }
 
     [CreateAssetMenu(fileName = "UnitData", menuName = "AntColony/Unit Data")]
@@ -17,6 +21,7 @@ namespace AntColony.Data
         [Header("Cost / Production")]
         public int foodCost = 10;
         public float buildTimeSeconds = 5f;
+        [Min(1)] public int requiredBarracksTier = 1;
 
         [Header("Stats")]
         public float maxHealth = 20f;

@@ -19,6 +19,8 @@ namespace AntColony.UI
         private Text resourceText;
         private Text messageText;
         private Text bossHealthText;
+        private Text barracksProductionButtonText;
+        private Text barracksUpgradeButtonText;
 
         private void Start()
         {
@@ -47,6 +49,15 @@ namespace AntColony.UI
             UpdateResourceText();
         }
 
+        private void Update()
+        {
+            if (barracks == null) return;
+            if (barracksProductionButtonText != null)
+                barracksProductionButtonText.text = barracks.GetProductionLabel();
+            if (barracksUpgradeButtonText != null)
+                barracksUpgradeButtonText.text = barracks.GetUpgradeLabel();
+        }
+
         private void BuildCanvas()
         {
             var canvasGO = new GameObject("HUDCanvas");
@@ -54,6 +65,7 @@ namespace AntColony.UI
             canvas.renderMode = RenderMode.ScreenSpaceOverlay;
             canvasGO.AddComponent<CanvasScaler>();
             canvasGO.AddComponent<GraphicRaycaster>();
+            canvasGO.AddComponent<SelectedUnitPanel>();
 
             if (FindFirstObjectByType<EventSystem>() == null)
             {
@@ -68,8 +80,11 @@ namespace AntColony.UI
             bossHealthText.alignment = TextAnchor.UpperRight;
 
             CreateButton(canvasGO.transform, new Vector2(10f, 10f), "Produce Worker", () => queenChamber?.TryProduceWorker());
-            CreateButton(canvasGO.transform, new Vector2(150f, 10f), "Produce Soldier", () => barracks?.TryProduceSoldier());
-            CreateButton(canvasGO.transform, new Vector2(290f, 10f), "Dig Expansion", () => digSite?.TryExpand());
+            var barracksLabel = barracks != null ? barracks.GetProductionLabel() : "Produce Combat Ant";
+            barracksProductionButtonText = CreateButton(canvasGO.transform, new Vector2(150f, 10f), barracksLabel, () => barracks?.TryProduceSoldier());
+            var upgradeLabel = barracks != null ? barracks.GetUpgradeLabel() : "Upgrade Barracks";
+            barracksUpgradeButtonText = CreateButton(canvasGO.transform, new Vector2(290f, 10f), upgradeLabel, () => barracks?.TryUpgrade());
+            CreateButton(canvasGO.transform, new Vector2(430f, 10f), "Dig Expansion", () => digSite?.TryExpand());
         }
 
         private Text CreateText(Transform parent, Vector2 anchor, Vector2 size, Vector2 anchoredPosition)
@@ -92,7 +107,7 @@ namespace AntColony.UI
             return text;
         }
 
-        private void CreateButton(Transform parent, Vector2 anchoredPosition, string label, UnityEngine.Events.UnityAction onClick)
+        private Text CreateButton(Transform parent, Vector2 anchoredPosition, string label, UnityEngine.Events.UnityAction onClick)
         {
             var go = new GameObject(label + "Button");
             go.transform.SetParent(parent, false);
@@ -124,6 +139,7 @@ namespace AntColony.UI
             text.color = Color.white;
             text.alignment = TextAnchor.MiddleCenter;
             text.text = label;
+            return text;
         }
 
         private void UpdateResourceText()

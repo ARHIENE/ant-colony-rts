@@ -62,6 +62,7 @@ namespace AntColony.Units
 
         private void Update()
         {
+            selectedObjects.RemoveAll(item => item == null || !item.isActiveAndEnabled || !item.IsSelected);
             var mouse = Mouse.current;
             if (mouse == null) return;
 

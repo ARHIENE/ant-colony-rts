@@ -54,9 +54,10 @@ public static class DataAssetBootstrapper
 
         var data = ScriptableObject.CreateInstance<UnitData>();
         data.displayName = "Soldier Ant";
-        data.role = UnitRole.Soldier;
+        data.role = UnitRole.Melee;
         data.foodCost = 20;
         data.buildTimeSeconds = 8f;
+        data.requiredBarracksTier = 1;
         data.maxHealth = 40f;
         data.moveSpeed = 3f;
         data.attackDamage = 5f;

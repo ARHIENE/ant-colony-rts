@@ -30,6 +30,11 @@ namespace AntColony.Units
             }
         }
 
+        private void OnDisable()
+        {
+            SetSelected(false);
+        }
+
         public void SetSelected(bool selected)
         {
             IsSelected = selected;

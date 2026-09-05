@@ -22,6 +22,7 @@ namespace AntColony.Units
         private GameObject sourcePrefab;
 
         public bool IsDead => currentHealth <= 0f;
+        public float CurrentHealth => currentHealth;
         public Vector3 Position => transform.position;
 
         protected virtual void Awake()
