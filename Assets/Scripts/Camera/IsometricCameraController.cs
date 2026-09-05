@@ -16,6 +16,12 @@ namespace AntColony.Camera
         [SerializeField] private float panSpeed = 25f;
         [SerializeField] private float edgeScrollThickness = 18f;
 
+        [Header("Pan Bounds (지형 크기에 맞춰 설정)")]
+        [SerializeField] private float minX = 0f;
+        [SerializeField] private float maxX = 400f;
+        [SerializeField] private float minZ = 0f;
+        [SerializeField] private float maxZ = 400f;
+
         [SerializeField] private float zoomSpeed = 15f;
         [SerializeField] private float minOrthoSize = 8f;
         [SerializeField] private float maxOrthoSize = 35f;
@@ -74,6 +80,8 @@ namespace AntColony.Camera
             var right = yawRotation * Vector3.right;
 
             focusPoint += (forward * move.y + right * move.x) * (panSpeed * Time.deltaTime);
+            focusPoint.x = Mathf.Clamp(focusPoint.x, minX, maxX);
+            focusPoint.z = Mathf.Clamp(focusPoint.z, minZ, maxZ);
         }
 
         private void HandleRotateInput()

@@ -1,4 +1,5 @@
 using AntColony.Core;
+using AntColony.World;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -44,6 +45,8 @@ namespace AntColony.Units
 
             // 적(IDamageable, 야생 몬스터/보스 등)을 직접 클릭하면 전원 그 타겟을 공격.
             var target = hit.collider.GetComponentInParent<IDamageable>();
+            // 자원노드를 클릭하면 일개미는 그 자리로 이동해 채집을 시작한다.
+            var resourceNode = hit.collider.GetComponentInParent<ResourceNode>();
 
             var cols = Mathf.CeilToInt(Mathf.Sqrt(selected.Count));
             var index = 0;
@@ -77,7 +80,14 @@ namespace AntColony.Units
                 if (worker != null)
                 {
                     // 일개미는 전투 유닛이 아니므로 적을 클릭해도 공격 대신 그 위치로 이동만 한다.
-                    worker.CommandMove(hit.point + offset);
+                    if (resourceNode != null && !resourceNode.IsDepleted)
+                    {
+                        worker.CommandGather(resourceNode);
+                    }
+                    else
+                    {
+                        worker.CommandMove(hit.point + offset);
+                    }
                     issuedMove = true;
                     index++;
                 }

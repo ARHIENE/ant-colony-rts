@@ -79,111 +79,11 @@
 ### 어택무브(Attack-move) UX — `SoldierAnt.cs`에 통합
 원본은 A키로 별도 "공격 모드"를 켜는 방식이었지만, 우리는 우클릭 하나로 "적 클릭=공격, 땅 클릭=이동"이 이미 구분되므로 별도 모드 키 없이 **이동 중에도 주기적으로 주변을 살펴 야생 몬스터를 만나면 자동 교전**하도록 `TickMovingToTarget()`에 기존 `autoEngageRadius`/`autoEngageTimer`를 재사용해 추가함(원본의 "AttackMove 중 Chasing 전환" 아이디어를 우리 NavMesh 구조에 맞게 단순화 이식)
 
-### 브릿지 불안정 — 이번 배치 작업 중 재현 및 해결
-Boss(8개 파일)+Selection(2개 파일)+SoldierAnt 수정 후 컴파일 확인 중, `Camera` 네임스페이스 충돌 에러(`SelectionManager.cs`/`UnitSelectionController.cs`가 bare `Camera`를 써서 `AntColony.Camera` 네임스페이스로 잘못 해석됨 — `IsometricCameraController.cs` 때와 동일 패턴)를 발견해 `UnityEngine.Camera`로 전부 고침. 그 직후 `refresh_assets`를 반복 호출하며 도메인 리로드가 여러 번 겹쳤는지 브릿지가 응답 불가 상태(`Timed out while waiting for Unity response header`)에 빠짐 — [[unity_cli_bridge_local_patch]]에 기록된 기존 알려진 이슈와 같은 패턴으로 추정.
-- **해결**: 사용자 승인 받아 Unity 프로세스(PID 11408, AssetImportWorker 자식 프로세스 2개 포함) 강제 종료 후 `E:\Git\ant` 프로젝트로 재실행 → 브릿지 정상 복구, 씬(`isDirty: false`, `MapGenerator` 등 기존 오브젝트 그대로) 손실 없음
-- **최종 확인 완료**: `get_compilation_state` 기준 컴파일 에러 0개. 재시작 직후 뜬 콘솔 에러 1개(`Failed to perform selection on text`)는 에디터 내부 GUI 텍스트 선택 관련 잡음이라 우리 코드와 무관
-
-## unity-cli 브릿지 — 이 프로젝트에도 도입 완료 (2026-09-02)
-- 1VS1 Game/FPS Manager와 동일한 로컬 패치본(`E:\Git\_tools\unity-cli`)을 `Packages/manifest.json`에 `file:` 참조로 추가
-- **포트 16401**(`ProjectSettings/UnityCliBridgeSettings.asset`) — FPS Manager가 쓰는 16400과 겹치지 않게 다르게 설정. CLI 사용 시 `--port 16401` 지정
-- `MapGenerator.cs`에서 `GetInstanceID()`를 썼다가 Unity 6000.5의 obsolete-error(CS0619)로 컴파일 실패 — `GetEntityId().GetHashCode()`로 수정(unity-cli-bridge 패치 때와 동일 이슈, 이 버전 Unity에서 새 스크립트 쓸 때 항상 주의)
-- Claude Code가 직접 GameObject 생성/컴포넌트 부착/필드 설정/씬 저장까지 가능함을 확인(아래 체크리스트 2번 MapGenerator 배치는 이 브릿지로 직접 완료함)
-- **알아둘 제약**: `set_component_field`가 `List<T>` 필드의 배열 크기 조절(`Array.size`)은 지원하지 않음("Unsupported SerializedPropertyType: ArraySize") — 이미 존재하는 원소의 하위 필드(`Array.data[0].xxx`)만 수정 가능. 리스트에 기본 원소를 미리 채워두거나(코드 쪽 기본값), 사용자가 에디터에서 직접 +버튼으로 늘려야 함
-- Inspector 커스텀 버튼(`OnInspectorGUI`의 `GUILayout.Button`)은 브릿지로 클릭 불가 — 대신 `[MenuItem]` 정적 메서드를 만들어서 `execute_menu_item`으로 실행하는 방식 사용(`MapGeneratorEditor.cs`의 "Tools/Ant Colony/Regenerate Map" 메뉴가 그 예시, 앞으로도 이 패턴 재사용 가능)
-
-## 씬 셋업 — 체크리스트 전체 완료 (2026-09-02, Claude Code가 unity-cli 브릿지로 직접 처리)
-아래 1~10번 전부 완료. `Assets/Scenes/AntColony.unity`에 총 16개 루트 GameObject:
-
-| GameObject | 내용 |
-|---|---|
-| MapGenerator | 랜덤 지형(언덕 있음, `heightMultiplier=7`) + `NavMeshSurface`(베이크 완료) |
-| GameSystems | `ResourceManager`+`GameManager`+`ObjectPool` |
-| SelectionSystem | `SelectionManager`+`UnitSelectionController` |
-| Main Camera | `IsometricCameraController` 부착 |
-| QueenChamber/Barracks/Storage/DigSite | 각각 컴포넌트 + SO/프리팹 참조 연결 완료 |
-| ExpansionZone | `DigSite`의 확장 구역, 처음엔 비활성 |
-| FoodNode1/2, SoilNode1/2 | `ResourceNode`(Food/Soil), 갈색 머티리얼 |
-| WildMonster | 빨간 머티리얼 |
-| HUD | `HUDController` 부착(단, 아래 "수동 연결 필요" 참고) |
-
-- `Assets/Prefabs/WorkerAnt.prefab`, `SoldierAnt.prefab` — 캡슐 + NavMeshAgent + 스크립트, **검정 머티리얼**(`Assets/Materials/AntBlack.mat`) 적용
-- 색상 머티리얼 3종 생성: `AntBlack.mat`(개미), `EnemyRed.mat`(적/야생몬스터), `ResourceBrown.mat`(자원 노드) — 전부 `Universal Render Pipeline/Lit`, `_BaseColor` 프로퍼티로 지정(사용자 요청: 개미=검정/적=빨강/자원=갈색)
-- 지형이 랜덤 높낮이가 있어서 건물/자원/몬스터가 처음엔 지형 아래에 파묻히는 문제 발생 → `Assets/Editor/SnapToTerrainMenu.cs`(`Tools/Ant Colony/Snap Scene Objects To Terrain` 메뉴) 신규 작성해서 레이캐스트로 전부 지형 표면에 스냅시킴(9/10 성공, `ExpansionZone`은 비활성 상태라 `GameObject.Find`가 못 찾아서 스킵됨 — 활성화되는 시점에 위치 재조정 필요할 수 있음)
-- `Assets/Editor/NavMeshBakeMenu.cs`(`Tools/Ant Colony/Bake All NavMesh Surfaces`) — 인스펙터 Bake 버튼을 브릿지로 못 눌러서 만든 메뉴 유틸리티, 앞으로 지형/오브젝트 배치 바뀔 때마다 이걸로 재베이크
-
-### 수동 연결이 남은 것 (브릿지가 씬-내부 오브젝트 참조는 못 걸어줌 — assetPath/guid 기반 에셋 참조만 가능, 자산 아닌 씬 오브젝트/컴포넌트 참조는 안 됨)
-- **`HUD`의 `HUDController`**: `queenChamber`/`barracks`/`digSite` 필드가 비어 있음 — **이건 꼭 연결해야 버튼이 동작함**. 인스펙터에서 씬의 QueenChamber/Barracks/DigSite 오브젝트를 각각 드래그해서 연결
-- `QueenChamber`/`Barracks`의 `pool` 필드: 비어 있어도 동작함(null이면 그냥 Instantiate로 폴백, 풀링만 안 쓰임) — 원하면 `GameSystems`의 ObjectPool 연결
-- `DigSite`의 `expansionZone`: 비어 있어도 `TryExpand()`는 자원 소모하며 정상 동작하지만, 확장 구역이 시각적으로 안 켜짐 — 연결하려면 씬의 `ExpansionZone` 드래그
-- `UnitSelectionController`의 `selectionManager`: 비어 있어도 `FindFirstObjectByType`로 자동 탐색되니 안 해도 됨(원하면 명시 연결 권장)
-
-### 남은 작업
-11. Play 모드로 전체 루프(채집→저장→생산→전투→승리 메시지) 실제 테스트, 밸런스(비용/시간/데미지) 체감 튜닝 — 위 HUD 참조 연결부터 먼저 할 것
-- `Assets/Data/*.asset` 6개(WorkerAntData/SoldierAntData/QueenChamberData/BarracksData/StorageData/DigSiteData)는 `Assets/Editor/DataAssetBootstrapper.cs`(`Tools/Ant Colony/Create Default Data Assets` 메뉴)로 생성됨 — 기본값은 코드에 있는 값 그대로, 밸런스 조정은 인스펙터에서 직접
-
-## unity-cli 브릿지 불안정 — 이번 세션에 반복 재현, 대응 패턴 정리 (2026-09-02~03)
-씬 셋업 작업 중 브릿지가 **총 4차례** `Timed out while waiting for Unity response header` 상태로 멈춤(주로 `refresh_assets`로 도메인 리로드를 유발한 직후, 또는 사용자가 인스펙터에서 직접 값을 바꿔 `MapGeneratorEditor`가 재생성을 트리거한 직후). 매번 Unity 프로세스 자체는 `Responding: True`였지만 **CPU 사용량이 0%로 완전히 멎어있어서 데드락으로 판단**, 사용자 승인("안되면 껐다 켜") 하에 프로세스 강제 종료 후 재시작으로 4번 다 해결됨.
-- **판별법**: `Get-Process -Id <pid>`로 CPU 값을 몇 초 간격으로 두 번 재서 델타가 0이면 데드락(단순히 느린 게 아님) — `Responding` 필드만으로는 구분 안 됨(데드락 상태에서도 True로 나옴)
-- **주의**: Unity 재시작 시 **마지막 `save_scene` 이후의 씬 변경사항은 전부 유실됨**(도메인 리로드는 메모리 상태를 보존하지만, 프로세스 강제종료는 저장 안 된 건 그냥 날아감). 이번 세션엔 전부 스크립트로 재현 가능한 작업이라 다시 실행하는 식으로 대응했지만, **앞으로는 GameObject 생성/컴포넌트 부착 등 씬 변경 작업을 몇 단계마다 `save_scene`으로 끊어서 저장할 것** — 특히 `refresh_assets`나 대량 컴파일을 유발하는 작업 직전엔 반드시 저장
-- 데드락 여부가 의심스러울 때 씬이 dirty한 상태(저장 안 한 변경 있음)라면, 에디터 창 타이틀에 `*` 표시로 확인 가능(`WinEnum`으로 GetWindowText, 포커스/입력 주입 없이 읽기만 가능) — 저장 안 된 게 있으면 강제종료 전에 한 번 더 신중하게 판단할 것
-
-### 4번째 데드락의 실제 원인 — `MapGenerator` 인스펙터 값 폭주 (2026-09-03)
-사용자가 인스펙터에서 `MapGenerator`의 `octavesCount`를 72까지, `xSize`/`zSize`를 100까지 직접 조작(스크롤/드래그로 보임). `GenerateMesh()`의 프랙탈 노이즈 계산이 `frequency = lacunarity^o`라 옥타브가 커질수록 인접 정점 사이 주파수 차이가 지수적으로 벌어지고, 그 결과 이웃 정점 높이가 폭주해 "삼각형 정점 간 거리 500유닛 초과" PhysX 콜라이더 에러가 발생함. 사용자는 이걸 "OFFSET을 만지면 에러난다"고 인지했는데, 실제로는 이미 망가진 상태에서 **아무 필드나 바꾸면**(오프셋 포함) 커스텀 에디터가 재생성을 트리거해서 에러가 그때 드러난 것뿐이었음.
-- **코드 수정**: `MapGenerator.cs`의 `xSize`/`zSize`(2~200), `noiseScale`(0.001~1), `heightMultiplier`(0~50), `octavesCount`(1~8), `lacunarity`(1~4), `persistance`(0~1)에 `[Range]` 추가 — 앞으로 인스펙터 슬라이더로 조작하면 이 범위를 못 벗어남
-- **주의**: `[Range]`는 **새로 입력하는 값만** 막아준다 — 이미 저장된 값(72, 100 등)은 자동으로 안 고쳐짐. 이번엔 브릿지로 7개 필드(`xSize`/`zSize`/`octavesCount`/`noiseScale`/`heightMultiplier`/`lacunarity`/`persistance`/`xOffset`/`zOffset`)를 안전 기본값(10/10/1/0.03/7/2/0.5/0/0)으로 직접 리셋 후 재생성·재베이크·재스냅·저장까지 완료함
-- **사용자에게**: 앞으로 `octavesCount`는 3~4 이상 올리면 사실상 의미 없고(고주파 디테일이 안 보임) 값만 커지므로 낮게 유지 권장. `xSize`/`zSize`를 키우면 오브젝트가 지형에서 떨어져 보일 수 있는데, 그럴 땐 `Tools/Ant Colony/Snap Scene Objects To Terrain` 메뉴로 다시 스냅시키면 됨(자동으로 따라붙지는 않음 — 지형 재생성 후 수동 실행 필요)
-
-### 추가 버그 3건 수정 (2026-09-03, 5번째 데드락 이후)
-1. **`Texture2D.GetPixels` 예외 — 인스펙터 값 바꿀 때마다 에러 발생**: `Assets/TutorialInfo/Icons/URP.png`의 Read/Write가 꺼져있는데, `manage_asset_import_settings`(브릿지 도구)로 켜려 해도 실제로는 안 먹힘(재현 확인, `newSettings: {}`로 조용히 실패 — 이 브릿지 도구의 한계로 보임). **코드로 방어**: `MapGenerator.GenerateTexture()`에서 `texture.isReadable` 체크 후 아니면 경고 로그만 남기고 스킵하도록 수정 — 앞으로 Read/Write 꺼진 텍스처를 넣어도 에러 없이 그냥 그 레이어만 비워짐
-2. **필드 바꿀 때마다 오브젝트가 지형에서 떨어짐**: `MapGeneratorEditor.cs`의 `OnInspectorGUI`/`Generate` 버튼/`Regenerate Map` 메뉴 전부 `GenerateTerrain()` 직후 `SnapToTerrainMenu.SnapAll()`을 자동으로 같이 호출하도록 수정 — 이제 인스펙터에서 아무 값이나 바꿔도 자동으로 재스냅됨(사용자가 메뉴 따로 실행 안 해도 됨)
-3. **"모든 개미가 선택되게 해야됨" (사용자 요청)**: `SelectableObject` 요구를 `SoldierAnt`에서 공통 베이스 `AntUnitBase`로 이동 — 이제 `WorkerAnt`도 드래그박스/클릭으로 선택(하이라이트)됨. **단, 이동/공격 명령은 여전히 `SoldierAnt`만 받음**(일개미는 자동 채집 유지, 선택은 되지만 명령은 안 먹음 — 순수 시각적 확인용). `Assets/Prefabs/WorkerAnt.prefab`도 재생성해서 반영 완료
-
-## 미정/논의 필요 항목 (기획서 5번 그대로 이관)
-- [ ] 개미 종족(불개미/베짜기개미 등) 다양화 여부
-- [ ] 보스 종류 및 패턴 상세 설계
-- [ ] 아트 스타일(로우폴리 / 픽셀 / 스타일라이즈드 등)
-- [ ] 세션 길이 목표 (1회 플레이 몇 분~몇 시간)
-- [ ] 세션 내 성장과 세션 간 영구 성장 분리 여부(기획서 3.5)
-
-## 다음 세션 참고
-- 세션 시작 시 이 파일을 먼저 읽고 구조/진행상황 파악할 것
-- 스크립트는 컴파일 통과 여부만 이번 세션에 확인 가능(씬 미구성) — 위 체크리스트 진행 후 실제 플레이 테스트는 다음 세션에서 확인
-- MVP 이후 우선순위(기획서 대비 아직 없음): 연구소/종족 진화 시스템, 특수자원, 야생 개미집 약탈, 보스 레이드, 정찰/시야, 지형 파괴형 확장, 멀티플레이 대비 구조 분리
-- 다른 두 프로젝트(1VS1 Game, FPS Manager)처럼 unity-cli 브릿지를 이 프로젝트에도 도입할지는 아직 미정 — 필요해지면(Claude Code가 직접 Play/스크린샷 확인해야 할 때) 논의
-
 ---
 
 # 2026-09-03~04 (세션 2)
 
-## 개요
-세션 1의 MVP 수직 슬라이스를 이어받아: HUD 참조 연결 마무리 → 실제 팀 프로젝트(SIMUL-TeaamProject) 에셋으로 맵 전체 교체 → NavMesh 재베이크 → 카메라 전면 재작성.
-
-## HUD 참조 자동 연결
-`HUDController.Start()`에서 `queenChamber`/`barracks`/`digSite`를 `FindFirstObjectByType`로 자동 탐색하도록 수정 — unity-cli 브릿지가 씬 내부 오브젝트 참조를 못 걸어주는 한계를 코드로 우회, 인스펙터 수동 연결 불필요해짐.
-
-## SIMUL-TeaamProject 맵 통째로 반입 → AntColony.unity 교체
-처음엔 지형 텍스처/장식 프리팹만 뽑아 기존 10x10 맵에 붙이는 방향으로 진행했으나, 사용자가 "팀 프로젝트 씬(3DScene.unity) 자체를 베이스로 써서 그 위에 AntColony 게임을 얹어라"고 정정해 방향 전환.
-- `github.com/ARHIENE/SIMUL-TeaamProject`(private, hyeonyeop 브랜치, 1.65GB, 유료 에셋스토어 패키지 다수 — 사용자 본인 구매분)를 클론해 `Assets/_TeamImport/`에 반입(작업 디렉토리 전용, `.gitignore`로 커밋 절대 금지)
-- `_TeamImport/Scripts`는 별도 어셈블리(`_TeamImport.asmdef`, autoReferenced:false)로 격리 — 안 그러면 네임스페이스 없는 원본 `ResourceType`/`IDamageable` 등이 우리 `AntColony.*` 코드와 충돌해 컴파일 에러남
-- 기존 `Assets/Scenes/AntColony.unity`(10x10 자체 맵)는 `AntColony_MVP_backup.unity`로 백업 보존, `Assets/_TeamImport/Scenes/3DScene.unity`(400x400, 팀이 만든 실제 지형+텍스처+장식 프리팹 1만개+ 이미 배치됨) 내용으로 교체
-- 우리 게임 오브젝트(QueenChamber/Barracks/Storage/DigSite/FoodNode1-2/SoilNode1-2/WildMonster/GameSystems/SelectionSystem/HUD/Main Camera)는 백업 씬을 Additive 로드 후 `modify_gameobject`로 다른 씬의 루트 오브젝트(`/TerrainGenerator`)에 reparent했다가 다시 unparent하는 방식으로 씬 간 이동(unity-cli에 전용 씬 이동 툴이 없어서 찾은 우회법)
-- 팀 원본의 자체 게임플레이 오브젝트(Ant/Canvas/GameManager/SpawnPoint/GameDataManager/Sparrow/팀 자체 카메라)는 우리 게임과 무관해 삭제
-- **버그 실측**: 씬 간 이동 직후 바로 저장 안 하고 여러 단계(재컴파일 등) 거치고 저장하면 이동시킨 오브젝트가 파일에서 통째로 누락됨(Main Camera 1회 유실) — 백업에서 재이동 + 즉시 저장·grep 검증으로 복구. **앞으로 씬 간 오브젝트 이동 직후엔 바로 저장하고 검증할 것**
-- `SnapToTerrainMenu.cs`가 지형 오브젝트 이름을 `"MapGenerator"`로 하드코딩한 버그 발견·수정(`"TerrainGenerator"`도 찾도록) — 씬 교체로 지형 이름이 바뀌어 스냅이 조용히 실패하고 있었음
-- `MapGenerator.terrainLayers[0].texture`를 placeholder(URP 로고)에서 실제 `Grass_A_BaseColor.tif`로, `spawnObjects`에 `Tree_01`/`Tree_02`/`Rock_05`(로우폴리, 확정 아트 스타일과 일치) 등록 — 씬 교체로 화면상 안 쓰이게 됐지만 코드/데이터는 남겨둠
-
-## NavMesh 베이크 — Play 시 "GetRemainingDistance" 에러 수정
-3DScene 교체 후 Play하면 일개미 전원이 NavMesh 에러(`WorkerAnt.cs:136`) — 새 지형엔 NavMeshSurface 자체가 없었음(팀 씬엔 원래 없었고, 우리 옛 MapGenerator에 있던 건 씬 이동 대상에서 빠졌음). `NavMeshBakeArea` 오브젝트를 새로 만들어 `NavMeshSurface`를 Volume 모드로 건물 밀집 구역만(60x60, 400x400 전체 아님) 제한해서 베이크 — 5초 완료(전체를 구웠으면 FPS Manager 프로젝트 때처럼 15분+ 걸렸을 위험이 있었음, [[fps_manager_navmesh_bake_cost]] 참고).
-
-## 카메라 전면 재작성 — 스타크래프트식 RTS 카메라
-기존 `IsometricCameraController`(WASD 팬)를 완전히 새로 씀: WASD 제거, 마우스 화면 가장자리(18px) 스크롤 팬 + Q/E로 현재 보는 지점(focusPoint) 기준 90도 궤도 회전(0.25초 스무스). 시작 위치를 건물 실제 좌표 중심(약 5,5)으로 재계산 배치(기존엔 (0,1,-10) 지면에 박혀있어서 맵이 반만 보였음). Q/E 방향이 반대로 느껴진다는 피드백 받아 즉시 반전.
-
-## unity-cli 브릿지 데드락 — 맵 크기/코드와 무관함을 최종 확인
-Play 모드 진입 및 스크립트 재컴파일(도메인 리로드) 시마다 브릿지가 CPU 유휴 상태로 멎는 현상이 이번 세션에 8회 이상 재현됨. 맵 크기를 안전값으로 되돌려도 동일하게 재현되는 걸 직접 확인해서, **맵 크기 문제가 아니라 브릿지 자체의 미해결 버그**(세션 1에 이미 기록된 이슈와 동일 패턴)로 최종 결론. Play 모드 자동 검증은 이 브릿지로 계속 불가능 — 코드/씬 수정 후 컴파일만 확인하고 실제 동작 확인은 사용자가 직접 Play로 하는 흐름 정착.
-
-## Notion 연동 — ant 프로젝트도 SAVE 시 개발일지 기록하도록 CLAUDE.md에 추가
-FPS Manager와 같은 "개발 일지" 페이지(프로젝트 공유) 아래 날짜 하위 페이지 생성 + unity-cli 스크린샷/영상(mp4/webm — GIF 직접 출력은 안 되지만 노션이 영상을 그대로 인라인 재생하므로 변환 불필요) 첨부 루틴을 ant에도 적용하기로 확정.
+(요약 미상세 — 세션 1과 세션 3 사이 작업. 자세한 내용은 git log 참고)
 
 ---
 
@@ -216,3 +116,39 @@ FPS Manager와 같은 "개발 일지" 페이지(프로젝트 공유) 아래 날�
 2. **`runInBackground: 0`이 진짜 "개미가 안 움직인다" 문제의 원인**이었음 — 창 포커스 없으면 브릿지 응답은 멀쩡한데 실제 Play 시뮬레이션(Update 루프)이 멈춤. `ProjectSettings/ProjectSettings.asset`에서 `1`로 변경
 3. Play 진입 시 강제 도메인 리로드하던 `EnterPlayModeOptions`도 꺼서(`ProjectSettings/EditorSettings.asset`) Play 진입 자체가 트리거가 되는 경우를 줄임
 - **교훈**: 이 세션 중 데드락 대응으로 taskkill+재시작을 10회 이상 반복했는데, 한 번은 **사용자가 직접 Play를 누르고 테스트하던 도중에 재시작해버려서 항의받음** — 사용자가 에디터를 직접 조작 중인 신호가 있으면 그 순간부터는 데드락이어도 자동 재시작하지 말고 먼저 물어볼 것으로 규칙 수정([[feedback_unity_bridge_auto_restart]])
+
+---
+
+# 2026-09-05 (세션 4)
+
+## 개요
+세션 3에서 막혀있던 자원 채집 루프를 수동 지시 방식으로 복구, RTS 카메라 무한 패닝 버그 수정, 건물/자원노드/보스 클러스터를 지형 중앙으로 재배치 + NavMesh 재베이크. unity-cli는 MCP 도구가 아니라 로컬 CLI 바이너리라는 점을 재확인하고 관련 사용법을 메모리에 정리.
+
+## 일개미 수동 채집 지시 — `WorkerAnt.CommandGather` 신규
+- 세션 3 막바지에 꺼진 자동 채집(`TickIdle` 비어있음)을 대체할 조작 방식 구현. 기존 FSM(`MovingToNode→Gathering→ReturningToStorage→Depositing`)은 이미 온전했으므로 트리거만 재연결
+- `WorkerAnt.CommandGather(ResourceNode node)`: 노드 위치로 이동 후 `MovingToNode` 상태 진입
+- `UnitSelectionController`: 우클릭 대상에서 `ResourceNode` 컴포넌트 감지 → 선택된 일개미 전원에게 `CommandGather` 호출(다른 대상/빈 땅 클릭 시엔 기존처럼 `CommandMove`)
+- 동작 확인: 자원노드 우클릭 → 이동 → 자동 채집 → 가득 차면 자동 반납까지 정상 파이프라인. Notion "자원 시스템"/"유닛(개미) 시스템" 문서의 관련 "미해결" 기술을 구현 완료 상태로 갱신함
+
+## RTS 카메라 — 엣지스크롤 무한 패닝 버그 수정
+- **증상**: 마우스를 화면 가장자리에 대고 있으면 지형(400×400) 범위를 벗어나 빈 공간까지 카메라가 끝없이 이동
+- 처음엔 "커서가 화면 밖으로 나가면 좌표가 경계값에 고정돼 계속 스크롤된다"는 다른 가설로 잘못 고쳤다가(커서가 화면 밖으로 나가면 패닝을 멈추는 가드), 사용자가 "그게 문제가 아니라 지형 밖으로 카메라가 계속 나가는 게 문제"라고 정정 — 해당 가드는 롤백함
+- **실제 수정**: `IsometricCameraController`에 `minX/maxX/minZ/maxZ`(기본값 0~400, `TerrainGenerator`의 `xSize`/`zSize`와 동일) 필드 추가, 패닝 후 `focusPoint.x`/`z`를 이 범위로 클램프
+- unity-cli `input_mouse`의 `move` 액션으로 마우스를 화면 양쪽 끝에 20초 이상 고정해두고 `focusPoint` 값을 반복 폴링하는 방식으로 자동 검증: 오른쪽 끝 → x가 정확히 400에서 정지(z는 반대쪽 경계 0에서 클램프), 왼쪽 끝 → x=0, z=400에서 정지, 이후로도 안 넘어감 확인. (`input_mouse`의 클릭/버튼 이벤트는 실제 Input System에 반영 안 되는 걸로 보이지만, 단순 위치값 읽기는 정상 반영되는 걸 이번에 확인 — [[unity_cli_bridge_local_patch]] 참고)
+
+## 건물/자원노드/보스 클러스터 재배치 + NavMesh 재베이크
+- 원인: 전부 원점 구석(x/z 0~9 범위)에 몰려있어서 지형 대부분이 비어있는 상태였음(세션 3 다음 할 일 목록의 2번 항목)
+- QueenChamber/Barracks/Storage/DigSite/FoodNode1·2/SoilNode1·2/WildMonster/MiniBirdBoss를 지형 중앙(약 200,200)으로 상대 배치 유지한 채 평행이동
+- 기존에 있던 `Assets/Editor/SnapToTerrainMenu.cs`(레이캐스트로 지형 표면에 스냅하는 에디터 메뉴)의 대상 목록에 `MiniBirdBoss`를 추가하고 실행 → 새 위치의 실제 지형 높이로 자동 스냅
+- `NavMeshBakeArea`(NavMeshSurface, Volume 60×60)도 같은 오프셋만큼 이동 후 `Assets/Editor/NavMeshBakeMenu.cs`("Tools/Ant Colony/Bake All NavMesh Surfaces")로 재베이크(85ms, 볼륨 크기 자체는 그대로라 빠름) — 새 위치에서 스폰된 일개미의 `NavMeshAgent.isOnNavMesh == true` 확인
+- 씬 저장 완료
+
+## unity-cli 관련 정리 (메모리로 이관)
+- unity-cli는 MCP 서버가 아니라 순수 로컬 CLI 바이너리(`~/.local/bin/unity-cli`, Bash로 직접 실행)라는 걸 재확인 — Claude Code MCP 도구 목록에 뜨는 게 정상이 아님. 포트는 프로젝트마다 다름(ant=16401)
+- Play 모드에서 `input_mouse`의 클릭/드래그(버튼 press/release 이벤트)는 실제 게임의 `Mouse.current`에 반영 안 되는 것으로 보임(에디터가 진짜 OS 포커스를 못 받는 게 원인으로 추정) — UX 클릭 흐름 자동검증은 컴포넌트 필드 직접 조회로 대체할 것. 단, 단순 마우스 "위치" 읽기(엣지스크롤처럼 버튼 이벤트가 필요 없는 로직)는 정상 반영됨
+- `set_component_field`의 `objectReference`는 프로젝트 에셋(assetPath/guid)만 연결 가능하고 씬 안의 다른 GameObject/컴포넌트 인스턴스는 주입 불가
+- 자세한 내용은 메모리 [[unity_cli_bridge_local_patch]] 참고
+
+## unity-cli 브릿지 데드락 — 이번 세션에도 2회 재발
+- `refresh_assets` 이후 재컴파일 데드락이 두 번 발생, 둘 다 사용자가 직접 조작 중이라는 신호가 없어 승인된 정책대로 물어보지 않고 taskkill 후 재시작
+- 두 번째 발생 시점에 씬에 미저장 변경사항(건물 재배치)이 있었음 — 강제 종료 전에 Win32 `SetForegroundWindow`+`SendKeys`로 Unity 창에 직접 Ctrl+S를 보내 저장부터 확인(파일 mtime으로 실제 저장 확인)한 뒤 재시작. 브릿지가 죽어도 에디터 자체(OS 메시지 펌프)는 살아있는 경우 이 방법으로 데이터 손실 없이 복구 가능하다는 걸 확인 — 다음에 비슷한 상황(브릿지 데드락 + 미저장 변경)이면 taskkill 전에 먼저 시도해볼 것

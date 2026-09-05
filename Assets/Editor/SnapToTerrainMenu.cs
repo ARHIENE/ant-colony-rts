@@ -8,7 +8,7 @@ public static class SnapToTerrainMenu
     private static readonly string[] TargetNames =
     {
         "QueenChamber", "Barracks", "Storage", "DigSite", "ExpansionZone",
-        "FoodNode1", "FoodNode2", "SoilNode1", "SoilNode2", "WildMonster"
+        "FoodNode1", "FoodNode2", "SoilNode1", "SoilNode2", "WildMonster", "MiniBirdBoss"
     };
 
     [MenuItem("Tools/Ant Colony/Snap Scene Objects To Terrain")]

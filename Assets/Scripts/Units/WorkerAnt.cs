@@ -23,13 +23,22 @@ namespace AntColony.Units
         private float carriedAmount;
         private AntColony.Data.ResourceType carriedType;
 
-        // 플레이어가 우클릭으로 직접 이동을 지시하면 채집 루프를 중단하고 그 위치로 이동한다.
-        // 도착하면 다시 자동 채집 루프(Idle)로 복귀한다.
+        // 플레이어가 우클릭으로 직접 이동을 지시하면(빈 땅) 그 위치로 이동만 하고 멈춘다.
         public void CommandMove(Vector3 destination)
         {
             targetNode = null;
             Agent.SetDestination(destination);
             state = State.MovingByCommand;
+        }
+
+        // 플레이어가 자원노드를 우클릭하면 그 자리로 이동해 채집을 시작한다(수동 채집 지시).
+        public void CommandGather(ResourceNode node)
+        {
+            if (node == null || node.IsDepleted) return;
+
+            targetNode = node;
+            Agent.SetDestination(node.transform.position);
+            state = State.MovingToNode;
         }
 
         private void Update()
