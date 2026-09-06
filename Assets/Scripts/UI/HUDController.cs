@@ -25,6 +25,18 @@ namespace AntColony.UI
         private Text barracksUpgradeButtonText;
         private Text attackResearchButtonText;
         private Text armorResearchButtonText;
+        private Text roleButtonText;
+        private Text buildBarracksButtonText;
+        private Text buildLabButtonText;
+        private UnitRole selectedRole = UnitRole.Melee;
+        private static readonly UnitRole[] CombatRoles =
+        {
+            UnitRole.Melee,
+            UnitRole.Ranged,
+            UnitRole.Defense,
+            UnitRole.Flying,
+            UnitRole.Support
+        };
 
         private void Start()
         {
@@ -57,16 +69,21 @@ namespace AntColony.UI
 
         private void Update()
         {
-            if (barracks == null) barracks = FindFirstObjectByType<Barracks>();
-            if (researchLab == null) researchLab = FindFirstObjectByType<ResearchLab>();
-            if (barracksProductionButtonText != null && barracks != null)
-                barracksProductionButtonText.text = barracks.GetProductionLabel();
-            if (barracksUpgradeButtonText != null && barracks != null)
-                barracksUpgradeButtonText.text = barracks.GetUpgradeLabel();
-            if (attackResearchButtonText != null && researchLab != null)
-                attackResearchButtonText.text = researchLab.GetAttackResearchLabel();
-            if (armorResearchButtonText != null && researchLab != null)
-                armorResearchButtonText.text = researchLab.GetArmorResearchLabel();
+            barracks = FindBarracks(selectedRole);
+            researchLab = FindResearchLab(selectedRole);
+            if (barracksProductionButtonText != null)
+                barracksProductionButtonText.text = barracks != null ? barracks.GetProductionLabel() : $"No {selectedRole} Barracks";
+            if (barracksUpgradeButtonText != null)
+                barracksUpgradeButtonText.text = barracks != null ? barracks.GetUpgradeLabel() : $"No {selectedRole} Barracks";
+            if (attackResearchButtonText != null)
+                attackResearchButtonText.text = researchLab != null ? researchLab.GetAttackResearchLabel() : $"No {selectedRole} Lab";
+            if (armorResearchButtonText != null)
+                armorResearchButtonText.text = researchLab != null ? researchLab.GetArmorResearchLabel() : $"No {selectedRole} Lab";
+            if (roleButtonText != null) roleButtonText.text = $"Role: {selectedRole}";
+            if (buildBarracksButtonText != null && buildingPlacementController != null)
+                buildBarracksButtonText.text = buildingPlacementController.GetBarracksBuildLabel(selectedRole);
+            if (buildLabButtonText != null && buildingPlacementController != null)
+                buildLabButtonText.text = buildingPlacementController.GetResearchLabBuildLabel(selectedRole);
         }
 
         private void BuildCanvas()
@@ -90,6 +107,7 @@ namespace AntColony.UI
             bossHealthText = CreateText(canvasGO.transform, new Vector2(1f, 1f), new Vector2(220f, 20f), new Vector2(-10f, -10f));
             bossHealthText.alignment = TextAnchor.UpperRight;
 
+            roleButtonText = CreateButton(canvasGO.transform, new Vector2(10f, 55f), $"Role: {selectedRole}", CycleCombatRole);
             CreateButton(canvasGO.transform, new Vector2(10f, 10f), "Produce Worker", () => queenChamber?.TryProduceWorker());
             var barracksLabel = barracks != null ? barracks.GetProductionLabel() : "Produce Combat Ant";
             barracksProductionButtonText = CreateButton(canvasGO.transform, new Vector2(150f, 10f), barracksLabel, () => barracks?.TryProduceSoldier());
@@ -101,9 +119,31 @@ namespace AntColony.UI
             var armorResearchLabel = researchLab != null ? researchLab.GetArmorResearchLabel() : "No Research Lab";
             armorResearchButtonText = CreateButton(canvasGO.transform, new Vector2(710f, 10f), armorResearchLabel, () => researchLab?.TryResearchArmor());
             var buildBarracksLabel = buildingPlacementController != null ? buildingPlacementController.GetBarracksBuildLabel() : "Build Barracks";
-            CreateButton(canvasGO.transform, new Vector2(850f, 10f), buildBarracksLabel, () => buildingPlacementController?.BeginBarracksPlacement());
+            buildBarracksButtonText = CreateButton(canvasGO.transform, new Vector2(850f, 10f), buildBarracksLabel, () => buildingPlacementController?.BeginBarracksPlacement(selectedRole));
             var buildLabLabel = buildingPlacementController != null ? buildingPlacementController.GetResearchLabBuildLabel() : "Build Lab";
-            CreateButton(canvasGO.transform, new Vector2(990f, 10f), buildLabLabel, () => buildingPlacementController?.BeginResearchLabPlacement());
+            buildLabButtonText = CreateButton(canvasGO.transform, new Vector2(990f, 10f), buildLabLabel, () => buildingPlacementController?.BeginResearchLabPlacement(selectedRole));
+        }
+
+        private void CycleCombatRole()
+        {
+            var index = System.Array.IndexOf(CombatRoles, selectedRole);
+            selectedRole = CombatRoles[(index + 1) % CombatRoles.Length];
+            barracks = null;
+            researchLab = null;
+        }
+
+        private static Barracks FindBarracks(UnitRole role)
+        {
+            foreach (var candidate in FindObjectsByType<Barracks>(FindObjectsSortMode.None))
+                if (candidate.Role == role) return candidate;
+            return null;
+        }
+
+        private static ResearchLab FindResearchLab(UnitRole role)
+        {
+            foreach (var candidate in FindObjectsByType<ResearchLab>(FindObjectsSortMode.None))
+                if (candidate.Role == role) return candidate;
+            return null;
         }
 
         private Text CreateText(Transform parent, Vector2 anchor, Vector2 size, Vector2 anchoredPosition)

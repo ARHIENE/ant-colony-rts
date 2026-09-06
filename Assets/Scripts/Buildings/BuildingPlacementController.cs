@@ -16,9 +16,8 @@ namespace AntColony.Buildings
 
         private UnityEngine.Camera cam;
         private SelectionManager selectionManager;
-        private GameObject barracksTemplate;
-        private GameObject researchLabTemplate;
         private BuildingKind pendingKind;
+        private UnitRole pendingRole = UnitRole.Melee;
         private WorkerAnt builder;
         private GameObject preview;
         private bool placementValid;
@@ -29,8 +28,6 @@ namespace AntColony.Buildings
         {
             cam = UnityEngine.Camera.main;
             selectionManager = FindFirstObjectByType<SelectionManager>();
-            barracksTemplate = FindTemplate<Barracks>("BarracksTemplate");
-            researchLabTemplate = FindTemplate<ResearchLab>("MeleeResearchLabTemplate");
         }
 
         private void Update()
@@ -59,7 +56,7 @@ namespace AntColony.Buildings
                 return;
             }
 
-            var template = GetTemplate(pendingKind);
+            var template = GetTemplate(pendingKind, pendingRole);
             var position = GetPlacementPosition(template, hit.point);
             placementValid = Vector3.Angle(hit.normal, Vector3.up) <= maxGroundSlope && !HasObstruction(position);
             UpdatePreview(position, placementValid);
@@ -70,22 +67,27 @@ namespace AntColony.Buildings
             }
         }
 
-        public bool BeginBarracksPlacement() => BeginPlacement(BuildingKind.Barracks);
-        public bool BeginResearchLabPlacement() => BeginPlacement(BuildingKind.ResearchLab);
+        public bool BeginBarracksPlacement() => BeginBarracksPlacement(UnitRole.Melee);
+        public bool BeginResearchLabPlacement() => BeginResearchLabPlacement(UnitRole.Melee);
+        public bool BeginBarracksPlacement(UnitRole role) => BeginPlacement(BuildingKind.Barracks, role);
+        public bool BeginResearchLabPlacement(UnitRole role) => BeginPlacement(BuildingKind.ResearchLab, role);
 
-        public string GetBarracksBuildLabel() => GetBuildLabel(BuildingKind.Barracks, "Build Melee Barracks");
-        public string GetResearchLabBuildLabel() => GetBuildLabel(BuildingKind.ResearchLab, "Build Melee Lab");
+        public string GetBarracksBuildLabel() => GetBarracksBuildLabel(UnitRole.Melee);
+        public string GetResearchLabBuildLabel() => GetResearchLabBuildLabel(UnitRole.Melee);
+        public string GetBarracksBuildLabel(UnitRole role) => GetBuildLabel(BuildingKind.Barracks, role, $"Build {role} Barracks");
+        public string GetResearchLabBuildLabel(UnitRole role) => GetBuildLabel(BuildingKind.ResearchLab, role, $"Build {role} Lab");
 
-        private bool BeginPlacement(BuildingKind kind)
+        private bool BeginPlacement(BuildingKind kind, UnitRole role)
         {
             var selectedBuilder = GetSelectedBuilder();
-            var template = GetTemplate(kind);
+            var template = GetTemplate(kind, role);
             var building = template != null ? template.GetComponent<BuildingBase>() : null;
             if (selectedBuilder == null || !selectedBuilder.CanStartConstruction || building == null || building.Data == null)
                 return false;
 
             CancelPlacement();
             pendingKind = kind;
+            pendingRole = role;
             builder = selectedBuilder;
             IsPlacing = true;
             CreatePreview(template);
@@ -94,7 +96,7 @@ namespace AntColony.Buildings
 
         private void TryPlace(Vector3 position, Vector3 groundPosition)
         {
-            var template = GetTemplate(pendingKind);
+            var template = GetTemplate(pendingKind, pendingRole);
             var building = template != null ? template.GetComponent<BuildingBase>() : null;
             if (!placementValid || builder == null || !builder.CanStartConstruction || building == null || building.Data == null)
                 return;
@@ -104,7 +106,9 @@ namespace AntColony.Buildings
                 return;
 
             var completedBuilding = Instantiate(template, position, template.transform.rotation);
-            completedBuilding.name = pendingKind == BuildingKind.Barracks ? "MeleeBarracks" : "MeleeResearchLab";
+            completedBuilding.name = pendingKind == BuildingKind.Barracks
+                ? $"{pendingRole}Barracks"
+                : $"{pendingRole}ResearchLab";
             completedBuilding.SetActive(false);
 
             var siteObject = GameObject.CreatePrimitive(PrimitiveType.Cube);
@@ -147,25 +151,28 @@ namespace AntColony.Buildings
             return null;
         }
 
-        private string GetBuildLabel(BuildingKind kind, string name)
+        private string GetBuildLabel(BuildingKind kind, UnitRole role, string name)
         {
-            var template = GetTemplate(kind);
+            var template = GetTemplate(kind, role);
             var building = template != null ? template.GetComponent<BuildingBase>() : null;
             if (building == null || building.Data == null) return name + " (Unavailable)";
             return $"{name}\n{building.Data.foodCost}F {building.Data.soilCost}S";
         }
 
-        private GameObject GetTemplate(BuildingKind kind)
+        private static GameObject GetTemplate(BuildingKind kind, UnitRole role)
         {
-            return kind == BuildingKind.ResearchLab ? researchLabTemplate : barracksTemplate;
+            return kind == BuildingKind.ResearchLab
+                ? FindTemplate<ResearchLab>(role)
+                : FindTemplate<Barracks>(role);
         }
 
-        private static GameObject FindTemplate<T>(string objectName) where T : Component
+        private static GameObject FindTemplate<T>(UnitRole role) where T : Component
         {
             foreach (var component in FindObjectsByType<T>(FindObjectsInactive.Include, FindObjectsSortMode.None))
             {
-                if (component.gameObject.scene.IsValid() && component.gameObject.name == objectName)
-                    return component.gameObject;
+                if (!component.gameObject.scene.IsValid() || !component.gameObject.name.EndsWith("Template")) continue;
+                if (component is Barracks barracks && barracks.Role == role) return component.gameObject;
+                if (component is ResearchLab lab && lab.Role == role) return component.gameObject;
             }
             return null;
         }
