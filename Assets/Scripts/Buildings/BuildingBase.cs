@@ -10,6 +10,8 @@ namespace AntColony.Buildings
 
         [SerializeField] protected BuildingData data;
 
+        public BuildingData Data => data;
+
         protected virtual bool IsDepositPoint => false;
 
         protected virtual void OnEnable()

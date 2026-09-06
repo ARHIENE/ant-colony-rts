@@ -26,6 +26,7 @@ namespace AntColony.Data
         [Header("Stats")]
         public float maxHealth = 20f;
         public float moveSpeed = 3.5f;
+        public float armor;
 
         [Header("Worker Only")]
         public float gatherRate = 5f;

@@ -23,6 +23,7 @@ public static class DataAssetBootstrapper
         CreateBuildingData("BarracksData", BuildingKind.Barracks, foodCost: 0, soilCost: 30, buildTime: 3f);
         CreateBuildingData("StorageData", BuildingKind.Storage, foodCost: 0, soilCost: 20, buildTime: 3f, foodCapBonus: 100, soilCapBonus: 100);
         CreateBuildingData("DigSiteData", BuildingKind.DigSite, foodCost: 0, soilCost: 40, buildTime: 0f);
+        CreateBuildingData("ResearchLabData", BuildingKind.ResearchLab, foodCost: 50, soilCost: 50, buildTime: 5f);
 
         AssetDatabase.SaveAssets();
         AssetDatabase.Refresh();

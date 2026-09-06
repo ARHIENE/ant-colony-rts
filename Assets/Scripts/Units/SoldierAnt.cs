@@ -168,7 +168,7 @@ namespace AntColony.Units
             if (attackTimer <= 0f)
             {
                 attackTimer = Data.attackInterval;
-                currentTarget.TakeDamage(Data.attackDamage);
+                currentTarget.TakeDamage(AttackDamage);
             }
         }
     }

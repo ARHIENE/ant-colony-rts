@@ -13,6 +13,8 @@ namespace AntColony.UI
     {
         [SerializeField] private QueenChamber queenChamber;
         [SerializeField] private Barracks barracks;
+        [SerializeField] private ResearchLab researchLab;
+        [SerializeField] private BuildingPlacementController buildingPlacementController;
         [SerializeField] private DigSite digSite;
         [SerializeField] private BossHealth boss;
 
@@ -21,11 +23,15 @@ namespace AntColony.UI
         private Text bossHealthText;
         private Text barracksProductionButtonText;
         private Text barracksUpgradeButtonText;
+        private Text attackResearchButtonText;
+        private Text armorResearchButtonText;
 
         private void Start()
         {
             if (queenChamber == null) queenChamber = FindFirstObjectByType<QueenChamber>();
             if (barracks == null) barracks = FindFirstObjectByType<Barracks>();
+            if (researchLab == null) researchLab = FindFirstObjectByType<ResearchLab>();
+            if (buildingPlacementController == null) buildingPlacementController = FindFirstObjectByType<BuildingPlacementController>();
             if (digSite == null) digSite = FindFirstObjectByType<DigSite>();
             if (boss == null) boss = FindFirstObjectByType<BossHealth>();
 
@@ -51,11 +57,16 @@ namespace AntColony.UI
 
         private void Update()
         {
-            if (barracks == null) return;
-            if (barracksProductionButtonText != null)
+            if (barracks == null) barracks = FindFirstObjectByType<Barracks>();
+            if (researchLab == null) researchLab = FindFirstObjectByType<ResearchLab>();
+            if (barracksProductionButtonText != null && barracks != null)
                 barracksProductionButtonText.text = barracks.GetProductionLabel();
-            if (barracksUpgradeButtonText != null)
+            if (barracksUpgradeButtonText != null && barracks != null)
                 barracksUpgradeButtonText.text = barracks.GetUpgradeLabel();
+            if (attackResearchButtonText != null && researchLab != null)
+                attackResearchButtonText.text = researchLab.GetAttackResearchLabel();
+            if (armorResearchButtonText != null && researchLab != null)
+                armorResearchButtonText.text = researchLab.GetArmorResearchLabel();
         }
 
         private void BuildCanvas()
@@ -85,6 +96,14 @@ namespace AntColony.UI
             var upgradeLabel = barracks != null ? barracks.GetUpgradeLabel() : "Upgrade Barracks";
             barracksUpgradeButtonText = CreateButton(canvasGO.transform, new Vector2(290f, 10f), upgradeLabel, () => barracks?.TryUpgrade());
             CreateButton(canvasGO.transform, new Vector2(430f, 10f), "Dig Expansion", () => digSite?.TryExpand());
+            var attackResearchLabel = researchLab != null ? researchLab.GetAttackResearchLabel() : "No Research Lab";
+            attackResearchButtonText = CreateButton(canvasGO.transform, new Vector2(570f, 10f), attackResearchLabel, () => researchLab?.TryResearchAttack());
+            var armorResearchLabel = researchLab != null ? researchLab.GetArmorResearchLabel() : "No Research Lab";
+            armorResearchButtonText = CreateButton(canvasGO.transform, new Vector2(710f, 10f), armorResearchLabel, () => researchLab?.TryResearchArmor());
+            var buildBarracksLabel = buildingPlacementController != null ? buildingPlacementController.GetBarracksBuildLabel() : "Build Barracks";
+            CreateButton(canvasGO.transform, new Vector2(850f, 10f), buildBarracksLabel, () => buildingPlacementController?.BeginBarracksPlacement());
+            var buildLabLabel = buildingPlacementController != null ? buildingPlacementController.GetResearchLabBuildLabel() : "Build Lab";
+            CreateButton(canvasGO.transform, new Vector2(990f, 10f), buildLabLabel, () => buildingPlacementController?.BeginResearchLabPlacement());
         }
 
         private Text CreateText(Transform parent, Vector2 anchor, Vector2 size, Vector2 anchoredPosition)

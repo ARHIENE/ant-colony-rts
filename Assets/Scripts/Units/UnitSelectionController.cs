@@ -1,4 +1,5 @@
 using AntColony.Core;
+using AntColony.Buildings;
 using AntColony.World;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -13,6 +14,7 @@ namespace AntColony.Units
         [SerializeField] private SelectionManager selectionManager;
         [SerializeField] private float formationSpacing = 1.5f;
         [SerializeField] private Color moveMarkerColor = Color.green;
+        [SerializeField] private BuildingPlacementController buildingPlacementController;
 
         private UnityEngine.Camera cam;
 
@@ -20,12 +22,14 @@ namespace AntColony.Units
         {
             cam = UnityEngine.Camera.main;
             if (selectionManager == null) selectionManager = FindFirstObjectByType<SelectionManager>();
+            if (buildingPlacementController == null) buildingPlacementController = FindFirstObjectByType<BuildingPlacementController>();
         }
 
         private void Update()
         {
             var mouse = Mouse.current;
             if (mouse == null || selectionManager == null) return;
+            if (buildingPlacementController != null && buildingPlacementController.IsPlacing) return;
 
             if (mouse.rightButton.wasPressedThisFrame)
             {

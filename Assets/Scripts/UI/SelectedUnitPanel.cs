@@ -1,3 +1,4 @@
+using AntColony.Data;
 using AntColony.Units;
 using UnityEngine;
 using UnityEngine.UI;
@@ -10,6 +11,7 @@ namespace AntColony.UI
         private GameObject panel;
         private Text title;
         private Text healthText;
+        private Text combatStatsText;
         private RectTransform healthFill;
 
         private void Start()
@@ -20,9 +22,10 @@ namespace AntColony.UI
             var rect = background.rectTransform;
             rect.anchorMin = rect.anchorMax = rect.pivot = Vector2.zero;
             rect.anchoredPosition = new Vector2(10f, 60f);
-            rect.sizeDelta = new Vector2(300f, 96f);
+            rect.sizeDelta = new Vector2(300f, 120f);
             title = CreateText("UnitName", rect, new Vector2(12f, -10f));
             healthText = CreateText("Health", rect, new Vector2(12f, -38f));
+            combatStatsText = CreateText("CombatStats", rect, new Vector2(12f, -66f));
 
             var track = CreateImage("HealthTrack", rect, new Color(0.2f, 0.25f, 0.22f));
             track.rectTransform.anchorMin = track.rectTransform.anchorMax = track.rectTransform.pivot = Vector2.zero;
@@ -59,6 +62,11 @@ namespace AntColony.UI
             if (count == 0) return;
             title.text = count == 1 ? first.Data.displayName : $"Selected Units: {count}";
             healthText.text = $"HP {Mathf.CeilToInt(current)} / {Mathf.CeilToInt(maximum)}";
+            combatStatsText.text = count != 1
+                ? ""
+                : first.Data.role == UnitRole.Worker
+                    ? $"Armor {first.Armor:0.#}"
+                    : $"ATK {first.AttackDamage:0.#}   Armor {first.Armor:0.#}";
             healthFill.anchorMax = new Vector2(maximum > 0f ? Mathf.Clamp01(current / maximum) : 0f, 1f);
         }
 

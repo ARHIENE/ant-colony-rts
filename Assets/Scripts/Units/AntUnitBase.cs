@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using AntColony.Buildings;
 using AntColony.Core;
 using AntColony.Data;
 using AntColony.World;
@@ -17,12 +18,16 @@ namespace AntColony.Units
         public NavMeshAgent Agent { get; private set; }
 
         [SerializeField] private float currentHealth;
+        private float attackDamage;
+        private float armor;
 
         private ObjectPool pool;
         private GameObject sourcePrefab;
 
         public bool IsDead => currentHealth <= 0f;
         public float CurrentHealth => currentHealth;
+        public float AttackDamage => attackDamage;
+        public float Armor => armor;
         public Vector3 Position => transform.position;
 
         protected virtual void Awake()
@@ -55,13 +60,15 @@ namespace AntColony.Units
             pool = sourcePool;
             sourcePrefab = prefab;
             currentHealth = data.maxHealth;
+            attackDamage = data.attackDamage + ResearchLab.GetAttackBonus(data.role);
+            armor = data.armor + ResearchLab.GetArmorBonus(data.role);
             Agent.speed = data.moveSpeed;
         }
 
         public void TakeDamage(float amount)
         {
             if (IsDead) return;
-            currentHealth -= amount;
+            currentHealth -= Mathf.Max(1f, amount - armor);
             if (currentHealth <= 0f)
             {
                 currentHealth = 0f;

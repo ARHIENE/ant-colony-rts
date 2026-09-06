@@ -1,7 +1,9 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.EventSystems;
 using UnityEngine.UI;
+using AntColony.Buildings;
 
 namespace AntColony.Units
 {
@@ -21,6 +23,7 @@ namespace AntColony.Units
         [SerializeField] private float dragStartThreshold = 8f;
 
         [SerializeField] private AttackMoveController attackMoveController;
+        [SerializeField] private BuildingPlacementController buildingPlacementController;
 
         private readonly List<SelectableObject> selectedObjects = new List<SelectableObject>();
 
@@ -36,6 +39,7 @@ namespace AntColony.Units
             if (cam == null) cam = UnityEngine.Camera.main;
             if (selectionBoxImage == null) selectionBoxImage = CreateSelectionBoxImage();
             if (attackMoveController == null) attackMoveController = FindFirstObjectByType<AttackMoveController>();
+            if (buildingPlacementController == null) buildingPlacementController = FindFirstObjectByType<BuildingPlacementController>();
 
             selectionBoxImage.gameObject.SetActive(false);
         }
@@ -68,6 +72,8 @@ namespace AntColony.Units
 
             // 어택무브 모드 중 좌클릭은 공격 명령 전용 — 여기서 선택이 바뀌지 않도록 건너뛴다.
             if (attackMoveController != null && attackMoveController.IsAttackMode) return;
+            if (buildingPlacementController != null && buildingPlacementController.IsPlacing) return;
+            if (EventSystem.current != null && EventSystem.current.IsPointerOverGameObject()) return;
 
             if (mouse.leftButton.wasPressedThisFrame)
             {
