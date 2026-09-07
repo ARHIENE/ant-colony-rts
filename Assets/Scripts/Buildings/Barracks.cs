@@ -73,6 +73,7 @@ namespace AntColony.Buildings
                 ? pool.Get(soldierAntPrefab, origin, Quaternion.identity)
                 : Instantiate(soldierAntPrefab, origin, Quaternion.identity);
 
+            instance.SetActive(true);
             var soldier = instance.GetComponent<SoldierAnt>();
             soldier.Initialize(soldierAntData, pool, soldierAntPrefab);
 

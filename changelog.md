@@ -263,3 +263,25 @@
 - Unity 편집 모드 저장 후 콘솔 오류 0건·예외 0건을 확인했다. unity-cli 연결 상태 경고만 남았다.
 - Notion `유닛(개미) 시스템`, `건물/소굴 확장 시스템`의 구현 상태를 2026-09-07 기준으로 갱신했다.
 - 개발 일지 `2026-09-07` 페이지를 만들고 Unity 캡처를 첨부했다.
+
+---
+
+# 2026-09-07 (세션 8 — Defense 역할 프로토타입 / 생산 활성화 수정)
+
+## 이전 SAVE 상태 이관
+- 일개미 건설 흐름과 Melee/Ranged 역할별 병영·연구소가 구현돼 있었다.
+- 다음 우선순위는 Defense 역할 유닛·병영·연구소 프로토타입이었다.
+
+## Defense 역할 프로토타입
+- `DefenseAntData`를 추가하고 임시 수치를 식량 30, 생산 10초, 체력 60, 이동속도 2.3, 방어력 2, 공격력 4, 사거리 1.4, 공격 간격 1.4초, 유지비 2로 설정했다.
+- 씬 내부 비활성 `DefenseAnt`, `DefenseBarracksTemplate`, `DefenseResearchLabTemplate`을 추가해 기존 역할 선택·건설·연구 흐름에 연결했다.
+- Ranged 전용 에디터 설정 도구를 `CombatRolePrototypeBootstrapper`로 일반화해 Ranged와 Defense 프로토타입 구성을 함께 지원한다.
+
+## 비활성 생산 개체 수정과 검증
+- 비활성 씬 원본을 Instantiate하면 복제본도 비활성으로 남아 생산은 끝났지만 게임에 참여하지 못하는 결함을 확인했다.
+- `Barracks`가 생성 인스턴스를 먼저 활성화한 뒤 `SoldierAnt.Initialize`를 호출하도록 수정했다.
+- Unity Play에서 Defense Ant 생산 후 활성 상태, `DefenseAntData`, 체력 60, 공격력 4, 방어력 2를 확인했다.
+- 테스트 후 병영·연구소 원본을 모두 비활성으로 복구하고 WildMonster 활성 상태를 확인했다. 콘솔 오류·예외·Assert는 0건이었다.
+
+## 문서 동기화
+- Notion `유닛(개미) 시스템`, `건물/소굴 확장 시스템`의 구현 상태를 Melee/Ranged/Defense 기준으로 갱신했다.

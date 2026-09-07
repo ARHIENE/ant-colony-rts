@@ -11,25 +11,25 @@
 - 자원: Food/Soil 보유량·저장 한도, 수동 채집 지시, 반납, 유지비와 식량 부족 시 아사/반란 구현.
 - 유닛 조작: 클릭/드래그/Shift 선택, 우클릭 이동·채집·타겟 공격, A키 어택무브, 이동 확인 마커 구현.
 - 선택 정보 UI: 이름·체력·체력바, 단일 유닛 공격력·방어력, 다중 선택 합산 정보 구현.
-- 생산/병영: 여왕방 일개미 생산과 역할별 병영 독립 1~3티어 구현. Melee Soldier Ant와 임시 Ranged Ant 생산 가능.
-- 역할 강화: 역할별 연구소 공격력·방어력 3레벨 연구 기반 구현. 현재 Melee와 Ranged 연구소 템플릿 연결.
+- 생산/병영: 여왕방 일개미 생산과 역할별 병영 독립 1~3티어 구현. Melee Soldier Ant, 임시 Ranged Ant, 임시 Defense Ant 생산 가능.
+- 역할 강화: 역할별 연구소 공격력·방어력 3레벨 연구 기반 구현. Melee/Ranged/Defense 연구소 템플릿 연결.
 - 건설 배치: 선택된 일개미의 역할별 병영·연구소 자유 배치, 경사·장애물 검사, 자원 차감, 이동과 시간 경과 후 활성화 구현.
 - HUD: Melee/Ranged/Defense/Flying/Support 역할을 순환 선택해 해당 역할의 생산·강화·연구·건설을 조작.
 - 전투/보스: Soldier Ant 전투, WildMonster 추적·공격·재탐색, MiniBird 텔레그래프 패턴 구현.
 - 맵/카메라: 플레이 클러스터와 NavMesh를 지형 중앙에 배치. 카메라 초점은 지형 0~400 범위로 제한.
 
 ## 이번 SAVE 검증
-- Melee 병영·연구소의 배치 확정, 자원 차감, 일개미 이동, 건설 완료, 건물 활성화를 Unity Play에서 확인.
-- Ranged 병영 건설과 Ranged Ant 생산 확인. 생산 개체는 RangedAntData, 체력 25, 공격력 3, 방어력 0으로 초기화.
-- Ranged 연구소 템플릿의 역할·데이터 연결과 비활성 건설 원본 상태 확인.
-- WildMonster를 테스트 전 상태인 활성으로 복구하고 Unity를 편집 모드로 저장.
-- 최종 콘솔 오류 0건·예외 0건. unity-cli 연결/해제 경고 4건만 확인.
-- 캡처: `.unity/capture/image_game_2026-09-07_02-17-55.png`
+- Defense 역할 데이터와 비활성 유닛·병영·연구소 템플릿을 씬에 연결.
+- Defense 병영에서 생산한 개체가 활성 상태로 생성되는 것을 확인. `DefenseAntData`, 체력 60, 공격력 4, 방어력 2가 적용됨.
+- 비활성 원본을 Instantiate한 생산 개체가 비활성으로 남던 문제를 `Barracks`에서 생성 직후 활성화하도록 수정.
+- 테스트 후 Melee/Ranged/Defense 병영·연구소 원본은 모두 비활성, WildMonster는 활성 상태로 복구하고 씬 저장.
+- 최종 콘솔 오류 0건·예외 0건·Assert 0건. unity-cli 연결/해제 경고만 확인.
+- 캡처: `.unity/capture/image_game_2026-09-07_20-29-11.png`
 
 ## 다음 작업 우선순위
-1. Defense 역할 유닛·병영·연구소 프로토타입 추가 및 Play 검증.
-2. Flying/Support 역할 유닛·병영·연구소 추가.
-3. 임시 Ranged Ant의 실제 종·외형·공격 연출 확정.
+1. Flying 역할 유닛·병영·연구소 프로토타입 추가 및 Play 검증.
+2. Support 역할 유닛·병영·연구소 추가.
+3. 임시 Ranged/Defense Ant의 실제 종·외형·공격 연출 확정.
 4. 농사·낚시·특수자원.
 5. 적 소굴 약탈과 주기적 침공 방어전.
 6. 대형 개미·특수 배양소와 추가 보스/레이드 맵.
@@ -41,7 +41,8 @@
 - 건설 배치 미리보기는 현재 템플릿 크기의 큐브이며, 역할별 건물 외형이 추가되면 교체가 필요하다.
 - `SnapToTerrainMenu` Raycast는 지형 Collider만 대상으로 제한되지 않아 추후 보정 필요.
 - unity-cli는 포트 16401 사용. 스크립트 재컴파일 뒤 브리지가 끊기면 Unity를 정상 종료 후 재실행하고 창을 활성화한다.
+- 비활성 씬 원본을 생산할 때는 생성 인스턴스를 활성화한 뒤 `Initialize`해야 `Awake`에서 캐시한 컴포넌트를 안전하게 사용할 수 있다.
 - Unity는 현재 Play 모드가 종료된 상태다.
 
 ## 이번 SAVE 개발 일지
-- https://app.notion.com/p/3d3c4a0ecd3181928fe8e126636a622d
+- https://app.notion.com/p/3d4c4a0ecd3181fdb995ffca7039a648
