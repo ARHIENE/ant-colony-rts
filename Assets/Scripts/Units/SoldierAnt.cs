@@ -26,19 +26,25 @@ namespace AntColony.Units
         private bool isOnAttackMove;
         private Vector3 attackMoveDestination;
 
+        // 역할별 대공/대지 공격 가능 여부. 공중 대상은 Ranged와 Flying만 공격할 수 있다.
+        public bool CanAttackTarget(IDamageable target)
+        {
+            return CombatTargeting.CanAttack(Data.role, target);
+        }
+
         // 일반 이동: 원본처럼 경로상의 적을 무시하고 그냥 이동만 한다(어택무브는 CommandAttackMove로 별도 지시).
         public void CommandMove(Vector3 destination)
         {
             currentTarget = null;
             isOnAttackMove = false;
-            Agent.SetDestination(destination);
+            SetMoveDestination(destination);
             state = State.MovingToTarget;
         }
 
         // 특정 대상을 직접 지정해 공격(어택무브 중 자동 교전이 아니라 플레이어가 직접 지시한 경우).
         public void CommandAttack(IDamageable target)
         {
-            if (target == null) return;
+            if (target == null || !CanAttackTarget(target)) return;
             isOnAttackMove = false;
             currentTarget = target;
             state = State.MovingToTarget;
@@ -50,11 +56,27 @@ namespace AntColony.Units
             attackMoveDestination = destination;
             currentTarget = null;
             isOnAttackMove = true;
-            Agent.SetDestination(destination);
+            SetMoveDestination(destination);
             state = State.AttackMoving;
         }
 
-        private void Update()
+        // 이동 지시/도착 판정/대상 거리 계산은 비행 유닛(FlyingAnt)이 바꿔 끼울 수 있게 훅으로 분리한다.
+        protected virtual void SetMoveDestination(Vector3 destination)
+        {
+            Agent.SetDestination(destination);
+        }
+
+        protected virtual bool HasReachedDestination()
+        {
+            return !Agent.pathPending && Agent.remainingDistance <= Agent.stoppingDistance;
+        }
+
+        protected virtual float GetDistanceTo(Vector3 position)
+        {
+            return Vector3.Distance(transform.position, position);
+        }
+
+        protected virtual void Update()
         {
             switch (state)
             {
@@ -80,7 +102,7 @@ namespace AntColony.Units
             {
                 autoEngageTimer = autoEngageCheckInterval;
                 var nearby = World.WildMonster.FindNearest(transform.position, autoEngageRadius);
-                if (nearby != null)
+                if (nearby != null && CanAttackTarget(nearby))
                 {
                     // isOnAttackMove는 유지한 채로 교전 상태로 전환(경로상 자동 교전).
                     currentTarget = nearby;
@@ -89,7 +111,7 @@ namespace AntColony.Units
                 }
             }
 
-            if (!Agent.pathPending && Agent.remainingDistance <= Agent.stoppingDistance)
+            if (HasReachedDestination())
             {
                 isOnAttackMove = false;
                 state = State.Idle;
@@ -103,7 +125,7 @@ namespace AntColony.Units
             currentTarget = null;
             if (isOnAttackMove)
             {
-                Agent.SetDestination(attackMoveDestination);
+                SetMoveDestination(attackMoveDestination);
                 state = State.AttackMoving;
             }
             else
@@ -119,7 +141,7 @@ namespace AntColony.Units
             autoEngageTimer = autoEngageCheckInterval;
 
             var nearby = World.WildMonster.FindNearest(transform.position, autoEngageRadius);
-            if (nearby != null)
+            if (nearby != null && CanAttackTarget(nearby))
             {
                 CommandAttack(nearby);
             }
@@ -135,8 +157,8 @@ namespace AntColony.Units
                     return;
                 }
 
-                Agent.SetDestination(currentTarget.Position);
-                if (Vector3.Distance(transform.position, currentTarget.Position) <= Data.attackRange)
+                SetMoveDestination(currentTarget.Position);
+                if (GetDistanceTo(currentTarget.Position) <= Data.attackRange)
                 {
                     state = State.Attacking;
                 }
@@ -144,7 +166,7 @@ namespace AntColony.Units
             }
 
             // 일반 이동: 경로상의 적은 무시하고 그냥 목적지까지만 이동한다.
-            if (!Agent.pathPending && Agent.remainingDistance <= Agent.stoppingDistance)
+            if (HasReachedDestination())
             {
                 state = State.Idle;
             }
@@ -158,7 +180,7 @@ namespace AntColony.Units
                 return;
             }
 
-            if (Vector3.Distance(transform.position, currentTarget.Position) > Data.attackRange)
+            if (GetDistanceTo(currentTarget.Position) > Data.attackRange)
             {
                 state = State.MovingToTarget;
                 return;

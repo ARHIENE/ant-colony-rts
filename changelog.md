@@ -312,3 +312,33 @@
 - 최종 컴파일 오류 0건, 콘솔 오류·예외·Assert 0건을 확인했다. 경고는 unity-cli 연결/해제 로그뿐이었다.
 - Notion `유닛(개미) 시스템`, `건물/소굴 확장 시스템`, `전투/레이드 시스템`에 Flying 구현 상태와 건물 내구도·전멸 패배 규칙을 반영했다.
 - SAVE 캡처: `.unity/capture/image_game_2026-09-08_01-45-00.png`.
+
+---
+
+# 2026-09-08 (세션 10 — Support 역할 완료 / Flying 이동·대공 기반 착수)
+
+## 이전 SAVE 상태 이관
+- Melee/Ranged/Defense/Flying 역할 유닛·병영·연구소 프로토타입과 역할별 연구가 구현돼 있었다.
+- Flying은 이름과 데이터만 구분되고 실제로는 지상 `SoldierAnt`와 NavMesh를 사용하는 상태였다.
+
+## Support 역할 프로토타입
+- `SupportAntData`를 추가하고 임시 수치를 식량 25, 생산 8초, 체력 30, 이동속도 3.2, 방어력 0, 공격력 2, 사거리 2.5, 공격 간격 1.4초, 유지비 1로 설정했다.
+- 씬 내부 비활성 `SupportAnt`, `SupportBarracksTemplate`, `SupportResearchLabTemplate`을 추가해 역할별 생산·건설·연구 흐름에 연결했다.
+- Unity Play에서 Support Ant 생산과 체력 30·공격력 2·방어력 0 적용을 확인했다.
+- Support 공격 연구 1레벨 뒤 새로 생산한 유닛의 공격력이 4로 적용되는 것을 확인했다.
+
+## 비행·대공 규칙 확정
+- Flying은 고정 고도에서 직선 이동하며 지형과 장애물을 무시한다.
+- Ranged와 Flying만 공중 대상을 공격할 수 있고, Flying은 지상·공중 대상을 모두 공격한다.
+- Melee/Defense/Support와 일반 지상 몬스터는 공중 대상을 공격할 수 없으며 지상 범위 공격도 공중 유닛에 적용하지 않는다.
+
+## Flying 기반 코드 착수
+- 공중 유닛 표식과 역할별 공격 가능 여부를 모은 `CombatTargeting`을 추가했다.
+- `SoldierAnt`에 공격 대상 검사와 이동 확장 지점을 추가하고, 고정 고도 직선 이동을 위한 `FlyingAnt` 클래스를 추가했다.
+- 현재 코드는 컴파일되지만 씬 Flying 원본 연결, 선택·어택무브 필터, 몬스터 대공 제한, 지상 범위 공격 제외와 Unity Play 검증은 남아 있다.
+
+## 검증과 문서 동기화
+- 프로젝트 스크립트 컴파일 오류 0건을 확인했다. Unity AI Toolkit 계정 API 연결 오류 1건은 프로젝트 코드와 무관하다.
+- Notion `유닛(개미) 시스템`, `건물·소굴 확장 시스템`에 Support 구현 상태를 반영했다.
+- Notion `유닛(개미) 시스템`, `전투·레이드 시스템`에 확정된 비행·대공 규칙과 Flying 구현 중 상태를 반영한다.
+- SAVE 캡처: `.unity/capture/image_game_2026-09-08_22-39-12.png`.

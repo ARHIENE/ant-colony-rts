@@ -60,6 +60,24 @@ public static class CombatRolePrototypeBootstrapper
             xOffset: 18f);
     }
 
+    [MenuItem("Tools/Ant Colony/Setup Support Role Prototype")]
+    public static void SetupSupport()
+    {
+        SetupRole(
+            UnitRole.Support,
+            foodCost: 25,
+            buildTime: 8f,
+            maxHealth: 30f,
+            moveSpeed: 3.2f,
+            armor: 0f,
+            attackDamage: 2f,
+            attackRange: 2.5f,
+            attackInterval: 1.4f,
+            foodUpkeep: 1,
+            unitScale: 0.9f,
+            xOffset: 27f);
+    }
+
     private static void SetupRole(
         UnitRole role,
         int foodCost,
