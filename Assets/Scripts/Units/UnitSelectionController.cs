@@ -49,6 +49,10 @@ namespace AntColony.Units
 
             // 적(IDamageable, 야생 몬스터/보스 등)을 직접 클릭하면 전원 그 타겟을 공격.
             var target = hit.collider.GetComponentInParent<IDamageable>();
+            if (target is BuildingBase building && building.CountsTowardPlayerDefeat)
+            {
+                target = null;
+            }
             // 자원노드를 클릭하면 일개미는 그 자리로 이동해 채집을 시작한다.
             var resourceNode = hit.collider.GetComponentInParent<ResourceNode>();
 

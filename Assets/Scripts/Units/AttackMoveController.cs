@@ -1,4 +1,5 @@
 using AntColony.Core;
+using AntColony.Buildings;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -66,6 +67,10 @@ namespace AntColony.Units
             if (!Physics.Raycast(ray, out var hit, 1000f, groundMask)) return;
 
             var target = hit.collider.GetComponentInParent<IDamageable>();
+            if (target is BuildingBase building && building.CountsTowardPlayerDefeat)
+            {
+                target = null;
+            }
             var selected = selectionManager.GetSelectedObjects();
 
             var cols = Mathf.CeilToInt(Mathf.Sqrt(selected.Count));

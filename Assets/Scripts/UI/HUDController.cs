@@ -57,6 +57,7 @@ namespace AntColony.UI
             {
                 GameManager.Instance.OnLoopComplete += ShowVictoryMessage;
                 GameManager.Instance.OnBossDefeated += ShowBossDefeatedMessage;
+                GameManager.Instance.OnDefeat += ShowDefeatMessage;
             }
             if (boss != null)
             {
@@ -214,6 +215,12 @@ namespace AntColony.UI
         {
             if (messageText == null) return;
             messageText.text = "Loop Complete: Wild Monster Defeated!";
+        }
+
+        private void ShowDefeatMessage()
+        {
+            if (messageText == null) return;
+            messageText.text = "Defeat: All Buildings Destroyed!";
         }
 
         private void UpdateBossHealthText(float current, float max)

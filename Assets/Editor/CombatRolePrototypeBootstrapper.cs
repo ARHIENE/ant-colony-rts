@@ -42,6 +42,24 @@ public static class CombatRolePrototypeBootstrapper
             xOffset: 9f);
     }
 
+    [MenuItem("Tools/Ant Colony/Setup Flying Role Prototype")]
+    public static void SetupFlying()
+    {
+        SetupRole(
+            UnitRole.Flying,
+            foodCost: 30,
+            buildTime: 9f,
+            maxHealth: 35f,
+            moveSpeed: 3.5f,
+            armor: 1f,
+            attackDamage: 4f,
+            attackRange: 1.6f,
+            attackInterval: 1.2f,
+            foodUpkeep: 2,
+            unitScale: 1f,
+            xOffset: 18f);
+    }
+
     private static void SetupRole(
         UnitRole role,
         int foodCost,

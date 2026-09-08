@@ -17,6 +17,9 @@ namespace AntColony.Data
         public string displayName = "Building";
         public BuildingKind kind = BuildingKind.Storage;
 
+        [Header("Combat")]
+        public float maxHealth = 300f;
+
         [Header("Cost")]
         public int foodCost = 0;
         public int soilCost = 20;
