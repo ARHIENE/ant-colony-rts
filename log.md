@@ -3,7 +3,7 @@
 ## 개요
 - 프로젝트: 개미 소굴 RTS(가제), Unity 6000.5.8f1 URP
 - 루트: `E:\Git\ant`
-- 저장소: `github.com/ARHIENE/ant-colony-rts`, 작업 브랜치 `master`
+- 저장소: `github.com/ARHIENE/ant-colony-rts`, 작업 브랜치 `develop` (`master`는 안정 버전)
 - 목표: Notion `게임 개발 노션 정리 > 기획(스펙 문서)` 전체 구현
 - 상세 이력: `changelog.md`
 
