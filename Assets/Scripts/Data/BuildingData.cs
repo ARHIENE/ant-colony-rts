@@ -8,7 +8,8 @@ namespace AntColony.Data
         Barracks,
         Storage,
         DigSite,
-        ResearchLab
+        ResearchLab,
+        Farm
     }
 
     [CreateAssetMenu(fileName = "BuildingData", menuName = "AntColony/Building Data")]

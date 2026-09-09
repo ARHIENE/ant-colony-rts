@@ -115,7 +115,9 @@ namespace AntColony.World
             var nearestDistanceSqr = detectionRadius * detectionRadius;
             foreach (var ant in AntUnitBase.Active)
             {
+                // 야생 몬스터는 지상 유닛만 공격한다(공중 대상 제외).
                 if (ant == null || ant.IsDead || !ant.isActiveAndEnabled) continue;
+                if (CombatTargeting.IsAirborne(ant)) continue;
 
                 var distanceSqr = (ant.Position - transform.position).sqrMagnitude;
                 if (distanceSqr <= nearestDistanceSqr)

@@ -82,7 +82,8 @@ namespace AntColony.Units
                 var soldier = selectable.GetComponent<SoldierAnt>();
                 if (soldier == null) continue;
 
-                if (target != null)
+                // 대공 불가 역할이 공중 대상을 클릭하면 공격 대신 그 위치로 어택무브한다.
+                if (target != null && soldier.CanAttackTarget(target))
                 {
                     soldier.CommandAttack(target);
                 }

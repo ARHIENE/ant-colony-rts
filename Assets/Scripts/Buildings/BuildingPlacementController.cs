@@ -67,6 +67,9 @@ namespace AntColony.Buildings
             }
         }
 
+        public bool BeginFarmPlacement() => BeginPlacement(BuildingKind.Farm, UnitRole.Worker);
+        public string GetFarmBuildLabel() => GetBuildLabel(BuildingKind.Farm, UnitRole.Worker, "Build Farm");
+
         public bool BeginBarracksPlacement() => BeginBarracksPlacement(UnitRole.Melee);
         public bool BeginResearchLabPlacement() => BeginResearchLabPlacement(UnitRole.Melee);
         public bool BeginBarracksPlacement(UnitRole role) => BeginPlacement(BuildingKind.Barracks, role);
@@ -106,9 +109,12 @@ namespace AntColony.Buildings
                 return;
 
             var completedBuilding = Instantiate(template, position, template.transform.rotation);
-            completedBuilding.name = pendingKind == BuildingKind.Barracks
-                ? $"{pendingRole}Barracks"
-                : $"{pendingRole}ResearchLab";
+            completedBuilding.name = pendingKind switch
+            {
+                BuildingKind.Barracks => $"{pendingRole}Barracks",
+                BuildingKind.Farm => "Farm",
+                _ => $"{pendingRole}ResearchLab"
+            };
             completedBuilding.SetActive(false);
 
             var siteObject = GameObject.CreatePrimitive(PrimitiveType.Cube);
@@ -161,9 +167,22 @@ namespace AntColony.Buildings
 
         private static GameObject GetTemplate(BuildingKind kind, UnitRole role)
         {
-            return kind == BuildingKind.ResearchLab
-                ? FindTemplate<ResearchLab>(role)
-                : FindTemplate<Barracks>(role);
+            return kind switch
+            {
+                BuildingKind.ResearchLab => FindTemplate<ResearchLab>(role),
+                BuildingKind.Farm => FindFarmTemplate(),
+                _ => FindTemplate<Barracks>(role)
+            };
+        }
+
+        // 밭은 역할 구분이 없으므로 씬의 FarmTemplate 오브젝트를 그대로 쓴다.
+        private static GameObject FindFarmTemplate()
+        {
+            foreach (var node in FindObjectsByType<AntColony.World.ResourceNode>(FindObjectsInactive.Include, FindObjectsSortMode.None))
+            {
+                if (node.gameObject.scene.IsValid() && node.gameObject.name == "FarmTemplate") return node.gameObject;
+            }
+            return null;
         }
 
         private static GameObject FindTemplate<T>(UnitRole role) where T : Component

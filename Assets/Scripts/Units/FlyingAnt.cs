@@ -9,6 +9,9 @@ namespace AntColony.Units
     {
         [SerializeField] private float flightAltitude = 3f;
         [SerializeField] private float arriveThreshold = 0.15f;
+        [SerializeField] private LayerMask groundMask = 1 << 8;
+
+        private const float GroundCastHeight = 100f;
 
         private Vector3 flightDestination;
 
@@ -48,9 +51,14 @@ namespace AntColony.Units
             return delta.magnitude;
         }
 
-        private Vector3 ToFlightPoint(Vector3 groundPoint)
+        // 목적지 Y는 항상 지면을 다시 찾아 계산한다. 공중 대상을 추적할 때 대상 고도에 고도를 또 더해 상승하는 것을 막는다.
+        private Vector3 ToFlightPoint(Vector3 point)
         {
-            return new Vector3(groundPoint.x, groundPoint.y + flightAltitude, groundPoint.z);
+            var origin = new Vector3(point.x, point.y + GroundCastHeight, point.z);
+            var groundY = Physics.Raycast(origin, Vector3.down, out var hit, GroundCastHeight * 2f, groundMask, QueryTriggerInteraction.Ignore)
+                ? hit.point.y
+                : point.y;
+            return new Vector3(point.x, groundY + flightAltitude, point.z);
         }
     }
 }

@@ -58,6 +58,44 @@ public static class CombatRolePrototypeBootstrapper
             foodUpkeep: 2,
             unitScale: 1f,
             xOffset: 18f);
+
+        EnsureFlyingAntComponent();
+    }
+
+    // 씬 FlyingAnt 원본의 SoldierAnt를 FlyingAnt로 바꾼다.
+    // 컴포넌트를 지우고 다시 붙이면 인스펙터 값이 초기화되므로, m_Script만 교체해 기존 serialized 값을 유지한다.
+    private static void EnsureFlyingAntComponent()
+    {
+        var template = FindSceneObject($"{UnitRole.Flying}Ant");
+        if (template == null)
+            throw new System.InvalidOperationException("Scene template not found: FlyingAnt");
+
+        var soldier = template.GetComponent<AntColony.Units.SoldierAnt>();
+        if (soldier == null)
+            throw new System.InvalidOperationException("FlyingAnt template has no SoldierAnt component.");
+        if (soldier is not AntColony.Units.FlyingAnt)
+        {
+            var script = AssetDatabase.LoadAssetAtPath<MonoScript>("Assets/Scripts/Units/FlyingAnt.cs");
+            if (script == null)
+                throw new System.InvalidOperationException("Script not found: Assets/Scripts/Units/FlyingAnt.cs");
+
+            var serialized = new SerializedObject(soldier);
+            serialized.FindProperty("m_Script").objectReferenceValue = script;
+            serialized.ApplyModifiedPropertiesWithoutUndo();
+        }
+
+        var flying = template.GetComponent<AntColony.Units.FlyingAnt>();
+        if (flying == null)
+            throw new System.InvalidOperationException("Failed to replace SoldierAnt with FlyingAnt.");
+
+        var groundLayer = LayerMask.NameToLayer("Ground");
+        if (groundLayer < 0)
+            throw new System.InvalidOperationException("Layer not found: Ground");
+        var flyingSerialized = new SerializedObject(flying);
+        flyingSerialized.FindProperty("groundMask").intValue = 1 << groundLayer;
+        flyingSerialized.ApplyModifiedPropertiesWithoutUndo();
+        EditorUtility.SetDirty(template);
+        Debug.Log("[CombatRolePrototypeBootstrapper] FlyingAnt template now uses the FlyingAnt component.");
     }
 
     [MenuItem("Tools/Ant Colony/Setup Support Role Prototype")]

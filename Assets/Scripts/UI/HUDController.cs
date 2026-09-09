@@ -28,6 +28,7 @@ namespace AntColony.UI
         private Text roleButtonText;
         private Text buildBarracksButtonText;
         private Text buildLabButtonText;
+        private Text buildFarmButtonText;
         private UnitRole selectedRole = UnitRole.Melee;
         private static readonly UnitRole[] CombatRoles =
         {
@@ -85,6 +86,8 @@ namespace AntColony.UI
                 buildBarracksButtonText.text = buildingPlacementController.GetBarracksBuildLabel(selectedRole);
             if (buildLabButtonText != null && buildingPlacementController != null)
                 buildLabButtonText.text = buildingPlacementController.GetResearchLabBuildLabel(selectedRole);
+            if (buildFarmButtonText != null && buildingPlacementController != null)
+                buildFarmButtonText.text = buildingPlacementController.GetFarmBuildLabel();
         }
 
         private void BuildCanvas()
@@ -123,6 +126,8 @@ namespace AntColony.UI
             buildBarracksButtonText = CreateButton(canvasGO.transform, new Vector2(850f, 10f), buildBarracksLabel, () => buildingPlacementController?.BeginBarracksPlacement(selectedRole));
             var buildLabLabel = buildingPlacementController != null ? buildingPlacementController.GetResearchLabBuildLabel() : "Build Lab";
             buildLabButtonText = CreateButton(canvasGO.transform, new Vector2(990f, 10f), buildLabLabel, () => buildingPlacementController?.BeginResearchLabPlacement(selectedRole));
+            var buildFarmLabel = buildingPlacementController != null ? buildingPlacementController.GetFarmBuildLabel() : "Build Farm";
+            buildFarmButtonText = CreateButton(canvasGO.transform, new Vector2(1130f, 10f), buildFarmLabel, () => buildingPlacementController?.BeginFarmPlacement());
         }
 
         private void CycleCombatRole()

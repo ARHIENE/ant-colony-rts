@@ -90,6 +90,8 @@ namespace AntColony.Boss.AoE
             {
                 var damageable = hit.GetComponentInParent<IDamageable>();
                 if (damageable == null || alreadyDamaged.Contains(damageable)) continue;
+                // 지상 범위 공격은 공중 유닛에 적용되지 않는다.
+                if (CombatTargeting.IsAirborne(damageable)) continue;
 
                 var targetPos = hit.bounds.center;
                 var toTarget = targetPos - origin;
