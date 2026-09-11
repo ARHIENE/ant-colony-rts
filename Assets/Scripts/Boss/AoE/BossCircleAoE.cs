@@ -21,6 +21,14 @@ namespace AntColony.Boss.AoE
         [SerializeField] private float verticalTolerance = 3f;
 
         public bool IsCasting { get; private set; }
+        private GroundTelegraphCircle telegraph;
+
+        private void OnDisable()
+        {
+            StopAllCoroutines();
+            if (telegraph != null) Destroy(telegraph.gameObject);
+            IsCasting = false;
+        }
 
         private void Awake()
         {
@@ -33,7 +41,7 @@ namespace AntColony.Boss.AoE
 
         public void CastAt(Vector3 center)
         {
-            if (!gameObject.activeInHierarchy || IsCasting) return;
+            if (!isActiveAndEnabled || IsCasting) return;
             StartCoroutine(CastRoutine(center));
         }
 
@@ -41,7 +49,6 @@ namespace AntColony.Boss.AoE
         {
             IsCasting = true;
 
-            GroundTelegraphCircle telegraph = null;
             if (telegraphPrefab != null)
             {
                 telegraph = Instantiate(telegraphPrefab, center, Quaternion.identity);
@@ -60,7 +67,7 @@ namespace AntColony.Boss.AoE
 
         private void ResolveHit(Vector3 center)
         {
-            var hits = Physics.OverlapSphere(center, radius, targetMask, QueryTriggerInteraction.Ignore);
+            var hits = Physics.OverlapSphere(center, Mathf.Sqrt(radius * radius + verticalTolerance * verticalTolerance), targetMask, QueryTriggerInteraction.Ignore);
             var alreadyDamaged = new HashSet<IDamageable>();
 
             foreach (var hit in hits)

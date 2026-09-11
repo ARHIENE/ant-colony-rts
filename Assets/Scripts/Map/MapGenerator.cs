@@ -40,10 +40,37 @@ namespace AntColony.Map
         private MeshFilter meshFilter;
         private MeshRenderer meshRenderer;
         private MeshCollider meshCollider;
-        private Mesh mesh;
+        [SerializeField, HideInInspector] private Mesh mesh;
 
-        private GameObject waterObject;
-        private readonly List<GameObject> spawnedObjects = new List<GameObject>();
+        [SerializeField, HideInInspector] private GameObject waterObject;
+        [SerializeField, HideInInspector] private List<GameObject> spawnedObjects = new List<GameObject>();
+        [SerializeField, HideInInspector] private Material terrainMaterial;
+        [SerializeField, HideInInspector] private Material materialSource;
+        [SerializeField, HideInInspector] private Texture2DArray terrainTextures;
+
+        private static void ReleaseObject(Object value)
+        {
+            if (value == null) return;
+            if (Application.isPlaying) Destroy(value);
+            else DestroyImmediate(value);
+        }
+
+        private void OnDestroy()
+        {
+            ReleaseObject(mesh);
+            ReleaseObject(terrainMaterial);
+            ReleaseObject(terrainTextures);
+            ReleaseWater();
+        }
+
+        private void ReleaseWater()
+        {
+            if (waterObject == null) return;
+            var filter = waterObject.GetComponent<MeshFilter>();
+            if (filter != null) ReleaseObject(filter.sharedMesh);
+            ReleaseObject(waterObject);
+            waterObject = null;
+        }
 
         private void Start()
         {
@@ -55,26 +82,21 @@ namespace AntColony.Map
             CreateMesh();
             GenerateMesh();
             GenerateTexture();
-            SpawnObjects();
+            var randomState = Random.state;
+            try { SpawnObjects(); }
+            finally { Random.state = randomState; }
 
             if (generateWater)
                 GenerateWater();
             else if (waterObject != null)
-                DestroyImmediate(waterObject);
+                ReleaseWater();
         }
 
         private void SpawnObjects()
         {
             foreach (var obj in spawnedObjects)
-                if (obj != null) DestroyImmediate(obj);
+                ReleaseObject(obj);
             spawnedObjects.Clear();
-
-            for (var i = transform.childCount - 1; i >= 0; i--)
-            {
-                var child = transform.GetChild(i);
-                if (child.gameObject != waterObject)
-                    DestroyImmediate(child.gameObject);
-            }
 
             var minH = mesh.bounds.min.y;
             var maxH = mesh.bounds.max.y;
@@ -114,7 +136,9 @@ namespace AntColony.Map
                         if (tooClose) continue;
 
 #if UNITY_EDITOR
-                        var obj = (GameObject)PrefabUtility.InstantiatePrefab(spawnObj.prefab);
+                        var obj = !Application.isPlaying && PrefabUtility.IsPartOfPrefabAsset(spawnObj.prefab)
+                            ? (GameObject)PrefabUtility.InstantiatePrefab(spawnObj.prefab)
+                            : Instantiate(spawnObj.prefab);
                         obj.transform.position = worldPos;
 #else
                         var obj = Instantiate(spawnObj.prefab, worldPos, Quaternion.identity);
@@ -132,26 +156,25 @@ namespace AntColony.Map
 
         private void GenerateWater()
         {
-            if (waterObject != null)
-                DestroyImmediate(waterObject);
+            ReleaseWater();
 
             waterObject = new GameObject("Water");
-            waterObject.transform.parent = transform;
+            waterObject.transform.SetParent(transform, false);
 
             var minH = mesh.bounds.min.y;
             var maxH = mesh.bounds.max.y;
-            var waterY = Mathf.Lerp(minH, maxH, waterHeight) + transform.position.y;
+            var waterY = Mathf.Lerp(minH, maxH, waterHeight);
 
-            waterObject.transform.position = new Vector3(
-                transform.position.x + xSize / 2f,
+            waterObject.transform.localPosition = new Vector3(
+                xSize / 2f,
                 waterY,
-                transform.position.z + zSize / 2f);
+                zSize / 2f);
             waterObject.transform.localScale = new Vector3(xSize, 1f, zSize);
 
             var mf = waterObject.AddComponent<MeshFilter>();
             var mr = waterObject.AddComponent<MeshRenderer>();
             mf.mesh = CreatePlaneMesh();
-            mr.material = waterMat;
+            mr.sharedMaterial = waterMat;
         }
 
         private Mesh CreatePlaneMesh()
@@ -192,10 +215,17 @@ namespace AntColony.Map
             meshRenderer = GetComponent<MeshRenderer>();
             meshCollider = GetComponent<MeshCollider>();
 
+            ReleaseObject(mesh);
             mesh = new Mesh();
             mesh.indexFormat = UnityEngine.Rendering.IndexFormat.UInt32; // 65535 버텍스 제한 해제
             meshFilter.mesh = mesh;
-            meshRenderer.material = mat;
+            if (terrainMaterial == null || materialSource != mat)
+            {
+                ReleaseObject(terrainMaterial);
+                materialSource = mat;
+                terrainMaterial = mat != null ? new Material(mat) : null;
+            }
+            meshRenderer.sharedMaterial = terrainMaterial;
         }
 
         private void GenerateMesh()
@@ -247,38 +277,45 @@ namespace AntColony.Map
 
         private void GenerateTexture()
         {
+            if (terrainMaterial == null) return;
             var minTerrainHeight = mesh.bounds.min.y + transform.position.y - 0.1f;
             var maxTerrainHeight = mesh.bounds.max.y + transform.position.y + 0.1f;
 
-            mat.SetFloat("minTerrainHeight", minTerrainHeight);
-            mat.SetFloat("maxTerrainHeight", maxTerrainHeight);
+            terrainMaterial.SetFloat("minTerrainHeight", minTerrainHeight);
+            terrainMaterial.SetFloat("maxTerrainHeight", maxTerrainHeight);
 
-            var layersCount = terrainLayers.Count;
-            mat.SetInt("numTextures", layersCount);
+            var layersCount = Mathf.Min(terrainLayers.Count, 32);
+            terrainMaterial.SetInt("numTextures", layersCount);
+            ReleaseObject(terrainTextures);
+            terrainTextures = null;
+            if (layersCount == 0) return;
 
-            var heights = new float[layersCount];
-            var index = 0;
-            foreach (var l in terrainLayers)
+            var heights = new float[32];
+            for (var i = 0; i < layersCount; i++) heights[i] = terrainLayers[i].startHeight;
+            terrainMaterial.SetFloatArray("terrainHeights", heights);
+
+            terrainTextures = new Texture2DArray(512, 512, layersCount, TextureFormat.RGBA32, true);
+            var resized = new Texture2D(512, 512, TextureFormat.RGBA32, false);
+            var target = RenderTexture.GetTemporary(512, 512);
+            var previous = RenderTexture.active;
+            try
             {
-                heights[index] = l.startHeight;
-                index++;
-            }
-            mat.SetFloatArray("terrainHeights", heights);
-
-            var textures = new Texture2DArray(512, 512, layersCount, TextureFormat.RGBA32, true);
-            for (var i = 0; i < layersCount; i++)
-            {
-                var texture = terrainLayers[i].texture;
-                if (texture == null) continue;
-                if (!texture.isReadable)
+                for (var i = 0; i < layersCount; i++)
                 {
-                    Debug.LogWarning($"[MapGenerator] Texture '{texture.name}' is not Read/Write enabled (Import Settings > Read/Write) — skipping this layer's texture.");
-                    continue;
+                    Graphics.Blit(terrainLayers[i].texture != null ? terrainLayers[i].texture : Texture2D.whiteTexture, target);
+                    RenderTexture.active = target;
+                    resized.ReadPixels(new Rect(0, 0, 512, 512), 0, 0);
+                    terrainTextures.SetPixels(resized.GetPixels(), i);
                 }
-                textures.SetPixels(texture.GetPixels(), i);
             }
-            textures.Apply();
-            mat.SetTexture("terrainTextures", textures);
+            finally
+            {
+                RenderTexture.active = previous;
+                RenderTexture.ReleaseTemporary(target);
+                ReleaseObject(resized);
+            }
+            terrainTextures.Apply();
+            terrainMaterial.SetTexture("terrainTextures", terrainTextures);
         }
 
         [System.Serializable]

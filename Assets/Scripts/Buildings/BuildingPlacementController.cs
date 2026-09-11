@@ -7,6 +7,7 @@ using UnityEngine.InputSystem;
 
 namespace AntColony.Buildings
 {
+    [DefaultExecutionOrder(-200)]
     public class BuildingPlacementController : MonoBehaviour
     {
         [SerializeField] private LayerMask groundMask = 1 << 8;
@@ -21,8 +22,10 @@ namespace AntColony.Buildings
         private WorkerAnt builder;
         private GameObject preview;
         private bool placementValid;
+        private int consumedFrame = -1;
 
         public bool IsPlacing { get; private set; }
+        public bool ConsumesPointerInput => IsPlacing || consumedFrame == Time.frameCount;
 
         private void Awake()
         {
@@ -33,6 +36,7 @@ namespace AntColony.Buildings
         private void Update()
         {
             if (!IsPlacing) return;
+            consumedFrame = Time.frameCount;
 
             var mouse = Mouse.current;
             var keyboard = Keyboard.current;
@@ -58,7 +62,8 @@ namespace AntColony.Buildings
 
             var template = GetTemplate(pendingKind, pendingRole);
             var position = GetPlacementPosition(template, hit.point);
-            placementValid = Vector3.Angle(hit.normal, Vector3.up) <= maxGroundSlope && !HasObstruction(position);
+            placementValid = Vector3.Angle(hit.normal, Vector3.up) <= maxGroundSlope && !HasObstruction(position)
+                && builder != null && builder.CanStartConstruction && builder.CanReach(hit.point);
             UpdatePreview(position, placementValid);
 
             if (mouse.leftButton.wasPressedThisFrame && !IsPointerOverUi())
@@ -122,7 +127,10 @@ namespace AntColony.Buildings
             siteObject.transform.position = groundPosition + Vector3.up * 0.1f;
             siteObject.transform.localScale = new Vector3(2.5f, 0.2f, 2.5f);
             var collider = siteObject.GetComponent<Collider>();
-            if (collider != null) Destroy(collider);
+            if (collider != null) collider.isTrigger = true;
+            var footprint = template.GetComponent<Renderer>();
+            if (footprint != null)
+                siteObject.transform.localScale = new Vector3(footprint.bounds.size.x, 0.2f, footprint.bounds.size.z);
             var renderer = siteObject.GetComponent<Renderer>();
             if (renderer != null) renderer.material.color = new Color(0.9f, 0.7f, 0.2f);
 
@@ -133,6 +141,11 @@ namespace AntColony.Buildings
         }
 
         public void CancelPlacement()
+        {
+            FinishPlacementMode();
+        }
+
+        private void OnDisable()
         {
             FinishPlacementMode();
         }
@@ -205,7 +218,10 @@ namespace AntColony.Buildings
 
         private bool HasObstruction(Vector3 position)
         {
-            foreach (var hit in Physics.OverlapBox(position, placementHalfExtents, Quaternion.identity, obstructionMask, QueryTriggerInteraction.Ignore))
+            var template = GetTemplate(pendingKind, pendingRole);
+            var renderer = template != null ? template.GetComponent<Renderer>() : null;
+            var extents = renderer != null ? renderer.bounds.extents : placementHalfExtents;
+            foreach (var hit in Physics.OverlapBox(position, extents, Quaternion.identity, obstructionMask, QueryTriggerInteraction.Collide))
             {
                 if ((groundMask.value & (1 << hit.gameObject.layer)) != 0) continue;
                 return true;
@@ -219,7 +235,11 @@ namespace AntColony.Buildings
             preview.name = "BuildingPlacementPreview";
             preview.transform.localScale = template != null ? template.transform.localScale : Vector3.one;
             var collider = preview.GetComponent<Collider>();
-            if (collider != null) Destroy(collider);
+            if (collider != null)
+            {
+                collider.enabled = false;
+                Destroy(collider);
+            }
         }
 
         private void UpdatePreview(Vector3 position, bool valid)

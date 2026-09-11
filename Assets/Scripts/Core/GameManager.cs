@@ -8,6 +8,7 @@ namespace AntColony.Core
     public class GameManager : MonoBehaviour
     {
         public static GameManager Instance { get; private set; }
+        public bool FishingUnlocked { get; internal set; }
 
         public event Action OnLoopComplete;
         public event Action OnBossDefeated;
@@ -66,6 +67,20 @@ namespace AntColony.Core
             OnDefeat?.Invoke();
         }
 
+        public BuildingBase FindNearestPlayerBuilding(Vector3 from)
+        {
+            BuildingBase nearest = null;
+            var distance = float.MaxValue;
+            foreach (var building in buildings)
+            {
+                if (!CombatTargeting.IsAlive(building)) continue;
+                var candidate = (building.Position - from).sqrMagnitude;
+                if (candidate >= distance) continue;
+                distance = candidate;
+                nearest = building;
+            }
+            return nearest;
+        }
         public void ReportWildMonsterDefeated()
         {
             if (loopCompleted) return;

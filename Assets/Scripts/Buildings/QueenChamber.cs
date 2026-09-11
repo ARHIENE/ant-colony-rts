@@ -29,7 +29,7 @@ namespace AntColony.Buildings
         public bool TryProduceWorker()
         {
             if (isProducing) return false;
-            if (ResourceManager.Instance == null || workerAntData == null) return false;
+            if (!isActiveAndEnabled || ResourceManager.Instance == null || workerAntData == null || workerAntPrefab == null) return false;
             if (!ResourceManager.Instance.TrySpend(workerAntData.foodCost, 0)) return false;
 
             StartCoroutine(ProduceRoutine());
@@ -56,6 +56,7 @@ namespace AntColony.Buildings
                 : Instantiate(workerAntPrefab, position, Quaternion.identity);
 
             var worker = instance.GetComponent<WorkerAnt>();
+            instance.SetActive(true);
             worker.Initialize(workerAntData, pool, workerAntPrefab);
         }
     }

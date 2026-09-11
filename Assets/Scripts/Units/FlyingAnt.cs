@@ -21,11 +21,14 @@ namespace AntColony.Units
 
             // 비행 이동은 NavMesh를 쓰지 않으므로 에이전트를 끄고 직접 위치를 갱신한다.
             Agent.enabled = false;
+            flightDestination = transform.position + Vector3.up * flightAltitude;
             flightDestination = ToFlightPoint(transform.position);
+            transform.position = flightDestination;
         }
 
         protected override void Update()
         {
+            if (Data == null || IsDead) return;
             base.Update();
             transform.position = Vector3.MoveTowards(
                 transform.position,
@@ -36,6 +39,11 @@ namespace AntColony.Units
         protected override void SetMoveDestination(Vector3 destination)
         {
             flightDestination = ToFlightPoint(destination);
+        }
+
+        protected override void StopMoving()
+        {
+            flightDestination = transform.position;
         }
 
         protected override bool HasReachedDestination()
@@ -55,10 +63,10 @@ namespace AntColony.Units
         private Vector3 ToFlightPoint(Vector3 point)
         {
             var origin = new Vector3(point.x, point.y + GroundCastHeight, point.z);
-            var groundY = Physics.Raycast(origin, Vector3.down, out var hit, GroundCastHeight * 2f, groundMask, QueryTriggerInteraction.Ignore)
-                ? hit.point.y
-                : point.y;
-            return new Vector3(point.x, groundY + flightAltitude, point.z);
+            var altitude = Physics.Raycast(origin, Vector3.down, out var hit, GroundCastHeight * 2f, groundMask, QueryTriggerInteraction.Ignore)
+                ? hit.point.y + flightAltitude
+                : flightDestination.y;
+            return new Vector3(point.x, altitude, point.z);
         }
     }
 }

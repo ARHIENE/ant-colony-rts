@@ -3,6 +3,7 @@ using AntColony.Buildings;
 using AntColony.World;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.EventSystems;
 
 namespace AntColony.Units
 {
@@ -17,10 +18,12 @@ namespace AntColony.Units
         [SerializeField] private BuildingPlacementController buildingPlacementController;
 
         private UnityEngine.Camera cam;
+        private AttackMoveController attackMoveController;
 
         private void Awake()
         {
             cam = UnityEngine.Camera.main;
+            attackMoveController = FindFirstObjectByType<AttackMoveController>();
             if (selectionManager == null) selectionManager = FindFirstObjectByType<SelectionManager>();
             if (buildingPlacementController == null) buildingPlacementController = FindFirstObjectByType<BuildingPlacementController>();
         }
@@ -29,7 +32,9 @@ namespace AntColony.Units
         {
             var mouse = Mouse.current;
             if (mouse == null || selectionManager == null) return;
-            if (buildingPlacementController != null && buildingPlacementController.IsPlacing) return;
+            if (buildingPlacementController != null && buildingPlacementController.ConsumesPointerInput) return;
+            if (attackMoveController != null && attackMoveController.ConsumesPointerInput) return;
+            if (EventSystem.current != null && EventSystem.current.IsPointerOverGameObject()) return;
 
             if (mouse.rightButton.wasPressedThisFrame)
             {
@@ -89,7 +94,7 @@ namespace AntColony.Units
                 if (worker != null)
                 {
                     // 일개미는 전투 유닛이 아니므로 적을 클릭해도 공격 대신 그 위치로 이동만 한다.
-                    if (resourceNode != null && !resourceNode.IsDepleted)
+                    if (resourceNode != null && resourceNode.CanGather)
                     {
                         worker.CommandGather(resourceNode);
                     }

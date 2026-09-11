@@ -73,11 +73,11 @@ namespace AntColony.Boss
             {
                 if (hit == null) continue;
                 var damageable = hit.GetComponentInParent<IDamageable>();
-                if (damageable == null) continue;
+                if (!CombatTargeting.IsAlive(damageable)) continue;
                 // 지상 범위 공격 패턴이므로 공중 유닛은 타겟으로 삼지 않는다.
                 if (CombatTargeting.IsAirborne(damageable)) continue;
 
-                var target = hit.transform.root;
+                var target = ((Component)damageable).transform;
                 var diff = target.position - transform.position;
                 diff.y = 0f;
 

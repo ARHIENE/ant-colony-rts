@@ -21,7 +21,6 @@ namespace AntColony.Core
             {
                 instance = queue.Dequeue();
                 instance.transform.SetPositionAndRotation(position, rotation);
-                instance.SetActive(true);
             }
             else
             {
@@ -29,6 +28,7 @@ namespace AntColony.Core
                 instanceToPrefab[instance] = prefab;
             }
 
+            instance.SetActive(true);
             return instance;
         }
 

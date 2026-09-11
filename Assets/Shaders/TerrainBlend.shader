@@ -49,23 +49,17 @@ Shader "AntColony/TerrainBlend"
 
             half4 frag(Varyings IN) : SV_Target
             {
-                float3 scaledWorldPos = IN.worldPos / _textureScale;
+                if (numTextures <= 0) return half4(0.5, 0.5, 0.5, 1);
+                float3 scaledWorldPos = IN.worldPos / max(abs(_textureScale), 0.0001);
                 float worldPosY = IN.worldPos.y;
 
                 float heightValue = saturate((worldPosY - minTerrainHeight) / (maxTerrainHeight - minTerrainHeight));
 
-                int layerIndex = -1;
-                for (int i = 0; i < numTextures - 1; i++)
+                int layerIndex = 0;
+                for (int i = 1; i < min(numTextures, MAX_TEXTURES); i++)
                 {
-                    if (heightValue >= terrainHeights[i] && heightValue <= terrainHeights[i + 1])
-                    {
-                        layerIndex = i;
-                        break;
-                    }
+                    if (heightValue >= terrainHeights[i]) layerIndex = i;
                 }
-
-                if (layerIndex == -1)
-                    layerIndex = numTextures - 1;
 
                 return SAMPLE_TEXTURE2D_ARRAY(terrainTextures, sampler_terrainTextures, scaledWorldPos.xz, layerIndex);
             }

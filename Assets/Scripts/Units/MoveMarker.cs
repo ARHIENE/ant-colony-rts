@@ -12,6 +12,12 @@ namespace AntColony.Units
         private float timer;
         private float startScale;
         private float endScale;
+        private Material material;
+
+        private void OnDestroy()
+        {
+            if (material != null) Destroy(material);
+        }
 
         public static void Spawn(Vector3 groundPoint, Color color, float lifetime = 0.4f, float startScale = 1.4f, float endScale = 0.3f)
         {
@@ -28,6 +34,7 @@ namespace AntColony.Units
             visual.transform.localScale = new Vector3(startScale, DiscHeight, startScale);
 
             var marker = visual.AddComponent<MoveMarker>();
+            marker.material = renderer.sharedMaterial;
             marker.lifetime = lifetime;
             marker.startScale = startScale;
             marker.endScale = endScale;

@@ -2,12 +2,14 @@ using AntColony.Core;
 using AntColony.Buildings;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.EventSystems;
 
 namespace AntColony.Units
 {
     // SIMUL-TeaamProject(hyeonyeop 브랜치) AntAttackMoveController.cs 참고 포팅.
     // A 누르고 좌클릭 - 적을 클릭하면 그 대상을 직접 공격, 빈 땅을 클릭하면 어택무브(경로상 적 자동 교전).
     // ESC 또는 우클릭으로 어택 모드 취소.
+    [DefaultExecutionOrder(-100)]
     public class AttackMoveController : MonoBehaviour
     {
         [SerializeField] private LayerMask groundMask = ~0;
@@ -15,12 +17,16 @@ namespace AntColony.Units
         [SerializeField] private float formationSpacing = 1.5f;
 
         private UnityEngine.Camera cam;
+        private BuildingPlacementController placement;
+        private int consumedFrame = -1;
 
         public bool IsAttackMode { get; private set; }
+        public bool ConsumesPointerInput => IsAttackMode || consumedFrame == Time.frameCount;
 
         private void Awake()
         {
             cam = UnityEngine.Camera.main;
+            placement = FindFirstObjectByType<BuildingPlacementController>();
             if (selectionManager == null) selectionManager = FindFirstObjectByType<SelectionManager>();
         }
 
@@ -29,6 +35,11 @@ namespace AntColony.Units
             var keyboard = Keyboard.current;
             var mouse = Mouse.current;
             if (keyboard == null || mouse == null || selectionManager == null) return;
+            if (placement != null && placement.ConsumesPointerInput)
+            {
+                IsAttackMode = false;
+                return;
+            }
 
             if (keyboard.aKey.wasPressedThisFrame && HasSoldierSelected())
             {
@@ -36,6 +47,7 @@ namespace AntColony.Units
             }
 
             if (!IsAttackMode) return;
+            consumedFrame = Time.frameCount;
 
             if (keyboard.escapeKey.wasPressedThisFrame || mouse.rightButton.wasPressedThisFrame)
             {
@@ -43,7 +55,7 @@ namespace AntColony.Units
                 return;
             }
 
-            if (mouse.leftButton.wasPressedThisFrame)
+            if (mouse.leftButton.wasPressedThisFrame && (EventSystem.current == null || !EventSystem.current.IsPointerOverGameObject()))
             {
                 IssueAttackCommand(mouse.position.ReadValue());
                 IsAttackMode = false;

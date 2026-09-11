@@ -29,5 +29,6 @@ namespace AntColony.Data
         [Header("Storage Only")]
         public int foodCapacityBonus = 0;
         public int soilCapacityBonus = 0;
+        [Min(0)] public int specialCapacityBonus = 100;
     }
 }

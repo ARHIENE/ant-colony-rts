@@ -1,50 +1,52 @@
 # 프로젝트 로그
 
-## 개요
-- 프로젝트: 개미 소굴 RTS(가제), Unity 6000.5.8f1 URP
-- 루트: `E:\Git\ant`
-- 저장소: `github.com/ARHIENE/ant-colony-rts`, 작업 브랜치 `develop` (`master`는 안정 버전)
-- 목표: Notion `게임 개발 노션 정리 > 기획(스펙 문서)` 전체 구현
-- 상세 이력: `changelog.md`
+## 프로젝트와 작업 규칙
+- 개미 소굴 RTS, Unity 6000.5.8f1 URP, `E:\Git\ant`, origin `github.com/ARHIENE/ant-colony-rts`.
+- 실제 작업 `develop`, 안정 버전 `master`. 현재는 장수 구조 전환 중간 체크포인트이며 실행 가능한 완료본이 아니다.
+- `Assets/Scripts/`: Core/Data/Units/Buildings/World/Boss/UI/Map. 씬 `Assets/Scenes/AntColony.unity`, 실행 검사·설정 `AgentScripts/`.
+- `.prefab`/`.prefab.meta`, `Assets/_TeamImport/`는 커밋 금지. Ponytail full. Unity 공식 CLI/Pipeline 우선.
+- 한쪽 한도 소진 시 현재 상태 SAVE 후 중단. 컴퓨터 종료 요청 없음. 카카오톡 보내지 않음.
 
-## 현재 구현 상태 (2026-09-09 SAVE)
-- 자원: Food/Soil 채집·반납, 저장 한도, 유지비, 식량 부족 시 아사·반란 구현.
-- 농사: 밭 자유 건설, 성장 후 Food 수확, 소진 후 반복 재성장 프로토타입 구현.
-- 유닛 조작: 클릭/드래그/Shift 선택, 이동·채집·직접 공격, A키 어택무브 구현.
-- 생산/건설: 여왕방 일개미 생산, 자유 건설, 역할별 병영 1~3티어와 연구소 구현.
-- 전투 역할: Melee/Ranged/Defense/Flying/Support 유닛·병영·연구소 프로토타입 구현.
-- 비행: 고정 고도 직선 이동과 장애물 무시, 역할별 대공 제한, 지상 범위 공격 면역 구현.
-- 전투/보스: Soldier Ant 전투, WildMonster 추적·공격, MiniBird 텔레그래프 패턴 구현.
-- 건물 전투: 건물 피해·파괴와 전체 건물 파괴 시 패배 구현.
-- 맵/카메라: 중앙 플레이 클러스터와 NavMesh, 카메라 맵 범위 제한 구현.
+## 2026-09-11 한도 소진 SAVE — 미완료 체크포인트
+- 사용자 요청: Codex가 종료됐으므로 Claude Code 정상 실행 여부 확인 후 승인한 장수 전환을 재개.
+- 기존 Claude 프로세스와 세션 39641은 없었고 장수 파일도 미생성 상태였다. Claude Opus를 재시작해 파일 읽기·수정 실행을 확인했다.
+- 재시작 Claude 세션: `011bfda1-3c65-48fc-a4f9-39454bf6873e`.
+- Claude가 `You've hit your session limit · resets 1:10am (Asia/Seoul)`로 종료. 09-12 01:10 KST로 해석된다. 계정 전환/추가 개발 없이 현재 상태를 보존했다.
 
-## 이번 SAVE 작업과 검증
-- 씬 `FlyingAnt` 원본을 실제 `FlyingAnt` 컴포넌트로 연결하고 Ground 레이어 마스크를 설정했다.
-- Ranged/Flying만 공중 대상을 공격하며 Melee/Defense/Support와 WildMonster는 공중 대상을 공격하지 않도록 적용했다.
-- 보스의 지상 타겟 탐색과 원·원뿔·직선 범위 공격에서 공중 유닛을 제외했다.
-- 공중 대상을 추적할 때 비행 고도가 누적되지 않도록 지면 기준 고도를 다시 계산한다.
-- `FarmData`, 비활성 `FarmTemplate`, HUD 건설 버튼을 추가했다. 밭은 Soil 30, 건설 4초, 성장 20초, 수확량 Food 100의 임시값을 사용한다.
-- 기존 `ResourceNode`에 선택적 재성장을 추가해 기존 일반 자원은 그대로 두고 밭만 반복 수확하도록 했다.
-- Unity 컴파일 오류 0건, 비행 컴포넌트·대공 판정·고정 고도 검증 통과.
-- Unity에서 밭 첫 성장·수확 소진·반복 재성장 검증 통과.
-- 공식 Unity CLI 1.0.0-beta.8과 `com.unity.pipeline` 0.6.0-exp.1을 설치·연결하고 Codex/Claude Code용 Unity Pipeline 스킬을 추가했다.
-- Codex와 Claude Code에 Ponytail 4.9.0을 적용했다.
+## 이번에 실제 남은 장수 변경 (검증 전)
+- 신규 `Assets/Scripts/Core/AntPool.cs`: Free/Assigned/Reserved 합산 수량 풀, 배정/반환·전투손실·건설예약/해제 기반. 아직 씬·생산·장수에 연결되지 않음.
+- `AntUnitBase.cs`: Data protected setter, 체력/피해 virtual, 공격/방어 연구 보너스 동적 조회 기반.
+- `SoldierAnt.cs`: 역할 기반 비행 전환, 명령 virtual, 전투/비행 tick 분리 시작.
+- **확인된 불완전 연결**: SoldierAnt의 `bool IAirborne.IsAirborne` 구현이 비어 있는 기존 `IAirborne` 인터페이스와 맞지 않는다. 다음 재개 시 이 컴파일 차단부터 해결할 것.
+- 기존 FlyingAnt와 새 SoldierAnt 비행 코드가 중복될 수 있다. 역할 변경 착륙/NavMesh 복귀도 검토 필요.
+- 기존 테스트는 AntUnitBase의 삭제된 private attackDamage/armor를 리플렉션 참조한다. 새 모델에 맞춰 검사 수정 필요. 과거 검사 통과를 현재 코드 검증으로 주장하지 말 것.
+- 장수 클래스/병력 배정 UI/여왕방 일반개미 생산/병영 생산 폐지/건설 차출/여왕방 낚시/유지비 전환/씬 연결/새 검사 모두 미완료.
 
-## 다음 작업 우선순위
-1. 실제 마우스 조작으로 밭 배치·일개미 건설·수확·창고 반납 전체 흐름을 확인한다.
-2. 밭의 성장 중/수확 가능 상태를 최소 시각 피드백으로 구분한다.
-3. 낚시 최소 프로토타입을 구현한다.
-4. 특수 자원과 적 소굴 약탈의 최소 흐름을 구현한다.
-5. 주기적 침공 방어전과 적 AI 성장 기반을 구현한다.
+## 직전까지 검증된 기능 (장수 변경 전)
+- Food/Soil/Special 채집·반납·저장, 농사 성장/수확 표시, 낚시 연구·재충전, 실제 잔량 약탈.
+- 소굴 건물 전멸 후 전리품 해금, 직접 공격과 어택무브.
+- ColonyInvasion: 90초 후 최초 출현, 120초 간격, 2→6마리 증가, 동시 생존 상한12(임시).
+- 침공 병력이 수비 개미와 교전하고 없으면 본진 건물 공격. 소굴 전멸/비활성 시 추가 출현 중단. 이미 출발한 병력은 유지.
+- `InvasionChecks.cs`, `SceneInvasionChecks.cs`, 기존 `RegressionChecks.cs` 43개가 장수 변경 전에 통과. 당시 콘솔 오류0, Play 종료.
 
-## 구현 시 주의
-- `.prefab`/`.prefab.meta`와 `Assets/_TeamImport/`는 Git 커밋 금지.
-- 실제 개미 종, 역할별 건물 명칭, Support 액티브 스킬, 작물 종류와 농사 밸런스는 미정이다.
-- 기획 변경은 Notion 개별 하위 페이지와 관련 참조 페이지를 함께 갱신한다. 기획 부모에는 `replace_content`를 사용하지 않는다.
-- 건설 배치 미리보기는 현재 템플릿 크기의 큐브이며 외형 확정 뒤 교체가 필요하다.
-- `SnapToTerrainMenu` Raycast는 추후 지형 Collider만 대상으로 제한해야 한다.
-- Unity 제어·테스트·캡처는 공식 `unity` CLI와 `com.unity.pipeline`을 우선 사용한다.
-- Unity는 Play Mode가 종료된 상태로 유지한다.
+## 다음 재개 — 사용자 승인된 범위
+1. 미완료 비행 인터페이스 연결과 컴파일 상태 확인. 기존 staged/unstaged 작업을 되돌리지 말 것.
+2. 일반개미를 여왕방에서 식량으로 생산하는 수량 풀로 연결. 유지비는 미배치+배정+건설인력을 중복없이 계산.
+3. 장수만 직접 조작. 일반개미 배정/회수, 허용 보직·관직별 지휘한도, 배정 수=병력 체력. 변경으로 회복·복제 금지.
+4. 병영 생산을 제거하고 역할 연구 시설로 전환. 연구 완료/보직 변경 즉시 현존 부대에 강화 반영.
+5. 건설 시 인력 예약, 완공/취소 시 정확히 한 번 복귀. 낚시 연구는 여왕방에서 글로벌 적용.
+6. HUD/선택·명령과 실제 씬을 새 구조에 연결하고 실제 이동/채집/건설/피격/침공을 검증.
+7. 번식·영입·포로·랜덤 이벤트는 이번 1차 전환 범위 밖. 병력0 이후 사망/포로 세부 규칙은 미정이며 임시 정책을 확정 기획처럼 기록하지 말 것.
 
-## 이번 SAVE 개발 일지
-- https://app.notion.com/p/3d6c4a0ecd3181a58580d3087cd58029
+## 기획과 관련 문서
+- 기획 부모 `334c4a0ecd3180c4a796e5220302a0bd`, 장수 `3d8c4a0ecd318155a477fda677e21fd1`.
+- 새 기획 원문과 하위15개 문서를 읽음. 일반개미=단일 자원, 직접조작 장수만, 병영=연구, 건설차출/복귀, 스킬 장수귀속으로 바뀜.
+- 자원/유닛/건물/UI/전투/보스 등에는 구버전 참조가 남음. 명백한 충돌 문구를 기존 하위 페이지에서 교체해야 한다. 본문 경고만 추가해 구규칙을 공존시키지 말 것.
+- 관련 문서 정리 재시도는 Claude 한도 응답으로 실행되지 않음. 이번 작업에서 노션 변경 없음.
+- 기획 부모에 replace_content+allow_deleting_content 금지. 기존 개발일지는 당시 사실을 현재 구현으로 바꿔쓰지 말 것.
+
+## SAVE 외부 단계 상태
+- 현재 공식 Unity CLI status: 연결된 Pipeline 에디터 없음. 새 실행 화면 캡처 미완료.
+- 이전 캡처 `Assets/.unity/save-2026-09-10-overview.png`는 장수 전환 전 화면이며 이번 구현 결과로 재사용하지 않는다.
+- Notion 도구가 이 Codex 세션에 없고 Claude도 한도 소진: 새 개발 일지·캡처 첨부 미완료.
+- 로컬 문서 및 Git 체크포인트를 보존한다. 외부 일지 미완료를 전체 SAVE 완료로 보고하지 말 것.

@@ -29,6 +29,8 @@ namespace AntColony.UI
         private Text buildBarracksButtonText;
         private Text buildLabButtonText;
         private Text buildFarmButtonText;
+        private Text fishingResearchButtonText;
+        private ResearchLab fishingLab;
         private UnitRole selectedRole = UnitRole.Melee;
         private static readonly UnitRole[] CombatRoles =
         {
@@ -71,8 +73,10 @@ namespace AntColony.UI
 
         private void Update()
         {
-            barracks = FindBarracks(selectedRole);
-            researchLab = FindResearchLab(selectedRole);
+            if (barracks == null || !barracks.isActiveAndEnabled || barracks.Role != selectedRole)
+                barracks = FindBarracks(selectedRole);
+            if (researchLab == null || !researchLab.isActiveAndEnabled || researchLab.Role != selectedRole)
+                researchLab = FindResearchLab(selectedRole);
             if (barracksProductionButtonText != null)
                 barracksProductionButtonText.text = barracks != null ? barracks.GetProductionLabel() : $"No {selectedRole} Barracks";
             if (barracksUpgradeButtonText != null)
@@ -88,6 +92,12 @@ namespace AntColony.UI
                 buildLabButtonText.text = buildingPlacementController.GetResearchLabBuildLabel(selectedRole);
             if (buildFarmButtonText != null && buildingPlacementController != null)
                 buildFarmButtonText.text = buildingPlacementController.GetFarmBuildLabel();
+            if (fishingResearchButtonText != null)
+            {
+                fishingLab = ResearchLab.FindFishingLab();
+                fishingResearchButtonText.text = GameManager.Instance != null && GameManager.Instance.FishingUnlocked
+                    ? "Fishing Unlocked" : fishingLab != null ? fishingLab.GetFishingResearchLabel() : "Fishing: Build Lab";
+            }
         }
 
         private void BuildCanvas()
@@ -95,7 +105,10 @@ namespace AntColony.UI
             var canvasGO = new GameObject("HUDCanvas");
             var canvas = canvasGO.AddComponent<Canvas>();
             canvas.renderMode = RenderMode.ScreenSpaceOverlay;
-            canvasGO.AddComponent<CanvasScaler>();
+            var scaler = canvasGO.AddComponent<CanvasScaler>();
+            scaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
+            scaler.referenceResolution = new Vector2(1280f, 720f);
+            scaler.matchWidthOrHeight = 0f;
             canvasGO.AddComponent<GraphicRaycaster>();
             canvasGO.AddComponent<SelectedUnitPanel>();
 
@@ -106,12 +119,13 @@ namespace AntColony.UI
                 eventSystemGO.AddComponent<InputSystemUIInputModule>();
             }
 
-            resourceText = CreateText(canvasGO.transform, new Vector2(0f, 1f), new Vector2(160f, 20f), new Vector2(10f, -10f));
-            messageText = CreateText(canvasGO.transform, new Vector2(0.5f, 1f), new Vector2(300f, 20f), new Vector2(0f, -10f));
+            resourceText = CreateText(canvasGO.transform, new Vector2(0f, 1f), new Vector2(450f, 20f), new Vector2(10f, -10f));
+            messageText = CreateText(canvasGO.transform, new Vector2(0.5f, 1f), new Vector2(300f, 20f), new Vector2(0f, -35f));
             bossHealthText = CreateText(canvasGO.transform, new Vector2(1f, 1f), new Vector2(220f, 20f), new Vector2(-10f, -10f));
             bossHealthText.alignment = TextAnchor.UpperRight;
 
             roleButtonText = CreateButton(canvasGO.transform, new Vector2(10f, 55f), $"Role: {selectedRole}", CycleCombatRole);
+            fishingResearchButtonText = CreateButton(canvasGO.transform, new Vector2(150f, 55f), "Unlock Fishing", () => ResearchLab.FindFishingLab()?.TryResearchFishing());
             CreateButton(canvasGO.transform, new Vector2(10f, 10f), "Produce Worker", () => queenChamber?.TryProduceWorker());
             var barracksLabel = barracks != null ? barracks.GetProductionLabel() : "Produce Combat Ant";
             barracksProductionButtonText = CreateButton(canvasGO.transform, new Vector2(150f, 10f), barracksLabel, () => barracks?.TryProduceSoldier());
@@ -141,14 +155,14 @@ namespace AntColony.UI
         private static Barracks FindBarracks(UnitRole role)
         {
             foreach (var candidate in FindObjectsByType<Barracks>(FindObjectsSortMode.None))
-                if (candidate.Role == role) return candidate;
+                if (candidate.isActiveAndEnabled && candidate.Role == role) return candidate;
             return null;
         }
 
         private static ResearchLab FindResearchLab(UnitRole role)
         {
             foreach (var candidate in FindObjectsByType<ResearchLab>(FindObjectsSortMode.None))
-                if (candidate.Role == role) return candidate;
+                if (candidate.isActiveAndEnabled && candidate.Role == role) return candidate;
             return null;
         }
 
@@ -213,7 +227,8 @@ namespace AntColony.UI
             var rm = ResourceManager.Instance;
             resourceText.text =
                 $"Food {rm.GetAmount(ResourceType.Food)} / {rm.GetCapacity(ResourceType.Food)}   " +
-                $"Soil {rm.GetAmount(ResourceType.Soil)} / {rm.GetCapacity(ResourceType.Soil)}";
+                $"Soil {rm.GetAmount(ResourceType.Soil)} / {rm.GetCapacity(ResourceType.Soil)}   " +
+                $"Special {rm.GetAmount(ResourceType.Special)} / {rm.GetCapacity(ResourceType.Special)}";
         }
 
         private void ShowVictoryMessage()

@@ -27,6 +27,14 @@ namespace AntColony.Boss.AoE
         [SerializeField] private float groundOffset = 0.05f;
 
         public bool IsCasting { get; private set; }
+        private GroundTelegraphLine telegraph;
+
+        private void OnDisable()
+        {
+            StopAllCoroutines();
+            if (telegraph != null) Destroy(telegraph.gameObject);
+            IsCasting = false;
+        }
 
         private void Awake()
         {
@@ -38,7 +46,7 @@ namespace AntColony.Boss.AoE
 
         public void CastFrom(Vector3 origin, Vector3 forward)
         {
-            if (!gameObject.activeInHierarchy || IsCasting) return;
+            if (!isActiveAndEnabled || IsCasting) return;
 
             var flatForward = Vector3.ProjectOnPlane(forward, Vector3.up);
             if (flatForward.sqrMagnitude < 0.0001f) flatForward = transform.forward;
@@ -53,7 +61,6 @@ namespace AntColony.Boss.AoE
             var groundOrigin = SnapToGround(origin);
             var telegraphRotation = Quaternion.LookRotation(flatForward, Vector3.up);
 
-            GroundTelegraphLine telegraph = null;
             if (telegraphPrefab != null)
             {
                 telegraph = Instantiate(telegraphPrefab, groundOrigin, telegraphRotation);

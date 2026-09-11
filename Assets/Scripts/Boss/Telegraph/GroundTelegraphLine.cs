@@ -20,6 +20,11 @@ namespace AntColony.Boss.Telegraph
         private MeshFilter meshFilter;
         private Mesh mesh;
 
+        private void OnDestroy()
+        {
+            if (mesh != null) Destroy(mesh);
+        }
+
         private void Awake()
         {
             meshFilter = GetComponent<MeshFilter>();

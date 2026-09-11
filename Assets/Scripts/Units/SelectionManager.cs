@@ -61,6 +61,7 @@ namespace AntColony.Units
 
             var image = boxGO.AddComponent<Image>();
             image.color = new Color(0.4f, 0.9f, 0.4f, 0.25f);
+            image.raycastTarget = false;
             return image;
         }
 
@@ -71,9 +72,15 @@ namespace AntColony.Units
             if (mouse == null) return;
 
             // 어택무브 모드 중 좌클릭은 공격 명령 전용 — 여기서 선택이 바뀌지 않도록 건너뛴다.
-            if (attackMoveController != null && attackMoveController.IsAttackMode) return;
-            if (buildingPlacementController != null && buildingPlacementController.IsPlacing) return;
-            if (EventSystem.current != null && EventSystem.current.IsPointerOverGameObject()) return;
+            if ((attackMoveController != null && attackMoveController.ConsumesPointerInput)
+                || (buildingPlacementController != null && buildingPlacementController.ConsumesPointerInput)
+                || (EventSystem.current != null && EventSystem.current.IsPointerOverGameObject()))
+            {
+                isMouseDown = false;
+                isDragging = false;
+                ShowSelectionBox(false);
+                return;
+            }
 
             if (mouse.leftButton.wasPressedThisFrame)
             {
@@ -127,7 +134,7 @@ namespace AntColony.Units
             if (Physics.Raycast(ray, out var hit, 1000f, selectableLayerMask))
             {
                 var selectable = hit.collider.GetComponentInParent<SelectableObject>();
-                if (selectable != null)
+                if (selectable != null && selectable.isActiveAndEnabled)
                 {
                     if (!additive) ClearSelection();
                     AddToSelection(selectable);
@@ -140,13 +147,14 @@ namespace AntColony.Units
 
         private void SelectObjectsInRect(Rect screenRect, bool additive)
         {
+            if (cam == null) return;
             if (!additive) ClearSelection();
 
             var allSelectables = FindObjectsByType<SelectableObject>(FindObjectsSortMode.None);
 
             foreach (var selectable in allSelectables)
             {
-                if (selectable == null) continue;
+                if (selectable == null || !selectable.isActiveAndEnabled) continue;
 
                 var screenPos = cam.WorldToScreenPoint(selectable.GetSelectionWorldPosition());
                 if (screenPos.z < 0f) continue;

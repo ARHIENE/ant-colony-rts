@@ -20,17 +20,22 @@ namespace AntColony.Buildings
             if (completedBuilding != null)
             {
                 completedBuilding.SetActive(true);
+                completedBuilding = null;
             }
             Destroy(gameObject);
         }
 
         public void Cancel()
         {
+            Destroy(gameObject);
+        }
+
+        private void OnDestroy()
+        {
             if (completedBuilding != null)
             {
                 Destroy(completedBuilding);
             }
-            Destroy(gameObject);
         }
     }
 }

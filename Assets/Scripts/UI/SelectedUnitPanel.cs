@@ -21,7 +21,7 @@ namespace AntColony.UI
             panel = background.gameObject;
             var rect = background.rectTransform;
             rect.anchorMin = rect.anchorMax = rect.pivot = Vector2.zero;
-            rect.anchoredPosition = new Vector2(10f, 60f);
+            rect.anchoredPosition = new Vector2(10f, 105f);
             rect.sizeDelta = new Vector2(300f, 120f);
             title = CreateText("UnitName", rect, new Vector2(12f, -10f));
             healthText = CreateText("Health", rect, new Vector2(12f, -38f));

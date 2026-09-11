@@ -14,20 +14,20 @@ namespace AntColony.Units
     {
         public static readonly List<AntUnitBase> Active = new List<AntUnitBase>();
 
-        public UnitData Data { get; private set; }
+        public UnitData Data { get; protected set; }
         public NavMeshAgent Agent { get; private set; }
 
         [SerializeField] private float currentHealth;
-        private float attackDamage;
-        private float armor;
 
         private ObjectPool pool;
         private GameObject sourcePrefab;
 
-        public bool IsDead => currentHealth <= 0f;
-        public float CurrentHealth => currentHealth;
-        public float AttackDamage => attackDamage;
-        public float Armor => armor;
+        public virtual bool IsDead => currentHealth <= 0f;
+        public virtual float CurrentHealth => currentHealth;
+
+        // 연구 보너스는 저장하지 않고 매번 계산한다. 연구 완료가 살아있는 유닛에 즉시 반영된다.
+        public virtual float AttackDamage => Data == null ? 0f : Data.attackDamage + ResearchLab.GetAttackBonus(Data.role);
+        public virtual float Armor => Data == null ? 0f : Data.armor + ResearchLab.GetArmorBonus(Data.role);
         public Vector3 Position => transform.position;
 
         protected virtual void Awake()
@@ -49,6 +49,8 @@ namespace AntColony.Units
         public void Rebel()
         {
             if (IsDead) return;
+            var selectable = GetComponent<SelectableObject>();
+            if (selectable != null) selectable.enabled = false;
             if (Agent != null) Agent.enabled = false;
             gameObject.AddComponent<WildMonster>();
             Destroy(this);
@@ -60,15 +62,18 @@ namespace AntColony.Units
             pool = sourcePool;
             sourcePrefab = prefab;
             currentHealth = data.maxHealth;
-            attackDamage = data.attackDamage + ResearchLab.GetAttackBonus(data.role);
-            armor = data.armor + ResearchLab.GetArmorBonus(data.role);
             Agent.speed = data.moveSpeed;
+            if (Agent.enabled && Agent.isOnNavMesh)
+            {
+                Agent.ResetPath();
+                Agent.velocity = Vector3.zero;
+            }
         }
 
-        public void TakeDamage(float amount)
+        public virtual void TakeDamage(float amount)
         {
             if (IsDead) return;
-            currentHealth -= Mathf.Max(1f, amount - armor);
+            currentHealth -= Mathf.Max(1f, amount - Armor);
             if (currentHealth <= 0f)
             {
                 currentHealth = 0f;

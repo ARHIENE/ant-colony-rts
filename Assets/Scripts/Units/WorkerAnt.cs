@@ -1,7 +1,9 @@
 using AntColony.Buildings;
 using AntColony.Core;
+using AntColony.Data;
 using AntColony.World;
 using UnityEngine;
+using UnityEngine.AI;
 
 namespace AntColony.Units
 {
@@ -27,7 +29,27 @@ namespace AntColony.Units
         private BuildingConstructionSite targetConstruction;
         private float buildTimer;
 
-        public bool CanStartConstruction => state == State.Idle || state == State.MovingByCommand;
+        public bool CanStartConstruction => isActiveAndEnabled && !IsDead && (state == State.Idle || state == State.MovingByCommand);
+
+        public bool CanReach(Vector3 destination)
+        {
+            if (!Agent.enabled || !Agent.isOnNavMesh) return false;
+            var path = new NavMeshPath();
+            return Agent.CalculatePath(destination, path) && path.status == NavMeshPathStatus.PathComplete
+                && path.corners.Length > 0 && Vector3.Distance(path.corners[path.corners.Length - 1], destination) <= 1f;
+        }
+
+        public override void Initialize(UnitData data, ObjectPool sourcePool, GameObject prefab)
+        {
+            base.Initialize(data, sourcePool, prefab);
+            state = State.Idle;
+            targetNode = null;
+            targetDeposit = null;
+            targetConstruction = null;
+            carriedAmount = 0f;
+            carriedType = default;
+            buildTimer = 0f;
+        }
 
         // 플레이어가 우클릭으로 직접 이동을 지시하면(빈 땅) 그 위치로 이동만 하고 멈춘다.
         public void CommandMove(Vector3 destination)
@@ -42,7 +64,12 @@ namespace AntColony.Units
         public void CommandGather(ResourceNode node)
         {
             if (state == State.MovingToBuildSite || state == State.Building) return;
-            if (node == null || node.IsDepleted) return;
+            if (node == null || !node.CanGather) return;
+            if (carriedAmount > 0f && (carriedType != node.ResourceType || carriedAmount >= Data.carryCapacity))
+            {
+                BeginReturnIfNeeded();
+                return;
+            }
 
             targetNode = node;
             Agent.SetDestination(node.transform.position);
@@ -60,11 +87,17 @@ namespace AntColony.Units
 
         private void Update()
         {
+            if (Data == null || IsDead) return;
+            if (!Agent.enabled || !Agent.isOnNavMesh) return;
+            if ((state == State.MovingToNode || state == State.ReturningToStorage || state == State.MovingByCommand)
+                && !Agent.pathPending && Agent.pathStatus != NavMeshPathStatus.PathComplete)
+            {
+                Agent.ResetPath();
+                state = State.Idle;
+                return;
+            }
             switch (state)
             {
-                case State.Idle:
-                    TickIdle();
-                    break;
                 case State.MovingToNode:
                     TickMovingToNode();
                     break;
@@ -101,7 +134,20 @@ namespace AntColony.Units
         {
             if (targetConstruction == null)
             {
+                Agent.ResetPath();
                 state = State.Idle;
+                return;
+            }
+
+            // 일시적인 경로 차단으로 이미 지불한 건설현장을 없애지 않는다.
+            if (!Agent.pathPending && Agent.pathStatus != NavMeshPathStatus.PathComplete)
+            {
+                buildTimer -= Time.deltaTime;
+                if (buildTimer <= 0f)
+                {
+                    Agent.SetDestination(targetConstruction.Position);
+                    buildTimer = 0.5f;
+                }
                 return;
             }
 
@@ -116,6 +162,7 @@ namespace AntColony.Units
         {
             if (targetConstruction == null)
             {
+                Agent.ResetPath();
                 state = State.Idle;
                 return;
             }
@@ -138,16 +185,13 @@ namespace AntColony.Units
             base.OnDisable();
         }
 
-        // 자동 채집 없음: 플레이어가 우클릭으로 직접 움직여주기 전까지는 가만히 있는다.
-        private void TickIdle()
-        {
-        }
-
         private void TickMovingToNode()
         {
-            if (targetNode == null || targetNode.IsDepleted)
+            if (targetNode == null || !targetNode.CanGather)
             {
+                Agent.ResetPath();
                 state = State.Idle;
+                if (carriedAmount > 0f) BeginReturnIfNeeded();
                 return;
             }
 
@@ -159,14 +203,15 @@ namespace AntColony.Units
 
         private void TickGathering()
         {
-            if (targetNode == null || targetNode.IsDepleted)
+            if (targetNode == null || !targetNode.CanGather)
             {
-                state = carriedAmount > 0f ? State.ReturningToStorage : State.Idle;
-                BeginReturnIfNeeded();
+                Agent.ResetPath();
+                state = State.Idle;
+                if (carriedAmount > 0f) BeginReturnIfNeeded();
                 return;
             }
 
-            var extracted = targetNode.Extract(Data.gatherRate * Time.deltaTime);
+            var extracted = targetNode.Extract(Mathf.Min(Data.gatherRate * targetNode.GatherRateMultiplier * Time.deltaTime, Data.carryCapacity - carriedAmount));
             carriedAmount += extracted;
             carriedType = targetNode.ResourceType;
 
@@ -182,6 +227,7 @@ namespace AntColony.Units
             targetDeposit = BuildingBase.FindNearestDepositPoint(transform.position);
             if (targetDeposit == null)
             {
+                Agent.ResetPath();
                 state = State.Idle;
                 return;
             }
@@ -192,9 +238,9 @@ namespace AntColony.Units
 
         private void TickReturning()
         {
-            if (targetDeposit == null)
+            if (targetDeposit == null || !targetDeposit.isActiveAndEnabled || targetDeposit.IsDead)
             {
-                state = State.Idle;
+                BeginReturnIfNeeded();
                 return;
             }
 
@@ -216,7 +262,8 @@ namespace AntColony.Units
 
         private bool HasArrived()
         {
-            return !Agent.pathPending && Agent.remainingDistance <= Agent.stoppingDistance;
+            return !Agent.pathPending && Agent.pathStatus == NavMeshPathStatus.PathComplete
+                && Agent.remainingDistance <= Agent.stoppingDistance;
         }
     }
 }

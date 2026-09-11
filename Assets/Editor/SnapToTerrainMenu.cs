@@ -35,8 +35,9 @@ public static class SnapToTerrainMenu
             if (go == null) continue;
 
             var origin = new Vector3(go.transform.position.x, 200f, go.transform.position.z);
-            if (Physics.Raycast(origin, Vector3.down, out var hit, 500f))
+            if (collider.Raycast(new Ray(origin, Vector3.down), out var hit, 500f))
             {
+                Undo.RecordObject(go.transform, "Snap To Terrain");
                 var pos = go.transform.position;
                 pos.y = hit.point.y + 0.5f;
                 go.transform.position = pos;

@@ -27,7 +27,7 @@ namespace AntColony.Core
             var totalUpkeep = 0;
             foreach (var unit in AntUnitBase.Active)
             {
-                if (unit != null) totalUpkeep += unit.Data.foodUpkeep;
+                if (unit != null && unit.Data != null && !unit.IsDead && unit.isActiveAndEnabled) totalUpkeep += unit.Data.foodUpkeep;
             }
 
             if (totalUpkeep <= 0) return;

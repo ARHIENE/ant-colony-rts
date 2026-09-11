@@ -1,4 +1,5 @@
 using AntColony.Core;
+using AntColony.Boss.AoE;
 using UnityEngine;
 using UnityEngine.Events;
 
@@ -47,6 +48,13 @@ namespace AntColony.Boss
 
         private void Die()
         {
+            var circle = GetComponent<BossCircleAoE>();
+            if (circle != null) circle.enabled = false;
+            var cone = GetComponent<BossConeAoE>();
+            if (cone != null) cone.enabled = false;
+            var line = GetComponent<BossLineAoE>();
+            if (line != null) line.enabled = false;
+
             var loop = GetComponent<BossBasicPatternLoop>();
             if (loop != null) loop.enabled = false;
 

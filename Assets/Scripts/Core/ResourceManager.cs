@@ -13,6 +13,7 @@ namespace AntColony.Core
         [SerializeField] private int startingSoil = 50;
         [SerializeField] private int baseFoodCapacity = 200;
         [SerializeField] private int baseSoilCapacity = 200;
+        [SerializeField, Min(0)] private int baseSpecialCapacity = 100;
 
         private readonly Dictionary<ResourceType, int> amounts = new Dictionary<ResourceType, int>();
         private readonly Dictionary<ResourceType, int> capacities = new Dictionary<ResourceType, int>();
@@ -30,6 +31,7 @@ namespace AntColony.Core
 
             capacities[ResourceType.Food] = baseFoodCapacity;
             capacities[ResourceType.Soil] = baseSoilCapacity;
+            capacities[ResourceType.Special] = baseSpecialCapacity;
             amounts[ResourceType.Food] = Mathf.Min(startingFood, baseFoodCapacity);
             amounts[ResourceType.Soil] = Mathf.Min(startingSoil, baseSoilCapacity);
         }
@@ -39,21 +41,21 @@ namespace AntColony.Core
 
         public void AddCapacity(ResourceType type, int amount)
         {
-            capacities[type] = GetCapacity(type) + amount;
+            capacities[type] = Mathf.Max(0, GetCapacity(type) + amount);
             OnResourcesChanged?.Invoke();
         }
 
         public void Add(ResourceType type, int amount)
         {
             if (amount <= 0) return;
-            var next = Mathf.Min(GetAmount(type) + amount, GetCapacity(type));
+            var next = GetAmount(type) + Mathf.Min(amount, Mathf.Max(0, GetCapacity(type) - GetAmount(type)));
             amounts[type] = next;
             OnResourcesChanged?.Invoke();
         }
 
         public bool CanAfford(int foodCost, int soilCost)
         {
-            return GetAmount(ResourceType.Food) >= foodCost && GetAmount(ResourceType.Soil) >= soilCost;
+            return foodCost >= 0 && soilCost >= 0 && GetAmount(ResourceType.Food) >= foodCost && GetAmount(ResourceType.Soil) >= soilCost;
         }
 
         public bool TrySpend(int foodCost, int soilCost)
@@ -63,6 +65,11 @@ namespace AntColony.Core
             amounts[ResourceType.Soil] = GetAmount(ResourceType.Soil) - soilCost;
             OnResourcesChanged?.Invoke();
             return true;
+        }
+
+        private void OnDestroy()
+        {
+            if (Instance == this) Instance = null;
         }
     }
 }
