@@ -73,10 +73,20 @@ namespace AntColony.Units
                 var row = index / cols;
                 var offset = new Vector3((col - (cols - 1) / 2f) * formationSpacing, 0f, row * -formationSpacing);
 
+                // 장수/일개미도 SoldierAnt를 상속하므로 채집 지시를 먼저 판정한다.
+                var worker = selectable.GetComponent<WorkerAnt>();
+                if (worker != null && resourceNode != null && resourceNode.CanGather)
+                {
+                    worker.CommandGather(resourceNode);
+                    issuedMove = true;
+                    index++;
+                    continue;
+                }
+
                 var soldier = selectable.GetComponent<SoldierAnt>();
                 if (soldier != null)
                 {
-                    // 대공 불가 역할이 공중 대상을 클릭하면 공격 대신 그 위치로 이동만 한다.
+                    // 대공 불가 역할이나 채집 보직이 공격 대상을 클릭하면 공격 대신 그 위치로 이동만 한다.
                     if (target != null && soldier.CanAttackTarget(target))
                     {
                         soldier.CommandAttack(target);
@@ -86,23 +96,6 @@ namespace AntColony.Units
                         soldier.CommandMove(hit.point + offset);
                         issuedMove = true;
                     }
-                    index++;
-                    continue;
-                }
-
-                var worker = selectable.GetComponent<WorkerAnt>();
-                if (worker != null)
-                {
-                    // 일개미는 전투 유닛이 아니므로 적을 클릭해도 공격 대신 그 위치로 이동만 한다.
-                    if (resourceNode != null && resourceNode.CanGather)
-                    {
-                        worker.CommandGather(resourceNode);
-                    }
-                    else
-                    {
-                        worker.CommandMove(hit.point + offset);
-                    }
-                    issuedMove = true;
                     index++;
                 }
             }

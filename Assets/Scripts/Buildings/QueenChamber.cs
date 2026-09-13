@@ -1,37 +1,27 @@
 using System.Collections;
 using AntColony.Core;
-using AntColony.Units;
 using UnityEngine;
 
 namespace AntColony.Buildings
 {
     public class QueenChamber : BuildingBase
     {
-        [SerializeField] private GameObject workerAntPrefab;
         [SerializeField] private Data.UnitData workerAntData;
-        [SerializeField] private Transform spawnPoint;
-        [SerializeField] private int startingWorkerCount = 3;
-        [SerializeField] private ObjectPool pool;
-
+        [SerializeField, Min(0)] private int fishingFoodCost = 30;
+        [SerializeField, Min(0)] private int fishingSoilCost = 20;
+        [SerializeField, Min(0f)] private float fishingResearchSeconds = 3f;
         private bool isProducing;
+        private bool isFishingResearching;
 
         protected override bool IsDepositPoint => true;
-
-        private void Start()
-        {
-            var origin = spawnPoint != null ? spawnPoint.position : transform.position;
-            for (var i = 0; i < startingWorkerCount; i++)
-            {
-                SpawnWorker(origin);
-            }
-        }
+        public string GetProductionLabel() => isProducing ? "Producing Ant..." :
+            workerAntData != null ? $"Produce Ant\n{workerAntData.foodCost}F" : "No Ant Data";
 
         public bool TryProduceWorker()
         {
-            if (isProducing) return false;
-            if (!isActiveAndEnabled || ResourceManager.Instance == null || workerAntData == null || workerAntPrefab == null) return false;
+            if (isProducing || !isActiveAndEnabled || ResourceManager.Instance == null
+                || AntPool.Instance == null || workerAntData == null) return false;
             if (!ResourceManager.Instance.TrySpend(workerAntData.foodCost, 0)) return false;
-
             StartCoroutine(ProduceRoutine());
             return true;
         }
@@ -40,24 +30,38 @@ namespace AntColony.Buildings
         {
             isProducing = true;
             yield return new WaitForSeconds(workerAntData.buildTimeSeconds);
-
-            var origin = spawnPoint != null ? spawnPoint.position : transform.position;
-            SpawnWorker(origin);
-
+            AntPool.Instance?.Breed(1);
             isProducing = false;
         }
 
-        private void SpawnWorker(Vector3 position)
+        public string GetFishingResearchLabel() => GameManager.Instance != null && GameManager.Instance.FishingUnlocked
+            ? "Fishing Unlocked" : isFishingResearching ? "Learning Fishing..."
+            : $"Unlock Fishing\n{fishingFoodCost}F {fishingSoilCost}S";
+
+        public bool TryResearchFishing()
         {
-            if (workerAntPrefab == null || workerAntData == null) return;
+            if (!isActiveAndEnabled || isFishingResearching || GameManager.Instance == null
+                || GameManager.Instance.FishingUnlocked || ResourceManager.Instance == null) return false;
+            foreach (var queen in FindObjectsByType<QueenChamber>(FindObjectsSortMode.None))
+                if (queen.isFishingResearching) return false;
+            if (!ResourceManager.Instance.TrySpend(fishingFoodCost, fishingSoilCost)) return false;
+            StartCoroutine(FishingRoutine());
+            return true;
+        }
 
-            var instance = pool != null
-                ? pool.Get(workerAntPrefab, position, Quaternion.identity)
-                : Instantiate(workerAntPrefab, position, Quaternion.identity);
+        private IEnumerator FishingRoutine()
+        {
+            isFishingResearching = true;
+            yield return new WaitForSeconds(fishingResearchSeconds);
+            if (GameManager.Instance != null) GameManager.Instance.FishingUnlocked = true;
+            isFishingResearching = false;
+        }
 
-            var worker = instance.GetComponent<WorkerAnt>();
-            instance.SetActive(true);
-            worker.Initialize(workerAntData, pool, workerAntPrefab);
+        protected override void OnDisable()
+        {
+            StopAllCoroutines();
+            isProducing = isFishingResearching = false;
+            base.OnDisable();
         }
     }
 }

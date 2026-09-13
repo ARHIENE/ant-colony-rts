@@ -23,6 +23,7 @@ namespace AntColony.Units
         [SerializeField] private LayerMask groundMask = 1 << 8;
 
         private const float GroundCastHeight = 100f;
+        protected const float LandingSampleRadius = 10f;
 
         private State state = State.Idle;
         private IDamageable currentTarget;
@@ -63,6 +64,11 @@ namespace AntColony.Units
             }
 
             if (Agent == null || Agent.enabled) return;
+
+            // 착륙: 공중 좌표 그대로 에이전트를 켜면 NavMesh 밖이므로 가장 가까운 지면으로 내려놓는다.
+            if (UnityEngine.AI.NavMesh.SamplePosition(transform.position, out var landing, LandingSampleRadius, UnityEngine.AI.NavMesh.AllAreas))
+                transform.position = landing.position;
+
             Agent.enabled = true;
             if (Agent.isOnNavMesh)
             {
@@ -106,7 +112,7 @@ namespace AntColony.Units
         }
 
         // 전투 상태를 즉시 중단한다(일개미 작업이나 배속 변경이 전투 상태를 덮어쓸 때 사용).
-        public void CommandStop()
+        public virtual void CommandStop()
         {
             currentTarget = null;
             isOnAttackMove = false;
@@ -290,8 +296,15 @@ namespace AntColony.Units
             if (attackTimer <= 0f)
             {
                 attackTimer = Data.attackInterval;
-                currentTarget.TakeDamage(AttackDamage);
+                DealDamage(currentTarget);
             }
+        }
+
+        // 실제 타격이 일어나는 유일한 지점. 비행/어택무브를 포함한 모든 공격이 여기를 지나므로
+        // 처치 판정 같은 부가 처리는 이 메서드만 오버라이드하면 된다.
+        protected virtual void DealDamage(IDamageable target)
+        {
+            target.TakeDamage(AttackDamage);
         }
     }
 }

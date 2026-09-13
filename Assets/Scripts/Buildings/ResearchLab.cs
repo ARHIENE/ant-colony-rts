@@ -21,37 +21,6 @@ namespace AntColony.Buildings
         [SerializeField, Min(0f)] private float armorBonusPerLevel = 1f;
 
         private bool isResearching;
-        private bool isFishingResearch;
-
-        public static bool IsFishingResearching => Active.Exists(lab => lab != null && lab.isFishingResearch);
-        public static ResearchLab FindFishingLab() => Active.Find(lab => lab != null && !lab.isResearching)
-            ?? Active.Find(lab => lab != null);
-
-        public string GetFishingResearchLabel()
-        {
-            if (GameManager.Instance != null && GameManager.Instance.FishingUnlocked) return "Fishing Unlocked";
-            if (IsFishingResearching) return "Learning Fishing...";
-            if (isResearching) return "Lab Busy";
-            return $"Unlock Fishing\n{baseFoodCost}F {baseSoilCost}S";
-        }
-
-        public bool TryResearchFishing()
-        {
-            if (!isActiveAndEnabled || isResearching || IsFishingResearching || GameManager.Instance == null
-                || GameManager.Instance.FishingUnlocked || ResourceManager.Instance == null) return false;
-            if (!ResourceManager.Instance.TrySpend(baseFoodCost, baseSoilCost)) return false;
-            StartCoroutine(FishingRoutine());
-            return true;
-        }
-
-        private IEnumerator FishingRoutine()
-        {
-            isResearching = isFishingResearch = true;
-            yield return new WaitForSeconds(researchTimeSeconds);
-            if (GameManager.Instance != null) GameManager.Instance.FishingUnlocked = true;
-            isResearching = isFishingResearch = false;
-        }
-
         public UnitRole Role => role;
         public int AttackLevel => attackLevel;
         public int ArmorLevel => armorLevel;
@@ -67,7 +36,7 @@ namespace AntColony.Buildings
         protected override void OnDisable()
         {
             StopAllCoroutines();
-            isResearching = isFishingResearch = false;
+            isResearching = false;
             Active.Remove(this);
             base.OnDisable();
         }
@@ -140,3 +109,4 @@ namespace AntColony.Buildings
         }
     }
 }
+

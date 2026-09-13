@@ -110,8 +110,15 @@ namespace AntColony.Buildings
                 return;
 
             var cost = building.Data;
-            if (ResourceManager.Instance == null || !ResourceManager.Instance.TrySpend(cost.foodCost, cost.soilCost))
+            var pool = AntPool.Instance;
+            if (ResourceManager.Instance == null || !ResourceManager.Instance.CanAfford(cost.foodCost, cost.soilCost)
+                || pool == null || !pool.TryReserve(cost.constructionAnts))
                 return;
+            if (!ResourceManager.Instance.TrySpend(cost.foodCost, cost.soilCost))
+            {
+                pool.ReleaseReserved(cost.constructionAnts);
+                return;
+            }
 
             var completedBuilding = Instantiate(template, position, template.transform.rotation);
             completedBuilding.name = pendingKind switch
@@ -135,7 +142,7 @@ namespace AntColony.Buildings
             if (renderer != null) renderer.material.color = new Color(0.9f, 0.7f, 0.2f);
 
             var site = siteObject.AddComponent<BuildingConstructionSite>();
-            site.Initialize(completedBuilding, cost.buildTimeSeconds);
+            site.Initialize(completedBuilding, cost.buildTimeSeconds, pool, cost.constructionAnts);
             builder.CommandBuild(site);
             FinishPlacementMode();
         }
@@ -175,7 +182,7 @@ namespace AntColony.Buildings
             var template = GetTemplate(kind, role);
             var building = template != null ? template.GetComponent<BuildingBase>() : null;
             if (building == null || building.Data == null) return name + " (Unavailable)";
-            return $"{name}\n{building.Data.foodCost}F {building.Data.soilCost}S";
+            return $"{name}\n{building.Data.foodCost}F {building.Data.soilCost}S {building.Data.constructionAnts} Ants";
         }
 
         private static GameObject GetTemplate(BuildingKind kind, UnitRole role)

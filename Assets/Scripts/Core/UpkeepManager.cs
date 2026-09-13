@@ -3,13 +3,10 @@ using UnityEngine;
 
 namespace AntColony.Core
 {
-    // 개미 개체별 식량 유지비. 일정 주기마다 활성 유닛의 유지비 총합을 식량에서 차감하고,
-    // 부족하면 무작위 개체 하나를 아사시키거나 반란(야생화)시킨다.
     public class UpkeepManager : MonoBehaviour
     {
         [SerializeField] private float cycleInterval = 30f;
-        [SerializeField] private float rebellionChance = 0.5f;
-
+        [SerializeField, Min(0)] private int foodPerAnt = 1;
         private float timer;
 
         private void Update()
@@ -22,35 +19,19 @@ namespace AntColony.Core
 
         private void RunCycle()
         {
-            if (ResourceManager.Instance == null) return;
-
-            var totalUpkeep = 0;
+            var pool = AntPool.Instance;
+            if (ResourceManager.Instance == null || pool == null) return;
+            if (ResourceManager.Instance.TrySpend(pool.Total * foodPerAnt, 0)) return;
+            if (pool.StarveOne()) return;
             foreach (var unit in AntUnitBase.Active)
             {
-                if (unit != null && unit.Data != null && !unit.IsDead && unit.isActiveAndEnabled) totalUpkeep += unit.Data.foodUpkeep;
+                if (unit is CommanderAnt commander && commander.HasTroops)
+                {
+                    commander.TakeDamage(commander.Armor + 1f);
+                    return;
+                }
             }
-
-            if (totalUpkeep <= 0) return;
-            if (ResourceManager.Instance.TrySpend(totalUpkeep, 0)) return;
-
-            var victim = PickRandomActiveUnit();
-            if (victim == null) return;
-
-            if (Random.value < rebellionChance)
-            {
-                victim.Rebel();
-            }
-            else
-            {
-                victim.TakeDamage(float.MaxValue);
-            }
-        }
-
-        private AntUnitBase PickRandomActiveUnit()
-        {
-            var list = AntUnitBase.Active;
-            if (list.Count == 0) return null;
-            return list[Random.Range(0, list.Count)];
+            // ponytail: 건설 인력만 남은 경우 손실 정책은 미정. 예약은 유지하고 다음 주기에 다시 청구한다.
         }
     }
 }

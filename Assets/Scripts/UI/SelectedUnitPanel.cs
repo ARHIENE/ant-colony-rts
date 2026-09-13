@@ -13,6 +13,7 @@ namespace AntColony.UI
         private Text healthText;
         private Text combatStatsText;
         private RectTransform healthFill;
+        private CommanderAnt selectedCommander;
 
         private void Start()
         {
@@ -22,7 +23,7 @@ namespace AntColony.UI
             var rect = background.rectTransform;
             rect.anchorMin = rect.anchorMax = rect.pivot = Vector2.zero;
             rect.anchoredPosition = new Vector2(10f, 105f);
-            rect.sizeDelta = new Vector2(300f, 120f);
+            rect.sizeDelta = new Vector2(460f, 160f);
             title = CreateText("UnitName", rect, new Vector2(12f, -10f));
             healthText = CreateText("Health", rect, new Vector2(12f, -38f));
             combatStatsText = CreateText("CombatStats", rect, new Vector2(12f, -66f));
@@ -35,6 +36,10 @@ namespace AntColony.UI
             healthFill.anchorMin = Vector2.zero;
             healthFill.anchorMax = Vector2.one;
             healthFill.offsetMin = healthFill.offsetMax = Vector2.zero;
+            CreateButton(rect, 12f, "+1 Ant", () => selectedCommander?.TryAssign(1));
+            CreateButton(rect, 120f, "Return 1", () => selectedCommander?.ReturnTroops(1));
+            CreateButton(rect, 228f, "Next Role", CycleRole);
+            CreateButton(rect, 336f, "Next Rank", CycleRank);
             panel.SetActive(false);
         }
 
@@ -45,6 +50,7 @@ namespace AntColony.UI
             float current = 0f;
             float maximum = 0f;
             AntUnitBase first = null;
+            selectedCommander = null;
             if (selection != null)
             {
                 foreach (var selectable in selection.GetSelectedObjects())
@@ -55,12 +61,13 @@ namespace AntColony.UI
                     if (first == null) first = unit;
                     count++;
                     current += unit.CurrentHealth;
-                    maximum += unit.Data.maxHealth;
+                    maximum += unit is CommanderAnt commander ? commander.CommandLimit : unit.Data.maxHealth;
                 }
             }
             panel.SetActive(count > 0);
             if (count == 0) return;
-            title.text = count == 1 ? first.Data.displayName : $"Selected Units: {count}";
+            selectedCommander = count == 1 ? first as CommanderAnt : null;
+            title.text = selectedCommander != null ? $"{selectedCommander.CommanderName} ({selectedCommander.Rank})" : $"Selected Commanders: {count}";
             healthText.text = $"HP {Mathf.CeilToInt(current)} / {Mathf.CeilToInt(maximum)}";
             combatStatsText.text = count != 1
                 ? ""
@@ -68,6 +75,46 @@ namespace AntColony.UI
                     ? $"Armor {first.Armor:0.#}"
                     : $"ATK {first.AttackDamage:0.#}   Armor {first.Armor:0.#}";
             healthFill.anchorMax = new Vector2(maximum > 0f ? Mathf.Clamp01(current / maximum) : 0f, 1f);
+            if (selectedCommander == null) return;
+            var progression = selectedCommander.Progression;
+            var xp = progression.XpToNext > 0 ? $"{progression.Xp}/{progression.XpToNext}" : "MAX";
+            combatStatsText.text = $"{selectedCommander.Role}  " + combatStatsText.text + $"   Lv {progression.Level} (XP {xp})";
+        }
+
+        private void CycleRole()
+        {
+            if (selectedCommander == null) return;
+            var roles = selectedCommander.AllowedRoles;
+            for (var i = 0; i < roles.Count; i++)
+                if (roles[i] == selectedCommander.Role)
+                {
+                    selectedCommander.TrySetRole(roles[(i + 1) % roles.Count]);
+                    return;
+                }
+        }
+
+        private void CycleRank()
+        {
+            if (selectedCommander == null) return;
+            var count = System.Enum.GetValues(typeof(CommanderRank)).Length;
+            for (var offset = 1; offset < count; offset++)
+                if (selectedCommander.TrySetRank((CommanderRank)(((int)selectedCommander.Rank + offset) % count))) return;
+        }
+
+        private static void CreateButton(Transform parent, float x, string label, UnityEngine.Events.UnityAction action)
+        {
+            var go = new GameObject(label, typeof(RectTransform), typeof(Image), typeof(Button));
+            go.transform.SetParent(parent, false);
+            var rect = (RectTransform)go.transform;
+            rect.anchorMin = rect.anchorMax = rect.pivot = Vector2.zero;
+            rect.anchoredPosition = new Vector2(x, 30f);
+            rect.sizeDelta = new Vector2(100f, 26f);
+            go.GetComponent<Image>().color = new Color(.2f, .3f, .2f);
+            go.GetComponent<Button>().onClick.AddListener(action);
+            var text = CreateText(label, rect, Vector2.zero);
+            text.text = label;
+            text.rectTransform.sizeDelta = rect.sizeDelta;
+            text.alignment = TextAnchor.MiddleCenter;
         }
 
         private static Image CreateImage(string name, Transform parent, Color color)

@@ -164,9 +164,18 @@ namespace AntColony.Units
             }
         }
 
+        // 일반개미는 GameObject가 아니라 AntPool의 숫자이고, 기존 WorkerAnt/SoldierAnt 프로토타입도
+        // 더 이상 직접 조작 대상이 아니다. 유닛 중에서는 장수만 선택된다(건물 등 비유닛 선택은 그대로).
+        private static bool IsPlayerControllable(SelectableObject selectable)
+        {
+            var unit = selectable.GetComponent<AntUnitBase>();
+            return unit == null || unit is CommanderAnt;
+        }
+
         private void AddToSelection(SelectableObject selectable)
         {
             if (selectable == null || selectedObjects.Contains(selectable)) return;
+            if (!IsPlayerControllable(selectable)) return;
 
             selectedObjects.Add(selectable);
             selectable.SetSelected(true);

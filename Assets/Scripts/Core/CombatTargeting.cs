@@ -26,6 +26,7 @@ namespace AntColony.Core
 
         public static bool IsAlive(IDamageable target)
         {
+            if (target is CommanderAnt commander && !commander.HasTroops) return false;
             return target is Behaviour behaviour && behaviour != null && behaviour.isActiveAndEnabled && !target.IsDead;
         }
 

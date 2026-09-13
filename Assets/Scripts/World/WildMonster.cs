@@ -41,7 +41,7 @@ namespace AntColony.World
             agent.stoppingDistance = attackRange;
 
             // 반란 후에도 비행 개체는 NavMesh에 붙이지 않는다.
-            IsFlying = GetComponent<FlyingAnt>() != null;
+            IsFlying = GetComponent<SoldierAnt>() is SoldierAnt soldier && soldier.IsFlying;
             agent.enabled = !IsFlying;
         }
 
@@ -139,7 +139,7 @@ namespace AntColony.World
             foreach (var ant in AntUnitBase.Active)
             {
                 // 야생 몬스터는 지상 유닛만 공격한다(공중 대상 제외).
-                if (ant == null || ant.IsDead || !ant.isActiveAndEnabled) continue;
+                if (!CombatTargeting.IsAlive(ant)) continue;
                 if (CombatTargeting.IsAirborne(ant)) continue;
 
                 var distanceSqr = (ant.Position - transform.position).sqrMagnitude;

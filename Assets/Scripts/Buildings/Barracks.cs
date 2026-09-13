@@ -1,91 +1,51 @@
 using System.Collections;
+using System.Collections.Generic;
 using AntColony.Core;
 using AntColony.Data;
-using AntColony.Units;
 using UnityEngine;
 
 namespace AntColony.Buildings
 {
     public class Barracks : BuildingBase
     {
+        private static readonly List<Barracks> Active = new List<Barracks>();
         [SerializeField] private UnitRole role = UnitRole.Melee;
-        [SerializeField] private GameObject soldierAntPrefab;
-        [SerializeField] private Data.UnitData soldierAntData;
-        [SerializeField] private Transform spawnPoint;
-        [SerializeField] private ObjectPool pool;
-
-        [Header("Independent Tier")]
         [SerializeField, Min(1)] private int currentTier = 1;
         [SerializeField, Min(1)] private int maxTier = 3;
         [SerializeField, Min(0)] private int baseUpgradeFoodCost = 50;
         [SerializeField, Min(0)] private int baseUpgradeSoilCost = 50;
         [SerializeField, Min(0f)] private float upgradeTimeSeconds = 5f;
-
-        private bool isProducing;
         private bool isUpgrading;
 
         public UnitRole Role => role;
         public int CurrentTier => currentTier;
         public int MaxTier => maxTier;
-        public bool IsProducing => isProducing;
         public bool IsUpgrading => isUpgrading;
         public int UpgradeFoodCost => baseUpgradeFoodCost * currentTier;
         public int UpgradeSoilCost => baseUpgradeSoilCost * currentTier;
-        public bool HasCompatibleUnit =>
-            role != UnitRole.Worker && soldierAntData != null && soldierAntData.role == role;
-        public bool CanProduceAssignedUnit =>
-            HasCompatibleUnit && soldierAntData.requiredBarracksTier <= currentTier;
 
-        public string GetProductionLabel()
+        protected override void OnEnable()
         {
-            if (isProducing) return "Producing...";
-            if (soldierAntData == null) return "No Unit Assigned";
-            if (!HasCompatibleUnit) return "Unit Role Mismatch";
-            if (soldierAntData.requiredBarracksTier > currentTier)
-                return $"Requires Tier {soldierAntData.requiredBarracksTier}";
-            return $"Produce {soldierAntData.displayName}";
+            base.OnEnable();
+            Active.Add(this);
         }
 
-        public string GetUpgradeLabel()
+        protected override void OnDisable()
         {
-            if (isUpgrading) return $"Upgrading {role}...";
-            if (currentTier >= maxTier) return $"{role} Tier {currentTier} (Max)";
-            return $"{role} T{currentTier}>T{currentTier + 1}\n{UpgradeFoodCost}F {UpgradeSoilCost}S";
+            StopAllCoroutines();
+            isUpgrading = false;
+            Active.Remove(this);
+            base.OnDisable();
         }
 
-        public bool TryProduceSoldier()
-        {
-            if (isProducing || isUpgrading) return false;
-            if (ResourceManager.Instance == null || !CanProduceAssignedUnit || soldierAntPrefab == null) return false;
-            if (!ResourceManager.Instance.TrySpend(soldierAntData.foodCost, 0)) return false;
-
-            StartCoroutine(ProduceRoutine());
-            return true;
-        }
-
-        private IEnumerator ProduceRoutine()
-        {
-            isProducing = true;
-            yield return new WaitForSeconds(soldierAntData.buildTimeSeconds);
-
-            var origin = spawnPoint != null ? spawnPoint.position : transform.position;
-            var instance = pool != null
-                ? pool.Get(soldierAntPrefab, origin, Quaternion.identity)
-                : Instantiate(soldierAntPrefab, origin, Quaternion.identity);
-
-            instance.SetActive(true);
-            var soldier = instance.GetComponent<SoldierAnt>();
-            soldier.Initialize(soldierAntData, pool, soldierAntPrefab);
-
-            isProducing = false;
-        }
+        public string GetUpgradeLabel() => isUpgrading ? $"Researching {role}..." : currentTier >= maxTier
+            ? $"{role} Tier {currentTier} (Max)"
+            : $"{role} T{currentTier}>T{currentTier + 1}\n{UpgradeFoodCost}F {UpgradeSoilCost}S";
 
         public bool TryUpgrade()
         {
-            if (isProducing || isUpgrading || currentTier >= maxTier) return false;
-            if (ResourceManager.Instance == null) return false;
+            if (!isActiveAndEnabled || isUpgrading || currentTier >= maxTier || ResourceManager.Instance == null) return false;
             if (!ResourceManager.Instance.TrySpend(UpgradeFoodCost, UpgradeSoilCost)) return false;
-
             StartCoroutine(UpgradeRoutine());
             return true;
         }
@@ -96,6 +56,16 @@ namespace AntColony.Buildings
             yield return new WaitForSeconds(upgradeTimeSeconds);
             currentTier++;
             isUpgrading = false;
+        }
+
+        // ponytail: 티어당 공격/방어 +1은 임시 밸런스. 중복 병영은 최고 티어만 적용한다.
+        public static float GetRoleBonus(UnitRole targetRole)
+        {
+            var bonus = 0;
+            foreach (var barracks in Active)
+                if (barracks != null && barracks.role == targetRole)
+                    bonus = Mathf.Max(bonus, barracks.currentTier - 1);
+            return bonus;
         }
     }
 }

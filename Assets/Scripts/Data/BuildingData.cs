@@ -25,6 +25,8 @@ namespace AntColony.Data
         public int foodCost = 0;
         public int soilCost = 20;
         public float buildTimeSeconds = 3f;
+        // ponytail: 임시 건설 인력. 건물별 밸런스 확정 시 에셋에서 조정한다.
+        [Min(0)] public int constructionAnts = 5;
 
         [Header("Storage Only")]
         public int foodCapacityBonus = 0;

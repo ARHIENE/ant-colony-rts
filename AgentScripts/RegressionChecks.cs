@@ -54,7 +54,9 @@ public static class RegressionChecks
             Physics.SyncTransforms();
             await Task.Delay(50);
 
-            var worker = Unit<WorkerAnt>(UnitRole.Worker, origin);
+            var worker = Unit<CommanderAnt>(UnitRole.Worker, origin);
+            AntPool.Instance.Breed(1);
+            Check(worker.TryAssign(1), "commander receives workforce for gameplay checks");
             var soldier = Unit<SoldierAnt>(UnitRole.Melee, origin + Vector3.right * 8);
             var flying = Unit<FlyingAnt>(UnitRole.Flying, origin + Vector3.left * 8);
             Check(flying.transform.position.y >= origin.y + 2.9f, "flying spawn starts above ground before combat");
@@ -226,11 +228,14 @@ public static class RegressionChecks
             var selection = Object.FindAnyObjectByType<SelectionManager>();
             var selectionBox = (UnityEngine.UI.Image)Field(selection, "selectionBoxImage").GetValue(selection);
             Check(!selectionBox.raycastTarget, "drag selection visual cannot intercept pointer events");
-            Invoke(selection, "AddToSelection", worker.GetComponent<SelectableObject>());
+            Invoke(selection, "AddToSelection", template.GetComponent<SelectableObject>());
+            Check(!template.GetComponent<SelectableObject>().IsSelected, "ordinary ants cannot be selected");
+            var selectedCommander = Unit<CommanderAnt>(UnitRole.Worker, origin + Vector3.left * 2);
+            Invoke(selection, "AddToSelection", selectedCommander.GetComponent<SelectableObject>());
             var attackInput = Object.FindAnyObjectByType<AttackMoveController>();
             Field(attackInput, "consumedFrame").SetValue(attackInput, Time.frameCount);
             Invoke(selection, "Update");
-            Check(worker.GetComponent<SelectableObject>().IsSelected && attackInput.ConsumesPointerInput,
+            Check(selectedCommander.GetComponent<SelectableObject>().IsSelected && attackInput.ConsumesPointerInput,
                 "attack command frame preserves selection");
             selection.ClearSelection();
 
@@ -332,7 +337,15 @@ public static class RegressionChecks
         throw new MissingFieldException(name);
     }
 
-    static object Invoke(object target, string name, params object[] args) => target.GetType().GetMethod(name, BindingFlags.Instance | BindingFlags.NonPublic).Invoke(target, args);
+    static object Invoke(object target, string name, params object[] args)
+    {
+        for (var type = target.GetType(); type != null; type = type.BaseType)
+        {
+            var method = type.GetMethod(name, BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.DeclaredOnly);
+            if (method != null) return method.Invoke(target, args);
+        }
+        throw new MissingMethodException(name);
+    }
     static void Check(bool condition, string name)
     {
         if (!condition) throw new Exception("FAIL: " + name);

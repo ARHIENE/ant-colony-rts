@@ -54,13 +54,16 @@ namespace AntColony.Regression
                 Check(raider.transform.parent==null,"raiders independent of nest");
                 await Until(()=>target.CurrentHealth<target.MaxHealth,"real march and building damage");
                 var defenderObject=New("InvasionTestDefender",raider.Position+Vector3.forward);
-                var defender=defenderObject.AddComponent<SoldierAnt>();
+                var defender=defenderObject.AddComponent<CommanderAnt>();
                 var data=ScriptableObject.CreateInstance<UnitData>(); objects.Add(data);
                 data.role=UnitRole.Defense; data.maxHealth=1000; data.attackDamage=0; data.attackRange=3; data.attackInterval=.1f;
+                defender.ConfigureCommander("Defender",CommanderRank.General,new[]{UnitRole.Defense},UnitRole.Defense);
                 defender.Initialize(data,null,null);
+                AntPool.Instance.Breed(40);
+                Check(defender.TryAssign(40),"commander receives defense troops");
                 await Until(()=>ReferenceEquals(Get(raider,"currentTarget"),defender),"defender intercepts building attacker");
                 defender.CommandAttack(raider);
-                Set(defender,"attackDamage",200f);
+                defender.Data.attackDamage=200f;
                 await Until(()=>raider==null,"real soldier defense kills raider");
                 Check(loopEvents==0,"raider death is not wild-monster victory");
                 defenderObject.SetActive(false);
