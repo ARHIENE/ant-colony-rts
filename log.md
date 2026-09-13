@@ -24,3 +24,8 @@
 - 장수는 한 짐 반납 후 대기. 운반·건설 중 병력 배정·회수 및 보직 변경 제한. 상세 조작법은 README 참고.
 - 기획 부모 334c4a0ecd3180c4a796e5220302a0bd, 장수 3d8c4a0ecd318155a477fda677e21fd1. 이전 로그의 구기획 참조 정리 완료 여부는 다음 개발 재개 시 확인.
 - 기획 부모에 replace_content+allow_deleting_content 금지. 과거 개발일지를 현재 구현 사실로 바꿔쓰지 말 것.
+
+## Git 저장 결과
+- develop 구현 커밋 985300b를 사용자 명시적 승인 후 origin/develop에 push 완료. 최초 자동 승인 검토 차단은 사용자 승인으로 해소.
+- 개인 도구 설정(.claude/settings.json, .codex/), .gitattributes, graphify-out/, Assets/_Recovery/와 메타 파일은 로컬에 보존.
+- Git 저장 결과 메모도 별도 문서 커밋으로 보존.
