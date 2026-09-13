@@ -14,6 +14,10 @@ namespace AntColony.Units
     {
         // 기획 고정값: 일반개미 1마리가 HP 1이다. UnitData.maxHealth는 장수 부대 체력에 쓰지 않는다.
         public const float HealthPerTroop = 1f;
+        // ponytail: 지원 수치는 1차 프로토타입 상수다. 밸런스가 확정되면 데이터 에셋으로 옮긴다.
+        public const float SupportAuraRadius = 6f;
+        public const float SupportAttackBonus = 1f;
+        public const float SupportArmorBonus = 1f;
 
         [SerializeField] private string commanderName = "Commander";
         [SerializeField] private CommanderRank rank = CommanderRank.Sergeant;
@@ -49,10 +53,27 @@ namespace AntColony.Units
 
         // 병력 수만큼 부대 전체의 전투력/채집량이 늘어난다.
         // 레벨 공격 보너스는 기존 공격력과 같이 1마리분에 더해진 뒤 병력 수만큼 곱해진다.
-        public override float AttackDamage => (base.AttackDamage + progression.AttackBonus) * troopCount;
-        public override float Armor => base.Armor + progression.ArmorBonus;
+        public override float AttackDamage => (base.AttackDamage + progression.AttackBonus
+            + (HasSupportAura ? SupportAttackBonus : 0f)) * troopCount;
+        public override float Armor => base.Armor + progression.ArmorBonus
+            + (HasSupportAura ? SupportArmorBonus : 0f);
         protected override float GatherRate => base.GatherRate * Mathf.Max(1, troopCount);
         protected override float CarryCapacity => base.CarryCapacity * Mathf.Max(1, troopCount);
+
+        // 중첩 없이 가장 가까운 지원 장수 한 명만 확인한다. 현재 장수 12명 규모에서는 선형 검색이 가장 단순하다.
+        public bool HasSupportAura
+        {
+            get
+            {
+                var radiusSquared = SupportAuraRadius * SupportAuraRadius;
+                foreach (var unit in Active)
+                    if (unit is CommanderAnt support && support != this && support.HasTroops
+                        && support.Role == UnitRole.Support
+                        && (support.Position - Position).sqrMagnitude <= radiusSquared)
+                        return true;
+                return false;
+            }
+        }
 
         // 운반 중이거나 건설 중에는 배정/회수/보직 변경을 막는다. 중간에 인원이 바뀌면 자원이 증발한다.
         public bool CanChangeAllocation => !IsCarrying && !IsConstructing;
