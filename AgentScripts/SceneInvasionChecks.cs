@@ -14,6 +14,7 @@ namespace AntColony.Regression
         {
             if(!Application.isPlaying) throw new Exception("Play mode required; restart Play after this destructive test.");
             var waves=GameObject.Find("EnemyNestPrototype").GetComponent<ColonyInvasion>();
+            if(waves.transform.position==Vector3.zero) throw new Exception("Enemy nest was not randomized from its authored origin.");
             var field=typeof(ColonyInvasion).GetField("timer",BindingFlags.Instance|BindingFlags.NonPublic);
             var buildings=UnityEngine.Object.FindObjectsByType<BuildingBase>().Where(b=>b.CountsTowardPlayerDefeat).ToDictionary(b=>b,b=>b.CurrentHealth);
             var upkeep=UnityEngine.Object.FindAnyObjectByType<UpkeepManager>();
@@ -27,7 +28,7 @@ namespace AntColony.Regression
                     if(DateTime.UtcNow>deadline) throw new Exception("Actual scene invasion did not reach and damage a base building.");
                     await Task.Delay(100);
                 }
-                return "PASS: configured scene raiders spawned, navigated real terrain, and damaged player base with default movement/combat stats.";
+                return "PASS: scene nest randomized, raiders spawned, navigated real terrain, and damaged player base with default movement/combat stats.";
             }
             finally { upkeep.enabled=enabled; }
         }
