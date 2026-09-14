@@ -1,7 +1,3 @@
-# 코드 작성 규칙
-
-- 앞으로 코드 작성과 수정은 Codex로 진행한다.
-
 ## graphify
 
 This project has a knowledge graph at graphify-out/ with god nodes, community structure, and cross-file relationships.
