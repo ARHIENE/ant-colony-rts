@@ -39,6 +39,10 @@ namespace AntColony.Regression
                 Set(enemyBuilding,"countsTowardPlayerDefeat",false); enemyObject.SetActive(true);
                 var root=New("InvasionTestColony",origin); root.SetActive(false);
                 var colony=root.AddComponent<EnemyColony>(); Set(colony,"buildings",new[]{enemyBuilding});
+                var foodObject=New("InvasionTestFood",origin); foodObject.transform.SetParent(root.transform);
+                var food=foodObject.AddComponent<ResourceNode>(); Set(food,"resourceType",ResourceType.Food); Set(food,"amountRemaining",100f); Set(food,"ownerColony",colony);
+                var soilObject=New("InvasionTestSoil",origin); soilObject.transform.SetParent(root.transform);
+                var soil=soilObject.AddComponent<ResourceNode>(); Set(soil,"resourceType",ResourceType.Soil); Set(soil,"amountRemaining",100f); Set(soil,"ownerColony",colony);
                 var templateObject=New("InvasionTestTemplate",origin); templateObject.SetActive(false);
                 var template=templateObject.AddComponent<WildMonster>();
                 Set(template,"moveSpeed",10f); Set(template,"detectionRadius",4f);
@@ -46,9 +50,11 @@ namespace AntColony.Regression
                 Set(waves,"raiderTemplate",template); Set(waves,"spawnPoint",root.transform);
                 Set(waves,"firstWaveDelay",.15f); Set(waves,"waveInterval",100f);
                 Set(waves,"spawnScatter",0f); Set(waves,"firstWaveCount",1); Set(waves,"maxActiveRaiders",3);
+                Set(waves,"maxBuildings",1);
                 root.SetActive(true);
                 Check(Raiders(waves).Count==0,"first wave delay");
                 await Until(()=>Raiders(waves).Count==1,"timed first spawn");
+                Check(food.AmountRemaining==95f,"first raider spends enemy food stock");
                 var raider=Raiders(waves)[0];
                 Check(raider.GetComponent<NavMeshAgent>().isOnNavMesh,"spawn on NavMesh");
                 Check(raider.transform.parent==null,"raiders independent of nest");

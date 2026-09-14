@@ -71,6 +71,18 @@ namespace AntColony.World
             return extracted;
         }
 
+        public void AddStock(float amount)
+        {
+            if (amount > 0f) amountRemaining += amount;
+        }
+
+        public bool TryConsumeStock(float amount)
+        {
+            if (amount < 0f || amountRemaining < amount) return false;
+            amountRemaining -= amount;
+            return true;
+        }
+
         public static ResourceNode FindNearestActive(Vector3 from)
         {
             ResourceNode nearest = null;
