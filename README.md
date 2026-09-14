@@ -29,7 +29,7 @@
 | 건설 | 장수의 자유 배치 건설, 건설 인력 예약·완공·취소 시 복귀 |
 | 전투 역할 | Melee, Ranged, Defense, Flying, Support 프로토타입 |
 | 연구 | 역할별 병영 티어와 공격력·방어력 연구의 동적 적용, 여왕방의 글로벌 낚시 해금 |
-| 적·보스 | 야생 몬스터 추적·공격, MiniBird 텔레그래프 패턴, 소굴의 주기적 침공·본진 공격·수비 요격 |
+| 적·보스 | 야생 몬스터 추적·공격, MiniBird 텔레그래프 패턴, 적 소굴 시작 위치 랜덤화, 소굴의 주기적 침공·본진 공격·수비 요격 |
 | 약탈 | 임시 적 소굴 건물 전멸 후 실제 보유 자원 해금·운반, 적 건물 자동 교전 |
 | 건물 전투 | 건물 체력·피해·파괴, 전체 건물 파괴 시 패배 판정 |
 | 카메라 | 화면 가장자리 이동, 휠 줌, Q/E 90도 회전, 맵 범위 이동 제한 |
@@ -38,7 +38,7 @@ Support는 반경 6m 안의 다른 아군 장수에게 중첩 없이 공격력·
 
 병력 0인 장수는 작업·전투를 중단하고 선택·보충 대상으로 남습니다. 사망·포로 규칙은 미정입니다. 유지비 부족 시 대기 또는 배정 일반개미 1마리를 잃으며, 건설 인력만 남은 경우 예약을 유지하는 임시 정책입니다. 운반·건설 중에는 병력 배정·회수와 보직 변경을 제한합니다.
 
-적 소굴은 현재 고정 위치의 약탈 검증용 거점입니다. 주기적 침공·본진 공격·수비 요격은 추가 검증했으며, AI 경제 성장·랜덤 배치·유닛 약탈은 미구현입니다. 또한, Special의 강화·진화 소비처와 보스 전리품도 후속 작업입니다. 수치와 외형은 임시 설정입니다.
+적 소굴은 시작할 때 본진에서 30~60m 떨어진 NavMesh 연결 지점으로 무작위 이동하며, 건물·전리품·침공 생성 지점의 상대 배치를 유지합니다. 현재는 약탈 검증용 단일 거점이며 AI 경제 성장·유닛 약탈은 미구현입니다. 또한, Special의 강화·진화 소비처와 보스 전리품도 후속 작업입니다. 수치와 외형은 임시 설정입니다.
 
 ## 조작법
 
@@ -67,7 +67,7 @@ Support는 반경 6m 안의 다른 아군 장수에게 중첩 없이 공격력·
 - 주요 코드: `Assets/Scripts/`
 - 에디터 제어·검증: 공식 Unity CLI와 com.unity.pipeline
 - Pipeline 패키지: `0.7.0-exp.1`
-- 실행 검증 스크립트: `AgentScripts/CommanderChecks.cs`, `CommanderEdgeChecks.cs`, `CommanderProgressionChecks.cs`, `RegressionChecks.cs`, `FishingChecks.cs`, `RaidChecks.cs`, `InvasionChecks.cs`, `SceneInvasionChecks.cs`
+- 실행 검증 스크립트: `AgentScripts/CommanderChecks.cs`, `CommanderEdgeChecks.cs`, `CommanderProgressionChecks.cs`, `RegressionChecks.cs`, `FishingChecks.cs`, `RaidChecks.cs`, `InvasionChecks.cs`, `SceneInvasionChecks.cs`, `EnemyColonyPlacementChecks.cs`
 - 각 검사는 새 Play 모드에서 `unity command run_script --file AgentScripts/<검사명>.cs --timeout_ms 60000`으로 실행합니다. 검사 후 Play를 종료해 변경된 게임 상태를 초기화합니다.
 
 ## 브랜치
@@ -77,5 +77,5 @@ Support는 반경 6m 안의 다른 아군 장수에게 중첩 없이 공격력·
 
 개발 진행 상황과 다음 작업은 `log.md`, 날짜별 변경 이력은 `changelog.md`에서 확인할 수 있습니다.
 
-최근 저장: 2026-09-13 사용자 점검 완료. SAVE에서 실행 화면 캡처와 현재 에디터 콘솔 오류 0건을 확인했습니다. 전체 검사 재실행은 하지 않았습니다.
+최근 저장: 2026-09-14 적 소굴 랜덤 배치 완료. 전용 검사 5개, 실제 씬 침공 검사, 기존 침공 검사와 핵심 회귀 검사를 통과하고 Unity 캡처를 확인했습니다.
 
