@@ -121,15 +121,21 @@ namespace AntColony.World
             if (currentHealth <= 0f)
             {
                 currentHealth = 0f;
-                // 침공 개체 처치는 야생 몬스터 루프 승리가 아니며, 비활성 오브젝트로 쌓이지 않게 제거한다.
-                if (isRaider)
-                {
-                    Destroy(gameObject);
-                    return;
-                }
-                gameObject.SetActive(false);
-                GameManager.Instance?.ReportWildMonsterDefeated();
+                Die();
             }
+        }
+
+        // 적 장수(EnemyCommander)가 포로 전환을 끼워 넣을 수 있도록 분리했다.
+        protected virtual void Die()
+        {
+            // 침공 개체 처치는 야생 몬스터 루프 승리가 아니며, 비활성 오브젝트로 쌓이지 않게 제거한다.
+            if (isRaider)
+            {
+                Destroy(gameObject);
+                return;
+            }
+            gameObject.SetActive(false);
+            GameManager.Instance?.ReportWildMonsterDefeated();
         }
 
         private AntUnitBase FindNearestAnt()

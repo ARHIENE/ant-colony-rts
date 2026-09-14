@@ -26,6 +26,7 @@ namespace AntColony.Units
         [SerializeField, Min(0)] private int troopCount;
         [SerializeField] private UnitData[] roleProfiles;
         [SerializeField] private CommanderProgression progression = new CommanderProgression();
+        [SerializeField] private CommanderTraits traits = new CommanderTraits();
 
         // 1마리분(HP 1)에 못 미친 누적 피해. 배정/회수/보직 변경 어디서도 초기화하지 않는다(회복·복제 금지).
         private float pendingDamage;
@@ -50,12 +51,14 @@ namespace AntColony.Units
         public override bool IsDead => false;
 
         public CommanderProgression Progression => progression;
+        public CommanderTraits Traits => traits;
 
         // 병력 수만큼 부대 전체의 전투력/채집량이 늘어난다.
         // 레벨 공격 보너스는 기존 공격력과 같이 1마리분에 더해진 뒤 병력 수만큼 곱해진다.
-        public override float AttackDamage => (base.AttackDamage + progression.AttackBonus
-            + (HasSupportAura ? SupportAttackBonus : 0f)) * troopCount;
-        public override float Armor => base.Armor + progression.ArmorBonus
+        // 신중형 성격은 1마리분 공격력을 깎으므로 0 밑으로 내려가지 않게 막는다(병력 수를 곱하면 부호가 증폭된다).
+        public override float AttackDamage => Mathf.Max(0f, base.AttackDamage + progression.AttackBonus
+            + traits.AttackBonus + (HasSupportAura ? SupportAttackBonus : 0f)) * troopCount;
+        public override float Armor => base.Armor + progression.ArmorBonus + traits.ArmorBonus
             + (HasSupportAura ? SupportArmorBonus : 0f);
         protected override float GatherRate => base.GatherRate * Mathf.Max(1, troopCount);
         protected override float CarryCapacity => base.CarryCapacity * Mathf.Max(1, troopCount);
@@ -113,6 +116,12 @@ namespace AntColony.Units
                 ApplyRoleProfile();
                 ApplyMovementMode();
             }
+        }
+
+        // 번식·영입·포로 회유로 합류한 장수의 성격/충성심을 세팅한다. null이면 기존 값을 유지한다.
+        public void ApplyTraits(CommanderTraits value)
+        {
+            if (value != null) traits = value;
         }
 
         // 대기 중인 일반개미를 이 장수에게 배정한다. 지휘 한도와 대기 인원을 모두 넘지 못한다.

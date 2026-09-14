@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using AntColony.Core;
 using AntColony.Data;
+using AntColony.Units;
 using UnityEngine;
 using UnityEngine.AI;
 
@@ -11,6 +12,9 @@ namespace AntColony.World
     public class ColonyInvasion : MonoBehaviour
     {
         [SerializeField] private WildMonster raiderTemplate; // 비활성 상태의 템플릿
+        // 비워두면 적 장수 없이 기존과 똑같이 동작한다.
+        [SerializeField] private EnemyCommander commanderTemplate;
+        [SerializeField, Min(0)] private int commanderFoodCost = 10;
         [SerializeField] private Transform spawnPoint;
         [SerializeField] private float firstWaveDelay = 90f;
         [SerializeField] private float waveInterval = 120f;
@@ -83,6 +87,9 @@ namespace AntColony.World
             for (var i = 0; i < count; i++)
                 if (Spawn()) spawned++;
 
+            // 병력이 실제로 나간 파동에만 장수가 따라붙는다. 빈 파동에 장수만 보내지 않는다.
+            if (spawned > 0) SpawnCommander();
+
             // 자원 부족이나 스폰 위치 실패로 한 마리도 못 냈다면 다음 정규 파동까지 기다리지 않는다.
             timer = spawned > 0 ? waveInterval : waveRetryDelay;
             if (spawned > 0 && waveIndex < maxWaveCount) waveIndex++;
@@ -113,6 +120,26 @@ namespace AntColony.World
             raider.gameObject.SetActive(true);
             raiders.Add(raider);
             return true;
+        }
+
+        // 파동을 이끄는 적 장수. 쓰러지면 플레이어의 포로 수용소로 넘어간다.
+        private void SpawnCommander()
+        {
+            if (commanderTemplate == null) return;
+            if (raiders.Exists(raider => raider is EnemyCommander)) return;
+
+            var scatter = Random.insideUnitCircle * spawnScatter;
+            var origin = spawnPoint.position + new Vector3(scatter.x, 0f, scatter.y);
+            if (!NavMesh.SamplePosition(origin, out var hit, spawnScatter + 2f, NavMesh.AllAreas)) return;
+            if (commanderFoodCost > 0 && colony.HasResourceNode(ResourceType.Food)
+                && !colony.TrySpendResources(commanderFoodCost, 0)) return;
+
+            var commander = Instantiate(commanderTemplate, hit.position, spawnPoint.rotation);
+            commander.ConfigureCommander($"{colony.name} Commander {waveIndex + 1}",
+                CommanderRank.Sergeant, null, CommanderTraits.Random());
+            commander.MakeRaider();
+            commander.gameObject.SetActive(true);
+            raiders.Add(commander);
         }
 
         // Food 전리품 노드가 없는 소굴은 경제 도입 전처럼 비용 없이 침공한다.
