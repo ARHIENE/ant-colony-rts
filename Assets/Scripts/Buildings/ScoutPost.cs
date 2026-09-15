@@ -19,7 +19,11 @@ namespace AntColony.Buildings
         [SerializeField, Min(1)] private int maxCommanders = 20;
 
         private float remaining;
+        // 실제로 차출한 개미 수. 설정값이 아니라 이 값을 돌려줘야 중복 반납·유실이 없다.
+        private int dispatchedAnts;
 
+        public int DispatchFoodCost => dispatchFoodCost;
+        public int DispatchAnts => dispatchAnts;
         public bool IsDispatched { get; private set; }
         public float Remaining => remaining;
         public int SuccessCount { get; private set; }
@@ -36,6 +40,32 @@ namespace AntColony.Buildings
         }
 
         private void Update() => Tick(Time.deltaTime);
+
+        // 파견 중에 건물이 부서지거나 꺼지면 파견을 취소하고 나가 있던 개미를 돌려준다.
+        // 그냥 두면 개미가 Assigned에 갇혀 영영 돌아오지 않는다.
+        private void OnDisable()
+        {
+            IsDispatched = false;
+            remaining = 0f;
+            ReturnScouts();
+        }
+
+        // 반납은 여기 한 곳만 거친다. 이미 돌려준 뒤에는 0이라 두 번 반납되지 않는다.
+        private void ReturnScouts()
+        {
+            if (dispatchedAnts <= 0) return;
+            var count = dispatchedAnts;
+            dispatchedAnts = 0;
+            AntPool.Instance?.ReturnAssigned(count);
+        }
+
+        public string GetStatusLabel()
+        {
+            var status = IsDispatched
+                ? $"Scouting... {remaining:0.0}s left"
+                : $"Idle  Cost {dispatchFoodCost}F {dispatchAnts} Ant";
+            return $"Scout Post  {status}\nJoin chance {CurrentChance:P0}   Recruited {SuccessCount}  Failed {FailureCount}";
+        }
 
         // 검사 스크립트가 시간을 직접 밀어 넣을 수 있도록 분리해 둔다.
         public void Tick(float deltaTime)
@@ -56,13 +86,17 @@ namespace AntColony.Buildings
             if (IsDispatched || !isActiveAndEnabled) return false;
             if (dispatchFoodCost > 0 && ResourceManager.Instance != null
                 && !ResourceManager.Instance.CanAfford(dispatchFoodCost, 0)) return false;
-            if (dispatchAnts > 0 && (AntPool.Instance == null || !AntPool.Instance.TryAssign(dispatchAnts))) return false;
+            if (dispatchAnts > 0)
+            {
+                if (AntPool.Instance == null || !AntPool.Instance.TryAssign(dispatchAnts)) return false;
+                dispatchedAnts = dispatchAnts;
+            }
 
             if (dispatchFoodCost > 0 && ResourceManager.Instance != null
                 && !ResourceManager.Instance.TrySpend(dispatchFoodCost, 0))
             {
                 // 지불에 실패하면 차출한 개미를 즉시 되돌린다.
-                if (dispatchAnts > 0) AntPool.Instance?.ReturnAssigned(dispatchAnts);
+                ReturnScouts();
                 return false;
             }
 
@@ -74,7 +108,7 @@ namespace AntColony.Buildings
         // 귀환 판정. 성공하면 새 장수가 합류하고, 실패해도 파견 개미는 돌아온다.
         private void Resolve()
         {
-            if (dispatchAnts > 0) AntPool.Instance?.ReturnAssigned(dispatchAnts);
+            ReturnScouts();
 
             var roster = CommanderRoster.Instance;
             if (roster == null || roster.Count >= maxCommanders || Random.value > CurrentChance)

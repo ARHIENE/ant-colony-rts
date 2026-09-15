@@ -2,7 +2,9 @@
 
 - 앞으로 코드 작성과 수정은 Codex로 진행한다.
 - `master`는 안정 버전으로 유지하고 일반 개발은 `develop`에서 진행한다.
+- SAVE 작업을 시작할 때는 다른 SAVE 단계보다 먼저 현재 상태를 `log.md`에 작성한다. 이후에만 `changelog.md` 이관, README 반영, 커밋·push, Notion 기록을 진행한다.
 - 사용자가 `SAVE`를 요청하면 기존 전역 SAVE 절차와 함께 `README.md`를 확인한다.
+- 사용자가 `SAVE`를 요청하면 검증한 작업 변경사항을 `develop`에 커밋하고 `origin/develop`에 push한다. 커밋·push를 별도 요청으로 미루지 않는다. `master` 반영은 별도 요청이 있을 때만 진행한다.
 - 세션 중 게임 설명, 구현 상태, 조작법, 기술 정보 또는 브랜치 운영 방식이 변경되었다면 `README.md`에 현재 상태를 반영한다.
 - 아직 구현하지 않은 기능을 구현된 기능처럼 `README.md`에 적지 않는다.
 - `.prefab`과 `.prefab.meta` 파일은 커밋하지 않는다.

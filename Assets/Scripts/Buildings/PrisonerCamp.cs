@@ -30,7 +30,25 @@ namespace AntColony.Buildings
     // 이 컴포넌트가 곧 수용소이므로, 없거나 정원이 차면 적 장수는 포로가 되지 않고 그대로 죽는다.
     public class PrisonerCamp : MonoBehaviour
     {
-        public static PrisonerCamp Instance { get; private set; }
+        // 완공된 수용소는 여러 채 지을 수 있다. 활성 상태인 것만 등록되므로 배치용 템플릿(비활성)은 들어오지 않는다.
+        private static readonly List<PrisonerCamp> Active = new List<PrisonerCamp>();
+
+        // 기존 호출부(적 장수 사망 처리·검사)가 쓰는 창구. 자리가 남은 수용소를 우선 고르고,
+        // 전부 찼으면 먼저 지은 곳을 돌려줘 "정원 초과" 판정이 그대로 동작하게 한다.
+        public static PrisonerCamp Instance
+        {
+            get
+            {
+                PrisonerCamp full = null;
+                foreach (var camp in Active)
+                {
+                    if (camp == null) continue;
+                    if (camp.HasSpace) return camp;
+                    full ??= camp;
+                }
+                return full;
+            }
+        }
 
         // ponytail: 회유·탈출 수치는 1차 프로토타입 잠정값이다. 기획 확정 시 이 필드만 고치면 된다.
         [SerializeField, Min(1)] private int capacity = 5;
@@ -52,20 +70,18 @@ namespace AntColony.Buildings
         public int RecruitedCount { get; private set; }
         public int ExecutedCount { get; private set; }
 
-        private void Awake()
+        public int Capacity => capacity;
+        public int PersuadeFoodCost => persuadeFoodCost;
+
+        private void OnEnable()
         {
-            if (Instance != null && Instance != this)
-            {
-                Destroy(this);
-                return;
-            }
-            Instance = this;
+            Active.Add(this);
             escapeTimer = escapeCheckSeconds;
         }
 
-        private void OnDestroy()
+        private void OnDisable()
         {
-            if (Instance == this) Instance = null;
+            Active.Remove(this);
         }
 
         private void Update() => Tick(Time.deltaTime);
@@ -98,7 +114,13 @@ namespace AntColony.Buildings
         }
 
         // 회유 성공률. 충성심이 높을수록 낮아지고, 반복 시도할수록 조금씩 오른다.
-        public float PersuadeChance(Prisoner prisoner)
+        public float PersuadeChance(Prisoner prisoner) => PersuadeChance(prisoner, 0);
+
+        // TryPersuade는 시도 횟수를 올린 뒤에 주사위를 굴린다. UI가 PersuadeChance를 그대로 쓰면
+        // 실제 판정보다 낮은 값을 보여주므로, 다음 시도에 적용될 확률은 이쪽을 쓴다(판정 확률은 그대로다).
+        public float NextPersuadeChance(Prisoner prisoner) => PersuadeChance(prisoner, 1);
+
+        private float PersuadeChance(Prisoner prisoner, int extraAttempts)
         {
             if (prisoner == null) return 0f;
             var loyaltyRatio = prisoner.Traits.Loyalty / (float)CommanderTraits.MaxLoyalty;
@@ -110,14 +132,15 @@ namespace AntColony.Buildings
                 _ => 0f
             };
             var chance = basePersuadeChance - loyaltyRatio * loyaltyPenalty + personalityShift
-                + prisoner.PersuadeAttempts * attemptBonus;
+                + (prisoner.PersuadeAttempts + extraAttempts) * attemptBonus;
             return Mathf.Clamp01(chance);
         }
 
         // 회유 시도. 성공하면 포로가 내 장수로 합류하고, 실패하면 포로는 그대로 남아 다시 시도할 수 있다.
         public bool TryPersuade(int index)
         {
-            if (index < 0 || index >= prisoners.Count) return false;
+            // 부서지거나 꺼진 수용소는 아무것도 못 한다(식량도 쓰지 않는다).
+            if (!isActiveAndEnabled || index < 0 || index >= prisoners.Count) return false;
             var prisoner = prisoners[index];
             if (persuadeFoodCost > 0 && ResourceManager.Instance != null
                 && !ResourceManager.Instance.TrySpend(persuadeFoodCost, 0)) return false;
@@ -136,10 +159,16 @@ namespace AntColony.Buildings
             return true;
         }
 
+        // UI는 인덱스가 아니라 포로 자체를 들고 있는다. 앞쪽 포로가 탈출해 인덱스가 밀려도
+        // 엉뚱한 포로를 회유·처형하지 않고, 이미 사라진 포로면 그냥 실패한다.
+        public bool TryPersuade(Prisoner prisoner) => TryPersuade(prisoners.IndexOf(prisoner));
+
+        public bool Execute(Prisoner prisoner) => Execute(prisoners.IndexOf(prisoner));
+
         // 기획: 플레이어 선택으로 언제든 처형할 수 있다.
         public bool Execute(int index)
         {
-            if (index < 0 || index >= prisoners.Count) return false;
+            if (!isActiveAndEnabled || index < 0 || index >= prisoners.Count) return false;
             prisoners.RemoveAt(index);
             ExecutedCount++;
             return true;

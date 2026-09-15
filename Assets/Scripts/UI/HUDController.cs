@@ -29,6 +29,9 @@ namespace AntColony.UI
         private Text buildBarracksButtonText;
         private Text buildLabButtonText;
         private Text buildFarmButtonText;
+        private Text buildNurseryButtonText;
+        private Text buildScoutPostButtonText;
+        private Text buildPrisonButtonText;
         private Text fishingResearchButtonText;
         private UnitRole selectedRole = UnitRole.Melee;
         private static readonly UnitRole[] CombatRoles =
@@ -92,6 +95,12 @@ namespace AntColony.UI
                 buildLabButtonText.text = buildingPlacementController.GetResearchLabBuildLabel(selectedRole);
             if (buildFarmButtonText != null && buildingPlacementController != null)
                 buildFarmButtonText.text = buildingPlacementController.GetFarmBuildLabel();
+            if (buildNurseryButtonText != null && buildingPlacementController != null)
+                buildNurseryButtonText.text = buildingPlacementController.GetNurseryBuildLabel();
+            if (buildScoutPostButtonText != null && buildingPlacementController != null)
+                buildScoutPostButtonText.text = buildingPlacementController.GetScoutPostBuildLabel();
+            if (buildPrisonButtonText != null && buildingPlacementController != null)
+                buildPrisonButtonText.text = buildingPlacementController.GetPrisonerCampBuildLabel();
             if (fishingResearchButtonText != null)
             {
 
@@ -111,6 +120,7 @@ namespace AntColony.UI
             scaler.matchWidthOrHeight = 0f;
             canvasGO.AddComponent<GraphicRaycaster>();
             canvasGO.AddComponent<SelectedUnitPanel>();
+            canvasGO.AddComponent<CommanderAcquisitionPanel>();
 
             if (FindFirstObjectByType<EventSystem>() == null)
             {
@@ -140,6 +150,14 @@ namespace AntColony.UI
             buildLabButtonText = CreateButton(canvasGO.transform, new Vector2(990f, 10f), buildLabLabel, () => buildingPlacementController?.BeginResearchLabPlacement(selectedRole));
             var buildFarmLabel = buildingPlacementController != null ? buildingPlacementController.GetFarmBuildLabel() : "Build Farm";
             buildFarmButtonText = CreateButton(canvasGO.transform, new Vector2(1130f, 10f), buildFarmLabel, () => buildingPlacementController?.BeginFarmPlacement());
+
+            // 장수 획득 건물 3종. 아래 줄이 가득 차 병영 줄 위에 놓는다.
+            buildNurseryButtonText = CreateButton(canvasGO.transform, new Vector2(290f, 55f), "Build Nursery",
+                () => buildingPlacementController?.BeginNurseryPlacement());
+            buildScoutPostButtonText = CreateButton(canvasGO.transform, new Vector2(430f, 55f), "Build Scout Post",
+                () => buildingPlacementController?.BeginScoutPostPlacement());
+            buildPrisonButtonText = CreateButton(canvasGO.transform, new Vector2(570f, 55f), "Build Prison",
+                () => buildingPlacementController?.BeginPrisonerCampPlacement());
         }
 
         private void CycleCombatRole()

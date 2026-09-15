@@ -9,7 +9,11 @@ namespace AntColony.Data
         Storage,
         DigSite,
         ResearchLab,
-        Farm
+        Farm,
+        // 장수 획득 경로 3종. 기존 값의 직렬화 번호가 밀리지 않도록 뒤에 추가한다.
+        Nursery,
+        ScoutPost,
+        PrisonerCamp
     }
 
     [CreateAssetMenu(fileName = "BuildingData", menuName = "AntColony/Building Data")]

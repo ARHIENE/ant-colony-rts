@@ -200,11 +200,14 @@ public static class CommanderProgressionChecks
             selection.ClearSelection();
             typeof(AntColony.Units.SelectionManager).GetMethod("AddToSelection", Flags)
                 .Invoke(selection, new object[] { commander.GetComponent<AntColony.Units.SelectableObject>() });
-            await Task.Delay(100);
             var panel = Object.FindAnyObjectByType<AntColony.UI.SelectedUnitPanel>();
             var statsText = (UnityEngine.UI.Text)typeof(AntColony.UI.SelectedUnitPanel)
                 .GetField("combatStatsText", Flags).GetValue(panel);
-            Check(statsText.text.Contains("Lv 2") && statsText.text.Contains("75/200"), "selected commander panel shows level and xp");
+            var uiDeadline = DateTime.UtcNow.AddSeconds(5);
+            while (!(statsText.text.Contains("Lv 2") && statsText.text.Contains("75/200")) && DateTime.UtcNow < uiDeadline)
+                await Task.Delay(20);
+            Check(statsText.text.Contains("Lv 2") && statsText.text.Contains("75/200"),
+                "selected commander panel shows level and xp: " + statsText.text);
             selection.ClearSelection();
 
             return "PASS: " + checks + " commander xp math / last-hit kill / retention / bonus / ui checks";

@@ -31,6 +31,9 @@ namespace AntColony.Buildings
                 this.second = second;
             }
 
+            public CommanderAnt First => first;
+            public CommanderAnt Second => second;
+
             // 파괴된 장수가 낀 쌍은 더 이상 유효하지 않다.
             public bool IsAlive => first != null && second != null;
 
@@ -48,9 +51,31 @@ namespace AntColony.Buildings
         private readonly Dictionary<Pair, float> affinity = new Dictionary<Pair, float>();
         private readonly List<Pair> expired = new List<Pair>();
 
+        // 활성 양육실 목록. 배치용 템플릿은 비활성이라 등록되지 않는다.
+        private static readonly List<NurseryChamber> Active = new List<NurseryChamber>();
+
+        // 호감도는 양육실이 아니라 장수 쌍에 쌓이므로, 여러 채가 각자 돌면 번식 속도가 채수만큼 빨라진다.
+        // 가장 먼저 지은 한 채만 진행해 중복 건설로 출산이 배로 빨라지는 것을 막는다.
+        public static NurseryChamber Primary
+        {
+            get
+            {
+                foreach (var nursery in Active)
+                    if (nursery != null) return nursery;
+                return null;
+            }
+        }
+
         public int BirthCount { get; private set; }
 
-        private void Update() => Tick(Time.deltaTime);
+        private void OnEnable() => Active.Add(this);
+
+        private void OnDisable() => Active.Remove(this);
+
+        private void Update()
+        {
+            if (Primary == this) Tick(Time.deltaTime);
+        }
 
         // 검사 스크립트가 시간을 직접 밀어 넣을 수 있도록 분리해 둔다.
         public void Tick(float deltaTime)
@@ -129,5 +154,35 @@ namespace AntColony.Buildings
 
         public float GetAffinity(CommanderAnt first, CommanderAnt second)
             => affinity.TryGetValue(new Pair(first, second), out var value) ? value : 0f;
+
+        // HUD 표시용. 호감도 조건은 "장수 쌍이 서로 가까이 있을 것"이지 양육실 근처일 것이 아니므로,
+        // 문구도 실제 동작 그대로 쓴다(기획에서 양육실 반경으로 확정되면 Tick과 함께 바꾼다).
+        public string GetStatusLabel()
+        {
+            var count = CommanderRoster.Instance != null ? CommanderRoster.Instance.Count : 0;
+            var best = BestPair(out var first, out var second);
+            var pair = first != null
+                ? $"{first.CommanderName} + {second.CommanderName}  {best:0}/{birthAffinity:0}"
+                : "no pair in range";
+            var head = Primary == this ? "Nursery" : "Nursery (idle: another nursery leads)";
+            return $"{head}  Commanders {count}/{maxCommanders}  Birth {birthFoodCost}F  Births {BirthCount}\n"
+                + $"Pairs within {affinityRadius:0.#}m of each other: {pair}";
+        }
+
+        // 가장 많이 쌓인 쌍 하나. 표시용이라 정렬 없이 한 번 훑는다.
+        private float BestPair(out CommanderAnt first, out CommanderAnt second)
+        {
+            first = null;
+            second = null;
+            var best = 0f;
+            foreach (var entry in affinity)
+            {
+                if (!entry.Key.IsAlive || entry.Value <= best) continue;
+                best = entry.Value;
+                first = entry.Key.First;
+                second = entry.Key.Second;
+            }
+            return best;
+        }
     }
 }

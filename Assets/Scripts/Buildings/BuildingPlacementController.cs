@@ -75,6 +75,14 @@ namespace AntColony.Buildings
         public bool BeginFarmPlacement() => BeginPlacement(BuildingKind.Farm, UnitRole.Worker);
         public string GetFarmBuildLabel() => GetBuildLabel(BuildingKind.Farm, UnitRole.Worker, "Build Farm");
 
+        // 장수 획득 건물 3종. 전투 보직과 무관하므로 역할은 Worker로 고정한다.
+        public bool BeginNurseryPlacement() => BeginPlacement(BuildingKind.Nursery, UnitRole.Worker);
+        public bool BeginScoutPostPlacement() => BeginPlacement(BuildingKind.ScoutPost, UnitRole.Worker);
+        public bool BeginPrisonerCampPlacement() => BeginPlacement(BuildingKind.PrisonerCamp, UnitRole.Worker);
+        public string GetNurseryBuildLabel() => GetBuildLabel(BuildingKind.Nursery, UnitRole.Worker, "Build Nursery");
+        public string GetScoutPostBuildLabel() => GetBuildLabel(BuildingKind.ScoutPost, UnitRole.Worker, "Build Scout Post");
+        public string GetPrisonerCampBuildLabel() => GetBuildLabel(BuildingKind.PrisonerCamp, UnitRole.Worker, "Build Prison");
+
         public bool BeginBarracksPlacement() => BeginBarracksPlacement(UnitRole.Melee);
         public bool BeginResearchLabPlacement() => BeginResearchLabPlacement(UnitRole.Melee);
         public bool BeginBarracksPlacement(UnitRole role) => BeginPlacement(BuildingKind.Barracks, role);
@@ -124,8 +132,8 @@ namespace AntColony.Buildings
             completedBuilding.name = pendingKind switch
             {
                 BuildingKind.Barracks => $"{pendingRole}Barracks",
-                BuildingKind.Farm => "Farm",
-                _ => $"{pendingRole}ResearchLab"
+                BuildingKind.ResearchLab => $"{pendingRole}ResearchLab",
+                _ => pendingKind.ToString()
             };
             completedBuilding.SetActive(false);
 
@@ -191,6 +199,9 @@ namespace AntColony.Buildings
             {
                 BuildingKind.ResearchLab => FindTemplate<ResearchLab>(role),
                 BuildingKind.Farm => FindFarmTemplate(),
+                BuildingKind.Nursery => FindTemplate<NurseryChamber>(),
+                BuildingKind.ScoutPost => FindTemplate<ScoutPost>(),
+                BuildingKind.PrisonerCamp => FindTemplate<PrisonerCamp>(),
                 _ => FindTemplate<Barracks>(role)
             };
         }
@@ -201,6 +212,17 @@ namespace AntColony.Buildings
             foreach (var node in FindObjectsByType<AntColony.World.ResourceNode>(FindObjectsInactive.Include, FindObjectsSortMode.None))
             {
                 if (node.gameObject.scene.IsValid() && node.gameObject.name == "FarmTemplate") return node.gameObject;
+            }
+            return null;
+        }
+
+        // 역할 구분이 없는 건물의 템플릿. 이름이 Template으로 끝나는 씬 오브젝트 하나를 쓴다.
+        private static GameObject FindTemplate<T>() where T : Component
+        {
+            foreach (var component in FindObjectsByType<T>(FindObjectsInactive.Include, FindObjectsSortMode.None))
+            {
+                if (component.gameObject.scene.IsValid() && component.gameObject.name.EndsWith("Template"))
+                    return component.gameObject;
             }
             return null;
         }
