@@ -160,6 +160,13 @@ namespace AntColony.World
 
         public void MakeRaider() => isRaider = true;
 
+        public void ConfigureWeakIntruder()
+        {
+            maxHealth = 15f;
+            attackDamage = 1f;
+            attackInterval = 2f;
+        }
+
         private bool CanMove()
         {
             return agent != null && agent.enabled && agent.isOnNavMesh;

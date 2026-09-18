@@ -2,6 +2,7 @@ using AntColony.Boss;
 using AntColony.Buildings;
 using AntColony.Core;
 using AntColony.Data;
+using AntColony.Units;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.InputSystem.UI;
@@ -13,7 +14,6 @@ namespace AntColony.UI
     {
         [SerializeField] private QueenChamber queenChamber;
         [SerializeField] private Barracks barracks;
-        [SerializeField] private ResearchLab researchLab;
         [SerializeField] private BuildingPlacementController buildingPlacementController;
         [SerializeField] private DigSite digSite;
         [SerializeField] private BossHealth boss;
@@ -33,6 +33,7 @@ namespace AntColony.UI
         private Text buildScoutPostButtonText;
         private Text buildPrisonButtonText;
         private Text fishingResearchButtonText;
+        private SelectionManager selectionManager;
         private UnitRole selectedRole = UnitRole.Melee;
         private static readonly UnitRole[] CombatRoles =
         {
@@ -47,7 +48,6 @@ namespace AntColony.UI
         {
             if (queenChamber == null) queenChamber = FindFirstObjectByType<QueenChamber>();
             if (barracks == null) barracks = FindFirstObjectByType<Barracks>();
-            if (researchLab == null) researchLab = FindFirstObjectByType<ResearchLab>();
             if (buildingPlacementController == null) buildingPlacementController = FindFirstObjectByType<BuildingPlacementController>();
             if (digSite == null) digSite = FindFirstObjectByType<DigSite>();
             if (boss == null) boss = FindFirstObjectByType<BossHealth>();
@@ -76,18 +76,24 @@ namespace AntColony.UI
 
         private void Update()
         {
+            if (AntColony.World.WorldMapManager.Instance != null)
+            {
+                var site = AntColony.World.WorldMapManager.Instance.ViewedSite;
+                boss = site != null ? site.Boss : null;
+                if (boss != null) UpdateBossHealthText(boss.CurrentHp, boss.MaxHp);
+                else if (bossHealthText != null) bossHealthText.text = "";
+            }
             if (barracks == null || !barracks.isActiveAndEnabled || barracks.Role != selectedRole)
                 barracks = FindBarracks(selectedRole);
-            if (researchLab == null || !researchLab.isActiveAndEnabled || researchLab.Role != selectedRole)
-                researchLab = FindResearchLab(selectedRole);
+            var commander = SelectedCommander;
             if (antProductionButtonText != null)
                 antProductionButtonText.text = queenChamber != null ? queenChamber.GetProductionLabel() : "No Queen Chamber";
             if (barracksUpgradeButtonText != null)
                 barracksUpgradeButtonText.text = barracks != null ? barracks.GetUpgradeLabel() : $"No {selectedRole} Barracks";
             if (attackResearchButtonText != null)
-                attackResearchButtonText.text = researchLab != null ? researchLab.GetAttackResearchLabel() : $"No {selectedRole} Lab";
+                attackResearchButtonText.text = GetLabResearchLabel(commander, true);
             if (armorResearchButtonText != null)
-                armorResearchButtonText.text = researchLab != null ? researchLab.GetArmorResearchLabel() : $"No {selectedRole} Lab";
+                armorResearchButtonText.text = GetLabResearchLabel(commander, false);
             if (roleButtonText != null) roleButtonText.text = $"Role: {selectedRole}";
             if (buildBarracksButtonText != null && buildingPlacementController != null)
                 buildBarracksButtonText.text = buildingPlacementController.GetBarracksBuildLabel(selectedRole);
@@ -121,6 +127,7 @@ namespace AntColony.UI
             canvasGO.AddComponent<GraphicRaycaster>();
             canvasGO.AddComponent<SelectedUnitPanel>();
             canvasGO.AddComponent<CommanderAcquisitionPanel>();
+            canvasGO.AddComponent<WorldMapPanel>();
 
             if (FindFirstObjectByType<EventSystem>() == null)
             {
@@ -140,10 +147,8 @@ namespace AntColony.UI
             var upgradeLabel = barracks != null ? barracks.GetUpgradeLabel() : "Upgrade Barracks";
             barracksUpgradeButtonText = CreateButton(canvasGO.transform, new Vector2(290f, 10f), upgradeLabel, () => barracks?.TryUpgrade());
             CreateButton(canvasGO.transform, new Vector2(430f, 10f), "Dig Expansion", () => digSite?.TryExpand());
-            var attackResearchLabel = researchLab != null ? researchLab.GetAttackResearchLabel() : "No Research Lab";
-            attackResearchButtonText = CreateButton(canvasGO.transform, new Vector2(570f, 10f), attackResearchLabel, () => researchLab?.TryResearchAttack());
-            var armorResearchLabel = researchLab != null ? researchLab.GetArmorResearchLabel() : "No Research Lab";
-            armorResearchButtonText = CreateButton(canvasGO.transform, new Vector2(710f, 10f), armorResearchLabel, () => researchLab?.TryResearchArmor());
+            attackResearchButtonText = CreateButton(canvasGO.transform, new Vector2(570f, 10f), GetLabResearchLabel(null, true), () => TryLabResearch(true));
+            armorResearchButtonText = CreateButton(canvasGO.transform, new Vector2(710f, 10f), GetLabResearchLabel(null, false), () => TryLabResearch(false));
             var buildBarracksLabel = buildingPlacementController != null ? buildingPlacementController.GetBarracksBuildLabel() : "Build Barracks";
             buildBarracksButtonText = CreateButton(canvasGO.transform, new Vector2(850f, 10f), buildBarracksLabel, () => buildingPlacementController?.BeginBarracksPlacement(selectedRole));
             var buildLabLabel = buildingPlacementController != null ? buildingPlacementController.GetResearchLabBuildLabel() : "Build Lab";
@@ -165,7 +170,36 @@ namespace AntColony.UI
             var index = System.Array.IndexOf(CombatRoles, selectedRole);
             selectedRole = CombatRoles[(index + 1) % CombatRoles.Length];
             barracks = null;
-            researchLab = null;
+        }
+
+        private CommanderAnt SelectedCommander
+        {
+            get
+            {
+                if (selectionManager == null) selectionManager = FindFirstObjectByType<SelectionManager>();
+                return SelectedUnitPanel.FindSingleSelectedCommander(selectionManager);
+            }
+        }
+
+        // 연구소 강화는 선택된 장수 한 명의 현재 보직과 같은 역할의 연구소에서 진행한다.
+        private string GetLabResearchLabel(CommanderAnt commander, bool attack)
+        {
+            if (commander == null) return attack ? "ATK: Select 1 Commander" : "Armor: Select 1 Commander";
+            var lab = FindResearchLab(commander.Role);
+            if (lab == null)
+            {
+                var level = attack ? commander.LabAttackLevel : commander.LabArmorLevel;
+                return $"{(attack ? "ATK" : "Armor")} Lv{level}\nNo {commander.Role} Lab";
+            }
+            return attack ? lab.GetAttackResearchLabel(commander) : lab.GetArmorResearchLabel(commander);
+        }
+
+        public bool TryLabResearch(bool attack)
+        {
+            var commander = SelectedCommander;
+            var lab = commander != null ? FindResearchLab(commander.Role) : null;
+            if (lab == null) return false;
+            return attack ? lab.TryResearchAttack(commander) : lab.TryResearchArmor(commander);
         }
 
         private static Barracks FindBarracks(UnitRole role)
@@ -175,11 +209,17 @@ namespace AntColony.UI
             return null;
         }
 
+        // 같은 역할 연구소가 여럿이면 쉬고 있는 곳을 우선한다.
         private static ResearchLab FindResearchLab(UnitRole role)
         {
+            ResearchLab busy = null;
             foreach (var candidate in FindObjectsByType<ResearchLab>(FindObjectsSortMode.None))
-                if (candidate.isActiveAndEnabled && candidate.Role == role) return candidate;
-            return null;
+            {
+                if (!candidate.isActiveAndEnabled || candidate.Role != role) continue;
+                if (!candidate.IsResearching) return candidate;
+                if (busy == null) busy = candidate;
+            }
+            return busy;
         }
 
         private Text CreateText(Transform parent, Vector2 anchor, Vector2 size, Vector2 anchoredPosition)
@@ -251,7 +291,7 @@ namespace AntColony.UI
         private void ShowVictoryMessage()
         {
             if (messageText == null) return;
-            messageText.text = "Loop Complete: Wild Monster Defeated!";
+            messageText.text = "Wild Monster Defeated";
         }
 
         private void ShowDefeatMessage()

@@ -60,6 +60,8 @@ namespace AntColony.Buildings
             Destroy(gameObject);
         }
 
+        public virtual void DepositResources(ResourceType type, int amount) => ResourceManager.Instance?.Add(type, amount);
+
         public static BuildingBase FindNearestDepositPoint(Vector3 from)
         {
             BuildingBase nearest = null;

@@ -73,6 +73,10 @@ namespace AntColony.Buildings
         }
 
         public bool BeginFarmPlacement() => BeginPlacement(BuildingKind.Farm, UnitRole.Worker);
+        public bool BeginScienceLabPlacement() => BeginPlacement(BuildingKind.ScienceLab, UnitRole.Worker);
+        public string GetScienceLabBuildLabel() => ScienceLab.PrerequisitesMet
+            ? GetBuildLabel(BuildingKind.ScienceLab, UnitRole.Worker, "Build Science Lab")
+            : "Science: 60 Ants\nFishing + Barracks T2";
         public string GetFarmBuildLabel() => GetBuildLabel(BuildingKind.Farm, UnitRole.Worker, "Build Farm");
 
         // 장수 획득 건물 3종. 전투 보직과 무관하므로 역할은 Worker로 고정한다.
@@ -95,6 +99,8 @@ namespace AntColony.Buildings
 
         private bool BeginPlacement(BuildingKind kind, UnitRole role)
         {
+            if (AntColony.World.WorldMapManager.Instance != null && AntColony.World.WorldMapManager.Instance.ViewedSite != null) return false;
+            if (kind == BuildingKind.ScienceLab && !ScienceLab.PrerequisitesMet) return false;
             var selectedBuilder = GetSelectedBuilder();
             var template = GetTemplate(kind, role);
             var building = template != null ? template.GetComponent<BuildingBase>() : null;
@@ -112,6 +118,7 @@ namespace AntColony.Buildings
 
         private void TryPlace(Vector3 position, Vector3 groundPosition)
         {
+            if (pendingKind == BuildingKind.ScienceLab && !ScienceLab.PrerequisitesMet) return;
             var template = GetTemplate(pendingKind, pendingRole);
             var building = template != null ? template.GetComponent<BuildingBase>() : null;
             if (!placementValid || builder == null || !builder.CanStartConstruction || building == null || building.Data == null)
@@ -202,6 +209,7 @@ namespace AntColony.Buildings
                 BuildingKind.Nursery => FindTemplate<NurseryChamber>(),
                 BuildingKind.ScoutPost => FindTemplate<ScoutPost>(),
                 BuildingKind.PrisonerCamp => FindTemplate<PrisonerCamp>(),
+                BuildingKind.ScienceLab => FindTemplate<ScienceLab>(),
                 _ => FindTemplate<Barracks>(role)
             };
         }

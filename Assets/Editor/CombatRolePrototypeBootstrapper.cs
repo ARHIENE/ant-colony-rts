@@ -261,8 +261,6 @@ public static class CombatRolePrototypeBootstrapper
         template.transform.position = new Vector3(215f + xOffset, 10.6f, 200f);
         var serialized = new SerializedObject(template.GetComponent<ResearchLab>());
         serialized.FindProperty("role").enumValueIndex = (int)role;
-        serialized.FindProperty("attackLevel").intValue = 0;
-        serialized.FindProperty("armorLevel").intValue = 0;
         serialized.FindProperty("data").objectReferenceValue =
             AssetDatabase.LoadAssetAtPath<BuildingData>("Assets/Data/ResearchLabData.asset");
         serialized.ApplyModifiedPropertiesWithoutUndo();

@@ -483,3 +483,24 @@
 - 양육실·파견소·수용소를 건설 가능한 건물로 연결하고 획득 HUD, 다중 건물 처리, 적 장수 템플릿 설정을 추가했다.
 - 이전 중단 시 FindActive<T>의 Component 제약으로 CS1061 오류가 남았고 건설·설정 최종 검사는 미실행이었다. 이번 SAVE에서 수정·검증을 완료했다.
 - 번식은 장수 쌍 사이 거리 조건이며, 플레이어 사망·포로와 다수 AI·Special 소비처 등은 미정이다.
+
+# 2026-09-15 SAVE — 장수 획득 UI·건설 연결(2026-09-16 이관)
+- 양육실·스카우트 파견소·포로 수용소의 건물 데이터·씬 템플릿·건설 버튼·비용/인력 예약을 연결했다.
+- CommanderAcquisitionPanel에 번식, 파견, 다중 건물 전환, 포로 회유/처형/결과를 구현했다. 다중 수용소는 빈자리 우선, 양육실은 한 곳만 번식, 파견소 비활성/파괴 시 차출 인력을 한 번만 반환한다.
+- AcquisitionSetupChecks 30개, AcquisitionBuildingChecks 42개, CommanderAcquisitionChecks 59개, CommanderChecks 29개, CommanderProgressionChecks 27개와 Regression/Invasion/EnemyColonyEconomyChecks 통과. 컴파일 오류 0건.
+- CLI 30초 제한은 --timeout 90, 성장 UI 대기는 최대 5초 조건 대기로 보완했다. 기존 검색 API obsolete 경고는 남았다.
+- README·Graphify 정리, Play 종료. 개발 일지 https://app.notion.com/p/3dcc4a0ecd318194b460d137e2b6b2fa 에 기록했다.
+- 이전 캡처 Assets/.unity/save-2026-09-15-acquisition-hud.png는 Overlay HUD가 빠진 카메라 화면이었다. 이후 SAVE는 실제 변경 UI가 보이는 화면을 확인해 첨부한다.
+- 다음 후보는 숙련도 성장·연구소 개별 강화·액티브 스킬이었다. 장수 사망/포로, 다수 AI, Special/보스 전리품, 유지비 정책 미정. 번식 거리는 장수 쌍 사이 거리.
+- SAVE 시 develop 커밋·origin/develop push까지 수행하는 규칙을 명시했다. 카카오톡 도구 부재로 알림 불가.
+
+---
+
+
+# 2026-09-16 SAVE — 장수 개별 강화·액티브 스킬(2026-09-18 이관)
+- 연구소의 역할 전체 보너스를 장수 개별 공격/방어 강화로 바꿨다. 각 3단계, 단계당 공격 +2/방어 +1, 연구 3초, 비용 45/30 → 90/60 → 135/90(Food/Soil). 보직 변경 후에도 강화가 유지되고 다중 연구소 중복 연구를 막는다.
+- 장수 액티브 스킬을 구현했다. 레벨 2 강타(다음 타격 피해 2배, 15초 쿨다운), 레벨 3 방어 태세(5초간 방어력 +5, 20초 쿨다운). CommanderSkills 분리, SelectedUnitPanel에 잠김·활성·쿨다운 표시.
+- ActiveSkillChecks 36개, LabUpgradeChecks 39개, SupportChecks 8개, CommanderProgressionChecks 27개, RegressionChecks 전체 통과. 컴파일 오류 0건.
+- 다음 작업으로 본거지 + 월드맵 원정 구조 전환을 승인받은 상태로 종료했다.
+
+---

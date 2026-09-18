@@ -26,7 +26,7 @@ namespace AntColony.Core
 
         public static bool IsAlive(IDamageable target)
         {
-            if (target is CommanderAnt commander && !commander.HasTroops) return false;
+            if (target is CommanderAnt commander && (!commander.HasTroops || commander.IsEmbarked)) return false;
             return target is Behaviour behaviour && behaviour != null && behaviour.isActiveAndEnabled && !target.IsDead;
         }
 
@@ -41,6 +41,7 @@ namespace AntColony.Core
         {
             if (!IsAlive(target)) return false;
             if (target is AntUnitBase) return false;
+            if (target is AntColony.World.ExpeditionTransport) return false;
             if (target is BuildingBase building && building.CountsTowardPlayerDefeat) return false;
             if (role == UnitRole.Worker) return false;
             if (!IsAirborne(target)) return true;

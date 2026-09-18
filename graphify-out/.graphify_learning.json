@@ -1,0 +1,38 @@
+{
+  "generated_at": "2026-09-15T14:54:57.884506+00:00",
+  "nodes": {
+    "assets_scripts_core_commanderroster_antcolony_core_commanderroster": {
+      "code_fingerprint": "0e565006c4fd11ad83ed92a937d18fa8a6ce7cd03f819b04f0a226973f551bfa",
+      "label": "CommanderRoster",
+      "last": "2026-09-13T15:59:28.655886+00:00",
+      "provenance": [
+        {
+          "date": "2026-09-13T15:59:28.655886+00:00",
+          "outcome": "useful",
+          "q": "read log.md and continue task"
+        }
+      ],
+      "score": 0.955830485,
+      "source_file": "Assets/Scripts/Core/CommanderRoster.cs",
+      "status": "tentative",
+      "uses": 1
+    },
+    "assets_scripts_data_unitdata_antcolony_data_unitrole_support": {
+      "code_fingerprint": "462c07dcbd492484970ba9ee49670b448958cb29507e4bf778d2928347ca1127",
+      "label": "Support",
+      "last": "2026-09-13T15:59:28.655886+00:00",
+      "provenance": [
+        {
+          "date": "2026-09-13T15:59:28.655886+00:00",
+          "outcome": "useful",
+          "q": "read log.md and continue task"
+        }
+      ],
+      "score": 0.955830485,
+      "source_file": "Assets/Scripts/Data/UnitData.cs",
+      "status": "tentative",
+      "uses": 1
+    }
+  },
+  "version": 1
+}

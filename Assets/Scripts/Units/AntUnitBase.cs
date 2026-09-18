@@ -25,9 +25,9 @@ namespace AntColony.Units
         public virtual bool IsDead => currentHealth <= 0f;
         public virtual float CurrentHealth => currentHealth;
 
-        // 연구 보너스는 저장하지 않고 매번 계산한다. 연구 완료가 살아있는 유닛에 즉시 반영된다.
-        public virtual float AttackDamage => Data == null ? 0f : Data.attackDamage + ResearchLab.GetAttackBonus(Data.role) + Barracks.GetRoleBonus(Data.role);
-        public virtual float Armor => Data == null ? 0f : Data.armor + ResearchLab.GetArmorBonus(Data.role) + Barracks.GetRoleBonus(Data.role);
+        // 병영 보너스는 저장하지 않고 매번 계산한다. 연구소 강화는 장수 개별 수치다(CommanderAnt).
+        public virtual float AttackDamage => Data == null ? 0f : Data.attackDamage + Barracks.GetRoleBonus(Data.role);
+        public virtual float Armor => Data == null ? 0f : Data.armor + Barracks.GetRoleBonus(Data.role);
         public Vector3 Position => transform.position;
 
         protected virtual void Awake()

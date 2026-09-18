@@ -31,6 +31,17 @@ namespace AntColony.Camera
         [SerializeField] private float rotateDuration = 0.25f;
 
         private UnityEngine.Camera cam;
+        public Vector3 FocusPoint => focusPoint;
+
+        public void SetRegion(Vector3 focus, Bounds bounds)
+        {
+            focusPoint = focus;
+            minX = bounds.min.x;
+            maxX = bounds.max.x;
+            minZ = bounds.min.z;
+            maxZ = bounds.max.z;
+            ApplyTransform();
+        }
         private float yaw;
         private float yawFrom;
         private float yawTo;

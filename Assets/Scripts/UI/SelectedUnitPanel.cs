@@ -12,8 +12,27 @@ namespace AntColony.UI
         private Text title;
         private Text healthText;
         private Text combatStatsText;
+        private Text workText;
         private RectTransform healthFill;
         private CommanderAnt selectedCommander;
+        private Text powerStrikeText;
+        private Text stanceText;
+
+        // 현재 선택에서 유효한 유닛이 정확히 한 명이고 장수이면 반환한다. 행동 시점에 캐시 없이 조회한다.
+        public static CommanderAnt FindSingleSelectedCommander(SelectionManager selection)
+        {
+            if (selection == null) return null;
+            AntUnitBase found = null;
+            foreach (var selectable in selection.GetSelectedObjects())
+            {
+                if (selectable == null || !selectable.isActiveAndEnabled || !selectable.IsSelected) continue;
+                var unit = selectable.GetComponent<AntUnitBase>();
+                if (unit == null || !unit.isActiveAndEnabled || unit.IsDead || unit.Data == null) continue;
+                if (found != null) return null;
+                found = unit;
+            }
+            return found as CommanderAnt;
+        }
 
         private void Start()
         {
@@ -23,10 +42,12 @@ namespace AntColony.UI
             var rect = background.rectTransform;
             rect.anchorMin = rect.anchorMax = rect.pivot = Vector2.zero;
             rect.anchoredPosition = new Vector2(10f, 105f);
-            rect.sizeDelta = new Vector2(460f, 160f);
+            rect.sizeDelta = new Vector2(460f, 185f);
             title = CreateText("UnitName", rect, new Vector2(12f, -10f));
             healthText = CreateText("Health", rect, new Vector2(12f, -38f));
             combatStatsText = CreateText("CombatStats", rect, new Vector2(12f, -66f));
+            // 패널을 25px 키워 버튼 줄(위쪽 끝 y=56) 위에 채집 숙련도 전용 줄을 둔다.
+            workText = CreateText("WorkProficiency", rect, new Vector2(12f, -94f));
 
             var track = CreateImage("HealthTrack", rect, new Color(0.2f, 0.25f, 0.22f));
             track.rectTransform.anchorMin = track.rectTransform.anchorMax = track.rectTransform.pivot = Vector2.zero;
@@ -40,6 +61,11 @@ namespace AntColony.UI
             CreateButton(rect, 120f, "Return 1", () => selectedCommander?.ReturnTroops(1));
             CreateButton(rect, 228f, "Next Role", CycleRole);
             CreateButton(rect, 336f, "Next Rank", CycleRank);
+            // 스킬 버튼은 클릭 시점의 선택을 다시 조회한다(캐시된 selectedCommander를 쓰지 않는다).
+            powerStrikeText = CreateButton(rect, 348f, "Strike",
+                () => FindSingleSelectedCommander(selection)?.TryPowerStrike(), 96f);
+            stanceText = CreateButton(rect, 348f, "Guard",
+                () => FindSingleSelectedCommander(selection)?.TryDefensiveStance(), 64f);
             panel.SetActive(false);
         }
 
@@ -67,6 +93,8 @@ namespace AntColony.UI
             panel.SetActive(count > 0);
             if (count == 0) return;
             selectedCommander = count == 1 ? first as CommanderAnt : null;
+            powerStrikeText.transform.parent.gameObject.SetActive(selectedCommander != null);
+            stanceText.transform.parent.gameObject.SetActive(selectedCommander != null);
             title.text = selectedCommander != null ? $"{selectedCommander.CommanderName} ({selectedCommander.Rank})" : $"Selected Commanders: {count}";
             healthText.text = $"HP {Mathf.CeilToInt(current)} / {Mathf.CeilToInt(maximum)}";
             combatStatsText.text = count != 1
@@ -75,10 +103,32 @@ namespace AntColony.UI
                     ? $"Armor {first.Armor:0.#}"
                     : $"ATK {first.AttackDamage:0.#}   Armor {first.Armor:0.#}";
             healthFill.anchorMax = new Vector2(maximum > 0f ? Mathf.Clamp01(current / maximum) : 0f, 1f);
+            workText.text = "";
             if (selectedCommander == null) return;
+            var work = selectedCommander.WorkProficiency;
+            var workProgress = work.Level >= CommanderWorkProficiency.MaxLevel ? "MAX"
+                : $"{Mathf.FloorToInt(work.Progress)}/{CommanderWorkProficiency.UnitsPerLevel:0}";
+            workText.text = $"Gather Lv {work.Level} ({workProgress}) +{Mathf.RoundToInt((work.GatherMultiplier - 1f) * 100f)}% speed";
             var progression = selectedCommander.Progression;
             var xp = progression.XpToNext > 0 ? $"{progression.Xp}/{progression.XpToNext}" : "MAX";
             combatStatsText.text = $"{selectedCommander.Role}  " + combatStatsText.text + $"   Lv {progression.Level} (XP {xp})";
+
+            var skills = selectedCommander.Skills;
+            powerStrikeText.GetComponentInParent<Button>().interactable = selectedCommander.CanPowerStrike;
+            stanceText.GetComponentInParent<Button>().interactable = selectedCommander.CanDefensiveStance;
+            powerStrikeText.text = SkillLabel("Strike", CommanderSkills.PowerStrikeLevel, progression.Level,
+                skills.PowerStrikeArmed ? "ON" : null, skills.PowerStrikeCooldownLeft);
+            stanceText.text = SkillLabel("Guard", CommanderSkills.DefensiveStanceLevel, progression.Level,
+                skills.DefensiveStanceActive ? $"ON {Mathf.CeilToInt(skills.DefensiveStanceTimeLeft)}s" : null,
+                skills.DefensiveStanceCooldownLeft);
+        }
+
+        // 잠김(Lv n) → 발동 중(ON) → 재사용 대기(초) → 준비 순으로 표시한다.
+        private static string SkillLabel(string name, int requiredLevel, int level, string active, float cooldown)
+        {
+            if (level < requiredLevel) return $"{name} Lv{requiredLevel}";
+            if (active != null) return $"{name} {active}";
+            return cooldown > 0f ? $"{name} {Mathf.CeilToInt(cooldown)}s" : name;
         }
 
         private void CycleRole()
@@ -101,13 +151,13 @@ namespace AntColony.UI
                 if (selectedCommander.TrySetRank((CommanderRank)(((int)selectedCommander.Rank + offset) % count))) return;
         }
 
-        private static void CreateButton(Transform parent, float x, string label, UnityEngine.Events.UnityAction action)
+        private static Text CreateButton(Transform parent, float x, string label, UnityEngine.Events.UnityAction action, float y = 30f)
         {
             var go = new GameObject(label, typeof(RectTransform), typeof(Image), typeof(Button));
             go.transform.SetParent(parent, false);
             var rect = (RectTransform)go.transform;
             rect.anchorMin = rect.anchorMax = rect.pivot = Vector2.zero;
-            rect.anchoredPosition = new Vector2(x, 30f);
+            rect.anchoredPosition = new Vector2(x, y);
             rect.sizeDelta = new Vector2(100f, 26f);
             go.GetComponent<Image>().color = new Color(.2f, .3f, .2f);
             go.GetComponent<Button>().onClick.AddListener(action);
@@ -115,6 +165,7 @@ namespace AntColony.UI
             text.text = label;
             text.rectTransform.sizeDelta = rect.sizeDelta;
             text.alignment = TextAnchor.MiddleCenter;
+            return text;
         }
 
         private static Image CreateImage(string name, Transform parent, Color color)

@@ -12,11 +12,17 @@ namespace AntColony.Boss
         [Header("Stats")]
         [SerializeField] private float maxHp = 1000f;
 
+        // ponytail: 잠정 전리품 수치. 기존 씬 보스는 필드가 없으므로 이 기본값을 그대로 받는다.
+        [Header("Loot")]
+        [SerializeField, Min(0)] private int foodReward = 100;
+        [SerializeField, Min(0)] private int specialReward = 20;
+
         [Header("Events")]
         public UnityEvent<float, float> onHPChanged;
         public UnityEvent onDead;
 
         private float currentHp;
+        private bool deathProcessed;
 
         public float CurrentHp => currentHp;
         public float MaxHp => maxHp;
@@ -48,6 +54,10 @@ namespace AntColony.Boss
 
         private void Die()
         {
+            // onHPChanged 구독자가 비치명 피격 중 치명타를 넣으면 안쪽/바깥쪽 TakeDamage가 모두 여기로 온다.
+            if (deathProcessed) return;
+            deathProcessed = true;
+
             var circle = GetComponent<BossCircleAoE>();
             if (circle != null) circle.enabled = false;
             var cone = GetComponent<BossConeAoE>();
@@ -60,6 +70,16 @@ namespace AntColony.Boss
 
             var sequence = GetComponent<BossPatternSequenceSimple>();
             if (sequence != null) sequence.enabled = false;
+
+            // 이벤트 구독자가 보스를 파괴해도 전리품이 남도록 이벤트보다 먼저 떨군다.
+            var radius = 0f;
+            foreach (var body in GetComponentsInChildren<Collider>())
+            {
+                var offset = body.bounds.center - transform.position;
+                radius = Mathf.Max(radius, new Vector2(offset.x, offset.z).magnitude
+                    + Mathf.Max(body.bounds.extents.x, body.bounds.extents.z));
+            }
+            BossLoot.Drop(transform.position, radius, foodReward, specialReward);
 
             GameManager.Instance?.ReportBossDefeated();
             onDead?.Invoke();

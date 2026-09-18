@@ -265,6 +265,7 @@ namespace AntColony.Units
             var extracted = targetNode.Extract(Mathf.Min(GatherRate * targetNode.GatherRateMultiplier * Time.deltaTime, CarryCapacity - carriedAmount));
             carriedAmount += extracted;
             carriedType = targetNode.ResourceType;
+            if (extracted > 0f) OnGathered(extracted);
 
             if (carriedAmount >= CarryCapacity || targetNode.IsDepleted)
             {
@@ -272,9 +273,13 @@ namespace AntColony.Units
             }
         }
 
+        // 노드에서 실제로 캐낸 양이 있을 때만 호출된다.
+        protected virtual void OnGathered(float amount) { }
+
         private void BeginReturnIfNeeded()
         {
-            targetDeposit = BuildingBase.FindNearestDepositPoint(transform.position);
+            targetDeposit = this is CommanderAnt commander && commander.Transport != null
+                ? commander.Transport : BuildingBase.FindNearestDepositPoint(transform.position);
             if (targetDeposit == null)
             {
                 StopMoving();
@@ -304,7 +309,7 @@ namespace AntColony.Units
         {
             if (carriedAmount > 0f && ResourceManager.Instance != null)
             {
-                ResourceManager.Instance.Add(carriedType, Mathf.RoundToInt(carriedAmount));
+                targetDeposit?.DepositResources(carriedType, Mathf.RoundToInt(carriedAmount));
             }
             carriedAmount = 0f;
             state = State.Idle;

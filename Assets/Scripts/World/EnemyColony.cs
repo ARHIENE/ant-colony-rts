@@ -41,6 +41,12 @@ namespace AntColony.World
             if (randomizeAtStart) TryRandomizePlacement();
         }
 
+        public void ConfigureExpedition()
+        {
+            randomizeAtStart = false;
+            foreach (var invasion in GetComponentsInChildren<ColonyInvasion>(true)) invasion.enabled = false;
+        }
+
         private bool TryRandomizePlacement()
         {
             if (GameManager.Instance == null || buildings.Length == 0 || maxPlayerDistance < minPlayerDistance) return false;

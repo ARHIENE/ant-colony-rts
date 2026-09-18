@@ -32,7 +32,9 @@ namespace AntColony.World
         public float GatherRateMultiplier => requiresFishing ? fishingRateMultiplier : 1f;
 
         public ResourceType ResourceType => resourceType;
-        public bool IsDepleted => amountRemaining <= 0f;
+        // 운반 용량에 딱 맞춰 캐면 부동소수 잔량이 남아 노드가 영원히 채집 가능 상태로 남는다.
+        private const float DepletedEpsilon = 0.001f;
+        public bool IsDepleted => amountRemaining <= DepletedEpsilon;
         public bool IsRegrowing => regrowTimer > 0f;
         public float AmountRemaining => amountRemaining;
         public float RegrowTimeRemaining => Mathf.Max(0f, regrowTimer);
@@ -63,12 +65,22 @@ namespace AntColony.World
             if (amount <= 0f || !CanGather) return 0f;
             var extracted = Mathf.Min(amount, amountRemaining);
             amountRemaining -= extracted;
-            if (amountRemaining <= 0f)
+            if (IsDepleted)
             {
                 if (regrowSeconds > 0f) regrowTimer = regrowSeconds;
                 else gameObject.SetActive(false);
             }
             return extracted;
+        }
+
+        // 런타임 생성 노드(보스 전리품) 전용. 활성화 전에 호출해야 OnEnable 판정이 맞다.
+        public void ConfigureLoot(ResourceType type, float amount)
+        {
+            resourceType = type;
+            amountRemaining = Mathf.Max(0f, amount);
+            regrowSeconds = 0f;
+            requiresFishing = false;
+            ownerColony = null;
         }
 
         public void AddStock(float amount)
