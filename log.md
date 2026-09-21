@@ -27,7 +27,8 @@
 
 ## SAVE 결과
 - log 먼저 기록 → changelog 요약 이관 → README에 UI 미완료 상태 표시. 기존 검증 변경만 develop 커밋/push 대상으로 유지.
-- 오늘 Notion 일지 https://app.notion.com/p/3e2c4a0ecd318118bc0bfa3a36369418 기존 내용을 보존해 중단 기록을 이어 작성한다.
+- 오늘 Notion 일지 https://app.notion.com/p/3e2c4a0ecd318118bc0bfa3a36369418 기존 내용·캡처를 보존하고 6~8번에 UI 미완료·중단·초안 보존·재개 사항을 이어 작성했다.
 - 새 UI가 구현·실행되지 않아 이번 UI 기능 캡처는 불가. 오늘 일지의 기존 난이도 보상 캡처는 보존하며 새 UI 캡처로 오인시키지 않는다.
 - 카카오톡 완료 알림 도구 미연결.
-- 복귀 후 컴파일 검사·graphify 갱신·develop push 결과는 아래에 갱신한다.
+- 복귀 후 공식 CLI recompile_status: up_to_date / failed=false / errors=[] / compilationFailed=false. Play 정지 상태 유지. graphify update . 완료(2167 노드 / 3926 관계).
+- 기존 검증 변경과 중단 문서는 `99334f7`로 develop에 커밋하고 origin/develop push 완료. master·프리팹·미검증 UI 초안은 제외했다. 이 SAVE 결과 문서는 후속 문서 커밋에 포함한다.
