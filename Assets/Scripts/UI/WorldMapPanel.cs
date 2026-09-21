@@ -9,8 +9,10 @@ namespace AntColony.UI
     public class WorldMapPanel : MonoBehaviour
     {
         private GameObject panel;
-        private UnityEngine.UI.Text status, scienceStatus, feedback, mapTitle;
+        private UnityEngine.UI.Text status, scienceStatus, feedback, mapTitle, routeStatus, defenseStatus, worldNotice;
+        private UnityEngine.UI.Button annex, abandon, startRoute, stopRoute;
         private readonly List<UnityEngine.UI.Button> markers = new List<UnityEngine.UI.Button>();
+        private Transform mapRoot;
         private ExpeditionSite selectedSite;
         private ExpeditionTransport selectedShip;
         private bool seenUnlock, cameraWasEnabled;
@@ -20,6 +22,8 @@ namespace AntColony.UI
         private void Start()
         {
             Button(transform, "World / Science", new Vector2(1090, -60), new Vector2(180, 34), Toggle).name = "WorldMapToggle";
+            worldNotice = Label(transform, "", new Vector2(20, -60), new Vector2(1050, 34), 15);
+            worldNotice.name = "SettlementNotice";
             panel = new GameObject("WorldMapPanel", typeof(RectTransform), typeof(UnityEngine.UI.Image));
             panel.transform.SetParent(transform, false);
             var rect = (RectTransform)panel.transform;
@@ -46,29 +50,35 @@ namespace AntColony.UI
             Button(map.transform, "Home", new Vector2(20, -245), new Vector2(90, 38), () => {
                 WorldMapManager.Instance.ViewSite(null); Toggle();
             });
-            var world = WorldMapManager.Instance;
-            if (world != null)
-                foreach (var site in world.Sites)
-                {
-                    var target = site;
-                    var marker = Button(map.transform, site.Title, new Vector2(25 + site.MapPosition.x * 340,
-                        -65 - (1 - site.MapPosition.y) * 190), new Vector2(145, 42), () => selectedSite = target);
-                    marker.GetComponent<UnityEngine.UI.Image>().color = new Color(site.Color.r * .65f, site.Color.g * .65f, site.Color.b * .65f, 1);
-                    markers.Add(marker);
-                }
+            startRoute = Button(map.transform, "Start Auto", new Vector2(120, -245), new Vector2(170, 38), () =>
+                Result(selectedShip != null && selectedShip.Route != null && selectedShip.Route.TryStart(selectedSite),
+                    "Auto route started. Worker crew will collect and return."));
+            stopRoute = Button(map.transform, "Stop Auto", new Vector2(300, -245), new Vector2(170, 38), () => {
+                selectedShip?.Route?.Stop();
+                feedback.text = "Auto stopped. Current travel and work continue; return manually if away.";
+            });
+            mapRoot = map.transform;
+            BuildMarkers();
             status = Label(rect, "", new Vector2(545, -155), new Vector2(590, 115), 15);
             Button(rect, "Next Transport", new Vector2(545, -285), new Vector2(180, 34), NextShip);
-            Button(rect, "Board Selected", new Vector2(735, -285), new Vector2(180, 34), Board);
+            Button(rect, "Board Selected", new Vector2(735, -285), new Vector2(180, 34), () => ChangeCrew(false));
             Button(rect, "Unload Crew", new Vector2(925, -285), new Vector2(180, 34), () => Result(selectedShip != null && selectedShip.TryUnloadCrew(), "Crew unloaded."));
             Button(rect, "Depart", new Vector2(545, -330), new Vector2(180, 34), () => Result(selectedShip != null && selectedShip.TryDepart(selectedSite), "Expedition departed."));
             Button(rect, "View Battlefield", new Vector2(735, -330), new Vector2(180, 34), () => {
-                if (world != null && selectedShip != null && selectedShip.Site != null && world.ViewSite(selectedShip.Site)) Toggle();
+                var world = WorldMapManager.Instance;
+                if (world != null && selectedSite != null && world.ViewSite(selectedSite)) Toggle();
                 else feedback.text = "The transport must arrive before entering the battlefield.";
             });
             Button(rect, "Return Home", new Vector2(925, -330), new Vector2(180, 34), () => Result(selectedShip != null && selectedShip.TryReturn(), "Returning with crew and cargo."));
-            Label(rect, "Board: select commanders near the transport (8m).\nReturn: bring all crew within 8m and deposit carried resources first.\nCargo enters home storage only after returning. Home continues running.",
-                new Vector2(545, -385), new Vector2(590, 76), 14);
-            feedback = Label(rect, "", new Vector2(20, -480), new Vector2(1130, 45), 14);
+            annex = Button(rect, "Annex", new Vector2(545, -375), new Vector2(180, 34), () => ResolveConquest(ConquestDisposition.Annexed));
+            abandon = Button(rect, "Abandon", new Vector2(735, -375), new Vector2(180, 34), () => ResolveConquest(ConquestDisposition.Abandoned));
+            Button(rect, "Station Selected", new Vector2(925, -375), new Vector2(180, 34), () => ChangeCrew(true));
+            Label(rect, "Board / Station / Return: within 8m; deposit carried resources first.\nStation: leave crew here. Board: recall selected garrison to transport.\nLocal production: (10F / 5S) x difficulty per 60s. Ship cargo home.",
+                new Vector2(545, -418), new Vector2(590, 58), 14);
+            routeStatus = Label(rect, "", new Vector2(20, -475), new Vector2(500, 50), 14);
+            defenseStatus = Label(rect, "", new Vector2(20, -527), new Vector2(1120, 20), 13);
+            defenseStatus.name = "SettlementDefenseStatus";
+            feedback = Label(rect, "", new Vector2(545, -480), new Vector2(590, 45), 14);
             panel.SetActive(false);
         }
 
@@ -76,20 +86,65 @@ namespace AntColony.UI
         {
             var world = WorldMapManager.Instance;
             if (world == null || panel == null) return;
+            worldNotice.text = world.SettlementNotice;
+            BuildMarkers();
             if (world.Unlocked && !seenUnlock) { seenUnlock = true; if (!IsOpen) Toggle(); }
             if (!IsOpen) return;
+            defenseStatus.text = selectedSite != null && selectedSite.Defense != null ? selectedSite.Defense.Status : "";
             if (selectedShip == null) NextShip();
+            var route = selectedShip != null ? selectedShip.Route : null;
+            startRoute.interactable = route != null && !route.IsRunning && selectedShip.State == ExpeditionState.Home
+                && selectedSite != null && selectedSite.Disposition == ConquestDisposition.Annexed;
+            stopRoute.interactable = route != null && route.IsRunning;
+            routeStatus.text = route != null && route.IsRunning
+                ? $"Auto: {route.Destination.Title}\n{route.Status}\nOne load per resource / worker; repeat after 60s at home."
+                : $"Auto: {(route != null ? route.Status : "Off")}\nBoard worker crew at home, select an annexed site, Start Auto.";
             var lab = FindLab();
             scienceStatus.text = $"Science Lab: {(lab != null ? lab.Busy ? $"Working {lab.Remaining:0}s" : "Ready" : "Not built")} | "
                 + $"Vehicle: {(world.VehicleResearched ? "Researched" : "Locked")} | Aircraft: {(world.AircraftResearched ? "Researched" : "Locked")}\n"
                 + "Lab: 100F / 100S / 8 ants. Requires population 60 + Fishing + Barracks T2. Research 15s; construction 10s.";
-            mapTitle.text = world.Unlocked ? "World Map — select a colored settlement" : "World Map locked\nConstruct your first vehicle or aircraft.";
-            foreach (var marker in markers) marker.gameObject.SetActive(world.Unlocked);
-            var target = selectedSite != null ? $"Target: {selectedSite.Title} ({(selectedSite.Cleared ? "Cleared" : "Hostile")})" : "Select a destination on the map.";
+            mapTitle.text = world.Unlocked ? $"World Map — {world.Sites.Count} sites\nC: Colony / B: Boss / R: Resources" : "World Map locked\nConstruct your first vehicle or aircraft.";
+            for (var i = 0; i < markers.Count; i++)
+            {
+                var site = world.Sites[i];
+                markers[i].gameObject.SetActive(world.Unlocked);
+                var color = site.Defense != null && (site.Defense.UnderAttack || site.Disposition == ConquestDisposition.Lost)
+                    ? new Color(1f, .25f, .15f) : site.Disposition == ConquestDisposition.Annexed ? new Color(.3f, .85f, .5f)
+                    : site.Disposition == ConquestDisposition.Abandoned ? Color.gray : site.Color;
+                markers[i].GetComponent<UnityEngine.UI.Image>().color = new Color(color.r * .65f, color.g * .65f, color.b * .65f, 1);
+            }
+            annex.interactable = abandon.interactable = selectedSite != null && selectedSite.CanResolveConquest;
+            var target = selectedSite != null ? $"Target: {selectedSite.Title}\n{selectedSite.Faction} | {selectedSite.Kind}{(selectedSite.Kind == ExpeditionSiteKind.Settlement ? $" | Defenders {selectedSite.Difficulty}" : "")} | "
+                + (selectedSite.Disposition != ConquestDisposition.Undecided ? selectedSite.Disposition.ToString()
+                    : selectedSite.Cleared ? selectedSite.Kind == ExpeditionSiteKind.ResourceSite ? "Depleted"
+                        : selectedSite.Kind == ExpeditionSiteKind.Settlement ? "Conquest undecided" : "Cleared"
+                    : selectedSite.Kind == ExpeditionSiteKind.ResourceSite ? "Neutral" : "Hostile") : "Select a destination on the map.";
+            if (selectedSite != null && selectedSite.Settlement != null)
+                target += $"\nGarrison {selectedSite.Settlement.Garrison.Count} | Local stock "
+                    + $"{selectedSite.Colony.GetStock(AntColony.Data.ResourceType.Food):0}F / "
+                    + $"{selectedSite.Colony.GetStock(AntColony.Data.ResourceType.Soil):0}S";
             status.text = selectedShip == null ? "No transport. Research and construct one.\n" + target
                 : $"{selectedShip.name} | {selectedShip.State} {selectedShip.Remaining:0}s | Load {selectedShip.Load}/{selectedShip.Capacity}\n"
                     + $"Crew {selectedShip.Crew.Count} | Cargo {selectedShip.GetCargo(AntColony.Data.ResourceType.Food)}F / "
                     + $"{selectedShip.GetCargo(AntColony.Data.ResourceType.Soil)}S / {selectedShip.GetCargo(AntColony.Data.ResourceType.Special)} Special\n" + target;
+        }
+
+        // 거점 생성(WorldMapManager.Start)이 이 패널보다 늦게 돌 수 있어 아직 없는 마커만 이어서 만든다.
+        private void BuildMarkers()
+        {
+            var world = WorldMapManager.Instance;
+            if (world == null || mapRoot == null) return;
+            for (var i = markers.Count; i < world.Sites.Count; i++)
+            {
+                var site = world.Sites[i];
+                var symbol = site.Kind == ExpeditionSiteKind.Settlement ? "C" : site.Kind == ExpeditionSiteKind.BossNest ? "B" : "R";
+                var marker = Button(mapRoot, $"{symbol}{i + 1:00}", new Vector2(20 + site.MapPosition.x * 390,
+                    -60 - (1 - site.MapPosition.y) * 136), new Vector2(66, 30), () => selectedSite = site);
+                marker.name = site.Title;
+                marker.GetComponent<UnityEngine.UI.Image>().color = new Color(site.Color.r * .65f, site.Color.g * .65f, site.Color.b * .65f, 1);
+                marker.gameObject.SetActive(world.Unlocked);
+                markers.Add(marker);
+            }
         }
 
         public void Toggle()
@@ -113,6 +168,12 @@ namespace AntColony.UI
             Result(lab != null && (build ? lab.TryConstruct(air) : lab.TryResearch(air)), "Started.");
         }
         private void Result(bool success, string text) => feedback.text = success ? text : "Cannot start: check selection, location, capacity, resources or prerequisites.";
+        private void ResolveConquest(ConquestDisposition disposition)
+        {
+            Result(selectedSite != null && selectedSite.TryResolveConquest(disposition),
+                disposition == ConquestDisposition.Annexed ? "Site annexed. Local production started; Station Selected to leave defenders."
+                    : "Site abandoned. Finish looting and return; this site cannot be revisited.");
+        }
         private void NextShip()
         {
             var ships = WorldMapManager.Instance.Transports;
@@ -122,12 +183,13 @@ namespace AntColony.UI
                 if (ships[(index + n) % ships.Count] != null) { selectedShip = ships[(index + n) % ships.Count]; return; }
             selectedShip = null;
         }
-        private void Board()
+        private void ChangeCrew(bool station)
         {
             var passengers = new List<CommanderAnt>();
             foreach (var selectable in FindFirstObjectByType<SelectionManager>().GetSelectedObjects())
             { var commander = selectable != null ? selectable.GetComponent<CommanderAnt>() : null; if (commander != null) passengers.Add(commander); }
-            Result(selectedShip != null && selectedShip.TryBoard(passengers), "Selected commanders boarded.");
+            Result(selectedShip != null && (station ? selectedShip.TryStation(passengers) : selectedShip.TryBoard(passengers)),
+                station ? "Selected commanders stationed. They remain when the transport returns." : "Selected commanders added to transport crew.");
         }
         private static void Place(RectTransform rect, Vector2 position, Vector2 size)
         {

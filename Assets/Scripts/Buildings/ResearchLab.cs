@@ -62,7 +62,7 @@ namespace AntColony.Buildings
         private bool TryStartResearch(CommanderAnt commander, bool attack)
         {
             if (!isActiveAndEnabled || IsResearching || commander == null || !commander.isActiveAndEnabled
-                || commander.Transport != null
+                || commander.IsAwayFromHome
                 || commander.LabUpgradeBusy || commander.Role != role || ResourceManager.Instance == null) return false;
             var level = attack ? commander.LabAttackLevel : commander.LabArmorLevel;
             if (level >= maxLevel) return false;

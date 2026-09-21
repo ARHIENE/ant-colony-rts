@@ -28,6 +28,7 @@ namespace AntColony.World
         private NavMeshAgent agent;
         // 침공 개체만 플레이어 건물까지 노린다. 일반 야생 몬스터/반란 개체는 기존 동작 그대로다.
         private bool isRaider;
+        private ExpeditionSite raidSite;
         public bool IsFlying { get; private set; }
 
         public bool IsDead => currentHealth <= 0f;
@@ -72,7 +73,7 @@ namespace AntColony.World
                 {
                     if (currentTarget == null)
                     {
-                        StopMoving();
+                        ApproachSettlement();
                         return;
                     }
                 }
@@ -80,10 +81,10 @@ namespace AntColony.World
                 {
                     targetSearchTimer = targetSearchInterval;
                     currentTarget = (IDamageable)FindNearestAnt()
-                        ?? (isRaider ? GameManager.Instance?.FindNearestPlayerBuilding(transform.position) : null);
+                        ?? (isRaider && raidSite == null ? GameManager.Instance?.FindNearestPlayerBuilding(transform.position) : null);
                     if (currentTarget == null)
                     {
-                        StopMoving();
+                        ApproachSettlement();
                         return;
                     }
                 }
@@ -159,6 +160,18 @@ namespace AntColony.World
         }
 
         public void MakeRaider() => isRaider = true;
+
+        internal void RaidSettlement(ExpeditionSite site)
+        {
+            isRaider = true;
+            raidSite = site;
+        }
+
+        private void ApproachSettlement()
+        {
+            if (raidSite != null && CanMove()) agent.SetDestination(raidSite.Landing);
+            else StopMoving();
+        }
 
         public void ConfigureWeakIntruder()
         {

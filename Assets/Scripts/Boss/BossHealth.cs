@@ -34,6 +34,16 @@ namespace AntColony.Boss
             currentHp = maxHp;
         }
 
+        // 원정 복제본을 활성화하기 전에 한 번 적용하는 임시 밸런스.
+        internal void ConfigureExpedition(int difficulty)
+        {
+            var multiplier = Mathf.Max(1, difficulty);
+            maxHp *= multiplier;
+            currentHp = maxHp;
+            foodReward *= multiplier;
+            specialReward *= multiplier;
+        }
+
         public void TakeDamage(float amount)
         {
             if (IsDead) return;

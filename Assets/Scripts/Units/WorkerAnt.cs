@@ -35,7 +35,29 @@ namespace AntColony.Units
 
         // 자원을 들고 있거나 건설 중이면 병력 배정/보직 변경을 막아야 한다(운반 중 자원 증발 방지).
         public bool IsCarrying => carriedAmount > 0f;
+        public bool IsWorking => state != State.Idle;
         public bool IsConstructing => state == State.MovingToBuildSite || state == State.Building;
+
+        // 거점 상실 때도 이미 채집한 자원은 화물 또는 회수 가능한 현장 노드로 남긴다.
+        internal void EvacuateCargo(ExpeditionSite site, ExpeditionTransport ship = null)
+        {
+            if (!IsCarrying) return;
+            if (ship != null) ship.DepositResources(carriedType, Mathf.RoundToInt(carriedAmount));
+            else
+            {
+                var drop = GameObject.CreatePrimitive(PrimitiveType.Cube);
+                drop.name = "Dropped " + carriedType;
+                drop.SetActive(false);
+                drop.transform.SetParent(site.transform);
+                drop.transform.position = new Vector3(Position.x, .3f, Position.z);
+                drop.transform.localScale = Vector3.one * .6f;
+                drop.AddComponent<ResourceNode>().ConfigureLoot(carriedType, carriedAmount);
+                drop.AddComponent<ResourceNodeStatus>();
+                drop.SetActive(true);
+            }
+            carriedAmount = 0;
+            CommandStop();
+        }
 
         // 채집 성능은 장수가 병력 수만큼 배수로 올릴 수 있게 훅으로 분리한다.
         protected virtual float GatherRate => Data.gatherRate;
@@ -278,8 +300,9 @@ namespace AntColony.Units
 
         private void BeginReturnIfNeeded()
         {
-            targetDeposit = this is CommanderAnt commander && commander.Transport != null
-                ? commander.Transport : BuildingBase.FindNearestDepositPoint(transform.position);
+            targetDeposit = this is CommanderAnt commander && commander.IsAwayFromHome
+                ? commander.Transport != null ? commander.Transport : commander.Garrison.DockedTransport
+                : BuildingBase.FindNearestDepositPoint(transform.position);
             if (targetDeposit == null)
             {
                 StopMoving();

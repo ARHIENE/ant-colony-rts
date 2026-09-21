@@ -32,7 +32,8 @@ public static class WorldMapChecks
         return "missing";
     }
     static T Template<T>() where T : Component => Object.FindObjectsByType<T>(FindObjectsInactive.Include, FindObjectsSortMode.None)
-        .First(t => t.name.EndsWith("Template"));
+        // 원정 거점이 늘면서 소굴 복제본에도 같은 이름의 자식이 생길 수 있다. 본거지 쪽 템플릿만 고른다.
+        .First(t => t.name.EndsWith("Template") && t.GetComponentInParent<ExpeditionSite>(true) == null);
     static async Task<bool> Wait(Func<bool> condition, int seconds = 25)
     {
         var deadline = DateTime.UtcNow.AddSeconds(seconds);
@@ -54,7 +55,29 @@ public static class WorldMapChecks
         Check(Application.isPlaying, "Play mode required");
         checks = 0;
         var world = WorldMapManager.Instance;
-        Check(world != null && world.Sites.Count == 3, "three expedition sites configured");
+        Check(world != null && world.Sites.Count == 30, "thirty expedition sites configured");
+        Check(world.Sites.Select(s => s.Title).Distinct().Count() == 30, "site names are unique");
+        Check(world.Sites.Count(s => s.Kind == ExpeditionSiteKind.Settlement) == 18
+            && world.Sites.Count(s => s.Kind == ExpeditionSiteKind.BossNest) == 6
+            && world.Sites.Count(s => s.Kind == ExpeditionSiteKind.ResourceSite) == 6, "three playable site types");
+        var factions = world.Sites.Where(s => s.Kind == ExpeditionSiteKind.Settlement).GroupBy(s => s.Faction).ToArray();
+        Check(factions.Count(g => g.Count() == 6) == 2 && factions.Count(g => g.Count() == 1) == 6,
+            "large civilizations and independent colonies coexist");
+        Check(factions.All(g => g.Select(s => s.Color).Distinct().Count() == 1), "same civilization shares marker color");
+        var difficulties = world.Sites.Select(s => s.Difficulty).ToArray();
+        Check(difficulties.All(d => d >= 1 && d <= 3) && difficulties.Distinct().Count() == 3
+            && !difficulties.SequenceEqual(difficulties.OrderBy(d => d)), "difficulty is fixed per site, not scaled by map order");
+        Check(world.Sites.Where(s => s.Kind == ExpeditionSiteKind.Settlement)
+            .All(s => s.GetComponentsInChildren<EnemyCommander>().Length == s.Difficulty), "each settlement defends with its own difficulty");
+        var bossTemplate = (AntColony.Boss.BossHealth)Get(world, "bossTemplate");
+        Check(world.Sites.Where(s => s.Kind == ExpeditionSiteKind.BossNest)
+            .All(s => s.Boss.MaxHp == bossTemplate.MaxHp * s.Difficulty && s.Boss.CurrentHp == s.Boss.MaxHp),
+            "boss difficulty scales template health and starts at full health");
+        Check(world.Sites.Where(s => s.Kind == ExpeditionSiteKind.ResourceSite)
+            .All(s => s.GetComponentsInChildren<ResourceNode>().All(n => n.AmountRemaining == 100 * s.Difficulty)),
+            "neutral stock scales with fixed site difficulty");
+        Check(world.Sites.All(s => s.MapPosition.x >= 0 && s.MapPosition.x <= 1 && s.MapPosition.y >= 0 && s.MapPosition.y <= 1)
+            && world.Sites.Select(s => s.MapPosition).Distinct().Count() == 30, "map positions are distinct and normalized");
         var home = Object.FindFirstObjectByType<QueenChamber>();
         Check(Object.FindObjectsByType<EnemyColony>().All(c => Vector3.Distance(c.transform.position, home.Position) > 1000), "no local colony");
         Check(Object.FindObjectsByType<AntColony.Boss.BossHealth>().All(b => Vector3.Distance(b.Position, home.Position) > 1000), "no local boss");
@@ -63,6 +86,8 @@ public static class WorldMapChecks
         var homeCommander = CommanderRoster.Instance.Commanders[0];
         Check(!homeCommander.CanReach(world.Sites[0].Landing), "home cannot walk into expedition site");
         Check(!world.ViewSite(world.Sites[0]), "cannot view unvisited battlefield");
+        Check(world.Sites.All(s => !s.CanResolveConquest
+            && !s.TryResolveConquest(ConquestDisposition.Annexed)), "unconquered sites reject annexation");
         var upkeep = Object.FindFirstObjectByType<UpkeepManager>();
         upkeep.enabled = false;
 
@@ -76,13 +101,27 @@ public static class WorldMapChecks
         typeof(SelectionManager).GetMethod("AddToSelection", Flags).Invoke(selection, new object[] { homeCommander.GetComponent<SelectableObject>() });
         Check(!placement.BeginScienceLabPlacement(), "cannot rush science before prerequisites");
         pool.Breed(100);
+        // 건설 가능 상태는 과학 전제와 별개다. Play 시작 후 경과 시간에 좌우되지 않도록 여기서 맞춘다.
+        homeCommander.CommandStop();
+        if (!homeCommander.HasTroops) Check(homeCommander.TryAssign(5), "builder takes troops");
         Check(!ScienceLab.PrerequisitesMet, "population alone does not unlock science");
         typeof(GameManager).GetProperty("FishingUnlocked").SetValue(GameManager.Instance, true);
         Check(!ScienceLab.PrerequisitesMet, "fishing alone does not bypass barracks tier");
         var barracks = Object.Instantiate(Template<Barracks>(), home.Position + Vector3.right * 12, Quaternion.identity);
         Set(barracks, "currentTier", 2);
         barracks.gameObject.SetActive(true);
-        Check(ScienceLab.PrerequisitesMet && placement.BeginScienceLabPlacement(), "combined prerequisites unlock placement");
+        // 실패 시 어떤 전제가 빠졌는지 바로 드러나도록 조건별 상태를 함께 보고한다.
+        var prereq = ScienceLab.PrerequisitesMet;
+        Check(prereq && placement.BeginScienceLabPlacement(), "combined prerequisites unlock placement:"
+            + " prereq=" + prereq + " pop=" + pool.Total + " fishing=" + GameManager.Instance.FishingUnlocked
+            + " barracks=" + barracks.name + "/active=" + barracks.isActiveAndEnabled + "/tier=" + barracks.CurrentTier
+            + " tier2Barracks=" + Object.FindObjectsByType<Barracks>(FindObjectsSortMode.None).Count(b => b.isActiveAndEnabled && b.CurrentTier >= 2)
+            + " labTemplates=" + Object.FindObjectsByType<ScienceLab>(FindObjectsInactive.Include, FindObjectsSortMode.None)
+                .Count(l => l.gameObject.scene.IsValid() && l.name.EndsWith("Template"))
+            + " viewed=" + (world.ViewedSite == null ? "none" : world.ViewedSite.Title)
+            + " selected=" + selection.GetSelectedObjects().Count + " builder=" + homeCommander.CanStartConstruction
+            + " troops=" + homeCommander.TroopCount + " role=" + homeCommander.Role + " dead=" + homeCommander.IsDead
+            + " transport=" + (homeCommander.Transport != null) + " workerState=" + Get(homeCommander, "state"));
         Check(world.CanCreateTransport(homeCommander.Position, out var labPos), "room for science lab");
         Move(homeCommander, labPos + Vector3.right * 3);
         var free = pool.Free;
@@ -148,6 +187,8 @@ public static class WorldMapChecks
         Check(!placement.BeginFarmPlacement(), "expedition is not a new home colony");
         var colony = world.Sites[0].Colony;
         foreach (var enemy in colony.GetComponentsInChildren<BuildingBase>()) enemy.TakeDamage(float.MaxValue);
+        await Task.Delay(100);
+        Check(!world.Sites[0].TryResolveConquest(ConquestDisposition.Annexed), "surviving guards prevent annexation");
         // 수비 병력이 남아 있으면 채집 중인 장수를 전멸시킨다. 약탈은 전장을 정리한 뒤의 상황을 검사한다.
         foreach (var defender in Object.FindObjectsByType<WildMonster>(FindObjectsInactive.Exclude, FindObjectsSortMode.None))
             if (Vector3.Distance(defender.Position, world.Sites[0].transform.position) < 60) defender.TakeDamage(float.MaxValue);
@@ -178,6 +219,27 @@ public static class WorldMapChecks
         Check(vehicle.GetCargo(ResourceType.Special) == Mathf.RoundToInt(amount)
             && resources.GetAmount(ResourceType.Special) == specialBefore, "loot remains cargo until return");
         Check(homeCommander.WorkProficiency.Progress > 0, "expedition harvesting gives proficiency");
+        var conquestUi = Object.FindFirstObjectByType<AntColony.UI.WorldMapPanel>();
+        if (!conquestUi.IsOpen) conquestUi.Toggle();
+        Set(conquestUi, "selectedSite", world.Sites[0]);
+        await Task.Delay(100);
+        var annex = conquestUi.PanelRect.Find("Annex").GetComponent<UnityEngine.UI.Button>();
+        var abandon = conquestUi.PanelRect.Find("Abandon").GetComponent<UnityEngine.UI.Button>();
+        Check(annex.interactable && abandon.interactable, "conquest choices enabled for cleared occupied settlement");
+        Check(!world.Sites[0].TryResolveConquest(ConquestDisposition.Undecided)
+            && !world.Sites[0].TryResolveConquest((ConquestDisposition)99), "invalid conquest choices rejected");
+        var foodStock = colony.GetStock(ResourceType.Food);
+        var soilStock = colony.GetStock(ResourceType.Soil);
+        annex.onClick.Invoke();
+        await Task.Delay(100);
+        Check(world.Sites[0].Disposition == ConquestDisposition.Annexed && !annex.interactable && !abandon.interactable,
+            "annex button records ownership and disables resolved choices");
+        Check(((UnityEngine.UI.Text)Get(conquestUi, "status")).text.Contains("Annexed"), "annexed status shown");
+        Check(!world.Sites[0].TryResolveConquest(ConquestDisposition.Annexed)
+            && !world.Sites[0].TryResolveConquest(ConquestDisposition.Abandoned), "conquest choice is one-time");
+        Check(colony.GetStock(ResourceType.Food) == foodStock && colony.GetStock(ResourceType.Soil) == soilStock
+            && vehicle.GetCargo(ResourceType.Special) == Mathf.RoundToInt(amount)
+            && resources.GetAmount(ResourceType.Special) == specialBefore, "annexation preserves stocks and cargo without rewards");
         Check(vehicle.TryReturn(), "crew at landing can return");
         vehicle.Tick(vehicle.TravelSeconds);
         Check(vehicle.State == ExpeditionState.Home && homeCommander.Transport == null && !homeCommander.IsEmbarked,
@@ -186,6 +248,12 @@ public static class WorldMapChecks
         vehicle.Tick(vehicle.TravelSeconds);
         Check(resources.GetAmount(ResourceType.Special) == specialBefore + Mathf.RoundToInt(amount), "repeat tick cannot duplicate cargo");
         Check(world.Sites[0].Visitor == null && world.Sites[0].Cleared, "cleared site stays cleared after leaving");
+        Check(world.Sites[0].Disposition == ConquestDisposition.Annexed, "annexation persists after return");
+        Move(homeCommander, vehicle.Position + Vector3.right * 3);
+        Check(vehicle.TryBoard(new[] { homeCommander }) && vehicle.TryDepart(world.Sites[0]), "annexed settlement allows revisit");
+        vehicle.Tick(vehicle.TravelSeconds);
+        Check(vehicle.TryReturn(), "revisited settlement allows return");
+        vehicle.Tick(vehicle.TravelSeconds);
         Check(aircraft.State == ExpeditionState.Deployed && second.Transport == aircraft, "return does not disturb other expedition");
         world.ViewSite(world.Sites[2]);
         var boss = world.Sites[2].Boss;
@@ -193,9 +261,84 @@ public static class WorldMapChecks
         await Task.Delay(100);
         var bossLoot = Object.FindObjectsByType<ResourceNode>().Where(n => n.name.StartsWith("BossLoot ")).ToArray();
         Check(world.Sites[2].Cleared && bossLoot.Length == 2, "boss on expedition drops existing loot once");
+        Check(bossLoot.Single(n => n.ResourceType == ResourceType.Food).AmountRemaining
+                == (int)Get(bossTemplate, "foodReward") * world.Sites[2].Difficulty
+            && bossLoot.Single(n => n.ResourceType == ResourceType.Special).AmountRemaining
+                == (int)Get(bossTemplate, "specialReward") * world.Sites[2].Difficulty,
+            "boss death drops difficulty-scaled food and special");
+        Check(!world.Sites[2].TryResolveConquest(ConquestDisposition.Annexed)
+            && !world.Sites[2].TryResolveConquest(ConquestDisposition.Abandoned), "boss nest has no settlement conquest choice");
         foreach (var drop in bossLoot) Check(second.CanReach(drop.transform.position), "boss loot reachable in expedition");
         Check(aircraft.TryReturn(), "second expedition can return independently");
         aircraft.Tick(aircraft.TravelSeconds);
+
+        var field = world.Sites.First(s => s.Kind == ExpeditionSiteKind.ResourceSite);
+        Check(field.Colony == null && field.Boss == null && field.GetComponentsInChildren<WildMonster>().Length == 0,
+            "neutral resource site has no hostile colony or defenders");
+        Check(!field.Cleared, "resource site starts with stock");
+        Move(homeCommander, vehicle.Position + Vector3.right * 3);
+        Check(vehicle.TryBoard(new[] { homeCommander }) && vehicle.TryDepart(field), "resource site accepts expedition");
+        vehicle.Tick(vehicle.TravelSeconds);
+        Check(world.ViewSite(field), "resource battlefield can be viewed");
+        var fieldNodes = field.GetComponentsInChildren<ResourceNode>();
+        Check(fieldNodes.Length == 2 && fieldNodes.Any(n => n.ResourceType == ResourceType.Food)
+            && fieldNodes.Any(n => n.ResourceType == ResourceType.Soil), "resource field contains food and soil");
+        var homeFood = resources.GetAmount(ResourceType.Food);
+        var homeSoil = resources.GetAmount(ResourceType.Soil);
+        foreach (var node in fieldNodes)
+        {
+            Check(node.CanGather && !node.IsRaidLocked && homeCommander.CanReach(node.transform.position),
+                "neutral resources are unlocked and reachable");
+            Set(node, "amountRemaining", 1f);
+            Move(homeCommander, node.transform.position + Vector3.left);
+            homeCommander.CommandGather(node);
+            Check(await Wait(() => node.IsDepleted && !homeCommander.IsCarrying, 45), "neutral harvesting returns to transport");
+            Check(vehicle.GetCargo(node.ResourceType) == 1, "harvest remains in cargo");
+        }
+        await Task.Delay(100);
+        Check(field.Cleared, "resource site depletes only after all stock is harvested");
+        Check(!field.TryResolveConquest(ConquestDisposition.Annexed)
+            && !field.TryResolveConquest(ConquestDisposition.Abandoned), "resource site has no settlement conquest choice");
+        Check(resources.GetAmount(ResourceType.Food) == homeFood && resources.GetAmount(ResourceType.Soil) == homeSoil,
+            "no remote resource transfer to home");
+        Check(vehicle.TryReturn(), "resource expedition can return");
+        vehicle.Tick(vehicle.TravelSeconds);
+        Check(resources.GetAmount(ResourceType.Food) == homeFood + 1 && resources.GetAmount(ResourceType.Soil) == homeSoil + 1,
+            "neutral resource cargo delivered on return");
+        Check(field.Cleared && field.Visitor == null, "depleted site persists after returning");
+
+        var abandoned = world.Sites[1];
+        foreach (var enemy in abandoned.Colony.GetComponentsInChildren<BuildingBase>()) enemy.TakeDamage(float.MaxValue);
+        foreach (var guard in abandoned.GetComponentsInChildren<WildMonster>()) guard.TakeDamage(float.MaxValue);
+        await Task.Delay(100);
+        Check(abandoned.Cleared && !abandoned.TryResolveConquest(ConquestDisposition.Abandoned), "cannot decide remotely without deployed crew");
+        Move(homeCommander, vehicle.Position + Vector3.right * 3);
+        Check(vehicle.TryBoard(new[] { homeCommander }) && vehicle.TryDepart(abandoned), "undecided conquered settlement allows revisit");
+        Check(!abandoned.CanResolveConquest, "outbound transport cannot decide conquest");
+        vehicle.Tick(vehicle.TravelSeconds);
+        if (!conquestUi.IsOpen) conquestUi.Toggle();
+        Set(conquestUi, "selectedSite", abandoned);
+        await Task.Delay(100);
+        Check(abandon.interactable, "abandon button enabled after arrival");
+        abandon.onClick.Invoke();
+        await Task.Delay(100);
+        Check(abandoned.Disposition == ConquestDisposition.Abandoned && !annex.interactable && !abandon.interactable
+            && ((UnityEngine.UI.Text)Get(conquestUi, "status")).text.Contains("Abandoned"), "abandon button resolves and displays state");
+        Check(world.ViewSite(abandoned), "abandonment retains current battlefield access");
+        var remainingLoot = abandoned.Colony.GetComponentsInChildren<ResourceNode>().First(n => n.CanGather);
+        Set(remainingLoot, "amountRemaining", 1f);
+        var deliveredBefore = resources.GetAmount(remainingLoot.ResourceType);
+        Move(homeCommander, remainingLoot.transform.position + Vector3.left);
+        homeCommander.CommandGather(remainingLoot);
+        Check(await Wait(() => remainingLoot.IsDepleted && !homeCommander.IsCarrying, 45), "abandonment permits finishing current loot");
+        Check(vehicle.GetCargo(remainingLoot.ResourceType) == 1 && vehicle.TryReturn(), "abandoned expedition returns with cargo");
+        vehicle.Tick(vehicle.TravelSeconds);
+        Check(resources.GetAmount(remainingLoot.ResourceType) == deliveredBefore + 1
+            && abandoned.Visitor == null && abandoned.Disposition == ConquestDisposition.Abandoned, "abandoned return delivers cargo and retains decision");
+        Move(homeCommander, vehicle.Position + Vector3.right * 3);
+        Check(vehicle.TryBoard(new[] { homeCommander }) && !vehicle.TryDepart(abandoned)
+            && vehicle.State == ExpeditionState.Home && abandoned.Visitor == null, "abandoned site rejects new departure without claiming visitor");
+        Check(vehicle.TryUnloadCrew(), "failed abandoned departure leaves crew recoverable");
 
         var camp = Object.Instantiate(Template<PrisonerCamp>(), home.Position + Vector3.left * 12, Quaternion.identity);
         camp.gameObject.SetActive(true);
@@ -210,6 +353,23 @@ public static class WorldMapChecks
         Check(ui != null, "world map UI attached");
         if (!ui.IsOpen) ui.Toggle();
         Canvas.ForceUpdateCanvases();
+        var map = ui.PanelRect.Find("WorldMap");
+        var markers = map.GetComponentsInChildren<UnityEngine.UI.Button>()
+            .Where(b => world.Sites.Any(s => s.Title == b.name)).ToArray();
+        Check(markers.Length == 30, "all thirty map markers are available");
+        for (var i = 0; i < markers.Length; i++)
+        {
+            markers[i].onClick.Invoke();
+            Check((ExpeditionSite)Get(ui, "selectedSite") == world.Sites[i], "marker selects its own site");
+            var a = (RectTransform)markers[i].transform;
+            var bounds = new Rect(a.anchoredPosition + new Vector2(0, -a.rect.height), a.rect.size);
+            for (var j = i + 1; j < markers.Length; j++)
+            {
+                var b = (RectTransform)markers[j].transform;
+                Check(!bounds.Overlaps(new Rect(b.anchoredPosition + new Vector2(0, -b.rect.height), b.rect.size)),
+                    "map markers do not overlap");
+            }
+        }
         foreach (var button in ui.PanelRect.GetComponentsInChildren<UnityEngine.UI.Button>())
         {
             var corners = new Vector3[4];

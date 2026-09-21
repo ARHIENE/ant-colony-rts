@@ -26,7 +26,8 @@ namespace AntColony.World
 
         public bool RequiresFishing => requiresFishing;
         public bool IsRaidLoot => ownerColony != null;
-        public bool IsRaidLocked => ownerColony != null && !ownerColony.IsDefeated;
+        public bool IsRaidLocked => ownerColony != null && (!ownerColony.IsDefeated
+            || ownerColony.GetComponentInParent<ExpeditionSite>()?.Disposition == ConquestDisposition.Lost);
         public bool IsUnlocked => !IsRaidLocked && (!requiresFishing || (GameManager.Instance != null && GameManager.Instance.FishingUnlocked));
         public bool CanGather => isActiveAndEnabled && !IsDepleted && IsUnlocked;
         public float GatherRateMultiplier => requiresFishing ? fishingRateMultiplier : 1f;
@@ -85,7 +86,10 @@ namespace AntColony.World
 
         public void AddStock(float amount)
         {
-            if (amount > 0f) amountRemaining += amount;
+            if (!(amount > 0f) || float.IsInfinity(amount)) return;
+            var depleted = IsDepleted;
+            amountRemaining += amount;
+            if (depleted && !IsDepleted) gameObject.SetActive(true);
         }
 
         public bool TryConsumeStock(float amount)

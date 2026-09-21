@@ -189,7 +189,10 @@ public static class WorkProficiencyLootChecks
             Check(work.Progress == 0f && Mathf.Approximately(node.AmountRemaining, partial), "canceled gather earns nothing");
 
             commander.CommandGather(node);
-            Check(await WaitFor(() => !node.gameObject.activeSelf, 20), "partial node depleted by real gathering");
+            Check(await WaitFor(() => !node.gameObject.activeSelf, 20), "partial node depleted by real gathering: "
+                + "state=" + Get(commander, "state") + " stock=" + node.AmountRemaining
+                + " troops=" + commander.TroopCount + " reachable=" + commander.CanReach(node.transform.position)
+                + " position=" + commander.Position + " node=" + node.transform.position);
             Check(Mathf.Abs(work.Progress - partial) < 0.01f && work.Level == 0, "progress equals extracted amount: " + work.Progress);
             var afterDepleted = work.Progress;
             commander.CommandGather(node);
@@ -231,10 +234,14 @@ public static class WorkProficiencyLootChecks
             Check(work.Progress == before && farm.gameObject.activeSelf && farm.Extract(1f) == 0f, "regrowing farm earns nothing");
             commander.CommandStop();
 
-            // 4) 씬 보스 기본 전리품값.
+            // 4) 씬 보스 전리품은 원정 거점의 고정 난이도를 따른다.
             var sceneBoss = Object.FindObjectsByType<BossHealth>().FirstOrDefault(b => b.name != "LootCheckBoss");
             if (sceneBoss != null)
-                Check((int)Get(sceneBoss, "foodReward") == 100 && (int)Get(sceneBoss, "specialReward") == 20, "scene boss loot defaults");
+            {
+                var difficulty = sceneBoss.GetComponentInParent<ExpeditionSite>()?.Difficulty ?? 1;
+                Check((int)Get(sceneBoss, "foodReward") == 100 * difficulty
+                    && (int)Get(sceneBoss, "specialReward") == 20 * difficulty, "scene boss loot follows site difficulty");
+            }
 
             // 5) 보스 전리품: 생존·비치명·비활성화에는 드롭 없음.
             var bossPos = commander.transform.position + Vector3.forward * 4f;

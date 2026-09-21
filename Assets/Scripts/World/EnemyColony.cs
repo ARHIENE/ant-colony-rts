@@ -41,9 +41,14 @@ namespace AntColony.World
             if (randomizeAtStart) TryRandomizePlacement();
         }
 
-        public void ConfigureExpedition()
+        public void ConfigureExpedition(int difficulty)
         {
             randomizeAtStart = false;
+            difficulty = Mathf.Max(1, difficulty);
+            maxFoodStock *= difficulty;
+            maxSoilStock *= difficulty;
+            foreach (var node in GetComponentsInChildren<ResourceNode>(true))
+                node.AddStock(node.AmountRemaining * (difficulty - 1));
             foreach (var invasion in GetComponentsInChildren<ColonyInvasion>(true)) invasion.enabled = false;
         }
 

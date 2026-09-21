@@ -20,6 +20,11 @@ namespace AntColony.World
         public ExpeditionState State { get; private set; }
         public ExpeditionSite Site { get; private set; }
         public bool Aircraft { get; private set; }
+        public TransportRoute Route { get; private set; }
+        public bool HasCargo
+        {
+            get { foreach (var amount in cargo.Values) if (amount > 0) return true; return false; }
+        }
         // 장수 자신도 적재량 1을 차지한다.
         public int Capacity => Aircraft ? 100 : 40;
         public float TravelSeconds => Aircraft ? 10 : 20;
@@ -32,6 +37,7 @@ namespace AntColony.World
 
         public void Initialize(bool aircraft)
         {
+            Route = new TransportRoute(this);
             Aircraft = aircraft;
             homePosition = transform.position;
             name = aircraft ? "Aircraft" : "Vehicle";
@@ -42,28 +48,58 @@ namespace AntColony.World
 
         public bool TryBoard(IReadOnlyList<CommanderAnt> passengers)
         {
-            if (!isActiveAndEnabled || State != ExpeditionState.Home || passengers == null || passengers.Count == 0) return false;
+            if (Route != null && Route.IsRunning) return false;
+            var settlement = State == ExpeditionState.Deployed && Site != null ? Site.Settlement : null;
+            if (!isActiveAndEnabled || (State != ExpeditionState.Home && settlement == null)
+                || passengers == null || passengers.Count == 0) return false;
             var unique = new HashSet<CommanderAnt>();
             var load = Load;
             foreach (var c in passengers)
             {
                 if (c == null || !c.isActiveAndEnabled || !unique.Add(c) || c.Transport != null
-                    || !c.HasTroops || !c.CanChangeAllocation || c.LabUpgradeBusy
+                    || c.Garrison != settlement || (settlement == null && !c.HasTroops)
+                    || !c.CanChangeAllocation || c.LabUpgradeBusy
                     || Vector3.Distance(c.Position, Position) > 8) return false;
                 load += c.TroopCount + 1;
             }
             if (load > Capacity) return false;
-            foreach (var c in passengers)
+            foreach (var c in new List<CommanderAnt>(passengers))
             {
+                if (settlement != null) settlement.Remove(c);
                 crew.Add(c);
                 c.Transport = this;
-                c.SetEmbarked(true, Position);
+                // 현장 재탑승은 귀환 명부로 복귀한다. 실제 탑승/숨김은 TryReturn에서 처리한다.
+                if (State == ExpeditionState.Home) c.SetEmbarked(true, Position);
+                else c.CommandStop();
+            }
+            return true;
+        }
+
+        public bool TryStation(IReadOnlyList<CommanderAnt> passengers)
+        {
+            if (Route != null && Route.IsRunning) return false;
+            var settlement = Site != null ? Site.Settlement : null;
+            if (!isActiveAndEnabled || State != ExpeditionState.Deployed || settlement == null
+                || Site.Disposition != ConquestDisposition.Annexed
+                || !settlement.isActiveAndEnabled || passengers == null || passengers.Count == 0) return false;
+            var unique = new HashSet<CommanderAnt>();
+            foreach (var c in passengers)
+                if (c == null || !c.isActiveAndEnabled || !unique.Add(c) || c.Transport != this || !crew.Contains(c)
+                    || c.Garrison != null || !c.HasTroops || !c.CanChangeAllocation || c.LabUpgradeBusy
+                    || Vector3.Distance(c.Position, Position) > 8) return false;
+            foreach (var c in new List<CommanderAnt>(passengers))
+            {
+                c.CommandStop();
+                crew.Remove(c);
+                c.Transport = null;
+                settlement.Add(c);
             }
             return true;
         }
 
         public bool TryUnloadCrew()
         {
+            if (Route != null && Route.IsRunning) return false;
             if (State != ExpeditionState.Home || crew.Count == 0) return false;
             LandCrew();
             foreach (var c in crew) if (c != null) c.Transport = null;
@@ -73,9 +109,13 @@ namespace AntColony.World
 
         public bool TryDepart(ExpeditionSite site)
         {
+            if (Route != null && Route.IsRunning
+                && (site != Route.Destination || HasCargo || Route.WaitSeconds > 0)) return false;
             var world = WorldMapManager.Instance;
             if (!isActiveAndEnabled || world == null || !world.Unlocked || State != ExpeditionState.Home
-                || crew.Count == 0 || site == null || site.Visitor != null || Load > Capacity) return false;
+                || site == null || site.Visitor != null
+                || (crew.Count == 0 && site.Disposition != ConquestDisposition.Annexed)
+                || site.Disposition == ConquestDisposition.Abandoned || Load > Capacity) return false;
             Site = site;
             site.Visitor = this;
             State = ExpeditionState.Outbound;
@@ -89,6 +129,13 @@ namespace AntColony.World
             foreach (var c in crew)
                 if (c != null && (!c.isActiveAndEnabled || c.IsCarrying || c.IsConstructing
                     || Vector3.Distance(c.Position, Position) > 8)) return false;
+            if (Site != null && Site.Settlement != null)
+            {
+                foreach (var c in Site.Settlement.Garrison)
+                    if (c != null && c.IsCarrying) return false;
+                // 수송수단이 떠난 뒤 채집을 계속해 반납할 곳 없이 화물을 들지 않게 한다.
+                foreach (var c in Site.Settlement.Garrison) if (c != null && c.IsWorking) c.CommandStop();
+            }
             foreach (var c in crew) if (c != null) c.SetEmbarked(true, Position);
             if (WorldMapManager.Instance.ViewedSite == Site) WorldMapManager.Instance.ViewSite(null);
             State = ExpeditionState.Returning;
@@ -100,6 +147,21 @@ namespace AntColony.World
         {
             Tick(Time.deltaTime);
             if (State == ExpeditionState.Home) UnloadCargo();
+            Route?.Tick(Time.deltaTime);
+        }
+
+        internal void EvacuateLostSite()
+        {
+            Route?.Stop("Stopped: destination lost");
+            if (State == ExpeditionState.Home || State == ExpeditionState.Returning) return;
+            foreach (var c in crew)
+                if (c != null)
+                {
+                    c.EvacuateCargo(Site, this);
+                    c.SetEmbarked(true, Position);
+                }
+            State = ExpeditionState.Returning;
+            Remaining = TravelSeconds;
         }
 
         public void Tick(float seconds)
@@ -158,6 +220,7 @@ namespace AntColony.World
 
         protected override void OnDisable()
         {
+            Route?.Stop();
             if (Application.isPlaying)
             {
                 LandCrew();

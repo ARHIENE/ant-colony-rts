@@ -40,6 +40,10 @@ namespace AntColony.Units
         private bool troopsReleased;
         private readonly CommanderSkills skills = new CommanderSkills();
         public ExpeditionTransport Transport { get; internal set; }
+        public AnnexedSettlement Garrison { get; internal set; }
+        public ExpeditionSite Captor { get; internal set; }
+        public bool IsCaptive => Captor != null;
+        public bool IsAwayFromHome => Transport != null || Garrison != null || IsCaptive;
         public bool IsEmbarked { get; private set; }
         private readonly List<Renderer> embarkRenderers = new List<Renderer>();
         private readonly List<Collider> embarkColliders = new List<Collider>();
@@ -75,7 +79,7 @@ namespace AntColony.Units
 
         public override void CommandMove(Vector3 destination)
         {
-            if (!IsEmbarked) base.CommandMove(destination);
+            if (!IsEmbarked && !IsCaptive) base.CommandMove(destination);
         }
 
         public string CommanderName => commanderName;
@@ -147,9 +151,9 @@ namespace AntColony.Units
         }
 
         // 운반 중이거나 건설 중에는 배정/회수/보직 변경을 막는다. 중간에 인원이 바뀌면 자원이 증발한다.
-        public bool CanChangeAllocation => !IsEmbarked && !IsCarrying && !IsConstructing;
+        public bool CanChangeAllocation => !IsCaptive && !IsEmbarked && !IsCarrying && !IsConstructing;
 
-        public override bool CanStartConstruction => Transport == null && HasTroops && base.CanStartConstruction;
+        public override bool CanStartConstruction => !IsAwayFromHome && HasTroops && base.CanStartConstruction;
 
         public bool CanTakeRole(UnitRole candidate) => allowedRoles != null && allowedRoles.Contains(candidate);
 
@@ -195,7 +199,7 @@ namespace AntColony.Units
         // 대기 중인 일반개미를 이 장수에게 배정한다. 지휘 한도와 대기 인원을 모두 넘지 못한다.
         public bool TryAssign(int count)
         {
-            if (count <= 0 || Transport != null || !isActiveAndEnabled || !CanChangeAllocation || AntPool.Instance == null) return false;
+            if (count <= 0 || IsAwayFromHome || !isActiveAndEnabled || !CanChangeAllocation || AntPool.Instance == null) return false;
             if (count > CommandLimit - troopCount) return false;
             if (!AntPool.Instance.TryAssign(count)) return false;
             troopsReleased = false;
@@ -207,7 +211,7 @@ namespace AntColony.Units
         // pendingDamage는 유지되므로 회수 후 재배정으로 피해를 씻어낼 수 없다.
         public int ReturnTroops(int count)
         {
-            if (count <= 0 || Transport != null || !CanChangeAllocation || AntPool.Instance == null) return 0;
+            if (count <= 0 || IsAwayFromHome || !CanChangeAllocation || AntPool.Instance == null) return 0;
             // 부상 중인 마지막 1마리를 건강한 대기 인력으로 넘겨 회복시키지 않는다.
             count = Mathf.Min(count, troopCount - (pendingDamage > 0f ? 1 : 0));
             if (count <= 0) return 0;
@@ -236,6 +240,7 @@ namespace AntColony.Units
         // 관직 변경은 무료다. 한도를 낮춰 현재 병력을 초과하게 되는 경우만 거부한다.
         public bool TrySetRank(CommanderRank newRank)
         {
+            if (IsCaptive) return false;
             if (!System.Enum.IsDefined(typeof(CommanderRank), newRank)) return false;
             if (CommanderRanks.CommandLimit(newRank) < troopCount) return false;
             rank = newRank;
@@ -287,6 +292,7 @@ namespace AntColony.Units
         public override void CommandGather(ResourceNode node)
         {
             if (IsEmbarked || !HasTroops) return;
+            if (Garrison != null && Garrison.DockedTransport == null) return;
             base.CommandGather(node);
         }
 
@@ -316,6 +322,7 @@ namespace AntColony.Units
 
         protected override void OnDisable()
         {
+            if (Garrison != null) Garrison.Remove(this);
             base.OnDisable();
             ReleaseTroopsOnce();
             skills.CancelEffects();
