@@ -14,6 +14,7 @@ namespace AntColony.Buildings
         public CommanderRank Rank;
         public UnitRole[] Roles;
         public CommanderTraits Traits;
+        public CommanderTalents Talents;
         public int PersuadeAttempts;
 
         public Prisoner(string name, CommanderRank rank, UnitRole[] roles, CommanderTraits traits)
@@ -22,6 +23,7 @@ namespace AntColony.Buildings
             Rank = rank;
             Roles = roles != null && roles.Length > 0 ? roles : new[] { UnitRole.Worker };
             Traits = traits ?? CommanderTraits.Random();
+            Talents = new CommanderTalents(); Talents.Generate(Traits);
         }
     }
 
@@ -84,6 +86,19 @@ namespace AntColony.Buildings
             Active.Remove(this);
         }
 
+        internal float EscapeTimer => escapeTimer;
+
+        // 저장 복원 전용. 포로 명단을 통째로 갈아끼운다.
+        internal void RestoreState(List<Prisoner> saved, float timer, int recruited, int executed, int escaped)
+        {
+            prisoners.Clear();
+            if (saved != null) prisoners.AddRange(saved);
+            escapeTimer = timer > 0f ? timer : escapeCheckSeconds;
+            RecruitedCount = Mathf.Max(0, recruited);
+            ExecutedCount = Mathf.Max(0, executed);
+            EscapedCount = Mathf.Max(0, escaped);
+        }
+
         private void Update() => Tick(Time.deltaTime);
 
         // 검사 스크립트가 시간을 직접 밀어 넣을 수 있도록 분리해 둔다.
@@ -102,14 +117,18 @@ namespace AntColony.Buildings
                 if (Random.value >= chance) continue;
                 prisoners.RemoveAt(i);
                 EscapedCount++;
+                AntColony.UI.ToastManager.Show("A prisoner escaped.");
             }
         }
 
         // 적 장수를 포로로 받는다. 정원이 차 있으면 거부하며, 이때 적 장수는 평소대로 죽는다.
-        public bool TryCapture(string name, CommanderRank rank, UnitRole[] roles, CommanderTraits traits)
+        public bool TryCapture(string name, CommanderRank rank, UnitRole[] roles, CommanderTraits traits, CommanderTalents talents = null)
         {
             if (!isActiveAndEnabled || !HasSpace) return false;
-            prisoners.Add(new Prisoner(name, rank, roles, traits));
+            var prisoner = new Prisoner(name, rank, roles, traits);
+            if (talents != null) prisoner.Talents = talents.Copy();
+            prisoners.Add(prisoner);
+            AntColony.UI.ToastManager.Show(name + " captured.");
             return true;
         }
 
@@ -153,9 +172,11 @@ namespace AntColony.Buildings
             var recruit = roster?.Create(prisoner.Name, prisoner.Rank, prisoner.Roles,
                 prisoner.Roles[0], prisoner.Traits, transform.position);
             if (recruit == null) return false;
+            recruit.RestoreTalents(prisoner.Talents);
 
             prisoners.RemoveAt(index);
             RecruitedCount++;
+            AntColony.UI.ToastManager.Show(prisoner.Name + " joined your colony.");
             return true;
         }
 
@@ -171,6 +192,7 @@ namespace AntColony.Buildings
             if (!isActiveAndEnabled || index < 0 || index >= prisoners.Count) return false;
             prisoners.RemoveAt(index);
             ExecutedCount++;
+            AntColony.UI.ToastManager.Show("Prisoner executed.");
             return true;
         }
     }

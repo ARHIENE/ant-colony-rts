@@ -21,7 +21,9 @@ namespace AntColony.UI
 
         private void Start()
         {
-            Button(transform, "World / Science", new Vector2(1090, -60), new Vector2(180, 34), Toggle).name = "WorldMapToggle";
+            var toggle = Button(transform, "World / Science", new Vector2(1090, -60), new Vector2(180, 34), Toggle);
+            toggle.name = "WorldMapToggle";
+            toggle.gameObject.AddComponent<MenuTooltip>().Message = "Open science research, transport construction and world expeditions.";
             worldNotice = Label(transform, "", new Vector2(20, -60), new Vector2(1050, 34), 15);
             worldNotice.name = "SettlementNotice";
             panel = new GameObject("WorldMapPanel", typeof(RectTransform), typeof(UnityEngine.UI.Image));
@@ -38,8 +40,8 @@ namespace AntColony.UI
                 if (FindFirstObjectByType<BuildingPlacementController>().BeginScienceLabPlacement()) Toggle();
                 else feedback.text = "Requires home, 60 ants, fishing, a T2 barracks and a selected builder.";
             });
-            Button(rect, "Research Vehicle 60F/50S", new Vector2(220, -100), new Vector2(220, 36), () => ScienceAction(false, false));
-            Button(rect, "Research Aircraft 100F/80S", new Vector2(450, -100), new Vector2(230, 36), () => ScienceAction(true, false));
+            Button(rect, "Science / Researchers", new Vector2(220, -100), new Vector2(220, 36), () => { Toggle(); GameMenuController.Instance.Science(); });
+            Button(rect, "Collect Equipment / Blueprint", new Vector2(450, -100), new Vector2(230, 36), () => Result(selectedShip != null && selectedShip.TryCollectRewards(), "Reward cargo loaded. Return home to use it."));
             Button(rect, "Build Vehicle 50F/60S", new Vector2(690, -100), new Vector2(220, 36), () => ScienceAction(false, true));
             Button(rect, "Build Aircraft 80F/100S", new Vector2(920, -100), new Vector2(230, 36), () => ScienceAction(true, true));
             var map = new GameObject("WorldMap", typeof(RectTransform), typeof(UnityEngine.UI.Image));
@@ -52,7 +54,7 @@ namespace AntColony.UI
             });
             startRoute = Button(map.transform, "Start Auto", new Vector2(120, -245), new Vector2(170, 38), () =>
                 Result(selectedShip != null && selectedShip.Route != null && selectedShip.Route.TryStart(selectedSite),
-                    "Auto route started. Worker crew will collect and return."));
+                    "Auto route started. Commanders will collect and return."));
             stopRoute = Button(map.transform, "Stop Auto", new Vector2(300, -245), new Vector2(170, 38), () => {
                 selectedShip?.Route?.Stop();
                 feedback.text = "Auto stopped. Current travel and work continue; return manually if away.";
@@ -102,7 +104,7 @@ namespace AntColony.UI
             var lab = FindLab();
             scienceStatus.text = $"Science Lab: {(lab != null ? lab.Busy ? $"Working {lab.Remaining:0}s" : "Ready" : "Not built")} | "
                 + $"Vehicle: {(world.VehicleResearched ? "Researched" : "Locked")} | Aircraft: {(world.AircraftResearched ? "Researched" : "Locked")}\n"
-                + "Lab: 100F / 100S / 8 ants. Requires population 60 + Fishing + Barracks T2. Research 15s; construction 10s.";
+                + "Lab: 100F / 100S / 8 ants. Assign researchers; upgrade to T2 for vehicles / T3 for aircraft. Construction 10s.";
             mapTitle.text = world.Unlocked ? $"World Map — {world.Sites.Count} sites\nC: Colony / B: Boss / R: Resources" : "World Map locked\nConstruct your first vehicle or aircraft.";
             for (var i = 0; i < markers.Count; i++)
             {
@@ -126,7 +128,7 @@ namespace AntColony.UI
             status.text = selectedShip == null ? "No transport. Research and construct one.\n" + target
                 : $"{selectedShip.name} | {selectedShip.State} {selectedShip.Remaining:0}s | Load {selectedShip.Load}/{selectedShip.Capacity}\n"
                     + $"Crew {selectedShip.Crew.Count} | Cargo {selectedShip.GetCargo(AntColony.Data.ResourceType.Food)}F / "
-                    + $"{selectedShip.GetCargo(AntColony.Data.ResourceType.Soil)}S / {selectedShip.GetCargo(AntColony.Data.ResourceType.Special)} Special\n" + target;
+                    + $"{selectedShip.GetCargo(AntColony.Data.ResourceType.Soil)}S / {selectedShip.GetCargo(AntColony.Data.ResourceType.Special)} Special | {selectedShip.EquipmentCargo.Count} equipment{(selectedShip.BlueprintCargo ? " + blueprint" : "")}\n" + target;
         }
 
         // 거점 생성(WorldMapManager.Start)이 이 패널보다 늦게 돌 수 있어 아직 없는 마커만 이어서 만든다.
@@ -218,6 +220,7 @@ namespace AntColony.UI
             go.GetComponent<UnityEngine.UI.Image>().color = new Color(.2f, .26f, .32f);
             var button = go.GetComponent<UnityEngine.UI.Button>();
             button.targetGraphic = go.GetComponent<UnityEngine.UI.Image>();
+            MenuTheme.StyleButton(button);
             button.onClick.AddListener(click);
             Label(go.transform, text, Vector2.zero, size, 13).alignment = TextAnchor.MiddleCenter;
             return button;

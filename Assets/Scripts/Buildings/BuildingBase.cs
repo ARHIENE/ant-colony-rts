@@ -20,6 +20,7 @@ namespace AntColony.Buildings
         public float CurrentHealth => currentHealth;
         public bool IsDead => currentHealth <= 0f;
         public Vector3 Position => transform.position;
+        internal void ConfigureRuntime(BuildingData definition) { data = definition; currentHealth = MaxHealth; }
 
         protected virtual bool IsDepositPoint => false;
 
@@ -42,6 +43,12 @@ namespace AntColony.Buildings
         {
             DepositPoints.Remove(this);
             GameManager.Instance?.UnregisterBuilding(this);
+        }
+
+        // 저장 복원 전용. 0 이하로는 내리지 않는다(복원 중 파괴 연쇄를 일으키지 않기 위해).
+        internal void RestoreHealth(float value)
+        {
+            currentHealth = Mathf.Clamp(value, 0.01f, MaxHealth);
         }
 
         public void TakeDamage(float amount)

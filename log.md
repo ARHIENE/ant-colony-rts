@@ -1,34 +1,35 @@
 # 프로젝트 로그
 
-## 현재 상태 — 2026-09-21
-- 개미 소굴 RTS, E:\Git\ant. Unity 6000.5.8f1 / URP 17.5.0 / Pipeline 0.7.0-exp.1. 개발 develop, 안정 master.
-- 주요 경로: Assets/Scripts/{Core,Data,Units,Buildings,World,Boss,UI,Map}, Assets/Scenes/AntColony.unity, AgentScripts/. 조작·구현 상태는 README.md.
-- 검증된 구현: 30거점 월드맵·과학·동시 원정·편입/유기·현지 생산/주둔/회수·침공/상실/포로/탈출/재정복 구출·단일 거점 자동 수송·거점 난이도 보상 차등.
-- 이전 검증: SettlementRewardChecks 50개, AnnexedSettlementChecks 51개, WorldMapChecks 636개, RegressionChecks 전체 통과. 이전 로그는 changelog.md에 날짜와 함께 요약 이관.
+## 현재 상태 — 2026-09-24 (KST)
+- 프로젝트: 개미 소굴 RTS, `E:\Git\ant`. Unity 6000.5.8f1 / URP 17.5.0 / Pipeline 0.7.0-exp.1.
+- 일반 개발 `develop`, 안정 `master`. `.prefab`/`.prefab.meta`와 `Assets/_TeamImport`는 커밋하지 않는다.
+- 주요 경로: `Assets/Scripts/{Core,Save,UI,Map,Units,Buildings,World,Boss}`, `Assets/Scenes/AntColony.unity`, `AgentScripts/`.
+- 전장의 안개와 탐색 기능은 사용자 요청으로 구현 대상에서 제외했다.
 
-## 진행 중 작업 — 전체 UI (미완성)
-- 사용자 요청: Notion 「게임 전체 UI 구성」 https://app.notion.com/p/3e2c4a0ecd31819eaba5ff850554216c 전체 구현. 넓은 수정 범위 확인 완료.
-- 코드 작성은 사용자가 지정한 **Claude Opus 5**. 설치된 Claude Code 2.1.276에서 --model claude-opus-5 응답으로 실제 모델 확인. Codex가 불가능하다고 잘못 답했으나 기존 CLI 실행 경로를 찾아 정정함. 다른 모델로 임의 대체하지 않는다.
-- 승인 범위: 메인 메뉴·새 게임(크기/난이도/시드)·설정·자동/수동 저장/불러오기·도감·관직순 장수 관리·일시정지·비차단 토스트·툴팁. 승리/패배 화면은 기획상 보류. 기분/부상/장비 게임플레이는 이번 UI 범위가 아님.
-- 작성 중이던 내용: 옵션/세션/설정, JSON 저장 스키마·슬롯·파일 교체·검증 기반, 자원/장수/건물 생산·연구/거점·원정 복원 API, 난이도 배수, 지형 생성 연결. 메뉴·저장 통합·테스트는 아직 없음. 기본 슬롯(수동 3+자동 1), 자동저장 5분은 초안 값이며 확정 스펙으로 기록하지 않음.
-- Opus 사용 한도 도달 응답: `You've hit your session limit · resets 2:10am (Asia/Seoul)` — 다음날 2026-09-22 02:10 KST 안내. 사용자 규칙에 따라 SAVE 후 종료. 코드 구현 완료가 아니다.
+## 구현 상태
+- 핵심 루프: 장수 병력 배정 → 채집·반납 → 건설·생산·연구 → 차량/비행기 → 30거점 월드맵 원정 → 전투·약탈·귀환 → 과학 트리 → 비행선 대이주(승리).
+- 오늘(Codex) 추가:
+  - 캠페인 과학 트리 30기술(`CampaignResearch`), 비행선 조선소(`AirshipYard`): 선체·엔진·고치 건조 → 탑승 → 출발 시 "GREAT MIGRATION — VICTORY" 결과 화면(탑승/잔류 명단, 경과 연도).
+  - 장비 기반 역할: 무기(큰턱/산 분사기/방패/페로몬)가 Melee/Ranged/Defense/Support를, 날개 방어구가 비행을 결정. 보직·관직 변경 버튼 제거, `Weapon` 버튼·상세 화면에서 장착/해제.
+  - 9종 기술(채집·건설·농사·낚시·제작·연구·근접·원거리·지휘, 최대 20, 시작 합계 40, 열정 반영). 지휘한도 = 10 + 지휘×2(흉부 부상·장신구 보정). 기존 채집 숙련도·관직 한도 대체.
+  - 장수 개인 상태: 부상(6부위, 경상/중상/영구), 기분 요인, 관계·친구, 정신 붕괴 6종, 보상(Food 30, 게임 월 1회), 사망 모드(Gentle/Normal/Harsh).
+  - 원정 보상 장비(정착지 1~2개, 보스 1개+설계도)가 수송 화물로 귀환 후 인벤토리에 들어온다.
+  - 저장 v3: 기술·장비·개인 상태·비행선 저장, v2 세이브 자동 이관(`CommanderMigration`), 적 장수 기술 저장.
+- 월드맵: 정착지 18, 보스 둥지 6, 중립 자원지 6. 편입/유기, 현지 생산, 주둔·회수, 침공·상실·포로/탈출·재정복 구출, 단일 거점 자동 수송.
+- UI: 메인 메뉴, 새 게임, 설정, 저장 슬롯(수동 3+자동 1), 도감, 장수 관리, 일시정지, 토스트, 툴팁, 현재 목표 HUD, 승패 화면.
 
-## 초안 보존과 재개
-- **초안은 실행 프로젝트에서 분리했다.** `.unity/ui-opus-checkpoint-2026-09-21/files/`에 변경/신규/ignored 지형 코드 총 45개를 복사하고 원본과 SHA256 일치를 확인. 목록은 같은 폴더 manifest.json.
-- 이번 초안으로 변경한 tracked 코드는 기존 검증된 인덱스 내용으로만 복귀했고, 이번 신규 코드도 위 백업 확인 후 실행 경로에서 분리. 기존 staged 작업은 보존. ignored TerrainGenerator 원본도 Opus 최초 Edit 응답의 originalFile로 복구했으며 사본은 TerrainGenerator.original.cs.txt에 남김.
-- Claude 세션 ID: `9fb438fc-726a-40af-99da-0361e03f63a5`. 재개 시 백업과 현재 코드 차이를 먼저 검토하고 초안을 복원한 뒤 `claude --resume ... --model claude-opus-5`로 계속한다. 이후 작업이 있으면 파일을 무조건 덮어쓰지 말 것.
-- `.unity/ui-opus-task.txt`: 승인 범위·기획·제약. `.unity/ui-review-notes.txt`: 실제 씬 기반 검토 사항. `.unity/ui-opus-output.jsonl`, `ui-opus-output-2.jsonl`: 실행 기록. `.unity/`는 git 제외이므로 초안은 로컬에만 보존되어 있다.
+## 검증 — 2026-09-24 (Claude Code, Codex 작업 검증)
+- Play 모드 공식 CLI `run_script` 전부 통과: RegressionChecks 45, CampaignChecks 86, PlayableLoopChecks 45, FullUIChecks 50, WeaponTalentChecks 91, SaveRoundtripChecks 42.
+- `RegressionChecks`는 메인 메뉴 일시정지(timeScale=0) 때문에 실패하던 것을 검사 중에만 timeScale=1로 두도록 수정했다.
+- 실행 조건: 각 스크립트는 새 Play 세션에서 실행한다. `SaveRoundtripChecks`만 `SaveSystem.NewGame` 후 실행한다.
+- graphify 도구 환경이 사라져 `uv tool install graphifyy==0.9.58`로 재설치 후 갱신했다.
 
-## 재개 시 해결할 문제
-- 초안 컴파일 실패: `HomeMapBuilder.cs(86,49) CS0246 TerrainGenerator not found`. 실제 씬 루트는 imported TerrainGenerator이며 `.asmdef` 등 어셈블리 경계를 확인해야 함. Assets/_TeamImport는 커밋 금지이므로 해당 ignored 코드에만 추가한 API에 의존하는 설계를 저장소에서 재현 가능한 형태로 정리해야 한다.
-- 맵 크기/시드가 실제 지형·본거지 위치·NavMesh와 일치하는지, 생성 순서와 재현성을 검증. ProjectSettings/EditorBuildSettings에는 현재 SampleScene만 있어 AntColony 재로드/빌드 경로 점검 필요.
-- 저장 파일 ID/참조/수치 검증과 불러오기 실패 시 기존 게임 보존, 진행 데이터 누락 방지, 입력 차단/시간 복원/중복 UI 방지 필요. 미검증 초안을 완료 상태로 커밋하지 않는다.
-- 공식 Unity CLI: C:\Users\Shim Hyeonyeop\AppData\Local\Unity\bin\unity.exe. 현재 Editor 포트 7801, Play 정지, autotick 켜짐. Unity AI Assistant 서버 대화 갱신 오류는 기존 오류로 코드 오류와 구별한다.
+## 제한·미구현
+- 중상 치료(의무실) 흐름이 없다: `treating` 플래그를 켜는 코드가 없어 중상은 자연 회복되지 않는다.
+- 과학 기술별 게임 효과 적용 범위는 이번 세션에서 확인하지 않았다. 수치 밸런스, Player 빌드, 전체 화면 품질도 후속.
 
-## SAVE 결과
-- log 먼저 기록 → changelog 요약 이관 → README에 UI 미완료 상태 표시. 기존 검증 변경만 develop 커밋/push 대상으로 유지.
-- 오늘 Notion 일지 https://app.notion.com/p/3e2c4a0ecd318118bc0bfa3a36369418 기존 내용·캡처를 보존하고 6~8번에 UI 미완료·중단·초안 보존·재개 사항을 이어 작성했다.
-- 새 UI가 구현·실행되지 않아 이번 UI 기능 캡처는 불가. 오늘 일지의 기존 난이도 보상 캡처는 보존하며 새 UI 캡처로 오인시키지 않는다.
-- 카카오톡 완료 알림 도구 미연결.
-- 복귀 후 공식 CLI recompile_status: up_to_date / failed=false / errors=[] / compilationFailed=false. Play 정지 상태 유지. graphify update . 완료(2167 노드 / 3926 관계).
-- 기존 검증 변경과 중단 문서는 `99334f7`로 develop에 커밋하고 origin/develop push 완료. master·프리팹·미검증 UI 초안은 제외했다. 이 SAVE 결과 문서는 후속 문서 커밋에 포함한다.
+## 다음 작업
+- 의무실 치료 연결과 기술별 효과 적용 범위 확인.
+- 실제 플레이 기준 초반 자원·생산·연구 비용과 시간 밸런스 조정.
+- 기획: https://app.notion.com/p/334c4a0ecd3180c4a796e5220302a0bd, 전체 UI: https://app.notion.com/p/3e2c4a0ecd31819eaba5ff850554216c.
+- 공식 CLI: `C:\Users\Shim Hyeonyeop\AppData\Local\Unity\bin\unity.exe`, 프로젝트 `E:\Git\ant`.

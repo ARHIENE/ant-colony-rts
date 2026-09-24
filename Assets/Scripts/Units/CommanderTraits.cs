@@ -1,76 +1,95 @@
+using System;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace AntColony.Units
 {
-    // 장수 성격. 기획: 전투 스탯에 직접 영향을 주고, 충성심과 함께 포로 회유 확률을 좌우한다.
-    public enum CommanderPersonality
+    public enum CommanderPersonality { Balanced, Brave, Cautious, Devoted }
+    public enum CommanderTrait
     {
-        Balanced,
-        Brave,
-        Cautious,
-        Devoted
+        Lazy, Relaxed, Industrious, Workaholic, Depressive, Pessimist, Optimist, Cheerful,
+        Fragile, Sensitive, Easygoing, IronWill, Coward, Cautious, Brave, Reckless,
+        Sluggish, Slow, Nimble, Swift, SlowLearner, Genius, LightEater, Glutton,
+        Loyal, Ambitious, Cunning, Sociable, Loner, ColdBlooded, Bloodthirsty, Ascetic,
+        Wanderer, Homebody, Robust, Frail, Greedy
     }
-
-    // 장수 고유 성격과 충성심. CommanderProgression과 같이 GameObject가 아닌 순수 데이터라
-    // 보직·관직·병력 변경으로 초기화되지 않는다. 번식 유전과 포로 회유 판정이 이 값을 읽는다.
-    [System.Serializable]
+    public enum CommanderActivity { Gathering, Building, Farming, Fishing, Crafting, Research, Melee, Ranged, Command }
+    [Serializable] public class CommanderPassion { public CommanderActivity activity; public int flame; }
+    [Serializable]
     public class CommanderTraits
     {
-        // ponytail: 성격 수치와 충성심 범위는 1차 프로토타입 잠정값이다. 기획 확정 시 이 표만 고치면 된다.
-        public const int MinLoyalty = 0;
-        public const int MaxLoyalty = 100;
-
-        [SerializeField] private CommanderPersonality personality = CommanderPersonality.Balanced;
-        [SerializeField, Range(MinLoyalty, MaxLoyalty)] private int loyalty = 50;
-
-        public CommanderPersonality Personality => personality;
+        public const int MinLoyalty = 0, MaxLoyalty = 100;
+        [SerializeField] private CommanderPersonality personality;
+        [SerializeField] private int loyalty = 50;
+        public List<CommanderTrait> values = new List<CommanderTrait>();
+        public List<CommanderPassion> passions = new List<CommanderPassion>();
+        public List<string> loyaltyReasons = new List<string>();
+        public CommanderPersonality Personality => Has(CommanderTrait.Brave) ? CommanderPersonality.Brave : Has(CommanderTrait.Cautious) ? CommanderPersonality.Cautious : Has(CommanderTrait.Loyal) ? CommanderPersonality.Devoted : CommanderPersonality.Balanced;
         public int Loyalty => loyalty;
-
-        // 용감형은 공격을 얻고 방어를 잃는다. 신중형은 그 반대다. 진영 무관 공통 규칙이다.
-        public int AttackBonus => personality switch
-        {
-            CommanderPersonality.Brave => 2,
-            CommanderPersonality.Cautious => -1,
-            _ => 0
-        };
-
-        public int ArmorBonus => personality switch
-        {
-            CommanderPersonality.Cautious => 2,
-            CommanderPersonality.Brave => -1,
-            _ => 0
-        };
-
+        public bool Has(CommanderTrait trait) => values.Contains(trait) || (values.Count == 0 && ((trait == CommanderTrait.Brave && personality == CommanderPersonality.Brave) || (trait == CommanderTrait.Cautious && personality == CommanderPersonality.Cautious) || (trait == CommanderTrait.Loyal && personality == CommanderPersonality.Devoted)));
+        public int AttackBonus => Has(CommanderTrait.Coward) ? -2 : Has(CommanderTrait.Cautious) ? -1 : Has(CommanderTrait.Brave) ? 2 : Has(CommanderTrait.Reckless) ? 3 : 0;
+        public int ArmorBonus => Has(CommanderTrait.Coward) ? 1 : Has(CommanderTrait.Cautious) ? 2 : Has(CommanderTrait.Brave) ? -1 : Has(CommanderTrait.Reckless) ? -3 : 0;
+        public float WorkMultiplier => Has(CommanderTrait.Lazy) ? .7f : Has(CommanderTrait.Relaxed) ? .85f : Has(CommanderTrait.Industrious) ? 1.15f : Has(CommanderTrait.Workaholic) ? 1.3f : 1f;
+        public float MoveMultiplier => Has(CommanderTrait.Sluggish) ? .8f : Has(CommanderTrait.Slow) ? .9f : Has(CommanderTrait.Nimble) ? 1.1f : Has(CommanderTrait.Swift) ? 1.2f : 1f;
+        public float LearningMultiplier => Has(CommanderTrait.SlowLearner) ? .5f : Has(CommanderTrait.Genius) ? 1.5f : 1f;
+        public float FoodMultiplier => Has(CommanderTrait.LightEater) ? .7f : Has(CommanderTrait.Glutton) ? 1.5f : 1f;
+        public float NegativeMoodMultiplier => Has(CommanderTrait.Sensitive) ? 1.5f : Has(CommanderTrait.Easygoing) ? .5f : 1f;
+        public int BaseMood => Has(CommanderTrait.Depressive) ? -10 : Has(CommanderTrait.Pessimist) ? -5 : Has(CommanderTrait.Optimist) ? 5 : Has(CommanderTrait.Cheerful) ? 10 : 0;
+        public int Flame(CommanderActivity activity) => passions.Find(p => p.activity == activity)?.flame ?? 0;
+        public float GrowthMultiplier(CommanderActivity activity) => LearningMultiplier * (1f + .5f * Flame(activity));
         public CommanderTraits() { }
-
-        public CommanderTraits(CommanderPersonality personality, int loyalty)
+        public CommanderTraits(CommanderPersonality legacy, int value) { personality = legacy; SetLoyalty(value); }
+        public void SetLoyalty(int value) => loyalty = Mathf.Clamp(value, 0, Has(CommanderTrait.Cunning) ? 70 : 100);
+        public void AddLoyalty(int delta) => ChangeLoyalty(delta, "Event");
+        public void ChangeLoyalty(int delta, string reason)
         {
-            this.personality = personality;
-            this.loyalty = Mathf.Clamp(loyalty, MinLoyalty, MaxLoyalty);
+            var old = loyalty; SetLoyalty(loyalty + delta);
+            loyaltyReasons.Insert(0, reason + " " + (loyalty - old).ToString("+0;-0;0"));
+            if (loyaltyReasons.Count > 3) loyaltyReasons.RemoveAt(3);
         }
-
-        public void SetLoyalty(int value) => loyalty = Mathf.Clamp(value, MinLoyalty, MaxLoyalty);
-
-        public void AddLoyalty(int delta) => SetLoyalty(loyalty + delta);
-
-        public static CommanderTraits Random()
+        private static int Group(CommanderTrait t) => (int)t < 20 ? (int)t / 4 : (int)t < 24 ? 5 + ((int)t - 20) / 2 : -1;
+        public bool TryAdd(CommanderTrait t)
         {
-            var count = System.Enum.GetValues(typeof(CommanderPersonality)).Length;
-            return new CommanderTraits((CommanderPersonality)UnityEngine.Random.Range(0, count),
-                UnityEngine.Random.Range(30, 71));
+            if (values.Count >= 3 || values.Contains(t)) return false;
+            foreach (var existing in values)
+                if (Group(t) >= 0 && Group(t) == Group(existing) || Conflicts(t, existing)) return false;
+            values.Add(t); return true;
         }
-
-        // 기획: 태어난 장수는 부모의 유전 + 랜덤 스탯을 함께 가진다.
-        // 성격은 부모 중 한쪽을 그대로 물려받고, 충성심은 부모 평균에 ±10 편차를 준다.
-        public static CommanderTraits Inherit(CommanderTraits first, CommanderTraits second)
+        private static bool Conflicts(CommanderTrait a, CommanderTrait b)
         {
-            if (first == null && second == null) return Random();
-            if (first == null) return new CommanderTraits(second.personality, second.loyalty);
-            if (second == null) return new CommanderTraits(first.personality, first.loyalty);
-
-            var personality = UnityEngine.Random.value < .5f ? first.personality : second.personality;
-            var averageLoyalty = Mathf.RoundToInt((first.loyalty + second.loyalty) * .5f);
-            return new CommanderTraits(personality, averageLoyalty + UnityEngine.Random.Range(-10, 11));
+            return Pair(a,b,CommanderTrait.Loyal,CommanderTrait.Ambitious) || Pair(a,b,CommanderTrait.Loyal,CommanderTrait.Cunning)
+                || Pair(a,b,CommanderTrait.Sociable,CommanderTrait.Loner) || Pair(a,b,CommanderTrait.Sociable,CommanderTrait.ColdBlooded)
+                || Pair(a,b,CommanderTrait.Wanderer,CommanderTrait.Homebody) || Pair(a,b,CommanderTrait.Robust,CommanderTrait.Frail);
+        }
+        private static bool Pair(CommanderTrait a, CommanderTrait b, CommanderTrait x, CommanderTrait y) => a == x && b == y || a == y && b == x;
+        public static CommanderTraits Random() => Generate(null, null);
+        public static CommanderTraits Inherit(CommanderTraits first, CommanderTraits second) => Generate(first, second);
+        private static CommanderTraits Generate(CommanderTraits first, CommanderTraits second)
+        {
+            var result = new CommanderTraits();
+            float roll = UnityEngine.Random.value;
+            int count = roll < .3f ? 1 : roll < .8f ? 2 : 3;
+            if (first != null && second != null)
+                foreach (var parent in new[] { first, second })
+                    foreach (CommanderTrait t in Enum.GetValues(typeof(CommanderTrait)))
+                        if (result.values.Count < count && parent.Has(t) && UnityEngine.Random.value < .5f) result.TryAdd(t);
+            while (result.values.Count < count) result.TryAdd((CommanderTrait)UnityEngine.Random.Range(0, Enum.GetValues(typeof(CommanderTrait)).Length));
+            int passionCount = UnityEngine.Random.Range(1,5), major = 0;
+            if (first != null && second != null && UnityEngine.Random.value < .5f)
+            {
+                var pool = new List<CommanderPassion>(first.passions); pool.AddRange(second.passions);
+                if (pool.Count > 0) { var p = pool[UnityEngine.Random.Range(0,pool.Count)]; if (p.flame > 1) result.passions.Add(new CommanderPassion { activity = p.activity, flame = p.flame - 1 }); }
+            }
+            while (result.passions.Count < passionCount)
+            {
+                var activity = (CommanderActivity)UnityEngine.Random.Range(0,CommanderTalents.Count);
+                if (result.Flame(activity) > 0) continue;
+                var flame = major < 2 && UnityEngine.Random.value < .35f ? 2 : 1;
+                if (flame == 2) major++;
+                result.passions.Add(new CommanderPassion { activity = activity, flame = flame });
+            }
+            result.SetLoyalty((first != null && second != null ? Mathf.RoundToInt((first.Loyalty + second.Loyalty) * .5f) + UnityEngine.Random.Range(-10,11) : 50) + (result.Has(CommanderTrait.Loyal) ? 20 : 0));
+            return result;
         }
     }
 }

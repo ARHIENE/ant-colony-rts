@@ -37,17 +37,18 @@ namespace AntColony.UI
         private void Start()
         {
             selection = FindFirstObjectByType<SelectionManager>();
-            var background = CreateImage("SelectedUnitPanel", transform, new Color(0.08f, 0.12f, 0.09f, 0.95f));
-            panel = background.gameObject;
-            var rect = background.rectTransform;
-            rect.anchorMin = rect.anchorMax = rect.pivot = Vector2.zero;
-            rect.anchoredPosition = new Vector2(10f, 105f);
-            rect.sizeDelta = new Vector2(460f, 185f);
+            var rect = MenuTheme.Panel(transform, "SelectedUnitPanel", Vector2.zero, new Vector2(460, 185), new Vector2(10, 138));
+            panel = rect.gameObject;
             title = CreateText("UnitName", rect, new Vector2(12f, -10f));
+            title.fontStyle = FontStyle.Bold; title.color = MenuTheme.Accent;
             healthText = CreateText("Health", rect, new Vector2(12f, -38f));
             combatStatsText = CreateText("CombatStats", rect, new Vector2(12f, -66f));
             // 패널을 25px 키워 버튼 줄(위쪽 끝 y=56) 위에 채집 숙련도 전용 줄을 둔다.
             workText = CreateText("WorkProficiency", rect, new Vector2(12f, -94f));
+            workText.color = MenuTheme.Muted;
+            healthText.fontSize = combatStatsText.fontSize = workText.fontSize = 14;
+            healthText.rectTransform.sizeDelta = new Vector2(430, 24);
+            combatStatsText.rectTransform.sizeDelta = workText.rectTransform.sizeDelta = new Vector2(330, 24);
 
             var track = CreateImage("HealthTrack", rect, new Color(0.2f, 0.25f, 0.22f));
             track.rectTransform.anchorMin = track.rectTransform.anchorMax = track.rectTransform.pivot = Vector2.zero;
@@ -57,15 +58,21 @@ namespace AntColony.UI
             healthFill.anchorMin = Vector2.zero;
             healthFill.anchorMax = Vector2.one;
             healthFill.offsetMin = healthFill.offsetMax = Vector2.zero;
-            CreateButton(rect, 12f, "+1 Ant", () => selectedCommander?.TryAssign(1));
-            CreateButton(rect, 120f, "Return 1", () => selectedCommander?.ReturnTroops(1));
-            CreateButton(rect, 228f, "Next Role", CycleRole);
-            CreateButton(rect, 336f, "Next Rank", CycleRank);
+            CreateButton(rect, 12f, "+1 Ant", () => selectedCommander?.TryAssign(1),
+                "Assign one free ant to the selected commander at home, within their command limit.");
+            CreateButton(rect, 120f, "Return 1", () => selectedCommander?.ReturnTroops(1),
+                "Return one healthy troop to the free ant pool at home. Busy commanders cannot change allocation.");
+            CreateButton(rect, 228f, "Weapon", () => selectedCommander?.CycleWeapon(),
+                "Equip an owned weapon, or remove your weapon if no spare is available. Troops and damage are preserved.");
+            CreateButton(rect, 336f, "Details", () => { if (selectedCommander != null) GameMenuController.Instance?.Details(selectedCommander); },
+                "View all nine skills, passions and equipment. Command capacity is 10 + Command skill x 2.");
             // 스킬 버튼은 클릭 시점의 선택을 다시 조회한다(캐시된 selectedCommander를 쓰지 않는다).
             powerStrikeText = CreateButton(rect, 348f, "Strike",
-                () => FindSingleSelectedCommander(selection)?.TryPowerStrike(), 96f);
+                () => FindSingleSelectedCommander(selection)?.TryPowerStrike(),
+                $"Level {CommanderSkills.PowerStrikeLevel}: next hit deals {CommanderSkills.PowerStrikeMultiplier}x damage. Cooldown {CommanderSkills.PowerStrikeCooldown}s.", 96f);
             stanceText = CreateButton(rect, 348f, "Guard",
-                () => FindSingleSelectedCommander(selection)?.TryDefensiveStance(), 64f);
+                () => FindSingleSelectedCommander(selection)?.TryDefensiveStance(),
+                $"Level {CommanderSkills.DefensiveStanceLevel}: +{CommanderSkills.DefensiveStanceArmor} armor for {CommanderSkills.DefensiveStanceDuration}s. Cooldown {CommanderSkills.DefensiveStanceCooldown}s.", 64f);
             panel.SetActive(false);
         }
 
@@ -95,7 +102,7 @@ namespace AntColony.UI
             selectedCommander = count == 1 ? first as CommanderAnt : null;
             powerStrikeText.transform.parent.gameObject.SetActive(selectedCommander != null);
             stanceText.transform.parent.gameObject.SetActive(selectedCommander != null);
-            title.text = selectedCommander != null ? $"{selectedCommander.CommanderName} ({selectedCommander.Rank})" : $"Selected Commanders: {count}";
+            title.text = selectedCommander != null ? selectedCommander.CommanderName : $"Selected Commanders: {count}";
             healthText.text = $"HP {Mathf.CeilToInt(current)} / {Mathf.CeilToInt(maximum)}";
             combatStatsText.text = count != 1
                 ? ""
@@ -105,20 +112,19 @@ namespace AntColony.UI
             healthFill.anchorMax = new Vector2(maximum > 0f ? Mathf.Clamp01(current / maximum) : 0f, 1f);
             workText.text = "";
             if (selectedCommander == null) return;
-            var work = selectedCommander.WorkProficiency;
-            var workProgress = work.Level >= CommanderWorkProficiency.MaxLevel ? "MAX"
-                : $"{Mathf.FloorToInt(work.Progress)}/{CommanderWorkProficiency.UnitsPerLevel:0}";
-            workText.text = $"Gather Lv {work.Level} ({workProgress}) +{Mathf.RoundToInt((work.GatherMultiplier - 1f) * 100f)}% speed";
-            var progression = selectedCommander.Progression;
-            var xp = progression.XpToNext > 0 ? $"{progression.Xp}/{progression.XpToNext}" : "MAX";
-            combatStatsText.text = $"{selectedCommander.Role}  " + combatStatsText.text + $"   Lv {progression.Level} (XP {xp})";
+            var talents = selectedCommander.Talents;
+            workText.text = $"Gather {talents.Level(CommanderActivity.Gathering)} | {selectedCommander.CombatActivity} {talents.Level(selectedCommander.CombatActivity)} | Command {talents.Level(CommanderActivity.Command)}";
+            combatStatsText.text = $"{selectedCommander.WeaponLabel}  ATK {selectedCommander.AttackDamage:0.#}  DEF {selectedCommander.Armor:0.#}";
+            healthText.text += $"  Mood {selectedCommander.Mood:0}  Loyalty {selectedCommander.Traits.Loyalty}";
 
             var skills = selectedCommander.Skills;
             powerStrikeText.GetComponentInParent<Button>().interactable = selectedCommander.CanPowerStrike;
             stanceText.GetComponentInParent<Button>().interactable = selectedCommander.CanDefensiveStance;
-            powerStrikeText.text = SkillLabel("Strike", CommanderSkills.PowerStrikeLevel, progression.Level,
+            powerStrikeText.transform.parent.gameObject.SetActive(selectedCommander.Role == UnitRole.Melee);
+            stanceText.transform.parent.gameObject.SetActive(selectedCommander.Role == UnitRole.Defense);
+            powerStrikeText.text = SkillLabel("Strike", CommanderSkills.PowerStrikeLevel, talents.Level(CommanderActivity.Melee),
                 skills.PowerStrikeArmed ? "ON" : null, skills.PowerStrikeCooldownLeft);
-            stanceText.text = SkillLabel("Guard", CommanderSkills.DefensiveStanceLevel, progression.Level,
+            stanceText.text = SkillLabel("Guard", CommanderSkills.DefensiveStanceLevel, talents.Level(CommanderActivity.Melee),
                 skills.DefensiveStanceActive ? $"ON {Mathf.CeilToInt(skills.DefensiveStanceTimeLeft)}s" : null,
                 skills.DefensiveStanceCooldownLeft);
         }
@@ -131,27 +137,7 @@ namespace AntColony.UI
             return cooldown > 0f ? $"{name} {Mathf.CeilToInt(cooldown)}s" : name;
         }
 
-        private void CycleRole()
-        {
-            if (selectedCommander == null) return;
-            var roles = selectedCommander.AllowedRoles;
-            for (var i = 0; i < roles.Count; i++)
-                if (roles[i] == selectedCommander.Role)
-                {
-                    selectedCommander.TrySetRole(roles[(i + 1) % roles.Count]);
-                    return;
-                }
-        }
-
-        private void CycleRank()
-        {
-            if (selectedCommander == null) return;
-            var count = System.Enum.GetValues(typeof(CommanderRank)).Length;
-            for (var offset = 1; offset < count; offset++)
-                if (selectedCommander.TrySetRank((CommanderRank)(((int)selectedCommander.Rank + offset) % count))) return;
-        }
-
-        private static Text CreateButton(Transform parent, float x, string label, UnityEngine.Events.UnityAction action, float y = 30f)
+        private static Text CreateButton(Transform parent, float x, string label, UnityEngine.Events.UnityAction action, string tip, float y = 30f)
         {
             var go = new GameObject(label, typeof(RectTransform), typeof(Image), typeof(Button));
             go.transform.SetParent(parent, false);
@@ -161,6 +147,8 @@ namespace AntColony.UI
             rect.sizeDelta = new Vector2(100f, 26f);
             go.GetComponent<Image>().color = new Color(.2f, .3f, .2f);
             go.GetComponent<Button>().onClick.AddListener(action);
+            MenuTheme.StyleButton(go.GetComponent<Button>());
+            go.AddComponent<MenuTooltip>().Message = tip;
             var text = CreateText(label, rect, Vector2.zero);
             text.text = label;
             text.rectTransform.sizeDelta = rect.sizeDelta;

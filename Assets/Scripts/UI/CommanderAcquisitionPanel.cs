@@ -63,7 +63,7 @@ namespace AntColony.UI
             background.raycastTarget = true;
             var rect = background.rectTransform;
             rect.anchorMin = rect.anchorMax = rect.pivot = new Vector2(1f, 0f);
-            rect.anchoredPosition = new Vector2(-10f, 105f);
+            rect.anchoredPosition = new Vector2(-10f, 138f);
             rect.sizeDelta = new Vector2(PanelWidth, PanelHeight);
 
             CreateText("Title", rect, -8f, 20f, 15).text = "Commander Acquisition";
@@ -152,7 +152,7 @@ namespace AntColony.UI
 
             prisonerDetailText.text = selected == null
                 ? ""
-                : $"{selected.Name} ({selected.Rank})\n"
+                : $"{selected.Name}\n"
                 + $"{selected.Traits.Personality}   loyalty {selected.Traits.Loyalty}   tries {selected.PersuadeAttempts}\n"
                 // 실제 판정은 시도 횟수를 올린 뒤에 굴리므로 다음 시도 기준 확률을 보여준다.
                 + $"persuade {activeCamp.NextPersuadeChance(selected):P0} for {activeCamp.PersuadeFoodCost}F";

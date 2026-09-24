@@ -32,6 +32,10 @@ namespace AntColony.Camera
 
         private UnityEngine.Camera cam;
         public Vector3 FocusPoint => focusPoint;
+        public float Yaw => yaw;
+        internal void RestoreView(Vector3 focus, float rotation, float size)
+        { focusPoint = focus; yaw = rotation; rotateTimer = -1; cam.orthographicSize = size; ApplyTransform(); }
+        public void ApplySettings(float speed, float edge) { panSpeed = speed; edgeScrollThickness = edge; }
 
         public void SetRegion(Vector3 focus, Bounds bounds)
         {
@@ -58,6 +62,7 @@ namespace AntColony.Camera
 
         private void Update()
         {
+            if (AntColony.UI.GameMenuController.BlocksInput) return;
             HandleRotateInput();
             if (rotateTimer >= 0f)
             {

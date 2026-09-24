@@ -44,6 +44,24 @@ namespace AntColony.Boss
             specialReward *= multiplier;
         }
 
+        // 저장 복원 전용. 죽은 상태로는 복원하지 않는다(사망 처리는 전리품/이벤트를 동반하므로 되돌릴 수 없다).
+        internal void RestoreHp(float value)
+        {
+            currentHp = Mathf.Clamp(value, 0f, maxHp);
+            onHPChanged?.Invoke(currentHp, maxHp);
+        }
+
+        internal bool DeathProcessed => deathProcessed;
+
+        // 저장 복원 전용. 이미 쓰러져 있던 보스를 전리품/이벤트 없이 쓰러진 상태로만 되돌린다.
+        internal void RestoreDefeated()
+        {
+            currentHp = 0f;
+            deathProcessed = true;
+            onHPChanged?.Invoke(0f, maxHp);
+            gameObject.SetActive(false);
+        }
+
         public void TakeDamage(float amount)
         {
             if (IsDead) return;

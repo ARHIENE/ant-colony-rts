@@ -14,7 +14,9 @@ namespace AntColony.Data
         Nursery,
         ScoutPost,
         PrisonerCamp,
-        ScienceLab
+        ScienceLab,
+        AcidTower,
+        AirshipYard
     }
 
     [CreateAssetMenu(fileName = "BuildingData", menuName = "AntColony/Building Data")]

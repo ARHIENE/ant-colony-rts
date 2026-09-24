@@ -20,6 +20,8 @@ namespace AntColony.World
         public IReadOnlyList<WildMonster> Attackers => attackers;
         public IReadOnlyList<CommanderAnt> Prisoners => prisoners;
         public bool UnderAttack { get; private set; }
+        // 난이도는 습격 간격과 병력 수만 바꾼다. Normal이면 배수 1.0이라 기존과 완전히 같다.
+        public static float CurrentRaidInterval => RaidInterval * AntColony.Core.DifficultyRuntime.IntervalScale;
         public float Remaining { get; private set; } = RaidInterval;
         public float CaptureProgress { get; private set; }
         public string Status => site.Disposition == ConquestDisposition.Lost
@@ -47,8 +49,25 @@ namespace AntColony.World
         {
             UnderAttack = false;
             CaptureProgress = 0;
-            Remaining = RaidInterval;
+            Remaining = CurrentRaidInterval;
             attackers.Clear();
+        }
+
+        // 저장 복원 전용. 진행 중이던 습격 부대는 저장 자체를 거절하므로 여기서는 타이머만 되돌린다.
+        internal void RestoreState(float remaining, float captureProgress)
+        {
+            UnderAttack = false;
+            attackers.Clear();
+            Remaining = Mathf.Clamp(remaining, 0f, CurrentRaidInterval);
+            CaptureProgress = Mathf.Clamp(captureProgress, 0f, CaptureSeconds);
+        }
+
+        internal void RestorePrisoner(CommanderAnt commander)
+        {
+            if (commander == null || prisoners.Contains(commander)) return;
+            commander.Captor = site;
+            prisoners.Add(commander);
+            commander.gameObject.SetActive(false);
         }
 
         public bool TryStartRaid()
@@ -58,7 +77,8 @@ namespace AntColony.World
             // 거점 북쪽에서 착륙 지점으로 진격. 본거지 건물이나 수송수단을 공격 대상으로 삼지 않는다.
             if (!NavMesh.SamplePosition(site.transform.position + Vector3.forward * 28,
                 out var hit, 4, NavMesh.AllAreas)) return false;
-            for (var i = 0; i < site.Difficulty; i++)
+            var waveSize = AntColony.Core.DifficultyRuntime.ScaleCount(site.Difficulty);
+            for (var i = 0; i < waveSize; i++)
             {
                 var enemy = Instantiate(site.GuardTemplate, hit.position, Quaternion.identity, site.transform);
                 enemy.name = site.Title + " Invader " + (i + 1);
@@ -93,7 +113,7 @@ namespace AntColony.World
             foreach (var enemy in attackers)
                 if (enemy.isActiveAndEnabled && (enemy.Position - site.Landing).sqrMagnitude <= 36) occupied = true;
             foreach (var unit in AntUnitBase.Active)
-                if (unit is CommanderAnt c && c.HasTroops && !c.IsEmbarked && c.Role != UnitRole.Worker
+                if (unit is CommanderAnt c && c.HasTroops && !c.IsEmbarked
                     && (c.Position - site.Landing).sqrMagnitude <= 64) occupied = false;
             CaptureProgress = occupied ? CaptureProgress + seconds : 0;
             if (CaptureProgress >= CaptureSeconds) Lose();

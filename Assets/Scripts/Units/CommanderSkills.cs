@@ -21,6 +21,13 @@ namespace AntColony.Units
         private float stanceEndTime = float.NegativeInfinity;
 
         public bool PowerStrikeArmed => powerStrikeArmed;
+        internal void Restore(bool armed, float strike, float stance, float duration)
+        {
+            powerStrikeArmed = armed;
+            powerStrikeReadyTime = Time.time + strike;
+            stanceReadyTime = Time.time + stance;
+            stanceEndTime = Time.time + duration;
+        }
         public float PowerStrikeCooldownLeft => Mathf.Max(0f, powerStrikeReadyTime - Time.time);
         public bool DefensiveStanceActive => Time.time < stanceEndTime;
         public float DefensiveStanceTimeLeft => Mathf.Max(0f, stanceEndTime - Time.time);
@@ -31,11 +38,11 @@ namespace AntColony.Units
         public bool CanStartDefensiveStance(int level) =>
             level >= DefensiveStanceLevel && !DefensiveStanceActive && DefensiveStanceCooldownLeft <= 0f;
 
-        public bool TryArmPowerStrike(int level)
+        public bool TryArmPowerStrike(int level, float cooldownMultiplier = 1f)
         {
             if (!CanArmPowerStrike(level)) return false;
             powerStrikeArmed = true;
-            powerStrikeReadyTime = Time.time + PowerStrikeCooldown;
+            powerStrikeReadyTime = Time.time + PowerStrikeCooldown * cooldownMultiplier;
             return true;
         }
 
@@ -47,11 +54,11 @@ namespace AntColony.Units
             return true;
         }
 
-        public bool TryStartDefensiveStance(int level)
+        public bool TryStartDefensiveStance(int level, float cooldownMultiplier = 1f)
         {
             if (!CanStartDefensiveStance(level)) return false;
             stanceEndTime = Time.time + DefensiveStanceDuration;
-            stanceReadyTime = Time.time + DefensiveStanceCooldown;
+            stanceReadyTime = Time.time + DefensiveStanceCooldown * cooldownMultiplier;
             return true;
         }
 

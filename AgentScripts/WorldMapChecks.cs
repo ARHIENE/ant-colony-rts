@@ -53,6 +53,13 @@ public static class WorldMapChecks
     public static async Task<string> Main()
     {
         Check(Application.isPlaying, "Play mode required");
+        // 메인 메뉴 도입 후에는 새 게임이 지형과 NavMesh를 준비한다.
+        if (!GameSession.Instance.GameStarted)
+        {
+            Check(await Wait(() => !AntColony.Save.SaveSystem.Busy), "main menu ready");
+            AntColony.Save.SaveSystem.NewGame(new NewGameOptions());
+            Check(await Wait(() => !AntColony.Save.SaveSystem.Busy, 60), "new game ready");
+        }
         checks = 0;
         var world = WorldMapManager.Instance;
         Check(world != null && world.Sites.Count == 30, "thirty expedition sites configured");

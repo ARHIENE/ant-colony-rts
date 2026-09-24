@@ -33,6 +33,12 @@ namespace AntColony.World
 
         public bool IsDead => currentHealth <= 0f;
         public float CurrentHealth => currentHealth;
+        internal bool InCombat => CombatTargeting.IsAlive(currentTarget);
+        internal void RestoreHealth(float value)
+        {
+            gameObject.SetActive(value > 0);
+            currentHealth = value;
+        }
         public Vector3 Position => transform.position;
 
         private void Awake()
@@ -44,6 +50,7 @@ namespace AntColony.World
             // 반란 후에도 비행 개체는 NavMesh에 붙이지 않는다.
             IsFlying = GetComponent<SoldierAnt>() is SoldierAnt soldier && soldier.IsFlying;
             agent.enabled = !IsFlying;
+            if (this is EnemyCommander) AntVisual.Attach(gameObject);
         }
 
         private void OnEnable()
@@ -111,6 +118,7 @@ namespace AntColony.World
             if (attackTimer <= 0f)
             {
                 attackTimer = attackInterval;
+                GetComponent<AntVisual>()?.Attack(currentTarget.Position);
                 currentTarget.TakeDamage(attackDamage);
             }
         }
@@ -119,6 +127,7 @@ namespace AntColony.World
         {
             if (IsDead) return;
             currentHealth -= amount;
+            GetComponent<AntVisual>()?.Action("Hit");
             if (currentHealth <= 0f)
             {
                 currentHealth = 0f;
@@ -129,6 +138,7 @@ namespace AntColony.World
         // 적 장수(EnemyCommander)가 포로 전환을 끼워 넣을 수 있도록 분리했다.
         protected virtual void Die()
         {
+            GetComponent<AntVisual>()?.Death();
             // 침공 개체 처치는 야생 몬스터 루프 승리가 아니며, 비활성 오브젝트로 쌓이지 않게 제거한다.
             if (isRaider)
             {
@@ -159,12 +169,13 @@ namespace AntColony.World
             return nearest;
         }
 
-        public void MakeRaider() => isRaider = true;
+        public void MakeRaider() { isRaider = true; AntVisual.Attach(gameObject); }
 
         internal void RaidSettlement(ExpeditionSite site)
         {
             isRaider = true;
             raidSite = site;
+            AntVisual.Attach(gameObject);
         }
 
         private void ApproachSettlement()

@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-09-15T14:54:57.884506+00:00",
+  "generated_at": "2026-09-21T14:10:06.466827+00:00",
   "nodes": {
     "assets_scripts_core_commanderroster_antcolony_core_commanderroster": {
       "code_fingerprint": "0e565006c4fd11ad83ed92a937d18fa8a6ce7cd03f819b04f0a226973f551bfa",
@@ -12,7 +12,7 @@
           "q": "read log.md and continue task"
         }
       ],
-      "score": 0.955830485,
+      "score": 0.832697872,
       "source_file": "Assets/Scripts/Core/CommanderRoster.cs",
       "status": "tentative",
       "uses": 1
@@ -28,8 +28,24 @@
           "q": "read log.md and continue task"
         }
       ],
-      "score": 0.955830485,
+      "score": 0.832697872,
       "source_file": "Assets/Scripts/Data/UnitData.cs",
+      "status": "tentative",
+      "uses": 1
+    },
+    "assets_scripts_units_commanderant_antcolony_units_commanderant": {
+      "code_fingerprint": "b4066ff029b3ab2ebb790791158b8efabbf844e766e01c7236b2aa2092a5d7da",
+      "label": "CommanderAnt",
+      "last": "2026-09-13T15:59:28.655886+00:00",
+      "provenance": [
+        {
+          "date": "2026-09-13T15:59:28.655886+00:00",
+          "outcome": "useful",
+          "q": "read log.md and continue task"
+        }
+      ],
+      "score": 0.832697872,
+      "source_file": "Assets/Scripts/Units/CommanderAnt.cs",
       "status": "tentative",
       "uses": 1
     }

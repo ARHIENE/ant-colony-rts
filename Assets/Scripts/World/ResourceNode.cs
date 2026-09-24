@@ -84,6 +84,17 @@ namespace AntColony.World
             ownerColony = null;
         }
 
+        // 저장 복원 전용. 잔량과 재성장 타이머를 그대로 되돌린다.
+        internal void RestoreState(float amount, float timer)
+        {
+            amountRemaining = Mathf.Max(0f, amount);
+            regrowTimer = Mathf.Max(0f, timer);
+            var shouldBeActive = !IsDepleted || regrowSeconds > 0f;
+            if (gameObject.activeSelf != shouldBeActive) gameObject.SetActive(shouldBeActive);
+        }
+
+        internal float RegrowTimer => regrowTimer;
+
         public void AddStock(float amount)
         {
             if (!(amount > 0f) || float.IsInfinity(amount)) return;

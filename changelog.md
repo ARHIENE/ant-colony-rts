@@ -4,6 +4,23 @@
 
 ---
 
+# 2026-09-24 SAVE — 이전 로그(창고 건설·목표 HUD, Codex 작업 중간 검증) 이관
+- 창고 건설 경로 추가: `Build Storage`로 Food/Soil/Special 상한 각 +100, 반납 지점 추가, 건설 인력 복귀·저장 지원. 운반 중단 장수의 우클릭 반납 재개, 원정 화물은 귀환 후 합산.
+- 현재 목표 HUD가 인구·낚시·병영 T2·과학연구소·차량·탑승·출정·약탈·귀환 단계를 안내.
+- Codex가 연구소·비행선 승리 조건·장수 부상/장비·저장 연결을 미커밋 상태로 남긴 뒤, Claude Code가 이어받아 Regression 45(timeScale 수정)·Campaign 87·PlayableLoop 45·SaveRoundtrip 42·FullUI 50 통과를 확인했다.
+- 같은 날 이전 SAVE 시도(README·Notion 진행 표시)가 있었으나 커밋은 되지 않았다. 이전 로그 원문: `.unity/log-before-save-2026-09-24.md`(로컬 보존).
+
+---
+
+# 2026-09-23 SAVE — 이전 로그(2026-09-21 UI 중단 상태) 이관
+- 30거점·편입/주둔·침공/포로/구출·자동 수송·난이도 보상은 검증된 상태였다. 보상 50개, 편입 51개, 월드맵 636개 및 핵심 회귀 검사가 통과했다.
+- 전체 UI 구현을 승인받아 Claude Opus 5로 시작했으나 사용 한도로 중단했다. 당시 저장/설정/복원 초안 45개는 `.unity/ui-opus-checkpoint-2026-09-21/`에 SHA256 확인 후 분리 보존하고 실행 코드는 검증된 상태로 복귀했다.
+- 당시 TerrainGenerator 어셈블리 경계 컴파일 오류, ignored 코드 의존, 맵/시드/NavMesh·저장 복원 검증과 메뉴 구현이 남아 있었다. 지금은 후속 Codex 작업이 진행됐으므로 과거 초안을 현재 코드에 덮어쓰면 안 된다.
+- 2026-09-21 Notion 일지에 중단 상태와 기존 캡처를 보존했고, 검증 변경은 develop `99334f7`로 커밋·push 완료했다. 카카오톡은 미연결이었다.
+- 이전 로그 원문: `.unity/log-before-save-2026-09-23.md`(로컬 보존). 현재 UI 통합·검증·제한은 log.md와 README.md 참조.
+
+---
+
 # 2026-09-21 SAVE — 이전 로그(정착지 난이도 보상) 이관
 - 정착지 초기 Food·Soil·Special 재고, Food·Soil 상한, 편입 생산량에 고정 난이도 1~3 배수 적용. 재정복 시 중복 배수 없음. UI 생산 안내·README·Notion 관련 기획 4개 페이지 반영.
 - SettlementRewardChecks 50개, AnnexedSettlementChecks 51개, WorldMapChecks 636개, RegressionChecks 전체 통과. 테스트 타입 충돌·템플릿 검색 오류와 CLI 응답 제한 문제 해결.
@@ -540,3 +557,14 @@
 - 보스 템플릿 체력·Food/Special 전리품과 중립 Food/Soil 100에 고정 난이도 배수 적용. 정착지 보상 차등은 당시 후속 과제였다.
 - WorldMapChecks 636, RegressionChecks 전체 통과. 편입 51, 수비 76, 수송 55, 채집 68(새 Play 2회) 통과. 과거 채집 대기 간헐 실패 원인은 미확정, 진단 출력 보강.
 - README·Notion·graphify 갱신. log는 SAVE 진행 중 상태였고 develop 커밋·push가 남아 있었다. 카카오톡 도구 미연결.
+
+---
+
+# 2026-09-23 SAVE — 전체 UI·저장 통합(2026-09-24 이관)
+- 메인 메뉴, 새 게임 옵션(맵 크기·침공 난이도·시드), 설정, 수동 3+자동 1 저장 슬롯, 도감, 관직순 장수 관리, 일시정지, 비차단 토스트, 툴팁을 통합했다.
+- `GameBootstrap`/`GameSession`으로 씬 재시작과 메뉴 수명을 관리하고, 명시적 DTO·검증·원자적 파일 교체·백업·복원 API를 추가했다.
+- 런타임 지형 생성과 NavMesh를 연결하고, 읽기 불가 바위 메시를 콜라이더 경계 상자의 Not Walkable 소스로 처리했다.
+- 빈 소굴의 JSON 직렬화가 불러오기를 막던 문제를 수정했다. 빈 소굴은 허용하고 예기치 않은 건물 데이터는 거부한다.
+- FullUIChecks 50, RegressionChecks 45, WorldMapChecks 635개를 통과했고 Unity 컴파일 오류가 없었다.
+- 진행 중 이동·작업·운반·건설·전투·침공·거점 방어·자동 수송 현지 채집은 저장을 거부하고 이유를 표시하도록 했다.
+- 당시 전체 저장 상황과 UI 화면 품질 검증이 남았고, SAVE 절차는 로그 기록 단계에서 중단됐다.

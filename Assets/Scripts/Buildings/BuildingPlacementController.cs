@@ -35,6 +35,7 @@ namespace AntColony.Buildings
 
         private void Update()
         {
+            if (AntColony.UI.GameMenuController.BlocksInput) return;
             if (!IsPlacing) return;
             consumedFrame = Time.frameCount;
 
@@ -73,7 +74,12 @@ namespace AntColony.Buildings
         }
 
         public bool BeginFarmPlacement() => BeginPlacement(BuildingKind.Farm, UnitRole.Worker);
+        public bool BeginStoragePlacement() => BeginPlacement(BuildingKind.Storage, UnitRole.Worker);
+        public string GetStorageBuildLabel() => GetBuildLabel(BuildingKind.Storage, UnitRole.Worker, "Build Storage");
+        public bool BeginAcidTowerPlacement() => BeginPlacement(BuildingKind.AcidTower, UnitRole.Worker);
+        public string GetAcidTowerBuildLabel() => GetBuildLabel(BuildingKind.AcidTower, UnitRole.Worker, "Acid Tower");
         public bool BeginScienceLabPlacement() => BeginPlacement(BuildingKind.ScienceLab, UnitRole.Worker);
+        public bool BeginAirshipYardPlacement() => BeginPlacement(BuildingKind.AirshipYard, UnitRole.Worker);
         public string GetScienceLabBuildLabel() => ScienceLab.PrerequisitesMet
             ? GetBuildLabel(BuildingKind.ScienceLab, UnitRole.Worker, "Build Science Lab")
             : "Science: 60 Ants\nFishing + Barracks T2";
@@ -99,13 +105,19 @@ namespace AntColony.Buildings
 
         private bool BeginPlacement(BuildingKind kind, UnitRole role)
         {
-            if (AntColony.World.WorldMapManager.Instance != null && AntColony.World.WorldMapManager.Instance.ViewedSite != null) return false;
-            if (kind == BuildingKind.ScienceLab && !ScienceLab.PrerequisitesMet) return false;
+            if (kind == BuildingKind.AirshipYard && (CampaignResearch.Instance == null
+                || !CampaignResearch.Instance.Has(ScienceTechnology.MigrationTheory)))
+                return PlacementFailed("Research great migration theory first.");
+            if (AntColony.World.WorldMapManager.Instance != null && AntColony.World.WorldMapManager.Instance.ViewedSite != null)
+                return PlacementFailed("Return to the home colony to construct buildings.");
+            if (kind == BuildingKind.ScienceLab && !ScienceLab.PrerequisitesMet)
+                return PlacementFailed("Science Lab requires 60 ants, Fishing and a Tier 2 barracks.");
             var selectedBuilder = GetSelectedBuilder();
             var template = GetTemplate(kind, role);
             var building = template != null ? template.GetComponent<BuildingBase>() : null;
-            if (selectedBuilder == null || !selectedBuilder.CanStartConstruction || building == null || building.Data == null)
-                return false;
+            if (selectedBuilder == null || !selectedBuilder.CanStartConstruction)
+                return PlacementFailed("Select an idle commander with troops at home to build.");
+            if (building == null || building.Data == null) return PlacementFailed("This building template is unavailable.");
 
             CancelPlacement();
             pendingKind = kind;
@@ -116,19 +128,35 @@ namespace AntColony.Buildings
             return true;
         }
 
+        private static bool PlacementFailed(string reason)
+        {
+            AntColony.UI.ToastManager.Show(reason);
+            return false;
+        }
+
         private void TryPlace(Vector3 position, Vector3 groundPosition)
         {
             if (pendingKind == BuildingKind.ScienceLab && !ScienceLab.PrerequisitesMet) return;
             var template = GetTemplate(pendingKind, pendingRole);
             var building = template != null ? template.GetComponent<BuildingBase>() : null;
             if (!placementValid || builder == null || !builder.CanStartConstruction || building == null || building.Data == null)
+            {
+                PlacementFailed("Choose a reachable, clear and level construction site.");
                 return;
+            }
 
             var cost = building.Data;
             var pool = AntPool.Instance;
-            if (ResourceManager.Instance == null || !ResourceManager.Instance.CanAfford(cost.foodCost, cost.soilCost)
-                || pool == null || !pool.TryReserve(cost.constructionAnts))
+            if (ResourceManager.Instance == null || !ResourceManager.Instance.CanAfford(cost.foodCost, cost.soilCost))
+            {
+                PlacementFailed($"Construction needs {cost.foodCost} food and {cost.soilCost} soil.");
                 return;
+            }
+            if (pool == null || !pool.TryReserve(cost.constructionAnts))
+            {
+                PlacementFailed($"Keep {cost.constructionAnts} unassigned ants available for construction.");
+                return;
+            }
             if (!ResourceManager.Instance.TrySpend(cost.foodCost, cost.soilCost))
             {
                 pool.ReleaseReserved(cost.constructionAnts);
@@ -200,18 +228,40 @@ namespace AntColony.Buildings
             return $"{name}\n{building.Data.foodCost}F {building.Data.soilCost}S {building.Data.constructionAnts} Ants";
         }
 
-        private static GameObject GetTemplate(BuildingKind kind, UnitRole role)
+        internal static GameObject GetTemplate(BuildingKind kind, UnitRole role)
         {
             return kind switch
             {
                 BuildingKind.ResearchLab => FindTemplate<ResearchLab>(role),
                 BuildingKind.Farm => FindFarmTemplate(),
+                BuildingKind.Storage => FindTemplate<Storage>(),
                 BuildingKind.Nursery => FindTemplate<NurseryChamber>(),
                 BuildingKind.ScoutPost => FindTemplate<ScoutPost>(),
                 BuildingKind.PrisonerCamp => FindTemplate<PrisonerCamp>(),
                 BuildingKind.ScienceLab => FindTemplate<ScienceLab>(),
-                _ => FindTemplate<Barracks>(role)
+                BuildingKind.AcidTower => FindTemplate<AcidTower>(),
+                BuildingKind.AirshipYard => FindTemplate<AirshipYard>() ?? CreateAirshipTemplate(),
+                BuildingKind.Barracks => FindTemplate<Barracks>(role),
+                _ => null
             };
+        }
+
+        private static GameObject CreateAirshipTemplate()
+        {
+            var go = GameObject.CreatePrimitive(PrimitiveType.Cube);
+            go.SetActive(false);
+            go.name = "AirshipYardTemplate";
+            go.transform.localScale = new Vector3(6, 2, 4);
+            var definition = ScriptableObject.CreateInstance<BuildingData>();
+            definition.kind = BuildingKind.AirshipYard;
+            definition.displayName = "Airship Yard";
+            definition.foodCost = 100; definition.soilCost = 150;
+            definition.constructionAnts = 10; definition.buildTimeSeconds = 30;
+            definition.maxHealth = 600;
+            go.AddComponent<AirshipYard>().ConfigureRuntime(definition);
+            var obstacle = go.AddComponent<UnityEngine.AI.NavMeshObstacle>();
+            obstacle.carving = true;
+            return go;
         }
 
         // 밭은 역할 구분이 없으므로 씬의 FarmTemplate 오브젝트를 그대로 쓴다.

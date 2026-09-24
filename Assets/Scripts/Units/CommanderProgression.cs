@@ -33,6 +33,13 @@ namespace AntColony.Units
 
         public static int XpForLevel(int currentLevel) => 100 * currentLevel;
 
+        // 저장 복원 전용. 범위를 벗어난 값은 잘라서 넣는다.
+        internal void Restore(int savedLevel, int savedXp)
+        {
+            level = Mathf.Clamp(savedLevel, 1, MaxLevel);
+            xp = level >= MaxLevel ? 0 : Mathf.Clamp(savedXp, 0, XpForLevel(level) - 1);
+        }
+
         // 음수/0은 무시하고, int.MaxValue가 들어와도 만렙에서 깔끔히 멈춘다. 잉여 경험치는 다음 레벨로 이월된다.
         public int AddXp(int amount)
         {

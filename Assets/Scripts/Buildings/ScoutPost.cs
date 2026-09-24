@@ -39,6 +39,18 @@ namespace AntColony.Buildings
             }
         }
 
+        internal int DispatchedAnts => dispatchedAnts;
+
+        // 저장 복원 전용. 파견 중이던 개미 수는 AntPool.RestoreCounts가 이미 Assigned에 반영해 둔다.
+        internal void RestoreState(bool dispatched, float savedRemaining, int ants, int success, int failure)
+        {
+            IsDispatched = dispatched && savedRemaining > 0f;
+            remaining = IsDispatched ? savedRemaining : 0f;
+            dispatchedAnts = IsDispatched ? Mathf.Max(0, ants) : 0;
+            SuccessCount = Mathf.Max(0, success);
+            FailureCount = Mathf.Max(0, failure);
+        }
+
         private void Update() => Tick(Time.deltaTime);
 
         // 파견 중에 건물이 부서지거나 꺼지면 파견을 취소하고 나가 있던 개미를 돌려준다.
@@ -77,6 +89,7 @@ namespace AntColony.Buildings
             IsDispatched = false;
             remaining = 0f;
             Resolve();
+            AntColony.UI.ToastManager.Show("Scouting expedition returned.");
         }
 
         // 스카우터를 내보낸다. 이미 나가 있거나 비용을 못 내면 거부한다.

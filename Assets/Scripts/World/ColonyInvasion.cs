@@ -18,6 +18,8 @@ namespace AntColony.World
         [SerializeField] private Transform spawnPoint;
         [SerializeField] private float firstWaveDelay = 90f;
         [SerializeField] private float waveInterval = 120f;
+        // 난이도 배수를 먹인 실제 간격. Normal이면 배수 1.0이라 기존 동작과 같다.
+        private float ScaledWaveInterval => waveInterval * AntColony.Core.DifficultyRuntime.IntervalScale;
         [SerializeField] private int firstWaveCount = 2;
         [SerializeField] private int waveCountGrowth = 1;
         [SerializeField] private int maxWaveCount = 6;
@@ -46,10 +48,33 @@ namespace AntColony.World
         private void Awake()
         {
             colony = GetComponent<EnemyColony>();
-            timer = firstWaveDelay;
+            timer = firstWaveDelay * AntColony.Core.DifficultyRuntime.IntervalScale;
             economyTimer = economyTickSeconds;
             WarnMissingStock();
         }
+
+        // 저장 복원 전용.
+        internal void RestoreTimers(float waveTimer, float economy, int savedWaveIndex)
+        {
+            timer = Mathf.Max(0f, waveTimer);
+            economyTimer = Mathf.Max(0f, economy);
+            waveIndex = Mathf.Max(0, savedWaveIndex);
+        }
+
+        // 저장 가능 여부 판정에 쓴다. 살아 있는 침공 개체가 있으면 저장을 거절한다.
+        internal int ActiveRaiderCount
+        {
+            get
+            {
+                var count = 0;
+                foreach (var raider in raiders) if (raider != null && !raider.IsDead) count++;
+                return count;
+            }
+        }
+
+        internal float WaveTimer => timer;
+        internal float EconomyTimer => economyTimer;
+        internal int WaveIndex => waveIndex;
 
         // 전리품 노드 설정이 빠지면 경제가 조용히 멈추므로 시작할 때 알린다.
         private void WarnMissingStock()
@@ -70,16 +95,16 @@ namespace AntColony.World
                 || !colony.isActiveAndEnabled || colony.RemainingBuildings == 0
                 || GameManager.Instance?.FindNearestPlayerBuilding(spawnPoint.position) == null)
             {
-                timer = waveInterval;
+                timer = ScaledWaveInterval;
                 return;
             }
 
             raiders.RemoveAll(raider => raider == null || raider.IsDead);
-            var count = Mathf.Min(firstWaveCount + waveIndex * waveCountGrowth, maxWaveCount);
+            var count = Mathf.Min(AntColony.Core.DifficultyRuntime.ScaleCount(firstWaveCount + waveIndex * waveCountGrowth), maxWaveCount);
             count = Mathf.Min(count, maxActiveRaiders - raiders.Count);
             if (count <= 0)
             {
-                timer = waveInterval;
+                timer = ScaledWaveInterval;
                 return;
             }
 
@@ -89,9 +114,10 @@ namespace AntColony.World
 
             // 병력이 실제로 나간 파동에만 장수가 따라붙는다. 빈 파동에 장수만 보내지 않는다.
             if (spawned > 0) SpawnCommander();
+            if (spawned > 0) AntColony.UI.ToastManager.Show("Invasion approaching: " + spawned + " raiders.");
 
             // 자원 부족이나 스폰 위치 실패로 한 마리도 못 냈다면 다음 정규 파동까지 기다리지 않는다.
-            timer = spawned > 0 ? waveInterval : waveRetryDelay;
+            timer = spawned > 0 ? ScaledWaveInterval : waveRetryDelay;
             if (spawned > 0 && waveIndex < maxWaveCount) waveIndex++;
         }
 

@@ -19,12 +19,15 @@ namespace AntColony.World
         [SerializeField] private CommanderRank rank = CommanderRank.Sergeant;
         [SerializeField] private UnitRole[] roles = { UnitRole.Worker, UnitRole.Melee };
         [SerializeField] private CommanderTraits traits = new CommanderTraits();
+        [SerializeField] private CommanderTalents talents = new CommanderTalents();
         [SerializeField, Range(0f, 1f)] private float captureChance = 1f;
 
         public string CommanderName => commanderName;
         public CommanderRank Rank => rank;
         public UnitRole[] Roles => roles;
         public CommanderTraits Traits => traits;
+        public CommanderTalents Talents => talents;
+        internal void RestoreTalents(CommanderTalents value) => talents = value.Copy();
         public bool WasCaptured { get; private set; }
 
         // 적 소굴이 파동마다 장수를 만들 때 개성을 심어준다.
@@ -34,6 +37,7 @@ namespace AntColony.World
             rank = commanderRank;
             if (allowedRoles != null && allowedRoles.Length > 0) roles = allowedRoles;
             if (value != null) traits = value;
+            talents.Generate(traits);
         }
 
         // 수용소가 있고 정원이 남아 있으면 포로가 된다. 아니면 평소대로 죽는다.
@@ -41,7 +45,7 @@ namespace AntColony.World
         {
             var camp = PrisonerCamp.Instance;
             if (camp != null && camp.HasSpace && Random.value <= captureChance
-                && camp.TryCapture(commanderName, rank, roles, traits))
+                && camp.TryCapture(commanderName, rank, roles, traits, talents))
             {
                 WasCaptured = true;
             }

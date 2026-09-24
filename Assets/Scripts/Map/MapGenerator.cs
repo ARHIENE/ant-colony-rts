@@ -72,6 +72,33 @@ namespace AntColony.Map
             waterObject = null;
         }
 
+        // 새 게임 옵션을 받는 창구. 임포트된 TerrainGenerator와 같은 규약을 쓴다.
+        public int BaseXSize => xSize;
+        public int BaseZSize => zSize;
+
+        private bool hasFlatZone;
+        private Vector3 flatCenter;
+        private float flatRadius;
+        private float flatHeight;
+        private int spawnSeedBase;
+
+        public void Configure(int newXSize, int newZSize, int newXOffset, int newZOffset, int seed)
+        {
+            xSize = Mathf.Clamp(newXSize, 2, 640);
+            zSize = Mathf.Clamp(newZSize, 2, 640);
+            xOffset = newXOffset;
+            zOffset = newZOffset;
+            spawnSeedBase = seed;
+        }
+
+        public void SetFlatZone(Vector3 worldCenter, float radius, float worldHeight)
+        {
+            hasFlatZone = radius > 0f;
+            flatCenter = worldCenter;
+            flatRadius = radius;
+            flatHeight = worldHeight;
+        }
+
         private void Start()
         {
             GenerateTerrain();
@@ -112,17 +139,22 @@ namespace AntColony.Map
                     var vertex = vertices[index];
                     var heightNormalized = Mathf.InverseLerp(minH, maxH, vertex.y);
 
-                    foreach (var spawnObj in spawnObjects)
+                    for (var s = 0; s < spawnObjects.Count; s++)
                     {
+                        var spawnObj = spawnObjects[s];
                         if (spawnObj.prefab == null) continue;
                         if (heightNormalized < spawnObj.minHeight || heightNormalized > spawnObj.maxHeight) continue;
 
-                        var seed = (x + xOffset) * 73856093 ^ (z + zOffset) * 19349663 ^ spawnObj.prefab.GetEntityId().GetHashCode();
+                        // prefab 인스턴스 ID는 재실행마다 달라져 같은 시드에서도 배치가 흔들린다.
+                        // 목록 순번과 맵 시드만 써서 재현 가능하게 한다.
+                        var seed = (x + xOffset) * 73856093 ^ (z + zOffset) * 19349663 ^ (s + 1) * 83492791 ^ spawnSeedBase;
                         Random.InitState(seed);
 
                         if (Random.value > spawnObj.spawnChance) continue;
 
                         var worldPos = transform.TransformPoint(vertex);
+                        if (hasFlatZone
+                            && new Vector2(worldPos.x - flatCenter.x, worldPos.z - flatCenter.z).magnitude < flatRadius) continue;
 
                         var tooClose = false;
                         foreach (var pos in spawnedPositions)
@@ -244,6 +276,14 @@ namespace AntColony.Map
                         yPos += Mathf.PerlinNoise((x + xOffset) * noiseScale * frequency, (z + zOffset) * noiseScale * frequency) * amplitude;
                     }
                     yPos *= heightMultiplier;
+                    // 본거지 평탄화. 반경 안은 원래 높이로 눌러 두고 바깥에서 지형으로 되돌아간다.
+                    if (hasFlatZone)
+                    {
+                        var world = transform.TransformPoint(new Vector3(x, 0f, z));
+                        var planar = new Vector2(world.x - flatCenter.x, world.z - flatCenter.z).magnitude;
+                        var blend = Mathf.SmoothStep(0f, 1f, Mathf.InverseLerp(flatRadius, flatRadius * 1.5f, planar));
+                        yPos = Mathf.Lerp(flatHeight - transform.position.y, yPos, blend);
+                    }
                     vertices[i] = new Vector3(x, yPos, z);
                     i++;
                 }

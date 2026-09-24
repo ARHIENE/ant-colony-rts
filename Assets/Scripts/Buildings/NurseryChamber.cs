@@ -117,8 +117,7 @@ namespace AntColony.Buildings
             if (birthFoodCost > 0 && ResourceManager.Instance != null
                 && !ResourceManager.Instance.TrySpend(birthFoodCost, 0)) return false;
 
-            var roles = InheritRoles(first, second);
-            var child = roster.Create(null, CommanderRank.Corporal, roles, roles[0],
+            var child = roster.Create(null, CommanderRank.Corporal, new[] { UnitRole.Worker }, UnitRole.Worker,
                 CommanderTraits.Inherit(first.Traits, second.Traits), transform.position);
 
             if (child == null)
@@ -128,18 +127,11 @@ namespace AntColony.Buildings
                 return false;
             }
 
+            child.Talents.Generate(child.Traits, first.Talents, second.Talents);
             if (newbornTroops > 0) child.TryAssign(newbornTroops);
             BirthCount++;
+            AntColony.UI.ToastManager.Show(child.CommanderName + " was born.");
             return true;
-        }
-
-        // 기획: 보직 일부를 계승한다. 일개미는 공통이고 부모의 전투 보직 중 하나를 물려받는다.
-        private static UnitRole[] InheritRoles(CommanderAnt first, CommanderAnt second)
-        {
-            var parent = Random.value < .5f ? first : second;
-            foreach (var role in parent.AllowedRoles)
-                if (role != UnitRole.Worker) return new[] { UnitRole.Worker, role };
-            return new[] { UnitRole.Worker };
         }
 
         // 파괴된 장수가 낀 쌍을 정리해 사전이 무한히 커지지 않게 한다.
@@ -150,6 +142,28 @@ namespace AntColony.Buildings
             foreach (var pair in affinity)
                 if (!pair.Key.IsAlive) expired.Add(pair.Key);
             foreach (var key in expired) affinity.Remove(key);
+        }
+
+        // 저장 복원 전용. 쌓여 있던 호감도가 사라지면 출산 진행이 통째로 날아가므로 쌍 단위로 그대로 옮긴다.
+        internal void CaptureAffinity(List<CommanderAnt> first, List<CommanderAnt> second, List<float> values)
+        {
+            foreach (var entry in affinity)
+            {
+                if (!entry.Key.IsAlive) continue;
+                first.Add(entry.Key.First);
+                second.Add(entry.Key.Second);
+                values.Add(entry.Value);
+            }
+        }
+
+        internal void RestoreState(int births, List<CommanderAnt> first, List<CommanderAnt> second, List<float> values)
+        {
+            BirthCount = Mathf.Max(0, births);
+            affinity.Clear();
+            if (first == null || second == null || values == null) return;
+            var count = Mathf.Min(first.Count, Mathf.Min(second.Count, values.Count));
+            for (var i = 0; i < count; i++)
+                if (first[i] != null && second[i] != null) affinity[new Pair(first[i], second[i])] = values[i];
         }
 
         public float GetAffinity(CommanderAnt first, CommanderAnt second)

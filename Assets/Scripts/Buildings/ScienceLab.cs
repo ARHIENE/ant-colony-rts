@@ -1,5 +1,6 @@
 using AntColony.Core;
 using AntColony.World;
+using AntColony.Units;
 using UnityEngine;
 
 namespace AntColony.Buildings
@@ -12,10 +13,60 @@ namespace AntColony.Buildings
         public const float ConstructionSeconds = 10;
         public bool Busy => remaining > 0;
         public float Remaining => remaining;
+        public int Tier { get; private set; } = 1;
+        public CommanderAnt Target { get; private set; }
         private float remaining;
         private bool aircraft;
         private bool constructing;
         private Vector3 spawnPosition;
+
+        internal bool Aircraft => aircraft;
+        internal bool Constructing => constructing;
+        internal Vector3 SpawnPosition => spawnPosition;
+
+        public bool TryAssign(CommanderAnt commander)
+        {
+            if (!isActiveAndEnabled || Busy || Target != null || commander == null || !commander.isActiveAndEnabled
+                || commander.IsDead || commander.IsAwayFromHome || commander.LabUpgradeBusy || !commander.CanChangeAllocation
+                || commander.IsWorking || Vector3.Distance(commander.Position, Position) > 8) return false;
+            commander.CommandStop();
+            Target = commander;
+            commander.ScienceAssignment = this;
+            return true;
+        }
+
+        public void ReleaseResearcher()
+        {
+            if (Target != null && Target.ScienceAssignment == this) Target.ScienceAssignment = null;
+            Target = null;
+        }
+
+        public bool TryUpgrade()
+        {
+            if (!isActiveAndEnabled || Busy || Tier >= 4 || ResourceManager.Instance == null
+                || !ResourceManager.Instance.TrySpend(Tier * 60, Tier * 80)) return false;
+            Tier++;
+            return true;
+        }
+
+        public void RestoreAssignment(int tier, CommanderAnt target)
+        {
+            ReleaseResearcher();
+            Tier = Mathf.Clamp(tier, 1, 4);
+            Target = target;
+            if (target != null) target.ScienceAssignment = this;
+        }
+
+        // 저장 복원 전용. 연구 중이었다면 WorldMapManager.Researcher 자리도 다시 잡아 준다.
+        internal void RestoreState(float savedRemaining, bool air, bool build, Vector3 spawn)
+        {
+            remaining = Mathf.Max(0f, savedRemaining);
+            aircraft = air;
+            constructing = build;
+            spawnPosition = spawn;
+            var world = WorldMapManager.Instance;
+            if (remaining > 0f && !build && world != null && world.Researcher == null) world.Researcher = this;
+        }
 
         public static bool PrerequisitesMet
         {
@@ -31,6 +82,8 @@ namespace AntColony.Buildings
 
         public bool TryResearch(bool air)
         {
+            if (CampaignResearch.Instance != null)
+                return isActiveAndEnabled && CampaignResearch.Instance.TryStart(air ? ScienceTechnology.Aircraft : ScienceTechnology.Vehicle);
             var world = WorldMapManager.Instance;
             if (!isActiveAndEnabled || Busy || world == null || world.Researcher != null
                 || (air ? !world.VehicleResearched || world.AircraftResearched : world.VehicleResearched)) return false;
@@ -62,6 +115,7 @@ namespace AntColony.Buildings
             if (Busy) return;
             var world = WorldMapManager.Instance;
             if (world == null) return;
+            AntColony.UI.ToastManager.Show((aircraft ? "Aircraft" : "Vehicle") + (constructing ? " construction complete." : " research complete."));
             if (constructing) world.CreateTransport(aircraft, spawnPosition);
             else
             {
@@ -73,6 +127,7 @@ namespace AntColony.Buildings
 
         protected override void OnDisable()
         {
+            ReleaseResearcher();
             remaining = 0;
             if (WorldMapManager.Instance != null && WorldMapManager.Instance.Researcher == this)
                 WorldMapManager.Instance.Researcher = null;

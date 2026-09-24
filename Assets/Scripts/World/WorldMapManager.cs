@@ -21,6 +21,7 @@ namespace AntColony.World
         public bool VehicleResearched { get; internal set; }
         public bool AircraftResearched { get; internal set; }
         public bool Unlocked { get; private set; }
+        internal void RestoreUnlock(bool value) => Unlocked = value;
         public ScienceLab Researcher { get; internal set; }
         public ExpeditionSite ViewedSite { get; private set; }
         public Vector3 HomePosition { get; private set; }
@@ -97,8 +98,9 @@ namespace AntColony.World
             ViewedSite = site;
             FindFirstObjectByType<SelectionManager>()?.ClearSelection();
             FindFirstObjectByType<BuildingPlacementController>()?.CancelPlacement();
+            // 본거지 영역은 실제 생성된 지형 크기를 따른다(맵 크기 옵션이 카메라 한계에도 반영된다).
             camera.SetRegion(site == null ? homeFocus : site.Landing + Vector3.forward * 15,
-                site == null ? new Bounds(new Vector3(200, 0, 200), new Vector3(400, 100, 400))
+                site == null ? AntColony.Map.HomeMapBuilder.CurrentWorldBounds
                     : new Bounds(site.transform.position, new Vector3(65, 100, 65)));
             return true;
         }

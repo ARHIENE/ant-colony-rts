@@ -37,7 +37,10 @@ namespace AntColony.Units
         private Vector3 attackMoveDestination;
 
         // 비행은 별도 클래스가 아니라 현재 역할로 결정된다. 지휘관이 Flying으로 역할을 바꾸면 즉시 비행한다.
-        public bool IsFlying => Data != null && Data.role == UnitRole.Flying;
+        public virtual bool IsFlying => Data != null && Data.role == UnitRole.Flying;
+        public bool IsInCombat => currentTarget != null && CanAttackTarget(currentTarget);
+        private UnitRole TargetingRole => IsFlying ? UnitRole.Flying : Data.role;
+        protected virtual float MovementSpeed => Data != null ? Data.moveSpeed : 0f;
         bool IAirborne.IsAirborne => IsFlying;
 
         public override void Initialize(UnitData data, ObjectPool sourcePool, GameObject prefab)
@@ -80,7 +83,7 @@ namespace AntColony.Units
         // 역할별 대공/대지 공격 가능 여부. 공중 대상은 Ranged와 Flying만 공격할 수 있다.
         public virtual bool CanAttackTarget(IDamageable target)
         {
-            return Data != null && CombatTargeting.CanAttack(Data.role, target);
+            return Data != null && CombatTargeting.CanAttack(TargetingRole, target);
         }
 
         // 일반 이동: 원본처럼 경로상의 적을 무시하고 그냥 이동만 한다(어택무브는 CommandAttackMove로 별도 지시).
@@ -177,7 +180,7 @@ namespace AntColony.Units
         protected void TickFlightMovement()
         {
             if (!IsFlying) return;
-            transform.position = Vector3.MoveTowards(transform.position, flightDestination, Data.moveSpeed * Time.deltaTime);
+            transform.position = Vector3.MoveTowards(transform.position, flightDestination, MovementSpeed * Time.deltaTime);
         }
 
         protected void TickCombat()
@@ -205,7 +208,7 @@ namespace AntColony.Units
             if (autoEngageTimer <= 0f)
             {
                 autoEngageTimer = autoEngageCheckInterval;
-                var nearby = CombatTargeting.FindNearestEnemy(transform.position, autoEngageRadius, Data.role);
+                var nearby = CombatTargeting.FindNearestEnemy(transform.position, autoEngageRadius, TargetingRole);
                 if (nearby != null && CanAttackTarget(nearby))
                 {
                     // isOnAttackMove는 유지한 채로 교전 상태로 전환(경로상 자동 교전).
@@ -245,7 +248,7 @@ namespace AntColony.Units
             if (autoEngageTimer > 0f) return;
             autoEngageTimer = autoEngageCheckInterval;
 
-            var nearby = CombatTargeting.FindNearestEnemy(transform.position, autoEngageRadius, Data.role);
+            var nearby = CombatTargeting.FindNearestEnemy(transform.position, autoEngageRadius, TargetingRole);
             if (nearby != null && CanAttackTarget(nearby))
             {
                 CommandAttack(nearby);
@@ -296,6 +299,7 @@ namespace AntColony.Units
             if (attackTimer <= 0f)
             {
                 attackTimer = Data.attackInterval;
+                GetComponent<AntVisual>()?.Attack(currentTarget.Position);
                 DealDamage(currentTarget);
             }
         }

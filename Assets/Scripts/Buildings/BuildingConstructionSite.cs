@@ -29,6 +29,7 @@ namespace AntColony.Buildings
             if (completedBuilding != null)
             {
                 completedBuilding.SetActive(true);
+                AntColony.UI.ToastManager.Show(completedBuilding.name + " construction complete.");
                 completedBuilding = null;
             }
             Destroy(gameObject);

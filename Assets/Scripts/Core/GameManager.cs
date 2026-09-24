@@ -20,6 +20,11 @@ namespace AntColony.Core
         private bool defeated;
         private bool hasRegisteredPlayerBuilding;
         private bool quitting;
+        internal bool SavedLoop => loopCompleted;
+        internal bool SavedBoss => bossDefeated;
+        internal bool SavedDefeat => defeated;
+        internal void RestoreFlags(bool loop, bool boss, bool defeat)
+        { loopCompleted = loop; bossDefeated = boss; defeated = defeat; }
 
         private void Awake()
         {

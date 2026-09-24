@@ -33,6 +33,7 @@ namespace AntColony.Units
         protected virtual void Awake()
         {
             Agent = GetComponent<NavMeshAgent>();
+            AntVisual.Attach(gameObject);
         }
 
         protected virtual void OnEnable()
@@ -74,6 +75,7 @@ namespace AntColony.Units
         {
             if (IsDead) return;
             currentHealth -= Mathf.Max(1f, amount - Armor);
+            GetComponent<AntVisual>()?.Action("Hit");
             if (currentHealth <= 0f)
             {
                 currentHealth = 0f;
@@ -83,6 +85,7 @@ namespace AntColony.Units
 
         protected virtual void Die()
         {
+            GetComponent<AntVisual>()?.Death();
             gameObject.SetActive(false);
             if (pool != null && sourcePrefab != null)
             {

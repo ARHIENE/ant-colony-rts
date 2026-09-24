@@ -35,6 +35,15 @@ namespace AntColony.Core
             if (Instance == this) Instance = null;
         }
 
+        // 저장 복원 전용. 장수 병력은 CommanderAnt.RestoreTroops가 따로 맞추므로 여기서는 숫자만 덮어쓴다.
+        internal void RestoreCounts(int free, int assigned, int reserved)
+        {
+            Free = Mathf.Max(0, free);
+            Assigned = Mathf.Max(0, assigned);
+            Reserved = Mathf.Max(0, reserved);
+            OnPoolChanged?.Invoke();
+        }
+
         public void Breed(int count)
         {
             if (count <= 0) return;

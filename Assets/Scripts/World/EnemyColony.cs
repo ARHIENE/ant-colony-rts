@@ -145,6 +145,23 @@ namespace AntColony.World
             return (food == 0 || foodSource.TryConsumeStock(food)) && (soil == 0 || soilSource.TryConsumeStock(soil));
         }
 
+        internal BuildingBase[] Buildings => buildings;
+
+        // 저장 복원 전용. 확장으로 늘어났던 건물을 비용 없이 같은 자리에 다시 세운다.
+        internal BuildingBase RestoreExpansion(Vector3 position)
+        {
+            var template = FindExpansionTemplate();
+            if (template == null) return null;
+            var building = Instantiate(template, position, template.transform.rotation, transform);
+            StripColonyOnlyParts(building);
+            building.name = $"Enemy Nest Building {buildings.Length + 1}";
+            System.Array.Resize(ref buildings, buildings.Length + 1);
+            buildings[buildings.Length - 1] = building;
+            return building;
+        }
+
+        internal void SuppressRandomPlacement() => randomizeAtStart = false;
+
         public bool TryExpand(int foodCost, int soilCost, int maxBuildings, float radius)
         {
             if (IsDefeated || RemainingBuildings >= maxBuildings || radius <= 0f) return false;

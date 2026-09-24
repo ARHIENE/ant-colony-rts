@@ -36,6 +36,17 @@ namespace AntColony.World
             return true;
         }
 
+        // 저장 복원 전용. 현재 왕복 상태(목적지·대기시간)를 그대로 되돌린다.
+        internal void RestoreState(bool running, ExpeditionSite destination, float wait, string status)
+        {
+            IsRunning = running && destination != null;
+            Destination = destination;
+            WaitSeconds = Mathf.Max(0f, wait);
+            Status = string.IsNullOrEmpty(status) ? (IsRunning ? "Ready" : "Off") : status;
+            nextNode = null;
+            rallying = false;
+        }
+
         public void Stop(string reason = "Off")
         {
             IsRunning = false;
@@ -50,7 +61,7 @@ namespace AntColony.World
             foreach (var c in ship.Crew)
             {
                 if (c == null || !c.isActiveAndEnabled || c.Transport != ship || !c.HasTroops) return false;
-                if (c.Role == UnitRole.Worker && c.Data.gatherRate > 0 && c.Data.carryCapacity > 0) found = true;
+                if (c.Data.gatherRate > 0 && c.Data.carryCapacity > 0) found = true;
             }
             return found;
         }
@@ -85,7 +96,7 @@ namespace AntColony.World
             {
                 var c = ship.Crew[i];
                 if (c.IsWorking || c.IsCarrying) { finished = false; continue; }
-                if (rallying || c.Role != UnitRole.Worker) continue;
+                if (rallying) continue;
                 while (nextNode[i] < nodes.Length)
                 {
                     var node = nodes[nextNode[i]++];

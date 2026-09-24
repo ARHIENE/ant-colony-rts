@@ -10,6 +10,13 @@ namespace AntColony.Buildings
 
         public bool IsExpanded => isExpanded;
 
+        // 저장 복원 전용.
+        internal void RestoreExpanded(bool expanded)
+        {
+            isExpanded = expanded;
+            if (expansionZone != null) expansionZone.SetActive(expanded);
+        }
+
         public bool TryExpand()
         {
             if (isExpanded) return false;

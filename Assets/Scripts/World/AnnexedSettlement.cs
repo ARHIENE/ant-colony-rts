@@ -32,6 +32,10 @@ namespace AntColony.World
                 (int)(Mathf.Min(periods * 5, 200) * Site.Difficulty));
         }
 
+        // 저장 복원 전용.
+        internal void RestoreElapsed(float seconds) => elapsed = Mathf.Clamp(seconds, 0f, ProductionSeconds);
+        internal float Elapsed => elapsed;
+
         internal void Add(CommanderAnt commander)
         {
             garrison.Add(commander);

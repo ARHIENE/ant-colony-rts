@@ -36,6 +36,18 @@ namespace AntColony.Core
             amounts[ResourceType.Soil] = Mathf.Min(startingSoil, baseSoilCapacity);
         }
 
+        // 저장 복원 전용. 상한을 먼저 세우고 보유량을 그 안으로 맞춘다.
+        internal void RestoreState(int food, int soil, int special, int foodCapacity, int soilCapacity, int specialCapacity)
+        {
+            capacities[ResourceType.Food] = Mathf.Max(0, foodCapacity);
+            capacities[ResourceType.Soil] = Mathf.Max(0, soilCapacity);
+            capacities[ResourceType.Special] = Mathf.Max(0, specialCapacity);
+            amounts[ResourceType.Food] = Mathf.Clamp(food, 0, capacities[ResourceType.Food]);
+            amounts[ResourceType.Soil] = Mathf.Clamp(soil, 0, capacities[ResourceType.Soil]);
+            amounts[ResourceType.Special] = Mathf.Clamp(special, 0, capacities[ResourceType.Special]);
+            OnResourcesChanged?.Invoke();
+        }
+
         public int GetAmount(ResourceType type) => amounts.TryGetValue(type, out var value) ? value : 0;
         public int GetCapacity(ResourceType type) => capacities.TryGetValue(type, out var value) ? value : 0;
 
@@ -53,16 +65,18 @@ namespace AntColony.Core
             OnResourcesChanged?.Invoke();
         }
 
-        public bool CanAfford(int foodCost, int soilCost)
+        public bool CanAfford(int foodCost, int soilCost, int specialCost = 0)
         {
-            return foodCost >= 0 && soilCost >= 0 && GetAmount(ResourceType.Food) >= foodCost && GetAmount(ResourceType.Soil) >= soilCost;
+            return foodCost >= 0 && soilCost >= 0 && specialCost >= 0 && GetAmount(ResourceType.Food) >= foodCost
+                && GetAmount(ResourceType.Soil) >= soilCost && GetAmount(ResourceType.Special) >= specialCost;
         }
 
-        public bool TrySpend(int foodCost, int soilCost)
+        public bool TrySpend(int foodCost, int soilCost, int specialCost = 0)
         {
-            if (!CanAfford(foodCost, soilCost)) return false;
+            if (!CanAfford(foodCost, soilCost, specialCost)) return false;
             amounts[ResourceType.Food] = GetAmount(ResourceType.Food) - foodCost;
             amounts[ResourceType.Soil] = GetAmount(ResourceType.Soil) - soilCost;
+            amounts[ResourceType.Special] = GetAmount(ResourceType.Special) - specialCost;
             OnResourcesChanged?.Invoke();
             return true;
         }

@@ -18,7 +18,7 @@ namespace AntColony.UI
         [SerializeField] private DigSite digSite;
         [SerializeField] private BossHealth boss;
 
-        private Text resourceText;
+        private readonly Text[] resourceTexts = new Text[4];
         private Text messageText;
         private Text bossHealthText;
         private Text antProductionButtonText;
@@ -29,9 +29,11 @@ namespace AntColony.UI
         private Text buildBarracksButtonText;
         private Text buildLabButtonText;
         private Text buildFarmButtonText;
+        private Text buildStorageButtonText;
         private Text buildNurseryButtonText;
         private Text buildScoutPostButtonText;
         private Text buildPrisonButtonText;
+        private Text buildAcidTowerButtonText;
         private Text fishingResearchButtonText;
         private SelectionManager selectionManager;
         private UnitRole selectedRole = UnitRole.Melee;
@@ -86,6 +88,9 @@ namespace AntColony.UI
             if (barracks == null || !barracks.isActiveAndEnabled || barracks.Role != selectedRole)
                 barracks = FindBarracks(selectedRole);
             var commander = SelectedCommander;
+            if (messageText != null) messageText.text = commander != null
+                ? commander.CommanderName + " / " + commander.Role
+                : "Select one commander to research";
             if (antProductionButtonText != null)
                 antProductionButtonText.text = queenChamber != null ? queenChamber.GetProductionLabel() : "No Queen Chamber";
             if (barracksUpgradeButtonText != null)
@@ -94,19 +99,23 @@ namespace AntColony.UI
                 attackResearchButtonText.text = GetLabResearchLabel(commander, true);
             if (armorResearchButtonText != null)
                 armorResearchButtonText.text = GetLabResearchLabel(commander, false);
-            if (roleButtonText != null) roleButtonText.text = $"Role: {selectedRole}";
+            if (roleButtonText != null) roleButtonText.text = $"Training: {selectedRole}";
             if (buildBarracksButtonText != null && buildingPlacementController != null)
                 buildBarracksButtonText.text = buildingPlacementController.GetBarracksBuildLabel(selectedRole);
             if (buildLabButtonText != null && buildingPlacementController != null)
                 buildLabButtonText.text = buildingPlacementController.GetResearchLabBuildLabel(selectedRole);
             if (buildFarmButtonText != null && buildingPlacementController != null)
                 buildFarmButtonText.text = buildingPlacementController.GetFarmBuildLabel();
+            if (buildStorageButtonText != null && buildingPlacementController != null)
+                buildStorageButtonText.text = buildingPlacementController.GetStorageBuildLabel();
             if (buildNurseryButtonText != null && buildingPlacementController != null)
                 buildNurseryButtonText.text = buildingPlacementController.GetNurseryBuildLabel();
             if (buildScoutPostButtonText != null && buildingPlacementController != null)
                 buildScoutPostButtonText.text = buildingPlacementController.GetScoutPostBuildLabel();
             if (buildPrisonButtonText != null && buildingPlacementController != null)
                 buildPrisonButtonText.text = buildingPlacementController.GetPrisonerCampBuildLabel();
+            if (buildAcidTowerButtonText != null && buildingPlacementController != null)
+                buildAcidTowerButtonText.text = buildingPlacementController.GetAcidTowerBuildLabel();
             if (fishingResearchButtonText != null)
             {
 
@@ -136,33 +145,64 @@ namespace AntColony.UI
                 eventSystemGO.AddComponent<InputSystemUIInputModule>();
             }
 
-            resourceText = CreateText(canvasGO.transform, new Vector2(0f, 1f), new Vector2(650f, 44f), new Vector2(10f, -10f));
-            messageText = CreateText(canvasGO.transform, new Vector2(0.5f, 1f), new Vector2(300f, 20f), new Vector2(0f, -35f));
+            var top = MenuTheme.Panel(canvasGO.transform, "ResourceBar", new Vector2(0, 1), new Vector2(1280, 64), Vector2.zero);
+            for (var i = 0; i < resourceTexts.Length; i++)
+            {
+                resourceTexts[i] = CreateText(top, new Vector2(0, 1), new Vector2(153, 48), new Vector2(14 + i * 163, -9));
+                resourceTexts[i].fontSize = 14;
+            }
+            resourceTexts[3].fontSize = 12;
+            CommandPanel(canvasGO.transform, "COLONY", 0, 420);
+            CommandPanel(canvasGO.transform, "COMMANDER RESEARCH", 420, 280);
+            CommandPanel(canvasGO.transform, "CONSTRUCTION", 700, 580);
+            messageText = CreateText(canvasGO.transform, Vector2.zero, new Vector2(260, 32), new Vector2(430, 10));
+            messageText.text = "Select one commander to research";
+            messageText.fontSize = 12; messageText.color = MenuTheme.Muted;
             bossHealthText = CreateText(canvasGO.transform, new Vector2(1f, 1f), new Vector2(220f, 20f), new Vector2(-10f, -10f));
             bossHealthText.alignment = TextAnchor.UpperRight;
 
-            roleButtonText = CreateButton(canvasGO.transform, new Vector2(10f, 55f), $"Role: {selectedRole}", CycleCombatRole);
-            fishingResearchButtonText = CreateButton(canvasGO.transform, new Vector2(150f, 55f), "Unlock Fishing", () => queenChamber?.TryResearchFishing());
-            antProductionButtonText = CreateButton(canvasGO.transform, new Vector2(10f, 10f), "Produce Ant", () => queenChamber?.TryProduceWorker());
+            roleButtonText = CreateButton(canvasGO.transform, new Vector2(150f, 55f), $"Training: {selectedRole}", CycleCombatRole,
+                "Choose the equipment category for training and lab construction.");
+            fishingResearchButtonText = CreateButton(canvasGO.transform, new Vector2(290f, 55f), "Unlock Fishing", () => queenChamber?.TryResearchFishing(),
+                "Research fishing at the Queen Chamber to gather food from fishing spots.");
+            antProductionButtonText = CreateButton(canvasGO.transform, new Vector2(10f, 55f), "Produce Ant", () => queenChamber?.TryProduceWorker(),
+                "Produce an unassigned ant at the Queen Chamber. Select a commander and use +1 Ant to assign troops.");
             var upgradeLabel = barracks != null ? barracks.GetUpgradeLabel() : "Upgrade Barracks";
-            barracksUpgradeButtonText = CreateButton(canvasGO.transform, new Vector2(290f, 10f), upgradeLabel, () => barracks?.TryUpgrade());
-            CreateButton(canvasGO.transform, new Vector2(430f, 10f), "Dig Expansion", () => digSite?.TryExpand());
-            attackResearchButtonText = CreateButton(canvasGO.transform, new Vector2(570f, 10f), GetLabResearchLabel(null, true), () => TryLabResearch(true));
-            armorResearchButtonText = CreateButton(canvasGO.transform, new Vector2(710f, 10f), GetLabResearchLabel(null, false), () => TryLabResearch(false));
+            barracksUpgradeButtonText = CreateButton(canvasGO.transform, new Vector2(10f, 10f), upgradeLabel, () => barracks?.TryUpgrade(),
+                "Upgrade training for the chosen equipment category. Costs are shown on the button.");
+            CreateButton(canvasGO.transform, new Vector2(150f, 10f), "Dig Expansion", () => digSite?.TryExpand(),
+                "Spend soil at the dig site to open the expansion zone.");
+            attackResearchButtonText = CreateButton(canvasGO.transform, new Vector2(430f, 55f), GetLabResearchLabel(null, true), () => TryLabResearch(true),
+                "Select one commander and build a lab matching their weapon. Research improves that commander's attack.");
+            armorResearchButtonText = CreateButton(canvasGO.transform, new Vector2(570f, 55f), GetLabResearchLabel(null, false), () => TryLabResearch(false),
+                "Select one commander and build a lab matching their weapon. Research improves that commander's armor.");
             var buildBarracksLabel = buildingPlacementController != null ? buildingPlacementController.GetBarracksBuildLabel() : "Build Barracks";
-            buildBarracksButtonText = CreateButton(canvasGO.transform, new Vector2(850f, 10f), buildBarracksLabel, () => buildingPlacementController?.BeginBarracksPlacement(selectedRole));
+            buildBarracksButtonText = CreateButton(canvasGO.transform, new Vector2(710f, 55f), buildBarracksLabel, () => buildingPlacementController?.BeginBarracksPlacement(selectedRole), PlacementTip);
             var buildLabLabel = buildingPlacementController != null ? buildingPlacementController.GetResearchLabBuildLabel() : "Build Lab";
-            buildLabButtonText = CreateButton(canvasGO.transform, new Vector2(990f, 10f), buildLabLabel, () => buildingPlacementController?.BeginResearchLabPlacement(selectedRole));
+            buildLabButtonText = CreateButton(canvasGO.transform, new Vector2(850f, 55f), buildLabLabel, () => buildingPlacementController?.BeginResearchLabPlacement(selectedRole), PlacementTip);
             var buildFarmLabel = buildingPlacementController != null ? buildingPlacementController.GetFarmBuildLabel() : "Build Farm";
-            buildFarmButtonText = CreateButton(canvasGO.transform, new Vector2(1130f, 10f), buildFarmLabel, () => buildingPlacementController?.BeginFarmPlacement());
+            buildFarmButtonText = CreateButton(canvasGO.transform, new Vector2(990f, 55f), buildFarmLabel, () => buildingPlacementController?.BeginFarmPlacement(), PlacementTip);
 
-            // 장수 획득 건물 3종. 아래 줄이 가득 차 병영 줄 위에 놓는다.
-            buildNurseryButtonText = CreateButton(canvasGO.transform, new Vector2(290f, 55f), "Build Nursery",
-                () => buildingPlacementController?.BeginNurseryPlacement());
-            buildScoutPostButtonText = CreateButton(canvasGO.transform, new Vector2(430f, 55f), "Build Scout Post",
-                () => buildingPlacementController?.BeginScoutPostPlacement());
-            buildPrisonButtonText = CreateButton(canvasGO.transform, new Vector2(570f, 55f), "Build Prison",
-                () => buildingPlacementController?.BeginPrisonerCampPlacement());
+            buildNurseryButtonText = CreateButton(canvasGO.transform, new Vector2(710f, 10f), "Build Nursery",
+                () => buildingPlacementController?.BeginNurseryPlacement(), PlacementTip);
+            buildScoutPostButtonText = CreateButton(canvasGO.transform, new Vector2(850f, 10f), "Build Scout Post",
+                () => buildingPlacementController?.BeginScoutPostPlacement(), PlacementTip);
+            buildPrisonButtonText = CreateButton(canvasGO.transform, new Vector2(990f, 10f), "Build Prison",
+                () => buildingPlacementController?.BeginPrisonerCampPlacement(), PlacementTip);
+            buildAcidTowerButtonText = CreateButton(canvasGO.transform, new Vector2(1130f, 55f), "Acid Tower", () => {
+                if (buildingPlacementController == null || !buildingPlacementController.BeginAcidTowerPlacement())
+                    ToastManager.Show("Select a commander with troops at home to build an acid tower.");
+            }, "Single-target acid tower: automatically attacks nearby enemies. No upkeep. " + PlacementTip);
+            buildStorageButtonText = CreateButton(canvasGO.transform, new Vector2(1130f, 10f), "Build Storage",
+                () => buildingPlacementController?.BeginStoragePlacement(),
+                "Expand food, soil and special storage and add a nearby drop-off point. " + PlacementTip);
+        }
+
+        private void CommandPanel(Transform parent, string title, float x, float width)
+        {
+            var panel = MenuTheme.Panel(parent, title, Vector2.zero, new Vector2(width - 4, 128), new Vector2(x + 2, 0));
+            var heading = CreateText(panel, new Vector2(0, 1), new Vector2(width - 24, 22), new Vector2(10, -9));
+            heading.text = title; heading.fontSize = 12; heading.fontStyle = FontStyle.Bold; heading.color = MenuTheme.Accent;
         }
 
         private void CycleCombatRole()
@@ -239,10 +279,13 @@ namespace AntColony.UI
             text.fontSize = 16;
             text.color = Color.white;
             text.alignment = TextAnchor.UpperLeft;
+            text.raycastTarget = false;
             return text;
         }
 
-        private Text CreateButton(Transform parent, Vector2 anchoredPosition, string label, UnityEngine.Events.UnityAction onClick)
+        private const string PlacementTip = "Choose a build location, then left-click to place. Right-click cancels. Resources and free ants are required.";
+
+        private Text CreateButton(Transform parent, Vector2 anchoredPosition, string label, UnityEngine.Events.UnityAction onClick, string tip)
         {
             var go = new GameObject(label + "Button");
             go.transform.SetParent(parent, false);
@@ -258,7 +301,9 @@ namespace AntColony.UI
             image.color = new Color(0.15f, 0.15f, 0.15f, 0.85f);
 
             var button = go.AddComponent<Button>();
+            MenuTheme.StyleButton(button);
             button.onClick.AddListener(onClick);
+            go.AddComponent<MenuTooltip>().Message = tip;
 
             var textGO = new GameObject("Label");
             textGO.transform.SetParent(go.transform, false);
@@ -274,30 +319,28 @@ namespace AntColony.UI
             text.color = Color.white;
             text.alignment = TextAnchor.MiddleCenter;
             text.text = label;
+            text.raycastTarget = false;
             return text;
         }
 
         private void UpdateResourceText()
         {
-            if (resourceText == null || ResourceManager.Instance == null) return;
+            if (resourceTexts[0] == null || ResourceManager.Instance == null) return;
             var rm = ResourceManager.Instance;
-            resourceText.text =
-                $"Food {rm.GetAmount(ResourceType.Food)} / {rm.GetCapacity(ResourceType.Food)}   " +
-                $"Soil {rm.GetAmount(ResourceType.Soil)} / {rm.GetCapacity(ResourceType.Soil)}   " +
-                $"Special {rm.GetAmount(ResourceType.Special)} / {rm.GetCapacity(ResourceType.Special)}";
-            if (AntPool.Instance != null) resourceText.text += $"\nAnts {AntPool.Instance.Total} total / {AntPool.Instance.Free} free / {AntPool.Instance.Assigned} assigned / {AntPool.Instance.Reserved} building";
+            resourceTexts[0].text = $"<color=#8ED69C>FOOD</color>\n<b>{rm.GetAmount(ResourceType.Food)}</b> <color=#A6BABA>/ {rm.GetCapacity(ResourceType.Food)}</color>";
+            resourceTexts[1].text = $"<color=#D8B889>SOIL</color>\n<b>{rm.GetAmount(ResourceType.Soil)}</b> <color=#A6BABA>/ {rm.GetCapacity(ResourceType.Soil)}</color>";
+            resourceTexts[2].text = $"<color=#C2ADF2>SPECIAL</color>\n<b>{rm.GetAmount(ResourceType.Special)}</b> <color=#A6BABA>/ {rm.GetCapacity(ResourceType.Special)}</color>";
+            if (AntPool.Instance != null) resourceTexts[3].text = $"<color=#84CDBA>COLONY {AntPool.Instance.Total}</color>\n<b>{AntPool.Instance.Free}</b> free / {AntPool.Instance.Assigned} troops\n{AntPool.Instance.Reserved} building";
         }
 
         private void ShowVictoryMessage()
         {
-            if (messageText == null) return;
-            messageText.text = "Wild Monster Defeated";
+            ToastManager.Show("Wild Monster Defeated");
         }
 
         private void ShowDefeatMessage()
         {
-            if (messageText == null) return;
-            messageText.text = "Defeat: All Buildings Destroyed!";
+            ToastManager.Show("All colony buildings have been destroyed.");
         }
 
         private void UpdateBossHealthText(float current, float max)
@@ -309,7 +352,7 @@ namespace AntColony.UI
         private void ShowBossDefeatedMessage()
         {
             if (bossHealthText != null) bossHealthText.text = "Boss Defeated!";
-            if (messageText != null) messageText.text = "Raid Complete: Boss Defeated!";
+            ToastManager.Show("Raid Complete: Boss Defeated!");
         }
     }
 }

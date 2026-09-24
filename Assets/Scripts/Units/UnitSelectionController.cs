@@ -30,6 +30,7 @@ namespace AntColony.Units
 
         private void Update()
         {
+            if (AntColony.UI.GameMenuController.BlocksInput) return;
             var mouse = Mouse.current;
             if (mouse == null || selectionManager == null) return;
             if (buildingPlacementController != null && buildingPlacementController.ConsumesPointerInput) return;
@@ -60,6 +61,7 @@ namespace AntColony.Units
             }
             // 자원노드를 클릭하면 일개미는 그 자리로 이동해 채집을 시작한다.
             var resourceNode = hit.collider.GetComponentInParent<ResourceNode>();
+            var deposit = hit.collider.GetComponentInParent<BuildingBase>();
 
             var cols = Mathf.CeilToInt(Mathf.Sqrt(selected.Count));
             var index = 0;
@@ -75,6 +77,12 @@ namespace AntColony.Units
 
                 // 장수/일개미도 SoldierAnt를 상속하므로 채집 지시를 먼저 판정한다.
                 var worker = selectable.GetComponent<WorkerAnt>();
+                if (worker != null && worker.TryReturnCargo(deposit))
+                {
+                    issuedMove = true;
+                    index++;
+                    continue;
+                }
                 if (worker != null && resourceNode != null && resourceNode.CanGather)
                 {
                     worker.CommandGather(resourceNode);

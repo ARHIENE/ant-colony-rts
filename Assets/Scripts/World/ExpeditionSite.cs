@@ -25,6 +25,7 @@ namespace AntColony.World
         public BossHealth Boss { get; private set; }
         public ExpeditionTransport Visitor { get; internal set; }
         public bool Cleared { get; private set; }
+        public bool RewardsClaimed { get; internal set; }
         public ConquestDisposition Disposition { get; private set; }
         public AnnexedSettlement Settlement { get; private set; }
         public SettlementDefense Defense { get; private set; }
@@ -47,6 +48,7 @@ namespace AntColony.World
         private NavMeshData navData;
         private NavMeshDataInstance navInstance;
         private float growthTimer;
+        internal float GrowthTimer { get => growthTimer; set => growthTimer = value; }
 
         public void Initialize(string title, string faction, Color color, Vector2 mapPosition, ExpeditionSiteKind kind, int difficulty,
             EnemyColony colonyTemplate, BossHealth bossTemplate, EnemyCommander guardTemplate)
@@ -147,6 +149,18 @@ namespace AntColony.World
             Defense?.RescuePrisoners();
             return true;
         }
+
+        // 저장 복원 전용. 편입/상실 상태에 필요한 컴포넌트를 붙이되 구출/보상 같은 부수 효과는 실행하지 않는다.
+        internal void RestoreState(bool cleared, ConquestDisposition disposition)
+        {
+            Cleared = cleared;
+            Disposition = disposition;
+            if (disposition != ConquestDisposition.Annexed && disposition != ConquestDisposition.Lost) return;
+            if (Settlement == null) Settlement = gameObject.AddComponent<AnnexedSettlement>();
+            if (Defense == null) Defense = gameObject.AddComponent<SettlementDefense>();
+        }
+
+        internal ResourceNode[] SiteResourceNodes => resourceNodes;
 
         internal void LoseSettlement()
         {

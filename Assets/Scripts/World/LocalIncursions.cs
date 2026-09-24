@@ -14,15 +14,18 @@ namespace AntColony.World
         [SerializeField] private float minimumDelay = 300f;
         [SerializeField] private float maximumDelay = 480f;
         private float remaining;
+        internal float SavedTimer { get => remaining; set => remaining = value; }
         private readonly List<WildMonster> visitors = new List<WildMonster>();
         public IReadOnlyList<WildMonster> Visitors => visitors;
-        private void Start() => remaining = Random.Range(minimumDelay, maximumDelay);
+        // 난이도는 방문 간격만 바꾼다. Normal이면 배수 1.0이라 기존과 같다.
+        private float NextDelay() => Random.Range(minimumDelay, maximumDelay) * AntColony.Core.DifficultyRuntime.IntervalScale;
+        private void Start() => remaining = NextDelay();
         private void Update()
         {
             remaining -= Time.deltaTime;
             if (remaining > 0) return;
             TrySpawn();
-            remaining = Random.Range(minimumDelay, maximumDelay);
+            remaining = NextDelay();
         }
 
         public bool TrySpawn()
@@ -49,6 +52,7 @@ namespace AntColony.World
                     visitor.gameObject.SetActive(true);
                     visitors.Add(visitor);
                 }
+                AntColony.UI.ToastManager.Show("Intruders approaching the home colony!");
                 return true;
             }
             return false;

@@ -15,6 +15,8 @@ namespace AntColony.World
     {
         private readonly List<CommanderAnt> crew = new List<CommanderAnt>();
         private readonly Dictionary<ResourceType, int> cargo = new Dictionary<ResourceType, int>();
+        public List<EquipmentItem> EquipmentCargo { get; internal set; } = new List<EquipmentItem>();
+        public bool BlueprintCargo { get; internal set; }
         private Vector3 homePosition;
         public IReadOnlyList<CommanderAnt> Crew => crew;
         public ExpeditionState State { get; private set; }
@@ -23,7 +25,7 @@ namespace AntColony.World
         public TransportRoute Route { get; private set; }
         public bool HasCargo
         {
-            get { foreach (var amount in cargo.Values) if (amount > 0) return true; return false; }
+            get { foreach (var amount in cargo.Values) if (amount > 0) return true; return BlueprintCargo || EquipmentCargo.Count > 0; }
         }
         // 장수 자신도 적재량 1을 차지한다.
         public int Capacity => Aircraft ? 100 : 40;
@@ -45,6 +47,38 @@ namespace AntColony.World
         }
 
         public int GetCargo(ResourceType type) => cargo.TryGetValue(type, out var amount) ? amount : 0;
+
+        internal Vector3 HomePosition => homePosition;
+
+        // 저장 복원 전용. 승무원은 CommanderAnt 복원이 끝난 뒤 RestoreCrew로 따로 넣는다.
+        internal void RestoreState(ExpeditionState state, float remaining, ExpeditionSite site,
+            Vector3 position, Vector3 home, int food, int soil, int special)
+        {
+            homePosition = home;
+            State = state;
+            Remaining = Mathf.Max(0f, remaining);
+            Site = site;
+            if (site != null && (state == ExpeditionState.Outbound || state == ExpeditionState.Deployed)) site.Visitor = this;
+            transform.position = position;
+            cargo[ResourceType.Food] = Mathf.Max(0, food);
+            cargo[ResourceType.Soil] = Mathf.Max(0, soil);
+            cargo[ResourceType.Special] = Mathf.Max(0, special);
+        }
+
+        // 저장 복원 전용. 이동 중/귀환 중이면 탑승 상태(렌더러 끔)로, 현지 전개 중이면 내려 둔 상태로 되돌린다.
+        internal void RestoreCrew(List<CommanderAnt> passengers)
+        {
+            crew.Clear();
+            if (passengers == null) return;
+            foreach (var c in passengers)
+            {
+                if (c == null) continue;
+                crew.Add(c);
+                c.Transport = this;
+            }
+            if (State == ExpeditionState.Deployed) LandCrew();
+            else foreach (var c in crew) if (c != null) c.SetEmbarked(true, Position);
+        }
 
         public bool TryBoard(IReadOnlyList<CommanderAnt> passengers)
         {
@@ -127,7 +161,7 @@ namespace AntColony.World
         {
             if (!isActiveAndEnabled || State != ExpeditionState.Deployed) return false;
             foreach (var c in crew)
-                if (c != null && (!c.isActiveAndEnabled || c.IsCarrying || c.IsConstructing
+                if (c != null && !c.IsDead && (!c.isActiveAndEnabled || c.IsCarrying || c.IsConstructing
                     || Vector3.Distance(c.Position, Position) > 8)) return false;
             if (Site != null && Site.Settlement != null)
             {
@@ -191,7 +225,7 @@ namespace AntColony.World
         {
             for (var i = 0; i < crew.Count; i++)
             {
-                if (crew[i] == null) continue;
+                if (crew[i] == null || crew[i].IsDead) continue;
                 var candidate = Position + new Vector3(3 + i % 4, 0, i / 4 * 1.5f);
                 if (NavMesh.SamplePosition(candidate, out var hit, 6, NavMesh.AllAreas)) candidate = hit.position;
                 crew[i].SetEmbarked(false, candidate);
@@ -216,6 +250,26 @@ namespace AntColony.World
                 resources.Add(type, GetCargo(type));
                 cargo[type] = GetCargo(type) - (resources.GetAmount(type) - before);
             }
+            if (BlueprintCargo && CampaignResearch.Instance != null) { CampaignResearch.Instance.AcquireBlueprint(); BlueprintCargo = false; }
+            if (EquipmentInventory.Instance != null)
+            {
+                foreach (var item in EquipmentCargo) EquipmentInventory.Instance.Add(item);
+                EquipmentCargo.Clear();
+            }
+        }
+
+        public bool TryCollectRewards()
+        {
+            if (State != ExpeditionState.Deployed || Site == null || !Site.Cleared || Site.RewardsClaimed
+                || Site.Kind == ExpeditionSiteKind.ResourceSite) return false;
+            var ready = false;
+            foreach (var c in crew) if (c != null && c.CanReceiveOrders && c.HasTroops && (c.Position - Position).sqrMagnitude <= 64) ready = true;
+            if (!ready) return false;
+            Site.RewardsClaimed = true;
+            if (Site.Kind == ExpeditionSiteKind.BossNest) BlueprintCargo = true;
+            var count = Site.Kind == ExpeditionSiteKind.BossNest ? 1 : Random.Range(1, 3);
+            for (var i = 0; i < count; i++) EquipmentCargo.Add(EquipmentItem.Random(Site.Difficulty));
+            return true;
         }
 
         protected override void OnDisable()

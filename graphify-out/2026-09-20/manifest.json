@@ -1,0 +1,716 @@
+{
+  ".claude/settings.json": {
+    "mtime": 1789175491.8602545,
+    "seen": 1789214949.9838834,
+    "ast_hash": "da672bc651e696883efc35c7427d76b6",
+    "semantic_hash": ""
+  },
+  "AgentScripts/AirborneChecks.cs": {
+    "mtime": 1789401578.7609675,
+    "seen": 1789401588.0408099,
+    "ast_hash": "4b8dfa772aa097df1fb28f4526d7102f",
+    "semantic_hash": ""
+  },
+  "AgentScripts/CommanderChecks.cs": {
+    "mtime": 1789401578.761965,
+    "seen": 1789401588.0408099,
+    "ast_hash": "904ed3ff2105bccf6fe078fc4e887b4d",
+    "semantic_hash": ""
+  },
+  "AgentScripts/CommanderEdgeChecks.cs": {
+    "mtime": 1789401578.7629664,
+    "seen": 1789401588.0408099,
+    "ast_hash": "72ef271d096de236f5a60cfd96fdc157",
+    "semantic_hash": ""
+  },
+  "AgentScripts/FishingChecks.cs": {
+    "mtime": 1789401578.7685056,
+    "seen": 1789401588.0408099,
+    "ast_hash": "2c1abb1d414d9264581fb6d6ecaa566d",
+    "semantic_hash": ""
+  },
+  "AgentScripts/InvasionChecks.cs": {
+    "mtime": 1789401578.7695067,
+    "seen": 1789401588.0408099,
+    "ast_hash": "6621da2acc10884f17a95834d0783e4e",
+    "semantic_hash": ""
+  },
+  "AgentScripts/RaidChecks.cs": {
+    "mtime": 1789401578.7705057,
+    "seen": 1789401588.0408099,
+    "ast_hash": "401033072b632858a8cefa0bee270227",
+    "semantic_hash": ""
+  },
+  "AgentScripts/RegressionChecks.cs": {
+    "mtime": 1789401578.7715044,
+    "seen": 1789401588.0408099,
+    "ast_hash": "f2999b63a2b0622738033ca2318d5efa",
+    "semantic_hash": ""
+  },
+  "AgentScripts/RunChecks.cs": {
+    "mtime": 1789401578.772509,
+    "seen": 1789401588.0408099,
+    "ast_hash": "6e59e31a4715ce45008fa95adb4de868",
+    "semantic_hash": ""
+  },
+  "AgentScripts/SceneInvasionChecks.cs": {
+    "mtime": 1789401578.774014,
+    "seen": 1789401588.0408099,
+    "ast_hash": "55cbf832c0eba21f8b9a89ca63c947f7",
+    "semantic_hash": ""
+  },
+  "AgentScripts/SetupCommanders.cs": {
+    "mtime": 1789401578.774014,
+    "seen": 1789401588.0408099,
+    "ast_hash": "940faddaf72d8876fd6fee3088e90aa3",
+    "semantic_hash": ""
+  },
+  "AgentScripts/SetupFishing.cs": {
+    "mtime": 1789401578.7755375,
+    "seen": 1789401588.0408099,
+    "ast_hash": "49c75822dded8639fd60bae675204b17",
+    "semantic_hash": ""
+  },
+  "AgentScripts/SetupInvasion.cs": {
+    "mtime": 1789401578.7755375,
+    "seen": 1789401588.0408099,
+    "ast_hash": "45441d1513bbe62857e43c8b3210ff02",
+    "semantic_hash": ""
+  },
+  "AgentScripts/SetupRaid.cs": {
+    "mtime": 1789401578.7770712,
+    "seen": 1789401588.0408099,
+    "ast_hash": "8a21e40632920000fc887af5d84959e0",
+    "semantic_hash": ""
+  },
+  "Assets/Editor/CombatRolePrototypeBootstrapper.cs": {
+    "mtime": 1789557706.6142275,
+    "seen": 1789557994.919421,
+    "ast_hash": "b7f7f271cee14e2d0dbaecebf350450d",
+    "semantic_hash": ""
+  },
+  "Assets/Editor/DataAssetBootstrapper.cs": {
+    "mtime": 1788694533.7348683,
+    "seen": 1789214949.9838834,
+    "ast_hash": "914ff62db3bb57d4b0b3bb0e7be1285c",
+    "semantic_hash": ""
+  },
+  "Assets/Editor/FarmPrototypeBootstrapper.cs": {
+    "mtime": 1789401578.7836702,
+    "seen": 1789401588.0408099,
+    "ast_hash": "5338e89ab76296a92ae8b5ddeeb0a29d",
+    "semantic_hash": ""
+  },
+  "Assets/Editor/MapGeneratorEditor.cs": {
+    "mtime": 1788447163.3494394,
+    "seen": 1789214949.9838834,
+    "ast_hash": "502ab607ab9c2cca0a5cb73b233edbd3",
+    "semantic_hash": ""
+  },
+  "Assets/Editor/NavMeshBakeMenu.cs": {
+    "mtime": 1788360276.6228566,
+    "seen": 1789214949.9838834,
+    "ast_hash": "4be4d36d35ea480461fd0ae472c2d7a4",
+    "semantic_hash": ""
+  },
+  "Assets/Editor/SnapToTerrainMenu.cs": {
+    "mtime": 1789401578.7867165,
+    "seen": 1789401588.0408099,
+    "ast_hash": "770ab76c959ba526577c289004948226",
+    "semantic_hash": ""
+  },
+  "Assets/Scripts/Boss/AoE/BossCircleAoE.cs": {
+    "mtime": 1789401578.8880036,
+    "seen": 1789401588.0408099,
+    "ast_hash": "72b003be9dbd8342b181aba75d74f3aa",
+    "semantic_hash": ""
+  },
+  "Assets/Scripts/Boss/AoE/BossConeAoE.cs": {
+    "mtime": 1789401578.889006,
+    "seen": 1789401588.0408099,
+    "ast_hash": "38c42ccea42201f06ad7c0268f30ff20",
+    "semantic_hash": ""
+  },
+  "Assets/Scripts/Boss/AoE/BossLineAoE.cs": {
+    "mtime": 1789401578.889006,
+    "seen": 1789401588.0408099,
+    "ast_hash": "3c38780fe546e58f0052a9cf34c64161",
+    "semantic_hash": ""
+  },
+  "Assets/Scripts/Boss/BossBasicPatternLoop.cs": {
+    "mtime": 1789401578.890511,
+    "seen": 1789401588.0408099,
+    "ast_hash": "ccfc091ba91096548338d60517ab8264",
+    "semantic_hash": ""
+  },
+  "Assets/Scripts/Boss/BossHealth.cs": {
+    "mtime": 1789905652.8872497,
+    "seen": 1789905754.1354508,
+    "ast_hash": "cb3e6407897b2a7071430a962f4f4bfe",
+    "semantic_hash": ""
+  },
+  "Assets/Scripts/Boss/BossPatternSequenceSimple.cs": {
+    "mtime": 1789401578.8935432,
+    "seen": 1789401588.0408099,
+    "ast_hash": "3f4d80677bbb9878be31767e8f06418e",
+    "semantic_hash": ""
+  },
+  "Assets/Scripts/Boss/Telegraph/GroundTelegraphCircle.cs": {
+    "mtime": 1789401578.8955576,
+    "seen": 1789401588.0408099,
+    "ast_hash": "a49257b5072151f606b261a2f463f985",
+    "semantic_hash": ""
+  },
+  "Assets/Scripts/Boss/Telegraph/GroundTelegraphLine.cs": {
+    "mtime": 1789401578.8955576,
+    "seen": 1789401588.0408099,
+    "ast_hash": "bca9be8d484c34938a8841cf32d9f6b4",
+    "semantic_hash": ""
+  },
+  "Assets/Scripts/Boss/Telegraph/GroundTelegraphSector.cs": {
+    "mtime": 1789401578.8971932,
+    "seen": 1789401588.0408099,
+    "ast_hash": "c48767fb0bd435e6b72960ded9b094f3",
+    "semantic_hash": ""
+  },
+  "Assets/Scripts/Buildings/Barracks.cs": {
+    "mtime": 1789401578.8987153,
+    "seen": 1789401588.0408099,
+    "ast_hash": "4aee115304c4ad861e70e40579b09e62",
+    "semantic_hash": ""
+  },
+  "Assets/Scripts/Buildings/BuildingBase.cs": {
+    "mtime": 1789652279.223702,
+    "seen": 1789736730.5265036,
+    "ast_hash": "65e6a384d2a2b98b1facf73c8fc3e135",
+    "semantic_hash": ""
+  },
+  "Assets/Scripts/Buildings/BuildingConstructionSite.cs": {
+    "mtime": 1789401578.9002223,
+    "seen": 1789401588.0408099,
+    "ast_hash": "466cbe92671945bcdec18fe08c5642fb",
+    "semantic_hash": ""
+  },
+  "Assets/Scripts/Buildings/BuildingPlacementController.cs": {
+    "mtime": 1789652272.0365405,
+    "seen": 1789736730.5265036,
+    "ast_hash": "5cd96dd77e9d4ce1cb2ac12d31f104b1",
+    "semantic_hash": ""
+  },
+  "Assets/Scripts/Buildings/DigSite.cs": {
+    "mtime": 1788355694.4472804,
+    "seen": 1789214949.9838834,
+    "ast_hash": "a640d012ecb64d7ee141a02d3aba3169",
+    "semantic_hash": ""
+  },
+  "Assets/Scripts/Buildings/QueenChamber.cs": {
+    "mtime": 1789401578.902733,
+    "seen": 1789401588.0408099,
+    "ast_hash": "6d1567f6f388934f10f5343add328dad",
+    "semantic_hash": ""
+  },
+  "Assets/Scripts/Buildings/ResearchLab.cs": {
+    "mtime": 1789822933.6476977,
+    "seen": 1789823689.8288746,
+    "ast_hash": "407fe0ff45234841c6ab4ab846e625db",
+    "semantic_hash": ""
+  },
+  "Assets/Scripts/Buildings/Storage.cs": {
+    "mtime": 1789401578.90474,
+    "seen": 1789401588.0408099,
+    "ast_hash": "c2876013c8c9e27d429e16822192a5fd",
+    "semantic_hash": ""
+  },
+  "Assets/Scripts/Camera/IsometricCameraController.cs": {
+    "mtime": 1789652254.4120038,
+    "seen": 1789736730.5265036,
+    "ast_hash": "1376a8761b8cc42f291292b18b05c3de",
+    "semantic_hash": ""
+  },
+  "Assets/Scripts/Core/AntPool.cs": {
+    "mtime": 1789401578.9057403,
+    "seen": 1789401588.0408099,
+    "ast_hash": "aba8b54f4ce9c31725881fe19bf64ef3",
+    "semantic_hash": ""
+  },
+  "Assets/Scripts/Core/CombatTargeting.cs": {
+    "mtime": 1789652299.0170035,
+    "seen": 1789736730.5265036,
+    "ast_hash": "d9e970af2259a749d066d18e6b6170ae",
+    "semantic_hash": ""
+  },
+  "Assets/Scripts/Core/CommanderRoster.cs": {
+    "mtime": 1789403342.8868406,
+    "seen": 1789403351.2547119,
+    "ast_hash": "c7d3d723256ebe288ac79cab68fbcb75",
+    "semantic_hash": ""
+  },
+  "Assets/Scripts/Core/GameManager.cs": {
+    "mtime": 1789401578.9133456,
+    "seen": 1789401588.0408099,
+    "ast_hash": "a36f0fa8f5422f749f7595013373b3a3",
+    "semantic_hash": ""
+  },
+  "Assets/Scripts/Core/IDamageable.cs": {
+    "mtime": 1788355638.5821812,
+    "seen": 1789214949.9838834,
+    "ast_hash": "69d1eee93b1671216af1d562d0c8b4f3",
+    "semantic_hash": ""
+  },
+  "Assets/Scripts/Core/ObjectPool.cs": {
+    "mtime": 1789401578.9143455,
+    "seen": 1789401588.0408099,
+    "ast_hash": "40c53f3be720689bc8c86b1e6a75eaea",
+    "semantic_hash": ""
+  },
+  "Assets/Scripts/Core/ResourceManager.cs": {
+    "mtime": 1789401578.9153419,
+    "seen": 1789401588.0408099,
+    "ast_hash": "07f0819ba724b32ba05dbf8f5832d9ea",
+    "semantic_hash": ""
+  },
+  "Assets/Scripts/Core/UpkeepManager.cs": {
+    "mtime": 1789401578.9163423,
+    "seen": 1789401588.0408099,
+    "ast_hash": "61788ec5a6ec1c6232d22eb4f4a4797c",
+    "semantic_hash": ""
+  },
+  "Assets/Scripts/Data/BuildingData.cs": {
+    "mtime": 1789652263.2361717,
+    "seen": 1789736730.5265036,
+    "ast_hash": "ab63687a3dbae1eb323cb60e7ea255a8",
+    "semantic_hash": ""
+  },
+  "Assets/Scripts/Data/CommanderRank.cs": {
+    "mtime": 1789401578.9188497,
+    "seen": 1789401588.0408099,
+    "ast_hash": "c9a50bd0318242bb08b3fa1695414b60",
+    "semantic_hash": ""
+  },
+  "Assets/Scripts/Data/ResourceType.cs": {
+    "mtime": 1789401578.9203842,
+    "seen": 1789401588.0408099,
+    "ast_hash": "9c4576ec896d3b7a84fc12f086775a19",
+    "semantic_hash": ""
+  },
+  "Assets/Scripts/Data/UnitData.cs": {
+    "mtime": 1788694531.0604572,
+    "seen": 1789214949.9838834,
+    "ast_hash": "1f67e2fb40f7cb31abeaa05c30ed6910",
+    "semantic_hash": ""
+  },
+  "Assets/Scripts/Map/MapGenerator.cs": {
+    "mtime": 1789401578.9219024,
+    "seen": 1789401588.0408099,
+    "ast_hash": "8a0ca5723c143f9136ff6c47124a706e",
+    "semantic_hash": ""
+  },
+  "Assets/Scripts/UI/HUDController.cs": {
+    "mtime": 1789652681.0178967,
+    "seen": 1789736730.5265036,
+    "ast_hash": "ffefb46d578fcdf5b314c59ca2cfc14d",
+    "semantic_hash": ""
+  },
+  "Assets/Scripts/UI/SelectedUnitPanel.cs": {
+    "mtime": 1789646356.5076401,
+    "seen": 1789648116.1600952,
+    "ast_hash": "2a6b29f86a1bb02fdc0c051b55fcb9b6",
+    "semantic_hash": ""
+  },
+  "Assets/Scripts/Units/AntUnitBase.cs": {
+    "mtime": 1789557669.6379786,
+    "seen": 1789557994.919421,
+    "ast_hash": "27b714c99a6b4883064ed01d9196ac80",
+    "semantic_hash": ""
+  },
+  "Assets/Scripts/Units/AttackMoveController.cs": {
+    "mtime": 1789401578.9269135,
+    "seen": 1789401588.0423365,
+    "ast_hash": "217431046a29bc918d87fefa87646092",
+    "semantic_hash": ""
+  },
+  "Assets/Scripts/Units/CommanderAnt.cs": {
+    "mtime": 1789877360.7007747,
+    "seen": 1789902774.6444736,
+    "ast_hash": "092a6d39937b5ee0634aa9d4842e4418",
+    "semantic_hash": ""
+  },
+  "Assets/Scripts/Units/FlyingAnt.cs": {
+    "mtime": 1789401578.9308321,
+    "seen": 1789401588.0423365,
+    "ast_hash": "17eafcf6f2264dc9ccfe877c7b651aa5",
+    "semantic_hash": ""
+  },
+  "Assets/Scripts/Units/MoveMarker.cs": {
+    "mtime": 1789401578.9328415,
+    "seen": 1789401588.0423365,
+    "ast_hash": "05b222c39c61313d038001705238bc92",
+    "semantic_hash": ""
+  },
+  "Assets/Scripts/Units/SelectableObject.cs": {
+    "mtime": 1788586345.6543646,
+    "seen": 1789214949.9838834,
+    "ast_hash": "e398555af0873cafc9576531144d5a1b",
+    "semantic_hash": ""
+  },
+  "Assets/Scripts/Units/SelectionManager.cs": {
+    "mtime": 1789401578.933851,
+    "seen": 1789401588.0423365,
+    "ast_hash": "10a640da11f7c60c83af04b84667cc82",
+    "semantic_hash": ""
+  },
+  "Assets/Scripts/Units/SoldierAnt.cs": {
+    "mtime": 1789401578.934847,
+    "seen": 1789401588.0423365,
+    "ast_hash": "ef5986948513946668f0c287e745cd57",
+    "semantic_hash": ""
+  },
+  "Assets/Scripts/Units/UnitSelectionController.cs": {
+    "mtime": 1789401578.9358528,
+    "seen": 1789401588.0423365,
+    "ast_hash": "f1c8e404b79b22909e9ff41a641788c0",
+    "semantic_hash": ""
+  },
+  "Assets/Scripts/Units/WorkerAnt.cs": {
+    "mtime": 1789877363.824333,
+    "seen": 1789902774.6444736,
+    "ast_hash": "7aa340c5dbbfa51c13c309066f36a7be",
+    "semantic_hash": ""
+  },
+  "Assets/Scripts/World/ColonyInvasion.cs": {
+    "mtime": 1789403342.8924887,
+    "seen": 1789403351.2547119,
+    "ast_hash": "141e59c9842056fa8b4a0d82ece852a6",
+    "semantic_hash": ""
+  },
+  "Assets/Scripts/World/EnemyColony.cs": {
+    "mtime": 1789652240.0241573,
+    "seen": 1789736730.5265036,
+    "ast_hash": "18bd25268ef13e998e1f9decc7c6b470",
+    "semantic_hash": ""
+  },
+  "Assets/Scripts/World/ResourceNode.cs": {
+    "mtime": 1789877366.9524367,
+    "seen": 1789902774.6444736,
+    "ast_hash": "ddb2c48562b39de3ea897efe8fce9324",
+    "semantic_hash": ""
+  },
+  "Assets/Scripts/World/ResourceNodeStatus.cs": {
+    "mtime": 1789401578.9433348,
+    "seen": 1789401588.0423365,
+    "ast_hash": "fd1498f635f129a407cac665babecf6a",
+    "semantic_hash": ""
+  },
+  "Assets/Scripts/World/WildMonster.cs": {
+    "mtime": 1789877376.2984915,
+    "seen": 1789902774.6444736,
+    "ast_hash": "c3bb98673b8f685b624da03565c5b9f3",
+    "semantic_hash": ""
+  },
+  "Assets/TutorialInfo/Scripts/Editor/ReadmeEditor.cs": {
+    "mtime": 1738264777.0,
+    "seen": 1789214949.9838834,
+    "ast_hash": "495d312368d1780508d6f46f0b35705c",
+    "semantic_hash": ""
+  },
+  "Assets/TutorialInfo/Scripts/Readme.cs": {
+    "mtime": 1738264777.0,
+    "seen": 1789214949.9838834,
+    "ast_hash": "927655e7fd40aab43030236dee149080",
+    "semantic_hash": ""
+  },
+  "Packages/manifest.json": {
+    "mtime": 1789401578.9499404,
+    "seen": 1789401588.0423365,
+    "ast_hash": "e47295647e26247bfb6536e99f4926f2",
+    "semantic_hash": ""
+  },
+  "Packages/packages-lock.json": {
+    "mtime": 1789401578.9504466,
+    "seen": 1789401588.0423365,
+    "ast_hash": "4b90d599244bc06077945925107ca1b9",
+    "semantic_hash": ""
+  },
+  "ProjectSettings/Packages/com.unity.ai.assistant/Settings.json": {
+    "mtime": 1788352507.709512,
+    "seen": 1789214949.9838834,
+    "ast_hash": "48991ff28a42215e99a89971c967f58d",
+    "semantic_hash": ""
+  },
+  "ProjectSettings/SceneTemplateSettings.json": {
+    "mtime": 1788356151.590651,
+    "seen": 1789214949.9838834,
+    "ast_hash": "eeb26e313b89cd9334b828428a4847ef",
+    "semantic_hash": ""
+  },
+  "AGENTS.md": {
+    "mtime": 1789484664.115027,
+    "seen": 1789557994.919421,
+    "ast_hash": "c0df3cc6f61964c4ba05ab27f6dee278",
+    "semantic_hash": ""
+  },
+  "CLAUDE.md": {
+    "mtime": 1789482272.0705607,
+    "seen": 1789482720.0946584,
+    "ast_hash": "8a183934000e56a65cdc8ef1b25cdbef",
+    "semantic_hash": ""
+  },
+  "ProjectSettings/ProjectVersion.txt": {
+    "mtime": 1788352356.0636897,
+    "seen": 1789214949.9838834,
+    "ast_hash": "6b4a012f7e2682a606c892a48cc06689",
+    "semantic_hash": ""
+  },
+  "README.md": {
+    "mtime": 1789906422.475248,
+    "seen": 1789906829.7313967,
+    "ast_hash": "e51e12c80dd5cdc967478f6f43cf1e78",
+    "semantic_hash": ""
+  },
+  "changelog.md": {
+    "mtime": 1789903504.2935321,
+    "seen": 1789905754.1354508,
+    "ast_hash": "ca0a8f5cb5065ebca008913571f5f07a",
+    "semantic_hash": ""
+  },
+  "log.md": {
+    "mtime": 1789903459.784597,
+    "seen": 1789905754.1354508,
+    "ast_hash": "3bf0b198c24afea81fd8ca9e1ca714a9",
+    "semantic_hash": ""
+  },
+  "Assets/TutorialInfo/Icons/URP.png": {
+    "mtime": 1738264777.0,
+    "seen": 1789214949.9838834,
+    "ast_hash": "6d2f425093f43ca4866c76d333895ab8",
+    "semantic_hash": ""
+  },
+  ".codex/hooks.json": {
+    "mtime": 1789220366.5479782,
+    "seen": 1789299830.1689003,
+    "ast_hash": "0baaac1f561ad26fee6658e12f46ca7d",
+    "semantic_hash": ""
+  },
+  "AgentScripts/CommanderProgressionChecks.cs": {
+    "mtime": 1789483205.3778782,
+    "seen": 1789483256.8024871,
+    "ast_hash": "b2ec0eea5c5aeb40cbe2bfb5a476a3b8",
+    "semantic_hash": ""
+  },
+  "Assets/Scripts/Units/CommanderProgression.cs": {
+    "mtime": 1789401578.929826,
+    "seen": 1789401588.0423365,
+    "ast_hash": "ddffa9eb1a3251662ea9e4d86e1db44e",
+    "semantic_hash": ""
+  },
+  "AgentScripts/SupportChecks.cs": {
+    "mtime": 1789401578.7785976,
+    "seen": 1789401588.0408099,
+    "ast_hash": "8b46bbb7bc27dff963edbeced10111a8",
+    "semantic_hash": ""
+  },
+  "graphify-out/memory/query_20260913_155928_b215a787_read_log_md_and_continue_task.md": {
+    "mtime": 1789315168.655887,
+    "seen": 1789317668.8340054,
+    "ast_hash": "7d76b21af26a6d28f549d1fb3881a9bb",
+    "semantic_hash": ""
+  },
+  "AgentScripts/EnemyColonyPlacementChecks.cs": {
+    "mtime": 1789401578.7674968,
+    "seen": 1789401588.0408099,
+    "ast_hash": "5d647ea09dc3f841f1599d2c99616283",
+    "semantic_hash": ""
+  },
+  "AgentScripts/EnemyColonyEconomyChecks.cs": {
+    "mtime": 1789401578.7644722,
+    "seen": 1789401588.0408099,
+    "ast_hash": "0ab0633856602331e07808361e23ba6e",
+    "semantic_hash": ""
+  },
+  "AgentScripts/CommanderAcquisitionChecks.cs": {
+    "mtime": 1789403342.8828473,
+    "seen": 1789403351.2547119,
+    "ast_hash": "42ff2063e9df8c17f88b4bb61fd0f2d2",
+    "semantic_hash": ""
+  },
+  "Assets/Scripts/Buildings/NurseryChamber.cs": {
+    "mtime": 1789481345.2015414,
+    "seen": 1789481619.848339,
+    "ast_hash": "8c8e3b7ff3dcecb7e440bdcb91b8fa42",
+    "semantic_hash": ""
+  },
+  "Assets/Scripts/Buildings/PrisonerCamp.cs": {
+    "mtime": 1789481898.7348614,
+    "seen": 1789482720.0946584,
+    "ast_hash": "3c8aa2c38dabdec3b166d7de83e9f5c3",
+    "semantic_hash": ""
+  },
+  "Assets/Scripts/Buildings/ScoutPost.cs": {
+    "mtime": 1789481325.1870131,
+    "seen": 1789481619.848339,
+    "ast_hash": "bacd441648ae6e9c41357fd273fa0104",
+    "semantic_hash": ""
+  },
+  "Assets/Scripts/Units/CommanderTraits.cs": {
+    "mtime": 1789403342.8904457,
+    "seen": 1789403351.2547119,
+    "ast_hash": "01caf0a8be39a08013a1b11fe08a0b2f",
+    "semantic_hash": ""
+  },
+  "Assets/Scripts/World/EnemyCommander.cs": {
+    "mtime": 1789403342.8924887,
+    "seen": 1789403351.2547119,
+    "ast_hash": "771bd011be6eeed47f130b13ba7e0ebd",
+    "semantic_hash": ""
+  },
+  "AgentScripts/AcquisitionBuildingChecks.cs": {
+    "mtime": 1789483490.354416,
+    "seen": 1789483638.991144,
+    "ast_hash": "3d4267b26477a8c8d67c6a128373c258",
+    "semantic_hash": ""
+  },
+  "Assets/Editor/CommanderAcquisitionBootstrapper.cs": {
+    "mtime": 1789481905.7718146,
+    "seen": 1789482720.0946584,
+    "ast_hash": "ba117b9185520b47eb7571a410c3366e",
+    "semantic_hash": ""
+  },
+  "Assets/Scripts/UI/CommanderAcquisitionPanel.cs": {
+    "mtime": 1789482575.1477673,
+    "seen": 1789482720.0946584,
+    "ast_hash": "e402ae713d4f008286861303cd6e1254",
+    "semantic_hash": ""
+  },
+  "AgentScripts/AcquisitionSetupChecks.cs": {
+    "mtime": 1789481927.2717023,
+    "seen": 1789482720.0936604,
+    "ast_hash": "3c15ff15f5449f95e1ee915629a2fc29",
+    "semantic_hash": ""
+  },
+  "AgentScripts/LabUpgradeChecks.cs": {
+    "mtime": 1789558154.7487586,
+    "seen": 1789558583.182031,
+    "ast_hash": "87a524395e5ecb07e05bbdce4b73c264",
+    "semantic_hash": ""
+  },
+  "AgentScripts/ActiveSkillChecks.cs": {
+    "mtime": 1789560673.9924037,
+    "seen": 1789560790.5747943,
+    "ast_hash": "bd1d019f0c5da7b880598560a54ac3e6",
+    "semantic_hash": ""
+  },
+  "Assets/Scripts/Units/CommanderSkills.cs": {
+    "mtime": 1789560441.8687534,
+    "seen": 1789560536.5087929,
+    "ast_hash": "6e48d613058e3cc0b23a799f54863753",
+    "semantic_hash": ""
+  },
+  "AgentScripts/SaveProgressionCapture.cs": {
+    "mtime": 1789561338.2102401,
+    "seen": 1789648116.1600952,
+    "ast_hash": "e6cdc7f22288e3c25a0fb4a485a8101b",
+    "semantic_hash": ""
+  },
+  "AgentScripts/WorkProficiencyLootChecks.cs": {
+    "mtime": 1789906586.5288005,
+    "seen": 1789906829.7313967,
+    "ast_hash": "2611c91eb8827784a74d69283fa8f249",
+    "semantic_hash": ""
+  },
+  "Assets/Scripts/Boss/BossLoot.cs": {
+    "mtime": 1789648133.4627073,
+    "seen": 1789648353.222205,
+    "ast_hash": "835e53fadcd888bc90b9f20ac4abf7eb",
+    "semantic_hash": ""
+  },
+  "Assets/Scripts/Units/CommanderWorkProficiency.cs": {
+    "mtime": 1789646337.334851,
+    "seen": 1789648116.1600952,
+    "ast_hash": "5b956f94a330eb464eed83a14807e59b",
+    "semantic_hash": ""
+  },
+  "AgentScripts/WorldMapChecks.cs": {
+    "mtime": 1789905861.6245449,
+    "seen": 1789906266.3602047,
+    "ast_hash": "aa0eddea4a630a1ea7646197f569e256",
+    "semantic_hash": ""
+  },
+  "Assets/Editor/WorldMapBootstrapper.cs": {
+    "mtime": 1789652829.258785,
+    "seen": 1789736730.5265036,
+    "ast_hash": "b344195f7962e9a958e69a0bc727374f",
+    "semantic_hash": ""
+  },
+  "Assets/Scripts/Buildings/ScienceLab.cs": {
+    "mtime": 1789652056.2490628,
+    "seen": 1789736730.5265036,
+    "ast_hash": "a02f757ce3b481d70a284319504b383d",
+    "semantic_hash": ""
+  },
+  "Assets/Scripts/UI/WorldMapPanel.cs": {
+    "mtime": 1789877504.1111207,
+    "seen": 1789902774.6444736,
+    "ast_hash": "1596c15885bf579de6132c8e3aa9f346",
+    "semantic_hash": ""
+  },
+  "Assets/Scripts/World/ExpeditionSite.cs": {
+    "mtime": 1789905655.7023249,
+    "seen": 1789905754.1354508,
+    "ast_hash": "7ffddc6cfc4035313bc2b9878098fecf",
+    "semantic_hash": ""
+  },
+  "Assets/Scripts/World/ExpeditionTransport.cs": {
+    "mtime": 1789902544.0937994,
+    "seen": 1789902774.6444736,
+    "ast_hash": "c09d11a1635c3fc887dd767dc3b38105",
+    "semantic_hash": ""
+  },
+  "Assets/Scripts/World/LocalIncursions.cs": {
+    "mtime": 1789652045.9648008,
+    "seen": 1789736730.5265036,
+    "ast_hash": "ce9df7da2db87af8c523c5f4ece0afa2",
+    "semantic_hash": ""
+  },
+  "Assets/Scripts/World/WorldMapManager.cs": {
+    "mtime": 1789877373.1809,
+    "seen": 1789902774.6444736,
+    "ast_hash": "e5979f861f7b34b6a65f9f8f50a54498",
+    "semantic_hash": ""
+  },
+  "AgentScripts/AnnexedSettlementChecks.cs": {
+    "mtime": 1789902827.35406,
+    "seen": 1789902907.9237611,
+    "ast_hash": "8b714e66265437face9a745093fc57b9",
+    "semantic_hash": ""
+  },
+  "Assets/Scripts/World/AnnexedSettlement.cs": {
+    "mtime": 1789822917.5281181,
+    "seen": 1789823689.8288746,
+    "ast_hash": "430234559ea39aa512391b39ae726320",
+    "semantic_hash": ""
+  },
+  "AgentScripts/TransportRouteChecks.cs": {
+    "mtime": 1789875639.890875,
+    "seen": 1789876001.499641,
+    "ast_hash": "74ea573b66fcd6efa134068562f31f1b",
+    "semantic_hash": ""
+  },
+  "Assets/Scripts/World/TransportRoute.cs": {
+    "mtime": 1789875177.627544,
+    "seen": 1789876001.5006435,
+    "ast_hash": "93c9bfb287f5b4e48d0e2c0cc066b54f",
+    "semantic_hash": ""
+  },
+  "AgentScripts/SettlementDefenseChecks.cs": {
+    "mtime": 1789877988.6918297,
+    "seen": 1789902774.6444736,
+    "ast_hash": "bc1990792cf1da0ec44af494037f63a5",
+    "semantic_hash": ""
+  },
+  "Assets/Scripts/World/SettlementDefense.cs": {
+    "mtime": 1789877942.4155498,
+    "seen": 1789902774.6444736,
+    "ast_hash": "851373b4e09d56fc7b60b37e7422e39b",
+    "semantic_hash": ""
+  }
+}

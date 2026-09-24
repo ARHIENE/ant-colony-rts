@@ -1,4 +1,3 @@
-using System.Collections;
 using AntColony.Core;
 using AntColony.Data;
 using AntColony.Units;
@@ -20,6 +19,24 @@ namespace AntColony.Buildings
         private CommanderAnt target;
         // 대상 장수가 파괴되면 target은 Unity null이 되므로 진행 여부는 별도 플래그로 판단한다.
         private bool researching;
+        // 코루틴 대신 남은 시간을 들고 있어야 저장/복원이 가능하다.
+        private float remaining;
+        private bool researchingAttack;
+
+        internal float ResearchRemaining => researching ? remaining : 0f;
+        internal bool ResearchIsAttack => researchingAttack;
+
+        // 저장 복원 전용. 대상 장수가 없으면 아무것도 진행하지 않는다.
+        internal void RestoreState(CommanderAnt commander, bool attack, float savedRemaining)
+        {
+            if (commander == null || savedRemaining <= 0f || commander.LabUpgradeBusy) return;
+            target = commander;
+            researching = true;
+            researchingAttack = attack;
+            remaining = savedRemaining;
+            commander.LabUpgradeLab = this;
+        }
+
         public UnitRole Role => role;
         public int MaxLevel => maxLevel;
         public bool IsResearching => researching;
@@ -34,7 +51,23 @@ namespace AntColony.Buildings
         // 연구소 또는 대상 장수가 비활성화·파괴되면 즉시 중단한다. 완료되지 않고 비용은 환급되지 않는다(낚시 연구와 같은 규칙).
         public void CancelResearch()
         {
-            StopAllCoroutines();
+            remaining = 0f;
+            Release();
+        }
+
+        private void Update() => Tick(Time.deltaTime);
+
+        // 검사 스크립트가 시간을 직접 밀어 넣을 수 있도록 분리해 둔다.
+        public void Tick(float seconds)
+        {
+            if (!isActiveAndEnabled || !researching || !(seconds > 0f) || float.IsInfinity(seconds)) return;
+            // 대상 장수가 사라지면 완료하지 않고 그대로 중단한다(비용 환급 없음, 기존 규칙과 동일).
+            if (target == null || !target.isActiveAndEnabled) { CancelResearch(); return; }
+            remaining -= seconds;
+            if (remaining > 0f) return;
+            remaining = 0f;
+            target.CompleteLabUpgrade(researchingAttack, maxLevel);
+            AntColony.UI.ToastManager.Show(target.CommanderName + ": " + (researchingAttack ? "attack" : "armor") + " research complete.");
             Release();
         }
 
@@ -70,17 +103,10 @@ namespace AntColony.Buildings
 
             target = commander;
             researching = true;
+            researchingAttack = attack;
+            remaining = researchTimeSeconds;
             commander.LabUpgradeLab = this;
-            StartCoroutine(ResearchRoutine(attack));
             return true;
-        }
-
-        private IEnumerator ResearchRoutine(bool attack)
-        {
-            yield return new WaitForSeconds(researchTimeSeconds);
-            // 장수 쪽 비활성화가 이 코루틴을 멈추므로 여기까지 오면 대상은 유효하다.
-            target.CompleteLabUpgrade(attack, maxLevel);
-            Release();
         }
 
         private void Release()

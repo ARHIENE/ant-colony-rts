@@ -67,6 +67,7 @@ namespace AntColony.Units
 
         private void Update()
         {
+            if (AntColony.UI.GameMenuController.BlocksInput) { isMouseDown = isDragging = false; ShowSelectionBox(false); return; }
             selectedObjects.RemoveAll(item => item == null || !item.isActiveAndEnabled || !item.IsSelected);
             var mouse = Mouse.current;
             if (mouse == null) return;

@@ -35,6 +35,9 @@ public static class RegressionChecks
         var upkeep = Object.FindAnyObjectByType<UpkeepManager>();
         var upkeepEnabled = upkeep != null && upkeep.enabled;
         if (upkeep != null) upkeep.enabled = false;
+        // 메인 메뉴가 시뮬레이션을 멈춘 상태로 시작하므로 검사 동안만 시간을 흐르게 한다.
+        var timeScale = Time.timeScale;
+        Time.timeScale = 1;
         NavMeshDataInstance nav = default;
         try
         {
@@ -296,6 +299,7 @@ public static class RegressionChecks
             foreach (var asset in created)
                 if (asset != null && asset is not GameObject) Object.Destroy(asset);
             if (upkeep != null) upkeep.enabled = upkeepEnabled;
+            Time.timeScale = timeScale;
             if (rm != null)
             {
                 rm.TrySpend(Math.Max(0, rm.GetAmount(ResourceType.Food) - food), Math.Max(0, rm.GetAmount(ResourceType.Soil) - soil));

@@ -8,6 +8,9 @@ namespace AntColony.Core
         [SerializeField] private float cycleInterval = 30f;
         [SerializeField, Min(0)] private int foodPerAnt = 1;
         private float timer;
+        public int ConsecutiveFailures { get; private set; }
+        public void RestoreFailures(int value) => ConsecutiveFailures = Mathf.Max(0, value);
+        internal float SavedTimer { get => timer; set => timer = value; }
 
         private void Update()
         {
@@ -21,7 +24,16 @@ namespace AntColony.Core
         {
             var pool = AntPool.Instance;
             if (ResourceManager.Instance == null || pool == null) return;
-            if (ResourceManager.Instance.TrySpend(pool.Total * foodPerAnt, 0)) return;
+            if (ResourceManager.Instance.TrySpend(pool.Total * foodPerAnt, 0))
+            {
+                ConsecutiveFailures = 0;
+                foreach (var c in AntUnitBase.Active)
+                    if (c is CommanderAnt commander) commander.PersonalState.AddMood("Fed", commander.Traits.Has(CommanderTrait.Glutton) ? 10 : 5, cycleInterval + 1);
+                return;
+            }
+            ConsecutiveFailures++;
+            foreach (var c in AntUnitBase.Active)
+                if (c is CommanderAnt commander) commander.PersonalState.AddMood("Hunger", commander.Traits.Has(CommanderTrait.Ascetic) ? 5 : -15, cycleInterval + 1);
             if (pool.StarveOne()) return;
             foreach (var unit in AntUnitBase.Active)
             {

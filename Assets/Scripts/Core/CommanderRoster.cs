@@ -83,10 +83,28 @@ namespace AntColony.Core
             commander.Initialize(roleProfiles[0], null, null);
             commander.SetRoleProfiles(roleProfiles);
             if (traits != null) commander.ApplyTraits(traits);
+            commander.Talents.Generate(commander.Traits);
             commanders.Add(commander);
             return commander;
         }
 
         public void SetRoleProfiles(UnitData[] profiles) => roleProfiles = profiles;
+
+        // 저장 복원 전용. 기존 장수를 모두 없앤다. 배속 개미는 각 장수의 OnDestroy가 대기 풀로 돌려주고,
+        // 풀 숫자는 그 뒤 AntPool.RestoreCounts가 저장값으로 다시 덮어쓴다.
+        internal void ClearAll()
+        {
+            foreach (var commander in new List<CommanderAnt>(commanders))
+                if (commander != null) Destroy(commander.gameObject);
+            commanders.Clear();
+            nextCommanderNumber = 1;
+        }
+
+        // 복원된 장수는 항상 명시한 이름을 그대로 쓴다. 자동 일련번호가 저장된 이름을 덮지 않게 한다.
+        internal CommanderAnt CreateForLoad(string displayName, CommanderRank rank, IEnumerable<UnitRole> roles,
+            UnitRole startRole, CommanderTraits traits, Vector3 position)
+        {
+            return Create(string.IsNullOrEmpty(displayName) ? "Commander" : displayName, rank, roles, startRole, traits, position);
+        }
     }
 }
