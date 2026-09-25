@@ -11,6 +11,7 @@ namespace AntColony.Units
         [SerializeField] private CommanderPersonalState personalState = new CommanderPersonalState();
         private float breakAttackTimer;
         public CommanderPersonalState PersonalState => personalState;
+        public Infirmary TreatmentFacility { get; internal set; }
         public bool CanReceiveOrders => isActiveAndEnabled && !IsDead && !IsCaptive && !IsEmbarked
             && !personalState.treating && personalState.mentalBreak == MentalBreak.None;
         public bool HasTrinket(TrinketEffect effect) => personalState.equipment.Exists(e => e.slot == EquipmentSlot.Trinket && e.effect == effect);
@@ -46,7 +47,9 @@ namespace AntColony.Units
         public CommanderPersonalState CapturePersonalState() => JsonUtility.FromJson<CommanderPersonalState>(JsonUtility.ToJson(personalState));
         public void RestorePersonalState(CommanderPersonalState value)
         {
+            TreatmentFacility?.Release(this);
             personalState = value == null ? new CommanderPersonalState() : JsonUtility.FromJson<CommanderPersonalState>(JsonUtility.ToJson(value));
+            personalState.treating = false; // Building restoration reconnects the patient after commanders load.
             RefreshEquipment();
         }
         public bool TryReward()
@@ -70,7 +73,15 @@ namespace AntColony.Units
                     GainExperience(CommanderActivity.Command, 2);
                 }
             }
+            if (TreatmentFacility != null && !TreatmentFacility.IsTreating(this)) TreatmentFacility.Release(this);
+            personalState.treating = TreatmentFacility != null;
+            var recovering = personalState.treating && personalState.HasTreatableInjury;
             personalState.Tick(seconds, traits);
+            if (personalState.treating && !personalState.HasTreatableInjury)
+            {
+                TreatmentFacility.Release(this);
+                if (recovering) traits.ChangeLoyalty(3, "Treatment completed");
+            }
             personalState.lastCombatSeconds += seconds;
             personalState.homeSeconds = IsAwayFromHome ? 0 : personalState.homeSeconds + seconds;
             if (Agent != null) Agent.speed = MovementSpeed;
@@ -98,6 +109,7 @@ namespace AntColony.Units
         {
             if (!System.Enum.IsDefined(typeof(MentalBreak), kind) || kind == MentalBreak.None || IsDead || IsEmbarked || IsCaptive) return;
             CommandStop(); ScienceAssignment?.ReleaseResearcher(); LabUpgradeLab?.CancelResearch();
+            TreatmentFacility?.Release(this);
             personalState.mentalBreak = kind;
             personalState.breakRemaining = kind == MentalBreak.Idle ? 60 : kind == MentalBreak.Flee ? 30 : 45;
             if (kind == MentalBreak.SelfHarm)

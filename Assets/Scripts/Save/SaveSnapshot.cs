@@ -35,6 +35,7 @@ namespace AntColony.Save
                 loopCompleted = GameManager.Instance.SavedLoop, bossDefeated = GameManager.Instance.SavedBoss, defeated = GameManager.Instance.SavedDefeat,
                 colony = new ColonyDto { food = rm.GetAmount(ResourceType.Food), soil = rm.GetAmount(ResourceType.Soil), special = rm.GetAmount(ResourceType.Special),
                     foodCapacity = rm.GetCapacity(ResourceType.Food), soilCapacity = rm.GetCapacity(ResourceType.Soil), specialCapacity = rm.GetCapacity(ResourceType.Special),
+                    storageResearchApplied = true,
                     antsFree = pool.Free, antsAssigned = pool.Assigned, antsReserved = pool.Reserved, fishingUnlocked = GameManager.Instance.FishingUnlocked } };
             foreach (var c in commanders) file.commanders.Add(new CommanderDto { id = file.commanders.Count, name = c.CommanderName,
                 troopCount = c.TroopCount, pendingDamage = c.MaxHealth - c.CurrentHealth, talents = c.Talents.Copy(),
@@ -193,12 +194,17 @@ namespace AntColony.Save
             }
             foreach (var d in file.buildings) SaveBuildings.Restore(SaveBuildings.Resolve(d), d, commanders);
             yield return null; // 제거된 건물의 OnDisable/창고 상한 변경 후 확정값 복원.
+            CampaignResearch.Instance?.RestoreState(file.campaign);
             var p = file.colony;
-            ResourceManager.Instance.RestoreState(p.food, p.soil, p.special, p.foodCapacity, p.soilCapacity, p.specialCapacity);
+            // Older saves include base warehouse capacity only, even if Fermentation was researched.
+            var storageBonus = Vector3Int.zero;
+            if (!p.storageResearchApplied)
+                foreach (var storage in Object.FindObjectsByType<Storage>()) storageBonus += storage.ResearchBonus;
+            ResourceManager.Instance.RestoreState(p.food, p.soil, p.special,
+                p.foodCapacity + storageBonus.x, p.soilCapacity + storageBonus.y, p.specialCapacity + storageBonus.z);
             AntPool.Instance.RestoreCounts(p.antsFree, p.antsAssigned, p.antsReserved);
             GameManager.Instance.FishingUnlocked = p.fishingUnlocked;
             GameManager.Instance.RestoreFlags(file.loopCompleted, file.bossDefeated, file.defeated);
-            CampaignResearch.Instance?.RestoreState(file.campaign);
             for (var i = 0; i < commanders.Count; i++)
                 if (!file.commanders[i].activeInScene || commanders[i].IsDead) commanders[i].gameObject.SetActive(false);
             var upkeep = Object.FindFirstObjectByType<UpkeepManager>(); if (upkeep != null) upkeep.SavedTimer = file.upkeepTimer;

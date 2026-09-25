@@ -134,6 +134,8 @@ namespace AntColony.Core
             state.active = -1;
             state.progress = 0;
             var world = WorldMapManager.Instance;
+            if (completed.Technology == ScienceTechnology.Fermentation)
+                foreach (var storage in FindObjectsByType<Storage>()) storage.RefreshCapacity();
             if (world != null)
             {
                 if (completed.Technology == ScienceTechnology.Vehicle) world.VehicleResearched = true;
@@ -160,7 +162,11 @@ namespace AntColony.Core
         }
 
         public State CaptureState() => JsonUtility.FromJson<State>(JsonUtility.ToJson(state));
-        public void RestoreState(State value) => state = value == null ? new State() : JsonUtility.FromJson<State>(JsonUtility.ToJson(value));
+        public void RestoreState(State value)
+        {
+            state = value == null ? new State() : JsonUtility.FromJson<State>(JsonUtility.ToJson(value));
+            foreach (var storage in FindObjectsByType<Storage>()) storage.RefreshCapacity();
+        }
         public static bool Validate(State value, out string error)
         {
             error = "Invalid campaign research state.";

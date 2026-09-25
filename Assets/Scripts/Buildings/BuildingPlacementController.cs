@@ -80,6 +80,7 @@ namespace AntColony.Buildings
         public string GetAcidTowerBuildLabel() => GetBuildLabel(BuildingKind.AcidTower, UnitRole.Worker, "Acid Tower");
         public bool BeginScienceLabPlacement() => BeginPlacement(BuildingKind.ScienceLab, UnitRole.Worker);
         public bool BeginAirshipYardPlacement() => BeginPlacement(BuildingKind.AirshipYard, UnitRole.Worker);
+        public bool BeginInfirmaryPlacement() => BeginPlacement(BuildingKind.Infirmary, UnitRole.Worker);
         public string GetScienceLabBuildLabel() => ScienceLab.PrerequisitesMet
             ? GetBuildLabel(BuildingKind.ScienceLab, UnitRole.Worker, "Build Science Lab")
             : "Science: 60 Ants\nFishing + Barracks T2";
@@ -105,6 +106,8 @@ namespace AntColony.Buildings
 
         private bool BeginPlacement(BuildingKind kind, UnitRole role)
         {
+            if (kind == BuildingKind.Infirmary && !Infirmary.Unlocked)
+                return PlacementFailed("Research Infirmary first.");
             if (kind == BuildingKind.AirshipYard && (CampaignResearch.Instance == null
                 || !CampaignResearch.Instance.Has(ScienceTechnology.MigrationTheory)))
                 return PlacementFailed("Research great migration theory first.");
@@ -136,6 +139,7 @@ namespace AntColony.Buildings
 
         private void TryPlace(Vector3 position, Vector3 groundPosition)
         {
+            if (pendingKind == BuildingKind.Infirmary && !Infirmary.Unlocked) return;
             if (pendingKind == BuildingKind.ScienceLab && !ScienceLab.PrerequisitesMet) return;
             var template = GetTemplate(pendingKind, pendingRole);
             var building = template != null ? template.GetComponent<BuildingBase>() : null;
@@ -241,9 +245,27 @@ namespace AntColony.Buildings
                 BuildingKind.ScienceLab => FindTemplate<ScienceLab>(),
                 BuildingKind.AcidTower => FindTemplate<AcidTower>(),
                 BuildingKind.AirshipYard => FindTemplate<AirshipYard>() ?? CreateAirshipTemplate(),
+                BuildingKind.Infirmary => FindTemplate<Infirmary>() ?? CreateInfirmaryTemplate(),
                 BuildingKind.Barracks => FindTemplate<Barracks>(role),
                 _ => null
             };
+        }
+
+        private static GameObject CreateInfirmaryTemplate()
+        {
+            var go = GameObject.CreatePrimitive(PrimitiveType.Cube);
+            go.SetActive(false);
+            go.name = "InfirmaryTemplate";
+            go.transform.localScale = new Vector3(3, 2, 3);
+            go.GetComponent<Renderer>().material.color = new Color(.65f, .85f, .8f);
+            var definition = ScriptableObject.CreateInstance<BuildingData>();
+            definition.kind = BuildingKind.Infirmary;
+            definition.displayName = "Infirmary";
+            definition.foodCost = 40; definition.soilCost = 40;
+            definition.constructionAnts = 4; definition.buildTimeSeconds = 8;
+            go.AddComponent<Infirmary>().ConfigureRuntime(definition);
+            go.AddComponent<UnityEngine.AI.NavMeshObstacle>().carving = true;
+            return go;
         }
 
         private static GameObject CreateAirshipTemplate()

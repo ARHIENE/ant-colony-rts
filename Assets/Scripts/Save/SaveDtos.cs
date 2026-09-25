@@ -32,6 +32,7 @@ namespace AntColony.Save
     {
         public int food, soil, special;
         public int foodCapacity, soilCapacity, specialCapacity;
+        public bool storageResearchApplied;
         public int antsFree, antsAssigned, antsReserved;
         public bool fishingUnlocked;
     }
@@ -123,6 +124,7 @@ namespace AntColony.Save
         public int scienceTier = 1;
         public int scientist = -1;
         public Buildings.AirshipYard.State airship;
+        public List<int> patients = new List<int>();
         public Vec3Dto scienceSpawn = new Vec3Dto();
         public float scoutRemaining;
         public bool scoutDispatched;

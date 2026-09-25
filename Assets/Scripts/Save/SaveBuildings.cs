@@ -26,6 +26,7 @@ namespace AntColony.Save
                 d.scienceConstructing = science.Constructing; d.scienceSpawn = new Vec3Dto(science.SpawnPosition);
                 d.scienceTier = science.Tier; d.scientist = commanders.IndexOf(science.Target); }
             if (b is AirshipYard yard) d.airship = yard.CaptureState(commanders);
+            if (b is Infirmary infirmary) d.patients = infirmary.Patients.Select(c => commanders.IndexOf(c)).ToList();
             var scout = b.GetComponent<ScoutPost>();
             if (scout != null) { d.scoutRemaining = scout.Remaining; d.scoutDispatched = scout.IsDispatched;
                 d.scoutDispatchedAnts = scout.DispatchedAnts; d.scoutSuccess = scout.SuccessCount; d.scoutFailure = scout.FailureCount; }
@@ -70,6 +71,7 @@ namespace AntColony.Save
             if (b is ScienceLab science) { science.RestoreState(d.scienceRemaining, d.scienceAircraft, d.scienceConstructing, d.scienceSpawn.ToVector3());
                 science.RestoreAssignment(d.scienceTier, d.scientist >= 0 ? commanders[d.scientist] : null); }
             if (b is AirshipYard yard) yard.RestoreState(d.airship, commanders);
+            if (b is Infirmary infirmary) foreach (var id in d.patients) infirmary.RestorePatient(commanders[id]);
             b.GetComponent<ScoutPost>()?.RestoreState(d.scoutDispatched, d.scoutRemaining, d.scoutDispatchedAnts, d.scoutSuccess, d.scoutFailure);
             b.GetComponent<PrisonerCamp>()?.RestoreState(d.prisoners.Select(p => new Prisoner(p.name, (CommanderRank)p.rank,
                 p.roles.Select(r => (UnitRole)r).ToArray(), SaveCatalog.Traits(p.traits)) { PersuadeAttempts = p.persuadeAttempts, Talents = p.talents.Copy() }).ToList(),

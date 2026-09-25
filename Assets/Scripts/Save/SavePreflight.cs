@@ -86,6 +86,12 @@ namespace AntColony.Save
                     if (b.scientist >= 0) Check(b.kind == "ScienceLab" && targets.Add(b.scientist)
                         && f.commanders[b.scientist].location == 0 && !f.commanders[b.scientist].personalState.dead, "scientist ownership");
                     Check(AirshipYard.Validate(b.airship, f.commanders.Count, out _), "airship");
+                    L(b.patients, Infirmary.Capacity, "infirmary patients");
+                    foreach (var id in b.patients) Check(b.kind == "Infirmary" && b.health > 0 && id >= 0 && id < f.commanders.Count
+                        && targets.Add(id) && f.commanders[id].location == 0 && f.commanders[id].activeInScene
+                        && !f.commanders[id].personalState.dead && f.commanders[id].personalState.treating
+                        && f.commanders[id].personalState.HasTreatableInjury
+                        && f.commanders[id].personalState.mentalBreak == MentalBreak.None, "patient ownership");
                     if (b.airship != null && b.airship.passengers != null)
                         foreach (var id in b.airship.passengers) Check(b.kind == "AirshipYard" && targets.Add(id)
                             && f.commanders[id].location == 0 && !f.commanders[id].personalState.dead, "airship passenger ownership");

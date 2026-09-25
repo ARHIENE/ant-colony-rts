@@ -35,6 +35,9 @@ namespace AntColony.UI
                 button.interactable = reason == "";
             }
             MenuTheme.Text(content, "Engine blueprint: " + (research.HasBlueprint ? "acquired" : "defeat a world-map boss and bring its reward home"), 18, 55);
+            MenuTheme.Button(content, "Build Infirmary (40F / 40S / 4 ants)", () => {
+                Resume(); FindFirstObjectByType<BuildingPlacementController>()?.BeginInfirmaryPlacement();
+            }, "Treat up to two seriously injured commanders. Assign nearby patients from commander details.").interactable = Infirmary.Unlocked;
             MenuTheme.Button(content, "Build Airship Yard (100F / 150S / 10 ants)", () => {
                 Resume(); FindFirstObjectByType<BuildingPlacementController>()?.BeginAirshipYardPlacement();
             });
@@ -61,6 +64,15 @@ namespace AntColony.UI
             MenuTheme.Text(content, "Loyalty events: " + string.Join(" / ", c.Traits.loyaltyReasons), 17, 65);
             foreach (var factor in c.PersonalState.moodFactors) MenuTheme.Text(content, $"{factor.reason}: {factor.value:+0;-0;0} ({factor.remaining:0}s)", 17, 32);
             foreach (var injury in c.PersonalState.injuries) MenuTheme.Text(content, $"{injury.part}: {injury.severity} ({injury.remaining:0}s)", 17, 32);
+            if (c.TreatmentFacility != null)
+                MenuTheme.Button(content, "Stop treatment", () => { c.TreatmentFacility?.Release(c); Details(c); }, "Treatment progress is preserved. Resume the game to recover.");
+            else if (c.PersonalState.HasTreatableInjury)
+            {
+                MenuTheme.Text(content, "Treatment: research and build an Infirmary, then move within 8m. Two patients per facility; resume to recover.", 17, 65);
+                foreach (var infirmary in FindObjectsByType<Infirmary>(FindObjectsSortMode.None))
+                    MenuTheme.Button(content, $"Treat at {infirmary.name} ({infirmary.Patients.Count}/{Infirmary.Capacity})",
+                        () => { if (!infirmary.TryAdmit(c)) ToastManager.Show("Requires an idle injured commander nearby and a free bed."); Details(c); }).interactable = infirmary.CanTreat(c);
+            }
             MenuTheme.Button(content, "Reward (30 Food)", () => { if (!c.TryReward()) ToastManager.Show("Available at home, once per game month."); Details(c); }).interactable = c.CanReceiveOrders && !c.IsAwayFromHome && c.PersonalState.rewardCooldown <= 0;
             var inventory = EquipmentInventory.Instance;
             if (inventory == null) return;

@@ -320,6 +320,7 @@ namespace AntColony.Units
 
         protected override void OnDisable()
         {
+            TreatmentFacility?.Release(this);
             if (Garrison != null) Garrison.Remove(this);
             base.OnDisable();
             ReleaseTroopsOnce();
