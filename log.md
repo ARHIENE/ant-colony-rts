@@ -23,7 +23,9 @@
 - 고유 효과 미연결 과학 기술 22개를 README 표와 Notion 기획을 대조해 순차 구현.
 - 곰팡이 감염·치료, 약초 회복 보너스, 부위 재생 등 미구현. 영구 손상 치료 수치를 임의로 추가하지 않았다.
 - 연구 비용·시간, 연구소 승급 조건, 비행선 비용·고치 한도·건조 중 침공은 기획과 차이 있음. 전체 밸런스·Player 빌드·화면 품질 검증은 후속.
-- SAVE 진행 중: 변경 기능이 보이는 화면 캡처, develop 커밋·origin/develop push, 같은 한국 날짜의 Notion ant 개발 일지에 이어쓰기 또는 신규 작성 필요.
+- SAVE: 기능 커밋 `5f31825` origin/develop push 완료. 의무실 치료 UI와 압축 저장 전후 HUD 3장 캡처·직접 확인·Notion 첨부 완료. 캡처용 Play 모드 종료. 최종 SAVE 기록도 develop에 커밋·push한다.
+- 개발 일지(2026-09-25): https://app.notion.com/p/3e6c4a0ecd318120acb3f14f18678274
+- 캡처: `Assets/.unity/save-2026-09-25-{infirmary,storage-before,storage-after}.png`(로컬 보존), 재현 스크립트 `AgentScripts/SaveFeatureCapture.cs`. 기존 아트·프리팹·graphify 캐시/과거 백업은 커밋하지 않고 보존.
 - Notion 기획: https://app.notion.com/p/334c4a0ecd3180c4a796e5220302a0bd
 - 개발 일지: https://app.notion.com/p/334c4a0ecd3181778dcaf0e6a8d57040
 - 공식 CLI: `C:\Users\Shim Hyeonyeop\AppData\Local\Unity\bin\unity.exe`, 프로젝트 `E:\Git\ant`.
