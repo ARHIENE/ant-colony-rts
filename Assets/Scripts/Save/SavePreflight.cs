@@ -42,9 +42,17 @@ namespace AntColony.Save
                 Check(N(f.playSeconds) && N(f.gameSeconds) && N(f.upkeepTimer) && N(f.incursionTimer), "timers");
                 Check(f.upkeepFailures >= 0, "upkeep failures");
                 Check(Core.CampaignResearch.Validate(f.campaign, out _), "campaign research");
-                L(f.equipmentInventory, 10000, "equipment inventory");
+                Check(Core.CampaignHistory.Validate(f.history) && World.ColonyEvents.Validate(f.events), "events/history");
+                L(f.equipmentInventory, EquipmentInventory.Capacity, "equipment inventory");
                 var equipmentIds = new HashSet<string>();
                 foreach (var item in f.equipmentInventory) Check(item != null && item.IsValid && equipmentIds.Add(item.id), "inventory item");
+                L(f.equipmentLoot, 10000, "equipment loot");
+                foreach (var loot in f.equipmentLoot)
+                {
+                    Check(loot != null && V(loot.position), "equipment loot position");
+                    L(loot.items, 10000, "equipment loot items");
+                    foreach (var item in loot.items) Check(item != null && item.IsValid && equipmentIds.Add(item.id), "equipment loot ownership");
+                }
                 var personalIds = new HashSet<string>();
                 Check(!string.IsNullOrEmpty(f.randomState) && f.randomState.Length < 1000, "random state");
                 JsonUtility.FromJson<UnityEngine.Random.State>(f.randomState);
@@ -86,11 +94,23 @@ namespace AntColony.Save
                     if (b.scientist >= 0) Check(b.kind == "ScienceLab" && targets.Add(b.scientist)
                         && f.commanders[b.scientist].location == 0 && !f.commanders[b.scientist].personalState.dead, "scientist ownership");
                     Check(AirshipYard.Validate(b.airship, f.commanders.Count, out _), "airship");
+                    var w = b.workshop;
+                    Check(w != null, "workshop state"); L(w.jobs, Core.GameBalance.CraftQueueCapacity, "craft queue");
+                    Check(w.crafter >= -1 && w.crafter < f.commanders.Count
+                        && (b.kind == "Workshop" || w.jobs.Count == 0 && w.crafter == -1 && !w.ruined && !w.paused && !w.inactive), "workshop kind");
+                    for (int j = 0; j < w.jobs.Count; j++)
+                        Check(w.jobs[j] != null && Enum.IsDefined(typeof(EquipmentRecipe), w.jobs[j].recipe)
+                            && N(w.jobs[j].work) && w.jobs[j].work <= Core.GameBalance.CraftWork && (j == 0 || w.jobs[j].work == 0), "craft job");
+                    if (w.crafter >= 0) Check(!w.ruined && !w.paused && !w.inactive && w.jobs.Count > 0 && b.health > 0 && targets.Add(w.crafter)
+                        && f.commanders[w.crafter].location == 0 && f.commanders[w.crafter].activeInScene
+                        && !f.commanders[w.crafter].personalState.dead && f.commanders[w.crafter].personalState.mentalBreak == MentalBreak.None, "crafter ownership");
+                    Check(N(b.trapBroken) && N(b.trapRepair) && b.trapRepair <= Core.GameBalance.TrapRepairSeconds
+                        && Enum.IsDefined(typeof(FarmCrop), b.crop), "trap/farm state");
                     L(b.patients, Infirmary.Capacity, "infirmary patients");
                     foreach (var id in b.patients) Check(b.kind == "Infirmary" && b.health > 0 && id >= 0 && id < f.commanders.Count
                         && targets.Add(id) && f.commanders[id].location == 0 && f.commanders[id].activeInScene
                         && !f.commanders[id].personalState.dead && f.commanders[id].personalState.treating
-                        && f.commanders[id].personalState.HasTreatableInjury
+                        && f.commanders[id].personalState.NeedsTreatment
                         && f.commanders[id].personalState.mentalBreak == MentalBreak.None, "patient ownership");
                     if (b.airship != null && b.airship.passengers != null)
                         foreach (var id in b.airship.passengers) Check(b.kind == "AirshipYard" && targets.Add(id)
@@ -100,11 +120,14 @@ namespace AntColony.Save
                     L(b.prisoners, 5, "prisoners"); L(b.nurseryAffinity, 500000, "affinity"); L(b.nodes, 1000, "building nodes");
                     foreach (var prisoner in b.prisoners) { Check(prisoner != null && Enum.IsDefined(typeof(CommanderRank), prisoner.rank) && prisoner.persuadeAttempts >= 0, "prisoner");
                         Traits(prisoner.traits); Check(prisoner.talents != null && prisoner.talents.Validate(), "prisoner talents");
+                        Check(prisoner.personalState != null && prisoner.personalState.Validate(out _) && personalIds.Add(prisoner.personalState.id), "prisoner personal state");
+                        foreach (var item in prisoner.personalState.equipment) Check(equipmentIds.Add(item.id), "prisoner equipment ownership");
+                        Check(prisoner.labAttack >= 0 && prisoner.labAttack <= 3 && prisoner.labArmor >= 0 && prisoner.labArmor <= 3 && N(prisoner.strikeCooldown) && N(prisoner.stanceCooldown), "prisoner upgrades/skills");
                         L(prisoner.roles, 6, "prisoner roles"); Check(prisoner.roles.Count > 0 && prisoner.roles.All(R), "prisoner roles"); }
                     foreach (var a in b.nurseryAffinity) Check(a != null && a.firstCommanderId >= 0 && a.firstCommanderId < f.commanders.Count && a.secondCommanderId >= 0 && a.secondCommanderId < f.commanders.Count && a.firstCommanderId != a.secondCommanderId && N(a.value), "affinity");
                     for (var i = 0; i < b.nodes.Count; i++) Check(b.nodes[i] != null && b.nodes[i].index == i && N(b.nodes[i].amount) && N(b.nodes[i].regrowTimer), "building node");
                 }
-                Check((long)p.antsAssigned == f.commanders.Sum(c => (long)c.troopCount) + f.buildings.Sum(b => (long)b.scoutDispatchedAnts), "assigned population");
+                Check((long)p.antsAssigned == f.commanders.Where(c => c.personalState.social.departure == DepartureState.None).Sum(c => (long)c.troopCount) + f.buildings.Sum(b => (long)b.scoutDispatchedAnts), "assigned population");
                 for (var i = 0; i < 30; i++) { var s = f.world.sites[i]; Check(s != null && s.index == i && s.disposition >= 0 && s.disposition <= 3
                     && N(s.growthTimer) && N(s.settlementElapsed) && N(s.defenseRemaining) && N(s.defenseCaptureProgress), "site state"); Colony(s.colony); }
                 Colony(f.world.homeColony);
@@ -119,7 +142,10 @@ namespace AntColony.Save
                     if (s.state == 1 || s.state == 2) Check(occupied.Add(s.siteIndex), "duplicate visitor");
                     Check(s.route != null && N(s.route.waitSeconds) && s.route.destinationIndex >= -1 && s.route.destinationIndex < 30
                         && (!s.route.running || s.route.destinationIndex >= 0 && f.world.sites[s.route.destinationIndex].disposition == 1 && s.state != 2), "route");
-                    Check(f.commanders.Where(c => c.location == 1 && c.transportIndex == i).Sum(c => c.troopCount + 1) <= (s.aircraft ? 100 : 40), "transport capacity");
+                    var crew = f.commanders.Where(c => c.location == 1 && c.transportIndex == i).ToArray();
+                    var heavy = f.campaign.completed.Contains((int)Core.ScienceTechnology.HeavyTransport);
+                    Check(crew.Sum(c => (long)c.troopCount) <= (s.aircraft ? Core.GameBalance.AircraftTroops : Core.GameBalance.VehicleTroops) * (heavy ? 1.5f : 1f)
+                        && crew.Length <= (s.aircraft ? Core.GameBalance.AircraftCommanders : Core.GameBalance.VehicleCommanders) + (heavy ? 2 : 0), "transport capacity");
                 }
                 Check(f.nodes.All(n => n != null && n.key != null && N(n.amount) && N(n.regrowTimer) && V(n.position) && Enum.IsDefined(typeof(ResourceType), n.type))
                     && f.nodes.Select(n => n.key).Distinct().Count() == f.nodes.Count, "resource nodes");
@@ -142,7 +168,7 @@ namespace AntColony.Save
                     BuildingBase template;
                     if (b.runtimeBuilt) { Check(Enum.TryParse<BuildingKind>(b.kind, out var kind), "building type"); template = BuildingPlacementController.GetTemplate(kind, (UnitRole)b.role)?.GetComponent<BuildingBase>(); Check(template != null, "building template"); }
                     else { Check(int.TryParse(b.key, out var i) && i >= 0 && i < SaveCatalog.Buildings.Length, "building index"); template = SaveCatalog.Buildings[i]; }
-                    if (template != null && b.kind != "Destroyed") Check(SaveCatalog.Kind(template) == b.kind && b.health <= template.MaxHealth
+                    if (template != null && b.kind != "Destroyed") Check(SaveCatalog.Kind(template) == b.kind && b.health <= template.MaxPossibleHealth
                         && b.nodes.Count == template.GetComponentsInChildren<World.ResourceNode>(true).Length, "building schema");
                 }
                 Check(f.nodes.Count(n => !n.key.StartsWith("new:")) == SaveCatalog.Nodes.Length, "scene nodes");

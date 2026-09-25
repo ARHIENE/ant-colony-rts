@@ -9,6 +9,8 @@ namespace AntColony.Buildings
     // 세력 규모가 클수록 성공률이 올라가는 확률형이다. 파견은 한 번에 한 건만 진행된다.
     public class ScoutPost : MonoBehaviour
     {
+        public const int DefaultMaxCommanders = 20;
+        public static float RecruitmentChance(int size) => Mathf.Clamp(.25f + size * .02f, 0, .8f);
         // ponytail: 비용·확률·소요시간은 1차 프로토타입 잠정값이다. 난이도 설정이 생기면 그쪽에서 가져온다.
         [SerializeField, Min(0)] private int dispatchFoodCost = 20;
         [SerializeField, Min(0)] private int dispatchAnts = 1;
@@ -106,7 +108,7 @@ namespace AntColony.Buildings
             }
 
             if (dispatchFoodCost > 0 && ResourceManager.Instance != null
-                && !ResourceManager.Instance.TrySpend(dispatchFoodCost, 0))
+                && !ResourceManager.Instance.TrySpend(dispatchFoodCost, 0, reason: ResourceReason.Expedition))
             {
                 // 지불에 실패하면 차출한 개미를 즉시 되돌린다.
                 ReturnScouts();
@@ -136,7 +138,7 @@ namespace AntColony.Buildings
                 new[] { UnitRole.Worker, combatRole }, UnitRole.Worker, traits, transform.position);
 
             if (recruit == null) FailureCount++;
-            else SuccessCount++;
+            else { SuccessCount++; CampaignHistory.Record("합류", recruit.CommanderName, "스카우트 영입"); }
         }
     }
 }

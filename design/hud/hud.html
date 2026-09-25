@@ -1,0 +1,325 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=1440">
+<title>인게임 HUD</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&amp;family=Barlow+Semi+Condensed:wght@500;600;700&amp;display=swap" rel="stylesheet">
+<style>
+:root{
+  --world:#4b4436;
+  --plate:#1b1712;--plate-2:#231e17;--well:#120f0b;
+  --edge-hi:rgba(255,236,200,0.09);--edge-lo:#080605;--line:#3a3127;--line-2:#4a3f32;
+  --text:#efe7da;--muted:#b8ac9a;--dim:#968976;
+  --accent:#f2a93b;--accent-ink:#1a1206;
+  --hp:#6cc46a;--hp-mid:#e0b43a;--danger:#e8574a;--danger-ink:#ffb3aa;--warn:#f2a93b;--loyal:#86a9e6;
+  --ease-out:cubic-bezier(0.23,1,0.32,1);
+  --num:"Barlow Semi Condensed",sans-serif;
+  --z-hud:10;--z-toast:20;
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{width:1440px;height:900px;overflow:hidden;background:var(--world);color:var(--text);font-family:"Noto Sans KR",sans-serif;font-size:13px;line-height:1.4;-webkit-font-smoothing:antialiased}
+::selection{background:rgba(242,169,59,0.35)}
+.n{font-family:var(--num);font-variant-numeric:tabular-nums;font-weight:600;letter-spacing:0.01em}
+svg{display:block}
+kbd{font-family:var(--num);font-weight:700;font-size:11px;line-height:1;color:var(--muted)}
+
+/* shared plate: 9-slice style bevel, uGUI friendly */
+.plate{background:var(--plate);border:1px solid var(--edge-lo);box-shadow:inset 0 1px 0 var(--edge-hi),inset 0 -1px 0 rgba(0,0,0,0.35)}
+.well{background:var(--well);border:1px solid var(--edge-lo);box-shadow:inset 0 1px 2px rgba(0,0,0,0.5)}
+
+/* buttons */
+.btn{appearance:none;font:inherit;color:var(--text);background:var(--plate-2);border:1px solid var(--line);border-radius:3px;cursor:pointer;box-shadow:inset 0 1px 0 var(--edge-hi);transition:transform 120ms var(--ease-out),background-color 150ms ease,border-color 150ms ease}
+.btn:active{transform:scale(0.97)}
+.btn:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
+.btn:disabled{cursor:default;color:var(--dim)}
+.btn:disabled:active{transform:none}
+@media (hover:hover) and (pointer:fine){.btn:not(:disabled):hover{background:#2e271e;border-color:var(--line-2)}}
+
+/* world placeholder */
+.world{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:#a39880;font-size:13px}
+.world span{padding:6px 10px;border:1px dashed #6e6450;border-radius:3px}
+
+/* top strip */
+.top{position:absolute;left:0;top:0;width:1440px;height:40px;z-index:var(--z-hud);display:flex;justify-content:space-between;align-items:center;gap:12px;padding:0 8px;border-width:0 0 1px;white-space:nowrap}
+.menu{display:flex;gap:4px}
+.menu .btn{height:28px;padding:0 7px;display:flex;align-items:center;gap:6px;font-size:12px}
+.clock{display:flex;align-items:center;gap:10px}
+.cal{display:flex;flex-direction:column;gap:3px;width:160px}
+.cal-row{display:flex;justify-content:space-between;align-items:baseline;font-size:12px}
+.cal-row b{font-weight:700}
+.bill{height:3px;background:var(--well);border-radius:2px;overflow:hidden}
+.bill i{display:block;height:100%;width:62%;background:var(--accent)}
+.speed{display:flex;padding:2px;gap:2px;border-radius:4px}
+.speed .btn{width:30px;height:24px;display:flex;align-items:center;justify-content:center;background:transparent;border-color:transparent;box-shadow:none;color:var(--muted);font-family:var(--num);font-weight:700;font-size:13px}
+.speed .pz{width:40px;gap:4px}
+.speed .pz kbd{font-size:10px}
+.speed .btn[aria-pressed="true"] kbd{color:var(--accent-ink)}
+.speed .btn[aria-pressed="true"]{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.res{display:flex;justify-content:flex-end;align-items:center;gap:12px}
+.r{display:flex;align-items:center;gap:6px}
+.r .n{font-size:17px}
+.r .n+.cap{margin-left:4px}
+.r .cap{font-family:var(--num);font-variant-numeric:tabular-nums;font-size:13px;color:var(--dim);font-weight:500}
+.r.bal .n{color:var(--hp)}
+.sep{width:1px;height:20px;background:var(--line)}
+
+/* objective */
+.goal{position:absolute;left:8px;top:48px;z-index:var(--z-hud);width:280px;padding:7px 8px 7px 10px;display:flex;align-items:center;gap:9px;border-radius:3px}
+.goal-t{flex:1;display:flex;flex-direction:column;gap:1px}
+.goal-t b{font-size:13px;font-weight:700}
+.goal-t span{font-size:12px;color:var(--muted)}
+.goal .btn{height:24px;padding:0 7px}
+
+/* alerts / toasts */
+.alerts{position:absolute;right:8px;top:48px;z-index:var(--z-toast);width:318px;display:flex;flex-direction:column;gap:4px;list-style:none;margin:0;padding:0}
+.toast{position:relative;display:flex;align-items:center;gap:9px;padding:6px 4px 6px 8px;border-radius:3px;transition:transform 250ms var(--ease-out),opacity 250ms var(--ease-out)}
+@starting-style{.toast{transform:translateX(24px);opacity:0}}
+.toast .ic{width:22px;height:22px;flex:none;display:flex;align-items:center;justify-content:center;border-radius:2px}
+.toast .tx{flex:1;min-width:0;display:flex;flex-direction:column}
+.toast .tt{display:flex;align-items:center;gap:6px;font-size:13px;font-weight:700}
+.toast .dd{font-size:12px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.toast .x{width:24px;height:24px;flex:none;display:flex;align-items:center;justify-content:center;background:transparent;border-color:transparent;box-shadow:none;color:var(--dim)}
+.toast .timer{position:absolute;left:0;right:0;bottom:0;height:2px;background:rgba(0,0,0,0.35)}
+.toast .timer i{display:block;height:100%}
+.crisis{background:#2a1512;border-color:#5c2620}
+.jump{height:26px;padding:0 7px;display:flex;align-items:center;gap:5px;color:var(--danger-ink);background:#3a1a16;border-color:#6b2c25}
+.jump kbd{color:var(--danger-ink)}
+.crisis .ic{background:#4a1d18;color:var(--danger-ink)}
+.crisis .tt{color:#ffd0ca}
+.pin{font-size:11px;font-weight:500;color:var(--danger-ink)}
+.warn .ic{background:#3b2a12;color:var(--warn)}
+.done .ic{background:#1d3020;color:var(--hp)}
+.count{font-family:var(--num);font-weight:700;font-size:12px;padding:0 5px;border-radius:2px;background:var(--well);color:var(--text)}
+
+/* console */
+.console{position:absolute;left:0;bottom:0;width:1440px;height:208px;z-index:var(--z-hud);display:grid;grid-template-columns:236px 1fr 372px;align-items:end}
+.wing{height:180px;padding:8px;display:flex;gap:8px}
+.wing.l{border-radius:0 6px 0 0;border-left:0;border-bottom:0}
+.wing.r{border-radius:6px 0 0 0;border-right:0;border-bottom:0}
+.console .plate{border-top:1px solid #5a4c3b}
+.center{height:208px;border-radius:6px 6px 0 0;border-bottom:0;padding:10px 12px 10px 10px;display:flex;gap:12px;margin:0 -6px;position:relative}
+
+/* minimap */
+.mini{position:relative;width:164px;height:164px;overflow:hidden;border-radius:2px}
+.mini .land{position:absolute;left:12px;top:14px;width:140px;height:130px;background:#3d3628;border-radius:38px 56px 30px 48px}
+.mini .water{position:absolute;left:100px;top:104px;width:44px;height:24px;background:#2c3c44;border-radius:12px}
+.mini .me{position:absolute;background:var(--hp);border-radius:1px}
+.mini .foe{position:absolute;left:138px;top:26px;width:8px;height:8px;background:var(--danger);border-radius:1px;box-shadow:0 0 0 3px rgba(232,87,74,0.3)}
+.mini .view{position:absolute;left:46px;top:52px;width:72px;height:46px;border:1px solid rgba(239,231,218,0.85)}
+.mini .ph{position:absolute;left:6px;bottom:4px;font-size:10px;color:var(--dim)}
+.mini-side{display:flex;flex-direction:column;gap:4px}
+.mk{position:absolute;top:3px;left:4px;font-size:10px}
+.mini-side .btn{position:relative;width:44px;height:48px;padding-top:10px;display:flex;align-items:center;justify-content:center;color:var(--muted)}
+
+/* commander */
+.por{width:132px;flex:none;display:flex;flex-direction:column;gap:6px}
+.por-img{border:1px solid #3d6a3f;box-shadow:inset 0 0 0 1px rgba(108,196,106,0.18),inset 0 1px 2px rgba(0,0,0,0.5);height:128px;border-radius:2px;display:flex;align-items:flex-end;justify-content:center;padding-bottom:8px;font-size:11px;color:var(--dim)}
+.slots{display:grid;grid-template-columns:repeat(3,1fr);gap:4px}
+.slot{height:40px;position:relative;display:flex;align-items:center;justify-content:center}
+.slot .q{position:absolute;right:3px;bottom:3px;width:6px;height:6px;border-radius:1px}
+.slot.empty{border-style:dashed;background:transparent;box-shadow:none;color:var(--dim)}
+.info{flex:1;min-width:0;display:flex;flex-direction:column;gap:8px}
+.idrow{display:flex;align-items:center;gap:8px}
+.name{font-size:19px;font-weight:700;letter-spacing:-0.01em}
+.role{font-size:12px;color:var(--muted)}
+.tag{font-size:13px;color:#ddd2c1}
+.dot{color:var(--dim)}
+.tag.hurt{font-size:12px;padding:1px 7px;border-radius:2px;background:#2a1512;border:1px solid #5c2620;color:var(--danger-ink);display:flex;align-items:center;gap:4px}
+.grow{flex:1}
+.troops{display:flex;flex-direction:column;gap:3px}
+.troops-h{display:flex;justify-content:space-between;align-items:baseline;font-size:12px;color:var(--muted)}
+.troops-h .n{font-size:18px;color:var(--text)}
+.troops-h .lim{font-family:var(--num);font-size:13px;color:var(--dim);font-weight:500}
+.hpbar{height:12px;border-radius:2px;overflow:hidden;position:relative}
+.hpbar i{position:absolute;left:0;top:0;bottom:0;width:91%;background:var(--hp)}
+.hpbar .ticks{position:absolute;inset:0;display:flex}
+.hpbar .ticks b{flex:1;border-right:1px solid rgba(0,0,0,0.35)}
+.hpbar .ticks b:last-child{border-right:0}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+.stat{padding:6px 10px 6px 0;display:flex;flex-direction:column;gap:2px}
+.stat+.stat{padding-left:10px;border-left:1px solid var(--line)}
+.stat .k{font-size:12px;color:var(--muted);display:flex;justify-content:space-between}
+.stat .v{font-size:20px;line-height:1.1}
+.stat .why{font-size:11px;color:var(--dim);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.meter{height:3px;border-radius:2px;background:var(--well);overflow:hidden}
+.meter i{display:block;height:100%}
+.skills{display:grid;grid-template-columns:repeat(9,1fr);gap:0;font-size:12px;color:var(--muted)}
+.sk{display:flex;align-items:baseline;justify-content:space-between;gap:4px;padding:0 8px;border-left:1px solid var(--line)}
+.sk:first-child{padding-left:0;border-left:0}
+.sk-k{display:flex;align-items:center;gap:3px}
+.sk .n{font-size:15px;color:var(--text);line-height:1.2}
+.sk.hi .n{color:var(--text);font-weight:700}
+.rel{display:flex;gap:10px;font-size:12px;color:var(--dim)}
+.rel b{font-weight:500;color:#ddd2c1}
+.rel b.rv{color:var(--danger-ink)}
+
+/* command card: grid hotkeys follow keyboard rows */
+.cmd{display:grid;grid-template-columns:repeat(5,60px);grid-template-rows:repeat(3,52px);gap:4px 5px;margin:0 auto;align-self:center}
+.c{position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;font-size:11px;overflow:hidden;padding:0}
+.c kbd{position:absolute;top:3px;left:4px}
+.c.nil{background:var(--well);border-color:var(--edge-lo);box-shadow:none;cursor:default}
+.c.nil kbd{color:#5e5446}
+.c.primary{background:var(--accent);border-color:#ffc56b;color:var(--accent-ink)}
+.c.primary kbd{color:rgba(26,18,6,0.7)}
+@media (hover:hover) and (pointer:fine){.c.primary:hover{background:#ffb84d;border-color:#ffd08a}}
+.c.cool{color:var(--muted)}
+.c .cd{position:absolute;inset:0;z-index:1;background:conic-gradient(rgba(8,6,5,0.72) 0 62%,transparent 62% 100%)}
+.c kbd{z-index:2}
+.c.cool>svg,.c.cool>span.lbl{opacity:0.3}
+.c .sec{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-family:var(--num);font-weight:700;font-size:22px;color:var(--text);text-shadow:0 1px 2px rgba(8,6,5,0.9);z-index:1}
+.c.locked{border-style:dashed;background:transparent;box-shadow:none}
+.c.locked span{color:var(--dim)}
+
+@media (prefers-reduced-motion:reduce){
+  .toast{transition:opacity 200ms ease}
+  @starting-style{.toast{transform:none;opacity:0}}
+  .btn:active{transform:none}
+}
+</style>
+</head>
+<body>
+
+<div class="world" aria-hidden="true"><span>게임 월드 · 아이소메트릭 렌더 영역 (자리 표시)</span></div>
+
+<header class="top plate">
+  <nav class="menu" aria-label="화면">
+    <button class="btn" type="button" aria-label="메뉴 (Esc)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg><kbd>Esc</kbd></button>
+    <button class="btn" type="button">장수<kbd>G</kbd></button>
+    <button class="btn" type="button">과학<kbd>K</kbd></button>
+    <button class="btn" type="button">외교<kbd>J</kbd></button>
+    <button class="btn" type="button">월드맵<kbd>M</kbd></button>
+    <button class="btn" type="button">로그<kbd>L</kbd></button>
+  </nav>
+
+  <div class="clock">
+    <div class="cal" title="다음 유지비 청구까지">
+      <div class="cal-row"><b>3년 봄 4월</b><span style="font-size:11px;color:var(--dim)">유지비까지 <span class="n" style="font-size:12px;color:var(--muted)">1:54</span></span></div>
+      <div class="bill"><i></i></div>
+    </div>
+<div class="r bal" style="gap:4px" title="한 달 식량 생산 - 소비"><span class="cap">수지</span><span class="n">+18</span><span class="cap">/월</span></div>
+    <div class="speed well" role="group" aria-label="게임 속도">
+      <button class="btn pz" type="button" aria-label="일시정지 (P)" aria-pressed="false"><kbd>P</kbd><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" aria-hidden="true"><path d="M9 5v14M15 5v14"/></svg></button>
+      <button class="btn" type="button" aria-pressed="true">1×</button>
+      <button class="btn" type="button" aria-pressed="false">2×</button>
+      <button class="btn" type="button" aria-pressed="false">3×</button>
+    </div>
+  </div>
+
+  <div class="res">
+    <div class="r" title="식량 (현재 / 저장 한도)"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#e5bd6b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3c4 4 6 7 6 10a6 6 0 0 1-12 0c0-3 2-6 6-10z"/></svg><span class="n">1,240</span><span class="cap">/2,000</span></div>
+    <div class="r" title="흙 (현재 / 저장 한도)"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#c49a74" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 18l6-9 4 5 3-4 5 8z"/></svg><span class="n">860</span><span class="cap">/2,000</span></div>
+    <div class="r" title="특수 자원 (현재 / 저장 한도)"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#b9a2f2" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l3 6 6 1-4.5 4 1 6-5.5-3-5.5 3 1-6L3 10l6-1z"/></svg><span class="n">12</span><span class="cap">/100</span></div>
+    <span class="sep" aria-hidden="true"></span>
+    <div class="r" title="일반개미 대기 48 · 배정 132 · 건설 예약 10 · 총 190"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#d8ccb8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="6.5" r="2.5"/><ellipse cx="12" cy="15" rx="3.5" ry="4.5"/><path d="M5 11l3.5 2M19 11l-3.5 2M5 20l3.5-2M19 20l-3.5-2"/></svg><span class="cap">대기</span><span class="n">48</span><span class="cap">배정</span><span class="n">132</span><span class="cap">예약</span><span class="n">10</span><span class="cap">총</span><span class="n">190</span></div>
+  </div>
+</header>
+
+<aside class="goal plate" aria-label="현재 목표">
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 21V4h11l-2 4 2 4H5"/></svg>
+  <div class="goal-t"><b>큰턱 훈련장 1개 건설</b><span>건설 메뉴에서 시작 · <span class="n" style="font-weight:600">0/1</span></span></div>
+  <button class="btn" type="button" title="설명서">F2</button>
+</aside>
+
+<ol class="alerts" aria-label="알림">
+  <li class="toast plate crisis" role="alert">
+    <span class="ic"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4l9 16H3z"/><path d="M12 10v4M12 17h.01"/></svg></span>
+    <span class="tx"><span class="tt">침공 경보<span class="pin">고정</span></span><span class="dd">북동쪽 입구 · 적 12마리, 적 장수 1</span></span>
+    <button class="btn jump" type="button" aria-label="경보 위치로 이동 (Space)" title="경보 위치로 이동"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M12 2v4M12 18v4M2 12h4M18 12h4"/></svg><kbd>Space</kbd></button>
+  </li>
+  <li class="toast plate warn" role="status">
+    <span class="ic"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M8.5 16c1-1.2 2.2-1.8 3.5-1.8s2.5.6 3.5 1.8M9 9.5h.01M15 9.5h.01"/></svg></span>
+    <span class="tx"><span class="tt">기분 경고<span class="count">×2</span></span><span class="dd">관우, 장비 · 기분 35 이하, 붕괴 위험</span></span>
+    <button class="btn x" type="button" aria-label="닫기"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+    <span class="timer" aria-hidden="true"><i style="width:58%;background:#8a6a33"></i></span>
+  </li>
+  <li class="toast plate done" role="status">
+    <span class="ic"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></span>
+    <span class="tx"><span class="tt">연구 완료</span><span class="dd">흙벽 공법 · 흙벽을 지을 수 있음</span></span>
+    <button class="btn x" type="button" aria-label="닫기"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+    <span class="timer" aria-hidden="true"><i style="width:24%;background:#3d6a3f"></i></span>
+  </li>
+</ol>
+
+<section class="console" aria-label="선택 정보와 명령">
+  <div class="wing l plate">
+    <div class="mini well" role="img" aria-label="미니맵: 본거지, 북동쪽에 적">
+      <span class="land"></span><span class="water"></span>
+      <span class="me" style="left:78px;top:74px;width:10px;height:10px"></span>
+      <span class="me" style="left:96px;top:64px;width:5px;height:5px"></span>
+      <span class="me" style="left:66px;top:92px;width:5px;height:5px"></span>
+      <span class="foe"></span>
+      <span class="view"></span>
+      <span class="ph">미니맵 (자리 표시)</span>
+    </div>
+    <div class="mini-side">
+      <button class="btn" type="button" aria-label="최근 경보 위치로 (Space)" title="최근 경보 위치로 (Space)"><kbd class="mk">Space</kbd><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M12 2v4M12 18v4M2 12h4M18 12h4"/></svg></button>
+      <button class="btn" type="button" aria-label="다음 대기 장수 (Tab)" title="다음 대기 장수 (Tab)"><kbd class="mk">Tab</kbd><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="10" cy="8" r="3"/><path d="M4 20c0-3.3 2.7-6 6-6M16 14l4 3-4 3"/></svg></button>
+      <button class="btn" type="button" aria-label="카메라 회전 (Z/C)" title="카메라 회전 (Z/C)"><kbd class="mk">Z/C</kbd><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 12a8 8 0 1 1-2.3-5.7M20 4v5h-5"/></svg></button>
+    </div>
+  </div>
+
+  <div class="center plate">
+    <div class="por">
+      <div class="por-img well">초상 (임시)</div>
+      <div class="slots">
+        <button class="btn slot" type="button" title="무기: 방패 갑각 · 정교 · 방어 +6" aria-label="무기: 방패 갑각, 정교"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l7 3v5c0 4.5-3 8-7 10-4-2-7-5.5-7-10V6z"/></svg><span class="q" style="background:var(--loyal)"></span></button>
+        <button class="btn slot" type="button" title="갑옷: 외골격 코팅 · 보통 · 방어 +2" aria-label="갑옷: 외골격 코팅, 보통"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 3h8l3 4-2 3v11H7V10L5 7z"/><path d="M9 12h6"/></svg><span class="q" style="background:#d8ccb8"></span></button>
+        <button class="btn slot empty" type="button" title="장신구: 비어 있음" aria-label="장신구: 비어 있음"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg></button>
+      </div>
+    </div>
+
+    <div class="info">
+      <div class="idrow">
+        <span class="name">관우</span>
+        <span class="role">방패 · 방어</span>
+        <span class="dot" aria-hidden="true">|</span>
+        <span class="tag" title="용맹: 공격 +2, 방어 -1">용맹</span><span class="dot" aria-hidden="true">·</span><span class="tag" title="사교적: 친구 1명당 기분 +2, 관계 상승 ×1.5">사교적</span><span class="dot" aria-hidden="true">·</span><span class="tag" title="튼튼: 중상 확률 30% → 10%">튼튼</span>
+        <span class="grow"></span>
+        <span class="rel">친구 <b>장비</b> · 라이벌 <b class="rv">여포</b></span>
+        <span class="tag hurt" title="다리 경상: 이동 -15%, 2분 뒤 회복"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="8" width="18" height="8" rx="4" transform="rotate(-45 12 12)"/><path d="M10.5 10.5h.01M13.5 13.5h.01"/></svg>다리 경상</span>
+      </div>
+
+      <div class="troops">
+        <div class="troops-h"><span>병력</span><span><span class="n">42</span> <span class="lim">/ 46 지휘한도</span></span></div>
+        <div class="hpbar well" role="meter" aria-valuenow="42" aria-valuemin="0" aria-valuemax="46" aria-label="병력"><i></i><span class="ticks" aria-hidden="true"><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b></span></div>
+      </div>
+
+      <div class="stats">
+        <div class="stat"><span class="k">공격</span><span class="v n">18</span><span class="why">근접 12 · 용맹 +2</span></div>
+        <div class="stat"><span class="k">방어</span><span class="v n">26</span><span class="why">방패 +6 · 코팅 +2</span></div>
+        <div class="stat"><span class="k">기분<span class="n" style="color:var(--warn);font-size:12px">경고</span></span><span class="v n" style="color:var(--warn)">34</span><span class="why" title="휴식 부족 -12 · 친구 근처 +3">휴식 부족 -12 · 친구 +3</span></div>
+        <div class="stat"><span class="k">충성심</span><span class="v n">78</span><span class="why">포상 +8</span></div>
+      </div>
+
+      <div class="skills" aria-label="기술 (0~20)"><span class="sk hi" title="근접 12/20 · 큰 불꽃: 경험치 ×2"><span class="sk-k">근접<svg width="11" height="11" viewBox="0 0 24 24" fill="#e0913a" aria-label="큰 불꽃"><path d="M12 2c1 4 5 5.5 5 11a5 5 0 0 1-10 0c0-2.5 1.2-4 2.5-5 .2 1.8 1 3 2.5 3.5C11 9 11 5.5 12 2z"/></svg></span><span class="n">12</span></span><span class="sk" title="원거리 3/20"><span class="sk-k">원거리</span><span class="n">3</span></span><span class="sk hi" title="지휘 18/20"><span class="sk-k">지휘</span><span class="n">18</span></span><span class="sk" title="채집 6/20"><span class="sk-k">채집</span><span class="n">6</span></span><span class="sk" title="건설 7/20 · 작은 불꽃: 경험치 ×1.5"><span class="sk-k">건설<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#e0913a" stroke-width="2.5" stroke-linejoin="round" aria-label="작은 불꽃"><path d="M12 2c1 4 5 5.5 5 11a5 5 0 0 1-10 0c0-2.5 1.2-4 2.5-5 .2 1.8 1 3 2.5 3.5C11 9 11 5.5 12 2z"/></svg></span><span class="n">7</span></span><span class="sk" title="농사 2/20"><span class="sk-k">농사</span><span class="n">2</span></span><span class="sk" title="낚시 4/20"><span class="sk-k">낚시</span><span class="n">4</span></span><span class="sk" title="제작 5/20"><span class="sk-k">제작</span><span class="n">5</span></span><span class="sk" title="연구 1/20"><span class="sk-k">연구</span><span class="n">1</span></span></div>
+    </div>
+  </div>
+
+  <div class="wing r plate">
+    <div class="cmd" role="group" aria-label="명령">
+      <button class="btn c cool" type="button" disabled aria-label="방어 태세, 재사용 대기 8초" title="방어 태세: 5초간 방어 +5 · 재사용 대기 20초"><kbd>Q</kbd><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l7 3v5c0 4.5-3 8-7 10-4-2-7-5.5-7-10V6z"/><path d="M9 12l2 2 4-4"/></svg><span class="lbl">방어 태세</span><span class="cd" aria-hidden="true"></span><span class="sec">8</span></button>
+      <button class="btn c locked" type="button" disabled aria-label="급강하, 비행 날개 필요" title="급강하: 비행 날개를 착용해야 사용 가능"><kbd>W</kbd><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--dim)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg><span>급강하</span></button>
+      <button class="btn c" type="button" title="병력 1 배정"><kbd>E</kbd><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg><span>병력 +1</span></button>
+      <button class="btn c" type="button" title="보관함 무기로 교체"><kbd>R</kbd><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 8h14l-3-3M20 16H6l3 3"/></svg><span>무기 교체</span></button>
+      <button class="btn c nil" type="button" disabled aria-label="빈 칸"></button>
+
+      <button class="btn c" type="button" title="어택무브"><kbd>A</kbd><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="7"/><path d="M12 2v5M12 17v5M2 12h5M17 12h5"/></svg><span>공격</span></button>
+      <button class="btn c" type="button" title="정지"><kbd>S</kbd><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round" aria-hidden="true"><rect x="6" y="6" width="12" height="12" rx="1.5"/></svg><span>정지</span></button>
+      <button class="btn c" type="button" title="병력 1 회수"><kbd>D</kbd><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M5 12h14"/></svg><span>병력 -1</span></button>
+      <button class="btn c nil" type="button" disabled aria-label="빈 칸"></button>
+      <button class="btn c" type="button" title="장수 상세"><kbd>G</kbd><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="3.5"/><path d="M5 20c0-3.9 3.1-7 7-7s7 3.1 7 7"/></svg><span>상세</span></button>
+
+      <button class="btn c nil" type="button" disabled aria-label="빈 칸"></button>
+      <button class="btn c nil" type="button" disabled aria-label="빈 칸"></button>
+      <button class="btn c nil" type="button" disabled aria-label="빈 칸"></button>
+      <button class="btn c nil" type="button" disabled aria-label="빈 칸"></button>
+      <button class="btn c primary" type="button" title="건설 메뉴"><kbd>B</kbd><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 4l6 6-3 3-6-6zM11 7l-8 8 3 3 8-8"/></svg><span>건설</span></button>
+    </div>
+  </div>
+</section>
+
+</body>
+</html>

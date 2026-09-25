@@ -90,7 +90,6 @@ namespace AntColony.Regression
                 // ================= 1. 번식 =================
                 var nurseryGo = New("Check Nursery", origin);
                 var nursery = nurseryGo.AddComponent<NurseryChamber>();
-                SetPrivate(nursery, "affinityRadius", 5f);
                 SetPrivate(nursery, "affinityPerSecond", 10f);
                 SetPrivate(nursery, "birthAffinity", 100f);
                 SetPrivate(nursery, "birthFoodCost", 30);
@@ -104,6 +103,9 @@ namespace AntColony.Regression
                     new[] { UnitRole.Worker, UnitRole.Ranged }, UnitRole.Worker,
                     new CommanderTraits(CommanderPersonality.Cautious, 40), origin + new Vector3(2f, 0f, 0f));
                 Check(parentA != null && parentB != null, "부모 장수 2명이 만들어진다");
+                // 번식은 연인(서로 관계 70 이상) 쌍만 한다.
+                parentA.PersonalState.Relation(parentB.PersonalState.id).value = 70;
+                parentB.PersonalState.Relation(parentA.PersonalState.id).value = 70;
 
                 var baseCount = roster.Count;
 

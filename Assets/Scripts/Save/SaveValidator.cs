@@ -33,6 +33,8 @@ namespace AntColony.Save
             error = null;
             if (file == null) { error = "No data."; return false; }
             if (file.gameId != "AntColony") { error = "Not an Ant Colony save."; return false; }
+            if (file.version <= 5 && file.commanders != null)
+                foreach (var c in file.commanders) if (c?.personalState != null) c.personalState.social = new Units.CommanderSocialState();
             if (file.version == 1)
             {
                 // Version 1 tracked scaled play time; preserve it as the simulation calendar.
@@ -56,6 +58,24 @@ namespace AntColony.Save
                 file.version = 2;
             }
             if (file.version == 2 && !CommanderMigration.Upgrade(file, out error)) return false;
+            if (file.version == 3 && !WorkshopMigration.Upgrade(file, out error)) return false;
+            if (file.version == 4)
+            {
+                file.history = new Core.CampaignHistory.State();
+                file.events = new World.ColonyEvents.State();
+                if (file.commanders != null) foreach (var c in file.commanders)
+                    if (c?.personalState != null) { c.personalState.infected = false; c.personalState.moldLoss = c.personalState.moldSpread = c.personalState.moldTreatment = 0; }
+                file.version = 5;
+            }
+            if (file.version == 5)
+            {
+                if (file.commanders != null) foreach (var c in file.commanders)
+                    if (c?.personalState != null) c.personalState.social = new Units.CommanderSocialState();
+                if (file.buildings != null) foreach (var b in file.buildings)
+                    if (b?.prisoners != null) foreach (var p in b.prisoners)
+                        if (p != null) { p.personalState = new Units.CommanderPersonalState(); p.labAttack = p.labArmor = 0; p.strikeCooldown = p.stanceCooldown = 0; }
+                file.version = 6;
+            }
             if (file.version != SaveFileV1.CurrentVersion)
             {
                 error = $"Save version {file.version} cannot be read by this build (expects {SaveFileV1.CurrentVersion}).";

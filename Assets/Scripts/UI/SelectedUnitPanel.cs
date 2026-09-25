@@ -17,6 +17,7 @@ namespace AntColony.UI
         private CommanderAnt selectedCommander;
         private Text powerStrikeText;
         private Text stanceText;
+        private Text advancedText, diveText;
 
         // 현재 선택에서 유효한 유닛이 정확히 한 명이고 장수이면 반환한다. 행동 시점에 캐시 없이 조회한다.
         public static CommanderAnt FindSingleSelectedCommander(SelectionManager selection)
@@ -73,6 +74,10 @@ namespace AntColony.UI
             stanceText = CreateButton(rect, 348f, "Guard",
                 () => FindSingleSelectedCommander(selection)?.TryDefensiveStance(),
                 $"Level {CommanderSkills.DefensiveStanceLevel}: +{CommanderSkills.DefensiveStanceArmor} armor for {CommanderSkills.DefensiveStanceDuration}s. Cooldown {CommanderSkills.DefensiveStanceCooldown}s.", 64f);
+            advancedText = CreateButton(rect, 348f, "Skill", () => SkillTargeting.Begin(new[] { FindSingleSelectedCommander(selection) }, false),
+                "Q: 원거리 5 산성비(지면 클릭), 지휘 5 집결. 선택된 준비 장수 전원은 Q로 시전.", 96f);
+            diveText = CreateButton(rect, 348f, "Dive", () => SkillTargeting.Begin(new[] { FindSingleSelectedCommander(selection) }, true),
+                "W: 날개 + 근접/원거리 5. 지면 클릭 후 급강하, 3초 착지. 재사용 30초.", 64f);
             panel.SetActive(false);
         }
 
@@ -102,6 +107,8 @@ namespace AntColony.UI
             selectedCommander = count == 1 ? first as CommanderAnt : null;
             powerStrikeText.transform.parent.gameObject.SetActive(selectedCommander != null);
             stanceText.transform.parent.gameObject.SetActive(selectedCommander != null);
+            advancedText.transform.parent.gameObject.SetActive(selectedCommander != null);
+            diveText.transform.parent.gameObject.SetActive(selectedCommander != null);
             title.text = selectedCommander != null ? selectedCommander.CommanderName : $"Selected Commanders: {count}";
             healthText.text = $"HP {Mathf.CeilToInt(current)} / {Mathf.CeilToInt(maximum)}";
             combatStatsText.text = count != 1
@@ -116,12 +123,21 @@ namespace AntColony.UI
             workText.text = $"Gather {talents.Level(CommanderActivity.Gathering)} | {selectedCommander.CombatActivity} {talents.Level(selectedCommander.CombatActivity)} | Command {talents.Level(CommanderActivity.Command)}";
             combatStatsText.text = $"{selectedCommander.WeaponLabel}  ATK {selectedCommander.AttackDamage:0.#}  DEF {selectedCommander.Armor:0.#}";
             healthText.text += $"  Mood {selectedCommander.Mood:0}  Loyalty {selectedCommander.Traits.Loyalty}";
+            healthText.color = GameMenuController.LoyaltyColor(selectedCommander.Traits.Loyalty);
 
             var skills = selectedCommander.Skills;
             powerStrikeText.GetComponentInParent<Button>().interactable = selectedCommander.CanPowerStrike;
             stanceText.GetComponentInParent<Button>().interactable = selectedCommander.CanDefensiveStance;
             powerStrikeText.transform.parent.gameObject.SetActive(selectedCommander.Role == UnitRole.Melee);
             stanceText.transform.parent.gameObject.SetActive(selectedCommander.Role == UnitRole.Defense);
+            advancedText.transform.parent.gameObject.SetActive(selectedCommander.Role == UnitRole.Ranged || selectedCommander.Role == UnitRole.Support);
+            diveText.transform.parent.gameObject.SetActive(selectedCommander.EquippedArmor?.armor == ArmorKind.Wings);
+            stanceText.transform.parent.gameObject.GetComponent<RectTransform>().anchoredPosition = new Vector2(348f, 96f);
+            advancedText.GetComponentInParent<Button>().interactable = selectedCommander.CanAcidRain || selectedCommander.CanRally;
+            bool acid = selectedCommander.Role == UnitRole.Ranged;
+            advancedText.text = SkillLabel(acid ? "산성비" : "집결", 5, talents.Level(acid ? CommanderActivity.Ranged : CommanderActivity.Command), null, acid ? selectedCommander.Social.acidCooldown : selectedCommander.Social.rallyCooldown);
+            diveText.GetComponentInParent<Button>().interactable = selectedCommander.CanDive;
+            diveText.text = SkillLabel("급강하", 5, Mathf.Max(talents.Level(CommanderActivity.Melee), talents.Level(CommanderActivity.Ranged)), null, selectedCommander.Social.diveCooldown);
             powerStrikeText.text = SkillLabel("Strike", CommanderSkills.PowerStrikeLevel, talents.Level(CommanderActivity.Melee),
                 skills.PowerStrikeArmed ? "ON" : null, skills.PowerStrikeCooldownLeft);
             stanceText.text = SkillLabel("Guard", CommanderSkills.DefensiveStanceLevel, talents.Level(CommanderActivity.Melee),

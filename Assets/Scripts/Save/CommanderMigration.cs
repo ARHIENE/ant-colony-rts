@@ -46,7 +46,7 @@ namespace AntColony.Save
                     if (p != null) { if (!Passions(p.traits)) return false; p.talents = new CommanderTalents(); }
             if (file.monsters != null) foreach (var m in file.monsters)
                 if (m?.traits != null) { if (!Passions(m.traits)) return false; m.talents = new CommanderTalents(); }
-            file.version = SaveFileV1.CurrentVersion;
+            file.version = 3;
             error = null; return true;
         }
         private static bool Passions(TraitsDto traits)

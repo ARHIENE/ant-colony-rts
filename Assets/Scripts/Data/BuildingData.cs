@@ -17,7 +17,16 @@ namespace AntColony.Data
         ScienceLab,
         AcidTower,
         AirshipYard,
-        Infirmary
+        Infirmary,
+        // 과학 2단계 시설
+        SoilWall,
+        TrapPit,
+        AreaAcidTower,
+        Watchtower,
+        MineField,
+        DefenseLab,
+        RestRoom,
+        Workshop
     }
 
     [CreateAssetMenu(fileName = "BuildingData", menuName = "AntColony/Building Data")]
@@ -32,6 +41,7 @@ namespace AntColony.Data
         [Header("Cost")]
         public int foodCost = 0;
         public int soilCost = 20;
+        [Min(0)] public int specialCost = 0;
         public float buildTimeSeconds = 3f;
         // ponytail: 임시 건설 인력. 건물별 밸런스 확정 시 에셋에서 조정한다.
         [Min(0)] public int constructionAnts = 5;

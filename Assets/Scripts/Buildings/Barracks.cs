@@ -69,7 +69,7 @@ namespace AntColony.Buildings
         public bool TryUpgrade()
         {
             if (!isActiveAndEnabled || isUpgrading || currentTier >= maxTier || ResourceManager.Instance == null) return false;
-            if (!ResourceManager.Instance.TrySpend(UpgradeFoodCost, UpgradeSoilCost)) return false;
+            if (!ResourceManager.Instance.TrySpend(UpgradeFoodCost, UpgradeSoilCost, reason: ResourceReason.Research)) return false;
             isUpgrading = true;
             upgradeRemaining = upgradeTimeSeconds;
             return true;

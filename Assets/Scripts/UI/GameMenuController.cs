@@ -48,7 +48,7 @@ namespace AntColony.UI
             bar.anchorMin = bar.anchorMax = new Vector2(1, 1); bar.pivot = new Vector2(1, 1); bar.anchoredPosition = new Vector2(-240, -10); bar.sizeDelta = new Vector2(340, 44);
             var layout = bar.gameObject.AddComponent<HorizontalLayoutGroup>(); layout.spacing = 4;
             MenuTheme.Button(bar, "Menu [Esc]", Pause, "Pause, save or change settings.");
-            MenuTheme.Button(bar, "Commanders [F1]", Roster, "All commanders, sorted by name. Inspect skills and equipment.");
+            MenuTheme.Button(bar, "Commanders [G]", Roster, "All commanders, sorted by name. Inspect skills and equipment.");
             var timebar = MenuTheme.Rect("CalendarToolbar", canvas.transform);
             timebar.anchorMin = timebar.anchorMax = new Vector2(.5f, 1); timebar.pivot = new Vector2(.5f, 1);
             timebar.anchoredPosition = new Vector2(0, -58); timebar.sizeDelta = new Vector2(580, 32);
@@ -65,6 +65,7 @@ namespace AntColony.UI
             calendar.text = GameCalendar.Label;
             speedButton.GetComponentInChildren<Text>().text = Time.timeScale == 0 ? "Paused" : Time.timeScale + "x";
             if (SaveSystem.Busy || Keyboard.current == null) return;
+            if (PollRebind()) return;
             if (!open && GameSession.Instance.GameStarted)
             {
                 if (Keyboard.current.equalsKey.wasPressedThisFrame || Keyboard.current.numpadPlusKey.wasPressedThisFrame) SetSpeed(Time.timeScale + 1);
@@ -73,11 +74,13 @@ namespace AntColony.UI
             if (Keyboard.current.f2Key.wasPressedThisFrame) { Guide(); return; }
             if (Keyboard.current.escapeKey.wasPressedThisFrame)
             {
+                if (SkillTargeting.ConsumesPointerInput) return;
                 if (!open && (FindFirstObjectByType<AntColony.Buildings.BuildingPlacementController>()?.IsPlacing == true
                     || FindFirstObjectByType<AttackMoveController>()?.IsAttackMode == true)) return;
                 if (!open) Pause(); else if (GameSession.Instance.GameStarted) Resume(); else Main();
             }
             if (Keyboard.current.f1Key.wasPressedThisFrame && GameSession.Instance.GameStarted) Roster();
+            else if (!open && GameSession.Instance.GameStarted && Time.frameCount > closedFrame) GameHotkeys.Handle(this);
         }
         public void SetSpeed(float value)
         {
@@ -137,6 +140,7 @@ namespace AntColony.UI
             MenuTheme.Button(content, "Settings", Settings);
             MenuTheme.Button(content, "Commanders", Roster);
             MenuTheme.Button(content, "Science / Airship", Science);
+            MenuTheme.Button(content, "이벤트 로그 [L]", EventLog);
             MenuTheme.Button(content, "Encyclopedia", Book);
             MenuTheme.Button(content, "How to Play [F2]", Guide);
             MenuTheme.Button(content, "Save & Main Menu", () => {
@@ -167,7 +171,7 @@ namespace AntColony.UI
             MenuTheme.Text(content, "4. Reach 60 ants, unlock Fishing and upgrade a barracks to Tier 2. In World / Science, build a Science Lab, research vehicles and build a transport.", 18, 95);
             MenuTheme.Text(content, "5. Bring combat commanders near the transport, board, choose a MiniBird nest and depart. Switch to the battlefield, dodge marked boss attacks and win. Return Home brings the crew and cargo back.", 18, 100);
             MenuTheme.Text(content, "Storage: Build Storage expands resource limits and adds a drop-off point. Interrupted delivery: right-click the Queen Chamber or a Storage; on expeditions, right-click your own transport to deliver carried resources.", 18, 100);
-            MenuTheme.Text(content, "Camera: screen edges, wheel to zoom, Q/E to rotate. Esc: pause. F1: commanders. Save from Menu when units are idle; active work or combat currently blocks saving. Leave home defenders behind before a raid.", 18, 95);
+            MenuTheme.Text(content, "Camera: screen edges, wheel to zoom, Z/C to rotate. Esc: menu, P: pause. G/F1: commanders. Q: weapon skill, E/D: troop +1/-1, R: weapon, K/M: world & science. Keys can be changed in Settings. Save from Menu when units are idle; active work or combat currently blocks saving. Leave home defenders behind before a raid.", 18, 95);
             MenuTheme.Button(content, "Back", Back);
         }
 
@@ -220,6 +224,7 @@ namespace AntColony.UI
             MenuTheme.Button(content, "Autosave interval: " + s.autoSaveMinutes + " minutes", () => Apply(v => v.autoSaveMinutes = v.autoSaveMinutes >= 15 ? 1 : v.autoSaveMinutes + 1));
             MenuTheme.Button(content, "Toast duration: " + s.toastSeconds + " seconds", () => Apply(v => v.toastSeconds = v.toastSeconds >= 10 ? 2 : v.toastSeconds + 1));
             MenuTheme.Button(content, "Pause simulation in menus: " + s.pauseSimulationOnMenu, () => Apply(v => v.pauseSimulationOnMenu = !v.pauseSimulationOnMenu));
+            KeyBindingButtons();
             MenuTheme.Button(content, "Back", Back);
         }
         public static CommanderAnt[] SortedCommanders() => CommanderRoster.Instance == null ? Array.Empty<CommanderAnt>()
@@ -227,10 +232,15 @@ namespace AntColony.UI
         public void Roster()
         {
             Screen("Commanders");
-            foreach (var c in SortedCommanders()) MenuTheme.Button(content, c.CommanderName + "  |  " + c.WeaponLabel + "  |  " + Location(c), () => Details(c));
+            foreach (var c in SortedCommanders())
+            {
+                var button = MenuTheme.Button(content, c.CommanderName + "  |  " + c.WeaponLabel + "  |  충성 " + c.Traits.Loyalty + "  |  " + Location(c), () => Details(c));
+                button.GetComponentInChildren<UnityEngine.UI.Text>().color = LoyaltyColor(c.Traits.Loyalty);
+            }
             MenuTheme.Button(content, "Back", Back);
         }
-        private static string Location(CommanderAnt c) => c.IsCaptive ? "Captive" : c.Garrison != null ? "Garrison" : c.Transport != null ? c.Transport.State.ToString() : "Home";
+        public static Color LoyaltyColor(int loyalty) => loyalty <= 15 ? new Color(1, .4f, .35f) : loyalty <= 30 ? new Color(1, .7f, .25f) : Color.white;
+        private static string Location(CommanderAnt c) => c.IsDeparting ? c.Social.departure.ToString() : c.IsCaptive ? "Captive" : c.Garrison != null ? "Garrison" : c.Transport != null ? c.Transport.State.ToString() : "Home";
         public void Details(CommanderAnt c)
         {
             if (c == null) { Roster(); return; }

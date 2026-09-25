@@ -18,10 +18,12 @@ namespace AntColony.Core
         {
             var monster = World.WildMonster.FindNearest(from, radius, role);
             var building = World.EnemyColony.FindNearestBuilding(from, radius, role);
-            if (monster == null) return building;
-            if (building == null) return monster;
-            return (monster.Position - from).sqrMagnitude <= (building.Position - from).sqrMagnitude
-                ? (IDamageable)monster : building;
+            IDamageable nearest = monster;
+            if (building != null && (nearest == null || (building.Position - from).sqrMagnitude < (nearest.Position - from).sqrMagnitude)) nearest = building;
+            foreach (var unit in AntUnitBase.Active)
+                if (unit is CommanderAnt c && c.IsHostile && CanAttack(role, c) && (c.Position - from).sqrMagnitude <= radius * radius
+                    && (nearest == null || (c.Position - from).sqrMagnitude < (nearest.Position - from).sqrMagnitude)) nearest = c;
+            return nearest;
         }
 
         public static bool IsAlive(IDamageable target)
@@ -40,7 +42,7 @@ namespace AntColony.Core
         public static bool CanAttack(UnitRole role, IDamageable target)
         {
             if (!IsAlive(target)) return false;
-            if (target is AntUnitBase) return false;
+            if (target is AntUnitBase && !(target is CommanderAnt commander && commander.IsHostile)) return false;
             if (target is AntColony.World.ExpeditionTransport) return false;
             if (target is BuildingBase building && building.CountsTowardPlayerDefeat) return false;
             if (role == UnitRole.Worker) return false;

@@ -13,8 +13,9 @@ namespace AntColony.Buildings
         [SerializeField] private LineRenderer spray;
         private float cooldown, searchTimer, sprayTime;
 
-        public float Range => attackRange;
-        public float Damage => attackDamage;
+        public float Range => attackRange + DefenseUpgrades.RangeBonus;
+        public float Damage => attackDamage * ScienceEffects.AcidTowerDamageMultiplier;
+        protected override bool UsesDefenseDurability => true;
         public float AttackInterval => attackInterval;
         public float Cooldown => cooldown;
 
@@ -29,7 +30,7 @@ namespace AntColony.Buildings
             searchTimer -= seconds;
             if (cooldown > 0 || searchTimer > 0) return;
             searchTimer = .25f;
-            var target = CombatTargeting.FindNearestEnemy(Position, attackRange, UnitRole.Ranged);
+            var target = CombatTargeting.FindNearestEnemy(Position, Range, UnitRole.Ranged);
             if (target == null) return;
             cooldown = attackInterval;
             if (spray != null)
@@ -38,7 +39,7 @@ namespace AntColony.Buildings
                 spray.SetPosition(1, target.Position);
                 spray.enabled = true; sprayTime = .15f;
             }
-            target.TakeDamage(attackDamage);
+            target.TakeDamage(Damage);
         }
 
         internal void RestoreCooldown(float value) => cooldown = Mathf.Clamp(value, 0, attackInterval);

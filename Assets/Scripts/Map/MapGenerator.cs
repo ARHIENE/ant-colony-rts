@@ -76,6 +76,19 @@ namespace AntColony.Map
         public int BaseXSize => xSize;
         public int BaseZSize => zSize;
 
+        // 홍수 시작/복원 시에만 조회한다. 물 평면 아래 지형 정점으로 물가를 판정한다.
+        public bool NearWater(Vector3 point, float radius)
+        {
+            if (!generateWater || waterObject == null || mesh == null) return false;
+            var waterY = waterObject.transform.position.y;
+            foreach (var vertex in mesh.vertices)
+            {
+                var p = transform.TransformPoint(vertex);
+                if (p.y <= waterY && new Vector2(p.x - point.x, p.z - point.z).sqrMagnitude <= radius * radius) return true;
+            }
+            return false;
+        }
+
         private bool hasFlatZone;
         private Vector3 flatCenter;
         private float flatRadius;

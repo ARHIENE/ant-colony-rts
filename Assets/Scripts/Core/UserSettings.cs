@@ -16,6 +16,7 @@ namespace AntColony.Core
         public float autoSaveMinutes = 5f;       // 기본 5분, 1~30분
         public float toastSeconds = 6f;          // 알림 토스트 표시 시간
         public bool pauseSimulationOnMenu = true; // 명시적 일시정지에서 시뮬레이션도 멈출지
+        public System.Collections.Generic.List<string> keyBindings = new System.Collections.Generic.List<string>(); // GameAction 순서, 비면 기본값
 
         public UserSettingsData Clone() => (UserSettingsData)MemberwiseClone();
 

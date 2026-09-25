@@ -52,10 +52,10 @@ namespace AntColony.Save
             if (!Ready || Core.CommanderRoster.Instance == null) error = "Game is still initializing.";
             else if (Object.FindFirstObjectByType<BuildingConstructionSite>() != null) error = "Finish construction before saving.";
             else if (Core.CommanderRoster.Instance.Commanders.Any(c => c.IsWorking || c.IsCarrying || c.IsConstructing
-                || (!c.IsEmbarked && c.Agent.enabled && c.Agent.isOnNavMesh && (c.Agent.pathPending || c.Agent.hasPath))))
+                || (!c.IsHostile && c.PersonalState.rageRemaining <= 0 && !c.Social.diving && !c.IsEmbarked && c.Agent.enabled && c.Agent.isOnNavMesh && (c.Agent.pathPending || c.Agent.hasPath))))
                 error = "Stop commanders and finish carrying/building before saving.";
             else if (Object.FindObjectsByType<WildMonster>(FindObjectsSortMode.None).Any(m => m.InCombat
-                || (!Monsters.Contains(m) && m.GetComponentInParent<ExpeditionSite>()?.Disposition != ConquestDisposition.Lost)))
+                || (!Monsters.Contains(m) && m.GetComponent<EventActor>() == null && m.GetComponentInParent<ExpeditionSite>()?.Disposition != ConquestDisposition.Lost)))
                 error = "Finish the current battle or invasion before saving.";
             else if (WorldMapManager.Instance.Sites.Any(s => s.Defense != null && s.Defense.UnderAttack))
                 error = "Finish settlement defense before saving.";

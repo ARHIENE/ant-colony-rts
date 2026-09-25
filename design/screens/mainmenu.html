@@ -1,0 +1,159 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=1440">
+<title>메인 메뉴</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&amp;family=Barlow+Semi+Condensed:wght@500;600;700&amp;display=swap" rel="stylesheet">
+<style>
+
+:root{
+  --world:#4b4436;
+  --plate:#1b1712;--plate-2:#231e17;--well:#120f0b;
+  --edge-hi:rgba(255,236,200,0.09);--edge-lo:#080605;--line:#3a3127;--line-2:#4a3f32;
+  --text:#efe7da;--muted:#b8ac9a;--dim:#968976;
+  --accent:#f2a93b;--accent-ink:#1a1206;
+  --hp:#6cc46a;--hp-mid:#e0b43a;--danger:#e8574a;--danger-ink:#ffb3aa;--warn:#f2a93b;--loyal:#86a9e6;
+  --ease-out:cubic-bezier(0.23,1,0.32,1);
+  --num:"Barlow Semi Condensed",sans-serif;
+  --z-hud:10;--z-toast:20;
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{width:1440px;height:900px;overflow:hidden;background:var(--world);color:var(--text);font-family:"Noto Sans KR",sans-serif;font-size:13px;line-height:1.4;-webkit-font-smoothing:antialiased}
+::selection{background:rgba(242,169,59,0.35)}
+.n{font-family:var(--num);font-variant-numeric:tabular-nums;font-weight:600;letter-spacing:0.01em}
+svg{display:block}
+kbd{font-family:var(--num);font-weight:700;font-size:11px;line-height:1;color:var(--muted)}
+
+/* shared plate: 9-slice style bevel, uGUI friendly */
+.plate{background:var(--plate);border:1px solid var(--edge-lo);box-shadow:inset 0 1px 0 var(--edge-hi),inset 0 -1px 0 rgba(0,0,0,0.35)}
+.well{background:var(--well);border:1px solid var(--edge-lo);box-shadow:inset 0 1px 2px rgba(0,0,0,0.5)}
+
+/* buttons */
+.btn{appearance:none;font:inherit;color:var(--text);background:var(--plate-2);border:1px solid var(--line);border-radius:3px;cursor:pointer;box-shadow:inset 0 1px 0 var(--edge-hi);transition:transform 120ms var(--ease-out),background-color 150ms ease,border-color 150ms ease}
+.btn:active{transform:scale(0.97)}
+.btn:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
+.btn:disabled{cursor:default;color:var(--dim)}
+.btn:disabled:active{transform:none}
+@media (hover:hover) and (pointer:fine){.btn:not(:disabled):hover{background:#2e271e;border-color:var(--line-2)}}
+
+
+/* shared helpers for full screens */
+.world{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:#a39880;font-size:13px}
+.world span{padding:6px 10px;border:1px dashed #6e6450;border-radius:3px}
+.scrim{position:absolute;inset:0;background:rgba(12,10,8,0.62)}
+@media (prefers-reduced-motion:reduce){.btn:active{transform:none}}
+
+
+/* ===== main menu ===== */
+.world{left:440px}
+.side{position:absolute;left:0;top:0;width:440px;height:900px;z-index:var(--z-hud);border-left:0;border-top:0;border-bottom:0;border-right:1px solid #5a4c3b;padding:88px 48px 28px;display:flex;flex-direction:column;transition:transform 250ms var(--ease-out),opacity 250ms var(--ease-out)}
+@starting-style{.side{transform:translateX(-24px);opacity:0}}
+.world span{color:var(--muted);background:var(--plate);border-color:var(--line-2)}
+.logo{position:relative;height:132px;border-radius:2px;border-style:dashed;border-color:var(--line-2);display:flex;flex-direction:column;justify-content:center;padding:20px 18px 14px}
+.logo-ph{position:absolute;left:8px;top:6px;font-size:11px;color:var(--muted)}
+.title{margin:0;font-size:28px;font-weight:700;line-height:1.2;letter-spacing:-0.01em;color:var(--text)}
+.title-sub{margin-top:4px;font-size:12px;color:var(--dim)}
+.rule{height:1px;background:var(--line);margin:32px 0 28px}
+
+.mm{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:4px}
+.mm .gap{height:8px}
+.mbtn{width:100%;height:44px;padding:0 10px 0 12px;display:grid;grid-template-columns:18px 1fr auto;align-items:center;gap:10px;text-align:left;font-size:14px;font-weight:500}
+.mbtn>svg:first-child{color:var(--muted)}
+.mbtn .chev{color:var(--dim);transition:color 150ms ease}
+.mbtn .lab{white-space:nowrap}
+.mbtn.go{height:72px;padding:0 12px 0 14px;background:var(--accent);border-color:#ffc56b;color:var(--accent-ink)}
+.mbtn.go>svg:first-child{color:var(--accent-ink)}
+.mbtn.go .lab{display:flex;flex-direction:column;gap:2px}
+.mbtn.go .lab b{font-size:17px;font-weight:700}
+.mbtn.go .meta{font-size:12px;font-weight:500;color:rgba(26,18,6,0.78)}
+.mbtn.go .meta .n{font-size:13px;color:var(--accent-ink)}
+.mbtn.go kbd{color:rgba(26,18,6,0.72);padding:3px 5px;border:1px solid rgba(26,18,6,0.35);border-radius:2px}
+.mbtn.quit{color:var(--muted)}
+@media (hover:hover) and (pointer:fine){
+  .mbtn:not(.go):not(:disabled):hover .chev{color:var(--text)}
+  .mbtn:not(.go):not(:disabled):hover>svg:first-child{color:var(--text)}
+  .mbtn.go:hover{background:#ffb84d;border-color:#ffd08a}
+}
+.mbtn:focus-visible .chev{color:var(--accent)}
+.mbtn.go:focus-visible{outline-color:var(--text)}
+
+.grow{flex:1}
+.foot{display:flex;flex-direction:column;gap:10px;font-size:11px;color:var(--dim)}
+.keys{display:flex;align-items:center;gap:12px;color:var(--muted);font-size:12px}
+.keys span{display:flex;align-items:center;gap:5px}
+.keys kbd{display:inline-flex;align-items:center;justify-content:center;min-width:20px;height:20px;padding:0 4px;border-radius:2px;background:var(--well);border:1px solid var(--edge-lo);box-shadow:inset 0 1px 2px rgba(0,0,0,0.5)}
+.build{display:flex;justify-content:space-between;border-top:1px solid var(--line);padding-top:10px}
+
+@media (prefers-reduced-motion:reduce){
+  .side{transition:opacity 200ms ease}
+  @starting-style{.side{transform:none;opacity:0}}
+}
+</style>
+</head>
+<body>
+
+<div class="world" aria-hidden="true"><span>타이틀 배경 아트 (자리 표시)</span></div>
+
+<main class="side plate">
+  <div class="logo well">
+    <span class="logo-ph">로고 (자리 표시)</span>
+    <h1 class="title">개미 소굴 RTS</h1>
+    <div class="title-sub">(가제)</div>
+  </div>
+
+  <div class="rule" aria-hidden="true"></div>
+
+  <nav aria-label="메인 메뉴">
+    <ul class="mm">
+      <li><button class="btn mbtn go" type="button" autofocus>
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 4.5v15l12-7.5z"/></svg>
+        <span class="lab"><b>이어하기</b><span class="meta"><span class="n">3</span>년 봄 <span class="n">4</span>월 · 장수 <span class="n">12</span> · 저장 슬롯 <span class="n">2</span></span></span>
+        <kbd>Enter</kbd>
+      </button></li>
+      <li><button class="btn mbtn" type="button">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>
+        <span class="lab">새 게임</span>
+        <svg class="chev" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg>
+      </button></li>
+      <li><button class="btn mbtn" type="button">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 7h6l2 2h10v10H3z"/></svg>
+        <span class="lab">불러오기</span>
+        <svg class="chev" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg>
+      </button></li>
+      <li class="gap" aria-hidden="true"></li>
+      <li><button class="btn mbtn" type="button">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h10M18 7h2M4 17h4M12 17h8"/><circle cx="16" cy="7" r="2"/><circle cx="10" cy="17" r="2"/></svg>
+        <span class="lab">설정</span>
+        <svg class="chev" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg>
+      </button></li>
+      <li><button class="btn mbtn" type="button">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 4h11a3 3 0 0 1 3 3v13H8a3 3 0 0 1-3-3z"/><path d="M5 17a3 3 0 0 1 3-3h11M9 8h6"/></svg>
+        <span class="lab">도감</span>
+        <svg class="chev" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg>
+      </button></li>
+      <li class="gap" aria-hidden="true"></li>
+      <li><button class="btn mbtn quit" type="button">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 4h5v16h-5M10 8l-4 4 4 4M6 12h10"/></svg>
+        <span class="lab">종료</span>
+        <span></span>
+      </button></li>
+    </ul>
+  </nav>
+
+  <div class="grow"></div>
+
+  <footer class="foot">
+    <div class="keys">
+      <span><kbd><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-label="위"><path d="M6 15l6-6 6 6"/></svg></kbd><kbd><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-label="아래"><path d="M6 9l6 6 6-6"/></svg></kbd>이동</span>
+      <span><kbd>Enter</kbd>선택</span>
+      <span><kbd>Esc</kbd>뒤로</span>
+    </div>
+    <div class="build"><span>프로토타입 빌드</span></div>
+  </footer>
+</main>
+
+</body>
+</html>

@@ -67,9 +67,10 @@ public static class InfirmaryChecks
             Check(!a.Agent.hasPath && a.Position == position && !a.CanChangeAllocation, "treatment prevents move and allocation");
             a.TickPersonal(0); a.TickPersonal(float.NaN); a.TickPersonal(float.PositiveInfinity);
             Check(a.PersonalState.injuries[0].remaining == 240, "invalid and paused ticks do not heal");
-            a.TickPersonal(120); Check(a.PersonalState.injuries[0].remaining == 120, "treatment progresses");
+            // Infirmary의 선행 연구 Herbs(약초 처방)가 완료돼 중상 치료가 4분 -> 3분(속도 4/3배)이다.
+            a.TickPersonal(90); Check(Mathf.Abs(a.PersonalState.injuries[0].remaining - 120) < .01f, "treatment progresses (herbs 3 min)");
             Button("Stop treatment").onClick.Invoke();
-            a.TickPersonal(10); Check(a.CanReceiveOrders && a.PersonalState.injuries[0].remaining == 120, "cancel preserves progress");
+            a.TickPersonal(10); Check(a.CanReceiveOrders && Mathf.Abs(a.PersonalState.injuries[0].remaining - 120) < .01f, "cancel preserves progress");
             Check(hospital.TryAdmit(a), "resume treatment");
             var troops = a.TroopCount; var loyalty = a.Traits.Loyalty;
             a.TickPersonal(120);
@@ -82,7 +83,7 @@ public static class InfirmaryChecks
             hospital.gameObject.SetActive(false); Check(!b.PersonalState.treating && b.CanReceiveOrders, "disabled building releases patients");
             hospital.gameObject.SetActive(true);
             b.ReturnTroops(b.TroopCount); Check(hospital.TryAdmit(b), "zero troop commander can recover");
-            b.TickPersonal(60);
+            b.TickPersonal(45);
             foreach (var commander in roster.Commanders) commander.CommandStop();
             var expected = SaveSnapshot.Capture();
             Check(SaveValidator.Validate(expected, out var error), "valid patient snapshot: " + error);

@@ -48,6 +48,7 @@ namespace AntColony.Core
         {
             if (count <= 0) return;
             Free += count;
+            CampaignHistory.Ants(count, false);
             OnPoolChanged?.Invoke();
         }
 
@@ -75,6 +76,7 @@ namespace AntColony.Core
             count = Mathf.Clamp(count, 0, Assigned);
             if (count == 0) return;
             Assigned -= count;
+            CampaignHistory.Ants(count, true);
             OnPoolChanged?.Invoke();
         }
 
@@ -103,6 +105,7 @@ namespace AntColony.Core
             if (Free > 0)
             {
                 Free--;
+                CampaignHistory.Ants(1, true);
                 OnPoolChanged?.Invoke();
                 return true;
             }

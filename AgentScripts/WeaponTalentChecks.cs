@@ -107,7 +107,7 @@ public static class WeaponTalentChecks
 
             Equip(b, EquipmentSlot.Weapon, WeaponKind.Pheromone, quality: 3);
             b.Talents.levels[(int)CommanderActivity.Command] = 20;
-            Near(b.AuraRadius, 11, "support quality and command radius");
+            Near(b.AuraRadius, 9, "masterwork support radius");
             Check(a.HasSupportAura, "support reaches nearby ally");
             var inv = EquipmentInventory.Instance;
             a.Talents.levels[(int)CommanderActivity.Command] = 0;
@@ -145,7 +145,7 @@ public static class WeaponTalentChecks
             legacy.commanders[3].traits.passions.Add(new CommanderPassion { activity = (CommanderActivity)8, flame = 2 });
             var oldTroops = legacy.commanders.Sum(c => c.troopCount);
             Check(SaveValidator.Validate(legacy, out error), "v2 migrates, ignores ranks: " + error);
-            Check(legacy.version == 3 && legacy.commanders.Sum(c => c.troopCount) == oldTroops, "migration preserves troops");
+            Check(legacy.version == SaveFileV1.CurrentVersion && legacy.commanders.Sum(c => c.troopCount) == oldTroops, "migration preserves troops");
             Check(legacy.commanders[2].talents.Level(CommanderActivity.Ranged) == 5 && legacy.commanders[2].talents.Level(CommanderActivity.Gathering) == 8, "legacy skill mapping");
             Check(legacy.commanders[3].traits.passions[0].activity == CommanderActivity.Melee, "legacy passion mapping");
             Check(legacy.commanders[4].personalState.equipment.Any(e => e.slot == EquipmentSlot.Armor && e.armor == ArmorKind.Wings), "flying role maps to wings");

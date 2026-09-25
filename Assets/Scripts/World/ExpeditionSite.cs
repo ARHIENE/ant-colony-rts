@@ -140,6 +140,7 @@ namespace AntColony.World
             if ((disposition != ConquestDisposition.Annexed && disposition != ConquestDisposition.Abandoned)
                 || !CanResolveConquest) return false;
             Disposition = disposition;
+            AntColony.Core.CampaignHistory.Record(disposition == ConquestDisposition.Annexed ? "편입" : "유기", Title, disposition.ToString());
             if (disposition == ConquestDisposition.Annexed)
             {
                 if (Settlement == null) Settlement = gameObject.AddComponent<AnnexedSettlement>();
@@ -177,6 +178,8 @@ namespace AntColony.World
                     if (node != null && !node.IsDepleted) Cleared = false;
             }
             else Cleared = Kind == ExpeditionSiteKind.BossNest ? Boss == null || Boss.IsDead : Colony != null && Colony.IsDefeated;
+            if (Cleared && Kind != ExpeditionSiteKind.ResourceSite && Visitor != null)
+                foreach (var c in Visitor.Crew) if (c != null && c.IsColonyMember) c.OnExpeditionVictory();
             if (Cleared || Colony == null) return;
             growthTimer += Time.deltaTime;
             if (growthTimer < 60f) return;

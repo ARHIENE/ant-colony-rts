@@ -25,6 +25,14 @@ namespace AntColony.Buildings
         private int consumedFrame = -1;
 
         public bool IsPlacing { get; private set; }
+        // 새로 짓는 밭의 작물. 해금되지 않은 작물은 고를 수 없다.
+        public static FarmCrop SelectedCrop { get; private set; }
+        public static void CycleCrop()
+        {
+            do SelectedCrop = (FarmCrop)(((int)SelectedCrop + 1) % 3);
+            while (!ScienceEffects.CropUnlocked(SelectedCrop));
+        }
+        public bool BeginSciencePlacement(BuildingKind kind) => BeginPlacement(kind, UnitRole.Worker);
         public bool ConsumesPointerInput => IsPlacing || consumedFrame == Time.frameCount;
 
         private void Awake()
@@ -35,6 +43,7 @@ namespace AntColony.Buildings
 
         private void Update()
         {
+            if (AntColony.UI.SkillTargeting.ConsumesPointerInput) return;
             if (AntColony.UI.GameMenuController.BlocksInput) return;
             if (!IsPlacing) return;
             consumedFrame = Time.frameCount;
@@ -106,6 +115,9 @@ namespace AntColony.Buildings
 
         private bool BeginPlacement(BuildingKind kind, UnitRole role)
         {
+            if (!ScienceEffects.BuildingUnlocked(kind)) return PlacementFailed("Research the matching science first.");
+            if (kind == BuildingKind.MineField && MineField.Count >= GameBalance.MaxMines)
+                return PlacementFailed($"Up to {GameBalance.MaxMines} mine fields at once.");
             if (kind == BuildingKind.Infirmary && !Infirmary.Unlocked)
                 return PlacementFailed("Research Infirmary first.");
             if (kind == BuildingKind.AirshipYard && (CampaignResearch.Instance == null
@@ -139,6 +151,8 @@ namespace AntColony.Buildings
 
         private void TryPlace(Vector3 position, Vector3 groundPosition)
         {
+            if (!ScienceEffects.BuildingUnlocked(pendingKind)) return;
+            if (pendingKind == BuildingKind.MineField && MineField.Count >= GameBalance.MaxMines) return;
             if (pendingKind == BuildingKind.Infirmary && !Infirmary.Unlocked) return;
             if (pendingKind == BuildingKind.ScienceLab && !ScienceLab.PrerequisitesMet) return;
             var template = GetTemplate(pendingKind, pendingRole);
@@ -151,9 +165,9 @@ namespace AntColony.Buildings
 
             var cost = building.Data;
             var pool = AntPool.Instance;
-            if (ResourceManager.Instance == null || !ResourceManager.Instance.CanAfford(cost.foodCost, cost.soilCost))
+            if (ResourceManager.Instance == null || !ResourceManager.Instance.CanAfford(cost.foodCost, cost.soilCost, cost.specialCost))
             {
-                PlacementFailed($"Construction needs {cost.foodCost} food and {cost.soilCost} soil.");
+                PlacementFailed($"Construction needs {cost.foodCost} food, {cost.soilCost} soil and {cost.specialCost} special.");
                 return;
             }
             if (pool == null || !pool.TryReserve(cost.constructionAnts))
@@ -161,7 +175,7 @@ namespace AntColony.Buildings
                 PlacementFailed($"Keep {cost.constructionAnts} unassigned ants available for construction.");
                 return;
             }
-            if (!ResourceManager.Instance.TrySpend(cost.foodCost, cost.soilCost))
+            if (!ResourceManager.Instance.TrySpend(cost.foodCost, cost.soilCost, cost.specialCost, reason: ResourceReason.Construction))
             {
                 pool.ReleaseReserved(cost.constructionAnts);
                 return;
@@ -175,6 +189,8 @@ namespace AntColony.Buildings
                 _ => pendingKind.ToString()
             };
             completedBuilding.SetActive(false);
+            if (pendingKind == BuildingKind.Farm)
+                completedBuilding.AddComponent<FarmPlot>().Configure(SelectedCrop, ScienceEffects.WideFarms);
 
             var siteObject = GameObject.CreatePrimitive(PrimitiveType.Cube);
             siteObject.name = completedBuilding.name + "ConstructionSite";
@@ -184,7 +200,7 @@ namespace AntColony.Buildings
             if (collider != null) collider.isTrigger = true;
             var footprint = template.GetComponent<Renderer>();
             if (footprint != null)
-                siteObject.transform.localScale = new Vector3(footprint.bounds.size.x, 0.2f, footprint.bounds.size.z);
+                siteObject.transform.localScale = new Vector3(footprint.bounds.size.x * WidthFactor(pendingKind), 0.2f, footprint.bounds.size.z);
             var renderer = siteObject.GetComponent<Renderer>();
             if (renderer != null) renderer.material.color = new Color(0.9f, 0.7f, 0.2f);
 
@@ -229,7 +245,7 @@ namespace AntColony.Buildings
             var template = GetTemplate(kind, role);
             var building = template != null ? template.GetComponent<BuildingBase>() : null;
             if (building == null || building.Data == null) return name + " (Unavailable)";
-            return $"{name}\n{building.Data.foodCost}F {building.Data.soilCost}S {building.Data.constructionAnts} Ants";
+            return $"{name}\n{building.Data.foodCost}F {building.Data.soilCost}S{(building.Data.specialCost > 0 ? $" {building.Data.specialCost}Sp" : "")} {building.Data.constructionAnts} Ants";
         }
 
         internal static GameObject GetTemplate(BuildingKind kind, UnitRole role)
@@ -247,9 +263,20 @@ namespace AntColony.Buildings
                 BuildingKind.AirshipYard => FindTemplate<AirshipYard>() ?? CreateAirshipTemplate(),
                 BuildingKind.Infirmary => FindTemplate<Infirmary>() ?? CreateInfirmaryTemplate(),
                 BuildingKind.Barracks => FindTemplate<Barracks>(role),
+                BuildingKind.SoilWall => FindTemplate<SoilWall>() ?? RuntimeBuildingTemplates.Create(kind),
+                BuildingKind.TrapPit => FindTemplate<TrapPit>() ?? RuntimeBuildingTemplates.Create(kind),
+                BuildingKind.AreaAcidTower => FindTemplate<AreaAcidTower>() ?? RuntimeBuildingTemplates.Create(kind),
+                BuildingKind.Watchtower => FindTemplate<Watchtower>() ?? RuntimeBuildingTemplates.Create(kind),
+                BuildingKind.MineField => FindTemplate<MineField>() ?? RuntimeBuildingTemplates.Create(kind),
+                BuildingKind.DefenseLab => FindTemplate<DefenseLab>() ?? RuntimeBuildingTemplates.Create(kind),
+                BuildingKind.RestRoom => FindTemplate<RestRoom>() ?? RuntimeBuildingTemplates.Create(kind),
+                BuildingKind.Workshop => FindTemplate<Workshop>() ?? RuntimeBuildingTemplates.Create(kind),
                 _ => null
             };
         }
+
+        // 균류 재배 이후 새 밭은 2칸 폭이다. 배치 검사·미리보기·공사장 크기에 같이 반영한다.
+        private static float WidthFactor(BuildingKind kind) => kind == BuildingKind.Farm && ScienceEffects.WideFarms ? FarmPlot.WideFactor : 1f;
 
         private static GameObject CreateInfirmaryTemplate()
         {
@@ -330,6 +357,7 @@ namespace AntColony.Buildings
             var template = GetTemplate(pendingKind, pendingRole);
             var renderer = template != null ? template.GetComponent<Renderer>() : null;
             var extents = renderer != null ? renderer.bounds.extents : placementHalfExtents;
+            extents.x *= WidthFactor(pendingKind);
             foreach (var hit in Physics.OverlapBox(position, extents, Quaternion.identity, obstructionMask, QueryTriggerInteraction.Collide))
             {
                 if ((groundMask.value & (1 << hit.gameObject.layer)) != 0) continue;
@@ -342,7 +370,7 @@ namespace AntColony.Buildings
         {
             preview = GameObject.CreatePrimitive(PrimitiveType.Cube);
             preview.name = "BuildingPlacementPreview";
-            preview.transform.localScale = template != null ? template.transform.localScale : Vector3.one;
+            preview.transform.localScale = template != null ? Vector3.Scale(template.transform.localScale, new Vector3(WidthFactor(pendingKind), 1, 1)) : Vector3.one;
             var collider = preview.GetComponent<Collider>();
             if (collider != null)
             {

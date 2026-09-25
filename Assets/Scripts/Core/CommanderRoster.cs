@@ -89,6 +89,11 @@ namespace AntColony.Core
         }
 
         public void SetRoleProfiles(UnitData[] profiles) => roleProfiles = profiles;
+        internal void Forget(CommanderAnt commander) => commanders.Remove(commander);
+        private void Update()
+        {
+            foreach (var c in Commanders) if (c.IsCaptive) c.TickCaptivity(Time.deltaTime);
+        }
 
         // 저장 복원 전용. 기존 장수를 모두 없앤다. 배속 개미는 각 장수의 OnDestroy가 대기 풀로 돌려주고,
         // 풀 숫자는 그 뒤 AntPool.RestoreCounts가 저장값으로 다시 덮어쓴다.

@@ -1,0 +1,498 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=1440">
+<title>월드맵</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&amp;family=Barlow+Semi+Condensed:wght@500;600;700&amp;display=swap" rel="stylesheet">
+<style>
+
+:root{
+  --world:#4b4436;
+  --plate:#1b1712;--plate-2:#231e17;--well:#120f0b;
+  --edge-hi:rgba(255,236,200,0.09);--edge-lo:#080605;--line:#3a3127;--line-2:#4a3f32;
+  --text:#efe7da;--muted:#b8ac9a;--dim:#968976;
+  --accent:#f2a93b;--accent-ink:#1a1206;
+  --hp:#6cc46a;--hp-mid:#e0b43a;--danger:#e8574a;--danger-ink:#ffb3aa;--warn:#f2a93b;--loyal:#86a9e6;
+  --ease-out:cubic-bezier(0.23,1,0.32,1);
+  --num:"Barlow Semi Condensed",sans-serif;
+  --z-hud:10;--z-toast:20;
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{width:1440px;height:900px;overflow:hidden;background:var(--world);color:var(--text);font-family:"Noto Sans KR",sans-serif;font-size:13px;line-height:1.4;-webkit-font-smoothing:antialiased}
+::selection{background:rgba(242,169,59,0.35)}
+.n{font-family:var(--num);font-variant-numeric:tabular-nums;font-weight:600;letter-spacing:0.01em}
+svg{display:block}
+kbd{font-family:var(--num);font-weight:700;font-size:11px;line-height:1;color:var(--muted)}
+
+/* shared plate: 9-slice style bevel, uGUI friendly */
+.plate{background:var(--plate);border:1px solid var(--edge-lo);box-shadow:inset 0 1px 0 var(--edge-hi),inset 0 -1px 0 rgba(0,0,0,0.35)}
+.well{background:var(--well);border:1px solid var(--edge-lo);box-shadow:inset 0 1px 2px rgba(0,0,0,0.5)}
+
+/* buttons */
+.btn{appearance:none;font:inherit;color:var(--text);background:var(--plate-2);border:1px solid var(--line);border-radius:3px;cursor:pointer;box-shadow:inset 0 1px 0 var(--edge-hi);transition:transform 120ms var(--ease-out),background-color 150ms ease,border-color 150ms ease}
+.btn:active{transform:scale(0.97)}
+.btn:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
+.btn:disabled{cursor:default;color:var(--dim)}
+.btn:disabled:active{transform:none}
+@media (hover:hover) and (pointer:fine){.btn:not(:disabled):hover{background:#2e271e;border-color:var(--line-2)}}
+
+
+/* shared helpers for full screens */
+.world{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:#a39880;font-size:13px}
+.world span{padding:6px 10px;border:1px dashed #6e6450;border-radius:3px}
+.scrim{position:absolute;inset:0;background:rgba(12,10,8,0.62)}
+@media (prefers-reduced-motion:reduce){.btn:active{transform:none}}
+
+
+/* ===== world map screen ===== */
+body{background:#15120e}
+.space{position:absolute;inset:0}
+.ph-cap{position:absolute;padding:4px 9px;border:1px dashed var(--line-2);border-radius:3px;background:var(--plate);font-size:12px;color:var(--muted);white-space:nowrap}
+
+/* top strip (same as HUD) */
+.top{position:absolute;left:0;top:0;width:1440px;height:40px;z-index:var(--z-hud);display:flex;justify-content:space-between;align-items:center;gap:12px;padding:0 8px;border-width:0 0 1px;white-space:nowrap}
+.menu{display:flex;align-items:center;gap:4px}
+.menu .btn{height:28px;padding:0 7px;display:flex;align-items:center;gap:6px;font-size:12px}
+.scr-title{display:flex;align-items:center;gap:6px;font-size:13px;font-weight:700;padding:0 8px 0 6px}
+.scr-title svg{color:var(--accent)}
+.clock{display:flex;align-items:center;gap:10px}
+.cal{display:flex;flex-direction:column;gap:3px;width:160px}
+.cal-row{display:flex;justify-content:space-between;align-items:baseline;font-size:12px}
+.cal-row b{font-weight:700}
+.bill{height:3px;background:var(--well);border-radius:2px;overflow:hidden}
+.bill i{display:block;height:100%;width:62%;background:var(--accent)}
+.speed{display:flex;padding:2px;gap:2px;border-radius:4px}
+.speed .btn{width:30px;height:24px;display:flex;align-items:center;justify-content:center;background:transparent;border-color:transparent;box-shadow:none;color:var(--muted);font-family:var(--num);font-weight:700;font-size:13px}
+.speed .pz{width:40px;gap:4px}
+.speed .pz kbd{font-size:10px}
+.speed .btn[aria-pressed="true"]{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.res{display:flex;justify-content:flex-end;align-items:center;gap:12px}
+.r{display:flex;align-items:center;gap:6px}
+.r .n{font-size:17px}
+.r .n+.cap{margin-left:4px}
+.r .cap{font-family:var(--num);font-variant-numeric:tabular-nums;font-size:13px;color:var(--dim);font-weight:500}
+.r.bal .n{color:var(--hp)}
+.sep{width:1px;height:20px;background:var(--line)}
+
+/* planet */
+.planet{position:absolute;left:421px;top:85px;width:620px;height:620px;border-radius:50%;overflow:hidden;background:#24323a;border:1px solid #3a4a50}
+.planet .land{position:absolute;background:#3f3828}
+.planet .land.b{background:#4a4130}
+.planet .land.red{background:#5e3627}
+.planet .shade{position:absolute;inset:0;border-radius:50%;background:radial-gradient(circle at 38% 32%,rgba(21,18,14,0) 0 46%,rgba(8,6,5,0.6) 100%)}
+.planet-cap{left:629px;top:716px}
+
+/* routes layer */
+.routes{position:absolute;left:0;top:0;width:1440px;height:900px;pointer-events:none}
+
+/* site markers */
+.site{position:absolute;width:26px;height:26px;margin:-13px 0 0 -13px;padding:0;border:0;background:transparent;cursor:pointer;transition:transform 120ms var(--ease-out)}
+.site svg{width:26px;height:26px}
+.site:active{transform:scale(0.97)}
+.site:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:2px}
+.site .glyph{font-family:"Noto Sans KR",sans-serif;font-weight:700;font-size:11px}
+.ring{position:absolute;width:40px;height:40px;margin:-20px 0 0 -20px;border:2px solid var(--accent);border-radius:50%;pointer-events:none}
+.ring::after{content:"";position:absolute;inset:3px;border:1px solid rgba(242,169,59,0.45);border-radius:50%}
+.lbl{position:absolute;padding:1px 5px;border-radius:2px;background:var(--plate);border:1px solid var(--edge-lo);font-size:12px;color:#ddd2c1;white-space:nowrap;pointer-events:none}
+.lbl.sel{color:var(--text);border-color:#8a6a33;font-weight:700}
+.lbl.mine{color:var(--text)}
+.carrier{position:absolute;width:22px;height:22px;margin:-11px 0 0 -11px;display:flex;align-items:center;justify-content:center;border-radius:2px;color:var(--text)}
+.foe-blip{position:absolute;width:8px;height:8px;margin:-4px 0 0 -4px;background:var(--danger);border-radius:1px;box-shadow:0 0 0 3px rgba(232,87,74,0.3)}
+
+/* left: expeditions */
+.exps{position:absolute;left:8px;top:48px;width:340px;height:auto;max-height:844px;z-index:var(--z-hud);border-radius:3px;border-top:1px solid #5a4c3b;display:flex;flex-direction:column}
+.exps-h{display:flex;align-items:center;gap:8px;padding:8px 8px 8px 10px;border-bottom:1px solid var(--line)}
+.exps-h b{font-size:13px;padding:2px 9px;border-radius:2px;background:var(--well);border:1px solid var(--edge-lo);box-shadow:inset 0 1px 2px rgba(0,0,0,0.5)}
+.exps-h .cnt{font-family:var(--num);font-weight:600;font-size:13px;color:var(--dim)}
+.exps-h .grow{flex:1}
+.exps-h .cap{font-size:12px;color:var(--dim)}
+.exp-list{flex:0 1 auto;min-height:0;overflow-y:auto;margin:6px;padding:4px;border-radius:2px;display:flex;flex-direction:column;gap:4px;list-style:none;scrollbar-width:thin;scrollbar-color:#4a3f32 var(--well)}
+.exp-list::-webkit-scrollbar{width:6px}
+.exp-list::-webkit-scrollbar-track{background:var(--well)}
+.exp-list::-webkit-scrollbar-thumb{background:#4a3f32;border-radius:2px}
+.exp{border-radius:3px;background:var(--plate-2);border:1px solid var(--line);box-shadow:inset 0 1px 0 var(--edge-hi)}
+.exp.on{border-color:var(--line-2)}
+.exp-row{width:100%;text-align:left;display:flex;flex-direction:column;gap:5px;padding:8px 8px 8px 9px;background:transparent;border:0;box-shadow:none;border-radius:3px}
+.exp.on .exp-row{padding-bottom:6px}
+.exp-top{display:flex;align-items:center;gap:6px}
+.exp-dest{flex:1;min-width:0;font-size:13px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.exp-time{display:flex;align-items:baseline;gap:4px;font-size:11px;color:var(--dim)}
+.exp-time .n{font-size:17px;color:var(--text);line-height:1}
+.chip{display:inline-flex;align-items:center;gap:4px;flex:none;font-size:12px;font-weight:500;padding:1px 6px 1px 5px;border-radius:2px;border:1px solid var(--line-2);background:var(--well);color:#ddd2c1}
+.chip.fight{background:#2a1512;border-color:#5c2620;color:var(--danger-ink)}
+.chip.back{background:#1d3020;border-color:#2f5233;color:#a6dfa4}
+.bar{height:4px;border-radius:2px;background:var(--well);border:1px solid var(--edge-lo);overflow:hidden}
+.bar i{display:block;height:100%}
+.exp-meta{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--muted);white-space:nowrap}
+.exp-meta .n{font-size:13px;color:var(--text)}
+.exp-meta .lim{font-family:var(--num);font-size:12px;color:var(--dim);font-weight:500}
+.exp-meta .dot{color:var(--dim)}
+.exp-meta .grow{flex:1}
+.mini-tag{display:inline-flex;align-items:center;gap:3px;font-size:12px;padding:0 5px;border-radius:2px}
+.mini-tag.w{background:#3b2a12;color:#f5c77a}
+.mini-tag.h{background:#2a1512;color:var(--danger-ink)}
+.exp-body{padding:0 8px 8px 9px;display:flex;flex-direction:column;gap:8px}
+.sub-k{font-size:11px;color:var(--dim);margin-bottom:3px;display:flex;justify-content:space-between}
+.lineup{max-height:118px;overflow-y:auto;border-radius:2px;scrollbar-width:thin;scrollbar-color:#4a3f32 var(--well)}
+.cmdr{display:grid;grid-template-columns:44px 1fr 92px;align-items:center;gap:8px;padding:5px 8px;border-bottom:1px solid #221c15}
+.cmdr:last-child{border-bottom:0}
+.cmdr b{font-size:13px}
+.cmdr .rl{font-size:12px;color:var(--muted);white-space:nowrap}
+.cmdr .tr{display:flex;flex-direction:column;gap:2px}
+.cmdr .tr-h{display:flex;justify-content:flex-end;align-items:baseline;gap:2px}
+.cmdr .tr-h .n{font-size:14px;line-height:1.1}
+.cmdr .tr-h .lim{font-family:var(--num);font-size:12px;color:var(--dim);font-weight:500}
+.tbar{height:5px;border-radius:2px;background:#0a0806;overflow:hidden}
+.tbar i{display:block;height:100%}
+.loot{display:flex;gap:10px;font-size:12px;color:var(--muted)}
+.loot span{display:flex;align-items:center;gap:4px}
+.loot .n{font-size:14px;color:var(--text)}
+.state{display:flex;gap:4px}
+.stag{display:inline-flex;align-items:center;gap:4px;font-size:12px;padding:1px 7px;border-radius:2px;border:1px solid}
+.stag.w{background:#3b2a12;border-color:#6b4d1e;color:#f5c77a}
+.stag.h{background:#2a1512;border-color:#5c2620;color:var(--danger-ink)}
+.stag .n{font-size:13px}
+.acts{display:grid;grid-template-columns:1fr 1fr;gap:4px}
+.acts .btn{height:28px;display:flex;align-items:center;justify-content:center;gap:6px;font-size:12px}
+
+/* right column */
+.rcol{position:absolute;right:8px;top:48px;width:318px;z-index:var(--z-toast);display:flex;flex-direction:column;gap:8px}
+.alerts{display:flex;flex-direction:column;gap:4px;list-style:none;margin:0;padding:0}
+.toast{position:relative;display:flex;align-items:center;gap:9px;padding:6px 4px 6px 8px;border-radius:3px;transition:transform 250ms var(--ease-out),opacity 250ms var(--ease-out)}
+@starting-style{.toast{transform:translateX(24px);opacity:0}}
+.toast .ic{width:22px;height:22px;flex:none;display:flex;align-items:center;justify-content:center;border-radius:2px;align-self:flex-start;margin-top:1px}
+.toast .tx{flex:1;min-width:0;display:flex;flex-direction:column}
+.toast .tt{display:flex;align-items:center;gap:6px;font-size:13px;font-weight:700}
+.toast .dd{font-size:12px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.toast .dd.two{white-space:normal;word-break:keep-all;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
+.toast .x{width:24px;height:24px;flex:none;display:flex;align-items:center;justify-content:center;background:transparent;border-color:transparent;box-shadow:none;color:var(--dim)}
+.toast .timer{position:absolute;left:0;right:0;bottom:0;height:2px;background:rgba(0,0,0,0.35)}
+.toast .timer i{display:block;height:100%}
+.crisis{background:#2a1512;border-color:#5c2620}
+.jump{height:26px;padding:0 7px;display:flex;align-items:center;gap:5px;color:var(--danger-ink);background:#3a1a16;border-color:#6b2c25}
+.jump kbd{color:var(--danger-ink)}
+.crisis .ic{background:#4a1d18;color:var(--danger-ink)}
+.crisis .tt{color:#ffd0ca}
+.crisis .dd{color:#e8b9b2}
+.eta{font-family:var(--num);font-weight:700;font-size:15px;color:var(--danger-ink);margin-left:auto;padding-right:4px}
+.pin{font-size:11px;font-weight:500;color:var(--danger-ink)}
+.done .ic{background:#1d3020;color:var(--hp)}
+@media (prefers-reduced-motion:reduce){.toast{transition:opacity 200ms ease}}
+@media (hover:hover) and (pointer:fine){.jump:hover{background:#4a1f1a !important;border-color:#8a3a31 !important}}
+
+.legend{border-radius:3px;padding:8px 10px 10px}
+.legend-h{font-size:13px;font-weight:700;margin-bottom:6px}
+.lg-grp{display:grid;grid-template-columns:1fr 1fr;gap:4px 10px;padding:6px 0;border-top:1px solid var(--line)}
+.lg-grp:first-of-type{border-top:0;padding-top:0}
+.lg{display:flex;align-items:center;gap:6px;font-size:12px;color:#ddd2c1;white-space:nowrap}
+.lg svg{flex:none}
+.empty-slot{margin-top:2px;padding:10px;border:1px dashed #4a3f32;border-radius:3px;display:flex;flex-direction:column;gap:3px;font-size:12px;color:var(--muted)}
+.empty-slot b{font-size:12px;color:#ddd2c1;font-weight:700}
+.empty-slot .n{font-size:13px;color:var(--text)}
+.lg-k{grid-column:1/-1;font-size:11px;color:var(--dim)}
+
+/* bottom: site info */
+.site-info{position:absolute;left:356px;right:0;bottom:0;height:128px;z-index:var(--z-hud);border-radius:6px 0 0 0;border-right:0;border-bottom:0;border-top:1px solid #5a4c3b;padding:12px 12px 12px 14px;display:grid;grid-template-columns:318px 190px 1fr 196px;transition:transform 250ms var(--ease-out),opacity 250ms var(--ease-out)}
+@starting-style{.site-info{transform:translateY(16px);opacity:0}}
+@media (prefers-reduced-motion:reduce){.site-info{transition:opacity 200ms ease}@starting-style{.site-info{transform:none;opacity:0}}}
+.cell{padding:0 14px;border-left:1px solid var(--line);display:flex;flex-direction:column;gap:6px}
+.cell:first-child{padding-left:0;border-left:0}
+.cell .k{font-size:12px;color:var(--muted)}
+.si-id{display:flex;align-items:center;gap:8px}
+.si-name{font-size:19px;font-weight:700;letter-spacing:-0.01em;white-space:nowrap}
+.si-sub{font-size:12px;color:var(--muted);display:flex;align-items:center;gap:6px}
+.si-sub .dot{color:var(--dim)}
+.diff{display:flex;align-items:center;gap:8px;margin-top:4px}
+.diff .k{font-size:12px;color:var(--muted)}
+.diff .n{font-size:20px;line-height:1}
+.pips{display:flex;gap:3px}
+.pips i{width:14px;height:8px;border-radius:1px;background:var(--well);border:1px solid #3a3127}
+.pips i.on{background:var(--muted);border-color:var(--line-2)}
+.diff .of{font-family:var(--num);font-size:13px;color:var(--dim);font-weight:500}
+.tt-row{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--muted)}
+.tt-row svg{color:#ddd2c1}
+.tt-row .lb{width:40px}
+.tt-row .n{font-size:20px;line-height:1.1;color:var(--text)}
+.tt-row .u{font-size:12px;color:var(--dim)}
+.tt-row.fast .n{color:var(--text)}
+.rw{display:flex;flex-wrap:wrap;gap:4px}
+.rw-i{display:flex;align-items:center;gap:6px;height:30px;padding:0 9px 0 7px;border-radius:2px;font-size:12px;color:#ddd2c1}
+.rw-note{font-size:12px;color:var(--dim)}
+.act-col{display:flex;flex-direction:column;gap:6px;justify-content:center}
+.btn.go{height:44px;display:flex;align-items:center;justify-content:center;gap:8px;font-size:14px;font-weight:700;background:var(--accent);border-color:#ffc56b;color:var(--accent-ink)}
+@media (hover:hover) and (pointer:fine){.btn.go:hover{background:#ffb84d;border-color:#ffd08a}}
+.btn.dip{height:32px;display:flex;align-items:center;justify-content:center;gap:6px;font-size:12px}
+.btn.dip kbd{margin-left:2px}
+</style>
+</head>
+<body>
+
+<div class="space" aria-hidden="true"></div>
+
+<!-- planet placeholder -->
+<div class="planet" role="img" aria-label="3D 행성 렌더 자리 표시">
+  <span class="land" style="left:30px;top:120px;width:250px;height:210px;border-radius:44% 56% 48% 52% / 50% 44% 56% 50%"></span>
+  <span class="land b" style="left:150px;top:40px;width:230px;height:120px;border-radius:58% 42% 52% 48% / 60% 50% 50% 40%"></span>
+  <span class="land" style="left:360px;top:90px;width:210px;height:170px;border-radius:40% 60% 46% 54% / 52% 48% 52% 48%"></span>
+  <span class="land b" style="left:230px;top:250px;width:260px;height:180px;border-radius:52% 48% 40% 60% / 46% 54% 46% 54%"></span>
+  <span class="land red" style="left:330px;top:360px;width:210px;height:150px;border-radius:48% 52% 56% 44% / 54% 46% 54% 46%"></span>
+  <span class="land" style="left:90px;top:420px;width:220px;height:130px;border-radius:56% 44% 50% 50% / 46% 54% 46% 54%"></span>
+  <span class="land b" style="left:300px;top:500px;width:150px;height:90px;border-radius:50%"></span>
+  <span class="shade"></span>
+</div>
+<span class="ph-cap planet-cap" aria-hidden="true">3D 행성 렌더 (자리 표시)</span>
+
+<!-- routes -->
+<svg class="routes" viewBox="0 0 1440 900" aria-hidden="true">
+  <!-- expedition 1 (selected): nest -> east antlion nest -->
+  <path d="M640 400 Q800 350 965 410" fill="none" stroke="#ddd2c1" stroke-opacity="0.8" stroke-width="1.5" stroke-dasharray="5 5" stroke-linecap="round"/>
+  <!-- expedition 2: nest -> red sand trading post -->
+  <path d="M640 400 Q700 540 790 625" fill="none" stroke="#ddd2c1" stroke-opacity="0.8" stroke-width="1.5" stroke-dasharray="5 5" stroke-linecap="round"/>
+  <!-- expedition 3: blue leaf settlement -> nest (returning) -->
+  <path d="M905 235 Q800 270 640 400" fill="none" stroke="#ddd2c1" stroke-opacity="0.8" stroke-width="1.5" stroke-dasharray="5 5" stroke-linecap="round"/>
+  <!-- enemy movement: obsidian -> west fungus farm -->
+  <path d="M490 264 L501 356" fill="none" stroke="#e8574a" stroke-width="2" stroke-dasharray="4 4" stroke-linecap="round"/>
+  <path d="M495 350 L501.5 360 L507 349" fill="none" stroke="#e8574a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>
+
+<!-- sites -->
+<!-- my nest -->
+<button class="site" type="button" style="left:640px;top:400px" aria-label="내 소굴">
+  <svg viewBox="0 0 26 26" aria-hidden="true"><path d="M3 12.5L13 3.5l10 9V23H3z" fill="#f2a93b" stroke="#080605" stroke-width="2" stroke-linejoin="round"/><path d="M10.5 23v-5.5h5V23" fill="none" stroke="#1a1206" stroke-width="2" stroke-linejoin="round"/></svg>
+</button>
+<span class="lbl mine" style="left:656px;top:394px">소굴</span>
+
+<!-- annexed: west fungus farm (mine, resource) -->
+<button class="site" type="button" style="left:505px;top:385px" aria-label="서쪽 균사 농장, 내 편입 거점, 자원지, 적 접근 중">
+  <svg viewBox="0 0 26 26" aria-hidden="true"><path d="M13 2.5L24 22.5H2z" fill="#f2a93b" stroke="#080605" stroke-width="2" stroke-linejoin="round"/><text class="glyph" x="13" y="19.5" text-anchor="middle" fill="#1a1206">나</text></svg>
+</button>
+<span class="lbl mine" style="left:521px;top:385px">서쪽 균사 농장</span>
+
+<!-- obsidian settlement -->
+<button class="site" type="button" style="left:490px;top:250px" aria-label="흑요 문명 정착지">
+  <svg viewBox="0 0 26 26" aria-hidden="true"><circle cx="13" cy="13" r="10" fill="#9a94b8" stroke="#080605" stroke-width="2"/><text class="glyph" x="13" y="16.6" text-anchor="middle" fill="#1a1206">흑</text></svg>
+</button>
+<span class="lbl" style="left:506px;top:241px">흑요 정착지</span>
+<span class="foe-blip" style="left:496px;top:312px" aria-hidden="true"></span>
+
+<!-- blue leaf settlement -->
+<button class="site" type="button" style="left:905px;top:235px" aria-label="청엽 문명 정착지">
+  <svg viewBox="0 0 26 26" aria-hidden="true"><circle cx="13" cy="13" r="10" fill="#6fb59c" stroke="#080605" stroke-width="2"/><text class="glyph" x="13" y="16.6" text-anchor="middle" fill="#1a1206">청</text></svg>
+</button>
+<span class="lbl" style="left:921px;top:226px">청엽 정착지</span>
+
+<!-- amber civ settlement -->
+<button class="site" type="button" style="left:560px;top:575px" aria-label="호박 문명 정착지">
+  <svg viewBox="0 0 26 26" aria-hidden="true"><circle cx="13" cy="13" r="10" fill="#c47b62" stroke="#080605" stroke-width="2"/><text class="glyph" x="13" y="16.6" text-anchor="middle" fill="#1a1206">호</text></svg>
+</button>
+<span class="lbl" style="left:576px;top:566px">호박 정착지</span>
+
+<!-- red sand trading post -->
+<button class="site" type="button" style="left:790px;top:625px" aria-label="적사 문명 교역소">
+  <svg viewBox="0 0 26 26" aria-hidden="true"><rect x="3.5" y="3.5" width="19" height="19" rx="1.5" fill="#b87a8e" stroke="#080605" stroke-width="2"/><text class="glyph" x="13" y="16.6" text-anchor="middle" fill="#1a1206">적</text></svg>
+</button>
+<span class="lbl" style="left:806px;top:616px">적사 교역소</span>
+
+<!-- neutral resource: north crystal vein -->
+<button class="site" type="button" style="left:730px;top:175px" aria-label="북쪽 수정 광맥, 야생 자원지">
+  <svg viewBox="0 0 26 26" aria-hidden="true"><path d="M13 2.5L24 22.5H2z" fill="#b8ac9a" stroke="#080605" stroke-width="2" stroke-linejoin="round"/><text class="glyph" x="13" y="19.5" text-anchor="middle" fill="#1a1206">야</text></svg>
+</button>
+<span class="lbl" style="left:746px;top:166px">북쪽 수정 광맥</span>
+
+<!-- neutral boss: east antlion nest (expedition 1 fighting) -->
+<button class="site" type="button" style="left:965px;top:410px" aria-label="동쪽 개미귀신 둥지, 야생 보스 둥지, 관우 원정대 전투 중">
+  <svg viewBox="0 0 26 26" aria-hidden="true"><path d="M13 1.5L24.5 13 13 24.5 1.5 13z" fill="#b8ac9a" stroke="#080605" stroke-width="2" stroke-linejoin="round"/><text class="glyph" x="13" y="16.6" text-anchor="middle" fill="#1a1206">야</text></svg>
+</button>
+<span class="lbl" style="left:981px;top:401px">동쪽 개미귀신 둥지</span>
+
+<!-- selected: red desert boss nest -->
+<span class="ring" style="left:840px;top:525px" aria-hidden="true"></span>
+<button class="site" type="button" style="left:840px;top:525px" aria-label="붉은 사막 보스 둥지, 선택됨" aria-pressed="true">
+  <svg viewBox="0 0 26 26" aria-hidden="true"><path d="M13 1.5L24.5 13 13 24.5 1.5 13z" fill="#b8ac9a" stroke="#080605" stroke-width="2" stroke-linejoin="round"/><text class="glyph" x="13" y="16.6" text-anchor="middle" fill="#1a1206">야</text></svg>
+</button>
+<span class="lbl sel" style="left:864px;top:514px">붉은 사막 보스 둥지</span>
+
+<!-- transport markers -->
+<span class="carrier plate" style="left:925px;top:397px" title="관우 원정대 · 비행기" aria-hidden="true"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v17M3 13l9-4 9 4M8.5 20.5L12 19l3.5 1.5"/></svg></span>
+<span class="carrier plate" style="left:723px;top:548px" title="황충 원정대 · 차량" aria-hidden="true"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7h11v9H3zM14 10h4l3 3v3h-7"/><circle cx="7" cy="18" r="1.8"/><circle cx="17" cy="18" r="1.8"/></svg></span>
+<span class="carrier plate" style="left:773px;top:302px" title="여포 원정대 · 차량 · 귀환 중" aria-hidden="true"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7h11v9H3zM14 10h4l3 3v3h-7"/><circle cx="7" cy="18" r="1.8"/><circle cx="17" cy="18" r="1.8"/></svg></span>
+
+<!-- top strip -->
+<header class="top plate">
+  <nav class="menu" aria-label="화면">
+    <button class="btn" type="button" aria-label="메뉴 (Esc)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg><kbd>Esc</kbd></button>
+    <h1 class="scr-title" style="margin:0"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.5 2.5 3.5 5.5 3.5 9s-1 6.5-3.5 9c-2.5-2.5-3.5-5.5-3.5-9S9.5 5.5 12 3z"/></svg>월드맵</h1>
+    <button class="btn" type="button"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 14L4 9l5-5M4 9h11a5 5 0 0 1 0 10h-3"/></svg>소굴로 돌아가기<kbd>M</kbd></button>
+  </nav>
+
+  <div class="clock">
+    <div class="cal" title="다음 유지비 청구까지">
+      <div class="cal-row"><b>3년 봄 4월</b><span style="font-size:11px;color:var(--dim)">유지비까지 <span class="n" style="font-size:12px;color:var(--muted)">1:54</span></span></div>
+      <div class="bill"><i></i></div>
+    </div>
+    <div class="r bal" style="gap:4px" title="한 달 식량 생산 - 소비"><span class="cap">수지</span><span class="n">+18</span><span class="cap">/월</span></div>
+    <div class="speed well" role="group" aria-label="게임 속도">
+      <button class="btn pz" type="button" aria-label="일시정지 (P)" aria-pressed="false"><kbd>P</kbd><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" aria-hidden="true"><path d="M9 5v14M15 5v14"/></svg></button>
+      <button class="btn" type="button" aria-pressed="true">1×</button>
+      <button class="btn" type="button" aria-pressed="false">2×</button>
+      <button class="btn" type="button" aria-pressed="false">3×</button>
+    </div>
+  </div>
+
+  <div class="res">
+    <div class="r" title="식량 (현재 / 저장 한도)"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#e5bd6b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3c4 4 6 7 6 10a6 6 0 0 1-12 0c0-3 2-6 6-10z"/></svg><span class="n">1,240</span><span class="cap">/2,000</span></div>
+    <div class="r" title="흙 (현재 / 저장 한도)"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#c49a74" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 18l6-9 4 5 3-4 5 8z"/></svg><span class="n">860</span><span class="cap">/2,000</span></div>
+    <div class="r" title="특수 자원 (현재 / 저장 한도)"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#b9a2f2" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l3 6 6 1-4.5 4 1 6-5.5-3-5.5 3 1-6L3 10l6-1z"/></svg><span class="n">12</span><span class="cap">/100</span></div>
+    <span class="sep" aria-hidden="true"></span>
+    <div class="r" title="일반개미 대기 10 · 배정 132 · 원정 38 · 예약 10 · 총 190"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#d8ccb8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="6.5" r="2.5"/><ellipse cx="12" cy="15" rx="3.5" ry="4.5"/><path d="M5 11l3.5 2M19 11l-3.5 2M5 20l3.5-2M19 20l-3.5-2"/></svg><span class="cap">대기</span><span class="n">48</span><span class="cap">배정</span><span class="n">132</span><span class="cap">예약</span><span class="n">10</span><span class="cap">총</span><span class="n">190</span></div>
+  </div>
+</header>
+
+<!-- left: expeditions -->
+<section class="exps plate" aria-label="진행 중인 원정">
+  <div class="exps-h"><b>원정대</b><span class="cnt">3</span><span class="grow"></span><span class="cap">수송 수단 <span class="n" style="font-size:12px;color:var(--muted)">3/4</span> 사용 중</span></div>
+  <ul class="exp-list well" style="margin:6px">
+    <!-- 1: selected, expanded -->
+    <li class="exp on">
+      <button class="btn exp-row" type="button" aria-expanded="true">
+        <span class="exp-top"><span class="chip fight"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M5 4l14 14M19 4L5 18M4 15l5 5M20 15l-5 5"/></svg>전투 중</span><span class="exp-dest">동쪽 개미귀신 둥지</span><span class="exp-time">제한<span class="n">1:12</span></span></span>
+        <span class="bar" role="meter" aria-label="전투 제한 시간 남음" aria-valuenow="72" aria-valuemin="0" aria-valuemax="120" style="display:block"><i style="width:60%;background:#b8ac9a"></i></span>
+        <span class="exp-meta"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v17M3 13l9-4 9 4M8.5 20.5L12 19l3.5 1.5"/></svg>비행기<span class="dot">·</span>장수 <span class="n">3</span><span class="lim">/8</span><span class="dot">·</span>개미 <span class="n">38</span><span class="lim">/100</span></span>
+      </button>
+      <div class="exp-body">
+        <div>
+          <div class="sub-k"><span>편성</span><span>병력</span></div>
+          <div class="lineup well" role="list" aria-label="원정 장수">
+            <div class="cmdr" role="listitem"><b>관우</b><span class="rl">방패 · 방어</span><span class="tr"><span class="tr-h"><span class="n">14</span><span class="lim">/16</span></span><span class="tbar"><i style="width:88%;background:var(--hp)"></i></span></span></div>
+            <div class="cmdr" role="listitem"><b>장비</b><span class="rl">큰턱 · 근접</span><span class="tr"><span class="tr-h"><span class="n">6</span><span class="lim">/14</span></span><span class="tbar"><i style="width:43%;background:var(--hp-mid)"></i></span></span></div>
+            <div class="cmdr" role="listitem"><b>조운</b><span class="rl">산 분사기 · 원거리</span><span class="tr"><span class="tr-h"><span class="n">18</span><span class="lim">/20</span></span><span class="tbar"><i style="width:90%;background:var(--hp)"></i></span></span></div>
+          </div>
+        </div>
+        <div>
+          <div class="sub-k"><span>운반 중인 전리품</span></div>
+          <div class="loot">
+            <span><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#b9a2f2" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l3 6 6 1-4.5 4 1 6-5.5-3-5.5 3 1-6L3 10l6-1z"/></svg>특수 자원 <span class="n">6</span></span>
+            <span><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#e5bd6b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3c4 4 6 7 6 10a6 6 0 0 1-12 0c0-3 2-6 6-10z"/></svg>식량 <span class="n">120</span></span>
+          </div>
+        </div>
+        <div class="state" aria-label="원정대 상태">
+          <span class="stag w" title="장비 · 기분 31 · 휴식 부족"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M8.5 16c1-1.2 2.2-1.8 3.5-1.8s2.5.6 3.5 1.8M9 9.5h.01M15 9.5h.01"/></svg>기분 경고 <span class="n">1</span></span>
+          <span class="stag h" title="관우 · 다리 경상"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="8" width="18" height="8" rx="4" transform="rotate(-45 12 12)"/><path d="M10.5 10.5h.01M13.5 13.5h.01"/></svg>부상 <span class="n">1</span></span>
+        </div>
+        <div class="acts">
+          <button class="btn" type="button"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg>전장 보기</button>
+          <button class="btn" type="button"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 14L4 9l5-5M4 9h11a5 5 0 0 1 0 10h-3"/></svg>귀환</button>
+        </div>
+      </div>
+    </li>
+
+    <!-- 2: collapsed, moving -->
+    <li class="exp">
+      <button class="btn exp-row" type="button" aria-expanded="false">
+        <span class="exp-top"><span class="chip"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg>이동 중</span><span class="exp-dest">적사 교역소</span><span class="exp-time">도착<span class="n">0:28</span></span></span>
+        <span class="bar" style="display:block" aria-hidden="true"><i style="width:60%;background:#b8ac9a"></i></span>
+        <span class="exp-meta"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 7h11v9H3zM14 10h4l3 3v3h-7"/><circle cx="7" cy="18" r="1.8"/><circle cx="17" cy="18" r="1.8"/></svg>차량<span class="dot">·</span>황충<span class="dot">·</span>개미 <span class="n">0</span><span class="lim">/60</span><span class="grow"></span><span class="mini-tag" style="color:var(--dim)">교역 물자 식량 300</span></span>
+      </button>
+    </li>
+
+    <!-- 3: collapsed, returning -->
+    <li class="exp">
+      <button class="btn exp-row" type="button" aria-expanded="false">
+        <span class="exp-top"><span class="chip back"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 14L4 9l5-5M4 9h11a5 5 0 0 1 0 10h-3"/></svg>귀환 중</span><span class="exp-dest">청엽 정착지</span><span class="exp-time">귀환<span class="n">0:41</span></span></span>
+        <span class="bar" style="display:block" aria-hidden="true"><i style="width:45%;background:var(--hp)"></i></span>
+        <span class="exp-meta"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 7h11v9H3zM14 10h4l3 3v3h-7"/><circle cx="7" cy="18" r="1.8"/><circle cx="17" cy="18" r="1.8"/></svg>차량<span class="dot">·</span>여포<span class="dot">·</span>개미 <span class="n">22</span><span class="lim">/60</span><span class="grow"></span><span class="mini-tag h">부상 <span class="n" style="font-size:12px;color:inherit">1</span></span></span>
+      </button>
+    </li>
+    <li class="empty-slot">
+      <b>빈 원정 슬롯</b>
+      <span>대기 중인 수송 수단 · 비행기 <span class="n">1</span> · 대기 장수 <span class="n">4</span></span>
+      <span style="color:var(--dim);font-size:12px">행성에서 거점을 선택하고 원정 보내기를 누르면 여기에 추가됩니다.</span>
+    </li>
+  </ul>
+</section>
+
+<!-- right column -->
+<div class="rcol">
+  <ol class="alerts" aria-label="알림">
+    <li class="toast plate crisis" role="alert">
+      <span class="ic"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 21l1.2-11h3.6L15 21M7.5 10h9M10 10V6l2-2.5L14 6v4"/></svg></span>
+      <span class="tx"><span class="tt">감시탑 경보<span class="pin">고정</span><span class="eta n">60초</span></span><span class="dd two">흑요 문명 병력이 편입 거점 '서쪽 균사 농장'으로 이동 중</span></span>
+      <button class="btn jump" type="button" aria-label="경보 위치로 이동 (Space)" title="경보 위치로 이동"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M12 2v4M12 18v4M2 12h4M18 12h4"/></svg><kbd>Space</kbd></button>
+    </li>
+    <li class="toast plate done" role="status">
+      <span class="ic"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></span>
+      <span class="tx"><span class="tt">약탈 성공</span><span class="dd">여포 원정대 · 청엽 정착지에서 귀환 시작</span></span>
+      <button class="btn x" type="button" aria-label="닫기"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+      <span class="timer" aria-hidden="true"><i style="width:40%;background:#3d6a3f"></i></span>
+    </li>
+  </ol>
+
+  <section class="legend plate" aria-label="범례">
+    <div class="legend-h">범례</div>
+    <div class="lg-grp">
+      <span class="lg-k">거점 종류 (모양)</span>
+      <span class="lg"><svg width="14" height="14" viewBox="0 0 26 26" aria-hidden="true"><circle cx="13" cy="13" r="10" fill="none" stroke="#ddd2c1" stroke-width="2.4"/></svg>정착지</span>
+      <span class="lg"><svg width="14" height="14" viewBox="0 0 26 26" aria-hidden="true"><path d="M13 2L24 13 13 24 2 13z" fill="none" stroke="#ddd2c1" stroke-width="2.4" stroke-linejoin="round"/></svg>보스 둥지</span>
+      <span class="lg"><svg width="14" height="14" viewBox="0 0 26 26" aria-hidden="true"><path d="M13 3L24 22.5H2z" fill="none" stroke="#ddd2c1" stroke-width="2.4" stroke-linejoin="round"/></svg>자원지</span>
+      <span class="lg"><svg width="14" height="14" viewBox="0 0 26 26" aria-hidden="true"><rect x="4" y="4" width="18" height="18" rx="1.5" fill="none" stroke="#ddd2c1" stroke-width="2.4"/></svg>교역소</span>
+    </div>
+    <div class="lg-grp">
+      <span class="lg-k">세력 (색 + 글자)</span>
+      <span class="lg"><svg width="18" height="18" viewBox="0 0 26 26" aria-hidden="true"><path d="M3 12.5L13 3.5l10 9V23H3z" fill="#f2a93b" stroke="#080605" stroke-width="2" stroke-linejoin="round"/></svg>내 소굴 · 편입 거점</span>
+      <span class="lg"><svg width="18" height="18" viewBox="0 0 26 26" aria-hidden="true"><circle cx="13" cy="13" r="11" fill="#b8ac9a"/><text x="13" y="17.5" text-anchor="middle" font-family="Noto Sans KR" font-weight="700" font-size="13" fill="#1a1206">야</text></svg>야생 (무소속)</span>
+      <span class="lg"><svg width="18" height="18" viewBox="0 0 26 26" aria-hidden="true"><circle cx="13" cy="13" r="11" fill="#c47b62"/><text x="13" y="17.5" text-anchor="middle" font-family="Noto Sans KR" font-weight="700" font-size="13" fill="#1a1206">호</text></svg>호박 문명</span>
+      <span class="lg"><svg width="18" height="18" viewBox="0 0 26 26" aria-hidden="true"><circle cx="13" cy="13" r="11" fill="#6fb59c"/><text x="13" y="17.5" text-anchor="middle" font-family="Noto Sans KR" font-weight="700" font-size="13" fill="#1a1206">청</text></svg>청엽 문명</span>
+      <span class="lg"><svg width="18" height="18" viewBox="0 0 26 26" aria-hidden="true"><circle cx="13" cy="13" r="11" fill="#9a94b8"/><text x="13" y="17.5" text-anchor="middle" font-family="Noto Sans KR" font-weight="700" font-size="13" fill="#1a1206">흑</text></svg>흑요 문명</span>
+      <span class="lg"><svg width="18" height="18" viewBox="0 0 26 26" aria-hidden="true"><circle cx="13" cy="13" r="11" fill="#b87a8e"/><text x="13" y="17.5" text-anchor="middle" font-family="Noto Sans KR" font-weight="700" font-size="13" fill="#1a1206">적</text></svg>적사 문명</span>
+    </div>
+    <div class="lg-grp">
+      <span class="lg-k">경로</span>
+      <span class="lg"><svg width="22" height="10" viewBox="0 0 22 10" aria-hidden="true"><path d="M1 5h20" stroke="#ddd2c1" stroke-width="1.5" stroke-dasharray="4 3"/></svg>원정 경로</span>
+            <span class="lg"><svg width="22" height="10" viewBox="0 0 22 10" aria-hidden="true"><path d="M1 5h14" stroke="#e8574a" stroke-width="2" stroke-dasharray="3 3"/><path d="M15 2l5 3-5 3" fill="none" stroke="#e8574a" stroke-width="2" stroke-linejoin="round"/></svg>적 병력 이동</span>
+      <span class="lg"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#ddd2c1" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v17M3 13l9-4 9 4M8.5 20.5L12 19l3.5 1.5"/></svg>수송 수단</span>
+    </div>
+  </section>
+</div>
+
+<!-- bottom: selected site -->
+<section class="site-info plate" aria-label="선택한 거점 정보">
+  <div class="cell">
+    <div class="si-id">
+      <svg width="22" height="22" viewBox="0 0 26 26" aria-hidden="true"><path d="M13 1.5L24.5 13 13 24.5 1.5 13z" fill="#b8ac9a" stroke="#080605" stroke-width="2" stroke-linejoin="round"/><text x="13" y="16.6" text-anchor="middle" font-family="Noto Sans KR" font-weight="700" font-size="10" fill="#1a1206">야</text></svg>
+      <h2 class="si-name" style="margin:0">붉은 사막 보스 둥지 (임시)</h2>
+    </div>
+    <div class="si-sub">야생 (무소속)<span class="dot">·</span>보스 둥지<span class="dot">·</span>붉은 사막 지대</div>
+    <div class="diff" role="meter" aria-label="난이도 3 / 5" aria-valuenow="3" aria-valuemin="1" aria-valuemax="5">
+      <span class="k">난이도</span>
+      <span class="pips" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i><i></i><i></i></span>
+      <span><span class="n">3</span><span class="of"> / 5</span></span>
+    </div>
+  </div>
+
+  <div class="cell">
+    <span class="k">이동 시간</span>
+    <div class="tt-row"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 7h11v9H3zM14 10h4l3 3v3h-7"/><circle cx="7" cy="18" r="1.8"/><circle cx="17" cy="18" r="1.8"/></svg><span class="lb">차량</span><span class="n">70</span><span class="u">초</span></div>
+    <div class="tt-row fast"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v17M3 13l9-4 9 4M8.5 20.5L12 19l3.5 1.5"/></svg><span class="lb">비행기</span><span class="n">35</span><span class="u">초</span></div>
+  </div>
+
+  <div class="cell">
+    <span class="k">예상 보상</span>
+    <div class="rw">
+      <span class="rw-i well"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#b9a2f2" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l3 6 6 1-4.5 4 1 6-5.5-3-5.5 3 1-6L3 10l6-1z"/></svg>특수 자원</span>
+      <span class="rw-i well"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#86a9e6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l7 3v5c0 4.5-3 8-7 10-4-2-7-5.5-7-10V6z"/><path d="M12 8v6M9 11h6"/></svg>걸작 장비</span>
+      <span class="rw-i well"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#ddd2c1" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 4h12v16H4zM16 7h4v13h-4M7.5 8.5h5M7.5 12h5M7.5 15.5h3"/></svg>설계도</span>
+    </div>
+    <span class="rw-note">보상 종류는 정찰 정보 기준 · 수량은 전투 결과에 따라 달라짐</span>
+  </div>
+
+  <div class="cell act-col">
+    <button class="btn go" type="button"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 21V4h11l-2 4 2 4H5"/></svg>원정 보내기</button>
+    <button class="btn dip" type="button"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 5h16v11H9l-5 4z"/><path d="M8 9.5h8M8 12.5h5"/></svg>외교<kbd>J</kbd></button>
+  </div>
+</section>
+
+</body>
+</html>

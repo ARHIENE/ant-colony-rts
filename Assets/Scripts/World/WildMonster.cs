@@ -12,6 +12,7 @@ namespace AntColony.World
     public class WildMonster : MonoBehaviour, IDamageable
     {
         private static readonly List<WildMonster> Active = new List<WildMonster>();
+        public static IReadOnlyList<WildMonster> All => Active;
 
         [SerializeField] private float maxHealth = 150f;
         [SerializeField] private float detectionRadius = 8f;
@@ -28,8 +29,19 @@ namespace AntColony.World
         private NavMeshAgent agent;
         // 침공 개체만 플레이어 건물까지 노린다. 일반 야생 몬스터/반란 개체는 기존 동작 그대로다.
         private bool isRaider;
+        private bool eventWasp;
+        internal float EventAttackCooldown { get => attackTimer; set => attackTimer = value; }
+        internal void ConfigureEventWasp()
+        {
+            eventWasp = isRaider = IsFlying = true;
+            maxHealth = EventRules.WaspHealth; attackDamage = EventRules.WaspDamage;
+            attackInterval = EventRules.WaspInterval; moveSpeed = EventRules.WaspSpeed;
+        }
         private ExpeditionSite raidSite;
         public bool IsFlying { get; private set; }
+        // 함정에 걸리면 이동만 멈춘다(사거리 안이면 공격은 계속한다).
+        public float RootRemaining { get; private set; }
+        public void Root(float seconds) { RootRemaining = Mathf.Max(RootRemaining, seconds); StopMoving(); }
 
         public bool IsDead => currentHealth <= 0f;
         public float CurrentHealth => currentHealth;
@@ -48,7 +60,7 @@ namespace AntColony.World
             agent.stoppingDistance = attackRange;
 
             // 반란 후에도 비행 개체는 NavMesh에 붙이지 않는다.
-            IsFlying = GetComponent<SoldierAnt>() is SoldierAnt soldier && soldier.IsFlying;
+            IsFlying = eventWasp || GetComponent<SoldierAnt>() is SoldierAnt soldier && soldier.IsFlying;
             agent.enabled = !IsFlying;
             if (this is EnemyCommander) AntVisual.Attach(gameObject);
         }
@@ -69,6 +81,7 @@ namespace AntColony.World
         private void Update()
         {
             if (IsDead) return;
+            RootRemaining = Mathf.Max(0f, RootRemaining - Time.deltaTime);
 
             targetSearchTimer -= Time.deltaTime;
             if (!CombatTargeting.IsAlive(currentTarget)) currentTarget = null;
@@ -87,7 +100,7 @@ namespace AntColony.World
                 else
                 {
                     targetSearchTimer = targetSearchInterval;
-                    currentTarget = (IDamageable)FindNearestAnt()
+                    currentTarget = (eventWasp ? FindFirstObjectByType<QueenChamber>() : null) ?? (IDamageable)FindNearestAnt()
                         ?? (isRaider && raidSite == null ? GameManager.Instance?.FindNearestPlayerBuilding(transform.position) : null);
                     if (currentTarget == null)
                     {
@@ -142,6 +155,7 @@ namespace AntColony.World
             // 침공 개체 처치는 야생 몬스터 루프 승리가 아니며, 비활성 오브젝트로 쌓이지 않게 제거한다.
             if (isRaider)
             {
+                if (eventWasp) CampaignHistory.Record("이벤트 결과", "기생 말벌", "말벌 1마리 처치");
                 Destroy(gameObject);
                 return;
             }
@@ -193,12 +207,12 @@ namespace AntColony.World
 
         private bool CanMove()
         {
-            return agent != null && agent.enabled && agent.isOnNavMesh;
+            return agent != null && agent.enabled && agent.isOnNavMesh && RootRemaining <= 0f;
         }
 
         private void StopMoving()
         {
-            if (CanMove() && agent.hasPath)
+            if (agent != null && agent.enabled && agent.isOnNavMesh && agent.hasPath)
             {
                 agent.ResetPath();
             }

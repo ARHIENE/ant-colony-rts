@@ -30,7 +30,11 @@ namespace AntColony.Save
                 upkeepTimer = Object.FindFirstObjectByType<UpkeepManager>()?.SavedTimer ?? 0,
                 upkeepFailures = Object.FindFirstObjectByType<UpkeepManager>()?.ConsecutiveFailures ?? 0,
                 campaign = CampaignResearch.Instance?.CaptureState() ?? new CampaignResearch.State(),
+                history = CampaignHistory.Instance?.Capture() ?? new CampaignHistory.State(),
+                events = ColonyEvents.Instance?.Capture() ?? new ColonyEvents.State(),
                 equipmentInventory = EquipmentInventory.Instance == null ? new List<EquipmentItem>() : EquipmentInventory.Instance.Items.Select(e => JsonUtility.FromJson<EquipmentItem>(JsonUtility.ToJson(e))).ToList(),
+                equipmentLoot = SaveCatalog.Ordered<EquipmentLoot>().Select(l => new EquipmentLootDto { position = new Vec3Dto(l.transform.position),
+                    items = l.Items.Select(e => JsonUtility.FromJson<EquipmentItem>(JsonUtility.ToJson(e))).ToList() }).ToList(),
                 incursionTimer = Object.FindFirstObjectByType<LocalIncursions>()?.SavedTimer ?? 0,
                 loopCompleted = GameManager.Instance.SavedLoop, bossDefeated = GameManager.Instance.SavedBoss, defeated = GameManager.Instance.SavedDefeat,
                 colony = new ColonyDto { food = rm.GetAmount(ResourceType.Food), soil = rm.GetAmount(ResourceType.Soil), special = rm.GetAmount(ResourceType.Special),
@@ -48,8 +52,10 @@ namespace AntColony.Save
             for (var i = 0; i < SaveCatalog.Buildings.Length; i++) file.buildings.Add(SaveBuildings.Capture(SaveCatalog.Buildings[i], i.ToString(), false, commanders));
             foreach (var b in SaveCatalog.Ordered<BuildingBase>().Where(b => b.CountsTowardPlayerDefeat && !(b is ExpeditionTransport) && !SaveCatalog.Buildings.Contains(b)))
                 file.buildings.Add(SaveBuildings.Capture(b, "new:" + file.buildings.Count, true, commanders));
+            foreach (var w in Object.FindObjectsByType<Workshop>(FindObjectsInactive.Include).Where(w => !w.gameObject.activeInHierarchy && !w.name.EndsWith("Template") && !SaveCatalog.Buildings.Contains(w)))
+                file.buildings.Add(SaveBuildings.Capture(w, "new:" + file.buildings.Count, true, commanders));
             for (var i = 0; i < SaveCatalog.Nodes.Length; i++) file.nodes.Add(Node(SaveCatalog.Nodes[i], i.ToString()));
-            foreach (var n in SaveCatalog.Ordered<ResourceNode>().Where(n => !SaveCatalog.Nodes.Contains(n) && n.GetComponentInParent<BuildingBase>() == null))
+            foreach (var n in SaveCatalog.Ordered<ResourceNode>().Where(n => !SaveCatalog.Nodes.Contains(n) && n.GetComponentInParent<BuildingBase>() == null && n.GetComponent<EventActor>() == null))
                 file.nodes.Add(Node(n, "new:" + file.nodes.Count));
             for (var i = 0; i < SaveCatalog.Monsters.Length; i++)
             {
@@ -58,7 +64,7 @@ namespace AntColony.Save
                     position = new Vec3Dto(m != null ? m.Position : Vector3.zero), traits = m is EnemyCommander ec ? SaveCatalog.Traits(ec.Traits) : null,
                     talents = m is EnemyCommander enemy ? enemy.Talents.Copy() : null });
             }
-            foreach (var m in SaveCatalog.Ordered<WildMonster>().Where(m => !SaveCatalog.Monsters.Contains(m)))
+            foreach (var m in SaveCatalog.Ordered<WildMonster>().Where(m => !SaveCatalog.Monsters.Contains(m) && m.GetComponent<EventActor>() == null))
                 file.monsters.Add(new MonsterDto { key = "occupier:" + SaveCatalog.SiteIndex(m.GetComponentInParent<ExpeditionSite>()) + ":" + file.monsters.Count,
                     health = m.CurrentHealth, position = new Vec3Dto(m.Position), traits = m is EnemyCommander ec ? SaveCatalog.Traits(ec.Traits) : null,
                     talents = m is EnemyCommander enemy ? enemy.Talents.Copy() : null });
@@ -87,7 +93,7 @@ namespace AntColony.Save
         }
 
         private static ResourceNodeDto Node(ResourceNode n, string key) => new ResourceNodeDto { key = key, exists = n != null,
-            amount = n != null ? n.AmountRemaining : 0, regrowTimer = n != null ? n.RegrowTimeRemaining : 0,
+            amount = n != null ? n.AmountRemaining : 0, regrowTimer = n != null ? n.RegrowTimeRemaining : 0, bountifulHarvest = n != null && n.BountifulHarvest,
             position = new Vec3Dto(n != null ? n.transform.position : Vector3.zero), type = n != null ? (int)n.ResourceType : 0 };
 
         private static EnemyColonyDto Colony(EnemyColony c)
@@ -142,6 +148,7 @@ namespace AntColony.Save
                 if (node == null) continue;
                 if (!d.exists) { Object.Destroy(node.gameObject); continue; }
                 node.transform.position = d.position.ToVector3(); node.RestoreState(d.amount, d.regrowTimer);
+                node.BountifulHarvest = d.bountifulHarvest;
             }
             foreach (var d in file.monsters)
             {
@@ -183,6 +190,7 @@ namespace AntColony.Save
                 c.RestoreTalents(d.talents);
                 c.Skills.Restore(d.strikeArmed, d.strikeCooldown, d.stanceCooldown, d.stanceTime);
                 c.SetEmbarked(false, d.position.ToVector3());
+                c.RefreshDepartureVisual();
                 if (d.location == 2) world.Sites[d.siteIndex].Settlement.Add(c);
                 if (d.location == 3) world.Sites[d.siteIndex].Defense.RestorePrisoner(c);
             }
@@ -192,9 +200,14 @@ namespace AntColony.Save
                 if (ships[i].State == ExpeditionState.Deployed)
                     foreach (var d in file.commanders.Where(d => d.location == 1 && d.transportIndex == i)) commanders[d.id].SetEmbarked(false, d.position.ToVector3());
             }
-            foreach (var d in file.buildings) SaveBuildings.Restore(SaveBuildings.Resolve(d), d, commanders);
+            var restoredBuildings = new List<(BuildingBase building, BuildingDto dto)>();
+            foreach (var d in file.buildings) { var b = SaveBuildings.Resolve(d); SaveBuildings.Restore(b, d, commanders); restoredBuildings.Add((b, d)); }
             yield return null; // 제거된 건물의 OnDisable/창고 상한 변경 후 확정값 복원.
             CampaignResearch.Instance?.RestoreState(file.campaign);
+            // 감시탑 복원 후 감시 범위를 반영해 진행 중이던 사전 경보를 복구한다.
+            foreach (var d in file.world.sites) world.Sites[d.index].Defense?.RestoreState(d.defenseRemaining, d.defenseCaptureProgress);
+            // 방어시설 내구 단계가 복원된 뒤 체력을 다시 넣어야 상한에 잘리지 않는다.
+            foreach (var (b, d) in restoredBuildings) if (b != null && d.kind != "Destroyed") b.RestoreHealth(d.health);
             var p = file.colony;
             // Older saves include base warehouse capacity only, even if Fermentation was researched.
             var storageBonus = Vector3Int.zero;
@@ -210,10 +223,14 @@ namespace AntColony.Save
             var upkeep = Object.FindFirstObjectByType<UpkeepManager>(); if (upkeep != null) upkeep.SavedTimer = file.upkeepTimer;
             if (upkeep != null) upkeep.RestoreFailures(file.upkeepFailures);
             if (EquipmentInventory.Instance != null) EquipmentInventory.Instance.Items = file.equipmentInventory.Select(e => JsonUtility.FromJson<EquipmentItem>(JsonUtility.ToJson(e))).ToList();
+            foreach (var loot in file.equipmentLoot)
+                EquipmentLoot.Drop(loot.position.ToVector3() - Vector3.up * .35f, loot.items.Select(e => JsonUtility.FromJson<EquipmentItem>(JsonUtility.ToJson(e))));
             var incursions = Object.FindFirstObjectByType<LocalIncursions>(); if (incursions != null) incursions.SavedTimer = file.incursionTimer;
             if (file.camera.viewedSite >= 0) world.ViewSite(world.Sites[file.camera.viewedSite]);
             Object.FindFirstObjectByType<AntColony.Camera.IsometricCameraController>().RestoreView(file.camera.focus.ToVector3(), file.camera.yaw, file.camera.orthoSize);
             Encyclopedia.Merge(file.discoveries); GameSession.Instance.MarkStarted(file.playSeconds, file.gameSeconds);
+            CampaignHistory.Instance.Restore(file.history); ColonyEvents.Instance.Restore(file.events);
+            CommanderAnt.RefreshDepartureNotice();
             UnityEngine.Random.state = JsonUtility.FromJson<UnityEngine.Random.State>(file.randomState);
         }
     }

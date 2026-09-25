@@ -140,32 +140,45 @@ public static class WorldMapChecks
         Check(await Wait(() => Object.FindObjectsByType<ScienceLab>().Any(l => l.isActiveAndEnabled)), "commander actually completes science lab");
         Check(pool.Reserved == 0 && pool.Free == free, "construction workforce returns");
         var lab = Object.FindFirstObjectByType<ScienceLab>();
+        // 과학 트리 도입 후: 연구는 CampaignResearch 공용 진행, 연구소 tier와 배정된 연구 장수가 진행시킨다.
+        var research = CampaignResearch.Instance;
         Check(!lab.TryResearch(true) && !lab.TryConstruct(false), "aircraft and construction blocked before vehicle research");
-        Check(lab.TryResearch(false) && !lab.TryResearch(false), "research starts once");
+        Check(!lab.TryResearch(false), "vehicle research requires lab tier 2");
+        Check(lab.TryUpgrade() && lab.TryResearch(false) && !lab.TryResearch(false), "research starts once");
+        var scientist = CommanderRoster.Instance.Commanders[2];
+        Move(scientist, lab.Position + Vector3.right * 3);
+        Check(lab.TryAssign(scientist), "researcher assigned");
+        research.Tick(1);
+        Check(research.Progress > 0 && !world.VehicleResearched, "assigned researcher advances shared research");
         lab.gameObject.SetActive(false);
-        Check(world.Researcher == null && !world.VehicleResearched, "disabled lab cancels incomplete research");
+        research.Tick(10000);
+        Check(scientist.ScienceAssignment == null && !world.VehicleResearched, "disabled lab releases researcher and stops progress");
         lab.gameObject.SetActive(true);
-        Check(lab.TryResearch(false), "canceled research can restart");
-        lab.Tick(ScienceLab.ResearchSeconds);
-        Check(world.VehicleResearched && world.Researcher == null && !world.Unlocked, "research alone does not open world map");
+        Check(lab.TryAssign(scientist), "researcher reassigned after lab returns");
+        research.Tick(10000);
+        Check(world.VehicleResearched && research.Active == null && !world.Unlocked, "research alone does not open world map");
         Check(lab.TryConstruct(false), "vehicle construction starts");
         lab.Tick(ScienceLab.ConstructionSeconds);
         Check(world.Unlocked && world.Transports.Count == 1, "first completed transport opens map");
         var vehicle = world.Transports[0];
         Check(vehicle.Capacity == 40 && !vehicle.TryDepart(world.Sites[0]), "empty vehicle cannot depart");
-        Check(lab.TryResearch(true), "aircraft research requires completed vehicle technology");
-        lab.Tick(ScienceLab.ResearchSeconds);
+        Check(!lab.TryResearch(true), "aircraft research requires gliding and lab tier 3");
+        Check(lab.TryUpgrade() && research.TryStart(ScienceTechnology.Gliding), "gliding research starts");
+        research.Tick(10000);
+        Check(research.Has(ScienceTechnology.Gliding) && lab.TryResearch(true), "aircraft research requires completed prerequisites");
+        research.Tick(10000);
+        Check(world.AircraftResearched, "aircraft research completes");
+        lab.ReleaseResearcher();
         Check(lab.TryConstruct(true), "aircraft construction starts");
         lab.Tick(ScienceLab.ConstructionSeconds);
         Check(world.Transports.Count == 2 && world.Transports[1].Capacity == 100, "multiple transports with separate capacities");
         var aircraft = world.Transports[1];
 
         homeCommander.CommandStop();
-        homeCommander.TrySetRole(UnitRole.Worker);
-        homeCommander.WorkProficiency.AddGathered(200);
-        homeCommander.Progression.AddXp(250);
-        var level = homeCommander.Progression.Level;
-        var workLevel = homeCommander.WorkProficiency.Level;
+        // 무기 기반 역할·9종 기술 이후: 성장은 CommanderTalents 경험치로 확인한다.
+        homeCommander.GainExperience(CommanderActivity.Gathering, 250);
+        var level = homeCommander.Talents.Level(CommanderActivity.Gathering);
+        var workXp = homeCommander.Talents.Xp(CommanderActivity.Gathering);
         Move(homeCommander, vehicle.Position + Vector3.right * 3);
         var assigned = pool.Assigned;
         var troops = homeCommander.TroopCount;
@@ -187,7 +200,7 @@ public static class WorldMapChecks
         aircraft.Tick(aircraft.TravelSeconds);
         Check(vehicle.State == ExpeditionState.Deployed && aircraft.State == ExpeditionState.Deployed, "both expeditions arrive");
         Check(!homeCommander.IsEmbarked && homeCommander.Agent.isOnNavMesh
-            && homeCommander.Progression.Level == level && homeCommander.WorkProficiency.Level == workLevel,
+            && homeCommander.Talents.Level(CommanderActivity.Gathering) == level && homeCommander.Talents.Xp(CommanderActivity.Gathering) == workXp,
             "landing restores controls without resetting growth");
         Check(!homeCommander.TryAssign(1) && homeCommander.ReturnTroops(1) == 0, "no remote transfer from home ant pool");
         Check(world.ViewSite(world.Sites[0]) && world.ViewedSite == world.Sites[0], "battlefield camera switch");
@@ -225,7 +238,7 @@ public static class WorldMapChecks
             + " transport=" + (homeCommander.Transport == null ? "null" : homeCommander.Transport.name));
         Check(vehicle.GetCargo(ResourceType.Special) == Mathf.RoundToInt(amount)
             && resources.GetAmount(ResourceType.Special) == specialBefore, "loot remains cargo until return");
-        Check(homeCommander.WorkProficiency.Progress > 0, "expedition harvesting gives proficiency");
+        Check(homeCommander.Talents.Level(CommanderActivity.Gathering) > level || homeCommander.Talents.Xp(CommanderActivity.Gathering) > workXp, "expedition harvesting gives proficiency");
         var conquestUi = Object.FindFirstObjectByType<AntColony.UI.WorldMapPanel>();
         if (!conquestUi.IsOpen) conquestUi.Toggle();
         Set(conquestUi, "selectedSite", world.Sites[0]);
@@ -266,6 +279,11 @@ public static class WorldMapChecks
         var boss = world.Sites[2].Boss;
         boss.TakeDamage(boss.MaxHp);
         await Task.Delay(100);
+        // 보스 처치는 베타 승리 화면을 띄워 시뮬레이션을 멈춘다. "Continue Colony"와 같이 이어서 진행한다.
+        Check(Time.timeScale == 0 && AntColony.UI.GameMenuController.Instance.ScreenName.Contains("VICTORY"), "boss kill shows beta victory");
+        typeof(AntColony.UI.GameMenuController).GetField("resumeScale", Flags).SetValue(AntColony.UI.GameMenuController.Instance, 1f);
+        AntColony.UI.GameMenuController.Instance.Resume();
+        Check(Time.timeScale == 1, "colony continues after beta victory");
         var bossLoot = Object.FindObjectsByType<ResourceNode>().Where(n => n.name.StartsWith("BossLoot ")).ToArray();
         Check(world.Sites[2].Cleared && bossLoot.Length == 2, "boss on expedition drops existing loot once");
         Check(bossLoot.Single(n => n.ResourceType == ResourceType.Food).AmountRemaining
@@ -299,7 +317,10 @@ public static class WorldMapChecks
             Set(node, "amountRemaining", 1f);
             Move(homeCommander, node.transform.position + Vector3.left);
             homeCommander.CommandGather(node);
-            Check(await Wait(() => node.IsDepleted && !homeCommander.IsCarrying, 45), "neutral harvesting returns to transport");
+            Check(await Wait(() => node.IsDepleted && !homeCommander.IsCarrying, 45), "neutral harvesting returns to transport: remaining="
+                + node.AmountRemaining + " carrying=" + homeCommander.IsCarrying + " state=" + Get(homeCommander, "state")
+                + " deposit=" + Get(homeCommander, "targetDeposit") + " cargo=" + vehicle.CargoLoad + "/" + vehicle.CargoCapacity
+                + " troops=" + homeCommander.TroopCount + " ts=" + Time.timeScale + " break=" + homeCommander.PersonalState.mentalBreak + " embarked=" + homeCommander.IsEmbarked + " agentOn=" + homeCommander.Agent.enabled + " navOn=" + homeCommander.Agent.isOnNavMesh + " path=" + homeCommander.Agent.pathStatus + " canGather=" + node.CanGather + " pos=" + homeCommander.Position + " node=" + node.transform.position);
             Check(vehicle.GetCargo(node.ResourceType) == 1, "harvest remains in cargo");
         }
         await Task.Delay(100);

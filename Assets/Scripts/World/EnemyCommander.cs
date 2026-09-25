@@ -48,6 +48,7 @@ namespace AntColony.World
                 && camp.TryCapture(commanderName, rank, roles, traits, talents))
             {
                 WasCaptured = true;
+                camp.Prisoners[camp.Count - 1].PersonalState.originFaction = GetComponentInParent<ExpeditionSite>()?.Faction ?? "Local enemy";
             }
             base.Die();
         }

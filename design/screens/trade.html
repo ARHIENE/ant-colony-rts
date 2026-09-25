@@ -1,0 +1,414 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=1440">
+<title>거래 화면</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&amp;family=Barlow+Semi+Condensed:wght@500;600;700&amp;display=swap" rel="stylesheet">
+<style>
+:root{
+  --world:#4b4436;
+  --plate:#1b1712;--plate-2:#231e17;--well:#120f0b;
+  --edge-hi:rgba(255,236,200,0.09);--edge-lo:#080605;--line:#3a3127;--line-2:#4a3f32;
+  --text:#efe7da;--muted:#b8ac9a;--dim:#968976;
+  --accent:#f2a93b;--accent-ink:#1a1206;
+  --hp:#6cc46a;--hp-mid:#e0b43a;--danger:#e8574a;--danger-ink:#ffb3aa;--warn:#f2a93b;--loyal:#86a9e6;
+  --ease-out:cubic-bezier(0.23,1,0.32,1);
+  --num:"Barlow Semi Condensed",sans-serif;
+  --z-hud:10;--z-toast:20;
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{width:1440px;height:900px;overflow:hidden;background:var(--world);color:var(--text);font-family:"Noto Sans KR",sans-serif;font-size:13px;line-height:1.4;-webkit-font-smoothing:antialiased}
+::selection{background:rgba(242,169,59,0.35)}
+.n{font-family:var(--num);font-variant-numeric:tabular-nums;font-weight:600;letter-spacing:0.01em}
+svg{display:block}
+kbd{font-family:var(--num);font-weight:700;font-size:11px;line-height:1;color:var(--muted)}
+
+/* shared plate: 9-slice style bevel, uGUI friendly */
+.plate{background:var(--plate);border:1px solid var(--edge-lo);box-shadow:inset 0 1px 0 var(--edge-hi),inset 0 -1px 0 rgba(0,0,0,0.35)}
+.well{background:var(--well);border:1px solid var(--edge-lo);box-shadow:inset 0 1px 2px rgba(0,0,0,0.5)}
+
+/* buttons */
+.btn{appearance:none;font:inherit;color:var(--text);background:var(--plate-2);border:1px solid var(--line);border-radius:3px;cursor:pointer;box-shadow:inset 0 1px 0 var(--edge-hi);transition:transform 120ms var(--ease-out),background-color 150ms ease,border-color 150ms ease}
+.btn:active{transform:scale(0.97)}
+.btn:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
+.btn:disabled{cursor:default;color:var(--dim)}
+.btn:disabled:active{transform:none}
+@media (hover:hover) and (pointer:fine){.btn:not(:disabled):hover{background:#2e271e;border-color:var(--line-2)}}
+
+
+/* shared helpers for full screens */
+.world{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:#a39880;font-size:13px}
+.world span{padding:6px 10px;border:1px dashed #6e6450;border-radius:3px}
+.scrim{position:absolute;inset:0;background:rgba(12,10,8,0.62)}
+@media (prefers-reduced-motion:reduce){.btn:active{transform:none}}
+
+/* ---------- screen: trade ---------- */
+:root{
+  --crisis:#2a1512;--crisis-rim:#5c2620;--done:#1d3020;
+  --civ-hobak:#c47b62;--civ-us:#d8ccb8;
+  --food:#e5bd6b;--soil:#c49a74;--special:#b9a2f2;
+}
+
+/* top strip (world-map style) */
+.top{position:absolute;left:0;top:0;width:1440px;height:40px;z-index:var(--z-hud);display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:12px;padding:0 8px;border-width:0 0 1px;white-space:nowrap}
+.lead{display:flex;align-items:center;gap:10px}
+.back{height:28px;padding:0 7px 0 5px;display:flex;align-items:center;gap:6px;font-size:12px}
+.back .keys{display:flex;align-items:center;gap:2px;margin-left:2px}
+.back .keys i{font-style:normal;font-size:11px;color:var(--dim)}
+.title{margin:0;font-size:15px;font-weight:700;letter-spacing:-0.01em}
+.crumb{font-size:12px;color:var(--dim)}
+.sep{width:1px;height:20px;background:var(--line)}
+.cal{display:flex;flex-direction:column;gap:3px;width:160px}
+.cal-row{display:flex;justify-content:space-between;align-items:baseline;font-size:12px}
+.cal-row b{font-weight:700}
+.bill{height:3px;background:var(--well);border-radius:2px;overflow:hidden}
+.bill i{display:block;height:100%;width:62%;background:var(--accent)}
+.res{display:flex;justify-content:flex-end;align-items:center;gap:12px}
+.r{display:flex;align-items:center;gap:6px}
+.r .n{font-size:17px}
+.r .cap{font-family:var(--num);font-variant-numeric:tabular-nums;font-size:13px;color:var(--dim);font-weight:500}
+
+/* frame */
+.stage{position:absolute;left:8px;right:8px;top:74px;bottom:8px;display:grid;grid-template-rows:auto 1fr auto;gap:8px}
+.panel{border-radius:3px;min-height:0;transition:opacity 220ms var(--ease-out),transform 220ms var(--ease-out)}
+@starting-style{.panel{opacity:0;transform:translateY(8px)}}
+.cap{font-size:11px;color:var(--dim)}
+
+/* partner header */
+.partner{display:flex;align-items:center;gap:12px;padding:8px 12px}
+.emb{flex:none;display:flex;align-items:center;justify-content:center;border-radius:2px;color:var(--accent-ink);font-weight:700;box-shadow:inset 0 1px 0 rgba(255,236,200,0.22),inset 0 -1px 0 rgba(0,0,0,0.3);border:1px solid var(--edge-lo)}
+.emb.l{width:36px;height:36px;font-size:17px}
+.emb.s{width:24px;height:24px;font-size:12px}
+.e-hobak{background:var(--civ-hobak)}.e-us{background:var(--civ-us)}
+.pn b{font-size:19px;font-weight:700;display:block;line-height:1.3}
+.pn span{font-size:12px;color:var(--muted)}
+.hstat{display:flex;flex-direction:column;gap:3px;padding-left:12px;border-left:1px solid var(--line)}
+.hstat .k{font-size:11px;color:var(--dim)}
+.hstat .v{display:flex;align-items:center;gap:8px}
+.hstat .v .n{font-size:17px;line-height:1}
+.fav{position:relative;width:120px;height:6px;border-radius:2px;overflow:hidden}
+.fav::after{content:"";position:absolute;left:50%;top:-1px;bottom:-1px;width:1px;background:var(--line-2)}
+.fav i{position:absolute;top:0;bottom:0;left:50%;background:var(--hp)}
+.fv-pos{color:var(--hp)}
+.chip{display:inline-flex;align-items:center;gap:4px;height:20px;padding:0 7px;border-radius:2px;font-size:12px;font-weight:500;white-space:nowrap}
+.chip.peace{background:var(--well);border:1px solid var(--line);color:var(--muted)}
+.grow{flex:1}
+.rule{font-size:11px;color:var(--dim);text-align:right;line-height:1.5}
+.rule .n{font-size:12px;color:var(--muted)}
+
+/* columns */
+.cols{display:grid;grid-template-columns:1fr 1fr;gap:8px;min-height:0}
+.side{padding:10px 12px 12px;display:grid;grid-template-rows:auto auto 1fr;gap:10px;min-height:0}
+.sh{display:flex;align-items:center;gap:8px}
+.sh h2{margin:0;font-size:13px;font-weight:700;letter-spacing:-0.01em}
+.sh .tot{margin-left:auto;display:flex;align-items:baseline;gap:6px;font-size:12px;color:var(--muted)}
+.sh .tot .n{font-size:20px;color:var(--text);line-height:1}
+
+.sec-h{display:flex;justify-content:space-between;align-items:baseline;font-size:12px;color:var(--muted);margin-bottom:6px}
+
+/* offer area */
+.offer{border-radius:3px;padding:8px;display:flex;flex-direction:column;gap:4px;min-height:212px}
+.oi{display:grid;grid-template-columns:28px 1fr auto 26px;gap:10px;align-items:center;padding:7px 4px 7px 8px;border-radius:3px}
+.oi .ic{width:28px;height:28px;border-radius:2px;background:var(--well);border:1px solid var(--edge-lo);display:flex;align-items:center;justify-content:center;position:relative}
+.oi .ic .q{position:absolute;right:2px;bottom:2px;width:5px;height:5px;border-radius:1px}
+.oi .nm{display:flex;flex-direction:column;min-width:0}
+.oi .nm b{font-size:13px;font-weight:700}
+.oi .nm span{font-size:11px;color:var(--dim)}
+.oi .val{text-align:right;display:flex;flex-direction:column;align-items:flex-end}
+.oi .val .n{font-size:17px;line-height:1.1}
+.oi .val span{font-size:11px;color:var(--dim)}
+.x{width:26px;height:26px;display:flex;align-items:center;justify-content:center;background:transparent;border-color:transparent;box-shadow:none;color:var(--dim)}
+.qty{grid-column:2 / 4;display:grid;grid-template-columns:auto 1fr auto;gap:10px;align-items:center;font-size:12px;color:var(--muted);padding-top:2px}
+.qty output{font-family:var(--num);font-variant-numeric:tabular-nums;font-weight:600;font-size:15px;color:var(--text);min-width:64px;text-align:right}
+.qty output span{font-size:12px;color:var(--dim);font-weight:500}
+.empty-slot{border:1px dashed var(--line);border-radius:3px;height:44px;display:flex;align-items:center;justify-content:center;font-size:12px;color:var(--dim)}
+
+/* range: well track, functional fill baked as Image fill */
+input[type=range]{appearance:none;-webkit-appearance:none;width:100%;height:16px;margin:0;background:transparent;cursor:pointer}
+input[type=range]:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:2px}
+input[type=range]::-webkit-slider-runnable-track{height:6px;border-radius:2px;border:1px solid var(--edge-lo);background:linear-gradient(to right,var(--muted) 0 var(--p),var(--well) var(--p) 100%);box-shadow:inset 0 1px 2px rgba(0,0,0,0.5)}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:12px;height:16px;margin-top:-6px;border-radius:2px;background:var(--plate-2);border:1px solid var(--line-2);box-shadow:inset 0 1px 0 var(--edge-hi)}
+input[type=range]::-moz-range-track{height:6px;border-radius:2px;background:var(--well);border:1px solid var(--edge-lo)}
+input[type=range]::-moz-range-progress{height:6px;border-radius:2px;background:var(--muted)}
+input[type=range]::-moz-range-thumb{width:12px;height:16px;border-radius:2px;background:var(--plate-2);border:1px solid var(--line-2)}
+
+/* owned list + tabs */
+.owned{display:flex;flex-direction:column;min-height:0}
+.tabs{display:flex;gap:2px;padding:2px;border-radius:4px}
+.tab{flex:1;height:28px;display:flex;align-items:center;justify-content:center;gap:5px;font-size:12px;background:transparent;border-color:transparent;box-shadow:none;color:var(--muted)}
+.tab .n{font-size:13px;color:var(--dim)}
+.tab[aria-selected="true"]{background:var(--plate-2);border-color:var(--line);color:var(--text);box-shadow:inset 0 1px 0 var(--edge-hi),inset 0 -2px 0 var(--accent)}
+.items{list-style:none;margin:6px 0 0;padding:0;display:flex;flex-direction:column;gap:4px}
+.it{width:100%;text-align:left;display:grid;grid-template-columns:28px 1fr auto 18px;gap:10px;align-items:center;padding:6px 8px}
+.it .ic{width:28px;height:28px;border-radius:2px;background:var(--well);border:1px solid var(--edge-lo);display:flex;align-items:center;justify-content:center;position:relative}
+.it .ic .q{position:absolute;right:2px;bottom:2px;width:5px;height:5px;border-radius:1px}
+.it .nm{display:flex;flex-direction:column;min-width:0}
+.it .nm b{font-size:13px;font-weight:500}
+.it .nm span{font-size:11px;color:var(--dim)}
+.it .v{font-size:15px;text-align:right}
+.it .v small{font-family:"Noto Sans KR",sans-serif;font-size:11px;font-weight:400;color:var(--dim);margin-right:4px}
+.it .add{color:var(--muted)}
+.it:disabled{background:transparent;border-style:dashed;box-shadow:none}
+.it:disabled .nm b{color:var(--muted)}
+.it:disabled .v{color:var(--dim)}
+.basis{margin-top:auto;padding-top:8px;border-top:1px solid var(--line);font-size:11px;color:var(--dim);line-height:1.6}
+.basis .n{font-size:12px;color:var(--muted)}
+
+/* bottom bar */
+.bar{display:grid;grid-template-columns:auto 1fr auto;gap:16px;align-items:center;padding:10px 12px}
+.sums{display:flex;gap:12px;align-items:center}
+.sum{display:flex;flex-direction:column;gap:2px}
+.sum .k{font-size:12px;color:var(--muted);display:flex;align-items:center;gap:6px}
+.sum .n{font-size:22px;line-height:1.05}
+.swap{color:var(--dim)}
+.verdict{display:grid;grid-template-columns:auto 1fr;gap:4px 12px;align-items:center;padding:0 16px;border-left:1px solid var(--line);border-right:1px solid var(--line)}
+.vt{display:flex;align-items:center;gap:8px;font-size:13px;font-weight:700;color:var(--hp)}
+.vt .ic{width:22px;height:22px;border-radius:2px;background:var(--done);display:flex;align-items:center;justify-content:center}
+.need{display:flex;flex-direction:column;gap:4px}
+.need-row{display:flex;justify-content:space-between;align-items:baseline;font-size:12px;color:var(--muted)}
+.need-row .n{font-size:15px;color:var(--text)}
+.need-row .up{color:var(--hp)}
+.gauge{position:relative;height:8px;border-radius:2px;overflow:visible}
+.gauge i{position:absolute;left:0;top:0;bottom:0;background:var(--hp);border-radius:1px}
+.gauge b{position:absolute;top:-3px;bottom:-3px;width:2px;background:var(--text)}
+.formula{grid-column:1 / -1;font-size:11px;color:var(--dim)}
+.formula .n{font-size:12px;color:var(--muted)}
+.btns{display:flex;gap:8px}
+.btns .btn{height:40px;padding:0 14px;display:flex;align-items:center;gap:7px;font-size:13px;font-weight:500}
+.btn.primary{background:var(--accent);border-color:#ffc56b;color:var(--accent-ink);font-weight:700;padding:0 18px}
+.btn.primary kbd{color:rgba(26,18,6,0.7)}
+@media (hover:hover) and (pointer:fine){.btn.primary:not(:disabled):hover{background:#ffb84d;border-color:#ffd08a}}
+
+.clock{display:flex;align-items:center;gap:10px}
+.speed{display:flex;padding:2px;gap:2px;border-radius:4px}
+.speed .btn{width:30px;height:24px;display:flex;align-items:center;justify-content:center;background:transparent;border-color:transparent;box-shadow:none;color:var(--muted);font-family:var(--num);font-weight:700;font-size:13px}
+.speed .pz{width:40px;gap:4px}
+.speed .pz kbd{font-size:10px}
+.speed .btn[aria-pressed="true"]{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.speed .btn[aria-pressed="true"] kbd{color:var(--accent-ink)}
+/* console hardware: rim on main plates + inset title tab */
+.panel.plate{border-top-color:#5a4c3b}
+.ttab{position:absolute;left:8px;top:48px;z-index:2;height:27px;padding:0 14px;display:flex;align-items:center;gap:6px;border-radius:6px 6px 0 0;border-top-color:#5a4c3b;border-bottom:0;box-shadow:inset 0 1px 0 var(--edge-hi)}
+.ttab h1{margin:0;font-size:15px;font-weight:700;letter-spacing:-0.01em}
+.ttab .crumb{font-size:12px;color:var(--dim)}
+/* placeholder labels */
+.world span,.phl{color:var(--muted);background:var(--plate);border:1px solid var(--line-2);border-radius:2px}
+.phl{padding:1px 6px;font-size:11px}
+
+@media (prefers-reduced-motion:reduce){
+  .panel{transition:opacity 200ms ease}
+  @starting-style{.panel{transform:none;opacity:0}}
+}
+</style>
+</head>
+<body>
+
+<div class="world" aria-hidden="true"></div>
+<div class="scrim" aria-hidden="true"></div>
+
+<header class="top plate">
+  <div class="lead">
+    <button class="btn back" type="button" aria-label="월드맵으로 돌아가기 (J 또는 Esc)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg>월드맵으로<span class="keys"><kbd>J</kbd><i>/</i><kbd>Esc</kbd></span></button>
+  </div>
+
+  <div class="clock">
+  <div class="cal" title="다음 유지비 청구까지">
+    <div class="cal-row"><b>3년 봄 4월</b><span style="font-size:11px;color:var(--dim)">유지비까지 <span class="n" style="font-size:12px;color:var(--muted)">1:54</span></span></div>
+    <div class="bill"><i></i></div>
+  </div>
+    <div class="speed well" role="group" aria-label="게임 속도">
+      <button class="btn pz" type="button" aria-label="일시정지 (P)" aria-pressed="false"><kbd>P</kbd><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" aria-hidden="true"><path d="M9 5v14M15 5v14"/></svg></button>
+      <button class="btn" type="button" aria-pressed="true">1×</button>
+      <button class="btn" type="button" aria-pressed="false">2×</button>
+      <button class="btn" type="button" aria-pressed="false">3×</button>
+    </div>
+  </div>
+
+  <div class="res">
+    <div class="r" title="식량 (현재 / 저장 한도)"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#e5bd6b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3c4 4 6 7 6 10a6 6 0 0 1-12 0c0-3 2-6 6-10z"/></svg><span class="n">1,240</span><span class="cap">/2,000</span></div>
+    <div class="r" title="흙 (현재 / 저장 한도)"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#c49a74" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 18l6-9 4 5 3-4 5 8z"/></svg><span class="n">860</span><span class="cap">/2,000</span></div>
+    <div class="r" title="특수 자원 (현재 / 저장 한도)"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#b9a2f2" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l3 6 6 1-4.5 4 1 6-5.5-3-5.5 3 1-6L3 10l6-1z"/></svg><span class="n">12</span><span class="cap">/100</span></div>
+  </div>
+</header>
+
+<div class="ttab plate"><span class="crumb">외교 ·</span><h1>거래</h1></div>
+
+<main class="stage">
+  <!-- partner header -->
+  <section class="panel plate partner" aria-label="거래 상대">
+    <span class="emb l e-hobak" aria-hidden="true">호</span>
+    <div class="pn"><b>호박 문명</b><span>황금턱 여왕 · 이름 (자리 표시)</span></div>
+    <div class="hstat"><span class="k">관계</span><span class="v"><span class="chip peace">평화</span></span></div>
+    <div class="hstat"><span class="k">호감도</span><span class="v"><span class="n fv-pos">+37</span><span class="fav well" role="meter" aria-label="호감도" aria-valuemin="-100" aria-valuemax="100" aria-valuenow="37"><i style="width:18.5%"></i></span></span></div>
+    <div class="hstat"><span class="k">공개 어젠다</span><span class="v" style="font-size:13px">상인 <span class="cap">거래 성사 시 호감도 상승</span></span></div>
+    <span class="grow"></span>
+    <p class="rule" style="margin:0">상대는 받는 가치가 주는 가치 × (<span class="n">1.2</span> - 호감도 / <span class="n">250</span>) 이상이면 수락<br>협정 기간 <span class="n">1</span>년 · 갱신 가능</p>
+  </section>
+
+  <div class="cols">
+    <!-- ours -->
+    <section class="panel plate side" aria-label="우리 소굴">
+      <div class="sh">
+        <span class="emb s e-us" aria-hidden="true">우</span>
+        <h2>우리 소굴</h2>
+        <span class="tot">내놓는 가치 <span class="n">360</span></span>
+      </div>
+
+      <div>
+        <div class="sec-h"><span>내놓는 것 <span class="n" style="font-size:13px;color:var(--dim)">2</span></span><span class="cap">항목을 눌러 빼기</span></div>
+        <div class="offer well">
+          <div class="oi plate">
+            <span class="ic"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#e5bd6b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3c4 4 6 7 6 10a6 6 0 0 1-12 0c0-3 2-6 6-10z"/></svg></span>
+            <span class="nm"><b>식량</b><span>자원 · 개당 가치 1</span></span>
+            <span class="val"><span class="n">200</span><span>가치</span></span>
+            <button class="btn x" type="button" aria-label="식량 빼기"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+            <div class="qty">
+              <label for="q-food">수량</label>
+              <input id="q-food" type="range" min="0" max="1240" step="10" value="200" style="--p:16.1%">
+              <output for="q-food">200 <span>/ 1,240</span></output>
+            </div>
+          </div>
+          <div class="oi plate">
+            <span class="ic"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 19c2-6 6-11 14-14-2 6-6 11-14 14z"/><path d="M5 19l5-5"/></svg><span class="q" style="background:var(--loyal)"></span></span>
+            <span class="nm"><b>큰턱 날</b><span>장비 · 정교</span></span>
+            <span class="val"><span class="n">160</span><span>가치</span></span>
+            <button class="btn x" type="button" aria-label="큰턱 날 빼기"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+          </div>
+          <div class="empty-slot">아래 목록에서 눌러 추가</div>
+        </div>
+      </div>
+
+      <div class="owned">
+        <div class="sec-h" style="margin-bottom:6px"><span>보유 목록</span><span class="cap">누르면 내놓는 것에 추가</span></div>
+        <div class="tabs well" role="tablist" aria-label="우리 보유 항목 종류">
+          <button class="btn tab" type="button" role="tab" aria-selected="false">자원<span class="n">3</span></button>
+          <button class="btn tab" type="button" role="tab" aria-selected="true">장비<span class="n">4</span></button>
+          <button class="btn tab" type="button" role="tab" aria-selected="false">거점<span class="n">1</span></button>
+          <button class="btn tab" type="button" role="tab" aria-selected="false">포로 장수<span class="n">0</span></button>
+          <button class="btn tab" type="button" role="tab" aria-selected="false">협정<span class="n">2</span></button>
+        </div>
+        <ul class="items" role="tabpanel" aria-label="장비">
+          <li><button class="btn it" type="button" disabled>
+            <span class="ic"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 19c2-6 6-11 14-14-2 6-6 11-14 14z"/><path d="M5 19l5-5"/></svg><span class="q" style="background:var(--loyal)"></span></span>
+            <span class="nm"><b>큰턱 날</b><span>정교 · 보관함</span></span>
+            <span class="v n"><small>추가됨</small>160</span>
+            <span aria-hidden="true"></span>
+          </button></li>
+          <li><button class="btn it" type="button">
+            <span class="ic"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 3h8l3 4-2 3v11H7V10L5 7z"/><path d="M9 12h6"/></svg><span class="q" style="background:#d8ccb8"></span></span>
+            <span class="nm"><b>외골격 코팅</b><span>보통 · 보관함</span></span>
+            <span class="v n">80</span>
+            <svg class="add" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>
+          </button></li>
+          <li><button class="btn it" type="button">
+            <span class="ic"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 3h6v4l3 3v10H6V10l3-3z"/><path d="M9 14h6"/></svg><span class="q" style="background:#d8ccb8"></span></span>
+            <span class="nm"><b>산성 분사기</b><span>보통 · 보관함</span></span>
+            <span class="v n">80</span>
+            <svg class="add" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>
+          </button></li>
+          <li><button class="btn it" type="button">
+            <span class="ic"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="13" r="6"/><path d="M12 3v4M9 5h6"/></svg><span class="q" style="background:var(--dim)"></span></span>
+            <span class="nm"><b>페로몬 향로</b><span>조잡 · 보관함</span></span>
+            <span class="v n">40</span>
+            <svg class="add" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>
+          </button></li>
+        </ul>
+        <p class="basis" style="margin-bottom:0">장비 가치 · 조잡 <span class="n">40</span> · 보통 <span class="n">80</span> · 정교 <span class="n">160</span> · 걸작 <span class="n">320</span> · 장착 중인 장비는 목록에 없음</p>
+      </div>
+    </section>
+
+    <!-- theirs -->
+    <section class="panel plate side" aria-label="상대 문명: 호박 문명">
+      <div class="sh">
+        <span class="emb s e-hobak" aria-hidden="true">호</span>
+        <h2>호박 문명</h2>
+        <span class="tot">내놓는 가치 <span class="n">300</span></span>
+      </div>
+
+      <div>
+        <div class="sec-h"><span>내놓는 것 <span class="n" style="font-size:13px;color:var(--dim)">2</span></span><span class="cap">항목을 눌러 빼기</span></div>
+        <div class="offer well">
+          <div class="oi plate">
+            <span class="ic"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#b9a2f2" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l3 6 6 1-4.5 4 1 6-5.5-3-5.5 3 1-6L3 10l6-1z"/></svg></span>
+            <span class="nm"><b>특수 자원</b><span>자원 · 개당 가치 10</span></span>
+            <span class="val"><span class="n">200</span><span>가치</span></span>
+            <button class="btn x" type="button" aria-label="특수 자원 빼기"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+            <div class="qty">
+              <label for="q-spec">수량</label>
+              <input id="q-spec" type="range" min="0" max="45" step="1" value="20" style="--p:44.4%">
+              <output for="q-spec">20 <span>/ 45</span></output>
+            </div>
+          </div>
+          <div class="oi plate">
+            <span class="ic"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 8h14l-3-3M20 16H6l3 3"/></svg></span>
+            <span class="nm"><b>교역 협정</b><span>협정 · 기간 1년 · 체결 시 숨김 어젠다 공개</span></span>
+            <span class="val"><span class="n">100</span><span>가치</span></span>
+            <button class="btn x" type="button" aria-label="교역 협정 빼기"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+          </div>
+          <div class="empty-slot">아래 목록에서 눌러 요구</div>
+        </div>
+      </div>
+
+      <div class="owned">
+        <div class="sec-h" style="margin-bottom:6px"><span>상대 보유 목록</span><span class="cap">누르면 요구 항목에 추가</span></div>
+        <div class="tabs well" role="tablist" aria-label="상대 보유 항목 종류">
+          <button class="btn tab" type="button" role="tab" aria-selected="true">자원<span class="n">3</span></button>
+          <button class="btn tab" type="button" role="tab" aria-selected="false">장비<span class="n">2</span></button>
+          <button class="btn tab" type="button" role="tab" aria-selected="false">거점<span class="n">2</span></button>
+          <button class="btn tab" type="button" role="tab" aria-selected="false">포로 장수<span class="n">1</span></button>
+          <button class="btn tab" type="button" role="tab" aria-selected="false">협정<span class="n">2</span></button>
+        </div>
+        <ul class="items" role="tabpanel" aria-label="자원">
+          <li><button class="btn it" type="button">
+            <span class="ic"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#e5bd6b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3c4 4 6 7 6 10a6 6 0 0 1-12 0c0-3 2-6 6-10z"/></svg></span>
+            <span class="nm"><b>식량</b><span>보유 <span class="n" style="font-size:12px;color:var(--muted)">900</span></span></span>
+            <span class="v n"><small>개당</small>1</span>
+            <svg class="add" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>
+          </button></li>
+          <li><button class="btn it" type="button">
+            <span class="ic"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#c49a74" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 18l6-9 4 5 3-4 5 8z"/></svg></span>
+            <span class="nm"><b>흙</b><span>보유 <span class="n" style="font-size:12px;color:var(--muted)">1,420</span></span></span>
+            <span class="v n"><small>개당</small>1</span>
+            <svg class="add" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>
+          </button></li>
+          <li><button class="btn it" type="button">
+            <span class="ic"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#b9a2f2" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l3 6 6 1-4.5 4 1 6-5.5-3-5.5 3 1-6L3 10l6-1z"/></svg></span>
+            <span class="nm"><b>특수 자원</b><span>보유 <span class="n" style="font-size:12px;color:var(--muted)">45</span> · <span class="n" style="font-size:12px;color:var(--muted)">20</span> 요구 중</span></span>
+            <span class="v n"><small>개당</small>10</span>
+            <svg class="add" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>
+          </button></li>
+        </ul>
+        <p class="basis" style="margin-bottom:0">가치 기준 · 거점 난이도 × <span class="n">300</span> · 포로 장수 기술 합계 × <span class="n">5</span> · 협정 교역 <span class="n">100</span> · 불가침 <span class="n">150</span> · 동맹 <span class="n">300</span></p>
+      </div>
+    </section>
+  </div>
+
+  <!-- bottom bar -->
+  <section class="panel plate bar" aria-label="거래 요약">
+    <div class="sums">
+      <div class="sum"><span class="k"><span class="emb s e-us" aria-hidden="true" style="width:16px;height:16px;font-size:11px">우</span>우리가 주는 가치</span><span class="n">360</span></div>
+      <svg class="swap" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 8h14l-3-3M20 16H6l3 3"/></svg>
+      <div class="sum"><span class="k"><span class="emb s e-hobak" aria-hidden="true" style="width:16px;height:16px;font-size:11px">호</span>상대가 주는 가치</span><span class="n">300</span></div>
+    </div>
+
+    <div class="verdict">
+      <span class="vt"><span class="ic"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></span>수락 가능성 높음</span>
+      <div class="need">
+        <div class="need-row"><span>필요 가치 <span class="n">316</span> / 제안 <span class="n">360</span> · 여유 <span class="n">+44</span></span><span>성사 시 호감도 <span class="n up">+5</span> <span class="cap">상인 어젠다</span></span></div>
+        <div class="gauge well" role="meter" aria-label="제안 가치 대비 필요 가치" aria-valuemin="0" aria-valuemax="450" aria-valuenow="360"><i style="width:80%"></i><b style="left:70.2%" title="필요 가치 316"></b></div>
+      </div>
+      <p class="formula" style="margin:0">필요 가치 = 상대가 주는 <span class="n">300</span> × (<span class="n">1.2</span> - 호감도 <span class="n">37</span> / <span class="n">250</span>) = <span class="n">315.6</span>, 올림 <span class="n">316</span></p>
+    </div>
+
+    <div class="btns">
+      <button class="btn" type="button"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 12a8 8 0 1 0 2.3-5.7M4 4v5h5"/></svg>초기화</button>
+      <button class="btn primary" type="button"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 8h14l-3-3M20 16H6l3 3"/></svg>거래 제안<kbd>Enter</kbd></button>
+    </div>
+  </section>
+</main>
+
+</body>
+</html>

@@ -61,6 +61,17 @@ namespace AntColony.Units
             CommandStop();
         }
 
+        internal void DropCargo()
+        {
+            if (!IsCarrying) return;
+            var drop = GameObject.CreatePrimitive(PrimitiveType.Cube);
+            drop.name = "Dropped " + carriedType; drop.SetActive(false);
+            drop.transform.position = Position; drop.transform.localScale = Vector3.one * .6f;
+            drop.AddComponent<ResourceNode>().ConfigureLoot(carriedType, carriedAmount);
+            drop.AddComponent<ResourceNodeStatus>(); drop.SetActive(true);
+            carriedAmount = 0; CommandStop();
+        }
+
         // 채집 성능은 장수가 병력 수만큼 배수로 올릴 수 있게 훅으로 분리한다.
         public ResourceNode CurrentResourceNode => targetNode;
         protected virtual float WorkSpeed => 1f;

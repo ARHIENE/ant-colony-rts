@@ -71,8 +71,8 @@ namespace AntColony.UI
                 {
                     if (ship == null) continue;
                     return ship.Crew.Count > 0
-                        ? $"READY - {ship.Load}/{ship.Capacity} aboard\nWorld / Science: choose a nest, Depart"
-                        : $"BOARD - Capacity {ship.Capacity} incl. commanders\nBring troops within 8m; Board Selected";
+                        ? $"READY - Commanders {ship.CommanderLoad}/{ship.CommanderCapacity}, troops {ship.Load}/{ship.Capacity}\nWorld / Science: choose a nest, Depart"
+                        : $"BOARD - {ship.CommanderCapacity} commanders + {ship.Capacity} troops\nBring troops within 8m; Board Selected";
                 }
                 foreach (var lab in FindObjectsByType<ScienceLab>())
                     if (lab.Busy)

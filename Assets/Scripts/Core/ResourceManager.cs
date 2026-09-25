@@ -57,10 +57,11 @@ namespace AntColony.Core
             OnResourcesChanged?.Invoke();
         }
 
-        public void Add(ResourceType type, int amount)
+        public void Add(ResourceType type, int amount, ResourceReason reason = ResourceReason.Gathering)
         {
             if (amount <= 0) return;
             var next = GetAmount(type) + Mathf.Min(amount, Mathf.Max(0, GetCapacity(type) - GetAmount(type)));
+            CampaignHistory.Resource(type, next - GetAmount(type), false, reason);
             amounts[type] = next;
             OnResourcesChanged?.Invoke();
         }
@@ -71,12 +72,15 @@ namespace AntColony.Core
                 && GetAmount(ResourceType.Soil) >= soilCost && GetAmount(ResourceType.Special) >= specialCost;
         }
 
-        public bool TrySpend(int foodCost, int soilCost, int specialCost = 0)
+        public bool TrySpend(int foodCost, int soilCost, int specialCost = 0, ResourceReason reason = ResourceReason.Other)
         {
             if (!CanAfford(foodCost, soilCost, specialCost)) return false;
             amounts[ResourceType.Food] = GetAmount(ResourceType.Food) - foodCost;
             amounts[ResourceType.Soil] = GetAmount(ResourceType.Soil) - soilCost;
             amounts[ResourceType.Special] = GetAmount(ResourceType.Special) - specialCost;
+            CampaignHistory.Resource(ResourceType.Food, foodCost, true, reason);
+            CampaignHistory.Resource(ResourceType.Soil, soilCost, true, reason);
+            CampaignHistory.Resource(ResourceType.Special, specialCost, true, reason);
             OnResourcesChanged?.Invoke();
             return true;
         }

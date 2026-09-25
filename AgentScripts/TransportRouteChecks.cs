@@ -51,7 +51,7 @@ public static class TransportRouteChecks
         rm.Add(ResourceType.Food, 8000); rm.Add(ResourceType.Soil, 8000);
         AntPool.Instance.Breed(100);
         var c = CommanderRoster.Instance.Commanders[0];
-        c.CommandStop(); Check(c.TrySetRole(UnitRole.Worker), "worker role");
+        c.CommandStop(); // 역할은 무기로 정해지고, 모든 장수가 채집할 수 있다.
         if (c.TroopCount < 5) Check(c.TryAssign(5 - c.TroopCount), "worker troops");
         Check(world.CanCreateTransport(c.Position, out var position), "transport placement");
         var ship = world.CreateTransport(false, position);

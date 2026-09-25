@@ -1,3 +1,4 @@
+using AntColony.Core;
 using AntColony.Data;
 using UnityEngine;
 
@@ -6,8 +7,8 @@ namespace AntColony.World
     // 단일 거점 왕복만 담당한다. 이동·채집·반납은 기존 원정 명령을 사용한다.
     public sealed class TransportRoute
     {
-        // ponytail: 재출발 간격은 임시값. 밸런스 확정 시 거점 생산 주기와 함께 조정한다.
-        public const float IntervalSeconds = 60f;
+        // 재출발 간격: 기본 60초, 수송 효율 연구 후 30초.
+        public static float IntervalSeconds => ScienceEffects.RouteIntervalSeconds;
         private readonly ExpeditionTransport ship;
         private ResourceNode[] nodes;
         private int[] nextNode;
@@ -96,7 +97,7 @@ namespace AntColony.World
             {
                 var c = ship.Crew[i];
                 if (c.IsWorking || c.IsCarrying) { finished = false; continue; }
-                if (rallying) continue;
+                if (rallying || ship.CargoFull) continue;
                 while (nextNode[i] < nodes.Length)
                 {
                     var node = nodes[nextNode[i]++];

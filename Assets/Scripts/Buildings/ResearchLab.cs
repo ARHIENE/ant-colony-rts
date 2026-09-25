@@ -99,7 +99,7 @@ namespace AntColony.Buildings
                 || commander.LabUpgradeBusy || commander.Role != role || ResourceManager.Instance == null) return false;
             var level = attack ? commander.LabAttackLevel : commander.LabArmorLevel;
             if (level >= maxLevel) return false;
-            if (!ResourceManager.Instance.TrySpend(GetFoodCost(level), GetSoilCost(level))) return false;
+            if (!ResourceManager.Instance.TrySpend(GetFoodCost(level), GetSoilCost(level), reason: ResourceReason.Research)) return false;
 
             target = commander;
             researching = true;

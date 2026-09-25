@@ -31,6 +31,7 @@ namespace AntColony.Units
         private void Update()
         {
             if (AntColony.UI.GameMenuController.BlocksInput) return;
+            if (AntColony.UI.SkillTargeting.ConsumesPointerInput) return;
             var mouse = Mouse.current;
             if (mouse == null || selectionManager == null) return;
             if (buildingPlacementController != null && buildingPlacementController.ConsumesPointerInput) return;
@@ -51,6 +52,25 @@ namespace AntColony.Units
             if (selected.Count == 0) return;
 
             var ray = cam.ScreenPointToRay(screenPos);
+            if (Physics.Raycast(ray, out var lootHit, 500f, ~0) && lootHit.collider.GetComponentInParent<EquipmentLoot>() is EquipmentLoot loot)
+            {
+                foreach (var selectable in selected)
+                    if (selectable != null && loot.TryCollect(selectable.GetComponent<CommanderAnt>())) return;
+                AntColony.UI.ToastManager.Show("장비 회수 불가: 유휴 장수와 보관함 빈칸이 필요합니다.");
+                return;
+            }
+            // 파손된 함정 우클릭: 선택된 장수 한 명이 수리하러 간다.
+            foreach (var trapHit in Physics.RaycastAll(ray, 500f, ~0, QueryTriggerInteraction.Collide))
+            {
+                var trap = trapHit.collider.GetComponentInParent<AntColony.Buildings.TrapPit>();
+                if (trap == null || trap.Armed) continue;
+                foreach (var selectable in selected)
+                    if (selectable != null && selectable.GetComponent<CommanderAnt>() is CommanderAnt repairer && trap.TryRepair(repairer))
+                    {
+                        MoveMarker.Spawn(trap.Position, moveMarkerColor);
+                        return;
+                    }
+            }
             if (!Physics.Raycast(ray, out var hit, 500f, groundMask)) return;
 
             // 적(IDamageable, 야생 몬스터/보스 등)을 직접 클릭하면 전원 그 타겟을 공격.

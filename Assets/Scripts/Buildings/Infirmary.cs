@@ -14,7 +14,7 @@ namespace AntColony.Buildings
 
         public bool CanTreat(CommanderAnt c) => Unlocked && isActiveAndEnabled && !IsDead && patients.Count < Capacity
             && c != null && c.CanChangeAllocation && !c.IsAwayFromHome && !c.IsWorking
-            && c.PersonalState.HasTreatableInjury && Vector3.Distance(c.Position, Position) <= 8;
+            && c.PersonalState.NeedsTreatment && Vector3.Distance(c.Position, Position) <= 8;
 
         public bool TryAdmit(CommanderAnt c)
         {
@@ -29,6 +29,22 @@ namespace AntColony.Buildings
             patients.Add(c);
             c.TreatmentFacility = this;
             c.PersonalState.treating = true;
+        }
+
+        // 부위 재생: 영구 손상 1곳을 8분 치료로 되돌린다(Special 20). 중상이 없는 장수만 받는다.
+        public bool CanRegenerate(CommanderAnt c) => ScienceEffects.Has(ScienceTechnology.Regeneration) && Unlocked && isActiveAndEnabled && !IsDead
+            && patients.Count < Capacity && c != null && c.CanChangeAllocation && !c.IsAwayFromHome && !c.IsWorking
+            && !c.PersonalState.HasTreatableInjury && c.PersonalState.injuries.Exists(i => i.severity == InjurySeverity.Permanent)
+            && Vector3.Distance(c.Position, Position) <= 8;
+
+        public bool TryRegenerate(CommanderAnt c)
+        {
+            if (!CanRegenerate(c) || ResourceManager.Instance == null || !ResourceManager.Instance.TrySpend(0, 0, GameBalance.RegenerationSpecial, reason: ResourceReason.Treatment)) return false;
+            var injury = c.PersonalState.injuries.Find(i => i.severity == InjurySeverity.Permanent);
+            injury.severity = InjurySeverity.Serious;
+            injury.remaining = GameBalance.RegenerationSeconds;
+            injury.regenerating = true;
+            return TryAdmit(c);
         }
 
         public bool IsTreating(CommanderAnt c) => isActiveAndEnabled && !IsDead && patients.Contains(c)

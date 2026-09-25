@@ -1,0 +1,211 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=1440">
+<title>새 게임</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&amp;family=Barlow+Semi+Condensed:wght@500;600;700&amp;display=swap" rel="stylesheet">
+<style>
+:root{
+  --world:#4b4436;
+  --plate:#1b1712;--plate-2:#231e17;--well:#120f0b;
+  --edge-hi:rgba(255,236,200,0.09);--edge-lo:#080605;--line:#3a3127;--line-2:#4a3f32;
+  --text:#efe7da;--muted:#b8ac9a;--dim:#968976;
+  --accent:#f2a93b;--accent-ink:#1a1206;
+  --hp:#6cc46a;--hp-mid:#e0b43a;--danger:#e8574a;--danger-ink:#ffb3aa;--warn:#f2a93b;--loyal:#86a9e6;
+  --ease-out:cubic-bezier(0.23,1,0.32,1);
+  --num:"Barlow Semi Condensed",sans-serif;
+  --z-hud:10;--z-toast:20;
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{width:1440px;height:900px;overflow:hidden;background:var(--world);color:var(--text);font-family:"Noto Sans KR",sans-serif;font-size:13px;line-height:1.4;-webkit-font-smoothing:antialiased}
+::selection{background:rgba(242,169,59,0.35)}
+.n{font-family:var(--num);font-variant-numeric:tabular-nums;font-weight:600;letter-spacing:0.01em}
+svg{display:block}
+kbd{font-family:var(--num);font-weight:700;font-size:11px;line-height:1;color:var(--muted)}
+
+/* shared plate: 9-slice style bevel, uGUI friendly */
+.plate{background:var(--plate);border:1px solid var(--edge-lo);box-shadow:inset 0 1px 0 var(--edge-hi),inset 0 -1px 0 rgba(0,0,0,0.35)}
+.well{background:var(--well);border:1px solid var(--edge-lo);box-shadow:inset 0 1px 2px rgba(0,0,0,0.5)}
+
+/* buttons */
+.btn{appearance:none;font:inherit;color:var(--text);background:var(--plate-2);border:1px solid var(--line);border-radius:3px;cursor:pointer;box-shadow:inset 0 1px 0 var(--edge-hi);transition:transform 120ms var(--ease-out),background-color 150ms ease,border-color 150ms ease}
+.btn:active{transform:scale(0.97)}
+.btn:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
+.btn:disabled{cursor:default;color:var(--dim)}
+.btn:disabled:active{transform:none}
+@media (hover:hover) and (pointer:fine){.btn:not(:disabled):hover{background:#2e271e;border-color:var(--line-2)}}
+
+
+/* shared helpers for full screens */
+.world{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:#a39880;font-size:13px}
+.world span{padding:6px 10px;border:1px dashed #6e6450;border-radius:3px}
+.scrim{position:absolute;inset:0;background:rgba(12,10,8,0.62)}
+@media (prefers-reduced-motion:reduce){.btn:active{transform:none}}
+
+.scrim{background:rgba(12,10,8,0.5)}
+.world{align-items:flex-end;padding-bottom:28px;z-index:1}
+.world span{color:var(--muted);background:var(--plate);border-color:var(--line-2)}
+.panel{position:absolute;left:160px;top:112px;width:1120px;height:664px;border-radius:4px;border-color:#5a4c3b;display:grid;grid-template-rows:56px 1fr 64px;transition:opacity 220ms var(--ease-out),transform 220ms var(--ease-out)}
+@starting-style{.panel{opacity:0;transform:translateY(8px)}}
+.p-head{display:flex;align-items:center;gap:10px;padding:0 20px;border-bottom:1px solid var(--line)}
+.p-head h1{margin:0;font-size:19px;font-weight:700;letter-spacing:-0.01em}
+.p-head .sub{font-size:12px;color:var(--dim)}
+.p-body{display:grid;grid-template-columns:minmax(0,1fr) 312px;min-height:0}
+.form{padding:16px 20px;display:flex;flex-direction:column;gap:18px;border-right:1px solid var(--line)}
+fieldset{margin:0;padding:0;border:0;min-width:0}
+legend{padding:0;margin-bottom:8px;font-size:13px;font-weight:700;display:flex;align-items:baseline;gap:8px;width:100%}
+legend small{font-size:12px;font-weight:400;color:var(--dim)}
+.opts{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.opt{position:relative;display:block;cursor:pointer}
+.opt input{position:absolute;opacity:0;width:1px;height:1px;margin:0;pointer-events:none}
+.card{position:relative;display:flex;flex-direction:column;gap:6px;height:100px;padding:10px 12px;border-radius:3px;background:var(--plate-2);border:1px solid var(--line);box-shadow:inset 0 1px 0 var(--edge-hi);transition:transform 120ms var(--ease-out),background-color 150ms ease,border-color 150ms ease}
+.opt:active .card{transform:scale(0.97)}
+@media (hover:hover) and (pointer:fine){.opt:hover .card{background:#2e271e;border-color:var(--line-2)}}
+.opt input:focus-visible+.card{outline:2px solid var(--accent);outline-offset:1px}
+.opt input:checked+.card{border-color:var(--accent);box-shadow:inset 0 0 0 1px var(--accent),inset 0 1px 0 var(--edge-hi);background:#2a2219}
+.chk{position:absolute;top:11px;right:11px;width:14px;height:14px;border-radius:50%;display:flex;align-items:center;justify-content:center;border-color:var(--line-2)}
+.chk i{width:6px;height:6px;border-radius:50%;background:transparent}
+.opt input:checked+.card .chk{border-color:var(--accent)}
+.opt input:checked+.card .chk i{background:var(--accent)}
+.c-top{display:flex;align-items:baseline;gap:8px;padding-right:26px}
+.c-top b{font-size:15px;font-weight:700}
+.c-top .n{font-size:20px;line-height:1.1}
+.c-top .u{font-family:var(--num);font-size:13px;font-weight:500;color:var(--dim)}
+.c-top .rec{font-size:11px;color:var(--muted);padding:0 5px;border:1px solid var(--line-2);border-radius:2px;line-height:16px}
+.desc{font-size:12px;color:var(--muted)}
+.c-foot{margin-top:auto;display:flex;align-items:center;gap:8px;font-size:12px;color:var(--dim)}
+
+/* map size glyph */
+.sz{width:30px;height:30px;border-radius:2px;flex:none;display:flex;align-items:center;justify-content:center}
+.sz i{display:block;border:1px solid #d8ccb8;border-radius:1px;background:#2e271e}
+.span{flex:1;height:6px;border-radius:2px;position:relative}
+.span i{position:absolute;left:0;top:0;bottom:0;background:#d8ccb8;border-radius:1px}
+.span-l{font-family:var(--num);font-weight:600;font-size:12px;color:var(--muted);white-space:nowrap}
+
+/* difficulty */
+.freq{display:flex;align-items:center;gap:6px}
+.pips{display:flex;gap:2px}
+.pips b{width:10px;height:6px;border-radius:1px;background:var(--well);border:1px solid var(--edge-lo)}
+.pips b.on{background:#d8ccb8;border-color:#d8ccb8}
+.ratio{display:flex;flex-direction:column;gap:3px;width:100%}
+.ratio-l{display:flex;justify-content:space-between;font-size:12px;color:var(--muted)}
+.ratio-l .n{font-size:13px;color:var(--text)}
+.ratio-l .cr{color:var(--danger-ink)}
+.ratio-l .lk{color:var(--muted)}
+.rbar{display:flex;height:6px;border-radius:2px;overflow:hidden;gap:1px;background:var(--edge-lo)}
+.rbar i{display:block;height:100%}
+.rbar .c{background:#6b2c25}
+.rbar .l{background:var(--dim)}
+
+/* seed */
+.seed{display:flex;align-items:center;gap:8px}
+.seed-in{display:flex;align-items:center;gap:8px;height:34px;width:300px;padding:0 10px;border-radius:2px}
+.seed-in input{flex:1;min-width:0;height:100%;border:0;background:transparent;color:var(--text);font-family:var(--num);font-weight:600;font-size:17px;letter-spacing:0.04em;font-variant-numeric:tabular-nums;outline:0;caret-color:var(--accent)}
+.seed-in:focus-within{border-color:var(--accent)}
+.seed .btn{height:34px;padding:0 10px;display:flex;align-items:center;gap:6px;font-size:13px}
+.hint{font-size:12px;color:var(--dim);margin-top:6px}
+
+/* summary */
+.sum{padding:16px 20px;display:flex;flex-direction:column;gap:12px;background:#17130f}
+.sum h2{margin:0;font-size:13px;font-weight:700}
+.prev{height:132px;border-radius:2px;position:relative;overflow:hidden;display:flex;align-items:flex-end;justify-content:flex-start;padding:6px 8px;font-size:11px;color:var(--dim)}
+.prev .land{position:absolute;left:44px;top:14px;width:180px;height:92px;background:#3d3628;border-radius:38px 56px 30px 48px}
+.prev .nest{position:absolute;left:124px;top:52px;width:10px;height:10px;border-radius:1px;background:var(--hp)}
+.prev .scale{position:absolute;right:8px;bottom:6px;font-family:var(--num);font-size:12px;font-weight:600;color:var(--muted)}
+dl{margin:0;display:flex;flex-direction:column}
+.row{display:flex;flex-direction:column;gap:2px;padding:9px 0;border-top:1px solid var(--line)}
+.row:last-child{border-bottom:1px solid var(--line)}
+dt{font-size:12px;color:var(--dim)}
+dd{margin:0;display:flex;align-items:baseline;gap:6px;font-size:13px;font-weight:700}
+dd .n{font-size:15px}
+dd .x{font-size:12px;font-weight:400;color:var(--muted)}
+dd .x .n{font-size:13px;color:var(--muted)}
+.note{font-size:11px;color:var(--dim);display:flex;gap:6px;align-items:flex-start;margin-top:auto}
+.note svg{flex:none;margin-top:1px}
+
+.p-foot{display:flex;align-items:center;justify-content:flex-end;gap:8px;padding:0 20px;border-top:1px solid var(--line)}
+.p-foot .btn{height:38px;padding:0 14px;display:flex;align-items:center;gap:8px;font-size:14px}
+.p-foot .back{margin-right:auto}
+.primary{background:var(--accent);border-color:#ffc56b;color:var(--accent-ink);font-weight:700;min-width:180px;justify-content:center}
+.primary kbd{color:rgba(26,18,6,0.7)}
+@media (hover:hover) and (pointer:fine){.btn.primary:not(:disabled):hover{background:#ffb84d;border-color:#ffd08a}}
+
+@media (prefers-reduced-motion:reduce){
+  .panel{transition:opacity 200ms ease}
+  @starting-style{.panel{transform:none;opacity:0}}
+  .opt:active .card{transform:none}
+}
+</style>
+</head>
+<body>
+
+<div class="world" aria-hidden="true"><span>메뉴 배경 아트 (자리 표시)</span></div>
+<div class="scrim" aria-hidden="true"></div>
+
+<main class="panel plate" aria-labelledby="ttl">
+  <header class="p-head">
+    <h1 id="ttl">새 게임</h1>
+    <span class="sub">개미굴을 세울 땅과 규칙을 고르세요</span>
+  </header>
+
+  <div class="p-body">
+    <form class="form" id="ng" aria-label="새 게임 설정">
+      <fieldset>
+        <legend>맵 크기<small>로컬 개미굴 맵 한 변 길이</small></legend>
+        <div class="opts">
+          <label class="opt"><input type="radio" name="size" value="s"><span class="card"><span class="c-top"><b>소</b><span class="n">160</span><span class="u">m</span></span><span class="desc">빠른 판 · 자원과 적이 가까움</span><span class="c-foot"><span class="span well" aria-hidden="true"><i style="width:53%"></i></span><span class="span-l">한 변 160m</span></span><span class="chk well" aria-hidden="true"><i></i></span></span></label>
+          <label class="opt"><input type="radio" name="size" value="m" checked><span class="card"><span class="c-top"><b>중</b><span class="n">220</span><span class="u">m</span><span class="rec">권장</span></span><span class="desc">확장과 방어의 균형</span><span class="c-foot"><span class="span well" aria-hidden="true"><i style="width:73%"></i></span><span class="span-l">한 변 220m</span></span><span class="chk well" aria-hidden="true"><i></i></span></span></label>
+          <label class="opt"><input type="radio" name="size" value="l"><span class="card"><span class="c-top"><b>대</b><span class="n">300</span><span class="u">m</span></span><span class="desc">긴 캠페인 · 탐색과 원정 거리 큼</span><span class="c-foot"><span class="span well" aria-hidden="true"><i style="width:100%"></i></span><span class="span-l">한 변 300m</span></span><span class="chk well" aria-hidden="true"><i></i></span></span></label>
+        </div>
+      </fieldset>
+
+      <fieldset>
+        <legend>침공 난이도<small>사건 빈도와 위기 : 행운 사건 비율</small></legend>
+        <div class="opts">
+          <label class="opt"><input type="radio" name="diff" value="mild"><span class="card"><span class="c-top"><b>온화</b></span><span class="freq desc">침공 빈도<span class="pips" aria-hidden="true"><b class="on"></b><b></b><b></b></span>낮음</span><span class="c-foot"><span class="ratio"><span class="ratio-l"><span class="cr">위기 <span class="n">40</span></span><span class="lk">행운 <span class="n">60</span></span></span><span class="rbar" aria-hidden="true"><i class="c" style="width:40%"></i><i class="l" style="flex:1"></i></span></span></span><span class="chk well" aria-hidden="true"><i></i></span></span></label>
+          <label class="opt"><input type="radio" name="diff" value="normal" checked><span class="card"><span class="c-top"><b>보통</b></span><span class="freq desc">침공 빈도<span class="pips" aria-hidden="true"><b class="on"></b><b class="on"></b><b></b></span>보통</span><span class="c-foot"><span class="ratio"><span class="ratio-l"><span class="cr">위기 <span class="n">60</span></span><span class="lk">행운 <span class="n">40</span></span></span><span class="rbar" aria-hidden="true"><i class="c" style="width:60%"></i><i class="l" style="flex:1"></i></span></span></span><span class="chk well" aria-hidden="true"><i></i></span></span></label>
+          <label class="opt"><input type="radio" name="diff" value="hard"><span class="card"><span class="c-top"><b>가혹</b></span><span class="freq desc">침공 빈도<span class="pips" aria-hidden="true"><b class="on"></b><b class="on"></b><b class="on"></b></span>높음</span><span class="c-foot"><span class="ratio"><span class="ratio-l"><span class="cr">위기 <span class="n">75</span></span><span class="lk">행운 <span class="n">25</span></span></span><span class="rbar" aria-hidden="true"><i class="c" style="width:75%"></i><i class="l" style="flex:1"></i></span></span></span><span class="chk well" aria-hidden="true"><i></i></span></span></label>
+        </div>
+      </fieldset>
+
+      <fieldset>
+        <legend>장수 사망<small>전투에서 쓰러진 장수가 죽을 수 있는지</small></legend>
+        <div class="opts">
+          <label class="opt"><input type="radio" name="death" value="lenient"><span class="card"><span class="c-top"><b>관대</b></span><span class="c-top"><span class="n" style="font-family:inherit;font-size:15px;font-weight:700">사망 없음</span></span><span class="desc">쓰러져도 부상으로만 남음</span><span class="chk well" aria-hidden="true"><i></i></span></span></label>
+          <label class="opt"><input type="radio" name="death" value="normal" checked><span class="card"><span class="c-top"><b>보통</b></span><span class="c-top"><span class="n">25</span><span class="u">%</span></span><span class="desc">중상 상태에서 다시 쓰러지면 사망 확률</span><span class="chk well" aria-hidden="true"><i></i></span></span></label>
+          <label class="opt"><input type="radio" name="death" value="harsh"><span class="card"><span class="c-top"><b>가혹</b></span><span class="c-top"><span class="n">30</span><span class="u">%</span></span><span class="desc">쓰러질 때마다 사망 확률</span><span class="chk well" aria-hidden="true"><i></i></span></span></label>
+        </div>
+      </fieldset>
+
+      <fieldset>
+        <legend><label for="seed">맵 시드</label><small>같은 시드와 맵 크기면 같은 지형이 만들어짐</small></legend>
+        <div class="seed">
+          <span class="seed-in well"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--dim)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 9h16M4 15h16M10 3L8 21M16 3l-2 18"/></svg><input id="seed" name="seed" type="text" value="4F7Q-2291-KX" spellcheck="false" autocomplete="off"></span>
+          <button class="btn" type="button"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="4" width="16" height="16" rx="2.5"/><path d="M9 9h.01M15 9h.01M12 12h.01M9 15h.01M15 15h.01"/></svg>무작위</button>
+        </div>
+      </fieldset>
+    </form>
+
+    <aside class="sum" aria-labelledby="sumt">
+      <h2 id="sumt">선택한 설정</h2>
+      <div class="prev well" aria-hidden="true"><span class="land"></span><span class="nest"></span>지형 미리보기 (자리 표시)<span class="scale">220 × 220m</span></div>
+      <dl>
+        <div class="row"><dt>맵 크기</dt><dd>중<span class="x"><span class="n">220</span>m · 권장</span></dd></div>
+        <div class="row"><dt>침공 난이도</dt><dd>보통<span class="x">위기 : 행운 <span class="n">60 : 40</span></span></dd></div>
+        <div class="row"><dt>장수 사망</dt><dd>보통<span class="x">중상에서 다시 쓰러지면 <span class="n">25%</span></span></dd></div>
+        <div class="row"><dt>맵 시드</dt><dd><span class="n" style="letter-spacing:0.04em">4F7Q-2291-KX</span></dd></div>
+      </dl>
+    </aside>
+  </div>
+
+  <footer class="p-foot">
+    <button class="btn back" type="button"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg>뒤로<kbd>Esc</kbd></button>
+    <button class="btn primary" type="submit" form="ng">게임 시작<kbd>Enter</kbd></button>
+  </footer>
+</main>
+
+</body>
+</html>

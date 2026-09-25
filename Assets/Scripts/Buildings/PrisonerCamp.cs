@@ -16,6 +16,9 @@ namespace AntColony.Buildings
         public CommanderTraits Traits;
         public CommanderTalents Talents;
         public int PersuadeAttempts;
+        public CommanderPersonalState PersonalState = new CommanderPersonalState();
+        public int LabAttack, LabArmor;
+        public float StrikeCooldown, StanceCooldown;
 
         public Prisoner(string name, CommanderRank rank, UnitRole[] roles, CommanderTraits traits)
         {
@@ -115,6 +118,7 @@ namespace AntColony.Buildings
                 // 충성심이 높은 포로일수록 자기 진영으로 돌아가려 한다.
                 var chance = escapeChance * (1f + prisoners[i].Traits.Loyalty / (float)CommanderTraits.MaxLoyalty);
                 if (Random.value >= chance) continue;
+                CampaignHistory.Record("탈주", prisoners[i].Name, "포로 수용소 탈출");
                 prisoners.RemoveAt(i);
                 EscapedCount++;
                 AntColony.UI.ToastManager.Show("A prisoner escaped.");
@@ -128,7 +132,19 @@ namespace AntColony.Buildings
             var prisoner = new Prisoner(name, rank, roles, traits);
             if (talents != null) prisoner.Talents = talents.Copy();
             prisoners.Add(prisoner);
+            CampaignHistory.Record("포로", name, "적 장수 포획");
             AntColony.UI.ToastManager.Show(name + " captured.");
+            return true;
+        }
+
+        internal bool TryCapture(CommanderAnt c)
+        {
+            if (!TryCapture(c.CommanderName, CommanderRank.Sergeant, new[] { UnitRole.Worker }, c.Traits, c.Talents)) return false;
+            var prisoner = prisoners[prisoners.Count - 1];
+            prisoner.PersonalState = c.CapturePersonalState();
+            prisoner.PersonalState.social.departure = DepartureState.Imprisoned;
+            prisoner.LabAttack = c.LabAttackLevel; prisoner.LabArmor = c.LabArmorLevel;
+            prisoner.StrikeCooldown = c.Skills.PowerStrikeCooldownLeft; prisoner.StanceCooldown = c.Skills.DefensiveStanceCooldownLeft;
             return true;
         }
 
@@ -162,7 +178,7 @@ namespace AntColony.Buildings
             if (!isActiveAndEnabled || index < 0 || index >= prisoners.Count) return false;
             var prisoner = prisoners[index];
             if (persuadeFoodCost > 0 && ResourceManager.Instance != null
-                && !ResourceManager.Instance.TrySpend(persuadeFoodCost, 0)) return false;
+                && !ResourceManager.Instance.TrySpend(persuadeFoodCost, 0, reason: ResourceReason.Expedition)) return false;
 
             prisoner.PersuadeAttempts++;
             if (Random.value > PersuadeChance(prisoner)) return false;
@@ -173,9 +189,17 @@ namespace AntColony.Buildings
                 prisoner.Roles[0], prisoner.Traits, transform.position);
             if (recruit == null) return false;
             recruit.RestoreTalents(prisoner.Talents);
+            recruit.RestorePersonalState(prisoner.PersonalState);
+            recruit.Social.departure = DepartureState.None; recruit.Social.pendingDeparture = false;
+            recruit.PersonalState.departure = "";
+            recruit.Traits.SetLoyalty(30);
+            recruit.RestoreLabLevels(prisoner.LabAttack, prisoner.LabArmor);
+            recruit.Skills.Restore(false, prisoner.StrikeCooldown, prisoner.StanceCooldown, 0);
+            recruit.GetComponent<SelectableObject>().enabled = true;
 
             prisoners.RemoveAt(index);
             RecruitedCount++;
+            CampaignHistory.Record("합류", recruit.CommanderName, "포로 회유");
             AntColony.UI.ToastManager.Show(prisoner.Name + " joined your colony.");
             return true;
         }
@@ -190,6 +214,9 @@ namespace AntColony.Buildings
         public bool Execute(int index)
         {
             if (!isActiveAndEnabled || index < 0 || index >= prisoners.Count) return false;
+            var prisoner = prisoners[index];
+            CommanderAnt.OnPrisonerExecuted(prisoner.PersonalState.id, prisoner.PersonalState.originFaction, prisoner.Name);
+            CampaignHistory.Record("처형", prisoner.Name, "포로 처형", true);
             prisoners.RemoveAt(index);
             ExecutedCount++;
             AntColony.UI.ToastManager.Show("Prisoner executed.");

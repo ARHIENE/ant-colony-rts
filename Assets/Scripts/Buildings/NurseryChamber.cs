@@ -12,7 +12,6 @@ namespace AntColony.Buildings
     public class NurseryChamber : MonoBehaviour
     {
         // ponytail: 호감도 수치·비용·한도는 전부 1차 프로토타입 잠정값이다. 기획 확정 시 이 필드만 고치면 된다.
-        [SerializeField, Min(0.1f)] private float affinityRadius = 5f;
         [SerializeField, Min(0.1f)] private float affinityPerSecond = 10f;
         [SerializeField, Min(1f)] private float birthAffinity = 100f;
         [SerializeField, Min(0)] private int birthFoodCost = 30;
@@ -85,7 +84,7 @@ namespace AntColony.Buildings
             if (roster == null) return;
 
             var commanders = roster.Commanders;
-            var radiusSquared = affinityRadius * affinityRadius;
+            var radiusSquared = GameBalance.NurseryRadius * GameBalance.NurseryRadius;
 
             for (var i = 0; i < commanders.Count; i++)
                 for (var j = i + 1; j < commanders.Count; j++)
@@ -94,10 +93,13 @@ namespace AntColony.Buildings
                     var second = commanders[j];
                     if (first == null || second == null) continue;
                     if (!first.isActiveAndEnabled || !second.isActiveAndEnabled) continue;
-                    if ((first.Position - second.Position).sqrMagnitude > radiusSquared) continue;
+                    if ((first.Position - transform.position).sqrMagnitude > radiusSquared
+                        || (second.Position - transform.position).sqrMagnitude > radiusSquared) continue;
+                    var rate = BreedMultiplier(first, second);
+                    if (rate <= 0f) continue;
 
                     var key = new Pair(first, second);
-                    var value = (affinity.TryGetValue(key, out var current) ? current : 0f) + affinityPerSecond * deltaTime;
+                    var value = (affinity.TryGetValue(key, out var current) ? current : 0f) + affinityPerSecond * rate * deltaTime;
                     if (value >= birthAffinity && TryGiveBirth(first, second))
                     {
                         affinity.Remove(key);
@@ -109,13 +111,31 @@ namespace AntColony.Buildings
             PruneMissing();
         }
 
+        // 연인(서로 관계 70 이상, 가족 아님)만 호감도가 쌓인다. 중상이면 정지, 기분에 따라 속도가 바뀐다.
+        public static float BreedMultiplier(CommanderAnt first, CommanderAnt second)
+        {
+            if (!IsLover(first, second) || first.IsDead || second.IsDead
+                || first.PersonalState.HasTreatableInjury || second.PersonalState.HasTreatableInjury) return 0f;
+            if (first.Mood <= GameBalance.SadMood || second.Mood <= GameBalance.SadMood) return GameBalance.SadBreedMultiplier;
+            if (first.Mood >= GameBalance.HappyMood && second.Mood >= GameBalance.HappyMood) return GameBalance.HappyBreedMultiplier;
+            return 1f;
+        }
+
+        private static bool IsLover(CommanderAnt first, CommanderAnt second)
+        {
+            var a = first.PersonalState.relations.Find(r => r.otherId == second.PersonalState.id);
+            var b = second.PersonalState.relations.Find(r => r.otherId == first.PersonalState.id);
+            return a != null && b != null && !a.family && !b.family
+                && a.value >= GameBalance.LoverRelation && b.value >= GameBalance.LoverRelation;
+        }
+
         // 출산 조건: 정원 여유 + 식량 지불 + NavMesh 위 자리. 하나라도 실패하면 호감도를 유지한 채 다음 기회를 노린다.
         private bool TryGiveBirth(CommanderAnt first, CommanderAnt second)
         {
             var roster = CommanderRoster.Instance;
             if (roster == null || roster.Count >= maxCommanders) return false;
             if (birthFoodCost > 0 && ResourceManager.Instance != null
-                && !ResourceManager.Instance.TrySpend(birthFoodCost, 0)) return false;
+                && !ResourceManager.Instance.TrySpend(birthFoodCost, 0, reason: ResourceReason.Production)) return false;
 
             var child = roster.Create(null, CommanderRank.Corporal, new[] { UnitRole.Worker }, UnitRole.Worker,
                 CommanderTraits.Inherit(first.Traits, second.Traits), transform.position);
@@ -123,13 +143,23 @@ namespace AntColony.Buildings
             if (child == null)
             {
                 // 자리를 못 잡아 생성이 취소됐으면 이미 낸 식량을 돌려준다.
-                if (birthFoodCost > 0) ResourceManager.Instance?.Add(ResourceType.Food, birthFoodCost);
+                if (birthFoodCost > 0) ResourceManager.Instance?.Add(ResourceType.Food, birthFoodCost, ResourceReason.Refund);
                 return false;
             }
 
             child.Talents.Generate(child.Traits, first.Talents, second.Talents);
+            foreach (var parent in new[] { first, second })
+            {
+                parent.PersonalState.Relation(child.PersonalState.id).value = GameBalance.ParentChildRelation;
+                parent.PersonalState.Relation(child.PersonalState.id).family = true;
+                child.PersonalState.Relation(parent.PersonalState.id).value = GameBalance.ParentChildRelation;
+                child.PersonalState.Relation(parent.PersonalState.id).family = true;
+            }
+            first.PersonalState.Relation(second.PersonalState.id).spouse = true;
+            second.PersonalState.Relation(first.PersonalState.id).spouse = true;
             if (newbornTroops > 0) child.TryAssign(newbornTroops);
             BirthCount++;
+            CampaignHistory.Record("합류", child.CommanderName, "출생");
             AntColony.UI.ToastManager.Show(child.CommanderName + " was born.");
             return true;
         }
@@ -169,18 +199,17 @@ namespace AntColony.Buildings
         public float GetAffinity(CommanderAnt first, CommanderAnt second)
             => affinity.TryGetValue(new Pair(first, second), out var value) ? value : 0f;
 
-        // HUD 표시용. 호감도 조건은 "장수 쌍이 서로 가까이 있을 것"이지 양육실 근처일 것이 아니므로,
-        // 문구도 실제 동작 그대로 쓴다(기획에서 양육실 반경으로 확정되면 Tick과 함께 바꾼다).
+        // HUD 표시용.
         public string GetStatusLabel()
         {
             var count = CommanderRoster.Instance != null ? CommanderRoster.Instance.Count : 0;
             var best = BestPair(out var first, out var second);
             var pair = first != null
                 ? $"{first.CommanderName} + {second.CommanderName}  {best:0}/{birthAffinity:0}"
-                : "no pair in range";
+                : "no lover pair in range";
             var head = Primary == this ? "Nursery" : "Nursery (idle: another nursery leads)";
             return $"{head}  Commanders {count}/{maxCommanders}  Birth {birthFoodCost}F  Births {BirthCount}\n"
-                + $"Pairs within {affinityRadius:0.#}m of each other: {pair}";
+                + $"Lovers (relation {GameBalance.LoverRelation:0}+) within {GameBalance.NurseryRadius:0.#}m of the nursery: {pair}";
         }
 
         // 가장 많이 쌓인 쌍 하나. 표시용이라 정렬 없이 한 번 훑는다.

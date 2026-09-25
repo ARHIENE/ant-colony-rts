@@ -24,9 +24,12 @@ namespace AntColony.World
         public static float CurrentRaidInterval => RaidInterval * AntColony.Core.DifficultyRuntime.IntervalScale;
         public float Remaining { get; private set; } = RaidInterval;
         public float CaptureProgress { get; private set; }
+        // 감시탑이 이 거점을 감시하면 침공 60초 전에 경보가 켜지고, 월드맵에 진격 경로를 표시한다.
+        public bool Warned { get; private set; }
         public string Status => site.Disposition == ConquestDisposition.Lost
             ? $"Lost | Captives {prisoners.Count}. Defeat occupiers and resolve conquest to rescue."
             : UnderAttack ? $"UNDER ATTACK: {attackers.Count} | Landing occupied {CaptureProgress:0}/{CaptureSeconds:0}s"
+            : Warned ? $"WATCHTOWER ALERT: raid in {Remaining:0}s | Route: north edge -> landing"
             : $"Defense ready | Next raid {Remaining:0}s | Hold within 8m of landing.";
 
         private void Awake()
@@ -48,6 +51,7 @@ namespace AntColony.World
         internal void ResetAfterConquest()
         {
             UnderAttack = false;
+            Warned = false;
             CaptureProgress = 0;
             Remaining = CurrentRaidInterval;
             attackers.Clear();
@@ -60,6 +64,7 @@ namespace AntColony.World
             attackers.Clear();
             Remaining = Mathf.Clamp(remaining, 0f, CurrentRaidInterval);
             CaptureProgress = Mathf.Clamp(captureProgress, 0f, CaptureSeconds);
+            Warned = Remaining <= GameBalance.WatchtowerWarningSeconds && AntColony.Buildings.Watchtower.Watches(site);
         }
 
         internal void RestorePrisoner(CommanderAnt commander)
@@ -98,7 +103,15 @@ namespace AntColony.World
                 || site.Disposition != ConquestDisposition.Annexed) return;
             if (!UnderAttack)
             {
+                var before = Remaining;
                 Remaining = Mathf.Max(0, Remaining - seconds);
+                if (!Warned && before > GameBalance.WatchtowerWarningSeconds && Remaining <= GameBalance.WatchtowerWarningSeconds
+                    && AntColony.Buildings.Watchtower.Watches(site))
+                {
+                    Warned = true;
+                    Notify($"Watchtower: raid in {Remaining:0}s from the north edge.");
+                    AntColony.UI.ToastManager.Show(site.Title + $": watchtower alert, raid in {Remaining:0}s.");
+                }
                 if (Remaining == 0) TryStartRaid();
                 return;
             }
@@ -133,8 +146,11 @@ namespace AntColony.World
                 if (Random.value < captureChance)
                 {
                     c.TakeDamage(float.MaxValue);
+                    if (c.IsDead) continue;
                     c.Captor = site;
+                    c.OnCaptured();
                     prisoners.Add(c);
+                    CampaignHistory.Record("포로", c.CommanderName, site.Title + " 함락");
                     c.gameObject.SetActive(false);
                 }
                 else
@@ -158,6 +174,8 @@ namespace AntColony.World
             {
                 if (c == null) continue;
                 c.Captor = null;
+                c.OnRescued();
+                CampaignHistory.Record("구출", c.CommanderName, site.Title);
                 var annexed = site.Disposition == ConquestDisposition.Annexed;
                 MoveCommander(c, annexed ? site.Landing + Vector3.right * 3 : WorldMapManager.Instance.HomePosition + Vector3.right * 3);
                 if (annexed) site.Settlement.Add(c);

@@ -27,14 +27,14 @@ namespace AntColony.Buildings
         }
 
         protected override bool IsDepositPoint => true;
-        public string GetProductionLabel() => isProducing ? "Producing Ant..." :
+        public string GetProductionLabel() => AntColony.World.ColonyEvents.ProductionBlocked ? "말벌 습격: 생산 중단" : isProducing ? "Producing Ant..." :
             workerAntData != null ? $"Produce Ant\n{workerAntData.foodCost}F" : "No Ant Data";
 
         public bool TryProduceWorker()
         {
-            if (isProducing || !isActiveAndEnabled || ResourceManager.Instance == null
+            if (isProducing || AntColony.World.ColonyEvents.ProductionBlocked || !isActiveAndEnabled || ResourceManager.Instance == null
                 || AntPool.Instance == null || workerAntData == null) return false;
-            if (!ResourceManager.Instance.TrySpend(workerAntData.foodCost, 0)) return false;
+            if (!ResourceManager.Instance.TrySpend(workerAntData.foodCost, 0, reason: ResourceReason.Production)) return false;
             isProducing = true;
             productionRemaining = workerAntData.buildTimeSeconds;
             return true;
@@ -46,7 +46,7 @@ namespace AntColony.Buildings
         public void Tick(float seconds)
         {
             if (!isActiveAndEnabled || !(seconds > 0f) || float.IsInfinity(seconds)) return;
-            if (isProducing)
+            if (isProducing && !AntColony.World.ColonyEvents.ProductionBlocked)
             {
                 productionRemaining -= seconds;
                 if (productionRemaining <= 0f)
@@ -76,7 +76,7 @@ namespace AntColony.Buildings
                 || GameManager.Instance.FishingUnlocked || ResourceManager.Instance == null) return false;
             foreach (var queen in FindObjectsByType<QueenChamber>(FindObjectsSortMode.None))
                 if (queen.isFishingResearching) return false;
-            if (!ResourceManager.Instance.TrySpend(fishingFoodCost, fishingSoilCost)) return false;
+            if (!ResourceManager.Instance.TrySpend(fishingFoodCost, fishingSoilCost, reason: ResourceReason.Research)) return false;
             isFishingResearching = true;
             fishingRemaining = fishingResearchSeconds;
             return true;

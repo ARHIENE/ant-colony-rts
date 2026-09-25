@@ -20,8 +20,8 @@ namespace AntColony.Units
         public ArmorKind armor;
         public bool IsValid => !string.IsNullOrEmpty(id) && Enum.IsDefined(typeof(EquipmentSlot), slot) && quality >= 0 && quality <= 3
             && Enum.IsDefined(typeof(TrinketEffect), effect) && Enum.IsDefined(typeof(WeaponKind), weapon) && Enum.IsDefined(typeof(ArmorKind), armor);
-        public string Label => new[] { "Crude", "Normal", "Fine", "Masterwork" }[Mathf.Clamp(quality,0,3)] + " "
-            + (slot == EquipmentSlot.Weapon ? weapon.ToString() : slot == EquipmentSlot.Armor ? armor.ToString() : effect.ToString());
+        public string Label => new[] { "조잡", "보통", "정교", "걸작" }[Mathf.Clamp(quality,0,3)] + " "
+            + EquipmentRecipes.Name((EquipmentRecipe)(slot == EquipmentSlot.Weapon ? (int)weapon : slot == EquipmentSlot.Armor ? 4 + (int)armor : 6 + (int)effect));
         public static EquipmentItem Random(int quality) => new EquipmentItem { slot = (EquipmentSlot)UnityEngine.Random.Range(0,3), quality = Mathf.Clamp(quality,0,3),
             effect = (TrinketEffect)UnityEngine.Random.Range(0,4), weapon = (WeaponKind)UnityEngine.Random.Range(0,4), armor = (ArmorKind)UnityEngine.Random.Range(0,2) };
     }
@@ -31,21 +31,28 @@ namespace AntColony.Units
         public List<EquipmentItem> Items = new List<EquipmentItem>();
         private void Awake() { Instance = this; }
         private void OnDestroy() { if (Instance == this) Instance = null; }
-        public void Add(EquipmentItem item) { if (item != null && item.IsValid && !Items.Exists(e => e.id == item.id)) Items.Add(item); }
+        public const int Capacity = 30;
+        public bool Full => Items.Count >= Capacity;
+        public bool Add(EquipmentItem item)
+        {
+            if (Full || item == null || !item.IsValid || Items.Exists(e => e.id == item.id)) return false;
+            Items.Add(item); return true;
+        }
         public bool Equip(CommanderAnt commander, EquipmentItem item)
         {
             if (commander == null || item == null || !item.IsValid || !commander.CanChangeEquipment || !Items.Contains(item)) return false;
             var old = commander.PersonalState.equipment.Find(e => e.slot == item.slot);
             if (!commander.CanReplaceEquipment(old, item)) return false;
-            if (old != null) { commander.PersonalState.equipment.Remove(old); Add(old); }
-            Items.Remove(item); commander.PersonalState.equipment.Add(item);
+            Items.Remove(item);
+            if (old != null) { commander.PersonalState.equipment.Remove(old); Items.Add(old); }
+            commander.PersonalState.equipment.Add(item);
             commander.RefreshEquipment();
             commander.Traits.ChangeLoyalty(new[] { 2,4,6,10 }[item.quality] * (commander.Traits.Has(CommanderTrait.Greedy) ? 2 : 1), "Equipment gift");
             return true;
         }
         public bool Unequip(CommanderAnt commander, EquipmentItem item)
         {
-            if (commander == null || !commander.CanChangeEquipment || !commander.PersonalState.equipment.Contains(item) || !commander.CanReplaceEquipment(item, null)) return false;
+            if (Full || commander == null || !commander.CanChangeEquipment || !commander.PersonalState.equipment.Contains(item) || !commander.CanReplaceEquipment(item, null)) return false;
             commander.PersonalState.equipment.Remove(item); Add(item);
             commander.RefreshEquipment();
             commander.Traits.ChangeLoyalty(commander.Traits.Has(CommanderTrait.Greedy) ? -6 : -3, "Equipment removed"); return true;
@@ -58,7 +65,7 @@ namespace AntColony.Units
         public EquipmentItem EquippedArmor => personalState.equipment.Find(e => e.slot == EquipmentSlot.Armor);
         public string WeaponLabel => Weapon?.weapon.ToString() ?? "Bare mandibles";
         public bool CanChangeEquipment => CanReceiveOrders && !IsConstructing && !LabUpgradeBusy;
-        public float AuraRadius => SupportAuraRadius + (Weapon?.quality ?? 0) + Talents.Level(CommanderActivity.Command) / 10;
+        public float AuraRadius => SupportAuraRadius + (Weapon?.quality ?? 0);
         public CommanderActivity CombatActivity => Role == AntColony.Data.UnitRole.Ranged ? CommanderActivity.Ranged
             : Role == AntColony.Data.UnitRole.Support ? CommanderActivity.Command : CommanderActivity.Melee;
         public float TrinketBonus(TrinketEffect effect)

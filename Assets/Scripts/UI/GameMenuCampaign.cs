@@ -30,7 +30,7 @@ namespace AntColony.UI
             {
                 var reason = research.BlockReason(definition.Technology);
                 var done = research.Has(definition.Technology);
-                var button = MenuTheme.Button(content, $"T{definition.Tier} {definition.Name} — {(done ? "Complete" : $"{definition.Food}F/{definition.Soil}S, {definition.Work:0} work")}",
+                var button = MenuTheme.Button(content, $"T{definition.Tier} {definition.Name} — {(done ? "Complete" : $"{definition.Food}F/{definition.Soil}S{(definition.Special > 0 ? $"/{definition.Special} Special" : "")}, {definition.Work:0} work")}",
                     () => { if (!research.TryStart(definition.Technology)) ToastManager.Show("Cannot start: check prerequisites and resources."); Science(); }, reason == "" ? "Starts one shared research project." : reason);
                 button.interactable = reason == "";
             }
@@ -38,6 +38,7 @@ namespace AntColony.UI
             MenuTheme.Button(content, "Build Infirmary (40F / 40S / 4 ants)", () => {
                 Resume(); FindFirstObjectByType<BuildingPlacementController>()?.BeginInfirmaryPlacement();
             }, "Treat up to two seriously injured commanders. Assign nearby patients from commander details.").interactable = Infirmary.Unlocked;
+            ScienceBuildings();
             MenuTheme.Button(content, "Build Airship Yard (100F / 150S / 10 ants)", () => {
                 Resume(); FindFirstObjectByType<BuildingPlacementController>()?.BeginAirshipYardPlacement();
             });
@@ -45,7 +46,7 @@ namespace AntColony.UI
             {
                 MenuTheme.Text(content, $"{yard.name} | Hull {yard.Hull} | Engine {yard.Engine} | Cocoons {yard.Cocoons} | {yard.Remaining:0}s", 18, 55);
                 foreach (AirshipPart part in Enum.GetValues(typeof(AirshipPart)))
-                    MenuTheme.Button(content, "Build " + part + (part == AirshipPart.Cocoon ? " (20F/30S/10 Special)" : " (100F/150S/150 Special)"),
+                    MenuTheme.Button(content, "Build " + part + (part == AirshipPart.Cocoon ? $" ({GameBalance.CocoonFood}F/{GameBalance.CocoonSoil}S/{GameBalance.CocoonSpecial} Special, {yard.Cocoons}/{GameBalance.MaxCocoons})" : " (100F/150S/150 Special)"),
                         () => { if (!yard.TryBuild(part)) ToastManager.Show("Requires the matching research, resources and an idle yard."); Science(); });
                 foreach (var c in SortedCommanders().Where(c => c.CanChangeAllocation && !c.IsAwayFromHome && Vector3.Distance(c.Position, yard.Position) <= 8))
                     MenuTheme.Button(content, "Board " + c.CommanderName, () => { if (!yard.TryBoard(c)) ToastManager.Show("Finish hull/engine and build a cocoon per passenger."); Science(); });
@@ -62,20 +63,32 @@ namespace AntColony.UI
             MenuTheme.Text(content, "Traits: " + string.Join(", ", c.Traits.values) + "\nPassions: "
                 + string.Join(", ", c.Traits.passions.Select(p => p.activity + " " + new string('*', p.flame))), 17, 75);
             MenuTheme.Text(content, "Loyalty events: " + string.Join(" / ", c.Traits.loyaltyReasons), 17, 65);
+            MenuTheme.Text(content, "충성심 " + c.Traits.Loyalty + " / 100", 18, 32).color = LoyaltyColor(c.Traits.Loyalty);
+            var faction = c.Faction();
+            MenuTheme.Text(content, "파벌: " + (faction.Count == 0 ? "없음" : string.Join(", ", faction.Select(m => m.CommanderName))), 17, 45);
+            foreach (var relation in c.PersonalState.relations)
+            {
+                var other = SortedCommanders().FirstOrDefault(o => o.PersonalState.id == relation.otherId);
+                var label = relation.spouse ? "배우자" : !relation.family && relation.value >= 70 ? "연인" : relation.value >= 40 ? "친구" : relation.value <= -40 ? "라이벌" : "지인";
+                MenuTheme.Text(content, $"{other?.CommanderName ?? "떠난 장수"}: {label} {relation.value:0}", 17, 30);
+            }
             foreach (var factor in c.PersonalState.moodFactors) MenuTheme.Text(content, $"{factor.reason}: {factor.value:+0;-0;0} ({factor.remaining:0}s)", 17, 32);
             foreach (var injury in c.PersonalState.injuries) MenuTheme.Text(content, $"{injury.part}: {injury.severity} ({injury.remaining:0}s)", 17, 32);
             if (c.TreatmentFacility != null)
                 MenuTheme.Button(content, "Stop treatment", () => { c.TreatmentFacility?.Release(c); Details(c); }, "Treatment progress is preserved. Resume the game to recover.");
-            else if (c.PersonalState.HasTreatableInjury)
+            else if (c.PersonalState.NeedsTreatment)
             {
                 MenuTheme.Text(content, "Treatment: research and build an Infirmary, then move within 8m. Two patients per facility; resume to recover.", 17, 65);
                 foreach (var infirmary in FindObjectsByType<Infirmary>(FindObjectsSortMode.None))
                     MenuTheme.Button(content, $"Treat at {infirmary.name} ({infirmary.Patients.Count}/{Infirmary.Capacity})",
                         () => { if (!infirmary.TryAdmit(c)) ToastManager.Show("Requires an idle injured commander nearby and a free bed."); Details(c); }).interactable = infirmary.CanTreat(c);
             }
+            RegenerationButtons(c);
+            if (c.PersonalState.infected) MenuTheme.Text(content, $"곰팡이 감염 | 치료 진행 {c.PersonalState.moldTreatment:0}/60 | 20초마다 병력 -1", 17, 45);
             MenuTheme.Button(content, "Reward (30 Food)", () => { if (!c.TryReward()) ToastManager.Show("Available at home, once per game month."); Details(c); }).interactable = c.CanReceiveOrders && !c.IsAwayFromHome && c.PersonalState.rewardCooldown <= 0;
             var inventory = EquipmentInventory.Instance;
             if (inventory == null) return;
+            MenuTheme.Text(content, $"장비 보관함 {inventory.Items.Count}/{EquipmentInventory.Capacity}", 18, 36);
             foreach (var item in c.PersonalState.equipment.ToArray())
                 MenuTheme.Button(content, "Unequip " + item.Label, () => { if (!inventory.Unequip(c, item)) ToastManager.Show("Cannot remove equipment while unavailable or without a safe landing point."); Details(c); });
             foreach (var item in inventory.Items.ToArray())

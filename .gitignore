@@ -35,3 +35,11 @@ Assets/_TeamImport.meta
 # 에이전트 스킬 문서(로컬 전용, 2026-09-14)
 .agents/skills/
 .claude/skills/
+
+# Playwright
+node_modules/
+/test-results/
+/playwright-report/
+/blob-report/
+/playwright/.cache/
+/playwright/.auth/

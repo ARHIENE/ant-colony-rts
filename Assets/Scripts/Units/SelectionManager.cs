@@ -67,6 +67,7 @@ namespace AntColony.Units
 
         private void Update()
         {
+            if (AntColony.UI.SkillTargeting.ConsumesPointerInput) { isMouseDown = isDragging = false; ShowSelectionBox(false); return; }
             if (AntColony.UI.GameMenuController.BlocksInput) { isMouseDown = isDragging = false; ShowSelectionBox(false); return; }
             selectedObjects.RemoveAll(item => item == null || !item.isActiveAndEnabled || !item.IsSelected);
             var mouse = Mouse.current;
@@ -134,6 +135,11 @@ namespace AntColony.Units
 
             if (Physics.Raycast(ray, out var hit, 1000f, selectableLayerMask))
             {
+                if (hit.collider.GetComponentInParent<Workshop>() is Workshop workshop)
+                {
+                    AntColony.UI.GameMenuController.Instance?.ShowWorkshop(workshop);
+                    return;
+                }
                 var selectable = hit.collider.GetComponentInParent<SelectableObject>();
                 if (selectable != null && selectable.isActiveAndEnabled)
                 {
@@ -170,7 +176,7 @@ namespace AntColony.Units
         private static bool IsPlayerControllable(SelectableObject selectable)
         {
             var unit = selectable.GetComponent<AntUnitBase>();
-            return unit == null || unit is CommanderAnt;
+            return unit == null || unit is CommanderAnt commander && commander.IsColonyMember;
         }
 
         private void AddToSelection(SelectableObject selectable)

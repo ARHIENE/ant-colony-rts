@@ -34,6 +34,12 @@ public static class SaveRoundtripChecks
     public static async Task<string> Main()
     {
         checks = 0;
+        if (Application.isPlaying && !GameSession.Instance.GameStarted)
+        {
+            SaveSystem.NewGame(new NewGameOptions { mapSize = MapSize.Small, seed = 250925 });
+            var deadline = DateTime.UtcNow.AddSeconds(90);
+            while (SaveSystem.Busy && DateTime.UtcNow < deadline) await Task.Delay(30);
+        }
         Check(Application.isPlaying && GameSession.Instance.GameStarted, "playable session");
         var previousRoot = SaveStorage.RootOverride;
         var settings = UserSettings.Current.Clone();

@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using AntColony.Core;
 using UnityEngine;
 
 namespace AntColony.Units
@@ -7,9 +8,9 @@ namespace AntColony.Units
     public enum InjuryPart { Antenna, Mandible, Legs, Thorax, Head, Wings }
     public enum InjurySeverity { Minor, Serious, Permanent }
     public enum MentalBreak { None, Idle, Flee, AttackBuilding, AttackCommander, SelfHarm, Binge }
-    [Serializable] public class CommanderInjury { public InjuryPart part; public InjurySeverity severity; public float remaining; }
+    [Serializable] public class CommanderInjury { public InjuryPart part; public InjurySeverity severity; public float remaining; public bool regenerating; }
     [Serializable] public class MoodFactor { public string reason; public float value, remaining; }
-    [Serializable] public class CommanderRelation { public string otherId; public float value, nearbySeconds, quarrelSeconds; public bool spouse; }
+    [Serializable] public class CommanderRelation { public string otherId; public float value, nearbySeconds, quarrelSeconds, duelSeconds; public bool spouse, family; }
     [Serializable]
     public class CommanderPersonalState
     {
@@ -23,8 +24,12 @@ namespace AntColony.Units
         public int craftLevel, researchLevel;
         public MentalBreak mentalBreak;
         public bool dead, treating;
+        public bool infected;
+        public float moldLoss, moldSpread, moldTreatment;
         public string originFaction = "", departure = "";
+        public CommanderSocialState social = new CommanderSocialState();
         public bool HasTreatableInjury => injuries.Exists(i => i.severity == InjurySeverity.Serious);
+        public bool NeedsTreatment => HasTreatableInjury || infected;
         public bool HasSeriousInjury => injuries.Exists(i => i.severity != InjurySeverity.Minor);
         public float Severity(InjuryPart part)
         {
@@ -50,14 +55,15 @@ namespace AntColony.Units
             if (old != null && old.severity > severity) return;
             if (old != null) injuries.Remove(old);
             injuries.Add(new CommanderInjury { part = part, severity = severity, remaining = severity == InjurySeverity.Minor ? 180 : 240 });
+            if (severity != InjurySeverity.Minor) social.seriousInjuries++;
         }
         public void Tick(float dt, CommanderTraits traits)
         {
             foreach (var f in moodFactors) f.remaining -= dt;
             moodFactors.RemoveAll(f => f.remaining <= 0);
             foreach (var injury in injuries)
-                if (injury.severity == InjurySeverity.Minor) injury.remaining -= dt * (traits.Has(CommanderTrait.Robust) ? 2 : 1);
-                else if (injury.severity == InjurySeverity.Serious && treating) injury.remaining -= dt;
+                if (injury.severity == InjurySeverity.Minor) injury.remaining -= dt * (traits.Has(CommanderTrait.Robust) ? 2 : 1) * ScienceEffects.MinorHealRate;
+                else if (injury.severity == InjurySeverity.Serious && treating) injury.remaining -= dt * (injury.regenerating ? 1f : ScienceEffects.SeriousTreatRate);
             injuries.RemoveAll(i => i.severity != InjurySeverity.Permanent && i.remaining <= 0);
             rewardCooldown = Mathf.Max(0, rewardCooldown - dt);
             rageRemaining = Mathf.Max(0, rageRemaining - dt);
@@ -65,15 +71,17 @@ namespace AntColony.Units
         public bool Validate(out string error)
         {
             error = "Invalid commander personal state";
-            if (string.IsNullOrEmpty(id) || injuries == null || injuries.Count > 6 || moodFactors == null || moodFactors.Count > 64 || relations == null || equipment == null || equipment.Count > 3) return false;
+            if (string.IsNullOrEmpty(id) || social == null || !social.Validate() || injuries == null || injuries.Count > 6 || moodFactors == null || moodFactors.Count > 64 || relations == null || equipment == null || equipment.Count > 3) return false;
             var parts = new HashSet<InjuryPart>();
             foreach (var i in injuries) if (i == null || !Enum.IsDefined(typeof(InjuryPart), i.part) || !parts.Add(i.part) || !Enum.IsDefined(typeof(InjurySeverity), i.severity) || !Finite(i.remaining) || i.remaining < 0) return false;
             foreach (var f in moodFactors) if (f == null || f.reason == null || !Finite(f.value) || !Finite(f.remaining) || f.remaining < 0) return false;
-            foreach (var r in relations) if (r == null || string.IsNullOrEmpty(r.otherId) || !Finite(r.value) || r.value < -100 || r.value > 100 || !Finite(r.nearbySeconds) || !Finite(r.quarrelSeconds)) return false;
+            foreach (var r in relations) if (r == null || string.IsNullOrEmpty(r.otherId) || !Finite(r.value) || r.value < -100 || r.value > 100 || !Finite(r.nearbySeconds) || r.nearbySeconds < 0 || !Finite(r.quarrelSeconds) || r.quarrelSeconds < 0 || !Finite(r.duelSeconds) || r.duelSeconds < 0) return false;
             var slots = new HashSet<EquipmentSlot>();
             foreach (var e in equipment) if (e == null || !e.IsValid || !slots.Add(e.slot)) return false;
             foreach (float value in new[] { workedSeconds, breakCheck, loyaltyCheck, captiveSeconds, unsupportedSeconds, breakRemaining, rageRemaining, rewardCooldown, lastCombatSeconds, homeSeconds, craftProgress, researchProgress }) if (!Finite(value) || value < 0) return false;
             if (craftLevel < 0 || craftLevel > 5 || researchLevel < 0 || researchLevel > 5 || !Enum.IsDefined(typeof(MentalBreak), mentalBreak)) return false;
+            if (!Finite(moldLoss) || moldLoss < 0 || moldLoss >= 20 || !Finite(moldSpread) || moldSpread < 0 || moldSpread >= 30
+                || !Finite(moldTreatment) || moldTreatment < 0 || moldTreatment > 60) return false;
             error = null; return true;
         }
         private static bool Finite(float n) => !float.IsNaN(n) && !float.IsInfinity(n);

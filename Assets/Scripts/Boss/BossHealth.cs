@@ -28,6 +28,26 @@ namespace AntColony.Boss
         public float MaxHp => maxHp;
         public bool IsDead => currentHp <= 0f;
         public Vector3 Position => transform.position;
+        public float RootRemaining { get; private set; }
+        private bool resumeMovement;
+        public void Root(float seconds)
+        {
+            if (!(seconds > 0) || float.IsInfinity(seconds) || IsDead) return;
+            var agent = GetComponent<UnityEngine.AI.NavMeshAgent>();
+            if (agent != null && agent.enabled && agent.isOnNavMesh)
+            {
+                if (RootRemaining <= 0) resumeMovement = !agent.isStopped;
+                agent.isStopped = true;
+            }
+            RootRemaining = Mathf.Max(RootRemaining, seconds);
+        }
+        private void LateUpdate()
+        {
+            if (RootRemaining <= 0) return;
+            RootRemaining = Mathf.Max(0, RootRemaining - Time.deltaTime);
+            var agent = GetComponent<UnityEngine.AI.NavMeshAgent>();
+            if (agent != null && agent.enabled && agent.isOnNavMesh) agent.isStopped = RootRemaining > 0 || !resumeMovement;
+        }
 
         private void Awake()
         {
@@ -108,6 +128,7 @@ namespace AntColony.Boss
                     + Mathf.Max(body.bounds.extents.x, body.bounds.extents.z));
             }
             BossLoot.Drop(transform.position, radius, foodReward, specialReward);
+            CampaignHistory.Record("보스 처치", gameObject.name, GetComponentInParent<AntColony.World.ExpeditionSite>()?.Title ?? "본거지");
 
             GameManager.Instance?.ReportBossDefeated();
             onDead?.Invoke();

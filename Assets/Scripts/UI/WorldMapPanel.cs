@@ -99,7 +99,7 @@ namespace AntColony.UI
                 && selectedSite != null && selectedSite.Disposition == ConquestDisposition.Annexed;
             stopRoute.interactable = route != null && route.IsRunning;
             routeStatus.text = route != null && route.IsRunning
-                ? $"Auto: {route.Destination.Title}\n{route.Status}\nOne load per resource / worker; repeat after 60s at home."
+                ? $"Auto: {route.Destination.Title}\n{route.Status}\nOne load per resource / worker; repeat after {TransportRoute.IntervalSeconds:0}s at home."
                 : $"Auto: {(route != null ? route.Status : "Off")}\nBoard worker crew at home, select an annexed site, Start Auto.";
             var lab = FindLab();
             scienceStatus.text = $"Science Lab: {(lab != null ? lab.Busy ? $"Working {lab.Remaining:0}s" : "Ready" : "Not built")} | "
@@ -126,7 +126,7 @@ namespace AntColony.UI
                     + $"{selectedSite.Colony.GetStock(AntColony.Data.ResourceType.Food):0}F / "
                     + $"{selectedSite.Colony.GetStock(AntColony.Data.ResourceType.Soil):0}S";
             status.text = selectedShip == null ? "No transport. Research and construct one.\n" + target
-                : $"{selectedShip.name} | {selectedShip.State} {selectedShip.Remaining:0}s | Load {selectedShip.Load}/{selectedShip.Capacity}\n"
+                : $"{selectedShip.name} | {selectedShip.State} {selectedShip.Remaining:0}s | Commanders {selectedShip.CommanderLoad}/{selectedShip.CommanderCapacity} Troops {selectedShip.Load}/{selectedShip.Capacity} Cargo {selectedShip.CargoLoad}/{selectedShip.CargoCapacity}\n"
                     + $"Crew {selectedShip.Crew.Count} | Cargo {selectedShip.GetCargo(AntColony.Data.ResourceType.Food)}F / "
                     + $"{selectedShip.GetCargo(AntColony.Data.ResourceType.Soil)}S / {selectedShip.GetCargo(AntColony.Data.ResourceType.Special)} Special | {selectedShip.EquipmentCargo.Count} equipment{(selectedShip.BlueprintCargo ? " + blueprint" : "")}\n" + target;
         }

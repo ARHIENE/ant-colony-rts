@@ -22,47 +22,50 @@ namespace AntColony.Core
         public readonly string Name;
         public readonly int Tier;
         public readonly float Work;
-        public readonly int Food, Soil;
+        public readonly int Food, Soil, Special;
         public readonly ScienceTechnology[] Prerequisites;
-        // ponytail: branch names are provisional; research times/costs remain tuning constants until playtesting.
         public ScienceDefinition(ScienceTechnology technology, string name, int tier, params ScienceTechnology[] prerequisites)
-        { Technology = technology; Name = name; Tier = tier; Work = 300f * tier * tier; Food = 10 * tier; Soil = 15 * tier; Prerequisites = prerequisites; }
+        {
+            Technology = technology; Name = name; Tier = tier; Prerequisites = prerequisites;
+            Work = GameBalance.ScienceWork[tier - 1]; Food = GameBalance.ScienceFood[tier - 1];
+            Soil = GameBalance.ScienceSoil[tier - 1]; Special = GameBalance.ScienceSpecial[tier - 1];
+        }
     }
 
     public sealed class CampaignResearch : MonoBehaviour
     {
         public static CampaignResearch Instance { get; private set; }
         public static readonly ScienceDefinition[] Technologies = {
-            new ScienceDefinition(ScienceTechnology.FungalFarming, "Fungal farming", 1),
-            new ScienceDefinition(ScienceTechnology.HoneydewRanch, "Honeydew ranch", 1, ScienceTechnology.FungalFarming),
-            new ScienceDefinition(ScienceTechnology.Resin, "Resin processing", 1),
-            new ScienceDefinition(ScienceTechnology.Traps, "Trap engineering", 1, ScienceTechnology.Resin),
-            new ScienceDefinition(ScienceTechnology.Herbs, "Herbal medicine", 1),
-            new ScienceDefinition(ScienceTechnology.Sanitation, "Sanitation", 1, ScienceTechnology.Herbs),
-            new ScienceDefinition(ScienceTechnology.Fermentation, "Fermentation storage", 2, ScienceTechnology.FungalFarming),
-            new ScienceDefinition(ScienceTechnology.AdvancedCrops, "Advanced crops", 2, ScienceTechnology.HoneydewRanch),
-            new ScienceDefinition(ScienceTechnology.AcidRefining, "Acid refining", 2, ScienceTechnology.Resin),
-            new ScienceDefinition(ScienceTechnology.Watchtowers, "Watchtowers", 2, ScienceTechnology.Traps),
-            new ScienceDefinition(ScienceTechnology.Infirmary, "Infirmary", 2, ScienceTechnology.Herbs),
-            new ScienceDefinition(ScienceTechnology.Recreation, "Recreation", 2, ScienceTechnology.Herbs),
-            new ScienceDefinition(ScienceTechnology.Blades, "Mandible blades", 2, ScienceTechnology.Resin),
-            new ScienceDefinition(ScienceTechnology.ArmorPlates, "Carapace armor", 2, ScienceTechnology.Resin),
-            new ScienceDefinition(ScienceTechnology.Vehicle, "Wheeled vehicle", 2),
-            new ScienceDefinition(ScienceTechnology.Drainage, "Flood control", 2, ScienceTechnology.Sanitation),
-            new ScienceDefinition(ScienceTechnology.Firebreaks, "Firebreaks", 2, ScienceTechnology.Resin),
-            new ScienceDefinition(ScienceTechnology.EfficientTransport, "Efficient transport", 3, ScienceTechnology.Vehicle),
-            new ScienceDefinition(ScienceTechnology.Mines, "Buried explosives", 3, ScienceTechnology.Traps),
-            new ScienceDefinition(ScienceTechnology.Regeneration, "Limb regeneration", 3, ScienceTechnology.Infirmary),
-            new ScienceDefinition(ScienceTechnology.Trinkets, "Trinkets", 3, ScienceTechnology.ArmorPlates),
-            new ScienceDefinition(ScienceTechnology.AdvancedWeapons, "Advanced weapons", 3, ScienceTechnology.Blades),
-            new ScienceDefinition(ScienceTechnology.Gliding, "Gliding wings", 3, ScienceTechnology.Vehicle),
-            new ScienceDefinition(ScienceTechnology.Aircraft, "Aircraft", 3, ScienceTechnology.Gliding),
-            new ScienceDefinition(ScienceTechnology.HeavyTransport, "Heavy transport", 3, ScienceTechnology.Aircraft),
-            new ScienceDefinition(ScienceTechnology.Insulation, "Insulation", 3, ScienceTechnology.Drainage),
-            new ScienceDefinition(ScienceTechnology.MigrationTheory, "Great migration theory", 3, ScienceTechnology.Aircraft),
-            new ScienceDefinition(ScienceTechnology.Hull, "Airship hull", 4, ScienceTechnology.MigrationTheory),
-            new ScienceDefinition(ScienceTechnology.Cocoons, "Hibernation cocoons", 4, ScienceTechnology.MigrationTheory),
-            new ScienceDefinition(ScienceTechnology.Engine, "Airship engine (blueprint)", 4, ScienceTechnology.MigrationTheory)
+            new ScienceDefinition(ScienceTechnology.FungalFarming, "균류 재배", 1),
+            new ScienceDefinition(ScienceTechnology.HoneydewRanch, "감로 목장", 1, ScienceTechnology.FungalFarming),
+            new ScienceDefinition(ScienceTechnology.Resin, "흙벽 공법", 1),
+            new ScienceDefinition(ScienceTechnology.Traps, "함정 공학", 1, ScienceTechnology.Resin),
+            new ScienceDefinition(ScienceTechnology.Herbs, "약초 처방", 1),
+            new ScienceDefinition(ScienceTechnology.Sanitation, "방역", 1, ScienceTechnology.Herbs),
+            new ScienceDefinition(ScienceTechnology.Fermentation, "압축 저장", 2, ScienceTechnology.FungalFarming),
+            new ScienceDefinition(ScienceTechnology.AdvancedCrops, "고급 작물", 2, ScienceTechnology.HoneydewRanch),
+            new ScienceDefinition(ScienceTechnology.AcidRefining, "개미산 정제", 2, ScienceTechnology.Resin),
+            new ScienceDefinition(ScienceTechnology.Watchtowers, "감시탑", 2, ScienceTechnology.Traps),
+            new ScienceDefinition(ScienceTechnology.Infirmary, "의무실", 2, ScienceTechnology.Herbs),
+            new ScienceDefinition(ScienceTechnology.Recreation, "휴게실", 2, ScienceTechnology.Herbs),
+            new ScienceDefinition(ScienceTechnology.Blades, "큰턱 날", 2, ScienceTechnology.Resin),
+            new ScienceDefinition(ScienceTechnology.ArmorPlates, "외골격 코팅", 2, ScienceTechnology.Resin),
+            new ScienceDefinition(ScienceTechnology.Vehicle, "바퀴 차량", 2),
+            new ScienceDefinition(ScienceTechnology.Drainage, "치수 공사", 2, ScienceTechnology.Sanitation),
+            new ScienceDefinition(ScienceTechnology.Firebreaks, "방화대", 2, ScienceTechnology.Resin),
+            new ScienceDefinition(ScienceTechnology.EfficientTransport, "수송 효율", 3, ScienceTechnology.Vehicle),
+            new ScienceDefinition(ScienceTechnology.Mines, "자폭 매설", 3, ScienceTechnology.Traps),
+            new ScienceDefinition(ScienceTechnology.Regeneration, "부위 재생", 3, ScienceTechnology.Infirmary),
+            new ScienceDefinition(ScienceTechnology.Trinkets, "장신구", 3, ScienceTechnology.ArmorPlates),
+            new ScienceDefinition(ScienceTechnology.AdvancedWeapons, "고급 무기", 3, ScienceTechnology.Blades),
+            new ScienceDefinition(ScienceTechnology.Gliding, "활공 날개", 3, ScienceTechnology.Vehicle),
+            new ScienceDefinition(ScienceTechnology.Aircraft, "비행기", 3, ScienceTechnology.Gliding),
+            new ScienceDefinition(ScienceTechnology.HeavyTransport, "대형 수송", 3, ScienceTechnology.Aircraft),
+            new ScienceDefinition(ScienceTechnology.Insulation, "보온 설비", 3, ScienceTechnology.Drainage),
+            new ScienceDefinition(ScienceTechnology.MigrationTheory, "대이주 이론", 3, ScienceTechnology.Aircraft),
+            new ScienceDefinition(ScienceTechnology.Hull, "선체", 4, ScienceTechnology.MigrationTheory),
+            new ScienceDefinition(ScienceTechnology.Cocoons, "동면 고치", 4, ScienceTechnology.MigrationTheory),
+            new ScienceDefinition(ScienceTechnology.Engine, "추진기관", 4, ScienceTechnology.MigrationTheory)
         };
 
         [Serializable] public sealed class State
@@ -75,6 +78,8 @@ namespace AntColony.Core
             public List<string> passengers = new List<string>();
             public List<string> leftBehind = new List<string>();
             public float endingGameSeconds;
+            // 방어시설 연구소 4라인(화력/사거리/내구/함정) 단계. 이전 저장에는 없으므로 비어 있으면 전부 0이다.
+            public List<int> defense = new List<int>();
         }
         private State state = new State();
         public ScienceDefinition Active => state.active >= 0 ? Technologies[state.active] : null;
@@ -88,6 +93,12 @@ namespace AntColony.Core
         private void Awake() => Instance = this;
         private void OnDestroy() { if (Instance == this) Instance = null; }
         public bool Has(ScienceTechnology technology) => state.completed.Contains((int)technology);
+        public int DefenseLevel(DefenseLine line) => (int)line < state.defense.Count ? state.defense[(int)line] : 0;
+        internal void SetDefenseLevel(DefenseLine line, int level)
+        {
+            while (state.defense.Count < 4) state.defense.Add(0);
+            state.defense[(int)line] = level;
+        }
         public void AcquireBlueprint() { state.blueprint = true; AntColony.UI.ToastManager.Show("Airship engine blueprint acquired."); }
 
         public string BlockReason(ScienceTechnology technology)
@@ -110,7 +121,7 @@ namespace AntColony.Core
         {
             if (BlockReason(technology) != "") return false;
             var definition = Technologies[(int)technology];
-            if (ResourceManager.Instance == null || !ResourceManager.Instance.TrySpend(definition.Food, definition.Soil)) return false;
+            if (ResourceManager.Instance == null || !ResourceManager.Instance.TrySpend(definition.Food, definition.Soil, definition.Special, reason: ResourceReason.Research)) return false;
             state.active = (int)technology;
             state.progress = 0;
             return true;
@@ -165,6 +176,7 @@ namespace AntColony.Core
         public void RestoreState(State value)
         {
             state = value == null ? new State() : JsonUtility.FromJson<State>(JsonUtility.ToJson(value));
+            if (state.defense == null) state.defense = new List<int>();
             foreach (var storage in FindObjectsByType<Storage>()) storage.RefreshCapacity();
         }
         public static bool Validate(State value, out string error)
@@ -175,6 +187,7 @@ namespace AntColony.Core
                 || value.active < -1 || value.active >= Technologies.Length || float.IsNaN(value.progress)
                 || float.IsInfinity(value.progress) || value.progress < 0 || value.endingGameSeconds < 0
                 || float.IsNaN(value.endingGameSeconds) || float.IsInfinity(value.endingGameSeconds)) return false;
+            if (value.defense != null && (value.defense.Count > 4 || value.defense.Exists(l => l < 0 || l > 3))) return false;
             var unique = new HashSet<int>();
             foreach (var i in value.completed) if (i < 0 || i >= Technologies.Length || !unique.Add(i)) return false;
             if (value.active >= 0 && (unique.Contains(value.active) || value.progress >= Technologies[value.active].Work)) return false;

@@ -32,6 +32,7 @@ namespace AntColony.Units
 
         private void Update()
         {
+            if (AntColony.UI.SkillTargeting.ConsumesPointerInput) { IsAttackMode = false; return; }
             if (AntColony.UI.GameMenuController.BlocksInput) { IsAttackMode = false; return; }
             var keyboard = Keyboard.current;
             var mouse = Mouse.current;

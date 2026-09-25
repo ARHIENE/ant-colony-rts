@@ -10,6 +10,13 @@ namespace AntColony.UI
         private static ToastManager instance;
         private readonly Queue<(string message, float expires)> messages = new Queue<(string, float)>();
         private Text label;
+        private readonly Dictionary<string, string> crises = new Dictionary<string, string>();
+        public static void SetCrisis(string key, string message)
+        {
+            if (instance == null) return;
+            if (message == null) instance.crises.Remove(key); else instance.crises[key] = message;
+            instance.Refresh();
+        }
         public static int Count => instance != null ? instance.messages.Count : 0;
         private void Awake()
         {
@@ -30,7 +37,7 @@ namespace AntColony.UI
         }
         private void Update()
         { while (messages.Count > 0 && messages.Peek().expires <= Time.unscaledTime) messages.Dequeue(); Refresh(); }
-        private void Refresh() { if (label != null) label.text = string.Join("\n", System.Linq.Enumerable.Select(messages, x => x.message)); }
+        private void Refresh() { if (label != null) label.text = string.Join("\n", System.Linq.Enumerable.Concat(crises.Values, System.Linq.Enumerable.Select(messages, x => x.message))); }
         private void OnDestroy() { if (instance == this) instance = null; }
     }
 }

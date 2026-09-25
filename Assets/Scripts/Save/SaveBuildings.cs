@@ -22,10 +22,15 @@ namespace AntColony.Save
             if (b is QueenChamber queen) { d.queenProductionRemaining = queen.ProductionRemaining; d.queenFishingRemaining = queen.FishingRemaining; }
             if (b is DigSite dig) d.digExpanded = dig.IsExpanded;
             if (b is AcidTower tower) d.towerCooldown = tower.Cooldown;
+            if (b is AreaAcidTower areaTower) d.towerCooldown = areaTower.Cooldown;
+            if (b is TrapPit trap) { d.trapArmed = trap.Armed; d.trapBroken = trap.BrokenSeconds; d.trapRepair = trap.RepairProgress; d.trapRepairPaid = trap.RepairPaid; }
+            var plot = b.GetComponent<FarmPlot>();
+            if (plot != null) { d.crop = (int)plot.Crop; d.farmWide = plot.Wide; }
             if (b is ScienceLab science) { d.scienceRemaining = science.Remaining; d.scienceAircraft = science.Aircraft;
                 d.scienceConstructing = science.Constructing; d.scienceSpawn = new Vec3Dto(science.SpawnPosition);
                 d.scienceTier = science.Tier; d.scientist = commanders.IndexOf(science.Target); }
             if (b is AirshipYard yard) d.airship = yard.CaptureState(commanders);
+            if (b is Workshop workshop) d.workshop = workshop.CaptureState(commanders);
             if (b is Infirmary infirmary) d.patients = infirmary.Patients.Select(c => commanders.IndexOf(c)).ToList();
             var scout = b.GetComponent<ScoutPost>();
             if (scout != null) { d.scoutRemaining = scout.Remaining; d.scoutDispatched = scout.IsDispatched;
@@ -34,7 +39,9 @@ namespace AntColony.Save
             if (prison != null) { d.prisonEscapeTimer = prison.EscapeTimer; d.prisonRecruited = prison.RecruitedCount;
                 d.prisonExecuted = prison.ExecutedCount; d.prisonEscaped = prison.EscapedCount;
                 foreach (var p in prison.Prisoners) d.prisoners.Add(new PrisonerDto { name = p.Name, rank = (int)p.Rank,
-                    roles = p.Roles.Select(r => (int)r).ToList(), traits = SaveCatalog.Traits(p.Traits), talents = p.Talents.Copy(), persuadeAttempts = p.PersuadeAttempts }); }
+                    roles = p.Roles.Select(r => (int)r).ToList(), traits = SaveCatalog.Traits(p.Traits), talents = p.Talents.Copy(), persuadeAttempts = p.PersuadeAttempts,
+                    personalState = JsonUtility.FromJson<CommanderPersonalState>(JsonUtility.ToJson(p.PersonalState)), labAttack = p.LabAttack, labArmor = p.LabArmor,
+                    strikeCooldown = p.StrikeCooldown, stanceCooldown = p.StanceCooldown }); }
             var nursery = b.GetComponent<NurseryChamber>();
             if (nursery != null) { d.nurseryBirths = nursery.BirthCount;
                 var first = new List<CommanderAnt>(); var second = new List<CommanderAnt>(); var values = new List<float>();
@@ -42,7 +49,7 @@ namespace AntColony.Save
                 for (var i = 0; i < values.Count; i++) d.nurseryAffinity.Add(new AffinityDto {
                     firstCommanderId = commanders.IndexOf(first[i]), secondCommanderId = commanders.IndexOf(second[i]), value = values[i] }); }
             var nodes = b.GetComponentsInChildren<ResourceNode>(true);
-            for (var i = 0; i < nodes.Length; i++) d.nodes.Add(new ResourceNodeDto { index = i, amount = nodes[i].AmountRemaining, regrowTimer = nodes[i].RegrowTimeRemaining });
+            for (var i = 0; i < nodes.Length; i++) d.nodes.Add(new ResourceNodeDto { index = i, amount = nodes[i].AmountRemaining, regrowTimer = nodes[i].RegrowTimeRemaining, bountifulHarvest = nodes[i].BountifulHarvest });
             return d;
         }
 
@@ -68,19 +75,26 @@ namespace AntColony.Save
             if (b is QueenChamber queen) queen.RestoreState(d.queenProductionRemaining, d.queenFishingRemaining);
             if (b is DigSite dig) dig.RestoreExpanded(d.digExpanded);
             if (b is AcidTower tower) tower.RestoreCooldown(d.towerCooldown);
+            if (b is AreaAcidTower areaTower) areaTower.RestoreCooldown(d.towerCooldown);
+            if (b is TrapPit trap) trap.RestoreState(d.trapArmed, d.trapBroken, d.trapRepair, d.trapRepairPaid);
+            if (d.kind == "Farm" && d.runtimeBuilt)
+                (b.GetComponent<FarmPlot>() ?? b.gameObject.AddComponent<FarmPlot>()).Configure((FarmCrop)d.crop, d.farmWide);
             if (b is ScienceLab science) { science.RestoreState(d.scienceRemaining, d.scienceAircraft, d.scienceConstructing, d.scienceSpawn.ToVector3());
                 science.RestoreAssignment(d.scienceTier, d.scientist >= 0 ? commanders[d.scientist] : null); }
             if (b is AirshipYard yard) yard.RestoreState(d.airship, commanders);
+            if (b is Workshop workshop) workshop.RestoreState(d.workshop, commanders);
             if (b is Infirmary infirmary) foreach (var id in d.patients) infirmary.RestorePatient(commanders[id]);
             b.GetComponent<ScoutPost>()?.RestoreState(d.scoutDispatched, d.scoutRemaining, d.scoutDispatchedAnts, d.scoutSuccess, d.scoutFailure);
             b.GetComponent<PrisonerCamp>()?.RestoreState(d.prisoners.Select(p => new Prisoner(p.name, (CommanderRank)p.rank,
-                p.roles.Select(r => (UnitRole)r).ToArray(), SaveCatalog.Traits(p.traits)) { PersuadeAttempts = p.persuadeAttempts, Talents = p.talents.Copy() }).ToList(),
+                p.roles.Select(r => (UnitRole)r).ToArray(), SaveCatalog.Traits(p.traits)) { PersuadeAttempts = p.persuadeAttempts, Talents = p.talents.Copy(),
+                    PersonalState = JsonUtility.FromJson<CommanderPersonalState>(JsonUtility.ToJson(p.personalState)), LabAttack = p.labAttack, LabArmor = p.labArmor,
+                    StrikeCooldown = p.strikeCooldown, StanceCooldown = p.stanceCooldown }).ToList(),
                 d.prisonEscapeTimer, d.prisonRecruited, d.prisonExecuted, d.prisonEscaped);
             b.GetComponent<NurseryChamber>()?.RestoreState(d.nurseryBirths,
                 d.nurseryAffinity.Select(a => commanders[a.firstCommanderId]).ToList(),
                 d.nurseryAffinity.Select(a => commanders[a.secondCommanderId]).ToList(), d.nurseryAffinity.Select(a => a.value).ToList());
             var nodes = b.GetComponentsInChildren<ResourceNode>(true);
-            foreach (var node in d.nodes) nodes[node.index].RestoreState(node.amount, node.regrowTimer);
+            foreach (var node in d.nodes) { nodes[node.index].RestoreState(node.amount, node.regrowTimer); nodes[node.index].BountifulHarvest = node.bountifulHarvest; }
         }
     }
 }

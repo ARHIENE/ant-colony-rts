@@ -44,7 +44,7 @@ namespace AntColony.Buildings
         public bool TryUpgrade()
         {
             if (!isActiveAndEnabled || Busy || Tier >= 4 || ResourceManager.Instance == null
-                || !ResourceManager.Instance.TrySpend(Tier * 60, Tier * 80)) return false;
+                || !ResourceManager.Instance.TrySpend(Tier * 60, Tier * 80, reason: ResourceReason.Research)) return false;
             Tier++;
             return true;
         }
@@ -87,7 +87,7 @@ namespace AntColony.Buildings
             var world = WorldMapManager.Instance;
             if (!isActiveAndEnabled || Busy || world == null || world.Researcher != null
                 || (air ? !world.VehicleResearched || world.AircraftResearched : world.VehicleResearched)) return false;
-            if (ResourceManager.Instance == null || !ResourceManager.Instance.TrySpend(air ? 100 : 60, air ? 80 : 50)) return false;
+            if (ResourceManager.Instance == null || !ResourceManager.Instance.TrySpend(air ? 100 : 60, air ? 80 : 50, reason: ResourceReason.Research)) return false;
             world.Researcher = this;
             aircraft = air;
             constructing = false;
@@ -100,7 +100,7 @@ namespace AntColony.Buildings
             var world = WorldMapManager.Instance;
             if (!isActiveAndEnabled || Busy || world == null || !(air ? world.AircraftResearched : world.VehicleResearched)
                 || !world.CanCreateTransport(Position, out spawnPosition)) return false;
-            if (ResourceManager.Instance == null || !ResourceManager.Instance.TrySpend(air ? 80 : 50, air ? 100 : 60)) return false;
+            if (ResourceManager.Instance == null || !ResourceManager.Instance.TrySpend(air ? 80 : 50, air ? 100 : 60, reason: ResourceReason.Expedition)) return false;
             aircraft = air;
             constructing = true;
             remaining = ConstructionSeconds;

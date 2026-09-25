@@ -12,6 +12,7 @@ using AntColony.Boss.AoE;
 using AntColony.Core;
 using AntColony.Data;
 using AntColony.Map;
+using AntColony.Save;
 using AntColony.Units;
 using AntColony.World;
 using UnityEngine;
@@ -29,6 +30,9 @@ public static class RegressionChecks
     public static async Task<string> Main()
     {
         if (!Application.isPlaying) throw new InvalidOperationException("Run in Play mode.");
+        var readyDeadline = DateTime.UtcNow.AddSeconds(60);
+        while (SaveSystem.Busy && DateTime.UtcNow < readyDeadline) await Task.Delay(30);
+        Check(!SaveSystem.Busy, "scene initialization completes before gameplay checks");
         var rm = ResourceManager.Instance;
         var food = rm.GetAmount(ResourceType.Food);
         var soil = rm.GetAmount(ResourceType.Soil);
@@ -363,7 +367,7 @@ public static class RegressionChecks
         {
             foreach (var worker in Object.FindObjectsByType<WorkerAnt>())
                 if (worker.name.StartsWith("Regression")) name += $"\n{worker.name}: state={Field(worker, "state").GetValue(worker)} cargo={Field(worker, "carriedAmount").GetValue(worker)} position={worker.transform.position} path={worker.Agent.pathStatus} remaining={worker.Agent.remainingDistance}";
-            name += $"\nFood={ResourceManager.Instance.GetAmount(ResourceType.Food)} capacity={ResourceManager.Instance.GetCapacity(ResourceType.Food)}";
+            name += $"\nFood={ResourceManager.Instance.GetAmount(ResourceType.Food)} capacity={ResourceManager.Instance.GetCapacity(ResourceType.Food)} timeScale={Time.timeScale} deltaTime={Time.deltaTime}";
         }
         Check(condition(), name);
     }

@@ -107,8 +107,8 @@ namespace AntColony.Camera
             var keyboard = Keyboard.current;
             if (keyboard == null) return;
 
-            if (keyboard.qKey.wasPressedThisFrame) BeginRotate(rotateStepDegrees);
-            else if (keyboard.eKey.wasPressedThisFrame) BeginRotate(-rotateStepDegrees);
+            if (AntColony.Core.KeyBindings.Pressed(AntColony.Core.GameAction.RotateLeft)) BeginRotate(rotateStepDegrees);
+            else if (AntColony.Core.KeyBindings.Pressed(AntColony.Core.GameAction.RotateRight)) BeginRotate(-rotateStepDegrees);
         }
 
         private void BeginRotate(float deltaDegrees)

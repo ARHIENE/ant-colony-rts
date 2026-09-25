@@ -21,7 +21,7 @@ namespace AntColony.Buildings
         {
             if (isExpanded) return false;
             if (ResourceManager.Instance == null || data == null) return false;
-            if (!ResourceManager.Instance.TrySpend(0, data.soilCost)) return false;
+            if (!ResourceManager.Instance.TrySpend(0, data.soilCost, reason: ResourceReason.Construction)) return false;
 
             isExpanded = true;
             if (expansionZone != null)

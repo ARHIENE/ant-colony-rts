@@ -27,14 +27,26 @@ namespace AntColony.World
         {
             get { foreach (var amount in cargo.Values) if (amount > 0) return true; return BlueprintCargo || EquipmentCargo.Count > 0; }
         }
-        // 장수 자신도 적재량 1을 차지한다.
-        public int Capacity => Aircraft ? 100 : 40;
+        // 장수 슬롯과 일반개미 정원은 따로 센다.
+        // 대형 수송: 일반개미 +50%·장수 +2 / 수송 효율: 화물 +50%
+        public int Capacity => Mathf.FloorToInt((Aircraft ? GameBalance.AircraftTroops : GameBalance.VehicleTroops) * ScienceEffects.TroopCapacityMultiplier);
+        public int CommanderCapacity => (Aircraft ? GameBalance.AircraftCommanders : GameBalance.VehicleCommanders) + ScienceEffects.CommanderSlotBonus;
+        public int CargoCapacity => Mathf.FloorToInt((Aircraft ? GameBalance.AircraftCargo : GameBalance.VehicleCargo) * ScienceEffects.CargoMultiplier);
         public float TravelSeconds => Aircraft ? 10 : 20;
         public float Remaining { get; private set; }
         public int Load
         {
-            get { var total = 0; foreach (var c in crew) if (c != null) total += c.TroopCount + 1; return total; }
+            get { var total = 0; foreach (var c in crew) if (c != null) total += c.TroopCount; return total; }
         }
+        public int CommanderLoad
+        {
+            get { var total = 0; foreach (var c in crew) if (c != null) total++; return total; }
+        }
+        public int CargoLoad
+        {
+            get { var total = 0; foreach (var amount in cargo.Values) total += amount; return total; }
+        }
+        public bool CargoFull => CargoLoad >= CargoCapacity;
         protected override bool IsDepositPoint => true;
 
         public void Initialize(bool aircraft)
@@ -88,15 +100,17 @@ namespace AntColony.World
                 || passengers == null || passengers.Count == 0) return false;
             var unique = new HashSet<CommanderAnt>();
             var load = Load;
+            var commanders = CommanderLoad;
             foreach (var c in passengers)
             {
                 if (c == null || !c.isActiveAndEnabled || !unique.Add(c) || c.Transport != null
                     || c.Garrison != settlement || (settlement == null && !c.HasTroops)
                     || !c.CanChangeAllocation || c.LabUpgradeBusy
                     || Vector3.Distance(c.Position, Position) > 8) return false;
-                load += c.TroopCount + 1;
+                load += c.TroopCount;
+                commanders++;
             }
-            if (load > Capacity) return false;
+            if (load > Capacity || commanders > CommanderCapacity) return false;
             foreach (var c in new List<CommanderAnt>(passengers))
             {
                 if (settlement != null) settlement.Remove(c);
@@ -141,6 +155,12 @@ namespace AntColony.World
             return true;
         }
 
+        internal void DetachCommander(CommanderAnt c)
+        {
+            crew.Remove(c); c.Transport = null;
+            Route?.Stop("장수 이탈로 자동 수송 중단");
+        }
+
         public bool TryDepart(ExpeditionSite site)
         {
             if (Route != null && Route.IsRunning
@@ -149,10 +169,11 @@ namespace AntColony.World
             if (!isActiveAndEnabled || world == null || !world.Unlocked || State != ExpeditionState.Home
                 || site == null || site.Visitor != null
                 || (crew.Count == 0 && site.Disposition != ConquestDisposition.Annexed)
-                || site.Disposition == ConquestDisposition.Abandoned || Load > Capacity) return false;
+                || site.Disposition == ConquestDisposition.Abandoned || Load > Capacity || CommanderLoad > CommanderCapacity) return false;
             Site = site;
             site.Visitor = this;
             State = ExpeditionState.Outbound;
+            foreach (var c in crew) if (c != null && c.IsColonyMember) c.OnExpeditionStarted();
             Remaining = TravelSeconds;
             return true;
         }
@@ -234,8 +255,10 @@ namespace AntColony.World
 
         public override void DepositResources(ResourceType type, int amount)
         {
+            // 화물 한도를 넘는 양은 싣지 못한다. 본거지 창고가 가득 차도 실린 화물은 버리지 않고 남긴다.
+            // ponytail: 한도를 넘긴 마지막 운반분의 초과량은 사라진다. 손실이 문제 되면 현장 노드로 떨군다.
+            amount = Mathf.Min(amount, CargoCapacity - CargoLoad);
             if (amount <= 0) return;
-            // 본거지 창고가 가득 차도 수송 화물은 버리지 않고 남긴다.
             cargo[type] = GetCargo(type) + amount;
             if (State == ExpeditionState.Home) UnloadCargo();
         }
@@ -247,13 +270,15 @@ namespace AntColony.World
             foreach (ResourceType type in System.Enum.GetValues(typeof(ResourceType)))
             {
                 var before = resources.GetAmount(type);
-                resources.Add(type, GetCargo(type));
+                resources.Add(type, GetCargo(type), ResourceReason.Expedition);
                 cargo[type] = GetCargo(type) - (resources.GetAmount(type) - before);
             }
             if (BlueprintCargo && CampaignResearch.Instance != null) { CampaignResearch.Instance.AcquireBlueprint(); BlueprintCargo = false; }
             if (EquipmentInventory.Instance != null)
             {
-                foreach (var item in EquipmentCargo) EquipmentInventory.Instance.Add(item);
+                var overflow = new List<EquipmentItem>();
+                foreach (var item in EquipmentCargo) if (!EquipmentInventory.Instance.Add(item)) overflow.Add(item);
+                if (overflow.Count > 0) EquipmentLoot.Drop(Position, overflow);
                 EquipmentCargo.Clear();
             }
         }
@@ -268,7 +293,14 @@ namespace AntColony.World
             Site.RewardsClaimed = true;
             if (Site.Kind == ExpeditionSiteKind.BossNest) BlueprintCargo = true;
             var count = Site.Kind == ExpeditionSiteKind.BossNest ? 1 : Random.Range(1, 3);
-            for (var i = 0; i < count; i++) EquipmentCargo.Add(EquipmentItem.Random(Site.Difficulty));
+            var overflow = new List<EquipmentItem>();
+            for (var i = 0; i < count; i++)
+            {
+                var item = EquipmentItem.Random(Site.Difficulty);
+                if (EquipmentInventory.Instance == null || EquipmentInventory.Instance.Items.Count + EquipmentCargo.Count >= EquipmentInventory.Capacity) overflow.Add(item);
+                else EquipmentCargo.Add(item);
+            }
+            if (overflow.Count > 0) EquipmentLoot.Drop(Position, overflow);
             return true;
         }
 

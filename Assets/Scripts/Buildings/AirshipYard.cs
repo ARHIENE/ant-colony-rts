@@ -34,13 +34,13 @@ namespace AntColony.Buildings
             var research = CampaignResearch.Instance;
             if (!Enum.IsDefined(typeof(AirshipPart), part) || !isActiveAndEnabled || IsDead || state.building >= 0
                 || research == null || research.Departed || !research.Has(Technology(part))
-                || (part == AirshipPart.Hull && Hull) || (part == AirshipPart.Engine && Engine)) return false;
-            // ponytail: provisional part prices divide the old 300 Special target over hull/engine; cocoons are optional.
-            var special = part == AirshipPart.Cocoon ? 10 : 150;
-            if (ResourceManager.Instance == null || !ResourceManager.Instance.TrySpend(part == AirshipPart.Cocoon ? 20 : 100,
-                part == AirshipPart.Cocoon ? 30 : 150, special)) return false;
+                || (part == AirshipPart.Hull && Hull) || (part == AirshipPart.Engine && Engine)
+                || (part == AirshipPart.Cocoon && Cocoons >= GameBalance.MaxCocoons)) return false;
+            var cocoon = part == AirshipPart.Cocoon;
+            if (ResourceManager.Instance == null || !ResourceManager.Instance.TrySpend(cocoon ? GameBalance.CocoonFood : 100,
+                cocoon ? GameBalance.CocoonSoil : 150, cocoon ? GameBalance.CocoonSpecial : 150, reason: ResourceReason.Construction)) return false;
             state.building = (int)part;
-            state.remaining = part == AirshipPart.Cocoon ? 60 : 300;
+            state.remaining = cocoon ? GameBalance.CocoonSeconds : 300;
             return true;
         }
 
@@ -95,6 +95,8 @@ namespace AntColony.Buildings
         {
             Unload();
             state = value == null ? new State() : JsonUtility.FromJson<State>(JsonUtility.ToJson(value));
+            // 한도 도입 전 저장은 초과분만 잘라낸다(이미 탑승한 장수의 자리는 유지).
+            state.cocoons = Mathf.Min(state.cocoons, Mathf.Max(GameBalance.MaxCocoons, state.passengers.Count));
             foreach (var id in state.passengers) { passengers.Add(commanders[id]); commanders[id].SetEmbarked(true, Position); }
         }
         public static bool Validate(State value, int commanderCount, out string error)

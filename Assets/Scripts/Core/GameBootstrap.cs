@@ -36,6 +36,9 @@ namespace AntColony.Core
             yield return null; yield return null; // WorldMapManager.Start と 생성된 거점 Start 완료.
             new GameObject("EquipmentInventory").AddComponent<AntColony.Units.EquipmentInventory>();
             new GameObject("CampaignResearch").AddComponent<CampaignResearch>();
+            new GameObject("CampaignHistory").AddComponent<CampaignHistory>();
+            new GameObject("ColonyEvents").AddComponent<AntColony.World.ColonyEvents>();
+            new GameObject("SkillTargeting").AddComponent<SkillTargeting>();
             SaveCatalog.Initialize();
             var file = GameSession.Instance.PendingLoad as SaveFileV1;
             GameSession.Instance.PendingLoad = null;

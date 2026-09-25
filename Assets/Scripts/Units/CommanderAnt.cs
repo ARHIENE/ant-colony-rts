@@ -55,7 +55,7 @@ namespace AntColony.Units
                     if (c.enabled) { embarkColliders.Add(c); c.enabled = false; }
             }
             IsEmbarked = embarked;
-            GetComponent<SelectableObject>().enabled = !embarked;
+            GetComponent<SelectableObject>().enabled = !embarked && !IsDeparting;
             Agent.enabled = false;
             transform.position = position;
             if (!embarked)
@@ -70,7 +70,11 @@ namespace AntColony.Units
 
         protected override void Update()
         {
+            TickAdvancedSkills(Time.deltaTime);
+            if (IsHostile) { TickDeparture(Time.deltaTime); return; }
             TickPersonal(Time.deltaTime);
+            if (IsDeparting || Social.diving) return;
+            if (!IsEmbarked && !IsDead && PersonalState.rageRemaining > 0) { TickRevenge(Time.deltaTime); return; }
             if (!IsEmbarked && !IsDead && !PersonalState.treating && PersonalState.mentalBreak == MentalBreak.None && !LabUpgradeBusy) base.Update();
         }
 
@@ -83,7 +87,7 @@ namespace AntColony.Units
         // 기존 프로필·훈련장 에셋의 키만 재사용한다. 장수 보직은 장비로 대체한다.
         public UnitRole Role => Weapon == null ? UnitRole.Melee : Weapon.weapon == WeaponKind.AcidSprayer ? UnitRole.Ranged
             : Weapon.weapon == WeaponKind.Shield ? UnitRole.Defense : Weapon.weapon == WeaponKind.Pheromone ? UnitRole.Support : UnitRole.Melee;
-        public override bool IsFlying => EquippedArmor?.armor == ArmorKind.Wings;
+        public override bool IsFlying => EquippedArmor?.armor == ArmorKind.Wings && Social.groundedRemaining <= 0;
 
         public int TroopCount => troopCount;
         public int CommandLimit => Mathf.Max(1, Mathf.FloorToInt((10 + 2 * talents.Level(CommanderActivity.Command))
@@ -132,7 +136,7 @@ namespace AntColony.Units
             + labArmorLevel * LabArmorBonusPerLevel + (HasSupportAura ? SupportArmorBonus : 0f)
             + EquipmentBonus(EquipmentSlot.Armor) - 2f * PersonalState.Severity(InjuryPart.Thorax)
             + (skills.DefensiveStanceActive ? CommanderSkills.DefensiveStanceArmor : 0f);
-        protected override float GatherRate => base.GatherRate * Mathf.Max(1, troopCount) * talents.Multiplier(CurrentActivity) * traits.WorkMultiplier * (1f - .3f * PersonalState.Severity(InjuryPart.Antenna)) * (1f + TrinketBonus(TrinketEffect.Gather));
+        protected override float GatherRate => base.GatherRate * Mathf.Max(1, troopCount) * talents.Multiplier(CurrentActivity) * traits.WorkMultiplier * (1f - .3f * PersonalState.Severity(InjuryPart.Antenna)) * (1f + TrinketBonus(TrinketEffect.Gather)) * ColonyEvents.GatherMultiplier(this);
         protected override void OnGathered(float amount)
         {
             if (CurrentActivity == CommanderActivity.Gathering) GainExperience(CommanderActivity.Gathering, amount);
@@ -152,7 +156,7 @@ namespace AntColony.Units
             {
                 foreach (var unit in Active)
                     if (unit is CommanderAnt support && support != this && support.HasTroops
-                        && support.Role == UnitRole.Support
+                        && support.Role == UnitRole.Support && support.IsHostile == IsHostile
                         && !support.IsEmbarked && !support.IsDead && (support.Position - Position).sqrMagnitude <= support.AuraRadius * support.AuraRadius)
                         return true;
                 return false;
@@ -222,6 +226,7 @@ namespace AntColony.Units
             count = Mathf.Min(count, troopCount - (pendingDamage > 0f ? 1 : 0));
             if (count <= 0) return 0;
             AntPool.Instance.ReturnAssigned(count);
+            OnTroopsRecalled(count, troopCount);
             troopCount -= count;
             if (troopCount == 0) CommandStop();
             return count;
@@ -245,6 +250,7 @@ namespace AntColony.Units
         public override void TakeDamage(float amount)
         {
             if (IsDead || IsEmbarked || troopCount <= 0 || float.IsNaN(amount) || amount <= 0f) return;
+            Social.combatSeen = true;
             PersonalState.lastCombatSeconds = 0;
             GetComponent<AntVisual>()?.Action("Hit");
 
@@ -253,11 +259,11 @@ namespace AntColony.Units
             // 즉사급/무한대 피해는 루프를 돌리지 않고 남은 병력만큼만 한 번에 처리한다.
             if (float.IsInfinity(applied) || applied >= CurrentHealth)
             {
-                AntPool.Instance?.LoseAssigned(troopCount);
+                if (!IsDeparting) AntPool.Instance?.LoseAssigned(troopCount);
                 troopCount = 0;
                 pendingDamage = 0f;
                 CommandStop();
-                OnDowned();
+                if (IsHostile) CaptureDeparting(); else OnDowned();
                 return;
             }
 
@@ -268,7 +274,7 @@ namespace AntColony.Units
             casualties = Mathf.Min(casualties, troopCount);
             pendingDamage -= casualties * HealthPerTroop;
             troopCount -= casualties;
-            AntPool.Instance?.LoseAssigned(casualties);
+            if (!IsDeparting) AntPool.Instance?.LoseAssigned(casualties);
         }
 
         // 병력이 없으면 공격 대상이 될 수 없고 자동 교전도 하지 않는다.
@@ -303,13 +309,18 @@ namespace AntColony.Units
         // 이미 죽은 대상, 비살상 타격, 다른 주체가 죽인 대상에는 경험치가 붙지 않는다.
         protected override void DealDamage(IDamageable target)
         {
+            Social.combatSeen = true;
             PersonalState.lastCombatSeconds = 0;
             var reward = CommanderProgression.KillXp(target);
             var wasAlive = !target.IsDead;
             // 강타는 살아 있는 대상에 대한 다음 실제 타격 한 번에만 소모된다.
             var multiplier = wasAlive && skills.ConsumePowerStrike() ? CommanderSkills.PowerStrikeMultiplier : 1f;
             target.TakeDamage(AttackDamage * multiplier);
-            if (wasAlive && reward > 0 && IsKilled(target)) GainExperience(CombatActivity, reward);
+            if (wasAlive && reward > 0 && IsKilled(target))
+            {
+                GainExperience(CombatActivity, reward);
+                if (target is AntColony.Boss.BossHealth && Random.value < .2f) ShiftEventTrait(CommanderTrait.Coward, true);
+            }
         }
 
         // 침공 개체처럼 처치와 동시에 Destroy되는 대상은 IsDead 조회가 불안전하므로 파괴 여부를 먼저 본다.
@@ -320,6 +331,8 @@ namespace AntColony.Units
 
         protected override void OnDisable()
         {
+            if (acidVisual != null) Destroy(acidVisual);
+            CraftingWorkshop?.Release();
             TreatmentFacility?.Release(this);
             if (Garrison != null) Garrison.Remove(this);
             base.OnDisable();
@@ -332,6 +345,7 @@ namespace AntColony.Units
 
         private void OnDestroy()
         {
+            if (acidVisual != null) Destroy(acidVisual);
             ReleaseTroopsOnce();
             if (runtimeData != null) Destroy(runtimeData);
         }
@@ -340,7 +354,7 @@ namespace AntColony.Units
         // 씬 teardown에서는 AntPool이 먼저 파괴될 수 있으므로 null이면 조용히 넘어간다.
         private void ReleaseTroopsOnce()
         {
-            if (troopsReleased || troopCount <= 0) return;
+            if (troopsReleased || troopCount <= 0 || IsDeparting) return;
             troopsReleased = true;
             if (AntPool.Instance != null) AntPool.Instance.ReturnAssigned(troopCount);
             troopCount = 0;

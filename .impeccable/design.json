@@ -1,0 +1,735 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-09-25T10:04:33+00:00",
+  "title": "Design System: Ant Colony RTS",
+  "extensions": {
+    "colorMeta": {
+      "plate": {
+        "role": "neutral",
+        "displayName": "Chitin Plate",
+        "canonical": "oklch(20.8% 0.011 73)",
+        "tonalRamp": [
+          "#0e0a06",
+          "#27231e",
+          "#443f39",
+          "#625d57",
+          "#827c76",
+          "#a39d97",
+          "#c9c3bc",
+          "#f3ede6"
+        ]
+      },
+      "plate-raised": {
+        "role": "neutral",
+        "displayName": "Raised Plate",
+        "canonical": "oklch(23.8% 0.015 76)",
+        "tonalRamp": [
+          "#0f0a05",
+          "#28231c",
+          "#443f37",
+          "#635d54",
+          "#827c74",
+          "#a49d94",
+          "#cac3ba",
+          "#f4ede4"
+        ]
+      },
+      "plate-hover": {
+        "role": "neutral",
+        "displayName": "Worn Plate",
+        "canonical": "oklch(27.8% 0.019 74)",
+        "tonalRamp": [
+          "#100a04",
+          "#2a231a",
+          "#463e35",
+          "#645c52",
+          "#847c71",
+          "#a69d92",
+          "#ccc3b7",
+          "#f6ede1"
+        ]
+      },
+      "well": {
+        "role": "neutral",
+        "displayName": "Burrow Well",
+        "canonical": "oklch(17.1% 0.009 75)",
+        "tonalRamp": [
+          "#0e0b07",
+          "#27231f",
+          "#433f3a",
+          "#615d58",
+          "#817d77",
+          "#a29e98",
+          "#c8c3bd",
+          "#f2eee8"
+        ]
+      },
+      "edge-shadow": {
+        "role": "neutral",
+        "displayName": "Edge Shadow",
+        "canonical": "oklch(12.5% 0.006 52)",
+        "tonalRamp": [
+          "#0d0b09",
+          "#262322",
+          "#423f3d",
+          "#605d5b",
+          "#807c7a",
+          "#a19d9b",
+          "#c7c3c1",
+          "#f2edeb"
+        ]
+      },
+      "bevel-light": {
+        "role": "neutral",
+        "displayName": "Bevel Light",
+        "canonical": "rgba(255,236,200,0.09)",
+        "note": "Alpha overlay; bake into the 9-slice bevel sprite in uGUI."
+      },
+      "console-rim": {
+        "role": "neutral",
+        "displayName": "Console Rim",
+        "canonical": "oklch(42.6% 0.033 72)",
+        "tonalRamp": [
+          "#0e0a07",
+          "#29231b",
+          "#473e33",
+          "#685b4c",
+          "#897b6a",
+          "#a89c8e",
+          "#ccc2b8",
+          "#f3ede7"
+        ]
+      },
+      "rule": {
+        "role": "neutral",
+        "displayName": "Rule",
+        "canonical": "oklch(32.0% 0.021 70)",
+        "tonalRamp": [
+          "#0d0b08",
+          "#28231e",
+          "#453e37",
+          "#655c52",
+          "#857b71",
+          "#a59d94",
+          "#c9c3bc",
+          "#f2eee9"
+        ]
+      },
+      "rule-strong": {
+        "role": "neutral",
+        "displayName": "Strong Rule",
+        "canonical": "oklch(37.5% 0.026 72)",
+        "tonalRamp": [
+          "#0d0b07",
+          "#28231d",
+          "#463e35",
+          "#665c50",
+          "#877b6e",
+          "#a69d92",
+          "#cac3ba",
+          "#f2eee8"
+        ]
+      },
+      "ink": {
+        "role": "neutral",
+        "displayName": "Bone Ink",
+        "canonical": "oklch(93.1% 0.019 80)",
+        "tonalRamp": [
+          "#0f0a03",
+          "#292319",
+          "#453f34",
+          "#635d52",
+          "#837c71",
+          "#a59d91",
+          "#cbc3b6",
+          "#f5ede0"
+        ]
+      },
+      "ink-soft": {
+        "role": "neutral",
+        "displayName": "Soft Ink",
+        "canonical": "oklch(86.8% 0.026 79)",
+        "tonalRamp": [
+          "#0d0b07",
+          "#28231d",
+          "#453f35",
+          "#655c4f",
+          "#857c6d",
+          "#a59d91",
+          "#c9c3ba",
+          "#f2eee8"
+        ]
+      },
+      "ink-muted": {
+        "role": "neutral",
+        "displayName": "Muted Ink",
+        "canonical": "oklch(75.0% 0.029 78)",
+        "tonalRamp": [
+          "#0d0b07",
+          "#28231c",
+          "#463f34",
+          "#665c4e",
+          "#867c6c",
+          "#a69d90",
+          "#cac3b9",
+          "#f2eee7"
+        ]
+      },
+      "ink-dim": {
+        "role": "neutral",
+        "displayName": "Dim Ink",
+        "canonical": "oklch(63.6% 0.032 77)",
+        "tonalRamp": [
+          "#0e0b07",
+          "#28231b",
+          "#463e33",
+          "#675c4c",
+          "#877b6a",
+          "#a79d8e",
+          "#cbc3b8",
+          "#f2eee7"
+        ]
+      },
+      "accent": {
+        "role": "primary",
+        "displayName": "Forager Amber",
+        "canonical": "oklch(78.7% 0.147 73)",
+        "tonalRamp": [
+          "#170700",
+          "#391c00",
+          "#5f3400",
+          "#884e00",
+          "#ad6d00",
+          "#c8934a",
+          "#e5bc89",
+          "#ffeacb"
+        ]
+      },
+      "accent-hover": {
+        "role": "primary",
+        "displayName": "Lit Amber",
+        "canonical": "oklch(83.1% 0.145 74)",
+        "tonalRamp": [
+          "#170700",
+          "#391c00",
+          "#5e3500",
+          "#874f00",
+          "#ac6e00",
+          "#c7944b",
+          "#e3bd8a",
+          "#ffeacb"
+        ]
+      },
+      "accent-rim": {
+        "role": "primary",
+        "displayName": "Amber Rim",
+        "canonical": "oklch(85.8% 0.126 77)",
+        "tonalRamp": [
+          "#150800",
+          "#351e00",
+          "#593800",
+          "#805300",
+          "#a47214",
+          "#c09758",
+          "#debf92",
+          "#ffebd0"
+        ]
+      },
+      "accent-ink": {
+        "role": "primary",
+        "displayName": "Amber Ink",
+        "canonical": "oklch(18.9% 0.026 77)",
+        "tonalRamp": [
+          "#0d0b07",
+          "#28231d",
+          "#453f35",
+          "#655c4f",
+          "#857c6d",
+          "#a59d91",
+          "#c9c3ba",
+          "#f2eee8"
+        ]
+      },
+      "troop-green": {
+        "role": "secondary",
+        "displayName": "Troop Green",
+        "canonical": "oklch(74.4% 0.152 143)",
+        "tonalRamp": [
+          "#001000",
+          "#052d06",
+          "#124d14",
+          "#227024",
+          "#419241",
+          "#72b16f",
+          "#a4d3a2",
+          "#dbf8d9"
+        ]
+      },
+      "troop-amber": {
+        "role": "secondary",
+        "displayName": "Troop Amber",
+        "canonical": "oklch(78.9% 0.142 88)",
+        "tonalRamp": [
+          "#130900",
+          "#332100",
+          "#553b00",
+          "#7b5700",
+          "#9e7700",
+          "#ba9a49",
+          "#d9c289",
+          "#fcedcb"
+        ]
+      },
+      "danger": {
+        "role": "secondary",
+        "displayName": "Crisis Red",
+        "canonical": "oklch(64.7% 0.182 28)",
+        "tonalRamp": [
+          "#1f0000",
+          "#470806",
+          "#751813",
+          "#a52a23",
+          "#cf4a3f",
+          "#e77a6d",
+          "#ffaba0",
+          "#ffe0d8"
+        ]
+      },
+      "danger-ink": {
+        "role": "secondary",
+        "displayName": "Crisis Ink",
+        "canonical": "oklch(83.6% 0.090 27)",
+        "tonalRamp": [
+          "#160605",
+          "#381a18",
+          "#5d322d",
+          "#854b45",
+          "#aa6962",
+          "#c58f88",
+          "#e3b8b3",
+          "#ffe7e4"
+        ]
+      },
+      "crisis-surface": {
+        "role": "secondary",
+        "displayName": "Crisis Surface",
+        "canonical": "oklch(22.4% 0.035 29)",
+        "tonalRamp": [
+          "#100908",
+          "#2c211f",
+          "#4c3b38",
+          "#6e5754",
+          "#907672",
+          "#ae9995",
+          "#d0c0bd",
+          "#f6ecea"
+        ]
+      },
+      "crisis-rim": {
+        "role": "secondary",
+        "displayName": "Crisis Rim",
+        "canonical": "oklch(34.4% 0.081 28)",
+        "tonalRamp": [
+          "#150705",
+          "#361c18",
+          "#5a342f",
+          "#814e47",
+          "#a56c64",
+          "#c19189",
+          "#e0bab4",
+          "#ffe8e4"
+        ]
+      },
+      "crisis-control": {
+        "role": "secondary",
+        "displayName": "Crisis Control",
+        "canonical": "oklch(26.3% 0.052 28)",
+        "tonalRamp": [
+          "#120807",
+          "#301f1d",
+          "#513935",
+          "#75544f",
+          "#98736d",
+          "#b59691",
+          "#d6beba",
+          "#faeae8"
+        ]
+      },
+      "warn-surface": {
+        "role": "secondary",
+        "displayName": "Warning Well",
+        "canonical": "oklch(29.9% 0.045 74)",
+        "tonalRamp": [
+          "#0f0a05",
+          "#2b2217",
+          "#4a3d2d",
+          "#6b5b45",
+          "#8d7a62",
+          "#ab9c88",
+          "#cec2b3",
+          "#f5ede4"
+        ]
+      },
+      "done-surface": {
+        "role": "secondary",
+        "displayName": "Completion Well",
+        "canonical": "oklch(28.7% 0.038 149)",
+        "tonalRamp": [
+          "#080d08",
+          "#1e271f",
+          "#364438",
+          "#516353",
+          "#6f8372",
+          "#93a495",
+          "#bbc8bd",
+          "#e9f1ea"
+        ]
+      },
+      "quality-blue": {
+        "role": "tertiary",
+        "displayName": "Quality Blue",
+        "canonical": "oklch(73.3% 0.097 261)",
+        "tonalRamp": [
+          "#040b19",
+          "#16243c",
+          "#2b3f64",
+          "#425d8e",
+          "#5e7db3",
+          "#859fcc",
+          "#b1c5e8",
+          "#e3efff"
+        ]
+      },
+      "ant-ink": {
+        "role": "tertiary",
+        "displayName": "Pale Chitin",
+        "canonical": "oklch(85.0% 0.030 81)",
+        "tonalRamp": [
+          "#0d0b07",
+          "#28231c",
+          "#463f33",
+          "#665c4d",
+          "#867c6b",
+          "#a69d8f",
+          "#cac3b8",
+          "#f2eee7"
+        ]
+      },
+      "resource-food": {
+        "role": "tertiary",
+        "displayName": "Honeydew Gold",
+        "canonical": "oklch(81.7% 0.111 84)",
+        "tonalRamp": [
+          "#120900",
+          "#312100",
+          "#533b00",
+          "#785802",
+          "#9a7729",
+          "#b79a61",
+          "#d7c197",
+          "#faedd3"
+        ]
+      },
+      "resource-soil": {
+        "role": "tertiary",
+        "displayName": "Tilled Clay",
+        "canonical": "oklch(71.6% 0.072 63)",
+        "tonalRamp": [
+          "#120903",
+          "#312010",
+          "#533a22",
+          "#775636",
+          "#9a7553",
+          "#b7987c",
+          "#d7bfaa",
+          "#fbebde"
+        ]
+      },
+      "resource-special": {
+        "role": "tertiary",
+        "displayName": "Spore Violet",
+        "canonical": "oklch(76.2% 0.115 297)",
+        "tonalRamp": [
+          "#0d0719",
+          "#271d3d",
+          "#443565",
+          "#645090",
+          "#846fb5",
+          "#a493ce",
+          "#c8bce9",
+          "#f1eaff"
+        ]
+      },
+      "passion-flame": {
+        "role": "tertiary",
+        "displayName": "Passion Flame",
+        "canonical": "oklch(72.2% 0.138 65)",
+        "tonalRamp": [
+          "#180600",
+          "#3b1a00",
+          "#613200",
+          "#8b4b00",
+          "#b16a0e",
+          "#cb9056",
+          "#e7ba91",
+          "#ffe9cf"
+        ]
+      }
+    },
+    "typographyMeta": {
+      "display": {
+        "displayName": "Display",
+        "purpose": "Selected commander name only."
+      },
+      "title": {
+        "displayName": "Title",
+        "purpose": "Alert titles, objective title, calendar date."
+      },
+      "body": {
+        "displayName": "Body",
+        "purpose": "Base HUD text and trait tags."
+      },
+      "label": {
+        "displayName": "Label",
+        "purpose": "Field labels, menu text, alert descriptions, skill names."
+      },
+      "caption": {
+        "displayName": "Caption",
+        "purpose": "Reason lines, command slot captions, placeholders."
+      },
+      "numeral-lg": {
+        "displayName": "Numeral Large",
+        "purpose": "Stat values."
+      },
+      "numeral-md": {
+        "displayName": "Numeral Medium",
+        "purpose": "Resource amounts (17px) and troop count (18px)."
+      },
+      "numeral-sm": {
+        "displayName": "Numeral Small",
+        "purpose": "Skill levels."
+      },
+      "numeral-cooldown": {
+        "displayName": "Numeral Cooldown",
+        "purpose": "Seconds remaining over a cooling command slot; TMP underlay for legibility."
+      },
+      "hotkey": {
+        "displayName": "Hotkey",
+        "purpose": "Every key label inside a control."
+      }
+    },
+    "shadows": [
+      {
+        "name": "plate-bevel",
+        "value": "inset 0 1px 0 rgba(255,236,200,0.09), inset 0 -1px 0 rgba(0,0,0,0.35)",
+        "purpose": "Every plate (top strip, console, alert rows, objective). Baked into the plate 9-slice sprite in uGUI."
+      },
+      {
+        "name": "control-bevel",
+        "value": "inset 0 1px 0 rgba(255,236,200,0.09)",
+        "purpose": "Buttons and command slots. Baked into the button 9-slice sprite."
+      },
+      {
+        "name": "well-inset",
+        "value": "inset 0 1px 2px rgba(0,0,0,0.5)",
+        "purpose": "Sunken wells: minimap, portrait, bars, meters, speed group. Baked into the well 9-slice sprite."
+      },
+      {
+        "name": "portrait-selected",
+        "value": "inset 0 0 0 1px rgba(108,196,106,0.18), inset 0 1px 2px rgba(0,0,0,0.5)",
+        "purpose": "Selected commander portrait well, with a #3d6a3f border."
+      },
+      {
+        "name": "cooldown-shade",
+        "value": "conic-gradient(rgba(8,6,5,0.72) 0 N%, transparent N% 100%)",
+        "purpose": "Cooldown sweep over a command slot. uGUI: dark Image, Fill Method Radial 360."
+      },
+      {
+        "name": "seconds-underlay",
+        "value": "text-shadow: 0 1px 2px rgba(8,6,5,0.9)",
+        "purpose": "Cooldown seconds only. TextMeshPro underlay."
+      },
+      {
+        "name": "enemy-halo",
+        "value": "0 0 0 3px rgba(232,87,74,0.3)",
+        "purpose": "Enemy blip on the minimap; the only ring in the system."
+      }
+    ],
+    "motion": [
+      {
+        "name": "ease-out",
+        "value": "cubic-bezier(0.23,1,0.32,1)",
+        "purpose": "Strong ease-out for presses and entrances (approx. DOTween OutQuint)."
+      },
+      {
+        "name": "press",
+        "value": "transform scale(0.97) 120ms ease-out",
+        "purpose": "Button and slot press feedback. Disabled under reduced motion."
+      },
+      {
+        "name": "hover",
+        "value": "background-color, border-color 150ms ease",
+        "purpose": "Pointer hover on controls."
+      },
+      {
+        "name": "alert-enter",
+        "value": "translateX(24px)→0, opacity 0→1, 250ms ease-out",
+        "purpose": "Alert row entrance. Reduced motion: opacity only, 200ms."
+      }
+    ],
+    "breakpoints": [
+      {
+        "name": "reference",
+        "value": "1440x900 (fixed artboard; uGUI Canvas Scaler reference, shipping 1080p-1440p)"
+      }
+    ],
+    "layout": {
+      "topStrip": "40px",
+      "consoleWing": "180px",
+      "consoleCentre": "208px",
+      "consoleColumns": "236px 1fr 372px",
+      "centreOverlap": "6px each side",
+      "alertColumn": "318px",
+      "objective": "280px",
+      "edgeInset": "8px",
+      "commandCard": "5x3 of 60x52px, gap 4px 5px",
+      "minimap": "164px square + 44px side column"
+    },
+    "unity": {
+      "surfaces": "Three 9-slice sprites (raised plate, raised control, sunken well) with bevels baked in; console silhouette assembled from wing and centre plates.",
+      "text": "TextMeshPro font assets: Noto Sans KR (400/500/700) and Barlow Semi Condensed (500/600/700); tabular figures for numerals.",
+      "bars": "Image Type Filled, Horizontal, for troop bar and meters; tick overlay as a separate sprite.",
+      "cooldown": "Image Type Filled, Radial 360, dark 72% alpha, plus a centred TMP seconds label with underlay.",
+      "icons": "24-unit line icons at 2-2.4px stroke exported to a sprite atlas at 14-20px."
+    }
+  },
+  "components": [
+    {
+      "name": "Button",
+      "kind": "button",
+      "refersTo": "button",
+      "description": "Compact raised control used in the top strip and around the console; hotkey trails the label.",
+      "html": "<button class=\"ds-btn\" type=\"button\">장수<kbd class=\"ds-kbd\">G</kbd></button>",
+      "css": ".ds-btn{appearance:none;display:inline-flex;align-items:center;gap:6px;height:28px;padding:0 7px;font:400 12px/1.4 'Noto Sans KR',sans-serif;color:#efe7da;background:#231e17;border:1px solid #3a3127;border-radius:3px;box-shadow:inset 0 1px 0 rgba(255,236,200,0.09);cursor:pointer;transition:transform 120ms cubic-bezier(0.23,1,0.32,1),background-color 150ms ease,border-color 150ms ease} .ds-btn:hover{background:#2e271e;border-color:#4a3f32} .ds-btn:active{transform:scale(0.97)} .ds-btn:focus-visible{outline:2px solid #f2a93b;outline-offset:1px} .ds-kbd{font:700 11px/1 'Barlow Semi Condensed',sans-serif;color:#b8ac9a}"
+    },
+    {
+      "name": "Speed Toggles",
+      "kind": "nav",
+      "refersTo": "speed-toggle",
+      "description": "Segmented pause/1x/2x/3x group in a well; the active speed fills amber.",
+      "html": "<div class=\"ds-speed\" role=\"group\" aria-label=\"게임 속도\"><button class=\"ds-sp\" type=\"button\" aria-pressed=\"false\">P ‖</button><button class=\"ds-sp\" type=\"button\" aria-pressed=\"true\">1×</button><button class=\"ds-sp\" type=\"button\" aria-pressed=\"false\">2×</button><button class=\"ds-sp\" type=\"button\" aria-pressed=\"false\">3×</button></div>",
+      "css": ".ds-speed{display:inline-flex;gap:2px;padding:2px;background:#120f0b;border:1px solid #080605;border-radius:4px;box-shadow:inset 0 1px 2px rgba(0,0,0,0.5)} .ds-sp{appearance:none;min-width:30px;height:24px;padding:0 4px;background:transparent;border:1px solid transparent;border-radius:3px;color:#b8ac9a;font:700 13px/1 'Barlow Semi Condensed',sans-serif;cursor:pointer;transition:transform 120ms cubic-bezier(0.23,1,0.32,1),background-color 150ms ease} .ds-sp:hover{background:#2e271e} .ds-sp:active{transform:scale(0.97)} .ds-sp:focus-visible{outline:2px solid #f2a93b;outline-offset:1px} .ds-sp[aria-pressed=true]{background:#f2a93b;border-color:#f2a93b;color:#1a1206}"
+    },
+    {
+      "name": "Command Card",
+      "kind": "custom",
+      "refersTo": "command-slot",
+      "description": "Keyboard-shaped 5x3 grid of 60x52 slots: default, cooldown (radial sweep + seconds), locked, empty, and the one amber primary.",
+      "html": "<div class=\"ds-cmd\"><button class=\"ds-c ds-cool\" type=\"button\" disabled><kbd>Q</kbd><svg width=\"20\" height=\"20\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M12 3l7 3v5c0 4.5-3 8-7 10-4-2-7-5.5-7-10V6z\"/></svg><span class=\"ds-lbl\">방어 태세</span><span class=\"ds-cd\"></span><span class=\"ds-sec\">8</span></button><button class=\"ds-c ds-locked\" type=\"button\" disabled><kbd>W</kbd><svg width=\"18\" height=\"18\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><rect x=\"5\" y=\"11\" width=\"14\" height=\"10\" rx=\"2\"/><path d=\"M8 11V8a4 4 0 0 1 8 0v3\"/></svg><span class=\"ds-lbl\">급강하</span></button><button class=\"ds-c\" type=\"button\"><kbd>E</kbd><svg width=\"20\" height=\"20\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2.2\" stroke-linecap=\"round\"><path d=\"M12 5v14M5 12h14\"/></svg><span class=\"ds-lbl\">병력 +1</span></button><button class=\"ds-c ds-nil\" type=\"button\" disabled aria-label=\"빈 칸\"></button><button class=\"ds-c ds-primary\" type=\"button\"><kbd>B</kbd><svg width=\"20\" height=\"20\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2.2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M14 4l6 6-3 3-6-6zM11 7l-8 8 3 3 8-8\"/></svg><span class=\"ds-lbl\">건설</span></button></div>",
+      "css": ".ds-cmd{display:grid;grid-template-columns:repeat(5,60px);grid-auto-rows:52px;gap:4px 5px;padding:8px;background:#1b1712} .ds-c{appearance:none;position:relative;overflow:hidden;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;padding:0;background:#231e17;border:1px solid #3a3127;border-radius:3px;box-shadow:inset 0 1px 0 rgba(255,236,200,0.09);color:#efe7da;font:400 11px/1.4 'Noto Sans KR',sans-serif;cursor:pointer;transition:transform 120ms cubic-bezier(0.23,1,0.32,1),background-color 150ms ease,border-color 150ms ease} .ds-c:hover:not(:disabled){background:#2e271e;border-color:#4a3f32} .ds-c:active:not(:disabled){transform:scale(0.97)} .ds-c:focus-visible{outline:2px solid #f2a93b;outline-offset:1px} .ds-c kbd{position:absolute;top:3px;left:4px;z-index:2;font:700 11px/1 'Barlow Semi Condensed',sans-serif;color:#b8ac9a} .ds-primary{background:#f2a93b;border-color:#ffc56b;color:#1a1206} .ds-primary kbd{color:rgba(26,18,6,0.7)} .ds-primary:hover{background:#ffb84d!important;border-color:#ffd08a!important} .ds-cool{color:#b8ac9a;cursor:default} .ds-cool>svg,.ds-cool>.ds-lbl{opacity:0.3} .ds-cd{position:absolute;inset:0;z-index:1;background:conic-gradient(rgba(8,6,5,0.72) 0 62%,transparent 62% 100%)} .ds-sec{position:absolute;inset:0;z-index:1;display:flex;align-items:center;justify-content:center;font:700 22px/1 'Barlow Semi Condensed',sans-serif;color:#efe7da;text-shadow:0 1px 2px rgba(8,6,5,0.9)} .ds-locked{background:transparent;border-style:dashed;box-shadow:none;color:#968976;cursor:default} .ds-nil{background:#120f0b;border-color:#080605;box-shadow:none;cursor:default}"
+    },
+    {
+      "name": "Alert Rows",
+      "kind": "card",
+      "refersTo": "alert-row",
+      "description": "RimWorld-style right-edge alert column: pinned crisis row with jump button, timed warning row with drain strip.",
+      "html": "<ol class=\"ds-alerts\"><li class=\"ds-toast ds-crisis\"><span class=\"ds-ic\"><svg width=\"14\" height=\"14\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2.4\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M12 4l9 16H3z\"/><path d=\"M12 10v4M12 17h.01\"/></svg></span><span class=\"ds-tx\"><span class=\"ds-tt\">침공 경보<span class=\"ds-pin\">고정</span></span><span class=\"ds-dd\">북동쪽 입구 · 적 12마리, 적 장수 1</span></span><button class=\"ds-jump\" type=\"button\">Space</button></li><li class=\"ds-toast ds-warn\"><span class=\"ds-ic\"><svg width=\"14\" height=\"14\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2.4\" stroke-linecap=\"round\"><circle cx=\"12\" cy=\"12\" r=\"9\"/><path d=\"M12 7v6M12 16h.01\"/></svg></span><span class=\"ds-tx\"><span class=\"ds-tt\">기분 경고<span class=\"ds-count\">×2</span></span><span class=\"ds-dd\">관우, 장비 · 기분 35 이하</span></span><span class=\"ds-timer\"><i></i></span></li></ol>",
+      "css": ".ds-alerts{list-style:none;margin:0;padding:0;width:318px;display:flex;flex-direction:column;gap:4px} .ds-toast{position:relative;display:flex;align-items:center;gap:9px;padding:6px 4px 6px 8px;background:#1b1712;border:1px solid #080605;border-radius:3px;box-shadow:inset 0 1px 0 rgba(255,236,200,0.09),inset 0 -1px 0 rgba(0,0,0,0.35);color:#efe7da;font:400 12px/1.4 'Noto Sans KR',sans-serif;transition:transform 250ms cubic-bezier(0.23,1,0.32,1),opacity 250ms cubic-bezier(0.23,1,0.32,1)} .ds-ic{width:22px;height:22px;flex:none;display:flex;align-items:center;justify-content:center;border-radius:2px} .ds-tx{flex:1;min-width:0;display:flex;flex-direction:column} .ds-tt{display:flex;align-items:center;gap:6px;font-size:13px;font-weight:700} .ds-dd{color:#b8ac9a;white-space:nowrap;overflow:hidden;text-overflow:ellipsis} .ds-crisis{background:#2a1512;border-color:#5c2620} .ds-crisis .ds-ic{background:#4a1d18;color:#ffb3aa} .ds-crisis .ds-tt{color:#ffd0ca} .ds-pin{font-size:11px;font-weight:500;color:#ffb3aa} .ds-jump{appearance:none;height:26px;padding:0 7px;background:#3a1a16;border:1px solid #6b2c25;border-radius:3px;color:#ffb3aa;font:700 11px/1 'Barlow Semi Condensed',sans-serif;cursor:pointer} .ds-jump:hover{background:#4a1d18} .ds-jump:focus-visible{outline:2px solid #f2a93b;outline-offset:1px} .ds-warn .ds-ic{background:#3b2a12;color:#f2a93b} .ds-count{font:700 12px/1.4 'Barlow Semi Condensed',sans-serif;padding:0 5px;border-radius:2px;background:#120f0b} .ds-timer{position:absolute;left:0;right:0;bottom:0;height:2px;background:rgba(0,0,0,0.35)} .ds-timer i{display:block;height:100%;width:58%;background:#8a6a33}"
+    },
+    {
+      "name": "Troop Bar",
+      "kind": "custom",
+      "refersTo": "troop-bar",
+      "description": "Commander HP: troop count over command limit, 12px well with green fill and 10% ticks (uGUI Image Filled Horizontal + tick overlay).",
+      "html": "<div class=\"ds-troops\"><div class=\"ds-th\"><span>병력</span><span><b>42</b> <small>/ 46 지휘한도</small></span></div><div class=\"ds-hp\" role=\"meter\" aria-valuenow=\"42\" aria-valuemin=\"0\" aria-valuemax=\"46\"><i></i><span class=\"ds-ticks\"><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b></span></div></div>",
+      "css": ".ds-troops{width:420px;display:flex;flex-direction:column;gap:3px;padding:8px;background:#1b1712;font:400 12px/1.4 'Noto Sans KR',sans-serif;color:#b8ac9a} .ds-th{display:flex;justify-content:space-between;align-items:baseline} .ds-th b{font:600 18px/1.4 'Barlow Semi Condensed',sans-serif;font-variant-numeric:tabular-nums;color:#efe7da} .ds-th small{font:500 13px 'Barlow Semi Condensed',sans-serif;color:#968976} .ds-hp{position:relative;height:12px;border-radius:2px;overflow:hidden;background:#120f0b;border:1px solid #080605;box-shadow:inset 0 1px 2px rgba(0,0,0,0.5)} .ds-hp i{position:absolute;left:0;top:0;bottom:0;width:91%;background:#6cc46a;transition:width 250ms cubic-bezier(0.23,1,0.32,1)} .ds-ticks{position:absolute;inset:0;display:flex} .ds-ticks b{flex:1;border-right:1px solid rgba(0,0,0,0.35)} .ds-ticks b:last-child{border-right:0}"
+    },
+    {
+      "name": "Stat Row",
+      "kind": "custom",
+      "refersTo": "meter",
+      "description": "Four stat cells: label, condensed numeral, dim reason line; a warning cell colours its numeral and adds a word label.",
+      "html": "<div class=\"ds-stats\"><div class=\"ds-stat\"><span class=\"ds-k\">공격</span><span class=\"ds-v\">18</span><span class=\"ds-why\">근접 12 · 용맹 +2</span></div><div class=\"ds-stat\"><span class=\"ds-k\">기분<em>경고</em></span><span class=\"ds-v ds-w\">34</span><span class=\"ds-why\">휴식 부족 -12 · 친구 +3</span></div><div class=\"ds-stat\"><span class=\"ds-k\">충성심</span><span class=\"ds-v\">78</span><span class=\"ds-why\">포상 +8</span></div></div>",
+      "css": ".ds-stats{display:grid;grid-template-columns:repeat(3,140px);background:#1b1712;border-top:1px solid #3a3127;border-bottom:1px solid #3a3127;font-family:'Noto Sans KR',sans-serif} .ds-stat{padding:6px 10px;display:flex;flex-direction:column;gap:2px} .ds-stat+.ds-stat{border-left:1px solid #3a3127} .ds-k{display:flex;justify-content:space-between;font-size:12px;color:#b8ac9a} .ds-k em{font:600 12px 'Barlow Semi Condensed',sans-serif;font-style:normal;color:#f2a93b} .ds-v{font:600 20px/1.1 'Barlow Semi Condensed',sans-serif;font-variant-numeric:tabular-nums;color:#efe7da} .ds-w{color:#f2a93b} .ds-why{font-size:11px;color:#968976;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}"
+    },
+    {
+      "name": "Injury Tag",
+      "kind": "chip",
+      "refersTo": "status-tag-injury",
+      "description": "Crisis-tinted status chip on the commander identity row; icon plus word, never hue alone.",
+      "html": "<span class=\"ds-hurt\"><svg width=\"11\" height=\"11\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2.4\" stroke-linecap=\"round\"><rect x=\"3\" y=\"8\" width=\"18\" height=\"8\" rx=\"4\" transform=\"rotate(-45 12 12)\"/></svg>다리 경상</span>",
+      "css": ".ds-hurt{display:inline-flex;align-items:center;gap:4px;padding:1px 7px;border-radius:2px;background:#2a1512;border:1px solid #5c2620;color:#ffb3aa;font:400 12px/1.4 'Noto Sans KR',sans-serif}"
+    }
+  ],
+  "narrative": {
+    "northStar": "The Chitin Console",
+    "overview": "The HUD is a piece of equipment bolted to the bottom of the nest, not a set of windows floating over it. A single dark, warm-brown console runs the full width of the bottom edge, stepped so its centre plate stands 28px taller than its wings; a thin 40px strip caps the top edge; alerts stack down the right. Everything between is the game world. The console is built from bevelled plates and sunken wells the way a physical instrument panel is built from pressed metal, which is also exactly how it ships: every surface is a 9-slice sprite in Unity uGUI, every number is TextMeshPro, every bar and cooldown is an Image fill.\n\nDensity is high and deliberate, in the tradition of StarCraft II's command console and RimWorld's colonist readouts. Two reading speeds coexist: condensed tabular numerals and fixed state colours carry combat reads in under a second (troops, cooldown seconds, alerts), while quieter Korean sans labels and dim reason lines carry the paused, management read (why mood is 34, where the defence bonus comes from). The system rejects glass, glow and neon sci-fi chrome, and it rejects web-dashboard cards floating over the play field; depth comes only from bevels and insets.\n\nOne warm amber does all the pointing. It marks the current game speed, the single primary command, the objective flag and progress, and doubles as the warning state; everything else is brown-on-brown with bright ink.",
+    "keyCharacteristics": [
+      "Full-bleed bottom console: 180px wings, 208px centre (23% of a 900px screen), plus a 40px top strip.",
+      "Warm near-black chitin plates with a 1px light bevel on top and a dark edge below; sunken wells for data.",
+      "One amber accent; fixed, non-negotiable state colours for troops, crisis, warning and completion.",
+      "Condensed tabular numerals for every changing number; Korean sans for every word.",
+      "Every command shows its hotkey in the slot's top-left corner; the command card is shaped like the keyboard.",
+      "2px-stroke line icons, 1-6px radii, square slots."
+    ],
+    "rules": [
+      {
+        "name": "The One Amber Rule",
+        "body": "Only one command slot on the card is ever filled amber: the primary action. Selection and progress may use amber as a line or a fill; no second filled amber control appears in the same group.",
+        "section": "colors"
+      },
+      {
+        "name": "The Ink-Not-Hue Rule",
+        "body": "State colours tint icons, surfaces, fills and borders. Text in a state colour uses its light ink variant (Crisis Ink, Troop Green, Forager Amber at 8-9:1), and every state also carries a word or icon.",
+        "section": "colors"
+      },
+      {
+        "name": "The Fixed Ramp Rule",
+        "body": "Troop fill runs Troop Green, Troop Amber, Crisis Red, always in that order, always meaning troop count. Nothing else borrows the ramp.",
+        "section": "colors"
+      },
+      {
+        "name": "The Numbers Get the Condensed Face Rule",
+        "body": "Any value that changes during play is set in Barlow Semi Condensed with tabular figures; capacities and limits after a slash drop to 13px, weight 500, Dim Ink.",
+        "section": "typography"
+      },
+      {
+        "name": "The Hotkey Always Shows Rule",
+        "body": "Every control that has a key prints it, in the hotkey style, inside the control. On command slots it sits in the top-left corner; on menu buttons it trails the label.",
+        "section": "typography"
+      },
+      {
+        "name": "The World Is the Screen Rule",
+        "body": "HUD chrome stays within the 40px top strip, the edge columns and a bottom console no taller than 208px (about 23% of screen height). Panels never float in the middle of the play field.",
+        "section": "layout"
+      },
+      {
+        "name": "The Keyboard-Shaped Card Rule",
+        "body": "Command slots map to their physical key rows. A command without a key does not go on the card; an unused key keeps an empty well so the grid never reflows.",
+        "section": "layout"
+      },
+      {
+        "name": "The No-Float Rule",
+        "body": "No outer drop shadows, blurs, glows or translucent glass. A surface is either raised by a bevel or sunk into a well. The single ring in the system is the 3px Crisis Red halo around an enemy blip on the minimap.",
+        "section": "elevation"
+      }
+    ],
+    "dos": [
+      "**Do** build every surface from three sprites: raised plate, raised control, sunken well, each a 9-slice with its bevel baked in.",
+      "**Do** set every changing number in Barlow Semi Condensed with tabular figures, and every word in Noto Sans KR.",
+      "**Do** print the hotkey inside every control that has one; on the command card, in the top-left corner.",
+      "**Do** keep the command card a 5x3 keyboard-shaped grid of 60x52px slots, with empty wells for unused keys.",
+      "**Do** show cooldowns as a dark radial fill with the remaining seconds centred at 22px, the icon dimmed to 30%.",
+      "**Do** pair every state colour with an icon, word or shape, and use the light ink variants for coloured text.",
+      "**Do** keep all motion under 250ms on `cubic-bezier(0.23,1,0.32,1)`, and fall back to opacity-only when reduced motion is requested."
+    ],
+    "donts": [
+      "**Don't** cast outer drop shadows, glows, blurs or translucent glass panels; depth is bevel and inset only.",
+      "**Don't** fill more than one command slot with amber, or give amber fill to any control other than the active selection or the primary action.",
+      "**Don't** float cards or windows over the play field; HUD stays on the top strip, the edge columns and the bottom console.",
+      "**Don't** raise the bottom console above 208px or let the wings exceed 180px.",
+      "**Don't** use radii above 4px except the 6px console shoulder.",
+      "**Don't** set coloured text in raw Crisis Red; use Crisis Ink."
+    ]
+  }
+}

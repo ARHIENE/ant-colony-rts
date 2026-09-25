@@ -80,6 +80,9 @@ namespace AntColony.Save
     [Serializable]
     public class PrisonerDto
     {
+        public Units.CommanderPersonalState personalState = new Units.CommanderPersonalState();
+        public int labAttack, labArmor;
+        public float strikeCooldown, stanceCooldown;
         public Units.CommanderTalents talents;
         public string name;
         public int rank;
@@ -124,7 +127,13 @@ namespace AntColony.Save
         public int scienceTier = 1;
         public int scientist = -1;
         public Buildings.AirshipYard.State airship;
+        public Buildings.Workshop.State workshop = new Buildings.Workshop.State();
         public List<int> patients = new List<int>();
+        public bool trapArmed = true;
+        public float trapBroken, trapRepair;
+        public bool trapRepairPaid;
+        public int crop;
+        public bool farmWide;
         public Vec3Dto scienceSpawn = new Vec3Dto();
         public float scoutRemaining;
         public bool scoutDispatched;
@@ -149,6 +158,7 @@ namespace AntColony.Save
         public int index;
         public float amount;
         public float regrowTimer;
+        public bool bountifulHarvest;
     }
 
     [Serializable]
@@ -247,7 +257,9 @@ namespace AntColony.Save
         public float upkeepTimer, incursionTimer;
         public bool loopCompleted, bossDefeated, defeated;
         public string randomState;
-        public const int CurrentVersion = 3;
+        public const int CurrentVersion = 6;
+        public Core.CampaignHistory.State history = new Core.CampaignHistory.State();
+        public World.ColonyEvents.State events = new World.ColonyEvents.State();
 
         public int version = CurrentVersion;
         public string gameId = "AntColony";
@@ -256,6 +268,7 @@ namespace AntColony.Save
         public float playSeconds;
         public float gameSeconds;
         public List<Units.EquipmentItem> equipmentInventory = new List<Units.EquipmentItem>();
+        public List<EquipmentLootDto> equipmentLoot = new List<EquipmentLootDto>();
         public int upkeepFailures;
         public Core.CampaignResearch.State campaign = new Core.CampaignResearch.State();
         public string unityVersion = "";
@@ -270,6 +283,13 @@ namespace AntColony.Save
 
         // 저장 시점에 복원할 수 없다고 미리 밝힌 항목들(진행 중인 침공 부대 등).
         public List<string> notRestored = new List<string>();
+    }
+
+    [Serializable]
+    public class EquipmentLootDto
+    {
+        public Vec3Dto position = new Vec3Dto();
+        public List<Units.EquipmentItem> items = new List<Units.EquipmentItem>();
     }
 
     [Serializable]

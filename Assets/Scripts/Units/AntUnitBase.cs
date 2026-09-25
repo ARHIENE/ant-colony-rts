@@ -50,6 +50,8 @@ namespace AntColony.Units
         public void Rebel()
         {
             if (IsDead) return;
+            if (this is CommanderAnt commander) { commander.TryDeparture(); return; }
+            CampaignHistory.Record("반란", name, "식량 부족으로 이탈");
             var selectable = GetComponent<SelectableObject>();
             if (selectable != null) selectable.enabled = false;
             if (Agent != null) Agent.enabled = false;
