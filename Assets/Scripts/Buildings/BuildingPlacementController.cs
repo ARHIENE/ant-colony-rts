@@ -113,21 +113,14 @@ namespace AntColony.Buildings
         public string GetBarracksBuildLabel(UnitRole role) => GetBuildLabel(BuildingKind.Barracks, role, $"Build {role} Barracks");
         public string GetResearchLabBuildLabel(UnitRole role) => GetBuildLabel(BuildingKind.ResearchLab, role, $"Build {role} Lab");
 
-        private bool BeginPlacement(BuildingKind kind, UnitRole role)
+        // 건설 화면에서 고른 장수에게 맡긴다. null이면 현재 선택된 장수를 쓴다.
+        public bool BeginPlacement(BuildingKind kind, UnitRole role, WorkerAnt chosenBuilder)
         {
-            if (!ScienceEffects.BuildingUnlocked(kind)) return PlacementFailed("Research the matching science first.");
-            if (kind == BuildingKind.MineField && MineField.Count >= GameBalance.MaxMines)
-                return PlacementFailed($"Up to {GameBalance.MaxMines} mine fields at once.");
-            if (kind == BuildingKind.Infirmary && !Infirmary.Unlocked)
-                return PlacementFailed("Research Infirmary first.");
-            if (kind == BuildingKind.AirshipYard && (CampaignResearch.Instance == null
-                || !CampaignResearch.Instance.Has(ScienceTechnology.MigrationTheory)))
-                return PlacementFailed("Research great migration theory first.");
+            var locked = LockReason(kind);
+            if (locked != null) return PlacementFailed(locked);
             if (AntColony.World.WorldMapManager.Instance != null && AntColony.World.WorldMapManager.Instance.ViewedSite != null)
                 return PlacementFailed("Return to the home colony to construct buildings.");
-            if (kind == BuildingKind.ScienceLab && !ScienceLab.PrerequisitesMet)
-                return PlacementFailed("Science Lab requires 60 ants, Fishing and a Tier 2 barracks.");
-            var selectedBuilder = GetSelectedBuilder();
+            var selectedBuilder = chosenBuilder != null ? chosenBuilder : GetSelectedBuilder();
             var template = GetTemplate(kind, role);
             var building = template != null ? template.GetComponent<BuildingBase>() : null;
             if (selectedBuilder == null || !selectedBuilder.CanStartConstruction)
@@ -141,6 +134,23 @@ namespace AntColony.Buildings
             IsPlacing = true;
             CreatePreview(template);
             return true;
+        }
+
+        private bool BeginPlacement(BuildingKind kind, UnitRole role) => BeginPlacement(kind, role, null);
+        public BuildingKind PendingKind => pendingKind;
+        public UnitRole PendingRole => pendingRole;
+        public WorkerAnt Builder => builder;
+
+        // 연구·수량 조건으로 지금 지을 수 없으면 이유를, 가능하면 null을 돌려준다.
+        public static string LockReason(BuildingKind kind)
+        {
+            if (!ScienceEffects.BuildingUnlocked(kind)) return "Research the matching science first.";
+            if (kind == BuildingKind.MineField && MineField.Count >= GameBalance.MaxMines) return $"Up to {GameBalance.MaxMines} mine fields at once.";
+            if (kind == BuildingKind.Infirmary && !Infirmary.Unlocked) return "Research Infirmary first.";
+            if (kind == BuildingKind.AirshipYard && (CampaignResearch.Instance == null
+                || !CampaignResearch.Instance.Has(ScienceTechnology.MigrationTheory))) return "Research great migration theory first.";
+            if (kind == BuildingKind.ScienceLab && !ScienceLab.PrerequisitesMet) return "Science Lab requires 60 ants, Fishing and a Tier 2 barracks.";
+            return null;
         }
 
         private static bool PlacementFailed(string reason)

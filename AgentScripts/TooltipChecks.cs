@@ -41,8 +41,9 @@ public static class TooltipChecks
             Hover(menu.GetComponentsInChildren<MenuTooltip>().Single(t => t.name == "Menu [Esc]"));
             Check(Time.timeScale == scale, "hover does not pause game");
             var canvas = Object.FindAnyObjectByType<SelectedUnitPanel>().transform;
-            var hudButtons = canvas.GetComponentsInChildren<Button>(true).Where(b => b.transform.parent == canvas).ToArray();
-            Check(hudButtons.Length >= 13, "HUD controls exist");
+            var card = canvas.Find("CommandConsole/CommandCard");
+            var hudButtons = canvas.GetComponentsInChildren<Button>().Where(b => b.transform.parent == canvas || b.transform.parent.parent == card).ToArray();
+            Check(hudButtons.Length >= 6, "HUD controls exist");
             foreach (var button in hudButtons) Hover(button.GetComponent<MenuTooltip>());
             Rect ScreenRect(RectTransform rect)
             {
@@ -61,9 +62,9 @@ public static class TooltipChecks
             var resourceBar = canvas.Find("ResourceBar");
             foreach (var text in resourceBar.GetComponentsInChildren<Text>())
                 Check(text.preferredHeight <= text.rectTransform.rect.height, "resource text fits: " + text.text);
-            var unitPanel = canvas.Find("SelectedUnitPanel");
-            Check(!ScreenRect(unitPanel as RectTransform).Overlaps(ScreenRect(canvas.Find("COLONY") as RectTransform)), "commander card clears command dock");
-            Check(unitPanel.GetComponentsInChildren<Button>(true).All(b => b.GetComponent<MenuTooltip>() != null), "all commander controls have help");
+            var unitPanel = canvas.Find("CommandConsole/ConsoleCenter/SelectedUnitPanel");
+            Check(!ScreenRect(unitPanel as RectTransform).Overlaps(ScreenRect(card as RectTransform)), "commander card clears command dock");
+            Check(card.GetComponentsInChildren<Button>(true).All(b => b.GetComponent<MenuTooltip>() != null), "all commander controls have help");
             var source = hudButtons[0].GetComponent<MenuTooltip>();
             source.OnPointerEnter(data); source.gameObject.SetActive(false);
             Check(!tooltip.gameObject.activeSelf, "disabled control clears help");

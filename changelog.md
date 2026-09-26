@@ -4,6 +4,13 @@
 
 ---
 
+# 2026-09-26 밤 SAVE — 이전 로그(저녁 SAVE, 6단계 완료·7단계 착수) 이관
+- 6단계 외교·교역·반란 완료(c3ba0bf): 문명 4개·협정 3종·거래 화면·교역소·캐러밴·반란 세력, 적 세력이 장수 격파 시 전쟁 점수 +10. 저장 v7(4문명·33거점).
+- 7단계 1)테마 색·폰트 2)1440×900 기준·상단 40px 바·목표/알림 배치 완료. 3)하단 콘솔·건설(B) 화면은 조작 흐름 변경이라 사용자 확인 대기였음(이후 승인·구현).
+- 당시 실패/미실행 검사: ActiveSkill·CommanderEdge·WorkProficiencyLoot·CommanderChecks·AcquisitionBuilding·Invasion/Raid/SceneInvasion·Airborne/Run. CommanderProgressionChecks 제거.
+
+---
+
 # 2026-09-26 저녁 SAVE — 이전 로그(오후 점검 세션) 이관
 - 기준 develop 6b32f5e에서 1~5단계 구현 확인, Stage5 122·Regression 46 재검증. 6단계 승인 후 Codex가 구현 착수, 문서 커밋 ac6b07b.
 - 당시 저장 v6, 6·7단계 미구현, 전체 회귀·Player 빌드 미완료. UI 목업은 `design/` HTML(이후 Claude Design 캔버스가 최신 기준).

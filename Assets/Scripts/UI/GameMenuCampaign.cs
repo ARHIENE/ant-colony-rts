@@ -57,23 +57,9 @@ namespace AntColony.UI
             MenuTheme.Button(content, "Refresh", Science);
             MenuTheme.Button(content, "Back", Back);
         }
-        private void PersonalDetails(CommanderAnt c)
+        // 장수 상세 아래쪽 행동 버튼: 치료·재생·포상·장비.
+        private void CommanderActions(CommanderAnt c)
         {
-            MenuTheme.Text(content, $"Mood {c.Mood:0}/100 | {c.PersonalState.mentalBreak} | {(c.IsDead ? "Deceased" : c.HasTroops ? "Active" : "Downed")}", 19, 48);
-            MenuTheme.Text(content, "Traits: " + string.Join(", ", c.Traits.values) + "\nPassions: "
-                + string.Join(", ", c.Traits.passions.Select(p => p.activity + " " + new string('*', p.flame))), 17, 75);
-            MenuTheme.Text(content, "Loyalty events: " + string.Join(" / ", c.Traits.loyaltyReasons), 17, 65);
-            MenuTheme.Text(content, "충성심 " + c.Traits.Loyalty + " / 100", 18, 32).color = LoyaltyColor(c.Traits.Loyalty);
-            var faction = c.Faction();
-            MenuTheme.Text(content, "파벌: " + (faction.Count == 0 ? "없음" : string.Join(", ", faction.Select(m => m.CommanderName))), 17, 45);
-            foreach (var relation in c.PersonalState.relations)
-            {
-                var other = SortedCommanders().FirstOrDefault(o => o.PersonalState.id == relation.otherId);
-                var label = relation.spouse ? "배우자" : !relation.family && relation.value >= 70 ? "연인" : relation.value >= 40 ? "친구" : relation.value <= -40 ? "라이벌" : "지인";
-                MenuTheme.Text(content, $"{other?.CommanderName ?? "떠난 장수"}: {label} {relation.value:0}", 17, 30);
-            }
-            foreach (var factor in c.PersonalState.moodFactors) MenuTheme.Text(content, $"{factor.reason}: {factor.value:+0;-0;0} ({factor.remaining:0}s)", 17, 32);
-            foreach (var injury in c.PersonalState.injuries) MenuTheme.Text(content, $"{injury.part}: {injury.severity} ({injury.remaining:0}s)", 17, 32);
             if (c.TreatmentFacility != null)
                 MenuTheme.Button(content, "Stop treatment", () => { c.TreatmentFacility?.Release(c); Details(c); }, "Treatment progress is preserved. Resume the game to recover.");
             else if (c.PersonalState.NeedsTreatment)
@@ -84,7 +70,6 @@ namespace AntColony.UI
                         () => { if (!infirmary.TryAdmit(c)) ToastManager.Show("Requires an idle injured commander nearby and a free bed."); Details(c); }).interactable = infirmary.CanTreat(c);
             }
             RegenerationButtons(c);
-            if (c.PersonalState.infected) MenuTheme.Text(content, $"곰팡이 감염 | 치료 진행 {c.PersonalState.moldTreatment:0}/60 | 20초마다 병력 -1", 17, 45);
             MenuTheme.Button(content, "Reward (30 Food)", () => { if (!c.TryReward()) ToastManager.Show("Available at home, once per game month."); Details(c); }).interactable = c.CanReceiveOrders && !c.IsAwayFromHome && c.PersonalState.rewardCooldown <= 0;
             var inventory = EquipmentInventory.Instance;
             if (inventory == null) return;

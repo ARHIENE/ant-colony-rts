@@ -11,6 +11,8 @@ namespace AntColony.UI
         public static void Handle(GameMenuController menu)
         {
             if (KeyBindings.Pressed(GameAction.Pause)) menu.ToggleSimulation();
+            if (KeyBindings.Pressed(GameAction.Build)) { BuildScreen.Toggle(); return; }
+            if (BuildScreen.IsOpen) { BuildScreen.HandleKeys(); return; }
             if (KeyBindings.Pressed(GameAction.Roster)) { menu.Roster(); return; }
             if (KeyBindings.Pressed(GameAction.EventLog)) { menu.EventLog(); return; }
             if (KeyBindings.Pressed(GameAction.Diplomacy)) { menu.Diplomacy(); return; }

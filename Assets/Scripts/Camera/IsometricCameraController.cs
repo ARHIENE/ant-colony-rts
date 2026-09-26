@@ -36,6 +36,15 @@ namespace AntColony.Camera
         internal void RestoreView(Vector3 focus, float rotation, float size)
         { focusPoint = focus; yaw = rotation; rotateTimer = -1; cam.orthographicSize = size; ApplyTransform(); }
         public void ApplySettings(float speed, float edge) { panSpeed = speed; edgeScrollThickness = edge; }
+        public Rect PanBounds => Rect.MinMaxRect(minX, minZ, maxX, maxZ);
+        public float ViewSize => cam != null ? cam.orthographicSize : startOrthoSize;
+        // 미니맵 클릭: 높이는 유지하고 수평 위치만 옮긴다.
+        public void FocusOn(Vector3 point)
+        {
+            focusPoint.x = Mathf.Clamp(point.x, minX, maxX);
+            focusPoint.z = Mathf.Clamp(point.z, minZ, maxZ);
+            ApplyTransform();
+        }
 
         public void SetRegion(Vector3 focus, Bounds bounds)
         {

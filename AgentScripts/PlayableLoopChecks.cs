@@ -78,8 +78,11 @@ public static class PlayableLoopChecks
             var before = resources.GetCapacity(ResourceType.Food);
             var specialBefore = resources.GetCapacity(ResourceType.Special);
             var storageCount = Object.FindObjectsByType<Storage>().Length;
-            var button = Object.FindObjectsByType<UnityEngine.UI.Button>().Single(b => b.name == "Build StorageButton");
-            button.onClick.Invoke(); Check(placement.IsPlacing, "HUD enters storage placement");
+            BuildScreen.Open(); await Task.Delay(50);
+            Object.FindObjectsByType<UnityEngine.UI.Button>(FindObjectsInactive.Include).Single(b => b.name == "Build Storage").onClick.Invoke();
+            await Task.Delay(50);
+            Object.FindObjectsByType<UnityEngine.UI.Button>().Single(b => b.name == "Builder 0").onClick.Invoke();
+            Check(placement.IsPlacing && !BuildScreen.IsOpen, "build screen enters storage placement");
             placement.CancelPlacement(); Check(resources.GetCapacity(ResourceType.Food) == before, "preview adds no capacity");
             Check(placement.BeginStoragePlacement(), "storage placement API");
             var point = Vector3.zero; var found = false;

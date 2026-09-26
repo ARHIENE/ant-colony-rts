@@ -254,7 +254,7 @@ public static class WorldMapChecks
         await Task.Delay(100);
         Check(world.Sites.First(s => s.Kind == ExpeditionSiteKind.Settlement).Disposition == ConquestDisposition.Annexed && !annex.interactable && !abandon.interactable,
             "annex button records ownership and disables resolved choices");
-        Check(((UnityEngine.UI.Text)Get(conquestUi, "status")).text.Contains("Annexed"), "annexed status shown");
+        Check(((UnityEngine.UI.Text)Get(conquestUi, "siteInfo")).text.Contains("상태 <b>편입</b>"), "annexed status shown");
         Check(!world.Sites.First(s => s.Kind == ExpeditionSiteKind.Settlement).TryResolveConquest(ConquestDisposition.Annexed)
             && !world.Sites.First(s => s.Kind == ExpeditionSiteKind.Settlement).TryResolveConquest(ConquestDisposition.Abandoned), "conquest choice is one-time");
         Check(colony.GetStock(ResourceType.Food) == foodStock && colony.GetStock(ResourceType.Soil) == soilStock
@@ -351,7 +351,7 @@ public static class WorldMapChecks
         abandon.onClick.Invoke();
         await Task.Delay(100);
         Check(abandoned.Disposition == ConquestDisposition.Abandoned && !annex.interactable && !abandon.interactable
-            && ((UnityEngine.UI.Text)Get(conquestUi, "status")).text.Contains("Abandoned"), "abandon button resolves and displays state");
+            && ((UnityEngine.UI.Text)Get(conquestUi, "siteInfo")).text.Contains("상태 <b>포기</b>"), "abandon button resolves and displays state");
         Check(world.ViewSite(abandoned), "abandonment retains current battlefield access");
         var remainingLoot = abandoned.Colony.GetComponentsInChildren<ResourceNode>().First(n => n.CanGather);
         Set(remainingLoot, "amountRemaining", 1f);

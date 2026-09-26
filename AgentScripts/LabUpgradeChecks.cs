@@ -181,14 +181,14 @@ namespace AntColony.Regression
                     Select(selectedList, b);
                     await Task.Delay(100);
                     var labels = GameObject.Find("HUDCanvas").GetComponentsInChildren<UnityEngine.UI.Text>(true);
-                    Check(!Array.Exists(labels, t => t.text.Contains("Upgrading")), "B 선택 시 A 진행 표시 안 함");
+                    Check(!Array.Exists(labels, t => t.gameObject.activeInHierarchy && t.text.Contains("진행 중")), "B 선택 시 A 진행 표시 안 함");
                     await Until(() => !aLab.IsResearching, 2000);
                     Check(a.LabArmorLevel == 1 && b.LabArmorLevel == bArmor, "선택 변경이 A 완료 대상을 바꾸지 않음");
                     Select(selectedList, b);
                     Check(hud.TryLabResearch(true) && b.LabUpgradeBusy, "B 선택 강화 시작");
                     await Task.Delay(100);
                     labels = GameObject.Find("HUDCanvas").GetComponentsInChildren<UnityEngine.UI.Text>(true);
-                    Check(Array.Exists(labels, t => t.text.Contains("Upgrading")), "HUD 진행 중 표시");
+                    Check(Array.Exists(labels, t => t.gameObject.activeInHierarchy && t.text.Contains("진행 중")), "HUD 진행 중 표시");
                 }
             }
             catch (Exception e)

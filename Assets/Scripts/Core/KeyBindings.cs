@@ -7,13 +7,13 @@ namespace AntColony.Core
     public enum GameAction
     {
         RotateLeft, RotateRight, WeaponSkill, WingSkill, AddTroop, RemoveTroop, CycleWeapon,
-        Roster, Pause, SciencePanel, EventLog, WorldMap, Diplomacy
+        Roster, Pause, SciencePanel, EventLog, WorldMap, Diplomacy, Build
     }
 
     public static class KeyBindings
     {
         public static readonly Key[] Defaults =
-            { Key.Z, Key.C, Key.Q, Key.W, Key.E, Key.D, Key.R, Key.G, Key.P, Key.K, Key.L, Key.M, Key.J };
+            { Key.Z, Key.C, Key.Q, Key.W, Key.E, Key.D, Key.R, Key.G, Key.P, Key.K, Key.L, Key.M, Key.J, Key.B };
         // 이 키들은 고정 기능이 쓰므로 재지정할 수 없다.
         public static readonly Key[] Reserved =
             { Key.Escape, Key.F1, Key.F2, Key.A, Key.Equals, Key.Minus, Key.NumpadPlus, Key.NumpadMinus };

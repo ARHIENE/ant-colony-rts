@@ -55,8 +55,8 @@ public static class FullUIChecks
             Check(GameMenuController.Instance.ScreenName == "Encyclopedia", "encyclopedia button");
             Click("Back");
             Click("New Game");
-            Click("Map: Medium (base size)"); Click("Map: Large (160% of base)");
-            Click("Difficulty: Normal"); Click("Difficulty: Harsh");
+            Click("Map Small");
+            Click("Difficulty Harsh");
             GameMenuController.Instance.GetComponentInChildren<InputField>().text = "76543";
             Click("Start Game");
             await Ready(); GameMenuController.Instance.Pause();

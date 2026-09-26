@@ -127,7 +127,7 @@ public static class WeaponTalentChecks
             Check(ship.TryReturn(), "return"); ship.Tick(ship.TravelSeconds + 1);
             foreach (var c in roster.Commanders) c.CommandStop();
             GameMenuController.Instance.Details(a); await Task.Delay(30);
-            Check(Object.FindObjectsByType<UnityEngine.UI.Text>().Count(t => Enum.GetNames(typeof(CommanderActivity)).Any(n => t.text.StartsWith(n + " "))) >= 9, "nine skills displayed");
+            Check(Enum.GetNames(typeof(CommanderActivity)).All(n => GameObject.Find("Skill " + n) != null), "nine skills displayed");
 
             var original = SaveSnapshot.Capture();
             Check(SaveValidator.Validate(original, out var error), "v3 validates: " + error);

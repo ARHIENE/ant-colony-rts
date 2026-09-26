@@ -15,7 +15,7 @@ namespace AntColony.UI
         public static GameMenuController Instance { get; private set; }
         public static bool BlocksInput => Instance != null && (Instance.open || Time.frameCount <= Instance.closedFrame || SaveSystem.Busy);
         public string ScreenName { get; private set; }
-        private RectTransform panel, content, tooltipPanel;
+        private RectTransform panel, content, tooltipPanel, scrollArea, legacyContent, frame;
         private GameObject toolbar;
         private Text tip;
         private Text calendar;
@@ -31,10 +31,10 @@ namespace AntColony.UI
             var canvas = MenuTheme.Canvas("GameMenus", transform, 100);
             panel = MenuTheme.Rect("MenuBackdrop", canvas.transform); MenuTheme.Stretch(panel);
             panel.gameObject.AddComponent<Image>().color = new Color(.047f, .039f, .031f, .62f);
-            var scrollArea = MenuTheme.Rect("MenuArea", panel); scrollArea.anchorMin = new Vector2(.22f, .12f); scrollArea.anchorMax = new Vector2(.78f, .88f);
+            scrollArea = MenuTheme.Rect("MenuArea", panel); scrollArea.anchorMin = new Vector2(.22f, .12f); scrollArea.anchorMax = new Vector2(.78f, .88f);
             scrollArea.offsetMin = scrollArea.offsetMax = Vector2.zero;
             scrollArea.gameObject.AddComponent<Image>().color = MenuTheme.Background;
-            content = MenuTheme.Scroll(scrollArea);
+            content = legacyContent = MenuTheme.Scroll(scrollArea);
             tooltipPanel = MenuTheme.Rect("Tooltip", canvas.transform);
             tooltipPanel.anchorMin = new Vector2(.2f, 1); tooltipPanel.anchorMax = new Vector2(.8f, 1);
             tooltipPanel.pivot = new Vector2(.5f, 1); tooltipPanel.anchoredPosition = new Vector2(0, -65);
@@ -94,8 +94,12 @@ namespace AntColony.UI
                 if (SkillTargeting.ConsumesPointerInput) return;
                 if (!open && (FindFirstObjectByType<AntColony.Buildings.BuildingPlacementController>()?.IsPlacing == true
                     || FindFirstObjectByType<AttackMoveController>()?.IsAttackMode == true)) return;
+                if (!open && BuildScreen.Back()) return;
                 if (!open) Pause(); else if (GameSession.Instance.GameStarted) Resume(); else Main();
             }
+            // Enter: 디자인 화면의 주 버튼(이어하기·게임 시작).
+            if (open && frame != null && (Keyboard.current.enterKey.wasPressedThisFrame || Keyboard.current.numpadEnterKey.wasPressedThisFrame))
+                frame.GetComponentsInChildren<Button>().FirstOrDefault(b => b.interactable && (b.name == "Continue" || b.name == "Start Game"))?.onClick.Invoke();
             if (Keyboard.current.f1Key.wasPressedThisFrame && GameSession.Instance.GameStarted) Roster();
             else if (!open && GameSession.Instance.GameStarted && Time.frameCount > closedFrame) GameHotkeys.Handle(this);
         }
@@ -106,12 +110,30 @@ namespace AntColony.UI
             if (Time.timeScale > 0) resumeScale = Time.timeScale;
         }
         public void ToggleSimulation() => SetSpeed(Time.timeScale > 0 ? 0 : Mathf.Max(1, resumeScale));
-        private void Screen(string title)
+        // 화면 공통 상태 전환: 열기·일시정지·이전 화면 정리.
+        private void BeginScreen(string title, float scrim)
         {
             if (!open) resumeScale = Time.timeScale;
             open = true; ScreenName = title; panel.gameObject.SetActive(true); toolbar.SetActive(false); Tooltip("");
             if (!GameSession.Instance.GameStarted || UserSettings.Current.pauseSimulationOnMenu) Time.timeScale = 0;
+            content = legacyContent;
             foreach (Transform child in content) { child.gameObject.SetActive(false); Destroy(child.gameObject); }
+            if (frame != null) { frame.gameObject.SetActive(false); Destroy(frame.gameObject); frame = null; }
+            panel.GetComponent<Image>().color = new Color(.047f, .039f, .031f, scrim);
+        }
+        // 디자인 배치 화면: 1440×900 기준 빈 판을 돌려준다. 목록형 옛 화면 영역은 숨긴다.
+        private RectTransform Frame(string title, float scrim = .62f)
+        {
+            BeginScreen(title, scrim);
+            scrollArea.gameObject.SetActive(false);
+            frame = MenuTheme.Rect("ScreenFrame", panel); MenuTheme.Stretch(frame);
+            FindFirstObjectByType<AntColony.Buildings.BuildingPlacementController>()?.CancelPlacement();
+            return frame;
+        }
+        private void Screen(string title)
+        {
+            BeginScreen(title, .62f);
+            scrollArea.gameObject.SetActive(true);
             var heading = MenuTheme.Text(content, title, 32, 70);
             heading.color = MenuTheme.Accent; heading.fontStyle = FontStyle.Bold;
             FindFirstObjectByType<AntColony.Buildings.BuildingPlacementController>()?.CancelPlacement();
@@ -134,57 +156,12 @@ namespace AntColony.UI
             Tooltip("");
             open = false; closedFrame = Time.frameCount; ScreenName = "Game"; panel.gameObject.SetActive(false); toolbar.SetActive(true); Time.timeScale = resumeScale;
         }
-        public void Main()
-        {
-            Screen("ANT COLONY");
-            var subtitle = MenuTheme.Text(content, "BUILD YOUR COLONY  /  COMMAND YOUR SWARM", 16, 48);
-            subtitle.color = MenuTheme.Muted;
-            var start = MenuTheme.Button(content, "New Game", NewGameScreen, "Choose a reproducible map seed, size and invasion difficulty.");
-            var startColors = start.colors; startColors.normalColor = MenuTheme.Accent; startColors.highlightedColor = MenuTheme.Hex(0xffb84d); start.colors = startColors;
-            start.GetComponentInChildren<Text>().color = MenuTheme.AccentInk;
-            MenuTheme.Button(content, "Continue / Load", () => Slots(false));
-            MenuTheme.Button(content, "Settings", Settings);
-            MenuTheme.Button(content, "Encyclopedia", Book);
-            MenuTheme.Button(content, "How to Play [F2]", Guide);
-        }
-        public void Pause()
-        {
-            if (CampaignResearch.Instance != null && CampaignResearch.Instance.Departed) { ShowDeparture(); return; }
-            if (GameManager.Instance != null && GameManager.Instance.SavedDefeat) { ShowOutcome(false); return; }
-            Screen("Paused");
-            MenuTheme.Button(content, "Continue", Resume);
-            MenuTheme.Button(content, "Save Game", () => Slots(true));
-            MenuTheme.Button(content, "Load Game", () => Slots(false));
-            MenuTheme.Button(content, "Settings", Settings);
-            MenuTheme.Button(content, "Commanders", Roster);
-            MenuTheme.Button(content, "Science / Airship", Science);
-            MenuTheme.Button(content, "이벤트 로그 [L]", EventLog);
-            MenuTheme.Button(content, "Encyclopedia", Book);
-            MenuTheme.Button(content, "How to Play [F2]", Guide);
-            MenuTheme.Button(content, "Save & Main Menu", () => {
-                if (!SaveSystem.TrySave(true, 0, out var error)) { ToastManager.Show("Cannot leave safely: " + error); return; }
-                GameSession.Instance.MarkNotStarted(); Main();
-            }, "Saves to the auto slot first. If saving fails, your game stays open.");
-        }
-        private void NewGameScreen()
-        {
-            Screen("New Game");
-            MenuTheme.Button(content, "Map: " + MapSizes.Label(options.mapSize), () => { ReadSeed(); options.mapSize = (MapSize)(((int)options.mapSize + 1) % 3); NewGameScreen(); });
-            MenuTheme.Button(content, "Difficulty: " + DifficultyProfile.Label(options.difficulty), () => { ReadSeed(); options.difficulty = (DifficultyLevel)(((int)options.difficulty + 1) % 3); NewGameScreen(); });
-            MenuTheme.Text(content, DifficultyProfile.Description(options.difficulty), 18, 60);
-            MenuTheme.Button(content, "Commander death: " + options.commanderDeath, () => { ReadSeed(); options.commanderDeath = (CommanderDeathMode)(((int)options.commanderDeath + 1) % 3); NewGameScreen(); });
-            MenuTheme.Text(content, "Gentle: no deaths. Normal: a second fall while severely injured may be fatal. Harsh: any fall may be fatal.", 18, 60);
-            MenuTheme.Text(content, "Map seed (signed integer)", 19); seed = MenuTheme.Input(content, options.seed.ToString());
-            MenuTheme.Button(content, "Random Seed", () => { options.seed = NewGameOptions.RandomSeed(); seed.text = options.seed.ToString(); });
-            MenuTheme.Button(content, "Start Game", () => { if (!ReadSeed()) return; try { SaveSystem.NewGame(options); } catch (Exception e) { ToastManager.Show(e.Message); } });
-            MenuTheme.Button(content, "Back", Main);
-        }
         public void Guide()
         {
             Screen("FIELD GUIDE");
             MenuTheme.Text(content, "BETA GOAL: defeat a MiniBird boss. You can keep playing after victory. Losing all home buildings ends the run.", 18, 76);
             MenuTheme.Text(content, "1. Select a commander (click or drag). Right-click food or soil to gather. Produce Ant adds idle workers; select a commander and use +1 Ant to assign troops.", 18, 95);
-            MenuTheme.Text(content, "2. Select an idle commander with troops, then choose a construction button. Green preview: left-click to build. Red: blocked or unreachable. Right-click / Esc cancels. Keep free ants for builders.", 18, 95);
+            MenuTheme.Text(content, "2. Press B (Build) to open construction, pick a category and building, then choose an idle commander with troops. Green preview: left-click to build. Red: blocked or unreachable. Right-click / Esc cancels. Keep free ants for builders.", 18, 95);
             MenuTheme.Text(content, "3. Every commander can work and fight. Equip owned weapons in commander details to change combat style; wings use the armor slot. Right-click enemies to attack, or press A then click for attack-move. Nine skills grow through use; Command skill sets troop capacity.", 18, 115);
             MenuTheme.Text(content, "4. Reach 60 ants, unlock Fishing and upgrade a barracks to Tier 2. In World / Science, build a Science Lab, research vehicles and build a transport.", 18, 95);
             MenuTheme.Text(content, "5. Bring combat commanders near the transport, board, choose a MiniBird nest and depart. Switch to the battlefield, dodge marked boss attacks and win. Return Home brings the crew and cargo back.", 18, 100);
@@ -213,23 +190,6 @@ namespace AntColony.UI
         }
         private bool ReadSeed()
         { if (seed == null || !int.TryParse(seed.text, out var value)) { ToastManager.Show("Enter a seed between -2147483648 and 2147483647."); return false; } options.seed = value; return true; }
-        private void Slots(bool save)
-        {
-            Screen(save ? "Save Game" : "Load Game");
-            MenuTheme.Text(content, "3 manual slots + 1 auto slot. Saving overwrites the selected slot; the previous file is kept as .bak.", 17, 65);
-            foreach (var slot in SaveSlots.List())
-            {
-                if (save && slot.Auto) continue;
-                MenuTheme.Text(content, slot.DisplayName + " - " + slot.Summary(), 17, 52);
-                var button = MenuTheme.Button(content, (save ? "Save " : "Load ") + slot.DisplayName, () => {
-                    var ok = save ? SaveSystem.TrySave(slot.Auto, slot.Index, out var error) : SaveSystem.TryLoad(slot.Path, out error);
-                    ToastManager.Show(ok ? (save ? "Saved." : "Loading save...") : error);
-                    if (save) Slots(true);
-                });
-                button.interactable = save || slot.Valid;
-            }
-            MenuTheme.Button(content, "Back", Back);
-        }
         private void Settings()
         {
             Screen("Settings");
@@ -247,34 +207,7 @@ namespace AntColony.UI
         }
         public static CommanderAnt[] SortedCommanders() => CommanderRoster.Instance == null ? Array.Empty<CommanderAnt>()
             : CommanderRoster.Instance.Commanders.OrderBy(c => c.CommanderName, StringComparer.Ordinal).ToArray();
-        public void Roster()
-        {
-            Screen("Commanders");
-            foreach (var c in SortedCommanders())
-            {
-                var button = MenuTheme.Button(content, c.CommanderName + "  |  " + c.WeaponLabel + "  |  충성 " + c.Traits.Loyalty + "  |  " + Location(c), () => Details(c));
-                button.GetComponentInChildren<UnityEngine.UI.Text>().color = LoyaltyColor(c.Traits.Loyalty);
-            }
-            MenuTheme.Button(content, "Back", Back);
-        }
         public static Color LoyaltyColor(int loyalty) => loyalty <= 15 ? MenuTheme.DangerInk : loyalty <= 30 ? MenuTheme.HpMid : MenuTheme.TextColor;
-        private static string Location(CommanderAnt c) => c.IsDeparting ? c.Social.departure.ToString() : c.IsCaptive ? "Captive" : c.Garrison != null ? "Garrison" : c.Transport != null ? c.Transport.State.ToString() : "Home";
-        public void Details(CommanderAnt c)
-        {
-            if (c == null) { Roster(); return; }
-            Screen(c.CommanderName);
-            MenuTheme.Text(content, $"{c.WeaponLabel} | {(c.IsFlying ? "Flying" : "Ground")} | {Location(c)}\nTroops {c.TroopCount}/{c.CommandLimit} | HP {c.CurrentHealth:0.##}\n"
-                + $"Attack {c.AttackDamage:0.#} | Armor {c.Armor:0.#} | Loyalty {c.Traits.Loyalty}\n"
-                + $"Research: Attack {c.LabAttackLevel}, Armor {c.LabArmorLevel}", 19, 145);
-            foreach (CommanderActivity skill in Enum.GetValues(typeof(CommanderActivity)))
-            {
-                var level = c.Talents.Level(skill);
-                var progress = level == CommanderTalents.MaxLevel ? "MAX" : $"{c.Talents.Xp(skill):0.#}/{CommanderTalents.Required(level)} XP";
-                MenuTheme.Text(content, $"{skill} {new string('*', c.Traits.Flame(skill))}  {level}/20  ({progress})", 18, 30);
-            }
-            PersonalDetails(c);
-            MenuTheme.Button(content, "Back to Roster", Roster);
-        }
         private void Book()
         {
             Screen("Encyclopedia");

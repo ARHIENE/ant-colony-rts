@@ -51,9 +51,11 @@ public static class AcidTowerChecks
             var resources = ResourceManager.Instance; var pool = AntPool.Instance;
             resources.Add(Resource.Food, 200); resources.Add(Resource.Soil, 200);
             var food = resources.GetAmount(Resource.Food); var soil = resources.GetAmount(Resource.Soil); var free = pool.Free;
-            var button = Object.FindObjectsByType<UnityEngine.UI.Button>().Single(b => b.name == "Acid TowerButton");
-            button.onClick.Invoke();
-            Check(placement.IsPlacing, "HUD button starts real construction placement");
+            BuildScreen.Open(); await Task.Delay(50);
+            Object.FindObjectsByType<UnityEngine.UI.Button>(FindObjectsInactive.Include).Single(b => b.name == "Build AcidTower").onClick.Invoke();
+            await Task.Delay(50);
+            Object.FindObjectsByType<UnityEngine.UI.Button>().Single(b => b.name == "Builder 0").onClick.Invoke();
+            Check(placement.IsPlacing && placement.Builder != null, "build screen starts real construction placement");
             typeof(BuildingPlacementController).GetField("placementValid", Private).SetValue(placement, true);
             var ground = builder.Position + Vector3.forward * 4;
             typeof(BuildingPlacementController).GetMethod("TryPlace", Private).Invoke(placement, new object[] { ground + Vector3.up, ground });

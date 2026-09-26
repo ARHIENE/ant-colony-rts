@@ -10,6 +10,8 @@ namespace AntColony.UI
     public sealed class BetaProgress : MonoBehaviour
     {
         private UnityEngine.UI.Text objective;
+        private GameObject objectivePanel;
+        private WorldMapPanel worldMap;
         private GameManager game;
         private float nextRefresh;
         public string CurrentObjective => BuildObjective();
@@ -22,6 +24,7 @@ namespace AntColony.UI
             var canvas = MenuTheme.Canvas("BetaObjectives", transform, 1);
             var panel = MenuTheme.Panel(canvas.transform, "Objective", new Vector2(0, 1), new Vector2(300, 92), new Vector2(8, -48));
             panel.GetComponent<UnityEngine.UI.Image>().raycastTarget = false;
+            objectivePanel = panel.gameObject;
             objective = MenuTheme.Text(panel, "", 13, 80);
             MenuTheme.Stretch(objective.rectTransform);
             objective.rectTransform.offsetMin = new Vector2(12, 8); objective.rectTransform.offsetMax = new Vector2(-12, -8);
@@ -40,7 +43,11 @@ namespace AntColony.UI
 
         private void Update()
         {
-            if (objective == null || Time.unscaledTime < nextRefresh) return;
+            if (objective == null) return;
+            // 전체 화면 월드맵이 열려 있으면 원정대 판을 가리지 않게 숨긴다.
+            if (worldMap == null) worldMap = FindFirstObjectByType<WorldMapPanel>();
+            objectivePanel.SetActive(worldMap == null || !worldMap.IsOpen);
+            if (Time.unscaledTime < nextRefresh) return;
             nextRefresh = Time.unscaledTime + .5f;
             objective.text = "<color=#f2a93b><b>목표</b></color>\n" + CurrentObjective + "\n<color=#968976>F2 설명서</color>";
         }
