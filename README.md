@@ -187,6 +187,7 @@ Blades 연구 후 과학 화면에서 공방(Food 50·Soil 80·Special 10·인�
 - 장비·기술 검증(2026-09-24): `AgentScripts/WeaponTalentChecks.cs` 91개(전투·작업·장비·비행·UI·v2 저장 이관·2회 재로드), `CampaignChecks` 86개(과학·보상·장비·부상·저장·비행선 결말), `PlayableLoopChecks` 45개, `SaveRoundtripChecks` 42개(게임 시작 후 실행), `FullUIChecks` 50개, `RegressionChecks` 45개 통과.
 - 자동 수송 검증: `AgentScripts/TransportRouteChecks.cs`(55개 통과). 실제 채집 왕복을 포함하므로 `unity command run_script --file AgentScripts/TransportRouteChecks.cs --entry AntColony.Regression.TransportRouteChecks.Main --timeout_ms 480000 --timeout 510`으로 실행합니다.
 - 4단계 검증(2026-09-26): `Stage4Checks` 122개(계절 이벤트·감염·생산 차단·자원/캠페인 기록·저장 복원·UI), `RegressionChecks` 46개를 각각 새 Play 세션에서 통과했습니다. 회귀 검사는 씬 초기화 완료를 기다린 뒤 시간을 진행시켜 메인 메뉴 초기화와의 경쟁으로 채집 검사가 멈추는 문제를 방지합니다. 4단계 실행: `unity command run_script --file AgentScripts/Stage4Checks.cs --entry Stage4Checks.Main --timeout_ms 180000 --timeout 190`.
+- 추가 재검증(2026-09-26): 현재 커밋 `6b32f5e`에서 공식 Unity CLI의 새 Play 세션으로 Stage5 122개·Regression 46개 통과. 6단계는 사용자 승인 후 SAVE 요청으로 구현 착수 전 중단됐습니다.
 - 단계별 검증(2026-09-25~26): `Stage1Checks` 125개(기획 수치·고치 한도·수송 슬롯·번식·유지비·단축키), `Stage2Checks` 187개(과학 30기술·새 시설 7종·저장), `Stage3Checks` 107개(공방·품질·보관함), `Stage5Checks` 122개(충성심·이탈·반란 포로·관계·무기 스킬·v6 저장 이관)를 각각 새 Play 세션에서 통과했습니다. 3~5단계 이후 전체 회귀 스위트 일괄 재실행은 아직 하지 않았습니다.
 - 각 검사는 새 Play 모드에서 `unity command run_script --file AgentScripts/<검사명>.cs --timeout_ms 60000 --timeout 90`으로 실행합니다. 검사 후 Play를 종료해 변경된 게임 상태를 초기화합니다.
 
