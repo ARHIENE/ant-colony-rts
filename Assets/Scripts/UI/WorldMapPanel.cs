@@ -21,10 +21,10 @@ namespace AntColony.UI
 
         private void Start()
         {
-            var toggle = Button(transform, "World / Science", new Vector2(1090, -60), new Vector2(180, 34), Toggle);
+            var toggle = Button(transform, "월드맵  M", new Vector2(334, -6), new Vector2(84, 28), Toggle);
             toggle.name = "WorldMapToggle";
             toggle.gameObject.AddComponent<MenuTooltip>().Message = "Open science research, transport construction and world expeditions.";
-            worldNotice = Label(transform, "", new Vector2(20, -60), new Vector2(1050, 34), 15);
+            worldNotice = Label(transform, "", new Vector2(300, -70), new Vector2(840, 28), 14);
             worldNotice.name = "SettlementNotice";
             panel = new GameObject("WorldMapPanel", typeof(RectTransform), typeof(UnityEngine.UI.Image));
             panel.transform.SetParent(transform, false);
@@ -32,7 +32,7 @@ namespace AntColony.UI
             rect.anchorMin = new Vector2(.035f, .14f);
             rect.anchorMax = new Vector2(.965f, .91f);
             rect.offsetMin = rect.offsetMax = Vector2.zero;
-            panel.GetComponent<UnityEngine.UI.Image>().color = new Color(.055f, .075f, .1f, .99f);
+            panel.GetComponent<UnityEngine.UI.Image>().color = MenuTheme.Background;
             Label(rect, "Science & Expeditions", new Vector2(20, -12), new Vector2(700, 28), 20);
             Button(rect, "Close", new Vector2(1050, -12), new Vector2(110, 30), Toggle);
             scienceStatus = Label(rect, "", new Vector2(20, -50), new Vector2(1140, 42), 14);
@@ -47,7 +47,7 @@ namespace AntColony.UI
             var map = new GameObject("WorldMap", typeof(RectTransform), typeof(UnityEngine.UI.Image));
             map.transform.SetParent(rect, false);
             Place((RectTransform)map.transform, new Vector2(20, -156), new Vector2(500, 310));
-            map.GetComponent<UnityEngine.UI.Image>().color = new Color(.12f, .2f, .24f);
+            map.GetComponent<UnityEngine.UI.Image>().color = MenuTheme.Well;
             mapTitle = Label(map.transform, "", new Vector2(12, -8), new Vector2(478, 42), 15);
             Button(map.transform, "Home", new Vector2(20, -245), new Vector2(90, 38), () => {
                 WorldMapManager.Instance.ViewSite(null); Toggle();
@@ -112,7 +112,7 @@ namespace AntColony.UI
                 markers[i].gameObject.SetActive(world.Unlocked);
                 var color = site.Defense != null && (site.Defense.UnderAttack || site.Disposition == ConquestDisposition.Lost)
                     ? new Color(1f, .25f, .15f) : site.Disposition == ConquestDisposition.Annexed ? new Color(.3f, .85f, .5f)
-                    : site.Disposition == ConquestDisposition.Abandoned ? Color.gray : site.Color;
+                    : site.Disposition == ConquestDisposition.Abandoned ? Color.gray : DiplomacyManager.Instance?.Faction(site)?.color ?? site.Color;
                 markers[i].GetComponent<UnityEngine.UI.Image>().color = new Color(color.r * .65f, color.g * .65f, color.b * .65f, 1);
             }
             annex.interactable = abandon.interactable = selectedSite != null && selectedSite.CanResolveConquest;
@@ -121,7 +121,7 @@ namespace AntColony.UI
                     : selectedSite.Cleared ? selectedSite.Kind == ExpeditionSiteKind.ResourceSite ? "Depleted"
                         : selectedSite.Kind == ExpeditionSiteKind.Settlement ? "Conquest undecided" : "Cleared"
                     : selectedSite.Kind == ExpeditionSiteKind.ResourceSite ? "Neutral" : "Hostile") : "Select a destination on the map.";
-            if (selectedSite != null && selectedSite.Settlement != null)
+            if (selectedSite != null && selectedSite.Settlement != null && selectedSite.Colony != null)
                 target += $"\nGarrison {selectedSite.Settlement.Garrison.Count} | Local stock "
                     + $"{selectedSite.Colony.GetStock(AntColony.Data.ResourceType.Food):0}F / "
                     + $"{selectedSite.Colony.GetStock(AntColony.Data.ResourceType.Soil):0}S";
@@ -139,9 +139,9 @@ namespace AntColony.UI
             for (var i = markers.Count; i < world.Sites.Count; i++)
             {
                 var site = world.Sites[i];
-                var symbol = site.Kind == ExpeditionSiteKind.Settlement ? "C" : site.Kind == ExpeditionSiteKind.BossNest ? "B" : "R";
-                var marker = Button(mapRoot, $"{symbol}{i + 1:00}", new Vector2(20 + site.MapPosition.x * 390,
-                    -60 - (1 - site.MapPosition.y) * 136), new Vector2(66, 30), () => selectedSite = site);
+                var symbol = site.Kind == ExpeditionSiteKind.Settlement ? "C" : site.Kind == ExpeditionSiteKind.BossNest ? "B" : site.Kind == ExpeditionSiteKind.TradePost ? "T" : "R";
+                var marker = Button(mapRoot, $"{symbol}{i + 1:00}", new Vector2(20 + i % 7 * 65,
+                    -60 - i / 7 * 34), new Vector2(60, 30), () => selectedSite = site);
                 marker.name = site.Title;
                 marker.GetComponent<UnityEngine.UI.Image>().color = new Color(site.Color.r * .65f, site.Color.g * .65f, site.Color.b * .65f, 1);
                 marker.gameObject.SetActive(world.Unlocked);
@@ -205,9 +205,9 @@ namespace AntColony.UI
             go.transform.SetParent(parent, false);
             Place((RectTransform)go.transform, position, size);
             var label = go.GetComponent<UnityEngine.UI.Text>();
-            label.font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
+            label.font = MenuTheme.Font;
             label.fontSize = fontSize;
-            label.color = Color.white;
+            label.color = MenuTheme.TextColor;
             label.text = text;
             label.raycastTarget = false;
             return label;
@@ -217,7 +217,7 @@ namespace AntColony.UI
             var go = new GameObject(text, typeof(RectTransform), typeof(UnityEngine.UI.Image), typeof(UnityEngine.UI.Button));
             go.transform.SetParent(parent, false);
             Place((RectTransform)go.transform, position, size);
-            go.GetComponent<UnityEngine.UI.Image>().color = new Color(.2f, .26f, .32f);
+            go.GetComponent<UnityEngine.UI.Image>().color = MenuTheme.Plate2;
             var button = go.GetComponent<UnityEngine.UI.Button>();
             button.targetGraphic = go.GetComponent<UnityEngine.UI.Image>();
             MenuTheme.StyleButton(button);

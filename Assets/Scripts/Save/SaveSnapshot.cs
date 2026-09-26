@@ -32,6 +32,7 @@ namespace AntColony.Save
                 campaign = CampaignResearch.Instance?.CaptureState() ?? new CampaignResearch.State(),
                 history = CampaignHistory.Instance?.Capture() ?? new CampaignHistory.State(),
                 events = ColonyEvents.Instance?.Capture() ?? new ColonyEvents.State(),
+                diplomacy = DiplomacyManager.Instance?.Capture(),
                 equipmentInventory = EquipmentInventory.Instance == null ? new List<EquipmentItem>() : EquipmentInventory.Instance.Items.Select(e => JsonUtility.FromJson<EquipmentItem>(JsonUtility.ToJson(e))).ToList(),
                 equipmentLoot = SaveCatalog.Ordered<EquipmentLoot>().Select(l => new EquipmentLootDto { position = new Vec3Dto(l.transform.position),
                     items = l.Items.Select(e => JsonUtility.FromJson<EquipmentItem>(JsonUtility.ToJson(e))).ToList() }).ToList(),
@@ -64,15 +65,16 @@ namespace AntColony.Save
                     position = new Vec3Dto(m != null ? m.Position : Vector3.zero), traits = m is EnemyCommander ec ? SaveCatalog.Traits(ec.Traits) : null,
                     talents = m is EnemyCommander enemy ? enemy.Talents.Copy() : null });
             }
-            foreach (var m in SaveCatalog.Ordered<WildMonster>().Where(m => !SaveCatalog.Monsters.Contains(m) && m.GetComponent<EventActor>() == null))
+            foreach (var m in SaveCatalog.Ordered<WildMonster>().Where(m => !SaveCatalog.Monsters.Contains(m) && m.GetComponent<EventActor>() == null && string.IsNullOrEmpty(m.RebelId)))
                 file.monsters.Add(new MonsterDto { key = "occupier:" + SaveCatalog.SiteIndex(m.GetComponentInParent<ExpeditionSite>()) + ":" + file.monsters.Count,
-                    health = m.CurrentHealth, position = new Vec3Dto(m.Position), traits = m is EnemyCommander ec ? SaveCatalog.Traits(ec.Traits) : null,
+                    health = m.CurrentHealth, diplomaticFactionId = m.DiplomaticFactionId, position = new Vec3Dto(m.Position), traits = m is EnemyCommander ec ? SaveCatalog.Traits(ec.Traits) : null,
                     talents = m is EnemyCommander enemy ? enemy.Talents.Copy() : null });
             for (var i = 0; i < SaveCatalog.Bosses.Length; i++)
             { var b = SaveCatalog.Bosses[i]; file.monsters.Add(new MonsterDto { key = "boss:" + i, health = b != null ? b.CurrentHp : 0,
                 position = new Vec3Dto(b != null ? b.Position : Vector3.zero) }); }
             file.world.unlocked = world.Unlocked; file.world.vehicleResearched = world.VehicleResearched; file.world.aircraftResearched = world.AircraftResearched;
             file.world.notice = world.SettlementNotice;
+            file.world.legacyLayout = world.LegacyLayout;
             foreach (var site in world.Sites) file.world.sites.Add(new SiteDto { index = file.world.sites.Count, cleared = site.Cleared,
                 rewardsClaimed = site.RewardsClaimed,
                 disposition = (int)site.Disposition, growthTimer = site.GrowthTimer, colony = Colony(site.Colony),
@@ -162,6 +164,7 @@ namespace AntColony.Save
                 var m = parts[0] == "monster" ? SaveCatalog.Monsters[index]
                     : Object.Instantiate(world.Sites[index].GuardTemplate, d.position.ToVector3(), Quaternion.identity, world.Sites[index].transform);
                 if (m == null) continue;
+                m.DiplomaticFactionId = d.diplomaticFactionId;
                 if (parts[0] == "occupier") m.RaidSettlement(world.Sites[index]);
                 m.GetComponent<UnityEngine.AI.NavMeshAgent>().enabled = false;
                 m.transform.position = d.position.ToVector3(); m.RestoreHealth(d.health);
@@ -229,9 +232,10 @@ namespace AntColony.Save
             if (file.camera.viewedSite >= 0) world.ViewSite(world.Sites[file.camera.viewedSite]);
             Object.FindFirstObjectByType<AntColony.Camera.IsometricCameraController>().RestoreView(file.camera.focus.ToVector3(), file.camera.yaw, file.camera.orthoSize);
             Encyclopedia.Merge(file.discoveries); GameSession.Instance.MarkStarted(file.playSeconds, file.gameSeconds);
-            CampaignHistory.Instance.Restore(file.history); ColonyEvents.Instance.Restore(file.events);
+            CampaignHistory.Instance.Restore(file.history); ColonyEvents.Instance.Restore(file.events); DiplomacyManager.Instance.RestoreRebels();
             CommanderAnt.RefreshDepartureNotice();
             UnityEngine.Random.state = JsonUtility.FromJson<UnityEngine.Random.State>(file.randomState);
         }
     }
 }
+

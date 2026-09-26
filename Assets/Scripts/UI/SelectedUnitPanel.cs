@@ -38,7 +38,7 @@ namespace AntColony.UI
         private void Start()
         {
             selection = FindFirstObjectByType<SelectionManager>();
-            var rect = MenuTheme.Panel(transform, "SelectedUnitPanel", Vector2.zero, new Vector2(460, 185), new Vector2(10, 138));
+            var rect = MenuTheme.Panel(transform, "SelectedUnitPanel", Vector2.zero, new Vector2(460, 185), new Vector2(10, 150));
             panel = rect.gameObject;
             title = CreateText("UnitName", rect, new Vector2(12f, -10f));
             title.fontStyle = FontStyle.Bold; title.color = MenuTheme.Accent;
@@ -51,11 +51,11 @@ namespace AntColony.UI
             healthText.rectTransform.sizeDelta = new Vector2(430, 24);
             combatStatsText.rectTransform.sizeDelta = workText.rectTransform.sizeDelta = new Vector2(330, 24);
 
-            var track = CreateImage("HealthTrack", rect, new Color(0.2f, 0.25f, 0.22f));
+            var track = CreateImage("HealthTrack", rect, MenuTheme.Well);
             track.rectTransform.anchorMin = track.rectTransform.anchorMax = track.rectTransform.pivot = Vector2.zero;
             track.rectTransform.anchoredPosition = new Vector2(12f, 12f);
             track.rectTransform.sizeDelta = new Vector2(276f, 12f);
-            healthFill = CreateImage("HealthFill", track.transform, new Color(0.3f, 0.85f, 0.4f)).rectTransform;
+            healthFill = CreateImage("HealthFill", track.transform, MenuTheme.Hp).rectTransform;
             healthFill.anchorMin = Vector2.zero;
             healthFill.anchorMax = Vector2.one;
             healthFill.offsetMin = healthFill.offsetMax = Vector2.zero;
@@ -161,7 +161,7 @@ namespace AntColony.UI
             rect.anchorMin = rect.anchorMax = rect.pivot = Vector2.zero;
             rect.anchoredPosition = new Vector2(x, y);
             rect.sizeDelta = new Vector2(100f, 26f);
-            go.GetComponent<Image>().color = new Color(.2f, .3f, .2f);
+            go.GetComponent<Image>().color = MenuTheme.Plate2;
             go.GetComponent<Button>().onClick.AddListener(action);
             MenuTheme.StyleButton(go.GetComponent<Button>());
             go.AddComponent<MenuTooltip>().Message = tip;
@@ -187,9 +187,9 @@ namespace AntColony.UI
             var go = new GameObject(name, typeof(RectTransform));
             go.transform.SetParent(parent, false);
             var text = go.AddComponent<Text>();
-            text.font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
+            text.font = MenuTheme.Font;
             text.fontSize = 16;
-            text.color = Color.white;
+            text.color = MenuTheme.TextColor;
             text.raycastTarget = false;
             var rect = text.rectTransform;
             rect.anchorMin = rect.anchorMax = rect.pivot = new Vector2(0f, 1f);

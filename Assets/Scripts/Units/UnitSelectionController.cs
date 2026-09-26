@@ -115,7 +115,8 @@ namespace AntColony.Units
                 if (soldier != null)
                 {
                     // 대공 불가 역할이나 채집 보직이 공격 대상을 클릭하면 공격 대신 그 위치로 이동만 한다.
-                    if (target != null && soldier.CanAttackTarget(target))
+                    if (target != null && (soldier.CanAttackTarget(target) || soldier is CommanderAnt commander
+                        && commander.CanReceiveOrders && commander.HasTroops && AntColony.Core.CombatTargeting.CanAttack(commander.Role, target, true)))
                     {
                         soldier.CommandAttack(target);
                     }

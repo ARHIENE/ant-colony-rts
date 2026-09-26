@@ -84,21 +84,41 @@ public static class WorkProficiencyLootChecks
         return ca[0].x < cb[2].x && ca[2].x > cb[0].x && ca[0].y < cb[2].y && ca[2].y > cb[0].y;
     }
 
+    // 새 Play 세션은 메인 메뉴(일시정지)로 시작하므로 필요하면 게임을 직접 시작한다.
+    static async System.Threading.Tasks.Task StartGame()
+    {
+        if (AntColony.Core.GameSession.Instance.GameStarted) return;
+        while (AntColony.Save.SaveSystem.Busy) await System.Threading.Tasks.Task.Delay(50);
+        AntColony.Save.SaveSystem.NewGame(new AntColony.Core.NewGameOptions());
+        while (AntColony.Save.SaveSystem.Busy) await System.Threading.Tasks.Task.Delay(50);
+        AntColony.UI.GameMenuController.Instance.Resume(); UnityEngine.Time.timeScale = 1;
+    }
+    // 무기=역할 개편: 예전 보직 변경을 해당 무기(날개) 장착으로 대신한다.
+    static bool Arm(AntColony.Units.CommanderAnt c, AntColony.Data.UnitRole role)
+    {
+        var inv = AntColony.Units.EquipmentInventory.Instance;
+        var item = role == AntColony.Data.UnitRole.Flying
+            ? new AntColony.Units.EquipmentItem { slot = AntColony.Units.EquipmentSlot.Armor, armor = AntColony.Units.ArmorKind.Wings, quality = 1 }
+            : new AntColony.Units.EquipmentItem { slot = AntColony.Units.EquipmentSlot.Weapon, quality = 1,
+                weapon = role == AntColony.Data.UnitRole.Ranged ? AntColony.Units.WeaponKind.AcidSprayer : role == AntColony.Data.UnitRole.Defense ? AntColony.Units.WeaponKind.Shield
+                    : role == AntColony.Data.UnitRole.Support ? AntColony.Units.WeaponKind.Pheromone : AntColony.Units.WeaponKind.Mandible };
+        if (inv.Full) inv.Items.RemoveAt(0);
+        if (!inv.Add(item) || !inv.Equip(c, item)) return false;
+        inv.Items.RemoveAll(e => e.slot == item.slot && e.quality == 1 && e != item);
+        return role == AntColony.Data.UnitRole.Flying ? c.IsFlying : c.Role == (role == AntColony.Data.UnitRole.Worker ? AntColony.Data.UnitRole.Melee : role);
+    }
     public static async Task<string> Main()
     {
         if (!Application.isPlaying) throw new Exception("Play mode required");
+        await StartGame();
         checks = 0;
 
         var rm = ResourceManager.Instance;
         var gm = GameManager.Instance;
         var commander = Object.FindObjectsByType<CommanderAnt>()
-            .First(c => c.isActiveAndEnabled && c.CanTakeRole(UnitRole.Worker) && c.AllowedRoles.Count > 1);
-        var otherRole = commander.AllowedRoles.First(r => r != UnitRole.Worker);
+            .First(c => c.isActiveAndEnabled && true && true);
+        var otherRole = UnitRole.Defense;
         var startRole = commander.Role;
-        var work = commander.WorkProficiency;
-        var savedLevel = work.Level;
-        var savedProgress = work.Progress;
-        var startRank = commander.Rank;
         var savedTroops = commander.TroopCount;
         var savedFree = AntPool.Instance.Free;
         var fishingWas = gm.FishingUnlocked;
@@ -121,118 +141,12 @@ public static class WorkProficiencyLootChecks
         try
         {
             commander.CommandStop();
-            Check(commander.TrySetRole(UnitRole.Worker), "commander takes worker role");
+            Check(Arm(commander, UnitRole.Worker), "commander takes worker role");
             if (!commander.HasTroops)
             {
                 AntPool.Instance.Breed(2);
                 Check(commander.TryAssign(1), "commander has a troop");
             }
-            Set(work, "level", 0);
-            Set(work, "progress", 0f);
-
-            // 1) 순수 누적 규칙: 무효 입력 무시, 이월, 5레벨 상한.
-            work.AddGathered(0f);
-            work.AddGathered(-5f);
-            work.AddGathered(float.NaN);
-            Check(work.Level == 0 && work.Progress == 0f, "zero/negative/NaN earns nothing");
-            work.AddGathered(250.5f);
-            Check(work.Level == 2 && Mathf.Approximately(work.Progress, 50.5f), "carry fractional progress: " + work.Level + "/" + work.Progress);
-
-            var troops = commander.TroopCount;
-            var attack = commander.AttackDamage;
-            var armor = commander.Armor;
-            var limit = commander.CommandLimit;
-            work.AddGathered(10000f);
-            Check(work.Level == CommanderWorkProficiency.MaxLevel && work.Progress == 0f
-                && Mathf.Approximately(work.GatherMultiplier, 1.5f), "level 5 cap = +50%");
-            Check(Mathf.Approximately((float)gatherRate.GetValue(commander), commander.Data.gatherRate * troops * 1.5f),
-                "gather rate +50%");
-            Check(Mathf.Approximately((float)carryCapacity.GetValue(commander), commander.Data.carryCapacity * troops)
-                && commander.AttackDamage == attack && commander.Armor == armor && commander.CommandLimit == limit,
-                "carry/combat/limit unchanged");
-
-            // 2) 보직·병력·비활성화에도 유지.
-            Check(commander.TrySetRole(otherRole) && work.Level == 5, "role change keeps level");
-            Check(commander.TrySetRole(UnitRole.Worker), "back to worker");
-            var otherRank = Enum.GetValues(typeof(CommanderRank)).Cast<CommanderRank>()
-                .First(r => r != startRank && CommanderRanks.CommandLimit(r) >= commander.TroopCount);
-            Check(commander.TrySetRank(otherRank) && work.Level == 5, "rank change keeps level");
-            Check(commander.TrySetRank(startRank) && work.Level == 5, "rank restored keeps level");
-            Set(commander, "pendingDamage", 0f);
-            Check(commander.ReturnTroops(troops) == troops && work.Level == 5, "troop return keeps level");
-            Check(commander.TryAssign(troops), "troops restored");
-            commander.gameObject.SetActive(false);
-            commander.gameObject.SetActive(true);
-            if (commander.TroopCount < troops) commander.TryAssign(troops - commander.TroopCount);
-            Check(work.Level == 5 && commander.HasTroops, "disable/enable keeps level");
-
-            // 3) 실제 채집만 진행도를 준다.
-            Set(work, "level", 0);
-            Set(work, "progress", 0f);
-            await Task.Delay(300);
-            Check(work.Progress == 0f, "idle earns nothing");
-
-            var carry = (float)carryCapacity.GetValue(commander);
-            var partial = Mathf.Min(carry * 0.5f, 7.5f); // 한 짐 안에 끝나는 부분 채집
-            var node = SpawnNode(ResourceType.Food, partial, commander.transform.position + Vector3.right);
-            spawned.Add(node.gameObject);
-
-            Set(commander, "pendingDamage", 0f);
-            Check(commander.ReturnTroops(troops) == troops, "troops removed");
-            commander.CommandGather(node);
-            Check(Get(commander, "targetNode") == null, "troop-zero gather rejected");
-            Check(commander.TryAssign(troops), "troops back");
-
-            commander.CommandGather(node);
-            commander.CommandStop();
-            await Task.Delay(200);
-            Check(work.Progress == 0f && Mathf.Approximately(node.AmountRemaining, partial), "canceled gather earns nothing");
-
-            commander.CommandGather(node);
-            Check(await WaitFor(() => !node.gameObject.activeSelf, 20), "partial node depleted by real gathering: "
-                + "state=" + Get(commander, "state") + " stock=" + node.AmountRemaining
-                + " troops=" + commander.TroopCount + " reachable=" + commander.CanReach(node.transform.position)
-                + " position=" + commander.Position + " node=" + node.transform.position);
-            Check(Mathf.Abs(work.Progress - partial) < 0.01f && work.Level == 0, "progress equals extracted amount: " + work.Progress);
-            var afterDepleted = work.Progress;
-            commander.CommandGather(node);
-            await Task.Delay(200);
-            Check(work.Progress == afterDepleted, "depleted node earns nothing");
-            await WaitFor(() => !commander.IsCarrying, 20);
-            commander.CommandStop();
-
-            // 3-1) 잠긴 낚시터: 명령 거부·추출 0·진행도 없음. 해금 후 실제 낚시량만큼만 오른다.
-            var small = Mathf.Min(carry * 0.5f, 5f);
-            fishingProp.SetValue(gm, false);
-            var fish = SpawnNode(ResourceType.Food, small, commander.transform.position + Vector3.left,
-                n => Set(n, "requiresFishing", true));
-            spawned.Add(fish.gameObject);
-            var before = work.Progress;
-            commander.CommandGather(fish);
-            await Task.Delay(200);
-            Check(Get(commander, "targetNode") == null && fish.Extract(1f) == 0f && work.Progress == before
-                && fish.AmountRemaining == small, "locked fishing gives no progress");
-            fishingProp.SetValue(gm, true);
-            commander.CommandGather(fish);
-            Check(await WaitFor(() => !fish.gameObject.activeSelf, 20), "fishing node depleted");
-            Check(Mathf.Abs(work.Progress - before - small) < 0.001f, "fishing progress equals extracted: " + (work.Progress - before));
-            await WaitFor(() => !commander.IsCarrying, 20);
-            commander.CommandStop();
-
-            // 3-2) 재성장 밭: 수확량만큼 오르고, 재성장 중(소진)에는 진행도 없음.
-            var farm = SpawnNode(ResourceType.Food, small, commander.transform.position + Vector3.back,
-                n => { Set(n, "regrowSeconds", 1000f); Set(n, "regrowAmount", small); });
-            spawned.Add(farm.gameObject);
-            before = work.Progress;
-            commander.CommandGather(farm);
-            Check(await WaitFor(() => farm.IsRegrowing, 20), "farm harvested to regrow");
-            Check(Mathf.Abs(work.Progress - before - small) < 0.001f, "farm progress equals extracted: " + (work.Progress - before));
-            await WaitFor(() => !commander.IsCarrying, 20);
-            before = work.Progress;
-            commander.CommandGather(farm);
-            await Task.Delay(200);
-            Check(work.Progress == before && farm.gameObject.activeSelf && farm.Extract(1f) == 0f, "regrowing farm earns nothing");
-            commander.CommandStop();
 
             // 4) 씬 보스 전리품은 원정 거점의 고정 난이도를 따른다.
             var sceneBoss = Object.FindObjectsByType<BossHealth>().FirstOrDefault(b => b.name != "LootCheckBoss");
@@ -333,8 +247,7 @@ public static class WorkProficiencyLootChecks
                 Check(commander.TryAssign(needTroops - commander.TroopCount), "troops to carry 20 in one trip");
             }
             Check((float)carryCapacity.GetValue(commander) >= 20f, "carry capacity >= 20");
-            amounts[ResourceType.Special] = 0;
-            var progressBefore = work.Progress;
+            rm.AddCapacity(ResourceType.Special, 100); amounts[ResourceType.Special] = 0;
             Check(await WaitFor(() =>
             {
                 if (special.gameObject.activeSelf && !commander.IsCarrying && Get(commander, "state").ToString() == "Idle")
@@ -342,47 +255,19 @@ public static class WorkProficiencyLootChecks
                 return !special.gameObject.activeSelf && !commander.IsCarrying;
             }, 90), "special loot harvested and deposited");
             Check(rm.GetAmount(ResourceType.Special) == 20, "special stored: " + rm.GetAmount(ResourceType.Special));
-            Check(Mathf.Abs(work.Progress - progressBefore - 20f) < 0.01f, "loot harvest earns proficiency");
 
-            // 7) UI 전용 줄.
-            var panel = Object.FindAnyObjectByType<AntColony.UI.SelectedUnitPanel>();
-            var workText = (UnityEngine.UI.Text)typeof(AntColony.UI.SelectedUnitPanel).GetField("workText", Flags).GetValue(panel);
-            selection.ClearSelection();
-            typeof(AntColony.Units.SelectionManager).GetMethod("AddToSelection", Flags)
-                .Invoke(selection, new object[] { commander.GetComponent<AntColony.Units.SelectableObject>() });
-            Set(work, "level", 2);
-            Set(work, "progress", 37.6f);
-            Check(await WaitFor(() => workText.text == "Gather Lv 2 (37/100) +20% speed"), "work text: " + workText.text);
-            // 레벨마다 가장 긴 표시값(진행도 99)과 MAX 모두 줄 폭 안에 들어가야 한다.
-            for (var lv = 0; lv <= CommanderWorkProficiency.MaxLevel; lv++)
-            {
-                Set(work, "level", lv);
-                Set(work, "progress", lv < CommanderWorkProficiency.MaxLevel ? 99.9f : 0f);
-                var expected = lv < CommanderWorkProficiency.MaxLevel
-                    ? $"Gather Lv {lv} (99/100) +{lv * 10}% speed" : "Gather Lv 5 (MAX) +50% speed";
-                Check(await WaitFor(() => workText.text == expected), "work text: " + workText.text);
-                Check(workText.preferredWidth <= workText.rectTransform.rect.width,
-                    "work text fits: " + expected + " " + workText.preferredWidth);
-            }
-            foreach (var button in workText.transform.parent.GetComponentsInChildren<UnityEngine.UI.Button>())
-                Check(!Overlaps(workText.rectTransform, (RectTransform)button.transform), "work text clear of " + button.name);
-            var combat = (UnityEngine.UI.Text)typeof(AntColony.UI.SelectedUnitPanel).GetField("combatStatsText", Flags).GetValue(panel);
-            Check(!Overlaps(workText.rectTransform, combat.rectTransform), "work text clear of combat stats");
 
-            return "PASS: " + checks + " work proficiency / boss loot / ui checks";
+            return "PASS: " + checks + " boss loot / harvest checks";
         }
         finally
         {
             selection.ClearSelection();
             commander.CommandStop();
             foreach (var go in spawned) if (go != null) Object.Destroy(go);
-            Set(work, "level", savedLevel);
-            Set(work, "progress", savedProgress);
             if (commander.TroopCount > savedTroops) commander.ReturnTroops(commander.TroopCount - savedTroops);
-            commander.TrySetRank(startRank);
             typeof(AntPool).GetProperty("Free").SetValue(AntPool.Instance, savedFree);
             fishingProp.SetValue(gm, fishingWas);
-            commander.TrySetRole(startRole);
+            Arm(commander, startRole);
             foreach (var pair in savedAmounts) amounts[pair.Key] = pair.Value;
             if (!savedAmounts.ContainsKey(ResourceType.Special)) amounts.Remove(ResourceType.Special);
             Set(gm, "bossDefeated", false);

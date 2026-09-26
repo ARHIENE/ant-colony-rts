@@ -176,7 +176,7 @@ public static class Stage5Checks
             var legacy = Copy(file); legacy.version = 5;
             // Legacy had no rebels or captured player gear; normalize the synthetic fixture's population and equipment.
             legacy.colony.antsAssigned = legacy.commanders.Sum(u => u.troopCount) + legacy.buildings.Sum(v => v.scoutDispatchedAnts);
-            Check(SaveValidator.Validate(legacy, out error) && legacy.version == 6 && legacy.commanders.All(u => u.personalState.social.departure == DepartureState.None), "v5 defaults migrate: " + error);
+            Check(SaveValidator.Validate(legacy, out error) && legacy.version == SaveFileV1.CurrentVersion && legacy.commanders.All(u => u.personalState.social.departure == DepartureState.None), "v5 defaults migrate: " + error);
             Check(SaveSystem.TrySave(false, 0, out error), "save rebels and captive: " + error);
             Check(SaveSystem.TryLoad(SaveSlots.PathFor(false, 0), out error), "load rebels and captive: " + error); await Ready();
             camp = Object.FindObjectsByType<PrisonerCamp>().First(p => p.Prisoners.Any(v => v.PersonalState.id == oldId)); prisoner = camp.Prisoners.First(p => p.PersonalState.id == oldId);
@@ -200,3 +200,4 @@ public static class Stage5Checks
         finally { Time.timeScale = 0; SaveStorage.RootOverride = root; UserSettings.Apply(settings, false); }
     }
 }
+

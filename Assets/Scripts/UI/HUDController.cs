@@ -131,7 +131,7 @@ namespace AntColony.UI
             canvas.renderMode = RenderMode.ScreenSpaceOverlay;
             var scaler = canvasGO.AddComponent<CanvasScaler>();
             scaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
-            scaler.referenceResolution = new Vector2(1280f, 720f);
+            scaler.referenceResolution = new Vector2(1440f, 900f);
             scaler.matchWidthOrHeight = 0f;
             canvasGO.AddComponent<GraphicRaycaster>();
             canvasGO.AddComponent<SelectedUnitPanel>();
@@ -145,21 +145,25 @@ namespace AntColony.UI
                 eventSystemGO.AddComponent<InputSystemUIInputModule>();
             }
 
-            var top = MenuTheme.Panel(canvasGO.transform, "ResourceBar", new Vector2(0, 1), new Vector2(1280, 64), Vector2.zero);
-            for (var i = 0; i < resourceTexts.Length; i++)
+            // 상단 40px 바: 왼쪽 메뉴(GameMenuController), 가운데 날짜·속도, 오른쪽 자원.
+            var top = MenuTheme.Panel(canvasGO.transform, "ResourceBar", new Vector2(0, 1), new Vector2(0, 40), Vector2.zero);
+            top.anchorMax = new Vector2(1, 1);
+            float[] widths = { 128, 118, 110, 236 };
+            var right = -8f;
+            for (var i = resourceTexts.Length - 1; i >= 0; i--)
             {
-                resourceTexts[i] = CreateText(top, new Vector2(0, 1), new Vector2(153, 48), new Vector2(14 + i * 163, -9));
-                resourceTexts[i].fontSize = 14;
+                resourceTexts[i] = CreateText(top, new Vector2(1, 1), new Vector2(widths[i], 32), new Vector2(right, -4));
+                resourceTexts[i].fontSize = 14; resourceTexts[i].alignment = TextAnchor.MiddleRight;
+                right -= widths[i] + 12;
             }
-            resourceTexts[3].fontSize = 12;
             CommandPanel(canvasGO.transform, "COLONY", 0, 420);
             CommandPanel(canvasGO.transform, "COMMANDER RESEARCH", 420, 280);
             CommandPanel(canvasGO.transform, "CONSTRUCTION", 700, 580);
-            messageText = CreateText(canvasGO.transform, Vector2.zero, new Vector2(260, 32), new Vector2(430, 10));
+            messageText = CreateText(canvasGO.transform, Vector2.zero, new Vector2(260, 32) * DockScale, new Vector2(430, 10) * DockScale);
             messageText.text = "Select one commander to research";
-            messageText.fontSize = 12; messageText.color = MenuTheme.Muted;
-            bossHealthText = CreateText(canvasGO.transform, new Vector2(1f, 1f), new Vector2(220f, 20f), new Vector2(-10f, -10f));
-            bossHealthText.alignment = TextAnchor.UpperRight;
+            messageText.fontSize = 13; messageText.color = MenuTheme.Muted;
+            bossHealthText = CreateText(canvasGO.transform, new Vector2(.5f, 1f), new Vector2(260f, 22f), new Vector2(0f, -46f));
+            bossHealthText.alignment = TextAnchor.UpperCenter;
 
             roleButtonText = CreateButton(canvasGO.transform, new Vector2(150f, 55f), $"Training: {selectedRole}", CycleCombatRole,
                 "Choose the equipment category for training and lab construction.");
@@ -200,9 +204,9 @@ namespace AntColony.UI
 
         private void CommandPanel(Transform parent, string title, float x, float width)
         {
-            var panel = MenuTheme.Panel(parent, title, Vector2.zero, new Vector2(width - 4, 128), new Vector2(x + 2, 0));
-            var heading = CreateText(panel, new Vector2(0, 1), new Vector2(width - 24, 22), new Vector2(10, -9));
-            heading.text = title; heading.fontSize = 12; heading.fontStyle = FontStyle.Bold; heading.color = MenuTheme.Accent;
+            var panel = MenuTheme.Panel(parent, title, Vector2.zero, new Vector2(width - 4, 128) * DockScale, new Vector2(x + 2, 0) * DockScale);
+            var heading = CreateText(panel, new Vector2(0, 1), new Vector2(width - 24, 22) * DockScale, new Vector2(10, -9) * DockScale);
+            heading.text = title; heading.fontSize = 13; heading.fontStyle = FontStyle.Bold; heading.color = MenuTheme.Accent;
         }
 
         private void CycleCombatRole()
@@ -275,14 +279,16 @@ namespace AntColony.UI
             rect.anchoredPosition = anchoredPosition;
 
             var text = go.AddComponent<Text>();
-            text.font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
+            text.font = MenuTheme.Font;
             text.fontSize = 16;
-            text.color = Color.white;
+            text.color = MenuTheme.TextColor;
             text.alignment = TextAnchor.UpperLeft;
             text.raycastTarget = false;
             return text;
         }
 
+        // 하단 명령 패널은 1280 기준 배치를 1440 기준 캔버스에 같은 비율로 옮긴다.
+        private const float DockScale = 1440f / 1280f;
         private const string PlacementTip = "Choose a build location, then left-click to place. Right-click cancels. Resources and free ants are required.";
 
         private Text CreateButton(Transform parent, Vector2 anchoredPosition, string label, UnityEngine.Events.UnityAction onClick, string tip)
@@ -294,11 +300,11 @@ namespace AntColony.UI
             rect.anchorMin = new Vector2(0f, 0f);
             rect.anchorMax = new Vector2(0f, 0f);
             rect.pivot = new Vector2(0f, 0f);
-            rect.sizeDelta = new Vector2(130f, 40f);
-            rect.anchoredPosition = anchoredPosition;
+            rect.sizeDelta = new Vector2(130f, 40f) * DockScale;
+            rect.anchoredPosition = anchoredPosition * DockScale;
 
             var image = go.AddComponent<Image>();
-            image.color = new Color(0.15f, 0.15f, 0.15f, 0.85f);
+            image.color = MenuTheme.Plate2;
 
             var button = go.AddComponent<Button>();
             MenuTheme.StyleButton(button);
@@ -314,9 +320,9 @@ namespace AntColony.UI
             textRect.offsetMax = Vector2.zero;
 
             var text = textGO.AddComponent<Text>();
-            text.font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
+            text.font = MenuTheme.Font;
             text.fontSize = 14;
-            text.color = Color.white;
+            text.color = MenuTheme.TextColor;
             text.alignment = TextAnchor.MiddleCenter;
             text.text = label;
             text.raycastTarget = false;
@@ -327,10 +333,13 @@ namespace AntColony.UI
         {
             if (resourceTexts[0] == null || ResourceManager.Instance == null) return;
             var rm = ResourceManager.Instance;
-            resourceTexts[0].text = $"<color=#8ED69C>FOOD</color>\n<b>{rm.GetAmount(ResourceType.Food)}</b> <color=#A6BABA>/ {rm.GetCapacity(ResourceType.Food)}</color>";
-            resourceTexts[1].text = $"<color=#D8B889>SOIL</color>\n<b>{rm.GetAmount(ResourceType.Soil)}</b> <color=#A6BABA>/ {rm.GetCapacity(ResourceType.Soil)}</color>";
-            resourceTexts[2].text = $"<color=#C2ADF2>SPECIAL</color>\n<b>{rm.GetAmount(ResourceType.Special)}</b> <color=#A6BABA>/ {rm.GetCapacity(ResourceType.Special)}</color>";
-            if (AntPool.Instance != null) resourceTexts[3].text = $"<color=#84CDBA>COLONY {AntPool.Instance.Total}</color>\n<b>{AntPool.Instance.Free}</b> free / {AntPool.Instance.Assigned} troops\n{AntPool.Instance.Reserved} building";
+            string Stock(string label, ResourceType type) =>
+                $"<color=#968976>{label}</color> <b>{rm.GetAmount(type):N0}</b><color=#968976>/{rm.GetCapacity(type):N0}</color>";
+            resourceTexts[0].text = Stock("식량", ResourceType.Food);
+            resourceTexts[1].text = Stock("흙", ResourceType.Soil);
+            resourceTexts[2].text = Stock("특수", ResourceType.Special);
+            var pool = AntPool.Instance;
+            if (pool != null) resourceTexts[3].text = $"<color=#968976>대기</color> <b>{pool.Free}</b>  <color=#968976>배정</color> <b>{pool.Assigned}</b>  <color=#968976>예약</color> <b>{pool.Reserved}</b>  <color=#968976>총</color> <b>{pool.Total}</b>";
         }
 
         private void ShowVictoryMessage()

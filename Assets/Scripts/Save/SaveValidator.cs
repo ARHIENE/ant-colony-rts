@@ -76,6 +76,12 @@ namespace AntColony.Save
                         if (p != null) { p.personalState = new Units.CommanderPersonalState(); p.labAttack = p.labArmor = 0; p.strikeCooldown = p.stanceCooldown = 0; }
                 file.version = 6;
             }
+            if (file.version == 6)
+            {
+                if (file.world != null) file.world.legacyLayout = file.world.sites?.Count == 30;
+                file.diplomacy = World.DiplomacyManager.InitialState(file.options?.seed ?? 0, file.world?.legacyLayout == true);
+                file.version = 7;
+            }
             if (file.version != SaveFileV1.CurrentVersion)
             {
                 error = $"Save version {file.version} cannot be read by this build (expects {SaveFileV1.CurrentVersion}).";

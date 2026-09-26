@@ -30,9 +30,10 @@ namespace AntColony.World
 
         public bool RequiresFishing => requiresFishing;
         public bool IsRaidLoot => ownerColony != null;
-        public bool IsRaidLocked => ownerColony != null && (!ownerColony.IsDefeated
+        public bool IsRaidLocked => ownerColony != null && ownerColony.GetComponentInParent<ExpeditionSite>()?.Disposition != ConquestDisposition.Annexed && (!ownerColony.IsDefeated
             || ownerColony.GetComponentInParent<ExpeditionSite>()?.Disposition == ConquestDisposition.Lost);
-        public bool IsUnlocked => !IsRaidLocked && (!requiresFishing || (GameManager.Instance != null && GameManager.Instance.FishingUnlocked));
+        public bool IsUnlocked => !IsRaidLocked && (GetComponentInParent<ExpeditionSite>()?.Disposition == ConquestDisposition.Annexed || DiplomacyManager.Hostile(this))
+            && (!requiresFishing || (GameManager.Instance != null && GameManager.Instance.FishingUnlocked));
         public bool CanGather => isActiveAndEnabled && !IsDepleted && IsUnlocked && !ColonyEvents.Flooded(this);
         public float GatherRateMultiplier => requiresFishing ? fishingRateMultiplier : 1f;
 

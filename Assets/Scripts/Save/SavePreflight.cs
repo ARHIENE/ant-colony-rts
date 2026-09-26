@@ -54,16 +54,28 @@ namespace AntColony.Save
                     foreach (var item in loot.items) Check(item != null && item.IsValid && equipmentIds.Add(item.id), "equipment loot ownership");
                 }
                 var personalIds = new HashSet<string>();
+                Check(World.DiplomacyManager.Validate(f.diplomacy, f.world.sites.Count), "diplomacy");
+                foreach (var faction in f.diplomacy.civilizations.Concat(f.diplomacy.markets))
+                {
+                    foreach (var item in faction.equipment) Check(equipmentIds.Add(item.id), "diplomatic equipment ownership");
+                    foreach (var prisoner in faction.prisoners.Concat(faction.rebels))
+                    {
+                        Check(prisoner != null && prisoner.PersonalState != null && prisoner.PersonalState.Validate(out _) && personalIds.Add(prisoner.PersonalState.id), "diplomatic prisoner");
+                        Traits(SaveCatalog.Traits(prisoner.Traits));
+                        Check(prisoner.Talents != null && prisoner.Talents.Validate() && prisoner.Roles != null && prisoner.Roles.Length > 0 && prisoner.Roles.All(r => R((int)r)), "diplomatic prisoner talents");
+                        foreach (var item in prisoner.PersonalState.equipment) Check(equipmentIds.Add(item.id), "diplomatic prisoner equipment");
+                    }
+                }
                 Check(!string.IsNullOrEmpty(f.randomState) && f.randomState.Length < 1000, "random state");
                 JsonUtility.FromJson<UnityEngine.Random.State>(f.randomState);
                 L(f.commanders, 1000, "commanders"); L(f.buildings, 10000, "buildings"); L(f.nodes, 100000, "nodes"); L(f.monsters, 10000, "monsters");
-                L(f.world.sites, 30, "sites"); Check(f.world.sites.Count == 30, "site count"); L(f.world.transports, 1000, "transports");
+                L(f.world.sites, 133, "sites"); Check(f.world.sites.Count == (f.world.legacyLayout ? 30 : 33) + (f.diplomacy?.extraSites ?? 0), "site count"); Check(World.DiplomacyManager.Validate(f.diplomacy, f.world.sites.Count), "diplomacy"); L(f.world.transports, 1000, "transports");
                 L(f.discoveries, 1000, "discoveries"); Check(f.discoveries.All(d => d != null && !string.IsNullOrEmpty(d.key) && d.key.Length < 200 && d.body != null && d.body.Length < 10000), "discovery entry");
                 var p = f.colony;
                 Check(new[] { p.food, p.soil, p.special, p.foodCapacity, p.soilCapacity, p.specialCapacity, p.antsFree, p.antsAssigned, p.antsReserved }.All(v => v >= 0 && v <= 100000000), "colony amounts");
                 Check(p.food <= p.foodCapacity && p.soil <= p.soilCapacity && p.special <= p.specialCapacity && p.antsReserved == 0, "capacity/construction");
                 Check(V(f.camera.focus) && N(f.camera.orthoSize) && f.camera.orthoSize >= 8 && f.camera.orthoSize <= 35
-                    && !float.IsNaN(f.camera.yaw) && !float.IsInfinity(f.camera.yaw) && f.camera.viewedSite >= -1 && f.camera.viewedSite < 30, "camera");
+                    && !float.IsNaN(f.camera.yaw) && !float.IsInfinity(f.camera.yaw) && f.camera.viewedSite >= -1 && f.camera.viewedSite < f.world.sites.Count, "camera");
                 for (var i = 0; i < f.commanders.Count; i++)
                 {
                     var c = f.commanders[i]; Check(c.id == i && !string.IsNullOrEmpty(c.name) && c.name.Length <= 200, "commander ID/name");
@@ -76,7 +88,7 @@ namespace AntColony.Save
                     Check(c.talents != null && c.talents.Validate(), "talents");
                     Check(c.labAttackLevel >= 0 && c.labAttackLevel <= 3 && c.labArmorLevel >= 0 && c.labArmorLevel <= 3, "upgrades");
                     Check(N(c.strikeCooldown) && N(c.stanceCooldown) && N(c.stanceTime), "skills");
-                    Check(c.transportIndex >= -1 && c.transportIndex < f.world.transports.Count && c.siteIndex >= -1 && c.siteIndex < 30, "commander location");
+                    Check(c.transportIndex >= -1 && c.transportIndex < f.world.transports.Count && c.siteIndex >= -1 && c.siteIndex < f.world.sites.Count, "commander location");
                     Check(c.location != 1 || c.transportIndex >= 0, "crew reference"); Check(c.location < 2 || c.siteIndex >= 0, "settlement reference");
                     if (c.location == 2) Check(f.world.sites[c.siteIndex]?.disposition == 1, "garrison disposition");
                     if (c.location == 3) Check(f.world.sites[c.siteIndex]?.disposition == 3 && c.troopCount == 0, "captivity");
@@ -128,19 +140,19 @@ namespace AntColony.Save
                     for (var i = 0; i < b.nodes.Count; i++) Check(b.nodes[i] != null && b.nodes[i].index == i && N(b.nodes[i].amount) && N(b.nodes[i].regrowTimer), "building node");
                 }
                 Check((long)p.antsAssigned == f.commanders.Where(c => c.personalState.social.departure == DepartureState.None).Sum(c => (long)c.troopCount) + f.buildings.Sum(b => (long)b.scoutDispatchedAnts), "assigned population");
-                for (var i = 0; i < 30; i++) { var s = f.world.sites[i]; Check(s != null && s.index == i && s.disposition >= 0 && s.disposition <= 3
+                for (var i = 0; i < f.world.sites.Count; i++) { var s = f.world.sites[i]; Check(s != null && s.index == i && s.disposition >= 0 && s.disposition <= 3
                     && N(s.growthTimer) && N(s.settlementElapsed) && N(s.defenseRemaining) && N(s.defenseCaptureProgress), "site state"); Colony(s.colony); }
                 Colony(f.world.homeColony);
                 var occupied = new HashSet<int>();
                 for (var i = 0; i < f.world.transports.Count; i++)
                 {
-                    var s = f.world.transports[i]; Check(s != null && s.state >= 0 && s.state <= 3 && N(s.remaining) && s.siteIndex >= -1 && s.siteIndex < 30
+                    var s = f.world.transports[i]; Check(s != null && s.state >= 0 && s.state <= 3 && N(s.remaining) && s.siteIndex >= -1 && s.siteIndex < f.world.sites.Count
                         && V(s.position) && V(s.homePosition) && s.cargoFood >= 0 && s.cargoSoil >= 0 && s.cargoSpecial >= 0, "transport");
                     Check(s.state == 0 || s.siteIndex >= 0, "transport destination");
                     L(s.equipmentCargo, 10000, "equipment cargo");
                     foreach (var item in s.equipmentCargo) Check(item != null && item.IsValid && equipmentIds.Add(item.id), "equipment cargo ownership");
                     if (s.state == 1 || s.state == 2) Check(occupied.Add(s.siteIndex), "duplicate visitor");
-                    Check(s.route != null && N(s.route.waitSeconds) && s.route.destinationIndex >= -1 && s.route.destinationIndex < 30
+                    Check(s.route != null && N(s.route.waitSeconds) && s.route.destinationIndex >= -1 && s.route.destinationIndex < f.world.sites.Count
                         && (!s.route.running || s.route.destinationIndex >= 0 && f.world.sites[s.route.destinationIndex].disposition == 1 && s.state != 2), "route");
                     var crew = f.commanders.Where(c => c.location == 1 && c.transportIndex == i).ToArray();
                     var heavy = f.campaign.completed.Contains((int)Core.ScienceTechnology.HeavyTransport);
@@ -152,6 +164,7 @@ namespace AntColony.Save
                 Check(f.monsters.All(m => m != null && m.key != null && N(m.health) && V(m.position)) && f.monsters.Select(m => m.key).Distinct().Count() == f.monsters.Count, "monsters");
                 foreach (var m in f.monsters) if (m.traits != null)
                 { Traits(m.traits); Check(m.talents != null && m.talents.Validate(), "enemy talents"); }
+                Check(f.monsters.All(m => string.IsNullOrEmpty(m.diplomaticFactionId) || f.diplomacy.civilizations.Any(c => c.id == m.diplomaticFactionId)), "enemy faction");
                 return true;
             }
             catch (Exception e) { error = e.Message; return false; }
@@ -176,9 +189,9 @@ namespace AntColony.Save
                 Check(f.monsters.Count(m => m.key.StartsWith("monster:")) == SaveCatalog.Monsters.Length && f.monsters.Count(m => m.key.StartsWith("boss:")) == SaveCatalog.Bosses.Length, "scene enemies");
                 foreach (var m in f.monsters) { var key = m.key.Split(':'); Check(key.Length >= 2 && int.TryParse(key[1], out _), "enemy key"); var i = int.Parse(key[1]);
                     Check(i >= 0 && (key[0] == "monster" && i < SaveCatalog.Monsters.Length || key[0] == "boss" && i < SaveCatalog.Bosses.Length
-                        || key[0] == "occupier" && i < 30 && f.world.sites[i].disposition == 3), "enemy index"); }
+                        || key[0] == "occupier" && i < f.world.sites.Count && f.world.sites[i].disposition == 3), "enemy index"); }
                 // JsonUtility writes null inline classes as empty objects.
-                for (var i = 0; i < 30; i++) Check(SaveCatalog.ColonySizes[i] == 0 ? f.world.sites[i].colony == null || f.world.sites[i].colony.buildingHealth.Count == 0
+                for (var i = 0; i < f.world.sites.Count; i++) Check((i >= SaveCatalog.ColonySizes.Length || SaveCatalog.ColonySizes[i] == 0) ? f.world.sites[i].colony == null || f.world.sites[i].colony.buildingHealth.Count == 0
                     : f.world.sites[i].colony != null && f.world.sites[i].colony.buildingHealth.Count >= SaveCatalog.ColonySizes[i], "colony schema");
                 return true;
             }
@@ -186,3 +199,6 @@ namespace AntColony.Save
         }
     }
 }
+
+
+

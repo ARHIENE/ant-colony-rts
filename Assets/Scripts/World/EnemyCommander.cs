@@ -43,6 +43,11 @@ namespace AntColony.World
         // 수용소가 있고 정원이 남아 있으면 포로가 된다. 아니면 평소대로 죽는다.
         protected override void Die()
         {
+            if (Allied) { base.Die(); return; }
+            if (!string.IsNullOrEmpty(RebelId))
+            { WasCaptured = DiplomacyManager.Instance.DefeatRebel(RebelId); base.Die(); return; }
+            var faction = DiplomacyManager.Instance?.Faction(GetComponentInParent<ExpeditionSite>());
+            if (faction != null && faction.war) faction.playerScore += 10;
             var camp = PrisonerCamp.Instance;
             if (camp != null && camp.HasSpace && Random.value <= captureChance
                 && camp.TryCapture(commanderName, rank, roles, traits, talents))

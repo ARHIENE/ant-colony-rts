@@ -22,6 +22,20 @@ public static class BetaChecks
         while (SaveSystem.Busy && DateTime.UtcNow < end) await Task.Delay(100);
         Check(!SaveSystem.Busy, "scene ready"); await Task.Delay(200);
     }
+    // 무기=역할 개편: 예전 보직 변경을 해당 무기(날개) 장착으로 대신한다.
+    static bool Arm(AntColony.Units.CommanderAnt c, AntColony.Data.UnitRole role)
+    {
+        var inv = AntColony.Units.EquipmentInventory.Instance;
+        var item = role == AntColony.Data.UnitRole.Flying
+            ? new AntColony.Units.EquipmentItem { slot = AntColony.Units.EquipmentSlot.Armor, armor = AntColony.Units.ArmorKind.Wings, quality = 1 }
+            : new AntColony.Units.EquipmentItem { slot = AntColony.Units.EquipmentSlot.Weapon, quality = 1,
+                weapon = role == AntColony.Data.UnitRole.Ranged ? AntColony.Units.WeaponKind.AcidSprayer : role == AntColony.Data.UnitRole.Defense ? AntColony.Units.WeaponKind.Shield
+                    : role == AntColony.Data.UnitRole.Support ? AntColony.Units.WeaponKind.Pheromone : AntColony.Units.WeaponKind.Mandible };
+        if (inv.Full) inv.Items.RemoveAt(0);
+        if (!inv.Add(item) || !inv.Equip(c, item)) return false;
+        inv.Items.RemoveAll(e => e.slot == item.slot && e.quality == 1 && e != item);
+        return role == AntColony.Data.UnitRole.Flying ? c.IsFlying : c.Role == (role == AntColony.Data.UnitRole.Worker ? AntColony.Data.UnitRole.Melee : role);
+    }
     public static async Task<string> Main()
     {
         Check(Application.isPlaying, "Play mode"); checks = 0;
@@ -60,11 +74,11 @@ public static class BetaChecks
             await Task.Delay(150);
             Check(visual.StateName == "Sit", "troopless commander remains alive and sits");
             commander.TryAssign(2);
-            var flying = commanders.First(c => c.AllowedRoles.Contains(UnitRole.Flying));
-            Check(flying.TrySetRole(UnitRole.Flying), "change to flying role");
+            var flying = commanders.First(c => true);
+            Check(Arm(flying, UnitRole.Flying), "change to flying role");
             await Task.Delay(200);
             Check(flying.GetComponent<AntVisual>().StateName == "Fly", "flying animation");
-            Check(flying.TrySetRole(UnitRole.Worker), "land again");
+            Check(Arm(flying, UnitRole.Worker), "land again");
             var enemy = Object.FindObjectsByType<EnemyCommander>(FindObjectsSortMode.None).First();
             Check(enemy.GetComponent<AntVisual>() != null, "enemy commanders have Quirky visuals");
             foreach (var c in commanders) c.CommandStop();

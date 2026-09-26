@@ -221,6 +221,7 @@ namespace AntColony.Save
     [Serializable]
     public class WorldDto
     {
+        public bool legacyLayout;
         public bool unlocked;
         public bool vehicleResearched;
         public bool aircraftResearched;
@@ -257,7 +258,8 @@ namespace AntColony.Save
         public float upkeepTimer, incursionTimer;
         public bool loopCompleted, bossDefeated, defeated;
         public string randomState;
-        public const int CurrentVersion = 6;
+        public const int CurrentVersion = 7;
+        public World.DiplomacyManager.State diplomacy;
         public Core.CampaignHistory.State history = new Core.CampaignHistory.State();
         public World.ColonyEvents.State events = new World.ColonyEvents.State();
 
@@ -295,6 +297,7 @@ namespace AntColony.Save
     [Serializable]
     public class MonsterDto
     {
+        public string diplomaticFactionId;
         public Units.CommanderTalents talents;
         public string key;
         public float health;

@@ -111,7 +111,7 @@ public static class FullUIChecks
             Check(actual.colony.special == expected.colony.special && actual.colony.antsAssigned == expected.colony.antsAssigned, "resources and ants roundtrip");
             Check(actual.commanders[0].talents.levels.SequenceEqual(expected.commanders[0].talents.levels)
                 && actual.commanders[0].talents.experience.SequenceEqual(expected.commanders[0].talents.experience), "commander skills roundtrip");
-            Check(actual.world.sites.Count == 30 && actual.world.transports.Count == expected.world.transports.Count, "world and transport roundtrip");
+            Check(actual.world.sites.Count == expected.world.sites.Count && actual.world.transports.Count == expected.world.transports.Count, "world and transport roundtrip");
             Check(actual.buildings.Count == expected.buildings.Count && actual.nodes.Count == expected.nodes.Count && actual.monsters.Count == expected.monsters.Count, "all entity counts roundtrip");
             Check(GameMenuController.Instance.ScreenName == "Paused" && Object.FindObjectsByType<GameMenuController>(FindObjectsSortMode.None).Length == 1, "load lifecycle has one menu");
             return "PASS " + checks + " checks; isolated save directory: " + root;
@@ -122,3 +122,4 @@ public static class FullUIChecks
         }
     }
 }
+

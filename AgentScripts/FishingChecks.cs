@@ -17,6 +17,14 @@ namespace AntColony.Regression
         public static async Task<string> Main()
         {
             if (!Application.isPlaying) throw new Exception("Run in Play mode.");
+            // 새 Play 세션은 메인 메뉴(일시정지)로 시작하므로 필요하면 게임을 직접 시작한다.
+            if (!GameSession.Instance.GameStarted)
+            {
+                while (Save.SaveSystem.Busy) await Task.Delay(50);
+                Save.SaveSystem.NewGame(new NewGameOptions());
+                while (Save.SaveSystem.Busy) await Task.Delay(50);
+                UI.GameMenuController.Instance.Resume(); Time.timeScale = 1;
+            }
             var gm = GameManager.Instance;
             var rm = ResourceManager.Instance;
             var spot = GameObject.Find("FishingSpot").GetComponent<ResourceNode>();

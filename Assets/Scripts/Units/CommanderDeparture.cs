@@ -124,6 +124,7 @@ namespace AntColony.Units
         }
         private void FinishDeparture()
         {
+            AntColony.World.DiplomacyManager.Instance?.ReceiveDeparture(this, Social.departure == DepartureState.Retreating);
             Social.departure = DepartureState.Left;
             personalState.departure = "Left";
             troopCount = 0; pendingDamage = 0;

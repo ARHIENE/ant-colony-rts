@@ -190,6 +190,7 @@ namespace AntColony.Units
             ScienceAssignment?.ReleaseResearcher(); LabUpgradeLab?.CancelResearch();
             CraftingWorkshop?.Release();
             personalState.dead = fatal;
+            AntColony.World.DiplomacyManager.Instance?.CommanderDowned(transform.position);
             NotifyDowned(fatal, cause);
             foreach (var c in CommanderRoster.Instance != null ? CommanderRoster.Instance.Commanders : Active.OfType<CommanderAnt>().ToArray())
             {

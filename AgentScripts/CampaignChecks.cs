@@ -137,6 +137,10 @@ public static class CampaignChecks
             Check(lab.TryAssign(a), "researcher retained for save");
             Check(CampaignResearch.Instance.TryStart(ScienceTechnology.Herbs), "partial research saved"); CampaignResearch.Instance.Tick(7);
             foreach (var c in roster.Commanders) c.CommandStop();
+            // 6단계: 비행선 건조 시작 시 과학자·적대 문명 침공이 올 수 있다. 저장 전 정리한다.
+            foreach (var raider in Object.FindObjectsByType<WildMonster>(FindObjectsSortMode.None))
+                if (!string.IsNullOrEmpty(raider.DiplomaticFactionId)) raider.TakeDamage(float.MaxValue);
+            await Task.Delay(100);
             var expected = SaveSnapshot.Capture();
             Check(SaveValidator.Validate(expected, out var error), "valid capture: " + error);
             var broken = Clone(expected); broken.commanders[0].personalState.moodFactors.Add(new MoodFactor { value = float.NaN, reason = "invalid" });

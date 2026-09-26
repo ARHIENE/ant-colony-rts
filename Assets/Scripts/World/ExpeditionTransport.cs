@@ -230,6 +230,8 @@ namespace AntColony.World
                 transform.position = Site.Landing;
                 State = ExpeditionState.Deployed;
                 LandCrew();
+                DiplomacyManager.Instance?.Contact(Site);
+                if (Site.Kind == ExpeditionSiteKind.TradePost) AntColony.UI.GameMenuController.Instance?.TradeAt(Site);
             }
             else
             {
@@ -286,7 +288,8 @@ namespace AntColony.World
         public bool TryCollectRewards()
         {
             if (State != ExpeditionState.Deployed || Site == null || !Site.Cleared || Site.RewardsClaimed
-                || Site.Kind == ExpeditionSiteKind.ResourceSite) return false;
+                || Site.Kind == ExpeditionSiteKind.ResourceSite || Site.Kind == ExpeditionSiteKind.TradePost
+                || !DiplomacyManager.Hostile(Site)) return false;
             var ready = false;
             foreach (var c in crew) if (c != null && c.CanReceiveOrders && c.HasTroops && (c.Position - Position).sqrMagnitude <= 64) ready = true;
             if (!ready) return false;

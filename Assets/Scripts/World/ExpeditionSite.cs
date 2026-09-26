@@ -7,7 +7,7 @@ using UnityEngine.AI;
 
 namespace AntColony.World
 {
-    public enum ExpeditionSiteKind { Settlement, BossNest, ResourceSite }
+    public enum ExpeditionSiteKind { Settlement, BossNest, ResourceSite, TradePost, Empty }
     public enum ConquestDisposition { Undecided, Annexed, Abandoned, Lost }
 
     // ponytail: 원정 전장은 서로 끊어진 70m NavMesh 섬이다. 아트가 준비되면 전용 씬으로 교체한다.
@@ -34,7 +34,7 @@ namespace AntColony.World
         {
             get
             {
-                if (!isActiveAndEnabled || Kind != ExpeditionSiteKind.Settlement || !Cleared
+                if (!isActiveAndEnabled || !DiplomacyManager.Hostile(this) || Kind != ExpeditionSiteKind.Settlement || !Cleared
                     || (Disposition != ConquestDisposition.Undecided && Disposition != ConquestDisposition.Lost) || Visitor == null
                     || !Visitor.isActiveAndEnabled || Visitor.State != ExpeditionState.Deployed) return false;
                 foreach (var guard in GetComponentsInChildren<WildMonster>(true))
@@ -106,7 +106,7 @@ namespace AntColony.World
                 Boss.transform.position = transform.position + new Vector3(0, 1, 12);
                 Boss.gameObject.SetActive(true);
             }
-            else
+            else if (kind == ExpeditionSiteKind.Settlement)
             {
                 Colony = Instantiate(colonyTemplate, transform);
                 Colony.ConfigureExpedition(Difficulty);
@@ -140,6 +140,8 @@ namespace AntColony.World
             if ((disposition != ConquestDisposition.Annexed && disposition != ConquestDisposition.Abandoned)
                 || !CanResolveConquest) return false;
             Disposition = disposition;
+            var faction = DiplomacyManager.Instance?.Faction(this);
+            if (faction != null) faction.playerScore += 50;
             AntColony.Core.CampaignHistory.Record(disposition == ConquestDisposition.Annexed ? "편입" : "유기", Title, disposition.ToString());
             if (disposition == ConquestDisposition.Annexed)
             {
@@ -163,6 +165,14 @@ namespace AntColony.World
 
         internal ResourceNode[] SiteResourceNodes => resourceNodes;
 
+        internal void TransferToPlayer()
+        {
+            foreach (var guard in GetComponentsInChildren<WildMonster>(true)) guard.RestoreHealth(0);
+            RestoreState(true, ConquestDisposition.Annexed);
+            Defense.ResetAfterConquest();
+            AntColony.Core.CampaignHistory.Record("편입", Title, "외교 거래");
+        }
+
         internal void LoseSettlement()
         {
             Disposition = ConquestDisposition.Lost;
@@ -185,7 +195,7 @@ namespace AntColony.World
             if (growthTimer < 60f) return;
             growthTimer = 0;
             Colony.AddResources(Colony.RemainingBuildings * 2, Colony.RemainingBuildings);
-            Colony.TryExpand(0, 30, 5, 5);
+            Colony.TryExpand(0, 30, DiplomacyManager.Instance?.Faction(this)?.rebel == true ? 2 : 5, 5);
         }
 
         private void OnDestroy()

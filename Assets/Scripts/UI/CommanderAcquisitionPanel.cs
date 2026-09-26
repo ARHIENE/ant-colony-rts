@@ -57,7 +57,7 @@ namespace AntColony.UI
 
         private void Start()
         {
-            var background = CreateImage("CommanderAcquisitionPanel", transform, new Color(.08f, .09f, .14f, .95f));
+            var background = CreateImage("CommanderAcquisitionPanel", transform, MenuTheme.Background);
             panel = background.gameObject;
             // 패널 위 클릭이 뒤쪽 지형으로 새어나가 엉뚱한 이동 명령이 되지 않게 막는다.
             background.raycastTarget = true;
@@ -276,7 +276,7 @@ namespace AntColony.UI
             rect.anchorMin = rect.anchorMax = rect.pivot = Vector2.zero;
             rect.anchoredPosition = new Vector2(x, y);
             rect.sizeDelta = new Vector2(120f, 26f);
-            go.GetComponent<Image>().color = new Color(.2f, .22f, .32f);
+            go.GetComponent<Image>().color = MenuTheme.Plate2;
             var button = go.GetComponent<Button>();
             button.onClick.AddListener(action);
 
@@ -305,9 +305,9 @@ namespace AntColony.UI
             var go = new GameObject(name, typeof(RectTransform));
             go.transform.SetParent(parent, false);
             var text = go.AddComponent<Text>();
-            text.font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
+            text.font = MenuTheme.Font;
             text.fontSize = fontSize;
-            text.color = Color.white;
+            text.color = MenuTheme.TextColor;
             text.raycastTarget = false;
             text.horizontalOverflow = HorizontalWrapMode.Wrap;
             text.verticalOverflow = VerticalWrapMode.Truncate;

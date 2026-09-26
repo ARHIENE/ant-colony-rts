@@ -16,6 +16,14 @@ namespace AntColony.Regression
         public static async Task<string> Main()
         {
             if (!Application.isPlaying) throw new Exception("Play mode required.");
+            // 새 Play 세션은 메인 메뉴(일시정지)로 시작하므로 필요하면 게임을 직접 시작한다.
+            if (!Core.GameSession.Instance.GameStarted)
+            {
+                while (Save.SaveSystem.Busy) await Task.Delay(50);
+                Save.SaveSystem.NewGame(new Core.NewGameOptions());
+                while (Save.SaveSystem.Busy) await Task.Delay(50);
+                UI.GameMenuController.Instance.Resume(); Time.timeScale = 1;
+            }
             var origin = new Vector3(1100f, 0f, 1100f);
             var objects = new List<Object>();
             var nav = default(NavMeshDataInstance);

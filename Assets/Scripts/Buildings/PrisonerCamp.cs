@@ -209,6 +209,9 @@ namespace AntColony.Buildings
         public bool TryPersuade(Prisoner prisoner) => TryPersuade(prisoners.IndexOf(prisoner));
 
         public bool Execute(Prisoner prisoner) => Execute(prisoners.IndexOf(prisoner));
+        internal bool ReleaseForTrade(Prisoner prisoner) => isActiveAndEnabled && prisoners.Remove(prisoner);
+        internal bool ReceiveForTrade(Prisoner prisoner)
+        { if (!isActiveAndEnabled || !HasSpace || prisoner == null) return false; prisoners.Add(prisoner); return true; }
 
         // 기획: 플레이어 선택으로 언제든 처형할 수 있다.
         public bool Execute(int index)

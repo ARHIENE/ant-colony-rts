@@ -20,9 +20,33 @@ namespace AntColony.Regression
         private static readonly List<string> Failures = new List<string>();
         private static int passed;
 
+    // 새 Play 세션은 메인 메뉴(일시정지)로 시작하므로 필요하면 게임을 직접 시작한다.
+    static async System.Threading.Tasks.Task StartGame()
+    {
+        if (AntColony.Core.GameSession.Instance.GameStarted) return;
+        while (AntColony.Save.SaveSystem.Busy) await System.Threading.Tasks.Task.Delay(50);
+        AntColony.Save.SaveSystem.NewGame(new AntColony.Core.NewGameOptions());
+        while (AntColony.Save.SaveSystem.Busy) await System.Threading.Tasks.Task.Delay(50);
+        AntColony.UI.GameMenuController.Instance.Resume(); UnityEngine.Time.timeScale = 1;
+    }
+    // 무기=역할 개편: 예전 보직 변경을 해당 무기(날개) 장착으로 대신한다.
+    static bool Arm(AntColony.Units.CommanderAnt c, AntColony.Data.UnitRole role)
+    {
+        var inv = AntColony.Units.EquipmentInventory.Instance;
+        var item = role == AntColony.Data.UnitRole.Flying
+            ? new AntColony.Units.EquipmentItem { slot = AntColony.Units.EquipmentSlot.Armor, armor = AntColony.Units.ArmorKind.Wings, quality = 1 }
+            : new AntColony.Units.EquipmentItem { slot = AntColony.Units.EquipmentSlot.Weapon, quality = 1,
+                weapon = role == AntColony.Data.UnitRole.Ranged ? AntColony.Units.WeaponKind.AcidSprayer : role == AntColony.Data.UnitRole.Defense ? AntColony.Units.WeaponKind.Shield
+                    : role == AntColony.Data.UnitRole.Support ? AntColony.Units.WeaponKind.Pheromone : AntColony.Units.WeaponKind.Mandible };
+        if (inv.Full) inv.Items.RemoveAt(0);
+        if (!inv.Add(item) || !inv.Equip(c, item)) return false;
+        inv.Items.RemoveAll(e => e.slot == item.slot && e.quality == 1 && e != item);
+        return role == AntColony.Data.UnitRole.Flying ? c.IsFlying : c.Role == (role == AntColony.Data.UnitRole.Worker ? AntColony.Data.UnitRole.Melee : role);
+    }
         public static async Task<string> Main()
         {
             if (!Application.isPlaying) throw new Exception("Play mode required");
+        await StartGame();
             Failures.Clear();
             passed = 0;
             var rm = ResourceManager.Instance;
@@ -86,7 +110,7 @@ namespace AntColony.Regression
                 Check(a.TroopCount > 0 && Mathf.Approximately(a.AttackDamage - attackBefore, 2f * a.TroopCount), "병력당 공격 +2");
 
                 // 실제 TrySetRole 보직 변경 후 유지, 새 보직 연구소에서 2·3단계 후 상한.
-                Check(a.TrySetRole(UnitRole.Ranged) && a.Role == UnitRole.Ranged && a.LabAttackLevel == 1, "TrySetRole 후 강화 유지");
+                Check(Arm(a, UnitRole.Ranged) && a.Role == UnitRole.Ranged && a.LabAttackLevel == 1, "TrySetRole 후 강화 유지");
                 Check(!lab1.TryResearchAttack(a), "옛 보직 연구소는 거부");
                 food = rm.GetAmount(ResourceType.Food);
                 Check(ranged.TryResearchAttack(a) && rm.GetAmount(ResourceType.Food) == food - 90, "2단계 90F");
@@ -97,7 +121,7 @@ namespace AntColony.Regression
                 await Until(() => !ranged.IsResearching, 2000);
                 food = rm.GetAmount(ResourceType.Food);
                 Check(a.LabAttackLevel == 3 && !ranged.TryResearchAttack(a) && !a.LabUpgradeBusy && rm.GetAmount(ResourceType.Food) == food, "실제 3단계 후 상한, 비용 없음");
-                Check(a.TrySetRole(UnitRole.Melee) && a.LabAttackLevel == 3, "원래 보직 복귀 후에도 유지");
+                Check(Arm(a, UnitRole.Melee) && a.LabAttackLevel == 3, "원래 보직 복귀 후에도 유지");
 
                 // 연구소 비활성화 → 재활성화: 완료 안 됨, 재시작 가능.
                 Check(lab1.TryResearchArmor(a), "방어 강화 시작");
@@ -193,7 +217,7 @@ namespace AntColony.Regression
             go.transform.position = template.transform.position;
             var commander = go.AddComponent<CommanderAnt>();
             commander.Initialize(template.Data, null, null);
-            commander.ConfigureCommander(name, template.Rank, new[] { UnitRole.Melee, UnitRole.Ranged }, UnitRole.Melee);
+            commander.ConfigureCommander(name, default(CommanderRank), new[] { UnitRole.Melee, UnitRole.Ranged }, UnitRole.Melee);
             return commander;
         }
 

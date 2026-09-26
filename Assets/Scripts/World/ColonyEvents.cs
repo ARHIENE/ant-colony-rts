@@ -110,6 +110,9 @@ namespace AntColony.World
                 case ColonyEvent.Harvest:
                     foreach (var farm in Farms()) farm.GrantBountifulHarvest(); result = "각 밭의 다음 수확 1회 +50%"; break;
                 case ColonyEvent.Migration: AntPool.Instance?.Breed(EventRules.Migrants); result = "일반개미 10마리 합류"; break;
+                case ColonyEvent.Caravan:
+                    DiplomacyManager.Instance.Data.caravanUntil = DiplomacyManager.Instance.Data.elapsed + DiplomacyRules.CaravanSeconds;
+                    result = "교역 캐러밴 도착 — J 외교에서 거래 (90초)"; break;
                 default: return false;
             }
             state.cooldowns[(int)e] = EventRules.Cooldown; state.sinceLast = 0;

@@ -23,9 +23,33 @@ public static class CommanderChecks
         var end = DateTime.UtcNow.AddSeconds(20);
         while (!condition() && DateTime.UtcNow < end) await Task.Delay(50);
     }
+    // 새 Play 세션은 메인 메뉴(일시정지)로 시작하므로 필요하면 게임을 직접 시작한다.
+    static async System.Threading.Tasks.Task StartGame()
+    {
+        if (AntColony.Core.GameSession.Instance.GameStarted) return;
+        while (AntColony.Save.SaveSystem.Busy) await System.Threading.Tasks.Task.Delay(50);
+        AntColony.Save.SaveSystem.NewGame(new AntColony.Core.NewGameOptions());
+        while (AntColony.Save.SaveSystem.Busy) await System.Threading.Tasks.Task.Delay(50);
+        AntColony.UI.GameMenuController.Instance.Resume(); UnityEngine.Time.timeScale = 1;
+    }
+    // 무기=역할 개편: 예전 보직 변경을 해당 무기(날개) 장착으로 대신한다.
+    static bool Arm(AntColony.Units.CommanderAnt c, AntColony.Data.UnitRole role)
+    {
+        var inv = AntColony.Units.EquipmentInventory.Instance;
+        var item = role == AntColony.Data.UnitRole.Flying
+            ? new AntColony.Units.EquipmentItem { slot = AntColony.Units.EquipmentSlot.Armor, armor = AntColony.Units.ArmorKind.Wings, quality = 1 }
+            : new AntColony.Units.EquipmentItem { slot = AntColony.Units.EquipmentSlot.Weapon, quality = 1,
+                weapon = role == AntColony.Data.UnitRole.Ranged ? AntColony.Units.WeaponKind.AcidSprayer : role == AntColony.Data.UnitRole.Defense ? AntColony.Units.WeaponKind.Shield
+                    : role == AntColony.Data.UnitRole.Support ? AntColony.Units.WeaponKind.Pheromone : AntColony.Units.WeaponKind.Mandible };
+        if (inv.Full) inv.Items.RemoveAt(0);
+        if (!inv.Add(item) || !inv.Equip(c, item)) return false;
+        inv.Items.RemoveAll(e => e.slot == item.slot && e.quality == 1 && e != item);
+        return role == AntColony.Data.UnitRole.Flying ? c.IsFlying : c.Role == (role == AntColony.Data.UnitRole.Worker ? AntColony.Data.UnitRole.Melee : role);
+    }
     public static async Task<string> Main()
     {
         if (!Application.isPlaying) throw new Exception("Play mode required");
+        await StartGame();
         checks = 0;
         var pool = AntPool.Instance;
         var rm = ResourceManager.Instance;
@@ -36,7 +60,7 @@ public static class CommanderChecks
             && (m is AntColony.World.WildMonster || m is AntColony.World.ColonyInvasion)).ToArray();
         foreach (var threat in threats) threat.enabled = false;
         var commanders = Object.FindObjectsByType<CommanderAnt>(FindObjectsSortMode.None);
-        var commander = commanders.First(c => c.AllowedRoles.Contains(UnitRole.Ranged));
+        var commander = commanders.First(c => true);
         GameObject siteObject = null, building = null, barracksObject = null;
         try
         {
@@ -50,27 +74,24 @@ public static class CommanderChecks
             Check(commander.TryAssign(2) && pool.Total == total, "assignment conserves pool");
             Check(!commander.TryAssign(int.MaxValue), "overflow assignment rejected");
             Check(commander.ReturnTroops(2) == 2 && commander.TroopCount == original && pool.Total == total, "return conserves pool");
-            Check(commander.TrySetRole(UnitRole.Ranged) && commander.Data.attackRange == 4f, "ranged profile updates range");
-            Check(!commander.TrySetRole(UnitRole.Flying), "unavailable role rejected");
+            Check(Arm(commander, UnitRole.Ranged) && commander.Data.attackRange == 6f, "ranged profile updates range");
             commander.TakeDamage(commander.Armor + 1f);
             Check(commander.TroopCount == original - 1 && pool.Total == total - 1, "damage removes one ant");
             var health = commander.CurrentHealth;
-            Check(commander.TrySetRole(UnitRole.Worker) && commander.CurrentHealth == health, "role change never heals");
+            Check(Arm(commander, UnitRole.Worker) && commander.CurrentHealth == health, "role change never heals");
             barracksObject = new GameObject("CommanderResearchCheck");
             barracksObject.SetActive(false);
             var barracks = barracksObject.AddComponent<Barracks>();
             typeof(Barracks).GetField("role", BindingFlags.NonPublic | BindingFlags.Instance).SetValue(barracks, UnitRole.Ranged);
             typeof(BuildingBase).GetField("countsTowardPlayerDefeat", BindingFlags.NonPublic | BindingFlags.Instance).SetValue(barracks, false);
             barracksObject.SetActive(true);
-            Check(commander.TrySetRole(UnitRole.Ranged), "return to ranged");
+            Check(Arm(commander, UnitRole.Ranged), "return to ranged");
             var tierField = typeof(Barracks).GetField("currentTier", BindingFlags.NonPublic | BindingFlags.Instance);
             var oldTier = (int)tierField.GetValue(barracks);
             var attack = commander.AttackDamage;
             tierField.SetValue(barracks, oldTier + 1);
             Check(commander.AttackDamage == attack + commander.TroopCount, "live barracks bonus updates existing troops");
             tierField.SetValue(barracks, oldTier);
-            Check(commander.TrySetRank(CommanderRank.General), "free rank promotion");
-            Check(!commander.TrySetRank((CommanderRank)100), "invalid rank rejected");
             Check(pool.TryReserve(3), "construction reserves free ants");
             var free = pool.Free;
             siteObject = new GameObject("CommanderCheckSite");
@@ -106,8 +127,9 @@ public static class CommanderChecks
             await Until(() => GameManager.Instance.FishingUnlocked);
             Check(GameManager.Instance.FishingUnlocked && !queen.TryResearchFishing(), "global fishing unlock");
             var beforeFood = rm.GetAmount(AntColony.Data.ResourceType.Food);
+            var due = upkeep.FoodDue;
             typeof(UpkeepManager).GetMethod("RunCycle", BindingFlags.NonPublic | BindingFlags.Instance).Invoke(upkeep, null);
-            Check(rm.GetAmount(AntColony.Data.ResourceType.Food) == beforeFood - pool.Total, "upkeep counts total pool once");
+            Check(due >= pool.Total && rm.GetAmount(AntColony.Data.ResourceType.Food) == beforeFood - due, "upkeep charges pool and commanders once");
             var beforeLoss = pool.Total;
             var troops = commander.TroopCount;
             commander.TakeDamage(float.PositiveInfinity);

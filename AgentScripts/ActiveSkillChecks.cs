@@ -53,19 +53,39 @@ public static class ActiveSkillChecks
         SetPrivate(commander.Skills, "stanceReadyTime", float.NegativeInfinity);
     }
 
+    // 새 Play 세션은 메인 메뉴(일시정지)로 시작하므로 필요하면 게임을 직접 시작한다.
+    static async System.Threading.Tasks.Task StartGame()
+    {
+        if (AntColony.Core.GameSession.Instance.GameStarted) return;
+        while (AntColony.Save.SaveSystem.Busy) await System.Threading.Tasks.Task.Delay(50);
+        AntColony.Save.SaveSystem.NewGame(new AntColony.Core.NewGameOptions());
+        while (AntColony.Save.SaveSystem.Busy) await System.Threading.Tasks.Task.Delay(50);
+        AntColony.UI.GameMenuController.Instance.Resume(); UnityEngine.Time.timeScale = 1;
+    }
+    // 무기=역할 개편: 예전 보직 변경을 해당 무기(날개) 장착으로 대신한다.
+    static bool Arm(AntColony.Units.CommanderAnt c, AntColony.Data.UnitRole role)
+    {
+        var inv = AntColony.Units.EquipmentInventory.Instance;
+        var item = role == AntColony.Data.UnitRole.Flying
+            ? new AntColony.Units.EquipmentItem { slot = AntColony.Units.EquipmentSlot.Armor, armor = AntColony.Units.ArmorKind.Wings, quality = 1 }
+            : new AntColony.Units.EquipmentItem { slot = AntColony.Units.EquipmentSlot.Weapon, quality = 1,
+                weapon = role == AntColony.Data.UnitRole.Ranged ? AntColony.Units.WeaponKind.AcidSprayer : role == AntColony.Data.UnitRole.Defense ? AntColony.Units.WeaponKind.Shield
+                    : role == AntColony.Data.UnitRole.Support ? AntColony.Units.WeaponKind.Pheromone : AntColony.Units.WeaponKind.Mandible };
+        if (inv.Full) inv.Items.RemoveAt(0);
+        if (!inv.Add(item) || !inv.Equip(c, item)) return false;
+        inv.Items.RemoveAll(e => e.slot == item.slot && e.quality == 1 && e != item);
+        return role == AntColony.Data.UnitRole.Flying ? c.IsFlying : c.Role == (role == AntColony.Data.UnitRole.Worker ? AntColony.Data.UnitRole.Melee : role);
+    }
     public static async Task<string> Main()
     {
         if (!Application.isPlaying) throw new Exception("Play mode required");
+        await StartGame();
         checks = 0;
 
         var commander = Object.FindObjectsByType<CommanderAnt>(FindObjectsSortMode.None)
-            .First(c => c.AllowedRoles.Contains(UnitRole.Ranged) && c.AllowedRoles.Count > 1);
-        var otherRole = commander.AllowedRoles.First(r => r != UnitRole.Ranged);
-        var progression = commander.Progression;
-        var levelField = typeof(CommanderProgression).GetField("level", Flags);
-        var xpField = typeof(CommanderProgression).GetField("xp", Flags);
-        var originalLevel = levelField.GetValue(progression);
-        var originalXp = xpField.GetValue(progression);
+            .First(c => true && true);
+        var otherRole = UnitRole.Defense;
+        var originalTalents = commander.Talents.Copy();
         var dealDamage = typeof(SoldierAnt).GetMethod("DealDamage", Flags);
         Action<AntColony.Core.IDamageable> attack = target => dealDamage.Invoke(commander, new object[] { target });
 
@@ -77,8 +97,7 @@ public static class ActiveSkillChecks
         foreach (var threat in threats) threat.enabled = false;
 
         var other = Object.FindObjectsByType<CommanderAnt>(FindObjectsSortMode.None).First(c => c != commander);
-        var otherLevel = levelField.GetValue(other.Progression);
-        var otherXp = xpField.GetValue(other.Progression);
+        var otherTalents = other.Talents.Copy();
         var startRole = commander.Role;
         var selection = Object.FindAnyObjectByType<AntColony.Units.SelectionManager>();
         GameObject toughObject = null, killObject = null;
@@ -86,7 +105,7 @@ public static class ActiveSkillChecks
         {
             commander.CommandStop();
             ResetSkills(commander);
-            Check(commander.TrySetRole(UnitRole.Ranged), "commander takes a combat role");
+            Check(Arm(commander, UnitRole.Melee), "commander takes melee weapon for power strike");
             if (!commander.HasTroops)
             {
                 AntPool.Instance.Breed(2);
@@ -94,10 +113,9 @@ public static class ActiveSkillChecks
             }
 
             // 1) 레벨 잠금.
-            levelField.SetValue(progression, 1);
-            xpField.SetValue(progression, 0);
+            commander.Talents.levels[(int)CommanderActivity.Melee] = 1;
             Check(!commander.TryPowerStrike() && !commander.TryDefensiveStance(), "level 1 locks both skills");
-            levelField.SetValue(progression, 2);
+            commander.Talents.levels[(int)CommanderActivity.Melee] = 2;
             Check(!commander.TryDefensiveStance() && !commander.Skills.DefensiveStanceActive, "level 2 still locks stance");
 
             // 2) 병력 0 / 비활성 거부.
@@ -134,13 +152,13 @@ public static class ActiveSkillChecks
             Check(commander.TryPowerStrike(), "re-arm after cooldown expires");
             var kill = SpawnRaider(commander.transform.position, damage * 1.5f);
             killObject = kill.gameObject;
-            var xpBefore = progression.Xp;
             attack(kill);
-            Check((kill == null || kill.IsDead) && progression.Xp == xpBefore + CommanderProgression.MonsterKillXp,
-                "empowered kill grants xp");
+            Check(kill == null || kill.IsDead,
+                "empowered hit defeats target");
 
             // 5) 방어 태세: +5 방어, 중복 거부, 만료, 재사용 대기 유지.
-            levelField.SetValue(progression, 3);
+            commander.Talents.levels[(int)CommanderActivity.Melee] = 3;
+            Check(Arm(commander, UnitRole.Defense), "shield enables defensive stance");
             var armor = commander.Armor; // 레벨 3 보너스 포함 기준값
             Check(commander.TryDefensiveStance() && commander.Armor == armor + AntColony.Units.CommanderSkills.DefensiveStanceArmor,
                 "stance adds +5 armor");
@@ -148,10 +166,9 @@ public static class ActiveSkillChecks
 
             // 6) 보직 변경은 장전·태세·대기를 유지한다.
             SetPrivate(commander.Skills, "powerStrikeReadyTime", Time.time - 1f);
-            Check(commander.TryPowerStrike(), "arm before role change");
-            Check(commander.TrySetRole(otherRole) && commander.Skills.PowerStrikeArmed && commander.Skills.DefensiveStanceActive
-                && commander.Skills.DefensiveStanceCooldownLeft > 0f, "role change keeps skill state");
-            Check(commander.TrySetRole(UnitRole.Ranged), "back to ranged");
+            Check(Arm(commander, UnitRole.Melee) && commander.TryPowerStrike(), "arm strike with melee weapon");
+            Check(Arm(commander, UnitRole.Defense) && commander.Skills.PowerStrikeArmed && commander.Skills.DefensiveStanceActive
+                && commander.Skills.DefensiveStanceCooldownLeft > 0f, "weapon change keeps skill state");
 
             SetPrivate(commander.Skills, "stanceEndTime", Time.time - 0.01f);
             Check(!commander.Skills.DefensiveStanceActive && commander.Armor == armor, "stance expires and armor returns");
@@ -194,7 +211,7 @@ public static class ActiveSkillChecks
 
             // B도 시전 가능한 상태로 만든다(잘못된 대상 보호를 증명하려면 B가 실제로 시전될 수 있어야 한다).
             ResetSkills(other);
-            levelField.SetValue(other.Progression, 3);
+            other.Talents.levels[(int)CommanderActivity.Melee] = 3;
             if (!other.HasTroops)
             {
                 AntPool.Instance.Breed(1);
@@ -202,11 +219,12 @@ public static class ActiveSkillChecks
             }
 
             select(commander);
-            levelField.SetValue(progression, 1);
+            commander.Talents.levels[(int)CommanderActivity.Melee] = 1;
             Check(await WaitFor(() => strikeText.text == "Strike Lv2" && stanceText.text == "Guard Lv3"),
                 "locked labels: " + strikeText.text + " / " + stanceText.text);
             Check(!strikeButton.interactable && !stanceButton.interactable, "locked buttons are not interactable");
-            levelField.SetValue(progression, 3);
+            commander.Talents.levels[(int)CommanderActivity.Melee] = 3;
+            Check(Arm(commander, UnitRole.Defense), "shield enables defensive stance");
             Check(await WaitFor(() => strikeText.text == "Strike" && stanceText.text == "Guard"
                 && strikeButton.interactable && stanceButton.interactable), "ready labels and interactable: " + strikeText.text + " / " + stanceText.text);
 
@@ -263,11 +281,9 @@ public static class ActiveSkillChecks
             if (killObject != null) Object.Destroy(killObject);
             ResetSkills(commander);
             ResetSkills(other);
-            levelField.SetValue(other.Progression, otherLevel);
-            xpField.SetValue(other.Progression, otherXp);
-            levelField.SetValue(progression, originalLevel);
-            xpField.SetValue(progression, originalXp);
-            commander.TrySetRole(startRole);
+            other.Talents.levels = otherTalents.levels; other.Talents.experience = otherTalents.experience;
+            commander.Talents.levels = originalTalents.levels; commander.Talents.experience = originalTalents.experience;
+            Arm(commander, startRole);
             upkeep.enabled = upkeepEnabled;
             foreach (var threat in threats) if (threat != null) threat.enabled = true;
         }

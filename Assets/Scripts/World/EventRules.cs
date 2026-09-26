@@ -23,7 +23,7 @@ namespace AntColony.World
             ColonyEvent.Drought => season == Season.Summer,
             ColonyEvent.Wildfire or ColonyEvent.Harvest => season == Season.Autumn,
             ColonyEvent.Migration => season == Season.Spring || season == Season.Summer,
-            ColonyEvent.Caravan => false, // 6단계 거래 화면이 생기면 연결한다.
+            ColonyEvent.Caravan => DiplomacyManager.Instance?.Available == true,
             _ => true
         };
     }

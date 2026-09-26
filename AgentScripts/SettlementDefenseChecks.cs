@@ -51,8 +51,17 @@ public static class SettlementDefenseChecks
     {
         checks = 0;
         Check(Application.isPlaying, "Play mode required");
+        // 새 Play 세션은 메인 메뉴(일시정지)로 시작하므로 게임을 시작하고, 선전포고를 위해 월드맵을 연다.
+        if (!GameSession.Instance.GameStarted)
+        {
+            while (AntColony.Save.SaveSystem.Busy) await Task.Delay(50);
+            AntColony.Save.SaveSystem.NewGame(new NewGameOptions());
+            while (AntColony.Save.SaveSystem.Busy) await Task.Delay(50);
+            AntColony.UI.GameMenuController.Instance.Resume(); Time.timeScale = 1;
+        }
+        typeof(WorldMapManager).GetMethod("RestoreUnlock", BindingFlags.NonPublic | BindingFlags.Instance).Invoke(WorldMapManager.Instance, new object[] { true });
         var world = WorldMapManager.Instance;
-        var site = world.Sites[0];
+        var site = world.Sites.First(s => s.Kind == ExpeditionSiteKind.Settlement);
         Object.FindAnyObjectByType<UpkeepManager>().enabled = false;
         Object.FindAnyObjectByType<LocalIncursions>().enabled = false;
         var resources = ResourceManager.Instance;
@@ -68,11 +77,10 @@ public static class SettlementDefenseChecks
         }
         captive.CommandStop();
         Check(captive.TryAssign(8), "defender receives troops");
-        captive.Progression.AddXp(250);
+        captive.Talents.Add(CommanderActivity.Melee, 250);
         captive.CompleteLabUpgrade(true, 3);
-        var level = captive.Progression.Level;
+        var level = captive.Talents.Level(CommanderActivity.Melee);
         var traits = captive.Traits;
-        var rank = captive.Rank;
         Check(world.CanCreateTransport(captive.Position, out var position), "transport placement");
         var ship = world.CreateTransport(false, position);
         foreach (var c in new[] { captive, escapee, crew }) Move(c, position + Vector3.right * 3);
@@ -87,15 +95,17 @@ public static class SettlementDefenseChecks
         Check(ship.TryStation(new[] { captive, escapee }), "station defenders");
         Move(crew, site.Landing + Vector3.right * 20);
         Move(escapee, site.Landing + Vector3.right * 20);
-        Check(captive.TrySetRole(UnitRole.Melee), "combat defender");
         Move(captive, site.Landing + Vector3.forward * 2);
+        // 6단계: 편입 거점 침공은 교전 중 문명의 일정으로만 시작된다.
+        var foe = DiplomacyManager.Instance.Data.civilizations[0];
+        Check(!defense.TryStartRaid(), "no raid while every civilization is at peace");
+        DiplomacyManager.Instance.DeclareWar(foe);
         var before = defense.Remaining;
         defense.Tick(float.NaN); defense.Tick(float.PositiveInfinity); defense.Tick(-1);
         Check(defense.Remaining == before, "invalid time has no effect");
-        defense.Tick(before - 1);
-        Check(!defense.UnderAttack, "raid waits for interval");
         defense.Tick(1);
-        Check(defense.UnderAttack && defense.Attackers.Count == site.Difficulty && !defense.TryStartRaid(), "scheduled fixed wave and no overlap");
+        Check(!defense.UnderAttack, "raid waits for faction schedule");
+        Check(defense.TryStartRaid(site.Difficulty, foe.id) && defense.Attackers.Count == site.Difficulty && !defense.TryStartRaid(), "faction wave and no overlap");
         foreach (var enemy in defense.Attackers)
         {
             Set(enemy, "attackDamage", 1f);
@@ -106,7 +116,6 @@ public static class SettlementDefenseChecks
         Check(site.Disposition == ConquestDisposition.Annexed && defense.Remaining > 290, "victory keeps site and resets interval");
         Check(world.SettlementNotice.Contains("successful"), "victory notification");
 
-        Check(captive.TrySetRole(UnitRole.Worker), "unguarded capture scenario");
         Move(captive, site.Landing + Vector3.right * 22);
         Check(defense.TryStartRaid(), "next raid starts");
         foreach (var enemy in defense.Attackers) enemy.GetComponent<NavMeshAgent>().speed = 25;
@@ -114,10 +123,8 @@ public static class SettlementDefenseChecks
             "unguarded invaders reach landing on navmesh");
         // 실제 교전과 별개로, 방어 병력의 점령 저지를 시간 진행으로 확인한다.
         Move(captive, site.Landing + Vector3.right * 3);
-        Check(captive.TrySetRole(UnitRole.Melee), "defender contests landing");
         defense.Tick(30);
         Check(defense.CaptureProgress == 0 && site.Disposition == ConquestDisposition.Annexed, "combat defender prevents occupation");
-        Check(captive.TrySetRole(UnitRole.Worker), "worker does not contest capture");
         Move(captive, site.Landing + Vector3.right * 22);
         Set(captive, "carriedType", ResourceType.Food); Set(captive, "carriedAmount", 4.5f);
         Set(escapee, "carriedType", ResourceType.Food); Set(escapee, "carriedAmount", 2.75f);
@@ -149,9 +156,9 @@ public static class SettlementDefenseChecks
             "other commander escapes to home");
         Check(site.Settlement.Garrison.Count == 0 && AntPool.Instance.Total == poolBefore - captiveTroops,
             "captured troops lost once without refund or double count");
-        Check(captive.Progression.Level == level && captive.LabAttackLevel == 1 && captive.Traits == traits && captive.Rank == rank,
+        Check(captive.Talents.Level(CommanderActivity.Melee) == level && captive.LabAttackLevel == 1 && captive.Traits == traits,
             "captivity retains identity and growth");
-        Check(!captive.TryAssign(1) && !captive.TrySetRole(UnitRole.Melee) && !captive.TrySetRank(CommanderRank.Corporal)
+        Check(!captive.TryAssign(1)
             && !captive.TryPowerStrike(), "captives cannot be controlled or upgraded");
         Check(!automatic.Route.IsRunning && automatic.Crew.Count == 0, "lost destination immediately stops home auto route");
         Check(ship.State == ExpeditionState.Returning && crew.IsEmbarked && ship.GetCargo(ResourceType.Food) == 17
@@ -179,7 +186,7 @@ public static class SettlementDefenseChecks
         Check(!captive.IsCaptive && captive.isActiveAndEnabled && !captive.HasTroops && captive.Garrison == site.Settlement
             && defense.Prisoners.Count == 0 && site.GetComponents<SettlementDefense>().Length == 1,
             "recapture rescues original commander without troops or duplicate defense component");
-        Check(captive.Progression.Level == level && captive.LabAttackLevel == 1 && captive.Traits == traits,
+        Check(captive.Talents.Level(CommanderActivity.Melee) == level && captive.LabAttackLevel == 1 && captive.Traits == traits,
             "rescue preserves progression and traits");
         Move(captive, ship.Position + Vector3.right * 3);
         Check(ship.TryBoard(new[] { captive }) && ship.TryReturn(), "rescued zero-troop commander can return");
@@ -228,3 +235,5 @@ public static class SettlementDefenseChecks
     }
 }
 }
+
+

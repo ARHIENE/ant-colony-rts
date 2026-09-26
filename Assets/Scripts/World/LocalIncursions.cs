@@ -29,9 +29,14 @@ namespace AntColony.World
         }
 
         public bool TrySpawn()
+            => Spawn(null, 3);
+
+        public bool TrySpawnFaction(Civilization faction, int count) => faction != null && faction.war && Spawn(faction, Mathf.Clamp(count, 1, 20));
+
+        private bool Spawn(Civilization faction, int count)
         {
             visitors.RemoveAll(v => v == null || v.IsDead);
-            if (visitors.Count > 0 || raiderTemplate == null || commanderTemplate == null) return false;
+            if ((faction == null && visitors.Count > 0) || raiderTemplate == null || commanderTemplate == null) return false;
             var home = GameManager.Instance?.FindNearestPlayerBuilding(Vector3.zero);
             if (home == null || !NavMesh.SamplePosition(home.Position, out var homeHit, 10, NavMesh.AllAreas)) return false;
             for (var i = 0; i < 16; i++)
@@ -42,13 +47,19 @@ namespace AntColony.World
                 var path = new NavMeshPath();
                 if (!NavMesh.CalculatePath(hit.position, homeHit.position, NavMesh.AllAreas, path)
                     || path.status != NavMeshPathStatus.PathComplete) continue;
-                for (var n = 0; n < 3; n++)
+                for (var n = 0; n < count; n++)
                 {
-                    var template = n == 2 ? commanderTemplate : raiderTemplate;
+                    var template = n == count - 1 ? commanderTemplate : raiderTemplate;
                     var visitor = Instantiate(template, hit.position, Quaternion.identity);
                     visitor.name = n == 2 ? "Visiting Commander" : "Local Intruder";
                     visitor.MakeRaider();
-                    visitor.ConfigureWeakIntruder();
+                    if (faction == null) visitor.ConfigureWeakIntruder();
+                    else
+                    {
+                        visitor.name = faction.name + " 침공군";
+                        visitor.DiplomaticFactionId = faction.id;
+                        if (visitor is EnemyCommander commander) commander.ConfigureCommander(faction.leader, AntColony.Data.CommanderRank.Sergeant, null, AntColony.Units.CommanderTraits.Random());
+                    }
                     visitor.gameObject.SetActive(true);
                     visitors.Add(visitor);
                 }

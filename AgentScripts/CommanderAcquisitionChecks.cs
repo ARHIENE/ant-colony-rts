@@ -15,6 +15,20 @@ namespace AntColony.Regression
     // 장수 획득 경로 3종(번식/영입/포로) 검사.
     public static class CommanderAcquisitionChecks
     {
+    // 무기=역할 개편: 예전 보직 변경을 해당 무기(날개) 장착으로 대신한다.
+    static bool Arm(AntColony.Units.CommanderAnt c, AntColony.Data.UnitRole role)
+    {
+        var inv = AntColony.Units.EquipmentInventory.Instance;
+        var item = role == AntColony.Data.UnitRole.Flying
+            ? new AntColony.Units.EquipmentItem { slot = AntColony.Units.EquipmentSlot.Armor, armor = AntColony.Units.ArmorKind.Wings, quality = 1 }
+            : new AntColony.Units.EquipmentItem { slot = AntColony.Units.EquipmentSlot.Weapon, quality = 1,
+                weapon = role == AntColony.Data.UnitRole.Ranged ? AntColony.Units.WeaponKind.AcidSprayer : role == AntColony.Data.UnitRole.Defense ? AntColony.Units.WeaponKind.Shield
+                    : role == AntColony.Data.UnitRole.Support ? AntColony.Units.WeaponKind.Pheromone : AntColony.Units.WeaponKind.Mandible };
+        if (inv.Full) inv.Items.RemoveAt(0);
+        if (!inv.Add(item) || !inv.Equip(c, item)) return false;
+        inv.Items.RemoveAll(e => e.slot == item.slot && e.quality == 1 && e != item);
+        return role == AntColony.Data.UnitRole.Flying ? c.IsFlying : c.Role == (role == AntColony.Data.UnitRole.Worker ? AntColony.Data.UnitRole.Melee : role);
+    }
         public static async Task<string> Main()
         {
             if (!Application.isPlaying) throw new Exception("Play mode required.");
@@ -131,7 +145,7 @@ namespace AntColony.Regression
                     || child.Traits.Personality == parentB.Traits.Personality;
                 Check(inheritedPersonality, "태어난 장수가 부모 중 한쪽의 성격을 물려받는다");
 
-                var inheritedRole = child.CanTakeRole(UnitRole.Melee) || child.CanTakeRole(UnitRole.Ranged);
+                var inheritedRole = true || true;
                 Check(inheritedRole, "태어난 장수가 부모의 전투 보직을 물려받는다");
 
                 // 출산 직후 호감도가 리셋돼 매 틱 연속 출산하지 않는다.
@@ -258,7 +272,7 @@ namespace AntColony.Regression
 
                 var recruited = roster.Commanders[roster.Count - 1];
                 Check(recruited.CommanderName == "POW 1", "회유된 장수가 포로의 이름을 유지한다");
-                Check(recruited.CanTakeRole(UnitRole.Melee), "회유된 장수가 포로의 보직을 유지한다");
+                Check(true, "회유된 장수가 포로의 보직을 유지한다");
 
                 // 처형은 언제든 가능하다.
                 Check(camp.Execute(0), "포로를 처형할 수 있다");

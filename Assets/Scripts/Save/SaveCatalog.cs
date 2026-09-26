@@ -55,7 +55,7 @@ namespace AntColony.Save
                 || (!c.IsHostile && c.PersonalState.rageRemaining <= 0 && !c.Social.diving && !c.IsEmbarked && c.Agent.enabled && c.Agent.isOnNavMesh && (c.Agent.pathPending || c.Agent.hasPath))))
                 error = "Stop commanders and finish carrying/building before saving.";
             else if (Object.FindObjectsByType<WildMonster>(FindObjectsSortMode.None).Any(m => m.InCombat
-                || (!Monsters.Contains(m) && m.GetComponent<EventActor>() == null && m.GetComponentInParent<ExpeditionSite>()?.Disposition != ConquestDisposition.Lost)))
+                || (!Monsters.Contains(m) && m.GetComponent<EventActor>() == null && string.IsNullOrEmpty(m.RebelId) && m.GetComponentInParent<ExpeditionSite>()?.Disposition != ConquestDisposition.Lost)))
                 error = "Finish the current battle or invasion before saving.";
             else if (WorldMapManager.Instance.Sites.Any(s => s.Defense != null && s.Defense.UnderAttack))
                 error = "Finish settlement defense before saving.";
@@ -65,3 +65,4 @@ namespace AntColony.Save
         }
     }
 }
+

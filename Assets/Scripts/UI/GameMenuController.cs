@@ -30,7 +30,7 @@ namespace AntColony.UI
             Instance = this;
             var canvas = MenuTheme.Canvas("GameMenus", transform, 100);
             panel = MenuTheme.Rect("MenuBackdrop", canvas.transform); MenuTheme.Stretch(panel);
-            panel.gameObject.AddComponent<Image>().color = new Color(.025f, .04f, .045f, .87f);
+            panel.gameObject.AddComponent<Image>().color = new Color(.047f, .039f, .031f, .62f);
             var scrollArea = MenuTheme.Rect("MenuArea", panel); scrollArea.anchorMin = new Vector2(.22f, .12f); scrollArea.anchorMax = new Vector2(.78f, .88f);
             scrollArea.offsetMin = scrollArea.offsetMax = Vector2.zero;
             scrollArea.gameObject.AddComponent<Image>().color = MenuTheme.Background;
@@ -45,25 +45,42 @@ namespace AntColony.UI
             MenuTheme.Stretch(tip.rectTransform); tip.rectTransform.offsetMin = new Vector2(12, 8); tip.rectTransform.offsetMax = new Vector2(-12, -8);
             tooltipPanel.gameObject.SetActive(false);
             var bar = MenuTheme.Rect("MenuToolbar", canvas.transform); toolbar = bar.gameObject;
-            bar.anchorMin = bar.anchorMax = new Vector2(1, 1); bar.pivot = new Vector2(1, 1); bar.anchoredPosition = new Vector2(-240, -10); bar.sizeDelta = new Vector2(340, 44);
-            var layout = bar.gameObject.AddComponent<HorizontalLayoutGroup>(); layout.spacing = 4;
-            MenuTheme.Button(bar, "Menu [Esc]", Pause, "Pause, save or change settings.");
-            MenuTheme.Button(bar, "Commanders [G]", Roster, "All commanders, sorted by name. Inspect skills and equipment.");
+            // 디자인 상단 바 왼쪽: 메뉴 Esc · 장수 G · 과학 K · 외교 J · 로그 L (월드맵 M은 WorldMapPanel 토글).
+            bar.anchorMin = bar.anchorMax = new Vector2(0, 1); bar.pivot = new Vector2(0, 1); bar.anchoredPosition = new Vector2(8, -6); bar.sizeDelta = new Vector2(404, 28);
+            var layout = bar.gameObject.AddComponent<HorizontalLayoutGroup>(); layout.spacing = 4; layout.childForceExpandWidth = false;
+            ToolbarButton(bar, "Menu [Esc]", "메뉴  Esc", Pause, "Pause, save or change settings.");
+            ToolbarButton(bar, "Commanders [G]", "장수  G", Roster, "All commanders, sorted by name. Inspect skills and equipment.");
+            ToolbarButton(bar, "Science [K]", "과학  K", Science, "Science research: unlock buildings, transport and upgrades.");
+            ToolbarButton(bar, "Diplomacy [J]", "외교  J", Diplomacy, "Contacted civilizations, treaties, war and trade.");
+            ToolbarButton(bar, "Event Log [L]", "로그  L", EventLog, "Recent colony events.");
+            // 가운데: 날짜 · 속도.
             var timebar = MenuTheme.Rect("CalendarToolbar", canvas.transform);
-            timebar.anchorMin = timebar.anchorMax = new Vector2(.5f, 1); timebar.pivot = new Vector2(.5f, 1);
-            timebar.anchoredPosition = new Vector2(0, -58); timebar.sizeDelta = new Vector2(580, 32);
-            var timeLayout = timebar.gameObject.AddComponent<HorizontalLayoutGroup>(); timeLayout.spacing = 4;
-            calendar = MenuTheme.Text(timebar, "", 16, 32);
-            speedButton = MenuTheme.Button(timebar, "1x", () => SetSpeed(Time.timeScale >= 3 ? 1 : Time.timeScale + 1));
-            MenuTheme.Button(timebar, "Pause / Play", ToggleSimulation);
+            timebar.anchorMin = timebar.anchorMax = new Vector2(0, 1); timebar.pivot = new Vector2(0, 1);
+            timebar.anchoredPosition = new Vector2(440, -4); timebar.sizeDelta = new Vector2(340, 32);
+            var timeLayout = timebar.gameObject.AddComponent<HorizontalLayoutGroup>(); timeLayout.spacing = 4; timeLayout.childForceExpandWidth = false;
+            calendar = MenuTheme.Text(timebar, "", 14, 32); calendar.alignment = TextAnchor.MiddleRight;
+            calendar.GetComponent<LayoutElement>().preferredWidth = 120;
+            speedButton = ToolbarButton(timebar, "1x", "1×", () => SetSpeed(Time.timeScale >= 3 ? 1 : Time.timeScale + 1), null);
+            ToolbarButton(timebar, "Pause / Play", "일시정지  P", ToggleSimulation, null);
             ShowLoading();
         }
+        // 오브젝트 이름은 검사·툴팁이 찾는 기존 키를 유지하고, 표시 문구만 디자인의 한글 라벨을 쓴다.
+        private static Button ToolbarButton(Transform parent, string name, string label, System.Action action, string tip)
+        {
+            var button = MenuTheme.Button(parent, name, action, tip);
+            var text = button.GetComponentInChildren<Text>(); text.text = label; text.fontSize = 13;
+            var element = button.GetComponent<LayoutElement>(); element.preferredHeight = 28;
+            element.preferredWidth = Mathf.Max(56, text.preferredWidth + 18);
+            return button;
+        }
+        private static readonly string[] SeasonNames = { "봄", "여름", "가을", "겨울" };
+        private static string CalendarLabel => $"{GameCalendar.Year}년 {SeasonNames[(int)GameCalendar.CurrentSeason]} {GameCalendar.Month}월";
         private void OnDestroy() { if (Instance == this) Instance = null; }
         private void Update()
         {
             calendar.transform.parent.gameObject.SetActive(GameSession.Instance.GameStarted && !open);
-            calendar.text = GameCalendar.Label;
-            speedButton.GetComponentInChildren<Text>().text = Time.timeScale == 0 ? "Paused" : Time.timeScale + "x";
+            calendar.text = CalendarLabel;
+            speedButton.GetComponentInChildren<Text>().text = Time.timeScale == 0 ? "정지" : Time.timeScale + "×";
             if (SaveSystem.Busy || Keyboard.current == null) return;
             if (PollRebind()) return;
             if (!open && GameSession.Instance.GameStarted)
@@ -123,7 +140,8 @@ namespace AntColony.UI
             var subtitle = MenuTheme.Text(content, "BUILD YOUR COLONY  /  COMMAND YOUR SWARM", 16, 48);
             subtitle.color = MenuTheme.Muted;
             var start = MenuTheme.Button(content, "New Game", NewGameScreen, "Choose a reproducible map seed, size and invasion difficulty.");
-            var startColors = start.colors; startColors.normalColor = new Color(.19f, .4f, .33f); start.colors = startColors;
+            var startColors = start.colors; startColors.normalColor = MenuTheme.Accent; startColors.highlightedColor = MenuTheme.Hex(0xffb84d); start.colors = startColors;
+            start.GetComponentInChildren<Text>().color = MenuTheme.AccentInk;
             MenuTheme.Button(content, "Continue / Load", () => Slots(false));
             MenuTheme.Button(content, "Settings", Settings);
             MenuTheme.Button(content, "Encyclopedia", Book);
@@ -239,7 +257,7 @@ namespace AntColony.UI
             }
             MenuTheme.Button(content, "Back", Back);
         }
-        public static Color LoyaltyColor(int loyalty) => loyalty <= 15 ? new Color(1, .4f, .35f) : loyalty <= 30 ? new Color(1, .7f, .25f) : Color.white;
+        public static Color LoyaltyColor(int loyalty) => loyalty <= 15 ? MenuTheme.DangerInk : loyalty <= 30 ? MenuTheme.HpMid : MenuTheme.TextColor;
         private static string Location(CommanderAnt c) => c.IsDeparting ? c.Social.departure.ToString() : c.IsCaptive ? "Captive" : c.Garrison != null ? "Garrison" : c.Transport != null ? c.Transport.State.ToString() : "Home";
         public void Details(CommanderAnt c)
         {

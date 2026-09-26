@@ -20,9 +20,9 @@ namespace AntColony.UI
             if (game == null) return;
             game.OnBossDefeated += Victory; game.OnDefeat += Defeat;
             var canvas = MenuTheme.Canvas("BetaObjectives", transform, 1);
-            var panel = MenuTheme.Panel(canvas.transform, "Objective", new Vector2(0, 1), new Vector2(340, 100), new Vector2(10, -76));
+            var panel = MenuTheme.Panel(canvas.transform, "Objective", new Vector2(0, 1), new Vector2(300, 92), new Vector2(8, -48));
             panel.GetComponent<UnityEngine.UI.Image>().raycastTarget = false;
-            objective = MenuTheme.Text(panel, "", 15, 80);
+            objective = MenuTheme.Text(panel, "", 13, 80);
             MenuTheme.Stretch(objective.rectTransform);
             objective.rectTransform.offsetMin = new Vector2(12, 8); objective.rectTransform.offsetMax = new Vector2(-12, -8);
             if (GameSession.Instance.GameStarted)
@@ -42,7 +42,7 @@ namespace AntColony.UI
         {
             if (objective == null || Time.unscaledTime < nextRefresh) return;
             nextRefresh = Time.unscaledTime + .5f;
-            objective.text = "<color=#84CDBA><b>COLONY OBJECTIVE</b></color>\n" + CurrentObjective + "\nF2: field guide / controls";
+            objective.text = "<color=#f2a93b><b>목표</b></color>\n" + CurrentObjective + "\n<color=#968976>F2 설명서</color>";
         }
 
         private string BuildObjective()

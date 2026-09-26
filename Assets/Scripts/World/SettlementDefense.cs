@@ -17,6 +17,8 @@ namespace AntColony.World
         private readonly List<WildMonster> attackers = new List<WildMonster>();
         private readonly List<CommanderAnt> prisoners = new List<CommanderAnt>();
         private ExpeditionSite site;
+        private readonly List<EnemyCommander> allies = new List<EnemyCommander>();
+        private string attackerFaction;
         public IReadOnlyList<WildMonster> Attackers => attackers;
         public IReadOnlyList<CommanderAnt> Prisoners => prisoners;
         public bool UnderAttack { get; private set; }
@@ -53,8 +55,10 @@ namespace AntColony.World
             UnderAttack = false;
             Warned = false;
             CaptureProgress = 0;
-            Remaining = CurrentRaidInterval;
+            Remaining = DiplomacyManager.Instance?.ScheduledRaidSeconds(site) ?? CurrentRaidInterval;
             attackers.Clear();
+            foreach (var ally in allies) if (ally != null) Destroy(ally.gameObject);
+            allies.Clear();
         }
 
         // 저장 복원 전용. 진행 중이던 습격 부대는 저장 자체를 거절하므로 여기서는 타이머만 되돌린다.
@@ -62,7 +66,7 @@ namespace AntColony.World
         {
             UnderAttack = false;
             attackers.Clear();
-            Remaining = Mathf.Clamp(remaining, 0f, CurrentRaidInterval);
+            Remaining = Mathf.Clamp(remaining, 0f, DiplomacyManager.Instance != null ? DiplomacyRules.Month * 3 : CurrentRaidInterval);
             CaptureProgress = Mathf.Clamp(captureProgress, 0f, CaptureSeconds);
             Warned = Remaining <= GameBalance.WatchtowerWarningSeconds && AntColony.Buildings.Watchtower.Watches(site);
         }
@@ -75,23 +79,38 @@ namespace AntColony.World
             commander.gameObject.SetActive(false);
         }
 
-        public bool TryStartRaid()
+        public bool TryStartRaid(int requestedCount = 0, string factionId = null)
         {
             if (!isActiveAndEnabled || site.Disposition != ConquestDisposition.Annexed
                 || UnderAttack || site.GuardTemplate == null) return false;
+            if (DiplomacyManager.Instance != null && !DiplomacyManager.Instance.Data.civilizations.Exists(c => c.war && !c.extinct)) return false;
+            if (factionId == null) factionId = DiplomacyManager.Instance?.Data.civilizations.Find(c => c.war && !c.extinct)?.id;
+            attackerFaction = factionId;
             // 거점 북쪽에서 착륙 지점으로 진격. 본거지 건물이나 수송수단을 공격 대상으로 삼지 않는다.
             if (!NavMesh.SamplePosition(site.transform.position + Vector3.forward * 28,
                 out var hit, 4, NavMesh.AllAreas)) return false;
-            var waveSize = AntColony.Core.DifficultyRuntime.ScaleCount(site.Difficulty);
+            var waveSize = requestedCount > 0 ? requestedCount : AntColony.Core.DifficultyRuntime.ScaleCount(site.Difficulty);
             for (var i = 0; i < waveSize; i++)
             {
                 var enemy = Instantiate(site.GuardTemplate, hit.position, Quaternion.identity, site.transform);
                 enemy.name = site.Title + " Invader " + (i + 1);
                 enemy.RaidSettlement(site);
+                enemy.DiplomaticFactionId = factionId;
                 enemy.gameObject.SetActive(true);
                 attackers.Add(enemy);
             }
             UnderAttack = true;
+            if (DiplomacyManager.Instance != null)
+                foreach (var c in DiplomacyManager.Instance.Data.civilizations)
+                    if (c.HasTreaty(TreatyKind.Alliance, DiplomacyManager.Instance.Data.elapsed))
+                    {
+                        var ally = Instantiate(site.GuardTemplate, site.Landing, Quaternion.identity, site.transform);
+                        ally.name = c.name + " 동맹 수비 장수"; ally.Allied = true;
+                        ally.gameObject.SetActive(true);
+                        var block = new MaterialPropertyBlock(); block.SetColor("_BaseColor", c.color); block.SetColor("_Color", c.color);
+                        foreach (var renderer in ally.GetComponentsInChildren<Renderer>()) renderer.SetPropertyBlock(block);
+                        allies.Add(ally);
+                    }
             CaptureProgress = 0;
             Notify("Under attack — defend the landing zone!");
             return true;
@@ -104,7 +123,7 @@ namespace AntColony.World
             if (!UnderAttack)
             {
                 var before = Remaining;
-                Remaining = Mathf.Max(0, Remaining - seconds);
+                Remaining = DiplomacyManager.Instance != null ? DiplomacyManager.Instance.ScheduledRaidSeconds(site) : Mathf.Max(0, Remaining - seconds);
                 if (!Warned && before > GameBalance.WatchtowerWarningSeconds && Remaining <= GameBalance.WatchtowerWarningSeconds
                     && AntColony.Buildings.Watchtower.Watches(site))
                 {
@@ -112,7 +131,7 @@ namespace AntColony.World
                     Notify($"Watchtower: raid in {Remaining:0}s from the north edge.");
                     AntColony.UI.ToastManager.Show(site.Title + $": watchtower alert, raid in {Remaining:0}s.");
                 }
-                if (Remaining == 0) TryStartRaid();
+                if (Remaining == 0 && DiplomacyManager.Instance == null) TryStartRaid();
                 return;
             }
             attackers.RemoveAll(a => a == null || a.IsDead);
@@ -135,6 +154,8 @@ namespace AntColony.World
         private void Lose()
         {
             site.LoseSettlement();
+            var faction = DiplomacyManager.Instance?.Data.civilizations.Find(c => c.id == attackerFaction);
+            if (faction != null) faction.enemyScore += 50;
             UnderAttack = false;
             var escaped = 0;
             foreach (var c in new List<CommanderAnt>(site.Settlement.Garrison))

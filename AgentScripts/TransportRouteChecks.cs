@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using AntColony.Buildings;
 using AntColony.Core;
 using AntColony.Data;
+using AntColony.Save;
 using AntColony.Units;
 using AntColony.World;
 using UnityEngine;
@@ -35,17 +36,23 @@ public static class TransportRouteChecks
         c.transform.position = hit.position; c.ApplyMovementMode(); Physics.SyncTransforms();
     }
 
-    public static string Diagnose() => string.Join("\n", WorldMapManager.Instance.Transports.Select(s =>
+    public static string Diagnose() => string.Join("\n", new[] { $"timeScale={Time.timeScale} screen={AntColony.UI.GameMenuController.Instance?.ScreenName}" }.Concat(WorldMapManager.Instance.Transports.Select(s =>
         $"{s.name} {s.State} route={s.Route.Status} running={s.Route.IsRunning} cargo={s.GetCargo(ResourceType.Food)}/{s.GetCargo(ResourceType.Soil)} "
-        + string.Join(";", s.Crew.Select(c => $"{c.name} pos={c.Position} distance={Vector3.Distance(c.Position, s.Position)} work={c.IsWorking} carrying={c.IsCarrying} path={c.Agent.pathStatus} pending={c.Agent.pathPending} remaining={c.Agent.remainingDistance} troops={c.TroopCount}"))));
+        + string.Join(";", s.Crew.Select(c => $"{c.name} pos={c.Position} distance={Vector3.Distance(c.Position, s.Position)} work={c.IsWorking} carrying={c.IsCarrying} path={c.Agent.pathStatus} pending={c.Agent.pathPending} remaining={c.Agent.remainingDistance} troops={c.TroopCount}")))));
 
     public static async Task<string> Main()
     {
         checks = 0;
         Check(Application.isPlaying, "Play mode required");
+        // 새 Play 세션은 메인 메뉴(일시정지)로 시작하므로 게임을 직접 시작하고 시간을 흐르게 한다.
+        SaveStorage.RootOverride = System.IO.Path.Combine(Application.temporaryCachePath, "TransportRoute-" + Guid.NewGuid().ToString("N"));
+        Check(await Wait(() => !SaveSystem.Busy), "scene ready");
+        SaveSystem.NewGame(new NewGameOptions { seed = 250926 });
+        Check(await Wait(() => !SaveSystem.Busy), "new game ready");
+        AntColony.UI.GameMenuController.Instance.Resume(); Time.timeScale = 1;
         Object.FindAnyObjectByType<UpkeepManager>().enabled = false;
         var world = WorldMapManager.Instance;
-        var site = world.Sites[0];
+        var site = world.Sites.First(s => s.Kind == ExpeditionSiteKind.Settlement);
         var rm = ResourceManager.Instance;
         rm.AddCapacity(ResourceType.Food, 10000); rm.AddCapacity(ResourceType.Soil, 10000);
         rm.Add(ResourceType.Food, 8000); rm.Add(ResourceType.Soil, 8000);
@@ -73,7 +80,7 @@ public static class TransportRouteChecks
         Check(!ship.Route.TryStart(site), "empty route rejected on annexed site");
         Move(c, ship.Position + Vector3.right * 3);
         Check(ship.TryBoard(new[] { c }), "board auto crew");
-        Check(!ship.Route.TryStart(world.Sites[2]) && !ship.Route.TryStart(world.Sites[4]), "boss and neutral route rejected");
+        Check(!ship.Route.TryStart(world.Sites.First(s => s.Kind == ExpeditionSiteKind.BossNest)) && !ship.Route.TryStart(world.Sites.First(s => s.Kind == ExpeditionSiteKind.ResourceSite)), "boss and neutral route rejected");
         var other = world.CreateTransport(false, position + Vector3.forward * 10);
         Check(other.TryDepart(site), "another transport occupies destination");
         var ui = Object.FindAnyObjectByType<AntColony.UI.WorldMapPanel>();
@@ -150,3 +157,4 @@ public static class TransportRouteChecks
     }
 }
 }
+

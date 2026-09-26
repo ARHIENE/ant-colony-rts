@@ -30,6 +30,10 @@ namespace AntColony.World
         // 침공 개체만 플레이어 건물까지 노린다. 일반 야생 몬스터/반란 개체는 기존 동작 그대로다.
         private bool isRaider;
         private bool eventWasp;
+        public string DiplomaticFactionId { get; internal set; }
+        public bool Allied { get; internal set; }
+        public string RebelId { get; internal set; }
+        internal void ConfigureForce(float health) { maxHealth = health; }
         internal float EventAttackCooldown { get => attackTimer; set => attackTimer = value; }
         internal void ConfigureEventWasp()
         {
@@ -81,6 +85,7 @@ namespace AntColony.World
         private void Update()
         {
             if (IsDead) return;
+            if (!Allied && !DiplomacyManager.Hostile(this)) { currentTarget = null; StopMoving(); return; }
             RootRemaining = Mathf.Max(0f, RootRemaining - Time.deltaTime);
 
             targetSearchTimer -= Time.deltaTime;
@@ -100,7 +105,8 @@ namespace AntColony.World
                 else
                 {
                     targetSearchTimer = targetSearchInterval;
-                    currentTarget = (eventWasp ? FindFirstObjectByType<QueenChamber>() : null) ?? (IDamageable)FindNearestAnt()
+                    currentTarget = Allied ? CombatTargeting.FindNearestEnemy(Position, detectionRadius, UnitRole.Melee)
+                        : (eventWasp ? FindFirstObjectByType<QueenChamber>() : null) ?? (IDamageable)FindNearestAnt()
                         ?? (isRaider && raidSite == null ? GameManager.Instance?.FindNearestPlayerBuilding(transform.position) : null);
                     if (currentTarget == null)
                     {
@@ -139,6 +145,7 @@ namespace AntColony.World
         public void TakeDamage(float amount)
         {
             if (IsDead) return;
+            if (!Allied && !DiplomacyManager.TryAttack(this)) return;
             currentHealth -= amount;
             GetComponent<AntVisual>()?.Action("Hit");
             if (currentHealth <= 0f)
@@ -163,9 +170,9 @@ namespace AntColony.World
             GameManager.Instance?.ReportWildMonsterDefeated();
         }
 
-        private AntUnitBase FindNearestAnt()
+        private IDamageable FindNearestAnt()
         {
-            AntUnitBase nearest = null;
+            IDamageable nearest = null;
             var nearestDistanceSqr = detectionRadius * detectionRadius;
             foreach (var ant in AntUnitBase.Active)
             {
@@ -180,6 +187,9 @@ namespace AntColony.World
                     nearest = ant;
                 }
             }
+            foreach (var ally in Active)
+                if (ally.Allied && !ally.IsDead && (ally.Position - Position).sqrMagnitude < nearestDistanceSqr)
+                { nearestDistanceSqr = (ally.Position - Position).sqrMagnitude; nearest = ally; }
             return nearest;
         }
 

@@ -13,6 +13,7 @@ namespace AntColony.UI
             if (KeyBindings.Pressed(GameAction.Pause)) menu.ToggleSimulation();
             if (KeyBindings.Pressed(GameAction.Roster)) { menu.Roster(); return; }
             if (KeyBindings.Pressed(GameAction.EventLog)) { menu.EventLog(); return; }
+            if (KeyBindings.Pressed(GameAction.Diplomacy)) { menu.Diplomacy(); return; }
             if (KeyBindings.Pressed(GameAction.SciencePanel) || KeyBindings.Pressed(GameAction.WorldMap))
                 Object.FindFirstObjectByType<WorldMapPanel>()?.Toggle();
 

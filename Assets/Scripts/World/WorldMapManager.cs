@@ -7,7 +7,7 @@ using UnityEngine.AI;
 
 namespace AntColony.World
 {
-    public class WorldMapManager : MonoBehaviour
+    public partial class WorldMapManager : MonoBehaviour
     {
         public static WorldMapManager Instance { get; private set; }
         [SerializeField] private EnemyColony colonyTemplate;
@@ -36,7 +36,9 @@ namespace AntColony.World
             HomePosition = queen != null ? queen.Position : Vector3.zero;
             var camera = UnityEngine.Camera.main.GetComponent<AntColony.Camera.IsometricCameraController>();
             homeFocus = camera.FocusPoint;
-            // 문명들은 월드맵 해금 전에도 존재하고 성장한다. 본거지와는 NavMesh가 연결되지 않는다.
+            LegacyLayout = AntColony.Core.GameSession.Instance.PendingLoad?.world.legacyLayout == true;
+            if (!LegacyLayout) { GenerateWorld(); InitializeDiplomacy(); return; }
+            // 이전 저장의 인덱스와 하위 개체 정렬을 보존한다.
             // ponytail: 30곳의 구성/격자 배치는 임시값이다. 생성 규칙 확정 시 교체한다.
             for (var i = 0; i < 30; i++)
             {
@@ -53,6 +55,7 @@ namespace AntColony.World
                 // 난이도는 생성 시 고정된다. 본거지와의 거리나 진행도에 따라 올라가지 않는다.
                 CreateSite(title, faction, color, new Vector2(i % 6 / 5f, 1 - i / 6 / 4f), kind, 1 + i % 3);
             }
+            InitializeDiplomacy();
         }
 
         private void CreateSite(string title, string faction, Color color, Vector2 mapPosition, ExpeditionSiteKind kind, int difficulty)

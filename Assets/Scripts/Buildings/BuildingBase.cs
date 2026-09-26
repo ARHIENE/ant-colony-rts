@@ -60,6 +60,7 @@ namespace AntColony.Buildings
         public void TakeDamage(float amount)
         {
             if (IsDead || !(amount > 0f)) return;
+            if (!AntColony.World.DiplomacyManager.TryAttack(this)) return;
             // 방어력은 피해를 깎되, 약한 공격도 최소 1(원래 피해가 더 작으면 그 값)은 들어간다.
             currentHealth -= Mathf.Max(Mathf.Min(amount, 1f), amount - Armor);
             if (currentHealth <= 0f)

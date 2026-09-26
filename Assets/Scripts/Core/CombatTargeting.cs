@@ -39,9 +39,11 @@ namespace AntColony.Core
         }
 
         // 지상 대상은 모든 전투 역할이 공격할 수 있고, 공중 대상은 Ranged와 Flying만 공격할 수 있다.
-        public static bool CanAttack(UnitRole role, IDamageable target)
+        public static bool CanAttack(UnitRole role, IDamageable target, bool allowPeace = false)
         {
             if (!IsAlive(target)) return false;
+            if (target is World.WildMonster ally && ally.Allied) return false;
+            if (!allowPeace && target is Component component && !World.DiplomacyManager.Hostile(component)) return false;
             if (target is AntUnitBase && !(target is CommanderAnt commander && commander.IsHostile)) return false;
             if (target is AntColony.World.ExpeditionTransport) return false;
             if (target is BuildingBase building && building.CountsTowardPlayerDefeat) return false;

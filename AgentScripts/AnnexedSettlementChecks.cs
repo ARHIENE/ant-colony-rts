@@ -52,8 +52,16 @@ using Object = UnityEngine.Object;
         {
             checks = 0;
             Check(Application.isPlaying, "Play mode required");
+            // 새 Play 세션은 메인 메뉴(일시정지)로 시작하므로 필요하면 게임을 직접 시작한다.
+            if (!GameSession.Instance.GameStarted)
+            {
+                while (AntColony.Save.SaveSystem.Busy) await Task.Delay(50);
+                AntColony.Save.SaveSystem.NewGame(new NewGameOptions());
+                while (AntColony.Save.SaveSystem.Busy) await Task.Delay(50);
+                AntColony.UI.GameMenuController.Instance.Resume(); Time.timeScale = 1;
+            }
             var world = WorldMapManager.Instance;
-            var site = world.Sites[0];
+            var site = world.Sites.First(s => s.Kind == ExpeditionSiteKind.Settlement);
             var colony = site.Colony;
             Object.FindAnyObjectByType<UpkeepManager>().enabled = false;
             var resources = ResourceManager.Instance;
@@ -62,7 +70,6 @@ using Object = UnityEngine.Object;
             AntPool.Instance.Breed(100);
             var commander = CommanderRoster.Instance.Commanders[0];
             commander.CommandStop();
-            Check(commander.TrySetRole(UnitRole.Worker), "worker role for local harvesting");
             if (commander.TroopCount < 5) Check(commander.TryAssign(5 - commander.TroopCount), "crew has troops");
             Check(world.CanCreateTransport(commander.Position, out var position), "transport placement available");
             var ship = world.CreateTransport(false, position);
@@ -106,7 +113,7 @@ using Object = UnityEngine.Object;
 
             var troops = commander.TroopCount;
             var assigned = AntPool.Instance.Assigned;
-            var level = commander.Progression.Level;
+            var level = commander.Talents.Level(CommanderActivity.Melee);
             Check(!ship.TryStation(new[] { commander, commander }) && ship.Crew.Count == 1, "duplicate station rejected atomically");
             Move(commander, ship.Position + Vector3.right * 12);
             Check(!ship.TryStation(new[] { commander }), "station requires nearby crew");
@@ -120,7 +127,7 @@ using Object = UnityEngine.Object;
             ui.PanelRect.Find("Station Selected").GetComponent<UnityEngine.UI.Button>().onClick.Invoke();
             Check(ship.Crew.Count == 0 && settlement.Garrison.Count == 1 && commander.Garrison == settlement
                 && commander.Transport == null && !commander.IsEmbarked, "station UI detaches visible commander from transport");
-            Check(commander.TroopCount == troops && AntPool.Instance.Assigned == assigned && commander.Progression.Level == level,
+            Check(commander.TroopCount == troops && AntPool.Instance.Assigned == assigned && commander.Talents.Level(CommanderActivity.Melee) == level,
                 "station preserves workforce and progression");
             Check(!commander.TryAssign(1) && commander.ReturnTroops(1) == 0 && !commander.CanStartConstruction,
                 "garrison cannot use home workforce or construct home buildings");
@@ -142,14 +149,12 @@ using Object = UnityEngine.Object;
             Check(!commander.IsCarrying && food.AmountRemaining == 10, "garrison does not harvest without a docked transport");
 
             // 실제 기존 자동 교전 확인. 새 침공 스케줄이나 패배 규칙은 만들지 않는다.
-            Check(commander.TrySetRole(UnitRole.Melee), "garrison takes combat role for defense");
             var enemy = Object.Instantiate(Template<EnemyCommander>(), commander.Position + Vector3.right, Quaternion.identity);
             Set(enemy.GetComponent<WildMonster>(), "maxHealth", 1f);
             Set(enemy.GetComponent<WildMonster>(), "attackDamage", 1f);
             enemy.gameObject.SetActive(true);
             Check(await Wait(() => enemy.IsDead, 10), "stationed commander automatically defends using existing combat");
             Object.Destroy(enemy.gameObject);
-            Check(commander.TrySetRole(UnitRole.Worker), "garrison can return to harvesting role");
             Check(!ship.TryBoard(new[] { commander }), "home transport cannot remotely board garrison");
             Check(ship.TryDepart(site), "empty transport can revisit annexed site for pickup");
             ship.Tick(ship.TravelSeconds);
@@ -186,3 +191,4 @@ using Object = UnityEngine.Object;
         }
     }
 }
+

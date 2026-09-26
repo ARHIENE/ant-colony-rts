@@ -1,37 +1,32 @@
 # 프로젝트 로그
 
-## 현재 상태 — 2026-09-26 (KST)
+## 현재 상태 — 2026-09-26 (KST, 저녁 SAVE)
 - 프로젝트: 개미 소굴 RTS, `E:\Git\ant`. Unity 6000.5.8f1 / URP 17.5.0 / Pipeline 0.7.0-exp.1.
-- 일반 개발 `develop`, 안정 `master`. `.prefab`/`.prefab.meta` 및 `Assets/_TeamImport`는 커밋하지 않는다.
-- 주요 경로: `Assets/Scripts/{Core,Save,UI,Map,Units,Buildings,World,Boss}`, `Assets/Scenes/AntColony.unity`, `AgentScripts/`.
-- 작업 기준 문서: `docs/IMPLEMENTATION_PLAN_2026-09-25.md`(7단계 지시서, 수치는 잠정값). 1~5단계 완료, 6·7단계 남음.
-- 저장 포맷 v6(v1~v5 자동 이관).
+- 일반 개발 `develop`, 안정 `master`. `.prefab`/`.prefab.meta`, `Assets/_TeamImport`, `Assets/Art`, `Assets/Prefabs`는 커밋하지 않는다.
+- 주요 경로: `Assets/Scripts/{Core,Save,UI,Map,Units,Buildings,World,Boss}`, `Assets/Scenes/AntColony.unity`, `AgentScripts/`(검사), `Assets/Resources/Fonts/`(UI 폰트).
+- 작업 기준 문서: `docs/IMPLEMENTATION_PLAN_2026-09-25.md`(7단계 지시서). **1~6단계 완료, 7단계(UI 마감) 진행 중.**
+- 저장 포맷 v7(v1~v6 자동 이관). 새 게임은 4문명·33거점, v6 이하 저장은 기존 30거점 배치 유지.
 
-## 구현 누적 상태 (2026-09-25~26)
-- 1단계 기획 정합: 과학 연구량 300/800/1800/4000·티어별 자원, 비행선 고치 최대 20, 수송수단 장수 슬롯 분리(차량 4+40 / 비행기 8+100), 연인 쌍만 번식, 장수 본인 유지비 30초 Food 2(식성 배율), 과학 한글 표시, 단축키 개편(Z/C 회전, Q/W 스킬, E/D 병력, R 무기, G 장수, P 일시정지, K/L/M) + `KeyBindings`·설정 변경. `GameBalance`에 상수 집약.
-- 2단계 과학 30기술 효과 전부 연결(`ScienceEffects`). 새 시설 7종: 흙벽·함정 구덩이·범위형 분사탑·감시탑·자폭개미 매설지·방어시설 연구소(4라인×3단계)·휴게실. 밭 작물 3종(`FarmPlot`), 가뭄·홍수 대응, 약초·부위 재생 의무실 연결.
-- 3단계 공방·장비: 공방 대기열 3, 제작 장수 배정, 품질 판정(조잡/보통/정교/걸작), 장비 10종, 공용 보관함 30(초과분 전리품 보존), 장수 사망 시 장비 드롭. `Workshop`, `EquipmentRecipes`, `WorkshopMigration`.
-- 4단계 랜덤 이벤트: 한파·홍수·가뭄·산불·곰팡이 감염·기생 말벌·방랑 장수·표류물·풍작·이주 개미떼(캐러밴은 6단계 전 비활성). 이벤트 로그(L) 20건, 엔딩용 누적 기록 `CampaignHistory`(자원 사유별 집계는 ResourceManager 한 곳).
-- 5단계 충성심·사회: 충성심 사건(회수·포상·구출·방치·원정·굶주림 등 특성 보정), 이탈(탈주/무장 반란→60초 후 퇴각, 6단계 전엔 "이탈"), 반란군 포로·재회유(충성심 30), 관계·친구/라이벌·결투·복수 분노·파벌, 무기 스킬 산성비·집결·급강하, 사건 특성 변화. `CommanderSocial*`, `CommanderDeparture`, `CommanderAdvancedSkills`, `SkillTargeting`.
-- UI 디자인 목업(별도 트랙): `design/`(HUD·메인메뉴·새 게임·장수·월드맵·외교·거래·건설·일시정지 HTML), `DESIGN.md`, `PRODUCT.md`, `.impeccable/` 리뷰 캡처. 실제 uGUI 반영은 7단계.
+## 6단계 외교·교역·반란 (완료)
+- 파일: `World/Diplomacy{Manager,Rules,Trade,Rebels}.cs`, `World/WorldGeneration.cs`, `UI/GameMenuDiplomacy.cs`. 문명 4개(공개·숨김 어젠다), 평화/전쟁·기습 선전포고 −30, 협정 3종(1년), AI 제안·월별 선전포고·3개월 침공, 평화 협상 배상, 거래 화면(자원·장비·거점·포로·협정, 수락식 `1.2-호감도/250`), 교역소 3곳·설계도, 캐러밴 90초, 반란 세력(초기 전쟁 −60, 소멸).
+- 이번 세션 보완: 적 세력이 우리 장수를 격파하면 전쟁 점수 +10(`DiplomacyManager.CommanderDowned`, 15m 내 교전 세력 추정).
+- 편입 거점 침공은 교전 중 문명 일정으로만 시작(거점 타이머 = 외교 시계 기준).
 
-## 이번 세션 — 2026-09-26 추가 점검
-- 기준 커밋 develop 6b32f5e. 코드·그래프·저장 이관을 확인해 1~5단계 구현, 6~7단계 미구현 상태 확인.
-- 공식 Unity CLI로 Stage5Checks 122개, RegressionChecks 46개를 각각 새 Play 세션에서 재실행해 통과. 전체 회귀 검사는 이번에 실행하지 않음.
-- Unity Hub/CLI 자동 탐색은 에디터를 찾지 못했으나 --editor-path E:/unity/6000.5.8f1/Editor/Unity.exe 지정으로 실행·Pipeline 연결 복구.
-- 사용자가 6단계 전체 구현을 승인했으나 첫 소스 읽기 도중 중단하고 SAVE 요청. 6단계 코드 수정 없음. 다음 작업은 승인된 6단계 외교·교역·반란 세력 구현.
-- SAVE 진행 중: 문서 정리, develop 커밋·push, 같은 날짜 Notion 개발 일지 이어쓰기 및 캡처 첨부.
+## 7단계 UI 마감 (진행 중)
+- 기준 디자인: Claude Design 캔버스 「개미 RTS UI」 https://claude.ai/artifact/NLgjVc64vKNdfV49nvTw6j (9화면: HUD·건설·월드맵·장수·외교·거래·메인메뉴·새 게임·일시정지). 로컬 `design/`은 이전 버전.
+- UI 방식: 기존 uGUI 코드 생성 유지. 공통 토큰·폰트는 `MenuTheme`(Plate #1b1712, Accent #f2a93b, Text #efe7da, Noto Sans KR + Barlow).
+- 완료: 1) 테마 색·폰트 전체 적용 2) HUD/메뉴 캔버스 기준 1440×900, 상단 40px 바(메뉴 Esc·장수 G·과학 K·외교 J·로그 L·월드맵 M / 날짜·속도 / 자원·개미), 목표 상자 좌상단, 알림 우상단 판넬. 검사가 찾는 오브젝트 이름은 유지하고 표시 문구만 한글.
+- 다음: 3) 하단 콘솔(미니맵·선택 장수·커맨드 카드) + 건설 12버튼을 건설(B) 화면으로 이동 — **조작 흐름 변경이라 사용자 확인 후 진행** 4) 장수 관리·일시정지/저장·메인메뉴/새 게임·외교/거래·월드맵 화면 교체.
 
-## 검증 (공식 Unity CLI, 각각 새 Play 세션)
-- Stage1 125, Stage2 187, Stage3 107, Stage4 122, Stage5 122 통과(각 단계 완료 시점).
-- 2단계 후 기존 14개 스위트 통과 확인(WorldMap 644, Transport 54, Infirmary 등). 4단계 후 Regression 46 통과(씬 초기화 대기 수정).
-- 3~5단계 이후 전체 회귀 스위트 일괄 재실행은 안 함 → 다음 세션 첫 작업으로 권장.
-- Stage 검사 실행: `unity command run_script --file AgentScripts/StageNChecks.cs --entry StageNChecks.Main --timeout_ms 180000 --timeout 190`.
+## 검증 (공식 Unity CLI, 새 Play 세션)
+- 통과: Stage1 126·2 178·3 107·4 122·5 122·6 59, WorldMap 743, Tooltip 362, FullUI 50, Regression, SaveRoundtrip 42, TransportRoute 56, Campaign 86, Fishing, EnemyColonyEconomy, Foundation 16, SettlementDefense 71, AnnexedSettlement 48, LabUpgrade 39, Support 8, Beta 39, CommanderAcquisition 59, Infirmary 35, PlayableLoop 45, StorageResearch 33, WeaponTalent 91, SettlementReward 50, AcidTower 26, AcquisitionSetup 66, AntWorkVisual, EnemyColonyPlacement.
+- 실패/미실행: ActiveSkill·CommanderEdge(선택 패널 UI 의존, 3단계에서 재작성), WorkProficiencyLoot(특수 전리품 반납 대기 실패, 원인 미상), CommanderChecks(실행마다 다른 줄 실패, 불안정), AcquisitionBuilding(양육실 문구), Invasion·Raid·SceneInvasion(씬 `EnemyNestPrototype` 의존), Airborne·Run(top-level 형식, 러너 비호환). CommanderProgressionChecks는 삭제된 경험치·계급 시스템 전용이라 제거.
+- 새 Play 세션은 메인 메뉴(일시정지)로 시작 → 검사는 `GameSession.GameStarted` 아니면 새 게임 시작 후 진행해야 함.
+- 실행: `unity command run_script --file AgentScripts/XChecks.cs --entry XChecks.Main --timeout_ms 300000 --timeout 310`. Play 재진입은 `editor_stop` 후 `editor_status`로 stopped 확인 뒤 `editor_play`.
 
-## 제한 및 다음 작업
-- 6단계 외교·교역·반란 세력(문명 4개·거점 33곳·협정·거래 화면·J 외교), 7단계 UI 마감(3D 월드맵·토스트 규칙·장수 관리·엔딩 화면·계절 반영).
-- 전체 회귀 일괄 재실행, Player 빌드, 밸런스·화면 품질 검증 미완.
-- 커밋 제외(로컬 보존): `Assets/Art`, `Assets/Prefabs`, `graphify-out` 변경, `design_skill/`, `docs/_dskills.tgz`, Playwright 설정(`package*.json`, `playwright.config.ts`, `tests/`, `skills-lock.json`).
-- Notion 기획: https://app.notion.com/p/334c4a0ecd3180c4a796e5220302a0bd
-- 개발 일지: https://app.notion.com/p/334c4a0ecd3181778dcaf0e6a8d57040
-- 공식 CLI: `C:\Users\Shim Hyeonyeop\AppData\Local\Unity\bin\unity.exe`, 프로젝트 `E:\Git\ant`.
+## 주의
+- 에디터 강제 종료(taskkill) 시 씬 백업 복구 대화상자가 뜸 → 에디터는 끄지 말고 한 인스턴스로 검사. 반복 Play로 메모리가 15GB+까지 증가해 OOM 크래시 1회 발생.
+- `capture_game_view --save_path`는 `Assets/` 하위에 저장됨 → 캡처 후 즉시 밖으로 옮기고 `Assets/Temp` 삭제.
+- 커밋 제외(로컬 보존): `Assets/Art`, `Assets/Prefabs`, `graphify-out` 변경, `design_skill/`, `docs/_dskills.tgz`, Playwright 설정.
+- Notion 기획: https://app.notion.com/p/334c4a0ecd3180c4a796e5220302a0bd / 개발 일지: https://app.notion.com/p/334c4a0ecd3181778dcaf0e6a8d57040
+- 공식 CLI: `C:\Users\Shim Hyeonyeop\AppData\Local\Unity\bin\unity.exe`, 에디터 `E:/unity/6000.5.8f1/Editor/Unity.exe`.

@@ -41,6 +41,7 @@ namespace AntColony.Buildings
                 cocoon ? GameBalance.CocoonSoil : 150, cocoon ? GameBalance.CocoonSpecial : 150, reason: ResourceReason.Construction)) return false;
             state.building = (int)part;
             state.remaining = cocoon ? GameBalance.CocoonSeconds : 300;
+            AntColony.World.DiplomacyManager.Instance?.AirshipConstructionStarted();
             return true;
         }
 

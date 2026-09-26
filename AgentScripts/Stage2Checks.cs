@@ -284,19 +284,19 @@ public static class Stage2Checks
             await Task.Delay(100);
             Check(site.TryResolveConquest(ConquestDisposition.Annexed), "annex settlement");
             Check(!Watchtower.Watches(site), "no watchtower, no watch");
-            site.Defense.Tick(site.Defense.Remaining - 61); site.Defense.Tick(2);
+            var diplomacy = DiplomacyManager.Instance; var invader = diplomacy.Data.civilizations[0]; diplomacy.DeclareWar(invader); invader.nextRaid = diplomacy.Data.elapsed + 59; site.Defense.Tick(2);
             Check(!site.Defense.Warned, "unwatched site gets no warning");
             var watch = Build<Watchtower>(BuildingKind.Watchtower, home + Vector3.back * 28);
             Check(watch.MaxHealth == 150 && watch.Data.soilCost == 40 && Watchtower.Watches(site), "watchtower spec and coverage");
             // 경보 창을 지나쳤으므로 이번 습격을 끝내 타이머를 새로 시작한다.
-            site.Defense.Tick(site.Defense.Remaining);
+            site.Defense.TryStartRaid();
             Check(site.Defense.UnderAttack, "raid starts");
             foreach (var attacker in site.Defense.Attackers.ToArray()) attacker.TakeDamage(float.MaxValue);
-            site.Defense.Tick(.1f);
+            invader.nextRaid = diplomacy.Data.elapsed + 900; site.Defense.Tick(.1f);
             Check(!site.Defense.UnderAttack && site.Defense.Remaining > 61, "raid repelled, timer reset");
-            site.Defense.Tick(site.Defense.Remaining - 61);
+            invader.nextRaid = diplomacy.Data.elapsed + 61; site.Defense.Tick(1);
             Check(!site.Defense.UnderAttack && !site.Defense.Warned, "before warning window");
-            site.Defense.Tick(2);
+            diplomacy.Data.elapsed += 2; site.Defense.Tick(2);
             Check(site.Defense.Warned && site.Defense.Status.Contains("WATCHTOWER"), "watchtower warns 60s before raid with route");
             Check(vehicle.TryReturn(), "return home"); vehicle.Tick(vehicle.TravelSeconds);
 
@@ -359,3 +359,4 @@ public static class Stage2Checks
         finally { Time.timeScale = 0; SaveStorage.RootOverride = oldRoot; UserSettings.Apply(settings, false); }
     }
 }
+

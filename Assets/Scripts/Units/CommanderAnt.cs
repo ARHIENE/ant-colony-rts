@@ -283,6 +283,7 @@ namespace AntColony.Units
         public override void CommandAttack(IDamageable target)
         {
             if (!CanReceiveOrders || LabUpgradeBusy || !HasTroops) return;
+            if (target is Component component && !AntColony.World.DiplomacyManager.TryAttack(component)) return;
             base.CommandAttack(target);
         }
 
