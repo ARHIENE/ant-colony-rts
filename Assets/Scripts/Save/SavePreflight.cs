@@ -85,6 +85,7 @@ namespace AntColony.Save
                     Check(!c.personalState.dead || c.troopCount == 0 && !c.activeInScene, "dead commander");
                     // 부상·장비 해제·구 저장 이관으로 한도 초과가 되어도 기존 병력은 보존한다.
                     Check(V(c.position) && c.troopCount <= 100000000 && N(c.pendingDamage) && c.pendingDamage < 1, "troops");
+                    Check(N(c.carriedAmount) && c.carriedAmount <= 100000000 && N(c.fishingProgress) && c.fishingProgress >= 0 && c.fishingProgress <= Core.GameBalance.FishingCatchSeconds && System.Enum.IsDefined(typeof(ResourceType), c.carriedType), "commander cargo");
                     Check(c.talents != null && c.talents.Validate(), "talents");
                     Check(c.labAttackLevel >= 0 && c.labAttackLevel <= 3 && c.labArmorLevel >= 0 && c.labArmorLevel <= 3, "upgrades");
                     Check(N(c.strikeCooldown) && N(c.stanceCooldown) && N(c.stanceTime), "skills");
@@ -159,7 +160,7 @@ namespace AntColony.Save
                     Check(crew.Sum(c => (long)c.troopCount) <= (s.aircraft ? Core.GameBalance.AircraftTroops : Core.GameBalance.VehicleTroops) * (heavy ? 1.5f : 1f)
                         && crew.Length <= (s.aircraft ? Core.GameBalance.AircraftCommanders : Core.GameBalance.VehicleCommanders) + (heavy ? 2 : 0), "transport capacity");
                 }
-                Check(f.nodes.All(n => n != null && n.key != null && N(n.amount) && N(n.regrowTimer) && V(n.position) && Enum.IsDefined(typeof(ResourceType), n.type))
+                Check(f.nodes.All(n => n != null && n.key != null && N(n.amount) && N(n.regrowTimer) && n.fishMonth >= -1 && V(n.position) && Enum.IsDefined(typeof(ResourceType), n.type))
                     && f.nodes.Select(n => n.key).Distinct().Count() == f.nodes.Count, "resource nodes");
                 Check(f.monsters.All(m => m != null && m.key != null && N(m.health) && V(m.position)) && f.monsters.Select(m => m.key).Distinct().Count() == f.monsters.Count, "monsters");
                 foreach (var m in f.monsters) if (m.traits != null)

@@ -124,7 +124,7 @@ namespace AntColony.Buildings
             var template = GetTemplate(kind, role);
             var building = template != null ? template.GetComponent<BuildingBase>() : null;
             if (selectedBuilder == null || !selectedBuilder.CanStartConstruction)
-                return PlacementFailed("Select an idle commander with troops at home to build.");
+                return PlacementFailed("Select an idle civilian commander at home to build.");
             if (building == null || building.Data == null) return PlacementFailed("This building template is unavailable.");
 
             CancelPlacement();
@@ -144,6 +144,7 @@ namespace AntColony.Buildings
         // 연구·수량 조건으로 지금 지을 수 없으면 이유를, 가능하면 null을 돌려준다.
         public static string LockReason(BuildingKind kind)
         {
+            if (kind == BuildingKind.ConscriptionPost && (FindFirstObjectByType<ConscriptionPost>() != null || System.Array.Exists(FindObjectsByType<BuildingConstructionSite>(FindObjectsSortMode.None), s => s.BuildingKind == kind))) return "본거지 징집소는 한 곳만 건설할 수 있습니다.";
             if (!ScienceEffects.BuildingUnlocked(kind)) return "Research the matching science first.";
             if (kind == BuildingKind.MineField && MineField.Count >= GameBalance.MaxMines) return $"Up to {GameBalance.MaxMines} mine fields at once.";
             if (kind == BuildingKind.Infirmary && !Infirmary.Unlocked) return "Research Infirmary first.";
@@ -161,7 +162,7 @@ namespace AntColony.Buildings
 
         private void TryPlace(Vector3 position, Vector3 groundPosition)
         {
-            if (!ScienceEffects.BuildingUnlocked(pendingKind)) return;
+            if (LockReason(pendingKind) != null) return;
             if (pendingKind == BuildingKind.MineField && MineField.Count >= GameBalance.MaxMines) return;
             if (pendingKind == BuildingKind.Infirmary && !Infirmary.Unlocked) return;
             if (pendingKind == BuildingKind.ScienceLab && !ScienceLab.PrerequisitesMet) return;
@@ -280,6 +281,7 @@ namespace AntColony.Buildings
                 BuildingKind.MineField => FindTemplate<MineField>() ?? RuntimeBuildingTemplates.Create(kind),
                 BuildingKind.DefenseLab => FindTemplate<DefenseLab>() ?? RuntimeBuildingTemplates.Create(kind),
                 BuildingKind.RestRoom => FindTemplate<RestRoom>() ?? RuntimeBuildingTemplates.Create(kind),
+                BuildingKind.ConscriptionPost => FindTemplate<ConscriptionPost>() ?? RuntimeBuildingTemplates.Create(kind),
                 BuildingKind.Workshop => FindTemplate<Workshop>() ?? RuntimeBuildingTemplates.Create(kind),
                 _ => null
             };

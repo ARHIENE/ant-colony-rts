@@ -14,6 +14,7 @@ namespace AntColony.Units
     [Serializable]
     public class CommanderPersonalState
     {
+        public CommanderWorkState work = new CommanderWorkState();
         public string id = Guid.NewGuid().ToString("N");
         public List<CommanderInjury> injuries = new List<CommanderInjury>();
         public List<MoodFactor> moodFactors = new List<MoodFactor>();
@@ -71,7 +72,7 @@ namespace AntColony.Units
         public bool Validate(out string error)
         {
             error = "Invalid commander personal state";
-            if (string.IsNullOrEmpty(id) || social == null || !social.Validate() || injuries == null || injuries.Count > 6 || moodFactors == null || moodFactors.Count > 64 || relations == null || equipment == null || equipment.Count > 3) return false;
+            if (work == null || !work.Valid || string.IsNullOrEmpty(id) || social == null || !social.Validate() || injuries == null || injuries.Count > 6 || moodFactors == null || moodFactors.Count > 64 || relations == null || equipment == null || equipment.Count > 3) return false;
             var parts = new HashSet<InjuryPart>();
             foreach (var i in injuries) if (i == null || !Enum.IsDefined(typeof(InjuryPart), i.part) || !parts.Add(i.part) || !Enum.IsDefined(typeof(InjurySeverity), i.severity) || !Finite(i.remaining) || i.remaining < 0) return false;
             foreach (var f in moodFactors) if (f == null || f.reason == null || !Finite(f.value) || !Finite(f.remaining) || f.remaining < 0) return false;

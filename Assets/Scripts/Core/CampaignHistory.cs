@@ -44,6 +44,7 @@ namespace AntColony.Core
         public static void Record(string kind, string name, string result, bool notify = false)
         {
             if (!Recording) return;
+            FirstHints.OnRecord(kind, result);
             var e = new Entry { seconds = GameCalendar.GameSeconds, kind = kind, name = name, result = result };
             var d = Instance.Data; d.recent.Add(e); if (d.recent.Count > 20) d.recent.RemoveAt(0);
             d.milestones.Add(e);

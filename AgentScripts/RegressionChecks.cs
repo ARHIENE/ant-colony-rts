@@ -63,7 +63,8 @@ public static class RegressionChecks
 
             var worker = Unit<CommanderAnt>(UnitRole.Worker, origin);
             AntPool.Instance.Breed(1);
-            Check(worker.TryAssign(1), "commander receives workforce for gameplay checks");
+            worker.SetJobEnabled(CommanderJobs.All, false);
+            Check(worker.CanStartConstruction && !worker.HasTroops, "civilian works without troops");
             var soldier = Unit<SoldierAnt>(UnitRole.Melee, origin + Vector3.right * 8);
             var flying = Unit<FlyingAnt>(UnitRole.Flying, origin + Vector3.left * 8);
             Check(flying.transform.position.y >= origin.y + 2.9f, "flying spawn starts above ground before combat");

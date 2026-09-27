@@ -13,6 +13,7 @@ namespace AntColony.Buildings
             // 함정·매설지는 밟혀야 하므로 길을 막지 않는 납작한 발판이다.
             var (name, scale, color, food, soil, special, ants, seconds, hp, walkable) = kind switch
             {
+                BuildingKind.ConscriptionPost => ("징집소", new Vector3(3, 2, 3), new Color(.6f, .4f, .2f), GameBalance.ConscriptionFood, GameBalance.ConscriptionSoil, 0, GameBalance.ConscriptionAnts, GameBalance.ConscriptionBuildSeconds, 300f, false),
                 BuildingKind.SoilWall => ("Soil Wall", new Vector3(2, 1.5f, .6f), new Color(.45f, .33f, .2f), 0, 25, 0, 3, 4f, 400f, false),
                 BuildingKind.TrapPit => ("Trap Pit", new Vector3(1.6f, .1f, 1.6f), new Color(.3f, .22f, .12f), 10, 30, 0, 3, 5f, 100f, true),
                 BuildingKind.AreaAcidTower => ("Area Acid Tower", new Vector3(1.6f, 2.4f, 1.6f), new Color(.55f, .8f, .3f), 40, 70, 0, 6, 10f, 220f, false),
@@ -35,6 +36,7 @@ namespace AntColony.Buildings
             data.constructionAnts = ants; data.buildTimeSeconds = seconds; data.maxHealth = hp;
             BuildingBase building = kind switch
             {
+                BuildingKind.ConscriptionPost => go.AddComponent<ConscriptionPost>(),
                 BuildingKind.SoilWall => go.AddComponent<SoilWall>(),
                 BuildingKind.TrapPit => go.AddComponent<TrapPit>(),
                 BuildingKind.AreaAcidTower => go.AddComponent<AreaAcidTower>(),

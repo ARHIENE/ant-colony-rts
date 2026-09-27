@@ -95,7 +95,7 @@ namespace AntColony.Regression
                 rm.Add(ResourceType.Soil, 5000);
 
                 // 소유권·다중 연구소.
-                a.TryAssign(1);
+                a.WorkState.duty = CommanderDuty.Deployed; a.TryAssign(1); // 병력은 출전 편성으로 받는다.
                 var attackBefore = a.AttackDamage;
                 var food = rm.GetAmount(ResourceType.Food);
                 var soil = rm.GetAmount(ResourceType.Soil);
@@ -218,6 +218,7 @@ namespace AntColony.Regression
             var commander = go.AddComponent<CommanderAnt>();
             commander.Initialize(template.Data, null, null);
             commander.ConfigureCommander(name, default(CommanderRank), new[] { UnitRole.Melee, UnitRole.Ranged }, UnitRole.Melee);
+            commander.SetJobEnabled(CommanderJobs.All, false); // 자율 작업이 연구소 범위를 벗어나게 하지 않는다.
             return commander;
         }
 

@@ -64,6 +64,9 @@ namespace AntColony.Units
             }
         }
 
+        // 커맨드 카드의 어택무브 버튼. A 키와 같은 조건으로 공격 지점 선택을 시작한다.
+        public void BeginAttackMode() { if (selectionManager != null && HasSoldierSelected()) IsAttackMode = true; }
+
         private bool HasSoldierSelected()
         {
             foreach (var selectable in selectionManager.GetSelectedObjects())

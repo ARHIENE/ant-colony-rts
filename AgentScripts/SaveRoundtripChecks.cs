@@ -34,6 +34,8 @@ public static class SaveRoundtripChecks
     public static async Task<string> Main()
     {
         checks = 0;
+        var ready = DateTime.UtcNow.AddSeconds(90);
+        while (SaveSystem.Busy && DateTime.UtcNow < ready) await Task.Delay(30);
         if (Application.isPlaying && !GameSession.Instance.GameStarted)
         {
             SaveSystem.NewGame(new NewGameOptions { mapSize = MapSize.Small, seed = 250925 });

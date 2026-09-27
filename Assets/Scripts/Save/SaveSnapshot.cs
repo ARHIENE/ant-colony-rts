@@ -43,7 +43,7 @@ namespace AntColony.Save
                     storageResearchApplied = true,
                     antsFree = pool.Free, antsAssigned = pool.Assigned, antsReserved = pool.Reserved, fishingUnlocked = GameManager.Instance.FishingUnlocked } };
             foreach (var c in commanders) file.commanders.Add(new CommanderDto { id = file.commanders.Count, name = c.CommanderName,
-                troopCount = c.TroopCount, pendingDamage = c.MaxHealth - c.CurrentHealth, talents = c.Talents.Copy(),
+                troopCount = c.TroopCount, pendingDamage = c.PendingTroopDamage, carriedAmount = c.CarriedAmount, carriedType = (int)c.CarriedType, fishingProgress = c.FishingProgress, talents = c.Talents.Copy(),
                 traits = SaveCatalog.Traits(c.Traits), personalState = c.CapturePersonalState(),
                 labAttackLevel = c.LabAttackLevel, labArmorLevel = c.LabArmorLevel, position = new Vec3Dto(c.Position),
                 activeInScene = c.gameObject.activeSelf, location = c.IsCaptive ? 3 : c.Garrison != null ? 2 : c.Transport != null ? 1 : 0,
@@ -95,7 +95,7 @@ namespace AntColony.Save
         }
 
         private static ResourceNodeDto Node(ResourceNode n, string key) => new ResourceNodeDto { key = key, exists = n != null,
-            amount = n != null ? n.AmountRemaining : 0, regrowTimer = n != null ? n.RegrowTimeRemaining : 0, bountifulHarvest = n != null && n.BountifulHarvest,
+            amount = n != null ? n.AmountRemaining : 0, regrowTimer = n != null ? n.RegrowTimeRemaining : 0, bountifulHarvest = n != null && n.BountifulHarvest, gatheringForbidden = n != null && n.GatheringForbidden, fishMonth = n != null ? n.FishMonth : -1,
             position = new Vec3Dto(n != null ? n.transform.position : Vector3.zero), type = n != null ? (int)n.ResourceType : 0 };
 
         private static EnemyColonyDto Colony(EnemyColony c)
@@ -150,7 +150,7 @@ namespace AntColony.Save
                 if (node == null) continue;
                 if (!d.exists) { Object.Destroy(node.gameObject); continue; }
                 node.transform.position = d.position.ToVector3(); node.RestoreState(d.amount, d.regrowTimer);
-                node.BountifulHarvest = d.bountifulHarvest;
+                node.BountifulHarvest = d.bountifulHarvest; node.GatheringForbidden = d.gatheringForbidden; node.FishMonth = d.fishMonth;
             }
             foreach (var d in file.monsters)
             {
@@ -189,7 +189,7 @@ namespace AntColony.Save
                 var c = CommanderRoster.Instance.CreateForLoad(d.name, CommanderRank.Sergeant, new[] { UnitRole.Worker },
                     UnitRole.Worker, SaveCatalog.Traits(d.traits), world.HomePosition + Vector3.right * 3);
                 if (c == null) throw new InvalidOperationException("No navigable commander spawn.");
-                commanders.Add(c); c.RestorePersonalState(d.personalState); c.RestoreTroops(d.troopCount, d.pendingDamage); c.RestoreLabLevels(d.labAttackLevel, d.labArmorLevel);
+                commanders.Add(c); c.RestorePersonalState(d.personalState); c.RestoreTroops(d.troopCount, d.pendingDamage); c.RestoreCargo(d.carriedAmount, (ResourceType)d.carriedType); c.RestoreFishing(d.fishingProgress); c.RestoreLabLevels(d.labAttackLevel, d.labArmorLevel);
                 c.RestoreTalents(d.talents);
                 c.Skills.Restore(d.strikeArmed, d.strikeCooldown, d.stanceCooldown, d.stanceTime);
                 c.SetEmbarked(false, d.position.ToVector3());

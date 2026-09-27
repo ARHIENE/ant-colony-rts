@@ -15,7 +15,7 @@ namespace AntColony.Units
         public Infirmary TreatmentFacility { get; internal set; }
         public Workshop CraftingWorkshop { get; internal set; }
         public bool CanReceiveOrders => isActiveAndEnabled && !IsDead && !IsCaptive && !IsEmbarked
-            && !IsDeparting && personalState.rageRemaining <= 0 && !Social.diving
+            && PersonalHealth > 0 && !IsDeparting && personalState.rageRemaining <= 0 && !Social.diving
             && CraftingWorkshop == null && !personalState.treating && personalState.mentalBreak == MentalBreak.None;
         public bool HasTrinket(TrinketEffect effect) => personalState.equipment.Exists(e => e.slot == EquipmentSlot.Trinket && e.effect == effect);
         public float EquipmentBonus(EquipmentSlot slot) => slot == EquipmentSlot.Weapon
@@ -178,7 +178,7 @@ namespace AntColony.Units
             count = Mathf.Min(Mathf.Max(0, count), troopCount);
             if (count == 0) return;
             troopCount -= count; if (!IsDeparting) AntPool.Instance?.LoseAssigned(count);
-            if (troopCount == 0) { pendingDamage = 0; CommandStop(); if (IsHostile) CaptureDeparting(); else OnDowned(cause); }
+            if (troopCount == 0) { pendingDamage = 0; CommandStop(); if (IsHostile) CaptureDeparting(); else if (IsDeployed) ReturnToPost(); }
         }
         private void OnDowned(string cause = "전투")
         {
@@ -190,6 +190,7 @@ namespace AntColony.Units
             ScienceAssignment?.ReleaseResearcher(); LabUpgradeLab?.CancelResearch();
             CraftingWorkshop?.Release();
             personalState.dead = fatal;
+            WorkState.health = 0; WorkState.recoverySeconds = fatal ? 0 : GameBalance.CommanderRecoverySeconds;
             AntColony.World.DiplomacyManager.Instance?.CommanderDowned(transform.position);
             NotifyDowned(fatal, cause);
             foreach (var c in CommanderRoster.Instance != null ? CommanderRoster.Instance.Commanders : Active.OfType<CommanderAnt>().ToArray())

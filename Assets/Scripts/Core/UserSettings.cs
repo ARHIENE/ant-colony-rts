@@ -17,8 +17,10 @@ namespace AntColony.Core
         public float toastSeconds = 6f;          // 알림 토스트 표시 시간
         public bool pauseSimulationOnMenu = true; // 명시적 일시정지에서 시뮬레이션도 멈출지
         public System.Collections.Generic.List<string> keyBindings = new System.Collections.Generic.List<string>(); // GameAction 순서, 비면 기본값
+        public bool firstHints = true;           // 첫 등장 힌트 토스트
+        public System.Collections.Generic.List<string> shownHints = new System.Collections.Generic.List<string>(); // 이미 본 힌트(1회)
 
-        public UserSettingsData Clone() => (UserSettingsData)MemberwiseClone();
+        public UserSettingsData Clone() => JsonUtility.FromJson<UserSettingsData>(JsonUtility.ToJson(this));
 
         public void Sanitize()
         {
@@ -26,6 +28,7 @@ namespace AntColony.Core
             edgeScrollThickness = Mathf.Clamp(edgeScrollThickness, 0f, 60f);
             autoSaveMinutes = Mathf.Clamp(autoSaveMinutes, 1f, 30f);
             toastSeconds = Mathf.Clamp(toastSeconds, 2f, 20f);
+            if (shownHints == null) shownHints = new System.Collections.Generic.List<string>();
         }
     }
 

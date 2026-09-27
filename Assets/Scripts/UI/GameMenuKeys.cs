@@ -13,7 +13,8 @@ namespace AntColony.UI
             foreach (GameAction action in System.Enum.GetValues(typeof(GameAction)))
             {
                 var label = rebinding == action ? "press a key (Esc cancels)" : KeyBindings.Get(action).ToString();
-                MenuTheme.Button(content, $"Key - {action}: {label}", () => { rebinding = action; Settings(); });
+                var name = action == GameAction.AddTroop ? "징집소" : action == GameAction.RemoveTroop ? "귀환" : action.ToString();
+                MenuTheme.Button(content, $"Key - {name}: {label}", () => { rebinding = action; Settings(); });
             }
             MenuTheme.Button(content, "Reset keys to default", () =>
             {

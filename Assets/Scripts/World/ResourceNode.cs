@@ -7,6 +7,8 @@ namespace AntColony.World
 {
     public class ResourceNode : MonoBehaviour
     {
+        public static IReadOnlyList<ResourceNode> Available => Active;
+        public bool GatheringForbidden { get; set; }
         private static readonly List<ResourceNode> Active = new List<ResourceNode>();
 
         [SerializeField] private ResourceType resourceType = ResourceType.Food;
@@ -34,7 +36,7 @@ namespace AntColony.World
             || ownerColony.GetComponentInParent<ExpeditionSite>()?.Disposition == ConquestDisposition.Lost);
         public bool IsUnlocked => !IsRaidLocked && (GetComponentInParent<ExpeditionSite>()?.Disposition == ConquestDisposition.Annexed || DiplomacyManager.Hostile(this))
             && (!requiresFishing || (GameManager.Instance != null && GameManager.Instance.FishingUnlocked));
-        public bool CanGather => isActiveAndEnabled && !IsDepleted && IsUnlocked && !ColonyEvents.Flooded(this);
+        public bool CanGather => !GatheringForbidden && isActiveAndEnabled && !IsDepleted && IsUnlocked && !ColonyEvents.Flooded(this);
         public float GatherRateMultiplier => requiresFishing ? fishingRateMultiplier : 1f;
 
         public ResourceType ResourceType => resourceType;
@@ -55,14 +57,23 @@ namespace AntColony.World
                 gameObject.AddComponent<ResourceNodeStatus>();
         }
 
-        private void Update() => TickGrowth(Time.deltaTime);
+        private void Update() { if (requiresFishing && !AntColony.Save.SaveSystem.Busy && GameSession.Exists && GameSession.Instance.GameStarted) RefreshFishingMonth(); TickGrowth(Time.deltaTime); }
+        // 낚시터: 재성장 대신 매달 월 한도만큼 재고를 채운다. fishMonth는 마지막으로 채운 달(저장 포함).
+        internal int FishMonth { get; set; } = -1;
+        public bool FishedOut => requiresFishing && IsDepleted;
+        public void RefreshFishingMonth()
+        {
+            if (FishMonth == GameCalendar.TotalMonths) return;
+            FishMonth = GameCalendar.TotalMonths; amountRemaining = GameBalance.FishingMonthlyFood; regrowTimer = 0;
+        }
+        private bool IsFarm => GetComponent<AntColony.Buildings.BuildingBase>() != null;
         public void TickGrowth(float seconds)
         {
             if (regrowTimer <= 0f || !(seconds > 0) || float.IsInfinity(seconds)) return;
             regrowTimer = Mathf.Max(0, regrowTimer - seconds * ColonyEvents.GrowthMultiplier(this));
-            // 밭(건물 노드)만 균류 재배 수확량 보정을 받는다.
-            if (regrowTimer <= 0f) amountRemaining = regrowAmount
-                * (GetComponent<AntColony.Buildings.BuildingBase>() != null ? ScienceEffects.FarmYieldMultiplier : 1f) * (BountifulHarvest ? 1.5f : 1f);
+            // 밭(건물 노드)만 균류 재배 수확량 보정과 가을 수확 배율을 받는다.
+            if (regrowTimer <= 0f) amountRemaining = regrowAmount * (IsFarm ? ScienceEffects.FarmYieldMultiplier
+                * (GameCalendar.CurrentSeason == Season.Autumn ? GameBalance.AutumnHarvestMultiplier : 1f) : 1f) * (BountifulHarvest ? 1.5f : 1f);
         }
         public void GrantBountifulHarvest()
         {
@@ -95,18 +106,20 @@ namespace AntColony.World
             amountRemaining -= extracted;
             if (IsDepleted)
             {
-                if (regrowSeconds > 0f) { regrowTimer = regrowSeconds; BountifulHarvest = false; Harvested?.Invoke(); }
+                if (requiresFishing) { }
+                else if (regrowSeconds > 0f) { regrowTimer = regrowSeconds; BountifulHarvest = false; Harvested?.Invoke(); }
                 else gameObject.SetActive(false);
             }
             return extracted;
         }
 
-        // 밭 작물 변경 전용. 이미 자라는 중이면 남은 시간을 새 작물 성장 시간 안으로 줄인다.
+        // 밭 작물 변경 전용. 이미 자라는 중이면 남은 시간을 새 작물 성장 시간 안으로 줄이고, 막 심은 밭은 새 성장 시간 전체를 쓴다.
         internal void ConfigureRegrowth(float seconds, float amount)
         {
+            var fresh = regrowTimer > 0f && regrowTimer == regrowSeconds;
             regrowSeconds = Mathf.Max(0f, seconds);
             regrowAmount = Mathf.Max(0f, amount);
-            regrowTimer = Mathf.Min(regrowTimer, regrowSeconds);
+            regrowTimer = fresh ? regrowSeconds : Mathf.Min(regrowTimer, regrowSeconds);
         }
 
         // 런타임 생성 노드(보스 전리품) 전용. 활성화 전에 호출해야 OnEnable 판정이 맞다.
@@ -124,7 +137,7 @@ namespace AntColony.World
         {
             amountRemaining = Mathf.Max(0f, amount);
             regrowTimer = Mathf.Max(0f, timer);
-            var shouldBeActive = !IsDepleted || regrowSeconds > 0f;
+            var shouldBeActive = !IsDepleted || regrowSeconds > 0f || requiresFishing;
             if (gameObject.activeSelf != shouldBeActive) gameObject.SetActive(shouldBeActive);
         }
 

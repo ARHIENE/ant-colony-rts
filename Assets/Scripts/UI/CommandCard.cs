@@ -35,23 +35,34 @@ namespace AntColony.UI
             colonyGrid = Grid("ColonyCommands");
 
             Add(commanderGrid, 0, "Q", "Skill", () => SkillLabel(Commander), () => UseWeaponSkill(Commander),
-                () => "무기 스킬: 큰턱 강타(근접 Lv2), 갑각 방어 태세(근접 Lv3), 산성비(원거리 5, 지면 클릭), 집결(지휘 5).", () => SkillReady(Commander));
+                () => "무기 스킬: 큰턱 강타(근접 Lv2), 갑각 방어 태세(근접 Lv3), 산성비(원거리 5, 지면 클릭), 집결(지휘 5).", () => SkillReady(Commander), Deployed);
             Add(commanderGrid, 1, "W", "Dive", () => "급강하" + Cooldown(Commander != null ? Commander.Social.diveCooldown : 0f),
                 () => SkillTargeting.Begin(new[] { Commander }, true), () => "날개 + 근접/원거리 5. 지면 클릭 후 급강하, 3초 착지. 재사용 30초.",
-                () => Commander != null && Commander.CanDive, () => Commander != null && Commander.EquippedArmor?.armor == ArmorKind.Wings);
-            Add(commanderGrid, 2, "E", "+1 Ant", () => "병력 +1", () => Commander?.TryAssign(1),
-                () => "둥지에서 대기 개미 1마리를 지휘 한도 안에서 배정합니다.");
+                () => Commander != null && Commander.CanDive, () => Deployed() && Commander.EquippedArmor?.armor == ArmorKind.Wings);
+            Add(commanderGrid, 2, "", "Work Schedule", () => "작업표", () => GameMenuController.Instance?.WorkSchedule(),
+                () => "장수별로 자율 작업을 켜거나 끕니다.", null, Civilian);
             Add(commanderGrid, 3, "R", "Weapon", () => "무기 교체", () => Commander?.CycleWeapon(),
-                () => "가진 무기로 바꾸거나, 여분이 없으면 무기를 해제합니다. 병력은 유지됩니다.");
+                () => "가진 무기로 바꾸거나, 여분이 없으면 무기를 해제합니다. 병력은 유지됩니다.", null, Civilian);
             Add(commanderGrid, 4, "", "Attack Research", () => ResearchLabel("공격 연구"), () => hud.TryLabResearch(true),
-                () => hud.LabResearchLabel(Commander, true) + "\n무기와 같은 보직의 연구소에서 이 장수의 공격을 올립니다.");
-            Add(commanderGrid, 7, "D", "Return 1", () => "병력 -1", () => Commander?.ReturnTroops(1),
-                () => "건강한 병력 1마리를 대기 개미로 돌려보냅니다. 작업 중에는 바꿀 수 없습니다.");
+                () => hud.LabResearchLabel(Commander, true) + "\n무기와 같은 보직의 연구소에서 이 장수의 공격을 올립니다.", null, Civilian);
+            Add(commanderGrid, 7, "D", "Return To Post", () => Commander != null && Commander.IsReturning ? "귀환 중" : "귀환", () => {
+                if (Commander != null && !Commander.ReturnToPost()) ToastManager.Show("지금은 징집소로 귀환할 수 없습니다.");
+            }, () => "징집소로 돌아가 생존 병력을 반납하고 자율 작업을 재개합니다.",
+                () => Commander != null && Commander.IsDeployed && !Commander.IsReturning && !Commander.IsAwayFromHome, Deployed);
             Add(commanderGrid, 8, "", "Armor Research", () => ResearchLabel("방어 연구"), () => hud.TryLabResearch(false),
-                () => hud.LabResearchLabel(Commander, false) + "\n무기와 같은 보직의 연구소에서 이 장수의 방어를 올립니다.");
+                () => hud.LabResearchLabel(Commander, false) + "\n무기와 같은 보직의 연구소에서 이 장수의 방어를 올립니다.", null, Civilian);
             Add(commanderGrid, 9, "", "Details", () => "상세", () => { if (Commander != null) GameMenuController.Instance?.Details(Commander); },
                 () => "기술 9종, 열정, 장비를 봅니다. 지휘 한도 = 10 + 지휘 기술 x 2.");
-            Add(commanderGrid, 14, "B", "Build", () => "건설", BuildScreen.Open, () => "건설 화면: 건물을 고르고 맡길 장수를 정합니다.");
+            Add(commanderGrid, 5, "A", "Attack Move", () => "어택무브", () => FindFirstObjectByType<AttackMoveController>()?.BeginAttackMode(),
+                () => "지면을 클릭하면 이동하면서 만나는 적을 공격합니다.", null, Deployed);
+            Add(commanderGrid, 6, "", "Stop", () => "정지", () => Commander?.CommandStop(), () => "이동과 공격을 멈춥니다.", null, Deployed);
+            Add(commanderGrid, 10, "", "Reward", () => "포상", () => { if (Commander != null && !Commander.TryReward()) ToastManager.Show("본거지에서 게임 달마다 1번, Food 30이 필요합니다."); },
+                () => "Food 30을 써서 충성심을 올립니다. 게임 달마다 1번.", () => Commander != null && Commander.PersonalState.rewardCooldown <= 0, Civilian);
+            Add(commanderGrid, 11, "", "Send To Rest", () => Commander != null && Commander.WorkState.resting ? "휴식 중" : "휴식", () => Commander?.SendToRest(),
+                () => "피로한 장수를 가까운 휴게실(없으면 제자리)로 보내 피로가 풀릴 때까지 쉬게 합니다.", () => Commander != null && Commander.CanRest, Civilian);
+            Add(commanderGrid, 12, "", "Send To Treatment", () => "치료", () => { if (Commander != null && !Commander.SendToTreatment()) ToastManager.Show("빈 침상이 있는 의무실로 갈 수 없습니다."); },
+                () => "부상 장수를 빈 침상이 있는 가장 가까운 의무실로 보내 입원시킵니다.", () => Commander != null && Commander.CanSendToTreatment, Civilian);
+            Add(commanderGrid, 14, "B", "Build", () => "건설", BuildScreen.Open, () => "건설 화면: 건물을 고르고 맡길 장수를 정합니다.", null, Civilian);
 
             Add(colonyGrid, 0, "", "Produce Ant", () => "개미 생산", hud.ProduceAnt, hud.ProduceAntLabel);
             Add(colonyGrid, 1, "", "Upgrade Barracks", () => "병영 강화", hud.UpgradeBarracks, hud.BarracksUpgradeLabel);
@@ -59,6 +70,12 @@ namespace AntColony.UI
                 () => "병영 강화에 쓸 보직을 고릅니다.");
             Add(colonyGrid, 3, "", "Unlock Fishing", () => "낚시", hud.ResearchFishing, hud.FishingLabel);
             Add(colonyGrid, 5, "", "Dig Expansion", () => "굴착 확장", hud.DigExpansion, () => "굴착지에 흙을 써서 확장 구역을 엽니다.");
+            Add(colonyGrid, 6, "", "Work Schedule", () => "작업표", () => GameMenuController.Instance?.WorkSchedule(), () => "장수별 자율 작업을 설정합니다.");
+            Add(colonyGrid, 7, "", "Conscription", () => "징집소", () => GameMenuController.Instance?.OpenConscription(), () => "징집소에서 출전 장수와 병력을 편성합니다.");
+            Add(colonyGrid, 10, "", "Forbid Gathering", () => GatherDesignation.Forbidding ? "금지 지정\n중" : "채집 금지", () => GatherDesignation.Begin(true),
+                () => "채집 금지 지정: 노드를 클릭하거나 드래그로 묶어 장수의 채집 대상에서 뺍니다. 우클릭·Esc로 끝냅니다.");
+            Add(colonyGrid, 11, "", "Clear Designation", () => GatherDesignation.IsActive && !GatherDesignation.Forbidding ? "취소 지정\n중" : "지정 취소", () => GatherDesignation.Begin(false),
+                () => "지정 취소: 클릭하거나 드래그한 노드의 채집 금지를 풉니다. 우클릭·Esc로 끝냅니다.");
             Add(colonyGrid, 14, "B", "Build", () => "건설", BuildScreen.Open, () => "건설 화면: 건물을 고르고 맡길 장수를 정합니다.");
         }
 
@@ -160,6 +177,9 @@ namespace AntColony.UI
 
         // 연구소가 이 장수를 강화하는 중이면 버튼 문구로 바로 보인다.
         private string ResearchLabel(string idle) => Commander != null && Commander.LabUpgradeBusy ? "연구\n진행 중" : idle;
+
+        private bool Deployed() => Commander != null && Commander.IsDeployed;
+        private bool Civilian() => Commander != null && !Commander.IsDeployed;
 
         private static string Cooldown(float seconds) => seconds > 0f ? $"\n{Mathf.CeilToInt(seconds)}s" : "";
     }

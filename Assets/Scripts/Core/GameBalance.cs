@@ -3,6 +3,11 @@ namespace AntColony.Core
     // 2026-09-25 작업 지시서 1단계 수치. 전부 잠정값이므로 밸런스 조정은 이 파일만 고친다.
     public static class GameBalance
     {
+        // 새 기획의 미확정 수치는 잠정값.
+        public const float CommanderHealth = 100, CommanderRecoverySeconds = 60;
+        public const float AutoReturnSeconds = 20, ReturnEnemyRadius = 12, WorkScanSeconds = 1;
+        public const int ConscriptionFood = 30, ConscriptionSoil = 50, ConscriptionAnts = 4;
+        public const float ConscriptionBuildSeconds = 8;
         public const int WorkshopFood = 50, WorkshopSoil = 80, WorkshopSpecial = 10, WorkshopAnts = 6;
         public const float WorkshopBuildSeconds = 10, CraftWork = 90, WorkshopRadius = 8;
         public const int CraftQueueCapacity = 3;
@@ -45,7 +50,10 @@ namespace AntColony.Core
         public const float RegenerationSeconds = 480;
         public const int RegenerationSpecial = 20;
 
-        // 작물: 기본 균류는 밭 템플릿 값 그대로(7단계에서 계절과 함께 조정)
+        // 작물: 기본 균류 3분·Food 40. 가을 수확 ×1.25, 겨울 성장 정지(밭만).
+        public const float FungusSeconds = 180, FungusFood = 40, AutumnHarvestMultiplier = 1.25f;
+        // 낚시: 1회 20초·Food 6 × 낚시 기술 배율(한파 −20%). 낚시터 1곳당 월 Food 100, 다음 달 회복.
+        public const float FishingCatchSeconds = 20, FishingCatchFood = 6, FishingMonthlyFood = 100;
         public const float HoneydewSeconds = 300, HoneydewFood = 80;
         public const float AdvancedFungusSeconds = 360, AdvancedFungusFood = 150;
         public const float AdvancedFungusSpecialChance = .1f;

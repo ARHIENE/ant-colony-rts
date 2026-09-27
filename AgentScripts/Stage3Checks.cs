@@ -156,6 +156,7 @@ public static class Stage3Checks
             while (!inventory.Full) inventory.Add(EquipmentRecipes.Create(EquipmentRecipe.Anklet, 0));
             var world = WorldMapManager.Instance; var ship = world.Transports.First();
             c = CommanderRoster.Instance.Commanders[0]; Move(c, ship.Position + Vector3.right * 3);
+            c.WorkState.duty = AntColony.Units.CommanderDuty.Deployed; if (!c.HasTroops) c.TryAssign(2); // 원정 병력은 출전 편성으로 받는다.
             Check(ship.TryBoard(new[] { c }), "board overflow reward test");
             var site = world.Sites.First(s => s.Kind == ExpeditionSiteKind.Settlement);
             Check(ship.TryDepart(site), "depart overflow reward test"); ship.Tick(ship.TravelSeconds);
@@ -168,8 +169,9 @@ public static class Stage3Checks
             UnityEngine.Random.InitState(925);
             for (int attempt = 0; attempt < 100 && !other.IsDead; attempt++)
             {
-                if (!other.HasTroops) other.TryAssign(1);
-                other.LoseTroops(other.TroopCount);
+                // 피해는 병력 → 개인 체력 순. 쓰러질 때마다 사망 판정, 살아남으면 회복시켜 다시 시도한다.
+                other.TakeDamage(float.MaxValue);
+                if (!other.IsDead) other.TickDuty(AntColony.Core.GameBalance.CommanderRecoverySeconds + 1);
             }
             Check(other.IsDead && other.PersonalState.equipment.Count == 0
                 && Object.FindObjectsByType<EquipmentLoot>().Any(l => deathIds.All(id => l.Items.Any(e => e.id == id))), "fatality drops every equipped item");

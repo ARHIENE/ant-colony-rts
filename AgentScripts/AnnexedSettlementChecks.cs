@@ -68,8 +68,10 @@ using Object = UnityEngine.Object;
             foreach (ResourceType type in Enum.GetValues(typeof(ResourceType)))
             { resources.AddCapacity(type, 10000); resources.Add(type, 8000); }
             AntPool.Instance.Breed(100);
+            foreach (var x in CommanderRoster.Instance.Commanders) x.SetJobEnabled(AntColony.Units.CommanderJobs.All, false); // 홈 자율 채집이 자원 비교를 흔들지 않게 한다.
             var commander = CommanderRoster.Instance.Commanders[0];
             commander.CommandStop();
+            commander.WorkState.duty = AntColony.Units.CommanderDuty.Deployed; // 원정 병력은 출전 편성으로 받는다.
             if (commander.TroopCount < 5) Check(commander.TryAssign(5 - commander.TroopCount), "crew has troops");
             Check(world.CanCreateTransport(commander.Position, out var position), "transport placement available");
             var ship = world.CreateTransport(false, position);
@@ -171,7 +173,8 @@ using Object = UnityEngine.Object;
             Check(ship.TryStation(ship.Crew) && ship.Crew.Count == 0 && settlement.Garrison.Count == 1,
                 "live crew list can be stationed without iteration corruption");
             // 병력이 전멸한 장수도 섬에 영구 방치되지 않고 회수할 수 있다.
-            commander.TakeDamage(float.MaxValue);
+            // 피해는 병력 → 개인 체력 순. 병력만 전멸시키고 장수 본인은 살아 있는 상태를 만든다.
+            commander.TakeDamage(commander.TroopHealth + commander.Armor);
             Check(!commander.HasTroops && ship.TryBoard(settlement.Garrison), "zero-troop garrison can be rescued");
             Check(ship.TryReturn(), "recalled commander can return home");
             ship.Tick(ship.TravelSeconds);

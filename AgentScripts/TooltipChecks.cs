@@ -9,13 +9,16 @@ using Object = UnityEngine.Object;
 
 public static class TooltipChecks
 {
-    public static string Main()
+    public static async System.Threading.Tasks.Task<string> Main()
     {
         int checks = 0;
         void Check(bool value, string message)
         { if (!value) throw new Exception("FAIL: " + message); checks++; }
 
         Check(Application.isPlaying, "Play mode required");
+        // Play 진입 직후에는 메인 메뉴가 아직 만들어지지 않았을 수 있다.
+        for (var i = 0; i < 300 && (GameMenuController.Instance == null || !GameMenuController.Instance.GetComponentsInChildren<MenuTooltip>().Any(t => t.name == "New Game")); i++)
+            await System.Threading.Tasks.Task.Delay(100);
         var menu = GameMenuController.Instance;
         var session = GameSession.Instance;
         Check(menu != null && !session.GameStarted, "start in main menu");

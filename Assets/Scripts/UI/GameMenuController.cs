@@ -78,6 +78,7 @@ namespace AntColony.UI
         private void OnDestroy() { if (Instance == this) Instance = null; }
         private void Update()
         {
+            if (open) refreshDutyScreen?.Invoke();
             calendar.transform.parent.gameObject.SetActive(GameSession.Instance.GameStarted && !open);
             calendar.text = CalendarLabel;
             speedButton.GetComponentInChildren<Text>().text = Time.timeScale == 0 ? "정지" : Time.timeScale + "×";
@@ -91,7 +92,7 @@ namespace AntColony.UI
             if (Keyboard.current.f2Key.wasPressedThisFrame) { Guide(); return; }
             if (Keyboard.current.escapeKey.wasPressedThisFrame)
             {
-                if (SkillTargeting.ConsumesPointerInput) return;
+                if (SkillTargeting.ConsumesPointerInput || GatherDesignation.ConsumesPointerInput) return;
                 if (!open && (FindFirstObjectByType<AntColony.Buildings.BuildingPlacementController>()?.IsPlacing == true
                     || FindFirstObjectByType<AttackMoveController>()?.IsAttackMode == true)) return;
                 if (!open && BuildScreen.Back()) return;
@@ -113,6 +114,7 @@ namespace AntColony.UI
         // 화면 공통 상태 전환: 열기·일시정지·이전 화면 정리.
         private void BeginScreen(string title, float scrim)
         {
+            refreshDutyScreen = null;
             if (!open) resumeScale = Time.timeScale;
             open = true; ScreenName = title; panel.gameObject.SetActive(true); toolbar.SetActive(false); Tooltip("");
             if (!GameSession.Instance.GameStarted || UserSettings.Current.pauseSimulationOnMenu) Time.timeScale = 0;
@@ -160,13 +162,15 @@ namespace AntColony.UI
         {
             Screen("FIELD GUIDE");
             MenuTheme.Text(content, "BETA GOAL: defeat a MiniBird boss. You can keep playing after victory. Losing all home buildings ends the run.", 18, 76);
-            MenuTheme.Text(content, "1. Select a commander (click or drag). Right-click food or soil to gather. Produce Ant adds idle workers; select a commander and use +1 Ant to assign troops.", 18, 95);
-            MenuTheme.Text(content, "2. Press B (Build) to open construction, pick a category and building, then choose an idle commander with troops. Green preview: left-click to build. Red: blocked or unreachable. Right-click / Esc cancels. Keep free ants for builders.", 18, 95);
+            MenuTheme.Text(content, "1. 장수는 병력 없이 작업표에 켜진 일을 수행합니다. 하단 커맨드 카드 또는 장수 관리(G)의 작업표에서 작업을 켜고 끄세요. 자원 우클릭은 우선 작업 지시입니다.", 18, 95);
+            MenuTheme.Text(content, "2. 건설(B)에서 건물과 대기 장수를 골라 배치하세요. 특수 탭에서 징집소를 건설한 뒤 클릭하면 출전 장수와 병력을 편성할 수 있습니다. 귀환(D)하면 생존 병력을 반납하고 자율 작업을 재개합니다.", 18, 95);
             MenuTheme.Text(content, "3. Every commander can work and fight. Equip owned weapons in commander details to change combat style; wings use the armor slot. Right-click enemies to attack, or press A then click for attack-move. Nine skills grow through use; Command skill sets troop capacity.", 18, 115);
             MenuTheme.Text(content, "4. Reach 60 ants, unlock Fishing and upgrade a barracks to Tier 2. In World / Science, build a Science Lab, research vehicles and build a transport.", 18, 95);
             MenuTheme.Text(content, "5. Bring combat commanders near the transport, board, choose a MiniBird nest and depart. Switch to the battlefield, dodge marked boss attacks and win. Return Home brings the crew and cargo back.", 18, 100);
             MenuTheme.Text(content, "Storage: Build Storage expands resource limits and adds a drop-off point. Interrupted delivery: right-click the Queen Chamber or a Storage; on expeditions, right-click your own transport to deliver carried resources.", 18, 100);
-            MenuTheme.Text(content, "Camera: screen edges, wheel to zoom, Z/C to rotate. Esc: menu, P: pause. G/F1: commanders. Q: weapon skill, E/D: troop +1/-1, R: weapon, K/M: world & science. Keys can be changed in Settings. Save from Menu when units are idle; active work or combat currently blocks saving. Leave home defenders behind before a raid.", 18, 95);
+            MenuTheme.Text(content, "Camera: screen edges, wheel to zoom, Z/C to rotate. Esc: menu, P: pause. G/F1: commanders. Q: weapon skill, E: conscription, D: return to post, R: weapon, K/M: world & science. Keys can be changed in Settings. Construction, combat and manual movement block saving; home gathering and cargo are saved.", 18, 95);
+            MenuTheme.Text(content, "첫 등장 안내", 20, 32);
+            foreach (var hint in FirstHints.All) MenuTheme.Text(content, hint.title + ": " + hint.body, 16, 50);
             MenuTheme.Button(content, "Back", Back);
         }
 
@@ -202,6 +206,8 @@ namespace AntColony.UI
             MenuTheme.Button(content, "Autosave interval: " + s.autoSaveMinutes + " minutes", () => Apply(v => v.autoSaveMinutes = v.autoSaveMinutes >= 15 ? 1 : v.autoSaveMinutes + 1));
             MenuTheme.Button(content, "Toast duration: " + s.toastSeconds + " seconds", () => Apply(v => v.toastSeconds = v.toastSeconds >= 10 ? 2 : v.toastSeconds + 1));
             MenuTheme.Button(content, "Pause simulation in menus: " + s.pauseSimulationOnMenu, () => Apply(v => v.pauseSimulationOnMenu = !v.pauseSimulationOnMenu));
+            MenuTheme.Button(content, "First-time hints: " + (s.firstHints ? "On" : "Off"), () => Apply(v => v.firstHints = !v.firstHints));
+            MenuTheme.Button(content, "Reset seen hints (" + s.shownHints.Count + ")", () => Apply(v => v.shownHints.Clear()));
             KeyBindingButtons();
             MenuTheme.Button(content, "Back", Back);
         }

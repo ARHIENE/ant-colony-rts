@@ -28,8 +28,9 @@ namespace AntColony.UI
             }
             var single = SelectedUnitPanel.FindSingleSelectedCommander(selection);
             if (single == null) return;
-            if (KeyBindings.Pressed(GameAction.AddTroop)) single.TryAssign(1);
-            if (KeyBindings.Pressed(GameAction.RemoveTroop)) single.ReturnTroops(1);
+            if (KeyBindings.Pressed(GameAction.AddTroop)) menu.OpenConscription();
+            if (KeyBindings.Pressed(GameAction.RemoveTroop) && single.IsDeployed && !single.ReturnToPost())
+                ToastManager.Show("지금은 징집소로 귀환할 수 없습니다.");
             if (KeyBindings.Pressed(GameAction.CycleWeapon)) single.CycleWeapon();
         }
     }

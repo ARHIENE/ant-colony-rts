@@ -11,7 +11,7 @@ namespace AntColony.UI
     public sealed partial class GameMenuController
     {
         private static readonly string[] SkillNames = { "채집", "건설", "농사", "낚시", "제작", "연구", "근접", "원거리", "지휘" };
-        private static readonly string[] FilterNames = { "전체", "대기", "작업 중", "원정 중" };
+        private static readonly string[] FilterNames = { "전체", "대기", "작업 중", "원정 중", "기분 경고" };
         private int rosterFilter;
         private string rosterSearch = "";
 
@@ -20,7 +20,11 @@ namespace AntColony.UI
 
         private static int Category(CommanderAnt c) => c.IsAwayFromHome || c.IsDeparting ? 3 : c.CanStartConstruction ? 1 : 2;
         private static string Status(CommanderAnt c) => c.IsDeparting ? "이탈 중" : c.IsCaptive ? "포로" : c.Garrison != null ? "주둔"
-            : c.Transport != null ? "원정 중" : !c.HasTroops ? "쓰러짐" : c.CanStartConstruction ? "대기" : "작업 중";
+            : c.Transport != null ? "원정 중" : c.PersonalHealth <= 0 ? "쓰러짐" : c.IsReturning ? "귀환 중" : c.IsDeployed ? "출전 중"
+            : c.ScienceAssignment != null || c.LabUpgradeBusy ? "연구" : c.CraftingWorkshop != null ? "제작"
+            : c.IsWorking ? SkillNames[(int)c.CurrentActivity] : "대기";
+        // 4 = 기분 경고: 기분 위험 구간이거나 붕괴 중인 장수.
+        private static bool InFilter(CommanderAnt c, int filter) => filter == 0 || (filter == 4 ? CommanderOverhead.MoodAlert(c) : Category(c) == filter);
         private static Color MoodColor(float mood) => mood < 35 ? MenuTheme.Danger : mood < 50 ? MenuTheme.HpMid : MenuTheme.Hp;
 
         private void RosterScreen(CommanderAnt selected)
@@ -34,7 +38,7 @@ namespace AntColony.UI
             for (var i = 0; i < FilterNames.Length; i++)
             {
                 var index = i;
-                var count = i == 0 ? all.Length : all.Count(c => Category(c) == i);
+                var count = all.Count(c => InFilter(c, index));
                 var button = L.Button(p, "Filter " + FilterNames[i], $"{FilterNames[i]}  <color=#968976>{count}</color>", 12 + i * 100, 11, 94, 30,
                     () => { rosterFilter = index; RosterScreen(selected); }, null, false, 13);
                 if (i == rosterFilter) button.GetComponent<Outline>().effectColor = MenuTheme.Accent;
@@ -45,8 +49,10 @@ namespace AntColony.UI
             search.onEndEdit.AddListener(v => { rosterSearch = v; RosterScreen(selected); });
             search.gameObject.AddComponent<MenuTooltip>().Message = "이름 검색: 입력 후 Enter";
             L.Line(p, 0, 52, 1344);
+            L.Button(p, "Work Schedule", "작업표", 530, 11, 110, 30, WorkSchedule);
+            L.Button(p, "Conscription", "징집소", 650, 11, 110, 30, OpenConscription);
 
-            var shown = all.Where(c => (rosterFilter == 0 || Category(c) == rosterFilter)
+            var shown = all.Where(c => InFilter(c, rosterFilter)
                 && (rosterSearch.Length == 0 || c.CommanderName.IndexOf(rosterSearch, StringComparison.OrdinalIgnoreCase) >= 0)).ToArray();
             if (selected == null) selected = shown.FirstOrDefault();
             string[] heads = { "이름", "무기 (역할)", "병력", "기분", "충성심", "상태" };

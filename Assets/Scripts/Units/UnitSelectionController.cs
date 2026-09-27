@@ -31,7 +31,7 @@ namespace AntColony.Units
         private void Update()
         {
             if (AntColony.UI.GameMenuController.BlocksInput) return;
-            if (AntColony.UI.SkillTargeting.ConsumesPointerInput) return;
+            if (AntColony.UI.SkillTargeting.ConsumesPointerInput || AntColony.UI.GatherDesignation.ConsumesPointerInput) return;
             var mouse = Mouse.current;
             if (mouse == null || selectionManager == null) return;
             if (buildingPlacementController != null && buildingPlacementController.ConsumesPointerInput) return;

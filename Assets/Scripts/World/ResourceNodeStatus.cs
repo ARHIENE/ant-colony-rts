@@ -12,6 +12,7 @@ namespace AntColony.World
 
         public string StatusText => node.IsRaidLocked ? "Destroy All Nest Buildings"
             : !node.IsUnlocked ? "Research Fishing First"
+            : node.FishedOut ? "Fished Out · Next Month"
             : node.IsRegrowing ? $"{(node.RequiresFishing ? "Restocking" : "Growing")} · {Mathf.CeilToInt(node.RegrowTimeRemaining)}s"
             : node.IsDepleted ? "Empty" : $"{(node.RequiresFishing ? "Fish" : "Ready")} · {Mathf.CeilToInt(node.AmountRemaining)} {node.ResourceType}";
 
@@ -23,7 +24,7 @@ namespace AntColony.World
         private void OnGUI()
         {
             if (Event.current.type != EventType.Repaint) return;
-            if (!node.isActiveAndEnabled) return;
+            if (!node.isActiveAndEnabled || AntColony.UI.WorldMapPanel.AnyOpen || AntColony.UI.GameMenuController.BlocksInput) return;
             if (cam == null) cam = UnityEngine.Camera.main;
             if (cam == null) return;
             var point = cam.WorldToScreenPoint(transform.position + Vector3.up);

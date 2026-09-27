@@ -64,7 +64,8 @@ public static class Stage5Checks
             AntPool.Instance.Breed(300);
             foreach (var r in Enum.GetValues(typeof(Resource)).Cast<Resource>()) { ResourceManager.Instance.AddCapacity(r, 10000); ResourceManager.Instance.Add(r, 9000); }
             foreach (var unit in all) { Traits(unit); Move(unit, home + new Vector3(15, 0, 15)); unit.PersonalState.relations.Clear(); }
-            Check(a.TryAssign(8), "workforce assigned");
+            a.WorkState.duty = AntColony.Units.CommanderDuty.Deployed; // 병력은 출전 편성으로 받는다.
+            Check(a.TryAssign(10), "workforce assigned"); // 4 반납 = 절반 미만, 이어서 3 반납 = 남은 6의 절반
             var loyalty = a.Traits.Loyalty; Check(a.ReturnTroops(4) == 4, "small recall accepted"); Near(a.Traits.Loyalty, loyalty, "less than half no penalty");
             Check(a.ReturnTroops(3) == 3, "half recall accepted"); Near(a.Traits.Loyalty, loyalty - 5, "half recall loyalty -5");
             Traits(a, CommanderTrait.Ambitious); a.OnTroopsRecalled(5, 10); Near(a.Traits.Loyalty, 70, "ambitious recall -10");
@@ -86,6 +87,7 @@ public static class Stage5Checks
             a.PersonalState.originFaction = ""; Traits(a); Traits(b, CommanderTrait.Sociable); Relations(a, b, 50);
             var site = WorldMapManager.Instance.Sites.First(s => s.Kind == ExpeditionSiteKind.Settlement);
             typeof(CommanderAnt).GetProperty("Captor").SetValue(a, site);
+            b.WorkState.duty = AntColony.Units.CommanderDuty.Deployed; if (!b.HasTroops) b.TryAssign(2); // 복수는 병력이 있는(출전) 장수만 한다.
             a.OnCaptured(); Check(b.PersonalState.rageRemaining == 60 && !b.CanReceiveOrders, "friend capture starts revenge and locks orders");
             b.PersonalState.rageRemaining = 0;
             a.TickCaptivity(600); Near(a.Traits.Loyalty, 80, "captive debt deferred"); Near(b.Traits.Loyalty, 60, "social friend abandonment -10 monthly");
@@ -113,6 +115,7 @@ public static class Stage5Checks
             Traits(first, CommanderTrait.Brave); Traits(second, CommanderTrait.Cautious); Relations(first, second, 0);
             Random.InitState(Seed(.1f)); Call(first, "TickRelations", 300f); Near(first.PersonalState.Relation(second.PersonalState.id).value, -10, "opposed courage quarrel");
             Traits(first); Traits(second); Relations(first, second, -70);
+            first.WorkState.duty = second.WorkState.duty = AntColony.Units.CommanderDuty.Deployed;
             first.TryAssign(first.CommandLimit - first.TroopCount); second.TryAssign(second.CommandLimit - second.TroopCount);
             int n1 = first.TroopCount, n2 = second.TroopCount; Random.InitState(Seed(.1f)); Call(first, "TickRelations", 60f);
             Check(first.TroopCount == n1 - Mathf.CeilToInt(n1 * .2f) && second.TroopCount == n2 - Mathf.CeilToInt(n2 * .2f), "duel costs 20 percent each");

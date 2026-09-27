@@ -27,7 +27,7 @@ namespace AntColony.Buildings
         public bool TryAssign(CommanderAnt commander)
         {
             if (!isActiveAndEnabled || Busy || Target != null || commander == null || !commander.isActiveAndEnabled
-                || commander.IsDead || commander.IsAwayFromHome || commander.LabUpgradeBusy || !commander.CanChangeAllocation
+                || commander.IsDead || commander.IsAwayFromHome || commander.IsDeployed || commander.LabUpgradeBusy || !commander.CanChangeAllocation
                 || commander.IsWorking || Vector3.Distance(commander.Position, Position) > 8) return false;
             commander.CommandStop();
             Target = commander;

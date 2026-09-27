@@ -34,10 +34,14 @@ namespace AntColony.Units
         public virtual bool CanStartConstruction => isActiveAndEnabled && !IsDead && state == State.Idle;
 
         // 자원을 들고 있거나 건설 중이면 병력 배정/보직 변경을 막아야 한다(운반 중 자원 증발 방지).
+        public float CarriedAmount => carriedAmount;
+        public ResourceType CarriedType => carriedType;
+        internal void RestoreCargo(float amount, ResourceType type) { carriedAmount = amount; carriedType = type; }
         public bool IsCarrying => carriedAmount > 0f;
         public bool IsWorking => state != State.Idle;
         public bool IsGatheringAnimation => state == State.Gathering;
         public bool IsBuildingAnimation => state == State.Building;
+        public BuildingConstructionSite ConstructionTarget => targetConstruction;
         public bool IsConstructing => state == State.MovingToBuildSite || state == State.Building;
 
         // 거점 상실 때도 이미 채집한 자원은 화물 또는 회수 가능한 현장 노드로 남긴다.
@@ -77,6 +81,11 @@ namespace AntColony.Units
         protected virtual float WorkSpeed => 1f;
         protected virtual float GatherRate => Data.gatherRate;
         protected virtual float CarryCapacity => Data.carryCapacity;
+        protected virtual float FishingCatchMultiplier => 1f;
+        private float fishingProgress;
+        private ResourceNode fishingNode; // 진행도가 속한 낚시터. 불러온 직후(null)엔 처음 낚는 곳이 이어받는다.
+        internal float FishingProgress => fishingProgress;
+        internal void RestoreFishing(float progress) { fishingProgress = Mathf.Clamp(progress, 0f, GameBalance.FishingCatchSeconds); fishingNode = null; }
 
         public bool CanReach(Vector3 destination)
         {
@@ -85,6 +94,15 @@ namespace AntColony.Units
             var path = new NavMeshPath();
             return Agent.CalculatePath(destination, path) && path.status == NavMeshPathStatus.PathComplete
                 && path.corners.Length > 0 && Vector3.Distance(path.corners[path.corners.Length - 1], destination) <= 1f;
+        }
+
+        public bool TryWorkApproach(Vector3 target, out Vector3 destination)
+        {
+            destination = target;
+            if (IsFlying) return true;
+            if (!NavMesh.SamplePosition(target, out var hit, 4, NavMesh.AllAreas)) return false;
+            destination = hit.position;
+            return CanReach(destination);
         }
 
         public override void Initialize(UnitData data, ObjectPool sourcePool, GameObject prefab)
@@ -147,11 +165,20 @@ namespace AntColony.Units
             site.Cancel();
         }
 
+        internal void SuspendWork()
+        {
+            // Mobilization leaves the paid blueprint and completed work for the next civilian.
+            targetConstruction = null;
+            CommandStop();
+            DropCargo();
+        }
+
         // 플레이어가 자원노드를 우클릭하면 그 자리로 이동해 채집을 시작한다(수동 채집 지시).
         public virtual void CommandGather(ResourceNode node)
         {
             if (IsConstructing) return;
             if (node == null || !node.CanGather) return;
+            if (!TryWorkApproach(node.transform.position, out var approach)) return;
             if (carriedAmount > 0f && (carriedType != node.ResourceType || carriedAmount >= CarryCapacity))
             {
                 BeginReturnIfNeeded();
@@ -160,13 +187,13 @@ namespace AntColony.Units
 
             CommandStop();
             targetNode = node;
-            SetMoveDestination(node.transform.position);
+            SetMoveDestination(approach);
             state = State.MovingToNode;
         }
 
         public virtual void CommandBuild(BuildingConstructionSite site)
         {
-            if (site == null || !CanStartConstruction) return;
+            if (site == null || site.HasBuilder || !CanStartConstruction) return;
             CommandStop();
             targetNode = null;
             targetConstruction = site;
@@ -180,7 +207,7 @@ namespace AntColony.Units
             if (!isActiveAndEnabled || IsDead || !IsCarrying || IsConstructing
                 || deposit == null || !deposit.isActiveAndEnabled || deposit.IsDead) return false;
             var commander = this as CommanderAnt;
-            if (commander != null && (commander.IsCaptive || commander.IsEmbarked || !commander.HasTroops)) return false;
+            if (commander != null && (commander.IsCaptive || commander.IsEmbarked)) return false;
             if (commander != null && commander.IsAwayFromHome)
             {
                 var ship = commander.Transport != null ? commander.Transport : commander.Garrison.DockedTransport;
@@ -266,7 +293,7 @@ namespace AntColony.Units
 
             if (HasReachedDestination())
             {
-                buildTimer = targetConstruction.BuildTimeSeconds;
+                buildTimer = targetConstruction.RemainingWork;
                 state = State.Building;
             }
         }
@@ -282,6 +309,7 @@ namespace AntColony.Units
 
             OnWorked(Mathf.Min(Time.deltaTime, buildTimer / WorkSpeed));
             buildTimer -= Time.deltaTime * WorkSpeed;
+            targetConstruction.RemainingWork = Mathf.Max(0, buildTimer);
             if (buildTimer > 0f) return;
 
             targetConstruction.Complete();
@@ -321,10 +349,27 @@ namespace AntColony.Units
                 return;
             }
 
-            var extracted = targetNode.Extract(Mathf.Min(GatherRate * targetNode.GatherRateMultiplier * Time.deltaTime, CarryCapacity - carriedAmount));
-            carriedAmount += extracted;
-            carriedType = targetNode.ResourceType;
-            if (extracted > 0f) { OnGathered(extracted); OnWorked(extracted / (GatherRate * targetNode.GatherRateMultiplier)); }
+            float extracted;
+            if (targetNode.RequiresFishing)
+            {
+                // 낚시: 20초마다 한 번, Food 6 × 낚시 배율. 진행도는 반납 왕복·저장을 넘어 이어지고, 다른 낚시터로 바꾸면 처음부터.
+                if (fishingNode != targetNode) { if (fishingNode != null) fishingProgress = 0f; fishingNode = targetNode; }
+                fishingProgress += Time.deltaTime;
+                if (fishingProgress < GameBalance.FishingCatchSeconds) return;
+                fishingProgress -= GameBalance.FishingCatchSeconds;
+                extracted = targetNode.Extract(Mathf.Min(GameBalance.FishingCatchFood * FishingCatchMultiplier, CarryCapacity - carriedAmount));
+                carriedAmount += extracted;
+                carriedType = targetNode.ResourceType;
+                if (extracted > 0f) { OnGathered(extracted); OnWorked(GameBalance.FishingCatchSeconds); }
+            }
+            else
+            {
+                fishingNode = null; fishingProgress = 0f;
+                extracted = targetNode.Extract(Mathf.Min(GatherRate * targetNode.GatherRateMultiplier * Time.deltaTime, CarryCapacity - carriedAmount));
+                carriedAmount += extracted;
+                carriedType = targetNode.ResourceType;
+                if (extracted > 0f) { OnGathered(extracted); OnWorked(extracted / (GatherRate * targetNode.GatherRateMultiplier)); }
+            }
 
             if (carriedAmount >= CarryCapacity || targetNode.IsDepleted)
             {
@@ -335,6 +380,8 @@ namespace AntColony.Units
         // 노드에서 실제로 캐낸 양이 있을 때만 호출된다.
         protected virtual void OnGathered(float amount) { }
         protected virtual void OnWorked(float seconds) { }
+
+        internal void ReturnCargoToStorage() => BeginReturnIfNeeded();
 
         private void BeginReturnIfNeeded()
         {
@@ -368,6 +415,17 @@ namespace AntColony.Units
 
         private void Deposit()
         {
+            if (this is CommanderAnt commander && !commander.IsAwayFromHome)
+            {
+                var resources = ResourceManager.Instance;
+                if (resources != null && targetDeposit != null && !targetDeposit.IsDead)
+                {
+                    int amount = Mathf.Min(Mathf.FloorToInt(carriedAmount), resources.GetCapacity(carriedType) - resources.GetAmount(carriedType));
+                    if (amount > 0) { targetDeposit.DepositResources(carriedType, amount); carriedAmount -= amount; }
+                }
+                if (carriedAmount > 0 && carriedAmount < 1) DropCargo();
+                state = State.Idle; return;
+            }
             if (carriedAmount > 0f && ResourceManager.Instance != null)
             {
                 targetDeposit?.DepositResources(carriedType, Mathf.RoundToInt(carriedAmount));

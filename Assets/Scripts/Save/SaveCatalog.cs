@@ -51,8 +51,8 @@ namespace AntColony.Save
             error = null;
             if (!Ready || Core.CommanderRoster.Instance == null) error = "Game is still initializing.";
             else if (Object.FindFirstObjectByType<BuildingConstructionSite>() != null) error = "Finish construction before saving.";
-            else if (Core.CommanderRoster.Instance.Commanders.Any(c => c.IsWorking || c.IsCarrying || c.IsConstructing
-                || (!c.IsHostile && c.PersonalState.rageRemaining <= 0 && !c.Social.diving && !c.IsEmbarked && c.Agent.enabled && c.Agent.isOnNavMesh && (c.Agent.pathPending || c.Agent.hasPath))))
+            else if (Core.CommanderRoster.Instance.Commanders.Any(c => c.IsConstructing || (c.IsAwayFromHome && (c.IsWorking || c.IsCarrying))
+                || (!c.CanResumeDutyAfterLoad && !c.IsHostile && c.PersonalState.rageRemaining <= 0 && !c.Social.diving && !c.IsEmbarked && c.Agent.enabled && c.Agent.isOnNavMesh && (c.Agent.pathPending || c.Agent.hasPath))))
                 error = "Stop commanders and finish carrying/building before saving.";
             else if (Object.FindObjectsByType<WildMonster>(FindObjectsSortMode.None).Any(m => m.InCombat
                 || (!Monsters.Contains(m) && m.GetComponent<EventActor>() == null && string.IsNullOrEmpty(m.RebelId) && m.GetComponentInParent<ExpeditionSite>()?.Disposition != ConquestDisposition.Lost)))

@@ -29,7 +29,8 @@ namespace AntColony.Regression
             var rm = ResourceManager.Instance;
             var spot = GameObject.Find("FishingSpot").GetComponent<ResourceNode>();
             var worker = Object.FindAnyObjectByType<CommanderAnt>();
-            if (!worker.HasTroops) worker.TryAssign(1);
+            // 다른 장수의 자율 채집이 식량을 늘려 낚시 반납으로 오인하지 않게 한다.
+            foreach (var c in CommanderRoster.Instance.Commanders) { c.SetJobEnabled(CommanderJobs.All, false); c.CommandStop(); }
             typeof(GameManager).GetProperty("FishingUnlocked").SetValue(gm, false);
             var originalFood = rm.GetAmount(ResourceType.Food);
             var originalSoil = rm.GetAmount(ResourceType.Soil);
@@ -70,7 +71,6 @@ namespace AntColony.Regression
                 newWorkerObject.transform.position = worker.transform.position;
                 var newWorker = newWorkerObject.AddComponent<CommanderAnt>();
                 newWorker.Initialize(worker.Data, null, null);
-                Assert(newWorker.TryAssign(1), "new commander receives ants");
                 newWorker.CommandGather(spot);
                 Assert((ResourceNode)Get(newWorker, "targetNode") == spot, "new worker inherits fishing unlock");
                 Object.Destroy(newWorkerObject);
@@ -80,13 +80,15 @@ namespace AntColony.Regression
                 Assert(gm.FishingUnlocked && spot.CanGather, "learned fishing survives lab destruction");
                 food = rm.GetAmount(ResourceType.Food);
                 worker.CommandGather(spot);
-                await Until(() => rm.GetAmount(ResourceType.Food) >= food + worker.Data.carryCapacity, 25000);
+                // 낚시는 20초마다 한 번 잡고(Food 6 × 낚시 배율) 창고에 반납한다.
+                await Until(() => spot.AmountRemaining < fishAmount && rm.GetAmount(ResourceType.Food) > food, 120000);
                 Assert(spot.AmountRemaining < fishAmount, "real shoreline harvest and deposit");
                 spot.Extract(1000);
-                Assert(spot.IsRegrowing && !spot.CanGather, "fish restocking");
-                Set(spot, "regrowTimer", .05f);
-                await Until(() => spot.CanGather, 2000);
-                return "PASS: locked command/extraction, single charge, concurrent research guard, cancellation, restart, unlock, lab destruction, real shoreline harvest/deposit, restocking.";
+                Assert(spot.FishedOut && !spot.CanGather && !spot.IsRegrowing, "monthly fishing cap reached");
+                typeof(ResourceNode).GetProperty("FishMonth", BindingFlags.Instance | BindingFlags.NonPublic).SetValue(spot, GameCalendar.TotalMonths - 1);
+                spot.RefreshFishingMonth();
+                Assert(spot.CanGather && spot.AmountRemaining == GameBalance.FishingMonthlyFood, "next month restocks");
+                return "PASS: locked command/extraction, single charge, concurrent research guard, cancellation, restart, unlock, lab destruction, real shoreline harvest/deposit, monthly cap and restock.";
             }
             finally
             {

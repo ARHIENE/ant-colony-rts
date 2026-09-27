@@ -10,13 +10,17 @@ namespace AntColony.Buildings
         private int reservedAnts;
         private bool finished;
 
+        public AntColony.Data.BuildingKind? BuildingKind => completedBuilding != null ? completedBuilding.GetComponent<BuildingBase>()?.Data?.kind : null;
+        public bool HasBuilder => System.Linq.Enumerable.Any(AntColony.Units.AntUnitBase.Active, u => u is AntColony.Units.WorkerAnt w && w.ConstructionTarget == this);
         public float BuildTimeSeconds { get; private set; }
+        public float RemainingWork { get; internal set; }
         public Vector3 Position => transform.position;
 
         public void Initialize(GameObject building, float buildTimeSeconds, AntPool pool = null, int workforce = 0)
         {
             completedBuilding = building;
             BuildTimeSeconds = buildTimeSeconds;
+            RemainingWork = buildTimeSeconds;
             workforcePool = pool;
             reservedAnts = workforce;
         }

@@ -7,7 +7,7 @@ namespace AntColony.Buildings
 {
     public enum FarmCrop { Fungus, Honeydew, AdvancedFungus }
 
-    // 새로 지은 밭의 작물과 크기. 기본 균류는 밭 템플릿의 재성장 값을 그대로 쓴다.
+    // 새로 지은 밭의 작물과 크기. 계절 배율은 ResourceNode 성장/수확에서 적용한다.
     [RequireComponent(typeof(ResourceNode))]
     public sealed class FarmPlot : MonoBehaviour
     {
@@ -15,12 +15,10 @@ namespace AntColony.Buildings
         public FarmCrop Crop { get; private set; }
         public bool Wide { get; private set; }
         private ResourceNode node;
-        private float baseSeconds = -1, baseAmount;
 
         public void Configure(FarmCrop crop, bool wide)
         {
             node = GetComponent<ResourceNode>();
-            if (baseSeconds < 0) { baseSeconds = node.RegrowSeconds; baseAmount = node.RegrowAmount; }
             if (wide && !Wide)
             {
                 var scale = transform.localScale; scale.x *= WideFactor; transform.localScale = scale;
@@ -28,8 +26,8 @@ namespace AntColony.Buildings
             }
             Crop = crop;
             node.ConfigureRegrowth(
-                crop == FarmCrop.Honeydew ? GameBalance.HoneydewSeconds : crop == FarmCrop.AdvancedFungus ? GameBalance.AdvancedFungusSeconds : baseSeconds,
-                crop == FarmCrop.Honeydew ? GameBalance.HoneydewFood : crop == FarmCrop.AdvancedFungus ? GameBalance.AdvancedFungusFood : baseAmount);
+                crop == FarmCrop.Honeydew ? GameBalance.HoneydewSeconds : crop == FarmCrop.AdvancedFungus ? GameBalance.AdvancedFungusSeconds : GameBalance.FungusSeconds,
+                crop == FarmCrop.Honeydew ? GameBalance.HoneydewFood : crop == FarmCrop.AdvancedFungus ? GameBalance.AdvancedFungusFood : GameBalance.FungusFood);
         }
 
         // 가뭄 성장 감소(4단계 이벤트가 사용). 감로는 항상 -20%만 받는다.

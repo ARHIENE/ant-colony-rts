@@ -112,12 +112,13 @@ public static class Stage4Checks
             var farm = Build<BuildingBase>(BuildingKind.Farm, home + Vector3.left * 15);
             var node = farm.GetComponent<ResourceNode>();
             var plot = farm.GetComponent<FarmPlot>() ?? farm.gameObject.AddComponent<FarmPlot>(); plot.Configure(FarmCrop.Fungus, false);
+            SeasonAt(Season.Spring); // 겨울에는 밭이 자라지 않는다(7단계 계절 규칙).
             node.Extract(float.MaxValue); node.TickGrowth(10000); Check(node.AmountRemaining > 0, "farm harvest grows");
             var yield = node.AmountRemaining;
             SeasonAt(Season.Autumn); ResetEvents(); Check(events.TryTrigger(ColonyEvent.Harvest), "autumn harvest event"); Near(node.AmountRemaining, yield * 1.5f, "ready crop receives bonus");
             node.GrantBountifulHarvest(); Near(node.AmountRemaining, yield * 1.5f, "harvest bonus cannot stack");
-            node.Extract(float.MaxValue); Check(!node.BountifulHarvest, "bonus consumed once"); node.TickGrowth(10000); Near(node.AmountRemaining, yield, "following harvest normal");
-            node.Extract(float.MaxValue); node.GrantBountifulHarvest(); node.TickGrowth(10000); Near(node.AmountRemaining, yield * 1.5f, "growing crop receives next-harvest bonus");
+            node.Extract(float.MaxValue); Check(!node.BountifulHarvest, "bonus consumed once"); node.TickGrowth(10000); Near(node.AmountRemaining, yield * GameBalance.AutumnHarvestMultiplier, "following harvest gets only autumn season bonus");
+            node.Extract(float.MaxValue); node.GrantBountifulHarvest(); node.TickGrowth(10000); Near(node.AmountRemaining, yield * 1.5f * GameBalance.AutumnHarvestMultiplier, "growing crop receives next-harvest bonus");
 
             SeasonAt(Season.Summer); ResetEvents(); Check(events.TryTrigger(ColonyEvent.Drought), "summer drought triggers");
             node.Extract(float.MaxValue); var growth = node.RegrowTimeRemaining; node.TickGrowth(10); Near(node.RegrowTimeRemaining, growth - 5, "drought halves actual growth");
@@ -146,7 +147,7 @@ public static class Stage4Checks
             ResetEvents(); SeasonAt(Season.Spring); Check(events.TryTrigger(ColonyEvent.Mold), "mold event infects commander");
             Check(roster.Commanders.Count(x => x.PersonalState.infected) == 1, "single initial infection");
             foreach (var commander in roster.Commanders) { commander.PersonalState.infected = false; commander.PersonalState.moldLoss = commander.PersonalState.moldSpread = 0; }
-            c.PersonalState.injuries.Clear(); c.TryAssign(4); var troops = c.TroopCount; ColonyEvents.Infect(c); c.TickPersonal(20);
+            c.PersonalState.injuries.Clear(); c.WorkState.duty = AntColony.Units.CommanderDuty.Deployed; c.TryAssign(4); var troops = c.TroopCount; ColonyEvents.Infect(c); c.TickPersonal(20);
             Check(c.TroopCount == troops - 1, "infection loses one troop per 20 seconds");
             var infirmary = Build<Infirmary>(BuildingKind.Infirmary, home + Vector3.right * 12); Move(c, infirmary.Position + Vector3.right * 3);
             Grant(ScienceTechnology.Infirmary); Check(infirmary.TryAdmit(c), "infected commander admitted without injury");

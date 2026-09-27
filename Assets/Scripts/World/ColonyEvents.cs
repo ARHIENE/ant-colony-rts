@@ -37,6 +37,7 @@ namespace AntColony.World
         public static float GrowthMultiplier(ResourceNode node)
         {
             if (Flooded(node)) return 0;
+            if (GameCalendar.CurrentSeason == Season.Winter && node.GetComponent<BuildingBase>() != null) return 0; // 겨울: 밭 성장 정지
             if (Instance == null || Instance.state.drought <= 0 || !Home(node.transform.position) || node.GetComponent<BuildingBase>() == null) return 1;
             return 1 - (node.GetComponent<FarmPlot>()?.DroughtPenalty ?? ScienceEffects.DroughtGrowthPenalty);
         }

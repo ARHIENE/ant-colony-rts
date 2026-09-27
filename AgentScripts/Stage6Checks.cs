@@ -87,7 +87,7 @@ public static class Stage6Checks
             var bad = Copy(file); bad.diplomacy.civilizations[0].resources[0] = -1; Check(!SaveValidator.Validate(bad, out error), "negative foreign stock rejected");
             bad = Copy(file); bad.diplomacy.civilizations[0].treaties[0] = float.NaN; Check(!SaveValidator.Validate(bad, out error), "invalid expiry rejected");
             var old = Copy(file); old.version = 6; old.diplomacy = null;
-            Check(SaveValidator.Validate(old, out error) && old.version == 7 && old.diplomacy.civilizations.Count == 4, "v6 migration " + error);
+            Check(SaveValidator.Validate(old, out error) && old.version == SaveFileV1.CurrentVersion && old.diplomacy.civilizations.Count == 4, "v6 migration " + error);
             Check(SaveSystem.TrySave(false, 0, out error) && SaveSystem.TryLoad(SaveSlots.PathFor(false, 0), out error), "roundtrip " + error); await Ready();
             d = DiplomacyManager.Instance; c = d.Data.civilizations[0];
             Check(c.contacted && c.hiddenRevealed && c.HasTreaty(TreatyKind.Alliance, d.Data.elapsed), "relations and treaty survive load");

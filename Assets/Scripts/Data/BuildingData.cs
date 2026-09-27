@@ -26,7 +26,8 @@ namespace AntColony.Data
         MineField,
         DefenseLab,
         RestRoom,
-        Workshop
+        Workshop,
+        ConscriptionPost
     }
 
     [CreateAssetMenu(fileName = "BuildingData", menuName = "AntColony/Building Data")]

@@ -68,7 +68,12 @@ public static class PlayableLoopChecks
             var progress = Object.FindAnyObjectByType<BetaProgress>();
             Check(progress.CurrentObjective.Contains("/60 ants"), "objective shows live population requirement");
             var commander = CommanderRoster.Instance.Commanders[0];
-            if (!commander.HasTroops) Check(commander.TryAssign(2), "assign builder troops");
+            foreach (var c in CommanderRoster.Instance.Commanders)
+            {
+                c.SetJobEnabled(CommanderJobs.All, false);
+                typeof(WorkerAnt).GetMethod("SuspendWork", Private).Invoke(c, null);
+            }
+            Check(commander.CanStartConstruction, "civilian builder needs no troops");
             var selection = Object.FindAnyObjectByType<SelectionManager>();
             selection.ClearSelection(); Call(selection, "AddToSelection", commander.GetComponent<SelectableObject>());
             var placement = Object.FindAnyObjectByType<BuildingPlacementController>();
@@ -125,7 +130,8 @@ public static class PlayableLoopChecks
             var ship = world.CreateTransport(false, commander.Position + Vector3.right * 3);
             progress = Object.FindAnyObjectByType<BetaProgress>();
             Check(progress.CurrentObjective.Contains("BOARD"), "empty transport has boarding instructions");
-            Check(ship.TryBoard(new[] { commander }), "board crew");
+            commander.WorkState.duty = CommanderDuty.Deployed;
+            Check(commander.TryAssign(2) && ship.TryBoard(new[] { commander }), "board deployed crew");
             Check(progress.CurrentObjective.Contains("READY"), "loaded transport has departure instructions");
             var site = world.Sites.First(s => s.Kind == ExpeditionSiteKind.ResourceSite);
             Check(ship.TryDepart(site), "depart neutral resource site");

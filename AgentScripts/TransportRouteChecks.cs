@@ -57,9 +57,11 @@ public static class TransportRouteChecks
         rm.AddCapacity(ResourceType.Food, 10000); rm.AddCapacity(ResourceType.Soil, 10000);
         rm.Add(ResourceType.Food, 8000); rm.Add(ResourceType.Soil, 8000);
         AntPool.Instance.Breed(100);
+        foreach (var x in CommanderRoster.Instance.Commanders) x.SetJobEnabled(CommanderJobs.All, false); // 홈 자율 채집이 자원 비교를 흔들지 않게 한다.
         var c = CommanderRoster.Instance.Commanders[0];
         c.CommandStop(); // 역할은 무기로 정해지고, 모든 장수가 채집할 수 있다.
-        if (c.TroopCount < 5) Check(c.TryAssign(5 - c.TroopCount), "worker troops");
+        // 원정 탑승은 병력이 필요하다: 평시 민간인은 출전 편성(CampaignChecks와 같은 방식)으로 병력을 받는다.
+        c.WorkState.duty = CommanderDuty.Deployed; if (c.TroopCount < 5) Check(c.TryAssign(5 - c.TroopCount), "expedition mobilization");
         Check(world.CanCreateTransport(c.Position, out var position), "transport placement");
         var ship = world.CreateTransport(false, position);
         Check(!ship.Route.TryStart(site), "hostile and empty routes rejected");

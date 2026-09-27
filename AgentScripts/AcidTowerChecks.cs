@@ -38,15 +38,19 @@ public static class AcidTowerChecks
         void Check(bool ok, string message) { if (!ok) throw new Exception("FAIL: " + message); passed++; }
         try
         {
+            // Play 직후 첫 씬 로딩 중에는 NewGame이 무시되므로 먼저 로딩을 기다린다.
+            for (var i = 0; i < 600 && SaveSystem.Busy; i++) await Task.Delay(100);
             SaveSystem.NewGame(new NewGameOptions { mapSize = MapSize.Small, seed = 23456 });
             await Ready();
+            // 평시 장수도 공격 대상이라 기존 야생 몬스터가 교전하면 저장이 막힌다. 탑 검사와 무관하므로 AI를 끈다.
+            foreach (var m in Object.FindObjectsByType<WildMonster>(FindObjectsSortMode.None)) m.enabled = false;
             var template = Object.FindObjectsByType<AcidTower>(FindObjectsInactive.Include).Single(t => t.name == "AcidTowerTemplate");
             Check(!template.gameObject.activeSelf && template.Data.kind == BuildingKind.AcidTower, "inactive building template");
             var placement = Object.FindAnyObjectByType<BuildingPlacementController>();
             var selection = Object.FindAnyObjectByType<ColonySelection>();
             selection.ClearSelection();
             Check(!placement.BeginAcidTowerPlacement(), "requires a selected builder");
-            var builder = CommanderRoster.Instance.Commanders.First(c => c.HasTroops && c.CanStartConstruction);
+            var builder = CommanderRoster.Instance.Commanders.First(c => c.CanStartConstruction); // 평시 민간인은 병력 없이 건설한다.
             typeof(ColonySelection).GetMethod("AddToSelection", Private).Invoke(selection, new object[] { builder.GetComponent<AntColony.Units.SelectableObject>() });
             var resources = ResourceManager.Instance; var pool = AntPool.Instance;
             resources.Add(Resource.Food, 200); resources.Add(Resource.Soil, 200);

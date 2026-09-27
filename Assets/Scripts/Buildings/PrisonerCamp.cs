@@ -190,6 +190,7 @@ namespace AntColony.Buildings
             if (recruit == null) return false;
             recruit.RestoreTalents(prisoner.Talents);
             recruit.RestorePersonalState(prisoner.PersonalState);
+            recruit.WorkState.duty = CommanderDuty.Civilian;
             recruit.Social.departure = DepartureState.None; recruit.Social.pendingDeparture = false;
             recruit.PersonalState.departure = "";
             recruit.Traits.SetLoyalty(30);

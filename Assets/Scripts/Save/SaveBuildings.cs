@@ -49,7 +49,7 @@ namespace AntColony.Save
                 for (var i = 0; i < values.Count; i++) d.nurseryAffinity.Add(new AffinityDto {
                     firstCommanderId = commanders.IndexOf(first[i]), secondCommanderId = commanders.IndexOf(second[i]), value = values[i] }); }
             var nodes = b.GetComponentsInChildren<ResourceNode>(true);
-            for (var i = 0; i < nodes.Length; i++) d.nodes.Add(new ResourceNodeDto { index = i, amount = nodes[i].AmountRemaining, regrowTimer = nodes[i].RegrowTimeRemaining, bountifulHarvest = nodes[i].BountifulHarvest });
+            for (var i = 0; i < nodes.Length; i++) d.nodes.Add(new ResourceNodeDto { index = i, amount = nodes[i].AmountRemaining, regrowTimer = nodes[i].RegrowTimeRemaining, gatheringForbidden = nodes[i].GatheringForbidden, bountifulHarvest = nodes[i].BountifulHarvest });
             return d;
         }
 
@@ -94,7 +94,7 @@ namespace AntColony.Save
                 d.nurseryAffinity.Select(a => commanders[a.firstCommanderId]).ToList(),
                 d.nurseryAffinity.Select(a => commanders[a.secondCommanderId]).ToList(), d.nurseryAffinity.Select(a => a.value).ToList());
             var nodes = b.GetComponentsInChildren<ResourceNode>(true);
-            foreach (var node in d.nodes) { nodes[node.index].RestoreState(node.amount, node.regrowTimer); nodes[node.index].BountifulHarvest = node.bountifulHarvest; }
+            foreach (var node in d.nodes) { nodes[node.index].RestoreState(node.amount, node.regrowTimer); nodes[node.index].BountifulHarvest = node.bountifulHarvest; nodes[node.index].GatheringForbidden = node.gatheringForbidden; }
         }
     }
 }

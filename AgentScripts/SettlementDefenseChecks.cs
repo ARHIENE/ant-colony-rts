@@ -69,13 +69,16 @@ public static class SettlementDefenseChecks
         { resources.AddCapacity(type, 10000); resources.Add(type, 1000); }
         AntPool.Instance.Breed(100);
         var roster = CommanderRoster.Instance.Commanders;
+        foreach (var x in roster) x.SetJobEnabled(AntColony.Units.CommanderJobs.All, false);
         var captive = roster[0]; var escapee = roster[1]; var crew = roster[2]; var collector = roster[3];
         foreach (var c in new[] { escapee, crew, collector })
         {
             c.CommandStop();
+            c.WorkState.duty = AntColony.Units.CommanderDuty.Deployed; // 원정 병력은 출전 편성으로 받는다.
             if (!c.HasTroops) Check(c.TryAssign(2), "test commander receives troops");
         }
         captive.CommandStop();
+        captive.WorkState.duty = AntColony.Units.CommanderDuty.Deployed; // 수비 병력도 출전 편성으로 받는다.
         Check(captive.TryAssign(8), "defender receives troops");
         captive.Talents.Add(CommanderActivity.Melee, 250);
         captive.CompleteLabUpgrade(true, 3);
@@ -188,6 +191,9 @@ public static class SettlementDefenseChecks
             "recapture rescues original commander without troops or duplicate defense component");
         Check(captive.Talents.Level(CommanderActivity.Melee) == level && captive.LabAttackLevel == 1 && captive.Traits == traits,
             "rescue preserves progression and traits");
+        // 쓰러진 채 구출된 장수는 회복(60초)한 뒤에 탑승할 수 있다.
+        captive.TickDuty(Core.GameBalance.CommanderRecoverySeconds + 1);
+        Check(captive.PersonalHealth > 0, "rescued commander recovers");
         Move(captive, ship.Position + Vector3.right * 3);
         Check(ship.TryBoard(new[] { captive }) && ship.TryReturn(), "rescued zero-troop commander can return");
         ship.Tick(ship.TravelSeconds);

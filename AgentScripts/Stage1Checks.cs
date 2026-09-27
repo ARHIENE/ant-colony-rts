@@ -90,6 +90,8 @@ public static class Stage1Checks
             Check(world.CanCreateTransport(roster.Commanders[0].Position, out var shipPoint), "transport spawn point");
             var vehicle = world.CreateTransport(false, shipPoint);
             Check(vehicle.CommanderCapacity == 4 && vehicle.Capacity == 40 && vehicle.CargoCapacity == 200, "vehicle capacities");
+            // 원정 병력은 출전 편성으로 받는다(평시 민간인은 병력 0).
+            foreach (var m in roster.Commanders.Take(5)) { m.SetJobEnabled(AntColony.Units.CommanderJobs.All, false); m.CommandStop(); m.WorkState.duty = AntColony.Units.CommanderDuty.Deployed; if (!m.HasTroops) m.TryAssign(2); }
             var crew = roster.Commanders.Where(c => c.HasTroops).Take(5).ToArray();
             Check(crew.Length == 5, "five commanders with troops");
             foreach (var c in crew) Move(c, vehicle.Position + Vector3.right * 3);

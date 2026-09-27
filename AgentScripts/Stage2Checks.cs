@@ -276,6 +276,7 @@ public static class Stage2Checks
             var site = world.Sites.First(s => s.Kind == ExpeditionSiteKind.Settlement);
             var crew = roster.Commanders[4];
             Move(crew, vehicle.Position + Vector3.right * 3);
+            crew.WorkState.duty = AntColony.Units.CommanderDuty.Deployed; // 원정 병력은 출전 편성으로 받는다.
             if (!crew.HasTroops) crew.TryAssign(3);
             Check(vehicle.TryBoard(new[] { crew }) && vehicle.TryDepart(site), "depart to settlement");
             vehicle.Tick(vehicle.TravelSeconds);

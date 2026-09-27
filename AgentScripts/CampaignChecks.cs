@@ -74,6 +74,7 @@ public static class CampaignChecks
             var replacement = new EquipmentItem { slot = EquipmentSlot.Trinket, effect = TrinketEffect.Move };
             inventory.Add(charm); inventory.Add(replacement);
             Check(inventory.Equip(a, charm), "command charm equipped");
+            a.WorkState.duty = CommanderDuty.Deployed;
             AntPool.Instance.Breed(100); Check(a.TryAssign(a.FreeRanks), "fill expanded command limit");
             var troopCount = a.TroopCount;
             Check(inventory.Equip(a, replacement) && a.TroopCount == troopCount && a.TroopCount > a.CommandLimit && !a.TryAssign(1), "capacity loss preserves troops, prevents assignment");
@@ -89,8 +90,8 @@ public static class CampaignChecks
             a.StartMentalBreak(MentalBreak.Idle); Check(!a.CanReceiveOrders && !a.TryAssign(1), "mental break blocks commands/allocation");
             a.TickPersonal(61); Check(a.CanReceiveOrders && a.PersonalState.moodFactors.Any(f => f.reason == "Catharsis"), "mental break recovery");
             b.TakeDamage(float.MaxValue); Check(!b.IsDead && b.TroopCount == 0 && b.PersonalState.injuries.Count > 0, "gentle downing applies injury without death");
-            b.RestorePersonalState(new CommanderPersonalState()); Check(b.TryAssign(2), "downed commander replenished");
-            a.ReturnTroops(a.TroopCount - 2);
+            b.RestorePersonalState(new CommanderPersonalState()); Check(b.CanReceiveOrders, "downed commander recovered");
+            a.ReturnTroops(a.TroopCount); a.WorkState.duty = CommanderDuty.Civilian;
             var lab = Lab(a.Position + Vector3.forward * 4);
             Check(lab.TryAssign(a) && a.ScienceAssignment == lab, "scientist ownership");
             Check(!a.CanChangeAllocation && !a.CanStartConstruction, "researcher cannot double-book");
@@ -111,6 +112,7 @@ public static class CampaignChecks
             var world = WorldMapManager.Instance;
             Check(world.CanCreateTransport(a.Position, out var shipPoint), "transport spawn point");
             var ship = world.CreateTransport(false, shipPoint);
+            a.WorkState.duty = CommanderDuty.Deployed; Check(a.TryAssign(2), "expedition mobilization");
             Move(a, ship.Position + Vector3.right * 3); Check(ship.TryBoard(new[] { a }), "board expedition");
             var site = world.Sites.First(s => s.Kind == ExpeditionSiteKind.BossNest);
             Check(ship.TryDepart(site), "depart boss expedition"); ship.Tick(ship.TravelSeconds + 1);
@@ -121,6 +123,7 @@ public static class CampaignChecks
             Check(!ship.TryCollectRewards(), "reward cannot duplicate");
             Check(ship.TryReturn(), "return boss cargo"); ship.Tick(ship.TravelSeconds + 1);
             Check(CampaignResearch.Instance.HasBlueprint && ship.EquipmentCargo.Count == 0 && inventory.Items.Count >= 2, "reward delivered only at home");
+            a.ReturnTroops(a.TroopCount); a.WorkState.duty = CommanderDuty.Civilian;
             Move(a, lab.Position + Vector3.right * 3); Check(lab.TryAssign(a), "researcher reassigned"); Complete(ScienceTechnology.Engine);
             lab.ReleaseResearcher();
             var template = (GameObject)typeof(BuildingPlacementController).GetMethod("GetTemplate", BindingFlags.Static | BindingFlags.NonPublic)

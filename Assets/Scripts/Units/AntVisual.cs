@@ -93,7 +93,7 @@ namespace AntColony.Units
             ring.widthMultiplier = selection != null && selection.IsSelected ? .13f : .055f;
             if (Time.time < actionUntil) return;
             if (moving) Face(delta);
-            if (commander != null && (commander.IsCaptive || !commander.HasTroops)) Play("Sit");
+            if (commander != null && (commander.IsCaptive || commander.PersonalHealth <= 0)) Play("Sit");
             else if (soldier != null && soldier.IsFlying || enemy != null && enemy.IsFlying) Play("Fly");
             else if (moving) Play(delta.magnitude / Time.deltaTime > 2f ? "Run" : "Walk");
             else if (worker != null && worker.IsBuildingAnimation) Play("Attack");

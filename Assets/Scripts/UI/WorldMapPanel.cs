@@ -20,7 +20,14 @@ namespace AntColony.UI
         private ExpeditionSite selectedSite;
         private ExpeditionTransport selectedShip;
         private bool seenUnlock, cameraWasEnabled;
+        private const float PlanetX = (MapW - 390) / 2, PlanetY = 38, PlanetSize = 390;
+        private WorldPlanet planetView;
+        private RectTransform expeditionList;
+        private readonly Dictionary<ExpeditionTransport, UnityEngine.UI.Text> boxes = new Dictionary<ExpeditionTransport, UnityEngine.UI.Text>();
+        private ExpeditionTransport expanded;
         public bool IsOpen => panel != null && panel.activeSelf;
+        // 월드 위 OnGUI 표시(장수 머리 위·채집 금지)가 전체 화면 월드맵 위에 그려지지 않게 한다.
+        public static bool AnyOpen { get; private set; }
         public RectTransform PanelRect => panel != null ? (RectTransform)panel.transform : null;
 
         private void Start()
@@ -38,7 +45,10 @@ namespace AntColony.UI
             // 왼쪽: 원정대(수송 수단·승무원).
             var left = L.Plate(rect, "Expeditions", 12, 12, 360, 746);
             L.Label(left, "<b>원정대</b>", 15, 12, 8, 200, 26);
+            // 원정 1건 = 박스(목적지·남은 시간·상태·장수·병력·수단/적재·전리품·부대 기분/부상). 클릭 = 행성을 그 목적지로 돌리고 박스를 펼침.
+            expeditionList = L.List(rect, 24, 44, 336, 166, 4);
             status = L.Label(rect, "", 13, 24, 48, 336, 160, MenuTheme.Muted, TextAnchor.UpperLeft);
+            status.gameObject.SetActive(false);
             Btn(rect, "Next Transport", "다음 수송 수단", 24, 214, NextShip);
             Btn(rect, "Board Selected", "선택 장수 탑승", 196, 214, () => ChangeCrew(false));
             Btn(rect, "Unload Crew", "승무원 내리기", 24, 254, () => Result(selectedShip != null && selectedShip.TryUnloadCrew(), "승무원을 내렸습니다."));
@@ -54,7 +64,7 @@ namespace AntColony.UI
 
             // 가운데: 행성 지도. 마커는 거점의 MapPosition(0~1)을 지도 안으로 옮긴다.
             var map = L.Box(rect, "WorldMap", 384, 12, MapW, MapH, MenuTheme.Hex(0x16120e), true);
-            L.Box(map, "Planet", MapW / 2 - 260, MapH / 2 - 260, 520, 520, MenuTheme.Hex(0x2a2419)).GetComponent<UnityEngine.UI.Image>().raycastTarget = false;
+            planetView = WorldPlanet.Create(map, PlanetX, PlanetY, PlanetSize);
             mapTitle = L.Label(map, "", 13, 12, 6, 600, 40, MenuTheme.Muted, TextAnchor.UpperLeft);
             selectionRing = L.Box(map, "SelectionRing", 0, 0, MarkerW + 8, MarkerH + 8, MenuTheme.Accent);
             selectionRing.GetComponent<UnityEngine.UI.Image>().raycastTarget = false;
@@ -136,25 +146,99 @@ namespace AntColony.UI
             for (var i = 0; i < markers.Count; i++)
             {
                 var site = world.Sites[i];
-                markers[i].gameObject.SetActive(world.Unlocked);
+                var local = Vector2.zero;
+                var visible = world.Unlocked && planetView.Project(site.MapPosition, out local);
+                markers[i].gameObject.SetActive(visible);
+                if (visible) ((RectTransform)markers[i].transform).anchoredPosition = new Vector2(PlanetX + local.x - MarkerW / 2, -(PlanetY + local.y - MarkerH / 2));
                 var color = site.Defense != null && (site.Defense.UnderAttack || site.Disposition == ConquestDisposition.Lost)
                     ? new Color(1f, .25f, .15f) : site.Disposition == ConquestDisposition.Annexed ? new Color(.3f, .85f, .5f)
                     : site.Disposition == ConquestDisposition.Abandoned ? Color.gray : DiplomacyManager.Instance?.Faction(site)?.color ?? site.Color;
                 markers[i].GetComponent<UnityEngine.UI.Image>().color = new Color(color.r * .65f, color.g * .65f, color.b * .65f, 1);
                 if (site == selectedSite)
                 {
-                    selectionRing.gameObject.SetActive(world.Unlocked);
+                    selectionRing.gameObject.SetActive(visible);
                     selectionRing.anchoredPosition = ((RectTransform)markers[i].transform).anchoredPosition + new Vector2(-4, 4);
                 }
             }
             if (selectedSite == null) selectionRing.gameObject.SetActive(false);
             annex.interactable = abandon.interactable = selectedSite != null && selectedSite.CanResolveConquest;
             siteInfo.text = SiteText(selectedSite);
+            RefreshExpeditions(world);
             status.text = selectedShip == null ? "수송 수단이 없습니다. 연구하고 건조하세요."
                 : $"<b>{selectedShip.name}</b>  {StateName(selectedShip.State)} {selectedShip.Remaining:0}초\n"
                     + $"장수 {selectedShip.CommanderLoad}/{selectedShip.CommanderCapacity} · 병력 {selectedShip.Load}/{selectedShip.Capacity} · 화물 {selectedShip.CargoLoad}/{selectedShip.CargoCapacity}\n"
                     + $"승무원 {selectedShip.Crew.Count}명\n운반 중: 식량 {selectedShip.GetCargo(AntColony.Data.ResourceType.Food)} · 흙 {selectedShip.GetCargo(AntColony.Data.ResourceType.Soil)} · 특수 {selectedShip.GetCargo(AntColony.Data.ResourceType.Special)}"
                     + $" · 장비 {selectedShip.EquipmentCargo.Count}{(selectedShip.BlueprintCargo ? " · 설계도" : "")}";
+        }
+
+        private void RefreshExpeditions(WorldMapManager world)
+        {
+            foreach (var ship in world.Transports)
+            {
+                if (ship == null) continue;
+                if (!boxes.TryGetValue(ship, out var text) || text == null) text = boxes[ship] = ExpeditionBox(ship);
+                var open = ship == expanded;
+                text.text = BoxText(ship, open);
+                var box = (RectTransform)text.transform.parent;
+                var height = 58 + (open ? 18 * ship.Crew.Count + 44 : 0);
+                box.GetComponent<UnityEngine.UI.LayoutElement>().preferredHeight = height;
+                text.rectTransform.sizeDelta = new Vector2(-16, height - 8);
+                var actions = (RectTransform)box.Find("Box Actions");
+                actions.gameObject.SetActive(open); actions.anchoredPosition = new Vector2(8, -(height - 38));
+                box.GetComponent<UnityEngine.UI.Outline>().effectColor = ship == selectedShip ? MenuTheme.Accent : MenuTheme.Line2;
+            }
+            foreach (var gone in new List<ExpeditionTransport>(boxes.Keys))
+                if (gone == null || !System.Linq.Enumerable.Contains(world.Transports, gone)) { if (boxes[gone] != null) Destroy(boxes[gone].transform.parent.gameObject); boxes.Remove(gone); }
+        }
+
+        private UnityEngine.UI.Text ExpeditionBox(ExpeditionTransport ship)
+        {
+            var rect = MenuTheme.Rect("Expedition " + ship.name, expeditionList);
+            rect.gameObject.AddComponent<UnityEngine.UI.Image>();
+            rect.gameObject.AddComponent<UnityEngine.UI.Outline>();
+            rect.gameObject.AddComponent<UnityEngine.UI.LayoutElement>().preferredHeight = 58;
+            var button = rect.gameObject.AddComponent<UnityEngine.UI.Button>(); MenuTheme.StyleButton(button);
+            button.onClick.AddListener(() => OpenExpedition(ship));
+            var text = MenuTheme.Text(rect, "", 12, 0); Destroy(text.GetComponent<UnityEngine.UI.LayoutElement>());
+            text.alignment = TextAnchor.UpperLeft;
+            text.rectTransform.anchorMin = new Vector2(0, 1); text.rectTransform.anchorMax = Vector2.one; text.rectTransform.pivot = new Vector2(.5f, 1);
+            text.rectTransform.anchoredPosition = new Vector2(0, -4);
+            var actions = L.Place(MenuTheme.Rect("Box Actions", rect), 8, 0, 300, 32);
+            L.Button(actions, "Box Return", "귀환", 0, 0, 96, 30, () => Result(ship != null && ship.TryReturn(), "장수와 화물을 싣고 귀환합니다."), null, false, 12);
+            L.Button(actions, "Box Battlefield", "전장 보기", 104, 0, 110, 30, () => {
+                var world = WorldMapManager.Instance;
+                if (world != null && ship != null && ship.Site != null && world.ViewSite(ship.Site)) Toggle();
+                else feedback.text = "수송 수단이 도착해야 전장에 들어갈 수 있습니다.";
+            }, null, false, 12);
+            actions.gameObject.SetActive(false);
+            return text;
+        }
+
+        // 박스 클릭: 선택 + 펼침/접기 + 행성을 그 수단의 목적지로 돌린다.
+        public void OpenExpedition(ExpeditionTransport ship)
+        {
+            selectedShip = ship;
+            expanded = expanded == ship ? null : ship;
+            if (ship != null && ship.Site != null) { selectedSite = ship.Site; planetView.Focus(ship.Site.MapPosition); }
+        }
+        public ExpeditionTransport ExpandedExpedition => expanded;
+        public WorldPlanet Planet => planetView;
+
+        private static string BoxText(ExpeditionTransport ship, bool open)
+        {
+            var crew = ship.Crew;
+            var injured = 0; var mood = 0f;
+            foreach (var c in crew) { mood += c.Mood; if (c.PersonalState.injuries.Count > 0) injured++; }
+            var names = crew.Count == 0 ? "없음" : string.Join(", ", System.Linq.Enumerable.Select(crew, c => c.CommanderName));
+            var text = $"<b>{ship.name}</b> · {(ship.Aircraft ? "비행기" : "차량")} · {StateName(ship.State)}{(ship.Remaining > 0 ? $" {ship.Remaining:0}초" : "")} → {(ship.Site != null ? ship.Site.Title : "소굴")}\n"
+                + $"장수 {names} ({ship.CommanderLoad}/{ship.CommanderCapacity}) · 병력 {ship.Load}/{ship.Capacity}\n"
+                + $"<color=#968976>화물 {ship.CargoLoad}/{ship.CargoCapacity} · 전리품 장비 {ship.EquipmentCargo.Count}{(ship.BlueprintCargo ? "·설계도" : "")}"
+                + $" · 기분 {(crew.Count > 0 ? mood / crew.Count : 0):0} · 부상 {injured}</color>";
+            if (!open) return text;
+            foreach (var c in crew)
+                text += $"\n  {c.CommanderName}  병력 {c.TroopCount}/{c.CommandLimit} · 체력 {c.PersonalHealth:0} · 기분 {c.Mood:0}"
+                    + (c.PersonalState.injuries.Count > 0 ? $" · 부상 {c.PersonalState.injuries.Count}" : "");
+            return text;
         }
 
         private static string StateName(ExpeditionState state) => state switch
@@ -191,32 +275,11 @@ namespace AntColony.UI
             {
                 var site = world.Sites[i];
                 var symbol = site.Kind == ExpeditionSiteKind.Settlement ? "C" : site.Kind == ExpeditionSiteKind.BossNest ? "B" : site.Kind == ExpeditionSiteKind.TradePost ? "T" : "R";
-                var position = MarkerPosition(site.MapPosition);
-                var marker = L.Button(mapRoot, site.Title, $"{symbol}{i + 1:00}", position.x, position.y, MarkerW, MarkerH, () => selectedSite = site, site.Title, false, 11);
+                var marker = L.Button(mapRoot, site.Title, $"{symbol}{i + 1:00}", 0, 0, MarkerW, MarkerH, () => selectedSite = site, site.Title, false, 11);
                 marker.GetComponent<UnityEngine.UI.Image>().color = new Color(site.Color.r * .65f, site.Color.g * .65f, site.Color.b * .65f, 1);
-                marker.gameObject.SetActive(world.Unlocked);
+                marker.gameObject.SetActive(false);
                 markers.Add(marker);
             }
-        }
-
-        // 0~1 좌표를 지도(여백 44) 안으로 옮기고, 이미 놓인 마커와 겹치면 아래로 비킨다(반란 진영 등 가까운 거점).
-        private Vector2 MarkerPosition(Vector2 normalized)
-        {
-            const float pad = 44;
-            var x = pad + Mathf.Clamp01(normalized.x) * (MapW - 2 * pad - MarkerW);
-            var y = 50 + (1 - Mathf.Clamp01(normalized.y)) * (MapH - 106 - MarkerH);
-            for (var tries = 0; tries < 40; tries++)
-            {
-                var candidate = new Rect(x, y, MarkerW, MarkerH);
-                var clash = markers.Exists(m => {
-                    var r = (RectTransform)m.transform;
-                    return candidate.Overlaps(new Rect(r.anchoredPosition.x, -r.anchoredPosition.y, MarkerW, MarkerH));
-                });
-                if (!clash) break;
-                y += MarkerH + 2;
-                if (y > MapH - 60 - MarkerH) { y = 50; x += MarkerW + 4; }
-            }
-            return new Vector2(x, y);
         }
 
         public void Toggle()
@@ -226,6 +289,8 @@ namespace AntColony.UI
             if (!IsOpen) { cameraWasEnabled = camera.enabled; camera.enabled = false; panel.transform.SetAsLastSibling(); }
             else camera.enabled = cameraWasEnabled;
             panel.SetActive(!IsOpen);
+            planetView.SetVisible(IsOpen);
+            AnyOpen = IsOpen;
         }
         private static ScienceLab FindLab()
         {

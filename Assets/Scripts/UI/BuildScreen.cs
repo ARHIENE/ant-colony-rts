@@ -34,7 +34,8 @@ namespace AntColony.UI
             new[] { new Entry("산성탑", BuildingKind.AcidTower), new Entry("광역 산성탑", BuildingKind.AreaAcidTower), new Entry("감시탑", BuildingKind.Watchtower),
                 new Entry("흙벽", BuildingKind.SoilWall), new Entry("함정", BuildingKind.TrapPit), new Entry("지뢰밭", BuildingKind.MineField) },
             new[] { new Entry("정찰 초소", BuildingKind.ScoutPost), new Entry("포로 수용소", BuildingKind.PrisonerCamp), new Entry("의무실", BuildingKind.Infirmary),
-                new Entry("휴게실", BuildingKind.RestRoom), new Entry("공방", BuildingKind.Workshop), new Entry("비행선 조선소", BuildingKind.AirshipYard) }
+                new Entry("휴게실", BuildingKind.RestRoom), new Entry("공방", BuildingKind.Workshop), new Entry("비행선 조선소", BuildingKind.AirshipYard),
+                new Entry("징집소", BuildingKind.ConscriptionPost) }
         };
 
         private static BuildScreen instance;
@@ -192,7 +193,7 @@ namespace AntColony.UI
                 if (i >= builders.Count)
                 {
                     row.interactable = false;
-                    label.text = "둥지에 병력을 가진 대기 장수가 없습니다.";
+                    label.text = "둥지에 건설 가능한 대기 장수가 없습니다.";
                     continue;
                 }
                 var c = builders[i];

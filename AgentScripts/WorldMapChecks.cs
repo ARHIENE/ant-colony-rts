@@ -110,7 +110,12 @@ public static class WorldMapChecks
         pool.Breed(100);
         // 건설 가능 상태는 과학 전제와 별개다. Play 시작 후 경과 시간에 좌우되지 않도록 여기서 맞춘다.
         homeCommander.CommandStop();
-        if (!homeCommander.HasTroops) Check(homeCommander.TryAssign(5), "builder takes troops");
+        foreach (var c in CommanderRoster.Instance.Commanders)
+        {
+            c.SetJobEnabled(CommanderJobs.All, false);
+            typeof(WorkerAnt).GetMethod("SuspendWork", Flags).Invoke(c, null);
+        }
+        Check(homeCommander.CanStartConstruction, "civilian builder needs no troops");
         Check(!ScienceLab.PrerequisitesMet, "population alone does not unlock science");
         typeof(GameManager).GetProperty("FishingUnlocked").SetValue(GameManager.Instance, true);
         Check(!ScienceLab.PrerequisitesMet, "fishing alone does not bypass barracks tier");
@@ -180,6 +185,8 @@ public static class WorldMapChecks
         var level = homeCommander.Talents.Level(CommanderActivity.Gathering);
         var workXp = homeCommander.Talents.Xp(CommanderActivity.Gathering);
         Move(homeCommander, vehicle.Position + Vector3.right * 3);
+        homeCommander.WorkState.duty = CommanderDuty.Deployed;
+        Check(homeCommander.TryAssign(5), "expedition crew mobilized");
         var assigned = pool.Assigned;
         var troops = homeCommander.TroopCount;
         Check(!vehicle.TryBoard(new[] { homeCommander, homeCommander }), "duplicate passenger rejected atomically");
@@ -192,7 +199,8 @@ public static class WorldMapChecks
         Check(vehicle.TryDepart(world.Sites.First(s => s.Kind == ExpeditionSiteKind.Settlement)) && !vehicle.TryDepart(world.Sites.Where(s => s.Kind == ExpeditionSiteKind.Settlement).Skip(1).First()), "departure claims a single destination");
         var second = CommanderRoster.Instance.Commanders[1];
         second.CommandStop();
-        if (!second.HasTroops) Check(second.TryAssign(5), "second commander takes troops");
+        second.WorkState.duty = CommanderDuty.Deployed;
+        if (!second.HasTroops) Check(second.TryAssign(5), "second expedition commander takes troops");
         Move(second, aircraft.Position + Vector3.right * 3);
         Check(aircraft.TryBoard(new[] { second }) && !aircraft.TryDepart(world.Sites.First(s => s.Kind == ExpeditionSiteKind.Settlement)), "occupied site rejects another transport");
         Check(aircraft.TryDepart(world.Sites.First(s => s.Kind == ExpeditionSiteKind.BossNest)), "another site supports concurrent expedition");
@@ -382,21 +390,21 @@ public static class WorldMapChecks
         if (!ui.IsOpen) ui.Toggle();
         Canvas.ForceUpdateCanvases();
         var map = ui.PanelRect.Find("WorldMap");
-        var markers = map.GetComponentsInChildren<UnityEngine.UI.Button>()
+        // 3D 행성: 뒷면 거점 마커는 숨는다. 거점마다 행성을 돌려 정면에 오면 마커가 행성 안에 보여야 한다.
+        var markers = map.GetComponentsInChildren<UnityEngine.UI.Button>(true)
             .Where(b => world.Sites.Any(s => s.Title == b.name)).ToArray();
         Check(markers.Length == 33, "all thirty-three map markers are available");
+        var planet = ui.Planet.Rect;
         for (var i = 0; i < markers.Length; i++)
         {
             markers[i].onClick.Invoke();
             Check((ExpeditionSite)Get(ui, "selectedSite") == world.Sites[i], "marker selects its own site");
+            ui.Planet.Focus(world.Sites[i].MapPosition); ui.Planet.SnapToTarget();
+            typeof(AntColony.UI.WorldMapPanel).GetMethod("Update", BindingFlags.Instance | BindingFlags.NonPublic).Invoke(ui, null);
             var a = (RectTransform)markers[i].transform;
-            var bounds = new Rect(a.anchoredPosition + new Vector2(0, -a.rect.height), a.rect.size);
-            for (var j = i + 1; j < markers.Length; j++)
-            {
-                var b = (RectTransform)markers[j].transform;
-                Check(!bounds.Overlaps(new Rect(b.anchoredPosition + new Vector2(0, -b.rect.height), b.rect.size)),
-                    "map markers do not overlap");
-            }
+            var center = a.anchoredPosition + new Vector2(a.rect.width / 2, -a.rect.height / 2);
+            var inside = new Rect(planet.anchoredPosition.x, -planet.anchoredPosition.y - planet.rect.height, planet.rect.width, planet.rect.height);
+            Check(markers[i].gameObject.activeSelf && inside.Contains(new Vector2(center.x, center.y)) , "focused site marker visible on planet: " + markers[i].name);
         }
         foreach (var button in ui.PanelRect.GetComponentsInChildren<UnityEngine.UI.Button>())
         {

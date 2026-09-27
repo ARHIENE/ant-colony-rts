@@ -57,6 +57,9 @@ namespace AntColony.Save
         public int role;
         public int troopCount;
         public float pendingDamage;
+        public float carriedAmount;
+        public int carriedType;
+        public float fishingProgress; // v9: 낚시 1회(20초) 진행도
         public bool strikeArmed;
         public float strikeCooldown, stanceCooldown, stanceTime;
         public int level;
@@ -159,6 +162,8 @@ namespace AntColony.Save
         public float amount;
         public float regrowTimer;
         public bool bountifulHarvest;
+        public bool gatheringForbidden;
+        public int fishMonth = -1; // v9: 낚시터 월 한도를 마지막으로 채운 달(-1 = 다음 틱에 이번 달로 채움)
     }
 
     [Serializable]
@@ -258,7 +263,7 @@ namespace AntColony.Save
         public float upkeepTimer, incursionTimer;
         public bool loopCompleted, bossDefeated, defeated;
         public string randomState;
-        public const int CurrentVersion = 7;
+        public const int CurrentVersion = 9;
         public World.DiplomacyManager.State diplomacy;
         public Core.CampaignHistory.State history = new Core.CampaignHistory.State();
         public World.ColonyEvents.State events = new World.ColonyEvents.State();

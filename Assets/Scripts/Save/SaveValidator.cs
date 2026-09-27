@@ -82,6 +82,19 @@ namespace AntColony.Save
                 file.diplomacy = World.DiplomacyManager.InitialState(file.options?.seed ?? 0, file.world?.legacyLayout == true);
                 file.version = 7;
             }
+            if (file.version == 7)
+            {
+                foreach (var c in file.commanders ?? new System.Collections.Generic.List<CommanderDto>())
+                {
+                    if (c == null || c.position == null || !c.position.IsFinite() || c.personalState == null) { error = "Invalid legacy commander."; return false; }
+                    c.personalState.work = new Units.CommanderWorkState { duty = c.troopCount > 0 ? Units.CommanderDuty.Deployed : Units.CommanderDuty.Civilian,
+                        returnPosition = c.position.ToVector3(), health = c.personalState.dead ? 0 : Core.GameBalance.CommanderHealth };
+                }
+                foreach (var b in file.buildings ?? new System.Collections.Generic.List<BuildingDto>())
+                    if (b?.prisoners != null) foreach (var p in b.prisoners) if (p?.personalState != null) p.personalState.work = new Units.CommanderWorkState();
+                file.version = 8;
+            }
+            if (file.version == 8) file.version = 9; // 낚시터 fishMonth 기본값 -1: 불러온 뒤 이번 달 한도로 채운다.
             if (file.version != SaveFileV1.CurrentVersion)
             {
                 error = $"Save version {file.version} cannot be read by this build (expects {SaveFileV1.CurrentVersion}).";

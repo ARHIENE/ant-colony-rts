@@ -39,7 +39,12 @@ public static class WeaponTalentChecks
         var isolated = settings.Clone(); isolated.autoSaveEnabled = false; UserSettings.Apply(isolated, false);
         try
         {
-            SaveSystem.NewGame(new NewGameOptions { seed = 240924, commanderDeath = CommanderDeathMode.Gentle }); await Ready();
+            await Ready(); SaveSystem.NewGame(new NewGameOptions { seed = 240924, commanderDeath = CommanderDeathMode.Gentle }); await Ready();
+            foreach (var monster in Object.FindObjectsByType<WildMonster>(FindObjectsSortMode.None))
+            {
+                monster.enabled = false;
+                typeof(WildMonster).GetField("currentTarget", BindingFlags.Instance | BindingFlags.NonPublic).SetValue(monster, null);
+            }
             var roster = CommanderRoster.Instance;
             foreach (var c in roster.Commanders) { c.CommandStop(); Check(c.Talents.levels.Sum() == 40, "starting skill budget"); }
             var a = roster.Commanders[0]; var b = roster.Commanders[1];
@@ -65,18 +70,20 @@ public static class WeaponTalentChecks
             enemy.transform.position = a.Position + Vector3.right * 3;
             try
             {
-                Check(a.CanAttackTarget(enemy), "unarmed can attack");
+                Check(!a.CanAttackTarget(enemy), "civilian does not attack");
                 foreach (WeaponKind weapon in Enum.GetValues(typeof(WeaponKind)))
                 {
                     var hp = a.CurrentHealth; var troops = a.TroopCount;
                     Equip(a, EquipmentSlot.Weapon, weapon);
                     Check(a.Data.gatherRate > 0 && a.Data.carryCapacity > 0 && a.CanStartConstruction, weapon + " can work");
-                    var node = Object.FindObjectsByType<ResourceNode>(FindObjectsSortMode.None).First(n => n.CanGather);
+                    var node = Object.FindObjectsByType<ResourceNode>(FindObjectsSortMode.None).First(n => n.CanGather && a.TryWorkApproach(n.transform.position, out _));
                     a.CommandGather(node); Check(a.CurrentResourceNode == node && a.IsWorking, weapon + " accepts gathering"); a.CommandStop();
                     Near(a.CurrentHealth, hp, "equipment preserves damage"); Check(a.TroopCount == troops, "equipment preserves troops");
                     if (weapon == WeaponKind.AcidSprayer) Near(a.Data.attackRange, 6, "acid range");
                 }
                 Equip(a, EquipmentSlot.Weapon, WeaponKind.Mandible);
+                a.WorkState.duty = CommanderDuty.Deployed; b.WorkState.duty = CommanderDuty.Deployed;
+                Check(a.TryAssign(2) && b.TryAssign(2), "combat fixtures deployed");
                 a.Talents.levels[(int)CommanderActivity.Melee] = 5;
                 Check(a.TryPowerStrike(), "melee skill unlock");
                 var cooldown = a.Skills.PowerStrikeCooldownLeft;

@@ -8,8 +8,7 @@ using UnityEngine;
 namespace AntColony.Units
 {
     // 장수(지휘관). 플레이어가 직접 조작하는 유일한 유닛이다.
-    // 일반개미는 GameObject가 아니라 AntPool의 숫자이므로, 배정된 병력 수가 곧 이 부대의 체력이다
-    // (기획: 개미 1마리 = HP 1). 채집량·공격력도 병력 수에 비례한다.
+    // 평시에는 자동 작업하며, 출전 시 배정된 일반개미가 개인 체력보다 먼저 피해를 받는다.
     public partial class CommanderAnt : WorkerAnt
     {
         // 기획 고정값: 일반개미 1마리가 HP 1이다. UnitData.maxHealth는 장수 부대 체력에 쓰지 않는다.
@@ -70,17 +69,23 @@ namespace AntColony.Units
 
         protected override void Update()
         {
+            TickDuty(Time.deltaTime);
             TickAdvancedSkills(Time.deltaTime);
             if (IsHostile) { TickDeparture(Time.deltaTime); return; }
             TickPersonal(Time.deltaTime);
             if (IsDeparting || Social.diving) return;
             if (!IsEmbarked && !IsDead && PersonalState.rageRemaining > 0) { TickRevenge(Time.deltaTime); return; }
-            if (!IsEmbarked && !IsDead && !PersonalState.treating && PersonalState.mentalBreak == MentalBreak.None && !LabUpgradeBusy) base.Update();
+            if (!IsEmbarked && !IsDead && PersonalHealth > 0 && !PersonalState.treating && PersonalState.mentalBreak == MentalBreak.None && !LabUpgradeBusy) base.Update();
         }
 
         public override void CommandMove(Vector3 destination)
         {
-            if (CanReceiveOrders && !LabUpgradeBusy) base.CommandMove(destination);
+            if (CanReceiveOrders && !LabUpgradeBusy)
+            {
+                automaticFacility = null; ScienceAssignment?.ReleaseResearcher(); WorkState.resting = false;
+                if (IsReturning) WorkState.duty = CommanderDuty.Deployed;
+                base.CommandMove(destination);
+            }
         }
 
         public string CommanderName => commanderName;
@@ -95,10 +100,10 @@ namespace AntColony.Units
         public int FreeRanks => Mathf.Max(0, CommandLimit - troopCount);
         public bool HasTroops => troopCount > 0;
 
-        public float MaxHealth => troopCount * HealthPerTroop;
-        public override float CurrentHealth => Mathf.Max(0f, MaxHealth - pendingDamage);
+        public float MaxHealth => GameBalance.CommanderHealth + troopCount * HealthPerTroop;
+        public override float CurrentHealth => PersonalHealth + TroopHealth;
 
-        // 병력 0의 부상·사망 판정은 OnDowned에서 새 게임 사망 옵션을 따른다.
+        // 개인 체력 소진 시 OnDowned에서 새 게임 사망 옵션을 따른다.
         public override bool IsDead => PersonalState.dead;
 
         public CommanderTalents Talents => talents;
@@ -137,6 +142,7 @@ namespace AntColony.Units
             + EquipmentBonus(EquipmentSlot.Armor) - 2f * PersonalState.Severity(InjuryPart.Thorax)
             + (skills.DefensiveStanceActive ? CommanderSkills.DefensiveStanceArmor : 0f);
         protected override float GatherRate => base.GatherRate * Mathf.Max(1, troopCount) * talents.Multiplier(CurrentActivity) * traits.WorkMultiplier * (1f - .3f * PersonalState.Severity(InjuryPart.Antenna)) * (1f + TrinketBonus(TrinketEffect.Gather)) * ColonyEvents.GatherMultiplier(this);
+        protected override float FishingCatchMultiplier => talents.Multiplier(CommanderActivity.Fishing) * ColonyEvents.GatherMultiplier(this);
         protected override void OnGathered(float amount)
         {
             if (CurrentActivity == CommanderActivity.Gathering) GainExperience(CommanderActivity.Gathering, amount);
@@ -166,7 +172,7 @@ namespace AntColony.Units
         // 운반 중이거나 건설 중에는 배정/회수/보직 변경을 막는다. 중간에 인원이 바뀌면 자원이 증발한다.
         public bool CanChangeAllocation => CanReceiveOrders && !IsCarrying && !IsConstructing && !LabUpgradeBusy;
 
-        public override bool CanStartConstruction => CanChangeAllocation && !IsAwayFromHome && HasTroops && base.CanStartConstruction;
+        public override bool CanStartConstruction => CanChangeAllocation && !IsAwayFromHome && !IsDeployed && base.CanStartConstruction;
 
         public override void Initialize(UnitData data, ObjectPool sourcePool, GameObject prefab)
         {
@@ -209,7 +215,7 @@ namespace AntColony.Units
         // 대기 중인 일반개미를 이 장수에게 배정한다. 지휘 한도와 대기 인원을 모두 넘지 못한다.
         public bool TryAssign(int count)
         {
-            if (count <= 0 || IsAwayFromHome || !isActiveAndEnabled || !CanChangeAllocation || AntPool.Instance == null) return false;
+            if (!IsDeployed || IsReturning || count <= 0 || IsAwayFromHome || !isActiveAndEnabled || !CanChangeAllocation || AntPool.Instance == null) return false;
             if (count > CommandLimit - troopCount) return false;
             if (!AntPool.Instance.TryAssign(count)) return false;
             troopsReleased = false;
@@ -249,36 +255,22 @@ namespace AntColony.Units
         // 피해는 부대 전체가 나눠 받고, HP 1이 쌓일 때마다 병력이 실제로 줄어든다(환급 없음).
         public override void TakeDamage(float amount)
         {
-            if (IsDead || IsEmbarked || troopCount <= 0 || float.IsNaN(amount) || amount <= 0f) return;
-            Social.combatSeen = true;
-            PersonalState.lastCombatSeconds = 0;
+            if (IsDead || IsEmbarked || PersonalHealth <= 0 || float.IsNaN(amount) || amount <= 0) return;
+            Social.combatSeen = true; PersonalState.lastCombatSeconds = 0; WorkState.quietSeconds = 0;
             GetComponent<AntVisual>()?.Action("Hit");
-
-            var applied = Mathf.Max(1f, amount - Armor);
-
-            // 즉사급/무한대 피해는 루프를 돌리지 않고 남은 병력만큼만 한 번에 처리한다.
-            if (float.IsInfinity(applied) || applied >= CurrentHealth)
-            {
-                if (!IsDeparting) AntPool.Instance?.LoseAssigned(troopCount);
-                troopCount = 0;
-                pendingDamage = 0f;
-                CommandStop();
-                if (IsHostile) CaptureDeparting(); else OnDowned();
-                return;
-            }
-
-            pendingDamage += applied;
-            var casualties = Mathf.FloorToInt(pendingDamage / HealthPerTroop);
-            if (casualties <= 0) return;
-
-            casualties = Mathf.Min(casualties, troopCount);
-            pendingDamage -= casualties * HealthPerTroop;
-            troopCount -= casualties;
+            var damage = Mathf.Max(Mathf.Min(1, amount), amount - Armor);
+            var troopDamage = Mathf.Min(damage, TroopHealth);
+            damage -= troopDamage; pendingDamage += troopDamage;
+            var casualties = Mathf.Min(troopCount, Mathf.FloorToInt(pendingDamage));
+            pendingDamage -= casualties; troopCount -= casualties;
             if (!IsDeparting) AntPool.Instance?.LoseAssigned(casualties);
+            if (troopCount == 0 && IsHostile) { pendingDamage = 0; CaptureDeparting(); return; }
+            WorkState.health = Mathf.Max(0, WorkState.health - damage);
+            if (WorkState.health <= 0) { CommandStop(); DropCargo(); OnDowned(); }
         }
 
-        // 병력이 없으면 공격 대상이 될 수 없고 자동 교전도 하지 않는다.
-        public override bool CanAttackTarget(IDamageable target) => CanReceiveOrders && !LabUpgradeBusy && HasTroops && base.CanAttackTarget(target);
+        // 병력이 없는 장수도 공격받지만 직접 교전은 하지 않는다.
+        public override bool CanAttackTarget(IDamageable target) => CanReceiveOrders && !IsReturning && !LabUpgradeBusy && HasTroops && base.CanAttackTarget(target);
 
         public override void CommandAttack(IDamageable target)
         {
@@ -295,14 +287,16 @@ namespace AntColony.Units
 
         public override void CommandGather(ResourceNode node)
         {
-            if (!CanReceiveOrders || LabUpgradeBusy || !HasTroops) return;
+            if (!CanReceiveOrders || LabUpgradeBusy || IsDeployed && !IsAwayFromHome) return;
             if (Garrison != null && Garrison.DockedTransport == null) return;
+            automaticFacility = null; ScienceAssignment?.ReleaseResearcher();
             base.CommandGather(node);
         }
 
         public override void CommandBuild(BuildingConstructionSite site)
         {
-            if (!CanReceiveOrders || LabUpgradeBusy || !HasTroops) return;
+            if (!CanReceiveOrders || LabUpgradeBusy || IsDeployed) return;
+            automaticFacility = null; ScienceAssignment?.ReleaseResearcher();
             base.CommandBuild(site);
         }
 

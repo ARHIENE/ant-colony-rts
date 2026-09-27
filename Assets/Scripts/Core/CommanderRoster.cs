@@ -16,7 +16,6 @@ namespace AntColony.Core
         [SerializeField] private Transform spawnOrigin;
         // ponytail: 초기 장수/병력 수는 임시 시작 설정이다.
         [SerializeField, Min(1)] private int startingCommanders = 12;
-        [SerializeField, Min(0)] private int troopsPerCommander = 2;
         [SerializeField, Min(1f)] private float spawnSampleRadius = 10f;
 
         private readonly List<CommanderAnt> commanders = new List<CommanderAnt>();
@@ -59,7 +58,7 @@ namespace AntColony.Core
                 var combatRole = (UnitRole)(1 + i % 5);
                 var commander = Create(null, CommanderRank.Sergeant, new[] { UnitRole.Worker, combatRole },
                     UnitRole.Worker, CommanderTraits.Random(), position);
-                commander?.TryAssign(troopsPerCommander);
+
             }
         }
 

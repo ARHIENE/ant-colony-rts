@@ -79,15 +79,5 @@ namespace AntColony.UI
             foreach (var item in inventory.Items.ToArray())
                 MenuTheme.Button(content, "Equip " + item.Label, () => { if (!inventory.Equip(c, item)) ToastManager.Show("Cannot equip while unavailable, with injured wings or without a safe landing point."); Details(c); });
         }
-        public void ShowDeparture()
-        {
-            var research = CampaignResearch.Instance;
-            if (research == null || !research.Departed) return;
-            Screen("GREAT MIGRATION — VICTORY"); Time.timeScale = 0;
-            MenuTheme.Text(content, $"Your airship has departed. Game time: {research.EndingGameSeconds / 3600:0.00} years.", 22, 70);
-            MenuTheme.Text(content, "Passengers: " + (research.Passengers.Count == 0 ? "None" : string.Join(", ", research.Passengers)), 18, 100);
-            MenuTheme.Text(content, "Left behind: " + string.Join(", ", research.LeftBehind), 18, 150);
-            MenuTheme.Button(content, "Main Menu", () => { GameSession.Instance.MarkNotStarted(); Main(); });
-        }
     }
 }

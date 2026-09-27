@@ -21,7 +21,7 @@ namespace AntColony.Buildings
         public CommanderAnt Crafter { get; private set; }
         public bool Ruined { get; private set; }
         public bool CanAssign(CommanderAnt c) => !Ruined && isActiveAndEnabled && !IsDead && Crafter == null && jobs.Count > 0
-            && c != null && c.CanChangeAllocation && !c.IsAwayFromHome && !c.IsWorking && !c.IsInCombat
+            && c != null && c.CanChangeAllocation && !c.IsAwayFromHome && !c.IsDeployed && !c.IsWorking && !c.IsInCombat
             && (c.Agent == null || !c.Agent.hasPath && !c.Agent.pathPending)
             && Vector3.Distance(c.Position, Position) <= GameBalance.WorkshopRadius;
         public bool TryAssign(CommanderAnt c)

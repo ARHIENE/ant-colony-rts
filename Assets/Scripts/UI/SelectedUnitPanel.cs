@@ -1,4 +1,5 @@
 using System.Linq;
+using AntColony.Core;
 using AntColony.Data;
 using AntColony.Units;
 using UnityEngine;
@@ -14,7 +15,7 @@ namespace AntColony.UI
         private SelectionManager selection;
         private GameObject panel;
         private Text portrait, header, troopsText, emptyText;
-        private RectTransform troopFill;
+        private RectTransform troopFill, healthFill;
         private readonly Text[] statValues = new Text[4], statNotes = new Text[4], skillTexts = new Text[9];
         private readonly MenuTooltip[] slotTips = new MenuTooltip[3];
         private readonly Text[] slotTexts = new Text[3];
@@ -62,10 +63,14 @@ namespace AntColony.UI
             header = Label(rect, "", 14, new Vector2(x, 0), new Vector2(690, 24), MenuTheme.Muted);
             header.supportRichText = true;
             troopsText = Label(rect, "", 13, new Vector2(x, -28), new Vector2(690, 18), MenuTheme.Dim);
-            var track = Well(rect, "TroopTrack", new Vector2(x, -48), new Vector2(690, 12));
+            var healthTrack = Well(rect, "PersonalHealthTrack", new Vector2(x, -48), new Vector2(690, 6));
+            healthFill = MenuTheme.Rect("PersonalHealthFill", healthTrack);
+            MenuTheme.Stretch(healthFill);
+            var healthImage = healthFill.gameObject.AddComponent<Image>(); healthImage.color = MenuTheme.Hp; healthImage.raycastTarget = false;
+            var track = Well(rect, "TroopTrack", new Vector2(x, -58), new Vector2(690, 6));
             troopFill = MenuTheme.Rect("TroopFill", track);
             MenuTheme.Stretch(troopFill);
-            var fill = troopFill.gameObject.AddComponent<Image>(); fill.color = MenuTheme.Hp; fill.raycastTarget = false;
+            var fill = troopFill.gameObject.AddComponent<Image>(); fill.color = MenuTheme.Accent; fill.raycastTarget = false;
 
             string[] statNames = { "공격", "방어", "기분", "충성심" };
             for (var i = 0; i < 4; i++)
@@ -90,6 +95,8 @@ namespace AntColony.UI
             if (panel == null) return;
             int count = 0;
             float current = 0f, maximum = 0f;
+            float troops = 0f, troopMaximum = 0f;
+            bool deployed = false;
             AntUnitBase first = null;
             if (selection != null)
             {
@@ -100,16 +107,23 @@ namespace AntColony.UI
                     if (unit == null || !unit.isActiveAndEnabled || unit.IsDead || unit.Data == null) continue;
                     if (first == null) first = unit;
                     count++;
-                    current += unit.CurrentHealth;
-                    maximum += unit is CommanderAnt commander ? commander.CommandLimit : unit.Data.maxHealth;
+                    if (unit is CommanderAnt commander)
+                    {
+                        current += commander.PersonalHealth; maximum += GameBalance.CommanderHealth;
+                        if (commander.IsDeployed) { deployed = true; troops += commander.TroopHealth; troopMaximum += commander.CommandLimit; }
+                    }
+                    else { current += unit.CurrentHealth; maximum += unit.Data.maxHealth; }
                 }
             }
             var visible = count > 0 && !BuildScreen.Picking;
             panel.SetActive(visible);
             emptyText.gameObject.SetActive(count == 0 && !BuildScreen.Picking);
             if (!visible) return;
-            troopFill.anchorMax = new Vector2(maximum > 0f ? Mathf.Clamp01(current / maximum) : 0f, 1f);
-            troopsText.text = $"병력  <b>{Mathf.CeilToInt(current)}</b> / {Mathf.CeilToInt(maximum)}{(count == 1 && first is CommanderAnt ? " 지휘한도" : "")}";
+            healthFill.anchorMax = new Vector2(maximum > 0f ? Mathf.Clamp01(current / maximum) : 0f, 1f);
+            troopFill.parent.gameObject.SetActive(deployed);
+            troopFill.anchorMax = new Vector2(troopMaximum > 0f ? Mathf.Clamp01(troops / troopMaximum) : 0f, 1f);
+            troopsText.text = $"개인 체력 <b>{Mathf.CeilToInt(current)}</b> / {Mathf.CeilToInt(maximum)}"
+                + (deployed ? $"    병력 <b>{Mathf.CeilToInt(troops)}</b> / {Mathf.CeilToInt(troopMaximum)} 지휘한도" : "    평시");
             troopsText.supportRichText = true;
 
             var c = count == 1 ? first as CommanderAnt : null;

@@ -39,6 +39,11 @@ namespace AntColony.Core
             new GameObject("CampaignHistory").AddComponent<CampaignHistory>();
             new GameObject("ColonyEvents").AddComponent<AntColony.World.ColonyEvents>();
             new GameObject("SkillTargeting").AddComponent<SkillTargeting>();
+            new GameObject("GatherDesignation").AddComponent<GatherDesignation>();
+            new GameObject("EnemyAlert").AddComponent<EnemyAlert>();
+            new GameObject("CommanderOverhead").AddComponent<CommanderOverhead>();
+            new GameObject("FirstHints").AddComponent<FirstHints>();
+            new GameObject("MoodWatch").AddComponent<MoodWatch>();
             SaveCatalog.Initialize();
             var file = GameSession.Instance.PendingLoad as SaveFileV1;
             GameSession.Instance.PendingLoad = null;
