@@ -12,7 +12,9 @@
 3. 작업 인력 배정/반환, 운반·간호·수리·사냥·요리·예술, 기술/특성, 저장 왕복 구현 확인. 검사에서 TryLoad 호출 및 Herbs 치료 보너스 기대값 수정. `WorkforceChecks` 79개 통과(수면 수정 후 재검증).
 - 합계 147개 검사 통과. Unity 컴파일 실패 없음. 검사 일부에 기존 obsolete API 경고가 남아 있다. AI Assistant/Pipeline 연결 오류는 별도로 콘솔에 남아 있으나 위 검사는 완료했다.
 - `graphify update .` 완료(4940 nodes, 9871 edges). 검사 종료 후 Play 모드 종료.
-- SAVE 진행 중: 변경사항 정리·기능 캡처·Notion 기록·develop 커밋/push 결과는 아래에 반영한다.
+- SAVE 완료: 구현 커밋 `a2a2c52`를 origin/develop에 push. 공식 CLI 야간 HUD·12종 작업표 캡처 2종을 확인하고 Notion 일지에 첨부했다.
+- 개발 일지: https://app.notion.com/p/3e9c4a0ecd3181398d50def0b6b207fd. 캡처 원본: `E:\Git\_tools\ant-2026-09-29-night.png`, `E:\Git\_tools\ant-2026-09-29-work.png`.
+- 카카오톡 완료 알림은 도구 미연결로 미전송. Git post-commit 훅에 grep 부재 경고가 있었지만 커밋/push 완료.
 
 ## 다음 작업
 - 기존 실패/미실행 스위트: InvasionChecks, RaidChecks, SceneInvasionChecks, AirborneChecks/Run. 전체 회귀·Player 빌드는 이번에 실행하지 않았다.
