@@ -9,6 +9,7 @@ namespace AntColony.World
     {
         public static IReadOnlyList<ResourceNode> Available => Active;
         public bool GatheringForbidden { get; set; }
+        public bool IsLooseCargo { get; internal set; }
         private static readonly List<ResourceNode> Active = new List<ResourceNode>();
 
         [SerializeField] private ResourceType resourceType = ResourceType.Food;
@@ -36,7 +37,7 @@ namespace AntColony.World
             || ownerColony.GetComponentInParent<ExpeditionSite>()?.Disposition == ConquestDisposition.Lost);
         public bool IsUnlocked => !IsRaidLocked && (GetComponentInParent<ExpeditionSite>()?.Disposition == ConquestDisposition.Annexed || DiplomacyManager.Hostile(this))
             && (!requiresFishing || (GameManager.Instance != null && GameManager.Instance.FishingUnlocked));
-        public bool CanGather => !GatheringForbidden && isActiveAndEnabled && !IsDepleted && IsUnlocked && !ColonyEvents.Flooded(this);
+        public bool CanGather => !GatheringForbidden && isActiveAndEnabled && (!IsDepleted || IsFarm && IsRegrowing) && IsUnlocked && !ColonyEvents.Flooded(this);
         public float GatherRateMultiplier => requiresFishing ? fishingRateMultiplier : 1f;
 
         public ResourceType ResourceType => resourceType;
@@ -70,7 +71,15 @@ namespace AntColony.World
         public void TickGrowth(float seconds)
         {
             if (regrowTimer <= 0f || !(seconds > 0) || float.IsInfinity(seconds)) return;
-            regrowTimer = Mathf.Max(0, regrowTimer - seconds * ColonyEvents.GrowthMultiplier(this));
+            float labor = 1;
+            if (IsFarm)
+            {
+                labor = 0;
+                foreach (var unit in AntColony.Units.AntUnitBase.Active)
+                    if (unit is AntColony.Units.CommanderAnt c && c.CivilianWorkReady && c.CurrentResourceNode == this && c.IsGatheringAnimation)
+                    { labor += c.WorkRate(AntColony.Units.CommanderActivity.Farming); c.GainExperience(AntColony.Units.CommanderActivity.Farming, Mathf.Min(seconds, regrowTimer / Mathf.Max(.01f, labor))); }
+            }
+            regrowTimer = Mathf.Max(0, regrowTimer - seconds * labor * ColonyEvents.GrowthMultiplier(this));
             // 밭(건물 노드)만 균류 재배 수확량 보정과 가을 수확 배율을 받는다.
             if (regrowTimer <= 0f) amountRemaining = regrowAmount * (IsFarm ? ScienceEffects.FarmYieldMultiplier
                 * (GameCalendar.CurrentSeason == Season.Autumn ? GameBalance.AutumnHarvestMultiplier : 1f) : 1f) * (BountifulHarvest ? 1.5f : 1f);
@@ -125,6 +134,7 @@ namespace AntColony.World
         // 런타임 생성 노드(보스 전리품) 전용. 활성화 전에 호출해야 OnEnable 판정이 맞다.
         public void ConfigureLoot(ResourceType type, float amount)
         {
+            IsLooseCargo = true;
             resourceType = type;
             amountRemaining = Mathf.Max(0f, amount);
             regrowSeconds = 0f;

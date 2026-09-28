@@ -18,8 +18,6 @@ namespace AntColony.UI
         private RectTransform panel, content, tooltipPanel, scrollArea, legacyContent, frame;
         private GameObject toolbar;
         private Text tip;
-        private Text calendar;
-        private Button speedButton;
         private bool open;
         private int closedFrame = -1;
         private float resumeScale = 1;
@@ -45,23 +43,17 @@ namespace AntColony.UI
             MenuTheme.Stretch(tip.rectTransform); tip.rectTransform.offsetMin = new Vector2(12, 8); tip.rectTransform.offsetMax = new Vector2(-12, -8);
             tooltipPanel.gameObject.SetActive(false);
             var bar = MenuTheme.Rect("MenuToolbar", canvas.transform); toolbar = bar.gameObject;
-            // 디자인 상단 바 왼쪽: 메뉴 Esc · 장수 G · 과학 K · 외교 J · 로그 L (월드맵 M은 WorldMapPanel 토글).
-            bar.anchorMin = bar.anchorMax = new Vector2(0, 1); bar.pivot = new Vector2(0, 1); bar.anchoredPosition = new Vector2(8, -6); bar.sizeDelta = new Vector2(404, 28);
+            // HUD v2 상단 바 왼쪽: 메뉴 Esc · 장수 G · 작업표 T · 과학 K · 외교 J · 로그 L (월드맵 M 버튼은 WorldMapPanel이 붙인다).
+            // 가운데는 장수 바(RosterBar), 달력·속도는 우상단 HudClock이 맡는다.
+            bar.anchorMin = bar.anchorMax = new Vector2(0, 1); bar.pivot = new Vector2(0, 1); bar.anchoredPosition = new Vector2(8, -6); bar.sizeDelta = new Vector2(420, 28);
             var layout = bar.gameObject.AddComponent<HorizontalLayoutGroup>(); layout.spacing = 4; layout.childForceExpandWidth = false;
-            ToolbarButton(bar, "Menu [Esc]", "메뉴  Esc", Pause, "Pause, save or change settings.");
-            ToolbarButton(bar, "Commanders [G]", "장수  G", Roster, "All commanders, sorted by name. Inspect skills and equipment.");
-            ToolbarButton(bar, "Science [K]", "과학  K", Science, "Science research: unlock buildings, transport and upgrades.");
-            ToolbarButton(bar, "Diplomacy [J]", "외교  J", Diplomacy, "Contacted civilizations, treaties, war and trade.");
-            ToolbarButton(bar, "Event Log [L]", "로그  L", EventLog, "Recent colony events.");
-            // 가운데: 날짜 · 속도.
-            var timebar = MenuTheme.Rect("CalendarToolbar", canvas.transform);
-            timebar.anchorMin = timebar.anchorMax = new Vector2(0, 1); timebar.pivot = new Vector2(0, 1);
-            timebar.anchoredPosition = new Vector2(440, -4); timebar.sizeDelta = new Vector2(340, 32);
-            var timeLayout = timebar.gameObject.AddComponent<HorizontalLayoutGroup>(); timeLayout.spacing = 4; timeLayout.childForceExpandWidth = false;
-            calendar = MenuTheme.Text(timebar, "", 14, 32); calendar.alignment = TextAnchor.MiddleRight;
-            calendar.GetComponent<LayoutElement>().preferredWidth = 120;
-            speedButton = ToolbarButton(timebar, "1x", "1×", () => SetSpeed(Time.timeScale >= 3 ? 1 : Time.timeScale + 1), null);
-            ToolbarButton(timebar, "Pause / Play", "일시정지  P", ToggleSimulation, null);
+            ToolbarButton(bar, "Menu [Esc]", "Esc", Pause, "Pause, save or change settings.");
+            ToolbarButton(bar, "Commanders [G]", "장수 G", Roster, "All commanders, sorted by name. Inspect skills and equipment.");
+            ToolbarButton(bar, "Work Schedule [T]", "작업표 T", WorkSchedule, "장수 × 작업 표에서 자율 작업을 켜고 끕니다.");
+            ToolbarButton(bar, "Science [K]", "과학 K", Science,"Science research: unlock buildings, transport and upgrades.");
+            ToolbarButton(bar, "Diplomacy [J]", "외교 J", Diplomacy, "Contacted civilizations, treaties, war and trade.");
+            ToolbarButton(bar, "Event Log [L]", "로그 L", EventLog, "Recent colony events.");
+            foreach (var element in bar.GetComponentsInChildren<LayoutElement>()) element.preferredWidth = Mathf.Max(40, element.preferredWidth - 16);
             ShowLoading();
         }
         // 오브젝트 이름은 검사·툴팁이 찾는 기존 키를 유지하고, 표시 문구만 디자인의 한글 라벨을 쓴다.
@@ -73,21 +65,17 @@ namespace AntColony.UI
             element.preferredWidth = Mathf.Max(56, text.preferredWidth + 18);
             return button;
         }
-        private static readonly string[] SeasonNames = { "봄", "여름", "가을", "겨울" };
-        private static string CalendarLabel => $"{GameCalendar.Year}년 {SeasonNames[(int)GameCalendar.CurrentSeason]} {GameCalendar.Month}월";
         private void OnDestroy() { if (Instance == this) Instance = null; }
         private void Update()
         {
             if (open) refreshDutyScreen?.Invoke();
-            calendar.transform.parent.gameObject.SetActive(GameSession.Instance.GameStarted && !open);
-            calendar.text = CalendarLabel;
-            speedButton.GetComponentInChildren<Text>().text = Time.timeScale == 0 ? "정지" : Time.timeScale + "×";
             if (SaveSystem.Busy || Keyboard.current == null) return;
             if (PollRebind()) return;
             if (!open && GameSession.Instance.GameStarted)
             {
-                if (Keyboard.current.equalsKey.wasPressedThisFrame || Keyboard.current.numpadPlusKey.wasPressedThisFrame) SetSpeed(Time.timeScale + 1);
-                if (Keyboard.current.minusKey.wasPressedThisFrame || Keyboard.current.numpadMinusKey.wasPressedThisFrame) SetSpeed(Time.timeScale - 1);
+                // 스페이스 = 일시정지(P와 같음), F5~F8 = 1·2·3·5배. 출전·전투 중에도 제한 없음.
+                if (Keyboard.current.spaceKey.wasPressedThisFrame) ToggleSimulation();
+                for (var i = 0; i < SpeedKeys.Length; i++) if (Keyboard.current[SpeedKeys[i]].wasPressedThisFrame) SetSpeed(Speeds[i]);
             }
             if (Keyboard.current.f2Key.wasPressedThisFrame) { Guide(); return; }
             if (Keyboard.current.escapeKey.wasPressedThisFrame)
@@ -104,10 +92,12 @@ namespace AntColony.UI
             if (Keyboard.current.f1Key.wasPressedThisFrame && GameSession.Instance.GameStarted) Roster();
             else if (!open && GameSession.Instance.GameStarted && Time.frameCount > closedFrame) GameHotkeys.Handle(this);
         }
+        public static readonly float[] Speeds = { 1, 2, 3, 5 };
+        private static readonly Key[] SpeedKeys = { Key.F5, Key.F6, Key.F7, Key.F8 };
         public void SetSpeed(float value)
         {
             if (SaveSystem.Busy || open || !GameSession.Instance.GameStarted) return;
-            Time.timeScale = Mathf.Clamp(Mathf.Round(value), 0, 3);
+            Time.timeScale = value <= 0 ? 0 : Speeds.OrderBy(s => Mathf.Abs(s - value)).First();
             if (Time.timeScale > 0) resumeScale = Time.timeScale;
         }
         public void ToggleSimulation() => SetSpeed(Time.timeScale > 0 ? 0 : Mathf.Max(1, resumeScale));

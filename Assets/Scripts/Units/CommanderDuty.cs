@@ -7,7 +7,13 @@ using UnityEngine;
 
 namespace AntColony.Units
 {
-    [Flags] public enum CommanderJobs { None = 0, Building = 1, Crafting = 2, Research = 4, Farming = 8, Fishing = 16, Gathering = 32, All = 63 }
+    // 작업표 12종(2026-09-28). 새 작업은 뒤 비트에 붙이고, 옛 저장(v9 이하)은 불러올 때 새 작업을 켠다.
+    [Flags] public enum CommanderJobs
+    {
+        None = 0, Building = 1, Crafting = 2, Research = 4, Farming = 8, Fishing = 16, Gathering = 32,
+        Nursing = 64, Repair = 128, Hauling = 256, Hunting = 512, Cooking = 1024, Art = 2048,
+        Legacy = 63, Added = Nursing | Repair | Hauling | Hunting | Cooking | Art, All = 4095
+    }
     public enum CommanderDuty { Civilian, Deployed, Returning }
 
     [Serializable] public class CommanderWorkState
@@ -32,27 +38,27 @@ namespace AntColony.Units
         public CommanderWorkState WorkState => PersonalState.work;
         public bool IsDeployed => WorkState.duty != CommanderDuty.Civilian;
         public bool IsReturning => WorkState.duty == CommanderDuty.Returning;
-        internal bool CanResumeDutyAfterLoad => !IsAwayFromHome && (IsReturning || automaticFacility != null || CurrentResourceNode != null || IsCarrying);
+        internal bool CanResumeDutyAfterLoad => !IsAwayFromHome && (IsReturning || ServiceTarget != null || automaticFacility != null || CurrentResourceNode != null || IsCarrying);
         public float PersonalHealth => WorkState.health;
         public float TroopHealth => Mathf.Max(0, troopCount - pendingDamage);
         internal float PendingTroopDamage => pendingDamage;
-        public bool AllowsJob(CommanderJobs job) => (WorkState.jobs & job) == job;
+        public bool AllowsJob(CommanderJobs job) => (WorkState.jobs & job) == job && CanDoJob(job);
         public bool SetJobEnabled(CommanderJobs job, bool enabled)
         {
-            if (job == CommanderJobs.None || (job & ~CommanderJobs.All) != 0) return false;
+            if (job == CommanderJobs.None || (job & ~CommanderJobs.All) != 0 || enabled && !CanDoJob(job)) return false;
             WorkState.jobs = enabled ? WorkState.jobs | job : WorkState.jobs & ~job;
             return true; // Already started work finishes, including delivery of its cargo.
         }
 
         internal bool CanMobilize => isActiveAndEnabled && !IsDead && PersonalHealth > 0 && !IsDeparting
             && PersonalState.mentalBreak == MentalBreak.None && !PersonalState.treating && PersonalState.rageRemaining <= 0
-            && !IsAwayFromHome && !IsDeployed && troopCount == 0 && !Social.diving && LabUpgradeLab == null;
+            && !traits.Has(CommanderTrait.Pacifist) && !IsAwayFromHome && !IsDeployed && troopCount == 0 && !Social.diving && LabUpgradeLab == null;
         internal void Mobilize(int troops, Vector3 home)
         {
             ScienceAssignment?.ReleaseResearcher();
             CraftingWorkshop?.Release();
             SuspendWork(); automaticFacility = null;
-            WorkState.resting = false;
+            WorkState.resting = false; WakeForDuty();
             troopCount = troops; troopsReleased = false;
             WorkState.duty = CommanderDuty.Deployed; WorkState.returnPosition = home; WorkState.quietSeconds = 0;
         }
@@ -78,6 +84,7 @@ namespace AntColony.Units
                 if (WorkState.recoverySeconds == 0) WorkState.health = GameBalance.CommanderHealth;
                 return;
             }
+            if (TickSleep(seconds)) return;
             if (IsAwayFromHome || !CanReceiveOrders) return;
             if (IsReturning)
             {
@@ -92,6 +99,8 @@ namespace AntColony.Units
                 if (WorkState.quietSeconds >= GameBalance.AutoReturnSeconds) ReturnToPost();
                 return;
             }
+            if (TickService(seconds) || TickHunt(seconds)) return;
+            if (!IsWorking && ScienceAssignment == null && CraftingWorkshop == null) SetWorkTarget(null);
             if (ScienceAssignment != null)
             {
                 if (CampaignResearch.Instance?.Active == null || !AllowsJob(CommanderJobs.Research)) ScienceAssignment.ReleaseResearcher();
@@ -120,16 +129,28 @@ namespace AntColony.Units
             if (WorkState.resting) return;
             workScan -= seconds; if (workScan > 0) return; workScan = GameBalance.WorkScanSeconds;
             // ponytail: one scan per second for the small commander roster; index jobs if profiling shows contention.
-            if (AllowsJob(CommanderJobs.Building))
+            if (AllowsJob(CommanderJobs.Nursing))
+                foreach (var hospital in FindObjectsByType<Infirmary>(FindObjectsSortMode.None).Where(h => h.Patients.Count > 0 && h.Nurse == null))
+                    if (StartService(hospital, CommanderJobs.Nursing)) return;
+            if (AllowsJob(CommanderJobs.Repair))
+                foreach (var building in FindObjectsByType<BuildingBase>(FindObjectsSortMode.None).Where(BuildingRepair.Needed).OrderBy(b => (b.Position - Position).sqrMagnitude))
+                    if (!Active.OfType<CommanderAnt>().Any(c => c != this && c.ServiceTarget == building) && StartService(building, CommanderJobs.Repair)) return;
+            if (AllowsJob(CommanderJobs.Building) || AllowsJob(CommanderJobs.Art))
                 foreach (var site in FindObjectsByType<BuildingConstructionSite>(FindObjectsSortMode.None).OrderBy(s => (s.Position - Position).sqrMagnitude))
-                    if (!site.HasBuilder && CanReach(site.Position)) { CommandBuild(site); return; }
+                    if (!site.HasBuilder && AllowsJob(site.IsArt ? CommanderJobs.Art : CommanderJobs.Building) && CanReach(site.Position)) { CommandBuild(site); return; }
             if (AllowsJob(CommanderJobs.Crafting))
                 foreach (var shop in FindObjectsByType<Workshop>(FindObjectsSortMode.None).OrderBy(s => (s.Position - Position).sqrMagnitude))
                     if (!shop.Ruined && !shop.IsDead && shop.Crafter == null && shop.Jobs.Count > 0 && GoToFacility(shop)) return;
             if (AllowsJob(CommanderJobs.Research) && CampaignResearch.Instance?.Active != null)
                 foreach (var lab in FindObjectsByType<ScienceLab>(FindObjectsSortMode.None).OrderBy(s => (s.Position - Position).sqrMagnitude))
                     if (!lab.IsDead && !lab.Busy && lab.Target == null && lab.Tier >= CampaignResearch.Instance.Active.Tier && GoToFacility(lab)) return;
-            foreach (var job in new[] { CommanderJobs.Farming, CommanderJobs.Fishing, CommanderJobs.Gathering })
+            if (AllowsJob(CommanderJobs.Cooking))
+                foreach (var kitchen in FindObjectsByType<Kitchen>(FindObjectsSortMode.None).Where(k => k.NeedsCook))
+                    if (!Active.OfType<CommanderAnt>().Any(c => c != this && c.ServiceTarget == kitchen) && StartService(kitchen, CommanderJobs.Cooking)) return;
+            if (AllowsJob(CommanderJobs.Hunting))
+                foreach (var animal in WildMonster.All.Where(m => m.Huntable && m.HuntDesignated).OrderBy(m => (m.Position - Position).sqrMagnitude))
+                    if (!Active.OfType<CommanderAnt>().Any(c => c != this && c.HuntTarget == animal) && StartHunt(animal)) return;
+            foreach (var job in new[] { CommanderJobs.Hauling, CommanderJobs.Farming, CommanderJobs.Fishing, CommanderJobs.Gathering })
                 if (AllowsJob(job))
                     foreach (var node in ResourceNode.Available.OrderBy(n => (n.transform.position - Position).sqrMagnitude))
                         if (node.CanGather && (CarriedAmount == 0 || CarriedType == node.ResourceType)
@@ -137,7 +158,7 @@ namespace AntColony.Units
                             && node.GetComponentInParent<ExpeditionSite>() == null && !node.IsRaidLoot && JobFor(node) == job
                             && TryWorkApproach(node.transform.position, out _)) { CommandGather(node); return; }
         }
-        public bool IsFatigued => PersonalState.moodFactors.Exists(f => f.reason == "Fatigue");
+        public bool IsFatigued => Fatigue >= GameBalance.TiredFatigue;
         private bool CanTakeCivilianOrder => CanReceiveOrders && !IsDeployed && !IsAwayFromHome && !LabUpgradeBusy;
         public bool CanRest => CanTakeCivilianOrder && IsFatigued && !WorkState.resting;
         // 휴식 보내기: 가장 가까운 휴게실로 가서(없으면 제자리) 피로가 풀릴 때까지 자율 작업을 멈춘다.
@@ -170,7 +191,7 @@ namespace AntColony.Units
             if (!UnityEngine.AI.NavMesh.SamplePosition(facility.Position, out var hit, 7, UnityEngine.AI.NavMesh.AllAreas) || !CanReach(hit.position)) return false;
             automaticFacility = facility; base.CommandMove(hit.position); return true;
         }
-        private static CommanderJobs JobFor(ResourceNode node) => node.RequiresFishing ? CommanderJobs.Fishing
+        public static CommanderJobs JobFor(ResourceNode node) => node.IsLooseCargo ? CommanderJobs.Hauling : node.RequiresFishing ? CommanderJobs.Fishing
             : node.GetComponent<BuildingBase>() != null ? CommanderJobs.Farming : CommanderJobs.Gathering;
     }
 }

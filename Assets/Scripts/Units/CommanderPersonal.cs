@@ -22,12 +22,12 @@ namespace AntColony.Units
             ? (Weapon != null && (Weapon.weapon == WeaponKind.Mandible || Weapon.weapon == WeaponKind.AcidSprayer) ? Weapon.quality + 1 : 0)
             : (EquippedArmor?.armor == ArmorKind.Coating ? EquippedArmor.quality + 1 : 0)
                 + (Weapon?.weapon == WeaponKind.Shield ? 2 * (Weapon.quality + 1) : 0);
-        protected override float WorkSpeed => traits.WorkMultiplier * talents.Multiplier(CommanderActivity.Building);
+        protected override float WorkSpeed => WorkRate(ConstructionTarget != null && ConstructionTarget.IsArt ? CommanderActivity.Art : CommanderActivity.Building);
         protected override float MovementSpeed => base.MovementSpeed * traits.MoveMultiplier
             * (1f - .3f * personalState.Severity(InjuryPart.Legs)) * (1f + TrinketBonus(TrinketEffect.Move))
             * (Weapon?.weapon == WeaponKind.Shield ? .9f : 1f) * (IsFlying ? 1f + .05f * EquippedArmor.quality : 1f)
             * AntColony.World.ColonyEvents.MoveMultiplier(this) * (Social.rallyRemaining > 0 ? 1.3f : 1f);
-        public CommanderActivity CurrentActivity => CraftingWorkshop != null ? CommanderActivity.Crafting : LabUpgradeBusy ? CommanderActivity.Research : IsConstructing ? CommanderActivity.Building
+        public CommanderActivity CurrentActivity => ServiceTarget != null ? SkillFor(ServiceJob) : HuntTarget != null ? CombatActivity : CraftingWorkshop != null ? CommanderActivity.Crafting : LabUpgradeBusy ? CommanderActivity.Research : IsConstructing ? ConstructionTarget.IsArt ? CommanderActivity.Art : CommanderActivity.Building
             : CurrentResourceNode != null ? CurrentResourceNode.RequiresFishing ? CommanderActivity.Fishing
                 : CurrentResourceNode.GetComponent<BuildingBase>() != null ? CommanderActivity.Farming : CommanderActivity.Gathering
             : CombatActivity;
@@ -37,7 +37,7 @@ namespace AntColony.Units
         {
             get
             {
-                var value = 60f + traits.BaseMood + (HasNearbyFriend ? 3 : 0) + TrinketBonus(TrinketEffect.Mood);
+                var value = 60f + Decoration.MoodAt(this) + traits.BaseMood + (HasNearbyFriend ? 3 : 0) + TrinketBonus(TrinketEffect.Mood);
                 foreach (var f in personalState.moodFactors) value += f.value < 0 ? f.value * traits.NegativeMoodMultiplier : f.value;
                 if (IsWorking || LabUpgradeBusy) value += 3 * traits.Flame(CurrentActivity);
                 if (personalState.treating) value -= 5;
@@ -85,7 +85,7 @@ namespace AntColony.Units
             var recovering = personalState.treating && personalState.NeedsTreatment;
             TickInfection(seconds);
             if (IsDead) return;
-            personalState.Tick(seconds, traits);
+            personalState.Tick(seconds, traits, TreatmentFacility != null ? TreatmentFacility.TreatmentRate : 1, TreatmentFacility != null ? TreatmentFacility.PermanentInjuryChance : .1f);
             if (personalState.treating && !personalState.NeedsTreatment)
             {
                 TreatmentFacility.Release(this);
@@ -98,15 +98,8 @@ namespace AntColony.Units
             TickSocial(seconds);
             if (IsDeparting || personalState.rageRemaining > 0) return;
             personalState.workedSeconds = IsWorking || LabUpgradeBusy ? personalState.workedSeconds + seconds : 0;
-            if (personalState.workedSeconds >= 300 && !traits.Has(CommanderTrait.Workaholic))
-                personalState.AddMood("Fatigue", traits.Has(CommanderTrait.Ascetic) ? 5 : -10, 30);
-            // 휴게실: 피로 기분이 두 배 빨리 풀리고 휴식 기분을 얻는다.
-            if (RestRoom.Serves(this))
-            {
-                var fatigue = personalState.moodFactors.Find(f => f.reason == "Fatigue");
-                if (fatigue != null) fatigue.remaining = Mathf.Max(0, fatigue.remaining - seconds);
-                personalState.AddMood("Rest", GameBalance.RestMood, 5);
-            }
+            // 피로는 CommanderSleep이 관리한다(낮 작업으로 차고 밤 수면으로 풀림). 휴게실은 휴식 기분만 준다.
+            if (RestRoom.Serves(this)) personalState.AddMood("Rest", GameBalance.RestMood, 5);
             TickRelations(seconds);
             if (personalState.mentalBreak != MentalBreak.None) { TickBreak(seconds); return; }
             personalState.breakCheck += seconds;

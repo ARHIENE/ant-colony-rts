@@ -27,17 +27,17 @@ namespace AntColony.Buildings
         public bool TryAssign(CommanderAnt commander)
         {
             if (!isActiveAndEnabled || Busy || Target != null || commander == null || !commander.isActiveAndEnabled
-                || commander.IsDead || commander.IsAwayFromHome || commander.IsDeployed || commander.LabUpgradeBusy || !commander.CanChangeAllocation
+                || !commander.CanDoJob(CommanderJobs.Research) || commander.IsDead || commander.IsAwayFromHome || commander.IsDeployed || commander.LabUpgradeBusy || !commander.CanChangeAllocation
                 || commander.IsWorking || Vector3.Distance(commander.Position, Position) > 8) return false;
             commander.CommandStop();
             Target = commander;
-            commander.ScienceAssignment = this;
+            commander.ScienceAssignment = this; commander.SetWorkTarget(this);
             return true;
         }
 
         public void ReleaseResearcher()
         {
-            if (Target != null && Target.ScienceAssignment == this) Target.ScienceAssignment = null;
+            if (Target != null && Target.ScienceAssignment == this) { Target.ScienceAssignment = null; Target.SetWorkTarget(null); }
             Target = null;
         }
 
@@ -54,7 +54,7 @@ namespace AntColony.Buildings
             ReleaseResearcher();
             Tier = Mathf.Clamp(tier, 1, 4);
             Target = target;
-            if (target != null) target.ScienceAssignment = this;
+            if (target != null) { target.ScienceAssignment = this; target.SetWorkTarget(this); }
         }
 
         // 저장 복원 전용. 연구 중이었다면 WorldMapManager.Researcher 자리도 다시 잡아 준다.

@@ -49,7 +49,18 @@ namespace AntColony.Units
             if (cam == null) return;
 
             var selected = selectionManager.GetSelectedObjects();
-            if (selected.Count == 0) return;
+            if (selected.Count == 0)
+            {
+                if (Physics.Raycast(cam.ScreenPointToRay(screenPos), out var context, 500, ~0))
+                {
+                    Component choice = context.collider.GetComponentInParent<ResourceNode>();
+                    if (choice == null) choice = context.collider.GetComponentInParent<BuildingConstructionSite>();
+                    if (choice == null && context.collider.GetComponentInParent<BuildingBase>() is BuildingBase b && b.CountsTowardPlayerDefeat) choice = b;
+                    if (choice == null && context.collider.GetComponentInParent<WildMonster>() is WildMonster m && m.Huntable) choice = m;
+                    if (choice != null) AntColony.UI.WorkTargetPanel.Select(choice);
+                }
+                return;
+            }
 
             var ray = cam.ScreenPointToRay(screenPos);
             if (Physics.Raycast(ray, out var lootHit, 500f, ~0) && lootHit.collider.GetComponentInParent<EquipmentLoot>() is EquipmentLoot loot)
@@ -103,6 +114,14 @@ namespace AntColony.Units
                     index++;
                     continue;
                 }
+                if (worker is CommanderAnt artisan && deposit != null && deposit.CountsTowardPlayerDefeat)
+                {
+                    var job = deposit is Infirmary ? CommanderJobs.Nursing : deposit is Kitchen ? CommanderJobs.Cooking : CommanderJobs.Repair;
+                    if ((job != CommanderJobs.Repair || BuildingRepair.Needed(deposit)) && artisan.StartService(deposit, job)) { index++; continue; }
+                }
+                if (worker is CommanderAnt hunter && !hunter.IsDeployed && target is WildMonster animal && animal.Huntable && animal.HuntDesignated && hunter.StartHunt(animal)) { index++; continue; }
+                if (worker is CommanderAnt builder && hit.collider.GetComponentInParent<BuildingConstructionSite>() is BuildingConstructionSite site)
+                { builder.CommandBuild(site); index++; continue; }
                 if (worker != null && resourceNode != null && resourceNode.CanGather)
                 {
                     worker.CommandGather(resourceNode);

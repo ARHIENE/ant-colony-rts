@@ -311,10 +311,12 @@ public static class Stage2Checks
             rest.RefreshSeats();
             Check(rest.Seats.Count == 4, "rest room seats four");
             var guest = rest.Seats[0];
-            guest.PersonalState.AddMood("Fatigue", -10, 30);
-            guest.TickPersonal(10);
-            var fatigue = guest.PersonalState.moodFactors.Find(f => f.reason == "Fatigue");
-            Check(fatigue != null && Mathf.Abs(fatigue.remaining - 10) < .01f && guest.PersonalState.moodFactors.Exists(f => f.reason == "Rest" && f.value == 5), "rest: fatigue x2 recovery, Rest +5");
+            // 2026-09-28: 피로 게이지. 휴게실에서 쉬면 두 배로 풀린다.
+            GameSession.Instance.MarkStarted(GameSession.Instance.PlaySeconds, GameCalendar.Day * GameCalendar.SecondsPerDay + 60);
+            guest.PersonalState.sleep.fatigue = 60; guest.WorkState.resting = true;
+            guest.TickDuty(10); guest.TickPersonal(10);
+            Check(Mathf.Abs(guest.Fatigue - (60 - 2 * GameBalance.FatigueRestPerSecond * 10)) < .01f
+                && guest.PersonalState.moodFactors.Exists(f => f.reason == "Rest" && f.value == 5), "rest: fatigue x2 recovery, Rest +5 fatigue=" + guest.Fatigue);
 
             // --- 저장/불러오기 ---
             trap.Tick(.1f);

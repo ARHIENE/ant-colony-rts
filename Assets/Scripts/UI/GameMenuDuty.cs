@@ -10,9 +10,9 @@ namespace AntColony.UI
     public sealed partial class GameMenuController
     {
         private Action refreshDutyScreen;
-        private static readonly CommanderJobs[] DutyJobs = { CommanderJobs.Building, CommanderJobs.Crafting,
-            CommanderJobs.Research, CommanderJobs.Farming, CommanderJobs.Fishing, CommanderJobs.Gathering };
-        private static readonly string[] DutyNames = { "건설", "제작", "연구", "농사", "낚시", "채집" };
+        private static readonly CommanderJobs[] DutyJobs = { CommanderJobs.Nursing, CommanderJobs.Repair, CommanderJobs.Building, CommanderJobs.Art, CommanderJobs.Crafting,
+            CommanderJobs.Research, CommanderJobs.Cooking, CommanderJobs.Hunting, CommanderJobs.Hauling, CommanderJobs.Farming, CommanderJobs.Fishing, CommanderJobs.Gathering };
+        private static readonly string[] DutyNames = { "간호", "수리", "건설", "예술", "제작", "연구", "요리", "사냥", "운반", "농사", "낚시", "채집" };
 
         public void WorkSchedule()
         {
@@ -20,21 +20,24 @@ namespace AntColony.UI
             var p = L.Plate(f, "WorkSchedule", 180, 100, 1080, 650);
             L.Label(p, "작업표", 26, 24, 12, 1032, 40, MenuTheme.Accent);
             L.Label(p, "왼쪽부터 우선 처리합니다. 진행 중인 작업은 마친 뒤 변경 사항을 적용합니다. 출전 중에는 자율 작업을 멈춥니다.", 14, 24, 58, 1032, 42, MenuTheme.Muted);
-            L.Label(p, "장수 / 현재 상태", 14, 24, 110, 280, 32);
-            for (var i = 0; i < DutyJobs.Length; i++) L.Label(p, DutyNames[i], 14, 340 + i * 112, 110, 100, 32);
+            L.Label(p, "장수 / 현재 상태", 14, 24, 110, 210, 32);
+            for (var i = 0; i < DutyJobs.Length; i++) L.Label(p, DutyNames[i], 14, 244 + i * 67, 110, 64, 32);
             var list = L.List(p, 24, 148, 1032, 426);
             foreach (var c in SortedCommanders())
             {
                 var row = L.Cell(list, "Duty " + c.CommanderName, 44, MenuTheme.Plate2);
-                var label = L.Label(row, "", 14, 8, 0, 300, 44);
+                var label = L.Label(row, "", 14, 8, 0, 204, 44);
                 refreshDutyScreen += () => label.text = c != null ? c.CommanderName + " · " + Status(c) : "이탈한 장수";
                 for (var i = 0; i < DutyJobs.Length; i++)
                 {
                     var job = DutyJobs[i];
-                    var toggle = DutyToggle(row, "Job " + job, 316 + i * 112, 8, c.AllowsJob(job));
+                    var toggle = DutyToggle(row, "Job " + job, 220 + i * 67, 8, c.AllowsJob(job));
                     toggle.onValueChanged.AddListener(on => { if (c != null) c.SetJobEnabled(job, on); });
+                    var skill = job == CommanderJobs.Hunting ? (c.Role == AntColony.Data.UnitRole.Ranged ? CommanderActivity.Ranged : CommanderActivity.Melee) : CommanderAnt.SkillFor(job);
+                    var skillText = L.Label(row, "", 11, 248 + i * 67, 2, 37, 40, MenuTheme.Accent);
                     refreshDutyScreen += () => {
-                        toggle.interactable = c != null && !c.IsDead;
+                        toggle.interactable = c != null && !c.IsDead && c.CanDoJob(job);
+                        if (c != null) skillText.text = c.CanDoJob(job) ? c.Talents.Level(skill) + new string('♥', c.Traits.Flame(skill)) : "불가";
                         if (c != null) toggle.SetIsOnWithoutNotify(c.AllowsJob(job));
                     };
                 }

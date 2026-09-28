@@ -56,11 +56,17 @@ public static class ActiveSkillChecks
     // 새 Play 세션은 메인 메뉴(일시정지)로 시작하므로 필요하면 게임을 직접 시작한다.
     static async System.Threading.Tasks.Task StartGame()
     {
-        if (AntColony.Core.GameSession.Instance.GameStarted) return;
-        while (AntColony.Save.SaveSystem.Busy) await System.Threading.Tasks.Task.Delay(50);
-        AntColony.Save.SaveSystem.NewGame(new AntColony.Core.NewGameOptions());
-        while (AntColony.Save.SaveSystem.Busy) await System.Threading.Tasks.Task.Delay(50);
-        AntColony.UI.GameMenuController.Instance.Resume(); UnityEngine.Time.timeScale = 1;
+        var deadline = DateTime.UtcNow.AddSeconds(90);
+        while (AntColony.Save.SaveSystem.Busy && DateTime.UtcNow < deadline) await Task.Delay(50);
+        Check(!AntColony.Save.SaveSystem.Busy, "initial load completes");
+        if (!GameSession.Instance.GameStarted)
+        {
+            AntColony.Save.SaveSystem.NewGame(new NewGameOptions { seed = 260927, mapSize = MapSize.Small });
+            deadline = DateTime.UtcNow.AddSeconds(90);
+            while (AntColony.Save.SaveSystem.Busy && DateTime.UtcNow < deadline) await Task.Delay(50);
+            Check(!AntColony.Save.SaveSystem.Busy, "new game loads");
+        }
+        AntColony.UI.GameMenuController.Instance.Resume(); Time.timeScale = 0;
     }
     // 무기=역할 개편: 예전 보직 변경을 해당 무기(날개) 장착으로 대신한다.
     static bool Arm(AntColony.Units.CommanderAnt c, AntColony.Data.UnitRole role)
@@ -78,13 +84,20 @@ public static class ActiveSkillChecks
     }
     public static async Task<string> Main()
     {
+        var root = AntColony.Save.SaveStorage.RootOverride;
+        var timeScale = Time.timeScale;
+        AntColony.Save.SaveStorage.RootOverride = System.IO.Path.Combine(Application.temporaryCachePath, "ActiveSkill-" + Guid.NewGuid().ToString("N"));
+        try { return await Run(); }
+        finally { AntColony.Save.SaveStorage.RootOverride = root; Time.timeScale = timeScale; }
+    }
+    static async Task<string> Run()
+    {
         if (!Application.isPlaying) throw new Exception("Play mode required");
-        await StartGame();
         checks = 0;
+        await StartGame();
 
         var commander = Object.FindObjectsByType<CommanderAnt>(FindObjectsSortMode.None)
             .First(c => true && true);
-        var otherRole = UnitRole.Defense;
         var originalTalents = commander.Talents.Copy();
         var dealDamage = typeof(SoldierAnt).GetMethod("DealDamage", Flags);
         Action<AntColony.Core.IDamageable> attack = target => dealDamage.Invoke(commander, new object[] { target });
@@ -104,6 +117,9 @@ public static class ActiveSkillChecks
         try
         {
             commander.CommandStop();
+            commander.WorkState.duty = CommanderDuty.Deployed;
+            other.CommandStop();
+            other.WorkState.duty = CommanderDuty.Deployed;
             ResetSkills(commander);
             Check(Arm(commander, UnitRole.Melee), "commander takes melee weapon for power strike");
             if (!commander.HasTroops)
@@ -185,92 +201,66 @@ public static class ActiveSkillChecks
                 "disable cancels effects and keeps cooldowns");
             if (commander.TroopCount < assigned) commander.TryAssign(assigned - commander.TroopCount);
 
-            // 8) 선택 UI: 클릭 시점 선택 조회와 상태 표시.
+            // 8) 현재 Q 버튼: 무기에 따라 강타/방어 태세를 표시하고 클릭 시점 선택을 조회한다.
             ResetSkills(commander);
-            var panel = Object.FindAnyObjectByType<AntColony.UI.SelectedUnitPanel>();
-            var panelType = typeof(AntColony.UI.SelectedUnitPanel);
-            var strikeText = (UnityEngine.UI.Text)panelType.GetField("powerStrikeText", Flags).GetValue(panel);
-            var stanceText = (UnityEngine.UI.Text)panelType.GetField("stanceText", Flags).GetValue(panel);
-            var strikeButton = strikeText.transform.parent.GetComponent<UnityEngine.UI.Button>();
-            var stanceButton = stanceText.transform.parent.GetComponent<UnityEngine.UI.Button>();
-
-            selection.ClearSelection();
-            strikeButton.onClick.Invoke();
-            stanceButton.onClick.Invoke();
-            Check(!commander.Skills.PowerStrikeArmed && !commander.Skills.DefensiveStanceActive, "no selection at click time casts nothing");
-
-            var addToSelection = typeof(AntColony.Units.SelectionManager).GetMethod("AddToSelection", Flags);
-            Action<AntColony.Units.CommanderAnt> select = c => addToSelection.Invoke(selection,
-                new object[] { c.GetComponent<AntColony.Units.SelectableObject>() });
-            async Task<bool> WaitFor(Func<bool> condition)
-            {
-                var deadline = DateTime.UtcNow.AddSeconds(5);
-                while (!condition() && DateTime.UtcNow < deadline) await Task.Delay(20);
-                return condition();
-            }
-
-            // B도 시전 가능한 상태로 만든다(잘못된 대상 보호를 증명하려면 B가 실제로 시전될 수 있어야 한다).
             ResetSkills(other);
             other.Talents.levels[(int)CommanderActivity.Melee] = 3;
+            Check(Arm(other, UnitRole.Melee), "commander B uses melee weapon");
             if (!other.HasTroops)
             {
                 AntPool.Instance.Breed(1);
                 Check(other.TryAssign(1), "commander B has a troop");
             }
+            var card = Object.FindAnyObjectByType<AntColony.UI.CommandCard>();
+            var button = card.GetComponentsInChildren<UnityEngine.UI.Button>(true).Single(b => b.name == "Skill");
+            var label = button.GetComponentsInChildren<UnityEngine.UI.Text>().Single(t => t.alignment == TextAnchor.LowerCenter);
+            var refresh = typeof(AntColony.UI.CommandCard).GetMethod("LateUpdate", Flags);
+            Action update = () => refresh.Invoke(card, null);
+            var add = typeof(AntColony.Units.SelectionManager).GetMethod("AddToSelection", Flags);
+            Action<CommanderAnt> select = c => add.Invoke(selection, new object[] { c.GetComponent<AntColony.Units.SelectableObject>() });
 
+            selection.ClearSelection(); update(); button.onClick.Invoke();
+            Check(!button.gameObject.activeInHierarchy && !commander.Skills.PowerStrikeArmed && !other.Skills.PowerStrikeArmed,
+                "no selection hides skill and casts nothing");
             select(commander);
-            commander.Talents.levels[(int)CommanderActivity.Melee] = 1;
-            Check(await WaitFor(() => strikeText.text == "Strike Lv2" && stanceText.text == "Guard Lv3"),
-                "locked labels: " + strikeText.text + " / " + stanceText.text);
-            Check(!strikeButton.interactable && !stanceButton.interactable, "locked buttons are not interactable");
-            commander.Talents.levels[(int)CommanderActivity.Melee] = 3;
-            Check(Arm(commander, UnitRole.Defense), "shield enables defensive stance");
-            Check(await WaitFor(() => strikeText.text == "Strike" && stanceText.text == "Guard"
-                && strikeButton.interactable && stanceButton.interactable), "ready labels and interactable: " + strikeText.text + " / " + stanceText.text);
+            Check(Arm(commander, UnitRole.Melee), "melee Q selected");
+            commander.Talents.levels[(int)CommanderActivity.Melee] = 1; update();
+            Check(label.text == "강타\nLv2" && !button.interactable, "strike level lock");
+            commander.Talents.levels[(int)CommanderActivity.Melee] = 3; update();
+            Check(label.text == "강타" && button.interactable, "strike ready");
 
-            // 같은 프레임에 A → B로 선택을 바꾼 직후 클릭: 패널 캐시(A)가 아니라 B에 시전된다.
-            selection.ClearSelection();
-            select(other);
-            strikeButton.onClick.Invoke();
-            Check(other.Skills.PowerStrikeArmed && !commander.Skills.PowerStrikeArmed, "same-frame A->B switch casts on B only");
+            selection.ClearSelection(); select(other); button.onClick.Invoke();
+            Check(other.Skills.PowerStrikeArmed && !commander.Skills.PowerStrikeArmed, "same-frame A->B casts on B only");
             ResetSkills(other);
+            select(commander); update(); button.onClick.Invoke();
+            Check(!button.gameObject.activeInHierarchy && !commander.Skills.PowerStrikeArmed && !other.Skills.PowerStrikeArmed,
+                "multi-selection hides skill and casts nothing");
 
-            // 다중 선택이면 아무에게도 시전하지 않는다.
-            select(commander);
-            strikeButton.onClick.Invoke();
-            stanceButton.onClick.Invoke();
-            Check(!commander.Skills.PowerStrikeArmed && !other.Skills.PowerStrikeArmed
-                && !commander.Skills.DefensiveStanceActive && !other.Skills.DefensiveStanceActive, "multi-selection casts nothing");
-
-            // 병력 0이면 버튼이 비활성화된다.
-            selection.ClearSelection();
-            select(commander);
+            selection.ClearSelection(); select(commander);
             var uiTroops = commander.TroopCount;
             SetPrivate(commander, "pendingDamage", 0f);
-            commander.ReturnTroops(uiTroops);
-            Check(await WaitFor(() => !strikeButton.interactable && !stanceButton.interactable), "no-troop buttons are not interactable");
+            commander.ReturnTroops(uiTroops); update();
+            Check(!button.interactable, "no troops disables skill");
             Check(commander.TryAssign(uiTroops), "ui troops restored");
-            Check(await WaitFor(() => strikeButton.interactable && stanceButton.interactable), "buttons re-enable with troops");
+            update(); Check(button.interactable, "troops re-enable skill");
+            button.onClick.Invoke(); update();
+            Check(commander.Skills.PowerStrikeArmed && label.text == "강타 ON" && !button.interactable, "Q arms strike");
+            commander.Skills.CancelEffects(); update();
+            Check(label.text == "강타\n15s" && !button.interactable, "strike cooldown label");
 
-            strikeButton.onClick.Invoke();
-            stanceButton.onClick.Invoke();
-            Check(commander.Skills.PowerStrikeArmed && commander.Skills.DefensiveStanceActive, "buttons cast on selected commander");
-            Check(await WaitFor(() => strikeText.text == "Strike ON" && stanceText.text.StartsWith("Guard ON")
-                && !strikeButton.interactable && !stanceButton.interactable),
-                "active labels and non-interactable: " + strikeText.text + " / " + stanceText.text);
-
-            // 가장 긴 라벨이 버튼(100x26) 안에 들어간다.
-            stanceText.text = "Guard ON 5s";
-            Check(stanceText.preferredWidth <= 100f && stanceText.preferredHeight <= 26f,
-                $"Guard ON 5s fits 100x26: {stanceText.preferredWidth}x{stanceText.preferredHeight}");
-
-            commander.Skills.CancelEffects();
-            Check(await WaitFor(() => strikeText.text.StartsWith("Strike 1") && strikeText.text.EndsWith("s")
-                && stanceText.text.StartsWith("Guard ") && stanceText.text.EndsWith("s") && !stanceText.text.Contains("ON")
-                && !strikeButton.interactable && !stanceButton.interactable),
-                "cooldown labels and non-interactable: " + strikeText.text + " / " + stanceText.text);
+            Check(Arm(commander, UnitRole.Defense), "shield Q selected");
+            commander.Talents.levels[(int)CommanderActivity.Melee] = 2; update();
+            Check(label.text == "방어 태세\nLv3" && !button.interactable, "stance level lock");
+            commander.Talents.levels[(int)CommanderActivity.Melee] = 3; update();
+            Check(label.text == "방어 태세" && button.interactable, "stance ready");
+            button.onClick.Invoke(); update();
+            Check(commander.Skills.DefensiveStanceActive && label.text == "방어 태세\n5s" && !button.interactable, "Q activates stance");
+            commander.Skills.CancelEffects(); update();
+            Check(label.text == "방어 태세\n20s" && !button.interactable, "stance cooldown label");
+            commander.ReturnTroops(commander.TroopCount);
+            commander.WorkState.duty = CommanderDuty.Civilian; update();
+            Check(!button.interactable, "civilian locks combat skill"); // HUD v2: 평시에는 잠긴 채 보인다.
             selection.ClearSelection();
-
             return "PASS: " + checks + " active skill gating / cooldown / one-shot damage / stance / role / disable / ui checks";
         }
         finally

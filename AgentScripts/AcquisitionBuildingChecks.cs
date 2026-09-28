@@ -17,6 +17,19 @@ namespace AntColony.Regression
     {
         public static async Task<string> Main()
         {
+            var timeScale = Time.timeScale;
+            try
+            {
+                var deadline = DateTime.UtcNow.AddSeconds(90);
+                while (AntColony.Save.SaveSystem.Busy && DateTime.UtcNow < deadline) await Task.Delay(50);
+                if (AntColony.Save.SaveSystem.Busy) throw new Exception("Scene load timed out.");
+                Time.timeScale = 0;
+                return await Run();
+            }
+            finally { Time.timeScale = timeScale; }
+        }
+        static async Task<string> Run()
+        {
             if (!Application.isPlaying) throw new Exception("Play mode required.");
 
             var origin = new Vector3(1400f, 0f, 1400f);
@@ -55,7 +68,7 @@ namespace AntColony.Regression
             try
             {
                 var pool = AntPool.Instance;
-                var placement = Object.FindFirstObjectByType<BuildingPlacementController>();
+                var placement = Object.FindAnyObjectByType<BuildingPlacementController>();
                 Check(pool != null && placement != null, "씬의 개미 풀과 배치 컨트롤러를 찾는다");
 
                 // 검사 시작 시점의 활성 건물 상태. 템플릿이 여기에 끼어들지 않아야 한다.
@@ -180,9 +193,9 @@ namespace AntColony.Regression
                         "두 번째 양육실은 호감도를 쌓지 않는다");
                 Check(secondNursery.BirthCount == 0, "두 번째 양육실은 출산하지 않는다");
                 Check(secondNursery.GetStatusLabel().Contains("idle"), "두 번째 양육실은 대기 중이라고 표시된다");
-                // 기획 확정 전까지 조건은 "장수 쌍 사이 거리"다. 문구도 그대로여야 한다.
-                Check(firstNursery.GetStatusLabel().Contains("of each other"),
-                    "양육실 표시가 장수 쌍 사이 거리 조건을 그대로 설명한다");
+                // 현재 번식 조건: 연인 관계의 두 장수가 모두 양육실 반경 안에 있어야 한다.
+                Check(firstNursery.GetStatusLabel().Contains($"Lovers (relation {GameBalance.LoverRelation:0}+) within {GameBalance.NurseryRadius:0.#}m of the nursery"),
+                    "양육실 표시가 연인 관계와 건물 반경 조건을 설명한다");
 
                 firstNurseryGo.SetActive(false);
                 secondNurseryGo.SetActive(false);

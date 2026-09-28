@@ -154,7 +154,7 @@ namespace AntColony.UI
             var pm = L.Plate(f, "PauseMenu", 400, 150, 280, 452);
             var tab = L.Well(pm, "PauseTab", 12, 10, 256, 52);
             L.Label(tab, "게임 일시정지", 14, 10, 4, 236, 22, bold: true);
-            L.Label(tab, CalendarLabel + " · 게임 시간이 멈춤", 12, 10, 26, 236, 20, MenuTheme.Muted);
+            L.Label(tab, HudClock.CalendarLabel +" · 게임 시간이 멈춤", 12, 10, 26, 236, 20, MenuTheme.Muted);
             var y = 72f;
             void Item(string name, string label, Action action, string tip = null) { L.Button(pm, name, label, 12, y, 256, 40, action, tip, false, 14, TextAnchor.MiddleLeft); y += 44; }
             Item("Continue", "계속하기   Esc", Resume);

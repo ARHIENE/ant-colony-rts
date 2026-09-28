@@ -11,6 +11,7 @@ namespace AntColony.Buildings
         private bool finished;
 
         public AntColony.Data.BuildingKind? BuildingKind => completedBuilding != null ? completedBuilding.GetComponent<BuildingBase>()?.Data?.kind : null;
+        public bool IsArt => BuildingKind.HasValue && Decoration.IsKind(BuildingKind.Value);
         public bool HasBuilder => System.Linq.Enumerable.Any(AntColony.Units.AntUnitBase.Active, u => u is AntColony.Units.WorkerAnt w && w.ConstructionTarget == this);
         public float BuildTimeSeconds { get; private set; }
         public float RemainingWork { get; internal set; }
@@ -25,13 +26,15 @@ namespace AntColony.Buildings
             reservedAnts = workforce;
         }
 
-        public void Complete()
+        public void Complete(AntColony.Units.CommanderAnt builder = null)
         {
             if (finished) return;
             finished = true;
             ReturnWorkforce();
             if (completedBuilding != null)
             {
+                if (builder != null && completedBuilding.GetComponent<Decoration>() is Decoration decor)
+                    decor.Quality = AntColony.Units.EquipmentRecipes.Quality(builder.Talents.Level(AntColony.Units.CommanderActivity.Art), Random.value, Random.value);
                 completedBuilding.SetActive(true);
                 AntColony.UI.ToastManager.Show(completedBuilding.name + " construction complete.");
                 completedBuilding = null;

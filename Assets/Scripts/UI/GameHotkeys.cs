@@ -14,6 +14,7 @@ namespace AntColony.UI
             if (KeyBindings.Pressed(GameAction.Build)) { BuildScreen.Toggle(); return; }
             if (BuildScreen.IsOpen) { BuildScreen.HandleKeys(); return; }
             if (KeyBindings.Pressed(GameAction.Roster)) { menu.Roster(); return; }
+            if (KeyBindings.Pressed(GameAction.WorkSchedule)) { menu.WorkSchedule(); return; }
             if (KeyBindings.Pressed(GameAction.EventLog)) { menu.EventLog(); return; }
             if (KeyBindings.Pressed(GameAction.Diplomacy)) { menu.Diplomacy(); return; }
             if (KeyBindings.Pressed(GameAction.SciencePanel) || KeyBindings.Pressed(GameAction.WorldMap))
@@ -29,9 +30,19 @@ namespace AntColony.UI
             var single = SelectedUnitPanel.FindSingleSelectedCommander(selection);
             if (single == null) return;
             if (KeyBindings.Pressed(GameAction.AddTroop)) menu.OpenConscription();
-            if (KeyBindings.Pressed(GameAction.RemoveTroop) && single.IsDeployed && !single.ReturnToPost())
-                ToastManager.Show("지금은 징집소로 귀환할 수 없습니다.");
+            if (KeyBindings.Pressed(GameAction.RemoveTroop))
+            {
+                if (single.IsDeployed) { if (!single.ReturnToPost()) ToastManager.Show("지금은 징집소로 귀환할 수 없습니다."); }
+                else Object.FindFirstObjectByType<CommandCard>()?.SendToTreatment();
+            }
             if (KeyBindings.Pressed(GameAction.CycleWeapon)) single.CycleWeapon();
+            // 커맨드 카드 고정 글자(HUD v2): S 정지(출전) · F 우선 작업 · X 휴식 · V 포상.
+            var keyboard = UnityEngine.InputSystem.Keyboard.current;
+            if (keyboard == null) return;
+            if (single.IsDeployed) { if (keyboard.sKey.wasPressedThisFrame) single.CommandStop(); return; }
+            if (keyboard.fKey.wasPressedThisFrame) CommandCard.PriorityHint();
+            if (keyboard.xKey.wasPressedThisFrame && single.CanRest) single.SendToRest();
+            if (keyboard.vKey.wasPressedThisFrame) Object.FindFirstObjectByType<CommandCard>()?.Reward();
         }
     }
 }

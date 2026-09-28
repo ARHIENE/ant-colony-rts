@@ -21,7 +21,7 @@ namespace AntColony.Units
             // 치료 60초를 작업량으로 보관하므로 방역 연구가 도중 완료되어도 진행도를 잃지 않는다.
             if (p.treating)
             {
-                p.moldTreatment += seconds * 60 / ScienceEffects.MoldTreatSeconds;
+                p.moldTreatment += seconds * 60 / ScienceEffects.MoldTreatSeconds * (TreatmentFacility != null ? TreatmentFacility.TreatmentRate : 1);
                 if (p.moldTreatment >= 60)
                 {
                     p.infected = false; p.moldTreatment = p.moldLoss = p.moldSpread = 0;

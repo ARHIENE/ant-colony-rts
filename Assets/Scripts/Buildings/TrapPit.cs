@@ -41,9 +41,10 @@ namespace AntColony.Buildings
             BrokenSeconds += seconds;
             if (DefenseUpgrades.TrapAutoRepair && BrokenSeconds >= GameBalance.TrapAutoRepairSeconds) { Rearm(); return; }
             if (Repairer == null) return;
-            if (!Repairer.CanChangeAllocation || Repairer.IsWorking || Repairer.IsInCombat || Repairer.IsAwayFromHome) { Repairer = null; return; }
-            if (Vector3.Distance(Repairer.Position, Position) > 3f) return;
-            RepairProgress += seconds;
+            if (!Repairer.CivilianWorkReady || Repairer.ServiceTarget != this || !Repairer.CanChangeAllocation || Repairer.IsWorking || Repairer.IsInCombat || Repairer.IsAwayFromHome) { Repairer = null; return; }
+            if (Vector3.Distance(Repairer.Position, Position) > 7f) return;
+            RepairProgress += seconds * Repairer.WorkRate(CommanderActivity.Building);
+            Repairer.GainExperience(CommanderActivity.Building, seconds);
             if (RepairProgress >= GameBalance.TrapRepairSeconds) Rearm();
         }
 
@@ -51,14 +52,14 @@ namespace AntColony.Buildings
         public bool TryRepair(CommanderAnt commander)
         {
             if (!isActiveAndEnabled || Armed || IsDead || commander == null || !commander.CanChangeAllocation || commander.IsWorking || commander.IsAwayFromHome
-                || !commander.CanReach(Position)) return false;
+                || !commander.CivilianWorkReady || !commander.CanDoJob(CommanderJobs.Repair) || !commander.CanReach(Position)) return false;
             if (!RepairPaid)
             {
                 if (ResourceManager.Instance == null || !ResourceManager.Instance.TrySpend(0, GameBalance.TrapRepairSoil, reason: ResourceReason.Construction)) return false;
                 RepairPaid = true;
             }
+            if (commander.ServiceTarget != this && !commander.StartService(this, CommanderJobs.Repair)) return false;
             Repairer = commander;
-            commander.CommandMove(Position);
             return true;
         }
 

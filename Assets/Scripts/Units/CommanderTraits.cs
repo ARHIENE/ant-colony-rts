@@ -11,9 +11,13 @@ namespace AntColony.Units
         Fragile, Sensitive, Easygoing, IronWill, Coward, Cautious, Brave, Reckless,
         Sluggish, Slow, Nimble, Swift, SlowLearner, Genius, LightEater, Glutton,
         Loyal, Ambitious, Cunning, Sociable, Loner, ColdBlooded, Bloodthirsty, Ascetic,
-        Wanderer, Homebody, Robust, Frail, Greedy
+        Wanderer, Homebody, Robust, Frail, Greedy,
+        Nocturnal, // 야행성(2026-09-28): 낮에 자고 밤에 일한다. 다른 특성처럼 랜덤.
+        Muscular, Mighty, ThinLegs, // 왕근육 ×1.5 / 괴력 ×2 / 가는 다리 ×0.7: 한 짐 운반량의 장수 본인 부분
+        CannotBuild, CannotGather, CannotResearch, CannotNurse, CannotCook, Uncultured, Pacifist, Chef
     }
-    public enum CommanderActivity { Gathering, Building, Farming, Fishing, Crafting, Research, Melee, Ranged, Command }
+    // 기술 13종(2026-09-28): 기존 9종 뒤에 의료·요리·근력·예술. 저장 번호가 밀리지 않게 끝에 붙인다.
+    public enum CommanderActivity { Gathering, Building, Farming, Fishing, Crafting, Research, Melee, Ranged, Command, Medicine, Cooking, Strength, Art }
     [Serializable] public class CommanderPassion { public CommanderActivity activity; public int flame; }
     [Serializable]
     public class CommanderTraits
@@ -32,7 +36,13 @@ namespace AntColony.Units
         public float WorkMultiplier => Has(CommanderTrait.Lazy) ? .7f : Has(CommanderTrait.Relaxed) ? .85f : Has(CommanderTrait.Industrious) ? 1.15f : Has(CommanderTrait.Workaholic) ? 1.3f : 1f;
         public float MoveMultiplier => Has(CommanderTrait.Sluggish) ? .8f : Has(CommanderTrait.Slow) ? .9f : Has(CommanderTrait.Nimble) ? 1.1f : Has(CommanderTrait.Swift) ? 1.2f : 1f;
         public float LearningMultiplier => Has(CommanderTrait.SlowLearner) ? .5f : Has(CommanderTrait.Genius) ? 1.5f : 1f;
-        public float FoodMultiplier => Has(CommanderTrait.LightEater) ? .7f : Has(CommanderTrait.Glutton) ? 1.5f : 1f;
+        public float CarryMultiplier => Has(CommanderTrait.Muscular) ? 1.5f : Has(CommanderTrait.Mighty) ? 2f : Has(CommanderTrait.ThinLegs) ? .7f : 1f;
+        public bool Blocks(CommanderJobs job) => job switch {
+            CommanderJobs.Building or CommanderJobs.Repair => Has(CommanderTrait.CannotBuild),
+            CommanderJobs.Gathering => Has(CommanderTrait.CannotGather), CommanderJobs.Research => Has(CommanderTrait.CannotResearch),
+            CommanderJobs.Nursing => Has(CommanderTrait.CannotNurse), CommanderJobs.Cooking => Has(CommanderTrait.CannotCook),
+            CommanderJobs.Art => Has(CommanderTrait.Uncultured), CommanderJobs.Hunting => Has(CommanderTrait.Pacifist), _ => false };
+        public float FoodMultiplier =>Has(CommanderTrait.LightEater) ? .7f : Has(CommanderTrait.Glutton) ? 1.5f : 1f;
         public float NegativeMoodMultiplier => Has(CommanderTrait.Sensitive) ? 1.5f : Has(CommanderTrait.Easygoing) ? .5f : 1f;
         public int BaseMood => Has(CommanderTrait.Depressive) ? -10 : Has(CommanderTrait.Pessimist) ? -5 : Has(CommanderTrait.Optimist) ? 5 : Has(CommanderTrait.Cheerful) ? 10 : 0;
         public int Flame(CommanderActivity activity) => passions.Find(p => p.activity == activity)?.flame ?? 0;
@@ -57,9 +67,11 @@ namespace AntColony.Units
         }
         private static bool Conflicts(CommanderTrait a, CommanderTrait b)
         {
-            return Pair(a,b,CommanderTrait.Loyal,CommanderTrait.Ambitious) || Pair(a,b,CommanderTrait.Loyal,CommanderTrait.Cunning)
+            return Pair(a,b,CommanderTrait.Chef,CommanderTrait.CannotCook) || Pair(a,b,CommanderTrait.Pacifist,CommanderTrait.Bloodthirsty) || Pair(a,b,CommanderTrait.Pacifist,CommanderTrait.Reckless)
+                || Pair(a,b,CommanderTrait.Loyal,CommanderTrait.Ambitious) || Pair(a,b,CommanderTrait.Loyal,CommanderTrait.Cunning)
                 || Pair(a,b,CommanderTrait.Sociable,CommanderTrait.Loner) || Pair(a,b,CommanderTrait.Sociable,CommanderTrait.ColdBlooded)
-                || Pair(a,b,CommanderTrait.Wanderer,CommanderTrait.Homebody) || Pair(a,b,CommanderTrait.Robust,CommanderTrait.Frail);
+                || Pair(a,b,CommanderTrait.Wanderer,CommanderTrait.Homebody) || Pair(a,b,CommanderTrait.Robust,CommanderTrait.Frail)
+                || Pair(a,b,CommanderTrait.Muscular,CommanderTrait.Mighty) || Pair(a,b,CommanderTrait.Muscular,CommanderTrait.ThinLegs) || Pair(a,b,CommanderTrait.Mighty,CommanderTrait.ThinLegs);
         }
         private static bool Pair(CommanderTrait a, CommanderTrait b, CommanderTrait x, CommanderTrait y) => a == x && b == y || a == y && b == x;
         public static CommanderTraits Random() => Generate(null, null);

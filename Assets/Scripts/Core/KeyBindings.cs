@@ -3,20 +3,21 @@ using UnityEngine.InputSystem;
 
 namespace AntColony.Core
 {
-    // 설정에서 바꿀 수 있는 단축키. 게임 속도 +/-, Esc, F1, F2, A(공격 이동)는 고정이다.
+    // 설정에서 바꿀 수 있는 단축키. Esc, F1, F2, A(공격 이동), Space(일시정지), F5~F8(게임 속도)는 고정이다.
+    // 새 동작은 저장된 설정 순서를 지키도록 끝에 붙인다.
     public enum GameAction
     {
         RotateLeft, RotateRight, WeaponSkill, WingSkill, AddTroop, RemoveTroop, CycleWeapon,
-        Roster, Pause, SciencePanel, EventLog, WorldMap, Diplomacy, Build
+        Roster, Pause, SciencePanel, EventLog, WorldMap, Diplomacy, Build, WorkSchedule
     }
 
     public static class KeyBindings
     {
         public static readonly Key[] Defaults =
-            { Key.Z, Key.C, Key.Q, Key.W, Key.E, Key.D, Key.R, Key.G, Key.P, Key.K, Key.L, Key.M, Key.J, Key.B };
+            { Key.Z, Key.C, Key.Q, Key.W, Key.E, Key.D, Key.R, Key.G, Key.P, Key.K, Key.L, Key.M, Key.J, Key.B, Key.T };
         // 이 키들은 고정 기능이 쓰므로 재지정할 수 없다.
         public static readonly Key[] Reserved =
-            { Key.Escape, Key.F1, Key.F2, Key.A, Key.Equals, Key.Minus, Key.NumpadPlus, Key.NumpadMinus };
+            { Key.Escape, Key.F1, Key.F2, Key.A, Key.S, Key.F, Key.X, Key.V, Key.Space, Key.F5, Key.F6, Key.F7, Key.F8 };
 
         public static Key Get(GameAction action) => Get(UserSettings.Current, action);
         public static Key Get(UserSettingsData settings, GameAction action)

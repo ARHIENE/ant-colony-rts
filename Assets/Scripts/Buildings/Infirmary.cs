@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using AntColony.Core;
 using AntColony.Units;
 using UnityEngine;
@@ -8,6 +9,11 @@ namespace AntColony.Buildings
     public sealed class Infirmary : BuildingBase
     {
         public const int Capacity = 2;
+        public CommanderAnt Nurse => AntUnitBase.Active.OfType<CommanderAnt>().FirstOrDefault(c => c.CivilianWorkReady && c.ServiceTarget == this
+            && c.ServiceJob == CommanderJobs.Nursing && (c.Position - Position).sqrMagnitude <= 49);
+        public static float PermanentRisk(int medicine) => medicine >= 20 ? 0 : medicine >= 10 ? .05f : .1f;
+        public float PermanentInjuryChance => PermanentRisk(Nurse != null ? Nurse.Talents.Level(CommanderActivity.Medicine) : 0);
+        public float TreatmentRate => Nurse != null ? Nurse.WorkRate(CommanderActivity.Medicine) : GameBalance.UnnursedTreatment;
         private readonly List<CommanderAnt> patients = new List<CommanderAnt>();
         public IReadOnlyList<CommanderAnt> Patients => patients;
         public static bool Unlocked => CampaignResearch.Instance != null && CampaignResearch.Instance.Has(ScienceTechnology.Infirmary);

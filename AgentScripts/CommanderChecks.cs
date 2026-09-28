@@ -18,19 +18,25 @@ public static class CommanderChecks
         if (!value) throw new Exception("FAIL: " + name);
         checks++;
     }
-    static async Task Until(Func<bool> condition)
-    {
-        var end = DateTime.UtcNow.AddSeconds(20);
-        while (!condition() && DateTime.UtcNow < end) await Task.Delay(50);
-    }
     // 새 Play 세션은 메인 메뉴(일시정지)로 시작하므로 필요하면 게임을 직접 시작한다.
     static async System.Threading.Tasks.Task StartGame()
     {
-        if (AntColony.Core.GameSession.Instance.GameStarted) return;
-        while (AntColony.Save.SaveSystem.Busy) await System.Threading.Tasks.Task.Delay(50);
-        AntColony.Save.SaveSystem.NewGame(new AntColony.Core.NewGameOptions());
-        while (AntColony.Save.SaveSystem.Busy) await System.Threading.Tasks.Task.Delay(50);
-        AntColony.UI.GameMenuController.Instance.Resume(); UnityEngine.Time.timeScale = 1;
+        var deadline = DateTime.UtcNow.AddSeconds(90);
+        while (AntColony.Save.SaveSystem.Busy && DateTime.UtcNow < deadline) await Task.Delay(50);
+        Check(!AntColony.Save.SaveSystem.Busy, "initial load completes");
+        if (!GameSession.Instance.GameStarted)
+        {
+            AntColony.Save.SaveSystem.NewGame(new NewGameOptions { seed = 260927, mapSize = MapSize.Small, commanderDeath = CommanderDeathMode.Gentle });
+            deadline = DateTime.UtcNow.AddSeconds(90);
+            while (AntColony.Save.SaveSystem.Busy && DateTime.UtcNow < deadline) await Task.Delay(50);
+            Check(!AntColony.Save.SaveSystem.Busy, "new game loads");
+        }
+        AntColony.UI.GameMenuController.Instance.Resume(); Time.timeScale = 0;
+        foreach (var c in Object.FindObjectsByType<CommanderAnt>())
+        {
+            c.SetJobEnabled(CommanderJobs.All, false);
+            c.CommandStop();
+        }
     }
     // 무기=역할 개편: 예전 보직 변경을 해당 무기(날개) 장착으로 대신한다.
     static bool Arm(AntColony.Units.CommanderAnt c, AntColony.Data.UnitRole role)
@@ -48,9 +54,16 @@ public static class CommanderChecks
     }
     public static async Task<string> Main()
     {
+        var root = AntColony.Save.SaveStorage.RootOverride;
+        var timeScale = Time.timeScale;
+        AntColony.Save.SaveStorage.RootOverride = System.IO.Path.Combine(Application.temporaryCachePath, "Commander-" + Guid.NewGuid().ToString("N"));
+        try { checks = 0; return await Run(); }
+        finally { AntColony.Save.SaveStorage.RootOverride = root; Time.timeScale = timeScale; }
+    }
+    static async Task<string> Run()
+    {
         if (!Application.isPlaying) throw new Exception("Play mode required");
         await StartGame();
-        checks = 0;
         var pool = AntPool.Instance;
         var rm = ResourceManager.Instance;
         var upkeep = Object.FindAnyObjectByType<UpkeepManager>();
@@ -59,7 +72,7 @@ public static class CommanderChecks
         var threats = Object.FindObjectsByType<MonoBehaviour>().Where(m => m.enabled
             && (m is AntColony.World.WildMonster || m is AntColony.World.ColonyInvasion)).ToArray();
         foreach (var threat in threats) threat.enabled = false;
-        var commanders = Object.FindObjectsByType<CommanderAnt>(FindObjectsSortMode.None);
+        var commanders = Object.FindObjectsByType<CommanderAnt>();
         var commander = commanders.First(c => true);
         GameObject siteObject = null, building = null, barracksObject = null;
         try
@@ -68,7 +81,9 @@ public static class CommanderChecks
             Check(AntUnitBase.Active.All(a => a is CommanderAnt), "only commanders are spawned as units");
             Check(pool.Assigned == commanders.Sum(c => c.TroopCount), "assigned count matches roster");
             pool.Breed(10);
-            commander.TryAssign(2);
+            Check(!commander.TryAssign(2), "civilian cannot directly assign troops");
+            commander.WorkState.duty = CommanderDuty.Deployed;
+            Check(commander.TryAssign(2), "deployed commander receives troops");
             var total = pool.Total;
             var original = commander.TroopCount;
             Check(commander.TryAssign(2) && pool.Total == total, "assignment conserves pool");
@@ -120,11 +135,11 @@ public static class CommanderChecks
             rm.Add(AntColony.Data.ResourceType.Soil, 200);
             var beforeProduction = pool.Total;
             Check(queen.TryProduceWorker() && !queen.TryProduceWorker(), "queen starts single production");
-            await Until(() => pool.Total == beforeProduction + 1);
+            queen.Tick(100);
             Check(pool.Total == beforeProduction + 1 && AntUnitBase.Active.Count == 12, "queen produces numeric ant only");
             typeof(GameManager).GetProperty("FishingUnlocked").SetValue(GameManager.Instance, false);
             Check(queen.TryResearchFishing() && !queen.TryResearchFishing(), "queen fishing research starts once");
-            await Until(() => GameManager.Instance.FishingUnlocked);
+            queen.Tick(100);
             Check(GameManager.Instance.FishingUnlocked && !queen.TryResearchFishing(), "global fishing unlock");
             var beforeFood = rm.GetAmount(AntColony.Data.ResourceType.Food);
             var due = upkeep.FoodDue;
@@ -132,10 +147,17 @@ public static class CommanderChecks
             Check(due >= pool.Total && rm.GetAmount(AntColony.Data.ResourceType.Food) == beforeFood - due, "upkeep charges pool and commanders once");
             var beforeLoss = pool.Total;
             var troops = commander.TroopCount;
-            commander.TakeDamage(float.PositiveInfinity);
-            Check(commander.TroopCount == 0 && pool.Total == beforeLoss - troops && !commander.CanStartConstruction,
-                "zero troops disable work without phantom health");
-            Check(!CombatTargeting.IsAlive(commander), "zero troops do not tank enemies");
+            var personalHealth = commander.PersonalHealth;
+            commander.TakeDamage(commander.Armor + commander.TroopHealth);
+            Check(commander.TroopCount == 0 && pool.Total == beforeLoss - troops && commander.PersonalHealth == personalHealth,
+                "troop casualties preserve personal health");
+            Check(CombatTargeting.IsAlive(commander) && !commander.IsDead, "zero troops remain targetable while personally healthy");
+            commander.TakeDamage(commander.Armor + personalHealth);
+            Check(commander.PersonalHealth == 0 && !CombatTargeting.IsAlive(commander) && !commander.CanStartConstruction
+                && !commander.TryAssign(1), "downed commander cannot fight, work, or receive troops");
+            Check(!commander.IsDead && commander.WorkState.recoverySeconds > 0, "gentle death mode schedules recovery");
+            commander.TickDuty(GameBalance.CommanderRecoverySeconds);
+            Check(commander.PersonalHealth == GameBalance.CommanderHealth && CombatTargeting.IsAlive(commander), "recovery restores personal health");
             Check(commander.TryAssign(1), "zero troop commander can be replenished");
             free = pool.Free;
             commander.gameObject.SetActive(false);
@@ -157,5 +179,4 @@ public static class CommanderChecks
         }
     }
 }
-
 

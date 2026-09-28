@@ -87,11 +87,22 @@ public static class WorkProficiencyLootChecks
     // 새 Play 세션은 메인 메뉴(일시정지)로 시작하므로 필요하면 게임을 직접 시작한다.
     static async System.Threading.Tasks.Task StartGame()
     {
-        if (AntColony.Core.GameSession.Instance.GameStarted) return;
-        while (AntColony.Save.SaveSystem.Busy) await System.Threading.Tasks.Task.Delay(50);
-        AntColony.Save.SaveSystem.NewGame(new AntColony.Core.NewGameOptions());
-        while (AntColony.Save.SaveSystem.Busy) await System.Threading.Tasks.Task.Delay(50);
-        AntColony.UI.GameMenuController.Instance.Resume(); UnityEngine.Time.timeScale = 1;
+        var deadline = DateTime.UtcNow.AddSeconds(90);
+        while (AntColony.Save.SaveSystem.Busy && DateTime.UtcNow < deadline) await Task.Delay(50);
+        Check(!AntColony.Save.SaveSystem.Busy, "initial load completes");
+        if (!GameSession.Instance.GameStarted)
+        {
+            AntColony.Save.SaveSystem.NewGame(new NewGameOptions { seed = 260927, mapSize = MapSize.Small });
+            deadline = DateTime.UtcNow.AddSeconds(90);
+            while (AntColony.Save.SaveSystem.Busy && DateTime.UtcNow < deadline) await Task.Delay(50);
+            Check(!AntColony.Save.SaveSystem.Busy, "new game loads");
+        }
+        AntColony.UI.GameMenuController.Instance.Resume(); Time.timeScale = 0;
+        foreach (var c in Object.FindObjectsByType<CommanderAnt>())
+        {
+            c.SetJobEnabled(CommanderJobs.All, false);
+            c.CommandStop();
+        }
     }
     // 무기=역할 개편: 예전 보직 변경을 해당 무기(날개) 장착으로 대신한다.
     static bool Arm(AntColony.Units.CommanderAnt c, AntColony.Data.UnitRole role)
@@ -109,15 +120,21 @@ public static class WorkProficiencyLootChecks
     }
     public static async Task<string> Main()
     {
+        var root = AntColony.Save.SaveStorage.RootOverride;
+        var timeScale = Time.timeScale;
+        AntColony.Save.SaveStorage.RootOverride = System.IO.Path.Combine(Application.temporaryCachePath, "BossLoot-" + Guid.NewGuid().ToString("N"));
+        try { checks = 0; return await Run(); }
+        finally { AntColony.Save.SaveStorage.RootOverride = root; Time.timeScale = timeScale; }
+    }
+    static async Task<string> Run()
+    {
         if (!Application.isPlaying) throw new Exception("Play mode required");
         await StartGame();
-        checks = 0;
 
         var rm = ResourceManager.Instance;
         var gm = GameManager.Instance;
         var commander = Object.FindObjectsByType<CommanderAnt>()
             .First(c => c.isActiveAndEnabled && true && true);
-        var otherRole = UnitRole.Defense;
         var startRole = commander.Role;
         var savedTroops = commander.TroopCount;
         var savedFree = AntPool.Instance.Free;
@@ -142,11 +159,7 @@ public static class WorkProficiencyLootChecks
         {
             commander.CommandStop();
             Check(Arm(commander, UnitRole.Worker), "commander takes worker role");
-            if (!commander.HasTroops)
-            {
-                AntPool.Instance.Breed(2);
-                Check(commander.TryAssign(1), "commander has a troop");
-            }
+            Check(!commander.IsDeployed && !commander.HasTroops, "civilian gathers without troops");
 
             // 4) 씬 보스 전리품은 원정 거점의 고정 난이도를 따른다.
             var sceneBoss = Object.FindObjectsByType<BossHealth>().FirstOrDefault(b => b.name != "LootCheckBoss");
@@ -238,23 +251,19 @@ public static class WorkProficiencyLootChecks
             }
 
             // 6) 실제 장수 채집 + 창고 반납 + 소진.
-            // 한 번에 20을 나르도록 병력을 맞춰 반납 반올림 오차 없이 정확히 20이 쌓이게 한다.
-            await WaitFor(() => !commander.IsCarrying, 20);
-            var needTroops = Mathf.CeilToInt(20f / commander.Data.carryCapacity);
-            if (commander.TroopCount < needTroops)
-            {
-                AntPool.Instance.Breed(needTroops - commander.TroopCount);
-                Check(commander.TryAssign(needTroops - commander.TroopCount), "troops to carry 20 in one trip");
-            }
-            Check((float)carryCapacity.GetValue(commander) >= 20f, "carry capacity >= 20");
+            // 평시 장수가 기본 운반량으로 여러 번 왕복해 전량 반납한다.
+            Check((float)carryCapacity.GetValue(commander) == commander.Data.carryCapacity, "civilian uses base carry capacity");
             rm.AddCapacity(ResourceType.Special, 100); amounts[ResourceType.Special] = 0;
+            Time.timeScale = 1;
             Check(await WaitFor(() =>
             {
                 if (special.gameObject.activeSelf && !commander.IsCarrying && Get(commander, "state").ToString() == "Idle")
                     commander.CommandGather(special);
                 return !special.gameObject.activeSelf && !commander.IsCarrying;
             }, 90), "special loot harvested and deposited");
+            Time.timeScale = 0;
             Check(rm.GetAmount(ResourceType.Special) == 20, "special stored: " + rm.GetAmount(ResourceType.Special));
+            Check(!commander.IsDeployed && !commander.HasTroops, "harvest completes without deployment");
 
 
             return "PASS: " + checks + " boss loot / harvest checks";

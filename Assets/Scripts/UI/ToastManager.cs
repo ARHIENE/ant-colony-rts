@@ -34,8 +34,8 @@ namespace AntColony.UI
         {
             instance = this;
             var canvas = MenuTheme.Canvas("Notifications", transform, 200);
-            // 디자인: 상단 바 아래 오른쪽 318px 판넬. 내용 높이에 맞춰 늘고, 비면 숨긴다.
-            panel = MenuTheme.Panel(canvas.transform, "Toasts", new Vector2(1, 1), new Vector2(318, 0), new Vector2(-8, -48));
+            // HUD v2: 달력·속도 판(HudClock) 아래 오른쪽 318px 판넬, 위에서 아래로 쌓인다. 비면 숨긴다.
+            panel = MenuTheme.Panel(canvas.transform, "Toasts", new Vector2(1, 1), new Vector2(318, 0), new Vector2(-8, -100));
             var stack = panel.gameObject.AddComponent<VerticalLayoutGroup>(); stack.padding = new RectOffset(8, 8, 8, 8); stack.spacing = 4;
             stack.childControlHeight = stack.childControlWidth = true; stack.childForceExpandHeight = false;
             panel.gameObject.AddComponent<ContentSizeFitter>().verticalFit = ContentSizeFitter.FitMode.PreferredSize;

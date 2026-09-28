@@ -41,7 +41,7 @@ namespace AntColony.Save
                 colony = new ColonyDto { food = rm.GetAmount(ResourceType.Food), soil = rm.GetAmount(ResourceType.Soil), special = rm.GetAmount(ResourceType.Special),
                     foodCapacity = rm.GetCapacity(ResourceType.Food), soilCapacity = rm.GetCapacity(ResourceType.Soil), specialCapacity = rm.GetCapacity(ResourceType.Special),
                     storageResearchApplied = true,
-                    antsFree = pool.Free, antsAssigned = pool.Assigned, antsReserved = pool.Reserved, fishingUnlocked = GameManager.Instance.FishingUnlocked } };
+                    antsFree = pool.Free + pool.Working, antsAssigned = pool.Assigned, antsReserved = pool.Reserved, fishingUnlocked = GameManager.Instance.FishingUnlocked } };
             foreach (var c in commanders) file.commanders.Add(new CommanderDto { id = file.commanders.Count, name = c.CommanderName,
                 troopCount = c.TroopCount, pendingDamage = c.PendingTroopDamage, carriedAmount = c.CarriedAmount, carriedType = (int)c.CarriedType, fishingProgress = c.FishingProgress, talents = c.Talents.Copy(),
                 traits = SaveCatalog.Traits(c.Traits), personalState = c.CapturePersonalState(),
@@ -61,7 +61,7 @@ namespace AntColony.Save
             for (var i = 0; i < SaveCatalog.Monsters.Length; i++)
             {
                 var m = SaveCatalog.Monsters[i];
-                file.monsters.Add(new MonsterDto { key = "monster:" + i, health = m != null ? m.CurrentHealth : 0,
+                file.monsters.Add(new MonsterDto { key = "monster:" + i, huntDesignated = m != null && m.HuntDesignated, temperament = m != null ? m.Temperament : WildlifeTemperament.Predator, health = m != null ? m.CurrentHealth : 0,
                     position = new Vec3Dto(m != null ? m.Position : Vector3.zero), traits = m is EnemyCommander ec ? SaveCatalog.Traits(ec.Traits) : null,
                     talents = m is EnemyCommander enemy ? enemy.Talents.Copy() : null });
             }
@@ -95,6 +95,7 @@ namespace AntColony.Save
         }
 
         private static ResourceNodeDto Node(ResourceNode n, string key) => new ResourceNodeDto { key = key, exists = n != null,
+            workforce = n != null ? n.GetComponent<Workforce>()?.Requested ?? 0 : 0, looseCargo = n != null && n.IsLooseCargo,
             amount = n != null ? n.AmountRemaining : 0, regrowTimer = n != null ? n.RegrowTimeRemaining : 0, bountifulHarvest = n != null && n.BountifulHarvest, gatheringForbidden = n != null && n.GatheringForbidden, fishMonth = n != null ? n.FishMonth : -1,
             position = new Vec3Dto(n != null ? n.transform.position : Vector3.zero), type = n != null ? (int)n.ResourceType : 0 };
 
@@ -150,6 +151,7 @@ namespace AntColony.Save
                 if (node == null) continue;
                 if (!d.exists) { Object.Destroy(node.gameObject); continue; }
                 node.transform.position = d.position.ToVector3(); node.RestoreState(d.amount, d.regrowTimer);
+                node.IsLooseCargo = d.looseCargo; Workforce.For(node).Request(d.workforce);
                 node.BountifulHarvest = d.bountifulHarvest; node.GatheringForbidden = d.gatheringForbidden; node.FishMonth = d.fishMonth;
             }
             foreach (var d in file.monsters)
@@ -164,7 +166,7 @@ namespace AntColony.Save
                 var m = parts[0] == "monster" ? SaveCatalog.Monsters[index]
                     : Object.Instantiate(world.Sites[index].GuardTemplate, d.position.ToVector3(), Quaternion.identity, world.Sites[index].transform);
                 if (m == null) continue;
-                m.DiplomaticFactionId = d.diplomaticFactionId;
+                m.DiplomaticFactionId = d.diplomaticFactionId; m.HuntDesignated = d.huntDesignated; m.Temperament = d.temperament;
                 if (parts[0] == "occupier") m.RaidSettlement(world.Sites[index]);
                 m.GetComponent<UnityEngine.AI.NavMeshAgent>().enabled = false;
                 m.transform.position = d.position.ToVector3(); m.RestoreHealth(d.health);

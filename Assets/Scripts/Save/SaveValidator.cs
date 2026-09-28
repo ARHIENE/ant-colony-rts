@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using UnityEngine;
 
 namespace AntColony.Save
@@ -33,6 +34,21 @@ namespace AntColony.Save
             error = null;
             if (file == null) { error = "No data."; return false; }
             if (file.gameId != "AntColony") { error = "Not an Ant Colony save."; return false; }
+            if (file.version >= 1 && file.version <= 9)
+            {
+                void Talents(Units.CommanderTalents t)
+                {
+                    if (t?.levels?.Length == 9 && t.experience?.Length == 9) { Array.Resize(ref t.levels, Units.CommanderTalents.Count); Array.Resize(ref t.experience, Units.CommanderTalents.Count); }
+                }
+                foreach (var c in file.commanders ?? new System.Collections.Generic.List<CommanderDto>()) Talents(c?.talents);
+                foreach (var b in file.buildings ?? new System.Collections.Generic.List<BuildingDto>())
+                    if (b?.prisoners != null) foreach (var p in b.prisoners) Talents(p?.talents);
+                foreach (var m in file.monsters ?? new System.Collections.Generic.List<MonsterDto>()) Talents(m?.talents);
+                if (file.diplomacy?.civilizations != null && file.diplomacy.markets != null)
+                    foreach (var f in file.diplomacy.civilizations.Concat(file.diplomacy.markets))
+                    { if (f?.prisoners != null) foreach (var p in f.prisoners) Talents(p?.Talents); if (f?.rebels != null) foreach (var p in f.rebels) Talents(p?.Talents); }
+                foreach (var n in file.nodes ?? new System.Collections.Generic.List<ResourceNodeDto>()) if (n?.key?.StartsWith("new:") == true) n.looseCargo = true;
+            }
             if (file.version <= 5 && file.commanders != null)
                 foreach (var c in file.commanders) if (c?.personalState != null) c.personalState.social = new Units.CommanderSocialState();
             if (file.version == 1)
@@ -95,6 +111,18 @@ namespace AntColony.Save
                 file.version = 8;
             }
             if (file.version == 8) file.version = 9; // 낚시터 fishMonth 기본값 -1: 불러온 뒤 이번 달 한도로 채운다.
+            if (file.version == 9)
+            {
+                // 작업표 12종: 새 작업 6종을 켠다. 기술 13종·수면 상태는 읽을 때 기본값으로 채워진다.
+                void Jobs(Units.CommanderPersonalState s) { if (s?.work != null) s.work.jobs |= Units.CommanderJobs.Added; }
+                foreach (var c in file.commanders ?? new System.Collections.Generic.List<CommanderDto>()) Jobs(c?.personalState);
+                foreach (var b in file.buildings ?? new System.Collections.Generic.List<BuildingDto>())
+                    if (b?.prisoners != null) foreach (var p in b.prisoners) Jobs(p?.personalState);
+                if (file.diplomacy?.civilizations != null && file.diplomacy.markets != null)
+                    foreach (var f in file.diplomacy.civilizations.Concat(file.diplomacy.markets))
+                        if (f?.prisoners != null && f.rebels != null) foreach (var p in f.prisoners.Concat(f.rebels)) Jobs(p?.PersonalState);
+                file.version = 10;
+            }
             if (file.version != SaveFileV1.CurrentVersion)
             {
                 error = $"Save version {file.version} cannot be read by this build (expects {SaveFileV1.CurrentVersion}).";

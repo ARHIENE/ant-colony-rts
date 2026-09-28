@@ -3,11 +3,12 @@ using UnityEngine;
 
 namespace AntColony.Units
 {
-    // 작업과 전투가 공유하는 9종 기술. 경험치는 소수까지 보존한다.
+    // 작업과 전투가 공유하는 13종 기술. 경험치는 소수까지 보존한다.
+    // 옛 저장(9종)은 읽는 순간 뒤쪽 새 기술을 0으로 채운다(포로·외교 포로 포함 모든 경로 공통).
     [Serializable]
     public class CommanderTalents
     {
-        public const int Count = 9, MaxLevel = 20;
+        public const int Count = 13, MaxLevel = 20;
         public int[] levels = new int[Count];
         public float[] experience = new float[Count];
         public float combatSeconds;

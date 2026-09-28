@@ -21,17 +21,17 @@ namespace AntColony.Buildings
         public CommanderAnt Crafter { get; private set; }
         public bool Ruined { get; private set; }
         public bool CanAssign(CommanderAnt c) => !Ruined && isActiveAndEnabled && !IsDead && Crafter == null && jobs.Count > 0
-            && c != null && c.CanChangeAllocation && !c.IsAwayFromHome && !c.IsDeployed && !c.IsWorking && !c.IsInCombat
+            && c != null && c.CanDoJob(CommanderJobs.Crafting) && c.CanChangeAllocation && !c.IsAwayFromHome && !c.IsDeployed && !c.IsWorking && !c.IsInCombat
             && (c.Agent == null || !c.Agent.hasPath && !c.Agent.pathPending)
             && Vector3.Distance(c.Position, Position) <= GameBalance.WorkshopRadius;
         public bool TryAssign(CommanderAnt c)
         {
             if (!CanAssign(c)) return false;
-            c.CommandStop(); Crafter = c; c.CraftingWorkshop = this; return true;
+            c.CommandStop(); Crafter = c; c.CraftingWorkshop = this; c.SetWorkTarget(this); return true;
         }
         public void Release()
         {
-            if (Crafter != null && Crafter.CraftingWorkshop == this) Crafter.CraftingWorkshop = null;
+            if (Crafter != null && Crafter.CraftingWorkshop == this) { Crafter.CraftingWorkshop = null; Crafter.SetWorkTarget(null); }
             Crafter = null;
         }
         public bool TryEnqueue(EquipmentRecipe recipe)
@@ -56,13 +56,13 @@ namespace AntColony.Buildings
         public void Tick(float seconds)
         {
             if (!(seconds > 0) || float.IsInfinity(seconds) || Ruined || IsDead || !isActiveAndEnabled || jobs.Count == 0 || Crafter == null) return;
-            if (!Crafter.isActiveAndEnabled || Crafter.IsDead || Crafter.IsAwayFromHome || Crafter.IsEmbarked
+            if (!Crafter.CivilianWorkReady || !Crafter.isActiveAndEnabled || Crafter.IsDead || Crafter.IsAwayFromHome || Crafter.IsEmbarked
                 || Crafter.PersonalState.mentalBreak != MentalBreak.None || Vector3.Distance(Crafter.Position, Position) > GameBalance.WorkshopRadius)
             { Release(); return; }
             var inventory = EquipmentInventory.Instance;
             if (inventory == null || inventory.Full) return;
             var job = jobs[0];
-            float speed = Crafter.Talents.Multiplier(CommanderActivity.Crafting);
+            float speed = Crafter.WorkRate(CommanderActivity.Crafting);
             float elapsed = Mathf.Min(seconds, (GameBalance.CraftWork - job.work) / speed);
             job.work = Mathf.Min(GameBalance.CraftWork, job.work + elapsed * speed);
             Crafter.GainExperience(CommanderActivity.Crafting, elapsed);
@@ -87,7 +87,7 @@ namespace AntColony.Buildings
             Release(); jobs = state.jobs.ConvertAll(j => new Job { recipe = j.recipe, work = j.work });
             Ruined = state.ruined; enabled = !state.paused && !Ruined;
             if (Ruined) { var renderer = GetComponent<Renderer>(); if (renderer != null) renderer.material.color = Color.gray; }
-            if (state.crafter >= 0) { Crafter = commanders[state.crafter]; Crafter.CraftingWorkshop = this; }
+            if (state.crafter >= 0) { Crafter = commanders[state.crafter]; Crafter.CraftingWorkshop = this; Crafter.SetWorkTarget(this); }
             gameObject.SetActive(!state.inactive);
         }
     }

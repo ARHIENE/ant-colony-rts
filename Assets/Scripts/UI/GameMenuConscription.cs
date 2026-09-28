@@ -30,7 +30,7 @@ namespace AntColony.UI
             L.Label(p, "병력 / 지휘한도", 14, 756, 104, 270, 32);
             var list = L.List(p, 24, 144, 1032, 420);
             var choices = new List<(CommanderAnt commander, Toggle toggle, Slider slider)>();
-            foreach (var c in SortedCommanders())
+            foreach (var c in SortedCommanders().Where(c => !c.Traits.Has(CommanderTrait.Pacifist)))
             {
                 var row = L.Cell(list, "Recruit " + c.CommanderName, 64, MenuTheme.Plate2);
                 var toggle = DutyToggle(row, "Deploy " + c.CommanderName, 8, 18, false);

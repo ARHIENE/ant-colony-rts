@@ -10,13 +10,13 @@ namespace AntColony.UI
     // 하단 콘솔 가운데: 선택 장수 카드(초상·장비 칸 / 이름·보직·특성 / 병력 막대 / 능력치 4칸 / 기술 9종).
     public class SelectedUnitPanel : MonoBehaviour
     {
-        private static readonly string[] ActivityNames = { "채집", "건설", "농사", "낚시", "제작", "연구", "근접", "원거리", "지휘" };
+        private static readonly string[] ActivityNames = { "채집", "건설", "농사", "낚시", "제작", "연구", "근접", "원거리", "지휘", "의료", "요리", "근력", "예술" };
 
         private SelectionManager selection;
         private GameObject panel;
         private Text portrait, header, troopsText, emptyText;
         private RectTransform troopFill, healthFill;
-        private readonly Text[] statValues = new Text[4], statNotes = new Text[4], skillTexts = new Text[9];
+        private readonly Text[] statValues = new Text[4], statNotes = new Text[4], skillTexts = new Text[CommanderTalents.Count];
         private readonly MenuTooltip[] slotTips = new MenuTooltip[3];
         private readonly Text[] slotTexts = new Text[3];
 
@@ -81,10 +81,10 @@ namespace AntColony.UI
                 statValues[i].font = MenuTheme.NumberFont;
                 statNotes[i] = Label(rect, "", 11, new Vector2(sx, -112), new Vector2(170, 16), MenuTheme.Dim);
             }
-            for (var i = 0; i < 9; i++)
+            for (var i = 0; i < CommanderTalents.Count; i++)
             {
-                var cell = Well(rect, "Skill " + ActivityNames[i], new Vector2(x + i * 77f, -146), new Vector2(73, 30));
-                skillTexts[i] = Label(cell, "", 12, new Vector2(6, 0), new Vector2(64, 30), MenuTheme.Muted);
+                var cell = Well(rect, "Skill " + ActivityNames[i], new Vector2(x + (i % 7) * 98f, -134 - (i / 7) * 24), new Vector2(94, 22));
+                skillTexts[i] = Label(cell, "", 12, new Vector2(6, 0), new Vector2(84, 22), MenuTheme.Muted);
                 skillTexts[i].alignment = TextAnchor.MiddleLeft; skillTexts[i].supportRichText = true;
             }
             panel.SetActive(false);
@@ -117,7 +117,7 @@ namespace AntColony.UI
             }
             var visible = count > 0 && !BuildScreen.Picking;
             panel.SetActive(visible);
-            emptyText.gameObject.SetActive(count == 0 && !BuildScreen.Picking);
+            emptyText.gameObject.SetActive(count == 0 && WorkTargetPanel.Target == null && !BuildScreen.Picking);
             if (!visible) return;
             healthFill.anchorMax = new Vector2(maximum > 0f ? Mathf.Clamp01(current / maximum) : 0f, 1f);
             troopFill.parent.gameObject.SetActive(deployed);
@@ -133,7 +133,7 @@ namespace AntColony.UI
                 header.text = count > 1 ? $"<b><color=#f2a93b>선택된 부대 {count}</color></b>" : $"<b><color=#f2a93b>{first.name}</color></b>";
                 for (var i = 0; i < 4; i++) statValues[i].text = statNotes[i].text = "";
                 if (count == 1) { statValues[0].text = $"{first.AttackDamage:0.#}"; statValues[1].text = $"{first.Armor:0.#}"; }
-                for (var i = 0; i < 9; i++) skillTexts[i].text = "";
+                for (var i = 0; i < CommanderTalents.Count; i++) skillTexts[i].text = "";
                 for (var i = 0; i < 3; i++) { slotTexts[i].color = MenuTheme.Dim; slotTips[i].Message = ""; }
                 return;
             }
@@ -145,7 +145,7 @@ namespace AntColony.UI
             statValues[0].text = $"{c.AttackDamage:0.#}";
             statNotes[0].text = c.Weapon != null ? c.Weapon.Label : "맨 큰턱";
             statValues[1].text = $"{c.Armor:0.#}";
-            statNotes[1].text = c.EquippedArmor != null ? c.EquippedArmor.Label : "방어구 없음";
+            statNotes[1].text = $"운반 {c.LoadCapacity:0.#} · 인력 {c.WorkingAnts}/{c.WorkforceLimit}";
             statValues[2].text = $"{c.Mood:0}";
             var factor = c.PersonalState.moodFactors.OrderByDescending(f => Mathf.Abs(f.value)).FirstOrDefault();
             statNotes[2].text = factor != null ? $"{factor.reason} {factor.value:+0;-0}" : "";
@@ -153,7 +153,7 @@ namespace AntColony.UI
             statValues[3].color = GameMenuController.LoyaltyColor(c.Traits.Loyalty);
             statNotes[3].text = c.Traits.loyaltyReasons.Count > 0 ? c.Traits.loyaltyReasons[c.Traits.loyaltyReasons.Count - 1] : "";
 
-            for (var i = 0; i < 9; i++)
+            for (var i = 0; i < CommanderTalents.Count; i++)
             {
                 var activity = (CommanderActivity)i;
                 var passion = c.Traits.passions.Exists(p => p.activity == activity && p.flame > 0);

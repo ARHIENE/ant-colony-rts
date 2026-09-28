@@ -82,6 +82,7 @@ namespace AntColony.Units
         {
             if (CanReceiveOrders && !LabUpgradeBusy)
             {
+                if (!IsConstructing) { ServiceTarget = null; ServiceJob = CommanderJobs.None; HuntTarget = null; SetWorkTarget(null); }
                 automaticFacility = null; ScienceAssignment?.ReleaseResearcher(); WorkState.resting = false;
                 if (IsReturning) WorkState.duty = CommanderDuty.Deployed;
                 base.CommandMove(destination);
@@ -141,7 +142,7 @@ namespace AntColony.Units
             + labArmorLevel * LabArmorBonusPerLevel + (HasSupportAura ? SupportArmorBonus : 0f)
             + EquipmentBonus(EquipmentSlot.Armor) - 2f * PersonalState.Severity(InjuryPart.Thorax)
             + (skills.DefensiveStanceActive ? CommanderSkills.DefensiveStanceArmor : 0f);
-        protected override float GatherRate => base.GatherRate * Mathf.Max(1, troopCount) * talents.Multiplier(CurrentActivity) * traits.WorkMultiplier * (1f - .3f * PersonalState.Severity(InjuryPart.Antenna)) * (1f + TrinketBonus(TrinketEffect.Gather)) * ColonyEvents.GatherMultiplier(this);
+        protected override float GatherRate => base.GatherRate * Mathf.Max(1, troopCount) * WorkRate(CurrentActivity) * (1f - .3f * PersonalState.Severity(InjuryPart.Antenna)) * (1f + TrinketBonus(TrinketEffect.Gather)) * ColonyEvents.GatherMultiplier(this);
         protected override float FishingCatchMultiplier => talents.Multiplier(CommanderActivity.Fishing) * ColonyEvents.GatherMultiplier(this);
         protected override void OnGathered(float amount)
         {
@@ -153,7 +154,9 @@ namespace AntColony.Units
         }
         public void GainExperience(CommanderActivity activity, float amount) => talents.Add(activity,
             amount * traits.GrowthMultiplier(activity) * (1f - .5f * PersonalState.Severity(InjuryPart.Head)));
-        protected override float CarryCapacity => base.CarryCapacity * Mathf.Max(1, troopCount);
+        protected override float CarryCapacity => LoadCapacity;
+        protected override float FishingWorkSpeed => WorkforceMultiplier * WorkFactor;
+        protected override void OnDelivered(float amount) => GainExperience(CommanderActivity.Strength, amount * .5f);
 
         // 중첩 없이 가장 가까운 지원 장수 한 명만 확인한다. 현재 장수 12명 규모에서는 선형 검색이 가장 단순하다.
         public bool HasSupportAura
@@ -290,14 +293,18 @@ namespace AntColony.Units
             if (!CanReceiveOrders || LabUpgradeBusy || IsDeployed && !IsAwayFromHome) return;
             if (Garrison != null && Garrison.DockedTransport == null) return;
             automaticFacility = null; ScienceAssignment?.ReleaseResearcher();
+            if (node == null || !CanDoJob(JobFor(node))) return;
             base.CommandGather(node);
+            if (CurrentResourceNode == node) SetWorkTarget(node);
         }
 
         public override void CommandBuild(BuildingConstructionSite site)
         {
             if (!CanReceiveOrders || LabUpgradeBusy || IsDeployed) return;
             automaticFacility = null; ScienceAssignment?.ReleaseResearcher();
+            if (site == null || !CanDoJob(site.IsArt ? CommanderJobs.Art : CommanderJobs.Building)) return;
             base.CommandBuild(site);
+            if (ConstructionTarget == site) SetWorkTarget(site);
         }
 
         // 마지막 일격을 넣은 장수만 경험치를 받는다. 공격 전에 살아 있던 대상이 이 타격으로 죽은 경우만 인정하므로
@@ -326,6 +333,7 @@ namespace AntColony.Units
 
         protected override void OnDisable()
         {
+            SetWorkTarget(null); ServiceTarget = null; HuntTarget = null;
             if (acidVisual != null) Destroy(acidVisual);
             CraftingWorkshop?.Release();
             TreatmentFacility?.Release(this);

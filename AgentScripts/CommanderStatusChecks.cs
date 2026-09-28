@@ -48,24 +48,25 @@ public static class CommanderStatusChecks
             // 커맨드 카드: 평시와 출전 중 버튼이 분리된다.
             Check(Card("Work Schedule").gameObject.activeSelf && Card("Reward").gameObject.activeSelf && Card("Send To Rest").gameObject.activeSelf
                 && Card("Send To Treatment").gameObject.activeSelf && Card("Weapon").gameObject.activeSelf, "civilian buttons visible");
-            Check(!Card("Attack Move").gameObject.activeSelf && !Card("Stop").gameObject.activeSelf && !Card("Skill").gameObject.activeSelf
+            // HUD v2: Q 스킬은 평시에 잠긴 채 보인다.
+            Check(!Card("Attack Move").gameObject.activeSelf && !Card("Stop").gameObject.activeSelf && !Card("Skill").interactable
                 && !Card("Return To Post").gameObject.activeSelf, "combat buttons hidden in peace " + string.Join(",", new[]{"Attack Move","Stop","Skill","Return To Post"}.Select(n => n + ":" + Card(n).gameObject.activeSelf)) + " dep=" + c.IsDeployed + " troops=" + c.TroopCount);
             Check(Card("Details").gameObject.activeSelf, "details always visible");
 
             // 휴식 지시: 피로할 때만, 피로가 풀릴 때까지 자율 작업을 쉰다.
             Check(!c.CanRest && !c.SendToRest(), "rest needs fatigue");
-            c.PersonalState.AddMood("Fatigue", -10, 30);
+            c.PersonalState.sleep.fatigue = 60; // 2026-09-28: 피로는 게이지(50 이상이면 휴식 가능).
             Check(c.CanRest, "fatigued commander can rest");
             Card("Send To Rest").onClick.Invoke();
             Check(c.WorkState.resting && CommanderOverhead.Activity(c) == "휴식", "rest order and overhead tag");
             c.CommandStop(); c.SetJobEnabled(CommanderJobs.Gathering, true); c.TickDuty(2);
             Check(!c.IsWorking && c.WorkState.resting, "resting commander skips autonomous work");
-            c.PersonalState.moodFactors.RemoveAll(f => f.reason == "Fatigue"); c.TickDuty(2);
+            c.PersonalState.sleep.fatigue = 0; c.TickDuty(2);
             Check(!c.WorkState.resting, "rest ends when fatigue is gone");
             c.SetJobEnabled(CommanderJobs.All, false); c.CommandStop();
-            c.PersonalState.AddMood("Fatigue", -10, 30); c.SendToRest(); c.CommandMove(c.Position + Vector3.right);
+            c.PersonalState.sleep.fatigue = 60; c.SendToRest(); c.CommandMove(c.Position + Vector3.right);
             Check(!c.WorkState.resting, "manual move cancels rest");
-            c.PersonalState.moodFactors.RemoveAll(f => f.reason == "Fatigue"); c.CommandStop();
+            c.PersonalState.sleep.fatigue = 0; c.CommandStop();
 
             // 머리 위 하는 일 아이콘: 모든 상태 이름에 픽셀 아이콘이 있다.
             foreach (var name in new[] { "채집", "건설", "농사", "낚시", "제작", "연구", "휴식", "치료", "출전", "귀환", "붕괴" })
@@ -106,8 +107,10 @@ public static class CommanderStatusChecks
                 intruder = Object.Instantiate(template.gameObject, new Vector3(home.x, template.Position.y, home.z), Quaternion.identity);
                 intruder.name = "Alert intruder"; await Task.Delay(100);
                 alert.Scan();
-                Check(EnemyAlert.AlarmCount == before + 1 && hooked == 1 && EnemyAlert.CrisisActive, "new enemy raises alarm and crisis");
-                alert.Scan(); Check(EnemyAlert.AlarmCount == before + 1, "same enemy does not re-alarm");
+                // 새 적 등장 + (본거지 한가운데라) 곧바로 전투 시작 경보가 대기 시간 안에 같이 울릴 수 있다.
+                var raised = EnemyAlert.AlarmCount - before;
+                Check(raised >= 1 && hooked == raised && EnemyAlert.CrisisActive, $"new enemy raises alarm and crisis count={raised} hooked={hooked}");
+                alert.Scan(); Check(EnemyAlert.AlarmCount == before + raised, "same enemy does not re-alarm");
                 Object.Destroy(intruder); intruder = null; await Task.Delay(100);
                 alert.Scan(); Check(!EnemyAlert.CrisisActive, "crisis clears when enemy is gone");
             }

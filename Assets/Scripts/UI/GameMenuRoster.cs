@@ -10,7 +10,7 @@ namespace AntColony.UI
     // 디자인 「장수 관리」: 왼쪽 740 목록(필터·열 머리·합계) + 오른쪽 선택 장수 상세.
     public sealed partial class GameMenuController
     {
-        private static readonly string[] SkillNames = { "채집", "건설", "농사", "낚시", "제작", "연구", "근접", "원거리", "지휘" };
+        private static readonly string[] SkillNames = { "채집", "건설", "농사", "낚시", "제작", "연구", "근접", "원거리", "지휘", "의료", "요리", "근력", "예술" };
         private static readonly string[] FilterNames = { "전체", "대기", "작업 중", "원정 중", "기분 경고" };
         private int rosterFilter;
         private string rosterSearch = "";
@@ -22,7 +22,7 @@ namespace AntColony.UI
         private static string Status(CommanderAnt c) => c.IsDeparting ? "이탈 중" : c.IsCaptive ? "포로" : c.Garrison != null ? "주둔"
             : c.Transport != null ? "원정 중" : c.PersonalHealth <= 0 ? "쓰러짐" : c.IsReturning ? "귀환 중" : c.IsDeployed ? "출전 중"
             : c.ScienceAssignment != null || c.LabUpgradeBusy ? "연구" : c.CraftingWorkshop != null ? "제작"
-            : c.IsWorking ? SkillNames[(int)c.CurrentActivity] : "대기";
+            : CommanderOverhead.Activity(c) is var activity && activity.Length > 0 ? activity : "대기";
         // 4 = 기분 경고: 기분 위험 구간이거나 붕괴 중인 장수.
         private static bool InFilter(CommanderAnt c, int filter) => filter == 0 || (filter == 4 ? CommanderOverhead.MoodAlert(c) : Category(c) == filter);
         private static Color MoodColor(float mood) => mood < 35 ? MenuTheme.Danger : mood < 50 ? MenuTheme.HpMid : MenuTheme.Hp;
@@ -109,7 +109,7 @@ namespace AntColony.UI
             L.Meter(loyal, 0, 30, 570, 8, c.Traits.Loyalty / 100f, LoyaltyColor(c.Traits.Loyalty));
             for (var i = 0; i < reasons.Length; i++) L.Label(loyal, reasons[i], 12, 0, 46 + i * 18, 570, 18, MenuTheme.Muted);
 
-            var skills = L.Cell(content, "Skills", 26 + 3 * 46);
+            var skills = L.Cell(content, "Skills", 26 + ((CommanderTalents.Count + 2) / 3) * 46);
             L.Label(skills, "<b>기술</b>  <color=#968976>0~20 · ★ 열정</color>", 13, 0, 0, 570, 22);
             foreach (CommanderActivity skill in Enum.GetValues(typeof(CommanderActivity)))
             {

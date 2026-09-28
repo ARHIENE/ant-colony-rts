@@ -135,8 +135,8 @@ namespace AntColony.Core
             {
                 var c = lab.Target;
                 if (!lab.isActiveAndEnabled || lab.Busy || lab.Tier < Active.Tier || c == null
-                    || !c.CanReceiveOrders || c.IsAwayFromHome || c.ScienceAssignment != lab) continue;
-                state.progress += seconds * c.Talents.Multiplier(CommanderActivity.Research) * c.Traits.WorkMultiplier * (1f + .25f * (lab.Tier - 1));
+                    || !c.CivilianWorkReady || !c.CanReceiveOrders || c.IsAwayFromHome || c.ScienceAssignment != lab) continue;
+                state.progress += seconds * c.WorkRate(CommanderActivity.Research) * (1f + .25f * (lab.Tier - 1));
                 c.GainExperience(CommanderActivity.Research, seconds);
             }
             if (state.progress < Active.Work) return;

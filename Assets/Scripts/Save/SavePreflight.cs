@@ -71,6 +71,8 @@ namespace AntColony.Save
                 L(f.commanders, 1000, "commanders"); L(f.buildings, 10000, "buildings"); L(f.nodes, 100000, "nodes"); L(f.monsters, 10000, "monsters");
                 L(f.world.sites, 133, "sites"); Check(f.world.sites.Count == (f.world.legacyLayout ? 30 : 33) + (f.diplomacy?.extraSites ?? 0), "site count"); Check(World.DiplomacyManager.Validate(f.diplomacy, f.world.sites.Count), "diplomacy"); L(f.world.transports, 1000, "transports");
                 L(f.discoveries, 1000, "discoveries"); Check(f.discoveries.All(d => d != null && !string.IsNullOrEmpty(d.key) && d.key.Length < 200 && d.body != null && d.body.Length < 10000), "discovery entry");
+                foreach (var n in f.nodes.Concat(f.buildings.SelectMany(b => b.nodes))) Check(n != null && n.workforce >= 0 && n.workforce <= Workforce.Maximum, "node workforce");
+                foreach (var m in f.monsters) Check(m != null && Enum.IsDefined(typeof(World.WildlifeTemperament), m.temperament), "wildlife temperament");
                 var p = f.colony;
                 Check(new[] { p.food, p.soil, p.special, p.foodCapacity, p.soilCapacity, p.specialCapacity, p.antsFree, p.antsAssigned, p.antsReserved }.All(v => v >= 0 && v <= 100000000), "colony amounts");
                 Check(p.food <= p.foodCapacity && p.soil <= p.soilCapacity && p.special <= p.specialCapacity && p.antsReserved == 0, "capacity/construction");
@@ -98,6 +100,8 @@ namespace AntColony.Save
                 var targets = new HashSet<int>();
                 foreach (var b in f.buildings)
                 {
+                    Check(b.workforce >= 0 && b.workforce <= Workforce.Maximum && N(b.repairCredit) && b.repairCredit <= 100000000
+                        && b.decorationQuality >= 0 && b.decorationQuality <= 3 && Kitchen.Valid(b.kitchen), "workforce/repair/kitchen/decoration");
                     Check(b.key != null && V(b.position) && N(b.health) && !float.IsNaN(b.rotationY) && !float.IsInfinity(b.rotationY), "building");
                     Check(new[] { b.barracksUpgradeRemaining, b.labResearchRemaining, b.queenProductionRemaining, b.queenFishingRemaining, b.scienceRemaining,
                         b.scoutRemaining, b.prisonEscapeTimer, b.towerCooldown }.All(N) && V(b.scienceSpawn), "building timers");

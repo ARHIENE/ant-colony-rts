@@ -58,5 +58,25 @@ namespace AntColony.Core
         public const float AdvancedFungusSeconds = 360, AdvancedFungusFood = 150;
         public const float AdvancedFungusSpecialChance = .1f;
         public const int AdvancedFungusSpecial = 2;
+
+        // 낮밤·수면 (2026-09-28). 숙소 정원 4 확정, 나머지 잠정.
+        public const int DormitoryBeds = 4, DormitoryFood = 20, DormitorySoil = 40, DormitoryAnts = 4;
+        public const float DormitoryBuildSeconds = 8;
+        public const float RoughSleepMood = -15, RivalRoommateMood = -5, BadSleepMood = -5;
+        public const int RoughSleepLoyalty = -5, RoughSleepNights = 3;
+        public const float PoorSleepWork = .8f;
+        // 피로 0~100: 낮 작업 10분(한 낮)이면 가득, 숙소에서 한 밤 자면 0. 설친 잠은 절반만 풀린다.
+        public const float FatiguePerWorkSecond = 100f / 600f, FatigueRestPerSecond = .5f, TiredFatigue = 50;
+        public const float FullSleepShare = .9f;
+
+        // 인력(2026-09-28): 상한 = 5 + 해당 작업 기술×2(확정). 개미 1마리당 효율은 일정(잠정 +10%).
+        public const int WorkforceBase = 5, WorkforcePerSkill = 2;
+        public const float WorkforcePerAnt = .1f;
+        // 한 짐 운반량 = 10 + 근력×1.5 + 인력 1마리당 2 (확정). 근력 경험치는 운반량만큼(잠정).
+        public const float CarryBase = 10, CarryPerStrength = 1.5f, CarryPerAnt = 2;
+        // 수리 비용 = 잃은 체력 비율 × 건설비 50%(확정). 수리 속도 잠정: 초당 최대 체력 2%.
+        public const float RepairCostShare = .5f, RepairPerSecond = .02f;
+        // 간호 장수가 없으면 의무실 치료 절반 속도(확정).
+        public const float UnnursedTreatment = .5f;
     }
 }

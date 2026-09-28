@@ -4,6 +4,22 @@
 
 ---
 
+# 2026-09-29 SAVE — 이전 로그(2026-09-27 회귀 검사 복구) 이관
+- 기준 develop 15b9a17, 저장 v9. 기존 자율 작업·출전·채집 지정·장수 피드백·계절 자원·7단계 UI 구현 상태를 확인했다.
+- ActiveSkill 45, CommanderEdge 24, WorkProficiencyLoot 25, Commander 33, AcquisitionBuilding 42로 총 169개 회귀 검사를 현재 규칙에 맞춰 복구했다. 당시 런타임 수정 없이 검사 전제만 갱신했다.
+- 미실행/실패 잔여: Invasion/Raid/SceneInvasion/Airborne/Run. 수송 탑승 중 자동 귀환 및 병력 0 감염/복수 영향 검토 필요.
+- 이후 HUD v2·낮밤/수면·작업 인력 구현과 저장 v10이 추가됐으며 최신 상태는 log.md에 기록했다.
+
+---
+# 2026-09-27 추가 SAVE — 이전 로그(7단계 UI·자원 규칙 마감) 이관
+- 채집 금지/지정 취소, 장수 머리 위 상태·적 발견 경보, 평시/출전 커맨드 카드, 휴식·치료 지시를 구현했다.
+- 기본 균류 180초/Food 40, 가을 수확 ×1.25, 겨울 성장 정지, 낚시 20초/Food 6 및 낚시터 월 Food 100 한도를 구현하고 저장 v9에 연결했다.
+- 토스트 스택·첫 등장 힌트·붕괴 경고·엔딩 기록·3D 행성 월드맵과 원정 상세 UI를 구현했다.
+- 신규 GatherDesignation 13·CommanderStatus 38·ResourceRule 27·Stage7UI 46 및 다수 기존 스위트를 통과했다.
+- 당시 남은 실패/미실행은 ActiveSkill·CommanderEdge·WorkProficiencyLoot·CommanderChecks·AcquisitionBuilding·Invasion/Raid/SceneInvasion·Airborne/Run이었다. 앞의 5종은 이번 SAVE에서 현재 규칙에 맞춰 복구했다.
+
+---
+
 # 2026-09-27 SAVE — 이전 로그(작업표·징집소 UI, 노드 채집 금지) 이관
 - Codex: 작업표(`GameMenuDuty`, 6개 작업 체크박스)·징집소 편성(`GameMenuConscription`, 장수 체크·병력 슬라이더·출전), 귀환 D·징집소 E, 선택 패널 개인 체력/병력 분리. DutyUI 46·FullUI 48 통과.
 - 자율 작업 로직(`CommanderDuty`): 작업 우선순위 건설→제작→연구→농사→낚시→채집, 출전/귀환(적 없음 20초 뒤 자동 귀환), 피해 병력→개인 체력, 새 장수 병력 0. 저장 v8. AutonomousDuty 52 통과.

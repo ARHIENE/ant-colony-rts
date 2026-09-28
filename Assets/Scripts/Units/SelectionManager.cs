@@ -142,14 +142,20 @@ namespace AntColony.Units
                 }
                 if (hit.collider.GetComponentInParent<Workshop>() is Workshop workshop)
                 {
-                    AntColony.UI.GameMenuController.Instance?.ShowWorkshop(workshop);
+                    AntColony.UI.WorkTargetPanel.Select(workshop);
                     return;
                 }
                 if (hit.collider.GetComponentInParent<AntColony.World.ResourceNode>() is AntColony.World.ResourceNode node)
                 {
-                    AntColony.UI.GameMenuController.Instance?.ShowResourceNode(node);
+                    AntColony.UI.WorkTargetPanel.Select(node);
                     return;
                 }
+                if (hit.collider.GetComponentInParent<BuildingConstructionSite>() is BuildingConstructionSite site)
+                { AntColony.UI.WorkTargetPanel.Select(site); return; }
+                if (hit.collider.GetComponentInParent<BuildingBase>() is BuildingBase building && building.CountsTowardPlayerDefeat)
+                { AntColony.UI.WorkTargetPanel.Select(building); return; }
+                if (hit.collider.GetComponentInParent<AntColony.World.WildMonster>() is AntColony.World.WildMonster animal && animal.Huntable)
+                { AntColony.UI.WorkTargetPanel.Select(animal); return; }
                 var selectable = hit.collider.GetComponentInParent<SelectableObject>();
                 if (selectable != null && selectable.isActiveAndEnabled)
                 {
@@ -200,6 +206,7 @@ namespace AntColony.Units
 
         public void ClearSelection()
         {
+            AntColony.UI.WorkTargetPanel.Clear();
             foreach (var selectable in selectedObjects)
             {
                 if (selectable != null) selectable.SetSelected(false);
@@ -208,6 +215,14 @@ namespace AntColony.Units
         }
 
         public IReadOnlyList<SelectableObject> GetSelectedObjects() => selectedObjects;
+
+        // 장수 바·다중 선택 그리드용: 한 명만 선택 / 선택에서 빼기.
+        public void SelectOnly(SelectableObject selectable) { ClearSelection(); AddToSelection(selectable); }
+        public void Deselect(SelectableObject selectable)
+        {
+            if (selectable == null || !selectedObjects.Remove(selectable)) return;
+            selectable.SetSelected(false);
+        }
 
         private bool IsShiftHeld()
         {

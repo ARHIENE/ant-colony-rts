@@ -37,6 +37,7 @@ namespace AntColony.Save
             if (b.GetComponent<ScoutPost>() != null) return "ScoutPost";
             if (b.GetComponent<PrisonerCamp>() != null) return "PrisonerCamp";
             if (b.GetComponent<ResourceNode>() != null) return "Farm";
+            if (b is Decoration) return b.Data.kind.ToString();
             return b.GetType().Name;
         }
         internal static int SiteIndex(ExpeditionSite site) => site == null ? -1 : WorldMapManager.Instance.Sites.ToList().IndexOf(site);

@@ -181,14 +181,16 @@ namespace AntColony.Buildings
                 PlacementFailed($"Construction needs {cost.foodCost} food, {cost.soilCost} soil and {cost.specialCost} special.");
                 return;
             }
-            if (pool == null || !pool.TryReserve(cost.constructionAnts))
+            if (builder is CommanderAnt commander && !commander.CanDoJob(Decoration.IsKind(pendingKind) ? CommanderJobs.Art : CommanderJobs.Building))
+            { PlacementFailed("이 장수는 해당 작업을 할 수 없습니다."); return; }
+            if (pool == null)
             {
                 PlacementFailed($"Keep {cost.constructionAnts} unassigned ants available for construction.");
                 return;
             }
             if (!ResourceManager.Instance.TrySpend(cost.foodCost, cost.soilCost, cost.specialCost, reason: ResourceReason.Construction))
             {
-                pool.ReleaseReserved(cost.constructionAnts);
+                // 인력은 작업이 시작되면 대상의 슬라이더 요청 수만큼 빌린다.
                 return;
             }
 
@@ -216,9 +218,17 @@ namespace AntColony.Buildings
             if (renderer != null) renderer.material.color = new Color(0.9f, 0.7f, 0.2f);
 
             var site = siteObject.AddComponent<BuildingConstructionSite>();
-            site.Initialize(completedBuilding, cost.buildTimeSeconds, pool, cost.constructionAnts);
+            site.Initialize(completedBuilding, cost.buildTimeSeconds);
+            Workforce.For(site).Request(cost.constructionAnts);
             builder.CommandBuild(site);
             FinishPlacementMode();
+        }
+
+        private static GameObject FindDecorationTemplate(BuildingKind kind)
+        {
+            foreach (var d in Resources.FindObjectsOfTypeAll<Decoration>())
+                if (d.Data != null && d.Data.kind == kind && d.name.EndsWith("Template")) return d.gameObject;
+            return RuntimeBuildingTemplates.Create(kind);
         }
 
         public void CancelPlacement()
@@ -283,6 +293,9 @@ namespace AntColony.Buildings
                 BuildingKind.RestRoom => FindTemplate<RestRoom>() ?? RuntimeBuildingTemplates.Create(kind),
                 BuildingKind.ConscriptionPost => FindTemplate<ConscriptionPost>() ?? RuntimeBuildingTemplates.Create(kind),
                 BuildingKind.Workshop => FindTemplate<Workshop>() ?? RuntimeBuildingTemplates.Create(kind),
+                BuildingKind.Dormitory => FindTemplate<Dormitory>() ?? RuntimeBuildingTemplates.Create(kind),
+                BuildingKind.Kitchen => FindTemplate<Kitchen>() ?? RuntimeBuildingTemplates.Create(kind),
+                BuildingKind.FlowerPot or BuildingKind.ShellDecoration or BuildingKind.MarbleMosaic or BuildingKind.BottleMobile or BuildingKind.FireflyLamp => FindDecorationTemplate(kind),
                 _ => null
             };
         }

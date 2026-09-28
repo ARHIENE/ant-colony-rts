@@ -18,8 +18,13 @@ namespace AntColony.UI
             if (c.IsReturning) return "귀환";
             if (c.IsDeployed) return "출전";
             if (c.PersonalState.treating) return "치료";
+            if (c.IsAsleep) return "수면";
             if (c.WorkState.resting) return "휴식";
             if (c.PersonalState.mentalBreak != MentalBreak.None) return "붕괴";
+            if (c.ServiceTarget != null) return c.ServiceJob == CommanderJobs.Nursing ? "간호" : c.ServiceJob == CommanderJobs.Repair ? "수리" : "요리";
+            if (c.HuntTarget != null) return "사냥";
+            if (c.CurrentResourceNode != null && c.CurrentResourceNode.IsLooseCargo) return "운반";
+            if (c.ConstructionTarget != null && c.ConstructionTarget.IsArt) return "예술";
             if (c.ScienceAssignment != null) return "연구";
             if (!c.IsWorking && !c.LabUpgradeBusy && c.CraftingWorkshop == null) return "";
             return c.CurrentActivity switch

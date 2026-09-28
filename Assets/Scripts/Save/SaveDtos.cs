@@ -105,6 +105,10 @@ namespace AntColony.Save
     [Serializable]
     public class BuildingDto
     {
+        public int workforce;
+        public float repairCredit;
+        public int decorationQuality = 1;
+        public Buildings.Kitchen.State kitchen = new Buildings.Kitchen.State();
         public string key;
         public List<ResourceNodeDto> nodes = new List<ResourceNodeDto>();
         public string kind;              // BuildingKind 또는 "QueenChamber"/"DigSite"/"Storage" 같은 고정 건물 이름
@@ -154,6 +158,8 @@ namespace AntColony.Save
     [Serializable]
     public class ResourceNodeDto
     {
+        public int workforce;
+        public bool looseCargo;
         public string key;
         public bool exists = true;
         public int type;
@@ -263,7 +269,7 @@ namespace AntColony.Save
         public float upkeepTimer, incursionTimer;
         public bool loopCompleted, bossDefeated, defeated;
         public string randomState;
-        public const int CurrentVersion = 9;
+        public const int CurrentVersion = 10;
         public World.DiplomacyManager.State diplomacy;
         public Core.CampaignHistory.State history = new Core.CampaignHistory.State();
         public World.ColonyEvents.State events = new World.ColonyEvents.State();
@@ -302,6 +308,8 @@ namespace AntColony.Save
     [Serializable]
     public class MonsterDto
     {
+        public bool huntDesignated;
+        public World.WildlifeTemperament temperament = World.WildlifeTemperament.Predator;
         public string diplomaticFactionId;
         public Units.CommanderTalents talents;
         public string key;

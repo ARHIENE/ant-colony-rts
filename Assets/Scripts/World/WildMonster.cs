@@ -8,6 +8,8 @@ using UnityEngine.AI;
 
 namespace AntColony.World
 {
+    public enum WildlifeTemperament { Timid, Defensive, Predator }
+
     [RequireComponent(typeof(NavMeshAgent))]
     public class WildMonster : MonoBehaviour, IDamageable
     {
@@ -43,6 +45,11 @@ namespace AntColony.World
         }
         private ExpeditionSite raidSite;
         public bool IsFlying { get; private set; }
+        public WildlifeTemperament Temperament { get; set; } = WildlifeTemperament.Predator;
+        public bool HuntDesignated { get; set; }
+        public bool Huntable => isActiveAndEnabled && !IsDead && !isRaider && !(this is EnemyCommander) && !Allied
+            && string.IsNullOrEmpty(DiplomaticFactionId) && string.IsNullOrEmpty(RebelId) && GetComponentInParent<ExpeditionSite>() == null;
+        private bool provoked;
         // 함정에 걸리면 이동만 멈춘다(사거리 안이면 공격은 계속한다).
         public float RootRemaining { get; private set; }
         public void Root(float seconds) { RootRemaining = Mathf.Max(RootRemaining, seconds); StopMoving(); }
@@ -88,6 +95,15 @@ namespace AntColony.World
             if (!Allied && !DiplomacyManager.Hostile(this)) { currentTarget = null; StopMoving(); return; }
             RootRemaining = Mathf.Max(0f, RootRemaining - Time.deltaTime);
 
+            if (Huntable && (Temperament == WildlifeTemperament.Timid || Temperament == WildlifeTemperament.Defensive && !provoked))
+            {
+                if (Temperament == WildlifeTemperament.Timid && provoked && FindNearestAnt() is IDamageable threat && CanMove())
+                {
+                    var away = Position + (Position - threat.Position).normalized * 5;
+                    if (NavMesh.SamplePosition(away, out var hit, 5, NavMesh.AllAreas)) agent.SetDestination(hit.position);
+                }
+                return;
+            }
             targetSearchTimer -= Time.deltaTime;
             if (!CombatTargeting.IsAlive(currentTarget)) currentTarget = null;
 
@@ -144,7 +160,8 @@ namespace AntColony.World
 
         public void TakeDamage(float amount)
         {
-            if (IsDead) return;
+            if (IsDead || !(amount > 0) || float.IsInfinity(amount)) return;
+            provoked = true;
             if (!Allied && !DiplomacyManager.TryAttack(this)) return;
             currentHealth -= amount;
             GetComponent<AntVisual>()?.Action("Hit");
@@ -159,6 +176,14 @@ namespace AntColony.World
         protected virtual void Die()
         {
             GetComponent<AntVisual>()?.Death();
+            if (HuntDesignated && !isRaider && !(this is EnemyCommander))
+            {
+                HuntDesignated = false;
+                var corpse = GameObject.CreatePrimitive(PrimitiveType.Cube); corpse.name = "사냥 사체"; corpse.SetActive(false);
+                corpse.transform.position = Position; corpse.transform.localScale = Vector3.one * .6f;
+                // ponytail: 야생 종류별 산출량은 에셋 확정 후 데이터화. 현재 사체 Food 20.
+                corpse.AddComponent<ResourceNode>().ConfigureLoot(ResourceType.Food, 20); corpse.SetActive(true);
+            }
             // 침공 개체 처치는 야생 몬스터 루프 승리가 아니며, 비활성 오브젝트로 쌓이지 않게 제거한다.
             if (isRaider)
             {

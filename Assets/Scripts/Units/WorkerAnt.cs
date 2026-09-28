@@ -82,6 +82,8 @@ namespace AntColony.Units
         protected virtual float GatherRate => Data.gatherRate;
         protected virtual float CarryCapacity => Data.carryCapacity;
         protected virtual float FishingCatchMultiplier => 1f;
+        protected virtual float FishingWorkSpeed => 1f;
+        protected virtual void OnDelivered(float amount) { }
         private float fishingProgress;
         private ResourceNode fishingNode; // 진행도가 속한 낚시터. 불러온 직후(null)엔 처음 낚는 곳이 이어받는다.
         internal float FishingProgress => fishingProgress;
@@ -312,7 +314,8 @@ namespace AntColony.Units
             targetConstruction.RemainingWork = Mathf.Max(0, buildTimer);
             if (buildTimer > 0f) return;
 
-            targetConstruction.Complete();
+            targetConstruction.Complete(this as CommanderAnt);
+            if (this is CommanderAnt builder) builder.SetWorkTarget(null);
             targetConstruction = null;
             state = State.Idle;
         }
@@ -349,18 +352,19 @@ namespace AntColony.Units
                 return;
             }
 
+            if (targetNode.IsRegrowing) return;
             float extracted;
             if (targetNode.RequiresFishing)
             {
                 // 낚시: 20초마다 한 번, Food 6 × 낚시 배율. 진행도는 반납 왕복·저장을 넘어 이어지고, 다른 낚시터로 바꾸면 처음부터.
                 if (fishingNode != targetNode) { if (fishingNode != null) fishingProgress = 0f; fishingNode = targetNode; }
-                fishingProgress += Time.deltaTime;
+                fishingProgress += Time.deltaTime * FishingWorkSpeed;
                 if (fishingProgress < GameBalance.FishingCatchSeconds) return;
                 fishingProgress -= GameBalance.FishingCatchSeconds;
                 extracted = targetNode.Extract(Mathf.Min(GameBalance.FishingCatchFood * FishingCatchMultiplier, CarryCapacity - carriedAmount));
                 carriedAmount += extracted;
                 carriedType = targetNode.ResourceType;
-                if (extracted > 0f) { OnGathered(extracted); OnWorked(GameBalance.FishingCatchSeconds); }
+                if (extracted > 0f) { OnGathered(extracted); OnWorked(GameBalance.FishingCatchSeconds / FishingWorkSpeed); }
             }
             else
             {
@@ -421,14 +425,14 @@ namespace AntColony.Units
                 if (resources != null && targetDeposit != null && !targetDeposit.IsDead)
                 {
                     int amount = Mathf.Min(Mathf.FloorToInt(carriedAmount), resources.GetCapacity(carriedType) - resources.GetAmount(carriedType));
-                    if (amount > 0) { targetDeposit.DepositResources(carriedType, amount); carriedAmount -= amount; }
+                    if (amount > 0) { targetDeposit.DepositResources(carriedType, amount); carriedAmount -= amount; OnDelivered(amount); }
                 }
                 if (carriedAmount > 0 && carriedAmount < 1) DropCargo();
                 state = State.Idle; return;
             }
             if (carriedAmount > 0f && ResourceManager.Instance != null)
             {
-                targetDeposit?.DepositResources(carriedType, Mathf.RoundToInt(carriedAmount));
+                if (targetDeposit != null) { targetDeposit.DepositResources(carriedType, Mathf.RoundToInt(carriedAmount)); OnDelivered(carriedAmount); }
             }
             carriedAmount = 0f;
             state = State.Idle;

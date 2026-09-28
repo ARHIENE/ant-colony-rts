@@ -8,7 +8,7 @@ namespace AntColony.Units
     public enum InjuryPart { Antenna, Mandible, Legs, Thorax, Head, Wings }
     public enum InjurySeverity { Minor, Serious, Permanent }
     public enum MentalBreak { None, Idle, Flee, AttackBuilding, AttackCommander, SelfHarm, Binge }
-    [Serializable] public class CommanderInjury { public InjuryPart part; public InjurySeverity severity; public float remaining; public bool regenerating; }
+    [Serializable] public class CommanderInjury { public InjuryPart part; public InjurySeverity severity; public float remaining; public bool regenerating, prognosisPending; }
     [Serializable] public class MoodFactor { public string reason; public float value, remaining; }
     [Serializable] public class CommanderRelation { public string otherId; public float value, nearbySeconds, quarrelSeconds, duelSeconds; public bool spouse, family; }
     [Serializable]
@@ -29,6 +29,7 @@ namespace AntColony.Units
         public float moldLoss, moldSpread, moldTreatment;
         public string originFaction = "", departure = "";
         public CommanderSocialState social = new CommanderSocialState();
+        public CommanderSleepState sleep = new CommanderSleepState();
         public bool HasTreatableInjury => injuries.Exists(i => i.severity == InjurySeverity.Serious);
         public bool NeedsTreatment => HasTreatableInjury || infected;
         public bool HasSeriousInjury => injuries.Exists(i => i.severity != InjurySeverity.Minor);
@@ -51,20 +52,26 @@ namespace AntColony.Units
         {
             var part = (InjuryPart)UnityEngine.Random.Range(0, 6);
             var serious = !minorOnly && UnityEngine.Random.value < (traits.Has(CommanderTrait.Robust) ? .1f : traits.Has(CommanderTrait.Frail) ? .5f : .3f);
-            var severity = serious ? UnityEngine.Random.value < .1f ? InjurySeverity.Permanent : InjurySeverity.Serious : InjurySeverity.Minor;
+            var severity = serious ? InjurySeverity.Serious : InjurySeverity.Minor;
             var old = injuries.Find(i => i.part == part);
             if (old != null && old.severity > severity) return;
             if (old != null) injuries.Remove(old);
-            injuries.Add(new CommanderInjury { part = part, severity = severity, remaining = severity == InjurySeverity.Minor ? 180 : 240 });
+            injuries.Add(new CommanderInjury { part = part, severity = severity, prognosisPending = serious, remaining = severity == InjurySeverity.Minor ? 180 : 240 });
             if (severity != InjurySeverity.Minor) social.seriousInjuries++;
         }
-        public void Tick(float dt, CommanderTraits traits)
+        public void Tick(float dt, CommanderTraits traits, float treatmentRate = 1, float permanentRisk = .1f)
         {
             foreach (var f in moodFactors) f.remaining -= dt;
             moodFactors.RemoveAll(f => f.remaining <= 0);
             foreach (var injury in injuries)
                 if (injury.severity == InjurySeverity.Minor) injury.remaining -= dt * (traits.Has(CommanderTrait.Robust) ? 2 : 1) * ScienceEffects.MinorHealRate;
-                else if (injury.severity == InjurySeverity.Serious && treating) injury.remaining -= dt * (injury.regenerating ? 1f : ScienceEffects.SeriousTreatRate);
+                else if (injury.severity == InjurySeverity.Serious && treating) injury.remaining -= dt * treatmentRate * (injury.regenerating ? 1f : ScienceEffects.SeriousTreatRate);
+            foreach (var injury in injuries)
+                if (injury.severity == InjurySeverity.Serious && injury.remaining <= 0 && injury.prognosisPending && !injury.regenerating)
+                {
+                    injury.prognosisPending = false;
+                    if (UnityEngine.Random.value < permanentRisk) { injury.severity = InjurySeverity.Permanent; injury.remaining = 0; }
+                }
             injuries.RemoveAll(i => i.severity != InjurySeverity.Permanent && i.remaining <= 0);
             rewardCooldown = Mathf.Max(0, rewardCooldown - dt);
             rageRemaining = Mathf.Max(0, rageRemaining - dt);
@@ -72,7 +79,7 @@ namespace AntColony.Units
         public bool Validate(out string error)
         {
             error = "Invalid commander personal state";
-            if (work == null || !work.Valid || string.IsNullOrEmpty(id) || social == null || !social.Validate() || injuries == null || injuries.Count > 6 || moodFactors == null || moodFactors.Count > 64 || relations == null || equipment == null || equipment.Count > 3) return false;
+            if (work == null || !work.Valid || string.IsNullOrEmpty(id) || social == null || !social.Validate() || sleep == null || !sleep.Valid || injuries == null || injuries.Count > 6 || moodFactors == null || moodFactors.Count > 64 || relations == null || equipment == null || equipment.Count > 3) return false;
             var parts = new HashSet<InjuryPart>();
             foreach (var i in injuries) if (i == null || !Enum.IsDefined(typeof(InjuryPart), i.part) || !parts.Add(i.part) || !Enum.IsDefined(typeof(InjurySeverity), i.severity) || !Finite(i.remaining) || i.remaining < 0) return false;
             foreach (var f in moodFactors) if (f == null || f.reason == null || !Finite(f.value) || !Finite(f.remaining) || f.remaining < 0) return false;

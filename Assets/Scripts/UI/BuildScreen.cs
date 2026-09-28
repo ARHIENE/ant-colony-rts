@@ -19,7 +19,7 @@ namespace AntColony.UI
             public Entry(string name, BuildingKind kind, UnitRole role = UnitRole.Worker) { this.name = name; this.kind = kind; this.role = role; }
         }
 
-        private static readonly string[] TabNames = { "생산", "자원", "연구", "방어", "특수" };
+        private static readonly string[] TabNames = { "생산", "자원", "연구", "방어", "특수", "생활", "장식" };
         private static readonly Key[] SlotKeys = { Key.Q, Key.W, Key.E, Key.R, Key.T, Key.A, Key.S, Key.D, Key.F, Key.G };
         private static readonly Entry[][] Tabs =
         {
@@ -35,7 +35,10 @@ namespace AntColony.UI
                 new Entry("흙벽", BuildingKind.SoilWall), new Entry("함정", BuildingKind.TrapPit), new Entry("지뢰밭", BuildingKind.MineField) },
             new[] { new Entry("정찰 초소", BuildingKind.ScoutPost), new Entry("포로 수용소", BuildingKind.PrisonerCamp), new Entry("의무실", BuildingKind.Infirmary),
                 new Entry("휴게실", BuildingKind.RestRoom), new Entry("공방", BuildingKind.Workshop), new Entry("비행선 조선소", BuildingKind.AirshipYard),
-                new Entry("징집소", BuildingKind.ConscriptionPost) }
+                new Entry("징집소", BuildingKind.ConscriptionPost) },
+            new[] { new Entry("숙소", BuildingKind.Dormitory), new Entry("식당", BuildingKind.Kitchen) },
+            new[] { new Entry("꽃 화분", BuildingKind.FlowerPot), new Entry("조개껍데기", BuildingKind.ShellDecoration), new Entry("구슬 모자이크", BuildingKind.MarbleMosaic),
+                new Entry("병뚜껑 모빌", BuildingKind.BottleMobile), new Entry("반딧불 램프", BuildingKind.FireflyLamp) }
         };
 
         private static BuildScreen instance;
@@ -74,7 +77,7 @@ namespace AntColony.UI
             for (var t = 0; t < Tabs.Length; t++)
             {
                 var captured = t;
-                tabButtons.Add(Cell(buildPanel, "Tab " + TabNames[t], new Vector2(t * 68, 0), new Vector2(64, 26), (t + 1).ToString(), TabNames[t], () => tab = captured));
+                tabButtons.Add(Cell(buildPanel, "Tab " + TabNames[t], new Vector2(t * 48, 0), new Vector2(46, 26), (t + 1).ToString(), TabNames[t], () => tab = captured));
                 tabButtons[t].gameObject.AddComponent<MenuTooltip>().Message = $"{TabNames[t]} 건물 보기 ({t + 1})";
                 var page = MenuTheme.Rect("Page " + TabNames[t], buildPanel);
                 MenuTheme.Stretch(page); page.offsetMax = new Vector2(0, -32);

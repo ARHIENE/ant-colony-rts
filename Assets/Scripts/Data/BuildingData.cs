@@ -27,7 +27,9 @@ namespace AntColony.Data
         DefenseLab,
         RestRoom,
         Workshop,
-        ConscriptionPost
+        ConscriptionPost,
+        // 2026-09-28 생활 시설
+        Dormitory, Kitchen, FlowerPot, ShellDecoration, MarbleMosaic, BottleMobile, FireflyLamp
     }
 
     [CreateAssetMenu(fileName = "BuildingData", menuName = "AntColony/Building Data")]

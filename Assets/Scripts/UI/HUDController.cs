@@ -38,6 +38,7 @@ namespace AntColony.UI
             if (boss == null) boss = FindFirstObjectByType<BossHealth>();
 
             BuildCanvas();
+            gameObject.AddComponent<AntColony.Map.DayNightLighting>();
             if (AntPool.Instance != null) AntPool.Instance.OnPoolChanged += UpdateResourceText;
 
             if (ResourceManager.Instance != null)
@@ -97,6 +98,7 @@ namespace AntColony.UI
             scaler.matchWidthOrHeight = 0f;
             canvasGO.AddComponent<GraphicRaycaster>();
             canvasGO.AddComponent<CommanderAcquisitionPanel>();
+            canvasGO.AddComponent<WorkTargetPanel>();
             canvasGO.AddComponent<WorldMapPanel>();
 
             if (FindFirstObjectByType<EventSystem>() == null)
@@ -109,7 +111,7 @@ namespace AntColony.UI
             // 상단 40px 바: 왼쪽 메뉴(GameMenuController), 가운데 날짜·속도, 오른쪽 자원.
             var top = MenuTheme.Panel(canvasGO.transform, "ResourceBar", new Vector2(0, 1), new Vector2(0, 40), Vector2.zero);
             top.anchorMax = new Vector2(1, 1);
-            float[] widths = { 128, 118, 110, 236 };
+            float[] widths = { 118, 108, 92, 70 };
             var right = -8f;
             for (var i = resourceTexts.Length - 1; i >= 0; i--)
             {
@@ -120,7 +122,13 @@ namespace AntColony.UI
             bossHealthText = CreateText(canvasGO.transform, new Vector2(.5f, 1f), new Vector2(260f, 22f), new Vector2(0f, -46f));
             bossHealthText.alignment = TextAnchor.UpperCenter;
 
+            resourceTexts[3].gameObject.AddComponent<MenuTooltip>();
+            resourceTexts[3].raycastTarget = true;
+            HudClock.Create(canvasGO.transform);
+            RosterBar.Create(canvasGO.transform);
+
             HudConsole.Build(canvasGO.transform);
+            DetailTabs.Create(canvasGO.transform);
             canvasGO.AddComponent<SelectedUnitPanel>();
             HudConsole.Right.gameObject.AddComponent<CommandCard>().Build(this);
             canvasGO.AddComponent<BuildScreen>();
@@ -214,7 +222,10 @@ namespace AntColony.UI
             resourceTexts[1].text = Stock("흙", ResourceType.Soil);
             resourceTexts[2].text = Stock("특수", ResourceType.Special);
             var pool = AntPool.Instance;
-            if (pool != null) resourceTexts[3].text = $"<color=#968976>대기</color> <b>{pool.Free}</b>  <color=#968976>배정</color> <b>{pool.Assigned}</b>  <color=#968976>예약</color> <b>{pool.Reserved}</b>  <color=#968976>총</color> <b>{pool.Total}</b>";
+            if (pool == null) return;
+            // 인구수 칸 = 현재 일반개미 수(한도 없음). 내역은 도움말로.
+            resourceTexts[3].text = $"<color=#968976>개미</color> <b>{pool.Total}</b>";
+            resourceTexts[3].GetComponent<MenuTooltip>().Message = $"일반개미 {pool.Total} · 대기 {pool.Free} · 배정 {pool.Assigned} · 예약 {pool.Reserved}";
         }
 
         private void ShowVictoryMessage()

@@ -22,6 +22,9 @@ namespace AntColony.Buildings
                 BuildingKind.DefenseLab => ("Defense Lab", new Vector3(3, 2, 3), new Color(.4f, .5f, .6f), 60, 80, 0, 6, 12f, 300f, false),
                 BuildingKind.RestRoom => ("Rest Room", new Vector3(3, 1.5f, 3), new Color(.8f, .7f, .55f), 40, 60, 0, 4, 8f, 300f, false),
                 BuildingKind.Workshop => ("공방", new Vector3(3, 2, 3), new Color(.7f, .5f, .3f), GameBalance.WorkshopFood, GameBalance.WorkshopSoil, GameBalance.WorkshopSpecial, GameBalance.WorkshopAnts, GameBalance.WorkshopBuildSeconds, 300f, false),
+                BuildingKind.Dormitory => ("숙소", new Vector3(3, 1.4f, 2.5f), new Color(.75f, .6f, .45f), GameBalance.DormitoryFood, GameBalance.DormitorySoil, 0, GameBalance.DormitoryAnts, GameBalance.DormitoryBuildSeconds, 250f, false),
+                BuildingKind.Kitchen => ("식당", new Vector3(3, 1.5f, 3), new Color(.8f, .6f, .3f), 20, 40, 0, 0, 8f, 250f, false),
+                BuildingKind.FlowerPot or BuildingKind.ShellDecoration or BuildingKind.MarbleMosaic or BuildingKind.BottleMobile or BuildingKind.FireflyLamp => (kind.ToString(), new Vector3(1, 1, 1), new Color(.7f, .75f, .4f), 0, 15, 0, 0, 6f, 100f, false),
                 _ => (null, Vector3.one, Color.white, 0, 0, 0, 0, 0f, 0f, false)
             };
             if (name == null) return null;
@@ -44,6 +47,9 @@ namespace AntColony.Buildings
                 BuildingKind.MineField => go.AddComponent<MineField>(),
                 BuildingKind.DefenseLab => go.AddComponent<DefenseLab>(),
                 BuildingKind.Workshop => go.AddComponent<Workshop>(),
+                BuildingKind.Dormitory => go.AddComponent<Dormitory>(),
+                BuildingKind.Kitchen => go.AddComponent<Kitchen>(),
+                BuildingKind.FlowerPot or BuildingKind.ShellDecoration or BuildingKind.MarbleMosaic or BuildingKind.BottleMobile or BuildingKind.FireflyLamp => go.AddComponent<Decoration>(),
                 _ => go.AddComponent<RestRoom>()
             };
             building.ConfigureRuntime(data);
