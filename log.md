@@ -1,6 +1,6 @@
 # 프로젝트 로그
 
-## 현재 상태 — 2026-09-30 SAVE 진행 중
+## 현재 상태 — 2026-09-30 SAVE 완료
 - 프로젝트: 개미 소굴 RTS, E:\Git\ant. Unity 6000.5.8f1 / URP 17.5.0 / Pipeline 0.7.0-exp.1. 개발 develop, 안정 master.
 - 주요 경로: Assets/Scripts/{Core,Save,UI,Map,Units,Buildings,World,Boss}, AgentScripts(회귀 검사), Assets/Scenes/AntColony.unity.
 - SAVE 범위: Claude Code의 생활 4~7단계(식사·오락·야간 위협·바이옴)와 관련 검사 수정, Codex의 Stage4Checks 수정. 기존 미커밋 작업을 보존한다.
@@ -12,7 +12,7 @@
 ## SAVE 진행 결과
 - 이전 log 요약 changelog 이관·양쪽 코드 범위 검토·README 최신화 완료. Meal 347/Joy 45/NightThreat 16/Biome 22/SaveRoundtrip 42 재검증 및 기존 Stage4 130: 직접 확인 총 602개 통과.
 - 실제 식사/오락 상세·바이옴 HUD·야간 경고 캡처 2종 직접 확인 및 Notion 첨부 완료. 일지: https://app.notion.com/p/3eac4a0ecd31814e9835d4ef35fd577b . 원본 .unity/save-2026-09-30/{life-detail,night-detail}.png. 공식 CLI run_script/ScreenCapture 사용. Play 종료 완료.
-- 검증한 코드·검사·SAVE 캡처 도구·문서를 develop에 커밋/push 진행. master 변경 안 함. 카카오톡 도구 미연결로 미전송.
+- 통합 커밋 b78f21b(55개 파일)를 origin/develop에 push하고 원격 SHA 일치를 확인했다. 코드·검사·SAVE 캡처 도구·문서 포함. master 변경 없음. 카카오톡 도구 미연결로 미전송.
 - 사용자 컴퓨터 종료 요청: 2026-09-30 00:45 KST부터 1시간 유효. SAVE 후 종료, 새로운 작업 요청 시 취소.
 
 ## 다음 세션·주의
