@@ -20,19 +20,8 @@ namespace AntColony.Core
             RunCycle();
         }
 
-        // 일반개미(원정·주둔 병력 포함, 풀에 남아 있음) + 장수 본인. 포로·사망 장수는 청구하지 않는다.
-        public int FoodDue
-        {
-            get
-            {
-                var pool = AntPool.Instance;
-                var commanders = 0f;
-                if (CommanderRoster.Instance != null)
-                    foreach (var c in CommanderRoster.Instance.Commanders)
-                        if (c.IsColonyMember && !c.IsCaptive) commanders += GameBalance.CommanderUpkeepFood * c.Traits.FoodMultiplier;
-                return (pool != null ? pool.Total * foodPerAnt : 0) + Mathf.CeilToInt(commanders);
-            }
-        }
+        // 일반개미(원정·주둔 병력 포함, 풀에 남아 있음). 장수는 자동 유지비 대신 식사로 Food를 쓴다(2026-09-28).
+        public int FoodDue => AntPool.Instance != null ? AntPool.Instance.Total * foodPerAnt : 0;
 
         internal void RunCycle()
         {
@@ -41,8 +30,6 @@ namespace AntColony.Core
             if (ResourceManager.Instance.TrySpend(FoodDue, 0, reason: ResourceReason.Upkeep))
             {
                 ConsecutiveFailures = 0;
-                foreach (var c in AntUnitBase.Active)
-                    if (c is CommanderAnt commander && commander.IsColonyMember) commander.PersonalState.AddMood("Fed", commander.Traits.Has(CommanderTrait.Glutton) ? 10 : 5, cycleInterval + 1);
                 return;
             }
             ConsecutiveFailures++;

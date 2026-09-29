@@ -12,6 +12,10 @@ namespace AntColony.World
         public const float InfectionChance = .25f, WandererSeconds = 60, DriftSeconds = 300, RecruitBonus = .2f, ApproachRadius = 3;
         public const int DriftFood = 80, DriftSoil = 40, Migrants = 10, Wasps = 3;
         public const float WaspHealth = 15, WaspDamage = 1, WaspInterval = 2, WaspSpeed = 2.5f;
+        // 밤 위협(2026-09-28): 침입 1.5배(확정) + 밤마다 야행성 포식자(수치 잠정). 새벽이 되면 물러간다.
+        public const float NightThreatScale = 1.5f;
+        public const int NightPredators = 2;
+        public const float NightPredatorHealth = 60, NightPredatorDamage = 4, NightPredatorSpeed = 3;
         public static readonly string[] Names = { "한파", "홍수", "가뭄", "산불", "곰팡이 감염", "기생 말벌", "장수 후보 방랑", "표류물", "풍작", "이주 개미떼", "교역 캐러밴" };
         // 잠정 난이도 확률: 150초마다 온화 50% / 보통 60% / 가혹 100%.
         public static float Chance(DifficultyLevel d) => d == DifficultyLevel.Gentle ? .5f : d == DifficultyLevel.Harsh ? 1f : .6f;

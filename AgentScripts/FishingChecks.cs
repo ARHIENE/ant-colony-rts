@@ -81,7 +81,10 @@ namespace AntColony.Regression
                 food = rm.GetAmount(ResourceType.Food);
                 worker.CommandGather(spot);
                 // 낚시는 20초마다 한 번 잡고(Food 6 × 낚시 배율) 창고에 반납한다.
-                await Until(() => spot.AmountRemaining < fishAmount && rm.GetAmount(ResourceType.Food) > food, 120000);
+                // 한 짐 운반량이 커져(2026-09-28 근력 규칙) 다 찰 때까지 기다리지 않고 첫 어획 뒤 바로 반납시킨다.
+                await Until(() => spot.AmountRemaining < fishAmount, 120000);
+                typeof(WorkerAnt).GetMethod("ReturnCargoToStorage", BindingFlags.Instance | BindingFlags.NonPublic).Invoke(worker, null);
+                await Until(() => rm.GetAmount(ResourceType.Food) > food, 60000);
                 Assert(spot.AmountRemaining < fishAmount, "real shoreline harvest and deposit");
                 spot.Extract(1000);
                 Assert(spot.FishedOut && !spot.CanGather && !spot.IsRegrowing, "monthly fishing cap reached");

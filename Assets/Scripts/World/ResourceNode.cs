@@ -65,8 +65,10 @@ namespace AntColony.World
         public void RefreshFishingMonth()
         {
             if (FishMonth == GameCalendar.TotalMonths) return;
-            FishMonth = GameCalendar.TotalMonths; amountRemaining = GameBalance.FishingMonthlyFood; regrowTimer = 0;
+            FishMonth = GameCalendar.TotalMonths; amountRemaining = GameBalance.FishingMonthlyFood * BiomeRules.FishingYield; regrowTimer = 0;
         }
+        // 바이옴 자원 비율(맵 생성 때 한 번).
+        internal void ScaleAmount(float multiplier) => amountRemaining *= Mathf.Max(0, multiplier);
         private bool IsFarm => GetComponent<AntColony.Buildings.BuildingBase>() != null;
         public void TickGrowth(float seconds)
         {
@@ -79,7 +81,7 @@ namespace AntColony.World
                     if (unit is AntColony.Units.CommanderAnt c && c.CivilianWorkReady && c.CurrentResourceNode == this && c.IsGatheringAnimation)
                     { labor += c.WorkRate(AntColony.Units.CommanderActivity.Farming); c.GainExperience(AntColony.Units.CommanderActivity.Farming, Mathf.Min(seconds, regrowTimer / Mathf.Max(.01f, labor))); }
             }
-            regrowTimer = Mathf.Max(0, regrowTimer - seconds * labor * ColonyEvents.GrowthMultiplier(this));
+            regrowTimer = Mathf.Max(0, regrowTimer - seconds * labor * ColonyEvents.GrowthMultiplier(this) * (IsFarm ? BiomeRules.FarmGrowth : 1f));
             // 밭(건물 노드)만 균류 재배 수확량 보정과 가을 수확 배율을 받는다.
             if (regrowTimer <= 0f) amountRemaining = regrowAmount * (IsFarm ? ScienceEffects.FarmYieldMultiplier
                 * (GameCalendar.CurrentSeason == Season.Autumn ? GameBalance.AutumnHarvestMultiplier : 1f) : 1f) * (BountifulHarvest ? 1.5f : 1f);

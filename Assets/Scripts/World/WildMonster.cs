@@ -43,6 +43,12 @@ namespace AntColony.World
             maxHealth = EventRules.WaspHealth; attackDamage = EventRules.WaspDamage;
             attackInterval = EventRules.WaspInterval; moveSpeed = EventRules.WaspSpeed;
         }
+        internal void ConfigureNightPredator()
+        {
+            isRaider = true;
+            maxHealth = EventRules.NightPredatorHealth; attackDamage = EventRules.NightPredatorDamage;
+            attackInterval = EventRules.WaspInterval; moveSpeed = EventRules.NightPredatorSpeed;
+        }
         private ExpeditionSite raidSite;
         public bool IsFlying { get; private set; }
         public WildlifeTemperament Temperament { get; set; } = WildlifeTemperament.Predator;

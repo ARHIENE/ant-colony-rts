@@ -45,7 +45,7 @@ namespace AntColony.Save
             {
                 Rollback = GameSession.Instance.GameStarted ? SaveSnapshot.Capture() : null;
                 if (Rollback != null) SaveStorage.WriteAtomic(System.IO.Path.Combine(SaveStorage.Root, "load-recovery.json"), JsonUtility.ToJson(Rollback));
-                Reload(file, new NewGameOptions { mapSize = (MapSize)file.options.mapSize, difficulty = (DifficultyLevel)file.options.difficulty, commanderDeath = (CommanderDeathMode)file.options.commanderDeath, seed = file.options.seed });
+                Reload(file, new NewGameOptions { mapSize = (MapSize)file.options.mapSize, difficulty = (DifficultyLevel)file.options.difficulty, commanderDeath = (CommanderDeathMode)file.options.commanderDeath, seed = file.options.seed, biome = (MapBiome)file.options.biome });
                 return true;
             }
             catch (Exception e) { error = e.Message; return false; }

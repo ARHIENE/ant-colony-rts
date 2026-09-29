@@ -9,7 +9,7 @@ namespace AntColony.UI
     {
         private static readonly string[] SeasonNames = { "봄", "여름", "가을", "겨울" };
         public static string CalendarLabel => $"{GameCalendar.Year}년 {SeasonNames[(int)GameCalendar.CurrentSeason]} {GameCalendar.Month}월";
-        public static string DayLabel => $"{GameCalendar.Year}년 {SeasonNames[(int)GameCalendar.CurrentSeason]} · {(GameCalendar.IsNight ? "밤" : "낮")}";
+        public static string DayLabel => $"{GameCalendar.Year}년 {SeasonNames[(int)GameCalendar.CurrentSeason]} · {(GameCalendar.IsNight ? "밤" : "낮")}{(BiomeRules.Current != MapBiome.None ? " · " + BiomeRules.Name(BiomeRules.Current) : "")}";
 
         private RectTransform root, marker;
         private Text day, left;

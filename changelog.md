@@ -627,3 +627,9 @@
 - FullUIChecks 50, RegressionChecks 45, WorldMapChecks 635개를 통과했고 Unity 컴파일 오류가 없었다.
 - 진행 중 이동·작업·운반·건설·전투·침공·거점 방어·자동 수송 현지 채집은 저장을 거부하고 이유를 표시하도록 했다.
 - 당시 전체 저장 상황과 UI 화면 품질 검증이 남았고, SAVE 절차는 로그 기록 단계에서 중단됐다.
+
+## 2026-09-30 SAVE — 이전 로그(2026-09-29) 이관
+- Unity 6000.5.8f1 / URP 17.5.0 / Pipeline 0.7.0-exp.1. develop 개발, master 안정. 저장 v10에 13종 기술·12종 작업·인력·요리·수리·수면 상태를 보존.
+- HUD v2 31개, DayNight 37개, Workforce 79개: 총 147개 통과. 접근 불가 숙소 노숙 처리와 검사 기대값 수정.
+- a2a2c52를 origin/develop push. 야간 HUD·작업표 캡처 2종을 https://app.notion.com/p/3e9c4a0ecd3181398d50def0b6b207fd 에 첨부.
+- 당시 Graphify 4940 nodes/9871 edges. 카카오톡 도구 미연결, Git hook grep 경고. 기존 Invasion/Raid/SceneInvasion/Airborne 미실행·실패와 탑승 중 자동 귀환/병력 0 감염·복수 검토 잔여.

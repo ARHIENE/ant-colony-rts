@@ -13,6 +13,7 @@ namespace AntColony.Buildings
         public static float MoodAt(CommanderAnt c) => Mathf.Min(10, FindObjectsByType<Decoration>(FindObjectsSortMode.None)
             .Where(d => !d.IsDead && (d.Position - c.Position).sqrMagnitude <= 64)
             .GroupBy(d => d.Data.kind).Sum(g => g.Max(d => d.MoodBonus)));
+        public static int CountNear(Vector3 p) => FindObjectsByType<Decoration>(FindObjectsSortMode.None).Count(d => !d.IsDead && (d.Position - p).sqrMagnitude <= 64);
         public float MoodBonus => (Data.kind switch { BuildingKind.FlowerPot => 3 + (GameCalendar.CurrentSeason == Season.Spring ? 1 : 0),
             BuildingKind.ShellDecoration => 2, BuildingKind.MarbleMosaic => 4, BuildingKind.BottleMobile => 3, _ => 1 }) * (.5f + .5f * Quality);
         protected override void OnEnable()

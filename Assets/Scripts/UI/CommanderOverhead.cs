@@ -20,6 +20,9 @@ namespace AntColony.UI
             if (c.PersonalState.treating) return "치료";
             if (c.IsAsleep) return "수면";
             if (c.WorkState.resting) return "휴식";
+            if (c.IsFoodPoisoned) return "식중독";
+            if (c.IsEating) return "식사";
+            if (c.IsPlaying) return "오락";
             if (c.PersonalState.mentalBreak != MentalBreak.None) return "붕괴";
             if (c.ServiceTarget != null) return c.ServiceJob == CommanderJobs.Nursing ? "간호" : c.ServiceJob == CommanderJobs.Repair ? "수리" : "요리";
             if (c.HuntTarget != null) return "사냥";

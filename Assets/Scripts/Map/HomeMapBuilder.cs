@@ -113,12 +113,25 @@ namespace AntColony.Map
             }
 
             WorldBounds = ResizeAround(home, extent);
+            ported.SetTint(BiomeRules.GroundTint(options.biome));
+            ApplyBiomeNodes(options.biome);
             Physics.SyncTransforms();
             RebuildNavMesh();
             PlaceHomeThreats(home);
             ApplyCameraBounds();
             Rebuilt = true;
             Status = $"{options.mapSize} ({extent} units) seed {options.seed}; NavMesh rebuilt.";
+        }
+
+        // 바이옴 자원 비율: 본거지 맵의 자연 자원 노드 양에 배율을 곱한다(밭·낚시터·전리품·원정지 제외).
+        // 불러오기는 이 뒤에 저장된 양으로 덮어쓰므로 두 번 곱해지지 않는다.
+        private void ApplyBiomeNodes(MapBiome biome)
+        {
+            if (biome == MapBiome.None) return;
+            foreach (var node in FindObjectsByType<AntColony.World.ResourceNode>(FindObjectsSortMode.None))
+                if (WorldBounds.Contains(new Vector3(node.transform.position.x, 0, node.transform.position.z)) && node.RegrowSeconds == 0 && !node.RequiresFishing
+                    && !node.IsRaidLoot && !node.IsLooseCargo && node.GetComponentInParent<AntColony.World.ExpeditionSite>() == null)
+                    node.ScaleAmount(BiomeRules.NodeMultiplier(node.ResourceType));
         }
 
         private static Bounds ResizeAround(Vector3 home, float extent)

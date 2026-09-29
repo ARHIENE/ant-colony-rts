@@ -84,7 +84,7 @@ namespace AntColony.Units
                 if (WorkState.recoverySeconds == 0) WorkState.health = GameBalance.CommanderHealth;
                 return;
             }
-            if (TickSleep(seconds)) return;
+            if (TickSleep(seconds) || TickMeal(seconds) || TickJoy(seconds)) return;
             if (IsAwayFromHome || !CanReceiveOrders) return;
             if (IsReturning)
             {

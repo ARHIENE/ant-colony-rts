@@ -130,7 +130,8 @@ namespace AntColony.UI
                 new[] { "맵 크기", new[] { "소", "중", "대" }[(int)options.mapSize] + $"  <color=#b8ac9a><size=12>{extent:0}m</size></color>" },
                 new[] { "침공 난이도", new[] { "온화", "보통", "가혹" }[(int)options.difficulty] + $"  <color=#b8ac9a><size=12>간격 ×{DifficultyProfile.IntervalScale(options.difficulty):0.##} · 규모 ×{DifficultyProfile.StrengthScale(options.difficulty):0.##}</size></color>" },
                 new[] { "장수 사망", new[] { "관대", "보통", "가혹" }[(int)options.commanderDeath] },
-                new[] { "맵 시드", options.seed.ToString() }
+                new[] { "맵 시드", options.seed.ToString() },
+                new[] { "장소(바이옴)", "시작할 때 무작위  <color=#b8ac9a><size=12>숲·정원·물가·도시</size></color>" }
             };
             for (var i = 0; i < rows.Length; i++)
             {
@@ -143,7 +144,7 @@ namespace AntColony.UI
             L.Line(p, 0, 600, 1120);
             L.Button(p, "Back", "뒤로   Esc", 20, 613, 110, 38, Main);
             L.Button(p, "Start Game", "게임 시작   Enter", 900, 613, 200, 38,
-                () => { if (!ReadSeed()) return; try { SaveSystem.NewGame(options); } catch (Exception e) { ToastManager.Show(e.Message); } }, null, true);
+                () => { if (!ReadSeed()) return; options.biome = BiomeRules.Random(); try { SaveSystem.NewGame(options); } catch (Exception e) { ToastManager.Show(e.Message); } }, null, true);
         }
 
         public void Pause()

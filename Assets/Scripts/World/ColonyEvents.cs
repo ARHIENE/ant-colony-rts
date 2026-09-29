@@ -20,6 +20,7 @@ namespace AntColony.World
             public float checkRemaining = EventRules.CheckSeconds, sinceLast = EventRules.MinimumGap;
             public float cold, flood, drought;
             public float[] cooldowns = new float[11];
+            public int lastNight = -1; // 야행성 포식자가 나온 마지막 날
             public List<EventActor.State> actors = new List<EventActor.State>();
         }
         public static ColonyEvents Instance { get; private set; }
@@ -59,6 +60,7 @@ namespace AntColony.World
                 state.sinceLast = Mathf.Min(EventRules.Cooldown, state.sinceLast + dt);
                 for (int i = 0; i < state.cooldowns.Length; i++) state.cooldowns[i] = Mathf.Max(0, state.cooldowns[i] - dt);
                 foreach (var actor in FindObjectsByType<EventActor>(FindObjectsSortMode.None)) actor.Tick(dt);
+                if (GameCalendar.IsNight && state.lastNight != GameCalendar.Day) SpawnNightPredators();
                 state.checkRemaining -= dt;
                 if (state.checkRemaining > 0) continue;
                 state.checkRemaining += EventRules.CheckSeconds;
@@ -121,6 +123,16 @@ namespace AntColony.World
             CampaignHistory.Record("이벤트", EventRules.Names[(int)e], result, true);
             return true;
         }
+        // 밤마다 맵 가장자리에서 야행성 포식자가 나온다. 새벽이 되면 남은 개체는 물러간다(EventActor).
+        public bool SpawnNightPredators()
+        {
+            state.lastNight = GameCalendar.Day;
+            if (!TryEdge(out var point)) return false;
+            for (int i = 0; i < EventRules.NightPredators; i++) EventActor.Spawn(new EventActor.State { kind = EventActorKind.NightPredator,
+                position = new Vec3Dto(point + Vector3.right * i * 1.5f), amount = EventRules.NightPredatorHealth });
+            CampaignHistory.Record("이벤트", "야행성 포식자", $"밤의 포식자 {EventRules.NightPredators}마리 출현 ({point.x:0}, {point.z:0})", true);
+            return true;
+        }
         public static IEnumerable<CommanderAnt> HomeCommanders() => CommanderRoster.Instance == null ? Enumerable.Empty<CommanderAnt>()
             : CommanderRoster.Instance.Commanders.Where(c => c.isActiveAndEnabled && !c.IsDead && !c.IsAwayFromHome && !c.IsEmbarked);
         public static void Infect(CommanderAnt c)
@@ -149,10 +161,10 @@ namespace AntColony.World
             while (queue.Count > 0)
             {
                 var farm = queue.Dequeue(); if (!burned.Add(farm)) continue;
-                farm.BurnCrop(ScienceEffects.WildfireDamageMultiplier);
+                farm.BurnCrop(ScienceEffects.WildfireDamageMultiplier * BiomeRules.WildfireDamage);
                 foreach (var node in nodes.Where(n => n != farm && n.GetComponent<BuildingBase>() == null && n.ResourceType == ResourceType.Food
                     && Vector3.Distance(n.transform.position, farm.transform.position) <= EventRules.FireRadius))
-                    if (burned.Add(node)) node.TryConsumeStock(node.AmountRemaining * .5f * ScienceEffects.WildfireDamageMultiplier);
+                    if (burned.Add(node)) node.TryConsumeStock(node.AmountRemaining * Mathf.Min(1, .5f * ScienceEffects.WildfireDamageMultiplier * BiomeRules.WildfireDamage));
                 if (ScienceEffects.FirebreaksBlockSpread) continue;
                 foreach (var next in farms.Where(n => !burned.Contains(n) && Vector3.Distance(n.transform.position, farm.transform.position) <= EventRules.FireRadius))
                 {
@@ -195,13 +207,16 @@ namespace AntColony.World
             bool N(float v, float max) => !float.IsNaN(v) && !float.IsInfinity(v) && v >= 0 && v <= max;
             return s != null && N(s.checkRemaining, EventRules.CheckSeconds) && s.checkRemaining > 0 && N(s.sinceLast, EventRules.Cooldown)
                 && N(s.cold, EventRules.ColdSeconds) && N(s.flood, EventRules.FloodSeconds) && N(s.drought, EventRules.DroughtSeconds)
-                && s.cooldowns != null && s.cooldowns.Length == 11 && s.cooldowns.All(v => N(v, EventRules.Cooldown))
-                && s.actors != null && s.actors.Count <= 6 && s.actors.All(a => a != null && Enum.IsDefined(typeof(EventActorKind), a.kind)
+                && s.cooldowns != null && s.cooldowns.Length == 11 && s.cooldowns.All(v => N(v, EventRules.Cooldown)) && s.lastNight >= -1
+                && s.actors != null && s.actors.Count <= 6 + EventRules.NightPredators && s.actors.All(a => a != null && Enum.IsDefined(typeof(EventActorKind), a.kind)
                     && a.position != null && a.position.IsFinite() && Mathf.Abs(a.position.x) < 100000 && Mathf.Abs(a.position.y) < 100000 && Mathf.Abs(a.position.z) < 100000
                     && N(a.attackCooldown, EventRules.WaspInterval) && N(a.remaining, a.kind == EventActorKind.Wanderer ? EventRules.WandererSeconds : EventRules.DriftSeconds)
-                    && N(a.amount, a.kind == EventActorKind.Wasp ? EventRules.WaspHealth : a.kind == EventActorKind.Food ? EventRules.DriftFood : EventRules.DriftSoil))
+                    && N(a.amount, a.kind == EventActorKind.Wasp ? EventRules.WaspHealth : a.kind == EventActorKind.NightPredator ? EventRules.NightPredatorHealth
+                        : a.kind == EventActorKind.Food ? EventRules.DriftFood : EventRules.DriftSoil))
                 && s.actors.Count(a => a.kind == EventActorKind.Wasp) <= EventRules.Wasps
-                && s.actors.Where(a => a.kind != EventActorKind.Wasp).Select(a => a.kind).Distinct().Count() == s.actors.Count(a => a.kind != EventActorKind.Wasp);
+                && s.actors.Count(a => a.kind == EventActorKind.NightPredator) <= EventRules.NightPredators
+                && s.actors.Where(a => a.kind != EventActorKind.Wasp && a.kind != EventActorKind.NightPredator).Select(a => a.kind).Distinct().Count()
+                    == s.actors.Count(a => a.kind != EventActorKind.Wasp && a.kind != EventActorKind.NightPredator);
         }
     }
 }

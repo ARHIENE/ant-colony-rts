@@ -14,7 +14,9 @@ namespace AntColony.Units
         Wanderer, Homebody, Robust, Frail, Greedy,
         Nocturnal, // 야행성(2026-09-28): 낮에 자고 밤에 일한다. 다른 특성처럼 랜덤.
         Muscular, Mighty, ThinLegs, // 왕근육 ×1.5 / 괴력 ×2 / 가는 다리 ×0.7: 한 짐 운반량의 장수 본인 부분
-        CannotBuild, CannotGather, CannotResearch, CannotNurse, CannotCook, Uncultured, Pacifist, Chef
+        CannotBuild, CannotGather, CannotResearch, CannotNurse, CannotCook, Uncultured, Pacifist, Chef,
+        // 식사 특성(ONI): 미식가·무딘 미각·주방 테러범·강철 위장·느긋한 식사
+        Gourmet, DullTaste, KitchenMenace, IronStomach, SlowEater
     }
     // 기술 13종(2026-09-28): 기존 9종 뒤에 의료·요리·근력·예술. 저장 번호가 밀리지 않게 끝에 붙인다.
     public enum CommanderActivity { Gathering, Building, Farming, Fishing, Crafting, Research, Melee, Ranged, Command, Medicine, Cooking, Strength, Art }
@@ -42,6 +44,10 @@ namespace AntColony.Units
             CommanderJobs.Gathering => Has(CommanderTrait.CannotGather), CommanderJobs.Research => Has(CommanderTrait.CannotResearch),
             CommanderJobs.Nursing => Has(CommanderTrait.CannotNurse), CommanderJobs.Cooking => Has(CommanderTrait.CannotCook),
             CommanderJobs.Art => Has(CommanderTrait.Uncultured), CommanderJobs.Hunting => Has(CommanderTrait.Pacifist), _ => false };
+        // 미식가 요리 +3 / 주방 테러범 -3: 식사 품질·식중독 판정에만 쓴다.
+        public int CookingBonus => Has(CommanderTrait.Gourmet) ? 3 : Has(CommanderTrait.KitchenMenace) ? -3 : 0;
+        // 느끼는 식사 등급: 미식가 한 칸 낮게, 무딘 미각·주방 테러범 한 칸 높게.
+        public int TasteShift => Has(CommanderTrait.Gourmet) ? -1 : Has(CommanderTrait.DullTaste) || Has(CommanderTrait.KitchenMenace) ? 1 : 0;
         public float FoodMultiplier =>Has(CommanderTrait.LightEater) ? .7f : Has(CommanderTrait.Glutton) ? 1.5f : 1f;
         public float NegativeMoodMultiplier => Has(CommanderTrait.Sensitive) ? 1.5f : Has(CommanderTrait.Easygoing) ? .5f : 1f;
         public int BaseMood => Has(CommanderTrait.Depressive) ? -10 : Has(CommanderTrait.Pessimist) ? -5 : Has(CommanderTrait.Optimist) ? 5 : Has(CommanderTrait.Cheerful) ? 10 : 0;
@@ -67,7 +73,9 @@ namespace AntColony.Units
         }
         private static bool Conflicts(CommanderTrait a, CommanderTrait b)
         {
-            return Pair(a,b,CommanderTrait.Chef,CommanderTrait.CannotCook) || Pair(a,b,CommanderTrait.Pacifist,CommanderTrait.Bloodthirsty) || Pair(a,b,CommanderTrait.Pacifist,CommanderTrait.Reckless)
+            return Pair(a,b,CommanderTrait.Chef,CommanderTrait.CannotCook) || Pair(a,b,CommanderTrait.Gourmet,CommanderTrait.DullTaste)
+                || Pair(a,b,CommanderTrait.Gourmet,CommanderTrait.CannotCook) || Pair(a,b,CommanderTrait.Gourmet,CommanderTrait.KitchenMenace)
+                || Pair(a,b,CommanderTrait.KitchenMenace,CommanderTrait.Chef) || Pair(a,b,CommanderTrait.Pacifist,CommanderTrait.Bloodthirsty) || Pair(a,b,CommanderTrait.Pacifist,CommanderTrait.Reckless)
                 || Pair(a,b,CommanderTrait.Loyal,CommanderTrait.Ambitious) || Pair(a,b,CommanderTrait.Loyal,CommanderTrait.Cunning)
                 || Pair(a,b,CommanderTrait.Sociable,CommanderTrait.Loner) || Pair(a,b,CommanderTrait.Sociable,CommanderTrait.ColdBlooded)
                 || Pair(a,b,CommanderTrait.Wanderer,CommanderTrait.Homebody) || Pair(a,b,CommanderTrait.Robust,CommanderTrait.Frail)

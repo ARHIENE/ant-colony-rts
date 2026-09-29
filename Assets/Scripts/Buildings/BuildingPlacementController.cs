@@ -145,6 +145,7 @@ namespace AntColony.Buildings
         public static string LockReason(BuildingKind kind)
         {
             if (kind == BuildingKind.ConscriptionPost && (FindFirstObjectByType<ConscriptionPost>() != null || System.Array.Exists(FindObjectsByType<BuildingConstructionSite>(FindObjectsSortMode.None), s => s.BuildingKind == kind))) return "본거지 징집소는 한 곳만 건설할 수 있습니다.";
+            if (kind == BuildingKind.Farm && !BiomeRules.FarmAllowed) return "도시 구석에는 밭을 지을 수 없습니다.";
             if (!ScienceEffects.BuildingUnlocked(kind)) return "Research the matching science first.";
             if (kind == BuildingKind.MineField && MineField.Count >= GameBalance.MaxMines) return $"Up to {GameBalance.MaxMines} mine fields at once.";
             if (kind == BuildingKind.Infirmary && !Infirmary.Unlocked) return "Research Infirmary first.";
@@ -226,7 +227,7 @@ namespace AntColony.Buildings
 
         private static GameObject FindDecorationTemplate(BuildingKind kind)
         {
-            foreach (var d in Resources.FindObjectsOfTypeAll<Decoration>())
+            foreach (var d in Resources.FindObjectsOfTypeAll<BuildingBase>())
                 if (d.Data != null && d.Data.kind == kind && d.name.EndsWith("Template")) return d.gameObject;
             return RuntimeBuildingTemplates.Create(kind);
         }
@@ -295,7 +296,8 @@ namespace AntColony.Buildings
                 BuildingKind.Workshop => FindTemplate<Workshop>() ?? RuntimeBuildingTemplates.Create(kind),
                 BuildingKind.Dormitory => FindTemplate<Dormitory>() ?? RuntimeBuildingTemplates.Create(kind),
                 BuildingKind.Kitchen => FindTemplate<Kitchen>() ?? RuntimeBuildingTemplates.Create(kind),
-                BuildingKind.FlowerPot or BuildingKind.ShellDecoration or BuildingKind.MarbleMosaic or BuildingKind.BottleMobile or BuildingKind.FireflyLamp => FindDecorationTemplate(kind),
+                BuildingKind.FlowerPot or BuildingKind.ShellDecoration or BuildingKind.MarbleMosaic or BuildingKind.BottleMobile or BuildingKind.FireflyLamp
+                    or BuildingKind.Campfire or BuildingKind.GamblingDen => FindDecorationTemplate(kind),
                 _ => null
             };
         }

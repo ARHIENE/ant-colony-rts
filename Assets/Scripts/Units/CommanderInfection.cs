@@ -43,7 +43,7 @@ namespace AntColony.Units
                 foreach (var other in Active.OfType<CommanderAnt>().ToArray())
                     if (other != this && !other.IsDead && !other.IsEmbarked && !other.IsCaptive && !other.PersonalState.infected
                         && Vector3.Distance(Position, other.Position) <= EventRules.InfectionRadius
-                        && Random.value < EventRules.InfectionChance * ScienceEffects.MoldSpreadMultiplier)
+                        && Random.value < EventRules.InfectionChance * ScienceEffects.MoldSpreadMultiplier * BiomeRules.MoldSpread)
                     {
                         ColonyEvents.Infect(other);
                         CampaignHistory.Record("감염", other.CommanderName, "곰팡이 감염 전파", true);

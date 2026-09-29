@@ -49,6 +49,14 @@ public static class Stage4Checks
         Check(c.Agent.Warp(hit.position), "warp");
     }
     static SaveFileV1 Copy(SaveFileV1 f) => JsonUtility.FromJson<SaveFileV1>(JsonUtility.ToJson(f));
+    static void FarmWith(CommanderAnt c, ResourceNode node)
+    {
+        Move(c, node.transform.position);
+        c.CommandGather(node);
+        c.Agent.ResetPath();
+        typeof(WorkerAnt).GetMethod("TickMovingToNode", Any).Invoke(c, null);
+        Check(c.CivilianWorkReady && c.CurrentResourceNode == node && c.IsGatheringAnimation, "commander working at farm");
+    }
     public static async Task<string> Main()
     {
         checks = 0; Check(Application.isPlaying, "Play required");
@@ -113,7 +121,11 @@ public static class Stage4Checks
             var node = farm.GetComponent<ResourceNode>();
             var plot = farm.GetComponent<FarmPlot>() ?? farm.gameObject.AddComponent<FarmPlot>(); plot.Configure(FarmCrop.Fungus, false);
             SeasonAt(Season.Spring); // 겨울에는 밭이 자라지 않는다(7단계 계절 규칙).
-            node.Extract(float.MaxValue); node.TickGrowth(10000); Check(node.AmountRemaining > 0, "farm harvest grows");
+            node.Extract(float.MaxValue);
+            var unattended = node.RegrowTimeRemaining; node.TickGrowth(10000);
+            Near(node.RegrowTimeRemaining, unattended, "unattended farm does not grow");
+            FarmWith(c, node);
+            node.TickGrowth(10000); Check(node.AmountRemaining > 0, "farm harvest grows");
             var yield = node.AmountRemaining;
             SeasonAt(Season.Autumn); ResetEvents(); Check(events.TryTrigger(ColonyEvent.Harvest), "autumn harvest event"); Near(node.AmountRemaining, yield * 1.5f, "ready crop receives bonus");
             node.GrantBountifulHarvest(); Near(node.AmountRemaining, yield * 1.5f, "harvest bonus cannot stack");
@@ -121,7 +133,8 @@ public static class Stage4Checks
             node.Extract(float.MaxValue); node.GrantBountifulHarvest(); node.TickGrowth(10000); Near(node.AmountRemaining, yield * 1.5f * GameBalance.AutumnHarvestMultiplier, "growing crop receives next-harvest bonus");
 
             SeasonAt(Season.Summer); ResetEvents(); Check(events.TryTrigger(ColonyEvent.Drought), "summer drought triggers");
-            node.Extract(float.MaxValue); var growth = node.RegrowTimeRemaining; node.TickGrowth(10); Near(node.RegrowTimeRemaining, growth - 5, "drought halves actual growth");
+            node.Extract(float.MaxValue); var growth = node.RegrowTimeRemaining; var farmRate = c.WorkRate(CommanderActivity.Farming);
+            node.TickGrowth(10); Near(node.RegrowTimeRemaining, growth - 5 * farmRate, "drought halves actual growth");
             plot.Configure(FarmCrop.Honeydew, false); Near(ColonyEvents.GrowthMultiplier(node), .8f, "honeydew drought resistance");
             plot.Configure(FarmCrop.Fungus, false); Grant(ScienceTechnology.Drainage); Near(ColonyEvents.GrowthMultiplier(node), .8f, "drainage drought resistance");
             var tech = CampaignResearch.Instance.CaptureState(); tech.completed.Remove((int)ScienceTechnology.Drainage); CampaignResearch.Instance.RestoreState(tech);
@@ -134,6 +147,7 @@ public static class Stage4Checks
             Object.Destroy(waterObject); ResetEvents();
 
             var farm2 = Build<BuildingBase>(BuildingKind.Farm, farm.Position + Vector3.forward * 6); var node2 = farm2.GetComponent<ResourceNode>();
+            FarmWith(roster.Commanders[1], node2);
             node.TickGrowth(10000); node2.TickGrowth(10000);
             ColonyEvents.Burn(node); Check(node.IsDepleted && node2.IsDepleted, "fire destroys crop and spreads to neighbor");
             node.TickGrowth(10000); node2.TickGrowth(10000);
@@ -143,6 +157,7 @@ public static class Stage4Checks
             node.TickGrowth(10000); yield = node.AmountRemaining; var otherYield = node2.AmountRemaining;
             Grant(ScienceTechnology.Firebreaks); ColonyEvents.Burn(node); Near(node.AmountRemaining, yield * .5f, "firebreaks halves crop loss"); Near(node2.AmountRemaining, otherYield, "firebreaks stops spread");
             SeasonAt(Season.Autumn); ResetEvents(); Check(events.TryTrigger(ColonyEvent.Wildfire), "autumn wildfire event triggers");
+            c.CommandStop(); roster.Commanders[1].CommandStop();
 
             ResetEvents(); SeasonAt(Season.Spring); Check(events.TryTrigger(ColonyEvent.Mold), "mold event infects commander");
             Check(roster.Commanders.Count(x => x.PersonalState.infected) == 1, "single initial infection");
@@ -154,7 +169,10 @@ public static class Stage4Checks
             var loyalty = c.Traits.Loyalty; c.TickPersonal(29); Check(c.PersonalState.infected, "base treatment not done early");
             infirmary.Release(c); var treatment = c.PersonalState.moldTreatment; c.TickPersonal(1); Near(c.PersonalState.moldTreatment, treatment, "interrupted infection treatment preserved");
             Grant(ScienceTechnology.Sanitation); Near(ScienceEffects.MoldSpreadMultiplier, .5f, "sanitation halves transmission");
-            Check(infirmary.TryAdmit(c), "resume infection treatment"); c.TickPersonal(16);
+            Check(infirmary.TryAdmit(c), "resume infection treatment");
+            var remainingTreatment = (60 - treatment) * ScienceEffects.MoldTreatSeconds / (60 * infirmary.TreatmentRate);
+            c.TickPersonal(remainingTreatment - 1); Check(c.PersonalState.infected, "unnursed treatment not done early");
+            c.TickPersonal(1);
             Check(!c.PersonalState.infected && c.TreatmentFacility == null && c.Traits.Loyalty == loyalty + 3, "sanitation completes remaining treatment and releases patient");
             var other = roster.Commanders[1]; Move(other, c.Position + Vector3.right);
             // 같은 난수에서 25%는 전파, 12.5%는 차단되는 경계를 실제 감염 처리로 확인한다.
@@ -197,6 +215,7 @@ public static class Stage4Checks
 
             // Save active hazards, partial actor health, bonus crop and admitted infection together.
             ResetEvents(); ColonyEvents.Infect(c); Check(infirmary.TryAdmit(c), "prepare infected saved patient"); c.TickPersonal(5);
+            var savedTreatment = c.PersonalState.moldTreatment;
             node.GrantBountifulHarvest();
             var savedEvents = new ColonyEvents.State { cold = 41, flood = 37, drought = 81, checkRemaining = 77, sinceLast = 23 };
             savedEvents.cooldowns[(int)ColonyEvent.Mold] = 433;
@@ -221,7 +240,7 @@ public static class Stage4Checks
             Check(loaded.actors.Count == 3 && loaded.actors.Any(a => a.kind == EventActorKind.Wasp && a.amount == 7), "event actors restored once with damage");
             Check(loaded.actors.Any(a => a.kind == EventActorKind.Food && a.amount == 43 && a.remaining == 130), "partial loot and expiry restored");
             Check(CampaignHistory.Instance.Data.spent.SequenceEqual(file.history.spent) && CampaignHistory.Instance.Data.milestones.Count == file.history.milestones.Count, "history restored without artificial records");
-            c = CommanderRoster.Instance.Commanders[0]; Check(c.PersonalState.infected && c.PersonalState.moldTreatment == 10 && c.TreatmentFacility != null, "infection and patient ownership restored");
+            c = CommanderRoster.Instance.Commanders[0]; Check(c.PersonalState.infected && c.PersonalState.moldTreatment == savedTreatment && c.TreatmentFacility != null, "infection and patient ownership restored");
             Check(Object.FindObjectsByType<ResourceNode>().Any(n => n.BountifulHarvest), "next harvest bonus restored");
             Check(SaveSystem.TrySave(false, 0, out error) && SaveSystem.TryLoad(SaveSlots.PathFor(false, 0), out error), "second save/load: " + error); await Ready();
             Check(Object.FindObjectsByType<EventActor>().Length == 3, "second reload does not duplicate actors");

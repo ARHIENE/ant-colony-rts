@@ -25,6 +25,7 @@ namespace AntColony.Save
         public int difficulty;
         public int commanderDeath = 1;
         public int seed;
+        public int biome; // 옛 저장은 0 = None
     }
 
     [Serializable]

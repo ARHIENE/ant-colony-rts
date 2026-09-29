@@ -88,7 +88,8 @@ namespace AntColony.World
         private void Update()
         {
             TickEconomy();
-            timer -= Time.deltaTime;
+            // 밤 위협(2026-09-28 확정): 밤에는 침공이 1.5배 잦다.
+            timer -= Time.deltaTime * (GameCalendar.IsNight ? EventRules.NightThreatScale : 1f);
             if (timer > 0f) return;
 
             if (raiderTemplate == null || spawnPoint == null

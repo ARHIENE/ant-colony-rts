@@ -67,7 +67,7 @@ namespace AntColony.Core
                 if (rollback != null)
                 {
                     SaveSystem.Reload(rollback, new NewGameOptions { mapSize = (MapSize)rollback.options.mapSize,
-                        difficulty = (DifficultyLevel)rollback.options.difficulty, commanderDeath = (CommanderDeathMode)rollback.options.commanderDeath, seed = rollback.options.seed });
+                        difficulty = (DifficultyLevel)rollback.options.difficulty, commanderDeath = (CommanderDeathMode)rollback.options.commanderDeath, seed = rollback.options.seed, biome = (MapBiome)rollback.options.biome });
                     yield break;
                 }
                 GameSession.Instance.MarkNotStarted();

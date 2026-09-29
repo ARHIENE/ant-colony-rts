@@ -328,6 +328,9 @@ namespace AntColony.Map
             meshCollider.sharedMesh = mesh;
         }
 
+        // 바이옴 바닥 색조(GenerateTerrain 뒤에 부른다).
+        public void SetTint(Color tint) { if (terrainMaterial != null) terrainMaterial.SetColor("_Tint", tint); }
+
         private void GenerateTexture()
         {
             if (terrainMaterial == null) return;

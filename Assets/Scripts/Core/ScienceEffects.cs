@@ -66,6 +66,7 @@ namespace AntColony.Core
             BuildingKind.Workshop => Has(ScienceTechnology.Blades),
             BuildingKind.Infirmary => Has(ScienceTechnology.Infirmary),
             BuildingKind.AirshipYard => Has(ScienceTechnology.MigrationTheory),
+            BuildingKind.Farm => BiomeRules.FarmAllowed, // 도시 구석은 밭 건설 불가
             _ => true
         };
     }

@@ -137,6 +137,7 @@ namespace AntColony.Save
             if (!Enum.IsDefined(typeof(Core.MapSize), file.options.mapSize)) { error = "Unknown map size."; return false; }
             if (!Enum.IsDefined(typeof(Core.DifficultyLevel), file.options.difficulty)) { error = "Unknown difficulty."; return false; }
             if (!Enum.IsDefined(typeof(Core.CommanderDeathMode), file.options.commanderDeath)) { error = "Unknown commander death mode."; return false; }
+            if (!Enum.IsDefined(typeof(Core.MapBiome), file.options.biome)) { error = "Unknown biome."; return false; }
             if (file.colony.antsFree < 0 || file.colony.antsAssigned < 0 || file.colony.antsReserved < 0)
             { error = "Negative ant counts."; return false; }
             foreach (var commander in file.commanders)

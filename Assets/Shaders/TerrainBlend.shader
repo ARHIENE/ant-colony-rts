@@ -3,6 +3,7 @@ Shader "AntColony/TerrainBlend"
     Properties
     {
         _textureScale("Texture scale", float) = 1
+        _Tint("Biome tint", Color) = (1, 1, 1, 1)
     }
     SubShader
     {
@@ -20,6 +21,7 @@ Shader "AntColony/TerrainBlend"
             #define MAX_TEXTURES 32
 
             float _textureScale;
+            half4 _Tint;
             float minTerrainHeight;
             float maxTerrainHeight;
             float terrainHeights[MAX_TEXTURES];
@@ -61,7 +63,7 @@ Shader "AntColony/TerrainBlend"
                     if (heightValue >= terrainHeights[i]) layerIndex = i;
                 }
 
-                return SAMPLE_TEXTURE2D_ARRAY(terrainTextures, sampler_terrainTextures, scaledWorldPos.xz, layerIndex);
+                return SAMPLE_TEXTURE2D_ARRAY(terrainTextures, sampler_terrainTextures, scaledWorldPos.xz, layerIndex) * _Tint;
             }
             ENDHLSL
         }

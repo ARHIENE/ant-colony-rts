@@ -29,7 +29,9 @@ namespace AntColony.Data
         Workshop,
         ConscriptionPost,
         // 2026-09-28 생활 시설
-        Dormitory, Kitchen, FlowerPot, ShellDecoration, MarbleMosaic, BottleMobile, FireflyLamp
+        Dormitory, Kitchen, FlowerPot, ShellDecoration, MarbleMosaic, BottleMobile, FireflyLamp,
+        // 오락 시설(처음부터 2종, 2026-09-29 사용자 선택)
+        Campfire, GamblingDen
     }
 
     [CreateAssetMenu(fileName = "BuildingData", menuName = "AntColony/Building Data")]

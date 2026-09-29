@@ -137,14 +137,13 @@ public static class Stage1Checks
             Love(a, child, 90);
             Check(NurseryChamber.BreedMultiplier(a, child) == 0, "parent and child cannot be lovers");
 
-            // 5. 장수 본인 유지비
+            // 5. 유지비는 일반개미만(장수는 식사로 대체, 2026-09-28)
             var upkeep = Object.FindFirstObjectByType<UpkeepManager>();
             a.Traits.TryAdd(CommanderTrait.LightEater); b.Traits.TryAdd(CommanderTrait.Glutton);
-            var living = roster.Commanders.Where(c => !c.IsDead && !c.IsCaptive).ToArray();
-            var expected = AntPool.Instance.Total + Mathf.CeilToInt(living.Sum(c => 2f * c.Traits.FoodMultiplier));
-            Check(a.Traits.FoodMultiplier == .7f && b.Traits.FoodMultiplier == 1.5f && upkeep.FoodDue == expected, "commander upkeep with appetite traits");
+            var expected = AntPool.Instance.Total;
+            Check(a.Traits.FoodMultiplier == .7f && b.Traits.FoodMultiplier == 1.5f && upkeep.FoodDue == expected, "upkeep bills ants only, appetite traits kept for meals");
             vehicle.TryBoard(new[] { crew[2] });
-            Check(upkeep.FoodDue == expected, "embarked commander still billed");
+            Check(upkeep.FoodDue == expected, "embarked commander not billed");
             before = rm.GetAmount(ColonyResourceType.Food);
             typeof(UpkeepManager).GetMethod("RunCycle", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Public).Invoke(upkeep, null);
             Check(rm.GetAmount(ColonyResourceType.Food) == before - expected, "upkeep cycle charges home storage");

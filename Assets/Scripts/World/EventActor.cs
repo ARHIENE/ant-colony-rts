@@ -10,7 +10,7 @@ using UnityEngine.AI;
 
 namespace AntColony.World
 {
-    public enum EventActorKind { Wasp, Wanderer, Food, Soil }
+    public enum EventActorKind { Wasp, Wanderer, Food, Soil, NightPredator }
     public sealed class EventActor : MonoBehaviour
     {
         [Serializable] public class State
@@ -21,7 +21,8 @@ namespace AntColony.World
         }
         public EventActorKind Kind { get; private set; }
         public float Remaining { get; private set; }
-        public bool Alive => Kind != EventActorKind.Wasp || GetComponent<WildMonster>() is WildMonster m && !m.IsDead;
+        public bool IsMonster => Kind == EventActorKind.Wasp || Kind == EventActorKind.NightPredator;
+        public bool Alive => !IsMonster || GetComponent<WildMonster>() is WildMonster m && !m.IsDead;
         public static EventActor Spawn(State state)
         {
             var go = GameObject.CreatePrimitive(state.kind == EventActorKind.Food || state.kind == EventActorKind.Soil ? PrimitiveType.Cube : PrimitiveType.Capsule);
@@ -29,12 +30,21 @@ namespace AntColony.World
             go.transform.localScale = Vector3.one * (state.kind == EventActorKind.Wasp ? .8f : 1.2f);
             var actor = go.AddComponent<EventActor>(); actor.Kind = state.kind; actor.Remaining = state.remaining;
             var color = state.kind == EventActorKind.Wasp ? new Color(1, .65f, .1f) : state.kind == EventActorKind.Wanderer ? Color.cyan
+                : state.kind == EventActorKind.NightPredator ? new Color(.15f, .12f, .2f)
                 : state.kind == EventActorKind.Food ? AntColony.Boss.BossLoot.FoodColor : new Color(.5f, .3f, .15f);
             var properties = new MaterialPropertyBlock(); properties.SetColor("_BaseColor", color); properties.SetColor("_Color", color);
             go.GetComponent<Renderer>().SetPropertyBlock(properties);
-            if (state.kind == EventActorKind.Wasp)
+            if (actor.IsMonster)
             {
-                var monster = go.AddComponent<WildMonster>(); monster.ConfigureEventWasp(); go.SetActive(true);
+                var monster = go.AddComponent<WildMonster>();
+                if (state.kind == EventActorKind.Wasp) monster.ConfigureEventWasp();
+                else
+                {
+                    monster.ConfigureNightPredator();
+                    // 밤 화면에서 적은 눈이 빛나서 보인다.
+                    var eyes = go.AddComponent<Light>(); eyes.type = LightType.Point; eyes.range = 2.5f; eyes.color = new Color(1, .15f, .1f); eyes.intensity = 3;
+                }
+                go.SetActive(true);
                 monster.RestoreHealth(state.amount); monster.EventAttackCooldown = state.attackCooldown;
             }
             else if (state.kind == EventActorKind.Food || state.kind == EventActorKind.Soil)
@@ -46,11 +56,16 @@ namespace AntColony.World
             return actor;
         }
         public State Capture() => new State { kind = Kind, position = new Vec3Dto(transform.position), remaining = Remaining,
-            amount = Kind == EventActorKind.Wasp ? GetComponent<WildMonster>().CurrentHealth : GetComponent<ResourceNode>()?.AmountRemaining ?? 0,
-            attackCooldown = Kind == EventActorKind.Wasp ? Mathf.Max(0, GetComponent<WildMonster>().EventAttackCooldown) : 0 };
+            amount = IsMonster ? GetComponent<WildMonster>().CurrentHealth : GetComponent<ResourceNode>()?.AmountRemaining ?? 0,
+            attackCooldown = IsMonster ? Mathf.Max(0, GetComponent<WildMonster>().EventAttackCooldown) : 0 };
         public void Tick(float seconds)
         {
             if (!isActiveAndEnabled || !Alive || !(seconds > 0) || float.IsInfinity(seconds) || Kind == EventActorKind.Wasp) return;
+            if (Kind == EventActorKind.NightPredator)
+            {
+                if (!GameCalendar.IsNight) Expire("새벽이 되어 물러갔습니다.");
+                return;
+            }
             // 경과 후 접근은 영입 기회가 아니다.
             Remaining = Mathf.Max(0, Remaining - seconds);
             if (Remaining == 0) { Expire("기한 만료"); return; }
@@ -69,7 +84,7 @@ namespace AntColony.World
         }
         private void Expire(string result)
         {
-            CampaignHistory.Record("이벤트 결과", Kind == EventActorKind.Wanderer ? "장수 후보 방랑" : "표류물", result, true);
+            CampaignHistory.Record("이벤트 결과", Kind == EventActorKind.Wanderer ? "장수 후보 방랑" : Kind == EventActorKind.NightPredator ? "야행성 포식자" : "표류물", result, true);
             gameObject.SetActive(false); Destroy(gameObject);
         }
     }

@@ -361,7 +361,7 @@ namespace AntColony.Units
                 fishingProgress += Time.deltaTime * FishingWorkSpeed;
                 if (fishingProgress < GameBalance.FishingCatchSeconds) return;
                 fishingProgress -= GameBalance.FishingCatchSeconds;
-                extracted = targetNode.Extract(Mathf.Min(GameBalance.FishingCatchFood * FishingCatchMultiplier, CarryCapacity - carriedAmount));
+                extracted = targetNode.Extract(Mathf.Min(GameBalance.FishingCatchFood * FishingCatchMultiplier * BiomeRules.FishingYield, CarryCapacity - carriedAmount));
                 carriedAmount += extracted;
                 carriedType = targetNode.ResourceType;
                 if (extracted > 0f) { OnGathered(extracted); OnWorked(GameBalance.FishingCatchSeconds / FishingWorkSpeed); }

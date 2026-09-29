@@ -25,7 +25,7 @@ namespace AntColony.Save
             var commanders = CommanderRoster.Instance.Commanders.ToList();
             var file = new SaveFileV1 { savedAtUtc = DateTime.UtcNow.ToString("O"), unityVersion = Application.unityVersion,
                 label = options.mapSize + " / " + options.difficulty, playSeconds = GameSession.Instance.PlaySeconds, gameSeconds = GameSession.Instance.GameSeconds,
-                options = new OptionsDto { mapSize = (int)options.mapSize, difficulty = (int)options.difficulty, commanderDeath = (int)options.commanderDeath, seed = options.seed },
+                options = new OptionsDto { mapSize = (int)options.mapSize, difficulty = (int)options.difficulty, commanderDeath = (int)options.commanderDeath, seed = options.seed, biome = (int)options.biome },
                 randomState = JsonUtility.ToJson(UnityEngine.Random.state),
                 upkeepTimer = Object.FindFirstObjectByType<UpkeepManager>()?.SavedTimer ?? 0,
                 upkeepFailures = Object.FindFirstObjectByType<UpkeepManager>()?.ConsecutiveFailures ?? 0,

@@ -123,7 +123,8 @@ namespace AntColony.UI
             troopFill.parent.gameObject.SetActive(deployed);
             troopFill.anchorMax = new Vector2(troopMaximum > 0f ? Mathf.Clamp01(troops / troopMaximum) : 0f, 1f);
             troopsText.text = $"개인 체력 <b>{Mathf.CeilToInt(current)}</b> / {Mathf.CeilToInt(maximum)}"
-                + (deployed ? $"    병력 <b>{Mathf.CeilToInt(troops)}</b> / {Mathf.CeilToInt(troopMaximum)} 지휘한도" : "    평시");
+                + (deployed ? $"    병력 <b>{Mathf.CeilToInt(troops)}</b> / {Mathf.CeilToInt(troopMaximum)} 지휘한도" : "    평시")
+                + (count == 1 && first is CommanderAnt fed ? $"    포만 <b>{fed.Satiety:0}</b>    피로 <b>{fed.Fatigue:0}</b>    오락 <b>{fed.Joy:0}</b>" : "");
             troopsText.supportRichText = true;
 
             var c = count == 1 ? first as CommanderAnt : null;

@@ -44,7 +44,7 @@ public static class AutonomousDutyChecks
             var hp = c.PersonalHealth; c.TakeDamage(3 + c.Armor);
             Check(c.PersonalHealth == hp - 3, "civilian damage hits personal health");
             Check(!c.TryAssign(1), "civilian cannot bypass conscription");
-            Check(!c.SetJobEnabled((CommanderJobs)128, true), "invalid job rejected");
+            Check(!c.SetJobEnabled((CommanderJobs)4096, true), "invalid job rejected");
             var node = ResourceNode.Available.First(n => n.CanGather && !n.IsRaidLoot && n.GetComponentInParent<ExpeditionSite>() == null && c.TryWorkApproach(n.transform.position, out _));
             foreach (var n in ResourceNode.Available) n.GatheringForbidden = true;
             c.SetJobEnabled(CommanderJobs.Gathering | CommanderJobs.Fishing | CommanderJobs.Farming, true);
@@ -57,7 +57,7 @@ public static class AutonomousDutyChecks
             var pile = new GameObject("Automatic gather check").AddComponent<ResourceNode>();
             pile.transform.position = c.Position; pile.ConfigureLoot(Resource.Soil, 30);
             int soilBefore = ResourceManager.Instance.GetAmount(Resource.Soil);
-            c.SetJobEnabled(CommanderJobs.Gathering, true);
+            c.SetJobEnabled(CommanderJobs.Gathering | CommanderJobs.Hauling, true); // 바닥 전리품은 운반 작업(2026-09-28)
             var until = DateTime.UtcNow.AddSeconds(25); Time.timeScale = 8;
             while (ResourceManager.Instance.GetAmount(Resource.Soil) < soilBefore + 15 && DateTime.UtcNow < until) await Task.Delay(50);
             Time.timeScale = 0;

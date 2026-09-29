@@ -144,7 +144,7 @@ public static class CommanderChecks
             var beforeFood = rm.GetAmount(AntColony.Data.ResourceType.Food);
             var due = upkeep.FoodDue;
             typeof(UpkeepManager).GetMethod("RunCycle", BindingFlags.NonPublic | BindingFlags.Instance).Invoke(upkeep, null);
-            Check(due >= pool.Total && rm.GetAmount(AntColony.Data.ResourceType.Food) == beforeFood - due, "upkeep charges pool and commanders once");
+            Check(due == pool.Total && rm.GetAmount(AntColony.Data.ResourceType.Food) == beforeFood - due, "upkeep charges ant pool once");
             var beforeLoss = pool.Total;
             var troops = commander.TroopCount;
             var personalHealth = commander.PersonalHealth;

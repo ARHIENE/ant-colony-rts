@@ -36,7 +36,8 @@ namespace AntColony.UI
             new[] { new Entry("정찰 초소", BuildingKind.ScoutPost), new Entry("포로 수용소", BuildingKind.PrisonerCamp), new Entry("의무실", BuildingKind.Infirmary),
                 new Entry("휴게실", BuildingKind.RestRoom), new Entry("공방", BuildingKind.Workshop), new Entry("비행선 조선소", BuildingKind.AirshipYard),
                 new Entry("징집소", BuildingKind.ConscriptionPost) },
-            new[] { new Entry("숙소", BuildingKind.Dormitory), new Entry("식당", BuildingKind.Kitchen) },
+            new[] { new Entry("숙소", BuildingKind.Dormitory), new Entry("식당", BuildingKind.Kitchen),
+                new Entry("이야기 모닥불", BuildingKind.Campfire), new Entry("도박장", BuildingKind.GamblingDen) },
             new[] { new Entry("꽃 화분", BuildingKind.FlowerPot), new Entry("조개껍데기", BuildingKind.ShellDecoration), new Entry("구슬 모자이크", BuildingKind.MarbleMosaic),
                 new Entry("병뚜껑 모빌", BuildingKind.BottleMobile), new Entry("반딧불 램프", BuildingKind.FireflyLamp) }
         };

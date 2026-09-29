@@ -25,6 +25,8 @@ namespace AntColony.Buildings
                 BuildingKind.Dormitory => ("숙소", new Vector3(3, 1.4f, 2.5f), new Color(.75f, .6f, .45f), GameBalance.DormitoryFood, GameBalance.DormitorySoil, 0, GameBalance.DormitoryAnts, GameBalance.DormitoryBuildSeconds, 250f, false),
                 BuildingKind.Kitchen => ("식당", new Vector3(3, 1.5f, 3), new Color(.8f, .6f, .3f), 20, 40, 0, 0, 8f, 250f, false),
                 BuildingKind.FlowerPot or BuildingKind.ShellDecoration or BuildingKind.MarbleMosaic or BuildingKind.BottleMobile or BuildingKind.FireflyLamp => (kind.ToString(), new Vector3(1, 1, 1), new Color(.7f, .75f, .4f), 0, 15, 0, 0, 6f, 100f, false),
+                BuildingKind.Campfire => ("이야기 모닥불", new Vector3(1.6f, .6f, 1.6f), new Color(.85f, .45f, .2f), 0, GameBalance.CampfireSoil, 0, 0, 6f, 150f, false),
+                BuildingKind.GamblingDen => ("도박장", new Vector3(2.5f, 1.2f, 2.5f), new Color(.55f, .35f, .5f), 0, GameBalance.GamblingDenSoil, 0, 0, 6f, 200f, false),
                 _ => (null, Vector3.one, Color.white, 0, 0, 0, 0, 0f, 0f, false)
             };
             if (name == null) return null;
@@ -50,6 +52,7 @@ namespace AntColony.Buildings
                 BuildingKind.Dormitory => go.AddComponent<Dormitory>(),
                 BuildingKind.Kitchen => go.AddComponent<Kitchen>(),
                 BuildingKind.FlowerPot or BuildingKind.ShellDecoration or BuildingKind.MarbleMosaic or BuildingKind.BottleMobile or BuildingKind.FireflyLamp => go.AddComponent<Decoration>(),
+                BuildingKind.Campfire or BuildingKind.GamblingDen => go.AddComponent<RecreationSpot>(),
                 _ => go.AddComponent<RestRoom>()
             };
             building.ConfigureRuntime(data);

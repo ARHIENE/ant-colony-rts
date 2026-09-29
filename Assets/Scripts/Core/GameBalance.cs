@@ -32,8 +32,8 @@ namespace AntColony.Core
         public const float SadMood = 30, SadBreedMultiplier = .5f;
         public const float ParentChildRelation = 40;
 
-        // 장수 본인 유지비: 30초 주기마다 1명당 Food (식성 특성 배율 적용)
-        public const float CommanderUpkeepFood = 2;
+        // 한 끼 Food(2026-09-28: 장수 자동 유지비 삭제, 식사로 대체). 식성 특성은 한 끼 양 배율.
+        public const float MealFood = 2;
 
         // 2단계 시설 성능
         public const float WallArmor = 2;
@@ -78,5 +78,20 @@ namespace AntColony.Core
         public const float RepairCostShare = .5f, RepairPerSecond = .02f;
         // 간호 장수가 없으면 의무실 치료 절반 속도(확정).
         public const float UnnursedTreatment = .5f;
+
+        // 식사(2026-09-28): 하루 3끼·날것 -8·식중독 60초·-10은 확정, 나머지 잠정.
+        // 포만 0~100, 깨어 있는 낮(10분) 동안 3끼 먹도록 30 이하에서 식당으로 간다.
+        public const float SatietyPerSecond = 70f / 200f, EatBelowSatiety = 30, EatSeconds = 10, StarveRetrySeconds = 30;
+        public static readonly float[] MealMood = { -8, 0, 5, 10 }; // 날것·간단·좋은·고급
+        public const float FoodPoisonSeconds = 60, FoodPoisonMood = -10;
+
+        // 오락(2026-09-28 확정: 욕구·질림·다양성 보너스·장식 근처 +20%). 수치는 잠정.
+        // 오락 0~100, 깨어 있는 낮 동안 100 → 0. 30 이하면 놀러 간다. 20초 놀면 +50 × (1 - 질림).
+        public const float JoyPerSecond = 100f / 600f, PlayBelowJoy = 30, PlaySeconds = 20, PlayJoy = 50;
+        public const float BoredomPerPlay = .3f, BoredomRecoverPerSecond = .3f / 900f, DecorationPlayBonus = .2f;
+        public const float LowJoyMood = -5, VeryLowJoyMood = -10, VarietyMoodPerKind = 2;
+        public const int CampfireSoil = 15, GamblingDenSoil = 25, CampfireSeats = 6, GamblingDenSeats = 4;
+        // 도박장(2026-09-29 초안 승인): 함께 한 판 끝나면 승자 +5·패자 -3(3분), 10% 말다툼 관계 -5.
+        public const float GambleWinMood = 5, GambleLoseMood = -3, GambleQuarrelChance = .1f, GambleQuarrel = -5;
     }
 }
