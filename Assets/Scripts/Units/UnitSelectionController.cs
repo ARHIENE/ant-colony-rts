@@ -53,7 +53,8 @@ namespace AntColony.Units
             {
                 if (Physics.Raycast(cam.ScreenPointToRay(screenPos), out var context, 500, ~0))
                 {
-                    Component choice = context.collider.GetComponentInParent<ResourceNode>();
+                    Component choice = context.collider.GetComponentInParent<Corpse>();
+                    if (choice == null) choice = context.collider.GetComponentInParent<ResourceNode>();
                     if (choice == null) choice = context.collider.GetComponentInParent<BuildingConstructionSite>();
                     if (choice == null && context.collider.GetComponentInParent<BuildingBase>() is BuildingBase b && b.CountsTowardPlayerDefeat) choice = b;
                     if (choice == null && context.collider.GetComponentInParent<WildMonster>() is WildMonster m && m.Huntable) choice = m;
@@ -63,6 +64,14 @@ namespace AntColony.Units
             }
 
             var ray = cam.ScreenPointToRay(screenPos);
+            if (Physics.Raycast(ray, out var corpseHit, 500f, ~0) && corpseHit.collider.GetComponentInParent<Corpse>() is Corpse corpse)
+            {
+                var eat = Keyboard.current != null && (Keyboard.current.leftAltKey.isPressed || Keyboard.current.rightAltKey.isPressed);
+                foreach (var selectable in selected)
+                    if (selectable != null && selectable.GetComponent<CommanderAnt>() is CommanderAnt cleaner && cleaner.StartCorpseWork(corpse, eat)) return;
+                AntColony.UI.ToastManager.Show(eat ? "포식 가능한 평시 장수가 필요합니다." : "시체를 치울 수 있는 평시 장수가 필요합니다.");
+                return;
+            }
             if (Physics.Raycast(ray, out var lootHit, 500f, ~0) && lootHit.collider.GetComponentInParent<EquipmentLoot>() is EquipmentLoot loot)
             {
                 foreach (var selectable in selected)

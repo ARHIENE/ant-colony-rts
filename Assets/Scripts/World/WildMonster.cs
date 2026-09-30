@@ -32,6 +32,7 @@ namespace AntColony.World
         // 침공 개체만 플레이어 건물까지 노린다. 일반 야생 몬스터/반란 개체는 기존 동작 그대로다.
         private bool isRaider;
         private bool eventWasp;
+        private bool nightPredator;
         public string DiplomaticFactionId { get; internal set; }
         public bool Allied { get; internal set; }
         public string RebelId { get; internal set; }
@@ -45,6 +46,7 @@ namespace AntColony.World
         }
         internal void ConfigureNightPredator()
         {
+            nightPredator = true;
             isRaider = true;
             maxHealth = EventRules.NightPredatorHealth; attackDamage = EventRules.NightPredatorDamage;
             attackInterval = EventRules.WaspInterval; moveSpeed = EventRules.NightPredatorSpeed;
@@ -181,15 +183,11 @@ namespace AntColony.World
         // 적 장수(EnemyCommander)가 포로 전환을 끼워 넣을 수 있도록 분리했다.
         protected virtual void Die()
         {
-            GetComponent<AntVisual>()?.Death();
-            if (HuntDesignated && !isRaider && !(this is EnemyCommander))
-            {
-                HuntDesignated = false;
-                var corpse = GameObject.CreatePrimitive(PrimitiveType.Cube); corpse.name = "사냥 사체"; corpse.SetActive(false);
-                corpse.transform.position = Position; corpse.transform.localScale = Vector3.one * .6f;
-                // ponytail: 야생 종류별 산출량은 에셋 확정 후 데이터화. 현재 사체 Food 20.
-                corpse.AddComponent<ResourceNode>().ConfigureLoot(ResourceType.Food, 20); corpse.SetActive(true);
-            }
+            if (!(this is EnemyCommander captured) || !captured.WasCaptured)
+                Corpse.Drop(this, this is EnemyCommander ? CorpseKind.EnemyCommander : isRaider && !eventWasp && !nightPredator || GetComponent<AntUnitBase>() != null ? CorpseKind.Ant : CorpseKind.Wildlife,
+                    this is EnemyCommander commander ? commander.CommanderName : name,
+                    food: HuntDesignated && !isRaider && !(this is EnemyCommander) ? 20 : 0);
+            HuntDesignated = false;
             // 침공 개체 처치는 야생 몬스터 루프 승리가 아니며, 비활성 오브젝트로 쌓이지 않게 제거한다.
             if (isRaider)
             {

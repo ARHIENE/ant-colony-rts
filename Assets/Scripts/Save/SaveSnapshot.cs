@@ -34,6 +34,7 @@ namespace AntColony.Save
                 events = ColonyEvents.Instance?.Capture() ?? new ColonyEvents.State(),
                 diplomacy = DiplomacyManager.Instance?.Capture(),
                 equipmentInventory = EquipmentInventory.Instance == null ? new List<EquipmentItem>() : EquipmentInventory.Instance.Items.Select(e => JsonUtility.FromJson<EquipmentItem>(JsonUtility.ToJson(e))).ToList(),
+                corpses = Corpse.All.Where(c => c.Available).Select(c => c.Capture()).ToList(),
                 equipmentLoot = SaveCatalog.Ordered<EquipmentLoot>().Select(l => new EquipmentLootDto { position = new Vec3Dto(l.transform.position),
                     items = l.Items.Select(e => JsonUtility.FromJson<EquipmentItem>(JsonUtility.ToJson(e))).ToList() }).ToList(),
                 incursionTimer = Object.FindFirstObjectByType<LocalIncursions>()?.SavedTimer ?? 0,
@@ -56,7 +57,7 @@ namespace AntColony.Save
             foreach (var w in Object.FindObjectsByType<Workshop>(FindObjectsInactive.Include).Where(w => !w.gameObject.activeInHierarchy && !w.name.EndsWith("Template") && !SaveCatalog.Buildings.Contains(w)))
                 file.buildings.Add(SaveBuildings.Capture(w, "new:" + file.buildings.Count, true, commanders));
             for (var i = 0; i < SaveCatalog.Nodes.Length; i++) file.nodes.Add(Node(SaveCatalog.Nodes[i], i.ToString()));
-            foreach (var n in SaveCatalog.Ordered<ResourceNode>().Where(n => !SaveCatalog.Nodes.Contains(n) && n.GetComponentInParent<BuildingBase>() == null && n.GetComponent<EventActor>() == null))
+            foreach (var n in SaveCatalog.Ordered<ResourceNode>().Where(n => !SaveCatalog.Nodes.Contains(n) && n.GetComponentInParent<BuildingBase>() == null && n.GetComponent<EventActor>() == null && n.GetComponent<Corpse>() == null))
                 file.nodes.Add(Node(n, "new:" + file.nodes.Count));
             for (var i = 0; i < SaveCatalog.Monsters.Length; i++)
             {
@@ -230,10 +231,13 @@ namespace AntColony.Save
             if (EquipmentInventory.Instance != null) EquipmentInventory.Instance.Items = file.equipmentInventory.Select(e => JsonUtility.FromJson<EquipmentItem>(JsonUtility.ToJson(e))).ToList();
             foreach (var loot in file.equipmentLoot)
                 EquipmentLoot.Drop(loot.position.ToVector3() - Vector3.up * .35f, loot.items.Select(e => JsonUtility.FromJson<EquipmentItem>(JsonUtility.ToJson(e))));
+            foreach (var corpse in file.corpses) Corpse.Spawn(corpse);
             var incursions = Object.FindFirstObjectByType<LocalIncursions>(); if (incursions != null) incursions.SavedTimer = file.incursionTimer;
             if (file.camera.viewedSite >= 0) world.ViewSite(world.Sites[file.camera.viewedSite]);
             Object.FindFirstObjectByType<AntColony.Camera.IsometricCameraController>().RestoreView(file.camera.focus.ToVector3(), file.camera.yaw, file.camera.orthoSize);
             Encyclopedia.Merge(file.discoveries); GameSession.Instance.MarkStarted(file.playSeconds, file.gameSeconds);
+            foreach (var corpse in Corpse.All.ToArray())
+                commanders.FirstOrDefault(c => c.PersonalState.id == corpse.Data.workerId)?.RestoreCorpseWork(corpse);
             CampaignHistory.Instance.Restore(file.history); ColonyEvents.Instance.Restore(file.events); DiplomacyManager.Instance.RestoreRebels();
             CommanderAnt.RefreshDepartureNotice();
             UnityEngine.Random.state = JsonUtility.FromJson<UnityEngine.Random.State>(file.randomState);

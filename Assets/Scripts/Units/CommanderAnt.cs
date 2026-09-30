@@ -74,6 +74,7 @@ namespace AntColony.Units
             if (IsHostile) { TickDeparture(Time.deltaTime); return; }
             TickPersonal(Time.deltaTime);
             if (IsDeparting || Social.diving) return;
+            if (CorpseTarget != null) return;
             if (!IsEmbarked && !IsDead && PersonalState.rageRemaining > 0) { TickRevenge(Time.deltaTime); return; }
             if (!IsEmbarked && !IsDead && PersonalHealth > 0 && !PersonalState.treating && PersonalState.mentalBreak == MentalBreak.None && !LabUpgradeBusy) base.Update();
         }
@@ -82,6 +83,7 @@ namespace AntColony.Units
         {
             if (CanReceiveOrders && !LabUpgradeBusy)
             {
+                ReleaseCorpse();
                 if (!IsConstructing) { ServiceTarget = null; ServiceJob = CommanderJobs.None; HuntTarget = null; SetWorkTarget(null); }
                 automaticFacility = null; ScienceAssignment?.ReleaseResearcher(); WorkState.resting = false;
                 if (IsReturning) WorkState.duty = CommanderDuty.Deployed;
@@ -267,6 +269,7 @@ namespace AntColony.Units
             var casualties = Mathf.Min(troopCount, Mathf.FloorToInt(pendingDamage));
             pendingDamage -= casualties; troopCount -= casualties;
             if (!IsDeparting) AntPool.Instance?.LoseAssigned(casualties);
+            Corpse.Drop(this, CorpseKind.Ant, "일반개미", casualties);
             if (troopCount == 0 && IsHostile) { pendingDamage = 0; CaptureDeparting(); return; }
             WorkState.health = Mathf.Max(0, WorkState.health - damage);
             if (WorkState.health <= 0) { CommandStop(); DropCargo(); OnDowned(); }
@@ -279,12 +282,14 @@ namespace AntColony.Units
         {
             if (!CanReceiveOrders || LabUpgradeBusy || !HasTroops) return;
             if (target is Component component && !AntColony.World.DiplomacyManager.TryAttack(component)) return;
+            ReleaseCorpse();
             base.CommandAttack(target);
         }
 
         public override void CommandAttackMove(Vector3 destination)
         {
             if (!CanReceiveOrders || LabUpgradeBusy || !HasTroops) return;
+            ReleaseCorpse();
             base.CommandAttackMove(destination);
         }
 
@@ -333,6 +338,7 @@ namespace AntColony.Units
 
         protected override void OnDisable()
         {
+            ReleaseCorpse();
             SetWorkTarget(null); ServiceTarget = null; HuntTarget = null;
             if (acidVisual != null) Destroy(acidVisual);
             CraftingWorkshop?.Release();

@@ -16,7 +16,8 @@ namespace AntColony.Units
         Muscular, Mighty, ThinLegs, // 왕근육 ×1.5 / 괴력 ×2 / 가는 다리 ×0.7: 한 짐 운반량의 장수 본인 부분
         CannotBuild, CannotGather, CannotResearch, CannotNurse, CannotCook, Uncultured, Pacifist, Chef,
         // 식사 특성(ONI): 미식가·무딘 미각·주방 테러범·강철 위장·느긋한 식사
-        Gourmet, DullTaste, KitchenMenace, IronStomach, SlowEater
+        Gourmet, DullTaste, KitchenMenace, IronStomach, SlowEater,
+        Undertaker, Cannibal, Neat
     }
     // 기술 13종(2026-09-28): 기존 9종 뒤에 의료·요리·근력·예술. 저장 번호가 밀리지 않게 끝에 붙인다.
     public enum CommanderActivity { Gathering, Building, Farming, Fishing, Crafting, Research, Melee, Ranged, Command, Medicine, Cooking, Strength, Art }
@@ -54,6 +55,8 @@ namespace AntColony.Units
         public int Flame(CommanderActivity activity) => passions.Find(p => p.activity == activity)?.flame ?? 0;
         public float GrowthMultiplier(CommanderActivity activity) => LearningMultiplier * (1f + .5f * Flame(activity));
         public CommanderTraits() { }
+        public static string DisplayName(CommanderTrait trait) => trait switch {
+            CommanderTrait.Undertaker => "장의사", CommanderTrait.Cannibal => "동족 포식", CommanderTrait.Neat => "결벽", _ => trait.ToString() };
         public CommanderTraits(CommanderPersonality legacy, int value) { personality = legacy; SetLoyalty(value); }
         public void SetLoyalty(int value) => loyalty = Mathf.Clamp(value, 0, Has(CommanderTrait.Cunning) ? 70 : 100);
         public void AddLoyalty(int delta) => ChangeLoyalty(delta, "Event");
@@ -73,7 +76,8 @@ namespace AntColony.Units
         }
         private static bool Conflicts(CommanderTrait a, CommanderTrait b)
         {
-            return Pair(a,b,CommanderTrait.Chef,CommanderTrait.CannotCook) || Pair(a,b,CommanderTrait.Gourmet,CommanderTrait.DullTaste)
+            return Pair(a,b,CommanderTrait.Cannibal,CommanderTrait.Neat)
+                || Pair(a,b,CommanderTrait.Chef,CommanderTrait.CannotCook) || Pair(a,b,CommanderTrait.Gourmet,CommanderTrait.DullTaste)
                 || Pair(a,b,CommanderTrait.Gourmet,CommanderTrait.CannotCook) || Pair(a,b,CommanderTrait.Gourmet,CommanderTrait.KitchenMenace)
                 || Pair(a,b,CommanderTrait.KitchenMenace,CommanderTrait.Chef) || Pair(a,b,CommanderTrait.Pacifist,CommanderTrait.Bloodthirsty) || Pair(a,b,CommanderTrait.Pacifist,CommanderTrait.Reckless)
                 || Pair(a,b,CommanderTrait.Loyal,CommanderTrait.Ambitious) || Pair(a,b,CommanderTrait.Loyal,CommanderTrait.Cunning)

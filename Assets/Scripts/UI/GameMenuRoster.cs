@@ -92,7 +92,7 @@ namespace AntColony.UI
             L.Label(portrait, CommandCard.RoleName(c.Role), 20, 0, 0, 96, 96, MenuTheme.Dim, TextAnchor.MiddleCenter);
             L.Label(head, c.CommanderName, 20, 108, 0, 460, 30, MenuTheme.Accent, bold: true);
             L.Label(head, $"{c.WeaponLabel} · {CommandCard.RoleName(c.Role)} · {Status(c)}", 13, 108, 30, 460, 20, MenuTheme.Muted);
-            L.Label(head, string.Join(" · ", c.Traits.values.Select(t => t.ToString())), 12, 108, 50, 460, 20, MenuTheme.Dim);
+            L.Label(head, string.Join(" · ", c.Traits.values.Select(CommanderTraits.DisplayName)), 12, 108, 50, 460, 20, MenuTheme.Dim);
             L.Label(head, $"병력 <b>{c.TroopCount}</b> / {c.CommandLimit} 지휘한도    공격 <b>{c.AttackDamage:0.#}</b>    방어 <b>{c.Armor:0.#}</b>    연구 공격 {c.LabAttackLevel} · 방어 {c.LabArmorLevel}", 12, 108, 70, 460, 20);
             L.Meter(head, 108, 94, 460, 8, c.CommandLimit > 0 ? (float)c.TroopCount / c.CommandLimit : 0, MenuTheme.Hp);
 

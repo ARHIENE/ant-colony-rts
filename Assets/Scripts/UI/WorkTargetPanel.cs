@@ -1,3 +1,4 @@
+using System.Linq;
 using AntColony.Buildings;
 using AntColony.Core;
 using AntColony.Units;
@@ -14,7 +15,7 @@ namespace AntColony.UI
         private RectTransform root;
         private Text title, status, instruction;
         private Slider slider;
-        private Button action;
+        private Button action, eatCorpse;
         public static void Clear() => Target = null;
         public static void Select(Component target)
         {
@@ -33,6 +34,7 @@ namespace AntColony.UI
             slider.onValueChanged.AddListener(v => { if (Target != null) Workforce.For(Target).Request((int)v); });
             instruction = L.Label(root, "", 12, 16, 126, 780, 42, MenuTheme.Muted);
             action = L.Button(root, "TargetAction", "", 544, 94, 246, 32, Act);
+            eatCorpse = L.Button(root, "EatCorpse", "동족 포식 지시", 544, 136, 246, 32, EatCorpse);
             root.gameObject.SetActive(false);
         }
         private void OnDestroy() => Clear();
@@ -40,6 +42,21 @@ namespace AntColony.UI
         {
             bool visible = Target != null && Target.gameObject.activeInHierarchy && !BuildScreen.Picking;
             root.gameObject.SetActive(visible); if (!visible) return;
+            eatCorpse.gameObject.SetActive(Target is Corpse edible && (edible.Edible || edible.GetComponent<ResourceNode>() != null));
+            if (Target is Corpse corpse)
+            {
+                slider.gameObject.SetActive(false); action.gameObject.SetActive(true);
+                title.text = corpse.Data.name + " 시체";
+                var meat = corpse.GetComponent<ResourceNode>();
+                status.text = $"{corpse.Data.count}구 · 소멸까지 {corpse.Data.remaining:0}초 · {(corpse.Handler != null ? corpse.Handler.CommanderName + $" 작업 {corpse.Handler.CorpseProgress:0.#}/5초" : "미처리")}"
+                    + (meat != null ? $"\n운반 가능한 식량 {meat.AmountRemaining:0.#}" : "");
+                instruction.rectTransform.sizeDelta = new Vector2(510, 42);
+                instruction.text = "선택 장수 + 우클릭: 치우기 · Alt+우클릭: 동족 포식\n치우기 기본 5초. 사냥 사체는 우선 지정 시에만 자동 청소합니다.";
+                action.GetComponentInChildren<Text>().text = corpse.Priority ? "치우기 우선 취소" : "치우기 우선";
+                eatCorpse.GetComponentInChildren<Text>().text = meat != null ? "사냥 식량 운반" : "동족 포식 지시";
+                return;
+            }
+            instruction.rectTransform.sizeDelta = new Vector2(780, 42);
             var workforce = Workforce.For(Target); workforce.Refresh();
             title.text = Target is BuildingBase b && b.Data != null ? b.Data.displayName : Target.name;
             slider.gameObject.SetActive(!(Target is WildMonster)); slider.SetValueWithoutNotify(workforce.Requested);
@@ -59,9 +76,25 @@ namespace AntColony.UI
         }
         private void Act()
         {
+            if (Target is Corpse corpse) corpse.Priority = !corpse.Priority;
             if (Target is ResourceNode node) node.GatheringForbidden = !node.GatheringForbidden;
             if (Target is Workshop shop) GameMenuController.Instance?.ShowWorkshop(shop);
             if (Target is WildMonster animal && animal.Huntable) animal.HuntDesignated = !animal.HuntDesignated;
+        }
+        private void EatCorpse()
+        {
+            if (!(Target is Corpse corpse)) return;
+            foreach (var c in AntUnitBase.Active.OfType<CommanderAnt>().OrderBy(c => (c.Position - corpse.Position).sqrMagnitude))
+            {
+                if (corpse.GetComponent<ResourceNode>() is ResourceNode meat)
+                {
+                    if (!c.CivilianWorkReady || !c.CanReceiveOrders || c.IsWorking || c.IsCarrying || c.CorpseTarget != null) continue;
+                    c.CommandGather(meat); if (c.CurrentResourceNode == meat) return;
+                }
+                else if (c.StartCorpseWork(corpse, true)) return;
+            }
+            if (!corpse.Edible) { ToastManager.Show("사냥 식량을 운반할 수 있는 평시 장수가 없습니다."); return; }
+            ToastManager.Show("시체에 접근 가능한 평시 동족 포식 장수가 없습니다.");
         }
     }
 }

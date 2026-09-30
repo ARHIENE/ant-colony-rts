@@ -4,6 +4,15 @@
 
 ---
 
+# 2026-09-30 추가 SAVE — 이전 로그(생활 4~7단계 통합 SAVE) 이관
+- Claude Code 생활 4~7단계(식사·오락·야간 위협·바이옴) 및 Codex Stage4 검사 전제를 통합했다. 게임 로직 추가 수정 없이 검사 기대값을 현재 기획에 맞췄다.
+- 직접 검증 Meal 347/Joy 45/NightThreat 16/Biome 22/SaveRoundtrip 42/Stage4 130, 총 602개 통과. Graphify 5083 nodes/10221 edges 갱신, Play 종료.
+- 식사·오락 상세/바이옴 HUD 및 야간 경고 캡처를 같은 날짜 Notion ant 개발 일지에 첨부했다: https://app.notion.com/p/3eac4a0ecd31814e9835d4ef35fd577b . 원본 .unity/save-2026-09-30/{life-detail,night-detail}.png.
+- b78f21b(55개 파일)를 origin/develop에 push하고 SHA 일치를 확인했다. master·기존 미커밋 에셋·그래프 등은 유지. 카카오톡 도구 미연결.
+- 당시 시체·치우기는 조사 단계였고 규칙 미확정이었다. 이후 이번 세션에서 규칙 확정·구현·검증했으며 최신 상태는 log.md 참고.
+- 당시 00:45 KST부터 1시간 유효했던 종료 요청은 후속 작업으로 취소됐다.
+
+---
 # 2026-09-29 SAVE — 이전 로그(2026-09-27 회귀 검사 복구) 이관
 - 기준 develop 15b9a17, 저장 v9. 기존 자율 작업·출전·채집 지정·장수 피드백·계절 자원·7단계 UI 구현 상태를 확인했다.
 - ActiveSkill 45, CommanderEdge 24, WorkProficiencyLoot 25, Commander 33, AcquisitionBuilding 42로 총 169개 회귀 검사를 현재 규칙에 맞춰 복구했다. 당시 런타임 수정 없이 검사 전제만 갱신했다.

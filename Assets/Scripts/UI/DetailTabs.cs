@@ -71,7 +71,7 @@ namespace AntColony.UI
                     var rows = p.moodFactors.OrderBy(f => f.value).Take(6).Select(f => Row(f.reason, f.value));
                     return string.Join("\n", rows) + $"\n<b>기분 {c.Mood:0}</b>  <color=#968976>/ 붕괴 위험 {CommanderOverhead.MoodWarning:0} 이하</color>";
                 case 2:
-                    return c.Traits.values.Count == 0 ? "특성 없음" : string.Join("\n", c.Traits.values.Select(t => t.ToString()));
+                    return c.Traits.values.Count == 0 ? "특성 없음" : string.Join("\n", c.Traits.values.Select(CommanderTraits.DisplayName));
                 case 3:
                     var names = CommanderRoster.Instance != null ? CommanderRoster.Instance.Commanders.ToDictionary(x => x.PersonalState.id, x => x.CommanderName) : null;
                     var rel = p.relations.Where(r => r.spouse || r.family || Mathf.Abs(r.value) >= 20).OrderByDescending(r => Mathf.Abs(r.value)).Take(6)

@@ -7,12 +7,13 @@ using UnityEngine;
 
 namespace AntColony.Units
 {
-    // 작업표 12종(2026-09-28). 새 작업은 뒤 비트에 붙이고, 옛 저장(v9 이하)은 불러올 때 새 작업을 켠다.
+    // 새 작업은 뒤 비트에 붙여 기존 저장 번호를 유지한다.
     [Flags] public enum CommanderJobs
     {
         None = 0, Building = 1, Crafting = 2, Research = 4, Farming = 8, Fishing = 16, Gathering = 32,
         Nursing = 64, Repair = 128, Hauling = 256, Hunting = 512, Cooking = 1024, Art = 2048,
-        Legacy = 63, Added = Nursing | Repair | Hauling | Hunting | Cooking | Art, All = 4095
+        Cleaning = 4096,
+        Legacy = 63, Added = Nursing | Repair | Hauling | Hunting | Cooking | Art, All = 8191
     }
     public enum CommanderDuty { Civilian, Deployed, Returning }
 
@@ -38,7 +39,7 @@ namespace AntColony.Units
         public CommanderWorkState WorkState => PersonalState.work;
         public bool IsDeployed => WorkState.duty != CommanderDuty.Civilian;
         public bool IsReturning => WorkState.duty == CommanderDuty.Returning;
-        internal bool CanResumeDutyAfterLoad => !IsAwayFromHome && (IsReturning || ServiceTarget != null || automaticFacility != null || CurrentResourceNode != null || IsCarrying);
+        internal bool CanResumeDutyAfterLoad => !IsAwayFromHome && (IsReturning || ServiceTarget != null || CorpseTarget != null || automaticFacility != null || CurrentResourceNode != null || IsCarrying);
         public float PersonalHealth => WorkState.health;
         public float TroopHealth => Mathf.Max(0, troopCount - pendingDamage);
         internal float PendingTroopDamage => pendingDamage;
@@ -84,7 +85,7 @@ namespace AntColony.Units
                 if (WorkState.recoverySeconds == 0) WorkState.health = GameBalance.CommanderHealth;
                 return;
             }
-            if (TickSleep(seconds) || TickMeal(seconds) || TickJoy(seconds)) return;
+            if (TickSleep(seconds) || TickMeal(seconds) || TickCorpseWork(seconds) || TickJoy(seconds)) return;
             if (IsAwayFromHome || !CanReceiveOrders) return;
             if (IsReturning)
             {
@@ -135,6 +136,7 @@ namespace AntColony.Units
             if (AllowsJob(CommanderJobs.Repair))
                 foreach (var building in FindObjectsByType<BuildingBase>(FindObjectsSortMode.None).Where(BuildingRepair.Needed).OrderBy(b => (b.Position - Position).sqrMagnitude))
                     if (!Active.OfType<CommanderAnt>().Any(c => c != this && c.ServiceTarget == building) && StartService(building, CommanderJobs.Repair)) return;
+            if (AllowsJob(CommanderJobs.Cleaning) && FindCorpseWork(false)) return;
             if (AllowsJob(CommanderJobs.Building) || AllowsJob(CommanderJobs.Art))
                 foreach (var site in FindObjectsByType<BuildingConstructionSite>(FindObjectsSortMode.None).OrderBy(s => (s.Position - Position).sqrMagnitude))
                     if (!site.HasBuilder && AllowsJob(site.IsArt ? CommanderJobs.Art : CommanderJobs.Building) && CanReach(site.Position)) { CommandBuild(site); return; }

@@ -39,14 +39,14 @@ namespace AntColony.Units
 
             if (!IsSleepTime)
             {
-                if ((IsWorking || LabUpgradeBusy || ServiceTarget != null || CraftingWorkshop != null || HuntTarget != null) && !traits.Has(CommanderTrait.Workaholic)) s.fatigue += GameBalance.FatiguePerWorkSecond * seconds;
+                if ((IsWorking || LabUpgradeBusy || ServiceTarget != null || CraftingWorkshop != null || HuntTarget != null || CorpseTarget != null) && !traits.Has(CommanderTrait.Workaholic)) s.fatigue += GameBalance.FatiguePerWorkSecond * seconds;
                 else if (WorkState.resting) s.fatigue -= GameBalance.FatigueRestPerSecond * (RestRoom.Serves(this) ? 2 : 1) * seconds;
                 s.fatigue = Mathf.Clamp(s.fatigue, 0, 100);
                 return false;
             }
 
             s.phaseSeconds += seconds;
-            if (!IsDeployed && !IsAwayFromHome && !IsCarrying && (ScienceAssignment != null || CraftingWorkshop != null || ServiceTarget != null || HuntTarget != null)) CommandStop();
+            if (!IsDeployed && !IsAwayFromHome && !IsCarrying && (ScienceAssignment != null || CraftingWorkshop != null || ServiceTarget != null || HuntTarget != null || CorpseTarget != null)) CommandStop();
             var canSleep = !IsDeployed && !IsAwayFromHome && !IsEmbarked && !IsCaptive && CanReceiveOrders && !LabUpgradeBusy && !IsCarrying;
             if (!canSleep)
             {

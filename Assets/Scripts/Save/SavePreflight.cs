@@ -47,6 +47,22 @@ namespace AntColony.Save
                 var equipmentIds = new HashSet<string>();
                 foreach (var item in f.equipmentInventory) Check(item != null && item.IsValid && equipmentIds.Add(item.id), "inventory item");
                 L(f.equipmentLoot, 10000, "equipment loot");
+                L(f.corpses, 10000, "corpses");
+                var corpseWorkers = new HashSet<string>();
+                foreach (var corpse in f.corpses)
+                {
+                    Check(corpse != null && !string.IsNullOrEmpty(corpse.name) && corpse.name.Length < 1000 && V(new Vec3Dto(corpse.position))
+                        && Enum.IsDefined(typeof(World.CorpseKind), corpse.kind) && corpse.count > 0 && corpse.count <= 100000
+                        && N(corpse.remaining) && corpse.remaining > 0 && corpse.remaining <= World.Corpse.Lifetime
+                        && N(corpse.food) && corpse.food <= 20 && (corpse.food == 0 || corpse.kind == World.CorpseKind.Wildlife)
+                        && corpse.workforce >= 0 && corpse.workforce <= Workforce.Maximum
+                        && N(corpse.progress) && corpse.progress < World.Corpse.WorkSeconds, "corpse state");
+                    if (!string.IsNullOrEmpty(corpse.workerId))
+                        Check(corpseWorkers.Add(corpse.workerId) && f.commanders.Any(c => c?.personalState?.id == corpse.workerId
+                            && c.activeInScene && !c.personalState.dead && c.location == 0 && c.personalState.work.duty == CommanderDuty.Civilian
+                            && (!corpse.eating || corpse.kind != World.CorpseKind.Wildlife && c.traits.values.Contains(CommanderTrait.Cannibal))), "corpse worker");
+                    else Check(corpse.progress == 0 && !corpse.eating, "unclaimed corpse");
+                }
                 foreach (var loot in f.equipmentLoot)
                 {
                     Check(loot != null && V(loot.position), "equipment loot position");

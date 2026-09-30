@@ -101,13 +101,14 @@ namespace AntColony.Units
             else Play("Idle_A");
         }
 
-        public void Death()
+        public GameObject Death(bool persistent = false)
         {
-            if (model == null) return;
+            if (model == null) return null;
             var body = Instantiate(model, model.transform.position, model.transform.rotation);
             body.transform.localScale = model.transform.lossyScale;
             body.GetComponentInChildren<Animator>().Play("Base Layer.Death", 0, 0);
-            Destroy(body, 2.5f);
+            if (!persistent) Destroy(body, 2.5f);
+            return body;
         }
     }
 }

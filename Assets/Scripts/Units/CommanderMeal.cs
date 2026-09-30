@@ -34,7 +34,7 @@ namespace AntColony.Units
             if (IsDeployed || IsAwayFromHome || IsEmbarked || IsCaptive) return false;
             if (m.poisonSeconds > 0)
             {
-                if (IsWorking || ServiceTarget != null || HuntTarget != null || ScienceAssignment != null || CraftingWorkshop != null) CommandStop();
+                if (IsWorking || ServiceTarget != null || HuntTarget != null || CorpseTarget != null || ScienceAssignment != null || CraftingWorkshop != null) CommandStop();
                 return true;
             }
             if (m.eatSeconds > 0)
@@ -43,10 +43,12 @@ namespace AntColony.Units
                 if (m.eatSeconds == 0) FinishMeal();
                 return true;
             }
+            if (EatingCorpse) return false;
             if (m.satiety > GameBalance.EatBelowSatiety || IsCarrying || LabUpgradeBusy || IsPlaying) return false;
             if (m.retrySeconds > 0) { m.retrySeconds = Mathf.Max(0, m.retrySeconds - seconds); return false; }
-            if (IsWorking || ServiceTarget != null || HuntTarget != null || ScienceAssignment != null || CraftingWorkshop != null) CommandStop();
+            if (IsWorking || ServiceTarget != null || HuntTarget != null || CorpseTarget != null || ScienceAssignment != null || CraftingWorkshop != null) CommandStop();
             if (!CanReceiveOrders) return false;
+            if (traits.Has(CommanderTrait.Cannibal) && FindCorpseWork(true)) return true;
 
             // ponytail: 배고픈 동안 매 틱 식당을 다시 찾는다. 장수 수가 많아져 느려지면 목표를 캐시한다.
             var kitchen = FindObjectsByType<Kitchen>(FindObjectsSortMode.None).Where(k => k.HasMeal)

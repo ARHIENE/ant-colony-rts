@@ -123,6 +123,18 @@ namespace AntColony.Save
                         if (f?.prisoners != null && f.rebels != null) foreach (var p in f.prisoners.Concat(f.rebels)) Jobs(p?.PersonalState);
                 file.version = 10;
             }
+            if (file.version == 10)
+            {
+                file.corpses = new System.Collections.Generic.List<World.Corpse.State>();
+                void Cleaning(Units.CommanderPersonalState s) { if (s?.work != null) s.work.jobs |= Units.CommanderJobs.Cleaning; }
+                foreach (var c in file.commanders ?? new System.Collections.Generic.List<CommanderDto>()) Cleaning(c?.personalState);
+                foreach (var b in file.buildings ?? new System.Collections.Generic.List<BuildingDto>())
+                    if (b?.prisoners != null) foreach (var p in b.prisoners) Cleaning(p?.personalState);
+                if (file.diplomacy?.civilizations != null && file.diplomacy.markets != null)
+                    foreach (var f in file.diplomacy.civilizations.Concat(file.diplomacy.markets))
+                        if (f?.prisoners != null && f.rebels != null) foreach (var p in f.prisoners.Concat(f.rebels)) Cleaning(p?.PersonalState);
+                file.version = 11;
+            }
             if (file.version != SaveFileV1.CurrentVersion)
             {
                 error = $"Save version {file.version} cannot be read by this build (expects {SaveFileV1.CurrentVersion}).";

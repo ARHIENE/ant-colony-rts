@@ -87,7 +87,7 @@ namespace AntColony.Units
 
         protected virtual void Die()
         {
-            GetComponent<AntVisual>()?.Death();
+            Corpse.Drop(this, CorpseKind.Ant, name);
             gameObject.SetActive(false);
             if (pool != null && sourcePrefab != null)
             {

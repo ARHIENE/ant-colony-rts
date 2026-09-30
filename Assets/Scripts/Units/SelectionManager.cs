@@ -145,6 +145,8 @@ namespace AntColony.Units
                     AntColony.UI.WorkTargetPanel.Select(workshop);
                     return;
                 }
+                if (hit.collider.GetComponentInParent<AntColony.World.Corpse>() is AntColony.World.Corpse corpse)
+                { AntColony.UI.WorkTargetPanel.Select(corpse); return; }
                 if (hit.collider.GetComponentInParent<AntColony.World.ResourceNode>() is AntColony.World.ResourceNode node)
                 {
                     AntColony.UI.WorkTargetPanel.Select(node);

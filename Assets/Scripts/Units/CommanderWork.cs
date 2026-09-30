@@ -31,6 +31,7 @@ namespace AntColony.Units
         }
         public override void CommandStop()
         {
+            ReleaseCorpse();
             ServiceTarget = null; ServiceJob = CommanderJobs.None; HuntTarget = null;
             SetWorkTarget(null);
             ScienceAssignment?.ReleaseResearcher(); CraftingWorkshop?.Release();

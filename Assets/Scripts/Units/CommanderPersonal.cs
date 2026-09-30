@@ -99,7 +99,9 @@ namespace AntColony.Units
             if (IsDeparting || personalState.rageRemaining > 0) return;
             personalState.workedSeconds = IsWorking || LabUpgradeBusy ? personalState.workedSeconds + seconds : 0;
             // 피로는 CommanderSleep이 관리한다(낮 작업으로 차고 밤 수면으로 풀림). 휴게실은 휴식 기분만 준다.
-            if (RestRoom.Serves(this)) personalState.AddMood("Rest", GameBalance.RestMood, 5);
+                if (RestRoom.Serves(this)) personalState.AddMood("Rest", GameBalance.RestMood, 5);
+            if (traits.Has(CommanderTrait.Neat) && NearCorpse) personalState.AddMood("시체 주변", -3, 2);
+            else personalState.moodFactors.RemoveAll(f => f.reason == "시체 주변");
             TickRelations(seconds);
             if (personalState.mentalBreak != MentalBreak.None) { TickBreak(seconds); return; }
             personalState.breakCheck += seconds;
@@ -171,6 +173,7 @@ namespace AntColony.Units
             count = Mathf.Min(Mathf.Max(0, count), troopCount);
             if (count == 0) return;
             troopCount -= count; if (!IsDeparting) AntPool.Instance?.LoseAssigned(count);
+            AntColony.World.Corpse.Drop(this, AntColony.World.CorpseKind.Ant, "일반개미", count);
             if (troopCount == 0) { pendingDamage = 0; CommandStop(); if (IsHostile) CaptureDeparting(); else if (IsDeployed) ReturnToPost(); }
         }
         private void OnDowned(string cause = "전투")
@@ -193,7 +196,8 @@ namespace AntColony.Units
                 var friend = relation != null && relation.value >= 40;
                 if (fatal || (c.Position - Position).sqrMagnitude <= 144)
                     c.PersonalState.AddMood((fatal ? "Death: " : "Downed: ") + commanderName,
-                        fatal ? relation?.spouse == true ? -30 : friend ? -15 : -10 : friend ? -15 : c.Traits.Has(CommanderTrait.Coward) ? -16 : -8,
+                        (fatal ? relation?.spouse == true ? -30 : friend ? -15 : -10 : friend ? -15 : c.Traits.Has(CommanderTrait.Coward) ? -16 : -8)
+                            * (c.Traits.Has(CommanderTrait.Undertaker) ? .5f : 1),
                         fatal ? relation?.spouse == true ? 600 : 300 : 180);
             }
             if (fatal)
@@ -205,7 +209,7 @@ namespace AntColony.Units
                     AntColony.World.EquipmentLoot.Drop(Position, personalState.equipment);
                     personalState.equipment.Clear();
                 }
-                GetComponent<AntVisual>()?.Death();
+                AntColony.World.Corpse.Drop(this, AntColony.World.CorpseKind.ColonyCommander, commanderName);
                 gameObject.SetActive(false);
             }
         }
@@ -225,7 +229,8 @@ namespace AntColony.Units
                     while (relation.nearbySeconds >= 60)
                     {
                         relation.nearbySeconds -= 60;
-                        relation.value = Mathf.Min(100, relation.value + 2 * (traits.Has(CommanderTrait.Sociable) ? 1.5f : traits.Has(CommanderTrait.ColdBlooded) ? .5f : 1));
+                        relation.value = Mathf.Min(100, relation.value + 2 * (traits.Has(CommanderTrait.Sociable) ? 1.5f : traits.Has(CommanderTrait.ColdBlooded) ? .5f : 1)
+                            * (other.Traits.Has(CommanderTrait.Undertaker) ? .8f : 1));
                     }
                 }
                 // 한 쌍을 한 번만 판정한다. 양쪽 관계와 손실을 같은 순간에 적용한다.
@@ -261,6 +266,7 @@ namespace AntColony.Units
             {
                 int lost = Mathf.CeilToInt(c.troopCount * .2f);
                 c.troopCount -= lost; AntPool.Instance?.LoseAssigned(lost);
+                AntColony.World.Corpse.Drop(c, AntColony.World.CorpseKind.Ant, "일반개미", lost);
                 if (!c.HasTroops) { c.pendingDamage = 0; c.CommandStop(); }
             }
             loser.personalState.AddInjury(loser.traits, true);

@@ -118,6 +118,7 @@ namespace AntColony.Units
                 personalState.dead = true; personalState.departure = "Deceased";
                 if (personalState.equipment.Count > 0) { AntColony.World.EquipmentLoot.Drop(Position, personalState.equipment); personalState.equipment.Clear(); }
                 CampaignHistory.Record("사망", commanderName, "이탈 중 제압: 수용소 없음", true);
+                AntColony.World.Corpse.Drop(this, AntColony.World.CorpseKind.EnemyCommander, commanderName);
                 gameObject.SetActive(false);
             }
             RefreshDepartureNotice();

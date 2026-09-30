@@ -59,7 +59,7 @@ public static class WorkforceChecks
             var resources = ResourceManager.Instance;
             Call(resources, "RestoreState", 1000, 1000, 1000, 2000, 2000, 2000);
             var home = c.Position;
-            Check(CommanderTalents.Count == 13 && (int)CommanderJobs.All == 4095, "13 skills / 12 job bits");
+            Check(CommanderTalents.Count == 13 && (int)CommanderJobs.All == 8191, "13 skills / 13 job bits");
             Array.Clear(c.Talents.levels, 0, CommanderTalents.Count);
             var node = Loot(home + Vector3.right * 2, 200);
             var workforce = Workforce.For(node); workforce.Request(30);
@@ -152,7 +152,7 @@ public static class WorkforceChecks
             c.CommandStop(); Warp(c, home);
 
             GameMenuController.Instance.WorkSchedule();
-            Check(Object.FindObjectsByType<UnityEngine.UI.Toggle>(FindObjectsSortMode.None).Count(t => t.name.StartsWith("Job ")) == all.Length * 12, "12 toggles per commander");
+            Check(Object.FindObjectsByType<UnityEngine.UI.Toggle>(FindObjectsSortMode.None).Count(t => t.name.StartsWith("Job ")) == all.Length * 13, "13 toggles per commander");
             GameMenuController.Instance.Resume(); Time.timeScale = 0;
             WorkTargetPanel.Select(node); await Task.Delay(80);
             Check(GameObject.Find("WorkforceSlider") != null, "target workforce slider visible");

@@ -221,6 +221,7 @@ namespace AntColony.Buildings
             var prisoner = prisoners[index];
             CommanderAnt.OnPrisonerExecuted(prisoner.PersonalState.id, prisoner.PersonalState.originFaction, prisoner.Name);
             CampaignHistory.Record("처형", prisoner.Name, "포로 처형", true);
+            AntColony.World.Corpse.Drop(this, AntColony.World.CorpseKind.EnemyCommander, prisoner.Name);
             prisoners.RemoveAt(index);
             ExecutedCount++;
             AntColony.UI.ToastManager.Show("Prisoner executed.");
