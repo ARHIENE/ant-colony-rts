@@ -52,10 +52,17 @@ namespace AntColony.UI
             alerted.RemoveWhere(t => t == null || !known.Contains(t));
             fighting.RemoveWhere(t => t == null || !known.Contains(t));
             seeded = true;
-            ToastManager.SetCrisis("enemy", alerted.Count > 0 ? $"적 발견: 본거지에 적 {alerted.Count} — 징집소에서 출전하세요." : null);
+            ToastManager.SetCrisis("enemy", alerted.Count > 0 ? $"적 발견: 본거지에 적 {alerted.Count} — 징집소에서 출전하세요." : null, FocusThreat, "적 위치로 이동");
             if (!raised) return;
             AlarmCount++; Alarm?.Invoke(); FirstHints.Trigger("invasion");
             if (AlarmClip != null && Time.unscaledTime - lastSound >= SoundCooldown) { source.PlayOneShot(AlarmClip); lastSound = Time.unscaledTime; }
+        }
+
+        public static void FocusThreat()
+        {
+            var threat = instance != null ? instance.alerted.FirstOrDefault(t => t != null) : null;
+            if (threat == null) return;
+            FindFirstObjectByType<AntColony.Camera.IsometricCameraController>()?.FocusOn(threat.transform.position);
         }
 
         private static IEnumerable<Component> Threats()

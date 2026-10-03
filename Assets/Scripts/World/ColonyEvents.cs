@@ -21,6 +21,7 @@ namespace AntColony.World
             public float cold, flood, drought;
             public float[] cooldowns = new float[11];
             public int lastNight = -1; // 야행성 포식자가 나온 마지막 날
+            public float migrationOffer; // 이주 개미떼 합류 제안 남은 시간(0 = 없음). 수락·거절하거나 만료되면 0
             public List<EventActor.State> actors = new List<EventActor.State>();
         }
         public static ColonyEvents Instance { get; private set; }
@@ -56,6 +57,7 @@ namespace AntColony.World
             while (seconds > 0)
             {
                 var dt = Mathf.Min(seconds, 1); seconds -= dt;
+                if (state.migrationOffer > 0) { if (state.migrationOffer <= dt) DeclineMigration("기한 만료"); else state.migrationOffer -= dt; }
                 state.cold = Mathf.Max(0, state.cold - dt); state.flood = Mathf.Max(0, state.flood - dt); state.drought = Mathf.Max(0, state.drought - dt);
                 state.sinceLast = Mathf.Min(EventRules.Cooldown, state.sinceLast + dt);
                 for (int i = 0; i < state.cooldowns.Length; i++) state.cooldowns[i] = Mathf.Max(0, state.cooldowns[i] - dt);
@@ -78,7 +80,7 @@ namespace AntColony.World
             {
                 ColonyEvent.Wildfire or ColonyEvent.Harvest => Farms().Length > 0,
                 ColonyEvent.Mold => HomeCommanders().Any(c => !c.PersonalState.infected),
-                ColonyEvent.Wasps => !ProductionBlocked && FindFirstObjectByType<QueenChamber>() != null,
+                ColonyEvent.Wasps => false, // Phase 4: 기생 말벌 이벤트 삭제(여왕방 삭제). 이전 저장의 말벌은 그대로 처리된다.
                 ColonyEvent.Wanderer => CommanderRoster.Instance != null && CommanderRoster.Instance.Count < ScoutPost.DefaultMaxCommanders,
                 _ => true
             });
@@ -92,7 +94,10 @@ namespace AntColony.World
                 case ColonyEvent.Flood: state.flood = EventRules.FloodSeconds; CacheFloodNodes(); result = "물가 20m 내 자원·밭·낚시터 60초 중단 (치수 공사로 면제)"; break;
                 case ColonyEvent.Drought: state.drought = EventRules.DroughtSeconds; result = "120초간 밭 성장 감소 (감로·치수 공사는 -20%)"; break;
                 case ColonyEvent.Wildfire:
-                    var farms = Farms(); Burn(farms[Random.Range(0, farms.Length)]); result = "밭에 산불 발생. 흙벽·방화대로 확산을 막을 수 있습니다."; break;
+                    var farms = Farms(); Burn(farms[Random.Range(0, farms.Length)]);
+                    // Phase 5: 나뭇잎·나무껍질 벽은 불에 탄다(체력 절반 피해, 잠정).
+                    foreach (var leaf in FindObjectsByType<Wall>(FindObjectsSortMode.None).Where(w => w.Flammable && !w.IsDead && Home(w.Position)).ToArray()) leaf.TakeDamage(leaf.MaxHealth * .5f);
+                    result = "밭에 산불 발생. 흙벽·방화대로 확산을 막을 수 있습니다. 나뭇잎 벽도 탑니다."; break;
                 case ColonyEvent.Mold:
                     var healthy = HomeCommanders().Where(c => !c.PersonalState.infected).ToArray();
                     var patient = healthy[Random.Range(0, healthy.Length)]; Infect(patient); result = patient.CommanderName + " 감염. 의무실에서 치료하세요."; break;
@@ -109,10 +114,13 @@ namespace AntColony.World
                     if (!TryEdge(out var driftPoint)) return false;
                     EventActor.Spawn(new EventActor.State { kind = EventActorKind.Food, position = new Vec3Dto(driftPoint), remaining = EventRules.DriftSeconds, amount = EventRules.DriftFood });
                     EventActor.Spawn(new EventActor.State { kind = EventActorKind.Soil, position = new Vec3Dto(driftPoint + Vector3.right * 2), remaining = EventRules.DriftSeconds, amount = EventRules.DriftSoil });
-                    result = $"({driftPoint.x:0}, {driftPoint.z:0})에 Food 80·Soil 40. 5분 안에 운반하세요."; break;
+                    result = $"({driftPoint.x:0}, {driftPoint.z:0})에 Food 80·재료 40. 5분 안에 운반하세요."; break;
                 case ColonyEvent.Harvest:
                     foreach (var farm in Farms()) farm.GrantBountifulHarvest(); result = "각 밭의 다음 수확 1회 +50%"; break;
-                case ColonyEvent.Migration: AntPool.Instance?.Breed(EventRules.Migrants); result = "일반개미 10마리 합류"; break;
+                case ColonyEvent.Migration:
+                    // Phase 4: 합류 제안. 수락하면 장수 1명 + 일반개미 소수, 거절하거나 기한이 지나면 떠난다.
+                    state.migrationOffer = EventRules.MigrationOfferSeconds; RefreshMigrationNotice();
+                    result = $"이주 개미떼(장수 1 + 일반개미 {EventRules.Migrants})가 합류를 청합니다. {EventRules.MigrationOfferSeconds:0}초 안에 수락·거절하세요."; break;
                 case ColonyEvent.Caravan:
                     DiplomacyManager.Instance.Data.caravanUntil = DiplomacyManager.Instance.Data.elapsed + DiplomacyRules.CaravanSeconds;
                     result = "교역 캐러밴 도착 — J 외교에서 거래 (90초)"; break;
@@ -175,7 +183,7 @@ namespace AntColony.World
         }
         private static bool TryEdge(out Vector3 point)
         {
-            var bounds = HomeMapBuilder.CurrentWorldBounds; var queen = FindFirstObjectByType<QueenChamber>(); point = bounds.center;
+            var bounds = HomeMapBuilder.CurrentWorldBounds; var queen = FindFirstObjectByType<Stockpile>(); point = bounds.center;
             if (queen == null) return false;
             // 가장자리 후보만 사용한다. 본거지 근처로 순간 이동시키지 않는다.
             for (int i = 0; i < 64; i++)
@@ -200,14 +208,39 @@ namespace AntColony.World
             foreach (var a in FindObjectsByType<EventActor>(FindObjectsSortMode.None)) { a.gameObject.SetActive(false); Destroy(a.gameObject); }
             state = JsonUtility.FromJson<State>(JsonUtility.ToJson(value));
             foreach (var a in state.actors) EventActor.Spawn(a);
+            RefreshMigrationNotice();
             if (state.flood > 0) CacheFloodNodes();
         }
+        public bool MigrationPending => state.migrationOffer > 0;
+        public float MigrationOfferRemaining => state.migrationOffer;
+        public bool AcceptMigration()
+        {
+            if (!MigrationPending) return false;
+            state.migrationOffer = 0; RefreshMigrationNotice();
+            AntPool.Instance?.Breed(EventRules.Migrants);
+            var arrival = FindFirstObjectByType<Stockpile>()?.Position ?? HomeMapBuilder.CurrentWorldBounds.center;
+            var migrant = CommanderRoster.Instance != null && CommanderRoster.Instance.Count < ScoutPost.DefaultMaxCommanders
+                ? CommanderRoster.Instance.Create(null, CommanderRank.Corporal, new[] { UnitRole.Worker }, UnitRole.Worker, CommanderTraits.Random(), arrival) : null;
+            if (migrant != null) CampaignHistory.Record("합류", migrant.CommanderName, "이주 개미떼");
+            var result = (migrant != null ? migrant.CommanderName + " + " : "") + $"일반개미 {EventRules.Migrants}마리 합류";
+            CampaignHistory.Record("이벤트 결과", "이주 개미떼", "수락: " + result, true); AntColony.UI.ToastManager.Show("이주 개미떼 수락: " + result);
+            return true;
+        }
+        public bool DeclineMigration(string reason = "거절")
+        {
+            if (!MigrationPending) return false;
+            state.migrationOffer = 0; RefreshMigrationNotice();
+            CampaignHistory.Record("이벤트 결과", "이주 개미떼", reason + ": 떠났습니다", true); AntColony.UI.ToastManager.Show("이주 개미떼가 떠났습니다 (" + reason + ")");
+            return true;
+        }
+        private void RefreshMigrationNotice() => AntColony.UI.ToastManager.SetCrisis("migration", MigrationPending ? "이주 개미떼 합류 제안 — 화면의 수락/거절" : null);
+
         public static bool Validate(State s)
         {
             bool N(float v, float max) => !float.IsNaN(v) && !float.IsInfinity(v) && v >= 0 && v <= max;
             return s != null && N(s.checkRemaining, EventRules.CheckSeconds) && s.checkRemaining > 0 && N(s.sinceLast, EventRules.Cooldown)
                 && N(s.cold, EventRules.ColdSeconds) && N(s.flood, EventRules.FloodSeconds) && N(s.drought, EventRules.DroughtSeconds)
-                && s.cooldowns != null && s.cooldowns.Length == 11 && s.cooldowns.All(v => N(v, EventRules.Cooldown)) && s.lastNight >= -1
+                && N(s.migrationOffer, EventRules.MigrationOfferSeconds) && s.cooldowns != null && s.cooldowns.Length == 11 && s.cooldowns.All(v => N(v, EventRules.Cooldown)) && s.lastNight >= -1
                 && s.actors != null && s.actors.Count <= 6 + EventRules.NightPredators && s.actors.All(a => a != null && Enum.IsDefined(typeof(EventActorKind), a.kind)
                     && a.position != null && a.position.IsFinite() && Mathf.Abs(a.position.x) < 100000 && Mathf.Abs(a.position.y) < 100000 && Mathf.Abs(a.position.z) < 100000
                     && N(a.attackCooldown, EventRules.WaspInterval) && N(a.remaining, a.kind == EventActorKind.Wanderer ? EventRules.WandererSeconds : EventRules.DriftSeconds)

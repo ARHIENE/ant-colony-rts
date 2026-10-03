@@ -131,7 +131,7 @@ namespace AntColony.UI
                 new[] { "침공 난이도", new[] { "온화", "보통", "가혹" }[(int)options.difficulty] + $"  <color=#b8ac9a><size=12>간격 ×{DifficultyProfile.IntervalScale(options.difficulty):0.##} · 규모 ×{DifficultyProfile.StrengthScale(options.difficulty):0.##}</size></color>" },
                 new[] { "장수 사망", new[] { "관대", "보통", "가혹" }[(int)options.commanderDeath] },
                 new[] { "맵 시드", options.seed.ToString() },
-                new[] { "장소(바이옴)", "시작할 때 무작위  <color=#b8ac9a><size=12>숲·정원·물가·도시</size></color>" }
+                new[] { "장소(바이옴)", (options.biome == MapBiome.None ? "무작위" : BiomeRules.Name(options.biome) + " · " + BiomeRules.Difficulty(options.biome)) + "  <color=#b8ac9a><size=12>6종</size></color>" }
             };
             for (var i = 0; i < rows.Length; i++)
             {
@@ -141,10 +141,19 @@ namespace AntColony.UI
                 L.Label(sum, rows[i][1], 13, 20, y + 24, 272, 24, bold: true);
             }
 
+            // Phase 6: 시작 바이옴 선택(= 난이도). 무작위는 게임 시작 때 6종 중 하나.
+            var biomes = new[] { MapBiome.None }.Concat(BiomeRules.All).ToArray();
+            for (var i = 0; i < biomes.Length; i++)
+            {
+                var b = biomes[i];
+                var button = L.Button(sum, "Biome " + b, b == MapBiome.None ? "무작위" : BiomeRules.Name(b).Split(' ')[0], 20 + i * 39, 470, 37, 30,
+                    () => { ReadSeed(); options.biome = b; NewGameScreen(); }, b == MapBiome.None ? "6종 중 무작위" : BiomeRules.Name(b) + " · 난이도 " + BiomeRules.Difficulty(b), options.biome == b, 10);
+            }
+
             L.Line(p, 0, 600, 1120);
             L.Button(p, "Back", "뒤로   Esc", 20, 613, 110, 38, Main);
             L.Button(p, "Start Game", "게임 시작   Enter", 900, 613, 200, 38,
-                () => { if (!ReadSeed()) return; options.biome = BiomeRules.Random(); try { SaveSystem.NewGame(options); } catch (Exception e) { ToastManager.Show(e.Message); } }, null, true);
+                () => { if (!ReadSeed()) return; if (options.biome == MapBiome.None) options.biome = BiomeRules.Random(); try { SaveSystem.NewGame(options); } catch (Exception e) { ToastManager.Show(e.Message); } }, null, true);
         }
 
         public void Pause()

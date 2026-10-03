@@ -215,7 +215,7 @@ namespace AntColony.Units
                 var ship = commander.Transport != null ? commander.Transport : commander.Garrison.DockedTransport;
                 if (deposit != ship || ship == null || ship.State != ExpeditionState.Deployed) return false;
             }
-            else if (!deposit.CountsTowardPlayerDefeat || (!(deposit is QueenChamber) && !(deposit is Storage))) return false;
+            else if (!deposit.CountsTowardPlayerDefeat || (!(deposit is Stockpile) && !(deposit is Storage))) return false;
             if (!CanReach(deposit.Position)) return false;
             CommandStop();
             targetDeposit = deposit;

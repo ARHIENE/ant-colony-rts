@@ -19,7 +19,7 @@ namespace AntColony.Units
         public int WorkforceLimit => GameBalance.WorkforceBase + GameBalance.WorkforcePerSkill * talents.Level(CurrentActivity);
         public int WorkingAnts { get { WorkTarget?.Refresh(); return WorkTarget != null ? WorkTarget.Allocated : 0; } }
         public float WorkforceMultiplier => 1 + WorkingAnts * GameBalance.WorkforcePerAnt;
-        public float WorkRate(CommanderActivity activity) => talents.Multiplier(activity) * WorkFactor * WorkforceMultiplier;
+        public float WorkRate(CommanderActivity activity) => talents.Multiplier(activity) * WorkFactor * WorkforceMultiplier * AgeWorkMultiplier(activity) * AntColony.Buildings.RoomSystem.WorkBonus(WorkTarget) * BiomeRules.WorkAt(AntColony.Buildings.RoomSystem.IsIndoors(Position));
         public float LoadCapacity => (GameBalance.CarryBase + talents.Level(CommanderActivity.Strength) * GameBalance.CarryPerStrength)
             * traits.CarryMultiplier + WorkingAnts * GameBalance.CarryPerAnt;
         internal void SetWorkTarget(Component target)
@@ -47,7 +47,7 @@ namespace AntColony.Units
             CommanderJobs.Art => CommanderActivity.Art, CommanderJobs.Hunting => CommanderActivity.Melee,
             _ => CommanderActivity.Gathering
         };
-        public bool CanDoJob(CommanderJobs job) => !traits.Blocks(job);
+        public bool CanDoJob(CommanderJobs job) => !traits.Blocks(job) && !IsChild; // 어린 장수는 일하지 않는다(Phase 4)
         public bool StartService(BuildingBase target, CommanderJobs job)
         {
             if (!CivilianWorkReady || !CanReceiveOrders || IsWorking || LabUpgradeBusy || !CanDoJob(job)

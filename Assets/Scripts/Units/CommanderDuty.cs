@@ -53,7 +53,7 @@ namespace AntColony.Units
 
         internal bool CanMobilize => isActiveAndEnabled && !IsDead && PersonalHealth > 0 && !IsDeparting
             && PersonalState.mentalBreak == MentalBreak.None && !PersonalState.treating && PersonalState.rageRemaining <= 0
-            && !traits.Has(CommanderTrait.Pacifist) && !IsAwayFromHome && !IsDeployed && troopCount == 0 && !Social.diving && LabUpgradeLab == null;
+            && !traits.Has(CommanderTrait.Pacifist) && !IsChild && !IsAwayFromHome && !IsDeployed && troopCount == 0 && !Social.diving && LabUpgradeLab == null;
         internal void Mobilize(int troops, Vector3 home)
         {
             ScienceAssignment?.ReleaseResearcher();

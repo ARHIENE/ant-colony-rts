@@ -11,13 +11,14 @@ namespace AntColony.UI
     // 클릭 = 선택, 더블클릭 = 카메라 이동. 칸 아래 기분 막대, 우상단 하는 일/경고 아이콘, 원정·출전은 흐리게.
     public sealed class RosterBar : MonoBehaviour
     {
-        public const int Visible = 12;
-        private const float Cell = 32f, Gap = 2f, DoubleClick = .35f;
+        public const int Visible = 10;
+        private const float Cell = 42f, Gap = 2f, DoubleClick = .35f;
 
         private sealed class Slot { public Button button; public Text letter; public RectTransform mood; public Image moodFill; public RawImage icon; public Text alert; public CanvasGroup group; public MenuTooltip tip; }
         private readonly Slot[] slots = new Slot[Visible];
         private RectTransform root;
         private Text count;
+        private MenuTooltip countTip;
         private int offset;
         private CommanderAnt lastClicked;
         private float lastClickTime;
@@ -27,19 +28,24 @@ namespace AntColony.UI
 
         public static RosterBar Create(Transform canvas)
         {
-            var width = 20 + 4 + Visible * (Cell + Gap) + 4 + 20 + 44;
+            var width = 20 + 4 + Visible * (Cell + Gap) + 4 + 20 + 56;
             var root = MenuTheme.Rect("RosterBar", canvas);
             root.anchorMin = root.anchorMax = root.pivot = new Vector2(.5f, 1);
-            root.sizeDelta = new Vector2(width, 36); root.anchoredPosition = new Vector2(-10, -2);
+            root.sizeDelta = new Vector2(width, 44); root.anchoredPosition = new Vector2(-10, -2);
             var bar = root.gameObject.AddComponent<RosterBar>(); bar.root = root;
             root.gameObject.AddComponent<CanvasGroup>();
             Arrow(root, "Roster Prev", "<", 0, () => bar.Scroll(-Visible));
             for (var i = 0; i < Visible; i++) bar.slots[i] = bar.Portrait(i, 24 + i * (Cell + Gap));
             Arrow(root, "Roster Next", ">", 24 + Visible * (Cell + Gap) + 1, () => bar.Scroll(Visible));
-            bar.count = MenuTheme.Text(root, "", 11);
-            var r = bar.count.rectTransform; r.anchorMin = r.anchorMax = r.pivot = new Vector2(0, .5f);
-            r.anchoredPosition = new Vector2(24 + Visible * (Cell + Gap) + 26, 0); r.sizeDelta = new Vector2(44, 20);
-            bar.count.color = MenuTheme.Dim; bar.count.font = MenuTheme.NumberFont;
+            // HUD v3: 인원수(본거지/전체) 클릭 = 장수 관리.
+            var r = MenuTheme.Rect("Roster Count", root); r.anchorMin = r.anchorMax = r.pivot = new Vector2(0, .5f);
+            r.anchoredPosition = new Vector2(24 + Visible * (Cell + Gap) + 26, 0); r.sizeDelta = new Vector2(52, 30);
+            r.gameObject.AddComponent<Image>();
+            var button = r.gameObject.AddComponent<Button>(); MenuTheme.StyleButton(button);
+            button.onClick.AddListener(() => GameMenuController.Instance?.Roster());
+            bar.countTip = r.gameObject.AddComponent<MenuTooltip>();
+            bar.count = MenuTheme.Text(r, "", 12); MenuTheme.Stretch(bar.count.rectTransform);
+            bar.count.alignment = TextAnchor.MiddleCenter; bar.count.color = MenuTheme.Muted; bar.count.font = MenuTheme.NumberFont;
             return bar;
         }
 
@@ -71,7 +77,7 @@ namespace AntColony.UI
             if (!visible) return;
             var list = Commanders;
             offset = Mathf.Clamp(offset, 0, Mathf.Max(0, list.Length - Visible));
-            var selected = SelectedUnitPanel.FindSingleSelectedCommander(FindFirstObjectByType<SelectionManager>());
+            var selected = HudOverview.Selected(FindFirstObjectByType<SelectionManager>());
             for (var i = 0; i < Visible; i++)
             {
                 var s = slots[i];
@@ -80,8 +86,8 @@ namespace AntColony.UI
                 if (!has) continue;
                 var c = list[i + offset];
                 s.letter.text = Initial(c.CommanderName);
-                s.letter.color = c == selected ? MenuTheme.TextColor : MenuTheme.Muted;
-                s.button.GetComponent<Outline>().effectColor = c == selected ? MenuTheme.Accent : MenuTheme.Line;
+                s.letter.color = selected.Contains(c) ? MenuTheme.TextColor : MenuTheme.Muted;
+                s.button.GetComponent<Outline>().effectColor = selected.Contains(c) ? MenuTheme.Selection : MenuTheme.Line;
                 var mood = Mathf.Clamp01(c.Mood / 100f);
                 s.mood.anchorMax = new Vector2(mood, 1);
                 s.moodFill.color = c.Mood <= 20 ? MenuTheme.Danger : c.Mood <= CommanderOverhead.MoodWarning ? MenuTheme.Accent : MenuTheme.Hp;
@@ -94,7 +100,10 @@ namespace AntColony.UI
                 s.tip.Message = $"{c.CommanderName} · {(c.IsAwayFromHome ? "원정 중" : activity.Length > 0 ? activity : "대기")}{(c.IsNocturnal ? " (야행성)" : "")}"
                     + $" · 기분 {c.Mood:0}{(alert ? " 경고" : "")}{(c.SleepsRough ? " · 노숙" : "")}";
             }
-            count.text = list.Length > Visible ? $"{offset + 1}-{Mathf.Min(offset + Visible, list.Length)}/{list.Length}" : list.Length.ToString();
+            var all = list.Length;
+            var home = list.Count(c => !c.IsAwayFromHome);
+            count.text = $"{home}/{all}";
+            countTip.Message = $"장수 관리 열기 · 본거지 {home} / 전체 {all}" + (list.Length > Visible ? $" · 바 {offset + 1}-{Mathf.Min(offset + Visible, list.Length)}" : "");
         }
 
         // 초상 에셋 전까지 이름 첫 글자. 자동 이름(「Commander 7」)은 번호로 구분한다.
@@ -109,7 +118,7 @@ namespace AntColony.UI
         {
             var rect = MenuTheme.Rect("Roster " + index, root);
             rect.anchorMin = rect.anchorMax = rect.pivot = new Vector2(0, .5f);
-            rect.anchoredPosition = new Vector2(x, 0); rect.sizeDelta = new Vector2(Cell, Cell);
+            rect.anchoredPosition = new Vector2(x, 0); rect.sizeDelta = new Vector2(Cell, 38);
             rect.gameObject.AddComponent<Image>();
             rect.gameObject.AddComponent<Outline>().effectColor = MenuTheme.Line;
             var button = rect.gameObject.AddComponent<Button>(); MenuTheme.StyleButton(button);

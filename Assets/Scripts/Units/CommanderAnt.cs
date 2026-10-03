@@ -140,7 +140,7 @@ namespace AntColony.Units
             + traits.AttackBonus + labAttackLevel * LabAttackBonusPerLevel
             + EquipmentBonus(EquipmentSlot.Weapon) + (HasNearbyFriend ? 1 : 0)
             + (HasSupportAura ? SupportAttackBonus : 0f)) * troopCount * (1f - .25f * PersonalState.Severity(InjuryPart.Mandible)) * (PersonalState.rageRemaining > 0 ? 1.3f : 1f);
-        public override float Armor => base.Armor + (Role == UnitRole.Melee ? .5f * talents.Level(CommanderActivity.Melee) : Role == UnitRole.Defense ? talents.Level(CommanderActivity.Melee) : 0) + traits.ArmorBonus
+        public override float Armor => base.Armor + (AntColony.Buildings.RoomSystem.NearCastleWall(Position) ? AntColony.Buildings.GameBalanceRooms.CastleWallArmor : 0) + (Role == UnitRole.Melee ? .5f * talents.Level(CommanderActivity.Melee) : Role == UnitRole.Defense ? talents.Level(CommanderActivity.Melee) : 0) + traits.ArmorBonus
             + labArmorLevel * LabArmorBonusPerLevel + (HasSupportAura ? SupportArmorBonus : 0f)
             + EquipmentBonus(EquipmentSlot.Armor) - 2f * PersonalState.Severity(InjuryPart.Thorax)
             + (skills.DefensiveStanceActive ? CommanderSkills.DefensiveStanceArmor : 0f);
@@ -155,7 +155,7 @@ namespace AntColony.Units
             if (CurrentActivity != CommanderActivity.Gathering) GainExperience(CurrentActivity, seconds);
         }
         public void GainExperience(CommanderActivity activity, float amount) => talents.Add(activity,
-            amount * traits.GrowthMultiplier(activity) * (1f - .5f * PersonalState.Severity(InjuryPart.Head)));
+            amount * traits.GrowthMultiplier(activity) * AgeLearningMultiplier * (1f - .5f * PersonalState.Severity(InjuryPart.Head)));
         protected override float CarryCapacity => LoadCapacity;
         protected override float FishingWorkSpeed => WorkforceMultiplier * WorkFactor;
         protected override void OnDelivered(float amount) => GainExperience(CommanderActivity.Strength, amount * .5f);

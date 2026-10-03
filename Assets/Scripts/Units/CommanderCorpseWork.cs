@@ -73,7 +73,7 @@ namespace AntColony.Units
             personalState.AddMood("동족 포식", 15, 600);
             foreach (var other in SocialRoster.Where(c => c.IsColonyMember))
             {
-                if (colonyCommander) other.Traits.ChangeLoyalty(-3, "아군 장수 시체 포식");
+                if (colonyCommander) other.MoodEvent("아군 장수 시체 포식", -3);
                 if (other == this || !other.isActiveAndEnabled || other.IsCaptive || other.IsEmbarked
                     || other.Traits.Has(CommanderTrait.Cannibal) || other.Traits.Has(CommanderTrait.ColdBlooded)
                     || (other.Position - Position).sqrMagnitude > 144) continue;

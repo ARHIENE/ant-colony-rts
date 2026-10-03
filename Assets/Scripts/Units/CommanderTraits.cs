@@ -25,14 +25,12 @@ namespace AntColony.Units
     [Serializable]
     public class CommanderTraits
     {
-        public const int MinLoyalty = 0, MaxLoyalty = 100;
         [SerializeField] private CommanderPersonality personality;
-        [SerializeField] private int loyalty = 50;
         public List<CommanderTrait> values = new List<CommanderTrait>();
         public List<CommanderPassion> passions = new List<CommanderPassion>();
-        public List<string> loyaltyReasons = new List<string>();
         public CommanderPersonality Personality => Has(CommanderTrait.Brave) ? CommanderPersonality.Brave : Has(CommanderTrait.Cautious) ? CommanderPersonality.Cautious : Has(CommanderTrait.Loyal) ? CommanderPersonality.Devoted : CommanderPersonality.Balanced;
-        public int Loyalty => loyalty;
+        // Phase 3(2026-10-01): 충성심 삭제. 기분이 이 값 이하로 한 달 이어지면 탈주·반란 판정. 충직은 더 버티고 교활은 쉽게 떠난다(잠정).
+        public int DepartureMood => Has(CommanderTrait.Loyal) ? 10 : Has(CommanderTrait.Cunning) ? 30 : 20;
         public bool Has(CommanderTrait trait) => values.Contains(trait) || (values.Count == 0 && ((trait == CommanderTrait.Brave && personality == CommanderPersonality.Brave) || (trait == CommanderTrait.Cautious && personality == CommanderPersonality.Cautious) || (trait == CommanderTrait.Loyal && personality == CommanderPersonality.Devoted)));
         public int AttackBonus => Has(CommanderTrait.Coward) ? -2 : Has(CommanderTrait.Cautious) ? -1 : Has(CommanderTrait.Brave) ? 2 : Has(CommanderTrait.Reckless) ? 3 : 0;
         public int ArmorBonus => Has(CommanderTrait.Coward) ? 1 : Has(CommanderTrait.Cautious) ? 2 : Has(CommanderTrait.Brave) ? -1 : Has(CommanderTrait.Reckless) ? -3 : 0;
@@ -57,15 +55,7 @@ namespace AntColony.Units
         public CommanderTraits() { }
         public static string DisplayName(CommanderTrait trait) => trait switch {
             CommanderTrait.Undertaker => "장의사", CommanderTrait.Cannibal => "동족 포식", CommanderTrait.Neat => "결벽", _ => trait.ToString() };
-        public CommanderTraits(CommanderPersonality legacy, int value) { personality = legacy; SetLoyalty(value); }
-        public void SetLoyalty(int value) => loyalty = Mathf.Clamp(value, 0, Has(CommanderTrait.Cunning) ? 70 : 100);
-        public void AddLoyalty(int delta) => ChangeLoyalty(delta, "Event");
-        public void ChangeLoyalty(int delta, string reason)
-        {
-            var old = loyalty; SetLoyalty(loyalty + delta);
-            loyaltyReasons.Insert(0, reason + " " + (loyalty - old).ToString("+0;-0;0"));
-            if (loyaltyReasons.Count > 3) loyaltyReasons.RemoveAt(3);
-        }
+        public CommanderTraits(CommanderPersonality legacy) { personality = legacy; }
         private static int Group(CommanderTrait t) => (int)t < 20 ? (int)t / 4 : (int)t < 24 ? 5 + ((int)t - 20) / 2 : -1;
         public bool TryAdd(CommanderTrait t)
         {
@@ -112,7 +102,6 @@ namespace AntColony.Units
                 if (flame == 2) major++;
                 result.passions.Add(new CommanderPassion { activity = activity, flame = flame });
             }
-            result.SetLoyalty((first != null && second != null ? Mathf.RoundToInt((first.Loyalty + second.Loyalty) * .5f) + UnityEngine.Random.Range(-10,11) : 50) + (result.Has(CommanderTrait.Loyal) ? 20 : 0));
             return result;
         }
     }

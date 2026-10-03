@@ -32,6 +32,7 @@ namespace AntColony.Save
                 campaign = CampaignResearch.Instance?.CaptureState() ?? new CampaignResearch.State(),
                 history = CampaignHistory.Instance?.Capture() ?? new CampaignHistory.State(),
                 events = ColonyEvents.Instance?.Capture() ?? new ColonyEvents.State(),
+                population = ColonyPopulation.Instance?.Capture() ?? new ColonyPopulation.State(),
                 diplomacy = DiplomacyManager.Instance?.Capture(),
                 equipmentInventory = EquipmentInventory.Instance == null ? new List<EquipmentItem>() : EquipmentInventory.Instance.Items.Select(e => JsonUtility.FromJson<EquipmentItem>(JsonUtility.ToJson(e))).ToList(),
                 corpses = Corpse.All.Where(c => c.Available).Select(c => c.Capture()).ToList(),
@@ -222,7 +223,8 @@ namespace AntColony.Save
             ResourceManager.Instance.RestoreState(p.food, p.soil, p.special,
                 p.foodCapacity + storageBonus.x, p.soilCapacity + storageBonus.y, p.specialCapacity + storageBonus.z);
             AntPool.Instance.RestoreCounts(p.antsFree, p.antsAssigned, p.antsReserved);
-            GameManager.Instance.FishingUnlocked = p.fishingUnlocked;
+            GameManager.Instance.FishingUnlocked = p.fishingUnlocked
+                || CampaignResearch.Instance != null && CampaignResearch.Instance.Has(ScienceTechnology.Fishing);
             GameManager.Instance.RestoreFlags(file.loopCompleted, file.bossDefeated, file.defeated);
             for (var i = 0; i < commanders.Count; i++)
                 if (!file.commanders[i].activeInScene || commanders[i].IsDead) commanders[i].gameObject.SetActive(false);
@@ -238,7 +240,7 @@ namespace AntColony.Save
             Encyclopedia.Merge(file.discoveries); GameSession.Instance.MarkStarted(file.playSeconds, file.gameSeconds);
             foreach (var corpse in Corpse.All.ToArray())
                 commanders.FirstOrDefault(c => c.PersonalState.id == corpse.Data.workerId)?.RestoreCorpseWork(corpse);
-            CampaignHistory.Instance.Restore(file.history); ColonyEvents.Instance.Restore(file.events); DiplomacyManager.Instance.RestoreRebels();
+            CampaignHistory.Instance.Restore(file.history); ColonyEvents.Instance.Restore(file.events); ColonyPopulation.Instance?.Restore(file.population); DiplomacyManager.Instance.RestoreRebels();
             CommanderAnt.RefreshDepartureNotice();
             UnityEngine.Random.state = JsonUtility.FromJson<UnityEngine.Random.State>(file.randomState);
         }

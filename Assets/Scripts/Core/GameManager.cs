@@ -18,7 +18,6 @@ namespace AntColony.Core
         private bool loopCompleted;
         private bool bossDefeated;
         private bool defeated;
-        private bool hasRegisteredPlayerBuilding;
         private bool quitting;
         internal bool SavedLoop => loopCompleted;
         internal bool SavedBoss => bossDefeated;
@@ -44,7 +43,7 @@ namespace AntColony.Core
             }
         }
 
-        // 플레이 종료 시 모든 건물이 한꺼번에 해제되면서 패배로 오인되는 것을 막는다.
+        // 플레이 종료 중에는 패배를 판정하지 않는다.
         private void OnApplicationQuit()
         {
             quitting = true;
@@ -60,14 +59,18 @@ namespace AntColony.Core
         {
             if (building == null || !building.CountsTowardPlayerDefeat || buildings.Contains(building)) return;
             buildings.Add(building);
-            hasRegisteredPlayerBuilding = true;
         }
 
-        // 등록된 적이 있는 건물만 해제에 성공하므로, 해제 성공 + 잔여 0개면 콜로니가 전멸한 것이다.
-        public void UnregisterBuilding(BuildingBase building)
+        public void UnregisterBuilding(BuildingBase building) => buildings.Remove(building);
+
+        private void LateUpdate()
         {
-            if (!buildings.Remove(building)) return;
-            if (quitting || defeated || !hasRegisteredPlayerBuilding || buildings.Count > 0) return;
+            if (quitting || defeated || Save.SaveSystem.Busy || !GameSession.Exists
+                || !GameSession.Instance.GameStarted || CommanderRoster.Instance == null
+                || CampaignResearch.Instance != null && CampaignResearch.Instance.Departed) return;
+            // 회복 가능한 쓰러짐·수면·치료·원정·수송은 생존 전력에 포함한다.
+            foreach (var commander in CommanderRoster.Instance.Commanders)
+                if (!commander.IsDead && !commander.IsCaptive && !commander.IsDeparting && !commander.IsHostile) return;
             defeated = true;
             OnDefeat?.Invoke();
         }

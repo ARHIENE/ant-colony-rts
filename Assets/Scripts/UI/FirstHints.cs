@@ -19,7 +19,7 @@ namespace AntColony.UI
             ("breeding", "첫 번식", "보육실에서 새 장수가 태어났습니다. 부모의 특성과 재능 일부를 물려받습니다."),
             ("worldmap", "월드맵 해금", "M으로 월드맵을 열어 거점에 원정을 보내세요. 행성을 드래그해 돌릴 수 있습니다."),
             ("contact", "첫 문명 접촉", "다른 문명을 만났습니다. 외교 화면에서 협정·거래·선전포고를 할 수 있습니다."),
-            ("loyalty", "첫 충성심 경고", "충성심이 20 이하인 장수는 떠나거나 반란을 일으킬 수 있습니다. 포상과 좋은 대우로 충성심을 올리세요."),
+            ("loyalty", "첫 탈주 경고", "기분이 20 이하로 한 달 이어진 장수는 떠나거나 반란을 일으킬 수 있습니다. 포상과 좋은 대우로 기분을 올리세요."),
         };
         private float scan;
 
@@ -51,7 +51,7 @@ namespace AntColony.UI
             {
                 if (c == null || !c.IsColonyMember || c.IsHostile) continue;
                 if (c.PersonalState.injuries.Count > 0) Trigger("injury");
-                if (c.Traits.Loyalty <= 20) Trigger("loyalty");
+                if (c.Mood <= c.Traits.DepartureMood) Trigger("loyalty");
             }
         }
     }

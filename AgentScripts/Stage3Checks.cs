@@ -59,7 +59,7 @@ public static class Stage3Checks
             var rm = ResourceManager.Instance;
             foreach (Resource r in Enum.GetValues(typeof(Resource))) { rm.AddCapacity(r, 10000); rm.Add(r, 9000); }
             var roster = CommanderRoster.Instance; var c = roster.Commanders[0];
-            foreach (var commander in roster.Commanders) commander.ApplyTraits(new CommanderTraits(CommanderPersonality.Balanced, 50));
+            foreach (var commander in roster.Commanders) commander.ApplyTraits(new CommanderTraits(CommanderPersonality.Balanced));
             c.Talents.levels[(int)CommanderActivity.Crafting] = 0; c.Talents.experience[(int)CommanderActivity.Crafting] = 0;
             var w = Build<Workshop>(BuildingKind.Workshop, c.Position + Vector3.forward * 4);
             Move(c, w.Position + Vector3.right * 3);

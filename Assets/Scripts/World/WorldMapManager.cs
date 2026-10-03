@@ -32,7 +32,7 @@ namespace AntColony.World
 
         private void Start()
         {
-            var queen = FindFirstObjectByType<QueenChamber>();
+            var queen = FindFirstObjectByType<Stockpile>();
             HomePosition = queen != null ? queen.Position : Vector3.zero;
             var camera = UnityEngine.Camera.main.GetComponent<AntColony.Camera.IsometricCameraController>();
             homeFocus = camera.FocusPoint;

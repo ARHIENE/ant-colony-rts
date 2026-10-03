@@ -41,9 +41,12 @@ namespace AntColony.Regression
                 && (m is WildMonster || m is ColonyInvasion)).ToArray();
             foreach (var threat in threats) threat.enabled = false;
             var labObject = new GameObject("FishingTestLab");
-            var lab = labObject.AddComponent<QueenChamber>();
+            var lab = labObject.AddComponent<ScienceLab>();
+            var research = CampaignResearch.Instance;
+            var savedResearch = research.CaptureState();
+            research.RestoreState(new CampaignResearch.State());
             var secondObject = new GameObject("FishingSecondLab");
-            var second = secondObject.AddComponent<QueenChamber>();
+            var second = secondObject.AddComponent<ScienceLab>();
             var fishAmount = spot.AmountRemaining;
             GameObject newWorkerObject = null;
             try
@@ -54,18 +57,25 @@ namespace AntColony.Regression
                 Assert(ReferenceEquals(Get(worker, "targetNode"), previousTarget), "locked worker command preserves previous task");
                 rm.Add(ResourceType.Food, 100);
                 rm.Add(ResourceType.Soil, 100);
-                Set(lab, "fishingResearchSeconds", .15f);
+                var definition = CampaignResearch.Technologies[(int)ScienceTechnology.Fishing];
                 var food = rm.GetAmount(ResourceType.Food);
                 var soil = rm.GetAmount(ResourceType.Soil);
-                Assert(lab.TryResearchFishing(), "start research");
-                Assert(!second.TryResearchFishing() && !lab.TryResearchFishing(), "concurrent research rejected");
-                Assert(rm.GetAmount(ResourceType.Food) == food - 30 && rm.GetAmount(ResourceType.Soil) == soil - 20, "single research charge");
+                Assert(research.TryStart(ScienceTechnology.Fishing), "start science fishing");
+                Assert(!research.TryStart(ScienceTechnology.Fishing), "concurrent research rejected");
+                Assert(rm.GetAmount(ResourceType.Food) == food - definition.Food && rm.GetAmount(ResourceType.Soil) == soil - definition.Soil, "single research charge");
+                var researcher = CommanderRoster.Instance.Commanders.First(c => c.CivilianWorkReady && c.CanReceiveOrders);
+                lab.transform.position = researcher.Position;
+                researcher.SetJobEnabled(CommanderJobs.Research, true);
+                Assert(lab.TryAssign(researcher), "assign scientist");
                 labObject.SetActive(false);
-                await Task.Delay(200);
-                Assert(!gm.FishingUnlocked && !(bool)Get(lab, "isFishingResearching"), "interrupted research stays locked");
+                research.Tick(definition.Work * 10);
+                Assert(!gm.FishingUnlocked && research.Progress == 0, "no researcher pauses science");
                 labObject.SetActive(true);
-                Assert(lab.TryResearchFishing(), "restart research");
-                await Until(() => gm.FishingUnlocked, 2000);
+                Assert(lab.TryAssign(researcher), "reassign scientist");
+                research.Tick(definition.Work * 100);
+                Assert(gm.FishingUnlocked && research.Has(ScienceTechnology.Fishing), "science completes global unlock");
+                lab.ReleaseResearcher();
+                researcher.SetJobEnabled(CommanderJobs.All, false);
                 Assert(spot.CanGather && spot.GatherRateMultiplier == 2f, "unlock and fishing rate");
                 newWorkerObject = GameObject.CreatePrimitive(PrimitiveType.Capsule);
                 newWorkerObject.transform.position = worker.transform.position;
@@ -74,7 +84,7 @@ namespace AntColony.Regression
                 newWorker.CommandGather(spot);
                 Assert((ResourceNode)Get(newWorker, "targetNode") == spot, "new worker inherits fishing unlock");
                 Object.Destroy(newWorkerObject);
-                Assert(!second.TryResearchFishing(), "completed research cannot charge again");
+                Assert(!research.TryStart(ScienceTechnology.Fishing), "completed research cannot charge again");
                 Object.Destroy(labObject);
                 await Task.Delay(50);
                 Assert(gm.FishingUnlocked && spot.CanGather, "learned fishing survives lab destruction");
@@ -91,7 +101,7 @@ namespace AntColony.Regression
                 typeof(ResourceNode).GetProperty("FishMonth", BindingFlags.Instance | BindingFlags.NonPublic).SetValue(spot, GameCalendar.TotalMonths - 1);
                 spot.RefreshFishingMonth();
                 Assert(spot.CanGather && spot.AmountRemaining == GameBalance.FishingMonthlyFood, "next month restocks");
-                return "PASS: locked command/extraction, single charge, concurrent research guard, cancellation, restart, unlock, lab destruction, real shoreline harvest/deposit, monthly cap and restock.";
+                return "PASS: locked command/extraction, single charge, concurrent research guard, scientist interruption/resume, unlock, lab destruction, real shoreline harvest/deposit, monthly cap and restock.";
             }
             finally
             {
@@ -100,6 +110,7 @@ namespace AntColony.Regression
                 Object.Destroy(secondObject);
                 upkeep.enabled = wasEnabled;
                 foreach (var threat in threats) if (threat != null) threat.enabled = true;
+                research.RestoreState(savedResearch);
                 typeof(GameManager).GetProperty("FishingUnlocked").SetValue(gm, false);
                 Set(spot, "amountRemaining", fishAmount);
                 Set(spot, "regrowTimer", 0f);

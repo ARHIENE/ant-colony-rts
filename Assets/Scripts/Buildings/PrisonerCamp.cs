@@ -59,6 +59,7 @@ namespace AntColony.Buildings
         [SerializeField, Min(1)] private int capacity = 5;
         [SerializeField, Range(0f, 1f)] private float basePersuadeChance = .6f;
         // 충성심이 높을수록 회유가 어렵다. 충성심 100이면 이 값만큼 확률이 깎인다.
+        // 기분 100이면 이 값만큼 깎인다(필드 이름은 씬 직렬화 호환용으로 유지). 피로 100이면 같은 값만큼 오른다.
         [SerializeField, Range(0f, 1f)] private float loyaltyPenalty = .5f;
         [SerializeField, Range(0f, 1f)] private float attemptBonus = .05f;
         [SerializeField, Min(0.1f)] private float escapeCheckSeconds = 30f;
@@ -115,8 +116,8 @@ namespace AntColony.Buildings
             // 뒤에서부터 돌아 탈출로 인한 인덱스 이동이 남은 포로를 건너뛰지 않게 한다.
             for (var i = prisoners.Count - 1; i >= 0; i--)
             {
-                // 충성심이 높은 포로일수록 자기 진영으로 돌아가려 한다.
-                var chance = escapeChance * (1f + prisoners[i].Traits.Loyalty / (float)CommanderTraits.MaxLoyalty);
+                // 기분이 좋은(기운 있는) 포로일수록 탈출을 시도한다.
+                var chance = escapeChance * (1f + MoodOf(prisoners[i]) / 100f);
                 if (Random.value >= chance) continue;
                 CampaignHistory.Record("탈주", prisoners[i].Name, "포로 수용소 탈출");
                 prisoners.RemoveAt(i);
@@ -148,7 +149,15 @@ namespace AntColony.Buildings
             return true;
         }
 
-        // 회유 성공률. 충성심이 높을수록 낮아지고, 반복 시도할수록 조금씩 오른다.
+        // 포로 기분: 기본 60 + 기조 특성 + 남은 기분 요인(수용소에서는 시간이 흐르지 않는다).
+        public static float MoodOf(Prisoner p)
+        {
+            var value = 60f + p.Traits.BaseMood;
+            if (p.PersonalState != null) foreach (var f in p.PersonalState.moodFactors) value += f.value;
+            return Mathf.Clamp(value, 0, 100);
+        }
+
+        // 회유 성공률. 기분이 높을수록 낮아지고 피로가 높을수록·반복 시도할수록 오른다.
         public float PersuadeChance(Prisoner prisoner) => PersuadeChance(prisoner, 0);
 
         // TryPersuade는 시도 횟수를 올린 뒤에 주사위를 굴린다. UI가 PersuadeChance를 그대로 쓰면
@@ -158,7 +167,9 @@ namespace AntColony.Buildings
         private float PersuadeChance(Prisoner prisoner, int extraAttempts)
         {
             if (prisoner == null) return 0f;
-            var loyaltyRatio = prisoner.Traits.Loyalty / (float)CommanderTraits.MaxLoyalty;
+            // Phase 3: 충성심 대신 포로의 피로가 높고 기분이 낮을수록 회유가 쉽다.
+            var moodRatio = MoodOf(prisoner) / 100f;
+            var fatigueRatio = (prisoner.PersonalState?.sleep.fatigue ?? 0f) / 100f;
             // 헌신형은 좀처럼 넘어오지 않고 용감형은 강한 쪽을 따른다.
             var personalityShift = prisoner.Traits.Personality switch
             {
@@ -166,7 +177,7 @@ namespace AntColony.Buildings
                 CommanderPersonality.Brave => .1f,
                 _ => 0f
             };
-            var chance = basePersuadeChance - loyaltyRatio * loyaltyPenalty + personalityShift
+            var chance = basePersuadeChance - moodRatio * loyaltyPenalty + fatigueRatio * loyaltyPenalty + personalityShift
                 + (prisoner.PersuadeAttempts + extraAttempts) * attemptBonus;
             return Mathf.Clamp01(chance);
         }
@@ -193,7 +204,6 @@ namespace AntColony.Buildings
             recruit.WorkState.duty = CommanderDuty.Civilian;
             recruit.Social.departure = DepartureState.None; recruit.Social.pendingDeparture = false;
             recruit.PersonalState.departure = "";
-            recruit.Traits.SetLoyalty(30);
             recruit.RestoreLabLevels(prisoner.LabAttack, prisoner.LabArmor);
             recruit.Skills.Restore(false, prisoner.StrikeCooldown, prisoner.StanceCooldown, 0);
             recruit.GetComponent<SelectableObject>().enabled = true;

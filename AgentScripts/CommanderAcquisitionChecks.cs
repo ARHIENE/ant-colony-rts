@@ -112,10 +112,10 @@ namespace AntColony.Regression
 
                 var parentA = roster.Create("Parent A", CommanderRank.Sergeant,
                     new[] { UnitRole.Worker, UnitRole.Melee }, UnitRole.Worker,
-                    new CommanderTraits(CommanderPersonality.Brave, 60), origin);
+                    new CommanderTraits(CommanderPersonality.Brave), origin);
                 var parentB = roster.Create("Parent B", CommanderRank.Sergeant,
                     new[] { UnitRole.Worker, UnitRole.Ranged }, UnitRole.Worker,
-                    new CommanderTraits(CommanderPersonality.Cautious, 40), origin + new Vector3(2f, 0f, 0f));
+                    new CommanderTraits(CommanderPersonality.Cautious), origin + new Vector3(2f, 0f, 0f));
                 Check(parentA != null && parentB != null, "부모 장수 2명이 만들어진다");
                 // 번식은 연인(서로 관계 70 이상) 쌍만 한다.
                 parentA.PersonalState.Relation(parentB.PersonalState.id).value = 70;
@@ -236,19 +236,19 @@ namespace AntColony.Regression
                 await Task.Yield();
                 Check(PrisonerCamp.Instance == camp, "수용소가 싱글턴으로 등록된다");
 
-                var loyalTraits = new CommanderTraits(CommanderPersonality.Devoted, 100);
-                var weakTraits = new CommanderTraits(CommanderPersonality.Brave, 0);
+                var loyalTraits = new CommanderTraits(CommanderPersonality.Devoted);
+                var weakTraits = new CommanderTraits(CommanderPersonality.Brave);
 
                 Check(camp.TryCapture("POW 1", CommanderRank.Sergeant, new[] { UnitRole.Worker, UnitRole.Melee }, weakTraits),
                     "적 장수를 포로로 받는다");
                 Check(camp.Count == 1, "포로가 수용소에 쌓인다");
 
-                // 회유 확률은 충성심과 성격을 반영한다.
+                // 회유 확률은 기분·피로와 성격을 반영한다(Phase 3).
                 SetPrivate(camp, "loyaltyPenalty", .5f);
                 SetPrivate(camp, "basePersuadeChance", .6f);
                 camp.TryCapture("POW 2", CommanderRank.Sergeant, new[] { UnitRole.Worker }, loyalTraits);
                 Check(camp.PersuadeChance(camp.Prisoners[0]) > camp.PersuadeChance(camp.Prisoners[1]),
-                    "충성심이 낮은 포로가 회유하기 쉽다");
+                    "헌신형 포로는 회유하기 어렵다");
 
                 Check(!camp.TryCapture("POW 3", CommanderRank.Sergeant, new[] { UnitRole.Worker }, weakTraits),
                     "정원이 차면 더 받지 않는다");
@@ -298,7 +298,7 @@ namespace AntColony.Regression
                 enemyGo.SetActive(false);
                 var enemy = enemyGo.AddComponent<EnemyCommander>();
                 enemy.ConfigureCommander("Raid Leader", CommanderRank.Lieutenant,
-                    new[] { UnitRole.Worker, UnitRole.Ranged }, new CommanderTraits(CommanderPersonality.Brave, 20));
+                    new[] { UnitRole.Worker, UnitRole.Ranged }, new CommanderTraits(CommanderPersonality.Brave));
                 SetPrivate(enemy, "captureChance", 1f);
                 SetPrivate(enemy, "maxHealth", 5f);
                 enemyGo.SetActive(true);
@@ -327,9 +327,9 @@ namespace AntColony.Regression
 
                 // ================= 5. 성격이 전투 수치에 반영되는가 =================
                 var brave = roster.Create("Brave", CommanderRank.Sergeant, new[] { UnitRole.Worker }, UnitRole.Worker,
-                    new CommanderTraits(CommanderPersonality.Brave, 50), origin);
+                    new CommanderTraits(CommanderPersonality.Brave), origin);
                 var cautious = roster.Create("Cautious", CommanderRank.Sergeant, new[] { UnitRole.Worker }, UnitRole.Worker,
-                    new CommanderTraits(CommanderPersonality.Cautious, 50), origin + new Vector3(1f, 0f, 0f));
+                    new CommanderTraits(CommanderPersonality.Cautious), origin + new Vector3(1f, 0f, 0f));
                 brave.TryAssign(1);
                 cautious.TryAssign(1);
                 Check(brave.AttackDamage > cautious.AttackDamage, "용감형이 신중형보다 공격력이 높다");
@@ -337,7 +337,7 @@ namespace AntColony.Regression
 
                 // 성격 페널티가 공격력을 음수로 만들지 않는다.
                 var weak = roster.Create("Weak", CommanderRank.Sergeant, new[] { UnitRole.Worker }, UnitRole.Worker,
-                    new CommanderTraits(CommanderPersonality.Cautious, 50), origin + new Vector3(3f, 0f, 0f));
+                    new CommanderTraits(CommanderPersonality.Cautious), origin + new Vector3(3f, 0f, 0f));
                 profile.attackDamage = 0f;
                 weak.SetRoleProfiles(new[] { profile });
                 weak.TryAssign(3);

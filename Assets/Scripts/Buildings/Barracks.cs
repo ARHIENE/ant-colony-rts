@@ -64,7 +64,7 @@ namespace AntColony.Buildings
 
         public string GetUpgradeLabel() => isUpgrading ? $"Researching {role}..." : currentTier >= maxTier
             ? $"{role} Tier {currentTier} (Max)"
-            : $"{role} T{currentTier}>T{currentTier + 1}\n{UpgradeFoodCost}F {UpgradeSoilCost}S";
+            : $"{role} T{currentTier}>T{currentTier + 1}\n{UpgradeFoodCost}F {UpgradeSoilCost} 재료";
 
         public bool TryUpgrade()
         {

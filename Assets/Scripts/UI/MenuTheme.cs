@@ -10,11 +10,12 @@ namespace AntColony.UI
         // 디자인 토큰: Claude Design 캔버스 「개미 RTS UI」(2026-09-26)의 :root 변수와 같은 값.
         public static readonly Color World = Hex(0x4b4436), Plate = Hex(0x1b1712), Plate2 = Hex(0x231e17), PlateHover = Hex(0x2e271e),
             Well = Hex(0x120f0b), EdgeLo = Hex(0x080605), Line = Hex(0x3a3127), Line2 = Hex(0x4a3f32), Rim = Hex(0x5a4c3b),
-            TextColor = Hex(0xefe7da), Dim = Hex(0x968976), AccentInk = Hex(0x1a1206),
+            TextColor = Hex(0xefe7da), Dim = Hex(0xaa9b86), AccentInk = Hex(0x1a1206),
             Hp = Hex(0x6cc46a), HpMid = Hex(0xe0b43a), Danger = Hex(0xe8574a), DangerInk = Hex(0xffb3aa), Loyal = Hex(0x86a9e6);
         public static readonly Color Background = new Color(Plate.r, Plate.g, Plate.b, .98f);
         public static readonly Color Accent = Hex(0xf2a93b);
-        public static readonly Color Muted = Hex(0xb8ac9a);
+        public static readonly Color Muted = Hex(0xc2b7a6);
+        public static readonly Color Selection = Hex(0x8bc8ba), Warning = Hex(0xef955f);
         private static Font font, numberFont;
         public static Font Font => font != null ? font : font = Resources.Load<Font>("Fonts/NotoSansKR") ?? Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
         public static Font NumberFont => numberFont != null ? numberFont : numberFont = Resources.Load<Font>("Fonts/BarlowSemiCondensed-SemiBold") ?? Font;

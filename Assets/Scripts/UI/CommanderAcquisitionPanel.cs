@@ -153,7 +153,7 @@ namespace AntColony.UI
             prisonerDetailText.text = selected == null
                 ? ""
                 : $"{selected.Name}\n"
-                + $"{selected.Traits.Personality}   loyalty {selected.Traits.Loyalty}   tries {selected.PersuadeAttempts}\n"
+                + $"{selected.Traits.Personality}   mood {PrisonerCamp.MoodOf(selected):0} fatigue {selected.PersonalState?.sleep.fatigue ?? 0:0}   tries {selected.PersuadeAttempts}\n"
                 // 실제 판정은 시도 횟수를 올린 뒤에 굴리므로 다음 시도 기준 확률을 보여준다.
                 + $"persuade {activeCamp.NextPersuadeChance(selected):P0} for {activeCamp.PersuadeFoodCost}F";
         }

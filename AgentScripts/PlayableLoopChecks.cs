@@ -140,7 +140,7 @@ public static class PlayableLoopChecks
             Check(!placement, "old scene objects disposed");
             Move(commander, ship.Position + Vector3.right * 4);
             await Carry(commander);
-            Check(!commander.TryReturnCargo(Object.FindAnyObjectByType<QueenChamber>()), "remote home delivery rejected");
+            Check(!commander.TryReturnCargo(Object.FindAnyObjectByType<Stockpile>()), "remote home delivery rejected");
             Check(!ship.TryReturn(), "carried resources block premature departure");
             var foodAtHome = resources.GetAmount(ResourceType.Food);
             Check(commander.TryReturnCargo(ship), "resume deposit into assigned transport");

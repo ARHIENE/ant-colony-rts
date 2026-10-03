@@ -32,7 +32,6 @@ namespace AntColony.UI
 
         private void Start()
         {
-            var toggle = L.Button(transform, "WorldMapToggle", "월드맵  M", 334, 6, 84, 28, Toggle, "과학 연구, 수송 수단 건조, 월드 원정.", false, 13);
             worldNotice = L.Label(transform, "", 14, 300, 70, 840, 28);
             worldNotice.name = "SettlementNotice";
             worldNotice.raycastTarget = false;
@@ -58,7 +57,7 @@ namespace AntColony.UI
                 () => Result(selectedShip != null && selectedShip.TryCollectRewards(), "전리품을 실었습니다. 귀환하면 사용할 수 있습니다."));
             L.Line(rect, 24, 340, 336);
             routeStatus = L.Label(rect, "", 12, 24, 348, 336, 80, MenuTheme.Muted, TextAnchor.UpperLeft);
-            L.Label(rect, "탑승·주둔·귀환: 8m 이내, 운반 중인 자원은 먼저 내려놓기.\n주둔: 수송 수단이 돌아와도 거점에 남음. 탑승: 선택한 주둔 장수를 다시 태움.\n편입 거점 생산: 60초마다 (식량 10 / 흙 5) × 난이도, 수송으로 집에 옮김.",
+            L.Label(rect, "탑승·주둔·귀환: 8m 이내, 운반 중인 자원은 먼저 내려놓기.\n주둔: 수송 수단이 돌아와도 거점에 남음. 탑승: 선택한 주둔 장수를 다시 태움.\n편입 거점 생산: 60초마다 (식량 10 / 재료 5) × 난이도, 수송으로 집에 옮김.",
                 12, 24, 436, 336, 90, MenuTheme.Dim, TextAnchor.UpperLeft);
             feedback = L.Label(rect, "", 13, 24, 680, 336, 70, MenuTheme.Accent, TextAnchor.UpperLeft);
 
@@ -76,6 +75,8 @@ namespace AntColony.UI
                 selectedShip?.Route?.Stop();
                 feedback.text = "자동 수송을 멈췄습니다. 진행 중인 이동·작업은 계속되며, 나가 있다면 직접 귀환시키세요.";
             });
+            // HUD v3: 외교는 상단 메뉴에서 빼고 월드맵 안으로.
+            L.Button(map, "Diplomacy", "외교", 426, MapH - 46, 90, 34, () => GameMenuController.Instance?.Diplomacy(), "접촉한 문명 · 협정 · 전쟁 · 거래");
             mapRoot = map;
             BuildMarkers();
 
@@ -102,8 +103,8 @@ namespace AntColony.UI
                 else feedback.text = "홈 둥지, 개미 60, 낚시, 2단계 병영, 선택한 건설 장수가 필요합니다.";
             });
             Btn(rect, "Science / Researchers", "과학 연구 · 연구원", 1252, 170, () => { Toggle(); GameMenuController.Instance.Science(); });
-            Btn(rect, "Build Vehicle 50F/60S", "차량 건조 식50 흙60", 1080, 210, () => ScienceAction(false, true));
-            Btn(rect, "Build Aircraft 80F/100S", "비행기 건조 식80 흙100", 1252, 210, () => ScienceAction(true, true));
+            Btn(rect, "Build Vehicle 50F/60 재료", "차량 건조 식50 재료60", 1080, 210, () => ScienceAction(false, true));
+            Btn(rect, "Build Aircraft 80F/100 재료", "비행기 건조 식80 재료100", 1252, 210, () => ScienceAction(true, true));
             var legend = L.Plate(rect, "Legend", 1068, 324, 360, 220);
             L.Label(legend, "<b>범례</b>", 14, 12, 8, 200, 24);
             L.Label(legend, "거점 종류   C 정착지 · B 보스 둥지 · R 자원지 · T 교역소", 12, 12, 38, 336, 20, MenuTheme.Muted);
@@ -141,7 +142,7 @@ namespace AntColony.UI
             var lab = FindLab();
             scienceStatus.text = $"과학 연구소: {(lab != null ? lab.Busy ? $"작업 중 {lab.Remaining:0}초" : "대기" : "없음")}\n"
                 + $"차량: {(world.VehicleResearched ? "연구 완료" : "잠김")} · 비행기: {(world.AircraftResearched ? "연구 완료" : "잠김")}\n"
-                + "연구소: 식량 100 / 흙 100 / 개미 8. 연구원을 배정하고, 차량은 2단계·비행기는 3단계로 강화. 건조 10초.";
+                + "연구소: 식량 100 / 재료 100 / 개미 8. 연구원을 배정하고, 차량은 2단계·비행기는 3단계로 강화. 건조 10초.";
             mapTitle.text = world.Unlocked ? $"<b>월드맵</b>  거점 {world.Sites.Count}" : "<b>월드맵 잠김</b>\n첫 차량이나 비행기를 건조하세요.";
             for (var i = 0; i < markers.Count; i++)
             {
@@ -167,7 +168,7 @@ namespace AntColony.UI
             status.text = selectedShip == null ? "수송 수단이 없습니다. 연구하고 건조하세요."
                 : $"<b>{selectedShip.name}</b>  {StateName(selectedShip.State)} {selectedShip.Remaining:0}초\n"
                     + $"장수 {selectedShip.CommanderLoad}/{selectedShip.CommanderCapacity} · 병력 {selectedShip.Load}/{selectedShip.Capacity} · 화물 {selectedShip.CargoLoad}/{selectedShip.CargoCapacity}\n"
-                    + $"승무원 {selectedShip.Crew.Count}명\n운반 중: 식량 {selectedShip.GetCargo(AntColony.Data.ResourceType.Food)} · 흙 {selectedShip.GetCargo(AntColony.Data.ResourceType.Soil)} · 특수 {selectedShip.GetCargo(AntColony.Data.ResourceType.Special)}"
+                    + $"승무원 {selectedShip.Crew.Count}명\n운반 중: 식량 {selectedShip.GetCargo(AntColony.Data.ResourceType.Food)} · 재료 {selectedShip.GetCargo(AntColony.Data.ResourceType.Soil)} · 특수 {selectedShip.GetCargo(AntColony.Data.ResourceType.Special)}"
                     + $" · 장비 {selectedShip.EquipmentCargo.Count}{(selectedShip.BlueprintCargo ? " · 설계도" : "")}";
         }
 
@@ -259,10 +260,10 @@ namespace AntColony.UI
                 : site.Disposition == ConquestDisposition.Lost ? "상실"
                 : site.Cleared ? site.Kind == ExpeditionSiteKind.ResourceSite ? "고갈" : site.Kind == ExpeditionSiteKind.Settlement ? "정복 결정 대기" : "정리됨"
                 : site.Kind == ExpeditionSiteKind.ResourceSite ? "중립" : "적대";
-            var text = $"<b><size=16>{site.Title}</size></b>\n{site.Faction} · {kind} · 상태 <b>{state}</b>\n난이도 "
+            var text = $"<b><size=16>{site.Title}</size></b>\n{site.Faction} · {kind} · {AntColony.Core.BiomeRules.Name(site.Biome)} · 상태 <b>{state}</b>\n난이도 "
                 + new string('■', Mathf.Clamp(site.Difficulty, 0, 5)) + new string('□', Mathf.Clamp(5 - site.Difficulty, 0, 5));
             if (site.Settlement != null && site.Colony != null)
-                text += $"\n주둔 {site.Settlement.Garrison.Count} · 현지 비축 식량 {site.Colony.GetStock(AntColony.Data.ResourceType.Food):0} / 흙 {site.Colony.GetStock(AntColony.Data.ResourceType.Soil):0}";
+                text += $"\n주둔 {site.Settlement.Garrison.Count} · 현지 비축 식량 {site.Colony.GetStock(AntColony.Data.ResourceType.Food):0} / 재료 {site.Colony.GetStock(AntColony.Data.ResourceType.Soil):0}";
             return text;
         }
 

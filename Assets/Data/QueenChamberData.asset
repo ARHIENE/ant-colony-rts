@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: eafd8ee106cb6134ebe3d05510e8395e, type: 3}
   m_Name: QueenChamberData
   m_EditorClassIdentifier: Assembly-CSharp::AntColony.Data.BuildingData
-  displayName: QueenChamber
+  displayName: "비축더미"
   kind: 0
   foodCost: 0
   soilCost: 0

@@ -20,7 +20,7 @@ namespace AntColony.UI
             {
                 MenuTheme.Text(content, $"{lab.name} T{lab.Tier} | Researcher: {lab.Target?.CommanderName ?? "none"}", 19, 48);
                 var captured = lab;
-                MenuTheme.Button(content, $"Upgrade lab ({lab.Tier * 60}F / {lab.Tier * 80}S)", () => { if (!captured.TryUpgrade()) ToastManager.Show("Upgrade unavailable or insufficient resources."); Science(); }).interactable = lab.Tier < 4 && !lab.Busy;
+                MenuTheme.Button(content, $"Upgrade lab ({lab.Tier * 60}F / {lab.Tier * 80} 재료)", () => { if (!captured.TryUpgrade()) ToastManager.Show("Upgrade unavailable or insufficient resources."); Science(); }).interactable = lab.Tier < 4 && !lab.Busy;
                 if (lab.Target != null) MenuTheme.Button(content, "Release researcher", () => { captured.ReleaseResearcher(); Science(); });
                 else foreach (var c in SortedCommanders().Where(c => !c.IsAwayFromHome && c.CanChangeAllocation && !c.IsWorking && Vector3.Distance(c.Position, lab.Position) <= 8))
                     MenuTheme.Button(content, "Assign " + c.CommanderName, () => { if (!captured.TryAssign(c)) ToastManager.Show("Cannot assign this commander."); Science(); });
@@ -30,23 +30,23 @@ namespace AntColony.UI
             {
                 var reason = research.BlockReason(definition.Technology);
                 var done = research.Has(definition.Technology);
-                var button = MenuTheme.Button(content, $"T{definition.Tier} {definition.Name} — {(done ? "Complete" : $"{definition.Food}F/{definition.Soil}S{(definition.Special > 0 ? $"/{definition.Special} Special" : "")}, {definition.Work:0} work")}",
+                var button = MenuTheme.Button(content, $"T{definition.Tier} {definition.Name} — {(done ? "Complete" : $"{definition.Food}F/{definition.Soil} 재료{(definition.Special > 0 ? $"/{definition.Special} Special" : "")}, {definition.Work:0} work")}",
                     () => { if (!research.TryStart(definition.Technology)) ToastManager.Show("Cannot start: check prerequisites and resources."); Science(); }, reason == "" ? "Starts one shared research project." : reason);
                 button.interactable = reason == "";
             }
             MenuTheme.Text(content, "Engine blueprint: " + (research.HasBlueprint ? "acquired" : "defeat a world-map boss and bring its reward home"), 18, 55);
-            MenuTheme.Button(content, "Build Infirmary (40F / 40S / 4 ants)", () => {
+            MenuTheme.Button(content, "Build Infirmary (40F / 40 재료 / 4 ants)", () => {
                 Resume(); FindFirstObjectByType<BuildingPlacementController>()?.BeginInfirmaryPlacement();
             }, "Treat up to two seriously injured commanders. Assign nearby patients from commander details.").interactable = Infirmary.Unlocked;
             ScienceBuildings();
-            MenuTheme.Button(content, "Build Airship Yard (100F / 150S / 10 ants)", () => {
+            MenuTheme.Button(content, "Build Airship Yard (100F / 150 재료 / 10 ants)", () => {
                 Resume(); FindFirstObjectByType<BuildingPlacementController>()?.BeginAirshipYardPlacement();
             });
             foreach (var yard in FindObjectsByType<AirshipYard>(FindObjectsSortMode.None))
             {
                 MenuTheme.Text(content, $"{yard.name} | Hull {yard.Hull} | Engine {yard.Engine} | Cocoons {yard.Cocoons} | {yard.Remaining:0}s", 18, 55);
                 foreach (AirshipPart part in Enum.GetValues(typeof(AirshipPart)))
-                    MenuTheme.Button(content, "Build " + part + (part == AirshipPart.Cocoon ? $" ({GameBalance.CocoonFood}F/{GameBalance.CocoonSoil}S/{GameBalance.CocoonSpecial} Special, {yard.Cocoons}/{GameBalance.MaxCocoons})" : " (100F/150S/150 Special)"),
+                    MenuTheme.Button(content, "Build " + part + (part == AirshipPart.Cocoon ? $" ({GameBalance.CocoonFood}F/{GameBalance.CocoonSoil} 재료/{GameBalance.CocoonSpecial} Special, {yard.Cocoons}/{GameBalance.MaxCocoons})" : " (100F/150 재료/150 Special)"),
                         () => { if (!yard.TryBuild(part)) ToastManager.Show("Requires the matching research, resources and an idle yard."); Science(); });
                 foreach (var c in SortedCommanders().Where(c => c.CanChangeAllocation && !c.IsAwayFromHome && Vector3.Distance(c.Position, yard.Position) <= 8))
                     MenuTheme.Button(content, "Board " + c.CommanderName, () => { if (!yard.TryBoard(c)) ToastManager.Show("Finish hull/engine and build a cocoon per passenger."); Science(); });

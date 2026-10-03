@@ -12,12 +12,12 @@ namespace AntColony.UI
 {
     public class HUDController : MonoBehaviour
     {
-        [SerializeField] private QueenChamber queenChamber;
         [SerializeField] private Barracks barracks;
         [SerializeField] private DigSite digSite;
         [SerializeField] private BossHealth boss;
 
-        private readonly Text[] resourceTexts = new Text[4];
+        private readonly Text[] resourceTexts = new Text[3];
+        private Image demandFill;
         private Text bossHealthText;
         private SelectionManager selectionManager;
         private UnitRole selectedRole = UnitRole.Melee;
@@ -32,7 +32,6 @@ namespace AntColony.UI
 
         private void Start()
         {
-            if (queenChamber == null) queenChamber = FindFirstObjectByType<QueenChamber>();
             if (barracks == null) barracks = FindFirstObjectByType<Barracks>();
             if (digSite == null) digSite = FindFirstObjectByType<DigSite>();
             if (boss == null) boss = FindFirstObjectByType<BossHealth>();
@@ -62,6 +61,7 @@ namespace AntColony.UI
 
         private void Update()
         {
+            if (Time.frameCount % 30 == 0) UpdateResourceText(); // 민심·수요는 시간에 따라 바뀐다.
             if (AntColony.World.WorldMapManager.Instance != null)
             {
                 var site = AntColony.World.WorldMapManager.Instance.ViewedSite;
@@ -75,16 +75,13 @@ namespace AntColony.UI
 
         // 둥지 명령(커맨드 카드에서 장수를 고르지 않았을 때). 버튼 문구는 짧게, 비용·상태는 도움말로 보인다.
         public UnitRole SelectedRole => selectedRole;
-        public void ProduceAnt() => queenChamber?.TryProduceWorker();
-        public string ProduceAntLabel() => (queenChamber != null ? queenChamber.GetProductionLabel() : "No Queen Chamber")
-            + "\n여왕방에서 대기 개미를 낳습니다. 장수를 고르고 병력 +1로 배정합니다.";
         public void UpgradeBarracks() => barracks?.TryUpgrade();
         public string BarracksUpgradeLabel() => (barracks != null ? barracks.GetUpgradeLabel() : $"No {selectedRole} Barracks")
             + "\n훈련 보직으로 고른 병영의 훈련을 강화합니다.";
-        public void ResearchFishing() => queenChamber?.TryResearchFishing();
+        public void ResearchFishing() => GameMenuController.Instance?.Science();
         public string FishingLabel() => (GameManager.Instance != null && GameManager.Instance.FishingUnlocked
-            ? "Fishing Unlocked" : queenChamber != null ? queenChamber.GetFishingResearchLabel() : "Fishing: Build Queen Chamber")
-            + "\n여왕방에서 낚시를 연구하면 낚시터에서 식량을 모읍니다.";
+            ? "Fishing Unlocked" : "과학 트리에서 낚시 연구")
+            + "\n과학 연구소에서 낚시를 연구하면 낚시터에서 식량을 모읍니다.";
         public void DigExpansion() => digSite?.TryExpand();
 
         private void BuildCanvas()
@@ -100,6 +97,7 @@ namespace AntColony.UI
             canvasGO.AddComponent<CommanderAcquisitionPanel>();
             canvasGO.AddComponent<WorkTargetPanel>();
             canvasGO.AddComponent<WorldMapPanel>();
+            canvasGO.AddComponent<MigrationOfferPanel>();
 
             if (FindFirstObjectByType<EventSystem>() == null)
             {
@@ -108,22 +106,25 @@ namespace AntColony.UI
                 eventSystemGO.AddComponent<InputSystemUIInputModule>();
             }
 
-            // 상단 40px 바: 왼쪽 메뉴(GameMenuController), 가운데 날짜·속도, 오른쪽 자원.
+            // 상단 40px 바(HUD v3): 왼쪽 메뉴(GameMenuController), 가운데 장수 바, 오른쪽 식량 · 재료(목록) | 인구.
+            // 저장 한도는 마우스 오버, 재료는 눌러서 목록. 인구 숫자 색 = 민심, 아래 막대 = 이주 수요, 누르면 인구 창(Phase 4).
             var top = MenuTheme.Panel(canvasGO.transform, "ResourceBar", new Vector2(0, 1), new Vector2(0, 40), Vector2.zero);
             top.anchorMax = new Vector2(1, 1);
-            float[] widths = { 118, 108, 92, 70 };
-            var right = -8f;
-            for (var i = resourceTexts.Length - 1; i >= 0; i--)
-            {
-                resourceTexts[i] = CreateText(top, new Vector2(1, 1), new Vector2(widths[i], 32), new Vector2(right, -4));
-                resourceTexts[i].fontSize = 14; resourceTexts[i].alignment = TextAnchor.MiddleRight;
-                right -= widths[i] + 12;
-            }
+            resourceTexts[2] = ResourceButton(top, "Population", 86, -8, () => GameMenuController.Instance?.Population());
+            demandFill = MenuLayout.Box(resourceTexts[2].transform.parent, "DemandBar", 6, 24, 74, 3, MenuTheme.Hp).GetComponent<Image>();
+            demandFill.raycastTarget = false;
+            var sep = MenuTheme.Rect("Separator", top); sep.anchorMin = sep.anchorMax = new Vector2(1, 1); sep.pivot = new Vector2(1, .5f);
+            sep.sizeDelta = new Vector2(1, 20); sep.anchoredPosition = new Vector2(-104, -27);
+            sep.gameObject.AddComponent<Image>().color = MenuTheme.Line;
+            resourceTexts[1] = ResourceButton(top, "Materials", 92, -114, ToggleMaterials);
+            resourceTexts[0] = ResourceButton(top, "Food", 96, -214, null);
+            materialsList = MenuTheme.Panel(canvasGO.transform, "MaterialsList", new Vector2(1, 1), new Vector2(200, 80), new Vector2(-114, -100));
+            var listText = MenuTheme.Text(materialsList, "", 12); MenuTheme.Stretch(listText.rectTransform);
+            listText.rectTransform.offsetMin = new Vector2(10, 6); listText.rectTransform.offsetMax = new Vector2(-10, -6);
+            listText.alignment = TextAnchor.UpperLeft; listText.supportRichText = true; listText.name = "MaterialsListText";
+            materialsList.gameObject.SetActive(false);
             bossHealthText = CreateText(canvasGO.transform, new Vector2(.5f, 1f), new Vector2(260f, 22f), new Vector2(0f, -46f));
             bossHealthText.alignment = TextAnchor.UpperCenter;
-
-            resourceTexts[3].gameObject.AddComponent<MenuTooltip>();
-            resourceTexts[3].raycastTarget = true;
             HudClock.Create(canvasGO.transform);
             RosterBar.Create(canvasGO.transform);
 
@@ -132,6 +133,8 @@ namespace AntColony.UI
             canvasGO.AddComponent<SelectedUnitPanel>();
             HudConsole.Right.gameObject.AddComponent<CommandCard>().Build(this);
             canvasGO.AddComponent<BuildScreen>();
+            canvasGO.AddComponent<HudOverview>();
+            canvasGO.AddComponent<HudResponsiveLayout>();
         }
 
         public void CycleCombatRole()
@@ -212,20 +215,47 @@ namespace AntColony.UI
             return text;
         }
 
+        // 상단 자원 칸: 오른쪽 끝 기준 x에 놓는 글자 버튼. 클릭 동작이 없으면 버튼 없이 도움말만.
+        private Text ResourceButton(RectTransform top, string name, float width, float right, UnityEngine.Events.UnityAction click)
+        {
+            var rect = MenuTheme.Rect(name, top);
+            // 위쪽 54px 줄에 고정: 좁은 화면에서 상단 바가 두 줄(아래 줄 = 장수 바)이 돼도 겹치지 않게.
+            rect.anchorMin = rect.anchorMax = new Vector2(1, 1); rect.pivot = new Vector2(1, .5f);
+            rect.sizeDelta = new Vector2(width, 28); rect.anchoredPosition = new Vector2(right, -27);
+            var image = rect.gameObject.AddComponent<Image>();
+            if (click != null) { var button = rect.gameObject.AddComponent<Button>(); MenuTheme.StyleButton(button); button.onClick.AddListener(click); }
+            else image.color = Color.clear;
+            rect.gameObject.AddComponent<MenuTooltip>();
+            var text = MenuTheme.Text(rect, "", 14); MenuTheme.Stretch(text.rectTransform);
+            text.rectTransform.offsetMin = new Vector2(6, 0); text.rectTransform.offsetMax = new Vector2(-6, 0);
+            text.alignment = TextAnchor.MiddleRight; text.supportRichText = true;
+            return text;
+        }
+
+        private RectTransform materialsList;
+        public void ToggleMaterials() => materialsList.gameObject.SetActive(!materialsList.gameObject.activeSelf);
+
         private void UpdateResourceText()
         {
             if (resourceTexts[0] == null || ResourceManager.Instance == null) return;
             var rm = ResourceManager.Instance;
-            string Stock(string label, ResourceType type) =>
-                $"<color=#968976>{label}</color> <b>{rm.GetAmount(type):N0}</b><color=#968976>/{rm.GetCapacity(type):N0}</color>";
-            resourceTexts[0].text = Stock("식량", ResourceType.Food);
-            resourceTexts[1].text = Stock("흙", ResourceType.Soil);
-            resourceTexts[2].text = Stock("특수", ResourceType.Special);
+            string Tip(ResourceType type, string label) => $"{label} {rm.GetAmount(type):N0} / 저장 한도 {rm.GetCapacity(type):N0}";
+            resourceTexts[0].text = $"<color=#e5bd6b>식량</color> <b>{rm.GetAmount(ResourceType.Food):N0}</b>";
+            resourceTexts[0].transform.parent.GetComponent<MenuTooltip>().Message = Tip(ResourceType.Food, "식량");
+            resourceTexts[1].text = $"<color=#968976>재료</color> <b>{rm.GetAmount(ResourceType.Soil):N0}</b> ▾";
+            var list = $"{Tip(ResourceType.Soil, "재료")}\n{Tip(ResourceType.Special, "특수")}";
+            resourceTexts[1].transform.parent.GetComponent<MenuTooltip>().Message = "재료 종류는 미정입니다.\n" + list;
+            materialsList.GetComponentInChildren<Text>().text = "<b>자원</b> (재료 종류 미정)\n" + list;
             var pool = AntPool.Instance;
             if (pool == null) return;
-            // 인구수 칸 = 현재 일반개미 수(한도 없음). 내역은 도움말로.
-            resourceTexts[3].text = $"<color=#968976>개미</color> <b>{pool.Total}</b>";
-            resourceTexts[3].GetComponent<MenuTooltip>().Message = $"일반개미 {pool.Total} · 대기 {pool.Free} · 배정 {pool.Assigned} · 예약 {pool.Reserved}";
+            // Phase 4: 인구 = 어린·성체·늙은 개미 합. 숫자 색 = 민심, 막대 = 이주 수요. 내역은 도움말로.
+            var pop = ColonyPopulation.Instance;
+            if (pop == null) { resourceTexts[2].text = $"<color=#968976>인구</color> <b>{pool.Total}</b>"; return; }
+            var color = pop.Unrest ? "#d9534f" : pop.S.sentiment < 40 ? "#e5bd6b" : "#efe7da";
+            resourceTexts[2].text = $"<color=#968976>인구</color> <b><color={color}>{pop.Total}</color></b>";
+            demandFill.rectTransform.sizeDelta = new Vector2(74 * Mathf.Clamp01(pop.Demand / 100f), 3);
+            resourceTexts[2].transform.parent.GetComponent<MenuTooltip>().Message = $"인구 {pop.Total} / 살 자리 {pop.HousingCapacity} · 어린 {pop.S.young} · 성체 {pool.Total} · 늙은 {pop.S.old}"
+                + $"\n민심 {pop.S.sentiment:0} · 이주 수요 {pop.Demand:0} · 세금 {pop.S.taxRate:P0} · {ColonyPopulation.PolicyName(pop.S.policy)}\n누르면 인구 창";
         }
 
         private void ShowVictoryMessage()
@@ -235,7 +265,7 @@ namespace AntColony.UI
 
         private void ShowDefeatMessage()
         {
-            ToastManager.Show("All colony buildings have been destroyed.");
+            ToastManager.Show("활동 가능한 장수가 없습니다.");
         }
 
         private void UpdateBossHealthText(float current, float max)

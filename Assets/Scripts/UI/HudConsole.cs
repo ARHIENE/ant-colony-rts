@@ -6,10 +6,10 @@ using UnityEngine.UI;
 
 namespace AntColony.UI
 {
-    // 디자인 HUD 하단 콘솔: 왼쪽 날개(미니맵) 236 · 가운데(선택 장수) · 오른쪽 날개(커맨드 카드/건설) 372, 높이 208.
+    // HUD v3 하단 콘솔: 한 판(높이 200)을 왼쪽(미니맵) 228 · 가운데(선택 정보) · 오른쪽(명령) 316으로 나눈다.
     public static class HudConsole
     {
-        public const float LeftWidth = 236f, RightWidth = 372f, WingHeight = 180f, CenterHeight = 208f;
+        public const float LeftWidth = 240f, RightWidth = 240f, CenterHeight = 224f;
 
         public static RectTransform Left { get; private set; }
         public static RectTransform Center { get; private set; }
@@ -17,13 +17,22 @@ namespace AntColony.UI
 
         public static void Build(Transform canvas)
         {
-            var root = MenuTheme.Rect("CommandConsole", canvas);
-            root.anchorMin = new Vector2(0, 0); root.anchorMax = new Vector2(1, 0); root.pivot = new Vector2(.5f, 0);
-            root.sizeDelta = new Vector2(0, CenterHeight); root.anchoredPosition = Vector2.zero;
-            Left = MenuTheme.Panel(root, "ConsoleLeft", new Vector2(0, 0), new Vector2(LeftWidth, WingHeight), Vector2.zero);
-            Right = MenuTheme.Panel(root, "CommandCard", new Vector2(1, 0), new Vector2(RightWidth, WingHeight), Vector2.zero);
-            Center = MenuTheme.Panel(root, "ConsoleCenter", new Vector2(0, 0), new Vector2(1440f - LeftWidth - RightWidth + 12f, CenterHeight), new Vector2(LeftWidth - 6f, 0));
+            var root = MenuTheme.Panel(canvas, "CommandConsole", new Vector2(.5f, 0), new Vector2(0, CenterHeight), Vector2.zero);
+            root.anchorMin = new Vector2(0, 0); root.anchorMax = new Vector2(1, 0);
+            Left = Part(root, "ConsoleLeft", 0, LeftWidth);
+            Right = Part(root, "CommandCard", 1, RightWidth);
+            Center = Part(root, "ConsoleCenter", 0, 0);
+            Center.anchorMax = new Vector2(1, 1); Center.offsetMin = new Vector2(LeftWidth, 0); Center.offsetMax = new Vector2(-RightWidth, 0);
             Minimap.Create(Left);
+        }
+
+        // 판 안의 투명 구역(왼쪽 0 / 오른쪽 1에 붙고 높이 전체).
+        private static RectTransform Part(RectTransform root, string name, float side, float width)
+        {
+            var rect = MenuTheme.Rect(name, root);
+            rect.anchorMin = new Vector2(side, 0); rect.anchorMax = new Vector2(side, 1); rect.pivot = new Vector2(side, .5f);
+            rect.sizeDelta = new Vector2(width, 0); rect.anchoredPosition = Vector2.zero;
+            return rect;
         }
     }
 
@@ -47,7 +56,7 @@ namespace AntColony.UI
         {
             var rect = MenuTheme.Rect("Minimap", wing);
             rect.anchorMin = rect.anchorMax = rect.pivot = new Vector2(0, 0);
-            rect.sizeDelta = new Vector2(Size, Size); rect.anchoredPosition = new Vector2(8, 8);
+            rect.sizeDelta = new Vector2(Size, Size); rect.anchoredPosition = new Vector2(12, 30);
             var image = rect.gameObject.AddComponent<RawImage>(); image.color = Color.white;
             var map = rect.gameObject.AddComponent<Minimap>();
             map.dots = MenuTheme.Rect("Dots", rect); MenuTheme.Stretch(map.dots);
@@ -57,13 +66,13 @@ namespace AntColony.UI
             map.view.sizeDelta = new Vector2(6, 6);
             rect.gameObject.AddComponent<MenuTooltip>().Message = "미니맵: 클릭한 곳으로 카메라 이동";
             string[] labels = { "유닛", "자원", "야생" };
-            string[] tips = { "장수·건물·적 표시", "자원 노드 표시(식량·흙·특수 색)", "야생 개체 표시" };
+            string[] tips = { "장수·건물·적 표시", "자원 노드 표시(식량·재료·특수 색)", "야생 개체 표시" };
             for (var i = 0; i < 3; i++)
             {
                 var index = i;
                 var b = MenuTheme.Rect("Minimap Filter " + (Filter)i, wing);
                 b.anchorMin = b.anchorMax = b.pivot = new Vector2(0, 1);
-                b.sizeDelta = new Vector2(44, 48); b.anchoredPosition = new Vector2(180, -8 - i * 52);
+                b.sizeDelta = new Vector2(36, 48); b.anchoredPosition = new Vector2(184, -30 - i * 56);
                 b.gameObject.AddComponent<Image>();
                 var button = b.gameObject.AddComponent<Button>(); MenuTheme.StyleButton(button);
                 var text = MenuTheme.Text(b, labels[i], 11); MenuTheme.Stretch(text.rectTransform); text.alignment = TextAnchor.MiddleCenter;

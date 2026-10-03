@@ -11,7 +11,7 @@ public static class SetupCommanders
     public static string Main()
     {
         if (Application.isPlaying) throw new Exception("Edit mode required");
-        var queen = UnityEngine.Object.FindFirstObjectByType<QueenChamber>();
+        var queen = UnityEngine.Object.FindFirstObjectByType<Stockpile>();
         if (queen == null) throw new Exception("Queen chamber missing");
         var pool = UnityEngine.Object.FindFirstObjectByType<AntPool>();
         if (pool == null) pool = new GameObject("AntPool").AddComponent<AntPool>();

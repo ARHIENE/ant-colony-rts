@@ -46,7 +46,7 @@ public static class InfirmaryChecks
             await Ready();
             var roster = CommanderRoster.Instance;
             var a = roster.Commanders[0]; var b = roster.Commanders[1]; var c = roster.Commanders[2];
-            foreach (var commander in roster.Commanders) commander.ApplyTraits(new CommanderTraits(CommanderPersonality.Balanced, 50));
+            foreach (var commander in roster.Commanders) commander.ApplyTraits(new CommanderTraits(CommanderPersonality.Balanced));
             var template = (GameObject)typeof(BuildingPlacementController).GetMethod("GetTemplate", BindingFlags.Static | BindingFlags.NonPublic)
                 .Invoke(null, new object[] { BuildingKind.Infirmary, UnitRole.Worker });
             var hospital = Object.Instantiate(template, a.Position + Vector3.forward * 3, Quaternion.identity).GetComponent<Infirmary>();
@@ -72,12 +72,12 @@ public static class InfirmaryChecks
             Button("Stop treatment").onClick.Invoke();
             a.TickPersonal(10); Check(a.CanReceiveOrders && Mathf.Abs(a.PersonalState.injuries[0].remaining - 120) < .01f, "cancel preserves progress");
             Check(hospital.TryAdmit(a), "resume treatment");
-            var troops = a.TroopCount; var loyalty = a.Traits.Loyalty;
+            var troops = a.TroopCount; a.PersonalState.moodFactors.RemoveAll(f => f.reason == "치료 완료");
             a.TickPersonal(120);
             Check(a.CanReceiveOrders && a.TreatmentFacility == null && a.PersonalState.injuries.Count == 1
                 && a.PersonalState.injuries[0].severity == InjurySeverity.Permanent, "completion releases patient and preserves permanent injury");
-            Check(a.Traits.Loyalty == loyalty + 3 && a.TroopCount == troops && !hospital.TryAdmit(a), "completion reward without troop healing");
-            a.TickPersonal(1); Check(a.Traits.Loyalty == loyalty + 3, "completion reward once");
+            Check(a.PersonalState.moodFactors.Exists(f => f.reason == "치료 완료" && f.value == 3) && a.TroopCount == troops && !hospital.TryAdmit(a), "completion reward without troop healing");
+            a.TickPersonal(1); Check(a.PersonalState.moodFactors.Count(f => f.reason == "치료 완료") == 1, "completion reward once");
             b.StartMentalBreak(MentalBreak.Idle); Check(!b.PersonalState.treating && hospital.Patients.Count == 0, "break interrupts treatment");
             b.TickPersonal(61); Check(hospital.TryAdmit(b), "readmit after break");
             hospital.gameObject.SetActive(false); Check(!b.PersonalState.treating && b.CanReceiveOrders, "disabled building releases patients");
@@ -102,8 +102,8 @@ public static class InfirmaryChecks
             hospital = Object.FindFirstObjectByType<Infirmary>(); b = hospital.Patients.Single();
             Check(b.PersonalState.treating && b.TreatmentFacility == hospital && !b.CanReceiveOrders, "patient ownership restored");
             Check(Mathf.Abs(b.PersonalState.injuries[0].remaining - 180) < 1, "remaining treatment saved");
-            loyalty = b.Traits.Loyalty; b.TickPersonal(180);
-            Check(b.CanReceiveOrders && b.PersonalState.injuries.Count == 0 && b.Traits.Loyalty == loyalty + 3, "loaded treatment finishes");
+            b.PersonalState.moodFactors.RemoveAll(f => f.reason == "치료 완료"); b.TickPersonal(180);
+            Check(b.CanReceiveOrders && b.PersonalState.injuries.Count == 0 && b.PersonalState.moodFactors.Exists(f => f.reason == "치료 완료"), "loaded treatment finishes");
             Injure(b); Check(hospital.TryAdmit(b), "readmit for destroyed building check");
             hospital.TakeDamage(float.MaxValue); b.TickPersonal(10);
             Check(!b.PersonalState.treating && b.PersonalState.injuries[0].remaining == 240, "destroyed facility cannot heal before OnDisable");

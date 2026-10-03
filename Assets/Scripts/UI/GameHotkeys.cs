@@ -33,7 +33,7 @@ namespace AntColony.UI
             if (KeyBindings.Pressed(GameAction.RemoveTroop))
             {
                 if (single.IsDeployed) { if (!single.ReturnToPost()) ToastManager.Show("지금은 징집소로 귀환할 수 없습니다."); }
-                else Object.FindFirstObjectByType<CommandCard>()?.SendToTreatment();
+                else Object.FindFirstObjectByType<CommandCard>()?.RestOrTreat();
             }
             if (KeyBindings.Pressed(GameAction.CycleWeapon)) single.CycleWeapon();
             // 커맨드 카드 고정 글자(HUD v2): S 정지(출전) · F 우선 작업 · X 휴식 · V 포상.
@@ -42,7 +42,7 @@ namespace AntColony.UI
             if (single.IsDeployed) { if (keyboard.sKey.wasPressedThisFrame) single.CommandStop(); return; }
             if (keyboard.fKey.wasPressedThisFrame) CommandCard.PriorityHint();
             if (keyboard.xKey.wasPressedThisFrame && single.CanRest) single.SendToRest();
-            if (keyboard.vKey.wasPressedThisFrame) Object.FindFirstObjectByType<CommandCard>()?.Reward();
+            if (keyboard.vKey.wasPressedThisFrame) DetailTabs.Reward(single);
         }
     }
 }

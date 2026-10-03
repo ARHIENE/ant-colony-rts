@@ -160,7 +160,7 @@ namespace AntColony.UI
         {
             var d = DiplomacyManager.Instance; var offer = player ? tradeGive : tradeTake;
             MenuTheme.Text(parent, player ? "<b>우리 소굴</b>  <color=#968976>보유 / 제시</color>" : $"<b>{c.name}</b>  <color=#968976>보유 / 요청</color>", 15, 32);
-            string[] resourceNames = { "식량", "흙", "특수 자원" };
+            string[] resourceNames = { "식량", "재료", "특수 자원" };
             // 목록 버튼은 디자인 행 크기(높이 36, 14pt)로 줄인다.
             Button Item(string label, Action action)
             {

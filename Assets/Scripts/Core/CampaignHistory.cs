@@ -8,7 +8,7 @@ using UnityEngine;
 
 namespace AntColony.Core
 {
-    public enum ResourceReason { Gathering, Construction, Research, Upkeep, Expedition, Trade, Crafting, Production, Treatment, Reward, Refund, Other }
+    public enum ResourceReason { Gathering, Construction, Research, Upkeep, Expedition, Trade, Crafting, Production, Treatment, Reward, Refund, Other, Tax }
 
     // 최근 알림과 엔딩용 누적 기록은 별도 보관한다. 복원 중의 생성/반납은 기록하지 않는다.
     public sealed class CampaignHistory : MonoBehaviour

@@ -101,6 +101,9 @@ namespace AntColony.Units
             personalState.moodFactors.RemoveAll(f => f.reason.StartsWith("식사:"));
             if (mood != 0) personalState.AddMood("식사: " + MealNames[felt], mood, GameCalendar.SecondsPerDay / 3f);
             personalState.AddMood("배부름", traits.Has(CommanderTrait.Glutton) ? 10 : 5, GameCalendar.SecondsPerDay / 3f);
+            // Phase 5: 식당 방에서 먹으면 등급만큼 기분 +.
+            if (AntColony.Buildings.RoomSystem.RoomAt(Position) is AntColony.Buildings.Room hall && hall.Kind == AntColony.Buildings.RoomKind.Dining)
+                personalState.AddMood("식당에서 식사", AntColony.Buildings.GameBalanceRooms.RoomMealMood + AntColony.Buildings.GameBalanceRooms.GradeMood[hall.Grade], GameCalendar.SecondsPerDay / 3f);
             if (m.quality > 0 && !traits.Has(CommanderTrait.IronStomach)
                 && UnityEngine.Random.value * 100 < Mathf.Max(0, 6 - m.cookSkill * .5f))
             {

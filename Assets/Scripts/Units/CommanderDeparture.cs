@@ -15,8 +15,8 @@ namespace AntColony.Units
             if (!IsColonyMember || IsCaptive) return false;
             if (IsEmbarked) { Social.pendingDeparture = true; return false; }
             var faction = Faction();
-            bool rebellion = faction.Any(c => c != this && c.Traits.Loyalty <= 40 && c.isActiveAndEnabled && !c.IsEmbarked && !c.IsCaptive);
-            var leaving = rebellion ? faction.Where(c => c == this || c.Traits.Loyalty <= 40 || Random.value < .5f).ToArray() : new[] { this };
+            bool rebellion = faction.Any(c => c != this && c.Mood <= SocialRules.RebelMood && c.isActiveAndEnabled && !c.IsEmbarked && !c.IsCaptive);
+            var leaving = rebellion ? faction.Where(c => c == this || c.Mood <= SocialRules.RebelMood || Random.value < .5f).ToArray() : new[] { this };
             foreach (var c in leaving)
                 if (c.isActiveAndEnabled && !c.IsCaptive && !c.IsEmbarked) c.BeginDeparture(rebellion);
             return IsDeparting;

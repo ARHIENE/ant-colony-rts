@@ -45,15 +45,16 @@ public static class TooltipChecks
             Check(Time.timeScale == scale, "hover does not pause game");
             var canvas = Object.FindAnyObjectByType<SelectedUnitPanel>().transform;
             var card = canvas.Find("CommandConsole/CommandCard");
-            var hudButtons = canvas.GetComponentsInChildren<Button>().Where(b => b.transform.parent == canvas || b.transform.parent.parent == card).ToArray();
-            Check(hudButtons.Length >= 6, "HUD controls exist");
+            var hudButtons = canvas.GetComponentsInChildren<Button>().Where(b => b.transform.parent == canvas || b.transform.IsChildOf(card)).ToArray();
+            // HUD v4: 선택 없음 = 2×2 소굴 명령.
+            Check(hudButtons.Length >= 4, "HUD controls exist: " + string.Join(",", canvas.GetComponentsInChildren<Button>().Select(b => b.transform.parent.name + "/" + b.name)));
             foreach (var button in hudButtons) Hover(button.GetComponent<MenuTooltip>());
             Rect ScreenRect(RectTransform rect)
             {
                 var corners = new Vector3[4]; rect.GetWorldCorners(corners);
                 return Rect.MinMaxRect(corners[0].x, corners[0].y, corners[2].x, corners[2].y);
             }
-            var worldToggle = canvas.Find("WorldMapToggle") as RectTransform;
+            var worldToggle = menu.GetComponentsInChildren<Button>().Single(b => b.name == "WorldMapToggle").transform as RectTransform; // HUD v3: 상단 메뉴 안
             var menuButton = menu.GetComponentsInChildren<Button>().Single(b => b.name == "Menu [Esc]");
             Check(!ScreenRect(worldToggle).Overlaps(ScreenRect(menuButton.transform as RectTransform)), "menu does not cover world button");
             foreach (var button in hudButtons)

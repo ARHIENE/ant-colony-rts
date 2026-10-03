@@ -72,7 +72,9 @@ namespace AntColony.Buildings
 
             var template = GetTemplate(pendingKind, pendingRole);
             var position = GetPlacementPosition(template, hit.point);
+            // Phase 5: 주거 건물은 방 밖에만 짓는다.
             placementValid = Vector3.Angle(hit.normal, Vector3.up) <= maxGroundSlope && !HasObstruction(position)
+                && !(Housing.IsKind(pendingKind) && RoomSystem.IsIndoors(position))
                 && builder != null && builder.CanStartConstruction && builder.CanReach(hit.point);
             UpdatePreview(position, placementValid);
 
@@ -267,7 +269,7 @@ namespace AntColony.Buildings
             var template = GetTemplate(kind, role);
             var building = template != null ? template.GetComponent<BuildingBase>() : null;
             if (building == null || building.Data == null) return name + " (Unavailable)";
-            return $"{name}\n{building.Data.foodCost}F {building.Data.soilCost}S{(building.Data.specialCost > 0 ? $" {building.Data.specialCost}Sp" : "")} {building.Data.constructionAnts} Ants";
+            return $"{name}\n{building.Data.foodCost}F {building.Data.soilCost} 재료{(building.Data.specialCost > 0 ? $" {building.Data.specialCost}Sp" : "")} {building.Data.constructionAnts} Ants";
         }
 
         internal static GameObject GetTemplate(BuildingKind kind, UnitRole role)
@@ -297,7 +299,9 @@ namespace AntColony.Buildings
                 BuildingKind.Dormitory => FindTemplate<Dormitory>() ?? RuntimeBuildingTemplates.Create(kind),
                 BuildingKind.Kitchen => FindTemplate<Kitchen>() ?? RuntimeBuildingTemplates.Create(kind),
                 BuildingKind.FlowerPot or BuildingKind.ShellDecoration or BuildingKind.MarbleMosaic or BuildingKind.BottleMobile or BuildingKind.FireflyLamp
-                    or BuildingKind.Campfire or BuildingKind.GamblingDen => FindDecorationTemplate(kind),
+                    or BuildingKind.Campfire or BuildingKind.GamblingDen
+                    or BuildingKind.Hut or BuildingKind.House or BuildingKind.Apartment
+                    or BuildingKind.LeafWall or BuildingKind.CapWall or BuildingKind.Door or BuildingKind.CastleWall or BuildingKind.Gate => FindDecorationTemplate(kind),
                 _ => null
             };
         }
@@ -376,7 +380,10 @@ namespace AntColony.Buildings
         {
             var renderer = template != null ? template.GetComponent<Renderer>() : null;
             var height = renderer != null ? renderer.bounds.extents.y : 0.5f;
-            return groundPoint + Vector3.up * height;
+            // Phase 5: 1m 칸 격자에 맞춘다(크기가 홀수 칸이면 칸 가운데, 짝수 칸이면 칸 경계).
+            var size = renderer != null ? renderer.bounds.size : Vector3.one;
+            float Snap(float v, float s) { var cells = Mathf.Max(1, Mathf.RoundToInt(s)); return cells % 2 == 1 ? Mathf.Floor(v) + .5f : Mathf.Round(v); }
+            return new Vector3(Snap(groundPoint.x, size.x * WidthFactor(pendingKind)), groundPoint.y + height, Snap(groundPoint.z, size.z));
         }
 
         private bool HasObstruction(Vector3 position)

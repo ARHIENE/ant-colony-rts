@@ -25,7 +25,7 @@ public static class CommanderStatusChecks
         while (SaveSystem.Busy && DateTime.UtcNow < until) await Task.Delay(50);
         Check(!SaveSystem.Busy, "scene ready"); Time.timeScale = 0;
     }
-    static Button Card(string name) => Object.FindObjectsByType<Button>(FindObjectsInactive.Include, FindObjectsSortMode.None).Single(b => b.name == name && b.transform.parent.name == "CommanderCommands");
+    static Button Card(string name) => Object.FindObjectsByType<Button>(FindObjectsInactive.Include, FindObjectsSortMode.None).Single(b => b.name == name && (b.transform.parent.name == "CivilianCommands" || b.transform.parent.name == "DeployedCommands"));
     public static async Task<string> Main()
     {
         checks = 0; Check(Application.isPlaying, "Play mode"); var root = SaveStorage.RootOverride;
@@ -46,12 +46,11 @@ public static class CommanderStatusChecks
             await Task.Delay(200);
 
             // 커맨드 카드: 평시와 출전 중 버튼이 분리된다.
-            Check(Card("Work Schedule").gameObject.activeSelf && Card("Reward").gameObject.activeSelf && Card("Send To Rest").gameObject.activeSelf
-                && Card("Send To Treatment").gameObject.activeSelf && Card("Weapon").gameObject.activeSelf, "civilian buttons visible");
-            // HUD v2: Q 스킬은 평시에 잠긴 채 보인다.
-            Check(!Card("Attack Move").gameObject.activeSelf && !Card("Stop").gameObject.activeSelf && !Card("Skill").interactable
-                && !Card("Return To Post").gameObject.activeSelf, "combat buttons hidden in peace " + string.Join(",", new[]{"Attack Move","Stop","Skill","Return To Post"}.Select(n => n + ":" + Card(n).gameObject.activeSelf)) + " dep=" + c.IsDeployed + " troops=" + c.TroopCount);
-            Check(Card("Details").gameObject.activeSelf, "details always visible");
+            // HUD v3: 평시 = 우선·휴식(치료 포함)·징집소·건설. 출전 명령은 출전 중 판에만.
+            Check(Card("Priority Work").gameObject.activeInHierarchy && Card("Send To Rest").gameObject.activeInHierarchy
+                && Card("Conscription").gameObject.activeInHierarchy && Card("Build").gameObject.activeInHierarchy, "civilian buttons visible");
+            Check(!Card("Attack Move").gameObject.activeInHierarchy && !Card("Stop").gameObject.activeInHierarchy && !Card("Skill").gameObject.activeInHierarchy
+                && !Card("Return To Post").gameObject.activeInHierarchy, "combat buttons hidden in peace " + string.Join(",", new[]{"Attack Move","Stop","Skill","Return To Post"}.Select(n => n + ":" + Card(n).gameObject.activeInHierarchy)) + " dep=" + c.IsDeployed + " troops=" + c.TroopCount);
 
             // 휴식 지시: 피로할 때만, 피로가 풀릴 때까지 자율 작업을 쉰다.
             Check(!c.CanRest && !c.SendToRest(), "rest needs fatigue");
@@ -85,8 +84,8 @@ public static class CommanderStatusChecks
             typeof(CommanderAnt).GetMethod("Mobilize", Private).Invoke(c, new object[] { 0, c.Position });
             await Task.Delay(400);
             Check(c.IsDeployed && CommanderOverhead.Activity(c) == "출전", "deployed overhead tag");
-            Check(Card("Attack Move").gameObject.activeSelf && Card("Stop").gameObject.activeSelf && Card("Return To Post").gameObject.activeSelf
-                && !Card("Work Schedule").gameObject.activeSelf && !Card("Send To Rest").gameObject.activeSelf && !Card("Build").gameObject.activeSelf, "deployed card layout");
+            Check(Card("Attack Move").gameObject.activeInHierarchy && Card("Stop").gameObject.activeInHierarchy && Card("Return To Post").gameObject.activeInHierarchy
+                && !Card("Send To Rest").gameObject.activeInHierarchy && !Card("Build").gameObject.activeInHierarchy, "deployed card layout");
             Check(!c.CanRest && !c.SendToRest(), "deployed commander cannot rest");
             Card("Attack Move").onClick.Invoke();
             Check(Object.FindAnyObjectByType<AttackMoveController>().IsAttackMode, "attack move button starts targeting");

@@ -1,5 +1,7 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
+using AntColony.Buildings;
 using AntColony.Data;
 using AntColony.Units;
 using UnityEngine;
@@ -8,14 +10,16 @@ using UnityEngine.UI;
 
 namespace AntColony.UI
 {
-    // 오른쪽 날개의 5×3 명령 칸. 장수 1명을 고르면 장수 명령, 아니면 둥지 명령을 보인다.
+    // 오른쪽 명령 칸(HUD v3). 평시 장수 = 우선·휴식·징집소·건설 2×2, 출전 장수 = 전투 명령, 선택 없음 = 둥지 명령(3열).
+    // 단축키는 전체 미정(2026-10-01)이라 칸에 키 글자를 표시하지 않는다.
     public sealed class CommandCard : MonoBehaviour
     {
         private sealed class Slot { public Button button; public Text label; public MenuTooltip tip; public Func<string> text, help; public Func<bool> ready, visible; }
 
-        private const float CellW = 60f, CellH = 52f, GapX = 5f, GapY = 4f;
+        private const float Pad = 14f, Gap = 8f, SmallH = 50f;
         private readonly List<Slot> slots = new List<Slot>();
-        private RectTransform commanderGrid, colonyGrid;
+        private RectTransform civilianGrid, deployedGrid, colonyGrid, multiGrid, targetGrid;
+        private readonly Dictionary<RectTransform, int> columnsOf = new Dictionary<RectTransform, int>();
         private SelectionManager selection;
         private HUDController hud;
 
@@ -31,66 +35,73 @@ namespace AntColony.UI
         {
             hud = owner;
             selection = FindFirstObjectByType<SelectionManager>();
-            commanderGrid = Grid("CommanderCommands");
-            colonyGrid = Grid("ColonyCommands");
+            civilianGrid = Grid("CivilianCommands", 2);
+            deployedGrid = Grid("DeployedCommands", 2);
+            colonyGrid = Grid("ColonyCommands", 2);
+            multiGrid = Grid("MultiCommands", 2);
+            targetGrid = Grid("TargetCommands", 2);
 
-            // HUD v2 배치(3×5, 칸 = 키보드 줄): Q W · R T / A S D F G / · X · V B.
-            // 평시에는 Q/W가 잠긴 채 보이고, 출전 전용(A·S·귀환)은 숨긴다. 연구소 강화는 연구소 커맨드 카드에서 한다.
-            Add(commanderGrid, 0, "Q", "Skill", () => SkillLabel(Commander), () => UseWeaponSkill(Commander),
-                () => "무기 스킬(출전 중에만): 큰턱 강타(근접 Lv2), 갑각 방어 태세(근접 Lv3), 산성비(원거리 5, 지면 클릭), 집결(지휘 5).", () => Deployed() && SkillReady(Commander));
-            Add(commanderGrid, 1, "W", "Dive", () => "급강하" + Cooldown(Commander != null ? Commander.Social.diveCooldown : 0f),
-                () => SkillTargeting.Begin(new[] { Commander }, true), () => "날개 스킬(출전 중에만): 날개 + 근접/원거리 5. 지면 클릭 후 급강하, 3초 착지. 재사용 30초.",
-                () => Deployed() && Commander.CanDive, () => Commander?.EquippedArmor?.armor == ArmorKind.Wings);
-            Add(commanderGrid, 3, "R", "Weapon", () => "무기 교체", () => Commander?.CycleWeapon(),
-                () => "가진 무기로 바꾸거나, 여분이 없으면 무기를 해제합니다. 병력은 유지됩니다.", null, Civilian);
-            Add(commanderGrid, 4, "T", "Work Schedule", () => "작업표", () => GameMenuController.Instance?.WorkSchedule(),
-                () => "장수별로 자율 작업을 켜거나 끕니다.", null, Civilian);
-            Add(commanderGrid, 5, "A", "Attack Move", () => "어택무브", () => FindFirstObjectByType<AttackMoveController>()?.BeginAttackMode(),
-                () => "지면을 클릭하면 이동하면서 만나는 적을 공격합니다.", null, Deployed);
-            Add(commanderGrid, 6, "S", "Stop", () => "정지", () => Commander?.CommandStop(), () => "이동과 공격을 멈춥니다.", null, Deployed);
-            Add(commanderGrid, 7, "D", "Return To Post", () => Commander != null && Commander.IsReturning ? "귀환 중" : "귀환", () => {
+            // 평시(v3 2×2): 작업표는 상단 메뉴, 상세·포상·연구는 초상 클릭 창, 무기 교체는 무기 칸 클릭으로 옮겼다.
+            Add(civilianGrid, 0, "Priority Work", () => "우선", PriorityHint,
+                () => "우선 작업: 장수를 고른 채 대상을 우클릭하면 그 일부터 하고, 끝나면 다시 자율 작업으로 돌아갑니다.");
+            Add(civilianGrid, 1, "Send To Rest", () => Commander != null && Commander.WorkState.resting ? "휴식 중" : Commander != null && Commander.PersonalState.treating ? "치료 중" : "휴식",
+                RestOrTreat, () => "휴식: 숙소로 보내 쉬게 합니다. 부상이 있으면 빈 침상이 있는 의무실로 보냅니다.",
+                () => Commander != null && (Commander.CanSendToTreatment || Commander.CanRest));
+            Add(civilianGrid, 2, "Conscription", () => "징집소", () => GameMenuController.Instance?.OpenConscription(), () => "징집소: 출전 장수와 병력을 편성합니다.");
+            Add(civilianGrid, 3, "Build", () => "건설", BuildScreen.Open, () => "건설: 벽·문 · 가구 · 작업 · 방어.", null, null, true);
+
+            // 출전 중 카드는 기획 미정(2026-10-01) — 기존 전투 명령을 유지한다.
+            Add(deployedGrid, 0, "Skill", () => SkillLabel(Commander), () => UseWeaponSkill(Commander),
+                () => "무기 스킬: 큰턱 강타(근접 Lv2), 갑각 방어 태세(근접 Lv3), 산성비(원거리 5, 지면 클릭), 집결(지휘 5).", () => SkillReady(Commander));
+            Add(deployedGrid, 1, "Dive", () => "급강하" + Cooldown(Commander != null ? Commander.Social.diveCooldown : 0f),
+                () => SkillTargeting.Begin(new[] { Commander }, true), () => "날개 스킬: 날개 + 근접/원거리 5. 지면 클릭 후 급강하, 3초 착지. 재사용 30초.",
+                () => Commander != null && Commander.CanDive, () => Commander?.EquippedArmor?.armor == ArmorKind.Wings);
+            Add(deployedGrid, 3, "Attack Move", () => "공격 이동", () => FindFirstObjectByType<AttackMoveController>()?.BeginAttackMode(),
+                () => "지면을 클릭하면 이동하면서 만나는 적을 공격합니다.");
+            Add(deployedGrid, 4, "Stop", () => "정지", () => Commander?.CommandStop(), () => "이동과 공격을 멈춥니다.");
+            Add(deployedGrid, 5, "Return To Post", () => Commander != null && Commander.IsReturning ? "귀환 중" : "귀환", () => {
                 if (Commander != null && !Commander.ReturnToPost()) ToastManager.Show("지금은 징집소로 귀환할 수 없습니다.");
             }, () => "징집소로 돌아가 생존 병력을 반납하고 자율 작업을 재개합니다.",
-                () => Commander != null && Commander.IsDeployed && !Commander.IsReturning && !Commander.IsAwayFromHome, Deployed);
-            Add(commanderGrid, 7, "D", "Send To Treatment", () => "치료", SendToTreatment,
-                () => "부상 장수를 빈 침상이 있는 가장 가까운 의무실로 보내 입원시킵니다.", () => Commander != null && Commander.CanSendToTreatment, Civilian);
-            Add(commanderGrid, 8, "F", "Priority Work", () => "우선 작업", PriorityHint,
-                () => "우선 작업: 장수를 고른 채 대상을 우클릭하면 그 일부터 하고, 끝나면 다시 자율 작업으로 돌아갑니다.", null, Civilian);
-            Add(commanderGrid, 9, "G", "Details", () => "상세", () => { if (Commander != null) GameMenuController.Instance?.Details(Commander); },
-                () => "기술·열정·장비를 봅니다. 지휘 한도 = 10 + 지휘 기술 x 2.");
-            // 연구소 강화는 건물 커맨드 카드가 생기기 전까지 디자인의 빈 칸(10·12)에 둔다.
-            Add(commanderGrid, 10, "", "Attack Research", () => ResearchLabel("공격 연구"), () => hud.TryLabResearch(true),
-                () => hud.LabResearchLabel(Commander, true) + "\n무기와 같은 보직의 연구소에서 이 장수의 공격을 올립니다.", null, Civilian);
-            Add(commanderGrid, 12, "", "Armor Research", () => ResearchLabel("방어 연구"), () => hud.TryLabResearch(false),
-                () => hud.LabResearchLabel(Commander, false) + "\n무기와 같은 보직의 연구소에서 이 장수의 방어를 올립니다.", null, Civilian);
-            Add(commanderGrid, 11, "X", "Send To Rest", () => Commander != null && Commander.WorkState.resting ? "휴식 중" : "휴식", () => Commander?.SendToRest(),
-                () => "피로한 장수를 가까운 휴게실(없으면 제자리)로 보내 피로가 풀릴 때까지 쉬게 합니다.", () => Commander != null && Commander.CanRest, Civilian);
-            Add(commanderGrid, 13, "V", "Reward", () => "포상", Reward,
-                () => "Food 30을 써서 충성심을 올립니다. 게임 달마다 1번.", () => Commander != null && Commander.PersonalState.rewardCooldown <= 0, Civilian);
-            Add(commanderGrid, 14, "B", "Build", () => "건설", BuildScreen.Open, () => "건설 화면: 건물을 고르고 맡길 장수를 정합니다.", null, Civilian);
+                () => Commander != null && !Commander.IsReturning && !Commander.IsAwayFromHome);
 
-            Add(colonyGrid, 0, "", "Produce Ant", () => "개미 생산", hud.ProduceAnt, hud.ProduceAntLabel);
-            Add(colonyGrid, 1, "", "Upgrade Barracks", () => "병영 강화", hud.UpgradeBarracks, hud.BarracksUpgradeLabel);
-            Add(colonyGrid, 2, "", "Training Role", () => "훈련\n" + RoleName(hud.SelectedRole), hud.CycleCombatRole,
-                () => "병영 강화에 쓸 보직을 고릅니다.");
-            Add(colonyGrid, 3, "", "Unlock Fishing", () => "낚시", hud.ResearchFishing, hud.FishingLabel);
-            Add(colonyGrid, 5, "", "Dig Expansion", () => "굴착 확장", hud.DigExpansion, () => "굴착지에 흙을 써서 확장 구역을 엽니다.");
-            Add(colonyGrid, 6, "", "Work Schedule", () => "작업표", () => GameMenuController.Instance?.WorkSchedule(), () => "장수별 자율 작업을 설정합니다.");
-            Add(colonyGrid, 7, "", "Conscription", () => "징집소", () => GameMenuController.Instance?.OpenConscription(), () => "징집소에서 출전 장수와 병력을 편성합니다.");
-            Add(colonyGrid, 10, "", "Forbid Gathering", () => GatherDesignation.Forbidding ? "금지 지정\n중" : "채집 금지", () => GatherDesignation.Begin(true),
-                () => "채집 금지 지정: 노드를 클릭하거나 드래그로 묶어 장수의 채집 대상에서 뺍니다. 우클릭·Esc로 끝냅니다.");
-            Add(colonyGrid, 11, "", "Clear Designation", () => GatherDesignation.IsActive && !GatherDesignation.Forbidding ? "취소 지정\n중" : "지정 취소", () => GatherDesignation.Begin(false),
-                () => "지정 취소: 클릭하거나 드래그한 노드의 채집 금지를 풉니다. 우클릭·Esc로 끝냅니다.");
-            Add(colonyGrid, 14, "B", "Build", () => "건설", BuildScreen.Open, () => "건설 화면: 건물을 고르고 맡길 장수를 정합니다.");
+            Add(colonyGrid, 0, "Colony Work Schedule", () => "작업표", () => GameMenuController.Instance?.WorkSchedule(), () => "장수의 자율 작업을 설정합니다.");
+            Add(colonyGrid, 1, "Colony Roster", () => "장수 관리", () => GameMenuController.Instance?.Roster(), () => "장수의 기분·건강·장비를 확인합니다.");
+            Add(colonyGrid, 2, "Colony Conscription", () => "징집소", () => GameMenuController.Instance?.OpenConscription(), () => "출전 장수와 병력을 편성합니다.");
+            Add(colonyGrid, 3, "Colony Build", () => "건설", BuildScreen.Open, () => "가구·건물·벽을 건설합니다.", null, null, true);
+
+            Add(multiGrid, 0, "Multi Priority", () => AllDeployed() ? "공격 이동" : "우선", () => {
+                if (AllDeployed()) FindFirstObjectByType<AttackMoveController>()?.BeginAttackMode(); else PriorityHint();
+            }, () => "선택한 장수 모두에게 가능한 명령만 사용할 수 있습니다.", () => AllDeployed() || AllCivilian());
+            Add(multiGrid, 1, "Multi Stop", () => AllDeployed() ? "정지" : "개별 선택 필요", () => {
+                foreach (var c in HudOverview.Selected(selection)) if (c.IsDeployed) c.CommandStop();
+            }, () => "평시 휴식·치료는 개별 장수를 선택하세요.", AllDeployed);
+            Add(multiGrid, 2, "Multi Conscription", () => AllDeployed() ? "귀환" : "징집소", () => {
+                if (AllDeployed()) foreach (var c in HudOverview.Selected(selection)) c.ReturnToPost();
+                else GameMenuController.Instance?.OpenConscription();
+            }, () => "출전 부대는 징집소로 귀환합니다.", () => AllCivilian() || AllDeployed() && HudOverview.Selected(selection).All(c => !c.IsReturning && !c.IsAwayFromHome));
+            Add(multiGrid, 3, "Multi Clear", () => "선택 해제", () => selection?.ClearSelection(), () => "선택을 해제합니다.");
+
+            Add(targetGrid, 0, "Target Residents", () => WorkTargetPanel.Target is Dormitory ? "배정 보기" : "대상 정보",
+                WorkTargetPanel.ShowAssignments, () => "선택 대상의 배정·인력 정보를 확인합니다.");
+            Add(targetGrid, 1, "Target Build", () => WorkTargetPanel.Target is Dormitory ? "숙소 건설" : "건설", () => {
+                if (WorkTargetPanel.Target is Dormitory) BuildScreen.OpenDormitory(); else BuildScreen.Open();
+            }, () => "현재 숙소 가구 하나가 침대 4개를 제공합니다.", null, null, true);
+            Add(targetGrid, 2, "Target Room", () => "방 정보", WorkTargetPanel.ShowRoomInfo, () => "방 종류·등급을 확인합니다.", () => WorkTargetPanel.Target is BuildingBase);
+            Add(targetGrid, 3, "Target Clear", () => "선택 해제", () => selection?.ClearSelection(), () => "선택을 해제합니다.");
         }
 
         private void LateUpdate()
         {
-            if (commanderGrid == null) return;
+            if (civilianGrid == null) return;
             var building = BuildScreen.IsOpen;
             var commander = Commander;
-            commanderGrid.gameObject.SetActive(!building && commander != null);
-            colonyGrid.gameObject.SetActive(!building && commander == null);
+            civilianGrid.gameObject.SetActive(!building && commander != null && !commander.IsDeployed);
+            deployedGrid.gameObject.SetActive(!building && commander != null && commander.IsDeployed);
+            var selected = HudOverview.Selected(selection);
+            var target = WorkTargetPanel.Target;
+            targetGrid.gameObject.SetActive(!building && target != null && target.gameObject.activeInHierarchy);
+            multiGrid.gameObject.SetActive(!building && target == null && selected.Length > 1);
+            colonyGrid.gameObject.SetActive(!building && commander == null && target == null && selected.Length == 0);
             foreach (var slot in slots)
             {
                 if (!slot.button.transform.parent.gameObject.activeSelf) continue;
@@ -101,35 +112,48 @@ namespace AntColony.UI
                 slot.button.interactable = slot.ready == null || slot.ready();
                 slot.tip.Message = slot.help();
             }
+            foreach (var pair in columnsOf)
+            {
+                var grid = pair.Key; if (!grid.gameObject.activeSelf) continue;
+                var layout = grid.GetComponent<GridLayoutGroup>();
+                var count = grid.GetComponentsInChildren<Button>().Length;
+                int columns = grid.rect.height < 110 ? Mathf.Max(1, count) : pair.Value;
+                int rows = Mathf.Max(1, Mathf.CeilToInt(count / (float)columns));
+                layout.constraintCount = columns;
+                layout.cellSize = new Vector2((grid.rect.width - Gap * (columns - 1)) / columns, (grid.rect.height - Gap * (rows - 1)) / rows);
+            }
         }
 
-        private RectTransform Grid(string name)
+        // 판 안쪽(여백 14)을 채우는 격자. 2열이면 2×2 큰 칸, 3열이면 높이 50 칸.
+        private RectTransform Grid(string name, int columns)
         {
             var grid = MenuTheme.Rect(name, transform);
-            grid.anchorMin = grid.anchorMax = grid.pivot = new Vector2(.5f, .5f);
-            grid.sizeDelta = new Vector2(CellW * 5 + GapX * 4, CellH * 3 + GapY * 2);
+            MenuTheme.Stretch(grid); grid.offsetMin = new Vector2(Pad, Pad); grid.offsetMax = new Vector2(-Pad, -Pad);
+            var layout = grid.gameObject.AddComponent<GridLayoutGroup>();
+            layout.constraint = GridLayoutGroup.Constraint.FixedColumnCount; layout.constraintCount = columns; layout.spacing = new Vector2(Gap, Gap);
+            columnsOf[grid] = columns;
             return grid;
         }
 
-        private void Add(RectTransform grid, int cell, string key, string name, Func<string> text, UnityAction action,
-            Func<string> help, Func<bool> ready = null, Func<bool> visible = null)
+        private void Add(RectTransform grid, int cell, string name, Func<string> text, UnityAction action,
+            Func<string> help, Func<bool> ready = null, Func<bool> visible = null, bool primary = false)
         {
+            var columns = columnsOf[grid];
+            var width = (HudConsole.RightWidth - Pad * 2 - Gap * (columns - 1)) / columns;
+            var height = columns == 2 ? (HudConsole.CenterHeight - Pad * 2 - Gap) / 2 : SmallH;
             var rect = MenuTheme.Rect(name, grid);
             rect.anchorMin = rect.anchorMax = rect.pivot = new Vector2(0, 1);
-            rect.sizeDelta = new Vector2(CellW, CellH);
-            rect.anchoredPosition = new Vector2(cell % 5 * (CellW + GapX), -(cell / 5) * (CellH + GapY));
+            rect.sizeDelta = new Vector2(width, height);
+            rect.anchoredPosition = new Vector2(cell % columns * (width + Gap), -(cell / columns) * (height + Gap));
             rect.gameObject.AddComponent<Image>();
-            rect.gameObject.AddComponent<Outline>().effectColor = MenuTheme.Line2;
+            rect.gameObject.AddComponent<Outline>().effectColor = primary ? MenuTheme.Hex(0xffc56b) : MenuTheme.Line2;
             var button = rect.gameObject.AddComponent<Button>();
             MenuTheme.StyleButton(button);
+            if (primary) { var colors = button.colors; colors.normalColor = MenuTheme.Hex(0x76501f); colors.highlightedColor = MenuTheme.Hex(0x926323); button.colors = colors; }
             button.onClick.AddListener(action);
-            if (key != "")
-            {
-                var kbd = Label(rect, key, 10, TextAnchor.UpperLeft, MenuTheme.Dim);
-                kbd.rectTransform.offsetMin = new Vector2(4, 0); kbd.rectTransform.offsetMax = new Vector2(0, -2);
-            }
-            var label = Label(rect, "", 11, TextAnchor.LowerCenter, MenuTheme.TextColor);
-            label.rectTransform.offsetMin = new Vector2(2, 4); label.rectTransform.offsetMax = new Vector2(-2, 0);
+            var label = Label(rect, "", columns == 2 ? 14 : 12, TextAnchor.MiddleCenter, primary ? MenuTheme.Hex(0xffdfa4) : MenuTheme.TextColor);
+            label.rectTransform.offsetMin = new Vector2(2, 2); label.rectTransform.offsetMax = new Vector2(-2, -2);
+            if (primary) label.fontStyle = FontStyle.Bold;
             slots.Add(new Slot { button = button, label = label, tip = rect.gameObject.AddComponent<MenuTooltip>(), text = text, help = help, ready = ready, visible = visible });
         }
 
@@ -180,15 +204,18 @@ namespace AntColony.UI
             }
         }
 
-        // 연구소가 이 장수를 강화하는 중이면 버튼 문구로 바로 보인다.
-        private string ResearchLabel(string idle) => Commander != null && Commander.LabUpgradeBusy ? "연구\n진행 중" : idle;
-        public void SendToTreatment() { if (Commander != null && !Commander.SendToTreatment()) ToastManager.Show("빈 침상이 있는 의무실로 갈 수 없습니다."); }
-        public void Reward() { if (Commander != null && !Commander.TryReward()) ToastManager.Show("본거지에서 게임 달마다 1번, Food 30이 필요합니다."); }
+        // v3 휴식 = 휴식 + 치료: 부상이면 의무실, 아니면 휴식.
+        public void RestOrTreat()
+        {
+            var c = Commander; if (c == null) return;
+            if (c.CanSendToTreatment) { if (!c.SendToTreatment()) ToastManager.Show("빈 침상이 있는 의무실로 갈 수 없습니다."); }
+            else c.SendToRest();
+        }
         // ponytail: 우선 작업은 기존 우클릭 지시를 쓴다. 클릭 대상 지정 모드가 필요해지면 GatherDesignation처럼 모드를 만든다.
         public static void PriorityHint() => ToastManager.Show("우선 작업: 대상을 우클릭하면 그 일부터 합니다.", ToastKind.Hint);
 
-        private bool Deployed() => Commander != null && Commander.IsDeployed;
-        private bool Civilian() => Commander != null && !Commander.IsDeployed;
+        private bool AllDeployed() { var list = HudOverview.Selected(selection); return list.Length > 1 && list.All(c => c.IsDeployed && c.CanReceiveOrders); }
+        private bool AllCivilian() { var list = HudOverview.Selected(selection); return list.Length > 1 && list.All(c => !c.IsDeployed && c.CanReceiveOrders); }
 
         private static string Cooldown(float seconds) => seconds > 0f ? $"\n{Mathf.CeilToInt(seconds)}s" : "";
     }

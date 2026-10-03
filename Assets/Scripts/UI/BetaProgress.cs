@@ -84,7 +84,7 @@ namespace AntColony.UI
                 foreach (var lab in FindObjectsByType<ScienceLab>())
                     if (lab.Busy)
                         return $"{(lab.Constructing ? "CONSTRUCTION" : "RESEARCH")} - {Mathf.CeilToInt(lab.Remaining)}s\n{(lab.Aircraft ? "Aircraft" : "Vehicle")} in progress";
-                if (world.VehicleResearched) return "BUILD VEHICLE - 50 Food / 60 Soil\nWorld / Science: Build Vehicle";
+                if (world.VehicleResearched) return "BUILD VEHICLE - 50 Food / 60 재료\nWorld / Science: Build Vehicle";
             }
             if (FindAnyObjectByType<ScienceLab>() != null)
                 return "RESEARCH VEHICLE - Tier 2 lab\nScience / Researchers: upgrade and assign";
@@ -93,7 +93,6 @@ namespace AntColony.UI
             var population = AntPool.Instance != null ? AntPool.Instance.Total : 0;
             if (population < ScienceLab.RequiredPopulation)
                 return $"GROW - {population}/{ScienceLab.RequiredPopulation} ants\nGather Food, then Produce Ant";
-            if (!game.FishingUnlocked) return "UNLOCK FISHING - Queen Chamber\nUse Unlock Fishing in the colony panel";
             var barracks = FindAnyObjectByType<Barracks>();
             if (barracks == null) return "BUILD BARRACKS - Select a commander\nChoose a combat role, then Build Barracks";
             foreach (var candidate in FindObjectsByType<Barracks>())

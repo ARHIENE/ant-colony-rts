@@ -37,15 +37,16 @@ namespace AntColony.Save
             if (b.GetComponent<ScoutPost>() != null) return "ScoutPost";
             if (b.GetComponent<PrisonerCamp>() != null) return "PrisonerCamp";
             if (b.GetComponent<ResourceNode>() != null) return "Farm";
-            if (b is Decoration) return b.Data.kind.ToString();
+            if (b is Decoration || b is Housing || b is Wall || b is Door || b is Gate) return b.Data.kind.ToString();
+            if (b is Stockpile) return "QueenChamber"; // 저장 호환: 구 여왕방 자리
             return b.GetType().Name;
         }
         internal static int SiteIndex(ExpeditionSite site) => site == null ? -1 : WorldMapManager.Instance.Sites.ToList().IndexOf(site);
         internal static int ShipIndex(ExpeditionTransport ship) => ship == null ? -1 : WorldMapManager.Instance.Transports.ToList().IndexOf(ship);
-        internal static TraitsDto Traits(CommanderTraits t) => new TraitsDto { personality = (int)t.Personality, loyalty = t.Loyalty,
-            values = new List<CommanderTrait>(t.values), passions = t.passions.Select(p => new CommanderPassion { activity = p.activity, flame = p.flame }).ToList(), loyaltyReasons = new List<string>(t.loyaltyReasons) };
-        internal static CommanderTraits Traits(TraitsDto t) => new CommanderTraits((CommanderPersonality)t.personality, t.loyalty)
-            { values = new List<CommanderTrait>(t.values), passions = t.passions.Select(p => new CommanderPassion { activity = p.activity, flame = p.flame }).ToList(), loyaltyReasons = new List<string>(t.loyaltyReasons) };
+        internal static TraitsDto Traits(CommanderTraits t) => new TraitsDto { personality = (int)t.Personality,
+            values = new List<CommanderTrait>(t.values), passions = t.passions.Select(p => new CommanderPassion { activity = p.activity, flame = p.flame }).ToList() };
+        internal static CommanderTraits Traits(TraitsDto t) => new CommanderTraits((CommanderPersonality)t.personality)
+            { values = new List<CommanderTrait>(t.values), passions = t.passions.Select(p => new CommanderPassion { activity = p.activity, flame = p.flame }).ToList() };
 
         public static bool CanSave(out string error)
         {

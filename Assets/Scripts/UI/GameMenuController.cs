@@ -43,17 +43,16 @@ namespace AntColony.UI
             MenuTheme.Stretch(tip.rectTransform); tip.rectTransform.offsetMin = new Vector2(12, 8); tip.rectTransform.offsetMax = new Vector2(-12, -8);
             tooltipPanel.gameObject.SetActive(false);
             var bar = MenuTheme.Rect("MenuToolbar", canvas.transform); toolbar = bar.gameObject;
-            // HUD v2 상단 바 왼쪽: 메뉴 Esc · 장수 G · 작업표 T · 과학 K · 외교 J · 로그 L (월드맵 M 버튼은 WorldMapPanel이 붙인다).
-            // 가운데는 장수 바(RosterBar), 달력·속도는 우상단 HudClock이 맡는다.
-            bar.anchorMin = bar.anchorMax = new Vector2(0, 1); bar.pivot = new Vector2(0, 1); bar.anchoredPosition = new Vector2(8, -6); bar.sizeDelta = new Vector2(420, 28);
+            // HUD v3 상단 바 왼쪽: ≡ · 작업표 · 과학 · 월드맵 · 기록. 버튼 이름 2~3글자, 단축키 글자는 숨김(단축키 전체 미정).
+            // 장수 관리는 장수 바 인원수 클릭, 외교는 월드맵 안으로 옮겼다. 가운데는 장수 바(RosterBar), 달력·속도는 우상단 HudClock.
+            bar.anchorMin = bar.anchorMax = new Vector2(0, 1); bar.pivot = new Vector2(0, 1); bar.anchoredPosition = new Vector2(8, -6); bar.sizeDelta = new Vector2(320, 28);
             var layout = bar.gameObject.AddComponent<HorizontalLayoutGroup>(); layout.spacing = 4; layout.childForceExpandWidth = false;
-            ToolbarButton(bar, "Menu [Esc]", "Esc", Pause, "Pause, save or change settings.");
-            ToolbarButton(bar, "Commanders [G]", "장수 G", Roster, "All commanders, sorted by name. Inspect skills and equipment.");
-            ToolbarButton(bar, "Work Schedule [T]", "작업표 T", WorkSchedule, "장수 × 작업 표에서 자율 작업을 켜고 끕니다.");
-            ToolbarButton(bar, "Science [K]", "과학 K", Science,"Science research: unlock buildings, transport and upgrades.");
-            ToolbarButton(bar, "Diplomacy [J]", "외교 J", Diplomacy, "Contacted civilizations, treaties, war and trade.");
-            ToolbarButton(bar, "Event Log [L]", "로그 L", EventLog, "Recent colony events.");
-            foreach (var element in bar.GetComponentsInChildren<LayoutElement>()) element.preferredWidth = Mathf.Max(40, element.preferredWidth - 16);
+            ToolbarButton(bar, "Menu [Esc]", "≡", Pause, "메뉴: 설정 · 저장 · 불러오기");
+            ToolbarButton(bar, "Work Schedule [T]", "작업표", WorkSchedule, "장수 × 작업 체크박스");
+            ToolbarButton(bar, "Science [K]", "과학", Science, "과학 연구");
+            ToolbarButton(bar, "WorldMapToggle", "월드맵", () => FindFirstObjectByType<WorldMapPanel>()?.Toggle(), "월드맵 · 원정 · 외교");
+            ToolbarButton(bar, "Event Log [L]", "기록", EventLog, "이벤트 기록");
+            foreach (var element in bar.GetComponentsInChildren<LayoutElement>()) element.preferredWidth = Mathf.Max(30, element.preferredWidth - 16);
             ShowLoading();
         }
         // 오브젝트 이름은 검사·툴팁이 찾는 기존 키를 유지하고, 표시 문구만 디자인의 한글 라벨을 쓴다.
@@ -151,13 +150,13 @@ namespace AntColony.UI
         public void Guide()
         {
             Screen("FIELD GUIDE");
-            MenuTheme.Text(content, "BETA GOAL: defeat a MiniBird boss. You can keep playing after victory. Losing all home buildings ends the run.", 18, 76);
+            MenuTheme.Text(content, "BETA GOAL: defeat a MiniBird boss. You can keep playing after victory. 활동 가능한 장수가 0명이면 패배합니다(회복 가능한 쓰러짐 포함).", 18, 76);
             MenuTheme.Text(content, "1. 장수는 병력 없이 작업표에 켜진 일을 수행합니다. 하단 커맨드 카드 또는 장수 관리(G)의 작업표에서 작업을 켜고 끄세요. 자원 우클릭은 우선 작업 지시입니다.", 18, 95);
             MenuTheme.Text(content, "2. 건설(B)에서 건물과 대기 장수를 골라 배치하세요. 특수 탭에서 징집소를 건설한 뒤 클릭하면 출전 장수와 병력을 편성할 수 있습니다. 귀환(D)하면 생존 병력을 반납하고 자율 작업을 재개합니다.", 18, 95);
             MenuTheme.Text(content, "3. Every commander can work and fight. Equip owned weapons in commander details to change combat style; wings use the armor slot. Right-click enemies to attack, or press A then click for attack-move. Nine skills grow through use; Command skill sets troop capacity.", 18, 115);
-            MenuTheme.Text(content, "4. Reach 60 ants, unlock Fishing and upgrade a barracks to Tier 2. In World / Science, build a Science Lab, research vehicles and build a transport.", 18, 95);
+            MenuTheme.Text(content, "4. Reach 60 ants and upgrade a barracks to Tier 2. In World / Science, build a Science Lab, research Fishing and vehicles and build a transport.", 18, 95);
             MenuTheme.Text(content, "5. Bring combat commanders near the transport, board, choose a MiniBird nest and depart. Switch to the battlefield, dodge marked boss attacks and win. Return Home brings the crew and cargo back.", 18, 100);
-            MenuTheme.Text(content, "Storage: Build Storage expands resource limits and adds a drop-off point. Interrupted delivery: right-click the Queen Chamber or a Storage; on expeditions, right-click your own transport to deliver carried resources.", 18, 100);
+            MenuTheme.Text(content, "Storage: Build Storage expands resource limits and adds a drop-off point. Interrupted delivery: right-click the Stockpile or a Storage; on expeditions, right-click your own transport to deliver carried resources.", 18, 100);
             MenuTheme.Text(content, "Camera: screen edges, wheel to zoom, Z/C to rotate. Esc: menu, P: pause. G/F1: commanders. Q: weapon skill, E: conscription, D: return to post, R: weapon, K/M: world & science. Keys can be changed in Settings. Construction, combat and manual movement block saving; home gathering and cargo are saved.", 18, 95);
             MenuTheme.Text(content, "첫 등장 안내", 20, 32);
             foreach (var hint in FirstHints.All) MenuTheme.Text(content, hint.title + ": " + hint.body, 16, 50);
@@ -170,7 +169,7 @@ namespace AntColony.UI
             Screen(victory ? "VICTORY - BETA COMPLETE" : "COLONY LOST");
             Time.timeScale = 0;
             var seconds = GameSession.Instance.PlaySeconds;
-            MenuTheme.Text(content, victory ? "The boss has fallen. Your colony can continue expanding." : "All home buildings were destroyed. Load a save or start a new colony.", 22, 80);
+            MenuTheme.Text(content, victory ? "The boss has fallen. Your colony can continue expanding." : "활동 가능한 장수가 없습니다. 저장을 불러오거나 새 소굴을 시작하세요.", 22, 80);
             MenuTheme.Text(content, $"Play time: {(int)seconds / 60:00}:{(int)seconds % 60:00}  /  Commanders: {CommanderRoster.Instance?.Count ?? 0}", 18, 48);
             if (victory) MenuTheme.Button(content, "Continue Colony", () => { resumeScale = 1; Resume(); });
             MenuTheme.Button(content, "Load Game", () => Slots(false));
@@ -203,7 +202,6 @@ namespace AntColony.UI
         }
         public static CommanderAnt[] SortedCommanders() => CommanderRoster.Instance == null ? Array.Empty<CommanderAnt>()
             : CommanderRoster.Instance.Commanders.OrderBy(c => c.CommanderName, StringComparer.Ordinal).ToArray();
-        public static Color LoyaltyColor(int loyalty) => loyalty <= 15 ? MenuTheme.DangerInk : loyalty <= 30 ? MenuTheme.HpMid : MenuTheme.TextColor;
         private void Book()
         {
             Screen("Encyclopedia");

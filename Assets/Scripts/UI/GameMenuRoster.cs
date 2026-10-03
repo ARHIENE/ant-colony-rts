@@ -55,7 +55,7 @@ namespace AntColony.UI
             var shown = all.Where(c => InFilter(c, rosterFilter)
                 && (rosterSearch.Length == 0 || c.CommanderName.IndexOf(rosterSearch, StringComparison.OrdinalIgnoreCase) >= 0)).ToArray();
             if (selected == null) selected = shown.FirstOrDefault();
-            string[] heads = { "이름", "무기 (역할)", "병력", "기분", "충성심", "상태" };
+            string[] heads = { "이름", "무기 (역할)", "병력", "기분", "탈주", "상태" };
             float[] cols = { 12, 162, 312, 472, 552, 632 };
             for (var i = 0; i < heads.Length; i++) L.Label(p, heads[i], 12, cols[i], 58, 140, 22, MenuTheme.Dim);
             var list = L.List(p, 6, 82, 728, 560, 4);
@@ -65,17 +65,17 @@ namespace AntColony.UI
                 var row = L.Button(list, "Commander " + c.CommanderName, "", 0, 0, 0, 0, () => RosterScreen(captured));
                 row.gameObject.AddComponent<LayoutElement>().preferredHeight = 40;
                 if (c == selected) row.GetComponent<Outline>().effectColor = MenuTheme.Accent;
-                L.Label(row.transform, c.CommanderName, 14, cols[0] - 6, 0, 150, 40, LoyaltyColor(c.Traits.Loyalty), bold: true);
+                L.Label(row.transform, c.CommanderName, 14, cols[0] - 6, 0, 150, 40, MoodColor(c.Mood), bold: true);
                 L.Label(row.transform, $"{c.WeaponLabel} <color=#968976>· {CommandCard.RoleName(c.Role)}{(c.IsFlying ? " · 비행" : "")}</color>", 12, cols[1] - 6, 0, 150, 40, MenuTheme.Muted);
                 L.Label(row.transform, $"<b>{c.TroopCount}</b><color=#968976>/{c.CommandLimit}</color>", 13, cols[2] - 6, 0, 60, 40);
                 L.Meter(row.transform, cols[2] + 54, 17, 90, 6, c.CommandLimit > 0 ? (float)c.TroopCount / c.CommandLimit : 0, MenuTheme.Hp);
                 L.Label(row.transform, $"{c.Mood:0}", 14, cols[3] - 6, 0, 70, 40, MoodColor(c.Mood));
-                L.Label(row.transform, c.Traits.Loyalty.ToString(), 14, cols[4] - 6, 0, 70, 40, LoyaltyColor(c.Traits.Loyalty));
+                L.Label(row.transform, c.PersonalState.lowMoodSeconds > 0 ? $"{c.PersonalState.lowMoodSeconds / SocialRules.Month:P0}" : "—", 14, cols[4] - 6, 0, 70, 40, c.PersonalState.lowMoodSeconds > 0 ? MenuTheme.DangerInk : MenuTheme.Muted);
                 L.Label(row.transform, Status(c), 12, cols[5] - 6, 0, 100, 40, MenuTheme.Muted);
             }
             L.Line(p, 0, 646, 740);
             if (all.Length > 0)
-                L.Label(p, $"총 병력 <b>{all.Sum(c => c.TroopCount)}</b> / {all.Sum(c => c.CommandLimit)}     평균 기분 <b>{all.Average(c => c.Mood):0}</b>     평균 충성심 <b>{all.Average(c => c.Traits.Loyalty):0}</b>",
+                L.Label(p, $"총 병력 <b>{all.Sum(c => c.TroopCount)}</b> / {all.Sum(c => c.CommandLimit)}     평균 기분 <b>{all.Average(c => c.Mood):0}</b>",
                     12, 12, 650, 716, 22, MenuTheme.Muted);
             L.Box(p, "Divider", 740, 53, 1, 623, MenuTheme.Line);
 
@@ -103,11 +103,10 @@ namespace AntColony.UI
             for (var i = 0; i < factors.Count; i++)
                 L.Label(mood, $"{factors[i].reason}  <b>{factors[i].value:+0;-0;0}</b>  <color=#968976>{factors[i].remaining:0}초</color>", 12, 0, 46 + i * 18, 570, 18, MenuTheme.Muted);
 
-            var reasons = c.Traits.loyaltyReasons.Skip(Math.Max(0, c.Traits.loyaltyReasons.Count - 3)).ToArray();
-            var loyal = L.Cell(content, "Loyalty", 52 + reasons.Length * 18);
-            L.Label(loyal, $"<b>충성심</b>   <size=18><b>{c.Traits.Loyalty}</b></size> / 100   <color=#968976>경고선 30 · 위험 15</color>", 13, 0, 0, 570, 26);
-            L.Meter(loyal, 0, 30, 570, 8, c.Traits.Loyalty / 100f, LoyaltyColor(c.Traits.Loyalty));
-            for (var i = 0; i < reasons.Length; i++) L.Label(loyal, reasons[i], 12, 0, 46 + i * 18, 570, 18, MenuTheme.Muted);
+            // Phase 3: 충성심 대신 탈주 위험 — 기분이 기준 이하로 한 달 이어지면 떠난다.
+            var leave = L.Cell(content, "Departure", 48);
+            L.Label(leave, $"<b>탈주 위험</b>   기분 {c.Traits.DepartureMood} 이하 지속 <b>{c.PersonalState.lowMoodSeconds:0}</b> / {SocialRules.Month:0}초", 13, 0, 0, 570, 26);
+            L.Meter(leave, 0, 30, 570, 8, c.PersonalState.lowMoodSeconds / SocialRules.Month, MenuTheme.DangerInk);
 
             var skills = L.Cell(content, "Skills", 26 + ((CommanderTalents.Count + 2) / 3) * 46);
             L.Label(skills, "<b>기술</b>  <color=#968976>0~20 · ★ 열정</color>", 13, 0, 0, 570, 22);

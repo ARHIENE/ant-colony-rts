@@ -85,7 +85,7 @@ public static class WorldMapChecks
             "neutral stock scales with fixed site difficulty");
         Check(world.Sites.All(s => s.MapPosition.x >= 0 && s.MapPosition.x <= 1 && s.MapPosition.y >= 0 && s.MapPosition.y <= 1)
             && world.Sites.Select(s => s.MapPosition).Distinct().Count() == 33, "map positions are distinct and normalized");
-        var home = Object.FindFirstObjectByType<QueenChamber>();
+        var home = Object.FindFirstObjectByType<Stockpile>();
         Check(Object.FindObjectsByType<EnemyColony>().All(c => Vector3.Distance(c.transform.position, home.Position) > 1000), "no local colony");
         Check(Object.FindObjectsByType<AntColony.Boss.BossHealth>().All(b => Vector3.Distance(b.Position, home.Position) > 1000), "no local boss");
         Check(!Object.FindObjectsByType<ColonyInvasion>().Any(i => i.enabled), "old scaling invasions disabled");

@@ -1,12 +1,14 @@
+using AntColony.Data;
 using AntColony.Units;
 using UnityEngine;
 
 namespace AntColony.Core
 {
+    // Phase 4(2026-10-01): 일반개미 유지비 → 세금. 30초마다 인구가 Food를 낸다(ColonyPopulation.TaxPerCycle).
+    // 창고 Food가 바닥나면 식량 부족: 대기 개미가 사라지고 장수는 굶주림(기분 낮은 장수는 이탈).
     public class UpkeepManager : MonoBehaviour
     {
         [SerializeField] private float cycleInterval = 30f;
-        [SerializeField, Min(0)] private int foodPerAnt = 1;
         private float timer;
         public int ConsecutiveFailures { get; private set; }
         public void RestoreFailures(int value) => ConsecutiveFailures = Mathf.Max(0, value);
@@ -20,19 +22,20 @@ namespace AntColony.Core
             RunCycle();
         }
 
-        // 일반개미(원정·주둔 병력 포함, 풀에 남아 있음). 장수는 자동 유지비 대신 식사로 Food를 쓴다(2026-09-28).
-        public int FoodDue => AntPool.Instance != null ? AntPool.Instance.Total * foodPerAnt : 0;
+        public int TaxIncome => ColonyPopulation.Instance != null ? ColonyPopulation.Instance.TaxPerCycle : 0;
 
         internal void RunCycle()
         {
-            var pool = AntPool.Instance;
-            if (ResourceManager.Instance == null || pool == null) return;
-            if (ResourceManager.Instance.TrySpend(FoodDue, 0, reason: ResourceReason.Upkeep))
+            var rm = ResourceManager.Instance;
+            if (rm == null || AntPool.Instance == null) return;
+            rm.Add(ResourceType.Food, TaxIncome, ResourceReason.Tax);
+            if (rm.GetAmount(ResourceType.Food) > 0)
             {
                 ConsecutiveFailures = 0;
                 return;
             }
             ConsecutiveFailures++;
+            ColonyPopulation.Instance?.Starve();
             var hungry = new System.Collections.Generic.List<AntUnitBase>(AntUnitBase.Active);
             foreach (var c in hungry)
             {
@@ -42,9 +45,9 @@ namespace AntColony.Core
                     commander.OnHunger();
                 }
             }
-            // 굶주림의 이탈 판정은 확률 없이 발동한다. 파벌 이탈은 첫 장수의 판정에서 함께 처리된다.
+            // 굶주림의 이탈 판정은 확률 없이 발동한다. Phase 3: 기분이 높은 장수는 반란 대신 굶는다.
             foreach (var unit in hungry)
-                if (unit is CommanderAnt commander && commander.IsColonyMember && !commander.IsCaptive) commander.TryDeparture();
+                if (unit is CommanderAnt commander && commander.IsColonyMember && !commander.IsCaptive && commander.Mood < SocialRules.StarveMood) commander.TryDeparture();
         }
     }
 }

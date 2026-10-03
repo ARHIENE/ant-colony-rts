@@ -25,7 +25,7 @@ public static class SaveCorpseCapture
         foreach (var c in CommanderRoster.Instance.Commanders)
         {
             c.CommandStop(); c.WorkState.jobs = CommanderJobs.Cleaning;
-            c.ApplyTraits(new CommanderTraits(CommanderPersonality.Balanced, 50));
+            c.ApplyTraits(new CommanderTraits(CommanderPersonality.Balanced));
         }
         var cleaner = CommanderRoster.Instance.Commanders[0]; var eater = CommanderRoster.Instance.Commanders[1];
         cleaner.Traits.TryAdd(CommanderTrait.Undertaker); cleaner.Traits.TryAdd(CommanderTrait.Neat);

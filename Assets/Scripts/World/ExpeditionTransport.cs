@@ -1,3 +1,4 @@
+using System.Linq;
 using System.Collections.Generic;
 using AntColony.Buildings;
 using AntColony.Core;
@@ -98,6 +99,9 @@ namespace AntColony.World
             var settlement = State == ExpeditionState.Deployed && Site != null ? Site.Settlement : null;
             if (!isActiveAndEnabled || (State != ExpeditionState.Home && settlement == null)
                 || passengers == null || passengers.Count == 0) return false;
+            // Phase 4: 예비군제 병력은 본거지 방어 전용이라 원정에 못 데려간다.
+            if (State == ExpeditionState.Home && ColonyPopulation.Instance?.S.policy == MilitaryPolicy.Reserve
+                && passengers.Any(c => c != null && c.TroopCount > 0)) return false;
             var unique = new HashSet<CommanderAnt>();
             var load = Load;
             var commanders = CommanderLoad;

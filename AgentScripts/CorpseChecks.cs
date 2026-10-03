@@ -43,7 +43,7 @@ public static class CorpseChecks
         c.PersonalState.meal = new CommanderMealState(); c.PersonalState.joy = new CommanderJoyState();
         c.PersonalState.sleep = new CommanderSleepState(); c.PersonalState.mentalBreak = MentalBreak.None;
         c.PersonalState.rageRemaining = 0; c.PersonalState.injuries.Clear(); c.PersonalState.moodFactors.Clear();
-        c.Traits.values.Clear(); c.Traits.passions.Clear(); c.Traits.SetLoyalty(50);
+        c.Traits.values.Clear(); c.Traits.passions.Clear();
     }
     static async Task Interaction(CommanderAnt a)
     {
@@ -174,7 +174,7 @@ public static class CorpseChecks
             Near(a.Satiety, 100, "satiety restored"); Near(Mood(a, "동족 포식"), 15, "cannibal mood");
             Near(Mood(witness, "동족 포식 목격"), -8, "witness mood"); Near(Mood(b, "동족 포식 목격"), 0, "cold blood exemption");
             Near(witness.PersonalState.Relation(a.PersonalState.id).value, relationBefore - 10, "directional witness relationship");
-            Check(a.Traits.Loyalty == 47 && b.Traits.Loyalty == 47 && witness.Traits.Loyalty == 47, "colony commander loyalty loss");
+            Near(Mood(a, "아군 장수 시체 포식"), -3, "colony commander mood loss"); Near(Mood(b, "아군 장수 시체 포식"), -3, "cold blood still loses"); Near(Mood(witness, "아군 장수 시체 포식"), -3, "witness mood loss");
             a.TickDuty(5); Check(ResourceManager.Instance.GetAmount(RT.Food) == foodBefore + 10, "no double reward");
             corpse = Body(a, count: 2); a.PersonalState.meal.satiety = 10; a.TickDuty(.1f);
             Check(a.CorpseTarget == corpse && a.EatingCorpse, "hungry cannibal starts automatically"); a.TickDuty(5);
@@ -242,7 +242,7 @@ public static class CorpseChecks
             Check(!SaveValidator.Validate(invalid, out _), "reject duplicate worker claim");
             var legacy = JsonUtility.FromJson<SaveFileV1>(json); legacy.version = 10;
             foreach (var c in legacy.commanders) c.personalState.work.jobs &= ~CommanderJobs.Cleaning;
-            Check(SaveValidator.Validate(legacy, out error) && legacy.version == 11 && legacy.corpses.Count == 0
+            Check(SaveValidator.Validate(legacy, out error) && legacy.version == SaveFileV1.CurrentVersion && legacy.corpses.Count == 0
                 && legacy.commanders.All(c => (c.personalState.work.jobs & CommanderJobs.Cleaning) != 0), "v10 migration: " + error);
             await Interaction(a);
             return "PASS " + checks + " corpse, cleaning, traits, death/capture, UI, screen-ray input, real-time work, save/reload and migration checks";

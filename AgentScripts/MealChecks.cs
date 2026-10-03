@@ -60,7 +60,7 @@ public static class MealChecks
 
             // 장수 자동 유지비 삭제: 일반개미만 청구.
             var upkeep = Object.FindFirstObjectByType<UpkeepManager>();
-            Check(upkeep.FoodDue == AntPool.Instance.Total, "upkeep bills ants only");
+            Check(upkeep.TaxIncome == ColonyPopulation.Instance.TaxPerCycle, "ant upkeep replaced by tax (Phase 4)");
 
             // 포만은 깨어 있는 동안 줄고, 30 이하가 되면 먹으러 간다.
             c.PersonalState.meal = new CommanderMealState();

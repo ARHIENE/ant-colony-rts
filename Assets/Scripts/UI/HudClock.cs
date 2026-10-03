@@ -17,35 +17,35 @@ namespace AntColony.UI
 
         public static HudClock Create(Transform canvas)
         {
-            var root = MenuTheme.Panel(canvas, "HudClock", new Vector2(1, 1), new Vector2(318, 44), new Vector2(-8, -48));
+            var root = MenuTheme.Panel(canvas, "HudClock", new Vector2(1, 1), new Vector2(360, 94), new Vector2(-8, -48));
             var clock = root.gameObject.AddComponent<HudClock>(); clock.root = root;
             root.gameObject.AddComponent<CanvasGroup>();
-            clock.day = Label(root, "", 12, new Vector2(8, -5), new Vector2(120, 16), MenuTheme.TextColor);
+            clock.day = Label(root, "", 12, new Vector2(8, -5), new Vector2(220, 20), MenuTheme.TextColor);
             clock.day.fontStyle = FontStyle.Bold;
-            clock.left = Label(root, "", 11, new Vector2(128, -5), new Vector2(40, 16), MenuTheme.Dim);
+            clock.left = Label(root, "", 11, new Vector2(230, -5), new Vector2(120, 20), MenuTheme.Dim);
             clock.left.alignment = TextAnchor.MiddleRight;
             // 낮 10 : 밤 5 비율의 막대와 현재 시각 표시.
-            var bar = Box(root, "DayNightBar", new Vector2(8, -26), new Vector2(160, 4), MenuTheme.Well);
+            var bar = Box(root, "DayNightBar", new Vector2(8, -32), new Vector2(160, 4), MenuTheme.Well);
             var d = Box(bar, "Day", Vector2.zero, new Vector2(160f * 2 / 3, 4), MenuTheme.Hex(0x6b5a3a));
             var n = Box(bar, "Night", new Vector2(160f * 2 / 3, 0), new Vector2(160f / 3, 4), MenuTheme.Hex(0x2a3346));
             d.GetComponent<Image>().raycastTarget = n.GetComponent<Image>().raycastTarget = false;
             clock.marker = Box(bar, "Now", new Vector2(0, 2), new Vector2(2, 8), MenuTheme.TextColor);
 
-            var group = Box(root, "Speed", new Vector2(176, -8), new Vector2(134, 28), MenuTheme.Well);
+            var group = Box(root, "Speed", new Vector2(176, -52), new Vector2(174, 34), MenuTheme.Well);
             string[] labels = { "II", "1×", "2×", "3×", "5×" };
             string[] names = { "Pause / Play", "1x", "2x", "3x", "5x" };
             string[] tips = { "일시정지 (Space)", "1배속 (F5)", "2배속 (F6)", "3배속 (F7)", "5배속 (F8)" };
             for (var i = 0; i < 5; i++)
             {
                 var index = i;
-                var rect = Box(group, names[i], new Vector2(2 + i * 26, -2), new Vector2(24, 24), Color.white);
+                var rect = Box(group, names[i], new Vector2(2 + i * 34, -2), new Vector2(32, 30), Color.white);
                 var button = rect.gameObject.AddComponent<Button>(); MenuTheme.StyleButton(button);
                 button.onClick.AddListener(() =>
                 {
                     var menu = GameMenuController.Instance; if (menu == null) return;
                     if (index == 0) menu.ToggleSimulation(); else menu.SetSpeed(GameMenuController.Speeds[index - 1]);
                 });
-                var text = Label(rect, labels[i], 12, Vector2.zero, new Vector2(24, 24), MenuTheme.Muted);
+                var text = Label(rect, labels[i], 12, Vector2.zero, new Vector2(32, 30), MenuTheme.Muted);
                 text.font = MenuTheme.NumberFont; text.alignment = TextAnchor.MiddleCenter;
                 rect.gameObject.AddComponent<MenuTooltip>().Message = tips[i];
                 clock.speeds[i] = button;

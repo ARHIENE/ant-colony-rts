@@ -19,7 +19,7 @@ namespace AntColony.UI
             {
                 if (!EquipmentRecipes.Unlocked(recipe)) continue;
                 var cost = EquipmentRecipes.Cost(recipe);
-                MenuTheme.Button(content, $"{EquipmentRecipes.Name(recipe)} — Food {cost.x} / Soil {cost.y} / Special {cost.z}", () => {
+                MenuTheme.Button(content, $"{EquipmentRecipes.Name(recipe)} — Food {cost.x} / 재료 {cost.y} / Special {cost.z}", () => {
                     if (!workshop.TryEnqueue(recipe)) ToastManager.Show("자원·대기열·보관함 빈칸을 확인하세요."); ShowWorkshop(workshop);
                 }).interactable = !workshop.Ruined && workshop.isActiveAndEnabled && workshop.Jobs.Count < GameBalance.CraftQueueCapacity && inventory != null && !inventory.Full;
             }

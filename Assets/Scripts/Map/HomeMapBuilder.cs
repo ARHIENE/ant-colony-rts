@@ -60,10 +60,10 @@ namespace AntColony.Map
             return new Bounds(new Vector3(200f, 0f, 200f), new Vector3(400f, 100f, 400f));
         }
 
-        // 본거지 중심. 여왕방이 있으면 그 자리를, 없으면 플레이어 건물 평균을 쓴다.
+        // 본거지 중심. 비축더미(구 여왕방)가 있으면 그 자리를, 없으면 플레이어 건물 평균을 쓴다.
         private static bool TryFindHome(out Vector3 center)
         {
-            var queen = FindFirstObjectByType<QueenChamber>();
+            var queen = FindFirstObjectByType<Stockpile>();
             if (queen != null) { center = queen.Position; return true; }
             var sum = Vector3.zero;
             var count = 0;

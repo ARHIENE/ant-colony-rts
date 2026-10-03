@@ -135,6 +135,12 @@ namespace AntColony.Save
                         if (f?.prisoners != null && f.rebels != null) foreach (var p in f.prisoners.Concat(f.rebels)) Cleaning(p?.PersonalState);
                 file.version = 11;
             }
+            if (file.version == 11)
+            {
+                // Phase 4: 여왕방 삭제·인구 도입. 기존 개미는 성체, 민심·세율은 기본값.
+                file.population = new Core.ColonyPopulation.State();
+                file.version = 12;
+            }
             if (file.version != SaveFileV1.CurrentVersion)
             {
                 error = $"Save version {file.version} cannot be read by this build (expects {SaveFileV1.CurrentVersion}).";
@@ -150,6 +156,11 @@ namespace AntColony.Save
             if (!Enum.IsDefined(typeof(Core.DifficultyLevel), file.options.difficulty)) { error = "Unknown difficulty."; return false; }
             if (!Enum.IsDefined(typeof(Core.CommanderDeathMode), file.options.commanderDeath)) { error = "Unknown commander death mode."; return false; }
             if (!Enum.IsDefined(typeof(Core.MapBiome), file.options.biome)) { error = "Unknown biome."; return false; }
+            var pop = file.population;
+            if (pop == null || pop.young < 0 || pop.old < 0 || !Enum.IsDefined(typeof(Core.MilitaryPolicy), pop.policy)
+                || !(pop.sentiment >= 0 && pop.sentiment <= 100) || !(pop.taxRate >= 0 && pop.taxRate <= Core.GameBalance.MaxTaxRate)
+                || float.IsNaN(pop.monthSeconds) || float.IsInfinity(pop.monthSeconds) || pop.monthSeconds < 0 || float.IsNaN(pop.raidSeconds) || pop.raidSeconds < 0)
+            { error = "Invalid population."; return false; }
             if (file.colony.antsFree < 0 || file.colony.antsAssigned < 0 || file.colony.antsReserved < 0)
             { error = "Negative ant counts."; return false; }
             foreach (var commander in file.commanders)
@@ -173,7 +184,6 @@ namespace AntColony.Save
             if (traits == null) return;
             traits.values = new System.Collections.Generic.List<Units.CommanderTrait>();
             traits.passions = new System.Collections.Generic.List<Units.CommanderPassion>();
-            traits.loyaltyReasons = new System.Collections.Generic.List<string>();
         }
     }
 }

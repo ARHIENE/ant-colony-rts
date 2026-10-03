@@ -20,6 +20,9 @@ namespace AntColony.Buildings
                 if (c == null || !seen.Add(c) || !c.CanMobilize || troops[i] <= 0 || troops[i] > c.CommandLimit || !c.CanReach(rally.position)) return false;
                 total += troops[i];
             }
+            // Phase 4: 병역 제도 상한·민심 바닥 확인(병역 나이 확대 시 늙은 개미로 보충).
+            var population = ColonyPopulation.Instance;
+            if (population != null && !population.TryDraft((int)total, AntColony.UI.EnemyAlert.CrisisActive)) return false;
             if (total > AntPool.Instance.Free || !AntPool.Instance.TryAssign((int)total)) return false;
             for (var i = 0; i < commanders.Count; i++) commanders[i].Mobilize(troops[i], rally.position);
             return true;

@@ -29,6 +29,7 @@ namespace AntColony.Core
             }
             Instance = this;
             Free = startingAnts;
+            if (GetComponent<ColonyPopulation>() == null) gameObject.AddComponent<ColonyPopulation>();
         }
 
         private void OnDestroy()
@@ -111,6 +112,17 @@ namespace AntColony.Core
             Reserved -= count;
             Free += count;
             OnPoolChanged?.Invoke();
+        }
+
+        // Phase 4: 노화·탈주·식량 부족으로 대기 개미를 뺀다. lost면 손실로 기록. 실제로 뺀 수를 돌려준다.
+        public int RemoveFree(int count, bool lost)
+        {
+            count = Mathf.Clamp(count, 0, Free);
+            if (count == 0) return 0;
+            Free -= count;
+            if (lost) CampaignHistory.Ants(count, true);
+            OnPoolChanged?.Invoke();
+            return count;
         }
 
         // 식량 부족으로 개미 한 마리를 잃는다. 대기 개미를 먼저 소모한다.

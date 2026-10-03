@@ -4,7 +4,7 @@ namespace AntColony.Data
 {
     public enum BuildingKind
     {
-        QueenChamber,
+        QueenChamber, // Phase 4: 여왕방 삭제 → 비축더미(Stockpile). 직렬화 번호 유지
         Barracks,
         Storage,
         DigSite,
@@ -31,7 +31,11 @@ namespace AntColony.Data
         // 2026-09-28 생활 시설
         Dormitory, Kitchen, FlowerPot, ShellDecoration, MarbleMosaic, BottleMobile, FireflyLamp,
         // 오락 시설(처음부터 2종, 2026-09-29 사용자 선택)
-        Campfire, GamblingDen
+        Campfire, GamblingDen,
+        // Phase 4 주거 건물: 초가집·흙집·큰 아파트
+        Hut, House, Apartment,
+        // Phase 5 벽·문: 나뭇잎 벽·병뚜껑 벽·문·성벽·성문
+        LeafWall, CapWall, Door, CastleWall, Gate
     }
 
     [CreateAssetMenu(fileName = "BuildingData", menuName = "AntColony/Building Data")]

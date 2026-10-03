@@ -94,7 +94,7 @@ namespace AntColony.World
                     error = "장수 합류 실패. 거래를 취소했습니다."; return false;
                 }
                 recruit.RestoreTalents(p.Talents); recruit.RestorePersonalState(p.PersonalState); recruit.WorkState.duty = CommanderDuty.Civilian; recruit.Social.departure = DepartureState.None;
-                recruit.Social.pendingDeparture = false; recruit.PersonalState.departure = ""; recruit.Traits.SetLoyalty(30);
+                recruit.Social.pendingDeparture = false; recruit.PersonalState.departure = "";
                 recruit.RestoreLabLevels(p.LabAttack, p.LabArmor); recruit.Skills.Restore(false, p.StrikeCooldown, p.StanceCooldown, 0);
                 recruits.Add(recruit);
             }

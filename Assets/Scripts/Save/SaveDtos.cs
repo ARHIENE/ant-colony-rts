@@ -42,10 +42,8 @@ namespace AntColony.Save
     public class TraitsDto
     {
         public int personality;
-        public int loyalty;
         public List<Units.CommanderTrait> values = new List<Units.CommanderTrait>();
         public List<Units.CommanderPassion> passions = new List<Units.CommanderPassion>();
-        public List<string> loyaltyReasons = new List<string>();
     }
 
     [Serializable]
@@ -127,7 +125,8 @@ namespace AntColony.Save
         public float labResearchRemaining;
         public int labResearchCommanderId = -1;
         public bool labResearchAttack;
-        public float queenProductionRemaining;
+        public bool gateOpen = true; // Phase 5 성문
+        public float queenProductionRemaining; // Phase 4: 여왕방 삭제, 이전 저장 읽기용
         public float queenFishingRemaining;
         public float scienceRemaining;
         public bool scienceAircraft;
@@ -270,11 +269,12 @@ namespace AntColony.Save
         public float upkeepTimer, incursionTimer;
         public bool loopCompleted, bossDefeated, defeated;
         public string randomState;
-        public const int CurrentVersion = 11;
+        public const int CurrentVersion = 12;
         public List<World.Corpse.State> corpses = new List<World.Corpse.State>();
         public World.DiplomacyManager.State diplomacy;
         public Core.CampaignHistory.State history = new Core.CampaignHistory.State();
         public World.ColonyEvents.State events = new World.ColonyEvents.State();
+        public Core.ColonyPopulation.State population = new Core.ColonyPopulation.State(); // v12 Phase 4 인구
 
         public int version = CurrentVersion;
         public string gameId = "AntColony";

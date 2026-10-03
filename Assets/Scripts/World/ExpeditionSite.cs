@@ -14,6 +14,7 @@ namespace AntColony.World
     public class ExpeditionSite : MonoBehaviour
     {
         public string Title { get; private set; }
+        public AntColony.Core.MapBiome Biome => AntColony.Core.BiomeRules.ForSite(Title);
         public string Faction { get; private set; }
         public ExpeditionSiteKind Kind { get; private set; }
         // 거리와 무관한 고정 난이도: 정착지 수비병·재고·생산, 보스 체력·전리품, 중립 자원량에 적용.
@@ -94,7 +95,8 @@ namespace AntColony.World
                     node.GetComponent<Renderer>().SetPropertyBlock(block);
                     resourceNodes[i] = node.AddComponent<ResourceNode>();
                     // 자원량은 임시값. 채집/화물/귀환은 기존 원정 경로를 그대로 사용한다.
-                    resourceNodes[i].ConfigureLoot(type, 100 * Difficulty);
+                    // Phase 6: 거점 바이옴 보정(로컬과 같은 ±60%).
+                    resourceNodes[i].ConfigureLoot(type, Mathf.Round(100 * Difficulty * AntColony.Core.BiomeRules.NodeMultiplier(Biome, type)));
                     node.AddComponent<ResourceNodeStatus>();
                     node.SetActive(true);
                 }

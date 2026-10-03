@@ -41,8 +41,11 @@ public static class Stage5Checks
     static void Traits(CommanderAnt c, params CommanderTrait[] values)
     {
         var t = new CommanderTraits(); foreach (var v in values) Check(t.TryAdd(v), "trait accepted " + v);
-        t.SetLoyalty(80); c.ApplyTraits(t);
+        c.ApplyTraits(t); c.PersonalState.moodFactors.Clear();
     }
+    // Phase 3: 충성심 대신 한 달짜리 기분 요인으로 검사한다.
+    static float F(CommanderAnt c, string reason) => c.PersonalState.moodFactors.Where(f => f.reason.StartsWith(reason)).Sum(f => f.value);
+
     static void Relations(CommanderAnt a, CommanderAnt b, float value)
     { a.PersonalState.Relation(b.PersonalState.id).value = value; b.PersonalState.Relation(a.PersonalState.id).value = value; }
     static int Seed(float max)
@@ -66,38 +69,39 @@ public static class Stage5Checks
             foreach (var unit in all) { Traits(unit); Move(unit, home + new Vector3(15, 0, 15)); unit.PersonalState.relations.Clear(); }
             a.WorkState.duty = AntColony.Units.CommanderDuty.Deployed; // 병력은 출전 편성으로 받는다.
             Check(a.TryAssign(10), "workforce assigned"); // 4 반납 = 절반 미만, 이어서 3 반납 = 남은 6의 절반
-            var loyalty = a.Traits.Loyalty; Check(a.ReturnTroops(4) == 4, "small recall accepted"); Near(a.Traits.Loyalty, loyalty, "less than half no penalty");
-            Check(a.ReturnTroops(3) == 3, "half recall accepted"); Near(a.Traits.Loyalty, loyalty - 5, "half recall loyalty -5");
-            Traits(a, CommanderTrait.Ambitious); a.OnTroopsRecalled(5, 10); Near(a.Traits.Loyalty, 70, "ambitious recall -10");
-            Check(a.TryReward(), "reward available"); Near(a.Traits.Loyalty, 85, "ambitious reward +15"); Check(!a.TryReward(), "reward monthly limit");
-            Traits(a, CommanderTrait.Loyal); a.OnTroopsRecalled(5, 10); Near(a.Traits.Loyalty, 80, "loyal recall zero");
-            Traits(a, CommanderTrait.Glutton); a.OnHunger(); Near(a.Traits.Loyalty, 76, "glutton hunger -4");
-            Traits(a, CommanderTrait.Ascetic); a.OnHunger(); Near(a.Traits.Loyalty, 80, "ascetic hunger zero");
-            Traits(a); a.OnHunger(); Near(a.Traits.Loyalty, 78, "hunger -2");
-            a.OnExpeditionVictory(); Near(a.Traits.Loyalty, 81, "victory +3");
-            Traits(a, CommanderTrait.Wanderer); a.OnExpeditionVictory(); Near(a.Traits.Loyalty, 86, "wanderer victory +6");
-            Traits(a, CommanderTrait.Homebody); a.OnExpeditionVictory(); Near(a.Traits.Loyalty, 81, "homebody victory +1");
+            Check(a.ReturnTroops(4) == 4, "small recall accepted"); Near(F(a, "병력 회수"), 0, "less than half no penalty");
+            Check(a.ReturnTroops(3) == 3, "half recall accepted"); Near(F(a, "병력 회수"), -5, "half recall mood -5");
+            Traits(a, CommanderTrait.Ambitious); a.OnTroopsRecalled(5, 10); Near(F(a, "병력 회수"), -10, "ambitious recall -10");
+            Check(a.TryReward(), "reward available"); Near(F(a, "포상"), 15, "ambitious reward +15"); Check(!a.TryReward(), "reward monthly limit");
+            Near(a.PersonalState.moodFactors.First(f => f.reason == "포상").remaining, GameCalendar.SecondsPerMonth, "event mood lasts a month");
+            Traits(a, CommanderTrait.Loyal); a.OnTroopsRecalled(5, 10); Near(F(a, "병력 회수"), 0, "loyal recall zero");
+            Traits(a, CommanderTrait.Glutton); a.OnHunger(); Near(F(a, "굶주림 누적"), -4, "glutton hunger -4");
+            Traits(a, CommanderTrait.Ascetic); a.OnHunger(); Near(F(a, "굶주림 누적"), 0, "ascetic hunger zero");
+            Traits(a); a.OnHunger(); Near(F(a, "굶주림 누적"), -2, "hunger -2");
+            a.OnExpeditionVictory(); Near(F(a, "원정 승리 기억"), 3, "victory +3");
+            Traits(a, CommanderTrait.Wanderer); a.OnExpeditionVictory(); Near(F(a, "원정 승리 기억"), 6, "wanderer victory +6");
+            Traits(a, CommanderTrait.Homebody); a.OnExpeditionVictory(); Near(F(a, "원정 승리 기억"), 1, "homebody victory +1");
             a.Social.expeditions = 9; a.OnExpeditionStarted(); Check(!a.Traits.Has(CommanderTrait.Homebody), "10 expeditions remove homebody");
 
             // Execution priorities, friendship death and captivity debt.
             Traits(a, CommanderTrait.Sociable); Traits(b, CommanderTrait.ColdBlooded); Traits(c, CommanderTrait.Loyal);
             a.PersonalState.originFaction = "same";
             CommanderAnt.OnPrisonerExecuted("unknown", "same", "test");
-            Near(a.Traits.Loyalty, 65, "same faction execution -15 overrides personality"); Near(b.Traits.Loyalty, 83, "cold execution +3"); Near(c.Traits.Loyalty, 80, "loyal execution zero");
+            Near(F(a, "포로 처형"), -15, "same faction execution -15 overrides personality"); Near(F(b, "포로 처형"), 3, "cold execution +3"); Near(F(c, "포로 처형"), 0, "loyal execution zero");
             a.PersonalState.originFaction = ""; Traits(a); Traits(b, CommanderTrait.Sociable); Relations(a, b, 50);
             var site = WorldMapManager.Instance.Sites.First(s => s.Kind == ExpeditionSiteKind.Settlement);
             typeof(CommanderAnt).GetProperty("Captor").SetValue(a, site);
             b.WorkState.duty = AntColony.Units.CommanderDuty.Deployed; if (!b.HasTroops) b.TryAssign(2); // 복수는 병력이 있는(출전) 장수만 한다.
             a.OnCaptured(); Check(b.PersonalState.rageRemaining == 60 && !b.CanReceiveOrders, "friend capture starts revenge and locks orders");
             b.PersonalState.rageRemaining = 0;
-            a.TickCaptivity(600); Near(a.Traits.Loyalty, 80, "captive debt deferred"); Near(b.Traits.Loyalty, 60, "social friend abandonment -10 monthly");
+            a.TickCaptivity(600); Near(F(a, "구출"), 0, "captive debt deferred"); Near(F(b, "친구 포로 방치"), -10, "social friend abandonment -10");
             Check(a.Social.captiveDebt == 20, "two months debt saved");
             typeof(CommanderAnt).GetProperty("Captor").SetValue(a, null);
-            Random.InitState(Seed(.3f)); a.OnRescued(); Near(a.Traits.Loyalty, 80, "debt -20 and rescue +20"); Near(b.Traits.Loyalty, 70, "social rescue +10");
+            Random.InitState(Seed(.3f)); a.OnRescued(); Near(F(a, "구출"), 0, "debt -20 and rescue +20"); Near(F(b, "친구 구출"), 10, "social rescue +10");
             Check(a.Traits.Has(CommanderTrait.ColdBlooded), "captivity changes trait");
             Traits(b); Relations(a, b, 80); b.PersonalState.Relation(a.PersonalState.id).spouse = true;
-            a.NotifyDowned(true, "전투"); Near(b.Traits.Loyalty, 70, "spouse death -10"); b.PersonalState.rageRemaining = 0;
-            Traits(b, CommanderTrait.Loyal); a.NotifyDowned(true, "처형"); Near(b.Traits.Loyalty, 70, "preventable spouse death loyal half"); b.PersonalState.rageRemaining = 0;
+            a.NotifyDowned(true, "전투"); Near(F(b, "친구 사망"), -10, "spouse death -10"); b.PersonalState.rageRemaining = 0;
+            Traits(b, CommanderTrait.Loyal); a.NotifyDowned(true, "처형"); Near(F(b, "친구 사망"), -10, "preventable spouse death loyal half"); b.PersonalState.rageRemaining = 0;
             Traits(a, CommanderTrait.Robust); a.Social.seriousInjuries = 3; Call(a, "TickSocial", .01f); Check(!a.Traits.Has(CommanderTrait.Robust), "three serious injuries remove robust");
             Traits(c); c.Social.seriousInjuries = 3; Call(c, "TickSocial", .01f); Check(c.Traits.Has(CommanderTrait.Frail), "three serious injuries add frail");
             Traits(c, CommanderTrait.IronWill); c.Social.breakdowns = 4; c.StartMentalBreak(MentalBreak.Idle); Check(c.Traits.Has(CommanderTrait.Easygoing), "fifth breakdown lowers mental trait");
@@ -150,10 +154,10 @@ public static class Stage5Checks
             a.PersonalState.equipment.Clear(); a.RefreshEquipment();
             foreach (var unit in new[] { a, b, c }) { Traits(unit); unit.PersonalState.relations.Clear(); unit.PersonalState.rageRemaining = 0; unit.PersonalState.mentalBreak = MentalBreak.None; }
             Relations(a, b, 50); Relations(a, c, 50); Relations(b, c, 50);
-            a.Traits.SetLoyalty(10); b.Traits.SetLoyalty(30); c.Traits.SetLoyalty(35);
+            a.PersonalState.AddMood("test", -60, 999); b.PersonalState.AddMood("test", -40, 999); c.PersonalState.AddMood("test", -35, 999);
             int assigned = AntPool.Instance.Assigned, leaving = a.TroopCount + b.TroopCount + c.TroopCount;
-            Check(a.TryDeparture(), "loyalty departure begins");
-            Check(new[] { a, b, c }.All(u => u.Social.departure == DepartureState.Rebellion), "low loyalty faction all rebels");
+            Check(c.Mood <= SocialRules.RebelMood && a.TryDeparture(), "low mood departure begins " + c.Mood);
+            Check(new[] { a, b, c }.All(u => u.Social.departure == DepartureState.Rebellion), "low mood faction all rebels");
             Check(AntPool.Instance.Assigned == assigned - leaving, "rebel troops removed once from friendly pool");
             Check(!a.CanReceiveOrders && !a.GetComponent<PlayerSelectable>().enabled, "rebel unselectable and orders blocked");
             Check(CombatTargeting.CanAttack(UnitRole.Melee, a), "friendly combat can target rebel");
@@ -188,16 +192,15 @@ public static class Stage5Checks
             Set(camp, "basePersuadeChance", 1f); Set(camp, "loyaltyPenalty", 0f);
             Check(camp.TryPersuade(prisoner), "recaptured rebel persuaded");
             var recruit = CommanderRoster.Instance.Commanders.First(u => u.PersonalState.id == oldId);
-            Check(recruit.IsColonyMember && recruit.CanReceiveOrders && recruit.Traits.Loyalty == 30, "recruit allegiance and loyalty restored");
+            Check(recruit.IsColonyMember && recruit.CanReceiveOrders, "recruit allegiance restored");
             Check(recruit.PersonalState.equipment[0].id == gearId, "recruit owns original gear");
             Check(SaveSystem.TrySave(false, 0, out error) && SaveSystem.TryLoad(SaveSlots.PathFor(false, 0), out error), "second save/load: " + error); await Ready();
             Check(CommanderRoster.Instance.Commanders.Count(u => u.PersonalState.id == oldId) == 1, "no duplicates second reload");
             GameMenuController.Instance.Roster(); Canvas.ForceUpdateCanvases();
-            Check(Object.FindObjectsByType<UnityEngine.UI.Text>().Any(t => t.text.Contains("충성")), "loyalty visible in roster");
+            Check(Object.FindObjectsByType<UnityEngine.UI.Text>().Any(t => t.text.Contains("탈주")), "departure risk visible in roster");
             recruit = CommanderRoster.Instance.Commanders.First(u => u.PersonalState.id == oldId);
             GameMenuController.Instance.Details(recruit); Canvas.ForceUpdateCanvases();
             Check(Object.FindObjectsByType<UnityEngine.UI.Text>().Any(t => t.text.Contains("파벌:")), "relations and faction detail visible");
-            Check(GameMenuController.LoyaltyColor(15) != GameMenuController.LoyaltyColor(30) && GameMenuController.LoyaltyColor(30) != Color.white, "loyalty danger colors");
             return "PASS " + checks + " stage 5 checks";
         }
         finally { Time.timeScale = 0; SaveStorage.RootOverride = root; UserSettings.Apply(settings, false); }

@@ -72,8 +72,7 @@ namespace AntColony.Buildings
         {
             get
             {
-                if (AntPool.Instance == null || AntPool.Instance.Total < RequiredPopulation
-                    || GameManager.Instance == null || !GameManager.Instance.FishingUnlocked) return false;
+                if (AntPool.Instance == null || AntPool.Instance.Total < RequiredPopulation) return false;
                 foreach (var barracks in FindObjectsByType<Barracks>(FindObjectsSortMode.None))
                     if (barracks.isActiveAndEnabled && barracks.CurrentTier >= 2) return true;
                 return false;

@@ -60,10 +60,19 @@ namespace AntColony.Core
         public const int AdvancedFungusSpecial = 2;
 
         // 낮밤·수면 (2026-09-28). 숙소 정원 4 확정, 나머지 잠정.
+        // Phase 4 인구(2026-10-01, 잠정): 기본 살 자리, 세금(30초마다 납세 개미 × 세율 × 이 값 Food), 민심·이주·노화.
+        public const int BaseHousing = 50, MinImmigrationDemand = 30;
+        public const float DoorBashDamage = 15; // Phase 5: 문에 닿은 적이 0.25초마다 주는 피해(잠정)
+        public const float TaxFoodPerAnt = .5f, MaxTaxRate = .5f, RaidSentiment = 10, UnrestSentiment = 15;
+        public const float ImmigrationShare = .3f, AdultAging = .03f, OldDeath = .15f, UnrestDesertion = .05f, StarveDesertion = .05f;
+        // 주거 건물(방 밖에 짓는 건물 단위, 자동 레벨업 없음): 수용 수·재료·인력·시간
+        public const int HutHousing = 20, HutSoil = 30, HouseHousing = 50, HouseSoil = 80, ApartmentHousing = 120, ApartmentSoil = 200, ApartmentSpecial = 20;
+        // 장수 나이(개월): 시작 12~72, 어린 장수 12개월 미만, 늙음 96개월 이상, 수명 120~168개월.
+        public const float ChildMonths = 12, ElderMonths = 96, MinLifespan = 120, MaxLifespan = 168;
         public const int DormitoryBeds = 4, DormitoryFood = 20, DormitorySoil = 40, DormitoryAnts = 4;
         public const float DormitoryBuildSeconds = 8;
         public const float RoughSleepMood = -15, RivalRoommateMood = -5, BadSleepMood = -5;
-        public const int RoughSleepLoyalty = -5, RoughSleepNights = 3;
+        public const int RoughSleepStreakMood = -5, RoughSleepNights = 3;
         public const float PoorSleepWork = .8f;
         // 피로 0~100: 낮 작업 10분(한 낮)이면 가득, 숙소에서 한 밤 자면 0. 설친 잠은 절반만 풀린다.
         public const float FatiguePerWorkSecond = 100f / 600f, FatigueRestPerSecond = .5f, TiredFatigue = 50;

@@ -55,7 +55,7 @@ public static class Stage1Checks
             var rm = ResourceManager.Instance;
             foreach (ColonyResourceType type in Enum.GetValues(typeof(ColonyResourceType))) { rm.AddCapacity(type, 10000); rm.Add(type, 10000); }
             var roster = CommanderRoster.Instance;
-            foreach (var c in roster.Commanders) c.ApplyTraits(new CommanderTraits(CommanderPersonality.Balanced, 50));
+            foreach (var c in roster.Commanders) c.ApplyTraits(new CommanderTraits(CommanderPersonality.Balanced));
 
             // 1. 과학 연구량·자원·한글 이름
             var defs = CampaignResearch.Technologies;
@@ -140,13 +140,13 @@ public static class Stage1Checks
             // 5. 유지비는 일반개미만(장수는 식사로 대체, 2026-09-28)
             var upkeep = Object.FindFirstObjectByType<UpkeepManager>();
             a.Traits.TryAdd(CommanderTrait.LightEater); b.Traits.TryAdd(CommanderTrait.Glutton);
-            var expected = AntPool.Instance.Total;
-            Check(a.Traits.FoodMultiplier == .7f && b.Traits.FoodMultiplier == 1.5f && upkeep.FoodDue == expected, "upkeep bills ants only, appetite traits kept for meals");
+            var expected = ColonyPopulation.Instance.TaxPerCycle;
+            Check(a.Traits.FoodMultiplier == .7f && b.Traits.FoodMultiplier == 1.5f && upkeep.TaxIncome == expected, "ants pay tax, appetite traits kept for meals");
             vehicle.TryBoard(new[] { crew[2] });
-            Check(upkeep.FoodDue == expected, "embarked commander not billed");
+            Check(upkeep.TaxIncome == expected, "embarked commander does not change tax");
             before = rm.GetAmount(ColonyResourceType.Food);
             typeof(UpkeepManager).GetMethod("RunCycle", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Public).Invoke(upkeep, null);
-            Check(rm.GetAmount(ColonyResourceType.Food) == before - expected, "upkeep cycle charges home storage");
+            Check(rm.GetAmount(ColonyResourceType.Food) == Mathf.Min(before + expected, rm.GetCapacity(ColonyResourceType.Food)), "tax cycle pays home storage");
             vehicle.TryUnloadCrew();
 
             // 6. 단축키 기본값·재지정

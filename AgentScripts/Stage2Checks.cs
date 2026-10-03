@@ -83,7 +83,7 @@ public static class Stage2Checks
             foreach (ColonyResourceType type in Enum.GetValues(typeof(ColonyResourceType))) { rm.AddCapacity(type, 10000); rm.Add(type, 10000); }
             AntPool.Instance.Breed(100);
             var roster = CommanderRoster.Instance;
-            foreach (var c in roster.Commanders) c.ApplyTraits(new CommanderTraits(CommanderPersonality.Balanced, 50));
+            foreach (var c in roster.Commanders) c.ApplyTraits(new CommanderTraits(CommanderPersonality.Balanced));
             var a = roster.Commanders[0];
             var home = a.Position;
             var world = WorldMapManager.Instance;

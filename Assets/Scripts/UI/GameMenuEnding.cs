@@ -9,7 +9,7 @@ namespace AntColony.UI
     // 엔딩 화면: 출항 장면 + 4단계에서 누적한 기록 → 메인 메뉴. 점수·등급 없음.
     public sealed partial class GameMenuController
     {
-        private static readonly string[] ResourceNames = { "Food", "Soil", "Special" };
+        private static readonly string[] ResourceNames = { "Food", "재료", "Special" };
         private static readonly string[] ReasonNames = { "채집", "건설", "연구", "유지비", "원정", "거래", "제작", "생산", "치료", "포상", "환불", "기타" };
 
         public void ShowDeparture()

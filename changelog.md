@@ -4,6 +4,24 @@
 
 ---
 
+# 2026-10-03 SAVE — 이전 로그(2026-10-01 SAVE 미완료 + 2026-10-02 Phase 3~6) 이관
+- 10-01: Phase 2(Soil 표시 → 단일 자원 '재료', Soil enum·직렬화 유지), 낚시를 과학 1티어로 이전(식량 50·재료 50·연구량 300, Fishing=30), 패배 = 활동 가능한 장수 0명. HUD v3(상단 메뉴 ≡/작업표/과학/월드맵/기록, 인원수→장수 관리, 월드맵 내부 외교, 평시 2×2 명령, 초상 클릭 상세). 검증 Phase2 15·Commander 34·SaveRoundtrip 50·HUD 39·Tooltip 151 등. Notion 기획 8개·일지 5개 반영. 일지·커밋·push는 미완료였음.
+- 10-02 Phase 3: 충성심 삭제 → 한 달짜리 기분 요인, 기분 기준 이하 한 달 → 탈주·반란. 포로 회유는 기분·피로 기반.
+- 10-02 Phase 4: ColonyPopulation(어린·성체·늙은 개미), 세금(유지비 대신 30초마다 Food), 민심, 이주 수요, 병역 제도 4종, 주거 Hut/House/Apartment, 장수 나이, 여왕방 → 비축더미(GUID·저장 kind 유지), 기생 말벌 비활성, 이주 개미떼 합류 제안. 저장 v12. 인구 창.
+- 10-02 Phase 5: RoomSystem(1m 격자 방 판정·등급), 자동 지붕, 벽·문·성문, 같은 종류 방 작업 +15%, 성벽 방어 +2. Phase 6: 사막·동굴 바이옴, 새 게임 바이옴 선택, 월드맵 거점 바이옴.
+- 10-02 검증: Phase2 13·Phase3 17·Phase4 36·Phase5 21·Phase6 213·HUD 39·Stage5 122·Corpse 86·DayNight 37·Stage4 123·CommanderStatus 37·SaveRoundtrip 48·Commander 33·Meal 347·Stage1 130·Tooltip 151·CommanderEdge 24·PlayableLoop 46·Joy 45·NightThreat 16·Biome 22 통과. 기존 실패(변경 무관 판단): Stage2(실시간 대기 수확량), Infirmary(간호 절반 속도 이전 기대값), CommanderAcquisition(성격 유전 확률), Campaign(CommandStop 후 연구자 해제), WorldMap(배치 시 개미 예약).
+- 10-02 Notion: 장수·유닛, 자원, 건물, 맵·진행, 미정, 상위 콘셉트, 메인 게임 화면 구체화 'Phase 3·4 구현'·'Phase 5·6 구현' 반영.
+
+---
+
+# 2026-10-01 SAVE — 이전 로그(2026-09-30 추가 SAVE) 이관
+- 시체·현장 청소·동족 포식과 장의사/결벽 특성을 저장 v11·작업표·우클릭·대상 패널에 연결했다. 실제 사망만 시체 생성, 청소 기본 5초·소멸 300초, 포식은 1구당 5초/Food 10이었다.
+- 직접 CorpseChecks 84개 통과. 이전 전달 검증 Corpse 71/Workforce 79/Meal 347/SaveRoundtrip 42/DayNight 37도 기록됐다. Graphify 5157 nodes/10443 edges.
+- 같은 날짜 Notion ant 일지에 기존 내용·이미지를 보존해 7~10번 및 기능 화면 3장을 추가했다: https://app.notion.com/p/3eac4a0ecd31814e9835d4ef35fd577b . 캡처 원본 .unity/save-2026-09-30/corpse-*.png.
+- 시체 기능 1dc71be를 origin/develop에 push하고 원격 SHA를 확인했다. prefab·에셋·복구·디자인·그래프 등 기존 작업은 제외했다. Play 종료·설정 복구 완료, 카카오톡 미연결.
+- 당시 전체 회귀·Player 빌드는 미실행. Invasion/Raid/SceneInvasion/Airborne 검사는 별도 과제로 남았다.
+
+---
 # 2026-09-30 추가 SAVE — 이전 로그(생활 4~7단계 통합 SAVE) 이관
 - Claude Code 생활 4~7단계(식사·오락·야간 위협·바이옴) 및 Codex Stage4 검사 전제를 통합했다. 게임 로직 추가 수정 없이 검사 기대값을 현재 기획에 맞췄다.
 - 직접 검증 Meal 347/Joy 45/NightThreat 16/Biome 22/SaveRoundtrip 42/Stage4 130, 총 602개 통과. Graphify 5083 nodes/10221 edges 갱신, Play 종료.

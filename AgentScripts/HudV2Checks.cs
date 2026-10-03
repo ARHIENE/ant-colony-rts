@@ -65,20 +65,43 @@ public static class HudV2Checks
             Check(SelectedUnitPanel.FindSingleSelectedCommander(selection) == list[0], "portrait click selects commander");
             if (list.Length > RosterBar.Visible) { bar.Scroll(RosterBar.Visible); Check(bar.Offset > 0, "roster scrolls"); bar.Scroll(-99); }
 
-            // 상세 탭: 선택 장수 기분 사유 목록.
+            // 상세 탭(HUD v3): 항상 띄우지 않고 초상 클릭으로 연다.
             await Frames(2);
             var tabs = Object.FindAnyObjectByType<DetailTabs>();
-            Check(tabs != null && tabs.Visible, "detail tabs visible for one commander");
+            Check(tabs != null && !tabs.Visible, "detail tabs hidden until portrait click");
+            Find("Portrait").onClick.Invoke(); await Frames(2);
+            Check(tabs.Visible, "portrait click opens detail tabs");
+            Check(Find("Reward") != null && Find("Attack Research") != null && Find("Details") != null, "reward/research/details moved into detail window");
             list[0].PersonalState.AddMood("검사 노숙", -15, 60);
             tabs.Tab = 1; await Frames(2);
             Check(tabs.Body.Contains("검사 노숙") && tabs.Body.Contains("붕괴 위험"), "mood tab lists reasons: " + tabs.Body);
             for (var i = 0; i < DetailTabs.Tabs.Length; i++) { tabs.Tab = i; await Frames(1); Check(tabs.Body.Length > 0, "tab " + DetailTabs.Tabs[i] + " has text"); }
 
-            // 커맨드 카드: 평시 배치 / 출전 전용 숨김.
+            // 커맨드 카드(HUD v3): 평시 = 우선·휴식·징집소·건설 2×2만, 출전 명령은 출전 중 판에.
             await Frames(2);
-            Check(Find("Skill").gameObject.activeSelf && !Find("Skill").interactable, "Q locked in peace");
-            Check(!Find("Attack Move").gameObject.activeSelf && !Find("Stop").gameObject.activeSelf && !Find("Return To Post").gameObject.activeSelf, "combat buttons hidden in peace");
-            Check(Find("Send To Treatment").gameObject.activeSelf && Find("Priority Work").gameObject.activeSelf && Find("Reward").gameObject.activeSelf, "peace buttons visible");
+            var civilian = Object.FindObjectsByType<RectTransform>(FindObjectsInactive.Include).First(r => r.name == "CivilianCommands");
+            Check(civilian.gameObject.activeInHierarchy, "civilian card active");
+            var civilianButtons = civilian.GetComponentsInChildren<Button>().Select(b => b.name).ToArray();
+            Check(civilianButtons.SequenceEqual(new[] { "Priority Work", "Send To Rest", "Conscription", "Build" }), "civilian 2x2: " + string.Join(",", civilianButtons));
+            Check(!Find("Skill").gameObject.activeInHierarchy && !Find("Attack Move").gameObject.activeInHierarchy && !Find("Return To Post").gameObject.activeInHierarchy, "combat buttons hidden in peace");
+            Check(civilian.GetComponentsInChildren<Text>().All(t => t.text.Length <= 3), "button names 2~3 letters");
+
+            // 상단 메뉴(HUD v3): ≡ · 작업표 · 과학 · 월드맵 · 기록. 장수·외교는 다른 곳으로.
+            var toolbar = Object.FindObjectsByType<RectTransform>(FindObjectsInactive.Include).First(r => r.name == "MenuToolbar");
+            var top = toolbar.GetComponentsInChildren<Button>().Select(b => b.GetComponentInChildren<Text>().text).ToArray();
+            Check(top.SequenceEqual(new[] { "≡", "작업표", "과학", "월드맵", "기록" }), "top menu: " + string.Join(",", top));
+            Find("Roster Count").onClick.Invoke(); await Frames(1);
+            Check(GameMenuController.BlocksInput, "roster count opens commander management"); menu.Resume(); Time.timeScale = 1;
+            Check(Find("Diplomacy") != null, "diplomacy inside world map");
+            Find("Materials").onClick.Invoke(); await Frames(1);
+            var materials = Object.FindObjectsByType<RectTransform>(FindObjectsInactive.Include).First(r => r.name == "MaterialsList");
+            Check(materials.gameObject.activeSelf && materials.GetComponentInChildren<Text>().text.Contains("특수"), "materials button opens list");
+            var clockRect = Object.FindAnyObjectByType<HudClock>().GetComponent<RectTransform>();
+            var materialCorners = new Vector3[4]; var clockCorners = new Vector3[4];
+            materials.GetWorldCorners(materialCorners); clockRect.GetWorldCorners(clockCorners);
+            // HUD v4: 재료 목록은 달력 왼쪽에 붙는다.
+            Check(!Rect.MinMaxRect(materialCorners[0].x, materialCorners[0].y, materialCorners[2].x, materialCorners[2].y).Overlaps(Rect.MinMaxRect(clockCorners[0].x, clockCorners[0].y, clockCorners[2].x, clockCorners[2].y)), "materials list clears clock controls");
+            Find("Materials").onClick.Invoke();
 
             // 미니맵 필터: 끄면 점이 줄어든다.
             Minimap.Filters[0] = Minimap.Filters[1] = Minimap.Filters[2] = true;
@@ -87,10 +110,10 @@ public static class HudV2Checks
             Check(all > 0 && Minimap.DotCount < all, $"resource filter hides dots {all}->{Minimap.DotCount}");
             Find("Minimap Filter Resources").onClick.Invoke();
 
-            // 인구수 = 현재 일반개미 수.
-            var ants = Object.FindObjectsByType<Text>(FindObjectsInactive.Exclude).FirstOrDefault(t => t.text.StartsWith("<color=#968976>개미</color>"));
-            Check(ants != null && ants.text.Contains("<b>" + AntPool.Instance.Total + "</b>"), "ant count shown");
-            return "PASS " + checks + " HUD v2 checks";
+            // 인구 = 현재 일반개미 수.
+            var ants = Object.FindObjectsByType<RectTransform>(FindObjectsInactive.Exclude).First(r => r.name == "Population").GetComponentInChildren<Text>();
+            Check(ants.text.Contains("인구") && ants.text.Contains(">" + ColonyPopulation.Instance.Total + "</color></b>"), "population shown (Phase 4 total, sentiment color): " + ants.text);
+            return "PASS " + checks + " HUD v3 checks";
         }
         finally { session.MarkStarted(real, game); SaveStorage.RootOverride = root; Time.timeScale = 0; Minimap.Filters[0] = Minimap.Filters[1] = Minimap.Filters[2] = true; }
     }

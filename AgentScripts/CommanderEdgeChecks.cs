@@ -134,9 +134,9 @@ public static class CommanderEdgeChecks
             refresh.Invoke(card, null);
             var buttons = card.GetComponentsInChildren<UnityEngine.UI.Button>(true);
             var returnButton = buttons.Single(b => b.name == "Return To Post");
-            var weaponButton = buttons.Single(b => b.name == "Weapon");
-            Check(returnButton.gameObject.activeInHierarchy && returnButton.interactable && !weaponButton.gameObject.activeInHierarchy,
-                "deployed commander shows return and hides civilian weapon command");
+            var restButton = buttons.Single(b => b.name == "Send To Rest");
+            Check(returnButton.gameObject.activeInHierarchy && returnButton.interactable && !restButton.gameObject.activeInHierarchy,
+                "deployed commander shows return and hides civilian commands");
             var survivors = commander.TroopCount;
             var freeBeforeReturn = AntPool.Instance.Free;
             returnButton.onClick.Invoke();
@@ -147,11 +147,11 @@ public static class CommanderEdgeChecks
                 "arrival returns survivors once and restores civilian duty");
             commander.TickDuty(.1f);
             Check(AntPool.Instance.Free == freeBeforeReturn + survivors, "subsequent duty tick cannot refund twice");
-            Check(!returnButton.gameObject.activeInHierarchy && weaponButton.gameObject.activeInHierarchy,
+            Check(!returnButton.gameObject.activeInHierarchy && restButton.gameObject.activeInHierarchy,
                 "civilian command card restored after return");
             var weapon = new EquipmentItem { slot = EquipmentSlot.Weapon, weapon = WeaponKind.AcidSprayer, quality = 1 };
             EquipmentInventory.Instance.Items.Insert(0, weapon);
-            weaponButton.onClick.Invoke();
+            panel.GetComponentsInChildren<UnityEngine.UI.Button>(true).Single(b => b.name == "Weapon").onClick.Invoke(); // HUD v3: 무기 칸 클릭 = 무기 교체
             Check(commander.Weapon == weapon && commander.Role == UnitRole.Ranged, "weapon command equips available weapon");
             selection.ClearSelection();
 

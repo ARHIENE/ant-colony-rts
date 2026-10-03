@@ -20,8 +20,9 @@ namespace AntColony.Units
         public List<MoodFactor> moodFactors = new List<MoodFactor>();
         public List<CommanderRelation> relations = new List<CommanderRelation>();
         public List<EquipmentItem> equipment = new List<EquipmentItem>();
-        public float workedSeconds, breakCheck, loyaltyCheck, captiveSeconds, unsupportedSeconds, breakRemaining, rageRemaining, rewardCooldown, lastCombatSeconds, homeSeconds;
+        public float workedSeconds, breakCheck, lowMoodSeconds, captiveSeconds, unsupportedSeconds, breakRemaining, rageRemaining, rewardCooldown, lastCombatSeconds, homeSeconds;
         public float craftProgress, researchProgress;
+        public float ageMonths = -1, lifespanMonths; // Phase 4 나이(개월)
         public int craftLevel, researchLevel;
         public MentalBreak mentalBreak;
         public bool dead, treating;
@@ -88,7 +89,7 @@ namespace AntColony.Units
             foreach (var r in relations) if (r == null || string.IsNullOrEmpty(r.otherId) || !Finite(r.value) || r.value < -100 || r.value > 100 || !Finite(r.nearbySeconds) || r.nearbySeconds < 0 || !Finite(r.quarrelSeconds) || r.quarrelSeconds < 0 || !Finite(r.duelSeconds) || r.duelSeconds < 0) return false;
             var slots = new HashSet<EquipmentSlot>();
             foreach (var e in equipment) if (e == null || !e.IsValid || !slots.Add(e.slot)) return false;
-            foreach (float value in new[] { workedSeconds, breakCheck, loyaltyCheck, captiveSeconds, unsupportedSeconds, breakRemaining, rageRemaining, rewardCooldown, lastCombatSeconds, homeSeconds, craftProgress, researchProgress }) if (!Finite(value) || value < 0) return false;
+            foreach (float value in new[] { workedSeconds, breakCheck, lowMoodSeconds, captiveSeconds, unsupportedSeconds, breakRemaining, rageRemaining, rewardCooldown, lastCombatSeconds, homeSeconds, craftProgress, researchProgress }) if (!Finite(value) || value < 0) return false;
             if (craftLevel < 0 || craftLevel > 5 || researchLevel < 0 || researchLevel > 5 || !Enum.IsDefined(typeof(MentalBreak), mentalBreak)) return false;
             if (!Finite(moldLoss) || moldLoss < 0 || moldLoss >= 20 || !Finite(moldSpread) || moldSpread < 0 || moldSpread >= 30
                 || !Finite(moldTreatment) || moldTreatment < 0 || moldTreatment > 60) return false;

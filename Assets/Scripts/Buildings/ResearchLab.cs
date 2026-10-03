@@ -86,7 +86,7 @@ namespace AntColony.Buildings
             if (level >= maxLevel) return $"{name} Lv{level} (Max)";
             if (commander.Role != role) return $"{name} Lv{level}\nNo {commander.Role} Lab";
             if (IsResearching) return $"{name} Lv{level}\nLab Busy";
-            return $"{name} Lv{level}>{level + 1}\n{GetFoodCost(level)}F {GetSoilCost(level)}S";
+            return $"{name} Lv{level}>{level + 1}\n{GetFoodCost(level)}F {GetSoilCost(level)} 재료";
         }
 
         public bool TryResearchAttack(CommanderAnt commander) => TryStartResearch(commander, true);

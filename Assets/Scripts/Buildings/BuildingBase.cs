@@ -43,12 +43,14 @@ namespace AntColony.Buildings
             }
             // 건설 중인 건물과 배치용 템플릿은 비활성 상태이므로, 완공되어 활성화된 건물만 콜로니 존속 판정에 등록된다.
             GameManager.Instance?.RegisterBuilding(this);
+            RoomSystem.MarkDirty(); // Phase 5: 벽·가구가 바뀌면 방을 다시 판정한다.
         }
 
         protected virtual void OnDisable()
         {
             DepositPoints.Remove(this);
             GameManager.Instance?.UnregisterBuilding(this);
+            RoomSystem.MarkDirty();
         }
 
         // 저장 복원 전용. 0 이하로는 내리지 않는다(복원 중 파괴 연쇄를 일으키지 않기 위해).
@@ -66,6 +68,7 @@ namespace AntColony.Buildings
             if (currentHealth <= 0f)
             {
                 currentHealth = 0f;
+                RoomSystem.MarkDirty(); // 부서진 벽은 같은 프레임부터 방 판정에서 빠진다.
                 Die();
             }
         }

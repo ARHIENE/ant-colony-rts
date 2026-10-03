@@ -19,7 +19,7 @@ namespace AntColony.UI
             public Entry(string name, BuildingKind kind, UnitRole role = UnitRole.Worker) { this.name = name; this.kind = kind; this.role = role; }
         }
 
-        private static readonly string[] TabNames = { "생산", "자원", "연구", "방어", "특수", "생활", "장식" };
+        private static readonly string[] TabNames = { "생산", "자원", "연구", "방어", "특수", "생활", "장식", "벽문" };
         private static readonly Key[] SlotKeys = { Key.Q, Key.W, Key.E, Key.R, Key.T, Key.A, Key.S, Key.D, Key.F, Key.G };
         private static readonly Entry[][] Tabs =
         {
@@ -32,14 +32,17 @@ namespace AntColony.UI
                 new Entry("날개 연구소", BuildingKind.ResearchLab, UnitRole.Flying), new Entry("과학 연구소", BuildingKind.ScienceLab),
                 new Entry("방어 연구소", BuildingKind.DefenseLab) },
             new[] { new Entry("산성탑", BuildingKind.AcidTower), new Entry("광역 산성탑", BuildingKind.AreaAcidTower), new Entry("감시탑", BuildingKind.Watchtower),
-                new Entry("흙벽", BuildingKind.SoilWall), new Entry("함정", BuildingKind.TrapPit), new Entry("지뢰밭", BuildingKind.MineField) },
+                new Entry("함정", BuildingKind.TrapPit), new Entry("지뢰밭", BuildingKind.MineField) },
             new[] { new Entry("정찰 초소", BuildingKind.ScoutPost), new Entry("포로 수용소", BuildingKind.PrisonerCamp), new Entry("의무실", BuildingKind.Infirmary),
                 new Entry("휴게실", BuildingKind.RestRoom), new Entry("공방", BuildingKind.Workshop), new Entry("비행선 조선소", BuildingKind.AirshipYard),
                 new Entry("징집소", BuildingKind.ConscriptionPost) },
             new[] { new Entry("숙소", BuildingKind.Dormitory), new Entry("식당", BuildingKind.Kitchen),
-                new Entry("이야기 모닥불", BuildingKind.Campfire), new Entry("도박장", BuildingKind.GamblingDen) },
+                new Entry("이야기 모닥불", BuildingKind.Campfire), new Entry("도박장", BuildingKind.GamblingDen),
+                new Entry("초가집", BuildingKind.Hut), new Entry("흙집", BuildingKind.House), new Entry("큰 아파트", BuildingKind.Apartment) },
             new[] { new Entry("꽃 화분", BuildingKind.FlowerPot), new Entry("조개껍데기", BuildingKind.ShellDecoration), new Entry("구슬 모자이크", BuildingKind.MarbleMosaic),
-                new Entry("병뚜껑 모빌", BuildingKind.BottleMobile), new Entry("반딧불 램프", BuildingKind.FireflyLamp) }
+                new Entry("병뚜껑 모빌", BuildingKind.BottleMobile), new Entry("반딧불 램프", BuildingKind.FireflyLamp) },
+            new[] { new Entry("흙벽", BuildingKind.SoilWall), new Entry("나뭇잎 벽", BuildingKind.LeafWall), new Entry("병뚜껑 벽", BuildingKind.CapWall),
+                new Entry("문", BuildingKind.Door), new Entry("성벽", BuildingKind.CastleWall), new Entry("성문", BuildingKind.Gate) }
         };
 
         private static BuildScreen instance;
@@ -57,6 +60,12 @@ namespace AntColony.UI
         public static bool Picking => IsOpen && instance.picking != null;
 
         public static void Open() { if (instance != null) instance.SetOpen(true); }
+        public static void OpenDormitory()
+        {
+            if (instance == null) return;
+            instance.SetOpen(true); instance.tab = 5;
+            instance.Choose(Tabs[5][0]);
+        }
         public static void Toggle() { if (instance != null) instance.SetOpen(!IsOpen); }
 
         // Esc: 장수 고르기 → 건물 고르기 → 닫기 순으로 한 단계씩 물러난다. 처리했으면 true.
@@ -74,18 +83,18 @@ namespace AntColony.UI
         {
             placement = FindFirstObjectByType<BuildingPlacementController>();
             buildPanel = MenuTheme.Rect("BuildPanel", HudConsole.Right);
-            MenuTheme.Stretch(buildPanel); buildPanel.offsetMin = new Vector2(18, 10); buildPanel.offsetMax = new Vector2(-18, -10);
+            MenuTheme.Stretch(buildPanel); buildPanel.offsetMin = new Vector2(14, 10); buildPanel.offsetMax = new Vector2(-14, -10);
             for (var t = 0; t < Tabs.Length; t++)
             {
                 var captured = t;
-                tabButtons.Add(Cell(buildPanel, "Tab " + TabNames[t], new Vector2(t * 48, 0), new Vector2(46, 26), (t + 1).ToString(), TabNames[t], () => tab = captured));
+                tabButtons.Add(Cell(buildPanel, "Tab " + TabNames[t], new Vector2(t * 36, 0), new Vector2(34, 26), (t + 1).ToString(), TabNames[t], () => tab = captured));
                 tabButtons[t].gameObject.AddComponent<MenuTooltip>().Message = $"{TabNames[t]} 건물 보기 ({t + 1})";
                 var page = MenuTheme.Rect("Page " + TabNames[t], buildPanel);
                 MenuTheme.Stretch(page); page.offsetMax = new Vector2(0, -32);
                 for (var i = 0; i < Tabs[t].Length; i++)
                 {
                     var entry = Tabs[t][i];
-                    var button = Cell(page, ButtonName(entry), new Vector2(i % 5 * 68, -(i / 5) * 60), new Vector2(64, 56),
+                    var button = Cell(page, ButtonName(entry), new Vector2(i % 4 * 70, -(i / 4) * 48), new Vector2(66, 44),
                         SlotKeys[i].ToString(), entry.name, () => Choose(entry));
                     button.gameObject.AddComponent<MenuTooltip>();
                 }
@@ -117,6 +126,24 @@ namespace AntColony.UI
 
         private void Update()
         {
+            var width = buildPanel.rect.width;
+            for (var i = 0; i < tabButtons.Count; i++)
+                MenuLayout.Place((RectTransform)tabButtons[i].transform, i * width / 8, 0, width / 8 - 2, 26);
+            foreach (var page in tabPages)
+            {
+                var buttons = page.GetComponentsInChildren<Button>(true);
+                for (var i = 0; i < buttons.Length; i++)
+                {
+                    MenuLayout.Place((RectTransform)buttons[i].transform, i % 3 * width / 3, i / 3 * 52, width / 3 - 4, 48);
+                    MenuTheme.Stretch(buttons[i].GetComponentsInChildren<Text>(true)[1].rectTransform);
+                }
+            }
+            pickTitle.rectTransform.sizeDelta = new Vector2(picker.rect.width, 40);
+            foreach (var row in pickRows)
+            {
+                ((RectTransform)row.transform).sizeDelta = new Vector2(picker.rect.width, 30);
+                MenuTheme.Stretch(row.GetComponentsInChildren<Text>(true)[1].rectTransform);
+            }
             var open = IsOpen;
             for (var t = 0; t < tabPages.Count; t++)
             {
@@ -179,7 +206,7 @@ namespace AntColony.UI
                 label.text = entries[i].name + (locked != null ? "\n<color=#968976>잠김</color>" : data != null ? $"\n<color=#968976>{Cost(data)}</color>" : "");
                 buttons[i].GetComponent<Image>().color = locked != null ? MenuTheme.Well : Color.white;
                 buttons[i].GetComponent<MenuTooltip>().Message = locked ?? (data != null
-                    ? $"{entries[i].name}: 식량 {data.foodCost} · 흙 {data.soilCost}{(data.specialCost > 0 ? $" · 특수 {data.specialCost}" : "")} · 건설 개미 {data.constructionAnts}"
+                    ? $"{entries[i].name}: 식량 {data.foodCost} · 재료 {data.soilCost}{(data.specialCost > 0 ? $" · 특수 {data.specialCost}" : "")} · 건설 개미 {data.constructionAnts}"
                     : "건물 틀을 찾을 수 없습니다.");
             }
         }
@@ -207,7 +234,7 @@ namespace AntColony.UI
         }
 
         private static BuildingData Data(Entry entry) => BuildingPlacementController.GetTemplate(entry.kind, entry.role)?.GetComponent<BuildingBase>()?.Data;
-        private static string Cost(BuildingData data) => $"식{data.foodCost} 흙{data.soilCost}{(data.specialCost > 0 ? $" 특{data.specialCost}" : "")}";
+        private static string Cost(BuildingData data) => $"식{data.foodCost} 재료{data.soilCost}{(data.specialCost > 0 ? $" 특{data.specialCost}" : "")}";
         private static string ButtonName(Entry entry) => "Build " + entry.kind + (entry.kind == BuildingKind.Barracks || entry.kind == BuildingKind.ResearchLab ? " " + entry.role : "");
         private static string NameOf(BuildingKind kind, UnitRole role)
         {
@@ -226,7 +253,7 @@ namespace AntColony.UI
             MenuTheme.StyleButton(button);
             button.onClick.AddListener(action);
             var kbd = Text(rect, key, 10, new Vector2(4, -2), new Vector2(20, 14));
-            kbd.color = MenuTheme.Dim;
+            kbd.color = MenuTheme.Dim; kbd.enabled = false; // 단축키 전체 미정(HUD v3): 키 글자 숨김, 텍스트 순서는 유지.
             var tall = size.y > 30;
             var text = Text(rect, label, 11, tall ? Vector2.zero : new Vector2(24, 0), tall ? new Vector2(size.x, size.y - 4) : new Vector2(size.x - 28, size.y));
             text.alignment = tall ? TextAnchor.LowerCenter : size.x > 100 ? TextAnchor.MiddleLeft : TextAnchor.MiddleCenter;

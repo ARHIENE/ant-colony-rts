@@ -25,7 +25,7 @@ namespace AntColony.UI
                 if (data == null) continue;
                 var special = data.specialCost > 0 ? $"/{data.specialCost} Special" : "";
                 var captured = kind;
-                MenuTheme.Button(content, $"Build {data.displayName} ({data.foodCost}F/{data.soilCost}S{special}/{data.constructionAnts} ants)",
+                MenuTheme.Button(content, $"Build {data.displayName} ({data.foodCost}F/{data.soilCost} 재료{special}/{data.constructionAnts} ants)",
                     () => { Resume(); placement?.BeginSciencePlacement(captured); },
                     ScienceEffects.BuildingUnlocked(kind) ? "Select an idle commander at home, then place." : "Research the matching science first.")
                     .interactable = ScienceEffects.BuildingUnlocked(kind);
@@ -39,7 +39,7 @@ namespace AntColony.UI
                 if (level >= DefenseUpgrades.MaxLevel) { MenuTheme.Text(content, $"Defense {line}: level {level} (max)", 17, 32); continue; }
                 DefenseUpgrades.Cost(level + 1, out var food, out var soil, out var special);
                 var captured = line;
-                MenuTheme.Button(content, $"Defense {line}: level {level} -> {level + 1} ({food}F/{soil}S{(special > 0 ? $"/{special} Special" : "")})",
+                MenuTheme.Button(content, $"Defense {line}: level {level} -> {level + 1} ({food}F/{soil} 재료{(special > 0 ? $"/{special} Special" : "")})",
                     () => { if (!DefenseUpgrades.TryUpgrade(captured)) ToastManager.Show("Insufficient resources."); Science(); });
             }
         }

@@ -36,6 +36,8 @@ namespace AntColony.Units
     public static class SocialRules
     {
         public const float Month = 300, Friend = 40, Lover = 70, Rival = -40;
+        // Phase 3: 파벌 반란 동조 기준(구 충성심 40 이하)과 식량 부족 시 굶는 기준(구 충성심 50 이상), 잠정.
+        public const float RebelMood = 40, StarveMood = 50;
         public const float RebellionSeconds = 60, SocialRadius = 8, DuelRadius = 10;
         public const float AcidRadius = 3, AcidDuration = 4, AcidCooldown = 25;
         public const float RallyRadius = 8, RallyDuration = 8, RallyCooldown = 30;

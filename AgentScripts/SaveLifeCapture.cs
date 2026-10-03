@@ -31,7 +31,7 @@ public static class SaveLifeCapture
         if (SaveSystem.Busy) throw new Exception("Scene not ready");
         GameMenuController.Instance.Resume(); Time.timeScale = 0;
         GameSession.Instance.MarkStarted(0, 20);
-        foreach (var c in CommanderRoster.Instance.Commanders) { c.CommandStop(); c.WorkState.jobs = CommanderJobs.None; c.ApplyTraits(new CommanderTraits(CommanderPersonality.Balanced, 50)); }
+        foreach (var c in CommanderRoster.Instance.Commanders) { c.CommandStop(); c.WorkState.jobs = CommanderJobs.None; c.ApplyTraits(new CommanderTraits(CommanderPersonality.Balanced)); }
         var eater = CommanderRoster.Instance.Commanders[0]; var player = CommanderRoster.Instance.Commanders[1];
         var home = eater.Position;
         var kitchen = Build<Kitchen>(BuildingKind.Kitchen, home + Vector3.right * 4);
@@ -44,7 +44,7 @@ public static class SaveLifeCapture
         var selection = Object.FindAnyObjectByType<AntColony.Units.SelectionManager>(); selection.ClearSelection();
         typeof(AntColony.Units.SelectionManager).GetMethod("AddToSelection", BindingFlags.Instance | BindingFlags.NonPublic).Invoke(selection, new object[] { eater.GetComponent<SelectableObject>() });
         selection.enabled = false; // 캡처 준비 중 들어오는 마우스 입력으로 선택이 풀리지 않게 한다.
-        Object.FindAnyObjectByType<DetailTabs>().Tab = 0;
+        var tabs = Object.FindAnyObjectByType<DetailTabs>(); tabs.Tab = 0; tabs.Toggle(eater); // HUD v3: 상세 창은 초상 클릭으로 연다.
         Object.FindAnyObjectByType<AntColony.Camera.IsometricCameraController>().FocusOn(home);
         Camera.main.orthographicSize = 17;
         return "Garden: meal and campfire active; HUD selected eater.";

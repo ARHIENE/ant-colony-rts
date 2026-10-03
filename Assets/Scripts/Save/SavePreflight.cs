@@ -16,14 +16,14 @@ namespace AntColony.Save
         private static bool R(int r) => Enum.IsDefined(typeof(UnitRole), r);
         private static void Traits(TraitsDto t)
         {
-            Check(t != null && Enum.IsDefined(typeof(CommanderPersonality), t.personality) && t.loyalty >= 0 && t.loyalty <= 100, "traits");
-            L(t.values, 3, "trait list"); L(t.passions, 4, "passions"); L(t.loyaltyReasons, 3, "loyalty history");
+            Check(t != null && Enum.IsDefined(typeof(CommanderPersonality), t.personality), "traits");
+            L(t.values, 3, "trait list"); L(t.passions, 4, "passions");
             var traits = new CommanderTraits();
             foreach (var value in t.values) Check(Enum.IsDefined(typeof(CommanderTrait), value) && traits.TryAdd(value), "trait conflicts");
             var activities = new HashSet<CommanderActivity>();
             foreach (var passion in t.passions) Check(passion != null && Enum.IsDefined(typeof(CommanderActivity), passion.activity)
                 && passion.flame >= 1 && passion.flame <= 2 && activities.Add(passion.activity), "passion");
-            Check(t.passions.Count(p => p.flame == 2) <= 2 && t.loyaltyReasons.All(r => r != null && r.Length < 1000), "trait history");
+            Check(t.passions.Count(p => p.flame == 2) <= 2, "trait history");
         }
         private static void L<T>(List<T> list, int max, string field) => Check(list != null && list.Count <= max, field);
         private static void Colony(EnemyColonyDto d)

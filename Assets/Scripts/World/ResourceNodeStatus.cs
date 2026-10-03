@@ -1,3 +1,4 @@
+using AntColony.Data;
 using UnityEngine;
 
 namespace AntColony.World
@@ -14,7 +15,7 @@ namespace AntColony.World
             : !node.IsUnlocked ? "Research Fishing First"
             : node.FishedOut ? "Fished Out · Next Month"
             : node.IsRegrowing ? $"{(node.RequiresFishing ? "Restocking" : "Growing")} · {Mathf.CeilToInt(node.RegrowTimeRemaining)}s"
-            : node.IsDepleted ? "Empty" : $"{(node.RequiresFishing ? "Fish" : "Ready")} · {Mathf.CeilToInt(node.AmountRemaining)} {node.ResourceType}";
+            : node.IsDepleted ? "Empty" : $"{(node.RequiresFishing ? "Fish" : "Ready")} · {Mathf.CeilToInt(node.AmountRemaining)} {node.ResourceType.DisplayName()}";
 
         private void Awake()
         {

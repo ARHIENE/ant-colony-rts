@@ -101,14 +101,14 @@ public static class Stage4Checks
             SeasonAt(Season.Spring); ResetEvents();
             Check(!events.TryTrigger(ColonyEvent.Cold) && !events.TryTrigger(ColonyEvent.Caravan), "season gate and caravan disabled");
             var before = pool.Total;
-            Check(events.TryTrigger(ColonyEvent.Migration) && pool.Total == before + 10, "migration grants ten ants");
+            Check(events.TryTrigger(ColonyEvent.Migration) && events.AcceptMigration() && pool.Total == before + EventRules.Migrants, "accepted migration grants ants (Phase 4: offer)");
             Check(!events.TryTrigger(ColonyEvent.Mold), "minimum event gap enforced");
             events.Tick(60); Check(!events.TryTrigger(ColonyEvent.Migration), "same event cooldown enforced");
             Near(events.Capture().cooldowns[(int)ColonyEvent.Migration], 540, "cooldown counts game seconds");
             var snapshot = events.Capture(); events.Tick(0); Near(events.Capture().checkRemaining, snapshot.checkRemaining, "pause preserves scheduler");
 
             var roster = CommanderRoster.Instance; var c = roster.Commanders[0];
-            foreach (var commander in roster.Commanders) commander.ApplyTraits(new CommanderTraits(CommanderPersonality.Balanced, 50));
+            foreach (var commander in roster.Commanders) commander.ApplyTraits(new CommanderTraits(CommanderPersonality.Balanced));
             SeasonAt(Season.Winter); ResetEvents(); Check(events.TryTrigger(ColonyEvent.Cold), "winter cold triggers");
             Near(ColonyEvents.MoveMultiplier(c), .75f, "cold movement"); Near(ColonyEvents.GatherMultiplier(c), .8f, "cold gathering");
             var speed = (float)typeof(CommanderAnt).GetProperty("MovementSpeed", Any).GetValue(c);
@@ -166,14 +166,14 @@ public static class Stage4Checks
             Check(c.TroopCount == troops - 1, "infection loses one troop per 20 seconds");
             var infirmary = Build<Infirmary>(BuildingKind.Infirmary, home + Vector3.right * 12); Move(c, infirmary.Position + Vector3.right * 3);
             Grant(ScienceTechnology.Infirmary); Check(infirmary.TryAdmit(c), "infected commander admitted without injury");
-            var loyalty = c.Traits.Loyalty; c.TickPersonal(29); Check(c.PersonalState.infected, "base treatment not done early");
+            c.PersonalState.moodFactors.RemoveAll(f => f.reason == "치료 완료"); c.TickPersonal(29); Check(c.PersonalState.infected, "base treatment not done early");
             infirmary.Release(c); var treatment = c.PersonalState.moldTreatment; c.TickPersonal(1); Near(c.PersonalState.moldTreatment, treatment, "interrupted infection treatment preserved");
             Grant(ScienceTechnology.Sanitation); Near(ScienceEffects.MoldSpreadMultiplier, .5f, "sanitation halves transmission");
             Check(infirmary.TryAdmit(c), "resume infection treatment");
             var remainingTreatment = (60 - treatment) * ScienceEffects.MoldTreatSeconds / (60 * infirmary.TreatmentRate);
             c.TickPersonal(remainingTreatment - 1); Check(c.PersonalState.infected, "unnursed treatment not done early");
             c.TickPersonal(1);
-            Check(!c.PersonalState.infected && c.TreatmentFacility == null && c.Traits.Loyalty == loyalty + 3, "sanitation completes remaining treatment and releases patient");
+            Check(!c.PersonalState.infected && c.TreatmentFacility == null && c.PersonalState.moodFactors.Exists(f => f.reason == "치료 완료"), "sanitation completes remaining treatment and releases patient");
             var other = roster.Commanders[1]; Move(other, c.Position + Vector3.right);
             // 같은 난수에서 25%는 전파, 12.5%는 차단되는 경계를 실제 감염 처리로 확인한다.
             int spreadSeed = 0;
@@ -187,18 +187,7 @@ public static class Stage4Checks
             foreach (var commander in roster.Commanders) { commander.PersonalState.infected = false; commander.PersonalState.moldLoss = commander.PersonalState.moldSpread = commander.PersonalState.moldTreatment = 0; }
             Grant(ScienceTechnology.Sanitation);
 
-            ResetEvents(); var queen = Object.FindFirstObjectByType<QueenChamber>(); Check(queen.TryProduceWorker(), "production begins before wasps");
-            Check(events.TryTrigger(ColonyEvent.Wasps), "wasp event spawns");
-            var wasps = Object.FindObjectsByType<EventActor>().Where(a => a.Kind == EventActorKind.Wasp).ToArray();
-            Check(wasps.Length == 3 && wasps.All(a => a.GetComponent<WildMonster>().IsFlying), "three airborne attackers");
-            var remaining = (float)typeof(QueenChamber).GetProperty("ProductionRemaining", Any).GetValue(queen);
-            queen.Tick(5); Near((float)typeof(QueenChamber).GetProperty("ProductionRemaining", Any).GetValue(queen), remaining, "wasps pause in-progress production");
-            Check(!queen.TryProduceWorker(), "wasps block new production");
-            var attacker = wasps[0].GetComponent<WildMonster>(); attacker.transform.position = queen.Position + Vector3.up;
-            var queenHp = queen.CurrentHealth; typeof(WildMonster).GetMethod("Update", Any).Invoke(attacker, null);
-            Check(queen.CurrentHealth < queenHp, "wasp actually attacks the queen");
-            foreach (var wasp in wasps) wasp.GetComponent<WildMonster>().TakeDamage(100);
-            Check(!ColonyEvents.ProductionBlocked, "last wasp death resumes production"); var ants = pool.Total; queen.Tick(100); Check(pool.Total == ants + 1, "paused production finishes once");
+            ResetEvents(); Check(!events.TryTrigger(ColonyEvent.Wasps), "wasp event removed with queen (Phase 4)");
             ResetEvents(); Check(events.TryTrigger(ColonyEvent.Wanderer), "wanderer spawns at edge");
             var wanderer = Object.FindObjectsByType<EventActor>().Single(a => a.Kind == EventActorKind.Wanderer);
             var count = roster.Count; wanderer.Tick(60); Check(!wanderer.gameObject.activeSelf && roster.Count == count, "wanderer expires without recruitment");

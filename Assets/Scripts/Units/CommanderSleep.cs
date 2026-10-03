@@ -39,7 +39,7 @@ namespace AntColony.Units
 
             if (!IsSleepTime)
             {
-                if ((IsWorking || LabUpgradeBusy || ServiceTarget != null || CraftingWorkshop != null || HuntTarget != null || CorpseTarget != null) && !traits.Has(CommanderTrait.Workaholic)) s.fatigue += GameBalance.FatiguePerWorkSecond * seconds;
+                if ((IsWorking || LabUpgradeBusy || ServiceTarget != null || CraftingWorkshop != null || HuntTarget != null || CorpseTarget != null) && !traits.Has(CommanderTrait.Workaholic)) s.fatigue += GameBalance.FatiguePerWorkSecond * seconds * BiomeRules.FatigueAt(RoomSystem.IsIndoors(Position));
                 else if (WorkState.resting) s.fatigue -= GameBalance.FatigueRestPerSecond * (RestRoom.Serves(this) ? 2 : 1) * seconds;
                 s.fatigue = Mathf.Clamp(s.fatigue, 0, 100);
                 return false;
@@ -85,9 +85,16 @@ namespace AntColony.Units
             if (slept && s.rough)
             {
                 personalState.AddMood("노숙", GameBalance.RoughSleepMood, GameCalendar.SecondsPerDay);
-                if (++s.roughNights % GameBalance.RoughSleepNights == 0) traits.ChangeLoyalty(GameBalance.RoughSleepLoyalty, "연속 노숙");
+                if (++s.roughNights % GameBalance.RoughSleepNights == 0) MoodEvent("연속 노숙", GameBalance.RoughSleepStreakMood);
             }
             else if (slept) s.roughNights = 0;
+            // Phase 5: 방 안 침대는 등급만큼 기분 +, 방 밖 침대는 '바깥에서 잠'.
+            if (slept && !s.rough && Dormitory.Of(this) is Dormitory bed)
+            {
+                var room = RoomSystem.RoomAt(bed.Position);
+                if (room == null) personalState.AddMood("바깥에서 잠", GameBalanceRooms.OutsideSleepMood, GameCalendar.SecondsPerDay);
+                else if (room.Kind == RoomKind.Bedroom) personalState.AddMood("방에서 잠", GameBalanceRooms.RoomSleepMood + GameBalanceRooms.GradeMood[room.Grade], GameCalendar.SecondsPerDay);
+            }
             if (Dormitory.Of(this) is Dormitory dorm && dorm.LivesWithRival(this))
                 personalState.AddMood("라이벌과 같은 숙소", GameBalance.RivalRoommateMood, GameCalendar.SecondsPerDay);
             s.asleep = false;

@@ -23,7 +23,7 @@ namespace AntColony.Units
             : (EquippedArmor?.armor == ArmorKind.Coating ? EquippedArmor.quality + 1 : 0)
                 + (Weapon?.weapon == WeaponKind.Shield ? 2 * (Weapon.quality + 1) : 0);
         protected override float WorkSpeed => WorkRate(ConstructionTarget != null && ConstructionTarget.IsArt ? CommanderActivity.Art : CommanderActivity.Building);
-        protected override float MovementSpeed => base.MovementSpeed * traits.MoveMultiplier
+        protected override float MovementSpeed => base.MovementSpeed * traits.MoveMultiplier * AgeMoveMultiplier * BiomeRules.MoveAt(AntColony.Buildings.RoomSystem.IsIndoors(Position))
             * (1f - .3f * personalState.Severity(InjuryPart.Legs)) * (1f + TrinketBonus(TrinketEffect.Move))
             * (Weapon?.weapon == WeaponKind.Shield ? .9f : 1f) * (IsFlying ? 1f + .05f * EquippedArmor.quality : 1f)
             * AntColony.World.ColonyEvents.MoveMultiplier(this) * (Social.rallyRemaining > 0 ? 1.3f : 1f);
@@ -63,13 +63,14 @@ namespace AntColony.Units
         {
             if (!CanReceiveOrders || IsAwayFromHome || personalState.rewardCooldown > 0 || ResourceManager.Instance == null
                 || !ResourceManager.Instance.TrySpend(30, 0, reason: ResourceReason.Reward)) return false;
-            traits.ChangeLoyalty(traits.Has(CommanderTrait.Greedy) || traits.Has(CommanderTrait.Ambitious) ? 15 : traits.Has(CommanderTrait.Ascetic) ? 3 : 8, "Reward");
+            MoodEvent("포상", traits.Has(CommanderTrait.Greedy) || traits.Has(CommanderTrait.Ambitious) ? 15 : traits.Has(CommanderTrait.Ascetic) ? 3 : 8);
             personalState.rewardCooldown = GameCalendar.SecondsPerMonth;
             return true;
         }
         public void TickPersonal(float seconds)
         {
             if (!(seconds > 0) || float.IsInfinity(seconds) || IsDead) return;
+            TickAge(seconds); if (IsDead) return;
             if (HasTroops && IsInCombat && !IsWorking && CanReceiveOrders && !LabUpgradeBusy)
             {
                 talents.combatSeconds += seconds;
@@ -89,7 +90,7 @@ namespace AntColony.Units
             if (personalState.treating && !personalState.NeedsTreatment)
             {
                 TreatmentFacility.Release(this);
-                if (recovering) traits.ChangeLoyalty(3, "Treatment completed");
+                if (recovering) MoodEvent("치료 완료", 3);
             }
             personalState.lastCombatSeconds += seconds;
             personalState.homeSeconds = IsAwayFromHome ? 0 : personalState.homeSeconds + seconds;
@@ -127,6 +128,8 @@ namespace AntColony.Units
             personalState.mentalBreak = kind;
             Social.breakdowns++;
             if (Social.breakdowns == 5) ShiftEventTrait(CommanderTrait.Fragile, false);
+            // Phase 3: 붕괴 '도주'는 말 그대로 떠난다(탈주와 같은 처리, 혼자).
+            if (kind == MentalBreak.Flee) { personalState.mentalBreak = MentalBreak.None; BeginDeparture(false); return; }
             personalState.breakRemaining = kind == MentalBreak.Idle ? 60 : kind == MentalBreak.Flee ? 30 : 45;
             if (kind == MentalBreak.SelfHarm)
             {
@@ -144,12 +147,6 @@ namespace AntColony.Units
         {
             personalState.breakRemaining = Mathf.Max(0, personalState.breakRemaining - seconds);
             if (personalState.breakRemaining <= 0) { EndMentalBreak(); return; }
-            if (personalState.mentalBreak == MentalBreak.Flee)
-            {
-                var queen = FindFirstObjectByType<QueenChamber>();
-                if (queen != null && !IsAwayFromHome) SetMoveDestination(queen.Position);
-                TickFlightMovement(); return;
-            }
             IDamageable target = null;
             if (personalState.mentalBreak == MentalBreak.AttackBuilding)
                 target = FindObjectsByType<BuildingBase>(FindObjectsSortMode.None).Where(b => b.CountsTowardPlayerDefeat && !b.IsDead && !(b is AntColony.World.ExpeditionTransport))
@@ -176,11 +173,11 @@ namespace AntColony.Units
             AntColony.World.Corpse.Drop(this, AntColony.World.CorpseKind.Ant, "일반개미", count);
             if (troopCount == 0) { pendingDamage = 0; CommandStop(); if (IsHostile) CaptureDeparting(); else if (IsDeployed) ReturnToPost(); }
         }
-        private void OnDowned(string cause = "전투")
+        private void OnDowned(string cause = "전투", bool forceFatal = false)
         {
             var mode = CommanderDeathRuntime.Mode;
-            var fatal = mode == CommanderDeathMode.Harsh ? Random.value < .3f
-                : mode == CommanderDeathMode.Normal && personalState.HasSeriousInjury && Random.value < .25f;
+            var fatal = forceFatal || (mode == CommanderDeathMode.Harsh ? Random.value < .3f
+                : mode == CommanderDeathMode.Normal && personalState.HasSeriousInjury && Random.value < .25f);
             personalState.AddInjury(traits);
             if (Random.value < .5f) personalState.AddInjury(traits);
             ScienceAssignment?.ReleaseResearcher(); LabUpgradeLab?.CancelResearch();

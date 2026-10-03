@@ -13,7 +13,8 @@ namespace AntColony.Core
         Fermentation, AdvancedCrops, AcidRefining, Watchtowers, Infirmary, Recreation,
         Blades, ArmorPlates, Vehicle, Drainage, Firebreaks,
         EfficientTransport, Mines, Regeneration, Trinkets, AdvancedWeapons, Gliding,
-        Aircraft, HeavyTransport, Insulation, MigrationTheory, Hull, Cocoons, Engine
+        Aircraft, HeavyTransport, Insulation, MigrationTheory, Hull, Cocoons, Engine, Fishing,
+        ConscriptionLaw, ReserveForces, TotalMobilization // Phase 4 병역 제도
     }
 
     public sealed class ScienceDefinition
@@ -65,7 +66,11 @@ namespace AntColony.Core
             new ScienceDefinition(ScienceTechnology.MigrationTheory, "대이주 이론", 3, ScienceTechnology.Aircraft),
             new ScienceDefinition(ScienceTechnology.Hull, "선체", 4, ScienceTechnology.MigrationTheory),
             new ScienceDefinition(ScienceTechnology.Cocoons, "동면 고치", 4, ScienceTechnology.MigrationTheory),
-            new ScienceDefinition(ScienceTechnology.Engine, "추진기관", 4, ScienceTechnology.MigrationTheory)
+            new ScienceDefinition(ScienceTechnology.Engine, "추진기관", 4, ScienceTechnology.MigrationTheory),
+            new ScienceDefinition(ScienceTechnology.Fishing, "낚시", 1),
+            new ScienceDefinition(ScienceTechnology.ConscriptionLaw, "징병제", 1),
+            new ScienceDefinition(ScienceTechnology.ReserveForces, "예비군제", 2, ScienceTechnology.ConscriptionLaw),
+            new ScienceDefinition(ScienceTechnology.TotalMobilization, "국민개병", 3, ScienceTechnology.ReserveForces)
         };
 
         [Serializable] public sealed class State
@@ -92,7 +97,8 @@ namespace AntColony.Core
         public event Action OnDeparted;
         private void Awake() => Instance = this;
         private void OnDestroy() { if (Instance == this) Instance = null; }
-        public bool Has(ScienceTechnology technology) => state.completed.Contains((int)technology);
+        public bool Has(ScienceTechnology technology) => state.completed.Contains((int)technology)
+            || technology == ScienceTechnology.Fishing && GameManager.Instance != null && GameManager.Instance.FishingUnlocked;
         public int DefenseLevel(DefenseLine line) => (int)line < state.defense.Count ? state.defense[(int)line] : 0;
         internal void SetDefenseLevel(DefenseLine line, int level)
         {
@@ -145,6 +151,8 @@ namespace AntColony.Core
             state.active = -1;
             state.progress = 0;
             var world = WorldMapManager.Instance;
+            if (completed.Technology == ScienceTechnology.Fishing && GameManager.Instance != null)
+                GameManager.Instance.FishingUnlocked = true;
             if (completed.Technology == ScienceTechnology.Fermentation)
                 foreach (var storage in FindObjectsByType<Storage>()) storage.RefreshCapacity();
             if (world != null)

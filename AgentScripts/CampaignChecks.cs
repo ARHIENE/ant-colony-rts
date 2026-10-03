@@ -63,7 +63,7 @@ public static class CampaignChecks
             var rm = ResourceManager.Instance;
             foreach (ColonyResourceType type in Enum.GetValues(typeof(ColonyResourceType))) { rm.AddCapacity(type, 10000); rm.Add(type, 10000); }
             var roster = CommanderRoster.Instance;
-            foreach (var c in roster.Commanders) c.ApplyTraits(new CommanderTraits(CommanderPersonality.Balanced, 50));
+            foreach (var c in roster.Commanders) c.ApplyTraits(new CommanderTraits(CommanderPersonality.Balanced));
             var a = roster.Commanders[0]; var b = roster.Commanders[1];
             var inventory = EquipmentInventory.Instance;
             Check(CampaignResearch.Instance != null && inventory != null, "scene services bootstrapped");
@@ -84,8 +84,7 @@ public static class CampaignChecks
             a.RestorePersonalState(personal); personal.injuries.Clear();
             Check(a.PersonalState.injuries.Count == 1, "personal restore deep copy");
             a.TickPersonal(6); Check(a.PersonalState.injuries.Count == 0, "minor injury heals");
-            var loyalty = a.Traits.Loyalty;
-            Check(a.TryReward() && a.Traits.Loyalty == loyalty + 8, "reward applies once after equipment events");
+            Check(a.TryReward() && a.PersonalState.moodFactors.Exists(f => f.reason == "포상" && f.value == 8), "reward mood applies once after equipment events");
             Check(!a.TryReward(), "monthly reward cooldown");
             a.StartMentalBreak(MentalBreak.Idle); Check(!a.CanReceiveOrders && !a.TryAssign(1), "mental break blocks commands/allocation");
             a.TickPersonal(61); Check(a.CanReceiveOrders && a.PersonalState.moodFactors.Any(f => f.reason == "Catharsis"), "mental break recovery");

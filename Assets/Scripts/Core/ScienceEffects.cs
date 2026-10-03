@@ -57,7 +57,7 @@ namespace AntColony.Core
 
         public static bool BuildingUnlocked(BuildingKind kind) => kind switch
         {
-            BuildingKind.SoilWall => Has(ScienceTechnology.Resin),
+            BuildingKind.SoilWall or BuildingKind.CapWall or BuildingKind.CastleWall or BuildingKind.Gate => Has(ScienceTechnology.Resin),
             BuildingKind.TrapPit => Has(ScienceTechnology.Traps),
             BuildingKind.AreaAcidTower or BuildingKind.DefenseLab => Has(ScienceTechnology.AcidRefining),
             BuildingKind.Watchtower => Has(ScienceTechnology.Watchtowers),

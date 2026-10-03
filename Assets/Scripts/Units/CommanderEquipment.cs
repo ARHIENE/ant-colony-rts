@@ -47,7 +47,7 @@ namespace AntColony.Units
             if (old != null) { commander.PersonalState.equipment.Remove(old); Items.Add(old); }
             commander.PersonalState.equipment.Add(item);
             commander.RefreshEquipment();
-            commander.Traits.ChangeLoyalty(new[] { 2,4,6,10 }[item.quality] * (commander.Traits.Has(CommanderTrait.Greedy) ? 2 : 1), "Equipment gift");
+            commander.MoodEvent("장비 선물", new[] { 2,4,6,10 }[item.quality] * (commander.Traits.Has(CommanderTrait.Greedy) ? 2 : 1));
             return true;
         }
         public bool Unequip(CommanderAnt commander, EquipmentItem item)
@@ -55,7 +55,7 @@ namespace AntColony.Units
             if (Full || commander == null || !commander.CanChangeEquipment || !commander.PersonalState.equipment.Contains(item) || !commander.CanReplaceEquipment(item, null)) return false;
             commander.PersonalState.equipment.Remove(item); Add(item);
             commander.RefreshEquipment();
-            commander.Traits.ChangeLoyalty(commander.Traits.Has(CommanderTrait.Greedy) ? -6 : -3, "Equipment removed"); return true;
+            commander.MoodEvent("장비 회수", commander.Traits.Has(CommanderTrait.Greedy) ? -6 : -3); return true;
         }
     }
 

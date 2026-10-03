@@ -64,8 +64,8 @@ public static class SaveRoundtripChecks
             expected.commanders[0].stanceCooldown = 12;
             expected.commanders[0].stanceTime = 3;
             var queen = expected.buildings.First(b => b.kind == "QueenChamber");
-            queen.queenProductionRemaining = 8;
-            queen.queenFishingRemaining = 11;
+            expected.campaign = new CampaignResearch.State { active = (int)ScienceTechnology.Fishing, progress = 17 };
+            expected.colony.fishingUnlocked = false;
             var barracks = new BuildingDto { key = "new:" + expected.buildings.Count, kind = "Barracks", runtimeBuilt = true,
                 health = 100, role = (int)AntColony.Data.UnitRole.Melee, barracksTier = 2, barracksUpgradeRemaining = 6,
                 position = new Vec3Dto(WorldMapManager.Instance.HomePosition + Vector3.right * 12) };
@@ -92,7 +92,17 @@ public static class SaveRoundtripChecks
             Check(SaveSystem.TrySave(false, 1, out var error), "save restored state: " + error);
             var again = await Load(SaveSlots.PathFor(false, 1));
             Verify(actual, again, queen.key, barracks.key, destroyed.key, shipIndex);
-            return "PASS " + checks + " checks; two scene reloads, progression, timers, destroyed building/enemy, depleted node, new loot, outbound crew/cargo";
+            // 구 여왕방의 진행 중 낚시 연구는 새 저장에서 해금 상태로 보존되어야 한다.
+            again.campaign = new CampaignResearch.State();
+            again.colony.fishingUnlocked = false;
+            again.buildings.Single(b => b.key == queen.key).queenFishingRemaining = 17;
+            SaveStorage.WriteAtomic(path, JsonUtility.ToJson(again));
+            var migrated = await Load(path);
+            Check(migrated.colony.fishingUnlocked, "legacy queen fishing unlock survives full restore");
+            Check(SaveSystem.TrySave(false, 1, out error), "save migrated fishing: " + error);
+            var migratedAgain = await Load(SaveSlots.PathFor(false, 1));
+            Check(migratedAgain.colony.fishingUnlocked, "migrated fishing survives another reload");
+            return "PASS " + checks + " checks; four scene reloads, progression, timers, destroyed building/enemy, depleted node, new loot, outbound crew/cargo, legacy fishing";
         }
         finally
         {
@@ -105,6 +115,10 @@ public static class SaveRoundtripChecks
 
     private static void Verify(SaveFileV1 expected, SaveFileV1 actual, string queen, string barracks, string destroyed, int ship)
     {
+        Check(actual.colony.soil == expected.colony.soil, "material quantity preserves soil field");
+        Check(actual.colony.fishingUnlocked == expected.colony.fishingUnlocked, "fishing unlock");
+        Check(actual.campaign.active == expected.campaign.active, "science fishing active id");
+        Near(actual.campaign.progress, expected.campaign.progress, "science fishing progress");
         Check(actual.colony.special == expected.colony.special, "special resources");
         Check(actual.colony.antsAssigned == expected.colony.antsAssigned, "assigned population");
         var c = actual.commanders[0]; var e = expected.commanders[0];
@@ -114,8 +128,7 @@ public static class SaveRoundtripChecks
         Near(c.strikeCooldown, e.strikeCooldown, "strike cooldown");
         Near(c.stanceTime, e.stanceTime, "stance duration");
         var q = actual.buildings.Single(b => b.key == queen); var eq = expected.buildings.Single(b => b.key == queen);
-        Near(q.queenProductionRemaining, eq.queenProductionRemaining, "queen production");
-        Near(q.queenFishingRemaining, eq.queenFishingRemaining, "fishing research");
+        Check(q.kind == "QueenChamber" && eq.kind == q.kind, "stockpile keeps legacy save kind");
         var b = actual.buildings.Single(x => x.key == barracks); var eb = expected.buildings.Single(x => x.key == barracks);
         Check(b.barracksTier == eb.barracksTier, "barracks tier");
         Near(b.barracksUpgradeRemaining, eb.barracksUpgradeRemaining, "barracks upgrade");

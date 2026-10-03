@@ -10,7 +10,7 @@ namespace AntColony.World
         public const float ColdMovePenalty = .25f, ColdGatherPenalty = .2f;
         public const float WaterRadius = 20, FireRadius = 8, InfectionRadius = 8, InfectionLossSeconds = 20, InfectionSpreadSeconds = 30;
         public const float InfectionChance = .25f, WandererSeconds = 60, DriftSeconds = 300, RecruitBonus = .2f, ApproachRadius = 3;
-        public const int DriftFood = 80, DriftSoil = 40, Migrants = 10, Wasps = 3;
+        public const int DriftFood = 80, DriftSoil = 40, Migrants = 5, MigrationOfferSeconds = 90, Wasps = 3;
         public const float WaspHealth = 15, WaspDamage = 1, WaspInterval = 2, WaspSpeed = 2.5f;
         // 밤 위협(2026-09-28): 침입 1.5배(확정) + 밤마다 야행성 포식자(수치 잠정). 새벽이 되면 물러간다.
         public const float NightThreatScale = 1.5f;

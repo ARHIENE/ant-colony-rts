@@ -148,6 +148,7 @@ namespace AntColony.Buildings
             }
 
             child.Talents.Generate(child.Traits, first.Talents, second.Talents);
+            child.SetBorn(); // Phase 4: 어린 장수로 태어난다.
             foreach (var parent in new[] { first, second })
             {
                 parent.PersonalState.Relation(child.PersonalState.id).value = GameBalance.ParentChildRelation;

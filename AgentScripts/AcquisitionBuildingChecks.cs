@@ -137,7 +137,7 @@ namespace AntColony.Regression
                 await Task.Yield();
                 Check(secondCamp != null && secondCamp.enabled, "두 번째 수용소가 파괴되지 않는다");
 
-                var traits = new CommanderTraits(CommanderPersonality.Brave, 10);
+                var traits = new CommanderTraits(CommanderPersonality.Brave);
                 Check(PrisonerCamp.Instance == builtCamp, "자리가 남아 있으면 먼저 지은 수용소를 쓴다");
                 Check(builtCamp.TryCapture("POW A", CommanderRank.Sergeant, new[] { UnitRole.Worker }, traits),
                     "첫 수용소가 포로를 받는다");

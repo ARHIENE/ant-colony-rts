@@ -66,10 +66,9 @@ public static class DayNightChecks
             Check(c.Fatigue > 0 && c.Fatigue < 80, "rough sleep only partly recovers fatigue " + c.Fatigue);
             Check(Mathf.Approximately(c.WorkFactor, c.Traits.WorkMultiplier * GameBalance.PoorSleepWork), "poor sleep -20% work");
 
-            // 연속 3일 노숙 → 충성심 -5.
-            var loyalty = c.Traits.Loyalty;
+            // 연속 3일 노숙 → 기분 -5(한 달, Phase 3 충성심 대체).
             Night(new[] { c }, 1); Night(new[] { c }, 2);
-            Check(c.Traits.Loyalty == loyalty + GameBalance.RoughSleepLoyalty, $"third rough night costs loyalty {loyalty}->{c.Traits.Loyalty}");
+            Check(c.PersonalState.moodFactors.Exists(f => f.reason == "연속 노숙" && f.value == GameBalance.RoughSleepStreakMood), "third rough night costs mood");
 
             // 숙소: 정원 4, 한 밤 푹 자면 피로 0·정상 속도.
             var dorm = Build<Dormitory>(BuildingKind.Dormitory, home + Vector3.right * 6); dorms.Add(dorm.gameObject);

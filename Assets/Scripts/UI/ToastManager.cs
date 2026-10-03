@@ -16,10 +16,11 @@ namespace AntColony.UI
         public const int MaxVisible = 5;
         public const float WarningSeconds = 10f, HintSeconds = 10f;
         public static readonly Color Mint = MenuTheme.Hex(0x6fd6b8);
-        private sealed class Toast { public string key, message; public ToastKind kind; public int count = 1; public float remaining; public bool crisis; }
+        private sealed class Toast { public string key, message, actionLabel; public System.Action action; public ToastKind kind; public int count = 1; public float remaining; public bool crisis; }
 
         private static ToastManager instance;
         private readonly List<Toast> toasts = new List<Toast>();
+        private readonly Dictionary<string, (System.Action action, string label)> locations = new Dictionary<string, (System.Action, string)>();
         private readonly Dictionary<string, string> crises = new Dictionary<string, string>();
         private readonly Dictionary<string, string> dismissed = new Dictionary<string, string>();
         private RectTransform panel;
@@ -35,7 +36,7 @@ namespace AntColony.UI
             instance = this;
             var canvas = MenuTheme.Canvas("Notifications", transform, 200);
             // HUD v2: 달력·속도 판(HudClock) 아래 오른쪽 318px 판넬, 위에서 아래로 쌓인다. 비면 숨긴다.
-            panel = MenuTheme.Panel(canvas.transform, "Toasts", new Vector2(1, 1), new Vector2(318, 0), new Vector2(-8, -100));
+            panel = MenuTheme.Panel(canvas.transform, "Toasts", new Vector2(1, 1), new Vector2(360, 0), new Vector2(-8, -100));
             var stack = panel.gameObject.AddComponent<VerticalLayoutGroup>(); stack.padding = new RectOffset(8, 8, 8, 8); stack.spacing = 4;
             stack.childControlHeight = stack.childControlWidth = true; stack.childForceExpandHeight = false;
             panel.gameObject.AddComponent<ContentSizeFitter>().verticalFit = ContentSizeFitter.FitMode.PreferredSize;
@@ -54,12 +55,19 @@ namespace AntColony.UI
             else instance.toasts.Add(new Toast { message = message, kind = kind, remaining = seconds });
             instance.dirty = true;
         }
-        public static void SetCrisis(string key, string message)
+        public static void SetCrisis(string key, string message, System.Action action = null, string actionLabel = "위치로 이동")
         {
             if (instance == null) return;
-            if (message == null) { instance.crises.Remove(key); instance.dismissed.Remove(key); }
+            if (message == null)
+            {
+                if (!instance.crises.Remove(key)) return;
+                instance.dismissed.Remove(key); instance.locations.Remove(key);
+            }
             else
             {
+                if (action != null) instance.locations[key] = (action, actionLabel);
+                else instance.locations.Remove(key);
+                if (instance.crises.TryGetValue(key, out var current) && current == message) return;
                 if (instance.dismissed.TryGetValue(key, out var old) && old != message) instance.dismissed.Remove(key);
                 instance.crises[key] = message;
             }
@@ -77,7 +85,9 @@ namespace AntColony.UI
         }
 
         private List<Toast> All() => crises.Where(c => !dismissed.ContainsKey(c.Key))
-            .Select(c => new Toast { key = c.Key, message = c.Value, crisis = true }).Concat(toasts).ToList();
+            .Select(c => new Toast { key = c.Key, message = c.Value, crisis = true,
+                action = locations.TryGetValue(c.Key, out var location) ? location.action : null,
+                actionLabel = locations.TryGetValue(c.Key, out var target) ? target.label : null }).Concat(toasts).ToList();
         private List<Toast> Shown() => All().Take(MaxVisible).ToList();
         private List<string> Lines()
         {
@@ -105,25 +115,36 @@ namespace AntColony.UI
             for (var i = 0; i < shown.Count; i++)
             {
                 var index = i; var t = shown[i];
-                Row("Toast " + i, Label(t), t.crisis ? MenuTheme.DangerInk : t.kind == ToastKind.Warning ? MenuTheme.HpMid : t.kind == ToastKind.Hint ? Mint : MenuTheme.TextColor,
-                    () => Dismiss(index));
+                Row("Toast " + i, Label(t), t.crisis ? MenuTheme.DangerInk : t.kind == ToastKind.Warning ? MenuTheme.Warning : t.kind == ToastKind.Hint ? Mint : MenuTheme.TextColor,
+                    () => Dismiss(index), t.action, t.actionLabel);
             }
             if (all.Count > MaxVisible) Row("Toast More", $"+{all.Count - MaxVisible}건", MenuTheme.Dim, null);
             panel.gameObject.SetActive(all.Count > 0);
             if (all.Count == 0) hovered = false;
         }
 
-        private void Row(string name, string text, Color color, System.Action onClick)
+        private void Row(string name, string text, Color color, System.Action onClick, System.Action action = null, string actionLabel = null)
         {
             var rect = MenuTheme.Rect(name, panel);
             rect.gameObject.AddComponent<Image>().color = MenuTheme.Plate2;
             var rows = rect.gameObject.AddComponent<VerticalLayoutGroup>(); rows.padding = new RectOffset(6, 6, 3, 3);
             rows.childControlHeight = rows.childControlWidth = true; rows.childForceExpandHeight = false;
-            var label = MenuTheme.Text(rect, text, 14, 20); label.color = color; label.alignment = TextAnchor.UpperLeft;
+            var heading = MenuTheme.Rect("Heading", rect);
+            var horizontal = heading.gameObject.AddComponent<HorizontalLayoutGroup>();
+            horizontal.childControlHeight = horizontal.childControlWidth = true; horizontal.childForceExpandWidth = false;
+            var label = MenuTheme.Text(heading, text, 13, 20); label.color = color; label.alignment = TextAnchor.UpperLeft;
             DestroyImmediate(label.GetComponent<LayoutElement>());
-            if (onClick == null) return;
-            var button = rect.gameObject.AddComponent<Button>(); MenuTheme.StyleButton(button);
-            button.onClick.AddListener(() => onClick());
+            if (onClick != null)
+            {
+                var close = MenuTheme.Button(heading, "×", onClick);
+                var size = close.GetComponent<LayoutElement>(); size.minWidth = size.preferredWidth = 26; size.preferredHeight = 26;
+            }
+            if (action != null)
+            {
+                var jump = MenuTheme.Button(rect, actionLabel, action);
+                jump.name = "Location"; jump.GetComponent<LayoutElement>().preferredHeight = 30;
+                jump.GetComponentInChildren<Text>().fontSize = 12;
+            }
         }
 
         // 판넬 위 마우스 진입/이탈을 매니저로 넘긴다.
