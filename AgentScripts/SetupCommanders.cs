@@ -24,7 +24,7 @@ public static class SetupCommanders
         profiles.arraySize = names.Length;
         for (var i = 0; i < names.Length; i++)
         {
-            var data = AssetDatabase.LoadAssetAtPath<UnitData>($"Assets/Data/{names[i]}AntData.asset");
+            var data = AssetDatabase.LoadAssetAtPath<UnitData>($"Assets/_Project/Data/{names[i]}AntData.asset");
             if (data == null) throw new Exception("Missing " + names[i]);
             profiles.GetArrayElementAtIndex(i).objectReferenceValue = data;
         }

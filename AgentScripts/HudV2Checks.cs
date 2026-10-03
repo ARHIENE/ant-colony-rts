@@ -41,7 +41,7 @@ public static class HudV2Checks
             session.MarkStarted(real, 600); Check(GameCalendar.IsNight && GameCalendar.SecondsUntilPhaseChange == 300, "night at 10 min");
             session.MarkStarted(real, 900); Check(!GameCalendar.IsNight && GameCalendar.Day == 1 && GameCalendar.CurrentSeason == Season.Summer, "next day = next season");
             session.MarkStarted(real, 610); await Frames(2);
-            Check(HudClock.DayLabel.EndsWith("· 밤"), "clock label shows night: " + HudClock.DayLabel);
+            Check(HudClock.DayLabel.Contains("· 밤 · "), "clock label shows night and weather: " + HudClock.DayLabel);
 
             // 속도: 일시정지 + 1·2·3·5배. 버튼이 같은 동작.
             menu.SetSpeed(5); Check(Time.timeScale == 5, "five times speed");

@@ -10,7 +10,7 @@ public static class SetupFullUI
     {
         if (Application.isPlaying) throw new System.InvalidOperationException("Stop Play first.");
         var scene = EditorSceneManager.GetActiveScene();
-        if (scene.path != "Assets/Scenes/AntColony.unity")
+        if (scene.path != "Assets/_Project/Scenes/AntColony.unity")
             throw new System.InvalidOperationException("Open AntColony first.");
         var imported = Object.FindObjectsByType<MonoBehaviour>(FindObjectsSortMode.None)
             .FirstOrDefault(x => x != null && x.GetType().Name == "TerrainGenerator");

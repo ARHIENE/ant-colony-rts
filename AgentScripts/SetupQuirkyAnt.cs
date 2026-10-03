@@ -10,16 +10,16 @@ public static class SetupQuirkyAnt
     {
         if (Application.isPlaying) throw new InvalidOperationException("Stop Play before installing art.");
         const string source = "Assets/_TeamImport/Prefabs/Quirky Series/Insect Bundle/Insect Vol.1";
-        const string art = "Assets/Art/QuirkyAnt";
-        if (!AssetDatabase.IsValidFolder("Assets/Art")) AssetDatabase.CreateFolder("Assets", "Art");
-        if (!AssetDatabase.IsValidFolder(art)) AssetDatabase.CreateFolder("Assets/Art", "QuirkyAnt");
+        const string art = "Assets/ThirdParty/Quirky Series/QuirkyAnt";
+        if (!AssetDatabase.IsValidFolder("Assets/ThirdParty/Quirky Series")) AssetDatabase.CreateFolder("Assets/ThirdParty", "Quirky Series");
+        if (!AssetDatabase.IsValidFolder(art)) AssetDatabase.CreateFolder("Assets/ThirdParty/Quirky Series", "QuirkyAnt");
         foreach (var folder in new[] { "Animations", "Models", "Materials", "Textures" })
         {
             if (AssetDatabase.IsValidFolder(art + "/" + folder)) continue;
             var error = AssetDatabase.MoveAsset(source + "/" + folder, art + "/" + folder);
             if (!string.IsNullOrEmpty(error)) throw new InvalidOperationException(error);
         }
-        var original = AssetDatabase.LoadAssetAtPath<GameObject>("Assets/Prefabs/Quirky Series/Insect Bundle/Insect Vol.1/Prefabs/Ant_LODs.prefab");
+        var original = AssetDatabase.LoadAssetAtPath<GameObject>("Assets/ThirdParty/Quirky Series/Insect Bundle/Insect Vol.1/Prefabs/Ant_LODs.prefab");
         if (original == null) throw new InvalidOperationException("Ant_LODs prefab missing.");
         var root = Object.Instantiate(original);
         try
@@ -47,15 +47,15 @@ public static class SetupQuirkyAnt
             {
                 root.transform.SetParent(wrapper.transform, true);
                 root.transform.localPosition = -Vector3.up * meshes[0].bounds.min.y;
-                if (!AssetDatabase.IsValidFolder("Assets/Resources")) AssetDatabase.CreateFolder("Assets", "Resources");
-                PrefabUtility.SaveAsPrefabAsset(wrapper, "Assets/Resources/QuirkyAnt.prefab");
+                if (!AssetDatabase.IsValidFolder("Assets/_Project/Resources")) AssetDatabase.CreateFolder("Assets/_Project", "Resources");
+                PrefabUtility.SaveAsPrefabAsset(wrapper, "Assets/_Project/Resources/QuirkyAnt.prefab");
             }
             finally { Object.DestroyImmediate(wrapper); }
-            var ring = AssetDatabase.LoadAssetAtPath<Material>("Assets/Resources/AntSelection.mat");
+            var ring = AssetDatabase.LoadAssetAtPath<Material>("Assets/_Project/Resources/AntSelection.mat");
             if (ring == null)
             {
                 ring = new Material(Shader.Find("Universal Render Pipeline/Unlit"));
-                ring.color = Color.white; AssetDatabase.CreateAsset(ring, "Assets/Resources/AntSelection.mat");
+                ring.color = Color.white; AssetDatabase.CreateAsset(ring, "Assets/_Project/Resources/AntSelection.mat");
             }
             AssetDatabase.SaveAssets();
             return "QuirkyAnt installed: LOD meshes, URP material, original avatar/controller; root motion and ragdoll collisions disabled.";

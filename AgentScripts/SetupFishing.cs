@@ -47,7 +47,7 @@ namespace AntColony.Setup
 
         private static void SetMaterial(GameObject go, string name, Color color)
         {
-            var path = "Assets/Materials/" + name + ".mat";
+            var path = "Assets/_Project/Materials/" + name + ".mat";
             var material = AssetDatabase.LoadAssetAtPath<Material>(path);
             if (material == null)
             {

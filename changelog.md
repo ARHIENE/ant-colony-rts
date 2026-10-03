@@ -1,4 +1,11 @@
 # 변경 이력
+# 2026-10-03 추가 SAVE — 같은 날 이전 HUD v4 로그 요약 이관
+- 이전 SAVE 기준 2c8e919: Phase 2~6(재료 단일화·낚시 과학 1티어·장수 0명 패배, 기분·인구·병역·이주·주거, 방·지붕·벽/문/성문·사막/동굴)와 HUD v3/v4가 develop에 반영되어 있었다.
+- HUD v4는 선택 상태별 하단 정보/2×2 명령, 대기·동원 가능 인력, 알림 위치 버튼, 반응형 배치를 구현했다. HudV4 276·HudV2 40·Tooltip 62·CommanderStatus 37·PlayableLoop 46·Commander 33·CommanderEdge 24·SaveRoundtrip 55 통과 기록.
+- 당시 발견한 HUD 겹침/빈 괄호와 미반영 목록(정찰 동행·노화 특성·벽 드래그·공성 방화·난방·전용 적·가구)은 이번 작업 트리와 대조해 최신 log.md에 갱신한다. 당시 캡처 .unity/save-2026-10-03/hud-v4-*.png.
+- 10-02 Phase별 검증과 기존 실패는 아래 이전 이관 기록 참조. 전체 회귀 및 Player 빌드 통과 기록은 없었다.
+
+---
 
 이 파일은 세션별 상세 작업 기록의 아카이브입니다. 최신 요약/현재 상태는 `log.md` 참고.
 
@@ -660,3 +667,4 @@
 - HUD v2 31개, DayNight 37개, Workforce 79개: 총 147개 통과. 접근 불가 숙소 노숙 처리와 검사 기대값 수정.
 - a2a2c52를 origin/develop push. 야간 HUD·작업표 캡처 2종을 https://app.notion.com/p/3e9c4a0ecd3181398d50def0b6b207fd 에 첨부.
 - 당시 Graphify 4940 nodes/9871 edges. 카카오톡 도구 미연결, Git hook grep 경고. 기존 Invasion/Raid/SceneInvasion/Airborne 미실행·실패와 탑승 중 자동 귀환/병력 0 감염·복수 검토 잔여.
+

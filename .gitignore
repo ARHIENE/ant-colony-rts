@@ -43,3 +43,7 @@ node_modules/
 /blob-report/
 /playwright/.cache/
 /playwright/.auth/
+
+# 에셋스토어 팩(로우폴리 등): 용량·재배포 문제로 커밋하지 않음(2026-10-03 사용자 요청)
+Assets/ThirdParty/
+Assets/ThirdParty.meta

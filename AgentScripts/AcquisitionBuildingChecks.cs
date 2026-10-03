@@ -1,3 +1,4 @@
+using System.Linq;
 namespace AntColony.Regression
 {
     using System;
@@ -161,7 +162,7 @@ namespace AntColony.Regression
 
                 var freeBeforeScout = pool.Free;
                 var assignedBeforeScout = pool.Assigned;
-                Check(scout.TryDispatch(), "스카우트를 파견한다");
+                Check(scout.TryDispatch(AntColony.Core.CommanderRoster.Instance.Commanders.FirstOrDefault(c => c.CanScout)), "스카우트를 파견한다");
                 Check(pool.Free == freeBeforeScout - 2, "파견 개미가 대기 풀에서 빠진다");
 
                 scoutGo.SetActive(false);

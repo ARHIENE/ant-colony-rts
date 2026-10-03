@@ -14,18 +14,18 @@ public static class SetupAcidTower
     {
         if (Application.isPlaying) throw new InvalidOperationException("Exit Play mode first.");
         var scene = UnityEngine.SceneManagement.SceneManager.GetActiveScene();
-        if (scene.path != "Assets/Scenes/AntColony.unity") throw new InvalidOperationException("Open AntColony scene first.");
+        if (scene.path != "Assets/_Project/Scenes/AntColony.unity") throw new InvalidOperationException("Open AntColony scene first.");
         if (Object.FindObjectsByType<AcidTower>(FindObjectsInactive.Include, FindObjectsSortMode.None)
             .Any(t => t.gameObject.scene == scene && t.name == "AcidTowerTemplate")) return "AcidTowerTemplate already exists.";
 
-        var data = AssetDatabase.LoadAssetAtPath<BuildingData>("Assets/Data/AcidTowerData.asset");
+        var data = AssetDatabase.LoadAssetAtPath<BuildingData>("Assets/_Project/Data/AcidTowerData.asset");
         if (data == null)
         {
             data = ScriptableObject.CreateInstance<BuildingData>();
             data.kind = BuildingKind.AcidTower; data.displayName = "Acid Tower";
             data.maxHealth = 250; data.foodCost = 30; data.soilCost = 60;
             data.constructionAnts = 5; data.buildTimeSeconds = 8;
-            AssetDatabase.CreateAsset(data, "Assets/Data/AcidTowerData.asset");
+            AssetDatabase.CreateAsset(data, "Assets/_Project/Data/AcidTowerData.asset");
         }
         Material Material(string path, string shader, Color color)
         {
@@ -36,8 +36,8 @@ public static class SetupAcidTower
             material = new Material(found); material.color = color;
             AssetDatabase.CreateAsset(material, path); return material;
         }
-        var shell = Material("Assets/Materials/AcidTowerShell.mat", "Universal Render Pipeline/Lit", new Color(.18f, .27f, .19f));
-        var acid = Material("Assets/Materials/AcidSpray.mat", "Universal Render Pipeline/Unlit", new Color(.55f, 1f, .12f));
+        var shell = Material("Assets/_Project/Materials/AcidTowerShell.mat", "Universal Render Pipeline/Lit", new Color(.18f, .27f, .19f));
+        var acid = Material("Assets/_Project/Materials/AcidSpray.mat", "Universal Render Pipeline/Unlit", new Color(.55f, 1f, .12f));
         var root = GameObject.CreatePrimitive(PrimitiveType.Cube); root.name = "AcidTowerTemplate"; root.SetActive(false);
         root.transform.position = new Vector3(255, 10, 200); root.transform.localScale = new Vector3(2.5f, 2, 2.5f);
         root.GetComponent<Renderer>().sharedMaterial = shell;

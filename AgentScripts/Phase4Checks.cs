@@ -88,6 +88,8 @@ public static class Phase4Checks
         // 민심 바닥이면 달마다 5% 탈주. 식량 바닥이면 5% 사라짐.
         pop.S.sentiment = 5; var freeU = pool.Free; pop.Monthly(); Check(pool.Free < freeU, "unrest desertion");
         rm.TrySpend(rm.GetAmount(RT.Food), 0); pop.SetTaxRate(0);
+        // 개미 이탈만 본다. 특성 난수에 따라 장수가 전부 떠나 뒤 검사가 깨지지 않게 기분을 올려 둔다.
+        foreach (var k in CommanderRoster.Instance.Commanders) k.PersonalState.AddMood("검사 고정", 100, 999);
         var freeS = pool.Free;
         typeof(UpkeepManager).GetMethod("RunCycle", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance).Invoke(upkeep, null);
         Check(pool.Free == freeS - Mathf.CeilToInt(freeS * GameBalance.StarveDesertion), "starvation removes ants");
@@ -97,9 +99,15 @@ public static class Phase4Checks
         c.PersonalState.ageMonths = -1; c.TickPersonal(.01f);
         Check(c.AgeMonths >= GameBalance.ChildMonths && c.AgeMonths <= 72.1f && c.PersonalState.lifespanMonths >= GameBalance.MinLifespan, "starting age assigned");
         c.SetBorn(); Check(c.IsChild && !c.CanDoJob(CommanderJobs.Gathering) && c.AgeLabel == "0세", "child cannot work");
+        c.Traits.values.Remove(CommanderTrait.Senile);
         var normal = 0f; c.PersonalState.ageMonths = 40; normal = c.WorkRate(CommanderActivity.Research);
         c.PersonalState.ageMonths = 100; Check(c.IsElder && Mathf.Abs(c.WorkRate(CommanderActivity.Research) - normal * 1.2f) < .001f, "elder wisdom +20%");
         Check(Mathf.Abs(c.WorkRate(CommanderActivity.Strength) / c.Talents.Multiplier(CommanderActivity.Strength) - normal / c.Talents.Multiplier(CommanderActivity.Research) * .8f) < .001f, "elder body -20%");
+        // 노망: 늙으면 지혜 보너스 대신 모든 작업 ×0.8, 젊을 때는 영향 없음.
+        c.Traits.values.Add(CommanderTrait.Senile);
+        Check(Mathf.Abs(c.WorkRate(CommanderActivity.Research) - normal * .8f) < .001f && CommanderTraits.DisplayName(CommanderTrait.Senile) == "노망", "senile elder -20%");
+        c.PersonalState.ageMonths = 40; Check(Mathf.Abs(c.WorkRate(CommanderActivity.Research) - normal) < .001f, "senile young unaffected");
+        c.Traits.values.Remove(CommanderTrait.Senile); c.PersonalState.ageMonths = 100;
         // 확률 사망 분기로 잘못 들어가도 우연히 통과하지 않도록 생존 난수를 고정한다.
         var randomState = UnityEngine.Random.state;
         for (var seed = 0; ; seed++)

@@ -42,7 +42,8 @@ public static class HudV4Checks
         if (selected.gameObject.activeSelf)
             foreach (var label in selected.GetComponentsInChildren<Text>()) Inside(label.rectTransform, selected);
         Check(!Bounds(Rect("RosterBar")).Overlaps(Bounds(Rect("MenuToolbar"))), "roster avoids menu");
-        Check(!Bounds(Rect("RosterBar")).Overlaps(Bounds(Rect("Food"))), "roster avoids resources at " + Screen.width + "x" + Screen.height + " roster " + Bounds(Rect("RosterBar")) + " food " + Bounds(Rect("Food")));
+        Check(!Bounds(Rect("WorkforceSummary")).Overlaps(Bounds(Rect("DemandBar"))) && !Bounds(Rect("WorkforceSummary")).Overlaps(Bounds((RectTransform)Rect("DemandBar").parent)), "workforce below resources at " + Screen.width + "x" + Screen.height);
+        Check(!Bounds(Rect("RosterBar")).Overlaps(Bounds(Rect("Food"))),"roster avoids resources at " + Screen.width + "x" + Screen.height + " roster " + Bounds(Rect("RosterBar")) + " food " + Bounds(Rect("Food")));
     }
 
     public static async Task<string> Main()
@@ -71,7 +72,7 @@ public static class HudV4Checks
             await Frames();
             Check(Rect("MultiCommands").gameObject.activeSelf && !Rect("SelectedUnitPanel").gameObject.activeSelf, "multi state uses summary");
             Check(!Button("Multi Stop").interactable, "multi civilian rest needs individual selection");
-            Check(Rect("ColonySummary").GetComponent<Text>().text.Contains("장수 2명 선택"), "multi summary count");
+            Check(Rect("ColonySummary").GetComponent<Text>().text.Contains("장수 2명 선택") && !Rect("ColonySummary").GetComponent<Text>().text.Contains("()"), "multi summary count and activity");
             Button("Multi Clear").onClick.Invoke(); await Frames(); Check(selection.GetSelectedObjects().Count == 0, "clear command");
             var template = (GameObject)typeof(BuildingPlacementController).GetMethod("GetTemplate", BindingFlags.NonPublic | BindingFlags.Static).Invoke(null, new object[] { BuildingKind.Dormitory, UnitRole.Worker });
             made = Object.Instantiate(template, list[0].Position + Vector3.right * 10, Quaternion.identity); made.SetActive(true);

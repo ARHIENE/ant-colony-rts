@@ -1,0 +1,182 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0d913aa6dd1e1e44984dbfe085470314, type: 3}
+  m_Name: Desert
+  m_EditorClassIdentifier: Assembly-CSharp::AntColony.Map.BiomeMapStyle
+  layers:
+  - texture: {fileID: 2800000, guid: 61d8b2642351fc04781e358c08d8c0c9, type: 3}
+    startHeight: 0
+  - texture: {fileID: 2800000, guid: 592b3c13ca2a2ab46b678402d9f85ff4, type: 3}
+    startHeight: 0.2
+  - texture: {fileID: 2800000, guid: 592b3c13ca2a2ab46b678402d9f85ff4, type: 3}
+    startHeight: 0.5
+  - texture: {fileID: 2800000, guid: 9ac240616742a354b91e979eb7618c8c, type: 3}
+    startHeight: 0.7
+  - texture: {fileID: 2800000, guid: 8b1d20f6985bdee43b8ac257fdfaf324, type: 3}
+    startHeight: 0.88
+  spawns:
+  - prefab: {fileID: 287429727301508080, guid: 554fcb49044607e4ead934c2f411608f, type: 3}
+    minHeight: 0.3
+    maxHeight: 1
+    spawnChance: 0.002
+    minScale: 0.8
+    maxScale: 1.5
+    minDistanceBetween: 4
+    foliage: 0
+    solid: 1
+  - prefab: {fileID: 5594004914841745632, guid: 8cdbcb99840c1ae4f9d08f6db54e8055, type: 3}
+    minHeight: 0.3
+    maxHeight: 1
+    spawnChance: 0.002
+    minScale: 0.8
+    maxScale: 1.5
+    minDistanceBetween: 4
+    foliage: 0
+    solid: 1
+  - prefab: {fileID: 268281985071763818, guid: 116fae9ff3d110b4891d95d6e0e6b4de, type: 3}
+    minHeight: 0.3
+    maxHeight: 1
+    spawnChance: 0.002
+    minScale: 0.8
+    maxScale: 1.5
+    minDistanceBetween: 4
+    foliage: 0
+    solid: 1
+  - prefab: {fileID: 1954203923124936568, guid: ae288f4c622432349b67e6ae691d5636, type: 3}
+    minHeight: 0.2
+    maxHeight: 1
+    spawnChance: 0.005
+    minScale: 0.8
+    maxScale: 1.4
+    minDistanceBetween: 2
+    foliage: 0
+    solid: 1
+  - prefab: {fileID: 2028091704857379991, guid: c14f33d64d43c3d498d37919f1f80463, type: 3}
+    minHeight: 0.2
+    maxHeight: 1
+    spawnChance: 0.005
+    minScale: 0.8
+    maxScale: 1.4
+    minDistanceBetween: 2
+    foliage: 0
+    solid: 1
+  - prefab: {fileID: 4657792368768753966, guid: 33a147eca24b28e42b06bf33f97ae112, type: 3}
+    minHeight: 0.2
+    maxHeight: 1
+    spawnChance: 0.005
+    minScale: 0.8
+    maxScale: 1.4
+    minDistanceBetween: 2
+    foliage: 0
+    solid: 1
+  - prefab: {fileID: 4688694320178385078, guid: b11914487302400459c19c4113a4f3ef, type: 3}
+    minHeight: 0.1
+    maxHeight: 1
+    spawnChance: 0.008
+    minScale: 0.7
+    maxScale: 1.3
+    minDistanceBetween: 1
+    foliage: 0
+    solid: 0
+  - prefab: {fileID: 8949100128083778757, guid: d59fc405891964643b2c1d7ec326d6e0, type: 3}
+    minHeight: 0.1
+    maxHeight: 1
+    spawnChance: 0.008
+    minScale: 0.7
+    maxScale: 1.3
+    minDistanceBetween: 1
+    foliage: 0
+    solid: 0
+  - prefab: {fileID: 3713378710898967380, guid: a58bd93b578d02b468424e10362c3ca4, type: 3}
+    minHeight: 0.1
+    maxHeight: 1
+    spawnChance: 0.008
+    minScale: 0.7
+    maxScale: 1.3
+    minDistanceBetween: 1
+    foliage: 0
+    solid: 0
+  - prefab: {fileID: 6917998947320283720, guid: 7a77406307db9f447863b1371da346dc, type: 3}
+    minHeight: 0.1
+    maxHeight: 1
+    spawnChance: 0.008
+    minScale: 0.7
+    maxScale: 1.3
+    minDistanceBetween: 1
+    foliage: 0
+    solid: 0
+  - prefab: {fileID: 1140557636003158, guid: d68da814d53d5a842a743c1699c6617c, type: 3}
+    minHeight: 0.5
+    maxHeight: 1
+    spawnChance: 0.0004
+    minScale: 0.15
+    maxScale: 0.3
+    minDistanceBetween: 12
+    foliage: 0
+    solid: 1
+  - prefab: {fileID: 1969205505206782, guid: 27c3faa0d10c39742aab8ab802a5dd37, type: 3}
+    minHeight: 0.5
+    maxHeight: 1
+    spawnChance: 0.0004
+    minScale: 0.15
+    maxScale: 0.3
+    minDistanceBetween: 12
+    foliage: 0
+    solid: 1
+  - prefab: {fileID: 1335487721008448, guid: 171d553dcae56124aa6a1ec1fdb8854f, type: 3}
+    minHeight: 0.5
+    maxHeight: 1
+    spawnChance: 0.0003
+    minScale: 0.08
+    maxScale: 0.15
+    minDistanceBetween: 12
+    foliage: 0
+    solid: 1
+  - prefab: {fileID: 1693916871647469746, guid: b5a8eaf725a746944bdd240de826d2c9, type: 3}
+    minHeight: 0.1
+    maxHeight: 0.8
+    spawnChance: 0.003
+    minScale: 0.8
+    maxScale: 1.2
+    minDistanceBetween: 1.5
+    foliage: 0
+    solid: 0
+  - prefab: {fileID: 6361723844059883730, guid: a0f72ac672dfb39488c1c9ac8e487459, type: 3}
+    minHeight: 0.1
+    maxHeight: 0.8
+    spawnChance: 0.003
+    minScale: 0.8
+    maxScale: 1.2
+    minDistanceBetween: 1.5
+    foliage: 0
+    solid: 0
+  - prefab: {fileID: 6202726498524880489, guid: b7d0eb5a175ce2442b90f6a644b0cd4f, type: 3}
+    minHeight: 0.1
+    maxHeight: 0.8
+    spawnChance: 0.003
+    minScale: 0.8
+    maxScale: 1.2
+    minDistanceBetween: 1.5
+    foliage: 0
+    solid: 0
+  - prefab: {fileID: 8394412396412905329, guid: e3fc257ddf42c7545a1bdf8e3d50fa5c, type: 3}
+    minHeight: 0.1
+    maxHeight: 0.6
+    spawnChance: 0.002
+    minScale: 0.7
+    maxScale: 1
+    minDistanceBetween: 1.5
+    foliage: 1
+    solid: 0
+  water: 0
+  waterHeight: 0
+  waterMaterial: {fileID: 2100000, guid: 79c9bbe4636443e4d87c8afc85a7ced9, type: 2}

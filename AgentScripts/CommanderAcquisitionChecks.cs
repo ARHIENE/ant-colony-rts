@@ -1,3 +1,4 @@
+using System.Linq;
 namespace AntColony.Regression
 {
     using System;
@@ -186,11 +187,13 @@ namespace AntColony.Regression
 
                 var freeBefore = pool.Free;
                 var scoutFoodBefore = resources.GetAmount(ResourceType.Food);
-                Check(scout.TryDispatch(), "스카우트를 파견한다");
+                Check(scout.TryDispatch(AntColony.Core.CommanderRoster.Instance.Commanders.FirstOrDefault(c => c.CanScout)), "스카우트를 파견한다");
                 Check(scout.IsDispatched, "파견 중 상태가 된다");
+                var mate = scout.Companion;
+                Check(mate != null && mate.IsEmbarked && mate.IsAwayFromHome && mate.ScoutMission == scout, "동행 장수가 소굴을 비운다");
                 Check(pool.Free == freeBefore - 1, "파견 개미가 대기 풀에서 빠진다");
                 Check(resources.GetAmount(ResourceType.Food) == scoutFoodBefore - 20, "파견 비용을 지불한다");
-                Check(!scout.TryDispatch(), "이미 파견 중이면 중복 파견하지 않는다");
+                Check(!scout.TryDispatch(AntColony.Core.CommanderRoster.Instance.Commanders.FirstOrDefault(c => c.CanScout)), "이미 파견 중이면 중복 파견하지 않는다");
 
                 var beforeRecruit = roster.Count;
                 scout.Tick(5f);
@@ -199,13 +202,14 @@ namespace AntColony.Regression
                 scout.Tick(6f);
                 Check(!scout.IsDispatched, "귀환하면 파견 상태가 풀린다");
                 Check(pool.Free == freeBefore, "파견 개미가 대기 풀로 돌아온다");
+                Check(!mate.IsEmbarked && !mate.IsAwayFromHome && scout.Companion == null, "동행 장수가 돌아온다");
                 Check(scout.SuccessCount == 1 && roster.Count == beforeRecruit + 1, "확률 100%면 장수가 합류한다");
 
                 // 실패해도 개미는 돌아오고 장수만 늘지 않는다.
                 SetPrivate(scout, "baseChance", 0f);
                 SetPrivate(scout, "maxChance", 0f);
                 var beforeFail = roster.Count;
-                Check(scout.TryDispatch(), "재파견할 수 있다");
+                Check(scout.TryDispatch(AntColony.Core.CommanderRoster.Instance.Commanders.FirstOrDefault(c => c.CanScout)), "재파견할 수 있다");
                 scout.Tick(11f);
                 Check(scout.FailureCount == 1 && roster.Count == beforeFail, "확률 0%면 장수가 합류하지 않는다");
                 Check(pool.Free == freeBefore, "영입 실패에도 파견 개미는 돌아온다");
@@ -221,7 +225,7 @@ namespace AntColony.Regression
                 // 식량이 모자라면 파견 자체가 거부되고 개미도 빠지지 않는다.
                 SetPrivate(scout, "dispatchFoodCost", 100000);
                 var poorFree = pool.Free;
-                Check(!scout.TryDispatch(), "식량이 모자라면 파견하지 않는다");
+                Check(!scout.TryDispatch(AntColony.Core.CommanderRoster.Instance.Commanders.FirstOrDefault(c => c.CanScout)), "식량이 모자라면 파견하지 않는다");
                 Check(pool.Free == poorFree, "파견이 거부되면 개미도 차출하지 않는다");
                 SetPrivate(scout, "dispatchFoodCost", 0);
 
