@@ -1,6 +1,6 @@
 # 프로젝트 로그
 
-## 현재 상태 — 2026-10-03 SAVE 마무리
+## 현재 상태 — 2026-10-03 SAVE 완료
 - 프로젝트: 개미 소굴 RTS, E:\Git\ant. Unity 6000.5.8f1 / URP 17.5.0 / Pipeline 0.7.0-exp.1. 개발 develop, 안정 master.
 - 기존 HUD v4·Phase 2~6(2c8e919)에 이어 정찰 동행 장수, 벽 드래그, 공성/방화, 노망 특성, 바이옴 맵·계절/날씨 및 저장 v13 변경을 develop에 저장. 프로젝트 에셋을 Assets/_Project로 이동하고 에셋스토어 팩은 Assets/ThirdParty로 분리·Git 제외.
 - 구조: 게임 소스·데이터·장면은 Assets/_Project/{Scripts,Data,Scenes,Resources,Editor}, 외부 에셋 Assets/ThirdParty, 별도 수입 Assets/_TeamImport. 검사 AgentScripts, 지식 그래프 graphify-out.
@@ -15,4 +15,4 @@
 - 공식 Unity CLI: C:\Users\Shim Hyeonyeop\AppData\Local\Unity\bin\unity.exe. 긴 run_script는 --timeout_ms와 CLI --timeout(초)을 함께 지정. 검사 순차 실행.
 - 기획: https://app.notion.com/p/334c4a0ecd3180c4a796e5220302a0bd (상위 페이지 replace_content+allow_deleting_content 금지).
 - 개발 일지 상위: https://app.notion.com/p/334c4a0ecd3181778dcaf0e6a8d57040 . 같은 한국 날짜 ant 최신 페이지 기존 내용 보존.
-- SAVE 재개: 캡처·Notion 첨부 및 develop 원격 반영 확인 후 완료 상태를 기록한다.
+- SAVE 완료: d476e04를 origin/develop에 push. 같은 날짜 기존 Notion 일지에 7~10번과 물가 비·동굴 HUD 캡처 2장을 추가하고 기존 내용·이미지를 보존. master 변경 없음. 완료 기록은 후속 문서 커밋으로 저장.
