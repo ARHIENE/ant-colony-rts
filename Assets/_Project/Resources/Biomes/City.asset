@@ -180,3 +180,5 @@ MonoBehaviour:
   water: 1
   waterHeight: 0.12
   waterMaterial: {fileID: 2100000, guid: 79c9bbe4636443e4d87c8afc85a7ced9, type: 2}
+  snowGround: {fileID: 2800000, guid: e30bb4af423b8b147a8e9e7833ac6a5e, type: 3}
+  leafGround: {fileID: 2800000, guid: 846a26185a354b64abcb7fb6d85af414, type: 3}

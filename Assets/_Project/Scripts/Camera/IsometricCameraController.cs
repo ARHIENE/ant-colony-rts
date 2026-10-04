@@ -158,8 +158,23 @@ namespace AntColony.Camera
         private void ApplyTransform()
         {
             var rotation = Quaternion.Euler(pitch, yaw, 0f);
+            if (cam != null)
+            {
+                // 초점뿐 아니라 화면의 지면 투영 범위가 맵 안에 머물도록 한다.
+                var right = Quaternion.Euler(0, yaw, 0) * Vector3.right;
+                var forward = Quaternion.Euler(0, yaw, 0) * Vector3.forward;
+                var halfWidth = cam.orthographicSize * cam.aspect;
+                var halfDepth = cam.orthographicSize / Mathf.Sin(pitch * Mathf.Deg2Rad);
+                var marginX = Mathf.Min((maxX - minX) * .5f, Mathf.Abs(right.x) * halfWidth + Mathf.Abs(forward.x) * halfDepth + 20f);
+                var marginZ = Mathf.Min((maxZ - minZ) * .5f, Mathf.Abs(right.z) * halfWidth + Mathf.Abs(forward.z) * halfDepth + 20f);
+                focusPoint.x = Mathf.Clamp(focusPoint.x, minX + marginX, maxX - marginX);
+                focusPoint.z = Mathf.Clamp(focusPoint.z, minZ + marginZ, maxZ - marginZ);
+            }
             transform.rotation = rotation;
-            transform.position = focusPoint - rotation * Vector3.forward * distance;
+            // 줌아웃 때 화면 상단의 지형이 near clip 뒤로 넘어가지 않게 뒤로 물러난다.
+            var viewDistance = cam == null ? distance : Mathf.Max(distance,
+                cam.orthographicSize / Mathf.Tan(pitch * Mathf.Deg2Rad) + Mathf.Max(0, 20 - focusPoint.y) / Mathf.Sin(pitch * Mathf.Deg2Rad) + 5);
+            transform.position = focusPoint - rotation * Vector3.forward * viewDistance;
         }
     }
 }

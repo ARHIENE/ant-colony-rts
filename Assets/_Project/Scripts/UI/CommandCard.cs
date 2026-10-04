@@ -129,8 +129,14 @@ namespace AntColony.UI
         // 판 안쪽(여백 14)을 채우는 격자. 2열이면 2×2 큰 칸, 3열이면 높이 50 칸.
         private RectTransform Grid(string name, int columns)
         {
+            if (transform.Find("CommandScreen") == null)
+            {
+                var screen = MenuTheme.Rect("CommandScreen", transform);
+                MenuTheme.Stretch(screen); screen.offsetMin = new Vector2(12, 14); screen.offsetMax = new Vector2(-12, -HudConsole.WingTop);
+                MenuTheme.InsetScreen(screen.gameObject).raycastTarget = false;
+            }
             var grid = MenuTheme.Rect(name, transform);
-            MenuTheme.Stretch(grid); grid.offsetMin = new Vector2(Pad, Pad); grid.offsetMax = new Vector2(-Pad, -Pad);
+            MenuTheme.Stretch(grid); grid.offsetMin = new Vector2(18, 20); grid.offsetMax = new Vector2(-18, -HudConsole.WingTop - 6);
             var layout = grid.gameObject.AddComponent<GridLayoutGroup>();
             layout.constraint = GridLayoutGroup.Constraint.FixedColumnCount; layout.constraintCount = columns; layout.spacing = new Vector2(Gap, Gap);
             columnsOf[grid] = columns;
@@ -148,12 +154,10 @@ namespace AntColony.UI
             rect.sizeDelta = new Vector2(width, height);
             rect.anchoredPosition = new Vector2(cell % columns * (width + Gap), -(cell / columns) * (height + Gap));
             rect.gameObject.AddComponent<Image>();
-            rect.gameObject.AddComponent<Outline>().effectColor = primary ? MenuTheme.Hex(0xffc56b) : MenuTheme.Line2;
             var button = rect.gameObject.AddComponent<Button>();
-            MenuTheme.StyleButton(button);
-            if (primary) { var colors = button.colors; colors.normalColor = MenuTheme.Hex(0x76501f); colors.highlightedColor = MenuTheme.Hex(0x926323); button.colors = colors; }
+            MenuTheme.StyleFrameButton(button, primary);
             button.onClick.AddListener(action);
-            var label = Label(rect, "", columns == 2 ? 14 : 12, TextAnchor.MiddleCenter, primary ? MenuTheme.Hex(0xffdfa4) : MenuTheme.TextColor);
+            var label = Label(rect, "", columns == 2 ? 14 : 12, TextAnchor.MiddleCenter, primary ? MenuTheme.Hex(0xffe2ab) : MenuTheme.TextColor);
             label.rectTransform.offsetMin = new Vector2(2, 2); label.rectTransform.offsetMax = new Vector2(-2, -2);
             if (primary) label.fontStyle = FontStyle.Bold;
             slots.Add(new Slot { button = button, label = label, tip = rect.gameObject.AddComponent<MenuTooltip>(), text = text, help = help, ready = ready, visible = visible });

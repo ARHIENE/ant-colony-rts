@@ -49,9 +49,9 @@ namespace AntColony.UI
             lastCanvasWidth = canvas.rect.width;
             float width = height * Screen.width / Mathf.Max(1, Screen.height);
             bool narrow = width <= 1000, stacked = width <= 720.1f;
-            TopHeight = width <= 1280 ? 100 : 54;
+            TopHeight = width <= 1280 ? 116 : 66;
             top.sizeDelta = new Vector2(0, TopHeight);
-            roster.anchoredPosition = new Vector2(width <= 1280 ? 0 : -10, width <= 1280 ? -58 : -5);
+            roster.anchoredPosition = new Vector2(width <= 1280 ? 0 : -10, width <= 1280 ? -56 : -4);
             if (toolbar != null)
             {
                 float ratio = GetComponent<Canvas>().scaleFactor / toolbar.GetComponentInParent<Canvas>().scaleFactor;
@@ -63,17 +63,19 @@ namespace AntColony.UI
             materials.anchoredPosition = new Vector2(-380, -TopHeight - 10);
             float commandHeight = wasBuilding ? 200 : 88;
             console.sizeDelta = new Vector2(0, stacked ? 224 + commandHeight : 224);
-            if (detail != null) detail.anchoredPosition = new Vector2(8, console.sizeDelta.y + 8);
-            float left = narrow ? 0 : width <= 1280 ? 188 : 240;
-            float right = width <= 1280 ? 200 : 240;
+            // 날개는 넓은 화면에서만 맵 쪽으로 솟는다(시안 max-width 1000 이하 = 솟음 없음).
+            float rise = narrow ? 0 : HudConsole.WingRise;
+            if (detail != null) detail.anchoredPosition = new Vector2(8, console.sizeDelta.y + rise + 8);
+            float left = narrow ? 0 : width <= 1280 ? 188 : HudConsole.LeftWidth;
+            float right = width <= 1280 ? 200 : HudConsole.RightWidth;
             HudConsole.Left.gameObject.SetActive(!narrow);
-            HudConsole.Left.sizeDelta = new Vector2(left, 0);
-            foreach (Transform child in HudConsole.Left)
-                if (child.name.StartsWith("Minimap Filter")) child.gameObject.SetActive(width > 1280);
+            HudConsole.Left.sizeDelta = new Vector2(left, rise);
+            if (!narrow) Minimap.Fit(HudConsole.Left, left, width > 1280);
             HudConsole.Right.anchorMin = new Vector2(stacked ? 0 : 1, 0);
             HudConsole.Right.anchorMax = new Vector2(1, stacked ? 0 : 1);
-            HudConsole.Right.pivot = new Vector2(1, stacked ? 0 : .5f);
-            HudConsole.Right.sizeDelta = new Vector2(stacked ? 0 : right, stacked ? commandHeight : 0);
+            HudConsole.Right.pivot = new Vector2(1, 0);
+            HudConsole.Right.sizeDelta = new Vector2(stacked ? 0 : right, stacked ? commandHeight : rise);
+            HudConsole.Right.Find("WingEdge").gameObject.SetActive(rise > 0 && !stacked);
             HudConsole.Center.offsetMin = new Vector2(left, stacked ? commandHeight : 0);
             HudConsole.Center.offsetMax = new Vector2(stacked ? 0 : -right, 0);
         }

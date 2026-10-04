@@ -196,7 +196,10 @@ public static class RegressionChecks
             var site = NewObject("RegressionSite", farmGo.transform.position).AddComponent<BuildingConstructionSite>();
             site.Initialize(farmGo, .1f);
             worker.CommandBuild(site);
-            await Until(() => farmGo.activeInHierarchy && !farm.IsDepleted, "walk, complete farm and first growth", 8000);
+            await Until(() => farmGo.activeInHierarchy, "walk and complete farm", 8000);
+            // 밭은 장수가 일해야 자란다(Phase 2 이후 규칙). 완공 뒤 같은 장수가 농사를 짓게 한다.
+            worker.CommandGather(farm);
+            await Until(() => !farm.IsDepleted, "commander farms first growth", 8000);
             var farmStatus = farm.GetComponent<ResourceNodeStatus>();
             Check(farmStatus != null && farmStatus.StatusText == "Ready · 20 Food", "grown farm displays harvest amount");
             Check(node.GetComponent<ResourceNodeStatus>() == null, "ordinary resource does not acquire regrowth display");
@@ -208,7 +211,13 @@ public static class RegressionChecks
             var timer = (float)Field(farm, "regrowTimer").GetValue(farm);
             Check(farm.Extract(1) == 0 && (float)Field(farm, "regrowTimer").GetValue(farm) == timer,
                 "empty farm extraction does not restart growth");
-            await Until(() => !farm.IsDepleted, "farm regrows after depletion", 2000);
+            // 재성장 0.15초라 장수가 곧바로 다시 수확할 수 있다. 자란 상태를 보거나 다시 수확되면 재성장으로 본다.
+            var reharvested = false;
+            System.Action onHarvest = () => reharvested = true;
+            farm.Harvested += onHarvest;
+            worker.CommandGather(farm);
+            await Until(() => !farm.IsDepleted || reharvested, "farm regrows after depletion", 4000);
+            farm.Harvested -= onHarvest;
 
             enemy.transform.position = flying.transform.position + Vector3.right;
             enemy.GetComponent<NavMeshAgent>().enabled = false;

@@ -1,3 +1,7 @@
+# 2026-10-04 SAVE — 이전 2026-10-03 로그 요약
+- develop에 HUD v4·Phase 2~6, 정찰 동행·벽 드래그/공성·노화·6종 바이옴·계절/날씨·저장 v13, Assets/_Project 분리까지 저장했다.
+- Siege 12·WallDrag 11·MapStyle 53·SeasonWeather 321 통과. Regression 농장 성장 실패와 Player 빌드 미실행이 남아 있었다.
+- d476e04 및 후속 문서 저장, origin/develop push. Notion 기존 일지에 도시·물가 비·동굴 캡처를 보존/추가했다. master와 사용자 저장 슬롯 유지.
 # 변경 이력
 # 2026-10-03 추가 SAVE — 같은 날 이전 HUD v4 로그 요약 이관
 - 이전 SAVE 기준 2c8e919: Phase 2~6(재료 단일화·낚시 과학 1티어·장수 0명 패배, 기분·인구·병역·이주·주거, 방·지붕·벽/문/성문·사막/동굴)와 HUD v3/v4가 develop에 반영되어 있었다.

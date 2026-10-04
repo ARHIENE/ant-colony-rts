@@ -13,16 +13,16 @@ MonoBehaviour:
   m_Name: Garden
   m_EditorClassIdentifier: Assembly-CSharp::AntColony.Map.BiomeMapStyle
   layers:
-  - texture: {fileID: 2800000, guid: 61d8b2642351fc04781e358c08d8c0c9, type: 3}
+  - texture: {fileID: 2800000, guid: 592b3c13ca2a2ab46b678402d9f85ff4, type: 3}
     startHeight: 0
-  - texture: {fileID: 2800000, guid: 910e53a3219dd48409cf12706e756862, type: 3}
+  - texture: {fileID: 2800000, guid: 8b1d20f6985bdee43b8ac257fdfaf324, type: 3}
     startHeight: 0.2
   - texture: {fileID: 2800000, guid: 910e53a3219dd48409cf12706e756862, type: 3}
-    startHeight: 0.5
-  - texture: {fileID: 2800000, guid: 01a7a6d7e87757a4ba763cafd16ae5da, type: 3}
-    startHeight: 0.7
-  - texture: {fileID: 2800000, guid: 8b1d20f6985bdee43b8ac257fdfaf324, type: 3}
+    startHeight: 0.4
+  - texture: {fileID: 2800000, guid: 846a26185a354b64abcb7fb6d85af414, type: 3}
     startHeight: 0.85
+  - texture: {fileID: 2800000, guid: 8b1d20f6985bdee43b8ac257fdfaf324, type: 3}
+    startHeight: 0.93
   spawns:
   - prefab: {fileID: 2192826064039612326, guid: 36c24025c77681c48af12ac6e2c548e4, type: 3}
     minHeight: 0.3
@@ -189,3 +189,5 @@ MonoBehaviour:
   water: 1
   waterHeight: 0.15
   waterMaterial: {fileID: 2100000, guid: 79c9bbe4636443e4d87c8afc85a7ced9, type: 2}
+  snowGround: {fileID: 2800000, guid: e30bb4af423b8b147a8e9e7833ac6a5e, type: 3}
+  leafGround: {fileID: 2800000, guid: 846a26185a354b64abcb7fb6d85af414, type: 3}

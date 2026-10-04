@@ -11,6 +11,7 @@ namespace AntColony.Map
         static readonly Color[] Leaf = { new Color(.95f, 1.1f, .85f), new Color(.8f, 1f, .75f), new Color(1.35f, .75f, .35f), new Color(.95f, .95f, 1f) };
         static readonly Color[] Sun = { new Color(1f, .98f, .92f), new Color(1.08f, 1f, .82f), new Color(1.05f, .9f, .78f), new Color(.85f, .92f, 1.05f) };
         static readonly float[] SunPower = { 1f, 1.12f, .95f, .8f };
+        static readonly float[] SnowCover = { 0, 0, 0, 1 }, LeafCover = { 0, 0, 1, 0 }; // 바닥 눈·낙엽(2026-10-04)
         private MapGenerator terrain;
         private Color biomeTint = Color.white;
         private Precipitation fall;
@@ -38,6 +39,10 @@ namespace AntColony.Map
             if (terrain == null) return;
             var p = Position();
             terrain.SetTint(biomeTint * Mix(Ground, p));
+            // 동굴은 땅속이라 눈·낙엽 없음, 사막은 나무가 없어 낙엽 없음.
+            var biome = BiomeRules.Current;
+            terrain.SetSeasonGround(biome == MapBiome.Cave ? 0 : Mathf.Lerp(SnowCover[p.season], SnowCover[p.next], p.blend),
+                biome == MapBiome.Cave || biome == MapBiome.Desert ? 0 : Mathf.Lerp(LeafCover[p.season], LeafCover[p.next], p.blend));
             var leaf = Mix(Leaf, p);
             foreach (var (material, baseColor) in terrain.Foliage)
                 if (material != null) material.SetColor("_BaseColor", baseColor * leaf);

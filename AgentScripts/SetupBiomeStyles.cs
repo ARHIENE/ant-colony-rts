@@ -47,7 +47,7 @@ public static class SetupBiomeStyles
             .Concat(S(V, "Grass_01,Grass_03,Grass_05,Plant_02", .2f, .75f, .02f, .7f, 1.2f, .8f, true))
             .Concat(S(V, "Rock_07,BigRock_03", .6f, 1f, .003f, .7f, 1.2f, 3, false, true)), true, .18f, water);
 
-        Save("Garden", new[] { L("Muddy_Cracked_Sand_6", 0), L("Grass_37", .2f), L("Grass_37", .5f), L("Ancient_Cobblestone_5", .7f), L("Rocky_Dirt_2", .85f) },
+        Save("Garden", new[] { L("Rippled_Sand_2", 0), L("Rocky_Dirt_2", .2f), L("Grass_37", .4f), L("Forest_Ground_38", .85f), L("Rocky_Dirt_2", .93f) },
             S(A, "Tree_Apple", .3f, .8f, .006f, .7f, 1f, 4, true, true)
             .Concat(S(V, "Tree_04,Tree_06", .3f, .8f, .004f, .8f, 1.1f, 3, true, true))
             .Concat(S(A, "Bush_Berries_Red,Bush_Berries_Blue", .25f, .75f, .006f, .6f, 1f, 1.5f, true))
@@ -106,6 +106,7 @@ public static class SetupBiomeStyles
         if (style == null) { style = ScriptableObject.CreateInstance<BiomeMapStyle>(); AssetDatabase.CreateAsset(style, path); }
         style.layers = layers.ToList(); style.spawns = spawns.ToList();
         style.water = water; style.waterHeight = waterHeight; style.waterMaterial = waterMaterial;
+        style.snowGround = L("Dirty_Snow_2", 0).texture; style.leafGround = L("Forest_Ground_38", 0).texture; // 계절 바닥(2026-10-04)
         EditorUtility.SetDirty(style);
     }
 

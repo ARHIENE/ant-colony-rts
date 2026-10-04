@@ -123,7 +123,7 @@ public static class TransportRouteChecks
         ship.Route.Tick(TransportRoute.IntervalSeconds);
         Check(ship.State == ExpeditionState.Outbound && c.IsEmbarked, "same crew departs for second cycle");
         ship.Tick(ship.TravelSeconds);
-        Check(await Wait(() => ship.State == ExpeditionState.Returning), "second automatic collection completes");
+        Check(await Wait(() => ship.State == ExpeditionState.Returning), "second automatic collection completes: " + Diagnose());
         stop.onClick.Invoke();
         Check(!ship.Route.IsRunning && c.IsEmbarked && ship.HasCargo, "stop during return preserves passengers and cargo");
         ship.Tick(ship.TravelSeconds); ship.Route.Tick(1000);

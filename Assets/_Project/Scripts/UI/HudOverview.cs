@@ -11,6 +11,7 @@ namespace AntColony.UI
     public sealed class HudOverview : MonoBehaviour
     {
         private Text summary, workforce;
+        private RectTransform screen;
         private SelectionManager selection;
         private float refresh;
 
@@ -35,14 +36,17 @@ namespace AntColony.UI
         private void Start()
         {
             selection = FindFirstObjectByType<SelectionManager>();
+            screen = MenuTheme.Rect("ColonySummaryScreen", HudConsole.Center);
+            MenuTheme.Stretch(screen); screen.offsetMin = new Vector2(12, 8); screen.offsetMax = new Vector2(-12, -14);
+            MenuTheme.InsetScreen(screen.gameObject).raycastTarget = false;
             summary = MenuTheme.Text(HudConsole.Center, "", 15); summary.name = "ColonySummary";
-            MenuTheme.Stretch(summary.rectTransform); summary.rectTransform.offsetMin = new Vector2(16, 12); summary.rectTransform.offsetMax = new Vector2(-16, -12);
+            MenuTheme.Stretch(summary.rectTransform); summary.rectTransform.offsetMin = new Vector2(26, 14); summary.rectTransform.offsetMax = new Vector2(-26, -20);
             summary.alignment = TextAnchor.UpperLeft; summary.supportRichText = true;
             summary.verticalOverflow = VerticalWrapMode.Truncate;
             workforce = MenuTheme.Text(transform.Find("ResourceBar"), "", 12); workforce.name = "WorkforceSummary";
             workforce.rectTransform.anchorMin = workforce.rectTransform.anchorMax = workforce.rectTransform.pivot = new Vector2(1, 1);
-            // 자원 버튼(-13~-41)·이주 수요 막대 아래, 54px 줄 안쪽.
-            workforce.rectTransform.sizeDelta = new Vector2(310, 12); workforce.rectTransform.anchoredPosition = new Vector2(-8, -42);
+            // 자원 버튼(-13~-41)·이주 수요 막대 아래, 66px 줄 안쪽(v4.4 장수 초상으로 상단이 높아짐).
+            workforce.rectTransform.sizeDelta = new Vector2(310, 18); workforce.rectTransform.anchoredPosition = new Vector2(-8, -42);
             workforce.alignment = TextAnchor.UpperRight; workforce.verticalOverflow = VerticalWrapMode.Overflow;
         }
 
@@ -52,7 +56,7 @@ namespace AntColony.UI
             var selected = Selected(selection);
             bool anyUnit = selection != null && selection.GetSelectedObjects().Any(s => s != null && s.IsSelected && s.GetComponent<AntUnitBase>() is AntUnitBase u && !u.IsDead);
             bool visible = !BuildScreen.Picking && WorkTargetPanel.Target == null && (!anyUnit || selected.Length > 1);
-            summary.gameObject.SetActive(visible);
+            summary.gameObject.SetActive(visible); screen.gameObject.SetActive(visible);
             workforce.text = $"대기 {AntPool.Instance?.Free ?? 0}    동원 가능 {AvailableDraft}";
             if (visible)
                 summary.text = selected.Length > 1

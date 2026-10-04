@@ -77,6 +77,10 @@ namespace AntColony.World
         private void Awake()
         {
             agent = GetComponent<NavMeshAgent>();
+            // 중심 피벗의 임시 큐브는 발 위치를 NavMesh에 맞춘다.
+            var model = GetComponent<MeshFilter>();
+            if (!(this is EnemyCommander) && model != null && model.sharedMesh != null)
+                agent.baseOffset = -model.sharedMesh.bounds.min.y * transform.lossyScale.y;
             agent.speed = moveSpeed;
             agent.stoppingDistance = attackRange;
 

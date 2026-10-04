@@ -83,7 +83,7 @@ namespace AntColony.UI
         {
             placement = FindFirstObjectByType<BuildingPlacementController>();
             buildPanel = MenuTheme.Rect("BuildPanel", HudConsole.Right);
-            MenuTheme.Stretch(buildPanel); buildPanel.offsetMin = new Vector2(14, 10); buildPanel.offsetMax = new Vector2(-14, -10);
+            MenuTheme.Stretch(buildPanel); buildPanel.offsetMin = new Vector2(14, 10); buildPanel.offsetMax = new Vector2(-14, -HudConsole.WingTop);
             for (var t = 0; t < Tabs.Length; t++)
             {
                 var captured = t;

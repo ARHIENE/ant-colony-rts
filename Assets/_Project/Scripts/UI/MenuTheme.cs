@@ -16,6 +16,62 @@ namespace AntColony.UI
         public static readonly Color Accent = Hex(0xf2a93b);
         public static readonly Color Muted = Hex(0xc2b7a6);
         public static readonly Color Selection = Hex(0x8bc8ba), Warning = Hex(0xef955f);
+        // HUD v4.1 하단 프레임(2026-10-04 시안): 청동 띠·판 재질·움푹한 화면.
+        public static readonly Color FrameHi = Hex(0xd8aa62), Frame = Hex(0x8f6a3a), FrameLo = Hex(0x3b2a17), FrameInk = Hex(0x0a0705),
+            FrameMat = Hex(0x271e15), ScreenColor = Hex(0x0e0b08), ScreenRim = Hex(0x6b4f2c), FrameButton = Hex(0x30251a);
+
+        // 청동 띠 7px(밝은 1 · 본색 4 · 어두운 1 · 먹선 1). vertical이면 inkFirst 쪽(왼쪽)부터 같은 순서를 뒤집어 쌓는다.
+        public static RectTransform Bronze(Transform parent, string name, bool vertical = false, bool inkFirst = false)
+        {
+            var root = Rect(name, parent);
+            Color[] colors = { FrameHi, Frame, FrameLo, FrameInk }; float[] sizes = { 1, 4, 1, 1 };
+            float at = 0;
+            for (var i = 0; i < 4; i++)
+            {
+                var k = inkFirst ? 3 - i : i;
+                var band = Rect("Band", root);
+                band.anchorMin = vertical ? new Vector2(0, 0) : new Vector2(0, 1); band.anchorMax = vertical ? new Vector2(0, 1) : new Vector2(1, 1);
+                band.pivot = new Vector2(0, 1);
+                band.sizeDelta = vertical ? new Vector2(sizes[k], 0) : new Vector2(0, sizes[k]);
+                band.anchoredPosition = vertical ? new Vector2(at, 0) : new Vector2(0, -at);
+                var image = band.gameObject.AddComponent<Image>(); image.color = colors[k]; image.raycastTarget = false;
+                at += sizes[k];
+            }
+            return root;
+        }
+
+        // 리벳 하나(8×8, 청동 점 + 어두운 테). anchor 기준 position.
+        public static void Rivet(Transform parent, Vector2 anchor, Vector2 position)
+        {
+            var rim = Rect("Rivet", parent); rim.anchorMin = rim.anchorMax = rim.pivot = anchor;
+            rim.sizeDelta = new Vector2(5, 5); rim.anchoredPosition = position;
+            rim.gameObject.AddComponent<Image>().color = FrameLo;
+            var dot = Rect("Head", rim); dot.anchorMin = dot.anchorMax = dot.pivot = new Vector2(.5f, .5f); dot.sizeDelta = new Vector2(3, 3);
+            dot.gameObject.AddComponent<Image>().color = FrameHi;
+            foreach (var image in rim.GetComponentsInChildren<Image>()) image.raycastTarget = false;
+        }
+
+        // 프레임 위 버튼: 판보다 밝은 갈색 + 청동 테. primary = 건설 같은 주 명령(호박색).
+        public static void StyleFrameButton(UnityEngine.UI.Button button, bool primary = false)
+        {
+            StyleButton(button);
+            var colors = button.colors;
+            colors.normalColor = primary ? Hex(0x87591f) : FrameButton;
+            colors.highlightedColor = primary ? Hex(0xa06c26) : Hex(0x3b2e20);
+            button.colors = colors;
+            var outline = button.GetComponent<Outline>() ?? button.gameObject.AddComponent<Outline>();
+            outline.effectColor = primary ? Hex(0xd79a45) : ScreenRim;
+        }
+
+        // 움푹한 화면:어두운 바탕 + 먹선 2px + 청동 1px 테.
+        public static Image InsetScreen(GameObject go)
+        {
+            var image = go.GetComponent<Image>() ?? go.AddComponent<Image>();
+            image.color = ScreenColor;
+            var ink = go.AddComponent<Outline>(); ink.effectColor = FrameInk; ink.effectDistance = new Vector2(2, -2);
+            var rim = go.AddComponent<Outline>(); rim.effectColor = ScreenRim; rim.effectDistance = new Vector2(1, -1);
+            return image;
+        }
         private static Font font, numberFont;
         public static Font Font => font != null ? font : font = Resources.Load<Font>("Fonts/NotoSansKR") ?? Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
         public static Font NumberFont => numberFont != null ? numberFont : numberFont = Resources.Load<Font>("Fonts/BarlowSemiCondensed-SemiBold") ?? Font;

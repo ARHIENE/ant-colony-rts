@@ -13,6 +13,7 @@ namespace AntColony.Map
         public bool water;
         [Range(0, 1)] public float waterHeight = .2f;
         public Material waterMaterial;
+        public Texture2D snowGround, leafGround; // 계절 바닥(2026-10-04): 겨울 눈, 가을 낙엽(셰이더가 주황·갈색으로 바꿔 칠함)
 
         public static BiomeMapStyle For(AntColony.Core.MapBiome biome) => Resources.Load<BiomeMapStyle>("Biomes/" + biome);
     }

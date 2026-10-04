@@ -106,7 +106,9 @@ namespace AntColony.Map
             generateWater = style.water && (style.waterMaterial != null || waterMat != null);
             waterHeight = style.waterHeight;
             if (style.waterMaterial != null) waterMat = style.waterMaterial;
+            snowGround = style.snowGround; leafGround = style.leafGround;
         }
+        private Texture2D snowGround, leafGround;
 
         // 물 수위(월드 y). 물이 없으면 NaN. 물속 이동 감속·낚시터 위치·홍수에서 읽는다.
         public static float WaterLevel { get; private set; } = float.NaN;
@@ -179,9 +181,13 @@ namespace AntColony.Map
             foreach (var obj in spawnedObjects)
                 ReleaseObject(obj);
             spawnedObjects.Clear();
-            // 씬에 구워져 목록에서 빠진 예전 장식도 지운다(물은 따로 관리).
+            // 씬에 구워져 목록에서 빠진 예전 장식(Tree_01 등 렌더러가 있는 자식)도 지운다. 물·렌더러 없는 관리용 자식은 둔다.
+            // ponytail: 렌더러 유무로 장식을 가린다. 지형 밑에 보이는 소품을 직접 붙일 일이 생기면 장식에 표식 컴포넌트를 단다.
             for (var i = transform.childCount - 1; i >= 0; i--)
-                if (transform.GetChild(i).gameObject != waterObject) { var old = transform.GetChild(i).gameObject; old.SetActive(false); ReleaseObject(old); } // 끄고 지워야 같은 프레임 NavMesh에서 빠진다
+            {
+                var old = transform.GetChild(i).gameObject;
+                if (old != waterObject && old.GetComponentInChildren<Renderer>(true) != null) { old.SetActive(false); ReleaseObject(old); } // 끄고 지워야 같은 프레임 NavMesh에서 빠진다
+            }
 
             var minH = mesh.bounds.min.y;
             var maxH = mesh.bounds.max.y;
@@ -231,6 +237,12 @@ namespace AntColony.Map
                         var randomScale = Random.Range(spawnObj.minScale, spawnObj.maxScale);
                         obj.transform.localScale = Vector3.one * randomScale;
                         obj.transform.parent = transform;
+                        var renderers = obj.GetComponentsInChildren<MeshRenderer>();
+                        if (renderers.Length > 0)
+                        {
+                            var bottom = renderers.Min(r => r.bounds.min.y);
+                            obj.transform.position += Vector3.up * (worldPos.y - bottom);
+                        }
                         spawnedObjects.Add(obj);
                         occupied.Add(new Vector2Int(Mathf.FloorToInt(worldPos.x), Mathf.FloorToInt(worldPos.z)));
                         if (styled && !spawnObj.solid) foreach (var c in obj.GetComponentsInChildren<Collider>()) DestroyImmediate(c); // 같은 프레임 NavMesh 재구축 전에 빠져야 한다.
@@ -330,6 +342,11 @@ namespace AntColony.Map
                 ReleaseObject(terrainMaterial);
                 materialSource = mat;
                 terrainMaterial = mat != null ? new Material(mat) : null;
+                if (terrainMaterial != null && terrainMaterial.shader.name != "AntColony/TerrainBlend")
+                {
+                    terrainMaterial.shader = Shader.Find("AntColony/TerrainBlend");
+                    terrainMaterial.SetFloat("_textureScale", 8f);
+                }
             }
             meshRenderer.sharedMaterial = terrainMaterial;
         }
@@ -391,6 +408,13 @@ namespace AntColony.Map
 
         // 바이옴 바닥 색조(GenerateTerrain 뒤에 부른다).
         public void SetTint(Color tint) { if (terrainMaterial != null) terrainMaterial.SetColor("_Tint", tint); }
+        // 계절 바닥 덮임(0~1): 겨울 눈, 가을 낙엽. 텍스처는 바이옴 스타일에서 오며, 없으면 덮지 않는다.
+        public void SetSeasonGround(float snow, float leaves)
+        {
+            if (terrainMaterial == null) return;
+            terrainMaterial.SetTexture("_SnowTex", snowGround); terrainMaterial.SetTexture("_LeafTex", leafGround);
+            terrainMaterial.SetFloat("_Snow", snowGround != null ? snow : 0); terrainMaterial.SetFloat("_Leaves", leafGround != null ? leaves : 0);
+        }
 
         private void GenerateTexture()
         {
@@ -412,6 +436,9 @@ namespace AntColony.Map
             terrainMaterial.SetFloatArray("terrainHeights", heights);
 
             terrainTextures = new Texture2DArray(512, 512, layersCount, TextureFormat.RGBA32, true);
+            terrainTextures.filterMode = FilterMode.Trilinear;
+            terrainTextures.anisoLevel = 8;
+            terrainTextures.wrapMode = TextureWrapMode.Repeat;
             var resized = new Texture2D(512, 512, TextureFormat.RGBA32, false);
             var target = RenderTexture.GetTemporary(512, 512);
             var previous = RenderTexture.active;

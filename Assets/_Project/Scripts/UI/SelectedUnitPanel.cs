@@ -16,6 +16,7 @@ namespace AntColony.UI
         private SelectionManager selection;
         private GameObject panel;
         private Text portrait, header, job, healthText, topSkills;
+        private RawImage portraitAnt;
         private RectTransform troopFill, healthFill;
         private readonly Text[] statValues = new Text[3], statNotes = new Text[3], needValues = new Text[3];
         private readonly RectTransform[] needFills = new RectTransform[3];
@@ -42,17 +43,20 @@ namespace AntColony.UI
         {
             selection = FindFirstObjectByType<SelectionManager>();
             var rect = MenuTheme.Rect("SelectedUnitPanel", HudConsole.Center);
-            MenuTheme.Stretch(rect); rect.offsetMin = new Vector2(12, 12); rect.offsetMax = new Vector2(-12, -12);
+            MenuTheme.Stretch(rect); rect.offsetMin = new Vector2(12, 8); rect.offsetMax = new Vector2(-12, -14);
             panel = rect.gameObject;
             var por = Well(rect, "Portrait", Vector2.zero, new Vector2(110, 126));
-            por.GetComponent<Image>().raycastTarget = true;
-            por.GetComponent<Image>().color = MenuTheme.Hex(0x24332c);
-            por.gameObject.AddComponent<Outline>().effectColor = MenuTheme.Selection;
+            MenuTheme.InsetScreen(por.gameObject).raycastTarget = true;
+            por.GetComponent<Image>().color = MenuTheme.Hex(0x1c261c);
             por.gameObject.AddComponent<Button>().onClick.AddListener(() =>
                 FindFirstObjectByType<DetailTabs>()?.Toggle(FindSingleSelectedCommander(selection)));
             por.gameObject.AddComponent<MenuTooltip>().Message = "초상 클릭: 상세·나이·특성·전체 기술·포상·연구";
             portrait = Label(por, "", 21, Vector2.zero, new Vector2(110, 126), MenuTheme.Selection);
             portrait.alignment = TextAnchor.MiddleCenter;
+            var ant = MenuTheme.Rect("PortraitAnt", por);
+            ant.anchorMin = ant.anchorMax = ant.pivot = new Vector2(.5f, 1);
+            ant.sizeDelta = new Vector2(80, 80); ant.anchoredPosition = new Vector2(0, -8);
+            portraitAnt = ant.gameObject.AddComponent<RawImage>(); portraitAnt.texture = RosterBar.AntFace; portraitAnt.raycastTarget = false;
             string[] slotNames = { "무기", "방어구", "장신구" };
             string[] objectNames = { "Weapon", "Armor Slot", "Trinket Slot" };
             for (var i = 0; i < 3; i++)
@@ -64,7 +68,9 @@ namespace AntColony.UI
                 slot.GetComponent<Image>().raycastTarget = true;
             }
             rect.Find("Weapon").gameObject.AddComponent<Button>().onClick.AddListener(() => FindSingleSelectedCommander(selection)?.CycleWeapon());
-            var info = MenuTheme.Rect("CommanderInfo", rect); MenuTheme.Stretch(info); info.offsetMin = new Vector2(122, 0);
+            var screen = MenuTheme.Rect("CommanderInfoScreen", rect); MenuTheme.Stretch(screen); screen.offsetMin = new Vector2(122, 0);
+            MenuTheme.InsetScreen(screen.gameObject).raycastTarget = false;
+            var info = MenuTheme.Rect("CommanderInfo", screen); MenuTheme.Stretch(info); info.offsetMin = new Vector2(10, 2); info.offsetMax = new Vector2(-10, -2);
             header = RowLabel(info, "", 21, 0, 28);
             job = RowLabel(info, "", 12, 29, 20); job.color = MenuTheme.Selection;
             healthText = RowLabel(info, "", 12, 52, 18);
@@ -150,7 +156,7 @@ namespace AntColony.UI
             var c = count == 1 ? first as CommanderAnt : null;
             if (c == null)
             {
-                portrait.text = count.ToString();
+                portrait.text = count.ToString(); portraitAnt.gameObject.SetActive(false);
                 header.text = count > 1 ? $"<size=17><b><color=#efe7da>선택된 부대 {count}</color></b></size>" : $"<size=17><b><color=#efe7da>{first.name}</color></b></size>";
                 job.text = topSkills.text = "";
                 for (var i = 0; i < 3; i++) statValues[i].text = statNotes[i].text = "";
@@ -159,7 +165,8 @@ namespace AntColony.UI
                 return;
             }
 
-            portrait.text = RosterBar.Initial(c.CommanderName) + "\n<size=12>" + CommandCard.RoleName(c.Role) + " · 상세 ↗</size>";
+            portraitAnt.gameObject.SetActive(true); portraitAnt.color = RosterBar.ColorOf(c);
+            portrait.text = "\n\n\n<size=12>" + CommandCard.RoleName(c.Role) + " · 상세 ↗</size>";
             header.text = $"<size=17><b><color=#efe7da>{c.CommanderName}</color></b></size>   {c.WeaponLabel}";
             var activity = CommanderOverhead.Activity(c);
             var skill = c.Talents.Level(c.CurrentActivity);
@@ -208,7 +215,8 @@ namespace AntColony.UI
             var rect = MenuTheme.Rect(name, parent);
             rect.anchorMin = rect.anchorMax = rect.pivot = new Vector2(0, 1);
             rect.anchoredPosition = position; rect.sizeDelta = size;
-            var image = rect.gameObject.AddComponent<Image>(); image.color = MenuTheme.Well; image.raycastTarget = false;
+            var image = rect.gameObject.AddComponent<Image>(); image.color = MenuTheme.FrameButton; image.raycastTarget = false;
+            if (name != "Portrait") rect.gameObject.AddComponent<Outline>().effectColor = MenuTheme.ScreenRim;
             return rect;
         }
 

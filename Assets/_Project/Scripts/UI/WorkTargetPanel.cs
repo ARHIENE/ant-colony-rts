@@ -25,7 +25,8 @@ namespace AntColony.UI
         private void Start()
         {
             root = L.Plate(HudConsole.Center, "WorkTargetPanel", 12, 10, 808, 188);
-            MenuTheme.Stretch(root); root.offsetMin = new Vector2(12, 10); root.offsetMax = new Vector2(-12, -10);
+            MenuTheme.Stretch(root); root.offsetMin = new Vector2(12, 8); root.offsetMax = new Vector2(-12, -14);
+            root.Find("Rim").gameObject.SetActive(false); MenuTheme.InsetScreen(root.gameObject);
             title = L.Label(root, "", 21, 16, 8, 780, 30);
             status = L.Label(root, "", 15, 16, 42, 780, 44);
             var track = L.Box(root, "WorkforceSlider", 16, 98, 500, 20, MenuTheme.Well);
