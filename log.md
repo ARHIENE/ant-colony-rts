@@ -10,3 +10,4 @@
 - 미완료/결정 대기: Player 빌드 미실행. 구식 Invasion/SceneInvasion/Raid 검사(09-18 원정 구조 전 홈 소굴 전제) 재작성/삭제 결정 대기. 원정지 수동 채집 1회 왕복 후 멈춤 → 계속 채집으로 바꿀지 결정 대기. 바이옴 이벤트·다거점 수송 경유 미구현(BiomeEventChecks·MultiStopRouteChecks 초안 로컬).
 - 다음 세션: 위 두 결정 반영 → Player 빌드 → 바이옴 이벤트·다거점 경유 구현. 검사 실행은 .unity/checks-2026-10-04b/runall.sh(실행 중 Assets 수정·에디터 재시작 금지).
 - 캡처 도구: AgentScripts/FloorShot.cs(바이옴·계절), HudFrameShot.cs. 결과 .unity/floor/.
+- SAVE: develop 1085ce7 push(.prefab 제외, master 유지, AGENTS/CLAUDE·Graphify·디자인 백업·이벤트/경유 초안은 로컬 보존). Notion 개발 일지 https://app.notion.com/p/3efc4a0ecd3181e98d59ced8e775ca8e (캡처 .unity/save-2026-10-05), Trouble Shooting https://app.notion.com/p/3efc4a0ecd3181b881bada9aadf66e05, 기획(UI·HUD / 메인 게임 화면 구체화) 명령 카드 3×3·계절 연출 교체.
