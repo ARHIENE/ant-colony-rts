@@ -68,12 +68,12 @@ public static class InfirmaryChecks
             a.TickPersonal(0); a.TickPersonal(float.NaN); a.TickPersonal(float.PositiveInfinity);
             Check(a.PersonalState.injuries[0].remaining == 240, "invalid and paused ticks do not heal");
             // Infirmary의 선행 연구 Herbs(약초 처방)가 완료돼 중상 치료가 4분 -> 3분(속도 4/3배)이다.
-            a.TickPersonal(90); Check(Mathf.Abs(a.PersonalState.injuries[0].remaining - 120) < .01f, "treatment progresses (herbs 3 min)");
+            a.TickPersonal(180); Check(Mathf.Abs(a.PersonalState.injuries[0].remaining - 120) < .01f, "treatment progresses (herbs 3 min, no nurse = half speed)"); // 간호사 없음 → 속도 x0.5
             Button("Stop treatment").onClick.Invoke();
             a.TickPersonal(10); Check(a.CanReceiveOrders && Mathf.Abs(a.PersonalState.injuries[0].remaining - 120) < .01f, "cancel preserves progress");
             Check(hospital.TryAdmit(a), "resume treatment");
             var troops = a.TroopCount; a.PersonalState.moodFactors.RemoveAll(f => f.reason == "치료 완료");
-            a.TickPersonal(120);
+            a.TickPersonal(240);
             Check(a.CanReceiveOrders && a.TreatmentFacility == null && a.PersonalState.injuries.Count == 1
                 && a.PersonalState.injuries[0].severity == InjurySeverity.Permanent, "completion releases patient and preserves permanent injury");
             Check(a.PersonalState.moodFactors.Exists(f => f.reason == "치료 완료" && f.value == 3) && a.TroopCount == troops && !hospital.TryAdmit(a), "completion reward without troop healing");
@@ -83,7 +83,7 @@ public static class InfirmaryChecks
             hospital.gameObject.SetActive(false); Check(!b.PersonalState.treating && b.CanReceiveOrders, "disabled building releases patients");
             hospital.gameObject.SetActive(true);
             b.ReturnTroops(b.TroopCount); Check(hospital.TryAdmit(b), "zero troop commander can recover");
-            b.TickPersonal(45);
+            b.TickPersonal(90); // 간호사 없음 → 속도 x0.5
             foreach (var commander in roster.Commanders) commander.CommandStop();
             var expected = SaveSnapshot.Capture();
             Check(SaveValidator.Validate(expected, out var error), "valid patient snapshot: " + error);
@@ -102,7 +102,7 @@ public static class InfirmaryChecks
             hospital = Object.FindFirstObjectByType<Infirmary>(); b = hospital.Patients.Single();
             Check(b.PersonalState.treating && b.TreatmentFacility == hospital && !b.CanReceiveOrders, "patient ownership restored");
             Check(Mathf.Abs(b.PersonalState.injuries[0].remaining - 180) < 1, "remaining treatment saved");
-            b.PersonalState.moodFactors.RemoveAll(f => f.reason == "치료 완료"); b.TickPersonal(180);
+            b.PersonalState.moodFactors.RemoveAll(f => f.reason == "치료 완료"); b.TickPersonal(270);
             Check(b.CanReceiveOrders && b.PersonalState.injuries.Count == 0 && b.PersonalState.moodFactors.Exists(f => f.reason == "치료 완료"), "loaded treatment finishes");
             Injure(b); Check(hospital.TryAdmit(b), "readmit for destroyed building check");
             hospital.TakeDamage(float.MaxValue); b.TickPersonal(10);

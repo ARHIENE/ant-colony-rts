@@ -1,3 +1,7 @@
+# 2026-10-05 SAVE — 이전 2026-10-04 로그 요약
+- 10-04 SAVE(4f876d8·ccaa8c9): HUD v4.1~4.4 콘솔/초상, 바닥 반복·대비·계절 덮임 1차, 농장 회귀 검사 인력, MapGenerator 관리용 자식 보존. origin/develop push, Notion 일지·Trouble Shooting 기록.
+- 당시 전체 검사 69개 중 최초 42 통과·27 실패(원인 미분류), 수송 재검사 56·Triage 23 통과. Player 빌드·바이옴 이벤트·다거점 경유 미구현. BiomeEvent/MultiStopRoute 검사 초안 로컬 보존.
+
 # 2026-10-04 SAVE — 이전 2026-10-03 로그 요약
 - develop에 HUD v4·Phase 2~6, 정찰 동행·벽 드래그/공성·노화·6종 바이옴·계절/날씨·저장 v13, Assets/_Project 분리까지 저장했다.
 - Siege 12·WallDrag 11·MapStyle 53·SeasonWeather 321 통과. Regression 농장 성장 실패와 Player 빌드 미실행이 남아 있었다.

@@ -20,7 +20,7 @@ public static class GatheringUIChecks
     const BindingFlags Private = BindingFlags.NonPublic | BindingFlags.Instance;
     static int checks;
     static void Check(bool ok, string text) { if (!ok) throw new Exception("FAIL " + text); checks++; }
-    static void Click(string name) => GameMenuController.Instance.GetComponentsInChildren<Button>().Single(b => b.name == name).onClick.Invoke();
+    static void Click(string name) => Object.FindObjectsByType<Button>().Single(b => b.name == name && b.gameObject.activeInHierarchy).onClick.Invoke(); // HUD 대상 패널(채집 금지/허용)
     static async Task Ready()
     {
         var until = DateTime.UtcNow.AddSeconds(90);
@@ -49,21 +49,21 @@ public static class GatheringUIChecks
                 typeof(AntSelection).GetMethod("ClickSelectOrClear", Private).Invoke(selection, new object[] { new Vector2(screen.x, screen.y), false });
             }
             finally { camera.transform.SetPositionAndRotation(position, rotation); }
-            Check(GameMenuController.Instance.ScreenName == "채집 대상", "node click opens resource controls");
+            Check(WorkTargetPanel.Target == node, "node click opens HUD work target panel"); await Task.Delay(100);
             c.CommandGather(node); Check(c.CurrentResourceNode == node, "allowed manual gathering");
             typeof(WorkerAnt).GetMethod("RestoreCargo", Private).Invoke(c, new object[] { 3f, ColonyResource.Soil });
-            Click("Toggle Gathering"); await Task.Delay(80);
+            Click("TargetAction"); await Task.Delay(80);
             Check(node.GatheringForbidden && !node.CanGather && node.Extract(1) == 0, "UI forbids extraction");
             typeof(WorkerAnt).GetMethod("TickMovingToNode", Private).Invoke(c, null);
             Check(c.CarriedAmount == 3 && node.AmountRemaining == 20, "existing cargo and node stock preserved");
             c.CommandStop(); typeof(WorkerAnt).GetMethod("RestoreCargo", Private).Invoke(c, new object[] { 0f, ColonyResource.Soil });
             c.CommandGather(node); Check(!c.IsWorking, "manual gather rejected");
-            c.SetJobEnabled(CommanderJobs.Gathering, true); c.TickDuty(2);
+            c.SetJobEnabled(CommanderJobs.Gathering | CommanderJobs.Hauling, true); c.TickDuty(2); // 루트 노드는 운반 작업
             Check(!c.IsWorking, "automatic gather skips forbidden node");
-            Click("Toggle Gathering"); await Task.Delay(80);
-            c.TickDuty(2); Check(!node.GatheringForbidden && c.CurrentResourceNode == node, "UI permits autonomous gathering again");
+            Click("TargetAction"); await Task.Delay(80);
+            c.TickDuty(2); Check(!node.GatheringForbidden && c.CurrentResourceNode == node, "UI permits autonomous gathering again: forbidden=" + node.GatheringForbidden + " current=" + (c.CurrentResourceNode == null ? "none" : c.CurrentResourceNode.name) + " working=" + c.IsWorking);
             c.SetJobEnabled(CommanderJobs.All, false); c.CommandStop();
-            Click("Toggle Gathering"); await Task.Delay(80); Click("Close Resource");
+            Click("TargetAction"); await Task.Delay(80); WorkTargetPanel.Clear();
             Check(SaveSystem.TrySave(false, 0, out var error), "save: " + error);
             Check(SaveSystem.TryLoad(SaveSlots.PathFor(false, 0), out error), "load: " + error); await Ready();
             Check(ResourceNode.Available.All(n => n.GatheringForbidden), "forbidden state survives save/load");

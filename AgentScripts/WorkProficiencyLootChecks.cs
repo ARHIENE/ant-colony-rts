@@ -252,7 +252,7 @@ public static class WorkProficiencyLootChecks
 
             // 6) 실제 장수 채집 + 창고 반납 + 소진.
             // 평시 장수가 기본 운반량으로 여러 번 왕복해 전량 반납한다.
-            Check((float)carryCapacity.GetValue(commander) == commander.Data.carryCapacity, "civilian uses base carry capacity");
+            Check((float)carryCapacity.GetValue(commander) == Mathf.Max(1f, Mathf.Floor(commander.LoadCapacity)), "civilian carries own load capacity in whole units"); // 근력·나이로 기본값과 다를 수 있다
             rm.AddCapacity(ResourceType.Special, 100); amounts[ResourceType.Special] = 0;
             Time.timeScale = 1;
             Check(await WaitFor(() =>
@@ -262,7 +262,7 @@ public static class WorkProficiencyLootChecks
                 return !special.gameObject.activeSelf && !commander.IsCarrying;
             }, 90), "special loot harvested and deposited");
             Time.timeScale = 0;
-            Check(rm.GetAmount(ResourceType.Special) == 20, "special stored: " + rm.GetAmount(ResourceType.Special));
+            Check(rm.GetAmount(ResourceType.Special) == 20, "special stored: " + rm.GetAmount(ResourceType.Special) + " drops=" + string.Join(",", Object.FindObjectsByType<ResourceNode>().Where(n => n.name.StartsWith("Dropped")).Select(n => n.ResourceType + ":" + n.AmountRemaining)) + " carry=" + carryCapacity.GetValue(commander) + " cap=" + rm.GetCapacity(ResourceType.Special));
             Check(!commander.IsDeployed && !commander.HasTroops, "harvest completes without deployment");
 
 

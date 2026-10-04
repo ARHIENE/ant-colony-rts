@@ -42,8 +42,9 @@ public static class AntWorkVisualChecks
             var corpse = Array.Find(Object.FindObjectsByType<Animator>(), a => a.GetCurrentAnimatorStateInfo(0).IsName("Base Layer.Death"));
             if (corpse == null || enemy != null) throw new Exception("FAIL: visual death outlives removed combat unit");
             await Task.Delay(2700);
-            if (corpse != null) throw new Exception("FAIL: corpse cleanup");
-            return "PASS: actual construction, gathering/cargo, enemy death animation and corpse cleanup.";
+            // 시체는 즉시 사라지지 않고 치우기 작업 대상으로 남는다(CorpseChecks가 정리 담당).
+            if (Object.FindObjectsByType<AntColony.World.Corpse>().Length == 0) throw new Exception("FAIL: corpse stays for cleaning");
+            return "PASS: actual construction, gathering/cargo, enemy death animation and corpse kept for cleaning.";
         }
         finally
         {

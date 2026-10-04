@@ -424,8 +424,9 @@ namespace AntColony.Units
                 var resources = ResourceManager.Instance;
                 if (resources != null && targetDeposit != null && !targetDeposit.IsDead)
                 {
-                    int amount = Mathf.Min(Mathf.FloorToInt(carriedAmount), resources.GetCapacity(carriedType) - resources.GetAmount(carriedType));
-                    if (amount > 0) { targetDeposit.DepositResources(carriedType, amount); carriedAmount -= amount; OnDelivered(amount); }
+                    // 프레임 단위 채집 합산 오차(10 → 9.9999971)로 1이 바닥 더미로 떨어지지 않게 여유를 둔다.
+                    int amount = Mathf.Min(Mathf.FloorToInt(carriedAmount + .001f), resources.GetCapacity(carriedType) - resources.GetAmount(carriedType));
+                    if (amount > 0) { targetDeposit.DepositResources(carriedType, amount); carriedAmount = Mathf.Max(0f, carriedAmount - amount); OnDelivered(amount); }
                 }
                 if (carriedAmount > 0 && carriedAmount < 1) DropCargo();
                 state = State.Idle; return;

@@ -8,10 +8,11 @@ namespace AntColony.Map
     public sealed class SeasonVisuals : MonoBehaviour
     {
         static readonly Color[] Ground = { new Color(1f, 1.05f, .9f), new Color(.85f, 1f, .8f), new Color(1.1f, .9f, .7f), new Color(.72f, .68f, .62f) };
-        static readonly Color[] Leaf = { new Color(.95f, 1.1f, .85f), new Color(.8f, 1f, .75f), new Color(1.35f, .75f, .35f), new Color(.95f, .95f, 1f) };
         static readonly Color[] Sun = { new Color(1f, .98f, .92f), new Color(1.08f, 1f, .82f), new Color(1.05f, .9f, .78f), new Color(.85f, .92f, 1.05f) };
         static readonly float[] SunPower = { 1f, 1.12f, .95f, .8f };
         static readonly float[] SnowCover = { 0, 0, 0, 1 }, LeafCover = { 0, 0, 1, 0 }; // 바닥 눈·낙엽(2026-10-04)
+        static readonly float[] SpringOn = { 1, 0, 0, 0 };
+        static readonly int SpringId = Shader.PropertyToID("_SeasonSpring"), AutumnId = Shader.PropertyToID("_SeasonAutumn"), WinterId = Shader.PropertyToID("_SeasonWinter");
         private MapGenerator terrain;
         private Color biomeTint = Color.white;
         private Precipitation fall;
@@ -32,7 +33,11 @@ namespace AntColony.Map
         static Color Mix(Color[] table, (int s, int n, float b) p) => Color.Lerp(table[p.s], table[p.n], p.b);
 
         private void Awake() => fall = Precipitation.Create("Season Fall", transform);
-        private void OnDestroy() { DayNightLighting.SeasonTint = Color.white; DayNightLighting.SeasonIntensity = 1; }
+        private void OnDestroy()
+        {
+            DayNightLighting.SeasonTint = Color.white; DayNightLighting.SeasonIntensity = 1;
+            Shader.SetGlobalFloat(SpringId, 0); Shader.SetGlobalFloat(AutumnId, 0); Shader.SetGlobalFloat(WinterId, 0);
+        }
 
         private void LateUpdate()
         {
@@ -43,9 +48,9 @@ namespace AntColony.Map
             var biome = BiomeRules.Current;
             terrain.SetSeasonGround(biome == MapBiome.Cave ? 0 : Mathf.Lerp(SnowCover[p.season], SnowCover[p.next], p.blend),
                 biome == MapBiome.Cave || biome == MapBiome.Desert ? 0 : Mathf.Lerp(LeafCover[p.season], LeafCover[p.next], p.blend));
-            var leaf = Mix(Leaf, p);
-            foreach (var (material, baseColor) in terrain.Foliage)
-                if (material != null) material.SetColor("_BaseColor", baseColor * leaf);
+            // 나무·풀(SeasonFoliage 셰이더): 잎 색과 겨울 눈. 동굴은 계절 없음.
+            float On(float[] t) => biome == MapBiome.Cave ? 0 : Mathf.Lerp(t[p.season], t[p.next], p.blend);
+            Shader.SetGlobalFloat(SpringId, On(SpringOn)); Shader.SetGlobalFloat(AutumnId, On(LeafCover)); Shader.SetGlobalFloat(WinterId, On(SnowCover));
             DayNightLighting.SeasonTint = Mix(Sun, p);
             DayNightLighting.SeasonIntensity = Mathf.Lerp(SunPower[p.season], SunPower[p.next], p.blend) * WeatherSystem.Light * (BiomeRules.Current == MapBiome.Cave ? .6f : 1); // 동굴은 어둡다
             // 비·눈 날씨가 오면 계절 입자는 쉰다. 동굴은 땅속이라 없음.

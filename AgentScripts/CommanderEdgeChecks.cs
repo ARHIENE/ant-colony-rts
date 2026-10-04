@@ -87,11 +87,12 @@ public static class CommanderEdgeChecks
             commander.WorkState.returnPosition = startPosition;
             AntPool.Instance.Breed(2);
             Check(commander.TryAssign(2), "assign two troops for cargo check");
-            var carried = commander.Data.carryCapacity * 1.5f;
-            cargo.SetValue(commander, carried);
-            typeof(WorkerAnt).GetField("targetNode", flags).SetValue(commander, node);
             commander.TakeDamage(commander.Armor + 1);
             Check(commander.TroopCount == 1, "casualty reduces carrying capacity to one troop");
+            // 운반량은 근력·인력으로도 늘어나므로 현재 운반 한도보다 확실히 많게 둔다.
+            var carried = commander.LoadCapacity + 5;
+            cargo.SetValue(commander, carried);
+            typeof(WorkerAnt).GetField("targetNode", flags).SetValue(commander, node);
             Check(node.CanGather, "cargo check uses a gatherable node");
             var nodeAmount = node.AmountRemaining;
             typeof(WorkerAnt).GetMethod("TickGathering", flags).Invoke(commander, null);

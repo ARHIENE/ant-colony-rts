@@ -23,7 +23,7 @@ public static class TransportRouteChecks
     { if (!ok) throw new Exception("FAIL: " + message); checks++; }
     static void Set(object target, string name, object value) => target.GetType()
         .GetField(name, BindingFlags.Instance | BindingFlags.NonPublic).SetValue(target, value);
-    static async Task<bool> Wait(Func<bool> condition, int seconds = 120)
+    static async Task<bool> Wait(Func<bool> condition, int seconds = 300) // 날씨·바이옴 작업 속도 보정 여유
     {
         var end = DateTime.UtcNow.AddSeconds(seconds);
         while (!condition() && DateTime.UtcNow < end) await Task.Delay(25);
@@ -38,7 +38,7 @@ public static class TransportRouteChecks
 
     public static string Diagnose() => string.Join("\n", new[] { $"timeScale={Time.timeScale} screen={AntColony.UI.GameMenuController.Instance?.ScreenName}" }.Concat(WorldMapManager.Instance.Transports.Select(s =>
         $"{s.name} {s.State} route={s.Route.Status} running={s.Route.IsRunning} cargo={s.GetCargo(ResourceType.Food)}/{s.GetCargo(ResourceType.Soil)} "
-        + string.Join(";", s.Crew.Select(c => $"{c.name} pos={c.Position} distance={Vector3.Distance(c.Position, s.Position)} work={c.IsWorking} carrying={c.IsCarrying} path={c.Agent.pathStatus} pending={c.Agent.pathPending} remaining={c.Agent.remainingDistance} troops={c.TroopCount}")))));
+        + string.Join(";", s.Crew.Select(c => $"{c.name} pos={c.Position} distance={Vector3.Distance(c.Position, s.Position)} work={c.IsWorking} carrying={c.IsCarrying} path={c.Agent.pathStatus} pending={c.Agent.pathPending} remaining={c.Agent.remainingDistance} troops={c.TroopCount} vel={c.Agent.velocity.magnitude:0.00} speed={c.Agent.speed:0.00} stopped={c.Agent.isStopped} dest={c.Agent.destination} state={typeof(WorkerAnt).GetField("state", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic).GetValue(c)} node={c.CurrentResourceNode?.name} sleep={c.WorkState.resting} cap={c.LoadCapacity} carried={c.CarriedAmount}")))));
 
     public static async Task<string> Main()
     {

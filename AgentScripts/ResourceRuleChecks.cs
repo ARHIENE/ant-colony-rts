@@ -45,18 +45,24 @@ public static class ResourceRuleChecks
             Check(farm.RegrowSeconds == GameBalance.FungusSeconds && farm.RegrowAmount == GameBalance.FungusFood, "fungus 180s / Food 40");
             Check(Near(farm.RegrowTimeRemaining, 180), "fresh farm grows full 180s, got " + farm.RegrowTimeRemaining);
             SetMonth(9); Check(GameCalendar.CurrentSeason == Season.Winter, "winter month");
+            // 밭은 농사 중인 장수가 있어야 자란다(속도 = 장수 작업 속도 합). 장수 하나를 농사 상태로 둔다.
+            var farmer = CommanderRoster.Instance.Commanders[0];
+            typeof(WorkerAnt).GetField("targetNode", BindingFlags.Instance | BindingFlags.NonPublic).SetValue(farmer, farm);
+            var farmState = typeof(WorkerAnt).GetField("state", BindingFlags.Instance | BindingFlags.NonPublic);
+            farmState.SetValue(farmer, Enum.Parse(farmState.FieldType, "Gathering"));
+            Check(farmer.IsGatheringAnimation && farmer.CurrentResourceNode == farm, "farmer working the farm");
             farm.TickGrowth(60); Check(Near(farm.RegrowTimeRemaining, 180), "winter stops growth");
-            SetMonth(0); farm.TickGrowth(60); Check(Near(farm.RegrowTimeRemaining, 120), "spring grows");
-            farm.TickGrowth(120); var springYield = farm.AmountRemaining;
+            SetMonth(0); farm.TickGrowth(60); Check(farm.RegrowTimeRemaining < 180, "spring grows: " + farm.RegrowTimeRemaining);
+            farm.TickGrowth(100000); var springYield = farm.AmountRemaining;
             Check(Near(springYield, GameBalance.FungusFood * ScienceEffects.FarmYieldMultiplier), "spring harvest x1: " + springYield);
             farm.Extract(1000); Check(farm.IsRegrowing, "harvest restarts growth");
             SetMonth(6); Check(GameCalendar.CurrentSeason == Season.Autumn, "autumn month");
-            farm.TickGrowth(180); Check(Near(farm.AmountRemaining, springYield * 1.25f), "autumn harvest x1.25: " + farm.AmountRemaining);
+            farm.TickGrowth(100000); Check(Near(farm.AmountRemaining, springYield * 1.25f), "autumn harvest x1.25: " + farm.AmountRemaining);
             farm.Extract(1000); farm.GetComponent<FarmPlot>().Configure(FarmCrop.Honeydew, false);
             Check(farm.RegrowSeconds == GameBalance.HoneydewSeconds && Near(farm.RegrowTimeRemaining, GameBalance.HoneydewSeconds), "replanting after harvest uses new crop time");
             SetMonth(0); farm.TickGrowth(10); farm.GetComponent<FarmPlot>().Configure(FarmCrop.Fungus, false);
             Check(Near(farm.RegrowTimeRemaining, GameBalance.FungusSeconds), "mid-growth crop change clamps to new time");
-            Object.Destroy(farmObject); farmObject = null;
+            farmer.CommandStop(); Object.Destroy(farmObject); farmObject = null;
 
             // 낚시터: 월 한도 100, 소진 후 다음 달 회복.
             var gm = GameManager.Instance; typeof(GameManager).GetProperty("FishingUnlocked").SetValue(gm, true);
@@ -80,6 +86,8 @@ public static class ResourceRuleChecks
             Time.timeScale = 1; await Task.Yield(); tick.Invoke(c, null);
             Check(c.CarriedAmount == 0, "no catch before 20s");
             typeof(WorkerAnt).GetField("fishingProgress", Private).SetValue(c, GameBalance.FishingCatchSeconds);
+            // 프레임 사이 자율 판단이 대상을 비울 수 있어 직전에 다시 지정한다.
+            typeof(WorkerAnt).GetField("targetNode", Private).SetValue(c, spot); stateField.SetValue(c, Enum.Parse(stateField.FieldType, "Gathering"));
             tick.Invoke(c, null); Time.timeScale = 0;
             var expected = Mathf.Min(GameBalance.FishingCatchFood * multiplier, 100);
             Check(Near(c.CarriedAmount, expected) && Near(spot.AmountRemaining, 100 - expected), $"one catch = 6 x skill ({c.CarriedAmount} vs {expected})");

@@ -72,12 +72,15 @@ Shader "AntColony/TerrainBlend"
                 return lerp(lerp(hash(i), hash(i + float2(1, 0)), f.x), lerp(hash(i + float2(0, 1)), hash(i + 1), f.x), f.y);
             }
 
+            // 세 번째 샘플(73도 회전·1.31배)을 다른 노이즈로 섞어 두 샘플만으로 남던 반복 무늬를 더 깬다.
+            static float2 uv3; static float mix3;
             half3 Layer(float2 uv, float2 uv2, float mixAmount, int index)
             {
                 half3 a = SAMPLE_TEXTURE2D_ARRAY(terrainTextures, sampler_terrainTextures, uv, index).rgb;
                 half3 b = SAMPLE_TEXTURE2D_ARRAY(terrainTextures, sampler_terrainTextures, uv2, index).rgb;
+                half3 c = SAMPLE_TEXTURE2D_ARRAY(terrainTextures, sampler_terrainTextures, uv3, index).rgb;
                 half3 average = SAMPLE_TEXTURE2D_ARRAY_LOD(terrainTextures, sampler_terrainTextures, uv, index, 12).rgb;
-                return lerp(average, lerp(a, b, mixAmount), _Detail);
+                return lerp(average, lerp(lerp(a, b, mixAmount), c, mix3), _Detail);
             }
 
             half4 frag(Varyings IN) : SV_Target
@@ -88,7 +91,9 @@ Shader "AntColony/TerrainBlend"
                 // 두 번째 샘플: 37도 회전 + 0.77배 축척 + 이동. 노이즈 마스크로 섞어 같은 타일이 줄지어 보이지 않게 한다.
                 float2 uv2 = mul(float2x2(0.799, -0.602, 0.602, 0.799), uv) * 0.77 + float2(0.37, 0.61);
                 float mixAmount = smoothstep(0.3, 0.7, noise(world * 0.09));
-                float macro = noise(world * 0.025) * 0.6 + noise(world * 0.11) * 0.4;
+                uv3 = mul(float2x2(0.292, -0.956, 0.956, 0.292), uv) * 1.31 + float2(0.71, 0.13);
+                mix3 = smoothstep(0.35, 0.65, noise(world * 0.061 + 3.7)) * 0.7;
+                float macro = noise(world * 0.018) * 0.55 + noise(world * 0.07) * 0.3 + noise(world * 0.23) * 0.15;
 
                 int count = min(numTextures, MAX_TEXTURES);
                 float heightValue = saturate((IN.worldPos.y - minTerrainHeight) / (maxTerrainHeight - minTerrainHeight));
@@ -118,7 +123,7 @@ Shader "AntColony/TerrainBlend"
                     if (patchA > 0 && a != layerIndex) color = lerp(color, Layer(uv, uv2, mixAmount, a), patchA * _Patches);
                     if (patchB > 0 && b != layerIndex && b != a) color = lerp(color, Layer(uv, uv2, mixAmount, b), patchB * _Patches);
                 }
-                color *= lerp(0.86, 1.1, macro);
+                color *= lerp(0.8, 1.14, macro);
 
                 // 계절 바닥(2026-10-04): 가을 낙엽 얼룩(숲바닥 무늬를 주황·갈색으로), 겨울 눈. 0~1 덮임 비율은 SeasonVisuals가 준다.
                 // 노이즈 문턱을 덮임에 따라 내려 계절이 깊어질수록 얼룩이 번지듯 넓어진다.
@@ -132,13 +137,18 @@ Shader "AntColony/TerrainBlend"
                     float cover = smoothstep(1.05 - _Leaves * 0.6, 1.2 - _Leaves * 0.6, noise(world * 0.07 + 9.1) * 0.8 + 0.2);
                     color = lerp(color, leaf * lerp(0.86, 1.1, macro), cover);
                 }
-                color *= _Tint.rgb;
+                // 바이옴·계절 색조는 풀(초록 픽셀)에만 온전히, 돌·흙엔 40%만 입혀 돌이 초록으로 물들지 않게 한다.
+                half grass = saturate((color.g - max(color.r, color.b)) * 8);
+                color *= lerp(lerp(1, _Tint.rgb, 0.4), _Tint.rgb, grass);
                 if (_Snow > 0 && land > 0)
                 {
                     half3 snowTex = lerp(SAMPLE_TEXTURE2D(_SnowTex, sampler_SnowTex, uv).rgb, SAMPLE_TEXTURE2D(_SnowTex, sampler_SnowTex, uv2).rgb, mixAmount);
-                    half3 snow = lerp(SAMPLE_TEXTURE2D_LOD(_SnowTex, sampler_SnowTex, uv, 12).rgb, snowTex, _Detail * 0.8);
-                    float cover = smoothstep(1.05 - _Snow * 0.75, 1.2 - _Snow * 0.75, noise(world * 0.06 + 5.1) * 0.8 + 0.2);
-                    color = lerp(color, snow * lerp(0.9, 1.04, macro), cover); // 겨울 회갈색 색조를 눈에는 입히지 않는다
+                    // 눈 텍스처의 흙·마른 풀 얼룩은 밝기만 써서 흰~옅은 푸른 눈으로 바꾼다.
+                    half snowLum = dot(snowTex, half3(0.3, 0.59, 0.11));
+                    half3 snow = lerp(half3(0.74, 0.8, 0.9), half3(0.97, 0.98, 1.0), smoothstep(0.25, 0.8, snowLum));
+                    // 한겨울(_Snow=1)엔 땅 전체, 늦가을·초봄엔 얼룩처럼 번진다.
+                    float cover = smoothstep(1.05 - _Snow, 1.2 - _Snow, noise(world * 0.06 + 5.1) * 0.8 + 0.2);
+                    color = lerp(color, snow * lerp(0.93, 1.03, macro), cover); // 겨울 회갈색 색조를 눈에는 입히지 않는다
                 }
                 return half4(color, 1);
             }

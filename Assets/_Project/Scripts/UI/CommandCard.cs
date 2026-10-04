@@ -10,7 +10,7 @@ using UnityEngine.UI;
 
 namespace AntColony.UI
 {
-    // 오른쪽 명령 칸(HUD v3). 평시 장수 = 우선·휴식·징집소·건설 2×2, 출전 장수 = 전투 명령, 선택 없음 = 둥지 명령(3열).
+    // 오른쪽 명령 칸. 모든 상태 3×3(최대 9칸, 2026-10-04 사용자 요청). 평시 장수 = 일상 명령, 출전 장수 = 전투 명령, 선택 없음 = 둥지 명령.
     // 단축키는 전체 미정(2026-10-01)이라 칸에 키 글자를 표시하지 않는다.
     public sealed class CommandCard : MonoBehaviour
     {
@@ -35,13 +35,12 @@ namespace AntColony.UI
         {
             hud = owner;
             selection = FindFirstObjectByType<SelectionManager>();
-            civilianGrid = Grid("CivilianCommands", 2);
-            deployedGrid = Grid("DeployedCommands", 2);
-            colonyGrid = Grid("ColonyCommands", 2);
-            multiGrid = Grid("MultiCommands", 2);
-            targetGrid = Grid("TargetCommands", 2);
+            civilianGrid = Grid("CivilianCommands", 3);
+            deployedGrid = Grid("DeployedCommands", 3);
+            colonyGrid = Grid("ColonyCommands", 3);
+            multiGrid = Grid("MultiCommands", 3);
+            targetGrid = Grid("TargetCommands", 3);
 
-            // 평시(v3 2×2): 작업표는 상단 메뉴, 상세·포상·연구는 초상 클릭 창, 무기 교체는 무기 칸 클릭으로 옮겼다.
             Add(civilianGrid, 0, "Priority Work", () => "우선", PriorityHint,
                 () => "우선 작업: 장수를 고른 채 대상을 우클릭하면 그 일부터 하고, 끝나면 다시 자율 작업으로 돌아갑니다.");
             Add(civilianGrid, 1, "Send To Rest", () => Commander != null && Commander.WorkState.resting ? "휴식 중" : Commander != null && Commander.PersonalState.treating ? "치료 중" : "휴식",
@@ -49,6 +48,11 @@ namespace AntColony.UI
                 () => Commander != null && (Commander.CanSendToTreatment || Commander.CanRest));
             Add(civilianGrid, 2, "Conscription", () => "징집소", () => GameMenuController.Instance?.OpenConscription(), () => "징집소: 출전 장수와 병력을 편성합니다.");
             Add(civilianGrid, 3, "Build", () => "건설", BuildScreen.Open, () => "건설: 벽·문 · 가구 · 작업 · 방어.", null, null, true);
+            Add(civilianGrid, 4, "Civilian Work Schedule", () => "작업표", () => GameMenuController.Instance?.WorkSchedule(), () => "장수의 자율 작업을 설정합니다.");
+            Add(civilianGrid, 5, "Civilian Details", () => "상세", ShowDetails, () => "장수의 기분·건강·장비·기술을 확인합니다.");
+            Add(civilianGrid, 6, "Civilian Cycle Weapon", () => "무기", CycleWeapon, () => "보유한 다음 무기로 바꿉니다.");
+            Add(civilianGrid, 7, "Civilian Science", () => "연구", () => GameMenuController.Instance?.Science(), () => "과학 연구를 확인합니다.");
+            Add(civilianGrid, 8, "Civilian Stop", () => "정지", () => Commander?.CommandStop(), () => "하던 일을 멈춥니다. 자율 작업은 다시 이어집니다.");
 
             // 출전 중 카드는 기획 미정(2026-10-01) — 기존 전투 명령을 유지한다.
             Add(deployedGrid, 0, "Skill", () => SkillLabel(Commander), () => UseWeaponSkill(Commander),
@@ -63,11 +67,16 @@ namespace AntColony.UI
                 if (Commander != null && !Commander.ReturnToPost()) ToastManager.Show("지금은 징집소로 귀환할 수 없습니다.");
             }, () => "징집소로 돌아가 생존 병력을 반납하고 자율 작업을 재개합니다.",
                 () => Commander != null && !Commander.IsReturning && !Commander.IsAwayFromHome);
+            Add(deployedGrid, 6, "Deployed Details", () => "상세", ShowDetails, () => "장수의 기분·건강·장비·기술을 확인합니다.");
+            Add(deployedGrid, 7, "Deployed Cycle Weapon", () => "무기", CycleWeapon, () => "보유한 다음 무기로 바꿉니다.");
 
             Add(colonyGrid, 0, "Colony Work Schedule", () => "작업표", () => GameMenuController.Instance?.WorkSchedule(), () => "장수의 자율 작업을 설정합니다.");
             Add(colonyGrid, 1, "Colony Roster", () => "장수 관리", () => GameMenuController.Instance?.Roster(), () => "장수의 기분·건강·장비를 확인합니다.");
             Add(colonyGrid, 2, "Colony Conscription", () => "징집소", () => GameMenuController.Instance?.OpenConscription(), () => "출전 장수와 병력을 편성합니다.");
             Add(colonyGrid, 3, "Colony Build", () => "건설", BuildScreen.Open, () => "가구·건물·벽을 건설합니다.", null, null, true);
+            Add(colonyGrid, 4, "Colony Science", () => "연구", () => GameMenuController.Instance?.Science(), () => "과학 연구를 확인합니다.");
+            Add(colonyGrid, 5, "Colony Population", () => "인구", () => GameMenuController.Instance?.Population(), () => "개미 인구와 방을 확인합니다.");
+            Add(colonyGrid, 6, "Colony Diplomacy", () => "외교", () => GameMenuController.Instance?.Diplomacy(), () => "다른 세력과의 관계를 확인합니다.");
 
             Add(multiGrid, 0, "Multi Priority", () => AllDeployed() ? "공격 이동" : "우선", () => {
                 if (AllDeployed()) FindFirstObjectByType<AttackMoveController>()?.BeginAttackMode(); else PriorityHint();
@@ -126,7 +135,7 @@ namespace AntColony.UI
             }
         }
 
-        // 판 안쪽(여백 14)을 채우는 격자. 2열이면 2×2 큰 칸, 3열이면 높이 50 칸.
+        // 판 안쪽(여백 14)을 채우는 격자. 칸 크기는 LateUpdate에서 버튼 수에 맞춘다.
         private RectTransform Grid(string name, int columns)
         {
             if (transform.Find("CommandScreen") == null)
@@ -209,6 +218,9 @@ namespace AntColony.UI
                     return "스킬 없음";
             }
         }
+
+        private void ShowDetails() { if (Commander != null) GameMenuController.Instance?.Details(Commander); }
+        private void CycleWeapon() { if (Commander != null && !Commander.CycleWeapon()) ToastManager.Show("바꿀 무기가 없습니다."); }
 
         // v3 휴식 = 휴식 + 치료: 부상이면 의무실, 아니면 휴식.
         public void RestOrTreat()

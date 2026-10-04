@@ -39,7 +39,7 @@ public static class MapStyleChecks
             Check(objects.All(o => style.spawns.Any(s => o.name.StartsWith(s.prefab.name))), biome + " decorations come from biome set");
             Check(float.IsNaN(MapGenerator.WaterLevel) != style.water, biome + " water matches style");
             Check(!MapGenerator.InWater(home), biome + " home above water");
-            Check(gen.Foliage.Count > 0 || !style.spawns.Any(s => s.foliage), biome + " foliage tracked");
+            Check(!style.spawns.Any(s => s.foliage) || gen.GetComponentsInChildren<Renderer>().Any(r => r.sharedMaterial != null && r.sharedMaterial.shader.name == "AntColony/SeasonFoliage"), biome + " foliage uses season shader");
             Check(objects.Where(o => !style.spawns.First(s => o.name.StartsWith(s.prefab.name)).solid).All(o => o.GetComponentInChildren<Collider>() == null), biome + " small decor has no collider");
             var fishing = Object.FindObjectsByType<ResourceNode>().First(n => n.RequiresFishing && n.GetComponentInParent<ExpeditionSite>() == null);
             if (style.water)

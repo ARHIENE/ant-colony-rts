@@ -56,6 +56,11 @@ public static class SupportChecks
         try
         {
             Check(Arm(support, UnitRole.Worker) && Arm(target, UnitRole.Ranged), "roles prepared");
+            // 오라는 출전 중 병력이 있는 지원 장수만 준다(평시 장수는 병력 없음).
+            support.WorkState.duty = CommanderDuty.Deployed; target.WorkState.duty = CommanderDuty.Deployed; AntColony.Core.AntPool.Instance.Breed(4);
+            if (support.TroopCount == 0) Check(support.TryAssign(1), "support has troop");
+            if (target.TroopCount == 0) Check(target.TryAssign(1), "target has troop");
+            supportTroops = support.TroopCount;
             support.transform.position = target.Position;
             var attack = target.AttackDamage;
             var armor = target.Armor;

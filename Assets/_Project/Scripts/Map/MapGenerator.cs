@@ -94,7 +94,6 @@ namespace AntColony.Map
         // 바이옴 스타일(2026-10-03): 바닥·장식·물 설정을 갈아끼운다. 에셋이 빠진 칸은 버리고, 다 비면 씬 기본값을 유지한다.
         private bool styled;
         // 계절 색: 잎·풀 재질은 원본 대신 복제본을 쓰고(원본 에셋은 그대로), 복제본 색만 바꾼다. 재질 수가 적어 매 프레임 바꿔도 싸다.
-        public readonly List<(Material material, Color baseColor)> Foliage = new List<(Material, Color)>();
         private readonly Dictionary<Material, Material> foliageClones = new Dictionary<Material, Material>();
         public void ApplyStyle(BiomeMapStyle style)
         {
@@ -196,7 +195,7 @@ namespace AntColony.Map
             // 간격 검사는 1m 격자로(장식 종류가 많아도 느려지지 않게).
             var occupied = new HashSet<Vector2Int>();
             foreach (var clone in foliageClones.Values) ReleaseObject(clone);
-            foliageClones.Clear(); Foliage.Clear();
+            foliageClones.Clear();
 
             for (var z = 0; z <= zSize; z++)
             {
@@ -256,9 +255,14 @@ namespace AntColony.Map
         {
             if (original == null) return null;
             if (foliageClones.TryGetValue(original, out var clone)) return clone;
-            clone = new Material(original) { name = original.name + " (season)" };
+            // 계절 나무 셰이더(잎만 계절색, 겨울 윗면 눈)로 바꾼다. 원래 텍스처·색은 그대로 옮긴다.
+            var season = Resources.Load<Material>("SeasonFoliage");
+            if (season == null) return original;
+            clone = new Material(season) { name = original.name + " (season)" };
+            clone.SetTexture("_BaseMap", original.HasProperty("_BaseMap") ? original.GetTexture("_BaseMap") : original.HasProperty("_MainTex") ? original.GetTexture("_MainTex") : null);
+            clone.SetColor("_BaseColor", original.HasProperty("_BaseColor") ? original.GetColor("_BaseColor") : original.HasProperty("_Color") ? original.GetColor("_Color") : Color.white);
+            clone.SetFloat("_Evergreen", original.name.Contains("Pine") ? 1 : 0); // 소나무는 가을에도 초록
             foliageClones[original] = clone;
-            Foliage.Add((clone, clone.HasProperty("_BaseColor") ? clone.GetColor("_BaseColor") : Color.white));
             return clone;
         }
 

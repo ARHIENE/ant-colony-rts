@@ -58,6 +58,8 @@ public static class BetaChecks
             Check(commander.GetComponentsInChildren<SkinnedMeshRenderer>().All(r => r.sharedMesh != null && r.sharedMaterial.shader.isSupported), "meshes and URP shader resolve");
             Check(!commander.GetComponent<MeshRenderer>().enabled, "capsule hidden");
             Check(commander.GetComponentsInChildren<Collider>().Length == 1, "model does not add collision or ragdoll");
+            // 새 게임 직후 장수는 자율 작업을 시작하므로 멈춘 뒤 대기 동작을 본다.
+            commander.SetJobEnabled(CommanderJobs.All, false); commander.CommandStop(); await Task.Delay(300);
             Check(visual.StateName == "Idle_A", "idle animation");
             commander.CommandMove(commander.Position + Vector3.right * 3);
             var deadline = DateTime.UtcNow.AddSeconds(8);
@@ -72,7 +74,8 @@ public static class BetaChecks
             await Task.Delay(400);
             commander.ReturnTroops(commander.TroopCount);
             await Task.Delay(150);
-            Check(visual.StateName == "Sit", "troopless commander remains alive and sits");
+            // Sit은 포로·쓰러짐 전용. 병력 없는 장수는 살아서 대기한다.
+            Check(commander.PersonalHealth > 0 && visual.StateName != "Sit" && visual.StateName != "Death", "troopless commander remains alive");
             commander.TryAssign(2);
             var flying = commanders.First(c => true);
             Check(Arm(flying, UnitRole.Flying), "change to flying role");
@@ -96,9 +99,9 @@ public static class BetaChecks
             Check(GameMenuController.Instance.ScreenName == "VICTORY - BETA COMPLETE" && Time.timeScale == 0, "boss victory pauses on results");
             GameMenuController.Instance.GetComponentsInChildren<UnityEngine.UI.Button>().Single(b => b.name == "Continue Colony").onClick.Invoke();
             Check(Time.timeScale > 0 && GameMenuController.Instance.ScreenName == "Game", "continue after victory");
-            foreach (var b in Object.FindObjectsByType<AntColony.Buildings.BuildingBase>(FindObjectsSortMode.None).Where(b => b.CountsTowardPlayerDefeat).ToArray())
-                b.TakeDamage(float.MaxValue);
-            await Task.Delay(100);
+            // 패배 = 살아 있는 장수가 없을 때(건물 파괴는 패배 조건이 아니다).
+            foreach (var c in CommanderRoster.Instance.Commanders) c.PersonalState.dead = true;
+            await Task.Delay(300);
             Check(GameMenuController.Instance.ScreenName == "COLONY LOST" && Time.timeScale == 0, "defeat results");
             GameMenuController.Instance.Resume(); Check(Time.timeScale == 0, "cannot escape defeat into simulation");
             GameMenuController.Instance.GetComponentsInChildren<UnityEngine.UI.Button>().Single(b => b.name == "Restart Same Map").onClick.Invoke();

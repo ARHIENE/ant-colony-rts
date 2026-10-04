@@ -81,7 +81,7 @@ public static class WorldMapChecks
             .All(s => s.Boss.MaxHp == bossTemplate.MaxHp * s.Difficulty && s.Boss.CurrentHp == s.Boss.MaxHp),
             "boss difficulty scales template health and starts at full health");
         Check(world.Sites.Where(s => s.Kind == ExpeditionSiteKind.ResourceSite)
-            .All(s => s.GetComponentsInChildren<ResourceNode>().All(n => n.AmountRemaining == 100 * s.Difficulty)),
+            .All(s => s.GetComponentsInChildren<ResourceNode>().All(n => n.AmountRemaining == Mathf.Round(100 * s.Difficulty * AntColony.Core.BiomeRules.NodeMultiplier(s.Biome, n.ResourceType)))), // 거점 바이옴 배율
             "neutral stock scales with fixed site difficulty");
         Check(world.Sites.All(s => s.MapPosition.x >= 0 && s.MapPosition.x <= 1 && s.MapPosition.y >= 0 && s.MapPosition.y <= 1)
             && world.Sites.Select(s => s.MapPosition).Distinct().Count() == 33, "map positions are distinct and normalized");
@@ -140,9 +140,11 @@ public static class WorldMapChecks
         var food = resources.GetAmount(ResourceType.Food);
         Set(placement, "placementValid", true);
         typeof(BuildingPlacementController).GetMethod("TryPlace", Flags).Invoke(placement, new object[] { labPos + Vector3.up, labPos });
-        Check(pool.Reserved == 8 && pool.Free == free - 8 && resources.GetAmount(ResourceType.Food) == food - 100,
-            "science construction pays and reserves once");
-        Check(await Wait(() => Object.FindObjectsByType<ScienceLab>().Any(l => l.isActiveAndEnabled)), "commander actually completes science lab");
+        // 건설 인력은 즉시 예약이 아니라 현장 Workforce 요청 → 장수가 작업할 때만 배정된다.
+        var labSite = Object.FindObjectsByType<BuildingConstructionSite>().OrderBy(s => (s.Position - labPos).sqrMagnitude).First();
+        Check(Workforce.For(labSite).Requested == 8 && resources.GetAmount(ResourceType.Food) == food - 100,
+            "science construction pays once and requests workforce");
+        Check(await Wait(() => Object.FindObjectsByType<ScienceLab>().Any(l => l.isActiveAndEnabled), 120), "commander actually completes science lab"); // 건설 속도는 인력·날씨 보정을 받는다
         Check(pool.Reserved == 0 && pool.Free == free, "construction workforce returns");
         var lab = Object.FindFirstObjectByType<ScienceLab>();
         // 과학 트리 도입 후: 연구는 CampaignResearch 공용 진행, 연구소 tier와 배정된 연구 장수가 진행시킨다.
@@ -150,9 +152,10 @@ public static class WorldMapChecks
         Check(!lab.TryResearch(true) && !lab.TryConstruct(false), "aircraft and construction blocked before vehicle research");
         Check(!lab.TryResearch(false), "vehicle research requires lab tier 2");
         Check(lab.TryUpgrade() && lab.TryResearch(false) && !lab.TryResearch(false), "research starts once");
-        var scientist = CommanderRoster.Instance.Commanders[2];
+        var scientist = CommanderRoster.Instance.Commanders.Skip(1).First(x => x.CanDoJob(CommanderJobs.Research) && !x.IsDeployed && !x.IsAwayFromHome); // 무작위 특성이 연구를 막을 수 있다
+        scientist.CommandStop(); // 자율 작업 중이면 배정이 거부된다
         Move(scientist, lab.Position + Vector3.right * 3);
-        Check(lab.TryAssign(scientist), "researcher assigned");
+        Check(lab.TryAssign(scientist), "researcher assigned: working=" + scientist.IsWorking + " deployed=" + scientist.IsDeployed + " alloc=" + scientist.CanChangeAllocation + " dist=" + Vector3.Distance(scientist.Position, lab.Position) + " busy=" + lab.Busy + " target=" + lab.Target + " canResearch=" + scientist.CanDoJob(CommanderJobs.Research) + " labBusy=" + scientist.LabUpgradeBusy);
         research.Tick(1);
         Check(research.Progress > 0 && !world.VehicleResearched, "assigned researcher advances shared research");
         lab.gameObject.SetActive(false);
@@ -233,7 +236,12 @@ public static class WorldMapChecks
             + (vehicle.GetComponent<UnityEngine.AI.NavMeshObstacle>() != null)
             + " sampled=" + NavMesh.SamplePosition(vehicle.Position, out _, 1f, NavMesh.AllAreas));
         homeCommander.CommandGather(loot);
-        Check(await Wait(() => !loot.gameObject.activeSelf && !homeCommander.IsCarrying, 60),
+        // 원정지 수동 채집은 한 번 왕복 후 멈춘다. 운반량 < 재고면 빈손일 때 다시 지시한다.
+        Check(await Wait(() =>
+        {
+            if (loot.gameObject.activeSelf && loot.CanGather && !homeCommander.IsCarrying && !homeCommander.IsWorking) homeCommander.CommandGather(loot);
+            return !loot.gameObject.activeSelf && !homeCommander.IsCarrying;
+        }, 90),
             "real gathering deposits into expedition transport: nodeActive=" + loot.gameObject.activeSelf
             + " remaining=" + loot.AmountRemaining + " carrying=" + homeCommander.IsCarrying
             + " canGather=" + loot.CanGather + " cargo=" + vehicle.GetCargo(ResourceType.Special)

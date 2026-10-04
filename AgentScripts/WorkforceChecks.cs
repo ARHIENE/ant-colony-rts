@@ -157,7 +157,11 @@ public static class WorkforceChecks
             WorkTargetPanel.Select(node); await Task.Delay(80);
             Check(GameObject.Find("WorkforceSlider") != null, "target workforce slider visible");
             var selection = Object.FindFirstObjectByType<AntColony.Units.SelectionManager>(); selection.SelectOnly(c.GetComponent<AntColony.Units.SelectableObject>()); await Task.Delay(80);
-            Check(WorkTargetPanel.Target == null && GameObject.Find("Skill 예술") != null, "13 skill card and target clear");
+            // HUD v4: 하단 패널은 주요 기술 3개만, 13개 전체는 초상 클릭 상세 창에 있다.
+            Check(WorkTargetPanel.Target == null, "selecting commander clears target");
+            GameMenuController.Instance.Details(c); await Task.Delay(80);
+            Check(GameObject.Find("Skill Art") != null, "13 skills in details");
+            GameMenuController.Instance.Resume(); Time.timeScale = 0;
             Check(new[] { "간호", "수리", "운반", "사냥", "요리", "예술" }.All(n => ActivityIcons.Get(n) != null), "new job icons");
 
             workforce.Request(10); c.CommandGather(node); workforce.Refresh();

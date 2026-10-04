@@ -51,8 +51,9 @@ public static class DutyUIChecks
             menu.Roster(); Click("Work Schedule"); await Task.Delay(100);
             Check(menu.ScreenName == "작업표" && Time.timeScale == 0, "work schedule opens with menu pause setting");
             var toggles = menu.GetComponentsInChildren<Toggle>();
-            Check(toggles.Length == list.Length * 6, "six jobs for every commander");
-            var jobs = new[] { CommanderJobs.Building, CommanderJobs.Crafting, CommanderJobs.Research, CommanderJobs.Farming, CommanderJobs.Fishing, CommanderJobs.Gathering };
+            Check(toggles.Length == list.Length * 13, "13 jobs for every commander");
+            var jobs = new[] { CommanderJobs.Nursing, CommanderJobs.Repair, CommanderJobs.Cleaning, CommanderJobs.Building, CommanderJobs.Art, CommanderJobs.Crafting,
+                CommanderJobs.Research, CommanderJobs.Cooking, CommanderJobs.Hunting, CommanderJobs.Hauling, CommanderJobs.Farming, CommanderJobs.Fishing, CommanderJobs.Gathering }; // 작업표 왼쪽부터 우선순위 순
             for (var i = 0; i < jobs.Length; i++)
             {
                 toggles[i].isOn = true; Check(c.AllowsJob(jobs[i]), "checkbox enables " + jobs[i]);
@@ -68,6 +69,9 @@ public static class DutyUIChecks
                 .Invoke(null, new object[] { BuildingKind.ConscriptionPost, UnitRole.Worker });
             var go = Object.Instantiate(template, c.Position + Vector3.right * 5, Quaternion.identity); go.SetActive(true);
             var post = go.GetComponent<ConscriptionPost>();
+            // Phase 4 병역 상한(모병제 5%)에 막히지 않게 국민개병(40%)으로 둔다.
+            var granted = CampaignResearch.Instance.CaptureState(); granted.completed.Add((int)ScienceTechnology.TotalMobilization); CampaignResearch.Instance.RestoreState(granted);
+            Check(ColonyPopulation.Instance.TrySetPolicy(MilitaryPolicy.Total), "total mobilization policy");
             menu.OpenConscription(); await Task.Delay(100);
             Check(menu.ScreenName == "징집소" && !Button("Deploy Formation").interactable, "empty formation blocked");
             var choices = Choices();
@@ -82,11 +86,11 @@ public static class DutyUIChecks
             Check(c.IsDeployed && other.IsDeployed && c.TroopCount == 4 && other.TroopCount == 3 && AntPool.Instance.Free == free - 7, "UI formation deploys atomically");
             Select(c); await Task.Delay(100);
             var texts = HudConsole.Center.GetComponentsInChildren<Text>();
-            Check(texts.Any(t => t.text.Contains("개인 체력") && t.text.Contains("병력")), "personal health and troops shown separately");
+            Check(texts.Any(t => t.text.Contains("체력") && t.text.Contains("병력")), "personal health and troops shown separately");
             Click("Return To Post"); Check(c.IsReturning, "return button orders return");
             c.Agent.Warp(c.WorkState.returnPosition); c.TickDuty(.1f); await Task.Delay(100);
             Check(!c.IsDeployed && AntPool.Instance.Free == free - 3, "return refunds survivors");
-            Check(!HudConsole.Center.Find("SelectedUnitPanel/TroopTrack").gameObject.activeSelf, "civilian troop bar hidden");
+            Check(!HudConsole.Center.GetComponentsInChildren<Text>().Any(t => t.text.Contains("병력")), "civilian troop count hidden"); // HUD v4: 병력은 체력 줄에 출전 중만 표시
             Check(!Object.FindObjectsByType<Button>(FindObjectsSortMode.None).Any(b => b.name == "Return To Post"), "civilian return hidden");
             other.ReturnToPost(); other.Agent.Warp(other.WorkState.returnPosition); other.TickDuty(.1f);
             menu.ShowConscription(post); await Task.Delay(100); choices = Choices(); choices[0].isOn = true;
@@ -100,7 +104,7 @@ public static class DutyUIChecks
             Check(SaveSystem.TrySave(false, 0, out var error), "save schedule: " + error);
             Check(SaveSystem.TryLoad(SaveSlots.PathFor(false, 0), out error), "load schedule: " + error); await Ready();
             menu.WorkSchedule(); await Task.Delay(100);
-            Check(menu.GetComponentsInChildren<Toggle>()[3].isOn, "work checkbox restored from save");
+            Check(menu.GetComponentsInChildren<Toggle>()[10].isOn, "work checkbox restored from save"); // 농사 = 작업표 11번째 칸
             Canvas.ForceUpdateCanvases();
             var schedule = menu.GetComponentsInChildren<RectTransform>().Single(r => r.name == "WorkSchedule");
             foreach (var t in menu.GetComponentsInChildren<Toggle>().Take(6))

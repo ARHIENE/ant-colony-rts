@@ -156,8 +156,10 @@ namespace AntColony.Regression
                 Check(!lab1.IsResearching, "대상 파괴 시 연구소 해제");
                 var bAttack = b.LabAttackLevel;
                 Check(lab1.TryResearchAttack(b), "파괴 후 다른 장수로 재사용");
-                await Task.Delay(200);
+                // 0.3초 실시간 연구는 프레임 지연에 흔들리므로 시간을 멈추고 직접 진행한다.
+                Time.timeScale = 0; await Task.Delay(50); lab1.Tick(.2f);
                 Check(b.LabAttackLevel == bAttack && b.LabUpgradeBusy && lab1.Target == b, "옛 연구가 새 대상을 조기 완료하지 않음");
+                Time.timeScale = 1;
                 await Until(() => !lab1.IsResearching, 2000);
                 await Task.Delay(400);
                 Check(b.LabAttackLevel == bAttack + 1 && !b.LabUpgradeBusy, "새 대상은 정확히 1단계만 완료");
@@ -181,14 +183,15 @@ namespace AntColony.Regression
                     Select(selectedList, b);
                     await Task.Delay(100);
                     var labels = GameObject.Find("HUDCanvas").GetComponentsInChildren<UnityEngine.UI.Text>(true);
-                    Check(!Array.Exists(labels, t => t.gameObject.activeInHierarchy && t.text.Contains("진행 중")), "B 선택 시 A 진행 표시 안 함");
+                    Check(!Array.Exists(labels, t => t.gameObject.activeInHierarchy && t.text.Contains("하는 일") && t.text.Contains("연구")), "B 선택 시 A 진행 표시 안 함"); // HUD v4: 하는 일 줄
                     await Until(() => !aLab.IsResearching, 2000);
                     Check(a.LabArmorLevel == 1 && b.LabArmorLevel == bArmor, "선택 변경이 A 완료 대상을 바꾸지 않음");
                     Select(selectedList, b);
                     Check(hud.TryLabResearch(true) && b.LabUpgradeBusy, "B 선택 강화 시작");
-                    await Task.Delay(100);
+                    Time.timeScale = 0; await Task.Delay(100);
                     labels = GameObject.Find("HUDCanvas").GetComponentsInChildren<UnityEngine.UI.Text>(true);
-                    Check(Array.Exists(labels, t => t.gameObject.activeInHierarchy && t.text.Contains("진행 중")), "HUD 진행 중 표시");
+                    Check(Array.Exists(labels, t => t.gameObject.activeInHierarchy && t.text.Contains("하는 일") && t.text.Contains("연구")), "HUD 진행 중 표시");
+                    Time.timeScale = 1;
                 }
             }
             catch (Exception e)

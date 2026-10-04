@@ -15,13 +15,13 @@ MonoBehaviour:
   layers:
   - texture: {fileID: 2800000, guid: 592b3c13ca2a2ab46b678402d9f85ff4, type: 3}
     startHeight: 0
-  - texture: {fileID: 2800000, guid: 8b1d20f6985bdee43b8ac257fdfaf324, type: 3}
+  - texture: {fileID: 2800000, guid: 846a26185a354b64abcb7fb6d85af414, type: 3}
     startHeight: 0.2
   - texture: {fileID: 2800000, guid: 910e53a3219dd48409cf12706e756862, type: 3}
     startHeight: 0.4
   - texture: {fileID: 2800000, guid: 846a26185a354b64abcb7fb6d85af414, type: 3}
     startHeight: 0.85
-  - texture: {fileID: 2800000, guid: 8b1d20f6985bdee43b8ac257fdfaf324, type: 3}
+  - texture: {fileID: 2800000, guid: 910e53a3219dd48409cf12706e756862, type: 3}
     startHeight: 0.93
   spawns:
   - prefab: {fileID: 2192826064039612326, guid: 36c24025c77681c48af12ac6e2c548e4, type: 3}

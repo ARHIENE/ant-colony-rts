@@ -23,7 +23,7 @@ public static class GatherDesignationChecks
         while (SaveSystem.Busy && DateTime.UtcNow < until) await Task.Delay(50);
         Check(!SaveSystem.Busy, "scene ready"); Time.timeScale = 0;
     }
-    static Button CardButton(string name) => Object.FindObjectsByType<Button>(FindObjectsInactive.Include, FindObjectsSortMode.None).Single(b => b.name == name);
+    static Button CardButton(string name) => Object.FindObjectsByType<Button>().Single(b => b.name == name && b.gameObject.activeInHierarchy);
     public static async Task<string> Main()
     {
         checks = 0; Check(Application.isPlaying, "Play mode"); var root = SaveStorage.RootOverride;
@@ -43,9 +43,12 @@ public static class GatherDesignationChecks
             var a = Make("Desig A", c.Position + new Vector3(3, .5f, 0)); var b = Make("Desig B", c.Position + new Vector3(-3, .5f, 0));
             camera.transform.position = c.Position + Vector3.up * 30; camera.transform.rotation = Quaternion.Euler(90, 0, 0); Physics.SyncTransforms();
 
-            var forbid = CardButton("Forbid Gathering"); var clear = CardButton("Clear Designation");
-            Check(forbid.gameObject.activeInHierarchy && clear.gameObject.activeInHierarchy, "buttons visible with nothing selected");
-            forbid.onClick.Invoke();
+            // 지정 버튼은 작업표 화면 하단에 있다(누르면 메뉴를 닫고 지정 모드 시작).
+            void Press(string name) { GameMenuController.Instance.WorkSchedule(); CardButton(name).onClick.Invoke(); }
+            GameMenuController.Instance.WorkSchedule();
+            Check(CardButton("Forbid Gathering").gameObject.activeInHierarchy && CardButton("Clear Designation").gameObject.activeInHierarchy, "buttons visible in work schedule");
+            GameMenuController.Instance.Resume();
+            Press("Forbid Gathering");
             Check(GatherDesignation.IsActive && GatherDesignation.Forbidding && GatherDesignation.ConsumesPointerInput, "forbid mode active");
             var sa = camera.WorldToScreenPoint(a.transform.position);
             Check(GatherDesignation.ApplyClick(new Vector2(sa.x, sa.y), true) && a.GatheringForbidden && !b.GatheringForbidden, "click forbids one node");
@@ -55,14 +58,14 @@ public static class GatherDesignationChecks
             c.SetJobEnabled(CommanderJobs.All, false); c.CommandStop(); c.CommandGather(a);
             Check(c.CurrentResourceNode != a, "forbidden node rejects manual gather");
 
-            clear.onClick.Invoke();
+            Press("Clear Designation");
             Check(GatherDesignation.IsActive && !GatherDesignation.Forbidding, "clear mode active");
             Check(GatherDesignation.Apply(rect, false) == 2 && !a.GatheringForbidden && !b.GatheringForbidden, "drag clears both");
 
             BuildScreen.Open(); await Task.Delay(100);
             Check(!GatherDesignation.IsActive, "opening build screen ends designation");
             BuildScreen.Back(); BuildScreen.Back(); await Task.Delay(100);
-            forbid.onClick.Invoke(); GameMenuController.Instance.Pause(); await Task.Delay(100);
+            Press("Forbid Gathering"); GameMenuController.Instance.Pause(); await Task.Delay(100);
             Check(!GatherDesignation.IsActive, "menu ends designation");
             GameMenuController.Instance.Resume(); await Task.Delay(100);
 

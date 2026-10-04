@@ -150,6 +150,9 @@ public static class WeaponTalentChecks
                 c.traits.passions.Clear();
             }
             legacy.commanders[3].traits.passions.Add(new CommanderPassion { activity = (CommanderActivity)8, flame = 2 });
+            // 진짜 v2 저장에는 v2 이후 생긴 활동(11 근력·12 예술) 열정이 없다. 현재 게임에서 복제한 포로·몬스터 데이터에서 뺀다.
+            if (legacy.monsters != null) foreach (var m in legacy.monsters) m?.traits?.passions?.RemoveAll(p => (int)p.activity > 10);
+            if (legacy.buildings != null) foreach (var building in legacy.buildings) if (building?.prisoners != null) foreach (var p in building.prisoners) p?.traits?.passions?.RemoveAll(x => (int)x.activity > 10);
             var oldTroops = legacy.commanders.Sum(c => c.troopCount);
             Check(SaveValidator.Validate(legacy, out error), "v2 migrates, ignores ranks: " + error);
             Check(legacy.version == SaveFileV1.CurrentVersion && legacy.commanders.Sum(c => c.troopCount) == oldTroops, "migration preserves troops");

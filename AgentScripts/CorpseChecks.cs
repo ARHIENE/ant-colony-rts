@@ -74,7 +74,7 @@ public static class CorpseChecks
             Check(a.CorpseTarget == corpse && !a.EatingCorpse, "selected right click cleans"); a.CommandStop();
             InputState.Change(keyboard, new KeyboardState(Key.LeftAlt));
             command.Invoke(controller, new object[] { screen });
-            Check(a.CorpseTarget == null && corpse.Data.count == 2, "alt click rejects non-cannibal");
+            Check(a.CorpseTarget == null && corpse.Data.count == 2, "alt click rejects non-cannibal: target=" + (a.CorpseTarget != null) + " eating=" + a.EatingCorpse + " count=" + corpse.Data.count + " cannibal=" + a.Traits.Has(CommanderTrait.Cannibal) + " alt=" + keyboard.leftAltKey.isPressed);
             a.Traits.TryAdd(CommanderTrait.Cannibal);
             command.Invoke(controller, new object[] { screen });
             Check(a.CorpseTarget == corpse && a.EatingCorpse, "alt right click starts eating");

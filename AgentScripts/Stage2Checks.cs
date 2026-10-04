@@ -99,8 +99,13 @@ public static class Stage2Checks
             Check(plot.Wide && Mathf.Approximately(farm.transform.localScale.x, 2 * widthBefore), "fungal farming: new farm is 2 cells wide");
             var baseAmount = node.RegrowAmount;
             typeof(ResourceNode).GetMethod("RestoreState", Any).Invoke(node, new object[] { 0f, .01f });
-            Time.timeScale = 1; await Task.Delay(250); Time.timeScale = 0;
-            Check(Mathf.Abs(node.AmountRemaining - baseAmount * 1.2f) < .01f, "fungal farming +20% harvest");
+            // 밭은 농사 중인 장수가 있어야 자란다. 장수 a를 농사 상태로 두고 직접 진행한다.
+            typeof(WorkerAnt).GetField("targetNode", BindingFlags.Instance | BindingFlags.NonPublic).SetValue(a, node);
+            var farmState = typeof(WorkerAnt).GetField("state", BindingFlags.Instance | BindingFlags.NonPublic);
+            farmState.SetValue(a, Enum.Parse(farmState.FieldType, "Gathering"));
+            node.TickGrowth(100000); a.CommandStop();
+            var autumn = GameCalendar.CurrentSeason == Season.Autumn ? GameBalance.AutumnHarvestMultiplier : 1f;
+            Check(Mathf.Abs(node.AmountRemaining - baseAmount * 1.2f * autumn) < .01f, "fungal farming +20% harvest: " + node.AmountRemaining);
             Check(!ScienceEffects.CropUnlocked(FarmCrop.Honeydew), "honeydew locked");
             Grant(ScienceTechnology.HoneydewRanch);
             plot.Configure(FarmCrop.Honeydew, true);
@@ -137,9 +142,9 @@ public static class Stage2Checks
             sp = rm.GetAmount(ColonyResourceType.Special);
             Check(infirmary.TryRegenerate(patient) && rm.GetAmount(ColonyResourceType.Special) == sp - 20 && patient.PersonalState.treating
                 && patient.PersonalState.injuries[0].severity == InjurySeverity.Serious && patient.PersonalState.injuries[0].remaining == 480, "regeneration admits permanent injury");
-            patient.TickPersonal(240);
+            patient.TickPersonal(480); // 간호사 없음 → 치료 속도 x0.5
             Check(Mathf.Abs(patient.PersonalState.injuries[0].remaining - 240) < .01f, "regeneration takes 8 min (no herbs speedup)");
-            patient.TickPersonal(241);
+            patient.TickPersonal(482);
             Check(patient.PersonalState.injuries.Count == 0 && !patient.PersonalState.treating, "regeneration cures permanent injury");
 
             // --- 저장: 압축 저장 ---
@@ -210,8 +215,10 @@ public static class Stage2Checks
             var soil = rm.GetAmount(ColonyResourceType.Soil);
             Check(trap.TryRepair(repairer) && rm.GetAmount(ColonyResourceType.Soil) == soil - 10, "trap repair costs Soil 10");
             Check(trap.TryRepair(repairer) && rm.GetAmount(ColonyResourceType.Soil) == soil - 10, "repair is paid once");
-            trap.Tick(3); Check(!trap.Armed, "repair takes 4s");
-            trap.Tick(1.1f); Check(trap.Armed, "trap repaired");
+            // 수리 속도 = 4초 × 장수 건설 작업 속도(기술·날씨·바이옴 보정).
+            var repairSeconds = GameBalance.TrapRepairSeconds / repairer.WorkRate(CommanderActivity.Building);
+            trap.Tick(repairSeconds * .75f); Check(!trap.Armed, "repair takes 4s at base rate");
+            trap.Tick(repairSeconds * .25f + .1f); Check(trap.Armed, "trap repaired");
 
             // --- 개미산 정제: 분사탑 +25%, 범위형 분사탑, 방어시설 연구소 ---
             var tower = Build<AcidTower>(BuildingKind.AcidTower, home + Vector3.right * 28);

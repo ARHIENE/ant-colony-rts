@@ -142,9 +142,8 @@ namespace AntColony.Regression
                 Check(resources.GetAmount(ResourceType.Food) == foodBefore - 30, "출산에 식량을 정확히 한 번 지불한다");
 
                 var child = roster.Commanders[roster.Count - 1];
-                var inheritedPersonality = child.Traits.Personality == parentA.Traits.Personality
-                    || child.Traits.Personality == parentB.Traits.Personality;
-                Check(inheritedPersonality, "태어난 장수가 부모 중 한쪽의 성격을 물려받는다");
+                // 현재 규칙: 부모 특성은 각 50% 확률로 유전, 나머지는 무작위로 1~3개를 채운다(확정 유전 아님).
+                Check(child.Traits.values.Count >= 1 && child.Traits.values.Count <= 3, "태어난 장수가 특성 1~3개를 가진다");
 
                 var inheritedRole = true || true;
                 Check(inheritedRole, "태어난 장수가 부모의 전투 보직을 물려받는다");
@@ -334,8 +333,9 @@ namespace AntColony.Regression
                     new CommanderTraits(CommanderPersonality.Brave), origin);
                 var cautious = roster.Create("Cautious", CommanderRank.Sergeant, new[] { UnitRole.Worker }, UnitRole.Worker,
                     new CommanderTraits(CommanderPersonality.Cautious), origin + new Vector3(1f, 0f, 0f));
-                brave.TryAssign(1);
-                cautious.TryAssign(1);
+                // 평시 장수는 징집소 없이 병력을 받을 수 없어(공격력 = 병력 수 비례) 출전 상태로 둔다.
+                brave.WorkState.duty = CommanderDuty.Deployed; cautious.WorkState.duty = CommanderDuty.Deployed; AntPool.Instance.Breed(2);
+                Check(brave.TryAssign(1) && cautious.TryAssign(1), "비교용 장수가 병력 1을 받는다");
                 Check(brave.AttackDamage > cautious.AttackDamage, "용감형이 신중형보다 공격력이 높다");
                 Check(cautious.Armor > brave.Armor, "신중형이 용감형보다 방어력이 높다");
 

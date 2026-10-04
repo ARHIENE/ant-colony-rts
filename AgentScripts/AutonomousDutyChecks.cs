@@ -44,7 +44,7 @@ public static class AutonomousDutyChecks
             var hp = c.PersonalHealth; c.TakeDamage(3 + c.Armor);
             Check(c.PersonalHealth == hp - 3, "civilian damage hits personal health");
             Check(!c.TryAssign(1), "civilian cannot bypass conscription");
-            Check(!c.SetJobEnabled((CommanderJobs)4096, true), "invalid job rejected");
+            Check(!c.SetJobEnabled((CommanderJobs)8192, true), "invalid job rejected"); // 4096은 치우기(Cleaning)
             var node = ResourceNode.Available.First(n => n.CanGather && !n.IsRaidLoot && n.GetComponentInParent<ExpeditionSite>() == null && c.TryWorkApproach(n.transform.position, out _));
             foreach (var n in ResourceNode.Available) n.GatheringForbidden = true;
             c.SetJobEnabled(CommanderJobs.Gathering | CommanderJobs.Fishing | CommanderJobs.Farming, true);
@@ -76,12 +76,15 @@ public static class AutonomousDutyChecks
             var postGo = Object.Instantiate(template, c.Position + Vector3.right * 5, Quaternion.identity);
             postGo.name = "ConscriptionPost"; postGo.SetActive(true); var post = postGo.GetComponent<ConscriptionPost>();
             Check(BuildingPlacementController.LockReason(BuildingKind.ConscriptionPost) != null, "one home post limit");
+            // Phase 4 병역 상한(모병제 5%)에 막히지 않게 국민개병(40%)으로 둔다.
+            var granted = CampaignResearch.Instance.CaptureState(); granted.completed.Add((int)ScienceTechnology.TotalMobilization); CampaignResearch.Instance.RestoreState(granted);
+            Check(ColonyPopulation.Instance.TrySetPolicy(MilitaryPolicy.Total), "total mobilization policy");
             var free = AntPool.Instance.Free;
             Check(!post.TryDeploy(new[] { c, c }, new[] { 2, 2 }) && AntPool.Instance.Free == free, "duplicate deployment atomic");
             Check(!post.TryDeploy(new[] { c, other }, new[] { 2, other.CommandLimit + 1 }) && AntPool.Instance.Free == free, "invalid batch atomic");
             var suspended = new GameObject("Suspended blueprint").AddComponent<BuildingConstructionSite>();
             suspended.transform.position = c.Position; suspended.Initialize(null, 10); c.CommandBuild(suspended);
-            Check(post.TryDeploy(new[] { c, other }, new[] { 4, 3 }), "formation deployment");
+            Check(post.TryDeploy(new[] { c, other }, new[] { 4, 3 }), "formation deployment: lim=" + c.CommandLimit + "/" + other.CommandLimit + " free=" + AntPool.Instance.Free + " max=" + (AntColony.Core.ColonyPopulation.Instance == null ? -1 : AntColony.Core.ColonyPopulation.Instance.MaxSoldiers(false)) + " assigned=" + AntPool.Instance.Assigned);
             Check(suspended != null && !suspended.HasBuilder && !c.IsConstructing && suspended.RemainingWork == 10, "deployment preserves prepaid blueprint");
             suspended.Complete(); await Task.Delay(50);
             Check(c.IsDeployed && c.TroopCount == 4 && other.TroopCount == 3 && AntPool.Instance.Free == free - 7, "deployment accounting");

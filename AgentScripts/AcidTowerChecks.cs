@@ -50,6 +50,8 @@ public static class AcidTowerChecks
             var selection = Object.FindAnyObjectByType<ColonySelection>();
             selection.ClearSelection();
             Check(!placement.BeginAcidTowerPlacement(), "requires a selected builder");
+            // 자동 작업 중이면 CanStartConstruction이 거짓이라 먼저 멈춘다.
+            foreach (var c in CommanderRoster.Instance.Commanders) { c.SetJobEnabled(CommanderJobs.All, false); c.CommandStop(); }
             var builder = CommanderRoster.Instance.Commanders.First(c => c.CanStartConstruction); // 평시 민간인은 병력 없이 건설한다.
             typeof(ColonySelection).GetMethod("AddToSelection", Private).Invoke(selection, new object[] { builder.GetComponent<AntColony.Units.SelectableObject>() });
             var resources = ResourceManager.Instance; var pool = AntPool.Instance;
@@ -66,7 +68,7 @@ public static class AcidTowerChecks
             var site = Object.FindAnyObjectByType<BuildingConstructionSite>();
             Check(site != null && !placement.IsPlacing, "placement creates construction site");
             Check(resources.GetAmount(Resource.Food) == food - template.Data.foodCost && resources.GetAmount(Resource.Soil) == soil - template.Data.soilCost, "construction pays resource costs");
-            Check(pool.Free == free - template.Data.constructionAnts && pool.Reserved == template.Data.constructionAnts, "construction reserves ants");
+            Check(Workforce.For(site).Requested == template.Data.constructionAnts, "construction requests workforce"); // 인력은 장수가 작업할 때만 배정된다.
             Check(!Object.FindObjectsByType<AcidTower>().Any(), "unfinished tower cannot attack");
             site.Complete(); builder.CommandStop();
             Check(pool.Free == free && pool.Reserved == 0, "completion returns workforce");

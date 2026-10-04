@@ -138,7 +138,7 @@ public static class CampaignChecks
             Check(!b.CanChangeAllocation && !yard.TryBoard(b), "embarked passenger protected");
             Check(lab.TryAssign(a), "researcher retained for save");
             Check(CampaignResearch.Instance.TryStart(ScienceTechnology.Herbs), "partial research saved"); CampaignResearch.Instance.Tick(7);
-            foreach (var c in roster.Commanders) c.CommandStop();
+            foreach (var c in roster.Commanders) if (c != a) c.CommandStop(); // CommandStop은 연구 배정도 해제하므로 연구자는 제외
             // 6단계: 비행선 건조 시작 시 과학자·적대 문명 침공이 올 수 있다. 저장 전 정리한다.
             foreach (var raider in Object.FindObjectsByType<WildMonster>(FindObjectsSortMode.None))
                 if (!string.IsNullOrEmpty(raider.DiplomaticFactionId)) raider.TakeDamage(float.MaxValue);

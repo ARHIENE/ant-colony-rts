@@ -213,7 +213,7 @@ public static class ActiveSkillChecks
             }
             var card = Object.FindAnyObjectByType<AntColony.UI.CommandCard>();
             var button = card.GetComponentsInChildren<UnityEngine.UI.Button>(true).Single(b => b.name == "Skill");
-            var label = button.GetComponentsInChildren<UnityEngine.UI.Text>().Single(t => t.alignment == TextAnchor.LowerCenter);
+            var label = button.GetComponentsInChildren<UnityEngine.UI.Text>().Single(t => t.alignment == TextAnchor.MiddleCenter); // HUD 명령 칸 글자는 가운데 정렬
             var refresh = typeof(AntColony.UI.CommandCard).GetMethod("LateUpdate", Flags);
             Action update = () => refresh.Invoke(card, null);
             var add = typeof(AntColony.Units.SelectionManager).GetMethod("AddToSelection", Flags);

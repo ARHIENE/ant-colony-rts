@@ -36,7 +36,8 @@ public static class Stage7UIChecks
 
             // 토스트: 같은 알림 합치기, 5개 초과는 +N건, 클릭 = 닫기, 위기 고정.
             var toastManager = Object.FindAnyObjectByType<ToastManager>();
-            void ClearToasts() { var list = typeof(ToastManager).GetField("toasts", Private).GetValue(toastManager); list.GetType().GetMethod("Clear").Invoke(list, null); }
+            // 게임 중 생긴 위기 알림(숙소 부족 등)도 비워야 검사용 위기가 첫 줄이 된다.
+            void ClearToasts() { foreach (var field in new[] { "toasts", "crises", "dismissed" }) { var list = typeof(ToastManager).GetField(field, Private).GetValue(toastManager); list.GetType().GetMethod("Clear").Invoke(list, null); } }
             ClearToasts();
             ToastManager.Show("테스트 A"); ToastManager.Show("테스트 A"); ToastManager.Show("테스트 A");
             Check(ToastManager.Count == 1 && ToastManager.VisibleLines.Any(l => l == "테스트 A ×3"), "same toast merges x3");
@@ -85,7 +86,7 @@ public static class Stage7UIChecks
             var research = CampaignResearch.Instance;
             CampaignHistory.Record("사망", "테스트 장수", "전사"); CampaignHistory.Record("보스 처치", "MiniBird", "");
             var record = GameMenuController.EndingRecord(research);
-            foreach (var key in new[] { "기간", "실제 플레이", "Food", "Soil", "Special", "일반개미", "탑승", "남겨진 장수", "사망", "포로", "합류", "떠난 장수", "처치한 보스", "거점", "전쟁·동맹", "주요 이벤트" })
+            foreach (var key in new[] { "기간", "실제 플레이", "Food", "재료", "Special", "일반개미", "탑승", "남겨진 장수", "사망", "포로", "합류", "떠난 장수", "처치한 보스", "거점", "전쟁·동맹", "주요 이벤트" })
                 Check(record.Any(l => l.Contains(key)), "ending record has " + key);
             Check(record.Any(l => l.Contains("테스트 장수(전사)")) && record.Any(l => l.Contains("MiniBird")), "ending record lists deaths and bosses");
             Check(!record.Any(l => l.Contains("점수") || l.Contains("등급")), "no score or grade");
