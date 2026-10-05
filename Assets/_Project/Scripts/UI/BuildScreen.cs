@@ -27,7 +27,7 @@ namespace AntColony.UI
         {
             new[] { new Entry("흙벽", BuildingKind.SoilWall), new Entry("나뭇잎 벽", BuildingKind.LeafWall), new Entry("병뚜껑 벽", BuildingKind.CapWall),
                 new Entry("문", BuildingKind.Door), new Entry("잠금문", BuildingKind.LockedDoor), new Entry("창살문", BuildingKind.BarredDoor), new Entry("바닥", BuildingKind.Floor) },
-            new[] { new Entry("숙소", BuildingKind.Dormitory), new Entry("자리", BuildingKind.SleepingMat), new Entry("큰침대", BuildingKind.DoubleBed),
+            new[] { new Entry("숙소", BuildingKind.Dormitory), new Entry("자리", BuildingKind.SleepingMat), new Entry("침대", BuildingKind.SingleBed), new Entry("큰침대", BuildingKind.DoubleBed),
                 new Entry("식당", BuildingKind.Kitchen), new Entry("양육실", BuildingKind.Nursery),
                 new Entry("화장실", BuildingKind.Toilet), new Entry("세면대", BuildingKind.Washbasin), new Entry("샤워기", BuildingKind.Shower) },
             new[] { new Entry("저장고", BuildingKind.Storage) },
@@ -36,7 +36,7 @@ namespace AntColony.UI
                 new Entry("배터리", BuildingKind.Battery) },
             new Entry[0], // 자동화: TODO 센서·논리(신호선)
             new Entry[0], // 배관: TODO 배관·펌프·밸브·액체 탱크
-            new[] { new Entry("밭", BuildingKind.Farm), new Entry("화덕", BuildingKind.Hearth) },
+            new[] { new Entry("밭", BuildingKind.Farm), new Entry("버섯밭", BuildingKind.MushroomFarm), new Entry("축사", BuildingKind.AphidPen), new Entry("화덕", BuildingKind.Hearth) },
             new[] { new Entry("큰턱 연구소", BuildingKind.ResearchLab, UnitRole.Melee), new Entry("산샘 연구소", BuildingKind.ResearchLab, UnitRole.Ranged),
                 new Entry("갑각 연구소", BuildingKind.ResearchLab, UnitRole.Defense), new Entry("페로몬 연구소", BuildingKind.ResearchLab, UnitRole.Support),
                 new Entry("날개 연구소", BuildingKind.ResearchLab, UnitRole.Flying), new Entry("과학 연구소", BuildingKind.ScienceLab),
@@ -45,7 +45,8 @@ namespace AntColony.UI
             new[] { new Entry("성벽", BuildingKind.CastleWall), new Entry("성문", BuildingKind.Gate), new Entry("함정", BuildingKind.TrapPit),
                 new Entry("지뢰밭", BuildingKind.MineField), new Entry("산성탑", BuildingKind.AcidTower), new Entry("광역 산성탑", BuildingKind.AreaAcidTower),
                 new Entry("감시탑", BuildingKind.Watchtower) },
-            new[] { new Entry("휴게실", BuildingKind.RestRoom), new Entry("이야기 모닥불", BuildingKind.Campfire), new Entry("도박장", BuildingKind.GamblingDen) },
+            new[] { new Entry("휴게실", BuildingKind.RestRoom), new Entry("이야기 모닥불", BuildingKind.Campfire), new Entry("도박장", BuildingKind.GamblingDen),
+                new Entry("책장", BuildingKind.Bookshelf), new Entry("목욕통", BuildingKind.Bathtub) },
             new[] { new Entry("꽃 화분", BuildingKind.FlowerPot), new Entry("조개껍데기", BuildingKind.ShellDecoration), new Entry("구슬 모자이크", BuildingKind.MarbleMosaic),
                 new Entry("병뚜껑 모빌", BuildingKind.BottleMobile), new Entry("반딧불 램프", BuildingKind.FireflyLamp) },
             new[] { new Entry("큰턱 훈련장", BuildingKind.Barracks, UnitRole.Melee), new Entry("산샘 훈련장", BuildingKind.Barracks, UnitRole.Ranged),

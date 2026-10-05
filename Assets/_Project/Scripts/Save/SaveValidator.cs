@@ -157,6 +157,10 @@ namespace AntColony.Save
                 error = $"Save version {file.version} cannot be read by this build (expects {SaveFileV1.CurrentVersion}).";
                 return false;
             }
+            // 2026-10-05 휴게 종류 2 → 4(책장·목욕통): 이전 저장의 질림 배열을 늘린다.
+            void PadJoy(Units.CommanderPersonalState s) { if (s?.joy?.boredom != null && s.joy.boredom.Length < Buildings.RecreationSpot.KindCount) Array.Resize(ref s.joy.boredom, Buildings.RecreationSpot.KindCount); }
+            if (file.commanders != null) foreach (var c in file.commanders) PadJoy(c?.personalState);
+            if (file.buildings != null) foreach (var b in file.buildings) if (b?.prisoners != null) foreach (var p in b.prisoners) PadJoy(p?.personalState);
             if (file.options == null || file.colony == null || file.world == null
                 || file.commanders == null || file.buildings == null)
             {

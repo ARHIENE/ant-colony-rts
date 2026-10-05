@@ -18,6 +18,7 @@ namespace AntColony.Buildings
         private UnityEngine.Camera cam;
         private SelectionManager selectionManager;
         private BuildingKind pendingKind;
+        private FarmCrop? pendingCrop;
         private UnitRole pendingRole = UnitRole.Melee;
         private WorkerAnt builder;
         private GameObject preview;
@@ -121,6 +122,9 @@ namespace AntColony.Buildings
         {
             var locked = LockReason(kind);
             if (locked != null) return PlacementFailed(locked);
+            // 버섯밭·축사 = 작물을 고정한 밭(2026-10-05). 배치·저장은 밭과 같다.
+            var crop = kind == BuildingKind.MushroomFarm ? FarmCrop.Fungus : kind == BuildingKind.AphidPen ? FarmCrop.Honeydew : (FarmCrop?)null;
+            if (crop != null) kind = BuildingKind.Farm;
             if (AntColony.World.WorldMapManager.Instance != null && AntColony.World.WorldMapManager.Instance.ViewedSite != null)
                 return PlacementFailed("Return to the home colony to construct buildings.");
             var selectedBuilder = chosenBuilder != null ? chosenBuilder : GetSelectedBuilder();
@@ -132,6 +136,7 @@ namespace AntColony.Buildings
 
             CancelPlacement();
             pendingKind = kind;
+            pendingCrop = crop;
             pendingRole = role;
             builder = selectedBuilder;
             IsPlacing = true;
@@ -148,7 +153,8 @@ namespace AntColony.Buildings
         public static string LockReason(BuildingKind kind)
         {
             if (kind == BuildingKind.ConscriptionPost && (FindFirstObjectByType<ConscriptionPost>() != null || System.Array.Exists(FindObjectsByType<BuildingConstructionSite>(FindObjectsSortMode.None), s => s.BuildingKind == kind))) return "본거지 징집소는 한 곳만 건설할 수 있습니다.";
-            if (kind == BuildingKind.Farm && !BiomeRules.FarmAllowed) return "도시 구석에는 밭을 지을 수 없습니다.";
+            if ((kind == BuildingKind.Farm || kind == BuildingKind.MushroomFarm || kind == BuildingKind.AphidPen) && !BiomeRules.FarmAllowed) return "도시 구석에는 밭을 지을 수 없습니다.";
+            if (kind == BuildingKind.AphidPen && !ScienceEffects.CropUnlocked(FarmCrop.Honeydew)) return "감로 목장 연구가 필요합니다.";
             if (!ScienceEffects.BuildingUnlocked(kind)) return "Research the matching science first.";
             if (kind == BuildingKind.MineField && MineField.Count >= GameBalance.MaxMines) return $"Up to {GameBalance.MaxMines} mine fields at once.";
             if (kind == BuildingKind.Infirmary && !Infirmary.Unlocked) return "Research Infirmary first.";
@@ -213,7 +219,7 @@ namespace AntColony.Buildings
             };
             completedBuilding.SetActive(false);
             if (pendingKind == BuildingKind.Farm)
-                completedBuilding.AddComponent<FarmPlot>().Configure(SelectedCrop, ScienceEffects.WideFarms);
+                completedBuilding.AddComponent<FarmPlot>().Configure(pendingCrop ?? SelectedCrop, ScienceEffects.WideFarms);
 
             var siteObject = GameObject.CreatePrimitive(PrimitiveType.Cube);
             siteObject.name = completedBuilding.name + "ConstructionSite";
@@ -348,7 +354,7 @@ namespace AntColony.Buildings
             return kind switch
             {
                 BuildingKind.ResearchLab => FindTemplate<ResearchLab>(role),
-                BuildingKind.Farm => FindFarmTemplate(),
+                BuildingKind.Farm or BuildingKind.MushroomFarm or BuildingKind.AphidPen => FindFarmTemplate(),
                 BuildingKind.Storage => FindTemplate<Storage>(),
                 BuildingKind.Nursery => FindTemplate<NurseryChamber>(),
                 BuildingKind.ScoutPost => FindTemplate<ScoutPost>(),
@@ -375,7 +381,8 @@ namespace AntColony.Buildings
                     or BuildingKind.LeafWall or BuildingKind.CapWall or BuildingKind.Door or BuildingKind.CastleWall or BuildingKind.Gate
                     or BuildingKind.Toilet or BuildingKind.Washbasin or BuildingKind.Shower
                     or BuildingKind.Treadmill or BuildingKind.WoodGenerator or BuildingKind.PowerWire or BuildingKind.Battery or BuildingKind.ElectricLamp
-                    or BuildingKind.Hearth or BuildingKind.SleepingMat or BuildingKind.DoubleBed or BuildingKind.Floor or BuildingKind.LockedDoor or BuildingKind.BarredDoor => FindDecorationTemplate(kind),
+                    or BuildingKind.Hearth or BuildingKind.SleepingMat or BuildingKind.DoubleBed or BuildingKind.Floor or BuildingKind.LockedDoor or BuildingKind.BarredDoor
+                    or BuildingKind.SingleBed or BuildingKind.Bookshelf or BuildingKind.Bathtub => FindDecorationTemplate(kind),
                 _ => null
             };
         }

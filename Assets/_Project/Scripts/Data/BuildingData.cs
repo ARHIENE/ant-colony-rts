@@ -39,7 +39,9 @@ namespace AntColony.Data
         // 2026-10-05 위생(화장실·세면대·샤워기) + 전력 1차(쳇바퀴·장작 발전기·전선·배터리·전등)
         Toilet, Washbasin, Shower, Treadmill, WoodGenerator, PowerWire, Battery, ElectricLamp,
         // 2026-10-05 가구 2차: 화덕(조리대)·자리·큰침대·바닥·잠금문·창살문
-        Hearth, SleepingMat, DoubleBed, Floor, LockedDoor, BarredDoor
+        Hearth, SleepingMat, DoubleBed, Floor, LockedDoor, BarredDoor,
+        // 가구 3차: 1인 침대·책장·목욕통·버섯밭·축사(버섯밭·축사는 작물 고정 밭으로 배치되어 저장은 Farm)
+        SingleBed, Bookshelf, Bathtub, MushroomFarm, AphidPen
     }
 
     [CreateAssetMenu(fileName = "BuildingData", menuName = "AntColony/Building Data")]

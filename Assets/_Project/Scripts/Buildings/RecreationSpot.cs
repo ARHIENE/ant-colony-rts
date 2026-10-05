@@ -11,17 +11,18 @@ namespace AntColony.Buildings
     // 이용자 목록은 저장하지 않는다. 불러오면 노는 중인 장수는 제자리에서 마저 논다.
     public sealed class RecreationSpot : BuildingBase
     {
-        public const int KindCount = 2;
+        // 0 이야기 모닥불 / 1 도박장 / 2 책장(연구 경험치 조금, 방 = 도서관) / 3 목욕통(위생 +40, 방 = 목욕탕). 2026-10-05 3·4번째 추가
+        public const int KindCount = 4;
         private static readonly List<RecreationSpot> Active = new List<RecreationSpot>();
         private readonly List<CommanderAnt> users = new List<CommanderAnt>();
         public static IReadOnlyList<RecreationSpot> All => Active;
         public IReadOnlyList<CommanderAnt> Users => users;
-        public int KindIndex => Data.kind == BuildingKind.GamblingDen ? 1 : 0;
+        public int KindIndex => Data.kind == BuildingKind.GamblingDen ? 1 : Data.kind == BuildingKind.Bookshelf ? 2 : Data.kind == BuildingKind.Bathtub ? 3 : 0;
         public bool IsGambling => Data.kind == BuildingKind.GamblingDen;
-        public int Seats => IsGambling ? GameBalance.GamblingDenSeats : GameBalance.CampfireSeats;
+        public int Seats => IsGambling ? GameBalance.GamblingDenSeats : KindIndex >= 2 ? 1 : GameBalance.CampfireSeats;
         public bool HasSeat => isActiveAndEnabled && !IsDead && users.Count < Seats;
         public bool NearDecoration => Decoration.CountNear(Position) > 0;
-        public static string KindName(int kind) => kind == 1 ? "도박장" : "이야기 모닥불";
+        public static string KindName(int kind) => kind == 1 ? "도박장" : kind == 2 ? "책장" : kind == 3 ? "목욕통" : "이야기 모닥불";
 
         protected override void OnEnable()
         {

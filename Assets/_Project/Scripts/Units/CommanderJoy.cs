@@ -64,6 +64,8 @@ namespace AntColony.Units
             var gain = GameBalance.PlayJoy * (1 - j.boredom[j.kind]) * (spot != null && spot.NearDecoration ? 1 + GameBalance.DecorationPlayBonus : 1);
             j.joy = Mathf.Min(100, j.joy + gain);
             j.boredom[j.kind] = Mathf.Min(1, j.boredom[j.kind] + GameBalance.BoredomPerPlay);
+            if (j.kind == 2) GainExperience(CommanderActivity.Research, GameBalance.BookshelfResearchXp); // 책장: 연구 경험치 조금
+            if (j.kind == 3) PersonalState.hygiene.hygiene = Mathf.Min(100, PersonalState.hygiene.hygiene + GameBalance.BathtubHygiene); // 목욕통: 위생
             if (spot != null && spot.IsGambling && spot.Partner(this) is CommanderAnt other)
             {
                 var won = UnityEngine.Random.value < .5f;

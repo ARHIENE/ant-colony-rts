@@ -48,7 +48,7 @@ namespace AntColony.Data
             F("바닥", 1, existing: BuildingKind.Floor); F("기둥", 1); F("울타리", 1); F("방화벽", 2); F("다리", 1);
 
             In(BuildCategory.Living);
-            F("자리", 1, RoomKind.Bedroom, BuildingKind.SleepingMat); F("침대", 1, RoomKind.Bedroom, BuildingKind.Dormitory); F("큰침대", 1, RoomKind.Bedroom, BuildingKind.DoubleBed); F("2층침대", 2, RoomKind.Bedroom); F("해먹", 1, RoomKind.Bedroom);
+            F("자리", 1, RoomKind.Bedroom, BuildingKind.SleepingMat); F("침대", 1, RoomKind.Bedroom, BuildingKind.SingleBed); F("숙소(4인, 구 건물)", 1, RoomKind.Bedroom, BuildingKind.Dormitory); F("큰침대", 1, RoomKind.Bedroom, BuildingKind.DoubleBed); F("2층침대", 2, RoomKind.Bedroom); F("해먹", 1, RoomKind.Bedroom);
             F("요람", 1, RoomKind.Nursery, BuildingKind.Nursery);
             F("작은 식탁", 1, RoomKind.Dining, BuildingKind.Kitchen); F("큰 식탁", 1, RoomKind.Dining); F("연회용 긴 식탁", 2, RoomKind.BanquetHall);
             F("구덩이 변소", 1, RoomKind.Bathroom); F("화장실", 2, RoomKind.Bathroom, BuildingKind.Toilet); F("수세식 변기", 4, RoomKind.Bathroom, net: NetworkLayer.Pipe); F("분해 변기", 6, RoomKind.Bathroom);
@@ -84,7 +84,7 @@ namespace AntColony.Data
             F("액체 탱크", 2, net: NetworkLayer.Pipe); F("빗물 받이", 1, net: NetworkLayer.Pipe); F("이슬 수집기", 1, net: NetworkLayer.Pipe); F("정수기", 4, net: NetworkLayer.Pipe);
 
             In(BuildCategory.Food); // 농장 방 = 밭·수경 농장·버섯밭·축사·먹이통, 밭은 방 밖도 가능
-            F("밭", 1, RoomKind.Farm, BuildingKind.Farm); F("버섯밭", 1, RoomKind.Farm); F("축사", 1, RoomKind.Farm); F("먹이통", 1, RoomKind.Farm); F("수경 농장", 4, RoomKind.Farm, net: NetworkLayer.Pipe);
+            F("밭", 1, RoomKind.Farm, BuildingKind.Farm); F("버섯밭", 1, RoomKind.Farm, BuildingKind.MushroomFarm); F("축사", 1, RoomKind.Farm, BuildingKind.AphidPen); F("먹이통", 1, RoomKind.Farm); F("수경 농장", 4, RoomKind.Farm, net: NetworkLayer.Pipe);
             F("화덕", 1, RoomKind.Kitchen, BuildingKind.Hearth); F("가스레인지", 3, RoomKind.Kitchen, net: NetworkLayer.Pipe); F("전기조리대", 4, RoomKind.Kitchen, net: NetworkLayer.Power); F("미래 조리기구", 6, RoomKind.Kitchen, net: NetworkLayer.Power);
             F("해체대", 1, RoomKind.Kitchen); F("물고기 양식장", 2, RoomKind.Fishery); F("목장", 2, RoomKind.Fishery);
             F("벌레덫", 1); F("양갱기", 2, RoomKind.Kitchen); F("꿀단지 개미방", 1, RoomKind.Storeroom); F("발효통", 1); F("영양죽 기계", 3, RoomKind.Kitchen);
@@ -115,8 +115,8 @@ namespace AntColony.Data
             F("가시 다트", 1, RoomKind.Recreation); F("도토리 볼링", 1, RoomKind.Recreation); F("악기", 1, RoomKind.Recreation); F("운동기구", 2, RoomKind.Recreation);
             F("진딧물 꿀술바", 2, RoomKind.Recreation); F("거미줄 그네", 1, RoomKind.Recreation); F("민들레 홀씨 활강", 1, RoomKind.Recreation);
             F("이야기 모닥불", 1, RoomKind.Recreation, BuildingKind.Campfire); F("주사위 도박판", 1, RoomKind.Recreation, BuildingKind.GamblingDen); F("무대", 2, RoomKind.Recreation);
-            F("목욕통", 1, RoomKind.Bathhouse); F("온천", 1, RoomKind.Bathhouse); F("안마의자", 4, RoomKind.Recreation, net: NetworkLayer.Power);
-            F("책장", 1, RoomKind.Library); F("홀로그램 극장", 6, RoomKind.Recreation, net: NetworkLayer.Power); F("게임기·VR", 6, RoomKind.Recreation, net: NetworkLayer.Power);
+            F("목욕통", 1, RoomKind.Bathhouse, BuildingKind.Bathtub); F("온천", 1, RoomKind.Bathhouse); F("안마의자", 4, RoomKind.Recreation, net: NetworkLayer.Power);
+            F("책장", 1, RoomKind.Library, BuildingKind.Bookshelf); F("홀로그램 극장", 6, RoomKind.Recreation, net: NetworkLayer.Power); F("게임기·VR", 6, RoomKind.Recreation, net: NetworkLayer.Power);
 
             In(BuildCategory.Decoration); // 방 안 = 방 등급, 방 밖 = 주변 기분
             F("조각상", 1); F("화분", 1, existing: BuildingKind.FlowerPot); F("깃발", 1); F("그림", 1); F("조개껍데기", 1, existing: BuildingKind.ShellDecoration);

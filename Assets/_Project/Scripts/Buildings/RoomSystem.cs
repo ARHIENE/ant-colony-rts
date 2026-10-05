@@ -67,7 +67,7 @@ namespace AntColony.Buildings
 
         public static bool IsBoundary(BuildingBase b) => b is SoilWall || b is Wall || b is Door || b is Gate;
         // 가구가 요구하는 방 종류(필수 가구, 2026-10-05). 아직 없는 가구는 가장 가까운 기존 건물로 대신 잇고 '대용' 주석.
-        // 가구가 없어 판정할 수 없는 방: 목욕탕(목욕통·온천), 가공실(가공대·용광로), 화실(예술대), 도서관(책장), 냉장실(저장고·냉장고),
+        // 가구가 없어 판정할 수 없는 방: 가공실(가공대·용광로), 화실(예술대), 냉장실(저장고·냉장고),
         // 양식장·목장, 무기고, 연회장(긴 식탁 + 장식 3+), 묘지(관·묘비, 방 밖도 가능), 신전(제단). TODO 가구가 생기면 아래에 연결.
         // 방 밖 전용(None): 방어·마을 건물(산성탑·함정·주거 등), 풍차·물레방아·태양광판, 이동수단. 밭은 방 밖에서도 쓰고 방 안이면 농장.
         public static RoomKind KindOf(BuildingBase b)
@@ -83,6 +83,8 @@ namespace AntColony.Buildings
             {
                 Dormitory => RoomKind.Bedroom, Infirmary => RoomKind.Hospital, // 침대류·병상
                 Kitchen k => k.Data != null && k.Data.kind == BuildingKind.Hearth ? RoomKind.Kitchen : RoomKind.Dining, // 화덕(조리대)·식탁
+                RecreationSpot spot when spot.KindIndex == 2 => RoomKind.Library, // 책장
+                RecreationSpot spot when spot.KindIndex == 3 => RoomKind.Bathhouse, // 목욕통(온천은 아직 없음)
                 RestRoom or RecreationSpot => RoomKind.Recreation, // 휴게 가구
                 Storage or Stockpile => RoomKind.Storeroom, // 대용: 수납장·항아리
                 ScienceLab or ResearchLab or DefenseLab => RoomKind.Laboratory, // 연구대

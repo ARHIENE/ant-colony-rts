@@ -14,8 +14,8 @@ namespace AntColony.Buildings
         private readonly List<CommanderAnt> residents = new List<CommanderAnt>();
         public IReadOnlyList<CommanderAnt> Residents => residents;
         public static IReadOnlyList<Dormitory> All => Active;
-        // 침대 수: 숙소 건물 4 / 자리 1 / 큰침대 2(2026-10-05). 방 판정에서는 숙소 건물만 침대 4개로 센다.
-        public int Beds => Data != null && Data.kind == BuildingKind.SleepingMat ? 1 : Data != null && Data.kind == BuildingKind.DoubleBed ? 2 : GameBalance.DormitoryBeds;
+        // 침대 수: 숙소 건물 4 / 자리·침대 1 / 큰침대 2(2026-10-05). 방 판정에서는 숙소 건물만 침대 4개로 센다.
+        public int Beds => Data != null && (Data.kind == BuildingKind.SleepingMat || Data.kind == BuildingKind.SingleBed) ? 1 : Data != null && Data.kind == BuildingKind.DoubleBed ? 2 : GameBalance.DormitoryBeds;
         public int RoomBedCount => Data != null && Data.kind != BuildingKind.Dormitory ? 1 : GameBalance.DormitoryBeds;
         public bool IsMat => Data != null && Data.kind == BuildingKind.SleepingMat;
         public bool HasRoom => residents.Count < Beds;
