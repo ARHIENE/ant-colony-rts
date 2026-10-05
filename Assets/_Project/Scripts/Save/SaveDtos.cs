@@ -270,7 +270,7 @@ namespace AntColony.Save
         public float upkeepTimer, incursionTimer;
         public bool loopCompleted, bossDefeated, defeated;
         public string randomState;
-        public const int CurrentVersion = 13;
+        public const int CurrentVersion = 14;
         public List<World.Corpse.State> corpses = new List<World.Corpse.State>();
         public World.DiplomacyManager.State diplomacy;
         public Core.CampaignHistory.State history = new Core.CampaignHistory.State();

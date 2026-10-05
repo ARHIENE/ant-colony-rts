@@ -59,7 +59,7 @@ public static class Stage1Checks
 
             // 1. 과학 연구량·자원·한글 이름
             var defs = CampaignResearch.Technologies;
-            int[] work = { 300, 800, 1800, 4000 }, food = { 50, 100, 200, 400 }, special = { 0, 10, 30, 80 };
+            int[] work = { 200, 400, 800, 1500, 2800, 5000 }, food = { 50, 100, 150, 200, 300, 400 }, special = { 0, 10, 20, 30, 50, 80 };
             foreach (var d in defs)
                 Check(d.Work == work[d.Tier - 1] && d.Food == food[d.Tier - 1] && d.Soil == food[d.Tier - 1] && d.Special == special[d.Tier - 1], "science cost " + d.Technology);
             Check(defs[(int)ScienceTechnology.FungalFarming].Name == "균류 재배" && defs[(int)ScienceTechnology.Engine].Name == "추진기관"

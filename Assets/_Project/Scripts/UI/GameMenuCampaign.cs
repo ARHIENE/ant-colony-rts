@@ -11,16 +11,16 @@ namespace AntColony.UI
     {
         public void Science()
         {
-            Screen("Science / Airship");
+            Screen("Science / Rocket");
             var research = CampaignResearch.Instance;
             if (research == null) { MenuTheme.Text(content, "Science is initializing."); MenuTheme.Button(content, "Back", Back); return; }
             MenuTheme.Text(content, research.Active == null ? "Choose one shared project. Assigned commanders contribute from eligible labs."
                 : $"{research.Active.Name}: {research.Progress:0}/{research.Active.Work:0} work. Resume the game to advance.", 18, 65);
             foreach (var lab in FindObjectsByType<ScienceLab>(FindObjectsSortMode.None))
             {
-                MenuTheme.Text(content, $"{lab.name} T{lab.Tier} | Researcher: {lab.Target?.CommanderName ?? "none"}", 19, 48);
+                MenuTheme.Text(content, $"{lab.name} T{lab.Tier}({CampaignResearch.EraNames[lab.Tier - 1]}) | Researcher: {lab.Target?.CommanderName ?? "none"}", 19, 48);
                 var captured = lab;
-                MenuTheme.Button(content, $"Upgrade lab ({lab.Tier * 60}F / {lab.Tier * 80} 재료)", () => { if (!captured.TryUpgrade()) ToastManager.Show("Upgrade unavailable or insufficient resources."); Science(); }).interactable = lab.Tier < 4 && !lab.Busy;
+                MenuTheme.Button(content, $"Upgrade lab ({lab.Tier * 60}F / {lab.Tier * 80} 재료)", () => { if (!captured.TryUpgrade()) ToastManager.Show("Upgrade unavailable or insufficient resources."); Science(); }).interactable = lab.Tier < ScienceLab.MaxTier && !lab.Busy;
                 if (lab.Target != null) MenuTheme.Button(content, "Release researcher", () => { captured.ReleaseResearcher(); Science(); });
                 else foreach (var c in SortedCommanders().Where(c => !c.IsAwayFromHome && c.CanChangeAllocation && !c.IsWorking && Vector3.Distance(c.Position, lab.Position) <= 8))
                     MenuTheme.Button(content, "Assign " + c.CommanderName, () => { if (!captured.TryAssign(c)) ToastManager.Show("Cannot assign this commander."); Science(); });
@@ -30,16 +30,16 @@ namespace AntColony.UI
             {
                 var reason = research.BlockReason(definition.Technology);
                 var done = research.Has(definition.Technology);
-                var button = MenuTheme.Button(content, $"T{definition.Tier} {definition.Name} — {(done ? "Complete" : $"{definition.Food}F/{definition.Soil} 재료{(definition.Special > 0 ? $"/{definition.Special} Special" : "")}, {definition.Work:0} work")}",
+                var button = MenuTheme.Button(content, $"T{definition.Tier} {CampaignResearch.EraNames[definition.Tier - 1]} · {definition.Name} — {(done ? "Complete" : $"{definition.Food}F/{definition.Soil} 재료{(definition.Special > 0 ? $"/{definition.Special} Special" : "")}, {definition.Work:0} work")}",
                     () => { if (!research.TryStart(definition.Technology)) ToastManager.Show("Cannot start: check prerequisites and resources."); Science(); }, reason == "" ? "Starts one shared research project." : reason);
                 button.interactable = reason == "";
             }
-            MenuTheme.Text(content, "Engine blueprint: " + (research.HasBlueprint ? "acquired" : "defeat a world-map boss and bring its reward home"), 18, 55);
+            MenuTheme.Text(content, "Rocket engine blueprint: " + (research.HasBlueprint ? "acquired" : "defeat a world-map boss and bring its reward home"), 18, 55);
             MenuTheme.Button(content, "Build Infirmary (40F / 40 재료 / 4 ants)", () => {
                 Resume(); FindFirstObjectByType<BuildingPlacementController>()?.BeginInfirmaryPlacement();
             }, "Treat up to two seriously injured commanders. Assign nearby patients from commander details.").interactable = Infirmary.Unlocked;
             ScienceBuildings();
-            MenuTheme.Button(content, "Build Airship Yard (100F / 150 재료 / 10 ants)", () => {
+            MenuTheme.Button(content, "Build Rocket Launch Pad (100F / 150 재료 / 10 ants)", () => {
                 Resume(); FindFirstObjectByType<BuildingPlacementController>()?.BeginAirshipYardPlacement();
             });
             foreach (var yard in FindObjectsByType<AirshipYard>(FindObjectsSortMode.None))
@@ -47,12 +47,12 @@ namespace AntColony.UI
                 MenuTheme.Text(content, $"{yard.name} | Hull {yard.Hull} | Engine {yard.Engine} | Cocoons {yard.Cocoons} | {yard.Remaining:0}s", 18, 55);
                 foreach (AirshipPart part in Enum.GetValues(typeof(AirshipPart)))
                     MenuTheme.Button(content, "Build " + part + (part == AirshipPart.Cocoon ? $" ({GameBalance.CocoonFood}F/{GameBalance.CocoonSoil} 재료/{GameBalance.CocoonSpecial} Special, {yard.Cocoons}/{GameBalance.MaxCocoons})" : " (100F/150 재료/150 Special)"),
-                        () => { if (!yard.TryBuild(part)) ToastManager.Show("Requires the matching research, resources and an idle yard."); Science(); });
+                        () => { if (!yard.TryBuild(part)) ToastManager.Show("Requires the matching research, resources and an idle launch pad."); Science(); });
                 foreach (var c in SortedCommanders().Where(c => c.CanChangeAllocation && !c.IsAwayFromHome && Vector3.Distance(c.Position, yard.Position) <= 8))
                     MenuTheme.Button(content, "Board " + c.CommanderName, () => { if (!yard.TryBoard(c)) ToastManager.Show("Finish hull/engine and build a cocoon per passenger."); Science(); });
                 MenuTheme.Text(content, "Aboard: " + string.Join(", ", yard.Passengers.Select(c => c.CommanderName)), 18, 50);
-                MenuTheme.Button(content, "Unload airship", () => { yard.Unload(); Science(); });
-                MenuTheme.Button(content, "Depart — end this run", () => { if (!yard.TryDepart()) ToastManager.Show("Finish hull and engine first."); }).interactable = yard.Ready;
+                MenuTheme.Button(content, "Unload rocket", () => { yard.Unload(); Science(); });
+                MenuTheme.Button(content, "Launch — end this run", () => { if (!yard.TryDepart()) ToastManager.Show("Finish hull and engine first."); }).interactable = yard.Ready;
             }
             MenuTheme.Button(content, "Refresh", Science);
             MenuTheme.Button(content, "Back", Back);

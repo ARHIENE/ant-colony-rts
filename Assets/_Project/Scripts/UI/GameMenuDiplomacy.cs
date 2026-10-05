@@ -182,7 +182,7 @@ namespace AntColony.UI
                     slider.onValueChanged.AddListener(v => { offer.resources[resource] = (int)v; label.text = "수량 " + (int)v; preview(); });
                 }
                 if (!player && c.id == "market:" + d.Data.blueprintSite && CampaignResearch.Instance?.HasBlueprint == false)
-                    Item((offer.blueprint ? "✓ " : "") + "비행선 설계도 · 특수 150", () => { offer.blueprint = !offer.blueprint; TradeScreen(c); });
+                    Item((offer.blueprint ? "✓ " : "") + "로켓 설계도 · 특수 150", () => { offer.blueprint = !offer.blueprint; TradeScreen(c); });
             }
             if (tradeTab == 1)
                 foreach (var item in player ? EquipmentInventory.Instance.Items : c.equipment)

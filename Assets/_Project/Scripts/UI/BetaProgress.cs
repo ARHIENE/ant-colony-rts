@@ -56,10 +56,10 @@ namespace AntColony.UI
         {
             if (game == null) return "Preparing colony...";
             var campaign = CampaignResearch.Instance;
-            if (campaign != null && campaign.Departed) return "GREAT MIGRATION COMPLETE";
+            if (campaign != null && campaign.Departed) return "ROCKET LAUNCHED";
             if (campaign != null && campaign.Active != null)
                 return $"RESEARCH - {campaign.Active.Name}\n{campaign.Progress:0}/{campaign.Active.Work:0}: assign matching-tier researchers";
-            if (game.SavedBoss) return "SCIENCE ESCAPE - Collect boss reward cargo\nReturn home; research the Great Migration";
+            if (game.SavedBoss) return "SCIENCE ESCAPE - Collect boss reward cargo\nReturn home; research the rocket";
             var world = WorldMapManager.Instance;
             if (world != null)
             {

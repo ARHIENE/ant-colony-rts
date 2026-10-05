@@ -12,12 +12,13 @@ namespace AntColony.Core
         public const float WorkshopBuildSeconds = 10, CraftWork = 90, WorkshopRadius = 8;
         public const int CraftQueueCapacity = 3;
         // 과학 연구: tier 1~4
-        public static readonly float[] ScienceWork = { 300, 800, 1800, 4000 };
-        public static readonly int[] ScienceFood = { 50, 100, 200, 400 };
-        public static readonly int[] ScienceSoil = { 50, 100, 200, 400 };
-        public static readonly int[] ScienceSpecial = { 0, 10, 30, 80 };
+        // 6시대(2026-10-05, 잠정): 소굴·증기·석유·전기·원자·미래. 석유·원자 자원 비용은 앞뒤 시대 사이값.
+        public static readonly float[] ScienceWork = { 200, 400, 800, 1500, 2800, 5000 };
+        public static readonly int[] ScienceFood = { 50, 100, 150, 200, 300, 400 };
+        public static readonly int[] ScienceSoil = { 50, 100, 150, 200, 300, 400 };
+        public static readonly int[] ScienceSpecial = { 0, 10, 20, 30, 50, 80 };
 
-        // 비행선 동면 고치: 고치 1개 = 장수 1명 + 그 장수의 병력 전부
+        // 로켓 동면 고치: 고치 1개 = 장수 1명 + 그 장수의 병력 전부
         public const int CocoonFood = 100, CocoonSoil = 50, CocoonSpecial = 10;
         public const float CocoonSeconds = 60;
         public const int MaxCocoons = 20;

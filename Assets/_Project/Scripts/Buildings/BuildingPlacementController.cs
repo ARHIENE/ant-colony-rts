@@ -153,7 +153,7 @@ namespace AntColony.Buildings
             if (kind == BuildingKind.MineField && MineField.Count >= GameBalance.MaxMines) return $"Up to {GameBalance.MaxMines} mine fields at once.";
             if (kind == BuildingKind.Infirmary && !Infirmary.Unlocked) return "Research Infirmary first.";
             if (kind == BuildingKind.AirshipYard && (CampaignResearch.Instance == null
-                || !CampaignResearch.Instance.Has(ScienceTechnology.MigrationTheory))) return "Research great migration theory first.";
+                || !CampaignResearch.Instance.Has(ScienceTechnology.MigrationTheory))) return "로켓 이론을 먼저 연구하세요.";
             if (kind == BuildingKind.ScienceLab && !ScienceLab.PrerequisitesMet) return "Science Lab requires 60 ants, Fishing and a Tier 2 barracks.";
             return null;
         }
@@ -405,7 +405,7 @@ namespace AntColony.Buildings
             go.transform.localScale = new Vector3(6, 2, 4);
             var definition = ScriptableObject.CreateInstance<BuildingData>();
             definition.kind = BuildingKind.AirshipYard;
-            definition.displayName = "Airship Yard";
+            definition.displayName = "Rocket Launch Pad";
             definition.foodCost = 100; definition.soilCost = 150;
             definition.constructionAnts = 10; definition.buildTimeSeconds = 30;
             definition.maxHealth = 600;

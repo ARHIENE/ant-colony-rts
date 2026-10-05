@@ -8,6 +8,7 @@ namespace AntColony.Buildings
 {
     public enum AirshipPart { Hull, Engine, Cocoon }
 
+    // 로켓 발사대(2026-10-05, 구 비행선 조선소). 저장·프리팹 호환을 위해 코드 이름은 AirshipYard 유지.
     public sealed class AirshipYard : BuildingBase
     {
         [Serializable] public sealed class State
@@ -54,7 +55,7 @@ namespace AntColony.Buildings
             if (state.building == (int)AirshipPart.Hull) state.hull = true;
             else if (state.building == (int)AirshipPart.Engine) state.engine = true;
             else state.cocoons++;
-            AntColony.UI.ToastManager.Show("Airship " + (AirshipPart)state.building + " complete.");
+            AntColony.UI.ToastManager.Show("Rocket " + (AirshipPart)state.building + " complete.");
             state.building = -1;
         }
 
@@ -102,7 +103,7 @@ namespace AntColony.Buildings
         }
         public static bool Validate(State value, int commanderCount, out string error)
         {
-            error = "Invalid airship yard state.";
+            error = "Invalid rocket launch pad state.";
             if (value == null) { error = ""; return true; }
             if (value.cocoons < 0 || value.building < -1 || value.building > 2 || value.remaining < 0
                 || float.IsInfinity(value.remaining) || float.IsNaN(value.remaining) || value.passengers == null

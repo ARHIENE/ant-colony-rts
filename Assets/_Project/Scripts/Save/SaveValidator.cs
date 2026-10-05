@@ -142,6 +142,16 @@ namespace AntColony.Save
                 file.version = 12;
             }
             if (file.version == 12) file.version = 13; // 정찰 동행 장수 scoutCompanion 기본 -1(이전 파견은 장수 없이 이어짐).
+            if (file.version == 13)
+            {
+                // 2026-10-05 6시대: 연구소 등급 3(항공)→4(전기), 4(대이주)→6(미래). 연구량이 줄어든 시대의 진행도는 완료 직전으로 자른다.
+                if (file.buildings != null) foreach (var b in file.buildings)
+                    if (b != null && b.scienceTier >= 3) b.scienceTier = b.scienceTier == 3 ? 4 : 6;
+                var c = file.campaign;
+                if (c != null && c.active >= 0 && c.active < Core.CampaignResearch.Technologies.Length)
+                    c.progress = Mathf.Min(c.progress, Core.CampaignResearch.Technologies[c.active].Work - .01f);
+                file.version = 14;
+            }
             if (file.version != SaveFileV1.CurrentVersion)
             {
                 error = $"Save version {file.version} cannot be read by this build (expects {SaveFileV1.CurrentVersion}).";

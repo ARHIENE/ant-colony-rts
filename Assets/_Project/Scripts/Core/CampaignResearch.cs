@@ -36,6 +36,10 @@ namespace AntColony.Core
     public sealed class CampaignResearch : MonoBehaviour
     {
         public static CampaignResearch Instance { get; private set; }
+        // 6시대(2026-10-05). 기존 4시대 매핑: 소굴=소굴, 공학=증기, 항공=전기, 대이주=미래.
+        // TODO 석유(3)·원자(5) 시대 연구 항목은 아직 없음(빈 시대).
+        public static readonly string[] EraNames = { "소굴", "증기", "석유", "전기", "원자", "미래" };
+        public const int EraCount = 6;
         public static readonly ScienceDefinition[] Technologies = {
             new ScienceDefinition(ScienceTechnology.FungalFarming, "균류 재배", 1),
             new ScienceDefinition(ScienceTechnology.HoneydewRanch, "감로 목장", 1, ScienceTechnology.FungalFarming),
@@ -54,23 +58,23 @@ namespace AntColony.Core
             new ScienceDefinition(ScienceTechnology.Vehicle, "바퀴 차량", 2),
             new ScienceDefinition(ScienceTechnology.Drainage, "치수 공사", 2, ScienceTechnology.Sanitation),
             new ScienceDefinition(ScienceTechnology.Firebreaks, "방화대", 2, ScienceTechnology.Resin),
-            new ScienceDefinition(ScienceTechnology.EfficientTransport, "수송 효율", 3, ScienceTechnology.Vehicle),
-            new ScienceDefinition(ScienceTechnology.Mines, "자폭 매설", 3, ScienceTechnology.Traps),
-            new ScienceDefinition(ScienceTechnology.Regeneration, "부위 재생", 3, ScienceTechnology.Infirmary),
-            new ScienceDefinition(ScienceTechnology.Trinkets, "장신구", 3, ScienceTechnology.ArmorPlates),
-            new ScienceDefinition(ScienceTechnology.AdvancedWeapons, "고급 무기", 3, ScienceTechnology.Blades),
-            new ScienceDefinition(ScienceTechnology.Gliding, "활공 날개", 3, ScienceTechnology.Vehicle),
-            new ScienceDefinition(ScienceTechnology.Aircraft, "비행기", 3, ScienceTechnology.Gliding),
-            new ScienceDefinition(ScienceTechnology.HeavyTransport, "대형 수송", 3, ScienceTechnology.Aircraft),
-            new ScienceDefinition(ScienceTechnology.Insulation, "보온 설비", 3, ScienceTechnology.Drainage),
-            new ScienceDefinition(ScienceTechnology.MigrationTheory, "대이주 이론", 3, ScienceTechnology.Aircraft),
-            new ScienceDefinition(ScienceTechnology.Hull, "선체", 4, ScienceTechnology.MigrationTheory),
-            new ScienceDefinition(ScienceTechnology.Cocoons, "동면 고치", 4, ScienceTechnology.MigrationTheory),
-            new ScienceDefinition(ScienceTechnology.Engine, "추진기관", 4, ScienceTechnology.MigrationTheory),
+            new ScienceDefinition(ScienceTechnology.EfficientTransport, "수송 효율", 4, ScienceTechnology.Vehicle),
+            new ScienceDefinition(ScienceTechnology.Mines, "자폭 매설", 4, ScienceTechnology.Traps),
+            new ScienceDefinition(ScienceTechnology.Regeneration, "부위 재생", 4, ScienceTechnology.Infirmary),
+            new ScienceDefinition(ScienceTechnology.Trinkets, "장신구", 4, ScienceTechnology.ArmorPlates),
+            new ScienceDefinition(ScienceTechnology.AdvancedWeapons, "고급 무기", 4, ScienceTechnology.Blades),
+            new ScienceDefinition(ScienceTechnology.Gliding, "활공 날개", 4, ScienceTechnology.Vehicle),
+            new ScienceDefinition(ScienceTechnology.Aircraft, "비행기", 4, ScienceTechnology.Gliding),
+            new ScienceDefinition(ScienceTechnology.HeavyTransport, "비행선(대형 수송)", 4, ScienceTechnology.Aircraft),
+            new ScienceDefinition(ScienceTechnology.Insulation, "보온 설비", 4, ScienceTechnology.Drainage),
+            new ScienceDefinition(ScienceTechnology.MigrationTheory, "로켓 이론", 6, ScienceTechnology.Aircraft),
+            new ScienceDefinition(ScienceTechnology.Hull, "선체", 6, ScienceTechnology.MigrationTheory),
+            new ScienceDefinition(ScienceTechnology.Cocoons, "동면 고치", 6, ScienceTechnology.MigrationTheory),
+            new ScienceDefinition(ScienceTechnology.Engine, "추진기관", 6, ScienceTechnology.MigrationTheory),
             new ScienceDefinition(ScienceTechnology.Fishing, "낚시", 1),
             new ScienceDefinition(ScienceTechnology.ConscriptionLaw, "징병제", 1),
             new ScienceDefinition(ScienceTechnology.ReserveForces, "예비군제", 2, ScienceTechnology.ConscriptionLaw),
-            new ScienceDefinition(ScienceTechnology.TotalMobilization, "국민개병", 3, ScienceTechnology.ReserveForces)
+            new ScienceDefinition(ScienceTechnology.TotalMobilization, "국민개병", 4, ScienceTechnology.ReserveForces)
         };
 
         [Serializable] public sealed class State
@@ -105,13 +109,13 @@ namespace AntColony.Core
             while (state.defense.Count < 4) state.defense.Add(0);
             state.defense[(int)line] = level;
         }
-        public void AcquireBlueprint() { state.blueprint = true; AntColony.UI.ToastManager.Show("Airship engine blueprint acquired."); }
+        public void AcquireBlueprint() { state.blueprint = true; AntColony.UI.ToastManager.Show("로켓 추진기관 설계도를 얻었습니다."); }
 
         public string BlockReason(ScienceTechnology technology)
         {
             var i = (int)technology;
             if (i < 0 || i >= Technologies.Length) return "Unknown technology.";
-            if (Departed) return "The colony has departed.";
+            if (Departed) return "로켓이 이미 발사되었습니다.";
             if (Has(technology)) return "Already researched.";
             if (Active != null) return "One shared research project at a time.";
             var definition = Technologies[i];
@@ -120,7 +124,7 @@ namespace AntColony.Core
             if (technology == ScienceTechnology.Engine && !HasBlueprint) return "Bring an engine blueprint home from a boss nest or trading post.";
             foreach (var lab in FindObjectsByType<ScienceLab>(FindObjectsSortMode.None))
                 if (lab.isActiveAndEnabled && lab.Tier >= definition.Tier) return "";
-            return "Requires science lab tier " + definition.Tier + ".";
+            return "과학 연구소 " + definition.Tier + "등급(" + EraNames[definition.Tier - 1] + " 시대)이 필요합니다.";
         }
 
         public bool TryStart(ScienceTechnology technology)

@@ -50,7 +50,7 @@ namespace AntColony.UI
                 new Entry("날개 훈련장", BuildingKind.Barracks, UnitRole.Flying), new Entry("징집소", BuildingKind.ConscriptionPost),
                 new Entry("정찰 초소", BuildingKind.ScoutPost), new Entry("포로 수용소", BuildingKind.PrisonerCamp) },
             new[] { new Entry("초가집", BuildingKind.Hut), new Entry("흙집", BuildingKind.House), new Entry("큰 아파트", BuildingKind.Apartment) },
-            new[] { new Entry("비행선 조선소", BuildingKind.AirshipYard) }
+            new[] { new Entry("로켓 발사대", BuildingKind.AirshipYard) }
         };
         private static int TabOf(string name) => System.Array.IndexOf(TabNames, name);
 

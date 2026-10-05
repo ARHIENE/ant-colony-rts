@@ -123,7 +123,7 @@ namespace AntColony.Save
                         b.scoutRemaining, b.prisonEscapeTimer, b.towerCooldown }.All(N) && V(b.scienceSpawn), "building timers");
                     Check(b.barracksTier >= 1 && b.barracksTier <= 3 && R(b.role), "building tier/role");
                     Check(b.labResearchCommanderId >= -1 && b.labResearchCommanderId < f.commanders.Count && (b.labResearchRemaining <= 0 || b.labResearchCommanderId >= 0 && targets.Add(b.labResearchCommanderId)), "research target");
-                    Check(b.scienceTier >= 1 && b.scienceTier <= 4 && b.scientist >= -1 && b.scientist < f.commanders.Count, "scientist/tier");
+                    Check(b.scienceTier >= 1 && b.scienceTier <= Buildings.ScienceLab.MaxTier && b.scientist >= -1 && b.scientist < f.commanders.Count, "scientist/tier");
                     if (b.scientist >= 0) Check(b.kind == "ScienceLab" && targets.Add(b.scientist)
                         && f.commanders[b.scientist].location == 0 && !f.commanders[b.scientist].personalState.dead, "scientist ownership");
                     Check(AirshipYard.Validate(b.airship, f.commanders.Count, out _), "airship");

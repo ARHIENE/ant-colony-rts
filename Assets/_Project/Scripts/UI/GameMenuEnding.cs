@@ -6,7 +6,7 @@ using UnityEngine;
 
 namespace AntColony.UI
 {
-    // 엔딩 화면: 출항 장면 + 4단계에서 누적한 기록 → 메인 메뉴. 점수·등급 없음.
+    // 엔딩 화면: 로켓 발사 장면 + 4단계에서 누적한 기록 → 메인 메뉴. 점수·등급 없음.
     public sealed partial class GameMenuController
     {
         private static readonly string[] ResourceNames = { "Food", "재료", "Special" };
@@ -16,8 +16,8 @@ namespace AntColony.UI
         {
             var research = CampaignResearch.Instance;
             if (research == null || !research.Departed) return;
-            Screen("출항 — GREAT MIGRATION VICTORY"); Time.timeScale = 0;
-            var scene = MenuTheme.Text(content, "~ ~ ~   비행선이 소굴을 떠나 새 하늘로 날아오릅니다   ~ ~ ~", 22, 60);
+            Screen("발사 — ROCKET LAUNCH VICTORY"); Time.timeScale = 0;
+            var scene = MenuTheme.Text(content, "~ ~ ~   로켓이 소굴을 떠나 우주로 날아오릅니다   ~ ~ ~", 22, 60);
             scene.alignment = TextAnchor.MiddleCenter; scene.color = MenuTheme.Accent;
             foreach (var line in EndingRecord(research)) MenuTheme.Text(content, line, 17, Mathf.Max(30, 24 * (1 + line.Length / 70)));
             MenuTheme.Button(content, "Main Menu", () => { GameSession.Instance.MarkNotStarted(); Main(); });

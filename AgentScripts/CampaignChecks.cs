@@ -104,8 +104,8 @@ public static class CampaignChecks
             CampaignResearch.Instance.Tick(10); Check(Mathf.Abs(CampaignResearch.Instance.Progress - researchWork) < .01f, "two labs contribute by skill and tier");
             lab2.gameObject.SetActive(false); Check(b.ScienceAssignment == null, "destroyed/disabled lab releases researcher");
             CampaignResearch.Instance.Tick(10000); Check(WorldMapManager.Instance.VehicleResearched, "vehicle unlock applied");
-            Check(lab.TryUpgrade(), "tier 3"); Complete(ScienceTechnology.Gliding); Complete(ScienceTechnology.Aircraft); Complete(ScienceTechnology.MigrationTheory);
-            Check(lab.TryUpgrade(), "tier 4"); Complete(ScienceTechnology.Hull); Complete(ScienceTechnology.Cocoons);
+            Check(lab.TryUpgrade() && lab.TryUpgrade(), "tier 4 (electric)"); Complete(ScienceTechnology.Gliding); Complete(ScienceTechnology.Aircraft);
+            Check(lab.TryUpgrade() && lab.TryUpgrade() && !lab.TryUpgrade(), "tier 6 (future) is max"); Complete(ScienceTechnology.MigrationTheory); Complete(ScienceTechnology.Hull); Complete(ScienceTechnology.Cocoons);
             Check(!CampaignResearch.Instance.TryStart(ScienceTechnology.Engine), "engine requires world blueprint");
             lab.ReleaseResearcher();
             var world = WorldMapManager.Instance;
@@ -157,12 +157,12 @@ public static class CampaignChecks
             Check(actual.campaign.active == expected.campaign.active && Mathf.Abs(actual.campaign.progress - expected.campaign.progress) < 2, "research survives reload");
             Check(actual.campaign.blueprint && actual.campaign.completed.Count == expected.campaign.completed.Count, "research and blueprint retained");
             var restoredLab = Object.FindObjectsByType<ScienceLab>().First(x => x.Target != null);
-            Check(restoredLab.Tier == 4 && restoredLab.Target.ScienceAssignment == restoredLab, "lab tier and assignment restored");
+            Check(restoredLab.Tier == 6 && restoredLab.Target.ScienceAssignment == restoredLab, "lab tier and assignment restored");
             var restoredYard = Object.FindFirstObjectByType<AirshipYard>();
             Check(restoredYard.Ready && restoredYard.Cocoons == 1 && restoredYard.Passengers.Count == 1 && restoredYard.Passengers[0].IsEmbarked, "airship state restored");
             Check(EquipmentInventory.Instance.Items.Count == expected.equipmentInventory.Count, "equipment retained");
             GameMenuController.Instance.Science();
-            Check(GameMenuController.Instance.ScreenName == "Science / Airship", "science UI reachable");
+            Check(GameMenuController.Instance.ScreenName == "Science / Rocket", "science UI reachable");
             Check(restoredYard.TryDepart(), "departure succeeds");
             Check(CampaignResearch.Instance.Passengers.Count == 1 && CampaignResearch.Instance.LeftBehind.Count == CommanderRoster.Instance.Commanders.Count - 1, "ending manifests");
             Check(Time.timeScale == 0 && GameMenuController.Instance.ScreenName.Contains("VICTORY"), "ending pauses simulation");
