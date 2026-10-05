@@ -37,7 +37,9 @@ namespace AntColony.Data
         // Phase 5 벽·문: 나뭇잎 벽·병뚜껑 벽·문·성벽·성문
         LeafWall, CapWall, Door, CastleWall, Gate,
         // 2026-10-05 위생(화장실·세면대·샤워기) + 전력 1차(쳇바퀴·장작 발전기·전선·배터리·전등)
-        Toilet, Washbasin, Shower, Treadmill, WoodGenerator, PowerWire, Battery, ElectricLamp
+        Toilet, Washbasin, Shower, Treadmill, WoodGenerator, PowerWire, Battery, ElectricLamp,
+        // 2026-10-05 가구 2차: 화덕(조리대)·자리·큰침대·바닥·잠금문·창살문
+        Hearth, SleepingMat, DoubleBed, Floor, LockedDoor, BarredDoor
     }
 
     [CreateAssetMenu(fileName = "BuildingData", menuName = "AntColony/Building Data")]

@@ -117,7 +117,7 @@ namespace AntColony.Buildings
             for (var i = prisoners.Count - 1; i >= 0; i--)
             {
                 // 기분이 좋은(기운 있는) 포로일수록 탈출을 시도한다.
-                var chance = escapeChance * (1f + MoodOf(prisoners[i]) / 100f);
+                var chance = escapeChance * (1f + MoodOf(prisoners[i]) / 100f) * (RoomSystem.RoomAt(transform.position)?.Kind == RoomKind.Prison ? GameBalance.PrisonRoomEscapeMultiplier : 1f); // 창살문·잠금문 감옥
                 if (Random.value >= chance) continue;
                 CampaignHistory.Record("탈주", prisoners[i].Name, "포로 수용소 탈출");
                 prisoners.RemoveAt(i);

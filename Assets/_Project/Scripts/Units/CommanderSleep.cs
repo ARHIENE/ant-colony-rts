@@ -95,6 +95,7 @@ namespace AntColony.Units
                 var room = RoomSystem.RoomAt(bed.Position);
                 if (room == null) personalState.AddMood("바깥에서 잠", GameBalanceRooms.OutsideSleepMood, GameCalendar.SecondsPerDay);
                 else if (room.Kind == RoomKind.Bedroom || room.Kind == RoomKind.PrivateRoom) personalState.AddMood("방에서 잠", GameBalanceRooms.RoomSleepMood + GameBalanceRooms.GradeMood[room.Grade], GameCalendar.SecondsPerDay);
+                if (bed.IsMat) personalState.AddMood("자리에서 잠", GameBalance.MatSleepMood, GameCalendar.SecondsPerDay); // 땅바닥 깔개: 수면 질 낮음
             }
             if (Dormitory.Of(this) is Dormitory dorm && dorm.LivesWithRival(this))
                 personalState.AddMood("라이벌과 같은 숙소", GameBalance.RivalRoommateMood, GameCalendar.SecondsPerDay);

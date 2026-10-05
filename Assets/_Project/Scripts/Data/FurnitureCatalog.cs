@@ -44,11 +44,11 @@ namespace AntColony.Data
         {
             In(BuildCategory.Tile); // 벽은 재료별로 따로(실제 목록은 재료 확정 후)
             F("흙벽", 1, existing: BuildingKind.SoilWall); F("나뭇잎 벽", 1, existing: BuildingKind.LeafWall); F("돌벽", 1); F("병뚜껑 벽", 2, existing: BuildingKind.CapWall);
-            F("문", 1, existing: BuildingKind.Door); F("잠금문", 1); F("창살문", 1); F("자동문", 6); F("유리벽", 6);
-            F("바닥", 1); F("기둥", 1); F("울타리", 1); F("방화벽", 2); F("다리", 1);
+            F("문", 1, existing: BuildingKind.Door); F("잠금문", 1, existing: BuildingKind.LockedDoor); F("창살문", 1, existing: BuildingKind.BarredDoor); F("자동문", 6); F("유리벽", 6);
+            F("바닥", 1, existing: BuildingKind.Floor); F("기둥", 1); F("울타리", 1); F("방화벽", 2); F("다리", 1);
 
             In(BuildCategory.Living);
-            F("자리", 1, RoomKind.Bedroom); F("침대", 1, RoomKind.Bedroom, BuildingKind.Dormitory); F("큰침대", 1, RoomKind.Bedroom); F("2층침대", 2, RoomKind.Bedroom); F("해먹", 1, RoomKind.Bedroom);
+            F("자리", 1, RoomKind.Bedroom, BuildingKind.SleepingMat); F("침대", 1, RoomKind.Bedroom, BuildingKind.Dormitory); F("큰침대", 1, RoomKind.Bedroom, BuildingKind.DoubleBed); F("2층침대", 2, RoomKind.Bedroom); F("해먹", 1, RoomKind.Bedroom);
             F("요람", 1, RoomKind.Nursery, BuildingKind.Nursery);
             F("작은 식탁", 1, RoomKind.Dining, BuildingKind.Kitchen); F("큰 식탁", 1, RoomKind.Dining); F("연회용 긴 식탁", 2, RoomKind.BanquetHall);
             F("구덩이 변소", 1, RoomKind.Bathroom); F("화장실", 2, RoomKind.Bathroom, BuildingKind.Toilet); F("수세식 변기", 4, RoomKind.Bathroom, net: NetworkLayer.Pipe); F("분해 변기", 6, RoomKind.Bathroom);
@@ -85,7 +85,7 @@ namespace AntColony.Data
 
             In(BuildCategory.Food); // 농장 방 = 밭·수경 농장·버섯밭·축사·먹이통, 밭은 방 밖도 가능
             F("밭", 1, RoomKind.Farm, BuildingKind.Farm); F("버섯밭", 1, RoomKind.Farm); F("축사", 1, RoomKind.Farm); F("먹이통", 1, RoomKind.Farm); F("수경 농장", 4, RoomKind.Farm, net: NetworkLayer.Pipe);
-            F("화덕", 1, RoomKind.Kitchen); F("가스레인지", 3, RoomKind.Kitchen, net: NetworkLayer.Pipe); F("전기조리대", 4, RoomKind.Kitchen, net: NetworkLayer.Power); F("미래 조리기구", 6, RoomKind.Kitchen, net: NetworkLayer.Power);
+            F("화덕", 1, RoomKind.Kitchen, BuildingKind.Hearth); F("가스레인지", 3, RoomKind.Kitchen, net: NetworkLayer.Pipe); F("전기조리대", 4, RoomKind.Kitchen, net: NetworkLayer.Power); F("미래 조리기구", 6, RoomKind.Kitchen, net: NetworkLayer.Power);
             F("해체대", 1, RoomKind.Kitchen); F("물고기 양식장", 2, RoomKind.Fishery); F("목장", 2, RoomKind.Fishery);
             F("벌레덫", 1); F("양갱기", 2, RoomKind.Kitchen); F("꿀단지 개미방", 1, RoomKind.Storeroom); F("발효통", 1); F("영양죽 기계", 3, RoomKind.Kitchen);
             F("제분기", 2, RoomKind.ProcessingRoom); F("사료통", 1, RoomKind.Dining); F("비료 제조기", 3, RoomKind.Farm); F("훈제실·건조대", 1, RoomKind.Kitchen);

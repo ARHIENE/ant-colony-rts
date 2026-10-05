@@ -16,7 +16,7 @@ namespace AntColony.UI
         private float refresh;
 
         public static CommanderAnt[] HomeCommanders => RosterBar.Commanders.Where(c => !c.IsAwayFromHome).ToArray();
-        public static int Beds => Dormitory.All.Count(d => d != null && d.isActiveAndEnabled && !d.IsDead) * GameBalance.DormitoryBeds;
+        public static int Beds => Dormitory.All.Where(d => d != null && d.isActiveAndEnabled && !d.IsDead).Sum(d => d.Beds);
         public static int BedShortage => Mathf.Max(0, HomeCommanders.Length - Beds);
         public static int AvailableDraft
         {

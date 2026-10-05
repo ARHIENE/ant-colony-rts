@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using AntColony.Boss;
 using AntColony.Buildings;
+using AntColony.Data;
 using AntColony.Units;
 using AntColony.World;
 using UnityEngine;
@@ -37,7 +38,8 @@ namespace AntColony.Save
             if (b.GetComponent<ScoutPost>() != null) return "ScoutPost";
             if (b.GetComponent<PrisonerCamp>() != null) return "PrisonerCamp";
             if (b.GetComponent<ResourceNode>() != null) return "Farm";
-            if (b is Decoration || b is Housing || b is Wall || b is Door || b is Gate || b is HygieneFixture || b is PowerNode) return b.Data.kind.ToString();
+            if (b is Decoration || b is Housing || b is Wall || b is Door || b is Gate || b is HygieneFixture || b is PowerNode || b is FloorTile
+                || b.Data != null && (b.Data.kind == BuildingKind.Hearth || b.Data.kind == BuildingKind.SleepingMat || b.Data.kind == BuildingKind.DoubleBed)) return b.Data.kind.ToString(); // 화덕·자리·큰침대는 종류 이름으로(식당·숙소는 기존대로 타입 이름)
             if (b is Stockpile) return "QueenChamber"; // 저장 호환: 구 여왕방 자리
             return b.GetType().Name;
         }

@@ -26,8 +26,9 @@ namespace AntColony.UI
         private static readonly Entry[][] Tabs =
         {
             new[] { new Entry("흙벽", BuildingKind.SoilWall), new Entry("나뭇잎 벽", BuildingKind.LeafWall), new Entry("병뚜껑 벽", BuildingKind.CapWall),
-                new Entry("문", BuildingKind.Door) },
-            new[] { new Entry("숙소", BuildingKind.Dormitory), new Entry("식당", BuildingKind.Kitchen), new Entry("양육실", BuildingKind.Nursery),
+                new Entry("문", BuildingKind.Door), new Entry("잠금문", BuildingKind.LockedDoor), new Entry("창살문", BuildingKind.BarredDoor), new Entry("바닥", BuildingKind.Floor) },
+            new[] { new Entry("숙소", BuildingKind.Dormitory), new Entry("자리", BuildingKind.SleepingMat), new Entry("큰침대", BuildingKind.DoubleBed),
+                new Entry("식당", BuildingKind.Kitchen), new Entry("양육실", BuildingKind.Nursery),
                 new Entry("화장실", BuildingKind.Toilet), new Entry("세면대", BuildingKind.Washbasin), new Entry("샤워기", BuildingKind.Shower) },
             new[] { new Entry("저장고", BuildingKind.Storage) },
             new[] { new Entry("전등", BuildingKind.ElectricLamp) }, // 환경: TODO 화롯불·등불·난로·환풍구
@@ -35,7 +36,7 @@ namespace AntColony.UI
                 new Entry("배터리", BuildingKind.Battery) },
             new Entry[0], // 자동화: TODO 센서·논리(신호선)
             new Entry[0], // 배관: TODO 배관·펌프·밸브·액체 탱크
-            new[] { new Entry("밭", BuildingKind.Farm) },
+            new[] { new Entry("밭", BuildingKind.Farm), new Entry("화덕", BuildingKind.Hearth) },
             new[] { new Entry("큰턱 연구소", BuildingKind.ResearchLab, UnitRole.Melee), new Entry("산샘 연구소", BuildingKind.ResearchLab, UnitRole.Ranged),
                 new Entry("갑각 연구소", BuildingKind.ResearchLab, UnitRole.Defense), new Entry("페로몬 연구소", BuildingKind.ResearchLab, UnitRole.Support),
                 new Entry("날개 연구소", BuildingKind.ResearchLab, UnitRole.Flying), new Entry("과학 연구소", BuildingKind.ScienceLab),
@@ -146,9 +147,11 @@ namespace AntColony.UI
             foreach (var page in tabPages)
             {
                 var buttons = page.GetComponentsInChildren<Button>(true);
+                // 줄이 많으면 칸 높이를 줄여 콘솔 안에 맞춘다(최대 52).
+                var rowHeight = Mathf.Min(52f, ((RectTransform)page.transform).rect.height / Mathf.Max(1, (buttons.Length + 2) / 3));
                 for (var i = 0; i < buttons.Length; i++)
                 {
-                    MenuLayout.Place((RectTransform)buttons[i].transform, i % 3 * width / 3, i / 3 * 52, width / 3 - 4, 48);
+                    MenuLayout.Place((RectTransform)buttons[i].transform, i % 3 * width / 3, i / 3 * rowHeight, width / 3 - 4, rowHeight - 4);
                     MenuTheme.Stretch(buttons[i].GetComponentsInChildren<Text>(true)[1].rectTransform);
                 }
             }

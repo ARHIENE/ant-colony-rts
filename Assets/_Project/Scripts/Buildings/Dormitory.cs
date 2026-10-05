@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using AntColony.Core;
+using AntColony.Data;
 using AntColony.Units;
 
 namespace AntColony.Buildings
@@ -13,7 +14,11 @@ namespace AntColony.Buildings
         private readonly List<CommanderAnt> residents = new List<CommanderAnt>();
         public IReadOnlyList<CommanderAnt> Residents => residents;
         public static IReadOnlyList<Dormitory> All => Active;
-        public bool HasRoom => residents.Count < GameBalance.DormitoryBeds;
+        // 침대 수: 숙소 건물 4 / 자리 1 / 큰침대 2(2026-10-05). 방 판정에서는 숙소 건물만 침대 4개로 센다.
+        public int Beds => Data != null && Data.kind == BuildingKind.SleepingMat ? 1 : Data != null && Data.kind == BuildingKind.DoubleBed ? 2 : GameBalance.DormitoryBeds;
+        public int RoomBedCount => Data != null && Data.kind != BuildingKind.Dormitory ? 1 : GameBalance.DormitoryBeds;
+        public bool IsMat => Data != null && Data.kind == BuildingKind.SleepingMat;
+        public bool HasRoom => residents.Count < Beds;
         protected override void OnEnable() { base.OnEnable(); Active.Add(this); }
         protected override void OnDisable() { Active.Remove(this); residents.Clear(); base.OnDisable(); }
 
@@ -28,7 +33,11 @@ namespace AntColony.Buildings
             var open = Active.Where(d => d != null && d.isActiveAndEnabled && !d.IsDead && d.HasRoom).OrderBy(d => (d.Position - c.Position).sqrMagnitude).ToList();
             bool Has(Dormitory d, System.Func<CommanderRelation, bool> test) =>
                 d.residents.Any(r => c.PersonalState.relations.Exists(x => x.otherId == r.PersonalState.id && test(x)));
+            // 큰침대는 부부를 먼저: 배우자가 없는 장수는 큰침대를 마지막에 고른다.
+            var married = c.PersonalState.relations.Exists(x => x.spouse);
+            if (!married) open = open.OrderBy(d => d.Data != null && d.Data.kind == BuildingKind.DoubleBed).ToList();
             var pick = open.FirstOrDefault(d => Has(d, r => r.spouse))
+                ?? (married ? open.FirstOrDefault(d => d.Data != null && d.Data.kind == BuildingKind.DoubleBed && d.residents.Count == 0) : null)
                 ?? open.FirstOrDefault(d => !Has(d, r => r.value <= SocialRules.Rival))
                 ?? open.FirstOrDefault();
             pick?.residents.Add(c);

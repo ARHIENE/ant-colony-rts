@@ -239,7 +239,7 @@ namespace AntColony.Buildings
         private Vector3? dragStart;
         private readonly System.Collections.Generic.List<GameObject> linePreviews = new System.Collections.Generic.List<GameObject>();
         public static bool IsLineKind(BuildingKind kind) => kind == BuildingKind.SoilWall || kind == BuildingKind.LeafWall
-            || kind == BuildingKind.CapWall || kind == BuildingKind.CastleWall || kind == BuildingKind.PowerWire; // 전선도 한 줄 드래그
+            || kind == BuildingKind.CapWall || kind == BuildingKind.CastleWall || kind == BuildingKind.PowerWire || kind == BuildingKind.Floor; // 전선·바닥도 한 줄 드래그
 
         public System.Collections.Generic.List<Vector3> LineCells(Vector3 start, Vector3 end)
         {
@@ -367,14 +367,15 @@ namespace AntColony.Buildings
                 BuildingKind.RestRoom => FindTemplate<RestRoom>() ?? RuntimeBuildingTemplates.Create(kind),
                 BuildingKind.ConscriptionPost => FindTemplate<ConscriptionPost>() ?? RuntimeBuildingTemplates.Create(kind),
                 BuildingKind.Workshop => FindTemplate<Workshop>() ?? RuntimeBuildingTemplates.Create(kind),
-                BuildingKind.Dormitory => FindTemplate<Dormitory>() ?? RuntimeBuildingTemplates.Create(kind),
-                BuildingKind.Kitchen => FindTemplate<Kitchen>() ?? RuntimeBuildingTemplates.Create(kind),
+                BuildingKind.Dormitory => FindTemplate<Dormitory>(kind) ?? RuntimeBuildingTemplates.Create(kind),
+                BuildingKind.Kitchen => FindTemplate<Kitchen>(kind) ?? RuntimeBuildingTemplates.Create(kind),
                 BuildingKind.FlowerPot or BuildingKind.ShellDecoration or BuildingKind.MarbleMosaic or BuildingKind.BottleMobile or BuildingKind.FireflyLamp
                     or BuildingKind.Campfire or BuildingKind.GamblingDen
                     or BuildingKind.Hut or BuildingKind.House or BuildingKind.Apartment
                     or BuildingKind.LeafWall or BuildingKind.CapWall or BuildingKind.Door or BuildingKind.CastleWall or BuildingKind.Gate
                     or BuildingKind.Toilet or BuildingKind.Washbasin or BuildingKind.Shower
-                    or BuildingKind.Treadmill or BuildingKind.WoodGenerator or BuildingKind.PowerWire or BuildingKind.Battery or BuildingKind.ElectricLamp => FindDecorationTemplate(kind),
+                    or BuildingKind.Treadmill or BuildingKind.WoodGenerator or BuildingKind.PowerWire or BuildingKind.Battery or BuildingKind.ElectricLamp
+                    or BuildingKind.Hearth or BuildingKind.SleepingMat or BuildingKind.DoubleBed or BuildingKind.Floor or BuildingKind.LockedDoor or BuildingKind.BarredDoor => FindDecorationTemplate(kind),
                 _ => null
             };
         }
@@ -435,6 +436,15 @@ namespace AntColony.Buildings
                 if (component.gameObject.scene.IsValid() && component.gameObject.name.EndsWith("Template"))
                     return component.gameObject;
             }
+            return null;
+        }
+
+        // 같은 컴포넌트를 쓰는 변형(식당/화덕, 숙소/자리/큰침대)이 섞이지 않게 종류까지 맞춘다.
+        private static GameObject FindTemplate<T>(BuildingKind kind) where T : BuildingBase
+        {
+            foreach (var component in FindObjectsByType<T>(FindObjectsInactive.Include, FindObjectsSortMode.None))
+                if (component.gameObject.scene.IsValid() && component.gameObject.name.EndsWith("Template") && (component.Data == null || component.Data.kind == kind))
+                    return component.gameObject;
             return null;
         }
 

@@ -77,7 +77,7 @@ namespace AntColony.UI
             if (Target is Dormitory dorm)
             {
                 slider.gameObject.SetActive(false);
-                status.text = $"침대 {GameBalance.DormitoryBeds}개 · 배정 {dorm.Residents.Count(c => c != null && !c.IsDead && c.IsColonyMember)}명"
+                status.text = $"침대 {dorm.Beds}개 · 배정 {dorm.Residents.Count(c => c != null && !c.IsDead && c.IsColonyMember)}명"
                     + (HudOverview.BedShortage > 0 ? $"\n<color=#ef955f>군체 전체 침대 {HudOverview.BedShortage}개 부족</color>" : "\n군체 전체 침대 충분");
                 instruction.text = RoomDescription(dorm) + "\n배정: " + ResidentNames(dorm);
             }

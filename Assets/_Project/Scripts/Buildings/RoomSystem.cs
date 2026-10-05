@@ -24,8 +24,9 @@ namespace AntColony.Buildings
         public readonly List<Vector2Int> Cells = new List<Vector2Int>();
         public readonly List<BuildingBase> Furniture = new List<BuildingBase>();
         public RoomKind Kind;
-        public int Decorations;
-        public int Score => Cells.Count + Decorations * GameBalanceRooms.DecorationScore;
+        public int Decorations, Floors;
+        public bool PrisonDoor; // 경계에 창살문·잠금문이 있음(감옥 조건)
+        public int Score => Cells.Count + Decorations * GameBalanceRooms.DecorationScore + Floors / 2; // 바닥 칸당 +0.5
         // 인상도 단계: 점수가 넘은 기준선 수(지금 3단계 0 초라함 / 1 보통 / 2 훌륭함).
         public int Grade => GameBalanceRooms.GradeThresholds.Count(t => Score >= t);
         public string GradeName => GameBalanceRooms.GradeNames[Grade];
@@ -66,21 +67,22 @@ namespace AntColony.Buildings
 
         public static bool IsBoundary(BuildingBase b) => b is SoilWall || b is Wall || b is Door || b is Gate;
         // 가구가 요구하는 방 종류(필수 가구, 2026-10-05). 아직 없는 가구는 가장 가까운 기존 건물로 대신 잇고 '대용' 주석.
-        // 가구가 없어 판정할 수 없는 방: 부엌·겸용(조리대), 목욕탕(목욕통·온천), 가공실(가공대·용광로), 화실(예술대), 도서관(책장), 냉장실(저장고·냉장고),
+        // 가구가 없어 판정할 수 없는 방: 목욕탕(목욕통·온천), 가공실(가공대·용광로), 화실(예술대), 도서관(책장), 냉장실(저장고·냉장고),
         // 양식장·목장, 무기고, 연회장(긴 식탁 + 장식 3+), 묘지(관·묘비, 방 밖도 가능), 신전(제단). TODO 가구가 생기면 아래에 연결.
         // 방 밖 전용(None): 방어·마을 건물(산성탑·함정·주거 등), 풍차·물레방아·태양광판, 이동수단. 밭은 방 밖에서도 쓰고 방 안이면 농장.
         public static RoomKind KindOf(BuildingBase b)
         {
             if (b == null || b.IsDead || IsBoundary(b) || b is Decoration || b is Housing) return RoomKind.None;
             if (b.GetComponent<NurseryChamber>() != null) return RoomKind.Nursery; // 요람
-            if (b.GetComponent<PrisonerCamp>() != null) return RoomKind.Prison; // 대용: 침대 + 창살문·잠금문
+            if (b.GetComponent<PrisonerCamp>() != null) return RoomKind.Prison; // 대용: 침대(포로 수용소) + 창살문·잠금문(Judge)
             if (b.GetComponent<AntColony.World.ResourceNode>() != null) return RoomKind.Farm; // 밭·버섯밭·축사 통합
             if (b.GetComponent<ScoutPost>() != null) return RoomKind.WarRoom; // 대용: 작전실 지도대·신호탑
             if (b is HygieneFixture) return RoomKind.Bathroom; // 화장실·세면대·샤워기
             if (b is PowerNode power) return power.IsGenerator ? RoomKind.PowerPlant : RoomKind.None; // 발전기류, 전선·배터리·전등은 아무 방에나
             return b switch
             {
-                Dormitory => RoomKind.Bedroom, Kitchen => RoomKind.Dining, Infirmary => RoomKind.Hospital, // 침대류·식탁·병상
+                Dormitory => RoomKind.Bedroom, Infirmary => RoomKind.Hospital, // 침대류·병상
+                Kitchen k => k.Data != null && k.Data.kind == BuildingKind.Hearth ? RoomKind.Kitchen : RoomKind.Dining, // 화덕(조리대)·식탁
                 RestRoom or RecreationSpot => RoomKind.Recreation, // 휴게 가구
                 Storage or Stockpile => RoomKind.Storeroom, // 대용: 수납장·항아리
                 ScienceLab or ResearchLab or DefenseLab => RoomKind.Laboratory, // 연구대
@@ -111,7 +113,8 @@ namespace AntColony.Buildings
             if (kinds.Count > 1) return RoomKind.Mixed;
             var kind = kinds[0];
             if (kind == RoomKind.Bedroom)
-                return room.Furniture.Sum(f => f is Dormitory ? AntColony.Core.GameBalance.DormitoryBeds : 1) >= GameBalanceRooms.MinBedsForDormRoom ? RoomKind.Bedroom : RoomKind.PrivateRoom;
+                return room.Furniture.Sum(f => f is Dormitory d ? d.RoomBedCount : 1) >= GameBalanceRooms.MinBedsForDormRoom ? RoomKind.Bedroom : RoomKind.PrivateRoom;
+            if (kind == RoomKind.Prison && !room.PrisonDoor) return RoomKind.Empty; // 감옥 = 침대 + 창살문·잠금문
             if (kind == RoomKind.Recreation && room.Furniture.Select(f => f.Data != null ? f.Data.kind : BuildingKind.RestRoom).Distinct().Count() < GameBalanceRooms.MinRecreationKinds) return RoomKind.Empty;
             return kind;
         }
@@ -157,8 +160,12 @@ namespace AntColony.Buildings
             {
                 if (!roomOf.TryGetValue(Cell(b.Position), out var room)) continue;
                 if (b is Decoration) room.Decorations++;
+                else if (b is FloorTile) room.Floors++;
                 else if (KindOf(b) != RoomKind.None) room.Furniture.Add(b);
             }
+            foreach (var door in buildings.OfType<Door>().Where(d => d.IsPrisonDoor))
+                foreach (var c in Footprint(door).SelectMany(Neighbours))
+                    if (roomOf.TryGetValue(c, out var room)) room.PrisonDoor = true;
             foreach (var room in rooms) room.Kind = Judge(room);
             if (hasCastleWalls)
             {

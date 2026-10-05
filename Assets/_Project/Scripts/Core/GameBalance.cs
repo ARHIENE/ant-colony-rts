@@ -106,6 +106,8 @@ namespace AntColony.Core
         public const float HygienePerSecond = 100f / 600f, WashBelowHygiene = 30, WashSeconds = 10, LowHygieneMood = -4, VeryLowHygieneMood = -8;
         public static readonly float[] WashHygiene = { 60, 30, 80 };
         // 전력 1차(2026-10-05, 잠정): 출력·소비 W, 배터리 용량 W·초, 장작 발전기는 10초마다 재료 1.
+        // 가구 2차(2026-10-05, 잠정): 바닥 위 이동 ×1.15, 바닥 깔린 방 식중독 ×0.5, 자리에서 자면 기분 -3, 감옥 방 탈옥 ×0.5.
+        public const float FloorMoveMultiplier = 1.15f, FloorPoisonMultiplier = .5f, MatSleepMood = -3, PrisonRoomEscapeMultiplier = .5f;
         public const float TreadmillWatts = 40, WoodGeneratorWatts = 100, LampWatts = 10, BatteryCapacity = 1000, WoodBurnSeconds = 10, TreadmillExtraFatigue = .5f;
         public const int CampfireSoil = 15, GamblingDenSoil = 25, CampfireSeats = 6, GamblingDenSeats = 4;
         // 도박장(2026-09-29 초안 승인): 함께 한 판 끝나면 승자 +5·패자 -3(3분), 10% 말다툼 관계 -5.

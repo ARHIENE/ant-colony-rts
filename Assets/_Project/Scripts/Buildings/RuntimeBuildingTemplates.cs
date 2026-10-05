@@ -43,6 +43,13 @@ namespace AntColony.Buildings
                 BuildingKind.PowerWire => ("전선", new Vector3(1, .08f, 1), new Color(.85f, .7f, .2f), 0, 2, 0, 0, 1f, 30f, true),
                 BuildingKind.Battery => ("배터리", new Vector3(1, 1.2f, 1), new Color(.3f, .6f, .35f), 0, 40, 2, 2, 6f, 150f, false),
                 BuildingKind.ElectricLamp => ("전등", new Vector3(.6f, 1.8f, .6f), new Color(.95f, .9f, .6f), 0, 10, 0, 1, 3f, 80f, false),
+                // 가구 2차(2026-10-05, 잠정). 바닥은 밟고 지나가는 납작한 칸, 잠금문·창살문은 문과 같은 통로.
+                BuildingKind.Hearth => ("화덕", new Vector3(1.5f, 1.2f, 1), new Color(.55f, .3f, .2f), 0, 30, 0, 2, 6f, 200f, false),
+                BuildingKind.SleepingMat => ("자리", new Vector3(1, .1f, 2), new Color(.7f, .62f, .4f), 0, 5, 0, 0, 2f, 50f, true),
+                BuildingKind.DoubleBed => ("큰침대", new Vector3(2, .6f, 2), new Color(.8f, .6f, .5f), 0, 40, 0, 2, 6f, 150f, false),
+                BuildingKind.Floor => ("바닥", new Vector3(1, .05f, 1), new Color(.6f, .5f, .38f), 0, 3, 0, 0, 1f, 50f, true),
+                BuildingKind.LockedDoor => ("잠금문", new Vector3(1, 1.5f, 1), new Color(.4f, .3f, .2f), 0, 25, 0, 2, 5f, 250f, true),
+                BuildingKind.BarredDoor => ("창살문", new Vector3(1, 1.5f, 1), new Color(.45f, .45f, .5f), 0, 30, 0, 2, 5f, 300f, true),
                 BuildingKind.Apartment => ("큰 아파트", new Vector3(3, 3.2f, 3), new Color(.62f, .62f, .66f), 0, GameBalance.ApartmentSoil, GameBalance.ApartmentSpecial, 8, 16f, 500f, false),
                 _ => (null, Vector3.one, Color.white, 0, 0, 0, 0, 0f, 0f, false)
             };
@@ -74,6 +81,10 @@ namespace AntColony.Buildings
                 BuildingKind.LeafWall or BuildingKind.CapWall or BuildingKind.CastleWall => go.AddComponent<Wall>(),
                 BuildingKind.Door => go.AddComponent<Door>(),
                 BuildingKind.Gate => go.AddComponent<Gate>(),
+                BuildingKind.Hearth => go.AddComponent<Kitchen>(),
+                BuildingKind.SleepingMat or BuildingKind.DoubleBed => go.AddComponent<Dormitory>(),
+                BuildingKind.Floor => go.AddComponent<FloorTile>(),
+                BuildingKind.LockedDoor or BuildingKind.BarredDoor => go.AddComponent<Door>(),
                 BuildingKind.Toilet or BuildingKind.Washbasin or BuildingKind.Shower => go.AddComponent<HygieneFixture>(),
                 BuildingKind.Treadmill or BuildingKind.WoodGenerator or BuildingKind.PowerWire or BuildingKind.Battery or BuildingKind.ElectricLamp => go.AddComponent<PowerNode>(),
                 _ => go.AddComponent<RestRoom>()

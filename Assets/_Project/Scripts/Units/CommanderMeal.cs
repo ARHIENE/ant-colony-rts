@@ -105,7 +105,7 @@ namespace AntColony.Units
             if (AntColony.Buildings.RoomSystem.RoomAt(Position) is AntColony.Buildings.Room hall && (hall.Kind == AntColony.Buildings.RoomKind.Dining || hall.Kind == AntColony.Buildings.RoomKind.DiningKitchen))
                 personalState.AddMood("식당에서 식사", (AntColony.Buildings.GameBalanceRooms.RoomMealMood + AntColony.Buildings.GameBalanceRooms.GradeMood[hall.Grade]) * (hall.Kind == AntColony.Buildings.RoomKind.DiningKitchen ? .5f : 1f), GameCalendar.SecondsPerDay / 3f);
             if (m.quality > 0 && !traits.Has(CommanderTrait.IronStomach)
-                && UnityEngine.Random.value * 100 < Mathf.Max(0, 6 - m.cookSkill * .5f))
+                && UnityEngine.Random.value * 100 < Mathf.Max(0, 6 - m.cookSkill * .5f) * ((AntColony.Buildings.RoomSystem.RoomAt(Position)?.Floors ?? 0) > 0 ? GameBalance.FloorPoisonMultiplier : 1f)) // 바닥 깔린 방은 청결
             {
                 m.poisonSeconds = GameBalance.FoodPoisonSeconds;
                 personalState.AddMood("식중독", GameBalance.FoodPoisonMood, GameBalance.FoodPoisonSeconds);

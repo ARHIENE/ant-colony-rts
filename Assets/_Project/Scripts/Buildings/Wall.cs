@@ -50,11 +50,20 @@ namespace AntColony.Buildings
     }
 
     // 문: 아군은 지나가고 적은 막힌다(잠정: 문에 닿은 적은 밀려나며 문을 공격한다). 방 판정에서는 벽처럼 경계.
+    // 잠금문(2026-10-05)은 밤에 아군도 못 지나간다. 창살문·잠금문은 감옥 판정에 쓰인다.
     public sealed class Door : BuildingBase
     {
         private float scan;
+        private NavMeshObstacle lockObstacle;
+        public bool IsPrisonDoor => Data != null && (Data.kind == BuildingKind.LockedDoor || Data.kind == BuildingKind.BarredDoor);
+        public bool Locked => lockObstacle != null && lockObstacle.enabled;
         private void Update()
         {
+            if (Data != null && Data.kind == BuildingKind.LockedDoor)
+            {
+                if (lockObstacle == null) { lockObstacle = gameObject.AddComponent<NavMeshObstacle>(); lockObstacle.carving = true; }
+                lockObstacle.enabled = GameCalendar.IsNight;
+            }
             if ((scan -= Time.deltaTime) > 0) return;
             scan = .25f;
             foreach (var m in AntColony.World.WildMonster.All.ToArray())
