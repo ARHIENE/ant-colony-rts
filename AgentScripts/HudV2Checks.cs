@@ -82,7 +82,7 @@ public static class HudV2Checks
             var civilian = Object.FindObjectsByType<RectTransform>(FindObjectsInactive.Include).First(r => r.name == "CivilianCommands");
             Check(civilian.gameObject.activeInHierarchy, "civilian card active");
             var civilianButtons = civilian.GetComponentsInChildren<Button>().Select(b => b.name).ToArray();
-            Check(civilianButtons.SequenceEqual(new[] { "Priority Work", "Send To Rest", "Conscription", "Build", "Civilian Work Schedule", "Civilian Details", "Civilian Cycle Weapon", "Civilian Science", "Civilian Stop" }), "civilian 3x3: " + string.Join(",", civilianButtons));
+            Check(civilianButtons.SequenceEqual(new[] { "Priority Work", "Send To Rest", "Build", "Civilian Work Schedule", "Civilian Details", "Civilian Cycle Weapon", "Civilian Science", "Civilian Stop" }), "civilian 3x3: " + string.Join(",", civilianButtons));
             Check(!Find("Skill").gameObject.activeInHierarchy && !Find("Attack Move").gameObject.activeInHierarchy && !Find("Return To Post").gameObject.activeInHierarchy, "combat buttons hidden in peace");
             Check(civilian.GetComponentsInChildren<Text>().All(t => t.text.Length <= 3), "button names 2~3 letters");
 

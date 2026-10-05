@@ -48,7 +48,7 @@ public static class CommanderStatusChecks
             // 커맨드 카드: 평시와 출전 중 버튼이 분리된다.
             // HUD v3: 평시 = 우선·휴식(치료 포함)·징집소·건설. 출전 명령은 출전 중 판에만.
             Check(Card("Priority Work").gameObject.activeInHierarchy && Card("Send To Rest").gameObject.activeInHierarchy
-                && Card("Conscription").gameObject.activeInHierarchy && Card("Build").gameObject.activeInHierarchy, "civilian buttons visible");
+                && Card("Build").gameObject.activeInHierarchy, "civilian buttons visible");
             Check(!Card("Attack Move").gameObject.activeInHierarchy && !Card("Stop").gameObject.activeInHierarchy && !Card("Skill").gameObject.activeInHierarchy
                 && !Card("Return To Post").gameObject.activeInHierarchy, "combat buttons hidden in peace " + string.Join(",", new[]{"Attack Move","Stop","Skill","Return To Post"}.Select(n => n + ":" + Card(n).gameObject.activeInHierarchy)) + " dep=" + c.IsDeployed + " troops=" + c.TroopCount);
 

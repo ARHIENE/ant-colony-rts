@@ -10,7 +10,7 @@ using UnityEngine.UI;
 
 namespace AntColony.UI
 {
-    // 오른쪽 명령 칸. 모든 상태 3×3(최대 9칸, 2026-10-04 사용자 요청). 평시 장수 = 일상 명령, 출전 장수 = 전투 명령, 선택 없음 = 둥지 명령.
+    // 오른쪽 명령 칸. 모든 상태 3×3(최대 9칸, 2026-10-04 사용자 요청). 징집소 버튼은 삭제(2026-10-05) — 징집소 건물을 선택해 출전 편성. 평시 장수 = 일상 명령, 출전 장수 = 전투 명령, 선택 없음 = 둥지 명령.
     // 단축키는 전체 미정(2026-10-01)이라 칸에 키 글자를 표시하지 않는다.
     public sealed class CommandCard : MonoBehaviour
     {
@@ -46,13 +46,12 @@ namespace AntColony.UI
             Add(civilianGrid, 1, "Send To Rest", () => Commander != null && Commander.WorkState.resting ? "휴식 중" : Commander != null && Commander.PersonalState.treating ? "치료 중" : "휴식",
                 RestOrTreat, () => "휴식: 숙소로 보내 쉬게 합니다. 부상이 있으면 빈 침상이 있는 의무실로 보냅니다.",
                 () => Commander != null && (Commander.CanSendToTreatment || Commander.CanRest));
-            Add(civilianGrid, 2, "Conscription", () => "징집소", () => GameMenuController.Instance?.OpenConscription(), () => "징집소: 출전 장수와 병력을 편성합니다.");
-            Add(civilianGrid, 3, "Build", () => "건설", BuildScreen.Open, () => "건설: 벽·문 · 가구 · 작업 · 방어.", null, null, true);
-            Add(civilianGrid, 4, "Civilian Work Schedule", () => "작업표", () => GameMenuController.Instance?.WorkSchedule(), () => "장수의 자율 작업을 설정합니다.");
-            Add(civilianGrid, 5, "Civilian Details", () => "상세", ShowDetails, () => "장수의 기분·건강·장비·기술을 확인합니다.");
-            Add(civilianGrid, 6, "Civilian Cycle Weapon", () => "무기", CycleWeapon, () => "보유한 다음 무기로 바꿉니다.");
-            Add(civilianGrid, 7, "Civilian Science", () => "연구", () => GameMenuController.Instance?.Science(), () => "과학 연구를 확인합니다.");
-            Add(civilianGrid, 8, "Civilian Stop", () => "정지", () => Commander?.CommandStop(), () => "하던 일을 멈춥니다. 자율 작업은 다시 이어집니다.");
+            Add(civilianGrid, 2, "Build", () => "건설", BuildScreen.Open, () => "건설: 벽·문 · 가구 · 작업 · 방어.", null, null, true);
+            Add(civilianGrid, 3, "Civilian Work Schedule", () => "작업표", () => GameMenuController.Instance?.WorkSchedule(), () => "장수의 자율 작업을 설정합니다.");
+            Add(civilianGrid, 4, "Civilian Details", () => "상세", ShowDetails, () => "장수의 기분·건강·장비·기술을 확인합니다.");
+            Add(civilianGrid, 5, "Civilian Cycle Weapon", () => "무기", CycleWeapon, () => "보유한 다음 무기로 바꿉니다.");
+            Add(civilianGrid, 6, "Civilian Science", () => "연구", () => GameMenuController.Instance?.Science(), () => "과학 연구를 확인합니다.");
+            Add(civilianGrid, 7, "Civilian Stop", () => "정지", () => Commander?.CommandStop(), () => "하던 일을 멈춥니다. 자율 작업은 다시 이어집니다.");
 
             // 출전 중 카드는 기획 미정(2026-10-01) — 기존 전투 명령을 유지한다.
             Add(deployedGrid, 0, "Skill", () => SkillLabel(Commander), () => UseWeaponSkill(Commander),
@@ -72,11 +71,10 @@ namespace AntColony.UI
 
             Add(colonyGrid, 0, "Colony Work Schedule", () => "작업표", () => GameMenuController.Instance?.WorkSchedule(), () => "장수의 자율 작업을 설정합니다.");
             Add(colonyGrid, 1, "Colony Roster", () => "장수 관리", () => GameMenuController.Instance?.Roster(), () => "장수의 기분·건강·장비를 확인합니다.");
-            Add(colonyGrid, 2, "Colony Conscription", () => "징집소", () => GameMenuController.Instance?.OpenConscription(), () => "출전 장수와 병력을 편성합니다.");
-            Add(colonyGrid, 3, "Colony Build", () => "건설", BuildScreen.Open, () => "가구·건물·벽을 건설합니다.", null, null, true);
-            Add(colonyGrid, 4, "Colony Science", () => "연구", () => GameMenuController.Instance?.Science(), () => "과학 연구를 확인합니다.");
-            Add(colonyGrid, 5, "Colony Population", () => "인구", () => GameMenuController.Instance?.Population(), () => "개미 인구와 방을 확인합니다.");
-            Add(colonyGrid, 6, "Colony Diplomacy", () => "외교", () => GameMenuController.Instance?.Diplomacy(), () => "다른 세력과의 관계를 확인합니다.");
+            Add(colonyGrid, 2, "Colony Build", () => "건설", BuildScreen.Open, () => "가구·건물·벽을 건설합니다.", null, null, true);
+            Add(colonyGrid, 3, "Colony Science", () => "연구", () => GameMenuController.Instance?.Science(), () => "과학 연구를 확인합니다.");
+            Add(colonyGrid, 4, "Colony Population", () => "인구", () => GameMenuController.Instance?.Population(), () => "개미 인구와 방을 확인합니다.");
+            Add(colonyGrid, 5, "Colony Diplomacy", () => "외교", () => GameMenuController.Instance?.Diplomacy(), () => "다른 세력과의 관계를 확인합니다.");
 
             Add(multiGrid, 0, "Multi Priority", () => AllDeployed() ? "공격 이동" : "우선", () => {
                 if (AllDeployed()) FindFirstObjectByType<AttackMoveController>()?.BeginAttackMode(); else PriorityHint();
@@ -84,15 +82,15 @@ namespace AntColony.UI
             Add(multiGrid, 1, "Multi Stop", () => AllDeployed() ? "정지" : "개별 선택 필요", () => {
                 foreach (var c in HudOverview.Selected(selection)) if (c.IsDeployed) c.CommandStop();
             }, () => "평시 휴식·치료는 개별 장수를 선택하세요.", AllDeployed);
-            Add(multiGrid, 2, "Multi Conscription", () => AllDeployed() ? "귀환" : "징집소", () => {
-                if (AllDeployed()) foreach (var c in HudOverview.Selected(selection)) c.ReturnToPost();
-                else GameMenuController.Instance?.OpenConscription();
-            }, () => "출전 부대는 징집소로 귀환합니다.", () => AllCivilian() || AllDeployed() && HudOverview.Selected(selection).All(c => !c.IsReturning && !c.IsAwayFromHome));
+            Add(multiGrid, 2, "Multi Return", () => "귀환", () => {
+                foreach (var c in HudOverview.Selected(selection)) c.ReturnToPost();
+            }, () => "출전 부대는 징집소로 귀환합니다.", () => AllDeployed() && HudOverview.Selected(selection).All(c => !c.IsReturning && !c.IsAwayFromHome), AllDeployed);
             Add(multiGrid, 3, "Multi Clear", () => "선택 해제", () => selection?.ClearSelection(), () => "선택을 해제합니다.");
 
-            Add(targetGrid, 0, "Target Residents", () => WorkTargetPanel.Scout != null ? (WorkTargetPanel.Scout.IsDispatched ? "정찰 중" : "정찰 파견") : WorkTargetPanel.Target is Dormitory ? "배정 보기" : "대상 정보", () => {
-                if (WorkTargetPanel.Scout is ScoutPost scout) GameMenuController.Instance?.ShowScout(scout); else WorkTargetPanel.ShowAssignments();
-            }, () => WorkTargetPanel.Scout != null ? "동행 장수를 골라 정찰을 보냅니다." : "선택 대상의 배정·인력 정보를 확인합니다.",
+            Add(targetGrid, 0, "Target Residents", () => WorkTargetPanel.Target is ConscriptionPost ? "출전" : WorkTargetPanel.Scout != null ? (WorkTargetPanel.Scout.IsDispatched ? "정찰 중" : "정찰 파견") : WorkTargetPanel.Target is Dormitory ? "배정 보기" : "대상 정보", () => {
+                if (WorkTargetPanel.Target is ConscriptionPost) GameMenuController.Instance?.OpenConscription();
+                else if (WorkTargetPanel.Scout is ScoutPost scout) GameMenuController.Instance?.ShowScout(scout); else WorkTargetPanel.ShowAssignments();
+            }, () => WorkTargetPanel.Target is ConscriptionPost ? "징집소: 출전 장수와 병력을 편성합니다." : WorkTargetPanel.Scout != null ? "동행 장수를 골라 정찰을 보냅니다." : "선택 대상의 배정·인력 정보를 확인합니다.",
                 () => WorkTargetPanel.Scout == null || !WorkTargetPanel.Scout.IsDispatched);
             Add(targetGrid, 1, "Target Build", () => WorkTargetPanel.Target is Dormitory ? "숙소 건설" : "건설", () => {
                 if (WorkTargetPanel.Target is Dormitory) BuildScreen.OpenDormitory(); else BuildScreen.Open();
