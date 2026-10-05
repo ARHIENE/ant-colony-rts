@@ -30,7 +30,7 @@ namespace AntColony.UI
             new[] { new Entry("숙소", BuildingKind.Dormitory), new Entry("자리", BuildingKind.SleepingMat), new Entry("침대", BuildingKind.SingleBed), new Entry("큰침대", BuildingKind.DoubleBed),
                 new Entry("식당", BuildingKind.Kitchen), new Entry("양육실", BuildingKind.Nursery),
                 new Entry("화장실", BuildingKind.Toilet), new Entry("세면대", BuildingKind.Washbasin), new Entry("샤워기", BuildingKind.Shower) },
-            new[] { new Entry("저장고", BuildingKind.Storage) },
+            new[] { new Entry("창고", BuildingKind.Storage), new Entry("저장고", BuildingKind.FoodStore), new Entry("항아리", BuildingKind.Jar) },
             new[] { new Entry("전등", BuildingKind.ElectricLamp) }, // 환경: TODO 화롯불·등불·난로·환풍구
             new[] { new Entry("쳇바퀴", BuildingKind.Treadmill), new Entry("장작 발전기", BuildingKind.WoodGenerator), new Entry("전선", BuildingKind.PowerWire),
                 new Entry("배터리", BuildingKind.Battery) },
@@ -52,7 +52,7 @@ namespace AntColony.UI
             new[] { new Entry("큰턱 훈련장", BuildingKind.Barracks, UnitRole.Melee), new Entry("산샘 훈련장", BuildingKind.Barracks, UnitRole.Ranged),
                 new Entry("갑각 훈련장", BuildingKind.Barracks, UnitRole.Defense), new Entry("페로몬 훈련장", BuildingKind.Barracks, UnitRole.Support),
                 new Entry("날개 훈련장", BuildingKind.Barracks, UnitRole.Flying), new Entry("징집소", BuildingKind.ConscriptionPost),
-                new Entry("정찰 초소", BuildingKind.ScoutPost), new Entry("포로 수용소", BuildingKind.PrisonerCamp) },
+                new Entry("정찰 초소", BuildingKind.ScoutPost), new Entry("포로 수용소", BuildingKind.PrisonerCamp), new Entry("무기고", BuildingKind.Armory) },
             new[] { new Entry("초가집", BuildingKind.Hut), new Entry("흙집", BuildingKind.House), new Entry("큰 아파트", BuildingKind.Apartment) },
             new[] { new Entry("로켓 발사대", BuildingKind.AirshipYard) }
         };

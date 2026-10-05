@@ -43,7 +43,7 @@ namespace AntColony.Save
                 Check(f.upkeepFailures >= 0, "upkeep failures");
                 Check(Core.CampaignResearch.Validate(f.campaign, out _), "campaign research");
                 Check(Core.CampaignHistory.Validate(f.history) && World.ColonyEvents.Validate(f.events), "events/history");
-                L(f.equipmentInventory, EquipmentInventory.Capacity, "equipment inventory");
+                L(f.equipmentInventory, EquipmentInventory.BaseCapacity + f.buildings.Count(b => b.kind == "Armory") * Core.GameBalance.ArmorySlots, "equipment inventory"); // 저장 안 무기고 수 기준
                 var equipmentIds = new HashSet<string>();
                 foreach (var item in f.equipmentInventory) Check(item != null && item.IsValid && equipmentIds.Add(item.id), "inventory item");
                 L(f.equipmentLoot, 10000, "equipment loot");

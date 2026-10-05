@@ -53,6 +53,9 @@ namespace AntColony.Buildings
                 BuildingKind.SingleBed => ("침대", new Vector3(1, .5f, 2), new Color(.75f, .55f, .45f), 0, 20, 0, 1, 4f, 120f, false),
                 BuildingKind.Bookshelf => ("책장", new Vector3(2, 2, .6f), new Color(.5f, .35f, .25f), 0, 30, 0, 0, 6f, 150f, false),
                 BuildingKind.Bathtub => ("목욕통", new Vector3(2, .8f, 1.2f), new Color(.6f, .75f, .8f), 0, 35, 0, 0, 6f, 150f, false),
+                BuildingKind.FoodStore => ("저장고", new Vector3(2, 1.4f, 2), new Color(.55f, .65f, .7f), 10, 40, 0, 3, 6f, 250f, false),
+                BuildingKind.Jar => ("항아리", new Vector3(1, 1, 1), new Color(.7f, .5f, .35f), 0, 15, 0, 1, 3f, 100f, false),
+                BuildingKind.Armory => ("무기고", new Vector3(2, 1.8f, 1.5f), new Color(.4f, .4f, .45f), 20, 60, 2, 3, 8f, 300f, false),
                 BuildingKind.Apartment => ("큰 아파트", new Vector3(3, 3.2f, 3), new Color(.62f, .62f, .66f), 0, GameBalance.ApartmentSoil, GameBalance.ApartmentSpecial, 8, 16f, 500f, false),
                 _ => (null, Vector3.one, Color.white, 0, 0, 0, 0, 0f, 0f, false)
             };
@@ -66,6 +69,9 @@ namespace AntColony.Buildings
             data.kind = kind; data.displayName = name;
             data.foodCost = food; data.soilCost = soil; data.specialCost = special;
             data.constructionAnts = ants; data.buildTimeSeconds = seconds; data.maxHealth = hp;
+            // 저장 가구 한도(잠정): 저장고 = 식량 +150, 항아리 = 식량·재료 +50.
+            if (kind == BuildingKind.FoodStore) (data.foodCapacityBonus, data.soilCapacityBonus, data.specialCapacityBonus) = (150, 0, 0);
+            if (kind == BuildingKind.Jar) (data.foodCapacityBonus, data.soilCapacityBonus, data.specialCapacityBonus) = (50, 50, 0);
             BuildingBase building = kind switch
             {
                 BuildingKind.ConscriptionPost => go.AddComponent<ConscriptionPost>(),
@@ -84,6 +90,8 @@ namespace AntColony.Buildings
                 BuildingKind.LeafWall or BuildingKind.CapWall or BuildingKind.CastleWall => go.AddComponent<Wall>(),
                 BuildingKind.Door => go.AddComponent<Door>(),
                 BuildingKind.Gate => go.AddComponent<Gate>(),
+                BuildingKind.FoodStore or BuildingKind.Jar => go.AddComponent<Storage>(),
+                BuildingKind.Armory => go.AddComponent<Armory>(),
                 BuildingKind.Hearth => go.AddComponent<Kitchen>(),
                 BuildingKind.SleepingMat or BuildingKind.DoubleBed or BuildingKind.SingleBed => go.AddComponent<Dormitory>(),
                 BuildingKind.Floor => go.AddComponent<FloorTile>(),

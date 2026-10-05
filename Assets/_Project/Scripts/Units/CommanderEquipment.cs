@@ -31,7 +31,8 @@ namespace AntColony.Units
         public List<EquipmentItem> Items = new List<EquipmentItem>();
         private void Awake() { Instance = this; }
         private void OnDestroy() { if (Instance == this) Instance = null; }
-        public const int Capacity = 30;
+        public const int BaseCapacity = 30;
+        public static int Capacity => BaseCapacity + AntColony.Buildings.Armory.Count * GameBalance.ArmorySlots; // 무기고 1동마다 +10(2026-10-05)
         public bool Full => Items.Count >= Capacity;
         public bool Add(EquipmentItem item)
         {

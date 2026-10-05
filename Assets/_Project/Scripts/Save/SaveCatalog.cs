@@ -39,7 +39,7 @@ namespace AntColony.Save
             if (b.GetComponent<PrisonerCamp>() != null) return "PrisonerCamp";
             if (b.GetComponent<ResourceNode>() != null) return "Farm";
             if (b is Decoration || b is Housing || b is Wall || b is Door || b is Gate || b is HygieneFixture || b is PowerNode || b is FloorTile || b is RecreationSpot // 모닥불·도박장·책장·목욕통은 종류 이름으로(2026-10-05 수정: 타입 이름 "RecreationSpot"은 건물 종류가 아님)
-                || b.Data != null && (b.Data.kind == BuildingKind.Hearth || b.Data.kind == BuildingKind.SleepingMat || b.Data.kind == BuildingKind.DoubleBed || b.Data.kind == BuildingKind.SingleBed)) return b.Data.kind.ToString(); // 화덕·자리·큰침대는 종류 이름으로(식당·숙소는 기존대로 타입 이름)
+                || b.Data != null && (b.Data.kind == BuildingKind.Hearth || b.Data.kind == BuildingKind.SleepingMat || b.Data.kind == BuildingKind.DoubleBed || b.Data.kind == BuildingKind.SingleBed || b.Data.kind == BuildingKind.FoodStore || b.Data.kind == BuildingKind.Jar)) return b.Data.kind.ToString(); // 화덕·자리·큰침대는 종류 이름으로(식당·숙소는 기존대로 타입 이름)
             if (b is Stockpile) return "QueenChamber"; // 저장 호환: 구 여왕방 자리
             return b.GetType().Name;
         }

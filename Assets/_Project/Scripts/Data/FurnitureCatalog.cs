@@ -55,7 +55,7 @@ namespace AntColony.Data
             F("세면대", 1, RoomKind.Bathroom, BuildingKind.Washbasin); F("샤워기", 2, RoomKind.Bathroom, BuildingKind.Shower);
 
             In(BuildCategory.Storage); // 창고 없이 바닥 보관도 가능(비 맞으면 상함)
-            F("수납장", 1, RoomKind.Storeroom, BuildingKind.Storage); F("항아리", 1, RoomKind.Storeroom); F("저장고", 1, RoomKind.ColdStorage);
+            F("수납장", 1, RoomKind.Storeroom, BuildingKind.Storage); F("항아리", 1, RoomKind.Storeroom, BuildingKind.Jar); F("저장고", 1, RoomKind.ColdStorage, BuildingKind.FoodStore);
             F("냉장고", 4, RoomKind.ColdStorage, net: NetworkLayer.Power); F("냉동창고", 5, RoomKind.ColdStorage, net: NetworkLayer.Power);
             F("운반 레일", 4); F("순간이동 보관함", 6, RoomKind.Storeroom, net: NetworkLayer.Power);
 
@@ -125,7 +125,7 @@ namespace AntColony.Data
 
             In(BuildCategory.Military); // 막사 세부(병력 상한 등) 미정
             F("허수아비(근접 훈련대)", 1, RoomKind.TrainingRoom, BuildingKind.Barracks); F("과녁(원거리 훈련대)", 1, RoomKind.TrainingRoom); F("작전판(지휘 훈련대)", 1, RoomKind.TrainingRoom);
-            F("징집소", 1, existing: BuildingKind.ConscriptionPost); F("무기고", 1, RoomKind.Armory); F("막사", 1, RoomKind.Barracks);
+            F("징집소", 1, existing: BuildingKind.ConscriptionPost); F("무기고", 1, RoomKind.Armory, BuildingKind.Armory); F("막사", 1, RoomKind.Barracks);
             F("작전실 지도대", 2, RoomKind.WarRoom); F("신호탑", 4, RoomKind.WarRoom, net: NetworkLayer.Power); F("포로 수용소", 1, RoomKind.Prison, BuildingKind.PrisonerCamp);
             F("군기·북", 1); F("정찰 초소", 1, existing: BuildingKind.ScoutPost);
 

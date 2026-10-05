@@ -355,7 +355,7 @@ namespace AntColony.Buildings
             {
                 BuildingKind.ResearchLab => FindTemplate<ResearchLab>(role),
                 BuildingKind.Farm or BuildingKind.MushroomFarm or BuildingKind.AphidPen => FindFarmTemplate(),
-                BuildingKind.Storage => FindTemplate<Storage>(),
+                BuildingKind.Storage => FindTemplate<Storage>(kind),
                 BuildingKind.Nursery => FindTemplate<NurseryChamber>(),
                 BuildingKind.ScoutPost => FindTemplate<ScoutPost>(),
                 BuildingKind.PrisonerCamp => FindTemplate<PrisonerCamp>(),
@@ -382,7 +382,8 @@ namespace AntColony.Buildings
                     or BuildingKind.Toilet or BuildingKind.Washbasin or BuildingKind.Shower
                     or BuildingKind.Treadmill or BuildingKind.WoodGenerator or BuildingKind.PowerWire or BuildingKind.Battery or BuildingKind.ElectricLamp
                     or BuildingKind.Hearth or BuildingKind.SleepingMat or BuildingKind.DoubleBed or BuildingKind.Floor or BuildingKind.LockedDoor or BuildingKind.BarredDoor
-                    or BuildingKind.SingleBed or BuildingKind.Bookshelf or BuildingKind.Bathtub => FindDecorationTemplate(kind),
+                    or BuildingKind.SingleBed or BuildingKind.Bookshelf or BuildingKind.Bathtub
+                    or BuildingKind.FoodStore or BuildingKind.Jar or BuildingKind.Armory => FindDecorationTemplate(kind),
                 _ => null
             };
         }

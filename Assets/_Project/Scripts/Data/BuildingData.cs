@@ -41,7 +41,9 @@ namespace AntColony.Data
         // 2026-10-05 가구 2차: 화덕(조리대)·자리·큰침대·바닥·잠금문·창살문
         Hearth, SleepingMat, DoubleBed, Floor, LockedDoor, BarredDoor,
         // 가구 3차: 1인 침대·책장·목욕통·버섯밭·축사(버섯밭·축사는 작물 고정 밭으로 배치되어 저장은 Farm)
-        SingleBed, Bookshelf, Bathtub, MushroomFarm, AphidPen
+        SingleBed, Bookshelf, Bathtub, MushroomFarm, AphidPen,
+        // 가구 4차: 저장고(식량)·항아리·무기고
+        FoodStore, Jar, Armory
     }
 
     [CreateAssetMenu(fileName = "BuildingData", menuName = "AntColony/Building Data")]
