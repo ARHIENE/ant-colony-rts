@@ -46,7 +46,7 @@ namespace AntColony.UI
             Add(civilianGrid, 1, "Send To Rest", () => Commander != null && Commander.WorkState.resting ? "휴식 중" : Commander != null && Commander.PersonalState.treating ? "치료 중" : "휴식",
                 RestOrTreat, () => "휴식: 숙소로 보내 쉬게 합니다. 부상이 있으면 빈 침상이 있는 의무실로 보냅니다.",
                 () => Commander != null && (Commander.CanSendToTreatment || Commander.CanRest));
-            Add(civilianGrid, 2, "Build", () => "건설", BuildScreen.Open, () => "건설: 벽·문 · 가구 · 작업 · 방어.", null, null, true);
+            Add(civilianGrid, 2, "Build", () => "건설", BuildScreen.Open, () => "건설: 타일 · 생활 · 작업 · 방어 등 16개 분류.", null, null, true);
             Add(civilianGrid, 3, "Civilian Work Schedule", () => "작업표", () => GameMenuController.Instance?.WorkSchedule(), () => "장수의 자율 작업을 설정합니다.");
             Add(civilianGrid, 4, "Civilian Details", () => "상세", ShowDetails, () => "장수의 기분·건강·장비·기술을 확인합니다.");
             Add(civilianGrid, 5, "Civilian Cycle Weapon", () => "무기", CycleWeapon, () => "보유한 다음 무기로 바꿉니다.");

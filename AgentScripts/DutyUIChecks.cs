@@ -61,7 +61,7 @@ public static class DutyUIChecks
             }
             Check(!menu.GetComponentsInChildren<Text>().Any(t => t.text.Contains("쓰러짐")), "healthy civilian is not downed");
             Click("Close Duty"); await Task.Delay(100);
-            BuildScreen.Open(); await Task.Delay(100); Click("Tab 특수"); await Task.Delay(100);
+            BuildScreen.Open(); await Task.Delay(100); Click("Tab 군사"); await Task.Delay(100);
             Click("Build ConscriptionPost"); await Task.Delay(100);
             Check(BuildScreen.Picking, "conscription construction is reachable");
             while (BuildScreen.Back()) { }

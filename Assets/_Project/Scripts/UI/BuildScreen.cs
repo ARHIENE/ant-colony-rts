@@ -10,7 +10,7 @@ using UnityEngine.UI;
 
 namespace AntColony.UI
 {
-    // 건설(B) 화면: 오른쪽 날개 = 분류 탭(1~5) + 건물 칸(QWERT/ASDFG), 가운데 = 맡길 장수 고르기, 배치 중에는 상단 안내 막대.
+    // 건설(B) 화면: 오른쪽 날개 = 분류 탭 16종(2줄, 숫자키 1~0) + 건물 칸(QWERT/ASDFG), 가운데 = 맡길 장수 고르기, 배치 중에는 상단 안내 막대.
     public sealed class BuildScreen : MonoBehaviour
     {
         private readonly struct Entry
@@ -19,31 +19,40 @@ namespace AntColony.UI
             public Entry(string name, BuildingKind kind, UnitRole role = UnitRole.Worker) { this.name = name; this.kind = kind; this.role = role; }
         }
 
-        private static readonly string[] TabNames = { "생산", "자원", "연구", "방어", "특수", "생활", "장식", "벽문" };
+        // 건설 분류 16종(2026-10-05). 탭 이름 2~3글자라 '이동수단'은 '이동'. 빈 분류는 가구가 생기면 채운다.
+        private static readonly string[] TabNames = { "타일", "생활", "저장", "환경", "전력", "자동화", "배관", "식량", "작업", "의료", "방어", "휴게", "장식", "군사", "마을", "이동" };
+        private const int TabsPerRow = 8;
         private static readonly Key[] SlotKeys = { Key.Q, Key.W, Key.E, Key.R, Key.T, Key.A, Key.S, Key.D, Key.F, Key.G };
         private static readonly Entry[][] Tabs =
         {
-            new[] { new Entry("큰턱 훈련장", BuildingKind.Barracks, UnitRole.Melee), new Entry("산샘 훈련장", BuildingKind.Barracks, UnitRole.Ranged),
-                new Entry("갑각 훈련장", BuildingKind.Barracks, UnitRole.Defense), new Entry("페로몬 훈련장", BuildingKind.Barracks, UnitRole.Support),
-                new Entry("날개 훈련장", BuildingKind.Barracks, UnitRole.Flying), new Entry("양육실", BuildingKind.Nursery) },
-            new[] { new Entry("밭", BuildingKind.Farm), new Entry("저장고", BuildingKind.Storage) },
+            new[] { new Entry("흙벽", BuildingKind.SoilWall), new Entry("나뭇잎 벽", BuildingKind.LeafWall), new Entry("병뚜껑 벽", BuildingKind.CapWall),
+                new Entry("문", BuildingKind.Door) },
+            new[] { new Entry("숙소", BuildingKind.Dormitory), new Entry("식당", BuildingKind.Kitchen), new Entry("양육실", BuildingKind.Nursery) },
+            new[] { new Entry("저장고", BuildingKind.Storage) },
+            new Entry[0], // 환경: TODO 화롯불·등불·난로·환풍구
+            new Entry[0], // 전력
+            new Entry[0], // 자동화: TODO 센서·논리(신호선)
+            new Entry[0], // 배관: TODO 배관·펌프·밸브·액체 탱크
+            new[] { new Entry("밭", BuildingKind.Farm) },
             new[] { new Entry("큰턱 연구소", BuildingKind.ResearchLab, UnitRole.Melee), new Entry("산샘 연구소", BuildingKind.ResearchLab, UnitRole.Ranged),
                 new Entry("갑각 연구소", BuildingKind.ResearchLab, UnitRole.Defense), new Entry("페로몬 연구소", BuildingKind.ResearchLab, UnitRole.Support),
                 new Entry("날개 연구소", BuildingKind.ResearchLab, UnitRole.Flying), new Entry("과학 연구소", BuildingKind.ScienceLab),
-                new Entry("방어 연구소", BuildingKind.DefenseLab) },
-            new[] { new Entry("산성탑", BuildingKind.AcidTower), new Entry("광역 산성탑", BuildingKind.AreaAcidTower), new Entry("감시탑", BuildingKind.Watchtower),
-                new Entry("함정", BuildingKind.TrapPit), new Entry("지뢰밭", BuildingKind.MineField) },
-            new[] { new Entry("정찰 초소", BuildingKind.ScoutPost), new Entry("포로 수용소", BuildingKind.PrisonerCamp), new Entry("의무실", BuildingKind.Infirmary),
-                new Entry("휴게실", BuildingKind.RestRoom), new Entry("공방", BuildingKind.Workshop), new Entry("비행선 조선소", BuildingKind.AirshipYard),
-                new Entry("징집소", BuildingKind.ConscriptionPost) },
-            new[] { new Entry("숙소", BuildingKind.Dormitory), new Entry("식당", BuildingKind.Kitchen),
-                new Entry("이야기 모닥불", BuildingKind.Campfire), new Entry("도박장", BuildingKind.GamblingDen),
-                new Entry("초가집", BuildingKind.Hut), new Entry("흙집", BuildingKind.House), new Entry("큰 아파트", BuildingKind.Apartment) },
+                new Entry("방어 연구소", BuildingKind.DefenseLab), new Entry("공방", BuildingKind.Workshop) },
+            new[] { new Entry("의무실", BuildingKind.Infirmary) },
+            new[] { new Entry("성벽", BuildingKind.CastleWall), new Entry("성문", BuildingKind.Gate), new Entry("함정", BuildingKind.TrapPit),
+                new Entry("지뢰밭", BuildingKind.MineField), new Entry("산성탑", BuildingKind.AcidTower), new Entry("광역 산성탑", BuildingKind.AreaAcidTower),
+                new Entry("감시탑", BuildingKind.Watchtower) },
+            new[] { new Entry("휴게실", BuildingKind.RestRoom), new Entry("이야기 모닥불", BuildingKind.Campfire), new Entry("도박장", BuildingKind.GamblingDen) },
             new[] { new Entry("꽃 화분", BuildingKind.FlowerPot), new Entry("조개껍데기", BuildingKind.ShellDecoration), new Entry("구슬 모자이크", BuildingKind.MarbleMosaic),
                 new Entry("병뚜껑 모빌", BuildingKind.BottleMobile), new Entry("반딧불 램프", BuildingKind.FireflyLamp) },
-            new[] { new Entry("흙벽", BuildingKind.SoilWall), new Entry("나뭇잎 벽", BuildingKind.LeafWall), new Entry("병뚜껑 벽", BuildingKind.CapWall),
-                new Entry("문", BuildingKind.Door), new Entry("성벽", BuildingKind.CastleWall), new Entry("성문", BuildingKind.Gate) }
+            new[] { new Entry("큰턱 훈련장", BuildingKind.Barracks, UnitRole.Melee), new Entry("산샘 훈련장", BuildingKind.Barracks, UnitRole.Ranged),
+                new Entry("갑각 훈련장", BuildingKind.Barracks, UnitRole.Defense), new Entry("페로몬 훈련장", BuildingKind.Barracks, UnitRole.Support),
+                new Entry("날개 훈련장", BuildingKind.Barracks, UnitRole.Flying), new Entry("징집소", BuildingKind.ConscriptionPost),
+                new Entry("정찰 초소", BuildingKind.ScoutPost), new Entry("포로 수용소", BuildingKind.PrisonerCamp) },
+            new[] { new Entry("초가집", BuildingKind.Hut), new Entry("흙집", BuildingKind.House), new Entry("큰 아파트", BuildingKind.Apartment) },
+            new[] { new Entry("비행선 조선소", BuildingKind.AirshipYard) }
         };
+        private static int TabOf(string name) => System.Array.IndexOf(TabNames, name);
 
         private static BuildScreen instance;
         private BuildingPlacementController placement;
@@ -63,8 +72,8 @@ namespace AntColony.UI
         public static void OpenDormitory()
         {
             if (instance == null) return;
-            instance.SetOpen(true); instance.tab = 5;
-            instance.Choose(Tabs[5][0]);
+            instance.SetOpen(true); instance.tab = TabOf("생활");
+            instance.Choose(Tabs[instance.tab][0]);
         }
         public static void Toggle() { if (instance != null) instance.SetOpen(!IsOpen); }
 
@@ -88,9 +97,9 @@ namespace AntColony.UI
             {
                 var captured = t;
                 tabButtons.Add(Cell(buildPanel, "Tab " + TabNames[t], new Vector2(t * 36, 0), new Vector2(34, 26), (t + 1).ToString(), TabNames[t], () => tab = captured));
-                tabButtons[t].gameObject.AddComponent<MenuTooltip>().Message = $"{TabNames[t]} 건물 보기 ({t + 1})";
+                tabButtons[t].gameObject.AddComponent<MenuTooltip>().Message = $"{(TabNames[t] == "이동" ? "이동수단" : TabNames[t])} 건물 보기{(t < 10 ? $" ({(t + 1) % 10})" : "")}";
                 var page = MenuTheme.Rect("Page " + TabNames[t], buildPanel);
-                MenuTheme.Stretch(page); page.offsetMax = new Vector2(0, -32);
+                MenuTheme.Stretch(page); page.offsetMax = new Vector2(0, -60);
                 for (var i = 0; i < Tabs[t].Length; i++)
                 {
                     var entry = Tabs[t][i];
@@ -128,7 +137,7 @@ namespace AntColony.UI
         {
             var width = buildPanel.rect.width;
             for (var i = 0; i < tabButtons.Count; i++)
-                MenuLayout.Place((RectTransform)tabButtons[i].transform, i * width / 8, 0, width / 8 - 2, 26);
+                MenuLayout.Place((RectTransform)tabButtons[i].transform, i % TabsPerRow * width / TabsPerRow, i / TabsPerRow * 28, width / TabsPerRow - 2, 26);
             foreach (var page in tabPages)
             {
                 var buttons = page.GetComponentsInChildren<Button>(true);
@@ -165,7 +174,7 @@ namespace AntColony.UI
         {
             var keyboard = Keyboard.current;
             if (instance == null || keyboard == null) return;
-            for (var t = 0; t < Tabs.Length; t++)
+            for (var t = 0; t < Mathf.Min(Tabs.Length, 10); t++) // 숫자키 1~0 = 앞 10개 탭
                 if (keyboard[Key.Digit1 + t].wasPressedThisFrame)
                 {
                     if (instance.picking != null) instance.Assign(t); else instance.tab = t;
