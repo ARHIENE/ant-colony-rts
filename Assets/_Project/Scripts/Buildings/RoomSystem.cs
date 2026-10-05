@@ -8,7 +8,16 @@ namespace AntColony.Buildings
 {
     // Phase 5(2026-10-01 확정, 10-02 구현): 1m 칸 격자. 벽·문·성벽·성문으로 둘러싸인 칸 묶음이 방이고,
     // 방 종류는 안에 놓인 가구로 자동 판정(산미포식). 방에는 지붕이 생기고 등급(인상도)이 붙는다. 수치는 잠정.
-    public enum RoomKind { None, Empty, Mixed, Bedroom, Dining, Workroom, Hospital, Recreation, Storeroom, Nursery, Prison, WaitingRoom, Greenhouse }
+    // 2026-10-05 방 종류 재정리. 방 판정에 쓰이지 않아 저장되지 않는다(번호 변경 무방).
+    public enum RoomKind
+    {
+        None, Empty, Mixed,
+        Bedroom, PrivateRoom, Dining, Kitchen, DiningKitchen, Bathroom, Bathhouse,
+        Laboratory, Workshop, ProcessingRoom, Studio, TrainingRoom,
+        Hospital, Recreation, Library, Storeroom, ColdStorage,
+        Farm, Fishery, PowerPlant,
+        Nursery, Prison, Barracks, Armory, WarRoom, BanquetHall, Graveyard, Temple
+    }
 
     public sealed class Room
     {
@@ -17,16 +26,22 @@ namespace AntColony.Buildings
         public RoomKind Kind;
         public int Decorations;
         public int Score => Cells.Count + Decorations * GameBalanceRooms.DecorationScore;
-        // 0 초라함 / 1 보통 / 2 훌륭함
-        public int Grade => Score < GameBalanceRooms.GradeNormal ? 0 : Score < GameBalanceRooms.GradeGreat ? 1 : 2;
-        public string GradeName => new[] { "초라함", "보통", "훌륭함" }[Grade];
+        // 인상도 단계: 점수가 넘은 기준선 수(지금 3단계 0 초라함 / 1 보통 / 2 훌륭함).
+        public int Grade => GameBalanceRooms.GradeThresholds.Count(t => Score >= t);
+        public string GradeName => GameBalanceRooms.GradeNames[Grade];
         public string KindName => RoomSystem.Name(Kind);
+        // 산소미포함식 상위 방 이름(숙소 → 고급 숙소 → 귀빈실 등). 이름표가 없는 종류는 기본 이름.
+        public string Title => RoomSystem.RankNames.TryGetValue(Kind, out var names) && names.Length > 0 ? names[Mathf.Min(Grade, names.Length - 1)] : KindName;
     }
 
     public static class GameBalanceRooms
     {
-        public const int MaxRoomCells = 400, DecorationScore = 6, GradeNormal = 25, GradeGreat = 70;
+        public const int MaxRoomCells = 400, DecorationScore = 6;
+        // 단계 수를 바꿀 때는 기준선·이름·기분 배열 길이를 함께 맞춘다(이름·기분 = 기준선 + 1).
+        public static readonly int[] GradeThresholds = { 25, 70 };
+        public static readonly string[] GradeNames = { "초라함", "보통", "훌륭함" };
         public const float MatchingWorkBonus = 1.15f;
+        public const int MinBedsForDormRoom = 2, MinRecreationKinds = 2;
         public static readonly int[] GradeMood = { 0, 2, 4 };
         public const float OutsideSleepMood = -5, RoomSleepMood = 1, RoomMealMood = 2;
         public const float CastleWallRadius = 3, CastleWallArmor = 2;
@@ -50,35 +65,65 @@ namespace AntColony.Buildings
         public static bool HasCastleWalls { get { Refresh(); return hasCastleWalls; } }
 
         public static bool IsBoundary(BuildingBase b) => b is SoilWall || b is Wall || b is Door || b is Gate;
+        // 가구가 요구하는 방 종류(필수 가구, 2026-10-05). 아직 없는 가구는 가장 가까운 기존 건물로 대신 잇고 '대용' 주석.
+        // 가구가 없어 판정할 수 없는 방: 부엌·겸용(조리대), 목욕탕(목욕통·온천), 가공실(가공대·용광로), 화실(예술대), 도서관(책장), 냉장실(저장고·냉장고),
+        // 양식장·목장, 무기고, 연회장(긴 식탁 + 장식 3+), 묘지(관·묘비, 방 밖도 가능), 신전(제단). TODO 가구가 생기면 아래에 연결.
+        // 방 밖 전용(None): 방어·마을 건물(산성탑·함정·주거 등), 풍차·물레방아·태양광판, 이동수단. 밭은 방 밖에서도 쓰고 방 안이면 농장.
         public static RoomKind KindOf(BuildingBase b)
         {
             if (b == null || b.IsDead || IsBoundary(b) || b is Decoration || b is Housing) return RoomKind.None;
-            if (b.GetComponent<NurseryChamber>() != null) return RoomKind.Nursery;
-            if (b.GetComponent<PrisonerCamp>() != null) return RoomKind.Prison;
-            if (b.GetComponent<AntColony.World.ResourceNode>() != null) return RoomKind.Greenhouse;
+            if (b.GetComponent<NurseryChamber>() != null) return RoomKind.Nursery; // 요람
+            if (b.GetComponent<PrisonerCamp>() != null) return RoomKind.Prison; // 대용: 침대 + 창살문·잠금문
+            if (b.GetComponent<AntColony.World.ResourceNode>() != null) return RoomKind.Farm; // 밭·버섯밭·축사 통합
+            if (b.GetComponent<ScoutPost>() != null) return RoomKind.WarRoom; // 대용: 작전실 지도대·신호탑
             return b switch
             {
-                Dormitory => RoomKind.Bedroom, Kitchen => RoomKind.Dining, Infirmary => RoomKind.Hospital,
-                RestRoom or RecreationSpot => RoomKind.Recreation, Storage or Stockpile => RoomKind.Storeroom,
-                ConscriptionPost => RoomKind.WaitingRoom,
-                ScienceLab or ResearchLab or DefenseLab or Workshop or Barracks => RoomKind.Workroom,
+                Dormitory => RoomKind.Bedroom, Kitchen => RoomKind.Dining, Infirmary => RoomKind.Hospital, // 침대류·식탁·병상
+                RestRoom or RecreationSpot => RoomKind.Recreation, // 휴게 가구
+                Storage or Stockpile => RoomKind.Storeroom, // 대용: 수납장·항아리
+                ScienceLab or ResearchLab or DefenseLab => RoomKind.Laboratory, // 연구대
+                Workshop => RoomKind.Workshop, Barracks => RoomKind.TrainingRoom, // 공방·훈련대
+                ConscriptionPost => RoomKind.Barracks, // 대용: 막사 가구(대기실 역할 흡수)
                 _ => RoomKind.None
             };
         }
         public static string Name(RoomKind k) => k switch
         {
-            RoomKind.Empty => "빈 방", RoomKind.Mixed => "잡동사니 방", RoomKind.Bedroom => "숙소", RoomKind.Dining => "식당",
-            RoomKind.Workroom => "작업실", RoomKind.Hospital => "의무실", RoomKind.Recreation => "휴게실", RoomKind.Storeroom => "창고",
-            RoomKind.Nursery => "육아실", RoomKind.Prison => "감옥", RoomKind.WaitingRoom => "대기실", RoomKind.Greenhouse => "온실", _ => "바깥"
+            RoomKind.Empty => "빈 방", RoomKind.Mixed => "잡동사니 방", RoomKind.Bedroom => "숙소", RoomKind.PrivateRoom => "개인실",
+            RoomKind.Dining => "식당", RoomKind.Kitchen => "부엌", RoomKind.DiningKitchen => "식당·부엌", RoomKind.Bathroom => "욕실", RoomKind.Bathhouse => "목욕탕",
+            RoomKind.Laboratory => "연구실", RoomKind.Workshop => "공방", RoomKind.ProcessingRoom => "가공실", RoomKind.Studio => "화실", RoomKind.TrainingRoom => "훈련장",
+            RoomKind.Hospital => "의무실", RoomKind.Recreation => "휴게실", RoomKind.Library => "도서관", RoomKind.Storeroom => "창고", RoomKind.ColdStorage => "냉장실",
+            RoomKind.Farm => "농장", RoomKind.Fishery => "양식장·목장", RoomKind.PowerPlant => "발전소", RoomKind.Nursery => "육아실", RoomKind.Prison => "감옥",
+            RoomKind.Barracks => "막사", RoomKind.Armory => "무기고", RoomKind.WarRoom => "작전실", RoomKind.BanquetHall => "연회장",
+            RoomKind.Graveyard => "묘지", RoomKind.Temple => "신전", _ => "바깥"
         };
+        // 상위 방 이름표(인상도 단계별). TODO 단계 수·이름이 정해지면 채운다. 예: [Bedroom] = { "숙소", "고급 숙소", "귀빈실" }
+        public static readonly Dictionary<RoomKind, string[]> RankNames = new Dictionary<RoomKind, string[]>();
 
-        // 같은 종류의 방 안에 있는 가구는 작업 속도 +15%. 방 밖·다른 방은 그대로.
+        // 방 안 가구들로 종류를 정한다. 숙소는 침대 2+(숙소 건물 1동 = 침대 4), 휴게실은 휴게 가구 2종+, 식탁 + 조리대는 겸용.
+        private static RoomKind Judge(Room room)
+        {
+            var kinds = room.Furniture.Select(KindOf).Distinct().ToList();
+            if (kinds.Count == 0) return RoomKind.Empty;
+            if (kinds.Count == 2 && kinds.Contains(RoomKind.Dining) && kinds.Contains(RoomKind.Kitchen)) return RoomKind.DiningKitchen;
+            if (kinds.Count > 1) return RoomKind.Mixed;
+            var kind = kinds[0];
+            if (kind == RoomKind.Bedroom)
+                return room.Furniture.Sum(f => f is Dormitory ? AntColony.Core.GameBalance.DormitoryBeds : 1) >= GameBalanceRooms.MinBedsForDormRoom ? RoomKind.Bedroom : RoomKind.PrivateRoom;
+            if (kind == RoomKind.Recreation && room.Furniture.Select(f => f.Data != null ? f.Data.kind : BuildingKind.RestRoom).Distinct().Count() < GameBalanceRooms.MinRecreationKinds) return RoomKind.Empty;
+            return kind;
+        }
+
+        // 같은 종류의 방 안에 있는 가구는 작업 속도 +15%(식당·부엌 겸용은 절반). 방 밖·다른 방은 그대로.
         public static float WorkBonus(Component target)
         {
             var b = target != null ? target.GetComponentInParent<BuildingBase>() : null;
             if (b == null) return 1f;
             var room = RoomAt(b.Position);
-            return room != null && room.Kind != RoomKind.Mixed && room.Kind == KindOf(b) ? GameBalanceRooms.MatchingWorkBonus : 1f;
+            if (room == null) return 1f;
+            var kind = KindOf(b);
+            if (room.Kind == RoomKind.DiningKitchen && (kind == RoomKind.Dining || kind == RoomKind.Kitchen)) return 1f + (GameBalanceRooms.MatchingWorkBonus - 1f) * .5f;
+            return room.Kind != RoomKind.Mixed && (room.Kind == kind || room.Kind == RoomKind.PrivateRoom && kind == RoomKind.Bedroom) ? GameBalanceRooms.MatchingWorkBonus : 1f;
         }
 
         private static void Refresh()
@@ -112,11 +157,7 @@ namespace AntColony.Buildings
                 if (b is Decoration) room.Decorations++;
                 else if (KindOf(b) != RoomKind.None) room.Furniture.Add(b);
             }
-            foreach (var room in rooms)
-            {
-                var kinds = room.Furniture.Select(KindOf).Distinct().ToList();
-                room.Kind = kinds.Count == 0 ? RoomKind.Empty : kinds.Count == 1 ? kinds[0] : RoomKind.Mixed;
-            }
+            foreach (var room in rooms) room.Kind = Judge(room);
             if (hasCastleWalls)
             {
                 // 성벽 안쪽: 성벽·성문만 경계로 보고, 맵 가장자리에 닿지 않는 영역(크기 제한 없음).

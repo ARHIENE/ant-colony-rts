@@ -64,6 +64,31 @@ public static class Phase5Checks
             made.Remove(table.gameObject); Object.Destroy(table.gameObject); await Task.Yield(); await Task.Yield();
             Check(RoomSystem.RoomAt(inside).Kind == RoomKind.Bedroom, "removing furniture re-judges room");
 
+            // 2026-10-05 방 종류 재정리: 필수 가구 → 방 이름, 휴게실은 2종 이상, 상위 방 이름표 구조.
+            made.Remove(bed.gameObject); Object.Destroy(bed.gameObject); await Task.Yield(); await Task.Yield();
+            async Task<RoomKind> Furnish(params BuildingKind[] kinds)
+            {
+                var placed = kinds.Select((k, i) => Put<BuildingBase>(k, o + new Vector3(1.5f + i, .75f, 3.5f))).ToList();
+                await Task.Yield(); var kind = RoomSystem.RoomAt(inside).Kind;
+                foreach (var p in placed) { made.Remove(p.gameObject); Object.Destroy(p.gameObject); }
+                await Task.Yield(); await Task.Yield();
+                return kind;
+            }
+            Check(await Furnish(BuildingKind.ScienceLab) == RoomKind.Laboratory, "research bench makes laboratory");
+            Check(await Furnish(BuildingKind.Workshop) == RoomKind.Workshop, "workshop room");
+            Check(await Furnish(BuildingKind.Infirmary) == RoomKind.Hospital, "sickbed makes hospital");
+            Check(await Furnish(BuildingKind.Campfire) == RoomKind.Empty, "one recreation kind is not a lounge");
+            Check(await Furnish(BuildingKind.Campfire, BuildingKind.GamblingDen) == RoomKind.Recreation, "two recreation kinds make a lounge");
+            Check(await Furnish(BuildingKind.ConscriptionPost) == RoomKind.Barracks, "conscription stands in for barracks furniture");
+            Check(await Furnish(BuildingKind.Storage) == RoomKind.Storeroom, "storage makes storeroom");
+            Check(RoomSystem.Name(RoomKind.DiningKitchen) == "식당·부엌" && RoomSystem.Name(RoomKind.Temple) == "신전", "new room names");
+            var empty = RoomSystem.RoomAt(inside);
+            Check(empty.Title == empty.KindName && GameBalanceRooms.GradeNames.Length == GameBalanceRooms.GradeThresholds.Length + 1
+                && GameBalanceRooms.GradeMood.Length == GameBalanceRooms.GradeNames.Length, "grade tiers consistent");
+            RoomSystem.RankNames[RoomKind.Empty] = new[] { "헛간", "창고방", "넓은 방" };
+            Check(empty.Title == RoomSystem.RankNames[RoomKind.Empty][empty.Grade], "rank names follow grade");
+            RoomSystem.RankNames.Remove(RoomKind.Empty);
+
             // 벽을 부수면 방이 사라진다.
             var broken = made.Select(g => g.GetComponent<Wall>()).First(w => w != null && w.Position.x < o.x + 1 && w.Position.z > o.z + 3 && w.Position.z < o.z + 4);
             var brokenAt = broken.Position; broken.TakeDamage(float.MaxValue); await Task.Yield();

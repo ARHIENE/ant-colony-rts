@@ -73,7 +73,7 @@ namespace AntColony.UI
             instruction.text = "작업 중인 장수가 없으면 인력은 대기 풀로 돌아갑니다. 설정은 이 대상에 저장됩니다.";
             var label = action.GetComponentInChildren<Text>();
             action.gameObject.SetActive(Target is ResourceNode || Target is Workshop || Target is WildMonster || Target is Gate || Target is Barracks || Target is DigSite);
-            if (Target is BuildingBase placed && !(Target is Gate)) { var room = RoomSystem.RoomAt(placed.Position); instruction.text = (room == null ? "방 밖(효과 적음)" : $"방: {room.KindName} · 등급 {room.GradeName} ({room.Cells.Count}칸)") + " · " + instruction.text; }
+            if (Target is BuildingBase placed && !(Target is Gate)) { var room = RoomSystem.RoomAt(placed.Position); instruction.text = (room == null ? "방 밖(효과 적음)" : $"방: {room.Title} · 등급 {room.GradeName} ({room.Cells.Count}칸)") + " · " + instruction.text; }
             if (Target is Dormitory dorm)
             {
                 slider.gameObject.SetActive(false);
@@ -111,7 +111,7 @@ namespace AntColony.UI
         {
             var room = RoomSystem.RoomAt(building.Position);
             return room == null ? "방 밖 — 벽과 문으로 공간을 둘러싸면 방이 됩니다."
-                : $"방: {room.KindName} · 등급 {room.GradeName} · {room.Cells.Count}칸";
+                : $"방: {room.Title} · 등급 {room.GradeName} · {room.Cells.Count}칸";
         }
         public static void ShowAssignments()
         {
