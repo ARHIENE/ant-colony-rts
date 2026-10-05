@@ -10,7 +10,7 @@ using UnityEngine.UI;
 
 namespace AntColony.UI
 {
-    // 건설(B) 화면: 오른쪽 날개 = 분류 탭 16종(2줄, 숫자키 1~0) + 건물 칸(QWERT/ASDFG), 가운데 = 맡길 장수 고르기, 배치 중에는 상단 안내 막대.
+    // 건설(B) 화면: 오른쪽 날개 = 분류 탭 16종(3줄, 숫자키 1~0) + 건물 칸(QWERT/ASDFG), 가운데 = 맡길 장수 고르기, 배치 중에는 상단 안내 막대.
     public sealed class BuildScreen : MonoBehaviour
     {
         private readonly struct Entry
@@ -21,7 +21,7 @@ namespace AntColony.UI
 
         // 건설 분류 16종(2026-10-05). 탭 이름 2~3글자라 '이동수단'은 '이동'. 빈 분류는 가구가 생기면 채운다.
         private static readonly string[] TabNames = { "타일", "생활", "저장", "환경", "전력", "자동화", "배관", "식량", "작업", "의료", "방어", "휴게", "장식", "군사", "마을", "이동" };
-        private const int TabsPerRow = 8;
+        private const int TabsPerRow = 6; // 오른쪽 칸 폭에서 3글자가 읽히는 폭(3줄)
         private static readonly Key[] SlotKeys = { Key.Q, Key.W, Key.E, Key.R, Key.T, Key.A, Key.S, Key.D, Key.F, Key.G };
         private static readonly Entry[][] Tabs =
         {
@@ -101,7 +101,7 @@ namespace AntColony.UI
                 tabButtons.Add(Cell(buildPanel, "Tab " + TabNames[t], new Vector2(t * 36, 0), new Vector2(34, 26), (t + 1).ToString(), TabNames[t], () => tab = captured));
                 tabButtons[t].gameObject.AddComponent<MenuTooltip>().Message = $"{(TabNames[t] == "이동" ? "이동수단" : TabNames[t])} 건물 보기{(t < 10 ? $" ({(t + 1) % 10})" : "")}";
                 var page = MenuTheme.Rect("Page " + TabNames[t], buildPanel);
-                MenuTheme.Stretch(page); page.offsetMax = new Vector2(0, -60);
+                MenuTheme.Stretch(page); page.offsetMax = new Vector2(0, -(Tabs.Length + TabsPerRow - 1) / TabsPerRow * 28 - 4);
                 for (var i = 0; i < Tabs[t].Length; i++)
                 {
                     var entry = Tabs[t][i];
@@ -139,7 +139,10 @@ namespace AntColony.UI
         {
             var width = buildPanel.rect.width;
             for (var i = 0; i < tabButtons.Count; i++)
+            {
                 MenuLayout.Place((RectTransform)tabButtons[i].transform, i % TabsPerRow * width / TabsPerRow, i / TabsPerRow * 28, width / TabsPerRow - 2, 26);
+                MenuTheme.Stretch(tabButtons[i].GetComponentsInChildren<Text>(true)[1].rectTransform); // 단축키 글자가 숨겨져 있어 이름이 칸 전체를 쓴다
+            }
             foreach (var page in tabPages)
             {
                 var buttons = page.GetComponentsInChildren<Button>(true);
