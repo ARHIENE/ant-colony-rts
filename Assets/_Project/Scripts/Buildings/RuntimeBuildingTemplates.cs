@@ -34,6 +34,15 @@ namespace AntColony.Buildings
                 BuildingKind.Gate => ("성문", new Vector3(2, 2.6f, 2), new Color(.55f, .45f, .3f), 0, 60, 0, 5, 10f, 1200f, false),
                 BuildingKind.Hut => ("초가집", new Vector3(2, 1.2f, 2), new Color(.78f, .68f, .42f), 0, GameBalance.HutSoil, 0, 3, 6f, 150f, false),
                 BuildingKind.House => ("흙집", new Vector3(2.6f, 1.6f, 2.6f), new Color(.6f, .45f, .3f), 0, GameBalance.HouseSoil, 0, 5, 10f, 300f, false),
+                // 위생·전력 1차(2026-10-05, 잠정 수치). 전선은 밟고 지나가는 납작한 칸.
+                BuildingKind.Toilet => ("화장실", new Vector3(1, 1, 1), new Color(.85f, .85f, .8f), 0, 20, 0, 1, 4f, 100f, false),
+                BuildingKind.Washbasin => ("세면대", new Vector3(1, .9f, 1), new Color(.75f, .85f, .9f), 0, 15, 0, 1, 3f, 100f, false),
+                BuildingKind.Shower => ("샤워기", new Vector3(1, 1.8f, 1), new Color(.6f, .8f, .9f), 0, 30, 0, 2, 5f, 100f, false),
+                BuildingKind.Treadmill => ("쳇바퀴", new Vector3(2, 1.6f, 1), new Color(.7f, .55f, .35f), 0, 30, 0, 2, 5f, 150f, false),
+                BuildingKind.WoodGenerator => ("장작 발전기", new Vector3(2, 1.4f, 2), new Color(.45f, .3f, .2f), 0, 50, 0, 3, 8f, 200f, false),
+                BuildingKind.PowerWire => ("전선", new Vector3(1, .08f, 1), new Color(.85f, .7f, .2f), 0, 2, 0, 0, 1f, 30f, true),
+                BuildingKind.Battery => ("배터리", new Vector3(1, 1.2f, 1), new Color(.3f, .6f, .35f), 0, 40, 2, 2, 6f, 150f, false),
+                BuildingKind.ElectricLamp => ("전등", new Vector3(.6f, 1.8f, .6f), new Color(.95f, .9f, .6f), 0, 10, 0, 1, 3f, 80f, false),
                 BuildingKind.Apartment => ("큰 아파트", new Vector3(3, 3.2f, 3), new Color(.62f, .62f, .66f), 0, GameBalance.ApartmentSoil, GameBalance.ApartmentSpecial, 8, 16f, 500f, false),
                 _ => (null, Vector3.one, Color.white, 0, 0, 0, 0, 0f, 0f, false)
             };
@@ -65,6 +74,8 @@ namespace AntColony.Buildings
                 BuildingKind.LeafWall or BuildingKind.CapWall or BuildingKind.CastleWall => go.AddComponent<Wall>(),
                 BuildingKind.Door => go.AddComponent<Door>(),
                 BuildingKind.Gate => go.AddComponent<Gate>(),
+                BuildingKind.Toilet or BuildingKind.Washbasin or BuildingKind.Shower => go.AddComponent<HygieneFixture>(),
+                BuildingKind.Treadmill or BuildingKind.WoodGenerator or BuildingKind.PowerWire or BuildingKind.Battery or BuildingKind.ElectricLamp => go.AddComponent<PowerNode>(),
                 _ => go.AddComponent<RestRoom>()
             };
             building.ConfigureRuntime(data);

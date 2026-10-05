@@ -25,6 +25,8 @@ namespace AntColony.Save
                 d.labResearchCommanderId = commanders.IndexOf(lab.Target); d.labResearchAttack = lab.ResearchIsAttack; }
             if (b is DigSite dig) d.digExpanded = dig.IsExpanded;
             if (b is Gate gate) d.gateOpen = gate.Open;
+            if (b is PowerNode power) d.powerCharge = power.Charge;
+            d.materialTier = b.MaterialTier;
             if (b is AcidTower tower) d.towerCooldown = tower.Cooldown;
             if (b is AreaAcidTower areaTower) d.towerCooldown = areaTower.Cooldown;
             if (b is TrapPit trap) { d.trapArmed = trap.Armed; d.trapBroken = trap.BrokenSeconds; d.trapRepair = trap.RepairProgress; d.trapRepairPaid = trap.RepairPaid; }
@@ -84,6 +86,8 @@ namespace AntColony.Save
             if (b is Stockpile && d.queenFishingRemaining > 0 && GameManager.Instance != null) GameManager.Instance.FishingUnlocked = true;
             if (b is DigSite dig) dig.RestoreExpanded(d.digExpanded);
             if (b is Gate gate) gate.SetOpen(d.gateOpen);
+            if (b is PowerNode power) power.Charge = Mathf.Clamp(d.powerCharge, 0, GameBalance.BatteryCapacity);
+            b.MaterialTier = Mathf.Max(0, d.materialTier);
             if (b is AcidTower tower) tower.RestoreCooldown(d.towerCooldown);
             if (b is AreaAcidTower areaTower) areaTower.RestoreCooldown(d.towerCooldown);
             if (b is TrapPit trap) trap.RestoreState(d.trapArmed, d.trapBroken, d.trapRepair, d.trapRepairPaid);

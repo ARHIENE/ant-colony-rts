@@ -16,6 +16,9 @@ namespace AntColony.Buildings
 
         public BuildingData Data => data;
         public bool CountsTowardPlayerDefeat => countsTowardPlayerDefeat;
+        // 재료 업그레이드(2026-10-05 공통 원칙): 같은 가구를 더 좋은 재료로 다시 지어 올린 단계. 재료 목록·효과가 미정이라 저장만 한다.
+        // TODO 재료 목록이 정해지면 FurnitureCatalog.MaterialUpgradable 가구에 업그레이드 명령·효과를 붙인다.
+        public int MaterialTier { get; set; }
         public float MaxHealth => BaseMaxHealth * (UsesDefenseDurability ? DefenseUpgrades.DurabilityMultiplier : 1f);
         // 저장 검증용: 연구소 내구 라인이 최고 단계일 때의 체력 상한.
         internal float MaxPossibleHealth => BaseMaxHealth * (UsesDefenseDurability ? 1f + .2f * DefenseUpgrades.MaxLevel : 1f);

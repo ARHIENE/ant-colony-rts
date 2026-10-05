@@ -85,7 +85,7 @@ namespace AntColony.Units
                 if (WorkState.recoverySeconds == 0) WorkState.health = GameBalance.CommanderHealth;
                 return;
             }
-            if (TickSleep(seconds) || TickMeal(seconds) || TickCorpseWork(seconds) || TickJoy(seconds)) return;
+            if (TickSleep(seconds) || TickMeal(seconds) || TickCorpseWork(seconds) || TickHygiene(seconds) || TickJoy(seconds)) return;
             if (IsAwayFromHome || !CanReceiveOrders) return;
             if (IsReturning)
             {
@@ -152,6 +152,9 @@ namespace AntColony.Units
             if (AllowsJob(CommanderJobs.Hunting))
                 foreach (var animal in WildMonster.All.Where(m => m.Huntable && m.HuntDesignated).OrderBy(m => (m.Position - Position).sqrMagnitude))
                     if (!Active.OfType<CommanderAnt>().Any(c => c != this && c.HuntTarget == animal) && StartHunt(animal)) return;
+            if (AllowsJob(CommanderJobs.Hauling))
+                foreach (var wheel in PowerNode.All.Where(p => p.NeedsRunner).OrderBy(p => (p.Position - Position).sqrMagnitude))
+                    if (StartService(wheel, CommanderJobs.Hauling)) return;
             foreach (var job in new[] { CommanderJobs.Hauling, CommanderJobs.Farming, CommanderJobs.Fishing, CommanderJobs.Gathering })
                 if (AllowsJob(job))
                     foreach (var node in ResourceNode.Available.OrderBy(n => (n.transform.position - Position).sqrMagnitude))

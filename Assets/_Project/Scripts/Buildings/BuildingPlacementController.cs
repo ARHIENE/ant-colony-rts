@@ -239,7 +239,7 @@ namespace AntColony.Buildings
         private Vector3? dragStart;
         private readonly System.Collections.Generic.List<GameObject> linePreviews = new System.Collections.Generic.List<GameObject>();
         public static bool IsLineKind(BuildingKind kind) => kind == BuildingKind.SoilWall || kind == BuildingKind.LeafWall
-            || kind == BuildingKind.CapWall || kind == BuildingKind.CastleWall;
+            || kind == BuildingKind.CapWall || kind == BuildingKind.CastleWall || kind == BuildingKind.PowerWire; // 전선도 한 줄 드래그
 
         public System.Collections.Generic.List<Vector3> LineCells(Vector3 start, Vector3 end)
         {
@@ -372,7 +372,9 @@ namespace AntColony.Buildings
                 BuildingKind.FlowerPot or BuildingKind.ShellDecoration or BuildingKind.MarbleMosaic or BuildingKind.BottleMobile or BuildingKind.FireflyLamp
                     or BuildingKind.Campfire or BuildingKind.GamblingDen
                     or BuildingKind.Hut or BuildingKind.House or BuildingKind.Apartment
-                    or BuildingKind.LeafWall or BuildingKind.CapWall or BuildingKind.Door or BuildingKind.CastleWall or BuildingKind.Gate => FindDecorationTemplate(kind),
+                    or BuildingKind.LeafWall or BuildingKind.CapWall or BuildingKind.Door or BuildingKind.CastleWall or BuildingKind.Gate
+                    or BuildingKind.Toilet or BuildingKind.Washbasin or BuildingKind.Shower
+                    or BuildingKind.Treadmill or BuildingKind.WoodGenerator or BuildingKind.PowerWire or BuildingKind.Battery or BuildingKind.ElectricLamp => FindDecorationTemplate(kind),
                 _ => null
             };
         }

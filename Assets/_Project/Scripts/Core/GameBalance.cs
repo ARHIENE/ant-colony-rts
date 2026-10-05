@@ -102,6 +102,11 @@ namespace AntColony.Core
         public const float JoyPerSecond = 100f / 600f, PlayBelowJoy = 30, PlaySeconds = 20, PlayJoy = 50;
         public const float BoredomPerPlay = .3f, BoredomRecoverPerSecond = .3f / 900f, DecorationPlayBonus = .2f;
         public const float LowJoyMood = -5, VeryLowJoyMood = -10, VarietyMoodPerKind = 2;
+        // 위생 욕구(2026-10-05, 잠정): 10분에 100 소모, 30 이하면 위생 가구로 간다. 회복량 = 화장실 60 / 세면대 30 / 샤워기 80.
+        public const float HygienePerSecond = 100f / 600f, WashBelowHygiene = 30, WashSeconds = 10, LowHygieneMood = -4, VeryLowHygieneMood = -8;
+        public static readonly float[] WashHygiene = { 60, 30, 80 };
+        // 전력 1차(2026-10-05, 잠정): 출력·소비 W, 배터리 용량 W·초, 장작 발전기는 10초마다 재료 1.
+        public const float TreadmillWatts = 40, WoodGeneratorWatts = 100, LampWatts = 10, BatteryCapacity = 1000, WoodBurnSeconds = 10, TreadmillExtraFatigue = .5f;
         public const int CampfireSoil = 15, GamblingDenSoil = 25, CampfireSeats = 6, GamblingDenSeats = 4;
         // 도박장(2026-09-29 초안 승인): 함께 한 판 끝나면 승자 +5·패자 -3(3분), 10% 말다툼 관계 -5.
         public const float GambleWinMood = 5, GambleLoseMood = -3, GambleQuarrelChance = .1f, GambleQuarrel = -5;

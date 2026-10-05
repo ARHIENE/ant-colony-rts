@@ -126,6 +126,8 @@ namespace AntColony.Save
         public int labResearchCommanderId = -1;
         public bool labResearchAttack;
         public bool gateOpen = true; // Phase 5 성문
+        public float powerCharge; // 2026-10-05 배터리 충전량
+        public int materialTier; // 2026-10-05 재료 업그레이드 단계(0 = 처음 재료). 재료 목록 미정
         public float queenProductionRemaining; // Phase 4: 여왕방 삭제, 이전 저장 읽기용
         public float queenFishingRemaining;
         public float scienceRemaining;

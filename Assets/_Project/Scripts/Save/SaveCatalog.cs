@@ -37,7 +37,7 @@ namespace AntColony.Save
             if (b.GetComponent<ScoutPost>() != null) return "ScoutPost";
             if (b.GetComponent<PrisonerCamp>() != null) return "PrisonerCamp";
             if (b.GetComponent<ResourceNode>() != null) return "Farm";
-            if (b is Decoration || b is Housing || b is Wall || b is Door || b is Gate) return b.Data.kind.ToString();
+            if (b is Decoration || b is Housing || b is Wall || b is Door || b is Gate || b is HygieneFixture || b is PowerNode) return b.Data.kind.ToString();
             if (b is Stockpile) return "QueenChamber"; // 저장 호환: 구 여왕방 자리
             return b.GetType().Name;
         }

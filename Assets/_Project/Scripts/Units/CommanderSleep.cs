@@ -23,6 +23,7 @@ namespace AntColony.Units
         public bool IsAsleep => Sleep.asleep;
         public bool SleepsRough => Sleep.asleep && Sleep.rough;
         public float Fatigue => Sleep.fatigue;
+        internal void AddFatigue(float amount) => Sleep.fatigue = Mathf.Clamp(Sleep.fatigue + amount, 0, 100);
         public bool SleptPoorly => Sleep.poorly;
         // 작업 속도 공통 배율: 특성 × 잠을 설친 다음날 -20%.
         public float WorkFactor => traits.WorkMultiplier * (Sleep.poorly ? GameBalance.PoorSleepWork : 1f);

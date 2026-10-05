@@ -35,7 +35,9 @@ namespace AntColony.Data
         // Phase 4 주거 건물: 초가집·흙집·큰 아파트
         Hut, House, Apartment,
         // Phase 5 벽·문: 나뭇잎 벽·병뚜껑 벽·문·성벽·성문
-        LeafWall, CapWall, Door, CastleWall, Gate
+        LeafWall, CapWall, Door, CastleWall, Gate,
+        // 2026-10-05 위생(화장실·세면대·샤워기) + 전력 1차(쳇바퀴·장작 발전기·전선·배터리·전등)
+        Toilet, Washbasin, Shower, Treadmill, WoodGenerator, PowerWire, Battery, ElectricLamp
     }
 
     [CreateAssetMenu(fileName = "BuildingData", menuName = "AntColony/Building Data")]

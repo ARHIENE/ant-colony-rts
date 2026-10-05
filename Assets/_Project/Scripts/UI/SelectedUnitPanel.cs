@@ -18,8 +18,8 @@ namespace AntColony.UI
         private Text portrait, header, job, healthText, topSkills;
         private RawImage portraitAnt;
         private RectTransform troopFill, healthFill;
-        private readonly Text[] statValues = new Text[3], statNotes = new Text[3], needValues = new Text[3];
-        private readonly RectTransform[] needFills = new RectTransform[3];
+        private readonly Text[] statValues = new Text[3], statNotes = new Text[3], needValues = new Text[4];
+        private readonly RectTransform[] needFills = new RectTransform[4]; // 욕구 4종: 배고픔·피로·오락·위생
         private readonly MenuTooltip[] slotTips = new MenuTooltip[3];
         private readonly Text[] slotTexts = new Text[3];
 
@@ -87,11 +87,11 @@ namespace AntColony.UI
                 statValues[i] = RowLabel(cell, "", 20, 16, 25); statValues[i].font = MenuTheme.NumberFont;
                 statNotes[i] = RowLabel(cell, "", 10, 40, 14); statNotes[i].color = MenuTheme.Dim;
             }
-            string[] needNames = { "배고픔", "피로", "오락" };
-            Color[] needColors = { MenuTheme.Warning, MenuTheme.Loyal, MenuTheme.Hex(0xb9a2f2) };
-            for (var i = 0; i < 3; i++)
+            string[] needNames = { "배고픔", "피로", "오락", "위생" };
+            Color[] needColors = { MenuTheme.Warning, MenuTheme.Loyal, MenuTheme.Hex(0xb9a2f2), MenuTheme.Hex(0x7cc4d6) };
+            for (var i = 0; i < 4; i++)
             {
-                var cell = Row(info, "Need " + needNames[i], 152, 28, i / 3f, (i + 1) / 3f);
+                var cell = Row(info, "Need " + needNames[i], 152, 28, i / 4f, (i + 1) / 4f);
                 RowLabel(cell, needNames[i], 12, 0, 18).color = MenuTheme.Muted;
                 needValues[i] = RowLabel(cell, "", 12, 0, 18); needValues[i].alignment = TextAnchor.MiddleRight;
                 needValues[i].font = MenuTheme.NumberFont;
@@ -181,8 +181,8 @@ namespace AntColony.UI
             statValues[2].text = $"{c.AttackDamage:0.#} / {c.Armor:0.#}";
             statNotes[2].text = c.IsDeployed ? "출전 중" : "출전 시";
 
-            float[] needs = { 100f - c.Satiety, c.Fatigue, c.Joy };
-            for (var i = 0; i < 3; i++)
+            float[] needs = { 100f - c.Satiety, c.Fatigue, c.Joy, c.Hygiene };
+            for (var i = 0; i < 4; i++)
             {
                 needValues[i].text = $"{needs[i]:0}";
                 needFills[i].anchorMax = new Vector2(Mathf.Clamp01(needs[i] / 100f), 1f);

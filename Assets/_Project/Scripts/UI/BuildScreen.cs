@@ -27,10 +27,12 @@ namespace AntColony.UI
         {
             new[] { new Entry("흙벽", BuildingKind.SoilWall), new Entry("나뭇잎 벽", BuildingKind.LeafWall), new Entry("병뚜껑 벽", BuildingKind.CapWall),
                 new Entry("문", BuildingKind.Door) },
-            new[] { new Entry("숙소", BuildingKind.Dormitory), new Entry("식당", BuildingKind.Kitchen), new Entry("양육실", BuildingKind.Nursery) },
+            new[] { new Entry("숙소", BuildingKind.Dormitory), new Entry("식당", BuildingKind.Kitchen), new Entry("양육실", BuildingKind.Nursery),
+                new Entry("화장실", BuildingKind.Toilet), new Entry("세면대", BuildingKind.Washbasin), new Entry("샤워기", BuildingKind.Shower) },
             new[] { new Entry("저장고", BuildingKind.Storage) },
-            new Entry[0], // 환경: TODO 화롯불·등불·난로·환풍구
-            new Entry[0], // 전력
+            new[] { new Entry("전등", BuildingKind.ElectricLamp) }, // 환경: TODO 화롯불·등불·난로·환풍구
+            new[] { new Entry("쳇바퀴", BuildingKind.Treadmill), new Entry("장작 발전기", BuildingKind.WoodGenerator), new Entry("전선", BuildingKind.PowerWire),
+                new Entry("배터리", BuildingKind.Battery) },
             new Entry[0], // 자동화: TODO 센서·논리(신호선)
             new Entry[0], // 배관: TODO 배관·펌프·밸브·액체 탱크
             new[] { new Entry("밭", BuildingKind.Farm) },

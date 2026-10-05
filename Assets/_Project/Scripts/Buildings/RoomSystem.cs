@@ -76,6 +76,8 @@ namespace AntColony.Buildings
             if (b.GetComponent<PrisonerCamp>() != null) return RoomKind.Prison; // 대용: 침대 + 창살문·잠금문
             if (b.GetComponent<AntColony.World.ResourceNode>() != null) return RoomKind.Farm; // 밭·버섯밭·축사 통합
             if (b.GetComponent<ScoutPost>() != null) return RoomKind.WarRoom; // 대용: 작전실 지도대·신호탑
+            if (b is HygieneFixture) return RoomKind.Bathroom; // 화장실·세면대·샤워기
+            if (b is PowerNode power) return power.IsGenerator ? RoomKind.PowerPlant : RoomKind.None; // 발전기류, 전선·배터리·전등은 아무 방에나
             return b switch
             {
                 Dormitory => RoomKind.Bedroom, Kitchen => RoomKind.Dining, Infirmary => RoomKind.Hospital, // 침대류·식탁·병상

@@ -33,6 +33,7 @@ namespace AntColony.Units
         public CommanderSleepState sleep = new CommanderSleepState();
         public CommanderMealState meal = new CommanderMealState();
         public CommanderJoyState joy = new CommanderJoyState();
+        public CommanderHygieneState hygiene = new CommanderHygieneState(); // 2026-10-05, 이전 저장은 기본값 100
         public bool HasTreatableInjury => injuries.Exists(i => i.severity == InjurySeverity.Serious);
         public bool NeedsTreatment => HasTreatableInjury || infected;
         public bool HasSeriousInjury => injuries.Exists(i => i.severity != InjurySeverity.Minor);
@@ -82,7 +83,7 @@ namespace AntColony.Units
         public bool Validate(out string error)
         {
             error = "Invalid commander personal state";
-            if (work == null || !work.Valid || string.IsNullOrEmpty(id) || social == null || !social.Validate() || sleep == null || !sleep.Valid || meal == null || !meal.Valid || joy == null || !joy.Valid || injuries == null || injuries.Count > 6 || moodFactors == null || moodFactors.Count > 64 || relations == null || equipment == null || equipment.Count > 3) return false;
+            if (work == null || !work.Valid || string.IsNullOrEmpty(id) || social == null || !social.Validate() || sleep == null || !sleep.Valid || meal == null || !meal.Valid || joy == null || !joy.Valid || hygiene == null || !hygiene.Valid || injuries == null || injuries.Count > 6 || moodFactors == null || moodFactors.Count > 64 || relations == null || equipment == null || equipment.Count > 3) return false;
             var parts = new HashSet<InjuryPart>();
             foreach (var i in injuries) if (i == null || !Enum.IsDefined(typeof(InjuryPart), i.part) || !parts.Add(i.part) || !Enum.IsDefined(typeof(InjurySeverity), i.severity) || !Finite(i.remaining) || i.remaining < 0) return false;
             foreach (var f in moodFactors) if (f == null || f.reason == null || !Finite(f.value) || !Finite(f.remaining) || f.remaining < 0) return false;
