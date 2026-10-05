@@ -170,8 +170,8 @@ public static class WorldMapChecks
         Check(world.Unlocked && world.Transports.Count == 1, "first completed transport opens map");
         var vehicle = world.Transports[0];
         Check(vehicle.Capacity == 40 && !vehicle.TryDepart(world.Sites.First(s => s.Kind == ExpeditionSiteKind.Settlement)), "empty vehicle cannot depart");
-        Check(!lab.TryResearch(true), "aircraft research requires gliding and lab tier 3");
-        Check(lab.TryUpgrade() && research.TryStart(ScienceTechnology.Gliding), "gliding research starts");
+        Check(!lab.TryResearch(true), "aircraft research requires gliding and lab tier 4 (electric era)");
+        Check(lab.TryUpgrade() && lab.TryUpgrade() && research.TryStart(ScienceTechnology.Gliding), "gliding research starts");
         research.Tick(10000);
         Check(research.Has(ScienceTechnology.Gliding) && lab.TryResearch(true), "aircraft research requires completed prerequisites");
         research.Tick(10000);
