@@ -1,3 +1,7 @@
+# 2026-10-06 SAVE — 이전 로그(2026-10-05 추가 SAVE, 10-05 기획 반영) 요약
+- 661b2d5까지: 징집소 버튼 → 징집소 건물 '출전', 건설 분류 16종, 6시대(200~5000)·미래 로켓 발사 승리(저장 v14), 방 28종(필수 가구), 위생 욕구(욕구 4종), 전력 1차(쳇바퀴·장작 발전기·전선·배터리·전등), 가구 데이터 238개(FurnitureCatalog), MaterialTier 저장.
+- 전체 검사 72개 중 67 통과. 실패: 구식 Invasion/SceneInvasion/Raid, AntWorkVisual(타이밍), WorldMap(원정 채집 후 운송선 앞 정지, 3a257fc에서도 재현). Notion 일지 2026-10-05 페이지 7~13번 추가.
+
 # 2026-10-05 추가 SAVE — 같은 날 이전 로그(10-05 SAVE) 요약
 - 10-05 SAVE(1085ce7·3a257fc): 검사 기대값 현재 규칙에 맞춤(구식 3개 제외 63/63), 채집 반납 오차·장수 운반 한도 정수 내림 수정, HUD 명령 카드 3×3, SeasonFoliage(잎만 계절색)·TerrainBlend(반복 완화·눈 덮임), 정원 돌바닥 층 제거.
 - 당시 결정 대기: 구식 Invasion/SceneInvasion/Raid 검사, 원정지 수동 채집 1회 왕복 후 멈춤. Player 빌드·바이옴 이벤트·다거점 경유 미구현. Notion 일지 https://app.notion.com/p/3efc4a0ecd3181e98d59ced8e775ca8e.
