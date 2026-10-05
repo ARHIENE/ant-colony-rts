@@ -1,13 +1,18 @@
 # 프로젝트 로그
 
-## 현재 상태 — 2026-10-05 SAVE
+## 현재 상태 — 2026-10-05 추가 SAVE (10-05 기획 반영)
 - 프로젝트: 개미 소굴 RTS, E:\Git\ant. Unity 6000.5.8f1 / URP 17.5.0 / Pipeline 0.7.0-exp.1. 일반 개발 develop, 안정 master. 소스 Assets/_Project/Scripts, 검사 AgentScripts, 그래프 graphify-out.
-- 검사 정리 완료: 실패 27개 분류 → 검사 기대값을 현재 규칙에 맞춤(작업 13종, Phase4 병역 상한, 농장 인력, 간호사 없는 치료 x0.5, HUD v4 이름, Workforce 요청 방식, 바이옴 배율, 패배=장수 0명 등). 전체 실행 .unity/checks-2026-10-04b: 구식 3개 제외 63/63 통과. Stage6·AnnexedSettlement·Corpse는 간헐 실패(개별 재실행 통과).
-- 게임 버그 수정: WorkerAnt 반납 시 채집 합산 오차(10→9.9999)로 1이 바닥 더미로 떨어짐 → +0.001 여유. CommanderAnt 운반 한도를 정수 내림(소수 한도면 왕복마다 자투리 손실).
-- HUD 명령 카드 3×3(사용자 승인안): 평시 우선·휴식·징집소·건설·작업표·상세·무기·연구·정지 / 출전 +상세·무기 / 둥지 +연구·인구·외교. 평시 버튼 3글자 이하 규칙 유지.
-- 바닥·계절: Shaders/SeasonFoliage.shader(+Resources/SeasonFoliage.mat) — 잎만 계절색(봄 연두·가을 주황~빨강·겨울 갈색+윗면 눈), 전역 _SeasonSpring/_SeasonAutumn/_SeasonWinter(SeasonVisuals). MapGenerator.Foliage 목록 제거. TerrainBlend: 3샘플 반복 완화, 색조는 풀에만 온전히(돌·흙 40%), 눈 텍스처 흰색화·한겨울 전면 덮임. 정원 층에서 Rocky_Dirt_2 제거(SetupBiomeStyles 재실행).
-- 한계: Fantasy Village 침엽수는 팔레트 공용 재질이라 소나무 구분 불가 → 가을에 같이 물듦. 씬 직접 배치 나무는 없음(맵 나무는 전부 생성 장식).
-- 미완료/결정 대기: Player 빌드 미실행. 구식 Invasion/SceneInvasion/Raid 검사(09-18 원정 구조 전 홈 소굴 전제) 재작성/삭제 결정 대기. 원정지 수동 채집 1회 왕복 후 멈춤 → 계속 채집으로 바꿀지 결정 대기. 바이옴 이벤트·다거점 수송 경유 미구현(BiomeEventChecks·MultiStopRouteChecks 초안 로컬).
-- 다음 세션: 위 두 결정 반영 → Player 빌드 → 바이옴 이벤트·다거점 경유 구현. 검사 실행은 .unity/checks-2026-10-04b/runall.sh(실행 중 Assets 수정·에디터 재시작 금지).
-- 캡처 도구: AgentScripts/FloorShot.cs(바이옴·계절), HudFrameShot.cs. 결과 .unity/floor/.
-- SAVE: develop 1085ce7 push(.prefab 제외, master 유지, AGENTS/CLAUDE·Graphify·디자인 백업·이벤트/경유 초안은 로컬 보존). Notion 개발 일지 https://app.notion.com/p/3efc4a0ecd3181e98d59ced8e775ca8e (캡처 .unity/save-2026-10-05), Trouble Shooting https://app.notion.com/p/3efc4a0ecd3181b881bada9aadf66e05, 기획(UI·HUD / 메인 게임 화면 구체화) 명령 카드 3×3·계절 연출 교체.
+- 기준 기획: Notion '메인 게임 화면 구체화' 아래쪽(건설 분류·분류별 구체화·추가 확정·시대 개편·물·배관·방 종류 재정리) + '과학·연구' 6시대·로켓. 수치 전부 잠정.
+- 징집소: 평시 장수·선택 없음 카드에서 버튼 삭제, 징집소 건물 선택 시 0번 칸 '출전'(OpenConscription). 장수 여러 명 칸은 출전 중일 때만 '귀환'.
+- 건설 분류 16종(BuildScreen): 타일·생활·저장·환경·전력·자동화·배관·식량·작업·의료·방어·휴게·장식·군사·마을·이동(=이동수단). 한 줄 6개 3줄, 숫자키 1~0 = 앞 10개. 자동화·배관 탭은 비어 있음.
+- 6시대: 소굴·증기·석유·전기·원자·미래, 연구량 200/400/800/1500/2800/5000(자원 비용 석유·원자는 사이값). 매핑 소굴=1, 공학=2, 항공=4, 대이주=6(대이주 이론 → '로켓 이론'). 석유·원자 연구 없음(TODO). 과학 연구소 6등급(비용 공식 유지).
+- 승리 = 미래 시대 로켓 발사: 비행선 조선소 → '로켓 발사대'(코드명 AirshipYard 유지), 절차 동일. 엔딩 "발사 — ROCKET LAUNCH VICTORY". '대형 수송' 기술 → '비행선(대형 수송)'(전기 시대 이동수단). 저장 v14: v13 연구소 등급 3→4·4→6, 줄어든 연구량에 맞춰 진행도 자름.
+- 방 판정(RoomSystem): RoomKind 28종. 숙소=침대 2+(숙소 건물 1동=4), 개인실=1, 식당+조리대=겸용(보너스 절반), 휴게실=휴게 가구 2종+. 대용 연결: 징집소→막사, 정찰초소→작전실, 저장고→창고, 포로수용소→감옥. 가구 없는 방(부엌·목욕탕·가공실·화실·도서관·냉장실·양식장·무기고·연회장·묘지·신전)은 주석 TODO. 등급은 기준선·이름·기분 배열 + RankNames(상위 방 이름표, 비어 있음).
+- 위생 욕구(욕구 4종): 10분에 100 소모, 30 이하면 화장실(60)·세면대(30)·샤워기(80)에서 10초 회복, 못 가면 기분 -4/-8. 하단 선택 정보·상세 탭 게이지.
+- 전력 1차(PowerNode·PowerGrid): 맞닿은 칸으로 망 구성, 0.5초마다 발전→소비→배터리 충·방전, 모자라면 망 전체 소비 가구 꺼짐. 쳇바퀴(40W, 장수가 '운반' 작업으로 뜀, 근력 경험치·피로↑), 장작 발전기(100W, 10초마다 재료 1), 전선(줄 드래그), 배터리(1000), 전등(10W, 밤에 켜짐). 배터리 충전량 저장. 연구 해금 없음(TODO).
+- 가구 데이터(Data/FurnitureCatalog.cs): 238개(이름·분류·시대·필수 방·기존 건물 연결·망 Power/Pipe/Signal·재료 업그레이드 가능). 시대 미기재 항목은 성격으로 추정. BuildingBase.MaterialTier 저장(재료 목록 미정이라 명령·효과 없음).
+- 검사: 단계별 관련 검사 통과(BuildCategory 62·Era 19·Campaign 87·Phase5 31·HygienePower 35·FurnitureCatalog 40 등). 전체 실행 .unity/checks-2026-10-05/full: 72개 중 67 통과. 실패 = 구식 Invasion/SceneInvasion/Raid(결정 대기), AntWorkVisual(시작 타이밍, 개별 통과), WorldMap(원정지 채집 후 운송선 10m 앞에서 정지 — 세션 시작 코드 3a257fc에서도 동일 재현, 이번 변경 무관·미해결).
+- 캡처: AgentScripts/Hud1005Shot.cs → .unity/save-2026-10-05b/(선택 없음·장수 카드, 생활·전력 탭, 징집소 '출전').
+- 미완료/결정 대기: Player 빌드 미실행. 구식 검사 3개 재작성/삭제. 원정지 수동 채집 1회 왕복 후 멈춤 + WorldMapChecks 정지 원인. 바이옴 이벤트·다거점 경유(초안 로컬). 석유·원자 연구, 연구소 등급 조건, 배관·신호선 구현, 전기 가구 해금, 재료 목록·업그레이드, 상위 방 이름, 막사 세부. Notion 과학·연구의 비행선 절차 → 로켓 정리.
+- 다음 세션: 위 결정 반영 → WorldMap 원정 채집 정지 조사 → Player 빌드. 검사 실행 .unity/checks-2026-10-05/run.sh <이름...>, 전체 runall.sh(실행 중 Assets 수정·에디터 재시작 금지).
+- SAVE: develop push(.prefab 제외, AGENTS/CLAUDE·graphify·Water.mat·디자인 백업·이벤트/경유 초안은 로컬 보존). Notion 개발 일지 2026-10-05 페이지에 이어 씀.

@@ -1,3 +1,7 @@
+# 2026-10-05 추가 SAVE — 같은 날 이전 로그(10-05 SAVE) 요약
+- 10-05 SAVE(1085ce7·3a257fc): 검사 기대값 현재 규칙에 맞춤(구식 3개 제외 63/63), 채집 반납 오차·장수 운반 한도 정수 내림 수정, HUD 명령 카드 3×3, SeasonFoliage(잎만 계절색)·TerrainBlend(반복 완화·눈 덮임), 정원 돌바닥 층 제거.
+- 당시 결정 대기: 구식 Invasion/SceneInvasion/Raid 검사, 원정지 수동 채집 1회 왕복 후 멈춤. Player 빌드·바이옴 이벤트·다거점 경유 미구현. Notion 일지 https://app.notion.com/p/3efc4a0ecd3181e98d59ced8e775ca8e.
+
 # 2026-10-05 SAVE — 이전 2026-10-04 로그 요약
 - 10-04 SAVE(4f876d8·ccaa8c9): HUD v4.1~4.4 콘솔/초상, 바닥 반복·대비·계절 덮임 1차, 농장 회귀 검사 인력, MapGenerator 관리용 자식 보존. origin/develop push, Notion 일지·Trouble Shooting 기록.
 - 당시 전체 검사 69개 중 최초 42 통과·27 실패(원인 미분류), 수송 재검사 56·Triage 23 통과. Player 빌드·바이옴 이벤트·다거점 경유 미구현. BiomeEvent/MultiStopRoute 검사 초안 로컬 보존.
