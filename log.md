@@ -7,9 +7,9 @@
 - 진행 중 코드: `CommanderDuty.SendToRest()` 숙소 배정 변경과 `AgentScripts/DayNightChecks.cs` 추가 검사. 이번 Unity 재검증: 컴파일 up_to_date, failed=false, errors=[]; DayNightChecks는 65행 `rest destination is dormitory, not recreation room`에서 실패. 원인 미분류, 두 파일은 미커밋 보존하고 완료로 취급하지 않는다.
 - 연결: 터미널 `unity pipeline list`는 서버를 발견하지 못했으나 연결된 공식 Unity MCP는 정상 응답했다. autotick → 컴파일 확인 → Play 검사/캡처 → Stop 완료. 재시작·패키지 변경 없음.
 - 캡처: FurnitureShot 실행 결과 `room=연회장`. 새 게임의 초록 지형과 휴게 가구 14칸/4열 건설 UI·HUD가 보이는 `Assets/.unity/save-2026-10-07-resume/recreation-ui.png`를 직접 확인했다. 저장 경로는 `.unity/save-2026-10-07-resume/temp-saves`로 격리했다. 기존 HUD 없는 회백색 카메라 캡처는 첨부하지 않는다. 회백색 원인은 확정하지 않았다.
-- Notion 개발 일지·Trouble Shooting 및 최종 원격 저장 결과는 아래에 갱신한다.
+- SAVE 기록 완료: 문서 6개 `9101d43`을 origin/develop에 push. [Notion 개발 일지](https://app.notion.com/p/3f1c4a0ecd3181038209d5fb08ec3728)에 확인한 UI 캡처 포함, [Trouble Shooting](https://app.notion.com/p/3f1c4a0ecd318173b164c76f2919ce23)에 사용자 정정·검증·미해결 사항 기록, 재조회 확인. 카카오톡 MemoChat 연결 도구가 없어 완료 알림만 미전송.
 - 노화 전체 성체 적용·가시/끈끈이 분리는 수정 범위와 노화 처리 방식 사용자 결정 대기. 새 시스템(석유·원자 연구·배관 등)은 별도 후속 작업.
-- Graphify AST 갱신 재실행 중. 기존 미커밋 작업·출처 불명 파일을 보존한다.
+- Graphify AST 갱신 완료(6108 nodes / 12647 edges / 291 communities), 문서 커밋 후 자동 hook도 완료(6109 / 12649 / 315). 그래프·기존 미커밋 작업·출처 불명 파일을 로컬 보존한다.
 
 ## 현재 상태 — 2026-10-07 SAVE (리뷰 마감·가구 5~6차·성능)
 - 프로젝트: 개미 소굴 RTS, E:\Git\ant. Unity 6000.5.8f1 / URP 17.5.0 / Pipeline 0.7.0-exp.1. develop 개발, master 안정. 소스 Assets/_Project/Scripts, 검사 AgentScripts. 기준 기획: Notion '메인 게임 화면 구체화'(3e7c4a0ecd3181e38211f6be9c44637d). 수치 전부 잠정.
