@@ -1,3 +1,9 @@
+# 2026-10-07 SAVE 재개 — 중단 직전 로그 요약
+- Claude가 가구 5~6차·리뷰 수정·UI·성능 작업을 `1e3b4d0`에 저장했다. Batch2 29·3 25·4 21·5 62·6 47, HygienePower 35, CommitRange 39, Phase5 31, Catalog 40, BuildCategory 62, HudV4 313, Joy 45, ExpeditionGather 21 통과는 이전 실행 기록이다.
+- 캡처 중 지형 회백색 현상을 확인하던 중 Claude 사용 한도가 소진됐다. Notion 10-07 일지/버그 기록은 없었다.
+- Codex가 기획 점검·공동 보드를 작성하고 휴식 목적지를 숙소로 바꿨으나 당시 Unity 연결 불가로 검증하지 못했다. 노화 전체 성체 적용·함정 분리는 사용자 결정 대기. SAVE 재개 채팅도 중단되어 log.md에 재개 중 표시가 남았다.
+- 후속 실측과 저장 결과는 현재 log.md 참조. 출처 불명 에셋·디자인·검사 초안과 프리팹은 보존/커밋 제외.
+
 # 2026-10-07 SAVE — 이전 로그(2026-10-06 Codex 코드 리뷰 인계) 요약
 - Codex가 3a257fc..3b4b640을 리뷰해 4건 수정(무기고 파괴 후 초과 장비 저장 거부, 배터리 NaN 저장 통과, 침대+감옥문 판정, 바닥 1칸 +0.5 누락)하고 CommitRangeReviewChecks 39 추가. Phase5 실행 중 중단, 커밋·Notion 미실행 상태로 인계. 상세는 docs/review-3a257fc-3b4b640.md.
 - 인계 당시 AGENTS.md·CLAUDE.md에 Trouble Shooting 기록 규칙과 'log.md 먼저 읽기' 규칙 추가.
@@ -706,4 +712,3 @@
 - HUD v2 31개, DayNight 37개, Workforce 79개: 총 147개 통과. 접근 불가 숙소 노숙 처리와 검사 기대값 수정.
 - a2a2c52를 origin/develop push. 야간 HUD·작업표 캡처 2종을 https://app.notion.com/p/3e9c4a0ecd3181398d50def0b6b207fd 에 첨부.
 - 당시 Graphify 4940 nodes/9871 edges. 카카오톡 도구 미연결, Git hook grep 경고. 기존 Invasion/Raid/SceneInvasion/Airborne 미실행·실패와 탑승 중 자동 귀환/병력 0 감염·복수 검토 잔여.
-
