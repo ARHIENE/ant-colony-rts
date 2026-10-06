@@ -62,7 +62,7 @@ namespace AntColony.Core
             BuildingKind.AreaAcidTower or BuildingKind.DefenseLab => Has(ScienceTechnology.AcidRefining),
             BuildingKind.Watchtower => Has(ScienceTechnology.Watchtowers),
             BuildingKind.MineField => Has(ScienceTechnology.Mines),
-            BuildingKind.RestRoom or BuildingKind.Bookshelf or BuildingKind.Bathtub => Has(ScienceTechnology.Recreation), // 처음 오락 2종 외에는 Recreation 연구로 해금
+            BuildingKind.RestRoom or BuildingKind.Bookshelf or BuildingKind.Bathtub or (>= BuildingKind.BoardGame and <= BuildingKind.WebSwing) or BuildingKind.HotSpring => Has(ScienceTechnology.Recreation), // 처음 오락 2종 외에는 Recreation 연구로 해금
             BuildingKind.Workshop => Has(ScienceTechnology.Blades),
             BuildingKind.Infirmary => Has(ScienceTechnology.Infirmary),
             BuildingKind.AirshipYard => Has(ScienceTechnology.MigrationTheory),

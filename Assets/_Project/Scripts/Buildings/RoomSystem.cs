@@ -26,7 +26,7 @@ namespace AntColony.Buildings
         public RoomKind Kind;
         public int Decorations, Floors;
         public bool PrisonDoor; // 경계에 창살문·잠금문이 있음(감옥 조건)
-        public int Score => Cells.Count + Decorations * GameBalanceRooms.DecorationScore + Floors / 2; // 바닥 칸당 +0.5
+        public float Score => Cells.Count + Decorations * GameBalanceRooms.DecorationScore + Floors * .5f; // 바닥 칸당 +0.5
         // 인상도 단계: 점수가 넘은 기준선 수(지금 3단계 0 초라함 / 1 보통 / 2 훌륭함).
         public int Grade => GameBalanceRooms.GradeThresholds.Count(t => Score >= t);
         public string GradeName => GameBalanceRooms.GradeNames[Grade];
@@ -68,7 +68,7 @@ namespace AntColony.Buildings
         public static bool IsBoundary(BuildingBase b) => b is SoilWall || b is Wall || b is Door || b is Gate;
         // 가구가 요구하는 방 종류(필수 가구, 2026-10-05). 아직 없는 가구는 가장 가까운 기존 건물로 대신 잇고 '대용' 주석.
         // 가구가 없어 판정할 수 없는 방: 가공실(가공대·용광로), 화실(예술대),
-        // 양식장·목장, 무기고, 연회장(긴 식탁 + 장식 3+), 묘지(관·묘비, 방 밖도 가능), 신전(제단). TODO 가구가 생기면 아래에 연결.
+        // 양식장·목장, 무기고, 묘지(관·묘비, 방 밖도 가능), 신전(제단). TODO 가구가 생기면 아래에 연결.
         // 방 밖 전용(None): 방어·마을 건물(산성탑·함정·주거 등), 풍차·물레방아·태양광판, 이동수단. 밭은 방 밖에서도 쓰고 방 안이면 농장.
         public static RoomKind KindOf(BuildingBase b)
         {
@@ -82,9 +82,10 @@ namespace AntColony.Buildings
             return b switch
             {
                 Dormitory => RoomKind.Bedroom, Infirmary => RoomKind.Hospital, // 침대류·병상
+                Kitchen k when k.Data != null && k.Data.kind == BuildingKind.BanquetTable => RoomKind.BanquetHall, // 연회용 긴 식탁(장식 3+는 Judge)
                 Kitchen k => k.Data != null && k.Data.kind == BuildingKind.Hearth ? RoomKind.Kitchen : RoomKind.Dining, // 화덕(조리대)·식탁
                 RecreationSpot spot when spot.KindIndex == 2 => RoomKind.Library, // 책장
-                RecreationSpot spot when spot.KindIndex == 3 => RoomKind.Bathhouse, // 목욕통(온천은 아직 없음)
+                RecreationSpot spot when spot.KindIndex == 3 || spot.KindIndex == 12 => RoomKind.Bathhouse, // 목욕통·온천
                 RestRoom or RecreationSpot => RoomKind.Recreation, // 휴게 가구
                 Storage s when s.Data != null && s.Data.kind == BuildingKind.FoodStore => RoomKind.ColdStorage, // 저장고
                 Storage or Stockpile => RoomKind.Storeroom, // 수납장(기존 창고)·항아리
@@ -112,13 +113,18 @@ namespace AntColony.Buildings
         private static RoomKind Judge(Room room)
         {
             var kinds = room.Furniture.Select(KindOf).Distinct().ToList();
+            // 포로 수용소가 있는 감옥문 방의 침대는 감옥 가구로 센다(침대만으로는 감옥이 아님).
+            if (room.PrisonDoor && kinds.Contains(RoomKind.Prison)) kinds = kinds.Select(k => k == RoomKind.Bedroom ? RoomKind.Prison : k).Distinct().ToList();
+            // 긴 식탁이 있는 방의 일반 식탁은 연회 식탁으로 센다.
+            if (kinds.Contains(RoomKind.BanquetHall)) kinds = kinds.Select(k => k == RoomKind.Dining ? RoomKind.BanquetHall : k).Distinct().ToList();
             if (kinds.Count == 0) return RoomKind.Empty;
             if (kinds.Count == 2 && kinds.Contains(RoomKind.Dining) && kinds.Contains(RoomKind.Kitchen)) return RoomKind.DiningKitchen;
             if (kinds.Count > 1) return RoomKind.Mixed;
             var kind = kinds[0];
             if (kind == RoomKind.Bedroom)
                 return room.Furniture.Sum(f => f is Dormitory d ? d.RoomBedCount : 1) >= GameBalanceRooms.MinBedsForDormRoom ? RoomKind.Bedroom : RoomKind.PrivateRoom;
-            if (kind == RoomKind.Prison && !room.PrisonDoor) return RoomKind.Empty; // 감옥 = 침대 + 창살문·잠금문
+            if (kind == RoomKind.Prison && !room.PrisonDoor) return RoomKind.Empty; // 감옥 = 포로 수용소 + 창살문·잠금문
+            if (kind == RoomKind.BanquetHall && room.Decorations < AntColony.Core.GameBalance.BanquetDecorations) return RoomKind.Dining; // 연회장 = 긴 식탁 + 장식 3+, 모자라면 식당
             if (kind == RoomKind.Recreation && room.Furniture.Select(f => f.Data != null ? f.Data.kind : BuildingKind.RestRoom).Distinct().Count() < GameBalanceRooms.MinRecreationKinds) return RoomKind.Empty;
             return kind;
         }

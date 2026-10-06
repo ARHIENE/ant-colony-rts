@@ -45,12 +45,12 @@ namespace AntColony.Data
             In(BuildCategory.Tile); // 벽은 재료별로 따로(실제 목록은 재료 확정 후)
             F("흙벽", 1, existing: BuildingKind.SoilWall); F("나뭇잎 벽", 1, existing: BuildingKind.LeafWall); F("돌벽", 1); F("병뚜껑 벽", 2, existing: BuildingKind.CapWall);
             F("문", 1, existing: BuildingKind.Door); F("잠금문", 1, existing: BuildingKind.LockedDoor); F("창살문", 1, existing: BuildingKind.BarredDoor); F("자동문", 6); F("유리벽", 6);
-            F("바닥", 1, existing: BuildingKind.Floor); F("기둥", 1); F("울타리", 1); F("방화벽", 2); F("다리", 1);
+            F("바닥", 1, existing: BuildingKind.Floor); F("기둥", 1, existing: BuildingKind.Pillar); F("울타리", 1); F("방화벽", 2); F("다리", 1);
 
             In(BuildCategory.Living);
-            F("자리", 1, RoomKind.Bedroom, BuildingKind.SleepingMat); F("침대", 1, RoomKind.Bedroom, BuildingKind.SingleBed); F("숙소(4인, 구 건물)", 1, RoomKind.Bedroom, BuildingKind.Dormitory); F("큰침대", 1, RoomKind.Bedroom, BuildingKind.DoubleBed); F("2층침대", 2, RoomKind.Bedroom); F("해먹", 1, RoomKind.Bedroom);
+            F("자리", 1, RoomKind.Bedroom, BuildingKind.SleepingMat); F("침대", 1, RoomKind.Bedroom, BuildingKind.SingleBed); F("숙소(4인, 구 건물)", 1, RoomKind.Bedroom, BuildingKind.Dormitory); F("큰침대", 1, RoomKind.Bedroom, BuildingKind.DoubleBed); F("2층침대", 2, RoomKind.Bedroom, BuildingKind.BunkBed); F("해먹", 1, RoomKind.Bedroom, BuildingKind.Hammock);
             F("요람", 1, RoomKind.Nursery, BuildingKind.Nursery);
-            F("작은 식탁", 1, RoomKind.Dining, BuildingKind.Kitchen); F("큰 식탁", 1, RoomKind.Dining); F("연회용 긴 식탁", 2, RoomKind.BanquetHall);
+            F("작은 식탁", 1, RoomKind.Dining, BuildingKind.Kitchen); F("큰 식탁", 1, RoomKind.Dining, BuildingKind.BigTable); F("연회용 긴 식탁", 2, RoomKind.BanquetHall, BuildingKind.BanquetTable);
             F("구덩이 변소", 1, RoomKind.Bathroom); F("화장실", 2, RoomKind.Bathroom, BuildingKind.Toilet); F("수세식 변기", 4, RoomKind.Bathroom, net: NetworkLayer.Pipe); F("분해 변기", 6, RoomKind.Bathroom);
             F("세면대", 1, RoomKind.Bathroom, BuildingKind.Washbasin); F("샤워기", 2, RoomKind.Bathroom, BuildingKind.Shower);
 
@@ -60,7 +60,7 @@ namespace AntColony.Data
             F("운반 레일", 4); F("순간이동 보관함", 6, RoomKind.Storeroom, net: NetworkLayer.Power);
 
             In(BuildCategory.Environment); // 불 쓰는 가구는 화재 가능. 연료: 나무 → 화석연료 → 석유 → 전기 → 태양광·핵융합
-            F("화롯불", 1); F("등불", 1); F("횃불", 1); F("반딧불 등", 1, existing: BuildingKind.FireflyLamp); F("난로", 2); F("환풍구", 2);
+            F("화롯불", 1, existing: BuildingKind.Brazier); F("등불", 1, existing: BuildingKind.Lantern); F("횃불", 1, existing: BuildingKind.Torch); F("반딧불 등", 1, existing: BuildingKind.FireflyLamp); F("난로", 2); F("환풍구", 2);
             F("전등", 4, existing: BuildingKind.ElectricLamp, net: NetworkLayer.Power); F("가로등", 4, net: NetworkLayer.Power);
             F("에어컨", 4, net: NetworkLayer.Power); F("전기난로", 4, net: NetworkLayer.Power); F("가습기", 4, net: NetworkLayer.Power); F("제습기", 4, net: NetworkLayer.Power);
             F("온도 조절기", 4, net: NetworkLayer.Signal); F("공기청정기", 5, net: NetworkLayer.Power); F("인공 태양", 6, net: NetworkLayer.Power);
@@ -111,17 +111,17 @@ namespace AntColony.Data
             F("모래주머니 엄폐물", 1); F("해자", 2); F("경보종", 1); F("탐지등", 4, net: NetworkLayer.Power); F("방어막 발생기", 6, net: NetworkLayer.Power);
 
             In(BuildCategory.Recreation); // 휴게실 = 휴게 가구 2종 이상
-            F("놀이판", 1, RoomKind.Recreation); F("장기판", 1, RoomKind.Recreation); F("바둑판", 1, RoomKind.Recreation); F("씨름판", 1, RoomKind.Recreation);
-            F("가시 다트", 1, RoomKind.Recreation); F("도토리 볼링", 1, RoomKind.Recreation); F("악기", 1, RoomKind.Recreation); F("운동기구", 2, RoomKind.Recreation);
-            F("진딧물 꿀술바", 2, RoomKind.Recreation); F("거미줄 그네", 1, RoomKind.Recreation); F("민들레 홀씨 활강", 1, RoomKind.Recreation);
+            F("놀이판", 1, RoomKind.Recreation, BuildingKind.BoardGame); F("장기판", 1, RoomKind.Recreation, BuildingKind.Janggi); F("바둑판", 1, RoomKind.Recreation, BuildingKind.Baduk); F("씨름판", 1, RoomKind.Recreation, BuildingKind.WrestlingRing);
+            F("가시 다트", 1, RoomKind.Recreation, BuildingKind.DartBoard); F("도토리 볼링", 1, RoomKind.Recreation); F("악기", 1, RoomKind.Recreation, BuildingKind.Instrument); F("운동기구", 2, RoomKind.Recreation, BuildingKind.ExerciseRig);
+            F("진딧물 꿀술바", 2, RoomKind.Recreation); F("거미줄 그네", 1, RoomKind.Recreation, BuildingKind.WebSwing); F("민들레 홀씨 활강", 1, RoomKind.Recreation);
             F("이야기 모닥불", 1, RoomKind.Recreation, BuildingKind.Campfire); F("주사위 도박판", 1, RoomKind.Recreation, BuildingKind.GamblingDen); F("무대", 2, RoomKind.Recreation);
-            F("목욕통", 1, RoomKind.Bathhouse, BuildingKind.Bathtub); F("온천", 1, RoomKind.Bathhouse); F("안마의자", 4, RoomKind.Recreation, net: NetworkLayer.Power);
+            F("목욕통", 1, RoomKind.Bathhouse, BuildingKind.Bathtub); F("온천", 1, RoomKind.Bathhouse, BuildingKind.HotSpring); F("안마의자", 4, RoomKind.Recreation, net: NetworkLayer.Power);
             F("책장", 1, RoomKind.Library, BuildingKind.Bookshelf); F("홀로그램 극장", 6, RoomKind.Recreation, net: NetworkLayer.Power); F("게임기·VR", 6, RoomKind.Recreation, net: NetworkLayer.Power);
 
             In(BuildCategory.Decoration); // 방 안 = 방 등급, 방 밖 = 주변 기분
-            F("조각상", 1); F("화분", 1, existing: BuildingKind.FlowerPot); F("깃발", 1); F("그림", 1); F("조개껍데기", 1, existing: BuildingKind.ShellDecoration);
-            F("구슬 모자이크", 1, existing: BuildingKind.MarbleMosaic); F("병뚜껑 모빌", 1, existing: BuildingKind.BottleMobile); F("카펫", 1); F("태피스트리", 1);
-            F("사람 물건 전시대", 2); F("분수대", 2, net: NetworkLayer.Pipe); F("기념비", 2); F("동상", 2); F("전리품 진열대", 2); F("홀로그램 장식", 6, net: NetworkLayer.Power);
+            F("조각상", 1, existing: BuildingKind.Statue); F("화분", 1, existing: BuildingKind.FlowerPot); F("깃발", 1, existing: BuildingKind.Flag); F("그림", 1, existing: BuildingKind.Painting); F("조개껍데기", 1, existing: BuildingKind.ShellDecoration);
+            F("구슬 모자이크", 1, existing: BuildingKind.MarbleMosaic); F("병뚜껑 모빌", 1, existing: BuildingKind.BottleMobile); F("카펫", 1, existing: BuildingKind.Carpet); F("태피스트리", 1, existing: BuildingKind.Tapestry);
+            F("사람 물건 전시대", 2, existing: BuildingKind.CuriosDisplay); F("분수대", 2, net: NetworkLayer.Pipe); F("기념비", 2, existing: BuildingKind.Monument); F("동상", 2, existing: BuildingKind.BronzeStatue); F("전리품 진열대", 2, existing: BuildingKind.TrophyCase); F("홀로그램 장식", 6, net: NetworkLayer.Power);
 
             In(BuildCategory.Military); // 막사 세부(병력 상한 등) 미정
             F("허수아비(근접 훈련대)", 1, RoomKind.TrainingRoom, BuildingKind.Barracks); F("과녁(원거리 훈련대)", 1, RoomKind.TrainingRoom); F("작전판(지휘 훈련대)", 1, RoomKind.TrainingRoom);

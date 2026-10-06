@@ -127,7 +127,8 @@ namespace AntColony.UI
                 var layout = grid.GetComponent<GridLayoutGroup>();
                 var count = grid.GetComponentsInChildren<Button>().Length;
                 int columns = grid.rect.height < 110 ? Mathf.Max(1, count) : pair.Value;
-                int rows = Mathf.Max(1, Mathf.CeilToInt(count / (float)columns));
+                // 버튼 수와 상관없이 3×3 칸 크기로 고정한다(남는 칸은 비움, 2026-10-06 사용자 요청). 좁은 화면은 한 줄.
+                int rows = grid.rect.height < 110 ? 1 : 3;
                 layout.constraintCount = columns;
                 layout.cellSize = new Vector2((grid.rect.width - Gap * (columns - 1)) / columns, (grid.rect.height - Gap * (rows - 1)) / rows);
             }

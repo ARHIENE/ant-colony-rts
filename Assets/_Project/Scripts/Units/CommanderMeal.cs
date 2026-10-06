@@ -53,7 +53,11 @@ namespace AntColony.Units
             // ponytail: 배고픈 동안 매 틱 식당을 다시 찾는다. 장수 수가 많아져 느려지면 목표를 캐시한다.
             var kitchen = FindObjectsByType<Kitchen>(FindObjectsSortMode.None).Where(k => k.HasMeal)
                 .OrderBy(k => (k.Position - Position).sqrMagnitude).FirstOrDefault();
-            var place = kitchen != null ? kitchen : BuildingBase.FindNearestDepositPoint(Position);
+            // 큰 식탁(먹기 전용)이 있으면 비축 식사를 집어 식탁에서 먹는다.
+            // ponytail: 식사는 원격으로 집는다(부엌 → 식탁 두 번 이동 없음). 운반 연출이 필요하면 두 단계로 나눈다.
+            var table = kitchen == null ? null : FindObjectsByType<Kitchen>(FindObjectsSortMode.None).Where(k => k.IsTable && !k.IsDead && k.isActiveAndEnabled)
+                .OrderBy(k => (k.Position - Position).sqrMagnitude).FirstOrDefault();
+            BuildingBase place = table != null ? table : kitchen != null ? kitchen : BuildingBase.FindNearestDepositPoint(Position);
             if (place != null && (place.Position - Position).sqrMagnitude > 49)
             {
                 var moving = IsFlying ? !HasReachedDestination() : Agent.pathPending || Agent.hasPath;
@@ -102,8 +106,10 @@ namespace AntColony.Units
             if (mood != 0) personalState.AddMood("식사: " + MealNames[felt], mood, GameCalendar.SecondsPerDay / 3f);
             personalState.AddMood("배부름", traits.Has(CommanderTrait.Glutton) ? 10 : 5, GameCalendar.SecondsPerDay / 3f);
             // Phase 5: 식당 방에서 먹으면 등급만큼 기분 +(식당·부엌 겸용은 절반).
-            if (AntColony.Buildings.RoomSystem.RoomAt(Position) is AntColony.Buildings.Room hall && (hall.Kind == AntColony.Buildings.RoomKind.Dining || hall.Kind == AntColony.Buildings.RoomKind.DiningKitchen))
-                personalState.AddMood("식당에서 식사", (AntColony.Buildings.GameBalanceRooms.RoomMealMood + AntColony.Buildings.GameBalanceRooms.GradeMood[hall.Grade]) * (hall.Kind == AntColony.Buildings.RoomKind.DiningKitchen ? .5f : 1f), GameCalendar.SecondsPerDay / 3f);
+            // 가구 6차: 연회장은 ×1.5.
+            if (AntColony.Buildings.RoomSystem.RoomAt(Position) is AntColony.Buildings.Room hall && (hall.Kind == AntColony.Buildings.RoomKind.Dining || hall.Kind == AntColony.Buildings.RoomKind.DiningKitchen || hall.Kind == AntColony.Buildings.RoomKind.BanquetHall))
+                personalState.AddMood("식당에서 식사", (AntColony.Buildings.GameBalanceRooms.RoomMealMood + AntColony.Buildings.GameBalanceRooms.GradeMood[hall.Grade])
+                    * (hall.Kind == AntColony.Buildings.RoomKind.DiningKitchen ? .5f : hall.Kind == AntColony.Buildings.RoomKind.BanquetHall ? GameBalance.BanquetMealMultiplier : 1f), GameCalendar.SecondsPerDay / 3f);
             if (m.quality > 0 && !traits.Has(CommanderTrait.IronStomach)
                 && UnityEngine.Random.value * 100 < Mathf.Max(0, 6 - m.cookSkill * .5f) * ((AntColony.Buildings.RoomSystem.RoomAt(Position)?.Floors ?? 0) > 0 ? GameBalance.FloorPoisonMultiplier : 1f)) // 바닥 깔린 방은 청결
             {

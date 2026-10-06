@@ -109,6 +109,11 @@ namespace AntColony.Core
         // 가구 2차(2026-10-05, 잠정): 바닥 위 이동 ×1.15, 바닥 깔린 방 식중독 ×0.5, 자리에서 자면 기분 -3, 감옥 방 탈옥 ×0.5.
         public const float BookshelfResearchXp = 10, BathtubHygiene = 40; // 가구 3차(잠정)
         public const int ArmorySlots = 10; // 가구 4차: 무기고 1동당 장비 보관함 +10
+        // 가구 5차(2026-10-06, 잠정): 휴게 경험치·악기 회복 배율·놀이판 관계 +2·라이벌 씨름 관계 -3·다양한 오락 상한, 해먹 수면 기분 -1.
+        public const float PlayXp = 10, InstrumentJoyMultiplier = 1.5f, BoardGameRelation = 2, WrestlingRivalRelation = -3, VarietyMoodMax = 10, HammockSleepMood = -1;
+        // 가구 6차(2026-10-07, 잠정): 온천 한 번에 피로 -40, 연회장에서 먹으면 식당 기분 ×1.5, 연회장 = 긴 식탁 + 장식 3+.
+        public const float HotSpringFatigue = 40, BanquetMealMultiplier = 1.5f;
+        public const int BanquetDecorations = 3;
         public const float FloorMoveMultiplier = 1.15f, FloorPoisonMultiplier = .5f, MatSleepMood = -3, PrisonRoomEscapeMultiplier = .5f;
         public const float TreadmillWatts = 40, WoodGeneratorWatts = 100, LampWatts = 10, BatteryCapacity = 1000, WoodBurnSeconds = 10, TreadmillExtraFatigue = .5f;
         public const int CampfireSoil = 15, GamblingDenSoil = 25, CampfireSeats = 6, GamblingDenSeats = 4;

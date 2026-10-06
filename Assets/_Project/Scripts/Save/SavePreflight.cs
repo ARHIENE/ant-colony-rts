@@ -43,7 +43,8 @@ namespace AntColony.Save
                 Check(f.upkeepFailures >= 0, "upkeep failures");
                 Check(Core.CampaignResearch.Validate(f.campaign, out _), "campaign research");
                 Check(Core.CampaignHistory.Validate(f.history) && World.ColonyEvents.Validate(f.events), "events/history");
-                L(f.equipmentInventory, EquipmentInventory.BaseCapacity + f.buildings.Count(b => b.kind == "Armory") * Core.GameBalance.ArmorySlots, "equipment inventory"); // 저장 안 무기고 수 기준
+                // 무기고 파괴 후 초과 장비도 보존한다. 수용 한도는 새 장비 입고에만 적용한다.
+                L(f.equipmentInventory, 10000, "equipment inventory");
                 var equipmentIds = new HashSet<string>();
                 foreach (var item in f.equipmentInventory) Check(item != null && item.IsValid && equipmentIds.Add(item.id), "inventory item");
                 L(f.equipmentLoot, 10000, "equipment loot");
@@ -119,6 +120,8 @@ namespace AntColony.Save
                     Check(b.workforce >= 0 && b.workforce <= Workforce.Maximum && N(b.repairCredit) && b.repairCredit <= 100000000
                         && b.decorationQuality >= 0 && b.decorationQuality <= 3 && Kitchen.Valid(b.kitchen), "workforce/repair/kitchen/decoration");
                     Check(b.key != null && V(b.position) && N(b.health) && !float.IsNaN(b.rotationY) && !float.IsInfinity(b.rotationY), "building");
+                    Check(N(b.powerCharge) && b.powerCharge <= Core.GameBalance.BatteryCapacity
+                        && (b.kind == "Battery" || b.powerCharge == 0) && b.materialTier >= 0, "building power/material");
                     Check(new[] { b.barracksUpgradeRemaining, b.labResearchRemaining, b.queenProductionRemaining, b.queenFishingRemaining, b.scienceRemaining,
                         b.scoutRemaining, b.prisonEscapeTimer, b.towerCooldown }.All(N) && V(b.scienceSpawn), "building timers");
                     Check(b.barracksTier >= 1 && b.barracksTier <= 3 && R(b.role), "building tier/role");

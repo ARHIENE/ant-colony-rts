@@ -85,7 +85,8 @@ namespace AntColony.UI
             if (Target is Workshop shop) { label.text = "제작 대기열"; instruction.text = $"제작 대기 {shop.Jobs.Count}건"; }
             if (Target is Barracks barracks) label.text = "병영 강화";
             if (Target is DigSite) label.text = "굴착 확장";
-            if (Target is Kitchen kitchen) instruction.text = $"비축 식사 {kitchen.Meals.meals.Count}/{Kitchen.Capacity} · 조리 {kitchen.Meals.progress:0.#}/{Kitchen.CookSeconds}초";
+            if (Target is Kitchen kitchen) instruction.text = kitchen.IsTable ? "먹기 전용: 장수가 식사를 가져와 여기서 먹습니다."
+                : $"비축 식사 {kitchen.Meals.meals.Count}/{Kitchen.Capacity} · 조리 {kitchen.Meals.progress:0.#}/{Kitchen.CookSeconds}초";
             if (Target is Gate gate) { label.text = gate.Open ? "성문 닫기" : "성문 열기"; instruction.text = gate.Open ? "열림: 모두 통과" : "닫힘: 성벽처럼 막음"; }
             if (Target is Decoration decor) instruction.text = $"품질 {new[] { "조잡", "보통", "정교", "걸작" }[decor.Quality]} · 반경 8m 환경 기분 +{decor.MoodBonus:0.#}";
             if (Scout is ScoutPost scout)

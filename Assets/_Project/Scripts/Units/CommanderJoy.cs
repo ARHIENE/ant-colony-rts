@@ -61,11 +61,23 @@ namespace AntColony.Units
         private void FinishPlay()
         {
             var j = JoyState; var spot = PlaySpot;
-            var gain = GameBalance.PlayJoy * (1 - j.boredom[j.kind]) * (spot != null && spot.NearDecoration ? 1 + GameBalance.DecorationPlayBonus : 1);
+            var gain = GameBalance.PlayJoy * (1 - j.boredom[j.kind]) * (spot != null && spot.NearDecoration ? 1 + GameBalance.DecorationPlayBonus : 1)
+                * (j.kind == 10 ? GameBalance.InstrumentJoyMultiplier : 1); // 악기
             j.joy = Mathf.Min(100, j.joy + gain);
             j.boredom[j.kind] = Mathf.Min(1, j.boredom[j.kind] + GameBalance.BoredomPerPlay);
             if (j.kind == 2) GainExperience(CommanderActivity.Research, GameBalance.BookshelfResearchXp); // 책장: 연구 경험치 조금
             if (j.kind == 3) PersonalState.hygiene.hygiene = Mathf.Min(100, PersonalState.hygiene.hygiene + GameBalance.BathtubHygiene); // 목욕통: 위생
+            if (j.kind == 5 || j.kind == 6) GainExperience(CommanderActivity.Command, GameBalance.PlayXp); // 장기판·바둑판
+            if (j.kind == 7 || j.kind == 9) GainExperience(CommanderActivity.Strength, GameBalance.PlayXp); // 씨름판·운동기구
+            if (j.kind == 8) GainExperience(CommanderActivity.Ranged, GameBalance.PlayXp); // 가시 다트
+            if (j.kind == 12) AddFatigue(-GameBalance.HotSpringFatigue); // 온천: 피로 빠른 회복
+            if ((j.kind == 4 || j.kind == 7) && spot != null && spot.Partner(this) is CommanderAnt mate)
+            {
+                // 놀이판은 친해지고, 씨름판은 라이벌끼리면 더 사이가 나빠진다.
+                var rivals = personalState.relations.Exists(r => r.otherId == mate.PersonalState.id && r.value <= SocialRules.Rival);
+                if (j.kind == 4) ChangeRelation(mate, GameBalance.BoardGameRelation);
+                else if (rivals) ChangeRelation(mate, GameBalance.WrestlingRivalRelation);
+            }
             if (spot != null && spot.IsGambling && spot.Partner(this) is CommanderAnt other)
             {
                 var won = UnityEngine.Random.value < .5f;
@@ -90,7 +102,7 @@ namespace AntColony.Units
             var low = j.joy <= 10 ? GameBalance.VeryLowJoyMood : j.joy <= GameBalance.PlayBelowJoy ? GameBalance.LowJoyMood : 0;
             if (low != 0) personalState.AddMood("오락 부족", low, 5); else personalState.moodFactors.RemoveAll(f => f.reason == "오락 부족");
             var kinds = j.boredom.Count(b => b > 0);
-            if (kinds >= 2) personalState.AddMood("다양한 오락", kinds * GameBalance.VarietyMoodPerKind, 5); else personalState.moodFactors.RemoveAll(f => f.reason == "다양한 오락");
+            if (kinds >= 2) personalState.AddMood("다양한 오락", Mathf.Min(GameBalance.VarietyMoodMax, kinds * GameBalance.VarietyMoodPerKind), 5); else personalState.moodFactors.RemoveAll(f => f.reason == "다양한 오락");
         }
     }
 }

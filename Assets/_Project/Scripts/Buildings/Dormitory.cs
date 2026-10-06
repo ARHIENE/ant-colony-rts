@@ -14,10 +14,16 @@ namespace AntColony.Buildings
         private readonly List<CommanderAnt> residents = new List<CommanderAnt>();
         public IReadOnlyList<CommanderAnt> Residents => residents;
         public static IReadOnlyList<Dormitory> All => Active;
-        // 침대 수: 숙소 건물 4 / 자리·침대 1 / 큰침대 2(2026-10-05). 방 판정에서는 숙소 건물만 침대 4개로 센다.
-        public int Beds => Data != null && (Data.kind == BuildingKind.SleepingMat || Data.kind == BuildingKind.SingleBed) ? 1 : Data != null && Data.kind == BuildingKind.DoubleBed ? 2 : GameBalance.DormitoryBeds;
-        public int RoomBedCount => Data != null && Data.kind != BuildingKind.Dormitory ? 1 : GameBalance.DormitoryBeds;
+        // 침대 수: 숙소 건물 4 / 자리·침대·해먹 1 / 큰침대·2층침대 2(2026-10-06). 방 판정에서는 숙소 건물 4, 2층침대 2, 나머지 1로 센다(큰침대 혼자 = 개인실).
+        public int Beds => Data == null ? GameBalance.DormitoryBeds : Data.kind switch
+        {
+            BuildingKind.SleepingMat or BuildingKind.SingleBed or BuildingKind.Hammock => 1,
+            BuildingKind.DoubleBed or BuildingKind.BunkBed => 2,
+            _ => GameBalance.DormitoryBeds
+        };
+        public int RoomBedCount => Data == null || Data.kind == BuildingKind.Dormitory ? GameBalance.DormitoryBeds : Data.kind == BuildingKind.BunkBed ? 2 : 1;
         public bool IsMat => Data != null && Data.kind == BuildingKind.SleepingMat;
+        public bool IsHammock => Data != null && Data.kind == BuildingKind.Hammock;
         public bool HasRoom => residents.Count < Beds;
         protected override void OnEnable() { base.OnEnable(); Active.Add(this); }
         protected override void OnDisable() { Active.Remove(this); residents.Clear(); base.OnDisable(); }

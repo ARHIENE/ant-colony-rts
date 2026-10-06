@@ -13,9 +13,11 @@ namespace AntColony.Buildings
         [Serializable] public class State { public List<Meal> meals = new List<Meal>(); public float progress; public bool paid; }
         public State Meals { get; internal set; } = new State();
         public const int Capacity = 30;
+        // 큰 식탁(가구 5차): 먹기 전용. 요리·비축은 하지 않고 장수가 와서 먹는 자리만 된다(CommanderMeal).
+        public bool IsTable => Data != null && (Data.kind == AntColony.Data.BuildingKind.BigTable || Data.kind == AntColony.Data.BuildingKind.BanquetTable); // 연회용 긴 식탁도 먹기 전용
         // ponytail: 식당 비용·조리 10초는 잠정 밸런스. 확정 때 여기만 조정한다.
         public const float CookSeconds = 10;
-        public bool NeedsCook => !IsDead && isActiveAndEnabled && Meals.meals.Count < Capacity
+        public bool NeedsCook => !IsTable && !IsDead && isActiveAndEnabled && Meals.meals.Count < Capacity
             && (Meals.paid || ResourceManager.Instance != null && ResourceManager.Instance.GetAmount(AntColony.Data.ResourceType.Food) >= GameBalance.MealFood);
         public bool Work(CommanderAnt c, float seconds)
         {

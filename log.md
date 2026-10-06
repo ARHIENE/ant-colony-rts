@@ -1,14 +1,18 @@
 # 프로젝트 로그
 
-## 현재 상태 — 2026-10-06 SAVE (가구 2~4차)
-- 프로젝트: 개미 소굴 RTS, E:\Git\ant. Unity 6000.5.8f1 / URP 17.5.0 / Pipeline 0.7.0-exp.1. 일반 개발 develop, 안정 master. 소스 Assets/_Project/Scripts, 검사 AgentScripts, 그래프 graphify-out.
-- 기준 기획: Notion '메인 게임 화면 구체화' 10-05 섹션(건설 분류 16종·6시대·방 28종·위생·전력 1차, 직전 SAVE 내용은 changelog). 수치 전부 잠정.
-- 가구 2차(0d3ae36): 화덕(식당처럼 조리·보관, 방 = 부엌, 식탁과 겸용), 자리(1인·기분 -3), 큰침대(2인·부부 우선), 바닥(줄 드래그, 이동 ×1.15·방 점수 칸당 +0.5·식중독 ×0.5), 잠금문(밤에 잠김), 창살문(포로 수용소 + 창살문·잠금문 = 감옥, 탈옥 ×0.5). 템플릿 찾기를 종류까지 맞춤(FindTemplate<T>(kind)).
-- 가구 3차(ed85c41): 1인 침대, 책장(휴게 3번째, 연구 경험치 +10, 방 = 도서관), 목욕통(휴게 4번째, 위생 +40, 방 = 목욕탕), 버섯밭·축사(작물 고정 밭, 저장은 Farm). 책장·목욕통은 Recreation 연구 해금. 휴게 종류 2→4, 이전 저장 질림 배열 자동 확장. 저장 버그 수정: RecreationSpot이 클래스 이름으로 저장되던 것 → 종류 이름(Campfire 등).
-- 가구 4차(45474ca): 저장고(식량 +150, 방 = 냉장실), 항아리(식량·재료 +50, 방 = 창고), 무기고(장비 보관함 +10, 방 = 무기고). 기존 '저장고'(창고 건물)는 건설 탭에서 '창고'로 이름 변경. 저장 확인은 저장 안 무기고 수로 보관함 한도 계산.
-- 지을 수 있는 가구 55개 / 가구 데이터 239개('숙소(4인, 구 건물)' 항목 추가).
-- 검사: FurnitureBatch2 29·Batch3 25·Batch4 21 통과, 관련 기존 검사 통과. 간헐 실패 확인: CommanderAcquisition(무작위 기술 값), RegressionChecks '밭 재성장'(4초 실시간) — 재실행 통과. 전체 회귀는 10-05 실행(67/72) 이후 미실행.
-- 미구현(기획 미정): 예술대 효과, 가공대(재료 목록), 냉장고(부패 시스템), 쓰레기장·물탱크·우물(더러움·물). 다음 후보: 마을 공공시설 7종 효과 제안(진료소 노년 사망↓·경비초소 안전↑·학당/공원 민심↑·시장 세금↑·여관 이주↑·소방서 반경 소화) — 사용자 확인 전, 방어 가구(끈끈이 함정·투석기 등).
-- 기존 결정 대기: 구식 Invasion/SceneInvasion/Raid 검사, 원정지 수동 채집 1회 왕복 후 멈춤 + WorldMapChecks 정지, Player 빌드 미실행, 석유·원자 연구·연구소 조건, 배관·신호선, 전기 가구 해금, 재료 업그레이드, 상위 방 이름, 막사 세부.
-- 검사 실행: .unity/checks-2026-10-05/run.sh <이름...>, 전체 runall.sh(실행 중 Assets 수정·에디터 재시작 금지). 캡처 AgentScripts/Hud1005Shot.cs → .unity/save-2026-10-05b/.
-- SAVE: develop push(.prefab 제외, AGENTS/CLAUDE·graphify·Water.mat·디자인 백업·이벤트/경유 초안은 로컬 보존). Notion 개발 일지 2026-10-06 페이지.
+## 현재 상태 — 2026-10-07 SAVE (리뷰 마감·가구 5~6차·성능)
+- 프로젝트: 개미 소굴 RTS, E:\Git\ant. Unity 6000.5.8f1 / URP 17.5.0 / Pipeline 0.7.0-exp.1. develop 개발, master 안정. 소스 Assets/_Project/Scripts, 검사 AgentScripts. 기준 기획: Notion '메인 게임 화면 구체화'(3e7c4a0ecd3181e38211f6be9c44637d). 수치 전부 잠정.
+- **리뷰 마감(docs/review-3a257fc-3b4b640.md):** Codex 수정 4건(무기고 파괴 후 초과 장비 저장, 배터리 저장값 검증, 바닥 1칸 +0.5점, 감옥 판정) 반영. 감옥 판정은 사용자 정정으로 **포로 수용소 + 창살문·잠금문일 때만 감옥**(그 방 침대는 감옥 침대로 셈, 침대만 있는 잠금문 방은 숙소·개인실). Phase5 31 재실행 통과.
+- **가구 5차(15종):** 2층침대(2인, 혼자도 숙소)·해먹(기분 -1)·큰 식탁(먹기 전용: 가장 가까운 비축 식사를 원격으로 집어 식탁에서 먹음) / 휴게 놀이판(관계 +2)·장기판·바둑판(지휘 경험치)·씨름판(근력, 라이벌 관계 -3)·가시 다트(원거리)·운동기구(근력)·악기(회복 ×1.5)·거미줄 그네 / 장식 조각상 +4·깃발 +2·그림 +3·기둥(방 점수만). 휴게 8종은 Recreation 연구 해금.
+- **가구 6차(11종):** 화롯불·등불·횃불(빛 + 기분 +1, 빛은 연출만) / 카펫 +1·태피스트리 +2·기념비·동상 +5·전리품 진열대 +3·사람 물건 전시대 +4 / 온천(4인, 피로 -40, 목욕탕) / 연회용 긴 식탁(먹기 전용, 장식 3+면 연회장·식사 기분 ×1.5, 모자라면 식당).
+- 지을 수 있는 가구 81 / 카탈로그 239. 휴게 종류 4→13(질림 배열 자동 확장, '다양한 오락' 기분 상한 +10). 저장은 새 종류 이름으로.
+- **UI:** 명령 칸 버튼 수와 무관하게 3×3 칸 크기 고정(빈칸 유지). 건설 화면 칸 12개 초과 시 4열 + 라벨 BestFit(Truncate), 단축키는 앞 10칸만(11번째부터 IndexOutOfRange 수정).
+- **원정 멈춤 '버그'는 환경 문제:** Unity 포커스가 없으면 Play 프레임이 거의 안 돌아 실시간 대기 검사가 실패. editor_focus 후 ExpeditionGatherChecks 21 두 번 통과. 게임 코드 변경 없음. 60초 넘는 검사는 AgentScripts/RunChecks.cs(SessionState) + 포커스 반복.
+- **성능:** Decoration.MoodAt이 기분 계산마다 FindObjectsByType → 활성 목록으로 교체. Mood 0.308→0.014ms, Medium 맵 프레임 60→24~29ms(RosterBar가 프레임당 Mood 30회 호출). WorldMapChecks 상태(~750ms/프레임) 재측정 안 함.
+- 구식 검사 Invasion·SceneInvasion·Raid 삭제(없는 EnemyNestPrototype 전제, EnemyColonyEconomy·SettlementDefense·Siege·WorldMap이 대체).
+- 바이옴 None(검사·옛 저장)은 바이옴 스타일 미적용 → 옛 MapGenerator 높이색(만년설 흰 바닥·초록 나무). 실제 새 게임은 항상 6종 중 하나. 옛 저장 처리는 미정.
+- 검사(순차): Batch2 29·3 25·4 21·5 62·6 47, HygienePower 35, CommitRange 39, Phase5 31, Catalog 40, BuildCategory 62, HudV4 313, Joy 45, ExpeditionGather 21. 저장 왕복 검사는 RootOverride 공유라 **병렬 금지**(병렬 시 Batch5 시간 초과, 실제 슬롯은 md5로 무사 확인).
+- 남은 결정: 끈끈이 함정(기존 '가시 함정' TrapPit이 실제로는 속박=끈끈이), 훈련대 과녁·작전판(기존 훈련장 역할별 구조와 연결 방식), 분수대(배관), 조명 빛의 게임 효과(밤 작업 규칙 없음), 옛 저장 바이옴 None 처리, 마을 공공시설 효과(미승인).
+- 잔여: Player 빌드 미실행, 전체 회귀 미실행, 석유·원자 연구·배관·신호선·더러움·부패·재료 업그레이드·상위 방 이름 미구현.
+- 보존(미커밋): Water.mat(_SrcBlend 5→1, 출처 불명), TimeManager.asset 직렬화 형식 변경, graphify-out, design/·design_skill/, package.json·playwright·tests/(출처 불명), BiomeEvent/MultiStopRoute/SaveMapCapture 초안. .prefab 커밋 금지.
+- 검사 보조: AgentScripts/BuildTabShot.cs(건설 탭 열기), SeasonShot.cs(바이옴·계절 이동), PerfProbe.cs(프로파일러 상위 항목).

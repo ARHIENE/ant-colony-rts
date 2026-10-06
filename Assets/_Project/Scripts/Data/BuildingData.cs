@@ -43,7 +43,14 @@ namespace AntColony.Data
         // 가구 3차: 1인 침대·책장·목욕통·버섯밭·축사(버섯밭·축사는 작물 고정 밭으로 배치되어 저장은 Farm)
         SingleBed, Bookshelf, Bathtub, MushroomFarm, AphidPen,
         // 가구 4차: 저장고(식량)·항아리·무기고
-        FoodStore, Jar, Armory
+        FoodStore, Jar, Armory,
+        // 가구 5차: 2층침대·해먹·큰 식탁 / 휴게 8종 / 장식 4종(조각상~기둥은 Decoration.IsKind 범위로 묶임)
+        BunkBed, Hammock, BigTable,
+        BoardGame, Janggi, Baduk, WrestlingRing, DartBoard, ExerciseRig, Instrument, WebSwing,
+        Statue, Flag, Painting, Pillar,
+        // 가구 6차: 조명 3종·장식 6종(화롯불~사람 물건 전시대는 Decoration.IsKind 범위) / 온천 / 연회용 긴 식탁
+        Brazier, Lantern, Torch, Carpet, Tapestry, Monument, BronzeStatue, TrophyCase, CuriosDisplay,
+        HotSpring, BanquetTable
     }
 
     [CreateAssetMenu(fileName = "BuildingData", menuName = "AntColony/Building Data")]
