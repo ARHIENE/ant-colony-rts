@@ -26,14 +26,14 @@ namespace AntColony.UI
                 foreach (ResourceType resource in Enum.GetValues(typeof(ResourceType)))
                 {
                     var i = (int)resource;
-                    MenuTheme.Text(content, $"{resource}: 획득 {history.Data.acquired[i]} / 사용 {history.Data.spent[i]}", 18, 36);
+                    MenuTheme.Text(content, $"{resource.DisplayName()}: 획득 {history.Data.acquired[i]} / 사용 {history.Data.spent[i]}", 18, 36);
                     foreach (ResourceReason reason in Enum.GetValues(typeof(ResourceReason)))
                     {
                         var spent = history.Data.spentByReason[i * Enum.GetValues(typeof(ResourceReason)).Length + (int)reason];
-                        if (spent > 0) MenuTheme.Text(content, $"  {reason}: {spent}", 16, 28);
+                        if (spent > 0) MenuTheme.Text(content, $"  {ReasonNames[(int)reason]}: {spent}", 16, 28);
                     }
                 }
-                MenuTheme.Text(content, $"일반개미 생산·합류 {history.Data.antsProduced} / 손실 {history.Data.antsLost}", 18, 40);
+                MenuTheme.Text(content, $"일반개미 유입 {history.Data.antsProduced} / 손실 {history.Data.antsLost}", 18, 40);
             }
             MenuTheme.Button(content, "새로고침", EventLog);
             MenuTheme.Button(content, "게임으로", Resume);

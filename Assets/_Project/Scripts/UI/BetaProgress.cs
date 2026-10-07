@@ -54,12 +54,12 @@ namespace AntColony.UI
 
         private string BuildObjective()
         {
-            if (game == null) return "Preparing colony...";
+            if (game == null) return "소굴 준비 중…";
             var campaign = CampaignResearch.Instance;
-            if (campaign != null && campaign.Departed) return "ROCKET LAUNCHED";
+            if (campaign != null && campaign.Departed) return "로켓 발사 완료";
             if (campaign != null && campaign.Active != null)
-                return $"RESEARCH - {campaign.Active.Name}\n{campaign.Progress:0}/{campaign.Active.Work:0}: assign matching-tier researchers";
-            if (game.SavedBoss) return "SCIENCE ESCAPE - Collect boss reward cargo\nReturn home; research the rocket";
+                return $"연구 · {campaign.Active.Name}\n{campaign.Progress:0}/{campaign.Active.Work:0} · 해당 시대 이상 연구소에 장수 배정";
+            if (game.SavedBoss) return "로켓 탈출 · 보스 보상 회수\n본거지로 귀환 후 로켓 연구";
             var world = WorldMapManager.Instance;
             if (world != null)
             {
@@ -67,41 +67,41 @@ namespace AntColony.UI
                 {
                     if (ship == null || ship.State == ExpeditionState.Home) continue;
                     if (ship.State == ExpeditionState.Outbound)
-                        return $"TRAVELLING - {Mathf.CeilToInt(ship.Remaining)}s\n{ship.Site.Title}: View Battlefield on arrival";
+                        return $"이동 중 · {Mathf.CeilToInt(ship.Remaining)}초\n{ship.Site.Title} · 도착 후 전장 보기";
                     if (ship.State == ExpeditionState.Returning)
-                        return $"RETURNING - {Mathf.CeilToInt(ship.Remaining)}s\nCargo is delivered at home";
+                        return $"귀환 중 · {Mathf.CeilToInt(ship.Remaining)}초\n도착하면 화물을 본거지에 반납합니다";
                     return ship.Site.Cleared || ship.Site.Kind == ExpeditionSiteKind.ResourceSite
-                        ? "LOOT - Gather into your transport\nRally crew within 8m, then Return Home"
-                        : $"BATTLE - {ship.Site.Title}\nView Battlefield; command your troops";
+                        ? "전리품 · 수송수단에 자원 반납\n탑승 장수를 8m 안에 모은 뒤 귀환"
+                        : $"전투 · {ship.Site.Title}\n전장 보기에서 부대를 지휘하세요";
                 }
                 foreach (var ship in world.Transports)
                 {
                     if (ship == null) continue;
                     return ship.Crew.Count > 0
-                        ? $"READY - Commanders {ship.CommanderLoad}/{ship.CommanderCapacity}, troops {ship.Load}/{ship.Capacity}\nWorld / Science: choose a nest, Depart"
-                        : $"BOARD - {ship.CommanderCapacity} commanders + {ship.Capacity} troops\nBring troops within 8m; Board Selected";
+                        ? $"출정 준비 · 장수 {ship.CommanderLoad}/{ship.CommanderCapacity} · 병력 {ship.Load}/{ship.Capacity}\n월드맵에서 목적지 선택 후 출정"
+                        : $"탑승 · 장수 {ship.CommanderCapacity}명 · 병력 {ship.Capacity}마리\n장수를 8m 안에 모은 뒤 선택 부대 탑승";
                 }
                 foreach (var lab in FindObjectsByType<ScienceLab>())
                     if (lab.Busy)
-                        return $"{(lab.Constructing ? "CONSTRUCTION" : "RESEARCH")} - {Mathf.CeilToInt(lab.Remaining)}s\n{(lab.Aircraft ? "Aircraft" : "Vehicle")} in progress";
-                if (world.VehicleResearched) return "BUILD VEHICLE - 50 Food / 60 재료\nWorld / Science: Build Vehicle";
+                        return $"{(lab.Constructing ? "건조" : "연구")} - {Mathf.CeilToInt(lab.Remaining)}초\n{(lab.Aircraft ? "비행기" : "차량")} 진행 중";
+                if (world.VehicleResearched) return "차량 건조 · 식량 50 / 재료 60\n과학연구소 선택 후 차량 건조";
             }
             if (FindAnyObjectByType<ScienceLab>() != null)
-                return "RESEARCH VEHICLE - Tier 2 lab\nScience / Researchers: upgrade and assign";
+                return "차량 연구 · 증기 시대 연구소 필요\n과학 화면에서 연구소 강화·장수 배정";
             if (ScienceLab.PrerequisitesMet)
-                return "BUILD SCIENCE LAB - World / Science\nSelect a commander; keep 8 free ants";
+                return "과학연구소 건설\n장수 선택 · 대기 일반개미 8마리 필요";
             var population = AntPool.Instance != null ? AntPool.Instance.Total : 0;
             if (population < ScienceLab.RequiredPopulation)
-                return $"GROW - {population}/{ScienceLab.RequiredPopulation} ants\nGather Food, then Produce Ant";
+                return $"인구 증가 · {population}/{ScienceLab.RequiredPopulation}마리\n주거·식량·민심을 확보해 이주 유도";
             var barracks = FindAnyObjectByType<Barracks>();
-            if (barracks == null) return "BUILD BARRACKS - Select a commander\nChoose a combat role, then Build Barracks";
+            if (barracks == null) return "병영 건설 · 장수 선택\n건설 메뉴에서 병영을 배치하세요";
             foreach (var candidate in FindObjectsByType<Barracks>())
-                if (candidate.IsUpgrading) return "BARRACKS UPGRADE - In progress\nGather resources for the Science Lab";
+                if (candidate.IsUpgrading) return "병영 강화 중\n과학연구소에 필요한 자원을 모으세요";
             var resources = ResourceManager.Instance;
             if (resources != null && (resources.GetAmount(ResourceType.Food) >= resources.GetCapacity(ResourceType.Food)
                 || resources.GetAmount(ResourceType.Soil) >= resources.GetCapacity(ResourceType.Soil)))
-                return "STORAGE FULL - Spend or Build Storage\nNext: upgrade any barracks to Tier 2";
-            return "UPGRADE BARRACKS - Reach Tier 2\nChoose its role, then use the T1>T2 button";
+                return "창고 가득 참 · 자원 사용 또는 창고 건설\n다음 목표 · 병영 2티어 강화";
+            return "병영 강화 · 2티어 달성\n병영을 선택해 티어를 강화하세요";
         }
 
         private void Victory()

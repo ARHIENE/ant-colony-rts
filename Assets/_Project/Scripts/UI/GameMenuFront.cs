@@ -55,7 +55,7 @@ namespace AntColony.UI
         private static void LoadSlot(SaveSlots.SlotInfo slot)
         {
             if (slot == null) return;
-            ToastManager.Show(SaveSystem.TryLoad(slot.Path, out var error) ? "Loading save..." : error);
+            ToastManager.Show(SaveSystem.TryLoad(slot.Path, out var error) ? "저장 파일을 불러오는 중…" : error);
         }
 
         private void NewGameScreen()
@@ -174,7 +174,7 @@ namespace AntColony.UI
             Item("Encyclopedia", "도감", Book);
             Item("How to Play [F2]", "설명서  F2", Guide);
             Item("Save & Main Menu", "메인 메뉴로", () => {
-                if (!SaveSystem.TrySave(true, 0, out var error)) { ToastManager.Show("Cannot leave safely: " + error); return; }
+                if (!SaveSystem.TrySave(true, 0, out var error)) { ToastManager.Show("저장하지 못해 메인 메뉴로 돌아갈 수 없습니다: " + error); return; }
                 GameSession.Instance.MarkNotStarted(); Main();
             }, "먼저 자동 슬롯에 저장합니다. 저장에 실패하면 게임은 그대로 열려 있습니다.");
             L.Line(pm, 12, 402, 256);
@@ -200,7 +200,7 @@ namespace AntColony.UI
                 L.Label(row, SlotDesc(slot), 12, 114, 28, 300, 34, MenuTheme.Muted);
                 var button = L.Button(row, (save ? "Save " : "Load ") + slot.DisplayName, save ? "저장" : "불러오기", 426, 16, 96, 34, () => {
                     var ok = save ? SaveSystem.TrySave(slot.Auto, slot.Index, out var error) : SaveSystem.TryLoad(slot.Path, out error);
-                    ToastManager.Show(ok ? (save ? "Saved." : "Loading save...") : error);
+                    ToastManager.Show(ok ? (save ? "저장했습니다." : "저장 파일을 불러오는 중…") : error);
                     if (save && open && ScreenName == "Paused") Pause();
                 });
                 button.interactable = save || slot.Valid;

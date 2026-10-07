@@ -16,6 +16,7 @@ namespace AntColony.Core
         [Serializable] public sealed class State
         {
             public int young, old;
+            public int agingDue; // 출전·작업·건설 예약 중이라 아직 못 늙힌 성체 수. 대기로 돌아오면 전환한다.
             public float sentiment = 60, taxRate = .2f, monthSeconds, raidSeconds = 9999;
             public MilitaryPolicy policy;
             public bool elderlyService;
@@ -104,7 +105,10 @@ namespace AntColony.Core
         {
             var pool = AntPool.Instance; if (pool == null) return;
             var grown = S.young; S.young = 0; pool.Breed(grown);
-            var aging = pool.RemoveFree(Mathf.RoundToInt(pool.Free * GameBalance.AdultAging), false);
+            // 성체 전체 기준. 동원 중인 개미 몫은 agingDue로 미뤘다가 복귀 시 SettleAging이 전환한다.
+            var due = Mathf.RoundToInt(pool.Total * GameBalance.AdultAging);
+            var aging = pool.RemoveFree(Mathf.Min(due, Mathf.RoundToInt(pool.Free * GameBalance.AdultAging)), false);
+            S.agingDue += due - aging;
             S.old = S.old + aging - Mathf.RoundToInt(S.old * GameBalance.OldDeath);
             var food = ResourceManager.Instance?.GetAmount(ResourceType.Food) ?? 0;
             var target = 60f - (S.taxRate - .2f) * 100f - PolicySentiment(S.policy) + (food >= Total ? 5 : -15)
@@ -123,6 +127,15 @@ namespace AntColony.Core
                 var left = pool.RemoveFree(Mathf.CeilToInt(pool.Free * GameBalance.UnrestDesertion), true);
                 if (left > 0) UI.ToastManager.Show($"민심 바닥: 개미 {left}마리가 떠났습니다");
             }
+        }
+
+        // AntPool이 출전·작업·건설 예약에서 돌아온 수를 알려준다. 미뤄둔 노화를 그 개미들로 처리한다.
+        // 전투로 죽은 몫이 남지 않게 미룬 수는 대기 외 성체 수를 넘지 않는다.
+        internal void OnAntsReturned(int returned)
+        {
+            var pool = AntPool.Instance; if (pool == null || S.agingDue <= 0) return;
+            var aged = pool.RemoveFree(Mathf.Min(S.agingDue, returned), false);
+            S.old += aged; S.agingDue = Mathf.Min(S.agingDue - aged, pool.Total - pool.Free);
         }
 
         // 식량 부족: 개미가 그냥 사라진다(대기 개미 기준).

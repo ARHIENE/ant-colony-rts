@@ -50,7 +50,8 @@ namespace AntColony.Data
         Statue, Flag, Painting, Pillar,
         // 가구 6차: 조명 3종·장식 6종(화롯불~사람 물건 전시대는 Decoration.IsKind 범위) / 온천 / 연회용 긴 식탁
         Brazier, Lantern, Torch, Carpet, Tapestry, Monument, BronzeStatue, TrophyCase, CuriosDisplay,
-        HotSpring, BanquetTable
+        HotSpring, BanquetTable,
+        SpikeTrap // 2026-10-07 가시 함정(반복 피해). 기존 TrapPit은 끈끈이 함정(속박)
     }
 
     [CreateAssetMenu(fileName = "BuildingData", menuName = "AntColony/Building Data")]

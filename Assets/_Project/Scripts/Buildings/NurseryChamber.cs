@@ -207,10 +207,10 @@ namespace AntColony.Buildings
             var best = BestPair(out var first, out var second);
             var pair = first != null
                 ? $"{first.CommanderName} + {second.CommanderName}  {best:0}/{birthAffinity:0}"
-                : "no lover pair in range";
-            var head = Primary == this ? "Nursery" : "Nursery (idle: another nursery leads)";
-            return $"{head}  Commanders {count}/{maxCommanders}  Birth {birthFoodCost}F  Births {BirthCount}\n"
-                + $"Lovers (relation {GameBalance.LoverRelation:0}+) within {GameBalance.NurseryRadius:0.#}m of the nursery: {pair}";
+                : "범위 안에 연인 쌍이 없습니다";
+            var head = Primary == this ? "양육실" : "양육실 (다른 양육실에서 진행 중)";
+            return $"{head}  장수 {count}/{maxCommanders}명  출산 비용 식량 {birthFoodCost}  출산 {BirthCount}회\n"
+                + $"양육실 {GameBalance.NurseryRadius:0.#}m 안의 연인(관계 {GameBalance.LoverRelation:0} 이상): {pair}";
         }
 
         // 가장 많이 쌓인 쌍 하나. 표시용이라 정렬 없이 한 번 훑는다.

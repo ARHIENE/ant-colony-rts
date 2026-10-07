@@ -121,11 +121,11 @@ namespace AntColony.UI
             FindFirstObjectByType<AntColony.Buildings.BuildingPlacementController>()?.CancelPlacement();
             return frame;
         }
-        private void Screen(string title)
+        private void Screen(string title, string displayTitle = null)
         {
             BeginScreen(title, .62f);
             scrollArea.gameObject.SetActive(true);
-            var heading = MenuTheme.Text(content, title, 32, 70);
+            var heading = MenuTheme.Text(content, displayTitle ?? title, 32, 70);
             heading.color = MenuTheme.Accent; heading.fontStyle = FontStyle.Bold;
             FindFirstObjectByType<AntColony.Buildings.BuildingPlacementController>()?.CancelPlacement();
         }
@@ -137,7 +137,7 @@ namespace AntColony.UI
             tooltipPanel.gameObject.SetActive(!string.IsNullOrEmpty(value));
             if (!string.IsNullOrEmpty(value) && tooltipPanel.gameObject.activeInHierarchy) tooltipPanel.SetAsLastSibling();
         }
-        public void ShowLoading() { Screen("Loading..."); Time.timeScale = 0; }
+        public void ShowLoading() { Screen("Loading...", "불러오는 중…"); Time.timeScale = 0; }
         public void SceneReady(bool playing) { resumeScale = 1; if (playing) Resume(); else Main(); }
         public void Resume()
         {
@@ -149,15 +149,15 @@ namespace AntColony.UI
         }
         public void Guide()
         {
-            Screen("FIELD GUIDE");
-            MenuTheme.Text(content, "BETA GOAL: defeat a MiniBird boss. You can keep playing after victory. 활동 가능한 장수가 0명이면 패배합니다(회복 가능한 쓰러짐 포함).", 18, 76);
+            Screen("FIELD GUIDE", "게임 설명서");
+            MenuTheme.Text(content, "중간 목표는 미니새 보스 처치, 최종 목표는 로켓 발사입니다. 보스 처치 후에도 계속할 수 있습니다. 회복 가능한 장수를 포함해 활동 가능한 장수가 0명이면 패배합니다.", 18, 76);
             MenuTheme.Text(content, "1. 장수는 병력 없이 작업표에 켜진 일을 수행합니다. 하단 커맨드 카드 또는 장수 관리(G)의 작업표에서 작업을 켜고 끄세요. 자원 우클릭은 우선 작업 지시입니다.", 18, 95);
-            MenuTheme.Text(content, "2. 건설(B)에서 건물과 대기 장수를 골라 배치하세요. 특수 탭에서 징집소를 건설한 뒤 클릭하면 출전 장수와 병력을 편성할 수 있습니다. 귀환(D)하면 생존 병력을 반납하고 자율 작업을 재개합니다.", 18, 95);
-            MenuTheme.Text(content, "3. Every commander can work and fight. Equip owned weapons in commander details to change combat style; wings use the armor slot. Right-click enemies to attack, or press A then click for attack-move. Nine skills grow through use; Command skill sets troop capacity.", 18, 115);
-            MenuTheme.Text(content, "4. Reach 60 ants and upgrade a barracks to Tier 2. In World / Science, build a Science Lab, research Fishing and vehicles and build a transport.", 18, 95);
-            MenuTheme.Text(content, "5. Bring combat commanders near the transport, board, choose a MiniBird nest and depart. Switch to the battlefield, dodge marked boss attacks and win. Return Home brings the crew and cargo back.", 18, 100);
-            MenuTheme.Text(content, "Storage: Build Storage expands resource limits and adds a drop-off point. Interrupted delivery: right-click the Stockpile or a Storage; on expeditions, right-click your own transport to deliver carried resources.", 18, 100);
-            MenuTheme.Text(content, "Camera: screen edges, wheel to zoom, Z/C to rotate. Esc: menu, P: pause. G/F1: commanders. Q: weapon skill, E: conscription, D: return to post, R: weapon, K/M: world & science. Keys can be changed in Settings. Construction, combat and manual movement block saving; home gathering and cargo are saved.", 18, 95);
+            MenuTheme.Text(content, "2. 건설(B)에서 건물과 대기 장수를 골라 배치하세요. 군사 탭에서 징집소를 건설한 뒤 클릭하면 출전 장수와 병력을 편성할 수 있습니다. 귀환(D)하면 생존 병력을 반납하고 자율 작업을 재개합니다.", 18, 95);
+            MenuTheme.Text(content, "3. 장수 상세에서 무기를 장착하면 전투 역할이 바뀝니다. 날개는 방어구입니다. 적 우클릭은 공격, A를 누른 뒤 클릭은 공격 이동입니다. 13종 기술은 활동에 따라 성장하며 지휘 기술은 병력 한도를 높입니다.", 18, 115);
+            MenuTheme.Text(content, "4. 일반개미 60마리와 2티어 병영을 확보하면 과학연구소를 지을 수 있습니다. 과학 화면에서 차량을 연구한 뒤 과학연구소를 선택해 수송수단을 건조하세요.", 18, 95);
+            MenuTheme.Text(content, "5. 출전 장수를 수송수단에 태우고 월드맵에서 미니새 둥지로 출정하세요. 전장으로 전환해 표시된 보스 공격을 피하며 싸우세요. 귀환하면 장수·병력·화물이 본거지로 돌아옵니다.", 18, 100);
+            MenuTheme.Text(content, "창고를 지으면 저장 한도와 반납 지점이 늘어납니다. 운반이 중단되면 저장고나 창고를 우클릭하세요. 원정지에서는 아군 수송수단을 우클릭해 자원을 반납합니다.", 18, 100);
+            MenuTheme.Text(content, "기본 조작: 화면 가장자리·방향키로 카메라 이동, 휠로 확대·축소, Z/C로 회전합니다. Esc 메뉴, P 일시 정지, G/F1 장수 관리, Q 무기 기술, E 징집소, D 귀환, R 무기 교체, K 과학, M 월드맵입니다. 설정에서 단축키를 바꿀 수 있습니다.", 18, 95);
             MenuTheme.Text(content, "첫 등장 안내", 20, 32);
             foreach (var hint in FirstHints.All) MenuTheme.Text(content, hint.title + ": " + hint.body, 16, 50);
             MenuTheme.Button(content, "Back", Back);
@@ -166,26 +166,26 @@ namespace AntColony.UI
         public void ShowOutcome(bool victory)
         {
             if (!GameSession.Instance.GameStarted) return;
-            Screen(victory ? "VICTORY - BETA COMPLETE" : "COLONY LOST");
+            Screen(victory ? "VICTORY - BETA COMPLETE" : "COLONY LOST", victory ? "보스 처치 — 중간 목표 달성" : "소굴 붕괴");
             Time.timeScale = 0;
             var seconds = GameSession.Instance.PlaySeconds;
-            MenuTheme.Text(content, victory ? "The boss has fallen. Your colony can continue expanding." : "활동 가능한 장수가 없습니다. 저장을 불러오거나 새 소굴을 시작하세요.", 22, 80);
-            MenuTheme.Text(content, $"Play time: {(int)seconds / 60:00}:{(int)seconds % 60:00}  /  Commanders: {CommanderRoster.Instance?.Count ?? 0}", 18, 48);
+            MenuTheme.Text(content, victory ? "보스를 처치했습니다. 소굴을 계속 확장하고 로켓 발사를 준비하세요." : "활동 가능한 장수가 없습니다. 저장을 불러오거나 새 소굴을 시작하세요.", 22, 80);
+            MenuTheme.Text(content, $"플레이 시간: {(int)seconds / 60:00}:{(int)seconds % 60:00}  /  장수: {CommanderRoster.Instance?.Count ?? 0}", 18, 48);
             if (victory) MenuTheme.Button(content, "Continue Colony", () => { resumeScale = 1; Resume(); });
             MenuTheme.Button(content, "Load Game", () => Slots(false));
             MenuTheme.Button(content, "Restart Same Map", () => {
-                Screen("Restart colony?");
-                MenuTheme.Text(content, "Unsaved progress will be lost. Existing save slots will be kept.", 20, 70);
+                Screen("Restart colony?", "소굴을 다시 시작할까요?");
+                MenuTheme.Text(content, "저장하지 않은 진행 상황은 사라집니다. 기존 저장 슬롯은 유지됩니다.", 20, 70);
                 MenuTheme.Button(content, "Restart", () => SaveSystem.NewGame(GameSession.Instance.Options.Clone()));
                 MenuTheme.Button(content, "Back", () => ShowOutcome(victory));
             });
             MenuTheme.Button(content, "New Game", NewGameScreen);
         }
         private bool ReadSeed()
-        { if (seed == null || !int.TryParse(seed.text, out var value)) { ToastManager.Show("Enter a seed between -2147483648 and 2147483647."); return false; } options.seed = value; return true; }
+        { if (seed == null || !int.TryParse(seed.text, out var value)) { ToastManager.Show("시드는 -2147483648~2147483647 사이의 정수로 입력하세요."); return false; } options.seed = value; return true; }
         private void Settings()
         {
-            Screen("Settings");
+            Screen("Settings", "설정");
             var s = UserSettings.Current;
             void Apply(Action<UserSettingsData> change) { var value = s.Clone(); change(value); UserSettings.Apply(value);
                 FindFirstObjectByType<AntColony.Camera.IsometricCameraController>()?.ApplySettings(value.cameraPanSpeed, value.edgeScrollThickness); Settings(); }
@@ -204,8 +204,8 @@ namespace AntColony.UI
             : CommanderRoster.Instance.Commanders.OrderBy(c => c.CommanderName, StringComparer.Ordinal).ToArray();
         private void Book()
         {
-            Screen("Encyclopedia");
-            if (Encyclopedia.Entries.Count == 0) MenuTheme.Text(content, "Explore to discover ants, bosses and civilizations.", 20, 60);
+            Screen("Encyclopedia", "도감");
+            if (Encyclopedia.Entries.Count == 0) MenuTheme.Text(content, "탐험하며 개미·보스·문명을 발견하세요.", 20, 60);
             foreach (var e in Encyclopedia.Entries.OrderBy(e => e.category).ThenBy(e => e.title))
             { MenuTheme.Text(content, e.category + " / " + e.title, 23, 44); MenuTheme.Text(content, e.body, 18, 90); }
             MenuTheme.Button(content, "Back", Back);

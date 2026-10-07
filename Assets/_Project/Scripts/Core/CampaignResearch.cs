@@ -114,14 +114,14 @@ namespace AntColony.Core
         public string BlockReason(ScienceTechnology technology)
         {
             var i = (int)technology;
-            if (i < 0 || i >= Technologies.Length) return "Unknown technology.";
+            if (i < 0 || i >= Technologies.Length) return "알 수 없는 기술입니다.";
             if (Departed) return "로켓이 이미 발사되었습니다.";
-            if (Has(technology)) return "Already researched.";
-            if (Active != null) return "One shared research project at a time.";
+            if (Has(technology)) return "이미 연구했습니다.";
+            if (Active != null) return "공동 연구는 한 번에 하나만 진행할 수 있습니다.";
             var definition = Technologies[i];
             foreach (var prerequisite in definition.Prerequisites)
-                if (!Has(prerequisite)) return "Requires " + Technologies[(int)prerequisite].Name + ".";
-            if (technology == ScienceTechnology.Engine && !HasBlueprint) return "Bring an engine blueprint home from a boss nest or trading post.";
+                if (!Has(prerequisite)) return "선행 연구 필요: " + Technologies[(int)prerequisite].Name + ".";
+            if (technology == ScienceTechnology.Engine && !HasBlueprint) return "보스 둥지나 교역소에서 엔진 설계도를 획득해 귀환하세요.";
             foreach (var lab in FindObjectsByType<ScienceLab>(FindObjectsSortMode.None))
                 if (lab.isActiveAndEnabled && lab.Tier >= definition.Tier) return "";
             return "과학 연구소 " + definition.Tier + "등급(" + EraNames[definition.Tier - 1] + " 시대)이 필요합니다.";
@@ -164,7 +164,7 @@ namespace AntColony.Core
                 if (completed.Technology == ScienceTechnology.Vehicle) world.VehicleResearched = true;
                 if (completed.Technology == ScienceTechnology.Aircraft) world.AircraftResearched = true;
             }
-            AntColony.UI.ToastManager.Show(completed.Name + " research complete.");
+            AntColony.UI.ToastManager.Show(completed.Name + " 연구 완료.");
         }
 
         public void CompleteDeparture(IReadOnlyList<CommanderAnt> boarded)
@@ -177,7 +177,7 @@ namespace AntColony.Core
                 var aboard = false;
                 foreach (var passenger in boarded) if (passenger == c) { aboard = true; break; }
                 if (aboard) state.passengers.Add(c.CommanderName);
-                else state.leftBehind.Add(c.CommanderName + (c.IsDead ? " (deceased)" : c.IsCaptive ? " (captive)" : ""));
+                else state.leftBehind.Add(c.CommanderName + (c.IsDead ? " (사망)" : c.IsCaptive ? " (포로)" : ""));
             }
             Time.timeScale = 0;
             OnDeparted?.Invoke();

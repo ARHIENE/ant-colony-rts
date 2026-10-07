@@ -155,12 +155,12 @@ namespace AntColony.Buildings
             if (kind == BuildingKind.ConscriptionPost && (FindFirstObjectByType<ConscriptionPost>() != null || System.Array.Exists(FindObjectsByType<BuildingConstructionSite>(FindObjectsSortMode.None), s => s.BuildingKind == kind))) return "본거지 징집소는 한 곳만 건설할 수 있습니다.";
             if ((kind == BuildingKind.Farm || kind == BuildingKind.MushroomFarm || kind == BuildingKind.AphidPen) && !BiomeRules.FarmAllowed) return "도시 구석에는 밭을 지을 수 없습니다.";
             if (kind == BuildingKind.AphidPen && !ScienceEffects.CropUnlocked(FarmCrop.Honeydew)) return "감로 목장 연구가 필요합니다.";
-            if (!ScienceEffects.BuildingUnlocked(kind)) return "Research the matching science first.";
+            if (!ScienceEffects.BuildingUnlocked(kind)) return "관련 과학 기술을 먼저 연구하세요.";
             if (kind == BuildingKind.MineField && MineField.Count >= GameBalance.MaxMines) return $"Up to {GameBalance.MaxMines} mine fields at once.";
-            if (kind == BuildingKind.Infirmary && !Infirmary.Unlocked) return "Research Infirmary first.";
+            if (kind == BuildingKind.Infirmary && !Infirmary.Unlocked) return "의무실을 먼저 연구하세요.";
             if (kind == BuildingKind.AirshipYard && (CampaignResearch.Instance == null
                 || !CampaignResearch.Instance.Has(ScienceTechnology.MigrationTheory))) return "로켓 이론을 먼저 연구하세요.";
-            if (kind == BuildingKind.ScienceLab && !ScienceLab.PrerequisitesMet) return "Science Lab requires 60 ants, Fishing and a Tier 2 barracks.";
+            if (kind == BuildingKind.ScienceLab && !ScienceLab.PrerequisitesMet) return "과학연구소 건설에는 일반개미 60마리와 2티어 병영이 필요합니다.";
             return null;
         }
 
@@ -365,7 +365,7 @@ namespace AntColony.Buildings
                 BuildingKind.Infirmary => FindTemplate<Infirmary>() ?? CreateInfirmaryTemplate(),
                 BuildingKind.Barracks => FindTemplate<Barracks>(role),
                 BuildingKind.SoilWall => FindTemplate<SoilWall>() ?? RuntimeBuildingTemplates.Create(kind),
-                BuildingKind.TrapPit => FindTemplate<TrapPit>() ?? RuntimeBuildingTemplates.Create(kind),
+                BuildingKind.TrapPit or BuildingKind.SpikeTrap => FindTemplate<TrapPit>(kind) ?? RuntimeBuildingTemplates.Create(kind),
                 BuildingKind.AreaAcidTower => FindTemplate<AreaAcidTower>() ?? RuntimeBuildingTemplates.Create(kind),
                 BuildingKind.Watchtower => FindTemplate<Watchtower>() ?? RuntimeBuildingTemplates.Create(kind),
                 BuildingKind.MineField => FindTemplate<MineField>() ?? RuntimeBuildingTemplates.Create(kind),

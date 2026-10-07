@@ -70,6 +70,11 @@ public static class SaveRoundtripChecks
                 health = 100, role = (int)AntColony.Data.UnitRole.Melee, barracksTier = 2, barracksUpgradeRemaining = 6,
                 position = new Vec3Dto(WorldMapManager.Instance.HomePosition + Vector3.right * 12) };
             expected.buildings.Add(barracks);
+            // 2026-10-07: 가시 함정 피해 횟수·미룬 노화 수 저장.
+            var spike = new BuildingDto { key = "new:" + expected.buildings.Count, kind = "SpikeTrap", runtimeBuilt = true,
+                health = 100, trapArmed = true, trapSpikeHits = 3, position = new Vec3Dto(WorldMapManager.Instance.HomePosition + Vector3.right * 16) };
+            expected.buildings.Add(spike);
+            expected.population.agingDue = 4;
             var destroyed = expected.buildings.First(b => b.kind == "Storage");
             destroyed.kind = "Destroyed"; destroyed.health = 0; destroyed.nodes.Clear();
             expected.nodes[0].amount = 0;
@@ -89,6 +94,9 @@ public static class SaveRoundtripChecks
             SaveStorage.WriteAtomic(path, JsonUtility.ToJson(expected));
             var actual = await Load(path);
             Verify(expected, actual, queen.key, barracks.key, destroyed.key, shipIndex);
+            var aSpike = actual.buildings.Single(b => b.key == spike.key);
+            Check(aSpike.kind == "SpikeTrap" && aSpike.trapArmed && aSpike.trapSpikeHits == 3, $"spike trap restored: {aSpike.kind} hits={aSpike.trapSpikeHits}");
+            Check(actual.population.agingDue == 4, "deferred aging restored: " + actual.population.agingDue);
             Check(SaveSystem.TrySave(false, 1, out var error), "save restored state: " + error);
             var again = await Load(SaveSlots.PathFor(false, 1));
             Verify(actual, again, queen.key, barracks.key, destroyed.key, shipIndex);
@@ -130,7 +138,7 @@ public static class SaveRoundtripChecks
         var q = actual.buildings.Single(b => b.key == queen); var eq = expected.buildings.Single(b => b.key == queen);
         Check(q.kind == "QueenChamber" && eq.kind == q.kind, "stockpile keeps legacy save kind");
         var b = actual.buildings.Single(x => x.key == barracks); var eb = expected.buildings.Single(x => x.key == barracks);
-        Check(b.barracksTier == eb.barracksTier, "barracks tier");
+        Check(b.barracksTier == eb.barracksTier, $"barracks tier: actual={b.barracksTier} expected={eb.barracksTier} kind={b.kind} role={b.role} remaining={b.barracksUpgradeRemaining}");
         Near(b.barracksUpgradeRemaining, eb.barracksUpgradeRemaining, "barracks upgrade");
         Check(actual.buildings.Single(x => x.key == destroyed).kind == "Destroyed", "destroyed building stays destroyed");
         Near(actual.nodes[0].amount, expected.nodes[0].amount, "depleted node");

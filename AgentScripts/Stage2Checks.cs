@@ -220,6 +220,17 @@ public static class Stage2Checks
             trap.Tick(repairSeconds * .75f); Check(!trap.Armed, "repair takes 4s at base rate");
             trap.Tick(repairSeconds * .25f + .1f); Check(trap.Armed, "trap repaired");
 
+            // --- 가시 함정: 속박 없이 1초마다 지상 적 피해, 8회 피해 후 파손(잠정). 기존 TrapPit은 끈끈이 ---
+            Check(ScienceEffects.BuildingUnlocked(BuildingKind.SpikeTrap), "spike trap unlocked by traps");
+            var spike = Build<TrapPit>(BuildingKind.SpikeTrap, home + Vector3.right * 24);
+            Check(spike.IsSpike && !trap.IsSpike && spike.Data.displayName == "가시 함정" && trap.Data.displayName == "끈끈이 함정", "spike and sticky traps are distinct");
+            var sv = Monster(spike.Position); var sh = sv.CurrentHealth;
+            spike.Tick(.1f);
+            Check(spike.Armed && sv.RootRemaining <= 0 && sv.CurrentHealth < sh && spike.SpikeHits == 1, "spike damages without rooting");
+            spike.Tick(.5f); Check(spike.SpikeHits == 1, "spike waits 1s between hits");
+            for (var i = 0; i < 20 && spike.Armed; i++) { if (sv == null || sv.IsDead) sv = Monster(spike.Position); spike.Tick(1f); }
+            Check(!spike.Armed && spike.SpikeHits == GameBalance.SpikeTrapHits, "spike breaks after 8 hits");
+
             // --- 개미산 정제: 분사탑 +25%, 범위형 분사탑, 방어시설 연구소 ---
             var tower = Build<AcidTower>(BuildingKind.AcidTower, home + Vector3.right * 28);
             var baseDamage = tower.Damage;

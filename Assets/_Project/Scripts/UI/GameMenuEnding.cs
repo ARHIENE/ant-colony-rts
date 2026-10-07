@@ -9,14 +9,14 @@ namespace AntColony.UI
     // 엔딩 화면: 로켓 발사 장면 + 4단계에서 누적한 기록 → 메인 메뉴. 점수·등급 없음.
     public sealed partial class GameMenuController
     {
-        private static readonly string[] ResourceNames = { "Food", "재료", "Special" };
-        private static readonly string[] ReasonNames = { "채집", "건설", "연구", "유지비", "원정", "거래", "제작", "생산", "치료", "포상", "환불", "기타" };
+        private static readonly string[] ResourceNames = { "식량", "재료", "특수 자원" };
+        private static readonly string[] ReasonNames = { "채집", "건설", "연구", "식량 소비", "원정", "거래", "제작", "생산", "치료", "포상", "환불", "기타", "세금" };
 
         public void ShowDeparture()
         {
             var research = CampaignResearch.Instance;
             if (research == null || !research.Departed) return;
-            Screen("발사 — ROCKET LAUNCH VICTORY"); Time.timeScale = 0;
+            Screen("발사 — ROCKET LAUNCH VICTORY", "로켓 발사 — 탈출 성공"); Time.timeScale = 0;
             var scene = MenuTheme.Text(content, "~ ~ ~   로켓이 소굴을 떠나 우주로 날아오릅니다   ~ ~ ~", 22, 60);
             scene.alignment = TextAnchor.MiddleCenter; scene.color = MenuTheme.Accent;
             foreach (var line in EndingRecord(research)) MenuTheme.Text(content, line, 17, Mathf.Max(30, 24 * (1 + line.Length / 70)));
@@ -42,7 +42,7 @@ namespace AntColony.UI
                     .Select(i => $"{(i < ReasonNames.Length ? ReasonNames[i] : ((ResourceReason)i).ToString())} {d.spentByReason[r * reasons + i]}"));
                 lines.Add($"<b>{ResourceNames[r]}</b>  획득 {d.acquired[r]} · 사용 {d.spent[r]}" + (uses.Length > 0 ? $"  ({uses})" : ""));
             }
-            lines.Add($"<b>일반개미</b>  생산 {d.antsProduced} · 잃음 {d.antsLost}");
+            lines.Add($"<b>일반개미</b>  유입 {d.antsProduced} · 손실 {d.antsLost}");
             lines.Add("<b>탑승</b>  " + (research.Passengers.Count == 0 ? "없음" : string.Join(", ", research.Passengers)));
             lines.Add("<b>남겨진 장수</b>  " + (research.LeftBehind.Count == 0 ? "없음" : string.Join(", ", research.LeftBehind)));
             lines.Add("<b>사망</b>  " + Names("사망"));

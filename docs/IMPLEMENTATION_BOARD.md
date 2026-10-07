@@ -25,15 +25,32 @@
 
 ## 현재 작업 / 충돌 방지
 
+- **2026-10-07 포텐·재분배 기획 재개 — Codex 작업 중:** 전체 능력 총한도(PA 최대 200), 반복 작업 성장과 미사용 능력 감소를 사용자 확정으로 반영한다. FM 근거 조사 후 Notion 관련 기획·README의 구현 대기 안내·이 보드만 수정한다. 게임 코드는 수정하지 않는다. 연구 산출물: `research_notes/개미 포텐과 능력 재분배/`, `reports/개미 포텐과 능력 재분배.md`.
+
+- **2026-10-07 특성·포텐 기획(구현 대기):** 특성은 빨강(부정)·실버·골드·다이아 4등급, 장수당 합계 최대 4개, 플레이 중 획득 가능. 등급별 목록·시작 개수·확률·획득 조건·만석 처리는 미정. 사용자 확정: 포텐 최대 200은 장수 전체 능력의 한도. 계속 시키는 실제 작업 비중에 따라 관련 능력들이 함께 성장·유지되고 계속 덜 쓰는 능력은 감소·재분배된다. **경과일 기반 감소안은 폐기**, 휴식·수면·대기·이동만으로 감소하지 않는다. 적용 설계: 기존 13종 기본 기술(각 0~20)의 합계 CA ≤ 개체 고정 PA ≤ 200. 특성·장비·기분의 실효 보정은 제외하고 시작 기본 기술 보정은 포함한다. 한도 후에는 감소분만큼만 관련 능력이 성장하며 중복 차감하지 않는다. 13종 전체 작업별 주/보조 관계를 명시하고 한 작업의 성장 예산을 분배한다(주80%/보조20% 잠정, 중복 지급 금지). 최근 작업 이력 범위·유지 비중·작업량당 변동률·CA/PA 공개 UI는 조정 대상. 게임 코드는 수정하지 않았다.
+
+- **2026-10-07 농사 기획 확정(구현 대기):** 장수가 작업표 우선순위에 따라 파종·수확하고 작물은 환경 조건에 따라 스스로 성장한다. 성장 중 장수는 다른 일을 하며 일반개미도 다른 작업에 투입 가능. 일반개미는 파종·수확 속도만 보조한다. 밭별 지원 수를 기억하고 파종·수확 때만 투입하는 방식으로 잠정 결정. 설정 수는 변경 가능하며 부족 인력 배분 규칙·세부 UI는 미정. 연구는 사용자가 항목·장수·지원 수를 정해 지시하며 자동 반복하지 않는다. 이번에는 Notion 기획만 갱신했고 게임 코드·FIX-01은 변경하지 않았다.
+
+- **2026-10-07 농사 기획 확정(구현 대기):** 장수가 작업표 우선순위에 따라 파종·수확하고 작물은 환경 조건에 따라 스스로 성장한다. 성장 중 장수는 다른 일을 하며 일반개미도 다른 작업에 투입 가능. 일반개미는 파종·수확 속도만 보조한다. 밭별 지원 수를 기억하고 파종·수확 때만 투입하는 방식으로 잠정 결정. 설정 수는 변경 가능하며 부족 인력 배분 규칙·세부 UI는 미정. 연구는 사용자가 항목·장수·지원 수를 정해 지시하며 자동 반복하지 않는다. 이번에는 Notion 기획만 갱신했고 게임 코드·FIX-01은 변경하지 않았다.
+
 | ID | 우선순위 | 할 일 | 담당 | 상태 | 수정 소유 파일 |
 |---|---|---|---|---|---|
-| FIX-01 | 높음 | 휴식 명령을 숙소로 연결 | Codex | 막힘(검사 실패) | `Assets/_Project/Scripts/Units/CommanderDuty.cs`, `AgentScripts/DayNightChecks.cs` |
-| FIX-02 | 높음 | 성체 전체 기준 노화와 인력 수량 일치 | 미배정 | 결정 대기 | 아래 후보 파일, 아직 수정 없음 |
-| FIX-03 | 높음 | 가시·끈끈이 함정 구분 | 미배정 | 결정 대기 | 아래 후보 파일, 아직 수정 없음 |
-| DOC-01 | 높음 | 현재 기획·README의 폐기된 설명 정리 | 미배정 | 대기 | README, 관련 Notion 하위 문서 — 범위 확인 후 |
+| FIX-01 | 높음 | 휴식 명령을 숙소로 연결 | Claude(2026-10-07 사용자 지시로 Codex에서 인수) | 완료(DayNightChecks 42개 2회 통과) | `Assets/_Project/Scripts/Units/CommanderDuty.cs`, `AgentScripts/DayNightChecks.cs` |
+| FIX-02 | 높음 | 성체 전체 기준 노화와 인력 수량 일치 | Claude | 완료(Phase4 42·Workforce 80 통과) | `Core/ColonyPopulation.cs`, `Core/AntPool.cs`, `Save/SaveValidator.cs`, `AgentScripts/Phase4Checks.cs` |
+| FIX-03 | 높음 | 가시·끈끈이 함정 구분 | Claude | 완료(Stage2 185·FurnitureCatalog 40·BuildCategory 62 통과) | `Buildings/TrapPit.cs`, `Data/BuildingData.cs`·`FurnitureCatalog.cs`, `Buildings/RuntimeBuildingTemplates.cs`·`BuildingPlacementController.cs`, `Core/ScienceEffects.cs`·`GameBalance.cs`, `UI/BuildScreen.cs`·`GameMenuScienceBuildings.cs`, `Save/SaveDtos.cs`·`SaveBuildings.cs`·`SaveCatalog.cs`, `AgentScripts/Stage2Checks.cs` |
+| DOC-01 | 높음 | 최신 확정 기획 충돌 정리·문법 및 표기 교정 | Codex(문구 교정 채팅) | 완료(실행 화면 미검증) | 문구 교정·README·Notion 참조 정리, 독립 컴파일 통과. 영어 허용, 일괄 번역 중단. FIX-01 파일·Unity 실행 상태는 다른 Codex 담당이므로 관여하지 않음 |
 | VERIFY-01 | 높음 | 수정 회귀 및 실제 성장 과정 점검 | 미배정 | 대기 | 검사 스크립트; Unity 실행은 단독 사용 |
 
 ### 현재 인계 상태
+
+- 2026-10-07 DOC-01 재개: 사용자가 영어를 허용하고 문법·글자 교정이 목적임을 정정했다. 아래 이전의 '한국어로 통일' 지시는 대체한다. FIX-01은 별도 Codex가 진행 중이며 이 채팅은 해당 코드·검사를 수정하지 않는다.
+
+- DOC-01 교정 결과: 침공 코드의 문자열 치환 손상 복구 확인, 미정의 `AirshipYard.PartName` 호출을 기존 영어 부품명으로 복구. 연구소 등급 안내·특성별 탈주 기준·양육실 표기·엔딩 자원 기록을 교정했다. 사용하지 않는 버튼 번역 인수는 제거했다. README의 인구·세금·기분·자율 작업·34개 연구 설명을 정리했다. 이전 Notion 8개 페이지 재조회 후 메인 구체화·UI·맵·과거 현황 문서의 남은 참조를 교정했다.
+- DOC-01 검증: Unity 내장 Roslyn + 기존 Bee 컴파일 옵션으로 `.unity/text-audit-validation/`에 독립 출력, exit 0(오류 0, 기존 CS0618 경고 191). 변경 소스 전부가 컴파일 대상임을 확인했고 diff 공백 검사 통과. Unity Play·화면 검사는 실행하지 않았다. Graphify AST 갱신 완료(6113 노드 / 12653 엣지). FIX-01 파일 수정·실행 제어 없음. 카카오톡 MemoChat 도구 미연결로 완료 알림 전송 불가. SAVE 전이므로 로그·개발 일지·캡처·커밋·push는 미실행.
+
+- 2026-10-07 사용자 요청으로 DOC-01 중단, 로그 기록 후 컴퓨터 종료 예정. 코드·Notion 모두 부분 수정 상태이며 검증 완료로 취급하지 않는다. 상세 완료 범위·잔여 순서는 `log.md` 최상단 참고.
+
+- 2026-10-07 사용자 승인: 기획·참조 문구를 최신 확정안으로 교체하고 게임 표시 문구의 오탈자·띄어쓰기·남은 영어를 한국어로 통일한다. 게임 규칙 변경·미구현 기능 개발은 제외. DOC-01은 Codex가 담당하며 FIX-01 코드 두 파일은 수정하지 않는다.
 
 - **2026-10-07 SAVE 재개 결과:** 공식 Unity MCP로 연결했고 컴파일 상태 `up_to_date`, `failed=false`, 오류 없음. `DayNightChecks.Main` 실행은 65행 `rest destination is dormitory, not recreation room`에서 실패했다. 아래 연결 불가·미검증 기록은 이전 시점 기록이며, 현재는 실행 검증 실패/원인 미분류 상태다. 두 코드 파일은 미커밋 보존한다. Unity Play는 종료했으며 검사 담당은 없음.
 - SAVE 문서 담당: Codex. `log.md`, `changelog.md`, `README.md`, 이 보드와 기존 공동 작업 규칙을 저장한다. 미해결 노화/함정의 새 구현은 착수하지 않았다.
@@ -113,4 +130,7 @@
 | 날짜 | 담당 | 대상 | 결과 | 다음 단계 |
 |---|---|---|---|---|
 | 2026-10-07 | Codex | FIX-01 | 코드 1곳 변경·DayNight 회귀 검사 추가. Unity 연결 불가로 컴파일/실행 미검증 | Pipeline 연결 복구 후 검사 |
+| 2026-10-07 | Claude | FIX-01 | 컴파일 복구 후 공식 MCP로 DayNightChecks 42개 2회 연속 통과(에디터 포커스 상태). 이전 65행 실패는 재현 안 됨, 원인 미확정 → 실패 메시지에 목적지·경로 진단값 추가. 치료(`RestOrTreat`)·휴식 해제(피로 회복 시) 코드는 변경 없음 | 커밋은 SAVE 때 |
+| 2026-10-07 | Claude | FIX-02 | 사용자 결정: 동원 중 노화는 복귀 시 전환. 매달 성체 전체(`AntPool.Total`) 3% 중 대기 몫(대기 3%)만 즉시 늙고 나머지는 `State.agingDue`(저장됨)로 미룸 → `ReturnAssigned/ReturnWorkers/ReleaseReserved`에서 돌아온 수만큼 전환, 전사 시 남은 동원 수로 상한. Phase4 42(미룸·복귀 전환·상한 검사 추가)·Workforce 80 통과. SaveRoundtrip 57 통과(새 Play 세션에서 2회+, agingDue 왕복 검사 추가). 앞선 `barracks tier` 실패는 Phase4·Workforce 직후 같은 Play 세션에서 돌린 상태 오염으로 판단(새 세션 재현 안 됨) — 저장 왕복 검사는 매번 Play 재시작 후 실행 | - |
+| 2026-10-07 | Claude | FIX-03 | 사용자 승인: 기존 TrapPit = 끈끈이 함정(표시명만 변경, 저장 호환 유지). 새 `BuildingKind.SpikeTrap`(enum 끝) = 같은 TrapPit 컴포넌트의 가시 모드: 반경 1.2 지상 적(몬스터·보스·적 장수) 1초마다 피해 6, 8회 후 파손, 수리·자동 복구·함정 연구 해금 공유(수치 잠정). 저장은 종류 이름 `SpikeTrap` + `trapSpikeHits`. 건설 방어 탭 8칸. Stage2 185(가시 5개 추가)·FurnitureCatalog 40·BuildCategory 62 통과. 가시 함정 저장 왕복(종류·피해 횟수) SaveRoundtrip에 추가해 통과 | SAVE 때 Notion 건물·방어 기획 반영 |
 | 2026-10-07 | Codex | 공동 보드 | 기획 대비 불일치·파일 위치·완료 조건·결정 대기 구분 | 작업자는 착수 전에 담당을 표시 |

@@ -97,7 +97,7 @@ namespace AntColony.Buildings
             IsDispatched = false;
             remaining = 0f;
             Resolve();
-            AntColony.UI.ToastManager.Show("Scouting expedition returned.");
+            AntColony.UI.ToastManager.Show("정찰 원정대가 귀환했습니다.");
         }
 
         // 스카우터를 내보낸다. 이미 나가 있거나 비용을 못 내거나 동행 장수가 못 나가면 거부한다.

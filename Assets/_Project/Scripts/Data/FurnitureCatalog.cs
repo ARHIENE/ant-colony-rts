@@ -106,7 +106,7 @@ namespace AntColony.Data
 
             In(BuildCategory.Defense); // 방어 건물은 방 밖 전용. 방어탑 시대별: 개미산탑 → 투석기 → 화염탑 → 레이저탑
             F("성벽", 1, existing: BuildingKind.CastleWall); F("성문", 1, existing: BuildingKind.Gate); F("망루", 1, existing: BuildingKind.Watchtower);
-            F("가시 함정", 1, existing: BuildingKind.TrapPit); F("끈끈이 함정", 1); F("폭발 함정", 4, existing: BuildingKind.MineField);
+            F("가시 함정", 1, existing: BuildingKind.SpikeTrap); F("끈끈이 함정", 1, existing: BuildingKind.TrapPit); F("폭발 함정", 4, existing: BuildingKind.MineField);
             F("개미산탑", 1, existing: BuildingKind.AcidTower); F("투석기", 2); F("화염탑", 3); F("레이저탑", 5, net: NetworkLayer.Power);
             F("모래주머니 엄폐물", 1); F("해자", 2); F("경보종", 1); F("탐지등", 4, net: NetworkLayer.Power); F("방어막 발생기", 6, net: NetworkLayer.Power);
 

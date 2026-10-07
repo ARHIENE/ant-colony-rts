@@ -234,7 +234,7 @@ namespace AntColony.Buildings
             AntColony.World.Corpse.Drop(this, AntColony.World.CorpseKind.EnemyCommander, prisoner.Name);
             prisoners.RemoveAt(index);
             ExecutedCount++;
-            AntColony.UI.ToastManager.Show("Prisoner executed.");
+            AntColony.UI.ToastManager.Show("포로를 처형했습니다.");
             return true;
         }
     }

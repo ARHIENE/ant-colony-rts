@@ -15,7 +15,8 @@ namespace AntColony.Buildings
             {
                 BuildingKind.ConscriptionPost => ("징집소", new Vector3(3, 2, 3), new Color(.6f, .4f, .2f), GameBalance.ConscriptionFood, GameBalance.ConscriptionSoil, 0, GameBalance.ConscriptionAnts, GameBalance.ConscriptionBuildSeconds, 300f, false),
                 BuildingKind.SoilWall => ("Soil Wall", new Vector3(2, 1.5f, .6f), new Color(.45f, .33f, .2f), 0, 25, 0, 3, 4f, 400f, false),
-                BuildingKind.TrapPit => ("Trap Pit", new Vector3(1.6f, .1f, 1.6f), new Color(.3f, .22f, .12f), 10, 30, 0, 3, 5f, 100f, true),
+                BuildingKind.TrapPit => ("끈끈이 함정", new Vector3(1.6f, .1f, 1.6f), new Color(.3f, .22f, .12f), 10, 30, 0, 3, 5f, 100f, true),
+                BuildingKind.SpikeTrap => ("가시 함정", new Vector3(1.6f, .1f, 1.6f), new Color(.45f, .4f, .35f), 10, 30, 0, 3, 5f, 100f, true),
                 BuildingKind.AreaAcidTower => ("Area Acid Tower", new Vector3(1.6f, 2.4f, 1.6f), new Color(.55f, .8f, .3f), 40, 70, 0, 6, 10f, 220f, false),
                 BuildingKind.Watchtower => ("Watchtower", new Vector3(1.2f, 3.5f, 1.2f), new Color(.6f, .55f, .4f), 20, 40, 0, 3, 6f, 150f, false),
                 BuildingKind.MineField => ("Mine Field", new Vector3(1.4f, .1f, 1.4f), new Color(.6f, .25f, .2f), 20, 20, 2, 2, 3f, 50f, true),
@@ -104,7 +105,7 @@ namespace AntColony.Buildings
             {
                 BuildingKind.ConscriptionPost => go.AddComponent<ConscriptionPost>(),
                 BuildingKind.SoilWall => go.AddComponent<SoilWall>(),
-                BuildingKind.TrapPit => go.AddComponent<TrapPit>(),
+                BuildingKind.TrapPit or BuildingKind.SpikeTrap => go.AddComponent<TrapPit>(),
                 BuildingKind.AreaAcidTower => go.AddComponent<AreaAcidTower>(),
                 BuildingKind.Watchtower => go.AddComponent<Watchtower>(),
                 BuildingKind.MineField => go.AddComponent<MineField>(),

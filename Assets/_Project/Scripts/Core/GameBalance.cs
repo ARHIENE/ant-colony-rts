@@ -41,6 +41,9 @@ namespace AntColony.Core
         public const float TrapTriggerRadius = 1.2f, TrapRootSeconds = 4, TrapBossRootSeconds = 1;
         public const int TrapRepairSoil = 10;
         public const float TrapRepairSeconds = 4, TrapAutoRepairSeconds = 60;
+        // 가시 함정(잠정 2026-10-07): 반경 안 지상 적 전부에 1초마다 피해 6, 피해를 준 횟수 8번이면 파손.
+        public const float SpikeTrapDamage = 6, SpikeTrapInterval = 1;
+        public const int SpikeTrapHits = 8;
         public const float AreaTowerRange = 9, AreaTowerRadius = 3, AreaTowerDamage = 8, AreaTowerInterval = 2.5f;
         public const int WatchtowerSites = 3;
         public const float WatchtowerWarningSeconds = 60;

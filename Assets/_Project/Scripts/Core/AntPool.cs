@@ -73,7 +73,7 @@ namespace AntColony.Core
         {
             count = Mathf.Clamp(count, 0, Working);
             if (count == 0) return;
-            Working -= count; Free += count; OnPoolChanged?.Invoke();
+            Working -= count; Free += count; ColonyPopulation.Instance?.OnAntsReturned(count); OnPoolChanged?.Invoke();
         }
 
         public void ReturnAssigned(int count)
@@ -82,6 +82,7 @@ namespace AntColony.Core
             if (count == 0) return;
             Assigned -= count;
             Free += count;
+            ColonyPopulation.Instance?.OnAntsReturned(count);
             OnPoolChanged?.Invoke();
         }
 
@@ -91,6 +92,7 @@ namespace AntColony.Core
             count = Mathf.Clamp(count, 0, Assigned);
             if (count == 0) return;
             Assigned -= count;
+            ColonyPopulation.Instance?.OnAntsReturned(0); // 전사한 몫의 미룬 노화를 버린다.
             CampaignHistory.Ants(count, true);
             OnPoolChanged?.Invoke();
         }
@@ -111,6 +113,7 @@ namespace AntColony.Core
             if (count == 0) return;
             Reserved -= count;
             Free += count;
+            ColonyPopulation.Instance?.OnAntsReturned(count);
             OnPoolChanged?.Invoke();
         }
 

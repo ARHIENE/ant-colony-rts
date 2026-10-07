@@ -63,7 +63,7 @@ namespace AntColony.World
                     visitor.gameObject.SetActive(true);
                     visitors.Add(visitor);
                 }
-                AntColony.UI.ToastManager.Show("Intruders approaching the home colony!");
+                AntColony.UI.ToastManager.Show("침입자가 본거지로 접근합니다!");
                 return true;
             }
             return false;

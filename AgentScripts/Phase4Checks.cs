@@ -74,16 +74,28 @@ public static class Phase4Checks
         pop.S.sentiment = 60; pop.S.young = 4; pop.S.old = 20; pop.TrySetPolicy(MilitaryPolicy.Volunteer);
         rm.Add(RT.Food, 10000);
         var free0 = pool.Free; var total0 = pool.Total;
-        var aging = Mathf.RoundToInt((free0 + 4) * GameBalance.AdultAging);
+        // 성체 전체 3%. 대기 몫만 즉시 늙고 나머지는 복귀 때로 미룬다.
+        var dueNow = Mathf.RoundToInt((total0 + 4) * GameBalance.AdultAging);
+        var aging = Mathf.Min(dueNow, Mathf.RoundToInt((free0 + 4) * GameBalance.AdultAging)); var due0 = pop.S.agingDue;
         var hut = Object.Instantiate((GameObject)typeof(BuildingPlacementController).GetMethod("GetTemplate", BindingFlags.Static | BindingFlags.NonPublic).Invoke(null, new object[] { BuildingKind.Hut, UnitRole.Worker }), stockpile.Position + Vector3.right * 12, Quaternion.identity);
         hut.SetActive(true); await Task.Yield();
         Check(hut.GetComponent<Housing>().Capacity == GameBalance.HutHousing && pop.HousingCapacity == GameBalance.BaseHousing + GameBalance.HutHousing, "hut adds housing");
         var housingRoom = pop.HousingCapacity - (pool.Total + 4 + 20);
         pop.Monthly();
         Check(pop.S.old == 20 + aging - Mathf.RoundToInt(20 * GameBalance.OldDeath), "aging and old death");
+        Check(pop.S.agingDue == due0 + dueNow - aging, "aging of deployed ants deferred");
         Check(Mathf.Abs(pop.S.sentiment - 60) <= 10, "sentiment moves at most 10 per month");
         Check(housingRoom <= 0 || pool.Total + pop.S.young > total0 + 4 - aging, "immigration arrives when room and demand");
         Check(pop.Total <= pop.HousingCapacity || housingRoom <= 0, "immigration bounded by housing");
+
+        // 미룬 노화는 돌아온 개미로 전환하고, 남은 동원 수를 넘는 몫(전사 등)은 버린다.
+        Check(pool.TryAssign(5), "assign for deferred aging");
+        pop.S.agingDue = 3; var old1 = pop.S.old; var free1 = pool.Free;
+        pool.ReturnAssigned(2);
+        Check(pop.S.old == old1 + 2 && pop.S.agingDue == 1 && pool.Free == free1, "returning ants age on return");
+        pop.S.agingDue = 999; pool.ReturnAssigned(3);
+        Check(pop.S.old == old1 + 5 && pop.S.agingDue == pool.Total - pool.Free, "deferred aging capped by mobilized adults");
+        pop.S.agingDue = 0;
 
         // 민심 바닥이면 달마다 5% 탈주. 식량 바닥이면 5% 사라짐.
         pop.S.sentiment = 5; var freeU = pool.Free; pop.Monthly(); Check(pool.Free < freeU, "unrest desertion");

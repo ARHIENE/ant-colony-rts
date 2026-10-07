@@ -11,73 +11,73 @@ namespace AntColony.UI
     {
         public void Science()
         {
-            Screen("Science / Rocket");
+            Screen("Science / Rocket", "과학 · 로켓");
             var research = CampaignResearch.Instance;
-            if (research == null) { MenuTheme.Text(content, "Science is initializing."); MenuTheme.Button(content, "Back", Back); return; }
-            MenuTheme.Text(content, research.Active == null ? "Choose one shared project. Assigned commanders contribute from eligible labs."
-                : $"{research.Active.Name}: {research.Progress:0}/{research.Active.Work:0} work. Resume the game to advance.", 18, 65);
+            if (research == null) { MenuTheme.Text(content, "과학 화면 준비 중입니다."); MenuTheme.Button(content, "Back", Back); return; }
+            MenuTheme.Text(content, research.Active == null ? "공동 연구를 하나 선택하세요. 해당 시대 연구소에 배정된 장수들이 함께 연구합니다."
+                : $"{research.Active.Name}: 작업량 {research.Progress:0}/{research.Active.Work:0} · 게임을 재개하면 연구가 진행됩니다.", 18, 65);
             foreach (var lab in FindObjectsByType<ScienceLab>(FindObjectsSortMode.None))
             {
-                MenuTheme.Text(content, $"{lab.name} T{lab.Tier}({CampaignResearch.EraNames[lab.Tier - 1]}) | Researcher: {lab.Target?.CommanderName ?? "none"}", 19, 48);
+                MenuTheme.Text(content, $"과학연구소 {lab.Tier}티어({CampaignResearch.EraNames[lab.Tier - 1]}) | 연구 장수: {lab.Target?.CommanderName ?? "없음"}", 19, 48);
                 var captured = lab;
-                MenuTheme.Button(content, $"Upgrade lab ({lab.Tier * 60}F / {lab.Tier * 80} 재료)", () => { if (!captured.TryUpgrade()) ToastManager.Show("Upgrade unavailable or insufficient resources."); Science(); }).interactable = lab.Tier < ScienceLab.MaxTier && !lab.Busy;
-                if (lab.Target != null) MenuTheme.Button(content, "Release researcher", () => { captured.ReleaseResearcher(); Science(); });
+                MenuTheme.Button(content, $"연구소 강화 (식량 {lab.Tier * 60} / 재료 {lab.Tier * 80})", () => { if (!captured.TryUpgrade()) ToastManager.Show("강화 조건을 충족하지 못했거나 자원이 부족합니다."); Science(); }).interactable = lab.Tier < ScienceLab.MaxTier && !lab.Busy;
+                if (lab.Target != null) MenuTheme.Button(content, "연구 배정 해제", () => { captured.ReleaseResearcher(); Science(); });
                 else foreach (var c in SortedCommanders().Where(c => !c.IsAwayFromHome && c.CanChangeAllocation && !c.IsWorking && Vector3.Distance(c.Position, lab.Position) <= 8))
-                    MenuTheme.Button(content, "Assign " + c.CommanderName, () => { if (!captured.TryAssign(c)) ToastManager.Show("Cannot assign this commander."); Science(); });
+                    MenuTheme.Button(content, "배정: " + c.CommanderName, () => { if (!captured.TryAssign(c)) ToastManager.Show("이 장수를 배정할 수 없습니다."); Science(); });
             }
-            MenuTheme.Text(content, "Move an idle commander within 8m of a lab to assign. Tier must match the selected research.", 17, 60);
+            MenuTheme.Text(content, "연구소 8m 안의 대기 장수를 배정하세요. 선택한 연구와 같은 시대 이상의 연구소가 필요합니다.", 17, 60);
             foreach (var definition in CampaignResearch.Technologies)
             {
                 var reason = research.BlockReason(definition.Technology);
                 var done = research.Has(definition.Technology);
-                var button = MenuTheme.Button(content, $"T{definition.Tier} {CampaignResearch.EraNames[definition.Tier - 1]} · {definition.Name} — {(done ? "Complete" : $"{definition.Food}F/{definition.Soil} 재료{(definition.Special > 0 ? $"/{definition.Special} Special" : "")}, {definition.Work:0} work")}",
-                    () => { if (!research.TryStart(definition.Technology)) ToastManager.Show("Cannot start: check prerequisites and resources."); Science(); }, reason == "" ? "Starts one shared research project." : reason);
+                var button = MenuTheme.Button(content, $"T{definition.Tier} {CampaignResearch.EraNames[definition.Tier - 1]} · {definition.Name} — {(done ? "완료" : $"식량 {definition.Food}/재료 {definition.Soil}{(definition.Special > 0 ? $"/특수 자원 {definition.Special}" : "")}, 작업량 {definition.Work:0}")}",
+                    () => { if (!research.TryStart(definition.Technology)) ToastManager.Show("선행 연구와 보유 자원을 확인하세요."); Science(); }, reason == "" ? "공동 연구 하나를 시작합니다." : reason);
                 button.interactable = reason == "";
             }
-            MenuTheme.Text(content, "Rocket engine blueprint: " + (research.HasBlueprint ? "acquired" : "defeat a world-map boss and bring its reward home"), 18, 55);
-            MenuTheme.Button(content, "Build Infirmary (40F / 40 재료 / 4 ants)", () => {
+            MenuTheme.Text(content, "로켓 엔진 설계도: " + (research.HasBlueprint ? "획득 완료" : "월드맵 보스 보상 또는 교역으로 획득"), 18, 55);
+            MenuTheme.Button(content, "의무실 건설 (식량 40 / 재료 40 / 인력 4마리)", () => {
                 Resume(); FindFirstObjectByType<BuildingPlacementController>()?.BeginInfirmaryPlacement();
-            }, "Treat up to two seriously injured commanders. Assign nearby patients from commander details.").interactable = Infirmary.Unlocked;
+            }, "중상 장수를 최대 2명 치료합니다. 장수 상세에서 근처 환자를 배정하세요.").interactable = Infirmary.Unlocked;
             ScienceBuildings();
-            MenuTheme.Button(content, "Build Rocket Launch Pad (100F / 150 재료 / 10 ants)", () => {
+            MenuTheme.Button(content, "로켓 발사대 건설 (식량 100 / 재료 150 / 인력 10마리)", () => {
                 Resume(); FindFirstObjectByType<BuildingPlacementController>()?.BeginAirshipYardPlacement();
             });
             foreach (var yard in FindObjectsByType<AirshipYard>(FindObjectsSortMode.None))
             {
-                MenuTheme.Text(content, $"{yard.name} | Hull {yard.Hull} | Engine {yard.Engine} | Cocoons {yard.Cocoons} | {yard.Remaining:0}s", 18, 55);
+                MenuTheme.Text(content, $"로켓 발사대 | 선체 {(yard.Hull ? "완성" : "미완성")} | 엔진 {(yard.Engine ? "완성" : "미완성")} | 고치 {yard.Cocoons}개 | {yard.Remaining:0}초", 18, 55);
                 foreach (AirshipPart part in Enum.GetValues(typeof(AirshipPart)))
-                    MenuTheme.Button(content, "Build " + part + (part == AirshipPart.Cocoon ? $" ({GameBalance.CocoonFood}F/{GameBalance.CocoonSoil} 재료/{GameBalance.CocoonSpecial} Special, {yard.Cocoons}/{GameBalance.MaxCocoons})" : " (100F/150 재료/150 Special)"),
-                        () => { if (!yard.TryBuild(part)) ToastManager.Show("Requires the matching research, resources and an idle launch pad."); Science(); });
+                    MenuTheme.Button(content, part + " 건조" + (part == AirshipPart.Cocoon ? $" (식량 {GameBalance.CocoonFood}/재료 {GameBalance.CocoonSoil}/특수 자원 {GameBalance.CocoonSpecial}, {yard.Cocoons}/{GameBalance.MaxCocoons})" : " (식량 100/재료 150/특수 자원 150)"),
+                        () => { if (!yard.TryBuild(part)) ToastManager.Show("관련 연구·자원과 작업 중이 아닌 발사대가 필요합니다."); Science(); });
                 foreach (var c in SortedCommanders().Where(c => c.CanChangeAllocation && !c.IsAwayFromHome && Vector3.Distance(c.Position, yard.Position) <= 8))
-                    MenuTheme.Button(content, "Board " + c.CommanderName, () => { if (!yard.TryBoard(c)) ToastManager.Show("Finish hull/engine and build a cocoon per passenger."); Science(); });
-                MenuTheme.Text(content, "Aboard: " + string.Join(", ", yard.Passengers.Select(c => c.CommanderName)), 18, 50);
-                MenuTheme.Button(content, "Unload rocket", () => { yard.Unload(); Science(); });
-                MenuTheme.Button(content, "Launch — end this run", () => { if (!yard.TryDepart()) ToastManager.Show("Finish hull and engine first."); }).interactable = yard.Ready;
+                    MenuTheme.Button(content, "탑승: " + c.CommanderName, () => { if (!yard.TryBoard(c)) ToastManager.Show("선체·엔진을 완성하고 탑승 장수마다 고치 1개를 준비하세요."); Science(); });
+                MenuTheme.Text(content, "탑승 장수: " + string.Join(", ", yard.Passengers.Select(c => c.CommanderName)), 18, 50);
+                MenuTheme.Button(content, "탑승 장수 하선", () => { yard.Unload(); Science(); });
+                MenuTheme.Button(content, "로켓 발사 — 이번 게임 종료", () => { if (!yard.TryDepart()) ToastManager.Show("선체와 엔진을 먼저 완성하세요."); }).interactable = yard.Ready;
             }
-            MenuTheme.Button(content, "Refresh", Science);
+            MenuTheme.Button(content, "새로고침", Science);
             MenuTheme.Button(content, "Back", Back);
         }
         // 장수 상세 아래쪽 행동 버튼: 치료·재생·포상·장비.
         private void CommanderActions(CommanderAnt c)
         {
             if (c.TreatmentFacility != null)
-                MenuTheme.Button(content, "Stop treatment", () => { c.TreatmentFacility?.Release(c); Details(c); }, "Treatment progress is preserved. Resume the game to recover.");
+                MenuTheme.Button(content, "치료 중단", () => { c.TreatmentFacility?.Release(c); Details(c); }, "치료 진행도는 보존됩니다. 게임을 재개하면 회복합니다.");
             else if (c.PersonalState.NeedsTreatment)
             {
-                MenuTheme.Text(content, "Treatment: research and build an Infirmary, then move within 8m. Two patients per facility; resume to recover.", 17, 65);
+                MenuTheme.Text(content, "의무실을 연구·건설한 뒤 8m 안으로 이동하세요. 시설당 환자 2명을 치료하며 게임을 재개해야 진행됩니다.", 17, 65);
                 foreach (var infirmary in FindObjectsByType<Infirmary>(FindObjectsSortMode.None))
-                    MenuTheme.Button(content, $"Treat at {infirmary.name} ({infirmary.Patients.Count}/{Infirmary.Capacity})",
-                        () => { if (!infirmary.TryAdmit(c)) ToastManager.Show("Requires an idle injured commander nearby and a free bed."); Details(c); }).interactable = infirmary.CanTreat(c);
+                    MenuTheme.Button(content, $"의무실에서 치료 ({infirmary.Patients.Count}/{Infirmary.Capacity})",
+                        () => { if (!infirmary.TryAdmit(c)) ToastManager.Show("근처의 대기 중인 부상 장수와 빈 침대가 필요합니다."); Details(c); }).interactable = infirmary.CanTreat(c);
             }
             RegenerationButtons(c);
-            MenuTheme.Button(content, "Reward (30 Food)", () => { if (!c.TryReward()) ToastManager.Show("Available at home, once per game month."); Details(c); }).interactable = c.CanReceiveOrders && !c.IsAwayFromHome && c.PersonalState.rewardCooldown <= 0;
+            MenuTheme.Button(content, "포상 (식량 30)", () => { if (!c.TryReward()) ToastManager.Show("본거지에서 게임 시간으로 한 달에 한 번 가능합니다."); Details(c); }).interactable = c.CanReceiveOrders && !c.IsAwayFromHome && c.PersonalState.rewardCooldown <= 0;
             var inventory = EquipmentInventory.Instance;
             if (inventory == null) return;
             MenuTheme.Text(content, $"장비 보관함 {inventory.Items.Count}/{EquipmentInventory.Capacity}", 18, 36);
             foreach (var item in c.PersonalState.equipment.ToArray())
-                MenuTheme.Button(content, "Unequip " + item.Label, () => { if (!inventory.Unequip(c, item)) ToastManager.Show("Cannot remove equipment while unavailable or without a safe landing point."); Details(c); });
+                MenuTheme.Button(content, "해제: " + item.Label, () => { if (!inventory.Unequip(c, item)) ToastManager.Show("장비를 바꿀 수 없는 상태이거나 안전한 착륙 지점이 없습니다."); Details(c); });
             foreach (var item in inventory.Items.ToArray())
-                MenuTheme.Button(content, "Equip " + item.Label, () => { if (!inventory.Equip(c, item)) ToastManager.Show("Cannot equip while unavailable, with injured wings or without a safe landing point."); Details(c); });
+                MenuTheme.Button(content, "장착: " + item.Label, () => { if (!inventory.Equip(c, item)) ToastManager.Show("장비를 바꿀 수 없는 상태이거나 날개 부상·착륙 지점 문제로 장착할 수 없습니다."); Details(c); });
         }
     }
 }

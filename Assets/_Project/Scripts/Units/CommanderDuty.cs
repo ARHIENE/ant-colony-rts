@@ -166,12 +166,12 @@ namespace AntColony.Units
         public bool IsFatigued => Fatigue >= GameBalance.TiredFatigue;
         private bool CanTakeCivilianOrder => CanReceiveOrders && !IsDeployed && !IsAwayFromHome && !LabUpgradeBusy;
         public bool CanRest => CanTakeCivilianOrder && IsFatigued && !WorkState.resting;
-        // 휴식 보내기: 가장 가까운 휴게실로 가서(없으면 제자리) 피로가 풀릴 때까지 자율 작업을 멈춘다.
+        // 휴식 보내기: 배정된 숙소로 가서(없거나 갈 수 없으면 제자리) 피로가 풀릴 때까지 자율 작업을 멈춘다.
         public bool SendToRest()
         {
             if (!CanRest) return false;
             CommandStop(); ScienceAssignment?.ReleaseResearcher();
-            var room = FindObjectsByType<RestRoom>(FindObjectsSortMode.None).Where(r => !r.IsDead).OrderBy(r => (r.Position - Position).sqrMagnitude).FirstOrDefault();
+            var room = Dormitory.Assign(this);
             if (room != null && UnityEngine.AI.NavMesh.SamplePosition(room.Position, out var hit, 7, UnityEngine.AI.NavMesh.AllAreas) && CanReach(hit.position)) base.CommandMove(hit.position);
             WorkState.resting = true; return true;
         }

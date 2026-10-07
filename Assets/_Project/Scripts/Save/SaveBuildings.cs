@@ -29,7 +29,7 @@ namespace AntColony.Save
             d.materialTier = b.MaterialTier;
             if (b is AcidTower tower) d.towerCooldown = tower.Cooldown;
             if (b is AreaAcidTower areaTower) d.towerCooldown = areaTower.Cooldown;
-            if (b is TrapPit trap) { d.trapArmed = trap.Armed; d.trapBroken = trap.BrokenSeconds; d.trapRepair = trap.RepairProgress; d.trapRepairPaid = trap.RepairPaid; }
+            if (b is TrapPit trap) { d.trapArmed = trap.Armed; d.trapBroken = trap.BrokenSeconds; d.trapRepair = trap.RepairProgress; d.trapRepairPaid = trap.RepairPaid; d.trapSpikeHits = trap.SpikeHits; }
             var plot = b.GetComponent<FarmPlot>();
             if (plot != null) { d.crop = (int)plot.Crop; d.farmWide = plot.Wide; }
             if (b is ScienceLab science) { d.scienceRemaining = science.Remaining; d.scienceAircraft = science.Aircraft;
@@ -90,7 +90,7 @@ namespace AntColony.Save
             b.MaterialTier = Mathf.Max(0, d.materialTier);
             if (b is AcidTower tower) tower.RestoreCooldown(d.towerCooldown);
             if (b is AreaAcidTower areaTower) areaTower.RestoreCooldown(d.towerCooldown);
-            if (b is TrapPit trap) trap.RestoreState(d.trapArmed, d.trapBroken, d.trapRepair, d.trapRepairPaid);
+            if (b is TrapPit trap) trap.RestoreState(d.trapArmed, d.trapBroken, d.trapRepair, d.trapRepairPaid, d.trapSpikeHits);
             if (d.kind == "Farm" && d.runtimeBuilt)
                 (b.GetComponent<FarmPlot>() ?? b.gameObject.AddComponent<FarmPlot>()).Configure((FarmCrop)d.crop, d.farmWide);
             if (b is ScienceLab science) { science.RestoreState(d.scienceRemaining, d.scienceAircraft, d.scienceConstructing, d.scienceSpawn.ToVector3());

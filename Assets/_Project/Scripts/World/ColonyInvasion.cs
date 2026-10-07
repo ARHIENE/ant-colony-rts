@@ -115,7 +115,7 @@ namespace AntColony.World
 
             // 병력이 실제로 나간 파동에만 장수가 따라붙는다. 빈 파동에 장수만 보내지 않는다.
             if (spawned > 0) SpawnCommander();
-            if (spawned > 0) AntColony.UI.ToastManager.Show("Invasion approaching: " + spawned + " raiders.");
+            if (spawned > 0) AntColony.UI.ToastManager.Show("침공 접근 중: " + spawned + "마리");
 
             // 자원 부족이나 스폰 위치 실패로 한 마리도 못 냈다면 다음 정규 파동까지 기다리지 않는다.
             timer = spawned > 0 ? ScaledWaveInterval : waveRetryDelay;

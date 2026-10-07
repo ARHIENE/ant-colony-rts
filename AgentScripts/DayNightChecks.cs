@@ -57,6 +57,17 @@ public static class DayNightChecks
             // 낮: 일하면 피로가 찬다.
             At(10); c.TickDuty(1);
             Check(!c.IsAsleep && !GameCalendar.IsNight, "awake by day");
+            // 휴식 명령은 가까운 휴게실 대신 배정된 숙소로 보낸다.
+            var restBed = Build<Dormitory>(BuildingKind.SingleBed, home + Vector3.right * 20); dorms.Add(restBed.gameObject);
+            var oldRestRoom = Build<RestRoom>(BuildingKind.RestRoom, home + Vector3.left * 6); dorms.Add(oldRestRoom.gameObject);
+            c.PersonalState.sleep.fatigue = 90;
+            Check(c.SendToRest() && c.WorkState.resting && Dormitory.Of(c) == restBed, "rest assigns a bed");
+            Check((c.Agent.destination - restBed.Position).sqrMagnitude <= 49, $"rest destination is dormitory, not recreation room: dest={c.Agent.destination} bed={restBed.Position} pos={c.Position} pending={c.Agent.pathPending} reach={c.CanReach(restBed.Position)}");
+            c.CommandStop(); c.WorkState.resting = false;
+            restBed.gameObject.SetActive(false);
+            Check(c.SendToRest() && c.WorkState.resting && !c.Agent.hasPath, "no bed rests in place, not recreation room");
+            c.CommandStop(); c.WorkState.resting = false;
+            oldRestRoom.gameObject.SetActive(false);
             // 밤: 숙소가 없으면 제자리 노숙.
             At(GameCalendar.DaySeconds + 1); c.TickDuty(1);
             Check(c.IsAsleep && c.SleepsRough && CommanderOverhead.Activity(c) == "수면", "sleeps rough at night without dormitory");

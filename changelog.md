@@ -1,3 +1,7 @@
+# 2026-10-07 SAVE(저녁) — 이전 로그(Codex DOC-01 중단 인계 + SAVE 마무리) 요약
+- Codex DOC-01: Notion 9개 기획 페이지 문구를 최신 확정안(로켓 승리·6시대·이주/세금·작업표·기술 13종·징집소·1m 격자·16탭·3×3 명령 카드)으로 교체, 게임 표시 문구 15개 파일 교정. 중단 시점에 `AirshipYard.PartName` 미정의 호출·ColonyInvasion 변수명 `마리` 치환 손상으로 컴파일 깨짐 → 이후 Codex가 복구, 사용자 정정으로 영어 허용·일괄 번역 중단, README·Notion 참조 정리(보드 DOC-01 완료, 실행 화면 미검증).
+- 앞선 SAVE 마무리(Codex): 공동 보드 작성, 문서 `9101d43` push, Notion 10-07 개발 일지·Trouble Shooting 기록. FIX-01 DayNightChecks 65행 실패·노화/함정 결정 대기 상태로 인계.
+
 # 2026-10-07 SAVE 재개 — 중단 직전 로그 요약
 - Claude가 가구 5~6차·리뷰 수정·UI·성능 작업을 `1e3b4d0`에 저장했다. Batch2 29·3 25·4 21·5 62·6 47, HygienePower 35, CommitRange 39, Phase5 31, Catalog 40, BuildCategory 62, HudV4 313, Joy 45, ExpeditionGather 21 통과는 이전 실행 기록이다.
 - 캡처 중 지형 회백색 현상을 확인하던 중 Claude 사용 한도가 소진됐다. Notion 10-07 일지/버그 기록은 없었다.

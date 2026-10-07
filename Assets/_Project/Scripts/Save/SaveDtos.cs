@@ -141,6 +141,7 @@ namespace AntColony.Save
         public bool trapArmed = true;
         public float trapBroken, trapRepair;
         public bool trapRepairPaid;
+        public int trapSpikeHits;
         public int crop;
         public bool farmWide;
         public Vec3Dto scienceSpawn = new Vec3Dto();
