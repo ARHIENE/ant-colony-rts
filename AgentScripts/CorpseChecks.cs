@@ -214,7 +214,7 @@ public static class CorpseChecks
             corpse = Body(a, count: 2); corpse.Priority = true; corpse.Tick(40);
             Check(a.StartCorpseWork(corpse), "save work started"); a.TickDuty(2);
             var meatBody = Corpse.Spawn(new Corpse.State { name = "사냥 검사", position = a.Position + Vector3.right * 3, kind = CorpseKind.Wildlife, food = 20 });
-            meatBody.Tick(10); var meat = meatBody.GetComponent<ResourceNode>(); meat.Extract(3); meat.GatheringForbidden = true; Workforce.For(meat).Request(2);
+            meatBody.Tick(10); var meat = meatBody.GetComponent<ResourceNode>(); meat.Extract(3); meat.GatheringForbidden = true;
             var workerId = a.PersonalState.id;
             var file = SaveSnapshot.Capture(); Check(SaveValidator.Validate(file, out var error), "valid corpse save: " + error);
             Check(file.corpses.Count == 2 && file.corpses[0].workerId == workerId, "corpse captured with worker");
@@ -226,7 +226,7 @@ public static class CorpseChecks
             Check(a.CorpseTarget == corpse && corpse.Handler == a, "worker reconnected"); Near(a.CorpseProgress, 2, "work progress restored");
             a.TickDuty(3); Check(a.CorpseTarget == null && !corpse.gameObject.activeSelf, "restored job completes once");
             meatBody = Corpse.All.Single(); meat = meatBody.GetComponent<ResourceNode>();
-            Check(meat.AmountRemaining == 17 && meat.GatheringForbidden && meat.GetComponent<Workforce>().Requested == 2, "hunted food and designation restored");
+            Check(meat.AmountRemaining == 17 && meat.GatheringForbidden, "hunted food and designation restored");
             Check(ActivityIcons.Get("치우기") != null && ActivityIcons.Get("동족 포식") != null, "activity icons");
             Check(DetailTabs.Describe(a, 2).Contains("장의사"), "localized trait");
             GameMenuController.Instance.WorkSchedule();

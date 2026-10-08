@@ -40,25 +40,34 @@ public static class Phase4Checks
         Check(stockpile != null && Type.GetType("AntColony.Buildings.QueenChamber, Assembly-CSharp") == null, "queen replaced by stockpile");
         Check(!ColonyEvents.Instance.TryTrigger(ColonyEvent.Wasps), "wasp event removed");
 
-        // 세금: 납세 개미 × 세율 × 0.5, 5% 단위·최대 50%.
-        pop.SetTaxRate(.33f); Check(Mathf.Approximately(pop.S.taxRate, .35f), "tax rounds to 5%");
+        // 세금(2026-10-08): 납세 시민 × 세율 × 월 5, 1% 단위·최대 50%, 주(75초)마다 식량·재료 현물 지급.
+        pop.SetTaxRate(.333f); Check(Mathf.Approximately(pop.S.taxRate, .33f), "tax rounds to 1%");
         pop.SetTaxRate(.9f); Check(Mathf.Approximately(pop.S.taxRate, .5f), "tax capped at 50%");
-        pop.SetTaxRate(.2f); pop.S.old = 10;
-        Check(pop.Taxpayers == pool.Total + 10 && pop.TaxPerCycle == Mathf.RoundToInt((pool.Total + 10) * .2f * .5f), "tax formula");
-        var food = rm.GetAmount(RT.Food); var upkeep = Object.FindAnyObjectByType<UpkeepManager>();
+        pop.SetTaxRate(.2f); pop.S.old = 10; pop.SetTaxFocus(TaxFocus.Balanced);
+        Check(pop.Taxpayers == pool.Total + 10 && Mathf.Approximately(pop.MonthlyTax, (pool.Total + 10) * .2f * 5f)
+            && pop.WeeklyFood == Mathf.RoundToInt(pop.MonthlyTax * .5f / 4f) && pop.WeeklySoil == Mathf.RoundToInt(pop.MonthlyTax * .5f / 4f), "tax formula");
+        var food = rm.GetAmount(RT.Food); var soil0 = rm.GetAmount(RT.Soil); var upkeep = Object.FindAnyObjectByType<UpkeepManager>();
         typeof(UpkeepManager).GetMethod("RunCycle", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance).Invoke(upkeep, null);
-        Check(rm.GetAmount(RT.Food) == Mathf.Min(food + pop.TaxPerCycle, rm.GetCapacity(RT.Food)), "tax cycle adds food");
+        Check(rm.GetAmount(RT.Food) == food, "upkeep cycle no longer pays tax");
+        pop.S.monthSeconds = 0; pop.S.taxWeek = 0; pop.S.taxFood = pop.S.taxSoil = 0; var month = pop.MonthlyTax;
+        pop.Tick(ColonyPopulation.WeekSeconds / 2f - .01f);
+        Check(rm.GetAmount(RT.Food) == food && rm.GetAmount(RT.Soil) == soil0, "no tax before week ends");
+        pop.SetTaxFocus(TaxFocus.Food); pop.Tick(ColonyPopulation.WeekSeconds / 2f + .02f);
+        float expFood = month * (.5f * .5f + .5f * .8f) / 4f, expSoil = month * (.5f * .5f + .5f * .2f) / 4f;
+        Check(Mathf.Abs(rm.GetAmount(RT.Food) - food - expFood) < 1.01f && Mathf.Abs(rm.GetAmount(RT.Soil) - soil0 - expSoil) < 1.01f
+            && pop.S.taxFood < 1 && pop.S.taxSoil < 1 && pop.S.taxWeek < 1, $"weekly tax pays focus share by time ({rm.GetAmount(RT.Food) - food} vs {expFood})");
+        pop.SetTaxFocus(TaxFocus.Balanced);
 
         // 병역 제도: 연구 전엔 모병제만, 상한 5/15/25(침입 중)/40%.
         var adults = pool.Total;
         Check(!pop.TrySetPolicy(MilitaryPolicy.Conscription) && pop.MaxSoldiers(false) == Mathf.FloorToInt(adults * .05f), "volunteer default 5%");
         Grant(ScienceTechnology.ConscriptionLaw, ScienceTechnology.ReserveForces, ScienceTechnology.TotalMobilization);
         Check(pop.TrySetPolicy(MilitaryPolicy.Conscription) && pop.MaxSoldiers(false) == Mathf.FloorToInt(adults * .15f), "conscription 15%");
-        Check(pop.TaxPerCycle == Mathf.RoundToInt((adults - pool.Assigned + pop.S.old) * .2f * .5f), "conscripted soldiers excluded from tax");
+        Check(pop.Taxpayers == adults - pool.Assigned + pop.S.old, "mobilized soldiers excluded from tax");
         pop.TrySetPolicy(MilitaryPolicy.Reserve);
         Check(pop.MaxSoldiers(false) == Mathf.FloorToInt(adults * .05f) && pop.MaxSoldiers(true) == Mathf.FloorToInt(adults * .25f), "reserve 25% only under threat");
-        pop.TrySetPolicy(MilitaryPolicy.Total); var halfTax = pop.TaxPerCycle;
-        Check(pop.MaxSoldiers(false) == Mathf.FloorToInt(adults * .4f) && halfTax == Mathf.RoundToInt((adults - pool.Assigned + pop.S.old) * .2f * .5f * .5f), "total mobilization 40%, half tax");
+        pop.TrySetPolicy(MilitaryPolicy.Total); var halfTax = pop.MonthlyTax;
+        Check(pop.MaxSoldiers(false) == Mathf.FloorToInt(adults * .4f) && Mathf.Approximately(halfTax, (adults - pool.Assigned + pop.S.old) * .2f * 5f * .5f), "total mobilization 40%, half tax");
         Check(!pop.TryDraft(pop.MaxSoldiers(false) - pool.Assigned + 1, false), "draft above cap rejected");
 
         // 병역 나이 확대: 모자란 성체를 늙은 개미로 채운다.
@@ -97,14 +106,14 @@ public static class Phase4Checks
         Check(pop.S.old == old1 + 5 && pop.S.agingDue == pool.Total - pool.Free, "deferred aging capped by mobilized adults");
         pop.S.agingDue = 0;
 
-        // 민심 바닥이면 달마다 5% 탈주. 식량 바닥이면 5% 사라짐.
+        // 민심 바닥이면 달마다 5% 탈주. 식량 바닥이어도 시민은 사라지지 않는다(2026-10-08).
         pop.S.sentiment = 5; var freeU = pool.Free; pop.Monthly(); Check(pool.Free < freeU, "unrest desertion");
         rm.TrySpend(rm.GetAmount(RT.Food), 0); pop.SetTaxRate(0);
         // 개미 이탈만 본다. 특성 난수에 따라 장수가 전부 떠나 뒤 검사가 깨지지 않게 기분을 올려 둔다.
         foreach (var k in CommanderRoster.Instance.Commanders) k.PersonalState.AddMood("검사 고정", 100, 999);
         var freeS = pool.Free;
         typeof(UpkeepManager).GetMethod("RunCycle", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance).Invoke(upkeep, null);
-        Check(pool.Free == freeS - Mathf.CeilToInt(freeS * GameBalance.StarveDesertion), "starvation removes ants");
+        Check(pool.Free == freeS, "food shortage keeps citizens");
 
         // 장수 나이: 첫 틱에 성체 나이, 어린 장수는 일·출전 불가, 늙으면 지혜 작업 +20%, 수명이 다하면 죽음.
         var c = CommanderRoster.Instance.Commanders.First(x => x.IsColonyMember && !x.IsEmbarked);

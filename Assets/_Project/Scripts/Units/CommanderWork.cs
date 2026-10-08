@@ -16,18 +16,12 @@ namespace AntColony.Units
         public bool CivilianWorkReady => isActiveAndEnabled && !IsDead && PersonalHealth > 0 && !IsDeployed && !IsAwayFromHome
             && !IsAsleep && !IsSleepTime && !IsDeparting && !PersonalState.treating && PersonalState.mentalBreak == MentalBreak.None && PersonalState.rageRemaining <= 0;
         public Workforce WorkTarget => CivilianWorkReady && workTarget != null && workTarget.isActiveAndEnabled ? workTarget : null;
-        public int WorkforceLimit => GameBalance.WorkforceBase + GameBalance.WorkforcePerSkill * talents.Level(CurrentActivity);
-        public int WorkingAnts { get { WorkTarget?.Refresh(); return WorkTarget != null ? WorkTarget.Allocated : 0; } }
-        public float WorkforceMultiplier => 1 + WorkingAnts * GameBalance.WorkforcePerAnt;
-        public float WorkRate(CommanderActivity activity) => talents.Multiplier(activity) * WorkFactor * WorkforceMultiplier * AgeWorkMultiplier(activity) * AntColony.Buildings.RoomSystem.WorkBonus(WorkTarget) * BiomeRules.WorkAt(AntColony.Buildings.RoomSystem.IsIndoors(Position)) * AntColony.Map.WeatherSystem.WorkAt(AntColony.Buildings.RoomSystem.IsIndoors(Position));
+        public float WorkRate(CommanderActivity activity) => talents.Multiplier(activity) * WorkFactor * AgeWorkMultiplier(activity) * AntColony.Buildings.RoomSystem.WorkBonus(WorkTarget) * BiomeRules.WorkAt(AntColony.Buildings.RoomSystem.IsIndoors(Position)) * AntColony.Map.WeatherSystem.WorkAt(AntColony.Buildings.RoomSystem.IsIndoors(Position));
         public float LoadCapacity => (GameBalance.CarryBase + talents.Level(CommanderActivity.Strength) * GameBalance.CarryPerStrength)
-            * traits.CarryMultiplier + WorkingAnts * GameBalance.CarryPerAnt;
+            * traits.CarryMultiplier;
         internal void SetWorkTarget(Component target)
         {
-            var old = workTarget;
             workTarget = Workforce.For(target);
-            if (old != null && old != workTarget) old.Refresh();
-            workTarget?.Refresh();
         }
         public override void CommandStop()
         {

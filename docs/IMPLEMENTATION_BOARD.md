@@ -25,7 +25,7 @@
 
 ## 현재 작업 / 충돌 방지
 
-- **2026-10-07 포텐·재분배 기획 재개 — Codex 작업 중:** 전체 능력 총한도(PA 최대 200), 반복 작업 성장과 미사용 능력 감소를 사용자 확정으로 반영한다. FM 근거 조사 후 Notion 관련 기획·README의 구현 대기 안내·이 보드만 수정한다. 게임 코드는 수정하지 않는다. 연구 산출물: `research_notes/개미 포텐과 능력 재분배/`, `reports/개미 포텐과 능력 재분배.md`.
+- **2026-10-07 포텐·재분배 기획 반영 완료(Notion·README·보드, 구현 대기):** 전체 능력 총한도(PA 최대 200), 반복 작업 성장과 미사용 능력 감소를 사용자 확정으로 반영한다. FM 근거 조사 후 Notion 관련 기획·README의 구현 대기 안내·이 보드만 수정한다. 게임 코드는 수정하지 않는다. 연구 산출물: `research_notes/개미 포텐과 능력 재분배/`, `reports/개미 포텐과 능력 재분배.md`.
 
 - **2026-10-07 특성·포텐 기획(구현 대기):** 특성은 빨강(부정)·실버·골드·다이아 4등급, 장수당 합계 최대 4개, 플레이 중 획득 가능. 등급별 목록·시작 개수·확률·획득 조건·만석 처리는 미정. 사용자 확정: 포텐 최대 200은 장수 전체 능력의 한도. 계속 시키는 실제 작업 비중에 따라 관련 능력들이 함께 성장·유지되고 계속 덜 쓰는 능력은 감소·재분배된다. **경과일 기반 감소안은 폐기**, 휴식·수면·대기·이동만으로 감소하지 않는다. 적용 설계: 기존 13종 기본 기술(각 0~20)의 합계 CA ≤ 개체 고정 PA ≤ 200. 특성·장비·기분의 실효 보정은 제외하고 시작 기본 기술 보정은 포함한다. 한도 후에는 감소분만큼만 관련 능력이 성장하며 중복 차감하지 않는다. 13종 전체 작업별 주/보조 관계를 명시하고 한 작업의 성장 예산을 분배한다(주80%/보조20% 잠정, 중복 지급 금지). 최근 작업 이력 범위·유지 비중·작업량당 변동률·CA/PA 공개 UI는 조정 대상. 게임 코드는 수정하지 않았다.
 
@@ -40,6 +40,11 @@
 | FIX-03 | 높음 | 가시·끈끈이 함정 구분 | Claude | 완료(Stage2 185·FurnitureCatalog 40·BuildCategory 62 통과) | `Buildings/TrapPit.cs`, `Data/BuildingData.cs`·`FurnitureCatalog.cs`, `Buildings/RuntimeBuildingTemplates.cs`·`BuildingPlacementController.cs`, `Core/ScienceEffects.cs`·`GameBalance.cs`, `UI/BuildScreen.cs`·`GameMenuScienceBuildings.cs`, `Save/SaveDtos.cs`·`SaveBuildings.cs`·`SaveCatalog.cs`, `AgentScripts/Stage2Checks.cs` |
 | DOC-01 | 높음 | 최신 확정 기획 충돌 정리·문법 및 표기 교정 | Codex(문구 교정 채팅) | 완료(실행 화면 미검증) | 문구 교정·README·Notion 참조 정리, 독립 컴파일 통과. 영어 허용, 일괄 번역 중단. FIX-01 파일·Unity 실행 상태는 다른 Codex 담당이므로 관여하지 않음 |
 | VERIFY-01 | 높음 | 수정 회귀 및 실제 성장 과정 점검 | 미배정 | 대기 | 검사 스크립트; Unity 실행은 단독 사용 |
+| SPEC-A | 높음 | 2026-10-08 기획: 일반개미 평시 작업 지원 폐기 | Claude | 완료(검사 통과, log.md 참고) | `Units/Workforce.cs`·`CommanderWork.cs`, `Buildings/BuildingConstructionSite.cs`·`BuildingPlacementController.cs`, `UI/WorkTargetPanel.cs`·`SelectedUnitPanel.cs`, `Save/*`, 관련 검사 |
+| SPEC-B | 높음 | 세금 주간 현물·방침 3종·1% / 식량 부족 시민 소멸 폐기 | Claude | 완료(검사 통과, log.md 참고) | `Core/ColonyPopulation.cs`·`UpkeepManager.cs`, 인구 UI |
+| SPEC-C | 중간 | 연속 배치(좌클릭 1개 / Shift 유지 / Shift+드래그) | Claude | 완료(검사 통과, log.md 참고) | `Buildings/BuildingPlacementController.cs` |
+| SPEC-D | 중간 | 농사 파종→자체 성장→수확 | Claude | 완료(검사 통과, log.md 참고) | `Buildings/FarmPlot.cs`, 장수 작업 선택 |
+| SPEC-E | 중간 | 연구 항목·장수 지정, 자동 반복 없음 | Claude | 완료(검사 통과, log.md 참고) | `Core/CampaignResearch.cs`, `Buildings/ScienceLab.cs` |
 
 ### 현재 인계 상태
 

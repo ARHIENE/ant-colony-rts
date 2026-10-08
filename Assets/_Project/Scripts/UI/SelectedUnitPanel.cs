@@ -170,14 +170,14 @@ namespace AntColony.UI
             header.text = $"<size=17><b><color=#efe7da>{c.CommanderName}</color></b></size>   {c.WeaponLabel}";
             var activity = CommanderOverhead.Activity(c);
             var skill = c.Talents.Level(c.CurrentActivity);
-            job.text = $"하는 일 <color=#efe7da>{(activity.Length > 0 ? activity : "대기")}</color>" + (activity.Length > 0 && !c.IsDeployed ? $" {skill}" : "") + $" · 인력 <color=#efe7da>{c.WorkingAnts}</color><color=#968976>/{c.WorkforceLimit}</color>";
+            job.text = $"하는 일 <color=#efe7da>{(activity.Length > 0 ? activity : "대기")}</color>" + (activity.Length > 0 && !c.IsDeployed ? $" {skill}" : "");
 
             statValues[0].text = $"{c.Mood:0}";
             statValues[0].color = c.Mood <= 20 ? MenuTheme.DangerInk : c.Mood <= CommanderOverhead.MoodWarning ? MenuTheme.Accent : MenuTheme.TextColor;
             var factor = c.PersonalState.moodFactors.OrderByDescending(f => Mathf.Abs(f.value)).FirstOrDefault();
             statNotes[0].text = factor != null ? $"{factor.reason} {factor.value:+0;-0}" : "";
             statValues[1].text = $"{c.LoadCapacity:0.#}";
-            statNotes[1].text = $"근력 {c.Talents.Level(CommanderActivity.Strength)} · 인력 {c.WorkingAnts}";
+            statNotes[1].text = $"근력 {c.Talents.Level(CommanderActivity.Strength)}";
             statValues[2].text = $"{c.AttackDamage:0.#} / {c.Armor:0.#}";
             statNotes[2].text = c.IsDeployed ? "출전 중" : "출전 시";
 

@@ -44,7 +44,7 @@ namespace AntColony.Save
                 colony = new ColonyDto { food = rm.GetAmount(ResourceType.Food), soil = rm.GetAmount(ResourceType.Soil), special = rm.GetAmount(ResourceType.Special),
                     foodCapacity = rm.GetCapacity(ResourceType.Food), soilCapacity = rm.GetCapacity(ResourceType.Soil), specialCapacity = rm.GetCapacity(ResourceType.Special),
                     storageResearchApplied = true,
-                    antsFree = pool.Free + pool.Working, antsAssigned = pool.Assigned, antsReserved = pool.Reserved, fishingUnlocked = GameManager.Instance.FishingUnlocked } };
+                    antsFree = pool.Free, antsAssigned = pool.Assigned, antsReserved = pool.Reserved, fishingUnlocked = GameManager.Instance.FishingUnlocked } };
             foreach (var c in commanders) file.commanders.Add(new CommanderDto { id = file.commanders.Count, name = c.CommanderName,
                 troopCount = c.TroopCount, pendingDamage = c.PendingTroopDamage, carriedAmount = c.CarriedAmount, carriedType = (int)c.CarriedType, fishingProgress = c.FishingProgress, talents = c.Talents.Copy(),
                 traits = SaveCatalog.Traits(c.Traits), personalState = c.CapturePersonalState(),
@@ -98,8 +98,8 @@ namespace AntColony.Save
         }
 
         private static ResourceNodeDto Node(ResourceNode n, string key) => new ResourceNodeDto { key = key, exists = n != null,
-            workforce = n != null ? n.GetComponent<Workforce>()?.Requested ?? 0 : 0, looseCargo = n != null && n.IsLooseCargo,
-            amount = n != null ? n.AmountRemaining : 0, regrowTimer = n != null ? n.RegrowTimeRemaining : 0, bountifulHarvest = n != null && n.BountifulHarvest, gatheringForbidden = n != null && n.GatheringForbidden, fishMonth = n != null ? n.FishMonth : -1,
+            looseCargo = n != null && n.IsLooseCargo,
+            amount = n != null ? n.AmountRemaining : 0, regrowTimer = n != null ? n.RegrowTimeRemaining : 0, sowRemaining = n != null ? n.SowRemaining : 0, bountifulHarvest = n != null && n.BountifulHarvest, gatheringForbidden = n != null && n.GatheringForbidden, fishMonth = n != null ? n.FishMonth : -1,
             position = new Vec3Dto(n != null ? n.transform.position : Vector3.zero), type = n != null ? (int)n.ResourceType : 0 };
 
         private static EnemyColonyDto Colony(EnemyColony c)
@@ -153,8 +153,8 @@ namespace AntColony.Save
                 else node = SaveCatalog.Nodes[int.Parse(d.key)];
                 if (node == null) continue;
                 if (!d.exists) { Object.Destroy(node.gameObject); continue; }
-                node.transform.position = d.position.ToVector3(); node.RestoreState(d.amount, d.regrowTimer);
-                node.IsLooseCargo = d.looseCargo; Workforce.For(node).Request(d.workforce);
+                node.transform.position = d.position.ToVector3(); node.RestoreState(d.amount, d.regrowTimer, d.sowRemaining);
+                node.IsLooseCargo = d.looseCargo;
                 node.BountifulHarvest = d.bountifulHarvest; node.GatheringForbidden = d.gatheringForbidden; node.FishMonth = d.fishMonth;
             }
             foreach (var d in file.monsters)

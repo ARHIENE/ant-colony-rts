@@ -122,19 +122,19 @@ public static class Stage4Checks
             var plot = farm.GetComponent<FarmPlot>() ?? farm.gameObject.AddComponent<FarmPlot>(); plot.Configure(FarmCrop.Fungus, false);
             SeasonAt(Season.Spring); // 겨울에는 밭이 자라지 않는다(7단계 계절 규칙).
             node.Extract(float.MaxValue);
-            var unattended = node.RegrowTimeRemaining; node.TickGrowth(10000);
-            Near(node.RegrowTimeRemaining, unattended, "unattended farm does not grow");
+            var unattended = node.RegrowTimeRemaining; node.TickGrowth(10000); node.TickGrowth(10000);
+            Near(node.RegrowTimeRemaining, unattended, "unsown farm does not grow");
             FarmWith(c, node);
-            node.TickGrowth(10000); Check(node.AmountRemaining > 0, "farm harvest grows");
+            node.TickGrowth(10000); node.TickGrowth(10000); Check(node.AmountRemaining > 0, "farm harvest grows");
             var yield = node.AmountRemaining;
             SeasonAt(Season.Autumn); ResetEvents(); Check(events.TryTrigger(ColonyEvent.Harvest), "autumn harvest event"); Near(node.AmountRemaining, yield * 1.5f, "ready crop receives bonus");
             node.GrantBountifulHarvest(); Near(node.AmountRemaining, yield * 1.5f, "harvest bonus cannot stack");
-            node.Extract(float.MaxValue); Check(!node.BountifulHarvest, "bonus consumed once"); node.TickGrowth(10000); Near(node.AmountRemaining, yield * GameBalance.AutumnHarvestMultiplier, "following harvest gets only autumn season bonus");
-            node.Extract(float.MaxValue); node.GrantBountifulHarvest(); node.TickGrowth(10000); Near(node.AmountRemaining, yield * 1.5f * GameBalance.AutumnHarvestMultiplier, "growing crop receives next-harvest bonus");
+            node.Extract(float.MaxValue); Check(!node.BountifulHarvest, "bonus consumed once"); node.TickGrowth(10000); node.TickGrowth(10000); Near(node.AmountRemaining, yield * GameBalance.AutumnHarvestMultiplier, "following harvest gets only autumn season bonus");
+            node.Extract(float.MaxValue); node.GrantBountifulHarvest(); node.TickGrowth(10000); node.TickGrowth(10000); Near(node.AmountRemaining, yield * 1.5f * GameBalance.AutumnHarvestMultiplier, "growing crop receives next-harvest bonus");
 
             SeasonAt(Season.Summer); ResetEvents(); Check(events.TryTrigger(ColonyEvent.Drought), "summer drought triggers");
-            node.Extract(float.MaxValue); var growth = node.RegrowTimeRemaining; var farmRate = c.WorkRate(CommanderActivity.Farming);
-            node.TickGrowth(10); Near(node.RegrowTimeRemaining, growth - 5 * farmRate, "drought halves actual growth");
+            node.Extract(float.MaxValue); node.TickGrowth(10000); var growth = node.RegrowTimeRemaining; // 장수가 파종한 뒤 혼자 자란다.
+            node.TickGrowth(10); Near(node.RegrowTimeRemaining, growth - 5, "drought halves growth");
             plot.Configure(FarmCrop.Honeydew, false); Near(ColonyEvents.GrowthMultiplier(node), .8f, "honeydew drought resistance");
             plot.Configure(FarmCrop.Fungus, false); Grant(ScienceTechnology.Drainage); Near(ColonyEvents.GrowthMultiplier(node), .8f, "drainage drought resistance");
             var tech = CampaignResearch.Instance.CaptureState(); tech.completed.Remove((int)ScienceTechnology.Drainage); CampaignResearch.Instance.RestoreState(tech);
@@ -148,13 +148,13 @@ public static class Stage4Checks
 
             var farm2 = Build<BuildingBase>(BuildingKind.Farm, farm.Position + Vector3.forward * 6); var node2 = farm2.GetComponent<ResourceNode>();
             FarmWith(roster.Commanders[1], node2);
-            node.TickGrowth(10000); node2.TickGrowth(10000);
+            node.TickGrowth(10000); node.TickGrowth(10000); node2.TickGrowth(10000); node2.TickGrowth(10000);
             ColonyEvents.Burn(node); Check(node.IsDepleted && node2.IsDepleted, "fire destroys crop and spreads to neighbor");
-            node.TickGrowth(10000); node2.TickGrowth(10000);
+            node.TickGrowth(10000); node.TickGrowth(10000); node2.TickGrowth(10000); node2.TickGrowth(10000);
             var wall = Build<SoilWall>(BuildingKind.SoilWall, farm.Position + Vector3.forward * 3); Physics.SyncTransforms();
             ColonyEvents.Burn(node); Check(node.IsDepleted && !node2.IsDepleted, "soil wall blocks fire spread");
             wall.gameObject.SetActive(false); Object.Destroy(wall.gameObject);
-            node.TickGrowth(10000); yield = node.AmountRemaining; var otherYield = node2.AmountRemaining;
+            node.TickGrowth(10000); node.TickGrowth(10000); yield = node.AmountRemaining; var otherYield = node2.AmountRemaining;
             Grant(ScienceTechnology.Firebreaks); ColonyEvents.Burn(node); Near(node.AmountRemaining, yield * .5f, "firebreaks halves crop loss"); Near(node2.AmountRemaining, otherYield, "firebreaks stops spread");
             SeasonAt(Season.Autumn); ResetEvents(); Check(events.TryTrigger(ColonyEvent.Wildfire), "autumn wildfire event triggers");
             c.CommandStop(); roster.Commanders[1].CommandStop();

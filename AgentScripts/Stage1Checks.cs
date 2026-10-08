@@ -140,13 +140,13 @@ public static class Stage1Checks
             // 5. 유지비는 일반개미만(장수는 식사로 대체, 2026-09-28)
             var upkeep = Object.FindFirstObjectByType<UpkeepManager>();
             a.Traits.TryAdd(CommanderTrait.LightEater); b.Traits.TryAdd(CommanderTrait.Glutton);
-            var expected = ColonyPopulation.Instance.TaxPerCycle;
-            Check(a.Traits.FoodMultiplier == .7f && b.Traits.FoodMultiplier == 1.5f && upkeep.TaxIncome == expected, "ants pay tax, appetite traits kept for meals");
+            var expected = ColonyPopulation.Instance.WeeklyFood;
+            Check(a.Traits.FoodMultiplier == .7f && b.Traits.FoodMultiplier == 1.5f && ColonyPopulation.Instance.WeeklyFood == expected, "ants pay tax, appetite traits kept for meals");
             vehicle.TryBoard(new[] { crew[2] });
-            Check(upkeep.TaxIncome == expected, "embarked commander does not change tax");
+            Check(ColonyPopulation.Instance.WeeklyFood == expected, "embarked commander does not change tax");
             before = rm.GetAmount(ColonyResourceType.Food);
-            typeof(UpkeepManager).GetMethod("RunCycle", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Public).Invoke(upkeep, null);
-            Check(rm.GetAmount(ColonyResourceType.Food) == Mathf.Min(before + expected, rm.GetCapacity(ColonyResourceType.Food)), "tax cycle pays home storage");
+            ColonyPopulation.Instance.S.taxFood = expected; ColonyPopulation.Instance.PayTax();
+            Check(rm.GetAmount(ColonyResourceType.Food) == Mathf.Min(before + expected, rm.GetCapacity(ColonyResourceType.Food)), "tax pays home storage");
             vehicle.TryUnloadCrew();
 
             // 6. 단축키 기본값·재지정

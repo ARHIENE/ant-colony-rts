@@ -171,6 +171,7 @@ namespace AntColony.Save
         public int index;
         public float amount;
         public float regrowTimer;
+        public float sowRemaining; // 밭 파종 남은 작업량(2026-10-08). 옛 저장은 0 = 이미 심음.
         public bool bountifulHarvest;
         public bool gatheringForbidden;
         public int fishMonth = -1; // v9: 낚시터 월 한도를 마지막으로 채운 달(-1 = 다음 틱에 이번 달로 채움)

@@ -15,8 +15,7 @@ namespace AntColony.Core
         public int Free { get; private set; }
         public int Assigned { get; private set; }
         public int Reserved { get; private set; }
-        public int Working { get; private set; }
-        public int Total => Free + Assigned + Reserved + Working;
+        public int Total => Free + Assigned + Reserved;
 
         public event Action OnPoolChanged;
 
@@ -43,7 +42,6 @@ namespace AntColony.Core
             Free = Mathf.Max(0, free);
             Assigned = Mathf.Max(0, assigned);
             Reserved = Mathf.Max(0, reserved);
-            Working = 0;
             OnPoolChanged?.Invoke();
         }
 
@@ -62,18 +60,6 @@ namespace AntColony.Core
             Assigned += count;
             OnPoolChanged?.Invoke();
             return true;
-        }
-
-        public bool TryAssignWorkers(int count)
-        {
-            if (count <= 0 || count > Free) return false;
-            Free -= count; Working += count; OnPoolChanged?.Invoke(); return true;
-        }
-        public void ReturnWorkers(int count)
-        {
-            count = Mathf.Clamp(count, 0, Working);
-            if (count == 0) return;
-            Working -= count; Free += count; ColonyPopulation.Instance?.OnAntsReturned(count); OnPoolChanged?.Invoke();
         }
 
         public void ReturnAssigned(int count)

@@ -68,7 +68,7 @@ public static class AcidTowerChecks
             var site = Object.FindAnyObjectByType<BuildingConstructionSite>();
             Check(site != null && !placement.IsPlacing, "placement creates construction site");
             Check(resources.GetAmount(Resource.Food) == food - template.Data.foodCost && resources.GetAmount(Resource.Soil) == soil - template.Data.soilCost, "construction pays resource costs");
-            Check(Workforce.For(site).Requested == template.Data.constructionAnts, "construction requests workforce"); // 인력은 장수가 작업할 때만 배정된다.
+            Check(pool.Free == free && pool.Reserved == 0, "construction borrows no ants");
             Check(!Object.FindObjectsByType<AcidTower>().Any(), "unfinished tower cannot attack");
             site.Complete(); builder.CommandStop();
             Check(pool.Free == free && pool.Reserved == 0, "completion returns workforce");

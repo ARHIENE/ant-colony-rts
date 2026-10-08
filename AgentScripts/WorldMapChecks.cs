@@ -140,10 +140,9 @@ public static class WorldMapChecks
         var food = resources.GetAmount(ResourceType.Food);
         Set(placement, "placementValid", true);
         typeof(BuildingPlacementController).GetMethod("TryPlace", Flags).Invoke(placement, new object[] { labPos + Vector3.up, labPos });
-        // 건설 인력은 즉시 예약이 아니라 현장 Workforce 요청 → 장수가 작업할 때만 배정된다.
         var labSite = Object.FindObjectsByType<BuildingConstructionSite>().OrderBy(s => (s.Position - labPos).sqrMagnitude).First();
-        Check(Workforce.For(labSite).Requested == 8 && resources.GetAmount(ResourceType.Food) == food - 100,
-            "science construction pays once and requests workforce");
+        Check(labSite != null && resources.GetAmount(ResourceType.Food) == food - 100,
+            "science construction pays once");
         Check(await Wait(() => Object.FindObjectsByType<ScienceLab>().Any(l => l.isActiveAndEnabled), 120), "commander actually completes science lab"); // 건설 속도는 인력·날씨 보정을 받는다
         Check(pool.Reserved == 0 && pool.Free == free, "construction workforce returns");
         var lab = Object.FindFirstObjectByType<ScienceLab>();

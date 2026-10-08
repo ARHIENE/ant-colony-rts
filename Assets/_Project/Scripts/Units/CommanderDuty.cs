@@ -143,9 +143,6 @@ namespace AntColony.Units
             if (AllowsJob(CommanderJobs.Crafting))
                 foreach (var shop in FindObjectsByType<Workshop>(FindObjectsSortMode.None).OrderBy(s => (s.Position - Position).sqrMagnitude))
                     if (!shop.Ruined && !shop.IsDead && shop.Crafter == null && shop.Jobs.Count > 0 && GoToFacility(shop)) return;
-            if (AllowsJob(CommanderJobs.Research) && CampaignResearch.Instance?.Active != null)
-                foreach (var lab in FindObjectsByType<ScienceLab>(FindObjectsSortMode.None).OrderBy(s => (s.Position - Position).sqrMagnitude))
-                    if (!lab.IsDead && !lab.Busy && lab.Target == null && lab.Tier >= CampaignResearch.Instance.Active.Tier && GoToFacility(lab)) return;
             if (AllowsJob(CommanderJobs.Cooking))
                 foreach (var kitchen in FindObjectsByType<Kitchen>(FindObjectsSortMode.None).Where(k => k.NeedsCook))
                     if (!Active.OfType<CommanderAnt>().Any(c => c != this && c.ServiceTarget == kitchen) && StartService(kitchen, CommanderJobs.Cooking)) return;
@@ -187,6 +184,14 @@ namespace AntColony.Units
             if ((infirmary.Position - Position).sqrMagnitude <= 49) return infirmary.TryAdmit(this);
             if (!UnityEngine.AI.NavMesh.SamplePosition(infirmary.Position, out var hit, 7, UnityEngine.AI.NavMesh.AllAreas) || !CanReach(hit.position)) return false;
             automaticFacility = infirmary; base.CommandMove(hit.position); return true;
+        }
+        // 연구(2026-10-08): 자율로 맡지 않는다. 플레이어가 연구 항목을 고른 뒤 장수를 지정하면 연구소로 가서 맡는다. 완료되면 배정이 풀린다(자동 반복 없음).
+        public bool SendToResearch(ScienceLab lab)
+        {
+            if (lab == null || lab.IsDead || lab.Busy || lab.Target != null || CampaignResearch.Instance?.Active == null || lab.Tier < CampaignResearch.Instance.Active.Tier
+                || !AllowsJob(CommanderJobs.Research) || !CanTakeCivilianOrder || !CivilianWorkReady || !CanChangeAllocation) return false;
+            CommandStop(); WorkState.resting = false;
+            return GoToFacility(lab);
         }
         private bool GoToFacility(BuildingBase facility)
         {

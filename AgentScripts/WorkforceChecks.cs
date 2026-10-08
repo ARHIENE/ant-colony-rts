@@ -62,21 +62,14 @@ public static class WorkforceChecks
             Check(CommanderTalents.Count == 13 && (int)CommanderJobs.All == 8191, "13 skills / 13 job bits");
             Array.Clear(c.Talents.levels, 0, CommanderTalents.Count);
             var node = Loot(home + Vector3.right * 2, 200);
-            var workforce = Workforce.For(node); workforce.Request(30);
             int total = pool.Total, free = pool.Free;
-            Check(workforce.Allocated == 0, "unattended target reserves no ants");
-            c.CommandGather(node); workforce.Refresh();
-            Check(c.CurrentResourceNode == node && workforce.Allocated == 5 && pool.Working == 5 && pool.Free == free - 5 && pool.Total == total, "skill zero allocation and conservation");
-            Near(c.LoadCapacity, 20, "carry strength zero + 5 workers");
-            c.Talents.levels[(int)CommanderActivity.Gathering] = 10; workforce.Refresh();
-            Check(workforce.Allocated == 25 && workforce.Limit == 25, "skill ten cap 25");
-            c.Talents.levels[(int)CommanderActivity.Strength] = 20; workforce.Request(10);
-            Near(c.LoadCapacity, 60, "strength 20, workers 10 carry 60");
-            c.Traits.values.Add(CommanderTrait.Muscular); Near(c.LoadCapacity, 80, "carry trait only personal portion"); c.Traits.values.Clear();
-            workforce.Request(200); Check(workforce.Requested == 45 && workforce.Allocated == 25, "request clamped and skill capped");
-            c.CommandStop(); Check(pool.Working == 0 && pool.Free == free && workforce.Allocated == 0, "stop returns workers once");
-            c.CommandStop(); Check(pool.Free == free, "repeat stop no duplication");
-            c.CommandGather(node); node.gameObject.SetActive(false); Check(pool.Working == 0, "target disabled returns workers"); c.CommandStop(); node.gameObject.SetActive(true);
+            c.CommandGather(node);
+            Check(c.CurrentResourceNode == node && pool.Free == free && pool.Total == total, "commander works alone, no ants borrowed");
+            Near(c.LoadCapacity, 10, "carry strength zero");
+            c.Talents.levels[(int)CommanderActivity.Strength] = 20;
+            Near(c.LoadCapacity, 40, "strength 20 carry 40");
+            c.Traits.values.Add(CommanderTrait.Muscular); Near(c.LoadCapacity, 60, "carry trait multiplies"); c.Traits.values.Clear();
+            c.CommandStop(); Check(pool.Free == free, "stop keeps pool");
 
             c.WorkState.jobs = CommanderJobs.Hauling; c.TickDuty(2);
             Check(c.CurrentResourceNode == node && CommanderOverhead.Activity(c) == "운반", "hauling selects loose cargo"); c.CommandStop(); c.WorkState.jobs = CommanderJobs.None;
@@ -126,7 +119,7 @@ public static class WorkforceChecks
             Check(kitchen.Meals.meals.Count > 0 && kitchen.Meals.meals.All(m => m.quality == 3), "chef cooks high quality meals");
             Check(c.Talents.Xp(CommanderActivity.Cooking) > 0, "cooking XP");
             var meals = kitchen.Meals.meals.Count; float progress = kitchen.Meals.progress;
-            At(620); c.TickDuty(1); Check(c.IsAsleep && c.ServiceTarget == null && pool.Working == 0, "sleep stops service and returns workers");
+            At(620); c.TickDuty(1); Check(c.IsAsleep && c.ServiceTarget == null && pool.Free == free, "sleep stops service");
             Check(kitchen.Meals.meals.Count == meals && Mathf.Approximately(kitchen.Meals.progress, progress), "sleep preserves cooking progress");
             At(920); c.TickDuty(1); c.PersonalState.sleep.poorly = false; c.Traits.values.Clear();
 
@@ -155,7 +148,7 @@ public static class WorkforceChecks
             Check(Object.FindObjectsByType<UnityEngine.UI.Toggle>(FindObjectsSortMode.None).Count(t => t.name.StartsWith("Job ")) == all.Length * 13, "13 toggles per commander");
             GameMenuController.Instance.Resume(); Time.timeScale = 0;
             WorkTargetPanel.Select(node); await Task.Delay(80);
-            Check(GameObject.Find("WorkforceSlider") != null, "target workforce slider visible");
+            Check(GameObject.Find("WorkforceSlider") == null && GameObject.Find("WorkTargetPanel") != null, "target panel without workforce slider");
             var selection = Object.FindFirstObjectByType<AntColony.Units.SelectionManager>(); selection.SelectOnly(c.GetComponent<AntColony.Units.SelectableObject>()); await Task.Delay(80);
             // HUD v4: 하단 패널은 주요 기술 3개만, 13개 전체는 초상 클릭 상세 창에 있다.
             Check(WorkTargetPanel.Target == null, "selecting commander clears target");
@@ -164,14 +157,14 @@ public static class WorkforceChecks
             GameMenuController.Instance.Resume(); Time.timeScale = 0;
             Check(new[] { "간호", "수리", "운반", "사냥", "요리", "예술" }.All(n => ActivityIcons.Get(n) != null), "new job icons");
 
-            workforce.Request(10); c.CommandGather(node); workforce.Refresh();
+            c.CommandGather(node);
             foreach (var x in all.Where(x => x != c)) x.CommandStop();
             var file = SaveSnapshot.Capture();
-            Check(file.colony.antsFree == pool.Free + pool.Working && file.colony.antsAssigned == pool.Assigned, "save folds workforce into free pool");
+            Check(file.colony.antsFree == pool.Free && file.colony.antsAssigned == pool.Assigned, "save pool counts");
             Check(SaveValidator.TryParse(JsonUtility.ToJson(file), out var parsed, out var error), "save validates " + error);
-            Check(parsed.nodes.Any(n => n.workforce == 10 && n.looseCargo), "save keeps target workforce and cargo kind");
+            Check(parsed.nodes.Any(n => n.workforce == 0 && n.looseCargo), "save writes no workforce, keeps cargo kind");
             Check(parsed.buildings.Any(b => b.kind == "Kitchen" && b.kitchen.meals.Count > 0), "save preserves cooked meals");
-            var bad = JsonUtility.FromJson<SaveFileV1>(JsonUtility.ToJson(file)); bad.nodes[0].workforce = 1000;
+            var bad = JsonUtility.FromJson<SaveFileV1>(JsonUtility.ToJson(file)); bad.nodes[0].workforce = -1;
             Check(!SaveValidator.Validate(bad, out _), "invalid manpower rejected");
             bad = JsonUtility.FromJson<SaveFileV1>(JsonUtility.ToJson(file)); bad.commanders[0].talents.levels = new int[9];
             Check(!SaveValidator.Validate(bad, out _), "truncated current skills rejected");
@@ -183,7 +176,6 @@ public static class WorkforceChecks
             Check(SaveSystem.TryLoad(SaveSlots.PathFor(false, 0), out error), "load roundtrip " + error); await Ready(); await Task.Delay(200);
             Check(AntPool.Instance.Total == beforeSave, "load conserves all ants");
             Check(Object.FindObjectsByType<Kitchen>(FindObjectsSortMode.None).Any(k => k.Meals.meals.Count > 0), "load cooked meals");
-            Check(Object.FindObjectsByType<Workforce>(FindObjectsSortMode.None).Any(w => w.Requested == 10), "load workforce requests");
             return checks + " passed";
         }
         finally { Time.timeScale = 0; SaveStorage.RootOverride = previousRoot; }

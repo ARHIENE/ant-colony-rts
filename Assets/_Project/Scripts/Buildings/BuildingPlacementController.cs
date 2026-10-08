@@ -76,10 +76,12 @@ namespace AntColony.Buildings
             // Phase 5: 주거 건물은 방 밖에만 짓는다.
             placementValid = Vector3.Angle(hit.normal, Vector3.up) <= maxGroundSlope && !HasObstruction(position)
                 && !(Housing.IsKind(pendingKind) && RoomSystem.IsIndoors(position))
-                && builder != null && builder.CanStartConstruction && builder.CanReach(hit.point);
+                && builder != null && builder.CanReach(hit.point);
             UpdatePreview(position, placementValid);
 
-            if (IsLineKind(pendingKind)) { UpdateLine(mouse, position); return; }
+            // 연속 배치(2026-10-08): 좌클릭 = 1개 배치 후 종료, Shift+좌클릭 = 배치 후 선택 유지, Shift+드래그 = 한 줄 연속 배치.
+            var shift = keyboard != null && keyboard.shiftKey.isPressed;
+            if (shift || dragStart != null) { UpdateLine(mouse, position); return; }
             if (mouse.leftButton.wasPressedThisFrame && !IsPointerOverUi())
             {
                 TryPlace(position, hit.point);
@@ -172,7 +174,8 @@ namespace AntColony.Buildings
 
         private void TryPlace(Vector3 position, Vector3 groundPosition)
         {
-            if (PlaceOne(position, groundPosition, true) != null) FinishPlacementMode();
+            // 고른 장수가 바쁘면 예정지만 두고 건설 작업이 켜진 장수가 자율로 짓는다.
+            if (PlaceOne(position, groundPosition, builder != null && builder.CanStartConstruction) != null) FinishPlacementMode();
         }
 
         // 한 칸 배치. commandBuilder = 고른 장수에게 바로 맡김(줄 배치의 나머지 칸은 건설 작업이 켜진 장수가 자율로 짓는다).
@@ -191,7 +194,6 @@ namespace AntColony.Buildings
             }
 
             var cost = building.Data;
-            var pool = AntPool.Instance;
             if (ResourceManager.Instance == null || !ResourceManager.Instance.CanAfford(cost.foodCost, cost.soilCost, cost.specialCost))
             {
                 PlacementFailed($"Construction needs {cost.foodCost} food, {cost.soilCost} soil and {cost.specialCost} special.");
@@ -199,14 +201,8 @@ namespace AntColony.Buildings
             }
             if (builder is CommanderAnt commander && !commander.CanDoJob(Decoration.IsKind(pendingKind) ? CommanderJobs.Art : CommanderJobs.Building))
             { PlacementFailed("이 장수는 해당 작업을 할 수 없습니다."); return null; }
-            if (pool == null)
-            {
-                PlacementFailed($"Keep {cost.constructionAnts} unassigned ants available for construction.");
-                return null;
-            }
             if (!ResourceManager.Instance.TrySpend(cost.foodCost, cost.soilCost, cost.specialCost, reason: ResourceReason.Construction))
             {
-                // 인력은 작업이 시작되면 대상의 슬라이더 요청 수만큼 빌린다.
                 return null;
             }
 
@@ -235,17 +231,14 @@ namespace AntColony.Buildings
 
             var site = siteObject.AddComponent<BuildingConstructionSite>();
             site.Initialize(completedBuilding, cost.buildTimeSeconds);
-            Workforce.For(site).Request(cost.constructionAnts);
             if (commandBuilder) builder.CommandBuild(site);
             return site;
         }
 
-        // 벽 줄 드래그(2026-10-03): 누른 칸에서 끈 방향(가로·세로 중 긴 쪽)으로 한 줄, 놓으면 칸마다 건설 예정지.
+        // Shift+드래그(2026-10-08, 모든 종류): 누른 칸에서 끈 방향(가로·세로 중 긴 쪽)으로 한 줄, 놓으면 칸마다 건설 예정지. 배치 후 선택 유지.
         public const int MaxLineCells = 40;
         private Vector3? dragStart;
         private readonly System.Collections.Generic.List<GameObject> linePreviews = new System.Collections.Generic.List<GameObject>();
-        public static bool IsLineKind(BuildingKind kind) => kind == BuildingKind.SoilWall || kind == BuildingKind.LeafWall
-            || kind == BuildingKind.CapWall || kind == BuildingKind.CastleWall || kind == BuildingKind.PowerWire || kind == BuildingKind.Floor; // 전선·바닥도 한 줄 드래그
 
         public System.Collections.Generic.List<Vector3> LineCells(Vector3 start, Vector3 end)
         {
@@ -265,6 +258,7 @@ namespace AntColony.Buildings
         private void UpdateLine(Mouse mouse, Vector3 position)
         {
             if (mouse.leftButton.wasPressedThisFrame && !IsPointerOverUi() && placementValid) dragStart = position;
+            if (dragStart == null) { SetPreviewVisible(true); return; }
             if (dragStart == null) return;
             var cells = LineCells(dragStart.Value, position);
             var valid = cells.ConvertAll(CellValid);
@@ -277,11 +271,11 @@ namespace AntColony.Buildings
                 linePreviews[i].transform.position = cells[i];
                 linePreviews[i].GetComponent<Renderer>().material.color = valid[i] ? new Color(0.2f, 0.9f, 0.3f, 0.65f) : new Color(0.9f, 0.2f, 0.2f, 0.65f);
             }
-            if (mouse.leftButton.wasReleasedThisFrame) PlaceLine(cells, valid);
+            if (mouse.leftButton.wasReleasedThisFrame) { PlaceLine(cells, valid, true); dragStart = null; foreach (var p in linePreviews) p.SetActive(false); }
         }
 
         // 칸마다 비용을 따로 낸다. 막힌 칸은 건너뛰고, 비용이 모자라면 거기서 멈춘다. 첫 칸은 고른 장수에게 맡긴다.
-        public int PlaceLine(System.Collections.Generic.List<Vector3> cells, System.Collections.Generic.List<bool> valid)
+        public int PlaceLine(System.Collections.Generic.List<Vector3> cells, System.Collections.Generic.List<bool> valid, bool keepPlacing = false)
         {
             var renderer = GetTemplate(pendingKind, pendingRole)?.GetComponent<Renderer>();
             var height = renderer != null ? renderer.bounds.extents.y : .5f;
@@ -295,9 +289,9 @@ namespace AntColony.Buildings
                 placed++;
             }
             if (first != null && builder != null && builder.CanStartConstruction) builder.CommandBuild(first);
-            if (placed > 0) AntColony.UI.ToastManager.Show($"벽 {placed}칸 배치" + (blocked > 0 ? $" · 막힌 칸 {blocked}개 제외" : "") + (placed + blocked < cells.Count ? " · 자원 부족으로 중단" : ""));
+            if (placed > 0) AntColony.UI.ToastManager.Show($"{placed}개 배치" + (blocked > 0 ? $" · 막힌 칸 {blocked}개 제외" : "") + (placed + blocked < cells.Count ? " · 자원 부족으로 중단" : ""));
             else if (blocked > 0) PlacementFailed("막히지 않은 칸이 없습니다.");
-            FinishPlacementMode();
+            if (!keepPlacing) FinishPlacementMode();
             return placed;
         }
 
@@ -346,7 +340,7 @@ namespace AntColony.Buildings
             var template = GetTemplate(kind, role);
             var building = template != null ? template.GetComponent<BuildingBase>() : null;
             if (building == null || building.Data == null) return name + " (Unavailable)";
-            return $"{name}\n{building.Data.foodCost}F {building.Data.soilCost} 재료{(building.Data.specialCost > 0 ? $" {building.Data.specialCost}Sp" : "")} {building.Data.constructionAnts} Ants";
+            return $"{name}\n{building.Data.foodCost}F {building.Data.soilCost} 재료{(building.Data.specialCost > 0 ? $" {building.Data.specialCost}Sp" : "")}";
         }
 
         internal static GameObject GetTemplate(BuildingKind kind, UnitRole role)

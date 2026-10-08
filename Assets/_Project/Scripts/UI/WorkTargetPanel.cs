@@ -14,7 +14,6 @@ namespace AntColony.UI
         public static Component Target { get; private set; }
         private RectTransform root;
         private Text title, status, instruction;
-        private Slider slider;
         private Button action, eatCorpse;
         public static void Clear() => Target = null;
         public static void Select(Component target)
@@ -29,11 +28,6 @@ namespace AntColony.UI
             root.Find("Rim").gameObject.SetActive(false); MenuTheme.InsetScreen(root.gameObject);
             title = L.Label(root, "", 21, 16, 8, 780, 30);
             status = L.Label(root, "", 15, 16, 42, 780, 44);
-            var track = L.Box(root, "WorkforceSlider", 16, 98, 500, 20, MenuTheme.Well);
-            var handle = L.Box(track, "Handle", 0, 0, 16, 20, MenuTheme.Accent);
-            slider = track.gameObject.AddComponent<Slider>(); slider.handleRect = handle; slider.targetGraphic = handle.GetComponent<Image>();
-            slider.wholeNumbers = true; slider.minValue = 0; slider.maxValue = Workforce.Maximum;
-            slider.onValueChanged.AddListener(v => { if (Target != null) Workforce.For(Target).Request((int)v); });
             instruction = L.Label(root, "", 12, 16, 126, 780, 42, MenuTheme.Muted);
             action = L.Button(root, "TargetAction", "", 544, 94, 246, 32, Act);
             eatCorpse = L.Button(root, "EatCorpse", "동족 포식 지시", 544, 136, 246, 32, EatCorpse);
@@ -45,7 +39,6 @@ namespace AntColony.UI
             var width = root.rect.width - 32;
             title.rectTransform.sizeDelta = new Vector2(width, 30);
             status.rectTransform.sizeDelta = new Vector2(width, 44);
-            slider.GetComponent<RectTransform>().sizeDelta = new Vector2(width * .55f, 20);
             L.Place((RectTransform)action.transform, 16 + width * .6f, 94, width * .4f, 32);
             L.Place((RectTransform)eatCorpse.transform, 16 + width * .6f, 136, width * .4f, 32);
             foreach (var button in new[] { action, eatCorpse }) MenuTheme.Stretch(button.GetComponentInChildren<Text>().rectTransform);
@@ -54,7 +47,7 @@ namespace AntColony.UI
             eatCorpse.gameObject.SetActive(Target is Corpse edible && (edible.Edible || edible.GetComponent<ResourceNode>() != null));
             if (Target is Corpse corpse)
             {
-                slider.gameObject.SetActive(false); action.gameObject.SetActive(true);
+                action.gameObject.SetActive(true);
                 title.text = corpse.Data.name + " 시체";
                 var meat = corpse.GetComponent<ResourceNode>();
                 status.text = $"{corpse.Data.count}구 · 소멸까지 {corpse.Data.remaining:0}초 · {(corpse.Handler != null ? corpse.Handler.CommanderName + $" 작업 {corpse.Handler.CorpseProgress:0.#}/5초" : "미처리")}"
@@ -66,17 +59,17 @@ namespace AntColony.UI
                 return;
             }
             instruction.rectTransform.sizeDelta = new Vector2(width, 64);
-            var workforce = Workforce.For(Target); workforce.Refresh();
+            var workforce = Workforce.For(Target);
             title.text = Target is BuildingBase b && b.Data != null ? b.Data.displayName : Target.name;
-            slider.gameObject.SetActive(!(Target is WildMonster)); slider.SetValueWithoutNotify(workforce.Requested);
-            status.text = $"인력 {workforce.Allocated}/{workforce.Limit} · 요청 {workforce.Requested} · 속도 ×{workforce.Multiplier:0.0}\n대기 개미 {AntPool.Instance?.Free ?? 0} · 장수 기술에 따라 상한이 달라집니다.";
-            instruction.text = "작업 중인 장수가 없으면 인력은 대기 풀로 돌아갑니다. 설정은 이 대상에 저장됩니다.";
+            var workers = AntColony.Units.AntUnitBase.Active.OfType<AntColony.Units.CommanderAnt>().Where(c => c.WorkTarget == workforce).ToArray();
+            status.text = workers.Length == 0 ? "작업 중인 장수 없음"
+                : $"작업 장수 {workers.Length}명: {string.Join(" · ", workers.Select(c => c.CommanderName))}";
+            instruction.text = "평시 작업은 장수만 합니다. 작업표 우선순위에 따라 장수가 알아서 맡습니다.";
             var label = action.GetComponentInChildren<Text>();
             action.gameObject.SetActive(Target is ResourceNode || Target is Workshop || Target is WildMonster || Target is Gate || Target is Barracks || Target is DigSite);
             if (Target is BuildingBase placed && !(Target is Gate)) { var room = RoomSystem.RoomAt(placed.Position); instruction.text = (room == null ? "방 밖(효과 적음)" : $"방: {room.Title} · 등급 {room.GradeName} ({room.Cells.Count}칸)") + " · " + instruction.text; }
             if (Target is Dormitory dorm)
             {
-                slider.gameObject.SetActive(false);
                 status.text = $"침대 {dorm.Beds}개 · 배정 {dorm.Residents.Count(c => c != null && !c.IsDead && c.IsColonyMember)}명"
                     + (HudOverview.BedShortage > 0 ? $"\n<color=#ef955f>군체 전체 침대 {HudOverview.BedShortage}개 부족</color>" : "\n군체 전체 침대 충분");
                 instruction.text = RoomDescription(dorm) + "\n배정: " + ResidentNames(dorm);
@@ -91,7 +84,7 @@ namespace AntColony.UI
             if (Target is Decoration decor) instruction.text = $"품질 {new[] { "조잡", "보통", "정교", "걸작" }[decor.Quality]} · 반경 8m 환경 기분 +{decor.MoodBonus:0.#}";
             if (Scout is ScoutPost scout)
             {
-                slider.gameObject.SetActive(false); action.gameObject.SetActive(true);
+                action.gameObject.SetActive(true);
                 status.text = scout.GetStatusLabel();
                 label.text = scout.IsDispatched ? "정찰 중" : "정찰 파견"; action.interactable = !scout.IsDispatched;
                 instruction.text = "동행 장수 1명을 골라 보냅니다. 돌아올 때까지 장수는 소굴을 비웁니다.";

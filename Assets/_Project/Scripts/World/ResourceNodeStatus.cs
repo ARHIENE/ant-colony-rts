@@ -14,6 +14,7 @@ namespace AntColony.World
         public string StatusText => node.IsRaidLocked ? "Destroy All Nest Buildings"
             : !node.IsUnlocked ? "Research Fishing First"
             : node.FishedOut ? "Fished Out · Next Month"
+            : node.NeedsSowing ? $"파종 필요 · {node.SowRemaining:0.#}s"
             : node.IsRegrowing ? $"{(node.RequiresFishing ? "Restocking" : "Growing")} · {Mathf.CeilToInt(node.RegrowTimeRemaining)}s"
             : node.IsDepleted ? "Empty" : $"{(node.RequiresFishing ? "Fish" : "Ready")} · {Mathf.CeilToInt(node.AmountRemaining)} {node.ResourceType.DisplayName()}";
 

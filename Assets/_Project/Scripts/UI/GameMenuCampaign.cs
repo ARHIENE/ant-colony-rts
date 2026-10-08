@@ -14,7 +14,7 @@ namespace AntColony.UI
             Screen("Science / Rocket", "과학 · 로켓");
             var research = CampaignResearch.Instance;
             if (research == null) { MenuTheme.Text(content, "과학 화면 준비 중입니다."); MenuTheme.Button(content, "Back", Back); return; }
-            MenuTheme.Text(content, research.Active == null ? "공동 연구를 하나 선택하세요. 해당 시대 연구소에 배정된 장수들이 함께 연구합니다."
+            MenuTheme.Text(content, research.Active == null ? "연구 항목을 고른 뒤 연구소마다 장수를 지시하세요. 완료되면 배정이 풀리고 자동으로 다음 연구를 하지 않습니다."
                 : $"{research.Active.Name}: 작업량 {research.Progress:0}/{research.Active.Work:0} · 게임을 재개하면 연구가 진행됩니다.", 18, 65);
             foreach (var lab in FindObjectsByType<ScienceLab>(FindObjectsSortMode.None))
             {
@@ -22,10 +22,10 @@ namespace AntColony.UI
                 var captured = lab;
                 MenuTheme.Button(content, $"연구소 강화 (식량 {lab.Tier * 60} / 재료 {lab.Tier * 80})", () => { if (!captured.TryUpgrade()) ToastManager.Show("강화 조건을 충족하지 못했거나 자원이 부족합니다."); Science(); }).interactable = lab.Tier < ScienceLab.MaxTier && !lab.Busy;
                 if (lab.Target != null) MenuTheme.Button(content, "연구 배정 해제", () => { captured.ReleaseResearcher(); Science(); });
-                else foreach (var c in SortedCommanders().Where(c => !c.IsAwayFromHome && c.CanChangeAllocation && !c.IsWorking && Vector3.Distance(c.Position, lab.Position) <= 8))
-                    MenuTheme.Button(content, "배정: " + c.CommanderName, () => { if (!captured.TryAssign(c)) ToastManager.Show("이 장수를 배정할 수 없습니다."); Science(); });
+                else if (research.Active != null) foreach (var c in SortedCommanders().Where(c => !c.IsAwayFromHome && c.CanChangeAllocation && c.AllowsJob(CommanderJobs.Research)))
+                    MenuTheme.Button(content, "연구 지시: " + c.CommanderName, () => { if (!c.SendToResearch(captured)) ToastManager.Show("이 장수에게 연구를 지시할 수 없습니다(작업표 연구 금지·출전·수면 등)."); Science(); });
             }
-            MenuTheme.Text(content, "연구소 8m 안의 대기 장수를 배정하세요. 선택한 연구와 같은 시대 이상의 연구소가 필요합니다.", 17, 60);
+            MenuTheme.Text(content, "지시한 장수가 연구소로 걸어가 연구합니다. 선택한 연구와 같은 시대 이상의 연구소가 필요합니다.", 17, 60);
             foreach (var definition in CampaignResearch.Technologies)
             {
                 var reason = research.BlockReason(definition.Technology);

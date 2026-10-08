@@ -236,7 +236,7 @@ namespace AntColony.UI
                 label.text = entries[i].name + (locked != null ? "\n<color=#968976>잠김</color>" : data != null ? $"\n<color=#968976>{Cost(data)}</color>" : "");
                 buttons[i].GetComponent<Image>().color = locked != null ? MenuTheme.Well : Color.white;
                 buttons[i].GetComponent<MenuTooltip>().Message = locked ?? (data != null
-                    ? $"{entries[i].name}: 식량 {data.foodCost} · 재료 {data.soilCost}{(data.specialCost > 0 ? $" · 특수 {data.specialCost}" : "")} · 건설 개미 {data.constructionAnts}"
+                    ? $"{entries[i].name}: 식량 {data.foodCost} · 재료 {data.soilCost}{(data.specialCost > 0 ? $" · 특수 {data.specialCost}" : "")}"
                     : "건물 틀을 찾을 수 없습니다.");
             }
         }

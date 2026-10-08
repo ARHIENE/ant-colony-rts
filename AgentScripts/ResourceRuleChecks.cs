@@ -44,25 +44,32 @@ public static class ResourceRuleChecks
             farmObject.AddComponent<FarmPlot>().Configure(FarmCrop.Fungus, false);
             Check(farm.RegrowSeconds == GameBalance.FungusSeconds && farm.RegrowAmount == GameBalance.FungusFood, "fungus 180s / Food 40");
             Check(Near(farm.RegrowTimeRemaining, 180), "fresh farm grows full 180s, got " + farm.RegrowTimeRemaining);
+            Check(farm.NeedsSowing && farm.IsDepleted, "fresh farm waits for sowing");
+            var sowField = typeof(ResourceNode).GetField("sowRemaining", BindingFlags.Instance | BindingFlags.NonPublic);
             SetMonth(9); Check(GameCalendar.CurrentSeason == Season.Winter, "winter month");
-            // 밭은 농사 중인 장수가 있어야 자란다(속도 = 장수 작업 속도 합). 장수 하나를 농사 상태로 둔다.
+            // 2026-10-08: 장수는 파종만 하고, 심은 뒤에는 혼자 자란다.
             var farmer = CommanderRoster.Instance.Commanders[0];
             typeof(WorkerAnt).GetField("targetNode", BindingFlags.Instance | BindingFlags.NonPublic).SetValue(farmer, farm);
             var farmState = typeof(WorkerAnt).GetField("state", BindingFlags.Instance | BindingFlags.NonPublic);
             farmState.SetValue(farmer, Enum.Parse(farmState.FieldType, "Gathering"));
             Check(farmer.IsGatheringAnimation && farmer.CurrentResourceNode == farm, "farmer working the farm");
+            var unsown = farm.RegrowTimeRemaining; farm.TickGrowth(60);
+            Check(!farm.NeedsSowing && Near(farm.RegrowTimeRemaining, unsown) && farmer.Talents.Xp(CommanderActivity.Farming) > 0, "farmer sows (farming XP), growth not yet");
+            farmer.CommandStop();
             farm.TickGrowth(60); Check(Near(farm.RegrowTimeRemaining, 180), "winter stops growth");
-            SetMonth(0); farm.TickGrowth(60); Check(farm.RegrowTimeRemaining < 180, "spring grows: " + farm.RegrowTimeRemaining);
+            SetMonth(0); farm.TickGrowth(60); Check(farm.RegrowTimeRemaining < 180, "sown crop grows alone in spring: " + farm.RegrowTimeRemaining);
             farm.TickGrowth(100000); var springYield = farm.AmountRemaining;
             Check(Near(springYield, GameBalance.FungusFood * ScienceEffects.FarmYieldMultiplier), "spring harvest x1: " + springYield);
-            farm.Extract(1000); Check(farm.IsRegrowing, "harvest restarts growth");
+            farm.Extract(1000); Check(farm.IsRegrowing && farm.NeedsSowing && farm.CanGather, "harvest needs resowing");
+            farm.TickGrowth(100000); Check(farm.IsDepleted && farm.NeedsSowing, "unsown crop does not grow");
+            sowField.SetValue(farm, 0f);
             SetMonth(6); Check(GameCalendar.CurrentSeason == Season.Autumn, "autumn month");
             farm.TickGrowth(100000); Check(Near(farm.AmountRemaining, springYield * 1.25f), "autumn harvest x1.25: " + farm.AmountRemaining);
-            farm.Extract(1000); farm.GetComponent<FarmPlot>().Configure(FarmCrop.Honeydew, false);
+            farm.Extract(1000); farm.GetComponent<FarmPlot>().Configure(FarmCrop.Honeydew, false); sowField.SetValue(farm, 0f);
             Check(farm.RegrowSeconds == GameBalance.HoneydewSeconds && Near(farm.RegrowTimeRemaining, GameBalance.HoneydewSeconds), "replanting after harvest uses new crop time");
             SetMonth(0); farm.TickGrowth(10); farm.GetComponent<FarmPlot>().Configure(FarmCrop.Fungus, false);
             Check(Near(farm.RegrowTimeRemaining, GameBalance.FungusSeconds), "mid-growth crop change clamps to new time");
-            farmer.CommandStop(); Object.Destroy(farmObject); farmObject = null;
+            Object.Destroy(farmObject); farmObject = null;
 
             // 낚시터: 월 한도 100, 소진 후 다음 달 회복.
             var gm = GameManager.Instance; typeof(GameManager).GetProperty("FishingUnlocked").SetValue(gm, true);

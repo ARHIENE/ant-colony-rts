@@ -105,7 +105,7 @@ public static class PlayableLoopChecks
             Set(placement, "placementValid", true);
             Call(placement, "TryPlace", (Vector3)Call(placement, "GetPlacementPosition", template.gameObject, point), point);
             Check(resources.GetAmount(ResourceType.Soil) == soil - template.Data.soilCost, "storage charges once");
-            Check(AntPool.Instance.Free == free - template.Data.constructionAnts, "construction reserves workforce");
+            Check(AntPool.Instance.Free == free, "construction borrows no ants");
             Check(resources.GetCapacity(ResourceType.Food) == before, "unfinished storage grants no capacity");
             await Wait(() => Object.FindObjectsByType<Storage>().Length == storageCount + 1, "commander walks and completes warehouse");
             Check(resources.GetCapacity(ResourceType.Food) == before + template.Data.foodCapacityBonus, "food capacity expanded once");

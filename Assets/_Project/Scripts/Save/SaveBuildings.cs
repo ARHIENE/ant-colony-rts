@@ -17,7 +17,7 @@ namespace AntColony.Save
             if (b == null) return new BuildingDto { key = key, kind = "Destroyed", health = 0 };
             var d = new BuildingDto { key = key, kind = SaveCatalog.Kind(b), runtimeBuilt = built,
                 position = new Vec3Dto(b.Position), rotationY = b.transform.eulerAngles.y, health = b.CurrentHealth };
-            d.workforce = b.GetComponent<Workforce>()?.Requested ?? 0; d.repairCredit = b.GetComponent<BuildingRepair>()?.Credit ?? 0;
+            d.repairCredit = b.GetComponent<BuildingRepair>()?.Credit ?? 0;
             if (b is Kitchen kitchen) d.kitchen = JsonUtility.FromJson<Kitchen.State>(JsonUtility.ToJson(kitchen.Meals));
             if (b is Decoration decoration) d.decorationQuality = decoration.Quality;
             if (b is Barracks barracks) { d.role = (int)barracks.Role; d.barracksTier = barracks.CurrentTier; d.barracksUpgradeRemaining = barracks.UpgradeRemaining; }
@@ -56,7 +56,7 @@ namespace AntColony.Save
                 for (var i = 0; i < values.Count; i++) d.nurseryAffinity.Add(new AffinityDto {
                     firstCommanderId = commanders.IndexOf(first[i]), secondCommanderId = commanders.IndexOf(second[i]), value = values[i] }); }
             var nodes = b.GetComponentsInChildren<ResourceNode>(true);
-            for (var i = 0; i < nodes.Length; i++) d.nodes.Add(new ResourceNodeDto { index = i, workforce = nodes[i].GetComponent<Workforce>()?.Requested ?? 0, looseCargo = nodes[i].IsLooseCargo, amount = nodes[i].AmountRemaining, regrowTimer = nodes[i].RegrowTimeRemaining, gatheringForbidden = nodes[i].GatheringForbidden, bountifulHarvest = nodes[i].BountifulHarvest });
+            for (var i = 0; i < nodes.Length; i++) d.nodes.Add(new ResourceNodeDto { index = i, looseCargo = nodes[i].IsLooseCargo, amount = nodes[i].AmountRemaining, regrowTimer = nodes[i].RegrowTimeRemaining, sowRemaining = nodes[i].SowRemaining, gatheringForbidden = nodes[i].GatheringForbidden, bountifulHarvest = nodes[i].BountifulHarvest });
             return d;
         }
 
@@ -77,7 +77,7 @@ namespace AntColony.Save
             if (b == null) throw new InvalidOperationException("Missing building: " + d.key);
             b.transform.SetPositionAndRotation(d.position.ToVector3(), Quaternion.Euler(0, d.rotationY, 0));
             b.RestoreHealth(d.health);
-            Workforce.For(b).Request(d.workforce); BuildingRepair.For(b).Credit = d.repairCredit;
+            BuildingRepair.For(b).Credit = d.repairCredit;
             if (b is Kitchen kitchen) kitchen.Meals = JsonUtility.FromJson<Kitchen.State>(JsonUtility.ToJson(d.kitchen));
             if (b is Decoration decoration) decoration.Quality = d.decorationQuality;
             if (b is Barracks barracks) barracks.RestoreState(d.barracksTier, d.barracksUpgradeRemaining);
@@ -109,7 +109,7 @@ namespace AntColony.Save
                 d.nurseryAffinity.Select(a => commanders[a.firstCommanderId]).ToList(),
                 d.nurseryAffinity.Select(a => commanders[a.secondCommanderId]).ToList(), d.nurseryAffinity.Select(a => a.value).ToList());
             var nodes = b.GetComponentsInChildren<ResourceNode>(true);
-            foreach (var node in d.nodes) { nodes[node.index].RestoreState(node.amount, node.regrowTimer); Workforce.For(nodes[node.index]).Request(node.workforce); nodes[node.index].IsLooseCargo = node.looseCargo; nodes[node.index].BountifulHarvest = node.bountifulHarvest; nodes[node.index].GatheringForbidden = node.gatheringForbidden; }
+            foreach (var node in d.nodes) { nodes[node.index].RestoreState(node.amount, node.regrowTimer, node.sowRemaining); nodes[node.index].IsLooseCargo = node.looseCargo; nodes[node.index].BountifulHarvest = node.bountifulHarvest; nodes[node.index].GatheringForbidden = node.gatheringForbidden; }
         }
     }
 }

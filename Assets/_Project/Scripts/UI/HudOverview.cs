@@ -63,7 +63,7 @@ namespace AntColony.UI
                     ? $"<size=21><b>장수 {selected.Length}명 선택</b></size>\n공통으로 가능한 명령만 표시합니다.\n\n"
                         + string.Join(" · ", selected.Take(6).Select(c => c.CommanderName + " (" + (c.IsDeployed ? "출전" : CommanderOverhead.Activity(c) is var a && a != "" ? a : "대기") + ")"))
                         + (selected.Length > 6 ? $" 외 {selected.Length - 6}명" : "")
-                        + $"\n\n평시 {selected.Count(c => !c.IsDeployed)}명 · 출전 {selected.Count(c => c.IsDeployed)}명 · 배정 인력 {selected.Sum(c => c.WorkingAnts)}"
+                        + $"\n\n평시 {selected.Count(c => !c.IsDeployed)}명 · 출전 {selected.Count(c => c.IsDeployed)}명"
                     : $"<size=21><b>군체 현황</b></size>\n장수나 건물을 선택하세요. 평시 장수는 작업표에 따라 일합니다.\n\n대기 인력 {AntPool.Instance?.Free ?? 0} · 추가 동원 가능 {AvailableDraft}\n\n숙소 침대 {Beds} / 장수 {HomeCommanders.Length}"
                         + (BedShortage > 0 ? $"   <color=#ef955f>{BedShortage}명 부족</color>" : "   충분");
             if ((refresh -= Time.unscaledDeltaTime) > 0) return;

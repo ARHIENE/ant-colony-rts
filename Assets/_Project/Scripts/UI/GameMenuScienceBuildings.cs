@@ -25,7 +25,7 @@ namespace AntColony.UI
                 if (data == null) continue;
                 var special = data.specialCost > 0 ? $"/{data.specialCost} Special" : "";
                 var captured = kind;
-                MenuTheme.Button(content, $"Build {data.displayName} ({data.foodCost}F/{data.soilCost} 재료{special}/{data.constructionAnts} ants)",
+                MenuTheme.Button(content, $"Build {data.displayName} ({data.foodCost}F/{data.soilCost} 재료{special})",
                     () => { Resume(); placement?.BeginSciencePlacement(captured); },
                     ScienceEffects.BuildingUnlocked(kind) ? "Select an idle commander at home, then place." : "Research the matching science first.")
                     .interactable = ScienceEffects.BuildingUnlocked(kind);

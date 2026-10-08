@@ -22,6 +22,10 @@ namespace AntColony.World
         [SerializeField, Min(0f)] private float regrowAmount = 0f;
 
         private float regrowTimer;
+        // 밭(2026-10-08): 수확 뒤 장수가 파종해야 다시 자란다. 남은 파종 작업량(초, 장수 작업 속도로 줄어듦). 0이면 심어져 혼자 자람.
+        private float sowRemaining;
+        public bool NeedsSowing => sowRemaining > 0f;
+        public float SowRemaining => sowRemaining;
         public float RegrowSeconds => regrowSeconds;
         public float RegrowAmount => regrowAmount;
         // 재성장 노드를 다 캤을 때(밭 수확 완료). 고급 균류의 Special 판정이 쓴다.
@@ -37,7 +41,7 @@ namespace AntColony.World
             || ownerColony.GetComponentInParent<ExpeditionSite>()?.Disposition == ConquestDisposition.Lost);
         public bool IsUnlocked => !IsRaidLocked && (GetComponentInParent<ExpeditionSite>()?.Disposition == ConquestDisposition.Annexed || DiplomacyManager.Hostile(this))
             && (!requiresFishing || (GameManager.Instance != null && GameManager.Instance.FishingUnlocked));
-        public bool CanGather => !GatheringForbidden && isActiveAndEnabled && (!IsDepleted || IsFarm && IsRegrowing) && IsUnlocked && !ColonyEvents.Flooded(this);
+        public bool CanGather => !GatheringForbidden && isActiveAndEnabled && (!IsDepleted || IsFarm && NeedsSowing) && IsUnlocked && !ColonyEvents.Flooded(this);
         public float GatherRateMultiplier => requiresFishing ? fishingRateMultiplier : 1f;
 
         public ResourceType ResourceType => resourceType;
@@ -53,7 +57,7 @@ namespace AntColony.World
         {
             Active.Add(this);
             // 갓 지어진 밭은 비어 있는 상태로 시작해 한 번 성장한 뒤 수확 가능해진다.
-            if (regrowSeconds > 0f && IsDepleted) regrowTimer = regrowSeconds;
+            if (regrowSeconds > 0f && IsDepleted && regrowTimer <= 0f) { regrowTimer = regrowSeconds; if (IsFarm) sowRemaining = GameBalance.SowSeconds; }
             if ((regrowSeconds > 0f || requiresFishing || IsRaidLoot) && GetComponent<ResourceNodeStatus>() == null)
                 gameObject.AddComponent<ResourceNodeStatus>();
         }
@@ -74,12 +78,15 @@ namespace AntColony.World
         {
             if (regrowTimer <= 0f || !(seconds > 0) || float.IsInfinity(seconds)) return;
             float labor = 1;
-            if (IsFarm)
+            if (IsFarm && NeedsSowing)
             {
+                // 파종만 장수 일. 심은 뒤에는 환경 조건에 따라 혼자 자란다.
                 labor = 0;
                 foreach (var unit in AntColony.Units.AntUnitBase.Active)
                     if (unit is AntColony.Units.CommanderAnt c && c.CivilianWorkReady && c.CurrentResourceNode == this && c.IsGatheringAnimation)
-                    { labor += c.WorkRate(AntColony.Units.CommanderActivity.Farming); c.GainExperience(AntColony.Units.CommanderActivity.Farming, Mathf.Min(seconds, regrowTimer / Mathf.Max(.01f, labor))); }
+                    { labor += c.WorkRate(AntColony.Units.CommanderActivity.Farming); c.GainExperience(AntColony.Units.CommanderActivity.Farming, Mathf.Min(seconds, sowRemaining / Mathf.Max(.01f, labor))); }
+                sowRemaining = Mathf.Max(0, sowRemaining - seconds * labor);
+                return;
             }
             regrowTimer = Mathf.Max(0, regrowTimer - seconds * labor * ColonyEvents.GrowthMultiplier(this) * (IsFarm ? BiomeRules.FarmGrowth * AntColony.Map.WeatherSystem.FarmGrowth : 1f));
             // 밭(건물 노드)만 균류 재배 수확량 보정과 가을 수확 배율을 받는다.
@@ -118,7 +125,7 @@ namespace AntColony.World
             if (IsDepleted)
             {
                 if (requiresFishing) { }
-                else if (regrowSeconds > 0f) { regrowTimer = regrowSeconds; BountifulHarvest = false; Harvested?.Invoke(); }
+                else if (regrowSeconds > 0f) { regrowTimer = regrowSeconds; if (IsFarm) sowRemaining = GameBalance.SowSeconds; BountifulHarvest = false; Harvested?.Invoke(); }
                 else gameObject.SetActive(false);
             }
             return extracted;
@@ -145,8 +152,9 @@ namespace AntColony.World
         }
 
         // 저장 복원 전용. 잔량과 재성장 타이머를 그대로 되돌린다.
-        internal void RestoreState(float amount, float timer)
+        internal void RestoreState(float amount, float timer, float sow = 0f)
         {
+            sowRemaining = Mathf.Max(0f, sow);
             amountRemaining = Mathf.Max(0f, amount);
             regrowTimer = Mathf.Max(0f, timer);
             var shouldBeActive = !IsDepleted || regrowSeconds > 0f || requiresFishing;

@@ -4,8 +4,8 @@ using UnityEngine;
 
 namespace AntColony.Core
 {
-    // Phase 4(2026-10-01): 일반개미 유지비 → 세금. 30초마다 인구가 Food를 낸다(ColonyPopulation.TaxPerCycle).
-    // 창고 Food가 바닥나면 식량 부족: 대기 개미가 사라지고 장수는 굶주림(기분 낮은 장수는 이탈).
+    // 30초마다 창고 Food를 확인한다. 바닥나면 장수만 굶주림(기분 낮은 장수는 이탈).
+    // 2026-10-08: 세금은 ColonyPopulation 주간 납세로 옮김. 시민은 자체 생계라 식량 부족으로 사라지지 않는다.
     public class UpkeepManager : MonoBehaviour
     {
         [SerializeField] private float cycleInterval = 30f;
@@ -22,20 +22,16 @@ namespace AntColony.Core
             RunCycle();
         }
 
-        public int TaxIncome => ColonyPopulation.Instance != null ? ColonyPopulation.Instance.TaxPerCycle : 0;
-
         internal void RunCycle()
         {
             var rm = ResourceManager.Instance;
             if (rm == null || AntPool.Instance == null) return;
-            rm.Add(ResourceType.Food, TaxIncome, ResourceReason.Tax);
             if (rm.GetAmount(ResourceType.Food) > 0)
             {
                 ConsecutiveFailures = 0;
                 return;
             }
             ConsecutiveFailures++;
-            ColonyPopulation.Instance?.Starve();
             var hungry = new System.Collections.Generic.List<AntUnitBase>(AntUnitBase.Active);
             foreach (var c in hungry)
             {

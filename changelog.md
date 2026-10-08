@@ -1,3 +1,7 @@
+# 2026-10-07 SAVE(저녁, Claude) — 이전 로그 요약
+- FIX-01 휴식→배정 숙소(`Dormitory.Assign`), FIX-02 성체 전체 3% 노화(동원 몫 `agingDue`로 복귀 시 전환), FIX-03 끈끈이(기존 TrapPit)/가시 함정(`BuildingKind.SpikeTrap`, 반경 1.2·1초 피해 6·8회) 분리. DOC-01(Codex) 문구 교정 완료.
+- 검사: DayNight 42, Phase4 42, Workforce 80, Stage2 185, FurnitureCatalog 40, BuildCategory 62, SaveRoundtrip 57. 저장 왕복 검사는 Play 재시작 후 실행.
+
 # 2026-10-07 SAVE(저녁) — 이전 로그(Codex DOC-01 중단 인계 + SAVE 마무리) 요약
 - Codex DOC-01: Notion 9개 기획 페이지 문구를 최신 확정안(로켓 승리·6시대·이주/세금·작업표·기술 13종·징집소·1m 격자·16탭·3×3 명령 카드)으로 교체, 게임 표시 문구 15개 파일 교정. 중단 시점에 `AirshipYard.PartName` 미정의 호출·ColonyInvasion 변수명 `마리` 치환 손상으로 컴파일 깨짐 → 이후 Codex가 복구, 사용자 정정으로 영어 허용·일괄 번역 중단, README·Notion 참조 정리(보드 DOC-01 완료, 실행 화면 미검증).
 - 앞선 SAVE 마무리(Codex): 공동 보드 작성, 문서 `9101d43` push, Notion 10-07 개발 일지·Trouble Shooting 기록. FIX-01 DayNightChecks 65행 실패·노화/함정 결정 대기 상태로 인계.

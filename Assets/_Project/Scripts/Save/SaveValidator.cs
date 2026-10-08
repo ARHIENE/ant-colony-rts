@@ -174,7 +174,9 @@ namespace AntColony.Save
             var pop = file.population;
             if (pop == null || pop.young < 0 || pop.old < 0 || pop.agingDue < 0 || !Enum.IsDefined(typeof(Core.MilitaryPolicy), pop.policy)
                 || !(pop.sentiment >= 0 && pop.sentiment <= 100) || !(pop.taxRate >= 0 && pop.taxRate <= Core.GameBalance.MaxTaxRate)
-                || float.IsNaN(pop.monthSeconds) || float.IsInfinity(pop.monthSeconds) || pop.monthSeconds < 0 || float.IsNaN(pop.raidSeconds) || pop.raidSeconds < 0)
+                || float.IsNaN(pop.monthSeconds) || float.IsInfinity(pop.monthSeconds) || pop.monthSeconds < 0 || float.IsNaN(pop.raidSeconds) || pop.raidSeconds < 0
+                || !Enum.IsDefined(typeof(Core.TaxFocus), pop.taxFocus) || !(pop.taxWeek >= 0 && pop.taxWeek <= Core.ColonyPopulation.WeekSeconds)
+                || !(pop.taxFood >= 0 && pop.taxFood < 1e7f) || !(pop.taxSoil >= 0 && pop.taxSoil < 1e7f))
             { error = "Invalid population."; return false; }
             if (file.colony.antsFree < 0 || file.colony.antsAssigned < 0 || file.colony.antsReserved < 0)
             { error = "Negative ant counts."; return false; }

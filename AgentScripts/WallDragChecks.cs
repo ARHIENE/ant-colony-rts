@@ -37,7 +37,6 @@ public static class WallDragChecks
         var placement = Object.FindAnyObjectByType<BuildingPlacementController>();
         var rm = ResourceManager.Instance;
         var builder = CommanderRoster.Instance.Commanders.First(c => c.CanStartConstruction);
-        Check(BuildingPlacementController.IsLineKind(BuildingKind.LeafWall) && !BuildingPlacementController.IsLineKind(BuildingKind.Door), "walls drag, doors do not");
 
         var home = WorldMapManager.Instance.HomePosition + new Vector3(14, 0, -14);
         Check(NavMesh.SamplePosition(home, out var hit, 10, NavMesh.AllAreas), "open ground");
@@ -69,6 +68,12 @@ public static class WallDragChecks
         var valid = row2.ConvertAll(_ => true); valid[1] = false;
         before = Sites();
         Check(placement.PlaceLine(row2, valid) == 3 && Sites() == before + 3 && rm.GetAmount(RT.Soil) < cost.soilCost, "stops when materials run out, skips blocked cell");
+        // Shift+드래그(2026-10-08): 배치 후에도 선택 유지.
+        rm.Add(RT.Soil, 1000); placement.CancelPlacement();
+        Check(placement.BeginPlacement(BuildingKind.LeafWall, UnitRole.Worker, CommanderRoster.Instance.Commanders.First(c => c.CanStartConstruction)), "begin shift");
+        var row3 = placement.LineCells(start + Vector3.forward * 9, start + Vector3.forward * 9 + Vector3.right * 2);
+        Check(placement.PlaceLine(row3, row3.ConvertAll(_ => true), true) == 3 && placement.IsPlacing, "shift placement keeps mode");
+        placement.CancelPlacement();
         await Task.Yield();
         return "PASS " + checks + " wall drag checks";
     }

@@ -56,6 +56,7 @@ namespace AntColony.Core
 
         // 작물: 기본 균류 3분·Food 40. 가을 수확 ×1.25, 겨울 성장 정지(밭만).
         public const float FungusSeconds = 180, FungusFood = 40, AutumnHarvestMultiplier = 1.25f;
+        public const float SowSeconds = 5; // 밭 파종 작업량(2026-10-08 잠정, 장수 작업 속도로 나눔)
         // 낚시: 1회 20초·Food 6 × 낚시 기술 배율(한파 −20%). 낚시터 1곳당 월 Food 100, 다음 달 회복.
         public const float FishingCatchSeconds = 20, FishingCatchFood = 6, FishingMonthlyFood = 100;
         public const float HoneydewSeconds = 300, HoneydewFood = 80;
@@ -64,13 +65,13 @@ namespace AntColony.Core
         public const int AdvancedFungusSpecial = 2;
 
         // 낮밤·수면 (2026-09-28). 숙소 정원 4 확정, 나머지 잠정.
-        // Phase 4 인구(2026-10-01, 잠정): 기본 살 자리, 세금(30초마다 납세 개미 × 세율 × 이 값 Food), 민심·이주·노화.
+        // Phase 4 인구(2026-10-01, 잠정): 기본 살 자리, 세금(납세 시민 1명당 세율 100% 기준 월 생산 가치 TaxPerAntMonth, 2026-10-08 주간 현물), 민심·이주·노화.
         public const int BaseHousing = 50, MinImmigrationDemand = 30;
         public const float DoorBashDamage = 15; // Phase 5: 문에 닿은 적이 0.25초마다 주는 피해(잠정)
         // 공성(2026-10-03, 잠정): 길이 막힌 침공 개체가 벽을 찾는 반경, 나뭇잎 벽 불(지속·초당 피해·옆 벽 번질 확률)
         public const float SiegeSearchRadius = 8, WallFireSeconds = 8, WallFireDamagePerSecond = 20, WallFireSpreadChance = .5f;
-        public const float TaxFoodPerAnt = .5f, MaxTaxRate = .5f, RaidSentiment = 10, UnrestSentiment = 15;
-        public const float ImmigrationShare = .3f, AdultAging = .03f, OldDeath = .15f, UnrestDesertion = .05f, StarveDesertion = .05f;
+        public const float TaxPerAntMonth = 5f, MaxTaxRate = .5f, RaidSentiment = 10, UnrestSentiment = 15;
+        public const float ImmigrationShare = .3f, AdultAging = .03f, OldDeath = .15f, UnrestDesertion = .05f;
         // 주거 건물(방 밖에 짓는 건물 단위, 자동 레벨업 없음): 수용 수·재료·인력·시간
         public const int HutHousing = 20, HutSoil = 30, HouseHousing = 50, HouseSoil = 80, ApartmentHousing = 120, ApartmentSoil = 200, ApartmentSpecial = 20;
         // 장수 나이(개월): 시작 12~72, 어린 장수 12개월 미만, 늙음 96개월 이상, 수명 120~168개월.
@@ -84,11 +85,8 @@ namespace AntColony.Core
         public const float FatiguePerWorkSecond = 100f / 600f, FatigueRestPerSecond = .5f, TiredFatigue = 50;
         public const float FullSleepShare = .9f;
 
-        // 인력(2026-09-28): 상한 = 5 + 해당 작업 기술×2(확정). 개미 1마리당 효율은 일정(잠정 +10%).
-        public const int WorkforceBase = 5, WorkforcePerSkill = 2;
-        public const float WorkforcePerAnt = .1f;
-        // 한 짐 운반량 = 10 + 근력×1.5 + 인력 1마리당 2 (확정). 근력 경험치는 운반량만큼(잠정).
-        public const float CarryBase = 10, CarryPerStrength = 1.5f, CarryPerAnt = 2;
+        // 한 짐 운반량 = 10 + 근력×1.5 (2026-10-08: 일반개미 인력 가산 폐기). 근력 경험치는 운반량만큼(잠정).
+        public const float CarryBase = 10, CarryPerStrength = 1.5f;
         // 수리 비용 = 잃은 체력 비율 × 건설비 50%(확정). 수리 속도 잠정: 초당 최대 체력 2%.
         public const float RepairCostShare = .5f, RepairPerSecond = .02f;
         // 간호 장수가 없으면 의무실 치료 절반 속도(확정).

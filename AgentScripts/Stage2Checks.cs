@@ -98,8 +98,8 @@ public static class Stage2Checks
             plot.Configure(FarmCrop.Fungus, ScienceEffects.WideFarms);
             Check(plot.Wide && Mathf.Approximately(farm.transform.localScale.x, 2 * widthBefore), "fungal farming: new farm is 2 cells wide");
             var baseAmount = node.RegrowAmount;
-            typeof(ResourceNode).GetMethod("RestoreState", Any).Invoke(node, new object[] { 0f, .01f });
-            // 밭은 농사 중인 장수가 있어야 자란다. 장수 a를 농사 상태로 두고 직접 진행한다.
+            typeof(ResourceNode).GetMethod("RestoreState", Any).Invoke(node, new object[] { 0f, .01f, 0f });
+            // 심어진 밭(파종 0)은 혼자 자란다(2026-10-08).
             typeof(WorkerAnt).GetField("targetNode", BindingFlags.Instance | BindingFlags.NonPublic).SetValue(a, node);
             var farmState = typeof(WorkerAnt).GetField("state", BindingFlags.Instance | BindingFlags.NonPublic);
             farmState.SetValue(a, Enum.Parse(farmState.FieldType, "Gathering"));

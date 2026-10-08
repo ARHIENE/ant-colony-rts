@@ -108,8 +108,10 @@ public static class AutonomousDutyChecks
             var research = CampaignResearch.Instance;
             Check(research.TryStart(ScienceTechnology.Resin), "research order queued");
             c.SetJobEnabled(CommanderJobs.Research, true); c.TickDuty(2);
-            Check(lab.Target == c && c.ScienceAssignment == lab, "automatic researcher assignment");
-            research.Tick(10000); Check(research.Has(ScienceTechnology.Resin), "automatic researcher advances science");
+            Check(lab.Target == null && c.ScienceAssignment == null, "research is not picked up autonomously (2026-10-08)");
+            Check(c.SendToResearch(lab), "player designates researcher"); for (var i = 0; i < 40 && c.ScienceAssignment == null; i++) { c.TickDuty(.5f); await Task.Delay(50); }
+            Check(lab.Target == c && c.ScienceAssignment == lab, "designated researcher reaches lab");
+            research.Tick(10000); Check(research.Has(ScienceTechnology.Resin) && research.Active == null, "designated researcher completes science, no auto repeat");
             c.TickDuty(2); Check(c.ScienceAssignment == null, "completed research releases worker");
             var rs = research.CaptureState(); rs.completed.Add((int)ScienceTechnology.Blades); research.RestoreState(rs);
             ResourceManager.Instance.Add(Resource.Special, 20);

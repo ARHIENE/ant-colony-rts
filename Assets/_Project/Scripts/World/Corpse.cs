@@ -60,7 +60,6 @@ namespace AntColony.World
             var state = JsonUtility.FromJson<State>(JsonUtility.ToJson(Data)); state.position = Position;
             var food = GetComponent<ResourceNode>(); state.food = food != null ? food.AmountRemaining : 0;
             state.gatheringForbidden = food != null && food.GatheringForbidden;
-            state.workforce = GetComponent<Workforce>()?.Requested ?? 0;
             state.workerId = Handler != null ? Handler.PersonalState.id : null;
             state.eating = Handler != null && Handler.EatingCorpse;
             state.progress = Handler != null ? Handler.CorpseProgress : 0;
@@ -93,7 +92,7 @@ namespace AntColony.World
             if (state.food > 0)
             {
                 var node = root.AddComponent<ResourceNode>(); node.ConfigureLoot(ResourceType.Food, state.food);
-                node.GatheringForbidden = state.gatheringForbidden; Workforce.For(node).Request(state.workforce);
+                node.GatheringForbidden = state.gatheringForbidden;
             }
             root.SetActive(true);
             var animator = body.GetComponentInChildren<Animator>();

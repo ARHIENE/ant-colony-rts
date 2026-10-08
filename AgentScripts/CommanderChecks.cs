@@ -149,9 +149,8 @@ public static class CommanderChecks
             science.ReleaseResearcher();
             Object.Destroy(scienceObject);
             var beforeFood = rm.GetAmount(AntColony.Data.ResourceType.Food);
-            var tax = upkeep.TaxIncome;
-            typeof(UpkeepManager).GetMethod("RunCycle", BindingFlags.NonPublic | BindingFlags.Instance).Invoke(upkeep, null);
-            Check(tax == ColonyPopulation.Instance.TaxPerCycle && rm.GetAmount(AntColony.Data.ResourceType.Food) == Mathf.Min(beforeFood + tax, rm.GetCapacity(AntColony.Data.ResourceType.Food)), "tax income once (Phase 4)");
+            ColonyPopulation.Instance.S.taxFood = 3.5f; ColonyPopulation.Instance.PayTax();
+            Check(rm.GetAmount(AntColony.Data.ResourceType.Food) == Mathf.Min(beforeFood + 3, rm.GetCapacity(AntColony.Data.ResourceType.Food)) && Mathf.Approximately(ColonyPopulation.Instance.S.taxFood, .5f), "weekly tax pays whole units once");
             var beforeLoss = pool.Total;
             var troops = commander.TroopCount;
             var personalHealth = commander.PersonalHealth;

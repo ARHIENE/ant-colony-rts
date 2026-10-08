@@ -58,7 +58,7 @@ namespace AntColony.UI
             var campaign = CampaignResearch.Instance;
             if (campaign != null && campaign.Departed) return "로켓 발사 완료";
             if (campaign != null && campaign.Active != null)
-                return $"연구 · {campaign.Active.Name}\n{campaign.Progress:0}/{campaign.Active.Work:0} · 해당 시대 이상 연구소에 장수 배정";
+                return $"연구 · {campaign.Active.Name}\n{campaign.Progress:0}/{campaign.Active.Work:0} · 과학 화면에서 연구 장수 지시";
             if (game.SavedBoss) return "로켓 탈출 · 보스 보상 회수\n본거지로 귀환 후 로켓 연구";
             var world = WorldMapManager.Instance;
             if (world != null)

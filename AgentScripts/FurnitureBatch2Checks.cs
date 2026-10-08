@@ -78,7 +78,6 @@ public static class FurnitureBatch2Checks
             await Task.Yield();
             Check(RoomSystem.RoomAt(inside).Floors == 4 && RoomSystem.RoomAt(inside).Score == before + 2, "floors raise room score");
             Check(FloorTile.At(o + new Vector3(2.5f, 0, 1.5f)) && !FloorTile.At(o + new Vector3(2.5f, 0, 3.5f)), "floor cells tracked");
-            Check(BuildingPlacementController.IsLineKind(BuildingKind.Floor), "floor drags in a line");
 
             // 4. 잠금문: 밤에만 잠긴다.
             var locked = Put<Door>(BuildingKind.LockedDoor, home + new Vector3(30.5f, .75f, 30.5f));

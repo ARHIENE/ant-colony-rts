@@ -169,7 +169,7 @@ namespace AntColony.Units
             amount * traits.GrowthMultiplier(activity) * AgeLearningMultiplier * (1f - .5f * PersonalState.Severity(InjuryPart.Head)));
         // 창고는 정수만 받으므로 한 번에 나르는 양도 정수로 내린다(17.25면 매 왕복 자투리가 바닥 더미로 떨어졌다).
         protected override float CarryCapacity => Mathf.Max(1f, Mathf.Floor(LoadCapacity));
-        protected override float FishingWorkSpeed => WorkforceMultiplier * WorkFactor;
+        protected override float FishingWorkSpeed => WorkFactor;
         protected override void OnDelivered(float amount) => GainExperience(CommanderActivity.Strength, amount * .5f);
 
         // 중첩 없이 가장 가까운 지원 장수 한 명만 확인한다. 현재 장수 12명 규모에서는 선형 검색이 가장 단순하다.
