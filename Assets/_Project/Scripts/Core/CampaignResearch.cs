@@ -35,6 +35,20 @@ namespace AntColony.Core
 
     public sealed class CampaignResearch : MonoBehaviour
     {
+        // 연구 주제별 보조 능력(2026-10-07 기획 표: 생물·의료 → 의료, 농업 → 농사, 기계 → 제작, 군사 전술 → 지휘, 무기 → 근접/원거리).
+        // 항목별 분류는 잠정(Claude 초안). 표에 맞는 분야가 없는 항목(저장·치수·방화·보온·휴게·낚시)은 연구만 성장한다.
+        public static CommanderActivity? Topic(ScienceTechnology t) => t switch
+        {
+            ScienceTechnology.FungalFarming or ScienceTechnology.HoneydewRanch or ScienceTechnology.AdvancedCrops => CommanderActivity.Farming,
+            ScienceTechnology.Herbs or ScienceTechnology.Sanitation or ScienceTechnology.Infirmary or ScienceTechnology.Regeneration => CommanderActivity.Medicine,
+            ScienceTechnology.Blades or ScienceTechnology.AdvancedWeapons => CommanderActivity.Melee,
+            ScienceTechnology.AcidRefining => CommanderActivity.Ranged,
+            ScienceTechnology.ArmorPlates or ScienceTechnology.Trinkets or ScienceTechnology.Gliding or ScienceTechnology.Traps or ScienceTechnology.Mines
+                or ScienceTechnology.Vehicle or ScienceTechnology.Aircraft or ScienceTechnology.HeavyTransport or ScienceTechnology.EfficientTransport
+                or ScienceTechnology.MigrationTheory or ScienceTechnology.Hull or ScienceTechnology.Cocoons or ScienceTechnology.Engine => CommanderActivity.Crafting,
+            ScienceTechnology.Watchtowers or ScienceTechnology.ConscriptionLaw or ScienceTechnology.ReserveForces or ScienceTechnology.TotalMobilization => CommanderActivity.Command,
+            _ => null
+        };
         public static CampaignResearch Instance { get; private set; }
         // 6시대(2026-10-05). 기존 4시대 매핑: 소굴=소굴, 공학=증기, 항공=전기, 대이주=미래.
         // TODO 석유(3)·원자(5) 시대 연구 항목은 아직 없음(빈 시대).
@@ -147,7 +161,7 @@ namespace AntColony.Core
                 if (!lab.isActiveAndEnabled || lab.Busy || lab.Tier < Active.Tier || c == null
                     || !c.CivilianWorkReady || !c.CanReceiveOrders || c.IsAwayFromHome || c.ScienceAssignment != lab) continue;
                 state.progress += seconds * c.WorkRate(CommanderActivity.Research) * (1f + .25f * (lab.Tier - 1));
-                c.GainExperience(CommanderActivity.Research, seconds);
+                c.GainExperience(CommanderActivity.Research, seconds, Topic(Active.Technology));
             }
             if (state.progress < Active.Work) return;
             var completed = Active;

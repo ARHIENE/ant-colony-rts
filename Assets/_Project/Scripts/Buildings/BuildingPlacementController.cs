@@ -23,6 +23,7 @@ namespace AntColony.Buildings
         private UnitRole pendingRole = UnitRole.Melee;
         private WorkerAnt builder;
         private Housing redevelopTarget;
+        private BuildingBase moveTarget; // 가구 이동 모드: 배치하면 비용 없이 이동 예정지를 만든다.
         // 마우스가 기존 집 위에 있으면 재개발 견적(건설 화면 배치 줄에 표시).
         public string RedevelopInfo => IsPlacing && redevelopTarget != null && GetTemplate(pendingKind, pendingRole)?.GetComponent<BuildingBase>()?.Data is BuildingData data
             ? Redevelopment.Describe(Redevelopment.Price(data, redevelopTarget)) : null;
@@ -78,16 +79,16 @@ namespace AntColony.Buildings
 
             var template = GetTemplate(pendingKind, pendingRole);
             var position = GetPlacementPosition(template, hit.point);
-            redevelopTarget = Redevelopment.FindTarget(pendingKind, position, PlacementExtents(), obstructionMask);
+            redevelopTarget = moveTarget != null ? null : Redevelopment.FindTarget(pendingKind, position, PlacementExtents(), obstructionMask);
             // Phase 5: 주거 건물은 방 밖에만 짓는다.
-            placementValid = Vector3.Angle(hit.normal, Vector3.up) <= maxGroundSlope && !HasObstruction(position, redevelopTarget)
+            placementValid = Vector3.Angle(hit.normal, Vector3.up) <= maxGroundSlope && !HasObstruction(position, moveTarget != null ? moveTarget : redevelopTarget)
                 && !(Housing.IsKind(pendingKind) && RoomSystem.IsIndoors(position))
                 && Reachable(hit.point);
             UpdatePreview(position, placementValid);
 
             // 연속 배치(2026-10-08): 좌클릭 = 1개 배치 후 종료, Shift+좌클릭 = 배치 후 선택 유지, Shift+드래그 = 한 줄 연속 배치.
             var shift = keyboard != null && keyboard.shiftKey.isPressed;
-            if (shift || dragStart != null) { UpdateLine(mouse, position); return; }
+            if (moveTarget == null && (shift || dragStart != null)) { UpdateLine(mouse, position); return; }
             if (mouse.leftButton.wasPressedThisFrame && !IsPointerOverUi())
             {
                 TryPlace(position, hit.point);
@@ -151,6 +152,19 @@ namespace AntColony.Buildings
         }
 
         private bool BeginPlacement(BuildingKind kind, UnitRole role) => BeginPlacement(kind, role, null);
+
+        // 가구 이동: 같은 모양의 청사진을 새 위치에 놓으면 장수가 옮긴다(추가 비용 없음, 해금·개수 조건은 보지 않는다).
+        public bool BeginMove(BuildingBase target)
+        {
+            if (!Demolition.CanMove(target)) return PlacementFailed("이 대상은 옮길 수 없습니다(벽·문·바닥은 철거 후 다시 지으세요).");
+            var role = target is Barracks barracks ? barracks.Role : target is ResearchLab lab ? lab.Role : UnitRole.Worker;
+            var template = GetTemplate(target.Data.kind, role);
+            if (template == null) return PlacementFailed("This building template is unavailable.");
+            CancelPlacement();
+            pendingKind = target.Data.kind; pendingCrop = null; pendingRole = role; builder = null;
+            IsPlacing = true; CreatePreview(template); moveTarget = target;
+            return true;
+        }
         public BuildingKind PendingKind => pendingKind;
         public UnitRole PendingRole => pendingRole;
         public WorkerAnt Builder => builder;
@@ -185,6 +199,7 @@ namespace AntColony.Buildings
         // 한 칸 배치. commandBuilder = 고른 장수에게 바로 맡김(줄 배치의 나머지 칸은 건설 작업이 켜진 장수가 자율로 짓는다).
         private BuildingConstructionSite PlaceOne(Vector3 position, Vector3 groundPosition, bool commandBuilder, Housing redevelop = null)
         {
+            if (moveTarget != null) return placementValid ? Demolition.OrderMove(moveTarget, position) : null;
             if (LockReason(pendingKind) != null) return null;
             if (pendingKind == BuildingKind.MineField && MineField.Count >= GameBalance.MaxMines) return null;
             if (pendingKind == BuildingKind.Infirmary && !Infirmary.Unlocked) return null;
@@ -267,7 +282,9 @@ namespace AntColony.Buildings
             return cells;
         }
 
-        private bool CellValid(Vector3 cell) => !HasObstruction(cell) && Reachable(cell);
+        // 재개발도 Shift 배치 가능: 칸마다 겹친 더 작은 집을 찾아 교체 대상으로 삼는다.
+        private Housing RedevelopAt(Vector3 cell) => Redevelopment.FindTarget(pendingKind, cell, PlacementExtents(), obstructionMask);
+        private bool CellValid(Vector3 cell) => !HasObstruction(cell, RedevelopAt(cell)) && !(Housing.IsKind(pendingKind) && RoomSystem.IsIndoors(cell)) && Reachable(cell);
 
         // 장수 미지정 배치(2026-10-08): 고른 장수가 없으면 본거지의 아무 장수 기준으로 도달 가능 여부를 본다.
         private bool Reachable(Vector3 point)
@@ -304,7 +321,7 @@ namespace AntColony.Buildings
             for (var i = 0; i < cells.Count; i++)
             {
                 if (!valid[i]) { blocked++; continue; }
-                var site = PlaceOne(cells[i], cells[i] - Vector3.up * height, false);
+                var site = PlaceOne(cells[i], cells[i] - Vector3.up * height, false, RedevelopAt(cells[i]));
                 if (site == null) break;
                 if (first == null) first = site;
                 placed++;
@@ -338,6 +355,7 @@ namespace AntColony.Buildings
             IsPlacing = false;
             builder = null;
             redevelopTarget = null;
+            moveTarget = null;
             if (preview != null) Destroy(preview);
             preview = null;
             dragStart = null;
@@ -504,12 +522,12 @@ namespace AntColony.Buildings
         }
 
         // ignore = 재개발로 교체할 기존 집(겹쳐도 막지 않는다).
-        private bool HasObstruction(Vector3 position, Housing ignore = null)
+        private bool HasObstruction(Vector3 position, BuildingBase ignore = null)
         {
             foreach (var hit in Physics.OverlapBox(position, PlacementExtents(), Quaternion.identity, obstructionMask, QueryTriggerInteraction.Collide))
             {
                 if ((groundMask.value & (1 << hit.gameObject.layer)) != 0) continue;
-                if (ignore != null && hit.GetComponentInParent<Housing>() == ignore) continue;
+                if (ignore != null && hit.GetComponentInParent<BuildingBase>() == ignore) continue;
                 return true;
             }
             return false;

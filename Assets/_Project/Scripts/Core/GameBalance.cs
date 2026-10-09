@@ -85,6 +85,8 @@ namespace AntColony.Core
         public const float AdminTaxLoss = .15f, AdminSentiment = 5f, AdminDemand = 10f, AdminRedevelopRelief = .5f, AdminCompensationRelief = .2f;
         // 재개발(2026-10-08 기획, 수치 잠정): 기본 보상 = 거주 1마리당 식량·재료, 재개발 건설비 할인, 보상 부족 불만, 지연 기준.
         public const float RedevelopFoodPerResident = .5f, RedevelopSoilPerResident = .5f, RedevelopCostShare = .6f;
+        // 철거·가구 이동(2026-10-08 기획): 철거 반환 70%(확정). 작업량 = 건설 시간 × 비율(잠정).
+        public const float DemolishRefundShare = .7f, DemolishWorkShare = .5f, MoveWorkShare = .5f;
         public const float RedevelopMinCompensation = .5f, RedevelopMaxCompensation = 2f, RedevelopUnrestPerResident = .2f, RedevelopDelaySeconds = 120f, RedevelopDelaySentimentPerMonth = 3f;
         // 장수 나이(개월): 시작 12~72, 어린 장수 12개월 미만, 늙음 96개월 이상, 수명 120~168개월.
         public const float ChildMonths = 12, ElderMonths = 96, MinLifespan = 120, MaxLifespan = 168;

@@ -14,6 +14,13 @@ namespace AntColony.Units
             new Vector3Int(0,40,5), new Vector3Int(30,0,15), new Vector3Int(20,20,0), new Vector3Int(20,20,0),
             new Vector3Int(30,0,5), new Vector3Int(0,30,10) };
         public static string Name(EquipmentRecipe recipe) => Names[(int)recipe];
+        // 제작 분류별 보조 능력(2026-10-07 기획 표, 품목 분류는 잠정): 중량 단조(큰턱 날·방패·코팅) = 근력, 정밀 기계(분사기·신호기·날개) = 연구, 장신구 = 예술.
+        public static CommanderActivity Topic(EquipmentRecipe recipe) => recipe switch
+        {
+            EquipmentRecipe.Mandible or EquipmentRecipe.Shield or EquipmentRecipe.Coating => CommanderActivity.Strength,
+            EquipmentRecipe.AcidSprayer or EquipmentRecipe.Pheromone or EquipmentRecipe.Wings => CommanderActivity.Research,
+            _ => CommanderActivity.Art
+        };
         public static Vector3Int Cost(EquipmentRecipe recipe) => Costs[(int)recipe];
         public static bool Unlocked(EquipmentRecipe recipe) => Enum.IsDefined(typeof(EquipmentRecipe), recipe)
             && ((int)recipe < 4 ? ScienceEffects.CanCraft((WeaponKind)recipe)

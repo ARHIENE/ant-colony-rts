@@ -105,6 +105,11 @@ namespace AntColony.UI
             }, () => "현재 숙소 가구 하나가 침대 4개를 제공합니다.", null, null, true);
             Add(targetGrid, 2, "Target Room", () => "방 정보", WorkTargetPanel.ShowRoomInfo, () => "방 종류·등급을 확인합니다.", () => WorkTargetPanel.Target is BuildingBase);
             Add(targetGrid, 3, "Target Clear", () => "선택 해제", () => selection?.ClearSelection(), () => "선택을 해제합니다.");
+            // 철거·이동(2026-10-08): 예정지만 만들고 건설 작업이 켜진 장수가 현장에서 처리한다.
+            Add(targetGrid, 4, "Target Demolish", () => "철거", () => { if (Demolition.OrderDemolish(WorkTargetPanel.Target as BuildingBase) != null) ToastManager.Show("철거 예정지를 지정했습니다."); },
+                () => $"장수가 현장에서 철거하면 건설비의 {AntColony.Core.GameBalance.DemolishRefundShare:P0}를 돌려받습니다.", () => Demolition.CanDemolish(WorkTargetPanel.Target as BuildingBase), () => WorkTargetPanel.Target is BuildingBase);
+            Add(targetGrid, 5, "Target Move", () => "이동", () => FindFirstObjectByType<BuildingPlacementController>()?.BeginMove(WorkTargetPanel.Target as BuildingBase),
+                () => "새 위치를 고르면 장수가 비용 없이 옮깁니다. 벽·문·바닥은 철거 후 다시 지으세요.", () => Demolition.CanMove(WorkTargetPanel.Target as BuildingBase), () => WorkTargetPanel.Target is BuildingBase);
         }
 
         private void LateUpdate()

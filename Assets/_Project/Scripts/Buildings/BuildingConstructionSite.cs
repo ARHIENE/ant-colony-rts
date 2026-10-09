@@ -33,6 +33,7 @@ namespace AntColony.Buildings
             if (finished) return;
             finished = true;
             ReturnWorkforce();
+            if (TryGetComponent<DemolitionSite>(out var demolition)) demolition.Finish();
             if (completedBuilding != null)
             {
                 if (builder != null && completedBuilding.GetComponent<Decoration>() is Decoration decor)

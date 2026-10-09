@@ -49,11 +49,12 @@ namespace AntColony.Units
         };
 
         // 실제 작업 성장. work = 유효 작업량(활용 이력용), rate = 기술별 학습 배율(열정·학습 특성·부상, 이력에는 넣지 않음).
-        public void Train(CommanderActivity main, float work, Func<CommanderActivity, float> rate)
+        // topic = 연구 주제·제작 분류로 정해지는 보조 능력(있으면 활동 기본 보조 대신 사용).
+        public void Train(CommanderActivity main, float work, Func<CommanderActivity, float> rate, CommanderActivity? topic = null)
         {
             if (!(work > 0) || float.IsInfinity(work) || !Enum.IsDefined(typeof(CommanderActivity), main)) return;
             EnsurePotential();
-            var support = Support(main);
+            var support = topic != null && topic != main ? topic : Support(main);
             float mainShare = support == null ? 1f : MainShare;
             float keep = Mathf.Exp(-work / UsageWindow), total = 0;
             for (int i = 0; i < Count; i++) { usage[i] *= keep; }

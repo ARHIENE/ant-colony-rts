@@ -132,6 +132,9 @@ namespace AntColony.Save
                     Check(AirshipYard.Validate(b.airship, f.commanders.Count, out _), "airship");
                     var w = b.workshop;
                     Check(w != null, "workshop state"); L(w.jobs, Core.GameBalance.CraftQueueCapacity, "craft queue");
+                    if (w.orders != null)
+                        Check(w.orders.Count <= Buildings.Workshop.MaxOrders && (b.kind == "Workshop" || w.orders.Count == 0) && w.orders.All(o => o != null && Enum.IsDefined(typeof(EquipmentRecipe), o.recipe)
+                            && Enum.IsDefined(typeof(Buildings.Workshop.OrderMode), o.mode) && o.amount >= 1 && o.amount <= Buildings.Workshop.MaxOrderAmount), "production orders");
                     Check(w.crafter >= -1 && w.crafter < f.commanders.Count
                         && (b.kind == "Workshop" || w.jobs.Count == 0 && w.crafter == -1 && !w.ruined && !w.paused && !w.inactive), "workshop kind");
                     for (int j = 0; j < w.jobs.Count; j++)

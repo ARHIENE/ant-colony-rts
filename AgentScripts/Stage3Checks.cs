@@ -77,7 +77,7 @@ public static class Stage3Checks
             Check(!c.Agent.hasPath, "movement command blocked");
             var w2 = Build<Workshop>(BuildingKind.Workshop, w.Position + Vector3.back * 4);
             Check(w2.TryEnqueue(EquipmentRecipe.Mandible) && !w2.TryAssign(c), "one assignment only"); w2.Cancel(0);
-            w.Tick(30); Near(w.Jobs[0].work, 18, "craft speed .6 at skill zero"); Near(c.Talents.Xp(CommanderActivity.Crafting), 30, "craft XP per second");
+            w.Tick(30); Near(w.Jobs[0].work, 18, "craft speed .6 at skill zero"); Near(c.Talents.Xp(CommanderActivity.Crafting), 24, "craft XP per second (80% main, 2026-10-10 craft topic support)");
             soil = rm.GetAmount(Resource.Soil); special = rm.GetAmount(Resource.Special);
             Check(w.Cancel(0) && rm.GetAmount(Resource.Soil) == soil + 20 && rm.GetAmount(Resource.Special) == special + 2, "started job half refund rounded down");
             w.Tick(10); var progress = w.Jobs[0].work;
