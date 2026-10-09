@@ -68,17 +68,18 @@ namespace AntColony.Units
                 if (candidates > 0)
                     for (int i = 0; i < Count; i++) if (usage[i] / total < MinUsageShare && Value(i) > 0) Remove(i, work * DecayPerWork / candidates);
             }
-            Grow(main, work * mainShare * rate(main));
-            if (support != null) Grow(support.Value, work * (1f - mainShare) * rate(support.Value));
-        }
-
-        // 성장 후 CA가 PA를 넘으면 넘친 만큼 이번 성장분을 되돌린다(내릴 후보가 없으면 정체).
-        private void Grow(CommanderActivity skill, float xp)
-        {
-            int i = (int)skill; float before = Value(i);
-            Add(skill, xp);
+            // 주·보조를 함께 성장시킨 뒤 CA가 PA를 넘으면 넘친 만큼 두 성장분에서 비율대로 되돌린다(주 능력이 여유를 독점하지 않음, 내릴 후보가 없으면 정체).
+            int m = (int)main, s = support.HasValue ? (int)support.Value : -1;
+            float beforeMain = Value(m), beforeSupport = s >= 0 ? Value(s) : 0;
+            Add(main, work * mainShare * rate(main));
+            if (s >= 0) Add(support.Value, work * (1f - mainShare) * rate(support.Value));
             float excess = Current - potential;
-            if (excess > 0) SetValue(i, Mathf.Max(before, Value(i) - excess));
+            if (excess <= 0) return;
+            float gainMain = Value(m) - beforeMain, gainSupport = s >= 0 ? Value(s) - beforeSupport : 0, gain = gainMain + gainSupport;
+            if (gain <= 0) return;
+            float cut = Mathf.Min(excess, gain);
+            SetValue(m, Value(m) - cut * gainMain / gain);
+            if (s >= 0) SetValue(s, Value(s) - cut * gainSupport / gain);
         }
         private void Remove(int i, float xp)
         {

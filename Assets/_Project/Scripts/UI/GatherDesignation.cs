@@ -1,3 +1,4 @@
+using System.Linq;
 using AntColony.World;
 using UnityEngine;
 using UnityEngine.EventSystems;
@@ -11,7 +12,8 @@ namespace AntColony.UI
     public sealed class GatherDesignation : MonoBehaviour
     {
         private static GatherDesignation instance;
-        private bool active, forbid, dragging;
+        private bool active, forbid, dragging, priority;
+        public static int PriorityLevel = AntColony.Units.WorkPriorities.Default; // 1~9, 10 = 노란 경보
         private Vector2 start;
         private int consumedFrame = -1;
         private GUIStyle markStyle;
@@ -25,8 +27,22 @@ namespace AntColony.UI
         public static void Begin(bool forbidNodes)
         {
             if (instance == null) return;
-            instance.active = true; instance.forbid = forbidNodes; instance.dragging = false;
+            instance.active = true; instance.forbid = forbidNodes; instance.dragging = false; instance.priority = false;
             ToastManager.Show(forbidNodes ? "채집 금지 지정: 노드 클릭 또는 드래그, 우클릭 종료" : "지정 취소: 노드 클릭 또는 드래그, 우클릭 종료");
+        }
+        // 대상 우선순위 지정(1~9) 또는 노란 경보(10). 클릭·드래그로 노드·건물·예정지·시체·야생 개체에 적용.
+        public static void BeginPriority()
+        {
+            if (instance == null) return;
+            instance.active = instance.priority = true; instance.dragging = false;
+            ToastManager.Show((PriorityLevel > AntColony.Units.WorkPriorities.Max ? "노란 경보 지정" : "대상 우선순위 " + PriorityLevel + " 지정") + ": 대상 클릭 또는 드래그, 우클릭 종료");
+        }
+        public static string PriorityLabel => PriorityLevel > AntColony.Units.WorkPriorities.Max ? "노란 경보" : "단계 " + PriorityLevel;
+        public static void CyclePriority() => PriorityLevel = PriorityLevel % (AntColony.Units.WorkPriorities.Max + 1) + 1;
+        private static void ApplyPriority(Component c)
+        {
+            if (PriorityLevel > AntColony.Units.WorkPriorities.Max) AntColony.Units.WorkPriorities.Set(c, AntColony.Units.WorkPriorities.Level(c), true);
+            else AntColony.Units.WorkPriorities.Set(c, PriorityLevel, false);
         }
         public static void End() { if (instance != null) instance.active = instance.dragging = false; }
 
@@ -67,6 +83,18 @@ namespace AntColony.UI
             { dragging = true; start = position; }
             if (!dragging || !mouse.leftButton.wasReleasedThisFrame) return;
             dragging = false; consumedFrame = Time.frameCount;
+            if (priority)
+            {
+                var rect = Vector2.Distance(start, position) < 8 ? new Rect(position - Vector2.one * 12, Vector2.one * 24)
+                    : Rect.MinMaxRect(Mathf.Min(start.x, position.x), Mathf.Min(start.y, position.y), Mathf.Max(start.x, position.x), Mathf.Max(start.y, position.y));
+                var camera = UnityEngine.Camera.main;
+                foreach (var c in AntColony.Units.WorkPriorities.Candidates().ToArray())
+                {
+                    var p = camera.WorldToScreenPoint(c.transform.position);
+                    if (p.z > 0 && rect.Contains(new Vector2(p.x, p.y))) ApplyPriority(c);
+                }
+                return;
+            }
             if (Vector2.Distance(start, position) < 8) ApplyClick(position, forbid);
             else Apply(Rect.MinMaxRect(Mathf.Min(start.x, position.x), Mathf.Min(start.y, position.y),
                 Mathf.Max(start.x, position.x), Mathf.Max(start.y, position.y)), forbid);
@@ -85,6 +113,15 @@ namespace AntColony.UI
                 var p = camera.WorldToScreenPoint(node.transform.position + Vector3.up * 2f);
                 if (p.z <= 0 || p.x < 0 || p.x > Screen.width || p.y < 0 || p.y > Screen.height) continue;
                 GUI.Box(new Rect(p.x - 40, Screen.height - p.y - 22, 80, 20), "채집 금지", markStyle);
+            }
+            // 노란 경보는 항상, 대상 우선순위 숫자는 지정 도구를 쓰는 동안 표시한다.
+            foreach (var tp in FindObjectsByType<AntColony.Units.TargetPriority>(FindObjectsSortMode.None))
+            {
+                if (!tp.yellow && !(active && priority)) continue;
+                var p = camera.WorldToScreenPoint(tp.transform.position + Vector3.up * 2.4f);
+                if (p.z <= 0 || p.x < 0 || p.x > Screen.width || p.y < 0 || p.y > Screen.height) continue;
+                markStyle.normal.textColor = tp.yellow ? new Color(1f, .85f, .2f) : Color.white;
+                GUI.Box(new Rect(p.x - 40, Screen.height - p.y - 22, 80, 20), tp.yellow ? "노란 경보" : "우선 " + tp.level, markStyle);
             }
             if (!active || !dragging || Mouse.current == null) return;
             var now = Mouse.current.position.ReadValue();

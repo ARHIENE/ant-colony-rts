@@ -21,6 +21,11 @@ namespace AntColony.World
             public int blueprintSite = -1;
             public int extraSites;
             public List<RebelMember> rebelMembers = new List<RebelMember>();
+            public List<Negotiation> talks = new List<Negotiation>();
+            public List<Homecoming> homecomings = new List<Homecoming>();
+            public List<Seizure> seizures = new List<Seizure>();
+            public List<string> reputation = new List<string>();
+            public int trust, threat, nextTalk;
         }
         public static DiplomacyManager Instance { get; private set; }
         public State Data { get; private set; } = new State();
@@ -59,7 +64,21 @@ namespace AntColony.World
             return state;
         }
         private void OnDestroy() { if (Instance == this) Instance = null; }
-        private void Update() { if (!Save.SaveSystem.Busy) Tick(Time.deltaTime); }
+        private void Update() { if (!Save.SaveSystem.Busy) Tick(Time.deltaTime); if (Time.frameCount % 15 == 0) RefreshPins(); }
+        // 보류 협상은 상대 세력별로 묶어 오른쪽 알림에 고정한다(요약·남은 기한, 누르면 재개).
+        private void RefreshPins()
+        {
+            var live = new HashSet<string>();
+            foreach (var group in Data.talks.GroupBy(n => n.civ))
+            {
+                var c = CivOf(group.First()); if (c == null) continue;
+                var key = "talks:" + c.id; live.Add(key);
+                var parts = group.Select(n => { var left = Remaining(n); return KindName(n.kind) + (n.invalid ? "(무효)" : "") + (n.give.Empty ? "" : " " + Summary(n.give)) + (left >= 0 ? $" · 남은 {(int)left / 60}:{(int)left % 60:00}" : ""); });
+                var first = group.First();
+                ToastManager.SetPinned(key, c.name + " — " + string.Join(" / ", parts), () => AntColony.UI.GameMenuController.Instance?.OpenTalk(first), "협상 열기");
+            }
+            foreach (var key in ToastManager.PinnedKeys.Where(k => k.StartsWith("talks:") && !live.Contains(k)).ToArray()) ToastManager.SetPinned(key, null);
+        }
         public void Contact(ExpeditionSite site)
         {
             if (!Available) return;
@@ -72,10 +91,14 @@ namespace AntColony.World
         {
             if (!Available || c == null || !Data.civilizations.Contains(c) || c.extinct || c.war
                 || c.HasTreaty(TreatyKind.NonAggression, Data.elapsed)) return false;
+            var broken = c.HasTreaty(TreatyKind.Trade, Data.elapsed) || c.HasTreaty(TreatyKind.Alliance, Data.elapsed);
             c.contacted = c.war = true; c.warStarted = Data.elapsed; c.nextRaid = Data.elapsed + 3 * DiplomacyRules.Month;
             c.playerScore = c.enemyScore = 0; Array.Clear(c.treaties, 0, c.treaties.Length); c.offerExpires = 0;
             c.ChangeAffinity(-10, "전쟁");
             if (surprise) foreach (var other in Data.civilizations.Where(x => !x.extinct)) other.ChangeAffinity(DiplomacyRules.SurprisePenalty, "기습 선전포고");
+            if (surprise) { Data.trust = Mathf.Clamp(Data.trust - 20, -100, 100); Reputation("기습 선전포고 (" + c.name + ")"); }
+            else if (broken) TrustEvent(-10, "협정 파기", null);
+            Data.talks.RemoveAll(n => n.civ == c.id && n.deadline <= 0);
             CampaignHistory.Record("선전포고", c.name, surprise ? "기습 선전포고" : "전쟁 시작", true);
             return true;
         }
@@ -151,11 +174,14 @@ namespace AntColony.World
         {
             if (!(seconds > 0) || float.IsInfinity(seconds)) return;
             Data.elapsed += seconds;
+            TickHomecomings();
             if (!Available) return;
+            TickTalks();
             while (Data.nextMonth <= Data.elapsed)
             {
                 Data.nextMonth += DiplomacyRules.Month;
-                foreach (var c in Data.civilizations.Where(c => !c.extinct).ToArray()) Monthly(c);
+                foreach (var c in Data.civilizations.Where(c => !c.extinct).ToArray()) { Monthly(c); MonthlyTalks(c); }
+                Data.threat -= Math.Sign(Data.threat) * Math.Min(2, Math.Abs(Data.threat));
             }
         }
         private void Monthly(Civilization c)
@@ -173,7 +199,7 @@ namespace AntColony.World
                 {
                     c.nextOffer = Data.elapsed + 3 * DiplomacyRules.Month;
                     if (UnityEngine.Random.value < (c.agenda == LeaderAgenda.Trader ? DiplomacyRules.TraderOfferChance : DiplomacyRules.OfferChance))
-                    { c.offeredTreaty = (TreatyKind)UnityEngine.Random.Range(0, 3); c.offerExpires = Data.elapsed + DiplomacyRules.Month; ToastManager.Show(c.name + " 협정 제안 — J 외교에서 확인 (1개월)"); }
+                        OfferTreaty(c, (TreatyKind)UnityEngine.Random.Range(0, 3));
                 }
                 var chance = c.affinity <= -40 ? DiplomacyRules.HostileWarChance : 0;
                 if (c.agenda == LeaderAgenda.Conqueror && world.Sites.Count(s => s.Disposition == ConquestDisposition.Annexed) < world.Sites.Count(s => Faction(s) == c && s.Disposition != ConquestDisposition.Annexed)) chance = Mathf.Max(chance, DiplomacyRules.ConquerorWarChance);
@@ -233,6 +259,16 @@ namespace AntColony.World
                 if (m?.commander?.PersonalState == null || !members.Add(m.commander.PersonalState.id) || m.site < 0 || m.site >= sites
                     || m.troops < 0 || m.troops > 100000 || !Finite(m.health) || float.IsNaN(m.position.sqrMagnitude) || float.IsInfinity(m.position.sqrMagnitude)
                     || !s.civilizations.Any(c => c.id == m.faction && c.rebel && !c.extinct && c.rebels.Any(p => p?.PersonalState?.id == m.commander.PersonalState.id))) return false;
+            // 2026-10-09 협상·포로 귀환·압수 장비·평판(이전 저장은 빈 목록).
+            s.talks ??= new List<Negotiation>(); s.homecomings ??= new List<Homecoming>(); s.seizures ??= new List<Seizure>(); s.reputation ??= new List<string>();
+            if (s.talks.Count > 100 || s.homecomings.Count > 1000 || s.seizures.Count > 5000 || s.trust < -100 || s.trust > 100 || s.threat < -100 || s.threat > 100) return false;
+            foreach (var n in s.talks)
+                if (n == null || !ids.Contains(n.civ) || !Enum.IsDefined(typeof(TalkKind), n.kind) || n.give == null || n.take == null
+                    || n.give.resources?.Length != 3 || n.take.resources?.Length != 3 || n.give.resources.Concat(n.take.resources).Any(r => r < 0)
+                    || n.patience < -100 || n.patience > 100 || !Finite(n.expires) || !Finite(n.deadline) || n.log == null) return false;
+            foreach (var h in s.homecomings)
+                if (h?.commander?.PersonalState == null || h.commander.Talents == null || h.gear == null || h.gear.Any(e => e == null || !e.IsValid) || !Finite(h.arrive)) return false;
+            if (s.civilizations.Any(c => c.threatCred < -100 || c.threatCred > 100 || !Finite(c.talksCooldown)) || s.seizures.Any(x => x == null || x.owner == null)) return false;
             return s.owners.All(o => o == "" || ids.Contains(o));
         }
     }

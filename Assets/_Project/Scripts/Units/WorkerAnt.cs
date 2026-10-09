@@ -152,19 +152,11 @@ namespace AntColony.Units
         // 병력이 0이 된 장수가 계속 채집·건설 tick을 도는 것을 막는 단일 지점이다.
         public override void CommandStop()
         {
-            CancelConstruction();
+            targetConstruction = null; // 예정지·진행도는 남겨 다른 장수(또는 복귀 후 본인)가 이어 짓는다.
+
             targetNode = null;
             state = State.Idle;
             base.CommandStop();
-        }
-
-        // 예약 인력 반환은 건설현장이 담당하므로 여기서는 참조만 정확히 한 번 넘긴다.
-        private void CancelConstruction()
-        {
-            if (targetConstruction == null) return;
-            var site = targetConstruction;
-            targetConstruction = null;
-            site.Cancel();
         }
 
         internal void SuspendWork()
@@ -195,7 +187,7 @@ namespace AntColony.Units
 
         public virtual void CommandBuild(BuildingConstructionSite site)
         {
-            if (site == null || site.HasBuilder || !CanStartConstruction) return;
+            if (site == null || !CanStartConstruction) return; // 여러 장수가 한 예정지에 함께 참여한다.
             CommandStop();
             targetNode = null;
             targetConstruction = site;
@@ -293,11 +285,7 @@ namespace AntColony.Units
                 return;
             }
 
-            if (HasReachedDestination())
-            {
-                buildTimer = targetConstruction.RemainingWork;
-                state = State.Building;
-            }
+            if (HasReachedDestination()) state = State.Building;
         }
 
         private void TickBuilding()
@@ -309,10 +297,10 @@ namespace AntColony.Units
                 return;
             }
 
-            OnWorked(Mathf.Min(Time.deltaTime, buildTimer / WorkSpeed));
-            buildTimer -= Time.deltaTime * WorkSpeed;
-            targetConstruction.RemainingWork = Mathf.Max(0, buildTimer);
-            if (buildTimer > 0f) return;
+            // 공동 건설: 참여한 장수마다 자기 작업 효율만큼 현장의 남은 작업량을 줄인다.
+            OnWorked(Mathf.Min(Time.deltaTime, targetConstruction.RemainingWork / WorkSpeed));
+            targetConstruction.RemainingWork = Mathf.Max(0, targetConstruction.RemainingWork - Time.deltaTime * WorkSpeed);
+            if (targetConstruction.RemainingWork > 0f) return;
 
             targetConstruction.Complete(this as CommanderAnt);
             if (this is CommanderAnt builder) builder.SetWorkTarget(null);
@@ -322,7 +310,7 @@ namespace AntColony.Units
 
         protected override void OnDisable()
         {
-            CancelConstruction();
+            targetConstruction = null;
             base.OnDisable();
         }
 

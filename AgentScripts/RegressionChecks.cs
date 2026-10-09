@@ -198,16 +198,20 @@ public static class RegressionChecks
             worker.CommandBuild(site);
             await Until(() => farmGo.activeInHierarchy, "walk and complete farm", 8000);
             // 밭은 장수가 일해야 자란다(Phase 2 이후 규칙). 완공 뒤 같은 장수가 농사를 짓게 한다.
+            Field(farm, "sowRemaining").SetValue(farm, 0f); // 2026-10-08 파종은 장수만 한다. 이 검사의 일꾼은 장수가 아니므로 파종 완료로 두고 성장·수확만 본다.
             worker.CommandGather(farm);
             await Until(() => !farm.IsDepleted, "commander farms first growth", 8000);
             var farmStatus = farm.GetComponent<ResourceNodeStatus>();
-            Check(farmStatus != null && farmStatus.StatusText == "Ready · 20 Food", "grown farm displays harvest amount");
+            Check(farmStatus != null && farmStatus.StatusText == "Ready · 20 " + AntColony.Data.ResourceLabels.DisplayName(AntColony.Data.ResourceType.Food), "grown farm displays harvest amount");
             Check(node.GetComponent<ResourceNodeStatus>() == null, "ordinary resource does not acquire regrowth display");
             expectedFood = rm.GetAmount(ResourceType.Food) + worker.Data.carryCapacity;
+            Field(farm, "sowRemaining").SetValue(farm, 0f); // 2026-10-08 파종은 장수만 한다. 이 검사의 일꾼은 장수가 아니므로 파종 완료로 두고 성장·수확만 본다.
             worker.CommandGather(farm);
             await Until(() => rm.GetAmount(ResourceType.Food) >= expectedFood, "farm harvest and real deposit", 8000);
             farm.Extract(1000);
-            Check(farmStatus.StatusText.StartsWith("Growing · "), "depleted farm displays growth countdown");
+            Check(farmStatus.StatusText.StartsWith("파종 필요"), "depleted farm needs sowing (2026-10-08)");
+            Field(farm, "sowRemaining").SetValue(farm, 0f);
+            Check(farmStatus.StatusText.StartsWith("Growing · "), "sown farm displays growth countdown");
             var timer = (float)Field(farm, "regrowTimer").GetValue(farm);
             Check(farm.Extract(1) == 0 && (float)Field(farm, "regrowTimer").GetValue(farm) == timer,
                 "empty farm extraction does not restart growth");
@@ -215,6 +219,7 @@ public static class RegressionChecks
             var reharvested = false;
             System.Action onHarvest = () => reharvested = true;
             farm.Harvested += onHarvest;
+            Field(farm, "sowRemaining").SetValue(farm, 0f); // 2026-10-08 파종은 장수만 한다. 이 검사의 일꾼은 장수가 아니므로 파종 완료로 두고 성장·수확만 본다.
             worker.CommandGather(farm);
             await Until(() => !farm.IsDepleted || reharvested, "farm regrows after depletion", 4000);
             farm.Harvested -= onHarvest;

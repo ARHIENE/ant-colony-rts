@@ -30,7 +30,7 @@ namespace AntColony.Units
             var h = HygieneState;
             h.hygiene = Mathf.Max(0, h.hygiene - GameBalance.HygienePerSecond * seconds);
             RefreshHygieneMood();
-            if (IsDeployed || IsAwayFromHome || IsEmbarked || IsCaptive) { LeaveWash(); return false; }
+            if (IsDeployed || IsAwayFromHome || IsEmbarked || IsCaptive || WorkPriorities.Red) { LeaveWash(); return false; }
             if (h.washSeconds > 0)
             {
                 h.washSeconds = Mathf.Max(0, h.washSeconds - seconds);

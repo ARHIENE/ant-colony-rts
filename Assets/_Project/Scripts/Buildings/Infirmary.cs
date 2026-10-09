@@ -18,7 +18,7 @@ namespace AntColony.Buildings
         public IReadOnlyList<CommanderAnt> Patients => patients;
         public static bool Unlocked => CampaignResearch.Instance != null && CampaignResearch.Instance.Has(ScienceTechnology.Infirmary);
 
-        public bool CanTreat(CommanderAnt c) => Unlocked && isActiveAndEnabled && !IsDead && patients.Count < Capacity
+        public bool CanTreat(CommanderAnt c) => !WorkPriorities.Red && Unlocked && isActiveAndEnabled && !IsDead && patients.Count < Capacity
             && c != null && c.CanChangeAllocation && !c.IsAwayFromHome && !c.IsWorking
             && c.PersonalState.NeedsTreatment && Vector3.Distance(c.Position, Position) <= 8;
 

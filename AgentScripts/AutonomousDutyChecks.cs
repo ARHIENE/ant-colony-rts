@@ -69,8 +69,9 @@ public static class AutonomousDutyChecks
             siteGo.transform.position = c.Position; site.Initialize(null, 10);
             c.SetJobEnabled(CommanderJobs.Building, true); c.TickDuty(2);
             Check(c.ConstructionTarget == site && site.HasBuilder, "autonomous builder claims blueprint");
-            other.CommandBuild(site); Check(!other.IsConstructing, "blueprint has only one builder");
-            c.CommandStop(); c.SetJobEnabled(CommanderJobs.All, false); await Task.Delay(100);
+            other.CommandBuild(site); Check(other.IsConstructing && other.ConstructionTarget == site, "blueprint accepts co-builders");
+            c.CommandStop(); other.CommandStop(); c.SetJobEnabled(CommanderJobs.All, false); await Task.Delay(100);
+            Check(site != null && site.RemainingWork > 0, "stopping builders keeps paid blueprint"); Object.Destroy(siteGo);
             var template = (GameObject)typeof(BuildingPlacementController).GetMethod("GetTemplate", BindingFlags.Static | BindingFlags.NonPublic).Invoke(null, new object[] { BuildingKind.ConscriptionPost, UnitRole.Worker });
             Check(template != null && !template.activeSelf, "conscription template");
             var postGo = Object.Instantiate(template, c.Position + Vector3.right * 5, Quaternion.identity);

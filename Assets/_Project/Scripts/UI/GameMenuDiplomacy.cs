@@ -16,6 +16,7 @@ namespace AntColony.UI
         private static readonly string[] TreatyNames = { "교역 협정", "불가침 협정", "동맹" };
         private TradeOffer tradeGive = new TradeOffer(), tradeTake = new TradeOffer();
         private int tradeTab;
+        private Action rebuildTrade;
         public void Diplomacy() => Diplomacy(null);
         public void Diplomacy(Civilization selected)
         {
@@ -102,6 +103,11 @@ namespace AntColony.UI
             Act("평화 협상", "평화 협상 · 배상 식량 " + d.Reparations(s), () => { if (!d.MakePeace(s)) ToastManager.Show("선전포고 후 10분 및 배상 자원·창고 공간을 확인하세요."); Diplomacy(s); }, d.CanNegotiatePeace(s));
             Act("거래 제안", "거래 제안", () => OpenTrade(s), !s.war);
             Act("협정 제안", "협정 제안", () => { tradeTab = 4; OpenTrade(s); }, !s.war);
+            Act("요구", "요구 · 최후통첩", () => { tradeTab = 0; OpenTalk(d.StartTalk(s, TalkKind.Demand)); }, !s.war);
+            foreach (var talk in d.Talks(s).ToArray())
+            { var t = talk; Act("Talk " + t.id, "보류 협상: " + DiplomacyManager.KindName(t.kind) + (t.invalid ? " (무효)" : ""), () => OpenTalk(t), true); }
+            L.Label(p, "<b>평판</b>  " + d.ReputationSummary(), 13, 872, y + 4, 460, 22);
+            L.Label(p, string.Join("\n", d.Data.reputation.Take(4)), 12, 872, y + 28, 460, 80, MenuTheme.Muted);
             if (s.offerExpires > d.Data.elapsed)
                 Act("제안 수락", TreatyNames[(int)s.offeredTreaty] + " 제안 수락 · 남은 " + (s.offerExpires - d.Data.elapsed).ToString("0") + "초",
                     () => { if (!d.AcceptOffer(s)) ToastManager.Show("제안이 만료되었습니다."); Diplomacy(s); }, true);
@@ -114,12 +120,19 @@ namespace AntColony.UI
         public void TradeAt(ExpeditionSite site)
         { OpenTrade(DiplomacyManager.Instance?.Market(WorldMapManager.Instance.Sites.ToList().IndexOf(site))); }
         private void OpenTrade(Civilization c)
-        { if (c == null) return; tradeGive = new TradeOffer(); tradeTake = new TradeOffer(); TradeScreen(c); }
+        {
+            if (c == null) return;
+            var d = DiplomacyManager.Instance;
+            // 문명과의 거래는 협상(담당 장수·반응·역제안·보류)으로, 교역소·캐러밴은 기존 즉시 거래로.
+            if (!d.Data.markets.Contains(c)) { OpenTalk(d.StartTalk(c, TalkKind.Trade)); return; }
+            tradeGive = new TradeOffer(); tradeTake = new TradeOffer(); TradeScreen(c);
+        }
         private void TradeScreen(Civilization c)
         {
             var d = DiplomacyManager.Instance;
             if (!d.CanTrade(c)) { ToastManager.Show("상대가 떠났거나 거래할 수 없는 상태입니다."); Diplomacy(); return; }
             var f = Frame("거래 · " + c.name);
+            rebuildTrade = () => TradeScreen(c);
             var p = L.Plate(f, "TradePanel", 48, 48, 1344, 740);
             var badge = L.Box(p, "Badge", 14, 12, 36, 36, c.color);
             L.Label(badge, c.name.Substring(0, 1), 16, 0, 0, 36, 36, MenuTheme.AccentInk, TextAnchor.MiddleCenter, true);
@@ -131,7 +144,7 @@ namespace AntColony.UI
             for (var i = 0; i < names.Length; i++)
             {
                 var tab = i;
-                var button = L.Button(p, names[i], names[i], 14 + i * 104, 70, 100, 30, () => { tradeTab = tab; TradeScreen(c); }, null, false, 13);
+                var button = L.Button(p, names[i], names[i], 14 + i * 104, 70, 100, 30, () => { tradeTab = tab; rebuildTrade(); }, null, false, 13);
                 if (i == tradeTab) button.GetComponent<Outline>().effectColor = MenuTheme.Accent;
             }
             var left = L.List(p, 14, 110, 520, 566, 6);
@@ -173,7 +186,7 @@ namespace AntColony.UI
                 for (var i = 0; i < 3; i++)
                 {
                     var resource = i; var max = player ? ResourceManager.Instance.GetAmount((ResourceType)i) : c.resources[i];
-                    Item(resourceNames[i] + " 보유 " + max + " · " + (offer.resources[i] > 0 ? "빼기" : "넣기"), () => { offer.resources[resource] = offer.resources[resource] > 0 ? 0 : Mathf.Min(1, max); TradeScreen(c); });
+                    Item(resourceNames[i] + " 보유 " + max + " · " + (offer.resources[i] > 0 ? "빼기" : "넣기"), () => { offer.resources[resource] = offer.resources[resource] > 0 ? 0 : Mathf.Min(1, max); rebuildTrade(); });
                     if (offer.resources[i] == 0) continue;
                     var label = MenuTheme.Text(parent, "수량 " + offer.resources[i], 14, 26);
                     var rect = MenuTheme.Rect("수량", parent); rect.gameObject.AddComponent<LayoutElement>().preferredHeight = 20; rect.gameObject.AddComponent<Image>().color = MenuTheme.Well;
@@ -182,24 +195,33 @@ namespace AntColony.UI
                     slider.onValueChanged.AddListener(v => { offer.resources[resource] = (int)v; label.text = "수량 " + (int)v; preview(); });
                 }
                 if (!player && c.id == "market:" + d.Data.blueprintSite && CampaignResearch.Instance?.HasBlueprint == false)
-                    Item((offer.blueprint ? "✓ " : "") + "로켓 설계도 · 특수 150", () => { offer.blueprint = !offer.blueprint; TradeScreen(c); });
+                    Item((offer.blueprint ? "✓ " : "") + "로켓 설계도 · 특수 150", () => { offer.blueprint = !offer.blueprint; rebuildTrade(); });
             }
             if (tradeTab == 1)
                 foreach (var item in player ? EquipmentInventory.Instance.Items : c.equipment)
-                    Item((offer.equipment.Contains(item.id) ? "✓ " : "") + item.Label, () => { if (!offer.equipment.Remove(item.id)) offer.equipment.Add(item.id); TradeScreen(c); });
+                    Item((offer.equipment.Contains(item.id) ? "✓ " : "") + item.Label + (d.SeizedOwnerName(item.id) is string owner ? " (압수: " + owner + ")" : ""), () => { if (!offer.equipment.Remove(item.id)) offer.equipment.Add(item.id); rebuildTrade(); });
             if (tradeTab == 2)
                 for (var i = 0; i < WorldMapManager.Instance.Sites.Count; i++)
                 {
                     var index = i; var site = WorldMapManager.Instance.Sites[i];
                     if (player ? site.Disposition != ConquestDisposition.Annexed : d.Faction(site) != c || site.Disposition == ConquestDisposition.Annexed) continue;
-                    Item((offer.sites.Contains(i) ? "✓ " : "") + site.Title, () => { if (!offer.sites.Remove(index)) offer.sites.Add(index); TradeScreen(c); });
+                    Item((offer.sites.Contains(i) ? "✓ " : "") + site.Title, () => { if (!offer.sites.Remove(index)) offer.sites.Add(index); rebuildTrade(); });
                 }
             if (tradeTab == 3)
-                foreach (var p in player ? DiplomacyManager.PlayerPrisoners : c.prisoners.Concat(c.rebels))
-                    Item((offer.prisoners.Contains(p.PersonalState.id) ? "✓ " : "") + p.Name, () => { if (!offer.prisoners.Remove(p.PersonalState.id)) offer.prisoners.Add(p.PersonalState.id); TradeScreen(c); });
+            {
+                // 포로 외교: 우리 쪽은 그 세력 출신 포로 석방, 상대 쪽은 자국 장수 몸값(제3자 포로는 목록에 없음).
+                var entries = player ? DiplomacyManager.ReleasableTo(c).Select(p => (p.PersonalState.id, p.Name + " · 석방"))
+                    : c.rebels.Select(p => (p.PersonalState.id, p.Name + " · 반란 합류")).Concat(d.HeldCaptives(c).Select(a => (a.PersonalState.id, a.CommanderName + " · 억류")));
+                foreach (var (id, name) in entries.ToArray())
+                {
+                    var arrival = player ? "" : $" · 귀환 약 {d.HomecomingSeconds(id, c) / DiplomacyRules.Month:0.0}개월";
+                    Item((offer.prisoners.Contains(id) ? "✓ " : "") + name + $" · 몸값 {d.RansomValue(id, c):0}" + arrival, () => { if (!offer.prisoners.Remove(id)) offer.prisoners.Add(id); rebuildTrade(); });
+                }
+                if (!entries.Any()) MenuTheme.Text(parent, player ? "이 세력 출신 포로가 없습니다." : "이 세력이 붙잡은 자국 장수가 없습니다.", 13, 24).color = MenuTheme.Dim;
+            }
             if (tradeTab == 4)
                 foreach (TreatyKind kind in Enum.GetValues(typeof(TreatyKind)))
-                    Item((offer.treaties.Contains(kind) ? "✓ " : "") + TreatyNames[(int)kind] + " · 1년", () => { if (!offer.treaties.Remove(kind)) offer.treaties.Add(kind); TradeScreen(c); });
+                    Item((offer.treaties.Contains(kind) ? "✓ " : "") + TreatyNames[(int)kind] + " · 1년", () => { if (!offer.treaties.Remove(kind)) offer.treaties.Add(kind); rebuildTrade(); });
         }
     }
 }

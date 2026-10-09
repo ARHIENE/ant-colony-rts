@@ -34,11 +34,11 @@ namespace AntColony.Units
         {
             if (StartCorpseWork(corpse, corpse.Data.eating)) CorpseProgress = corpse.Data.progress;
         }
-        private bool FindCorpseWork(bool eat)
+        private bool FindCorpseWork(bool eat, bool yellow = false)
         {
-            foreach (var corpse in Corpse.All.Where(c => c.Available && c.Handler == null && (!eat || c.Edible)
+            foreach (var corpse in Corpse.All.Where(c => c.Available && c.Handler == null && (!eat || c.Edible) && (!yellow || WorkPriorities.Yellow(c))
                 && (eat || c.GetComponent<ResourceNode>() == null || c.Priority))
-                .OrderByDescending(c => c.Priority).ThenBy(c => (c.Position - Position).sqrMagnitude))
+                .OrderByDescending(c => c.Priority).ThenByDescending(WorkPriorities.Level).ThenBy(c => (c.Position - Position).sqrMagnitude))
                 if (StartCorpseWork(corpse, eat)) return true;
             return false;
         }

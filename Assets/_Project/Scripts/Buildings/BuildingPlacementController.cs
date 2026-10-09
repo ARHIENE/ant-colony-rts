@@ -238,6 +238,7 @@ namespace AntColony.Buildings
 
             var site = siteObject.AddComponent<BuildingConstructionSite>();
             site.Initialize(completedBuilding, cost.buildTimeSeconds);
+            if (redevelop != null) site.SetRefund(quote.food, quote.soil, quote.special); else site.SetRefund(food, soil, special);
             if (redevelop != null)
             {
                 siteObject.AddComponent<RedevelopmentSite>().Target = redevelop;

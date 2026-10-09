@@ -34,6 +34,7 @@ namespace AntColony.Save
                 events = ColonyEvents.Instance?.Capture() ?? new ColonyEvents.State(),
                 weather = AntColony.Map.WeatherSystem.Instance?.CaptureState(),
                 population = ColonyPopulation.Instance?.Capture() ?? new ColonyPopulation.State(),
+                workPriorities = WorkPriorities.Capture(),
                 diplomacy = DiplomacyManager.Instance?.Capture(),
                 equipmentInventory = EquipmentInventory.Instance == null ? new List<EquipmentItem>() : EquipmentInventory.Instance.Items.Select(e => JsonUtility.FromJson<EquipmentItem>(JsonUtility.ToJson(e))).ToList(),
                 corpses = Corpse.All.Where(c => c.Available).Select(c => c.Capture()).ToList(),
@@ -241,7 +242,7 @@ namespace AntColony.Save
             Encyclopedia.Merge(file.discoveries); GameSession.Instance.MarkStarted(file.playSeconds, file.gameSeconds);
             foreach (var corpse in Corpse.All.ToArray())
                 commanders.FirstOrDefault(c => c.PersonalState.id == corpse.Data.workerId)?.RestoreCorpseWork(corpse);
-            CampaignHistory.Instance.Restore(file.history); ColonyEvents.Instance.Restore(file.events); ColonyPopulation.Instance?.Restore(file.population); AntColony.Map.WeatherSystem.Instance?.RestoreState(file.weather); DiplomacyManager.Instance.RestoreRebels();
+            CampaignHistory.Instance.Restore(file.history); ColonyEvents.Instance.Restore(file.events); ColonyPopulation.Instance?.Restore(file.population); AntColony.Map.WeatherSystem.Instance?.RestoreState(file.weather); DiplomacyManager.Instance.RestoreRebels(); WorkPriorities.Restore(file.workPriorities);
             CommanderAnt.RefreshDepartureNotice();
             UnityEngine.Random.state = JsonUtility.FromJson<UnityEngine.Random.State>(file.randomState);
         }

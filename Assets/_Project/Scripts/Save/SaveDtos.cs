@@ -281,6 +281,7 @@ namespace AntColony.Save
         public World.ColonyEvents.State events = new World.ColonyEvents.State();
         public Map.WeatherSystem.State weather; // v13: 날씨(없으면 맑음으로 시작)
         public Core.ColonyPopulation.State population = new Core.ColonyPopulation.State(); // v12 Phase 4 인구
+        public Units.WorkPriorities.State workPriorities; // 2026-10-09 대상 우선순위·노란/빨간 경보(없으면 기본값)
 
         public int version = CurrentVersion;
         public string gameId = "AntColony";

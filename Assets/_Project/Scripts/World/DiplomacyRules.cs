@@ -28,6 +28,8 @@ namespace AntColony.World
         public LeaderAgenda agenda, hiddenAgenda;
         public bool contacted, hiddenRevealed, war, rebel, extinct;
         public int affinity, playerScore, enemyScore;
+        public int threatCred; // 이 세력이 보는 우리 위협 신뢰(-100~100). 최후통첩 실행 시 상승, 철회 시 하락, 매달 0으로 서서히 회복.
+        public float talksCooldown; // 협상 결렬 뒤 재협상 가능 시각(조건을 크게 개선하면 더 일찍 가능).
         public float warStarted, founded, nextRaid, nextOffer, offerExpires;
         public TreatyKind offeredTreaty;
         public float[] treaties = new float[3];

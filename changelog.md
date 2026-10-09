@@ -1,3 +1,7 @@
+# 2026-10-09 SAVE(오전, Claude) — 이전 로그 요약
+- 10-08 기획 F~I 구현(`6731794`): 정치 기술·작업표 행정·행정 책상, PA/CA 포텐 성장(주80/보조20)·감소, 특성 최대 4개, 주거 재개발(보상비·불만·지연), 시민 생산력 세금, 납세 시간 HUD, 장수 미지정 배치, 저장 v15.
+- 검사: Spec1008FI 29 등 16종 통과, Corpse 77행 Alt 입력 주입 실패(원인 미확인).
+
 # 2026-10-08 SAVE(Claude) — 이전 로그 요약
 - 10-08 기획 A~E 구현(`8747f5f`): 일반개미 평시 작업 지원 폐기(Workforce는 표식만), 세금 주간 현물(75초·1%·방침 3종, 시민 식량 소멸 삭제), 연속 배치(좌클릭/Shift/Shift+드래그), 밭 파종→자체 성장→수확, 연구는 과학 화면에서 장수 지시(자율 픽업·자동 반복 없음).
 - 검사: Workforce 74, Phase4 44, ResourceRule 31, Stage4 123, Stage2 185, WallDrag 12, AutonomousDuty 55, Commander 33, SaveRoundtrip 57, Stage1 130, Corpse 86, AcidTower 26, Meal 347, HudV4 313. PlayableLoop 문구 실패는 10-09에 수정.

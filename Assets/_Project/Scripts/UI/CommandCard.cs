@@ -75,6 +75,14 @@ namespace AntColony.UI
             Add(colonyGrid, 3, "Colony Science", () => "연구", () => GameMenuController.Instance?.Science(), () => "과학 연구를 확인합니다.");
             Add(colonyGrid, 4, "Colony Population", () => "인구", () => GameMenuController.Instance?.Population(), () => "개미 인구와 방을 확인합니다.");
             Add(colonyGrid, 5, "Colony Diplomacy", () => "외교", () => GameMenuController.Instance?.Diplomacy(), () => "다른 세력과의 관계를 확인합니다.");
+            // 대상 우선순위 도구(1~9 · 노란 경보)와 소굴 전체 빨간 경보.
+            Add(colonyGrid, 6, "Colony Target Priority", () => "우선 지정", GatherDesignation.BeginPriority,
+                () => "고른 단계를 대상(자원·건물·예정지·시체·사냥감)에 클릭·드래그로 지정합니다. 장수는 노란 경보 → 작업 종류 → 대상 우선순위(9 최우선) → 거리 순으로 고릅니다.");
+            Add(colonyGrid, 7, "Colony Priority Level", () => GatherDesignation.PriorityLabel, GatherDesignation.CyclePriority,
+                () => "지정할 단계를 바꿉니다: 1(낮음)~9(높음), 노란 경보(그 대상을 최우선, 식사·수면·치료는 중단하지 않음).");
+            Add(colonyGrid, 8, "Colony Red Alert", () => AntColony.Units.WorkPriorities.Red ? "경보 해제" : "빨간 경보",
+                () => AntColony.Units.WorkPriorities.SetRed(!AntColony.Units.WorkPriorities.Red),
+                () => "소굴 전체: 식사·수면·치료받기·간호를 멈추고 작업합니다. 작업 금지는 유지되며, 해제하면 평소 생활로 돌아갑니다.");
 
             Add(multiGrid, 0, "Multi Priority", () => AllDeployed() ? "공격 이동" : "우선", () => {
                 if (AllDeployed()) FindFirstObjectByType<AttackMoveController>()?.BeginAttackMode(); else PriorityHint();

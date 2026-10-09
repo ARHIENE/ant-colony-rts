@@ -70,7 +70,7 @@ namespace AntColony.Core
         public const float DoorBashDamage = 15; // Phase 5: 문에 닿은 적이 0.25초마다 주는 피해(잠정)
         // 공성(2026-10-03, 잠정): 길이 막힌 침공 개체가 벽을 찾는 반경, 나뭇잎 벽 불(지속·초당 피해·옆 벽 번질 확률)
         public const float SiegeSearchRadius = 8, WallFireSeconds = 8, WallFireDamagePerSecond = 20, WallFireSpreadChance = .5f;
-        public const float TaxPerAntMonth = 5f, MaxTaxRate = .5f, RaidSentiment = 10, UnrestSentiment = 15;
+        public const float TaxPerAntMonth = 5f, MaxTaxRate = .5f, HighTaxFlightRate = .4f, RaidSentiment = 10, UnrestSentiment = 15;
         public const float ImmigrationShare = .3f, AdultAging = .03f, OldDeath = .15f, UnrestDesertion = .05f;
         // 주거 건물(방 밖에 짓는 건물 단위, 자동 레벨업 없음): 수용 수·재료·인력·시간
         public const int HutHousing = 20, HutSoil = 30, HouseHousing = 50, HouseSoil = 80, ApartmentHousing = 120, ApartmentSoil = 200, ApartmentSpecial = 20;

@@ -49,6 +49,8 @@
 | SPEC-G | 높음 | PA/CA 포텐·실제 작업 비중 성장·감소·재분배(주80/보조20) | Claude | 완료(Spec1008FIChecks, 수치 잠정) | `Units/CommanderTalents.cs`, `Units/CommanderAnt.cs`(GainExperience), `UI/GameMenuRoster.cs` |
 | SPEC-H | 중간 | 특성 최대 4개(등급 배정·확률·만석 처리는 미정이라 보류) | Claude | 부분 완료 | `Units/CommanderTraits.cs` |
 | SPEC-I | 중간 | 주거 재개발(기존 집 위 배치, 보상비·불만·지연) | Claude | 완료(견적 검사, 수치 잠정) | `Buildings/Redevelopment.cs`·`BuildingPlacementController.cs`·`BuildingConstructionSite.cs`, `UI/BuildScreen.cs`·`GameMenuPopulation.cs` |
+| FIX-04 | 높음 | Codex 점검 반영(10-09): 정지 시 공사 삭제 → 보존, 공동 건설, 예정지 취소 100% 환급, 작업표 5단계 우선순위, PA 한도 주·보조 비례 성장, 최고 세율 이탈 | Claude | 완료(Spec1009Checks 64) | `Units/WorkerAnt.cs`·`CommanderDuty.cs`·`CommanderTalents.cs`, `Buildings/BuildingConstructionSite.cs`·`BuildingPlacementController.cs`, `Core/ColonyPopulation.cs`·`GameBalance.cs`, `UI/GameMenuDuty.cs`·`WorkTargetPanel.cs` |
+| SPEC-J | 높음 | 10-08/09 외교: 담당 장수·반응·역제안·인내·결렬/재개·보류 알림·협상 중 정지·초과분 바닥 보관·포로 몸값/교환(제3자 금지)·포획 부상/장비 압수·거리 비례 귀환·무효 처리·최후통첩·외교/위협 신뢰·평판 | Claude | 완료(Spec1009Checks, 수치 잠정) | `World/DiplomacyNegotiation.cs`·`DiplomacyPrisoners.cs`·`DiplomacyTrade.cs`·`DiplomacyManager.cs`·`DiplomacyRules.cs`·`SettlementDefense.cs`, `UI/GameMenuNegotiation.cs`·`GameMenuDiplomacy.cs`·`ToastManager.cs` |
 
 ### 현재 인계 상태
 

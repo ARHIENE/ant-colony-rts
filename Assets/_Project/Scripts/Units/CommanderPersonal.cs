@@ -81,7 +81,7 @@ namespace AntColony.Units
                     GainExperience(CommanderActivity.Command, 2);
                 }
             }
-            if (TreatmentFacility != null && !TreatmentFacility.IsTreating(this)) TreatmentFacility.Release(this);
+            if (TreatmentFacility != null && (!TreatmentFacility.IsTreating(this) || WorkPriorities.Red)) TreatmentFacility.Release(this); // 빨간 경보: 치료받기 중단
             personalState.treating = TreatmentFacility != null;
             var recovering = personalState.treating && personalState.NeedsTreatment;
             TickInfection(seconds);

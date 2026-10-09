@@ -37,6 +37,7 @@ namespace AntColony.Units
                 if (IsWorking || ServiceTarget != null || HuntTarget != null || CorpseTarget != null || ScienceAssignment != null || CraftingWorkshop != null) CommandStop();
                 return true;
             }
+            if (WorkPriorities.Red) { m.eatSeconds = 0; return false; } // 빨간 경보: 먹던 식사도 멈추고 작업한다.
             if (m.eatSeconds > 0)
             {
                 m.eatSeconds = Mathf.Max(0, m.eatSeconds - seconds);

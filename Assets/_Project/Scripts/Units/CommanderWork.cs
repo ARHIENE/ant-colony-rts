@@ -14,7 +14,7 @@ namespace AntColony.Units
         private float huntCooldown;
         private Workforce workTarget;
         public bool CivilianWorkReady => isActiveAndEnabled && !IsDead && PersonalHealth > 0 && !IsDeployed && !IsAwayFromHome
-            && !IsAsleep && !IsSleepTime && !IsDeparting && !PersonalState.treating && PersonalState.mentalBreak == MentalBreak.None && PersonalState.rageRemaining <= 0;
+            && !IsAsleep && (!IsSleepTime || WorkPriorities.Red) && !IsDeparting && !PersonalState.treating && PersonalState.mentalBreak == MentalBreak.None && PersonalState.rageRemaining <= 0;
         public Workforce WorkTarget => CivilianWorkReady && workTarget != null && workTarget.isActiveAndEnabled ? workTarget : null;
         public float WorkRate(CommanderActivity activity) => talents.Multiplier(activity) * WorkFactor * AgeWorkMultiplier(activity) * AntColony.Buildings.RoomSystem.WorkBonus(WorkTarget) * BiomeRules.WorkAt(AntColony.Buildings.RoomSystem.IsIndoors(Position)) * AntColony.Map.WeatherSystem.WorkAt(AntColony.Buildings.RoomSystem.IsIndoors(Position));
         public float LoadCapacity => (GameBalance.CarryBase + talents.Level(CommanderActivity.Strength) * GameBalance.CarryPerStrength)
@@ -61,7 +61,7 @@ namespace AntColony.Units
             if (ServiceJob == CommanderJobs.Nursing)
             {
                 var infirmary = ServiceTarget as Infirmary;
-                if (infirmary == null || infirmary.Patients.Count == 0) { CommandStop(); return false; }
+                if (infirmary == null || infirmary.Patients.Count == 0 || WorkPriorities.Red) { CommandStop(); return false; }
                 GainExperience(CommanderActivity.Medicine, seconds);
             }
             else if (ServiceJob == CommanderJobs.Cooking)

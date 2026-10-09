@@ -170,6 +170,7 @@ namespace AntColony.World
                     if (c.IsDead) continue;
                     c.Captor = site;
                     c.OnCaptured();
+                    DiplomacyManager.Instance?.CapturedBy(c, faction);
                     prisoners.Add(c);
                     CampaignHistory.Record("포로", c.CommanderName, site.Title + " 함락");
                     c.gameObject.SetActive(false);
@@ -188,6 +189,9 @@ namespace AntColony.World
             Notify($"LOST — {prisoners.Count} captured, {escaped} escaped. Retake to rescue.");
         }
 
+        // 몸값·교환으로 석방: 억류 목록에서만 뺀다(오브젝트 정리와 귀환은 DiplomacyManager가 한다).
+        internal void ReleaseCaptive(CommanderAnt c) { if (prisoners.Remove(c) && c != null) c.Captor = null; }
+
         internal void RescuePrisoners()
         {
             var rescued = prisoners.Count;
@@ -196,6 +200,7 @@ namespace AntColony.World
                 if (c == null) continue;
                 c.Captor = null;
                 c.OnRescued();
+                DiplomacyManager.Instance?.Rescued(c);
                 CampaignHistory.Record("구출", c.CommanderName, site.Title);
                 var annexed = site.Disposition == ConquestDisposition.Annexed;
                 MoveCommander(c, annexed ? site.Landing + Vector3.right * 3 : WorldMapManager.Instance.HomePosition + Vector3.right * 3);

@@ -31,7 +31,7 @@ namespace AntColony.Units
             j.joy = Mathf.Max(0, j.joy - GameBalance.JoyPerSecond * seconds);
             for (var i = 0; i < j.boredom.Length; i++) j.boredom[i] = Mathf.Max(0, j.boredom[i] - GameBalance.BoredomRecoverPerSecond * seconds);
             RefreshJoyMood();
-            if (IsDeployed || IsAwayFromHome || IsEmbarked || IsCaptive) { LeavePlay(); return false; }
+            if (IsDeployed || IsAwayFromHome || IsEmbarked || IsCaptive || WorkPriorities.Red) { LeavePlay(); return false; }
             if (j.playSeconds > 0)
             {
                 j.playSeconds = Mathf.Max(0, j.playSeconds - seconds);

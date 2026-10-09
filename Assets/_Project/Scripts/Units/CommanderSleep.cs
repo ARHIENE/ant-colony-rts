@@ -35,10 +35,11 @@ namespace AntColony.Units
         private bool TickSleep(float seconds)
         {
             var s = Sleep;
-            if (IsSleepTime && !s.inPhase) { s.inPhase = true; s.phaseSeconds = s.bedSeconds = 0; s.interrupted = s.rough = false; }
-            else if (!IsSleepTime && s.inPhase) { s.inPhase = false; WakeUp(); }
+            var sleepTime = IsSleepTime && !WorkPriorities.Red; // 빨간 경보 중에는 자지 않는다(밤이어도 작업, 피로는 계속 쌓임)
+            if (sleepTime && !s.inPhase) { s.inPhase = true; s.phaseSeconds = s.bedSeconds = 0; s.interrupted = s.rough = false; }
+            else if (!sleepTime && s.inPhase) { s.inPhase = false; WakeUp(); }
 
-            if (!IsSleepTime)
+            if (!sleepTime)
             {
                 if ((IsWorking || LabUpgradeBusy || ServiceTarget != null || CraftingWorkshop != null || HuntTarget != null || CorpseTarget != null) && !traits.Has(CommanderTrait.Workaholic)) s.fatigue += GameBalance.FatiguePerWorkSecond * seconds * BiomeRules.FatigueAt(RoomSystem.IsIndoors(Position)) * AntColony.Map.WeatherSystem.FatigueAt(RoomSystem.IsIndoors(Position));
                 else if (WorkState.resting) s.fatigue -= GameBalance.FatigueRestPerSecond * (RestRoom.Serves(this) ? 2 : 1) * seconds;

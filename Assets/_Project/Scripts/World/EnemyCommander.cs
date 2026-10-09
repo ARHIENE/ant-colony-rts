@@ -54,6 +54,7 @@ namespace AntColony.World
             {
                 WasCaptured = true;
                 camp.Prisoners[camp.Count - 1].PersonalState.originFaction = GetComponentInParent<ExpeditionSite>()?.Faction ?? "Local enemy";
+                DiplomacyManager.Instance?.Seized(camp.Prisoners[camp.Count - 1], camp.transform.position);
             }
             base.Die();
         }

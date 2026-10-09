@@ -16,13 +16,15 @@ namespace AntColony.UI
         public const int MaxVisible = 5;
         public const float WarningSeconds = 10f, HintSeconds = 10f;
         public static readonly Color Mint = MenuTheme.Hex(0x6fd6b8);
-        private sealed class Toast { public string key, message, actionLabel; public System.Action action; public ToastKind kind; public int count = 1; public float remaining; public bool crisis; }
+        private sealed class Toast { public string key, message, actionLabel; public System.Action action; public ToastKind kind; public int count = 1; public float remaining; public bool crisis, pinned; }
 
         private static ToastManager instance;
         private readonly List<Toast> toasts = new List<Toast>();
         private readonly Dictionary<string, (System.Action action, string label)> locations = new Dictionary<string, (System.Action, string)>();
         private readonly Dictionary<string, string> crises = new Dictionary<string, string>();
         private readonly Dictionary<string, string> dismissed = new Dictionary<string, string>();
+        // 고정 알림(보류 협상 등): 자동 소멸·닫기 없이 해결될 때까지 남는다.
+        private readonly Dictionary<string, (string message, System.Action action, string label)> pins = new Dictionary<string, (string, System.Action, string)>();
         private RectTransform panel;
         private bool hovered, dirty = true;
 
@@ -73,6 +75,14 @@ namespace AntColony.UI
             }
             instance.dirty = true;
         }
+        public static void SetPinned(string key, string message, System.Action action = null, string actionLabel = "열기")
+        {
+            if (instance == null) return;
+            if (message == null) { if (instance.pins.Remove(key)) instance.dirty = true; return; }
+            if (instance.pins.TryGetValue(key, out var current) && current.message == message) return;
+            instance.pins[key] = (message, action, actionLabel); instance.dirty = true;
+        }
+        public static IEnumerable<string> PinnedKeys => instance != null ? instance.pins.Keys.ToList() : new List<string>();
         // 클릭 닫기와 같은 동작(검사용으로도 쓴다). index는 VisibleLines 순서.
         public static void Dismiss(int index)
         {
@@ -80,6 +90,7 @@ namespace AntColony.UI
             var shown = instance.Shown();
             if (index < 0 || index >= shown.Count) return;
             var t = shown[index];
+            if (t.pinned) return;
             if (t.crisis) instance.dismissed[t.key] = t.message; else instance.toasts.Remove(t);
             instance.dirty = true;
         }
@@ -87,7 +98,8 @@ namespace AntColony.UI
         private List<Toast> All() => crises.Where(c => !dismissed.ContainsKey(c.Key))
             .Select(c => new Toast { key = c.Key, message = c.Value, crisis = true,
                 action = locations.TryGetValue(c.Key, out var location) ? location.action : null,
-                actionLabel = locations.TryGetValue(c.Key, out var target) ? target.label : null }).Concat(toasts).ToList();
+                actionLabel = locations.TryGetValue(c.Key, out var target) ? target.label : null })
+            .Concat(pins.Select(p => new Toast { key = p.Key, message = p.Value.message, action = p.Value.action, actionLabel = p.Value.label, pinned = true })).Concat(toasts).ToList();
         private List<Toast> Shown() => All().Take(MaxVisible).ToList();
         private List<string> Lines()
         {
@@ -115,8 +127,8 @@ namespace AntColony.UI
             for (var i = 0; i < shown.Count; i++)
             {
                 var index = i; var t = shown[i];
-                Row("Toast " + i, Label(t), t.crisis ? MenuTheme.DangerInk : t.kind == ToastKind.Warning ? MenuTheme.Warning : t.kind == ToastKind.Hint ? Mint : MenuTheme.TextColor,
-                    () => Dismiss(index), t.action, t.actionLabel);
+                Row("Toast " + i, Label(t), t.crisis ? MenuTheme.DangerInk : t.pinned ? MenuTheme.Accent : t.kind == ToastKind.Warning ? MenuTheme.Warning : t.kind == ToastKind.Hint ? Mint : MenuTheme.TextColor,
+                    t.pinned ? null : (System.Action)(() => Dismiss(index)), t.action, t.actionLabel);
             }
             if (all.Count > MaxVisible) Row("Toast More", $"+{all.Count - MaxVisible}건", MenuTheme.Dim, null);
             panel.gameObject.SetActive(all.Count > 0);

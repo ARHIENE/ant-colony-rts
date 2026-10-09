@@ -140,7 +140,7 @@ namespace AntColony.Core
             S.old = S.old + aging - Mathf.RoundToInt(S.old * GameBalance.OldDeath);
             // 세율이 높을수록 불이익이 가파르다(30% 초과분 제곱 가산, 잠정). 창고 식량은 시민 민심에 반영하지 않는다.
             var over = Mathf.Max(0, S.taxRate - .3f);
-            var target = 60f - (S.taxRate - .2f) * 100f - over * over * 200f - PolicySentiment(S.policy)
+            var target = 60f - (S.taxRate - .2f) * 100f - over * over * 500f - PolicySentiment(S.policy)
                 + (Total > HousingCapacity ? -10 : 0) + Mathf.Min(10, Facilities * 2) + (S.raidSeconds < GameCalendar.SecondsPerMonth ? -10 : 0) + GameBalance.AdminSentiment * Administration;
             S.sentiment = Mathf.Clamp(S.sentiment + Mathf.Clamp(target - S.sentiment, -10, 10), 0, 100);
             var room = HousingCapacity - Total;
@@ -155,6 +155,13 @@ namespace AntColony.Core
             {
                 var left = pool.RemoveFree(Mathf.CeilToInt(pool.Free * GameBalance.UnrestDesertion), true);
                 if (left > 0) UI.ToastManager.Show($"민심 바닥: 개미 {left}마리가 떠났습니다");
+            }
+            // 과도한 징세는 민심 보정(시설·행정)으로 완전히 지울 수 없다: 세율 40% 초과분에 비례해 매달 일부가 떠난다(잠정).
+            var taxFlight = Mathf.Clamp01((S.taxRate - GameBalance.HighTaxFlightRate) / (GameBalance.MaxTaxRate - GameBalance.HighTaxFlightRate));
+            if (!Unrest && taxFlight > 0)
+            {
+                var fled = pool.RemoveFree(Mathf.CeilToInt(pool.Free * GameBalance.UnrestDesertion * taxFlight), true);
+                if (fled > 0) UI.ToastManager.Show($"높은 세금: 개미 {fled}마리가 떠났습니다");
             }
         }
 

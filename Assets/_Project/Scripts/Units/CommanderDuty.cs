@@ -23,8 +23,21 @@ namespace AntColony.Units
         public CommanderDuty duty;
         public float health = GameBalance.CommanderHealth, quietSeconds, recoverySeconds;
         public bool resting; // 휴식 지시: 피로가 풀릴 때까지 자율 작업을 쉰다.
+        // 작업 종류별 우선순위(작업표 비트 순서, 14칸). 0 = 금지, 1~5 = 매우 낮음~매우 높음. 이전 저장(null)은 jobs 켬=보통(3)으로 만든다.
+        public int[] priorities;
+        public const int JobCount = 14, MaxPriority = 5, DefaultPriority = 3;
+        public static int Index(CommanderJobs job) { for (int i = 0; i < JobCount; i++) if ((int)job == 1 << i) return i; return -1; }
+        // jobs 비트가 켬/금지의 기준이다. SetJobEnabled로 켜진 칸은 보통, 꺼진 칸은 금지로 맞춘다.
+        public int Priority(CommanderJobs job)
+        {
+            int i = Index(job); if (i < 0) return 0;
+            if (priorities == null || priorities.Length != JobCount) priorities = new int[JobCount];
+            bool on = (jobs & job) == job;
+            if (!on) priorities[i] = 0; else if (priorities[i] <= 0 || priorities[i] > MaxPriority) priorities[i] = DefaultPriority;
+            return priorities[i];
+        }
         public Vector3 returnPosition;
-        public bool Valid => (jobs & ~CommanderJobs.All) == 0 && Enum.IsDefined(typeof(CommanderDuty), duty)
+        public bool Valid => (jobs & ~CommanderJobs.All) == 0 && (priorities == null || priorities.Length == 0 || priorities.Length == JobCount && Array.TrueForAll(priorities, p => p >= 0 && p <= MaxPriority)) && Enum.IsDefined(typeof(CommanderDuty), duty)
             && Finite(health) && health >= 0 && health <= GameBalance.CommanderHealth
             && Finite(quietSeconds) && quietSeconds >= 0 && quietSeconds <= GameBalance.AutoReturnSeconds
             && Finite(recoverySeconds) && recoverySeconds >= 0 && recoverySeconds <= GameBalance.CommanderRecoverySeconds
@@ -49,6 +62,14 @@ namespace AntColony.Units
             if (job == CommanderJobs.None || (job & ~CommanderJobs.All) != 0 || enabled && !CanDoJob(job)) return false;
             WorkState.jobs = enabled ? WorkState.jobs | job : WorkState.jobs & ~job;
             return true; // Already started work finishes, including delivery of its cargo.
+        }
+        public int JobPriority(CommanderJobs job) => AllowsJob(job) ? WorkState.Priority(job) : 0;
+        // 1~5 단계 지정(0이면 금지). 불가 특성 칸은 켤 수 없다.
+        public bool SetJobPriority(CommanderJobs job, int level)
+        {
+            if (CommanderWorkState.Index(job) < 0 || level < 0 || level > CommanderWorkState.MaxPriority || !SetJobEnabled(job, level > 0)) return false;
+            WorkState.Priority(job); if (level > 0) WorkState.priorities[CommanderWorkState.Index(job)] = level;
+            return true;
         }
 
         internal bool CanMobilize => isActiveAndEnabled && !IsDead && PersonalHealth > 0 && !IsDeparting
@@ -127,45 +148,64 @@ namespace AntColony.Units
                 }
             }
             if (IsFlying ? !HasReachedDestination() : Agent.pathPending || Agent.hasPath) return;
-            if (WorkState.resting) return;
+            if (WorkState.resting && !WorkPriorities.Red) return;
             workScan -= seconds; if (workScan > 0) return; workScan = GameBalance.WorkScanSeconds;
             // ponytail: one scan per second for the small commander roster; index jobs if profiling shows contention.
-            if (AllowsJob(CommanderJobs.Nursing))
-                foreach (var hospital in FindObjectsByType<Infirmary>(FindObjectsSortMode.None).Where(h => h.Patients.Count > 0 && h.Nurse == null))
-                    if (StartService(hospital, CommanderJobs.Nursing)) return;
-            if (AllowsJob(CommanderJobs.Repair))
-                foreach (var building in FindObjectsByType<BuildingBase>(FindObjectsSortMode.None).Where(BuildingRepair.Needed).OrderBy(b => (b.Position - Position).sqrMagnitude))
-                    if (!Active.OfType<CommanderAnt>().Any(c => c != this && c.ServiceTarget == building) && StartService(building, CommanderJobs.Repair)) return;
-            if (AllowsJob(CommanderJobs.Cleaning) && FindCorpseWork(false)) return;
-            if (AllowsJob(CommanderJobs.Building) || AllowsJob(CommanderJobs.Art))
-                foreach (var site in FindObjectsByType<BuildingConstructionSite>(FindObjectsSortMode.None).OrderBy(s => (s.Position - Position).sqrMagnitude))
-                    if (!site.HasBuilder && AllowsJob(site.IsArt ? CommanderJobs.Art : CommanderJobs.Building) && CanReach(site.Position)) { CommandBuild(site); return; }
-            if (AllowsJob(CommanderJobs.Crafting))
-                foreach (var shop in FindObjectsByType<Workshop>(FindObjectsSortMode.None).OrderBy(s => (s.Position - Position).sqrMagnitude))
-                    if (!shop.Ruined && !shop.IsDead && shop.Crafter == null && shop.Jobs.Count > 0 && GoToFacility(shop)) return;
-            if (AllowsJob(CommanderJobs.Cooking))
-                foreach (var kitchen in FindObjectsByType<Kitchen>(FindObjectsSortMode.None).Where(k => k.NeedsCook))
-                    if (!Active.OfType<CommanderAnt>().Any(c => c != this && c.ServiceTarget == kitchen) && StartService(kitchen, CommanderJobs.Cooking)) return;
-            if (AllowsJob(CommanderJobs.Administration))
-                foreach (var desk in FindObjectsByType<AdminDesk>(FindObjectsSortMode.None).Where(d => d.NeedsWork).OrderBy(d => (d.Position - Position).sqrMagnitude))
-                    if (StartService(desk, CommanderJobs.Administration)) return;
-            if (AllowsJob(CommanderJobs.Hunting))
-                foreach (var animal in WildMonster.All.Where(m => m.Huntable && m.HuntDesignated).OrderBy(m => (m.Position - Position).sqrMagnitude))
-                    if (!Active.OfType<CommanderAnt>().Any(c => c != this && c.HuntTarget == animal) && StartHunt(animal)) return;
-            if (AllowsJob(CommanderJobs.Hauling))
-                foreach (var wheel in PowerNode.All.Where(p => p.NeedsRunner).OrderBy(p => (p.Position - Position).sqrMagnitude))
-                    if (StartService(wheel, CommanderJobs.Hauling)) return;
-            foreach (var job in new[] { CommanderJobs.Hauling, CommanderJobs.Farming, CommanderJobs.Fishing, CommanderJobs.Gathering })
-                if (AllowsJob(job))
-                    foreach (var node in ResourceNode.Available.OrderBy(n => (n.transform.position - Position).sqrMagnitude))
-                        if (node.CanGather && (CarriedAmount == 0 || CarriedType == node.ResourceType)
-                            && ResourceManager.Instance != null && ResourceManager.Instance.GetAmount(node.ResourceType) < ResourceManager.Instance.GetCapacity(node.ResourceType)
-                            && node.GetComponentInParent<ExpeditionSite>() == null && !node.IsRaidLoot && JobFor(node) == job
-                            && TryWorkApproach(node.transform.position, out _)) { CommandGather(node); return; }
+            // 노란 경보 대상 → 작업 종류 우선순위(같은 단계는 작업표 왼쪽 순서) → 대상 우선순위 1~9 → 거리. 연구는 플레이어 지시 전용이라 자율 목록에 없다.
+            var jobs = AutoJobs.Where(AllowsJob).OrderByDescending(j => WorkState.Priority(j)).ToArray();
+            foreach (var job in jobs) if (TryAutoJob(job, true)) return;
+            foreach (var job in jobs) if (TryAutoJob(job, false)) return;
+        }
+        private static readonly CommanderJobs[] AutoJobs = { CommanderJobs.Nursing, CommanderJobs.Repair, CommanderJobs.Cleaning, CommanderJobs.Building, CommanderJobs.Art,
+            CommanderJobs.Crafting, CommanderJobs.Administration, CommanderJobs.Cooking, CommanderJobs.Hunting, CommanderJobs.Hauling, CommanderJobs.Farming, CommanderJobs.Fishing, CommanderJobs.Gathering };
+        private bool TryAutoJob(CommanderJobs job, bool yellow)
+        {
+            switch (job)
+            {
+                case CommanderJobs.Nursing:
+                    if (WorkPriorities.Red) return false; // 빨간 경보 중에는 간호하지 않는다.
+                    foreach (var hospital in WorkPriorities.Rank(FindObjectsByType<Infirmary>(FindObjectsSortMode.None).Where(h => h.Patients.Count > 0 && h.Nurse == null), Position, yellow))
+                        if (StartService(hospital, CommanderJobs.Nursing)) return true;
+                    return false;
+                case CommanderJobs.Repair:
+                    foreach (var building in WorkPriorities.Rank(FindObjectsByType<BuildingBase>(FindObjectsSortMode.None).Where(BuildingRepair.Needed), Position, yellow))
+                        if (!Active.OfType<CommanderAnt>().Any(c => c != this && c.ServiceTarget == building) && StartService(building, CommanderJobs.Repair)) return true;
+                    return false;
+                case CommanderJobs.Cleaning: return FindCorpseWork(false, yellow);
+                case CommanderJobs.Building: case CommanderJobs.Art:
+                    foreach (var site in WorkPriorities.Rank(FindObjectsByType<BuildingConstructionSite>(FindObjectsSortMode.None), Position, yellow))
+                        if ((site.IsArt ? CommanderJobs.Art : CommanderJobs.Building) == job && CanReach(site.Position)) { CommandBuild(site); if (ConstructionTarget == site) return true; }
+                    return false;
+                case CommanderJobs.Crafting:
+                    foreach (var shop in WorkPriorities.Rank(FindObjectsByType<Workshop>(FindObjectsSortMode.None), Position, yellow))
+                        if (!shop.Ruined && !shop.IsDead && shop.Crafter == null && shop.Jobs.Count > 0 && GoToFacility(shop)) return true;
+                    return false;
+                case CommanderJobs.Cooking:
+                    foreach (var kitchen in WorkPriorities.Rank(FindObjectsByType<Kitchen>(FindObjectsSortMode.None).Where(k => k.NeedsCook), Position, yellow))
+                        if (!Active.OfType<CommanderAnt>().Any(c => c != this && c.ServiceTarget == kitchen) && StartService(kitchen, CommanderJobs.Cooking)) return true;
+                    return false;
+                case CommanderJobs.Administration:
+                    foreach (var desk in WorkPriorities.Rank(FindObjectsByType<AdminDesk>(FindObjectsSortMode.None).Where(d => d.NeedsWork), Position, yellow))
+                        if (StartService(desk, CommanderJobs.Administration)) return true;
+                    return false;
+                case CommanderJobs.Hunting:
+                    foreach (var animal in WorkPriorities.Rank(WildMonster.All.Where(m => m.Huntable && m.HuntDesignated), Position, yellow))
+                        if (!Active.OfType<CommanderAnt>().Any(c => c != this && c.HuntTarget == animal) && StartHunt(animal)) return true;
+                    return false;
+            }
+            if (job == CommanderJobs.Hauling)
+                foreach (var wheel in WorkPriorities.Rank(PowerNode.All.Where(p => p.NeedsRunner), Position, yellow))
+                    if (StartService(wheel, CommanderJobs.Hauling)) return true;
+            foreach (var node in WorkPriorities.Rank(ResourceNode.Available, Position, yellow))
+                if (node.CanGather && (CarriedAmount == 0 || CarriedType == node.ResourceType)
+                    && ResourceManager.Instance != null && ResourceManager.Instance.GetAmount(node.ResourceType) < ResourceManager.Instance.GetCapacity(node.ResourceType)
+                    && node.GetComponentInParent<ExpeditionSite>() == null && !node.IsRaidLoot && JobFor(node) == job
+                    && TryWorkApproach(node.transform.position, out _)) { CommandGather(node); return true; }
+            return false;
         }
         public bool IsFatigued => Fatigue >= GameBalance.TiredFatigue;
         private bool CanTakeCivilianOrder => CanReceiveOrders && !IsDeployed && !IsAwayFromHome && !LabUpgradeBusy;
-        public bool CanRest => CanTakeCivilianOrder && IsFatigued && !WorkState.resting;
+        public bool CanRest => !WorkPriorities.Red && CanTakeCivilianOrder && IsFatigued && !WorkState.resting;
         // 휴식 보내기: 배정된 숙소로 가서(없거나 갈 수 없으면 제자리) 피로가 풀릴 때까지 자율 작업을 멈춘다.
         public bool SendToRest()
         {
@@ -178,7 +218,7 @@ namespace AntColony.Units
         public Infirmary TreatmentTarget => FindObjectsByType<Infirmary>(FindObjectsSortMode.None)
             .Where(i => Infirmary.Unlocked && i.isActiveAndEnabled && !i.IsDead && i.Patients.Count < Infirmary.Capacity)
             .OrderBy(i => (i.Position - Position).sqrMagnitude).FirstOrDefault();
-        public bool CanSendToTreatment => CanTakeCivilianOrder && PersonalState.NeedsTreatment && TreatmentFacility == null && TreatmentTarget != null;
+        public bool CanSendToTreatment => !WorkPriorities.Red && CanTakeCivilianOrder && PersonalState.NeedsTreatment && TreatmentFacility == null && TreatmentTarget != null;
         // 치료 보내기: 빈 침상이 있는 가장 가까운 의무실로 가서 입원한다(기존 자동 시설 이동을 재사용).
         public bool SendToTreatment()
         {

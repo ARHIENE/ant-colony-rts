@@ -77,6 +77,7 @@ namespace AntColony.World
             var c = Data.civilizations.Find(f => f.id == member.faction);
             member.commander.PersonalState.social.departure = DepartureState.Imprisoned;
             var captured = PrisonerCamp.Instance?.ReceiveForTrade(member.commander) == true;
+            if (captured) Seized(member.commander, PrisonerCamp.Instance.transform.position);
             if (!captured && member.commander.PersonalState.equipment.Count > 0) EquipmentLoot.Drop(member.position, member.commander.PersonalState.equipment);
             c.rebels.RemoveAll(p => p.PersonalState.id == id); Data.rebelMembers.Remove(member); c.playerScore += 10;
             CampaignHistory.Record(captured ? "포로" : "사망", member.commander.Name, "반란군 제압", true);

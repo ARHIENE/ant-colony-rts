@@ -66,7 +66,7 @@ namespace AntColony.UI
                 : $"작업 장수 {workers.Length}명: {string.Join(" · ", workers.Select(c => c.CommanderName))}";
             instruction.text = "평시 작업은 장수만 합니다. 작업표 우선순위에 따라 장수가 알아서 맡습니다.";
             var label = action.GetComponentInChildren<Text>();
-            action.gameObject.SetActive(Target is ResourceNode || Target is Workshop || Target is WildMonster || Target is Gate || Target is Barracks || Target is DigSite);
+            action.gameObject.SetActive(Target is ResourceNode || Target is Workshop || Target is BuildingConstructionSite || Target is WildMonster || Target is Gate || Target is Barracks || Target is DigSite);
             if (Target is BuildingBase placed && !(Target is Gate)) { var room = RoomSystem.RoomAt(placed.Position); instruction.text = (room == null ? "방 밖(효과 적음)" : $"방: {room.Title} · 등급 {room.GradeName} ({room.Cells.Count}칸)") + " · " + instruction.text; }
             if (Target is Dormitory dorm)
             {
@@ -78,6 +78,7 @@ namespace AntColony.UI
             if (Target is Workshop shop) { label.text = "제작 대기열"; instruction.text = $"제작 대기 {shop.Jobs.Count}건"; }
             if (Target is Barracks barracks) label.text = "병영 강화";
             if (Target is DigSite) label.text = "굴착 확장";
+            if (Target is BuildingConstructionSite site) { label.text = "건설 취소"; instruction.text = $"남은 작업 {site.RemainingWork:0.#}/{site.BuildTimeSeconds:0.#}초 · 취소하면 건설비 전액 반환(재개발 보상비는 반환 안 됨)"; }
             if (Target is Kitchen kitchen) instruction.text = kitchen.IsTable ? "먹기 전용: 장수가 식사를 가져와 여기서 먹습니다."
                 : $"비축 식사 {kitchen.Meals.meals.Count}/{Kitchen.Capacity} · 조리 {kitchen.Meals.progress:0.#}/{Kitchen.CookSeconds}초";
             if (Target is Gate gate) { label.text = gate.Open ? "성문 닫기" : "성문 열기"; instruction.text = gate.Open ? "열림: 모두 통과" : "닫힘: 성벽처럼 막음"; }
@@ -95,6 +96,7 @@ namespace AntColony.UI
                 status.text = $"{animal.Temperament} · 체력 {animal.CurrentHealth:0} · {(animal.HuntDesignated ? "사냥 지정됨" : "사냥 미지정")}";
                 instruction.text = "사냥을 켠 장수만 지정된 야생 개체를 사냥합니다."; label.text = animal.HuntDesignated ? "사냥 취소" : "사냥 지정";
             }
+            title.text += $"  <size=14><color=#968976>우선 {WorkPriorities.Level(Target)}</color>{(WorkPriorities.Yellow(Target) ? "  <color=#f2c94c>노란 경보</color>" : "")}</size>";
         }
         private static string ResidentNames(Dormitory dorm)
         {
@@ -129,6 +131,7 @@ namespace AntColony.UI
             if (Target is Gate gate) gate.SetOpen(!gate.Open);
             if (Target is Barracks barracks) barracks.TryUpgrade();
             if (Target is DigSite dig) dig.TryExpand();
+            if (Target is BuildingConstructionSite site) { site.Cancel(); Clear(); }
         }
         private void EatCorpse()
         {
