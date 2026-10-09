@@ -68,6 +68,24 @@ public static class Spec1009Checks
             site.SetRefund(10, 20, 3); var food = rm.GetAmount(Resource.Food); var soil = rm.GetAmount(Resource.Soil); var special = rm.GetAmount(Resource.Special);
             site.Cancel(); await Task.Delay(50);
             Check(site == null && rm.GetAmount(Resource.Food) == food + 10 && rm.GetAmount(Resource.Soil) == soil + 20 && rm.GetAmount(Resource.Special) == special + 3, "cancel refunds 100%");
+            // 창고가 가득 차면 넘치는 반환분은 사라지지 않고 바닥 운반 더미로 남는다.
+            var full = Site(a.Position, 1000); full.SetRefund(0, 30, 0);
+            var space = rm.GetCapacity(Resource.Soil) - rm.GetAmount(Resource.Soil); rm.Add(Resource.Soil, space - 10);
+            var looseBefore = ResourceNode.Available.Where(n => n.IsLooseCargo && n.ResourceType == Resource.Soil).Sum(n => n.AmountRemaining);
+            full.Cancel(); await Task.Delay(50);
+            var looseAfter = ResourceNode.Available.Where(n => n.IsLooseCargo && n.ResourceType == Resource.Soil).Sum(n => n.AmountRemaining);
+            Check(rm.GetAmount(Resource.Soil) == rm.GetCapacity(Resource.Soil) && Mathf.Approximately(looseAfter - looseBefore, 20), $"overflow refund dropped near storage ({looseAfter - looseBefore})");
+            foreach (var n in ResourceNode.Available.Where(n => n.IsLooseCargo).ToList()) Object.Destroy(n.gameObject);
+            rm.TrySpend(0, rm.GetAmount(Resource.Soil) - soil - 20); await Task.Delay(50);
+            // 바닥 장비는 운반 작업 장수가 장비 보관함으로 옮긴다.
+            var inv = EquipmentInventory.Instance; Check(inv != null && !inv.Full, "equipment inventory has room");
+            var floorGear = new EquipmentItem { slot = EquipmentSlot.Trinket, effect = TrinketEffect.Move };
+            var loot = EquipmentLoot.Drop(a.Position + Vector3.right * 4, new[] { floorGear });
+            a.SetJobEnabled(CommanderJobs.Hauling, true); a.TickDuty(2);
+            Check(loot.Collector == a, "hauler heads to floor equipment");
+            Time.timeScale = 1; for (int i = 0; i < 60 && loot != null; i++) await Task.Delay(100); Time.timeScale = 0;
+            Check(loot == null && inv.Items.Contains(floorGear), "floor equipment hauled into inventory");
+            a.SetJobEnabled(CommanderJobs.Hauling, false); a.CommandStop();
 
             // 4. 작업 종류 우선순위 5단계: 높은 단계가 작업표 왼쪽 순서보다 먼저.
             var node = ResourceNode.Available.Where(n => n.CanGather && CommanderAnt.JobFor(n) == CommanderJobs.Gathering && n.GetComponentInParent<ExpeditionSite>() == null && !n.IsRaidLoot && a.TryWorkApproach(n.transform.position, out _))

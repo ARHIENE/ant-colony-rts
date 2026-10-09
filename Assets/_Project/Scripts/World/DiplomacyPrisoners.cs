@@ -155,7 +155,7 @@ namespace AntColony.World
             drop.AddComponent<ResourceNode>().ConfigureLoot(type, amount - fits);
             drop.AddComponent<ResourceNodeStatus>(); drop.SetActive(true);
         }
-        // ponytail: 바닥 장비는 기존 장비 전리품(우클릭 회수)으로 둔다. 자동 운반이 필요하면 운반 작업에 EquipmentLoot를 추가한다.
+        // 바닥 장비는 장비 전리품으로 두고 운반 작업 장수가 보관함으로 옮긴다(우클릭 회수도 가능).
         internal static void StoreEquipment(IEnumerable<EquipmentItem> items, Vector3 fallback)
         {
             var inventory = EquipmentInventory.Instance; var extra = new List<EquipmentItem>();

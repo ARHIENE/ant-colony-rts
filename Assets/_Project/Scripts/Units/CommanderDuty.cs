@@ -196,6 +196,10 @@ namespace AntColony.Units
             if (job == CommanderJobs.Hauling)
                 foreach (var wheel in WorkPriorities.Rank(PowerNode.All.Where(p => p.NeedsRunner), Position, yellow))
                     if (StartService(wheel, CommanderJobs.Hauling)) return true;
+            // 바닥 장비(외교 초과분·사망 장수 장비 등)를 장비 보관함으로 옮긴다. 기존 우클릭 회수 동작을 재사용.
+            if (job == CommanderJobs.Hauling && EquipmentInventory.Instance != null && !EquipmentInventory.Instance.Full)
+                foreach (var loot in WorkPriorities.Rank(FindObjectsByType<AntColony.World.EquipmentLoot>(FindObjectsSortMode.None).Where(l => l.Collector == null), Position, yellow))
+                    if (CanReach(loot.transform.position) && loot.TryCollect(this)) return true;
             foreach (var node in WorkPriorities.Rank(ResourceNode.Available, Position, yellow))
                 if (node.CanGather && (CarriedAmount == 0 || CarriedType == node.ResourceType)
                     && ResourceManager.Instance != null && ResourceManager.Instance.GetAmount(node.ResourceType) < ResourceManager.Instance.GetCapacity(node.ResourceType)

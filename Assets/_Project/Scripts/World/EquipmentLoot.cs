@@ -8,6 +8,7 @@ namespace AntColony.World
     {
         public List<EquipmentItem> Items { get; private set; } = new List<EquipmentItem>();
         private CommanderAnt collector;
+        public CommanderAnt Collector => collector;
         public static EquipmentLoot Drop(Vector3 position, IEnumerable<EquipmentItem> items)
         {
             var go = GameObject.CreatePrimitive(PrimitiveType.Cube);

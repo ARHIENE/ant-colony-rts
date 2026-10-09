@@ -48,13 +48,14 @@ namespace AntColony.Buildings
         public void SetRefund(int food, int soil, int special) { refundFood = food; refundSoil = soil; refundSpecial = special; }
 
         // 플레이어 취소: 건설 전·시공 중 모두 건설비 100% 반환. 재개발이면 기존 집은 그대로 남고 지급한 보상비·발생한 불만은 돌려받지 않는다.
-        // ponytail: 창고가 가득 차면 넘치는 반환분은 버려진다(ResourceManager.Add 상한).
+        // 창고가 가득 차면 넘치는 반환분은 창고 주변 바닥에 두고 운반 장수가 옮긴다(외교 수령과 같은 처리).
         public void Cancel()
         {
             if (finished) return;
             finished = true;
-            var r = ResourceManager.Instance;
-            if (r != null) { r.Add(ResourceType.Food, refundFood, ResourceReason.Refund); r.Add(ResourceType.Soil, refundSoil, ResourceReason.Refund); r.Add(ResourceType.Special, refundSpecial, ResourceReason.Refund); }
+            AntColony.World.DiplomacyManager.StoreResource(ResourceType.Food, refundFood, ResourceReason.Refund);
+            AntColony.World.DiplomacyManager.StoreResource(ResourceType.Soil, refundSoil, ResourceReason.Refund);
+            AntColony.World.DiplomacyManager.StoreResource(ResourceType.Special, refundSpecial, ResourceReason.Refund);
             ReturnWorkforce();
             Destroy(gameObject);
         }
