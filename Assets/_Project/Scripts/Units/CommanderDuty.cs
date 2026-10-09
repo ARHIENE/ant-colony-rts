@@ -12,8 +12,8 @@ namespace AntColony.Units
     {
         None = 0, Building = 1, Crafting = 2, Research = 4, Farming = 8, Fishing = 16, Gathering = 32,
         Nursing = 64, Repair = 128, Hauling = 256, Hunting = 512, Cooking = 1024, Art = 2048,
-        Cleaning = 4096,
-        Legacy = 63, Added = Nursing | Repair | Hauling | Hunting | Cooking | Art, All = 8191
+        Cleaning = 4096, Administration = 8192,
+        Legacy = 63, Added = Nursing | Repair | Hauling | Hunting | Cooking | Art, All = 16383
     }
     public enum CommanderDuty { Civilian, Deployed, Returning }
 
@@ -146,6 +146,9 @@ namespace AntColony.Units
             if (AllowsJob(CommanderJobs.Cooking))
                 foreach (var kitchen in FindObjectsByType<Kitchen>(FindObjectsSortMode.None).Where(k => k.NeedsCook))
                     if (!Active.OfType<CommanderAnt>().Any(c => c != this && c.ServiceTarget == kitchen) && StartService(kitchen, CommanderJobs.Cooking)) return;
+            if (AllowsJob(CommanderJobs.Administration))
+                foreach (var desk in FindObjectsByType<AdminDesk>(FindObjectsSortMode.None).Where(d => d.NeedsWork).OrderBy(d => (d.Position - Position).sqrMagnitude))
+                    if (StartService(desk, CommanderJobs.Administration)) return;
             if (AllowsJob(CommanderJobs.Hunting))
                 foreach (var animal in WildMonster.All.Where(m => m.Huntable && m.HuntDesignated).OrderBy(m => (m.Position - Position).sqrMagnitude))
                     if (!Active.OfType<CommanderAnt>().Any(c => c != this && c.HuntTarget == animal) && StartHunt(animal)) return;

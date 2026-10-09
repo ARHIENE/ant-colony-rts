@@ -74,6 +74,18 @@ namespace AntColony.Core
         public const float ImmigrationShare = .3f, AdultAging = .03f, OldDeath = .15f, UnrestDesertion = .05f;
         // 주거 건물(방 밖에 짓는 건물 단위, 자동 레벨업 없음): 수용 수·재료·인력·시간
         public const int HutHousing = 20, HutSoil = 30, HouseHousing = 50, HouseSoil = 80, ApartmentHousing = 120, ApartmentSoil = 200, ApartmentSpecial = 20;
+        // 시민 생산력(2026-10-08 기획, 수치 잠정): 주거 종류 배율(기본 살 자리 1.0), 완료 연구 1개당·공공시설 1개당 가산과 상한.
+        public const float HutProductivity = 1f, HouseProductivity = 1.1f, ApartmentProductivity = 1.25f;
+        public const float ResearchProductivity = .01f, MaxResearchProductivity = .3f, FacilityProductivity = .02f, MaxFacilityProductivity = .2f;
+        // 행정(2026-10-08 기획, 수치 잠정): 처리한 업무량은 AdminMemorySeconds 시간 상수로 서서히 줄어든다.
+        // 성과 = 업무량 / (인구 × AdminWorkPerAnt). 정치 10 장수가 상시 일하면 인구 약 100을 감당한다.
+        public const float AdminWorkPerAnt = 6f, AdminMemorySeconds = 600f;
+        public const int AdminDeskSoil = 30;
+        // 행정 효과: 성과 0이면 세금 징수 손실 15%, 민심 목표 +5·이주 수요 +10까지, 재개발 불만·보상비 완화.
+        public const float AdminTaxLoss = .15f, AdminSentiment = 5f, AdminDemand = 10f, AdminRedevelopRelief = .5f, AdminCompensationRelief = .2f;
+        // 재개발(2026-10-08 기획, 수치 잠정): 기본 보상 = 거주 1마리당 식량·재료, 재개발 건설비 할인, 보상 부족 불만, 지연 기준.
+        public const float RedevelopFoodPerResident = .5f, RedevelopSoilPerResident = .5f, RedevelopCostShare = .6f;
+        public const float RedevelopMinCompensation = .5f, RedevelopMaxCompensation = 2f, RedevelopUnrestPerResident = .2f, RedevelopDelaySeconds = 120f, RedevelopDelaySentimentPerMonth = 3f;
         // 장수 나이(개월): 시작 12~72, 어린 장수 12개월 미만, 늙음 96개월 이상, 수명 120~168개월.
         public const float ChildMonths = 12, ElderMonths = 96, MinLifespan = 120, MaxLifespan = 168;
         public const int DormitoryBeds = 4, DormitoryFood = 20, DormitorySoil = 40, DormitoryAnts = 4;

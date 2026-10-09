@@ -24,7 +24,7 @@ namespace AntColony.UI
         static ActivityIcons()
         {
             Patterns["간호"] = Patterns["치료"]; Patterns["수리"] = Patterns["건설"]; Patterns["운반"] = Patterns["채집"];
-            Patterns["사냥"] = Patterns["출전"]; Patterns["요리"] = Patterns["연구"]; Patterns["예술"] = Patterns["제작"];
+            Patterns["사냥"] = Patterns["출전"]; Patterns["요리"] = Patterns["연구"]; Patterns["예술"] = Patterns["제작"]; Patterns["정치"] = Patterns["연구"];
             Patterns["치우기"] = Patterns["운반"]; Patterns["동족 포식"] = Patterns["채집"];
         }
         private static readonly Dictionary<string, Texture2D> Cache = new Dictionary<string, Texture2D>();

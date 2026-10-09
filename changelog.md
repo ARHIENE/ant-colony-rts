@@ -1,3 +1,7 @@
+# 2026-10-08 SAVE(Claude) — 이전 로그 요약
+- 10-08 기획 A~E 구현(`8747f5f`): 일반개미 평시 작업 지원 폐기(Workforce는 표식만), 세금 주간 현물(75초·1%·방침 3종, 시민 식량 소멸 삭제), 연속 배치(좌클릭/Shift/Shift+드래그), 밭 파종→자체 성장→수확, 연구는 과학 화면에서 장수 지시(자율 픽업·자동 반복 없음).
+- 검사: Workforce 74, Phase4 44, ResourceRule 31, Stage4 123, Stage2 185, WallDrag 12, AutonomousDuty 55, Commander 33, SaveRoundtrip 57, Stage1 130, Corpse 86, AcidTower 26, Meal 347, HudV4 313. PlayableLoop 문구 실패는 10-09에 수정.
+
 # 2026-10-07 SAVE(저녁, Claude) — 이전 로그 요약
 - FIX-01 휴식→배정 숙소(`Dormitory.Assign`), FIX-02 성체 전체 3% 노화(동원 몫 `agingDue`로 복귀 시 전환), FIX-03 끈끈이(기존 TrapPit)/가시 함정(`BuildingKind.SpikeTrap`, 반경 1.2·1초 피해 6·8회) 분리. DOC-01(Codex) 문구 교정 완료.
 - 검사: DayNight 42, Phase4 42, Workforce 80, Stage2 185, FurnitureCatalog 40, BuildCategory 62, SaveRoundtrip 57. 저장 왕복 검사는 Play 재시작 후 실행.

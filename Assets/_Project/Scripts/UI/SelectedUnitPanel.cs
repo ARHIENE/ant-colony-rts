@@ -11,7 +11,7 @@ namespace AntColony.UI
     // 초상 클릭 = 상세 탭 창(전체 기술·포상·연구), 무기 칸 클릭 = 무기 교체.
     public class SelectedUnitPanel : MonoBehaviour
     {
-        public static readonly string[] ActivityNames = { "채집", "건설", "농사", "낚시", "제작", "연구", "근접", "원거리", "지휘", "의료", "요리", "근력", "예술" };
+        public static readonly string[] ActivityNames = { "채집", "건설", "농사", "낚시", "제작", "연구", "근접", "원거리", "지휘", "의료", "요리", "근력", "예술", "정치" };
 
         private SelectionManager selection;
         private GameObject panel;

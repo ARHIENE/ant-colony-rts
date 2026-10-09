@@ -9,11 +9,9 @@ namespace AntColony.Buildings
     public sealed class Housing : BuildingBase
     {
         private static readonly List<Housing> Active = new List<Housing>();
-        public int Capacity => Data == null ? 0 : Data.kind switch
-        {
-            BuildingKind.Hut => GameBalance.HutHousing, BuildingKind.House => GameBalance.HouseHousing,
-            BuildingKind.Apartment => GameBalance.ApartmentHousing, _ => 0
-        };
+        public int Capacity => Data == null ? 0 : CapacityOf(Data.kind);
+        public static int CapacityOf(BuildingKind k) => k switch { BuildingKind.Hut => GameBalance.HutHousing, BuildingKind.House => GameBalance.HouseHousing, BuildingKind.Apartment => GameBalance.ApartmentHousing, _ => 0 };
+        public static float Productivity(BuildingKind k) => k switch { BuildingKind.House => GameBalance.HouseProductivity, BuildingKind.Apartment => GameBalance.ApartmentProductivity, _ => GameBalance.HutProductivity };
         public static bool IsKind(BuildingKind k) => k == BuildingKind.Hut || k == BuildingKind.House || k == BuildingKind.Apartment;
         public static IEnumerable<Housing> All => Active.Where(h => h != null && !h.IsDead);
         public static int TotalCapacity => Active.Where(h => h != null && !h.IsDead).Sum(h => h.Capacity);

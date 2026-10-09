@@ -89,10 +89,10 @@ namespace AntColony.UI
             if (FindAnyObjectByType<ScienceLab>() != null)
                 return "차량 연구 · 증기 시대 연구소 필요\n과학 화면에서 연구소 강화·장수 배정";
             if (ScienceLab.PrerequisitesMet)
-                return "과학연구소 건설\n장수 선택 · 대기 일반개미 8마리 필요";
+                return "과학연구소 건설\n건설 메뉴에서 과학연구소 배치";
             var population = AntPool.Instance != null ? AntPool.Instance.Total : 0;
             if (population < ScienceLab.RequiredPopulation)
-                return $"인구 증가 · {population}/{ScienceLab.RequiredPopulation}마리\n주거·식량·민심을 확보해 이주 유도";
+                return $"인구 증가 · {population}/{ScienceLab.RequiredPopulation}마리\n주거·공공서비스·민심을 확보해 이주 유도";
             var barracks = FindAnyObjectByType<Barracks>();
             if (barracks == null) return "병영 건설 · 장수 선택\n건설 메뉴에서 병영을 배치하세요";
             foreach (var candidate in FindObjectsByType<Barracks>())

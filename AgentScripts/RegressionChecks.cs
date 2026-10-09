@@ -182,7 +182,7 @@ public static class RegressionChecks
             var placedFarm = (GameObject)Field(placedSite, "completedBuilding").GetValue(placedSite);
             created.Add(placedFarm);
             Physics.SyncTransforms();
-            Check((bool)Invoke(placement, "HasObstruction", buildPoint + Vector3.up * .2f),
+            Check((bool)Invoke(placement, "HasObstruction", buildPoint + Vector3.up * .2f, null),
                 "construction footprint prevents overlapping placements");
             await Until(() => placedFarm.activeInHierarchy, "actual scene farm template completes through worker", 8000);
 

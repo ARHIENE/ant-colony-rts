@@ -45,6 +45,10 @@
 | SPEC-C | 중간 | 연속 배치(좌클릭 1개 / Shift 유지 / Shift+드래그) | Claude | 완료(검사 통과, log.md 참고) | `Buildings/BuildingPlacementController.cs` |
 | SPEC-D | 중간 | 농사 파종→자체 성장→수확 | Claude | 완료(검사 통과, log.md 참고) | `Buildings/FarmPlot.cs`, 장수 작업 선택 |
 | SPEC-E | 중간 | 연구 항목·장수 지정, 자동 반복 없음 | Claude | 완료(검사 통과, log.md 참고) | `Core/CampaignResearch.cs`, `Buildings/ScienceLab.cs` |
+| SPEC-F | 높음 | 정치 기술·작업표 행정·행정 책상·행정 성과(징수·민심·이주·재개발 보정) | Claude | 완료(Spec1008FIChecks, 수치 잠정) | `Units/CommanderTalents.cs`·`CommanderTraits.cs`·`CommanderDuty.cs`·`CommanderWork.cs`, `Buildings/AdminDesk.cs`, `Core/ColonyPopulation.Admin.cs`, `UI/GameMenuDuty.cs` |
+| SPEC-G | 높음 | PA/CA 포텐·실제 작업 비중 성장·감소·재분배(주80/보조20) | Claude | 완료(Spec1008FIChecks, 수치 잠정) | `Units/CommanderTalents.cs`, `Units/CommanderAnt.cs`(GainExperience), `UI/GameMenuRoster.cs` |
+| SPEC-H | 중간 | 특성 최대 4개(등급 배정·확률·만석 처리는 미정이라 보류) | Claude | 부분 완료 | `Units/CommanderTraits.cs` |
+| SPEC-I | 중간 | 주거 재개발(기존 집 위 배치, 보상비·불만·지연) | Claude | 완료(견적 검사, 수치 잠정) | `Buildings/Redevelopment.cs`·`BuildingPlacementController.cs`·`BuildingConstructionSite.cs`, `UI/BuildScreen.cs`·`GameMenuPopulation.cs` |
 
 ### 현재 인계 상태
 

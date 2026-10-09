@@ -35,6 +35,7 @@ namespace AntColony.Buildings
             {
                 if (builder != null && completedBuilding.GetComponent<Decoration>() is Decoration decor)
                     decor.Quality = AntColony.Units.EquipmentRecipes.Quality(builder.Talents.Level(AntColony.Units.CommanderActivity.Art), Random.value, Random.value);
+                if (TryGetComponent<RedevelopmentSite>(out var redevelop)) redevelop.Finish(); // 재개발이면 완공 순간 기존 집을 허문다.
                 completedBuilding.SetActive(true);
                 AntColony.UI.ToastManager.Show(completedBuilding.name + " construction complete.");
                 completedBuilding = null;

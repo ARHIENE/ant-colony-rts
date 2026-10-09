@@ -40,11 +40,11 @@ public static class Phase4Checks
         Check(stockpile != null && Type.GetType("AntColony.Buildings.QueenChamber, Assembly-CSharp") == null, "queen replaced by stockpile");
         Check(!ColonyEvents.Instance.TryTrigger(ColonyEvent.Wasps), "wasp event removed");
 
-        // 세금(2026-10-08): 납세 시민 × 세율 × 월 5, 1% 단위·최대 50%, 주(75초)마다 식량·재료 현물 지급.
+        // 세금(2026-10-08): 납세 시민 × 세율 × 월 5 × 시민 생산력 × 징수율(행정), 1% 단위·최대 50%, 주(75초)마다 식량·재료 현물 지급.
         pop.SetTaxRate(.333f); Check(Mathf.Approximately(pop.S.taxRate, .33f), "tax rounds to 1%");
         pop.SetTaxRate(.9f); Check(Mathf.Approximately(pop.S.taxRate, .5f), "tax capped at 50%");
         pop.SetTaxRate(.2f); pop.S.old = 10; pop.SetTaxFocus(TaxFocus.Balanced);
-        Check(pop.Taxpayers == pool.Total + 10 && Mathf.Approximately(pop.MonthlyTax, (pool.Total + 10) * .2f * 5f)
+        Check(pop.Taxpayers == pool.Total + 10 && Mathf.Approximately(pop.MonthlyTax, (pool.Total + 10) * .2f * 5f * ColonyPopulation.Productivity * pop.TaxCollection)
             && pop.WeeklyFood == Mathf.RoundToInt(pop.MonthlyTax * .5f / 4f) && pop.WeeklySoil == Mathf.RoundToInt(pop.MonthlyTax * .5f / 4f), "tax formula");
         var food = rm.GetAmount(RT.Food); var soil0 = rm.GetAmount(RT.Soil); var upkeep = Object.FindAnyObjectByType<UpkeepManager>();
         typeof(UpkeepManager).GetMethod("RunCycle", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance).Invoke(upkeep, null);
@@ -67,7 +67,7 @@ public static class Phase4Checks
         pop.TrySetPolicy(MilitaryPolicy.Reserve);
         Check(pop.MaxSoldiers(false) == Mathf.FloorToInt(adults * .05f) && pop.MaxSoldiers(true) == Mathf.FloorToInt(adults * .25f), "reserve 25% only under threat");
         pop.TrySetPolicy(MilitaryPolicy.Total); var halfTax = pop.MonthlyTax;
-        Check(pop.MaxSoldiers(false) == Mathf.FloorToInt(adults * .4f) && Mathf.Approximately(halfTax, (adults - pool.Assigned + pop.S.old) * .2f * 5f * .5f), "total mobilization 40%, half tax");
+        Check(pop.MaxSoldiers(false) == Mathf.FloorToInt(adults * .4f) && Mathf.Approximately(halfTax, (adults - pool.Assigned + pop.S.old) * .2f * 5f * .5f * ColonyPopulation.Productivity * pop.TaxCollection), "total mobilization 40%, half tax");
         Check(!pop.TryDraft(pop.MaxSoldiers(false) - pool.Assigned + 1, false), "draft above cap rejected");
 
         // 병역 나이 확대: 모자란 성체를 늙은 개미로 채운다.

@@ -43,7 +43,7 @@ public static class RegressionTriageChecks
             commander.ApplyTraits(new CommanderTraits(CommanderPersonality.Balanced));
             Check(commander.CanStartConstruction, "idle civilian can build; AcidTower fixture must stop autonomous work");
             Check(commander.SetJobEnabled(CommanderJobs.Cleaning, true), "4096 is now the valid cleaning job");
-            Check(!commander.SetJobEnabled((CommanderJobs)8192, true), "unknown job still rejected");
+            Check(!commander.SetJobEnabled((CommanderJobs)16384, true), "unknown job still rejected");
             commander.SetJobEnabled(CommanderJobs.All, false);
             var node = new GameObject("Triage cargo").AddComponent<ResourceNode>(); node.ConfigureLoot(ResourceType.Soil, 100);
             var cargo = typeof(WorkerAnt).GetField("carriedAmount", Private);

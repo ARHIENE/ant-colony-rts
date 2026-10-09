@@ -52,9 +52,10 @@ public static class WeaponTalentChecks
             Array.Clear(a.Talents.levels, 0, CommanderTalents.Count); Array.Clear(a.Talents.experience, 0, CommanderTalents.Count);
             Check(a.CommandLimit == 10 && a.Weapon == null && a.Role == UnitRole.Melee, "bare mandibles and base capacity");
             Near(a.Talents.Multiplier(CommanderActivity.Gathering), .6f, "zero skill speed");
-            a.GainExperience(CommanderActivity.Gathering, 350.5f);
+            a.GainExperience(CommanderActivity.Gathering, 438.125f); // 주 80%(2026-10-07 포텐 성장): 350.5
             Check(a.Talents.Level(CommanderActivity.Gathering) == 2, "multiple skill levels");
             Near(a.Talents.Xp(CommanderActivity.Gathering), 50.5f, "fractional XP carry");
+            Array.Clear(a.Talents.usage, 0, CommanderTalents.Count); // 직전 채집 이력이 연구를 감소 후보로 만들지 않게 비운다(포텐 감소는 Spec1008FIChecks)
             a.Traits.passions.Add(new CommanderPassion { activity = CommanderActivity.Research, flame = 2 });
             a.Traits.TryAdd(CommanderTrait.Genius);
             a.GainExperience(CommanderActivity.Research, 10); Near(a.Talents.Xp(CommanderActivity.Research), 30, "passion and learning multiply");
@@ -103,6 +104,7 @@ public static class WeaponTalentChecks
                 Check(!EquipmentInventory.Instance.Equip(a, wings) && EquipmentInventory.Instance.Items.Contains(wings), "injured wing equip is atomic");
                 a.PersonalState.injuries.Clear();
                 a.CommandAttack(enemy);
+                Array.Clear(a.Talents.usage, 0, CommanderTalents.Count); // 앞선 지휘 이력이 원거리를 감소 후보로 만들지 않게
                 var combat = a.Talents.Xp(CommanderActivity.Ranged);
                 a.TickPersonal(10); Near(a.Talents.Xp(CommanderActivity.Ranged), combat + 2, "combat time XP");
                 typeof(WildMonster).GetField("currentHealth", BindingFlags.NonPublic | BindingFlags.Instance).SetValue(enemy, 1f);

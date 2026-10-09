@@ -10,7 +10,7 @@ namespace AntColony.UI
     // 디자인 「장수 관리」: 왼쪽 740 목록(필터·열 머리·합계) + 오른쪽 선택 장수 상세.
     public sealed partial class GameMenuController
     {
-        private static readonly string[] SkillNames = { "채집", "건설", "농사", "낚시", "제작", "연구", "근접", "원거리", "지휘", "의료", "요리", "근력", "예술" };
+        private static readonly string[] SkillNames = { "채집", "건설", "농사", "낚시", "제작", "연구", "근접", "원거리", "지휘", "의료", "요리", "근력", "예술", "정치" };
         private static readonly string[] FilterNames = { "전체", "대기", "작업 중", "원정 중", "기분 경고" };
         private int rosterFilter;
         private string rosterSearch = "";
@@ -109,13 +109,14 @@ namespace AntColony.UI
             L.Meter(leave, 0, 30, 570, 8, c.PersonalState.lowMoodSeconds / SocialRules.Month, MenuTheme.DangerInk);
 
             var skills = L.Cell(content, "Skills", 26 + ((CommanderTalents.Count + 2) / 3) * 46);
-            L.Label(skills, "<b>기술</b>  <color=#968976>0~20 · ★ 열정</color>", 13, 0, 0, 570, 22);
+            c.Talents.EnsurePotential();
+            L.Label(skills, $"<b>기술</b>  <color=#968976>0~20 · ★ 열정 · 최근 활용 비중</color>   <b>CA {c.Talents.Current:0.#} / PA {c.Talents.potential}</b>", 13, 0, 0, 570, 22);
             foreach (CommanderActivity skill in Enum.GetValues(typeof(CommanderActivity)))
             {
                 var i = (int)skill; var level = c.Talents.Level(skill);
                 var x = i % 3 * 192f; var y = 26 + i / 3 * 46f;
                 var cell = L.Box(skills, "Skill " + skill, x, y, 186, 42, MenuTheme.Plate2);
-                L.Label(cell, $"{SkillNames[i]} <color=#f2a93b>{new string('★', c.Traits.Flame(skill))}</color>", 12, 8, 2, 120, 20, MenuTheme.Muted);
+                L.Label(cell, $"{SkillNames[i]} <color=#f2a93b>{new string('★', c.Traits.Flame(skill))}</color> <color=#968976>{c.Talents.UsageShare(skill):P0}</color>", 12, 8, 2, 120, 20, MenuTheme.Muted);
                 L.Label(cell, level.ToString(), 16, 130, 2, 48, 20, align: TextAnchor.MiddleRight, bold: true);
                 var progress = level >= CommanderTalents.MaxLevel ? 1f : c.Talents.Xp(skill) / CommanderTalents.Required(level);
                 L.Meter(cell, 8, 28, 170, 5, progress, MenuTheme.Accent);

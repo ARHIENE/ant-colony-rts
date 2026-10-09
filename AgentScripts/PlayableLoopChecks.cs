@@ -66,7 +66,7 @@ public static class PlayableLoopChecks
             Object.FindAnyObjectByType<UpkeepManager>().enabled = false;
             Object.FindAnyObjectByType<LocalIncursions>().enabled = false;
             var progress = Object.FindAnyObjectByType<BetaProgress>();
-            Check(progress.CurrentObjective.Contains("/60 ants"), "objective shows live population requirement");
+            Check(progress.CurrentObjective.Contains("/60마리"), "objective shows live population requirement");
             var commander = CommanderRoster.Instance.Commanders[0];
             foreach (var c in CommanderRoster.Instance.Commanders)
             {
@@ -96,7 +96,7 @@ public static class PlayableLoopChecks
                 var candidate = commander.Position + Quaternion.Euler(0, i * 45, 0) * Vector3.forward * (5 + i / 8 * 3);
                 if (!NavMesh.SamplePosition(candidate, out var hit, 2, NavMesh.AllAreas) || !commander.CanReach(hit.position)) continue;
                 var center = (Vector3)Call(placement, "GetPlacementPosition", template.gameObject, hit.position);
-                if ((bool)Call(placement, "HasObstruction", center)) continue;
+                if ((bool)Call(placement, "HasObstruction", center, null)) continue;
                 point = hit.position; found = true;
             }
             Check(found, "clear reachable construction location");
@@ -129,13 +129,13 @@ public static class PlayableLoopChecks
             var world = WorldMapManager.Instance;
             var ship = world.CreateTransport(false, commander.Position + Vector3.right * 3);
             progress = Object.FindAnyObjectByType<BetaProgress>();
-            Check(progress.CurrentObjective.Contains("BOARD"), "empty transport has boarding instructions");
+            Check(progress.CurrentObjective.Contains("탑승"), "empty transport has boarding instructions");
             commander.WorkState.duty = CommanderDuty.Deployed;
             Check(commander.TryAssign(2) && ship.TryBoard(new[] { commander }), "board deployed crew");
-            Check(progress.CurrentObjective.Contains("READY"), "loaded transport has departure instructions");
+            Check(progress.CurrentObjective.Contains("출정 준비"), "loaded transport has departure instructions");
             var site = world.Sites.First(s => s.Kind == ExpeditionSiteKind.ResourceSite);
             Check(ship.TryDepart(site), "depart neutral resource site");
-            Check(progress.CurrentObjective.Contains("TRAVELLING"), "travel countdown objective");
+            Check(progress.CurrentObjective.Contains("이동 중"), "travel countdown objective");
             ship.Tick(ship.TravelSeconds);
             Check(!placement, "old scene objects disposed");
             Move(commander, ship.Position + Vector3.right * 4);
@@ -148,7 +148,7 @@ public static class PlayableLoopChecks
             Check(ship.GetCargo(ResourceType.Food) >= 2, "harvested resources remain in cargo");
             Check(resources.GetAmount(ResourceType.Food) == foodAtHome, "expedition cargo is not credited at home yet");
             Check(ship.TryReturn(), "return after delivery");
-            Check(progress.CurrentObjective.Contains("RETURNING"), "return countdown objective");
+            Check(progress.CurrentObjective.Contains("귀환 중"), "return countdown objective");
             ship.Tick(ship.TravelSeconds);
             Check(commander.Transport == null && !commander.IsEmbarked, "crew arrives home");
             return "PASS: " + checks + " playable loop / warehouse / cargo / objectives checks";

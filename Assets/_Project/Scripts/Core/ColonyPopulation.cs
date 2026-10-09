@@ -13,7 +13,7 @@ namespace AntColony.Core
 
     // Phase 4(2026-10-01): 시티즈식 이주 인구. 여왕방 생산을 대체한다. 수치는 전부 잠정.
     // 성체 개미 = AntPool(일·병력), 어린·늙은 개미는 숫자로만. 본거지 하나에만 있다.
-    public sealed class ColonyPopulation : MonoBehaviour
+    public sealed partial class ColonyPopulation : MonoBehaviour
     {
         [Serializable] public sealed class State
         {
@@ -24,6 +24,8 @@ namespace AntColony.Core
             public bool elderlyService;
             public TaxFocus taxFocus;
             public float taxWeek, taxFood, taxSoil; // 이번 주 경과 시간·누적 세액(소수 포함). 주간 납세 때 정수만 지급한다.
+            public float adminWork; // 행정 업무 누적(서서히 감소). 성과 = 업무량 / 필요량(ColonyPopulation.Admin.cs).
+            public float redevelopCompensation = 1f; // 재개발 보상 수준(기본 보상 배율).
         }
         public static ColonyPopulation Instance { get; private set; }
         public State S = new State();
@@ -50,7 +52,7 @@ namespace AntColony.Core
         public int Taxpayers => Mathf.Max(0, Adults - (AntPool.Instance?.Assigned ?? 0)) + S.old;
         public static float FoodShare(TaxFocus f) => f switch { TaxFocus.Food => .8f, TaxFocus.Material => .2f, _ => .5f };
         public static string FocusName(TaxFocus f) => f switch { TaxFocus.Food => "식량 중심", TaxFocus.Material => "재료 중심", _ => "균형" };
-        public float MonthlyTax => Taxpayers * S.taxRate * GameBalance.TaxPerAntMonth * (S.policy == MilitaryPolicy.Total ? .5f : 1f);
+        public float MonthlyTax => Taxpayers * S.taxRate * GameBalance.TaxPerAntMonth * (S.policy == MilitaryPolicy.Total ? .5f : 1f) * Productivity * TaxCollection;
         public int WeeklyFood => Mathf.RoundToInt(MonthlyTax * FoodShare(S.taxFocus) / 4f);
         public int WeeklySoil => Mathf.RoundToInt(MonthlyTax * (1f - FoodShare(S.taxFocus)) / 4f);
         public float NextTaxSeconds => Mathf.Max(0, WeekSeconds - S.taxWeek);
@@ -113,14 +115,14 @@ namespace AntColony.Core
                 return value * (1f - .5f * homes.Count(h => !RoomSystem.InsideCastle(h.Position)) / homes.Count);
             }
         }
-        public float Demand => (HousingDemand + FacilityDemand + SafetyDemand + S.sentiment) / 4f;
+        public float Demand => Mathf.Min(100f, (HousingDemand + FacilityDemand + SafetyDemand + S.sentiment) / 4f + GameBalance.AdminDemand * Administration);
 
         private void Update() => Tick(Time.deltaTime);
         public void Tick(float seconds)
         {
             if (!(seconds > 0) || float.IsInfinity(seconds) || !GameSession.Exists || !GameSession.Instance.GameStarted) return;
             S.raidSeconds += seconds;
-            AccrueTax(seconds); S.taxWeek += seconds;
+            AccrueTax(seconds); S.taxWeek += seconds; TickAdministration(seconds);
             while (S.taxWeek >= WeekSeconds) { S.taxWeek -= WeekSeconds; PayTax(); }
             S.monthSeconds += seconds;
             while (S.monthSeconds >= GameCalendar.SecondsPerMonth) { S.monthSeconds -= GameCalendar.SecondsPerMonth; Monthly(); }
@@ -139,7 +141,7 @@ namespace AntColony.Core
             // 세율이 높을수록 불이익이 가파르다(30% 초과분 제곱 가산, 잠정). 창고 식량은 시민 민심에 반영하지 않는다.
             var over = Mathf.Max(0, S.taxRate - .3f);
             var target = 60f - (S.taxRate - .2f) * 100f - over * over * 200f - PolicySentiment(S.policy)
-                + (Total > HousingCapacity ? -10 : 0) + Mathf.Min(10, Facilities * 2) + (S.raidSeconds < GameCalendar.SecondsPerMonth ? -10 : 0);
+                + (Total > HousingCapacity ? -10 : 0) + Mathf.Min(10, Facilities * 2) + (S.raidSeconds < GameCalendar.SecondsPerMonth ? -10 : 0) + GameBalance.AdminSentiment * Administration;
             S.sentiment = Mathf.Clamp(S.sentiment + Mathf.Clamp(target - S.sentiment, -10, 10), 0, 100);
             var room = HousingCapacity - Total;
             var demand = Demand;

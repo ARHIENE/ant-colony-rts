@@ -152,6 +152,27 @@ namespace AntColony.Save
                     c.progress = Mathf.Min(c.progress, Core.CampaignResearch.Technologies[c.active].Work - .01f);
                 file.version = 14;
             }
+            if (file.version == 14)
+            {
+                // 2026-10-08: 기술 13→14(정치)·작업표 행정 추가(켬). PA는 처음 성장·표시할 때 정한다. 행정 성과 0, 재개발 보상 기본.
+                void Talents(Units.CommanderTalents t)
+                {
+                    if (t?.levels?.Length == 13 && t.experience?.Length == 13) { Array.Resize(ref t.levels, Units.CommanderTalents.Count); Array.Resize(ref t.experience, Units.CommanderTalents.Count); }
+                }
+                void Admin(Units.CommanderPersonalState s) { if (s?.work != null) s.work.jobs |= Units.CommanderJobs.Administration; }
+                foreach (var c in file.commanders ?? new System.Collections.Generic.List<CommanderDto>()) { Talents(c?.talents); Admin(c?.personalState); }
+                foreach (var b in file.buildings ?? new System.Collections.Generic.List<BuildingDto>())
+                    if (b?.prisoners != null) foreach (var p in b.prisoners) { Talents(p?.talents); Admin(p?.personalState); }
+                foreach (var m in file.monsters ?? new System.Collections.Generic.List<MonsterDto>()) Talents(m?.talents);
+                if (file.diplomacy?.civilizations != null && file.diplomacy.markets != null)
+                    foreach (var f in file.diplomacy.civilizations.Concat(file.diplomacy.markets))
+                    {
+                        if (f?.prisoners != null) foreach (var p in f.prisoners) { Talents(p?.Talents); Admin(p?.PersonalState); }
+                        if (f?.rebels != null) foreach (var p in f.rebels) { Talents(p?.Talents); Admin(p?.PersonalState); }
+                    }
+                if (file.population != null) { file.population.adminWork = 0; file.population.redevelopCompensation = 1f; }
+                file.version = 15;
+            }
             if (file.version != SaveFileV1.CurrentVersion)
             {
                 error = $"Save version {file.version} cannot be read by this build (expects {SaveFileV1.CurrentVersion}).";
@@ -176,7 +197,8 @@ namespace AntColony.Save
                 || !(pop.sentiment >= 0 && pop.sentiment <= 100) || !(pop.taxRate >= 0 && pop.taxRate <= Core.GameBalance.MaxTaxRate)
                 || float.IsNaN(pop.monthSeconds) || float.IsInfinity(pop.monthSeconds) || pop.monthSeconds < 0 || float.IsNaN(pop.raidSeconds) || pop.raidSeconds < 0
                 || !Enum.IsDefined(typeof(Core.TaxFocus), pop.taxFocus) || !(pop.taxWeek >= 0 && pop.taxWeek <= Core.ColonyPopulation.WeekSeconds)
-                || !(pop.taxFood >= 0 && pop.taxFood < 1e7f) || !(pop.taxSoil >= 0 && pop.taxSoil < 1e7f))
+                || !(pop.taxFood >= 0 && pop.taxFood < 1e7f) || !(pop.taxSoil >= 0 && pop.taxSoil < 1e7f)
+                || !(pop.adminWork >= 0 && pop.adminWork < 1e9f) || !(pop.redevelopCompensation >= Core.GameBalance.RedevelopMinCompensation && pop.redevelopCompensation <= Core.GameBalance.RedevelopMaxCompensation))
             { error = "Invalid population."; return false; }
             if (file.colony.antsFree < 0 || file.colony.antsAssigned < 0 || file.colony.antsReserved < 0)
             { error = "Negative ant counts."; return false; }

@@ -1,3 +1,4 @@
+using System.Linq;
 using AntColony.Core;
 using AntColony.Data;
 using AntColony.Units;
@@ -21,6 +22,10 @@ namespace AntColony.Buildings
         private FarmCrop? pendingCrop;
         private UnitRole pendingRole = UnitRole.Melee;
         private WorkerAnt builder;
+        private Housing redevelopTarget;
+        // 마우스가 기존 집 위에 있으면 재개발 견적(건설 화면 배치 줄에 표시).
+        public string RedevelopInfo => IsPlacing && redevelopTarget != null && GetTemplate(pendingKind, pendingRole)?.GetComponent<BuildingBase>()?.Data is BuildingData data
+            ? Redevelopment.Describe(Redevelopment.Price(data, redevelopTarget)) : null;
         private GameObject preview;
         private bool placementValid;
         private int consumedFrame = -1;
@@ -73,10 +78,11 @@ namespace AntColony.Buildings
 
             var template = GetTemplate(pendingKind, pendingRole);
             var position = GetPlacementPosition(template, hit.point);
+            redevelopTarget = Redevelopment.FindTarget(pendingKind, position, PlacementExtents(), obstructionMask);
             // Phase 5: 주거 건물은 방 밖에만 짓는다.
-            placementValid = Vector3.Angle(hit.normal, Vector3.up) <= maxGroundSlope && !HasObstruction(position)
+            placementValid = Vector3.Angle(hit.normal, Vector3.up) <= maxGroundSlope && !HasObstruction(position, redevelopTarget)
                 && !(Housing.IsKind(pendingKind) && RoomSystem.IsIndoors(position))
-                && builder != null && builder.CanReach(hit.point);
+                && Reachable(hit.point);
             UpdatePreview(position, placementValid);
 
             // 연속 배치(2026-10-08): 좌클릭 = 1개 배치 후 종료, Shift+좌클릭 = 배치 후 선택 유지, Shift+드래그 = 한 줄 연속 배치.
@@ -132,8 +138,6 @@ namespace AntColony.Buildings
             var selectedBuilder = chosenBuilder != null ? chosenBuilder : GetSelectedBuilder();
             var template = GetTemplate(kind, role);
             var building = template != null ? template.GetComponent<BuildingBase>() : null;
-            if (selectedBuilder == null || !selectedBuilder.CanStartConstruction)
-                return PlacementFailed("Select an idle civilian commander at home to build.");
             if (building == null || building.Data == null) return PlacementFailed("This building template is unavailable.");
 
             CancelPlacement();
@@ -175,11 +179,11 @@ namespace AntColony.Buildings
         private void TryPlace(Vector3 position, Vector3 groundPosition)
         {
             // 고른 장수가 바쁘면 예정지만 두고 건설 작업이 켜진 장수가 자율로 짓는다.
-            if (PlaceOne(position, groundPosition, builder != null && builder.CanStartConstruction) != null) FinishPlacementMode();
+            if (PlaceOne(position, groundPosition, builder != null && builder.CanStartConstruction, redevelopTarget) != null) FinishPlacementMode();
         }
 
         // 한 칸 배치. commandBuilder = 고른 장수에게 바로 맡김(줄 배치의 나머지 칸은 건설 작업이 켜진 장수가 자율로 짓는다).
-        private BuildingConstructionSite PlaceOne(Vector3 position, Vector3 groundPosition, bool commandBuilder)
+        private BuildingConstructionSite PlaceOne(Vector3 position, Vector3 groundPosition, bool commandBuilder, Housing redevelop = null)
         {
             if (LockReason(pendingKind) != null) return null;
             if (pendingKind == BuildingKind.MineField && MineField.Count >= GameBalance.MaxMines) return null;
@@ -187,21 +191,24 @@ namespace AntColony.Buildings
             if (pendingKind == BuildingKind.ScienceLab && !ScienceLab.PrerequisitesMet) return null;
             var template = GetTemplate(pendingKind, pendingRole);
             var building = template != null ? template.GetComponent<BuildingBase>() : null;
-            if (commandBuilder && (!placementValid || builder == null || !builder.CanStartConstruction) || builder == null || building == null || building.Data == null)
+            if (commandBuilder && (!placementValid || builder == null || !builder.CanStartConstruction) || building == null || building.Data == null)
             {
                 PlacementFailed("Choose a reachable, clear and level construction site.");
                 return null;
             }
 
             var cost = building.Data;
-            if (ResourceManager.Instance == null || !ResourceManager.Instance.CanAfford(cost.foodCost, cost.soilCost, cost.specialCost))
+            // 재개발: 건설비 할인 + 거주 인원 비례 보상비를 함께 낸다.
+            var quote = redevelop != null ? Redevelopment.Price(cost, redevelop) : default;
+            int food = redevelop != null ? quote.TotalFood : cost.foodCost, soil = redevelop != null ? quote.TotalSoil : cost.soilCost, special = redevelop != null ? quote.special : cost.specialCost;
+            if (ResourceManager.Instance == null || !ResourceManager.Instance.CanAfford(food, soil, special))
             {
-                PlacementFailed($"Construction needs {cost.foodCost} food, {cost.soilCost} soil and {cost.specialCost} special.");
+                PlacementFailed($"Construction needs {food} food, {soil} soil and {special} special.");
                 return null;
             }
             if (builder is CommanderAnt commander && !commander.CanDoJob(Decoration.IsKind(pendingKind) ? CommanderJobs.Art : CommanderJobs.Building))
             { PlacementFailed("이 장수는 해당 작업을 할 수 없습니다."); return null; }
-            if (!ResourceManager.Instance.TrySpend(cost.foodCost, cost.soilCost, cost.specialCost, reason: ResourceReason.Construction))
+            if (!ResourceManager.Instance.TrySpend(food, soil, special, reason: ResourceReason.Construction))
             {
                 return null;
             }
@@ -231,6 +238,12 @@ namespace AntColony.Buildings
 
             var site = siteObject.AddComponent<BuildingConstructionSite>();
             site.Initialize(completedBuilding, cost.buildTimeSeconds);
+            if (redevelop != null)
+            {
+                siteObject.AddComponent<RedevelopmentSite>().Target = redevelop;
+                var pop = ColonyPopulation.Instance;
+                if (pop != null) pop.S.sentiment = Mathf.Clamp(pop.S.sentiment + quote.sentiment, 0, 100);
+            }
             if (commandBuilder) builder.CommandBuild(site);
             return site;
         }
@@ -253,7 +266,14 @@ namespace AntColony.Buildings
             return cells;
         }
 
-        private bool CellValid(Vector3 cell) => !HasObstruction(cell) && builder != null && builder.CanReach(cell);
+        private bool CellValid(Vector3 cell) => !HasObstruction(cell) && Reachable(cell);
+
+        // 장수 미지정 배치(2026-10-08): 고른 장수가 없으면 본거지의 아무 장수 기준으로 도달 가능 여부를 본다.
+        private bool Reachable(Vector3 point)
+        {
+            var reference = builder != null ? builder : CommanderRoster.Instance?.Commanders.FirstOrDefault(c => c != null && c.IsColonyMember && !c.IsAwayFromHome && c.isActiveAndEnabled);
+            return reference != null && reference.CanReach(point);
+        }
 
         private void UpdateLine(Mouse mouse, Vector3 position)
         {
@@ -316,6 +336,7 @@ namespace AntColony.Buildings
         {
             IsPlacing = false;
             builder = null;
+            redevelopTarget = null;
             if (preview != null) Destroy(preview);
             preview = null;
             dragStart = null;
@@ -377,7 +398,7 @@ namespace AntColony.Buildings
                     or BuildingKind.Treadmill or BuildingKind.WoodGenerator or BuildingKind.PowerWire or BuildingKind.Battery or BuildingKind.ElectricLamp
                     or BuildingKind.Hearth or BuildingKind.SleepingMat or BuildingKind.DoubleBed or BuildingKind.Floor or BuildingKind.LockedDoor or BuildingKind.BarredDoor
                     or BuildingKind.SingleBed or BuildingKind.Bookshelf or BuildingKind.Bathtub
-                    or BuildingKind.FoodStore or BuildingKind.Jar or BuildingKind.Armory
+                    or BuildingKind.FoodStore or BuildingKind.Jar or BuildingKind.Armory or BuildingKind.AdminDesk
                     or (>= BuildingKind.BunkBed and <= BuildingKind.BanquetTable) => FindDecorationTemplate(kind), // 가구 5·6차
                 _ => null
             };
@@ -472,15 +493,22 @@ namespace AntColony.Buildings
             return new Vector3(Snap(groundPoint.x, size.x * WidthFactor(pendingKind)), groundPoint.y + height, Snap(groundPoint.z, size.z));
         }
 
-        private bool HasObstruction(Vector3 position)
+        private Vector3 PlacementExtents()
         {
             var template = GetTemplate(pendingKind, pendingRole);
             var renderer = template != null ? template.GetComponent<Renderer>() : null;
             var extents = renderer != null ? renderer.bounds.extents : placementHalfExtents;
             extents.x *= WidthFactor(pendingKind);
-            foreach (var hit in Physics.OverlapBox(position, extents, Quaternion.identity, obstructionMask, QueryTriggerInteraction.Collide))
+            return extents;
+        }
+
+        // ignore = 재개발로 교체할 기존 집(겹쳐도 막지 않는다).
+        private bool HasObstruction(Vector3 position, Housing ignore = null)
+        {
+            foreach (var hit in Physics.OverlapBox(position, PlacementExtents(), Quaternion.identity, obstructionMask, QueryTriggerInteraction.Collide))
             {
                 if ((groundMask.value & (1 << hit.gameObject.layer)) != 0) continue;
+                if (ignore != null && hit.GetComponentInParent<Housing>() == ignore) continue;
                 return true;
             }
             return false;

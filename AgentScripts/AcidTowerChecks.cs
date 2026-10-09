@@ -49,7 +49,7 @@ public static class AcidTowerChecks
             var placement = Object.FindAnyObjectByType<BuildingPlacementController>();
             var selection = Object.FindAnyObjectByType<ColonySelection>();
             selection.ClearSelection();
-            Check(!placement.BeginAcidTowerPlacement(), "requires a selected builder");
+            Check(placement.BeginAcidTowerPlacement() && placement.Builder == null, "starts without a selected builder (2026-10-08)"); placement.CancelPlacement();
             // 자동 작업 중이면 CanStartConstruction이 거짓이라 먼저 멈춘다.
             foreach (var c in CommanderRoster.Instance.Commanders) { c.SetJobEnabled(CommanderJobs.All, false); c.CommandStop(); }
             var builder = CommanderRoster.Instance.Commanders.First(c => c.CanStartConstruction); // 평시 민간인은 병력 없이 건설한다.

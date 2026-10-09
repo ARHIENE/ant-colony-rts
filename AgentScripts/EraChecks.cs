@@ -48,7 +48,7 @@ public static class EraChecks
             file.version = 13;
             file.campaign.active = (int)ScienceTechnology.FungalFarming; file.campaign.progress = 250; // 옛 연구량 300, 새 200
             Check(SaveValidator.Validate(file, out var error), "v13 migrates: " + error);
-            Check(file.version == SaveFileV1.CurrentVersion && SaveFileV1.CurrentVersion == 14, "save version 14");
+            Check(file.version == SaveFileV1.CurrentVersion && SaveFileV1.CurrentVersion == 15, "save version 15");
             Check(file.buildings.Any(b => b.kind == "ScienceLab" && b.scienceTier == 4), "lab tier 3 -> 4");
             Check(file.campaign.progress < 200, "progress clamped");
 

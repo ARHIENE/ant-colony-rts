@@ -20,13 +20,14 @@ namespace AntColony.Units
         Undertaker, Cannibal, Neat,
         Senile // 노망(2026-10-03): 늙으면 지혜 보너스 대신 모든 작업·연구 속도 ×0.8(잠정).
     }
-    // 기술 13종(2026-09-28): 기존 9종 뒤에 의료·요리·근력·예술. 저장 번호가 밀리지 않게 끝에 붙인다.
-    public enum CommanderActivity { Gathering, Building, Farming, Fishing, Crafting, Research, Melee, Ranged, Command, Medicine, Cooking, Strength, Art }
+    // 기술 14종: 기존 9종 뒤에 의료·요리·근력·예술(2026-09-28), 정치(2026-10-08). 저장 번호가 밀리지 않게 끝에 붙인다.
+    public enum CommanderActivity { Gathering, Building, Farming, Fishing, Crafting, Research, Melee, Ranged, Command, Medicine, Cooking, Strength, Art, Politics }
     [Serializable] public class CommanderPassion { public CommanderActivity activity; public int flame; }
     [Serializable]
     public class CommanderTraits
     {
         [SerializeField] private CommanderPersonality personality;
+        public const int MaxTraits = 4; // 2026-10-07: 등급 무관 합계 최대 4개(등급 배정·시작 개수 확률은 미정이라 기존 추첨 유지)
         public List<CommanderTrait> values = new List<CommanderTrait>();
         public List<CommanderPassion> passions = new List<CommanderPassion>();
         public CommanderPersonality Personality => Has(CommanderTrait.Brave) ? CommanderPersonality.Brave : Has(CommanderTrait.Cautious) ? CommanderPersonality.Cautious : Has(CommanderTrait.Loyal) ? CommanderPersonality.Devoted : CommanderPersonality.Balanced;
@@ -60,7 +61,7 @@ namespace AntColony.Units
         private static int Group(CommanderTrait t) => (int)t < 20 ? (int)t / 4 : (int)t < 24 ? 5 + ((int)t - 20) / 2 : -1;
         public bool TryAdd(CommanderTrait t)
         {
-            if (values.Count >= 3 || values.Contains(t)) return false;
+            if (values.Count >= MaxTraits || values.Contains(t)) return false;
             foreach (var existing in values)
                 if (Group(t) >= 0 && Group(t) == Group(existing) || Conflicts(t, existing)) return false;
             values.Add(t); return true;

@@ -71,6 +71,14 @@ namespace AntColony.UI
             }
             L.Button(p, "ElderlyService", "병역 나이: " + (pop.S.elderlyService ? "늙은 개미 포함" : "성체만"), 24, 444, 300, 36,
                 () => { pop.S.elderlyService = !pop.S.elderlyService; Population(); }, "늙은 개미도 병사로 쓸지 정합니다(병력 상한에 포함, 모자라면 늙은 개미로 보충).");
+            // 2026-10-08: 시민 생산력·행정 성과·재개발 보상 수준(수치 잠정).
+            L.Line(p, 24, 492, 792);
+            L.Label(p, $"<b>시민 생산력</b> ×{ColonyPopulation.Productivity:0.00}  <color=#968976>(주거 ×{ColonyPopulation.HousingProductivity:0.00} · 연구 +{ColonyPopulation.ResearchProductivity:P0} · 시설 +{ColonyPopulation.FacilityProductivity:P0})</color>", 14, 24, 502, 792, 24);
+            L.Label(p, $"<b>행정 성과</b> {pop.Administration:P0}  <color=#968976>(징수 {pop.TaxCollection:P0} · 민심 +{GameBalance.AdminSentiment * pop.Administration:0.#} · 이주 +{GameBalance.AdminDemand * pop.Administration:0.#} · 행정 책상에서 정치 장수가 업무)</color>", 14, 24, 528, 792, 24);
+            L.Label(p, $"<b>재개발 보상</b> 기본의 {pop.S.redevelopCompensation:P0}", 14, 24, 560, 300, 30);
+            void Compensation(float step) { pop.S.redevelopCompensation = Mathf.Clamp(Mathf.Round((pop.S.redevelopCompensation + step) * 10f) / 10f, GameBalance.RedevelopMinCompensation, GameBalance.RedevelopMaxCompensation); Population(); }
+            L.Button(p, "Compensation Down", "−10%", 236, 558, 70, 32, () => Compensation(-.1f), "보상이 기본보다 적으면 재개발 때 민심이 내려갑니다.");
+            L.Button(p, "Compensation Up", "+10%", 312, 558, 70, 32, () => Compensation(.1f), "보상을 올리면 비용이 늘고 불만은 줄어듭니다.");
             L.Button(p, "Close", "닫기", 676, 600, 140, 40, Resume, null, true);
         }
     }

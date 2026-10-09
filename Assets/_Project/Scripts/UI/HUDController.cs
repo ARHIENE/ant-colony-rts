@@ -110,15 +110,15 @@ namespace AntColony.UI
             // 저장 한도는 마우스 오버, 재료는 눌러서 목록. 인구 숫자 색 = 민심, 아래 막대 = 이주 수요, 누르면 인구 창(Phase 4).
             var top = MenuTheme.Panel(canvasGO.transform, "ResourceBar", new Vector2(0, 1), new Vector2(0, 40), Vector2.zero);
             top.anchorMax = new Vector2(1, 1);
-            resourceTexts[2] = ResourceButton(top, "Population", 86, -8, () => GameMenuController.Instance?.Population());
-            demandFill = MenuLayout.Box(resourceTexts[2].transform.parent, "DemandBar", 6, 24, 74, 3, MenuTheme.Hp).GetComponent<Image>();
+            resourceTexts[2] = ResourceButton(top, "Population", 130, -8, () => GameMenuController.Instance?.Population());
+            demandFill = MenuLayout.Box(resourceTexts[2].transform.parent, "DemandBar", 6, 24, 118, 3, MenuTheme.Hp).GetComponent<Image>();
             demandFill.raycastTarget = false;
             var sep = MenuTheme.Rect("Separator", top); sep.anchorMin = sep.anchorMax = new Vector2(1, 1); sep.pivot = new Vector2(1, .5f);
-            sep.sizeDelta = new Vector2(1, 20); sep.anchoredPosition = new Vector2(-104, -27);
+            sep.sizeDelta = new Vector2(1, 20); sep.anchoredPosition = new Vector2(-148, -27);
             sep.gameObject.AddComponent<Image>().color = MenuTheme.Line;
-            resourceTexts[1] = ResourceButton(top, "Materials", 92, -114, ToggleMaterials);
-            resourceTexts[0] = ResourceButton(top, "Food", 96, -214, null);
-            materialsList = MenuTheme.Panel(canvasGO.transform, "MaterialsList", new Vector2(1, 1), new Vector2(200, 80), new Vector2(-114, -100));
+            resourceTexts[1] = ResourceButton(top, "Materials", 92, -158, ToggleMaterials);
+            resourceTexts[0] = ResourceButton(top, "Food", 96, -258, null);
+            materialsList = MenuTheme.Panel(canvasGO.transform, "MaterialsList", new Vector2(1, 1), new Vector2(200, 80), new Vector2(-158, -100));
             var listText = MenuTheme.Text(materialsList, "", 12); MenuTheme.Stretch(listText.rectTransform);
             listText.rectTransform.offsetMin = new Vector2(10, 6); listText.rectTransform.offsetMax = new Vector2(-10, -6);
             listText.alignment = TextAnchor.UpperLeft; listText.supportRichText = true; listText.name = "MaterialsListText";
@@ -252,8 +252,8 @@ namespace AntColony.UI
             var pop = ColonyPopulation.Instance;
             if (pop == null) { resourceTexts[2].text = $"<color=#968976>인구</color> <b>{pool.Total}</b>"; return; }
             var color = pop.Unrest ? "#d9534f" : pop.S.sentiment < 40 ? "#e5bd6b" : "#efe7da";
-            resourceTexts[2].text = $"<color=#968976>인구</color> <b><color={color}>{pop.Total}</color></b>";
-            demandFill.rectTransform.sizeDelta = new Vector2(74 * Mathf.Clamp01(pop.Demand / 100f), 3);
+            resourceTexts[2].text = $"<color=#968976>인구</color> <b><color={color}>{pop.Total}</color></b> <color=#968976>· 납세 {pop.NextTaxSeconds:0}초</color>";
+            demandFill.rectTransform.sizeDelta = new Vector2(118 * Mathf.Clamp01(pop.Demand / 100f), 3);
             resourceTexts[2].transform.parent.GetComponent<MenuTooltip>().Message = $"인구 {pop.Total} / 살 자리 {pop.HousingCapacity} · 어린 {pop.S.young} · 성체 {pool.Total} · 늙은 {pop.S.old}"
                 + $"\n민심 {pop.S.sentiment:0} · 이주 수요 {pop.Demand:0} · 세금 {pop.S.taxRate:P0} (다음 납세 {pop.NextTaxSeconds:0}초: 식량 +{pop.WeeklyFood} · 재료 +{pop.WeeklySoil}) · {ColonyPopulation.PolicyName(pop.S.policy)}\n누르면 인구 창";
         }

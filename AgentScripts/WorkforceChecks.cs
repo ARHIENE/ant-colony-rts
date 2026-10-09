@@ -59,7 +59,7 @@ public static class WorkforceChecks
             var resources = ResourceManager.Instance;
             Call(resources, "RestoreState", 1000, 1000, 1000, 2000, 2000, 2000);
             var home = c.Position;
-            Check(CommanderTalents.Count == 13 && (int)CommanderJobs.All == 8191, "13 skills / 13 job bits");
+            Check(CommanderTalents.Count == 14 && (int)CommanderJobs.All == 16383, "14 skills / 14 job bits");
             Array.Clear(c.Talents.levels, 0, CommanderTalents.Count);
             var node = Loot(home + Vector3.right * 2, 200);
             int total = pool.Total, free = pool.Free;
@@ -77,7 +77,7 @@ public static class WorkforceChecks
             Check(c.CurrentResourceNode != node, "forbidden cargo not hauled"); c.CommandStop(); c.WorkState.jobs = CommanderJobs.None; node.GatheringForbidden = false;
             var xp = c.Talents.Xp(CommanderActivity.Strength);
             Call(c, "OnDelivered", 10f); Near(c.Talents.Xp(CommanderActivity.Strength), xp, "max strength stays capped");
-            c.Talents.levels[(int)CommanderActivity.Strength] = 0; Call(c, "OnDelivered", 10f); Near(c.Talents.Xp(CommanderActivity.Strength), 5, "strength XP per delivered resource .5");
+            c.Talents.levels[(int)CommanderActivity.Strength] = 0; Call(c, "OnDelivered", 10f); Near(c.Talents.Xp(CommanderActivity.Strength), 4, "strength XP per delivered resource .5 x main 80%");
 
             var storage = Build<Storage>(BuildingKind.Storage, home + Vector3.forward * 6);
             Warp(c, storage.Position + Vector3.right * 3);
@@ -145,7 +145,7 @@ public static class WorkforceChecks
             c.CommandStop(); Warp(c, home);
 
             GameMenuController.Instance.WorkSchedule();
-            Check(Object.FindObjectsByType<UnityEngine.UI.Toggle>(FindObjectsSortMode.None).Count(t => t.name.StartsWith("Job ")) == all.Length * 13, "13 toggles per commander");
+            Check(Object.FindObjectsByType<UnityEngine.UI.Toggle>(FindObjectsSortMode.None).Count(t => t.name.StartsWith("Job ")) == all.Length * 14, "14 toggles per commander");
             GameMenuController.Instance.Resume(); Time.timeScale = 0;
             WorkTargetPanel.Select(node); await Task.Delay(80);
             Check(GameObject.Find("WorkforceSlider") == null && GameObject.Find("WorkTargetPanel") != null, "target panel without workforce slider");
@@ -153,7 +153,7 @@ public static class WorkforceChecks
             // HUD v4: 하단 패널은 주요 기술 3개만, 13개 전체는 초상 클릭 상세 창에 있다.
             Check(WorkTargetPanel.Target == null, "selecting commander clears target");
             GameMenuController.Instance.Details(c); await Task.Delay(80);
-            Check(GameObject.Find("Skill Art") != null, "13 skills in details");
+            Check(GameObject.Find("Skill Politics") != null, "14 skills in details");
             GameMenuController.Instance.Resume(); Time.timeScale = 0;
             Check(new[] { "간호", "수리", "운반", "사냥", "요리", "예술" }.All(n => ActivityIcons.Get(n) != null), "new job icons");
 
@@ -170,7 +170,7 @@ public static class WorkforceChecks
             Check(!SaveValidator.Validate(bad, out _), "truncated current skills rejected");
             var legacy = JsonUtility.FromJson<SaveFileV1>(JsonUtility.ToJson(file)); legacy.version = 9;
             foreach (var x in legacy.commanders) { Array.Resize(ref x.talents.levels, 9); Array.Resize(ref x.talents.experience, 9); x.personalState.work.jobs = CommanderJobs.Legacy; }
-            Check(SaveValidator.Validate(legacy, out error) && legacy.commanders.All(x => x.talents.levels.Length == 13 && x.personalState.work.jobs == CommanderJobs.All), "v9 migration " + error);
+            Check(SaveValidator.Validate(legacy, out error) && legacy.commanders.All(x => x.talents.levels.Length == CommanderTalents.Count && x.personalState.work.jobs == CommanderJobs.All), "v9 migration " + error);
             int beforeSave = pool.Total;
             Check(SaveSystem.TrySave(false, 0, out error), "save roundtrip " + error);
             Check(SaveSystem.TryLoad(SaveSlots.PathFor(false, 0), out error), "load roundtrip " + error); await Ready(); await Task.Delay(200);

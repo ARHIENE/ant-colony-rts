@@ -51,9 +51,9 @@ public static class DutyUIChecks
             menu.Roster(); Click("Work Schedule"); await Task.Delay(100);
             Check(menu.ScreenName == "작업표" && Time.timeScale == 0, "work schedule opens with menu pause setting");
             var toggles = menu.GetComponentsInChildren<Toggle>();
-            Check(toggles.Length == list.Length * 13, "13 jobs for every commander");
+            Check(toggles.Length == list.Length * 14, "14 jobs for every commander");
             var jobs = new[] { CommanderJobs.Nursing, CommanderJobs.Repair, CommanderJobs.Cleaning, CommanderJobs.Building, CommanderJobs.Art, CommanderJobs.Crafting,
-                CommanderJobs.Research, CommanderJobs.Cooking, CommanderJobs.Hunting, CommanderJobs.Hauling, CommanderJobs.Farming, CommanderJobs.Fishing, CommanderJobs.Gathering }; // 작업표 왼쪽부터 우선순위 순
+                CommanderJobs.Research, CommanderJobs.Administration, CommanderJobs.Cooking, CommanderJobs.Hunting, CommanderJobs.Hauling, CommanderJobs.Farming, CommanderJobs.Fishing, CommanderJobs.Gathering }; // 작업표 왼쪽부터 우선순위 순
             for (var i = 0; i < jobs.Length; i++)
             {
                 toggles[i].isOn = true; Check(c.AllowsJob(jobs[i]), "checkbox enables " + jobs[i]);
@@ -104,7 +104,7 @@ public static class DutyUIChecks
             Check(SaveSystem.TrySave(false, 0, out var error), "save schedule: " + error);
             Check(SaveSystem.TryLoad(SaveSlots.PathFor(false, 0), out error), "load schedule: " + error); await Ready();
             menu.WorkSchedule(); await Task.Delay(100);
-            Check(menu.GetComponentsInChildren<Toggle>()[10].isOn, "work checkbox restored from save"); // 농사 = 작업표 11번째 칸
+            Check(menu.GetComponentsInChildren<Toggle>()[11].isOn, "work checkbox restored from save"); // 농사 = 작업표 12번째 칸(행정 추가)
             Canvas.ForceUpdateCanvases();
             var schedule = menu.GetComponentsInChildren<RectTransform>().Single(r => r.name == "WorkSchedule");
             foreach (var t in menu.GetComponentsInChildren<Toggle>().Take(6))

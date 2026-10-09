@@ -38,7 +38,7 @@ namespace AntColony.Units
             CommanderJobs.Crafting => CommanderActivity.Crafting, CommanderJobs.Research => CommanderActivity.Research,
             CommanderJobs.Farming => CommanderActivity.Farming, CommanderJobs.Fishing => CommanderActivity.Fishing,
             CommanderJobs.Nursing => CommanderActivity.Medicine, CommanderJobs.Cooking => CommanderActivity.Cooking,
-            CommanderJobs.Art => CommanderActivity.Art, CommanderJobs.Hunting => CommanderActivity.Melee,
+            CommanderJobs.Art => CommanderActivity.Art, CommanderJobs.Hunting => CommanderActivity.Melee, CommanderJobs.Administration => CommanderActivity.Politics,
             _ => CommanderActivity.Gathering
         };
         public bool CanDoJob(CommanderJobs job) => !traits.Blocks(job) && !IsChild; // 어린 장수는 일하지 않는다(Phase 4)
@@ -47,7 +47,7 @@ namespace AntColony.Units
             if (!CivilianWorkReady || !CanReceiveOrders || IsWorking || LabUpgradeBusy || !CanDoJob(job)
                 || Active.OfType<CommanderAnt>().Any(c => c != this && c.ServiceTarget == target)
                 || target == null || target.IsDead || !target.isActiveAndEnabled || !target.CountsTowardPlayerDefeat
-                || job != CommanderJobs.Nursing && job != CommanderJobs.Repair && job != CommanderJobs.Cooking && !(job == CommanderJobs.Hauling && target is PowerNode)
+                || job != CommanderJobs.Nursing && job != CommanderJobs.Repair && job != CommanderJobs.Cooking && !(job == CommanderJobs.Hauling && target is PowerNode) && !(job == CommanderJobs.Administration && target is AdminDesk)
                 || !TryWorkApproach(target.Position, out var approach)) return false;
             CommandStop(); ServiceTarget = target; ServiceJob = job;
             SetMoveDestination(approach); SetWorkTarget(target); return true;
@@ -71,6 +71,10 @@ namespace AntColony.Units
             else if (ServiceJob == CommanderJobs.Hauling) // 쳇바퀴 뛰기(운반 작업, 근력 경험치·피로↑)
             {
                 if (!(ServiceTarget is PowerNode wheel) || !wheel.Run(this, seconds)) { CommandStop(); return false; }
+            }
+            else if (ServiceJob == CommanderJobs.Administration) // 행정 책상에서 정치 업무(2026-10-08)
+            {
+                if (!(ServiceTarget is AdminDesk desk) || !desk.Work(this, seconds)) { CommandStop(); return false; }
             }
             else if (!BuildingRepair.For(ServiceTarget).Work(this, seconds)) { CommandStop(); return false; }
             return true;

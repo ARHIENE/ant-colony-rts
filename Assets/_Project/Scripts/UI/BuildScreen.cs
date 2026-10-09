@@ -61,7 +61,7 @@ namespace AntColony.UI
                 new Entry("갑각 훈련장", BuildingKind.Barracks, UnitRole.Defense), new Entry("페로몬 훈련장", BuildingKind.Barracks, UnitRole.Support),
                 new Entry("날개 훈련장", BuildingKind.Barracks, UnitRole.Flying), new Entry("징집소", BuildingKind.ConscriptionPost),
                 new Entry("정찰 초소", BuildingKind.ScoutPost), new Entry("포로 수용소", BuildingKind.PrisonerCamp), new Entry("무기고", BuildingKind.Armory) },
-            new[] { new Entry("초가집", BuildingKind.Hut), new Entry("흙집", BuildingKind.House), new Entry("큰 아파트", BuildingKind.Apartment) },
+            new[] { new Entry("초가집", BuildingKind.Hut), new Entry("흙집", BuildingKind.House), new Entry("큰 아파트", BuildingKind.Apartment), new Entry("행정 책상", BuildingKind.AdminDesk) },
             new[] { new Entry("로켓 발사대", BuildingKind.AirshipYard) }
         };
         private static int TabOf(string name) => System.Array.IndexOf(TabNames, name);
@@ -187,7 +187,14 @@ namespace AntColony.UI
             var placing = placement != null && placement.IsPlacing;
             placeBar.gameObject.SetActive(placing);
             if (placing)
-                placeText.text = $"<b>{NameOf(placement.PendingKind, placement.PendingRole)} 배치</b>   ·   Esc 취소   ·   담당 장수: <color=#f2a93b>{(placement.Builder as CommanderAnt)?.CommanderName}</color>";
+            {
+                // 기존 집 위면 재개발 견적을 둘째 줄에 보여준다.
+                var redevelop = placement.RedevelopInfo;
+                placeBar.sizeDelta = redevelop != null ? new Vector2(980, 58) : new Vector2(520, 34);
+                placeText.rectTransform.sizeDelta = placeBar.sizeDelta - new Vector2(20, 4);
+                placeText.text = $"<b>{NameOf(placement.PendingKind, placement.PendingRole)} 배치</b>   ·   Esc 취소   ·   담당 장수: <color=#f2a93b>{(placement.Builder as CommanderAnt)?.CommanderName ?? "미지정(자율 시공)"}</color>"
+                    + (redevelop != null ? "\n" + redevelop : "");
+            }
         }
 
         // 게임 단축키 대신 건설 화면 키를 읽는다(GameHotkeys가 열린 동안 넘겨준다).
@@ -216,8 +223,10 @@ namespace AntColony.UI
         private void Assign(int index)
         {
             var builders = Builders();
-            if (picking == null || index >= builders.Count) return;
-            if (placement != null && placement.BeginPlacement(picking.Value.kind, picking.Value.role, builders[index])) SetOpen(false);
+            var shown = Mathf.Min(builders.Count, pickRows.Count - 1);
+            if (picking == null || index > shown) return;
+            // 마지막 줄 = 장수 미지정: 예정지만 두고 건설 작업이 켜진 장수가 자율 시공한다.
+            if (placement != null && placement.BeginPlacement(picking.Value.kind, picking.Value.role, index < shown ? builders[index] : null)) SetOpen(false);
         }
 
         private static List<CommanderAnt> Builders() => CommanderRoster.Instance == null ? new List<CommanderAnt>()
@@ -246,19 +255,19 @@ namespace AntColony.UI
             var builders = Builders();
             var data = Data(entry);
             pickTitle.text = $"<b><color=#f2a93b>누구에게 맡길까요?</color></b>   {entry.name}  <color=#968976>{(data != null ? Cost(data) : "")} · 대기 {builders.Count}명 · 건설 기술이 높을수록 빨리 완공</color>";
+            var shown = Mathf.Min(builders.Count, pickRows.Count - 1);
             for (var i = 0; i < pickRows.Count; i++)
             {
                 var row = pickRows[i];
-                row.gameObject.SetActive(i < builders.Count || (i == 0 && builders.Count == 0));
+                row.gameObject.SetActive(i <= shown);
                 var label = row.GetComponentsInChildren<Text>()[1];
-                if (i >= builders.Count)
+                row.interactable = true;
+                if (i == shown)
                 {
-                    row.interactable = false;
-                    label.text = "둥지에 건설 가능한 대기 장수가 없습니다.";
+                    label.text = "<b>장수 미지정</b>  <color=#968976>예정지만 두고 건설 작업이 켜진 장수가 자율 시공</color>";
                     continue;
                 }
                 var c = builders[i];
-                row.interactable = true;
                 label.text = $"<b>{c.CommanderName}</b>  <color=#968976>{CommandCard.RoleName(c.Role)}</color>    건설 <b>{c.Talents.Level(CommanderActivity.Building)}</b>    병력 {c.TroopCount}/{c.CommandLimit}    기분 {c.Mood:0}";
             }
         }

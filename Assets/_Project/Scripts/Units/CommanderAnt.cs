@@ -165,8 +165,9 @@ namespace AntColony.Units
         {
             if (CurrentActivity != CommanderActivity.Gathering) GainExperience(CurrentActivity, seconds);
         }
-        public void GainExperience(CommanderActivity activity, float amount) => talents.Add(activity,
-            amount * traits.GrowthMultiplier(activity) * AgeLearningMultiplier * (1f - .5f * PersonalState.Severity(InjuryPart.Head)));
+        // 포텐 성장(2026-10-07): 작업량은 그대로 활용 이력에, 학습 배율(열정·학습 특성·나이·머리 부상)은 성장 속도에만 쓴다.
+        public void GainExperience(CommanderActivity activity, float amount) => talents.Train(activity, amount,
+            skill => traits.GrowthMultiplier(skill) * AgeLearningMultiplier * (1f - .5f * PersonalState.Severity(InjuryPart.Head)));
         // 창고는 정수만 받으므로 한 번에 나르는 양도 정수로 내린다(17.25면 매 왕복 자투리가 바닥 더미로 떨어졌다).
         protected override float CarryCapacity => Mathf.Max(1f, Mathf.Floor(LoadCapacity));
         protected override float FishingWorkSpeed => WorkFactor;
