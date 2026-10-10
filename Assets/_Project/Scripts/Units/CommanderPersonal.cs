@@ -26,7 +26,7 @@ namespace AntColony.Units
         protected override float MovementSpeed => base.MovementSpeed * traits.MoveMultiplier * AgeMoveMultiplier * BiomeRules.MoveAt(AntColony.Buildings.RoomSystem.IsIndoors(Position)) * AntColony.Map.WeatherSystem.MoveAt(AntColony.Buildings.RoomSystem.IsIndoors(Position)) * (AntColony.Map.MapGenerator.InWater(Position) ? AntColony.Map.MapGenerator.WaterMoveMultiplier : 1f)
             * (1f - .3f * personalState.Severity(InjuryPart.Legs)) * (1f + TrinketBonus(TrinketEffect.Move))
             * (Weapon?.weapon == WeaponKind.Shield ? .9f : 1f) * (IsFlying ? 1f + .05f * EquippedArmor.quality : 1f)
-            * AntColony.World.ColonyEvents.MoveMultiplier(this) * (Social.rallyRemaining > 0 ? 1.3f : 1f) * (AntColony.Buildings.FloorTile.At(Position) ? GameBalance.FloorMoveMultiplier : 1f);
+            * AntColony.World.ColonyEvents.MoveMultiplier(this) * (Social.rallyRemaining > 0 ? 1.3f : 1f) * (AntColony.Buildings.FloorTile.At(Position) ? GameBalance.FloorMoveMultiplier : 1f) * AnimalCarryMultiplier;
         public CommanderActivity CurrentActivity => ServiceTarget != null ? SkillFor(ServiceJob) : HuntTarget != null ? CombatActivity : CraftingWorkshop != null ? CommanderActivity.Crafting : LabUpgradeBusy ? CommanderActivity.Research : IsConstructing ? ConstructionTarget.IsArt ? CommanderActivity.Art : CommanderActivity.Building
             : CurrentResourceNode != null ? CurrentResourceNode.RequiresFishing ? CommanderActivity.Fishing
                 : CurrentResourceNode.GetComponent<BuildingBase>() != null ? CommanderActivity.Farming : CommanderActivity.Gathering
@@ -37,7 +37,8 @@ namespace AntColony.Units
         {
             get
             {
-                var value = 60f + Decoration.MoodAt(this) + traits.BaseMood + (HasNearbyFriend ? 3 : 0) + TrinketBonus(TrinketEffect.Mood);
+                // 장식 효과는 생활 공간 미관(TickSpace)에 포함된다(2026-10-10: 미관은 실제 생활 공간 기준, 지나가기만 해서는 바뀌지 않음).
+                var value = 60f + traits.BaseMood + (HasNearbyFriend ? 3 : 0) + TrinketBonus(TrinketEffect.Mood);
                 foreach (var f in personalState.moodFactors) value += f.value < 0 ? f.value * traits.NegativeMoodMultiplier : f.value;
                 if (IsWorking || LabUpgradeBusy) value += 3 * traits.Flame(CurrentActivity);
                 if (personalState.treating) value -= 5;
@@ -58,6 +59,21 @@ namespace AntColony.Units
             personalState = value == null ? new CommanderPersonalState() : JsonUtility.FromJson<CommanderPersonalState>(JsonUtility.ToJson(value));
             personalState.treating = false; // Building restoration reconnects the patient after commanders load.
             RefreshEquipment();
+        }
+        // 미관·온도(2026-10-10): 잠·식사·작업 중인 실제 생활 공간만 본다. 미관은 체류 평균이라 잠깐 지나가도 급변하지 않고 상하한이 있다.
+        private float spaceTimer;
+        private void TickSpace(float seconds)
+        {
+            if ((spaceTimer += seconds) < 1f) return;
+            var dt = spaceTimer; spaceTimer = 0;
+            bool living = !IsAwayFromHome && !IsDeployed && (IsAsleep || IsEating || IsWorking || ServiceTarget != null || LabUpgradeBusy);
+            if (living) personalState.beautyExposure += (AntColony.Buildings.SpaceQuality.BeautyAt(Position) - personalState.beautyExposure) * Mathf.Min(1f, dt / GameBalance.BeautyExposureSeconds);
+            var b = Mathf.Clamp(personalState.beautyExposure, -GameBalance.BeautyMoodCap, GameBalance.BeautyMoodCap);
+            if (Mathf.Abs(b) >= 1f) personalState.AddMood("공간 미관", Mathf.Round(b), 3); else personalState.moodFactors.RemoveAll(f => f.reason == "공간 미관");
+            var t = living ? AntColony.Buildings.SpaceQuality.At(Position) : AntColony.Buildings.TemperatureBand.Comfortable;
+            personalState.moodFactors.RemoveAll(f => f.reason == "추움" && t != AntColony.Buildings.TemperatureBand.Cold || f.reason == "더움" && t != AntColony.Buildings.TemperatureBand.Hot);
+            if (t == AntColony.Buildings.TemperatureBand.Cold) personalState.AddMood("추움", GameBalance.TemperatureMood * ScienceEffects.ColdEffectMultiplier, 3);
+            else if (t == AntColony.Buildings.TemperatureBand.Hot) personalState.AddMood("더움", GameBalance.TemperatureMood, 3);
         }
         public bool TryReward()
         {
@@ -105,6 +121,7 @@ namespace AntColony.Units
             else personalState.moodFactors.RemoveAll(f => f.reason == "시체 주변");
             // 날씨(2026-10-03): 방 밖에서 비·눈·악천후를 맞으면 기분이 떨어진다.
             if (AntColony.Map.WeatherSystem.Mood < 0 && !AntColony.Buildings.RoomSystem.IsIndoors(Position)) personalState.AddMood("날씨: " + AntColony.Map.WeatherSystem.Name(AntColony.Map.WeatherSystem.Current), AntColony.Map.WeatherSystem.Mood, 2);
+            TickSpace(seconds);
             TickRelations(seconds);
             if (personalState.mentalBreak != MentalBreak.None) { TickBreak(seconds); return; }
             personalState.breakCheck += seconds;

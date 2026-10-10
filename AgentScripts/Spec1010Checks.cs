@@ -55,7 +55,7 @@ public static class Spec1010Checks
             Check(Application.isPlaying, "play mode"); await Ready();
             SaveSystem.NewGame(new NewGameOptions { seed = 261010, mapSize = MapSize.Small }); await Ready(); await Task.Delay(300);
             var rm = ResourceManager.Instance;
-            foreach (Resource type in Enum.GetValues(typeof(Resource))) { rm.AddCapacity(type, 20000); rm.Add(type, 5000); }
+            foreach (Resource type in new[] { Resource.Food, Resource.Soil, Resource.Special }) { rm.AddCapacity(type, 20000); rm.Add(type, 5000); } // 재료 종류는 한도를 공유하므로 기본 3종만(2026-10-10)
             var list = CommanderRoster.Instance.Commanders.Where(x => x.IsColonyMember).ToList();
             foreach (var x in list) { x.SetJobEnabled(CommanderJobs.All, false); x.CommandStop(); }
             var a = list[0];
@@ -67,6 +67,16 @@ public static class Spec1010Checks
             var wall = Build<BuildingBase>(BuildingKind.SoilWall, a.Position + Vector3.back * 5);
             Check(Demolition.CanDemolish(wall) && !Demolition.CanMove(wall), "walls are demolished, not moved");
             Check(!Demolition.CanDemolish(Object.FindFirstObjectByType<Stockpile>()), "starting stockpile stays");
+            // 리뷰(10-10): 주거는 이동 불가, 포로가 있는 수용소는 철거 불가(이동은 가능), 철거 공사 중 포로가 생기면 완료 시 취소.
+            var hutStay = Build<BuildingBase>(BuildingKind.Hut, a.Position + Vector3.left * 14);
+            Check(Demolition.CanDemolish(hutStay) && !Demolition.CanMove(hutStay), "housing is not moved for free"); Object.Destroy(hutStay.gameObject);
+            var jail = Build<BuildingBase>(BuildingKind.PrisonerCamp, a.Position + Vector3.right * 14); await Task.Delay(50);
+            var jailSite = Demolition.OrderDemolish(jail); Check(jailSite != null, "empty camp can be demolished");
+            Check(jail.GetComponent<PrisonerCamp>().TryCapture("Held", CommanderRank.Sergeant, new[] { UnitRole.Melee }, CommanderTraits.Random()), "capture into camp");
+            jailSite.Complete(); await Task.Delay(50);
+            Check(jail != null && jail.GetComponent<PrisonerCamp>().Count == 1, "demolition with prisoners is cancelled on completion");
+            Check(!Demolition.CanDemolish(jail) && Demolition.CanMove(jail), "occupied camp blocks demolition, not moving");
+            Object.Destroy(jail.gameObject); await Task.Delay(50);
             var soil = rm.GetAmount(Resource.Soil); var food = rm.GetAmount(Resource.Food); var d = kitchen.Data;
             var site = Demolition.OrderDemolish(kitchen);
             Check(site != null && Demolition.OrderDemolish(kitchen) == null, "one demolition order per building");
@@ -122,6 +132,10 @@ public static class Spec1010Checks
             Check(dto.workshop.orders[0].mode == Workshop.OrderMode.KeepStock && dto.workshop.orders[0].amount == 3, "orders saved");
             dto.workshop.orders[0].amount = 999; Check(!SaveValidator.Validate(file, out _), "invalid order rejected");
             w.Orders.Clear();
+            // 리뷰(10-10): 정지 중에는 생산 목록이 대기열로 옮기거나 비용을 내지 않는다.
+            soil = rm.GetAmount(Resource.Soil); w.AddOrder(EquipmentRecipe.Mandible, Workshop.OrderMode.Count, 1); await Task.Delay(300);
+            Check(w.Jobs.Count == 0 && rm.GetAmount(Resource.Soil) == soil, "paused game does not queue production orders");
+            Check(await Until(() => w.Jobs.Count == 1, 3), "running game queues production order"); w.Cancel(0);
 
             // 4. 재개발 Shift 배치: 줄 배치 칸에 작은 집이 있으면 교체 공사가 된다.
             var hut = Build<Housing>(BuildingKind.Hut, a.Position + Vector3.forward * 12 + Vector3.right * 8);

@@ -21,7 +21,7 @@ namespace AntColony.Buildings
                 var missing = b.MaxHealth - b.CurrentHealth;
                 var fraction = missing / b.MaxHealth * GameBalance.RepairCostShare;
                 if (ResourceManager.Instance == null || !ResourceManager.Instance.TrySpend(Mathf.CeilToInt(b.Data.foodCost * fraction),
-                    Mathf.CeilToInt(b.Data.soilCost * fraction), Mathf.CeilToInt(b.Data.specialCost * fraction), reason: ResourceReason.Construction)) return false;
+                    Mathf.CeilToInt(b.Data.soilCost * fraction), b.MainMaterial, Mathf.CeilToInt(b.Data.specialCost * fraction), ResourceReason.Construction)) return false; // 수리는 주재료로
                 Credit = missing;
             }
             var rate = b.MaxHealth * GameBalance.RepairPerSecond * c.WorkRate(CommanderActivity.Building);

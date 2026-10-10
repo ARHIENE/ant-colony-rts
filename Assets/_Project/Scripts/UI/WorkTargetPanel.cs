@@ -1,6 +1,7 @@
 using System.Linq;
 using AntColony.Buildings;
 using AntColony.Core;
+using AntColony.Data;
 using AntColony.Units;
 using AntColony.World;
 using UnityEngine;
@@ -66,7 +67,7 @@ namespace AntColony.UI
                 : $"작업 장수 {workers.Length}명: {string.Join(" · ", workers.Select(c => c.CommanderName))}";
             instruction.text = "평시 작업은 장수만 합니다. 작업표 우선순위에 따라 장수가 알아서 맡습니다.";
             var label = action.GetComponentInChildren<Text>();
-            action.gameObject.SetActive(Target is ResourceNode || Target is Workshop || Target is BuildingConstructionSite || Target is WildMonster || Target is Gate || Target is Barracks || Target is DigSite);
+            action.gameObject.SetActive(Target is ResourceNode || Target is Workshop || Target is Processor || Target is Ranch || Target is RanchFacility f0 && f0.IsFeeder || Target is BuildingConstructionSite || Target is WildMonster || Target is Gate || Target is Barracks || Target is DigSite);
             if (Target is BuildingBase placed && !(Target is Gate)) { var room = RoomSystem.RoomAt(placed.Position); instruction.text = (room == null ? "방 밖(효과 적음)" : $"방: {room.Title} · 등급 {room.GradeName} ({room.Cells.Count}칸)") + " · " + instruction.text; }
             if (Target is Dormitory dorm)
             {
@@ -76,6 +77,20 @@ namespace AntColony.UI
             }
             if (Target is ResourceNode node) { label.text = node.GatheringForbidden ? "채집 허용" : "채집 금지"; instruction.text = $"남은 자원 {node.AmountRemaining:0.#} · {(node.IsLooseCargo ? "운반" : "채집")} 작업"; }
             if (Target is Workshop shop) { label.text = "제작 대기열"; instruction.text = $"제작 대기 {shop.Jobs.Count}건"; }
+            if (Target is Processor processor) { label.text = "가공 목록"; instruction.text = processor.Current != null ? $"가공 중 {processor.Current.name} {processor.Progress:P0} · 목록 {processor.Orders.Count}건" : $"대기 · 목록 {processor.Orders.Count}건"; }
+            if (Target is Ranch ranch)
+            {
+                label.text = "목장 관리"; var n = ranch.Animals.Count();
+                instruction.text = ranch.Operating ? $"우리 {ranch.Cells}칸 · {n}마리" + (ranch.Crowding > 1 ? $" · 과밀 {ranch.Crowding:P0}" : "") + " · 표지를 둔 방(벽·울타리·문)이 우리입니다."
+                    : $"뚫린 우리 · {n}마리 — 벽·울타리·문으로 둘러싸야 운영합니다(지붕 불필요).";
+            }
+            if (Target is RanchFacility facility)
+            {
+                if (facility.IsFeeder) { label.text = "먹이통 설정"; instruction.text = string.Join(" · ", facility.FeedTypes.Where(t => facility.Stock(t) >= 1 || facility.Allowed(t)).Select(t => $"{t.DisplayName()} {facility.Stock(t):0}/{facility.Target(t)}")); }
+                else if (facility.IsCareStation) instruction.text = "같은 우리의 생물을 사육 장수가 한 마리씩 불러 돌봅니다." + (facility.Worker != null ? $" 돌보는 중: {facility.Worker.CommanderName}" : "");
+                else if (facility.IsClinic) instruction.text = facility.Patient is Critter p ? $"{p.Info.name} " + (p.SurgeryStarted ? $"수술 {p.SurgeryProgress:0.#}/{GameBalance.CritterSurgerySeconds}초" : p.TransportTo == null ? "— 복귀할 우리 필요(개체를 선택해 지정)" : "복귀 대기") : "비어 있음 · 중상 동물 수술용(동물 수술 키트 필요)";
+                else if (facility.IsButcher) instruction.text = $"해체 대기 사체 {facility.Carcasses}구 · 요리 작업 장수가 해체합니다.";
+            }
             if (Target is Barracks barracks) label.text = "병영 강화";
             if (Target is DigSite) label.text = "굴착 확장";
             if (Target is BuildingConstructionSite site) { label.text = "건설 취소"; instruction.text = $"남은 작업 {site.RemainingWork:0.#}/{site.BuildTimeSeconds:0.#}초 · 취소하면 건설비 전액 반환(재개발 보상비는 반환 안 됨)"; }
@@ -95,6 +110,14 @@ namespace AntColony.UI
             {
                 status.text = $"{animal.Temperament} · 체력 {animal.CurrentHealth:0} · {(animal.HuntDesignated ? "사냥 지정됨" : "사냥 미지정")}";
                 instruction.text = "사냥을 켠 장수만 지정된 야생 개체를 사냥합니다."; label.text = animal.HuntDesignated ? "사냥 취소" : "사냥 지정";
+                // 목장 생물(2026-10-11): 개체 관리(포획·운반·돌봄·치료·도축 금지·위험 작업 장수·방생).
+                if (animal.GetComponent<Critter>() is Critter critter)
+                {
+                    title.text = (critter.Tame ? "길들인 " : "야생 ") + critter.Info.name + (critter.Pen != null ? $" ({critter.Pen.Data.displayName})" : "");
+                    status.text = $"{critter.StageName} · 배고픔 {critter.Hunger:0} · 체력 {critter.HealthFraction:P0}{(critter.Bound ? " · 결박됨" : "")}{(critter.CaptureDesignated ? " · 포획 지정됨" : "")}";
+                    instruction.text = critter.TransportTo != null ? $"운반 요청: {critter.TransportTo.Data.displayName}" : "포획하면 현장에 결박됩니다. 개체 관리에서 운반할 우리를 고르세요.";
+                    label.text = "개체 관리"; action.interactable = true;
+                }
             }
             title.text += $"  <size=14><color=#968976>우선 {WorkPriorities.Level(Target)}</color>{(WorkPriorities.Yellow(Target) ? "  <color=#f2c94c>노란 경보</color>" : "")}</size>";
         }
@@ -106,8 +129,8 @@ namespace AntColony.UI
         private static string RoomDescription(BuildingBase building)
         {
             var room = RoomSystem.RoomAt(building.Position);
-            return room == null ? "방 밖 — 벽과 문으로 공간을 둘러싸면 방이 됩니다."
-                : $"방: {room.Title} · 등급 {room.GradeName} · {room.Cells.Count}칸";
+            return (room == null ? "방 밖 — 벽과 문으로 공간을 둘러싸면 방이 됩니다."
+                : $"방: {room.Title} · 등급 {room.GradeName} · {room.Cells.Count}칸") + "\n" + SpaceQuality.Describe(building.Position);
         }
         public static void ShowAssignments()
         {
@@ -127,7 +150,11 @@ namespace AntColony.UI
             if (Target is Corpse corpse) corpse.Priority = !corpse.Priority;
             if (Target is ResourceNode node) node.GatheringForbidden = !node.GatheringForbidden;
             if (Target is Workshop shop) GameMenuController.Instance?.ShowWorkshop(shop);
-            if (Target is WildMonster animal && animal.Huntable) animal.HuntDesignated = !animal.HuntDesignated;
+            if (Target is Processor processor) GameMenuController.Instance?.ShowProcessor(processor);
+            if (Target is WildMonster critterMonster && critterMonster.GetComponent<Critter>() is Critter critter) GameMenuController.Instance?.ShowCritter(critter);
+            else if (Target is WildMonster animal && animal.Huntable) animal.HuntDesignated = !animal.HuntDesignated;
+            if (Target is Ranch ranch) GameMenuController.Instance?.ShowRanch(ranch);
+            if (Target is RanchFacility feeder && feeder.IsFeeder) GameMenuController.Instance?.ShowFeeder(feeder);
             if (Target is Gate gate) gate.SetOpen(!gate.Open);
             if (Target is Barracks barracks) barracks.TryUpgrade();
             if (Target is DigSite dig) dig.TryExpand();

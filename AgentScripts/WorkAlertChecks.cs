@@ -35,7 +35,7 @@ public static class WorkAlertChecks
             SaveSystem.NewGame(new NewGameOptions { seed = 261010, mapSize = MapSize.Small }); await Ready(); await Task.Delay(300);
             Check(!WorkPriorities.Red, "new game starts without red alert");
             var rm = ResourceManager.Instance;
-            foreach (Resource type in Enum.GetValues(typeof(Resource))) { rm.AddCapacity(type, 20000); rm.Add(type, 500); }
+            foreach (Resource type in new[] { Resource.Food, Resource.Soil, Resource.Special }) { rm.AddCapacity(type, 20000); rm.Add(type, 500); } // 재료 종류는 한도를 공유하므로 기본 3종만(2026-10-10)
             var list = CommanderRoster.Instance.Commanders.Where(x => x.IsColonyMember).ToList();
             foreach (var x in list) { x.SetJobEnabled(CommanderJobs.All, false); x.CommandStop(); }
             var c = list[0]; At(20);
@@ -58,6 +58,11 @@ public static class WorkAlertChecks
             var site = siteGo.AddComponent<BuildingConstructionSite>(); site.Initialize(null, 50);
             c.SetJobPriority(CommanderJobs.Building, 5); c.SetJobPriority(CommanderJobs.Gathering, 1);
             c.TickDuty(2); Check(c.ConstructionTarget == site, "job priority picks building without alerts"); c.CommandStop();
+            // 같은 작업 우선순위 단계면 작업 종류 순서보다 대상 우선순위가 먼저(2026-10-10 리뷰).
+            c.SetJobPriority(CommanderJobs.Building, 3); c.SetJobPriority(CommanderJobs.Gathering, 3); WorkPriorities.Set(site, 1, false); WorkPriorities.Set(far, 9, false);
+            c.TickDuty(2); Check(c.CurrentResourceNode == far && c.ConstructionTarget == null, "same job tier compares target priority across jobs"); c.CommandStop();
+            WorkPriorities.Set(site, WorkPriorities.Default, false); WorkPriorities.Set(far, WorkPriorities.Default, false); await Task.Delay(50);
+            c.SetJobPriority(CommanderJobs.Building, 5); c.SetJobPriority(CommanderJobs.Gathering, 1);
             WorkPriorities.Set(far, WorkPriorities.Level(far), true);
             c.TickDuty(2); Check(c.CurrentResourceNode == far && c.ConstructionTarget == null, "yellow alert target first");
             c.CommandStop(); c.SetJobEnabled(CommanderJobs.Gathering, false);

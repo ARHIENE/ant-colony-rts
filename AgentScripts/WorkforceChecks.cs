@@ -59,7 +59,7 @@ public static class WorkforceChecks
             var resources = ResourceManager.Instance;
             Call(resources, "RestoreState", 1000, 1000, 1000, 2000, 2000, 2000);
             var home = c.Position;
-            Check(CommanderTalents.Count == 14 && (int)CommanderJobs.All == 16383, "14 skills / 14 job bits");
+            Check(CommanderTalents.Count == 15 && (int)CommanderJobs.All == 32767, "15 skills / 15 job bits");
             Array.Clear(c.Talents.levels, 0, CommanderTalents.Count);
             var node = Loot(home + Vector3.right * 2, 200);
             int total = pool.Total, free = pool.Free;
@@ -145,7 +145,7 @@ public static class WorkforceChecks
             c.CommandStop(); Warp(c, home);
 
             GameMenuController.Instance.WorkSchedule();
-            Check(Object.FindObjectsByType<UnityEngine.UI.Toggle>(FindObjectsSortMode.None).Count(t => t.name.StartsWith("Job ")) == all.Length * 14, "14 toggles per commander");
+            Check(Object.FindObjectsByType<UnityEngine.UI.Toggle>(FindObjectsSortMode.None).Count(t => t.name.StartsWith("Job ")) == all.Length * 15, "15 toggles per commander");
             GameMenuController.Instance.Resume(); Time.timeScale = 0;
             WorkTargetPanel.Select(node); await Task.Delay(80);
             Check(GameObject.Find("WorkforceSlider") == null && GameObject.Find("WorkTargetPanel") != null, "target panel without workforce slider");
@@ -153,7 +153,7 @@ public static class WorkforceChecks
             // HUD v4: 하단 패널은 주요 기술 3개만, 13개 전체는 초상 클릭 상세 창에 있다.
             Check(WorkTargetPanel.Target == null, "selecting commander clears target");
             GameMenuController.Instance.Details(c); await Task.Delay(80);
-            Check(GameObject.Find("Skill Politics") != null, "14 skills in details");
+            Check(GameObject.Find("Skill Politics") != null && GameObject.Find("Skill Husbandry") != null, "15 skills in details");
             GameMenuController.Instance.Resume(); Time.timeScale = 0;
             Check(new[] { "간호", "수리", "운반", "사냥", "요리", "예술" }.All(n => ActivityIcons.Get(n) != null), "new job icons");
 

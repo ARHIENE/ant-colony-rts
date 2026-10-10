@@ -32,7 +32,7 @@ namespace AntColony.Core
         public static void Resource(ResourceType type, int amount, bool spending, ResourceReason reason)
         {
             if (!Recording || amount <= 0) return;
-            var d = Instance.Data; var i = (int)type;
+            var d = Instance.Data; var i = type.Group(); // 재료 종류는 '재료' 칸 하나로 묶는다.
             if (spending) { d.spent[i] += amount; d.spentByReason[i * Enum.GetValues(typeof(ResourceReason)).Length + (int)reason] += amount; }
             else d.acquired[i] += amount;
         }

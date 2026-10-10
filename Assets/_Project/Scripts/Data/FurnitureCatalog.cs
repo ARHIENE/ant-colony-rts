@@ -84,23 +84,24 @@ namespace AntColony.Data
             F("액체 탱크", 2, net: NetworkLayer.Pipe); F("빗물 받이", 1, net: NetworkLayer.Pipe); F("이슬 수집기", 1, net: NetworkLayer.Pipe); F("정수기", 4, net: NetworkLayer.Pipe);
 
             In(BuildCategory.Food); // 농장 방 = 밭·수경 농장·버섯밭·축사·먹이통, 밭은 방 밖도 가능
-            F("밭", 1, RoomKind.Farm, BuildingKind.Farm); F("버섯밭", 1, RoomKind.Farm, BuildingKind.MushroomFarm); F("축사", 1, RoomKind.Farm, BuildingKind.AphidPen); F("먹이통", 1, RoomKind.Farm); F("수경 농장", 4, RoomKind.Farm, net: NetworkLayer.Pipe);
+            F("밭", 1, RoomKind.Farm, BuildingKind.Farm); F("버섯밭", 1, RoomKind.Farm, BuildingKind.MushroomFarm); F("축사", 1, RoomKind.Farm, BuildingKind.AphidPen); F("먹이통", 1, RoomKind.Fishery, BuildingKind.Feeder); F("수경 농장", 4, RoomKind.Farm, net: NetworkLayer.Pipe);
             F("화덕", 1, RoomKind.Kitchen, BuildingKind.Hearth); F("가스레인지", 3, RoomKind.Kitchen, net: NetworkLayer.Pipe); F("전기조리대", 4, RoomKind.Kitchen, net: NetworkLayer.Power); F("미래 조리기구", 6, RoomKind.Kitchen, net: NetworkLayer.Power);
-            F("해체대", 1, RoomKind.Kitchen); F("물고기 양식장", 2, RoomKind.Fishery); F("목장", 2, RoomKind.Fishery);
+            F("도축대", 1, RoomKind.Kitchen, BuildingKind.ButcherTable); F("물고기 양식장", 2, RoomKind.Fishery); F("목장", 2, RoomKind.Fishery, BuildingKind.Pen);
+            F("돌봄대", 1, RoomKind.Fishery, BuildingKind.CareStation); F("동물 치료대", 1, RoomKind.Fishery, BuildingKind.AnimalClinic);
             F("벌레덫", 1); F("양갱기", 2, RoomKind.Kitchen); F("꿀단지 개미방", 1, RoomKind.Storeroom); F("발효통", 1); F("영양죽 기계", 3, RoomKind.Kitchen);
             F("제분기", 2, RoomKind.ProcessingRoom); F("사료통", 1, RoomKind.Dining); F("비료 제조기", 3, RoomKind.Farm); F("훈제실·건조대", 1, RoomKind.Kitchen);
             F("꿀벌통", 2); F("씨앗 보관고", 1, RoomKind.Storeroom); F("단물 짜는 기계", 2, RoomKind.Farm); F("음료 바", 2, RoomKind.Recreation); F("연회 요리대", 3, RoomKind.Kitchen);
             F("식량 프린터", 6, RoomKind.Kitchen, net: NetworkLayer.Power); F("합성육 배양기", 6, RoomKind.Kitchen, net: NetworkLayer.Power);
 
             In(BuildCategory.Work); // 연구대는 분야별로 따로(분야: 생물·기계·군사·사회, 분야별 연구 목록 미정)
-            F("석공대", 1, RoomKind.ProcessingRoom); F("물레", 1, RoomKind.ProcessingRoom); F("무두장이대", 1, RoomKind.ProcessingRoom); F("분해대", 2, RoomKind.ProcessingRoom);
+            F("목공대", 1, RoomKind.ProcessingRoom, BuildingKind.Carpentry); F("석공대", 1, RoomKind.ProcessingRoom, BuildingKind.Stonecutter); F("물레", 1, RoomKind.ProcessingRoom, BuildingKind.SpinningWheel); F("무두장이대", 1, RoomKind.ProcessingRoom); F("분해대", 2, RoomKind.ProcessingRoom);
             F("무기 공방", 2, RoomKind.Workshop, BuildingKind.Workshop); F("갑옷 공방", 2, RoomKind.Workshop); F("장신구 공방", 2, RoomKind.Workshop); F("수리대", 1, RoomKind.Workshop);
             F("연구대", 1, RoomKind.Laboratory, BuildingKind.ScienceLab); F("예술대", 1, RoomKind.Studio);
-            F("용광로·제련소", 2, RoomKind.ProcessingRoom); F("유리 가마", 2, RoomKind.ProcessingRoom); F("화학 실험대", 3, RoomKind.Laboratory); F("정유기", 3, RoomKind.ProcessingRoom, net: NetworkLayer.Pipe);
+            F("용광로·제련소", 2, RoomKind.ProcessingRoom, BuildingKind.Smelter); F("유리 가마", 2, RoomKind.ProcessingRoom, BuildingKind.Kiln); F("화학 실험대", 3, RoomKind.Laboratory); F("정유기", 3, RoomKind.ProcessingRoom, net: NetworkLayer.Pipe);
             F("재봉틀", 3, RoomKind.ProcessingRoom); F("부품 조립대", 4, RoomKind.Workshop, net: NetworkLayer.Power); F("로봇 공장", 5, RoomKind.Workshop, net: NetworkLayer.Power);
 
             In(BuildCategory.Medical); // 관·묘비는 시신 처리용(장례 이벤트 없음), 방 밖도 가능
-            F("병상", 1, RoomKind.Hospital, BuildingKind.Infirmary); F("약제대", 1, RoomKind.Hospital); F("수술대", 2, RoomKind.Hospital); F("격리 병상", 2, RoomKind.Hospital);
+            F("병상", 1, RoomKind.Hospital, BuildingKind.Infirmary); F("약제대", 1, RoomKind.Hospital, BuildingKind.MedicineBench); F("수술대", 2, RoomKind.Hospital); F("격리 병상", 2, RoomKind.Hospital);
             F("의족 제작대", 2, RoomKind.Hospital); F("기계 다리 제작대", 6, RoomKind.Hospital, net: NetworkLayer.Power); F("재생 탱크", 5, RoomKind.Hospital, net: NetworkLayer.Power);
             F("관", 1, RoomKind.Graveyard); F("묘비", 1, RoomKind.Graveyard); F("약초밭", 1); F("화장터", 2);
 

@@ -22,6 +22,7 @@ namespace AntColony.Units
         public List<EquipmentItem> equipment = new List<EquipmentItem>();
         public float workedSeconds, breakCheck, lowMoodSeconds, captiveSeconds, unsupportedSeconds, breakRemaining, rageRemaining, rewardCooldown, lastCombatSeconds, homeSeconds;
         public float craftProgress, researchProgress;
+        public float beautyExposure; // 생활 공간 미관의 체류 평균(2026-10-10)
         public float ageMonths = -1, lifespanMonths; // Phase 4 나이(개월)
         public int craftLevel, researchLevel;
         public MentalBreak mentalBreak;

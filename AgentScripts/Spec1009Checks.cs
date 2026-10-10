@@ -47,7 +47,7 @@ public static class Spec1009Checks
             Check(Application.isPlaying, "play mode"); await Ready();
             SaveSystem.NewGame(new NewGameOptions { seed = 261009, mapSize = MapSize.Small }); await Ready(); await Task.Delay(300);
             var rm = ResourceManager.Instance;
-            foreach (Resource type in Enum.GetValues(typeof(Resource))) { rm.AddCapacity(type, 20000); rm.Add(type, 5000); }
+            foreach (Resource type in new[] { Resource.Food, Resource.Soil, Resource.Special }) { rm.AddCapacity(type, 20000); rm.Add(type, 5000); } // 재료 종류는 한도를 공유하므로 기본 3종만(2026-10-10)
             var list = CommanderRoster.Instance.Commanders.Where(x => x.IsColonyMember).ToList();
             foreach (var x in list) { x.SetJobEnabled(CommanderJobs.All, false); x.CommandStop(); }
             var a = list[0]; var b = list[1];
@@ -194,6 +194,18 @@ public static class Spec1009Checks
             Check(d.Data.homecomings.Count == 1, "not home before eta"); d.Tick(1f);
             var back = CommanderRoster.Instance.Commanders.FirstOrDefault(x => x.PersonalState.id == captiveId);
             Check(back != null && back.PersonalState.equipment.Contains(gear) && back.PersonalState.injuries.Count == injuries && d.Data.homecomings.Count == 0, "commander arrives injured with gear");
+            // 리뷰(10-10): 적에게 돌려준 포로도 같은 규칙으로 귀환하고 도착해야 그 세력으로 복귀한다(압수 장비 동반).
+            Check(camp.TryCapture("Returner", CommanderRank.Sergeant, new[] { UnitRole.Melee }, CommanderTraits.Random()), "camp capture 2");
+            var ret = camp.Prisoners.Last(); ret.PersonalState.originFaction = c.id;
+            var retGear = EquipmentRecipes.Create(EquipmentRecipe.Anklet, 1); ret.PersonalState.equipment.Add(retGear); d.Seized(ret, camp.transform.position);
+            Check(EquipmentInventory.Instance.Items.Contains(retGear), "enemy gear seized");
+            var release = new TradeOffer(); release.prisoners.Add(ret.PersonalState.id); release.equipment.Add(retGear.id);
+            Check(d.TryTrade(c, release, new TradeOffer(), false, out var releaseError), "release trade " + releaseError);
+            var trip = d.Data.homecomings.SingleOrDefault(h => h.commander == ret);
+            Check(trip != null && trip.to == c.id && trip.gear.Contains(retGear) && !camp.Prisoners.Contains(ret) && !c.prisoners.Contains(ret) && !c.equipment.Contains(retGear), "released enemy travels home with gear");
+            Check(trip.arrive - d.Data.elapsed >= DiplomacyManager.HomecomingBaseSeconds, "enemy homecoming uses same 3-month rule");
+            d.Data.elapsed = trip.arrive - 1; d.Tick(.5f); Check(!c.prisoners.Contains(ret), "enemy not home before eta");
+            d.Tick(1f); Check(c.prisoners.Contains(ret) && c.equipment.Contains(retGear) && !d.Data.homecomings.Contains(trip), "enemy commander arrives at own faction");
 
             // 상대 요청: 공물. 줄인 역제안은 거절, 원래 양은 수락. 거절하면 관계 악화.
             var request = typeof(DiplomacyManager).GetMethod("Request", BindingFlags.NonPublic | BindingFlags.Instance);

@@ -36,7 +36,7 @@ namespace AntColony.World
         public List<string> reasons = new List<string>();
         public int[] resources = { 300, 300, 100 };
         public List<EquipmentItem> equipment = new List<EquipmentItem>();
-        public List<Prisoner> prisoners = new List<Prisoner>();
+        public List<Prisoner> prisoners = new List<Prisoner>(); // 우리가 돌려보내 귀환 도착한 이 세력 장수(전력 반영은 기획 미정). 필드 이름은 저장 호환용
         public List<Prisoner> rebels = new List<Prisoner>();
         public bool HasTreaty(TreatyKind kind, float now) => !war && treaties[(int)kind] > now;
         public void ChangeAffinity(int delta, string reason)

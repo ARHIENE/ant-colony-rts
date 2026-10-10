@@ -25,6 +25,7 @@ namespace AntColony.World
             public string workerId;
             public bool eating;
             public float progress;
+            public string carcass; // 목장 생물 사체(해체 자원, 2026-10-11)
         }
         public State Data { get; private set; }
         public CommanderAnt Handler { get; private set; }
@@ -63,6 +64,7 @@ namespace AntColony.World
             state.workerId = Handler != null ? Handler.PersonalState.id : null;
             state.eating = Handler != null && Handler.EatingCorpse;
             state.progress = Handler != null ? Handler.CorpseProgress : 0;
+            var carcass = GetComponent<CritterCarcass>(); state.carcass = carcass != null ? JsonUtility.ToJson(carcass.Data) : null;
             return state;
         }
         public static Corpse Drop(Component source, CorpseKind kind, string name, int count = 1, float food = 0)
@@ -94,6 +96,7 @@ namespace AntColony.World
                 var node = root.AddComponent<ResourceNode>(); node.ConfigureLoot(ResourceType.Food, state.food);
                 node.GatheringForbidden = state.gatheringForbidden;
             }
+            if (!string.IsNullOrEmpty(state.carcass)) root.AddComponent<CritterCarcass>().Data = JsonUtility.FromJson<CritterCarcass.State>(state.carcass);
             root.SetActive(true);
             var animator = body.GetComponentInChildren<Animator>();
             if (animator != null) { animator.applyRootMotion = false; animator.Play("Base Layer.Death", 0, freshDeath ? 0 : 1); animator.Update(0); animator.speed = freshDeath ? 1 : 0; }

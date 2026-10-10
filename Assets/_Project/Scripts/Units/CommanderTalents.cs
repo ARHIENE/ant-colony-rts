@@ -3,14 +3,14 @@ using UnityEngine;
 
 namespace AntColony.Units
 {
-    // 작업과 전투가 공유하는 14종 기술. 경험치는 소수까지 보존한다.
+    // 작업과 전투가 공유하는 15종 기술. 경험치는 소수까지 보존한다.
     // 옛 저장(9종)은 읽는 순간 뒤쪽 새 기술을 0으로 채운다(포로·외교 포로 포함 모든 경로 공통).
-    // 포텐(2026-10-07 기획): CA = 14종 기술 합(소수 진행 포함), PA = 개체별 총 성장 한도(최대 200, 생성 시 고정).
+    // 포텐(2026-10-07 기획): CA = 15종 기술 합(소수 진행 포함), PA = 개체별 총 성장 한도(최대 200, 생성 시 고정).
     // 실제 작업량으로 최근 활용 비중(usage)이 쌓이고, 비중이 낮은 기술은 작업량에 비례해 조금씩 줄며, CA는 PA를 넘지 않는다.
     [Serializable]
     public class CommanderTalents
     {
-        public const int Count = 14, MaxLevel = 20, MaxPotential = 200;
+        public const int Count = 15, MaxLevel = 20, MaxPotential = 200;
         // ponytail: 성장·감소 잠정 수치(기획 미정). 최근 이력 길이(작업량 단위)·감소 시작 표본·최소 유지 비중·작업량당 감소 경험치.
         public const float UsageWindow = 600f, MinUsageSample = 300f, MinUsageShare = .05f, DecayPerWork = .05f, MainShare = .8f;
         public int[] levels = new int[Count];

@@ -57,6 +57,13 @@ namespace AntColony.UI
             else instance.toasts.Add(new Toast { message = message, kind = kind, remaining = seconds });
             instance.dirty = true;
         }
+        // 시간이 지나면 사라지는 경고 + 위치 버튼(목장 사망·포식 알림, 2026-10-11).
+        public static void ShowAt(string message, System.Action action, string actionLabel = "위치")
+        {
+            if (instance == null || string.IsNullOrWhiteSpace(message)) return;
+            instance.toasts.Add(new Toast { message = message, kind = ToastKind.Warning, remaining = WarningSeconds, action = action, actionLabel = actionLabel });
+            instance.dirty = true;
+        }
         public static void SetCrisis(string key, string message, System.Action action = null, string actionLabel = "위치로 이동")
         {
             if (instance == null) return;

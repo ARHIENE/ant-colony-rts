@@ -33,7 +33,7 @@ namespace AntColony.Buildings
             var center = target.Position;
             var radius = GameBalance.AreaTowerRadius * GameBalance.AreaTowerRadius;
             foreach (var m in new System.Collections.Generic.List<WildMonster>(WildMonster.All))
-                if (m != null && !m.IsDead && !m.IsFlying && (m.Position - center).sqrMagnitude <= radius) m.TakeDamage(Damage);
+                if (m != null && !m.IsDead && !m.IsFlying && !m.Docile && (m.Position - center).sqrMagnitude <= radius) m.TakeDamage(Damage);
             foreach (var boss in FindObjectsByType<AntColony.Boss.BossHealth>())
                 if (CombatTargeting.CanAttack(UnitRole.Melee, boss) && (boss.Position - center).sqrMagnitude <= radius) boss.TakeDamage(Damage);
             foreach (var unit in new System.Collections.Generic.List<AntColony.Units.AntUnitBase>(AntColony.Units.AntUnitBase.Active))

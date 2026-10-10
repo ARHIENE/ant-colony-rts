@@ -26,9 +26,9 @@ namespace AntColony.Save
         public static void Initialize()
         {
             Buildings = Ordered<BuildingBase>().Where(b => b.CountsTowardPlayerDefeat && !(b is ExpeditionTransport)).ToArray();
-            Nodes = Ordered<ResourceNode>().Where(n => n.GetComponentInParent<BuildingBase>() == null
+            Nodes = Ordered<ResourceNode>().Where(n => n.GetComponent<Map.MaterialDeposit>() == null).Where(n => n.GetComponentInParent<BuildingBase>() == null
                 || !n.GetComponentInParent<BuildingBase>().CountsTowardPlayerDefeat).ToArray();
-            Monsters = Ordered<WildMonster>();
+            Monsters = Ordered<WildMonster>().Where(m => m.GetComponent<Critter>() == null).ToArray(); // 사육 생물은 따로 저장(critters)
             Bosses = Ordered<BossHealth>();
             ColonySizes = WorldMapManager.Instance.Sites.Select(s => s.Colony != null ? s.Colony.Buildings.Length : 0).ToArray();
         }
@@ -38,7 +38,7 @@ namespace AntColony.Save
             if (b.GetComponent<ScoutPost>() != null) return "ScoutPost";
             if (b.GetComponent<PrisonerCamp>() != null) return "PrisonerCamp";
             if (b.GetComponent<ResourceNode>() != null) return "Farm";
-            if (b is Decoration || b is Housing || b is Wall || b is Door || b is Gate || b is HygieneFixture || b is PowerNode || b is FloorTile || b is RecreationSpot // 모닥불·도박장·책장·목욕통은 종류 이름으로(2026-10-05 수정: 타입 이름 "RecreationSpot"은 건물 종류가 아님)
+            if (b is Decoration || b is Housing || b is Wall || b is Door || b is Gate || b is HygieneFixture || b is PowerNode || b is FloorTile || b is RecreationSpot || b is Processor || b is Ranch || b is RanchFacility // 가공대는 종류 이름으로(2026-10-10). 모닥불·도박장·책장·목욕통은 종류 이름으로(2026-10-05 수정: 타입 이름 "RecreationSpot"은 건물 종류가 아님)
                 || b.Data != null && (b.Data.kind == BuildingKind.Hearth || b.Data.kind == BuildingKind.SleepingMat || b.Data.kind == BuildingKind.DoubleBed || b.Data.kind == BuildingKind.SingleBed || b.Data.kind == BuildingKind.FoodStore || b.Data.kind == BuildingKind.Jar
                     || b.Data.kind == BuildingKind.BunkBed || b.Data.kind == BuildingKind.Hammock || b.Data.kind == BuildingKind.BigTable || b.Data.kind == BuildingKind.BanquetTable || b.Data.kind == BuildingKind.SpikeTrap)) return b.Data.kind.ToString(); // 화덕·자리·큰침대는 종류 이름으로(식당·숙소는 기존대로 타입 이름)
             if (b is Stockpile) return "QueenChamber"; // 저장 호환: 구 여왕방 자리
@@ -60,7 +60,7 @@ namespace AntColony.Save
                 || (!c.CanResumeDutyAfterLoad && !c.IsHostile && c.PersonalState.rageRemaining <= 0 && !c.Social.diving && !c.IsEmbarked && c.Agent.enabled && c.Agent.isOnNavMesh && (c.Agent.pathPending || c.Agent.hasPath))))
                 error = "Stop commanders and finish carrying/building before saving.";
             else if (Object.FindObjectsByType<WildMonster>(FindObjectsSortMode.None).Any(m => m.InCombat
-                || (!Monsters.Contains(m) && m.GetComponent<EventActor>() == null && string.IsNullOrEmpty(m.RebelId) && m.GetComponentInParent<ExpeditionSite>()?.Disposition != ConquestDisposition.Lost)))
+                || (!Monsters.Contains(m) && m.GetComponent<EventActor>() == null && m.GetComponent<Critter>() == null && string.IsNullOrEmpty(m.RebelId) && m.GetComponentInParent<ExpeditionSite>()?.Disposition != ConquestDisposition.Lost)))
                 error = "Finish the current battle or invasion before saving.";
             else if (WorldMapManager.Instance.Sites.Any(s => s.Defense != null && s.Defense.UnderAttack))
                 error = "Finish settlement defense before saving.";

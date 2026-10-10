@@ -12,7 +12,17 @@ namespace AntColony.Buildings
     {
         private static readonly System.Collections.Generic.List<Wall> Castle = new System.Collections.Generic.List<Wall>();
         public static System.Collections.Generic.IReadOnlyList<Wall> CastleWalls => Castle;
-        protected override void OnEnable() { base.OnEnable(); if (IsCastle) Castle.Add(this); }
+        protected override void OnEnable() { base.OnEnable(); if (IsCastle) Castle.Add(this); FitObstacle(this); }
+        // NavMesh 장애물은 에이전트 반경(0.5)만큼 넓게 깎이므로 벽 칸 크기 그대로면 1칸 문·2칸 성문 틈까지 막혔다(2026-10-11 수정).
+        // 깎이는 폭이 벽 칸보다 0.1m씩만 넓도록 장애물을 줄인다. 이웃한 벽끼리는 여전히 이어져 막힌다.
+        internal static void FitObstacle(BuildingBase b)
+        {
+            var obstacle = b.GetComponent<NavMeshObstacle>(); if (obstacle == null) return;
+            var radius = NavMesh.GetSettingsCount() > 0 ? NavMesh.GetSettingsByIndex(0).agentRadius : .5f; var scale = b.transform.lossyScale;
+            float Local(float world, float s) => Mathf.Max(.05f, world - 2 * radius + .2f) / Mathf.Max(.01f, Mathf.Abs(s));
+            obstacle.shape = NavMeshObstacleShape.Box; obstacle.center = Vector3.zero;
+            obstacle.size = new Vector3(Local(Mathf.Abs(scale.x), scale.x), obstacle.size.y, Local(Mathf.Abs(scale.z), scale.z));
+        }
         protected override void OnDisable() { Castle.Remove(this); base.OnDisable(); }
         public bool IsCastle => Data != null && Data.kind == BuildingKind.CastleWall;
         public bool Flammable => Data != null && Data.kind == BuildingKind.LeafWall;
@@ -23,15 +33,16 @@ namespace AntColony.Buildings
         protected override bool UsesDefenseDurability => true;
     }
 
-    // 나뭇잎 벽 불(2026-10-03, 잠정): 적이 불을 지르면 몇 초 동안 계속 타고, 2초 뒤 바로 옆 나뭇잎 벽으로 확률 번짐. 벽마다 한 번만 탄다.
+    // 불(2026-10-03 나뭇잎 벽, 2026-10-10 가연성 재료 전체): 적이 불을 지르면 몇 초 동안 계속 타고, 2초 뒤 바로 옆 가연성 건물로 확률 번짐. 건물마다 한 번만 탄다.
     public sealed class WallFire : MonoBehaviour
     {
-        private Wall wall;
+        private BuildingBase wall;
         private float remaining, tick, spreadIn = 2f;
         public bool Burning => remaining > 0;
-        public static bool Ignite(Wall target)
+        public static bool Flammable(BuildingBase b) => b != null && MaterialInfo.For(SpaceQuality.MaterialOf(b)).flammable;
+        public static bool Ignite(BuildingBase target)
         {
-            if (target == null || !target.Flammable || target.IsDead || target.GetComponent<WallFire>() != null) return false;
+            if (target == null || !Flammable(target) || target.IsDead || target.GetComponent<WallFire>() != null) return false;
             var fire = target.gameObject.AddComponent<WallFire>();
             fire.wall = target; fire.remaining = GameBalance.WallFireSeconds;
             if (target.GetComponent<Renderer>() is Renderer r) r.material.color = new Color(.95f, .45f, .1f, 1);
@@ -43,7 +54,7 @@ namespace AntColony.Buildings
             remaining -= Time.deltaTime;
             if ((spreadIn -= Time.deltaTime) <= 0 && spreadIn > -Time.deltaTime)
                 foreach (var hit in Physics.OverlapSphere(wall.Position, 1.6f, ~0, QueryTriggerInteraction.Ignore))
-                    if (hit.GetComponentInParent<Wall>() is Wall next && next != wall && Random.value < GameBalance.WallFireSpreadChance) Ignite(next);
+                    if (hit.GetComponentInParent<BuildingBase>() is BuildingBase next && next != wall && Random.value < GameBalance.WallFireSpreadChance) Ignite(next);
             if ((tick += Time.deltaTime) < 1f) return;
             tick -= 1f; wall.TakeDamage(GameBalance.WallFireDamagePerSecond);
         }
@@ -57,6 +68,7 @@ namespace AntColony.Buildings
         private NavMeshObstacle lockObstacle;
         public bool IsPrisonDoor => Data != null && (Data.kind == BuildingKind.LockedDoor || Data.kind == BuildingKind.BarredDoor);
         public bool Locked => lockObstacle != null && lockObstacle.enabled;
+        public bool OpenNow => !Locked && AntColony.Units.AntUnitBase.Active.Any(u => u is AntColony.Units.CommanderAnt c && !c.IsHostile && (c.Position - Position).sqrMagnitude < 2.25f);
         private void Update()
         {
             if (Data != null && Data.kind == BuildingKind.LockedDoor)
@@ -71,10 +83,12 @@ namespace AntColony.Buildings
                 if (m == null || m.IsDead || !m.isActiveAndEnabled) continue;
                 var d = m.transform.position - Position; d.y = 0;
                 if (d.sqrMagnitude > 1.2f * 1.2f) continue;
+                // 목장 생물(2026-10-11): 문을 직접 열지 못하지만 아군이 지나며 문이 열린 동안엔 통과한다. 부수지는 않는다.
+                if (m.Docile && OpenNow) continue;
                 var push = d.sqrMagnitude < .01f ? Vector3.forward : d.normalized;
                 var agent = m.GetComponent<NavMeshAgent>();
                 if (agent != null && agent.enabled) agent.Warp(Position + push * 1.4f); else m.transform.position = Position + push * 1.4f;
-                TakeDamage(GameBalance.DoorBashDamage);
+                if (!m.Docile) TakeDamage(GameBalance.DoorBashDamage);
             }
         }
     }

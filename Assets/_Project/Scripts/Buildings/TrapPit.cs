@@ -28,7 +28,7 @@ namespace AntColony.Buildings
             {
                 foreach (var monster in WildMonster.All)
                 {
-                    if (monster == null || monster.IsDead || monster.IsFlying
+                    if (monster == null || monster.IsDead || monster.IsFlying || monster.Docile
                         || (monster.Position - Position).sqrMagnitude > GameBalance.TrapTriggerRadius * GameBalance.TrapTriggerRadius) continue;
                     monster.Root(monster.GetComponent<AntColony.Boss.BossHealth>() != null ? GameBalance.TrapBossRootSeconds : GameBalance.TrapRootSeconds);
                     Spring();
@@ -60,7 +60,7 @@ namespace AntColony.Buildings
             if (spikeCooldown > 0) return;
             var r = GameBalance.TrapTriggerRadius * GameBalance.TrapTriggerRadius; var hit = false;
             foreach (var monster in new System.Collections.Generic.List<WildMonster>(WildMonster.All))
-                if (monster != null && !monster.IsDead && !monster.IsFlying && (monster.Position - Position).sqrMagnitude <= r) { monster.TakeDamage(GameBalance.SpikeTrapDamage); hit = true; }
+                if (monster != null && !monster.IsDead && !monster.IsFlying && !monster.Docile && (monster.Position - Position).sqrMagnitude <= r) { monster.TakeDamage(GameBalance.SpikeTrapDamage); hit = true; }
             foreach (var boss in FindObjectsByType<AntColony.Boss.BossHealth>())
                 if (CombatTargeting.IsAlive(boss) && !CombatTargeting.IsAirborne(boss) && boss.GetComponent<WildMonster>() == null
                     && (boss.Position - Position).sqrMagnitude <= r) { boss.TakeDamage(GameBalance.SpikeTrapDamage); hit = true; }

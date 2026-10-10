@@ -93,14 +93,16 @@ namespace AntColony.World
             var outgoing = inventory.Where(e => give.equipment.Contains(e.id)).ToArray();
             var incoming = c.equipment.Where(e => take.equipment.Contains(e.id)).ToArray();
             inventory.RemoveAll(e => give.equipment.Contains(e.id)); c.equipment.RemoveAll(e => take.equipment.Contains(e.id));
-            c.equipment.AddRange(outgoing);
+            // 돌려보내는 적 포로에게서 압수했던 장비는 그 장수와 함께 귀환해 도착 시 넘어간다(우리 장수와 대칭).
+            var withReleased = outgoing.Where(e => give.prisoners.Any(id => IsSeizedFrom(e.id, id))).ToList();
+            c.equipment.AddRange(outgoing.Except(withReleased));
             // 석방과 함께 반환하기로 한 압수 장비는 그 장수와 함께 귀환 시 도착한다. 나머지는 즉시 교환(넘치면 바닥).
             var withCaptive = incoming.Where(e => take.prisoners.Any(id => IsSeizedFrom(e.id, id))).ToList();
             StoreEquipment(incoming.Except(withCaptive), world.HomePosition);
             foreach (var id in take.prisoners) BeginHomecoming(id, c, withCaptive.Where(e => IsSeizedFrom(e.id, id)).ToList());
-            Data.seizures.RemoveAll(s => s.holder == "player" && give.equipment.Contains(s.item));
             foreach (var camp in Camps) foreach (var p in camp.Prisoners.Where(p => give.prisoners.Contains(p.PersonalState.id)).ToArray())
-                if (camp.ReleaseForTrade(p)) CampaignHistory.Record("석방", p.Name, c.name + "로 안전 귀환", true);
+                if (camp.ReleaseForTrade(p)) BeginEnemyHomecoming(p, c, withReleased.Where(e => IsSeizedFrom(e.id, p.PersonalState.id)).ToList());
+            Data.seizures.RemoveAll(s => s.holder == "player" && give.equipment.Contains(s.item));
             if (give.prisoners.Count > 0) TrustEvent(3, "포로 석방", c);
             c.rebels.RemoveAll(p => take.prisoners.Contains(p.PersonalState.id));
             RemoveTradedRebels(c, take);

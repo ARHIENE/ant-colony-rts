@@ -11,6 +11,7 @@ namespace AntColony.Buildings
         private int reservedAnts;
         private bool finished;
         private int refundFood, refundSoil, refundSpecial; // 취소 시 전액 반환할 건설비(재개발 보상비 제외).
+        private ResourceType refundMaterial = ResourceType.Soil; // 재료 몫을 낸 주재료
 
         public AntColony.Data.BuildingKind? BuildingKind => completedBuilding != null ? completedBuilding.GetComponent<BuildingBase>()?.Data?.kind : null;
         public bool IsArt => BuildingKind.HasValue && Decoration.IsKind(BuildingKind.Value);
@@ -46,7 +47,7 @@ namespace AntColony.Buildings
             Destroy(gameObject);
         }
 
-        public void SetRefund(int food, int soil, int special) { refundFood = food; refundSoil = soil; refundSpecial = special; }
+        public void SetRefund(int food, int soil, int special, ResourceType material = ResourceType.Soil) { refundFood = food; refundSoil = soil; refundSpecial = special; refundMaterial = material; }
 
         // 플레이어 취소: 건설 전·시공 중 모두 건설비 100% 반환. 재개발이면 기존 집은 그대로 남고 지급한 보상비·발생한 불만은 돌려받지 않는다.
         // 창고가 가득 차면 넘치는 반환분은 창고 주변 바닥에 두고 운반 장수가 옮긴다(외교 수령과 같은 처리).
@@ -55,7 +56,8 @@ namespace AntColony.Buildings
             if (finished) return;
             finished = true;
             AntColony.World.DiplomacyManager.StoreResource(ResourceType.Food, refundFood, ResourceReason.Refund);
-            AntColony.World.DiplomacyManager.StoreResource(ResourceType.Soil, refundSoil, ResourceReason.Refund);
+            AntColony.World.DiplomacyManager.StoreResource(refundMaterial, refundSoil, ResourceReason.Refund);
+            if (TryGetComponent<DemolitionSite>(out var marker)) marker.Abort(); // 개보수 취소: 건물 사용 재개
             AntColony.World.DiplomacyManager.StoreResource(ResourceType.Special, refundSpecial, ResourceReason.Refund);
             ReturnWorkforce();
             Destroy(gameObject);

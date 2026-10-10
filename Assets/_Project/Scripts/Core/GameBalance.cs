@@ -70,6 +70,19 @@ namespace AntColony.Core
         public const float DoorBashDamage = 15; // Phase 5: 문에 닿은 적이 0.25초마다 주는 피해(잠정)
         // 공성(2026-10-03, 잠정): 길이 막힌 침공 개체가 벽을 찾는 반경, 나뭇잎 벽 불(지속·초당 피해·옆 벽 번질 확률)
         public const float SiegeSearchRadius = 8, WallFireSeconds = 8, WallFireDamagePerSecond = 20, WallFireSpreadChance = .5f;
+        // ponytail: 우선 납부 재료 비중(한 종류 상한 미정, 잠정 60%). 나머지는 지역 기초 원재료에 고르게.
+        public const float TaxMainMaterialShare = .6f;
+        // ponytail: 목장(2026-10-11 개편) 잠정값 — 기획 미정 수치 전부. 배고픔(가득 100이 몇 달에 0), 먹이 1단위 회복, 찾기/배부름 기준, 굶주림 피해(최대 체력 비율/월),
+        // 결박·작업 시간(초), 돌봄 기본 지속(초, 사육 10당 +100%), 길들이기(돌봄 유지 개월), 직접 채취 한도, 경상 회복(최대 체력 비율/월)·투약 배율, 중상·쓰러짐 체력 비율.
+        public const int WildCritterTarget = 5, FeederDefaultTarget = 20, FeederMaxTarget = 200;
+        public const float CritterHungerMonths = 1f, CritterHungerPerUnit = 25f, CritterSeekHunger = 50f, CritterFullHunger = 95f, CritterHuntHunger = 30f, CritterBreedHunger = 25f;
+        public const float CritterEatSeconds = 2f, CritterCropBite = 1f, CritterStarvePerMonth = .5f, CritterOldDeathPerMonth = .3f, CritterHuntRadius = 15f, CritterAgitatedSeconds = 20f;
+        public const float CritterBindSeconds = 120f, CritterCaptureSeconds = 4f, CritterCareWorkSeconds = 6f, CritterCareBaseSeconds = 60f, CritterTameMonths = 1f, CritterTameDecayMonths = 2f;
+        public const float CritterDirectCap = 5f, CritterHarvestSeconds = 4f, CritterSlaughterSeconds = 4f, CritterDoseSeconds = 3f, CritterMedicatedSeconds = 120f, CritterSurgerySeconds = 20f;
+        public const float CritterLightRegenPerMonth = .25f, CritterMedicatedRegen = 3f, CritterHeavyInjury = .4f, CritterDownedHealth = .2f;
+        public const float CritterBreedPerMonth = .5f, CritterCareBoost = 1.25f, CritterCaptureFailDamage = 5f, ButcherSeconds = 6f;
+        // ponytail: 미관·온도(2026-10-10) 잠정값. 난방 목재/월(단열 0 기준), 미관·온도 기분, 시민 주거 미관 → 민심·이주.
+        public const float HeatingWoodPerMonth = 6f, BeautyMoodCap = 8f, TemperatureMood = -4f, BeautyExposureSeconds = 60f, HousingBeautySentiment = 1f, HousingBeautyDemand = 2f; // 맵에 유지할 야생 사육 생물 수(잠정)
         public const float TaxPerAntMonth = 5f, MaxTaxRate = .5f, HighTaxFlightRate = .4f, RaidSentiment = 10, UnrestSentiment = 15;
         public const float ImmigrationShare = .3f, AdultAging = .03f, OldDeath = .15f, UnrestDesertion = .05f;
         // 주거 건물(방 밖에 짓는 건물 단위, 자동 레벨업 없음): 수용 수·재료·인력·시간
@@ -86,7 +99,7 @@ namespace AntColony.Core
         // 재개발(2026-10-08 기획, 수치 잠정): 기본 보상 = 거주 1마리당 식량·재료, 재개발 건설비 할인, 보상 부족 불만, 지연 기준.
         public const float RedevelopFoodPerResident = .5f, RedevelopSoilPerResident = .5f, RedevelopCostShare = .6f;
         // 철거·가구 이동(2026-10-08 기획): 철거 반환 70%(확정). 작업량 = 건설 시간 × 비율(잠정).
-        public const float DemolishRefundShare = .7f, DemolishWorkShare = .5f, MoveWorkShare = .5f;
+        public const float DemolishRefundShare = .7f, DemolishWorkShare = .5f, MoveWorkShare = .5f, RenovateWorkShare = .5f; // 개보수 작업량 = 건설 시간 × 0.5(잠정)
         public const float RedevelopMinCompensation = .5f, RedevelopMaxCompensation = 2f, RedevelopUnrestPerResident = .2f, RedevelopDelaySeconds = 120f, RedevelopDelaySentimentPerMonth = 3f;
         // 장수 나이(개월): 시작 12~72, 어린 장수 12개월 미만, 늙음 96개월 이상, 수명 120~168개월.
         public const float ChildMonths = 12, ElderMonths = 96, MinLifespan = 120, MaxLifespan = 168;

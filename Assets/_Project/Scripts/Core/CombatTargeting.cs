@@ -42,7 +42,7 @@ namespace AntColony.Core
         public static bool CanAttack(UnitRole role, IDamageable target, bool allowPeace = false)
         {
             if (!IsAlive(target)) return false;
-            if (target is World.WildMonster ally && ally.Allied) return false;
+            if (target is World.WildMonster ally && (ally.Allied || ally.Docile)) return false; // 온순한 목장 생물은 적이 아니다
             if (!allowPeace && target is Component component && !World.DiplomacyManager.Hostile(component)) return false;
             if (target is AntUnitBase && !(target is CommanderAnt commander && commander.IsHostile)) return false;
             if (target is AntColony.World.ExpeditionTransport) return false;

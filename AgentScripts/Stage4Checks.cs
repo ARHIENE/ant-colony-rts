@@ -69,7 +69,7 @@ public static class Stage4Checks
             Object.FindAnyObjectByType<UpkeepManager>().enabled = false; Object.FindAnyObjectByType<LocalIncursions>().enabled = false;
             var events = ColonyEvents.Instance; var rm = ResourceManager.Instance; var pool = AntPool.Instance;
             Check(events != null && CampaignHistory.Instance != null, "runtime systems booted");
-            foreach (Resource r in Enum.GetValues(typeof(Resource))) { rm.AddCapacity(r, 10000); rm.Add(r, 9000); }
+            foreach (Resource r in new[] { Resource.Food, Resource.Soil, Resource.Special }) { rm.AddCapacity(r, 10000); rm.Add(r, 9000); } // 재료 종류는 한도를 공유하므로 기본 3종만(2026-10-10)
             CampaignHistory.Instance.Restore(new CampaignHistory.State());
             var h = CampaignHistory.Instance.Data;
             var room = rm.GetCapacity(Resource.Food) - rm.GetAmount(Resource.Food);

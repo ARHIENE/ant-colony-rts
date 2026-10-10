@@ -44,7 +44,7 @@ public static class AutonomousDutyChecks
             var hp = c.PersonalHealth; c.TakeDamage(3 + c.Armor);
             Check(c.PersonalHealth == hp - 3, "civilian damage hits personal health");
             Check(!c.TryAssign(1), "civilian cannot bypass conscription");
-            Check(!c.SetJobEnabled((CommanderJobs)16384, true), "invalid job rejected"); // 4096 치우기·8192 행정
+            Check(!c.SetJobEnabled((CommanderJobs)32768, true), "invalid job rejected"); // 4096 치우기·8192 행정·16384 사육
             var node = ResourceNode.Available.First(n => n.CanGather && !n.IsRaidLoot && n.GetComponentInParent<ExpeditionSite>() == null && c.TryWorkApproach(n.transform.position, out _));
             foreach (var n in ResourceNode.Available) n.GatheringForbidden = true;
             c.SetJobEnabled(CommanderJobs.Gathering | CommanderJobs.Fishing | CommanderJobs.Farming, true);

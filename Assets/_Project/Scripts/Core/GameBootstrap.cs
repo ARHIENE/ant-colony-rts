@@ -38,6 +38,8 @@ namespace AntColony.Core
             new GameObject("CampaignResearch").AddComponent<CampaignResearch>();
             new GameObject("CampaignHistory").AddComponent<CampaignHistory>();
             new GameObject("ColonyEvents").AddComponent<AntColony.World.ColonyEvents>();
+            new GameObject("CritterSpawner").AddComponent<AntColony.World.CritterSpawner>();
+            new GameObject("Heating").AddComponent<AntColony.Buildings.Heating>();
             new GameObject("SkillTargeting").AddComponent<SkillTargeting>();
             new GameObject("GatherDesignation").AddComponent<GatherDesignation>();
             new GameObject("EnemyAlert").AddComponent<EnemyAlert>();

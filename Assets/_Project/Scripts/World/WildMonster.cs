@@ -39,6 +39,21 @@ namespace AntColony.World
         public bool Allied { get; internal set; }
         public string RebelId { get; internal set; }
         internal void ConfigureForce(float health) { maxHealth = health; }
+        // 목장 생물(2026-10-11): 평소엔 온순(Critter가 이동·먹기를 맡음, 함정·방어시설·경보 대상 아님), 취급 실패·공격받으면 잠시 성향대로 행동.
+        internal void ConfigureCritter(float health, float damage) { maxHealth = health; attackDamage = damage; Docile = true; }
+        public bool Docile { get; internal set; }
+        internal void Calm() { provoked = false; currentTarget = null; StopMoving(); }
+        public NavMeshAgent Agent => agent;
+        internal float MoveSpeed => moveSpeed;
+        internal float MaxHealth => maxHealth;
+        internal void Heal(float amount) { if (!IsDead && amount > 0) currentHealth = Mathf.Min(maxHealth, currentHealth + amount); }
+        // 놀라게 하지 않는 체력 감소(굶주림·포식·노령·도축).
+        public void Wound(float amount)
+        {
+            if (IsDead || !(amount > 0)) return;
+            currentHealth -= amount;
+            if (currentHealth <= 0f) { currentHealth = 0f; Die(); }
+        }
         internal float EventAttackCooldown { get => attackTimer; set => attackTimer = value; }
         internal void ConfigureEventWasp()
         {
@@ -63,20 +78,25 @@ namespace AntColony.World
         // 함정에 걸리면 이동만 멈춘다(사거리 안이면 공격은 계속한다).
         public float RootRemaining { get; private set; }
         public void Root(float seconds) { RootRemaining = Mathf.Max(RootRemaining, seconds); StopMoving(); }
+        // 사육 생물 탈출·포획 실패(2026-10-10): 놀라게 하거나(도주형은 달아남) 다룬 장수를 노리게 한다.
+        internal void Provoke() => provoked = true;
+        internal void Aggro(IDamageable target) { provoked = true; currentTarget = target; }
 
         public bool IsDead => currentHealth <= 0f;
         public float CurrentHealth => currentHealth;
         internal bool InCombat => CombatTargeting.IsAlive(currentTarget);
-        internal void RestoreHealth(float value)
+        public void RestoreHealth(float value)
         {
             gameObject.SetActive(value > 0);
             currentHealth = value;
         }
         public Vector3 Position => transform.position;
 
+        private Critter critter;
         private void Awake()
         {
             agent = GetComponent<NavMeshAgent>();
+            critter = GetComponent<Critter>();
             // 중심 피벗의 임시 큐브는 발 위치를 NavMesh에 맞춘다.
             var model = GetComponent<MeshFilter>();
             if (!(this is EnemyCommander) && model != null && model.sharedMesh != null)
@@ -105,7 +125,7 @@ namespace AntColony.World
 
         private void Update()
         {
-            if (IsDead) return;
+            if (IsDead || Docile) return;
             if (!Allied && !DiplomacyManager.Hostile(this)) { currentTarget = null; StopMoving(); return; }
             RootRemaining = Mathf.Max(0f, RootRemaining - Time.deltaTime);
 
@@ -179,7 +199,7 @@ namespace AntColony.World
             {
                 attackTimer = attackInterval;
                 GetComponent<AntVisual>()?.Attack(currentTarget.Position);
-                if (currentTarget is Wall leaf && leaf.Flammable) WallFire.Ignite(leaf); // 나뭇잎 벽엔 불을 지른다.
+                if (currentTarget is BuildingBase flammable && WallFire.Flammable(flammable)) WallFire.Ignite(flammable); // 가연성 재료(나뭇잎 벽·목재 등)엔 불을 지른다.
                 currentTarget.TakeDamage(attackDamage);
             }
         }
@@ -189,6 +209,7 @@ namespace AntColony.World
             if (IsDead || !(amount > 0) || float.IsInfinity(amount)) return;
             provoked = true;
             if (!Allied && !DiplomacyManager.TryAttack(this)) return;
+            if (critter != null) critter.OnHurtByUnit(); // 사냥·전투로 공격받은 목장 생물은 성향대로 반응
             currentHealth -= amount;
             GetComponent<AntVisual>()?.Action("Hit");
             if (currentHealth <= 0f)
@@ -201,6 +222,7 @@ namespace AntColony.World
         // 적 장수(EnemyCommander)가 포로 전환을 끼워 넣을 수 있도록 분리했다.
         protected virtual void Die()
         {
+            if (critter != null) { HuntDesignated = false; critter.OnKilled(); return; } // 목장 생물: 사체(해체 가능)·관리 알림은 Critter가
             if (!(this is EnemyCommander captured) || !captured.WasCaptured)
                 Corpse.Drop(this, this is EnemyCommander ? CorpseKind.EnemyCommander : isRaider && !eventWasp && !nightPredator || GetComponent<AntUnitBase>() != null ? CorpseKind.Ant : CorpseKind.Wildlife,
                     this is EnemyCommander commander ? commander.CommanderName : name,

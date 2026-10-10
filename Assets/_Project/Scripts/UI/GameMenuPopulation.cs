@@ -1,5 +1,6 @@
 using System;
 using AntColony.Core;
+using AntColony.Data;
 using UnityEngine;
 using UnityEngine.UI;
 using L = AntColony.UI.MenuLayout;
@@ -22,7 +23,7 @@ namespace AntColony.UI
 
             L.Label(p, $"<b>민심</b>  {pop.S.sentiment:0} / 100{(pop.Unrest ? "  <color=#d9534f>바닥: 인구 탈주·병력 동원 불가</color>" : "")}", 14, 24, 132, 792, 24);
             L.Meter(p, 24, 158, 792, 8, pop.S.sentiment / 100f, pop.Unrest ? MenuTheme.Danger : MenuTheme.Hp);
-            L.Label(p, $"<b>이주 수요</b>  {pop.Demand:0} / 100  <color=#968976>({GameBalance.MinImmigrationDemand} 이상이면 매달 이주)</color>", 14, 24, 176, 792, 24);
+            L.Label(p, $"<b>이주 수요</b>  {pop.Demand:0} / 100  <color=#968976>({GameBalance.MinImmigrationDemand} 이상이면 매달 이주 · 주거 주변 미관 {pop.HousingBeauty:+0.#;-0.#;0})</color>", 14, 24, 176, 792, 24);
             L.Meter(p, 24, 202, 792, 8, pop.Demand / 100f, MenuTheme.Accent);
             (string name, float value)[] causes = { ("주거", pop.HousingDemand), ("시설", pop.FacilityDemand), ("안전", pop.SafetyDemand), ("민심", pop.S.sentiment) };
             for (var i = 0; i < causes.Length; i++)
@@ -32,7 +33,12 @@ namespace AntColony.UI
             }
 
             L.Line(p, 24, 266, 792);
-            var taxLabel = L.Label(p, "", 15, 24, 278, 792, 26);
+            var taxLabel = L.Label(p, "", 15, 24, 278, 600, 26);
+            // 우선 납부 재료(2026-10-10): 지역 기초 원재료 3종 중 하나. 누를 때마다 다음 재료로.
+            var basics = ColonyPopulation.TaxMaterials; var mainIndex = Mathf.Max(0, Array.IndexOf(basics, pop.S.taxMaterial));
+            L.Button(p, "TaxMaterial", $"우선 납부: {basics[mainIndex].DisplayName()} ▸", 632, 276, 184, 30,
+                () => { pop.SetTaxMaterial(basics[(mainIndex + 1) % basics.Length]); Population(); },
+                $"재료 세금의 {GameBalance.TaxMainMaterialShare:P0}를 이 재료로, 나머지는 {string.Join("·", Array.ConvertAll(basics, b => b.DisplayName()))}로 고르게 받습니다.");
             var track = L.Box(p, "TaxSlider", 24, 310, 400, 18, MenuTheme.Well);
             var handle = L.Box(track, "Handle", 0, 0, 16, 18, MenuTheme.Accent);
             var slider = track.gameObject.AddComponent<Slider>();

@@ -173,6 +173,34 @@ namespace AntColony.Save
                 if (file.population != null) { file.population.adminWork = 0; file.population.redevelopCompensation = 1f; }
                 file.version = 15;
             }
+            if (file.version == 15)
+            {
+                // 2026-10-10: 기술 14→15·작업표 15칸(사육 추가, 켬). 우선순위 칸은 늘린 자리에 기본값을 넣는다.
+                void Talents(Units.CommanderTalents t)
+                {
+                    if (t?.levels?.Length == 14 && t.experience?.Length == 14)
+                    { Array.Resize(ref t.levels, Units.CommanderTalents.Count); Array.Resize(ref t.experience, Units.CommanderTalents.Count); if (t.usage?.Length == 14) Array.Resize(ref t.usage, Units.CommanderTalents.Count); }
+                }
+                void Work(Units.CommanderPersonalState s)
+                {
+                    if (s?.work == null) return;
+                    s.work.jobs |= Units.CommanderJobs.Husbandry;
+                    if (s.work.priorities?.Length == 14) { Array.Resize(ref s.work.priorities, Units.CommanderWorkState.JobCount); s.work.priorities[14] = Units.CommanderWorkState.DefaultPriority; }
+                }
+                foreach (var c in file.commanders ?? new System.Collections.Generic.List<CommanderDto>()) { Talents(c?.talents); Work(c?.personalState); }
+                foreach (var b in file.buildings ?? new System.Collections.Generic.List<BuildingDto>())
+                    if (b?.prisoners != null) foreach (var p in b.prisoners) { Talents(p?.talents); Work(p?.personalState); }
+                foreach (var m in file.monsters ?? new System.Collections.Generic.List<MonsterDto>()) Talents(m?.talents);
+                if (file.diplomacy?.civilizations != null && file.diplomacy.markets != null)
+                    foreach (var f in file.diplomacy.civilizations.Concat(file.diplomacy.markets))
+                    {
+                        if (f?.prisoners != null) foreach (var p in f.prisoners) { Talents(p?.Talents); Work(p?.PersonalState); }
+                        if (f?.rebels != null) foreach (var p in f.rebels) { Talents(p?.Talents); Work(p?.PersonalState); }
+                    }
+                foreach (var h in file.diplomacy?.homecomings ?? new System.Collections.Generic.List<World.Homecoming>()) { Talents(h?.commander?.Talents); Work(h?.commander?.PersonalState); }
+                foreach (var r in file.diplomacy?.rebelMembers ?? new System.Collections.Generic.List<World.RebelMember>()) { Talents(r?.commander?.Talents); Work(r?.commander?.PersonalState); }
+                file.version = 16;
+            }
             if (file.version != SaveFileV1.CurrentVersion)
             {
                 error = $"Save version {file.version} cannot be read by this build (expects {SaveFileV1.CurrentVersion}).";
@@ -196,7 +224,7 @@ namespace AntColony.Save
             if (pop == null || pop.young < 0 || pop.old < 0 || pop.agingDue < 0 || !Enum.IsDefined(typeof(Core.MilitaryPolicy), pop.policy)
                 || !(pop.sentiment >= 0 && pop.sentiment <= 100) || !(pop.taxRate >= 0 && pop.taxRate <= Core.GameBalance.MaxTaxRate)
                 || float.IsNaN(pop.monthSeconds) || float.IsInfinity(pop.monthSeconds) || pop.monthSeconds < 0 || float.IsNaN(pop.raidSeconds) || pop.raidSeconds < 0
-                || !Enum.IsDefined(typeof(Core.TaxFocus), pop.taxFocus) || !(pop.taxWeek >= 0 && pop.taxWeek <= Core.ColonyPopulation.WeekSeconds)
+                || !Enum.IsDefined(typeof(Core.TaxFocus), pop.taxFocus) || !Enum.IsDefined(typeof(Data.ResourceType), pop.taxMaterial) || !(pop.taxWeek >= 0 && pop.taxWeek <= Core.ColonyPopulation.WeekSeconds)
                 || !(pop.taxFood >= 0 && pop.taxFood < 1e7f) || !(pop.taxSoil >= 0 && pop.taxSoil < 1e7f)
                 || !(pop.adminWork >= 0 && pop.adminWork < 1e9f) || !(pop.redevelopCompensation >= Core.GameBalance.RedevelopMinCompensation && pop.redevelopCompensation <= Core.GameBalance.RedevelopMaxCompensation))
             { error = "Invalid population."; return false; }

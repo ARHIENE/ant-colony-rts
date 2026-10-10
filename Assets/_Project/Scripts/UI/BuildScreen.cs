@@ -38,12 +38,16 @@ namespace AntColony.UI
                 new Entry("배터리", BuildingKind.Battery) },
             new Entry[0], // 자동화: TODO 센서·논리(신호선)
             new Entry[0], // 배관: TODO 배관·펌프·밸브·액체 탱크
-            new[] { new Entry("밭", BuildingKind.Farm), new Entry("버섯밭", BuildingKind.MushroomFarm), new Entry("축사", BuildingKind.AphidPen), new Entry("화덕", BuildingKind.Hearth) },
+            new[] { new Entry("밭", BuildingKind.Farm), new Entry("버섯밭", BuildingKind.MushroomFarm), new Entry("축사", BuildingKind.AphidPen), new Entry("화덕", BuildingKind.Hearth),
+                new Entry("우리 표지", BuildingKind.Pen), new Entry("먹이통", BuildingKind.Feeder), new Entry("돌봄대", BuildingKind.CareStation),
+                new Entry("동물 치료대", BuildingKind.AnimalClinic), new Entry("도축대", BuildingKind.ButcherTable) },
             new[] { new Entry("큰턱 연구소", BuildingKind.ResearchLab, UnitRole.Melee), new Entry("산샘 연구소", BuildingKind.ResearchLab, UnitRole.Ranged),
                 new Entry("갑각 연구소", BuildingKind.ResearchLab, UnitRole.Defense), new Entry("페로몬 연구소", BuildingKind.ResearchLab, UnitRole.Support),
                 new Entry("날개 연구소", BuildingKind.ResearchLab, UnitRole.Flying), new Entry("과학 연구소", BuildingKind.ScienceLab),
-                new Entry("방어 연구소", BuildingKind.DefenseLab), new Entry("공방", BuildingKind.Workshop) },
-            new[] { new Entry("의무실", BuildingKind.Infirmary) },
+                new Entry("방어 연구소", BuildingKind.DefenseLab), new Entry("공방", BuildingKind.Workshop),
+                new Entry("목공대", BuildingKind.Carpentry), new Entry("석공대", BuildingKind.Stonecutter), new Entry("가마", BuildingKind.Kiln),
+                new Entry("물레", BuildingKind.SpinningWheel), new Entry("용광로", BuildingKind.Smelter) },
+            new[] { new Entry("의무실", BuildingKind.Infirmary), new Entry("약제대", BuildingKind.MedicineBench) },
             new[] { new Entry("성벽", BuildingKind.CastleWall), new Entry("성문", BuildingKind.Gate), new Entry("끈끈이 함정", BuildingKind.TrapPit), new Entry("가시 함정", BuildingKind.SpikeTrap),
                 new Entry("지뢰밭", BuildingKind.MineField), new Entry("산성탑", BuildingKind.AcidTower), new Entry("광역 산성탑", BuildingKind.AreaAcidTower),
                 new Entry("감시탑", BuildingKind.Watchtower) },
@@ -73,6 +77,7 @@ namespace AntColony.UI
         private readonly List<Button> tabButtons = new List<Button>();
         private readonly List<Button> pickRows = new List<Button>();
         private Text pickTitle, placeText;
+        private Button materialButton;
         private int tab;
         private Entry? picking;
 
@@ -135,6 +140,11 @@ namespace AntColony.UI
 
             placeBar = MenuTheme.Panel(transform, "PlacementBar", new Vector2(.5f, 1), new Vector2(520, 34), new Vector2(0, -48));
             placeText = Text(placeBar, "", 14, new Vector2(12, -2), new Vector2(500, 30));
+            // 주재료 선택(2026-10-10): 누를 때마다 다음 재료. 비교 정보는 둘째 줄.
+            materialButton = Cell(placeBar, "MaterialButton", new Vector2(0, -2), new Vector2(170, 26), "", "재료", () => {
+                var all = MaterialInfo.Structural; var i = System.Array.IndexOf(all, placement.PendingMaterial);
+                placement.PendingMaterial = all[(i + 1) % all.Length];
+            });
             SetOpen(false);
         }
 
@@ -190,10 +200,18 @@ namespace AntColony.UI
             {
                 // 기존 집 위면 재개발 견적을 둘째 줄에 보여준다.
                 var redevelop = placement.RedevelopInfo;
-                placeBar.sizeDelta = redevelop != null ? new Vector2(980, 58) : new Vector2(520, 34);
-                placeText.rectTransform.sizeDelta = placeBar.sizeDelta - new Vector2(20, 4);
+                var data = BuildingPlacementController.GetTemplate(placement.PendingKind, placement.PendingRole)?.GetComponent<BuildingBase>()?.Data;
+                var selectable = redevelop == null && !placement.IsMoving && Demolition.MaterialSelectable(placement.PendingKind) && data != null && data.soilCost > 0;
+                placeBar.sizeDelta = redevelop != null ? new Vector2(980, 58) : selectable ? new Vector2(760, 58) : new Vector2(520, 34);
+                placeText.rectTransform.sizeDelta = placeBar.sizeDelta - new Vector2(selectable ? 200 : 20, 4);
                 placeText.text = $"<b>{NameOf(placement.PendingKind, placement.PendingRole)} 배치</b>   ·   Esc 취소   ·   담당 장수: <color=#f2a93b>{(placement.Builder as CommanderAnt)?.CommanderName ?? "미지정(자율 시공)"}</color>"
-                    + (redevelop != null ? "\n" + redevelop : "");
+                    + (redevelop != null ? "\n" + redevelop : selectable ? "\n" + MaterialLine(placement.PendingMaterial, data.soilCost) : "");
+                materialButton.gameObject.SetActive(selectable);
+                if (selectable)
+                {
+                    ((RectTransform)materialButton.transform).anchoredPosition = new Vector2(placeBar.sizeDelta.x - 180, -16);
+                    materialButton.GetComponentsInChildren<Text>()[1].text = $"재료: {placement.PendingMaterial.DisplayName()} ▸";
+                }
             }
         }
 
@@ -275,6 +293,13 @@ namespace AntColony.UI
         private static BuildingData Data(Entry entry) => BuildingPlacementController.GetTemplate(entry.kind, entry.role)?.GetComponent<BuildingBase>()?.Data;
         private static string Cost(BuildingData data) => $"식{data.foodCost} 재료{data.soilCost}{(data.specialCost > 0 ? $" 특{data.specialCost}" : "")}";
         private static string ButtonName(Entry entry) => "Build " + entry.kind + (entry.kind == BuildingKind.Barracks || entry.kind == BuildingKind.ResearchLab ? " " + entry.role : "");
+        // 재료 비교: 보유/필요 수량, 내구도·미관·단열·가연성. 부족하면 빨강(배치 불가).
+        public static string MaterialLine(ResourceType m, int need)
+        {
+            var info = MaterialInfo.For(m); var have = ResourceManager.Instance != null ? ResourceManager.Instance.GetAmount(m) : 0;
+            return $"<color={(have >= need ? "#968976" : "#d9534f")}>{m.DisplayName()} {have}/{need}</color> · 내구 ×{info.durability:0.##} · 미관 {info.beauty:+0;-0;0} · 단열 {info.insulation:0.#}{(info.flammable ? " · 불에 탐" : "")}{(info.rare ? " · 귀한 재료" : "")}";
+        }
+
         private static string NameOf(BuildingKind kind, UnitRole role)
         {
             foreach (var page in Tabs) foreach (var entry in page) if (entry.kind == kind && (entry.role == role || entry.role == UnitRole.Worker)) return entry.name;

@@ -32,6 +32,7 @@ namespace AntColony.Buildings
         private int consumedFrame = -1;
 
         public bool IsPlacing { get; private set; }
+        public bool IsMoving => moveTarget != null;
         // 새로 짓는 밭의 작물. 해금되지 않은 작물은 고를 수 없다.
         public static FarmCrop SelectedCrop { get; private set; }
         public static void CycleCrop()
@@ -156,7 +157,7 @@ namespace AntColony.Buildings
         // 가구 이동: 같은 모양의 청사진을 새 위치에 놓으면 장수가 옮긴다(추가 비용 없음, 해금·개수 조건은 보지 않는다).
         public bool BeginMove(BuildingBase target)
         {
-            if (!Demolition.CanMove(target)) return PlacementFailed("이 대상은 옮길 수 없습니다(벽·문·바닥은 철거 후 다시 지으세요).");
+            if (!Demolition.CanMove(target)) return PlacementFailed("이 대상은 옮길 수 없습니다(방 가구·장식만 이동, 나머지는 철거 후 다시 지으세요).");
             var role = target is Barracks barracks ? barracks.Role : target is ResearchLab lab ? lab.Role : UnitRole.Worker;
             var template = GetTemplate(target.Data.kind, role);
             if (template == null) return PlacementFailed("This building template is unavailable.");
@@ -166,6 +167,9 @@ namespace AntColony.Buildings
             return true;
         }
         public BuildingKind PendingKind => pendingKind;
+        // 주재료(2026-10-10): 고를 수 있는 건물이면 이 재료로 재료 몫을 낸다. 부족해도 고를 수는 있고 배치(지시)만 막힌다.
+        private ResourceType pendingMaterial = ResourceType.Soil;
+        public ResourceType PendingMaterial { get => Demolition.MaterialSelectable(pendingKind) ? pendingMaterial : ResourceType.Soil; set { if (MaterialInfo.For(value).structural) pendingMaterial = value; } }
         public UnitRole PendingRole => pendingRole;
         public WorkerAnt Builder => builder;
 
@@ -216,14 +220,15 @@ namespace AntColony.Buildings
             // 재개발: 건설비 할인 + 거주 인원 비례 보상비를 함께 낸다.
             var quote = redevelop != null ? Redevelopment.Price(cost, redevelop) : default;
             int food = redevelop != null ? quote.TotalFood : cost.foodCost, soil = redevelop != null ? quote.TotalSoil : cost.soilCost, special = redevelop != null ? quote.special : cost.specialCost;
-            if (ResourceManager.Instance == null || !ResourceManager.Instance.CanAfford(food, soil, special))
+            var material = redevelop != null ? ResourceType.Soil : PendingMaterial;
+            if (ResourceManager.Instance == null || !ResourceManager.Instance.CanAfford(food, soil, material, special))
             {
-                PlacementFailed($"Construction needs {food} food, {soil} soil and {special} special.");
+                PlacementFailed($"건설에 식량 {food} · {material.DisplayName()} {soil} · 특수 {special}이(가) 필요합니다.");
                 return null;
             }
             if (builder is CommanderAnt commander && !commander.CanDoJob(Decoration.IsKind(pendingKind) ? CommanderJobs.Art : CommanderJobs.Building))
             { PlacementFailed("이 장수는 해당 작업을 할 수 없습니다."); return null; }
-            if (!ResourceManager.Instance.TrySpend(food, soil, special, reason: ResourceReason.Construction))
+            if (!ResourceManager.Instance.TrySpend(food, soil, material, special, ResourceReason.Construction))
             {
                 return null;
             }
@@ -236,6 +241,7 @@ namespace AntColony.Buildings
                 _ => pendingKind.ToString()
             };
             completedBuilding.SetActive(false);
+            completedBuilding.GetComponent<BuildingBase>().MainMaterial = material;
             if (pendingKind == BuildingKind.Farm)
                 completedBuilding.AddComponent<FarmPlot>().Configure(pendingCrop ?? SelectedCrop, ScienceEffects.WideFarms);
 
@@ -253,7 +259,7 @@ namespace AntColony.Buildings
 
             var site = siteObject.AddComponent<BuildingConstructionSite>();
             site.Initialize(completedBuilding, cost.buildTimeSeconds);
-            if (redevelop != null) site.SetRefund(quote.food, quote.soil, quote.special); else site.SetRefund(food, soil, special);
+            if (redevelop != null) site.SetRefund(quote.food, quote.soil, quote.special); else site.SetRefund(food, soil, special, material);
             if (redevelop != null)
             {
                 siteObject.AddComponent<RedevelopmentSite>().Target = redevelop;
@@ -418,7 +424,7 @@ namespace AntColony.Buildings
                     or BuildingKind.Hearth or BuildingKind.SleepingMat or BuildingKind.DoubleBed or BuildingKind.Floor or BuildingKind.LockedDoor or BuildingKind.BarredDoor
                     or BuildingKind.SingleBed or BuildingKind.Bookshelf or BuildingKind.Bathtub
                     or BuildingKind.FoodStore or BuildingKind.Jar or BuildingKind.Armory or BuildingKind.AdminDesk
-                    or (>= BuildingKind.BunkBed and <= BuildingKind.BanquetTable) => FindDecorationTemplate(kind), // 가구 5·6차
+                    or (>= BuildingKind.BunkBed and <= BuildingKind.BanquetTable) or (>= BuildingKind.Carpentry and <= BuildingKind.MedicineBench) => FindDecorationTemplate(kind), // 가구 5·6차, 가공대
                 _ => null
             };
         }

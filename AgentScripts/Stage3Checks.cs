@@ -57,7 +57,7 @@ public static class Stage3Checks
             Object.FindAnyObjectByType<UpkeepManager>().enabled = false;
             Object.FindAnyObjectByType<LocalIncursions>().enabled = false;
             var rm = ResourceManager.Instance;
-            foreach (Resource r in Enum.GetValues(typeof(Resource))) { rm.AddCapacity(r, 10000); rm.Add(r, 9000); }
+            foreach (Resource r in new[] { Resource.Food, Resource.Soil, Resource.Special }) { rm.AddCapacity(r, 10000); rm.Add(r, 9000); } // 재료 종류는 한도를 공유하므로 기본 3종만(2026-10-10)
             var roster = CommanderRoster.Instance; var c = roster.Commanders[0];
             foreach (var commander in roster.Commanders) commander.ApplyTraits(new CommanderTraits(CommanderPersonality.Balanced));
             c.Talents.levels[(int)CommanderActivity.Crafting] = 0; c.Talents.experience[(int)CommanderActivity.Crafting] = 0;

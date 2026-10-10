@@ -23,10 +23,10 @@ namespace AntColony.UI
                 }
                 if (history.Data.recent.Count == 0) MenuTheme.Text(content, "아직 기록된 사건이 없습니다.");
                 MenuTheme.Text(content, "누적 기록", 23, 45);
-                foreach (ResourceType resource in Enum.GetValues(typeof(ResourceType)))
+                foreach (var resource in new[] { ResourceType.Food, ResourceType.Soil, ResourceType.Special })
                 {
                     var i = (int)resource;
-                    MenuTheme.Text(content, $"{resource.DisplayName()}: 획득 {history.Data.acquired[i]} / 사용 {history.Data.spent[i]}", 18, 36);
+                    MenuTheme.Text(content, $"{(resource == ResourceType.Soil ? "재료" : resource.DisplayName())}: 획득 {history.Data.acquired[i]} / 사용 {history.Data.spent[i]}", 18, 36);
                     foreach (ResourceReason reason in Enum.GetValues(typeof(ResourceReason)))
                     {
                         var spent = history.Data.spentByReason[i * Enum.GetValues(typeof(ResourceReason)).Length + (int)reason];

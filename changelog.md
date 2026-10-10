@@ -1,3 +1,7 @@
+# 2026-10-10 SAVE(Claude) — 이전 로그 요약
+- 회귀 마무리 + 기획 확정분 4건(`56525d5`, `14efc3a`): 철거·가구 이동(작업량 = 건설 시간 × 0.5, 철거 70% 반환), 제작 생산 목록(지정 수량·재고 유지·계속 생산), 재개발 Shift 배치, 연구·제작 보조 능력 분류(Claude 초안), 창고 가득 시 반환 초과분 바닥 더미·바닥 장비 자동 운반.
+- 검사: Meal 347, AutonomousDuty 56, Spec1009 68, Spec1010 44, Stage3 107, SaveRoundtrip 57.
+
 # 2026-10-09 SAVE(밤, Claude) — 이전 로그 요약
 - Codex 점검 7건(FIX-04: 정지 시 예정지 유지·공동 건설·취소 100% 반환·작업표 5단계·PA 한도 비례 컷·고세율 이탈) + 10-08/09 외교(SPEC-J: 협상 담당·반응·역제안·인내·보류 알림·최후통첩·외교/위협 신뢰·포로 몸값/교환·압수·거리 비례 귀환·무효) + 대상 우선순위 1~9·노란/빨간 경보(`9c914fe`).
 - 검사: Spec1009 64, WorkAlert 29, AutonomousDuty 56, Stage6 59, DutyUI 63, Phase4 44, Workforce 74, Spec1008FI 29, SettlementDefense 75, SaveRoundtrip 57, Regression, DayNight 42.

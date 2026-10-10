@@ -96,8 +96,8 @@ namespace AntColony.World
                 case ColonyEvent.Drought: state.drought = EventRules.DroughtSeconds; result = "120초간 밭 성장 감소 (감로·치수 공사는 -20%)"; break;
                 case ColonyEvent.Wildfire:
                     var farms = Farms(); Burn(farms[Random.Range(0, farms.Length)]);
-                    // Phase 5: 나뭇잎·나무껍질 벽은 불에 탄다(체력 절반 피해, 잠정).
-                    foreach (var leaf in FindObjectsByType<Wall>(FindObjectsSortMode.None).Where(w => w.Flammable && !w.IsDead && Home(w.Position)).ToArray()) leaf.TakeDamage(leaf.MaxHealth * .5f);
+                    // Phase 5: 나뭇잎·나무껍질 벽은 불에 탄다(체력 절반 피해, 잠정). 2026-10-10: 가연성 재료(목재·잎·직물 등)로 지은 건물 전체.
+                    foreach (var leaf in FindObjectsByType<BuildingBase>(FindObjectsSortMode.None).Where(w => WallFire.Flammable(w) && w.CountsTowardPlayerDefeat && w.GetComponent<ResourceNode>() == null && !w.IsDead && Home(w.Position)).ToArray()) leaf.TakeDamage(leaf.MaxHealth * .5f);
                     result = "밭에 산불 발생. 흙벽·방화대로 확산을 막을 수 있습니다. 나뭇잎 벽도 탑니다."; break;
                 case ColonyEvent.Mold:
                     var healthy = HomeCommanders().Where(c => !c.PersonalState.infected).ToArray();

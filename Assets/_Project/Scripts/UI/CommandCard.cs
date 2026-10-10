@@ -107,9 +107,13 @@ namespace AntColony.UI
             Add(targetGrid, 3, "Target Clear", () => "선택 해제", () => selection?.ClearSelection(), () => "선택을 해제합니다.");
             // 철거·이동(2026-10-08): 예정지만 만들고 건설 작업이 켜진 장수가 현장에서 처리한다.
             Add(targetGrid, 4, "Target Demolish", () => "철거", () => { if (Demolition.OrderDemolish(WorkTargetPanel.Target as BuildingBase) != null) ToastManager.Show("철거 예정지를 지정했습니다."); },
-                () => $"장수가 현장에서 철거하면 건설비의 {AntColony.Core.GameBalance.DemolishRefundShare:P0}를 돌려받습니다.", () => Demolition.CanDemolish(WorkTargetPanel.Target as BuildingBase), () => WorkTargetPanel.Target is BuildingBase);
+                () => Demolition.HoldsPrisoners(WorkTargetPanel.Target as BuildingBase) ? "포로가 있는 수용소·생물이 있는 우리는 철거할 수 없습니다. 먼저 비우세요." : $"장수가 현장에서 철거하면 건설비의 {AntColony.Core.GameBalance.DemolishRefundShare:P0}를 돌려받습니다.", () => Demolition.CanDemolish(WorkTargetPanel.Target as BuildingBase), () => WorkTargetPanel.Target is BuildingBase);
             Add(targetGrid, 5, "Target Move", () => "이동", () => FindFirstObjectByType<BuildingPlacementController>()?.BeginMove(WorkTargetPanel.Target as BuildingBase),
-                () => "새 위치를 고르면 장수가 비용 없이 옮깁니다. 벽·문·바닥은 철거 후 다시 지으세요.", () => Demolition.CanMove(WorkTargetPanel.Target as BuildingBase), () => WorkTargetPanel.Target is BuildingBase);
+                () => "새 위치를 고르면 장수가 비용 없이 옮깁니다. 방 가구·장식만 옮길 수 있고 주거·벽·문·바닥·방어 시설은 철거 후 다시 지으세요.", () => Demolition.CanMove(WorkTargetPanel.Target as BuildingBase), () => WorkTargetPanel.Target is BuildingBase);
+            // 재료 개보수(2026-10-10): 새 재료를 고르면 장수가 현장에서 교체한다.
+            Add(targetGrid, 6, "Target Renovate", () => "재료", () => GameMenuController.Instance?.ShowRenovate(WorkTargetPanel.Target as BuildingBase),
+                () => WorkTargetPanel.Target is BuildingBase b && b.Data != null ? $"주재료 {b.MainMaterial.DisplayName()} — 다른 재료로 개보수합니다(완료 시 기존 재료 {AntColony.Core.GameBalance.DemolishRefundShare:P0} 반환)." : "",
+                () => Demolition.CanRenovate(WorkTargetPanel.Target as BuildingBase), () => WorkTargetPanel.Target is BuildingBase);
         }
 
         private void LateUpdate()

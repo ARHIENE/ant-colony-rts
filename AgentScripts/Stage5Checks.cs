@@ -65,7 +65,7 @@ public static class Stage5Checks
             var roster = CommanderRoster.Instance; var all = roster.Commanders.ToArray();
             var a = all[0]; var b = all[1]; var c = all[2]; var home = WorldMapManager.Instance.HomePosition;
             AntPool.Instance.Breed(300);
-            foreach (var r in Enum.GetValues(typeof(Resource)).Cast<Resource>()) { ResourceManager.Instance.AddCapacity(r, 10000); ResourceManager.Instance.Add(r, 9000); }
+            foreach (var r in new[] { Resource.Food, Resource.Soil, Resource.Special }) { ResourceManager.Instance.AddCapacity(r, 10000); ResourceManager.Instance.Add(r, 9000); } // 재료 종류는 한도를 공유하므로 기본 3종만(2026-10-10)
             foreach (var unit in all) { Traits(unit); Move(unit, home + new Vector3(15, 0, 15)); unit.PersonalState.relations.Clear(); }
             a.WorkState.duty = AntColony.Units.CommanderDuty.Deployed; // 병력은 출전 편성으로 받는다.
             Check(a.TryAssign(10), "workforce assigned"); // 4 반납 = 절반 미만, 이어서 3 반납 = 남은 6의 절반

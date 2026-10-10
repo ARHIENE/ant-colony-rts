@@ -47,12 +47,22 @@ namespace AntColony.Core
             amounts[ResourceType.Special] = Mathf.Clamp(special, 0, capacities[ResourceType.Special]);
             OnResourcesChanged?.Invoke();
         }
+        // 흙 외 재료 보유량(저장 v16). 순서는 ResourceLabels.Materials에서 흙을 뺀 것.
+        internal int[] CaptureMaterials() => System.Linq.Enumerable.ToArray(System.Linq.Enumerable.Select(OtherMaterials, GetAmount));
+        internal void RestoreMaterials(int[] values)
+        {
+            for (int i = 0; i < OtherMaterials.Length; i++) amounts[OtherMaterials[i]] = values != null && i < values.Length ? Mathf.Clamp(values[i], 0, GetCapacity(OtherMaterials[i])) : 0;
+            OnResourcesChanged?.Invoke();
+        }
+        internal static readonly ResourceType[] OtherMaterials = System.Array.FindAll(ResourceLabels.Materials, t => t != ResourceType.Soil);
 
         public int GetAmount(ResourceType type) => amounts.TryGetValue(type, out var value) ? value : 0;
-        public int GetCapacity(ResourceType type) => capacities.TryGetValue(type, out var value) ? value : 0;
+        // 재료는 종류마다 같은 한도(창고 '재료' 한도)를 쓴다.
+        public int GetCapacity(ResourceType type) => capacities.TryGetValue(type.IsMaterial() ? ResourceType.Soil : type, out var value) ? value : 0;
 
         public void AddCapacity(ResourceType type, int amount)
         {
+            if (type.IsMaterial()) type = ResourceType.Soil;
             capacities[type] = Mathf.Max(0, GetCapacity(type) + amount);
             OnResourcesChanged?.Invoke();
         }
@@ -81,6 +91,29 @@ namespace AntColony.Core
             CampaignHistory.Resource(ResourceType.Food, foodCost, true, reason);
             CampaignHistory.Resource(ResourceType.Soil, soilCost, true, reason);
             CampaignHistory.Resource(ResourceType.Special, specialCost, true, reason);
+            OnResourcesChanged?.Invoke();
+            return true;
+        }
+
+        // 주재료를 고른 비용: 식량 + 주재료 수량 + 특수. 주재료가 흙이면 기존 TrySpend와 같다.
+        public bool CanAfford(int foodCost, int materialCost, ResourceType material, int specialCost)
+            => material == ResourceType.Soil ? CanAfford(foodCost, materialCost, specialCost)
+            : material.IsMaterial() && CanAfford(foodCost, 0, specialCost) && materialCost >= 0 && GetAmount(material) >= materialCost;
+        public bool TrySpend(int foodCost, int materialCost, ResourceType material, int specialCost, ResourceReason reason = ResourceReason.Other)
+        {
+            if (material == ResourceType.Soil) return TrySpend(foodCost, materialCost, specialCost, reason);
+            if (!CanAfford(foodCost, materialCost, material, specialCost) || !TrySpend(foodCost, 0, specialCost, reason)) return false;
+            amounts[material] = GetAmount(material) - materialCost;
+            CampaignHistory.Resource(material, materialCost, true, reason);
+            OnResourcesChanged?.Invoke();
+            return true;
+        }
+        public bool TrySpend(ResourceType type, int amount, ResourceReason reason = ResourceReason.Other)
+        {
+            if (amount < 0 || GetAmount(type) < amount) return false;
+            if (amount == 0) return true;
+            amounts[type] = GetAmount(type) - amount;
+            CampaignHistory.Resource(type, amount, true, reason);
             OnResourcesChanged?.Invoke();
             return true;
         }

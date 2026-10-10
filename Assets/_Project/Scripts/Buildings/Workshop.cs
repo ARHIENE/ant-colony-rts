@@ -86,7 +86,7 @@ namespace AntColony.Buildings
             ResourceManager.Instance.Add(ResourceType.Special, Mathf.FloorToInt(cost.z * fraction), ResourceReason.Refund);
             jobs.RemoveAt(index); if (jobs.Count == 0) Release(); return true;
         }
-        private void Update() { Refill(); Tick(Time.deltaTime); }
+        private void Update() { if (Time.deltaTime > 0) Refill(); Tick(Time.deltaTime); } // 정지·협상 중(timeScale 0)에는 생산 목록도 예약하지 않는다.
         public void Tick(float seconds)
         {
             if (!(seconds > 0) || float.IsInfinity(seconds) || Ruined || IsDead || !isActiveAndEnabled || jobs.Count == 0 || Crafter == null) return;

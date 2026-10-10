@@ -49,7 +49,7 @@ public static class Spec1008FIChecks
 
             // G 포텐: 생성 시 0 <= CA <= PA <= 200, 성장은 PA를 넘지 않음, 활용 안 한 기술은 감소
             var talents = new CommanderTalents(); talents.Generate(new CommanderTraits());
-            Check(talents.potential >= talents.Current - .01f && talents.potential <= 200 && CommanderTalents.Count == 14, "PA bounds after generate");
+            Check(talents.potential >= talents.Current - .01f && talents.potential <= 200 && CommanderTalents.Count == 15, "PA bounds after generate");
             talents.potential = Mathf.CeilToInt(talents.Current); // PA 도달 상태
             var ca = talents.Current; var research = talents.Value((int)CommanderActivity.Research);
             for (int i = 0; i < 400; i++) talents.Train(CommanderActivity.Research, 5, _ => 1);
@@ -99,7 +99,7 @@ public static class Spec1008FIChecks
             // 저장 v15 왕복: PA·활용 이력·행정·재개발 보상 보존
             Object.Destroy(desk.gameObject); Object.Destroy(hut.gameObject); await Task.Delay(50);
             c.Talents.EnsurePotential(); var pa = c.Talents.potential; pop.S.redevelopCompensation = 1.3f; var admin = pop.S.adminWork;
-            Check(SaveFileV1.CurrentVersion == 15, "save v15");
+            Check(SaveFileV1.CurrentVersion >= 15, "save v15+"); // v16(2026-10-10 사육·재료·목장)
             Check(SaveSystem.TrySave(false, 1, out var error), "save " + error); await Ready();
             Check(SaveSystem.TryLoad(SaveSlots.PathFor(false, 1), out error), "load " + error); await Ready(); await Task.Delay(300);
             var loaded = CommanderRoster.Instance.Commanders.First(x => x.CommanderName == c.CommanderName);

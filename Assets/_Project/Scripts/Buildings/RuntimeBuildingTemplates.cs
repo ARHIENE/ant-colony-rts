@@ -86,6 +86,20 @@ namespace AntColony.Buildings
                 BuildingKind.CuriosDisplay => ("사람 물건 전시대", new Vector3(2, 1.4f, 1), new Color(.55f, .55f, .6f), 0, 40, 2, 0, 8f, 150f, false),
                 BuildingKind.HotSpring => ("온천", new Vector3(3, .5f, 3), new Color(.55f, .75f, .8f), 0, 60, 0, 0, 10f, 250f, false),
                 BuildingKind.BanquetTable => ("연회용 긴 식탁", new Vector3(1.5f, .8f, 5), new Color(.6f, .4f, .2f), 20, 80, 0, 0, 12f, 300f, false),
+                // 가공대(2026-10-10, 잠정)
+                BuildingKind.Carpentry => ("목공대", new Vector3(2, 1.2f, 1.5f), new Color(.6f, .45f, .3f), 0, 30, 0, 0, 6f, 200f, false),
+                BuildingKind.Stonecutter => ("석공대", new Vector3(2, 1.2f, 1.5f), new Color(.6f, .6f, .6f), 0, 40, 0, 0, 8f, 250f, false),
+                BuildingKind.Kiln => ("가마", new Vector3(2, 1.6f, 2), new Color(.65f, .4f, .3f), 0, 50, 0, 0, 10f, 300f, false),
+                BuildingKind.SpinningWheel => ("물레", new Vector3(1.5f, 1.4f, 1.5f), new Color(.75f, .65f, .45f), 0, 25, 0, 0, 6f, 150f, false),
+                BuildingKind.Smelter => ("용광로", new Vector3(2, 2.2f, 2), new Color(.4f, .3f, .3f), 0, 80, 5, 0, 14f, 400f, false),
+                // 목장(2026-10-11 개편, 잠정): 우리 표지를 벽·울타리·문으로 두른 방 안에 두면 그 방이 우리. 튼튼한 우리는 옛 저장 호환(같은 표지).
+                BuildingKind.Pen => ("우리 표지", new Vector3(.6f, .9f, .6f), new Color(.6f, .55f, .35f), 0, 10, 0, 0, 3f, 100f, false),
+                BuildingKind.StrongPen => ("우리 표지(튼튼)", new Vector3(.6f, .9f, .6f), new Color(.45f, .45f, .5f), 0, 10, 0, 0, 3f, 100f, false),
+                BuildingKind.Feeder => ("먹이통", new Vector3(1, .5f, 1), new Color(.55f, .45f, .3f), 0, 15, 0, 0, 4f, 120f, false),
+                BuildingKind.CareStation => ("돌봄대", new Vector3(1, .6f, 1), new Color(.75f, .65f, .5f), 0, 20, 0, 0, 5f, 120f, false),
+                BuildingKind.AnimalClinic => ("동물 치료대", new Vector3(1.5f, .8f, 1.5f), new Color(.85f, .85f, .8f), 0, 40, 2, 0, 8f, 150f, false),
+                BuildingKind.ButcherTable => ("도축대", new Vector3(1.5f, .9f, 1), new Color(.6f, .35f, .3f), 0, 25, 0, 0, 5f, 150f, false),
+                BuildingKind.MedicineBench => ("약제대", new Vector3(1.5f, 1, 1), new Color(.6f, .75f, .6f), 0, 30, 2, 0, 6f, 150f, false),
                 BuildingKind.Apartment => ("큰 아파트", new Vector3(3, 3.2f, 3), new Color(.62f, .62f, .66f), 0, GameBalance.ApartmentSoil, GameBalance.ApartmentSpecial, 8, 16f, 500f, false),
                 _ => (null, Vector3.one, Color.white, 0, 0, 0, 0, 0f, 0f, false)
             };
@@ -115,6 +129,9 @@ namespace AntColony.Buildings
                 BuildingKind.Dormitory => go.AddComponent<Dormitory>(),
                 BuildingKind.Kitchen => go.AddComponent<Kitchen>(),
                 BuildingKind.AdminDesk => go.AddComponent<AdminDesk>(),
+                _ when Processor.IsKind(kind) => go.AddComponent<Processor>(),
+                BuildingKind.Pen or BuildingKind.StrongPen => go.AddComponent<Ranch>(),
+                _ when RanchFacility.IsKind(kind) => go.AddComponent<RanchFacility>(),
                 _ when Decoration.IsKind(kind) => go.AddComponent<Decoration>(),
                 _ when RecreationSpot.IsKind(kind) => go.AddComponent<RecreationSpot>(),
                 BuildingKind.BigTable or BuildingKind.BanquetTable => go.AddComponent<Kitchen>(),

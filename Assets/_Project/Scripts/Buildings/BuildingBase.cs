@@ -19,9 +19,12 @@ namespace AntColony.Buildings
         // 재료 업그레이드(2026-10-05 공통 원칙): 같은 가구를 더 좋은 재료로 다시 지어 올린 단계. 재료 목록·효과가 미정이라 저장만 한다.
         // TODO 재료 목록이 정해지면 FurnitureCatalog.MaterialUpgradable 가구에 업그레이드 명령·효과를 붙인다.
         public int MaterialTier { get; set; }
-        public float MaxHealth => BaseMaxHealth * (UsesDefenseDurability ? DefenseUpgrades.DurabilityMultiplier : 1f);
-        // 저장 검증용: 연구소 내구 라인이 최고 단계일 때의 체력 상한.
-        internal float MaxPossibleHealth => BaseMaxHealth * (UsesDefenseDurability ? 1f + .2f * DefenseUpgrades.MaxLevel : 1f);
+        // 주재료(2026-10-10): 건설비의 재료 몫(soilCost)을 이 재료로 낸다. 내구도 배율·미관·단열·가연성이 재료를 따른다.
+        public ResourceType MainMaterial { get; set; } = ResourceType.Soil;
+        public MaterialInfo Material => MaterialInfo.For(MainMaterial);
+        public float MaxHealth => BaseMaxHealth * Material.durability * (UsesDefenseDurability ? DefenseUpgrades.DurabilityMultiplier : 1f);
+        // 저장 검증용: 연구소 내구 라인이 최고 단계·가장 단단한 재료일 때의 체력 상한.
+        internal float MaxPossibleHealth => BaseMaxHealth * 3f * (UsesDefenseDurability ? 1f + .2f * DefenseUpgrades.MaxLevel : 1f);
         private float BaseMaxHealth => data != null ? data.maxHealth : fallbackMaxHealth;
         // 방어시설(분사탑·흙벽)은 방어시설 연구소 내구 라인을 받는다. 기본 건물은 방어력 0이다.
         protected virtual bool UsesDefenseDurability => false;
@@ -46,14 +49,14 @@ namespace AntColony.Buildings
             }
             // 건설 중인 건물과 배치용 템플릿은 비활성 상태이므로, 완공되어 활성화된 건물만 콜로니 존속 판정에 등록된다.
             GameManager.Instance?.RegisterBuilding(this);
-            RoomSystem.MarkDirty(); // Phase 5: 벽·가구가 바뀌면 방을 다시 판정한다.
+            RoomSystem.MarkDirty(); SpaceQuality.Invalidate(); // Phase 5: 벽·가구가 바뀌면 방을 다시 판정한다.
         }
 
         protected virtual void OnDisable()
         {
             DepositPoints.Remove(this);
             GameManager.Instance?.UnregisterBuilding(this);
-            RoomSystem.MarkDirty();
+            RoomSystem.MarkDirty(); SpaceQuality.Invalidate();
         }
 
         // 저장 복원 전용. 0 이하로는 내리지 않는다(복원 중 파괴 연쇄를 일으키지 않기 위해).
@@ -71,7 +74,7 @@ namespace AntColony.Buildings
             if (currentHealth <= 0f)
             {
                 currentHealth = 0f;
-                RoomSystem.MarkDirty(); // 부서진 벽은 같은 프레임부터 방 판정에서 빠진다.
+                RoomSystem.MarkDirty(); SpaceQuality.Invalidate(); // 부서진 벽은 같은 프레임부터 방 판정에서 빠진다.
                 Die();
             }
         }

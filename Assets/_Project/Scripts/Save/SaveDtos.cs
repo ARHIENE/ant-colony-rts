@@ -32,6 +32,7 @@ namespace AntColony.Save
     public class ColonyDto
     {
         public int food, soil, special;
+        public int[] materials; // v16: 흙 외 재료 보유량(ResourceManager.OtherMaterials 순서, 옛 저장은 null = 0)
         public int foodCapacity, soilCapacity, specialCapacity;
         public bool storageResearchApplied;
         public int antsFree, antsAssigned, antsReserved;
@@ -128,6 +129,7 @@ namespace AntColony.Save
         public bool gateOpen = true; // Phase 5 성문
         public float powerCharge; // 2026-10-05 배터리 충전량
         public int materialTier; // 2026-10-05 재료 업그레이드 단계(0 = 처음 재료). 재료 목록 미정
+        public int mainMaterial = (int)Data.ResourceType.Soil; // v16 주재료(옛 저장은 흙)
         public float queenProductionRemaining; // Phase 4: 여왕방 삭제, 이전 저장 읽기용
         public float queenFishingRemaining;
         public float scienceRemaining;
@@ -137,6 +139,9 @@ namespace AntColony.Save
         public int scientist = -1;
         public Buildings.AirshipYard.State airship;
         public Buildings.Workshop.State workshop = new Buildings.Workshop.State();
+        public Buildings.Processor.State processor; // v16 가공대(옛 저장·다른 건물은 null)
+        public Buildings.Ranch.State ranch; // v16 목장 우리
+        public string ranchFacility; // 2026-10-11 먹이통·돌봄대·동물 치료대·도축대 상태(JSON)
         public List<int> patients = new List<int>();
         public bool trapArmed = true;
         public float trapBroken, trapRepair;
@@ -274,8 +279,9 @@ namespace AntColony.Save
         public float upkeepTimer, incursionTimer;
         public bool loopCompleted, bossDefeated, defeated;
         public string randomState;
-        public const int CurrentVersion = 15;
+        public const int CurrentVersion = 16;
         public List<World.Corpse.State> corpses = new List<World.Corpse.State>();
+        public List<World.Critter.State> critters; // v16 목장 생물 개체(2026-10-11 개편: 나이·배고픔·길들임·돌봄·결박 등, 옛 필드는 같은 이름으로 읽힘)
         public World.DiplomacyManager.State diplomacy;
         public Core.CampaignHistory.State history = new Core.CampaignHistory.State();
         public World.ColonyEvents.State events = new World.ColonyEvents.State();

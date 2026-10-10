@@ -92,6 +92,7 @@ namespace AntColony.Save
                 foreach (var m in f.monsters) Check(m != null && Enum.IsDefined(typeof(World.WildlifeTemperament), m.temperament), "wildlife temperament");
                 var p = f.colony;
                 Check(new[] { p.food, p.soil, p.special, p.foodCapacity, p.soilCapacity, p.specialCapacity, p.antsFree, p.antsAssigned, p.antsReserved }.All(v => v >= 0 && v <= 100000000), "colony amounts");
+                Check(p.materials == null || p.materials.Length <= AntColony.Core.ResourceManager.OtherMaterials.Length && p.materials.All(v => v >= 0 && v <= p.soilCapacity), "materials");
                 Check(p.food <= p.foodCapacity && p.soil <= p.soilCapacity && p.special <= p.specialCapacity && p.antsReserved == 0, "capacity/construction");
                 Check(V(f.camera.focus) && N(f.camera.orthoSize) && f.camera.orthoSize >= 8 && f.camera.orthoSize <= 35
                     && !float.IsNaN(f.camera.yaw) && !float.IsInfinity(f.camera.yaw) && f.camera.viewedSite >= -1 && f.camera.viewedSite < f.world.sites.Count, "camera");
@@ -121,7 +122,7 @@ namespace AntColony.Save
                         && b.decorationQuality >= 0 && b.decorationQuality <= 3 && Kitchen.Valid(b.kitchen), "workforce/repair/kitchen/decoration");
                     Check(b.key != null && V(b.position) && N(b.health) && !float.IsNaN(b.rotationY) && !float.IsInfinity(b.rotationY), "building");
                     Check(N(b.powerCharge) && b.powerCharge <= Core.GameBalance.BatteryCapacity
-                        && (b.kind == "Battery" || b.powerCharge == 0) && b.materialTier >= 0, "building power/material");
+                        && (b.kind == "Battery" || b.powerCharge == 0) && b.materialTier >= 0 && Enum.IsDefined(typeof(ResourceType), b.mainMaterial) && ((ResourceType)b.mainMaterial).IsMaterial(), "building power/material");
                     Check(new[] { b.barracksUpgradeRemaining, b.labResearchRemaining, b.queenProductionRemaining, b.queenFishingRemaining, b.scienceRemaining,
                         b.scoutRemaining, b.prisonEscapeTimer, b.towerCooldown }.All(N) && V(b.scienceSpawn), "building timers");
                     Check(b.barracksTier >= 1 && b.barracksTier <= 3 && R(b.role), "building tier/role");
@@ -191,6 +192,7 @@ namespace AntColony.Save
                 }
                 Check(f.nodes.All(n => n != null && n.key != null && N(n.amount) && N(n.regrowTimer) && N(n.sowRemaining) && n.fishMonth >= -1 && V(n.position) && Enum.IsDefined(typeof(ResourceType), n.type))
                     && f.nodes.Select(n => n.key).Distinct().Count() == f.nodes.Count, "resource nodes");
+                Check(f.critters == null || f.critters.Count <= 1000 && f.critters.All(c => c != null && Enum.IsDefined(typeof(Buildings.Species), c.species) && N(c.health) && c.health > 0 && V(c.position)), "critters");
                 Check(f.monsters.All(m => m != null && m.key != null && N(m.health) && V(m.position)) && f.monsters.Select(m => m.key).Distinct().Count() == f.monsters.Count, "monsters");
                 foreach (var m in f.monsters) if (m.traits != null)
                 { Traits(m.traits); Check(m.talents != null && m.talents.Validate(), "enemy talents"); }
@@ -214,8 +216,8 @@ namespace AntColony.Save
                     if (template != null && b.kind != "Destroyed") Check(SaveCatalog.Kind(template) == b.kind && b.health <= template.MaxPossibleHealth
                         && b.nodes.Count == template.GetComponentsInChildren<World.ResourceNode>(true).Length, "building schema");
                 }
-                Check(f.nodes.Count(n => !n.key.StartsWith("new:")) == SaveCatalog.Nodes.Length, "scene nodes");
-                foreach (var n in f.nodes) Check(n.key.StartsWith("new:") || int.TryParse(n.key, out var i) && i >= 0 && i < SaveCatalog.Nodes.Length, "node index");
+                Check(f.nodes.Count(n => !n.key.StartsWith("new:") && !n.key.StartsWith("mat:")) == SaveCatalog.Nodes.Length, "scene nodes");
+                foreach (var n in f.nodes) Check(n.key.StartsWith("new:") || n.key.StartsWith("mat:") && int.TryParse(n.key.Substring(4), out var m) && m >= 0 || int.TryParse(n.key, out var i) && i >= 0 && i < SaveCatalog.Nodes.Length, "node index");
                 Check(f.monsters.Count(m => m.key.StartsWith("monster:")) == SaveCatalog.Monsters.Length && f.monsters.Count(m => m.key.StartsWith("boss:")) == SaveCatalog.Bosses.Length, "scene enemies");
                 foreach (var m in f.monsters) { var key = m.key.Split(':'); Check(key.Length >= 2 && int.TryParse(key[1], out _), "enemy key"); var i = int.Parse(key[1]);
                     Check(i >= 0 && (key[0] == "monster" && i < SaveCatalog.Monsters.Length || key[0] == "boss" && i < SaveCatalog.Bosses.Length

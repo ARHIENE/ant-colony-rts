@@ -54,7 +54,7 @@ public static class Stage6Checks
             d.CommanderDowned(guard.Position); Check(c.enemyScore == 10, "downed commander scores for enemy");
             Check(!d.MakePeace(c), "ten minute peace delay"); d.Data.elapsed += 600;
             var rm = ResourceManager.Instance;
-            foreach (Resource type in Enum.GetValues(typeof(Resource))) { rm.AddCapacity(type, 10000); rm.Add(type, 5000); }
+            foreach (Resource type in new[] { Resource.Food, Resource.Soil, Resource.Special }) { rm.AddCapacity(type, 10000); rm.Add(type, 5000); } // 재료 종류는 한도를 공유하므로 기본 3종만(2026-10-10)
             c.enemyScore = 50; c.playerScore = 10; var food = rm.GetAmount(Resource.Food);
             Check(d.MakePeace(c) && !c.war && rm.GetAmount(Resource.Food) == food - 40, "peace pays score difference");
             Check(DiplomacyRules.Accepts(120, 100, 0) && !DiplomacyRules.Accepts(119, 100, 0), "AI threshold");

@@ -6,6 +6,7 @@ namespace AntColony.Buildings
     public sealed class SoilWall : BuildingBase
     {
         public override float Armor => GameBalance.WallArmor;
+        protected override void OnEnable() { base.OnEnable(); Wall.FitObstacle(this); }
         protected override bool UsesDefenseDurability => true;
     }
 }

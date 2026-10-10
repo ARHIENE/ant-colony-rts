@@ -41,10 +41,6 @@ namespace AntColony.Units
             Red = on;
             AntColony.UI.ToastManager.SetCrisis("red-alert", on ? "빨간 경보: 장수 전원이 식사·수면·치료·간호를 멈추고 작업합니다" : null);
         }
-        // 후보를 노란 경보만 / 대상 우선순위 높은 순 → 가까운 순으로 정렬한다.
-        public static IEnumerable<T> Rank<T>(IEnumerable<T> items, Vector3 from, bool yellowOnly) where T : Component
-            => items.Where(i => i != null && (!yellowOnly || Yellow(i))).OrderByDescending(Level).ThenBy(i => (i.transform.position - from).sqrMagnitude);
-
         // 우선순위를 지정할 수 있는 대상: 자원 노드·건물(건설 예정지 포함)·시체·야생 개체.
         public static IEnumerable<Component> Candidates()
             => ResourceNode.Available.Cast<Component>()

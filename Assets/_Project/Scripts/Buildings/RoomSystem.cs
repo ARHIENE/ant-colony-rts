@@ -23,6 +23,8 @@ namespace AntColony.Buildings
     {
         public readonly List<Vector2Int> Cells = new List<Vector2Int>();
         public readonly List<BuildingBase> Furniture = new List<BuildingBase>();
+        public readonly List<BuildingBase> Walls = new List<BuildingBase>(); // 이 방을 두른 벽·문(단열·미관, 2026-10-10)
+        public readonly List<BuildingBase> Contents = new List<BuildingBase>(); // 방 안의 모든 건물(장식·바닥 포함)
         public RoomKind Kind;
         public int Decorations, Floors;
         public bool PrisonDoor; // 경계에 창살문·잠금문이 있음(감옥 조건)
@@ -92,6 +94,10 @@ namespace AntColony.Buildings
                 Armory => RoomKind.Armory, // 무기고 가구
                 ScienceLab or ResearchLab or DefenseLab => RoomKind.Laboratory, // 연구대
                 Workshop => RoomKind.Workshop, Barracks => RoomKind.TrainingRoom, // 공방·훈련대
+                Processor p when p.Data != null && p.Data.kind == BuildingKind.MedicineBench => RoomKind.Hospital, // 약제대
+                Processor => RoomKind.ProcessingRoom, // 가공대·용광로·가마
+                RanchFacility f when f.IsButcher => RoomKind.Kitchen, // 도축대
+                Ranch or RanchFacility => RoomKind.Fishery, // 양식장·목장(우리 표지·먹이통·돌봄대·동물 치료대)
                 ConscriptionPost => RoomKind.Barracks, // 대용: 막사 가구(대기실 역할 흡수)
                 _ => RoomKind.None
             };
@@ -168,7 +174,14 @@ namespace AntColony.Buildings
             }
             foreach (var b in buildings)
             {
+                if (IsBoundary(b))
+                {
+                    foreach (var r in Footprint(b).SelectMany(Neighbours).Select(c => roomOf.TryGetValue(c, out var x) ? x : null).Where(x => x != null).Distinct())
+                        r.Walls.Add(b);
+                    continue;
+                }
                 if (!roomOf.TryGetValue(Cell(b.Position), out var room)) continue;
+                room.Contents.Add(b);
                 if (b is Decoration) room.Decorations++;
                 else if (b is FloorTile) room.Floors++;
                 else if (KindOf(b) != RoomKind.None) room.Furniture.Add(b);

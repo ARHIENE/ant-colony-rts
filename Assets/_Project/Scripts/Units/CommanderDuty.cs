@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using AntColony.Buildings;
 using AntColony.Core;
@@ -12,8 +13,8 @@ namespace AntColony.Units
     {
         None = 0, Building = 1, Crafting = 2, Research = 4, Farming = 8, Fishing = 16, Gathering = 32,
         Nursing = 64, Repair = 128, Hauling = 256, Hunting = 512, Cooking = 1024, Art = 2048,
-        Cleaning = 4096, Administration = 8192,
-        Legacy = 63, Added = Nursing | Repair | Hauling | Hunting | Cooking | Art, All = 16383
+        Cleaning = 4096, Administration = 8192, Husbandry = 16384,
+        Legacy = 63, Added = Nursing | Repair | Hauling | Hunting | Cooking | Art, All = 32767
     }
     public enum CommanderDuty { Civilian, Deployed, Returning }
 
@@ -23,9 +24,9 @@ namespace AntColony.Units
         public CommanderDuty duty;
         public float health = GameBalance.CommanderHealth, quietSeconds, recoverySeconds;
         public bool resting; // 휴식 지시: 피로가 풀릴 때까지 자율 작업을 쉰다.
-        // 작업 종류별 우선순위(작업표 비트 순서, 14칸). 0 = 금지, 1~5 = 매우 낮음~매우 높음. 이전 저장(null)은 jobs 켬=보통(3)으로 만든다.
+        // 작업 종류별 우선순위(작업표 비트 순서, 15칸). 0 = 금지, 1~5 = 매우 낮음~매우 높음. 이전 저장(null)은 jobs 켬=보통(3)으로 만든다.
         public int[] priorities;
-        public const int JobCount = 14, MaxPriority = 5, DefaultPriority = 3;
+        public const int JobCount = 15, MaxPriority = 5, DefaultPriority = 3;
         public static int Index(CommanderJobs job) { for (int i = 0; i < JobCount; i++) if ((int)job == 1 << i) return i; return -1; }
         // jobs 비트가 켬/금지의 기준이다. SetJobEnabled로 켜진 칸은 보통, 꺼진 칸은 금지로 맞춘다.
         public int Priority(CommanderJobs job)
@@ -121,7 +122,7 @@ namespace AntColony.Units
                 if (WorkState.quietSeconds >= GameBalance.AutoReturnSeconds) ReturnToPost();
                 return;
             }
-            if (TickService(seconds) || TickHunt(seconds)) return;
+            if (TickService(seconds) || TickHunt(seconds) || TickAnimalTask(seconds)) return;
             if (!IsWorking && ScienceAssignment == null && CraftingWorkshop == null) SetWorkTarget(null);
             if (ScienceAssignment != null)
             {
@@ -151,61 +152,82 @@ namespace AntColony.Units
             if (WorkState.resting && !WorkPriorities.Red) return;
             workScan -= seconds; if (workScan > 0) return; workScan = GameBalance.WorkScanSeconds;
             // ponytail: one scan per second for the small commander roster; index jobs if profiling shows contention.
-            // 노란 경보 대상 → 작업 종류 우선순위(같은 단계는 작업표 왼쪽 순서) → 대상 우선순위 1~9 → 거리. 연구는 플레이어 지시 전용이라 자율 목록에 없다.
-            var jobs = AutoJobs.Where(AllowsJob).OrderByDescending(j => WorkState.Priority(j)).ToArray();
-            foreach (var job in jobs) if (TryAutoJob(job, true)) return;
-            foreach (var job in jobs) if (TryAutoJob(job, false)) return;
+            // 노란 경보 대상 → 작업 종류 우선순위 → 대상 우선순위 1~9 → 거리. 같은 작업 우선순위 단계의 후보는 작업 종류와 무관하게 함께 비교하고,
+            // 대상 우선순위·거리까지 같을 때만 작업표 왼쪽 순서를 따른다(2026-10-10). 연구는 플레이어 지시 전용이라 자율 목록에 없다.
+            var tiers = AutoJobs.Where(AllowsJob).GroupBy(j => WorkState.Priority(j)).OrderByDescending(g => g.Key).ToArray();
+            foreach (var yellow in new[] { true, false })
+                foreach (var tier in tiers)
+                    foreach (var (_, start) in tier.SelectMany(AutoCandidates).Where(c => c.target != null && (!yellow || WorkPriorities.Yellow(c.target)))
+                        .OrderByDescending(c => WorkPriorities.Level(c.target)).ThenByDescending(c => c.target is Corpse k && k.Priority)
+                        .ThenBy(c => (c.target.transform.position - Position).sqrMagnitude))
+                        if (start()) return;
         }
         private static readonly CommanderJobs[] AutoJobs = { CommanderJobs.Nursing, CommanderJobs.Repair, CommanderJobs.Cleaning, CommanderJobs.Building, CommanderJobs.Art,
-            CommanderJobs.Crafting, CommanderJobs.Administration, CommanderJobs.Cooking, CommanderJobs.Hunting, CommanderJobs.Hauling, CommanderJobs.Farming, CommanderJobs.Fishing, CommanderJobs.Gathering };
-        private bool TryAutoJob(CommanderJobs job, bool yellow)
+            CommanderJobs.Crafting, CommanderJobs.Administration, CommanderJobs.Cooking, CommanderJobs.Hunting, CommanderJobs.Hauling, CommanderJobs.Husbandry, CommanderJobs.Farming, CommanderJobs.Fishing, CommanderJobs.Gathering };
+        // 작업 하나의 후보 대상과 착수 동작. 정렬은 TickDuty가 단계별로 모아서 한다.
+        private IEnumerable<(Component target, Func<bool> start)> AutoCandidates(CommanderJobs job)
         {
             switch (job)
             {
                 case CommanderJobs.Nursing:
-                    if (WorkPriorities.Red) return false; // 빨간 경보 중에는 간호하지 않는다.
-                    foreach (var hospital in WorkPriorities.Rank(FindObjectsByType<Infirmary>(FindObjectsSortMode.None).Where(h => h.Patients.Count > 0 && h.Nurse == null), Position, yellow))
-                        if (StartService(hospital, CommanderJobs.Nursing)) return true;
-                    return false;
+                    if (WorkPriorities.Red) yield break; // 빨간 경보 중에는 간호하지 않는다.
+                    foreach (var hospital in FindObjectsByType<Infirmary>(FindObjectsSortMode.None).Where(h => h.Patients.Count > 0 && h.Nurse == null))
+                        yield return (hospital, () => StartService(hospital, CommanderJobs.Nursing));
+                    foreach (var t in AnimalNursingTasks()) yield return t; // 동물 투약·수술(2026-10-11)
+                    yield break;
                 case CommanderJobs.Repair:
-                    foreach (var building in WorkPriorities.Rank(FindObjectsByType<BuildingBase>(FindObjectsSortMode.None).Where(BuildingRepair.Needed), Position, yellow))
-                        if (!Active.OfType<CommanderAnt>().Any(c => c != this && c.ServiceTarget == building) && StartService(building, CommanderJobs.Repair)) return true;
-                    return false;
-                case CommanderJobs.Cleaning: return FindCorpseWork(false, yellow);
+                    foreach (var building in FindObjectsByType<BuildingBase>(FindObjectsSortMode.None).Where(BuildingRepair.Needed))
+                        yield return (building, () => !Active.OfType<CommanderAnt>().Any(c => c != this && c.ServiceTarget == building) && StartService(building, CommanderJobs.Repair));
+                    yield break;
+                case CommanderJobs.Cleaning:
+                    foreach (var corpse in CorpseWorkCandidates(false)) yield return (corpse, () => StartCorpseWork(corpse, false));
+                    yield break;
                 case CommanderJobs.Building: case CommanderJobs.Art:
-                    foreach (var site in WorkPriorities.Rank(FindObjectsByType<BuildingConstructionSite>(FindObjectsSortMode.None), Position, yellow))
-                        if ((site.IsArt ? CommanderJobs.Art : CommanderJobs.Building) == job && CanReach(site.Position)) { CommandBuild(site); if (ConstructionTarget == site) return true; }
-                    return false;
+                    // 중심 대신 주변 접근 지점으로 판정한다(철거·이동 예정지는 가구가 길을 막아 중심에 닿지 못한다).
+                    foreach (var site in FindObjectsByType<BuildingConstructionSite>(FindObjectsSortMode.None).Where(s => (s.IsArt ? CommanderJobs.Art : CommanderJobs.Building) == job))
+                        yield return (site, () => { if (!TryWorkApproach(site.Position, out _)) return false; CommandBuild(site); return ConstructionTarget == site; });
+                    yield break;
                 case CommanderJobs.Crafting:
-                    foreach (var shop in WorkPriorities.Rank(FindObjectsByType<Workshop>(FindObjectsSortMode.None), Position, yellow))
-                        if (!shop.Ruined && !shop.IsDead && shop.Crafter == null && shop.Jobs.Count > 0 && GoToFacility(shop)) return true;
-                    return false;
+                    foreach (var shop in FindObjectsByType<Workshop>(FindObjectsSortMode.None))
+                        yield return (shop, () => !shop.Ruined && !shop.IsDead && shop.Crafter == null && shop.Jobs.Count > 0 && GoToFacility(shop));
+                    foreach (var processor in FindObjectsByType<Processor>(FindObjectsSortMode.None).Where(p => p.NeedsWork))
+                        yield return (processor, () => StartService(processor, CommanderJobs.Crafting));
+                    yield break;
                 case CommanderJobs.Cooking:
-                    foreach (var kitchen in WorkPriorities.Rank(FindObjectsByType<Kitchen>(FindObjectsSortMode.None).Where(k => k.NeedsCook), Position, yellow))
-                        if (!Active.OfType<CommanderAnt>().Any(c => c != this && c.ServiceTarget == kitchen) && StartService(kitchen, CommanderJobs.Cooking)) return true;
-                    return false;
+                    foreach (var kitchen in FindObjectsByType<Kitchen>(FindObjectsSortMode.None).Where(k => k.NeedsCook))
+                        yield return (kitchen, () => !Active.OfType<CommanderAnt>().Any(c => c != this && c.ServiceTarget == kitchen) && StartService(kitchen, CommanderJobs.Cooking));
+                    foreach (var t in ButcherTasks()) yield return t; // 도축대 해체(2026-10-11)
+                    yield break;
                 case CommanderJobs.Administration:
-                    foreach (var desk in WorkPriorities.Rank(FindObjectsByType<AdminDesk>(FindObjectsSortMode.None).Where(d => d.NeedsWork), Position, yellow))
-                        if (StartService(desk, CommanderJobs.Administration)) return true;
-                    return false;
+                    foreach (var desk in FindObjectsByType<AdminDesk>(FindObjectsSortMode.None).Where(d => d.NeedsWork))
+                        yield return (desk, () => StartService(desk, CommanderJobs.Administration));
+                    yield break;
+                case CommanderJobs.Husbandry: // 포획·돌봄·직접 채취·도축(2026-10-11)
+                    foreach (var t in AnimalHusbandryTasks()) yield return t;
+                    yield break;
                 case CommanderJobs.Hunting:
-                    foreach (var animal in WorkPriorities.Rank(WildMonster.All.Where(m => m.Huntable && m.HuntDesignated), Position, yellow))
-                        if (!Active.OfType<CommanderAnt>().Any(c => c != this && c.HuntTarget == animal) && StartHunt(animal)) return true;
-                    return false;
+                    foreach (var animal in WildMonster.All.Where(m => m.Huntable && m.HuntDesignated))
+                        yield return (animal, () => !Active.OfType<CommanderAnt>().Any(c => c != this && c.HuntTarget == animal) && StartHunt(animal));
+                    yield break;
             }
             if (job == CommanderJobs.Hauling)
-                foreach (var wheel in WorkPriorities.Rank(PowerNode.All.Where(p => p.NeedsRunner), Position, yellow))
-                    if (StartService(wheel, CommanderJobs.Hauling)) return true;
-            // 바닥 장비(외교 초과분·사망 장수 장비 등)를 장비 보관함으로 옮긴다. 기존 우클릭 회수 동작을 재사용.
-            if (job == CommanderJobs.Hauling && EquipmentInventory.Instance != null && !EquipmentInventory.Instance.Full)
-                foreach (var loot in WorkPriorities.Rank(FindObjectsByType<AntColony.World.EquipmentLoot>(FindObjectsSortMode.None).Where(l => l.Collector == null), Position, yellow))
-                    if (CanReach(loot.transform.position) && loot.TryCollect(this)) return true;
-            foreach (var node in WorkPriorities.Rank(ResourceNode.Available, Position, yellow))
-                if (node.CanGather && (CarriedAmount == 0 || CarriedType == node.ResourceType)
-                    && ResourceManager.Instance != null && ResourceManager.Instance.GetAmount(node.ResourceType) < ResourceManager.Instance.GetCapacity(node.ResourceType)
-                    && node.GetComponentInParent<ExpeditionSite>() == null && !node.IsRaidLoot && JobFor(node) == job
-                    && TryWorkApproach(node.transform.position, out _)) { CommandGather(node); return true; }
-            return false;
+            {
+                foreach (var wheel in PowerNode.All.Where(p => p.NeedsRunner))
+                    yield return (wheel, () => StartService(wheel, CommanderJobs.Hauling));
+                foreach (var t in AnimalHaulingTasks()) yield return t; // 생물 운반·먹이통 보충·사체 → 도축대(2026-10-11)
+                // 바닥 장비(외교 초과분·사망 장수 장비 등)를 장비 보관함으로 옮긴다. 기존 우클릭 회수 동작을 재사용.
+                if (EquipmentInventory.Instance != null && !EquipmentInventory.Instance.Full)
+                    foreach (var loot in FindObjectsByType<AntColony.World.EquipmentLoot>(FindObjectsSortMode.None).Where(l => l.Collector == null))
+                        yield return (loot, () => CanReach(loot.transform.position) && loot.TryCollect(this));
+            }
+            foreach (var node in ResourceNode.Available.Where(n => n != null && JobFor(n) == job))
+                yield return (node, () =>
+                {
+                    if (!node.CanGather || CarriedAmount != 0 && CarriedType != node.ResourceType
+                        || ResourceManager.Instance == null || ResourceManager.Instance.GetAmount(node.ResourceType) >= ResourceManager.Instance.GetCapacity(node.ResourceType)
+                        || node.GetComponentInParent<ExpeditionSite>() != null || node.IsRaidLoot || !TryWorkApproach(node.transform.position, out _)) return false;
+                    CommandGather(node); return true;
+                });
         }
         public bool IsFatigued => Fatigue >= GameBalance.TiredFatigue;
         private bool CanTakeCivilianOrder => CanReceiveOrders && !IsDeployed && !IsAwayFromHome && !LabUpgradeBusy;

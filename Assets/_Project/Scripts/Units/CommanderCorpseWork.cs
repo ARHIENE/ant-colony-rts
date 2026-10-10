@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Linq;
 using AntColony.Core;
 using AntColony.Data;
@@ -34,11 +35,11 @@ namespace AntColony.Units
         {
             if (StartCorpseWork(corpse, corpse.Data.eating)) CorpseProgress = corpse.Data.progress;
         }
-        private bool FindCorpseWork(bool eat, bool yellow = false)
+        private IEnumerable<Corpse> CorpseWorkCandidates(bool eat) => Corpse.All.Where(c => c.Available && c.Handler == null && (!eat || c.Edible)
+            && (eat || c.GetComponent<ResourceNode>() == null && c.GetComponent<CritterCarcass>() == null || c.Priority)); // 목장 사체는 도축대로(치우기 우선 지정 시만 청소)
+        private bool FindCorpseWork(bool eat)
         {
-            foreach (var corpse in Corpse.All.Where(c => c.Available && c.Handler == null && (!eat || c.Edible) && (!yellow || WorkPriorities.Yellow(c))
-                && (eat || c.GetComponent<ResourceNode>() == null || c.Priority))
-                .OrderByDescending(c => c.Priority).ThenByDescending(WorkPriorities.Level).ThenBy(c => (c.Position - Position).sqrMagnitude))
+            foreach (var corpse in CorpseWorkCandidates(eat).OrderByDescending(c => c.Priority).ThenByDescending(WorkPriorities.Level).ThenBy(c => (c.Position - Position).sqrMagnitude))
                 if (StartCorpseWork(corpse, eat)) return true;
             return false;
         }

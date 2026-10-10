@@ -10,7 +10,7 @@ namespace AntColony.UI
     // 디자인 「장수 관리」: 왼쪽 740 목록(필터·열 머리·합계) + 오른쪽 선택 장수 상세.
     public sealed partial class GameMenuController
     {
-        private static readonly string[] SkillNames = { "채집", "건설", "농사", "낚시", "제작", "연구", "근접", "원거리", "지휘", "의료", "요리", "근력", "예술", "정치" };
+        private static readonly string[] SkillNames = { "채집", "건설", "농사", "낚시", "제작", "연구", "근접", "원거리", "지휘", "의료", "요리", "근력", "예술", "정치", "사육" };
         private static readonly string[] FilterNames = { "전체", "대기", "작업 중", "원정 중", "기분 경고" };
         private int rosterFilter;
         private string rosterSearch = "";

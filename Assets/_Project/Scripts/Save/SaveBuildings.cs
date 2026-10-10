@@ -26,7 +26,7 @@ namespace AntColony.Save
             if (b is DigSite dig) d.digExpanded = dig.IsExpanded;
             if (b is Gate gate) d.gateOpen = gate.Open;
             if (b is PowerNode power) d.powerCharge = power.Charge;
-            d.materialTier = b.MaterialTier;
+            d.materialTier = b.MaterialTier; d.mainMaterial = (int)b.MainMaterial;
             if (b is AcidTower tower) d.towerCooldown = tower.Cooldown;
             if (b is AreaAcidTower areaTower) d.towerCooldown = areaTower.Cooldown;
             if (b is TrapPit trap) { d.trapArmed = trap.Armed; d.trapBroken = trap.BrokenSeconds; d.trapRepair = trap.RepairProgress; d.trapRepairPaid = trap.RepairPaid; d.trapSpikeHits = trap.SpikeHits; }
@@ -37,6 +37,9 @@ namespace AntColony.Save
                 d.scienceTier = science.Tier; d.scientist = commanders.IndexOf(science.Target); }
             if (b is AirshipYard yard) d.airship = yard.CaptureState(commanders);
             if (b is Workshop workshop) d.workshop = workshop.CaptureState(commanders);
+            if (b is Processor processor) d.processor = processor.CaptureState();
+            if (b is Ranch ranch) d.ranch = ranch.CaptureState();
+            if (b is RanchFacility facility) d.ranchFacility = facility.CaptureState();
             if (b is Infirmary infirmary) d.patients = infirmary.Patients.Select(c => commanders.IndexOf(c)).ToList();
             var scout = b.GetComponent<ScoutPost>();
             if (scout != null) { d.scoutRemaining = scout.Remaining; d.scoutDispatched = scout.IsDispatched;
@@ -88,6 +91,7 @@ namespace AntColony.Save
             if (b is Gate gate) gate.SetOpen(d.gateOpen);
             if (b is PowerNode power) power.Charge = Mathf.Clamp(d.powerCharge, 0, GameBalance.BatteryCapacity);
             b.MaterialTier = Mathf.Max(0, d.materialTier);
+            b.MainMaterial = (ResourceType)d.mainMaterial;
             if (b is AcidTower tower) tower.RestoreCooldown(d.towerCooldown);
             if (b is AreaAcidTower areaTower) areaTower.RestoreCooldown(d.towerCooldown);
             if (b is TrapPit trap) trap.RestoreState(d.trapArmed, d.trapBroken, d.trapRepair, d.trapRepairPaid, d.trapSpikeHits);
@@ -97,6 +101,9 @@ namespace AntColony.Save
                 science.RestoreAssignment(d.scienceTier, d.scientist >= 0 ? commanders[d.scientist] : null); }
             if (b is AirshipYard yard) yard.RestoreState(d.airship, commanders);
             if (b is Workshop workshop) workshop.RestoreState(d.workshop, commanders);
+            if (b is Processor processor) processor.RestoreState(d.processor);
+            if (b is Ranch ranch) ranch.RestoreState(d.ranch);
+            if (b is RanchFacility facility) facility.RestoreState(d.ranchFacility);
             if (b is Infirmary infirmary) foreach (var id in d.patients) infirmary.RestorePatient(commanders[id]);
             b.GetComponent<ScoutPost>()?.RestoreState(d.scoutDispatched, d.scoutRemaining, d.scoutDispatchedAnts, d.scoutSuccess, d.scoutFailure,
                 d.scoutCompanion >= 0 ? commanders[d.scoutCompanion] : null);

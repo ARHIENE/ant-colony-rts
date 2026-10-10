@@ -15,6 +15,7 @@ namespace AntColony.World
         public Prisoner commander;
         public float arrive;
         public string from;
+        public string to = ""; // ""면 우리 본거지로, 아니면 그 세력 id로 돌아가는 적 장수(2026-10-10 양쪽 같은 귀환 규칙)
         public List<EquipmentItem> gear = new List<EquipmentItem>(); // 반환에 합의한 압수 장비(함께 도착)
     }
     // 포획 시 압수한 장비. holder = 보관 세력 id 또는 "player". 장비 반환 협상·재정복 구출에 쓴다.
@@ -124,8 +125,22 @@ namespace AntColony.World
             foreach (var h in Data.homecomings.Where(h => h.arrive <= Data.elapsed).ToArray())
                 if (Arrive(h)) Data.homecomings.Remove(h);
         }
+        // 우리가 돌려보낸 적 장수: 우리 장수와 같은 시간(3개월 + 거리) 뒤 출신 세력에 도착해 그 세력 장수 기록으로 복귀한다.
+        internal void BeginEnemyHomecoming(Prisoner p, Civilization c, List<EquipmentItem> gear)
+        {
+            Data.homecomings.Add(new Homecoming { commander = p, arrive = Data.elapsed + HomecomingSeconds(HomeSiteOf(c)), from = "우리 소굴", to = c.id, gear = gear });
+            CampaignHistory.Record("석방", p.Name, c.name + "로 귀환 출발", true);
+        }
         private bool Arrive(Homecoming h)
         {
+            if (!string.IsNullOrEmpty(h.to))
+            {
+                var civ = Data.civilizations.Find(x => x.id == h.to);
+                if (civ != null && !civ.extinct) { civ.prisoners.Add(h.commander); civ.equipment.AddRange(h.gear); }
+                Data.seizures.RemoveAll(s => s.owner == h.commander?.PersonalState?.id);
+                CampaignHistory.Record("귀환", h.commander?.Name, civ != null && !civ.extinct ? civ.name + " 도착" : "돌아갈 세력 소멸", true);
+                return true;
+            }
             var p = h.commander; var roster = CommanderRoster.Instance; if (roster == null || p == null) return false;
             var recruit = roster.Create(p.Name, p.Rank, p.Roles, p.Roles[0], p.Traits, world.HomePosition + Vector3.right * 3);
             if (recruit == null) return false;
@@ -142,17 +157,25 @@ namespace AntColony.World
         }
 
         // 자원 수령: 창고에 들어가는 만큼 저장, 넘치면 창고(없으면 비축더미) 주변 바닥에 두고 운반 장수가 옮긴다.
-        internal static void StoreResource(ResourceType type, int amount, ResourceReason reason)
+        internal static void StoreResource(ResourceType type, int amount, ResourceReason reason) => StoreResource(type, amount, reason, null);
+        // near가 있으면 넘친 분량을 그 위치 주변 바닥에 둔다(재료 개보수 반환: 해당 건물 주변, 2026-10-10).
+        internal static void StoreResource(ResourceType type, int amount, ResourceReason reason, Vector3? near)
         {
             var rm = ResourceManager.Instance; if (rm == null || amount <= 0) return;
             var fits = Mathf.Clamp(rm.GetCapacity(type) - rm.GetAmount(type), 0, amount);
             if (fits > 0) rm.Add(type, fits, reason);
             if (amount - fits <= 0) return;
+            DropFloor(type, amount - fits, (near ?? StoragePosition()) + new Vector3(UnityEngine.Random.Range(-3f, 3f), 0, UnityEngine.Random.Range(-3f, 3f)));
+        }
+        // 바닥 물건(운반 작업 대상). 목장 바닥 생산물·먹이통 배출 등(2026-10-11).
+        internal static void DropFloor(ResourceType type, int amount, Vector3 at)
+        {
+            if (amount <= 0) return;
             var drop = GameObject.CreatePrimitive(PrimitiveType.Cube);
             drop.name = "Received " + type; drop.SetActive(false);
-            drop.transform.position = StoragePosition() + new Vector3(UnityEngine.Random.Range(-3f, 3f), .3f, UnityEngine.Random.Range(-3f, 3f));
+            drop.transform.position = new Vector3(at.x, at.y + .3f, at.z);
             drop.transform.localScale = Vector3.one * .6f;
-            drop.AddComponent<ResourceNode>().ConfigureLoot(type, amount - fits);
+            drop.AddComponent<ResourceNode>().ConfigureLoot(type, amount);
             drop.AddComponent<ResourceNodeStatus>(); drop.SetActive(true);
         }
         // 바닥 장비는 장비 전리품으로 두고 운반 작업 장수가 보관함으로 옮긴다(우클릭 회수도 가능).

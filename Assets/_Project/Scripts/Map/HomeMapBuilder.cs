@@ -121,6 +121,8 @@ namespace AntColony.Map
             MoveFishingToShore(ported, home);
             Physics.SyncTransforms();
             RebuildNavMesh();
+            MaterialDeposits.Spawn(home, scale, options.seed, options.biome); // NavMesh 위에 놓되 길은 막지 않는다(트리거).
+            if (GameSession.Instance.PendingLoad == null) AntColony.World.Critter.SpawnWild(home, options.seed); // 불러오기는 저장된 개체를 되살린다
             PlaceHomeThreats(home);
             ApplyCameraBounds();
             Rebuilt = true;

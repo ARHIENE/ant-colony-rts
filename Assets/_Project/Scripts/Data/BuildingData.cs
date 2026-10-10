@@ -52,7 +52,13 @@ namespace AntColony.Data
         Brazier, Lantern, Torch, Carpet, Tapestry, Monument, BronzeStatue, TrophyCase, CuriosDisplay,
         HotSpring, BanquetTable,
         SpikeTrap, // 2026-10-07 가시 함정(반복 피해). 기존 TrapPit은 끈끈이 함정(속박)
-        AdminDesk // 2026-10-08 행정 시설(이름·비용 잠정)
+        AdminDesk, // 2026-10-08 행정 시설(이름·비용 잠정)
+        // 2026-10-10 자원 분화: 가공대(목공대·석공대·가마·물레·용광로)
+        Carpentry, Stonecutter, Kiln, SpinningWheel, Smelter,
+        // 2026-10-10 목장: 우리 표지(튼튼한 우리는 옛 저장 호환용, 같은 동작)
+        Pen, StrongPen,
+        // 2026-10-11 목장 시설·약제대(동물용 의약품·수술 키트)
+        Feeder, CareStation, AnimalClinic, ButcherTable, MedicineBench
     }
 
     [CreateAssetMenu(fileName = "BuildingData", menuName = "AntColony/Building Data")]

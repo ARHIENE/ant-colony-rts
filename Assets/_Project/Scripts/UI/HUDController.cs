@@ -242,10 +242,18 @@ namespace AntColony.UI
             string Tip(ResourceType type, string label) => $"{label} {rm.GetAmount(type):N0} / 저장 한도 {rm.GetCapacity(type):N0}";
             resourceTexts[0].text = $"<color=#e5bd6b>식량</color> <b>{rm.GetAmount(ResourceType.Food):N0}</b>";
             resourceTexts[0].transform.parent.GetComponent<MenuTooltip>().Message = Tip(ResourceType.Food, "식량");
-            resourceTexts[1].text = $"<color=#968976>재료</color> <b>{rm.GetAmount(ResourceType.Soil):N0}</b> ▾";
-            var list = $"{Tip(ResourceType.Soil, "재료")}\n{Tip(ResourceType.Special, "특수")}";
-            resourceTexts[1].transform.parent.GetComponent<MenuTooltip>().Message = "재료 종류는 미정입니다.\n" + list;
-            materialsList.GetComponentInChildren<Text>().text = "<b>자원</b> (재료 종류 미정)\n" + list;
+            // 재료 종류별 보유량(2026-10-10 자원 분화). 상단 숫자는 재료 합계, 목록은 가진 재료만(흙은 항상).
+            int total = 0; var list = new System.Text.StringBuilder();
+            foreach (var m in ResourceLabels.Materials)
+            {
+                var amount = rm.GetAmount(m); total += amount;
+                if (amount > 0 || m == ResourceType.Soil) list.Append(m.DisplayName()).Append(' ').Append(amount.ToString("N0")).Append('\n');
+            }
+            list.Append($"특수 {rm.GetAmount(ResourceType.Special):N0} / {rm.GetCapacity(ResourceType.Special):N0}");
+            resourceTexts[1].text = $"<color=#968976>재료</color> <b>{total:N0}</b> ▾";
+            resourceTexts[1].transform.parent.GetComponent<MenuTooltip>().Message = $"재료 종류별 저장 한도 {rm.GetCapacity(ResourceType.Soil):N0}\n" + list;
+            materialsList.GetComponentInChildren<Text>().text = $"<b>재료</b> <color=#968976>(종류별 한도 {rm.GetCapacity(ResourceType.Soil):N0})</color>\n" + list;
+            materialsList.sizeDelta = new Vector2(200, 34 + 16 * list.ToString().Split('\n').Length);
             var pool = AntPool.Instance;
             if (pool == null) return;
             // Phase 4: 인구 = 어린·성체·늙은 개미 합. 숫자 색 = 민심, 막대 = 이주 수요. 내역은 도움말로.

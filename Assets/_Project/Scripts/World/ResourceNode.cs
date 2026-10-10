@@ -151,6 +151,13 @@ namespace AntColony.World
             ownerColony = null;
         }
 
+        // 원재료 노드(2026-10-10) 전용. regrow > 0이면 다 캔 뒤 같은 양으로 다시 자란다(식물). 활성화 전에 호출.
+        public void ConfigureNatural(ResourceType type, float amount, float regrow)
+        {
+            IsLooseCargo = false; resourceType = type; amountRemaining = Mathf.Max(0f, amount);
+            regrowSeconds = Mathf.Max(0f, regrow); regrowAmount = regrow > 0 ? amountRemaining : 0f; requiresFishing = false; ownerColony = null;
+        }
+
         // 저장 복원 전용. 잔량과 재성장 타이머를 그대로 되돌린다.
         internal void RestoreState(float amount, float timer, float sow = 0f)
         {
@@ -162,6 +169,17 @@ namespace AntColony.World
         }
 
         internal float RegrowTimer => regrowTimer;
+
+        // 목장 생물이 밭 작물을 먹는다(2026-10-11): 다 자란 작물은 수확량이 줄고, 반 이상 자란 작물은 성장이 되돌아간다. 다 먹히면 다시 파종해야 한다.
+        public bool CropEdible => isActiveAndEnabled && IsFarm && !NeedsSowing && (!IsRegrowing ? amountRemaining > DepletedEpsilon : regrowTimer <= regrowSeconds * .5f);
+        public bool EatCrop(float amount)
+        {
+            if (!CropEdible) return false;
+            if (IsRegrowing) { BurnCrop(amount / Mathf.Max(1f, regrowAmount)); if (regrowTimer >= regrowSeconds) sowRemaining = GameBalance.SowSeconds; return true; }
+            amountRemaining = Mathf.Max(0, amountRemaining - amount);
+            if (IsDepleted) { regrowTimer = regrowSeconds; sowRemaining = GameBalance.SowSeconds; BountifulHarvest = false; }
+            return true;
+        }
 
         public void AddStock(float amount)
         {

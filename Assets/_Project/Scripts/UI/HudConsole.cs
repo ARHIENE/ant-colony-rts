@@ -153,7 +153,7 @@ namespace AntColony.UI
                 foreach (var n in FindObjectsByType<AntColony.World.ResourceNode>(FindObjectsSortMode.None))
                     if (n.isActiveAndEnabled && !n.IsDepleted)
                         Dot(n.transform.position, n.ResourceType == AntColony.Data.ResourceType.Food ? MenuTheme.Hex(0xe5bd6b)
-                            : n.ResourceType == AntColony.Data.ResourceType.Soil ? MenuTheme.Hex(0xc49a74) : MenuTheme.Hex(0xb9a2f2), 4);
+                            : AntColony.Data.ResourceLabels.IsMaterial(n.ResourceType) ? MenuTheme.Hex(0xc49a74) : MenuTheme.Hex(0xb9a2f2), 4);
             if (Filters[(int)Filter.Wild])
                 foreach (var m in FindObjectsByType<AntColony.World.WildMonster>(FindObjectsSortMode.None))
                     if (!m.IsDead && !(m is AntColony.World.EnemyCommander)) Dot(m.transform.position, WildColor(m), 5);
