@@ -9,7 +9,7 @@ using UnityEngine;
 namespace AntColony.Buildings
 {
     // 가공대(2026-10-10 자원 분화): 원재료 → 가공품. 기본 2단계(원재료→가공품), 고급 3단계(광석→금속→강철).
-    // 공방과 같은 생산 목록(지정 수량 / 재고 유지 / 계속 생산)을 쓰고, 작업표 '제작'이 허용된 장수가 와서 작업한다.
+    // 공방과 같은 생산 목록(지정 수량 / 재고 유지 / 계속 생산)을 쓰고, 작업표 '제작'(약제대는 '간호(의료)')이 허용된 장수가 와서 작업한다.
     // 한 번에 한 묶음만 진행하며 재료는 묶음을 시작할 때 차감한다(목록 삭제는 진행 중인 묶음을 취소하지 않는다).
     public sealed class Processor : BuildingBase
     {
@@ -34,12 +34,16 @@ namespace AntColony.Buildings
             BuildingKind.Smelter => new[] { new Recipe("철", ResourceType.Iron, 1, 14, CommanderActivity.Strength, (ResourceType.IronOre, 2), (ResourceType.Coal, 1)),
                 new Recipe("구리", ResourceType.Copper, 1, 14, CommanderActivity.Strength, (ResourceType.CopperOre, 2), (ResourceType.Coal, 1)),
                 new Recipe("강철", ResourceType.Steel, 1, 20, CommanderActivity.Strength, (ResourceType.Iron, 2), (ResourceType.Coal, 1)) },
-            // 약제대(2026-10-11): 동물용 의약품·동물 수술 키트(장수용 약과 별도 자원, 재료는 잠정)
-            BuildingKind.MedicineBench => new[] { new Recipe("동물용 의약품", ResourceType.AnimalMedicine, 1, 8, CommanderActivity.Medicine, (ResourceType.Leaf, 2), (ResourceType.Honeydew, 1)),
-                new Recipe("동물 수술 키트", ResourceType.SurgeryKit, 1, 14, CommanderActivity.Medicine, (ResourceType.Cloth, 1), (ResourceType.Cobweb, 2), (ResourceType.Chitin, 1)) },
+            // 약제대(2026-10-11): 동물용 의약품·동물 수술 키트(장수용 약과 별도 자원, 재료는 잠정). 의료 능력만 사용(보조 기술 없음).
+            BuildingKind.MedicineBench => new[] { new Recipe("동물용 의약품", ResourceType.AnimalMedicine, 1, 8, null, (ResourceType.Leaf, 2), (ResourceType.Honeydew, 1)),
+                new Recipe("동물 수술 키트", ResourceType.SurgeryKit, 1, 14, null, (ResourceType.Cloth, 1), (ResourceType.Cobweb, 2), (ResourceType.Chitin, 1)) },
             _ => Array.Empty<Recipe>()
         };
         public static bool IsKind(BuildingKind kind) => RecipesFor(kind).Length > 0;
+        // 약제대는 간호(의료) 작업·의료 능력, 나머지 가공대는 제작 작업·제작 능력(2026-10-11 사용자 확정: 간호 작업 = 기획의 의료 작업).
+        public bool IsMedical => Data != null && Data.kind == BuildingKind.MedicineBench;
+        public CommanderJobs Job => IsMedical ? CommanderJobs.Nursing : CommanderJobs.Crafting;
+        public CommanderActivity Skill => IsMedical ? CommanderActivity.Medicine : CommanderActivity.Crafting;
 
         [Serializable] public class Order { public int recipe; public Workshop.OrderMode mode; public int amount = 1; }
         [Serializable] public class State { public List<Order> orders = new List<Order>(); public int current = -1; public float progress; }
@@ -80,8 +84,8 @@ namespace AntColony.Buildings
             if (!NeedsWork || !(seconds > 0) || float.IsInfinity(seconds)) return false;
             if (Current == null && !StartNext()) return false;
             var r = Current;
-            state.progress += c.WorkRate(CommanderActivity.Crafting) * seconds;
-            c.GainExperience(CommanderActivity.Crafting, seconds, r.support);
+            state.progress += c.WorkRate(Skill) * seconds; // 능력은 속도만 보정(산출·품질 동일)
+            c.GainExperience(Skill, seconds, IsMedical ? Skill : r.support); // 약제대 생산은 의료만(보조 기술 연결 없음)
             if (state.progress < r.work) return true;
             state.current = -1; state.progress = 0;
             AntColony.World.DiplomacyManager.StoreResource(r.output, r.amount, ResourceReason.Production); // 창고가 차면 바닥 더미

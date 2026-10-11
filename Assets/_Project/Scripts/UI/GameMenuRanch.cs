@@ -7,10 +7,14 @@ using AntColony.World;
 
 namespace AntColony.UI
 {
-    // 목장 화면(2026-10-11 개편): 우리 관리(자동 치료·채취, 종별 자동 돌봄·목표 마릿수·자동 도축·받을 종), 개체 관리, 먹이통 설정.
+    // 목장 화면(2026-10-11 개편): 우리 관리(자동 치료·채취, 종별 자동 돌봄·목표 마릿수·받을 종), 개체 목록·일괄 요청(GameMenuRanchBulk.cs), 개체 관리(이름·도축·수술·방생), 먹이통, 도축대.
+    // 자동 도축·도축 금지 설정은 폐기(2026-10-11 기획). 도축·방생은 두 번 눌러 확인한다.
     public sealed partial class GameMenuController
     {
         private object pendingRelease; // 방생 확인(두 번 누르면 실행)
+        private object pendingSlaughter; // 도축 요청 확인(두 번 누르면 실행)
+        // 확인창: 실제 적용 대상의 이름·마릿수(같은 이름은 묶어서).
+        private static string Names(System.Collections.Generic.IList<Critter> list) => string.Join(", ", list.GroupBy(a => a.DisplayName).Select(g => $"{g.Key} {g.Count()}마리"));
 
         public void ShowRanch(Ranch r)
         {
@@ -28,32 +32,41 @@ namespace AntColony.UI
                 MenuTheme.Button(content, $"{info.name} 받기: {(r.Accepts(sp) ? "허용" : "금지")}", () => { r.ToggleAccept(sp); ShowRanch(r); });
                 if (!known && list.Count == 0) continue;
                 var st = r.Setting(sp);
-                MenuTheme.Text(content, $"{info.name}({SpeciesInfo.TemperName(info.temper)}{(info.tameable ? "" : " · 길들이기 불가")}) — 성체 {list.Count(a => a.Stage != CritterStage.Baby)} · 새끼 {list.Count(a => a.Stage == CritterStage.Baby)} · 길들임 {list.Count(a => a.Tame)} · 굶주림 {list.Count(a => a.Starving)}", 16, 30);
+                MenuTheme.Text(content, $"{info.name}({SpeciesInfo.TemperName(info.temper)}{(info.tameable ? "" : " · 길들이기 불가")}) — 성체 {list.Count(a => a.Stage != CritterStage.Baby)} · 새끼 {list.Count(a => a.Stage == CritterStage.Baby)} · 길들임 {list.Count(a => a.Tame)} · 굶주림 {list.Count(a => a.Starving)} · 목표 {st.target}(현황·초과 알림)", 16, 30);
                 MenuTheme.Button(content, $"  목표 {st.target}마리 (−)", () => { st.target = System.Math.Max(0, st.target - 1); ShowRanch(r); });
                 MenuTheme.Button(content, $"  목표 {st.target}마리 (+)", () => { st.target++; ShowRanch(r); });
                 MenuTheme.Button(content, $"  자동 돌봄: {(st.autoCare ? "켬" : "끔")}", () => { st.autoCare = !st.autoCare; ShowRanch(r); });
-                MenuTheme.Button(content, $"  목표 초과분 자동 도축: {(st.autoSlaughter ? "켬" : "끔")}", () => { st.autoSlaughter = !st.autoSlaughter; ShowRanch(r); });
-                if (list.Count > 0)
-                    MenuTheme.Button(content, Equals(pendingRelease, (r, sp)) ? $"  <color=#d9534f>정말 {list.Count}마리 방생?</color> (다시 누르면 즉시 사라짐)" : $"  {info.name} 전부 방생({list.Count}마리)",
-                        () => { if (Equals(pendingRelease, (r, sp))) { foreach (var a in list) a.Release(); pendingRelease = null; } else pendingRelease = (r, sp); ShowRanch(r); });
             }
+            RanchList(r); // 개체 목록·필터·정렬·일괄 요청(GameMenuRanchBulk.cs)
             MenuTheme.Button(content, "새로고침", () => ShowRanch(r));
             MenuTheme.Button(content, "게임 재개", Resume);
+        }
+
+        // 치료 시설 상태 한 줄(WorkTargetPanel·개체 화면 공용).
+        public static string ClinicStatus(Critter a)
+        {
+            var surgeon = a.Handler != null && a.Handler.AnimalJob == AnimalTask.Surgery ? a.Handler : null;
+            if (a.SurgeryStarted) return $"{a.DisplayName} 수술 중 {a.SurgeryFraction:P0} · " + (surgeon != null ? $"집도의 {surgeon.CommanderName} · 예상 성공 {a.PredictedSuccess(surgeon):P0}" : "집도의 대기(다른 의료 장수가 이어받음, 배고픔 진행)");
+            if (a.AwaitingDecision) return $"{a.DisplayName} 수술 실패 · 후유증 {a.Sequelae} — 재수술 또는 우리 복귀 선택 대기(배고픔 진행)";
+            if (a.Recovering) return $"{a.DisplayName} " + (a.HeavyInjury ? "회복 중 새 중상 — 새 수술 필요(회복 정지)" : $"회복 중 · 남은 {a.RecoveryLeft / GameCalendar.SecondsPerMonth:0.00}개월(배고픔 정지)");
+            if (a.HeavyInjury) return $"{a.DisplayName} 수술 대기";
+            return $"{a.DisplayName} " + (a.TransportTo != null ? $"복귀 대기 → {a.TransportTo.Data.displayName}" : "복귀할 우리 필요(개체 화면에서 지정)");
         }
 
         public void ShowCritter(Critter a)
         {
             if (a == null || a.Monster == null || a.Monster.IsDead) { Resume(); return; }
             var info = a.Info;
-            Screen($"{info.name} / 개체");
-            var where = a.Clinic != null ? (a.SurgeryStarted ? $"수술 중 {a.SurgeryProgress:0.#}/{GameBalance.CritterSurgerySeconds}" : a.TransportTo == null ? "치료대 — 복귀할 우리 필요" : "치료대 — 복귀 대기")
-                : a.Carrier != null ? $"운반 중({a.Carrier.CommanderName})" : a.Bound ? "결박됨" : a.Pen == null ? "야생" : a.InOperatingPen ? a.Pen.Data.displayName : "뚫린 우리 / 우리 밖";
+            Screen($"{a.DisplayName} / 개체");
+            var where = a.Clinic != null ? ClinicStatus(a)
+                : a.Carrier != null ? $"운반 중({a.Carrier.CommanderName})" : a.Bound ? "결박됨" : a.Pen == null ? (a.Recovering ? "시설 밖 회복 정지 — 빈 치료대 재입원 대기" : "야생") : a.InOperatingPen ? a.Pen.Data.displayName : "뚫린 우리 / 우리 밖";
             MenuTheme.Text(content, $"{SpeciesInfo.TemperName(info.temper)} · {a.StageName} {a.Age:0.#}개월 · " + (a.Tame ? "길들임" : info.tameable ? $"야생(길들이기 {a.TameProgress:P0})" : "야생(길들이기 불가)")
-                + $" · 배고픔 {a.Hunger:0} · 체력 {a.HealthFraction:P0}{(a.HeavyInjury ? " 중상" : a.Injured ? " 경상" : "")}{(a.Medicated > 0 ? " · 투약 중" : "")}", 17, 45);
+                + $" · 배고픔 {a.Hunger:0} · 체력 {a.HealthFraction:P0}{(a.HeavyInjury ? " 중상" : a.Injured ? " 경상" : "")}{(a.Medicated > 0 ? " · 투약 효과 중" : "")}{(a.Sequelae > 0 ? $" · <color=#d9534f>{a.SequelaEffect}</color>" : "")}", 17, 45);
             MenuTheme.Text(content, $"{where} · 돌봄 효과 {(a.CareRemaining > 0 ? $"{a.CareRemaining:0}초" : "없음")}{(a.CareBlocked ? " · <color=#d9534f>자동 돌봄 재시도 중지</color>" : "")} · 직접 채취 {info.direct.DisplayName()} {a.DirectStock:0.#}"
-                + (a.TransportTo != null ? $" · 운반 요청: {a.TransportTo.Data.displayName}" : ""), 16, 40);
-            if (!a.Tame && !a.Bound && a.Carrier == null && a.Clinic == null)
-                MenuTheme.Button(content, a.CaptureDesignated ? "포획 지정 취소" : "포획 지정(사육 장수가 붙잡아 현장에 결박)", () => { a.CaptureDesignated = !a.CaptureDesignated; ShowCritter(a); });
+                + (a.TransportTo != null ? $" · 운반 요청: {a.TransportTo.Data.displayName}" : "") + (a.Handler != null ? $" · 담당 {a.Handler.CommanderName}" : ""), 16, 40);
+            RenameField(a);
+            if (!a.Bound && a.Carrier == null && a.Clinic == null)
+                MenuTheme.Button(content, a.CaptureDesignated ? "포획 요청 취소" : a.Tame ? "포획 요청(길들인 개체는 저항 없이 바로 결박)" : "포획 요청(사육 장수가 붙잡아 현장에 결박)", () => { a.CaptureDesignated = !a.CaptureDesignated; ShowCritter(a); });
             // 운반: 해당 종을 받는 우리를 목적지로(과밀은 제한 사유가 아님). 결박·쓰러짐·길들임·치료 후 대기 개체만.
             if (a.Carriable || a.Carrier != null)
             {
@@ -61,16 +74,16 @@ namespace AntColony.UI
                     MenuTheme.Button(content, $"운반: {pen.Data.displayName} ({pen.Cells}칸, {pen.Animals.Count()}마리)", () => { a.TransportTo = pen; ShowCritter(a); });
                 if (a.TransportTo != null) MenuTheme.Button(content, "운반 취소(대기 개체는 그대로, 운반 중이면 그 자리에 내려놓음)", () => { a.TransportTo = null; a.Carrier?.DropCarriedCritter(); ShowCritter(a); });
             }
-            else if (a.TransportTo == null) MenuTheme.Text(content, "운반하려면 먼저 포획해 결박하세요(길들인·쓰러진 개체는 바로 운반).", 15, 30);
+            else if (a.TransportTo == null && a.Clinic == null) MenuTheme.Text(content, "운반은 결박되거나 쓰러진 개체만 — 먼저 포획 요청하세요.", 15, 30);
             if (a.InOperatingPen)
             {
                 MenuTheme.Button(content, a.CareOrder ? "돌봄 1회 지시됨" : "돌봄 1회 지시", () => { a.CareOrder = true; ShowCritter(a); });
                 if (a.CareBlocked) MenuTheme.Button(content, "돌봄 재허용", () => { a.CareBlocked = false; ShowCritter(a); });
             }
-            if (a.Injured) MenuTheme.Button(content, a.TreatOrder ? "치료 지시됨" : "치료 지시(경상 투약 / 중상 수술)", () => { a.TreatOrder = true; ShowCritter(a); });
-            MenuTheme.Button(content, $"도축 금지: {(a.ProtectSlaughter ? "켬" : "끔")}", () => { a.ProtectSlaughter = !a.ProtectSlaughter; ShowCritter(a); });
+            MedicalSection(a);
+            SlaughterSection(a);
             // 위험한 야생 개체: 다룰 장수를 유저가 고른다(성공 보장 없음).
-            if (!a.Tame && !a.Downed)
+            if (!a.Tame && !a.Downed && a.Clinic == null)
             {
                 MenuTheme.Text(content, a.ApprovedId != "" ? "<color=#f2c94c>위험 작업 장수 지정됨</color>" : "위험한 작업(포획·돌봄·채취·도축·치료)은 장수를 골라 지시합니다.", 15, 30);
                 foreach (var c in SortedCommanders().Where(c => c.AllowsJob(CommanderJobs.Husbandry) || c.AllowsJob(CommanderJobs.Nursing)))
@@ -80,9 +93,76 @@ namespace AntColony.UI
                         () => { a.ApprovedId = picked.PersonalState.id; ShowCritter(a); });
                 }
             }
-            MenuTheme.Button(content, ReferenceEquals(pendingRelease, a) ? "<color=#d9534f>정말 방생?</color> (다시 누르면 즉시 사라짐)" : "방생",
-                () => { if (ReferenceEquals(pendingRelease, a)) { pendingRelease = null; a.Release(); Resume(); } else { pendingRelease = a; ShowCritter(a); } });
+            if (a.CanRelease)
+                MenuTheme.Button(content, ReferenceEquals(pendingRelease, a) ? $"<color=#d9534f>정말 {a.DisplayName} 방생?</color> (다시 누르면 즉시 사라짐)" : "방생",
+                    () => { if (ReferenceEquals(pendingRelease, a)) { pendingRelease = null; a.Release(); Resume(); } else { pendingRelease = a; ShowCritter(a); } });
+            else MenuTheme.Text(content, "치료 시설 안에서는 방생할 수 없습니다(우리로 복귀한 뒤 가능).", 15, 30);
             MenuTheme.Button(content, "새로고침", () => ShowCritter(a));
+            MenuTheme.Button(content, "게임 재개", Resume);
+        }
+
+        // 개별 도축 요청·취소. 실제 도축을 시작하면 취소 불가.
+        private void SlaughterSection(Critter a)
+        {
+            if (a.SlaughterStarted) { MenuTheme.Text(content, "<color=#d9534f>도축 중 — 취소할 수 없습니다.</color>", 15, 30); return; }
+            if (a.SlaughterOrdered) { MenuTheme.Button(content, "도축 요청 취소" + (a.Bound ? "(이미 결박됐으면 결박은 유지)" : ""), () => { a.CancelSlaughter(); ShowCritter(a); }); return; }
+            if (a.SlaughterBlock != null) { MenuTheme.Text(content, $"도축 요청 불가: {a.SlaughterBlock}", 15, 30); return; }
+            MenuTheme.Button(content, ReferenceEquals(pendingSlaughter, a) ? $"<color=#d9534f>도축 요청 확인: {a.DisplayName} — 1마리</color> (다시 누르면 요청)" : "도축 요청(사육 장수가 현장 도축, 야생은 먼저 포획)",
+                () => { if (ReferenceEquals(pendingSlaughter, a)) { a.RequestSlaughter(); pendingSlaughter = null; } else pendingSlaughter = a; ShowCritter(a); });
+        }
+
+        // 치료: 경상 투약 / 중상 수술(고위험 첫 수술·재수술은 집도의 지정) / 실패 후 재수술·복귀 선택. 재고는 예약분을 뺀 사용 가능 수량.
+        private void MedicalSection(Critter a)
+        {
+            int Avail(ResourceType t) => AnimalMedicalStock.Available(t);
+            string Stock(ResourceType t, string n) => $"{n} 사용 가능 {Avail(t)}(예약 {AnimalMedicalStock.Reserved(t)})" + (Avail(t) < 1 ? " <color=#d9534f>부족</color>" : "");
+            if (a.Injured || a.Clinic != null || a.Recovering)
+                MenuTheme.Text(content, Stock(ResourceType.AnimalMedicine, "동물용 의약품") + " · " + Stock(ResourceType.SurgeryKit, "수술 키트") + (a.HeavyInjury && !a.SurgeryStarted ? " · 수술 1회에 키트 1개" : ""), 15, 30);
+            if (a.Injured && a.Clinic == null)
+                MenuTheme.Button(content, a.TreatOrder ? "치료 지시됨" : "치료 지시(경상 투약 / 중상 수술)", () => { a.TreatOrder = true; ShowCritter(a); });
+            void Surgeons(string verb, System.Action<CommanderAnt> pick)
+            {
+                foreach (var c in Critter.Surgeons.OrderByDescending(a.PredictedSuccess))
+                {
+                    var picked = c;
+                    MenuTheme.Button(content, $"{verb}: {c.CommanderName} · 의료 {c.Talents.Level(CommanderActivity.Medicine)} · 예상 성공 {a.PredictedSuccess(c):P0} · 사망 위험 {a.PredictedDeath(c):P0}" + (a.SurgeonId == c.PersonalState.id ? " (지정됨)" : ""), () => { pick(picked); ShowCritter(a); });
+                }
+            }
+            if (a.AwaitingDecision)
+            {
+                MenuTheme.Text(content, $"<color=#d9534f>수술 실패 · 후유증 {a.Sequelae}</color> — 재수술(새 키트 필요, 성공률↓·사망 위험↑) 또는 원래 우리 복귀를 고르세요.", 15, 30);
+                Surgeons("재수술", c => a.OrderResurgery(c));
+                MenuTheme.Button(content, "우리 복귀(부상 유지)", () => { a.ChooseReturn(); ShowCritter(a); });
+                return;
+            }
+            if (!a.HeavyInjury || a.SurgeryStarted) return;
+            if (a.SurgeryNeedsManual)
+            {
+                MenuTheme.Text(content, (a.Sequelae > 0 ? "재수술" : "고위험 수술") + $"(가장 유능한 의료 장수 기준 예상 성공 {a.BestPredictedSuccess:P0}) — 집도의를 지정해야 시작합니다.", 15, 30);
+                Surgeons("집도의 지정", c => { a.SurgeonId = c.PersonalState.id; a.TreatOrder = true; });
+            }
+            else MenuTheme.Text(content, $"예상 성공 {a.BestPredictedSuccess:P0}(가장 유능한 의료 장수 기준) — 자동 치료 또는 치료 지시로 시작", 15, 30);
+        }
+
+        public void ShowButcher(RanchFacility f)
+        {
+            if (f == null || !f.IsButcher) { Resume(); return; }
+            Screen(f.Data.displayName + " / 도축대");
+            MenuTheme.Text(content, f.Paused ? "<color=#f2c94c>일시정지</color> — 사체·진행도 보존. 새 운반·해체는 시작하지 않고, 이미 운반 중인 사체는 받습니다."
+                : "운반 장수가 허용한 종의 사체를 옮기고 요리 작업 장수가 등록 순서대로 해체합니다. 요리 능력은 속도에만 영향, 생산물은 도축대 옆 바닥에 생깁니다.", 16, 50);
+            MenuTheme.Button(content, f.Paused ? "재개(진행도 이어서)" : "일시정지", () => { f.Paused = !f.Paused; ShowButcher(f); });
+            foreach (var sp in System.Enum.GetValues(typeof(Species)).Cast<Species>())
+            {
+                var s = sp;
+                MenuTheme.Button(content, $"{SpeciesInfo.For(sp).name} 사체: {(f.AllowsSpecies(sp) ? "허용" : "금지")}" + (f.AllowsSpecies(sp) ? " (금지하면 대기 중인 이 종 사체는 옆 바닥에 내려놓음)" : ""), () => { f.ToggleSpecies(s); ShowButcher(f); });
+            }
+            MenuTheme.Text(content, $"대기열 {f.Carcasses}구", 17, 30);
+            for (var i = 0; i < f.Queue.Count; i++)
+            {
+                var e = f.Queue[i]; var name = System.Enum.IsDefined(typeof(Species), e.species) ? SpeciesInfo.For((Species)e.species).name : "종 미상(옛 저장)";
+                MenuTheme.Text(content, $"{i + 1}. {name} · 고기 {e.meat:0} · 갑각 {e.chitin}" + (i == 0 && f.ButcherProgress > 0 ? $" · 해체 {f.ButcherProgress / GameBalance.ButcherSeconds:P0}" : ""), 15, 26);
+            }
+            MenuTheme.Button(content, "새로고침", () => ShowButcher(f));
             MenuTheme.Button(content, "게임 재개", Resume);
         }
 

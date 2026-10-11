@@ -88,8 +88,12 @@ namespace AntColony.UI
             {
                 if (facility.IsFeeder) { label.text = "먹이통 설정"; instruction.text = string.Join(" · ", facility.FeedTypes.Where(t => facility.Stock(t) >= 1 || facility.Allowed(t)).Select(t => $"{t.DisplayName()} {facility.Stock(t):0}/{facility.Target(t)}")); }
                 else if (facility.IsCareStation) instruction.text = "같은 우리의 생물을 사육 장수가 한 마리씩 불러 돌봅니다." + (facility.Worker != null ? $" 돌보는 중: {facility.Worker.CommanderName}" : "");
-                else if (facility.IsClinic) instruction.text = facility.Patient is Critter p ? $"{p.Info.name} " + (p.SurgeryStarted ? $"수술 {p.SurgeryProgress:0.#}/{GameBalance.CritterSurgerySeconds}초" : p.TransportTo == null ? "— 복귀할 우리 필요(개체를 선택해 지정)" : "복귀 대기") : "비어 있음 · 중상 동물 수술용(동물 수술 키트 필요)";
-                else if (facility.IsButcher) instruction.text = $"해체 대기 사체 {facility.Carcasses}구 · 요리 작업 장수가 해체합니다.";
+                else if (facility.IsClinic)
+                {
+                    if (facility.Patient is Critter p) label.text = "환자 보기";
+                    instruction.text = facility.Patient is Critter q ? GameMenuController.ClinicStatus(q) : facility.Worker != null ? $"입원 예약: {facility.Worker.CommanderName}" : "비어 있음 · 중상 동물 수술용(동물 수술 키트 필요)";
+                }
+                else if (facility.IsButcher) { label.text = "도축대 관리"; instruction.text = (facility.Paused ? "일시정지 · " : "") + $"대기 사체 {facility.Carcasses}구 · 등록 순서대로 요리 작업 장수가 해체합니다."; }
             }
             if (Target is Barracks barracks) label.text = "병영 강화";
             if (Target is DigSite) label.text = "굴착 확장";
@@ -155,6 +159,8 @@ namespace AntColony.UI
             else if (Target is WildMonster animal && animal.Huntable) animal.HuntDesignated = !animal.HuntDesignated;
             if (Target is Ranch ranch) GameMenuController.Instance?.ShowRanch(ranch);
             if (Target is RanchFacility feeder && feeder.IsFeeder) GameMenuController.Instance?.ShowFeeder(feeder);
+            if (Target is RanchFacility table && table.IsButcher) GameMenuController.Instance?.ShowButcher(table);
+            if (Target is RanchFacility clinic && clinic.IsClinic && clinic.Patient is Critter patient) GameMenuController.Instance?.ShowCritter(patient);
             if (Target is Gate gate) gate.SetOpen(!gate.Open);
             if (Target is Barracks barracks) barracks.TryUpgrade();
             if (Target is DigSite dig) dig.TryExpand();

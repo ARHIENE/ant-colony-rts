@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>인게임 HUD v5</title>
+<meta name="description" content="개미 소굴 RTS 인게임 HUD v5 인터랙티브 시안. 예시 데이터이며 Unity와 연동되지 않는다.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&amp;family=Barlow+Semi+Condensed:wght@500;600;700&amp;display=swap" rel="stylesheet">
+<link rel="stylesheet" href="hud-v5.css">
+<script src="hud-v5.js" defer></script>
+</head>
+<body>
+<div class="app">
+  <header class="top plate" aria-label="상단 바">
+    <nav class="menu" id="menu" aria-label="화면"></nav>
+    <div class="roster" id="roster" role="group" aria-label="장수 바"></div>
+    <div class="res" id="res" aria-label="자원·인구"></div>
+  </header>
+
+  <main class="playfield" id="playfield" aria-label="게임 지도와 알림">
+    <svg class="scene" id="scene" viewBox="0 0 1440 660" preserveAspectRatio="xMidYMid slice" role="img" aria-label="본거지 지도(시안 그림)"></svg>
+    <div class="overlay">
+      <div class="col left" id="left"></div>
+      <div class="col right" id="right">
+        <div class="clock plate" id="clock" aria-label="달력과 게임 속도"></div>
+        <ol class="alerts" id="alerts" aria-label="알림" aria-live="polite"></ol>
+      </div>
+    </div>
+    <div class="placebar plate" id="placebar" hidden></div>
+    <div class="feedback plate" id="feedback" role="status" aria-live="polite"></div>
+  </main>
+
+  <section class="console" aria-label="선택 정보와 명령">
+    <div class="wing l">
+      <div class="mini well" id="mini" role="img" aria-label="미니맵(자리 표시)"></div>
+      <div class="mini-side" id="miniSide" role="group" aria-label="미니맵 필터"></div>
+    </div>
+    <div class="center" id="center" aria-live="polite"></div>
+    <div class="wing r"><div class="cmd" id="cmd" role="group" aria-label="명령"></div></div>
+  </section>
+</div>
+
+<div class="scrim" id="scrim" aria-hidden="true">
+  <section class="window plate" id="window" role="dialog" aria-modal="true" aria-labelledby="winTitle"></section>
+</div>
+
+<dialog class="confirm" id="confirm" aria-labelledby="confirmTitle">
+  <h2 id="confirmTitle"></h2>
+  <div class="body" id="confirmBody"></div>
+  <form method="dialog">
+    <button class="btn" value="cancel" autofocus>취소</button>
+    <button class="btn primary" value="ok" id="confirmOk">확인</button>
+  </form>
+</dialog>
+
+<div class="pop plate" id="pop" role="dialog" aria-label="재료 목록" hidden></div>
+</body>
+</html>

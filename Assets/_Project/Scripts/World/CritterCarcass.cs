@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using AntColony.Buildings;
+using AntColony.Core;
 using AntColony.UI;
 using AntColony.Units;
 using UnityEngine;
@@ -23,13 +24,22 @@ namespace AntColony.World
         private void OnEnable() => All.Add(this);
         private void OnDisable() => All.Remove(this);
 
+        // 새끼는 성체보다 산출이 적다(GameBalance.CritterBabyYield, 사용자 확정 잠정값).
         internal static CritterCarcass Drop(Critter critter, Critter killer)
         {
-            var info = critter.Info;
-            var corpse = Corpse.Spawn(new Corpse.State { position = critter.transform.position, kind = CorpseKind.Wildlife, name = info.name, count = 1 });
+            var info = critter.Info; var yield = critter.Stage == CritterStage.Baby ? GameBalance.CritterBabyYield : 1f;
+            var carcass = Spawn((int)critter.Species, info.meat * yield, Mathf.RoundToInt(info.chitin * yield), critter.transform.position);
+            carcass.Data.predation = killer != null; carcass.Data.predator = killer != null ? killer.Info.name : "";
+            return carcass;
+        }
+        // 도축대에서 내려놓은 사체 등(종·남은 고기·갑각 그대로).
+        internal static CritterCarcass Spawn(int species, float meat, int chitin, Vector3 at, float decay = Corpse.Lifetime)
+        {
+            var name = System.Enum.IsDefined(typeof(Species), species) ? SpeciesInfo.For((Species)species).name : "생물";
+            var corpse = Corpse.Spawn(new Corpse.State { position = at, kind = CorpseKind.Wildlife, name = name, count = 1, remaining = Mathf.Clamp(decay, 0.01f, Corpse.Lifetime) }); // 남은 부패 시간 유지
             var carcass = corpse.gameObject.AddComponent<CritterCarcass>();
-            carcass.Data = new State { species = (int)critter.Species, meat = info.meat, chitin = info.chitin, predation = killer != null, predator = killer != null ? killer.Info.name : "" };
-            corpse.name = info.name + " 사체";
+            carcass.Data = new State { species = species, meat = meat, chitin = chitin };
+            corpse.name = name + " 사체";
             return carcass;
         }
         // 포식: 먹잇감 사체를 포식자가 처음 먹는 순간에만 한 번 알린다(클릭 시 위치로).

@@ -32,7 +32,8 @@ namespace AntColony.UI
                 var state = order.mode == Workshop.OrderMode.Count ? $"남은 {order.amount}묶음" : order.mode == Workshop.OrderMode.KeepStock ? $"재고 {rm?.GetAmount(r.output) ?? 0}/{order.amount}" : "반복";
                 MenuTheme.Button(content, $"{r.name} · {ModeName(order.mode)} · {state} — 삭제", () => { p.Orders.Remove(order); ShowProcessor(p); });
             }
-            MenuTheme.Text(content, "작업표에서 제작이 켜진 장수가 자율로 와서 가공합니다. 재료는 한 묶음을 시작할 때 차감하고, 창고가 차면 결과물은 창고 주변 바닥에 둡니다.", 17, 70);
+            MenuTheme.Text(content, (p.IsMedical ? "작업표에서 간호(의료)가 켜진 장수가 할 수 있는 치료가 없을 때 와서 만듭니다(의료 능력은 속도만)." : "작업표에서 제작이 켜진 장수가 자율로 와서 가공합니다.")
+                + " 재료는 한 묶음을 시작할 때 차감하고, 창고가 차면 결과물은 창고 주변 바닥에 둡니다.", 17, 70);
             MenuTheme.Button(content, "새로고침", () => ShowProcessor(p));
             MenuTheme.Button(content, "게임 재개", Resume);
         }

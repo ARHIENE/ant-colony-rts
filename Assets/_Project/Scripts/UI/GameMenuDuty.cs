@@ -12,7 +12,8 @@ namespace AntColony.UI
         private Action refreshDutyScreen;
         private static readonly CommanderJobs[] DutyJobs = { CommanderJobs.Nursing, CommanderJobs.Repair, CommanderJobs.Cleaning, CommanderJobs.Building, CommanderJobs.Art, CommanderJobs.Crafting,
             CommanderJobs.Research, CommanderJobs.Administration, CommanderJobs.Cooking, CommanderJobs.Hunting, CommanderJobs.Hauling, CommanderJobs.Husbandry, CommanderJobs.Farming, CommanderJobs.Fishing, CommanderJobs.Gathering };
-        private static readonly string[] DutyNames = { "간호", "수리", "치우기", "건설", "예술", "제작", "연구", "행정", "요리", "사냥", "운반", "사육", "농사", "낚시", "채집" };
+        // 간호 = 기획의 의료 작업(투약·수술·약제대 생산, 2026-10-11 사용자 확정)이라 '간호(의료)'로 표기한다.
+        private static readonly string[] DutyNames = { "간호\n(의료)", "수리", "치우기", "건설", "예술", "제작", "연구", "행정", "요리", "사냥", "운반", "사육", "농사", "낚시", "채집" };
 
         public void WorkSchedule()
         {

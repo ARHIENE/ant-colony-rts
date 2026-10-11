@@ -171,9 +171,13 @@ namespace AntColony.Units
             {
                 case CommanderJobs.Nursing:
                     if (WorkPriorities.Red) yield break; // 빨간 경보 중에는 간호하지 않는다.
-                    foreach (var hospital in FindObjectsByType<Infirmary>(FindObjectsSortMode.None).Where(h => h.Patients.Count > 0 && h.Nurse == null))
-                        yield return (hospital, () => StartService(hospital, CommanderJobs.Nursing));
-                    foreach (var t in AnimalNursingTasks()) yield return t; // 동물 투약·수술(2026-10-11)
+                    // 치료가 생산보다 먼저: 할 수 있는 치료가 없을 때(약품 부족 포함)만 약제대 생산 목록을 맡는다(2026-10-11).
+                    var treatments = FindObjectsByType<Infirmary>(FindObjectsSortMode.None).Where(h => h.Patients.Count > 0 && h.Nurse == null)
+                        .Select(h => ((Component)h, (Func<bool>)(() => StartService(h, CommanderJobs.Nursing)))).Concat(AnimalNursingTasks()).ToList(); // 동물 투약·수술(2026-10-11)
+                    foreach (var t in treatments) yield return t;
+                    if (treatments.Count == 0)
+                        foreach (var bench in FindObjectsByType<Processor>(FindObjectsSortMode.None).Where(p => p.IsMedical && p.NeedsWork))
+                            yield return (bench, () => StartService(bench, CommanderJobs.Nursing));
                     yield break;
                 case CommanderJobs.Repair:
                     foreach (var building in FindObjectsByType<BuildingBase>(FindObjectsSortMode.None).Where(BuildingRepair.Needed))
@@ -190,7 +194,7 @@ namespace AntColony.Units
                 case CommanderJobs.Crafting:
                     foreach (var shop in FindObjectsByType<Workshop>(FindObjectsSortMode.None))
                         yield return (shop, () => !shop.Ruined && !shop.IsDead && shop.Crafter == null && shop.Jobs.Count > 0 && GoToFacility(shop));
-                    foreach (var processor in FindObjectsByType<Processor>(FindObjectsSortMode.None).Where(p => p.NeedsWork))
+                    foreach (var processor in FindObjectsByType<Processor>(FindObjectsSortMode.None).Where(p => !p.IsMedical && p.NeedsWork)) // 약제대는 간호(의료)
                         yield return (processor, () => StartService(processor, CommanderJobs.Crafting));
                     yield break;
                 case CommanderJobs.Cooking:

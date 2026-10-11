@@ -13,15 +13,16 @@ namespace AntColony.Buildings
     // - 먹이통: 먹이 전용 창고. 허용 먹이·종류별 목표량·운반 우선순위. 운반 장수가 채운다(사육 장수의 급여 작업 없음). 접근 가능한 생물이 공유.
     // - 돌봄대: 같은 우리 여러 종이 공유, 시설당 한 마리씩 사육 장수가 호출해 돌본다.
     // - 동물 치료대: 중상 수술용, 한 마리씩. 실제 수술 중에만 배고픔이 멈춘다.
-    // - 도축대: 운반 장수가 사체를 옮겨 오면 요리 장수가 해체(식량·갑각).
-    public sealed class RanchFacility : BuildingBase
+    // - 도축대: 운반 장수가 사체를 옮겨 오면 요리 장수가 등록 순서대로 해체(RanchButcher.cs).
+    public sealed partial class RanchFacility : BuildingBase
     {
         public static readonly List<RanchFacility> All = new List<RanchFacility>();
         [Serializable] public class FeedSlot { public int type; public bool allowed; public int target; public float stock; }
         [Serializable] public class State
         {
             public List<FeedSlot> slots = new List<FeedSlot>(); public int priority = 3;
-            public float meat, chitin, butcher; public int carcasses;
+            public float meat, chitin, butcher; public int carcasses; // meat·chitin·carcasses는 옛 저장(합산 방식) 이관용
+            public List<CarcassEntry> queue = new List<CarcassEntry>(); public int allowMask = -1; public bool paused;
         }
         private State s = new State();
         public bool IsFeeder => Data != null && Data.kind == BuildingKind.Feeder;
@@ -35,6 +36,8 @@ namespace AntColony.Buildings
         public bool Usable => isActiveAndEnabled && !IsDead && !Demolition.Pending(this);
         public CommanderAnt Worker { get; internal set; } // 돌봄·수술·해체 중인 장수(시설당 한 명)
         public Critter Patient => IsClinic ? Critter.All.FirstOrDefault(c => c != null && c.Clinic == this) : null;
+        // 빈 치료대(환자도 없고 입원 예약한 장수도 없음).
+        public static RanchFacility FreeClinic() => All.FirstOrDefault(f => f.IsClinic && f.Usable && f.Patient == null && f.Worker == null);
         protected override void OnEnable() { base.OnEnable(); if (!All.Contains(this)) All.Add(this); EnsureSlots(); }
         protected override void OnDisable() { base.OnDisable(); All.Remove(this); }
 
@@ -88,29 +91,12 @@ namespace AntColony.Buildings
             if (x == null) return false; x.stock -= 1; return true;
         }
 
-        // ---------- 도축대 ----------
-        public int Carcasses => s.carcasses;
-        public float ButcherProgress => s.butcher;
-        internal void AddCarcass(CritterCarcass k) { s.meat += k.Meat; s.chitin += k.Chitin; s.carcasses++; }
-        public bool NeedsButcher => IsButcher && Usable && s.carcasses > 0;
-        internal bool Butcher(CommanderAnt c, float seconds)
-        {
-            if (!NeedsButcher) return false;
-            s.butcher += seconds * c.WorkRate(CommanderActivity.Cooking); c.GainExperience(CommanderActivity.Cooking, seconds);
-            if (s.butcher < GameBalance.ButcherSeconds) return true;
-            var meat = Mathf.FloorToInt(s.meat / s.carcasses); var chitin = Mathf.FloorToInt(s.chitin / s.carcasses);
-            s.meat -= meat; s.chitin -= chitin; s.carcasses--; s.butcher = 0;
-            DiplomacyManager.StoreResource(ResourceType.Food, meat, ResourceReason.Production, Position);
-            DiplomacyManager.StoreResource(ResourceType.Chitin, chitin, ResourceReason.Production, Position);
-            if (s.carcasses == 0) { s.meat = s.chitin = 0; return false; }
-            return true;
-        }
-
-        // 철거: 먹이통·도축대 내용물은 바닥에, 치료대 환자는 그 자리에(부상 그대로).
+        // 철거·이동: 먹이통 내용물은 바닥에, 도축대 사체는 사체 그대로 바닥에(진행도 초기화), 치료대 환자는 그 자리에.
+        // 동물이 있는 치료대는 유저가 철거·이동할 수 없다(Demolition.HoldsPrisoners).
         internal void OnRemoved()
         {
             foreach (var x in s.slots.ToList()) Spill(x, 0);
-            if (s.carcasses > 0) { DiplomacyManager.DropFloor(ResourceType.Food, Mathf.FloorToInt(s.meat), Position); DiplomacyManager.DropFloor(ResourceType.Chitin, Mathf.FloorToInt(s.chitin), Position); s.carcasses = 0; }
+            DropQueue();
             Patient?.ExitClinic(Position + Vector3.right * 1.5f);
         }
 
@@ -123,6 +109,7 @@ namespace AntColony.Buildings
             foreach (var x in s.slots) { x.target = Mathf.Clamp(x.target, 0, GameBalance.FeederMaxTarget); x.stock = float.IsNaN(x.stock) ? 0 : Mathf.Max(0, x.stock); }
             s.priority = Mathf.Clamp(s.priority, 1, 5); s.carcasses = Mathf.Max(0, s.carcasses);
             if (!(s.meat >= 0)) s.meat = 0; if (!(s.chitin >= 0)) s.chitin = 0; if (!(s.butcher >= 0)) s.butcher = 0;
+            RestoreQueue();
             EnsureSlots();
         }
     }

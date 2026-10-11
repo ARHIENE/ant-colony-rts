@@ -23,9 +23,12 @@ namespace AntColony.World
 
         [Serializable] public class State
         {
-            public int species; public bool tame, designated, careBlocked, protectSlaughter, treatOrder, careOrder, surgeryStarted;
+            public int species, id; public bool tame, designated, careBlocked, treatOrder, careOrder, surgeryStarted;
             public float tameProgress, age, hunger = 80, care, waiting, medicated, direct, floorProgress, bind, surgery, health;
             public string pen = "", transport = "", clinic = "", returnPen = "", approved = "";
+            // 2026-10-11 수정: 수동 도축 요청, 수술 기여도·후유증·회복·실패 후 선택 대기, 투약 당시 경상량(옛 저장은 기본값).
+            public bool slaughterOrder, slaughterStarted, awaitDecision; public int sequelae;
+            public float surgeryWork, surgerySkillWork, recovery, preHealth = 1, medBudget; public string surgeon = "", custom = ""; // custom = 유저가 바꾼 이름(없으면 종 이름)
             public Vec3Dto position, home;
         }
         private State s = new State();
@@ -44,7 +47,6 @@ namespace AntColony.World
         public bool SurgeryStarted => s.surgeryStarted;
         public bool CaptureDesignated { get => s.designated; set => s.designated = value; }
         public bool CareBlocked { get => s.careBlocked; set => s.careBlocked = value; }
-        public bool ProtectSlaughter { get => s.protectSlaughter; set => s.protectSlaughter = value; }
         public bool TreatOrder { get => s.treatOrder; set => s.treatOrder = value; }
         public bool CareOrder { get => s.careOrder; set => s.careOrder = value; }
         public string ApprovedId { get => s.approved; set => s.approved = value ?? ""; }
@@ -56,8 +58,15 @@ namespace AntColony.World
         public bool Downed => HealthFraction < GameBalance.CritterDownedHealth; // 쓰러져 움직이지 못함: 결박 없이 운반
         public bool Starving => s.hunger <= 0;
         public bool Bound => s.bind > 0;
-        // 운반할 수 있는 상태: 결박·쓰러짐·길들임(저항 없음)·치료 시설에서 복귀 대기.
-        public bool Carriable => Bound || Downed || Tame || Clinic != null && !s.surgeryStarted;
+        // 운반할 수 있는 상태: 결박·쓰러짐·길들임(저항 없음)·치료 시설에서 복귀 대기(수술·회복·실패 후 선택 대기 중이 아닐 때).
+        // 운반은 결박되거나 쓰러진 개체만(2026-10-11 사용자 확정: 길들인 개체도 먼저 포획 — 저항·실패 없이 결박). 시설 안에서는 회복·선택 대기가 끝나야 데려간다.
+        public bool Carriable => Clinic != null ? ReadyToLeaveClinic : Bound || Downed;
+        public int Id => s.id;
+        // 기본 이름은 종 이름, 유저가 바꾼 이름은 유지(코어키퍼 방식). 알림·목록은 '이름(종)' 또는 '종'.
+        public string DisplayName => s.custom != "" ? $"{s.custom}({Info.name})" : Info.name;
+        public string CustomName { get => s.custom; set { var v = (value ?? "").Trim(); s.custom = v.Length > 16 ? v.Substring(0, 16) : v; } } // 비우면 종 이름으로
+        public string SequelaEffect => s.sequelae > 0 ? $"후유증 {s.sequelae}: 재수술 성공률 −{s.sequelae * GameBalance.SurgerySequelaPenalty:P0}p · 실패 시 사망 +{s.sequelae * GameBalance.SurgerySequelaDeath:P0}p" : "";
+        private static int NextId() => AllList.Count == 0 ? 1 : AllList.Max(c => c != null && c.s != null ? c.s.id : 0) + 1;
 
         // 관계(키로 저장하고 실행 중엔 참조로 푼다).
         private Ranch pen, transport, returnPen; private RanchFacility clinic;
@@ -87,11 +96,12 @@ namespace AntColony.World
             go.name = info.name; go.transform.position = at + Vector3.up * .5f;
             var color = sp switch { Species.Aphid => new Color(.5f, .8f, .3f), Species.Silkworm => new Color(.95f, .93f, .85f), Species.Spider => new Color(.2f, .15f, .15f), _ => new Color(.95f, .75f, .15f) };
             go.GetComponent<Renderer>().material.color = color;
+            var id = NextId();
             var monster = go.AddComponent<WildMonster>();
             monster.ConfigureCritter(info.health, info.damage);
             monster.Temperament = info.temper == CritterTemper.Attack ? WildlifeTemperament.Predator : info.temper == CritterTemper.Conditional ? WildlifeTemperament.Defensive : WildlifeTemperament.Timid;
             var critter = go.AddComponent<Critter>();
-            critter.s = new State { species = (int)sp, tame = tame, age = age >= 0 ? age : info.babyMonths + 1, home = new Vec3Dto(at) };
+            critter.s = new State { species = (int)sp, id = id, tame = tame, age = age >= 0 ? age : info.babyMonths + 1, home = new Vec3Dto(at) };
             critter.Rescale();
             go.SetActive(true);
             if (health > 0) monster.RestoreHealth(Mathf.Min(health, info.health));
@@ -106,7 +116,7 @@ namespace AntColony.World
             if (SaveSystem.Busy || !GameSession.Exists || !GameSession.Instance.GameStarted || Monster == null || Monster.IsDead) return;
             var dt = Time.deltaTime; if (!(dt > 0)) return;
             if (Carrier != null) { FollowCarrier(); TickLife(dt); return; }
-            if (Clinic != null && (Clinic.IsDead || !Clinic.isActiveAndEnabled)) ExitClinic(transform.position); // 시설 파괴: 부상 그대로, 재수술은 처음부터
+            if (Clinic != null && (Clinic.IsDead || !Clinic.isActiveAndEnabled)) ExitClinic(transform.position); // 시설 파괴: 수술 중이면 처음부터, 회복 중이면 성공·잔여 회복 보존
             if ((penScan -= dt) <= 0) { penScan = 1; UpdatePen(); }
             TickLife(dt);
             if (Monster == null || Monster.IsDead) return;
@@ -116,7 +126,7 @@ namespace AntColony.World
         private void TickLife(float dt)
         {
             var month = dt / GameCalendar.SecondsPerMonth;
-            var surgery = Clinic != null && s.surgeryStarted;
+            var paused = HungerPausedInClinic; TickRecovery(dt);
             if (Stage != CritterStage.Baby || !Starving) s.age += month; // 새끼는 굶으면 자라지 않는다
             if ((int)Stage != (int)stageWas) { stageWas = (int)Stage; Rescale(); }
             if (Stage == CritterStage.Old)
@@ -125,18 +135,24 @@ namespace AntColony.World
                 var over = (s.age - Info.oldMonths) / Mathf.Max(.1f, Info.lifeMonths - Info.oldMonths);
                 if (UnityEngine.Random.value < month * GameBalance.CritterOldDeathPerMonth * (1 + over * over * 4)) { Die("노령"); return; }
             }
-            if (!surgery) s.hunger = Mathf.Max(0, s.hunger - month * 100f / GameBalance.CritterHungerMonths); // 실제 수술 중에만 배고픔 정지
+            if (!paused) s.hunger = Mathf.Max(0, s.hunger - month * 100f / GameBalance.CritterHungerMonths); // 실제 수술·시설 내 회복 중에만 배고픔 정지
             if (Starving)
             {
                 if (!starveNotified && Managed) { starveNotified = true; ToastManager.Show($"{Pen.Data.displayName}: {Info.name}이(가) 굶고 있습니다."); }
                 Wound(Info.health * GameBalance.CritterStarvePerMonth * month, "굶주림"); if (Monster.IsDead) return;
             }
             else if (s.hunger > 30) starveNotified = false;
-            s.medicated = Mathf.Max(0, s.medicated - dt);
+            s.medicated = Mathf.Max(0, s.medicated - dt); if (s.medicated <= 0) s.medBudget = 0;
             // 경상은 목장에서 천천히 자연 회복, 동물용 의약품 투약 중이면 빨라진다. 중상은 치료 시설 수술로만.
+            // 투약 효과는 투약 당시 있던 경상(잃은 체력)만 가속한다. 이후 새로 생긴 경상은 보통 속도.
             var operating = InOperatingPen;
-            if (Injured && !HeavyInjury && operating && Clinic == null)
-                Monster.Heal(Info.health * GameBalance.CritterLightRegenPerMonth * month * (s.medicated > 0 ? GameBalance.CritterMedicatedRegen : 1));
+            // 회복 중 치료 시설 안에서 새로 생긴 경상도 자연 회복·투약한다(기획). 그 밖의 시설 대기 상태는 기존대로 회복하지 않는다.
+            if (Injured && !HeavyInjury && (operating && Clinic == null || Clinic != null && Recovering))
+            {
+                var heal = Info.health * GameBalance.CritterLightRegenPerMonth * month;
+                if (s.medicated > 0 && s.medBudget > 0) { heal = Mathf.Min(heal * GameBalance.CritterMedicatedRegen, Mathf.Max(heal, s.medBudget)); s.medBudget = Mathf.Max(0, s.medBudget - heal); }
+                Monster.Heal(heal);
+            }
             // 돌봄 효과·길들이기: 뚫린 우리·우리 밖에서는 돌봄 효과가 끊기고 미완료 길들이기는 서서히 줄어든다.
             s.care = operating ? Mathf.Max(0, s.care - dt) : 0;
             s.waiting = s.care > 0 ? 0 : s.waiting + dt;
@@ -154,10 +170,10 @@ namespace AntColony.World
                 { var n = Mathf.FloorToInt(s.floorProgress); s.floorProgress -= n; DiplomacyManager.DropFloor(Info.floor, n, transform.position); }
             }
             // 결박: 바닥에 묶여 있는 동안만 흐르고 실제 운반 중엔 멈춘다. 만료되면 조용히 풀리고 운반 요청도 취소된다.
-            if (s.bind > 0 && Carrier == null && (s.bind -= dt) <= 0)
+            if (s.bind > 0 && Carrier == null && !s.slaughterStarted && (s.bind -= dt) <= 0) // 실제 도축 중에는 결박 시간이 멈춘다
             {
                 s.bind = 0;
-                if (!Tame && !Downed && Clinic == null) TransportTo = null;
+                if (!Downed && Clinic == null) TransportTo = null; // 결박이 풀리면 운반 요청도 취소(길들인 개체 포함)
             }
         }
         private bool starveNotified;
@@ -185,15 +201,18 @@ namespace AntColony.World
         {
             var cause = PendingCause ?? "부상";
             if (Carrier != null) Carrier.DropCarriedCritter();
+            if (Clinic != null) transform.position = Clinic.Position + Vector3.right * 1.5f; // 시설 안 사망: 사체는 옆 바닥, 자리는 빈다
             CritterCarcass.Drop(this, cause == "포식" ? Killer : null);
             if (Managed && cause != "도축" && cause != "포식")
                 ToastManager.ShowAt($"{Pen.Data.displayName}: {Info.name}이(가) 죽었습니다 — {cause}", FocusAction(transform.position));
             Handler?.CommandStop();
             Destroy(gameObject);
         }
-        // 방생: 확인 후 즉시 사라진다(사체·생산물 없음, 관련 작업 취소).
+        // 방생: 확인 후 즉시 사라진다(사체·생산물 없음, 관련 작업 취소). 치료 시설 안에서는 불가(우리로 복귀한 뒤).
+        public bool CanRelease => Clinic == null;
         public void Release()
         {
+            if (!CanRelease) return;
             if (Carrier != null) Carrier.DropCarriedCritter();
             Handler?.CommandStop();
             Destroy(gameObject);
@@ -221,26 +240,12 @@ namespace AntColony.World
         private void FollowCarrier() { if (Carrier != null) transform.position = Carrier.Position + Vector3.up * 1.2f; }
         internal void EnterClinic(RanchFacility facility)
         {
-            ReturnPen = Pen; Carrier = null; Clinic = facility; TransportTo = null; s.bind = 0;
+            if (Pen != null) ReturnPen = Pen; // 회복 재입원은 원래 우리를 유지
+            Carrier = null; Clinic = facility; TransportTo = null; s.bind = 0; DropSlaughterOnAdmission();
             transform.position = facility.Position + Vector3.up * 1f;
             if (Monster.Agent != null) Monster.Agent.enabled = false;
         }
-        // 수술 완료 순간에만 완치. 끝나면 원래 우리로 운반 요청(우리가 없으면 '복귀할 우리 필요'로 시설에서 대기).
-        internal void CompleteSurgery()
-        {
-            Monster.RestoreHealth(Info.health); s.surgeryStarted = false; s.surgery = 0; s.treatOrder = false;
-            TransportTo = ReturnPen != null && ReturnPen.Accepts(Species) ? ReturnPen : null;
-            ToastManager.Show($"{Info.name} 수술 완료" + (TransportTo == null ? " — 복귀할 우리를 지정하세요." : ""));
-        }
-        internal void StartSurgery() { s.surgeryStarted = true; s.surgery = 0; }
-        internal void AddSurgery(float amount) => s.surgery += amount;
-        // 시설 파괴 등으로 중단: 부상은 그대로, 키트는 돌려주지 않는다.
-        internal void ExitClinic(Vector3 at)
-        {
-            Clinic = null; s.surgeryStarted = false; s.surgery = 0;
-            PutDown(at);
-            if (ReturnPen != null) Pen = ReturnPen;
-        }
+        // 수술·회복·실패 처리는 CritterSurgery.cs.
 
         // ---------- 장수 작업 결과 ----------
         internal void FinishCare(CommanderAnt c)
@@ -249,7 +254,7 @@ namespace AntColony.World
             s.waiting = 0; s.careOrder = false;
         }
         internal int TakeDirect() { var n = Mathf.FloorToInt(s.direct); s.direct -= n; return n; }
-        internal void Medicate() { s.medicated = GameBalance.CritterMedicatedSeconds; }
+        internal void Medicate() { s.medicated = GameBalance.CritterMedicatedSeconds; s.medBudget = Mathf.Max(0, Info.health - Monster.CurrentHealth); } // 투약 당시의 경상만
         internal void Feed(float units) { s.hunger = Mathf.Min(100, s.hunger + units * GameBalance.CritterHungerPerUnit); }
 
         // 취급 실패·공격받음: 성향대로 도주(도주형)·주변 공격(공격형)·다룬 장수 공격(조건부). 잠시 뒤 진정한다.
@@ -291,7 +296,10 @@ namespace AntColony.World
                 var c = Spawn((Species)d.species, d.position.ToVector3(), d.tame, Mathf.Max(0, d.age), d.health);
                 d.pen ??= ""; d.transport ??= ""; d.clinic ??= ""; d.returnPen ??= ""; d.approved ??= ""; d.home ??= d.position;
                 d.hunger = Mathf.Clamp(float.IsNaN(d.hunger) ? 80 : d.hunger, 0, 100);
-                c.s = d; c.Rescale();
+                d.surgeon ??= ""; d.custom = (d.custom ?? "").Trim(); if (d.custom.Length > 16) d.custom = d.custom.Substring(0, 16); d.sequelae = Mathf.Max(0, d.sequelae); if (!(d.recovery >= 0)) d.recovery = 0; if (!(d.medBudget >= 0)) d.medBudget = 0;
+                if (!(d.preHealth > 0)) d.preHealth = 1; if (!(d.surgeryWork >= 0) || !(d.surgerySkillWork >= 0)) d.surgeryWork = d.surgerySkillWork = 0;
+                d.slaughterStarted = false; // 진행 중이던 도축은 불러오면 처음부터(요청은 유지)
+                c.s = d; if (d.id <= 0) d.id = NextId(); c.Rescale();
                 if (c.Clinic != null) c.EnterClinicRestored();
             }
         }

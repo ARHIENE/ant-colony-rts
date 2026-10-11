@@ -54,7 +54,7 @@ namespace AntColony.Units
         {
             if (!(work > 0) || float.IsInfinity(work) || !Enum.IsDefined(typeof(CommanderActivity), main)) return;
             EnsurePotential();
-            var support = topic != null && topic != main ? topic : Support(main);
+            var support = topic == main ? null : topic ?? Support(main); // topic == main: 보조 없음(약제대 생산 — 의료만, 2026-10-11)
             float mainShare = support == null ? 1f : MainShare;
             float keep = Mathf.Exp(-work / UsageWindow), total = 0;
             for (int i = 0; i < Count; i++) { usage[i] *= keep; }

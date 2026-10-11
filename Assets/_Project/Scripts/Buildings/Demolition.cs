@@ -12,11 +12,12 @@ namespace AntColony.Buildings
         public static bool Pending(BuildingBase b) => Object.FindObjectsByType<DemolitionSite>(FindObjectsSortMode.None).Any(s => s.Target == b);
         private static bool Orderable(BuildingBase b) => b != null && !b.IsDead && b.Data != null && b.CountsTowardPlayerDefeat && !(b is Stockpile) && !Pending(b);
         // 포로가 있는 수용소는 철거하지 않는다(포로 명단이 수용소에만 있다). 이동은 포로가 그대로 남으므로 허용.
-        public static bool HoldsPrisoners(BuildingBase b) => b != null && (b.TryGetComponent<PrisonerCamp>(out var camp) && camp.Count > 0 ); // 우리는 철거해도 생물이 그 자리에 남는다(2026-10-11)
+        public static bool HoldsPrisoners(BuildingBase b) => b != null && (b.TryGetComponent<PrisonerCamp>(out var camp) && camp.Count > 0
+            || b is RanchFacility clinic && clinic.IsClinic && clinic.Patient != null); // 우리는 철거해도 생물이 그 자리에 남는다(2026-10-11). 동물이 있는 치료대는 철거·이동 불가
         public static bool CanDemolish(BuildingBase b) => Orderable(b) && !HoldsPrisoners(b);
         // 무료 이동은 방 가구(RoomSystem.KindOf)·장식·전력 가구만. 주거·벽·문·바닥·기둥·전선·방어 시설은 철거 후 다시 짓는다(2026-10-10).
         public static bool CanMove(BuildingBase b) => Orderable(b) && b.Data.kind != BuildingKind.Pillar && b.Data.kind != BuildingKind.PowerWire
-            && (RoomSystem.KindOf(b) != RoomKind.None || b is Decoration || b is PowerNode);
+            && (RoomSystem.KindOf(b) != RoomKind.None || b is Decoration || b is PowerNode) && !(b is RanchFacility clinic && clinic.IsClinic && clinic.Patient != null);
 
         public static BuildingConstructionSite OrderDemolish(BuildingBase b)
         {

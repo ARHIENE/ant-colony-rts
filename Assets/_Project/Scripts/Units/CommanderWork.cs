@@ -59,7 +59,11 @@ namespace AntColony.Units
             if (!CivilianWorkReady || !ServiceTarget.isActiveAndEnabled || ServiceTarget.IsDead) { CommandStop(); return false; }
             if ((Position - ServiceTarget.Position).sqrMagnitude > 49) return true;
             StopMoving();
-            if (ServiceJob == CommanderJobs.Nursing)
+            if (ServiceTarget is Processor bench) // 가공대(제작)·약제대(간호=의료, 2026-10-11)
+            {
+                if (ServiceJob != bench.Job || !bench.Work(this, seconds)) { CommandStop(); return false; }
+            }
+            else if (ServiceJob == CommanderJobs.Nursing)
             {
                 var infirmary = ServiceTarget as Infirmary;
                 if (infirmary == null || infirmary.Patients.Count == 0 || WorkPriorities.Red) { CommandStop(); return false; }
@@ -76,10 +80,6 @@ namespace AntColony.Units
             else if (ServiceJob == CommanderJobs.Administration) // 행정 책상에서 정치 업무(2026-10-08)
             {
                 if (!(ServiceTarget is AdminDesk desk) || !desk.Work(this, seconds)) { CommandStop(); return false; }
-            }
-            else if (ServiceJob == CommanderJobs.Crafting) // 가공대(2026-10-10)
-            {
-                if (!(ServiceTarget is Processor processor) || !processor.Work(this, seconds)) { CommandStop(); return false; }
             }
             else if (!BuildingRepair.For(ServiceTarget).Work(this, seconds)) { CommandStop(); return false; }
             return true;

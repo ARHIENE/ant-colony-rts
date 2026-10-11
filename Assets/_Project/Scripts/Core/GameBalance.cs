@@ -81,6 +81,12 @@ namespace AntColony.Core
         public const float CritterDirectCap = 5f, CritterHarvestSeconds = 4f, CritterSlaughterSeconds = 4f, CritterDoseSeconds = 3f, CritterMedicatedSeconds = 120f, CritterSurgerySeconds = 20f;
         public const float CritterLightRegenPerMonth = .25f, CritterMedicatedRegen = 3f, CritterHeavyInjury = .4f, CritterDownedHealth = .2f;
         public const float CritterBreedPerMonth = .5f, CritterCareBoost = 1.25f, CritterCaptureFailDamage = 5f, ButcherSeconds = 6f;
+        // ponytail: 동물 수술·도축(2026-10-11 사용자가 고른 잠정안 A). 성공률 = 기본 + 의료×계수 − 부상 보정(체력 40%→0, 0%→최대) − 후유증×계수, 하한·상한.
+        // 실패: 사망(기본 + 후유증×계수) → 악화(최대 체력 비율 피해) → 나머지 유지. 고위험 = 가장 유능한 의료 장수 기준 예상 성공률 미만.
+        // 회복 = 1개월 × (1 − 수술 전 체력 비율), 최소. 새끼 사체 산출 비율, 도축 강제 중단 피해(최대 체력 비율).
+        public const float SurgeryBaseChance = .5f, SurgeryChancePerMedicine = .025f, SurgeryInjuryPenalty = .2f, SurgerySequelaPenalty = .1f, SurgeryMinChance = .05f, SurgeryMaxChance = .95f;
+        public const float SurgeryFailDeath = .1f, SurgerySequelaDeath = .05f, SurgeryFailWorsen = .3f, SurgeryWorsenDamage = .1f, SurgeryHighRisk = .5f;
+        public const float SurgeryRecoveryMonths = 1f, SurgeryMinRecoveryMonths = .25f, CritterBabyYield = .5f, SlaughterInterruptDamage = .1f;
         // ponytail: 미관·온도(2026-10-10) 잠정값. 난방 목재/월(단열 0 기준), 미관·온도 기분, 시민 주거 미관 → 민심·이주.
         public const float HeatingWoodPerMonth = 6f, BeautyMoodCap = 8f, TemperatureMood = -4f, BeautyExposureSeconds = 60f, HousingBeautySentiment = 1f, HousingBeautyDemand = 2f; // 맵에 유지할 야생 사육 생물 수(잠정)
         public const float TaxPerAntMonth = 5f, MaxTaxRate = .5f, HighTaxFlightRate = .4f, RaidSentiment = 10, UnrestSentiment = 15;
