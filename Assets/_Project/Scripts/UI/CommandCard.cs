@@ -12,7 +12,7 @@ namespace AntColony.UI
 {
     // 오른쪽 명령 칸. 모든 상태 3×3(최대 9칸, 2026-10-04 사용자 요청). 징집소 버튼은 삭제(2026-10-05) — 징집소 건물을 선택해 출전 편성. 평시 장수 = 일상 명령, 출전 장수 = 전투 명령, 선택 없음 = 둥지 명령.
     // 단축키는 전체 미정(2026-10-01)이라 칸에 키 글자를 표시하지 않는다.
-    public sealed class CommandCard : MonoBehaviour
+    public sealed partial class CommandCard : MonoBehaviour
     {
         private sealed class Slot { public Button button; public Text label; public MenuTooltip tip; public Func<string> text, help; public Func<bool> ready, visible; }
 
@@ -40,6 +40,7 @@ namespace AntColony.UI
             colonyGrid = Grid("ColonyCommands", 3);
             multiGrid = Grid("MultiCommands", 3);
             targetGrid = Grid("TargetCommands", 3);
+            BuildAnimalCommands();
 
             Add(civilianGrid, 0, "Priority Work", () => "우선", PriorityHint,
                 () => "우선 작업: 장수를 고른 채 대상을 우클릭하면 그 일부터 하고, 끝나면 다시 자율 작업으로 돌아갑니다.");
@@ -125,7 +126,8 @@ namespace AntColony.UI
             deployedGrid.gameObject.SetActive(!building && commander != null && commander.IsDeployed);
             var selected = HudOverview.Selected(selection);
             var target = WorkTargetPanel.Target;
-            targetGrid.gameObject.SetActive(!building && target != null && target.gameObject.activeInHierarchy);
+            targetGrid.gameObject.SetActive(!building && Animal == null && target != null && target.gameObject.activeInHierarchy);
+            animalGrid.gameObject.SetActive(!building && Animal != null && target.gameObject.activeInHierarchy);
             multiGrid.gameObject.SetActive(!building && target == null && selected.Length > 1);
             colonyGrid.gameObject.SetActive(!building && commander == null && target == null && selected.Length == 0);
             foreach (var slot in slots)

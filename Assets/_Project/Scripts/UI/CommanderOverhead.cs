@@ -40,7 +40,7 @@ namespace AntColony.UI
 
         private void OnGUI()
         {
-            if (Event.current.type != EventType.Repaint || CommanderRoster.Instance == null || GameMenuController.BlocksInput || WorldMapPanel.AnyOpen) return;
+            if (Event.current.type != EventType.Repaint || CommanderRoster.Instance == null || GameMenuController.BlocksInput || BuildScreen.IsOpen || WorldMapPanel.AnyOpen) return;
             var camera = UnityEngine.Camera.main;
             if (camera == null) return;
             if (nameStyle == null)

@@ -35,25 +35,30 @@ namespace AntColony.UI
 
             MenuTheme.Text(content, $"<b>개체 목록</b> {shown.Count}/{all.Count}마리 — 필터·정렬은 표시에만 영향을 주며 작업 순서를 바꾸지 않습니다.", 17, 34);
             var species = System.Enum.GetValues(typeof(Species)).Cast<Species>().ToList();
+            var listContent = content;
+            content = V5FilterRow(listContent);
             MenuTheme.Button(content, $"종: {(fltSpecies is Species sp ? SpeciesInfo.For(sp).name : "전체")} ▸", () => { fltSpecies = fltSpecies == null ? species[0] : species.IndexOf(fltSpecies.Value) + 1 < species.Count ? species[species.IndexOf(fltSpecies.Value) + 1] : (Species?)null; ShowRanch(r); });
             MenuTheme.Button(content, $"성장: {(fltStage == null ? "전체" : fltStage == CritterStage.Baby ? "새끼" : fltStage == CritterStage.Adult ? "성체" : "노령")} ▸", () => { fltStage = fltStage == null ? CritterStage.Baby : fltStage == CritterStage.Old ? (CritterStage?)null : fltStage + 1; ShowRanch(r); });
             MenuTheme.Button(content, $"길들임: {new[] { "전체", "길들임", "야생" }[fltTame]} ▸", () => { fltTame = (fltTame + 1) % 3; ShowRanch(r); });
             MenuTheme.Button(content, $"부상: {new[] { "전체", "부상", "정상" }[fltHurt]} ▸", () => { fltHurt = (fltHurt + 1) % 3; ShowRanch(r); });
             MenuTheme.Button(content, $"현재 작업: {new[] { "전체", "요청·치료 중", "없음" }[fltWork]} ▸", () => { fltWork = (fltWork + 1) % 3; ShowRanch(r); });
             MenuTheme.Button(content, $"정렬: {SortNames[sortBy]} ▸", () => { sortBy = (sortBy + 1) % SortNames.Length; ShowRanch(r); });
+            content = listContent;
             MenuTheme.Button(content, $"표시된 {shown.Count}마리 모두 선택", () => { picked.UnionWith(shown); pendingBulk = null; ShowRanch(r); });
             MenuTheme.Button(content, $"선택 해제({picked.Count}마리 선택됨)", () => { picked.Clear(); pendingBulk = null; ShowRanch(r); }).interactable = picked.Count > 0;
 
             BulkActions(r);
 
-            foreach (var a in shown.Take(40))
+            foreach (var a in shown)
             {
                 var at = a.Clinic != null ? " · 치료 시설" : a.Pen == null ? " · 우리 밖" : "";
-                MenuTheme.Button(content, $"{(picked.Contains(a) ? "[✓]" : "[  ]")} {a.DisplayName} · {a.StageName} {a.Age:0.#}개월 · {(a.Tame ? "길들임" : "야생")} · 체력 {a.HealthFraction:P0}{(a.HeavyInjury ? " 중상" : a.Injured ? " 경상" : "")} · 배고픔 {a.Hunger:0} · {WorkLabel(a)}{at}",
+                var row = MenuLayout.Cell(content, "Animal " + a.DisplayName, 74, MenuTheme.Plate2);
+                MenuLayout.Button(row, "Select", picked.Contains(a) ? "✓" : "", 4, 20, 32, 32,
                     () => { if (!picked.Remove(a)) picked.Add(a); pendingBulk = null; ShowRanch(r); });
-                MenuTheme.Button(content, $"      ▸ {a.DisplayName} 개체 화면(이름·개별 취소·치료)", () => ShowCritter(a));
+                MenuLayout.Label(row, $"{a.DisplayName} · {a.StageName} · {(a.Tame ? "길들임" : "야생")}{at}", 15, 46, 4, 510, 30);
+                MenuLayout.Label(row, $"체력 {a.HealthFraction:P0}{(a.HeavyInjury ? " 중상" : a.Injured ? " 경상" : "")} · 배고픔 {a.Hunger:0} · {WorkLabel(a)}", 14, 46, 36, 510, 30, MenuTheme.Muted);
+                MenuLayout.Button(row, "Details", "상세", 570, 20, 64, 32, () => ShowCritter(a));
             }
-            if (shown.Count > 40) MenuTheme.Text(content, $"… 외 {shown.Count - 40}마리(필터로 좁히세요)", 15, 26);
         }
 
         // 실행 불가 사유(없으면 null).

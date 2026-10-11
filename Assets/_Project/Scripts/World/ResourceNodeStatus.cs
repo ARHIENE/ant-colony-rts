@@ -26,7 +26,7 @@ namespace AntColony.World
         private void OnGUI()
         {
             if (Event.current.type != EventType.Repaint) return;
-            if (!node.isActiveAndEnabled || AntColony.UI.WorldMapPanel.AnyOpen || AntColony.UI.GameMenuController.BlocksInput) return;
+            if (!node.isActiveAndEnabled || AntColony.UI.WorldMapPanel.AnyOpen || AntColony.UI.GameMenuController.BlocksInput || AntColony.UI.BuildScreen.IsOpen) return;
             if (cam == null) cam = UnityEngine.Camera.main;
             if (cam == null) return;
             var point = cam.WorldToScreenPoint(transform.position + Vector3.up);

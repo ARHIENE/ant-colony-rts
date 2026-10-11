@@ -25,6 +25,10 @@
 
 ## 현재 작업 / 충돌 방지
 
+- **HUD-V5-PARITY / Codex / 완료(확인된 UI 누락 연결, 검사 90개 통과):** 개체 개요·의료 탭/치료 상태·약제대 연결, 생산 방식 직접 선택·수량 입력(실제 한도 검증), 건설 재료 목록 비교, 동물 전용 9칸 명령창을 실제 데이터에 연결. 수정: `UI/GameMenuRanch.cs`, `GameMenuV5.cs`, `GameMenuProcessor.cs`, `GameMenuWorkshop.cs`, `BuildScreen.cs`, `CommandCard.cs`, `CommandCardAnimal.cs`(신규), `AgentScripts/HudV5UnityChecks.cs`, README. Unity 컴파일 오류 0, 임시 저장 경로에서 UI 검사 90개 통과(명령창 전환·포획/취소·운반/치료 제한·방생 확인·탭 전환·약제대 연결·수량/한도/생산 방식·재료 선택). Play 종료, 씬 저장 안 함. HTML·게임 규칙은 변경하지 않음. 픽셀 단위 시각 일치·전체 게임 회귀는 미검증.
+
+- **HUD-V5-UNITY / Codex / 완료(대상 화면 UI 검사 67개 통과):** 사용자 승인에 따라 V5 기준 Unity 관리 화면 이식. 소유: `UI/GameMenuV5.cs`, `GameMenuRanch.cs`, `GameMenuRanchBulk.cs`, `GameMenuProcessor.cs`, `GameMenuWorkshop.cs`, `GameMenuRenovate.cs`, `GameMenuDuty.cs`, `BuildScreen.cs`, `UI/CommanderOverhead.cs`, `World/ResourceNodeStatus.cs`, 관련 검사·README. HTML V5는 참조용으로 유지. 건설 창·재료 비교, 작업표 좌/우 클릭 0~5, 목장·개체/의료·먹이통·도축대·생산·개보수 영역 분리 적용. `AgentScripts/HudV5UnityChecks.cs`에서 실제 UI 연결 67개 통과, Unity 컴파일 오류 0. 기존 저장과 분리된 임시 게임으로 검사한 뒤 Play 종료. 픽셀 단위 시각 일치·전체 게임 회귀는 미검증. Graphify 갱신 완료. SAVE·커밋·캡처 없음.
+
 - **2026-10-07 포텐·재분배 기획 반영 완료(Notion·README·보드, 구현 대기):** 전체 능력 총한도(PA 최대 200), 반복 작업 성장과 미사용 능력 감소를 사용자 확정으로 반영한다. FM 근거 조사 후 Notion 관련 기획·README의 구현 대기 안내·이 보드만 수정한다. 게임 코드는 수정하지 않는다. 연구 산출물: `research_notes/개미 포텐과 능력 재분배/`, `reports/개미 포텐과 능력 재분배.md`.
 
 - **2026-10-07 특성·포텐 기획(구현 대기):** 특성은 빨강(부정)·실버·골드·다이아 4등급, 장수당 합계 최대 4개, 플레이 중 획득 가능. 등급별 목록·시작 개수·확률·획득 조건·만석 처리는 미정. 사용자 확정: 포텐 최대 200은 장수 전체 능력의 한도. 계속 시키는 실제 작업 비중에 따라 관련 능력들이 함께 성장·유지되고 계속 덜 쓰는 능력은 감소·재분배된다. **경과일 기반 감소안은 폐기**, 휴식·수면·대기·이동만으로 감소하지 않는다. 적용 설계: 기존 13종 기본 기술(각 0~20)의 합계 CA ≤ 개체 고정 PA ≤ 200. 특성·장비·기분의 실효 보정은 제외하고 시작 기본 기술 보정은 포함한다. 한도 후에는 감소분만큼만 관련 능력이 성장하며 중복 차감하지 않는다. 13종 전체 작업별 주/보조 관계를 명시하고 한 작업의 성장 예산을 분배한다(주80%/보조20% 잠정, 중복 지급 금지). 최근 작업 이력 범위·유지 비중·작업량당 변동률·CA/PA 공개 UI는 조정 대상. 게임 코드는 수정하지 않았다.

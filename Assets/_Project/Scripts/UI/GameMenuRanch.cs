@@ -13,19 +13,35 @@ namespace AntColony.UI
     {
         private object pendingRelease; // 방생 확인(두 번 누르면 실행)
         private object pendingSlaughter; // 도축 요청 확인(두 번 누르면 실행)
+        private Critter critterTabTarget;
+        private bool critterMedicalTab;
+        public void OpenCritterTab(Critter a, bool medical)
+        {
+            critterTabTarget = a; critterMedicalTab = medical; ShowCritter(a);
+        }
+
+        public void ConfirmCritterAction(Critter a, bool release)
+        {
+            if (a == null) return;
+            if (release) { if (!a.CanRelease) return; pendingRelease = a; }
+            else { if (a.SlaughterBlock != null) return; pendingSlaughter = a; }
+            OpenCritterTab(a, false);
+        }
         // 확인창: 실제 적용 대상의 이름·마릿수(같은 이름은 묶어서).
         private static string Names(System.Collections.Generic.IList<Critter> list) => string.Join(", ", list.GroupBy(a => a.DisplayName).Select(g => $"{g.Key} {g.Count()}마리"));
 
         public void ShowRanch(Ranch r)
         {
             if (r == null) { Resume(); return; }
-            Screen(r.Data.displayName + " / 목장");
+            var window = V5Window(r.Data.displayName + " / 목장", "우리 설정 · 개체 선택 · 일괄 요청");
+            content = V5Section(window, "우리 현황", 20, 104, 360, 190);
             var animals = r.Animals.ToList();
             MenuTheme.Text(content, (r.Operating ? $"우리 {r.Cells}칸 · 필요 공간 {r.NeededSpace:0.#}" + (r.Crowding > 1 ? $" · <color=#d9534f>과밀 {r.Crowding:P0}: 생산·번식 효율 {r.Efficiency:P0}</color>" : "")
                 : "<color=#d9534f>뚫린 우리(벽·울타리·문으로 둘러싸이지 않음)</color> — 먹기 외 생산·번식·돌봄·자동 작업 중단, 다시 막으면 재개")
                 + $" · {animals.Count}마리", 17, 45);
             MenuTheme.Button(content, $"자동 치료: {(r.AutoTreat ? "켬" : "끔")}", () => { r.AutoTreat = !r.AutoTreat; ShowRanch(r); });
             MenuTheme.Button(content, $"자동 채취: {(r.AutoHarvest ? "켬" : "끔")}", () => { r.AutoHarvest = !r.AutoHarvest; ShowRanch(r); });
+            content = V5Section(window, "종별 설정", 20, 306, 360, 342);
             foreach (var sp in System.Enum.GetValues(typeof(Species)).Cast<Species>())
             {
                 var info = SpeciesInfo.For(sp); var list = animals.Where(a => a.Species == sp).ToList(); var known = r.KnownSpecies.Contains(sp);
@@ -37,9 +53,10 @@ namespace AntColony.UI
                 MenuTheme.Button(content, $"  목표 {st.target}마리 (+)", () => { st.target++; ShowRanch(r); });
                 MenuTheme.Button(content, $"  자동 돌봄: {(st.autoCare ? "켬" : "끔")}", () => { st.autoCare = !st.autoCare; ShowRanch(r); });
             }
+            content = V5Section(window, "개체 목록 / 일괄 요청", 394, 104, 686, 544);
             RanchList(r); // 개체 목록·필터·정렬·일괄 요청(GameMenuRanchBulk.cs)
             MenuTheme.Button(content, "새로고침", () => ShowRanch(r));
-            MenuTheme.Button(content, "게임 재개", Resume);
+            V5Fit(window);
         }
 
         // 치료 시설 상태 한 줄(WorkTargetPanel·개체 화면 공용).
@@ -56,8 +73,33 @@ namespace AntColony.UI
         public void ShowCritter(Critter a)
         {
             if (a == null || a.Monster == null || a.Monster.IsDead) { Resume(); return; }
+            if (critterTabTarget != a) { critterTabTarget = a; critterMedicalTab = false; }
             var info = a.Info;
-            Screen($"{a.DisplayName} / 개체");
+            var window = V5Window($"{a.DisplayName} / 개체", "상태 · 관리 · 동물 의료");
+            MenuLayout.Button(window, "Animal Overview", "개요", 20, 100, 120, 34, () => { critterMedicalTab = false; ShowCritter(a); }, primary: !critterMedicalTab);
+            MenuLayout.Button(window, "Animal Medical", "의료", 148, 100, 120, 34, () => { critterMedicalTab = true; ShowCritter(a); }, primary: critterMedicalTab);
+            if (critterMedicalTab)
+            {
+                content = V5Section(window, "건강 / 치료 진행", 20, 148, 520, 500);
+                var status = MenuTheme.Text(content, "", 17, 90);
+                void RefreshStatus()
+                {
+                    if (a == null || a.Monster == null || a.Monster.IsDead) { Resume(); return; }
+                    status.text = $"체력 {a.HealthFraction:P0} · " + (a.HeavyInjury ? "중상" : a.Injured ? "경상" : "부상 없음")
+                        + (a.Clinic != null ? "\n" + ClinicStatus(a) : a.Recovering ? "\n시설 밖 — 회복 정지" : "")
+                        + (a.Medicated > 0 ? $"\n투약 효과 중 · {a.Medicated:0}초" : "")
+                        + (a.Sequelae > 0 ? "\n" + a.SequelaEffect : "");
+                }
+                RefreshStatus();
+                refreshDutyScreen = RefreshStatus;
+                MenuTheme.Text(content, "경상은 자연 회복하며 투약하면 빨라집니다. 투약 이후 생긴 경상에는 기존 약효가 적용되지 않습니다.\n중상은 치료대에서 수술하며, 실패 후에는 재수술 또는 우리 복귀를 선택합니다.", 15, 100);
+                content = V5Section(window, "투약 / 수술", 554, 148, 526, 500);
+                MedicalSection(a);
+                MenuTheme.Button(content, "새로고침", () => ShowCritter(a));
+                V5Fit(window);
+                return;
+            }
+            content = V5Section(window, "개체 상태", 20, 148, 520, 500);
             var where = a.Clinic != null ? ClinicStatus(a)
                 : a.Carrier != null ? $"운반 중({a.Carrier.CommanderName})" : a.Bound ? "결박됨" : a.Pen == null ? (a.Recovering ? "시설 밖 회복 정지 — 빈 치료대 재입원 대기" : "야생") : a.InOperatingPen ? a.Pen.Data.displayName : "뚫린 우리 / 우리 밖";
             MenuTheme.Text(content, $"{SpeciesInfo.TemperName(info.temper)} · {a.StageName} {a.Age:0.#}개월 · " + (a.Tame ? "길들임" : info.tameable ? $"야생(길들이기 {a.TameProgress:P0})" : "야생(길들이기 불가)")
@@ -65,6 +107,7 @@ namespace AntColony.UI
             MenuTheme.Text(content, $"{where} · 돌봄 효과 {(a.CareRemaining > 0 ? $"{a.CareRemaining:0}초" : "없음")}{(a.CareBlocked ? " · <color=#d9534f>자동 돌봄 재시도 중지</color>" : "")} · 직접 채취 {info.direct.DisplayName()} {a.DirectStock:0.#}"
                 + (a.TransportTo != null ? $" · 운반 요청: {a.TransportTo.Data.displayName}" : "") + (a.Handler != null ? $" · 담당 {a.Handler.CommanderName}" : ""), 16, 40);
             RenameField(a);
+            content = V5Section(window, "요청 / 담당 장수", 554, 148, 526, 500);
             if (!a.Bound && a.Carrier == null && a.Clinic == null)
                 MenuTheme.Button(content, a.CaptureDesignated ? "포획 요청 취소" : a.Tame ? "포획 요청(길들인 개체는 저항 없이 바로 결박)" : "포획 요청(사육 장수가 붙잡아 현장에 결박)", () => { a.CaptureDesignated = !a.CaptureDesignated; ShowCritter(a); });
             // 운반: 해당 종을 받는 우리를 목적지로(과밀은 제한 사유가 아님). 결박·쓰러짐·길들임·치료 후 대기 개체만.
@@ -80,7 +123,6 @@ namespace AntColony.UI
                 MenuTheme.Button(content, a.CareOrder ? "돌봄 1회 지시됨" : "돌봄 1회 지시", () => { a.CareOrder = true; ShowCritter(a); });
                 if (a.CareBlocked) MenuTheme.Button(content, "돌봄 재허용", () => { a.CareBlocked = false; ShowCritter(a); });
             }
-            MedicalSection(a);
             SlaughterSection(a);
             // 위험한 야생 개체: 다룰 장수를 유저가 고른다(성공 보장 없음).
             if (!a.Tame && !a.Downed && a.Clinic == null)
@@ -98,7 +140,7 @@ namespace AntColony.UI
                     () => { if (ReferenceEquals(pendingRelease, a)) { pendingRelease = null; a.Release(); Resume(); } else { pendingRelease = a; ShowCritter(a); } });
             else MenuTheme.Text(content, "치료 시설 안에서는 방생할 수 없습니다(우리로 복귀한 뒤 가능).", 15, 30);
             MenuTheme.Button(content, "새로고침", () => ShowCritter(a));
-            MenuTheme.Button(content, "게임 재개", Resume);
+            V5Fit(window);
         }
 
         // 개별 도축 요청·취소. 실제 도축을 시작하면 취소 불가.
@@ -116,16 +158,26 @@ namespace AntColony.UI
         {
             int Avail(ResourceType t) => AnimalMedicalStock.Available(t);
             string Stock(ResourceType t, string n) => $"{n} 사용 가능 {Avail(t)}(예약 {AnimalMedicalStock.Reserved(t)})" + (Avail(t) < 1 ? " <color=#d9534f>부족</color>" : "");
-            if (a.Injured || a.Clinic != null || a.Recovering)
-                MenuTheme.Text(content, Stock(ResourceType.AnimalMedicine, "동물용 의약품") + " · " + Stock(ResourceType.SurgeryKit, "수술 키트") + (a.HeavyInjury && !a.SurgeryStarted ? " · 수술 1회에 키트 1개" : ""), 15, 30);
-            if (a.Injured && a.Clinic == null)
-                MenuTheme.Button(content, a.TreatOrder ? "치료 지시됨" : "치료 지시(경상 투약 / 중상 수술)", () => { a.TreatOrder = true; ShowCritter(a); });
+            MenuTheme.Text(content, Stock(ResourceType.AnimalMedicine, "동물용 의약품") + " · " + Stock(ResourceType.SurgeryKit, "수술 키트") + (a.HeavyInjury && !a.SurgeryStarted ? " · 수술 1회에 키트 1개" : ""), 15, 50);
+            var benches = FindObjectsByType<Processor>(UnityEngine.FindObjectsSortMode.None).Where(p => p.IsMedical && p.isActiveAndEnabled).ToArray();
+            foreach (var bench in benches)
+                MenuTheme.Button(content, "약제대 생산 목록: " + bench.Data.displayName, () => ShowProcessor(bench));
+            if (benches.Length == 0) MenuTheme.Text(content, "사용 가능한 약제대 없음 — 건설 > 의료에서 건설하세요.", 15, 40);
+            if (!a.Injured && !a.Recovering && a.Clinic == null) MenuTheme.Text(content, "치료가 필요한 부상이 없습니다.", 17, 40);
+            if (a.Injured && !a.SurgeryStarted && !a.AwaitingDecision)
+            {
+                var needed = a.HeavyInjury ? ResourceType.SurgeryKit : ResourceType.AnimalMedicine;
+                MenuTheme.Button(content, a.TreatOrder ? "치료 지시됨" : a.HeavyInjury ? "수술 치료 지시" : "투약 지시", () => {
+                    if (Avail(needed) < 1 || a.TreatOrder || (!a.HeavyInjury && a.Medicated > 0)) return;
+                    a.TreatOrder = true; ShowCritter(a);
+                }).interactable = Avail(needed) > 0 && !a.TreatOrder && (a.HeavyInjury || a.Medicated <= 0);
+            }
             void Surgeons(string verb, System.Action<CommanderAnt> pick)
             {
                 foreach (var c in Critter.Surgeons.OrderByDescending(a.PredictedSuccess))
                 {
                     var picked = c;
-                    MenuTheme.Button(content, $"{verb}: {c.CommanderName} · 의료 {c.Talents.Level(CommanderActivity.Medicine)} · 예상 성공 {a.PredictedSuccess(c):P0} · 사망 위험 {a.PredictedDeath(c):P0}" + (a.SurgeonId == c.PersonalState.id ? " (지정됨)" : ""), () => { pick(picked); ShowCritter(a); });
+                    MenuTheme.Button(content, $"{verb}: {c.CommanderName} · 의료 {c.Talents.Level(CommanderActivity.Medicine)} · 예상 성공 {a.PredictedSuccess(c):P0} · 사망 위험 {a.PredictedDeath(c):P0}" + (a.SurgeonId == c.PersonalState.id ? " (지정됨)" : ""), () => { if (Avail(ResourceType.SurgeryKit) < 1) return; pick(picked); ShowCritter(a); }).interactable = Avail(ResourceType.SurgeryKit) > 0;
                 }
             }
             if (a.AwaitingDecision)
@@ -147,7 +199,8 @@ namespace AntColony.UI
         public void ShowButcher(RanchFacility f)
         {
             if (f == null || !f.IsButcher) { Resume(); return; }
-            Screen(f.Data.displayName + " / 도축대");
+            var window = V5Window(f.Data.displayName + " / 도축대", "허용 종 · 등록 순서대로 해체");
+            content = V5Section(window, "운영 설정", 20, 104, 520, 544);
             MenuTheme.Text(content, f.Paused ? "<color=#f2c94c>일시정지</color> — 사체·진행도 보존. 새 운반·해체는 시작하지 않고, 이미 운반 중인 사체는 받습니다."
                 : "운반 장수가 허용한 종의 사체를 옮기고 요리 작업 장수가 등록 순서대로 해체합니다. 요리 능력은 속도에만 영향, 생산물은 도축대 옆 바닥에 생깁니다.", 16, 50);
             MenuTheme.Button(content, f.Paused ? "재개(진행도 이어서)" : "일시정지", () => { f.Paused = !f.Paused; ShowButcher(f); });
@@ -156,6 +209,7 @@ namespace AntColony.UI
                 var s = sp;
                 MenuTheme.Button(content, $"{SpeciesInfo.For(sp).name} 사체: {(f.AllowsSpecies(sp) ? "허용" : "금지")}" + (f.AllowsSpecies(sp) ? " (금지하면 대기 중인 이 종 사체는 옆 바닥에 내려놓음)" : ""), () => { f.ToggleSpecies(s); ShowButcher(f); });
             }
+            content = V5Section(window, "사체 대기열", 554, 104, 526, 544);
             MenuTheme.Text(content, $"대기열 {f.Carcasses}구", 17, 30);
             for (var i = 0; i < f.Queue.Count; i++)
             {
@@ -163,16 +217,18 @@ namespace AntColony.UI
                 MenuTheme.Text(content, $"{i + 1}. {name} · 고기 {e.meat:0} · 갑각 {e.chitin}" + (i == 0 && f.ButcherProgress > 0 ? $" · 해체 {f.ButcherProgress / GameBalance.ButcherSeconds:P0}" : ""), 15, 26);
             }
             MenuTheme.Button(content, "새로고침", () => ShowButcher(f));
-            MenuTheme.Button(content, "게임 재개", Resume);
+            V5Fit(window);
         }
 
         public void ShowFeeder(RanchFacility f)
         {
             if (f == null || !f.IsFeeder) { Resume(); return; }
-            Screen(f.Data.displayName + " / 먹이통");
+            var window = V5Window(f.Data.displayName + " / 먹이통", "허용 먹이 · 목표 재고 · 반출");
+            content = V5Section(window, "운영 설정", 20, 104, 360, 544);
             MenuTheme.Text(content, "운반 장수가 허용한 먹이를 목표량까지 채웁니다(높은 우선순위부터). 허용을 끄거나 목표를 낮추면 초과분은 바로 바닥에 떨어집니다. 접근할 수 있는 생물이 함께 먹습니다.", 16, 50);
             MenuTheme.Button(content, $"운반 우선순위 {f.Priority} (−)", () => { f.Priority--; ShowFeeder(f); });
             MenuTheme.Button(content, $"운반 우선순위 {f.Priority} (+)", () => { f.Priority++; ShowFeeder(f); });
+            content = V5Section(window, "먹이 재고", 394, 104, 686, 544);
             foreach (var t in f.FeedTypes)
             {
                 var type = t;
@@ -181,7 +237,7 @@ namespace AntColony.UI
                 MenuTheme.Button(content, $"  {t.DisplayName()} 목표 +5", () => { f.SetTarget(type, f.Target(type) + 5); ShowFeeder(f); });
                 if (f.Stock(t) >= 1) MenuTheme.Button(content, $"  {t.DisplayName()} 직접 반출(바닥에)", () => { f.DumpAll(type); ShowFeeder(f); });
             }
-            MenuTheme.Button(content, "게임 재개", Resume);
+            V5Fit(window);
         }
     }
 }

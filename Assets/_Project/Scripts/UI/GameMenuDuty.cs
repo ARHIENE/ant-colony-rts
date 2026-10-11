@@ -20,7 +20,7 @@ namespace AntColony.UI
             var f = Frame("작업표");
             var p = L.Plate(f, "WorkSchedule", 180, 100, 1080, 650);
             L.Label(p, "작업표", 26, 24, 12, 1032, 40, MenuTheme.Accent);
-            L.Label(p, "체크 해제 = 금지. 아래 숫자를 눌러 우선순위 1(매우 낮음)~5(매우 높음)를 바꿉니다. 높은 숫자부터, 같으면 왼쪽부터 처리합니다. 진행 중인 작업은 마친 뒤 적용합니다.", 14, 24, 58, 1032, 42, MenuTheme.Muted);
+            L.Label(p, "좌클릭 +1 · 우클릭 −1 · 0 = 금지. 우선순위 1(매우 낮음)~5(매우 높음). 높은 숫자부터, 같으면 왼쪽부터 처리합니다. 진행 중인 작업은 마친 뒤 적용합니다.", 14, 24, 58, 1032, 42, MenuTheme.Muted);
             L.Label(p, "장수 / 현재 상태", 14, 24, 110, 210, 32);
             for (var i = 0; i < DutyJobs.Length; i++) L.Label(p, DutyNames[i], 13, 244 + i * 52, 110, 57, 32);
             var list = L.List(p, 24, 148, 1032, 426);
@@ -32,18 +32,28 @@ namespace AntColony.UI
                 for (var i = 0; i < DutyJobs.Length; i++)
                 {
                     var job = DutyJobs[i];
-                    var toggle = DutyToggle(row, "Job " + job, 220 + i * 52, 4, c.AllowsJob(job));
-                    var level = L.Button(row, "Priority " + job, "", 220 + i * 52, 35, 28, 22, () => { if (c != null && c.AllowsJob(job)) c.SetJobPriority(job, c.JobPriority(job) % CommanderWorkState.MaxPriority + 1); refreshDutyScreen?.Invoke(); });
+                    void Cycle(int direction)
+                    {
+                        if (c == null || c.IsDead || !c.CanDoJob(job)) return;
+                        var current = c.AllowsJob(job) ? c.JobPriority(job) : 0;
+                        var next = (current + direction + CommanderWorkState.MaxPriority + 1) % (CommanderWorkState.MaxPriority + 1);
+                        c.SetJobEnabled(job, next != 0);
+                        if (next != 0) c.SetJobPriority(job, next);
+                        refreshDutyScreen?.Invoke();
+                    }
+                    var level = L.Button(row, "Priority " + job, "", 220 + i * 52, 4, 48, 30, () => Cycle(1));
+                    var clicks = level.gameObject.AddComponent<UnityEngine.EventSystems.EventTrigger>();
+                    var right = new UnityEngine.EventSystems.EventTrigger.Entry { eventID = UnityEngine.EventSystems.EventTriggerType.PointerClick };
+                    right.callback.AddListener(e => { if (((UnityEngine.EventSystems.PointerEventData)e).button == UnityEngine.EventSystems.PointerEventData.InputButton.Right) Cycle(-1); });
+                    clicks.triggers.Add(right);
                     var levelText = level.GetComponentInChildren<Text>();
-                    toggle.onValueChanged.AddListener(on => { if (c != null) c.SetJobEnabled(job, on); refreshDutyScreen?.Invoke(); });
                     var skill = job == CommanderJobs.Hunting ? (c.Role == AntColony.Data.UnitRole.Ranged ? CommanderActivity.Ranged : CommanderActivity.Melee) : CommanderAnt.SkillFor(job);
-                    var skillText = L.Label(row, "", 11, 248 + i * 52, 2, 33, 58, MenuTheme.Accent);
+                    var skillText = L.Label(row, "", 11, 220 + i * 52, 35, 48, 24, MenuTheme.Accent);
                     refreshDutyScreen += () => {
-                        toggle.interactable = c != null && !c.IsDead && c.CanDoJob(job);
+                        level.interactable = c != null && !c.IsDead && c.CanDoJob(job);
                         if (c != null) skillText.text = job == CommanderJobs.Cleaning ? (c.Traits.Has(CommanderTrait.Neat) ? "×1.5" : "—")
                             : c.CanDoJob(job) ? c.Talents.Level(skill) + new string('♥', c.Traits.Flame(skill)) : "불가";
-                        if (c != null) toggle.SetIsOnWithoutNotify(c.AllowsJob(job));
-                        level.interactable = c != null && c.AllowsJob(job);
+
                         if (c != null) levelText.text = c.AllowsJob(job) ? c.JobPriority(job).ToString() : "—";
                     };
                 }

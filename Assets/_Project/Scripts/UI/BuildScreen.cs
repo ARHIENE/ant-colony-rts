@@ -21,7 +21,7 @@ namespace AntColony.UI
 
         // 건설 분류 16종(2026-10-05). 탭 이름 2~3글자라 '이동수단'은 '이동'. 빈 분류는 가구가 생기면 채운다.
         private static readonly string[] TabNames = { "타일", "생활", "저장", "환경", "전력", "자동화", "배관", "식량", "작업", "의료", "방어", "휴게", "장식", "군사", "마을", "이동" };
-        private const int TabsPerRow = 6; // 오른쪽 칸 폭에서 3글자가 읽히는 폭(3줄)
+        private const int TabsPerRow = 8; // 오른쪽 칸 폭에서 3글자가 읽히는 폭(3줄)
         private static readonly Key[] SlotKeys = { Key.Q, Key.W, Key.E, Key.R, Key.T, Key.A, Key.S, Key.D, Key.F, Key.G };
         private static readonly Entry[][] Tabs =
         {
@@ -72,7 +72,11 @@ namespace AntColony.UI
 
         private static BuildScreen instance;
         private BuildingPlacementController placement;
-        private RectTransform buildPanel, picker, placeBar;
+        private RectTransform buildPanel, picker, placeBar, buildWindow;
+        private Text materialSummary;
+        private RectTransform materialList;
+        private readonly List<Button> materialRows = new List<Button>();
+        private ResourceType selectedMaterial = ResourceType.Soil;
         private readonly List<GameObject> tabPages = new List<GameObject>();
         private readonly List<Button> tabButtons = new List<Button>();
         private readonly List<Button> pickRows = new List<Button>();
@@ -108,8 +112,14 @@ namespace AntColony.UI
         private void Start()
         {
             placement = FindFirstObjectByType<BuildingPlacementController>();
-            buildPanel = MenuTheme.Rect("BuildPanel", HudConsole.Right);
-            MenuTheme.Stretch(buildPanel); buildPanel.offsetMin = new Vector2(14, 10); buildPanel.offsetMax = new Vector2(-14, -HudConsole.WingTop);
+            buildWindow = MenuLayout.Plate(transform, "BuildWindowV5", 170, 90, 1100, 620);
+            var windowCanvas = buildWindow.gameObject.AddComponent<Canvas>();
+            windowCanvas.overrideSorting = true; windowCanvas.sortingOrder = 100;
+            buildWindow.gameObject.AddComponent<GraphicRaycaster>();
+            MenuLayout.Label(buildWindow, "건설", 24, 20, 12, 900, 40, MenuTheme.Accent);
+            MenuLayout.Label(buildWindow, "건물 선택 → 재료 비교 → 담당 장수 선택 → 배치", 14, 20, 56, 1000, 30, MenuTheme.Muted);
+            MenuLayout.Button(buildWindow, "Close Build", "×", 1044, 16, 36, 32, () => SetOpen(false));
+            buildPanel = MenuLayout.Place(MenuTheme.Rect("BuildPanel", buildWindow), 20, 104, 680, 490);
             for (var t = 0; t < Tabs.Length; t++)
             {
                 var captured = t;
@@ -127,17 +137,28 @@ namespace AntColony.UI
                 tabPages.Add(page.gameObject);
             }
 
-            picker = MenuTheme.Rect("BuilderPicker", HudConsole.Center);
-            MenuTheme.Stretch(picker); picker.offsetMin = new Vector2(16, 10); picker.offsetMax = new Vector2(-16, -10);
+            picker = MenuLayout.Place(MenuTheme.Rect("BuilderPicker", buildWindow), 726, 104, 354, 490);
             pickTitle = Text(picker, "", 14, new Vector2(0, 0), new Vector2(800, 40));
             for (var i = 0; i < 4; i++)
             {
                 var index = i;
-                var row = Cell(picker, "Builder " + i, new Vector2(0, -46 - i * 34), new Vector2(800, 30), (i + 1).ToString(), "", () => Assign(index));
+                var row = Cell(picker, "Builder " + i, new Vector2(0, -62 - i * 44), new Vector2(354, 40), (i + 1).ToString(), "", () => Assign(index));
                 row.gameObject.AddComponent<MenuTooltip>().Message = "이 장수에게 건설을 맡기고 배치할 곳을 고릅니다.";
                 pickRows.Add(row);
             }
 
+            materialSummary = MenuLayout.Label(picker, "", 13, 0, 242, 354, 52, MenuTheme.Muted);
+            materialList = MenuLayout.List(picker, 0, 300, 354, 184);
+            materialList.parent.name = "Compare Material";
+            foreach (var material in MaterialInfo.Structural)
+            {
+                var choice = material;
+                var button = MenuTheme.Button(materialList, "", () => selectedMaterial = choice);
+                button.name = "Material " + material;
+                button.GetComponent<LayoutElement>().preferredHeight = 62;
+                button.GetComponentInChildren<Text>().fontSize = 13;
+                materialRows.Add(button);
+            }
             placeBar = MenuTheme.Panel(transform, "PlacementBar", new Vector2(.5f, 1), new Vector2(520, 34), new Vector2(0, -48));
             placeText = Text(placeBar, "", 14, new Vector2(12, -2), new Vector2(500, 30));
             // 주재료 선택(2026-10-10): 누를 때마다 다음 재료. 비교 정보는 둘째 줄.
@@ -151,6 +172,7 @@ namespace AntColony.UI
         private void SetOpen(bool open)
         {
             picking = null;
+            buildWindow.gameObject.SetActive(open);
             buildPanel.gameObject.SetActive(open);
             if (open) placement?.CancelPlacement();
         }
@@ -169,19 +191,19 @@ namespace AntColony.UI
                 // 줄이 많으면 칸 높이를 줄여 콘솔 안에 맞춘다(최대 52).
                 // 12칸을 넘으면 4열(가구 5차로 휴게 13칸, 2026-10-06) — 5줄이면 이름과 상태 글자가 겹친다.
                 var cols = buttons.Length > 12 ? 4 : 3;
-                var rowHeight = Mathf.Min(52f, ((RectTransform)page.transform).rect.height / Mathf.Max(1, (buttons.Length + cols - 1) / cols));
+                var rowHeight = Mathf.Min(96f, ((RectTransform)page.transform).rect.height / Mathf.Max(1, (buttons.Length + cols - 1) / cols));
                 for (var i = 0; i < buttons.Length; i++)
                 {
                     MenuLayout.Place((RectTransform)buttons[i].transform, i % cols * width / cols, i / cols * rowHeight, width / cols - 4, rowHeight - 4);
                     var label = buttons[i].GetComponentsInChildren<Text>(true)[1];
                     MenuTheme.Stretch(label.rectTransform);
-                    label.verticalOverflow = VerticalWrapMode.Truncate; label.resizeTextForBestFit = true; // Overflow면 줄이지 않고 위로 넘친다 label.resizeTextMinSize = 8; label.resizeTextMaxSize = 11; // 칸이 낮아도 이름·비용 두 줄이 잘리지 않게
+                    label.verticalOverflow = VerticalWrapMode.Truncate; label.resizeTextForBestFit = true; label.resizeTextMinSize = 11; label.resizeTextMaxSize = 16;
                 }
             }
-            pickTitle.rectTransform.sizeDelta = new Vector2(picker.rect.width, 40);
+            pickTitle.rectTransform.sizeDelta = new Vector2(picker.rect.width, 58);
             foreach (var row in pickRows)
             {
-                ((RectTransform)row.transform).sizeDelta = new Vector2(picker.rect.width, 30);
+                ((RectTransform)row.transform).sizeDelta = new Vector2(picker.rect.width, 40);
                 MenuTheme.Stretch(row.GetComponentsInChildren<Text>(true)[1].rectTransform);
             }
             var open = IsOpen;
@@ -244,7 +266,8 @@ namespace AntColony.UI
             var shown = Mathf.Min(builders.Count, pickRows.Count - 1);
             if (picking == null || index > shown) return;
             // 마지막 줄 = 장수 미지정: 예정지만 두고 건설 작업이 켜진 장수가 자율 시공한다.
-            if (placement != null && placement.BeginPlacement(picking.Value.kind, picking.Value.role, index < shown ? builders[index] : null)) SetOpen(false);
+            if (placement != null && placement.BeginPlacement(picking.Value.kind, picking.Value.role, index < shown ? builders[index] : null))
+            { placement.PendingMaterial = selectedMaterial; SetOpen(false); }
         }
 
         private static List<CommanderAnt> Builders() => CommanderRoster.Instance == null ? new List<CommanderAnt>()
@@ -272,6 +295,15 @@ namespace AntColony.UI
         {
             var builders = Builders();
             var data = Data(entry);
+            var selectable = data != null && Demolition.MaterialSelectable(entry.kind) && data.soilCost > 0;
+            materialSummary.text = selectable ? "주재료 선택 · " + selectedMaterial.DisplayName() + "\n보유/필요 · 내구도 · 미관 · 단열 · 가연성" : "이 건물은 고정 재료를 사용합니다.";
+            materialList.parent.gameObject.SetActive(selectable);
+            if (selectable)
+                for (var m = 0; m < materialRows.Count; m++)
+                {
+                    var type = MaterialInfo.Structural[m];
+                    materialRows[m].GetComponentInChildren<Text>().text = (selectedMaterial == type ? "● " : "○ ") + MaterialLine(type, data.soilCost);
+                }
             pickTitle.text = $"<b><color=#f2a93b>누구에게 맡길까요?</color></b>   {entry.name}  <color=#968976>{(data != null ? Cost(data) : "")} · 대기 {builders.Count}명 · 건설 기술이 높을수록 빨리 완공</color>";
             var shown = Mathf.Min(builders.Count, pickRows.Count - 1);
             for (var i = 0; i < pickRows.Count; i++)

@@ -10,15 +10,11 @@ namespace AntColony.UI
         public void ShowProcessor(Processor p)
         {
             if (p == null) { Resume(); return; }
-            Screen(p.Data.displayName + " / 가공");
+            var window = V5Window(p.Data.displayName + " / 가공", "생산 방식과 수량을 선택한 뒤 품목을 추가하세요.");
+            content = V5Section(window, "생산 품목 / 주문 설정", 20, 104, 520, 544);
             var rm = ResourceManager.Instance;
             MenuTheme.Text(content, p.Current != null ? $"진행 중: {p.Current.name} {p.Progress:P0}" : "진행 중인 가공 없음", 19, 45);
-            MenuTheme.Button(content, $"방식: {ModeName(orderMode)} (눌러서 변경)", () => { orderMode = (Workshop.OrderMode)(((int)orderMode + 1) % 3); ShowProcessor(p); });
-            if (orderMode != Workshop.OrderMode.Forever)
-            {
-                MenuTheme.Button(content, $"{(orderMode == Workshop.OrderMode.Count ? "만들 묶음" : "목표 재고")} {orderAmount} (−)", () => { orderAmount = Mathf.Max(1, orderAmount - 1); ShowProcessor(p); });
-                MenuTheme.Button(content, $"{(orderMode == Workshop.OrderMode.Count ? "만들 묶음" : "목표 재고")} {orderAmount} (+)", () => { orderAmount = Mathf.Min(Workshop.MaxOrderAmount, orderAmount + 1); ShowProcessor(p); });
-            }
+            ProductionControls(() => ShowProcessor(p));
             for (int i = 0; i < p.Recipes.Count; i++)
             {
                 var index = i; var r = p.Recipes[i];
@@ -26,6 +22,7 @@ namespace AntColony.UI
                     if (!p.AddOrder(index, orderMode, orderAmount)) ToastManager.Show($"생산 목록은 최대 {Workshop.MaxOrders}개입니다."); ShowProcessor(p);
                 }).interactable = p.isActiveAndEnabled && p.Orders.Count < Workshop.MaxOrders;
             }
+            content = V5Section(window, "생산 목록 / 진행 상태", 554, 104, 526, 544);
             foreach (var order in p.Orders.ToArray())
             {
                 var r = p.Recipes[order.recipe];
@@ -35,7 +32,7 @@ namespace AntColony.UI
             MenuTheme.Text(content, (p.IsMedical ? "작업표에서 간호(의료)가 켜진 장수가 할 수 있는 치료가 없을 때 와서 만듭니다(의료 능력은 속도만)." : "작업표에서 제작이 켜진 장수가 자율로 와서 가공합니다.")
                 + " 재료는 한 묶음을 시작할 때 차감하고, 창고가 차면 결과물은 창고 주변 바닥에 둡니다.", 17, 70);
             MenuTheme.Button(content, "새로고침", () => ShowProcessor(p));
-            MenuTheme.Button(content, "게임 재개", Resume);
+            V5Fit(window);
         }
     }
 }
