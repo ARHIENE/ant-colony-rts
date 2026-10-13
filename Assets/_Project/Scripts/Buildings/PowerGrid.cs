@@ -16,6 +16,12 @@ namespace AntColony.Buildings
         private float timer;
 
         public static void MarkDirty() { dirty = true; Ensure(); }
+        // 전력 가구가 아닌 소비 건물(냉장고·냉동고 등, 2026-10-12). 칸이 맞닿은 망에서 전력을 받는다.
+        public interface IUser { IEnumerable<Vector2Int> Cells { get; } float Demand { get; } bool Powered { set; } }
+        private static readonly List<IUser> users = new List<IUser>();
+        private static readonly Dictionary<IUser, int> userNet = new Dictionary<IUser, int>();
+        public static void Register(IUser u) { if (!users.Contains(u)) users.Add(u); MarkDirty(); }
+        public static void Unregister(IUser u) { users.Remove(u); MarkDirty(); }
         private static void Ensure()
         {
             if (instance != null || !Application.isPlaying) return;
@@ -44,7 +50,9 @@ namespace AntColony.Buildings
             foreach (var net in networks)
             {
                 var supply = net.Sum(n => n.Output) * seconds;
-                var demand = net.Sum(n => n.Demand) * seconds;
+                var netIndex = networks.IndexOf(net);
+                var netUsers = users.Where(u => userNet.TryGetValue(u, out var i) && i == netIndex).ToList();
+                var demand = (net.Sum(n => n.Demand) + netUsers.Sum(u => u.Demand)) * seconds;
                 var batteries = net.Where(n => n.IsBattery).ToList();
                 var stored = batteries.Sum(b => b.Charge);
                 var powered = supply + stored >= demand && demand > 0;
@@ -56,7 +64,9 @@ namespace AntColony.Buildings
                     b.Charge += change; surplus -= change;
                 }
                 foreach (var n in net) if (n.IsConsumer) n.Powered = powered;
+                foreach (var u in netUsers) u.Powered = powered;
             }
+            foreach (var u in users) if (!userNet.ContainsKey(u)) u.Powered = false; // 망에 닿지 않으면 정전
         }
 
         private static void Rebuild()
@@ -82,6 +92,11 @@ namespace AntColony.Buildings
                 }
                 networks.Add(net);
             }
+            userNet.Clear();
+            foreach (var u in users)
+                foreach (var c in u.Cells)
+                    foreach (var d in new[] { Vector2Int.zero, Vector2Int.right, Vector2Int.left, Vector2Int.up, Vector2Int.down })
+                        if (!userNet.ContainsKey(u) && cellOf.TryGetValue(c + d, out var near) && near.Count > 0) userNet[u] = networkOf[near[0]];
         }
     }
 }

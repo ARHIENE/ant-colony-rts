@@ -33,6 +33,7 @@ namespace AntColony.Save
     {
         public int food, soil, special;
         public int[] materials; // v16: 흙 외 재료 보유량(ResourceManager.OtherMaterials 순서, 옛 저장은 null = 0)
+        public Core.StoreBin.Dto baseBin; // v17: 비축더미 칸의 실제 재고·허용 품목·우선순위(옛 저장은 null → 총량을 칸들에 다시 나눔)
         public int foodCapacity, soilCapacity, specialCapacity;
         public bool storageResearchApplied;
         public int antsFree, antsAssigned, antsReserved;
@@ -105,6 +106,8 @@ namespace AntColony.Save
     [Serializable]
     public class BuildingDto
     {
+        public Core.StoreBin.Dto storeBin; // v17: 창고 칸의 실제 재고·허용 품목·우선순위
+        public bool packed; // v17: 회수·포장된 가구(기능 정지, 다시 설치 대기)
         public int workforce;
         public float repairCredit;
         public int decorationQuality = 1;
@@ -179,6 +182,7 @@ namespace AntColony.Save
         public float sowRemaining; // 밭 파종 남은 작업량(2026-10-08). 옛 저장은 0 = 이미 심음.
         public bool bountifulHarvest;
         public bool gatheringForbidden;
+        public AntColony.Core.FoodLots lots; // 바닥 식품 신선도(2026-10-12). 옛 저장은 비어 있음 = 신선
         public int fishMonth = -1; // v9: 낚시터 월 한도를 마지막으로 채운 달(-1 = 다음 틱에 이번 달로 채움)
     }
 
@@ -279,8 +283,9 @@ namespace AntColony.Save
         public float upkeepTimer, incursionTimer;
         public bool loopCompleted, bossDefeated, defeated;
         public string randomState;
-        public const int CurrentVersion = 16;
+        public const int CurrentVersion = 17;
         public List<World.Corpse.State> corpses = new List<World.Corpse.State>();
+        public List<ConstructionDto> construction; // v17 건설·철거·이동·개보수 예정지(옛 저장은 null = 없음)
         public List<World.Critter.State> critters; // v16 목장 생물 개체(2026-10-11 개편: 나이·배고픔·길들임·돌봄·결박 등, 옛 필드는 같은 이름으로 읽힘)
         public World.DiplomacyManager.State diplomacy;
         public Core.CampaignHistory.State history = new Core.CampaignHistory.State();

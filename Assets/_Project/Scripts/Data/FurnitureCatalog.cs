@@ -56,7 +56,7 @@ namespace AntColony.Data
 
             In(BuildCategory.Storage); // 창고 없이 바닥 보관도 가능(비 맞으면 상함)
             F("수납장", 1, RoomKind.Storeroom, BuildingKind.Storage); F("항아리", 1, RoomKind.Storeroom, BuildingKind.Jar); F("저장고", 1, RoomKind.ColdStorage, BuildingKind.FoodStore);
-            F("냉장고", 4, RoomKind.ColdStorage, net: NetworkLayer.Power); F("냉동창고", 5, RoomKind.ColdStorage, net: NetworkLayer.Power);
+            F("냉장고", 4, RoomKind.ColdStorage, BuildingKind.Fridge, NetworkLayer.Power); F("냉동고", 5, RoomKind.ColdStorage, BuildingKind.Freezer, NetworkLayer.Power); // 2026-10-12 구현(냉동고가 연구·건설·전력 모두 더 비쌈)
             F("운반 레일", 4); F("순간이동 보관함", 6, RoomKind.Storeroom, net: NetworkLayer.Power);
 
             In(BuildCategory.Environment); // 불 쓰는 가구는 화재 가능. 연료: 나무 → 화석연료 → 석유 → 전기 → 태양광·핵융합

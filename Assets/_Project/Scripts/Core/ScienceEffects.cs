@@ -64,6 +64,9 @@ namespace AntColony.Core
             BuildingKind.MineField => Has(ScienceTechnology.Mines),
             BuildingKind.RestRoom or BuildingKind.Bookshelf or BuildingKind.Bathtub or (>= BuildingKind.BoardGame and <= BuildingKind.WebSwing) or BuildingKind.HotSpring => Has(ScienceTechnology.Recreation), // 처음 오락 2종 외에는 Recreation 연구로 해금
             BuildingKind.Workshop => Has(ScienceTechnology.Blades),
+            // ponytail: 냉장고 = 압축 저장(2티어), 냉동고 = 압축 저장 + 보온 설비(3티어) 연구. 전용 연구 항목이 생기면 교체한다.
+            BuildingKind.Fridge => Has(ScienceTechnology.Fermentation),
+            BuildingKind.Freezer => Has(ScienceTechnology.Fermentation) && Has(ScienceTechnology.Insulation),
             BuildingKind.Infirmary => Has(ScienceTechnology.Infirmary),
             BuildingKind.AirshipYard => Has(ScienceTechnology.MigrationTheory),
             BuildingKind.Farm => BiomeRules.FarmAllowed, // 도시 구석은 밭 건설 불가

@@ -166,7 +166,7 @@ public static class Spec1011RanchChecks
             foreach (Species sp in Enum.GetValues(typeof(Species))) ranch.Setting(sp).autoCare = false; // 돌봄이 포획보다 먼저 잡히지 않게
             keeper.CommandStop(); wildAphid.CaptureDesignated = true; keeper.TickDuty(2);
             Check(keeper.AnimalJob == AnimalTask.Capture, "keeper captures designated critter: " + keeper.AnimalJob);
-            Check(await Until(() => wildAphid.Bound, 60), "captured critter bound on site");
+            Check(await Until(() => wildAphid.Bound, 60), $"captured critter bound on site (job {keeper.AnimalJob}, designated {wildAphid.CaptureDesignated}, dist {Vector3.Distance(keeper.Position, wildAphid.transform.position):0.0}, satiety {keeper.Satiety:0}, eating {keeper.IsEating}, moving {keeper.Agent.hasPath})");
             Check(!wildAphid.CaptureDesignated && wildAphid.TransportTo == null, "capture clears designation, waits for destination");
             wildAphid.TransportTo = ranch; keeper.SetJobEnabled(CommanderJobs.Husbandry, false); keeper.SetJobEnabled(CommanderJobs.Hauling, true); feeder.SetTarget(Resource.Leaf, 0);
             keeper.TickDuty(2); Check(keeper.AnimalJob == AnimalTask.Carry, "hauler carries bound critter: " + keeper.AnimalJob);
@@ -383,8 +383,10 @@ public static class Spec1011RanchChecks
             var spiderAccepted = ranch.Accepts(Species.Spider); if (spiderAccepted) ranch.ToggleAccept(Species.Spider);
             ((HashSet<Critter>)typeof(AntColony.UI.GameMenuController).GetField("picked", BindingFlags.Instance | BindingFlags.NonPublic).GetValue(menu)).Clear(); // 선택 비우기
             menu.ShowRanch(ranch); await Frames(1);
-            Btn("[  ] 묶인이(진딧물)").onClick.Invoke(); await Frames(1);
-            Btn("[  ] 묶인거미(거미)").onClick.Invoke(); await Frames(1);
+            // V5 목록(2026-10-12): 행(Animal 이름) 안의 선택 칸을 누른다.
+            UnityEngine.UI.Button Pick(string who) => Object.FindObjectsByType<UnityEngine.UI.Button>(FindObjectsSortMode.None).First(b => b.isActiveAndEnabled && b.name.Contains("Select") && b.GetComponentsInParent<Transform>().Any(t => t.name.Contains("Animal " + who)));
+            Pick("묶인이(진딧물)").onClick.Invoke(); await Frames(1);
+            Pick("묶인거미(거미)").onClick.Invoke(); await Frames(1);
             Check(Btn("운반 요청 →") == null && Object.FindObjectsByType<UnityEngine.UI.Text>(FindObjectsSortMode.None).Any(t => t.text.Contains("공통 목적지가 없습니다")), "no common destination when a species is not accepted");
             ranch.ToggleAccept(Species.Spider); menu.ShowRanch(ranch); await Frames(1);
             Btn("운반 요청 →").onClick.Invoke(); await Frames(1); Btn("확인: 운반 요청").onClick.Invoke(); await Frames(1);

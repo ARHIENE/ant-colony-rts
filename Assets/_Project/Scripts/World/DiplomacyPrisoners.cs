@@ -162,20 +162,29 @@ namespace AntColony.World
         internal static void StoreResource(ResourceType type, int amount, ResourceReason reason, Vector3? near)
         {
             var rm = ResourceManager.Instance; if (rm == null || amount <= 0) return;
-            var fits = Mathf.Clamp(rm.GetCapacity(type) - rm.GetAmount(type), 0, amount);
-            if (fits > 0) rm.Add(type, fits, reason);
-            if (amount - fits <= 0) return;
-            DropFloor(type, amount - fits, (near ?? StoragePosition()) + new Vector3(UnityEngine.Random.Range(-3f, 3f), 0, UnityEngine.Random.Range(-3f, 3f)));
+            rm.Add(type, amount, reason, near ?? StoragePosition()); // 창고에 들어가는 만큼 담고 넘친 몫은 그 주변 바닥
         }
         // 바닥 물건(운반 작업 대상). 목장 바닥 생산물·먹이통 배출 등(2026-10-11).
-        internal static void DropFloor(ResourceType type, int amount, Vector3 at)
+        internal static void DropFloor(ResourceType type, int amount, Vector3 at) => DropFloor(type, amount, at, null);
+        // lots: 창고·운반에서 나온 식품의 신선도(없으면 신선한 것으로 친다).
+        internal static void DropFloor(ResourceType type, int amount, Vector3 at, FoodLots lots)
         {
             if (amount <= 0) return;
+            // 가까운(2m) 같은 종류 바닥 더미에 합쳐 더미가 끝없이 늘지 않게 한다(2026-10-12).
+            var pile = ResourceNode.Available.FirstOrDefault(n => n != null && n.IsLooseCargo && n.ResourceType == type && !n.IsRaidLoot
+                && n.GetComponentInParent<ExpeditionSite>() == null && (n.transform.position - at).sqrMagnitude < 4f);
+            if (pile != null)
+            {
+                var food = pile.TryGetComponent<FloorFood>(out var f) ? f.Sync() : null; // 합치기 전 신선도를 맞춰 둔다
+                pile.AddStock(amount); food?.Add(lots);
+                return;
+            }
             var drop = GameObject.CreatePrimitive(PrimitiveType.Cube);
             drop.name = "Received " + type; drop.SetActive(false);
             drop.transform.position = new Vector3(at.x, at.y + .3f, at.z);
             drop.transform.localScale = Vector3.one * .6f;
             drop.AddComponent<ResourceNode>().ConfigureLoot(type, amount);
+            if (drop.TryGetComponent<FloorFood>(out var fresh)) fresh.Lots.Add(lots);
             drop.AddComponent<ResourceNodeStatus>(); drop.SetActive(true);
         }
         // 바닥 장비는 장비 전리품으로 두고 운반 작업 장수가 보관함으로 옮긴다(우클릭 회수도 가능).

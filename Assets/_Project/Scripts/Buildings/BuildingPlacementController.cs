@@ -217,19 +217,17 @@ namespace AntColony.Buildings
             }
 
             var cost = building.Data;
-            // 재개발: 건설비 할인 + 거주 인원 비례 보상비를 함께 낸다.
+            // 2026-10-12: 자원이 부족해도 예정지를 둔다. 건설비는 예약·배송 후 실제 시공 시작 때 소비한다(BuildingConstructionSite).
+            // 재개발 보상비만 배치 순간 지급하고 취소해도 돌려주지 않는다.
             var quote = redevelop != null ? Redevelopment.Price(cost, redevelop) : default;
-            int food = redevelop != null ? quote.TotalFood : cost.foodCost, soil = redevelop != null ? quote.TotalSoil : cost.soilCost, special = redevelop != null ? quote.special : cost.specialCost;
+            int food = redevelop != null ? quote.food : cost.foodCost, soil = redevelop != null ? quote.soil : cost.soilCost, special = redevelop != null ? quote.special : cost.specialCost;
             var material = redevelop != null ? ResourceType.Soil : PendingMaterial;
-            if (ResourceManager.Instance == null || !ResourceManager.Instance.CanAfford(food, soil, material, special))
-            {
-                PlacementFailed($"건설에 식량 {food} · {material.DisplayName()} {soil} · 특수 {special}이(가) 필요합니다.");
-                return null;
-            }
+            if (ResourceManager.Instance == null) return null;
             if (builder is CommanderAnt commander && !commander.CanDoJob(Decoration.IsKind(pendingKind) ? CommanderJobs.Art : CommanderJobs.Building))
             { PlacementFailed("이 장수는 해당 작업을 할 수 없습니다."); return null; }
-            if (!ResourceManager.Instance.TrySpend(food, soil, material, special, ResourceReason.Construction))
+            if (redevelop != null && !ResourceManager.Instance.TrySpend(quote.compensationFood, quote.compensationSoil, 0, ResourceReason.Construction))
             {
+                PlacementFailed($"재개발 보상비 식량 {quote.compensationFood} · 재료 {quote.compensationSoil}이(가) 필요합니다(배치할 때 지급).");
                 return null;
             }
 
@@ -259,7 +257,7 @@ namespace AntColony.Buildings
 
             var site = siteObject.AddComponent<BuildingConstructionSite>();
             site.Initialize(completedBuilding, cost.buildTimeSeconds);
-            if (redevelop != null) site.SetRefund(quote.food, quote.soil, quote.special); else site.SetRefund(food, soil, special, material);
+            site.Require(ResourceType.Food, food); site.Require(material, soil); site.Require(ResourceType.Special, special);
             if (redevelop != null)
             {
                 siteObject.AddComponent<RedevelopmentSite>().Target = redevelop;
@@ -423,7 +421,7 @@ namespace AntColony.Buildings
                     or BuildingKind.Treadmill or BuildingKind.WoodGenerator or BuildingKind.PowerWire or BuildingKind.Battery or BuildingKind.ElectricLamp
                     or BuildingKind.Hearth or BuildingKind.SleepingMat or BuildingKind.DoubleBed or BuildingKind.Floor or BuildingKind.LockedDoor or BuildingKind.BarredDoor
                     or BuildingKind.SingleBed or BuildingKind.Bookshelf or BuildingKind.Bathtub
-                    or BuildingKind.FoodStore or BuildingKind.Jar or BuildingKind.Armory or BuildingKind.AdminDesk
+                    or BuildingKind.FoodStore or BuildingKind.Jar or BuildingKind.Fridge or BuildingKind.Freezer or BuildingKind.Armory or BuildingKind.AdminDesk
                     or (>= BuildingKind.BunkBed and <= BuildingKind.BanquetTable) or (>= BuildingKind.Carpentry and <= BuildingKind.MedicineBench) => FindDecorationTemplate(kind), // 가구 5·6차, 가공대
                 _ => null
             };

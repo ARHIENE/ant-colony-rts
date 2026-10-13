@@ -12,7 +12,7 @@ namespace AntColony.UI
     public sealed class GatherDesignation : MonoBehaviour
     {
         private static GatherDesignation instance;
-        private bool active, forbid, dragging, priority;
+        private bool active, forbid, dragging, priority, tasks;
         public static int PriorityLevel = AntColony.Units.WorkPriorities.Default; // 1~9, 10 = 노란 경보
         private Vector2 start;
         private int consumedFrame = -1;
@@ -27,15 +27,22 @@ namespace AntColony.UI
         public static void Begin(bool forbidNodes)
         {
             if (instance == null) return;
-            instance.active = true; instance.forbid = forbidNodes; instance.dragging = false; instance.priority = false;
+            instance.active = true; instance.forbid = forbidNodes; instance.dragging = false; instance.priority = instance.tasks = false;
             ToastManager.Show(forbidNodes ? "채집 금지 지정: 노드 클릭 또는 드래그, 우클릭 종료" : "지정 취소: 노드 클릭 또는 드래그, 우클릭 종료");
         }
         // 대상 우선순위 지정(1~9) 또는 노란 경보(10). 클릭·드래그로 노드·건물·예정지·시체·야생 개체에 적용.
         public static void BeginPriority()
         {
             if (instance == null) return;
-            instance.active = instance.priority = true; instance.dragging = false;
+            instance.active = instance.priority = true; instance.dragging = instance.tasks = false;
             ToastManager.Show((PriorityLevel > AntColony.Units.WorkPriorities.Max ? "노란 경보 지정" : "대상 우선순위 " + PriorityLevel + " 지정") + ": 대상 클릭 또는 드래그, 우클릭 종료");
+        }
+        // 작업 선택(2026-10-12): 드래그한 범위의 건설·철거·이동·개보수 예정지와 요리 시설을 작업 관리 창에서 한꺼번에 다룬다.
+        public static void BeginTaskSelect()
+        {
+            if (instance == null) return;
+            instance.active = instance.tasks = true; instance.priority = instance.dragging = false;
+            ToastManager.Show("작업 선택: 예정지·요리 시설을 클릭 또는 드래그(일괄 우선순위·일시정지·재개·취소), 우클릭 종료");
         }
         public static string PriorityLabel => PriorityLevel > AntColony.Units.WorkPriorities.Max ? "노란 경보" : "단계 " + PriorityLevel;
         public static void CyclePriority() => PriorityLevel = PriorityLevel % (AntColony.Units.WorkPriorities.Max + 1) + 1;
@@ -83,6 +90,14 @@ namespace AntColony.UI
             { dragging = true; start = position; }
             if (!dragging || !mouse.leftButton.wasReleasedThisFrame) return;
             dragging = false; consumedFrame = Time.frameCount;
+            if (tasks)
+            {
+                var area = Vector2.Distance(start, position) < 8 ? new Rect(position - Vector2.one * 16, Vector2.one * 32)
+                    : Rect.MinMaxRect(Mathf.Min(start.x, position.x), Mathf.Min(start.y, position.y), Mathf.Max(start.x, position.x), Mathf.Max(start.y, position.y));
+                var view = UnityEngine.Camera.main; End();
+                GameMenuController.Instance?.ShowTasks(GameMenuController.TaskCandidates().Where(c => { var p = view.WorldToScreenPoint(c.transform.position); return p.z > 0 && area.Contains(new Vector2(p.x, p.y)); }).ToList());
+                return;
+            }
             if (priority)
             {
                 var rect = Vector2.Distance(start, position) < 8 ? new Rect(position - Vector2.one * 12, Vector2.one * 24)

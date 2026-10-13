@@ -18,6 +18,8 @@ namespace AntColony.Save
             var d = new BuildingDto { key = key, kind = SaveCatalog.Kind(b), runtimeBuilt = built,
                 position = new Vec3Dto(b.Position), rotationY = b.transform.eulerAngles.y, health = b.CurrentHealth };
             d.repairCredit = b.GetComponent<BuildingRepair>()?.Credit ?? 0;
+            if (b is Storage store && store.Bin != null) d.storeBin = store.Bin.Capture();
+            d.packed = b.TryGetComponent<PackedFurniture>(out _);
             if (b is Kitchen kitchen) d.kitchen = JsonUtility.FromJson<Kitchen.State>(JsonUtility.ToJson(kitchen.Meals));
             if (b is Decoration decoration) d.decorationQuality = decoration.Quality;
             if (b is Barracks barracks) { d.role = (int)barracks.Role; d.barracksTier = barracks.CurrentTier; d.barracksUpgradeRemaining = barracks.UpgradeRemaining; }
@@ -117,6 +119,7 @@ namespace AntColony.Save
                 d.nurseryAffinity.Select(a => commanders[a.secondCommanderId]).ToList(), d.nurseryAffinity.Select(a => a.value).ToList());
             var nodes = b.GetComponentsInChildren<ResourceNode>(true);
             foreach (var node in d.nodes) { nodes[node.index].RestoreState(node.amount, node.regrowTimer, node.sowRemaining); nodes[node.index].IsLooseCargo = node.looseCargo; nodes[node.index].BountifulHarvest = node.bountifulHarvest; nodes[node.index].GatheringForbidden = node.gatheringForbidden; }
+            if (d.packed && !b.TryGetComponent<PackedFurniture>(out _)) { b.gameObject.AddComponent<PackedFurniture>(); b.enabled = false; }
         }
     }
 }

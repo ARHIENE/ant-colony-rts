@@ -132,9 +132,10 @@ public static class MealChecks
 
             // Food가 없으면 굶주림 -15, 30초 뒤 재시도.
             rm.TrySpend(rm.GetAmount(AntColony.Data.ResourceType.Food), 0);
+            foreach (var t in new[] { AntColony.Data.ResourceType.SimpleMeal, AntColony.Data.ResourceType.FineMeal, AntColony.Data.ResourceType.RottenFood }) rm.TrySpend(t, rm.GetAmount(t)); // 2026-10-12: 요리·썩은 식품도 먹는다
             Warp(c, store.Position + Vector3.forward * 3);
             Hungry(c); c.TickDuty(1);
-            Check(!c.IsEating && Mood(c, "Hunger") == -15 && c.PersonalState.meal.retrySeconds == GameBalance.StarveRetrySeconds, "starving without food");
+            Check(!c.IsEating && Mood(c, "Hunger") == -15 && c.PersonalState.meal.retrySeconds == GameBalance.StarveRetrySeconds, $"starving without food (eating {c.IsEating} q{c.PersonalState.meal.quality} rotten {c.PersonalState.meal.rotten} hunger {Mood(c, "Hunger")} retry {c.PersonalState.meal.retrySeconds} food {rm.GetAmount(AntColony.Data.ResourceType.Food)} simple {rm.GetAmount(AntColony.Data.ResourceType.SimpleMeal)} rot {rm.GetAmount(AntColony.Data.ResourceType.RottenFood)} kitchenMeals {kitchen.Meals.meals.Count})");
 
             // 출전·수면 중에는 먹으러 가지 않는다(수면 중엔 포만도 그대로).
             rm.Add(AntColony.Data.ResourceType.Food, 50);

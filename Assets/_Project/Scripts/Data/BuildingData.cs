@@ -58,7 +58,9 @@ namespace AntColony.Data
         // 2026-10-10 목장: 우리 표지(튼튼한 우리는 옛 저장 호환용, 같은 동작)
         Pen, StrongPen,
         // 2026-10-11 목장 시설·약제대(동물용 의약품·수술 키트)
-        Feeder, CareStation, AnimalClinic, ButcherTable, MedicineBench
+        Feeder, CareStation, AnimalClinic, ButcherTable, MedicineBench,
+        // 2026-10-12 식품 보관: 냉장고(부패 늦춤)·냉동고(부패 정지), 전력 필요
+        Fridge, Freezer
     }
 
     [CreateAssetMenu(fileName = "BuildingData", menuName = "AntColony/Building Data")]

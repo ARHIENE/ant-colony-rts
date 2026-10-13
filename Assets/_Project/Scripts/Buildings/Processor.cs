@@ -92,11 +92,9 @@ namespace AntColony.Buildings
             return true;
         }
 
-        // 철거 시 진행 중 묶음의 재료는 돌려준다(가공 전 재료라 손실 없음).
-        internal void RefundCurrent()
+        // 철거·이동 시작 시 진행 중 생산을 취소한다. 이미 소비한 재료는 돌려주지 않는다(2026-10-12). 주문 목록은 남는다.
+        internal void CancelCurrent()
         {
-            var r = Current; if (r == null) return;
-            foreach (var i in r.inputs) AntColony.World.DiplomacyManager.StoreResource(i.type, i.amount, ResourceReason.Refund);
             state.current = -1; state.progress = 0;
         }
 

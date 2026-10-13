@@ -11,13 +11,17 @@ namespace AntColony.Data
             ResourceType.Plank => "판재", ResourceType.StoneBlock => "석재 블록", ResourceType.Brick => "벽돌", ResourceType.Glass => "유리", ResourceType.Cloth => "직물",
             ResourceType.Iron => "철", ResourceType.Copper => "구리", ResourceType.Steel => "강철",
             ResourceType.Honeydew => "감로", ResourceType.Thread => "실", ResourceType.Honey => "꿀",
-            ResourceType.AnimalMedicine => "동물용 의약품", ResourceType.SurgeryKit => "동물 수술 키트",
+            ResourceType.AnimalMedicine => "동물용 의약품", ResourceType.SurgeryKit => "동물 수술 키트", ResourceType.RottenFood => "썩은 식품", ResourceType.SimpleMeal => "간단한 요리", ResourceType.FineMeal => "좋은 요리",
             _ => type.ToString()
         };
         // 식량·특수 외에는 모두 '재료'다. 재료 종류마다 저장 한도는 기존 재료(흙) 한도를 같이 쓴다.
-        public static bool IsMaterial(this ResourceType type) => type != ResourceType.Food && type != ResourceType.Special;
+        public static bool IsMaterial(this ResourceType type) => type != ResourceType.Special && !type.IsFood();
+        // 썩은 식품(2026-10-12)은 식량 칸·식량 한도를 쓰지만 소굴 식량 합계에는 들어가지 않는 별도 자원이다.
+        public static bool IsFood(this ResourceType type) => type == ResourceType.Food || type == ResourceType.RottenFood || type == ResourceType.SimpleMeal || type == ResourceType.FineMeal;
+        // 장수가 먹을 수 있는 정상 식품(날것·간단한 요리·좋은 요리). 썩은 식품은 정상 식품이 없을 때만 먹는다.
+        public static bool IsEdible(this ResourceType type) => type == ResourceType.Food || type == ResourceType.SimpleMeal || type == ResourceType.FineMeal;
         // 누적 기록·외교는 기존 3칸(식량·재료·특수)으로 묶는다.
-        public static int Group(this ResourceType type) => type == ResourceType.Food ? 0 : type == ResourceType.Special ? 2 : 1;
+        public static int Group(this ResourceType type) => type.IsFood() ? 0 : type == ResourceType.Special ? 2 : 1;
         public static readonly ResourceType[] Materials = System.Linq.Enumerable.ToArray(System.Linq.Enumerable.Where(
             (ResourceType[])System.Enum.GetValues(typeof(ResourceType)), t => t.IsMaterial()));
     }
@@ -36,7 +40,11 @@ namespace AntColony.Data
         // 목장 생산물
         Honeydew, Thread, Honey,
         // 2026-10-11 동물 치료(장수용 약과 별도 자원)
-        AnimalMedicine, SurgeryKit
+        AnimalMedicine, SurgeryKit,
+        // 2026-10-12 썩은 식품(퇴비 원료, 정상 식품이 없을 때만 먹음)
+        RottenFood,
+        // 2026-10-12 완성 요리(조리 시설 주변 바닥에 나오고 운반·보관한다. 등급은 레시피로 정한다)
+        SimpleMeal, FineMeal
     }
 
     // 재료 특성(내구·무게·가연성·미관·단열). 후반 재료가 모든 면에서 우월하지 않게 용도를 나눈다.

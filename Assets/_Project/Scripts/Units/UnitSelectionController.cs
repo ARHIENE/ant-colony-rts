@@ -123,6 +123,10 @@ namespace AntColony.Units
                     index++;
                     continue;
                 }
+                // 직접 우선 작업을 지시하면 들고 있던 짐을 그 자리에 내려놓고 바로 전환한다(2026-10-12). 단순 이동은 짐을 유지한다.
+                if (worker is CommanderAnt carrier && carrier.IsCarrying && !carrier.IsAwayFromHome
+                    && (deposit != null && deposit.CountsTowardPlayerDefeat && !(deposit is Storage || deposit is Stockpile) || target is WildMonster || resourceNode != null && resourceNode.CanGather
+                        || hit.collider.GetComponentInParent<BuildingConstructionSite>() != null)) carrier.DropCargo();
                 if (worker is CommanderAnt artisan && deposit != null && deposit.CountsTowardPlayerDefeat)
                 {
                     var job = deposit is Infirmary ? CommanderJobs.Nursing : deposit is Kitchen ? CommanderJobs.Cooking : CommanderJobs.Repair;

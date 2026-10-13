@@ -185,7 +185,7 @@ namespace AntColony.Save
                 {
                     if (s?.work == null) return;
                     s.work.jobs |= Units.CommanderJobs.Husbandry;
-                    if (s.work.priorities?.Length == 14) { Array.Resize(ref s.work.priorities, Units.CommanderWorkState.JobCount); s.work.priorities[14] = Units.CommanderWorkState.DefaultPriority; }
+                    if (s.work.priorities?.Length == 14) { Array.Resize(ref s.work.priorities, Units.CommanderWorkState.JobCount); s.work.priorities[14] = 3; } // 당시 1~5 척도의 보통(3). v17 이관에서 1~9로 바뀐다.
                 }
                 foreach (var c in file.commanders ?? new System.Collections.Generic.List<CommanderDto>()) { Talents(c?.talents); Work(c?.personalState); }
                 foreach (var b in file.buildings ?? new System.Collections.Generic.List<BuildingDto>())
@@ -200,6 +200,23 @@ namespace AntColony.Save
                 foreach (var h in file.diplomacy?.homecomings ?? new System.Collections.Generic.List<World.Homecoming>()) { Talents(h?.commander?.Talents); Work(h?.commander?.PersonalState); }
                 foreach (var r in file.diplomacy?.rebelMembers ?? new System.Collections.Generic.List<World.RebelMember>()) { Talents(r?.commander?.Talents); Work(r?.commander?.PersonalState); }
                 file.version = 16;
+            }
+            if (file.version == 16)
+            {
+                // 2026-10-12: 작업표 1~5(보통 3) → 1~9(기본 5). 같은 순서를 유지하도록 p → 2p−1(3 → 5). 0(금지)은 그대로.
+                void Scale(Units.CommanderPersonalState s) { if (s?.work?.priorities != null) for (int i = 0; i < s.work.priorities.Length; i++) if (s.work.priorities[i] > 0) s.work.priorities[i] = s.work.priorities[i] * 2 - 1; }
+                foreach (var c in file.commanders ?? new System.Collections.Generic.List<CommanderDto>()) Scale(c?.personalState);
+                foreach (var b in file.buildings ?? new System.Collections.Generic.List<BuildingDto>())
+                    if (b?.prisoners != null) foreach (var p in b.prisoners) Scale(p?.personalState);
+                if (file.diplomacy?.civilizations != null && file.diplomacy.markets != null)
+                    foreach (var f in file.diplomacy.civilizations.Concat(file.diplomacy.markets))
+                    {
+                        if (f?.prisoners != null) foreach (var p in f.prisoners) Scale(p?.PersonalState);
+                        if (f?.rebels != null) foreach (var p in f.rebels) Scale(p?.PersonalState);
+                    }
+                foreach (var h in file.diplomacy?.homecomings ?? new System.Collections.Generic.List<World.Homecoming>()) Scale(h?.commander?.PersonalState);
+                foreach (var r in file.diplomacy?.rebelMembers ?? new System.Collections.Generic.List<World.RebelMember>()) Scale(r?.commander?.PersonalState);
+                file.version = 17;
             }
             if (file.version != SaveFileV1.CurrentVersion)
             {

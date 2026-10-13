@@ -24,9 +24,9 @@ namespace AntColony.Units
         public CommanderDuty duty;
         public float health = GameBalance.CommanderHealth, quietSeconds, recoverySeconds;
         public bool resting; // 휴식 지시: 피로가 풀릴 때까지 자율 작업을 쉰다.
-        // 작업 종류별 우선순위(작업표 비트 순서, 15칸). 0 = 금지, 1~5 = 매우 낮음~매우 높음. 이전 저장(null)은 jobs 켬=보통(3)으로 만든다.
+        // 작업 종류별 우선순위(작업표 비트 순서, 15칸). 0 = 금지, 1~9(높을수록 먼저, 기본 5) — 게임 전체 우선순위와 같은 범위(2026-10-12). 이전 저장(null)은 jobs 켬=기본(5)으로 만든다.
         public int[] priorities;
-        public const int JobCount = 15, MaxPriority = 5, DefaultPriority = 3;
+        public const int JobCount = 15, MaxPriority = 9, DefaultPriority = 5;
         public static int Index(CommanderJobs job) { for (int i = 0; i < JobCount; i++) if ((int)job == 1 << i) return i; return -1; }
         // jobs 비트가 켬/금지의 기준이다. SetJobEnabled로 켜진 칸은 보통, 꺼진 칸은 금지로 맞춘다.
         public int Priority(CommanderJobs job)
@@ -65,7 +65,7 @@ namespace AntColony.Units
             return true; // Already started work finishes, including delivery of its cargo.
         }
         public int JobPriority(CommanderJobs job) => AllowsJob(job) ? WorkState.Priority(job) : 0;
-        // 1~5 단계 지정(0이면 금지). 불가 특성 칸은 켤 수 없다.
+        // 1~9 단계 지정(0이면 금지). 불가 특성 칸은 켤 수 없다.
         public bool SetJobPriority(CommanderJobs job, int level)
         {
             if (CommanderWorkState.Index(job) < 0 || level < 0 || level > CommanderWorkState.MaxPriority || !SetJobEnabled(job, level > 0)) return false;
@@ -131,11 +131,8 @@ namespace AntColony.Units
             }
             if (WorkState.resting && (IsWorking || !IsFatigued)) WorkState.resting = false;
             if (LabUpgradeBusy || IsWorking || IsInCombat) return;
-            if (CarriedAmount >= 1)
-            {
-                if (ResourceManager.Instance != null && ResourceManager.Instance.GetAmount(CarriedType) < ResourceManager.Instance.GetCapacity(CarriedType)) ReturnCargoToStorage();
-                return;
-            }
+            // 들고 있는 짐은 먼저 창고로(받을 곳이 없으면 그 자리에 내려놓는다). 운반을 마친 뒤에야 다음 작업을 고른다(2026-10-12).
+            if (CarriedAmount >= 1) { ReturnCargoToStorage(); return; }
             if (automaticFacility != null)
             {
                 if (!automaticFacility.isActiveAndEnabled || automaticFacility.IsDead) automaticFacility = null;
@@ -152,15 +149,24 @@ namespace AntColony.Units
             if (WorkState.resting && !WorkPriorities.Red) return;
             workScan -= seconds; if (workScan > 0) return; workScan = GameBalance.WorkScanSeconds;
             // ponytail: one scan per second for the small commander roster; index jobs if profiling shows contention.
-            // 노란 경보 대상 → 작업 종류 우선순위 → 대상 우선순위 1~9 → 거리. 같은 작업 우선순위 단계의 후보는 작업 종류와 무관하게 함께 비교하고,
-            // 대상 우선순위·거리까지 같을 때만 작업표 왼쪽 순서를 따른다(2026-10-10). 연구는 플레이어 지시 전용이라 자율 목록에 없다.
+            // 노란 경보 대상 → 작업 종류 우선순위 → 대상 우선순위 1~9 → 실제 이동 거리 → 거리까지 같으면 오래 기다린 요청(2026-10-12).
+            // 같은 작업 우선순위 단계의 후보는 작업 종류와 무관하게 함께 비교한다. 연구는 플레이어 지시 전용이라 자율 목록에 없다.
             var tiers = AutoJobs.Where(AllowsJob).GroupBy(j => WorkState.Priority(j)).OrderByDescending(g => g.Key).ToArray();
             foreach (var yellow in new[] { true, false })
                 foreach (var tier in tiers)
-                    foreach (var (_, start) in tier.SelectMany(AutoCandidates).Where(c => c.target != null && (!yellow || WorkPriorities.Yellow(c.target)))
-                        .OrderByDescending(c => WorkPriorities.Level(c.target)).ThenByDescending(c => c.target is Corpse k && k.Priority)
-                        .ThenBy(c => (c.target.transform.position - Position).sqrMagnitude))
-                        if (start()) return;
+                    foreach (var level in tier.SelectMany(AutoCandidates).Where(c => c.target != null && (!yellow || WorkPriorities.Yellow(c.target)))
+                        .GroupBy(c => (WorkPriorities.Level(c.target), c.target is Corpse k && k.Priority)).OrderByDescending(g => g.Key.Item1).ThenByDescending(g => g.Key.Item2))
+                        foreach (var (_, start) in ByTravel(level))
+                            if (start()) return;
+        }
+        // 같은 대상 우선순위 안에서 실제 경로 길이 → 오래 기다린 요청 순. 경로 계산은 직선거리로 가까운 몇 개만 한다.
+        // ponytail: 직선 상위 8개만 경로를 잰다. 후보가 많아 먼 곳이 실제로 더 가까운 경우가 잦으면 늘린다.
+        private IEnumerable<(Component target, Func<bool> start)> ByTravel(IEnumerable<(Component target, Func<bool> start)> group)
+        {
+            var sorted = group.OrderBy(c => (c.target.transform.position - Position).sqrMagnitude).ToList();
+            var head = sorted.Take(8).Select(c => (c, d: Mathf.Round(TravelDistance(c.target.transform.position) * 2) / 2))
+                .OrderBy(x => x.d).ThenBy(x => WorkPriorities.RequestedAt(x.c.target)).Select(x => x.c);
+            return head.Concat(sorted.Skip(8));
         }
         private static readonly CommanderJobs[] AutoJobs = { CommanderJobs.Nursing, CommanderJobs.Repair, CommanderJobs.Cleaning, CommanderJobs.Building, CommanderJobs.Art,
             CommanderJobs.Crafting, CommanderJobs.Administration, CommanderJobs.Cooking, CommanderJobs.Hunting, CommanderJobs.Hauling, CommanderJobs.Husbandry, CommanderJobs.Farming, CommanderJobs.Fishing, CommanderJobs.Gathering };
@@ -188,8 +194,13 @@ namespace AntColony.Units
                     yield break;
                 case CommanderJobs.Building: case CommanderJobs.Art:
                     // 중심 대신 주변 접근 지점으로 판정한다(철거·이동 예정지는 가구가 길을 막아 중심에 닿지 못한다).
-                    foreach (var site in FindObjectsByType<BuildingConstructionSite>(FindObjectsSortMode.None).Where(s => (s.IsArt ? CommanderJobs.Art : CommanderJobs.Building) == job))
-                        yield return (site, () => { if (!TryWorkApproach(site.Position, out _)) return false; CommandBuild(site); return ConstructionTarget == site; });
+                    // 재료가 모두 도착한 예정지는 시공, 아직이면 예약된 재료를 직접 가져온다(건설 장수도 배송 가능, 2026-10-12).
+                    foreach (var site in FindObjectsByType<BuildingConstructionSite>().Where(s => s.Job == job && !s.Paused))
+                        yield return (site, () =>
+                        {
+                            if (!site.CanWork) return site.PendingPickup != null && CommandFetchFor(site);
+                            if (!TryWorkApproach(site.Position, out _)) return false; CommandBuild(site); return ConstructionTarget == site;
+                        });
                     yield break;
                 case CommanderJobs.Crafting:
                     foreach (var shop in FindObjectsByType<Workshop>(FindObjectsSortMode.None))
@@ -219,6 +230,9 @@ namespace AntColony.Units
                 foreach (var wheel in PowerNode.All.Where(p => p.NeedsRunner))
                     yield return (wheel, () => StartService(wheel, CommanderJobs.Hauling));
                 foreach (var t in AnimalHaulingTasks()) yield return t; // 생물 운반·먹이통 보충·사체 → 도축대(2026-10-11)
+                // 건설 재료 배송(2026-10-12): 예약된 재료를 창고에서 예정지로.
+                foreach (var site in FindObjectsByType<BuildingConstructionSite>().Where(s => s.PendingPickup != null))
+                    yield return (site, () => CommandFetchFor(site));
                 // 바닥 장비(외교 초과분·사망 장수 장비 등)를 장비 보관함으로 옮긴다. 기존 우클릭 회수 동작을 재사용.
                 if (EquipmentInventory.Instance != null && !EquipmentInventory.Instance.Full)
                     foreach (var loot in FindObjectsByType<AntColony.World.EquipmentLoot>(FindObjectsSortMode.None).Where(l => l.Collector == null))
@@ -228,7 +242,8 @@ namespace AntColony.Units
                 yield return (node, () =>
                 {
                     if (!node.CanGather || CarriedAmount != 0 && CarriedType != node.ResourceType
-                        || ResourceManager.Instance == null || ResourceManager.Instance.GetAmount(node.ResourceType) >= ResourceManager.Instance.GetCapacity(node.ResourceType)
+                        || ResourceManager.Instance == null || ResourceManager.Instance.Room(node.ResourceType, this) <= 0
+                        || node.IsLooseCargo && Active.OfType<WorkerAnt>().Any(w => w != this && w.CurrentResourceNode == node) // 바닥 더미는 한 장수만 맡는다
                         || node.GetComponentInParent<ExpeditionSite>() != null || node.IsRaidLoot || !TryWorkApproach(node.transform.position, out _)) return false;
                     CommandGather(node); return true;
                 });

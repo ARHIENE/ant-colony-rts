@@ -20,7 +20,7 @@ namespace AntColony.UI
             var f = Frame("작업표");
             var p = L.Plate(f, "WorkSchedule", 180, 100, 1080, 650);
             L.Label(p, "작업표", 26, 24, 12, 1032, 40, MenuTheme.Accent);
-            L.Label(p, "좌클릭 +1 · 우클릭 −1 · 0 = 금지. 우선순위 1(매우 낮음)~5(매우 높음). 높은 숫자부터, 같으면 왼쪽부터 처리합니다. 진행 중인 작업은 마친 뒤 적용합니다.", 14, 24, 58, 1032, 42, MenuTheme.Muted);
+            L.Label(p, "좌클릭 +1 · 우클릭 −1 · 0 = 금지. 우선순위 1~9(기본 5). 높은 숫자부터, 같으면 대상 우선순위 → 실제 거리 → 오래 기다린 요청 순입니다. 진행 중인 작업은 마친 뒤 적용합니다.", 14, 24, 58, 1032, 42, MenuTheme.Muted);
             L.Label(p, "장수 / 현재 상태", 14, 24, 110, 210, 32);
             for (var i = 0; i < DutyJobs.Length; i++) L.Label(p, DutyNames[i], 13, 244 + i * 52, 110, 57, 32);
             var list = L.List(p, 24, 148, 1032, 426);
@@ -60,6 +60,8 @@ namespace AntColony.UI
             }
             L.Button(p, "Forbid Gathering", "채집 금지", 24, 592, 150, 36, () => { Resume(); GatherDesignation.Begin(true); });
             L.Button(p, "Clear Designation", "지정 취소", 186, 592, 150, 36, () => { Resume(); GatherDesignation.Begin(false); });
+            L.Button(p, "Select Tasks", "작업 선택", 348, 592, 150, 36, () => { Resume(); GatherDesignation.BeginTaskSelect(); }); // 드래그로 일괄 관리(2026-10-12)
+            L.Button(p, "All Tasks", "전체 작업", 510, 592, 150, 36, () => ShowTasks(System.Linq.Enumerable.ToList(TaskCandidates())));
             L.Button(p, "Close Duty", "게임 재개", 856, 592, 200, 36, Resume);
             refreshDutyScreen?.Invoke();
         }

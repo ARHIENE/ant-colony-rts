@@ -1,3 +1,4 @@
+using System.Linq;
 using AntColony.Buildings;
 using AntColony.Core;
 using AntColony.Data;
@@ -20,13 +21,19 @@ namespace AntColony.Units
             ReturningToStorage,
             Depositing,
             MovingToBuildSite,
-            Building
+            Building,
+            FetchingMaterial,   // 건설 재료를 가지러 창고로(2026-10-12)
+            DeliveringMaterial  // 가져온 재료를 예정지로
         }
 
         private State state = State.Idle;
         private ResourceNode targetNode;
         private BuildingBase targetDeposit;
+        private StoreBin targetBin; // 본거지 반납 목적지 칸(2026-10-12). 원정 화물선 반납은 null.
+        private BuildingConstructionSite deliverySite; private StoreBin fetchBin; private ResourceType fetchType; private int fetchAmount;
+        public BuildingConstructionSite DeliverySite => deliverySite;
         private float carriedAmount;
+        private FoodLots carriedLots = new FoodLots(); // 들고 있는 식품의 신선도(2026-10-12)
         private AntColony.Data.ResourceType carriedType;
         private BuildingConstructionSite targetConstruction;
         private float buildTimer;
@@ -58,6 +65,7 @@ namespace AntColony.Units
                 drop.transform.position = new Vector3(Position.x, .3f, Position.z);
                 drop.transform.localScale = Vector3.one * .6f;
                 drop.AddComponent<ResourceNode>().ConfigureLoot(carriedType, carriedAmount);
+                if (drop.TryGetComponent<FloorFood>(out var food)) food.Lots.Add(carriedLots); // 들고 있던 식품 신선도 그대로
                 drop.AddComponent<ResourceNodeStatus>();
                 drop.SetActive(true);
             }
@@ -72,8 +80,53 @@ namespace AntColony.Units
             drop.name = "Dropped " + carriedType; drop.SetActive(false);
             drop.transform.position = Position; drop.transform.localScale = Vector3.one * .6f;
             drop.AddComponent<ResourceNode>().ConfigureLoot(carriedType, carriedAmount);
+            if (drop.TryGetComponent<FloorFood>(out var food)) food.Lots.Add(carriedLots); // 들고 있던 식품 신선도 그대로
             drop.AddComponent<ResourceNodeStatus>(); drop.SetActive(true);
             carriedAmount = 0; CommandStop();
+        }
+        private void ReleaseDestination()
+        {
+            targetBin = null; ResourceManager.Instance?.Reserve(this, null, default, 0);
+            if (deliverySite != null) { deliverySite.AbortPickup(this); deliverySite = null; }
+        }
+
+        // 건설 재료 배송(2026-10-12): 예약된 재료가 있는 창고에 가서 집고 예정지에 가져다 놓는다. 운반 장수와 건설 장수 모두 한다.
+        public bool CommandFetchFor(BuildingConstructionSite site)
+        {
+            var need = site != null ? site.PendingPickup : null; var rm = ResourceManager.Instance;
+            if (need == null || rm == null || IsCarrying || !isActiveAndEnabled || IsDead || !TryWorkApproach(site.Position, out _)) return false;
+            foreach (var bin in rm.Bins.Where(b => b.Usable && b.Amount(need.type) > 0).OrderBy(b => (b.Position - Position).sqrMagnitude))
+            {
+                var host = bin.Host != null ? bin.Host : BuildingBase.FindNearestDepositPoint(bin.Position);
+                if (host == null || !TryWorkApproach(host.Position, out var approach)) continue;
+                var amount = Mathf.Min(need.reserved, Mathf.FloorToInt(CarryCapacity), bin.Amount(need.type));
+                if (amount <= 0) return false;
+                CommandStop();
+                if (!site.BeginPickup(this, need.type, amount)) return false;
+                deliverySite = site; fetchBin = bin; fetchType = need.type; fetchAmount = amount;
+                SetMoveDestination(approach); state = State.FetchingMaterial;
+                return true;
+            }
+            return false;
+        }
+        private void TickFetching()
+        {
+            if (deliverySite == null || deliverySite.Paused) { ReleaseDestination(); StopMoving(); state = State.Idle; return; }
+            if (!HasReachedDestination()) return;
+            FoodLots lots = null; var taken = ResourceManager.Instance != null ? ResourceManager.Instance.TakeFrom(fetchBin, fetchType, fetchAmount, out lots) : 0;
+            if (taken <= 0) { ReleaseDestination(); state = State.Idle; return; } // 그새 다른 소비로 비었다 → 다음 판단에서 다시 예약
+            deliverySite.BeginPickup(this, fetchType, taken); // 실제 집은 양으로 맞춘다(모자란 몫은 예약 분배가 다시 채운다)
+            carriedAmount = taken; carriedType = fetchType; carriedLots = lots ?? new FoodLots();
+            if (!TryWorkApproach(deliverySite.Position, out var approach)) { DropCargo(); return; }
+            SetMoveDestination(approach); state = State.DeliveringMaterial;
+        }
+        private void TickDelivering()
+        {
+            if (deliverySite == null) { state = State.Idle; if (IsCarrying) BeginReturnIfNeeded(); return; } // 예정지가 사라지면 짐은 창고로
+            if (!HasReachedDestination()) return;
+            var given = deliverySite.Deliver(this, carriedType, Mathf.FloorToInt(carriedAmount + .001f));
+            carriedAmount = Mathf.Max(0, carriedAmount - given); deliverySite = null;
+            if (carriedAmount >= 1) BeginReturnIfNeeded(); else { carriedAmount = 0; state = State.Idle; }
         }
 
         // 채집 성능은 장수가 병력 수만큼 배수로 올릴 수 있게 훅으로 분리한다.
@@ -96,6 +149,17 @@ namespace AntColony.Units
             var path = new NavMeshPath();
             return Agent.CalculatePath(destination, path) && path.status == NavMeshPathStatus.PathComplete
                 && path.corners.Length > 0 && Vector3.Distance(path.corners[path.corners.Length - 1], destination) <= 1f;
+        }
+
+        // 실제 이동 거리(경로 길이). 갈 수 없으면 무한대. 비행 중이면 직선거리.
+        public float TravelDistance(Vector3 destination)
+        {
+            if (IsFlying) return Vector3.Distance(Position, destination);
+            if (!Agent.enabled || !Agent.isOnNavMesh || !NavMesh.SamplePosition(destination, out var hit, 4, NavMesh.AllAreas)) return float.PositiveInfinity;
+            var path = new NavMeshPath();
+            if (!Agent.CalculatePath(hit.position, path) || path.status != NavMeshPathStatus.PathComplete) return float.PositiveInfinity;
+            float length = 0; for (int i = 1; i < path.corners.Length; i++) length += Vector3.Distance(path.corners[i - 1], path.corners[i]);
+            return length;
         }
 
         public bool TryWorkApproach(Vector3 target, out Vector3 destination)
@@ -153,7 +217,7 @@ namespace AntColony.Units
         public override void CommandStop()
         {
             targetConstruction = null; // 예정지·진행도는 남겨 다른 장수(또는 복귀 후 본인)가 이어 짓는다.
-
+            ReleaseDestination();
             targetNode = null;
             state = State.Idle;
             base.CommandStop();
@@ -188,6 +252,7 @@ namespace AntColony.Units
         public virtual void CommandBuild(BuildingConstructionSite site)
         {
             if (site == null || !CanStartConstruction) return; // 여러 장수가 한 예정지에 함께 참여한다.
+            if (!site.CanWork) { if (!site.Paused && !site.Ready) CommandFetchFor(site); return; } // 재료가 다 오기 전엔 시공하지 않고 재료를 가지러 간다
             CommandStop();
             targetNode = null;
             targetConstruction = site;
@@ -208,10 +273,13 @@ namespace AntColony.Units
                 if (deposit != ship || ship == null || ship.State != ExpeditionState.Deployed) return false;
             }
             else if (!deposit.CountsTowardPlayerDefeat || (!(deposit is Stockpile) && !(deposit is Storage))) return false;
-            if (!CanReach(deposit.Position)) return false;
+            var bin = commander != null && commander.IsAwayFromHome ? null : ResourceManager.Instance?.BinOf(deposit);
+            if (bin != null && !bin.Accepts(carriedType, this)) return false; // 허용하지 않거나 가득 찬 창고
+            if (!TryWorkApproach(deposit.Position, out var approach)) return false;
             CommandStop();
-            targetDeposit = deposit;
-            SetMoveDestination(deposit.Position);
+            targetDeposit = deposit; targetBin = bin;
+            if (bin != null) ResourceManager.Instance.Reserve(this, bin, carriedType, Mathf.CeilToInt(carriedAmount));
+            SetMoveDestination(approach);
             state = State.ReturningToStorage;
             return true;
         }
@@ -230,10 +298,14 @@ namespace AntColony.Units
             if (!IsFlying)
             {
                 if (!Agent.enabled || !Agent.isOnNavMesh) return;
-                if ((state == State.MovingToNode || state == State.ReturningToStorage)
+                if ((state == State.MovingToNode || state == State.ReturningToStorage || state == State.FetchingMaterial || state == State.DeliveringMaterial)
                     && !Agent.pathPending && Agent.pathStatus != NavMeshPathStatus.PathComplete)
                 {
+                    // 운반 중 길이 막혀 갈 수 없으면 현재 위치에 내려놓고 다른 작업을 찾는다(2026-10-12). 원정지 화물은 기존대로 들고 멈춘다.
+                    var home = !(this is CommanderAnt c) || !c.IsAwayFromHome;
                     StopMoving();
+                    if ((state == State.ReturningToStorage || state == State.DeliveringMaterial) && home && IsCarrying) { DropCargo(); return; }
+                    if (state == State.FetchingMaterial) ReleaseDestination();
                     state = State.Idle;
                     return;
                 }
@@ -258,6 +330,12 @@ namespace AntColony.Units
                     break;
                 case State.Building:
                     TickBuilding();
+                    break;
+                case State.FetchingMaterial:
+                    TickFetching();
+                    break;
+                case State.DeliveringMaterial:
+                    TickDelivering();
                     break;
             }
 
@@ -297,6 +375,8 @@ namespace AntColony.Units
                 return;
             }
 
+            if (!targetConstruction.CanWork) { targetConstruction = null; StopMoving(); state = State.Idle; return; } // 일시정지 등
+            targetConstruction.BeginWork(); // 재료가 모두 도착한 뒤 첫 시공 순간 소비
             // 공동 건설: 참여한 장수마다 자기 작업 효율만큼 현장의 남은 작업량을 줄인다.
             OnWorked(Mathf.Min(Time.deltaTime, targetConstruction.RemainingWork / WorkSpeed));
             targetConstruction.RemainingWork = Mathf.Max(0, targetConstruction.RemainingWork - Time.deltaTime * WorkSpeed);
@@ -310,7 +390,7 @@ namespace AntColony.Units
 
         protected override void OnDisable()
         {
-            targetConstruction = null;
+            targetConstruction = null; ReleaseDestination();
             base.OnDisable();
         }
 
@@ -357,17 +437,34 @@ namespace AntColony.Units
             else
             {
                 fishingNode = null; fishingProgress = 0f;
+                if (carriedAmount <= 0f) carriedLots = new FoodLots();
+                var floor = targetNode.TryGetComponent<FloorFood>(out var food) ? food.Sync() : null; var before = floor?.Total ?? 0;
                 extracted = targetNode.Extract(Mathf.Min(GatherRate * targetNode.GatherRateMultiplier * Time.deltaTime, CarryCapacity - carriedAmount));
+                if (floor != null) carriedLots.Add(floor.Take(before - Mathf.RoundToInt(targetNode.AmountRemaining))); // 바닥 식품은 신선도 낮은 몫부터 집는다
                 carriedAmount += extracted;
                 carriedType = targetNode.ResourceType;
                 if (extracted > 0f) { OnGathered(extracted); OnWorked(extracted / (GatherRate * targetNode.GatherRateMultiplier)); }
             }
 
+            // 같은 물자는 운반량 한도까지 묶어 나른다: 바닥 더미를 다 집었는데 자리가 남으면 가까운 같은 종류 더미를 더 집는다(2026-10-12).
+            if (targetNode.IsDepleted && targetNode.IsLooseCargo && carriedAmount < CarryCapacity && NextLoosePile() is ResourceNode next
+                && TryWorkApproach(next.transform.position, out var nextApproach))
+            {
+                targetNode = next; SetMoveDestination(nextApproach); state = State.MovingToNode;
+                if (this is CommanderAnt self) self.SetWorkTarget(next);
+                return;
+            }
             if (carriedAmount >= CarryCapacity || targetNode.IsDepleted)
             {
                 BeginReturnIfNeeded();
             }
         }
+
+        // ponytail: 8m 안 같은 종류 바닥 더미만 묶는다. 다른 장수가 맡은 더미는 건너뛴다.
+        private ResourceNode NextLoosePile() => ResourceNode.Available.Where(n => n != null && n != targetNode && n.IsLooseCargo && n.CanGather
+                && n.ResourceType == carriedType && !n.IsRaidLoot && (n.transform.position - Position).sqrMagnitude < 64f
+                && !AntUnitBase.Active.OfType<WorkerAnt>().Any(w => w != this && w.CurrentResourceNode == n))
+            .OrderBy(n => (n.transform.position - Position).sqrMagnitude).FirstOrDefault();
 
         // 노드에서 실제로 캐낸 양이 있을 때만 호출된다.
         protected virtual void OnGathered(float amount) { }
@@ -377,23 +474,34 @@ namespace AntColony.Units
 
         private void BeginReturnIfNeeded()
         {
-            targetDeposit = this is CommanderAnt commander && commander.IsAwayFromHome
-                ? commander.Transport != null ? commander.Transport : commander.Garrison.DockedTransport
-                : BuildingBase.FindNearestDepositPoint(transform.position);
-            if (targetDeposit == null)
+            ReleaseDestination();
+            if (this is CommanderAnt commander && commander.IsAwayFromHome)
             {
-                StopMoving();
-                state = State.Idle;
+                targetDeposit = commander.Transport != null ? commander.Transport : commander.Garrison.DockedTransport;
+                if (targetDeposit == null) { StopMoving(); state = State.Idle; return; }
+                SetMoveDestination(targetDeposit.transform.position);
+                state = State.ReturningToStorage;
                 return;
             }
-
-            SetMoveDestination(targetDeposit.transform.position);
+            // 본거지: 허용·빈 공간이 있는 칸 중 우선순위 높은 곳 → 가까운 곳. 받을 곳이 없거나 갈 수 없으면 현재 위치에 내려놓는다(2026-10-12).
+            targetDeposit = null; var rm = ResourceManager.Instance; var approach = Vector3.zero;
+            if (rm != null)
+                foreach (var bin in rm.Destinations(carriedType, Position, this))
+                {
+                    var host = bin.Host != null ? bin.Host : BuildingBase.FindNearestDepositPoint(bin.Position);
+                    if (host == null || !TryWorkApproach(host.Position, out approach)) continue;
+                    targetBin = bin; targetDeposit = host; break;
+                }
+            if (targetDeposit == null) { if (IsCarrying) DropCargo(); else { StopMoving(); state = State.Idle; } return; }
+            rm.Reserve(this, targetBin, carriedType, Mathf.CeilToInt(carriedAmount));
+            SetMoveDestination(approach);
             state = State.ReturningToStorage;
         }
 
         private void TickReturning()
         {
-            if (targetDeposit == null || !targetDeposit.isActiveAndEnabled || targetDeposit.IsDead)
+            // 목적지가 없어지거나 품목이 금지되면 다른 창고를 찾고, 없으면 현재 위치에 내려놓는다.
+            if (targetDeposit == null || !targetDeposit.isActiveAndEnabled || targetDeposit.IsDead || targetBin != null && (!targetBin.Usable || !targetBin.Allows(carriedType)))
             {
                 BeginReturnIfNeeded();
                 return;
@@ -413,9 +521,12 @@ namespace AntColony.Units
                 if (resources != null && targetDeposit != null && !targetDeposit.IsDead)
                 {
                     // 프레임 단위 채집 합산 오차(10 → 9.9999971)로 1이 바닥 더미로 떨어지지 않게 여유를 둔다.
-                    int amount = Mathf.Min(Mathf.FloorToInt(carriedAmount + .001f), resources.GetCapacity(carriedType) - resources.GetAmount(carriedType));
-                    if (amount > 0) { targetDeposit.DepositResources(carriedType, amount); carriedAmount = Mathf.Max(0f, carriedAmount - amount); OnDelivered(amount); }
+                    var bin = targetBin ?? resources.BinOf(targetDeposit);
+                    int amount = resources.AddTo(bin, carriedType, Mathf.FloorToInt(carriedAmount + .001f), this, lots: carriedLots);
+                    if (amount > 0) { carriedAmount = Mathf.Max(0f, carriedAmount - amount); OnDelivered(amount); }
                 }
+                ReleaseDestination();
+                if (carriedAmount >= 1) { BeginReturnIfNeeded(); return; } // 다 못 넣었으면 다음 창고, 없으면 바닥
                 if (carriedAmount > 0 && carriedAmount < 1) DropCargo();
                 state = State.Idle; return;
             }

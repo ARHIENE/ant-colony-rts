@@ -149,6 +149,7 @@ namespace AntColony.World
             regrowSeconds = 0f;
             requiresFishing = false;
             ownerColony = null;
+            if (FoodLots.Perishable(type) && !TryGetComponent<FloorFood>(out _)) gameObject.AddComponent<FloorFood>(); // 바닥 식품은 상온 부패(2026-10-12)
         }
 
         // 원재료 노드(2026-10-10) 전용. regrow > 0이면 다 캔 뒤 같은 양으로 다시 자란다(식물). 활성화 전에 호출.

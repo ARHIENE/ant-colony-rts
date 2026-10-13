@@ -75,16 +75,19 @@ public static class Spec1010Checks
             Check(jail.GetComponent<PrisonerCamp>().TryCapture("Held", CommanderRank.Sergeant, new[] { UnitRole.Melee }, CommanderTraits.Random()), "capture into camp");
             jailSite.Complete(); await Task.Delay(50);
             Check(jail != null && jail.GetComponent<PrisonerCamp>().Count == 1, "demolition with prisoners is cancelled on completion");
-            Check(!Demolition.CanDemolish(jail) && Demolition.CanMove(jail), "occupied camp blocks demolition, not moving");
+            // 10-12 이동 = 회수·포장(사용 중지)이라 포로가 있으면 이동도 막는다(SPEC-1012 ④).
+            Check(!Demolition.CanDemolish(jail) && !Demolition.CanMove(jail), "occupied camp blocks demolition and moving");
             Object.Destroy(jail.gameObject); await Task.Delay(50);
-            var soil = rm.GetAmount(Resource.Soil); var food = rm.GetAmount(Resource.Food); var d = kitchen.Data;
+            // 2026-10-12: 철거 완료 반환 70%는 창고가 아니라 철거 자리 바닥에 놓인다(창고+바닥 합계로 확인).
+            var mat = kitchen.MainMaterial; float Have(Resource t) => rm.GetAmount(t) + AntColony.World.ResourceNode.Available.Where(n => n != null && n.IsLooseCargo && n.ResourceType == t).Sum(n => n.AmountRemaining);
+            var soil = rm.GetAmount(Resource.Soil); var matHave = Have(mat); var food = Have(Resource.Food); var d = kitchen.Data;
             var site = Demolition.OrderDemolish(kitchen);
             Check(site != null && Demolition.OrderDemolish(kitchen) == null, "one demolition order per building");
             Check(kitchen != null && rm.GetAmount(Resource.Soil) == soil, "nothing happens until a builder works");
             a.TickDuty(2); Check(a.ConstructionTarget == site, "builder picks demolition as building work");
             Check(await Until(() => kitchen == null, 40), "builder demolishes on site");
-            Check(rm.GetAmount(Resource.Soil) == soil + Mathf.FloorToInt(d.soilCost * GameBalance.DemolishRefundShare)
-                && rm.GetAmount(Resource.Food) == food + Mathf.FloorToInt(d.foodCost * GameBalance.DemolishRefundShare), "demolition refunds 70%");
+            Check(Mathf.Approximately(Have(mat), matHave + Mathf.FloorToInt(d.soilCost * GameBalance.DemolishRefundShare))
+                && Mathf.Approximately(Have(Resource.Food), food + Mathf.FloorToInt(d.foodCost * GameBalance.DemolishRefundShare)), "demolition returns 70% to the floor");
             // 철거 예정지 취소는 반환 없이 표식만 지운다.
             var wallSite = Demolition.OrderDemolish(wall); soil = rm.GetAmount(Resource.Soil);
             wallSite.Cancel(); await Task.Delay(50);

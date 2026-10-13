@@ -67,7 +67,7 @@ namespace AntColony.UI
                 : $"작업 장수 {workers.Length}명: {string.Join(" · ", workers.Select(c => c.CommanderName))}";
             instruction.text = "평시 작업은 장수만 합니다. 작업표 우선순위에 따라 장수가 알아서 맡습니다.";
             var label = action.GetComponentInChildren<Text>();
-            action.gameObject.SetActive(Target is ResourceNode || Target is Workshop || Target is Processor || Target is Ranch || Target is RanchFacility f0 && f0.IsFeeder || Target is BuildingConstructionSite || Target is WildMonster || Target is Gate || Target is Barracks || Target is DigSite);
+            action.gameObject.SetActive(Target is ResourceNode || Target is Workshop || Target is Processor || Target is Kitchen cookAct && !cookAct.IsTable || Target is Ranch || Target is RanchFacility f0 && f0.IsFeeder || Target is Storage || Target is Stockpile || Target is BuildingConstructionSite || Target is WildMonster || Target is Gate || Target is Barracks || Target is DigSite);
             if (Target is BuildingBase placed && !(Target is Gate)) { var room = RoomSystem.RoomAt(placed.Position); instruction.text = (room == null ? "방 밖(효과 적음)" : $"방: {room.Title} · 등급 {room.GradeName} ({room.Cells.Count}칸)") + " · " + instruction.text; }
             if (Target is Dormitory dorm)
             {
@@ -78,6 +78,7 @@ namespace AntColony.UI
             if (Target is ResourceNode node) { label.text = node.GatheringForbidden ? "채집 허용" : "채집 금지"; instruction.text = $"남은 자원 {node.AmountRemaining:0.#} · {(node.IsLooseCargo ? "운반" : "채집")} 작업"; }
             if (Target is Workshop shop) { label.text = "제작 대기열"; instruction.text = $"제작 대기 {shop.Jobs.Count}건"; }
             if (Target is Processor processor) { label.text = "가공 목록"; instruction.text = processor.Current != null ? $"가공 중 {processor.Current.name} {processor.Progress:P0} · 목록 {processor.Orders.Count}건" : $"대기 · 목록 {processor.Orders.Count}건"; }
+            if (Target is Kitchen cookLabel && !cookLabel.IsTable) label.text = "요리 목록";
             if (Target is Ranch ranch)
             {
                 label.text = "목장 관리"; var n = ranch.Animals.Count();
@@ -95,11 +96,27 @@ namespace AntColony.UI
                 }
                 else if (facility.IsButcher) { label.text = "도축대 관리"; instruction.text = (facility.Paused ? "일시정지 · " : "") + $"대기 사체 {facility.Carcasses}구 · 등록 순서대로 요리 작업 장수가 해체합니다."; }
             }
+            if ((Target is Storage || Target is Stockpile) && AntColony.Core.ResourceManager.Instance?.BinOf((BuildingBase)Target) is AntColony.Core.StoreBin bin)
+            {
+                label.text = "창고 설정";
+                instruction.text = $"우선순위 {bin.priority} · " + (bin.Stocked.Any() ? string.Join(" · ", bin.Stocked.Select(t => $"{t.DisplayName()} {bin.Amount(t)}")) : "비어 있음");
+            }
+            if (Target is BuildingBase packed && Demolition.IsPacked(packed)) status.text = "포장된 가구(기능 정지) · 명령 '이동'으로 새 위치에 다시 설치합니다.";
             if (Target is Barracks barracks) label.text = "병영 강화";
             if (Target is DigSite) label.text = "굴착 확장";
-            if (Target is BuildingConstructionSite site) { label.text = "건설 취소"; instruction.text = $"남은 작업 {site.RemainingWork:0.#}/{site.BuildTimeSeconds:0.#}초 · 취소하면 건설비 전액 반환(재개발 보상비는 반환 안 됨)"; }
+            if (Target is BuildingConstructionSite site)
+            {
+                label.text = "건설 취소";
+                // 필요/예약/도착 수량·대기 사유·배송/시공 장수(2026-10-12).
+                var needs = string.Join(" · ", site.Needs.Select(n => $"{n.type.DisplayName()} {n.delivered}/{n.need}(예약 {n.reserved}·운반 {site.InTransit(n.type)})"));
+                var crew = site.Builders.Concat(site.Couriers).Select(c => c.CommanderName).Distinct().ToList();
+                status.text = (site.Started ? "시공 중" : site.Ready ? "재료 도착 · 시공 대기" : "재료 대기") + $" · {BuildingConstructionSite.Describe(site.WaitReason)}"
+                    + (crew.Count > 0 ? " · 담당: " + string.Join(" · ", crew) : "");
+                instruction.text = (needs.Length > 0 ? needs + "\n" : "") + $"남은 작업 {site.RemainingWork:0.#}/{site.BuildTimeSeconds:0.#}초 · "
+                    + (site.Started ? "취소하면 재료 100%를 바닥에 반환" : "취소하면 예약 해제·도착한 재료는 바닥에") + "(재개발 보상비는 반환 안 됨)";
+            }
             if (Target is Kitchen kitchen) instruction.text = kitchen.IsTable ? "먹기 전용: 장수가 식사를 가져와 여기서 먹습니다."
-                : $"비축 식사 {kitchen.Meals.meals.Count}/{Kitchen.Capacity} · 조리 {kitchen.Meals.progress:0.#}/{Kitchen.CookSeconds}초";
+                : (kitchen.Current != null ? $"조리 중: {kitchen.Current.name} {kitchen.Progress:P0}" : "조리 대기" + (kitchen.WaitReason != null ? $" · {kitchen.WaitReason}" : "")) + $" · 목록 {kitchen.Orders.Count}개 — 열어서 요리 목록 설정";
             if (Target is Gate gate) { label.text = gate.Open ? "성문 닫기" : "성문 열기"; instruction.text = gate.Open ? "열림: 모두 통과" : "닫힘: 성벽처럼 막음"; }
             if (Target is Decoration decor) instruction.text = $"품질 {new[] { "조잡", "보통", "정교", "걸작" }[decor.Quality]} · 반경 8m 환경 기분 +{decor.MoodBonus:0.#}";
             if (Scout is ScoutPost scout)
@@ -155,12 +172,14 @@ namespace AntColony.UI
             if (Target is ResourceNode node) node.GatheringForbidden = !node.GatheringForbidden;
             if (Target is Workshop shop) GameMenuController.Instance?.ShowWorkshop(shop);
             if (Target is Processor processor) GameMenuController.Instance?.ShowProcessor(processor);
+            if (Target is Kitchen cook && !cook.IsTable) GameMenuController.Instance?.ShowKitchen(cook);
             if (Target is WildMonster critterMonster && critterMonster.GetComponent<Critter>() is Critter critter) GameMenuController.Instance?.ShowCritter(critter);
             else if (Target is WildMonster animal && animal.Huntable) animal.HuntDesignated = !animal.HuntDesignated;
             if (Target is Ranch ranch) GameMenuController.Instance?.ShowRanch(ranch);
             if (Target is RanchFacility feeder && feeder.IsFeeder) GameMenuController.Instance?.ShowFeeder(feeder);
             if (Target is RanchFacility table && table.IsButcher) GameMenuController.Instance?.ShowButcher(table);
             if (Target is RanchFacility clinic && clinic.IsClinic && clinic.Patient is Critter patient) GameMenuController.Instance?.ShowCritter(patient);
+            if ((Target is Storage || Target is Stockpile) && AntColony.Core.ResourceManager.Instance?.BinOf((BuildingBase)Target) is AntColony.Core.StoreBin store) GameMenuController.Instance?.ShowStorage(store);
             if (Target is Gate gate) gate.SetOpen(!gate.Open);
             if (Target is Barracks barracks) barracks.TryUpgrade();
             if (Target is DigSite dig) dig.TryExpand();

@@ -49,6 +49,7 @@ namespace AntColony.Save
                 foreach (var item in f.equipmentInventory) Check(item != null && item.IsValid && equipmentIds.Add(item.id), "inventory item");
                 L(f.equipmentLoot, 10000, "equipment loot");
                 L(f.corpses, 10000, "corpses");
+                Check(SaveConstruction.Valid(f.construction), "construction sites");
                 var corpseWorkers = new HashSet<string>();
                 foreach (var corpse in f.corpses)
                 {

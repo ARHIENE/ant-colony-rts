@@ -56,6 +56,9 @@ namespace AntColony.Buildings
                 BuildingKind.Bookshelf => ("책장", new Vector3(2, 2, .6f), new Color(.5f, .35f, .25f), 0, 30, 0, 0, 6f, 150f, false),
                 BuildingKind.Bathtub => ("목욕통", new Vector3(2, .8f, 1.2f), new Color(.6f, .75f, .8f), 0, 35, 0, 0, 6f, 150f, false),
                 BuildingKind.FoodStore => ("저장고", new Vector3(2, 1.4f, 2), new Color(.55f, .65f, .7f), 10, 40, 0, 3, 6f, 250f, false),
+                // ponytail: 냉장고·냉동고 비용은 잠정(냉동고가 건설·전력 모두 더 비쌈).
+                BuildingKind.Fridge => ("냉장고", new Vector3(1.4f, 1.8f, 1), new Color(.85f, .92f, .95f), 0, 60, 5, 2, 8f, 200f, false),
+                BuildingKind.Freezer => ("냉동고", new Vector3(1.6f, 1.8f, 1.2f), new Color(.7f, .85f, 1f), 0, 90, 15, 3, 12f, 220f, false),
                 BuildingKind.Jar => ("항아리", new Vector3(1, 1, 1), new Color(.7f, .5f, .35f), 0, 15, 0, 1, 3f, 100f, false),
                 BuildingKind.Armory => ("무기고", new Vector3(2, 1.8f, 1.5f), new Color(.4f, .4f, .45f), 20, 60, 2, 3, 8f, 300f, false),
                 // 가구 5차(2026-10-06, 잠정)
@@ -116,6 +119,7 @@ namespace AntColony.Buildings
             // 저장 가구 한도(잠정): 저장고 = 식량 +150, 항아리 = 식량·재료 +50.
             if (kind == BuildingKind.FoodStore) (data.foodCapacityBonus, data.soilCapacityBonus, data.specialCapacityBonus) = (150, 0, 0);
             if (kind == BuildingKind.Jar) (data.foodCapacityBonus, data.soilCapacityBonus, data.specialCapacityBonus) = (50, 50, 0);
+            if (kind == BuildingKind.Fridge || kind == BuildingKind.Freezer) (data.foodCapacityBonus, data.soilCapacityBonus, data.specialCapacityBonus) = (100, 0, 0); // 식품 전용 고정 용량(잠정)
             BuildingBase building = kind switch
             {
                 BuildingKind.ConscriptionPost => go.AddComponent<ConscriptionPost>(),
@@ -140,6 +144,7 @@ namespace AntColony.Buildings
                 BuildingKind.Door => go.AddComponent<Door>(),
                 BuildingKind.Gate => go.AddComponent<Gate>(),
                 BuildingKind.FoodStore or BuildingKind.Jar => go.AddComponent<Storage>(),
+                BuildingKind.Fridge or BuildingKind.Freezer => go.AddComponent<ColdStorage>(),
                 BuildingKind.Armory => go.AddComponent<Armory>(),
                 BuildingKind.Hearth => go.AddComponent<Kitchen>(),
                 BuildingKind.SleepingMat or BuildingKind.DoubleBed or BuildingKind.SingleBed or BuildingKind.BunkBed or BuildingKind.Hammock => go.AddComponent<Dormitory>(),

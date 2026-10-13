@@ -15,7 +15,7 @@ namespace AntColony.Units
         public bool yellow;
     }
 
-    // 장수 작업 선택 순서: 노란 경보 대상 → 장수별 작업 종류 우선순위 → 대상 우선순위 → 거리.
+    // 장수 작업 선택 순서: 노란 경보 대상 → 장수별 작업 종류 우선순위 → 대상 우선순위 → 실제 이동 거리 → 오래 기다린 요청.
     // 빨간 경보: 소굴 전체. 식사·수면·치료받기·간호(와 휴식·씻기·놀기)를 멈추고 작업한다. 작업 금지는 유지.
     public static class WorkPriorities
     {
@@ -23,8 +23,18 @@ namespace AntColony.Units
         public static bool Red { get; private set; }
 
         [RuntimeInitializeOnLoadMethod]
-        private static void Hook() => SceneManager.sceneLoaded += (_, __) => Red = false; // 새 게임은 경보 해제 상태(불러오기는 Restore가 다시 켠다)
+        private static void Hook() => SceneManager.sceneLoaded += (_, __) => { Red = false; requested.Clear(); }; // 새 게임은 경보 해제 상태(불러오기는 Restore가 다시 켠다)
 
+        // 요청이 처음 후보로 보인 순서. 거리까지 같을 때 오래 기다린 요청을 먼저 한다(2026-10-12).
+        // ponytail: 처음 본 순서를 기억한다(저장 안 함, 불러오면 다시 센다). 저장 후에도 순서를 유지해야 하면 대상별 생성 순번을 저장한다.
+        private static readonly Dictionary<Component, long> requested = new Dictionary<Component, long>();
+        private static long requestSeq;
+        public static long RequestedAt(Component c)
+        {
+            if (c == null) return long.MaxValue;
+            if (!requested.TryGetValue(c, out var t)) requested[c] = t = ++requestSeq;
+            return t;
+        }
         public static int Level(Component c) => c != null && c.TryGetComponent<TargetPriority>(out var p) ? p.level : Default;
         public static bool Yellow(Component c) => c != null && c.TryGetComponent<TargetPriority>(out var p) && p.yellow;
         public static void Set(Component c, int level, bool yellow)

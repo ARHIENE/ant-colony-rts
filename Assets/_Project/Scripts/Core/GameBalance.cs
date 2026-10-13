@@ -130,6 +130,9 @@ namespace AntColony.Core
         public const float SatietyPerSecond = 70f / 200f, EatBelowSatiety = 30, EatSeconds = 10, StarveRetrySeconds = 30;
         public static readonly float[] MealMood = { -8, 0, 5, 10 }; // 날것·간단·좋은·고급
         public const float FoodPoisonSeconds = 60, FoodPoisonMood = -10;
+        // ponytail: 썩은 식품 식사 기분 −12·식중독 25%(잠정, 증상·치료는 질병 기획에서). 확정되면 여기만 고친다.
+        public const float RottenMealMood = -12, RottenPoisonChance = .25f;
+        public const float NoTableMood = -3; // ponytail: 식탁 없이 식사 기분(잠정)
 
         // 오락(2026-09-28 확정: 욕구·질림·다양성 보너스·장식 근처 +20%). 수치는 잠정.
         // 오락 0~100, 깨어 있는 낮 동안 100 → 0. 30 이하면 놀러 간다. 20초 놀면 +50 × (1 - 질림).

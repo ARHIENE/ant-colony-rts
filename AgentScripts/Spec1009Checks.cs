@@ -64,19 +64,13 @@ public static class Spec1009Checks
             Check(site != null && a.ConstructionTarget == null && b.ConstructionTarget == site, "stopping one builder keeps blueprint");
             var r2 = site.RemainingWork; await Task.Delay(800); Check(site.RemainingWork < r2, "other builder continues");
             b.CommandStop(); Time.timeScale = 0; Check(site != null && site.RemainingWork > 0, "stop never cancels prepaid blueprint");
-            // 플레이어 취소 = 건설비 전액 반환.
-            site.SetRefund(10, 20, 3); var food = rm.GetAmount(Resource.Food); var soil = rm.GetAmount(Resource.Soil); var special = rm.GetAmount(Resource.Special);
-            site.Cancel(); await Task.Delay(50);
-            Check(site == null && rm.GetAmount(Resource.Food) == food + 10 && rm.GetAmount(Resource.Soil) == soil + 20 && rm.GetAmount(Resource.Special) == special + 3, "cancel refunds 100%");
-            // 창고가 가득 차면 넘치는 반환분은 사라지지 않고 바닥 운반 더미로 남는다.
-            var full = Site(a.Position, 1000); full.SetRefund(0, 30, 0);
-            var space = rm.GetCapacity(Resource.Soil) - rm.GetAmount(Resource.Soil); rm.Add(Resource.Soil, space - 10);
+            // 플레이어 취소(2026-10-12 기획으로 대체): 시공 후 취소는 재료 100%를 예정지 바닥에 돌려준다(상세는 Spec1012Checks).
+            site.Require(Resource.Soil, 20); site.Deliver("test", Resource.Soil, 20);
             var looseBefore = ResourceNode.Available.Where(n => n.IsLooseCargo && n.ResourceType == Resource.Soil).Sum(n => n.AmountRemaining);
-            full.Cancel(); await Task.Delay(50);
+            site.Cancel(); await Task.Delay(50);
             var looseAfter = ResourceNode.Available.Where(n => n.IsLooseCargo && n.ResourceType == Resource.Soil).Sum(n => n.AmountRemaining);
-            Check(rm.GetAmount(Resource.Soil) == rm.GetCapacity(Resource.Soil) && Mathf.Approximately(looseAfter - looseBefore, 20), $"overflow refund dropped near storage ({looseAfter - looseBefore})");
+            Check(site == null && Mathf.Approximately(looseAfter - looseBefore, 20), $"cancel returns 100% of delivered materials to floor ({looseAfter - looseBefore})");
             foreach (var n in ResourceNode.Available.Where(n => n.IsLooseCargo).ToList()) Object.Destroy(n.gameObject);
-            rm.TrySpend(0, rm.GetAmount(Resource.Soil) - soil - 20); await Task.Delay(50);
             // 바닥 장비는 운반 작업 장수가 장비 보관함으로 옮긴다.
             var inv = EquipmentInventory.Instance; Check(inv != null && !inv.Full, "equipment inventory has room");
             var floorGear = new EquipmentItem { slot = EquipmentSlot.Trinket, effect = TrinketEffect.Move };
@@ -100,8 +94,8 @@ public static class Spec1009Checks
             a.CommandStop(); Check(a.SetJobPriority(job, 0) && !a.AllowsJob(job) && a.JobPriority(job) == 0, "priority 0 forbids");
             Check(a.SetJobEnabled(job, true) && a.JobPriority(job) == CommanderWorkState.DefaultPriority, "re-enabled job is normal");
             var ws = Copy(a.WorkState); Check(ws.Valid && ws.Priority(CommanderJobs.Building) == 5, "priorities serialize");
-            ws.priorities = null; Check(ws.Valid && ws.Priority(CommanderJobs.Building) == 3, "legacy save defaults to normal");
-            ws.priorities = new int[CommanderWorkState.JobCount]; ws.priorities[0] = 9; Check(!ws.Valid, "invalid priority rejected");
+            ws.priorities = null; Check(ws.Valid && ws.Priority(CommanderJobs.Building) == CommanderWorkState.DefaultPriority, "legacy save defaults to normal");
+            ws.priorities = new int[CommanderWorkState.JobCount]; ws.priorities[0] = 10; Check(!ws.Valid, "invalid priority rejected");
             Object.Destroy(prioritySite.gameObject); foreach (var x in list) { x.SetJobEnabled(CommanderJobs.All, false); x.CommandStop(); }
             foreach (var n in ResourceNode.Available) n.GatheringForbidden = false;
 
@@ -136,7 +130,7 @@ public static class Spec1009Checks
             var n1 = d.StartTalk(c, TalkKind.Trade); n1.give.resources[0] = 200; n1.take.resources[2] = 1;
             Check(d.Propose(n1).Contains("담당"), "negotiator required");
             var low = list.OrderBy(x => x.Talents.Level(CommanderActivity.Politics)).First(DiplomacyManager.CanNegotiate);
-            n1.negotiator = low.PersonalState.id; special = rm.GetAmount(Resource.Special);
+            n1.negotiator = low.PersonalState.id; var special = rm.GetAmount(Resource.Special);
             Check(d.Reaction(c, n1) == TalkReaction.Warm, "good offer reads warm");
             Check(d.Propose(n1) == "수락" && !d.Data.talks.Contains(n1) && rm.GetAmount(Resource.Special) == special + 1, "good offer accepted by low politics negotiator");
             // 역제안: 부족한 가치를 우리 자원으로 채워 다시 제시.
@@ -213,7 +207,7 @@ public static class Spec1009Checks
             request.Invoke(d, new object[] { c2, TalkKind.Tribute, 100 }); var tribute = d.Talks(c2).First(x => x.kind == TalkKind.Tribute);
             tribute.negotiator = a.PersonalState.id; Check(d.RefusalRisk(tribute).Contains("공격 위험"), "refusal risk shown");
             tribute.give.resources[0] = 40; Check(d.Respond(tribute, true).Contains("역제안 거절") && d.Data.talks.Contains(tribute), "too small counter refused");
-            tribute.give.resources[0] = 100; food = rm.GetAmount(Resource.Food);
+            tribute.give.resources[0] = 100; var food = rm.GetAmount(Resource.Food);
             Check(d.Respond(tribute, true) == "수락" && rm.GetAmount(Resource.Food) == food - 100, "tribute paid");
             request.Invoke(d, new object[] { c2, TalkKind.Tribute, 100 }); var aff = c2.affinity; var refuse = d.Talks(c2).First();
             refuse.negotiator = a.PersonalState.id; d.Respond(refuse, false); Check(c2.affinity <= aff - 10, "tribute refusal hurts relations");

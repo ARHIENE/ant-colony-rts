@@ -38,12 +38,13 @@ namespace AntColony.Save
                 diplomacy = DiplomacyManager.Instance?.Capture(),
                 equipmentInventory = EquipmentInventory.Instance == null ? new List<EquipmentItem>() : EquipmentInventory.Instance.Items.Select(e => JsonUtility.FromJson<EquipmentItem>(JsonUtility.ToJson(e))).ToList(),
                 corpses = Corpse.All.Where(c => c.Available).Select(c => c.Capture()).ToList(),
+                construction = SaveConstruction.Capture(),
                 critters = Critter.CaptureAll(),
                 equipmentLoot = SaveCatalog.Ordered<EquipmentLoot>().Select(l => new EquipmentLootDto { position = new Vec3Dto(l.transform.position),
                     items = l.Items.Select(e => JsonUtility.FromJson<EquipmentItem>(JsonUtility.ToJson(e))).ToList() }).ToList(),
                 incursionTimer = Object.FindFirstObjectByType<LocalIncursions>()?.SavedTimer ?? 0,
                 loopCompleted = GameManager.Instance.SavedLoop, bossDefeated = GameManager.Instance.SavedBoss, defeated = GameManager.Instance.SavedDefeat,
-                colony = new ColonyDto { food = rm.GetAmount(ResourceType.Food), soil = rm.GetAmount(ResourceType.Soil), special = rm.GetAmount(ResourceType.Special), materials = rm.CaptureMaterials(),
+                colony = new ColonyDto { food = rm.GetAmount(ResourceType.Food), soil = rm.GetAmount(ResourceType.Soil), special = rm.GetAmount(ResourceType.Special), materials = rm.CaptureMaterials(), baseBin = rm.BaseBin.Capture(),
                     foodCapacity = rm.GetCapacity(ResourceType.Food), soilCapacity = rm.GetCapacity(ResourceType.Soil), specialCapacity = rm.GetCapacity(ResourceType.Special),
                     storageResearchApplied = true,
                     antsFree = pool.Free, antsAssigned = pool.Assigned, antsReserved = pool.Reserved, fishingUnlocked = GameManager.Instance.FishingUnlocked } };
@@ -102,7 +103,7 @@ namespace AntColony.Save
 
         private static ResourceNodeDto Node(ResourceNode n, string key) => new ResourceNodeDto { key = key, exists = n != null,
             looseCargo = n != null && n.IsLooseCargo,
-            amount = n != null ? n.AmountRemaining : 0, regrowTimer = n != null ? n.RegrowTimeRemaining : 0, sowRemaining = n != null ? n.SowRemaining : 0, bountifulHarvest = n != null && n.BountifulHarvest, gatheringForbidden = n != null && n.GatheringForbidden, fishMonth = n != null ? n.FishMonth : -1,
+            amount = n != null ? n.AmountRemaining : 0, regrowTimer = n != null ? n.RegrowTimeRemaining : 0, sowRemaining = n != null ? n.SowRemaining : 0, bountifulHarvest = n != null && n.BountifulHarvest, gatheringForbidden = n != null && n.GatheringForbidden, fishMonth = n != null ? n.FishMonth : -1, lots = n != null && n.TryGetComponent<FloorFood>(out var food) ? food.Sync() : null,
             position = new Vec3Dto(n != null ? n.transform.position : Vector3.zero), type = n != null ? (int)n.ResourceType : 0 };
 
         private static EnemyColonyDto Colony(EnemyColony c)
@@ -164,6 +165,7 @@ namespace AntColony.Save
                 node.transform.position = d.position.ToVector3(); node.RestoreState(d.amount, d.regrowTimer, d.sowRemaining);
                 node.IsLooseCargo = d.looseCargo;
                 node.BountifulHarvest = d.bountifulHarvest; node.GatheringForbidden = d.gatheringForbidden; node.FishMonth = d.fishMonth;
+                if (d.lots != null && d.lots.lots.Count > 0 && d.lots.Valid && node.TryGetComponent<FloorFood>(out var food)) food.Lots = d.lots;
             }
             foreach (var d in file.monsters)
             {
@@ -232,6 +234,7 @@ namespace AntColony.Save
             ResourceManager.Instance.RestoreState(p.food, p.soil, p.special,
                 p.foodCapacity + storageBonus.x, p.soilCapacity + storageBonus.y, p.specialCapacity + storageBonus.z);
             ResourceManager.Instance.RestoreMaterials(p.materials);
+            ResourceManager.Instance.RestoreBins(p.baseBin, restoredBuildings.Where(x => x.building is Storage).Select(x => ((Storage)x.building, x.dto.storeBin)));
             AntPool.Instance.RestoreCounts(p.antsFree, p.antsAssigned, p.antsReserved);
             GameManager.Instance.FishingUnlocked = p.fishingUnlocked
                 || CampaignResearch.Instance != null && CampaignResearch.Instance.Has(ScienceTechnology.Fishing);
@@ -244,6 +247,7 @@ namespace AntColony.Save
             foreach (var loot in file.equipmentLoot)
                 EquipmentLoot.Drop(loot.position.ToVector3() - Vector3.up * .35f, loot.items.Select(e => JsonUtility.FromJson<EquipmentItem>(JsonUtility.ToJson(e))));
             foreach (var corpse in file.corpses) Corpse.Spawn(corpse);
+            SaveConstruction.Restore(file.construction);
             Critter.RestoreAll(file.critters); // 2026-10-10 야생·탈출 사육 생물(옛 저장은 없음)
             var incursions = Object.FindFirstObjectByType<LocalIncursions>(); if (incursions != null) incursions.SavedTimer = file.incursionTimer;
             if (file.camera.viewedSite >= 0) world.ViewSite(world.Sites[file.camera.viewedSite]);

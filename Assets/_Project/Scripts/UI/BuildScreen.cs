@@ -32,7 +32,7 @@ namespace AntColony.UI
                 new Entry("2층침대", BuildingKind.BunkBed), new Entry("해먹", BuildingKind.Hammock),
                 new Entry("식당", BuildingKind.Kitchen), new Entry("큰 식탁", BuildingKind.BigTable), new Entry("긴 식탁", BuildingKind.BanquetTable), new Entry("양육실", BuildingKind.Nursery),
                 new Entry("화장실", BuildingKind.Toilet), new Entry("세면대", BuildingKind.Washbasin), new Entry("샤워기", BuildingKind.Shower) },
-            new[] { new Entry("창고", BuildingKind.Storage), new Entry("저장고", BuildingKind.FoodStore), new Entry("항아리", BuildingKind.Jar) },
+            new[] { new Entry("창고", BuildingKind.Storage), new Entry("저장고", BuildingKind.FoodStore), new Entry("항아리", BuildingKind.Jar), new Entry("냉장고", BuildingKind.Fridge), new Entry("냉동고", BuildingKind.Freezer) },
             new[] { new Entry("전등", BuildingKind.ElectricLamp), new Entry("화롯불", BuildingKind.Brazier), new Entry("등불", BuildingKind.Lantern), new Entry("횃불", BuildingKind.Torch) }, // 환경: TODO 난로·환풍구(보온 연구)
             new[] { new Entry("쳇바퀴", BuildingKind.Treadmill), new Entry("장작 발전기", BuildingKind.WoodGenerator), new Entry("전선", BuildingKind.PowerWire),
                 new Entry("배터리", BuildingKind.Battery) },
