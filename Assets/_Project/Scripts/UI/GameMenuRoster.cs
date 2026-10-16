@@ -122,14 +122,10 @@ namespace AntColony.UI
                 L.Meter(cell, 8, 28, 170, 5, progress, MenuTheme.Accent);
             }
 
-            var injuries = c.PersonalState.injuries;
-            var body = L.Cell(content, "Injuries", 24 + Math.Max(1, injuries.Count) * 18);
-            L.Label(body, "<b>부상 부위</b>", 13, 0, 0, 570, 22);
-            if (injuries.Count == 0) L.Label(body, "이상 없음", 12, 0, 22, 570, 18, MenuTheme.Muted);
-            for (var i = 0; i < injuries.Count; i++)
-                L.Label(body, $"{injuries[i].part} · {injuries[i].severity}  <color=#968976>{injuries[i].remaining:0}초 뒤 회복</color>", 12, 0, 22 + i * 18, 570, 18, MenuTheme.DangerInk);
-            if (c.PersonalState.infected)
-                MenuTheme.Text(content, $"곰팡이 감염 · 치료 진행 {c.PersonalState.moldTreatment:0}/60 · 20초마다 병력 -1", 13, 22).color = MenuTheme.DangerInk;
+            var lines = HealthLines(c.Health).Split('\n');
+            var body = L.Cell(content, "Injuries", 24 + lines.Length * 18);
+            L.Label(body, $"<b>건강 · {c.Health.Summary}</b>", 13, 0, 0, 570, 22);
+            for (var i = 0; i < lines.Length; i++) L.Label(body, lines[i], 12, 0, 22 + i * 18, 570, 18, c.Health.Injured ? MenuTheme.DangerInk : MenuTheme.Muted);
 
             var equipment = L.Cell(content, "Equipment", 70);
             L.Label(equipment, "<b>장비</b>", 13, 0, 0, 570, 22);

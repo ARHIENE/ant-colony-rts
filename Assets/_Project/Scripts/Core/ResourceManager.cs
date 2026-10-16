@@ -131,7 +131,7 @@ namespace AntColony.Core
         }
 
         // 보유량은 사용할 수 있는 칸(개보수 중이거나 부서진 창고 제외)의 합계.
-        public int GetAmount(ResourceType type) => bins.Where(b => b.Usable).Sum(b => b.amounts[(int)type]);
+        public int GetAmount(ResourceType type) => bins.Where(b => b.Spendable).Sum(b => b.amounts[(int)type]);
         // 재료는 종류마다 같은 한도(창고 '재료' 한도)를 쓴다.
         public int GetCapacity(ResourceType type) => capacities.TryGetValue(Key(type), out var value) ? value : 0;
         // 이 물건을 더 받을 수 있는 칸들의 남은 공간(허용 품목·예약 반영).
@@ -260,7 +260,7 @@ namespace AntColony.Core
         // ponytail: 장수가 직접 가지러 가지 않는 소비(세금·연구비 등)는 즉시 차감한다. 건설·요리처럼 운반이 기획된 곳만 실제 배송을 쓴다.
         private void Take(ResourceType type, int amount)
         {
-            foreach (var b in bins.Where(b => b.Usable).OrderBy(b => b.priority))
+            foreach (var b in bins.Where(b => b.Spendable).OrderBy(b => b.priority))
             {
                 if (amount <= 0) return;
                 amount -= TakeFrom(b, type, amount);

@@ -20,7 +20,7 @@ namespace AntColony.Buildings
         [Serializable] public class FeedSlot { public int type; public bool allowed; public int target; public float stock; }
         [Serializable] public class State
         {
-            public List<FeedSlot> slots = new List<FeedSlot>(); public int priority = 3;
+            public List<FeedSlot> slots = new List<FeedSlot>(); public int priority = WorkPriorities.Default;
             public float meat, chitin, butcher; public int carcasses; // meat·chitin·carcasses는 옛 저장(합산 방식) 이관용
             public List<CarcassEntry> queue = new List<CarcassEntry>(); public int allowMask = -1; public bool paused;
         }
@@ -53,7 +53,7 @@ namespace AntColony.Buildings
         public float Stock(ResourceType t) => Slot(t)?.stock ?? 0;
         public bool Allowed(ResourceType t) => Slot(t)?.allowed == true;
         public int Target(ResourceType t) => Slot(t)?.target ?? 0;
-        public int Priority { get => s.priority; set => s.priority = Mathf.Clamp(value, 1, 5); }
+        public int Priority { get => s.priority; set => s.priority = Mathf.Clamp(value, WorkPriorities.Min, WorkPriorities.Max); }
         private readonly Dictionary<ResourceType, float> incoming = new Dictionary<ResourceType, float>(); // 운반 중인 양(예정 재고)
         public float Incoming(ResourceType t) => incoming.TryGetValue(t, out var v) ? v : 0;
         internal void Reserve(ResourceType t, float amount) => incoming[t] = Mathf.Max(0, Incoming(t) + amount);
@@ -107,7 +107,7 @@ namespace AntColony.Buildings
             s.slots ??= new List<FeedSlot>();
             s.slots.RemoveAll(x => x == null || !SpeciesInfo.AllFeeds.Contains((ResourceType)x.type));
             foreach (var x in s.slots) { x.target = Mathf.Clamp(x.target, 0, GameBalance.FeederMaxTarget); x.stock = float.IsNaN(x.stock) ? 0 : Mathf.Max(0, x.stock); }
-            s.priority = Mathf.Clamp(s.priority, 1, 5); s.carcasses = Mathf.Max(0, s.carcasses);
+            s.priority = Mathf.Clamp(s.priority, WorkPriorities.Min, WorkPriorities.Max); s.carcasses = Mathf.Max(0, s.carcasses);
             if (!(s.meat >= 0)) s.meat = 0; if (!(s.chitin >= 0)) s.chitin = 0; if (!(s.butcher >= 0)) s.butcher = 0;
             RestoreQueue();
             EnsureSlots();

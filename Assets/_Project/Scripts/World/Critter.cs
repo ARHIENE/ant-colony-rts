@@ -27,9 +27,11 @@ namespace AntColony.World
             public float tameProgress, age, hunger = 80, care, waiting, medicated, direct, floorProgress, bind, surgery, health;
             public string pen = "", transport = "", clinic = "", returnPen = "", approved = "";
             // 2026-10-11 수정: 수동 도축 요청, 수술 기여도·후유증·회복·실패 후 선택 대기, 투약 당시 경상량(옛 저장은 기본값).
+            public AnimalDiseaseState disease = new AnimalDiseaseState();
             public bool slaughterOrder, slaughterStarted, awaitDecision; public int sequelae;
             public float surgeryWork, surgerySkillWork, recovery, preHealth = 1, medBudget; public string surgeon = "", custom = ""; // custom = 유저가 바꾼 이름(없으면 종 이름)
             public Vec3Dto position, home;
+            public float excrete; // 2026-10-15 배설 누적(1이 되면 배설물 1개)
         }
         private State s = new State();
         public Species Species => (Species)s.species;
@@ -65,7 +67,7 @@ namespace AntColony.World
         // 기본 이름은 종 이름, 유저가 바꾼 이름은 유지(코어키퍼 방식). 알림·목록은 '이름(종)' 또는 '종'.
         public string DisplayName => s.custom != "" ? $"{s.custom}({Info.name})" : Info.name;
         public string CustomName { get => s.custom; set { var v = (value ?? "").Trim(); s.custom = v.Length > 16 ? v.Substring(0, 16) : v; } } // 비우면 종 이름으로
-        public string SequelaEffect => s.sequelae > 0 ? $"후유증 {s.sequelae}: 재수술 성공률 −{s.sequelae * GameBalance.SurgerySequelaPenalty:P0}p · 실패 시 사망 +{s.sequelae * GameBalance.SurgerySequelaDeath:P0}p" : "";
+        public string SequelaEffect => s.sequelae > 0 ? "수술 실패 이력 · 재수술은 직접 지정(횟수에 따른 위험 가산 없음)" : "";
         private static int NextId() => AllList.Count == 0 ? 1 : AllList.Max(c => c != null && c.s != null ? c.s.id : 0) + 1;
 
         // 관계(키로 저장하고 실행 중엔 참조로 푼다).
@@ -126,6 +128,8 @@ namespace AntColony.World
         private void TickLife(float dt)
         {
             var month = dt / GameCalendar.SecondsPerMonth;
+            TickDisease(month); if (Monster.IsDead) return;
+            TickExcretion(month);
             var paused = HungerPausedInClinic; TickRecovery(dt);
             if (Stage != CritterStage.Baby || !Starving) s.age += month; // 새끼는 굶으면 자라지 않는다
             if ((int)Stage != (int)stageWas) { stageWas = (int)Stage; Rescale(); }
@@ -162,9 +166,9 @@ namespace AntColony.World
                 if (s.tameProgress >= 1) { s.tame = true; s.tameProgress = 1; ToastManager.Show($"{Info.name}이(가) 길들여졌습니다."); }
             }
             // 생산: 성체·노령, 운영 중인 우리, 굶지 않을 때. 직접 채취 물건은 한도까지 쌓이면 멈춘다.
-            if (operating && Stage != CritterStage.Baby && !Starving)
+            if (operating && Clinic == null && Stage != CritterStage.Baby && !Starving && !SevereDisease)
             {
-                var eff = Pen.Efficiency * (s.care > 0 ? GameBalance.CritterCareBoost : 1f);
+                var eff = (Sick ? .5f : 1f) * Pen.Efficiency * (s.care > 0 ? GameBalance.CritterCareBoost : 1f);
                 if (Info.directPerMonth > 0) s.direct = Mathf.Min(GameBalance.CritterDirectCap, s.direct + Info.directPerMonth * month * eff);
                 if (Info.floorPerMonth > 0 && (s.floorProgress += Info.floorPerMonth * month * eff) >= 1)
                 { var n = Mathf.FloorToInt(s.floorProgress); s.floorProgress -= n; DiplomacyManager.DropFloor(Info.floor, n, transform.position); }
@@ -254,7 +258,7 @@ namespace AntColony.World
             s.waiting = 0; s.careOrder = false;
         }
         internal int TakeDirect() { var n = Mathf.FloorToInt(s.direct); s.direct -= n; return n; }
-        internal void Medicate() { s.medicated = GameBalance.CritterMedicatedSeconds; s.medBudget = Mathf.Max(0, Info.health - Monster.CurrentHealth); } // 투약 당시의 경상만
+        internal void Medicate() { if (NeedsDiseaseMedicine) Disease.medication = 1; s.medicated = GameBalance.CritterMedicatedSeconds; s.medBudget = Mathf.Max(0, Info.health - Monster.CurrentHealth); } // 투약 당시의 경상만
         internal void Feed(float units) { s.hunger = Mathf.Min(100, s.hunger + units * GameBalance.CritterHungerPerUnit); }
 
         // 취급 실패·공격받음: 성향대로 도주(도주형)·주변 공격(공격형)·다룬 장수 공격(조건부). 잠시 뒤 진정한다.

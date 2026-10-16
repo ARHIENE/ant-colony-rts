@@ -290,7 +290,7 @@ public static class Spec1011RanchChecks
             Object.DestroyImmediate(patient2.gameObject);
             // 수술 공식(잠정안 A): 기본 50% + 의료×2.5%p − 부상 보정 − 후유증×10%p, 5~95%.
             Check(Mathf.Approximately(Critter.SuccessChance(20, .3f, 0), .95f) && Mathf.Approximately(Critter.SuccessChance(0, 0, 0), .3f)
-                && Mathf.Approximately(Critter.SuccessChance(0, 0, 3), .05f) && Mathf.Approximately(Critter.DeathOnFail(2), .2f), "surgery formula");
+                && Mathf.Approximately(Critter.SuccessChance(0, 0, 3), .3f) && Mathf.Approximately(Critter.DeathOnFail(2), .1f), "surgery formula");
             // 교대: 실제 진행 작업량 비중으로 의료 능력 가중(마지막 집도의만 쓰지 않음).
             patient.Monster.Wound(patient.Monster.CurrentHealth - patient.Info.health * .3f);
             S(patient).surgeryStarted = true; S(patient).surgery = 10; S(patient).surgeryWork = 10; S(patient).surgerySkillWork = 200; S(patient).preHealth = .3f;

@@ -38,6 +38,7 @@ namespace AntColony.Save
         public bool storageResearchApplied;
         public int antsFree, antsAssigned, antsReserved;
         public bool fishingUnlocked;
+        public int commonDiet = Units.CommanderAnt.AllDiet; // 2026-10-15 공통 식단(날것 1·간단 2·좋은 4). 옛 저장은 전부 허용
     }
 
     [Serializable]
@@ -60,6 +61,7 @@ namespace AntColony.Save
         public float pendingDamage;
         public float carriedAmount;
         public int carriedType;
+        public Core.FoodLots carriedLots;
         public float fishingProgress; // v9: 낚시 1회(20초) 진행도
         public bool strikeArmed;
         public float strikeCooldown, stanceCooldown, stanceTime;
@@ -131,6 +133,7 @@ namespace AntColony.Save
         public bool labResearchAttack;
         public bool gateOpen = true; // Phase 5 성문
         public float powerCharge; // 2026-10-05 배터리 충전량
+        public float coldness; // 2026-10-15 냉장고·냉동고 냉각 정도(0~1). 옛 저장은 0 = 상온에서 다시 냉각
         public int materialTier; // 2026-10-05 재료 업그레이드 단계(0 = 처음 재료). 재료 목록 미정
         public int mainMaterial = (int)Data.ResourceType.Soil; // v16 주재료(옛 저장은 흙)
         public float queenProductionRemaining; // Phase 4: 여왕방 삭제, 이전 저장 읽기용
@@ -144,6 +147,8 @@ namespace AntColony.Save
         public Buildings.Workshop.State workshop = new Buildings.Workshop.State();
         public Buildings.Processor.State processor; // v16 가공대(옛 저장·다른 건물은 null)
         public Buildings.Ranch.State ranch; // v16 목장 우리
+        public AntColony.Buildings.CompostBin.State compost; // 2026-10-15 퇴비통 숙성·허용·목표
+        public AntColony.Buildings.Tombstone.State tomb; // 2026-10-15 묘비(고인·안치 여부)
         public string ranchFacility; // 2026-10-11 먹이통·돌봄대·동물 치료대·도축대 상태(JSON)
         public List<int> patients = new List<int>();
         public bool trapArmed = true;
@@ -152,6 +157,7 @@ namespace AntColony.Save
         public int trapSpikeHits;
         public int crop;
         public bool farmWide;
+        public AntColony.Buildings.FarmPlot.State farm; // 2026-10-15 빈 밭·뿌리뽑기·병충해·비료·다음 작물. 옛 저장은 null = 심어진 밭
         public Vec3Dto scienceSpawn = new Vec3Dto();
         public float scoutRemaining;
         public bool scoutDispatched;
@@ -290,6 +296,7 @@ namespace AntColony.Save
         public World.DiplomacyManager.State diplomacy;
         public Core.CampaignHistory.State history = new Core.CampaignHistory.State();
         public World.ColonyEvents.State events = new World.ColonyEvents.State();
+        public World.Memorial.State memorial; // 2026-10-15 사망 기록(이름·날짜·원인). 옛 저장은 null = 없음
         public Map.WeatherSystem.State weather; // v13: 날씨(없으면 맑음으로 시작)
         public Core.ColonyPopulation.State population = new Core.ColonyPopulation.State(); // v12 Phase 4 인구
         public Units.WorkPriorities.State workPriorities; // 2026-10-09 대상 우선순위·노란/빨간 경보(없으면 기본값)

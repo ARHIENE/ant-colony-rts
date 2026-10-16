@@ -421,7 +421,7 @@ namespace AntColony.Buildings
                     or BuildingKind.Treadmill or BuildingKind.WoodGenerator or BuildingKind.PowerWire or BuildingKind.Battery or BuildingKind.ElectricLamp
                     or BuildingKind.Hearth or BuildingKind.SleepingMat or BuildingKind.DoubleBed or BuildingKind.Floor or BuildingKind.LockedDoor or BuildingKind.BarredDoor
                     or BuildingKind.SingleBed or BuildingKind.Bookshelf or BuildingKind.Bathtub
-                    or BuildingKind.FoodStore or BuildingKind.Jar or BuildingKind.Fridge or BuildingKind.Freezer or BuildingKind.Armory or BuildingKind.AdminDesk
+                    or BuildingKind.FoodStore or BuildingKind.Jar or BuildingKind.Fridge or BuildingKind.Freezer or BuildingKind.CompostBin or BuildingKind.Tombstone or BuildingKind.Armory or BuildingKind.AdminDesk
                     or (>= BuildingKind.BunkBed and <= BuildingKind.BanquetTable) or (>= BuildingKind.Carpentry and <= BuildingKind.MedicineBench) => FindDecorationTemplate(kind), // 가구 5·6차, 가공대
                 _ => null
             };

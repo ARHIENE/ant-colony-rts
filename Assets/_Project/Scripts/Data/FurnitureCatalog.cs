@@ -55,7 +55,7 @@ namespace AntColony.Data
             F("세면대", 1, RoomKind.Bathroom, BuildingKind.Washbasin); F("샤워기", 2, RoomKind.Bathroom, BuildingKind.Shower);
 
             In(BuildCategory.Storage); // 창고 없이 바닥 보관도 가능(비 맞으면 상함)
-            F("수납장", 1, RoomKind.Storeroom, BuildingKind.Storage); F("항아리", 1, RoomKind.Storeroom, BuildingKind.Jar); F("저장고", 1, RoomKind.ColdStorage, BuildingKind.FoodStore);
+            F("수납장", 1, RoomKind.Storeroom, BuildingKind.Storage); F("항아리", 1, RoomKind.Storeroom, BuildingKind.Jar); F("저장고", 1, RoomKind.ColdStorage, BuildingKind.FoodStore); F("퇴비통", 1, existing: BuildingKind.CompostBin);
             F("냉장고", 4, RoomKind.ColdStorage, BuildingKind.Fridge, NetworkLayer.Power); F("냉동고", 5, RoomKind.ColdStorage, BuildingKind.Freezer, NetworkLayer.Power); // 2026-10-12 구현(냉동고가 연구·건설·전력 모두 더 비쌈)
             F("운반 레일", 4); F("순간이동 보관함", 6, RoomKind.Storeroom, net: NetworkLayer.Power);
 
@@ -103,7 +103,7 @@ namespace AntColony.Data
             In(BuildCategory.Medical); // 관·묘비는 시신 처리용(장례 이벤트 없음), 방 밖도 가능
             F("병상", 1, RoomKind.Hospital, BuildingKind.Infirmary); F("약제대", 1, RoomKind.Hospital, BuildingKind.MedicineBench); F("수술대", 2, RoomKind.Hospital); F("격리 병상", 2, RoomKind.Hospital);
             F("의족 제작대", 2, RoomKind.Hospital); F("기계 다리 제작대", 6, RoomKind.Hospital, net: NetworkLayer.Power); F("재생 탱크", 5, RoomKind.Hospital, net: NetworkLayer.Power);
-            F("관", 1, RoomKind.Graveyard); F("묘비", 1, RoomKind.Graveyard); F("약초밭", 1); F("화장터", 2);
+            F("관", 1, RoomKind.Graveyard); F("묘비", 1, RoomKind.Graveyard, BuildingKind.Tombstone); F("약초밭", 1); F("화장터", 2);
 
             In(BuildCategory.Defense); // 방어 건물은 방 밖 전용. 방어탑 시대별: 개미산탑 → 투석기 → 화염탑 → 레이저탑
             F("성벽", 1, existing: BuildingKind.CastleWall); F("성문", 1, existing: BuildingKind.Gate); F("망루", 1, existing: BuildingKind.Watchtower);

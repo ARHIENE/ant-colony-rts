@@ -24,10 +24,12 @@ async System.Threading.Tasks.Task Run()
         var value = entry.Invoke(null, null);
         if (value is System.Threading.Tasks.Task<string> task) value = await task;
         SessionState.SetString("AntColony.CheckResult", value?.ToString() ?? "PASS");
+        System.IO.File.WriteAllText("Temp/check-result.txt", value?.ToString() ?? "PASS");
     }
     catch (Exception error)
     {
         SessionState.SetString("AntColony.CheckResult", "FAIL: " + error);
+        System.IO.File.WriteAllText("Temp/check-result.txt", "FAIL: " + error);
     }
 }
 _ = Run();

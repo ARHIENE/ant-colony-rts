@@ -50,7 +50,7 @@ namespace AntColony.UI
             foreach (var c in CommanderRoster.Instance.Commanders)
             {
                 if (c == null || !c.IsColonyMember || c.IsHostile) continue;
-                if (c.PersonalState.injuries.Count > 0) Trigger("injury");
+                if (c.Health.Injured) Trigger("injury");
                 if (c.Mood <= c.Traits.DepartureMood) Trigger("loyalty");
             }
         }

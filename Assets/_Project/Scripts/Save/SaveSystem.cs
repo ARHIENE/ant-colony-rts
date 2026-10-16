@@ -53,7 +53,7 @@ namespace AntColony.Save
         public static void NewGame(NewGameOptions options)
         {
             if (Busy) return;
-            Rollback = null; Reload(null, options);
+            Rollback = null; Units.CommanderAnt.CommonDiet = Units.CommanderAnt.AllDiet; World.Memorial.Restore(null); Reload(null, options);
         }
         internal static void Reload(SaveFileV1 file, NewGameOptions options)
         {

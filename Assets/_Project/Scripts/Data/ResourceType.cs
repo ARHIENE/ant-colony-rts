@@ -12,6 +12,8 @@ namespace AntColony.Data
             ResourceType.Iron => "철", ResourceType.Copper => "구리", ResourceType.Steel => "강철",
             ResourceType.Honeydew => "감로", ResourceType.Thread => "실", ResourceType.Honey => "꿀",
             ResourceType.AnimalMedicine => "동물용 의약품", ResourceType.SurgeryKit => "동물 수술 키트", ResourceType.RottenFood => "썩은 식품", ResourceType.SimpleMeal => "간단한 요리", ResourceType.FineMeal => "좋은 요리",
+            ResourceType.Manure => "배설물", ResourceType.Fertilizer => "비료",
+            ResourceType.MedicineBasic => "기초 약품", ResourceType.MedicineNormal => "일반 약품", ResourceType.MedicineAdvanced => "고급 약품",
             _ => type.ToString()
         };
         // 식량·특수 외에는 모두 '재료'다. 재료 종류마다 저장 한도는 기존 재료(흙) 한도를 같이 쓴다.
@@ -44,7 +46,11 @@ namespace AntColony.Data
         // 2026-10-12 썩은 식품(퇴비 원료, 정상 식품이 없을 때만 먹음)
         RottenFood,
         // 2026-10-12 완성 요리(조리 시설 주변 바닥에 나오고 운반·보관한다. 등급은 레시피로 정한다)
-        SimpleMeal, FineMeal
+        SimpleMeal, FineMeal,
+        // 2026-10-15 동물 배설물(바닥 물품, 퇴비 원료)·퇴비통 완성 비료(밭 성장 주기당 1회)
+        Manure, Fertilizer,
+        // 2026-10-15 장수용 약품 3등급(이름·재료 미정, 잠정 표기). 동물용 의약품과 별개
+        MedicineBasic, MedicineNormal, MedicineAdvanced
     }
 
     // 재료 특성(내구·무게·가연성·미관·단열). 후반 재료가 모든 면에서 우월하지 않게 용도를 나눈다.

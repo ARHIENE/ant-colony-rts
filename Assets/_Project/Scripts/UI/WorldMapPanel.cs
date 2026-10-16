@@ -229,7 +229,7 @@ namespace AntColony.UI
         {
             var crew = ship.Crew;
             var injured = 0; var mood = 0f;
-            foreach (var c in crew) { mood += c.Mood; if (c.PersonalState.injuries.Count > 0) injured++; }
+            foreach (var c in crew) { mood += c.Mood; if (c.Health.Injured) injured++; }
             var names = crew.Count == 0 ? "없음" : string.Join(", ", System.Linq.Enumerable.Select(crew, c => c.CommanderName));
             var text = $"<b>{ship.name}</b> · {(ship.Aircraft ? "비행기" : "차량")} · {StateName(ship.State)}{(ship.Remaining > 0 ? $" {ship.Remaining:0}초" : "")} → {(ship.Site != null ? ship.Site.Title : "소굴")}\n"
                 + $"장수 {names} ({ship.CommanderLoad}/{ship.CommanderCapacity}) · 병력 {ship.Load}/{ship.Capacity}\n"
@@ -238,7 +238,7 @@ namespace AntColony.UI
             if (!open) return text;
             foreach (var c in crew)
                 text += $"\n  {c.CommanderName}  병력 {c.TroopCount}/{c.CommandLimit} · 체력 {c.PersonalHealth:0} · 기분 {c.Mood:0}"
-                    + (c.PersonalState.injuries.Count > 0 ? $" · 부상 {c.PersonalState.injuries.Count}" : "");
+                    + (c.Health.Injured ? $" · {c.Health.Summary}" : "");
             return text;
         }
 

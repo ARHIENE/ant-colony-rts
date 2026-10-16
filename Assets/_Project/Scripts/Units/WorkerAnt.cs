@@ -30,8 +30,8 @@ namespace AntColony.Units
         private ResourceNode targetNode;
         private BuildingBase targetDeposit;
         private StoreBin targetBin; // 본거지 반납 목적지 칸(2026-10-12). 원정 화물선 반납은 null.
-        private BuildingConstructionSite deliverySite; private StoreBin fetchBin; private ResourceType fetchType; private int fetchAmount;
-        public BuildingConstructionSite DeliverySite => deliverySite;
+        private IMaterialSink deliverySite; private StoreBin fetchBin; private ResourceType fetchType; private int fetchAmount;
+        public IMaterialSink DeliverySite => deliverySite;
         private float carriedAmount;
         private FoodLots carriedLots = new FoodLots(); // 들고 있는 식품의 신선도(2026-10-12)
         private AntColony.Data.ResourceType carriedType;
@@ -43,7 +43,12 @@ namespace AntColony.Units
         // 자원을 들고 있거나 건설 중이면 병력 배정/보직 변경을 막아야 한다(운반 중 자원 증발 방지).
         public float CarriedAmount => carriedAmount;
         public ResourceType CarriedType => carriedType;
-        internal void RestoreCargo(float amount, ResourceType type) { carriedAmount = amount; carriedType = type; }
+        internal void RestoreCargo(float amount, ResourceType type, FoodLots lots = null)
+        {
+            carriedAmount = amount; carriedType = type; carriedLots = lots ?? new FoodLots();
+            if (FoodLots.Perishable(type)) carriedLots.Match(Mathf.CeilToInt(amount), type);
+        }
+        internal FoodLots CaptureCargoLots() => JsonUtility.FromJson<FoodLots>(JsonUtility.ToJson(carriedLots));
         public bool IsCarrying => carriedAmount > 0f;
         public bool IsWorking => state != State.Idle;
         public bool IsGatheringAnimation => state == State.Gathering;
@@ -91,28 +96,31 @@ namespace AntColony.Units
         }
 
         // 건설 재료 배송(2026-10-12): 예약된 재료가 있는 창고에 가서 집고 예정지에 가져다 놓는다. 운반 장수와 건설 장수 모두 한다.
-        public bool CommandFetchFor(BuildingConstructionSite site)
+        // 조리대 재료도 같은 흐름(2026-10-15): 요리사가 창고에서 집어 와 조리대에 놓고, 조리 시작 때 소비한다.
+        public bool CommandFetchFor(IMaterialSink site)
         {
-            var need = site != null ? site.PendingPickup : null; var rm = ResourceManager.Instance;
-            if (need == null || rm == null || IsCarrying || !isActiveAndEnabled || IsDead || !TryWorkApproach(site.Position, out _)) return false;
-            foreach (var bin in rm.Bins.Where(b => b.Usable && b.Amount(need.type) > 0).OrderBy(b => (b.Position - Position).sqrMagnitude))
+            var rm = ResourceManager.Instance;
+            if (site == null || !site.NextPickup(out var needType, out var needAmount) || rm == null || IsCarrying || !isActiveAndEnabled || IsDead || !TryWorkApproach(site.Position, out _)) return false;
+            foreach (var bin in rm.Bins.Where(b => b.Spendable && b.Amount(needType) > 0).OrderBy(b => (b.Position - Position).sqrMagnitude))
             {
                 var host = bin.Host != null ? bin.Host : BuildingBase.FindNearestDepositPoint(bin.Position);
                 if (host == null || !TryWorkApproach(host.Position, out var approach)) continue;
-                var amount = Mathf.Min(need.reserved, Mathf.FloorToInt(CarryCapacity), bin.Amount(need.type));
+                var amount = Mathf.Min(needAmount, Mathf.FloorToInt(CarryCapacity), bin.Amount(needType));
                 if (amount <= 0) return false;
                 CommandStop();
-                if (!site.BeginPickup(this, need.type, amount)) return false;
-                deliverySite = site; fetchBin = bin; fetchType = need.type; fetchAmount = amount;
+                if (!site.BeginPickup(this, needType, amount)) return false;
+                deliverySite = site; fetchBin = bin; fetchType = needType; fetchAmount = amount;
                 SetMoveDestination(approach); state = State.FetchingMaterial;
                 return true;
             }
             return false;
         }
+        // 시설 장애물 가장자리에서 몇 cm 못 미쳐 멈추는 경우도 도착으로 본다(2026-10-15 조리대 배송에서 발견).
+        private bool NearDestination => !IsFlying && Agent.enabled && Agent.isOnNavMesh && !Agent.pathPending && Agent.remainingDistance <= .5f;
         private void TickFetching()
         {
             if (deliverySite == null || deliverySite.Paused) { ReleaseDestination(); StopMoving(); state = State.Idle; return; }
-            if (!HasReachedDestination()) return;
+            if (!HasReachedDestination() && !NearDestination) return;
             FoodLots lots = null; var taken = ResourceManager.Instance != null ? ResourceManager.Instance.TakeFrom(fetchBin, fetchType, fetchAmount, out lots) : 0;
             if (taken <= 0) { ReleaseDestination(); state = State.Idle; return; } // 그새 다른 소비로 비었다 → 다음 판단에서 다시 예약
             deliverySite.BeginPickup(this, fetchType, taken); // 실제 집은 양으로 맞춘다(모자란 몫은 예약 분배가 다시 채운다)
@@ -123,7 +131,7 @@ namespace AntColony.Units
         private void TickDelivering()
         {
             if (deliverySite == null) { state = State.Idle; if (IsCarrying) BeginReturnIfNeeded(); return; } // 예정지가 사라지면 짐은 창고로
-            if (!HasReachedDestination()) return;
+            if (!HasReachedDestination() && !NearDestination) return;
             var given = deliverySite.Deliver(this, carriedType, Mathf.FloorToInt(carriedAmount + .001f));
             carriedAmount = Mathf.Max(0, carriedAmount - given); deliverySite = null;
             if (carriedAmount >= 1) BeginReturnIfNeeded(); else { carriedAmount = 0; state = State.Idle; }
@@ -420,7 +428,7 @@ namespace AntColony.Units
                 return;
             }
 
-            if (targetNode.IsRegrowing) return;
+            if (targetNode.IsRegrowing || targetNode.HoldsHandWork) return;
             float extracted;
             if (targetNode.RequiresFishing)
             {
@@ -452,6 +460,13 @@ namespace AntColony.Units
             {
                 targetNode = next; SetMoveDestination(nextApproach); state = State.MovingToNode;
                 if (this is CommanderAnt self) self.SetWorkTarget(next);
+                return;
+            }
+            // 밭 수확물은 현장 바닥에 내려놓고 운반 작업이 옮긴다(2026-10-15 V5 기획).
+            if (targetNode.TryGetComponent<AntColony.Buildings.FarmPlot>(out _) && (carriedAmount >= CarryCapacity || targetNode.IsDepleted))
+            {
+                var node = targetNode; DropCargo();
+                if (!node.IsDepleted && node.CanGather) { targetNode = node; state = State.Gathering; if (this is CommanderAnt me) me.SetWorkTarget(node); }
                 return;
             }
             if (carriedAmount >= CarryCapacity || targetNode.IsDepleted)

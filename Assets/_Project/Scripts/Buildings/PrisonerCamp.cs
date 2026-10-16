@@ -1,3 +1,4 @@
+using System.Linq;
 using System.Collections.Generic;
 using AntColony.Core;
 using AntColony.Data;
@@ -105,10 +106,41 @@ namespace AntColony.Buildings
 
         private void Update() => Tick(Time.deltaTime);
 
+        // 포로 건강·배고픔(2026-10-15): 장수와 같은 부위별 건강 규칙. 치료는 의료 장수, 급식은 운반 장수가 수용소에 와서 한다.
+        // ponytail: 포로 배고픔 속도는 장수의 절반(잠정). 굶어도 즉시 피해는 없고 기분만 떨어진다.
+        public const float GuardRadius = 8f, SubdueChance = .5f;
+        private void TickPrisonerNeeds(float dt)
+        {
+            var gentle = CommanderDeathRuntime.Mode == CommanderDeathMode.Gentle;
+            for (var i = prisoners.Count - 1; i >= 0; i--)
+            {
+                var p = prisoners[i]; var st = p.PersonalState; st.health ??= new HealthState();
+                if (!st.health.migrated) MedicalRules.Migrate(st);
+                MedicalRules.Tick(st.health, dt, true, gentle);
+                st.meal.satiety = Mathf.Max(0, st.meal.satiety - GameBalance.SatietyPerSecond * .5f * dt);
+                if (st.meal.satiety <= 0) st.AddMood("Hunger", -15, 5);
+                if (!st.health.Fatal) continue;
+                prisoners.RemoveAt(i);
+                CampaignHistory.Record("사망", p.Name, "포로 수용 중 사망", true);
+                AntColony.UI.ToastManager.Show($"포로 {p.Name} 사망");
+            }
+        }
+        public static bool CanMove(Prisoner p) => p?.PersonalState?.health == null || !p.PersonalState.health.Downed && p.PersonalState.health.Moving >= .3f;
+        public bool Guarded => AntUnitBase.Active.OfType<CommanderAnt>().Any(c => c.IsColonyMember && !c.IsDead && c.PersonalHealth > 0 && !c.IsAwayFromHome && (c.Position - transform.position).sqrMagnitude <= GuardRadius * GuardRadius);
+        // 조건 없는 석방: 같은 거리 비례 안전 귀환 규칙. 압수 장비는 별도 조건이라 함께 보내지 않는다.
+        public bool ReleaseFree(Prisoner p)
+        {
+            var dm = AntColony.World.DiplomacyManager.Instance; var civ = dm?.Data.civilizations.Find(c => c.id == p?.PersonalState?.originFaction);
+            if (!isActiveAndEnabled || p == null || civ == null || !prisoners.Remove(p)) return false;
+            dm.BeginEnemyHomecoming(p, civ, new List<EquipmentItem>());
+            return true;
+        }
+
         // 검사 스크립트가 시간을 직접 밀어 넣을 수 있도록 분리해 둔다.
         public void Tick(float deltaTime)
         {
             if (deltaTime <= 0f || prisoners.Count == 0) return;
+            TickPrisonerNeeds(deltaTime);
             escapeTimer -= deltaTime;
             if (escapeTimer > 0f) return;
             escapeTimer = escapeCheckSeconds;
@@ -118,7 +150,14 @@ namespace AntColony.Buildings
             {
                 // 기분이 좋은(기운 있는) 포로일수록 탈출을 시도한다.
                 var chance = escapeChance * (1f + MoodOf(prisoners[i]) / 100f) * (RoomSystem.RoomAt(transform.position)?.Kind == RoomKind.Prison ? GameBalance.PrisonRoomEscapeMultiplier : 1f); // 창살문·잠금문 감옥
-                if (Random.value >= chance) continue;
+                if (!CanMove(prisoners[i]) || Random.value >= chance) continue; // 움직일 수 없는 포로는 탈출하지 않는다
+                // 경비(근처 아군 장수)가 있으면 제압 판정: 성공하면 남고 가벼운 부상.
+                if (Guarded && Random.value < SubdueChance)
+                {
+                    MedicalRules.AddRandomWound(prisoners[i].PersonalState.health, prisoners[i].Traits, true);
+                    AntColony.UI.ToastManager.Show($"포로 {prisoners[i].Name} 탈출 시도 — 제압");
+                    continue;
+                }
                 CampaignHistory.Record("탈주", prisoners[i].Name, "포로 수용소 탈출");
                 prisoners.RemoveAt(i);
                 EscapedCount++;

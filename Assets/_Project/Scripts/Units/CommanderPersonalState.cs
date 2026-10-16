@@ -10,7 +10,7 @@ namespace AntColony.Units
     public enum MentalBreak { None, Idle, Flee, AttackBuilding, AttackCommander, SelfHarm, Binge }
     [Serializable] public class CommanderInjury { public InjuryPart part; public InjurySeverity severity; public float remaining; public bool regenerating, prognosisPending; }
     [Serializable] public class MoodFactor { public string reason; public float value, remaining; }
-    [Serializable] public class CommanderRelation { public string otherId; public float value, nearbySeconds, quarrelSeconds, duelSeconds; public bool spouse, family; }
+    [Serializable] public class CommanderRelation { public string otherId; public float value, nearbySeconds, quarrelSeconds, duelSeconds, memorialCooldown; public bool spouse, family; }
     [Serializable]
     public class CommanderPersonalState
     {
@@ -35,13 +35,21 @@ namespace AntColony.Units
         public CommanderMealState meal = new CommanderMealState();
         public CommanderJoyState joy = new CommanderJoyState();
         public CommanderHygieneState hygiene = new CommanderHygieneState(); // 2026-10-05, 이전 저장은 기본값 100
-        public bool HasTreatableInjury => injuries.Exists(i => i.severity == InjurySeverity.Serious);
-        public bool NeedsTreatment => HasTreatableInjury || infected;
-        public bool HasSeriousInjury => injuries.Exists(i => i.severity != InjurySeverity.Minor);
-        public float Severity(InjuryPart part)
+        // 2026-10-15 림월드식 부위별 건강(CommanderHealth). injuries·infected는 옛 저장 이관 전용.
+        public HealthState health = new HealthState();
+        public bool HasTreatableInjury => health.Serious;
+        public bool NeedsTreatment => health.Injured || health.Downed || injuries.Count > 0 || infected;
+        public bool HasSeriousInjury => health.Serious || injuries.Exists(i => i.severity != InjurySeverity.Minor);
+        // 옛 효과 공식(이동·공격·채집·지휘 등)이 쓰는 부위 손상도 0~1. 새 능력치(의식·이동·조작·감지)에서 계산한다.
+        public float Severity(InjuryPart part) => part switch
         {
-            float value = 0; foreach (var i in injuries) if (i.part == part) value = Mathf.Max(value, i.severity == InjurySeverity.Minor ? .5f : 1f); return value;
-        }
+            InjuryPart.Head => 1 - health.Consciousness,
+            InjuryPart.Antenna => 1 - health.Sensing,
+            InjuryPart.Mandible => 1 - health.Manipulation,
+            InjuryPart.Legs => 1 - health.Moving,
+            InjuryPart.Thorax => 1 - health.PartFraction(BodyPart.Thorax),
+            _ => 0 // 날개는 장비(신체 부상 아님)
+        };
         public void AddMood(string reason, float value, float seconds)
         {
             moodFactors.RemoveAll(f => f.reason == reason);
@@ -55,36 +63,26 @@ namespace AntColony.Units
         }
         public void AddInjury(CommanderTraits traits, bool minorOnly = false)
         {
-            var part = (InjuryPart)UnityEngine.Random.Range(0, 6);
-            var serious = !minorOnly && UnityEngine.Random.value < (traits.Has(CommanderTrait.Robust) ? .1f : traits.Has(CommanderTrait.Frail) ? .5f : .3f);
-            var severity = serious ? InjurySeverity.Serious : InjurySeverity.Minor;
-            var old = injuries.Find(i => i.part == part);
-            if (old != null && old.severity > severity) return;
-            if (old != null) injuries.Remove(old);
-            injuries.Add(new CommanderInjury { part = part, severity = severity, prognosisPending = serious, remaining = severity == InjurySeverity.Minor ? 180 : 240 });
-            if (severity != InjurySeverity.Minor) social.seriousInjuries++;
+            var wasSerious = health.Serious;
+            MedicalRules.AddRandomWound(health, traits, minorOnly);
+            if (!wasSerious && health.Serious) social.seriousInjuries++;
         }
         public void Tick(float dt, CommanderTraits traits, float treatmentRate = 1, float permanentRisk = .1f)
         {
             foreach (var f in moodFactors) f.remaining -= dt;
             moodFactors.RemoveAll(f => f.remaining <= 0);
-            foreach (var injury in injuries)
-                if (injury.severity == InjurySeverity.Minor) injury.remaining -= dt * (traits.Has(CommanderTrait.Robust) ? 2 : 1) * ScienceEffects.MinorHealRate;
-                else if (injury.severity == InjurySeverity.Serious && treating) injury.remaining -= dt * treatmentRate * (injury.regenerating ? 1f : ScienceEffects.SeriousTreatRate);
-            foreach (var injury in injuries)
-                if (injury.severity == InjurySeverity.Serious && injury.remaining <= 0 && injury.prognosisPending && !injury.regenerating)
-                {
-                    injury.prognosisPending = false;
-                    if (UnityEngine.Random.value < permanentRisk) { injury.severity = InjurySeverity.Permanent; injury.remaining = 0; }
-                }
-            injuries.RemoveAll(i => i.severity != InjurySeverity.Permanent && i.remaining <= 0);
             rewardCooldown = Mathf.Max(0, rewardCooldown - dt);
             rageRemaining = Mathf.Max(0, rageRemaining - dt);
         }
         public bool Validate(out string error)
         {
             error = "Invalid commander personal state";
-            if (work == null || !work.Valid || string.IsNullOrEmpty(id) || social == null || !social.Validate() || sleep == null || !sleep.Valid || meal == null || !meal.Valid || joy == null || !joy.Valid || hygiene == null || !hygiene.Valid || injuries == null || injuries.Count > 6 || moodFactors == null || moodFactors.Count > 64 || relations == null || equipment == null || equipment.Count > 3) return false;
+            if (work == null || !work.Valid || string.IsNullOrEmpty(id) || social == null || !social.Validate() || sleep == null || !sleep.Valid || meal == null || !meal.Valid || joy == null || !joy.Valid || hygiene == null || !hygiene.Valid || health == null || health.wounds == null || health.illnesses == null || health.surgeries == null
+                || health.wounds.Count > 64 || health.illnesses.Count > 16 || health.surgeries.Count > 8 || !Finite(health.bloodLoss) || health.bloodLoss < 0 || health.bloodLoss > 1
+                || health.wounds.Exists(w => w == null || !Enum.IsDefined(typeof(BodyPart), w.part) || !Enum.IsDefined(typeof(WoundKind), w.kind) || !Finite(w.damage) || w.damage < 0 || !Finite(w.age) || !Finite(w.quality))
+                || health.illnesses.Exists(i => i == null || !Enum.IsDefined(typeof(IllnessKind), i.kind) || !Finite(i.severity) || !Finite(i.immunity) || !Finite(i.tendLeft))
+                || health.bedRest < 0 || health.bedRest > 9 || !Enum.IsDefined(typeof(MedicineLevel), health.medicine)
+                || injuries == null || injuries.Count > 6 || moodFactors == null || moodFactors.Count > 64 || relations == null || equipment == null || equipment.Count > 3) return false;
             var parts = new HashSet<InjuryPart>();
             foreach (var i in injuries) if (i == null || !Enum.IsDefined(typeof(InjuryPart), i.part) || !parts.Add(i.part) || !Enum.IsDefined(typeof(InjurySeverity), i.severity) || !Finite(i.remaining) || i.remaining < 0) return false;
             foreach (var f in moodFactors) if (f == null || f.reason == null || !Finite(f.value) || !Finite(f.remaining) || f.remaining < 0) return false;

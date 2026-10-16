@@ -46,7 +46,7 @@ const SKILL_NAME = Object.fromEntries(SKILLS);
 const JOBS = [['nursing', '간호\n(의료)', 'medicine'], ['repair', '수리', 'build'], ['clean', '치우기', null], ['build', '건설', 'build'], ['art', '예술', 'art'], ['craft', '제작', 'craft'],
   ['research', '연구', 'research'], ['admin', '행정', 'politics'], ['cook', '요리', 'cook'], ['hunt', '사냥', 'melee'], ['haul', '운반', 'strength'], ['husbandry', '사육', 'husbandry'],
   ['farm', '농사', 'farm'], ['fish', '낚시', 'fish'], ['gather', '채집', 'gather']];
-const PRIO = ['금지', '매우 낮음', '낮음', '보통', '높음', '매우 높음'];
+const PRIO = ['금지', ...Array.from({ length: 9 }, (_, i) => `우선순위 ${i + 1}`)];
 const sk = o => Object.fromEntries(SKILLS.map(([k]) => [k, o[k] ?? 3]));
 const C = [
   { id: 'gw', name: '관우', sex: '♂', color: '#6cc46a', weapon: '큰턱 날', job: '조약돌 채집', jobKey: 'gather', hp: 88, mood: 58, need: [40, 25, 30, 55], x: 1120, y: 318,
@@ -75,7 +75,7 @@ const C = [
   { id: 'gp', name: '관평', sex: '♂', color: '#8fd08a', weapon: '—', job: '어린 장수 · 배우는 중', jobKey: null, hp: 100, mood: 70, need: [30, 30, 30, 30], young: true, x: 560, y: 160,
     skills: sk({}), passion: {}, traits: [], locked: JOBS.map(j => j[0]), attack: 0, defense: 0, injuries: [], equip: [['무기', null], ['갑옷', null], ['장신구', null]], rel: [['관우', '부모 +40']], moodWhy: [] },
 ];
-const prioOf = c => Object.fromEntries(JOBS.map(([k], i) => [k, c.young ? 0 : c.locked.includes(k) ? 0 : k === c.jobKey ? 5 : (i * 7 + c.name.length) % 4 ? 3 : 0]));
+const prioOf = c => Object.fromEntries(JOBS.map(([k]) => [k, c.young || c.locked.includes(k) ? 0 : k === c.jobKey ? 8 : 5]));
 C.forEach(c => c.prio = prioOf(c));
 const byId = id => C.find(c => c.id === id);
 
@@ -157,7 +157,7 @@ const S = {
   pop: { total: 420, young: 48, adult: 312, old: 60, deployed: 16, housing: 470, sentiment: 68, demand: 72, rate: 12, focus: '균형', prefer: '조약돌', policy: '징병제', elder: false, admin: .64, comp: 1 },
   orders: { smith: [{ item: 0, mode: 'count', n: 2, prog: .4 }], carp: [{ item: 0, mode: 'keep', n: 20, prog: .1 }], med: [] },
   mode: 'count', amount: 1, ranch: { autoTreat: true, autoHarvest: true, accepts: { aphid: true, worm: true, spider: false, bee: true }, care: { aphid: true, worm: true, spider: false, bee: true }, target: { aphid: 6, worm: 4, spider: 1, bee: 2 } },
-  pick: new Set(), feeder: FEEDS.map(f => ({ k: f[0], n: f[1], target: f[2], stock: f[3], allow: f[4] })), feederPrio: 3,
+  pick: new Set(), feeder: FEEDS.map(f => ({ k: f[0], n: f[1], target: f[2], stock: f[3], allow: f[4] })), feederPrio: 5,
   butcher: { paused: false, allow: { aphid: true, worm: true, spider: true, bee: true }, prog: 0, queue: [{ sp: 'aphid', meat: 12, chitin: 1 }, { sp: 'worm', meat: 8, chitin: 0, baby: true }] },
   flt: { sp: 'all', stage: 'all', tame: 'all', hurt: 'all', work: 'all' }, sort: 'name',
   floorCarcass: [], nego: null, buildCat: 0, buildItem: null, buildMat: 'bark', redev: null, events: { predation: false },
@@ -168,12 +168,12 @@ const selCommanders = () => (S.sel.ids || []).map(byId).filter(Boolean);
 /* ───────── 4) 상단·지도·콘솔 HUD ───────── */
 function renderMenu() {
   $('#menu').innerHTML = `<button class="btn" data-act="menu" aria-label="메뉴(설정·저장)">${ic('menu', 14)}</button>
-    <button class="btn" data-act="open" data-w="duty">작업표</button><button class="btn" data-act="say" data-t="과학 화면은 이번 시안 범위 밖입니다.">과학</button>
-    <button class="btn" data-act="open" data-w="diplomacy">월드맵</button><button class="btn" data-act="say" data-t="기록 화면은 이번 시안 범위 밖입니다.">기록</button>`;
+    <button class="btn" data-act="open" data-w="duty">작업표</button><button class="btn" data-act="open" data-w="science">과학</button>
+    <button class="btn" data-act="open" data-w="diplomacy">월드맵</button><button class="btn" data-act="open" data-w="logistics">물류·식품</button><button class="btn" data-act="open" data-w="colony">의료·관리</button>`;
 }
 function renderRoster() {
-  const home = C.filter(c => !c.away && !c.young).length;
-  $('#roster').innerHTML = `<button class="btn ghost" data-act="scroll" data-d="-1" aria-label="이전 장수들">${ic('left', 12)}</button><div class="rlist" id="rlist">${C.map(c => {
+  const home = C.filter(c => !c.away && !c.young && !c.health?.dead).length;
+  $('#roster').innerHTML = `<button class="btn ghost" data-act="scroll" data-d="-1" aria-label="이전 장수들">${ic('left', 12)}</button><div class="rlist" id="rlist">${C.filter(c=>!c.health?.dead).map(c => {
     const sel = (S.sel.ids || []).includes(c.id); const st = c.mood < 25 ? 'danger' : c.mood < 50 ? 'attention' : '';
     const mark = c.deployed ? ic('sword', 10) : c.away ? ic('globe', 10) : c.young ? '' : '';
     return `<button class="btn cm ${sel ? 'sel' : ''} ${c.away ? 'away' : ''} ${st}" data-act="selC" data-id="${c.id}" aria-pressed="${sel}" title="${esc(c.name)} · ${esc(c.job)} · 기분 ${c.mood}${c.young ? ' · 어린 장수(일·출전 불가)' : ''}">${antFace(c.color)}<span>${esc(c.name)}</span><span class="st">${mark}</span>${c.young ? '' : `<span class="md"><i style="width:${c.mood}%;background:${c.mood < 25 ? 'var(--danger)' : c.mood < 50 ? 'var(--warn)' : 'var(--hp)'}"></i></span>`}</button>`;
@@ -320,7 +320,7 @@ function clinicLine(a) {
   const c = a.clinic; if (!c) return '';
   return { wait: `수술 대기${a.surgeon ? ` · 집도의 ${byId(a.surgeon).name}` : highRisk(a) ? ' · 집도의 지정 필요(고위험·재수술)' : ''}${stock('kit') < 1 ? ' · 수술 키트 부족' : ''}`,
     surgery: `수술 중 ${pct(c.prog)} · 집도의 ${c.by ? byId(c.by).name : '이탈 — 다른 의료 장수 대기'}`, recovery: `회복 중 · 남은 ${c.left}초(배고픔 정지)`,
-    failed: `수술 실패(${c.result}) · 후유증 ${a.seq} — 재수술 또는 우리 복귀 선택`, ready: '회복 완료 · 원래 우리로 운반 대기' }[c.phase] || '';
+    failed: `수술 실패(${c.result}) — 재수술 또는 우리 복귀 선택`, ready: '회복 완료 · 원래 우리로 운반 대기' }[c.phase] || '';
 }
 function animalSummary(a) {
   if (!a || a.dead) return '<div class="summary"><h2>개체 없음</h2></div>';
@@ -328,7 +328,7 @@ function animalSummary(a) {
   return `<div class="summary" style="flex:1"><h2>${esc(a.name)} <span class="role">${sp.n} · ${sp.temper} · ${a.stage}</span></h2>
     <div class="facts"><span class="chip ${a.tame ? 'ok' : ''}">${a.tame ? '길들임' : a.untameable ? '야생(길들이기 불가)' : `야생 · 길들이기 ${pct(a.tameProg || 0)}`}</span>
     <span class="chip ${a.hp < 40 ? 'bad' : a.hp < 100 ? 'warn' : ''}">체력 ${a.hp}%${a.injury ? ' · ' + a.injury : ''}</span><span class="chip ${a.hunger < 30 ? 'bad' : ''}">배고픔 ${a.hunger}</span>
-    <span class="chip">${a.clinic ? clinicLine(a) : esc(a.task)}</span>${a.seq ? `<span class="chip bad">후유증 ${a.seq}</span>` : ''}${reqChips(a)}</div>
+    <span class="chip">${a.clinic ? clinicLine(a) : esc(a.task)}</span>${a.seq ? `<span class="chip bad">재수술 확인 필요</span>` : ''}${reqChips(a)}</div>
     <p>${a.pen ? '우리(목장) 소속' : '야생 — 포획해 결박한 뒤 운반 요청'}${a.bound ? ' · 현장 결박됨' : ''}</p></div>`;
 }
 const reqChips = a => (a.req.capture ? '<span class="chip info">포획 요청</span>' : '') + (a.req.carry ? `<span class="chip info">운반 → ${a.req.carry}</span>` : '') +
@@ -339,7 +339,7 @@ function commands() {
   const k = kindOf(), c = selCommanders()[0];
   if (k === 'none') return [
     { l: '작업표', i: 'grid', a: 'open', d: { w: 'duty' } }, { l: '장수 관리', i: 'users', a: 'open', d: { w: 'commander' } }, { l: '건설', i: 'hammer', a: 'open', d: { w: 'build' }, primary: 1 },
-    { l: '연구', i: 'flask', a: 'say', d: { t: '과학 화면은 이번 시안 범위 밖입니다.' } }, { l: '인구', i: 'house', a: 'open', d: { w: 'population' } }, { l: '외교', i: 'hand', a: 'open', d: { w: 'diplomacy' } },
+    { l: '연구', i: 'flask', a: 'open', d: { w: 'science' } }, { l: '인구', i: 'house', a: 'open', d: { w: 'population' } }, { l: '외교', i: 'hand', a: 'open', d: { w: 'diplomacy' } },
     { l: S.prioMode ? '지정 끝' : '우선 지정', i: 'target', a: 'prioMode', on: S.prioMode, why: '고른 단계를 대상에 클릭해 지정합니다. 노란 경보 → 작업 종류 → 대상 우선순위(9 최우선) → 거리 순.' },
     { l: S.prioLevel === 10 ? '노란 경보' : `단계 ${S.prioLevel}`, i: 'level', a: 'prioLevel', why: '1(낮음)~9(높음), 노란 경보(그 대상을 최우선, 식사·수면·치료는 중단하지 않음)' },
     { l: S.red ? '경보 해제' : '빨간 경보', i: 'siren', a: 'red', alarm: S.red, why: '소굴 전체: 식사·수면·치료받기·간호를 멈추고 작업. 작업 금지는 유지.' }];
@@ -347,7 +347,7 @@ function commands() {
     { l: '우선', i: 'flag', a: 'say', d: { t: `${c.name}: 대상을 우클릭하면 그 일부터 하고 끝나면 자율 작업으로 돌아갑니다.` } },
     { l: c.resting ? '휴식 중' : c.injuries.length ? '치료' : '휴식', i: 'bed', a: 'rest', why: '숙소로 보내 쉬게 합니다. 부상이 있으면 빈 침상이 있는 의무실로.' },
     { l: '건설', i: 'hammer', a: 'open', d: { w: 'build' }, primary: 1 }, { l: '작업표', i: 'grid', a: 'open', d: { w: 'duty' } }, { l: '상세', i: 'info', a: 'open', d: { w: 'commander', id: c.id } },
-    { l: '무기', i: 'swap', a: 'say', d: { t: '보유한 다음 무기로 바꿉니다(시안: 바꿀 무기 없음).' } }, { l: '연구', i: 'flask', a: 'say', d: { t: '과학 화면은 이번 시안 범위 밖입니다.' } },
+    { l: '무기', i: 'swap', a: 'say', d: { t: '보유한 다음 무기로 바꿉니다(시안: 바꿀 무기 없음).' } }, { l: '연구', i: 'flask', a: 'open', d: { w: 'science' } },
     { l: '정지', i: 'stop', a: 'say', d: { t: `${c.name}: 하던 일을 멈춥니다. 자율 작업은 다시 이어집니다.` } }, null];
   if (k === 'multi') {
     const all = selCommanders(), dep = all.every(x => x.deployed);
@@ -414,11 +414,21 @@ function closeWin() {
 function head(title, sub, extra = '') { return `<header class="win-head"><h2 id="winTitle">${title}</h2><span class="sub">${sub || ''}</span><span class="grow"></span>${extra}<button class="btn ghost" data-act="close" aria-label="닫기">${ic('x', 14)}</button></header>`; }
 function renderWin() {
   if (!S.win) return;
+  const oldWindow = $('#window'), windowKey = `${S.win}:${S.tab[S.win] || ''}:${S.winArg?.id || ''}`;
+  const sameWindow = oldWindow.dataset.windowKey === windowKey;
+  const expanded = sameWindow ? [...oldWindow.querySelectorAll('details[open]')].map(el => el.querySelector('summary')?.textContent) : [];
+  const scroll = sameWindow ? oldWindow.querySelector('.win-body')?.scrollTop || 0 : 0;
+  const focused = oldWindow.contains(document.activeElement) ? keyOf(document.activeElement) : null;
   const fn = { duty: winDuty, commander: winCommander, population: winPopulation, build: winBuild, renovate: winRenovate, redevelop: winRedevelop, production: winProduction,
-    diplomacy: winDiplomacy, negotiation: winNegotiation, ranch: winRanch, animal: winAnimal, feeder: winFeeder, butcher: winButcher }[S.win];
+    diplomacy: winDiplomacy, negotiation: winNegotiation, ranch: winRanch, animal: winAnimal, feeder: winFeeder, butcher: winButcher, logistics: winLogistics, colony: winColony, expedition: winExpedition,
+    science: winScience, farm: winFarm, utilities: winUtilities, equipment: winEquipment }[S.win];
   const r = fn(S.winArg); const w = $('#window');
   w.className = 'window plate' + (r.narrow ? ' narrow' : '');
   w.innerHTML = head(r.title, r.sub, r.extra) + `<div class="win-body">${r.body}</div>` + (r.foot ? `<footer class="win-foot">${r.foot}</footer>` : '');
+  w.dataset.windowKey = windowKey;
+  w.querySelectorAll('details').forEach(el => { if (expanded.includes(el.querySelector('summary')?.textContent)) el.open = true; });
+  w.querySelector('.win-body').scrollTop = scroll;
+  if (focused) [...w.querySelectorAll('[data-act],[data-input]')].find(el=>keyOf(el)===focused)?.focus({preventScroll:true});
 }
 const tabs = (w, names, soon = []) => { const cur = S.tab[w] || names[0]; return `<div class="tabs" role="tablist">${names.map(n => `<button role="tab" class="${soon.includes(n) ? 'soon' : ''}" aria-selected="${cur === n}" data-act="tab" data-w="${w}" data-n="${n}">${n}${soon.includes(n) ? ' · 준비 중' : ''}</button>`).join('')}</div>`; };
 
@@ -431,7 +441,7 @@ function winDuty() {
     return `<td><button class="cell ${locked ? 'locked' : ''}" data-act="${locked ? 'say' : 'duty'}" data-t="${esc(label)}" data-id="${c.id}" data-k="${k}" data-p="${locked ? 0 : p}" aria-label="${esc(label)}" title="${esc(label)}${locked ? '' : ' — 클릭: 올림 / 우클릭: 내림'}">
       ${locked ? ic('lock', 12) : `<span class="p">${p ? p : '금지'}</span>`}<span class="sk">${lv !== null ? lv : k === 'clean' ? '—' : ''}${fl ? `<span class="flame">${ic('flame', 9)}${fl === 2 ? ic('flame', 9) : ''}</span>` : ''}</span></button></td>`;
   }).join('')}</tr>`).join('');
-  return { title: '작업표', sub: '장수 × 작업 15종 · 게임은 멈추지 않음', body: `<p class="muted" style="margin:0">숫자 = 우선순위 1(매우 낮음)~5(매우 높음), ‘금지’ = 하지 않음(경보 중에도 금지 유지). 높은 숫자부터, 같으면 대상 우선순위 → 거리 → 왼쪽 순. 진행 중인 작업은 마친 뒤 적용. 칸 아래 = 기술 수치·열정. 간호는 기획의 의료 작업(투약·수술·약제대 생산).</p>
+  return { title: '작업표', sub: '장수 × 작업 15종 · 게임은 멈추지 않음', body: `<p class="muted" style="margin:0">숫자 = 우선순위 1~9(기본 5), ‘금지’ = 하지 않음(경보 중에도 금지 유지). 높은 숫자부터, 같으면 대상 우선순위 → 실제 이동 거리 → 오래 기다린 요청 순. 진행 중인 작업은 마친 뒤 적용. 칸 아래 = 기술 수치·열정. 간호는 기획의 의료 작업(투약·수술·약제대 생산).</p>
     <div style="overflow:auto"><table class="duty">${head}${rows}</table></div>`, foot: `<span class="note">예시 데이터</span><button class="btn" data-act="say" data-t="채집 금지 지정: 지도에서 자원을 클릭(시안)">채집 금지</button><button class="btn" data-act="say" data-t="지정 취소: 지도에서 지정을 지움(시안)">지정 취소</button><button class="btn primary" data-act="close">닫기</button>` };
 }
 // 장수 상세: 개요·기분·특성·관계·장비·건강(기획 탭). CA/PA 공개 범위는 미정이라 넣지 않는다.
@@ -491,16 +501,16 @@ function winBuild() {
       <div role="radiogroup" aria-label="주재료" style="display:flex;flex-direction:column;gap:3px">${mats.map(k => { const s = STRUCT[k], have = mat(k).have, lack = have < need;
         return `<div class="mat ${lack ? 'short' : ''}" role="radio" tabindex="0" aria-checked="${k === m}" data-act="buildMat" data-k="${k}"><span>${mat(k).n} <span class="n ${lack ? 'bad-ink' : ''}">${have}/${need}</span></span><span class="n">${s.dur}</span><span class="n">${s.beauty > 0 ? '+' : ''}${s.beauty}</span><span class="n">${s.insul}</span><span>${s.flam ? '<span class="warn-ink">탐</span>' : '안 탐'}</span><span>${lack ? '<span class="chip bad">부족</span>' : ''}</span></div>`; }).join('')}</div>
       <p class="dim" style="margin:0">필수 부품은 고정, 귀한 부재료는 자동 사용 제외. 재료 목록·수치는 기획 미정(예시).</p>` : `<p class="muted" style="margin:0">재료 ${need} · 이 항목은 재료를 고르지 않습니다.</p>`}
-      <div class="row">${short ? '<span class="chip bad">재료 부족 — 배치할 수 없습니다</span>' : '<span class="chip ok">배치 가능 · 배치 순간 차감, 취소하면 100% 반환</span>'}</div>
+      <div class="row">${short ? '<span class="chip bad">재료 부족 — 청사진 배치 후 배송 대기</span>' : '<span class="chip ok">배치 가능 · 예약·배송 후 시공 시작 시 소비</span>'}</div>
       <p class="dim" style="margin:0">완성 후 철거는 70% 반환. 주거를 기존 집 위에 배치하면 재개발(보상비·민심 견적 표시).</p></div></div>`,
-    foot: `<span class="note">예시 데이터</span><button class="btn" data-act="close">취소</button><button class="btn primary" data-act="place" data-n="${it[0]}" ${short ? 'disabled' : ''}>배치 시작</button>` };
+    foot: `<span class="note">예시 데이터</span><button class="btn" data-act="close">취소</button><button class="btn primary" data-act="place" data-n="${it[0]}" >배치 시작</button>` };
 }
 function winRenovate(arg) {
   const b = bld(arg.id), cur = b.mat, need = 30;
-  return { title: `${b.name} · 재료 개보수`, sub: `현재 주재료 ${mat(cur)?.n}`, narrow: 1, body: `<p class="muted" style="margin:0">지시할 때 새 재료 ${need}을(를) 먼저 차감하고, 장수가 작업하는 동안 건물을 쓸 수 없습니다. 취소하면 새 재료를 모두 돌려받고, 완료하면 기존 재료의 70%를 돌려받습니다(창고가 차면 건물 주변 바닥).</p>
+  return { title: `${b.name} · 재료 개보수`, sub: `현재 주재료 ${mat(cur)?.n}`, narrow: 1, body: `<p class="muted" style="margin:0">새 재료 ${need} 예약·배송 후 실제 작업 시작 시 소비합니다. 작업 중 사용 중지·생산 진행 보존. 취소 시 새 재료 100%, 완료 시 기존 재료 70%를 바닥에 반환합니다.</p>
     <ul class="list">${Object.keys(STRUCT).filter(k => k !== cur).map(k => { const s = STRUCT[k], lack = mat(k).have < need;
-      return `<li class="${lack ? 'excluded' : ''}"><span class="grow"><b>${mat(k).n}</b> <span class="dim">내구도 ${s.dur} · 미관 ${s.beauty} · 단열 ${s.insul} · ${s.flam ? '탐' : '안 탐'}</span></span><span class="n ${lack ? 'bad-ink' : ''}">${mat(k).have}/${need}</span><button class="btn" data-act="renovate" data-k="${k}" data-id="${b.id}" ${lack ? 'disabled title="재료 부족"' : ''}>변경 지시</button></li>`; }).join('')}</ul>
-    ${b.renovating ? `<div class="row"><span class="chip warn">${mat(b.renovating).n}(으)로 개보수 예정 — 사용 중지</span><button class="btn danger" data-act="renovateCancel" data-id="${b.id}">취소(새 재료 100% 반환)</button></div>` : ''}`, foot: `<button class="btn primary" data-act="close">닫기</button>` };
+      return `<li class="${lack ? 'excluded' : ''}"><span class="grow"><b>${mat(k).n}</b> <span class="dim">내구도 ${s.dur} · 미관 ${s.beauty} · 단열 ${s.insul} · ${s.flam ? '탐' : '안 탐'}</span></span><span class="n ${lack ? 'bad-ink' : ''}">${mat(k).have}/${need}</span><button class="btn" data-act="renovate" data-k="${k}" data-id="${b.id}" >변경 지시</button></li>`; }).join('')}</ul>
+    ${b.renovating ? `<div class="row"><span class="chip warn">${mat(b.renovating).n}(으)로 개보수 배송 대기 — 작업 시작 전 사용 가능</span><button class="btn danger" data-act="renovateCancel" data-id="${b.id}">취소(새 재료 100% 반환)</button></div>` : ''}`, foot: `<button class="btn primary" data-act="close">닫기</button>` };
 }
 function winRedevelop(arg) {
   const b = bld(arg.id), p = S.pop; const target = S.redev || '흙집';
@@ -509,7 +519,7 @@ function winRedevelop(arg) {
   return { title: `${b.name} 재개발`, sub: `거주 ${b.residents} · 기존 집 위에 상위 주거 배치`, narrow: 1, body: `
     <div class="row"><span class="muted">새 주거</span><span class="seg" role="group">${['흙집', '큰 아파트'].map(n => `<button data-act="redevTarget" data-v="${n}" aria-pressed="${n === target}">${n}</button>`).join('')}</span></div>
     <dl class="kv"><dt>건설비</dt><dd><b class="n">${build}</b> 재료(신축 ${t.cost}의 60%)</dd><dt>보상비</dt><dd>식량 <b class="n">${comp}</b> · 재료 <b class="n">${comp}</b>(실거주 × 0.5 × 보상 수준 ${Math.round(p.comp * 100)}%) — 배치 순간 지급, 취소해도 반환 안 됨</dd>
-    <dt>예상 민심</dt><dd class="${unrest > 0 ? 'bad-ink' : 'ok-ink'}">${unrest > 0 ? `−${unrest}(보상 부족)` : '불만 없음(보상 충분)'} · 공사 120초 초과 시 지연 불만</dd><dt>행정 보정</dt><dd>행정 성과 ${pct(p.admin)} → 보상비·불만 완화(잠정)</dd><dt>공사 중</dt><dd>기존 집·인구·납세 유지, 완공 시 정원 ${t.cap}</dd></dl>
+    <dt>예상 민심</dt><dd class="${unrest > 0 ? 'bad-ink' : 'ok-ink'}">${unrest > 0 ? `−${unrest}(보상 부족)` : '불만 없음(보상 충분)'} · 공사 120초 초과 시 지연 불만</dd><dt>행정 보정</dt><dd>행정 성과 ${pct(p.admin)} → 보상비·불만 완화(잠정)</dd><dt>공사 중</dt><dd>기존 집·거주·인구·납세·혜택 유지, 완공 시 정원 ${t.cap}</dd></dl>
     <div class="row"><span class="muted">보상 수준</span><input type="range" min="50" max="200" step="10" value="${p.comp * 100}" data-input="comp" style="max-width:220px" aria-label="보상 수준"><b class="n">${Math.round(p.comp * 100)}%</b></div>
     <p class="dim" style="margin:0">취소하면 기존 집·주거 효과 복구, 건설 자원 전액 반환. 이미 지급한 보상비는 반환하지 않습니다. 수치는 잠정.</p>`,
     foot: `<button class="btn" data-act="close">취소</button><button class="btn primary" data-act="place" data-n="${target}(재개발)">배치 시작</button>` };
@@ -522,7 +532,7 @@ function winProduction(arg) {
     ${S.mode !== 'forever' ? `<span class="stepper"><button class="btn" data-act="amount" data-d="-1" aria-label="줄이기">−</button><input type="number" min="1" max="99" value="${S.amount}" data-input="amount" aria-label="${S.mode === 'count' ? '만들 수량' : '목표 재고'}"><button class="btn" data-act="amount" data-d="1" aria-label="늘리기">+</button></span><span class="muted">${S.mode === 'count' ? '만들 수량' : '목표 재고'}</span>` : '<span class="muted">재료가 있는 동안 반복</span>'}</div>
     <div class="grid2"><div class="box well"><h3>품목</h3><ul class="list">${R.items.map(([n, cost], i) => `<li><span class="grow"><b>${n}</b> <span class="dim">${cost}</span></span>${id === 'med' ? `<span class="dim">재고 ${i === 0 ? mat('medicine').have : mat('kit').have}</span>` : ''}<button class="btn" data-act="addOrder" data-id="${id}" data-i="${i}" ${list.length >= 8 ? 'disabled title="목록은 최대 8개"' : ''}>목록 추가</button></li>`).join('')}</ul></div>
     <div class="box well"><h3>생산 목록 ${list.length}/8</h3>${list.length ? `<ul class="list">${list.map((o, j) => `<li><span class="grow"><b>${j + 1}. ${R.items[o.item][0]}</b> <span class="dim">${modeName[o.mode]}${o.mode === 'count' ? ` · 남은 ${o.n}` : o.mode === 'keep' ? ` · 목표 ${o.n}` : ''}</span><span class="meter" style="margin-top:4px"><i style="transform:scaleX(${o.prog})"></i></span></span><span class="n">${pct(o.prog)}</span><button class="btn danger" data-act="delOrder" data-id="${id}" data-i="${j}" aria-label="삭제">${ic('trash', 14)}</button></li>`).join('')}</ul>` : '<div class="empty">목록이 비었습니다. 왼쪽 품목을 추가하세요.</div>'}</div></div>
-    <p class="dim" style="margin:0">${id === 'med' ? '약제대는 간호(의료) 작업·의료 능력만 사용(능력은 속도만, 산출·품질 동일). 할 수 있는 치료가 있으면 치료가 먼저입니다.' : '재료는 한 묶음을 시작할 때 차감, 창고가 차면 결과물은 창고 주변 바닥.'} 정지 중에는 새 예약을 하지 않습니다.</p>`,
+    <p class="dim" style="margin:0">${id === 'med' ? '약제대는 간호(의료) 작업·의료 능력만 사용(능력은 속도만, 산출·품질 동일). 할 수 있는 치료가 있으면 치료가 먼저입니다.' : '재료는 한 묶음을 시작할 때 소비, 완성품은 생산 시설 주변 바닥에 배출.'} 정지 중에는 새 예약을 하지 않습니다.</p>`,
     foot: `<span class="note">예시 데이터 · 레시피 잠정</span><button class="btn primary" data-act="close">닫기</button>` };
 }
 // 외교: 세력 목록 → 협상. 보류 협상은 오른쪽 알림에 남는다.
@@ -598,16 +608,16 @@ function winRanch() {
 }
 function highRisk(a) { return a.seq > 0 || bestChance(a) < .5; }
 const surgeons = () => C.filter(c => !c.young && !c.away && !c.deployed && !c.locked.includes('nursing'));
-// 수술 예상치(사용자 확정 잠정안 A): 50% + 의료×2.5%p − 부상 보정(체력 40%→0, 0%→20%p) − 후유증×10%p, 5~95%. 실패 시 사망 10% + 후유증×5%p.
-const chanceFor = (a, c) => clamp(.5 + c.skills.medicine * .025 - clamp(1 - a.hp / 100 / .4, 0, 1) * .2 - a.seq * .1, .05, .95);
+// 수술 예상치(사용자 확정 잠정안 A): 50% + 의료×2.5%p − 부상 보정(체력 40%→0, 0%→20%p), 5~95%. 실패 시 사망 10%(실패 횟수 가산 없음).
+const chanceFor = (a, c) => clamp(.5 + c.skills.medicine * .025 - clamp(1 - a.hp / 100 / .4, 0, 1) * .2, .05, .95);
 const bestChance = a => Math.max(0, ...surgeons().map(c => chanceFor(a, c)));
-const deathFor = (a, c) => (1 - chanceFor(a, c)) * Math.min(1, .1 + a.seq * .05);
+const deathFor = (a, c) => (1 - chanceFor(a, c)) * .1;
 function winAnimal(arg) {
   const a = animal(+arg.id); if (!a || a.dead) return { title: '개체', body: '<div class="empty">이 개체는 더 이상 없습니다.</div>', foot: `<button class="btn primary" data-act="close">닫기</button>` };
   const t = S.tab.animal || '개요', sp = SPECIES[a.sp];
   const over = `<div class="grid2"><div class="box well"><h3>이름</h3><div class="row"><input type="text" value="${esc(a.custom)}" placeholder="${SPECIES[a.sp].n}" data-input="rename" data-id="${a.id}" maxlength="16" aria-label="개체 이름"><span class="dim">비우면 기본 이름(종). 알림은 이름(종)으로 표시</span></div>
       <dl class="kv"><dt>종 · 성향</dt><dd>${sp.n} · ${sp.temper}</dd><dt>성장</dt><dd>${a.stage}(나이·노령 상태만 표시, 사망 시점은 표시 안 함)</dd><dt>길들임</dt><dd>${a.tame ? '길들임(영구)' : a.untameable ? '길들이기 불가 종' : `진행 ${pct(a.tameProg || 0)}(돌봄 효과 동안 증가, 끊기면 감소)`}</dd>
-      <dt>건강</dt><dd>${a.hp}%${a.injury ? ' · ' + a.injury : ''}${a.seq ? ` · <span class="bad-ink">후유증 ${a.seq}: 재수술 성공률 −${a.seq * 10}%p · 실패 시 사망 +${a.seq * 5}%p(우리를 옮겨도 유지)</span>` : ''}</dd><dt>허기</dt><dd class="n">${a.hunger}</dd><dt>현재 작업</dt><dd>${a.clinic ? clinicLine(a) : esc(a.task)}</dd></dl></div>
+      <dt>건강</dt><dd>${a.hp}%${a.injury ? ' · ' + a.injury : ''}${a.seq ? ` · <span class="bad-ink">수술 실패 이력 · 횟수에 따른 위험 가산 없음</span>` : ''}</dd><dt>허기</dt><dd class="n">${a.hunger}</dd><dt>현재 작업</dt><dd>${a.clinic ? clinicLine(a) : esc(a.task)}</dd></dl></div>
     <div class="box well"><h3>요청</h3><div class="state-line">${reqChips(a) || '<span class="dim">요청 없음</span>'}</div>
       <div class="row"><button class="btn" data-act="animalReq" data-r="capture" data-id="${a.id}" ${a.bound || a.clinic ? 'disabled' : ''}>${a.req.capture ? '포획 취소' : '포획 요청'}</button>
       <button class="btn" data-act="animalReq" data-r="carry" data-id="${a.id}" ${!(a.bound || a.hp < 20) || a.clinic && a.clinic.phase !== 'ready' ? 'disabled' : ''}>${a.req.carry ? '운반 취소' : '운반 요청'}</button>
@@ -631,15 +641,15 @@ function medical(a) {
       <div class="row"><button class="btn primary" data-act="surgeryStart" data-id="${a.id}" ${(highRisk(a) && !a.surgeon) || stock('kit') < 1 ? 'disabled' : ''}>수술 시작(시안 진행)</button>${stock('kit') < 1 ? '<span class="bad-ink">수술 키트가 없어 시작할 수 없습니다.</span>' : ''}</div></div>`,
     surgery: `<div class="box well"><h3>수술 중 ${pct(c.prog)}</h3><span class="meter"><i style="transform:scaleX(${c.prog})"></i></span><p class="muted" style="margin:0">집도의 ${c.by ? byId(c.by).name : '<span class="warn-ink">이탈 — 진행 일시정지(배고픔 진행), 다른 의료 장수가 진행도·키트를 이어받음</span>'} · 실제 수술 중 배고픔 정지 · 유저 중도 취소 불가</p>
       <p class="dim" style="margin:0">교대 시 성공률은 장수별 실제 진행 작업량 비중으로 의료 능력을 계산합니다(대기 시간 제외, 마지막 집도의만 쓰지 않음).</p>${c.by ? `<button class="btn" data-act="surgeonLeave" data-id="${a.id}">집도의 이탈(시안)</button>` : pick('집도의 교대')}</div>`,
-    recovery: `<div class="box well"><h3>회복 중</h3><p class="muted" style="margin:0">수술 성공 — 경상·중상 완치, 후유증 해소. 치료대에서 활동·식사 불가로 회복(배고픔 정지, 나이·자연사는 진행). 남은 <b class="n">${c.left}</b>초(시안). 완료하면 원래 우리로 운반을 요청합니다.</p></div>`,
-    failed: `<div class="box well"><h3 class="bad-ink">수술 실패 — ${c.result}</h3><p class="muted" style="margin:0">후유증 ${a.seq}회 누적 → 재수술 성공률↓·사망 위험↑. 자동 재시도하지 않습니다. 치료대에서 재수술 또는 우리 복귀를 고르세요(대기 중 배고픔 진행).</p>${pick('재수술')}
+    recovery: `<div class="box well"><h3>회복 중</h3><p class="muted" style="margin:0">수술 성공 — 경상·중상 완치. 치료대에서 활동·식사 불가로 회복(배고픔 정지, 나이·자연사는 진행). 남은 <b class="n">${c.left}</b>초(시안). 완료하면 원래 우리로 운반을 요청합니다.</p></div>`,
+    failed: `<div class="box well"><h3 class="bad-ink">수술 실패 — ${c.result}</h3><p class="muted" style="margin:0">현재 부상 정도와 의료 능력으로 재수술 위험을 계산합니다. 실패 횟수 자체로 위험이 증가하지 않습니다. 자동 재시도하지 않습니다. 치료대에서 재수술 또는 우리 복귀를 고르세요(대기 중 배고픔 진행).</p>${pick('재수술')}
       <div class="row"><button class="btn" data-act="returnPen" data-id="${a.id}">우리 복귀(부상 유지)</button></div></div>`,
     ready: `<div class="box well"><h3>회복 완료</h3><p class="muted" style="margin:0">원래 우리로 운반 대기 — 운반 장수가 데려갈 때까지 치료대 한 자리를 차지합니다(배고픔 진행).</p></div>`,
   }[a.clinic ? c.phase : 'none'];
   return stockLine + phase;
 }
 function winFeeder() {
-  return { title: '먹이통', sub: '운반 장수가 허용 먹이를 목표량까지 채움 · 우리 전용 아님', narrow: 1, body: `<div class="row"><span class="muted">운반 우선순위</span><span class="stepper"><button class="btn" data-act="feederPrio" data-d="-1" aria-label="낮추기">−</button><b class="n" style="width:20px;text-align:center">${S.feederPrio}</b><button class="btn" data-act="feederPrio" data-d="1" aria-label="높이기">+</button></span><span class="dim">1~5 · 높은 통부터 보충</span></div>
+  return { title: '먹이통', sub: '운반 장수가 허용 먹이를 목표량까지 채움 · 우리 전용 아님', narrow: 1, body: `<div class="row"><span class="muted">운반 우선순위</span><span class="stepper"><button class="btn" data-act="feederPrio" data-d="-1" aria-label="낮추기">−</button><b class="n" style="width:20px;text-align:center">${S.feederPrio}</b><button class="btn" data-act="feederPrio" data-d="1" aria-label="높이기">+</button></span><span class="dim">1~9 · 기본 5 · 높은 통부터 보충</span></div>
     <ul class="list">${S.feeder.map((f, i) => `<li><label class="grow"><input type="checkbox" data-input="feedAllow" data-i="${i}" ${f.allow ? 'checked' : ''}> <b>${f.n}</b></label><span class="dim">재고 <b class="n">${f.stock}</b> / 목표</span>
       <span class="stepper"><button class="btn" data-act="feedTarget" data-i="${i}" data-d="-5" aria-label="${f.n} 목표 −5">−</button><b class="n" style="width:26px;text-align:center">${f.target}</b><button class="btn" data-act="feedTarget" data-i="${i}" data-d="5" aria-label="${f.n} 목표 +5">+</button></span>
       <button class="btn" data-act="feedDump" data-i="${i}" ${f.stock < 1 ? 'disabled' : ''}>반출</button></li>`).join('')}</ul>
@@ -680,10 +690,11 @@ function askBulk(kind, list) {
 function tick() {
   if (S.paused || S.negoPause) return;
   const dt = S.speed; S.sim += dt;
+  if (typeof returnAdvance === 'function') returnAdvance(dt * 28 / 300);
   S.taxIn -= dt; if (S.taxIn <= 0) { const w = weekly(); S.taxIn += 75; toast({ kind: 'done', icon: 'check', title: '주간 납세', text: `식량 +${w.food} · 재료 +${w.mat}(${S.pop.focus})` }); }
   if (S.sim % 4 < dt) S.clockMin = (S.clockMin + 1) % 900;
   C.forEach(c => { if (c.skillCd > 0) c.skillCd = Math.max(0, c.skillCd - dt); });
-  Object.entries(S.orders).forEach(([id, list]) => { const o = list[0]; if (!o) return; o.prog += .02 * dt; if (o.prog >= 1) { o.prog = 0; if (id === 'med') mat(o.item === 0 ? 'medicine' : 'kit').have++; if (o.mode === 'count' && --o.n <= 0) list.shift(); } });
+  Object.entries(S.orders).forEach(([id, list]) => { const o = list[0]; if (!o || S.productionPaused?.[id]) return; o.prog += .02 * dt; if (o.prog >= 1) { o.prog = 0; if (id === 'med') mat(o.item === 0 ? 'medicine' : 'kit').have++; if (o.mode === 'count' && --o.n <= 0) list.shift(); } });
   // 동물: 도축 요청 처리(대기 → 포획/도축 시작 → 사체), 치료, 포식(사전 경고 없음, 실제 피해 후 처음 먹을 때만 알림)
   live().forEach(a => {
     if (a.req.slaughter === 'wait' && S.sim - a.reqAt > 6) { a.req.slaughter = 'started'; a.task = '도축 중'; }
@@ -707,12 +718,12 @@ function tickPredation(dt) {
     if (S.sel.id === 7) S.sel = { kind: 'none' }; toast({ kind: 'warn', icon: 'paw', title: '포식', text: `${prey.name}이(가) ${spider.name}에게 잡아먹혔습니다.`, go: () => { setView(980, 470); S.sel = { kind: 'animal', id: 14 }; } }); } } }
 }
 function finishSurgery(a) {
-  const c = a.clinic, med = c.work ? c.skillWork / c.work : 0, chance = clamp(.5 + med * .025 - clamp(1 - c.pre / .4, 0, 1) * .2 - a.seq * .1, .05, .95);
+  const c = a.clinic, med = c.work ? c.skillWork / c.work : 0, chance = clamp(.5 + med * .025 - clamp(1 - c.pre / .4, 0, 1) * .2, .05, .95);
   if (Math.random() < chance) { a.hp = 100; a.seq = 0; c.phase = 'recovery'; c.left = Math.max(8, Math.round(30 * (1 - c.pre))); a.injury = null; a.surgeon = null; toast({ kind: 'done', icon: 'check', title: `${a.name} 수술 성공`, text: '치료대에서 회복합니다.', go: () => focusAnimal(a) }); return; }
-  const death = Math.min(1, .1 + a.seq * .05), r = Math.random(); a.seq++;
+  const death = .1, r = Math.random(); a.seq++;
   if (r < death) { a.dead = true; S.floorCarcass.push({ sp: a.sp, x: 914, y: 600, meat: 8, at: S.sim }); toast({ kind: 'crisis', icon: 'warn', title: `${a.name} 수술 중 사망`, text: '사체는 치료대 옆 바닥에 남고 자리가 비었습니다.', go: () => setView(860, 590) }); if (S.sel.id === a.id) S.sel = { kind: 'none' }; return; }
   c.phase = 'failed'; c.result = r < death + .3 ? '부상 악화' : '부상 유지'; if (c.result === '부상 악화') a.hp = Math.max(1, a.hp - 10); a.surgeon = null;
-  toast({ kind: 'warn', icon: 'warn', title: `${a.name} 수술 실패 — ${c.result}`, text: `후유증 ${a.seq} · 재수술 또는 우리 복귀를 고르세요.`, go: () => focusAnimal(a) });
+  toast({ kind: 'warn', icon: 'warn', title: `${a.name} 수술 실패 — ${c.result}`, text: `재수술 또는 우리 복귀를 고르세요.`, go: () => focusAnimal(a) });
 }
 function focusAnimal(a) { setView(a.x, a.y); S.sel = { kind: 'animal', id: a.id }; renderAll(); }
 function setView(x, y) { // 알림 '위치': 알림은 그대로 두고 카메라 이동(220ms ease-out)
@@ -755,7 +766,7 @@ const ACT = {
   pop: () => { const p = $('#pop'); p.hidden = !p.hidden; if (!p.hidden) { renderPop(); const r = $('#res [data-act=pop]').getBoundingClientRect(); p.style.left = Math.max(8, r.right - 260) + 'px'; p.style.top = r.bottom + 6 + 'px'; } renderRes(); },
   toastGo: d => { const t = S.toasts.find(x => x.id === +d.id); t?.go?.(); renderAll(); }, toastX: d => { S.toasts = S.toasts.filter(t => t.id !== +d.id || t.pinned); renderToasts(); },
   tab: d => { S.tab[d.w] = d.n; renderWin(); },
-  duty: (d, el, e) => { const c = byId(d.id); const dir = e.type === 'contextmenu' ? -1 : 1; c.prio[d.k] = (c.prio[d.k] + dir + 6) % 6; renderWin(); $(`#window .cell[data-id="${d.id}"][data-k="${d.k}"]`)?.focus(); },
+  duty: (d, el, e) => { const c = byId(d.id); const dir = e.type === 'contextmenu' ? -1 : 1; c.prio[d.k] = (c.prio[d.k] + dir + 10) % 10; renderWin(); $(`#window .cell[data-id="${d.id}"][data-k="${d.k}"]`)?.focus(); },
   focus: d => { S.pop.focus = d.v; renderAll(); }, policy: d => { S.pop.policy = d.v; renderAll(); },
   buildCat: d => { S.buildCat = +d.i; S.buildItem = null; renderWin(); }, buildItem: d => { S.buildItem = d.n; renderWin(); }, buildMat: d => { S.buildMat = d.k; renderWin(); },
   place: d => { closeWin(); S.place = d.n; const pb = $('#placebar'); pb.hidden = false; pb.innerHTML = `${ic('hammer', 14)}<b>${esc(d.n)}</b> 배치 중 — 좌클릭 1개 · Shift 유지 · Shift+드래그 연속(시안)<button class="btn" data-act="placeEnd">끝내기</button>`; },
@@ -792,7 +803,7 @@ const ACT = {
   surgeonLeave: d => { const a = animal(+d.id); a.clinic.by = null; renderAll(); },
   returnPen: d => { const a = animal(+d.id); a.clinic = { phase: 'ready' }; feedback(`${a.name}: 원래 우리로 운반 요청(부상 유지)`); renderAll(); },
   target: d => { S.ranch.target[d.k] = Math.max(0, S.ranch.target[d.k] + +d.d); renderWin(); },
-  feederPrio: d => { S.feederPrio = clamp(S.feederPrio + +d.d, 1, 5); renderWin(); },
+  feederPrio: d => { S.feederPrio = clamp(S.feederPrio + +d.d, 1, 9); renderWin(); },
   feedTarget: d => { const f = S.feeder[+d.i]; f.target = clamp(f.target + +d.d, 0, 200); if (f.stock > f.target) { feedback(`${f.n} 초과분 ${f.stock - f.target} 바닥에 떨어짐`); f.stock = f.target; } renderWin(); },
   feedDump: d => { const f = S.feeder[+d.i]; feedback(`${f.n} ${f.stock} 바닥에 반출 — 재보충을 피하려면 목표량도 낮추세요`); f.stock = 0; renderWin(); },
   butcherPause: () => { S.butcher.paused = !S.butcher.paused; renderAll(); },
@@ -824,6 +835,19 @@ document.addEventListener('click', e => {
 });
 document.addEventListener('contextmenu', e => { const t = e.target.closest('.cell[data-act=duty]'); if (!t) return; e.preventDefault(); ACT.duty({ ...t.dataset }, t, e); });
 document.addEventListener('keydown', e => {
+  document.body.classList.add('using-keyboard');
+  const tab = e.target.closest?.('[role=tab]');
+  if (tab && ['ArrowLeft','ArrowRight','Home','End'].includes(e.key)) {
+    e.preventDefault();const group=[...tab.parentElement.querySelectorAll('[role=tab]')],i=group.indexOf(tab);
+    const next=group[e.key==='Home'?0:e.key==='End'?group.length-1:(i+(e.key==='ArrowRight'?1:-1)+group.length)%group.length];
+    const data={...next.dataset};ACT[data.act](data);
+    [...$('#window').querySelectorAll('[role=tab]')].find(el=>el.dataset.n===data.n&&el.dataset.i===data.i)?.focus();return;
+  }
+  if (e.key==='Tab' && S.win && !$('#confirm').open) {
+    const focusable=[...$('#window').querySelectorAll('button:not(:disabled),input:not(:disabled),select:not(:disabled),summary')].filter(el=>el.getClientRects().length);
+    const first=focusable[0],last=focusable.at(-1);
+    if(e.shiftKey&&e.target===first){e.preventDefault();last?.focus();}else if(!e.shiftKey&&e.target===last){e.preventDefault();first?.focus();}
+  }
   const r = e.target.closest?.('[role=radio][data-act]'); if (r && (e.key === 'Enter' || e.key === ' ')) { e.preventDefault(); ACT[r.dataset.act]({ ...r.dataset }, r, e); return; }
   if (e.key === 'Escape') { if ($('#confirm').open) return; if (!$('#pop').hidden) { $('#pop').hidden = true; renderRes(); return; } if (S.place) return ACT.placeEnd(); if (S.win) { e.preventDefault(); closeWin(); } else if (S.prioMode) ACT.prioMode(); }
   if (e.key === ' ' && !S.win && !e.target.closest('input,select,button,textarea')) { e.preventDefault(); if (!S.negoPause) ACT.pause(); }
@@ -831,6 +855,7 @@ document.addEventListener('keydown', e => {
 document.addEventListener('input', e => { const f = INPUT[e.target.dataset?.input]; if (f && (e.target.type === 'range' || e.target.type === 'text')) f(e.target); });
 document.addEventListener('change', e => { const d = e.target.dataset?.input; if (d === 'comp') return INPUT.compDone(); const f = INPUT[d]; if (f && e.target.type !== 'range' && e.target.type !== 'text') f(e.target); });
 $('#scrim').addEventListener('click', e => { if (e.target === e.currentTarget) closeWin(); });
+document.addEventListener('pointerdown',()=>document.body.classList.remove('using-keyboard'));
 
 // 초기 알림(예시)
 toast({ kind: 'done', icon: 'check', title: '방 완성: 식당·부엌', text: '식탁·조리대를 벽으로 둘러쌈 · 식사 기분 +' });
@@ -839,4 +864,4 @@ toast({ kind: 'warn', icon: 'cross', title: '집도의 지정 대기: 누에 #12
 toast({ kind: 'warn', icon: 'mood', title: '기분 경고', text: '장비 · 숙소 침대 부족으로 노숙', go: () => { setView(490, 200); S.sel = { kind: 'building', id: 'dorm' }; }, goLabel: '숙소' });
 const inv = toast({ kind: 'crisis', icon: 'warn', title: '침입 경보', text: '서쪽 성벽 공격 중 · 징집소에서 출전 편성', go: () => { setView(300, 470); S.sel = { kind: 'deployed', ids: ['jw'] }; }, goLabel: '전장' }); inv.pinned = true;
 renderAll();
-setInterval(tick, 1000);
+setInterval(() => tick(), 1000);

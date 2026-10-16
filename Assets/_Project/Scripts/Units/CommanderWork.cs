@@ -27,6 +27,7 @@ namespace AntColony.Units
         {
             ReleaseCorpse();
             ReleaseAnimalTask();
+            EndMed(); EndBurial();
             ServiceTarget = null; ServiceJob = CommanderJobs.None; HuntTarget = null;
             SetWorkTarget(null);
             ScienceAssignment?.ReleaseResearcher(); CraftingWorkshop?.Release();

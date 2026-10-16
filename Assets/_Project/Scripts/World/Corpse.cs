@@ -26,12 +26,16 @@ namespace AntColony.World
             public bool eating;
             public float progress;
             public string carcass; // 목장 생물 사체(해체 자원, 2026-10-11)
+            public string commanderId; // 2026-10-15 장수 시신: 고인 id(묘비 안치·추모). 부패하면 유해로 남고 사라지지 않는다
         }
         public State Data { get; private set; }
         public CommanderAnt Handler { get; private set; }
         public Vector3 Position => transform.position;
-        public bool Available => isActiveAndEnabled && Data.count > 0 && Data.remaining > 0;
-        public bool Edible => Available && Data.kind != CorpseKind.Wildlife;
+        public bool Available => isActiveAndEnabled && Data.count > 0 && (Data.remaining > 0 || IsCommanderBody);
+        // 장수 시신은 식량으로 쓰지 않는다(2026-10-13 기획: 시신의 식량·재료 사용 없음).
+        public bool Edible => Available && Data.kind != CorpseKind.Wildlife && Data.kind != CorpseKind.ColonyCommander;
+        public bool IsCommanderBody => Data.kind == CorpseKind.ColonyCommander && !string.IsNullOrEmpty(Data.commanderId);
+        public bool Remains => IsCommanderBody && Data.remaining <= 0;
         public bool Priority { get => Data.priority; set => Data.priority = value; }
         private void OnEnable() => All.Add(this);
         private void OnDisable() { All.Remove(this); Handler?.CommandStop(); Handler = null; }
@@ -40,7 +44,7 @@ namespace AntColony.World
         {
             if (!Available || !(seconds > 0) || float.IsInfinity(seconds)) return;
             Data.remaining = Mathf.Max(0, Data.remaining - seconds);
-            if (Data.remaining == 0) Remove();
+            if (Data.remaining == 0 && !IsCommanderBody) Remove(); // 장수 시신은 유해로 남는다
         }
         public bool Claim(CommanderAnt commander)
         {
@@ -56,6 +60,7 @@ namespace AntColony.World
             Remove(); return true;
         }
         private void Remove() { gameObject.SetActive(false); Destroy(gameObject); }
+        internal void Bury() { Handler = null; Remove(); }
         public State Capture()
         {
             var state = JsonUtility.FromJson<State>(JsonUtility.ToJson(Data)); state.position = Position;

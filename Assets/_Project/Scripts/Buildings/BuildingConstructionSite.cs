@@ -9,7 +9,7 @@ namespace AntColony.Buildings
 {
     // 건설 예정지(2026-10-12 기획): 자원이 부족해도 배치한다. 가능한 자원만 예약 → 운반 장수(또는 건설 장수)가 창고에서 가져와 배송 →
     // 전부 도착하면 실제 시공을 시작하며 그때 소비한다. 우선순위 1~9(같으면 먼저 지시한 곳)로 예약하고, 순위를 바꿔도 이미 예약·배송한 몫은 빼앗지 않는다.
-    public class BuildingConstructionSite : MonoBehaviour
+    public class BuildingConstructionSite : MonoBehaviour, IMaterialSink
     {
         [Serializable] public sealed class Need { public ResourceType type; public int need, reserved, delivered; }
         public enum Wait { None, Paused, MaterialShortage, AwaitingHaul, NoWorker, Unreachable, InUse }
@@ -43,6 +43,8 @@ namespace AntColony.Buildings
         public int Delivered(ResourceType t) => Needs.Where(n => n.type == t).Sum(n => n.delivered);
         // 배송을 기다리는(예약했지만 아직 아무도 집지 않은) 재료.
         public Need PendingPickup => Paused || finished ? null : Needs.FirstOrDefault(n => n.reserved > 0);
+        public bool NextPickup(out ResourceType type, out int amount)
+        { var n = PendingPickup; type = n?.type ?? default; amount = n?.reserved ?? 0; return n != null; }
 
         public void Initialize(GameObject building, float buildTimeSeconds, AntPool pool = null, int workforce = 0)
         {

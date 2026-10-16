@@ -55,7 +55,7 @@ namespace AntColony.Save
                 {
                     Check(corpse != null && !string.IsNullOrEmpty(corpse.name) && corpse.name.Length < 1000 && V(new Vec3Dto(corpse.position))
                         && Enum.IsDefined(typeof(World.CorpseKind), corpse.kind) && corpse.count > 0 && corpse.count <= 100000
-                        && N(corpse.remaining) && corpse.remaining > 0 && corpse.remaining <= World.Corpse.Lifetime
+                        && N(corpse.remaining) && (corpse.remaining > 0 || corpse.kind == World.CorpseKind.ColonyCommander && !string.IsNullOrEmpty(corpse.commanderId)) && corpse.remaining >= 0 && corpse.remaining <= World.Corpse.Lifetime // 장수 유해는 0
                         && N(corpse.food) && corpse.food <= 20 && (corpse.food == 0 || corpse.kind == World.CorpseKind.Wildlife)
                         && corpse.workforce >= 0
                         && N(corpse.progress) && corpse.progress < World.Corpse.WorkSeconds, "corpse state");
@@ -107,6 +107,7 @@ namespace AntColony.Save
                     // 부상·장비 해제·구 저장 이관으로 한도 초과가 되어도 기존 병력은 보존한다.
                     Check(V(c.position) && c.troopCount <= 100000000 && N(c.pendingDamage) && c.pendingDamage < 1, "troops");
                     Check(N(c.carriedAmount) && c.carriedAmount <= 100000000 && N(c.fishingProgress) && c.fishingProgress >= 0 && c.fishingProgress <= Core.GameBalance.FishingCatchSeconds && System.Enum.IsDefined(typeof(ResourceType), c.carriedType), "commander cargo");
+                    Check(c.carriedLots == null || c.carriedLots.Valid, "commander cargo freshness");
                     Check(c.talents != null && c.talents.Validate(), "talents");
                     Check(c.labAttackLevel >= 0 && c.labAttackLevel <= 3 && c.labArmorLevel >= 0 && c.labArmorLevel <= 3, "upgrades");
                     Check(N(c.strikeCooldown) && N(c.stanceCooldown) && N(c.stanceTime), "skills");
@@ -151,7 +152,6 @@ namespace AntColony.Save
                     foreach (var id in b.patients) Check(b.kind == "Infirmary" && b.health > 0 && id >= 0 && id < f.commanders.Count
                         && targets.Add(id) && f.commanders[id].location == 0 && f.commanders[id].activeInScene
                         && !f.commanders[id].personalState.dead && f.commanders[id].personalState.treating
-                        && f.commanders[id].personalState.NeedsTreatment
                         && f.commanders[id].personalState.mentalBreak == MentalBreak.None, "patient ownership");
                     if (b.airship != null && b.airship.passengers != null)
                         foreach (var id in b.airship.passengers) Check(b.kind == "AirshipYard" && targets.Add(id)
@@ -193,7 +193,7 @@ namespace AntColony.Save
                 }
                 Check(f.nodes.All(n => n != null && n.key != null && N(n.amount) && N(n.regrowTimer) && N(n.sowRemaining) && n.fishMonth >= -1 && V(n.position) && Enum.IsDefined(typeof(ResourceType), n.type))
                     && f.nodes.Select(n => n.key).Distinct().Count() == f.nodes.Count, "resource nodes");
-                Check(f.critters == null || f.critters.Count <= 1000 && f.critters.All(c => c != null && Enum.IsDefined(typeof(Buildings.Species), c.species) && N(c.health) && c.health > 0 && V(c.position)), "critters");
+                Check(f.critters == null || f.critters.Count <= 1000 && f.critters.All(c => c != null && Enum.IsDefined(typeof(Buildings.Species), c.species) && N(c.health) && c.health > 0 && V(c.position) && (c.disease == null || c.disease.Valid)), "critters");
                 Check(f.monsters.All(m => m != null && m.key != null && N(m.health) && V(m.position)) && f.monsters.Select(m => m.key).Distinct().Count() == f.monsters.Count, "monsters");
                 foreach (var m in f.monsters) if (m.traits != null)
                 { Traits(m.traits); Check(m.talents != null && m.talents.Validate(), "enemy talents"); }

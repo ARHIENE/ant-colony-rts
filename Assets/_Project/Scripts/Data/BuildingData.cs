@@ -60,7 +60,9 @@ namespace AntColony.Data
         // 2026-10-11 목장 시설·약제대(동물용 의약품·수술 키트)
         Feeder, CareStation, AnimalClinic, ButcherTable, MedicineBench,
         // 2026-10-12 식품 보관: 냉장고(부패 늦춤)·냉동고(부패 정지), 전력 필요
-        Fridge, Freezer
+        Fridge, Freezer,
+        // 2026-10-15 퇴비통(배설물·썩은 식품 → 비료), 묘비(장수 시신 1구 안치)
+        CompostBin, Tombstone
     }
 
     [CreateAssetMenu(fileName = "BuildingData", menuName = "AntColony/Building Data")]

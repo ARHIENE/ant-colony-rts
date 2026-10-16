@@ -1,5 +1,10 @@
 # Codex · Claude Code 공동 구현 보드
 
+- **HUD-V5-REAL / Claude / 작업 중(2026-10-15 사용자 승인, 전체·권장 순서):** HUD V5 기능을 Unity 실제 게임에 구현(연구·농사·설비·장비·장수 의료/수술·동물 위생/퇴비·사망/묘비·포로/귀환·원정 수송·물류 잔여). **SPEC-1013-14(Codex) 소유 파일은 사용자 지시로 Claude가 인수**(Codex 미작업 확인, 미커밋 변경 보존 후 이어서 구현). 소유: `Assets/_Project/Scripts/**`, `Save/*`, `UI/GameMenu*.cs`, `AgentScripts/*`, README, 이 보드. HTML `design/hud/*`는 참조만. Unity Play 검사 담당: Claude.
+  - **진행 상태(2026-10-16 SAVE):** 연구·장비·농사·식단/요리 운반·냉각·장수 의료/수술·동물 위생/퇴비·사망/묘비·포로 구현 및 **Spec1015Checks 318 통과**. 실제 버그 2건 수정(처치가 수술 예약 약품 사용, 장수 유해 저장 거부). 회귀 통과: Campaign 86·ResourceRule 30·Spec1011Ranch 165·Spec1012 159·Spec1013AnimalHealth 11·Clinic 20·SaveRoundtrip 57·HudV5Unity 90. InfirmaryChecks는 옛 치료 모델이라 폐기 추천(미삭제). **미착수: C 배관·신호선, J 수송 확장 — 대규모라 착수 전 사용자 확인.** 간헐 실패: Spec1015 Hygiene 배설물 수거 1회.
+
+- **HUD-V5-GAPS / Codex / 완료(HTML 요청 범위, 2026-10-15):** 직전 점검의 HUD 누락 9항목 구현. 소유: `design/hud/hud-v5*`, README, 이 보드. 연구·농사·전력/배관/신호·장비 화면, 의료·수술·귀환·추모 연결. Unity 작업은 보류. 기존 225개 검사는 전체 기획 완성도 검증이 아니며, 기본 73·물류 58·동물 건강 8·관리 87·누락 보완 86 = 312개 브라우저 검사 통과. 새 화면 1440/1280/1000/720 넘침 없음. 미정 항목은 시안 예시로 구분하고 실제 Unity·전체 콘텐츠 완료를 뜻하지 않는다.
+
 기준일: 2026-10-07 (한국 시간). 작업 경로: `E:\Git\ant`, 브랜치: `develop`.
 사용자 요청: 기획 반영 여부 점검 → 구현 수정 → 두 도구가 함께 보는 곳에 구현 위치·할 일을 기록.
 이 문서는 현재 작업·인계를 위한 보드다. SAVE용 개발 일지나 기획 변경 승인 문서가 아니다.
@@ -24,6 +29,10 @@
 - 아래 발견 사항은 **정적 코드 점검 결과**다. 전체 플레이·회귀·Player 빌드 검증 결과가 아니다.
 
 ## 현재 작업 / 충돌 방지
+
+- **HUD-V5-1013 / Codex / 완료(HTML UI 범위, 2026-10-15):** 사용자 지시로 Unity 작업을 보류하고 HUD HTML 우선. 장수 의료·동물 위생/퇴비·묘비/추모·원정/장비/포로 관리 화면과 시안 조작 구현. 소유: `design/hud/hud-v5*`, README, 이 보드. Unity 기존 변경은 보존하며 이번 작업에서 수정·실행하지 않는다. 새 기능은 HTML 예시 상태이며 Unity 구현 완료를 뜻하지 않는다. 장수 의료·위생/퇴비·묘비/추모·포로·수송/장비/지역 화면과 명령 연결, 취소/대기/실패 상태를 추가했다. 사용자 제공 emil-design-eng·review-animations 및 DESIGN.md 적용. 브라우저 72+58+8+87=225개 통과, 새 7개 화면 1440/1280/1000/720 폭 본문 넘침 없음. 상세 `design/hud/hud-v5-design-review.md`. 미정 밸런스·실제 시뮬레이션·Unity 연결은 범위 밖.
+
+- **SPEC-1013-14 / Codex / 작업 중(2026-10-14 사용자 전체 구현 승인):** V5 HTML 및 Unity 실제 구현에 의료·동물 질병/위생·사망/묘비·원정 장비/수송·포로 관리 반영. 먼저 동물 수술 누적 벌점 제거와 의료/질병 상태 연결, 이후 저장·UI·원정 연계. 소유: `World/Critter*.cs`, `Units/CommanderPersonalState.cs` 및 의료 신규 모듈, 관련 `UI/GameMenu*.cs`, `Save/*`, `design/hud/hud-v5*.js`, 신규 검사. 기존 타 작업 변경 보존. Pipeline 연결 복구 후 동물 의료 11·목장 165 검사 통과. 2026-10-15 사용자 지시로 Unity 후속 작업은 대기, HUD 우선 반영은 위 HUD-V5-1013 행 참고. 전체 완료 전에는 SPEC-1013을 완료로 표시하지 않는다.
 
 - **HUD-V5-1012 / Codex / 완료(HTML 브라우저 검사 72+58 통과):** 사용자 승인: V5 HTML 시안만 최신 창고·식품·건설·우선순위·일괄 작업 기획 반영. 소유: `design/hud/hud-v5.html`, `hud-v5.js`, `hud-v5.css`, `hud-v5-logistics.js`, `hud-v5-logistics.check.cjs`, `hud-v5.check.cjs`, README. 창고·냉각·식단·배송·일괄 작업·퇴비 UI와 우선순위 1~9 반영. 1440/1280/1000/720 폭 검사 통과. 물류 진행은 수동 예시이며 Unity 연동·실제 게임 시뮬레이션은 범위 밖. 디스크 부족 후 재개하여 초기 오류 복구. Claude의 SPEC-1012 Unity 파일은 수정하지 않음.
 
@@ -156,3 +165,14 @@
 | 2026-10-07 | Claude | FIX-02 | 사용자 결정: 동원 중 노화는 복귀 시 전환. 매달 성체 전체(`AntPool.Total`) 3% 중 대기 몫(대기 3%)만 즉시 늙고 나머지는 `State.agingDue`(저장됨)로 미룸 → `ReturnAssigned/ReturnWorkers/ReleaseReserved`에서 돌아온 수만큼 전환, 전사 시 남은 동원 수로 상한. Phase4 42(미룸·복귀 전환·상한 검사 추가)·Workforce 80 통과. SaveRoundtrip 57 통과(새 Play 세션에서 2회+, agingDue 왕복 검사 추가). 앞선 `barracks tier` 실패는 Phase4·Workforce 직후 같은 Play 세션에서 돌린 상태 오염으로 판단(새 세션 재현 안 됨) — 저장 왕복 검사는 매번 Play 재시작 후 실행 | - |
 | 2026-10-07 | Claude | FIX-03 | 사용자 승인: 기존 TrapPit = 끈끈이 함정(표시명만 변경, 저장 호환 유지). 새 `BuildingKind.SpikeTrap`(enum 끝) = 같은 TrapPit 컴포넌트의 가시 모드: 반경 1.2 지상 적(몬스터·보스·적 장수) 1초마다 피해 6, 8회 후 파손, 수리·자동 복구·함정 연구 해금 공유(수치 잠정). 저장은 종류 이름 `SpikeTrap` + `trapSpikeHits`. 건설 방어 탭 8칸. Stage2 185(가시 5개 추가)·FurnitureCatalog 40·BuildCategory 62 통과. 가시 함정 저장 왕복(종류·피해 횟수) SaveRoundtrip에 추가해 통과 | SAVE 때 Notion 건물·방어 기획 반영 |
 | 2026-10-07 | Codex | 공동 보드 | 기획 대비 불일치·파일 위치·완료 조건·결정 대기 구분 | 작업자는 착수 전에 담당을 표시 |
+
+### SPEC-1013-14 현재 구현 경계 (Codex)
+- 반영: 동물 수술 실패 횟수에 따른 성공률/사망률 벌점 제거(V5·Unity), 실패 뒤 직접 재수술 지정은 유지. 이전 저장의 sequelae는 확인 이력으로만 사용.
+- 반영: 동물 질병 상태/잠복·증상/같은 우리·같은 종 전염/치료대 전염 제외/투약(식중독 제외)/경과 회복/경증 생산 감소·중증 중단, 질병 의료 표시·필터·우리별 알림. 질병 이름·수치·종별 감수성은 잠정. 개체 저장에 질병 진행/약효 포함, 손상 값 검사.
+- 반영: 치료대 대기·중단 중 의료 장수가 먹이를 가져오는 작업. 먹이 예약과 기존 운반 화물 저장 사용. 실제 이동·취소·불러오기 동작은 실행 검증 대기.
+- V5: 동물 의료에 질병 표시·투약·시안 발생 조작, 게임 시간 진행·일시정지. 모든 Unity 동작이 V5에 연결된 것은 아님.
+- 검증: V5 기본72 + 물류58 + 의료8 통과. Unity의 기존 Bee 컴파일 응답 파일과 공식 설치 Roslyn으로 현재 소스 정적 컴파일 통과(에디터/Play 검사 아님). 신규 Spec1013AnimalHealthChecks는 작성했지만 미실행.
+- 연결 복구: 기존 Unity 에디터는 실행 중이었음. sandbox 안 프로세스 조회가 누락되었고 Pipeline 포트 파일이 없어 CLI 검색 실패. 공식 Unity MCP 재연결 후 정상 응답, 신규 의료 상태11·기존 목장165 실제 실행 통과. 급식/저장 추가 검사 진행 중.
+- 남음: 동물 위생·배설물·퇴비·질병 발생 경로/진행 중 임신 상세·통합 의료 우선순위·실행 회귀, 장수 의료 전면 개편, 시체/묘비, 원정 장비 압수/실물 수송/철수, 포로 실물 관리. 전체 기획 구현 완료 아님.
+- 추가 담당: `Buildings/RanchFacility.cs` 먹이통 우선순위 기본5/상한9 기획 일치. 급식 실물 창고 인출과 운반 식품 신선도 보존 관련 `Units/WorkerAnt.cs`, `Save/SaveDtos.cs`, `Save/SaveSnapshot.cs`, `Save/SavePreflight.cs`, `AgentScripts/Spec1013ClinicChecks.cs`.
+- SAVE 미수행: log/changelog/개발 일지/캡처/커밋/push 하지 않음.

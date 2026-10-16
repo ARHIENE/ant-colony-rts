@@ -32,6 +32,7 @@ namespace AntColony.Save
                 campaign = CampaignResearch.Instance?.CaptureState() ?? new CampaignResearch.State(),
                 history = CampaignHistory.Instance?.Capture() ?? new CampaignHistory.State(),
                 events = ColonyEvents.Instance?.Capture() ?? new ColonyEvents.State(),
+                memorial = Memorial.Capture(),
                 weather = AntColony.Map.WeatherSystem.Instance?.CaptureState(),
                 population = ColonyPopulation.Instance?.Capture() ?? new ColonyPopulation.State(),
                 workPriorities = WorkPriorities.Capture(),
@@ -47,9 +48,9 @@ namespace AntColony.Save
                 colony = new ColonyDto { food = rm.GetAmount(ResourceType.Food), soil = rm.GetAmount(ResourceType.Soil), special = rm.GetAmount(ResourceType.Special), materials = rm.CaptureMaterials(), baseBin = rm.BaseBin.Capture(),
                     foodCapacity = rm.GetCapacity(ResourceType.Food), soilCapacity = rm.GetCapacity(ResourceType.Soil), specialCapacity = rm.GetCapacity(ResourceType.Special),
                     storageResearchApplied = true,
-                    antsFree = pool.Free, antsAssigned = pool.Assigned, antsReserved = pool.Reserved, fishingUnlocked = GameManager.Instance.FishingUnlocked } };
+                    antsFree = pool.Free, antsAssigned = pool.Assigned, antsReserved = pool.Reserved, fishingUnlocked = GameManager.Instance.FishingUnlocked, commonDiet = CommanderAnt.CommonDiet } };
             foreach (var c in commanders) file.commanders.Add(new CommanderDto { id = file.commanders.Count, name = c.CommanderName,
-                troopCount = c.TroopCount, pendingDamage = c.PendingTroopDamage, carriedAmount = c.CarriedAmount, carriedType = (int)c.CarriedType, fishingProgress = c.FishingProgress, talents = c.Talents.Copy(),
+                troopCount = c.TroopCount, pendingDamage = c.PendingTroopDamage, carriedAmount = c.CarriedAmount, carriedType = (int)c.CarriedType, carriedLots = c.CaptureCargoLots(), fishingProgress = c.FishingProgress, talents = c.Talents.Copy(),
                 traits = SaveCatalog.Traits(c.Traits), personalState = c.CapturePersonalState(),
                 labAttackLevel = c.LabAttackLevel, labArmorLevel = c.LabArmorLevel, position = new Vec3Dto(c.Position),
                 activeInScene = c.gameObject.activeSelf, location = c.IsCaptive ? 3 : c.Garrison != null ? 2 : c.Transport != null ? 1 : 0,
@@ -204,7 +205,7 @@ namespace AntColony.Save
                 var c = CommanderRoster.Instance.CreateForLoad(d.name, CommanderRank.Sergeant, new[] { UnitRole.Worker },
                     UnitRole.Worker, SaveCatalog.Traits(d.traits), world.HomePosition + Vector3.right * 3);
                 if (c == null) throw new InvalidOperationException("No navigable commander spawn.");
-                commanders.Add(c); c.RestorePersonalState(d.personalState); c.RestoreTroops(d.troopCount, d.pendingDamage); c.RestoreCargo(d.carriedAmount, (ResourceType)d.carriedType); c.RestoreFishing(d.fishingProgress); c.RestoreLabLevels(d.labAttackLevel, d.labArmorLevel);
+                commanders.Add(c); c.RestorePersonalState(d.personalState); c.RestoreTroops(d.troopCount, d.pendingDamage); c.RestoreCargo(d.carriedAmount, (ResourceType)d.carriedType, d.carriedLots); c.RestoreFishing(d.fishingProgress); c.RestoreLabLevels(d.labAttackLevel, d.labArmorLevel);
                 c.RestoreTalents(d.talents);
                 c.Skills.Restore(d.strikeArmed, d.strikeCooldown, d.stanceCooldown, d.stanceTime);
                 c.SetEmbarked(false, d.position.ToVector3());
@@ -236,6 +237,7 @@ namespace AntColony.Save
             ResourceManager.Instance.RestoreMaterials(p.materials);
             ResourceManager.Instance.RestoreBins(p.baseBin, restoredBuildings.Where(x => x.building is Storage).Select(x => ((Storage)x.building, x.dto.storeBin)));
             AntPool.Instance.RestoreCounts(p.antsFree, p.antsAssigned, p.antsReserved);
+            CommanderAnt.CommonDiet = p.commonDiet & CommanderAnt.AllDiet;
             GameManager.Instance.FishingUnlocked = p.fishingUnlocked
                 || CampaignResearch.Instance != null && CampaignResearch.Instance.Has(ScienceTechnology.Fishing);
             GameManager.Instance.RestoreFlags(file.loopCompleted, file.bossDefeated, file.defeated);
@@ -255,7 +257,7 @@ namespace AntColony.Save
             Encyclopedia.Merge(file.discoveries); GameSession.Instance.MarkStarted(file.playSeconds, file.gameSeconds);
             foreach (var corpse in Corpse.All.ToArray())
                 commanders.FirstOrDefault(c => c.PersonalState.id == corpse.Data.workerId)?.RestoreCorpseWork(corpse);
-            CampaignHistory.Instance.Restore(file.history); ColonyEvents.Instance.Restore(file.events); ColonyPopulation.Instance?.Restore(file.population); AntColony.Map.WeatherSystem.Instance?.RestoreState(file.weather); DiplomacyManager.Instance.RestoreRebels(); WorkPriorities.Restore(file.workPriorities);
+            Memorial.Restore(file.memorial); CampaignHistory.Instance.Restore(file.history); ColonyEvents.Instance.Restore(file.events); ColonyPopulation.Instance?.Restore(file.population); AntColony.Map.WeatherSystem.Instance?.RestoreState(file.weather); DiplomacyManager.Instance.RestoreRebels(); WorkPriorities.Restore(file.workPriorities);
             CommanderAnt.RefreshDepartureNotice();
             UnityEngine.Random.state = JsonUtility.FromJson<UnityEngine.Random.State>(file.randomState);
         }

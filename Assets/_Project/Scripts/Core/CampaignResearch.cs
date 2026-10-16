@@ -103,10 +103,22 @@ namespace AntColony.Core
             public float endingGameSeconds;
             // 방어시설 연구소 4라인(화력/사거리/내구/함정) 단계. 이전 저장에는 없으므로 비어 있으면 전부 0이다.
             public List<int> defense = new List<int>();
+            // 2026-10-15 V5 연구 화면: 정지와 변경. 변경 시 이전 연구의 진행도·지불 여부를 보존해 다시 고르면 비용 없이 이어간다.
+            public bool paused;
+            public List<int> partialIds = new List<int>();
+            public List<float> partialProgress = new List<float>();
         }
         private State state = new State();
         public ScienceDefinition Active => state.active >= 0 ? Technologies[state.active] : null;
         public float Progress => state.progress;
+        public bool Paused => state.paused;
+        public void SetPaused(bool value) { if (Active != null) state.paused = value; }
+        // 이전에 시작했던(비용 지불한) 연구의 보존 진행도. 없으면 -1.
+        public float SavedProgress(ScienceTechnology t)
+        {
+            var i = state.partialIds.IndexOf((int)t);
+            return i < 0 ? -1 : state.partialProgress[i];
+        }
         public bool HasBlueprint => state.blueprint;
         public bool Departed => state.departed;
         public IReadOnlyList<string> Passengers => state.passengers;
@@ -131,7 +143,7 @@ namespace AntColony.Core
             if (i < 0 || i >= Technologies.Length) return "알 수 없는 기술입니다.";
             if (Departed) return "로켓이 이미 발사되었습니다.";
             if (Has(technology)) return "이미 연구했습니다.";
-            if (Active != null) return "공동 연구는 한 번에 하나만 진행할 수 있습니다.";
+            if (Active != null && Active.Technology == technology) return "이미 진행 중인 연구입니다.";
             var definition = Technologies[i];
             foreach (var prerequisite in definition.Prerequisites)
                 if (!Has(prerequisite)) return "선행 연구 필요: " + Technologies[(int)prerequisite].Name + ".";
@@ -145,16 +157,36 @@ namespace AntColony.Core
         {
             if (BlockReason(technology) != "") return false;
             var definition = Technologies[(int)technology];
-            if (ResourceManager.Instance == null || !ResourceManager.Instance.TrySpend(definition.Food, definition.Soil, definition.Special, reason: ResourceReason.Research)) return false;
+            var saved = state.partialIds.IndexOf((int)technology);
+            // 처음 시작하는 연구만 비용을 낸다. 이전에 시작했던 연구는 보존 진행도에서 이어간다(중복 차감 없음).
+            if (saved < 0 && (ResourceManager.Instance == null || !ResourceManager.Instance.TrySpend(definition.Food, definition.Soil, definition.Special, reason: ResourceReason.Research))) return false;
+            if (Active != null) { state.partialIds.Add(state.active); state.partialProgress.Add(state.progress); }
             state.active = (int)technology;
             state.progress = 0;
+            if (saved >= 0) { state.progress = state.partialProgress[saved]; state.partialIds.RemoveAt(saved); state.partialProgress.RemoveAt(saved); }
+            state.paused = false;
             return true;
+        }
+
+        // 연구소 한 곳이 지금 공동 연구에 기여하지 못하는 이유. 빈 문자열이면 기여 중.
+        public string LabWaitReason(ScienceLab lab)
+        {
+            if (Active == null) return "선택한 연구 없음";
+            if (state.paused) return "연구 정지됨";
+            if (!lab.isActiveAndEnabled) return "시설 비활성";
+            if (lab.Busy) return "연구소가 차량 작업 중";
+            if (lab.Tier < Active.Tier) return $"연구소 {lab.Tier}등급 — {EraNames[Active.Tier - 1]} 시대 연구 불가({Active.Tier}등급 필요)";
+            var c = lab.Target;
+            if (c == null) return "담당 장수 없음";
+            if (c.IsAwayFromHome) return c.CommanderName + " 본거지 밖";
+            if (!c.CivilianWorkReady || !c.CanReceiveOrders) return c.CommanderName + " 작업 불가 상태(수면·부상·식사 등)";
+            return "";
         }
 
         private void Update() => Tick(Time.deltaTime);
         public void Tick(float seconds)
         {
-            if (!(seconds > 0) || float.IsInfinity(seconds) || Active == null || Departed) return;
+            if (!(seconds > 0) || float.IsInfinity(seconds) || Active == null || Departed || state.paused) return;
             foreach (var lab in FindObjectsByType<ScienceLab>(FindObjectsSortMode.None))
             {
                 var c = lab.Target;
@@ -168,6 +200,7 @@ namespace AntColony.Core
             state.completed.Add(state.active);
             state.active = -1;
             state.progress = 0;
+            state.paused = false;
             var world = WorldMapManager.Instance;
             if (completed.Technology == ScienceTechnology.Fishing && GameManager.Instance != null)
                 GameManager.Instance.FishingUnlocked = true;
@@ -203,6 +236,8 @@ namespace AntColony.Core
         {
             state = value == null ? new State() : JsonUtility.FromJson<State>(JsonUtility.ToJson(value));
             if (state.defense == null) state.defense = new List<int>();
+            if (state.partialIds == null || state.partialProgress == null || state.partialIds.Count != state.partialProgress.Count)
+            { state.partialIds = new List<int>(); state.partialProgress = new List<float>(); }
             foreach (var storage in FindObjectsByType<Storage>()) storage.RefreshCapacity();
         }
         public static bool Validate(State value, out string error)
@@ -216,6 +251,9 @@ namespace AntColony.Core
             if (value.defense != null && (value.defense.Count > 4 || value.defense.Exists(l => l < 0 || l > 3))) return false;
             var unique = new HashSet<int>();
             foreach (var i in value.completed) if (i < 0 || i >= Technologies.Length || !unique.Add(i)) return false;
+            if (value.partialIds != null && (value.partialProgress == null || value.partialIds.Count != value.partialProgress.Count
+                || value.partialIds.Exists(i => i < 0 || i >= Technologies.Length || unique.Contains(i) || i == value.active)
+                || value.partialProgress.Exists(p => float.IsNaN(p) || float.IsInfinity(p) || p < 0))) return false;
             if (value.active >= 0 && (unique.Contains(value.active) || value.progress >= Technologies[value.active].Work)) return false;
             error = ""; return true;
         }

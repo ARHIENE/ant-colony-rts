@@ -67,7 +67,7 @@ namespace AntColony.UI
                 : $"작업 장수 {workers.Length}명: {string.Join(" · ", workers.Select(c => c.CommanderName))}";
             instruction.text = "평시 작업은 장수만 합니다. 작업표 우선순위에 따라 장수가 알아서 맡습니다.";
             var label = action.GetComponentInChildren<Text>();
-            action.gameObject.SetActive(Target is ResourceNode || Target is Workshop || Target is Processor || Target is Kitchen cookAct && !cookAct.IsTable || Target is Ranch || Target is RanchFacility f0 && f0.IsFeeder || Target is Storage || Target is Stockpile || Target is BuildingConstructionSite || Target is WildMonster || Target is Gate || Target is Barracks || Target is DigSite);
+            action.gameObject.SetActive(Target is ResourceNode || Target is Workshop || Target is Processor || Target is Kitchen cookAct && !cookAct.IsTable || Target is Ranch || Target is RanchFacility f0 && f0.IsFeeder || Target is Storage || Target is Stockpile || Target is BuildingConstructionSite || Target is WildMonster || Target is Gate || Target is Barracks || Target is DigSite || Target.GetComponent<FarmPlot>() != null || Target is CompostBin || Target is Tombstone || Target is Infirmary || Target.GetComponent<PrisonerCamp>() != null);
             if (Target is BuildingBase placed && !(Target is Gate)) { var room = RoomSystem.RoomAt(placed.Position); instruction.text = (room == null ? "방 밖(효과 적음)" : $"방: {room.Title} · 등급 {room.GradeName} ({room.Cells.Count}칸)") + " · " + instruction.text; }
             if (Target is Dormitory dorm)
             {
@@ -76,6 +76,11 @@ namespace AntColony.UI
                 instruction.text = RoomDescription(dorm) + "\n배정: " + ResidentNames(dorm);
             }
             if (Target is ResourceNode node) { label.text = node.GatheringForbidden ? "채집 허용" : "채집 금지"; instruction.text = $"남은 자원 {node.AmountRemaining:0.#} · {(node.IsLooseCargo ? "운반" : "채집")} 작업"; }
+            if (Target.GetComponent<PrisonerCamp>() is PrisonerCamp campInfo) { label.text = "포로 관리"; instruction.text = $"포로 {campInfo.Count}/{campInfo.Capacity} · 경비 {(campInfo.Guarded ? "있음" : "없음")}"; }
+            if (Target is CompostBin compostInfo) { label.text = "퇴비통 관리"; instruction.text = compostInfo.Status; }
+            if (Target is Tombstone tombInfo) { label.text = "묘비"; instruction.text = tombInfo.Empty ? "빈 묘비 · 사망 기록에서 고인을 등록하세요" : $"{tombInfo.Data2.name} · " + (tombInfo.Data2.body ? "안치됨" : "시신 미안치"); }
+            if (Target is Infirmary bedInfo) { label.text = "환자 보기"; instruction.text = $"의료 침상 {bedInfo.Patients.Count}/{Infirmary.Capacity}" + (bedInfo.Patients.Count > 0 ? ": " + string.Join(", ", bedInfo.Patients.Select(p => $"{p.CommanderName}({p.Health.Summary})")) : ""); }
+            if (Target.GetComponent<FarmPlot>() is FarmPlot farmInfo) { label.text = "밭 관리"; instruction.text = $"{farmInfo.Crop.ToString()} · {farmInfo.Status}"; }
             if (Target is Workshop shop) { label.text = "제작 대기열"; instruction.text = $"제작 대기 {shop.Jobs.Count}건"; }
             if (Target is Processor processor) { label.text = "가공 목록"; instruction.text = processor.Current != null ? $"가공 중 {processor.Current.name} {processor.Progress:P0} · 목록 {processor.Orders.Count}건" : $"대기 · 목록 {processor.Orders.Count}건"; }
             if (Target is Kitchen cookLabel && !cookLabel.IsTable) label.text = "요리 목록";
@@ -168,6 +173,11 @@ namespace AntColony.UI
         private void Act()
         {
             if (Scout is ScoutPost post) { GameMenuController.Instance?.ShowScout(post); return; }
+            if (Target.GetComponent<FarmPlot>() is FarmPlot farmPlot) { GameMenuController.Instance?.ShowFarm(farmPlot); return; }
+            if (Target is CompostBin compost) { GameMenuController.Instance?.ShowCompost(compost); return; }
+            if (Target.GetComponent<PrisonerCamp>() is PrisonerCamp campAct) { GameMenuController.Instance?.ShowPrisoners(campAct); return; }
+            if (Target is Tombstone tomb) { GameMenuController.Instance?.ShowMemorial(tomb); return; }
+            if (Target is Infirmary bed) { if (bed.Patients.Count > 0) GameMenuController.Instance?.ShowHealth(bed.Patients[0]); return; }
             if (Target is Corpse corpse) corpse.Priority = !corpse.Priority;
             if (Target is ResourceNode node) node.GatheringForbidden = !node.GatheringForbidden;
             if (Target is Workshop shop) GameMenuController.Instance?.ShowWorkshop(shop);

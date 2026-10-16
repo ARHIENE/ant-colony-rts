@@ -13,7 +13,7 @@ namespace AntColony.UI
     {
         private readonly HashSet<Critter> picked = new HashSet<Critter>();
         private string pendingBulk; // 확인 대기 중인 일괄 요청
-        private static Species? fltSpecies; private static CritterStage? fltStage; private static int fltTame, fltHurt, fltWork, sortBy; // 0 = 전체
+        private static Species? fltSpecies; private static CritterStage? fltStage; private static int fltTame, fltHurt, fltWork, fltDisease, sortBy; // 0 = 전체
         private static readonly string[] SortNames = { "이름", "나이", "건강", "허기" };
 
         private static bool Working(Critter a) => a.Clinic != null || a.CaptureDesignated || a.TransportTo != null || a.SlaughterOrdered;
@@ -29,6 +29,7 @@ namespace AntColony.UI
             var all = RanchCandidates(r);
             picked.RemoveWhere(a => a == null || a.Monster == null || a.Monster.IsDead || !all.Contains(a));
             var list = all.Where(a => (fltSpecies == null || a.Species == fltSpecies) && (fltStage == null || a.Stage == fltStage)
+                && (fltDisease == 0 || fltDisease == 1 && a.Sick || fltDisease == 2 && a.Contagious || fltDisease == 3 && a.TreatOrder)
                 && (fltTame == 0 || (fltTame == 1) == a.Tame) && (fltHurt == 0 || (fltHurt == 1) == a.Injured) && (fltWork == 0 || (fltWork == 1) == Working(a)));
             list = sortBy switch { 1 => list.OrderByDescending(a => a.Age), 2 => list.OrderBy(a => a.HealthFraction), 3 => list.OrderBy(a => a.Hunger), _ => list.OrderBy(a => a.DisplayName) };
             var shown = list.ToList();
@@ -43,6 +44,7 @@ namespace AntColony.UI
             MenuTheme.Button(content, $"부상: {new[] { "전체", "부상", "정상" }[fltHurt]} ▸", () => { fltHurt = (fltHurt + 1) % 3; ShowRanch(r); });
             MenuTheme.Button(content, $"현재 작업: {new[] { "전체", "요청·치료 중", "없음" }[fltWork]} ▸", () => { fltWork = (fltWork + 1) % 3; ShowRanch(r); });
             MenuTheme.Button(content, $"정렬: {SortNames[sortBy]} ▸", () => { sortBy = (sortBy + 1) % SortNames.Length; ShowRanch(r); });
+            MenuTheme.Button(content, $"질병: {new[] { "전체", "증상 있음", "전염성", "치료 지시" }[fltDisease]} ▸", () => { fltDisease = (fltDisease + 1) % 4; ShowRanch(r); });
             content = listContent;
             MenuTheme.Button(content, $"표시된 {shown.Count}마리 모두 선택", () => { picked.UnionWith(shown); pendingBulk = null; ShowRanch(r); });
             MenuTheme.Button(content, $"선택 해제({picked.Count}마리 선택됨)", () => { picked.Clear(); pendingBulk = null; ShowRanch(r); }).interactable = picked.Count > 0;
@@ -56,7 +58,7 @@ namespace AntColony.UI
                 MenuLayout.Button(row, "Select", picked.Contains(a) ? "✓" : "", 4, 20, 32, 32,
                     () => { if (!picked.Remove(a)) picked.Add(a); pendingBulk = null; ShowRanch(r); });
                 MenuLayout.Label(row, $"{a.DisplayName} · {a.StageName} · {(a.Tame ? "길들임" : "야생")}{at}", 15, 46, 4, 510, 30);
-                MenuLayout.Label(row, $"체력 {a.HealthFraction:P0}{(a.HeavyInjury ? " 중상" : a.Injured ? " 경상" : "")} · 배고픔 {a.Hunger:0} · {WorkLabel(a)}", 14, 46, 36, 510, 30, MenuTheme.Muted);
+                MenuLayout.Label(row, $"체력 {a.HealthFraction:P0}{(a.HeavyInjury ? " 중상" : a.Injured ? " 경상" : "")} · 배고픔 {a.Hunger:0} · {(a.Sick ? a.Contagious ? "전염성 질환" : "질환" : WorkLabel(a))}", 14, 46, 36, 510, 30, MenuTheme.Muted);
                 MenuLayout.Button(row, "Details", "상세", 570, 20, 64, 32, () => ShowCritter(a));
             }
         }

@@ -66,7 +66,7 @@ namespace AntColony.Buildings
             foreach (var group in Animals.Where(a => a.InOperatingPen).GroupBy(a => a.Species))
             {
                 // 배고픈 개체는 번식하지 않고, 노령은 번식 속도가 서서히 준다. 목표 마릿수와 무관하게 번식한다.
-                var parents = group.Where(a => a.Stage != CritterStage.Baby && a.Hunger >= GameBalance.CritterBreedHunger).ToList();
+                var parents = group.Where(a => a.Stage != CritterStage.Baby && !a.SevereDisease && (!a.Sick || Setting(group.Key).breed > 0) && a.Hunger >= GameBalance.CritterBreedHunger).ToList();
                 if (parents.Count < 2) continue;
                 var weight = parents.Sum(a => a.Stage == CritterStage.Old ? Mathf.Clamp01(1 - (a.Age - a.Info.oldMonths) / Mathf.Max(.1f, a.Info.lifeMonths - a.Info.oldMonths)) * .5f : 1f);
                 var care = parents.Count(a => a.CareRemaining > 0) / (float)parents.Count;
@@ -86,6 +86,8 @@ namespace AntColony.Buildings
         // ---------- 수동 지시 대기·목표 초과 알림 ----------
         private void Notices()
         {
+            var sick = Critter.All.Where(a => a != null && (a.Pen == this || a.ReturnPen == this) && a.Sick).ToList();
+            ToastManager.SetCrisis("ranch-health:" + Key, sick.Count == 0 ? null : $"{Data.displayName}: 질병 {sick.Count} · 전염성 {sick.Count(a => a.Contagious)} · 중증 {sick.Count(a => a.SevereDisease)} — 의료·격리를 확인하세요.", Critter.FocusAction(Position), "목장으로 이동");
             var waiting = Operating && Animals.Any(a => a.InOperatingPen && AwaitingManual(a));
             ToastManager.SetCrisis("ranch:" + Key, waiting ? $"{Data.displayName}: 위험한 야생 개체 작업 또는 집도의 지정 대기 — 개체를 선택해 장수를 지정하세요." : null,
                 Critter.FocusAction(Position), "목장으로 이동");
@@ -96,7 +98,7 @@ namespace AntColony.Buildings
                 if (!over) st.overNotified = false;
             }
         }
-        protected override void OnDisable() { base.OnDisable(); ToastManager.SetCrisis("ranch:" + Key, null); }
+        protected override void OnDisable() { base.OnDisable(); ToastManager.SetCrisis("ranch:" + Key, null); ToastManager.SetCrisis("ranch-health:" + Key, null); }
 
         // ---------- 작업 후보(장수 작업표에서 부른다) ----------
         private static IEnumerable<CommanderAnt> Keepers => AntUnitBase.Active.OfType<CommanderAnt>().Where(c => c.IsColonyMember);
@@ -107,7 +109,7 @@ namespace AntColony.Buildings
         private static bool Free(Critter a) => a != null && a.Monster != null && !a.Monster.IsDead && a.Handler == null && a.Carrier == null && a.Clinic == null && !a.Agitated;
         public bool NeedsCare(Critter a) => Free(a) && a.InOperatingPen && !a.CareBlocked && a.CareRemaining <= 0 && (Setting(a.Species).autoCare || a.CareOrder);
         public bool NeedsHarvest(Critter a) => Free(a) && a.InOperatingPen && s.autoHarvest && a.DirectStock >= 1;
-        public bool NeedsDose(Critter a) => Free(a) && a.InOperatingPen && (s.autoTreat || a.TreatOrder) && a.Injured && !a.HeavyInjury && a.Medicated <= 0;
+        public bool NeedsDose(Critter a) => Free(a) && a.InOperatingPen && (s.autoTreat || a.TreatOrder) && (a.Injured && !a.HeavyInjury || a.NeedsDiseaseMedicine) && a.Medicated <= 0;
         public bool NeedsSurgery(Critter a) => Free(a) && (a.InOperatingPen && s.autoTreat || a.TreatOrder) && a.HeavyInjury;
         // 위험 개체라 수동 지시를 기다리는 작업이 있나(돌봄 자동 꺼짐이면 위험 개체도 돌봄을 만들지 않는다).
         public bool AwaitingManual(Critter a)

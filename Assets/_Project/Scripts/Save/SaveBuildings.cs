@@ -28,12 +28,13 @@ namespace AntColony.Save
             if (b is DigSite dig) d.digExpanded = dig.IsExpanded;
             if (b is Gate gate) d.gateOpen = gate.Open;
             if (b is PowerNode power) d.powerCharge = power.Charge;
+            if (b is ColdStorage cold) d.coldness = cold.Coldness;
             d.materialTier = b.MaterialTier; d.mainMaterial = (int)b.MainMaterial;
             if (b is AcidTower tower) d.towerCooldown = tower.Cooldown;
             if (b is AreaAcidTower areaTower) d.towerCooldown = areaTower.Cooldown;
             if (b is TrapPit trap) { d.trapArmed = trap.Armed; d.trapBroken = trap.BrokenSeconds; d.trapRepair = trap.RepairProgress; d.trapRepairPaid = trap.RepairPaid; d.trapSpikeHits = trap.SpikeHits; }
             var plot = b.GetComponent<FarmPlot>();
-            if (plot != null) { d.crop = (int)plot.Crop; d.farmWide = plot.Wide; }
+            if (plot != null) { d.crop = (int)plot.Crop; d.farmWide = plot.Wide; d.farm = JsonUtility.FromJson<FarmPlot.State>(JsonUtility.ToJson(plot.Data)); }
             if (b is ScienceLab science) { d.scienceRemaining = science.Remaining; d.scienceAircraft = science.Aircraft;
                 d.scienceConstructing = science.Constructing; d.scienceSpawn = new Vec3Dto(science.SpawnPosition);
                 d.scienceTier = science.Tier; d.scientist = commanders.IndexOf(science.Target); }
@@ -42,6 +43,8 @@ namespace AntColony.Save
             if (b is Processor processor) d.processor = processor.CaptureState();
             if (b is Ranch ranch) d.ranch = ranch.CaptureState();
             if (b is RanchFacility facility) d.ranchFacility = facility.CaptureState();
+            if (b is CompostBin compost) d.compost = JsonUtility.FromJson<CompostBin.State>(JsonUtility.ToJson(compost.Data2));
+            if (b is Tombstone tomb) d.tomb = JsonUtility.FromJson<Tombstone.State>(JsonUtility.ToJson(tomb.Data2));
             if (b is Infirmary infirmary) d.patients = infirmary.Patients.Select(c => commanders.IndexOf(c)).ToList();
             var scout = b.GetComponent<ScoutPost>();
             if (scout != null) { d.scoutRemaining = scout.Remaining; d.scoutDispatched = scout.IsDispatched;
@@ -92,13 +95,15 @@ namespace AntColony.Save
             if (b is DigSite dig) dig.RestoreExpanded(d.digExpanded);
             if (b is Gate gate) gate.SetOpen(d.gateOpen);
             if (b is PowerNode power) power.Charge = Mathf.Clamp(d.powerCharge, 0, GameBalance.BatteryCapacity);
+            if (b is ColdStorage cold) cold.Coldness = float.IsNaN(d.coldness) ? 0 : Mathf.Clamp01(d.coldness);
             b.MaterialTier = Mathf.Max(0, d.materialTier);
             b.MainMaterial = (ResourceType)d.mainMaterial;
             if (b is AcidTower tower) tower.RestoreCooldown(d.towerCooldown);
             if (b is AreaAcidTower areaTower) areaTower.RestoreCooldown(d.towerCooldown);
             if (b is TrapPit trap) trap.RestoreState(d.trapArmed, d.trapBroken, d.trapRepair, d.trapRepairPaid, d.trapSpikeHits);
             if (d.kind == "Farm" && d.runtimeBuilt)
-                (b.GetComponent<FarmPlot>() ?? b.gameObject.AddComponent<FarmPlot>()).Configure((FarmCrop)d.crop, d.farmWide);
+                { var farm = b.GetComponent<FarmPlot>() ?? b.gameObject.AddComponent<FarmPlot>(); farm.Configure((FarmCrop)d.crop, d.farmWide);
+                  farm.RestoreState(d.farm == null ? null : JsonUtility.FromJson<FarmPlot.State>(JsonUtility.ToJson(d.farm))); }
             if (b is ScienceLab science) { science.RestoreState(d.scienceRemaining, d.scienceAircraft, d.scienceConstructing, d.scienceSpawn.ToVector3());
                 science.RestoreAssignment(d.scienceTier, d.scientist >= 0 ? commanders[d.scientist] : null); }
             if (b is AirshipYard yard) yard.RestoreState(d.airship, commanders);
@@ -106,6 +111,8 @@ namespace AntColony.Save
             if (b is Processor processor) processor.RestoreState(d.processor);
             if (b is Ranch ranch) ranch.RestoreState(d.ranch);
             if (b is RanchFacility facility) facility.RestoreState(d.ranchFacility);
+            if (b is CompostBin compost) compost.RestoreState(d.compost == null ? null : JsonUtility.FromJson<CompostBin.State>(JsonUtility.ToJson(d.compost)));
+            if (b is Tombstone tomb) tomb.RestoreState(d.tomb == null ? null : JsonUtility.FromJson<Tombstone.State>(JsonUtility.ToJson(d.tomb)));
             if (b is Infirmary infirmary) foreach (var id in d.patients) infirmary.RestorePatient(commanders[id]);
             b.GetComponent<ScoutPost>()?.RestoreState(d.scoutDispatched, d.scoutRemaining, d.scoutDispatchedAnts, d.scoutSuccess, d.scoutFailure,
                 d.scoutCompanion >= 0 ? commanders[d.scoutCompanion] : null);

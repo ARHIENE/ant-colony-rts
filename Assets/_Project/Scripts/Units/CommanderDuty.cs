@@ -101,8 +101,16 @@ namespace AntColony.Units
         public void TickDuty(float seconds)
         {
             if (!(seconds > 0) || float.IsInfinity(seconds) || IsDead || IsHostile || AntColony.Save.SaveSystem.Busy) return;
+            // 쓰러짐(통증·의식·이동, 2026-10-15): 일어날 수 없고 배고픔은 진행한다. 의료 장수가 급식한다.
+            if (PersonalState.health.Downed)
+            {
+                MealState.satiety = Mathf.Max(0, MealState.satiety - GameBalance.SatietyPerSecond * seconds);
+                WorkState.health = 0; WorkState.recoverySeconds = Mathf.Max(WorkState.recoverySeconds, 1f);
+                return;
+            }
             if (WorkState.recoverySeconds > 0)
             {
+                MealState.satiety = Mathf.Max(0, MealState.satiety - GameBalance.SatietyPerSecond * seconds);
                 WorkState.recoverySeconds = Mathf.Max(0, WorkState.recoverySeconds - seconds);
                 if (WorkState.recoverySeconds == 0) WorkState.health = GameBalance.CommanderHealth;
                 return;
@@ -122,7 +130,8 @@ namespace AntColony.Units
                 if (WorkState.quietSeconds >= GameBalance.AutoReturnSeconds) ReturnToPost();
                 return;
             }
-            if (TickService(seconds) || TickHunt(seconds) || TickAnimalTask(seconds)) return;
+            if (TickMed(seconds) || TickBurial(seconds) || TickService(seconds) || TickHunt(seconds) || TickAnimalTask(seconds)) return;
+            if (TickBedRest()) return;
             if (!IsWorking && ScienceAssignment == null && CraftingWorkshop == null) SetWorkTarget(null);
             if (ScienceAssignment != null)
             {
@@ -178,8 +187,9 @@ namespace AntColony.Units
                 case CommanderJobs.Nursing:
                     if (WorkPriorities.Red) yield break; // 빨간 경보 중에는 간호하지 않는다.
                     // 치료가 생산보다 먼저: 할 수 있는 치료가 없을 때(약품 부족 포함)만 약제대 생산 목록을 맡는다(2026-10-11).
-                    var treatments = FindObjectsByType<Infirmary>(FindObjectsSortMode.None).Where(h => h.Patients.Count > 0 && h.Nurse == null)
-                        .Select(h => ((Component)h, (Func<bool>)(() => StartService(h, CommanderJobs.Nursing)))).Concat(AnimalNursingTasks()).ToList(); // 동물 투약·수술(2026-10-11)
+                    // 장수 처치·급식·수술(2026-10-15)이 위독하면 그것만, 아니면 동물 투약·수술(2026-10-11)과 함께 후보로 둔다.
+                    var commanderCare = CommanderNursingTasks().ToList();
+                    var treatments = commanderCare.Concat(HasLifeThreateningPatient && commanderCare.Count > 0 ? Enumerable.Empty<(Component, Func<bool>)>() : AnimalNursingTasks()).ToList();
                     foreach (var t in treatments) yield return t;
                     if (treatments.Count == 0)
                         foreach (var bench in FindObjectsByType<Processor>(FindObjectsSortMode.None).Where(p => p.IsMedical && p.NeedsWork))
@@ -211,6 +221,9 @@ namespace AntColony.Units
                 case CommanderJobs.Cooking:
                     foreach (var kitchen in FindObjectsByType<Kitchen>(FindObjectsSortMode.None).Where(k => k.NeedsCook))
                         yield return (kitchen, () => !Active.OfType<CommanderAnt>().Any(c => c != this && c.ServiceTarget == kitchen) && StartService(kitchen, CommanderJobs.Cooking));
+                    // 요리사가 재료를 창고에서 가져다 놓는다(2026-10-15, 원격 차감 제거).
+                    foreach (var kitchen in FindObjectsByType<Kitchen>(FindObjectsSortMode.None).Where(k => k.NeedsIngredients))
+                        yield return (kitchen, () => CommandFetchFor(kitchen));
                     foreach (var t in ButcherTasks()) yield return t; // 도축대 해체(2026-10-11)
                     yield break;
                 case CommanderJobs.Administration:
@@ -229,6 +242,9 @@ namespace AntColony.Units
             {
                 foreach (var wheel in PowerNode.All.Where(p => p.NeedsRunner))
                     yield return (wheel, () => StartService(wheel, CommanderJobs.Hauling));
+                foreach (var t in RescueTasks()) yield return t; // 쓰러진 장수 구조 → 의료 침상(2026-10-15)
+                foreach (var t in BurialTasks()) yield return t; // 안치 지시된 시신 → 묘비(2026-10-15)
+                foreach (var t in PrisonerFeedTasks()) yield return t; // 포로 급식(2026-10-15)
                 foreach (var t in AnimalHaulingTasks()) yield return t; // 생물 운반·먹이통 보충·사체 → 도축대(2026-10-11)
                 // 건설 재료 배송(2026-10-12): 예약된 재료를 창고에서 예정지로.
                 foreach (var site in FindObjectsByType<BuildingConstructionSite>().Where(s => s.PendingPickup != null))

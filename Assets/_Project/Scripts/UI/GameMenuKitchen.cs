@@ -21,7 +21,9 @@ namespace AntColony.UI
                     if (!k.AddOrder(index, orderMode, orderAmount)) ToastManager.Show($"생산 목록은 최대 {Workshop.MaxOrders}개입니다."); ShowKitchen(k);
                 }).interactable = k.isActiveAndEnabled && k.Orders.Count < Workshop.MaxOrders;
             }
+            MenuTheme.Text(content, $"조리대에 놓인 재료: 식량 {k.Staged}" + (k.NeedsIngredients ? " · 요리사가 창고에서 가져오는 중" : ""), 16, 30);
             MenuTheme.Button(content, k.Paused ? "재개" : "일시정지", () => { k.Paused = !k.Paused; ShowKitchen(k); });
+            MenuTheme.Button(content, "식단 관리(공통·장수별)", () => ShowDiet());
             if (k.Current != null)
                 MenuTheme.Button(content, confirmCookCancel ? "한 번 더 누르면 취소(소비한 재료는 돌려받지 못함)" : "진행 중인 조리 취소", () => {
                     if (confirmCookCancel) k.CancelCurrent(); confirmCookCancel = !confirmCookCancel; ShowKitchen(k);
@@ -33,7 +35,7 @@ namespace AntColony.UI
                 var state = order.mode == Workshop.OrderMode.Count ? $"남은 {order.amount}회" : order.mode == Workshop.OrderMode.KeepStock ? $"재고 {Kitchen.Stock(r.output)}/{order.amount}" : "반복";
                 MenuTheme.Button(content, $"{r.name} · {ModeName(order.mode)} · {state} — 삭제", () => { k.Orders.Remove(order); ShowKitchen(k); });
             }
-            MenuTheme.Text(content, "작업표에서 요리가 켜진 장수가 와서 조리합니다. 재료는 조리를 시작할 때 소비하고, 완성 요리는 주변 바닥에 놓여 운반 장수가 창고로 옮깁니다. 요리사가 떠나도 진행도는 남습니다.", 17, 70);
+            MenuTheme.Text(content, "작업표에서 요리가 켜진 장수가 와서 조리합니다. 요리사가 재료를 창고에서 조리대로 가져오고, 조리를 시작할 때 소비하며, 완성 요리는 주변 바닥에 놓여 운반 장수가 창고로 옮깁니다. 요리사가 떠나도 진행도는 남습니다.", 17, 70);
             MenuTheme.Button(content, "새로고침", () => ShowKitchen(k));
             V5Fit(window);
         }

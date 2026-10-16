@@ -22,6 +22,12 @@ namespace AntColony.UI
                 levels[c] = total;
                 Encyclopedia.Discover("Ants", "weapon:" + c.WeaponLabel, c.WeaponLabel, "All commanders can work and fight. Equipment determines combat style; Command skill determines troop capacity.");
             }
+            // 우리 위생 '주의' 이상은 우리 단위로 묶어 오른쪽에 고정 알림(2026-10-13).
+            foreach (var pen in FindObjectsByType<AntColony.Buildings.Ranch>(FindObjectsSortMode.None))
+            {
+                var risk = PenHygiene.Risk(pen); var target = pen;
+                ToastManager.SetPinned("hyg:" + pen.GetEntityId(), risk < .3f ? null : $"{pen.Data.displayName} 위생 {PenHygiene.Level(risk)} — 배설물 {PenHygiene.ManureIn(pen):0}개", () => GameMenuController.Instance?.ShowRanch(target), "목장");
+            }
             var world = WorldMapManager.Instance;
             if (world.SettlementNotice != notice)
             { notice = world.SettlementNotice; if (!string.IsNullOrEmpty(notice)) ToastManager.Show(notice); }

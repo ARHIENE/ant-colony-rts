@@ -61,7 +61,7 @@ input[type=range]{accent-color:var(--accent);width:100%}
 /* 전체 그리드: 상단 / 지도 / 하단 콘솔 */
 .app{position:relative;height:100%;display:grid;grid-template-rows:auto minmax(0,1fr) 200px}
 .top{position:relative;z-index:var(--z-hud);display:grid;grid-template-columns:auto minmax(0,1fr) auto;align-items:center;gap:16px;min-height:54px;padding:0 8px;border-width:0 0 1px}
-.menu{display:flex;gap:4px}.menu .btn{height:30px;font-size:12px;white-space:nowrap}
+.menu{display:flex;gap:4px;flex-wrap:wrap}.menu .btn{height:30px;font-size:12px;white-space:nowrap}
 .roster{display:flex;align-items:center;justify-content:center;gap:4px;min-width:0}
 .rlist{display:flex;gap:3px;overflow-x:auto;min-width:0;padding:2px 1px}
 .cm{position:relative;flex:none;width:46px;height:46px;padding:2px 0 6px;flex-direction:column;justify-content:flex-start;gap:1px;font-size:11px;line-height:1.15}
@@ -185,6 +185,11 @@ input[type=range]{accent-color:var(--accent);width:100%}
 .win-head .sub{font-size:12px;color:var(--muted)}
 .win-head .grow{flex:1}
 .win-body{padding:12px;overflow:auto;min-height:0;display:flex;flex-direction:column;gap:12px}
+.win-body > *{flex-shrink:0}
+.lg-jobs li{flex-wrap:wrap;user-select:none}
+.lg-jobs .grow{min-width:180px}
+.cell[data-p="6"],.cell[data-p="7"]{background:#3b2c18;border-color:#80602d}
+.cell[data-p="8"],.cell[data-p="9"]{background:#4a3417;border-color:#a37331}
 .win-foot{display:flex;gap:8px;justify-content:flex-end;align-items:center;padding:10px 12px;border-top:1px solid var(--line)}
 .win-foot .note{margin-right:auto;font-size:12px;color:var(--dim)}
 .tabs{display:flex;gap:2px;border-bottom:1px solid var(--line);overflow-x:auto}
@@ -192,6 +197,23 @@ input[type=range]{accent-color:var(--accent);width:100%}
 .tabs button[aria-selected=true]{color:var(--text);border-bottom-color:var(--accent)}
 .tabs button.soon{color:var(--dim)}
 .grid2{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:12px}
+.colony-panel{display:flex;flex-direction:column;gap:12px;min-width:0}
+.section-head{display:flex;align-items:center;gap:8px;border-bottom:1px solid var(--line);padding-bottom:8px}
+.section-head h3{margin:0}
+.care-table{width:100%;border-collapse:collapse;text-align:left}
+.care-table th{background:var(--well);color:var(--muted);font-size:12px;font-weight:500;padding:8px}
+.care-table td{padding:8px;vertical-align:top;border-bottom:1px solid var(--line);line-height:1.6}
+.care-table .row{gap:4px}.care-table select{max-width:180px}
+.exp-status{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));border-block:1px solid var(--line);padding:10px 0}
+.exp-status>div{display:flex;align-items:baseline;flex-wrap:wrap;gap:6px;padding:0 12px;border-right:1px solid var(--line)}
+.exp-status>div:last-child{border:0}.exp-status .n{font-size:20px}.exp-status .dim{width:100%;font-size:12px}
+.colony-panel .btn[aria-pressed=true]{border-color:var(--accent);background:var(--plate-hover)}
+.win-body details{border-top:1px solid var(--line);padding-top:8px}.win-body summary{cursor:pointer;color:var(--muted)}
+.win-body summary:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.btn:focus-visible:active{transform:none;transition:none}
+.using-keyboard .btn,.using-keyboard .scrim,.using-keyboard .window,.using-keyboard dialog.confirm{transition:none;animation:none}
+.using-keyboard .btn:active:not(:disabled){transform:none}
+@media(max-width:720px){.exp-status{grid-template-columns:repeat(2,minmax(0,1fr));row-gap:10px}.care-table td,.care-table th{padding:6px}.care-table .row{min-width:150px}}
 .grid3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
 .box{padding:10px;border-radius:3px;display:flex;flex-direction:column;gap:8px;min-width:0}
 .box h3{margin:0;font-size:13px;color:var(--select)}
@@ -287,3 +309,10 @@ dialog.confirm form{display:flex;justify-content:flex-end;gap:8px;padding:10px 1
   *,*::before,*::after{transition-duration:1ms!important;animation:none!important}
   .scrim .window,.toast{transform:none!important}
 }
+.farm-grid { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:6px; }
+.farm-grid .btn { min-height:92px; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:6px; }
+.farm-grid [aria-pressed="true"] { outline:2px solid var(--accent); outline-offset:-2px; }
+.body-parts { display:grid; grid-template-columns:repeat(auto-fit,minmax(130px,1fr)); gap:6px; }
+.body-parts .box { padding:8px; }
+progress { width:100%; height:10px; accent-color:var(--accent); }
+.care-table td { overflow-wrap:anywhere; }

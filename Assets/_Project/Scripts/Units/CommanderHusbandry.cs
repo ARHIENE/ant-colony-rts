@@ -8,7 +8,7 @@ using UnityEngine;
 
 namespace AntColony.Units
 {
-    public enum AnimalTask { None, Capture, Carry, Care, Harvest, Slaughter, Dose, Surgery, FillFeeder, HaulCarcass, Butcher }
+    public enum AnimalTask { None, Capture, Carry, Care, Harvest, Slaughter, Dose, Surgery, FillFeeder, HaulCarcass, Butcher, FeedPatient }
 
     // 목장 작업(2026-10-11 개편). 목장별 담당자 없이 작업표로 맡는다.
     // 사육: 포획(현장 결박)·돌봄·직접 채취·요청받은 현장 도축 / 운반: 생물 운반·먹이통 보충·사체를 도축대로 / 간호(=의료): 경상 투약·중상 수술 / 요리: 도축대 해체.
@@ -28,13 +28,13 @@ namespace AntColony.Units
         private static CommanderJobs JobOf(AnimalTask t) => t switch
         {
             AnimalTask.Carry or AnimalTask.FillFeeder or AnimalTask.HaulCarcass => CommanderJobs.Hauling,
-            AnimalTask.Dose or AnimalTask.Surgery => CommanderJobs.Nursing,
+            AnimalTask.Dose or AnimalTask.Surgery or AnimalTask.FeedPatient => CommanderJobs.Nursing,
             AnimalTask.Butcher => CommanderJobs.Cooking,
             _ => CommanderJobs.Husbandry
         };
         private static CommanderActivity SkillOf(AnimalTask t) => t switch
         {
-            AnimalTask.Dose or AnimalTask.Surgery => CommanderActivity.Medicine,
+            AnimalTask.Dose or AnimalTask.Surgery or AnimalTask.FeedPatient => CommanderActivity.Medicine,
             AnimalTask.Butcher => CommanderActivity.Cooking,
             AnimalTask.Carry or AnimalTask.FillFeeder or AnimalTask.HaulCarcass => CommanderActivity.Strength,
             _ => CommanderActivity.Husbandry
@@ -53,12 +53,15 @@ namespace AntColony.Units
             if (!TryWorkApproach(at, out _)) return false;
             if (task == AnimalTask.FillFeeder && facility?.FillNeed() == null) return false;
             // 투약·수술 시작 전에 재고 1개를 예약한다(중복 소비 방지). 회복 재입원·이어받는 수술은 키트가 필요 없다.
-            var stock = task == AnimalTask.Dose ? ResourceType.AnimalMedicine : ResourceType.SurgeryKit;
-            var needsStock = task == AnimalTask.Dose || task == AnimalTask.Surgery && critter != null && !critter.SurgeryStarted && !(critter.Recovering && !critter.HeavyInjury);
+            var food = task == AnimalTask.FeedPatient && critter != null ? critter.Info.Feeds.Where(t => AnimalMedicalStock.Available(t) > 0).Cast<ResourceType?>().FirstOrDefault() : null;
+            if (task == AnimalTask.FeedPatient && (food == null || !critter.NeedsClinicFood)) return false;
+            var stock = food ?? (task == AnimalTask.Dose ? ResourceType.AnimalMedicine : ResourceType.SurgeryKit);
+            var needsStock = task == AnimalTask.FeedPatient || task == AnimalTask.Dose || task == AnimalTask.Surgery && critter != null && !critter.SurgeryStarted && !(critter.Recovering && !critter.HeavyInjury);
             if (needsStock && AnimalMedicalStock.Available(stock) < 1 && !AnimalMedicalStock.Holds(this, stock)) return false;
             CommandStop(); WorkState.resting = false;
             if (needsStock && !AnimalMedicalStock.Reserve(this, stock)) return false;
             AnimalJob = task; AnimalTarget = critter; AnimalFacility = facility; CarriedCarcass = null; animalProgress = 0; animalStage = 0;
+            if (task == AnimalTask.FeedPatient) { feedType = food.Value; feedLoaded = false; }
             if (critter != null) critter.Handler = this;
             if (facility != null && (task == AnimalTask.Care || task == AnimalTask.Butcher || task == AnimalTask.Surgery)) facility.Worker = this; // 수술은 빈 치료대를 먼저 확보
             if (carcass != null) { carcass.Corpse.Claim(this); CarriedCarcass = carcass; }
@@ -81,6 +84,12 @@ namespace AntColony.Units
             }
             if (AnimalFacility != null && AnimalFacility.Worker == this) AnimalFacility.Worker = null;
             if (CarriedCarcass != null) { CarriedCarcass.Carrier = null; CarriedCarcass.Corpse?.Release(this); CarriedCarcass.transform.position = Position; }
+            if (AnimalJob == AnimalTask.FeedPatient && feedLoaded)
+            {
+                feedLoaded = false; // DropCargo가 CommandStop을 다시 호출해도 중복 반출하지 않는다.
+                DropCargo();
+            }
+            patientFoodSource = null;
             if (AnimalJob == AnimalTask.FillFeeder)
             {
                 AnimalFacility?.Reserve(feedType, -feedAmount);
@@ -103,6 +112,7 @@ namespace AntColony.Units
                 case AnimalTask.Care: return TickCare(a, seconds);
                 case AnimalTask.Slaughter: return TickSlaughter(a, seconds);
                 case AnimalTask.Harvest: case AnimalTask.Dose: return TickHandle(a, seconds);
+                case AnimalTask.FeedPatient: return TickAnimalFeeding(a, seconds);
                 case AnimalTask.Surgery: return TickSurgery(a, seconds);
                 case AnimalTask.FillFeeder: return TickFeeder();
                 case AnimalTask.HaulCarcass: return TickCarcass();
@@ -354,12 +364,14 @@ namespace AntColony.Units
         }
         private System.Collections.Generic.IEnumerable<(Component target, System.Func<bool> start)> AnimalNursingTasks()
         {
+            foreach (var patient in Critter.All.Where(x => x != null && x.NeedsClinicFood && x.Handler == null).ToList())
+                yield return (patient, () => StartAnimalTask(AnimalTask.FeedPatient, patient));
             // 치료대에 있는 중상 개체의 수술(집도의가 비운 수술 이어받기 포함, 실패 후 선택 대기 제외).
             foreach (var a in Critter.All.Where(x => x != null && x.Clinic != null && x.HeavyInjury && x.Handler == null && x.Clinic.Worker == null && x.MayOperate(this)).ToList())
                 if (a.SurgeryStarted || AnimalMedicalStock.Available(ResourceType.SurgeryKit) >= 1)
                     yield return (a.Clinic, () => StartAnimalTask(AnimalTask.Surgery, a, a.Clinic));
             // 회복 중 치료대 안에서 새로 생긴 경상: 투약(원래 우리의 자동 치료 또는 치료 지시). 예약되지 않은 의약품이 있어야 한다.
-            foreach (var a in Critter.All.Where(x => x != null && x.Clinic != null && x.Recovering && x.Injured && !x.HeavyInjury && x.Medicated <= 0 && x.Handler == null
+            foreach (var a in Critter.All.Where(x => x != null && x.Clinic != null && (x.Recovering && x.Injured && !x.HeavyInjury || x.NeedsDiseaseMedicine) && x.Medicated <= 0 && x.Handler == null
                 && (x.TreatOrder || x.ReturnPen != null && x.ReturnPen.AutoTreat) && Ranch.MayHandle(x, this, CommanderActivity.Medicine)).ToList())
                 if (AnimalMedicalStock.Available(ResourceType.AnimalMedicine) >= 1) yield return (a, () => StartAnimalTask(AnimalTask.Dose, a));
             // 회복 중 시설이 부서져 밖에 있는 개체: 빈 치료대에 재입원(키트 불필요).

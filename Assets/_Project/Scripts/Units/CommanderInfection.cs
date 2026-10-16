@@ -7,41 +7,18 @@ namespace AntColony.Units
 {
     public partial class CommanderAnt
     {
+        // 곰팡이 감염(2026-10-15 의료 개편): 질병(심각도·면역)으로 진행하고, 가까운 장수에게 옮는다. 장수·동물 사이 전염은 없다.
+        private float moldSpreadTimer;
+        public bool HasMold => personalState.health.illnesses.Any(i => i.kind == IllnessKind.Mold);
         private void TickInfection(float seconds)
         {
-            while (seconds > 0 && PersonalState.infected && !IsDead)
+            if (!HasMold || IsDead || IsEmbarked || IsCaptive) return;
+            moldSpreadTimer += seconds;
+            while (moldSpreadTimer >= EventRules.InfectionSpreadSeconds)
             {
-                var dt = Mathf.Min(1, seconds); seconds -= dt; TickInfectionStep(dt);
-            }
-        }
-        private void TickInfectionStep(float seconds)
-        {
-            var p = PersonalState;
-            if (!p.infected) return;
-            // 치료 60초를 작업량으로 보관하므로 방역 연구가 도중 완료되어도 진행도를 잃지 않는다.
-            if (p.treating)
-            {
-                p.moldTreatment += seconds * 60 / ScienceEffects.MoldTreatSeconds * (TreatmentFacility != null ? TreatmentFacility.TreatmentRate : 1);
-                if (p.moldTreatment >= 60)
-                {
-                    p.infected = false; p.moldTreatment = p.moldLoss = p.moldSpread = 0;
-                    CampaignHistory.Record("치료", CommanderName, "곰팡이 감염 회복", true); return;
-                }
-            }
-            p.moldLoss += seconds;
-            while (p.moldLoss >= EventRules.InfectionLossSeconds)
-            {
-                p.moldLoss -= EventRules.InfectionLossSeconds;
-                LoseTroops(1, "곰팡이 감염");
-                if (IsDead) return;
-            }
-            p.moldSpread += seconds;
-            while (p.moldSpread >= EventRules.InfectionSpreadSeconds)
-            {
-                p.moldSpread -= EventRules.InfectionSpreadSeconds;
-                if (IsEmbarked || IsCaptive) continue;
+                moldSpreadTimer -= EventRules.InfectionSpreadSeconds;
                 foreach (var other in Active.OfType<CommanderAnt>().ToArray())
-                    if (other != this && !other.IsDead && !other.IsEmbarked && !other.IsCaptive && !other.PersonalState.infected
+                    if (other != this && !other.IsDead && !other.IsEmbarked && !other.IsCaptive && !other.HasMold
                         && Vector3.Distance(Position, other.Position) <= EventRules.InfectionRadius
                         && Random.value < EventRules.InfectionChance * ScienceEffects.MoldSpreadMultiplier * BiomeRules.MoldSpread)
                     {

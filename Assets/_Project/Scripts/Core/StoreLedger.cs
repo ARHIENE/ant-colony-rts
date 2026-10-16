@@ -34,6 +34,8 @@ namespace AntColony.Core
 
         public bool IsBase => Host == null || Host is Stockpile;
         public bool Usable => Host == null || Host.isActiveAndEnabled && !Host.IsDead;
+        // 퇴비통 칸은 운반 목적지일 뿐 소굴 재고(식사·제작·건설)로 꺼내 쓰지 않는다(2026-10-15).
+        public bool Spendable => Usable && !(Host is CompostBin);
         public Vector3 Position => Host != null ? Host.Position : ResourceManager.HomePosition;
         public string Name => Host != null && Host.Data != null ? Host.Data.displayName : "비축더미";
         public bool Allows(ResourceType t) => (allowed & Bit(t)) != 0;

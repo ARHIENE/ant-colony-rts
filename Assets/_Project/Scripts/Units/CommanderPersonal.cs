@@ -58,6 +58,7 @@ namespace AntColony.Units
             CraftingWorkshop?.Release();
             personalState = value == null ? new CommanderPersonalState() : JsonUtility.FromJson<CommanderPersonalState>(JsonUtility.ToJson(value));
             personalState.treating = false; // Building restoration reconnects the patient after commanders load.
+            personalState.health ??= new HealthState(); MedicalRules.Migrate(personalState); // 옛 6부위 부상·곰팡이 → 부위별 건강(2026-10-15)
             RefreshEquipment();
         }
         // 미관·온도(2026-10-10): 잠·식사·작업 중인 실제 생활 공간만 본다. 미관은 체류 평균이라 잠깐 지나가도 급변하지 않고 상하한이 있다.
@@ -97,17 +98,14 @@ namespace AntColony.Units
                     GainExperience(CommanderActivity.Command, 2);
                 }
             }
-            if (TreatmentFacility != null && (!TreatmentFacility.IsTreating(this) || WorkPriorities.Red)) TreatmentFacility.Release(this); // 빨간 경보: 치료받기 중단
+            if (TreatmentFacility != null && (!TreatmentFacility.IsTreating(this) || WorkPriorities.Red && !personalState.health.Downed)) TreatmentFacility.Release(this); // 빨간 경보: 움직일 수 있으면 병상에서 나온다
             personalState.treating = TreatmentFacility != null;
-            var recovering = personalState.treating && personalState.NeedsTreatment;
+            if (!personalState.health.migrated) MedicalRules.Migrate(personalState);
+            MedicalRules.Tick(personalState.health, seconds, personalState.treating || PersonalHealth <= 0, CommanderDeathRuntime.Mode == CommanderDeathMode.Gentle);
             TickInfection(seconds);
+            TickHealthState(seconds);
             if (IsDead) return;
-            personalState.Tick(seconds, traits, TreatmentFacility != null ? TreatmentFacility.TreatmentRate : 1, TreatmentFacility != null ? TreatmentFacility.PermanentInjuryChance : .1f);
-            if (personalState.treating && !personalState.NeedsTreatment)
-            {
-                TreatmentFacility.Release(this);
-                if (recovering) MoodEvent("치료 완료", 3);
-            }
+            personalState.Tick(seconds, traits);
             personalState.lastCombatSeconds += seconds;
             personalState.homeSeconds = IsAwayFromHome ? 0 : personalState.homeSeconds + seconds;
             if (Agent != null) Agent.speed = MovementSpeed;
@@ -122,6 +120,7 @@ namespace AntColony.Units
             // 날씨(2026-10-03): 방 밖에서 비·눈·악천후를 맞으면 기분이 떨어진다.
             if (AntColony.Map.WeatherSystem.Mood < 0 && !AntColony.Buildings.RoomSystem.IsIndoors(Position)) personalState.AddMood("날씨: " + AntColony.Map.WeatherSystem.Name(AntColony.Map.WeatherSystem.Current), AntColony.Map.WeatherSystem.Mood, 2);
             TickSpace(seconds);
+            if ((memorialTimer += seconds) >= 1f) { AntColony.World.Memorial.Tick(this, memorialTimer); memorialTimer = 0; }
             TickRelations(seconds);
             if (personalState.mentalBreak != MentalBreak.None) { TickBreak(seconds); return; }
             personalState.breakCheck += seconds;
@@ -220,12 +219,19 @@ namespace AntColony.Units
             {
                 personalState.departure = "Deceased";
                 CampaignHistory.Record("사망", commanderName, cause);
+                AntColony.World.Memorial.RecordDeath(this, cause);
+                AntColony.UI.ToastManager.SetCrisis("med:" + personalState.id, null);
+                AntColony.UI.ToastManager.ShowAt($"{commanderName} 사망 — {cause}", () => AntColony.UI.GameMenuController.Instance?.ShowMemorial(), "추모");
+                // 내 영토(본거지)에서 죽으면 장비·짐이 현장에 남고, 영토 밖이면 그 땅의 세력이 압수한다(2026-10-13).
                 if (personalState.equipment.Count > 0)
                 {
-                    AntColony.World.EquipmentLoot.Drop(Position, personalState.equipment);
+                    if (!IsAwayFromHome || !(AntColony.World.DiplomacyManager.Instance?.SeizeOnDeath(this) ?? false))
+                        AntColony.World.EquipmentLoot.Drop(Position, personalState.equipment);
                     personalState.equipment.Clear();
                 }
-                AntColony.World.Corpse.Drop(this, AntColony.World.CorpseKind.ColonyCommander, commanderName);
+                DropCargo();
+                var body = AntColony.World.Corpse.Drop(this, AntColony.World.CorpseKind.ColonyCommander, commanderName);
+                if (body != null) body.Data.commanderId = personalState.id;
                 gameObject.SetActive(false);
             }
         }

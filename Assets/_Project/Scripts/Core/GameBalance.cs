@@ -123,7 +123,6 @@ namespace AntColony.Core
         // 수리 비용 = 잃은 체력 비율 × 건설비 50%(확정). 수리 속도 잠정: 초당 최대 체력 2%.
         public const float RepairCostShare = .5f, RepairPerSecond = .02f;
         // 간호 장수가 없으면 의무실 치료 절반 속도(확정).
-        public const float UnnursedTreatment = .5f;
 
         // 식사(2026-09-28): 하루 3끼·날것 -8·식중독 60초·-10은 확정, 나머지 잠정.
         // 포만 0~100, 깨어 있는 낮(10분) 동안 3끼 먹도록 30 이하에서 식당으로 간다.

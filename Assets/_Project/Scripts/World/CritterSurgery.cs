@@ -7,10 +7,10 @@ using UnityEngine;
 namespace AntColony.World
 {
     // 동물 수술·회복(2026-10-11 기획 반영). 수치는 GameBalance의 잠정값(사용자가 고른 잠정안 A).
-    // - 성공률: 의료 능력·수술 전 부상 정도·후유증으로 계산. 교대하면 장수별 실제 진행 작업량 비중으로 의료 능력을 가중 평균(대기 시간 제외).
-    // - 성공: 경상·중상 완치, 후유증 해소, 시설에서 회복 기간(배고픔 정지) → 완료 알림 1회 → 원래 우리로 운반 요청(없으면 '복귀할 우리 필요').
-    // - 실패: 사망 / 악화 / 유지. 생존하면 후유증 +1, 시설에서 재수술·우리 복귀 선택을 기다린다(자동 재시도 없음).
-    // - 고위험 첫 수술(가장 유능한 의료 장수 기준 예상 성공률 미만)과 후유증이 있는 재수술은 유저가 집도의를 지정해야 시작한다.
+    // - 성공률: 의료 능력·수술 전 부상 정도으로 계산. 교대하면 장수별 실제 진행 작업량 비중으로 의료 능력을 가중 평균(대기 시간 제외).
+    // - 성공: 경상·중상 완치, 시설에서 회복 기간(배고픔 정지) → 완료 알림 1회 → 원래 우리로 운반 요청(없으면 '복귀할 우리 필요').
+    // - 실패: 사망 / 악화 / 유지. 생존하면 재수술 확인 기록, 시설에서 재수술·우리 복귀 선택을 기다린다(자동 재시도 없음).
+    // - 고위험 첫 수술(가장 유능한 의료 장수 기준 예상 성공률 미만)과 실패한 뒤 재수술은 유저가 집도의를 지정해야 시작한다.
     public sealed partial class Critter
     {
         public int Sequelae => s.sequelae;
@@ -28,9 +28,10 @@ namespace AntColony.World
         {
             var injury = Mathf.Clamp01(1 - healthFraction / GameBalance.CritterHeavyInjury); // 체력 40%면 0, 0%면 1
             return Mathf.Clamp(GameBalance.SurgeryBaseChance + medicine * GameBalance.SurgeryChancePerMedicine - injury * GameBalance.SurgeryInjuryPenalty
-                - sequelae * GameBalance.SurgerySequelaPenalty, GameBalance.SurgeryMinChance, GameBalance.SurgeryMaxChance);
+                , GameBalance.SurgeryMinChance, GameBalance.SurgeryMaxChance);
         }
-        public static float DeathOnFail(int sequelae) => Mathf.Clamp01(GameBalance.SurgeryFailDeath + sequelae * GameBalance.SurgerySequelaDeath);
+        // 이전 저장의 sequelae는 재수술 확인에만 사용한다. 실패 횟수 자체로 위험을 올리지 않는다.
+        public static float DeathOnFail(int sequelae) => GameBalance.SurgeryFailDeath;
         private static float Medicine(CommanderAnt c) => c != null ? c.Talents.Level(CommanderActivity.Medicine) : 0;
 
         // 이 장수가 (남은 작업을) 맡으면 예상되는 성공률·사망 위험. 진행 중인 수술은 지금까지의 기여를 포함한다.
@@ -45,7 +46,7 @@ namespace AntColony.World
         public static System.Collections.Generic.IEnumerable<CommanderAnt> Surgeons
             => AntUnitBase.Active.OfType<CommanderAnt>().Where(c => c != null && c.IsColonyMember && c.CanDoJob(CommanderJobs.Nursing));
         public float BestPredictedSuccess => Surgeons.Select(PredictedSuccess).DefaultIfEmpty(0).Max();
-        // 재수술(후유증 있음)·고위험 첫 수술은 유저가 집도의를 지정해야 시작한다. 이미 시작한 수술은 다른 의료 장수가 이어받을 수 있다.
+        // 재수술(실패 기록 있음)·고위험 첫 수술은 유저가 집도의를 지정해야 시작한다. 이미 시작한 수술은 다른 의료 장수가 이어받을 수 있다.
         public bool SurgeryNeedsManual => s.sequelae > 0 || BestPredictedSuccess < GameBalance.SurgeryHighRisk;
         public bool MayOperate(CommanderAnt c) => c != null && !s.awaitDecision && (s.surgeryStarted || !SurgeryNeedsManual || s.surgeon == c.PersonalState.id);
         public bool AwaitingSurgeon => HeavyInjury && !s.surgeryStarted && !s.awaitDecision && SurgeryNeedsManual && s.surgeon == "";
@@ -80,7 +81,7 @@ namespace AntColony.World
                 Monster.Wound(Mathf.Min(Info.health * GameBalance.SurgeryWorsenDamage, Monster.CurrentHealth - 1)); result = "부상 악화"; // 악화는 사망 판정과 분리
             }
             s.awaitDecision = true;
-            ToastManager.ShowAt($"{DisplayName} 수술 실패({result}, 후유증 {s.sequelae}) — 재수술 또는 우리 복귀를 고르세요.", FocusAction(at));
+            ToastManager.ShowAt($"{DisplayName} 수술 실패({result}) — 재수술 또는 우리 복귀를 고르세요.", FocusAction(at));
         }
 
         // 시설 안 회복: 장수 없이 진행. 새 중상이 생기면 멈춘다(새 수술 대상).
@@ -92,7 +93,7 @@ namespace AntColony.World
         }
         private void ReturnHome(string why)
         {
-            TransportTo = ReturnPen != null && ReturnPen.Accepts(Species) ? ReturnPen : null;
+            TransportTo = !Contagious && ReturnPen != null && ReturnPen.Accepts(Species) ? ReturnPen : null;
             ToastManager.ShowAt($"{DisplayName} {why} — " + (TransportTo != null ? $"{TransportTo.Data.displayName}로 운반 요청" : "복귀할 우리를 지정하세요."),
                 FocusAction(Clinic != null ? Clinic.Position : transform.position));
         }

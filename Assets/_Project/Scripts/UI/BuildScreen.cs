@@ -32,7 +32,7 @@ namespace AntColony.UI
                 new Entry("2층침대", BuildingKind.BunkBed), new Entry("해먹", BuildingKind.Hammock),
                 new Entry("식당", BuildingKind.Kitchen), new Entry("큰 식탁", BuildingKind.BigTable), new Entry("긴 식탁", BuildingKind.BanquetTable), new Entry("양육실", BuildingKind.Nursery),
                 new Entry("화장실", BuildingKind.Toilet), new Entry("세면대", BuildingKind.Washbasin), new Entry("샤워기", BuildingKind.Shower) },
-            new[] { new Entry("창고", BuildingKind.Storage), new Entry("저장고", BuildingKind.FoodStore), new Entry("항아리", BuildingKind.Jar), new Entry("냉장고", BuildingKind.Fridge), new Entry("냉동고", BuildingKind.Freezer) },
+            new[] { new Entry("창고", BuildingKind.Storage), new Entry("저장고", BuildingKind.FoodStore), new Entry("항아리", BuildingKind.Jar), new Entry("냉장고", BuildingKind.Fridge), new Entry("냉동고", BuildingKind.Freezer), new Entry("퇴비통", BuildingKind.CompostBin) },
             new[] { new Entry("전등", BuildingKind.ElectricLamp), new Entry("화롯불", BuildingKind.Brazier), new Entry("등불", BuildingKind.Lantern), new Entry("횃불", BuildingKind.Torch) }, // 환경: TODO 난로·환풍구(보온 연구)
             new[] { new Entry("쳇바퀴", BuildingKind.Treadmill), new Entry("장작 발전기", BuildingKind.WoodGenerator), new Entry("전선", BuildingKind.PowerWire),
                 new Entry("배터리", BuildingKind.Battery) },
@@ -47,7 +47,7 @@ namespace AntColony.UI
                 new Entry("방어 연구소", BuildingKind.DefenseLab), new Entry("공방", BuildingKind.Workshop),
                 new Entry("목공대", BuildingKind.Carpentry), new Entry("석공대", BuildingKind.Stonecutter), new Entry("가마", BuildingKind.Kiln),
                 new Entry("물레", BuildingKind.SpinningWheel), new Entry("용광로", BuildingKind.Smelter) },
-            new[] { new Entry("의무실", BuildingKind.Infirmary), new Entry("약제대", BuildingKind.MedicineBench) },
+            new[] { new Entry("의무실", BuildingKind.Infirmary), new Entry("약제대", BuildingKind.MedicineBench), new Entry("묘비", BuildingKind.Tombstone) },
             new[] { new Entry("성벽", BuildingKind.CastleWall), new Entry("성문", BuildingKind.Gate), new Entry("끈끈이 함정", BuildingKind.TrapPit), new Entry("가시 함정", BuildingKind.SpikeTrap),
                 new Entry("지뢰밭", BuildingKind.MineField), new Entry("산성탑", BuildingKind.AcidTower), new Entry("광역 산성탑", BuildingKind.AreaAcidTower),
                 new Entry("감시탑", BuildingKind.Watchtower) },

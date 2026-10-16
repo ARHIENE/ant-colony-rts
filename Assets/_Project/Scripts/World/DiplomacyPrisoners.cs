@@ -55,7 +55,7 @@ namespace AntColony.World
         // 포획 공통 처리: 부상 없는 장수는 높은 확률로 부상, 이미 부상 중이면 그대로.
         public static void CaptureInjury(CommanderPersonalState state, CommanderTraits traits)
         {
-            if (state != null && state.injuries.Count == 0 && UnityEngine.Random.value < CaptureInjuryChance) state.AddInjury(traits);
+            if (state != null && !state.health.Injured && UnityEngine.Random.value < CaptureInjuryChance) state.AddInjury(traits); // 이미 다쳤으면 기존 부상 유지
         }
         // 우리 장수가 상대 세력에 붙잡힘: 부상 판정 + 장비 압수(세력이 없으면 압수 기록 없이 장비 유지).
         public void CapturedBy(CommanderAnt c, Civilization captor)
@@ -67,6 +67,17 @@ namespace AntColony.World
             foreach (var item in c.PersonalState.equipment)
             { captor.equipment.Add(item); Data.seizures.Add(new Seizure { owner = c.PersonalState.id, item = item.id, holder = captor.id }); }
             c.PersonalState.equipment.Clear();
+        }
+        // 내 영토 밖 사망: 그 땅(원정지·주둔지)의 세력이 장비를 압수한다. 세력이 없으면 false(현장에 남김).
+        public bool SeizeOnDeath(CommanderAnt c)
+        {
+            var site = c.Transport != null ? c.Transport.Site : c.Garrison != null ? c.Garrison.GetComponentInParent<ExpeditionSite>() : null;
+            var civ = site != null ? Faction(site) : null;
+            if (civ == null) return false;
+            foreach (var item in c.PersonalState.equipment)
+            { civ.equipment.Add(item); Data.seizures.Add(new Seizure { owner = c.PersonalState.id, item = item.id, holder = civ.id }); }
+            CampaignHistory.Record("압수", c.CommanderName, civ.name + "이(가) 전사 장수의 장비를 압수", true);
+            return true;
         }
         // 재정복 구출: 그 장수에게서 압수한 장비가 아직 상대 보관 중이면 되돌려 받는다.
         public void Rescued(CommanderAnt c)
@@ -147,9 +158,8 @@ namespace AntColony.World
             recruit.RestoreTalents(p.Talents); recruit.RestorePersonalState(p.PersonalState); recruit.WorkState.duty = CommanderDuty.Civilian;
             recruit.Social.departure = DepartureState.None; recruit.Social.pendingDeparture = false; recruit.PersonalState.departure = ""; recruit.PersonalState.originFaction = "";
             recruit.RestoreLabLevels(p.LabAttack, p.LabArmor); recruit.Skills.Restore(false, p.StrikeCooldown, p.StanceCooldown, 0);
-            var extra = new List<EquipmentItem>();
-            foreach (var item in h.gear) if (recruit.PersonalState.equipment.Any(e => e.slot == item.slot)) extra.Add(item); else recruit.PersonalState.equipment.Add(item);
-            StoreEquipment(extra, world.HomePosition);
+            // 반환 장비는 자동 장착하지 않고 실물로 보관함(가득 차면 창고 주변 바닥)에 들어온다(2026-10-15 V5 기획).
+            StoreEquipment(h.gear, world.HomePosition);
             Data.seizures.RemoveAll(s => s.owner == p.PersonalState.id);
             AntColony.UI.ToastManager.Show($"{p.Name} 귀환 ({h.from}) — 부상은 본거지에서 치료하세요.");
             CampaignHistory.Record("귀환", p.Name, h.from, true);

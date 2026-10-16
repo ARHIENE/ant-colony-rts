@@ -80,7 +80,7 @@ namespace AntColony.World
             {
                 ColonyEvent.Wildfire => Farms().Length > 0 && !AntColony.Map.WeatherSystem.Wet, // 비가 오면 산불이 나지 않는다(2026-10-03 날씨).
                 ColonyEvent.Harvest => Farms().Length > 0,
-                ColonyEvent.Mold => HomeCommanders().Any(c => !c.PersonalState.infected),
+                ColonyEvent.Mold => HomeCommanders().Any(c => !c.HasMold),
                 ColonyEvent.Wasps => false, // Phase 4: 기생 말벌 이벤트 삭제(여왕방 삭제). 이전 저장의 말벌은 그대로 처리된다.
                 ColonyEvent.Wanderer => CommanderRoster.Instance != null && CommanderRoster.Instance.Count < ScoutPost.DefaultMaxCommanders,
                 _ => true
@@ -100,8 +100,8 @@ namespace AntColony.World
                     foreach (var leaf in FindObjectsByType<BuildingBase>(FindObjectsSortMode.None).Where(w => WallFire.Flammable(w) && w.CountsTowardPlayerDefeat && w.GetComponent<ResourceNode>() == null && !w.IsDead && Home(w.Position)).ToArray()) leaf.TakeDamage(leaf.MaxHealth * .5f);
                     result = "밭에 산불 발생. 흙벽·방화대로 확산을 막을 수 있습니다. 나뭇잎 벽도 탑니다."; break;
                 case ColonyEvent.Mold:
-                    var healthy = HomeCommanders().Where(c => !c.PersonalState.infected).ToArray();
-                    var patient = healthy[Random.Range(0, healthy.Length)]; Infect(patient); result = patient.CommanderName + " 감염. 의무실에서 치료하세요."; break;
+                    var healthy = HomeCommanders().Where(c => !c.HasMold).ToArray();
+                    var patient = healthy[Random.Range(0, healthy.Length)]; Infect(patient); result = patient.CommanderName + " 곰팡이 감염. 의료 장수가 약품으로 투약해 악화를 늦추고 면역으로 회복합니다."; break;
                 case ColonyEvent.Wasps:
                     if (!TryEdge(out var waspPoint)) return false;
                     for (int i = 0; i < EventRules.Wasps; i++) EventActor.Spawn(new EventActor.State { kind = EventActorKind.Wasp,
@@ -146,8 +146,8 @@ namespace AntColony.World
             : CommanderRoster.Instance.Commanders.Where(c => c.isActiveAndEnabled && !c.IsDead && !c.IsAwayFromHome && !c.IsEmbarked);
         public static void Infect(CommanderAnt c)
         {
-            if (c == null || c.IsDead || c.PersonalState.infected) return;
-            c.PersonalState.infected = true; c.PersonalState.moldLoss = c.PersonalState.moldSpread = c.PersonalState.moldTreatment = 0;
+            if (c == null || c.IsDead || c.HasMold) return;
+            c.PersonalState.health.illnesses.Add(new Illness { kind = IllnessKind.Mold, part = BodyPart.Thorax });
         }
         private void CacheFloodNodes()
         {

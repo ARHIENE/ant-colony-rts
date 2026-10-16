@@ -21,7 +21,7 @@ namespace AntColony.Buildings
         public static bool InUse(BuildingBase b) => b != null && AntColony.Units.AntUnitBase.Active.OfType<AntColony.Units.CommanderAnt>().Any(c => !c.IsDead
             && (c.IsAsleep && Dormitory.Of(c) == b || c.PlaySpot == b || c.WashSpot == b || c.IsEating && b is Kitchen && (c.Position - b.Position).sqrMagnitude < 49));
         public static bool IsPacked(BuildingBase b) => b != null && b.TryGetComponent<PackedFurniture>(out _);
-        public static bool CanDemolish(BuildingBase b) => Orderable(b) && !HoldsPrisoners(b);
+        public static bool CanDemolish(BuildingBase b) => Orderable(b) && !HoldsPrisoners(b) && !(b is Tombstone t && t.RemovalBlock != "");
         // 무료 이동은 방 가구(RoomSystem.KindOf)·장식·전력 가구만. 주거·벽·문·바닥·기둥·전선·방어 시설은 철거 후 다시 짓는다(2026-10-10). 포장된 가구는 다시 설치할 수 있다.
         public static bool CanMove(BuildingBase b) => Orderable(b) && !HoldsPrisoners(b) && (IsPacked(b) || b.Data.kind != BuildingKind.Pillar && b.Data.kind != BuildingKind.PowerWire
             && (RoomSystem.KindOf(b) != RoomKind.None || b is Decoration || b is PowerNode));
@@ -79,7 +79,7 @@ namespace AntColony.Buildings
         {
             if (b is Storage store) ResourceManager.Instance?.EjectAll(store.Bin);
             (b as RanchFacility)?.OnRemoved(); // 먹이통·도축대 내용물은 바닥에, 치료대 환자는 그 자리에
-            (b as Processor)?.CancelCurrent(); (b as Kitchen)?.CancelCurrent();
+            (b as Processor)?.CancelCurrent(); (b as Kitchen)?.CancelCurrent(); (b as Kitchen)?.EjectStaged();
         }
     }
 

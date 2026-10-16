@@ -39,6 +39,8 @@ namespace AntColony.UI
             MenuTheme.Text(content, (r.Operating ? $"우리 {r.Cells}칸 · 필요 공간 {r.NeededSpace:0.#}" + (r.Crowding > 1 ? $" · <color=#d9534f>과밀 {r.Crowding:P0}: 생산·번식 효율 {r.Efficiency:P0}</color>" : "")
                 : "<color=#d9534f>뚫린 우리(벽·울타리·문으로 둘러싸이지 않음)</color> — 먹기 외 생산·번식·돌봄·자동 작업 중단, 다시 막으면 재개")
                 + $" · {animals.Count}마리", 17, 45);
+            var risk = AntColony.World.PenHygiene.Risk(r);
+            MenuTheme.Text(content, $"배설물 {AntColony.World.PenHygiene.ManureIn(r):0}개 · 위생 " + (risk < .3f ? "양호" : $"<color=#{(risk < .7f ? "f2c94c" : "d9534f")}>{AntColony.World.PenHygiene.Level(risk)}</color>") + " — 운반 장수가 창고·퇴비통으로 수거", 15, 30);
             MenuTheme.Button(content, $"자동 치료: {(r.AutoTreat ? "켬" : "끔")}", () => { r.AutoTreat = !r.AutoTreat; ShowRanch(r); });
             MenuTheme.Button(content, $"자동 채취: {(r.AutoHarvest ? "켬" : "끔")}", () => { r.AutoHarvest = !r.AutoHarvest; ShowRanch(r); });
             content = V5Section(window, "종별 설정", 20, 306, 360, 342);
@@ -64,7 +66,7 @@ namespace AntColony.UI
         {
             var surgeon = a.Handler != null && a.Handler.AnimalJob == AnimalTask.Surgery ? a.Handler : null;
             if (a.SurgeryStarted) return $"{a.DisplayName} 수술 중 {a.SurgeryFraction:P0} · " + (surgeon != null ? $"집도의 {surgeon.CommanderName} · 예상 성공 {a.PredictedSuccess(surgeon):P0}" : "집도의 대기(다른 의료 장수가 이어받음, 배고픔 진행)");
-            if (a.AwaitingDecision) return $"{a.DisplayName} 수술 실패 · 후유증 {a.Sequelae} — 재수술 또는 우리 복귀 선택 대기(배고픔 진행)";
+            if (a.AwaitingDecision) return $"{a.DisplayName} 수술 실패 — 재수술 또는 우리 복귀 선택 대기(배고픔 진행)";
             if (a.Recovering) return $"{a.DisplayName} " + (a.HeavyInjury ? "회복 중 새 중상 — 새 수술 필요(회복 정지)" : $"회복 중 · 남은 {a.RecoveryLeft / GameCalendar.SecondsPerMonth:0.00}개월(배고픔 정지)");
             if (a.HeavyInjury) return $"{a.DisplayName} 수술 대기";
             return $"{a.DisplayName} " + (a.TransportTo != null ? $"복귀 대기 → {a.TransportTo.Data.displayName}" : "복귀할 우리 필요(개체 화면에서 지정)");
@@ -88,12 +90,15 @@ namespace AntColony.UI
                     status.text = $"체력 {a.HealthFraction:P0} · " + (a.HeavyInjury ? "중상" : a.Injured ? "경상" : "부상 없음")
                         + (a.Clinic != null ? "\n" + ClinicStatus(a) : a.Recovering ? "\n시설 밖 — 회복 정지" : "")
                         + (a.Medicated > 0 ? $"\n투약 효과 중 · {a.Medicated:0}초" : "")
+                        + "\n" + a.DiseaseStatus
                         + (a.Sequelae > 0 ? "\n" + a.SequelaEffect : "");
                 }
                 RefreshStatus();
                 refreshDutyScreen = RefreshStatus;
                 MenuTheme.Text(content, "경상은 자연 회복하며 투약하면 빨라집니다. 투약 이후 생긴 경상에는 기존 약효가 적용되지 않습니다.\n중상은 치료대에서 수술하며, 실패 후에는 재수술 또는 우리 복귀를 선택합니다.", 15, 100);
                 content = V5Section(window, "투약 / 수술", 554, 148, 526, 500);
+                MenuTheme.Text(content, a.DiseaseStatus, 15, 60);
+                if (a.NeedsClinicFood) MenuTheme.Text(content, "급식 대기 — 의료 장수가 허용 먹이를 가져옵니다(대기 중 배고픔 진행).", 15, 50);
                 MedicalSection(a);
                 MenuTheme.Button(content, "새로고침", () => ShowCritter(a));
                 V5Fit(window);
@@ -163,8 +168,8 @@ namespace AntColony.UI
             foreach (var bench in benches)
                 MenuTheme.Button(content, "약제대 생산 목록: " + bench.Data.displayName, () => ShowProcessor(bench));
             if (benches.Length == 0) MenuTheme.Text(content, "사용 가능한 약제대 없음 — 건설 > 의료에서 건설하세요.", 15, 40);
-            if (!a.Injured && !a.Recovering && a.Clinic == null) MenuTheme.Text(content, "치료가 필요한 부상이 없습니다.", 17, 40);
-            if (a.Injured && !a.SurgeryStarted && !a.AwaitingDecision)
+            if (!a.Injured && !a.Sick && !a.Recovering && a.Clinic == null) MenuTheme.Text(content, "치료가 필요한 부상이 없습니다.", 17, 40);
+            if ((a.Injured || a.NeedsDiseaseMedicine) && !a.SurgeryStarted && !a.AwaitingDecision)
             {
                 var needed = a.HeavyInjury ? ResourceType.SurgeryKit : ResourceType.AnimalMedicine;
                 MenuTheme.Button(content, a.TreatOrder ? "치료 지시됨" : a.HeavyInjury ? "수술 치료 지시" : "투약 지시", () => {
@@ -182,7 +187,7 @@ namespace AntColony.UI
             }
             if (a.AwaitingDecision)
             {
-                MenuTheme.Text(content, $"<color=#d9534f>수술 실패 · 후유증 {a.Sequelae}</color> — 재수술(새 키트 필요, 성공률↓·사망 위험↑) 또는 원래 우리 복귀를 고르세요.", 15, 30);
+                MenuTheme.Text(content, $"<color=#d9534f>수술 실패</color> — 재수술(새 키트 필요, 현재 부상·의료 능력으로 위험 계산) 또는 원래 우리 복귀를 고르세요.", 15, 30);
                 Surgeons("재수술", c => a.OrderResurgery(c));
                 MenuTheme.Button(content, "우리 복귀(부상 유지)", () => { a.ChooseReturn(); ShowCritter(a); });
                 return;

@@ -60,8 +60,8 @@ public static class ResourceRuleChecks
             SetMonth(0); farm.TickGrowth(60); Check(farm.RegrowTimeRemaining < 180, "sown crop grows alone in spring: " + farm.RegrowTimeRemaining);
             farm.TickGrowth(100000); var springYield = farm.AmountRemaining;
             Check(Near(springYield, GameBalance.FungusFood * ScienceEffects.FarmYieldMultiplier), "spring harvest x1: " + springYield);
-            farm.Extract(1000); Check(farm.IsRegrowing && farm.NeedsSowing && farm.CanGather, "harvest needs resowing");
-            farm.TickGrowth(100000); Check(farm.IsDepleted && farm.NeedsSowing, "unsown crop does not grow");
+            // 2026-10-15 사용자 지시: 뿌리뽑기 전까지 수확 후 심어진 채 다시 자란다(재파종 없음).
+            farm.Extract(1000); Check(farm.IsRegrowing && !farm.NeedsSowing && !farm.CanGather, "harvest regrows without resowing");
             sowField.SetValue(farm, 0f);
             SetMonth(6); Check(GameCalendar.CurrentSeason == Season.Autumn, "autumn month");
             farm.TickGrowth(100000); Check(Near(farm.AmountRemaining, springYield * 1.25f), "autumn harvest x1.25: " + farm.AmountRemaining);
@@ -85,7 +85,7 @@ public static class ResourceRuleChecks
             typeof(WorkerAnt).GetField("targetNode", Private).SetValue(c, spot);
             var stateField = typeof(WorkerAnt).GetField("state", Private);
             stateField.SetValue(c, Enum.Parse(stateField.FieldType, "Gathering"));
-            typeof(WorkerAnt).GetMethod("RestoreCargo", Private).Invoke(c, new object[] { 0f, AntColony.Data.ResourceType.Food });
+            typeof(WorkerAnt).GetMethod("RestoreCargo", Private).Invoke(c, new object[] { 0f, AntColony.Data.ResourceType.Food, null });
             var multiplier = (float)typeof(CommanderAnt).GetProperty("FishingCatchMultiplier", Private).GetValue(c);
             Check(Near(multiplier, c.Talents.Multiplier(CommanderActivity.Fishing)), "commander multiplier = fishing skill (no cold)");
             var tick = typeof(WorkerAnt).GetMethod("TickGathering", Private);
@@ -98,7 +98,7 @@ public static class ResourceRuleChecks
             tick.Invoke(c, null); Time.timeScale = 0;
             var expected = Mathf.Min(GameBalance.FishingCatchFood * multiplier, 100);
             Check(Near(c.CarriedAmount, expected) && Near(spot.AmountRemaining, 100 - expected), $"one catch = 6 x skill ({c.CarriedAmount} vs {expected})");
-            c.CommandStop(); typeof(WorkerAnt).GetMethod("RestoreCargo", Private).Invoke(c, new object[] { 0f, AntColony.Data.ResourceType.Food });
+            c.CommandStop(); typeof(WorkerAnt).GetMethod("RestoreCargo", Private).Invoke(c, new object[] { 0f, AntColony.Data.ResourceType.Food, null });
 
             // 저장 왕복: 이번 달 잔량과 월 기록이 유지되어 불러와도 다시 채워지지 않는다.
             spot.Extract(60); var left = spot.AmountRemaining;

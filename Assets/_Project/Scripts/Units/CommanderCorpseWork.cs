@@ -35,7 +35,8 @@ namespace AntColony.Units
         {
             if (StartCorpseWork(corpse, corpse.Data.eating)) CorpseProgress = corpse.Data.progress;
         }
-        private IEnumerable<Corpse> CorpseWorkCandidates(bool eat) => Corpse.All.Where(c => c.Available && c.Handler == null && (!eat || c.Edible)
+        // 장수 시신은 '치우기'가 아니라 묘비 안치(운반)로만 다룬다(2026-10-15).
+        private IEnumerable<Corpse> CorpseWorkCandidates(bool eat) => Corpse.All.Where(c => c.Available && c.Handler == null && !c.IsCommanderBody && (!eat || c.Edible)
             && (eat || c.GetComponent<ResourceNode>() == null && c.GetComponent<CritterCarcass>() == null || c.Priority)); // 목장 사체는 도축대로(치우기 우선 지정 시만 청소)
         private bool FindCorpseWork(bool eat)
         {

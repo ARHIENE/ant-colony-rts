@@ -114,9 +114,7 @@ namespace AntColony.UI
                 case 4:
                     return p.equipment.Count == 0 ? "장비 없음" : string.Join("\n", p.equipment.Select(e => $"{e.slot}: {e.Label}"));
                 default:
-                    var health = p.injuries.Select(i => $"{i.part} · {i.severity}" + (i.severity == InjurySeverity.Permanent ? "" : $" ({Mathf.CeilToInt(i.remaining)}s)"));
-                    var extra = p.infected ? "\n곰팡이 감염" : "";
-                    return (p.injuries.Count == 0 ? "부상 없음" : string.Join("\n", health)) + extra;
+                    return GameMenuController.HealthLines(p.health);
             }
         }
     }

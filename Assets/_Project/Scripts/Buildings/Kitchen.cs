@@ -11,7 +11,7 @@ namespace AntColony.Buildings
     // 요리(2026-10-12 기획): 생산 목록(지정 횟수·재고 유지·계속)으로 간단한/좋은 요리를 만든다. 등급은 레시피로만 정한다(기술에 따른 무작위 상승 없음).
     // 재료는 실제 조리를 시작할 때 소비(그 전까지 창고에서 부패)하고, 완성 요리는 새 보존 기간으로 시설 주변 바닥에 놓여 운반된다.
     // 요리사가 떠나도 진행도는 남아 다른 요리사가 잇는다. 시작 전 취소는 손실 없음, 시작 후 취소는 소비한 재료를 돌려주지 않는다.
-    public sealed class Kitchen : BuildingBase
+    public sealed class Kitchen : BuildingBase, IMaterialSink
     {
         [Serializable] public class Meal { public int quality, skill; }
         [Serializable] public class Order { public int recipe; public Workshop.OrderMode mode; public int amount = 1; }
@@ -20,6 +20,7 @@ namespace AntColony.Buildings
         {
             public List<Meal> meals = new List<Meal>(); public float progress; public bool paid;
             public List<Order> orders = new List<Order>(); public int current = -1; public bool paused, configured;
+            public int staged; // 2026-10-15 요리사가 가져다 놓은 재료(식량). 조리 시작 때 소비, 철거 시 바닥으로
         }
         public sealed class Recipe
         {
@@ -62,13 +63,34 @@ namespace AntColony.Buildings
         public static int Stock(ResourceType t) => (ResourceManager.Instance?.GetAmount(t) ?? 0)
             + Mathf.FloorToInt(AntColony.World.ResourceNode.Available.Where(n => n != null && n.IsLooseCargo && n.ResourceType == t).Sum(n => n.AmountRemaining));
         private static bool Wants(Order o) => o.mode == Workshop.OrderMode.KeepStock ? Stock(Recipes[o.recipe].output) < o.amount : o.amount > 0;
-        private static bool Affordable(Recipe r) => ResourceManager.Instance != null && ResourceManager.Instance.GetAmount(ResourceType.Food) >= r.food;
         private bool Usable => !IsTable && !IsDead && isActiveAndEnabled;
-        public bool NeedsCook => Usable && !meals.paused && ResourceManager.Instance != null
-            && (Current != null || meals.orders.Any(o => o.recipe < Recipes.Length && Wants(o) && Affordable(Recipes[o.recipe])));
-        // 기다리는 이유(작업 UI): 정지 / 재료 부족 / 목표 달성.
+        // 다음에 만들 주문(조리 중이 아닐 때). 재료는 조리대에 실제로 놓인 양(staged)으로만 시작한다.
+        private Order NextOrder => meals.orders.FirstOrDefault(o => o.recipe < Recipes.Length && Wants(o));
+        public bool NeedsCook => Usable && !meals.paused && (Current != null || NextOrder is Order o && meals.staged >= Recipes[o.recipe].food);
+        // 아직 가져와야 할 재료(운반 중인 몫 제외). 창고에 없으면 0.
+        private readonly Dictionary<object, int> inTransit = new Dictionary<object, int>();
+        private int Missing => !Usable || meals.paused || Current != null || !(NextOrder is Order o) ? 0
+            : Mathf.Max(0, Recipes[o.recipe].food - meals.staged - inTransit.Values.Sum());
+        public bool NeedsIngredients => Missing > 0 && (ResourceManager.Instance?.GetAmount(ResourceType.Food) ?? 0) > 0;
+        public int Staged => meals.staged;
+        public bool NextPickup(out ResourceType type, out int amount) { type = ResourceType.Food; amount = NeedsIngredients ? Missing : 0; return amount > 0; }
+        public bool BeginPickup(object courier, ResourceType type, int amount) { if (type != ResourceType.Food || amount <= 0 || !Usable) return false; inTransit[courier] = amount; return true; }
+        public int Deliver(object courier, ResourceType type, int amount)
+        {
+            AbortPickup(courier);
+            if (type != ResourceType.Food || !Usable) return 0;
+            meals.staged += amount; return amount; // ponytail: 조리대 위 재료는 부패 정보 없이 수량만 둔다. 대기 중 부패가 필요하면 FoodLots로 바꾼다.
+        }
+        public void AbortPickup(object courier) => inTransit.Remove(courier);
+        // 철거·이동: 놓아둔 재료는 그대로 바닥에(손실 없음).
+        internal void EjectStaged()
+        {
+            if (meals.staged > 0) AntColony.World.DiplomacyManager.DropFloor(ResourceType.Food, meals.staged, Position + Vector3.right * 1.5f);
+            meals.staged = 0;
+        }
+        // 기다리는 이유(작업 UI): 정지 / 재료 부족 / 재료 운반 대기 / 목표 달성.
         public string WaitReason => !Usable ? null : meals.paused ? "일시정지" : Current != null || NeedsCook ? null
-            : meals.orders.Count == 0 ? "생산 목록 없음" : meals.orders.Any(o => Wants(o)) ? "재료 부족" : "목표 달성";
+            : meals.orders.Count == 0 ? "생산 목록 없음" : NextOrder == null ? "목표 달성" : NeedsIngredients || inTransit.Count > 0 ? "재료 운반 대기" : "재료 부족";
 
         private bool StartNext()
         {
@@ -76,7 +98,9 @@ namespace AntColony.Buildings
             {
                 if (o.recipe >= Recipes.Length) continue;
                 var r = Recipes[o.recipe];
-                if (!Wants(o) || !Affordable(r) || !ResourceManager.Instance.TrySpend(ResourceType.Food, r.food, ResourceReason.Crafting)) continue;
+                if (!Wants(o)) continue;
+                if (meals.staged < r.food) return false; // 첫 주문의 재료가 모일 때까지 기다린다
+                meals.staged -= r.food; CampaignHistory.Resource(ResourceType.Food, r.food, true, ResourceReason.Crafting);
                 meals.current = o.recipe; meals.progress = 0;
                 if (o.mode == Workshop.OrderMode.Count && --o.amount <= 0) meals.orders.Remove(o);
                 return true;
@@ -115,7 +139,7 @@ namespace AntColony.Buildings
             meals.meals.Remove(best); return best;
         }
         public static bool Valid(State state) => state != null && state.meals != null && state.meals.Count <= Capacity
-            && !float.IsNaN(state.progress) && state.progress >= 0 && state.progress < CookSeconds && (state.paid || state.current >= 0 || state.progress == 0)
+            && state.staged >= 0 && !float.IsNaN(state.progress) && state.progress >= 0 && state.progress < CookSeconds && (state.paid || state.current >= 0 || state.progress == 0)
             && state.current >= -1 && state.current < Recipes.Length && (state.orders == null || state.orders.Count <= Workshop.MaxOrders && state.orders.TrueForAll(o => o != null
                 && o.recipe >= 0 && o.recipe < Recipes.Length && o.amount >= 1 && o.amount <= Workshop.MaxOrderAmount && Enum.IsDefined(typeof(Workshop.OrderMode), o.mode)))
             && state.meals.TrueForAll(m => m != null && m.quality >= 1 && m.quality <= 3 && m.skill >= 0 && m.skill <= CommanderTalents.MaxLevel);

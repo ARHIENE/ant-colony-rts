@@ -41,7 +41,11 @@ namespace AntColony.World
             || ownerColony.GetComponentInParent<ExpeditionSite>()?.Disposition == ConquestDisposition.Lost);
         public bool IsUnlocked => !IsRaidLocked && (GetComponentInParent<ExpeditionSite>()?.Disposition == ConquestDisposition.Annexed || DiplomacyManager.Hostile(this))
             && (!requiresFishing || (GameManager.Instance != null && GameManager.Instance.FishingUnlocked));
-        public bool CanGather => !GatheringForbidden && isActiveAndEnabled && (!IsDepleted || IsFarm && NeedsSowing) && IsUnlocked && !ColonyEvents.Flooded(this);
+        public bool CanGather => !GatheringForbidden && isActiveAndEnabled && (!IsDepleted || IsFarm && NeedsSowing || HoldsHandWork) && IsUnlocked && !ColonyEvents.Flooded(this);
+        // 밭 손일(뿌리뽑기·비료) 중에는 수확하지 않고 FarmPlot이 작업량을 받는다(2026-10-15).
+        public bool HoldsHandWork => Plot != null && Plot.HasHandWork;
+        private AntColony.Buildings.FarmPlot plot;
+        private AntColony.Buildings.FarmPlot Plot => plot != null ? plot : plot = GetComponent<AntColony.Buildings.FarmPlot>();
         public float GatherRateMultiplier => requiresFishing ? fishingRateMultiplier : 1f;
 
         public ResourceType ResourceType => resourceType;
@@ -57,7 +61,7 @@ namespace AntColony.World
         {
             Active.Add(this);
             // 갓 지어진 밭은 비어 있는 상태로 시작해 한 번 성장한 뒤 수확 가능해진다.
-            if (regrowSeconds > 0f && IsDepleted && regrowTimer <= 0f) { regrowTimer = regrowSeconds; if (IsFarm) sowRemaining = GameBalance.SowSeconds; }
+            if (regrowSeconds > 0f && IsDepleted && regrowTimer <= 0f && !(Plot != null && Plot.Data.fallow)) { regrowTimer = regrowSeconds; if (IsFarm) sowRemaining = GameBalance.SowSeconds; }
             if ((regrowSeconds > 0f || requiresFishing || IsRaidLoot) && GetComponent<ResourceNodeStatus>() == null)
                 gameObject.AddComponent<ResourceNodeStatus>();
         }
@@ -88,7 +92,7 @@ namespace AntColony.World
                 sowRemaining = Mathf.Max(0, sowRemaining - seconds * labor);
                 return;
             }
-            regrowTimer = Mathf.Max(0, regrowTimer - seconds * labor * ColonyEvents.GrowthMultiplier(this) * (IsFarm ? BiomeRules.FarmGrowth * AntColony.Map.WeatherSystem.FarmGrowth : 1f));
+            regrowTimer = Mathf.Max(0, regrowTimer - seconds * labor * ColonyEvents.GrowthMultiplier(this) * (IsFarm ? BiomeRules.FarmGrowth * AntColony.Map.WeatherSystem.FarmGrowth * (Plot != null ? Plot.GrowthMultiplier : 1f) : 1f));
             // 밭(건물 노드)만 균류 재배 수확량 보정과 가을 수확 배율을 받는다.
             if (regrowTimer <= 0f) amountRemaining = regrowAmount * (IsFarm ? ScienceEffects.FarmYieldMultiplier
                 * (GameCalendar.CurrentSeason == Season.Autumn ? GameBalance.AutumnHarvestMultiplier : 1f) : 1f) * (BountifulHarvest ? 1.5f : 1f);
@@ -125,7 +129,8 @@ namespace AntColony.World
             if (IsDepleted)
             {
                 if (requiresFishing) { }
-                else if (regrowSeconds > 0f) { regrowTimer = regrowSeconds; if (IsFarm) sowRemaining = GameBalance.SowSeconds; BountifulHarvest = false; Harvested?.Invoke(); }
+                // 밭은 수확 뒤에도 심어진 채 다시 자란다(2026-10-15 사용자 지시: 뿌리뽑기 전까지 재파종 없음).
+                else if (regrowSeconds > 0f) { regrowTimer = regrowSeconds; BountifulHarvest = false; Harvested?.Invoke(); }
                 else gameObject.SetActive(false);
             }
             return extracted;
@@ -170,6 +175,10 @@ namespace AntColony.World
         }
 
         internal float RegrowTimer => regrowTimer;
+        // 밭 전용(2026-10-15): 빈 밭에 다시 심기 / 작물 변경 직후 새 성장 / 뿌리뽑기로 비우기.
+        internal void StartSowing() { amountRemaining = 0; regrowTimer = regrowSeconds; sowRemaining = GameBalance.SowSeconds; }
+        internal void RestartGrowth() { if (regrowTimer > 0) regrowTimer = regrowSeconds; }
+        internal void ClearCrop() { amountRemaining = 0; regrowTimer = 0; sowRemaining = 0; BountifulHarvest = false; }
 
         // 목장 생물이 밭 작물을 먹는다(2026-10-11): 다 자란 작물은 수확량이 줄고, 반 이상 자란 작물은 성장이 되돌아간다. 다 먹히면 다시 파종해야 한다.
         public bool CropEdible => isActiveAndEnabled && IsFarm && !NeedsSowing && (!IsRegrowing ? amountRemaining > DepletedEpsilon : regrowTimer <= regrowSeconds * .5f);

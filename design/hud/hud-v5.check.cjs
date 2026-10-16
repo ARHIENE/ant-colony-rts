@@ -16,7 +16,7 @@ fs.mkdirSync(out, { recursive: true });
   page.on('console', m => { if (m.type() === 'error') errors.push(m.text()); });
   page.on('pageerror', e => errors.push(e.message));
   await page.goto(url); await page.waitForTimeout(500);
-  const shot = n => page.screenshot({ path: path.join(out, n + '.png') });
+  const shot = async () => {}; // 캡처는 SAVE에서만 수행
   const cmd = () => page.$$eval('#cmd .c', els => els.map(e => (e.classList.contains('nil') ? '·' : e.textContent.trim()) + (e.disabled ? '(off)' : '')));
   const click = async sel => { await page.click(sel); await page.waitForTimeout(80); };
   let checks = 0; const ok = (v, m) => { assert.ok(v, m); checks++; };
@@ -56,7 +56,7 @@ fs.mkdirSync(out, { recursive: true });
   await click('#cmd [data-act=open][data-w=duty]');
   ok((await page.$$('.duty th')).length === 16, 'duty table has 15 jobs');
   const cell = '.cell[data-id=gw][data-k=repair]'; const p0 = await page.getAttribute(cell, 'data-p');
-  await click(cell); ok(await page.getAttribute(cell, 'data-p') === String((+p0 + 1) % 6), 'click raises priority');
+  await click(cell); ok(await page.getAttribute(cell, 'data-p') === String((+p0 + 1) % 10), 'click raises priority');
   await page.click(cell, { button: 'right' }); await page.waitForTimeout(80); ok(await page.getAttribute(cell, 'data-p') === p0, 'right click lowers');
   ok(await page.$('.cell.locked[data-id=jb][data-k=art]') !== null, 'trait-locked cell');
   await shot('win-duty'); await page.keyboard.press('Escape'); await page.waitForTimeout(250); ok(await page.isHidden('#window .duty'), 'Esc closes window');
@@ -71,23 +71,23 @@ fs.mkdirSync(out, { recursive: true });
   ok(await page.isDisabled('[data-act=policy][data-v=국민개병]'), 'locked policy disabled');
   await shot('win-population'); await page.keyboard.press('Escape');
 
-  // 7. 건설: 준비 중 분류, 재료 부족 비활성, 개보수·재개발
+  // 7. 건설: 자동화 분류, 재료 부족 청사진, 개보수·재개발
   await click('[data-act=preview][data-k=none]'); await click('#cmd [data-act=open][data-w=build]');
-  await click('[data-act=buildCat][data-i="5"]'); ok((await page.textContent('#window')).includes('준비 중'), 'unbuilt category marked');
+  await click('[data-act=buildCat][data-i="5"]'); ok(await page.locator('[data-act=buildItem][data-n="신호선"]').count() === 1 && await page.locator('[data-act=open][data-w=utilities]').count() === 1, 'automation building list and management entry');
   await click('[data-act=buildCat][data-i="10"]'); await click('[data-act=buildItem][data-n=성벽]'); await click('[data-act=buildMat][data-k=block]');
-  ok(await page.isDisabled('#window [data-act=place]'), 'shortage disables placing');
+  ok(await page.isEnabled('#window [data-act=place]'), 'shortage permits blueprint');
   await click('[data-act=buildMat][data-k=pebble]'); await shot('win-build'); await page.keyboard.press('Escape');
   await click('[data-act=preview][data-k=building]'); await click('button[data-act=selB][data-id=hut1]');
   await click('#cmd [data-act=open][data-w=redevelop]'); ok((await page.textContent('#window')).includes('보상비'), 'redevelopment quote'); await shot('win-redevelop'); await page.keyboard.press('Escape');
   await click('button[data-act=selB][data-id=dorm]'); await click('#cmd [data-act=open][data-w=renovate]');
-  await click('#window [data-act=renovate][data-k=leaf]'); ok((await page.textContent('#window')).includes('취소(새 재료 100% 반환)'), 'renovation cancel shown');
-  await click('#window [data-act=renovateCancel]'); await page.keyboard.press('Escape');
+  await click('#window [data-act=renovate][data-k=leaf]'); ok((await page.textContent('#window')).includes('숙소 개보수'), 'renovation appears in work list');
+  await page.locator('[data-job]').filter({hasText:'숙소 개보수'}).locator('[data-act=lgCancel]').click(); await page.keyboard.press('Escape');
 
   // 8. 생산 목록: 방식·수량·추가·삭제
   await click('button[data-act=selB][data-id=med]'); await click('#cmd [data-act=open][data-w=production]');
   await click('[data-act=mode][data-v=keep]'); await click('[data-act=amount][data-d="1"]');
   const n0 = (await page.$$('#window [data-act=delOrder]')).length; await click('#window [data-act=addOrder][data-i="1"]');
-  ok((await page.$$('#window [data-act=delOrder]')).length === n0 + 1, 'order added'); await click('#window [data-act=delOrder]');
+  ok((await page.$$('#window [data-act=delOrder]')).length === n0 + 1, 'order added'); await click('#window [data-act=delOrder]'); if (await page.locator('#confirm').evaluate(el => el.open)) await click('#confirmOk');
   ok((await page.$$('#window [data-act=delOrder]')).length === n0, 'order removed'); await shot('win-production'); await page.keyboard.press('Escape');
 
   // 9. 협상: 시간 정지·보류하고 닫기·무효
@@ -141,6 +141,8 @@ fs.mkdirSync(out, { recursive: true });
   await page.evaluate(() => { S.sel = { kind: 'animal', id: 5 }; renderAll(); }); await click('#cmd [data-act=open][data-w=animal]'); await click('[data-act=tab][data-n=의료]');
   ok((await page.textContent('#window')).includes('집도의 지정'), 'returned animal still shows surgery (manual re-surgery)'); await page.keyboard.press('Escape');
   // 11-2. 리뷰 재현: 투약 연속 클릭 → 1개만 예약·소비, 일시정지 중에는 완료되지 않음
+  // 앞 시나리오의 다른 동물 투약·생산 예약과 분리한다.
+  await page.reload();
   ok(await page.evaluate(() => { const a = A.find(x => x.id === 8); a.injury = '경상'; a.hp = 80; a.medicated = 0; a.dosing = 0; mat('medicine').have = 3; reservedMap.medicine = 0;
     ACT.dose({ id: '8' }); ACT.dose({ id: '8' }); const once = reservedMap.medicine === 1;
     S.paused = true; for (let i = 0; i < 5; i++) tick(); const paused = mat('medicine').have === 3 && a.dosing > 0;
@@ -170,5 +172,5 @@ fs.mkdirSync(out, { recursive: true });
   ok((await page.textContent('#alerts')).includes('잡아먹혔습니다'), 'predation toast after actual damage');
   await shot('after-time');
   await browser.close();
-  console.log(`PASS ${checks} HUD v5 browser checks · screenshots → reports/hud-v5/`);
+  console.log(`PASS ${checks} HUD v5 browser checks · no captures`);
 })().catch(e => { console.error('FAIL', e.message); process.exit(1); });

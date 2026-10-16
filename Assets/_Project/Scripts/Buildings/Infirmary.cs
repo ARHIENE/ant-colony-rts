@@ -9,18 +9,22 @@ namespace AntColony.Buildings
     public sealed class Infirmary : BuildingBase
     {
         public const int Capacity = 2;
-        public CommanderAnt Nurse => AntUnitBase.Active.OfType<CommanderAnt>().FirstOrDefault(c => c.CivilianWorkReady && c.ServiceTarget == this
-            && c.ServiceJob == CommanderJobs.Nursing && (c.Position - Position).sqrMagnitude <= 49);
-        public static float PermanentRisk(int medicine) => medicine >= 20 ? 0 : medicine >= 10 ? .05f : .1f;
-        public float PermanentInjuryChance => PermanentRisk(Nurse != null ? Nurse.Talents.Level(CommanderActivity.Medicine) : 0);
-        public float TreatmentRate => Nurse != null ? Nurse.WorkRate(CommanderActivity.Medicine) : GameBalance.UnnursedTreatment;
         private readonly List<CommanderAnt> patients = new List<CommanderAnt>();
         public IReadOnlyList<CommanderAnt> Patients => patients;
         public static bool Unlocked => CampaignResearch.Instance != null && CampaignResearch.Instance.Has(ScienceTechnology.Infirmary);
 
-        public bool CanTreat(CommanderAnt c) => !WorkPriorities.Red && Unlocked && isActiveAndEnabled && !IsDead && patients.Count < Capacity
+        // 의료용 침상(2026-10-15): 환자가 눕는 자리. 처치·투약·수술은 의료 장수가 와서 한다(CommanderHealthCare).
+        public bool HasFreeBed => Unlocked && isActiveAndEnabled && !IsDead && patients.Count < Capacity;
+        public bool CanTreat(CommanderAnt c) => !WorkPriorities.Red && HasFreeBed
             && c != null && c.CanChangeAllocation && !c.IsAwayFromHome && !c.IsWorking
-            && c.PersonalState.NeedsTreatment && Vector3.Distance(c.Position, Position) <= 8;
+            && (c.PersonalState.NeedsTreatment || c.Health.surgeries.Exists(s => s.Active)) && Vector3.Distance(c.Position, Position) <= 8;
+        // 구조 운반 도착: 쓰러진 환자도 눕힌다.
+        internal bool Admit(CommanderAnt c)
+        {
+            if (c == null || !HasFreeBed || patients.Contains(c)) return false;
+            if (UnityEngine.AI.NavMesh.SamplePosition(Position, out var hit, 4, UnityEngine.AI.NavMesh.AllAreas)) c.Agent.Warp(hit.position);
+            RestorePatient(c); return true;
+        }
 
         public bool TryAdmit(CommanderAnt c)
         {
@@ -37,25 +41,9 @@ namespace AntColony.Buildings
             c.PersonalState.treating = true;
         }
 
-        // 부위 재생: 영구 손상 1곳을 8분 치료로 되돌린다(Special 20). 중상이 없는 장수만 받는다.
-        public bool CanRegenerate(CommanderAnt c) => ScienceEffects.Has(ScienceTechnology.Regeneration) && Unlocked && isActiveAndEnabled && !IsDead
-            && patients.Count < Capacity && c != null && c.CanChangeAllocation && !c.IsAwayFromHome && !c.IsWorking
-            && !c.PersonalState.HasTreatableInjury && c.PersonalState.injuries.Exists(i => i.severity == InjurySeverity.Permanent)
-            && Vector3.Distance(c.Position, Position) <= 8;
-
-        public bool TryRegenerate(CommanderAnt c)
-        {
-            if (!CanRegenerate(c) || ResourceManager.Instance == null || !ResourceManager.Instance.TrySpend(0, 0, GameBalance.RegenerationSpecial, reason: ResourceReason.Treatment)) return false;
-            var injury = c.PersonalState.injuries.Find(i => i.severity == InjurySeverity.Permanent);
-            injury.severity = InjurySeverity.Serious;
-            injury.remaining = GameBalance.RegenerationSeconds;
-            injury.regenerating = true;
-            return TryAdmit(c);
-        }
-
         public bool IsTreating(CommanderAnt c) => isActiveAndEnabled && !IsDead && patients.Contains(c)
             && c.isActiveAndEnabled && !c.IsDead && !c.IsAwayFromHome && !c.IsEmbarked
-            && c.PersonalState.mentalBreak == MentalBreak.None && Vector3.Distance(c.Position, Position) <= 8;
+            && c.PersonalState.mentalBreak == MentalBreak.None && Vector3.Distance(c.Position, Position) <= 8 && c.RescueCarrier == null;
 
         public void Release(CommanderAnt c)
         {

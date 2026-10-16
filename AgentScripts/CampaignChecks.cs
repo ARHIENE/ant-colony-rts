@@ -80,15 +80,15 @@ public static class CampaignChecks
             Check(inventory.Equip(a, replacement) && a.TroopCount == troopCount && a.TroopCount > a.CommandLimit && !a.TryAssign(1), "capacity loss preserves troops, prevents assignment");
             Check(a.PersonalState.equipment.Count == 1 && inventory.Items.Contains(charm), "old charm returned once");
             var personal = a.CapturePersonalState();
-            personal.injuries.Add(new CommanderInjury { part = InjuryPart.Legs, severity = InjurySeverity.Minor, remaining = 5 });
-            a.RestorePersonalState(personal); personal.injuries.Clear();
-            Check(a.PersonalState.injuries.Count == 1, "personal restore deep copy");
-            a.TickPersonal(6); Check(a.PersonalState.injuries.Count == 0, "minor injury heals");
+            MedicalRules.AddWound(personal.health, BodyPart.Leg1, WoundKind.Bruise, 1); // 2026-10-15: 옛 injuries → 부위별 건강
+            a.RestorePersonalState(personal); personal.health.wounds.Clear();
+            Check(a.Health.wounds.Count == 1, "personal restore deep copy");
+            a.Health.wounds.Clear();
             Check(a.TryReward() && a.PersonalState.moodFactors.Exists(f => f.reason == "포상" && f.value == 8), "reward mood applies once after equipment events");
             Check(!a.TryReward(), "monthly reward cooldown");
             a.StartMentalBreak(MentalBreak.Idle); Check(!a.CanReceiveOrders && !a.TryAssign(1), "mental break blocks commands/allocation");
             a.TickPersonal(61); Check(a.CanReceiveOrders && a.PersonalState.moodFactors.Any(f => f.reason == "Catharsis"), "mental break recovery");
-            b.TakeDamage(float.MaxValue); Check(!b.IsDead && b.TroopCount == 0 && b.PersonalState.injuries.Count > 0, "gentle downing applies injury without death");
+            b.TakeDamage(float.MaxValue); Check(!b.IsDead && b.TroopCount == 0 && b.Health.Injured, "gentle downing applies injury without death");
             b.RestorePersonalState(new CommanderPersonalState()); Check(b.CanReceiveOrders, "downed commander recovered");
             a.ReturnTroops(a.TroopCount); a.WorkState.duty = CommanderDuty.Civilian;
             var lab = Lab(a.Position + Vector3.forward * 4);
@@ -99,7 +99,9 @@ public static class CampaignChecks
             var lab2 = Lab(b.Position + Vector3.forward * 4);
             Check(lab2.TryUpgrade() && lab2.TryAssign(b), "second researcher");
             Check(CampaignResearch.Instance.TryStart(ScienceTechnology.Vehicle), "shared vehicle research");
-            Check(!CampaignResearch.Instance.TryStart(ScienceTechnology.Resin), "one research at a time");
+            // 2026-10-15 V5: 연구 변경 허용(진행 보존), 활성 연구는 항상 하나.
+            Check(CampaignResearch.Instance.TryStart(ScienceTechnology.Resin) && CampaignResearch.Instance.TryStart(ScienceTechnology.Vehicle)
+                && CampaignResearch.Instance.Active.Technology == ScienceTechnology.Vehicle, "switch keeps one active research");
             var researchWork = 10 * 1.25f * (a.Talents.Multiplier(CommanderActivity.Research) + b.Talents.Multiplier(CommanderActivity.Research));
             CampaignResearch.Instance.Tick(10); Check(Mathf.Abs(CampaignResearch.Instance.Progress - researchWork) < .01f, "two labs contribute by skill and tier");
             lab2.gameObject.SetActive(false); Check(b.ScienceAssignment == null, "destroyed/disabled lab releases researcher");
@@ -161,7 +163,7 @@ public static class CampaignChecks
             var restoredYard = Object.FindFirstObjectByType<AirshipYard>();
             Check(restoredYard.Ready && restoredYard.Cocoons == 1 && restoredYard.Passengers.Count == 1 && restoredYard.Passengers[0].IsEmbarked, "airship state restored");
             Check(EquipmentInventory.Instance.Items.Count == expected.equipmentInventory.Count, "equipment retained");
-            GameMenuController.Instance.Science();
+            GameMenuController.Instance.Science(); GameMenuController.Instance.ScienceFacilities(); // 2026-10-15: 과학 = 연구 화면, 로켓은 시설 화면
             Check(GameMenuController.Instance.ScreenName == "Science / Rocket", "science UI reachable");
             Check(restoredYard.TryDepart(), "departure succeeds");
             Check(CampaignResearch.Instance.Passengers.Count == 1 && CampaignResearch.Instance.LeftBehind.Count == CommanderRoster.Instance.Commanders.Count - 1, "ending manifests");

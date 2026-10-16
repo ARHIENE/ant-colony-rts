@@ -40,6 +40,17 @@ namespace AntColony.Units
             }
             if (j.retrySeconds > 0) { j.retrySeconds = Mathf.Max(0, j.retrySeconds - seconds); return false; }
             if (j.joy > GameBalance.PlayBelowJoy || IsCarrying || LabUpgradeBusy) return false;
+            // 친한 고인의 묘비를 여가에 찾아간다(전투·위독 환자 처치보다 우선하지 않는다, 2026-10-13).
+            if (!IsInCombat && !(AllowsJob(CommanderJobs.Nursing) && HasLifeThreateningPatient) && AntColony.World.Memorial.VisitTarget(this) is Tombstone grave)
+            {
+                if ((grave.Position - Position).sqrMagnitude > 9)
+                {
+                    var walking = IsFlying ? !HasReachedDestination() : Agent.pathPending || Agent.hasPath;
+                    if (!walking && UnityEngine.AI.NavMesh.SamplePosition(grave.Position, out var g, 4, UnityEngine.AI.NavMesh.AllAreas) && CanReach(g.position)) { base.CommandMove(g.position); return true; }
+                    if (walking) return true;
+                }
+                else if (AntColony.World.Memorial.Comfort(this, grave)) { j.joy = Mathf.Min(100, j.joy + 20); return true; }
+            }
             // ponytail: 매 틱 가장 가까운 빈 시설을 찾는다. 시설이 많아지면 목표를 캐시한다.
             var spot = RecreationSpot.All.Where(s => s != null && s.HasSeat).OrderBy(s => (s.Position - Position).sqrMagnitude).FirstOrDefault();
             if (spot == null) return false; // 시설이 없으면 계속 일한다(기분 페널티만).

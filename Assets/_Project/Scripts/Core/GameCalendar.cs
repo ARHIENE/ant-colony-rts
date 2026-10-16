@@ -14,6 +14,8 @@ namespace AntColony.Core
         public static Season CurrentSeason => (Season)((Month - 1) / 3);
         public static float MonthProgress => GameSeconds % SecondsPerMonth / SecondsPerMonth;
         public static string Label => $"Year {Year} / {CurrentSeason} / Month {Month}";
+        // 기록용 날짜(사망일·귀환 예정일 등). 1년 = 12개월.
+        public static string Format(float gameSeconds) { var m = Mathf.FloorToInt(Mathf.Max(0, gameSeconds) / SecondsPerMonth); return $"{m / 12 + 1}년 {m % 12 + 1}월"; }
 
         // 한 계절 = 하루(15분): 낮 10분 → 밤 5분 (2026-09-28 기획).
         public const float SecondsPerDay = SecondsPerMonth * 3f, DaySeconds = 600f;

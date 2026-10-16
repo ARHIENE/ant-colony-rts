@@ -44,13 +44,7 @@ namespace AntColony.UI
             }
         }
 
-        private void RegenerationButtons(CommanderAnt c)
-        {
-            if (!ScienceEffects.Has(ScienceTechnology.Regeneration) || !c.PersonalState.injuries.Exists(i => i.severity == InjurySeverity.Permanent)) return;
-            foreach (var infirmary in FindObjectsByType<Infirmary>(UnityEngine.FindObjectsSortMode.None))
-                MenuTheme.Button(content, $"Regenerate limb at {infirmary.name} ({GameBalance.RegenerationSpecial} Special, 8 min)",
-                    () => { if (!infirmary.TryRegenerate(c)) ToastManager.Show("Requires no serious injury, a free bed and Special."); Details(c); })
-                    .interactable = infirmary.CanRegenerate(c);
-        }
+        // 부위 재생은 건강 화면의 수술 목록에서 요청한다(2026-10-15 의료 개편).
+        private void RegenerationButtons(CommanderAnt c) { }
     }
 }

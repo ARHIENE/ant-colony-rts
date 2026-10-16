@@ -173,7 +173,7 @@ public static class Spec1012Checks
 
         // 받을 창고가 없으면 현재 위치에 내려놓는다.
         foreach (var b in rm.Bins) rm.SetAllowed(b, Resource.Clay, false);
-        Call(hauler, "RestoreCargo", 4f, Resource.Clay); var clay0 = Loose(Resource.Clay);
+        Call(hauler, "RestoreCargo", 4f, Resource.Clay, null); var clay0 = Loose(Resource.Clay);
         Call(hauler, "ReturnCargoToStorage");
         Check(!hauler.IsCarrying && Mathf.Approximately(Loose(Resource.Clay) - clay0, 4), "no destination: cargo dropped in place");
         foreach (var b in rm.Bins) rm.SetAllowed(b, Resource.Clay, true);
@@ -430,16 +430,18 @@ public static class Spec1012Checks
         Check(k != null && !k.IsTable && k.Orders.Count == 1 && k.Orders[0].mode == Workshop.OrderMode.KeepStock, "new kitchen gets default keep-stock order");
         k.Orders.Clear(); rm.AddCapacity(Resource.Food, 200); rm.Add(Resource.Food, 60);
         var fine = Kitchen.Recipes[1]; var simple = Kitchen.Recipes[0];
-        Check(k.AddOrder(1, Workshop.OrderMode.Count, 1) && k.NeedsCook, "fine meal order needs a cook");
+        // 2026-10-15: 재료는 요리사가 조리대로 실제 운반(Staged)한 양으로만 시작한다.
+        Check(k.AddOrder(1, Workshop.OrderMode.Count, 1) && !k.NeedsCook && k.NeedsIngredients, "fine meal order waits for ingredients");
+        k.Deliver(list[0], Resource.Food, fine.food); Check(k.NeedsCook, "fine meal order needs a cook");
         var food0 = rm.GetAmount(Resource.Food);
         k.Paused = true;
-        Check(!k.NeedsCook && k.WaitReason == "일시정지" && rm.GetAmount(Resource.Food) == food0, "paused before start: nothing consumed");
+        Check(!k.NeedsCook && k.WaitReason == "일시정지" && k.Staged == fine.food, "paused before start: nothing consumed");
         k.Paused = false;
-        Check(k.Work(list[0], .01f) && k.Current == fine && rm.GetAmount(Resource.Food) == food0 - fine.food && k.Orders.Count == 0, "ingredients consumed at cook start; count order done");
+        Check(k.Work(list[0], .01f) && k.Current == fine && k.Staged == 0 && rm.GetAmount(Resource.Food) == food0 && k.Orders.Count == 0, "ingredients consumed at cook start; count order done");
         k.CancelCurrent();
-        Check(k.Current == null && rm.GetAmount(Resource.Food) == food0 - fine.food, "cancel after start loses ingredients");
+        Check(k.Current == null && k.Staged == 0, "cancel after start loses ingredients");
         // 진행 보존·인계: 한 요리사가 절반, 다른 요리사가 마무리.
-        k.AddOrder(0, Workshop.OrderMode.Count, 1);
+        k.AddOrder(0, Workshop.OrderMode.Count, 1); k.Deliver(list[0], Resource.Food, simple.food);
         k.Work(list[0], simple.seconds * .4f / list[0].WorkRate(CommanderActivity.Cooking));
         var half = k.Progress; Check(half > .3f && half < .5f, $"progress kept ({half:P0})");
         k.Work(list[1], simple.seconds * 2);
@@ -469,7 +471,7 @@ public static class Spec1012Checks
         state.poisonSeconds = 0;
 
         // 저장: 주문·정지·진행 중 요리. 옛 저장(값 치른 비축 조리)은 간단한 요리 진행으로 이어진다.
-        k.AddOrder(1, Workshop.OrderMode.Forever, 1); k.Paused = true; rm.Add(Resource.Food, 20); k.Paused = false; k.Work(list[0], .5f); k.Paused = true;
+        k.AddOrder(1, Workshop.OrderMode.Forever, 1); k.Paused = true; rm.Add(Resource.Food, 20); k.Deliver(list[0], Resource.Food, Kitchen.Recipes[1].food); k.Paused = false; k.Work(list[0], .5f); k.Paused = true;
         var progress = k.Progress;
         Check(SaveSystem.TrySave(false, 0, out var error), "save " + error);
         Check(SaveSystem.TryLoad(SaveSlots.PathFor(false, 0), out error), "load " + error); await Ready(); await Task.Delay(300);

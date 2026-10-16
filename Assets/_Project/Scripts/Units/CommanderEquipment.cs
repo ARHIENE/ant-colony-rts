@@ -39,11 +39,25 @@ namespace AntColony.Units
             if (Full || item == null || !item.IsValid || Items.Exists(e => e.id == item.id)) return false;
             Items.Add(item); return true;
         }
+        // 장착·교체·해제가 막힌 이유(빈 문자열 = 가능). 보관함은 본거지에 있으므로 본거지 밖 장수는 원격으로 바꾸지 못한다(2026-10-15).
+        public string ChangeBlock(CommanderAnt commander, EquipmentItem next, EquipmentItem old)
+        {
+            if (commander == null || commander.IsDead) return "대상 장수 없음";
+            if (commander.IsAwayFromHome) return "본거지 밖 — 보관함에 접근할 수 없음";
+            if (!commander.CanReceiveOrders) return "명령을 받을 수 없는 상태";
+            if (commander.IsConstructing || commander.LabUpgradeBusy) return "건설·연구 중";
+            if (next != null && !Items.Contains(next)) return "보관함에 없는 장비";
+            if (old != null && !commander.PersonalState.equipment.Contains(old)) return "장착하지 않은 장비";
+            if (next == null && old != null && Full) return "보관함이 가득 참";
+            if (next?.slot == EquipmentSlot.Armor && next.armor == ArmorKind.Wings && commander.PersonalState.Severity(InjuryPart.Wings) > 0) return "날개 부상";
+            if (!commander.CanReplaceEquipment(old, next)) return "비행 중 — 착륙 지점 없음";
+            return "";
+        }
         public bool Equip(CommanderAnt commander, EquipmentItem item)
         {
-            if (commander == null || item == null || !item.IsValid || !commander.CanChangeEquipment || !Items.Contains(item)) return false;
+            if (commander == null || item == null || !item.IsValid || !Items.Contains(item)) return false;
             var old = commander.PersonalState.equipment.Find(e => e.slot == item.slot);
-            if (!commander.CanReplaceEquipment(old, item)) return false;
+            if (ChangeBlock(commander, item, old) != "") return false;
             Items.Remove(item);
             if (old != null) { commander.PersonalState.equipment.Remove(old); Items.Add(old); }
             commander.PersonalState.equipment.Add(item);
@@ -53,7 +67,7 @@ namespace AntColony.Units
         }
         public bool Unequip(CommanderAnt commander, EquipmentItem item)
         {
-            if (Full || commander == null || !commander.CanChangeEquipment || !commander.PersonalState.equipment.Contains(item) || !commander.CanReplaceEquipment(item, null)) return false;
+            if (item == null || ChangeBlock(commander, null, item) != "") return false;
             commander.PersonalState.equipment.Remove(item); Add(item);
             commander.RefreshEquipment();
             commander.MoodEvent("장비 회수", commander.Traits.Has(CommanderTrait.Greedy) ? -6 : -3); return true;
