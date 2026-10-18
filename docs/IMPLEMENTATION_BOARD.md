@@ -1,5 +1,19 @@
 # Codex · Claude Code 공동 구현 보드
 
+- **KEMONO-MODULAR / Codex → Claude 인수(2026-10-18 사용자 지시) / 리그 정리·동작·시설 상호작용 미리보기 완료, Unity 미연결:** 리그 98→58뼈(튀어나온 뼈 제거·치마 가중치 다리 이관·귀/꼬리 뿌리 메시 기준·소켓 재배치), 걷기 보폭·무릎 수정, 상호작용 188장면(`scripts/preview.py`). 이하 Codex 기록: `art/kemono-kit/**`. 미간 보정 원본 얼굴 유지(정점 오차 약 3e-8), 천옷 LINEN 한 종류. 머리 6·귀 5·꼬리 3·색상 6·표정 17·겹침 효과 3·상처 24. 60개 선택지/103개 독립 메시, 조합 예시 6개와 분야별 보드 9장. 표정 찌그러짐·꼬리 끝 보정, 기본 캐릭터가 보이는 blend 재열기 확인. 최신 사용자 정정대로 Unity 생성 기능·모델 적용 안 함. 임시 Editor 연결 복구 파일 제거. 초기 FBX·동작은 실험본이며 최종 표정 보정과 불일치하므로 적용용 아님(README 명시).
+
+- **KEMONO-CON-FACE / Codex / 정적 시안·사용자 검토 대기:** `art/characters/kemono-con-face/**`. V2를 복사해 눈 비율·볼·턱을 조정하고 작은 미소·홍조선을 추가. 머리·의상 보존. 확대 렌더에서 눈 변형과 입 위치를 보정, 정면·사선·확대 PNG 및 blend 저장. 원본 기반 얼굴의 인상이 남으며 리그·Unity 미적용.
+
+- **KEMONO-FACE-02 / Codex / 외형 수정·사용자 검토 대기:** `art/characters/kemono-kiki-v2/**`. Kiki 파생 얼굴의 눈 간격·눈매·볼·턱·입과 앞머리 조정, 청록색 홍채 제작. 정면·사선 렌더 확인 및 별도 blend 저장. 원본 메시 기반이며 독자 제작 얼굴은 아님. 기존 v1 및 Unity 에셋 보존, 리그·애니메이션 미적용.
+
+- **KEMONO-KIKI / Codex / 정적 시안 완료·사용자 검토 대기:** `art/characters/kemono-kiki-v1/rabbit-settler.blend`·정면/사선 PNG. 사용자 제공 `Assets/Kiki/Xmas Girl` 얼굴·머리·몸 메시/텍스처를 복사해 몸 비율 조정·토끼귀·의상 변경. 독자 제작 얼굴이 아님. 원본 에셋·Unity 씬 보존. 정적 메시로 원본 리그/표정은 시안에 이관하지 않음, Unity 미검증.
+
+- **KEMONO-03 / Codex / 1차 외형·사용자 검토 대기:** `art/characters/kemono-rabbit-v1/rabbit03.blend`, 얼굴 텍스처·정면/사선 PNG. 흰 토끼 수인 03번을 새로 모델링, 턱·앞머리 깊이 보완. 기존 캐릭터·Unity 보존. 리깅·애니메이션·게임 카메라 검증 미실행.
+
+- **RESIDENT-SIMPLE-01 / Codex / 새 외형 20종 제작·사용자 검토 대기:** `art/characters/simple-resident-v1/variants-20.blend`·비교 PNG·목록 JSON. 단순한 몸 형태·비율·귀를 달리한 독립 모델 20개, 비교 렌더 확인. 최초 기본형만 5본·24프레임 걷기/12프레임 렌더, 20종 전체 리깅·Unity 연결은 미실행. 기존 키트·Unity 보존.
+
+- **DOC-LANGUAGE-1018 / Codex / 검토·문장 교정 완료:** Notion 현행 기획 10개 페이지의 조사·중복 표현·비행 장비 용어를 교정하고 재조회 확인. 주민 키트와 기획 사이의 부위 상실 표현, 외형/건강 상태 분리, 장식/장비 구분 및 나이·크기 미정 사항을 확인. 로컬 수정: `README.md`, `docs/CHARACTER_TRANSITION_SPEC.md`, `docs/CLAUDE_RESIDENT_ANIMATION_HANDOFF.md`, `docs/COLONY_INTERACTION_ANIMATION_REQUEST.md`, `docs/AUTONOMOUS_DUTY_API.md`, `art/resident-kit/README.md`(사망 표정 안내 정정). 코드·모델·게임 규칙은 수정하지 않음. 커밋·push 미실행.
+
 - **RESIDENT-KIT-REVIEW / Codex / 검수·보완 완료, 접촉 일부 남음:** 사용자 확인으로 Claude 작업 종료. `art/resident-kit` 원본 표정 4종·사망 연결 복구, 표면 깊이·동작 카메라·물뿌리개 손잡이/형상 수정. 부품 94/동작 44/시설 141 FBX 검사 오류 0. 관통 표본 표시 3(화분 22~23정점, 냉장고, 샤워); 완전 접촉 검증 아님. 원본 체형 보존, Unity 미수정. 최신 자료는 blend 및 README, 기존 GIF 미갱신.
 
 - **FURNITURE-97 / Claude / Blender 완료·Unity 미연결(2026-10-18 사용자 요청):** 건설 가능 97종(`BuildingKind`) 중 모델 없던 62종을 resident-kit 규격(배율 1)으로 제작, 가구용 새 주민 동작 10개, 시설 동작 8종. 시설 141·동작 44·GIF 156(장면별 `-S` 렌더로 정지 GIF 버그 수정, Codex 검수본 기준 재렌더). 장비 착용 사진 10. Notion 도감에 분야 3개(휴게·장식·군사·마을·장비) 신설·등록. 파일: `art/resident-kit/scripts/extra_spec.py`·`models_extra.py`·`kit_facilities_extra.py`·`render_equipment.py`, `kit_extra_clips.py`·`kit_preview.py`·`render_all.py` 수정. colony-core 원본·Unity 미수정.

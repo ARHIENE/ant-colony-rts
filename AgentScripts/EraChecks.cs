@@ -52,7 +52,7 @@ public static class EraChecks
             Check(file.buildings.Any(b => b.kind == "ScienceLab" && b.scienceTier == 4), "lab tier 3 -> 4");
             Check(file.campaign.progress < 200, "progress clamped");
 
-            GameMenuController.Instance.Science();
+            GameMenuController.Instance.ScienceFacilities(); // HUD V5: Science()는 연구 창, 로켓·과학 시설은 별도 화면
             Check(GameMenuController.Instance.ScreenName == "Science / Rocket", "science screen renamed");
             Object.Destroy(lab.gameObject);
             return "PASS " + checks + " era checks";

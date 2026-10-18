@@ -1,3 +1,7 @@
+# 2026-10-18 SAVE 1(Claude) — 2026-10-18 SAVE 2 이관
+- CHARACTER-CODE-01(두 팔·두 다리 신체, 저장 v18 이관) 커밋 14cb3f7. resident-kit FURNITURE-97: 건설 가능 가구 62종 신규·가구 동작 10, 시설 141·동작 44·GIF 156(장면별 `-S` 렌더로 정지 GIF 버그 수정). critter-kit 6종 43 GIF.
+- Notion 도감 새 가구 62·장비 10·기존 76 GIF 주민판 교체·생물·주민 캐릭터 페이지. 개발 일지 https://app.notion.com/p/3fdc4a0ecd3181afb689d6e19583d700
+
 # 2026-10-17 SAVE(Claude) — 2026-10-18 이관
 - Blender MCP 애드온 설치·직접 실행 경로 정리. 개미 작업 클립 17개 확인, 79개 시설 작업 지점·경첩 6종(`art/colony-core/colony-interaction.blend`, `interaction_points.json`)과 도감 GIF 79개(개미판) 제작, Notion 도감 77개 상세에 GIF 추가.
 - Unity 회귀: 중복 러너 종료 후 AutonomousDuty 56·GatheringUI 14 통과, 나머지 13개 미실행. 출처 불명 씬·재질·TimeManager 변경은 커밋 제외. 10-17 SAVE는 커밋되지 않은 채 10-18 SAVE에 합쳐짐.
