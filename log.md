@@ -10,6 +10,6 @@
   - 미리보기 156장면·GIF 156. **백그라운드 Blender는 활성 장면만 애니메이션 평가** → 처음 GIF 94개가 정지 화면이었음. `render_all.py`를 장면별 `-S` 프로세스로 바꿔 전부 재렌더.
   - 검증 `validation.json` 오류 0, 관통 표시 3(화분 물뿌리개·냉장고 꺼내기·샤워). Codex 검수(RESIDENT-KIT-REVIEW): 표정 4종·사망 연결 복구, 카메라·물뿌리개 수정.
   - `art/critter-kit/`: 목장 4종 + 적 2종(말벌·밤딱정벌레) 모델·리그·동작·FBX 43.
-- **Notion:** 도감 루트에 분야 3개(휴게·장식, 군사·마을, 장비) 신설. 새 가구 62종·장비 10종 사진/GIF 등록은 이번 SAVE에서 진행(결과는 아래 Notion 링크). 기존 77개 모델의 개미 GIF → 주민 GIF 교체는 아직.
+- **Notion:** 도감에 새 가구 62종(분야별 새 하위 분류 9개, 신규 분야 휴게·장식·군사·마을)과 장비 분야(10종) 등록 완료. 기존 77개 모델의 개미 GIF → 주민 GIF 교체는 아직. 개발 일지: https://app.notion.com/p/3fdc4a0ecd3181afb689d6e19583d700
 - **미커밋/주의:** `art/`는 계속 미추적(용량 큼, 커밋하지 않음). `AntColony.unity`·`Water.mat`·`TimeManager.asset` 변경은 출처 불명 → 커밋 제외. `Assets/Screenshots`·`Assets/reports`·`debug.log`·`design/hud/*.before-*` 임시 파일 제외.
 - **다음:** 1) CHARACTER-CODE-01 재컴파일 후 EraChecks 등 재검사 2) 남은 회귀 13개(10-17 목록) 3) 기존 도감 77개 GIF 주민판 교체 4) resident-kit Unity 연결(임포트·Animator·소켓, 대규모 → 승인 후) 5) InfirmaryChecks 삭제는 사용자 `git rm` 필요, C 배관·J 수송 범위 확인 대기.
