@@ -1,16 +1,13 @@
 # 프로젝트 로그
 
-## 현재 상태 — 2026-10-18 SAVE 2(Claude) — 토끼 조합 키트 리그 수정·동작·시설 상호작용, Codex 작업 인수
-- 프로젝트 E:\Git\ant / develop 개발, master 안정. 이전 기록은 changelog.md. 공동 작업 보드 `docs/IMPLEMENTATION_BOARD.md`.
-- **캐릭터 방향:** Codex의 미간 보정 토끼 얼굴 캐릭터(`art/characters/kemono-con-face`, Kiki 에셋 파생)를 조합형 키트로 만든 `art/kemono-kit`(KEMONO-MODULAR)이 최신. 이전 동물형 `art/resident-kit`은 시설·도구·작업 지점 원본으로 계속 사용.
-- **KEMONO-MODULAR(Codex → Claude 인수):** Codex가 부품(머리 6·귀 5·꼬리 3·색 6·표정 17·겹침 3·상처 24)을 만들다 빌드 크래시 + 사용량 소진으로 중단 → Claude 인수.
-  - 크래시 원인: Blender 5.2 `bpy.data.libraries.write`로 Scene 부분 저장 시 크래시 → 리그·컬렉션 저장 + `save_as_mainfile(copy=True)`. 라이브 Blender 대신 헤드리스 `scripts/run.py`(Kiki 참조 장면 재구성 + build).
-  - 리그(사용자 지적 '안 맞고 튀어나옴'): 끝 뼈·치마 물리 뼈·장식 뼈 제거 98→58뼈, 치마 가중치 골반→허벅지 섞기, 귀·꼬리 뿌리 메시 기준, 귀 좌우 이름(+X=L), 소켓 재배치. build에 뼈 맞춤 검증 추가(밖 0·어긋남 0).
-  - 동작 44: 걷기 보폭 1.6배·팔 1.8배·무릎 방향 수정. FBX 부품 1 + 동작 44(`exports/`).
-  - 상호작용: `scripts/preview.py` → `kemono-preview-interactions.blend` 188장면(시설 138·외형 교체 6·동작 44), resident-kit 시설 링크·1.6배·서는 위치 0.35 당김. GIF 188(`previews/gif`), 노션 묶음 GIF(`previews/notion`).
-  - 재생성 순서: `run.py` → `boards.py` → `save_openable.py` → `export.py` → `preview.py` → `render_all.py`. 상세 `art/kemono-kit/README.md`.
-- **Notion:** 도감에 '토끼 주민 조합 키트·동작·시설 상호작용' 페이지(https://app.notion.com/p/3fdc4a0ecd3181d0bf39c6a39b619ccc) — 부품 보드·뼈 배치·동작 묶음 4·상호작용 묶음 12.
-- **Unity:** EraChecks 화면 이름 단언 수정(HUD V5 `ScienceFacilities`) → 19 통과. **회귀 18개 일괄 실행은 사용자 요청으로 중단**(Campaign 86만 통과 확인, 나머지 실행 실패 로그 TIMEOUT/launch retry) → 재실행 필요.
-- **건물 모델 연결(사용자 '일단 건물만'):** 준비만 됨, 미적용. 스크래치 `FacilityVisual.cs`(BuildingKind 100종 → `Resources/Facilities/CC_*.fbx`, 상자 Renderer `forceRenderingOff` + 바닥 맞춤 자식 모델)·`FacilityVisualChecks.cs`·매핑 JSON. 다음 세션에 Assets로 옮겨 검사.
-- **미커밋/주의:** `art/`는 미추적(용량, 커밋 안 함). `AntColony.unity`·`Water.mat`·`TimeManager.asset` 출처 불명 → 커밋 제외. Blender GUI는 15:08 크래시(대화상자 남아 있을 수 있음).
-- **다음:** 1) 회귀 18개 재실행(Unity 포커스) 2) 건물 모델 연결 적용·검사 3) kemono-kit Unity 연결(대규모 → 승인 후) 4) CarryPerson 구조 자세·시설 접촉 정밀화 5) InfirmaryChecks `git rm`, C 배관·J 수송 범위 확인.
+## 현재 상태 — 2026-10-19 SAVE(Claude) — 모델 없던 시설 5종 Blender 제작 + Unity 건물 모델 표시 적용
+- 프로젝트 E:\Git\ant / develop 개발, master 안정. 이전 기록은 changelog.md. 공동 작업 보드 `docs/IMPLEMENTATION_BOARD.md`(FACILITY-VISUAL-01).
+- **열린 작업 정리:** 사용자 지시로 이전 미완료 목록(도감 GIF 재업로드=완료, CHARACTER-CODE-01 회귀·HUD-V5-REAL 재개·Blender 애니 요청서·회귀 묶음·SPEC-1012 잔여) 전부 취소.
+- **Blender(모델 없던 BuildingKind 5종):** 비축더미(QueenChamber → `CC_Stockpile`), 무기 연구소(ResearchLab, 근접~비행 5종 공용), 방어시설 연구소(DefenseLab), 휴게실(RestRoom, 기획상 오락 시설로 대체 예정이나 코드·건설 메뉴에 남아 있어 제작), 범위형 분사탑(AreaAcidTower, 단일형과 별도 모델·포탑 회전 클립).
+  - `art/resident-kit/scripts/extra_spec.py`(SPEC·HINGES 5줄) + `models_extra.py`의 `structures()` → `blender -b --python scripts/kit_facilities_extra.py`로 재생성(시설 146개, facility-points.json 포함). 렌더 확인 완료.
+  - DigSite(옛 '확장' 지점)는 기획에서 삭제된 기능이라 모델 없음(씬에 상자로 남음).
+- **Unity 적용:** `Assets/_Project/Scripts/Buildings/FacilityVisual.cs`(BuildingKind 104종 → `Resources/Facilities/CC_*`), `BuildingBase.OnEnable`에서 `FacilityVisual.Attach`. 완공·저장 복원·씬 건물 모두 상자 그리기만 끄고(forceRenderingOff, 크기 판정 유지) 바닥 면적에 맞춘 모델 표시. 시작 비축더미는 Data가 없어 Stockpile 타입으로 판별. FBX 103개 `Assets/Resources/Facilities/`(URP Lit 색 정상).
+  - 검사: FacilityVisualChecks 513(101종 실제 생성·면적 안·바닥 맞춤·비축더미) · SaveRoundtrip 57 · Spec1012 159 통과.
+  - 한계: 모델이 상자 바닥 면적 기준 균일 배율이라 일부 가구가 캐릭터보다 크게 보일 수 있음. 피격 색 깜빡임 등 상자 렌더러 효과는 안 보임. 건설 중(공사장)은 기존 상자 그대로.
+- **미커밋/주의:** `art/`는 미추적(용량). `AntColony.unity`·`Water.mat`·`TimeManager.asset` 출처 불명 → 커밋 제외. `Assets/Kiki/`·`Assets/Screenshots/`·`Assets/reports/` 미추적(이번 작업 아님).
+- **다음:** 1) 실제 플레이로 건물 크기·비율 체감 확인(필요하면 종류별 배율 보정) 2) 피격·선택 표시를 모델에도 반영할지 결정 3) kemono-kit 캐릭터 Unity 연결(대규모 → 승인 후) 4) 미실행 회귀 묶음.

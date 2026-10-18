@@ -50,6 +50,7 @@ namespace AntColony.Buildings
             // 건설 중인 건물과 배치용 템플릿은 비활성 상태이므로, 완공되어 활성화된 건물만 콜로니 존속 판정에 등록된다.
             GameManager.Instance?.RegisterBuilding(this);
             RoomSystem.MarkDirty(); SpaceQuality.Invalidate(); // Phase 5: 벽·가구가 바뀌면 방을 다시 판정한다.
+            FacilityVisual.Attach(this);
         }
 
         protected virtual void OnDisable()

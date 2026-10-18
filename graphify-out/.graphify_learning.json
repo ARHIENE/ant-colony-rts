@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-10-16T00:32:53.622399+00:00",
+  "generated_at": "2026-10-18T07:30:22.969594+00:00",
   "nodes": {
     "assets_project_scripts_core_commanderroster_antcolony_core_commanderroster": {
       "code_fingerprint": "d16d52b2f047d4764c340ee5c7e137c0419f8e4d800eec0f2202193a8b69bd8e",
@@ -12,8 +12,24 @@
           "q": "read log.md and continue task"
         }
       ],
-      "score": 0.47350406,
+      "score": 0.449102897,
       "source_file": "Assets/_Project/Scripts/Core/CommanderRoster.cs",
+      "status": "tentative",
+      "uses": 1
+    },
+    "assets_project_scripts_data_unitdata_antcolony_data_unitrole": {
+      "code_fingerprint": "462c07dcbd492484970ba9ee49670b448958cb29507e4bf778d2928347ca1127",
+      "label": "UnitRole",
+      "last": "2026-09-13T15:59:28.655886+00:00",
+      "provenance": [
+        {
+          "date": "2026-09-13T15:59:28.655886+00:00",
+          "outcome": "useful",
+          "q": "read log.md and continue task"
+        }
+      ],
+      "score": 0.449102897,
+      "source_file": "Assets/_Project/Scripts/Data/UnitData.cs",
       "status": "tentative",
       "uses": 1
     },
@@ -28,8 +44,24 @@
           "q": "read log.md and continue task"
         }
       ],
-      "score": 0.47350406,
+      "score": 0.449102897,
       "source_file": "Assets/_Project/Scripts/Data/UnitData.cs",
+      "status": "tentative",
+      "uses": 1
+    },
+    "assets_project_scripts_units_commanderadvancedskills_antcolony_units_commanderant": {
+      "code_fingerprint": "1118165ac1d0f874a5ec327088502ebf89265d41e1b1b1db7fbe0f16c9b9eb6b",
+      "label": "CommanderAnt",
+      "last": "2026-09-13T15:59:28.655886+00:00",
+      "provenance": [
+        {
+          "date": "2026-09-13T15:59:28.655886+00:00",
+          "outcome": "useful",
+          "q": "read log.md and continue task"
+        }
+      ],
+      "score": 0.449102897,
+      "source_file": "Assets/_Project/Scripts/Units/CommanderAdvancedSkills.cs",
       "status": "tentative",
       "uses": 1
     }

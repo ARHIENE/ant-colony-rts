@@ -1,5 +1,11 @@
 # Codex · Claude Code 공동 구현 보드
 
+- **TOOL-GRIP-1018 후속 / Codex:** 도구 잡는 방향을 타격 프레임 기준으로 보정, kemono 미리보기 29장면 저장. 장면 활성화 후 포즈 평가로 보정하며 재생성 스크립트에도 연결. 창 공격 전방 유지 시각 확인. 대표 4장면 PNG·개별 GIF 갱신 완료. 손가락 쥐기·시설 표면 접촉·준비 자세 머리 관통은 완전 해결 아님. Notion GIF는 이번 변경 미반영.
+
+- **TOOL-GRIP-1018 / Codex / 모델 수정·Blender 확인 완료:** `art/resident-kit/scripts/tool_shapes.py`, `repair_tool_assets.py`, `kit_tools.py`, `resident-tools.blend`, 도구 FBX 4개. 창 잡는 원점 정렬, 도끼·망치·곡괭이 머리를 자루 끝에 재제작. 기존 메시 이름 유지하여 kemono 미리보기 링크 재열기 확인. 창 5프레임 소켓→표면 거리 1.34→0.0238(자루 반경), 형태 앞·사선 확인. 기존 라이브러리 before-grip-fix 백업 보존. GIF·Notion 이미지 재렌더 미실행, 손가락 쥐기·작업 대상 정밀 접촉은 별도. Unity 미수정.
+
+- **CATALOG-KEMONO-1018 / Codex / Notion 후속 반영 완료:** Claude가 갱신한 시설 상세 23개 분류의 저녁 수정본 안내·GIF 확인. 캐릭터 종합 페이지 2곳에 최신 묶음 GIF 16종(동작 4 + 시설·조합 12)을 반영하고 동작 재작성·겹침 보정·검증 한계 설명 갱신. 5MiB 초과 GIF 6개는 원본 보존, `art/kemono-kit/previews/notion/upload/`에 색상 수를 줄인 업로드 사본 생성. 도감 소개 79→141종 정정. 재조회: 두 상세 페이지 이미지 26/6개, 도감 하위 페이지 13개 보존. Unity·Blender 모델·리그는 이번 작업에서 수정하지 않음.
+
 - **KEMONO-MODULAR / Codex → Claude 인수(2026-10-18 사용자 지시) / 리그 정리·동작·시설 상호작용 미리보기 완료, Unity 미연결:** 리그 98→58뼈(튀어나온 뼈 제거·치마 가중치 다리 이관·귀/꼬리 뿌리 메시 기준·소켓 재배치), 걷기 보폭·무릎 수정, 상호작용 188장면(`scripts/preview.py`). 이하 Codex 기록: `art/kemono-kit/**`. 미간 보정 원본 얼굴 유지(정점 오차 약 3e-8), 천옷 LINEN 한 종류. 머리 6·귀 5·꼬리 3·색상 6·표정 17·겹침 효과 3·상처 24. 60개 선택지/103개 독립 메시, 조합 예시 6개와 분야별 보드 9장. 표정 찌그러짐·꼬리 끝 보정, 기본 캐릭터가 보이는 blend 재열기 확인. 최신 사용자 정정대로 Unity 생성 기능·모델 적용 안 함. 임시 Editor 연결 복구 파일 제거. 초기 FBX·동작은 실험본이며 최종 표정 보정과 불일치하므로 적용용 아님(README 명시).
 
 - **KEMONO-CON-FACE / Codex / 정적 시안·사용자 검토 대기:** `art/characters/kemono-con-face/**`. V2를 복사해 눈 비율·볼·턱을 조정하고 작은 미소·홍조선을 추가. 머리·의상 보존. 확대 렌더에서 눈 변형과 입 위치를 보정, 정면·사선·확대 PNG 및 blend 저장. 원본 기반 얼굴의 인상이 남으며 리그·Unity 미적용.
@@ -35,6 +41,7 @@
 
 - **HUMAN-SD-02 / Codex / 정적 시안 저장·사용자 검토 대기:** `art/characters/human-sd-v2/human-sd-v2.blend`, `preview.png`, 제작 스크립트 3개. 사람형 시안의 청록 단발·크림 튜닉·짧은 망토 재제작, 표면 투영 눈·웃는 입·매끈한 볼 수정. 66메시, 정면·옆·뒤 시각 확인. 기존 Human_SD_Model 및 Claude TotoD 별도 씬 보존. 머리카락은 원화보다 두툼하고 단순한 시안 단계. 리깅·Unity 적용 미실행.
 
+- **FACILITY-VISUAL-01 / Claude / 검증 대기(2026-10-19 사용자 승인):** 모델 없던 BuildingKind 5종(비축더미·무기 연구소·방어시설 연구소·휴게실·범위형 분사탑) Blender 제작(`art/resident-kit/scripts/extra_spec.py`·`models_extra.py` structures) → Unity 건물 상자를 시설 모델로 표시(`Buildings/FacilityVisual.cs` 신규, `BuildingBase.OnEnable` 연결, `Assets/Resources/Facilities/CC_*.fbx` 103개). FacilityVisualChecks 513·SaveRoundtrip 57·Spec1012 159 통과. DigSite(옛 확장 지점, 기획 삭제)는 모델 없음.
 - **HUMAN-SD-01 / Codex / 작업 중:** 사용자 선택 사람형 SD 시안(청록 단발·크림 튜닉·테라코타 망토) 모델링. 소유 `art/characters/human-sd-v1/**`. 기존 캐릭터 시안과 Unity 자산 보존. 정적 모델·FBX·시각 검증 범위.
 
 - **CHARACTER-MODEL-01 / Codex / 토토 정적 시안 완료:** `art/characters/toto-v1/**`에 Blender 원본·FBX·렌더·제작 스크립트. 21메시/2,914정점/5,700삼각형. 앞·옆·뒤 시각 확인, FBX 왕복 메시·삼각형·크기·재질 검사 통과. 기존 시설·개미 리그 보존. 리깅·애니메이션·Unity 교체 미실행, 나머지 5종 미제작. 중복 Blender는 정상 종료하고 연결된 1개 유지.

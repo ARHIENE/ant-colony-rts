@@ -1,3 +1,6 @@
+# 2026-10-18 SAVE 2(Claude) — 2026-10-19 SAVE 이관
+- 토끼 조합 키트(KEMONO-MODULAR) Codex 인수: 빌드 크래시 원인(libraries.write) 회피, 리그 98→58뼈·치마 가중치·귀/꼬리 뿌리 수정, 동작 44(보폭·팔·무릎), 시설 상호작용 188장면·GIF, Notion 키트 페이지. EraChecks 19 통과, 회귀 18개 일괄 실행은 중단. 건물 모델 연결은 스크래치 준비만(→ 10-19 적용).
+
 # 2026-10-18 SAVE 1(Claude) — 2026-10-18 SAVE 2 이관
 - CHARACTER-CODE-01(두 팔·두 다리 신체, 저장 v18 이관) 커밋 14cb3f7. resident-kit FURNITURE-97: 건설 가능 가구 62종 신규·가구 동작 10, 시설 141·동작 44·GIF 156(장면별 `-S` 렌더로 정지 GIF 버그 수정). critter-kit 6종 43 GIF.
 - Notion 도감 새 가구 62·장비 10·기존 76 GIF 주민판 교체·생물·주민 캐릭터 페이지. 개발 일지 https://app.notion.com/p/3fdc4a0ecd3181afb689d6e19583d700
