@@ -1,7 +1,7 @@
 # 프로젝트 로그
 
 ## 현재 상태 — 2026-10-18 SAVE 2(Claude) — 토끼 조합 키트 리그 수정·동작·시설 상호작용, Codex 작업 인수
-- 프로젝트 E:\GitE:\Git\ant / develop 개발, master 안정. 이전 기록은 changelog.md. 공동 작업 보드 `docs/IMPLEMENTATION_BOARD.md`.
+- 프로젝트 E:\Git\ant / develop 개발, master 안정. 이전 기록은 changelog.md. 공동 작업 보드 `docs/IMPLEMENTATION_BOARD.md`.
 - **캐릭터 방향:** Codex의 미간 보정 토끼 얼굴 캐릭터(`art/characters/kemono-con-face`, Kiki 에셋 파생)를 조합형 키트로 만든 `art/kemono-kit`(KEMONO-MODULAR)이 최신. 이전 동물형 `art/resident-kit`은 시설·도구·작업 지점 원본으로 계속 사용.
 - **KEMONO-MODULAR(Codex → Claude 인수):** Codex가 부품(머리 6·귀 5·꼬리 3·색 6·표정 17·겹침 3·상처 24)을 만들다 빌드 크래시 + 사용량 소진으로 중단 → Claude 인수.
   - 크래시 원인: Blender 5.2 `bpy.data.libraries.write`로 Scene 부분 저장 시 크래시 → 리그·컬렉션 저장 + `save_as_mainfile(copy=True)`. 라이브 Blender 대신 헤드리스 `scripts/run.py`(Kiki 참조 장면 재구성 + build).
