@@ -52,7 +52,7 @@ namespace AntColony.Core
         public static CampaignResearch Instance { get; private set; }
         // 6시대(2026-10-05). 기존 4시대 매핑: 소굴=소굴, 공학=증기, 항공=전기, 대이주=미래.
         // TODO 석유(3)·원자(5) 시대 연구 항목은 아직 없음(빈 시대).
-        public static readonly string[] EraNames = { "소굴", "증기", "석유", "전기", "원자", "미래" };
+        public static readonly string[] EraNames = { "정착", "증기", "석유", "전기", "원자", "미래" };
         public const int EraCount = 6;
         public static readonly ScienceDefinition[] Technologies = {
             new ScienceDefinition(ScienceTechnology.FungalFarming, "균류 재배", 1),
@@ -63,27 +63,27 @@ namespace AntColony.Core
             new ScienceDefinition(ScienceTechnology.Sanitation, "방역", 1, ScienceTechnology.Herbs),
             new ScienceDefinition(ScienceTechnology.Fermentation, "압축 저장", 2, ScienceTechnology.FungalFarming),
             new ScienceDefinition(ScienceTechnology.AdvancedCrops, "고급 작물", 2, ScienceTechnology.HoneydewRanch),
-            new ScienceDefinition(ScienceTechnology.AcidRefining, "개미산 정제", 2, ScienceTechnology.Resin),
+            new ScienceDefinition(ScienceTechnology.AcidRefining, "산성액 정제", 2, ScienceTechnology.Resin),
             new ScienceDefinition(ScienceTechnology.Watchtowers, "감시탑", 2, ScienceTechnology.Traps),
             new ScienceDefinition(ScienceTechnology.Infirmary, "의무실", 2, ScienceTechnology.Herbs),
             new ScienceDefinition(ScienceTechnology.Recreation, "휴게실", 2, ScienceTechnology.Herbs),
-            new ScienceDefinition(ScienceTechnology.Blades, "큰턱 날", 2, ScienceTechnology.Resin),
-            new ScienceDefinition(ScienceTechnology.ArmorPlates, "외골격 코팅", 2, ScienceTechnology.Resin),
+            new ScienceDefinition(ScienceTechnology.Blades, "근접 무기", 2, ScienceTechnology.Resin),
+            new ScienceDefinition(ScienceTechnology.ArmorPlates, "보호 갑옷", 2, ScienceTechnology.Resin),
             new ScienceDefinition(ScienceTechnology.Vehicle, "바퀴 차량", 2),
             new ScienceDefinition(ScienceTechnology.Drainage, "치수 공사", 2, ScienceTechnology.Sanitation),
             new ScienceDefinition(ScienceTechnology.Firebreaks, "방화대", 2, ScienceTechnology.Resin),
             new ScienceDefinition(ScienceTechnology.EfficientTransport, "수송 효율", 4, ScienceTechnology.Vehicle),
-            new ScienceDefinition(ScienceTechnology.Mines, "자폭 매설", 4, ScienceTechnology.Traps),
+            new ScienceDefinition(ScienceTechnology.Mines, "폭약 매설", 4, ScienceTechnology.Traps),
             new ScienceDefinition(ScienceTechnology.Regeneration, "부위 재생", 4, ScienceTechnology.Infirmary),
             new ScienceDefinition(ScienceTechnology.Trinkets, "장신구", 4, ScienceTechnology.ArmorPlates),
             new ScienceDefinition(ScienceTechnology.AdvancedWeapons, "고급 무기", 4, ScienceTechnology.Blades),
-            new ScienceDefinition(ScienceTechnology.Gliding, "활공 날개", 4, ScienceTechnology.Vehicle),
+            new ScienceDefinition(ScienceTechnology.Gliding, "비행 장비", 4, ScienceTechnology.Vehicle),
             new ScienceDefinition(ScienceTechnology.Aircraft, "비행기", 4, ScienceTechnology.Gliding),
             new ScienceDefinition(ScienceTechnology.HeavyTransport, "비행선(대형 수송)", 4, ScienceTechnology.Aircraft),
             new ScienceDefinition(ScienceTechnology.Insulation, "보온 설비", 4, ScienceTechnology.Drainage),
             new ScienceDefinition(ScienceTechnology.MigrationTheory, "로켓 이론", 6, ScienceTechnology.Aircraft),
             new ScienceDefinition(ScienceTechnology.Hull, "선체", 6, ScienceTechnology.MigrationTheory),
-            new ScienceDefinition(ScienceTechnology.Cocoons, "동면 고치", 6, ScienceTechnology.MigrationTheory),
+            new ScienceDefinition(ScienceTechnology.Cocoons, "동면 캡슐", 6, ScienceTechnology.MigrationTheory),
             new ScienceDefinition(ScienceTechnology.Engine, "추진기관", 6, ScienceTechnology.MigrationTheory),
             new ScienceDefinition(ScienceTechnology.Fishing, "낚시", 1),
             new ScienceDefinition(ScienceTechnology.ConscriptionLaw, "징병제", 1),

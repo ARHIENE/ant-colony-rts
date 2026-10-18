@@ -17,7 +17,7 @@ namespace AntColony.UI
             var f = Frame("인구");
             var p = L.Plate(f, "Population", 300, 100, 840, 660);
             L.Label(p, "인구 · 이주", 26, 24, 12, 792, 40, MenuTheme.Accent);
-            L.Label(p, "주거·시설·안전·민심이 좋으면 개미가 이주해 옵니다. 살 자리는 주거 건물(건설 → 생활)로 늘립니다.", 14, 24, 54, 792, 30, MenuTheme.Muted);
+            L.Label(p, "주거·시설·안전·민심이 좋으면 시민이 이주해 옵니다. 살 자리는 주거 건물(건설 → 생활)로 늘립니다.", 14, 24, 54, 792, 30, MenuTheme.Muted);
             L.Label(p, $"인구 <b>{pop.Total}</b> / 살 자리 {pop.HousingCapacity}     어린 {pop.S.young} · 성체 {pool.Total} · 늙은 {pop.S.old}     출전 {pool.Assigned}",
                 16, 24, 92, 792, 30);
 
@@ -75,8 +75,8 @@ namespace AntColony.UI
                     24 + i2++ * 200, 390, 190, 40, () => { if (pop.TrySetPolicy(captured)) Population(); }, tip, pop.S.policy == policy);
                 button.interactable = usable;
             }
-            L.Button(p, "ElderlyService", "병역 나이: " + (pop.S.elderlyService ? "늙은 개미 포함" : "성체만"), 24, 444, 300, 36,
-                () => { pop.S.elderlyService = !pop.S.elderlyService; Population(); }, "늙은 개미도 병사로 쓸지 정합니다(병력 상한에 포함, 모자라면 늙은 개미로 보충).");
+            L.Button(p, "ElderlyService", "병역 나이: " + (pop.S.elderlyService ? "늙은 시민 포함" : "성체만"), 24, 444, 300, 36,
+                () => { pop.S.elderlyService = !pop.S.elderlyService; Population(); }, "늙은 시민도 병사로 쓸지 정합니다(병력 상한에 포함, 모자라면 늙은 시민으로 보충).");
             // 2026-10-08: 시민 생산력·행정 성과·재개발 보상 수준(수치 잠정).
             L.Line(p, 24, 492, 792);
             L.Label(p, $"<b>시민 생산력</b> ×{ColonyPopulation.Productivity:0.00}  <color=#968976>(주거 ×{ColonyPopulation.HousingProductivity:0.00} · 연구 +{ColonyPopulation.ResearchProductivity:P0} · 시설 +{ColonyPopulation.FacilityProductivity:P0})</color>", 14, 24, 502, 792, 24);

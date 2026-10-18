@@ -8,7 +8,7 @@ namespace AntColony.Units
 
     public static class EquipmentRecipes
     {
-        private static readonly string[] Names = { "큰턱 날", "산 분사기", "방패 갑각", "페로몬 신호기", "외골격 코팅", "비행 날개", "가벼운 발목 띠", "예민한 더듬이 고리", "향기 주머니", "지휘 표식" };
+        private static readonly string[] Names = { "근접 무기", "산 분사기", "방패", "지휘 신호기", "보호 갑옷", "비행 장비", "가벼운 발목 띠", "감각 보조 장신구", "향기 주머니", "지휘 표식" };
         private static readonly Vector3Int[] Costs = {
             new Vector3Int(0,40,5), new Vector3Int(0,30,10), new Vector3Int(0,60,5), new Vector3Int(20,0,10),
             new Vector3Int(0,40,5), new Vector3Int(30,0,15), new Vector3Int(20,20,0), new Vector3Int(20,20,0),

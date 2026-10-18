@@ -1,3 +1,17 @@
+# 2026-10-17 SAVE(Claude) — 2026-10-18 이관
+- Blender MCP 애드온 설치·직접 실행 경로 정리. 개미 작업 클립 17개 확인, 79개 시설 작업 지점·경첩 6종(`art/colony-core/colony-interaction.blend`, `interaction_points.json`)과 도감 GIF 79개(개미판) 제작, Notion 도감 77개 상세에 GIF 추가.
+- Unity 회귀: 중복 러너 종료 후 AutonomousDuty 56·GatheringUI 14 통과, 나머지 13개 미실행. 출처 불명 씬·재질·TimeManager 변경은 커밋 제외. 10-17 SAVE는 커밋되지 않은 채 10-18 SAVE에 합쳐짐.
+
+# 2026-10-17 SAVE(Codex) — 2026-10-17 Claude SAVE 때 이관
+- Blender 5.2.2(F:\Blender) + mcp-for-blender 설치·Codex 연결. 시설·자원 로우폴리 79개(26,736 삼각형) `art/colony-core/`(blend·FBX 79·manifest·validation·previews). FBX 왕복 검사 통과, Unity 임포트 미검증.
+- 개미 직립 허용, 작업 연출 요청서 `docs/COLONY_INTERACTION_ANIMATION_REQUEST.md` 작성. Notion 모델 도감(분야→가구/물품) 생성.
+
+
+# 2026-10-16 SAVE(Claude) — 2026-10-17 이관
+- HUD-V5-REAL 연구·장비·농사·식단·요리 운반·냉각·의료·위생/퇴비·추모·포로 구현. Spec1015 318 및 주요 회귀 통과, 8c03429 push.
+- 처치가 수술 예약 약품 소비 / 유해 remaining=0 저장 거부 수정. 잔여: 구 InfirmaryChecks, Hygiene 간헐 실패, Spec1009 외교 알림, 같은 Play 연속 검사 실패. 배관/신호선·수송 확장 미착수.
+- 기존 개발 일지: https://app.notion.com/p/3fbc4a0ecd31818e98aad8bf85f0805e
+
 # 2026-10-14 SAVE(Claude) — 이전 로그 요약
 - SPEC-1012 ①~⑦ 구현(`8d278c6`): 작업표 0~9·실제 이동 거리, 창고 실물 재고(StoreBin), 건설 예약·배송, 철거·이동·개보수, 식품 신선도·냉장/냉동, 요리 생산 목록, 작업 관리 창. 검사 Spec1012 153·Spec1011Ranch 165·SaveRoundtrip 57·Meal 347 등 통과. SPEC-1013(장수 의료·동물 위생·사망·원정 장비) Notion 반영.
 
@@ -765,3 +779,4 @@
 
 ## 2026-10-11 → 2026-10-12 이관
 - Codex가 V5 기준 Unity 관리 창·작업표·건설 재료 비교를 연결했고 UI 검사 67개를 통과했다. SAVE는 당시 미완료였으며, 이번 SAVE에서 추가 구현(90개 통과)과 함께 마무리한다. 기존 미검증 변경과 전체 회귀 잔여는 보존한다.
+

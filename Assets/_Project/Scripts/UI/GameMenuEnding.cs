@@ -17,7 +17,7 @@ namespace AntColony.UI
             var research = CampaignResearch.Instance;
             if (research == null || !research.Departed) return;
             Screen("발사 — ROCKET LAUNCH VICTORY", "로켓 발사 — 탈출 성공"); Time.timeScale = 0;
-            var scene = MenuTheme.Text(content, "~ ~ ~   로켓이 소굴을 떠나 우주로 날아오릅니다   ~ ~ ~", 22, 60);
+            var scene = MenuTheme.Text(content, "~ ~ ~   로켓이 정착지를 떠나 우주로 날아오릅니다   ~ ~ ~", 22, 60);
             scene.alignment = TextAnchor.MiddleCenter; scene.color = MenuTheme.Accent;
             foreach (var line in EndingRecord(research)) MenuTheme.Text(content, line, 17, Mathf.Max(30, 24 * (1 + line.Length / 70)));
             MenuTheme.Button(content, "Main Menu", () => { GameSession.Instance.MarkNotStarted(); Main(); });
@@ -42,7 +42,7 @@ namespace AntColony.UI
                     .Select(i => $"{(i < ReasonNames.Length ? ReasonNames[i] : ((ResourceReason)i).ToString())} {d.spentByReason[r * reasons + i]}"));
                 lines.Add($"<b>{ResourceNames[r]}</b>  획득 {d.acquired[r]} · 사용 {d.spent[r]}" + (uses.Length > 0 ? $"  ({uses})" : ""));
             }
-            lines.Add($"<b>일반개미</b>  유입 {d.antsProduced} · 손실 {d.antsLost}");
+            lines.Add($"<b>시민</b>  유입 {d.antsProduced} · 손실 {d.antsLost}");
             lines.Add("<b>탑승</b>  " + (research.Passengers.Count == 0 ? "없음" : string.Join(", ", research.Passengers)));
             lines.Add("<b>남겨진 장수</b>  " + (research.LeftBehind.Count == 0 ? "없음" : string.Join(", ", research.LeftBehind)));
             lines.Add("<b>사망</b>  " + Names("사망"));

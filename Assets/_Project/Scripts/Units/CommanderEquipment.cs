@@ -49,7 +49,7 @@ namespace AntColony.Units
             if (next != null && !Items.Contains(next)) return "보관함에 없는 장비";
             if (old != null && !commander.PersonalState.equipment.Contains(old)) return "장착하지 않은 장비";
             if (next == null && old != null && Full) return "보관함이 가득 참";
-            if (next?.slot == EquipmentSlot.Armor && next.armor == ArmorKind.Wings && commander.PersonalState.Severity(InjuryPart.Wings) > 0) return "날개 부상";
+            if (next?.slot == EquipmentSlot.Armor && next.armor == ArmorKind.Wings && commander.PersonalState.Severity(InjuryPart.Wings) > 0) return "비행 불가 부상";
             if (!commander.CanReplaceEquipment(old, next)) return "비행 중 — 착륙 지점 없음";
             return "";
         }

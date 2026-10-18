@@ -25,7 +25,7 @@ public static class EraChecks
         try
         {
             await Ready(); SaveSystem.NewGame(new NewGameOptions { seed = 261005, mapSize = MapSize.Small }); await Ready();
-            Check(CampaignResearch.EraNames.SequenceEqual(new[] { "소굴", "증기", "석유", "전기", "원자", "미래" }), "six eras");
+            Check(CampaignResearch.EraNames.SequenceEqual(new[] { "정착", "증기", "석유", "전기", "원자", "미래" }), "six eras");
             Check(GameBalance.ScienceWork.SequenceEqual(new float[] { 200, 400, 800, 1500, 2800, 5000 }), "era research work");
             var defs = CampaignResearch.Technologies;
             int Tier(ScienceTechnology t) => defs[(int)t].Tier;
@@ -48,7 +48,7 @@ public static class EraChecks
             file.version = 13;
             file.campaign.active = (int)ScienceTechnology.FungalFarming; file.campaign.progress = 250; // 옛 연구량 300, 새 200
             Check(SaveValidator.Validate(file, out var error), "v13 migrates: " + error);
-            Check(file.version == SaveFileV1.CurrentVersion && SaveFileV1.CurrentVersion == 16, "save version 16"); // 2026-10-10 v16
+            Check(file.version == SaveFileV1.CurrentVersion && SaveFileV1.CurrentVersion == 18, "save version 18"); // 2026-10-18 v18 신체 부위 이관
             Check(file.buildings.Any(b => b.kind == "ScienceLab" && b.scienceTier == 4), "lab tier 3 -> 4");
             Check(file.campaign.progress < 200, "progress clamped");
 

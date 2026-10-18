@@ -129,7 +129,7 @@ namespace AntColony.UI
                 action.gameObject.SetActive(true);
                 status.text = scout.GetStatusLabel();
                 label.text = scout.IsDispatched ? "정찰 중" : "정찰 파견"; action.interactable = !scout.IsDispatched;
-                instruction.text = "동행 장수 1명을 골라 보냅니다. 돌아올 때까지 장수는 소굴을 비웁니다.";
+                instruction.text = "동행 장수 1명을 골라 보냅니다. 돌아올 때까지 장수는 정착지를 비웁니다.";
             }
             else action.interactable = true;
             if (Target is WildMonster animal)

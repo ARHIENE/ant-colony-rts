@@ -218,6 +218,7 @@ namespace AntColony.Save
                 foreach (var r in file.diplomacy?.rebelMembers ?? new System.Collections.Generic.List<World.RebelMember>()) Scale(r?.commander?.PersonalState);
                 file.version = 17;
             }
+            if (file.version == 17) BodyMigration.Upgrade(file); // 2026-10-18 캐릭터 전환: 신체 부위 두 팔·두 다리
             if (file.version != SaveFileV1.CurrentVersion)
             {
                 error = $"Save version {file.version} cannot be read by this build (expects {SaveFileV1.CurrentVersion}).";

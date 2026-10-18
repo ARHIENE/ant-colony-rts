@@ -180,19 +180,19 @@ namespace AntColony.Core
             {
                 var arrivals = Mathf.Clamp(Mathf.RoundToInt(room * demand / 100f * GameBalance.ImmigrationShare), 1, room);
                 S.young += arrivals * 3 / 10; pool.Breed(arrivals - arrivals * 3 / 10);
-                UI.ToastManager.Show($"이주: 개미 {arrivals}마리가 왔습니다 (수요 {demand:0})");
+                UI.ToastManager.Show($"이주: 시민 {arrivals}명이 왔습니다 (수요 {demand:0})");
             }
             if (Unrest)
             {
                 var left = pool.RemoveFree(Mathf.CeilToInt(pool.Free * GameBalance.UnrestDesertion), true);
-                if (left > 0) UI.ToastManager.Show($"민심 바닥: 개미 {left}마리가 떠났습니다");
+                if (left > 0) UI.ToastManager.Show($"민심 바닥: 시민 {left}명이 떠났습니다");
             }
             // 과도한 징세는 민심 보정(시설·행정)으로 완전히 지울 수 없다: 세율 40% 초과분에 비례해 매달 일부가 떠난다(잠정).
             var taxFlight = Mathf.Clamp01((S.taxRate - GameBalance.HighTaxFlightRate) / (GameBalance.MaxTaxRate - GameBalance.HighTaxFlightRate));
             if (!Unrest && taxFlight > 0)
             {
                 var fled = pool.RemoveFree(Mathf.CeilToInt(pool.Free * GameBalance.UnrestDesertion * taxFlight), true);
-                if (fled > 0) UI.ToastManager.Show($"높은 세금: 개미 {fled}마리가 떠났습니다");
+                if (fled > 0) UI.ToastManager.Show($"높은 세금: 시민 {fled}명이 떠났습니다");
             }
         }
 

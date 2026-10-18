@@ -139,7 +139,7 @@ namespace AntColony.World
         // 우리가 돌려보낸 적 장수: 우리 장수와 같은 시간(3개월 + 거리) 뒤 출신 세력에 도착해 그 세력 장수 기록으로 복귀한다.
         internal void BeginEnemyHomecoming(Prisoner p, Civilization c, List<EquipmentItem> gear)
         {
-            Data.homecomings.Add(new Homecoming { commander = p, arrive = Data.elapsed + HomecomingSeconds(HomeSiteOf(c)), from = "우리 소굴", to = c.id, gear = gear });
+            Data.homecomings.Add(new Homecoming { commander = p, arrive = Data.elapsed + HomecomingSeconds(HomeSiteOf(c)), from = "우리 정착지", to = c.id, gear = gear });
             CampaignHistory.Record("석방", p.Name, c.name + "로 귀환 출발", true);
         }
         private bool Arrive(Homecoming h)

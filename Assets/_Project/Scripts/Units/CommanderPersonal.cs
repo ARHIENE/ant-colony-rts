@@ -188,7 +188,7 @@ namespace AntColony.Units
             count = Mathf.Min(Mathf.Max(0, count), troopCount);
             if (count == 0) return;
             troopCount -= count; if (!IsDeparting) AntPool.Instance?.LoseAssigned(count);
-            AntColony.World.Corpse.Drop(this, AntColony.World.CorpseKind.Ant, "일반개미", count);
+            AntColony.World.Corpse.Drop(this, AntColony.World.CorpseKind.Ant, "시민", count);
             if (troopCount == 0) { pendingDamage = 0; CommandStop(); if (IsHostile) CaptureDeparting(); else if (IsDeployed) ReturnToPost(); }
         }
         private void OnDowned(string cause = "전투", bool forceFatal = false)
@@ -288,7 +288,7 @@ namespace AntColony.Units
             {
                 int lost = Mathf.CeilToInt(c.troopCount * .2f);
                 c.troopCount -= lost; AntPool.Instance?.LoseAssigned(lost);
-                AntColony.World.Corpse.Drop(c, AntColony.World.CorpseKind.Ant, "일반개미", lost);
+                AntColony.World.Corpse.Drop(c, AntColony.World.CorpseKind.Ant, "시민", lost);
                 if (!c.HasTroops) { c.pendingDamage = 0; c.CommandStop(); }
             }
             loser.personalState.AddInjury(loser.traits, true);

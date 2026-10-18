@@ -13,10 +13,10 @@ namespace AntColony.UI
         {
             EquipmentSlot.Weapon => e.weapon switch
             {
-                WeaponKind.Mandible => "근접 공격(큰턱)", WeaponKind.AcidSprayer => "원거리 산 분사",
-                WeaponKind.Shield => "방어 위주 전투", _ => "페로몬 지원(지휘 범위 +" + e.quality + ")"
+                WeaponKind.Mandible => "근접 공격(근접 무기)", WeaponKind.AcidSprayer => "원거리 산 분사",
+                WeaponKind.Shield => "방어 위주 전투", _ => "지휘 신호기 지원(지휘 범위 +" + e.quality + ")"
             },
-            EquipmentSlot.Armor => e.armor == ArmorKind.Wings ? "비행 가능(날개)" : "피해 감소(코팅)",
+            EquipmentSlot.Armor => e.armor == ArmorKind.Wings ? "비행 가능(비행 장비)" : "피해 감소(보호 갑옷)",
             _ => e.effect switch
             {
                 TrinketEffect.Move => "이동 속도", TrinketEffect.Gather => "채집 속도",

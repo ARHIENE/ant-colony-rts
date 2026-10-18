@@ -51,12 +51,12 @@ public static class GatheringUIChecks
             finally { camera.transform.SetPositionAndRotation(position, rotation); }
             Check(WorkTargetPanel.Target == node, "node click opens HUD work target panel"); await Task.Delay(100);
             c.CommandGather(node); Check(c.CurrentResourceNode == node, "allowed manual gathering");
-            typeof(WorkerAnt).GetMethod("RestoreCargo", Private).Invoke(c, new object[] { 3f, ColonyResource.Soil });
+            typeof(WorkerAnt).GetMethod("RestoreCargo", Private).Invoke(c, new object[] { 3f, ColonyResource.Soil, null });
             Click("TargetAction"); await Task.Delay(80);
             Check(node.GatheringForbidden && !node.CanGather && node.Extract(1) == 0, "UI forbids extraction");
             typeof(WorkerAnt).GetMethod("TickMovingToNode", Private).Invoke(c, null);
             Check(c.CarriedAmount == 3 && node.AmountRemaining == 20, "existing cargo and node stock preserved");
-            c.CommandStop(); typeof(WorkerAnt).GetMethod("RestoreCargo", Private).Invoke(c, new object[] { 0f, ColonyResource.Soil });
+            c.CommandStop(); typeof(WorkerAnt).GetMethod("RestoreCargo", Private).Invoke(c, new object[] { 0f, ColonyResource.Soil, null });
             c.CommandGather(node); Check(!c.IsWorking, "manual gather rejected");
             c.SetJobEnabled(CommanderJobs.Gathering | CommanderJobs.Hauling, true); c.TickDuty(2); // 루트 노드는 운반 작업
             Check(!c.IsWorking, "automatic gather skips forbidden node");

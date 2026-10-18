@@ -82,7 +82,7 @@ namespace AntColony.Units
                 other.PersonalState.AddMood("동족 포식 목격", -8, 300);
                 var relation = other.PersonalState.Relation(personalState.id); relation.value = Mathf.Max(-100, relation.value - 10);
             }
-            CampaignHistory.Record("동족 포식", commanderName, colonyCommander ? "아군 장수 시체" : "개미 시체");
+            CampaignHistory.Record("동족 포식", commanderName, colonyCommander ? "아군 장수 시체" : "시민 시체");
         }
     }
 }

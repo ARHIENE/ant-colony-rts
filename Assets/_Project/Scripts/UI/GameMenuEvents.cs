@@ -33,7 +33,7 @@ namespace AntColony.UI
                         if (spent > 0) MenuTheme.Text(content, $"  {ReasonNames[(int)reason]}: {spent}", 16, 28);
                     }
                 }
-                MenuTheme.Text(content, $"일반개미 유입 {history.Data.antsProduced} / 손실 {history.Data.antsLost}", 18, 40);
+                MenuTheme.Text(content, $"시민 유입 {history.Data.antsProduced} / 손실 {history.Data.antsLost}", 18, 40);
             }
             MenuTheme.Button(content, "새로고침", EventLog);
             MenuTheme.Button(content, "게임으로", Resume);

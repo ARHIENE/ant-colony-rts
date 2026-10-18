@@ -150,12 +150,12 @@ namespace AntColony.Units
         public override float AttackDamage => Mathf.Max(1f, base.AttackDamage + (Role == UnitRole.Support ? 0 : talents.Level(CombatActivity))
             + traits.AttackBonus + labAttackLevel * LabAttackBonusPerLevel
             + EquipmentBonus(EquipmentSlot.Weapon) + (HasNearbyFriend ? 1 : 0)
-            + (HasSupportAura ? SupportAttackBonus : 0f)) * troopCount * (1f - .25f * PersonalState.Severity(InjuryPart.Mandible)) * (PersonalState.rageRemaining > 0 ? 1.3f : 1f);
+            + (HasSupportAura ? SupportAttackBonus : 0f)) * troopCount * (1f - .25f * PersonalState.Severity(InjuryPart.Arms)) * (PersonalState.rageRemaining > 0 ? 1.3f : 1f);
         public override float Armor => base.Armor + (AntColony.Buildings.RoomSystem.NearCastleWall(Position) ? AntColony.Buildings.GameBalanceRooms.CastleWallArmor : 0) + (Role == UnitRole.Melee ? .5f * talents.Level(CommanderActivity.Melee) : Role == UnitRole.Defense ? talents.Level(CommanderActivity.Melee) : 0) + traits.ArmorBonus
             + labArmorLevel * LabArmorBonusPerLevel + (HasSupportAura ? SupportArmorBonus : 0f)
             + EquipmentBonus(EquipmentSlot.Armor) - 2f * PersonalState.Severity(InjuryPart.Thorax)
             + (skills.DefensiveStanceActive ? CommanderSkills.DefensiveStanceArmor : 0f);
-        protected override float GatherRate => base.GatherRate * Mathf.Max(1, troopCount) * WorkRate(CurrentActivity) * (1f - .3f * PersonalState.Severity(InjuryPart.Antenna)) * (1f + TrinketBonus(TrinketEffect.Gather)) * ColonyEvents.GatherMultiplier(this);
+        protected override float GatherRate => base.GatherRate * Mathf.Max(1, troopCount) * WorkRate(CurrentActivity) * (1f - .3f * PersonalState.Severity(InjuryPart.Arms)) * (1f + TrinketBonus(TrinketEffect.Gather)) * ColonyEvents.GatherMultiplier(this);
         protected override float FishingCatchMultiplier => talents.Multiplier(CommanderActivity.Fishing) * ColonyEvents.GatherMultiplier(this);
         protected override void OnGathered(float amount)
         {
@@ -282,7 +282,7 @@ namespace AntColony.Units
             var casualties = Mathf.Min(troopCount, Mathf.FloorToInt(pendingDamage));
             pendingDamage -= casualties; troopCount -= casualties;
             if (!IsDeparting) AntPool.Instance?.LoseAssigned(casualties);
-            Corpse.Drop(this, CorpseKind.Ant, "일반개미", casualties);
+            Corpse.Drop(this, CorpseKind.Ant, "시민", casualties);
             if (troopCount == 0 && IsHostile) { pendingDamage = 0; CaptureDeparting(); return; }
             WorkState.health = Mathf.Max(0, WorkState.health - damage);
             if (WorkState.health <= 0) { CommandStop(); DropCargo(); OnDowned(); }

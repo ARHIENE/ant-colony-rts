@@ -88,7 +88,7 @@ namespace AntColony.Data
             F("화덕", 1, RoomKind.Kitchen, BuildingKind.Hearth); F("가스레인지", 3, RoomKind.Kitchen, net: NetworkLayer.Pipe); F("전기조리대", 4, RoomKind.Kitchen, net: NetworkLayer.Power); F("미래 조리기구", 6, RoomKind.Kitchen, net: NetworkLayer.Power);
             F("도축대", 1, RoomKind.Kitchen, BuildingKind.ButcherTable); F("물고기 양식장", 2, RoomKind.Fishery); F("목장", 2, RoomKind.Fishery, BuildingKind.Pen);
             F("돌봄대", 1, RoomKind.Fishery, BuildingKind.CareStation); F("동물 치료대", 1, RoomKind.Fishery, BuildingKind.AnimalClinic);
-            F("벌레덫", 1); F("양갱기", 2, RoomKind.Kitchen); F("꿀단지 개미방", 1, RoomKind.Storeroom); F("발효통", 1); F("영양죽 기계", 3, RoomKind.Kitchen);
+            F("벌레덫", 1); F("양갱기", 2, RoomKind.Kitchen); F("감로 단지 보관실", 1, RoomKind.Storeroom); F("발효통", 1); F("영양죽 기계", 3, RoomKind.Kitchen);
             F("제분기", 2, RoomKind.ProcessingRoom); F("사료통", 1, RoomKind.Dining); F("비료 제조기", 3, RoomKind.Farm); F("훈제실·건조대", 1, RoomKind.Kitchen);
             F("꿀벌통", 2); F("씨앗 보관고", 1, RoomKind.Storeroom); F("단물 짜는 기계", 2, RoomKind.Farm); F("음료 바", 2, RoomKind.Recreation); F("연회 요리대", 3, RoomKind.Kitchen);
             F("식량 프린터", 6, RoomKind.Kitchen, net: NetworkLayer.Power); F("합성육 배양기", 6, RoomKind.Kitchen, net: NetworkLayer.Power);
@@ -108,7 +108,7 @@ namespace AntColony.Data
             In(BuildCategory.Defense); // 방어 건물은 방 밖 전용. 방어탑 시대별: 개미산탑 → 투석기 → 화염탑 → 레이저탑
             F("성벽", 1, existing: BuildingKind.CastleWall); F("성문", 1, existing: BuildingKind.Gate); F("망루", 1, existing: BuildingKind.Watchtower);
             F("가시 함정", 1, existing: BuildingKind.SpikeTrap); F("끈끈이 함정", 1, existing: BuildingKind.TrapPit); F("폭발 함정", 4, existing: BuildingKind.MineField);
-            F("개미산탑", 1, existing: BuildingKind.AcidTower); F("투석기", 2); F("화염탑", 3); F("레이저탑", 5, net: NetworkLayer.Power);
+            F("산성탑", 1, existing: BuildingKind.AcidTower); F("투석기", 2); F("화염탑", 3); F("레이저탑", 5, net: NetworkLayer.Power);
             F("모래주머니 엄폐물", 1); F("해자", 2); F("경보종", 1); F("탐지등", 4, net: NetworkLayer.Power); F("방어막 발생기", 6, net: NetworkLayer.Power);
 
             In(BuildCategory.Recreation); // 휴게실 = 휴게 가구 2종 이상
@@ -136,7 +136,7 @@ namespace AntColony.Data
             F("물탱크", 2, net: NetworkLayer.Pipe); F("우물", 1, net: NetworkLayer.Pipe); F("도로", 1, upgradable: false); F("제단", 1, RoomKind.Temple); F("여관", 1);
 
             In(BuildCategory.Transport); // 방 밖 전용. 로켓은 미래 시대 승리
-            F("로켓 발사대", 6, existing: BuildingKind.AirshipYard); F("로켓 선체", 6); F("로켓 추진기관", 6); F("동면 고치", 6);
+            F("로켓 발사대", 6, existing: BuildingKind.AirshipYard); F("로켓 선체", 6); F("로켓 추진기관", 6); F("동면 캡슐", 6);
             F("차량", 2); F("비행기", 4); F("비행선", 4); F("배·뗏목", 1); F("잠수함", 5); F("터널 기차", 3, net: NetworkLayer.Power);
             F("타는 벌레 마구간", 1); F("민들레 열기구", 1); F("정류장·역", 3); F("활주로", 4); F("항구", 3);
             return list.ToArray();

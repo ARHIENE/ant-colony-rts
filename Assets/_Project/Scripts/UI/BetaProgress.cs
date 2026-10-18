@@ -54,7 +54,7 @@ namespace AntColony.UI
 
         private string BuildObjective()
         {
-            if (game == null) return "소굴 준비 중…";
+            if (game == null) return "정착지 준비 중…";
             var campaign = CampaignResearch.Instance;
             if (campaign != null && campaign.Departed) return "로켓 발사 완료";
             if (campaign != null && campaign.Active != null)

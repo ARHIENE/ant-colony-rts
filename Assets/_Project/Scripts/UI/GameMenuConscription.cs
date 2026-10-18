@@ -57,7 +57,7 @@ namespace AntColony.UI
             var deploy = L.Button(p, "Deploy Formation", "출전", 856, 604, 200, 34, () => {
                 var selected = choices.Where(x => x.toggle.isOn).ToArray();
                 if (post == null || !post.TryDeploy(selected.Select(x => x.commander).ToArray(), selected.Select(x => (int)x.slider.value).ToArray()))
-                { ToastManager.Show("출전할 수 없습니다. 장수 상태·지휘한도·대기 개미와 징집소 접근 경로를 확인하세요."); refreshDutyScreen?.Invoke(); return; }
+                { ToastManager.Show("출전할 수 없습니다. 장수 상태·지휘한도·대기 시민과 징집소 접근 경로를 확인하세요."); refreshDutyScreen?.Invoke(); return; }
                 Resume();
             }, primary: true);
             refreshDutyScreen += () => {

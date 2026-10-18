@@ -80,7 +80,7 @@ public static class CampaignChecks
             Check(inventory.Equip(a, replacement) && a.TroopCount == troopCount && a.TroopCount > a.CommandLimit && !a.TryAssign(1), "capacity loss preserves troops, prevents assignment");
             Check(a.PersonalState.equipment.Count == 1 && inventory.Items.Contains(charm), "old charm returned once");
             var personal = a.CapturePersonalState();
-            MedicalRules.AddWound(personal.health, BodyPart.Leg1, WoundKind.Bruise, 1); // 2026-10-15: 옛 injuries → 부위별 건강
+            MedicalRules.AddWound(personal.health, BodyPart.LegL, WoundKind.Bruise, 1); // 2026-10-15: 옛 injuries → 부위별 건강
             a.RestorePersonalState(personal); personal.health.wounds.Clear();
             Check(a.Health.wounds.Count == 1, "personal restore deep copy");
             a.Health.wounds.Clear();

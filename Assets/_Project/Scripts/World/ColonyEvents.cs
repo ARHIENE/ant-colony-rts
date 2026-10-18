@@ -106,7 +106,7 @@ namespace AntColony.World
                     if (!TryEdge(out var waspPoint)) return false;
                     for (int i = 0; i < EventRules.Wasps; i++) EventActor.Spawn(new EventActor.State { kind = EventActorKind.Wasp,
                         position = new Vec3Dto(waspPoint + Vector3.up * 2 + Vector3.right * i), amount = EventRules.WaspHealth });
-                    result = "말벌 3마리 습격. 모두 처치할 때까지 일반개미 생산이 멈춥니다."; break;
+                    result = "말벌 3마리 습격. 모두 처치할 때까지 시민 유입이 멈춥니다."; break;
                 case ColonyEvent.Wanderer:
                     if (!TryEdge(out var wandererPoint)) return false;
                     EventActor.Spawn(new EventActor.State { kind = EventActorKind.Wanderer, position = new Vec3Dto(wandererPoint), remaining = EventRules.WandererSeconds });
@@ -121,7 +121,7 @@ namespace AntColony.World
                 case ColonyEvent.Migration:
                     // Phase 4: 합류 제안. 수락하면 장수 1명 + 일반개미 소수, 거절하거나 기한이 지나면 떠난다.
                     state.migrationOffer = EventRules.MigrationOfferSeconds; RefreshMigrationNotice();
-                    result = $"이주 개미떼(장수 1 + 일반개미 {EventRules.Migrants})가 합류를 청합니다. {EventRules.MigrationOfferSeconds:0}초 안에 수락·거절하세요."; break;
+                    result = $"이주민 무리(장수 1 + 시민 {EventRules.Migrants})가 합류를 청합니다. {EventRules.MigrationOfferSeconds:0}초 안에 수락·거절하세요."; break;
                 case ColonyEvent.Caravan:
                     DiplomacyManager.Instance.Data.caravanUntil = DiplomacyManager.Instance.Data.elapsed + DiplomacyRules.CaravanSeconds;
                     result = "교역 캐러밴 도착 — J 외교에서 거래 (90초)"; break;
@@ -222,19 +222,19 @@ namespace AntColony.World
             var arrival = FindFirstObjectByType<Stockpile>()?.Position ?? HomeMapBuilder.CurrentWorldBounds.center;
             var migrant = CommanderRoster.Instance != null && CommanderRoster.Instance.Count < ScoutPost.DefaultMaxCommanders
                 ? CommanderRoster.Instance.Create(null, CommanderRank.Corporal, new[] { UnitRole.Worker }, UnitRole.Worker, CommanderTraits.Random(), arrival) : null;
-            if (migrant != null) CampaignHistory.Record("합류", migrant.CommanderName, "이주 개미떼");
-            var result = (migrant != null ? migrant.CommanderName + " + " : "") + $"일반개미 {EventRules.Migrants}마리 합류";
-            CampaignHistory.Record("이벤트 결과", "이주 개미떼", "수락: " + result, true); AntColony.UI.ToastManager.Show("이주 개미떼 수락: " + result);
+            if (migrant != null) CampaignHistory.Record("합류", migrant.CommanderName, "이주민 무리");
+            var result = (migrant != null ? migrant.CommanderName + " + " : "") + $"시민 {EventRules.Migrants}명 합류";
+            CampaignHistory.Record("이벤트 결과", "이주민 무리", "수락: " + result, true); AntColony.UI.ToastManager.Show("이주민 무리 수락: " + result);
             return true;
         }
         public bool DeclineMigration(string reason = "거절")
         {
             if (!MigrationPending) return false;
             state.migrationOffer = 0; RefreshMigrationNotice();
-            CampaignHistory.Record("이벤트 결과", "이주 개미떼", reason + ": 떠났습니다", true); AntColony.UI.ToastManager.Show("이주 개미떼가 떠났습니다 (" + reason + ")");
+            CampaignHistory.Record("이벤트 결과", "이주민 무리", reason + ": 떠났습니다", true); AntColony.UI.ToastManager.Show("이주민 무리가 떠났습니다 (" + reason + ")");
             return true;
         }
-        private void RefreshMigrationNotice() => AntColony.UI.ToastManager.SetCrisis("migration", MigrationPending ? "이주 개미떼 합류 제안 — 화면의 수락/거절" : null);
+        private void RefreshMigrationNotice() => AntColony.UI.ToastManager.SetCrisis("migration", MigrationPending ? "이주민 무리 합류 제안 — 화면의 수락/거절" : null);
 
         public static bool Validate(State s)
         {

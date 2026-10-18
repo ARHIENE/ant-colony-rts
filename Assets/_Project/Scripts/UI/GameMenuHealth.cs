@@ -35,7 +35,7 @@ namespace AntColony.UI
             void Refresh()
             {
                 if (c == null) return;
-                status.text = $"의식 {h.Consciousness:P0} · 이동 {h.Moving:P0} · 조작 {h.Manipulation:P0}\n시력 {h.Sight:P0} · 감지 {h.Sensing:P0} · 통증 {h.Pain:P0}"
+                status.text = $"의식 {h.Consciousness:P0} · 이동 {h.Moving:P0} · 조작 {h.Manipulation:P0}\n시력 {h.Sight:P0} · 통증 {h.Pain:P0}"
                     + $"\n출혈량 {h.bloodLoss:P0}" + (h.Bleeding ? $" · <color=#d9534f>출혈 중 — 예상 사망 {h.SecondsToBleedOut:0}초</color>" : "")
                     + $"\n위치: " + (c.TreatmentFacility != null ? "의료 침상" : c.RescueCarrier != null ? $"구조 운반 중({c.RescueCarrier.CommanderName})" : c.PersonalHealth <= 0 ? "쓰러짐(현장)" : "활동 중")
                     + $" · 배고픔 {100 - c.Satiety:0}" + (c.IsMedicalPatient && c.Satiety < AntColony.Core.GameBalance.EatBelowSatiety ? " · 급식 대기" : "")

@@ -63,7 +63,7 @@ namespace AntColony.UI
             var f = Frame("New Game", .5f);
             var p = L.Plate(f, "NewGamePanel", 160, 112, 1120, 664);
             L.Label(p, "새 게임", 19, 20, 0, 100, 56, bold: true);
-            L.Label(p, "개미굴을 세울 땅과 규칙을 고르세요", 12, 110, 0, 500, 56, MenuTheme.Dim);
+            L.Label(p, "정착지를 세울 땅과 규칙을 고르세요", 12, 110, 0, 500, 56, MenuTheme.Dim);
             L.Line(p, 0, 56, 1120);
             const float cw = 250f;
             void Legend(float y, string title, string small)
@@ -81,7 +81,7 @@ namespace AntColony.UI
                 return (RectTransform)button.transform;
             }
 
-            Legend(72, "맵 크기", "로컬 개미굴 맵 한 변 길이");
+            Legend(72, "맵 크기", "로컬 정착지 맵 한 변 길이");
             foreach (MapSize size in Enum.GetValues(typeof(MapSize)))
             {
                 var scale = MapSizes.Scale(size); var captured = size;

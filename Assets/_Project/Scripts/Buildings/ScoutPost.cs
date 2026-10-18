@@ -83,7 +83,7 @@ namespace AntColony.Buildings
         {
             var status = IsDispatched
                 ? $"정찰 중 · {(Companion != null ? Companion.CommanderName : "장수 없음")} · 남은 {remaining:0}초"
-                : $"대기 · 비용 식량 {dispatchFoodCost} · 개미 {dispatchAnts} · 장수 1명 동행";
+                : $"대기 · 비용 식량 {dispatchFoodCost} · 시민 {dispatchAnts} · 장수 1명 동행";
             return $"{status}\n영입 확률 {CurrentChance:P0} · 영입 {SuccessCount} · 실패 {FailureCount}";
         }
 

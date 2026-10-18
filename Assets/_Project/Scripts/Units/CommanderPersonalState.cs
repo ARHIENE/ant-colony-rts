@@ -5,7 +5,8 @@ using UnityEngine;
 
 namespace AntColony.Units
 {
-    public enum InjuryPart { Antenna, Mandible, Legs, Thorax, Head, Wings }
+    // 효과 공식용 부위 묶음 + 옛 저장(injuries) 형식. 숫자 값 유지(LegacyAntenna = 옛 더듬이, 이관 전용).
+    public enum InjuryPart { LegacyAntenna, Arms, Legs, Thorax, Head, Wings }
     public enum InjurySeverity { Minor, Serious, Permanent }
     public enum MentalBreak { None, Idle, Flee, AttackBuilding, AttackCommander, SelfHarm, Binge }
     [Serializable] public class CommanderInjury { public InjuryPart part; public InjurySeverity severity; public float remaining; public bool regenerating, prognosisPending; }
@@ -44,11 +45,10 @@ namespace AntColony.Units
         public float Severity(InjuryPart part) => part switch
         {
             InjuryPart.Head => 1 - health.Consciousness,
-            InjuryPart.Antenna => 1 - health.Sensing,
-            InjuryPart.Mandible => 1 - health.Manipulation,
+            InjuryPart.Arms => 1 - health.Manipulation,
             InjuryPart.Legs => 1 - health.Moving,
             InjuryPart.Thorax => 1 - health.PartFraction(BodyPart.Thorax),
-            _ => 0 // 날개는 장비(신체 부상 아님)
+            _ => 0 // 날개는 장비, 더듬이는 없음(2026-10-18 캐릭터 전환)
         };
         public void AddMood(string reason, float value, float seconds)
         {

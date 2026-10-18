@@ -17,7 +17,7 @@ namespace AntColony.UI
             var f = Frame("정찰 초소");
             var p = L.Plate(f, "ScoutDispatch", 280, 120, 880, 610);
             L.Label(p, "정찰 초소 · 정찰 파견", 26, 24, 12, 832, 40, MenuTheme.Accent);
-            L.Label(p, "동행할 장수 1명을 고르세요. 정찰이 끝날 때까지 장수는 소굴을 비우고, 성공하면 새 장수를 영입합니다.", 14, 24, 58, 832, 34, MenuTheme.Muted);
+            L.Label(p, "동행할 장수 1명을 고르세요. 정찰이 끝날 때까지 장수는 정착지를 비우고, 성공하면 새 장수를 영입합니다.", 14, 24, 58, 832, 34, MenuTheme.Muted);
             L.Label(p, "선택   장수 / 무기 / 개인 체력 / 기분 / 현재 상태", 14, 24, 104, 832, 32);
             var list = L.List(p, 24, 144, 832, 360);
             var group = list.gameObject.AddComponent<ToggleGroup>(); group.allowSwitchOff = true;
@@ -41,7 +41,7 @@ namespace AntColony.UI
             var summary = L.Label(p, "", 14, 24, 512, 600, 50);
             var dispatch = L.Button(p, "Scout Dispatch", "파견", 656, 560, 200, 34, () => {
                 if (!post.TryDispatch(chosen))
-                { ToastManager.Show("파견할 수 없습니다. 장수 상태·식량·대기 개미를 확인하세요."); refreshDutyScreen?.Invoke(); return; }
+                { ToastManager.Show("파견할 수 없습니다. 장수 상태·식량·대기 시민을 확인하세요."); refreshDutyScreen?.Invoke(); return; }
                 ToastManager.Show($"{chosen.CommanderName} 정찰 출발");
                 Resume();
             }, primary: true);

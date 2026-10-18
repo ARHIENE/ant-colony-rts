@@ -184,7 +184,7 @@ namespace AntColony.Buildings
             if (kind == BuildingKind.Infirmary && !Infirmary.Unlocked) return "의무실을 먼저 연구하세요.";
             if (kind == BuildingKind.AirshipYard && (CampaignResearch.Instance == null
                 || !CampaignResearch.Instance.Has(ScienceTechnology.MigrationTheory))) return "로켓 이론을 먼저 연구하세요.";
-            if (kind == BuildingKind.ScienceLab && !ScienceLab.PrerequisitesMet) return "과학연구소 건설에는 일반개미 60마리와 2티어 병영이 필요합니다.";
+            if (kind == BuildingKind.ScienceLab && !ScienceLab.PrerequisitesMet) return "과학연구소 건설에는 시민 60명과 2티어 병영이 필요합니다.";
             return null;
         }
 

@@ -125,7 +125,7 @@ public static class AutonomousDutyChecks
             Check(workshop.Jobs.Count == 1, "craft queue preserved on deployment");
             c.ReturnToPost(); c.Agent.Warp(c.WorkState.returnPosition); c.TickDuty(.1f);
             c.SetJobEnabled(CommanderJobs.All, false);
-            typeof(WorkerAnt).GetMethod("RestoreCargo", BindingFlags.Instance | BindingFlags.NonPublic).Invoke(c, new object[] { 2.5f, Resource.Soil });
+            typeof(WorkerAnt).GetMethod("RestoreCargo", BindingFlags.Instance | BindingFlags.NonPublic).Invoke(c, new object[] { 2.5f, Resource.Soil, null });
             c.SetJobEnabled(CommanderJobs.Farming, true); node.GatheringForbidden = true;
             Check(SaveSystem.TrySave(false, 0, out var error), "save with cargo: " + error);
             Check(SaveSystem.TryLoad(SaveSlots.PathFor(false, 0), out error), "load: " + error); await Ready();

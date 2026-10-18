@@ -185,8 +185,8 @@ public static class Spec1015Checks
         var cold = Object.FindObjectsByType<ColdStorage>().Select(f => f.Coldness).DefaultIfEmpty(-1).Max();
         CommanderAnt.CommonDiet = CommanderAnt.DietSimple | CommanderAnt.DietFine;
         var hp = CommanderRoster.Instance.Commanders.First(x => !x.IsDead); Clear(hp);
-        MedicalRules.AddWound(hp.Health, BodyPart.MandibleR, WoundKind.Acid, 2).tended = true; hp.Health.illnesses.Add(new Illness { kind = IllnessKind.WoundInfection, part = BodyPart.MandibleR, severity = .3f, immunity = .2f, tendLeft = 40 });
-        CommanderAnt.RequestSurgery(hp, SurgeryKind.Amputate, BodyPart.MandibleR); hp.Health.medicine = MedicineLevel.Basic; hp.Health.bedRest = 7;
+        MedicalRules.AddWound(hp.Health, BodyPart.HandR, WoundKind.Acid, 2).tended = true; hp.Health.illnesses.Add(new Illness { kind = IllnessKind.WoundInfection, part = BodyPart.HandR, severity = .3f, immunity = .2f, tendLeft = 40 });
+        CommanderAnt.RequestSurgery(hp, SurgeryKind.Amputate, BodyPart.HandR); hp.Health.medicine = MedicineLevel.Basic; hp.Health.bedRest = 7;
         var hpId = hp.PersonalState.id; var hpJson = JsonUtility.ToJson(hp.Health);
         var deaths = Memorial.Deaths.Count; var tombs = string.Join("|", Tombstone.All.Select(t => JsonUtility.ToJson(t.Data2)).OrderBy(x => x));
         var compost = string.Join("|", Object.FindObjectsByType<CompostBin>().Select(b => JsonUtility.ToJson(b.Data2) + b.RawCount).OrderBy(x => x));
@@ -283,18 +283,18 @@ public static class Spec1015Checks
         Unlock(ScienceTechnology.Infirmary);
         // 1) 부위별 능력: 다리 상실 → 이동 저하, 찔림 → 출혈·예상 사망 시간
         var h = new HealthState();
-        foreach (var leg in new[] { BodyPart.Leg1, BodyPart.Leg2, BodyPart.Leg3 }) MedicalRules.AddWound(h, leg, WoundKind.Missing, 1).age = 999;
+        MedicalRules.AddWound(h, BodyPart.LegL, WoundKind.Missing, 1).age = 999;
         Check(h.Moving < .6f && h.Sight == 1 && !h.Bleeding, "missing legs reduce moving only");
         MedicalRules.AddWound(h, BodyPart.Abdomen, WoundKind.Stab, 6);
         Check(h.Bleeding && h.SecondsToBleedOut < 10000 && !float.IsInfinity(h.SecondsToBleedOut), "stab bleeds with ETA");
         var eta = h.SecondsToBleedOut; MedicalRules.ApplyTend(h, .8f, false);
         Check(h.SecondsToBleedOut > eta * 2, "tending slows bleeding");
         // 흉터·상실은 일반 처치로 복구되지 않음
-        var h2 = new HealthState(); MedicalRules.AddWound(h2, BodyPart.EyeL, WoundKind.Scar, .3f); MedicalRules.AddWound(h2, BodyPart.AntennaL, WoundKind.Missing, 1).age = 999;
+        var h2 = new HealthState(); MedicalRules.AddWound(h2, BodyPart.EyeL, WoundKind.Scar, .3f); MedicalRules.AddWound(h2, BodyPart.HandL, WoundKind.Missing, 1).age = 999;
         MedicalRules.ApplyTend(h2, 1, true); MedicalRules.Tick(h2, 100000, true, false);
-        Check(h2.wounds.Count == 2 && h2.Missing(BodyPart.AntennaL), "scar/missing not healed by treatment");
+        Check(h2.wounds.Count == 2 && h2.Missing(BodyPart.HandL), "scar/missing not healed by treatment");
         // 처치 완료 ≠ 완치: 처치 후에도 상처가 남고 시간이 지나야 낫는다
-        var h3 = new HealthState(); MedicalRules.AddWound(h3, BodyPart.Leg4, WoundKind.Bruise, 3); MedicalRules.ApplyTend(h3, .5f, false);
+        var h3 = new HealthState(); MedicalRules.AddWound(h3, BodyPart.LegR, WoundKind.Bruise, 3); MedicalRules.ApplyTend(h3, .5f, false);
         Check(h3.wounds.Count == 1 && h3.wounds[0].tended, "tended but not healed");
         MedicalRules.Tick(h3, 10000, false, false); Check(h3.wounds.All(w => w.Permanent), "heals over time");
         // 2) 약품 허용 등급: 범위 안에서 가장 좋은 재고
@@ -306,7 +306,7 @@ public static class Spec1015Checks
         // 3) 실제 의료 장수 처치(약 없이)
         var doctor = Awake(list, CommanderJobs.Nursing); var patient = Awake(list, CommanderJobs.None, doctor);
         Clear(patient); patient.Health.medicine = MedicineLevel.NoMedicine; patient.Health.selfTend = false;
-        MedicalRules.AddWound(patient.Health, BodyPart.Leg5, WoundKind.Cut, 2);
+        MedicalRules.AddWound(patient.Health, BodyPart.LegL, WoundKind.Cut, 2);
         Check(CommanderAnt.CareWaitReason(patient) == "치료할 장수 없음", "no doctor reason");
         doctor.SetJobEnabled(CommanderJobs.Nursing, true); doctor.WorkState.duty = CommanderDuty.Civilian;
         Time.timeScale = 3; await Until(() => patient.Health.wounds.All(w => w.tended), 60, "doctor tends patient"); Time.timeScale = 0;
@@ -321,7 +321,7 @@ public static class Spec1015Checks
         // 4) 쓰러짐 → 구조 운반 → 의료 침상 → 급식
         var bed = Build<Infirmary>(BuildingKind.Infirmary, Ground(doctor.Position + Vector3.forward * 8));
         var hauler = Awake(list, CommanderJobs.Hauling, doctor, patient); hauler.SetJobEnabled(CommanderJobs.Hauling, true); hauler.WorkState.duty = CommanderDuty.Civilian;
-        Clear(patient); foreach (var leg in new[] { BodyPart.Leg1, BodyPart.Leg2, BodyPart.Leg3, BodyPart.Leg4, BodyPart.Leg5 }) MedicalRules.AddWound(patient.Health, leg, WoundKind.Bruise, 5.5f);
+        Clear(patient); foreach (var leg in new[] { BodyPart.LegL, BodyPart.LegR }) MedicalRules.AddWound(patient.Health, leg, WoundKind.Bruise, 7.2f);
         foreach (var w in patient.Health.wounds) { w.tended = true; w.quality = 1; w.infectionRolled = true; }
         patient.TickPersonal(.1f); patient.TickDuty(.1f);
         Check(patient.Health.Downed && patient.PersonalHealth <= 0, "pain/moving downs commander");
@@ -330,9 +330,9 @@ public static class Spec1015Checks
         Time.timeScale = 3; await Until(() => patient.Satiety > 90, 60, "doctor feeds bedridden patient"); Time.timeScale = 0;
         hauler.SetJobEnabled(CommanderJobs.All, false);
         // 5) 수술: 바닥 불가·약품 예약·시작 시 소비·시작 후 취소 불가·기여도 가중·성공/실패/사망
-        Clear(patient); MedicalRules.AddWound(patient.Health, BodyPart.Leg6, WoundKind.Burn, 4).tended = true;
+        Clear(patient); MedicalRules.AddWound(patient.Health, BodyPart.LegR, WoundKind.Burn, 4).tended = true;
         var normal = rm.GetAmount(Resource.MedicineNormal); if (normal > 0) rm.TrySpend(Resource.MedicineNormal, normal, ResourceReason.Other);
-        Check(CommanderAnt.RequestSurgery(patient, SurgeryKind.Amputate, BodyPart.Leg6), "request amputation");
+        Check(CommanderAnt.RequestSurgery(patient, SurgeryKind.Amputate, BodyPart.LegR), "request amputation");
         Check(!CommanderAnt.RequestSurgery(patient, SurgeryKind.Amputate, BodyPart.Head), "vital part not amputatable");
         var op = patient.Health.surgeries[0];
         Check(CommanderAnt.SurgeryBlock(patient, op, null).Contains("부족"), "missing medicine blocks surgery");
@@ -349,7 +349,7 @@ public static class Spec1015Checks
         Time.timeScale = 3; await Until(() => op.stage != SurgeryStage.Waiting, 60, "surgeon starts operation");
         Check(rm.GetAmount(Resource.MedicineNormal) == med0 - 1 && !CommanderAnt.CancelSurgery(patient, op), "start consumes, no cancel after start");
         await Until(() => !op.Active, 90, "operation completes"); Time.timeScale = 0;
-        Check(op.stage == SurgeryStage.Done && patient.Health.Missing(BodyPart.Leg6) && patient.Health.wounds.Any(w => w.kind == WoundKind.Surgical), "success: purpose resolved, recovery wound");
+        Check(op.stage == SurgeryStage.Done && patient.Health.Missing(BodyPart.LegR) && patient.Health.wounds.Any(w => w.kind == WoundKind.Surgical), "success: purpose resolved, recovery wound");
         // 실패(생존)·실패(사망)를 결정적으로 재현. 기여도 가중: 20 작업 중 절반은 의료 0, 절반은 20 → 평균 10
         var fail = new SurgeryOrder { kind = SurgeryKind.Amputate, part = BodyPart.EyeR, stage = SurgeryStage.Started, work = 20, weighted = 10 * 0 + 10 * 20 };
         patient.Health.surgeries.Add(fail);
@@ -380,6 +380,26 @@ public static class Spec1015Checks
         old.injuries.Add(new CommanderInjury { part = InjuryPart.Head, severity = InjurySeverity.Permanent }); old.infected = true; old.health.migrated = false;
         MedicalRules.Migrate(old);
         Check(old.injuries.Count == 0 && !old.infected && old.health.wounds.Count == 2 && old.health.wounds.Any(w => w.kind == WoundKind.Scar) && old.health.illnesses.Any(i => i.kind == IllnessKind.Mold), "old save migration");
+        // 8) 2026-10-18 캐릭터 전환: 팔 상실이면 손도 못 씀, 옛 개미 부위(v17) → 두 팔·두 다리(v18)
+        var arm = new HealthState(); MedicalRules.AddWound(arm, BodyPart.ArmL, WoundKind.Missing, 1).age = 999;
+        Check(arm.PartFraction(BodyPart.HandL) == 0 && arm.Manipulation <= .5f && arm.Moving == 1, "missing arm disables hand, not legs");
+        var ant = new CommanderPersonalState(); var ah = ant.health;
+        ah.wounds.Add(new Wound { part = (BodyPart)5, kind = WoundKind.Cut, damage = 2.5f });            // 왼큰턱 → 왼손(비율 유지 4/5)
+        ah.wounds.Add(new Wound { part = (BodyPart)8, kind = WoundKind.Missing, damage = 1, age = 999 }); // 다리1 상실
+        ah.wounds.Add(new Wound { part = (BodyPart)10, kind = WoundKind.Missing, damage = 1, age = 999 });// 다리3 상실 → 왼다리 상실 하나로
+        ah.wounds.Add(new Wound { part = (BodyPart)3, kind = WoundKind.Missing, damage = 1, age = 999 }); // 더듬이 상실 → 머리 흉터(사망 아님)
+        ah.wounds.Add(new Wound { part = (BodyPart)11, kind = WoundKind.Cut, damage = 5 });             // 다리4 5/6 → 오른다리
+        ah.wounds.Add(new Wound { part = (BodyPart)13, kind = WoundKind.Cut, damage = 5 });             // 다리6 5/6 → 오른다리, 합계는 상한 90%
+        ah.surgeries.Add(new SurgeryOrder { kind = SurgeryKind.Amputate, part = (BodyPart)4 });          // 더듬이 절단 대기 → 취소
+        ah.surgeries.Add(new SurgeryOrder { kind = SurgeryKind.Amputate, part = (BodyPart)6 });          // 오른큰턱 절단 → 오른손 절단 유지
+        ant = JsonUtility.FromJson<CommanderPersonalState>(JsonUtility.ToJson(ant)); ah = ant.health;
+        BodyMigration.Health(ant);
+        Check(Mathf.Approximately(ah.wounds.First(w => w.part == BodyPart.HandL).damage, 2f), "mandible → hand keeps damage ratio");
+        Check(ah.wounds.Count(w => w.part == BodyPart.LegL && w.kind == WoundKind.Missing) == 1, "merged leg loss kept once");
+        Check(!ah.Fatal && ah.wounds.Any(w => w.part == BodyPart.Head && w.kind == WoundKind.Scar) && !ah.Missing(BodyPart.Head), "antenna loss → head scar, not death");
+        Check(ah.wounds.Where(w => w.part == BodyPart.LegR && !w.Permanent).Sum(w => w.damage) <= MedicalRules.MaxHp(BodyPart.LegR) * .9f + .001f && ah.PartFraction(BodyPart.LegR) > 0, "merged damage capped");
+        Check(ah.surgeries.Count == 1 && ah.surgeries[0].part == BodyPart.HandR, "antenna amputation cancelled, mandible amputation → hand");
+        Check(ah.wounds.All(w => System.Enum.IsDefined(typeof(BodyPart), w.part)), "all parts valid after migration");
         GameMenuController.Instance.ShowHealth(patient); NoOverlap("health"); GameMenuController.Instance.Resume();
     }
 
@@ -391,7 +411,10 @@ public static class Spec1015Checks
         Daytime(); var rm = ResourceManager.Instance;
         foreach (var x in list) x.SetJobEnabled(CommanderJobs.All, false);
         var hauler = list.First(x => !x.IsDead && !x.IsSleepTime && x.CanDoJob(CommanderJobs.Hauling) && x.PersonalHealth > 0);
-        var o = new Vector3(Mathf.Floor(hauler.Position.x) - 14, hauler.Position.y, Mathf.Floor(hauler.Position.z) - 4);
+        // 나무 등 장애물이 우리·문 앞에 걸리면 내부 NavMesh가 끊겨 수거가 간헐 실패한다 → 빈 자리를 고른다
+        var o = Enumerable.Range(0, 15).Select(i => new Vector3(Mathf.Floor(hauler.Position.x) - 14 - i % 3 * 10, hauler.Position.y, Mathf.Floor(hauler.Position.z) - 4 + (i / 3 - 2) * 10))
+            .First(c => Enumerable.Range(0, 81).Select(k => c + new Vector3(k % 9 + .5f, 0, k / 9 + .5f)).All(p => NavMesh.SamplePosition(p, out var h, 1f, NavMesh.AllAreas)
+                && new Vector2(h.position.x - p.x, h.position.z - p.z).sqrMagnitude < .09f && hauler.CanReach(h.position)));
         for (var x = 0; x < 8; x++) for (var z = 0; z < 8; z++)
         {
             if (x != 0 && x != 7 && z != 0 && z != 7) continue;
@@ -487,7 +510,7 @@ public static class Spec1015Checks
         Check(camp != null && camp.TryCapture("검사 포로", CommanderRank.Sergeant, new[] { UnitRole.Melee }, new CommanderTraits()), "capture prisoner");
         var p = camp.Prisoners.Last(); var civ = dm.Data.civilizations.First(c => !c.extinct); p.PersonalState.originFaction = civ.id;
         p.PersonalState.health ??= new HealthState(); p.PersonalState.health.migrated = true;
-        MedicalRules.AddWound(p.PersonalState.health, BodyPart.Leg2, WoundKind.Cut, 3);
+        MedicalRules.AddWound(p.PersonalState.health, BodyPart.LegR, WoundKind.Cut, 3);
         doctor.SetJobEnabled(CommanderJobs.Nursing, true); doctor.WorkState.duty = CommanderDuty.Civilian;
         Time.timeScale = 3; await Until(() => p.PersonalState.health.wounds.All(w => w.tended), 60, "doctor tends prisoner at camp"); Time.timeScale = 0;
         doctor.SetJobEnabled(CommanderJobs.All, false); doctor.CommandStop();
@@ -496,7 +519,7 @@ public static class Spec1015Checks
         feeder.SetJobEnabled(CommanderJobs.All, false); feeder.CommandStop();
         // 이동 불가 포로는 탈출하지 않는다
         typeof(PrisonerCamp).GetField("escapeChance", BindingFlags.Instance | BindingFlags.NonPublic).SetValue(camp, 1f);
-        foreach (var leg in new[] { BodyPart.Leg1, BodyPart.Leg3, BodyPart.Leg4, BodyPart.Leg5, BodyPart.Leg6 }) MedicalRules.AddWound(p.PersonalState.health, leg, WoundKind.Missing, 1).age = 999;
+        foreach (var leg in new[] { BodyPart.LegL, BodyPart.LegR }) MedicalRules.AddWound(p.PersonalState.health, leg, WoundKind.Missing, 1).age = 999;
         Check(!PrisonerCamp.CanMove(p), "prisoner cannot move");
         for (var i = 0; i < 5; i++) camp.Tick(31);
         Check(camp.Prisoners.Contains(p), "immobile prisoner does not escape");

@@ -22,12 +22,12 @@ namespace AntColony.UI
             });
             foreach (var yard in FindObjectsByType<AirshipYard>(FindObjectsSortMode.None))
             {
-                MenuTheme.Text(content, $"로켓 발사대 | 선체 {(yard.Hull ? "완성" : "미완성")} | 엔진 {(yard.Engine ? "완성" : "미완성")} | 고치 {yard.Cocoons}개 | {yard.Remaining:0}초", 18, 55);
+                MenuTheme.Text(content, $"로켓 발사대 | 선체 {(yard.Hull ? "완성" : "미완성")} | 엔진 {(yard.Engine ? "완성" : "미완성")} | 동면 캡슐 {yard.Cocoons}개 | {yard.Remaining:0}초", 18, 55);
                 foreach (AirshipPart part in Enum.GetValues(typeof(AirshipPart)))
                     MenuTheme.Button(content, part + " 건조" + (part == AirshipPart.Cocoon ? $" (식량 {GameBalance.CocoonFood}/재료 {GameBalance.CocoonSoil}/특수 자원 {GameBalance.CocoonSpecial}, {yard.Cocoons}/{GameBalance.MaxCocoons})" : " (식량 100/재료 150/특수 자원 150)"),
                         () => { if (!yard.TryBuild(part)) ToastManager.Show("관련 연구·자원과 작업 중이 아닌 발사대가 필요합니다."); ScienceFacilities(); });
                 foreach (var c in SortedCommanders().Where(c => c.CanChangeAllocation && !c.IsAwayFromHome && Vector3.Distance(c.Position, yard.Position) <= 8))
-                    MenuTheme.Button(content, "탑승: " + c.CommanderName, () => { if (!yard.TryBoard(c)) ToastManager.Show("선체·엔진을 완성하고 탑승 장수마다 고치 1개를 준비하세요."); ScienceFacilities(); });
+                    MenuTheme.Button(content, "탑승: " + c.CommanderName, () => { if (!yard.TryBoard(c)) ToastManager.Show("선체·엔진을 완성하고 탑승 장수마다 동면 캡슐 1개를 준비하세요."); ScienceFacilities(); });
                 MenuTheme.Text(content, "탑승 장수: " + string.Join(", ", yard.Passengers.Select(c => c.CommanderName)), 18, 50);
                 MenuTheme.Button(content, "탑승 장수 하선", () => { yard.Unload(); ScienceFacilities(); });
                 MenuTheme.Button(content, "로켓 발사 — 이번 게임 종료", () => { if (!yard.TryDepart()) ToastManager.Show("선체와 엔진을 먼저 완성하세요."); }).interactable = yard.Ready;

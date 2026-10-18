@@ -1,5 +1,38 @@
 # Codex · Claude Code 공동 구현 보드
 
+- **RESIDENT-KIT-REVIEW / Codex / 검수·보완 완료, 접촉 일부 남음:** 사용자 확인으로 Claude 작업 종료. `art/resident-kit` 원본 표정 4종·사망 연결 복구, 표면 깊이·동작 카메라·물뿌리개 손잡이/형상 수정. 부품 94/동작 44/시설 141 FBX 검사 오류 0. 관통 표본 표시 3(화분 22~23정점, 냉장고, 샤워); 완전 접촉 검증 아님. 원본 체형 보존, Unity 미수정. 최신 자료는 blend 및 README, 기존 GIF 미갱신.
+
+- **FURNITURE-97 / Claude / Blender 완료·Unity 미연결(2026-10-18 사용자 요청):** 건설 가능 97종(`BuildingKind`) 중 모델 없던 62종을 resident-kit 규격(배율 1)으로 제작, 가구용 새 주민 동작 10개, 시설 동작 8종. 시설 141·동작 44·GIF 156(장면별 `-S` 렌더로 정지 GIF 버그 수정, Codex 검수본 기준 재렌더). 장비 착용 사진 10. Notion 도감에 분야 3개(휴게·장식·군사·마을·장비) 신설·등록. 파일: `art/resident-kit/scripts/extra_spec.py`·`models_extra.py`·`kit_facilities_extra.py`·`render_equipment.py`, `kit_extra_clips.py`·`kit_preview.py`·`render_all.py` 수정. colony-core 원본·Unity 미수정.
+
+- **CHARACTER-CODE-01 / Claude / 구현 완료·검사 일부(2026-10-18 사용자 승인 A~D):** `docs/CHARACTER_TRANSITION_SPEC.md`를 Unity 코드에 반영. A 신체 부위(두 팔·두 다리, 감지 삭제, 저장 v18 이관) B 장비·연구 이름 C 시민·정착지 용어 D 꿀단지 개미방 이름. 모델 교체(E)는 새 모델 확정까지 보류. 적 지도자 '여왕'·게임 제목 유지. 소유: `Assets/_Project/Scripts/**`, `AgentScripts/*`.
+
+- **RESIDENT-KIT / Claude / Blender 완료·Unity 미연결(2026-10-18 요청서 '조합형 캐릭터와 가구 작업 애니메이션 분리'):** `art/resident-kit/` — character-kit(공통 리그+소켓 4, 부품 84, 수동 조합 4) / animations(30) / tools(8+소품 6) / facility-kit(79, 배율 적용, `facility-points.json`) / preview(링크 조립 87장면, GIF 87) + FBX 전부. 검증 `validation.json`: 분리·가중치·부품/동작/시설 FBX 왕복 통과, 관통 표시 2(냉장고 꺼내기·샤워 의도). 상세 `art/resident-kit/README.md`. 원본 미수정. Unity·HUD 미수정.
+- **CRITTER-KIT / Claude / Blender 완료·Unity 미연결(2026-10-18):** 목장 4종(진딧물·누에·거미·벌, 현재 Unity 캡슐) 모델·Generic 리그·동작 7~9개·FBX·GIF 31. `art/critter-kit/README.md`. FBX 수치 왕복 검사·Unity 적용 미실행.
+- **RESIDENT-ANIM / Codex → Claude 인수(2026-10-18) / 원본 보존:** `art/resident-anim/**` 새 캐릭터 공통 리그·기본/작업 클립·79 시설 연출 교체본. 기존 개미 파일과 시설 원본 보존, 신규 Blender 연출에서 개미 제외. Unity 미수정.
+
+- **RESIDENT-GENERATOR / Codex / 사용자 정정으로 중단:** 생성 기능은 요청 범위 아님. `art/characters/resident-generator/**` 초안 보존, 추가 개발·게임 적용 안 함.
+- **RESIDENT-PARTS / Codex / 정적 부품 보드 완료·사용자 검토 대기:** `art/characters/parts-board/appearance-parts.blend`, 보드 PNG·카탈로그·README. 기본 부품 보드 + 울먹임·울음·긴장·사망 + 추가 표정 11종(공허함 포함), 독립 땀·눈물·홍조 및 조합 예시. 머리 6종, 흉터·긁힘·멍·반창고 각 6부위=24개 부품. 렌더 확인. 다른 체형에 부착 시 표면 조정 필요, 리깅·자동생성·Unity 연결 없음.
+
+- **CAST-24 / Codex / 정적 모델 24명·사용자 검토 대기:** `art/characters/residents-24/residents-24.blend`, `overview.png`, `manifest.json`, `build.py`·`parts.py`·`finish.py`. 24개 번호 루트, 귀·무늬·솜털·망토·소품 분리, 전투형 눈썹·윙크·웃는 고정 표정. 전체 렌더 및 08번 옆·뒤 확인. 원화 잔털·주름·일부 귀 변형은 단순화. 기존 6종 보존. 리깅·움직이는 표정·Unity·무작위 생성기 미구현.
+
+- **CAST-05 / Codex / 정적 모델 6종·검토 대기:** `art/characters/cast-v5/mascot-cast-v5.blend`, `lineup.png`, `build.py`. 토토 머리의 넓은 볼 부분 약 10% 축소·상부 윤곽 보강, 동일 비율로 포포·콩지·루루·피코·냠냠 추가. 개별 루트·메시·몸 재질 분리, 6종 렌더 및 옆·뒤 확인. 기존 씬 보존. 리깅·애니메이션·Unity 적용 미실행.
+
+- **TOTO-04 / Codex / 정적 시안 저장·사용자 검토 대기:** 새 첨부 동물형 시트의 A 토토 재모델링. `art/characters/toto-v4/toto-v4.blend`, `preview.png`, `build.py`. 작은 점눈·아래로 넓은 볼·휘어진 귀·짧은 몸·가방. 정면·옆·뒤 및 렌더 확인, 기존 씬 보존. 나머지 5종·리깅·Unity 적용 미실행.
+
+- **HUMAN-SD-02 / Codex / 정적 시안 저장·사용자 검토 대기:** `art/characters/human-sd-v2/human-sd-v2.blend`, `preview.png`, 제작 스크립트 3개. 사람형 시안의 청록 단발·크림 튜닉·짧은 망토 재제작, 표면 투영 눈·웃는 입·매끈한 볼 수정. 66메시, 정면·옆·뒤 시각 확인. 기존 Human_SD_Model 및 Claude TotoD 별도 씬 보존. 머리카락은 원화보다 두툼하고 단순한 시안 단계. 리깅·Unity 적용 미실행.
+
+- **HUMAN-SD-01 / Codex / 작업 중:** 사용자 선택 사람형 SD 시안(청록 단발·크림 튜닉·테라코타 망토) 모델링. 소유 `art/characters/human-sd-v1/**`. 기존 캐릭터 시안과 Unity 자산 보존. 정적 모델·FBX·시각 검증 범위.
+
+- **CHARACTER-MODEL-01 / Codex / 토토 정적 시안 완료:** `art/characters/toto-v1/**`에 Blender 원본·FBX·렌더·제작 스크립트. 21메시/2,914정점/5,700삼각형. 앞·옆·뒤 시각 확인, FBX 왕복 메시·삼각형·크기·재질 검사 통과. 기존 시설·개미 리그 보존. 리깅·애니메이션·Unity 교체 미실행, 나머지 5종 미제작. 중복 Blender는 정상 종료하고 연결된 1개 유지.
+
+- **CHARACTER-SPEC-1017 / Codex / 기획 전환 완료(구현 대기):** 사용자 첨부 캐릭터 시트 기준 두 팔·두 다리 캐릭터로 Notion 현행 기획 13개 문서의 신체·장비·특성·시설·HUD 용어 수정. 도감 루트·7분야·14분류에 기존 개미 GIF와 새 캐릭터 목표 구분, 사진·하위 링크 보존 재조회 확인. 문서: `docs/CHARACTER_TRANSITION_SPEC.md`, `docs/COLONY_INTERACTION_ANIMATION_REQUEST.md`, README 전환 안내. Unity 코드·HUD HTML·씬·기존 Blender 자산은 이번에 교체하지 않음. ART-ANIM-01의 개미 클립 17개는 기존 제작 이력이며 새 캐릭터 호환 검증 전 자동 연결하지 않는다. 정확한 크기·종족 구분·자녀 외형은 미정.
+
+- **ART-ANIM-01 / Claude / Blender 클립·도구·작업 지점·경첩 완료, Unity 미연결(2026-10-17):** `docs/COLONY_INTERACTION_ANIMATION_REQUEST.md` 1단계. QuirkyAnt 리그(원본 미수정)에 작업 클립 17개 + 도구 8종, FBX 왕복 검사 통과, Blender MCP로 17개 재생 확인. 79개 모델별 작업 지점(WorkPoint_0/Input/Output/Seat/Patient/CarryAnchor)·클립·도구 매핑 `art/colony-core/interaction_points.json`, 경첩 6종 개폐/조준 클립 `exports-interaction/*.fbx`, 원본 대신 별도 `colony-interaction.blend`(colony-core.blend 미수정). 미리보기 GIF `previews/interaction/`. 소유 `art/ant-anim/**`, `art/colony-core/` 안 신규 파일(`interaction_*`, `scripts/build_interaction.py`·`render_interaction.py`·`make_gifs.py`·`interaction_spec.py`). 다음: Unity 임포트·Animator 상태·`AntVisual` 작업 매핑·도구 부착·지점 연결. 상세 `art/ant-anim/README.md`.
+
+- **ART-CORE-02 / Codex / 모델 제작·검사 완료:** 사용자 승인 1~6 전체에 46개 추가: 자연물 10·물품 14·건설 단계 3·작물 상태 4·생활 가구 9·방어 시설 6. 기존 33개 포함 총 79 FBX, 26,736 삼각형. 소유 `art/colony-core/**`. 전체 FBX 왕복 검사 통과(크기/바닥/메시 수/재질/flat shading/삼각형 수), 분야별 미리보기 6장 직접 확인. **애니메이션 클립·Unity 상호작용 연결 미구현, Unity 임포트 미검증.** 적용 문서는 사용자 지시로 계속 보류. 기존 Unity 코드·씬 미수정.
+
+- **ART-CORE-01 / Codex / 33개 모델 제작·FBX 왕복 검사 완료:** 사용자 승인: 개미 제외, 자연 재료+작은 문명 로우폴리. 소유 `art/colony-core/**`. `colony-core.blend`, 개별 FBX 33개, `materials.blend`, `palette.json`, `manifest.json`, `previews/overview.png`, `validation.json`. 소굴·창고·농사·목장·의료·조리·퇴비·묘비·자원 + 숙소·공방·연구/행정·냉각·전력·벽/문. 전체 13,996 삼각형. FBX 재불러오기 크기·바닥·메시 수·재질·flat shading·삼각형 수 검사 통과. **사용자 추가 지시로 적용 문서는 보류. Unity 임포트·기능 연결 미실행.** 기존 코드·씬 미수정.
+
 - **HUD-V5-REAL / Claude / 작업 중(2026-10-15 사용자 승인, 전체·권장 순서):** HUD V5 기능을 Unity 실제 게임에 구현(연구·농사·설비·장비·장수 의료/수술·동물 위생/퇴비·사망/묘비·포로/귀환·원정 수송·물류 잔여). **SPEC-1013-14(Codex) 소유 파일은 사용자 지시로 Claude가 인수**(Codex 미작업 확인, 미커밋 변경 보존 후 이어서 구현). 소유: `Assets/_Project/Scripts/**`, `Save/*`, `UI/GameMenu*.cs`, `AgentScripts/*`, README, 이 보드. HTML `design/hud/*`는 참조만. Unity Play 검사 담당: Claude.
   - **진행 상태(2026-10-16 SAVE):** 연구·장비·농사·식단/요리 운반·냉각·장수 의료/수술·동물 위생/퇴비·사망/묘비·포로 구현 및 **Spec1015Checks 318 통과**. 실제 버그 2건 수정(처치가 수술 예약 약품 사용, 장수 유해 저장 거부). 회귀 통과: Campaign 86·ResourceRule 30·Spec1011Ranch 165·Spec1012 159·Spec1013AnimalHealth 11·Clinic 20·SaveRoundtrip 57·HudV5Unity 90. InfirmaryChecks는 옛 치료 모델이라 폐기 추천(미삭제). **미착수: C 배관·신호선, J 수송 확장 — 대규모라 착수 전 사용자 확인.** 간헐 실패: Spec1015 Hygiene 배설물 수거 1회.
 

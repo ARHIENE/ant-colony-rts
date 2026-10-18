@@ -1,14 +1,15 @@
 # 프로젝트 로그
 
-## 현재 상태 — 2026-10-16 SAVE(Claude) — HUD-V5-REAL 검증 완료(C·J 제외)
-- 프로젝트: 개미 소굴 RTS, E:\Git\ant. Unity 6000.5.8f1 / URP 17.5 / Pipeline 0.7. develop 개발, master 안정.
-- 목표/구조: Notion 기획 전체 구현. 소스 Assets/_Project/Scripts, 검사 AgentScripts(RunChecks.cs로 Play 중 실행, 러너 예: Temp/runone.sh), 공동 보드 docs/IMPLEMENTATION_BOARD.md.
-- 이번 구현(HUD-V5-REAL, 10-15~16, SPEC-1013-14 인수분 포함): 연구 화면(GameMenuResearch, 진행 보존·자동 다음 없음)·장비(GameMenuEquipment)·농사(GameMenuFarm, 휴경·해충), 식단(공통·장수별, GameMenuDiet)·요리 재료 실제 운반(IMaterialSink/MaterialSink, Kitchen.Staged)·냉각 정도 저장, 장수 부위별 의료(CommanderHealth/HealthCare/GameMenuHealth: 상처·질병·출혈·쓰러짐·구조·급식·수술·약품 예약), 동물 배설물·우리 위생·퇴비통(CritterHygiene/CompostBin), 사망 기록·묘비·안치·추모(Memorial/Tombstone/CommanderBurial/GameMenuMemorial), 포로 건강·급식·석방(GameMenuPrisoners).
-- 이번 세션 수정(실제 버그): ① 일반 처치·투약이 수술용 예약 약품까지 쓰던 문제(CommanderHealthCare.FreeMedicine) ② 장수 유해(remaining 0)가 있으면 저장 거부(SavePreflight).
-- 검사 갱신: Spec1015(주석에 삼켜진 요리 활성화, 품질 포화 값, 침입 비활성, 용량 확장, 경쟁 화물 정리, 쿨다운·냉각 재설정), Campaign(새 건강 API·과학→시설 화면), ResourceRule·Spec1012(RestoreCargo lots 인자, 요리 Staged 기준).
-- 검증(10-16): Spec1015 318, Campaign 86, ResourceRule 30, Spec1011Ranch 165, Spec1012 159, Spec1013AnimalHealth 11, Spec1013Clinic 20, SaveRoundtrip 57, HudV5Unity 90.
-- 잔여 문제: InfirmaryChecks는 옛 시간제 치료 모델 검사라 실패(새 의료로 대체, 폐기 추천 — 파일 삭제는 권한 거부로 보류). Spec1015 Hygiene '배설물 수거' 단계 간헐 실패 1회(원인 미확정). Spec1009 외교 알림 고정 실패(기존). Spec1015를 같은 Play 세션에서 연속 실행하면 Research 버튼 검사 실패(Play 재시작 시 통과).
-- 자동 선택(추천안, 사용자 미확인): InfirmaryChecks 폐기, C 배관·신호선/J 수송 확장은 대규모라 다음 세션 사전 확인 후 착수.
-- Notion: 개발 일지 https://app.notion.com/p/3fbc4a0ecd31818e98aad8bf85f0805e (건강·연구 화면 캡처 2장). develop 8c03429 push.
-- 다음: 1) C 배관·신호선 2) J 수송 확장(둘 다 착수 전 범위 확인) 3) InfirmaryChecks 정리 4) Hygiene 간헐 실패 원인 5) 미실행 회귀(AutonomousDuty·Meal·Stage3 등).
-- 기존 미검증 변경 보존: AntColony.unity, Water.mat, TimeManager.asset, graphify 산출물, HTML 보조 파일·reports·tests. prefab/meta 커밋 금지.
+## 현재 상태 — 2026-10-18 SAVE(Claude) — 개미→주민 전환 코드, 주민 키트, 가구 62종·동작 10개, 도감
+- 프로젝트 E:\Git\ant / develop 개발, master 안정. 이전 기록은 changelog.md. 공동 작업 보드 `docs/IMPLEMENTATION_BOARD.md`.
+- **캐릭터 방향:** 개미 대신 Codex가 만든 동물형 주민(`art/characters/residents-24` 외형 24종 + `parts-board` 표정·머리·흉터 부품)을 쓴다. 사람형 SD·토토 단독 시안은 미사용.
+- **CHARACTER-CODE-01(Unity 코드, 사용자 승인 A~D):** 신체 부위 두 팔·두 다리(감지 삭제, 저장 v18 이관 `Save/BodyMigration.cs`), 장비·연구 이름, 시민·정착지 용어, 꿀단지 방 이름. 모델 교체(E)는 보류. **검사 미완:** 일괄 검사 2건 실패 — EraChecks 저장 버전 단언을 18로 고쳤으나 마지막 실행이 여전히 16 보고(재컴파일 안 된 것으로 추정, 미확인), 나머지 1건 기록 없음 → 다음 세션 재컴파일 후 재실행.
+- **Blender `art/resident-kit/`(Unity 미연결, README 상세):** 시설·캐릭터 부품·공통 동작·도구·미리보기 파일 분리.
+  - 공통 리그(뼈 12 + 소켓 4), 부품 94(Codex 표정 복구 포함), 수동 조합 4, 동작 44(기본 30 + Fly·Downed·Captive·CarryPerson + 가구용 10: PlayBoard·Bathe·Wrestle·Throw·PlayMusic·Exercise·Swing·RockCradle·Spin·WaterPlant).
+  - **FURNITURE-97:** 건설 가능 97종 중 모델 없던 62종 신규(`scripts/extra_spec.py`·`models_extra.py`·`kit_facilities_extra.py`, 키트 단위 배율 1, 시설 동작 8종). 시설 총 141, `facility-points.json`·FBX 포함.
+  - 미리보기 156장면·GIF 156. **백그라운드 Blender는 활성 장면만 애니메이션 평가** → 처음 GIF 94개가 정지 화면이었음. `render_all.py`를 장면별 `-S` 프로세스로 바꿔 전부 재렌더.
+  - 검증 `validation.json` 오류 0, 관통 표시 3(화분 물뿌리개·냉장고 꺼내기·샤워). Codex 검수(RESIDENT-KIT-REVIEW): 표정 4종·사망 연결 복구, 카메라·물뿌리개 수정.
+  - `art/critter-kit/`: 목장 4종 + 적 2종(말벌·밤딱정벌레) 모델·리그·동작·FBX 43.
+- **Notion:** 도감 루트에 분야 3개(휴게·장식, 군사·마을, 장비) 신설. 새 가구 62종·장비 10종 사진/GIF 등록은 이번 SAVE에서 진행(결과는 아래 Notion 링크). 기존 77개 모델의 개미 GIF → 주민 GIF 교체는 아직.
+- **미커밋/주의:** `art/`는 계속 미추적(용량 큼, 커밋하지 않음). `AntColony.unity`·`Water.mat`·`TimeManager.asset` 변경은 출처 불명 → 커밋 제외. `Assets/Screenshots`·`Assets/reports`·`debug.log`·`design/hud/*.before-*` 임시 파일 제외.
+- **다음:** 1) CHARACTER-CODE-01 재컴파일 후 EraChecks 등 재검사 2) 남은 회귀 13개(10-17 목록) 3) 기존 도감 77개 GIF 주민판 교체 4) resident-kit Unity 연결(임포트·Animator·소켓, 대규모 → 승인 후) 5) InfirmaryChecks 삭제는 사용자 `git rm` 필요, C 배관·J 수송 범위 확인 대기.

@@ -8,7 +8,8 @@ namespace AntColony.Units
 {
     // 장수 부상·질병(2026-10-13 확정 기획, 림월드식). 부위별 상처·출혈·통증·의식·이동, 처치 품질·회복, 질병 심각도·면역.
     // 행동 가능 여부는 경상/중상 요약이 아니라 통증·의식·이동 능력으로 정한다.
-    public enum BodyPart { Head, EyeL, EyeR, AntennaL, AntennaR, MandibleL, MandibleR, Thorax, Leg1, Leg2, Leg3, Leg4, Leg5, Leg6, Abdomen }
+    // 2026-10-18 캐릭터 전환: 두 팔·두 다리. v17 이전 저장(더듬이·큰턱·다리 6개)은 BodyMigration이 옮긴다.
+    public enum BodyPart { Head, EyeL, EyeR, Thorax, Abdomen, ArmL, ArmR, HandL, HandR, LegL, LegR, FootL, FootR }
     public enum WoundKind { Cut, Stab, Bruise, Burn, Acid, Scar, Missing, Surgical }
     public enum IllnessKind { WoundInfection, Mold }
     public enum MedicineLevel { NoCare, NoMedicine, Basic, Normal, Advanced }
@@ -38,7 +39,7 @@ namespace AntColony.Units
 
         public float PartFraction(BodyPart p)
         {
-            if (wounds.Any(w => w.part == p && w.kind == WoundKind.Missing)) return 0;
+            if (Missing(p) || MedicalRules.Parent(p) is BodyPart up && Missing(up)) return 0; // 팔·다리를 잃으면 손·발도 못 쓴다
             return Mathf.Clamp01(1 - wounds.Where(w => w.part == p).Sum(w => w.damage) / MedicalRules.MaxHp(p));
         }
         public bool Missing(BodyPart p) => wounds.Any(w => w.part == p && w.kind == WoundKind.Missing);
@@ -52,13 +53,14 @@ namespace AntColony.Units
         {
             get
             {
-                var legs = new[] { BodyPart.Leg1, BodyPart.Leg2, BodyPart.Leg3, BodyPart.Leg4, BodyPart.Leg5, BodyPart.Leg6 }.Sum(PartFraction);
-                return Mathf.Clamp01(legs / 6f * Mathf.Min(1, Consciousness * 1.25f) * (legs < 2f ? .5f : 1f));
+                var legs = (Limb(BodyPart.LegL, BodyPart.FootL) + Limb(BodyPart.LegR, BodyPart.FootR)) / 2;
+                return Mathf.Clamp01(legs * Mathf.Min(1, Consciousness * 1.25f));
             }
         }
-        public float Manipulation => Mathf.Clamp01((PartFraction(BodyPart.MandibleL) + PartFraction(BodyPart.MandibleR)) / 2 * Mathf.Min(1, Consciousness * 1.25f));
+        public float Manipulation => Mathf.Clamp01((Limb(BodyPart.ArmL, BodyPart.HandL) + Limb(BodyPart.ArmR, BodyPart.HandR)) / 2 * Mathf.Min(1, Consciousness * 1.25f));
         public float Sight => (PartFraction(BodyPart.EyeL) + PartFraction(BodyPart.EyeR)) / 2;
-        public float Sensing => (PartFraction(BodyPart.AntennaL) + PartFraction(BodyPart.AntennaR)) / 2;
+        // 팔·다리 한쪽 기능: 큰 부위가 주, 손·발이 보조.
+        private float Limb(BodyPart limb, BodyPart end) => PartFraction(limb) * (.6f + .4f * PartFraction(end));
         // 쓰러짐: 통증 쇼크·의식 저하·이동 불가.
         public bool Downed => Pain >= .8f || Consciousness <= .3f || Moving <= .2f;
         public bool Fatal => bloodLoss >= 1 || PartFraction(BodyPart.Head) <= 0 || PartFraction(BodyPart.Thorax) <= 0 || PartFraction(BodyPart.Abdomen) <= 0
@@ -81,8 +83,12 @@ namespace AntColony.Units
         public static Func<float> Roll = () => UnityEngine.Random.value; // 검사에서 결과를 결정적으로 재현하려고 바꿀 수 있다
         public static float MaxHp(BodyPart p) => p switch
         {
-            BodyPart.Head => 10, BodyPart.EyeL or BodyPart.EyeR => 3, BodyPart.AntennaL or BodyPart.AntennaR => 3,
-            BodyPart.MandibleL or BodyPart.MandibleR => 5, BodyPart.Thorax => 18, BodyPart.Abdomen => 14, _ => 6
+            BodyPart.Head => 10, BodyPart.EyeL or BodyPart.EyeR => 3, BodyPart.Thorax => 18, BodyPart.Abdomen => 14,
+            BodyPart.ArmL or BodyPart.ArmR => 7, BodyPart.LegL or BodyPart.LegR => 8, _ => 4 // 손·발
+        };
+        public static BodyPart? Parent(BodyPart p) => p switch
+        {
+            BodyPart.HandL => BodyPart.ArmL, BodyPart.HandR => BodyPart.ArmR, BodyPart.FootL => BodyPart.LegL, BodyPart.FootR => BodyPart.LegR, _ => null
         };
         public static bool Vital(BodyPart p) => p == BodyPart.Head || p == BodyPart.Thorax || p == BodyPart.Abdomen;
         public static float PainFactor(WoundKind k) => k switch
@@ -94,8 +100,9 @@ namespace AntColony.Units
         public static float MedicineFactor(int tier) => tier switch { 0 => 1f, 1 => 1.3f, 2 => 1.6f, _ => .55f }; // -1 = 약 없음
         public static string PartName(BodyPart p) => p switch
         {
-            BodyPart.Head => "머리(뇌)", BodyPart.EyeL => "왼눈", BodyPart.EyeR => "오른눈", BodyPart.AntennaL => "왼더듬이", BodyPart.AntennaR => "오른더듬이",
-            BodyPart.MandibleL => "왼큰턱", BodyPart.MandibleR => "오른큰턱", BodyPart.Thorax => "가슴", BodyPart.Abdomen => "배", _ => "다리 " + ((int)p - (int)BodyPart.Leg1 + 1)
+            BodyPart.Head => "머리(뇌)", BodyPart.EyeL => "왼눈", BodyPart.EyeR => "오른눈", BodyPart.Thorax => "가슴", BodyPart.Abdomen => "배",
+            BodyPart.ArmL => "왼팔", BodyPart.ArmR => "오른팔", BodyPart.HandL => "왼손", BodyPart.HandR => "오른손",
+            BodyPart.LegL => "왼다리", BodyPart.LegR => "오른다리", BodyPart.FootL => "왼발", _ => "오른발"
         };
         public static string WoundName(WoundKind k) => k switch
         { WoundKind.Cut => "베임", WoundKind.Stab => "찔림", WoundKind.Bruise => "타박상", WoundKind.Burn => "화상", WoundKind.Acid => "산성 손상", WoundKind.Scar => "흉터", WoundKind.Missing => "상실", _ => "수술 상처" };
@@ -198,9 +205,9 @@ namespace AntColony.Units
                 BodyPart part;
                 switch (old.part)
                 {
-                    case InjuryPart.Antenna: part = BodyPart.AntennaL; break;
-                    case InjuryPart.Mandible: part = BodyPart.MandibleL; break;
-                    case InjuryPart.Legs: part = BodyPart.Leg1; break;
+                    case InjuryPart.LegacyAntenna: part = BodyPart.Head; break;
+                    case InjuryPart.Arms: part = BodyPart.ArmL; break;
+                    case InjuryPart.Legs: part = BodyPart.LegL; break;
                     case InjuryPart.Thorax: part = BodyPart.Thorax; break;
                     case InjuryPart.Head: part = BodyPart.Head; break;
                     default: continue; // 날개는 장비(신체 부상 아님)

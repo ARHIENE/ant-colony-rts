@@ -86,7 +86,7 @@ public static class Stage7UIChecks
             var research = CampaignResearch.Instance;
             CampaignHistory.Record("사망", "테스트 장수", "전사"); CampaignHistory.Record("보스 처치", "MiniBird", "");
             var record = GameMenuController.EndingRecord(research);
-            foreach (var key in new[] { "기간", "실제 플레이", "Food", "재료", "Special", "일반개미", "탑승", "남겨진 장수", "사망", "포로", "합류", "떠난 장수", "처치한 보스", "거점", "전쟁·동맹", "주요 이벤트" })
+            foreach (var key in new[] { "기간", "실제 플레이", "Food", "재료", "Special", "시민", "탑승", "남겨진 장수", "사망", "포로", "합류", "떠난 장수", "처치한 보스", "거점", "전쟁·동맹", "주요 이벤트" })
                 Check(record.Any(l => l.Contains(key)), "ending record has " + key);
             Check(record.Any(l => l.Contains("테스트 장수(전사)")) && record.Any(l => l.Contains("MiniBird")), "ending record lists deaths and bosses");
             Check(!record.Any(l => l.Contains("점수") || l.Contains("등급")), "no score or grade");

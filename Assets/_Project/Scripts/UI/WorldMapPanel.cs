@@ -68,7 +68,7 @@ namespace AntColony.UI
             selectionRing = L.Box(map, "SelectionRing", 0, 0, MarkerW + 8, MarkerH + 8, MenuTheme.Accent);
             selectionRing.GetComponent<UnityEngine.UI.Image>().raycastTarget = false;
             selectionRing.gameObject.SetActive(false);
-            L.Button(map, "Home", "소굴로", 12, MapH - 46, 90, 34, () => { WorldMapManager.Instance.ViewSite(null); Toggle(); }, "홈 둥지 화면으로 돌아갑니다.");
+            L.Button(map, "Home", "정착지로", 12, MapH - 46, 90, 34, () => { WorldMapManager.Instance.ViewSite(null); Toggle(); }, "홈 둥지 화면으로 돌아갑니다.");
             startRoute = L.Button(map, "Start Auto", "자동 수송 시작", 110, MapH - 46, 150, 34, () =>
                 Result(selectedShip != null && selectedShip.Route != null && selectedShip.Route.TryStart(selectedSite), "자동 수송을 시작했습니다. 장수가 모아서 돌아옵니다."));
             stopRoute = L.Button(map, "Stop Auto", "자동 수송 중지", 268, MapH - 46, 150, 34, () => {
@@ -100,7 +100,7 @@ namespace AntColony.UI
             scienceStatus = L.Label(rect, "", 12, 1080, 50, 336, 110, MenuTheme.Muted, TextAnchor.UpperLeft);
             Btn(rect, "Build Science Lab", "과학 연구소 건설", 1080, 170, () => {
                 if (FindFirstObjectByType<BuildingPlacementController>().BeginScienceLabPlacement()) Toggle();
-                else feedback.text = "홈 둥지, 개미 60, 낚시, 2단계 병영, 선택한 건설 장수가 필요합니다.";
+                else feedback.text = "본거지, 시민 60, 낚시, 2단계 병영, 선택한 건설 장수가 필요합니다.";
             });
             Btn(rect, "Science / Researchers", "과학 연구 · 연구원", 1252, 170, () => { Toggle(); GameMenuController.Instance.Science(); });
             Btn(rect, "Build Vehicle 50F/60 재료", "차량 건조 식50 재료60", 1080, 210, () => ScienceAction(false, true));
@@ -142,7 +142,7 @@ namespace AntColony.UI
             var lab = FindLab();
             scienceStatus.text = $"과학 연구소: {(lab != null ? lab.Busy ? $"작업 중 {lab.Remaining:0}초" : "대기" : "없음")}\n"
                 + $"차량: {(world.VehicleResearched ? "연구 완료" : "잠김")} · 비행기: {(world.AircraftResearched ? "연구 완료" : "잠김")}\n"
-                + "연구소: 식량 100 / 재료 100 / 개미 8. 연구원을 배정하고, 차량은 2단계·비행기는 3단계로 강화. 건조 10초.";
+                + "연구소: 식량 100 / 재료 100 / 시민 8. 연구원을 배정하고, 차량은 2단계·비행기는 3단계로 강화. 건조 10초.";
             mapTitle.text = world.Unlocked ? $"<b>월드맵</b>  거점 {world.Sites.Count}" : "<b>월드맵 잠김</b>\n첫 차량이나 비행기를 건조하세요.";
             for (var i = 0; i < markers.Count; i++)
             {
@@ -231,7 +231,7 @@ namespace AntColony.UI
             var injured = 0; var mood = 0f;
             foreach (var c in crew) { mood += c.Mood; if (c.Health.Injured) injured++; }
             var names = crew.Count == 0 ? "없음" : string.Join(", ", System.Linq.Enumerable.Select(crew, c => c.CommanderName));
-            var text = $"<b>{ship.name}</b> · {(ship.Aircraft ? "비행기" : "차량")} · {StateName(ship.State)}{(ship.Remaining > 0 ? $" {ship.Remaining:0}초" : "")} → {(ship.Site != null ? ship.Site.Title : "소굴")}\n"
+            var text = $"<b>{ship.name}</b> · {(ship.Aircraft ? "비행기" : "차량")} · {StateName(ship.State)}{(ship.Remaining > 0 ? $" {ship.Remaining:0}초" : "")} → {(ship.Site != null ? ship.Site.Title : "정착지")}\n"
                 + $"장수 {names} ({ship.CommanderLoad}/{ship.CommanderCapacity}) · 병력 {ship.Load}/{ship.Capacity}\n"
                 + $"<color=#968976>화물 {ship.CargoLoad}/{ship.CargoCapacity} · 전리품 장비 {ship.EquipmentCargo.Count}{(ship.BlueprintCargo ? "·설계도" : "")}"
                 + $" · 기분 {(crew.Count > 0 ? mood / crew.Count : 0):0} · 부상 {injured}</color>";

@@ -25,8 +25,8 @@ namespace AntColony.UI
 
         public static string RoleName(UnitRole role) => role switch
         {
-            UnitRole.Melee => "큰턱", UnitRole.Ranged => "산샘", UnitRole.Defense => "갑각",
-            UnitRole.Support => "페로몬", UnitRole.Flying => "날개", _ => "일개미"
+            UnitRole.Melee => "근접", UnitRole.Ranged => "원거리", UnitRole.Defense => "방패",
+            UnitRole.Support => "지휘", UnitRole.Flying => "비행", _ => "맨손"
         };
 
         public CommanderAnt Commander => SelectedUnitPanel.FindSingleSelectedCommander(selection);
@@ -56,9 +56,9 @@ namespace AntColony.UI
 
             // 출전 중 카드는 기획 미정(2026-10-01) — 기존 전투 명령을 유지한다.
             Add(deployedGrid, 0, "Skill", () => SkillLabel(Commander), () => UseWeaponSkill(Commander),
-                () => "무기 스킬: 큰턱 강타(근접 Lv2), 갑각 방어 태세(근접 Lv3), 산성비(원거리 5, 지면 클릭), 집결(지휘 5).", () => SkillReady(Commander));
+                () => "무기 스킬: 강타(근접 Lv2), 방패 방어 태세(근접 Lv3), 산성비(원거리 5, 지면 클릭), 집결(지휘 5).", () => SkillReady(Commander));
             Add(deployedGrid, 1, "Dive", () => "급강하" + Cooldown(Commander != null ? Commander.Social.diveCooldown : 0f),
-                () => SkillTargeting.Begin(new[] { Commander }, true), () => "날개 스킬: 날개 + 근접/원거리 5. 지면 클릭 후 급강하, 3초 착지. 재사용 30초.",
+                () => SkillTargeting.Begin(new[] { Commander }, true), () => "비행 스킬: 비행 장비 + 근접/원거리 5. 지면 클릭 후 급강하, 3초 착지. 재사용 30초.",
                 () => Commander != null && Commander.CanDive, () => Commander?.EquippedArmor?.armor == ArmorKind.Wings);
             Add(deployedGrid, 3, "Attack Move", () => "공격 이동", () => FindFirstObjectByType<AttackMoveController>()?.BeginAttackMode(),
                 () => "지면을 클릭하면 이동하면서 만나는 적을 공격합니다.");
@@ -74,7 +74,7 @@ namespace AntColony.UI
             Add(colonyGrid, 1, "Colony Roster", () => "장수 관리", () => GameMenuController.Instance?.Roster(), () => "장수의 기분·건강·장비를 확인합니다.");
             Add(colonyGrid, 2, "Colony Build", () => "건설", BuildScreen.Open, () => "가구·건물·벽을 건설합니다.", null, null, true);
             Add(colonyGrid, 3, "Colony Science", () => "연구", () => GameMenuController.Instance?.Science(), () => "과학 연구를 확인합니다.");
-            Add(colonyGrid, 4, "Colony Population", () => "인구", () => GameMenuController.Instance?.Population(), () => "개미 인구와 방을 확인합니다.");
+            Add(colonyGrid, 4, "Colony Population", () => "인구", () => GameMenuController.Instance?.Population(), () => "시민 인구와 방을 확인합니다.");
             Add(colonyGrid, 5, "Colony Diplomacy", () => "외교", () => GameMenuController.Instance?.Diplomacy(), () => "다른 세력과의 관계를 확인합니다.");
             // 대상 우선순위 도구(1~9 · 노란 경보)와 소굴 전체 빨간 경보.
             Add(colonyGrid, 6, "Colony Target Priority", () => "우선 지정", GatherDesignation.BeginPriority,
@@ -83,7 +83,7 @@ namespace AntColony.UI
                 () => "지정할 단계를 바꿉니다: 1(낮음)~9(높음), 노란 경보(그 대상을 최우선, 식사·수면·치료는 중단하지 않음).");
             Add(colonyGrid, 8, "Colony Red Alert", () => AntColony.Units.WorkPriorities.Red ? "경보 해제" : "빨간 경보",
                 () => AntColony.Units.WorkPriorities.SetRed(!AntColony.Units.WorkPriorities.Red),
-                () => "소굴 전체: 식사·수면·치료받기·간호를 멈추고 작업합니다. 작업 금지는 유지되며, 해제하면 평소 생활로 돌아갑니다.");
+                () => "정착지 전체: 식사·수면·치료받기·간호를 멈추고 작업합니다. 작업 금지는 유지되며, 해제하면 평소 생활로 돌아갑니다.");
 
             Add(multiGrid, 0, "Multi Priority", () => AllDeployed() ? "공격 이동" : "우선", () => {
                 if (AllDeployed()) FindFirstObjectByType<AttackMoveController>()?.BeginAttackMode(); else PriorityHint();
