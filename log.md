@@ -10,4 +10,5 @@
   - 검사: FacilityVisualChecks 513(101종 실제 생성·면적 안·바닥 맞춤·비축더미) · SaveRoundtrip 57 · Spec1012 159 통과.
   - 한계: 모델이 상자 바닥 면적 기준 균일 배율이라 일부 가구가 캐릭터보다 크게 보일 수 있음. 피격 색 깜빡임 등 상자 렌더러 효과는 안 보임. 건설 중(공사장)은 기존 상자 그대로.
 - **미커밋/주의:** `art/`는 미추적(용량). `AntColony.unity`·`Water.mat`·`TimeManager.asset` 출처 불명 → 커밋 제외. `Assets/Kiki/`·`Assets/Screenshots/`·`Assets/reports/` 미추적(이번 작업 아님).
+- **Notion 개발 일지:** https://app.notion.com/p/3fdc4a0ecd3181518379c478eb9ba48b
 - **다음:** 1) 실제 플레이로 건물 크기·비율 체감 확인(필요하면 종류별 배율 보정) 2) 피격·선택 표시를 모델에도 반영할지 결정 3) kemono-kit 캐릭터 Unity 연결(대규모 → 승인 후) 4) 미실행 회귀 묶음.
