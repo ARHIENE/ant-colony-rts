@@ -32,14 +32,14 @@ namespace AntColony.UI
             var all = SortedCommanders();
             var f = Frame(selected != null ? selected.CommanderName : "Commanders");
             var tab = L.Plate(f, "RosterTab", 48, 47, 200, 34);
-            L.Label(tab, $"<b>장수 관리</b>   <color=#968976>{all.Length}명</color>", 14, 16, 0, 180, 34);
+            L.Label(tab, $"<b>장수 관리</b>   <color=#b1b3a7>{all.Length}명</color>", 14, 16, 0, 180, 34);
             var p = L.Plate(f, "RosterPanel", 48, 80, 1344, 676);
 
             for (var i = 0; i < FilterNames.Length; i++)
             {
                 var index = i;
                 var count = all.Count(c => InFilter(c, index));
-                var button = L.Button(p, "Filter " + FilterNames[i], $"{FilterNames[i]}  <color=#968976>{count}</color>", 12 + i * 100, 11, 94, 30,
+                var button = L.Button(p, "Filter " + FilterNames[i], $"{FilterNames[i]}  <color=#b1b3a7>{count}</color>", 12 + i * 100, 11, 94, 30,
                     () => { rosterFilter = index; RosterScreen(selected); }, null, false, 13);
                 if (i == rosterFilter) button.GetComponent<Outline>().effectColor = MenuTheme.Accent;
             }
@@ -66,8 +66,8 @@ namespace AntColony.UI
                 row.gameObject.AddComponent<LayoutElement>().preferredHeight = 40;
                 if (c == selected) row.GetComponent<Outline>().effectColor = MenuTheme.Accent;
                 L.Label(row.transform, c.CommanderName, 14, cols[0] - 6, 0, 150, 40, MoodColor(c.Mood), bold: true);
-                L.Label(row.transform, $"{c.WeaponLabel} <color=#968976>· {CommandCard.RoleName(c.Role)}{(c.IsFlying ? " · 비행" : "")}</color>", 12, cols[1] - 6, 0, 150, 40, MenuTheme.Muted);
-                L.Label(row.transform, $"<b>{c.TroopCount}</b><color=#968976>/{c.CommandLimit}</color>", 13, cols[2] - 6, 0, 60, 40);
+                L.Label(row.transform, $"{c.WeaponLabel} <color=#b1b3a7>· {CommandCard.RoleName(c.Role)}{(c.IsFlying ? " · 비행" : "")}</color>", 12, cols[1] - 6, 0, 150, 40, MenuTheme.Muted);
+                L.Label(row.transform, $"<b>{c.TroopCount}</b><color=#b1b3a7>/{c.CommandLimit}</color>", 13, cols[2] - 6, 0, 60, 40);
                 L.Meter(row.transform, cols[2] + 54, 17, 90, 6, c.CommandLimit > 0 ? (float)c.TroopCount / c.CommandLimit : 0, MenuTheme.Hp);
                 L.Label(row.transform, $"{c.Mood:0}", 14, cols[3] - 6, 0, 70, 40, MoodColor(c.Mood));
                 L.Label(row.transform, c.PersonalState.lowMoodSeconds > 0 ? $"{c.PersonalState.lowMoodSeconds / SocialRules.Month:P0}" : "—", 14, cols[4] - 6, 0, 70, 40, c.PersonalState.lowMoodSeconds > 0 ? MenuTheme.DangerInk : MenuTheme.Muted);
@@ -98,10 +98,10 @@ namespace AntColony.UI
 
             var factors = c.PersonalState.moodFactors;
             var mood = L.Cell(content, "Mood", 52 + factors.Count * 18);
-            L.Label(mood, $"<b>기분</b>   <size=18><b>{c.Mood:0}</b></size> / 100   <color=#968976>경고선 35 · {c.PersonalState.mentalBreak}</color>", 13, 0, 0, 570, 26);
+            L.Label(mood, $"<b>기분</b>   <size=18><b>{c.Mood:0}</b></size> / 100   <color=#b1b3a7>경고선 35 · {c.PersonalState.mentalBreak}</color>", 13, 0, 0, 570, 26);
             L.Meter(mood, 0, 30, 570, 8, c.Mood / 100f, MoodColor(c.Mood));
             for (var i = 0; i < factors.Count; i++)
-                L.Label(mood, $"{factors[i].reason}  <b>{factors[i].value:+0;-0;0}</b>  <color=#968976>{factors[i].remaining:0}초</color>", 12, 0, 46 + i * 18, 570, 18, MenuTheme.Muted);
+                L.Label(mood, $"{factors[i].reason}  <b>{factors[i].value:+0;-0;0}</b>  <color=#b1b3a7>{factors[i].remaining:0}초</color>", 12, 0, 46 + i * 18, 570, 18, MenuTheme.Muted);
 
             // Phase 3: 충성심 대신 탈주 위험 — 기분이 기준 이하로 한 달 이어지면 떠난다.
             var leave = L.Cell(content, "Departure", 48);
@@ -110,13 +110,13 @@ namespace AntColony.UI
 
             var skills = L.Cell(content, "Skills", 26 + ((CommanderTalents.Count + 2) / 3) * 46);
             c.Talents.EnsurePotential();
-            L.Label(skills, $"<b>기술</b>  <color=#968976>0~20 · ★ 열정 · 최근 활용 비중</color>   <b>CA {c.Talents.Current:0.#} / PA {c.Talents.potential}</b>", 13, 0, 0, 570, 22);
+            L.Label(skills, $"<b>기술</b>  <color=#b1b3a7>0~20 · ★ 열정 · 최근 활용 비중</color>   <b>CA {c.Talents.Current:0.#} / PA {c.Talents.potential}</b>", 13, 0, 0, 570, 22);
             foreach (CommanderActivity skill in Enum.GetValues(typeof(CommanderActivity)))
             {
                 var i = (int)skill; var level = c.Talents.Level(skill);
                 var x = i % 3 * 192f; var y = 26 + i / 3 * 46f;
                 var cell = L.Box(skills, "Skill " + skill, x, y, 186, 42, MenuTheme.Plate2);
-                L.Label(cell, $"{SkillNames[i]} <color=#f2a93b>{new string('★', c.Traits.Flame(skill))}</color> <color=#968976>{c.Talents.UsageShare(skill):P0}</color>", 12, 8, 2, 120, 20, MenuTheme.Muted);
+                L.Label(cell, $"{SkillNames[i]} <color=#f2a93b>{new string('★', c.Traits.Flame(skill))}</color> <color=#b1b3a7>{c.Talents.UsageShare(skill):P0}</color>", 12, 8, 2, 120, 20, MenuTheme.Muted);
                 L.Label(cell, level.ToString(), 16, 130, 2, 48, 20, align: TextAnchor.MiddleRight, bold: true);
                 var progress = level >= CommanderTalents.MaxLevel ? 1f : c.Talents.Xp(skill) / CommanderTalents.Required(level);
                 L.Meter(cell, 8, 28, 170, 5, progress, MenuTheme.Accent);
@@ -147,7 +147,7 @@ namespace AntColony.UI
                 var relation = relations[i];
                 var other = SortedCommanders().FirstOrDefault(o => o.PersonalState.id == relation.otherId);
                 var label = relation.spouse ? "배우자" : !relation.family && relation.value >= 70 ? "연인" : relation.value >= 40 ? "친구" : relation.value <= -40 ? "라이벌" : "지인";
-                L.Label(social, $"{label}  <b>{other?.CommanderName ?? "떠난 장수"}</b>  <color=#968976>{relation.value:0}</color>", 12, 0, 22 + i * 18, 570, 18, MenuTheme.Muted);
+                L.Label(social, $"{label}  <b>{other?.CommanderName ?? "떠난 장수"}</b>  <color=#b1b3a7>{relation.value:0}</color>", 12, 0, 22 + i * 18, 570, 18, MenuTheme.Muted);
             }
             L.Label(social, "파벌: " + (faction.Count == 0 ? "없음" : string.Join(", ", faction.Select(m => m.CommanderName))), 12, 0, 22 + relations.Count * 18, 570, 20, MenuTheme.Muted);
 

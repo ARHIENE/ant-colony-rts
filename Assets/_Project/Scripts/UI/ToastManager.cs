@@ -25,7 +25,7 @@ namespace AntColony.UI
         private readonly Dictionary<string, string> dismissed = new Dictionary<string, string>();
         // 고정 알림(보류 협상 등): 자동 소멸·닫기 없이 해결될 때까지 남는다.
         private readonly Dictionary<string, (string message, System.Action action, string label)> pins = new Dictionary<string, (string, System.Action, string)>();
-        private RectTransform panel;
+        private RectTransform panel, list;
         private bool hovered, dirty = true;
 
         public static int Count => instance != null ? instance.toasts.Count : 0;
@@ -38,10 +38,16 @@ namespace AntColony.UI
             instance = this;
             var canvas = MenuTheme.Canvas("Notifications", transform, 200);
             // HUD v2: 달력·속도 판(HudClock) 아래 오른쪽 318px 판넬, 위에서 아래로 쌓인다. 비면 숨긴다.
-            panel = MenuTheme.Panel(canvas.transform, "Toasts", new Vector2(1, 1), new Vector2(360, 0), new Vector2(-8, -100));
-            var stack = panel.gameObject.AddComponent<VerticalLayoutGroup>(); stack.padding = new RectOffset(8, 8, 8, 8); stack.spacing = 4;
+            panel = MenuTheme.Panel(canvas.transform, "Toasts", new Vector2(1, 1), new Vector2(244, 0), new Vector2(-8, -100));
+            var scroll = panel.gameObject.AddComponent<ScrollRect>(); scroll.horizontal = false; scroll.scrollSensitivity = 24;
+            var viewport = MenuTheme.Rect("Viewport", panel); MenuTheme.Stretch(viewport);
+            viewport.gameObject.AddComponent<RectMask2D>();
+            list = MenuTheme.Rect("ToastItems", viewport);
+            list.anchorMin = new Vector2(0, 1); list.anchorMax = Vector2.one; list.pivot = new Vector2(.5f, 1); list.sizeDelta = Vector2.zero;
+            scroll.viewport = viewport; scroll.content = list;
+            var stack = list.gameObject.AddComponent<VerticalLayoutGroup>(); stack.padding = new RectOffset(8, 8, 8, 8); stack.spacing = 4;
             stack.childControlHeight = stack.childControlWidth = true; stack.childForceExpandHeight = false;
-            panel.gameObject.AddComponent<ContentSizeFitter>().verticalFit = ContentSizeFitter.FitMode.PreferredSize;
+            list.gameObject.AddComponent<ContentSizeFitter>().verticalFit = ContentSizeFitter.FitMode.PreferredSize;
             panel.gameObject.AddComponent<PointerRelay>().owner = this;
             panel.gameObject.SetActive(false);
         }
@@ -125,11 +131,16 @@ namespace AntColony.UI
             if (dirty) Rebuild();
         }
 
+        private void LateUpdate()
+        {
+            if (panel.gameObject.activeSelf) panel.sizeDelta = new Vector2(244, Mathf.Min(280, LayoutUtility.GetPreferredHeight(list)));
+        }
+
         private void Rebuild()
         {
             dirty = false;
-            for (var i = panel.childCount - 1; i >= 0; i--)
-                if (panel.GetChild(i).name.StartsWith("Toast")) Destroy(panel.GetChild(i).gameObject);
+            for (var i = list.childCount - 1; i >= 0; i--)
+                if (list.GetChild(i).name.StartsWith("Toast")) { list.GetChild(i).gameObject.SetActive(false); Destroy(list.GetChild(i).gameObject); }
             var all = All(); var shown = all.Take(MaxVisible).ToList();
             for (var i = 0; i < shown.Count; i++)
             {
@@ -144,7 +155,7 @@ namespace AntColony.UI
 
         private void Row(string name, string text, Color color, System.Action onClick, System.Action action = null, string actionLabel = null)
         {
-            var rect = MenuTheme.Rect(name, panel);
+            var rect = MenuTheme.Rect(name, list);
             rect.gameObject.AddComponent<Image>().color = MenuTheme.Plate2;
             var rows = rect.gameObject.AddComponent<VerticalLayoutGroup>(); rows.padding = new RectOffset(6, 6, 3, 3);
             rows.childControlHeight = rows.childControlWidth = true; rows.childForceExpandHeight = false;

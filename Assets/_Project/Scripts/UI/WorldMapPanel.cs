@@ -233,7 +233,7 @@ namespace AntColony.UI
             var names = crew.Count == 0 ? "없음" : string.Join(", ", System.Linq.Enumerable.Select(crew, c => c.CommanderName));
             var text = $"<b>{ship.name}</b> · {(ship.Aircraft ? "비행기" : "차량")} · {StateName(ship.State)}{(ship.Remaining > 0 ? $" {ship.Remaining:0}초" : "")} → {(ship.Site != null ? ship.Site.Title : "정착지")}\n"
                 + $"장수 {names} ({ship.CommanderLoad}/{ship.CommanderCapacity}) · 병력 {ship.Load}/{ship.Capacity}\n"
-                + $"<color=#968976>화물 {ship.CargoLoad}/{ship.CargoCapacity} · 전리품 장비 {ship.EquipmentCargo.Count}{(ship.BlueprintCargo ? "·설계도" : "")}"
+                + $"<color=#b1b3a7>화물 {ship.CargoLoad}/{ship.CargoCapacity} · 전리품 장비 {ship.EquipmentCargo.Count}{(ship.BlueprintCargo ? "·설계도" : "")}"
                 + $" · 기분 {(crew.Count > 0 ? mood / crew.Count : 0):0} · 부상 {injured}</color>";
             if (!open) return text;
             foreach (var c in crew)
@@ -250,7 +250,7 @@ namespace AntColony.UI
 
         private static string SiteText(ExpeditionSite site)
         {
-            if (site == null) return "<color=#968976>지도에서 목적지를 선택하세요.</color>";
+            if (site == null) return "<color=#b1b3a7>지도에서 목적지를 선택하세요.</color>";
             var kind = site.Kind switch
             {
                 ExpeditionSiteKind.Settlement => "정착지", ExpeditionSiteKind.BossNest => "보스 둥지",

@@ -24,7 +24,7 @@ namespace AntColony.UI
             var p = L.Plate(f, "TalkPanel", 48, 48, 1344, 740);
             var badge = L.Box(p, "Badge", 14, 12, 36, 36, c.color);
             L.Label(badge, c.name.Substring(0, 1), 16, 0, 0, 36, 36, MenuTheme.AccentInk, TextAnchor.MiddleCenter, true);
-            L.Label(p, $"<b>{c.name}</b>  <color=#968976>{c.leader} · {DiplomacyManager.KindName(n.kind)}</color>", 16, 60, 10, 520, 22);
+            L.Label(p, $"<b>{c.name}</b>  <color=#b1b3a7>{c.leader} · {DiplomacyManager.KindName(n.kind)}</color>", 16, 60, 10, 520, 22);
             L.Label(p, $"관계 {(c.war ? "전쟁" : "평화")} · 호감도 <b>{c.affinity:+0;-0;0}</b> · 평판: {d.ReputationSummary()}", 12, 60, 32, 700, 20, MenuTheme.Muted);
             L.Line(p, 0, 60, 1344);
 
@@ -51,8 +51,8 @@ namespace AntColony.UI
             if (left >= 0) L.Label(p, $"남은 기한 {(int)left / 60}:{(int)left % 60:00}", 12, 1176, 12, 150, 18, MenuTheme.Warning, TextAnchor.MiddleRight);
 
             var status = n.kind == TalkKind.Trade || n.kind == TalkKind.Demand
-                ? $"상대 반응: <b>{DiplomacyManager.ReactionName(d.Reaction(c, n))}</b>" + (current == null ? " <color=#968976>(담당 장수 없음)</color>" : "")
-                : $"요청: <b>{DiplomacyManager.Summary(n.give)}</b>" + (n.take.Empty ? "" : " → 받는 것 " + DiplomacyManager.Summary(n.take)) + $"   <color=#968976>{d.RefusalRisk(n)}</color>";
+                ? $"상대 반응: <b>{DiplomacyManager.ReactionName(d.Reaction(c, n))}</b>" + (current == null ? " <color=#b1b3a7>(담당 장수 없음)</color>" : "")
+                : $"요청: <b>{DiplomacyManager.Summary(n.give)}</b>" + (n.take.Empty ? "" : " → 받는 것 " + DiplomacyManager.Summary(n.take)) + $"   <color=#b1b3a7>{d.RefusalRisk(n)}</color>";
             L.Label(p, status, 15, 14, 66, 1316, 26);
             if (n.last != "") L.Label(p, "최근 응답: " + n.last, 13, 14, 92, 1316, 20, MenuTheme.Accent);
 

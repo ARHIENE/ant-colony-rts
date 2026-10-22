@@ -49,7 +49,7 @@ namespace AntColony.UI
             objectivePanel.SetActive(worldMap == null || !worldMap.IsOpen);
             if (Time.unscaledTime < nextRefresh) return;
             nextRefresh = Time.unscaledTime + .5f;
-            objective.text = "<color=#f2a93b><b>목표</b></color>\n" + CurrentObjective + "\n<color=#968976>F2 설명서</color>";
+            objective.text = "<color=#f2a93b><b>목표</b></color>\n" + CurrentObjective + "\n<color=#b1b3a7>F2 설명서</color>";
         }
 
         private string BuildObjective()

@@ -23,7 +23,7 @@ namespace AntColony.UI
 
             L.Label(p, $"<b>민심</b>  {pop.S.sentiment:0} / 100{(pop.Unrest ? "  <color=#d9534f>바닥: 인구 탈주·병력 동원 불가</color>" : "")}", 14, 24, 132, 792, 24);
             L.Meter(p, 24, 158, 792, 8, pop.S.sentiment / 100f, pop.Unrest ? MenuTheme.Danger : MenuTheme.Hp);
-            L.Label(p, $"<b>이주 수요</b>  {pop.Demand:0} / 100  <color=#968976>({GameBalance.MinImmigrationDemand} 이상이면 매달 이주 · 주거 주변 미관 {pop.HousingBeauty:+0.#;-0.#;0})</color>", 14, 24, 176, 792, 24);
+            L.Label(p, $"<b>이주 수요</b>  {pop.Demand:0} / 100  <color=#b1b3a7>({GameBalance.MinImmigrationDemand} 이상이면 매달 이주 · 주거 주변 미관 {pop.HousingBeauty:+0.#;-0.#;0})</color>", 14, 24, 176, 792, 24);
             L.Meter(p, 24, 202, 792, 8, pop.Demand / 100f, MenuTheme.Accent);
             (string name, float value)[] causes = { ("주거", pop.HousingDemand), ("시설", pop.FacilityDemand), ("안전", pop.SafetyDemand), ("민심", pop.S.sentiment) };
             for (var i = 0; i < causes.Length; i++)
@@ -47,7 +47,7 @@ namespace AntColony.UI
             var input = MenuTheme.Input(p, Mathf.RoundToInt(pop.S.taxRate * 100).ToString()); input.name = "TaxInput";
             L.Place((RectTransform)input.transform, 436, 304, 70, 30); input.characterLimit = 3; input.textComponent.fontSize = 14;
             void Tax() => taxLabel.text = $"<b>세금</b> {pop.S.taxRate:P0} · {ColonyPopulation.FocusName(pop.S.taxFocus)}  →  주마다 식량 +{pop.WeeklyFood} · 재료 +{pop.WeeklySoil}"
-                + $"  <color=#968976>(다음 납세 {pop.NextTaxSeconds:0}초 · 높을수록 민심↓)</color>";
+                + $"  <color=#b1b3a7>(다음 납세 {pop.NextTaxSeconds:0}초 · 높을수록 민심↓)</color>";
             slider.onValueChanged.AddListener(v => { pop.SetTaxRate(v / 100f); input.SetTextWithoutNotify(((int)v).ToString()); Tax(); });
             input.onEndEdit.AddListener(v => { if (int.TryParse(v, out var n)) pop.SetTaxRate(n / 100f); slider.SetValueWithoutNotify(Mathf.RoundToInt(pop.S.taxRate * 100)); input.SetTextWithoutNotify(Mathf.RoundToInt(pop.S.taxRate * 100).ToString()); Tax(); });
             var fx = 520;
@@ -79,8 +79,8 @@ namespace AntColony.UI
                 () => { pop.S.elderlyService = !pop.S.elderlyService; Population(); }, "늙은 시민도 병사로 쓸지 정합니다(병력 상한에 포함, 모자라면 늙은 시민으로 보충).");
             // 2026-10-08: 시민 생산력·행정 성과·재개발 보상 수준(수치 잠정).
             L.Line(p, 24, 492, 792);
-            L.Label(p, $"<b>시민 생산력</b> ×{ColonyPopulation.Productivity:0.00}  <color=#968976>(주거 ×{ColonyPopulation.HousingProductivity:0.00} · 연구 +{ColonyPopulation.ResearchProductivity:P0} · 시설 +{ColonyPopulation.FacilityProductivity:P0})</color>", 14, 24, 502, 792, 24);
-            L.Label(p, $"<b>행정 성과</b> {pop.Administration:P0}  <color=#968976>(징수 {pop.TaxCollection:P0} · 민심 +{GameBalance.AdminSentiment * pop.Administration:0.#} · 이주 +{GameBalance.AdminDemand * pop.Administration:0.#} · 행정 책상에서 정치 장수가 업무)</color>", 14, 24, 528, 792, 24);
+            L.Label(p, $"<b>시민 생산력</b> ×{ColonyPopulation.Productivity:0.00}  <color=#b1b3a7>(주거 ×{ColonyPopulation.HousingProductivity:0.00} · 연구 +{ColonyPopulation.ResearchProductivity:P0} · 시설 +{ColonyPopulation.FacilityProductivity:P0})</color>", 14, 24, 502, 792, 24);
+            L.Label(p, $"<b>행정 성과</b> {pop.Administration:P0}  <color=#b1b3a7>(징수 {pop.TaxCollection:P0} · 민심 +{GameBalance.AdminSentiment * pop.Administration:0.#} · 이주 +{GameBalance.AdminDemand * pop.Administration:0.#} · 행정 책상에서 정치 장수가 업무)</color>", 14, 24, 528, 792, 24);
             L.Label(p, $"<b>재개발 보상</b> 기본의 {pop.S.redevelopCompensation:P0}", 14, 24, 560, 300, 30);
             void Compensation(float step) { pop.S.redevelopCompensation = Mathf.Clamp(Mathf.Round((pop.S.redevelopCompensation + step) * 10f) / 10f, GameBalance.RedevelopMinCompensation, GameBalance.RedevelopMaxCompensation); Population(); }
             L.Button(p, "Compensation Down", "−10%", 236, 558, 70, 32, () => Compensation(-.1f), "보상이 기본보다 적으면 재개발 때 민심이 내려갑니다.");

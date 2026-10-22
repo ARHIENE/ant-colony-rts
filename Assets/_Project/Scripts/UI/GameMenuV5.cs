@@ -11,7 +11,7 @@ namespace AntColony.UI
         {
             var root = Frame(title);
             var window = L.Plate(root, "V5Window", 170, 90, 1100, 720);
-            L.Label(window, title, 24, 20, 12, 1000, 36, MenuTheme.Accent);
+            L.Label(window, title, 20, 20, 12, 1000, 36, MenuTheme.TextColor);
             L.Label(window, subtitle, 14, 20, 49, 1020, 30, MenuTheme.Muted);
             L.Button(window, "Close", "×", 1044, 16, 36, 32, Resume);
             L.Line(window, 20, 88, 1060);
@@ -22,8 +22,9 @@ namespace AntColony.UI
 
         private RectTransform V5Section(RectTransform window, string title, float x, float y, float width, float height)
         {
-            var box = L.Well(window, title, x, y, width, height);
-            L.Label(box, title, 16, 12, 6, width - 24, 30, MenuTheme.Accent);
+            var box = L.Place(MenuTheme.Rect(title, window), x, y, width, height);
+            L.Line(box, 0, 0, width);
+            L.Label(box, title, 15, 12, 6, width - 24, 30, MenuTheme.Accent);
             return L.List(box, 12, 42, width - 24, height - 50);
         }
 
@@ -33,15 +34,15 @@ namespace AntColony.UI
             {
                 if (text.transform.parent.GetComponent<Button>() != null)
                 {
-                    text.fontSize = 14;
-                    text.resizeTextForBestFit = true; text.resizeTextMinSize = 11; text.resizeTextMaxSize = 14;
+                    text.fontSize = 13;
+                    text.resizeTextForBestFit = false;
                     text.verticalOverflow = VerticalWrapMode.Truncate;
                 }
                 else if (text.transform.parent.GetComponent<VerticalLayoutGroup>() != null)
                 {
                     var layout = text.GetComponent<LayoutElement>();
                     if (layout != null) { layout.minHeight = layout.preferredHeight; layout.preferredHeight = -1; }
-                    text.fontSize = 15;
+                    text.fontSize = 13;
                 }
             }
         }

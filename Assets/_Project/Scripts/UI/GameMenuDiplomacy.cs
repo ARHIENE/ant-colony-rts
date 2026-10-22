@@ -25,11 +25,11 @@ namespace AntColony.UI
             var f = Frame("외교 [J]");
             var contacted = d.Data.civilizations.Where(c => c.contacted && !c.extinct).ToArray();
             var tab = L.Plate(f, "DiplomacyTab", 48, 47, 200, 34);
-            L.Label(tab, $"<b>외교</b>   <color=#968976>접촉 {contacted.Length}</color>", 14, 16, 0, 180, 34);
+            L.Label(tab, $"<b>외교</b>   <color=#b1b3a7>접촉 {contacted.Length}</color>", 14, 16, 0, 180, 34);
             var p = L.Plate(f, "DiplomacyPanel", 48, 80, 1344, 676);
 
             // 왼쪽 372: 문명 카드 목록 + 캐러밴·교역소.
-            L.Label(p, $"<b>접촉한 문명</b> <color=#968976>{contacted.Length}</color>", 13, 12, 8, 340, 24);
+            L.Label(p, $"<b>접촉한 문명</b> <color=#b1b3a7>{contacted.Length}</color>", 13, 12, 8, 340, 24);
             var list = L.List(p, 10, 36, 356, 556, 8);
             foreach (var c in contacted)
             {
@@ -76,22 +76,22 @@ namespace AntColony.UI
             L.Label(head, s.leader, 20, 100, 10, 360, 30, bold: true);
             L.Label(head, s.name + " 지도자", 12, 100, 40, 360, 20, MenuTheme.Muted);
             L.Label(head, $"관계 <b>{(s.war ? "<color=#e8574a>전쟁</color>" : "평화")}</b>     호감도 <b>{s.affinity:+0;-0;0}</b>     전쟁 점수 {s.playerScore} : {s.enemyScore}", 13, 100, 62, 360, 24);
-            L.Label(p, "<b>어젠다</b>  <color=#968976>지도자마다 공개 1 · 숨김 1</color>", 13, 386, 120, 470, 22);
+            L.Label(p, "<b>어젠다</b>  <color=#b1b3a7>지도자마다 공개 1 · 숨김 1</color>", 13, 386, 120, 470, 22);
             L.Label(p, "공개  <b>" + DiplomacyRules.AgendaNames[(int)s.agenda] + "</b>", 13, 386, 144, 470, 22);
-            L.Label(p, "숨김  " + (s.hiddenRevealed ? "<b>" + DiplomacyRules.AgendaNames[(int)s.hiddenAgenda] + "</b>" : "<color=#968976>교역 협정을 맺으면 공개</color>"), 13, 386, 166, 470, 22);
-            L.Label(p, "<b>호감도</b>  <color=#968976>-100 ~ +100 · 최근 사유</color>", 13, 386, 200, 470, 22);
+            L.Label(p, "숨김  " + (s.hiddenRevealed ? "<b>" + DiplomacyRules.AgendaNames[(int)s.hiddenAgenda] + "</b>" : "<color=#b1b3a7>교역 협정을 맺으면 공개</color>"), 13, 386, 166, 470, 22);
+            L.Label(p, "<b>호감도</b>  <color=#b1b3a7>-100 ~ +100 · 최근 사유</color>", 13, 386, 200, 470, 22);
             L.Meter(p, 386, 226, 470, 8, (s.affinity + 100) / 200f, s.affinity >= 0 ? MenuTheme.Hp : MenuTheme.Danger);
             var reasons = L.List(p, 386, 242, 470, 420, 2);
             foreach (var reason in Enumerable.Reverse(s.reasons)) MenuTheme.Text(reasons, reason, 12, 20).color = MenuTheme.Muted;
 
             // 오른쪽 열: 협정 + 행동.
-            L.Label(p, "<b>협정</b>  <color=#968976>기간 1년 · 만료 전 갱신 가능</color>", 13, 872, 12, 460, 22);
+            L.Label(p, "<b>협정</b>  <color=#b1b3a7>기간 1년 · 만료 전 갱신 가능</color>", 13, 872, 12, 460, 22);
             foreach (TreatyKind kind in Enum.GetValues(typeof(TreatyKind)))
             {
                 var i = (int)kind;
                 var active = s.HasTreaty(kind, d.Data.elapsed);
                 var box = L.Box(p, "Treaty " + kind, 872, 40 + i * 50, 460, 44, MenuTheme.Plate2, true);
-                L.Label(box, $"<b>{TreatyNames[i]}</b>  <color=#968976>가치 {DiplomacyRules.TreatyValues[i]}</color>", 13, 10, 0, 300, 44);
+                L.Label(box, $"<b>{TreatyNames[i]}</b>  <color=#b1b3a7>가치 {DiplomacyRules.TreatyValues[i]}</color>", 13, 10, 0, 300, 44);
                 L.Label(box, active ? $"남은 {(s.treaties[i] - d.Data.elapsed) / DiplomacyRules.Month:0.0}개월" : "없음", 13, 300, 0, 150, 44,
                     active ? MenuTheme.Hp : MenuTheme.Dim, TextAnchor.MiddleRight);
             }
@@ -136,7 +136,7 @@ namespace AntColony.UI
             var p = L.Plate(f, "TradePanel", 48, 48, 1344, 740);
             var badge = L.Box(p, "Badge", 14, 12, 36, 36, c.color);
             L.Label(badge, c.name.Substring(0, 1), 16, 0, 0, 36, 36, MenuTheme.AccentInk, TextAnchor.MiddleCenter, true);
-            L.Label(p, $"<b>{c.name}</b>  <color=#968976>{c.leader}</color>", 16, 60, 10, 420, 22);
+            L.Label(p, $"<b>{c.name}</b>  <color=#b1b3a7>{c.leader}</color>", 16, 60, 10, 420, 22);
             L.Label(p, $"관계 {(c.war ? "전쟁" : "평화")} · 호감도 <b>{c.affinity:+0;-0;0}</b> · 공개 어젠다 {DiplomacyRules.AgendaNames[(int)c.agenda]}", 12, 60, 32, 520, 20, MenuTheme.Muted);
             L.Label(p, "상대는 받는 가치가 주는 가치 × (1.2 - 호감도 / 250) 이상이면 수락", 12, 700, 20, 630, 20, MenuTheme.Dim, TextAnchor.MiddleRight);
             L.Line(p, 0, 60, 1344);
@@ -172,7 +172,7 @@ namespace AntColony.UI
         private void TradeSide(RectTransform parent, Civilization c, bool player, Action preview)
         {
             var d = DiplomacyManager.Instance; var offer = player ? tradeGive : tradeTake;
-            MenuTheme.Text(parent, player ? "<b>우리 정착지</b>  <color=#968976>보유 / 제시</color>" : $"<b>{c.name}</b>  <color=#968976>보유 / 요청</color>", 15, 32);
+            MenuTheme.Text(parent, player ? "<b>우리 정착지</b>  <color=#b1b3a7>보유 / 제시</color>" : $"<b>{c.name}</b>  <color=#b1b3a7>보유 / 요청</color>", 15, 32);
             string[] resourceNames = { "식량", "재료", "특수 자원" };
             // 목록 버튼은 디자인 행 크기(높이 36, 14pt)로 줄인다.
             Button Item(string label, Action action)

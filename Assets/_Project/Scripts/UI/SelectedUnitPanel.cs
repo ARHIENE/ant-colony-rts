@@ -150,8 +150,8 @@ namespace AntColony.UI
             healthFill.anchorMax = new Vector2(maximum > 0f ? Mathf.Clamp01(current / maximum) : 0f, 1f);
             troopFill.parent.gameObject.SetActive(deployed);
             troopFill.anchorMax = new Vector2(troopMaximum > 0f ? Mathf.Clamp01(troops / troopMaximum) : 0f, 1f);
-            healthText.text = $"체력 <b>{Mathf.CeilToInt(current)}</b> <color=#968976>/ {Mathf.CeilToInt(maximum)}</color>"
-                + (deployed ? $"    병력 <b>{Mathf.CeilToInt(troops)}</b> <color=#968976>/ {Mathf.CeilToInt(troopMaximum)}</color>" : "");
+            healthText.text = $"체력 <b>{Mathf.CeilToInt(current)}</b> <color=#b1b3a7>/ {Mathf.CeilToInt(maximum)}</color>"
+                + (deployed ? $"    병력 <b>{Mathf.CeilToInt(troops)}</b> <color=#b1b3a7>/ {Mathf.CeilToInt(troopMaximum)}</color>" : "");
 
             var c = count == 1 ? first as CommanderAnt : null;
             if (c == null)

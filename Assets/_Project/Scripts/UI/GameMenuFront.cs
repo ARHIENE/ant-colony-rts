@@ -68,7 +68,7 @@ namespace AntColony.UI
             const float cw = 250f;
             void Legend(float y, string title, string small)
             {
-                L.Label(p, $"<b>{title}</b>   <color=#968976><size=12>{small}</size></color>", 13, 20, y, 760, 22);
+                L.Label(p, $"<b>{title}</b>   <color=#b1b3a7><size=12>{small}</size></color>", 13, 20, y, 760, 22);
             }
             RectTransform Card(string name, int index, float y, bool selected, Action pick)
             {
@@ -86,7 +86,7 @@ namespace AntColony.UI
             {
                 var scale = MapSizes.Scale(size); var captured = size;
                 var c = Card("Map " + size, (int)size, 98, options.mapSize == size, () => options.mapSize = captured);
-                L.Label(c, $"<b>{new[] { "소", "중", "대" }[(int)size]}</b>   <size=20>{400 * scale:0}</size><color=#968976>m</color>{(size == MapSize.Medium ? "   <size=11><color=#b8ac9a>권장</color></size>" : "")}", 15, 12, 8, 226, 28);
+                L.Label(c, $"<b>{new[] { "소", "중", "대" }[(int)size]}</b>   <size=20>{400 * scale:0}</size><color=#b1b3a7>m</color>{(size == MapSize.Medium ? "   <size=11><color=#b8ac9a>권장</color></size>" : "")}", 15, 12, 8, 226, 28);
                 L.Label(c, new[] { "빠른 판 · 자원과 적이 가까움", "확장과 방어의 균형", "긴 캠페인 · 탐색과 원정 거리 큼" }[(int)size], 12, 12, 40, 226, 20, MenuTheme.Muted);
                 L.Meter(c, 12, 78, 160, 6, scale / 1.6f, MenuTheme.Hex(0xd8ccb8));
                 L.Label(c, $"한 변 {400 * scale:0}m", 12, 180, 70, 60, 22, MenuTheme.Muted);

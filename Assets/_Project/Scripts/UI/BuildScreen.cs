@@ -113,6 +113,7 @@ namespace AntColony.UI
         {
             placement = FindFirstObjectByType<BuildingPlacementController>();
             buildWindow = MenuLayout.Plate(transform, "BuildWindowV5", 170, 90, 1100, 620);
+            buildWindow.gameObject.AddComponent<MenuViewport>().FitSelf = true;
             var windowCanvas = buildWindow.gameObject.AddComponent<Canvas>();
             windowCanvas.overrideSorting = true; windowCanvas.sortingOrder = 100;
             buildWindow.gameObject.AddComponent<GraphicRaycaster>();
@@ -283,7 +284,7 @@ namespace AntColony.UI
                 var data = Data(entries[i]);
                 var locked = BuildingPlacementController.LockReason(entries[i].kind);
                 var label = buttons[i].GetComponentsInChildren<Text>()[1];
-                label.text = entries[i].name + (locked != null ? "\n<color=#968976>잠김</color>" : data != null ? $"\n<color=#968976>{Cost(data)}</color>" : "");
+                label.text = entries[i].name + (locked != null ? "\n<color=#b1b3a7>잠김</color>" : data != null ? $"\n<color=#b1b3a7>{Cost(data)}</color>" : "");
                 buttons[i].GetComponent<Image>().color = locked != null ? MenuTheme.Well : Color.white;
                 buttons[i].GetComponent<MenuTooltip>().Message = locked ?? (data != null
                     ? $"{entries[i].name}: 식량 {data.foodCost} · 재료 {data.soilCost}{(data.specialCost > 0 ? $" · 특수 {data.specialCost}" : "")}"
@@ -304,21 +305,22 @@ namespace AntColony.UI
                     var type = MaterialInfo.Structural[m];
                     materialRows[m].GetComponentInChildren<Text>().text = (selectedMaterial == type ? "● " : "○ ") + MaterialLine(type, data.soilCost);
                 }
-            pickTitle.text = $"<b><color=#f2a93b>누구에게 맡길까요?</color></b>   {entry.name}  <color=#968976>{(data != null ? Cost(data) : "")} · 대기 {builders.Count}명 · 건설 기술이 높을수록 빨리 완공</color>";
+            pickTitle.text = $"<b><color=#f2a93b>누구에게 맡길까요?</color></b>   {entry.name}  <color=#b1b3a7>{(data != null ? Cost(data) : "")} · 대기 {builders.Count}명 · 건설 기술이 높을수록 빨리 완공</color>";
             var shown = Mathf.Min(builders.Count, pickRows.Count - 1);
             for (var i = 0; i < pickRows.Count; i++)
             {
                 var row = pickRows[i];
                 row.gameObject.SetActive(i <= shown);
+                if (i > shown) continue;
                 var label = row.GetComponentsInChildren<Text>()[1];
                 row.interactable = true;
                 if (i == shown)
                 {
-                    label.text = "<b>장수 미지정</b>  <color=#968976>예정지만 두고 건설 작업이 켜진 장수가 자율 시공</color>";
+                    label.text = "<b>장수 미지정</b>  <color=#b1b3a7>예정지만 두고 건설 작업이 켜진 장수가 자율 시공</color>";
                     continue;
                 }
                 var c = builders[i];
-                label.text = $"<b>{c.CommanderName}</b>  <color=#968976>{CommandCard.RoleName(c.Role)}</color>    건설 <b>{c.Talents.Level(CommanderActivity.Building)}</b>    병력 {c.TroopCount}/{c.CommandLimit}    기분 {c.Mood:0}";
+                label.text = $"<b>{c.CommanderName}</b>  <color=#b1b3a7>{CommandCard.RoleName(c.Role)}</color>    건설 <b>{c.Talents.Level(CommanderActivity.Building)}</b>    병력 {c.TroopCount}/{c.CommandLimit}    기분 {c.Mood:0}";
             }
         }
 
@@ -329,7 +331,7 @@ namespace AntColony.UI
         public static string MaterialLine(ResourceType m, int need)
         {
             var info = MaterialInfo.For(m); var have = ResourceManager.Instance != null ? ResourceManager.Instance.GetAmount(m) : 0;
-            return $"<color={(have >= need ? "#968976" : "#d9534f")}>{m.DisplayName()} {have}/{need}</color> · 내구 ×{info.durability:0.##} · 미관 {info.beauty:+0;-0;0} · 단열 {info.insulation:0.#}{(info.flammable ? " · 불에 탐" : "")}{(info.rare ? " · 귀한 재료" : "")}";
+            return $"<color={(have >= need ? "#b1b3a7" : "#d9534f")}>{m.DisplayName()} {have}/{need}</color> · 내구 ×{info.durability:0.##} · 미관 {info.beauty:+0;-0;0} · 단열 {info.insulation:0.#}{(info.flammable ? " · 불에 탐" : "")}{(info.rare ? " · 귀한 재료" : "")}";
         }
 
         private static string NameOf(BuildingKind kind, UnitRole role)

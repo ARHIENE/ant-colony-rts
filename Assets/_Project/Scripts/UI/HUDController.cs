@@ -250,17 +250,17 @@ namespace AntColony.UI
                 if (amount > 0 || m == ResourceType.Soil) list.Append(m.DisplayName()).Append(' ').Append(amount.ToString("N0")).Append('\n');
             }
             list.Append($"특수 {rm.GetAmount(ResourceType.Special):N0} / {rm.GetCapacity(ResourceType.Special):N0}");
-            resourceTexts[1].text = $"<color=#968976>재료</color> <b>{total:N0}</b> ▾";
+            resourceTexts[1].text = $"<color=#b1b3a7>재료</color> <b>{total:N0}</b> ▾";
             resourceTexts[1].transform.parent.GetComponent<MenuTooltip>().Message = $"재료 종류별 저장 한도 {rm.GetCapacity(ResourceType.Soil):N0}\n" + list;
-            materialsList.GetComponentInChildren<Text>().text = $"<b>재료</b> <color=#968976>(종류별 한도 {rm.GetCapacity(ResourceType.Soil):N0})</color>\n" + list;
+            materialsList.GetComponentInChildren<Text>().text = $"<b>재료</b> <color=#b1b3a7>(종류별 한도 {rm.GetCapacity(ResourceType.Soil):N0})</color>\n" + list;
             materialsList.sizeDelta = new Vector2(200, 34 + 16 * list.ToString().Split('\n').Length);
             var pool = AntPool.Instance;
             if (pool == null) return;
             // Phase 4: 인구 = 어린·성체·늙은 개미 합. 숫자 색 = 민심, 막대 = 이주 수요. 내역은 도움말로.
             var pop = ColonyPopulation.Instance;
-            if (pop == null) { resourceTexts[2].text = $"<color=#968976>인구</color> <b>{pool.Total}</b>"; return; }
+            if (pop == null) { resourceTexts[2].text = $"<color=#b1b3a7>인구</color> <b>{pool.Total}</b>"; return; }
             var color = pop.Unrest ? "#d9534f" : pop.S.sentiment < 40 ? "#e5bd6b" : "#efe7da";
-            resourceTexts[2].text = $"<color=#968976>인구</color> <b><color={color}>{pop.Total}</color></b> <color=#968976>· 납세 {pop.NextTaxSeconds:0}초</color>";
+            resourceTexts[2].text = $"<color=#b1b3a7>인구</color> <b><color={color}>{pop.Total}</color></b> <color=#b1b3a7>· 납세 {pop.NextTaxSeconds:0}초</color>";
             demandFill.rectTransform.sizeDelta = new Vector2(118 * Mathf.Clamp01(pop.Demand / 100f), 3);
             resourceTexts[2].transform.parent.GetComponent<MenuTooltip>().Message = $"인구 {pop.Total} / 살 자리 {pop.HousingCapacity} · 어린 {pop.S.young} · 성체 {pool.Total} · 늙은 {pop.S.old}"
                 + $"\n민심 {pop.S.sentiment:0} · 이주 수요 {pop.Demand:0} · 세금 {pop.S.taxRate:P0} (다음 납세 {pop.NextTaxSeconds:0}초: 식량 +{pop.WeeklyFood} · 재료 +{pop.WeeklySoil}) · {ColonyPopulation.PolicyName(pop.S.policy)}\n누르면 인구 창";

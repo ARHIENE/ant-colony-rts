@@ -1,5 +1,23 @@
 # Codex · Claude Code 공동 구현 보드
 
+- **HUD-V6-UNITY-REFINED / Codex / 구현·실행 검사 완료:** 사용자 요청으로 최신 절제된 V6 시안을 Unity 기존 기능에 적용. 담당: MenuTheme/MenuLayout/HudResponsiveLayout/CommandCard/GameMenuV5/GameMenuController/BuildScreen, 새 MenuViewport, HUD 검사. 배율·폰트·중성 테마·평면 버튼·관리 창 배치, UI 보조 글씨 #968976→#b1b3a7(대비 3.82→6.16). 건설 담당자 0명에서 RefreshPicker가 숨긴 행을 읽는 오류 재현 후 해당 행 건너뛰기. 최종 검증: HudV6Checks 17, HudV5UnityChecks 90, HudV6LayoutChecks 2070(뷰포트 모의 960/1280/1440, 과학·작업표·장수·장비·인구·건설 및 알림 스크롤), BuilderPickerCheck 0명 재현→통과. 2026-10-23 SAVE 캡처: HUD·과학·작업표 실제 화면 확인. 자원 이름표/HUD 겹침·관리 창 배경 지형 회색 프레임 후속 필요. Player 빌드 미수행. 게임 규칙·지형 변경 없음.
+
+- **HUD-V6-TAXONOMY / Codex / 시안 수정·검사 완료:** 사용자 제공 ai-slop-taxonomy.md 검토. 시안만 수정: hud-v6.css/html, hud-v6-people.js, 시안 검사. 중성 표면·등급 문자·행 구분·글자 위계·대비·클릭 피드백. Unity 추가 수정 없음.
+
+- **HUD-V6-TYPE / Codex / 진행:** 사용자 지적: 글자 크기 불일치, 색상·버튼·보석 장식 과함. 사용자 정정: 시안만 수정. Unity의 이번 폰트·배율·색상 변경은 되돌림. 범위: hud-v6.css. 색상·버튼·보석 장식 절제. 이전 Unity HUD 적용분은 보존.
+
+- **HUD-V6-UNITY / Codex / HUD 동작 검사 16 통과:** 사용자 승인: V6 화면 전체 + 기존 기능 연결. 담당: HudResponsiveLayout.cs, MenuTheme.cs, GameMenuController.cs, 관련 UI 검사. 평가·조사 등 신규 게임 시스템은 제외. 기존 지형 작업 파일 수정 없음. 검사: AgentScripts/HudV6Checks.cs. 새 게임 전환 시 영속 메뉴 소유권 보존, 선택/해제·지도 접기·상세·건설·장수 관리 연결 확인. 기존 관리 창 내부 구성은 유지되며 V6 전 화면 이식 완료 아님. 육안·해상도별 화면 비교 미수행.
+
+- **HUD-V6-GEMS / Codex / 완료:** V6 다이아·골드·실버·레드 각진 보석 카드와 등급 외형 비교. 다이아 도감/보유 특성 공통 적용, 미정 등급 임의 배정 없음. 브라우저 검사 및 1280×720 육안 확인.
+
+- **HUD-V6-1022 / Codex / HTML 검증 완료:** 디자인 색상·수리 카드·중복 상세·포커스 개선. 조사/평가·특성 4칸/다이아 18종·진형 14종 UI 반영. 기존 V6 검사 및 인재 관리 검사 통과(960/1280/1440 폭). 실제 효과·확률·게임 시뮬레이션 미연동. 검수: design/hud/HUD_V6_DESIGN_REVIEW.md. V5·Unity 미수정.
+
+- **HUD-V6 / Codex / HTML 1차 시안·대표 검사 통과:** design/hud/hud-v6*. V5 보존, 하단 52px·선택 카드·상세 창·접이식 미니맵. 최신 자원 목록·생산·장비/도구·수리·매장지/배관·음주 관리 화면 추가. 960/1280/1440 폭·대표 상호작용 검사 통과. 수동 예시 진행이며 실제 재고/AI 미연동; 전체 제조법·재활용 화면 후속. 범위: design/hud/HUD_V6.md. Unity 미수정.
+
+- **TERRACE-1020 추가 검증 / Claude(2026-10-22) / 버그 1건 수정, 1건 사용자 결정 대기:** `TerraceHeights.cs` 수정: Reach 출발칸을 본거지 평지의 안쪽 칸으로(가장자리 칸은 1칸만 닿아 반복 1회 낭비), FillUnreached를 덩어리 단위로 바꿔 같은 높이 땅에 폭 1칸 띠로만 붙은 넓은 땅도 메움(옛 코드는 같은 높이로 메워 무변화인데 true를 돌려 반복 한도 4회에 걸림). 검사 추가(`TerraceTerrainChecks`: Single 크기 인자, SaveLoad, WalkUp). 통과: 작은 맵 6바이옴×2시드·SaveLoad 3·WalkUp 3·보통 숲/사막. **미해결:** 보통 물가 2/300·큰 맵 59/12/19 지점 PathPartial — 지형은 이어져 있고(구간별 경로 Complete) Unity CalculatePath 탐색 노드 한도 초과(절벽 막다른 곳). tileSize 256→1024 효과 없음. 게임은 Partial을 '못 감'으로 처리(WorkerAnt.CanReach·운반 중 짐 내려놓기·건물 배치). 시각: 절벽면 톱니 모양, 층 경계 높이색(풀) 톱니 삼각형.
+- **TERRACE-1020 / Claude 검증 완료(2026-10-22):** 컴파일 에러 0, `TerraceTerrainChecks.Single` 6맵(물가 261019·11, 숲 77·1234, 사막 4242·9001) 맵별 실행 전부 PASS(경사로·웅덩이 NavMesh 제외·건설 불가·도달 300/300), 콘솔 에러 0. 코드 추가 수정 없음. 맵별 약 20초라 `Main`(6맵 한 번에) 대신 `Single` 사용.
+- **TERRACE-1020 / Codex / 수정 완료·실행 검증 미완료(위 Claude 검증으로 해소):** `MapGenerator.cs`, `HomeMapBuilder.cs`, `AgentScripts/TerraceTerrainChecks.cs`. 실행 시 지형 하나만 선택하고 사본 전체 비활성화, NavMesh 물 소스는 Active 사용. 검사 우회 비활성화·재베이크 제거, 장애물 없는 평지의 NavMesh 누락 실패 처리, 3바이옴 6시드로 확대. 컴파일 후 실행했으나 run_script 내부 30초 제한 초과, 이어 Unity 네이티브 크래시(ProfilerFrameDataDeserializer 스택) 발생. 재실행 시 `--timeout_ms 180000 --timeout 240` 사용 필요. 씬 원본 보존, 강제 종료·SAVE 안 함. graphify update는 기존 `.graphify_labels.json.sig` 오류로 실패.
+
 - **TOOL-GRIP-1018 후속 / Codex:** 도구 잡는 방향을 타격 프레임 기준으로 보정, kemono 미리보기 29장면 저장. 장면 활성화 후 포즈 평가로 보정하며 재생성 스크립트에도 연결. 창 공격 전방 유지 시각 확인. 대표 4장면 PNG·개별 GIF 갱신 완료. 손가락 쥐기·시설 표면 접촉·준비 자세 머리 관통은 완전 해결 아님. Notion GIF는 이번 변경 미반영.
 
 - **TOOL-GRIP-1018 / Codex / 모델 수정·Blender 확인 완료:** `art/resident-kit/scripts/tool_shapes.py`, `repair_tool_assets.py`, `kit_tools.py`, `resident-tools.blend`, 도구 FBX 4개. 창 잡는 원점 정렬, 도끼·망치·곡괭이 머리를 자루 끝에 재제작. 기존 메시 이름 유지하여 kemono 미리보기 링크 재열기 확인. 창 5프레임 소켓→표면 거리 1.34→0.0238(자루 반경), 형태 앞·사선 확인. 기존 라이브러리 before-grip-fix 백업 보존. GIF·Notion 이미지 재렌더 미실행, 손가락 쥐기·작업 대상 정밀 접촉은 별도. Unity 미수정.

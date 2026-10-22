@@ -1,14 +1,13 @@
 # 프로젝트 로그
 
-## 현재 상태 — 2026-10-19 SAVE(Claude) — 모델 없던 시설 5종 Blender 제작 + Unity 건물 모델 표시 적용
-- 프로젝트 E:\Git\ant / develop 개발, master 안정. 이전 기록은 changelog.md. 공동 작업 보드 `docs/IMPLEMENTATION_BOARD.md`(FACILITY-VISUAL-01).
-- **열린 작업 정리:** 사용자 지시로 이전 미완료 목록(도감 GIF 재업로드=완료, CHARACTER-CODE-01 회귀·HUD-V5-REAL 재개·Blender 애니 요청서·회귀 묶음·SPEC-1012 잔여) 전부 취소.
-- **Blender(모델 없던 BuildingKind 5종):** 비축더미(QueenChamber → `CC_Stockpile`), 무기 연구소(ResearchLab, 근접~비행 5종 공용), 방어시설 연구소(DefenseLab), 휴게실(RestRoom, 기획상 오락 시설로 대체 예정이나 코드·건설 메뉴에 남아 있어 제작), 범위형 분사탑(AreaAcidTower, 단일형과 별도 모델·포탑 회전 클립).
-  - `art/resident-kit/scripts/extra_spec.py`(SPEC·HINGES 5줄) + `models_extra.py`의 `structures()` → `blender -b --python scripts/kit_facilities_extra.py`로 재생성(시설 146개, facility-points.json 포함). 렌더 확인 완료.
-  - DigSite(옛 '확장' 지점)는 기획에서 삭제된 기능이라 모델 없음(씬에 상자로 남음).
-- **Unity 적용:** `Assets/_Project/Scripts/Buildings/FacilityVisual.cs`(BuildingKind 104종 → `Resources/Facilities/CC_*`), `BuildingBase.OnEnable`에서 `FacilityVisual.Attach`. 완공·저장 복원·씬 건물 모두 상자 그리기만 끄고(forceRenderingOff, 크기 판정 유지) 바닥 면적에 맞춘 모델 표시. 시작 비축더미는 Data가 없어 Stockpile 타입으로 판별. FBX 103개 `Assets/Resources/Facilities/`(URP Lit 색 정상).
-  - 검사: FacilityVisualChecks 513(101종 실제 생성·면적 안·바닥 맞춤·비축더미) · SaveRoundtrip 57 · Spec1012 159 통과.
-  - 한계: 모델이 상자 바닥 면적 기준 균일 배율이라 일부 가구가 캐릭터보다 크게 보일 수 있음. 피격 색 깜빡임 등 상자 렌더러 효과는 안 보임. 건설 중(공사장)은 기존 상자 그대로.
-- **미커밋/주의:** `art/`는 미추적(용량). `AntColony.unity`·`Water.mat`·`TimeManager.asset` 출처 불명 → 커밋 제외. `Assets/Kiki/`·`Assets/Screenshots/`·`Assets/reports/` 미추적(이번 작업 아님).
-- **Notion 개발 일지:** https://app.notion.com/p/3fdc4a0ecd3181518379c478eb9ba48b
-- **다음:** 1) 실제 플레이로 건물 크기·비율 체감 확인(필요하면 종류별 배율 보정) 2) 피격·선택 표시를 모델에도 반영할지 결정 3) kemono-kit 캐릭터 Unity 연결(대규모 → 승인 후) 4) 미실행 회귀 묶음.
+## 현재 상태 — 2026-10-23 SAVE 진행(Codex)
+- 프로젝트 E:\Git\ant / develop 개발, master 안정. 이전 기록은 changelog.md. 작업 보드 docs/IMPLEMENTATION_BOARD.md.
+- **이번 세션:** V6 HTML 시안의 장식 절제와 기존 Unity HUD·관리 화면 적용. 사용자 제공 ai-slop-taxonomy.md를 검토하고 전역 디자인 규칙에 관련 스킬·참고 문서·화면 검증 기준을 저장했다(전역 파일은 이 저장소 커밋 대상 아님).
+- **V6 시안:** 중성색, 평면 버튼, 행 구분, 글자 위계. 보석 발광·그라데이션·색 띠·등급 외형 전시 제거. 기능 검사와 960/1280/1440 폭 검사 통과. HTML 전용 평가·외부 조사 등 새 게임 시스템은 Unity 구현 범위에서 제외.
+- **Unity:** 하단 52px 메뉴, 선택 요약·명령 카드, 접이식 미니맵, 공통 중성 테마. HUD·메뉴 픽셀 배율 일치, 관리 창 자동 배치와 일반 글씨 최소 12px, 보조 글씨 대비 개선(3.82→6.16). 244px 달력·알림, 긴 알림은 높이 280px 안에서 스크롤. 기존 과학·장비·작업표·생산·동물 관리 동작 재사용.
+- **버그 수정:** BuildScreen.RefreshPicker가 숨긴 담당자 행도 읽어 0명/부족 시 ArgumentOutOfRangeException을 내던 오류를 재현하고 숨긴 행은 건너뛰도록 수정.
+- **실행 검사(이 세션):** HudV6Checks 17, HudV5UnityChecks 90, HudV6LayoutChecks 2070(3가지 뷰포트 모의, 과학·작업표·장수·장비·인구·건설 및 알림 스크롤), BuilderPickerCheck 0명 실패 재현→통과. 마지막 컴파일 오류·새 콘솔 오류 0. Player 빌드 미실행. SAVE에서 실제 HUD·과학·작업표 1920×1080 캡처 확인 완료. 글자·창 배치는 확인했으나 자원 OnGUI 라벨의 선택 카드 겹침과 관리 창 배경 지형 회색 프레임은 잔여 문제로 확인.
+- **길찾기 확인만 수행:** 큰 물가(seed 261019) 296/300 재현. 실패 (13,524),(5,522),(101,517),(9,503)는 2칸 탐색 실패, 1칸 탐색 경로와 모든 구간 NavMesh 계산 통과. (82,85) 실제 경유지 이동은 direct PathPartial·14개 경유지·도착 통과. 1칸 재시도 코드는 아직 수정하지 않음. 작은 맵 전체 회귀·저장/불러오기·절벽 그래픽 검증은 남음.
+- **커밋 범위:** 이번 세션에서 검증한 UI 소스·검사·V6 시안·문서만 선별 예정. 지형/길찾기 미완료 변경, 출처 불명 씬·Water.mat·TimeManager·ProjectAuditor 설정, art/·Kiki·reports·스크래치 등 기존 변경은 보존하고 제외. .prefab/.prefab.meta 제외.
+- **SAVE 진행:** HUD·과학 캡처를 Notion 파일로 업로드 완료. 개발 일지·Trouble Shooting 새 당일 페이지 작성 및 검증된 UI/V6 파일 develop 커밋·push를 진행 중. 캡처 원본 Assets/reports/save/2026-10-23/는 Git 제외.
+- **다음:** 1) 자원 이름표의 HUD 가림과 관리 창 배경 지형 회색 프레임 원인 확인 2) 큰 물가 4곳의 1칸 재탐색 수정·실제 이동 회귀 3) 작은 맵 전체·저장/불러오기·절벽 그래픽 회귀.

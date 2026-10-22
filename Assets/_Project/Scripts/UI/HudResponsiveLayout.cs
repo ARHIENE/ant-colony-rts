@@ -1,83 +1,126 @@
 using System.Linq;
+using AntColony.Units;
 using UnityEngine;
 using UnityEngine.UI;
 
 namespace AntColony.UI
 {
-    // 시안의 세 영역을 같은 Canvas 좌표로 배치한다. 작은 화면은 장수 바를 다음 줄로 보낸다.
-    [DefaultExecutionOrder(500)]
+    // V6: 하단 메뉴, 선택 카드와 접이식 지도. 게임 명령은 기존 컴포넌트를 사용한다.
+    [DefaultExecutionOrder(600)]
     public sealed class HudResponsiveLayout : MonoBehaviour
     {
-        private RectTransform canvas, top, console, roster, clock, materials, toolbar, notifications, objective, detail;
-        private Vector2 lastScreen;
-        private bool wasBuilding;
-        private float lastCanvasWidth;
-        public static float TopHeight { get; private set; } = 54;
+        private RectTransform canvas, console, toolbar, summary, mapToggle;
+        private SelectionManager selection;
+        private Text identity, mapLabel, brand;
+        private bool mapOpen = true, targetDetail;
+        private Component lastTarget;
+        private RectTransform notifications, objective;
+        public static float TopHeight { get; private set; } = 66;
 
         private void Start()
         {
             canvas = (RectTransform)transform;
-            top = (RectTransform)transform.Find("ResourceBar");
             console = (RectTransform)transform.Find("CommandConsole");
-            roster = (RectTransform)transform.Find("RosterBar");
-            clock = (RectTransform)transform.Find("HudClock");
-            materials = (RectTransform)transform.Find("MaterialsList");
-            var rects = FindObjectsByType<RectTransform>(FindObjectsInactive.Include, FindObjectsSortMode.None);
-            toolbar = rects.FirstOrDefault(r => r.name == "MenuToolbar");
-            notifications = rects.FirstOrDefault(r => r.name == "Toasts");
-            objective = rects.FirstOrDefault(r => r.name == "Objective");
-            detail = (RectTransform)transform.Find("DetailTabs");
-            Apply();
-        }
-        private void LateUpdate()
-        {
-            if (lastScreen != new Vector2(Screen.width, Screen.height) || wasBuilding != BuildScreen.IsOpen || canvas != null && Mathf.Abs(lastCanvasWidth - canvas.rect.width) > .1f) Apply();
-        }
-        public void Apply()
-        {
-            if (canvas == null) return;
-            lastScreen = new Vector2(Screen.width, Screen.height);
-            wasBuilding = BuildScreen.IsOpen;
-            // 900 기준 높이. 세로 화면도 최소 720 폭을 확보해 글자·버튼을 보존한다.
-            float height = Mathf.Max(900, 720f * Screen.height / Mathf.Max(1, Screen.width));
-            foreach (var scaler in FindObjectsByType<CanvasScaler>(FindObjectsInactive.Include, FindObjectsSortMode.None))
-            {
-                if (scaler.name != "HUDCanvas" && scaler.name != "Notifications" && scaler.name != "BetaObjectives") continue;
-                scaler.referenceResolution = new Vector2(1440, height); scaler.matchWidthOrHeight = 1;
-            }
-            Canvas.ForceUpdateCanvases();
-            lastCanvasWidth = canvas.rect.width;
-            float width = height * Screen.width / Mathf.Max(1, Screen.height);
-            bool narrow = width <= 1000, stacked = width <= 720.1f;
-            TopHeight = width <= 1280 ? 116 : 66;
-            top.sizeDelta = new Vector2(0, TopHeight);
-            roster.anchoredPosition = new Vector2(width <= 1280 ? 0 : -10, width <= 1280 ? -56 : -4);
+            selection = FindAnyObjectByType<SelectionManager>();
+            var overlays = FindObjectsByType<RectTransform>(FindObjectsInactive.Include, FindObjectsSortMode.None);
+            notifications = overlays.FirstOrDefault(r => r.name == "Toasts");
+            objective = overlays.FirstOrDefault(r => r.name == "Objective");
+            toolbar = FindObjectsByType<RectTransform>(FindObjectsInactive.Include, FindObjectsSortMode.None).FirstOrDefault(r => r.name == "MenuToolbar");
+            var dock = MenuTheme.Rect("V6Dock", transform);
+            dock.anchorMin = Vector2.zero; dock.anchorMax = new Vector2(1, 0); dock.pivot = new Vector2(.5f, 0);
+            dock.sizeDelta = new Vector2(0, 52); dock.gameObject.AddComponent<Image>().color = MenuTheme.Plate;
+            brand = MenuTheme.Text(transform.Find("ResourceBar"), "작은 정착지", 15);
+            MenuLayout.Place(brand.rectTransform, 16, 16, 120, 30);
+            brand.fontStyle = FontStyle.Bold;
             if (toolbar != null)
             {
-                float ratio = GetComponent<Canvas>().scaleFactor / toolbar.GetComponentInParent<Canvas>().scaleFactor;
-                toolbar.localScale = Vector3.one * ratio; toolbar.anchoredPosition = new Vector2(8, -10) * ratio;
+                var layout = toolbar.GetComponent<HorizontalLayoutGroup>();
+                layout.childControlWidth = layout.childControlHeight = true;
+                layout.childForceExpandHeight = false;
+                // 메뉴 캔버스는 씬 전환 후에도 유지하므로 소유권을 유지한다.
+                toolbar.anchorMin = toolbar.anchorMax = toolbar.pivot = Vector2.zero;
+                toolbar.anchoredPosition = new Vector2(12, 9); toolbar.sizeDelta = new Vector2(900, 34);
+                var build = toolbar.Find("V6 Build")?.GetComponent<Button>() ?? MenuTheme.Button(toolbar, "V6 Build", BuildScreen.Toggle); build.GetComponentInChildren<Text>().text = "건설";
+                build.transform.SetSiblingIndex(1);
+                var roster = toolbar.Find("V6 Roster")?.GetComponent<Button>() ?? MenuTheme.Button(toolbar, "V6 Roster", () => GameMenuController.Instance?.Roster()); roster.GetComponentInChildren<Text>().text = "장수";
+                foreach (var b in toolbar.GetComponentsInChildren<Button>())
+                {
+                    var label = b.GetComponentInChildren<Text>(); label.fontSize = 13; label.resizeTextForBestFit = false;
+                    var element = b.GetComponent<LayoutElement>(); element.preferredHeight = 34;
+                    element.preferredWidth = Mathf.Max(52, b.GetComponentInChildren<Text>().preferredWidth + 20);
+                }
             }
-            if (objective != null) objective.anchoredPosition = new Vector2(10, -TopHeight - 10);
-            clock.anchoredPosition = new Vector2(-10, -TopHeight - 10);
+            summary = MenuTheme.Rect("V6SelectionSummary", console);
+            identity = MenuTheme.Text(summary, "", 16); MenuTheme.Stretch(identity.rectTransform);
+            identity.rectTransform.offsetMin = new Vector2(12, 0); identity.rectTransform.offsetMax = new Vector2(-130, 0);
+            identity.alignment = TextAnchor.MiddleLeft;
+            var details = MenuLayout.Button(summary, "V6 Details", "상세 ↗", 0, 0, 80, 32, () => {
+                var commander = SelectedUnitPanel.FindSingleSelectedCommander(selection);
+                if (commander != null) GameMenuController.Instance?.Details(commander);
+                else targetDetail = !targetDetail;
+            });
+            var dr = (RectTransform)details.transform; dr.anchorMin = dr.anchorMax = dr.pivot = new Vector2(1, 1); dr.anchoredPosition = new Vector2(-46, -10);
+            var clear = MenuLayout.Button(summary, "V6 Clear Selection", "×", 0, 0, 32, 32, () => { selection?.ClearSelection(); WorkTargetPanel.Clear(); targetDetail = false; });
+            var cr = (RectTransform)clear.transform; cr.anchorMin = cr.anchorMax = cr.pivot = Vector2.one; cr.anchoredPosition = new Vector2(-8, -10);
+            mapToggle = MenuTheme.Rect("V6MapToggle", HudConsole.Left);
+            mapToggle.gameObject.AddComponent<Image>().color = MenuTheme.Plate2;
+            mapToggle.gameObject.AddComponent<Button>().onClick.AddListener(() => mapOpen = !mapOpen);
+            mapLabel = MenuTheme.Text(mapToggle, "지도 접기", 12); MenuTheme.Stretch(mapLabel.rectTransform); mapLabel.alignment = TextAnchor.MiddleCenter;
+            // 지도는 선택 콘솔과 독립적으로 유지한다.
+            HudConsole.Left.SetParent(transform, false);
+            HudConsole.Center.SetParent(transform, false);
+            foreach (var root in new[] { console, HudConsole.Left, HudConsole.Right })
+                foreach (var decoration in root.GetComponentsInChildren<Transform>(true).Where(t => t.name == "Bronze" || t.name == "WingEdge" || t.name == "Rivet").ToArray()) decoration.gameObject.SetActive(false);
+        }
+
+        private static void Place(RectTransform r, float x, float y, float w, float h)
+        {
+            r.anchorMin = r.anchorMax = r.pivot = Vector2.zero;
+            r.anchoredPosition = new Vector2(x, y); r.sizeDelta = new Vector2(w, h);
+        }
+
+        private void LateUpdate()
+        {
+            if (canvas == null) return;
+            var scaler = GetComponent<CanvasScaler>();
+            scaler.uiScaleMode = CanvasScaler.ScaleMode.ConstantPixelSize;
+            float width = canvas.rect.width;
+            var top = (RectTransform)transform.Find("ResourceBar");
+            TopHeight = width < 960 ? 116 : 66; top.sizeDelta = new Vector2(0, TopHeight);
+            var roster = (RectTransform)transform.Find("RosterBar");
+            roster.anchorMin = roster.anchorMax = roster.pivot = new Vector2(0, 1);
+            roster.anchoredPosition = new Vector2(width >= 1100 ? 140 : 16, width < 960 ? -56 : -4);
+            brand.gameObject.SetActive(width >= 1100);
             if (notifications != null) notifications.anchoredPosition = new Vector2(-10, -TopHeight - 112);
-            materials.anchoredPosition = new Vector2(-380, -TopHeight - 10);
-            float commandHeight = wasBuilding ? 200 : 88;
-            console.sizeDelta = new Vector2(0, stacked ? 224 + commandHeight : 224);
-            // 날개는 넓은 화면에서만 맵 쪽으로 솟는다(시안 max-width 1000 이하 = 솟음 없음).
-            float rise = narrow ? 0 : HudConsole.WingRise;
-            if (detail != null) detail.anchoredPosition = new Vector2(8, console.sizeDelta.y + rise + 8);
-            float left = narrow ? 0 : width <= 1280 ? 188 : HudConsole.LeftWidth;
-            float right = width <= 1280 ? 200 : HudConsole.RightWidth;
-            HudConsole.Left.gameObject.SetActive(!narrow);
-            HudConsole.Left.sizeDelta = new Vector2(left, rise);
-            if (!narrow) Minimap.Fit(HudConsole.Left, left, width > 1280);
-            HudConsole.Right.anchorMin = new Vector2(stacked ? 0 : 1, 0);
-            HudConsole.Right.anchorMax = new Vector2(1, stacked ? 0 : 1);
-            HudConsole.Right.pivot = new Vector2(1, 0);
-            HudConsole.Right.sizeDelta = new Vector2(stacked ? 0 : right, stacked ? commandHeight : rise);
-            HudConsole.Right.Find("WingEdge").gameObject.SetActive(rise > 0 && !stacked);
-            HudConsole.Center.offsetMin = new Vector2(left, stacked ? commandHeight : 0);
-            HudConsole.Center.offsetMax = new Vector2(stacked ? 0 : -right, 0);
+            if (objective != null) objective.anchoredPosition = new Vector2(10, -TopHeight - 10);
+            var clock = (RectTransform)transform.Find("HudClock"); clock.anchoredPosition = new Vector2(-10, -TopHeight - 10);
+            var materials = (RectTransform)transform.Find("MaterialsList"); materials.anchoredPosition = new Vector2(-158, -TopHeight - 10);
+            var target = WorkTargetPanel.Target;
+            if (target != lastTarget) { targetDetail = false; lastTarget = target; }
+            bool hasTarget = target != null && target.gameObject.activeInHierarchy;
+            var units = selection == null ? new SelectableObject[0] : selection.GetSelectedObjects().Where(s => s != null && s.IsSelected && s.isActiveAndEnabled).ToArray();
+            bool visible = !BuildScreen.IsOpen && (hasTarget || units.Length > 0);
+            console.gameObject.SetActive(visible);
+            float left = width < 900 ? 176 : 190, cardWidth = Mathf.Min(790, width - left - 16);
+            Place(console, left, 66, cardWidth, 132);
+            Place(summary, 0, 76, cardWidth, 56);
+            Place(HudConsole.Right, 0, 0, cardWidth, 76);
+            var commander = SelectedUnitPanel.FindSingleSelectedCommander(selection);
+            var title = hasTarget ? target is AntColony.Buildings.BuildingBase building && building.Data != null ? building.Data.displayName : target.name : commander != null ? commander.CommanderName : $"{units.Length}명 선택";
+            var status = hasTarget ? "대상 관리" : commander != null ? CommanderOverhead.Activity(commander) + $" · 체력 {commander.PersonalHealth:0}/{AntColony.Core.GameBalance.CommanderHealth:0}" : "공통으로 가능한 명령";
+            identity.text = $"<b>{title}</b>\n<size=12>{status}</size>";
+            Place(HudConsole.Center, Mathf.Max(16, (width - 808) / 2), 220, Mathf.Min(808, width - 32), 224);
+            HudConsole.Center.gameObject.SetActive(visible && targetDetail);
+            Place(HudConsole.Left, 16, 66, 154, mapOpen ? 154 : 28);
+            Place(mapToggle, 0, mapOpen ? 126 : 0, 154, 28); mapLabel.text = mapOpen ? "지도 접기" : "지도 펼치기";
+            var map = (RectTransform)HudConsole.Left.Find("MinimapScreen");
+            map.gameObject.SetActive(mapOpen); Place(map, 6, 28, 142, 94);
+            for (int i = 0; i < 3; i++)
+            {
+                var filter = (RectTransform)HudConsole.Left.Find("Minimap Filter " + (Minimap.Filter)i);
+                filter.gameObject.SetActive(mapOpen); Place(filter, 6 + i * 48, 3, 46, 22);
+            }
+            var tabs = (RectTransform)transform.Find("DetailTabs"); if (tabs != null) tabs.anchoredPosition = new Vector2(left, 210);
         }
     }
 }

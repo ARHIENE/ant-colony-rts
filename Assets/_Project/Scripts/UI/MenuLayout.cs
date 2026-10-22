@@ -52,20 +52,20 @@ namespace AntColony.UI
 
         // 오브젝트 이름은 검사가 찾는 키, 표시 문구는 label.
         public static Button Button(Transform parent, string name, string label, float x, float y, float w, float h,
-            Action action, string tip = null, bool primary = false, int size = 14, TextAnchor align = TextAnchor.MiddleCenter)
+            Action action, string tip = null, bool primary = false, int size = 13, TextAnchor align = TextAnchor.MiddleCenter)
         {
             var rect = Place(MenuTheme.Rect(name, parent), x, y, w, h);
             rect.gameObject.AddComponent<Image>();
-            rect.gameObject.AddComponent<Outline>().effectColor = primary ? MenuTheme.Hex(0xffc56b) : MenuTheme.Line;
+            rect.gameObject.AddComponent<Outline>().effectColor = primary ? MenuTheme.Accent : MenuTheme.Line;
             var button = rect.gameObject.AddComponent<Button>();
             MenuTheme.StyleButton(button);
             if (primary)
             {
-                var colors = button.colors; colors.normalColor = MenuTheme.Accent; colors.highlightedColor = MenuTheme.Hex(0xffb84d); button.colors = colors;
+                var colors = button.colors; colors.normalColor = MenuTheme.Plate2; colors.highlightedColor = MenuTheme.PlateHover; button.colors = colors;
             }
             button.onClick.AddListener(() => action());
             var text = Label(rect, label, size, align == TextAnchor.MiddleCenter ? 0 : 12, 0, align == TextAnchor.MiddleCenter ? w : w - 24, h,
-                primary ? MenuTheme.AccentInk : MenuTheme.TextColor, align, primary);
+                MenuTheme.TextColor, align, primary);
             text.raycastTarget = false;
             if (!string.IsNullOrEmpty(tip)) rect.gameObject.AddComponent<MenuTooltip>().Message = tip;
             return button;

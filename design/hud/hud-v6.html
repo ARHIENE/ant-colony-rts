@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>인게임 HUD v6</title>
+<meta name="description" content="정착지 인게임 HUD v6 인터랙티브 시안. 예시 데이터이며 Unity와 연동되지 않는다.">
+<link rel="stylesheet" href="hud-v5.css">
+<link rel="stylesheet" href="hud-v6.css">
+<script src="hud-v5.js" defer></script>
+<script src="hud-v5-logistics.js" defer></script>
+<script src="hud-v5-health.js" defer></script>
+<script src="hud-v5-care.js" defer></script>
+<script src="hud-v5-colony.js" defer></script>
+<script src="hud-v5-expedition.js" defer></script>
+<script src="hud-v5-research.js" defer></script>
+<script src="hud-v5-farm.js" defer></script>
+<script src="hud-v5-utilities.js" defer></script>
+<script src="hud-v5-equipment.js" defer></script>
+<script src="hud-v5-anatomy.js" defer></script>
+<script src="hud-v5-returns.js" defer></script>
+<script src="hud-v6-resources.js" defer></script><script src="hud-v6.js" defer></script><script src="hud-v6-planning.js" defer></script>
+<script src="hud-v6-traits-data.js" defer></script>
+<script src="hud-v6-people.js" defer></script>
+</head>
+<body>
+<div class="app">
+  <header class="top plate" aria-label="상단 바">
+    <div class="v6-brand">작은 정착지</div>
+    <div class="roster" id="roster" role="group" aria-label="장수 바"></div>
+    <div class="res" id="res" aria-label="자원·인구"></div>
+  </header>
+
+  <main class="playfield" id="playfield" aria-label="게임 지도와 알림">
+    <svg class="scene" id="scene" viewBox="0 0 1440 660" preserveAspectRatio="xMidYMid slice" role="img" aria-label="본거지 지도(시안 그림)"></svg>
+    <div class="overlay">
+      <div class="col left" id="left"></div>
+      <div class="col right" id="right">
+        <div class="clock plate" id="clock" aria-label="달력과 게임 속도"></div>
+        <ol class="alerts" id="alerts" aria-label="알림" aria-live="polite"></ol>
+      </div>
+    </div>
+    <div class="placebar plate" id="placebar" hidden></div>
+    <div class="feedback plate" id="feedback" role="status" aria-live="polite"></div>
+  </main>
+
+<aside class="v6-map"><button class="btn" id="v6-map-toggle" aria-expanded="true">지도 접기</button><div id="v6-map-body"><div class="mini well" id="mini" role="img" aria-label="미니맵"></div><div class="mini-side" id="miniSide"></div></div></aside>
+<section class="console" aria-label="선택 정보와 명령" hidden><div id="v6-summary"></div><div class="cmd" id="cmd"></div></section>
+<footer class="v6-dock"><nav class="menu" id="menu" aria-label="정착지 관리"></nav><button class="btn primary" data-act="open" data-w="build">＋ 건설</button><span class="v6-note">V6 · 인터랙티브 시안</span><button class="btn" id="v6-demo" aria-expanded="false">상태 미리보기</button></footer>
+</div>
+
+<dialog id="v6-detail" aria-labelledby="v6-detail-title"><header><h2 id="v6-detail-title">선택 대상 상세</h2><button class="btn" id="v6-detail-close" aria-label="상세 닫기">닫기 ×</button></header><div class="center" id="center"></div></dialog>
+<div class="scrim" id="scrim" aria-hidden="true">
+  <section class="window plate" id="window" role="dialog" aria-modal="true" aria-labelledby="winTitle"></section>
+</div>
+
+<dialog class="confirm" id="confirm" aria-labelledby="confirmTitle">
+  <h2 id="confirmTitle"></h2>
+  <div class="body" id="confirmBody"></div>
+  <form method="dialog">
+    <button class="btn" value="cancel" autofocus>취소</button>
+    <button class="btn primary" value="ok" id="confirmOk">확인</button>
+  </form>
+</dialog>
+
+<div class="pop plate" id="pop" role="dialog" aria-label="재료 목록" hidden></div>
+</body>
+</html>

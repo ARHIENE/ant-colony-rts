@@ -1,3 +1,6 @@
+# 2026-10-19 SAVE(Claude) — 2026-10-23 SAVE 이관
+- 시설 모델 없던 5종 Blender 제작 및 FacilityVisual의 104종 건물 모델 연결. FacilityVisualChecks 513·SaveRoundtrip 57·Spec1012 159 통과. 건물 크기·선택/피격 효과 확인, kemono-kit Unity 연결과 회귀는 후속. art/ 및 출처 불명 씬·재질·설정 변경은 제외. 이전 개발 일지: https://app.notion.com/p/3fdc4a0ecd3181518379c478eb9ba48b
+
 # 2026-10-18 SAVE 2(Claude) — 2026-10-19 SAVE 이관
 - 토끼 조합 키트(KEMONO-MODULAR) Codex 인수: 빌드 크래시 원인(libraries.write) 회피, 리그 98→58뼈·치마 가중치·귀/꼬리 뿌리 수정, 동작 44(보폭·팔·무릎), 시설 상호작용 188장면·GIF, Notion 키트 페이지. EraChecks 19 통과, 회귀 18개 일괄 실행은 중단. 건물 모델 연결은 스크래치 준비만(→ 10-19 적용).
 

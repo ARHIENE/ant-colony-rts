@@ -7,18 +7,18 @@ namespace AntColony.UI
 {
     public static class MenuTheme
     {
-        // 디자인 토큰: Claude Design 캔버스 「개미 RTS UI」(2026-09-26)의 :root 변수와 같은 값.
-        public static readonly Color World = Hex(0x4b4436), Plate = Hex(0x1b1712), Plate2 = Hex(0x231e17), PlateHover = Hex(0x2e271e),
-            Well = Hex(0x120f0b), EdgeLo = Hex(0x080605), Line = Hex(0x3a3127), Line2 = Hex(0x4a3f32), Rim = Hex(0x5a4c3b),
-            TextColor = Hex(0xefe7da), Dim = Hex(0xaa9b86), AccentInk = Hex(0x1a1206),
+        // V6 시안: 중성 표면, 상태 색과 선택 강조를 분리한다.
+        public static readonly Color World = Hex(0x4b4436), Plate = Hex(0x262725), Plate2 = Hex(0x30312e), PlateHover = Hex(0x3c3d38),
+            Well = Hex(0x1f201e), EdgeLo = Hex(0x1f201e), Line = Hex(0x484a43), Line2 = Hex(0x484a43), Rim = Hex(0x65675d),
+            TextColor = Hex(0xeeeee5), Dim = Hex(0xb1b3a7), AccentInk = Hex(0x25251f),
             Hp = Hex(0x6cc46a), HpMid = Hex(0xe0b43a), Danger = Hex(0xe8574a), DangerInk = Hex(0xffb3aa), Loyal = Hex(0x86a9e6);
         public static readonly Color Background = new Color(Plate.r, Plate.g, Plate.b, .98f);
-        public static readonly Color Accent = Hex(0xf2a93b);
-        public static readonly Color Muted = Hex(0xc2b7a6);
+        public static readonly Color Accent = Hex(0xc3b88f);
+        public static readonly Color Muted = Hex(0xbfc0b5);
         public static readonly Color Selection = Hex(0x8bc8ba), Warning = Hex(0xef955f);
         // HUD v4.1 하단 프레임(2026-10-04 시안): 청동 띠·판 재질·움푹한 화면.
-        public static readonly Color FrameHi = Hex(0xd8aa62), Frame = Hex(0x8f6a3a), FrameLo = Hex(0x3b2a17), FrameInk = Hex(0x0a0705),
-            FrameMat = Hex(0x271e15), ScreenColor = Hex(0x0e0b08), ScreenRim = Hex(0x6b4f2c), FrameButton = Hex(0x30251a);
+        public static readonly Color FrameHi = Hex(0x65675d), Frame = Hex(0x484a43), FrameLo = Hex(0x30312e), FrameInk = Hex(0x1f201e),
+            FrameMat = Hex(0x262725), ScreenColor = Hex(0x1f201e), ScreenRim = Hex(0x484a43), FrameButton = Hex(0x30312e);
 
         // 청동 띠 7px(밝은 1 · 본색 4 · 어두운 1 · 먹선 1). vertical이면 inkFirst 쪽(왼쪽)부터 같은 순서를 뒤집어 쌓는다.
         public static RectTransform Bronze(Transform parent, string name, bool vertical = false, bool inkFirst = false)
@@ -55,12 +55,9 @@ namespace AntColony.UI
         public static void StyleFrameButton(UnityEngine.UI.Button button, bool primary = false)
         {
             StyleButton(button);
-            var colors = button.colors;
-            colors.normalColor = primary ? Hex(0x87591f) : FrameButton;
-            colors.highlightedColor = primary ? Hex(0xa06c26) : Hex(0x3b2e20);
-            button.colors = colors;
             var outline = button.GetComponent<Outline>() ?? button.gameObject.AddComponent<Outline>();
-            outline.effectColor = primary ? Hex(0xd79a45) : ScreenRim;
+            outline.effectColor = primary ? Accent : Line;
+            outline.effectDistance = new Vector2(1, -1);
         }
 
         // 움푹한 화면:어두운 바탕 + 먹선 2px + 청동 1px 테.
@@ -68,8 +65,6 @@ namespace AntColony.UI
         {
             var image = go.GetComponent<Image>() ?? go.AddComponent<Image>();
             image.color = ScreenColor;
-            var ink = go.AddComponent<Outline>(); ink.effectColor = FrameInk; ink.effectDistance = new Vector2(2, -2);
-            var rim = go.AddComponent<Outline>(); rim.effectColor = ScreenRim; rim.effectDistance = new Vector2(1, -1);
             return image;
         }
         private static Font font, numberFont;
@@ -95,20 +90,20 @@ namespace AntColony.UI
             var colors = button.colors;
             colors.normalColor = Plate2;
             colors.highlightedColor = PlateHover;
-            colors.pressedColor = Accent; colors.selectedColor = Hex(0x2a2219);
+            colors.pressedColor = Well; colors.selectedColor = PlateHover;
             colors.disabledColor = Well; colors.fadeDuration = .12f;
             button.colors = colors;
         }
         public static Canvas Canvas(string name, Transform parent, int order)
         {
             var rect = Rect(name, parent); var canvas = rect.gameObject.AddComponent<Canvas>(); canvas.renderMode = RenderMode.ScreenSpaceOverlay; canvas.sortingOrder = order;
-            var scale = rect.gameObject.AddComponent<CanvasScaler>(); scale.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize; scale.referenceResolution = new Vector2(1440, 900);
+            var scale = rect.gameObject.AddComponent<CanvasScaler>(); scale.uiScaleMode = CanvasScaler.ScaleMode.ConstantPixelSize;
             rect.gameObject.AddComponent<GraphicRaycaster>(); return canvas;
         }
-        public static Text Text(Transform parent, string value, int size = 20, float height = 40)
+        public static Text Text(Transform parent, string value, int size = 13, float height = 40)
         {
             var rect = Rect("Text", parent); var text = rect.gameObject.AddComponent<Text>(); text.font = Font; text.text = value;
-            text.fontSize = size; text.color = TextColor; text.alignment = TextAnchor.MiddleLeft; text.raycastTarget = false;
+            text.fontSize = Mathf.Clamp(size, 12, 20); text.color = TextColor; text.alignment = TextAnchor.MiddleLeft; text.raycastTarget = false;
             text.horizontalOverflow = HorizontalWrapMode.Wrap; text.verticalOverflow = VerticalWrapMode.Overflow;
             rect.gameObject.AddComponent<LayoutElement>().preferredHeight = height; return text;
         }
@@ -118,7 +113,7 @@ namespace AntColony.UI
             rect.gameObject.AddComponent<LayoutElement>().preferredHeight = 44;
             var button = rect.gameObject.AddComponent<Button>(); button.onClick.AddListener(() => action());
             StyleButton(button);
-            var text = Text(rect, label, 19); Stretch(text.rectTransform); text.alignment = TextAnchor.MiddleCenter;
+            var text = Text(rect, label, 13); Stretch(text.rectTransform); text.alignment = TextAnchor.MiddleCenter;
             if (!string.IsNullOrEmpty(tip)) rect.gameObject.AddComponent<MenuTooltip>().Message = tip;
             return button;
         }

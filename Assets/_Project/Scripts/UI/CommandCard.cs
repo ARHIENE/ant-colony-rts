@@ -184,7 +184,7 @@ namespace AntColony.UI
             var button = rect.gameObject.AddComponent<Button>();
             MenuTheme.StyleFrameButton(button, primary);
             button.onClick.AddListener(action);
-            var label = Label(rect, "", columns == 2 ? 14 : 12, TextAnchor.MiddleCenter, primary ? MenuTheme.Hex(0xffe2ab) : MenuTheme.TextColor);
+            var label = Label(rect, "", 12, TextAnchor.MiddleCenter, MenuTheme.TextColor);
             label.rectTransform.offsetMin = new Vector2(2, 2); label.rectTransform.offsetMax = new Vector2(-2, -2);
             if (primary) label.fontStyle = FontStyle.Bold;
             slots.Add(new Slot { button = button, label = label, tip = rect.gameObject.AddComponent<MenuTooltip>(), text = text, help = help, ready = ready, visible = visible });

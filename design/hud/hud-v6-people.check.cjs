@@ -1,0 +1,33 @@
+const assert=require('node:assert/strict');
+const {chromium}=require('playwright');
+(async()=>{const browser=await chromium.launch();try{
+ const page=await browser.newPage({viewport:{width:1280,height:720}}),errors=[];page.on('pageerror',e=>errors.push(e.message));
+ await page.goto('file:///'+require('node:path').resolve(__dirname,'hud-v6.html').replaceAll('\\','/'));
+ assert.equal(await page.evaluate(()=>SKILLS.length),16);
+ assert.equal(await page.evaluate(()=>V6_DIAMONDS.length+V6_PENDING_DIAMONDS.length),18);
+ await page.click('[data-person-act=open][data-view="평가"]');
+ const tab=async name=>page.click(`[data-person-act=tab][data-view="${name}"]`);
+ const act=async name=>page.click(`[data-person-act="${name}"]`);
+ await tab('외부 조사');await act('send');assert.equal(await page.evaluate(()=>V6_PEOPLE.reports.length),0);
+ await tab('평가');assert.match(await page.locator('.v6-evaluation').innerText(),/갱신 중단/);
+ await tab('외부 조사');await page.getByText('진행·위험 예시',{exact:true}).click();await act('step');await act('step');
+ assert.equal(await page.evaluate(()=>V6_PEOPLE.reports.length),0);await act('step');assert.equal(await page.evaluate(()=>V6_PEOPLE.reports[0].valid),true);
+ await act('watch');assert.equal(await page.evaluate(()=>V6_PEOPLE.watched.size),1);
+ await act('send');await act('recall');await page.getByText('진행·위험 예시',{exact:true}).click();await act('step');assert.equal(await page.evaluate(()=>V6_PEOPLE.reports[0].valid),false);
+ await page.selectOption('[data-person-input=faction]','적대 세력');await act('send');await page.getByText('진행·위험 예시',{exact:true}).click();await act('capture');
+ assert.equal(await page.evaluate(()=>V6_PEOPLE.captured.has('yb')),true);assert.equal(await page.locator('[data-person-act=send]').isDisabled(),true);
+ await act('rescue');assert.equal(await page.evaluate(()=>V6_PEOPLE.reports[0].valid),false);
+ await tab('진형');await page.selectOption('[data-person-input=person]','yb');
+ assert.equal(await page.locator('.v6-formation-list article').count(),14);
+ const row=page.locator('.v6-formation-list article').filter({has:page.locator('h3',{hasText:'어린진'})});assert.match(await row.innerText(),/22.5%/);assert.match(await row.innerText(),/-10%/);
+ assert.equal(await page.locator('[data-person-act=formation][data-name="횡대"]').isDisabled(),true);
+ await page.getByText('연구 해금 상태 미리보기',{exact:true}).click();await page.check('[data-modern="횡대"]');await page.click('[data-person-act=formation][data-name="횡대"]');assert.equal(await page.evaluate(()=>V6_PEOPLE.formation.yb),'횡대');
+ await page.uncheck('[data-modern="횡대"]');assert.equal(await page.evaluate(()=>V6_PEOPLE.formation.yb),'평진');
+ await page.evaluate(()=>byId('yb').deployed=true);await tab('진형');assert.equal(await page.locator('[data-person-act=formation]:not(:disabled)').count(),0);
+ await tab('특성 도감');assert.equal(await page.locator('.v6-trait-catalog>.v6-trait').count(),18);
+ assert.equal(await page.locator('.v6-grade-preview,.v6-gem-icon').count(),0);
+ const surface=await page.locator('.v6-gem-face').first().evaluate(e=>{const c=getComputedStyle(e);return [c.boxShadow,c.backgroundImage,c.borderLeftWidth,getComputedStyle(e.querySelector('strong')).fontSize]});
+ assert.deepEqual(surface,['none','none','0px','13px']);
+ for(const width of [960,1280,1440]){await page.setViewportSize({width,height:720});assert.ok(await page.locator('#v6-people').evaluate(e=>e.scrollWidth<=e.clientWidth+1));}
+ assert.deepEqual(errors,[]);console.log('V6 people: evaluation, reports, capture, traits, formations and layouts passed.');
+}finally{await browser.close();}})().catch(e=>{console.error(e);process.exitCode=1;});

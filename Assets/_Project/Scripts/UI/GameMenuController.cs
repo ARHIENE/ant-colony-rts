@@ -118,6 +118,7 @@ namespace AntColony.UI
             BeginScreen(title, scrim);
             scrollArea.gameObject.SetActive(false);
             frame = MenuTheme.Rect("ScreenFrame", panel); MenuTheme.Stretch(frame);
+            frame.gameObject.AddComponent<MenuViewport>();
             FindFirstObjectByType<AntColony.Buildings.BuildingPlacementController>()?.CancelPlacement();
             return frame;
         }

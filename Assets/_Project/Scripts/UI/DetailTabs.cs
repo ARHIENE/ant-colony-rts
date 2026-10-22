@@ -103,7 +103,7 @@ namespace AntColony.UI
                         + (c.IsDeployed ? $"병력 {Mathf.CeilToInt(c.TroopHealth)}/{c.CommandLimit}" : "평시 병력 0 (출전 시 징집소에서 편성)");
                 case 1:
                     var rows = p.moodFactors.OrderBy(f => f.value).Take(6).Select(f => Row(f.reason, f.value));
-                    return string.Join("\n", rows) + $"\n<b>기분 {c.Mood:0}</b>  <color=#968976>/ 붕괴 위험 {CommanderOverhead.MoodWarning:0} 이하</color>";
+                    return string.Join("\n", rows) + $"\n<b>기분 {c.Mood:0}</b>  <color=#b1b3a7>/ 붕괴 위험 {CommanderOverhead.MoodWarning:0} 이하</color>";
                 case 2:
                     return c.Traits.values.Count == 0 ? "특성 없음" : string.Join("\n", c.Traits.values.Select(CommanderTraits.DisplayName));
                 case 3:

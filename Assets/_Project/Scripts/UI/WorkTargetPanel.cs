@@ -145,7 +145,7 @@ namespace AntColony.UI
                     label.text = "개체 관리"; action.interactable = true;
                 }
             }
-            title.text += $"  <size=14><color=#968976>우선 {WorkPriorities.Level(Target)}</color>{(WorkPriorities.Yellow(Target) ? "  <color=#f2c94c>노란 경보</color>" : "")}</size>";
+            title.text += $"  <size=14><color=#b1b3a7>우선 {WorkPriorities.Level(Target)}</color>{(WorkPriorities.Yellow(Target) ? "  <color=#f2c94c>노란 경보</color>" : "")}</size>";
         }
         private static string ResidentNames(Dormitory dorm)
         {

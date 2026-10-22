@@ -23,7 +23,7 @@ namespace AntColony.UI
             {
                 var tomb = Tombstone.Of(r.id); var body = Tombstone.BodyOf(r.id);
                 var where = tomb != null ? (tomb.Data2.body ? "묘비 안치" : "묘비 등록(시신 미안치)") : body != null ? (body.Remains ? "유해 현장 방치" : "시신 현장 방치") : "시신 없음";
-                MenuTheme.Text(content, $"{r.name} · {GameCalendar.Format(r.date)} · {r.cause}\n<color=#968976>{where}</color>", 15, 46);
+                MenuTheme.Text(content, $"{r.name} · {GameCalendar.Format(r.date)} · {r.cause}\n<color=#b1b3a7>{where}</color>", 15, 46);
                 if (tombPick != null && tombPick.Empty)
                 {
                     var rec = r; var block = tombPick.RegisterBlock(rec);
