@@ -1,10 +1,12 @@
 # Codex · Claude Code 공동 구현 보드
 
+- **2026-10-23 SAVE / Codex / 완료:** UI·V6 검증 파일 a483141 develop push. 개발 일지 https://app.notion.com/p/401c4a0ecd31816fb1f2ea2360701ccb (오늘 작업·실제 HUD/과학 캡처), Trouble Shooting https://app.notion.com/p/401c4a0ecd31811b99e4c6aebb4fe995. 자원 이름표/HUD 겹침·관리 창 배경 지형 회색 프레임, 길찾기 큰 물가 4곳은 미해결로 보존. 미완료 지형·길찾기와 출처 불명 씬·설정·기타 미추적 파일은 제외. Play 종료.
+
 - **HUD-V6-UNITY-REFINED / Codex / 구현·실행 검사 완료:** 사용자 요청으로 최신 절제된 V6 시안을 Unity 기존 기능에 적용. 담당: MenuTheme/MenuLayout/HudResponsiveLayout/CommandCard/GameMenuV5/GameMenuController/BuildScreen, 새 MenuViewport, HUD 검사. 배율·폰트·중성 테마·평면 버튼·관리 창 배치, UI 보조 글씨 #968976→#b1b3a7(대비 3.82→6.16). 건설 담당자 0명에서 RefreshPicker가 숨긴 행을 읽는 오류 재현 후 해당 행 건너뛰기. 최종 검증: HudV6Checks 17, HudV5UnityChecks 90, HudV6LayoutChecks 2070(뷰포트 모의 960/1280/1440, 과학·작업표·장수·장비·인구·건설 및 알림 스크롤), BuilderPickerCheck 0명 재현→통과. 2026-10-23 SAVE 캡처: HUD·과학·작업표 실제 화면 확인. 자원 이름표/HUD 겹침·관리 창 배경 지형 회색 프레임 후속 필요. Player 빌드 미수행. 게임 규칙·지형 변경 없음.
 
 - **HUD-V6-TAXONOMY / Codex / 시안 수정·검사 완료:** 사용자 제공 ai-slop-taxonomy.md 검토. 시안만 수정: hud-v6.css/html, hud-v6-people.js, 시안 검사. 중성 표면·등급 문자·행 구분·글자 위계·대비·클릭 피드백. Unity 추가 수정 없음.
 
-- **HUD-V6-TYPE / Codex / 진행:** 사용자 지적: 글자 크기 불일치, 색상·버튼·보석 장식 과함. 사용자 정정: 시안만 수정. Unity의 이번 폰트·배율·색상 변경은 되돌림. 범위: hud-v6.css. 색상·버튼·보석 장식 절제. 이전 Unity HUD 적용분은 보존.
+- **HUD-V6-TYPE / Codex / 시안 변경 완료·후속 Unity 적용:** 사용자 지적: 글자 크기 불일치, 색상·버튼·보석 장식 과함. 사용자 정정: 시안만 수정. Unity의 이번 폰트·배율·색상 변경은 되돌림. 범위: hud-v6.css. 색상·버튼·보석 장식 절제. 이전 Unity HUD 적용분은 보존.
 
 - **HUD-V6-UNITY / Codex / HUD 동작 검사 16 통과:** 사용자 승인: V6 화면 전체 + 기존 기능 연결. 담당: HudResponsiveLayout.cs, MenuTheme.cs, GameMenuController.cs, 관련 UI 검사. 평가·조사 등 신규 게임 시스템은 제외. 기존 지형 작업 파일 수정 없음. 검사: AgentScripts/HudV6Checks.cs. 새 게임 전환 시 영속 메뉴 소유권 보존, 선택/해제·지도 접기·상세·건설·장수 관리 연결 확인. 기존 관리 창 내부 구성은 유지되며 V6 전 화면 이식 완료 아님. 육안·해상도별 화면 비교 미수행.
 
