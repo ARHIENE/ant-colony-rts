@@ -43,16 +43,20 @@ namespace AntColony.UI
             MenuTheme.Stretch(tip.rectTransform); tip.rectTransform.offsetMin = new Vector2(12, 8); tip.rectTransform.offsetMax = new Vector2(-12, -8);
             tooltipPanel.gameObject.SetActive(false);
             var bar = MenuTheme.Rect("MenuToolbar", canvas.transform); toolbar = bar.gameObject;
-            // HUD v3 상단 바 왼쪽: ≡ · 작업표 · 과학 · 월드맵 · 기록. 버튼 이름 2~3글자, 단축키 글자는 숨김(단축키 전체 미정).
-            // 장수 관리는 장수 바 인원수 클릭, 외교는 월드맵 안으로 옮겼다. 가운데는 장수 바(RosterBar), 달력·속도는 우상단 HudClock.
+            // V6 하단 메뉴. 기록은 의료·관리, 장수는 인재·편성 안에서 연다.
+            // GameMenuDock이 HUD 초기화·씬 전환 뒤에도 최종 순서와 크기를 유지한다.
             bar.anchorMin = bar.anchorMax = new Vector2(0, 1); bar.pivot = new Vector2(0, 1); bar.anchoredPosition = new Vector2(8, -6); bar.sizeDelta = new Vector2(320, 28);
             var layout = bar.gameObject.AddComponent<HorizontalLayoutGroup>(); layout.spacing = 4; layout.childForceExpandWidth = false;
             ToolbarButton(bar, "Menu [Esc]", "≡", Pause, "메뉴: 설정 · 저장 · 불러오기");
             ToolbarButton(bar, "Work Schedule [T]", "작업표", WorkSchedule, "장수 × 작업 체크박스");
             ToolbarButton(bar, "Science [K]", "과학", Science, "과학 연구");
             ToolbarButton(bar, "WorldMapToggle", "월드맵", () => FindFirstObjectByType<WorldMapPanel>()?.Toggle(), "월드맵 · 원정 · 외교");
-            ToolbarButton(bar, "Event Log [L]", "기록", EventLog, "이벤트 기록");
-            foreach (var element in bar.GetComponentsInChildren<LayoutElement>()) element.preferredWidth = Mathf.Max(30, element.preferredWidth - 16);
+            ToolbarButton(bar, "V6 Logistics", "물류·식품", () => Management("물류·식품"), "창고 · 식단 · 건설·작업 · 퇴비·비료");
+            ToolbarButton(bar, "V6 Colony", "의료·관리", () => Management("의료·관리"), "의료 · 동물 위생 · 묘비·추모 · 포로 · 기록");
+            ToolbarButton(bar, "V6 Production", "생산·자원", () => Management("생산·자원"), "자원 · 생산 · 장비·도구 · 수리 · 매장지·배관 · 음주");
+            ToolbarButton(bar, "V6 Roster", "인재·편성", () => Management("인재·편성"), "장수 · 평가 · 외부 조사 · 특성 · 진형");
+            ToolbarButton(bar, "V6 Build", "＋ 건설", BuildScreen.Toggle, "건설");
+            bar.gameObject.AddComponent<GameMenuDock>();
             ShowLoading();
         }
         // 오브젝트 이름은 검사·툴팁이 찾는 기존 키를 유지하고, 표시 문구만 디자인의 한글 라벨을 쓴다.

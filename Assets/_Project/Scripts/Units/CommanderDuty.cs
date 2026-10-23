@@ -13,8 +13,8 @@ namespace AntColony.Units
     {
         None = 0, Building = 1, Crafting = 2, Research = 4, Farming = 8, Fishing = 16, Gathering = 32,
         Nursing = 64, Repair = 128, Hauling = 256, Hunting = 512, Cooking = 1024, Art = 2048,
-        Cleaning = 4096, Administration = 8192, Husbandry = 16384,
-        Legacy = 63, Added = Nursing | Repair | Hauling | Hunting | Cooking | Art, All = 32767
+        Cleaning = 4096, Administration = 8192, Husbandry = 16384, Firefighting = 32768,
+        Legacy = 63, Added = Nursing | Repair | Hauling | Hunting | Cooking | Art, All = 65535
     }
     public enum CommanderDuty { Civilian, Deployed, Returning }
 
@@ -24,25 +24,40 @@ namespace AntColony.Units
         public CommanderDuty duty;
         public float health = GameBalance.CommanderHealth, quietSeconds, recoverySeconds;
         public bool resting; // 휴식 지시: 피로가 풀릴 때까지 자율 작업을 쉰다.
-        // 작업 종류별 우선순위(작업표 비트 순서, 15칸). 0 = 금지, 1~9(높을수록 먼저, 기본 5) — 게임 전체 우선순위와 같은 범위(2026-10-12). 이전 저장(null)은 jobs 켬=기본(5)으로 만든다.
-        public int[] priorities;
-        public const int JobCount = 15, MaxPriority = 9, DefaultPriority = 5;
+        // 작업표 비트 순서. 옛 15칸은 보존하고 소화만 기본 9로 추가한다.
+        public int[] priorities = new int[16];
+        public const int JobCount = 16, MaxPriority = 9, DefaultPriority = 5;
+        public void MigrateLegacyJobs()
+        {
+            if (priorities != null && priorities.Length == JobCount)
+            {
+                return;
+            }
+            if (priorities != null && priorities.Length != 0 && priorities.Length != 15) return;
+            var previous = priorities;
+            priorities = new int[JobCount];
+            if (previous != null && previous.Length == 15) Array.Copy(previous, priorities, 15);
+            else for (var i = 0; i < 15; i++) priorities[i] = ((int)jobs & 1 << i) != 0 ? DefaultPriority : 0;
+            jobs |= CommanderJobs.Firefighting;
+            priorities[15] = MaxPriority;
+        }
         public static int Index(CommanderJobs job) { for (int i = 0; i < JobCount; i++) if ((int)job == 1 << i) return i; return -1; }
         // jobs 비트가 켬/금지의 기준이다. SetJobEnabled로 켜진 칸은 보통, 꺼진 칸은 금지로 맞춘다.
         public int Priority(CommanderJobs job)
         {
             int i = Index(job); if (i < 0) return 0;
+            if (priorities != null && priorities.Length == 15) MigrateLegacyJobs();
             if (priorities == null || priorities.Length != JobCount) priorities = new int[JobCount];
             bool on = (jobs & job) == job;
-            if (!on) priorities[i] = 0; else if (priorities[i] <= 0 || priorities[i] > MaxPriority) priorities[i] = DefaultPriority;
+            if (!on) priorities[i] = 0; else if (priorities[i] <= 0 || priorities[i] > MaxPriority) priorities[i] = job == CommanderJobs.Firefighting ? MaxPriority : DefaultPriority;
             return priorities[i];
         }
         public Vector3 returnPosition;
-        public bool Valid => (jobs & ~CommanderJobs.All) == 0 && (priorities == null || priorities.Length == 0 || priorities.Length == JobCount && Array.TrueForAll(priorities, p => p >= 0 && p <= MaxPriority)) && Enum.IsDefined(typeof(CommanderDuty), duty)
+        public bool Valid { get { MigrateLegacyJobs(); return (jobs & ~CommanderJobs.All) == 0 && (priorities == null || priorities.Length == 0 || (priorities.Length == 15 || priorities.Length == JobCount) && Array.TrueForAll(priorities, p => p >= 0 && p <= MaxPriority)) && Enum.IsDefined(typeof(CommanderDuty), duty)
             && Finite(health) && health >= 0 && health <= GameBalance.CommanderHealth
             && Finite(quietSeconds) && quietSeconds >= 0 && quietSeconds <= GameBalance.AutoReturnSeconds
             && Finite(recoverySeconds) && recoverySeconds >= 0 && recoverySeconds <= GameBalance.CommanderRecoverySeconds
-            && Finite(returnPosition.x) && Finite(returnPosition.y) && Finite(returnPosition.z);
+            && Finite(returnPosition.x) && Finite(returnPosition.y) && Finite(returnPosition.z); } }
         private static bool Finite(float value) => !float.IsNaN(value) && !float.IsInfinity(value);
     }
 
@@ -101,6 +116,7 @@ namespace AntColony.Units
         public void TickDuty(float seconds)
         {
             if (!(seconds > 0) || float.IsInfinity(seconds) || IsDead || IsHostile || AntColony.Save.SaveSystem.Busy) return;
+            TickCarriedSupplies(seconds);
             // 쓰러짐(통증·의식·이동, 2026-10-15): 일어날 수 없고 배고픔은 진행한다. 의료 장수가 급식한다.
             if (PersonalState.health.Downed)
             {
@@ -115,8 +131,9 @@ namespace AntColony.Units
                 if (WorkState.recoverySeconds == 0) WorkState.health = GameBalance.CommanderHealth;
                 return;
             }
-            if (TickSleep(seconds) || TickMeal(seconds) || TickCorpseWork(seconds) || TickHygiene(seconds) || TickJoy(seconds)) return;
+            if (TickSleep(seconds) || TickCarriedMeal(seconds) || TickMeal(seconds) || TickCorpseWork(seconds) || TickHygiene(seconds) || TickJoy(seconds)) return;
             if (IsAwayFromHome || !CanReceiveOrders) return;
+            if (ServiceJob == CommanderJobs.Firefighting && TickService(seconds)) return;
             if (IsReturning)
             {
                 if (GetDistanceTo(WorkState.returnPosition) <= 2) FinishReturn();
@@ -131,6 +148,7 @@ namespace AntColony.Units
                 return;
             }
             if (TickMed(seconds) || TickBurial(seconds) || TickService(seconds) || TickHunt(seconds) || TickAnimalTask(seconds)) return;
+            if (TickGroundCraft(seconds)) return;
             if (TickBedRest()) return;
             if (!IsWorking && ScienceAssignment == null && CraftingWorkshop == null) SetWorkTarget(null);
             if (ScienceAssignment != null)
@@ -177,13 +195,17 @@ namespace AntColony.Units
                 .OrderBy(x => x.d).ThenBy(x => WorkPriorities.RequestedAt(x.c.target)).Select(x => x.c);
             return head.Concat(sorted.Skip(8));
         }
-        private static readonly CommanderJobs[] AutoJobs = { CommanderJobs.Nursing, CommanderJobs.Repair, CommanderJobs.Cleaning, CommanderJobs.Building, CommanderJobs.Art,
+        private static readonly CommanderJobs[] AutoJobs = { CommanderJobs.Firefighting, CommanderJobs.Nursing, CommanderJobs.Repair, CommanderJobs.Cleaning, CommanderJobs.Building, CommanderJobs.Art,
             CommanderJobs.Crafting, CommanderJobs.Administration, CommanderJobs.Cooking, CommanderJobs.Hunting, CommanderJobs.Hauling, CommanderJobs.Husbandry, CommanderJobs.Farming, CommanderJobs.Fishing, CommanderJobs.Gathering };
         // 작업 하나의 후보 대상과 착수 동작. 정렬은 TickDuty가 단계별로 모아서 한다.
         private IEnumerable<(Component target, Func<bool> start)> AutoCandidates(CommanderJobs job)
         {
             switch (job)
             {
+                case CommanderJobs.Firefighting:
+                    foreach (var fire in FindObjectsByType<WallFire>(FindObjectsSortMode.None).Where(f => f.Burning && f.Managed))
+                        yield return (fire, () => CommandExtinguish(fire));
+                    yield break;
                 case CommanderJobs.Nursing:
                     if (WorkPriorities.Red) yield break; // 빨간 경보 중에는 간호하지 않는다.
                     // 치료가 생산보다 먼저: 할 수 있는 치료가 없을 때(약품 부족 포함)만 약제대 생산 목록을 맡는다(2026-10-11).
@@ -257,7 +279,7 @@ namespace AntColony.Units
             foreach (var node in ResourceNode.Available.Where(n => n != null && JobFor(n) == job))
                 yield return (node, () =>
                 {
-                    if (!node.CanGather || CarriedAmount != 0 && CarriedType != node.ResourceType
+                    if (!node.CanGatherWith(this) || CarriedAmount != 0 && CarriedType != node.ResourceType
                         || ResourceManager.Instance == null || ResourceManager.Instance.Room(node.ResourceType, this) <= 0
                         || node.IsLooseCargo && Active.OfType<WorkerAnt>().Any(w => w != this && w.CurrentResourceNode == node) // 바닥 더미는 한 장수만 맡는다
                         || node.GetComponentInParent<ExpeditionSite>() != null || node.IsRaidLoot || !TryWorkApproach(node.transform.position, out _)) return false;

@@ -96,9 +96,7 @@ namespace AntColony.World
                 case ColonyEvent.Drought: state.drought = EventRules.DroughtSeconds; result = "120초간 밭 성장 감소 (감로·치수 공사는 -20%)"; break;
                 case ColonyEvent.Wildfire:
                     var farms = Farms(); Burn(farms[Random.Range(0, farms.Length)]);
-                    // Phase 5: 나뭇잎·나무껍질 벽은 불에 탄다(체력 절반 피해, 잠정). 2026-10-10: 가연성 재료(목재·잎·직물 등)로 지은 건물 전체.
-                    foreach (var leaf in FindObjectsByType<BuildingBase>(FindObjectsSortMode.None).Where(w => WallFire.Flammable(w) && w.CountsTowardPlayerDefeat && w.GetComponent<ResourceNode>() == null && !w.IsDead && Home(w.Position)).ToArray()) leaf.TakeDamage(leaf.MaxHealth * .5f);
-                    result = "밭에 산불 발생. 흙벽·방화대로 확산을 막을 수 있습니다. 나뭇잎 벽도 탑니다."; break;
+                    result = "밭에 산불 발생. 소화 작업으로 끄세요. 작은 불은 5초, 물·도구는 필요 없습니다."; break;
                 case ColonyEvent.Mold:
                     var healthy = HomeCommanders().Where(c => !c.HasMold).ToArray();
                     var patient = healthy[Random.Range(0, healthy.Length)]; Infect(patient); result = patient.CommanderName + " 곰팡이 감염. 의료 장수가 약품으로 투약해 악화를 늦추고 면역으로 회복합니다."; break;
@@ -165,22 +163,7 @@ namespace AntColony.World
         }
         public static void Burn(ResourceNode source)
         {
-            var burned = new HashSet<ResourceNode>(); var queue = new Queue<ResourceNode>(); queue.Enqueue(source);
-            var farms = Farms(); var nodes = FindObjectsByType<ResourceNode>(FindObjectsSortMode.None);
-            while (queue.Count > 0)
-            {
-                var farm = queue.Dequeue(); if (!burned.Add(farm)) continue;
-                farm.BurnCrop(ScienceEffects.WildfireDamageMultiplier * BiomeRules.WildfireDamage);
-                foreach (var node in nodes.Where(n => n != farm && n.GetComponent<BuildingBase>() == null && n.ResourceType == ResourceType.Food
-                    && Vector3.Distance(n.transform.position, farm.transform.position) <= EventRules.FireRadius))
-                    if (burned.Add(node)) node.TryConsumeStock(node.AmountRemaining * Mathf.Min(1, .5f * ScienceEffects.WildfireDamageMultiplier * BiomeRules.WildfireDamage));
-                if (ScienceEffects.FirebreaksBlockSpread) continue;
-                foreach (var next in farms.Where(n => !burned.Contains(n) && Vector3.Distance(n.transform.position, farm.transform.position) <= EventRules.FireRadius))
-                {
-                    var from = farm.transform.position + Vector3.up * .25f; var to = next.transform.position + Vector3.up * .25f;
-                    if (!Physics.RaycastAll(from, to - from, Vector3.Distance(from, to)).Any(h => h.collider.GetComponentInParent<SoilWall>() != null)) queue.Enqueue(next);
-                }
-            }
+            if (source != null && source.GetComponent<BuildingBase>() is BuildingBase farm) WallFire.Ignite(farm);
         }
         private static bool TryEdge(out Vector3 point)
         {
@@ -193,8 +176,7 @@ namespace AntColony.World
                 var p = bounds.center + new Vector3(side < 2 ? (side == 0 ? -.9f : .9f) * bounds.extents.x : t * bounds.extents.x, queen.Position.y,
                     side >= 2 ? (side == 2 ? -.9f : .9f) * bounds.extents.z : t * bounds.extents.z);
                 if (!NavMesh.SamplePosition(p, out var hit, 10, NavMesh.AllAreas)) continue;
-                var path = new NavMeshPath();
-                if (!NavMesh.CalculatePath(hit.position, queen.Position, NavMesh.AllAreas, path) || path.status != NavMeshPathStatus.PathComplete) continue;
+                if (!AntColony.Map.NavRoute.Reachable(hit.position, queen.Position)) continue; // 맵 끝→본거지 먼 길(2026-10-22)
                 point = hit.position; return true;
             }
             return false;

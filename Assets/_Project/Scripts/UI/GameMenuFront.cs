@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Linq;
 using AntColony.Core;
 using AntColony.Save;
@@ -16,12 +16,12 @@ namespace AntColony.UI
         public void Main()
         {
             var f = Frame("ANT COLONY", .35f);
+            TitleBackdrop.Ensure(panel); // 시작 메뉴는 게임 장면 대신 전용 배경을 보여준다.
             var side = L.Plate(f, "MainSide", 0, 0, 440, 900);
             side.anchorMin = Vector2.zero; side.anchorMax = new Vector2(0, 1); side.sizeDelta = new Vector2(440, 0); side.anchoredPosition = Vector2.zero;
             var logo = L.Well(side, "Logo", 48, 88, 344, 132);
-            L.Label(logo, "로고 (자리 표시)", 11, 8, 4, 200, 16, MenuTheme.Muted);
-            L.Label(logo, "개미 소굴 RTS", 28, 18, 34, 320, 44, bold: true);
-            L.Label(logo, "(가제)", 12, 18, 80, 200, 20, MenuTheme.Dim);
+            L.Label(logo, "개미 소굴 RTS", 28, 18, 30, 320, 44, bold: true);
+            L.Label(logo, "가제 · 정착지 경영과 장수 부대 전투", 12, 18, 78, 320, 20, MenuTheme.Dim);
             L.Line(side, 48, 252, 344);
 
             var latest = LatestSave();
@@ -55,105 +55,15 @@ namespace AntColony.UI
         private static void LoadSlot(SaveSlots.SlotInfo slot)
         {
             if (slot == null) return;
+            if (Instance != null) TitleBackdrop.Ensure(Instance.panel, loading: true); // 불러오는 동안 게임 장면을 가린다.
             ToastManager.Show(SaveSystem.TryLoad(slot.Path, out var error) ? "저장 파일을 불러오는 중…" : error);
         }
 
         private void NewGameScreen()
         {
             var f = Frame("New Game", .5f);
-            var p = L.Plate(f, "NewGamePanel", 160, 112, 1120, 664);
-            L.Label(p, "새 게임", 19, 20, 0, 100, 56, bold: true);
-            L.Label(p, "정착지를 세울 땅과 규칙을 고르세요", 12, 110, 0, 500, 56, MenuTheme.Dim);
-            L.Line(p, 0, 56, 1120);
-            const float cw = 250f;
-            void Legend(float y, string title, string small)
-            {
-                L.Label(p, $"<b>{title}</b>   <color=#b1b3a7><size=12>{small}</size></color>", 13, 20, y, 760, 22);
-            }
-            RectTransform Card(string name, int index, float y, bool selected, Action pick)
-            {
-                var button = L.Button(p, name, "", 20 + index * (cw + 8), y, cw, 100, () => { ReadSeed(); pick(); NewGameScreen(); });
-                if (selected)
-                {
-                    button.GetComponent<Outline>().effectColor = MenuTheme.Accent;
-                    var colors = button.colors; colors.normalColor = MenuTheme.Hex(0x2a2219); button.colors = colors;
-                }
-                return (RectTransform)button.transform;
-            }
-
-            Legend(72, "맵 크기", "로컬 정착지 맵 한 변 길이");
-            foreach (MapSize size in Enum.GetValues(typeof(MapSize)))
-            {
-                var scale = MapSizes.Scale(size); var captured = size;
-                var c = Card("Map " + size, (int)size, 98, options.mapSize == size, () => options.mapSize = captured);
-                L.Label(c, $"<b>{new[] { "소", "중", "대" }[(int)size]}</b>   <size=20>{400 * scale:0}</size><color=#b1b3a7>m</color>{(size == MapSize.Medium ? "   <size=11><color=#b8ac9a>권장</color></size>" : "")}", 15, 12, 8, 226, 28);
-                L.Label(c, new[] { "빠른 판 · 자원과 적이 가까움", "확장과 방어의 균형", "긴 캠페인 · 탐색과 원정 거리 큼" }[(int)size], 12, 12, 40, 226, 20, MenuTheme.Muted);
-                L.Meter(c, 12, 78, 160, 6, scale / 1.6f, MenuTheme.Hex(0xd8ccb8));
-                L.Label(c, $"한 변 {400 * scale:0}m", 12, 180, 70, 60, 22, MenuTheme.Muted);
-            }
-
-            Legend(216, "침공 난이도", "침공 빈도와 규모");
-            foreach (DifficultyLevel level in Enum.GetValues(typeof(DifficultyLevel)))
-            {
-                var captured = level;
-                var c = Card("Difficulty " + level, (int)level, 242, options.difficulty == level, () => options.difficulty = captured);
-                L.Label(c, $"<b>{new[] { "온화", "보통", "가혹" }[(int)level]}</b>", 15, 12, 8, 226, 28);
-                L.Label(c, "침공 빈도   " + new string('■', (int)level + 1) + new string('□', 2 - (int)level), 12, 12, 40, 226, 20, MenuTheme.Muted);
-                L.Label(c, $"침공 간격 ×{DifficultyProfile.IntervalScale(level):0.##} · 규모 ×{DifficultyProfile.StrengthScale(level):0.##}", 12, 12, 66, 226, 22, MenuTheme.Dim);
-            }
-
-            Legend(360, "장수 사망", "전투에서 쓰러진 장수가 죽을 수 있는지");
-            foreach (CommanderDeathMode mode in Enum.GetValues(typeof(CommanderDeathMode)))
-            {
-                var captured = mode;
-                var c = Card("Death " + mode, (int)mode, 386, options.commanderDeath == mode, () => options.commanderDeath = captured);
-                L.Label(c, $"<b>{new[] { "관대", "보통", "가혹" }[(int)mode]}</b>", 15, 12, 8, 226, 28);
-                L.Label(c, new[] { "사망 없음", "중상에서 다시 쓰러지면", "쓰러질 때마다" }[(int)mode], 15, 12, 38, 226, 24, bold: true);
-                L.Label(c, new[] { "쓰러져도 부상으로만 남음", "사망할 수 있음", "사망할 수 있음" }[(int)mode], 12, 12, 66, 226, 22, MenuTheme.Muted);
-            }
-
-            Legend(504, "맵 시드", "같은 시드와 맵 크기면 같은 지형이 만들어짐");
-            seed = MenuTheme.Input(p, options.seed.ToString());
-            L.Place((RectTransform)seed.transform, 20, 530, 300, 34);
-            seed.textComponent.fontSize = 17; seed.textComponent.font = MenuTheme.NumberFont;
-            L.Button(p, "Random Seed", "무작위", 328, 530, 90, 34, () => { options.seed = NewGameOptions.RandomSeed(); seed.text = options.seed.ToString(); });
-            L.Label(p, "정수 (-2147483648 ~ 2147483647)", 12, 20, 568, 500, 20, MenuTheme.Dim);
-
-            var sum = L.Box(p, "Summary", 808, 57, 312, 542, MenuTheme.Hex(0x17130f));
-            L.Label(sum, "선택한 설정", 13, 20, 12, 272, 22, bold: true);
-            var preview = L.Well(sum, "Preview", 20, 44, 272, 132);
-            L.Label(preview, "지형 미리보기 (자리 표시)", 11, 8, 104, 200, 22, MenuTheme.Dim);
-            var extent = 400 * MapSizes.Scale(options.mapSize);
-            L.Label(preview, $"{extent:0} × {extent:0}m", 12, 150, 104, 114, 22, MenuTheme.Muted, TextAnchor.MiddleRight);
-            string[][] rows =
-            {
-                new[] { "맵 크기", new[] { "소", "중", "대" }[(int)options.mapSize] + $"  <color=#b8ac9a><size=12>{extent:0}m</size></color>" },
-                new[] { "침공 난이도", new[] { "온화", "보통", "가혹" }[(int)options.difficulty] + $"  <color=#b8ac9a><size=12>간격 ×{DifficultyProfile.IntervalScale(options.difficulty):0.##} · 규모 ×{DifficultyProfile.StrengthScale(options.difficulty):0.##}</size></color>" },
-                new[] { "장수 사망", new[] { "관대", "보통", "가혹" }[(int)options.commanderDeath] },
-                new[] { "맵 시드", options.seed.ToString() },
-                new[] { "장소(바이옴)", (options.biome == MapBiome.None ? "무작위" : BiomeRules.Name(options.biome) + " · " + BiomeRules.Difficulty(options.biome)) + "  <color=#b8ac9a><size=12>6종</size></color>" }
-            };
-            for (var i = 0; i < rows.Length; i++)
-            {
-                var y = 188 + i * 54;
-                L.Line(sum, 20, y, 272);
-                L.Label(sum, rows[i][0], 12, 20, y + 6, 272, 18, MenuTheme.Dim);
-                L.Label(sum, rows[i][1], 13, 20, y + 24, 272, 24, bold: true);
-            }
-
-            // Phase 6: 시작 바이옴 선택(= 난이도). 무작위는 게임 시작 때 6종 중 하나.
-            var biomes = new[] { MapBiome.None }.Concat(BiomeRules.All).ToArray();
-            for (var i = 0; i < biomes.Length; i++)
-            {
-                var b = biomes[i];
-                var button = L.Button(sum, "Biome " + b, b == MapBiome.None ? "무작위" : BiomeRules.Name(b).Split(' ')[0], 20 + i * 39, 470, 37, 30,
-                    () => { ReadSeed(); options.biome = b; NewGameScreen(); }, b == MapBiome.None ? "6종 중 무작위" : BiomeRules.Name(b) + " · 난이도 " + BiomeRules.Difficulty(b), options.biome == b, 10);
-            }
-
-            L.Line(p, 0, 600, 1120);
-            L.Button(p, "Back", "뒤로   Esc", 20, 613, 110, 38, Main);
-            L.Button(p, "Start Game", "게임 시작   Enter", 900, 613, 200, 38,
-                () => { if (!ReadSeed()) return; if (options.biome == MapBiome.None) options.biome = BiomeRules.Random(); try { SaveSystem.NewGame(options); } catch (Exception e) { ToastManager.Show(e.Message); } }, null, true);
+            TitleBackdrop.Ensure(panel);
+            DrawCrashStart(f);
         }
 
         public void Pause()
@@ -210,6 +120,7 @@ namespace AntColony.UI
         private void Slots(bool save)
         {
             var f = Frame(save ? "Save Game" : "Load Game");
+            TitleBackdrop.Ensure(panel);
             SlotPanel(f, 440, 150, save);
             L.Button(f, "Back", "뒤로   Esc", 440, 150 + 60 + SaveSlots.List().Count(s => !save || !s.Auto) * 72 + 8, 110, 38, Back);
         }

@@ -1,3 +1,7 @@
+# 2026-10-23 SAVE 1(Codex) — SAVE 2 이관
+- V6 시안 절제·Unity 중성 테마/픽셀 배율/12px 하한/52px 하단 메뉴·선택 카드·접이 지도. 건설 담당자 0명 목록 오류 수정. UI 17·기존 관리 90·뷰포트/폰트 2070·BuilderPicker 통과, HUD·과학·작업표 실제 캡처 확인. a483141 구현, 98bd1c6 문서 develop push.
+- 길찾기 큰 물가 296/300 재현, 실패 4곳 stride1 경로 성공, 실제 14경유지 이동 도착. 1칸 재시도 미구현. 자원 이름표/HUD 겹침과 지형 회색 프레임을 잔여로 보고(다음 SAVE에서 후속 수정).
+- Notion 개발 일지 https://app.notion.com/p/401c4a0ecd31816fb1f2ea2360701ccb / Trouble Shooting https://app.notion.com/p/401c4a0ecd31811b99e4c6aebb4fe995. 기존 미완료 지형/길찾기·씬/설정·art 미포함, Play 종료. 번들 Git로 push 성공, 카카오 도구 부재.
 # 2026-10-19 SAVE(Claude) — 2026-10-23 SAVE 이관
 - 시설 모델 없던 5종 Blender 제작 및 FacilityVisual의 104종 건물 모델 연결. FacilityVisualChecks 513·SaveRoundtrip 57·Spec1012 159 통과. 건물 크기·선택/피격 효과 확인, kemono-kit Unity 연결과 회귀는 후속. art/ 및 출처 불명 씬·재질·설정 변경은 제외. 이전 개발 일지: https://app.notion.com/p/3fdc4a0ecd3181518379c478eb9ba48b
 

@@ -12,9 +12,10 @@ namespace AntColony.UI
             Well = Hex(0x1f201e), EdgeLo = Hex(0x1f201e), Line = Hex(0x484a43), Line2 = Hex(0x484a43), Rim = Hex(0x65675d),
             TextColor = Hex(0xeeeee5), Dim = Hex(0xb1b3a7), AccentInk = Hex(0x25251f),
             Hp = Hex(0x6cc46a), HpMid = Hex(0xe0b43a), Danger = Hex(0xe8574a), DangerInk = Hex(0xffb3aa), Loyal = Hex(0x86a9e6);
-        public static readonly Color Background = new Color(Plate.r, Plate.g, Plate.b, .98f);
+        public static readonly Color Background = Plate;
         public static readonly Color Accent = Hex(0xc3b88f);
         public static readonly Color Muted = Hex(0xbfc0b5);
+        public static readonly Color Soft = Hex(0xd6d7cb);
         public static readonly Color Selection = Hex(0x8bc8ba), Warning = Hex(0xef955f);
         // HUD v4.1 하단 프레임(2026-10-04 시안): 청동 띠·판 재질·움푹한 화면.
         public static readonly Color FrameHi = Hex(0x65675d), Frame = Hex(0x484a43), FrameLo = Hex(0x30312e), FrameInk = Hex(0x1f201e),
@@ -103,7 +104,7 @@ namespace AntColony.UI
         public static Text Text(Transform parent, string value, int size = 13, float height = 40)
         {
             var rect = Rect("Text", parent); var text = rect.gameObject.AddComponent<Text>(); text.font = Font; text.text = value;
-            text.fontSize = Mathf.Clamp(size, 12, 20); text.color = TextColor; text.alignment = TextAnchor.MiddleLeft; text.raycastTarget = false;
+            text.fontSize = size <= 12 ? 12 : size <= 14 ? 13 : size <= 18 ? 15 : 20; text.color = TextColor; text.alignment = TextAnchor.MiddleLeft; text.raycastTarget = false;
             text.horizontalOverflow = HorizontalWrapMode.Wrap; text.verticalOverflow = VerticalWrapMode.Overflow;
             rect.gameObject.AddComponent<LayoutElement>().preferredHeight = height; return text;
         }

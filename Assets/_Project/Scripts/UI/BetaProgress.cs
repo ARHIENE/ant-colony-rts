@@ -11,7 +11,6 @@ namespace AntColony.UI
     {
         private UnityEngine.UI.Text objective;
         private GameObject objectivePanel;
-        private WorldMapPanel worldMap;
         private GameManager game;
         private float nextRefresh;
         public string CurrentObjective => BuildObjective();
@@ -44,9 +43,8 @@ namespace AntColony.UI
         private void Update()
         {
             if (objective == null) return;
-            // 전체 화면 월드맵이 열려 있으면 원정대 판을 가리지 않게 숨긴다.
-            if (worldMap == null) worldMap = FindFirstObjectByType<WorldMapPanel>();
-            objectivePanel.SetActive(worldMap == null || !worldMap.IsOpen);
+            // V6 HUD에는 목표 패널이 없다(설명서 F2로 안내). 목표 문구는 계속 갱신해 둔다.
+            objectivePanel.SetActive(false);
             if (Time.unscaledTime < nextRefresh) return;
             nextRefresh = Time.unscaledTime + .5f;
             objective.text = "<color=#f2a93b><b>목표</b></color>\n" + CurrentObjective + "\n<color=#b1b3a7>F2 설명서</color>";

@@ -23,7 +23,8 @@ namespace AntColony.UI
         };
         static ActivityIcons()
         {
-            Patterns["간호"] = Patterns["치료"]; Patterns["수리"] = Patterns["건설"]; Patterns["운반"] = Patterns["채집"];
+            Patterns["오락"] = Patterns["휴식"];
+            Patterns["의료"] = Patterns["치료"]; Patterns["소화"] = Patterns["건설"]; Patterns["산책"] = Patterns["오락"]; Patterns["오락 인원 대기"] = Patterns["오락"]; Patterns["수리"] = Patterns["건설"]; Patterns["운반"] = Patterns["채집"];
             Patterns["사냥"] = Patterns["출전"]; Patterns["요리"] = Patterns["연구"]; Patterns["예술"] = Patterns["제작"]; Patterns["정치"] = Patterns["연구"]; Patterns["사육"] = Patterns["농사"];
             Patterns["치우기"] = Patterns["운반"]; Patterns["동족 포식"] = Patterns["채집"];
         }

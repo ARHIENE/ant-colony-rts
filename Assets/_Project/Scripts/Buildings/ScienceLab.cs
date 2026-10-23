@@ -8,7 +8,7 @@ namespace AntColony.Buildings
     public class ScienceLab : BuildingBase
     {
         // ponytail: 과학 진입/시간/비용은 1차 프로토타입 수치다. 확정 밸런스 때 조정한다.
-        public const int RequiredPopulation = 60;
+        public const int RequiredPopulation = 0;
         public const float ResearchSeconds = 15;
         public const float ConstructionSeconds = 10;
         public bool Busy => remaining > 0;
@@ -69,16 +69,7 @@ namespace AntColony.Buildings
             if (remaining > 0f && !build && world != null && world.Researcher == null) world.Researcher = this;
         }
 
-        public static bool PrerequisitesMet
-        {
-            get
-            {
-                if (AntPool.Instance == null || AntPool.Instance.Total < RequiredPopulation) return false;
-                foreach (var barracks in FindObjectsByType<Barracks>(FindObjectsSortMode.None))
-                    if (barracks.isActiveAndEnabled && barracks.CurrentTier >= 2) return true;
-                return false;
-            }
-        }
+        public static bool PrerequisitesMet => true;
 
         public bool TryResearch(bool air)
         {

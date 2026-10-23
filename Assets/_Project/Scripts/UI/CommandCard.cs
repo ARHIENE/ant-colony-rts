@@ -83,7 +83,7 @@ namespace AntColony.UI
                 () => "지정할 단계를 바꿉니다: 1(낮음)~9(높음), 노란 경보(그 대상을 최우선, 식사·수면·치료는 중단하지 않음).");
             Add(colonyGrid, 8, "Colony Red Alert", () => AntColony.Units.WorkPriorities.Red ? "경보 해제" : "빨간 경보",
                 () => AntColony.Units.WorkPriorities.SetRed(!AntColony.Units.WorkPriorities.Red),
-                () => "정착지 전체: 식사·수면·치료받기·간호를 멈추고 작업합니다. 작업 금지는 유지되며, 해제하면 평소 생활로 돌아갑니다.");
+                () => "정착지 전체: 식사·수면·치료받기·의료 작업을 멈추고 작업합니다. 작업 금지는 유지되며, 해제하면 평소 생활로 돌아갑니다.");
 
             Add(multiGrid, 0, "Multi Priority", () => AllDeployed() ? "공격 이동" : "우선", () => {
                 if (AllDeployed()) FindFirstObjectByType<AttackMoveController>()?.BeginAttackMode(); else PriorityHint();

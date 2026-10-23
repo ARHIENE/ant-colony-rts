@@ -50,6 +50,14 @@ namespace AntColony.UI
         public static void Line(Transform parent, float x, float y, float w) =>
             Box(parent, "Line", x, y, w, 1, MenuTheme.Line).GetComponent<Image>().raycastTarget = false;
 
+        public static void Tab(Transform parent, string label, float x, float y, float width, bool selected, Action action)
+        {
+            var button = Button(parent, "Tab " + label, label, x, y, width, 32, action);
+            UnityEngine.Object.Destroy(button.GetComponent<Outline>());
+            var colors = button.colors; colors.normalColor = Color.clear; button.colors = colors;
+            if (selected) Box(button.transform, "Underline", 0, 30, width, 2, MenuTheme.Accent).GetComponent<Image>().raycastTarget = false;
+        }
+
         // 오브젝트 이름은 검사가 찾는 키, 표시 문구는 label.
         public static Button Button(Transform parent, string name, string label, float x, float y, float w, float h,
             Action action, string tip = null, bool primary = false, int size = 13, TextAnchor align = TextAnchor.MiddleCenter)

@@ -44,7 +44,7 @@ namespace AntColony.Buildings
         }
 
         // 주재료 선택(2026-10-10): 재료 고유 종류인 벽·문·성벽·성문, 주거(재개발로 교체), 밭, 비축더미, 전선, 재료 비용이 없는 건물은 고르지 않는다.
-        public static bool MaterialSelectable(BuildingKind kind) => !(kind is BuildingKind.SoilWall or BuildingKind.LeafWall or BuildingKind.CapWall or BuildingKind.CastleWall
+        public static bool MaterialSelectable(BuildingKind kind) => !EarlyConstruction.HasFixedCost(kind) && !(kind is BuildingKind.SoilWall or BuildingKind.LeafWall or BuildingKind.CapWall or BuildingKind.CastleWall
             or BuildingKind.Door or BuildingKind.LockedDoor or BuildingKind.BarredDoor or BuildingKind.Gate or BuildingKind.Hut or BuildingKind.House or BuildingKind.Apartment
             or BuildingKind.Farm or BuildingKind.MushroomFarm or BuildingKind.AphidPen or BuildingKind.QueenChamber or BuildingKind.PowerWire);
         public static bool CanRenovate(BuildingBase b) => Orderable(b) && !HoldsPrisoners(b) && !IsPacked(b) && MaterialSelectable(b.Data.kind) && b.Data.soilCost > 0 && b.enabled;
@@ -150,10 +150,16 @@ namespace AntColony.Buildings
             else
             {
                 Demolition.EmptyForRemoval(Target); // 시작 뒤 새로 들어온 것까지
+                if (Target.TryGetComponent<CrashWreck>(out var wreck)) wreck.Salvage();
                 var d = Target.Data; var share = GameBalance.DemolishRefundShare; var at = Target.Position;
-                AntColony.World.DiplomacyManager.DropFloor(ResourceType.Food, Mathf.FloorToInt(d.foodCost * share), at + ResourceManager.Scatter());
-                AntColony.World.DiplomacyManager.DropFloor(Target.MainMaterial, Mathf.FloorToInt(d.soilCost * share), at + ResourceManager.Scatter());
-                AntColony.World.DiplomacyManager.DropFloor(ResourceType.Special, Mathf.FloorToInt(d.specialCost * share), at + ResourceManager.Scatter());
+                if (EarlyConstruction.HasFixedCost(d.kind))
+                    foreach (var cost in EarlyConstruction.Cost(d.kind)) AntColony.World.DiplomacyManager.DropFloor(cost.type, Mathf.FloorToInt(cost.amount * share), at + ResourceManager.Scatter());
+                else
+                {
+                    AntColony.World.DiplomacyManager.DropFloor(ResourceType.Food, Mathf.FloorToInt(d.foodCost * share), at + ResourceManager.Scatter());
+                    AntColony.World.DiplomacyManager.DropFloor(Target.MainMaterial, Mathf.FloorToInt(d.soilCost * share), at + ResourceManager.Scatter());
+                    AntColony.World.DiplomacyManager.DropFloor(ResourceType.Special, Mathf.FloorToInt(d.specialCost * share), at + ResourceManager.Scatter());
+                }
                 AntColony.UI.ToastManager.Show(d.displayName + " 철거 완료");
                 Target.gameObject.SetActive(false); Destroy(Target.gameObject);
             }

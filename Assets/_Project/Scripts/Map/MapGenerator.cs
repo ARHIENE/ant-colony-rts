@@ -19,6 +19,7 @@ namespace AntColony.Map
         [SerializeField] private int zOffset;
 
         [SerializeField][Range(0.001f, 1f)] private float noiseScale = 0.03f;
+        // 계단식 지형(2026-10-19) 뒤로는 본거지 평지가 없을 때(씬 그대로 Play) 기준 지면 높이 = heightMultiplier / 2(옛 평균 높이).
         [SerializeField][Range(0f, 50f)] private float heightMultiplier = 7f;
 
         // lacunarity^octavesCount는 정점 사이 노이즈 주파수 차이를 지수적으로 키운다.
@@ -58,6 +59,7 @@ namespace AntColony.Map
 
         private void OnDestroy()
         {
+            if (Active == this) Active = null;
             ReleaseObject(mesh);
             ReleaseObject(terrainMaterial);
             ReleaseObject(terrainTextures);
@@ -114,16 +116,24 @@ namespace AntColony.Map
         public const float WaterMoveMultiplier = .6f; // 물속은 느리게 지나간다(2026-10-03, 잠정)
         public static bool InWater(Vector3 p) => !float.IsNaN(WaterLevel) && p.y < WaterLevel - .05f;
 
-        // 기준점에서 가까운 물가(물 바로 위 땅) 한 곳. minDistance 안은 건너뛴다(본거지 평지).
+        // 기준점에서 가까운 물가(웅덩이에서 2칸 안의 평지) 한 곳. minDistance 안은 건너뛴다(본거지 평지).
         public bool TryFindShore(Vector3 near, float minDistance, out Vector3 shore)
         {
             shore = default;
-            if (float.IsNaN(WaterLevel) || mesh == null) return false;
-            var best = float.MaxValue; var vertices = mesh.vertices;
-            foreach (var v in vertices)
+            if (float.IsNaN(WaterLevel) || mesh == null || terrace == null) return false;
+            var best = float.MaxValue; var vertices = mesh.vertices; var w = xSize + 1;
+            for (var i = 0; i < vertices.Length; i++)
             {
-                var p = transform.TransformPoint(v);
-                if (p.y < WaterLevel || p.y > WaterLevel + .6f) continue;
+                if (terrace.clear[i]) continue;
+                int x = i % w, z = i / w; var nearPit = false;
+                for (var dz = -2; dz <= 2 && !nearPit; dz++)
+                    for (var dx = -2; dx <= 2 && !nearPit; dx++)
+                    {
+                        int px = x + dx, pz = z + dz;
+                        nearPit = px >= 0 && pz >= 0 && px <= xSize && pz <= zSize && terrace.heights[pz * w + px] < 0;
+                    }
+                if (!nearPit) continue;
+                var p = transform.TransformPoint(vertices[i]);
                 var d = new Vector2(p.x - near.x, p.z - near.z).sqrMagnitude;
                 if (d < minDistance * minDistance || d >= best) continue;
                 best = d; shore = p;
@@ -136,6 +146,9 @@ namespace AntColony.Map
         private float flatRadius;
         private float flatHeight;
         private int spawnSeedBase;
+        private float[] noise01;               // 정점별 정규화 노이즈(장식 분포)
+        private TerraceHeights.Result terrace; // 정점별 단계 높이(건설 평지 판정·물가·수면)
+        private float baseY;                   // 기준 단계(저지대)의 로컬 높이
 
         public void Configure(int newXSize, int newZSize, int newXOffset, int newZOffset, int seed)
         {
@@ -156,11 +169,26 @@ namespace AntColony.Map
 
         private void Start()
         {
+            if (SelectSingleTerrain() != this) return;
             GenerateTerrain();
+        }
+
+        // 사본의 렌더러뿐 아니라 자식 장식과 콜라이더도 NavMesh 수집 전에 제외한다.
+        public static MapGenerator SelectSingleTerrain()
+        {
+            var maps = FindObjectsByType<MapGenerator>(FindObjectsSortMode.InstanceID);
+            if (maps.Length == 0) return null;
+            var selected = Active != null && Active.gameObject.activeInHierarchy ? Active : maps[0];
+            foreach (var map in maps)
+                if (map != selected) map.gameObject.SetActive(false);
+            return selected;
         }
 
         public void GenerateTerrain()
         {
+            // 새 게임으로 만든 본거지 지형(평지 있음)이 기준이다. 씬에 켜진 다른 지형이 나중에 Start로 생성돼도 빼앗지 않는다.
+            var authoritative = Active == null || Active == this || hasFlatZone || !Active.hasFlatZone;
+            if (authoritative) Active = this;
             CreateMesh();
             GenerateMesh();
             GenerateTexture();
@@ -172,7 +200,7 @@ namespace AntColony.Map
                 GenerateWater();
             else if (waterObject != null)
                 ReleaseWater();
-            WaterLevel = generateWater && waterObject != null ? waterObject.transform.position.y : float.NaN;
+            if (authoritative) WaterLevel = generateWater && waterObject != null ? waterObject.transform.position.y : float.NaN;
         }
 
         private void SpawnObjects()
@@ -188,8 +216,6 @@ namespace AntColony.Map
                 if (old != waterObject && old.GetComponentInChildren<Renderer>(true) != null) { old.SetActive(false); ReleaseObject(old); } // 끄고 지워야 같은 프레임 NavMesh에서 빠진다
             }
 
-            var minH = mesh.bounds.min.y;
-            var maxH = mesh.bounds.max.y;
             var vertices = mesh.vertices;
 
             // 간격 검사는 1m 격자로(장식 종류가 많아도 느려지지 않게).
@@ -203,12 +229,15 @@ namespace AntColony.Map
                 {
                     var index = z * (xSize + 1) + x;
                     var vertex = vertices[index];
-                    var heightNormalized = Mathf.InverseLerp(minH, maxH, vertex.y);
+                    if (terrace.clear[index]) continue; // 웅덩이·절벽·경사로는 비워 둔다(경사로가 나무로 막히지 않게)
+                    // 계단식 지형은 높이가 몇 단계뿐이라 장식 분포는 높이 대신 원래 노이즈 값으로 고른다.
+                    var heightNormalized = noise01[index];
 
                     for (var s = 0; s < spawnObjects.Count; s++)
                     {
                         var spawnObj = spawnObjects[s];
                         if (spawnObj.prefab == null) continue;
+                        if ((!styled || spawnObj.solid) && !terrace.open[index]) continue; // 콜라이더가 남는 장식은 탁 트인 평지에만
                         if (heightNormalized < spawnObj.minHeight || heightNormalized > spawnObj.maxHeight) continue;
 
                         // prefab 인스턴스 ID는 재실행마다 달라져 같은 시드에서도 배치가 흔들린다.
@@ -278,50 +307,76 @@ namespace AntColony.Map
         {
             ReleaseWater();
 
+            // 웅덩이 칸(꼭짓점 하나라도 웅덩이)만 수면을 깐다. 웅덩이가 없으면 물도 없다.
+            var w = xSize + 1;
+            var vertices = new List<Vector3>(); var uvs = new List<Vector2>(); var triangles = new List<int>();
+            for (var z = 0; z < zSize; z++)
+                for (var x = 0; x < xSize; x++)
+                {
+                    var i = z * w + x;
+                    if (terrace.heights[i] >= 0 && terrace.heights[i + 1] >= 0 && terrace.heights[i + w] >= 0 && terrace.heights[i + w + 1] >= 0) continue;
+                    var b = vertices.Count;
+                    foreach (var (cx, cz) in new[] { (x, z), (x + 1, z), (x, z + 1), (x + 1, z + 1) })
+                    {
+                        vertices.Add(new Vector3(cx, 0f, cz));
+                        uvs.Add(new Vector2((float)cx / xSize, (float)cz / zSize)); // 옛 전체 수면과 같은 UV
+                    }
+                    triangles.AddRange(new[] { b, b + 2, b + 1, b + 2, b + 3, b + 1 });
+                }
+            if (vertices.Count == 0) return;
+
             waterObject = new GameObject("Water");
             waterObject.transform.SetParent(transform, false);
+            waterObject.transform.localPosition = new Vector3(0f, baseY - TerraceHeights.WaterDepth, 0f);
 
-            var minH = mesh.bounds.min.y;
-            var maxH = mesh.bounds.max.y;
-            var waterY = Mathf.Lerp(minH, maxH, waterHeight);
-            // 본거지 평지는 물에 잠기지 않게 그보다 낮게 둔다.
-            if (hasFlatZone) waterY = Mathf.Min(waterY, flatHeight - transform.position.y - .5f);
-
-            waterObject.transform.localPosition = new Vector3(
-                xSize / 2f,
-                waterY,
-                zSize / 2f);
-            waterObject.transform.localScale = new Vector3(xSize, 1f, zSize);
-
-            var mf = waterObject.AddComponent<MeshFilter>();
-            var mr = waterObject.AddComponent<MeshRenderer>();
-            mf.mesh = CreatePlaneMesh();
-            mr.sharedMaterial = waterMat;
+            var waterMesh = new Mesh { indexFormat = UnityEngine.Rendering.IndexFormat.UInt32 };
+            waterMesh.SetVertices(vertices); waterMesh.SetUVs(0, uvs); waterMesh.SetTriangles(triangles, 0);
+            waterMesh.RecalculateNormals();
+            waterObject.AddComponent<MeshFilter>().mesh = waterMesh;
+            waterObject.AddComponent<MeshRenderer>().sharedMaterial = waterMat;
         }
 
-        private Mesh CreatePlaneMesh()
+        // NavMesh 재구축에서 수면을 '못 걷는 곳'으로 넣는다(웅덩이 바닥도 높이 여유가 없어 함께 빠진다).
+        public Mesh WaterMesh => waterObject != null ? waterObject.GetComponent<MeshFilter>().sharedMesh : null;
+        public Matrix4x4 WaterMatrix => waterObject != null ? waterObject.transform.localToWorldMatrix : Matrix4x4.identity;
+
+        public static MapGenerator Active { get; private set; }
+        // 건물 바닥 밑 정점이 모두 같은 단계의 평지인가(절벽·경사로·웅덩이 위 건설 금지). 지형이 없으면 막지 않는다.
+        public static bool FlatAt(Vector3 center, Vector3 extents)
         {
-            var planeMesh = new Mesh();
-            var vertices = new[]
+            var t = Active;
+            if (t == null || t.terrace == null) return true;
+            var min = t.transform.InverseTransformPoint(center - extents);
+            var max = t.transform.InverseTransformPoint(center + extents);
+            int x0 = Mathf.Clamp(Mathf.FloorToInt(min.x + .01f), 0, t.xSize), x1 = Mathf.Clamp(Mathf.CeilToInt(max.x - .01f), 0, t.xSize);
+            int z0 = Mathf.Clamp(Mathf.FloorToInt(min.z + .01f), 0, t.zSize), z1 = Mathf.Clamp(Mathf.CeilToInt(max.z - .01f), 0, t.zSize);
+            var first = t.terrace.heights[z0 * (t.xSize + 1) + x0];
+            if (first < 0 || first != Mathf.Round(first)) return false;
+            for (var z = z0; z <= z1; z++)
+                for (var x = x0; x <= x1; x++)
+                    if (t.terrace.heights[z * (t.xSize + 1) + x] != first) return false;
+            return true;
+        }
+
+        // 먼 길 경유지(NavRoute): 지형 격자 대략 경로에서 every칸마다 한 점(월드 좌표). 출발·도착점은 넣지 않는다.
+        public bool CoarseRoute(Vector3 from, Vector3 to, int stride, int every, List<Vector3> points)
+        {
+            points.Clear();
+            if (terrace == null) return false;
+            var w = xSize + 1;
+            int Index(Vector3 p)
             {
-                new Vector3(-0.5f, 0f, -0.5f),
-                new Vector3(0.5f, 0f, -0.5f),
-                new Vector3(-0.5f, 0f, 0.5f),
-                new Vector3(0.5f, 0f, 0.5f)
-            };
-            var triangles = new[] { 0, 2, 1, 2, 3, 1 };
-            var uvs = new[]
+                var local = transform.InverseTransformPoint(p);
+                return Mathf.Clamp(Mathf.RoundToInt(local.z), 0, zSize) * w + Mathf.Clamp(Mathf.RoundToInt(local.x), 0, xSize);
+            }
+            var cells = new List<int>();
+            if (!TerraceHeights.Route(terrace.heights, w, Index(from), Index(to), stride, cells)) return false;
+            for (var k = every; k < cells.Count - 1; k += every)
             {
-                new Vector2(0f, 0f),
-                new Vector2(1f, 0f),
-                new Vector2(0f, 1f),
-                new Vector2(1f, 1f)
-            };
-            planeMesh.vertices = vertices;
-            planeMesh.triangles = triangles;
-            planeMesh.uv = uvs;
-            planeMesh.RecalculateNormals();
-            return planeMesh;
+                var i = cells[k];
+                points.Add(transform.TransformPoint(new Vector3(i % w, baseY + terrace.heights[i] * TerraceHeights.LevelHeight, i / w)));
+            }
+            return true;
         }
 
         private void CreateMesh()
@@ -358,31 +413,39 @@ namespace AntColony.Map
         private void GenerateMesh()
         {
             var vertices = new Vector3[(xSize + 1) * (zSize + 1)];
+            noise01 = new float[vertices.Length];
             var i = 0;
             for (var z = 0; z <= zSize; z++)
             {
                 for (var x = 0; x <= xSize; x++)
                 {
-                    float yPos = 0f;
+                    float value = 0f;
                     for (var o = 0; o < octavesCount; o++)
                     {
                         var frequency = Mathf.Pow(lacunarity, o);
                         var amplitude = Mathf.Pow(persistance, o);
-                        yPos += Mathf.PerlinNoise((x + xOffset) * noiseScale * frequency, (z + zOffset) * noiseScale * frequency) * amplitude;
+                        value += Mathf.PerlinNoise((x + xOffset) * noiseScale * frequency, (z + zOffset) * noiseScale * frequency) * amplitude;
                     }
-                    yPos *= heightMultiplier;
-                    // 본거지 평탄화. 반경 안은 원래 높이로 눌러 두고 바깥에서 지형으로 되돌아간다.
-                    if (hasFlatZone)
-                    {
-                        var world = transform.TransformPoint(new Vector3(x, 0f, z));
-                        var planar = new Vector2(world.x - flatCenter.x, world.z - flatCenter.z).magnitude;
-                        var blend = Mathf.SmoothStep(0f, 1f, Mathf.InverseLerp(flatRadius, flatRadius * 1.5f, planar));
-                        yPos = Mathf.Lerp(flatHeight - transform.position.y, yPos, blend);
-                    }
-                    vertices[i] = new Vector3(x, yPos, z);
-                    i++;
+                    noise01[i++] = value;
                 }
             }
+            // 0~1로 펴서 물 높이(waterHeight)·장식 높이 범위를 옛 지형과 같은 뜻으로 쓴다.
+            float lo = Mathf.Min(noise01), hi = Mathf.Max(noise01);
+            for (i = 0; i < noise01.Length; i++) noise01[i] = Mathf.InverseLerp(lo, hi, noise01[i]);
+
+            // 본거지 평지: 반경 안은 기준 단계로 고정, 1.3배까지는 웅덩이 금지.
+            baseY = hasFlatZone ? flatHeight - transform.position.y : heightMultiplier * .5f;
+            terrace = TerraceHeights.Build(noise01, xSize, zSize, waterHeight, generateWater, (x, z) =>
+            {
+                if (!hasFlatZone) return 0;
+                var world = transform.TransformPoint(new Vector3(x, 0f, z));
+                var planar = new Vector2(world.x - flatCenter.x, world.z - flatCenter.z).magnitude;
+                return planar < flatRadius ? 2 : planar < flatRadius * 1.3f ? 1 : 0;
+            }, spawnSeedBase ^ xOffset * 31 ^ zOffset);
+            i = 0;
+            for (var z = 0; z <= zSize; z++)
+                for (var x = 0; x <= xSize; x++, i++)
+                    vertices[i] = new Vector3(x, baseY + terrace.heights[i] * TerraceHeights.LevelHeight, z);
 
             var triangles = new int[xSize * zSize * 6];
             var vertex = 0;
@@ -391,12 +454,18 @@ namespace AntColony.Map
             {
                 for (var x = 0; x < xSize; x++)
                 {
-                    triangles[triangleIndex + 0] = vertex + 0;
-                    triangles[triangleIndex + 1] = vertex + xSize + 1;
-                    triangles[triangleIndex + 2] = vertex + 1;
-                    triangles[triangleIndex + 3] = vertex + 1;
-                    triangles[triangleIndex + 4] = vertex + xSize + 1;
-                    triangles[triangleIndex + 5] = vertex + xSize + 2;
+                    int a = vertex, b = vertex + 1, c = vertex + xSize + 1, d = vertex + xSize + 2;
+                    // 높이 차가 작은 쪽 대각선으로 나눈다. 한 모서리만 다른 칸(대각선 절벽)이 톱니 대신 45° 선이 된다(2026-10-22).
+                    if (Mathf.Abs(vertices[a].y - vertices[d].y) < Mathf.Abs(vertices[b].y - vertices[c].y))
+                    {
+                        triangles[triangleIndex + 0] = a; triangles[triangleIndex + 1] = c; triangles[triangleIndex + 2] = d;
+                        triangles[triangleIndex + 3] = a; triangles[triangleIndex + 4] = d; triangles[triangleIndex + 5] = b;
+                    }
+                    else
+                    {
+                        triangles[triangleIndex + 0] = a; triangles[triangleIndex + 1] = c; triangles[triangleIndex + 2] = b;
+                        triangles[triangleIndex + 3] = b; triangles[triangleIndex + 4] = c; triangles[triangleIndex + 5] = d;
+                    }
                     vertex++;
                     triangleIndex += 6;
                 }
@@ -411,7 +480,12 @@ namespace AntColony.Map
         }
 
         // 바이옴 바닥 색조(GenerateTerrain 뒤에 부른다).
-        public void SetTint(Color tint) { if (terrainMaterial != null) terrainMaterial.SetColor("_Tint", tint); }
+        public void SetTint(Color tint)
+        {
+            if (terrainMaterial == null) return;
+            RestoreTerrainLayers();
+            terrainMaterial.SetColor("_Tint", tint);
+        }
         // 계절 바닥 덮임(0~1): 겨울 눈, 가을 낙엽. 텍스처는 바이옴 스타일에서 오며, 없으면 덮지 않는다.
         public void SetSeasonGround(float snow, float leaves)
         {
@@ -420,25 +494,50 @@ namespace AntColony.Map
             terrainMaterial.SetFloat("_Snow", snowGround != null ? snow : 0); terrainMaterial.SetFloat("_Leaves", leafGround != null ? leaves : 0);
         }
 
-        private void GenerateTexture()
+        // SetTint을 거치지 않는 경로(메뉴 배경 지형 등)도 그리기 직전에 층 정보를 다시 연결한다.
+        // 층 정보가 지워진 머티리얼에서 값을 읽으면 오류가 나므로 확인 없이 프레임당 한 번 연결한다.
+        private int boundFrame = -1;
+        private void OnWillRenderObject()
+        {
+            if (boundFrame == Time.frameCount || terrainTextures == null) return;
+            boundFrame = Time.frameCount; BindTerrainLayers();
+        }
+
+        private void RestoreTerrainLayers()
+        {
+            // 셰이더 재임포트는 Properties 밖의 층 정보를 지운다. 텍스처를 재생성하지 않고 복구한다.
+            // 지워진 값을 읽으면 오류가 나므로 확인 없이 다시 연결한다(텍스처는 재생성하지 않음).
+            if (terrainMaterial != null && terrainTextures != null) BindTerrainLayers();
+        }
+
+        private void BindTerrainLayers()
         {
             if (terrainMaterial == null) return;
-            var minTerrainHeight = mesh.bounds.min.y + transform.position.y - 0.1f;
-            var maxTerrainHeight = mesh.bounds.max.y + transform.position.y + 0.1f;
+            // 텍스처 높이 범위는 웅덩이 바닥~언덕2로 고정한다. 웅덩이 없는 맵에서도 저지대가 맨 아래(물가) 층으로 칠해지지 않고
+            // 단계마다 다른 지면층이 깔린다(저지대 ⅓, 언덕1 ⅔, 언덕2 꼭대기).
+            var minTerrainHeight = baseY - TerraceHeights.LevelHeight + transform.position.y - 0.1f;
+            var maxTerrainHeight = baseY + 2 * TerraceHeights.LevelHeight + transform.position.y + 0.1f;
 
             terrainMaterial.SetFloat("minTerrainHeight", minTerrainHeight);
             terrainMaterial.SetFloat("maxTerrainHeight", maxTerrainHeight);
+            terrainMaterial.SetFloat("terraceBase", baseY + transform.position.y);
+            terrainMaterial.SetFloat("terraceStep", TerraceHeights.LevelHeight);
 
             var layersCount = Mathf.Min(terrainLayers.Count, 32);
             terrainMaterial.SetInt("numTextures", layersCount);
-            ReleaseObject(terrainTextures);
-            terrainTextures = null;
-            if (layersCount == 0) return;
-
             var heights = new float[32];
             for (var i = 0; i < layersCount; i++) heights[i] = terrainLayers[i].startHeight;
             terrainMaterial.SetFloatArray("terrainHeights", heights);
+            terrainMaterial.SetTexture("terrainTextures", terrainTextures);
+        }
 
+        private void GenerateTexture()
+        {
+            if (terrainMaterial == null) return;
+            var layersCount = Mathf.Min(terrainLayers.Count, 32);
+            ReleaseObject(terrainTextures);
+            terrainTextures = null;
+            if (layersCount == 0) { BindTerrainLayers(); return; }
             terrainTextures = new Texture2DArray(512, 512, layersCount, TextureFormat.RGBA32, true);
             terrainTextures.filterMode = FilterMode.Trilinear;
             terrainTextures.anisoLevel = 8;
@@ -463,7 +562,7 @@ namespace AntColony.Map
                 ReleaseObject(resized);
             }
             terrainTextures.Apply();
-            terrainMaterial.SetTexture("terrainTextures", terrainTextures);
+            BindTerrainLayers();
         }
 
         [System.Serializable]

@@ -84,7 +84,7 @@ namespace AntColony.Map
             var scale = MapSizes.Scale(options.mapSize);
 
             
-            var ported = FindFirstObjectByType<MapGenerator>();
+            var ported = MapGenerator.SelectSingleTerrain();
             if (ported == null)
             {
                 WorldBounds = ResizeAround(home, DefaultBounds().size.x * scale);
@@ -195,6 +195,10 @@ namespace AntColony.Map
                     area = 1 // Not Walkable
                 };
             }
+            // 물웅덩이는 못 지나간다(2026-10-19). 수면은 콜라이더가 없어 직접 넣는다.
+            var terrain = MapGenerator.Active;
+            if (terrain != null && terrain.WaterMesh != null)
+                sources.Add(new NavMeshBuildSource { shape = NavMeshBuildSourceShape.Mesh, sourceObject = terrain.WaterMesh, transform = terrain.WaterMatrix, area = 1 });
             navData = NavMeshBuilder.BuildNavMeshData(NavMesh.GetSettingsByIndex(0), sources,
                 collectBounds, Vector3.zero, Quaternion.identity);
             if (navData != null) navInstance = NavMesh.AddNavMeshData(navData);

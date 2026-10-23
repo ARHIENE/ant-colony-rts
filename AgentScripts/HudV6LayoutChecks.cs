@@ -28,7 +28,7 @@ public static class HudV6LayoutChecks
             Check(hud.GetComponent<CanvasScaler>().uiScaleMode == CanvasScaler.ScaleMode.ConstantPixelSize, "HUD pixel scale");
             Check(menus.GetComponent<CanvasScaler>().uiScaleMode == CanvasScaler.ScaleMode.ConstantPixelSize, "menu pixel scale");
             hud.renderMode = menus.renderMode = RenderMode.WorldSpace;
-            foreach (var size in new[] { new Vector2(960,720), new Vector2(1280,720), new Vector2(1440,900) })
+            foreach (var size in new[] { new Vector2(960,720), new Vector2(1280,720), new Vector2(1440,900), new Vector2(1920,1080) })
             {
                 var hr = (RectTransform)hud.transform; var mr = (RectTransform)menus.transform;
                 hr.sizeDelta = mr.sizeDelta = size;
@@ -40,7 +40,10 @@ public static class HudV6LayoutChecks
                 Check(rc[2].x < tc[0].x, "roster does not overlap resources " + size);
                 var toolbar = menus.GetComponentsInChildren<Transform>(true).First(t=>t.name=="MenuToolbar");
                 foreach(var button in toolbar.GetComponentsInChildren<Button>(true)) Check(button.GetComponentInChildren<Text>().fontSize == 13, "uniform toolbar font " + button.name);
-                foreach (var open in new Action[] { menu.Science, menu.WorkSchedule, menu.Roster, () => menu.ShowEquipment(commander), menu.Population })
+                var expected = new[] { "≡", "작업표", "과학", "월드맵", "물류·식품", "의료·관리", "생산·자원", "인재·편성", "＋ 건설" };
+                Check(toolbar.GetComponentsInChildren<Button>(true).Select(b => b.GetComponentInChildren<Text>().text).SequenceEqual(expected), "V6 dock order");
+                foreach (var open in new Action[] { menu.Science, menu.WorkSchedule, menu.Roster, () => menu.ShowEquipment(commander), menu.Population,
+                    () => menu.Management("물류·식품"), () => menu.Management("의료·관리"), () => menu.Management("생산·자원"), () => menu.Management("인재·편성") })
                 {
                     open(); await Task.Delay(200); Canvas.ForceUpdateCanvases();
                     var fit = menus.GetComponentInChildren<MenuViewport>(); Check(fit != null, "fitted management window");
@@ -55,12 +58,40 @@ public static class HudV6LayoutChecks
                 BuildScreen.Toggle(); await Task.Delay(100);
             }
             Check(MenuTheme.Plate == MenuTheme.Hex(0x262725), "neutral palette");
+            foreach (var entry in new[] {
+                ("물류·식품", new[] { "창고", "식단", "건설·작업", "퇴비·비료" }),
+                ("의료·관리", new[] { "의료", "동물 위생", "묘비·추모", "포로", "인구", "기록" }),
+                ("생산·자원", new[] { "자원", "생산", "장비·도구", "수리", "매장지·배관", "음주" }),
+                ("인재·편성", new[] { "장수", "평가", "외부 조사", "특성 도감", "진형" }) })
+            {
+                foreach (var tab in entry.Item2)
+                {
+                    menu.Management(entry.Item1, tab); await Task.Delay(100); Canvas.ForceUpdateCanvases();
+                    var window = GameObject.Find("V5Window");
+                    Check(window != null, "group window " + entry.Item1 + "/" + tab);
+                    foreach (var name in entry.Item2) Check(window.GetComponentsInChildren<Button>().Any(b => b.name == "Tab " + name), "group tab " + name);
+                    Check(window.GetComponentsInChildren<Button>().Any(b => b.name == "Resume"), "group footer close");
+                    foreach (var dropdown in window.GetComponentsInChildren<Dropdown>())
+                    {
+                        Check(dropdown.options.Count > 0 && dropdown.captionText != null && dropdown.itemText != null, "subject options wired");
+                        Check(dropdown.template != null && dropdown.template.GetComponentInChildren<Toggle>(true) != null, "dropdown template wired");
+                        dropdown.Show(); await Task.Delay(80);
+                        Check(dropdown.transform.Find("Dropdown List") != null, "subject dropdown opens");
+                        dropdown.Hide();
+                    }
+                }
+            }
+            menu.Science(); await Task.Delay(100);
+            Check(GameObject.Find("V5Window").GetComponentsInChildren<Button>().Count(b => b.name.StartsWith("Tab ")) == 6, "six research eras");
+            menu.Management("생산·자원", "매장지·배관");
+            Check(GameObject.Find("V5Window").GetComponentsInChildren<Text>().Any(t => t.text == "미구현"), "missing gameplay is explicit");
+            menu.Resume();
             for(int i=0;i<5;i++) ToastManager.Show("V6 알림 검사 " + i + " " + new string('가', 80));
             await Task.Delay(300); Canvas.ForceUpdateCanvases();
             var alerts = UnityEngine.Object.FindObjectsByType<ScrollRect>(FindObjectsSortMode.None).First(r => r.name == "Toasts");
             Check(((RectTransform)alerts.transform).rect.height <= 280.1f, "alerts height capped");
             Check(alerts.viewport.GetComponent<RectMask2D>() != null && alerts.content.rect.height > alerts.viewport.rect.height, "long alerts remain scrollable");
-            return "PASS " + checks + " V6 layout/type checks; 960/1280/1440 viewport simulations, 5 real management screens and build";
+            return "PASS " + checks + " V6 layout/type checks; 960/1280/1440/1920 viewport simulations, grouped management tabs and build";
         }
         finally { hud.renderMode = hudMode; menus.renderMode = menuMode; menu.Resume(); }
     }

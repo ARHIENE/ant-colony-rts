@@ -12,6 +12,7 @@ namespace AntColony.UI
     public sealed partial class GameMenuController
     {
         private ScienceTechnology? researchPick;
+        private int researchEra = 1;
 
         // 실제 코드(ScienceEffects 등)에 연결된 해금 효과만 적는다.
         private static string ResearchEffect(ScienceTechnology t) => t switch
@@ -56,36 +57,41 @@ namespace AntColony.UI
         private string ResearchState(CampaignResearch r, ScienceDefinition d)
         {
             if (r.Has(d.Technology)) return "완료";
-            if (r.Active == d) return (r.Paused ? "정지" : "진행") + $" {r.Progress / d.Work:P0}";
-            var saved = r.SavedProgress(d.Technology);
-            if (saved >= 0) return $"보존 {saved / d.Work:P0}";
-            return r.BlockReason(d.Technology) == "" ? "가능" : "잠김";
+            if (r.Active == d) return (r.Paused ? "정지" : "진행 중") + $" {r.Progress / d.Work:P0}";
+            return r.BlockReason(d.Technology) == "" ? "선택 가능" : "잠김";
         }
 
         public void Science()
         {
             var r = CampaignResearch.Instance;
             if (r == null) { Screen("Science", "과학"); MenuTheme.Text(content, "과학 화면 준비 중입니다."); MenuTheme.Button(content, "Back", Back); return; }
-            var window = V5Window("과학 / 연구", "한 번에 하나의 연구 · 연구소마다 장수 1명 · 완료 후 자동으로 다음 연구를 고르지 않음");
-            L.Button(window, "Science Facilities", "로켓 · 과학 시설", 20, 677, 200, 30, ScienceFacilities);
+            var window = V5Window("과학 / 연구", "한 번에 하나 · 완료 후 다음 연구는 직접 선택", 676);
+            L.Button(window, "Science Facilities", "로켓 · 과학 시설", 20, 633, 200, 30, ScienceFacilities);
 
             // 왼쪽: 시대별 연구 목록
-            content = V5Section(window, "시대별 연구", 20, 104, 420, 544);
             for (var era = 1; era <= CampaignResearch.EraCount; era++)
             {
-                var defs = CampaignResearch.Technologies.Where(d => d.Tier == era).ToArray();
-                MenuTheme.Text(content, $"{era}. {CampaignResearch.EraNames[era - 1]} 시대" + (defs.Length == 0 ? " — 연구 항목 미정" : ""), 16, 28);
-                foreach (var d in defs)
-                {
-                    var pick = d.Technology;
-                    MenuTheme.Button(content, (researchPick == pick ? "▶ " : "") + $"{d.Name} · {ResearchState(r, d)}", () => { researchPick = pick; Science(); }, ResearchEffect(pick));
-                }
+                var pick = era;
+                L.Tab(window, $"{era}. {CampaignResearch.EraNames[era - 1]}", 12 + (era - 1) * 100, 64, 94, researchEra == era,
+                    () => { researchEra = pick; researchPick = null; Science(); });
             }
+            L.Line(window, 12, 97, 1076);
+            content = V5Section(window, CampaignResearch.EraNames[researchEra - 1] + " 시대", 12, 112, 530, 298);
+            var defs = CampaignResearch.Technologies.Where(d => d.Tier == researchEra).ToArray();
+            if (!researchPick.HasValue || !defs.Any(d => d.Technology == researchPick)) researchPick = defs.FirstOrDefault()?.Technology;
+            foreach (var d in defs)
+            {
+                var pick = d.Technology;
+                var row = L.Cell(content, "Research " + pick, 42, MenuTheme.Plate2);
+                L.Button(row, "Pick " + pick, d.Name, 8, 5, 390, 32, () => { researchPick = pick; Science(); }, ResearchEffect(pick), researchPick == pick);
+                L.Label(row, ResearchState(r, d), 12, 404, 0, 98, 42, MenuTheme.Muted, TextAnchor.MiddleRight);
+            }
+            if (defs.Length == 0) MenuTheme.Text(content, "연구 항목 미구현", 13, 40);
 
-            // 오른쪽 위: 선택(없으면 진행 중) 연구 상세와 조작
-            var def = researchPick.HasValue ? CampaignResearch.Technologies[(int)researchPick.Value] : r.Active;
-            content = V5Section(window, def == null ? "연구 선택" : $"{def.Name} · {CampaignResearch.EraNames[def.Tier - 1]} 시대", 454, 104, 626, 262);
-            if (def == null) MenuTheme.Text(content, "왼쪽 목록에서 연구를 고르세요. 진행 중인 연구가 없습니다.", 16, 40);
+            // 오른쪽: 현재 시대에서 선택한 연구 상세와 조작
+            var def = researchPick.HasValue ? CampaignResearch.Technologies[(int)researchPick.Value] : null;
+            content = V5Section(window, def == null ? "연구 선택" : $"{def.Name} · {CampaignResearch.EraNames[def.Tier - 1]} 시대", 554, 112, 534, 298);
+            if (def == null) MenuTheme.Text(content, "선택한 시대에 표시할 연구 항목이 없습니다.", 13, 40);
             else
             {
                 var saved = r.SavedProgress(def.Technology);
@@ -93,32 +99,41 @@ namespace AntColony.UI
                 var progress = r.Active == def ? r.Progress : Mathf.Max(0, saved);
                 MenuTheme.Text(content, $"상태 {ResearchState(r, def)} · 연구량 {progress:0}/{def.Work:0} · {cost}\n해금: {ResearchEffect(def.Technology)}"
                     + "\n선행: " + (def.Prerequisites.Length == 0 ? "없음" : string.Join(", ", def.Prerequisites.Select(p => (r.Has(p) ? "✓ " : "✗ ") + CampaignResearch.Technologies[(int)p].Name))), 15, 82);
+                var meter = L.Cell(content, "ResearchProgress", 12);
+                L.Meter(meter, 0, 3, 494, 6, progress / def.Work, MenuTheme.Accent);
                 var reason = r.BlockReason(def.Technology);
-                if (r.Active == def)
-                    MenuTheme.Button(content, r.Paused ? "연구 재개" : "연구 정지(진행도 보존)", () => { r.SetPaused(!r.Paused); Science(); });
-                else if (!r.Has(def.Technology))
-                {
-                    var label = r.Active == null ? "이 연구 시작" : $"이 연구로 변경({r.Active.Name} 진행도 보존)";
-                    MenuTheme.Button(content, label, () => { if (!r.TryStart(def.Technology)) ToastManager.Show("자원이 부족합니다."); Science(); }, reason).interactable = reason == "";
-                    if (reason != "") MenuTheme.Text(content, "<color=#d9534f>" + reason + "</color>", 15, 30);
-                }
+                var actions = L.Cell(content, "Research Commands", 38);
+                L.Button(actions, "Start Research", r.Active == def && r.Paused ? "연구 재개" : "연구 지시", 0, 0, 110, 32, () => {
+                    if (r.Active == def) r.SetPaused(false);
+                    else if (!r.TryStart(def.Technology)) ToastManager.Show("연구를 시작할 수 없습니다. 자원과 선행 연구를 확인하세요.");
+                    Science();
+                }, reason, primary: true).interactable = !r.Has(def.Technology) && (r.Active == def ? r.Paused : reason == "");
+                L.Button(actions, "Stop Research", "연구 정지", 118, 0, 110, 32, () => { r.SetPaused(true); Science(); }, "진행도를 보존합니다.")
+                    .interactable = r.Active == def && !r.Paused;
+                if (reason != "" && r.Active != def) MenuTheme.Text(content, reason, 12, 36).color = MenuTheme.Warning;
             }
 
-            // 오른쪽 아래: 연구소별 담당 장수·대기 사유
-            content = V5Section(window, "연구소 / 담당 장수", 454, 378, 626, 270);
+            // 하단: 연구소별 담당 장수·대기 사유
+            content = V5Section(window, "연구소 배정", 12, 428, 1076, 176);
             var labs = FindObjectsByType<ScienceLab>(FindObjectsSortMode.None);
             if (labs.Length == 0) MenuTheme.Text(content, "과학 연구소가 없습니다. 건설 메뉴에서 지으세요.", 15, 30);
             var assigned = labs.Select(l => l.Target).Where(c => c != null).ToHashSet();
             foreach (var lab in labs)
             {
                 var wait = r.LabWaitReason(lab);
-                MenuTheme.Text(content, $"연구소 {lab.Tier}등급 · {lab.Target?.CommanderName ?? "담당 없음"} · " + (wait == "" ? "<color=#5cb85c>기여 중</color>" : "<color=#f2c94c>" + wait + "</color>"), 15, 28);
                 var captured = lab;
-                if (lab.Target != null) MenuTheme.Button(content, "담당 해제", () => { captured.ReleaseResearcher(); Science(); });
-                else if (r.Active != null && lab.Tier >= r.Active.Tier)
-                    // 다른 연구소에 이미 배정된 장수는 후보에서 뺀다(중복 배정 방지).
-                    foreach (var c in SortedCommanders().Where(c => !assigned.Contains(c) && !c.IsAwayFromHome && c.CanChangeAllocation && c.AllowsJob(CommanderJobs.Research)))
-                        MenuTheme.Button(content, "연구 지시: " + c.CommanderName, () => { if (!c.SendToResearch(captured)) ToastManager.Show("지시할 수 없습니다(경로·작업 중·작업표 연구 금지)."); Science(); });
+                var row = L.Cell(content, "Lab Assignment", 40);
+                L.Label(row, $"연구소 {lab.Tier}등급 · 담당 장수", 13, 0, 0, 240, 36);
+                var candidates = SortedCommanders().Where(c => c == lab.Target || (lab.Target == null && !assigned.Contains(c) && !c.IsAwayFromHome && c.CanChangeAllocation && c.AllowsJob(CommanderJobs.Research))).ToArray();
+                var names = new[] { "미지정" }.Concat(candidates.Select(c => c.CommanderName)).ToArray();
+                var selected = System.Array.IndexOf(candidates, lab.Target) + 1;
+                var dropdown = GameMenuSelect.Create(row, names, selected, 250, 2, 260, index => {
+                    if (index == 0) captured.ReleaseResearcher();
+                    else if (!candidates[index - 1].SendToResearch(captured)) ToastManager.Show("지시할 수 없습니다(경로·작업 중·작업표 연구 금지).");
+                    Science();
+                });
+                dropdown.interactable = lab.Target != null || (r.Active != null && lab.Tier >= r.Active.Tier);
+                L.Label(row, wait == "" ? "참여 가능" : wait, 12, 530, 0, 490, 36, MenuTheme.Muted);
             }
             refreshDutyScreen = null;
             V5Fit(window);
@@ -127,16 +142,19 @@ namespace AntColony.UI
         // 기존 과학 화면의 로켓·연구소 강화·과학 시설 부분.
         public void ScienceFacilities()
         {
-            Screen("Science / Rocket", "로켓 · 과학 시설");
+            var window = V5Window("로켓 · 과학 시설", "연구소 강화 · 시설 건설 · 로켓 건조와 탑승");
+            L.Tab(window, "연구", 12, 64, 70, false, Science);
+            L.Tab(window, "시설", 88, 64, 70, true, ScienceFacilities);
+            content = V5Section(window, "연구소 강화", 12, 104, 350, 544);
             var research = CampaignResearch.Instance;
             foreach (var lab in FindObjectsByType<ScienceLab>(FindObjectsSortMode.None))
             {
                 var captured = lab;
                 MenuTheme.Button(content, $"연구소 {lab.Tier}등급 강화 (식량 {lab.Tier * 60} / 재료 {lab.Tier * 80})", () => { if (!captured.TryUpgrade()) ToastManager.Show("강화 조건을 충족하지 못했거나 자원이 부족합니다."); ScienceFacilities(); }).interactable = lab.Tier < ScienceLab.MaxTier && !lab.Busy;
             }
+            content = V5Section(window, "과학 시설 · 로켓", 376, 104, 712, 544);
             RocketSection(research);
-            MenuTheme.Button(content, "연구 화면", Science);
-            MenuTheme.Button(content, "Back", Back);
+            V5Fit(window);
         }
     }
 }

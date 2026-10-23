@@ -27,7 +27,7 @@ namespace AntColony.Core
                 return;
             }
             Instance = this;
-            Free = startingAnts;
+            Free = GameSession.Exists && GameSession.Instance.GameStarted ? 0 : startingAnts;
             if (GetComponent<ColonyPopulation>() == null) gameObject.AddComponent<ColonyPopulation>();
         }
 

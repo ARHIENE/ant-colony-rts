@@ -52,6 +52,27 @@ namespace AntColony.Core
         {
             if (roleProfiles == null || roleProfiles.Length == 0 || roleProfiles[0] == null || AntPool.Instance == null) return;
             var origin = spawnOrigin != null ? spawnOrigin.position : transform.position;
+            if (GameSession.Exists && GameSession.Instance.GameStarted)
+            {
+                if (GameSession.Instance.PendingLoad != null) return;
+                var team = GameSession.Instance.Options.startingTeam;
+                if (team == null) return;
+                for (var i = 0; i < team.Length; i++)
+                {
+                    var c = Create(team[i].name, CommanderRank.Sergeant, new[] { UnitRole.Worker, UnitRole.Melee },
+                        UnitRole.Worker, JsonUtility.FromJson<CommanderTraits>(JsonUtility.ToJson(team[i].traits)), origin + new Vector3(i * 2f, 0, 4));
+                    if (c == null) throw new System.InvalidOperationException("시작 장수를 배치할 수 없습니다.");
+                    c.RestoreTalents(team[i].talents.Copy());
+                    var p = c.PersonalState;
+                    p.ageMonths = team[i].ageYears * 12; p.lifespanMonths = 80 * 12;
+                    p.appearanceSeed = team[i].appearanceSeed; p.ordinaryClothes = StartingCandidate.Clothes(GameSession.Instance.Options.biome);
+                    p.toolTier = 1; p.relations.Clear();
+                    p.equipment.Add(new EquipmentItem { slot = EquipmentSlot.Weapon, weapon = WeaponKind.WoodenSword, quality = 1 });
+                    p.carriedRations = new FoodLots(); p.carriedRations.Add(c.RationPortion * 14, 24 * 150f);
+                    c.RefreshEquipment();
+                }
+                return;
+            }
             for (var i = 0; i < startingCommanders; i++)
             {
                 var position = origin + new Vector3((i % 4 - 1.5f) * 2f, 0f, 4f + i / 4 * 2f);

@@ -9,8 +9,10 @@ namespace AntColony.Camera
     public class IsometricCameraController : MonoBehaviour
     {
         [SerializeField] private Vector3 focusPoint = new Vector3(5f, 8f, 5f);
-        [SerializeField] private float pitch = 35f;
-        [SerializeField] private float startYaw = 45f;
+        // 스타크래프트식: 정면(남쪽)에서 비스듬히 내려다봐 맵 격자가 화면과 나란하고 위에서 본 지도처럼 보인다(2026-10-23 사용자 요청).
+        // 씬에 직렬화된 옛 값(35°·45°)을 쓰지 않도록 상수로 둔다.
+        private const float pitch = 55f;
+        private const float startYaw = 0f;
         [SerializeField] private float distance = 30f;
 
         [SerializeField] private float panSpeed = 25f;
@@ -88,7 +90,7 @@ namespace AntColony.Camera
         private void HandleEdgePan()
         {
             var mouse = Mouse.current;
-            if (mouse == null) return;
+            if (mouse == null || edgeScrollThickness <= 0) return;
 
             var pos = mouse.position.ReadValue();
             var move = Vector2.zero;
@@ -104,7 +106,9 @@ namespace AntColony.Camera
             var forward = yawRotation * Vector3.forward;
             var right = yawRotation * Vector3.right;
 
-            focusPoint += (forward * move.y + right * move.x) * (panSpeed * Time.deltaTime);
+            // 카메라 조작은 일시정지·배속과 독립적으로, 줌아웃 때도 비슷한 화면 속도로 움직인다.
+            var speed = panSpeed * 2f * (ViewSize / startOrthoSize);
+            focusPoint += (forward * move.y + right * move.x).normalized * (speed * Time.unscaledDeltaTime);
             focusPoint.x = Mathf.Clamp(focusPoint.x, minX, maxX);
             focusPoint.z = Mathf.Clamp(focusPoint.z, minZ, maxZ);
         }

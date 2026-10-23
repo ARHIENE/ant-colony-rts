@@ -10,7 +10,7 @@ namespace AntColony.Units
     [Serializable]
     public class CommanderTalents
     {
-        public const int Count = 15, MaxLevel = 20, MaxPotential = 200;
+        public const int Count = 16, MaxLevel = 20, MaxPotential = 200;
         // ponytail: 성장·감소 잠정 수치(기획 미정). 최근 이력 길이(작업량 단위)·감소 시작 표본·최소 유지 비중·작업량당 감소 경험치.
         public const float UsageWindow = 600f, MinUsageSample = 300f, MinUsageShare = .05f, DecayPerWork = .05f, MainShare = .8f;
         public int[] levels = new int[Count];
@@ -128,6 +128,8 @@ namespace AntColony.Units
         public CommanderTalents Copy() => JsonUtility.FromJson<CommanderTalents>(JsonUtility.ToJson(this));
         public bool Validate()
         {
+            if (levels?.Length == 15 && experience?.Length == 15) { Array.Resize(ref levels, Count); Array.Resize(ref experience, Count); }
+            if (usage?.Length == 15) Array.Resize(ref usage, Count);
             if (usage == null || usage.Length != Count) usage = new float[Count]; // 이전 저장에는 활용 이력이 없다.
             if (levels == null || experience == null || levels.Length != Count || experience.Length != Count
                 || float.IsNaN(combatSeconds) || combatSeconds < 0 || combatSeconds >= 10

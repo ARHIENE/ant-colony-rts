@@ -6,25 +6,26 @@ namespace AntColony.UI
 {
     public sealed partial class GameMenuController
     {
-        // V5와 같은 고정 헤더/닫기와 독립 스크롤 영역. 실제 명령은 기존 화면이 연결한다.
-        private RectTransform V5Window(string title, string subtitle)
+        // V6 한 줄 헤더·고정 닫기·독립 스크롤. 오브젝트 이름은 기존 검사와 호환한다.
+        private RectTransform V5Window(string title, string subtitle, float height = 720)
         {
             var root = Frame(title);
-            var window = L.Plate(root, "V5Window", 170, 90, 1100, 720);
-            L.Label(window, title, 20, 20, 12, 1000, 36, MenuTheme.TextColor);
-            L.Label(window, subtitle, 14, 20, 49, 1020, 30, MenuTheme.Muted);
+            var window = L.Plate(root, "V5Window", 170, 90, 1100, height);
+            var heading = L.Label(window, title, 20, 12, 10, 400, 34, MenuTheme.TextColor, bold: true);
+            var titleWidth = Mathf.Min(400, heading.preferredWidth + 12);
+            heading.rectTransform.sizeDelta = new Vector2(titleWidth, 34);
+            L.Label(window, subtitle, 12, 12 + titleWidth, 10, 1020 - titleWidth, 34, MenuTheme.Muted);
             L.Button(window, "Close", "×", 1044, 16, 36, 32, Resume);
-            L.Line(window, 20, 88, 1060);
-            L.Line(window, 20, 664, 1060);
-            L.Button(window, "Resume", "닫기 · 게임 재개", 910, 677, 170, 30, Resume);
+            L.Line(window, 0, 54, 1100);
+            L.Line(window, 20, height - 56, 1060);
+            L.Button(window, "Resume", "닫기", 1032, height - 43, 48, 30, Resume);
             return window;
         }
 
         private RectTransform V5Section(RectTransform window, string title, float x, float y, float width, float height)
         {
             var box = L.Place(MenuTheme.Rect(title, window), x, y, width, height);
-            L.Line(box, 0, 0, width);
-            L.Label(box, title, 15, 12, 6, width - 24, 30, MenuTheme.Accent);
+            L.Label(box, title, 15, 12, 6, width - 24, 30, MenuTheme.TextColor, bold: true);
             return L.List(box, 12, 42, width - 24, height - 50);
         }
 

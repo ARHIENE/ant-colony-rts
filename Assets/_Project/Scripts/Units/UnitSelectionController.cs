@@ -64,6 +64,13 @@ namespace AntColony.Units
             }
 
             var ray = cam.ScreenPointToRay(screenPos);
+            if (Physics.Raycast(ray, out var fireHit, 500f, ~0) && fireHit.collider.GetComponentInParent<WallFire>() is WallFire fire && fire.Burning)
+            {
+                foreach (var selectable in selected)
+                    if (selectable != null && selectable.GetComponent<CommanderAnt>() is CommanderAnt firefighter && firefighter.CommandExtinguish(fire)) return;
+                AntColony.UI.ToastManager.Show("소화 불가: 접근 가능한 장수가 필요합니다.");
+                return;
+            }
             if (Physics.Raycast(ray, out var corpseHit, 500f, ~0) && corpseHit.collider.GetComponentInParent<Corpse>() is Corpse corpse)
             {
                 var eat = Keyboard.current != null && (Keyboard.current.leftAltKey.isPressed || Keyboard.current.rightAltKey.isPressed);

@@ -185,10 +185,12 @@ namespace AntColony.World
                         siegeCheck = targetSearchInterval; siegePath ??= new NavMeshPath();
                         if (NavMesh.SamplePosition(currentTarget.Position, out var goal, 2f, NavMesh.AllAreas)
                             && NavMesh.CalculatePath(agent.nextPosition, goal.position, NavMesh.AllAreas, siegePath)
-                            && siegePath.status == NavMeshPathStatus.PathPartial && FindBarrier() is BuildingBase barrier) currentTarget = barrier;
+                            && siegePath.status == NavMeshPathStatus.PathPartial
+                            && !AntColony.Map.NavRoute.Reachable(agent.nextPosition, goal.position) // 먼 길 탐색 한도는 막힌 게 아니다(2026-10-22)
+                            && FindBarrier() is BuildingBase barrier) currentTarget = barrier;
                     }
                     agent.speed = moveSpeed * AntColony.Map.WeatherSystem.MoveAt(false) * (AntColony.Map.MapGenerator.InWater(Position) ? AntColony.Map.MapGenerator.WaterMoveMultiplier : 1f);
-                    agent.SetDestination(currentTarget.Position);
+                    AntColony.Map.NavRoute.SetDestination(agent, currentTarget.Position);
                 }
                 return;
             }

@@ -66,7 +66,7 @@ namespace AntColony.Core
 
         // 낮밤·수면 (2026-09-28). 숙소 정원 4 확정, 나머지 잠정.
         // Phase 4 인구(2026-10-01, 잠정): 기본 살 자리, 세금(납세 시민 1명당 세율 100% 기준 월 생산 가치 TaxPerAntMonth, 2026-10-08 주간 현물), 민심·이주·노화.
-        public const int BaseHousing = 50, MinImmigrationDemand = 30;
+        public const int BaseHousing = 0, MinImmigrationDemand = 30;
         public const float DoorBashDamage = 15; // Phase 5: 문에 닿은 적이 0.25초마다 주는 피해(잠정)
         // 공성(2026-10-03, 잠정): 길이 막힌 침공 개체가 벽을 찾는 반경, 나뭇잎 벽 불(지속·초당 피해·옆 벽 번질 확률)
         public const float SiegeSearchRadius = 8, WallFireSeconds = 8, WallFireDamagePerSecond = 20, WallFireSpreadChance = .5f;

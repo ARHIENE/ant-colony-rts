@@ -21,7 +21,7 @@ namespace AntColony.Units
         Senile // 노망(2026-10-03): 늙으면 지혜 보너스 대신 모든 작업·연구 속도 ×0.8(잠정).
     }
     // 기술 15종: 기존 9종 뒤에 의료·요리·근력·예술(2026-09-28), 정치(2026-10-08), 사육(2026-10-10). 저장 번호가 밀리지 않게 끝에 붙인다.
-    public enum CommanderActivity { Gathering, Building, Farming, Fishing, Crafting, Research, Melee, Ranged, Command, Medicine, Cooking, Strength, Art, Politics, Husbandry }
+    public enum CommanderActivity { Gathering, Building, Farming, Fishing, Crafting, Research, Melee, Ranged, Command, Medicine, Cooking, Strength, Art, Politics, Husbandry, Firefighting }
     [Serializable] public class CommanderPassion { public CommanderActivity activity; public int flame; }
     [Serializable]
     public class CommanderTraits

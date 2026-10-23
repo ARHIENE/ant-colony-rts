@@ -43,9 +43,9 @@ namespace AntColony.UI
                 new Entry("동물 치료대", BuildingKind.AnimalClinic), new Entry("도축대", BuildingKind.ButcherTable) },
             new[] { new Entry("근접 연구소", BuildingKind.ResearchLab, UnitRole.Melee), new Entry("원거리 연구소", BuildingKind.ResearchLab, UnitRole.Ranged),
                 new Entry("방패 연구소", BuildingKind.ResearchLab, UnitRole.Defense), new Entry("지휘 연구소", BuildingKind.ResearchLab, UnitRole.Support),
-                new Entry("비행 연구소", BuildingKind.ResearchLab, UnitRole.Flying), new Entry("과학 연구소", BuildingKind.ScienceLab),
+                new Entry("비행 연구소", BuildingKind.ResearchLab, UnitRole.Flying), new Entry("정착지 연구대", BuildingKind.ScienceLab),
                 new Entry("방어 연구소", BuildingKind.DefenseLab), new Entry("공방", BuildingKind.Workshop),
-                new Entry("목공대", BuildingKind.Carpentry), new Entry("석공대", BuildingKind.Stonecutter), new Entry("가마", BuildingKind.Kiln),
+                new Entry("기초 목공대", BuildingKind.Carpentry), new Entry("석공대", BuildingKind.Stonecutter), new Entry("가마", BuildingKind.Kiln),
                 new Entry("물레", BuildingKind.SpinningWheel), new Entry("용광로", BuildingKind.Smelter) },
             new[] { new Entry("의무실", BuildingKind.Infirmary), new Entry("약제대", BuildingKind.MedicineBench), new Entry("묘비", BuildingKind.Tombstone) },
             new[] { new Entry("성벽", BuildingKind.CastleWall), new Entry("성문", BuildingKind.Gate), new Entry("끈끈이 함정", BuildingKind.TrapPit), new Entry("가시 함정", BuildingKind.SpikeTrap),
@@ -112,13 +112,16 @@ namespace AntColony.UI
         private void Start()
         {
             placement = FindFirstObjectByType<BuildingPlacementController>();
-            buildWindow = MenuLayout.Plate(transform, "BuildWindowV5", 170, 90, 1100, 620);
+            buildWindow = MenuLayout.Plate(transform, "BuildWindowV5", 170, 90, 1100, 656);
             buildWindow.gameObject.AddComponent<MenuViewport>().FitSelf = true;
             var windowCanvas = buildWindow.gameObject.AddComponent<Canvas>();
             windowCanvas.overrideSorting = true; windowCanvas.sortingOrder = 100;
             buildWindow.gameObject.AddComponent<GraphicRaycaster>();
-            MenuLayout.Label(buildWindow, "건설", 24, 20, 12, 900, 40, MenuTheme.Accent);
-            MenuLayout.Label(buildWindow, "건물 선택 → 재료 비교 → 담당 장수 선택 → 배치", 14, 20, 56, 1000, 30, MenuTheme.Muted);
+            MenuLayout.Label(buildWindow, "건설", 20, 12, 10, 72, 34, MenuTheme.TextColor, bold: true);
+            MenuLayout.Label(buildWindow, "건물 선택 → 재료 비교 → 담당 장수 선택 → 배치", 12, 92, 10, 920, 34, MenuTheme.Muted);
+            MenuLayout.Line(buildWindow, 0, 54, 1100);
+            MenuLayout.Line(buildWindow, 0, 604, 1100);
+            MenuLayout.Button(buildWindow, "Resume Build", "닫기", 1032, 613, 48, 30, () => SetOpen(false));
             MenuLayout.Button(buildWindow, "Close Build", "×", 1044, 16, 36, 32, () => SetOpen(false));
             buildPanel = MenuLayout.Place(MenuTheme.Rect("BuildPanel", buildWindow), 20, 104, 680, 490);
             for (var t = 0; t < Tabs.Length; t++)
@@ -287,7 +290,7 @@ namespace AntColony.UI
                 label.text = entries[i].name + (locked != null ? "\n<color=#b1b3a7>잠김</color>" : data != null ? $"\n<color=#b1b3a7>{Cost(data)}</color>" : "");
                 buttons[i].GetComponent<Image>().color = locked != null ? MenuTheme.Well : Color.white;
                 buttons[i].GetComponent<MenuTooltip>().Message = locked ?? (data != null
-                    ? $"{entries[i].name}: 식량 {data.foodCost} · 재료 {data.soilCost}{(data.specialCost > 0 ? $" · 특수 {data.specialCost}" : "")}"
+                    ? $"{entries[i].name}: {Cost(data)}"
                     : "건물 틀을 찾을 수 없습니다.");
             }
         }
@@ -325,7 +328,7 @@ namespace AntColony.UI
         }
 
         private static BuildingData Data(Entry entry) => BuildingPlacementController.GetTemplate(entry.kind, entry.role)?.GetComponent<BuildingBase>()?.Data;
-        private static string Cost(BuildingData data) => $"식{data.foodCost} 재료{data.soilCost}{(data.specialCost > 0 ? $" 특{data.specialCost}" : "")}";
+        private static string Cost(BuildingData data) => EarlyConstruction.HasFixedCost(data.kind) ? EarlyConstruction.Label(data.kind) : $"식{data.foodCost} 재료{data.soilCost}{(data.specialCost > 0 ? $" 특{data.specialCost}" : "")}";
         private static string ButtonName(Entry entry) => "Build " + entry.kind + (entry.kind == BuildingKind.Barracks || entry.kind == BuildingKind.ResearchLab ? " " + entry.role : "");
         // 재료 비교: 보유/필요 수량, 내구도·미관·단열·가연성. 부족하면 빨강(배치 불가).
         public static string MaterialLine(ResourceType m, int need)

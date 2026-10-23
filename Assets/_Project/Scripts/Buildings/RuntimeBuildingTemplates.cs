@@ -13,6 +13,8 @@ namespace AntColony.Buildings
             // 함정·매설지는 밟혀야 하므로 길을 막지 않는 납작한 발판이다.
             var (name, scale, color, food, soil, special, ants, seconds, hp, walkable) = kind switch
             {
+                BuildingKind.CrashWreck => ("불시착 잔해", new Vector3(3, 1, 2), new Color(.4f, .4f, .38f), 0, 0, 0, 0, 20f, 200f, false),
+                BuildingKind.ScienceLab => ("정착지 연구대", new Vector3(2, 1.2f, 1.5f), new Color(.6f, .5f, .35f), 0, 30, 0, 0, 8f, 200f, false),
                 BuildingKind.ConscriptionPost => ("징집소", new Vector3(3, 2, 3), new Color(.6f, .4f, .2f), GameBalance.ConscriptionFood, GameBalance.ConscriptionSoil, 0, GameBalance.ConscriptionAnts, GameBalance.ConscriptionBuildSeconds, 300f, false),
                 BuildingKind.SoilWall => ("Soil Wall", new Vector3(2, 1.5f, .6f), new Color(.45f, .33f, .2f), 0, 25, 0, 3, 4f, 400f, false),
                 BuildingKind.TrapPit => ("끈끈이 함정", new Vector3(1.6f, .1f, 1.6f), new Color(.3f, .22f, .12f), 10, 30, 0, 3, 5f, 100f, true),
@@ -93,7 +95,7 @@ namespace AntColony.Buildings
                 BuildingKind.HotSpring => ("온천", new Vector3(3, .5f, 3), new Color(.55f, .75f, .8f), 0, 60, 0, 0, 10f, 250f, false),
                 BuildingKind.BanquetTable => ("연회용 긴 식탁", new Vector3(1.5f, .8f, 5), new Color(.6f, .4f, .2f), 20, 80, 0, 0, 12f, 300f, false),
                 // 가공대(2026-10-10, 잠정)
-                BuildingKind.Carpentry => ("목공대", new Vector3(2, 1.2f, 1.5f), new Color(.6f, .45f, .3f), 0, 30, 0, 0, 6f, 200f, false),
+                BuildingKind.Carpentry => ("기초 목공대", new Vector3(2, 1.2f, 1.5f), new Color(.6f, .45f, .3f), 0, 10, 0, 0, 6f, 200f, false),
                 BuildingKind.Stonecutter => ("석공대", new Vector3(2, 1.2f, 1.5f), new Color(.6f, .6f, .6f), 0, 40, 0, 0, 8f, 250f, false),
                 BuildingKind.Kiln => ("가마", new Vector3(2, 1.6f, 2), new Color(.65f, .4f, .3f), 0, 50, 0, 0, 10f, 300f, false),
                 BuildingKind.SpinningWheel => ("물레", new Vector3(1.5f, 1.4f, 1.5f), new Color(.75f, .65f, .45f), 0, 25, 0, 0, 6f, 150f, false),
@@ -126,6 +128,8 @@ namespace AntColony.Buildings
             if (kind == BuildingKind.Fridge || kind == BuildingKind.Freezer) (data.foodCapacityBonus, data.soilCapacityBonus, data.specialCapacityBonus) = (100, 0, 0); // 식품 전용 고정 용량(잠정)
             BuildingBase building = kind switch
             {
+                BuildingKind.CrashWreck => go.AddComponent<CrashWreck>(),
+                BuildingKind.ScienceLab => go.AddComponent<ScienceLab>(),
                 BuildingKind.ConscriptionPost => go.AddComponent<ConscriptionPost>(),
                 BuildingKind.SoilWall => go.AddComponent<SoilWall>(),
                 BuildingKind.TrapPit or BuildingKind.SpikeTrap => go.AddComponent<TrapPit>(),

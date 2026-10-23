@@ -131,7 +131,7 @@ namespace AntColony.Units
                 flightDestination = ToFlightPoint(destination);
                 return;
             }
-            if (Agent.enabled && Agent.isOnNavMesh) Agent.SetDestination(destination);
+            if (Agent.enabled && Agent.isOnNavMesh) AntColony.Map.NavRoute.SetDestination(Agent, destination); // 먼 길은 경유지로(2026-10-22)
         }
 
         protected virtual void StopMoving()

@@ -9,10 +9,11 @@ namespace AntColony.Units
     // 오락 욕구(2026-09-28): 낮아지면 기분이 떨어지고, 일 사이에 오락 시설에 가서 채운다.
     [Serializable] public class CommanderJoyState
     {
-        public float joy = 100, playSeconds, retrySeconds;
+        public float joy = 100, playSeconds, retrySeconds, waitSeconds;
+        public bool freeWalk, groupStarted;
         public int kind;
         public float[] boredom = new float[RecreationSpot.KindCount]; // 종류별 질림 0~1
-        public bool Valid => Finite(joy) && joy >= 0 && joy <= 100 && Finite(playSeconds) && playSeconds >= 0 && Finite(retrySeconds) && retrySeconds >= 0
+        public bool Valid => Finite(joy) && joy >= 0 && joy <= 100 && Finite(playSeconds) && playSeconds >= 0 && Finite(retrySeconds) && retrySeconds >= 0 && Finite(waitSeconds) && waitSeconds >= 0
             && kind >= 0 && kind < RecreationSpot.KindCount && boredom != null && boredom.Length == RecreationSpot.KindCount && boredom.All(b => Finite(b) && b >= 0 && b <= 1);
         private static bool Finite(float v) => !float.IsNaN(v) && !float.IsInfinity(v);
     }
@@ -34,6 +35,22 @@ namespace AntColony.Units
             if (IsDeployed || IsAwayFromHome || IsEmbarked || IsCaptive || WorkPriorities.Red) { LeavePlay(); return false; }
             if (j.playSeconds > 0)
             {
+                if (!j.freeWalk && PlaySpot == null)
+                {
+                    var restored = RecreationSpot.All.FirstOrDefault(s => s != null && s.KindIndex == j.kind && s.HasSeat && (s.Position - Position).sqrMagnitude <= 49);
+                    if (restored == null || !restored.Join(this)) { LeavePlay(); return BeginFreeWalk(); }
+                    PlaySpot = restored;
+                }
+                if (!j.freeWalk && PlaySpot != null && !j.groupStarted)
+                {
+                    if (!PlaySpot.HasMinimumUsers)
+                    {
+                        j.waitSeconds += seconds;
+                        if (j.waitSeconds >= GameBalance.PlaySeconds) { LeavePlay(); BeginFreeWalk(); }
+                        return true;
+                    }
+                    j.groupStarted = true;
+                }
                 j.playSeconds = Mathf.Max(0, j.playSeconds - seconds);
                 if (j.playSeconds == 0) FinishPlay();
                 return true;
@@ -53,7 +70,7 @@ namespace AntColony.Units
             }
             // ponytail: 매 틱 가장 가까운 빈 시설을 찾는다. 시설이 많아지면 목표를 캐시한다.
             var spot = RecreationSpot.All.Where(s => s != null && s.HasSeat).OrderBy(s => (s.Position - Position).sqrMagnitude).FirstOrDefault();
-            if (spot == null) return false; // 시설이 없으면 계속 일한다(기분 페널티만).
+            if (spot == null) return BeginFreeWalk();
             if (IsWorking || ServiceTarget != null || HuntTarget != null || ScienceAssignment != null || CraftingWorkshop != null) CommandStop();
             if (!CanReceiveOrders) return false;
             if ((spot.Position - Position).sqrMagnitude > 49)
@@ -65,13 +82,29 @@ namespace AntColony.Units
                 j.retrySeconds = GameBalance.StarveRetrySeconds; return false; // 닿지 못하면 잠시 뒤 다시.
             }
             if (!spot.Join(this)) return false;
-            PlaySpot = spot; j.kind = spot.KindIndex; j.playSeconds = GameBalance.PlaySeconds;
+            PlaySpot = spot; j.kind = spot.KindIndex; j.playSeconds = GameBalance.PlaySeconds; j.freeWalk = false; j.groupStarted = false; j.waitSeconds = 0;
             return true;
+        }
+
+        private bool BeginFreeWalk()
+        {
+            if (!CanReceiveOrders || IsInCombat || IsDeployed || IsAwayFromHome || LabUpgradeBusy || HasLifeThreateningPatient) return false;
+            CommandStop();
+            var offset = UnityEngine.Random.insideUnitCircle * 6;
+            var target = Position + new Vector3(offset.x, 0, offset.y);
+            if (UnityEngine.AI.NavMesh.SamplePosition(target, out var hit, 3, UnityEngine.AI.NavMesh.AllAreas) && CanReach(hit.position)) base.CommandMove(hit.position);
+            var j = JoyState; j.freeWalk = true; j.groupStarted = false; j.waitSeconds = 0; j.kind = 0; j.playSeconds = GameBalance.PlaySeconds;
+            return true; // 길이 없으면 제자리에서 하늘을 본다.
         }
 
         private void FinishPlay()
         {
             var j = JoyState; var spot = PlaySpot;
+            if (j.freeWalk)
+            {
+                j.joy = Mathf.Min(100, j.joy + GameBalance.PlayJoy * .5f);
+                StopMoving(); LeavePlay(); RefreshJoyMood(); return;
+            }
             var gain = GameBalance.PlayJoy * (1 - j.boredom[j.kind]) * (spot != null && spot.NearDecoration ? 1 + GameBalance.DecorationPlayBonus : 1)
                 * (j.kind == 10 ? GameBalance.InstrumentJoyMultiplier : 1); // 악기
             j.joy = Mathf.Min(100, j.joy + gain);
@@ -96,6 +129,8 @@ namespace AntColony.Units
                 (won ? other : this).personalState.AddMood("도박 패배", GameBalance.GambleLoseMood, 180);
                 if (UnityEngine.Random.value < GameBalance.GambleQuarrelChance) ChangeRelation(other, GameBalance.GambleQuarrel);
             }
+            if (spot != null && spot.Data.kind == AntColony.Data.BuildingKind.Campfire && spot.Partner(this) is CommanderAnt companion)
+                ChangeRelation(companion, GameBalance.BoardGameRelation);
             // 질려서 다 못 채웠으면 한동안 일하다 다시 온다(같은 곳에서 계속 놀지 않게).
             if (j.joy <= GameBalance.PlayBelowJoy) j.retrySeconds = GameBalance.StarveRetrySeconds * 2;
             LeavePlay(); RefreshJoyMood();
@@ -105,6 +140,7 @@ namespace AntColony.Units
         {
             PlaySpot?.Leave(this); PlaySpot = null;
             JoyState.playSeconds = 0;
+            JoyState.freeWalk = false; JoyState.groupStarted = false; JoyState.waitSeconds = 0;
         }
 
         private void RefreshJoyMood()

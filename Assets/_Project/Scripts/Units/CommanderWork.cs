@@ -17,8 +17,7 @@ namespace AntColony.Units
             && !IsAsleep && (!IsSleepTime || WorkPriorities.Red) && !IsDeparting && !PersonalState.treating && PersonalState.mentalBreak == MentalBreak.None && PersonalState.rageRemaining <= 0;
         public Workforce WorkTarget => CivilianWorkReady && workTarget != null && workTarget.isActiveAndEnabled ? workTarget : null;
         public float WorkRate(CommanderActivity activity) => talents.Multiplier(activity) * WorkFactor * AgeWorkMultiplier(activity) * AntColony.Buildings.RoomSystem.WorkBonus(WorkTarget) * BiomeRules.WorkAt(AntColony.Buildings.RoomSystem.IsIndoors(Position)) * AntColony.Map.WeatherSystem.WorkAt(AntColony.Buildings.RoomSystem.IsIndoors(Position));
-        public float LoadCapacity => (GameBalance.CarryBase + talents.Level(CommanderActivity.Strength) * GameBalance.CarryPerStrength)
-            * traits.CarryMultiplier;
+        public float LoadCapacity => Mathf.Max(0, TotalLoadCapacity - StartingLoadWeight);
         internal void SetWorkTarget(Component target)
         {
             workTarget = Workforce.For(target);
@@ -40,27 +39,44 @@ namespace AntColony.Units
             CommanderJobs.Crafting => CommanderActivity.Crafting, CommanderJobs.Research => CommanderActivity.Research,
             CommanderJobs.Farming => CommanderActivity.Farming, CommanderJobs.Fishing => CommanderActivity.Fishing,
             CommanderJobs.Nursing => CommanderActivity.Medicine, CommanderJobs.Cooking => CommanderActivity.Cooking,
+            CommanderJobs.Firefighting => CommanderActivity.Firefighting,
             CommanderJobs.Art => CommanderActivity.Art, CommanderJobs.Hunting => CommanderActivity.Melee, CommanderJobs.Administration => CommanderActivity.Politics, CommanderJobs.Husbandry => CommanderActivity.Husbandry,
             _ => CommanderActivity.Gathering
         };
         public bool CanDoJob(CommanderJobs job) => !traits.Blocks(job) && !IsChild; // 어린 장수는 일하지 않는다(Phase 4)
         public bool StartService(BuildingBase target, CommanderJobs job)
         {
-            if (!CivilianWorkReady || !CanReceiveOrders || IsWorking || LabUpgradeBusy || !CanDoJob(job)
+            var firefighting = job == CommanderJobs.Firefighting;
+            if ((!firefighting && !CivilianWorkReady || firefighting && (IsDead || IsAwayFromHome || IsAsleep || IsCaptive || PersonalState.health.Downed)) || !CanReceiveOrders || IsWorking || LabUpgradeBusy || !CanDoJob(job)
                 || Active.OfType<CommanderAnt>().Any(c => c != this && c.ServiceTarget == target)
                 || target == null || target.IsDead || !target.isActiveAndEnabled || !target.CountsTowardPlayerDefeat
-                || job != CommanderJobs.Nursing && job != CommanderJobs.Repair && job != CommanderJobs.Cooking && !(job == CommanderJobs.Hauling && target is PowerNode) && !(job == CommanderJobs.Administration && target is AdminDesk) && !(job == CommanderJobs.Crafting && target is Processor)
+                || job != CommanderJobs.Nursing && job != CommanderJobs.Repair && job != CommanderJobs.Cooking && !(firefighting && target.GetComponent<WallFire>()?.Burning == true) && !(job == CommanderJobs.Hauling && target is PowerNode) && !(job == CommanderJobs.Administration && target is AdminDesk) && !(job == CommanderJobs.Crafting && target is Processor)
                 || !TryWorkApproach(target.Position, out var approach)) return false;
             CommandStop(); ServiceTarget = target; ServiceJob = job;
             SetMoveDestination(approach); SetWorkTarget(target); return true;
         }
+        public bool CommandExtinguish(WallFire fire)
+        {
+            if (fire == null || !fire.Burning || !CanReceiveOrders || IsAwayFromHome || !CanDoJob(CommanderJobs.Firefighting)
+                || !TryWorkApproach(fire.transform.position, out _)) return false;
+            CommandStop();
+            return StartService(fire.GetComponent<BuildingBase>(), CommanderJobs.Firefighting);
+        }
         private bool TickService(float seconds)
         {
             if (ServiceTarget == null) { if (ServiceJob != CommanderJobs.None) CommandStop(); return false; }
-            if (!CivilianWorkReady || !ServiceTarget.isActiveAndEnabled || ServiceTarget.IsDead) { CommandStop(); return false; }
-            if ((Position - ServiceTarget.Position).sqrMagnitude > 49) return true;
+            bool firefighting = ServiceJob == CommanderJobs.Firefighting;
+            if ((!firefighting && !CivilianWorkReady || firefighting && (!CanReceiveOrders || IsAwayFromHome || IsAsleep || PersonalState.health.Downed)) || !ServiceTarget.isActiveAndEnabled || ServiceTarget.IsDead) { CommandStop(); return false; }
+            if (firefighting && ServiceTarget.GetComponent<WallFire>()?.Burning != true) { CommandStop(); return false; }
+            if ((Position - ServiceTarget.Position).sqrMagnitude > (firefighting ? 20.25f : 49)) return true;
             StopMoving();
-            if (ServiceTarget is Processor bench) // 가공대(제작)·약제대(간호=의료, 2026-10-11)
+            if (firefighting)
+            {
+                var fire = ServiceTarget.GetComponent<WallFire>();
+                GainExperience(CommanderActivity.Firefighting, seconds);
+                if (!fire.Extinguish(seconds)) CommandStop();
+            }
+            else if (ServiceTarget is Processor bench) // 가공대(제작)·약제대(간호=의료, 2026-10-11)
             {
                 if (ServiceJob != bench.Job || !bench.Work(this, seconds)) { CommandStop(); return false; }
             }

@@ -42,6 +42,10 @@ namespace AntColony.World
         public bool IsUnlocked => !IsRaidLocked && (GetComponentInParent<ExpeditionSite>()?.Disposition == ConquestDisposition.Annexed || DiplomacyManager.Hostile(this))
             && (!requiresFishing || (GameManager.Instance != null && GameManager.Instance.FishingUnlocked));
         public bool CanGather => !GatheringForbidden && isActiveAndEnabled && (!IsDepleted || IsFarm && NeedsSowing || HoldsHandWork) && IsUnlocked && !ColonyEvents.Flooded(this);
+        public bool RequiresMiningTool => !IsLooseCargo && (resourceType == ResourceType.Stone || resourceType == ResourceType.IronOre
+            || resourceType == ResourceType.CopperOre || resourceType == ResourceType.Coal || resourceType == ResourceType.Sulfur);
+        public bool CanGatherWith(AntColony.Units.WorkerAnt worker) => CanGather && (!RequiresMiningTool
+            || worker is AntColony.Units.CommanderAnt commander && commander.PersonalState.toolTier >= 2);
         // 밭 손일(뿌리뽑기·비료) 중에는 수확하지 않고 FarmPlot이 작업량을 받는다(2026-10-15).
         public bool HoldsHandWork => Plot != null && Plot.HasHandWork;
         private AntColony.Buildings.FarmPlot plot;

@@ -36,27 +36,56 @@ namespace AntColony.Buildings
     // 불(2026-10-03 나뭇잎 벽, 2026-10-10 가연성 재료 전체): 적이 불을 지르면 몇 초 동안 계속 타고, 2초 뒤 바로 옆 가연성 건물로 확률 번짐. 건물마다 한 번만 탄다.
     public sealed class WallFire : MonoBehaviour
     {
+        [System.Serializable] public sealed class State
+        {
+            public float remaining, tick, spreadIn = 2f, extinguishWork;
+            public Color originalColor = Color.white;
+        }
         private BuildingBase wall;
-        private float remaining, tick, spreadIn = 2f;
-        public bool Burning => remaining > 0;
-        public static bool Flammable(BuildingBase b) => b != null && MaterialInfo.For(SpaceQuality.MaterialOf(b)).flammable;
+        private State state = new State();
+        public const float ExtinguishSeconds = 5f;
+        public bool Burning => state.remaining > 0 && wall != null && !wall.IsDead;
+        public float ExtinguishProgress => state.extinguishWork / ExtinguishSeconds;
+        // 별도 구역 편집이 생기기 전까지 본거지 내 아군 건물 영역을 관리 구역으로 쓴다.
+        public bool Managed => wall != null && wall.CountsTowardPlayerDefeat
+            && AntColony.Map.HomeMapBuilder.CurrentWorldBounds.Contains(new Vector3(wall.Position.x, 0, wall.Position.z));
+        public State CaptureState() => JsonUtility.FromJson<State>(JsonUtility.ToJson(state));
+        public void RestoreState(State saved)
+        {
+            wall = GetComponent<BuildingBase>(); state = saved ?? new State();
+            if (GetComponent<Renderer>() is Renderer r) r.material.color = Burning ? new Color(.95f, .45f, .1f, 1) : state.originalColor;
+        }
+        public bool Extinguish(float seconds)
+        {
+            if (!Burning || !(seconds > 0) || float.IsInfinity(seconds)) return false;
+            state.extinguishWork = Mathf.Min(ExtinguishSeconds, state.extinguishWork + seconds);
+            if (state.extinguishWork >= ExtinguishSeconds) { state.remaining = 0; RestoreColor(); }
+            return Burning;
+        }
+        private void RestoreColor() { if (GetComponent<Renderer>() is Renderer r) r.material.color = state.originalColor; }
+        public static bool Flammable(BuildingBase b) => b != null && (b.GetComponent<FarmPlot>() != null || MaterialInfo.For(SpaceQuality.MaterialOf(b)).flammable);
         public static bool Ignite(BuildingBase target)
         {
-            if (target == null || !Flammable(target) || target.IsDead || target.GetComponent<WallFire>() != null) return false;
-            var fire = target.gameObject.AddComponent<WallFire>();
-            fire.wall = target; fire.remaining = GameBalance.WallFireSeconds;
+            if (target == null || !Flammable(target) || target.IsDead) return false;
+            var fire = target.GetComponent<WallFire>();
+            if (fire != null && fire.Burning) return false;
+            if (fire == null) fire = target.gameObject.AddComponent<WallFire>();
+            fire.wall = target;
+            fire.state = new State { remaining = GameBalance.WallFireSeconds,
+                originalColor = target.GetComponent<Renderer>() is Renderer renderer ? renderer.material.color : Color.white };
             if (target.GetComponent<Renderer>() is Renderer r) r.material.color = new Color(.95f, .45f, .1f, 1);
             return true;
         }
         private void Update()
         {
             if (!Burning || wall == null) return;
-            remaining -= Time.deltaTime;
-            if ((spreadIn -= Time.deltaTime) <= 0 && spreadIn > -Time.deltaTime)
+            state.remaining = Mathf.Max(0, state.remaining - Time.deltaTime);
+            if (!Burning) { RestoreColor(); return; }
+            if ((state.spreadIn -= Time.deltaTime) <= 0 && state.spreadIn > -Time.deltaTime && !ScienceEffects.FirebreaksBlockSpread)
                 foreach (var hit in Physics.OverlapSphere(wall.Position, 1.6f, ~0, QueryTriggerInteraction.Ignore))
                     if (hit.GetComponentInParent<BuildingBase>() is BuildingBase next && next != wall && Random.value < GameBalance.WallFireSpreadChance) Ignite(next);
-            if ((tick += Time.deltaTime) < 1f) return;
-            tick -= 1f; wall.TakeDamage(GameBalance.WallFireDamagePerSecond);
+            if ((state.tick += Time.deltaTime) < 1f) return;
+            state.tick -= 1f; wall.TakeDamage(GameBalance.WallFireDamagePerSecond * ScienceEffects.WildfireDamageMultiplier * BiomeRules.WildfireDamage);
         }
     }
 

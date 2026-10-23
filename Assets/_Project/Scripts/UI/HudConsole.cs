@@ -63,17 +63,19 @@ namespace AntColony.UI
 
     // 전체 지형을 위에서 비추는 저해상도 카메라. 클릭한 지점으로 주 카메라를 옮긴다.
     // HUD v2: 위에 색 점(유닛 = 장수·건물·적 / 자원 노드 / 야생 개체)을 찍고, 옆 필터 버튼으로 종류별로 켜고 끈다.
-    public sealed class Minimap : MonoBehaviour, IPointerClickHandler
+    public sealed class Minimap : MonoBehaviour, IPointerClickHandler, IPointerDownHandler, IDragHandler, IInitializePotentialDragHandler
     {
         public enum Filter { Units, Resources, Wild }
-        public static readonly bool[] Filters = { true, true, true };
+        public static readonly bool[] Filters = { true, false, false };
         private const float RefreshSeconds = .25f;
         private UnityEngine.Camera mapCamera;
         private IsometricCameraController main;
-        private RectTransform view, dots;
+        private RectTransform view, dots, terrainImage;
         private readonly List<Image> pool = new List<Image>();
         private readonly Text[] filterLabels = new Text[3];
         private float refresh;
+        private Texture2D terrainMap;
+        private Mesh terrainMesh;
 
         public static int DotCount { get; private set; }
 
@@ -84,15 +86,28 @@ namespace AntColony.UI
             frame.anchorMin = frame.anchorMax = frame.pivot = new Vector2(0, 0);
             MenuTheme.InsetScreen(frame.gameObject).raycastTarget = false;
             var rect = MenuTheme.Rect("Minimap", frame); MenuTheme.Stretch(rect);
-            var image = rect.gameObject.AddComponent<RawImage>(); image.color = Color.white;
+            var image = rect.gameObject.AddComponent<RawImage>(); image.color = Color.clear; // 클릭 영역만 담당
             var map = rect.gameObject.AddComponent<Minimap>();
+            rect.gameObject.AddComponent<RectMask2D>();
+            // 지형 그림은 카메라 방향으로 돌려 화면 위쪽 = 지도 위쪽이 되게 한다(시야 사각형이 가로로 보이도록).
+            // 스타크래프트식: 지형은 위에서 내려다본 북쪽 위 정사각형 그대로 둔다.
+            map.terrainImage = MenuTheme.Rect("Terrain", rect); MenuTheme.Stretch(map.terrainImage);
+            map.terrainImage.gameObject.AddComponent<RawImage>().raycastTarget = false;
             map.dots = MenuTheme.Rect("Dots", rect); MenuTheme.Stretch(map.dots);
             map.view = MenuTheme.Rect("View", rect);
             map.view.anchorMin = map.view.anchorMax = new Vector2(0, 0);
-            var marker = map.view.gameObject.AddComponent<Image>(); marker.color = new Color(.94f, .9f, .85f, .85f); marker.raycastTarget = false;
-            map.view.sizeDelta = new Vector2(6, 6);
-            rect.gameObject.AddComponent<MenuTooltip>().Message = "미니맵: 클릭한 곳으로 카메라 이동";
-            string[] labels = { "유닛", "자원", "야생" };
+            foreach (var side in new[] { "Top", "Bottom", "Left", "Right" })
+            {
+                var border = MenuTheme.Rect(side, map.view);
+                bool horizontal = side == "Top" || side == "Bottom";
+                border.anchorMin = new Vector2(side == "Right" ? 1 : 0, side == "Top" ? 1 : 0);
+                border.anchorMax = horizontal ? new Vector2(1, border.anchorMin.y) : new Vector2(border.anchorMin.x, 1);
+                border.pivot = new Vector2(side == "Right" ? 1 : 0, side == "Top" ? 1 : 0);
+                border.sizeDelta = horizontal ? new Vector2(0, 2) : new Vector2(2, 0);
+                var imageBorder = border.gameObject.AddComponent<Image>(); imageBorder.color = Color.white; imageBorder.raycastTarget = false;
+            }
+            rect.gameObject.AddComponent<MenuTooltip>().Message = "미니맵: 왼쪽 클릭·누른 채 드래그로 카메라 이동";
+            string[] labels = { "■ 정착지", "● 자원", "▲ 야생" };
             string[] tips = { "장수·건물·적 표시", "자원 노드 표시(식량·재료·특수 색)", "야생 개체 표시" };
             for (var i = 0; i < 3; i++)
             {
@@ -172,14 +187,13 @@ namespace AntColony.UI
             mapCamera.orthographic = true;
             mapCamera.clearFlags = CameraClearFlags.SolidColor;
             mapCamera.backgroundColor = MenuTheme.Well;
-            mapCamera.targetTexture = new RenderTexture(256, 256, 16);
-            GetComponent<RawImage>().texture = mapCamera.targetTexture;
+            mapCamera.enabled = false; // 투영 좌표만 사용하고 지형은 단순한 높이 지도로 표시한다.
         }
 
         private void OnDestroy()
         {
             if (mapCamera == null) return;
-            mapCamera.targetTexture.Release();
+            if (terrainMap != null) Destroy(terrainMap);
             Destroy(mapCamera.gameObject);
         }
 
@@ -187,20 +201,57 @@ namespace AntColony.UI
         {
             if (main == null || mapCamera == null) return;
             var bounds = main.PanBounds;
+            var terrain = AntColony.Map.MapGenerator.Active;
+            var mesh = terrain != null ? terrain.GetComponent<MeshFilter>()?.sharedMesh : null;
+            if (mesh != null && mesh != terrainMesh)
+            {
+                if (terrainMap != null) Destroy(terrainMap);
+                terrainMap = MinimapTerrain.Build(terrain, mesh, bounds);
+                terrainMesh = mesh;
+                terrainImage.GetComponent<RawImage>().texture = terrainMap;
+            }
+            mapCamera.aspect = 1;
             mapCamera.orthographicSize = Mathf.Max(bounds.width, bounds.height) * .5f;
             mapCamera.transform.SetPositionAndRotation(new Vector3(bounds.center.x, 200f, bounds.center.y), Quaternion.Euler(90f, 0f, 0f));
             mapCamera.farClipPlane = 400f;
-            var viewport = mapCamera.WorldToViewportPoint(main.FocusPoint);
             var size = ((RectTransform)transform).rect.size;
-            view.anchoredPosition = new Vector2(viewport.x * size.x - 3f, viewport.y * size.y - 3f);
+            var camera = main.GetComponent<UnityEngine.Camera>();
+            terrainImage.SetAsFirstSibling();
+            var ground = new Plane(Vector3.up, main.FocusPoint);
+            Vector3 Ground(float x, float y)
+            {
+                var ray = camera.ViewportPointToRay(new Vector3(x, y, 0));
+                return ground.Raycast(ray, out var distance) ? ray.GetPoint(distance) : main.FocusPoint;
+            }
+            var bottomLeft = mapCamera.WorldToViewportPoint(Ground(0, 0));
+            var bottomRight = mapCamera.WorldToViewportPoint(Ground(1, 0));
+            var topLeft = mapCamera.WorldToViewportPoint(Ground(0, 1));
+            var topRight = mapCamera.WorldToViewportPoint(Ground(1, 1));
+            // 스타크래프트처럼 화면 비율의 가로 사각형으로 표시한다. 회전한 쿼터뷰 시야를 그대로 그리면 마름모가 되므로
+            // 중심은 실제 시야 중심, 넓이는 실제로 보이는 땅 넓이(사다리꼴 면적)와 같게 맞춘다.
+            Vector2 a = bottomLeft, b = bottomRight, c = topRight, d = topLeft;
+            float area = Mathf.Abs((a.x * b.y - b.x * a.y) + (b.x * c.y - c.x * b.y) + (c.x * d.y - d.x * c.y) + (d.x * a.y - a.x * d.y)) * .5f;
+            float aspect = Mathf.Max(1f, camera.aspect);
+            var extent = new Vector2(Mathf.Sqrt(area * aspect), Mathf.Sqrt(area / aspect));
+            var center = (Vector2)mapCamera.WorldToViewportPoint(main.FocusPoint);
+            view.anchoredPosition = Vector2.Scale(center, size);
+            view.sizeDelta = Vector2.Scale(extent, size);
+            view.localRotation = Quaternion.identity;
+            view.SetAsLastSibling();
         }
 
-        public void OnPointerClick(PointerEventData data)
+        public void OnInitializePotentialDrag(PointerEventData data) => data.useDragThreshold = false;
+        public void OnPointerDown(PointerEventData data) => MoveCamera(data, false);
+        public void OnPointerClick(PointerEventData data) => MoveCamera(data, false);
+        public void OnDrag(PointerEventData data) => MoveCamera(data, true);
+
+        private void MoveCamera(PointerEventData data, bool dragging)
         {
             if (main == null || mapCamera == null) return;
-            RectTransformUtility.ScreenPointToLocalPointInRectangle((RectTransform)transform, data.position, data.pressEventCamera, out var local);
-            var size = ((RectTransform)transform).rect.size;
-            var ray = mapCamera.ViewportPointToRay(new Vector3(local.x / size.x, local.y / size.y, 0f));
+            if (data.button != PointerEventData.InputButton.Left) return;
+            var rect = ((RectTransform)transform).rect;
+            if (!RectTransformUtility.ScreenPointToLocalPointInRectangle((RectTransform)transform, data.position, data.pressEventCamera, out var local) || (!dragging && !rect.Contains(local))) return;
+            var ray = mapCamera.ViewportPointToRay(new Vector3(Mathf.Clamp01((local.x - rect.xMin) / rect.width), Mathf.Clamp01((local.y - rect.yMin) / rect.height), 0f));
             main.FocusOn(ray.origin);
         }
     }

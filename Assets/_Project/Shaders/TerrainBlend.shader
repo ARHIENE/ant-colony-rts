@@ -38,6 +38,7 @@ Shader "AntColony/TerrainBlend"
             TEXTURE2D(_LeafTex); SAMPLER(sampler_LeafTex);
             float minTerrainHeight;
             float maxTerrainHeight;
+            float terraceBase, terraceStep; // 계단식 지형 단계(0이면 끔)
             float terrainHeights[MAX_TEXTURES];
             int numTextures;
 
@@ -96,7 +97,11 @@ Shader "AntColony/TerrainBlend"
                 float macro = noise(world * 0.018) * 0.55 + noise(world * 0.07) * 0.3 + noise(world * 0.23) * 0.15;
 
                 int count = min(numTextures, MAX_TEXTURES);
-                float heightValue = saturate((IN.worldPos.y - minTerrainHeight) / (maxTerrainHeight - minTerrainHeight));
+                // 계단식 지형(2026-10-22): 지면층은 높이를 단계 단위로 내림해 고른다. 절벽 면 중간 높이가 다른 층 경계에 걸려
+                // 줄무늬(풀 삼각형)가 생기던 것을 막는다. 절벽 면은 아래 단계 지면이 이어진 것처럼 칠해진다.
+                float y = IN.worldPos.y;
+                if (terraceStep > 0) y = terraceBase + floor((y - terraceBase) / terraceStep + 0.02) * terraceStep;
+                float heightValue = saturate((y - minTerrainHeight) / (maxTerrainHeight - minTerrainHeight));
                 heightValue += (noise(world * 0.15) - 0.5) * 0.06; // 경계선을 울퉁불퉁하게
 
                 int layerIndex = 0;
@@ -120,8 +125,8 @@ Shader "AntColony/TerrainBlend"
                 {
                     int a = clamp(layerIndex + 1 <= hi ? layerIndex + 1 : layerIndex - 1, lo, hi);
                     int b = clamp(layerIndex - 1 >= lo ? layerIndex - 1 : layerIndex + 2, lo, hi);
-                    if (patchA > 0 && a != layerIndex) color = lerp(color, Layer(uv, uv2, mixAmount, a), patchA * _Patches);
-                    if (patchB > 0 && b != layerIndex && b != a) color = lerp(color, Layer(uv, uv2, mixAmount, b), patchB * _Patches);
+                    if (patchA > 0 && a != layerIndex) color = lerp(color, Layer(uv, uv2, mixAmount, a), patchA * _Patches * .2);
+                    if (patchB > 0 && b != layerIndex && b != a) color = lerp(color, Layer(uv, uv2, mixAmount, b), patchB * _Patches * .2);
                 }
                 color *= lerp(0.8, 1.14, macro);
 
@@ -149,6 +154,30 @@ Shader "AntColony/TerrainBlend"
                     // 한겨울(_Snow=1)엔 땅 전체, 늦가을·초봄엔 얼룩처럼 번진다.
                     float cover = smoothstep(1.05 - _Snow, 1.2 - _Snow, noise(world * 0.06 + 5.1) * 0.8 + 0.2);
                     color = lerp(color, snow * lerp(0.93, 1.03, macro), cover); // 겨울 회갈색 색조를 눈에는 입히지 않는다
+                }
+                // 눈·낙엽 뒤에 적용해야 겨울에도 높이와 절벽의 입체감이 남는다.
+                if (terraceStep > 0)
+                {
+                    float3 n = normalize(cross(ddy(IN.worldPos), ddx(IN.worldPos)));
+                    n *= n.y < 0 ? -1 : 1;
+                    float cliff = 1 - smoothstep(.55, .88, n.y);
+                    float level = clamp(floor((IN.worldPos.y - terraceBase) / terraceStep + .02), 0, 2);
+                    color *= .82 + level * .14;
+                    // 절벽은 흙·암반색으로 드러내고 꼭대기 가까운 띠와 아래쪽 그늘로 방향을 읽게 한다.
+                    float band = frac((IN.worldPos.y - terraceBase) / terraceStep);
+                    // 수직면에도 높이 방향 UV로 기존 암반 무늬를 입힌다. XZ 투영만 쓰면 벽이 단색 띠가 된다.
+                    int rockIndex = max(0, count - 2);
+                    float sideScale = max(abs(_textureScale) * .45, .001);
+                    half3 rockX = SAMPLE_TEXTURE2D_ARRAY(terrainTextures, sampler_terrainTextures, IN.worldPos.zy / sideScale, rockIndex).rgb;
+                    half3 rockZ = SAMPLE_TEXTURE2D_ARRAY(terrainTextures, sampler_terrainTextures, IN.worldPos.xy / sideScale, rockIndex).rgb;
+                    half3 rock = lerp(rockZ, rockX, abs(n.x) / max(abs(n.x) + abs(n.z), .001));
+                    half rockLum = dot(rock, half3(.3, .59, .11));
+                    rock = lerp(rock, rockLum.xxx, .45) * .72;
+                    rock *= lerp(.65, 1.2, smoothstep(0, 1, band));
+                    rock = lerp(rock, half3(.22, .24, .27), _Snow * .10);
+                    color = lerp(color, rock, cliff);
+                    float light = .68 + .32 * saturate(dot(n, normalize(float3(-.5, .8, -.35))));
+                    color *= lerp(light, 1, n.y * n.y);
                 }
                 return half4(color, 1);
             }

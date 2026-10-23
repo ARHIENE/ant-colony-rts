@@ -27,6 +27,9 @@ namespace AntColony.UI
             if (c == null) { Resume(); return; }
             var h = c.Health;
             var window = V5Window($"{c.CommanderName} / 건강", "상태 → 치료 설정 → 수술 · 처치 완료와 완치는 다릅니다(시간에 따라 회복)");
+            ManagementTabs(window, "의료·관리", "의료");
+            var commanders = SortedCommanders();
+            GameMenuSelect.Create(window, commanders.Select(a => a.CommanderName).ToArray(), System.Array.IndexOf(commanders, c), 200, 677, 280, i => ShowHealth(commanders[i]));
             L.Button(window, "Back To Commander", "장수 상세", 20, 677, 160, 30, () => Details(c));
 
             content = V5Section(window, $"상태 · {h.Summary}", 20, 104, 520, 544);

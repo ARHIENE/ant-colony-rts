@@ -82,7 +82,8 @@ namespace AntColony.Buildings
             var position = GetPlacementPosition(template, hit.point);
             redevelopTarget = moveTarget != null ? null : Redevelopment.FindTarget(pendingKind, position, PlacementExtents(), obstructionMask);
             // Phase 5: 주거 건물은 방 밖에만 짓는다.
-            placementValid = Vector3.Angle(hit.normal, Vector3.up) <= maxGroundSlope && !HasObstruction(position, moveTarget != null ? moveTarget : redevelopTarget)
+            placementValid = Vector3.Angle(hit.normal, Vector3.up) <= maxGroundSlope && AntColony.Map.MapGenerator.FlatAt(position, PlacementExtents())
+                && !HasObstruction(position, moveTarget != null ? moveTarget : redevelopTarget)
                 && !(Housing.IsKind(pendingKind) && RoomSystem.IsIndoors(position))
                 && Reachable(hit.point);
             UpdatePreview(position, placementValid);
@@ -104,9 +105,7 @@ namespace AntColony.Buildings
         public bool BeginScienceLabPlacement() => BeginPlacement(BuildingKind.ScienceLab, UnitRole.Worker);
         public bool BeginAirshipYardPlacement() => BeginPlacement(BuildingKind.AirshipYard, UnitRole.Worker);
         public bool BeginInfirmaryPlacement() => BeginPlacement(BuildingKind.Infirmary, UnitRole.Worker);
-        public string GetScienceLabBuildLabel() => ScienceLab.PrerequisitesMet
-            ? GetBuildLabel(BuildingKind.ScienceLab, UnitRole.Worker, "Build Science Lab")
-            : "Science: 60 Ants\nFishing + Barracks T2";
+        public string GetScienceLabBuildLabel() => GetBuildLabel(BuildingKind.ScienceLab, UnitRole.Worker, "정착지 연구대");
         public string GetFarmBuildLabel() => GetBuildLabel(BuildingKind.Farm, UnitRole.Worker, "Build Farm");
 
         // 장수 획득 건물 3종. 전투 보직과 무관하므로 역할은 Worker로 고정한다.
@@ -184,7 +183,6 @@ namespace AntColony.Buildings
             if (kind == BuildingKind.Infirmary && !Infirmary.Unlocked) return "의무실을 먼저 연구하세요.";
             if (kind == BuildingKind.AirshipYard && (CampaignResearch.Instance == null
                 || !CampaignResearch.Instance.Has(ScienceTechnology.MigrationTheory))) return "로켓 이론을 먼저 연구하세요.";
-            if (kind == BuildingKind.ScienceLab && !ScienceLab.PrerequisitesMet) return "과학연구소 건설에는 시민 60명과 2티어 병영이 필요합니다.";
             return null;
         }
 
@@ -207,7 +205,6 @@ namespace AntColony.Buildings
             if (LockReason(pendingKind) != null) return null;
             if (pendingKind == BuildingKind.MineField && MineField.Count >= GameBalance.MaxMines) return null;
             if (pendingKind == BuildingKind.Infirmary && !Infirmary.Unlocked) return null;
-            if (pendingKind == BuildingKind.ScienceLab && !ScienceLab.PrerequisitesMet) return null;
             var template = GetTemplate(pendingKind, pendingRole);
             var building = template != null ? template.GetComponent<BuildingBase>() : null;
             if (commandBuilder && (!placementValid || builder == null || !builder.CanStartConstruction) || building == null || building.Data == null)
@@ -221,7 +218,7 @@ namespace AntColony.Buildings
             // 재개발 보상비만 배치 순간 지급하고 취소해도 돌려주지 않는다.
             var quote = redevelop != null ? Redevelopment.Price(cost, redevelop) : default;
             int food = redevelop != null ? quote.food : cost.foodCost, soil = redevelop != null ? quote.soil : cost.soilCost, special = redevelop != null ? quote.special : cost.specialCost;
-            var material = redevelop != null ? ResourceType.Soil : PendingMaterial;
+            var material = redevelop != null ? ResourceType.Soil : EarlyConstruction.HasFixedCost(pendingKind) ? ResourceType.Wood : PendingMaterial;
             if (ResourceManager.Instance == null) return null;
             if (builder is CommanderAnt commander && !commander.CanDoJob(Decoration.IsKind(pendingKind) ? CommanderJobs.Art : CommanderJobs.Building))
             { PlacementFailed("이 장수는 해당 작업을 할 수 없습니다."); return null; }
@@ -257,7 +254,9 @@ namespace AntColony.Buildings
 
             var site = siteObject.AddComponent<BuildingConstructionSite>();
             site.Initialize(completedBuilding, cost.buildTimeSeconds);
-            site.Require(ResourceType.Food, food); site.Require(material, soil); site.Require(ResourceType.Special, special);
+            if (redevelop == null && EarlyConstruction.HasFixedCost(pendingKind))
+                foreach (var need in EarlyConstruction.Cost(pendingKind)) site.Require(need.type, need.amount);
+            else { site.Require(ResourceType.Food, food); site.Require(material, soil); site.Require(ResourceType.Special, special); }
             if (redevelop != null)
             {
                 siteObject.AddComponent<RedevelopmentSite>().Target = redevelop;
@@ -288,7 +287,7 @@ namespace AntColony.Buildings
 
         // 재개발도 Shift 배치 가능: 칸마다 겹친 더 작은 집을 찾아 교체 대상으로 삼는다.
         private Housing RedevelopAt(Vector3 cell) => Redevelopment.FindTarget(pendingKind, cell, PlacementExtents(), obstructionMask);
-        private bool CellValid(Vector3 cell) => !HasObstruction(cell, RedevelopAt(cell)) && !(Housing.IsKind(pendingKind) && RoomSystem.IsIndoors(cell)) && Reachable(cell);
+        private bool CellValid(Vector3 cell) => AntColony.Map.MapGenerator.FlatAt(cell, PlacementExtents()) && !HasObstruction(cell, RedevelopAt(cell)) && !(Housing.IsKind(pendingKind) && RoomSystem.IsIndoors(cell)) && Reachable(cell);
 
         // 장수 미지정 배치(2026-10-08): 고른 장수가 없으면 본거지의 아무 장수 기준으로 도달 가능 여부를 본다.
         private bool Reachable(Vector3 point)
@@ -384,20 +383,22 @@ namespace AntColony.Buildings
             var template = GetTemplate(kind, role);
             var building = template != null ? template.GetComponent<BuildingBase>() : null;
             if (building == null || building.Data == null) return name + " (Unavailable)";
-            return $"{name}\n{building.Data.foodCost}F {building.Data.soilCost} 재료{(building.Data.specialCost > 0 ? $" {building.Data.specialCost}Sp" : "")}";
+            return EarlyConstruction.HasFixedCost(kind) ? $"{name}\n{EarlyConstruction.Label(kind)}"
+                : $"{name}\n{building.Data.foodCost}F {building.Data.soilCost} 재료{(building.Data.specialCost > 0 ? $" {building.Data.specialCost}Sp" : "")}";
         }
 
         internal static GameObject GetTemplate(BuildingKind kind, UnitRole role)
         {
-            return kind switch
+            var template = kind switch
             {
+                BuildingKind.CrashWreck => FindTemplate<BuildingBase>(kind) ?? RuntimeBuildingTemplates.Create(kind),
                 BuildingKind.ResearchLab => FindTemplate<ResearchLab>(role),
                 BuildingKind.Farm or BuildingKind.MushroomFarm or BuildingKind.AphidPen => FindFarmTemplate(),
                 BuildingKind.Storage => FindTemplate<Storage>(kind),
                 BuildingKind.Nursery => FindTemplate<NurseryChamber>(),
                 BuildingKind.ScoutPost => FindTemplate<ScoutPost>(),
                 BuildingKind.PrisonerCamp => FindTemplate<PrisonerCamp>(),
-                BuildingKind.ScienceLab => FindTemplate<ScienceLab>(),
+                BuildingKind.ScienceLab => FindTemplate<ScienceLab>() ?? RuntimeBuildingTemplates.Create(kind),
                 BuildingKind.AcidTower => FindTemplate<AcidTower>(),
                 BuildingKind.AirshipYard => FindTemplate<AirshipYard>() ?? CreateAirshipTemplate(),
                 BuildingKind.Infirmary => FindTemplate<Infirmary>() ?? CreateInfirmaryTemplate(),
@@ -425,6 +426,7 @@ namespace AntColony.Buildings
                     or (>= BuildingKind.BunkBed and <= BuildingKind.BanquetTable) or (>= BuildingKind.Carpentry and <= BuildingKind.MedicineBench) => FindDecorationTemplate(kind), // 가구 5·6차, 가공대
                 _ => null
             };
+            return EarlyConstruction.Prepare(template, kind);
         }
 
         // 균류 재배 이후 새 밭은 2칸 폭이다. 배치 검사·미리보기·공사장 크기에 같이 반영한다.

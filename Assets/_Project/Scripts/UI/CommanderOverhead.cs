@@ -22,10 +22,10 @@ namespace AntColony.UI
             if (c.WorkState.resting) return "휴식";
             if (c.IsFoodPoisoned) return "식중독";
             if (c.IsEating) return "식사";
-            if (c.IsPlaying) return "오락";
+            if (c.IsPlaying) return c.PersonalState.joy.freeWalk ? "산책" : c.PlaySpot != null && !c.PersonalState.joy.groupStarted && !c.PlaySpot.HasMinimumUsers ? "오락 인원 대기" : "오락";
             if (c.CorpseTarget != null) return c.EatingCorpse ? "동족 포식" : "치우기";
             if (c.PersonalState.mentalBreak != MentalBreak.None) return "붕괴";
-            if (c.ServiceTarget != null) return c.ServiceJob == CommanderJobs.Nursing ? "간호" : c.ServiceJob == CommanderJobs.Repair ? "수리" : c.ServiceJob == CommanderJobs.Administration ? "정치" : c.ServiceJob == CommanderJobs.Crafting ? "제작" : c.ServiceJob == CommanderJobs.Husbandry ? "사육" : "요리";
+            if (c.ServiceTarget != null) return c.ServiceJob == CommanderJobs.Firefighting ? "소화" : c.ServiceJob == CommanderJobs.Nursing ? "의료" : c.ServiceJob == CommanderJobs.Repair ? "수리" : c.ServiceJob == CommanderJobs.Administration ? "정치" : c.ServiceJob == CommanderJobs.Crafting ? "제작" : c.ServiceJob == CommanderJobs.Husbandry ? "사육" : "요리";
             if (c.HuntTarget != null) return "사냥";
             if (c.CurrentResourceNode != null && c.CurrentResourceNode.IsLooseCargo) return "운반";
             if (c.ConstructionTarget != null && c.ConstructionTarget.IsArt) return "예술";
@@ -54,6 +54,7 @@ namespace AntColony.UI
                 var p = camera.WorldToScreenPoint(c.Position + Vector3.up * 2.2f);
                 if (p.z <= 0 || p.x < 0 || p.x > Screen.width || p.y < 0 || p.y > Screen.height) continue;
                 float x = p.x - 40, y = Screen.height - p.y - 34;
+                if (!HudResponsiveLayout.ReserveWorldLabel(new Rect(x - 20, y, 124, 36))) continue;
                 nameStyle.normal.textColor = Color.white;
                 GUI.Label(new Rect(x - 20, y, 120, 16), c.CommanderName, nameStyle);
                 Bar(new Rect(x, y + 16, 80, 5), c.PersonalHealth / GameBalance.CommanderHealth, new Color(.35f, .85f, .4f));

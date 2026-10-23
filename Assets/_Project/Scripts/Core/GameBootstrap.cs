@@ -49,6 +49,7 @@ namespace AntColony.Core
             SaveCatalog.Initialize();
             var file = GameSession.Instance.PendingLoad as SaveFileV1;
             GameSession.Instance.PendingLoad = null;
+            if (file == null && GameSession.Instance.GameStarted) CrashLandingStart.Apply();
             string error = null;
             if (file != null)
             {
@@ -75,6 +76,8 @@ namespace AntColony.Core
                 GameSession.Instance.MarkNotStarted();
             }
             SaveSystem.Rollback = null; SaveSystem.Busy = false;
+            foreach (var c in CommanderRoster.Instance.Commanders)
+                if (c.GetComponent<AntColony.Units.StartingAppearance>() == null) c.gameObject.AddComponent<AntColony.Units.StartingAppearance>();
             var camera = FindFirstObjectByType<AntColony.Camera.IsometricCameraController>();
             camera?.ApplySettings(UserSettings.Current.cameraPanSpeed, UserSettings.Current.edgeScrollThickness);
             new GameObject("GameNotifications").AddComponent<GameNotifications>();

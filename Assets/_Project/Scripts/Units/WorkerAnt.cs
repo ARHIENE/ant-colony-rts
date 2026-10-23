@@ -155,7 +155,10 @@ namespace AntColony.Units
             if (IsFlying) return true;
             if (!Agent.enabled || !Agent.isOnNavMesh) return false;
             var path = new NavMeshPath();
-            return Agent.CalculatePath(destination, path) && path.status == NavMeshPathStatus.PathComplete
+            if (!Agent.CalculatePath(destination, path)) return false;
+            // 먼 길은 탐색 한도로 Partial이 날 수 있어 경유지로 다시 확인한다(2026-10-22).
+            if (path.status == NavMeshPathStatus.PathPartial) return AntColony.Map.NavRoute.Reachable(Agent.nextPosition, destination);
+            return path.status == NavMeshPathStatus.PathComplete
                 && path.corners.Length > 0 && Vector3.Distance(path.corners[path.corners.Length - 1], destination) <= 1f;
         }
 
@@ -165,7 +168,9 @@ namespace AntColony.Units
             if (IsFlying) return Vector3.Distance(Position, destination);
             if (!Agent.enabled || !Agent.isOnNavMesh || !NavMesh.SamplePosition(destination, out var hit, 4, NavMesh.AllAreas)) return float.PositiveInfinity;
             var path = new NavMeshPath();
-            if (!Agent.CalculatePath(hit.position, path) || path.status != NavMeshPathStatus.PathComplete) return float.PositiveInfinity;
+            if (!Agent.CalculatePath(hit.position, path)) return float.PositiveInfinity;
+            if (path.status == NavMeshPathStatus.PathPartial) return AntColony.Map.NavRoute.Length(Agent.nextPosition, hit.position); // 먼 길(2026-10-22)
+            if (path.status != NavMeshPathStatus.PathComplete) return float.PositiveInfinity;
             float length = 0; for (int i = 1; i < path.corners.Length; i++) length += Vector3.Distance(path.corners[i - 1], path.corners[i]);
             return length;
         }
@@ -243,7 +248,7 @@ namespace AntColony.Units
         public virtual void CommandGather(ResourceNode node)
         {
             if (IsConstructing) return;
-            if (node == null || !node.CanGather) return;
+            if (node == null || !node.CanGatherWith(this)) return;
             if (!TryWorkApproach(node.transform.position, out var approach)) return;
             if (carriedAmount > 0f && (carriedType != node.ResourceType || carriedAmount >= CarryCapacity))
             {
@@ -404,7 +409,7 @@ namespace AntColony.Units
 
         private void TickMovingToNode()
         {
-            if (targetNode == null || !targetNode.CanGather)
+            if (targetNode == null || !targetNode.CanGatherWith(this))
             {
                 StopMoving();
                 state = State.Idle;
@@ -420,7 +425,7 @@ namespace AntColony.Units
 
         private void TickGathering()
         {
-            if (targetNode == null || !targetNode.CanGather)
+            if (targetNode == null || !targetNode.CanGatherWith(this))
             {
                 StopMoving();
                 state = State.Idle;

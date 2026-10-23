@@ -127,7 +127,8 @@ namespace AntColony.UI
                 if (node == null || !node.GatheringForbidden) continue;
                 var p = camera.WorldToScreenPoint(node.transform.position + Vector3.up * 2f);
                 if (p.z <= 0 || p.x < 0 || p.x > Screen.width || p.y < 0 || p.y > Screen.height) continue;
-                GUI.Box(new Rect(p.x - 40, Screen.height - p.y - 22, 80, 20), "채집 금지", markStyle);
+                var label = new Rect(p.x - 40, Screen.height - p.y - 22, 80, 20);
+                if (HudResponsiveLayout.ReserveWorldLabel(label)) GUI.Box(label, "채집 금지", markStyle);
             }
             // 노란 경보는 항상, 대상 우선순위 숫자는 지정 도구를 쓰는 동안 표시한다.
             foreach (var tp in FindObjectsByType<AntColony.Units.TargetPriority>(FindObjectsSortMode.None))
@@ -136,7 +137,8 @@ namespace AntColony.UI
                 var p = camera.WorldToScreenPoint(tp.transform.position + Vector3.up * 2.4f);
                 if (p.z <= 0 || p.x < 0 || p.x > Screen.width || p.y < 0 || p.y > Screen.height) continue;
                 markStyle.normal.textColor = tp.yellow ? new Color(1f, .85f, .2f) : Color.white;
-                GUI.Box(new Rect(p.x - 40, Screen.height - p.y - 22, 80, 20), tp.yellow ? "노란 경보" : "우선 " + tp.level, markStyle);
+                var label = new Rect(p.x - 40, Screen.height - p.y - 22, 80, 20);
+                if (HudResponsiveLayout.ReserveWorldLabel(label)) GUI.Box(label, tp.yellow ? "노란 경보" : "우선 " + tp.level, markStyle);
             }
             if (!active || !dragging || Mouse.current == null) return;
             var now = Mouse.current.position.ReadValue();

@@ -21,6 +21,11 @@ namespace AntColony.Units
         public List<MoodFactor> moodFactors = new List<MoodFactor>();
         public List<CommanderRelation> relations = new List<CommanderRelation>();
         public List<EquipmentItem> equipment = new List<EquipmentItem>();
+        public int toolTier; // 0 맨손(옛 저장), 1 나무 세트, 2 돌 세트
+        public int appearanceSeed;
+        public string ordinaryClothes = "";
+        public FoodLots carriedRations = new FoodLots(); // 원식량 단위, 개인 재고는 창고 합계에 포함하지 않는다.
+        public GroundCraftState groundCraft = new GroundCraftState();
         public float workedSeconds, breakCheck, lowMoodSeconds, captiveSeconds, unsupportedSeconds, breakRemaining, rageRemaining, rewardCooldown, lastCombatSeconds, homeSeconds;
         public float craftProgress, researchProgress;
         public float beautyExposure; // 생활 공간 미관의 체류 평균(2026-10-10)
@@ -77,6 +82,8 @@ namespace AntColony.Units
         public bool Validate(out string error)
         {
             error = "Invalid commander personal state";
+            if (toolTier < 0 || toolTier > 2 || carriedRations != null && !carriedRations.Valid
+                || groundCraft != null && (groundCraft.recipe < -1 || groundCraft.recipe > 1 || !Finite(groundCraft.work) || groundCraft.work < 0)) return false;
             if (work == null || !work.Valid || string.IsNullOrEmpty(id) || social == null || !social.Validate() || sleep == null || !sleep.Valid || meal == null || !meal.Valid || joy == null || !joy.Valid || hygiene == null || !hygiene.Valid || health == null || health.wounds == null || health.illnesses == null || health.surgeries == null
                 || health.wounds.Count > 64 || health.illnesses.Count > 16 || health.surgeries.Count > 8 || !Finite(health.bloodLoss) || health.bloodLoss < 0 || health.bloodLoss > 1
                 || health.wounds.Exists(w => w == null || !Enum.IsDefined(typeof(BodyPart), w.part) || !Enum.IsDefined(typeof(WoundKind), w.kind) || !Finite(w.damage) || w.damage < 0 || !Finite(w.age) || !Finite(w.quality))

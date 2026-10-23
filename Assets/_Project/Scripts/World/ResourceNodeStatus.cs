@@ -35,7 +35,8 @@ namespace AntColony.World
             if (style == null)
                 style = new GUIStyle(GUI.skin.box) { alignment = TextAnchor.MiddleCenter, fontSize = 13 };
             style.normal.textColor = node.IsRegrowing ? new Color(1f, .85f, .4f) : new Color(.5f, 1f, .5f);
-            GUI.Box(new Rect(point.x - 80f, Screen.height - point.y - 26f, 160f, 24f), StatusText, style);
+            var rect = new Rect(point.x - 80f, Screen.height - point.y - 26f, 160f, 24f);
+            if (AntColony.UI.HudResponsiveLayout.ReserveWorldLabel(rect)) GUI.Box(rect, StatusText, style);
         }
     }
 }

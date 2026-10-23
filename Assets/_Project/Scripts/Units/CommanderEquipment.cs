@@ -7,7 +7,7 @@ namespace AntColony.Units
 {
     public enum EquipmentSlot { Weapon, Armor, Trinket }
     public enum TrinketEffect { Move, Gather, Mood, Command }
-    public enum WeaponKind { Mandible, AcidSprayer, Shield, Pheromone }
+    public enum WeaponKind { Mandible, AcidSprayer, Shield, Pheromone, WoodenSword, ShortBow }
     public enum ArmorKind { Coating, Wings }
     [Serializable]
     public class EquipmentItem
@@ -21,7 +21,9 @@ namespace AntColony.Units
         public bool IsValid => !string.IsNullOrEmpty(id) && Enum.IsDefined(typeof(EquipmentSlot), slot) && quality >= 0 && quality <= 3
             && Enum.IsDefined(typeof(TrinketEffect), effect) && Enum.IsDefined(typeof(WeaponKind), weapon) && Enum.IsDefined(typeof(ArmorKind), armor);
         public string Label => new[] { "조잡", "보통", "정교", "걸작" }[Mathf.Clamp(quality,0,3)] + " "
-            + EquipmentRecipes.Name((EquipmentRecipe)(slot == EquipmentSlot.Weapon ? (int)weapon : slot == EquipmentSlot.Armor ? 4 + (int)armor : 6 + (int)effect));
+            + (slot == EquipmentSlot.Weapon && weapon == WeaponKind.WoodenSword ? "나무칼"
+                : slot == EquipmentSlot.Weapon && weapon == WeaponKind.ShortBow ? "단궁"
+                : EquipmentRecipes.Name((EquipmentRecipe)(slot == EquipmentSlot.Weapon ? (int)weapon : slot == EquipmentSlot.Armor ? 4 + (int)armor : 6 + (int)effect)));
         public static EquipmentItem Random(int quality) => new EquipmentItem { slot = (EquipmentSlot)UnityEngine.Random.Range(0,3), quality = Mathf.Clamp(quality,0,3),
             effect = (TrinketEffect)UnityEngine.Random.Range(0,4), weapon = (WeaponKind)UnityEngine.Random.Range(0,4), armor = (ArmorKind)UnityEngine.Random.Range(0,2) };
     }

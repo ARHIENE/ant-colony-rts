@@ -17,8 +17,10 @@ namespace AntColony.Core
         public CommanderDeathMode commanderDeath = CommanderDeathMode.Normal;
         public int seed = 12345;
         public MapBiome biome; // 새 게임 화면이 게임 시작 때 무작위로 정한다. None = 보정 없음(옛 저장·검사)
+        public int startingCount = 3;
+        public StartingCandidate[] startingTeam;
 
-        public NewGameOptions Clone() => new NewGameOptions { mapSize = mapSize, difficulty = difficulty, commanderDeath = commanderDeath, seed = seed, biome = biome };
+        public NewGameOptions Clone() => JsonUtility.FromJson<NewGameOptions>(JsonUtility.ToJson(this));
 
         public static int RandomSeed() => UnityEngine.Random.Range(1, 999999);
     }

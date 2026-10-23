@@ -17,6 +17,7 @@ namespace AntColony.UI
         {
             tombPick = pick ?? (tombPick != null && tombPick.isActiveAndEnabled ? tombPick : Tombstone.All.FirstOrDefault());
             var window = V5Window("사망 기록 / 묘비", "묘비 하나에 한 구 · 시신을 못 찾으면 이름만 등록 · 시신이 있는 묘비는 철거 불가");
+            ManagementTabs(window, "의료·관리", "묘비·추모");
             content = V5Section(window, $"사망 기록 ({Memorial.Deaths.Count})", 20, 104, 420, 544);
             if (Memorial.Deaths.Count == 0) MenuTheme.Text(content, "사망한 장수가 없습니다.", 15, 30);
             foreach (var r in Memorial.Deaths.Reverse())
