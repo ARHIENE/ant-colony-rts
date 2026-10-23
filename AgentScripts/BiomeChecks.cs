@@ -80,9 +80,9 @@ public static class BiomeChecks
             var pond = Object.FindObjectsByType<ResourceNode>(FindObjectsSortMode.None).FirstOrDefault(n => n.RequiresFishing);
             if (pond != null)
             {
-                typeof(ResourceNode).GetProperty("FishMonth", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic).SetValue(pond, -1);
-                pond.RefreshFishingMonth();
-                Near(pond.AmountRemaining, GameBalance.FishingMonthlyFood * 1.6f, "waterside monthly fish +60%");
+                typeof(ResourceNode).GetProperty("FishSeason", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic).SetValue(pond, -1);
+                pond.RefreshFishingSeason();
+                Near(pond.AmountRemaining, GameBalance.FishingSeasonFood * 1.6f, "waterside monthly fish +60%");
             }
             options.biome = MapBiome.Forest;
             Check(BiomeRules.Random() != MapBiome.None, "random never picks none");

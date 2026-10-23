@@ -19,6 +19,7 @@ namespace AntColony.Core
             public long[] acquired = new long[3], spent = new long[3];
             public long[] spentByReason = new long[3 * Enum.GetValues(typeof(ResourceReason)).Length];
             public long antsProduced, antsLost;
+            public int scoutRecruitSlot = -1, scoutRecruitFailures;
             public long[] events = new long[11];
             public List<Entry> recent = new List<Entry>(), milestones = new List<Entry>();
         }
@@ -58,7 +59,9 @@ namespace AntColony.Core
                 && e.kind != null && e.kind.Length <= 100 && e.name != null && e.name.Length <= 300 && e.result != null && e.result.Length <= 1000);
             return s != null && Totals(s.acquired, 3) && Totals(s.spent, 3)
                 && Totals(s.spentByReason, 3 * Enum.GetValues(typeof(ResourceReason)).Length) && Totals(s.events, 11)
-                && s.antsProduced >= 0 && s.antsLost >= 0 && Entries(s.recent, 20) && Entries(s.milestones, 100000);
+                && s.antsProduced >= 0 && s.antsLost >= 0 && s.scoutRecruitSlot >= -1
+                && s.scoutRecruitFailures >= 0 && s.scoutRecruitFailures <= 3
+                && Entries(s.recent, 20) && Entries(s.milestones, 100000);
         }
     }
 }

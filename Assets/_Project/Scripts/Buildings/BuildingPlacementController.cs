@@ -220,7 +220,7 @@ namespace AntColony.Buildings
             int food = redevelop != null ? quote.food : cost.foodCost, soil = redevelop != null ? quote.soil : cost.soilCost, special = redevelop != null ? quote.special : cost.specialCost;
             var material = redevelop != null ? ResourceType.Soil : EarlyConstruction.HasFixedCost(pendingKind) ? ResourceType.Wood : PendingMaterial;
             if (ResourceManager.Instance == null) return null;
-            if (builder is CommanderAnt commander && !commander.CanDoJob(Decoration.IsKind(pendingKind) ? CommanderJobs.Art : CommanderJobs.Building))
+            if (pendingKind != BuildingKind.SleepingMat && builder is CommanderAnt commander && !commander.CanDoJob(Decoration.IsKind(pendingKind) ? CommanderJobs.Art : CommanderJobs.Building))
             { PlacementFailed("이 장수는 해당 작업을 할 수 없습니다."); return null; }
             if (redevelop != null && !ResourceManager.Instance.TrySpend(quote.compensationFood, quote.compensationSoil, 0, ResourceReason.Construction))
             {
@@ -263,7 +263,8 @@ namespace AntColony.Buildings
                 var pop = ColonyPopulation.Instance;
                 if (pop != null) pop.S.sentiment = Mathf.Clamp(pop.S.sentiment + quote.sentiment, 0, 100);
             }
-            if (commandBuilder) builder.CommandBuild(site);
+            if (pendingKind == BuildingKind.SleepingMat && redevelop == null) site.Complete();
+            else if (commandBuilder) builder.CommandBuild(site);
             return site;
         }
 
@@ -391,7 +392,7 @@ namespace AntColony.Buildings
         {
             var template = kind switch
             {
-                BuildingKind.CrashWreck => FindTemplate<BuildingBase>(kind) ?? RuntimeBuildingTemplates.Create(kind),
+                BuildingKind.CrashWreck => FindTemplate<CrashWreck>(kind) ?? RuntimeBuildingTemplates.Create(kind), // BuildingBase로 찾으면 Data 없는 연구소 템플릿이 먼저 걸린다
                 BuildingKind.ResearchLab => FindTemplate<ResearchLab>(role),
                 BuildingKind.Farm or BuildingKind.MushroomFarm or BuildingKind.AphidPen => FindFarmTemplate(),
                 BuildingKind.Storage => FindTemplate<Storage>(kind),
@@ -426,7 +427,7 @@ namespace AntColony.Buildings
                     or (>= BuildingKind.BunkBed and <= BuildingKind.BanquetTable) or (>= BuildingKind.Carpentry and <= BuildingKind.MedicineBench) => FindDecorationTemplate(kind), // 가구 5·6차, 가공대
                 _ => null
             };
-            return EarlyConstruction.Prepare(template, kind);
+            return BasicLivingTemplates.Prepare(EarlyConstruction.Prepare(template, kind), kind);
         }
 
         // 균류 재배 이후 새 밭은 2칸 폭이다. 배치 검사·미리보기·공사장 크기에 같이 반영한다.

@@ -31,13 +31,29 @@ namespace AntColony.Buildings
         public int SuccessCount { get; private set; }
         public int FailureCount { get; private set; }
 
-        // 세력이 클수록 영입 제안을 받아들일 확률이 높다. 상한을 둬 확정 영입이 되지 않게 한다.
+        // 같은 빈 슬롯 실패는 초소 간에 공유하고, 다른 경로로 슬롯이 채워지면 초기화한다.
+        private CampaignHistory.State RecruitmentState
+        {
+            get
+            {
+                var state = CampaignHistory.Instance?.Data;
+                var slot = CommanderRoster.Instance != null ? CommanderRoster.Instance.Count : 0;
+                if (state != null && state.scoutRecruitSlot != slot)
+                { state.scoutRecruitSlot = slot; state.scoutRecruitFailures = 0; }
+                return state;
+            }
+        }
+
+        public int ConsecutiveFailures => RecruitmentState?.scoutRecruitFailures ?? 0;
+        public static float RecruitmentChance(float initial, int failures) => failures >= 3 ? 1f
+            : Mathf.Clamp01(initial + Mathf.Max(0, failures) * .2f);
+
         public float CurrentChance
         {
             get
             {
                 var size = CommanderRoster.Instance != null ? CommanderRoster.Instance.Count : 0;
-                return Mathf.Clamp(baseChance + size * chancePerCommander, 0f, maxChance);
+                return RecruitmentChance(Mathf.Clamp(baseChance + size * chancePerCommander, 0f, maxChance), ConsecutiveFailures);
             }
         }
 
@@ -105,6 +121,7 @@ namespace AntColony.Buildings
         public bool TryDispatch(CommanderAnt companion)
         {
             if (IsDispatched || !isActiveAndEnabled || companion == null || !companion.CanScout) return false;
+            _ = RecruitmentState;
             if (dispatchFoodCost > 0 && ResourceManager.Instance != null
                 && !ResourceManager.Instance.CanAfford(dispatchFoodCost, 0)) return false;
             if (dispatchAnts > 0)
@@ -135,9 +152,12 @@ namespace AntColony.Buildings
             ReturnScouts();
 
             var roster = CommanderRoster.Instance;
+            var state = RecruitmentState;
             if (lost || roster == null || roster.Count >= maxCommanders || Random.value > CurrentChance)
             {
                 FailureCount++;
+                if (state != null && roster != null && roster.Count < maxCommanders)
+                    state.scoutRecruitFailures = Mathf.Min(3, state.scoutRecruitFailures + 1);
                 return;
             }
 
@@ -146,8 +166,17 @@ namespace AntColony.Buildings
             var recruit = roster.Create(null, CommanderRank.Corporal,
                 new[] { UnitRole.Worker, combatRole }, UnitRole.Worker, traits, transform.position);
 
-            if (recruit == null) FailureCount++;
-            else { SuccessCount++; CampaignHistory.Record("합류", recruit.CommanderName, "스카우트 영입"); }
+            if (recruit == null)
+            {
+                FailureCount++;
+                if (state != null) state.scoutRecruitFailures = Mathf.Min(3, state.scoutRecruitFailures + 1);
+            }
+            else
+            {
+                SuccessCount++;
+                if (state != null) { state.scoutRecruitSlot = roster.Count; state.scoutRecruitFailures = 0; }
+                CampaignHistory.Record("합류", recruit.CommanderName, "스카우트 영입");
+            }
         }
     }
 }

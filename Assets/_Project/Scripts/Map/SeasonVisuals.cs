@@ -26,7 +26,7 @@ namespace AntColony.Map
         // 0~4 연속 계절 위치에서 이번 계절과 다음 계절 섞는 비율.
         public static (int season, int next, float blend) Position()
         {
-            var t = GameCalendar.GameSeconds / GameCalendar.SecondsPerDay % 4f;
+            var t = GameCalendar.GameSeconds / GameCalendar.SecondsPerSeason % 4f;
             var s = Mathf.FloorToInt(t);
             return (s, (s + 1) % 4, Mathf.SmoothStep(0, 1, Mathf.InverseLerp(.8f, 1f, t - s)));
         }

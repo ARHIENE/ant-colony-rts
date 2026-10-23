@@ -15,11 +15,15 @@ namespace AntColony.Save
         internal static BuildingDto Capture(BuildingBase b, string key, bool built, List<CommanderAnt> commanders)
         {
             if (b == null) return new BuildingDto { key = key, kind = "Destroyed", health = 0 };
+            SaveReferences.Building(key, b);
             var d = new BuildingDto { key = key, kind = SaveCatalog.Kind(b), runtimeBuilt = built,
                 position = new Vec3Dto(b.Position), rotationY = b.transform.eulerAngles.y, health = b.CurrentHealth };
             d.repairCredit = b.GetComponent<BuildingRepair>()?.Credit ?? 0;
             if (b is Storage store && store.Bin != null) d.storeBin = store.Bin.Capture();
             d.packed = b.TryGetComponent<PackedFurniture>(out _);
+            if (b.TryGetComponent<WallFire>(out var fire) && fire.Burning) d.fire = fire.CaptureState();
+            var servicer = commanders.FindIndex(c => c != null && c.ServiceTarget == b);
+            if (servicer >= 0) { d.serviceCommander = servicer; d.serviceJob = (int)commanders[servicer].ServiceJob; }
             if (b is Kitchen kitchen) d.kitchen = JsonUtility.FromJson<Kitchen.State>(JsonUtility.ToJson(kitchen.Meals));
             if (b is Decoration decoration) d.decorationQuality = decoration.Quality;
             if (b is Barracks barracks) { d.role = (int)barracks.Role; d.barracksTier = barracks.CurrentTier; d.barracksUpgradeRemaining = barracks.UpgradeRemaining; }
@@ -86,6 +90,7 @@ namespace AntColony.Save
             b.transform.SetPositionAndRotation(d.position.ToVector3(), Quaternion.Euler(0, d.rotationY, 0));
             b.RestoreHealth(d.health);
             BuildingRepair.For(b).Credit = d.repairCredit;
+            if (d.fire != null) (b.TryGetComponent<WallFire>(out var fire) ? fire : b.gameObject.AddComponent<WallFire>()).RestoreState(d.fire);
             if (b is Kitchen kitchen) kitchen.Meals = JsonUtility.FromJson<Kitchen.State>(JsonUtility.ToJson(d.kitchen));
             if (b is Decoration decoration) decoration.Quality = d.decorationQuality;
             if (b is Barracks barracks) barracks.RestoreState(d.barracksTier, d.barracksUpgradeRemaining);

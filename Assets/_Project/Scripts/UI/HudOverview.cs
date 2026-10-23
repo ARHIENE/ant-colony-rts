@@ -25,8 +25,7 @@ namespace AntColony.UI
                 var pool = AntPool.Instance; var population = ColonyPopulation.Instance;
                 if (pool == null) return 0;
                 if (population == null) return pool.Free;
-                var available = pool.Free + (population.S.elderlyService ? population.S.old : 0);
-                return Mathf.Max(0, Mathf.Min(available, population.MaxSoldiers(EnemyAlert.CrisisActive) - pool.Assigned));
+                return population.AvailableMilitary(EnemyAlert.CrisisActive);
             }
         }
         public static CommanderAnt[] Selected(SelectionManager manager) => manager == null ? new CommanderAnt[0]

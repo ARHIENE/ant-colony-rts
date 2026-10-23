@@ -69,10 +69,10 @@ public static class Spec1010SpaceChecks
             Check(c.PersonalState.moodFactors.First(f => f.reason == "공간 미관").value <= GameBalance.BeautyMoodCap, "mood capped");
             c.CommandStop(); site.Cancel();
 
-            // 3. 시민 주거 미관 → 민심·이주 수요.
+            // 3. 시민 주거 미관은 별도 이주 수요 보정을 더하지 않는다(G33).
             var pop = ColonyPopulation.Instance; var demand0 = pop.Demand;
             Put<Housing>(BuildingKind.Hut, spot + new Vector3(0, .6f, 3)); await Task.Delay(2100); // 2초 캐시
-            Check(pop.HousingBeauty > 0 && pop.Demand > demand0, "pretty housing raises demand");
+            Check(pop.HousingBeauty > 0 && Mathf.Approximately(pop.Demand, demand0), "beauty has no extra immigration correction");
 
             // 4. 온도: 겨울 바깥은 추움, 단열 좋은 방은 쾌적, 단열 나쁜 방은 난방(목재)이 있어야 쾌적.
             At(2800); // 겨울

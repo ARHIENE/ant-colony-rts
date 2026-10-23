@@ -55,7 +55,7 @@ namespace AntColony.UI
             var shown = all.Where(c => InFilter(c, rosterFilter)
                 && (rosterSearch.Length == 0 || c.CommanderName.IndexOf(rosterSearch, StringComparison.OrdinalIgnoreCase) >= 0)).ToArray();
             if (selected == null) selected = shown.FirstOrDefault();
-            string[] heads = { "이름", "무기 (역할)", "병력", "기분", "탈주", "상태" };
+            string[] heads = { "이름", "무기 (역할)", "병력", "기분", "이탈까지", "상태" };
             float[] cols = { 8, 108, 218, 318, 378, 438 };
             for (var i = 0; i < heads.Length; i++) L.Label(p, heads[i], 12, cols[i], 48, 100, 22, MenuTheme.Dim);
             var list = L.List(p, 0, 74, 530, 430, 4);
@@ -70,7 +70,7 @@ namespace AntColony.UI
                 L.Label(row.transform, $"<b>{c.TroopCount}</b><color=#b1b3a7>/{c.CommandLimit}</color>", 13, cols[2] - 6, 0, 60, 40);
                 L.Meter(row.transform, cols[2] - 6, 34, 80, 4, c.CommandLimit > 0 ? (float)c.TroopCount / c.CommandLimit : 0, MenuTheme.Hp);
                 L.Label(row.transform, $"{c.Mood:0}", 14, cols[3] - 6, 0, 54, 40, MoodColor(c.Mood));
-                L.Label(row.transform, c.PersonalState.lowMoodSeconds > 0 ? $"{c.PersonalState.lowMoodSeconds / SocialRules.Month:P0}" : "—", 14, cols[4] - 6, 0, 54, 40, c.PersonalState.lowMoodSeconds > 0 ? MenuTheme.DangerInk : MenuTheme.Muted);
+                L.Label(row.transform, c.PersonalState.lowMoodSeconds > 0 ? $"{Mathf.Max(0, SocialRules.Month - c.PersonalState.lowMoodSeconds):0}초" : "—", 14, cols[4] - 6, 0, 54, 40, c.PersonalState.lowMoodSeconds > 0 ? MenuTheme.DangerInk : MenuTheme.Muted);
                 L.Label(row.transform, Status(c), 12, cols[5] - 6, 0, 76, 40, MenuTheme.Muted);
             }
             L.Line(p, 0, 510, 530);
@@ -97,15 +97,16 @@ namespace AntColony.UI
             L.Meter(head, 108, 94, 388, 8, c.CommandLimit > 0 ? (float)c.TroopCount / c.CommandLimit : 0, MenuTheme.Hp);
 
             var factors = c.PersonalState.moodFactors;
-            var mood = L.Cell(content, "Mood", 52 + factors.Count * 18);
-            L.Label(mood, $"<b>기분</b>   <size=15><b>{c.Mood:0}</b></size> / 100   <color=#b1b3a7>경고선 35 · {c.PersonalState.mentalBreak}</color>", 13, 0, 0, 496, 26);
+            var mood = L.Cell(content, "Mood", 70 + factors.Count * 18);
+            L.Label(mood, $"<b>기분</b>   <size=15><b>{c.Mood:0}</b></size> / 100   <color=#b1b3a7>경고선 35/20/5 · {c.PersonalState.mentalBreak}</color>", 13, 0, 0, 496, 26);
             L.Meter(mood, 0, 30, 496, 8, c.Mood / 100f, MoodColor(c.Mood));
+            L.Label(mood, $"기본 60 · 기대 수준 +{AntColony.Core.GameBalanceNeeds.ExpectationMood(c.PersonalState.expectationTier)}", 12, 0, 46, 496, 18, MenuTheme.Muted);
             for (var i = 0; i < factors.Count; i++)
-                L.Label(mood, $"{factors[i].reason}  <b>{factors[i].value:+0;-0;0}</b>  <color=#b1b3a7>{factors[i].remaining:0}초</color>", 12, 0, 46 + i * 18, 496, 18, MenuTheme.Muted);
+                L.Label(mood, $"{factors[i].reason}  <b>{factors[i].value:+0;-0;0}</b>  <color=#b1b3a7>{factors[i].remaining:0}초</color>", 12, 0, 64 + i * 18, 496, 18, MenuTheme.Muted);
 
             // Phase 3: 충성심 대신 탈주 위험 — 기분이 기준 이하로 한 달 이어지면 떠난다.
             var leave = L.Cell(content, "Departure", 48);
-            L.Label(leave, $"<b>탈주 위험</b>   기분 {c.Traits.DepartureMood} 이하 지속 <b>{c.PersonalState.lowMoodSeconds:0}</b> / {SocialRules.Month:0}초", 13, 0, 0, 496, 26);
+            L.Label(leave, $"<b>탈주 위험</b>   기분 {c.Traits.DepartureMood} 이하 지속 시 이탈까지 <b>{Mathf.Max(0, SocialRules.Month - c.PersonalState.lowMoodSeconds):0}초</b>", 13, 0, 0, 496, 26);
             L.Meter(leave, 0, 30, 496, 8, c.PersonalState.lowMoodSeconds / SocialRules.Month, MenuTheme.DangerInk);
 
             var skills = L.Cell(content, "Skills", 26 + ((CommanderTalents.Count + 2) / 3) * 46);

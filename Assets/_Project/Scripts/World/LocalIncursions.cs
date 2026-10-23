@@ -17,6 +17,9 @@ namespace AntColony.World
         internal float SavedTimer { get => remaining; set => remaining = value; }
         private readonly List<WildMonster> visitors = new List<WildMonster>();
         public IReadOnlyList<WildMonster> Visitors => visitors;
+        internal WildMonster RestoreSpawn(bool commander, Vector3 position) =>
+            Instantiate(commander ? commanderTemplate : raiderTemplate, position, Quaternion.identity);
+        internal void RestoreVisitor(WildMonster monster) { if (!visitors.Contains(monster)) visitors.Add(monster); }
         // 난이도는 방문 간격만 바꾼다. Normal이면 배수 1.0이라 기존과 같다.
         private float NextDelay() => Random.Range(minimumDelay, maximumDelay) * AntColony.Core.DifficultyRuntime.IntervalScale;
         private void Start() => remaining = NextDelay();

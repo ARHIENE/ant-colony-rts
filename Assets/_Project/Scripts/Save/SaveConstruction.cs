@@ -9,7 +9,7 @@ using UnityEngine;
 namespace AntColony.Save
 {
     // 건설·철거·이동·개보수 예정지 저장(v17, 2026-10-12). 재료를 기다리는 예정지가 오래 남을 수 있어 저장 차단 대신 그대로 저장한다.
-    // 예약량은 저장하지 않고(불러온 뒤 다시 분배), 배송 중인 짐은 장수 화물로 남아 창고로 돌아간다.
+    // 예약량과 배송 중 작업을 함께 보존한다.
     [Serializable] public class ConstructionDto
     {
         public string name; public Vec3Dto position, scale; public Color color;
@@ -25,14 +25,15 @@ namespace AntColony.Save
 
     internal static class SaveConstruction
     {
-        internal static List<ConstructionDto> Capture() => UnityEngine.Object.FindObjectsByType<BuildingConstructionSite>().Where(s => s != null && s.isActiveAndEnabled).Select(Capture).ToList();
-        private static ConstructionDto Capture(BuildingConstructionSite s)
+        internal static List<ConstructionDto> Capture() => UnityEngine.Object.FindObjectsByType<BuildingConstructionSite>().Where(s => s != null && s.isActiveAndEnabled).OrderBy(s => s.Order).Select((s, i) => Capture(s, i)).ToList();
+        private static ConstructionDto Capture(BuildingConstructionSite s, int index)
         {
+            SaveReferences.Register("construction:" + index, s);
             var d = new ConstructionDto { name = s.name, position = new Vec3Dto(s.transform.position), scale = new Vec3Dto(s.transform.localScale),
                 color = s.TryGetComponent<Renderer>(out var r) ? r.material.color : Color.white,
                 buildTime = s.BuildTimeSeconds, remaining = s.RemainingWork, started = s.Started, paused = s.Paused, order = s.Order,
                 priority = WorkPriorities.Level(s), yellow = WorkPriorities.Yellow(s),
-                needs = s.Needs.Select(n => new BuildingConstructionSite.Need { type = n.type, need = n.need, delivered = n.delivered }).ToList() };
+                needs = s.Needs.Select(n => new BuildingConstructionSite.Need { type = n.type, need = n.need, reserved = n.reserved, delivered = n.delivered }).ToList() };
             var b = s.Building != null ? s.Building.GetComponent<BuildingBase>() : null;
             if (b != null && b.Data != null)
             {
@@ -74,7 +75,8 @@ namespace AntColony.Save
                 }
                 var site = go.AddComponent<BuildingConstructionSite>();
                 site.Initialize(building, d.buildTime); site.RemainingWork = Mathf.Clamp(d.remaining, 0, d.buildTime);
-                foreach (var n in d.needs) { site.Require(n.type, n.need); site.Needs.Last().delivered = Mathf.Clamp(n.delivered, 0, n.need); }
+                foreach (var n in d.needs) { site.Require(n.type, n.need); site.Needs.Last().delivered = Mathf.Clamp(n.delivered, 0, n.need); site.Needs.Last().reserved = n.reserved; }
+                SaveReferences.Register("construction:" + list.IndexOf(d), site);
                 site.Started = d.started; site.Order = d.order; if (d.paused) site.SetPaused(true);
                 WorkPriorities.Set(site, d.priority, d.yellow);
                 if (d.mark > 0)

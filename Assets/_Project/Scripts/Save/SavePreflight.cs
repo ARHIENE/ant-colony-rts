@@ -30,6 +30,9 @@ namespace AntColony.Save
         {
             if (d == null) return;
             Check(V(d.rootPosition) && N(d.waveTimer) && N(d.economyTimer) && d.waveIndex >= 0, "enemy colony");
+            L(d.nodes, 10000, "enemy colony nodes");
+            Check(d.nodes.All(n => n != null && n.key != null && N(n.amount) && N(n.regrowTimer) && N(n.sowRemaining) && V(n.position)
+                && Enum.IsDefined(typeof(ResourceType), n.type)), "enemy colony resource data");
             L(d.buildingHealth, 10000, "enemy buildings"); L(d.extraBuildings, 10000, "building positions");
             Check(d.buildingHealth.Count == d.extraBuildings.Count && d.buildingHealth.All(N) && d.extraBuildings.All(V), "enemy building data");
         }
@@ -128,6 +131,7 @@ namespace AntColony.Save
                     Check(new[] { b.barracksUpgradeRemaining, b.labResearchRemaining, b.queenProductionRemaining, b.queenFishingRemaining, b.scienceRemaining,
                         b.scoutRemaining, b.prisonEscapeTimer, b.towerCooldown }.All(N) && V(b.scienceSpawn), "building timers");
                     Check(b.barracksTier >= 1 && b.barracksTier <= 3 && R(b.role), "building tier/role");
+                    Check(b.serviceCommander >= -1 && b.serviceCommander < f.commanders.Count, "service commander");
                     Check(b.labResearchCommanderId >= -1 && b.labResearchCommanderId < f.commanders.Count && (b.labResearchRemaining <= 0 || b.labResearchCommanderId >= 0 && targets.Add(b.labResearchCommanderId)), "research target");
                     Check(b.scienceTier >= 1 && b.scienceTier <= Buildings.ScienceLab.MaxTier && b.scientist >= -1 && b.scientist < f.commanders.Count, "scientist/tier");
                     if (b.scientist >= 0) Check(b.kind == "ScienceLab" && targets.Add(b.scientist)
@@ -185,7 +189,7 @@ namespace AntColony.Save
                     foreach (var item in s.equipmentCargo) Check(item != null && item.IsValid && equipmentIds.Add(item.id), "equipment cargo ownership");
                     if (s.state == 1 || s.state == 2) Check(occupied.Add(s.siteIndex), "duplicate visitor");
                     Check(s.route != null && N(s.route.waitSeconds) && s.route.destinationIndex >= -1 && s.route.destinationIndex < f.world.sites.Count
-                        && (!s.route.running || s.route.destinationIndex >= 0 && f.world.sites[s.route.destinationIndex].disposition == 1 && s.state != 2), "route");
+                        && (!s.route.running || s.route.destinationIndex >= 0 && f.world.sites[s.route.destinationIndex].disposition == 1 ), "route");
                     var crew = f.commanders.Where(c => c.location == 1 && c.transportIndex == i).ToArray();
                     var heavy = f.campaign.completed.Contains((int)Core.ScienceTechnology.HeavyTransport);
                     Check(crew.Sum(c => (long)c.troopCount) <= (s.aircraft ? Core.GameBalance.AircraftTroops : Core.GameBalance.VehicleTroops) * (heavy ? 1.5f : 1f)
@@ -198,6 +202,7 @@ namespace AntColony.Save
                 foreach (var m in f.monsters) if (m.traits != null)
                 { Traits(m.traits); Check(m.talents != null && m.talents.Validate(), "enemy talents"); }
                 Check(f.monsters.All(m => string.IsNullOrEmpty(m.diplomaticFactionId) || f.diplomacy.civilizations.Any(c => c.id == m.diplomaticFactionId)), "enemy faction");
+                SaveOrderValidation.Validate(f);
                 return true;
             }
             catch (Exception e) { error = e.Message; return false; }
@@ -220,12 +225,13 @@ namespace AntColony.Save
                 Check(f.nodes.Count(n => !n.key.StartsWith("new:") && !n.key.StartsWith("mat:")) == SaveCatalog.Nodes.Length, "scene nodes");
                 foreach (var n in f.nodes) Check(n.key.StartsWith("new:") || n.key.StartsWith("mat:") && int.TryParse(n.key.Substring(4), out var m) && m >= 0 || int.TryParse(n.key, out var i) && i >= 0 && i < SaveCatalog.Nodes.Length, "node index");
                 Check(f.monsters.Count(m => m.key.StartsWith("monster:")) == SaveCatalog.Monsters.Length && f.monsters.Count(m => m.key.StartsWith("boss:")) == SaveCatalog.Bosses.Length, "scene enemies");
-                foreach (var m in f.monsters) { var key = m.key.Split(':'); Check(key.Length >= 2 && int.TryParse(key[1], out _), "enemy key"); var i = int.Parse(key[1]);
+                foreach (var m in f.monsters) { if (m.hasRuntime && !m.key.StartsWith("monster:")) continue; var key = m.key.Split(':'); Check(key.Length >= 2 && int.TryParse(key[1], out _), "enemy key"); var i = int.Parse(key[1]);
                     Check(i >= 0 && (key[0] == "monster" && i < SaveCatalog.Monsters.Length || key[0] == "boss" && i < SaveCatalog.Bosses.Length
                         || key[0] == "occupier" && i < f.world.sites.Count && f.world.sites[i].disposition == 3), "enemy index"); }
                 // JsonUtility writes null inline classes as empty objects.
                 for (var i = 0; i < f.world.sites.Count; i++) Check((i >= SaveCatalog.ColonySizes.Length || SaveCatalog.ColonySizes[i] == 0) ? f.world.sites[i].colony == null || f.world.sites[i].colony.buildingHealth.Count == 0
                     : f.world.sites[i].colony != null && f.world.sites[i].colony.buildingHealth.Count >= SaveCatalog.ColonySizes[i], "colony schema");
+                SaveOrderValidation.Validate(f);
                 return true;
             }
             catch (Exception e) { error = e.Message; return false; }

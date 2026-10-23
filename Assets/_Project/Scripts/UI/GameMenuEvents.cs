@@ -18,8 +18,7 @@ namespace AntColony.UI
                 if (events != null) MenuTheme.Text(content, $"한파 {events.ColdRemaining:0}초 | 홍수 {events.FloodRemaining:0}초 | 가뭄 {events.DroughtRemaining:0}초", 18, 40);
                 foreach (var e in history.Data.recent.AsEnumerable().Reverse())
                 {
-                    var month = (int)(e.seconds / GameCalendar.SecondsPerMonth);
-                    MenuTheme.Text(content, $"{month / 12 + 1}년 {month % 12 + 1}월 — {e.name} ({e.kind})\n{e.result}", 18, 84);
+                    MenuTheme.Text(content, $"{GameCalendar.Format(e.seconds)} — {e.name} ({e.kind})\n{e.result}", 18, 84);
                 }
                 if (history.Data.recent.Count == 0) MenuTheme.Text(content, "아직 기록된 사건이 없습니다.");
                 MenuTheme.Text(content, "누적 기록", 23, 45);

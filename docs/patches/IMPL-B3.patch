@@ -1,0 +1,948 @@
+diff --git a/Assets/_Project/Scripts/Save/SaveBuildings.cs b/Assets/_Project/Scripts/Save/SaveBuildings.cs
+--- a/Assets/_Project/Scripts/Save/SaveBuildings.cs
++++ b/Assets/_Project/Scripts/Save/SaveBuildings.cs
+@@ -15,6 +15,7 @@
+         internal static BuildingDto Capture(BuildingBase b, string key, bool built, List<CommanderAnt> commanders)
+         {
+             if (b == null) return new BuildingDto { key = key, kind = "Destroyed", health = 0 };
++            SaveReferences.Building(key, b);
+             var d = new BuildingDto { key = key, kind = SaveCatalog.Kind(b), runtimeBuilt = built,
+                 position = new Vec3Dto(b.Position), rotationY = b.transform.eulerAngles.y, health = b.CurrentHealth };
+             d.repairCredit = b.GetComponent<BuildingRepair>()?.Credit ?? 0;
+diff --git a/Assets/_Project/Scripts/Save/SaveCatalog.cs b/Assets/_Project/Scripts/Save/SaveCatalog.cs
+--- a/Assets/_Project/Scripts/Save/SaveCatalog.cs
++++ b/Assets/_Project/Scripts/Save/SaveCatalog.cs
+@@ -45,7 +45,7 @@
+             return b.GetType().Name;
+         }
+         internal static int SiteIndex(ExpeditionSite site) => site == null ? -1 : WorldMapManager.Instance.Sites.ToList().IndexOf(site);
+-        internal static int ShipIndex(ExpeditionTransport ship) => ship == null ? -1 : WorldMapManager.Instance.Transports.ToList().IndexOf(ship);
++        internal static int ShipIndex(ExpeditionTransport ship) => ship == null ? -1 : WorldMapManager.Instance.Transports.Where(s => s != null).ToList().IndexOf(ship);
+         internal static TraitsDto Traits(CommanderTraits t) => new TraitsDto { personality = (int)t.Personality,
+             values = new List<CommanderTrait>(t.values), passions = t.passions.Select(p => new CommanderPassion { activity = p.activity, flame = p.flame }).ToList() };
+         internal static CommanderTraits Traits(TraitsDto t) => new CommanderTraits((CommanderPersonality)t.personality)
+@@ -55,16 +55,6 @@
+         {
+             error = null;
+             if (!Ready || Core.CommanderRoster.Instance == null) error = "Game is still initializing.";
+-            else if (Core.CommanderRoster.Instance.Commanders.Any(c => c.IsConstructing || (c.IsAwayFromHome && (c.IsWorking || c.IsCarrying))
+-                || (!c.CanResumeDutyAfterLoad && !c.IsHostile && c.PersonalState.rageRemaining <= 0 && !c.Social.diving && !c.IsEmbarked && c.Agent.enabled && c.Agent.isOnNavMesh && (c.Agent.pathPending || c.Agent.hasPath))))
+-                error = "Stop commanders and finish carrying/building before saving.";
+-            else if (Object.FindObjectsByType<WildMonster>(FindObjectsSortMode.None).Any(m => m.InCombat
+-                || (!Monsters.Contains(m) && m.GetComponent<EventActor>() == null && m.GetComponent<Critter>() == null && string.IsNullOrEmpty(m.RebelId) && m.GetComponentInParent<ExpeditionSite>()?.Disposition != ConquestDisposition.Lost)))
+-                error = "Finish the current battle or invasion before saving.";
+-            else if (WorldMapManager.Instance.Sites.Any(s => s.Defense != null && s.Defense.UnderAttack))
+-                error = "Finish settlement defense before saving.";
+-            else if (WorldMapManager.Instance.Transports.Any(s => s != null && s.Route.IsRunning && s.State == ExpeditionState.Deployed))
+-                error = "Auto transport will save after departing the collection site.";
+             return error == null;
+         }
+     }
+diff --git a/Assets/_Project/Scripts/Save/SaveConstruction.cs b/Assets/_Project/Scripts/Save/SaveConstruction.cs
+--- a/Assets/_Project/Scripts/Save/SaveConstruction.cs
++++ b/Assets/_Project/Scripts/Save/SaveConstruction.cs
+@@ -9,7 +9,7 @@
+ namespace AntColony.Save
+ {
+     // 건설·철거·이동·개보수 예정지 저장(v17, 2026-10-12). 재료를 기다리는 예정지가 오래 남을 수 있어 저장 차단 대신 그대로 저장한다.
+-    // 예약량은 저장하지 않고(불러온 뒤 다시 분배), 배송 중인 짐은 장수 화물로 남아 창고로 돌아간다.
++    // 예약량과 배송 중 작업을 함께 보존한다.
+     [Serializable] public class ConstructionDto
+     {
+         public string name; public Vec3Dto position, scale; public Color color;
+@@ -25,14 +25,15 @@
+ 
+     internal static class SaveConstruction
+     {
+-        internal static List<ConstructionDto> Capture() => UnityEngine.Object.FindObjectsByType<BuildingConstructionSite>().Where(s => s != null && s.isActiveAndEnabled).Select(Capture).ToList();
+-        private static ConstructionDto Capture(BuildingConstructionSite s)
++        internal static List<ConstructionDto> Capture() => UnityEngine.Object.FindObjectsByType<BuildingConstructionSite>().Where(s => s != null && s.isActiveAndEnabled).OrderBy(s => s.Order).Select((s, i) => Capture(s, i)).ToList();
++        private static ConstructionDto Capture(BuildingConstructionSite s, int index)
+         {
++            SaveReferences.Register("construction:" + index, s);
+             var d = new ConstructionDto { name = s.name, position = new Vec3Dto(s.transform.position), scale = new Vec3Dto(s.transform.localScale),
+                 color = s.TryGetComponent<Renderer>(out var r) ? r.material.color : Color.white,
+                 buildTime = s.BuildTimeSeconds, remaining = s.RemainingWork, started = s.Started, paused = s.Paused, order = s.Order,
+                 priority = WorkPriorities.Level(s), yellow = WorkPriorities.Yellow(s),
+-                needs = s.Needs.Select(n => new BuildingConstructionSite.Need { type = n.type, need = n.need, delivered = n.delivered }).ToList() };
++                needs = s.Needs.Select(n => new BuildingConstructionSite.Need { type = n.type, need = n.need, reserved = n.reserved, delivered = n.delivered }).ToList() };
+             var b = s.Building != null ? s.Building.GetComponent<BuildingBase>() : null;
+             if (b != null && b.Data != null)
+             {
+@@ -74,7 +75,8 @@
+                 }
+                 var site = go.AddComponent<BuildingConstructionSite>();
+                 site.Initialize(building, d.buildTime); site.RemainingWork = Mathf.Clamp(d.remaining, 0, d.buildTime);
+-                foreach (var n in d.needs) { site.Require(n.type, n.need); site.Needs.Last().delivered = Mathf.Clamp(n.delivered, 0, n.need); }
++                foreach (var n in d.needs) { site.Require(n.type, n.need); site.Needs.Last().delivered = Mathf.Clamp(n.delivered, 0, n.need); site.Needs.Last().reserved = n.reserved; }
++                SaveReferences.Register("construction:" + list.IndexOf(d), site);
+                 site.Started = d.started; site.Order = d.order; if (d.paused) site.SetPaused(true);
+                 WorkPriorities.Set(site, d.priority, d.yellow);
+                 if (d.mark > 0)
+diff --git a/Assets/_Project/Scripts/Save/SaveDtos.cs b/Assets/_Project/Scripts/Save/SaveDtos.cs
+--- a/Assets/_Project/Scripts/Save/SaveDtos.cs
++++ b/Assets/_Project/Scripts/Save/SaveDtos.cs
+@@ -52,6 +52,8 @@
+     [Serializable]
+     public class CommanderDto
+     {
++        public bool hasOrder;
++        public CommanderOrderDto order; // v19
+         public int id;
+         public string name;
+         public int rank;
+@@ -210,6 +212,8 @@
+     [Serializable]
+     public class SiteDto
+     {
++        public bool defenseUnderAttack;
++        public string defenseFaction;
+         public bool rewardsClaimed;
+         public float growthTimer;
+         public EnemyColonyDto colony;
+@@ -230,6 +234,10 @@
+     [Serializable]
+     public class RouteDto
+     {
++        public List<string> nodes;
++        public int[] nextNode;
++        public bool rallying;
++        public List<int> crew = new List<int>();
+         public bool running;
+         public int destinationIndex = -1;
+         public float waitSeconds;
+@@ -291,7 +299,7 @@
+         public float upkeepTimer, incursionTimer;
+         public bool loopCompleted, bossDefeated, defeated;
+         public string randomState;
+-        public const int CurrentVersion = 18;
++        public const int CurrentVersion = 19;
+         public List<World.Corpse.State> corpses = new List<World.Corpse.State>();
+         public List<ConstructionDto> construction; // v17 건설·철거·이동·개보수 예정지(옛 저장은 null = 없음)
+         public List<World.Critter.State> critters; // v16 목장 생물 개체(2026-10-11 개편: 나이·배고픔·길들임·돌봄·결박 등, 옛 필드는 같은 이름으로 읽힘)
+@@ -337,6 +345,8 @@
+     [Serializable]
+     public class MonsterDto
+     {
++        public bool hasRuntime;
++        public WildMonsterDto runtime; // v19
+         public bool huntDesignated;
+         public World.WildlifeTemperament temperament = World.WildlifeTemperament.Predator;
+         public string diplomaticFactionId;
+diff --git a/Assets/_Project/Scripts/Save/SaveOrders.cs b/Assets/_Project/Scripts/Save/SaveOrders.cs
+new file mode 100644
+--- /dev/null
++++ b/Assets/_Project/Scripts/Save/SaveOrders.cs
+@@ -0,0 +1,101 @@
++using System;
++using System.Collections.Generic;
++using System.Linq;
++using AntColony.Buildings;
++using AntColony.Core;
++using AntColony.Units;
++using AntColony.World;
++using UnityEngine;
++
++namespace AntColony.Save
++{
++    [Serializable] public class SoldierOrderDto
++    {
++        public int state;
++        public string target;
++        public float attackTimer, searchTimer;
++        public bool attackMove, moving;
++        public Vec3Dto destination = new Vec3Dto(), attackDestination = new Vec3Dto();
++    }
++    [Serializable] public class WorkerOrderDto
++    {
++        public int state, fetchType, fetchAmount;
++        public string node, deposit, construction, delivery, fetchHost, fishingNode;
++        public bool fetchBase, depositBin;
++        public float buildTimer;
++    }
++    [Serializable] public class CommanderOrderDto
++    {
++        public SoldierOrderDto soldier;
++        public WorkerOrderDto worker;
++        public string service, hunt, automaticFacility;
++        public int serviceJob;
++        public float huntCooldown, workScan;
++    }
++    [Serializable] public class WildMonsterDto
++    {
++        public bool commander, raider, wasp, night, flying, allied, docile, provoked, visitor;
++        public string name, rebel, target, commanderName;
++        public int parentSite = -1, raidSite = -1, invasionSite = -2, defenseSite = -1, rank;
++        public List<int> roles = new List<int>();
++        public float maxHealth, detection, damage, range, interval, searchInterval, speed, attackTimer, searchTimer, siegeCheck, root;
++        public float captureChance, rotationY;
++        public Vec3Dto scale = new Vec3Dto(Vector3.one);
++    }
++
++    // Keys are shared by the existing building/node schema and active orders. No scene references enter JSON.
++    internal static class SaveReferences
++    {
++        private static readonly Dictionary<string, Component> objects = new Dictionary<string, Component>();
++        private static readonly Dictionary<Component, string> keys = new Dictionary<Component, string>();
++        internal static void Clear() { objects.Clear(); keys.Clear(); }
++        internal static void Register(string key, Component value)
++        {
++            if (value == null) return;
++            objects[key] = value;
++            if (!(value is ResourceNode) || !keys.TryGetValue(value, out var old) || !old.StartsWith("node:") || key.StartsWith("node:")) keys[value] = key;
++        }
++        internal static string Key(object value)
++        {
++            if (!(value is Component c) || c == null) return null;
++            if (keys.TryGetValue(c, out var key)) return key;
++            foreach (var component in c.GetComponents<Component>())
++                if (keys.TryGetValue(component, out key)) return key;
++            throw new InvalidOperationException("Unregistered save target: " + c.name + " / " + c.GetType().Name);
++        }
++        internal static T Get<T>(string key) where T : class
++        {
++            if (string.IsNullOrEmpty(key)) return null;
++            if (!objects.TryGetValue(key, out var c)) throw new InvalidOperationException("Missing save target: " + key);
++            if (c == null) return null;
++            var target = c as T ?? c.GetComponent(typeof(T)) as T;
++            if (target == null) throw new InvalidOperationException("Wrong saved target type: " + key + " / " + typeof(T).Name);
++            return target;
++        }
++        internal static void Building(string key, BuildingBase b)
++        {
++            Register("building:" + key, b);
++            if (b == null) return;
++            var nodes = b.GetComponentsInChildren<ResourceNode>(true);
++            for (int i = 0; i < nodes.Length; i++) Register("building:" + key + ":node:" + i, nodes[i]);
++        }
++        internal static void Colonies()
++        {
++            var world = WorldMapManager.Instance;
++            for (int i = -1; i < world.Sites.Count; i++)
++            {
++                var colony = i < 0 ? UnityEngine.Object.FindObjectsByType<EnemyColony>(FindObjectsSortMode.None)
++                    .FirstOrDefault(c => c.GetComponentInParent<ExpeditionSite>() == null) : world.Sites[i].Colony;
++                if (colony == null) continue;
++                for (int j = 0; j < colony.Buildings.Length; j++) Building("colony:" + i + ":" + j, colony.Buildings[j]);
++            }
++        }
++        internal static void Actors()
++        {
++            foreach (var actor in SaveCatalog.Ordered<EventActor>())
++                Register("event:" + (int)actor.Kind + ":" + JsonUtility.ToJson(new Vec3Dto(actor.transform.position)), actor);
++            foreach (var critter in Critter.All) Register("critter:" + critter.Id, critter.Monster);
++            foreach (var rebel in WildMonster.All.Where(m => !string.IsNullOrEmpty(m.RebelId))) Register("rebel:" + rebel.RebelId, rebel);
++        }
++    }
++}
+diff --git a/Assets/_Project/Scripts/Save/SaveOrderValidation.cs b/Assets/_Project/Scripts/Save/SaveOrderValidation.cs
+new file mode 100644
+--- /dev/null
++++ b/Assets/_Project/Scripts/Save/SaveOrderValidation.cs
+@@ -0,0 +1,86 @@
++using System;
++using System.Collections.Generic;
++using System.Linq;
++using AntColony.Data;
++using UnityEngine;
++
++namespace AntColony.Save
++{
++    internal static class SaveOrderValidation
++    {
++        private static void Check(bool valid, string field) { if (!valid) throw new InvalidOperationException("Invalid saved order: " + field); }
++        private static bool F(float n) => !float.IsNaN(n) && !float.IsInfinity(n) && Mathf.Abs(n) <= 1e8f;
++        private static bool N(float n) => F(n) && n >= 0;
++        private static bool V(Vec3Dto v) => v != null && v.IsFinite();
++        internal static void Validate(SaveFileV1 f)
++        {
++            var keys = new HashSet<string>();
++            void Add(string key) { Check(keys.Add(key), "duplicate reference " + key); }
++            void Building(string key, int nodes) { Add("building:" + key); for (int i = 0; i < nodes; i++) Add("building:" + key + ":node:" + i); }
++            for (int i = 0; i < f.commanders.Count; i++) Add("commander:" + i);
++            for (int i = 0; i < f.world.transports.Count; i++) Add("ship:" + i);
++            foreach (var d in f.buildings) Building(d.key, d.nodes.Count);
++            foreach (var d in f.nodes) Add("node:" + d.key);
++            foreach (var d in f.construction ?? new List<ConstructionDto>()) {
++                Add("construction:" + f.construction.IndexOf(d));
++                Check(d.needs.All(n => n.reserved >= 0 && (long)n.reserved + n.delivered <= n.need), "construction reservation");
++            }
++            for (int i = -1; i < f.world.sites.Count; i++) {
++                var c = i < 0 ? f.world.homeColony : f.world.sites[i].colony;
++                if (c != null) foreach (var n in c.nodes) Add("node:" + n.key);
++                if (c != null) for (int j = 0; j < c.buildingHealth.Count; j++) {
++                    // Enemy-colony resource node keys are also present in f.nodes; these aliases cover building targets.
++                    Add("building:colony:" + i + ":" + j);
++                }
++            }
++            foreach (var d in f.monsters) Add(d.key);
++            foreach (var a in f.events.actors) {
++                var key = "event:" + (int)a.kind + ":" + JsonUtility.ToJson(a.position);
++                if (!keys.Contains(key)) Add(key);
++            }
++            void Ref(string key) { Check(string.IsNullOrEmpty(key) || keys.Contains(key), "reference " + key); }
++            bool Site(int i) => i >= -1 && i < f.world.sites.Count;
++            foreach (var c in f.commanders) {
++                if (!c.hasOrder) continue;
++                var d = c.order; Check(d != null, "commander order");
++                var s = d.soldier; var w = d.worker;
++                Check(s != null && w != null && s.state >= 0 && s.state <= 3 && V(s.destination) && V(s.attackDestination)
++                    && F(s.attackTimer) && F(s.searchTimer), "soldier");
++                Check(w.state >= 0 && w.state <= 8 && Enum.IsDefined(typeof(ResourceType), w.fetchType) && w.fetchAmount >= 0 && N(w.buildTimer), "worker");
++                Check(F(d.huntCooldown) && F(d.workScan) && (d.serviceJob == 0 || Units.CommanderWorkState.Index((Units.CommanderJobs)d.serviceJob) >= 0), "commander work");
++                foreach (var key in new[] { s.target, w.node, w.deposit, w.construction, w.delivery, w.fetchHost, w.fishingNode, d.service, d.hunt, d.automaticFacility }) Ref(key);
++                Check(w.state != 1 && w.state != 2 || !string.IsNullOrEmpty(w.node), "gather target");
++                Check(w.state != 3 && w.state != 4 || !string.IsNullOrEmpty(w.deposit), "deposit target");
++                Check(w.state != 5 && w.state != 6 || !string.IsNullOrEmpty(w.construction), "construction target");
++                Check(w.state != 7 && w.state != 8 || !string.IsNullOrEmpty(w.delivery) && w.fetchAmount > 0, "delivery target");
++            }
++            for (int i = 0; i < f.world.transports.Count; i++) {
++                var d = f.world.transports[i].route;
++                Check(d.crew != null && d.crew.Count <= f.commanders.Count && d.crew.Distinct().Count() == d.crew.Count
++                    && d.crew.All(id => id >= 0 && id < f.commanders.Count && f.commanders[id].location == 1 && f.commanders[id].transportIndex == i), "crew ownership");
++                // Empty crew is the legacy format, reconstructed from commander ownership.
++                Check(d.crew.Count == 0 || d.crew.Count == f.commanders.Count(c => c.location == 1 && c.transportIndex == i), "crew completeness");
++                Check(d.nextNode == null || d.nodes != null && d.nodes.Count <= 10000 && d.nextNode.Length == d.crew.Count
++                    && d.nextNode.All(n => n >= 0 && n <= d.nodes.Count), "route cursor");
++                if (d.nodes != null) foreach (var key in d.nodes) Ref(key);
++            }
++            foreach (var d in f.monsters.Where(m => m.hasRuntime)) {
++                var m = d.runtime;
++                Check(m != null && m.maxHealth > 0 && N(m.maxHealth) && d.health <= m.maxHealth && Site(m.parentSite) && Site(m.raidSite)
++                    && m.invasionSite >= -2 && m.invasionSite < f.world.sites.Count && Site(m.defenseSite), "monster owner/health");
++                Check(new[] { m.detection, m.damage, m.range, m.interval, m.searchInterval, m.speed, m.root }.All(N)
++                    && V(m.scale) && F(m.rotationY) && F(m.attackTimer) && F(m.searchTimer) && F(m.siegeCheck) && N(m.captureChance) && m.captureChance <= 1, "monster timers/config");
++                Check(!m.commander || d.traits != null && m.roles != null && m.roles.Count > 0 && m.roles.Count <= 6
++                    && m.roles.All(r => Enum.IsDefined(typeof(UnitRole), r)) && Enum.IsDefined(typeof(CommanderRank), m.rank), "enemy commander");
++                Check(d.key.StartsWith("monster:") || d.key.StartsWith("runtime:") || d.key.StartsWith("event:") || d.key.StartsWith("critter:") || d.key.StartsWith("rebel:"), "monster key");
++                if (d.key.StartsWith("runtime:")) Check(int.TryParse(d.key.Substring(8), out var runtimeId) && runtimeId >= 0, "runtime key");
++                if (d.key.StartsWith("rebel:")) Check(f.diplomacy.rebelMembers.Any(r => "rebel:" + r.commander.PersonalState.id == d.key), "rebel identity");
++                if (d.key.StartsWith("critter:")) Check(f.critters != null && f.critters.Any(c => "critter:" + c.id == d.key), "critter identity");
++                if (d.key.StartsWith("event:")) Check(f.events.actors.Any(a => "event:" + (int)a.kind + ":" + JsonUtility.ToJson(a.position) == d.key), "event identity");
++                Ref(m.target);
++            }
++            foreach (var s in f.world.sites)
++                Check(!s.defenseUnderAttack || f.monsters.Any(m => m.hasRuntime && m.runtime.defenseSite == s.index && !m.runtime.allied && m.health > 0), "active defense attackers");
++        }
++    }
++}
+diff --git a/Assets/_Project/Scripts/Save/SavePreflight.cs b/Assets/_Project/Scripts/Save/SavePreflight.cs
+--- a/Assets/_Project/Scripts/Save/SavePreflight.cs
++++ b/Assets/_Project/Scripts/Save/SavePreflight.cs
+@@ -30,6 +30,9 @@
+         {
+             if (d == null) return;
+             Check(V(d.rootPosition) && N(d.waveTimer) && N(d.economyTimer) && d.waveIndex >= 0, "enemy colony");
++            L(d.nodes, 10000, "enemy colony nodes");
++            Check(d.nodes.All(n => n != null && n.key != null && N(n.amount) && N(n.regrowTimer) && N(n.sowRemaining) && V(n.position)
++                && Enum.IsDefined(typeof(ResourceType), n.type)), "enemy colony resource data");
+             L(d.buildingHealth, 10000, "enemy buildings"); L(d.extraBuildings, 10000, "building positions");
+             Check(d.buildingHealth.Count == d.extraBuildings.Count && d.buildingHealth.All(N) && d.extraBuildings.All(V), "enemy building data");
+         }
+@@ -186,7 +189,7 @@
+                     foreach (var item in s.equipmentCargo) Check(item != null && item.IsValid && equipmentIds.Add(item.id), "equipment cargo ownership");
+                     if (s.state == 1 || s.state == 2) Check(occupied.Add(s.siteIndex), "duplicate visitor");
+                     Check(s.route != null && N(s.route.waitSeconds) && s.route.destinationIndex >= -1 && s.route.destinationIndex < f.world.sites.Count
+-                        && (!s.route.running || s.route.destinationIndex >= 0 && f.world.sites[s.route.destinationIndex].disposition == 1 && s.state != 2), "route");
++                        && (!s.route.running || s.route.destinationIndex >= 0 && f.world.sites[s.route.destinationIndex].disposition == 1 ), "route");
+                     var crew = f.commanders.Where(c => c.location == 1 && c.transportIndex == i).ToArray();
+                     var heavy = f.campaign.completed.Contains((int)Core.ScienceTechnology.HeavyTransport);
+                     Check(crew.Sum(c => (long)c.troopCount) <= (s.aircraft ? Core.GameBalance.AircraftTroops : Core.GameBalance.VehicleTroops) * (heavy ? 1.5f : 1f)
+@@ -199,6 +202,7 @@
+                 foreach (var m in f.monsters) if (m.traits != null)
+                 { Traits(m.traits); Check(m.talents != null && m.talents.Validate(), "enemy talents"); }
+                 Check(f.monsters.All(m => string.IsNullOrEmpty(m.diplomaticFactionId) || f.diplomacy.civilizations.Any(c => c.id == m.diplomaticFactionId)), "enemy faction");
++                SaveOrderValidation.Validate(f);
+                 return true;
+             }
+             catch (Exception e) { error = e.Message; return false; }
+@@ -221,12 +225,13 @@
+                 Check(f.nodes.Count(n => !n.key.StartsWith("new:") && !n.key.StartsWith("mat:")) == SaveCatalog.Nodes.Length, "scene nodes");
+                 foreach (var n in f.nodes) Check(n.key.StartsWith("new:") || n.key.StartsWith("mat:") && int.TryParse(n.key.Substring(4), out var m) && m >= 0 || int.TryParse(n.key, out var i) && i >= 0 && i < SaveCatalog.Nodes.Length, "node index");
+                 Check(f.monsters.Count(m => m.key.StartsWith("monster:")) == SaveCatalog.Monsters.Length && f.monsters.Count(m => m.key.StartsWith("boss:")) == SaveCatalog.Bosses.Length, "scene enemies");
+-                foreach (var m in f.monsters) { var key = m.key.Split(':'); Check(key.Length >= 2 && int.TryParse(key[1], out _), "enemy key"); var i = int.Parse(key[1]);
++                foreach (var m in f.monsters) { if (m.hasRuntime && !m.key.StartsWith("monster:")) continue; var key = m.key.Split(':'); Check(key.Length >= 2 && int.TryParse(key[1], out _), "enemy key"); var i = int.Parse(key[1]);
+                     Check(i >= 0 && (key[0] == "monster" && i < SaveCatalog.Monsters.Length || key[0] == "boss" && i < SaveCatalog.Bosses.Length
+                         || key[0] == "occupier" && i < f.world.sites.Count && f.world.sites[i].disposition == 3), "enemy index"); }
+                 // JsonUtility writes null inline classes as empty objects.
+                 for (var i = 0; i < f.world.sites.Count; i++) Check((i >= SaveCatalog.ColonySizes.Length || SaveCatalog.ColonySizes[i] == 0) ? f.world.sites[i].colony == null || f.world.sites[i].colony.buildingHealth.Count == 0
+                     : f.world.sites[i].colony != null && f.world.sites[i].colony.buildingHealth.Count >= SaveCatalog.ColonySizes[i], "colony schema");
++                SaveOrderValidation.Validate(f);
+                 return true;
+             }
+             catch (Exception e) { error = e.Message; return false; }
+diff --git a/Assets/_Project/Scripts/Save/SaveRuntime.cs b/Assets/_Project/Scripts/Save/SaveRuntime.cs
+new file mode 100644
+--- /dev/null
++++ b/Assets/_Project/Scripts/Save/SaveRuntime.cs
+@@ -0,0 +1,103 @@
++using System;
++using System.Collections.Generic;
++using System.Linq;
++using AntColony.Buildings;
++using AntColony.Core;
++using AntColony.Data;
++using AntColony.Units;
++using AntColony.World;
++using UnityEngine;
++using Object = UnityEngine.Object;
++
++namespace AntColony.Save
++{
++    internal static class SaveRuntime
++    {
++        internal static void RegisterMonsters()
++        {
++            for (int i = 0; i < SaveCatalog.Monsters.Length; i++) SaveReferences.Register("monster:" + i, SaveCatalog.Monsters[i]);
++            int next = 0;
++            foreach (var m in SaveCatalog.Ordered<WildMonster>().Where(m => !SaveCatalog.Monsters.Contains(m)
++                && m.GetComponent<EventActor>() == null && m.GetComponent<Critter>() == null && string.IsNullOrEmpty(m.RebelId)))
++                SaveReferences.Register("runtime:" + next++, m);
++            for (int i = 0; i < SaveCatalog.Bosses.Length; i++) SaveReferences.Register("boss:" + i, SaveCatalog.Bosses[i]);
++        }
++        internal static void CaptureMonsters(SaveFileV1 file)
++        {
++            for (int i = 0; i < SaveCatalog.Monsters.Length; i++)
++                file.monsters.Add(Capture(SaveCatalog.Monsters[i], "monster:" + i));
++            foreach (var m in SaveCatalog.Ordered<WildMonster>().Where(m => !SaveCatalog.Monsters.Contains(m)))
++                file.monsters.Add(Capture(m, SaveReferences.Key(m)));
++        }
++        private static MonsterDto Capture(WildMonster m, string key) => new MonsterDto { key = key,
++            health = m != null ? m.CurrentHealth : 0, position = new Vec3Dto(m != null ? m.Position : Vector3.zero),
++            hasRuntime = m != null, runtime = m != null ? m.CaptureRuntime() : null, diplomaticFactionId = m?.DiplomaticFactionId,
++            temperament = m != null ? m.Temperament : WildlifeTemperament.Predator, huntDesignated = m != null && m.HuntDesignated,
++            traits = m is EnemyCommander c ? SaveCatalog.Traits(c.Traits) : null,
++            talents = m is EnemyCommander ec ? ec.Talents.Copy() : null };
++
++        internal static void RestoreMonsters(SaveFileV1 file)
++        {
++            var world = WorldMapManager.Instance;
++            var restored = new Dictionary<string, WildMonster>();
++            foreach (var d in file.monsters.Where(d => d.hasRuntime))
++            {
++                var state = d.runtime;
++                WildMonster m;
++                if (d.key.StartsWith("monster:")) m = SaveCatalog.Monsters[int.Parse(d.key.Substring(8))];
++                else if (!d.key.StartsWith("runtime:")) m = SaveReferences.Get<WildMonster>(d.key);
++                else
++                {
++                    var parent = state.parentSite < 0 ? null : world.Sites[state.parentSite].transform;
++                    var invasion = state.invasionSite < -1 ? null : state.invasionSite < 0
++                        ? Object.FindObjectsByType<ColonyInvasion>(FindObjectsSortMode.None).FirstOrDefault(c => c.GetComponentInParent<ExpeditionSite>() == null)
++                        : world.Sites[state.invasionSite].Colony?.GetComponent<ColonyInvasion>();
++                    if (invasion != null) m = invasion.RestoreSpawn(state.commander, d.position.ToVector3());
++                    else if (state.visitor && Object.FindFirstObjectByType<LocalIncursions>() is LocalIncursions local)
++                        m = local.RestoreSpawn(state.commander, d.position.ToVector3());
++                    else if (state.commander)
++                    {
++                        var template = state.parentSite >= 0 ? world.Sites[state.parentSite].GuardTemplate
++                            : world.Sites.FirstOrDefault(s => s.GuardTemplate != null)?.GuardTemplate;
++                        if (template == null) throw new InvalidOperationException("Missing runtime commander template.");
++                        m = Object.Instantiate(template, d.position.ToVector3(), Quaternion.identity, parent);
++                    }
++                    else
++                    {
++                        var go = GameObject.CreatePrimitive(PrimitiveType.Capsule); go.SetActive(false);
++                        go.transform.SetParent(parent); go.transform.position = d.position.ToVector3();
++                        m = go.AddComponent<WildMonster>();
++                    }
++                }
++                if (m == null) { if (d.health > 0) throw new InvalidOperationException("Missing saved enemy: " + d.key); continue; }
++                m.gameObject.SetActive(false); m.Agent.enabled = false;
++                m.transform.SetParent(state.parentSite < 0 ? null : world.Sites[state.parentSite].transform, true);
++                m.name = state.name; m.transform.position = d.position.ToVector3();
++                m.transform.rotation = Quaternion.Euler(0, state.rotationY, 0); m.transform.localScale = state.scale.ToVector3();
++                if (state.raider) m.MakeRaider();
++                m.DiplomaticFactionId = d.diplomaticFactionId; m.Temperament = d.temperament; m.HuntDesignated = d.huntDesignated;
++                if (m is EnemyCommander c && d.traits != null) {
++                    c.ConfigureCommander(state.commanderName, (CommanderRank)state.rank, state.roles.Select(r => (UnitRole)r).ToArray(), SaveCatalog.Traits(d.traits));
++                    c.RestoreTalents(d.talents); c.CaptureChance = state.captureChance;
++                }
++                // OnEnable initializes health. Apply saved health and combat timers after activation; never Die/TakeDamage.
++                m.RestoreHealth(d.health); m.RestoreRuntime(state);
++                SaveReferences.Register(d.key, m); restored[d.key] = m;
++                if (state.visitor) Object.FindFirstObjectByType<LocalIncursions>()?.RestoreVisitor(m);
++                if (state.invasionSite >= -1) {
++                    var colony = state.invasionSite < 0 ? Object.FindObjectsByType<EnemyColony>(FindObjectsSortMode.None)
++                        .FirstOrDefault(cn => cn.GetComponentInParent<ExpeditionSite>() == null) : world.Sites[state.invasionSite].Colony;
++                    colony?.GetComponent<ColonyInvasion>()?.RestoreRaider(m);
++                }
++            }
++            foreach (var d in file.monsters.Where(d => d.hasRuntime))
++                if (restored.TryGetValue(d.key, out var m)) m.RestoreRuntime(d.runtime, true);
++            for (int i = 0; i < world.Sites.Count; i++) {
++                var site = file.world.sites[i];
++                world.Sites[i].Defense?.RestoreAttack(site.defenseUnderAttack, site.defenseFaction,
++                    file.monsters.Where(d => d.hasRuntime && d.runtime.defenseSite == i && d.health > 0)
++                        .Select(d => restored[d.key]));
++            }
++        }
++    }
++}
+diff --git a/Assets/_Project/Scripts/Save/SaveSnapshot.cs b/Assets/_Project/Scripts/Save/SaveSnapshot.cs
+--- a/Assets/_Project/Scripts/Save/SaveSnapshot.cs
++++ b/Assets/_Project/Scripts/Save/SaveSnapshot.cs
+@@ -18,11 +18,17 @@
+         public static SaveFileV1 Capture()
+         {
+             if (!SaveCatalog.CanSave(out var error)) throw new InvalidOperationException(error);
++            SaveReferences.Clear();
+             var rm = ResourceManager.Instance;
+             var pool = AntPool.Instance;
+             var world = WorldMapManager.Instance;
+             var options = GameSession.Instance.Options;
+             var commanders = CommanderRoster.Instance.Commanders.ToList();
++            var ships = world.Transports.Where(s => s != null).ToList();
++            for (int i = 0; i < commanders.Count; i++) SaveReferences.Register("commander:" + i, commanders[i]);
++            for (int i = 0; i < ships.Count; i++) SaveReferences.Register("ship:" + i, ships[i]);
++            SaveReferences.Colonies(); SaveReferences.Actors();
++            SaveRuntime.RegisterMonsters();
+             var file = new SaveFileV1 { savedAtUtc = DateTime.UtcNow.ToString("O"), unityVersion = Application.unityVersion,
+                 label = options.mapSize + " / " + options.difficulty, playSeconds = GameSession.Instance.PlaySeconds, gameSeconds = GameSession.Instance.GameSeconds,
+                 options = new OptionsDto { mapSize = (int)options.mapSize, difficulty = (int)options.difficulty, commanderDeath = (int)options.commanderDeath, seed = options.seed, biome = (int)options.biome },
+@@ -66,17 +72,7 @@
+             for (var i = 0; i < Map.MaterialDeposits.Spawned.Count; i++) file.nodes.Add(Node(Map.MaterialDeposits.Spawned[i], "mat:" + i));
+             foreach (var n in SaveCatalog.Ordered<ResourceNode>().Where(n => n.GetComponent<Map.MaterialDeposit>() == null && !SaveCatalog.Nodes.Contains(n) && n.GetComponentInParent<BuildingBase>() == null && n.GetComponent<EventActor>() == null && n.GetComponent<Corpse>() == null))
+                 file.nodes.Add(Node(n, "new:" + file.nodes.Count));
+-            for (var i = 0; i < SaveCatalog.Monsters.Length; i++)
+-            {
+-                var m = SaveCatalog.Monsters[i];
+-                file.monsters.Add(new MonsterDto { key = "monster:" + i, huntDesignated = m != null && m.HuntDesignated, temperament = m != null ? m.Temperament : WildlifeTemperament.Predator, health = m != null ? m.CurrentHealth : 0,
+-                    position = new Vec3Dto(m != null ? m.Position : Vector3.zero), traits = m is EnemyCommander ec ? SaveCatalog.Traits(ec.Traits) : null,
+-                    talents = m is EnemyCommander enemy ? enemy.Talents.Copy() : null });
+-            }
+-            foreach (var m in SaveCatalog.Ordered<WildMonster>().Where(m => !SaveCatalog.Monsters.Contains(m) && m.GetComponent<EventActor>() == null && m.GetComponent<Critter>() == null && string.IsNullOrEmpty(m.RebelId)))
+-                file.monsters.Add(new MonsterDto { key = "occupier:" + SaveCatalog.SiteIndex(m.GetComponentInParent<ExpeditionSite>()) + ":" + file.monsters.Count,
+-                    health = m.CurrentHealth, diplomaticFactionId = m.DiplomaticFactionId, position = new Vec3Dto(m.Position), traits = m is EnemyCommander ec ? SaveCatalog.Traits(ec.Traits) : null,
+-                    talents = m is EnemyCommander enemy ? enemy.Talents.Copy() : null });
++            SaveRuntime.CaptureMonsters(file);
+             for (var i = 0; i < SaveCatalog.Bosses.Length; i++)
+             { var b = SaveCatalog.Bosses[i]; file.monsters.Add(new MonsterDto { key = "boss:" + i, health = b != null ? b.CurrentHp : 0,
+                 position = new Vec3Dto(b != null ? b.Position : Vector3.zero) }); }
+@@ -87,6 +83,7 @@
+                 rewardsClaimed = site.RewardsClaimed,
+                 disposition = (int)site.Disposition, growthTimer = site.GrowthTimer, colony = Colony(site.Colony),
+                 settlementElapsed = site.Settlement?.Elapsed ?? 0, defenseRemaining = site.Defense?.Remaining ?? 0,
++                defenseUnderAttack = site.Defense?.UnderAttack ?? false, defenseFaction = site.Defense?.CaptureFaction(),
+                 defenseCaptureProgress = site.Defense?.CaptureProgress ?? 0 });
+             var home = Object.FindObjectsByType<EnemyColony>(FindObjectsSortMode.None).FirstOrDefault(c => c.GetComponentInParent<ExpeditionSite>() == null);
+             file.world.hadHomeColony = home != null; file.world.homeColony = Colony(home);
+@@ -98,20 +95,31 @@
+             var camera = Object.FindFirstObjectByType<AntColony.Camera.IsometricCameraController>();
+             file.camera = new CameraDto { focus = new Vec3Dto(camera.FocusPoint), yaw = camera.Yaw,
+                 orthoSize = camera.GetComponent<UnityEngine.Camera>().orthographicSize, viewedSite = SaveCatalog.SiteIndex(world.ViewedSite) };
++            SaveReferences.Colonies();
++            for (int i = 0; i < commanders.Count; i++) { file.commanders[i].order = commanders[i].CaptureOrder(); file.commanders[i].hasOrder = true; }
++            for (int i = 0; i < file.world.transports.Count; i++) {
++                var ship = ships[i]; ship.Route.CaptureProgress(file.world.transports[i].route);
++                file.world.transports[i].route.crew = ship.Crew.Select(c => commanders.IndexOf(c)).ToList();
++            }
+             file.discoveries = Encyclopedia.Entries.ToList();
+             return file;
+         }
+ 
+-        private static ResourceNodeDto Node(ResourceNode n, string key) => new ResourceNodeDto { key = key, exists = n != null,
++        private static ResourceNodeDto Node(ResourceNode n, string key)
++        {
++            SaveReferences.Register("node:" + key, n);
++            return new ResourceNodeDto { key = key, exists = n != null,
+             looseCargo = n != null && n.IsLooseCargo,
+             amount = n != null ? n.AmountRemaining : 0, regrowTimer = n != null ? n.RegrowTimeRemaining : 0, sowRemaining = n != null ? n.SowRemaining : 0, bountifulHarvest = n != null && n.BountifulHarvest, gatheringForbidden = n != null && n.GatheringForbidden, fishMonth = n != null ? n.FishSeason : -1, lots = n != null && n.TryGetComponent<FloorFood>(out var food) ? food.Sync() : null,
+             position = new Vec3Dto(n != null ? n.transform.position : Vector3.zero), type = n != null ? (int)n.ResourceType : 0 };
++        }
+ 
+         private static EnemyColonyDto Colony(EnemyColony c)
+         {
+             if (c == null) return null;
+             var invasion = c.GetComponent<ColonyInvasion>();
+-            return new EnemyColonyDto { rootPosition = new Vec3Dto(c.transform.position),
++            var site = SaveCatalog.SiteIndex(c.GetComponentInParent<ExpeditionSite>());
++            return new EnemyColonyDto { nodes = c.GetComponentsInChildren<ResourceNode>(true).Select((n, i) => Node(n, "colony:" + site + ":" + i)).ToList(), rootPosition = new Vec3Dto(c.transform.position),
+                 buildingHealth = c.Buildings.Select(b => b != null ? b.CurrentHealth : 0).ToList(),
+                 extraBuildings = c.Buildings.Select(b => new Vec3Dto(b != null ? b.Position : Vector3.zero)).ToList(),
+                 waveTimer = invasion?.WaveTimer ?? 0, economyTimer = invasion?.EconomyTimer ?? 0, waveIndex = invasion?.WaveIndex ?? 0 };
+@@ -130,11 +138,23 @@
+                 if (d.buildingHealth[i] <= 0) { b.gameObject.SetActive(false); Object.Destroy(b.gameObject); }
+                 else { b.transform.position = d.extraBuildings[i].ToVector3(); b.RestoreHealth(d.buildingHealth[i]); }
+             }
++            var nodes = c.GetComponentsInChildren<ResourceNode>(true).ToList();
++            for (int i = 0; i < d.nodes.Count; i++) {
++                var n = d.nodes[i];
++                var node = nodes.FirstOrDefault(x => (int)x.ResourceType == n.type && (x.transform.position - n.position.ToVector3()).sqrMagnitude < .09f);
++                if (node == null) throw new InvalidOperationException("Missing colony resource node: " + n.key);
++                nodes.Remove(node); node.transform.position = n.position.ToVector3();
++                node.RestoreState(n.amount, n.regrowTimer, n.sowRemaining); node.FishSeason = n.fishMonth;
++                node.IsLooseCargo = n.looseCargo; node.BountifulHarvest = n.bountifulHarvest; node.GatheringForbidden = n.gatheringForbidden;
++                if (n.lots != null && node.TryGetComponent<FloorFood>(out var food)) food.Lots = n.lots;
++                SaveReferences.Register("node:" + n.key, node);
++            }
+             c.GetComponent<ColonyInvasion>()?.RestoreTimers(d.waveTimer, d.economyTimer, d.waveIndex);
+         }
+ 
+         internal static IEnumerator Restore(SaveFileV1 file)
+         {
++            SaveReferences.Clear();
+             var world = WorldMapManager.Instance;
+             CommanderRoster.Instance.ClearAll();
+             yield return null; // OnDestroy의 병력 반환을 끝낸 뒤 저장된 풀을 적용한다.
+@@ -161,6 +181,7 @@
+                     node = m < Map.MaterialDeposits.Spawned.Count ? Map.MaterialDeposits.Spawned[m] : null;
+                 }
+                 else node = SaveCatalog.Nodes[int.Parse(d.key)];
++                SaveReferences.Register("node:" + d.key, node);
+                 if (node == null) continue;
+                 if (!d.exists) { Object.Destroy(node.gameObject); continue; }
+                 node.transform.position = d.position.ToVector3(); node.RestoreState(d.amount, d.regrowTimer, d.sowRemaining);
+@@ -170,15 +191,17 @@
+             }
+             foreach (var d in file.monsters)
+             {
++                if (d.hasRuntime) continue;
+                 var parts = d.key.Split(':'); var index = int.Parse(parts[1]);
+                 if (parts[0] == "boss")
+                 {
+-                    var b = SaveCatalog.Bosses[index]; if (b == null) continue;
++                    var b = SaveCatalog.Bosses[index]; SaveReferences.Register(d.key, b); if (b == null) continue;
+                     if (d.health <= 0) b.RestoreDefeated(); else { b.transform.position = d.position.ToVector3(); b.RestoreHp(d.health); }
+                     continue;
+                 }
+                 var m = parts[0] == "monster" ? SaveCatalog.Monsters[index]
+                     : Object.Instantiate(world.Sites[index].GuardTemplate, d.position.ToVector3(), Quaternion.identity, world.Sites[index].transform);
++                SaveReferences.Register(d.key, m);
+                 if (m == null) continue;
+                 m.DiplomaticFactionId = d.diplomaticFactionId; m.HuntDesignated = d.huntDesignated; m.Temperament = d.temperament;
+                 if (parts[0] == "occupier") m.RaidSettlement(world.Sites[index]);
+@@ -193,7 +216,7 @@
+             var ships = new List<ExpeditionTransport>();
+             foreach (var d in file.world.transports)
+             {
+-                var ship = world.CreateTransport(d.aircraft, d.homePosition.ToVector3()); ships.Add(ship);
++                var ship = world.CreateTransport(d.aircraft, d.homePosition.ToVector3()); SaveReferences.Register("ship:" + ships.Count, ship); ships.Add(ship);
+                 ship.BlueprintCargo = d.blueprintCargo; ship.EquipmentCargo = d.equipmentCargo.Select(e => JsonUtility.FromJson<EquipmentItem>(JsonUtility.ToJson(e))).ToList();
+                 ship.RestoreState((ExpeditionState)d.state, d.remaining, d.siteIndex < 0 ? null : world.Sites[d.siteIndex],
+                     d.position.ToVector3(), d.homePosition.ToVector3(), d.cargoFood, d.cargoSoil, d.cargoSpecial);
+@@ -205,6 +228,7 @@
+                 var c = CommanderRoster.Instance.CreateForLoad(d.name, CommanderRank.Sergeant, new[] { UnitRole.Worker },
+                     UnitRole.Worker, SaveCatalog.Traits(d.traits), world.HomePosition + Vector3.right * 3);
+                 if (c == null) throw new InvalidOperationException("No navigable commander spawn.");
++                SaveReferences.Register("commander:" + commanders.Count, c);
+                 commanders.Add(c); c.RestorePersonalState(d.personalState); c.RestoreTroops(d.troopCount, d.pendingDamage); c.RestoreCargo(d.carriedAmount, (ResourceType)d.carriedType, d.carriedLots); c.RestoreFishing(d.fishingProgress); c.RestoreLabLevels(d.labAttackLevel, d.labArmorLevel);
+                 c.RestoreTalents(d.talents);
+                 c.Skills.Restore(d.strikeArmed, d.strikeCooldown, d.stanceCooldown, d.stanceTime);
+@@ -215,12 +239,14 @@
+             }
+             for (var i = 0; i < ships.Count; i++)
+             {
+-                ships[i].RestoreCrew(file.commanders.Where(d => d.location == 1 && d.transportIndex == i).Select(d => commanders[d.id]).ToList());
++                ships[i].RestoreCrew(file.world.transports[i].route.crew.Count > 0
++                    ? file.world.transports[i].route.crew.Select(id => commanders[id]).ToList()
++                    : file.commanders.Where(d => d.location == 1 && d.transportIndex == i).Select(d => commanders[d.id]).ToList());
+                 if (ships[i].State == ExpeditionState.Deployed)
+                     foreach (var d in file.commanders.Where(d => d.location == 1 && d.transportIndex == i)) commanders[d.id].SetEmbarked(false, d.position.ToVector3());
+             }
+             var restoredBuildings = new List<(BuildingBase building, BuildingDto dto)>();
+-            foreach (var d in file.buildings) { var b = SaveBuildings.Resolve(d); SaveBuildings.Restore(b, d, commanders); restoredBuildings.Add((b, d)); }
++            foreach (var d in file.buildings) { var b = SaveBuildings.Resolve(d); SaveBuildings.Restore(b, d, commanders); SaveReferences.Building(d.key, b); restoredBuildings.Add((b, d)); }
+             yield return null; // 제거된 건물의 OnDisable/창고 상한 변경 후 확정값 복원.
+             CampaignResearch.Instance?.RestoreState(file.campaign);
+             // 감시탑 복원 후 감시 범위를 반영해 진행 중이던 사전 경보를 복구한다.
+@@ -228,7 +254,7 @@
+             // 방어시설 내구 단계가 복원된 뒤 체력을 다시 넣어야 상한에 잘리지 않는다.
+             foreach (var (b, d) in restoredBuildings) if (b != null && d.kind != "Destroyed") b.RestoreHealth(d.health);
+             // 건물·불 복원 뒤 장수 서비스 지시(소화 등)를 다시 건다. 경로는 새로 계산한다.
+-            foreach (var (b, d) in restoredBuildings) if (b != null && d.serviceCommander >= 0) commanders[d.serviceCommander].StartService(b, (CommanderJobs)d.serviceJob);
++            foreach (var (b, d) in restoredBuildings) if (b != null && d.serviceCommander >= 0 && !file.commanders[d.serviceCommander].hasOrder) commanders[d.serviceCommander].StartService(b, (CommanderJobs)d.serviceJob);
+             var p = file.colony;
+             // Older saves include base warehouse capacity only, even if Fermentation was researched.
+             var storageBonus = Vector3Int.zero;
+@@ -260,6 +286,15 @@
+             foreach (var corpse in Corpse.All.ToArray())
+                 commanders.FirstOrDefault(c => c.PersonalState.id == corpse.Data.workerId)?.RestoreCorpseWork(corpse);
+             Memorial.Restore(file.memorial); CampaignHistory.Instance.Restore(file.history); ColonyEvents.Instance.Restore(file.events); ColonyPopulation.Instance?.Restore(file.population); AntColony.Map.WeatherSystem.Instance?.RestoreState(file.weather); DiplomacyManager.Instance.RestoreRebels(); WorkPriorities.Restore(file.workPriorities);
++            SaveReferences.Colonies(); SaveReferences.Actors();
++            SaveRuntime.RestoreMonsters(file);
++            for (int i = 0; i < commanders.Count; i++) if (file.commanders[i].hasOrder) commanders[i].RestoreOrder(file.commanders[i].order);
++            // BeginPickup restores the courier ledger; restore the independent unpicked reservations afterwards.
++            foreach (var d in file.construction ?? new List<ConstructionDto>()) {
++                var site = SaveReferences.Get<BuildingConstructionSite>("construction:" + file.construction.IndexOf(d));
++                if (site != null) for (int i = 0; i < d.needs.Count; i++) site.Needs[i].reserved = d.needs[i].reserved;
++            }
++            for (int i = 0; i < ships.Count; i++) ships[i].Route.RestoreProgress(file.world.transports[i].route);
+             CommanderAnt.RefreshDepartureNotice();
+             UnityEngine.Random.state = JsonUtility.FromJson<UnityEngine.Random.State>(file.randomState);
+         }
+diff --git a/Assets/_Project/Scripts/Save/SaveSystem.cs b/Assets/_Project/Scripts/Save/SaveSystem.cs
+--- a/Assets/_Project/Scripts/Save/SaveSystem.cs
++++ b/Assets/_Project/Scripts/Save/SaveSystem.cs
+@@ -13,7 +13,7 @@
+         public static bool Busy { get; internal set; }
+         internal static SaveFileV1 Rollback;
+         private float elapsed, retry;
+-        private void Update()
++        private void LateUpdate()
+         {
+             if (!GameSession.Instance.GameStarted || Busy) return;
+             elapsed += Time.deltaTime; retry -= Time.unscaledDeltaTime;
+@@ -28,6 +28,7 @@
+             {
+                 if (Busy || !GameSession.Instance.GameStarted) throw new InvalidOperationException("No playable session to save.");
+                 if (index < 0 || index >= (auto ? SaveSlots.AutoSlotCount : SaveSlots.ManualSlotCount)) throw new ArgumentOutOfRangeException(nameof(index));
++                // Capture and atomic write do not yield. Autosaves run after Update; menu saves run while paused.
+                 var file = SaveSnapshot.Capture();
+                 if (!SavePreflight.ForScene(file, out error)) return false;
+                 SaveStorage.WriteAtomic(SaveSlots.PathFor(auto, index), JsonUtility.ToJson(file, true));
+diff --git a/Assets/_Project/Scripts/Save/SaveValidator.cs b/Assets/_Project/Scripts/Save/SaveValidator.cs
+--- a/Assets/_Project/Scripts/Save/SaveValidator.cs
++++ b/Assets/_Project/Scripts/Save/SaveValidator.cs
+@@ -219,6 +219,7 @@
+                 file.version = 17;
+             }
+             if (file.version == 17) BodyMigration.Upgrade(file); // 2026-10-18 캐릭터 전환: 신체 부위 두 팔·두 다리
++            if (file.version == 18) file.version = 19; // Legacy saves have no active orders or runtime combat state.
+             if (file.version != SaveFileV1.CurrentVersion)
+             {
+                 error = $"Save version {file.version} cannot be read by this build (expects {SaveFileV1.CurrentVersion}).";
+diff --git a/Assets/_Project/Scripts/Units/CommanderWork.cs b/Assets/_Project/Scripts/Units/CommanderWork.cs
+--- a/Assets/_Project/Scripts/Units/CommanderWork.cs
++++ b/Assets/_Project/Scripts/Units/CommanderWork.cs
+@@ -8,6 +8,21 @@
+ {
+     public partial class CommanderAnt
+     {
++        internal Save.CommanderOrderDto CaptureOrder() => new Save.CommanderOrderDto {
++            soldier = CaptureSoldierOrder(), worker = CaptureWorkerOrder(), service = Save.SaveReferences.Key(ServiceTarget),
++            serviceJob = (int)ServiceJob, hunt = Save.SaveReferences.Key(HuntTarget), huntCooldown = huntCooldown,
++            automaticFacility = Save.SaveReferences.Key(automaticFacility), workScan = workScan };
++        internal void RestoreOrder(Save.CommanderOrderDto d)
++        {
++            if (d == null) return;
++            RestoreWorkerOrder(d.worker);
++            ServiceTarget = Save.SaveReferences.Get<BuildingBase>(d.service); ServiceJob = (CommanderJobs)d.serviceJob;
++            HuntTarget = Save.SaveReferences.Get<WildMonster>(d.hunt); huntCooldown = d.huntCooldown;
++            automaticFacility = Save.SaveReferences.Get<BuildingBase>(d.automaticFacility); workScan = d.workScan;
++            if (ServiceTarget != null) SetWorkTarget(ServiceTarget);
++            RestoreSoldierOrder(d.soldier);
++        }
++
+         public BuildingBase ServiceTarget { get; private set; }
+         public CommanderJobs ServiceJob { get; private set; }
+         public WildMonster HuntTarget { get; private set; }
+diff --git a/Assets/_Project/Scripts/Units/SoldierAnt.cs b/Assets/_Project/Scripts/Units/SoldierAnt.cs
+--- a/Assets/_Project/Scripts/Units/SoldierAnt.cs
++++ b/Assets/_Project/Scripts/Units/SoldierAnt.cs
+@@ -30,11 +30,26 @@
+         private float attackTimer;
+         private float autoEngageTimer;
+         private Vector3 flightDestination;
++        private Vector3 savedMoveDestination;
+ 
+         // 어택무브(공격 이동) 중 경로상에서 자동으로 교전한 것이면 true.
+         // 그 대상이 죽으면 원래 어택무브 목적지로 이동을 이어간다(원본 SIMUL-TeaamProject AntAttack.Chasing과 동일 컨벤션).
+         private bool isOnAttackMove;
+         private Vector3 attackMoveDestination;
++
++        internal Save.SoldierOrderDto CaptureSoldierOrder() => new Save.SoldierOrderDto {
++            state = (int)state, target = Save.SaveReferences.Key(currentTarget), attackTimer = attackTimer, searchTimer = autoEngageTimer,
++            attackMove = isOnAttackMove, attackDestination = new Save.Vec3Dto(attackMoveDestination),
++            moving = IsFlying ? !HasReachedDestination() : Agent.enabled && Agent.isOnNavMesh && (Agent.hasPath || Agent.pathPending),
++            destination = new Save.Vec3Dto(savedMoveDestination) };
++        internal void RestoreSoldierOrder(Save.SoldierOrderDto d)
++        {
++            if (d == null) return;
++            state = (State)d.state; currentTarget = Save.SaveReferences.Get<IDamageable>(d.target);
++            attackTimer = d.attackTimer; autoEngageTimer = d.searchTimer; isOnAttackMove = d.attackMove;
++            attackMoveDestination = d.attackDestination.ToVector3();
++            if (d.moving) SetMoveDestination(d.destination.ToVector3()); else StopMoving();
++        }
+ 
+         // 비행은 별도 클래스가 아니라 현재 역할로 결정된다. 지휘관이 Flying으로 역할을 바꾸면 즉시 비행한다.
+         public virtual bool IsFlying => Data != null && Data.role == UnitRole.Flying;
+@@ -128,6 +143,7 @@
+         // 이동 지시/도착 판정/대상 거리 계산은 비행 여부에 따라 갈린다.
+         protected virtual void SetMoveDestination(Vector3 destination)
+         {
++            savedMoveDestination = destination;
+             if (IsFlying)
+             {
+                 flightDestination = ToFlightPoint(destination);
+diff --git a/Assets/_Project/Scripts/Units/WorkerAnt.cs b/Assets/_Project/Scripts/Units/WorkerAnt.cs
+--- a/Assets/_Project/Scripts/Units/WorkerAnt.cs
++++ b/Assets/_Project/Scripts/Units/WorkerAnt.cs
+@@ -37,6 +37,29 @@
+         private AntColony.Data.ResourceType carriedType;
+         private BuildingConstructionSite targetConstruction;
+         private float buildTimer;
++
++        internal Save.WorkerOrderDto CaptureWorkerOrder() => new Save.WorkerOrderDto {
++            state = (int)state, node = Save.SaveReferences.Key(targetNode), deposit = Save.SaveReferences.Key(targetDeposit),
++            construction = Save.SaveReferences.Key(targetConstruction), delivery = Save.SaveReferences.Key(deliverySite),
++            fetchHost = Save.SaveReferences.Key(fetchBin?.Host), fetchBase = fetchBin != null && fetchBin.IsBase,
++            depositBin = targetBin != null, fetchType = (int)fetchType, fetchAmount = fetchAmount,
++            fishingNode = Save.SaveReferences.Key(fishingNode), buildTimer = buildTimer };
++        internal void RestoreWorkerOrder(Save.WorkerOrderDto d)
++        {
++            if (d == null) return;
++            state = (State)d.state; targetNode = Save.SaveReferences.Get<ResourceNode>(d.node);
++            targetDeposit = Save.SaveReferences.Get<BuildingBase>(d.deposit);
++            targetConstruction = Save.SaveReferences.Get<BuildingConstructionSite>(d.construction);
++            deliverySite = Save.SaveReferences.Get<IMaterialSink>(d.delivery);
++            fetchBin = d.fetchBase ? ResourceManager.Instance.BaseBin : ResourceManager.Instance.BinOf(Save.SaveReferences.Get<BuildingBase>(d.fetchHost));
++            fetchType = (ResourceType)d.fetchType; fetchAmount = d.fetchAmount;
++            targetBin = d.depositBin ? ResourceManager.Instance.BinOf(targetDeposit) : null;
++            buildTimer = d.buildTimer; fishingNode = Save.SaveReferences.Get<ResourceNode>(d.fishingNode);
++            if (targetBin != null) ResourceManager.Instance.Reserve(this, targetBin, carriedType, Mathf.CeilToInt(carriedAmount));
++            if (deliverySite != null && !deliverySite.BeginPickup(this, fetchType, fetchAmount))
++                throw new System.InvalidOperationException("Cannot restore material pickup reservation.");
++            if (this is CommanderAnt c) c.SetWorkTarget((Component)targetConstruction ?? targetNode);
++        }
+ 
+         public virtual bool CanStartConstruction => isActiveAndEnabled && !IsDead && state == State.Idle;
+ 
+diff --git a/Assets/_Project/Scripts/World/ColonyInvasion.cs b/Assets/_Project/Scripts/World/ColonyInvasion.cs
+--- a/Assets/_Project/Scripts/World/ColonyInvasion.cs
++++ b/Assets/_Project/Scripts/World/ColonyInvasion.cs
+@@ -61,7 +61,7 @@
+             waveIndex = Mathf.Max(0, savedWaveIndex);
+         }
+ 
+-        // 저장 가능 여부 판정에 쓴다. 살아 있는 침공 개체가 있으면 저장을 거절한다.
++        // 공세 병력 상한과 저장 복원 검증에 쓴다.
+         internal int ActiveRaiderCount
+         {
+             get
+@@ -72,6 +72,10 @@
+             }
+         }
+ 
++        internal WildMonster RestoreSpawn(bool commander, Vector3 position) =>
++            Instantiate(commander ? commanderTemplate : raiderTemplate, position, Quaternion.identity);
++        internal bool Owns(WildMonster monster) => raiders.Contains(monster);
++        internal void RestoreRaider(WildMonster monster) { if (!raiders.Contains(monster)) raiders.Add(monster); }
+         internal float WaveTimer => timer;
+         internal float EconomyTimer => economyTimer;
+         internal int WaveIndex => waveIndex;
+diff --git a/Assets/_Project/Scripts/World/EnemyCommander.cs b/Assets/_Project/Scripts/World/EnemyCommander.cs
+--- a/Assets/_Project/Scripts/World/EnemyCommander.cs
++++ b/Assets/_Project/Scripts/World/EnemyCommander.cs
+@@ -28,6 +28,7 @@
+         public CommanderTraits Traits => traits;
+         public CommanderTalents Talents => talents;
+         internal void RestoreTalents(CommanderTalents value) => talents = value.Copy();
++        internal float CaptureChance { get => captureChance; set => captureChance = value; }
+         public bool WasCaptured { get; private set; }
+ 
+         // 적 소굴이 파동마다 장수를 만들 때 개성을 심어준다.
+diff --git a/Assets/_Project/Scripts/World/LocalIncursions.cs b/Assets/_Project/Scripts/World/LocalIncursions.cs
+--- a/Assets/_Project/Scripts/World/LocalIncursions.cs
++++ b/Assets/_Project/Scripts/World/LocalIncursions.cs
+@@ -17,6 +17,9 @@
+         internal float SavedTimer { get => remaining; set => remaining = value; }
+         private readonly List<WildMonster> visitors = new List<WildMonster>();
+         public IReadOnlyList<WildMonster> Visitors => visitors;
++        internal WildMonster RestoreSpawn(bool commander, Vector3 position) =>
++            Instantiate(commander ? commanderTemplate : raiderTemplate, position, Quaternion.identity);
++        internal void RestoreVisitor(WildMonster monster) { if (!visitors.Contains(monster)) visitors.Add(monster); }
+         // 난이도는 방문 간격만 바꾼다. Normal이면 배수 1.0이라 기존과 같다.
+         private float NextDelay() => Random.Range(minimumDelay, maximumDelay) * AntColony.Core.DifficultyRuntime.IntervalScale;
+         private void Start() => remaining = NextDelay();
+diff --git a/Assets/_Project/Scripts/World/SettlementDefense.cs b/Assets/_Project/Scripts/World/SettlementDefense.cs
+--- a/Assets/_Project/Scripts/World/SettlementDefense.cs
++++ b/Assets/_Project/Scripts/World/SettlementDefense.cs
+@@ -61,7 +61,7 @@
+             allies.Clear();
+         }
+ 
+-        // 저장 복원 전용. 진행 중이던 습격 부대는 저장 자체를 거절하므로 여기서는 타이머만 되돌린다.
++        // 타이머를 먼저 복원하고, 적 개체 복원 뒤 RestoreAttack으로 진행 중 습격을 연결한다.
+         internal void RestoreState(float remaining, float captureProgress)
+         {
+             UnderAttack = false;
+@@ -69,6 +69,17 @@
+             Remaining = Mathf.Clamp(remaining, 0f, DiplomacyManager.Instance != null ? DiplomacyRules.Month * 3 : CurrentRaidInterval);
+             CaptureProgress = Mathf.Clamp(captureProgress, 0f, CaptureSeconds);
+             Warned = Remaining <= GameBalance.WatchtowerWarningSeconds && AntColony.Buildings.Watchtower.Watches(site);
++        }
++
++        internal string CaptureFaction() => attackerFaction;
++        internal bool Owns(WildMonster enemy) => attackers.Contains(enemy) || enemy is EnemyCommander ally && allies.Contains(ally);
++        internal void RestoreAttack(bool active, string faction, IEnumerable<WildMonster> enemies)
++        {
++            UnderAttack = active; attackerFaction = faction;
++            attackers.Clear(); allies.Clear();
++            foreach (var enemy in enemies)
++                if (enemy.Allied && enemy is EnemyCommander ally) allies.Add(ally);
++                else attackers.Add(enemy);
+         }
+ 
+         internal void RestorePrisoner(CommanderAnt commander)
+diff --git a/Assets/_Project/Scripts/World/TransportRoute.cs b/Assets/_Project/Scripts/World/TransportRoute.cs
+--- a/Assets/_Project/Scripts/World/TransportRoute.cs
++++ b/Assets/_Project/Scripts/World/TransportRoute.cs
+@@ -1,3 +1,4 @@
++using System.Linq;
+ using AntColony.Core;
+ using AntColony.Data;
+ using UnityEngine;
+@@ -46,6 +47,17 @@
+             Status = string.IsNullOrEmpty(status) ? (IsRunning ? "Ready" : "Off") : status;
+             nextNode = null;
+             rallying = false;
++        }
++
++        internal void CaptureProgress(Save.RouteDto dto)
++        {
++            dto.rallying = rallying; dto.nextNode = nextNode == null ? null : (int[])nextNode.Clone();
++            dto.nodes = nextNode == null ? null : nodes?.Select(n => Save.SaveReferences.Key(n)).ToList();
++        }
++        internal void RestoreProgress(Save.RouteDto dto)
++        {
++            rallying = dto.rallying; nextNode = dto.nextNode == null ? null : (int[])dto.nextNode.Clone();
++            nodes = dto.nodes?.Select(n => Save.SaveReferences.Get<ResourceNode>(n)).ToArray();
+         }
+ 
+         public void Stop(string reason = "Off")
+diff --git a/Assets/_Project/Scripts/World/WildMonster.cs b/Assets/_Project/Scripts/World/WildMonster.cs
+--- a/Assets/_Project/Scripts/World/WildMonster.cs
++++ b/Assets/_Project/Scripts/World/WildMonster.cs
+@@ -1,4 +1,5 @@
+ using System.Collections.Generic;
++using System.Linq;
+ using AntColony.Buildings;
+ using AntColony.Core;
+ using AntColony.Data;
+@@ -92,6 +93,35 @@
+         }
+         public Vector3 Position => transform.position;
+ 
++        internal Save.WildMonsterDto CaptureRuntime()
++        {
++            var world = WorldMapManager.Instance;
++            var invasion = UnityEngine.Object.FindObjectsByType<ColonyInvasion>(FindObjectsSortMode.None).FirstOrDefault(i => i.Owns(this));
++            var d = new Save.WildMonsterDto { commander = this is EnemyCommander, name = name, raider = isRaider, wasp = eventWasp,
++                night = nightPredator, flying = IsFlying, allied = Allied, docile = Docile, provoked = provoked, rebel = RebelId,
++                rotationY = transform.eulerAngles.y, scale = new Save.Vec3Dto(transform.localScale),
++                target = Save.SaveReferences.Key(currentTarget), maxHealth = maxHealth, detection = detectionRadius, damage = attackDamage,
++                range = attackRange, interval = attackInterval, searchInterval = targetSearchInterval, speed = moveSpeed,
++                attackTimer = attackTimer, searchTimer = targetSearchTimer, siegeCheck = siegeCheck, root = RootRemaining,
++                parentSite = Save.SaveCatalog.SiteIndex(GetComponentInParent<ExpeditionSite>()), raidSite = Save.SaveCatalog.SiteIndex(raidSite),
++                invasionSite = invasion == null ? -2 : Save.SaveCatalog.SiteIndex(invasion.GetComponentInParent<ExpeditionSite>()),
++                defenseSite = world.Sites.ToList().FindIndex(s => s.Defense != null && s.Defense.Owns(this)),
++                visitor = UnityEngine.Object.FindFirstObjectByType<LocalIncursions>()?.Visitors.Contains(this) == true };
++            if (this is EnemyCommander c) { d.commanderName = c.CommanderName; d.rank = (int)c.Rank; d.roles = c.Roles.Select(x => (int)x).ToList(); d.captureChance = c.CaptureChance; }
++            return d;
++        }
++        internal void RestoreRuntime(Save.WildMonsterDto d, bool targets = false)
++        {
++            if (targets) { currentTarget = Save.SaveReferences.Get<IDamageable>(d.target); return; }
++            maxHealth = d.maxHealth; detectionRadius = d.detection; attackDamage = d.damage; attackRange = d.range;
++            attackInterval = d.interval; targetSearchInterval = d.searchInterval; moveSpeed = d.speed;
++            isRaider = d.raider; eventWasp = d.wasp; nightPredator = d.night; IsFlying = d.flying; Allied = d.allied;
++            Docile = d.docile; provoked = d.provoked; RebelId = d.rebel; attackTimer = d.attackTimer;
++            targetSearchTimer = d.searchTimer; siegeCheck = d.siegeCheck; RootRemaining = d.root;
++            raidSite = d.raidSite < 0 ? null : WorldMapManager.Instance.Sites[d.raidSite];
++            agent.speed = moveSpeed; agent.stoppingDistance = attackRange; agent.enabled = !IsFlying && !IsDead && gameObject.activeInHierarchy;
++        }
++
+         private Critter critter;
+         private void Awake()
+         {

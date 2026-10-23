@@ -30,11 +30,26 @@ namespace AntColony.Units
         private float attackTimer;
         private float autoEngageTimer;
         private Vector3 flightDestination;
+        private Vector3 savedMoveDestination;
 
         // 어택무브(공격 이동) 중 경로상에서 자동으로 교전한 것이면 true.
         // 그 대상이 죽으면 원래 어택무브 목적지로 이동을 이어간다(원본 SIMUL-TeaamProject AntAttack.Chasing과 동일 컨벤션).
         private bool isOnAttackMove;
         private Vector3 attackMoveDestination;
+
+        internal Save.SoldierOrderDto CaptureSoldierOrder() => new Save.SoldierOrderDto {
+            state = (int)state, target = Save.SaveReferences.Key(currentTarget), attackTimer = attackTimer, searchTimer = autoEngageTimer,
+            attackMove = isOnAttackMove, attackDestination = new Save.Vec3Dto(attackMoveDestination),
+            moving = IsFlying ? !HasReachedDestination() : Agent.enabled && Agent.isOnNavMesh && (Agent.hasPath || Agent.pathPending),
+            destination = new Save.Vec3Dto(savedMoveDestination) };
+        internal void RestoreSoldierOrder(Save.SoldierOrderDto d)
+        {
+            if (d == null) return;
+            state = (State)d.state; currentTarget = Save.SaveReferences.Get<IDamageable>(d.target);
+            attackTimer = d.attackTimer; autoEngageTimer = d.searchTimer; isOnAttackMove = d.attackMove;
+            attackMoveDestination = d.attackDestination.ToVector3();
+            if (d.moving) SetMoveDestination(d.destination.ToVector3()); else StopMoving();
+        }
 
         // 비행은 별도 클래스가 아니라 현재 역할로 결정된다. 지휘관이 Flying으로 역할을 바꾸면 즉시 비행한다.
         public virtual bool IsFlying => Data != null && Data.role == UnitRole.Flying;
@@ -81,6 +96,8 @@ namespace AntColony.Units
         }
 
         // 역할별 대공/대지 공격 가능 여부. 공중 대상은 Ranged와 Flying만 공격할 수 있다.
+        // 대기 중 주변 적 자동 교전 여부. 직접 공격·어택무브 지시는 이와 무관하다.
+        protected virtual bool AutoEngages => true;
         public virtual bool CanAttackTarget(IDamageable target)
         {
             return Data != null && CombatTargeting.CanAttack(TargetingRole, target);
@@ -126,6 +143,7 @@ namespace AntColony.Units
         // 이동 지시/도착 판정/대상 거리 계산은 비행 여부에 따라 갈린다.
         protected virtual void SetMoveDestination(Vector3 destination)
         {
+            savedMoveDestination = destination;
             if (IsFlying)
             {
                 flightDestination = ToFlightPoint(destination);
@@ -249,7 +267,7 @@ namespace AntColony.Units
             autoEngageTimer = autoEngageCheckInterval;
 
             var nearby = CombatTargeting.FindNearestEnemy(transform.position, autoEngageRadius, TargetingRole);
-            if (nearby != null && CanAttackTarget(nearby))
+            if (nearby != null && AutoEngages && CanAttackTarget(nearby))
             {
                 CommandAttack(nearby);
             }

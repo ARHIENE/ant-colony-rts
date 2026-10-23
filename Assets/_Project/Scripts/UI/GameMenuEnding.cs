@@ -27,14 +27,14 @@ namespace AntColony.UI
         public static string[] EndingRecord(CampaignResearch research)
         {
             var d = CampaignHistory.Instance != null ? CampaignHistory.Instance.Data : new CampaignHistory.State();
-            var months = Mathf.FloorToInt(research.EndingGameSeconds / GameCalendar.SecondsPerMonth);
+            var days = Mathf.FloorToInt(research.EndingGameSeconds / GameCalendar.SecondsPerDay);
             var play = TimeSpan.FromSeconds(GameSession.Exists ? GameSession.Instance.PlaySeconds : 0);
             string Names(string kind) { var n = d.milestones.Where(e => e.kind == kind).Select(e => e.name + (e.result.Length > 0 ? $"({e.result})" : "")).ToArray(); return n.Length == 0 ? "없음" : string.Join(", ", n); }
             int Count(string kind) => d.milestones.Count(e => e.kind == kind);
             var reasons = Enum.GetValues(typeof(ResourceReason)).Length;
             var lines = new System.Collections.Generic.List<string>
             {
-                $"<b>기간</b>  {months / 12}년 {months % 12}개월   ·   <b>실제 플레이</b> {(int)play.TotalHours}시간 {play.Minutes}분",
+                $"<b>기간</b>  {days / GameCalendar.DaysPerYear}년 {days % GameCalendar.DaysPerYear}일   ·   <b>실제 플레이</b> {(int)play.TotalHours}시간 {play.Minutes}분",
             };
             for (var r = 0; r < 3; r++)
             {

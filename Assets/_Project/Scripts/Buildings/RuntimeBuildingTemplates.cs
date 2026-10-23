@@ -15,7 +15,7 @@ namespace AntColony.Buildings
             {
                 BuildingKind.CrashWreck => ("불시착 잔해", new Vector3(3, 1, 2), new Color(.4f, .4f, .38f), 0, 0, 0, 0, 20f, 200f, false),
                 BuildingKind.ScienceLab => ("정착지 연구대", new Vector3(2, 1.2f, 1.5f), new Color(.6f, .5f, .35f), 0, 30, 0, 0, 8f, 200f, false),
-                BuildingKind.ConscriptionPost => ("징집소", new Vector3(3, 2, 3), new Color(.6f, .4f, .2f), GameBalance.ConscriptionFood, GameBalance.ConscriptionSoil, 0, GameBalance.ConscriptionAnts, GameBalance.ConscriptionBuildSeconds, 300f, false),
+                BuildingKind.ConscriptionPost => ("징집소", new Vector3(3, 2, 3), new Color(.6f, .4f, .2f), 0, 20, 0, 0, GameBalance.ConscriptionBuildSeconds, 300f, false),
                 BuildingKind.SoilWall => ("Soil Wall", new Vector3(2, 1.5f, .6f), new Color(.45f, .33f, .2f), 0, 25, 0, 3, 4f, 400f, false),
                 BuildingKind.TrapPit => ("끈끈이 함정", new Vector3(1.6f, .1f, 1.6f), new Color(.3f, .22f, .12f), 10, 30, 0, 3, 5f, 100f, true),
                 BuildingKind.SpikeTrap => ("가시 함정", new Vector3(1.6f, .1f, 1.6f), new Color(.45f, .4f, .35f), 10, 30, 0, 3, 5f, 100f, true),

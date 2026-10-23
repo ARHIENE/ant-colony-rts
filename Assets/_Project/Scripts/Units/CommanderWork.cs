@@ -8,6 +8,21 @@ namespace AntColony.Units
 {
     public partial class CommanderAnt
     {
+        internal Save.CommanderOrderDto CaptureOrder() => new Save.CommanderOrderDto {
+            soldier = CaptureSoldierOrder(), worker = CaptureWorkerOrder(), service = Save.SaveReferences.Key(ServiceTarget),
+            serviceJob = (int)ServiceJob, hunt = Save.SaveReferences.Key(HuntTarget), huntCooldown = huntCooldown,
+            automaticFacility = Save.SaveReferences.Key(automaticFacility), workScan = workScan };
+        internal void RestoreOrder(Save.CommanderOrderDto d)
+        {
+            if (d == null) return;
+            RestoreWorkerOrder(d.worker);
+            ServiceTarget = Save.SaveReferences.Get<BuildingBase>(d.service); ServiceJob = (CommanderJobs)d.serviceJob;
+            HuntTarget = Save.SaveReferences.Get<WildMonster>(d.hunt); huntCooldown = d.huntCooldown;
+            automaticFacility = Save.SaveReferences.Get<BuildingBase>(d.automaticFacility); workScan = d.workScan;
+            if (ServiceTarget != null) SetWorkTarget(ServiceTarget);
+            RestoreSoldierOrder(d.soldier);
+        }
+
         public BuildingBase ServiceTarget { get; private set; }
         public CommanderJobs ServiceJob { get; private set; }
         public WildMonster HuntTarget { get; private set; }

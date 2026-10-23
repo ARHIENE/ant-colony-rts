@@ -181,7 +181,7 @@ namespace AntColony.UI
             MenuTheme.Button(content, "Restart Same Map", () => {
                 Screen("Restart colony?", "정착지를 다시 시작할까요?");
                 MenuTheme.Text(content, "저장하지 않은 진행 상황은 사라집니다. 기존 저장 슬롯은 유지됩니다.", 20, 70);
-                MenuTheme.Button(content, "Restart", () => SaveSystem.NewGame(GameSession.Instance.Options.Clone()));
+                MenuTheme.Button(content, "Restart", () => CrashLandingStart.Begin(GameSession.Instance.Options.Clone()));
                 MenuTheme.Button(content, "Back", () => ShowOutcome(victory));
             });
             MenuTheme.Button(content, "New Game", NewGameScreen);

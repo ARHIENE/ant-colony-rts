@@ -61,7 +61,7 @@ namespace AntColony.World
             waveIndex = Mathf.Max(0, savedWaveIndex);
         }
 
-        // 저장 가능 여부 판정에 쓴다. 살아 있는 침공 개체가 있으면 저장을 거절한다.
+        // 공세 병력 상한과 저장 복원 검증에 쓴다.
         internal int ActiveRaiderCount
         {
             get
@@ -72,6 +72,10 @@ namespace AntColony.World
             }
         }
 
+        internal WildMonster RestoreSpawn(bool commander, Vector3 position) =>
+            Instantiate(commander ? commanderTemplate : raiderTemplate, position, Quaternion.identity);
+        internal bool Owns(WildMonster monster) => raiders.Contains(monster);
+        internal void RestoreRaider(WildMonster monster) { if (!raiders.Contains(monster)) raiders.Add(monster); }
         internal float WaveTimer => timer;
         internal float EconomyTimer => economyTimer;
         internal int WaveIndex => waveIndex;

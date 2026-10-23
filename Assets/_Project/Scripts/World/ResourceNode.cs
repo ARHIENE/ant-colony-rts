@@ -70,14 +70,14 @@ namespace AntColony.World
                 gameObject.AddComponent<ResourceNodeStatus>();
         }
 
-        private void Update() { if (requiresFishing && !AntColony.Save.SaveSystem.Busy && GameSession.Exists && GameSession.Instance.GameStarted) RefreshFishingMonth(); TickGrowth(Time.deltaTime); }
-        // 낚시터: 재성장 대신 매달 월 한도만큼 재고를 채운다. fishMonth는 마지막으로 채운 달(저장 포함).
-        internal int FishMonth { get; set; } = -1;
+        private void Update() { if (requiresFishing && !AntColony.Save.SaveSystem.Busy && GameSession.Exists && GameSession.Instance.GameStarted) RefreshFishingSeason(); TickGrowth(Time.deltaTime); }
+        // 낚시터: 재성장 대신 계절마다 한도만큼 재고를 채운다. FishSeason은 마지막으로 채운 계절(저장 키 fishMonth).
+        internal int FishSeason { get; set; } = -1;
         public bool FishedOut => requiresFishing && IsDepleted;
-        public void RefreshFishingMonth()
+        public void RefreshFishingSeason()
         {
-            if (FishMonth == GameCalendar.TotalMonths) return;
-            FishMonth = GameCalendar.TotalMonths; amountRemaining = GameBalance.FishingMonthlyFood * BiomeRules.FishingYield; regrowTimer = 0;
+            if (FishSeason == GameCalendar.TotalSeasons) return;
+            FishSeason = GameCalendar.TotalSeasons; amountRemaining = GameBalance.FishingSeasonFood * BiomeRules.FishingYield; regrowTimer = 0;
         }
         // 바이옴 자원 비율(맵 생성 때 한 번).
         internal void ScaleAmount(float multiplier) => amountRemaining *= Mathf.Max(0, multiplier);

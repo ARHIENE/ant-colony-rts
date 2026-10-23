@@ -137,12 +137,13 @@ public static class SaveRoundtripChecks
         Near(c.stanceTime, e.stanceTime, "stance duration");
         var q = actual.buildings.Single(b => b.key == queen); var eq = expected.buildings.Single(b => b.key == queen);
         Check(q.kind == "QueenChamber" && eq.kind == q.kind, "stockpile keeps legacy save kind");
-        var b = actual.buildings.Single(x => x.key == barracks); var eb = expected.buildings.Single(x => x.key == barracks);
+        // 런타임 건물 "new:N" 키는 저장 때마다 순번으로 다시 매겨진다(불시착 잔해와 순서가 바뀔 수 있음) → 종류로 찾는다.
+        var b = actual.buildings.Single(x => x.runtimeBuilt && x.kind == "Barracks"); var eb = expected.buildings.Single(x => x.runtimeBuilt && x.kind == "Barracks");
         Check(b.barracksTier == eb.barracksTier, $"barracks tier: actual={b.barracksTier} expected={eb.barracksTier} kind={b.kind} role={b.role} remaining={b.barracksUpgradeRemaining}");
         Near(b.barracksUpgradeRemaining, eb.barracksUpgradeRemaining, "barracks upgrade");
         Check(actual.buildings.Single(x => x.key == destroyed).kind == "Destroyed", "destroyed building stays destroyed");
         Near(actual.nodes[0].amount, expected.nodes[0].amount, "depleted node");
-        Check(actual.nodes.Count == expected.nodes.Count && actual.nodes.Last().amount == 37, "new loot preserved");
+        Check(actual.nodes.Count == expected.nodes.Count && actual.nodes.Count(n => n.key.StartsWith("new:") && n.amount == 37) == 1, "new loot preserved"); // 시작 돌 20개도 new: 노드라 순서로 찾지 않는다
         Check(actual.monsters.First(m => m.key.StartsWith("monster:")).health == 0, "defeated enemy stays dead");
         Check(actual.commanders[1].location == 1 && actual.commanders[1].transportIndex == ship, "crew ownership");
         Check(actual.world.transports[ship].state == (int)ExpeditionState.Outbound && actual.world.transports[ship].cargoFood == 13, "outbound state/cargo");

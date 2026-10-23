@@ -61,7 +61,7 @@ namespace AntColony.World
             allies.Clear();
         }
 
-        // 저장 복원 전용. 진행 중이던 습격 부대는 저장 자체를 거절하므로 여기서는 타이머만 되돌린다.
+        // 타이머를 먼저 복원하고, 적 개체 복원 뒤 RestoreAttack으로 진행 중 습격을 연결한다.
         internal void RestoreState(float remaining, float captureProgress)
         {
             UnderAttack = false;
@@ -69,6 +69,17 @@ namespace AntColony.World
             Remaining = Mathf.Clamp(remaining, 0f, DiplomacyManager.Instance != null ? DiplomacyRules.Month * 3 : CurrentRaidInterval);
             CaptureProgress = Mathf.Clamp(captureProgress, 0f, CaptureSeconds);
             Warned = Remaining <= GameBalance.WatchtowerWarningSeconds && AntColony.Buildings.Watchtower.Watches(site);
+        }
+
+        internal string CaptureFaction() => attackerFaction;
+        internal bool Owns(WildMonster enemy) => attackers.Contains(enemy) || enemy is EnemyCommander ally && allies.Contains(ally);
+        internal void RestoreAttack(bool active, string faction, IEnumerable<WildMonster> enemies)
+        {
+            UnderAttack = active; attackerFaction = faction;
+            attackers.Clear(); allies.Clear();
+            foreach (var enemy in enemies)
+                if (enemy.Allied && enemy is EnemyCommander ally) allies.Add(ally);
+                else attackers.Add(enemy);
         }
 
         internal void RestorePrisoner(CommanderAnt commander)

@@ -43,14 +43,15 @@ namespace AntColony.UI
                 var amount = L.Label(row, "", 13, 732, 0, 264, 30);
                 choices.Add((c, toggle, slider));
                 refreshDutyScreen += () => {
-                    var ready = post != null && post.isActiveAndEnabled && !post.IsDead && c != null && c.CanMobilize;
+                    var cap = post != null ? post.AvailableTroops(c) : 0; // G04 동원 상한·지휘 잔여(2026-10-23)
+                    var ready = cap > 0;
                     toggle.interactable = ready;
                     if (!ready) toggle.SetIsOnWithoutNotify(false);
                     slider.interactable = ready && toggle.isOn;
                     if (c == null) { label.text = "이탈한 장수"; return; }
-                    slider.maxValue = Mathf.Max(1, c.CommandLimit);
+                    slider.maxValue = Mathf.Max(1, cap);
                     label.text = $"{c.CommanderName} · {c.WeaponLabel}\n체력 {c.PersonalHealth:0}/{GameBalance.CommanderHealth:0} · 기분 {c.Mood:0} · {Status(c)}";
-                    amount.text = $"{slider.value:0} / {c.CommandLimit}";
+                    amount.text = $"{slider.value:0} / 가능 {cap} (지휘 {c.CommandLimit})";
                 };
             }
             var summary = L.Label(p, "", 15, 24, 570, 690, 32);
@@ -63,8 +64,8 @@ namespace AntColony.UI
             refreshDutyScreen += () => {
                 var selected = choices.Where(x => x.toggle.isOn).ToArray();
                 var total = selected.Sum(x => (int)x.slider.value);
-                var free = AntPool.Instance != null ? AntPool.Instance.Free : 0;
-                summary.text = $"출전 {selected.Length}명 · 편성 {total}마리 / 대기 {free}마리";
+                var free = ColonyPopulation.Instance != null ? ColonyPopulation.Instance.AvailableMilitary(EnemyAlert.CrisisActive) : 0;
+                summary.text = $"출전 {selected.Length}명 · 편성 {total}명 / 동원 가능 {free}명";
                 deploy.interactable = post != null && post.isActiveAndEnabled && !post.IsDead && selected.Length > 0 && total <= free;
             };
             L.Button(p, "Close Conscription", "닫기", 24, 604, 160, 34, Resume);

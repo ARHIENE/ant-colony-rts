@@ -185,7 +185,7 @@ namespace AntColony.Save
                 {
                     if (s?.work == null) return;
                     s.work.jobs |= Units.CommanderJobs.Husbandry;
-                    if (s.work.priorities?.Length == 14) { Array.Resize(ref s.work.priorities, Units.CommanderWorkState.JobCount); s.work.priorities[14] = 3; } // 당시 1~5 척도의 보통(3). v17 이관에서 1~9로 바뀐다.
+                    if (s.work.priorities?.Length == 14) { Array.Resize(ref s.work.priorities, 15); s.work.priorities[14] = 3; } // 소화 16칸은 v17 척도 변환 뒤 Valid의 MigrateLegacyJobs가 9로 붙인다. // 당시 1~5 척도의 보통(3). v17 이관에서 1~9로 바뀐다.
                 }
                 foreach (var c in file.commanders ?? new System.Collections.Generic.List<CommanderDto>()) { Talents(c?.talents); Work(c?.personalState); }
                 foreach (var b in file.buildings ?? new System.Collections.Generic.List<BuildingDto>())
@@ -219,6 +219,7 @@ namespace AntColony.Save
                 file.version = 17;
             }
             if (file.version == 17) BodyMigration.Upgrade(file); // 2026-10-18 캐릭터 전환: 신체 부위 두 팔·두 다리
+            if (file.version == 18) file.version = 19; // Legacy saves have no active orders or runtime combat state.
             if (file.version != SaveFileV1.CurrentVersion)
             {
                 error = $"Save version {file.version} cannot be read by this build (expects {SaveFileV1.CurrentVersion}).";
@@ -242,7 +243,7 @@ namespace AntColony.Save
             if (pop == null || pop.young < 0 || pop.old < 0 || pop.agingDue < 0 || !Enum.IsDefined(typeof(Core.MilitaryPolicy), pop.policy)
                 || !(pop.sentiment >= 0 && pop.sentiment <= 100) || !(pop.taxRate >= 0 && pop.taxRate <= Core.GameBalance.MaxTaxRate)
                 || float.IsNaN(pop.monthSeconds) || float.IsInfinity(pop.monthSeconds) || pop.monthSeconds < 0 || float.IsNaN(pop.raidSeconds) || pop.raidSeconds < 0
-                || !Enum.IsDefined(typeof(Core.TaxFocus), pop.taxFocus) || !Enum.IsDefined(typeof(Data.ResourceType), pop.taxMaterial) || !(pop.taxWeek >= 0 && pop.taxWeek <= Core.ColonyPopulation.WeekSeconds)
+                || !Enum.IsDefined(typeof(Core.TaxFocus), pop.taxFocus) || !Enum.IsDefined(typeof(Data.ResourceType), pop.taxMaterial) || !(pop.taxWeek >= 0 && pop.taxWeek <= Core.ColonyPopulation.TaxSeconds)
                 || !(pop.taxFood >= 0 && pop.taxFood < 1e7f) || !(pop.taxSoil >= 0 && pop.taxSoil < 1e7f)
                 || !(pop.adminWork >= 0 && pop.adminWork < 1e9f) || !(pop.redevelopCompensation >= Core.GameBalance.RedevelopMinCompensation && pop.redevelopCompensation <= Core.GameBalance.RedevelopMaxCompensation))
             { error = "Invalid population."; return false; }

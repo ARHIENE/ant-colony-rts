@@ -1,3 +1,7 @@
+# 2026-10-23 SAVE 2(Codex)·통합 SAVE — 2026-10-24 SAVE 이관
+- 지도·카메라·지형·날씨·HUD: 미니맵 높이 지도·클릭/드래그·수평 시야 테두리, 가장자리 이동 2배, 절벽 암반 텍스처, 셰이더 재임포트 회색 지면 SetTint 복구, 월드 이름표 HUD 겹침 숨김, 비/눈 입자 뷰포트 덮기. HudV6 17·MapHud 128·SeasonWeather 323·V6Layout 2070 통과. 날씨 실제 화면 검수(비·눈)는 미완.
+- 통합 SAVE: Codex A2(중단분)·V6 관리 창 포함 101파일 653f0a0 develop push, 0cdafc6 문서. Notion 개발 일지 https://app.notion.com/p/401c4a0ecd31816fb1f2ea2360701ccb / Trouble https://app.notion.com/p/401c4a0ecd31811b99e4c6aebb4fe995. 큰 물가 길찾기 4곳 미해결 유지.
+
 # 2026-10-23 SAVE 1(Codex) — SAVE 2 이관
 - V6 시안 절제·Unity 중성 테마/픽셀 배율/12px 하한/52px 하단 메뉴·선택 카드·접이 지도. 건설 담당자 0명 목록 오류 수정. UI 17·기존 관리 90·뷰포트/폰트 2070·BuilderPicker 통과, HUD·과학·작업표 실제 캡처 확인. a483141 구현, 98bd1c6 문서 develop push.
 - 길찾기 큰 물가 296/300 재현, 실패 4곳 stride1 경로 성공, 실제 14경유지 이동 도착. 1칸 재시도 미구현. 자원 이름표/HUD 겹침과 지형 회색 프레임을 잔여로 보고(다음 SAVE에서 후속 수정).

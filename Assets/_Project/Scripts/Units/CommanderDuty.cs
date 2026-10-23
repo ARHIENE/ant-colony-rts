@@ -131,7 +131,16 @@ namespace AntColony.Units
                 if (WorkState.recoverySeconds == 0) WorkState.health = GameBalance.CommanderHealth;
                 return;
             }
-            if (TickSleep(seconds) || TickCarriedMeal(seconds) || TickMeal(seconds) || TickCorpseWork(seconds) || TickHygiene(seconds) || TickJoy(seconds)) return;
+            if (!IsDeployed && !IsAwayFromHome && !IsEmbarked && !IsCaptive && !WorkPriorities.Red
+                && (Satiety <= GameBalance.EatBelowSatiety || IsSleepTime || Hygiene < GameBalanceNeeds.TemporaryCap))
+            {
+                if (IsCarrying) { DropCargo(); CommandStop(); }
+                if (IsPlaying) LeavePlay();
+            }
+            TickCarriedMeal(seconds);
+            if (TickMeal(seconds)) { LeaveWash(); return; }
+            if (TickSleep(seconds)) { LeaveWash(); return; }
+            if (TickHygiene(seconds) || TickCorpseWork(seconds) || TickJoy(seconds)) return;
             if (IsAwayFromHome || !CanReceiveOrders) return;
             if (ServiceJob == CommanderJobs.Firefighting && TickService(seconds)) return;
             if (IsReturning)

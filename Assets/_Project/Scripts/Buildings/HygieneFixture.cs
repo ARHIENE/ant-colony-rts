@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using AntColony.Data;
+using AntColony.Core;
 using AntColony.Units;
 
 namespace AntColony.Buildings
@@ -14,6 +15,8 @@ namespace AntColony.Buildings
         // 0 화장실 / 1 세면대 / 2 샤워기 (GameBalance.WashHygiene 순서)
         public int KindIndex => Data.kind == BuildingKind.Washbasin ? 1 : Data.kind == BuildingKind.Shower ? 2 : 0;
         public bool Free => isActiveAndEnabled && !IsDead && (User == null || User.IsDead || User.WashSpot != this);
+        public bool CanUse => GameBalanceNeeds.WaterCost(KindIndex) == 0 || ResourceManager.Instance != null
+            && ResourceManager.Instance.GetAmount(ResourceType.Water) >= GameBalanceNeeds.WaterCost(KindIndex);
 
         protected override void OnEnable() { base.OnEnable(); Active.Add(this); }
         protected override void OnDisable() { Active.Remove(this); User = null; base.OnDisable(); }
@@ -21,7 +24,9 @@ namespace AntColony.Buildings
         public bool Join(CommanderAnt c)
         {
             if (User == c) return true;
-            if (!Free) return false;
+            if (!Free || !CanUse) return false;
+            var water = GameBalanceNeeds.WaterCost(KindIndex);
+            if (water > 0 && !ResourceManager.Instance.TrySpend(ResourceType.Water, water, ResourceReason.Upkeep)) return false;
             User = c; return true;
         }
         public void Leave(CommanderAnt c) { if (User == c) User = null; }

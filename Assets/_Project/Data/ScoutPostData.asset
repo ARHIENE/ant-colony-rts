@@ -16,9 +16,9 @@ MonoBehaviour:
   kind: 7
   maxHealth: 150
   foodCost: 0
-  soilCost: 30
+  soilCost: 20
   buildTimeSeconds: 5
-  constructionAnts: 4
+  constructionAnts: 0
   foodCapacityBonus: 0
   soilCapacityBonus: 0
   specialCapacityBonus: 100

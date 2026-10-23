@@ -124,20 +124,20 @@ namespace AntColony.Units
             var mood = GameBalance.MealMood[felt];
             if (mood < 0 && (traits.Has(CommanderTrait.IronStomach) || traits.Has(CommanderTrait.DullTaste) && m.quality == 0)) mood = 0;
             personalState.moodFactors.RemoveAll(f => f.reason.StartsWith("식사:"));
-            if (mood != 0) personalState.AddMood("식사: " + MealNames[felt], mood, GameCalendar.SecondsPerDay / 3f);
-            personalState.AddMood("배부름", traits.Has(CommanderTrait.Glutton) ? 10 : 5, GameCalendar.SecondsPerDay / 3f);
+            if (mood != 0) personalState.AddMood("식사: " + MealNames[felt], mood, GameCalendar.SecondsPerDay / 2f);
+            personalState.AddMood("배부름", traits.Has(CommanderTrait.Glutton) ? 10 : 5, GameCalendar.SecondsPerDay / 2f);
             // 식탁 없이 먹으면 기분 불이익(2026-10-12). ponytail: 식탁·식당 4m 안이면 식탁에서 먹은 것으로 본다.
             if (!FindObjectsByType<Kitchen>(FindObjectsSortMode.None).Any(k => !k.IsDead && k.isActiveAndEnabled && (k.IsTable || k.Data != null && k.Data.kind == AntColony.Data.BuildingKind.Kitchen) && (k.Position - Position).sqrMagnitude < 16))
-                personalState.AddMood("식탁 없이 식사", GameBalance.NoTableMood, GameCalendar.SecondsPerDay / 3f);
+                personalState.AddMood("식탁 없이 식사", GameBalance.NoTableMood, GameCalendar.SecondsPerDay / 2f);
             // Phase 5: 식당 방에서 먹으면 등급만큼 기분 +(식당·부엌 겸용은 절반).
             // 가구 6차: 연회장은 ×1.5.
             if (AntColony.Buildings.RoomSystem.RoomAt(Position) is AntColony.Buildings.Room hall && (hall.Kind == AntColony.Buildings.RoomKind.Dining || hall.Kind == AntColony.Buildings.RoomKind.DiningKitchen || hall.Kind == AntColony.Buildings.RoomKind.BanquetHall))
                 personalState.AddMood("식당에서 식사", (AntColony.Buildings.GameBalanceRooms.RoomMealMood + AntColony.Buildings.GameBalanceRooms.GradeMood[hall.Grade])
-                    * (hall.Kind == AntColony.Buildings.RoomKind.DiningKitchen ? .5f : hall.Kind == AntColony.Buildings.RoomKind.BanquetHall ? GameBalance.BanquetMealMultiplier : 1f), GameCalendar.SecondsPerDay / 3f);
+                    * (hall.Kind == AntColony.Buildings.RoomKind.DiningKitchen ? .5f : hall.Kind == AntColony.Buildings.RoomKind.BanquetHall ? GameBalance.BanquetMealMultiplier : 1f), GameCalendar.SecondsPerDay / 2f);
             if (m.rotten)
             {
                 personalState.moodFactors.RemoveAll(f => f.reason.StartsWith("식사:"));
-                personalState.AddMood("식사: 썩은 식품", GameBalance.RottenMealMood, GameCalendar.SecondsPerDay / 3f);
+                personalState.AddMood("식사: 썩은 식품", GameBalance.RottenMealMood, GameCalendar.SecondsPerDay / 2f);
                 if (!traits.Has(CommanderTrait.IronStomach) && UnityEngine.Random.value < GameBalance.RottenPoisonChance) { m.poisonSeconds = GameBalance.FoodPoisonSeconds; personalState.AddMood("식중독", GameBalance.FoodPoisonMood, GameBalance.FoodPoisonSeconds); }
                 m.rotten = false; return;
             }

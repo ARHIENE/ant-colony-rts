@@ -98,9 +98,9 @@ namespace AntColony.Regression
                 Assert(spot.AmountRemaining < fishAmount, "real shoreline harvest and deposit");
                 spot.Extract(1000);
                 Assert(spot.FishedOut && !spot.CanGather && !spot.IsRegrowing, "monthly fishing cap reached");
-                typeof(ResourceNode).GetProperty("FishMonth", BindingFlags.Instance | BindingFlags.NonPublic).SetValue(spot, GameCalendar.TotalMonths - 1);
-                spot.RefreshFishingMonth();
-                Assert(spot.CanGather && spot.AmountRemaining == GameBalance.FishingMonthlyFood, "next month restocks");
+                typeof(ResourceNode).GetProperty("FishSeason", BindingFlags.Instance | BindingFlags.NonPublic).SetValue(spot, GameCalendar.TotalSeasons - 1);
+                spot.RefreshFishingSeason();
+                Assert(spot.CanGather && spot.AmountRemaining == GameBalance.FishingSeasonFood, "next month restocks");
                 return "PASS: locked command/extraction, single charge, concurrent research guard, scientist interruption/resume, unlock, lab destruction, real shoreline harvest/deposit, monthly cap and restock.";
             }
             finally

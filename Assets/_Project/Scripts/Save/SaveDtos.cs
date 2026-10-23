@@ -52,6 +52,8 @@ namespace AntColony.Save
     [Serializable]
     public class CommanderDto
     {
+        public bool hasOrder;
+        public CommanderOrderDto order; // v19
         public int id;
         public string name;
         public int rank;
@@ -110,6 +112,8 @@ namespace AntColony.Save
     {
         public Core.StoreBin.Dto storeBin; // v17: 창고 칸의 실제 재고·허용 품목·우선순위
         public bool packed; // v17: 회수·포장된 가구(기능 정지, 다시 설치 대기)
+        public Buildings.WallFire.State fire; // 불타는 중인 건물만(남은 시간·소화 진행). 없으면 null
+        public int serviceCommander = -1, serviceJob; // 이 건물을 서비스 중인 장수 번호·CommanderJobs
         public int workforce;
         public float repairCredit;
         public int decorationQuality = 1;
@@ -208,6 +212,8 @@ namespace AntColony.Save
     [Serializable]
     public class SiteDto
     {
+        public bool defenseUnderAttack;
+        public string defenseFaction;
         public bool rewardsClaimed;
         public float growthTimer;
         public EnemyColonyDto colony;
@@ -228,6 +234,10 @@ namespace AntColony.Save
     [Serializable]
     public class RouteDto
     {
+        public List<string> nodes;
+        public int[] nextNode;
+        public bool rallying;
+        public List<int> crew = new List<int>();
         public bool running;
         public int destinationIndex = -1;
         public float waitSeconds;
@@ -289,7 +299,7 @@ namespace AntColony.Save
         public float upkeepTimer, incursionTimer;
         public bool loopCompleted, bossDefeated, defeated;
         public string randomState;
-        public const int CurrentVersion = 18;
+        public const int CurrentVersion = 19;
         public List<World.Corpse.State> corpses = new List<World.Corpse.State>();
         public List<ConstructionDto> construction; // v17 건설·철거·이동·개보수 예정지(옛 저장은 null = 없음)
         public List<World.Critter.State> critters; // v16 목장 생물 개체(2026-10-11 개편: 나이·배고픔·길들임·돌봄·결박 등, 옛 필드는 같은 이름으로 읽힘)
@@ -335,6 +345,8 @@ namespace AntColony.Save
     [Serializable]
     public class MonsterDto
     {
+        public bool hasRuntime;
+        public WildMonsterDto runtime; // v19
         public bool huntDesignated;
         public World.WildlifeTemperament temperament = World.WildlifeTemperament.Predator;
         public string diplomaticFactionId;

@@ -28,7 +28,7 @@ namespace AntColony.Buildings
         public bool IsGambling => Data.kind == BuildingKind.GamblingDen;
         public int Seats => Data.kind switch
         {
-            BuildingKind.Campfire => GameBalance.CampfireSeats, BuildingKind.GamblingDen => GameBalance.GamblingDenSeats,
+            BuildingKind.Campfire => 1, BuildingKind.GamblingDen => GameBalance.GamblingDenSeats,
             BuildingKind.BoardGame or BuildingKind.Janggi or BuildingKind.Baduk or BuildingKind.WrestlingRing => 2,
             BuildingKind.HotSpring => 4,
             _ => 1

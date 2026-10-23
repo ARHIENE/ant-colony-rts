@@ -13,7 +13,7 @@ namespace AntColony.Save
         public static bool Busy { get; internal set; }
         internal static SaveFileV1 Rollback;
         private float elapsed, retry;
-        private void Update()
+        private void LateUpdate()
         {
             if (!GameSession.Instance.GameStarted || Busy) return;
             elapsed += Time.deltaTime; retry -= Time.unscaledDeltaTime;
@@ -28,6 +28,7 @@ namespace AntColony.Save
             {
                 if (Busy || !GameSession.Instance.GameStarted) throw new InvalidOperationException("No playable session to save.");
                 if (index < 0 || index >= (auto ? SaveSlots.AutoSlotCount : SaveSlots.ManualSlotCount)) throw new ArgumentOutOfRangeException(nameof(index));
+                // Capture and atomic write do not yield. Autosaves run after Update; menu saves run while paused.
                 var file = SaveSnapshot.Capture();
                 if (!SavePreflight.ForScene(file, out error)) return false;
                 SaveStorage.WriteAtomic(SaveSlots.PathFor(auto, index), JsonUtility.ToJson(file, true));
@@ -53,6 +54,7 @@ namespace AntColony.Save
         public static void NewGame(NewGameOptions options)
         {
             if (Busy) return;
+            CrashLandingStart.Prepare(options);
             Rollback = null; Units.CommanderAnt.CommonDiet = Units.CommanderAnt.AllDiet; World.Memorial.Restore(null); Reload(null, options);
         }
         internal static void Reload(SaveFileV1 file, NewGameOptions options)

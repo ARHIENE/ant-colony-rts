@@ -8,7 +8,7 @@ namespace AntColony.UI
     public sealed class HudClock : MonoBehaviour
     {
         private static readonly string[] SeasonNames = { "봄", "여름", "가을", "겨울" };
-        public static string CalendarLabel => $"{GameCalendar.Year}년 {SeasonNames[(int)GameCalendar.CurrentSeason]} {GameCalendar.Month}월";
+        public static string CalendarLabel => $"{GameCalendar.Year}년 {SeasonNames[(int)GameCalendar.CurrentSeason]} {GameCalendar.DayOfSeason}일";
         public static string DayLabel => $"{GameCalendar.Year}년 {SeasonNames[(int)GameCalendar.CurrentSeason]} · {(GameCalendar.IsNight ? "밤" : "낮")} · {AntColony.Map.WeatherSystem.Name(AntColony.Map.WeatherSystem.Current)}{(BiomeRules.Current != MapBiome.None ? " · " + BiomeRules.Name(BiomeRules.Current) : "")}";
 
         private RectTransform root, marker;

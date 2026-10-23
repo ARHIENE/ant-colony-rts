@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using AntColony.Core;
 using AntColony.Save;
 using AntColony.Units;
@@ -10,7 +11,7 @@ namespace AntColony.UI
     public sealed class MoodWatch : MonoBehaviour
     {
         public static readonly Color AuraColor = new Color(.85f, .3f, .95f);
-        private readonly HashSet<CommanderAnt> warned = new HashSet<CommanderAnt>();
+        private readonly Dictionary<CommanderAnt, int> warned = new Dictionary<CommanderAnt, int>();
         private readonly Dictionary<CommanderAnt, LineRenderer> auras = new Dictionary<CommanderAnt, LineRenderer>();
         private float scan;
 
@@ -25,18 +26,23 @@ namespace AntColony.UI
 
         public void Scan()
         {
-            warned.RemoveWhere(c => c == null);
+            foreach (var c in warned.Keys.Where(c => c == null).ToArray()) warned.Remove(c);
             foreach (var c in CommanderRoster.Instance.Commanders)
             {
                 if (c == null) continue;
                 var member = c.IsColonyMember && !c.IsHostile;
                 var alert = member && CommanderOverhead.MoodAlert(c);
-                if (alert && warned.Add(c) && GameSession.Exists && GameSession.Instance.GameStarted)
+                var level = GameBalanceNeeds.MoodWarning(c.Mood);
+                if (alert && level > 0 && (!warned.TryGetValue(c, out var previous) || previous != level)
+                    && GameSession.Exists && GameSession.Instance.GameStarted)
                 {
-                    ToastManager.Show($"기분 경고: {c.CommanderName} (기분 {c.Mood:0}) — 정신 붕괴 위험", ToastKind.Warning);
+                    warned[c] = level;
+                    var cause = c.PersonalState.moodFactors.Where(f => f.value < 0).OrderBy(f => f.value).FirstOrDefault()?.reason ?? "부정 요인 없음";
+                    var remaining = Mathf.Max(0, SocialRules.Month - c.PersonalState.lowMoodSeconds);
+                    ToastManager.Show($"기분 {new[] { "", "주의", "위험", "위급" }[level]}: {c.CommanderName} ({c.Mood:0}) — {cause} · 이탈까지 {remaining:0}초", ToastKind.Warning);
                     FirstHints.Trigger("collapse");
                 }
-                else if (!alert) warned.Remove(c);
+                else if (!alert || level == 0) warned.Remove(c);
                 Aura(c, member && c.PersonalState.mentalBreak != MentalBreak.None);
             }
         }

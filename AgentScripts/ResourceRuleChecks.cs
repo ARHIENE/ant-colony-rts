@@ -74,11 +74,11 @@ public static class ResourceRuleChecks
             // 낚시터: 월 한도 100, 소진 후 다음 달 회복.
             var gm = GameManager.Instance; typeof(GameManager).GetProperty("FishingUnlocked").SetValue(gm, true);
             var spot = GameObject.Find("FishingSpot").GetComponent<ResourceNode>();
-            SetMonth(1); spot.RefreshFishingMonth();
-            Check(spot.AmountRemaining == GameBalance.FishingMonthlyFood && spot.FishMonthPublic() == 1 && spot.CanGather, "monthly stock 100");
-            Check(Near(spot.Extract(1000), 100) && spot.FishedOut && !spot.CanGather && spot.gameObject.activeSelf && !spot.IsRegrowing, "cap reached, no regrowth");
-            spot.RefreshFishingMonth(); Check(spot.FishedOut, "same month stays empty");
-            SetMonth(2); spot.RefreshFishingMonth(); Check(spot.AmountRemaining == 100 && spot.CanGather, "next month restocks");
+            SetMonth(3); spot.RefreshFishingSeason();
+            Check(spot.AmountRemaining == GameBalance.FishingSeasonFood && spot.FishSeasonPublic() == 1 && spot.CanGather, "seasonal stock 300");
+            Check(Near(spot.Extract(1000), GameBalance.FishingSeasonFood) && spot.FishedOut && !spot.CanGather && spot.gameObject.activeSelf && !spot.IsRegrowing, "cap reached, no regrowth");
+            spot.RefreshFishingSeason(); Check(spot.FishedOut, "same season stays empty");
+            SetMonth(6); spot.RefreshFishingSeason(); Check(spot.AmountRemaining == GameBalance.FishingSeasonFood && spot.CanGather, "next season restocks");
 
             // 낚시 1회: 20초마다 Food 6 × 낚시 배율.
             var c = CommanderRoster.Instance.Commanders[0];
@@ -106,13 +106,13 @@ public static class ResourceRuleChecks
             typeof(WorkerAnt).GetField("fishingProgress", Private).SetValue(fisher, 12f);
             Check(SaveSystem.TrySave(false, 0, out var error), "save: " + error);
             Check(SaveSystem.TryLoad(SaveSlots.PathFor(false, 0), out error), "load: " + error); await Ready(); await Task.Delay(300);
-            spot = GameObject.Find("FishingSpot").GetComponent<ResourceNode>(); spot.RefreshFishingMonth();
-            Check(Near(spot.AmountRemaining, left) && spot.FishMonthPublic() == GameCalendar.TotalMonths, $"fishing month survives save/load amt={spot.AmountRemaining} left={left} fm={spot.FishMonthPublic()} tm={GameCalendar.TotalMonths}");
+            spot = GameObject.Find("FishingSpot").GetComponent<ResourceNode>(); spot.RefreshFishingSeason();
+            Check(Near(spot.AmountRemaining, left) && spot.FishSeasonPublic() == GameCalendar.TotalSeasons, $"fishing month survives save/load amt={spot.AmountRemaining} left={left} fm={spot.FishSeasonPublic()} tm={GameCalendar.TotalSeasons}");
             fisher = CommanderRoster.Instance.Commanders.First(x => x.CommanderName == fisherName);
             Check(Near((float)typeof(WorkerAnt).GetField("fishingProgress", Private).GetValue(fisher), 12), "fishing progress survives save/load");
             return "PASS ResourceRuleChecks " + checks;
         }
         finally { if (farmObject != null) Object.Destroy(farmObject); SaveStorage.RootOverride = root; Time.timeScale = 0; }
     }
-    static int FishMonthPublic(this ResourceNode n) => (int)typeof(ResourceNode).GetProperty("FishMonth", Private).GetValue(n);
+    static int FishSeasonPublic(this ResourceNode n) => (int)typeof(ResourceNode).GetProperty("FishSeason", Private).GetValue(n);
 }

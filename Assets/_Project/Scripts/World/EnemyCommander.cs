@@ -28,6 +28,7 @@ namespace AntColony.World
         public CommanderTraits Traits => traits;
         public CommanderTalents Talents => talents;
         internal void RestoreTalents(CommanderTalents value) => talents = value.Copy();
+        internal float CaptureChance { get => captureChance; set => captureChance = value; }
         public bool WasCaptured { get; private set; }
 
         // 적 소굴이 파동마다 장수를 만들 때 개성을 심어준다.

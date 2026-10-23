@@ -78,7 +78,7 @@ namespace AntColony.Core
             count = Mathf.Clamp(count, 0, Assigned);
             if (count == 0) return;
             Assigned -= count;
-            ColonyPopulation.Instance?.OnAntsReturned(0); // 전사한 몫의 미룬 노화를 버린다.
+            ColonyPopulation.Instance?.OnAntsLost(count);
             CampaignHistory.Ants(count, true);
             OnPoolChanged?.Invoke();
         }

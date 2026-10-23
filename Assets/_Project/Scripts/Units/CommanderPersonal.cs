@@ -39,6 +39,7 @@ namespace AntColony.Units
             {
                 // 장식 효과는 생활 공간 미관(TickSpace)에 포함된다(2026-10-10: 미관은 실제 생활 공간 기준, 지나가기만 해서는 바뀌지 않음).
                 var value = 60f + traits.BaseMood + (HasNearbyFriend ? 3 : 0) + TrinketBonus(TrinketEffect.Mood);
+                value += GameBalanceNeeds.ExpectationMood(personalState.expectationTier);
                 foreach (var f in personalState.moodFactors) value += f.value < 0 ? f.value * traits.NegativeMoodMultiplier : f.value;
                 if (IsWorking || LabUpgradeBusy) value += 3 * traits.Flame(CurrentActivity);
                 if (personalState.treating) value -= 5;
@@ -106,6 +107,10 @@ namespace AntColony.Units
             TickHealthState(seconds);
             if (IsDead) return;
             personalState.Tick(seconds, traits);
+            var travelling = Transport != null && (Transport.State == AntColony.World.ExpeditionState.Outbound
+                || Transport.State == AntColony.World.ExpeditionState.Returning);
+            HygieneState.Tick(seconds, travelling, GameCalendar.Day);
+            RefreshHygieneMood();
             personalState.lastCombatSeconds += seconds;
             personalState.homeSeconds = IsAwayFromHome ? 0 : personalState.homeSeconds + seconds;
             if (Agent != null) Agent.speed = MovementSpeed;
@@ -140,6 +145,8 @@ namespace AntColony.Units
         public void StartMentalBreak(MentalBreak kind)
         {
             if (!System.Enum.IsDefined(typeof(MentalBreak), kind) || kind == MentalBreak.None || IsDead || IsEmbarked || IsCaptive) return;
+            if (kind == MentalBreak.Flee && IsColonyMember && !Active.OfType<CommanderAnt>().Any(c => c != this
+                && !c.IsDead && c.IsColonyMember && !c.IsHostile && !c.IsCaptive)) kind = MentalBreak.Wander;
             CommandStop(); ScienceAssignment?.ReleaseResearcher(); LabUpgradeLab?.CancelResearch();
             TreatmentFacility?.Release(this);
             CraftingWorkshop?.Release();
@@ -148,7 +155,7 @@ namespace AntColony.Units
             if (Social.breakdowns == 5) ShiftEventTrait(CommanderTrait.Fragile, false);
             // Phase 3: 붕괴 '도주'는 말 그대로 떠난다(탈주와 같은 처리, 혼자).
             if (kind == MentalBreak.Flee) { personalState.mentalBreak = MentalBreak.None; BeginDeparture(false); return; }
-            personalState.breakRemaining = kind == MentalBreak.Idle ? 60 : kind == MentalBreak.Flee ? 30 : 45;
+            personalState.breakRemaining = kind == MentalBreak.Idle || kind == MentalBreak.Wander ? 60 : kind == MentalBreak.Flee ? 30 : 45;
             if (kind == MentalBreak.SelfHarm)
             {
                 LoseTroops(Mathf.CeilToInt(troopCount * .2f), "정신 붕괴: 자해"); personalState.AddInjury(traits, true); EndMentalBreak();
@@ -165,6 +172,16 @@ namespace AntColony.Units
         {
             personalState.breakRemaining = Mathf.Max(0, personalState.breakRemaining - seconds);
             if (personalState.breakRemaining <= 0) { EndMentalBreak(); return; }
+            if (personalState.mentalBreak == MentalBreak.Wander)
+            {
+                if (IsFlying ? HasReachedDestination() : Agent != null && !Agent.pathPending && !Agent.hasPath)
+                {
+                    var offset = Random.insideUnitCircle * 6;
+                    if (UnityEngine.AI.NavMesh.SamplePosition(Position + new Vector3(offset.x, 0, offset.y), out var hit, 6,
+                        UnityEngine.AI.NavMesh.AllAreas) && CanReach(hit.position)) SetMoveDestination(hit.position);
+                }
+                TickFlightMovement(); return;
+            }
             IDamageable target = null;
             if (personalState.mentalBreak == MentalBreak.AttackBuilding)
                 target = FindObjectsByType<BuildingBase>(FindObjectsSortMode.None).Where(b => b.CountsTowardPlayerDefeat && !b.IsDead && !(b is AntColony.World.ExpeditionTransport))

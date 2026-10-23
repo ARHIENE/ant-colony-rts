@@ -58,7 +58,7 @@ namespace AntColony.Core
         public const float FungusSeconds = 180, FungusFood = 40, AutumnHarvestMultiplier = 1.25f;
         public const float SowSeconds = 5; // 밭 파종 작업량(2026-10-08 잠정, 장수 작업 속도로 나눔)
         // 낚시: 1회 20초·Food 6 × 낚시 기술 배율(한파 −20%). 낚시터 1곳당 월 Food 100, 다음 달 회복.
-        public const float FishingCatchSeconds = 20, FishingCatchFood = 6, FishingMonthlyFood = 100;
+        public const float FishingCatchSeconds = 20, FishingCatchFood = 6, FishingSeasonFood = 300; // 낚시터 1곳의 한 계절 한도(2026-10-23 G08 달력 환산, 옛 월 100)
         public const float HoneydewSeconds = 300, HoneydewFood = 80;
         public const float AdvancedFungusSeconds = 360, AdvancedFungusFood = 150;
         public const float AdvancedFungusSpecialChance = .1f;
@@ -126,7 +126,8 @@ namespace AntColony.Core
 
         // 식사(2026-09-28): 하루 3끼·날것 -8·식중독 60초·-10은 확정, 나머지 잠정.
         // 포만 0~100, 깨어 있는 낮(10분) 동안 3끼 먹도록 30 이하에서 식당으로 간다.
-        public const float SatietyPerSecond = 70f / 200f, EatBelowSatiety = 30, EatSeconds = 10, StarveRetrySeconds = 30;
+        public const float SatietyPerSecond = 70f / 75f, // 하루(150초) 2끼(2026-10-23 G08): 100→30까지 75초
+            EatBelowSatiety = 30, EatSeconds = 10, StarveRetrySeconds = 30;
         public static readonly float[] MealMood = { -8, 0, 5, 10 }; // 날것·간단·좋은·고급
         public const float FoodPoisonSeconds = 60, FoodPoisonMood = -10;
         // ponytail: 썩은 식품 식사 기분 −12·식중독 25%(잠정, 증상·치료는 질병 기획에서). 확정되면 여기만 고친다.

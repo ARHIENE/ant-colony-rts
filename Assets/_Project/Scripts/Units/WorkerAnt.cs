@@ -38,6 +38,29 @@ namespace AntColony.Units
         private BuildingConstructionSite targetConstruction;
         private float buildTimer;
 
+        internal Save.WorkerOrderDto CaptureWorkerOrder() => new Save.WorkerOrderDto {
+            state = (int)state, node = Save.SaveReferences.Key(targetNode), deposit = Save.SaveReferences.Key(targetDeposit),
+            construction = Save.SaveReferences.Key(targetConstruction), delivery = Save.SaveReferences.Key(deliverySite),
+            fetchHost = Save.SaveReferences.Key(fetchBin?.Host), fetchBase = fetchBin != null && fetchBin.IsBase,
+            depositBin = targetBin != null, fetchType = (int)fetchType, fetchAmount = fetchAmount,
+            fishingNode = Save.SaveReferences.Key(fishingNode), buildTimer = buildTimer };
+        internal void RestoreWorkerOrder(Save.WorkerOrderDto d)
+        {
+            if (d == null) return;
+            state = (State)d.state; targetNode = Save.SaveReferences.Get<ResourceNode>(d.node);
+            targetDeposit = Save.SaveReferences.Get<BuildingBase>(d.deposit);
+            targetConstruction = Save.SaveReferences.Get<BuildingConstructionSite>(d.construction);
+            deliverySite = Save.SaveReferences.Get<IMaterialSink>(d.delivery);
+            fetchBin = d.fetchBase ? ResourceManager.Instance.BaseBin : ResourceManager.Instance.BinOf(Save.SaveReferences.Get<BuildingBase>(d.fetchHost));
+            fetchType = (ResourceType)d.fetchType; fetchAmount = d.fetchAmount;
+            targetBin = d.depositBin ? ResourceManager.Instance.BinOf(targetDeposit) : null;
+            buildTimer = d.buildTimer; fishingNode = Save.SaveReferences.Get<ResourceNode>(d.fishingNode);
+            if (targetBin != null) ResourceManager.Instance.Reserve(this, targetBin, carriedType, Mathf.CeilToInt(carriedAmount));
+            if (deliverySite != null && !deliverySite.BeginPickup(this, fetchType, fetchAmount))
+                throw new System.InvalidOperationException("Cannot restore material pickup reservation.");
+            if (this is CommanderAnt c) c.SetWorkTarget((Component)targetConstruction ?? targetNode);
+        }
+
         public virtual bool CanStartConstruction => isActiveAndEnabled && !IsDead && state == State.Idle;
 
         // 자원을 들고 있거나 건설 중이면 병력 배정/보직 변경을 막아야 한다(운반 중 자원 증발 방지).

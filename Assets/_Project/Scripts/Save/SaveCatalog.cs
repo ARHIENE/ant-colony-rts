@@ -45,7 +45,7 @@ namespace AntColony.Save
             return b.GetType().Name;
         }
         internal static int SiteIndex(ExpeditionSite site) => site == null ? -1 : WorldMapManager.Instance.Sites.ToList().IndexOf(site);
-        internal static int ShipIndex(ExpeditionTransport ship) => ship == null ? -1 : WorldMapManager.Instance.Transports.ToList().IndexOf(ship);
+        internal static int ShipIndex(ExpeditionTransport ship) => ship == null ? -1 : WorldMapManager.Instance.Transports.Where(s => s != null).ToList().IndexOf(ship);
         internal static TraitsDto Traits(CommanderTraits t) => new TraitsDto { personality = (int)t.Personality,
             values = new List<CommanderTrait>(t.values), passions = t.passions.Select(p => new CommanderPassion { activity = p.activity, flame = p.flame }).ToList() };
         internal static CommanderTraits Traits(TraitsDto t) => new CommanderTraits((CommanderPersonality)t.personality)
@@ -55,16 +55,6 @@ namespace AntColony.Save
         {
             error = null;
             if (!Ready || Core.CommanderRoster.Instance == null) error = "Game is still initializing.";
-            else if (Core.CommanderRoster.Instance.Commanders.Any(c => c.IsConstructing || (c.IsAwayFromHome && (c.IsWorking || c.IsCarrying))
-                || (!c.CanResumeDutyAfterLoad && !c.IsHostile && c.PersonalState.rageRemaining <= 0 && !c.Social.diving && !c.IsEmbarked && c.Agent.enabled && c.Agent.isOnNavMesh && (c.Agent.pathPending || c.Agent.hasPath))))
-                error = "Stop commanders and finish carrying/building before saving.";
-            else if (Object.FindObjectsByType<WildMonster>(FindObjectsSortMode.None).Any(m => m.InCombat
-                || (!Monsters.Contains(m) && m.GetComponent<EventActor>() == null && m.GetComponent<Critter>() == null && string.IsNullOrEmpty(m.RebelId) && m.GetComponentInParent<ExpeditionSite>()?.Disposition != ConquestDisposition.Lost)))
-                error = "Finish the current battle or invasion before saving.";
-            else if (WorldMapManager.Instance.Sites.Any(s => s.Defense != null && s.Defense.UnderAttack))
-                error = "Finish settlement defense before saving.";
-            else if (WorldMapManager.Instance.Transports.Any(s => s != null && s.Route.IsRunning && s.State == ExpeditionState.Deployed))
-                error = "Auto transport will save after departing the collection site.";
             return error == null;
         }
     }

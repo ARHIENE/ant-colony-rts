@@ -26,14 +26,17 @@ public static class FoundationChecks
         try
         {
             GameMenuController.Instance.Resume();
-            session.MarkStarted(10, 299.99f);
-            Check(GameCalendar.Month == 1 && GameCalendar.Year == 1, "month boundary before");
-            session.MarkStarted(10, 300);
-            Check(GameCalendar.Month == 2 && GameCalendar.TotalMonths == 1, "month boundary");
+            // G08 달력: 1일 150초(낮 100·밤 50), 1계절 6일, 1년 24일.
+            session.MarkStarted(10, 149.99f);
+            Check(GameCalendar.Day == 0 && GameCalendar.DayOfSeason == 1 && GameCalendar.IsNight && GameCalendar.Year == 1, "day boundary before");
+            session.MarkStarted(10, 150);
+            Check(GameCalendar.Day == 1 && GameCalendar.DayOfSeason == 2 && !GameCalendar.IsNight, "day boundary");
+            session.MarkStarted(10, 100);
+            Check(GameCalendar.IsNight && GameCalendar.SecondsUntilPhaseChange == 50, "night after 100s");
             session.MarkStarted(10, 900);
-            Check(GameCalendar.CurrentSeason == Season.Summer && GameCalendar.Month == 4, "summer boundary");
+            Check(GameCalendar.CurrentSeason == Season.Summer && GameCalendar.DayOfSeason == 1, "summer boundary");
             session.MarkStarted(10, 3600);
-            Check(GameCalendar.Year == 2 && GameCalendar.Month == 1 && GameCalendar.MonthProgress == 0, "year boundary");
+            Check(GameCalendar.Year == 2 && GameCalendar.CurrentSeason == Season.Spring && GameCalendar.Format(3600) == "2년 봄 1일", "year boundary");
             GameMenuController.Instance.SetSpeed(3);
             Check(Time.timeScale == 3, "three times speed");
             GameMenuController.Instance.ToggleSimulation();

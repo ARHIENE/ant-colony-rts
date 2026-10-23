@@ -6,6 +6,8 @@ using UnityEngine;
 
 namespace AntColony.Core
 {
+    public enum FoodPreservation { RawMeat, Fish, Cooked, Berry, Mushroom, Grain, Nut, StartingRation }
+
     // 식품 신선도(2026-10-12): 물량마다 남은 보존 시간(게임 초)을 따로 갖는다. 옮기거나 묶어도 원래 신선도를 유지한다.
     // 꺼낼 때는 남은 시간이 짧은 것부터(썩기 전 식품 중 신선도 낮은 것부터 먹는다). 시간이 다 되면 썩은 식품이 된다.
     [Serializable] public sealed class FoodLots
@@ -13,13 +15,20 @@ namespace AntColony.Core
         [Serializable] public struct Lot { public int amount; public float shelf; }
         public List<Lot> lots = new List<Lot>();
 
-        // ponytail: 종류별 보존 기간 잠정값(기획 미정). 식량 2개월, 감로 1개월, 간단한 요리 1개월, 좋은 요리 1.5개월. 꿀·비식품은 부패하지 않는다.
+        public static float ShelfLife(FoodPreservation food) => GameCalendar.SecondsPerDay * (food switch
+        {
+            FoodPreservation.RawMeat or FoodPreservation.Fish or FoodPreservation.Cooked => 3f,
+            FoodPreservation.Berry or FoodPreservation.Mushroom => 6f,
+            _ => 24f
+        });
+
+        // Food는 원산지가 없는 통합 자원이다. 원산지를 아는 생산자는 종류별 기간으로 Lot을 생성한다.
         public static float ShelfLife(ResourceType t) => t switch
         {
-            ResourceType.Food => GameCalendar.SecondsPerMonth * 2f,
+            ResourceType.Food => ShelfLife(FoodPreservation.RawMeat),
             ResourceType.Honeydew => GameCalendar.SecondsPerMonth,
-            ResourceType.SimpleMeal => GameCalendar.SecondsPerMonth,
-            ResourceType.FineMeal => GameCalendar.SecondsPerMonth * 1.5f,
+            ResourceType.SimpleMeal => ShelfLife(FoodPreservation.Cooked),
+            ResourceType.FineMeal => ShelfLife(FoodPreservation.Cooked),
             _ => 0f
         };
         public static bool Perishable(ResourceType t) => ShelfLife(t) > 0;

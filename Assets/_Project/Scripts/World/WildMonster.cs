@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using AntColony.Buildings;
 using AntColony.Core;
 using AntColony.Data;
@@ -91,6 +92,35 @@ namespace AntColony.World
             currentHealth = value;
         }
         public Vector3 Position => transform.position;
+
+        internal Save.WildMonsterDto CaptureRuntime()
+        {
+            var world = WorldMapManager.Instance;
+            var invasion = UnityEngine.Object.FindObjectsByType<ColonyInvasion>(FindObjectsSortMode.None).FirstOrDefault(i => i.Owns(this));
+            var d = new Save.WildMonsterDto { commander = this is EnemyCommander, name = name, raider = isRaider, wasp = eventWasp,
+                night = nightPredator, flying = IsFlying, allied = Allied, docile = Docile, provoked = provoked, rebel = RebelId,
+                rotationY = transform.eulerAngles.y, scale = new Save.Vec3Dto(transform.localScale),
+                target = Save.SaveReferences.Key(currentTarget), maxHealth = maxHealth, detection = detectionRadius, damage = attackDamage,
+                range = attackRange, interval = attackInterval, searchInterval = targetSearchInterval, speed = moveSpeed,
+                attackTimer = attackTimer, searchTimer = targetSearchTimer, siegeCheck = siegeCheck, root = RootRemaining,
+                parentSite = Save.SaveCatalog.SiteIndex(GetComponentInParent<ExpeditionSite>()), raidSite = Save.SaveCatalog.SiteIndex(raidSite),
+                invasionSite = invasion == null ? -2 : Save.SaveCatalog.SiteIndex(invasion.GetComponentInParent<ExpeditionSite>()),
+                defenseSite = world.Sites.ToList().FindIndex(s => s.Defense != null && s.Defense.Owns(this)),
+                visitor = UnityEngine.Object.FindFirstObjectByType<LocalIncursions>()?.Visitors.Contains(this) == true };
+            if (this is EnemyCommander c) { d.commanderName = c.CommanderName; d.rank = (int)c.Rank; d.roles = c.Roles.Select(x => (int)x).ToList(); d.captureChance = c.CaptureChance; }
+            return d;
+        }
+        internal void RestoreRuntime(Save.WildMonsterDto d, bool targets = false)
+        {
+            if (targets) { currentTarget = Save.SaveReferences.Get<IDamageable>(d.target); return; }
+            maxHealth = d.maxHealth; detectionRadius = d.detection; attackDamage = d.damage; attackRange = d.range;
+            attackInterval = d.interval; targetSearchInterval = d.searchInterval; moveSpeed = d.speed;
+            isRaider = d.raider; eventWasp = d.wasp; nightPredator = d.night; IsFlying = d.flying; Allied = d.allied;
+            Docile = d.docile; provoked = d.provoked; RebelId = d.rebel; attackTimer = d.attackTimer;
+            targetSearchTimer = d.searchTimer; siegeCheck = d.siegeCheck; RootRemaining = d.root;
+            raidSite = d.raidSite < 0 ? null : WorldMapManager.Instance.Sites[d.raidSite];
+            agent.speed = moveSpeed; agent.stoppingDistance = attackRange; agent.enabled = !IsFlying && !IsDead && gameObject.activeInHierarchy;
+        }
 
         private Critter critter;
         private void Awake()

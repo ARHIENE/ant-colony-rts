@@ -1,3 +1,4 @@
+using System.Linq;
 using AntColony.Core;
 using AntColony.Data;
 using UnityEngine;
@@ -46,6 +47,17 @@ namespace AntColony.World
             Status = string.IsNullOrEmpty(status) ? (IsRunning ? "Ready" : "Off") : status;
             nextNode = null;
             rallying = false;
+        }
+
+        internal void CaptureProgress(Save.RouteDto dto)
+        {
+            dto.rallying = rallying; dto.nextNode = nextNode == null ? null : (int[])nextNode.Clone();
+            dto.nodes = nextNode == null ? null : nodes?.Select(n => Save.SaveReferences.Key(n)).ToList();
+        }
+        internal void RestoreProgress(Save.RouteDto dto)
+        {
+            rallying = dto.rallying; nextNode = dto.nextNode == null ? null : (int[])dto.nextNode.Clone();
+            nodes = dto.nodes?.Select(n => Save.SaveReferences.Get<ResourceNode>(n)).ToArray();
         }
 
         public void Stop(string reason = "Off")

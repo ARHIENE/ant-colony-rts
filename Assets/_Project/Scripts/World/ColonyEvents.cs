@@ -62,7 +62,8 @@ namespace AntColony.World
                 state.sinceLast = Mathf.Min(EventRules.Cooldown, state.sinceLast + dt);
                 for (int i = 0; i < state.cooldowns.Length; i++) state.cooldowns[i] = Mathf.Max(0, state.cooldowns[i] - dt);
                 foreach (var actor in FindObjectsByType<EventActor>(FindObjectsSortMode.None)) actor.Tick(dt);
-                if (GameCalendar.IsNight && state.lastNight != GameCalendar.Day) SpawnNightPredators();
+                // G08 하루 150초: 밤이 계절당 6번이라 첫날 밤에만 출현시켜 옛 빈도(계절당 1회)를 유지한다.
+                if (GameCalendar.IsNight && GameCalendar.DayOfSeason == 1 && state.lastNight != GameCalendar.Day) SpawnNightPredators();
                 state.checkRemaining -= dt;
                 if (state.checkRemaining > 0) continue;
                 state.checkRemaining += EventRules.CheckSeconds;

@@ -104,7 +104,7 @@ namespace AntColony.Units
 
         public string CommanderName => commanderName;
         // 기존 프로필·훈련장 에셋의 키만 재사용한다. 장수 보직은 장비로 대체한다.
-        public UnitRole Role => Weapon == null ? UnitRole.Melee : Weapon.weapon == WeaponKind.AcidSprayer ? UnitRole.Ranged
+        public UnitRole Role => Weapon == null ? UnitRole.Melee : Weapon.weapon == WeaponKind.AcidSprayer || Weapon.weapon == WeaponKind.ShortBow ? UnitRole.Ranged
             : Weapon.weapon == WeaponKind.Shield ? UnitRole.Defense : Weapon.weapon == WeaponKind.Pheromone ? UnitRole.Support : UnitRole.Melee;
         public override bool IsFlying => EquippedArmor?.armor == ArmorKind.Wings && Social.groundedRemaining <= 0;
 
@@ -145,12 +145,12 @@ namespace AntColony.Units
         }
 
         // 병력 수만큼 부대 전체의 전투력/채집량이 늘어난다.
-        // 레벨 공격 보너스는 기존 공격력과 같이 1마리분에 더해진 뒤 병력 수만큼 곱해진다.
+        // 레벨 공격 보너스는 기존 공격력과 같이 1마리분에 더해진 뒤 병력 수(병력 0이면 장수 본인 1인분)만큼 곱해진다.
         // 신중형 성격은 1마리분 공격력을 깎으므로 0 밑으로 내려가지 않게 막는다(병력 수를 곱하면 부호가 증폭된다).
         public override float AttackDamage => Mathf.Max(1f, base.AttackDamage + (Role == UnitRole.Support ? 0 : talents.Level(CombatActivity))
             + traits.AttackBonus + labAttackLevel * LabAttackBonusPerLevel
             + EquipmentBonus(EquipmentSlot.Weapon) + (HasNearbyFriend ? 1 : 0)
-            + (HasSupportAura ? SupportAttackBonus : 0f)) * troopCount * (1f - .25f * PersonalState.Severity(InjuryPart.Arms)) * (PersonalState.rageRemaining > 0 ? 1.3f : 1f);
+            + (HasSupportAura ? SupportAttackBonus : 0f)) * Mathf.Max(1, troopCount) * (1f - .25f * PersonalState.Severity(InjuryPart.Arms)) * (PersonalState.rageRemaining > 0 ? 1.3f : 1f);
         public override float Armor => base.Armor + (AntColony.Buildings.RoomSystem.NearCastleWall(Position) ? AntColony.Buildings.GameBalanceRooms.CastleWallArmor : 0) + (Role == UnitRole.Melee ? .5f * talents.Level(CommanderActivity.Melee) : Role == UnitRole.Defense ? talents.Level(CommanderActivity.Melee) : 0) + traits.ArmorBonus
             + labArmorLevel * LabArmorBonusPerLevel + (HasSupportAura ? SupportArmorBonus : 0f)
             + EquipmentBonus(EquipmentSlot.Armor) - 2f * PersonalState.Severity(InjuryPart.Thorax)
@@ -235,6 +235,7 @@ namespace AntColony.Units
         {
             if (!IsDeployed || IsReturning || count <= 0 || IsAwayFromHome || !isActiveAndEnabled || !CanChangeAllocation || AntPool.Instance == null) return false;
             if (count > CommandLimit - troopCount) return false;
+            if (ColonyPopulation.Instance == null || !ColonyPopulation.Instance.TryMilitaryDraft(count, AntColony.UI.EnemyAlert.CrisisActive)) return false;
             if (!AntPool.Instance.TryAssign(count)) return false;
             troopsReleased = false;
             troopCount += count;
@@ -288,12 +289,13 @@ namespace AntColony.Units
             if (WorkState.health <= 0) { CommandStop(); DropCargo(); OnDowned(); }
         }
 
-        // 병력이 없는 장수도 공격받지만 직접 교전은 하지 않는다.
-        public override bool CanAttackTarget(IDamageable target) => CanReceiveOrders && !IsReturning && !LabUpgradeBusy && HasTroops && base.CanAttackTarget(target);
+        // G01(2026-10-23): 병력 0은 부대 소진일 뿐이고 장수는 혼자(1인분) 계속 교전한다.
+        protected override bool AutoEngages => HasTroops || IsDeployed; // 병력 없는 민간 장수는 일하다 적에게 달려들지 않는다
+        public override bool CanAttackTarget(IDamageable target) => CanReceiveOrders && !IsReturning && !LabUpgradeBusy && base.CanAttackTarget(target);
 
         public override void CommandAttack(IDamageable target)
         {
-            if (!CanReceiveOrders || LabUpgradeBusy || !HasTroops) return;
+            if (!CanReceiveOrders || LabUpgradeBusy) return;
             if (target is Component component && !AntColony.World.DiplomacyManager.TryAttack(component)) return;
             ReleaseCorpse();
             base.CommandAttack(target);
@@ -301,7 +303,7 @@ namespace AntColony.Units
 
         public override void CommandAttackMove(Vector3 destination)
         {
-            if (!CanReceiveOrders || LabUpgradeBusy || !HasTroops) return;
+            if (!CanReceiveOrders || LabUpgradeBusy) return;
             ReleaseCorpse();
             base.CommandAttackMove(destination);
         }
@@ -408,6 +410,7 @@ namespace AntColony.Units
                     { Data.gatherRate = profile.gatherRate; Data.carryCapacity = profile.carryCapacity; break; }
             Data.role = Role;
             if (Role == UnitRole.Ranged) Data.attackRange = 6f;
+            if (Weapon?.weapon == WeaponKind.ShortBow) { Data.attackRange = 12f; Data.attackInterval = 2f; }
             if (Agent != null) Agent.speed = Data.moveSpeed;
         }
     }

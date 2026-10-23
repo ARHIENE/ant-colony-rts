@@ -124,6 +124,10 @@ namespace AntColony.UI
                 : (kitchen.Current != null ? $"조리 중: {kitchen.Current.name} {kitchen.Progress:P0}" : "조리 대기" + (kitchen.WaitReason != null ? $" · {kitchen.WaitReason}" : "")) + $" · 목록 {kitchen.Orders.Count}개 — 열어서 요리 목록 설정";
             if (Target is Gate gate) { label.text = gate.Open ? "성문 닫기" : "성문 열기"; instruction.text = gate.Open ? "열림: 모두 통과" : "닫힘: 성벽처럼 막음"; }
             if (Target is Decoration decor) instruction.text = $"품질 {new[] { "조잡", "보통", "정교", "걸작" }[decor.Quality]} · 반경 8m 환경 기분 +{decor.MoodBonus:0.#}";
+            if (Target is RecreationSpot leisure) instruction.text = $"최소 {leisure.MinimumUsers}명 · 정원 {leisure.Seats}명 · 현재 {leisure.Users.Count}명"
+                + (leisure.HasMinimumUsers ? " · 이용 가능" : " · 인원 대기");
+            if (Target.GetComponent<WallFire>() is WallFire fire && fire.Burning)
+                instruction.text = $"화재 · 소화 {fire.CaptureState().extinguishWork:0.0}/5초 · 장수 선택 후 우클릭으로 소화";
             if (Scout is ScoutPost scout)
             {
                 action.gameObject.SetActive(true);

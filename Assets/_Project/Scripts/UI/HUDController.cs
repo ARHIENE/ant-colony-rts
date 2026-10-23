@@ -263,7 +263,7 @@ namespace AntColony.UI
             resourceTexts[2].text = $"<color=#b1b3a7>인구</color> <b><color={color}>{pop.Total}</color></b> <color=#b1b3a7>· 납세 {pop.NextTaxSeconds:0}초</color>";
             demandFill.rectTransform.sizeDelta = new Vector2(118 * Mathf.Clamp01(pop.Demand / 100f), 3);
             resourceTexts[2].transform.parent.GetComponent<MenuTooltip>().Message = $"인구 {pop.Total} / 살 자리 {pop.HousingCapacity} · 어린 {pop.S.young} · 성체 {pool.Total} · 늙은 {pop.S.old}"
-                + $"\n민심 {pop.S.sentiment:0} · 이주 수요 {pop.Demand:0} · 세금 {pop.S.taxRate:P0} (다음 납세 {pop.NextTaxSeconds:0}초: 식량 +{pop.WeeklyFood} · 재료 +{pop.WeeklySoil}) · {ColonyPopulation.PolicyName(pop.S.policy)}\n누르면 인구 창";
+                + $"\n민심 {pop.S.sentiment:0} · 이주 수요 {pop.Demand:0} · 세금 {pop.S.taxRate:P0} (다음 납세 {pop.NextTaxSeconds:0}초: 식량 +{pop.DailyFood} · 재료 +{pop.DailySoil}) · {ColonyPopulation.PolicyName(pop.S.policy)}\n누르면 인구 창";
         }
 
         private void ShowVictoryMessage()
