@@ -38,3 +38,5 @@
 - 검사 시 ResourceType은 AntColony.Data.ResourceType 전체 이름(전역 ResourceType 충돌). run_script 60초 제한 → RunChecks.cs 비동기 경유.
 - prefab/prefab.meta, 씬, Water.mat, TimeManager, art 등은 커밋 제외. graphify-out 대량 변경도 커밋 제외.
 - 카카오 MemoChat은 SAVE 완료 시만.
+- SAVE 기록: 커밋 1691729 develop push. Notion 개발 일지 https://app.notion.com/p/402c4a0ecd3181949012de8382fb4747 (Trouble Shooting은 사용자 버그 요청 없어 생략).
+- **미확인 관찰:** SAVE 캡처 직전 eval로 CrashLandingStart.Begin(2명) 호출 후 확인 시 장수 12명·잔해 0개(옛 씬 기본 상태). 로딩 타이밍 문제인지 G08/B1~B4 통합 뒤 회귀인지 미확인 → 재개 시 ImplA2Checks로 먼저 확인.
