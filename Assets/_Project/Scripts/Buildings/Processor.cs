@@ -33,7 +33,7 @@ namespace AntColony.Buildings
                 new Recipe("직물(실)", ResourceType.Cloth, 1, 8, null, (ResourceType.Thread, 2)), new Recipe("직물(거미줄)", ResourceType.Cloth, 1, 8, null, (ResourceType.Cobweb, 2)) },
             BuildingKind.Smelter => new[] { new Recipe("철", ResourceType.Iron, 1, 14, CommanderActivity.Strength, (ResourceType.IronOre, 2), (ResourceType.Coal, 1)),
                 new Recipe("구리", ResourceType.Copper, 1, 14, CommanderActivity.Strength, (ResourceType.CopperOre, 2), (ResourceType.Coal, 1)),
-                new Recipe("강철", ResourceType.Steel, 1, 20, CommanderActivity.Strength, (ResourceType.Iron, 2), (ResourceType.Coal, 1)) },
+                new Recipe("강철", ResourceType.Steel, 1, 20, CommanderActivity.Strength, (ResourceType.Iron, 2), (ResourceType.Coal, 1)) }.Concat(SupplyRecipes.For(kind)).ToArray(),
             // 약제대(2026-10-11): 동물용 의약품·동물 수술 키트(장수용 약과 별도 자원, 재료는 잠정). 의료 능력만 사용(보조 기술 없음).
             BuildingKind.MedicineBench => new[] { new Recipe("동물용 의약품", ResourceType.AnimalMedicine, 1, 8, null, (ResourceType.Leaf, 2), (ResourceType.Honeydew, 1)),
                 new Recipe("동물 수술 키트", ResourceType.SurgeryKit, 1, 14, null, (ResourceType.Cloth, 1), (ResourceType.Cobweb, 2), (ResourceType.Chitin, 1)) },
@@ -46,12 +46,28 @@ namespace AntColony.Buildings
         public CommanderActivity Skill => IsMedical ? CommanderActivity.Medicine : CommanderActivity.Crafting;
 
         [Serializable] public class Order { public int recipe; public Workshop.OrderMode mode; public int amount = 1; }
-        [Serializable] public class State { public List<Order> orders = new List<Order>(); public int current = -1; public float progress; }
+        [Serializable] public class State { public List<Order> orders = new List<Order>(); public int current = -1; public float progress; public string makerId = ""; public bool ruined; }
         private State state = new State();
         public IReadOnlyList<Recipe> Recipes => RecipesFor(Data != null ? Data.kind : default);
         public List<Order> Orders => state.orders;
         public Recipe Current => state.current >= 0 && state.current < Recipes.Count ? Recipes[state.current] : null;
         public float Progress => Current == null ? 0 : state.progress / Current.work;
+        public string MakerId => state.makerId;
+        public bool CanContinue(CommanderAnt c) => c != null && (Current == null || string.IsNullOrEmpty(state.makerId) || state.makerId == c.PersonalState.id);
+        public string WaitReason
+        {
+            get
+            {
+                if (state.ruined || !isActiveAndEnabled || IsDead) return "도구: 제작대 사용 불가 · 미완성품 보관/취소";
+                if (!NeedsWork) return "재료 또는 주문 대기";
+                var crew = AntUnitBase.Active.OfType<CommanderAnt>().Where(c => c.CivilianWorkReady && CanContinue(c)).ToArray();
+                if (crew.Any(c => c.ServiceTarget == this)) return "가공 중";
+                if (crew.Length == 0) return "담당 없음 · 원제작자 미복귀 시 보관/취소";
+                var allowed = crew.Where(c => c.AllowsJob(Job)).ToArray();
+                if (allowed.Length == 0) return "금지: " + Job;
+                return allowed.Any(c => c.TryWorkApproach(Position, out _)) ? "담당 배정 대기" : "경로 없음";
+            }
+        }
 
         public bool AddOrder(int recipe, Workshop.OrderMode mode, int amount)
         {
@@ -60,7 +76,7 @@ namespace AntColony.Buildings
         }
         private static bool Wants(Order o, Recipe r) => o.mode == Workshop.OrderMode.KeepStock ? ResourceManager.Instance.GetAmount(r.output) < o.amount : o.amount > 0;
         private static bool Affordable(Recipe r) => r.inputs.All(i => ResourceManager.Instance.GetAmount(i.type) >= i.amount);
-        public bool NeedsWork => !IsDead && isActiveAndEnabled && ResourceManager.Instance != null
+        public bool NeedsWork => !state.ruined && !IsDead && isActiveAndEnabled && ResourceManager.Instance != null
             && (Current != null || state.orders.Any(o => o.recipe < Recipes.Count && Wants(o, Recipes[o.recipe]) && Affordable(Recipes[o.recipe])));
 
         // 목록 위에서부터 원하는 품목 중 재료가 있는 것 하나를 시작한다.
@@ -81,21 +97,36 @@ namespace AntColony.Buildings
 
         public bool Work(CommanderAnt c, float seconds)
         {
-            if (!NeedsWork || !(seconds > 0) || float.IsInfinity(seconds)) return false;
+            if (!NeedsWork || !(seconds > 0) || float.IsInfinity(seconds) || !CanContinue(c) || !c.CivilianWorkReady || !c.AllowsJob(Job)) return false;
             if (Current == null && !StartNext()) return false;
             var r = Current;
+            state.makerId = c.PersonalState.id;
             state.progress += c.WorkRate(Skill) * seconds; // 능력은 속도만 보정(산출·품질 동일)
             c.GainExperience(Skill, seconds, IsMedical ? Skill : r.support); // 약제대 생산은 의료만(보조 기술 연결 없음)
             if (state.progress < r.work) return true;
-            state.current = -1; state.progress = 0;
+            state.current = -1; state.progress = 0; state.makerId = "";
             AntColony.World.DiplomacyManager.StoreResource(r.output, r.amount, ResourceReason.Production); // 창고가 차면 바닥 더미
             return true;
         }
 
-        // 철거·이동 시작 시 진행 중 생산을 취소한다. 이미 소비한 재료는 돌려주지 않는다(2026-10-12). 주문 목록은 남는다.
-        internal void CancelCurrent()
+        // 미완성품 취소: 소비 전은 전량, 작업한 일반 재료는 70%를 실물로 반환한다.
+        public void CancelCurrent()
         {
-            state.current = -1; state.progress = 0;
+            if (Current != null) foreach (var input in Current.inputs)
+                AntColony.World.DiplomacyManager.DropFloor(input.type, input.type == AntColony.Data.ResourceType.Special || input.type == AntColony.Data.ResourceType.Component ? input.amount : Mathf.FloorToInt(input.amount * (state.progress > 0 ? .7f : 1)), Position + ResourceManager.Scatter());
+            state.current = -1; state.progress = 0; state.makerId = "";
+            ReleaseWorkers();
+        }
+
+        private void ReleaseWorkers()
+        {
+            foreach (var c in AntUnitBase.Active.OfType<CommanderAnt>().Where(c => c.ServiceTarget == this).ToArray()) c.CommandStop();
+        }
+        protected override void OnDisable() { ReleaseWorkers(); base.OnDisable(); }
+        protected override void Die()
+        {
+            // 공방처럼 미완성품을 잔해에 남겨 원제작자가 없어도 보관/취소할 수 있게 한다.
+            state.ruined = true; enabled = false;
         }
 
         internal State CaptureState() => JsonUtility.FromJson<State>(JsonUtility.ToJson(state));
@@ -106,6 +137,7 @@ namespace AntColony.Buildings
             state.orders.RemoveAll(o => o == null || o.recipe < 0 || o.recipe >= Recipes.Count || o.amount < 1 || o.amount > Workshop.MaxOrderAmount || !Enum.IsDefined(typeof(Workshop.OrderMode), o.mode));
             if (state.orders.Count > Workshop.MaxOrders) state.orders.RemoveRange(Workshop.MaxOrders, state.orders.Count - Workshop.MaxOrders);
             if (state.current >= Recipes.Count || !(state.progress >= 0) || float.IsInfinity(state.progress)) { state.current = -1; state.progress = 0; }
+            enabled = !state.ruined;
         }
     }
 }

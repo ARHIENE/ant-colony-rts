@@ -17,6 +17,7 @@ namespace AntColony.Save
             try
             {
                 parsed = JsonUtility.FromJson<SaveFileV1>(json);
+                if (parsed != null) SaveOptionalStates.FromJson(parsed, json);
             }
             catch (Exception e)
             {
@@ -239,8 +240,9 @@ namespace AntColony.Save
             if (!Enum.IsDefined(typeof(Core.DifficultyLevel), file.options.difficulty)) { error = "Unknown difficulty."; return false; }
             if (!Enum.IsDefined(typeof(Core.CommanderDeathMode), file.options.commanderDeath)) { error = "Unknown commander death mode."; return false; }
             if (!Enum.IsDefined(typeof(Core.MapBiome), file.options.biome)) { error = "Unknown biome."; return false; }
+            if (!Enum.IsDefined(typeof(Core.MapClimate), file.options.climate)) { error = "Unknown climate."; return false; }
             var pop = file.population;
-            if (pop == null || pop.young < 0 || pop.old < 0 || pop.agingDue < 0 || !Enum.IsDefined(typeof(Core.MilitaryPolicy), pop.policy)
+            if (!Core.ColonyPopulation.ValidCivicState(pop) || pop.young < 0 || pop.old < 0 || pop.agingDue < 0 || !Enum.IsDefined(typeof(Core.MilitaryPolicy), pop.policy)
                 || !(pop.sentiment >= 0 && pop.sentiment <= 100) || !(pop.taxRate >= 0 && pop.taxRate <= Core.GameBalance.MaxTaxRate)
                 || float.IsNaN(pop.monthSeconds) || float.IsInfinity(pop.monthSeconds) || pop.monthSeconds < 0 || float.IsNaN(pop.raidSeconds) || pop.raidSeconds < 0
                 || !Enum.IsDefined(typeof(Core.TaxFocus), pop.taxFocus) || !Enum.IsDefined(typeof(Data.ResourceType), pop.taxMaterial) || !(pop.taxWeek >= 0 && pop.taxWeek <= Core.ColonyPopulation.TaxSeconds)
@@ -263,6 +265,7 @@ namespace AntColony.Save
                 if (building.position == null || !building.position.IsFinite()) { error = "Invalid building position."; return false; }
             }
             if (file.world.sites == null || file.world.transports == null) { error = "Missing world sections."; return false; }
+            SaveOptionalStates.Normalize(file);
             return SavePreflight.Validate(file, out error);
         }
         private static void MigrateTraits(TraitsDto traits)

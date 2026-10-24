@@ -14,7 +14,7 @@ namespace AntColony.Buildings
         [Serializable] public sealed class State
         {
             public string deceasedId = "", name = "", cause = ""; public float date;
-            public bool body, burialOrdered; public float bodyRemaining; public bool remains;
+            public bool body, burialOrdered, enemyBody; public float bodyRemaining; public bool remains;
         }
         public static readonly List<Tombstone> All = new List<Tombstone>();
         public State Data2 { get; private set; } = new State();
@@ -23,7 +23,7 @@ namespace AntColony.Buildings
         protected override void OnDisable() { All.Remove(this); base.OnDisable(); }
 
         public static Tombstone Of(string deceasedId) => All.FirstOrDefault(t => t.Data2.deceasedId == deceasedId);
-        public static Corpse BodyOf(string deceasedId) => Corpse.All.FirstOrDefault(c => c.Data.kind == CorpseKind.ColonyCommander && c.Data.commanderId == deceasedId);
+        public static Corpse BodyOf(string deceasedId) => Corpse.All.FirstOrDefault(c => c.IsCommanderBody && c.Data.commanderId == deceasedId);
         public bool Empty => Data2.deceasedId == "";
 
         // 고인 등록: 같은 고인의 묘비를 여러 개 만들 수 없다(효과 중첩 금지).
@@ -39,6 +39,7 @@ namespace AntColony.Buildings
         public bool OrderBurial(bool on) { if (on && BurialBlock != "") return false; Data2.burialOrdered = on; return true; }
         internal void Inter(Corpse body)
         {
+            Data2.enemyBody = body.Data.kind == CorpseKind.EnemyCommander;
             Data2.body = true; Data2.burialOrdered = false; Data2.bodyRemaining = body.Data.remaining; Data2.remains = body.Data.remaining <= 0;
             body.Bury();
         }
@@ -46,7 +47,7 @@ namespace AntColony.Buildings
         public Corpse TakeOut(Tombstone moveTo = null)
         {
             if (!Data2.body) return null;
-            var corpse = Corpse.Spawn(new Corpse.State { name = Data2.name, kind = CorpseKind.ColonyCommander, commanderId = Data2.deceasedId,
+            var corpse = Corpse.Spawn(new Corpse.State { name = Data2.name, kind = Data2.enemyBody ? CorpseKind.EnemyCommander : CorpseKind.ColonyCommander, commanderId = Data2.deceasedId,
                 position = Position + Vector3.right * 1.2f, remaining = Data2.bodyRemaining });
             Data2.body = false;
             if (moveTo != null && moveTo != this)

@@ -1,5 +1,5 @@
 #!/bin/bash
-# 사용: run_checks.sh Check1 Check2 ... (AgentScripts/<이름>.cs, 각각 Play 재시작 후 순차 실행)
+# 사용: run_checks.sh Check1 Check2 ... (AgentScripts/<이름>.cs, 각각 Play 재시작 후 순차 실행) 긴 검사는 CHECK_POLLS=180(10초 단위).
 cd /e/Git/ant
 SP=$(mktemp -d)  # 임시 setcheck.cs 위치
 unity cmd editor_focus >/dev/null 2>&1
@@ -18,7 +18,7 @@ for name in "$@"; do
   start=$(date +%s)
   unity cmd eval_file --file AgentScripts/RunChecks.cs --timeout 30 >/dev/null 2>&1
   res="TIMEOUT"
-  for i in $(seq 1 60); do
+  for i in $(seq 1 ${CHECK_POLLS:-60}); do
     if [ -f Temp/check-result.txt ] && [ $(stat -c %Y Temp/check-result.txt) -gt $start ]; then res=$(head -c 600 Temp/check-result.txt); break; fi
     sleep 10
   done

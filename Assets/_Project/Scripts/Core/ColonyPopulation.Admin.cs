@@ -15,7 +15,7 @@ namespace AntColony.Core
             {
                 float seats = GameBalance.BaseHousing, weighted = GameBalance.BaseHousing;
                 foreach (var h in Housing.All) { seats += h.Capacity; weighted += h.Capacity * Housing.Productivity(h.Data.kind); }
-                return weighted / seats;
+                return seats > 0 ? weighted / seats : 1f;
             }
         }
         public static float ResearchProductivity => CampaignResearch.Instance == null ? 0f
@@ -23,8 +23,8 @@ namespace AntColony.Core
         public static float FacilityProductivity => Mathf.Min(GameBalance.MaxFacilityProductivity, Facilities * GameBalance.FacilityProductivity);
         public static float Productivity => HousingProductivity * (1f + ResearchProductivity) * (1f + FacilityProductivity);
 
-        // ── 행정: 행정 장수 없이도 세금·이주는 돈다. 성과 0~1이 징수 손실·민심·이주·재개발을 보정한다.
-        public float AdminDemandWork => Total * GameBalance.AdminWorkPerAnt;
+        // G17: 500명당 하루 1업무. 저장된 완료 업무를 소모하며 성과는 하루 필요량 대비 0~1이다.
+        public float AdminDemandWork => Total / 500f;
         public float Administration => AdminDemandWork <= 0 ? 0f : Mathf.Clamp01(S.adminWork / AdminDemandWork);
         public bool NeedsAdministration => Total > 0 && S.adminWork < AdminDemandWork;
         public float TaxCollection => 1f - GameBalance.AdminTaxLoss * (1f - Administration);
@@ -32,10 +32,10 @@ namespace AntColony.Core
         {
             if (work > 0 && !float.IsInfinity(work)) S.adminWork = Mathf.Min(AdminDemandWork, S.adminWork + work);
         }
-        // 업무 성과는 시간 상수만큼 천천히 줄어 식사·수면 중에도 바로 사라지지 않는다.
+        // 처리한 업무는 다음 하루 동안 선형 소모한다.
         private void TickAdministration(float seconds)
         {
-            S.adminWork *= Mathf.Exp(-seconds / GameBalance.AdminMemorySeconds);
+            S.adminWork = Mathf.Max(0, S.adminWork - AdminDemandWork * seconds / GameCalendar.SecondsPerDay);
             Redevelopment.TickDelays(this, seconds);
         }
     }

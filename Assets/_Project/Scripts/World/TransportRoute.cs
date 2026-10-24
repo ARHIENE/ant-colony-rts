@@ -49,8 +49,11 @@ namespace AntColony.World
             rallying = false;
         }
 
+        private void FitCursor() { if (nextNode != null && nextNode.Length != ship.Crew.Count) System.Array.Resize(ref nextNode, ship.Crew.Count); }
+
         internal void CaptureProgress(Save.RouteDto dto)
         {
+            FitCursor(); // 출발 뒤 승무원이 바뀌면 커서 길이도 맞춘다(저장 검증: 길이 = 승무원 수).
             dto.rallying = rallying; dto.nextNode = nextNode == null ? null : (int[])nextNode.Clone();
             dto.nodes = nextNode == null ? null : nodes?.Select(n => Save.SaveReferences.Key(n)).ToList();
         }
@@ -89,6 +92,8 @@ namespace AntColony.World
 
             if (ship.State == ExpeditionState.Home)
             {
+                if (ship.PendingCrewOrderCount > 0) { Status = ship.CrewOrderStatus; return; }
+                // HasCargo에는 핵심물도 포함한다. 반입 전에는 다음 왕복을 시작하지 않는다.
                 if (ship.HasCargo) { Status = "Waiting for home storage"; return; }
                 WaitSeconds = Mathf.Max(0, WaitSeconds - seconds);
                 if (WaitSeconds > 0) { Status = $"Next trip in {WaitSeconds:0}s"; return; }
@@ -103,6 +108,7 @@ namespace AntColony.World
                 nodes = Destination.Colony.GetComponentsInChildren<ResourceNode>(true);
                 nextNode = new int[ship.Crew.Count];
             }
+            FitCursor();
 
             var finished = true;
             for (var i = 0; i < ship.Crew.Count; i++)

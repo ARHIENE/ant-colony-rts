@@ -34,12 +34,12 @@ public static class SeasonWeatherChecks
             Check(season != null && WeatherSystem.Instance != null && WeatherSystem.Current == WeatherKind.Clear, "season and weather attached, start clear");
 
             // 계절: 가을이면 잎 색이 주황 쪽(빨강 > 초록 배율), 겨울 햇빛은 차갑고 약하다.
-            GameSession.Instance.MarkStarted(GameSession.Instance.PlaySeconds, GameCalendar.SecondsPerDay * 2 + 10); await Task.Yield(); await Task.Yield();
+            GameSession.Instance.MarkStarted(GameSession.Instance.PlaySeconds, GameCalendar.SecondsPerSeason * 2 + 10); await Task.Yield(); await Task.Yield();
             // 나무·풀은 SeasonFoliage 셰이더가 전역 계절 값으로 잎만 물들인다.
             Check(gen.GetComponentsInChildren<Renderer>().Any(r => r.sharedMaterial != null && r.sharedMaterial.shader.name == "AntColony/SeasonFoliage"), "foliage uses season shader");
             Check(Shader.GetGlobalFloat("_SeasonAutumn") > .9f && Shader.GetGlobalFloat("_SeasonWinter") < .1f, "autumn leaf color on");
             Check(Object.FindObjectsByType<ParticleSystem>().Any(p => p.name == "Season Fall" && p.emission.rateOverTime.constant > 0), "autumn leaves falling");
-            GameSession.Instance.MarkStarted(GameSession.Instance.PlaySeconds, GameCalendar.SecondsPerDay * 3 + 10); await Task.Yield(); await Task.Yield();
+            GameSession.Instance.MarkStarted(GameSession.Instance.PlaySeconds, GameCalendar.SecondsPerSeason * 3 + 10); await Task.Yield(); await Task.Yield();
             Check(DayNightLighting.SeasonIntensity < 1 && DayNightLighting.SeasonTint.b > DayNightLighting.SeasonTint.r, "winter sun cold and low");
             Check(Shader.GetGlobalFloat("_SeasonWinter") > .9f, "winter snow on trees");
 

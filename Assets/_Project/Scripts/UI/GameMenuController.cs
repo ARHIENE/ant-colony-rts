@@ -100,7 +100,7 @@ namespace AntColony.UI
         public void SetSpeed(float value)
         {
             if (SaveSystem.Busy || open || !GameSession.Instance.GameStarted) return;
-            Time.timeScale = value <= 0 ? 0 : Speeds.OrderBy(s => Mathf.Abs(s - value)).First();
+            SimulationPause.UserSpeed(value <= 0 ? 0 : Speeds.OrderBy(s => Mathf.Abs(s - value)).First());
             if (Time.timeScale > 0) resumeScale = Time.timeScale;
         }
         public void ToggleSimulation() => SetSpeed(Time.timeScale > 0 ? 0 : Mathf.Max(1, resumeScale));
@@ -108,9 +108,11 @@ namespace AntColony.UI
         private void BeginScreen(string title, float scrim)
         {
             refreshDutyScreen = null;
-            if (!open) resumeScale = Time.timeScale;
+            if (!open) resumeScale = SimulationPause.Speed;
+            SimulationPause.Release("negotiation");
             open = true; ScreenName = title; panel.gameObject.SetActive(true); toolbar.SetActive(false); Tooltip("");
-            if (!GameSession.Instance.GameStarted || UserSettings.Current.pauseSimulationOnMenu) Time.timeScale = 0;
+            if (!GameSession.Instance.GameStarted || UserSettings.Current.pauseSimulationOnMenu) SimulationPause.Hold("menu");
+            else SimulationPause.Release("menu");
             content = legacyContent;
             foreach (Transform child in content) { child.gameObject.SetActive(false); Destroy(child.gameObject); }
             if (frame != null) { frame.gameObject.SetActive(false); Destroy(frame.gameObject); frame = null; }
@@ -142,15 +144,15 @@ namespace AntColony.UI
             tooltipPanel.gameObject.SetActive(!string.IsNullOrEmpty(value));
             if (!string.IsNullOrEmpty(value) && tooltipPanel.gameObject.activeInHierarchy) tooltipPanel.SetAsLastSibling();
         }
-        public void ShowLoading() { Screen("Loading...", "불러오는 중…"); Time.timeScale = 0; }
-        public void SceneReady(bool playing) { resumeScale = 1; if (playing) Resume(); else Main(); }
+        public void ShowLoading() { SimulationPause.Restore(GameSession.Instance.PendingLoad?.world.pause); Screen("Loading...", "불러오는 중…"); Time.timeScale = 0; }
+        public void SceneReady(bool playing) { resumeScale = SimulationPause.Speed; if (playing) Resume(); else Main(); }
         public void Resume()
         {
             if (SaveSystem.Busy || !GameSession.Instance.GameStarted) return;
             if (CampaignResearch.Instance != null && CampaignResearch.Instance.Departed) { ShowDeparture(); return; }
             if (GameManager.Instance != null && GameManager.Instance.SavedDefeat) { ShowOutcome(false); return; }
             Tooltip("");
-            open = false; closedFrame = Time.frameCount; ScreenName = "Game"; panel.gameObject.SetActive(false); toolbar.SetActive(true); Time.timeScale = resumeScale;
+            open = false; closedFrame = Time.frameCount; ScreenName = "Game"; panel.gameObject.SetActive(false); toolbar.SetActive(true); SimulationPause.Release("negotiation"); SimulationPause.Release("menu");
         }
         public void Guide()
         {
@@ -174,7 +176,7 @@ namespace AntColony.UI
             Screen(victory ? "VICTORY - BETA COMPLETE" : "COLONY LOST", victory ? "보스 처치 — 중간 목표 달성" : "정착지 붕괴");
             Time.timeScale = 0;
             var seconds = GameSession.Instance.PlaySeconds;
-            MenuTheme.Text(content, victory ? "보스를 처치했습니다. 정착지를 계속 확장하고 로켓 발사를 준비하세요." : "활동 가능한 장수가 없습니다. 저장을 불러오거나 새 정착지를 시작하세요.", 22, 80);
+            MenuTheme.Text(content, victory ? "보스를 처치했습니다. 정착지를 계속 확장하고 로켓 발사를 준비하세요." : (GameManager.Instance?.DefeatReason ?? "활동 가능한 장수가 없습니다.") + " 저장을 불러오거나 새 정착지를 시작하세요.", 22, 80);
             MenuTheme.Text(content, $"플레이 시간: {(int)seconds / 60:00}:{(int)seconds % 60:00}  /  장수: {CommanderRoster.Instance?.Count ?? 0}", 18, 48);
             if (victory) MenuTheme.Button(content, "Continue Colony", () => { resumeScale = 1; Resume(); });
             MenuTheme.Button(content, "Load Game", () => Slots(false));
@@ -199,6 +201,9 @@ namespace AntColony.UI
             MenuTheme.Button(content, "Autosave: " + (s.autoSaveEnabled ? "On" : "Off"), () => Apply(v => v.autoSaveEnabled = !v.autoSaveEnabled));
             MenuTheme.Button(content, "Autosave interval: " + s.autoSaveMinutes + " minutes", () => Apply(v => v.autoSaveMinutes = v.autoSaveMinutes >= 15 ? 1 : v.autoSaveMinutes + 1));
             MenuTheme.Button(content, "Toast duration: " + s.toastSeconds + " seconds", () => Apply(v => v.toastSeconds = v.toastSeconds >= 10 ? 2 : v.toastSeconds + 1));
+            MenuTheme.Button(content, "새 위협 자동정지: " + s.autoPauseThreat, () => Apply(v => v.autoPauseThreat = !v.autoPauseThreat));
+            MenuTheme.Button(content, "장수 쓰러짐 자동정지: " + s.autoPauseDowned, () => Apply(v => v.autoPauseDowned = !v.autoPauseDowned));
+            MenuTheme.Button(content, "로켓 파괴 자동정지: " + s.autoPauseRocket, () => Apply(v => v.autoPauseRocket = !v.autoPauseRocket));
             MenuTheme.Button(content, "Pause simulation in menus: " + s.pauseSimulationOnMenu, () => Apply(v => v.pauseSimulationOnMenu = !v.pauseSimulationOnMenu));
             MenuTheme.Button(content, "First-time hints: " + (s.firstHints ? "On" : "Off"), () => Apply(v => v.firstHints = !v.firstHints));
             MenuTheme.Button(content, "Reset seen hints (" + s.shownHints.Count + ")", () => Apply(v => v.shownHints.Clear()));

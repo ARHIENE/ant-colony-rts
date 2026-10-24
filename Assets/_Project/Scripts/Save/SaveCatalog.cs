@@ -34,6 +34,8 @@ namespace AntColony.Save
         }
         internal static string Kind(BuildingBase b)
         {
+            if (b is CivicService civic) return civic.SavedKind.ToString();
+            if (b is SupplyFacility || b is StarterCropBed) return b.Data.kind.ToString();
             if (b.GetComponent<NurseryChamber>() != null) return "Nursery";
             if (b.GetComponent<ScoutPost>() != null) return "ScoutPost";
             if (b.GetComponent<PrisonerCamp>() != null) return "PrisonerCamp";

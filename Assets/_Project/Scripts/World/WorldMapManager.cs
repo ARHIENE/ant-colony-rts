@@ -20,12 +20,13 @@ namespace AntColony.World
         public IReadOnlyList<ExpeditionTransport> Transports => transports;
         public bool VehicleResearched { get; internal set; }
         public bool AircraftResearched { get; internal set; }
-        public bool Unlocked { get; private set; }
-        internal void RestoreUnlock(bool value) => Unlocked = value;
+        public bool Unlocked { get; private set; } = true;
+        internal void RestoreUnlock(bool value) => Unlocked = true;
         public ScienceLab Researcher { get; internal set; }
         public ExpeditionSite ViewedSite { get; private set; }
         public Vector3 HomePosition { get; private set; }
         public string SettlementNotice { get; internal set; } = "";
+        public HomeDefenseReturn DefenseReturn { get; internal set; } = new HomeDefenseReturn();
         private Vector3 homeFocus;
 
         private void Awake() => Instance = this;
@@ -65,6 +66,12 @@ namespace AntColony.World
             var site = go.AddComponent<ExpeditionSite>();
             site.Initialize(title, faction, color, mapPosition, kind, difficulty, colonyTemplate, bossTemplate, commanderTemplate);
             sites.Add(site);
+            if (kind == ExpeditionSiteKind.BossNest)
+            {
+                var index = 0;
+                foreach (var existing in sites) if (existing != site && existing.Kind == ExpeditionSiteKind.BossNest) index++;
+                if (index < 4) go.AddComponent<BossStronghold>().Initialize((BossId)index, site);
+            }
         }
 
         public bool CanCreateTransport(Vector3 origin, out Vector3 position)
@@ -82,10 +89,10 @@ namespace AntColony.World
             return false;
         }
 
-        public ExpeditionTransport CreateTransport(bool aircraft, Vector3 position)
+        public ExpeditionTransport CreateTransport(bool aircraft, Vector3 position, bool walking = false)
         {
             var ship = Instantiate(transportTemplate, position, Quaternion.identity);
-            ship.Initialize(aircraft);
+            ship.Initialize(aircraft, walking);
             ship.gameObject.SetActive(true);
             transports.Add(ship);
             Unlocked = true;
@@ -94,6 +101,7 @@ namespace AntColony.World
 
         public bool ViewSite(ExpeditionSite site)
         {
+            if (!SiteRevealed(site)) return false;
             if (site != null && (!Unlocked || (site.Disposition != ConquestDisposition.Annexed
                 && (site.Visitor == null || site.Visitor.State != ExpeditionState.Deployed)))) return false;
             var camera = UnityEngine.Camera.main.GetComponent<AntColony.Camera.IsometricCameraController>();
@@ -106,6 +114,12 @@ namespace AntColony.World
                 site == null ? AntColony.Map.HomeMapBuilder.CurrentWorldBounds
                     : new Bounds(site.transform.position, new Vector3(65, 100, 65)));
             return true;
+        }
+
+        public static bool SiteRevealed(ExpeditionSite site)
+        {
+            var stronghold = site != null ? site.GetComponent<BossStronghold>() : null;
+            return stronghold == null || stronghold.Revealed;
         }
 
         private void OnDestroy()

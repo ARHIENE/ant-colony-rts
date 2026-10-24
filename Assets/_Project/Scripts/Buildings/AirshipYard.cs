@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using AntColony.Core;
 using AntColony.Units;
 using UnityEngine;
@@ -9,7 +10,7 @@ namespace AntColony.Buildings
     public enum AirshipPart { Hull, Engine, Cocoon }
 
     // 로켓 발사대(2026-10-05, 구 비행선 조선소). 저장·프리팹 호환을 위해 코드 이름은 AirshipYard 유지.
-    public sealed class AirshipYard : BuildingBase
+    public sealed partial class AirshipYard : BuildingBase
     {
         [Serializable] public sealed class State
         {
@@ -17,6 +18,12 @@ namespace AntColony.Buildings
             public int cocoons;
             public int building = -1;
             public float remaining;
+            public RocketPhase phase;
+            public float preparationRemaining;
+            public int fuelType = -1, fuelUnits;
+            public RocketSnapshot snapshot;
+            public bool launchRequested;
+            public int civilianPassengers, civilianYoung, civilianOld;
             public List<int> passengers = new List<int>();
         }
         private State state = new State();
@@ -34,7 +41,7 @@ namespace AntColony.Buildings
         {
             var research = CampaignResearch.Instance;
             if (!Enum.IsDefined(typeof(AirshipPart), part) || !isActiveAndEnabled || IsDead || state.building >= 0
-                || research == null || research.Departed || !research.Has(Technology(part))
+                || ModificationsLocked || research == null || research.Departed || !research.Has(Technology(part))
                 || (part == AirshipPart.Hull && Hull) || (part == AirshipPart.Engine && Engine)
                 || (part == AirshipPart.Cocoon && Cocoons >= GameBalance.MaxCocoons)) return false;
             var cocoon = part == AirshipPart.Cocoon;
@@ -49,7 +56,9 @@ namespace AntColony.Buildings
         private void Update() => Tick(Time.deltaTime);
         public void Tick(float seconds)
         {
-            if (!isActiveAndEnabled || state.building < 0 || !(seconds > 0) || float.IsInfinity(seconds)) return;
+            if (!isActiveAndEnabled || IsDead || !(seconds > 0) || float.IsInfinity(seconds) || AntColony.Save.SaveSystem.Busy) return;
+            TickRocket(seconds);
+            if (state.building < 0) return;
             state.remaining = Mathf.Max(0, state.remaining - seconds);
             if (state.remaining > 0) return;
             if (state.building == (int)AirshipPart.Hull) state.hull = true;
@@ -61,10 +70,11 @@ namespace AntColony.Buildings
 
         public bool TryBoard(CommanderAnt commander)
         {
-            if (!isActiveAndEnabled || !Ready || CampaignResearch.Instance == null || CampaignResearch.Instance.Departed
+            if (!isActiveAndEnabled || IsDead || Phase != RocketPhase.Boarding || !Ready || CampaignResearch.Instance == null || CampaignResearch.Instance.Departed
                 || commander == null || !commander.isActiveAndEnabled || commander.IsDead || commander.IsAwayFromHome
                 || commander.IsEmbarked || commander.LabUpgradeBusy || !commander.CanChangeAllocation
-                || passengers.Count >= Cocoons || passengers.Contains(commander) || Vector3.Distance(commander.Position, Position) > 8) return false;
+                || commander.IsCaptive || commander.IsDeparting || commander.IsHostile
+                || OccupiedSeats + 1 + commander.TroopCount > Capacity || passengers.Contains(commander) || Vector3.Distance(commander.Position, Position) > 8) return false;
             passengers.Add(commander);
             commander.SetEmbarked(true, Position);
             return true;
@@ -72,6 +82,7 @@ namespace AntColony.Buildings
 
         public void Unload()
         {
+            UnloadCivilians();
             for (var i = 0; i < passengers.Count; i++)
                 if (passengers[i] != null) passengers[i].SetEmbarked(false, Position + Vector3.right * (3 + i));
             passengers.Clear();
@@ -80,8 +91,8 @@ namespace AntColony.Buildings
         public bool TryDepart()
         {
             var research = CampaignResearch.Instance;
-            if (!isActiveAndEnabled || !Ready || research == null || research.Departed) return false;
-            research.CompleteDeparture(passengers);
+            if (!isActiveAndEnabled || IsDead || Phase != RocketPhase.Boarding || !Ready || state.launchRequested || OccupiedSeats == 0 || research == null || research.Departed) return false;
+            state.launchRequested = true;
             return true;
         }
 
@@ -95,6 +106,11 @@ namespace AntColony.Buildings
         }
         public void RestoreState(State value, IReadOnlyList<CommanderAnt> commanders)
         {
+            if (!Validate(value, commanders.Count, out var error)
+                || value != null && value.passengers.Sum(id => 1L + commanders[id].TroopCount) + value.civilianPassengers > BaseSeats + SeatsPerModule * value.cocoons)
+                throw new FormatException(string.IsNullOrEmpty(error) ? "Rocket seats exceeded." : error);
+            // 시민 풀은 population 저장에서 복원한다. 상태 교체 때 승객을 다시 지급하지 않는다.
+            state.civilianPassengers = state.civilianYoung = state.civilianOld = 0;
             Unload();
             state = value == null ? new State() : JsonUtility.FromJson<State>(JsonUtility.ToJson(value));
             // 한도 도입 전 저장은 초과분만 잘라낸다(이미 탑승한 장수의 자리는 유지).
@@ -106,8 +122,24 @@ namespace AntColony.Buildings
             error = "Invalid rocket launch pad state.";
             if (value == null) { error = ""; return true; }
             if (value.cocoons < 0 || value.building < -1 || value.building > 2 || value.remaining < 0
+                || value.civilianPassengers < 0 || value.civilianYoung < 0 || value.civilianOld < 0
+                || (long)value.civilianYoung + value.civilianOld > value.civilianPassengers
                 || float.IsInfinity(value.remaining) || float.IsNaN(value.remaining) || value.passengers == null
-                || value.passengers.Count > value.cocoons || (value.building == -1 && value.remaining != 0)) return false;
+                || value.cocoons > GameBalance.MaxCocoons || (long)value.passengers.Count + value.civilianPassengers > BaseSeats + SeatsPerModule * value.cocoons
+                || (value.building == -1 && value.remaining != 0)
+                || !Enum.IsDefined(typeof(RocketPhase), value.phase) || !RocketSnapshot.Finite(value.preparationRemaining)
+                || value.preparationRemaining > PreparationSeconds || value.fuelUnits < 0 || value.fuelUnits % 15 != 0
+                || value.fuelUnits == 0 && value.fuelType != -1
+                || value.fuelUnits > 0 && !Enum.IsDefined(typeof(AntColony.Data.ResourceType), value.fuelType)
+                || RocketSnapshot.Present(value.snapshot) && !value.snapshot.Valid
+                || (value.phase == RocketPhase.Preparing || value.phase == RocketPhase.Boarding || value.phase == RocketPhase.Launched)
+                    && (!value.hull || !value.engine || value.building >= 0 || value.fuelUnits <= 0 || !RocketSnapshot.Present(value.snapshot))
+                || (value.phase == RocketPhase.Boarding || value.phase == RocketPhase.Launched) && value.preparationRemaining != 0
+                || value.phase == RocketPhase.Preparing && value.preparationRemaining <= 0
+                || value.phase == RocketPhase.Destroyed && (value.passengers.Count > 0 || value.civilianPassengers > 0 || value.launchRequested)
+                || value.civilianPassengers > 0 && value.phase != RocketPhase.Boarding && value.phase != RocketPhase.Launched
+                || value.phase == RocketPhase.Construction && (value.preparationRemaining != 0 || RocketSnapshot.Present(value.snapshot))
+                || value.launchRequested && value.phase != RocketPhase.Boarding) return false;
             var unique = new HashSet<int>();
             foreach (var id in value.passengers) if (id < 0 || id >= commanderCount || !unique.Add(id)) return false;
             error = ""; return true;

@@ -21,8 +21,9 @@ namespace AntColony.UI
         public void Diplomacy(Civilization selected)
         {
             var d = DiplomacyManager.Instance;
-            if (d?.Available != true) { ToastManager.Show("월드맵 해금 후 외교를 사용할 수 있습니다."); return; }
+            if (d?.Available != true) { SupplyCaravan(); return; }
             var f = Frame("외교 [J]");
+            L.Button(f, "SupplyCaravan", "기초 자원 캐러밴", 1010, 47, 270, 32, SupplyCaravan);
             var contacted = d.Data.civilizations.Where(c => c.contacted && !c.extinct).ToArray();
             var tab = L.Plate(f, "DiplomacyTab", 48, 47, 200, 34);
             L.Label(tab, $"<b>외교</b>   <color=#b1b3a7>접촉 {contacted.Length}</color>", 14, 16, 0, 180, 34);
@@ -111,6 +112,31 @@ namespace AntColony.UI
             if (s.offerExpires > d.Data.elapsed)
                 Act("제안 수락", TreatyNames[(int)s.offeredTreaty] + " 제안 수락 · 남은 " + (s.offerExpires - d.Data.elapsed).ToString("0") + "초",
                     () => { if (!d.AcceptOffer(s)) ToastManager.Show("제안이 만료되었습니다."); Diplomacy(s); }, true);
+        }
+        private void SupplyCaravan()
+        {
+            var events = ColonyEvents.Instance;
+            var f = Frame("기초 자원 캐러밴 [J]");
+            L.Label(f, events != null && events.CaravanPresent ? "방문 중 · 식량으로 구매, 물품은 본거지 바닥에 도착합니다" : "캐러밴 방문 대기 · 월드맵 해금 전에도 구매할 수 있습니다", 16, 48, 48, 1300, 40);
+            var list = L.List(f, 48, 100, 1344, 620);
+            foreach (AntColony.Data.ResourceType type in Enum.GetValues(typeof(AntColony.Data.ResourceType)))
+            {
+                var price = ColonyEvents.SupplyPrice(type); if (price <= 0) continue;
+                var item = type;
+                var row = L.Cell(list, "Supply " + type, 42);
+                L.Label(row, type.DisplayName() + " · 개당 식량 " + price, 14, 12, 0, 600, 42);
+                foreach (var amount in new[] { 1, 10 })
+                {
+                    var quantity = amount;
+                    var button = L.Button(row, "Buy " + amount, amount + "개 구매 · 식량 " + price * amount, amount == 1 ? 660 : 920, 4, 240, 34, () =>
+                    {
+                        if (ColonyEvents.Instance?.TryBuySupply(item, quantity) != true) ToastManager.Show("캐러밴 방문과 식량 보유량을 확인하세요.");
+                        SupplyCaravan();
+                    });
+                    button.interactable = events != null && events.CaravanPresent;
+                }
+            }
+            L.Button(f, "Close", "닫기   Esc", 1180, 764, 160, 34, Resume);
         }
         private static string TreatySummary(Civilization c, DiplomacyManager d)
         {

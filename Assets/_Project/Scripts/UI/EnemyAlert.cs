@@ -40,12 +40,13 @@ namespace AntColony.UI
         // 검사용으로도 쓴다. 시작·불러오기 직후 첫 스캔은 이미 있던 적을 경보 없이 기억만 한다.
         public void Scan()
         {
+            ThreatIncidents.Scan(seeded);
             var threats = Threats().ToList();
             var raised = false;
             foreach (var t in threats)
             {
                 var inCombat = t is WildMonster m ? m.InCombat : t is CommanderAnt c && c.IsInCombat;
-                if (seeded && (!known.Contains(t) || inCombat && !fighting.Contains(t))) { alerted.Add(t); raised = true; }
+                if (seeded && !known.Contains(t)) { alerted.Add(t); raised = true; }
                 if (inCombat) fighting.Add(t); else fighting.Remove(t);
             }
             known.Clear(); known.UnionWith(threats);

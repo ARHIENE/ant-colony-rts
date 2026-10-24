@@ -16,7 +16,7 @@ namespace AntColony.Save
         {
             if (b == null) return new BuildingDto { key = key, kind = "Destroyed", health = 0 };
             SaveReferences.Building(key, b);
-            var d = new BuildingDto { key = key, kind = SaveCatalog.Kind(b), runtimeBuilt = built,
+            var d = new BuildingDto { key = key, kind = SaveCatalog.Kind(b), runtimeBuilt = built, objectName = built ? b.name : null,
                 position = new Vec3Dto(b.Position), rotationY = b.transform.eulerAngles.y, health = b.CurrentHealth };
             d.repairCredit = b.GetComponent<BuildingRepair>()?.Credit ?? 0;
             if (b is Storage store && store.Bin != null) d.storeBin = store.Bin.Capture();
@@ -31,7 +31,9 @@ namespace AntColony.Save
                 d.labResearchCommanderId = commanders.IndexOf(lab.Target); d.labResearchAttack = lab.ResearchIsAttack; }
             if (b is DigSite dig) d.digExpanded = dig.IsExpanded;
             if (b is Gate gate) d.gateOpen = gate.Open;
-            if (b is PowerNode power) d.powerCharge = power.Charge;
+            if (b is PowerNode power) { d.powerCharge = power.Charge; d.powerFuelSeconds = power.FuelSeconds; }
+            if (b is SupplyFacility supply) d.supply = JsonUtility.FromJson<SupplyFacility.State>(JsonUtility.ToJson(supply.Supply));
+            if (b is StarterCropBed crop) d.starterCrop = JsonUtility.FromJson<StarterCropBed.State>(JsonUtility.ToJson(crop.Crop));
             if (b is ColdStorage cold) d.coldness = cold.Coldness;
             d.materialTier = b.MaterialTier; d.mainMaterial = (int)b.MainMaterial;
             if (b is AcidTower tower) d.towerCooldown = tower.Cooldown;
@@ -78,7 +80,7 @@ namespace AntColony.Save
             var template = BuildingPlacementController.GetTemplate(Enum.Parse<BuildingKind>(d.kind), (UnitRole)d.role);
             if (template == null) throw new InvalidOperationException("Missing building template: " + d.kind);
             var go = UnityEngine.Object.Instantiate(template, d.position.ToVector3(), Quaternion.Euler(0, d.rotationY, 0));
-            go.name = d.kind;
+            go.name = string.IsNullOrEmpty(d.objectName) ? d.kind : d.objectName;
             go.SetActive(true);
             return go.GetComponent<BuildingBase>();
         }
@@ -99,14 +101,16 @@ namespace AntColony.Save
             if (b is Stockpile && d.queenFishingRemaining > 0 && GameManager.Instance != null) GameManager.Instance.FishingUnlocked = true;
             if (b is DigSite dig) dig.RestoreExpanded(d.digExpanded);
             if (b is Gate gate) gate.SetOpen(d.gateOpen);
-            if (b is PowerNode power) power.Charge = Mathf.Clamp(d.powerCharge, 0, GameBalance.BatteryCapacity);
+            if (b is PowerNode power) { power.Charge = Mathf.Clamp(d.powerCharge, 0, GameBalance.BatteryCapacity); power.RestoreFuel(d.powerFuelSeconds); }
+            if (b is SupplyFacility supply) supply.RestoreSupply(d.supply);
+            if (b is StarterCropBed crop) crop.RestoreCrop(d.starterCrop);
             if (b is ColdStorage cold) cold.Coldness = float.IsNaN(d.coldness) ? 0 : Mathf.Clamp01(d.coldness);
             b.MaterialTier = Mathf.Max(0, d.materialTier);
             b.MainMaterial = (ResourceType)d.mainMaterial;
             if (b is AcidTower tower) tower.RestoreCooldown(d.towerCooldown);
             if (b is AreaAcidTower areaTower) areaTower.RestoreCooldown(d.towerCooldown);
             if (b is TrapPit trap) trap.RestoreState(d.trapArmed, d.trapBroken, d.trapRepair, d.trapRepairPaid, d.trapSpikeHits);
-            if (d.kind == "Farm" && d.runtimeBuilt)
+            if (d.kind == "Farm")
                 { var farm = b.GetComponent<FarmPlot>() ?? b.gameObject.AddComponent<FarmPlot>(); farm.Configure((FarmCrop)d.crop, d.farmWide);
                   farm.RestoreState(d.farm == null ? null : JsonUtility.FromJson<FarmPlot.State>(JsonUtility.ToJson(d.farm))); }
             if (b is ScienceLab science) { science.RestoreState(d.scienceRemaining, d.scienceAircraft, d.scienceConstructing, d.scienceSpawn.ToVector3());

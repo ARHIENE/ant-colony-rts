@@ -3,26 +3,43 @@ using UnityEngine;
 
 namespace AntColony.Units
 {
-    // Phase 4(2026-10-01): 장수 나이(개월, 잠정). 어린 장수는 일·출전 없이 배우기만, 늙으면 몸은 약해지고 지혜는 는다,
-    // 수명이 다하면 예고 없이 죽는다. ageMonths < 0 = 아직 안 정함(새 장수·이전 저장) → 첫 틱에 성체 나이로 정한다.
+    // 12개월=1세. 어린 장수는 첫 1년 동안 0→18세로 성장한다. 기대수명은 사망 기한이 아니다.
     public partial class CommanderAnt
     {
         public float AgeMonths => personalState.ageMonths;
-        public bool IsChild => personalState.ageMonths >= 0 && personalState.ageMonths < GameBalance.ChildMonths;
-        public bool IsElder => personalState.ageMonths >= GameBalance.ElderMonths;
+        public bool IsChild => personalState.ageMonths >= 0 && personalState.ageMonths < AdultAgeMonths;
+        public bool IsElder => personalState.ageMonths >= ElderAgeMonths;
         public string AgeLabel => personalState.ageMonths < 0 ? "—" : $"{Mathf.FloorToInt(personalState.ageMonths / 12f)}세";
 
-        public void SetBorn() { personalState.ageMonths = 0; personalState.lifespanMonths = Random.Range(GameBalance.MinLifespan, GameBalance.MaxLifespan); }
-
+        public const float AdultAgeMonths = 18 * 12, ElderAgeMonths = 65 * 12, ExpectedAgeMonths = 80 * 12;
+        public void SetBorn() { personalState.ageMonths = 0; personalState.ageScaleVersion = 1; personalState.lifespanMonths = ExpectedAgeMonths; }
+        internal static void MigrateAge(CommanderPersonalState state)
+        {
+            if (state.ageScaleVersion != 0) return;
+            if (state.ageMonths >= 12 && state.ageMonths <= 96)
+                state.ageMonths = Mathf.Lerp(AdultAgeMonths, ElderAgeMonths, (state.ageMonths - 12) / 84);
+            else if (state.ageMonths >= 0 && state.ageMonths < 12) state.ageMonths *= 18;
+            state.ageScaleVersion = 1; state.lifespanMonths = ExpectedAgeMonths;
+        }
+        public static float AgingChance(float years) => years < 65 ? 0 : Mathf.Clamp01(.02f + (years - 65) * .002f);
         private void TickAge(float seconds)
         {
-            if (personalState.ageMonths < 0)
+            MigrateAge(personalState);
+            if (AgeMonths < 0) personalState.ageMonths = Random.Range(18 * 12f, 30 * 12f);
+            var previous = AgeMonths;
+            var months = seconds * 12 / GameCalendar.SecondsPerYear;
+            if (IsChild)
             {
-                personalState.ageMonths = Random.Range(GameBalance.ChildMonths, 72f);
-                personalState.lifespanMonths = Random.Range(GameBalance.MinLifespan, GameBalance.MaxLifespan);
+                var childMonths = Mathf.Min(months, (AdultAgeMonths - previous) / 18);
+                personalState.ageMonths += childMonths * 18; months -= childMonths;
             }
-            personalState.ageMonths += seconds / GameCalendar.SecondsPerMonth;
-            if (personalState.ageMonths >= personalState.lifespanMonths && IsColonyMember && !IsCaptive && !IsEmbarked) { CommandStop(); DropCargo(); OnDowned("노환", true); }
+            personalState.ageMonths += months;
+            for (int year = Mathf.Max(65, Mathf.FloorToInt(previous / 12) + 1); year <= Mathf.FloorToInt(AgeMonths / 12); year++)
+            {
+                if (MedicalRules.Roll() < AgingChance(year))
+                    Health.wounds.Add(new Wound { part = BodyPart.Thorax, kind = WoundKind.Scar, damage = MedicalRules.MaxHp(BodyPart.Thorax) * .1f, tended = true });
+                if (MedicalRules.Roll() < AgingChance(year)) traits.TryAdd(CommanderTrait.Senile);
+            }
         }
 
         private float AgeMoveMultiplier => IsElder ? .85f : 1f;

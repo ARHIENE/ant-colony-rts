@@ -12,7 +12,9 @@ namespace AntColony.Buildings
     public static class Demolition
     {
         public static bool Pending(BuildingBase b) => Object.FindObjectsByType<DemolitionSite>().Any(s => s.Target == b);
-        private static bool Orderable(BuildingBase b) => b != null && !b.IsDead && b.Data != null && b.CountsTowardPlayerDefeat && !(b is Stockpile) && !Pending(b);
+        private static bool Orderable(BuildingBase b) => b != null && !b.IsDead && b.Data != null && b.CountsTowardPlayerDefeat && !(b is Stockpile)
+            && !(b is AirshipYard yard && yard.ModificationsLocked)
+            && !(b is SupplyFacility source && source.IsNaturalSource) && !Pending(b);
         // 환자·포로·치료 중인 동물이 들어 있는 시설은 비우기 전 철거·이동·개보수를 할 수 없다(2026-10-12).
         public static bool HoldsPrisoners(BuildingBase b) => b != null && (b.TryGetComponent<PrisonerCamp>(out var camp) && camp.Count > 0
             || b is Infirmary ward && ward.Patients.Count > 0
@@ -77,6 +79,7 @@ namespace AntColony.Buildings
         // 창고·냉장고·먹이통 등 내용물을 원래 자리 바닥에 내놓고, 진행 중 생산을 취소한다(이미 소비한 재료는 반환하지 않는다).
         internal static void EmptyForRemoval(BuildingBase b)
         {
+            (b as SupplyFacility)?.EjectStored();
             if (b is Storage store) ResourceManager.Instance?.EjectAll(store.Bin);
             (b as RanchFacility)?.OnRemoved(); // 먹이통·도축대 내용물은 바닥에, 치료대 환자는 그 자리에
             (b as Processor)?.CancelCurrent(); (b as Kitchen)?.CancelCurrent(); (b as Kitchen)?.EjectStaged();

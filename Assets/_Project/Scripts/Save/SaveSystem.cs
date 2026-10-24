@@ -31,7 +31,7 @@ namespace AntColony.Save
                 // Capture and atomic write do not yield. Autosaves run after Update; menu saves run while paused.
                 var file = SaveSnapshot.Capture();
                 if (!SavePreflight.ForScene(file, out error)) return false;
-                SaveStorage.WriteAtomic(SaveSlots.PathFor(auto, index), JsonUtility.ToJson(file, true));
+                SaveStorage.WriteAtomic(SaveSlots.PathFor(auto, index), SaveOptionalStates.ToJson(file, true));
                 return true;
             }
             catch (Exception e) { error = e.Message; return false; }
@@ -45,8 +45,8 @@ namespace AntColony.Save
             try
             {
                 Rollback = GameSession.Instance.GameStarted ? SaveSnapshot.Capture() : null;
-                if (Rollback != null) SaveStorage.WriteAtomic(System.IO.Path.Combine(SaveStorage.Root, "load-recovery.json"), JsonUtility.ToJson(Rollback));
-                Reload(file, new NewGameOptions { mapSize = (MapSize)file.options.mapSize, difficulty = (DifficultyLevel)file.options.difficulty, commanderDeath = (CommanderDeathMode)file.options.commanderDeath, seed = file.options.seed, biome = (MapBiome)file.options.biome });
+                if (Rollback != null) SaveStorage.WriteAtomic(System.IO.Path.Combine(SaveStorage.Root, "load-recovery.json"), SaveOptionalStates.ToJson(Rollback));
+                Reload(file, new NewGameOptions { mapSize = (MapSize)file.options.mapSize, difficulty = (DifficultyLevel)file.options.difficulty, commanderDeath = (CommanderDeathMode)file.options.commanderDeath, seed = file.options.seed, biome = (MapBiome)file.options.biome, climate = (MapClimate)file.options.climate });
                 return true;
             }
             catch (Exception e) { error = e.Message; return false; }
@@ -60,10 +60,26 @@ namespace AntColony.Save
         internal static void Reload(SaveFileV1 file, NewGameOptions options)
         {
             if (!Application.CanStreamedLevelBeLoaded("AntColony")) throw new InvalidOperationException("AntColony is missing from Build Settings.");
-            Busy = true; Time.timeScale = 0;
-            GameSession.Instance.SetOptions(options); GameSession.Instance.MarkStarted(); GameSession.Instance.PendingLoad = file;
-            GameMenuController.Instance.ShowLoading();
-            SceneManager.LoadScene("AntColony");
+            var session = GameSession.Instance;
+            var previousOptions = session.Options.Clone(); var previousLoad = session.PendingLoad;
+            var playing = session.GameStarted; var playSeconds = session.PlaySeconds; var gameSeconds = session.GameSeconds;
+            var pause = SimulationPause.Capture(); var scale = Time.timeScale;
+            Busy = true;
+            try
+            {
+                Time.timeScale = 0;
+                session.SetOptions(options); session.MarkStarted(); session.PendingLoad = file;
+                GameMenuController.Instance.ShowLoading();
+                SceneManager.LoadScene("AntColony");
+            }
+            catch
+            {
+                // A synchronous loading exception must not leave every subsequent check waiting on Busy.
+                Busy = false; session.SetOptions(previousOptions); session.PendingLoad = previousLoad;
+                if (playing) session.MarkStarted(playSeconds, gameSeconds); else session.MarkNotStarted();
+                SimulationPause.Restore(pause); Time.timeScale = scale;
+                throw;
+            }
         }
     }
 }

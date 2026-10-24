@@ -61,25 +61,22 @@ namespace AntColony.Units
                 c.FriendDied(victimId, victimName, true);
             }
         }
-        private void FriendDied(string id, string victimName, bool preventable)
+        private void FriendDied(string id, string victimName, bool preventable) => RecordDeathMood(id, victimName);
+        internal bool RecordDeathMood(string id, string victimName)
         {
+            personalState.deathEvents ??= new System.Collections.Generic.List<string>();
+            if (personalState.deathEvents.Contains(id)) return false;
+            personalState.deathEvents.Add(id);
             var relation = personalState.relations.Find(r => r.otherId == id);
-            if (relation == null || relation.value < SocialRules.Friend) return;
-            if (!traits.Has(CommanderTrait.ColdBlooded))
-            {
-                var loss = relation.spouse ? 10f : 5f;
-                if (preventable) loss *= 2;
-                if (traits.Has(CommanderTrait.Loyal)) loss *= .5f;
-                MoodEvent("친구 사망: " + victimName, -Mathf.RoundToInt(loss));
-            }
-            if (Random.value < .3f) ShiftEventTrait(CommanderTrait.Depressive, false);
+            personalState.AddMood("DeathEvent:" + id, relation?.spouse == true ? -30 : relation?.value >= SocialRules.Friend ? -15 : -10, GameCalendar.SecondsPerDay * 2);
+            return true;
         }
         public void NotifyDowned(bool fatal, string cause)
         {
             foreach (var c in SocialRoster.Where(c => c != this && c.IsColonyMember))
             {
-                if (fatal) c.FriendDied(personalState.id, commanderName, cause == "처형" || cause == "방치");
-                if (c.IsFriend(this)) c.StartRevenge();
+                if (fatal && !c.RecordDeathMood(personalState.id, commanderName)) continue;
+                if (c.IsFriend(this)) c.StartRevenge(fatal);
             }
         }
         public void OnCaptured()
@@ -110,11 +107,13 @@ namespace AntColony.Units
                 ChangeEventTrait(CommanderTrait.ColdBlooded, CommanderTrait.Sociable);
             personalState.captiveSeconds = personalState.unsupportedSeconds = 0;
         }
-        private void StartRevenge()
+        private void StartRevenge(bool additionalDeath = false)
         {
             if (!isActiveAndEnabled || IsCaptive || IsEmbarked || IsDeparting || !HasTroops) return;
             InterruptPersonalWork();
-            personalState.rageRemaining = traits.Has(CommanderTrait.Reckless) ? 120 : 60;
+            personalState.rageRemaining = personalState.rageRemaining > 0
+                ? Mathf.Min(120, personalState.rageRemaining + (additionalDeath ? 20 : 0))
+                : traits.Has(CommanderTrait.Reckless) ? 120 : 60;
             ToastManager.Show(commanderName + ": 친구를 위한 복수");
         }
         private void TickRevenge(float seconds)

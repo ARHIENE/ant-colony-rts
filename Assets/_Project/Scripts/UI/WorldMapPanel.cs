@@ -19,7 +19,10 @@ namespace AntColony.UI
         private RectTransform mapRoot, selectionRing;
         private ExpeditionSite selectedSite;
         private ExpeditionTransport selectedShip;
-        private bool seenUnlock, cameraWasEnabled;
+        private bool seenUnlock = true, cameraWasEnabled;
+        private UnityEngine.UI.Text departurePlan;
+        private ExpeditionTransport warnedShip;
+        private ExpeditionSite warnedSite;
         private const float PlanetX = (MapW - 390) / 2, PlanetY = 38, PlanetSize = 390;
         private WorldPlanet planetView;
         private RectTransform expeditionList;
@@ -50,11 +53,17 @@ namespace AntColony.UI
             status.gameObject.SetActive(false);
             Btn(rect, "Next Transport", "다음 수송 수단", 24, 214, NextShip);
             Btn(rect, "Board Selected", "선택 장수 탑승", 196, 214, () => ChangeCrew(false));
-            Btn(rect, "Unload Crew", "승무원 내리기", 24, 254, () => Result(selectedShip != null && selectedShip.TryUnloadCrew(), "승무원을 내렸습니다."));
+            Btn(rect, "Unload Crew", "승무원 내리기", 24, 254, () => Result(selectedShip != null && selectedShip.TryUnloadCrew(), "하차 지시를 내렸습니다."));
             Btn(rect, "Station Selected", "선택 장수 주둔", 196, 254, () => ChangeCrew(true));
             Btn(rect, "Return Home", "귀환", 24, 294, () => Result(selectedShip != null && selectedShip.TryReturn(), "장수와 화물을 싣고 귀환합니다."));
             Btn(rect, "Collect Equipment / Blueprint", "전리품·설계도 싣기", 196, 294,
-                () => Result(selectedShip != null && selectedShip.TryCollectRewards(), "전리품을 실었습니다. 귀환하면 사용할 수 있습니다."));
+                () => Result(selectedShip != null && BossRewardTransfer.TryCollect(selectedShip), "전리품을 실었습니다. 귀환하면 사용할 수 있습니다."));
+            Btn(rect, "Walking Formation", "도보 편성", 24, 540, () => {
+                Toggle(); GameMenuController.Instance.WalkingFormation(party => { selectedShip = party; Toggle(); });
+            });
+            Btn(rect, "Load Expedition Food", "권장 보급 싣기", 196, 540, () => Result(selectedShip != null && selectedShip.TryLoadFood(
+                Mathf.Min(selectedShip.ReturnCargoSpace, selectedShip.RecommendedFood(selectedSite) - selectedShip.AvailableFood)), "보급을 실었습니다."));
+            departurePlan = L.Label(rect, "", 12, 24, 582, 336, 90, MenuTheme.Warning, TextAnchor.UpperLeft);
             L.Line(rect, 24, 340, 336);
             routeStatus = L.Label(rect, "", 12, 24, 348, 336, 80, MenuTheme.Muted, TextAnchor.UpperLeft);
             L.Label(rect, "탑승·주둔·귀환: 8m 이내, 운반 중인 자원은 먼저 내려놓기.\n주둔: 수송 수단이 돌아와도 거점에 남음. 탑승: 선택한 주둔 장수를 다시 태움.\n편입 거점 생산: 60초마다 (식량 10 / 재료 5) × 난이도, 수송으로 집에 옮김.",
@@ -83,7 +92,7 @@ namespace AntColony.UI
             // 가운데 아래: 선택 거점 정보와 행동.
             L.Plate(rect, "SiteInfo", 384, 504, MapW, 254);
             siteInfo = L.Label(rect, "", 13, 398, 514, 644, 100, align: TextAnchor.UpperLeft);
-            Btn(rect, "Depart", "원정 보내기", 398, 622, () => Result(selectedShip != null && selectedShip.TryDepart(selectedSite), "원정대가 출발했습니다."), 156);
+            Btn(rect, "Depart", "원정 보내기", 398, 622, Depart, 156);
             Btn(rect, "View Battlefield", "전장 보기", 560, 622, () => {
                 var world = WorldMapManager.Instance;
                 if (world != null && selectedSite != null && world.ViewSite(selectedSite)) Toggle();
@@ -132,6 +141,10 @@ namespace AntColony.UI
             if (!IsOpen) return;
             defenseStatus.text = selectedSite != null && selectedSite.Defense != null ? selectedSite.Defense.Status : "";
             if (selectedShip == null) NextShip();
+            departurePlan.text = selectedShip == null ? "도보 편성: 장수 1명·병력 0명부터 가능합니다." :
+                $"왕복 {(selectedShip.Walking ? ExpeditionRules.WalkSeconds(selectedSite) : selectedShip.TravelSeconds) * 2 / AntColony.Core.GameCalendar.SecondsPerDay:0.0}일 · 권장 식량 {selectedShip.RecommendedFood(selectedSite)} / 보유 {selectedShip.AvailableFood}\n"
+                + $"왕복 + 현지 1일 + 예비 1일 · 병력 포함\n귀환 화물 여유 {selectedShip.ReturnCargoSpace}"
+                + (selectedShip.LeavesHomeUnattended ? "\n경고: 본거지 대응 장수 없음" : "");
             var route = selectedShip != null ? selectedShip.Route : null;
             startRoute.interactable = route != null && !route.IsRunning && selectedShip.State == ExpeditionState.Home
                 && selectedSite != null && selectedSite.Disposition == ConquestDisposition.Annexed;
@@ -148,7 +161,7 @@ namespace AntColony.UI
             {
                 var site = world.Sites[i];
                 var local = Vector2.zero;
-                var visible = world.Unlocked && planetView.Project(site.MapPosition, out local);
+                var visible = world.Unlocked && WorldMapManager.SiteRevealed(site) && planetView.Project(site.MapPosition, out local);
                 markers[i].gameObject.SetActive(visible);
                 if (visible) ((RectTransform)markers[i].transform).anchoredPosition = new Vector2(PlanetX + local.x - MarkerW / 2, -(PlanetY + local.y - MarkerH / 2));
                 var color = site.Defense != null && (site.Defense.UnderAttack || site.Disposition == ConquestDisposition.Lost)
@@ -231,7 +244,7 @@ namespace AntColony.UI
             var injured = 0; var mood = 0f;
             foreach (var c in crew) { mood += c.Mood; if (c.Health.Injured) injured++; }
             var names = crew.Count == 0 ? "없음" : string.Join(", ", System.Linq.Enumerable.Select(crew, c => c.CommanderName));
-            var text = $"<b>{ship.name}</b> · {(ship.Aircraft ? "비행기" : "차량")} · {StateName(ship.State)}{(ship.Remaining > 0 ? $" {ship.Remaining:0}초" : "")} → {(ship.Site != null ? ship.Site.Title : "정착지")}\n"
+            var text = $"<b>{ship.name}</b> · {(ship.Walking ? "도보" : ship.Aircraft ? "비행기" : "차량")} · {StateName(ship.State)}{(ship.Remaining > 0 ? $" {ship.Remaining:0}초" : "")} → {(ship.Site != null ? ship.Site.Title : "정착지")}\n"
                 + $"장수 {names} ({ship.CommanderLoad}/{ship.CommanderCapacity}) · 병력 {ship.Load}/{ship.Capacity}\n"
                 + $"<color=#b1b3a7>화물 {ship.CargoLoad}/{ship.CargoCapacity} · 전리품 장비 {ship.EquipmentCargo.Count}{(ship.BlueprintCargo ? "·설계도" : "")}"
                 + $" · 기분 {(crew.Count > 0 ? mood / crew.Count : 0):0} · 부상 {injured}</color>";
@@ -251,6 +264,8 @@ namespace AntColony.UI
         private static string SiteText(ExpeditionSite site)
         {
             if (site == null) return "<color=#b1b3a7>지도에서 목적지를 선택하세요.</color>";
+            var stronghold = site.GetComponent<BossStronghold>();
+            if (stronghold != null) return stronghold.Guide;
             var kind = site.Kind switch
             {
                 ExpeditionSiteKind.Settlement => "정착지", ExpeditionSiteKind.BossNest => "보스 둥지",
@@ -312,6 +327,19 @@ namespace AntColony.UI
                 disposition == ConquestDisposition.Annexed ? "거점을 편입했습니다. 현지 생산 시작 · 방어할 장수는 '선택 장수 주둔'으로 남기세요."
                     : "거점을 포기했습니다. 약탈을 마치고 귀환하세요. 다시 방문할 수 없습니다.");
         }
+        private void Depart()
+        {
+            if (selectedShip != null && selectedShip.LeavesHomeUnattended && (warnedShip != selectedShip || warnedSite != selectedSite))
+            {
+                warnedShip = selectedShip; warnedSite = selectedSite;
+                feedback.text = "본거지에 대응할 장수가 없습니다. 위 왕복 시간을 확인하고 원정 보내기를 다시 누르세요.";
+                return;
+            }
+            // G42: 탑승·하차 지시가 처리되기 전에는 출발하지 않는다.
+            if (selectedShip != null && selectedShip.PendingCrewOrderCount > 0) { feedback.text = "승무원 지시 대기 중: " + selectedShip.CrewOrderStatus; return; }
+            Result(selectedShip != null && WorldMapManager.SiteRevealed(selectedSite) && selectedShip.TryDepart(selectedSite), "원정대가 출발했습니다.");
+            warnedShip = null; warnedSite = null;
+        }
         private void NextShip()
         {
             var ships = WorldMapManager.Instance.Transports;
@@ -327,7 +355,7 @@ namespace AntColony.UI
             foreach (var selectable in FindFirstObjectByType<SelectionManager>().GetSelectedObjects())
             { var commander = selectable != null ? selectable.GetComponent<CommanderAnt>() : null; if (commander != null) passengers.Add(commander); }
             Result(selectedShip != null && (station ? selectedShip.TryStation(passengers) : selectedShip.TryBoard(passengers)),
-                station ? "선택한 장수가 주둔합니다. 수송 수단이 돌아가도 남습니다." : "선택한 장수를 승무원에 추가했습니다.");
+                station ? "주둔 지시를 내렸습니다. 도착하면 남아 수송 수단이 돌아가도 머뭅니다." : "탑승 지시를 내렸습니다. 수송 수단에 도착하면 승무원이 됩니다.");
         }
     }
 }

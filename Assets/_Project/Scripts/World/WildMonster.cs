@@ -73,6 +73,9 @@ namespace AntColony.World
         public bool IsFlying { get; private set; }
         public WildlifeTemperament Temperament { get; set; } = WildlifeTemperament.Predator;
         public bool HuntDesignated { get; set; }
+        // 귀환·하역 보류(G69) 판정용: 순한 동물·아군·사육 생물은 위협이 아니다. 습격대·포식자·자극받은 개체만.
+        public bool IsRaider => isRaider;
+        public bool Threatening => isActiveAndEnabled && !IsDead && !Allied && GetComponent<Critter>() == null && (isRaider || !Docile || provoked);
         public bool Huntable => isActiveAndEnabled && !IsDead && !isRaider && !(this is EnemyCommander) && !Allied
             && string.IsNullOrEmpty(DiplomaticFactionId) && string.IsNullOrEmpty(RebelId) && GetComponentInParent<ExpeditionSite>() == null;
         private bool provoked;
@@ -85,7 +88,7 @@ namespace AntColony.World
 
         public bool IsDead => currentHealth <= 0f;
         public float CurrentHealth => currentHealth;
-        internal bool InCombat => CombatTargeting.IsAlive(currentTarget);
+        internal bool InCombat => TargetAlive(currentTarget);
         public void RestoreHealth(float value)
         {
             gameObject.SetActive(value > 0);
@@ -169,7 +172,8 @@ namespace AntColony.World
                 return;
             }
             targetSearchTimer -= Time.deltaTime;
-            if (!CombatTargeting.IsAlive(currentTarget)) currentTarget = null;
+            if (currentTarget is CivilianTarget) ColonyPopulation.Instance?.SyncCivilianLocations();
+            if (!TargetAlive(currentTarget)) currentTarget = null;
 
             // 침공 개체는 살아 있는 대상이 있어도 주기적으로 재탐색해, 가로막는 방어 유닛을 먼저 노린다.
             if (currentTarget == null || isRaider && !IsBarrier(currentTarget))
@@ -187,6 +191,7 @@ namespace AntColony.World
                     targetSearchTimer = targetSearchInterval;
                     currentTarget = Allied ? CombatTargeting.FindNearestEnemy(Position, detectionRadius, UnitRole.Melee)
                         : (eventWasp ? FindFirstObjectByType<Stockpile>() : null) ?? (IDamageable)FindNearestAnt()
+                        ?? FindCivilianTarget()
                         ?? (isRaider && raidSite == null ? GameManager.Instance?.FindNearestPlayerBuilding(transform.position) : null);
                     if (currentTarget == null)
                     {
@@ -234,6 +239,37 @@ namespace AntColony.World
                 if (currentTarget is BuildingBase flammable && WallFire.Flammable(flammable)) WallFire.Ignite(flammable); // 가연성 재료(나뭇잎 벽·목재 등)엔 불을 지른다.
                 currentTarget.TakeDamage(attackDamage);
             }
+        }
+
+        // 시민도 기존 접근·공성·공격 주기를 사용한다. 위치/피해는 인구 집계가 소유한다.
+        private sealed class CivilianTarget : IDamageable
+        {
+            private readonly ColonyPopulation population;
+            private readonly CivilianLocation location;
+            public CivilianTarget(ColonyPopulation population, CivilianLocation location)
+            { this.population = population; this.location = location; }
+            public bool IsDead => population == null || !population.isActiveAndEnabled || location.count == 0 || location.sheltered
+                || !population.CivilianLocations.Contains(location);
+            public Vector3 Position => location.position;
+            public void TakeDamage(float amount) => population.DamageCivilians(location.id, amount);
+        }
+        private static bool TargetAlive(IDamageable target) => target is CivilianTarget civilians
+            ? !civilians.IsDead : CombatTargeting.IsAlive(target);
+        private IDamageable FindCivilianTarget()
+        {
+            if (Allied || raidSite != null || ColonyPopulation.Instance == null) return null;
+            var population = ColonyPopulation.Instance;
+            population.SyncCivilianLocations();
+            CivilianLocation nearest = null;
+            var distance = detectionRadius * detectionRadius;
+            foreach (var location in population.CivilianLocations)
+            {
+                if (location.sheltered || location.count == 0) continue;
+                var candidate = (location.position - Position).sqrMagnitude;
+                if (candidate > distance) continue;
+                nearest = location; distance = candidate;
+            }
+            return nearest == null ? null : new CivilianTarget(population, nearest);
         }
 
         public void TakeDamage(float amount)

@@ -67,7 +67,10 @@ public static class SettlementDefenseChecks
         var resources = ResourceManager.Instance;
         foreach (ResourceType type in Enum.GetValues(typeof(ResourceType)))
         { resources.AddCapacity(type, 10000); resources.Add(type, 1000); }
-        AntPool.Instance.Breed(100);
+        AntPool.Instance.Breed(1000); // G04 동원 상한(성인 × 제도 비율)으로 병력 6명 이상 배정하려면 시민이 넉넉해야 한다
+        // 불시착 시작은 장수 1~3명이라 검사용 4명을 채운다.
+        for (var i = 0; i < 10 && CommanderRoster.Instance.Commanders.Count < 4; i++)
+            CommanderRoster.Instance.Create(null, AntColony.Data.CommanderRank.Corporal, new[] { UnitRole.Worker }, UnitRole.Worker, AntColony.Units.CommanderTraits.Random(), CommanderRoster.Instance.Commanders[0].Position);
         var roster = CommanderRoster.Instance.Commanders;
         foreach (var x in roster) x.SetJobEnabled(AntColony.Units.CommanderJobs.All, false);
         var captive = roster[0]; var escapee = roster[1]; var crew = roster[2]; var collector = roster[3];

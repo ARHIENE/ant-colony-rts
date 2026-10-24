@@ -20,7 +20,7 @@ namespace AntColony.UI
             if (!DiplomacyManager.CanNegotiate(DiplomacyManager.Negotiator(n))) n.negotiator = "";
             tradeGive = n.give; tradeTake = n.take; rebuildTrade = () => OpenTalk(n);
             var f = Frame("협상 · " + c.name);
-            Time.timeScale = 0; // 메뉴 일시정지 설정과 무관하게 협상 중에는 항상 정지(기한·타이머 포함)
+            SimulationPause.Hold("negotiation"); // 메뉴 일시정지 설정과 무관하게 협상 중에는 항상 정지(기한·타이머 포함)
             var p = L.Plate(f, "TalkPanel", 48, 48, 1344, 740);
             var badge = L.Box(p, "Badge", 14, 12, 36, 36, c.color);
             L.Label(badge, c.name.Substring(0, 1), 16, 0, 0, 36, 36, MenuTheme.AccentInk, TextAnchor.MiddleCenter, true);
@@ -37,7 +37,7 @@ namespace AntColony.UI
             }
 
             // 담당 장수: 클릭할 때마다 다음 가능 장수로 바뀐다.
-            var eligible = CommanderRoster.Instance.Commanders.Where(DiplomacyManager.CanNegotiate).OrderByDescending(a => a.Talents.Level(CommanderActivity.Politics)).ToList();
+            var eligible = (CommanderRoster.Instance?.Commanders ?? System.Array.Empty<CommanderAnt>()).Where(DiplomacyManager.CanNegotiate).OrderByDescending(a => a.Talents.Level(CommanderActivity.Politics)).ToList();
             var current = DiplomacyManager.Negotiator(n);
             L.Button(p, "Talk Negotiator", current == null ? "담당 장수 지정 ▸" : $"담당: {current.CommanderName} (정치 {current.Talents.Level(CommanderActivity.Politics)}) ▸", 760, 12, 300, 36, () =>
             {
@@ -55,6 +55,7 @@ namespace AntColony.UI
                 : $"요청: <b>{DiplomacyManager.Summary(n.give)}</b>" + (n.take.Empty ? "" : " → 받는 것 " + DiplomacyManager.Summary(n.take)) + $"   <color=#b1b3a7>{d.RefusalRisk(n)}</color>";
             L.Label(p, status, 15, 14, 66, 1316, 26);
             if (n.last != "") L.Label(p, "최근 응답: " + n.last, 13, 14, 92, 1316, 20, MenuTheme.Accent);
+            else if (current == null) L.Label(p, "담당 없이 열람·거절 가능 · 수락·역제안은 본거지 활동 담당 필요 · 기본 기한 1계절(6일)", 13, 14, 92, 1316, 20, MenuTheme.Muted);
 
             if (n.kind == TalkKind.Trade || n.kind == TalkKind.Demand)
             {
@@ -85,7 +86,7 @@ namespace AntColony.UI
             string Act(string result) { if (!string.IsNullOrEmpty(result)) { n.log.Insert(0, result); ToastManager.Show(result); } return result; }
             void After() { if (d.Data.talks.Contains(n)) OpenTalk(n); else Diplomacy(c); }
             if (n.kind == TalkKind.Trade)
-                L.Button(p, "Talk Propose", "제안", 1130, 696, 200, 34, () => { Act(d.Propose(n)); After(); }, null, true);
+                L.Button(p, "Talk Propose", "제안", 1130, 696, 200, 34, () => { Act(d.Propose(n)); After(); }, null, true).interactable = current != null;
             else if (n.kind == TalkKind.Demand)
             {
                 if (n.deadline > 0)
@@ -96,13 +97,13 @@ namespace AntColony.UI
                 else
                 {
                     L.Button(p, "Talk Ultimatum", n.ultimatum ? "최후통첩: 켬 (거절 시 공격)" : "최후통첩: 끔 (일반 요구)", 860, 696, 260, 34, () => { n.ultimatum = !n.ultimatum; OpenTalk(n); });
-                    L.Button(p, "Talk Propose", "요구", 1130, 696, 200, 34, () => { Act(d.Propose(n)); After(); }, null, true);
+                    L.Button(p, "Talk Propose", "요구", 1130, 696, 200, 34, () => { Act(d.Propose(n)); After(); }, null, true).interactable = current != null;
                 }
             }
             else
             {
                 L.Button(p, "Talk Refuse", "거절", 860, 696, 130, 34, () => { Act(d.Respond(n, false)); After(); });
-                L.Button(p, "Talk Accept", n.kind == TalkKind.TreatyOffer || n.give.resources[0] >= n.asked ? "수락" : "역제안", 1000, 696, 330, 34, () => { Act(d.Respond(n, true)); After(); }, null, true);
+                L.Button(p, "Talk Accept", n.kind == TalkKind.TreatyOffer || n.give.resources[0] >= n.asked ? "수락" : "역제안", 1000, 696, 330, 34, () => { Act(d.Respond(n, true)); After(); }, null, true).interactable = current != null;
             }
         }
     }

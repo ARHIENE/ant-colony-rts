@@ -23,6 +23,11 @@ namespace AntColony.Units
         public CommanderJobs jobs = CommanderJobs.All;
         public CommanderDuty duty;
         public float health = GameBalance.CommanderHealth, quietSeconds, recoverySeconds;
+        public float unconsciousSeconds, deploymentMealSeconds;
+        public bool holdDeployment;
+        public int bossPickup = -1; // 보스 직접 회수 지시. 화물 자체는 CampaignResearch의 carrier로 저장한다.
+        public float sampleWork; // 표본 1개를 회수하기 전의 소수 작업량. 기존 개인 JSON에 포함한다.
+        public FoodLots rations = new FoodLots();
         public bool resting; // 휴식 지시: 피로가 풀릴 때까지 자율 작업을 쉰다.
         // 작업표 비트 순서. 옛 15칸은 보존하고 소화만 기본 9로 추가한다.
         public int[] priorities = new int[16];
@@ -55,8 +60,11 @@ namespace AntColony.Units
         public Vector3 returnPosition;
         public bool Valid { get { MigrateLegacyJobs(); return (jobs & ~CommanderJobs.All) == 0 && (priorities == null || priorities.Length == 0 || (priorities.Length == 15 || priorities.Length == JobCount) && Array.TrueForAll(priorities, p => p >= 0 && p <= MaxPriority)) && Enum.IsDefined(typeof(CommanderDuty), duty)
             && Finite(health) && health >= 0 && health <= GameBalance.CommanderHealth
-            && Finite(quietSeconds) && quietSeconds >= 0 && quietSeconds <= GameBalance.AutoReturnSeconds
-            && Finite(recoverySeconds) && recoverySeconds >= 0 && recoverySeconds <= GameBalance.CommanderRecoverySeconds
+            && bossPickup >= -1 && bossPickup <= 3 && Finite(quietSeconds) && quietSeconds >= 0 && quietSeconds <= GameBalance.AutoReturnSeconds
+            && Finite(sampleWork) && sampleWork >= 0 && sampleWork < 1
+            && Finite(recoverySeconds) && recoverySeconds >= 0 && recoverySeconds <= GameCalendar.SecondsPerDay
+            && Finite(unconsciousSeconds) && unconsciousSeconds >= 0 && unconsciousSeconds <= GameCalendar.SecondsPerDay
+            && Finite(deploymentMealSeconds) && deploymentMealSeconds >= 0 && deploymentMealSeconds <= 3 && (rations == null || rations.Valid)
             && Finite(returnPosition.x) && Finite(returnPosition.y) && Finite(returnPosition.z); } }
         private static bool Finite(float value) => !float.IsNaN(value) && !float.IsInfinity(value);
     }
@@ -99,6 +107,7 @@ namespace AntColony.Units
             WorkState.resting = false; WakeForDuty();
             troopCount = troops; troopsReleased = false;
             WorkState.duty = CommanderDuty.Deployed; WorkState.returnPosition = home; WorkState.quietSeconds = 0;
+            WorkState.rations ??= new FoodLots(); AllocateDeploymentFood();
         }
         public bool ReturnToPost()
         {
@@ -111,26 +120,17 @@ namespace AntColony.Units
             // Partial troop damage remains attached to the commander, preventing return/relaunch healing.
             AntPool.Instance?.ReturnAssigned(troopCount); troopCount = 0;
             WorkState.duty = CommanderDuty.Civilian; WorkState.quietSeconds = 0;
+            personalState.carriedRations ??= new FoodLots(); personalState.carriedRations.Add(WorkState.rations); WorkState.rations = new FoodLots();
+            WorkState.holdDeployment = false; AntColony.UI.ToastManager.SetPinned("dutyfood:" + personalState.id, null);
             CommandStop();
         }
         public void TickDuty(float seconds)
         {
             if (!(seconds > 0) || float.IsInfinity(seconds) || IsDead || IsHostile || AntColony.Save.SaveSystem.Busy) return;
             TickCarriedSupplies(seconds);
-            // 쓰러짐(통증·의식·이동, 2026-10-15): 일어날 수 없고 배고픔은 진행한다. 의료 장수가 급식한다.
-            if (PersonalState.health.Downed)
-            {
-                MealState.satiety = Mathf.Max(0, MealState.satiety - GameBalance.SatietyPerSecond * seconds);
-                WorkState.health = 0; WorkState.recoverySeconds = Mathf.Max(WorkState.recoverySeconds, 1f);
-                return;
-            }
-            if (WorkState.recoverySeconds > 0)
-            {
-                MealState.satiety = Mathf.Max(0, MealState.satiety - GameBalance.SatietyPerSecond * seconds);
-                WorkState.recoverySeconds = Mathf.Max(0, WorkState.recoverySeconds - seconds);
-                if (WorkState.recoverySeconds == 0) WorkState.health = GameBalance.CommanderHealth;
-                return;
-            }
+            if (TickRecovery(seconds)) return;
+            WorkState.rations ??= new FoodLots();
+            if (IsDeployed) TickDeploymentMeal(seconds);
             if (!IsDeployed && !IsAwayFromHome && !IsEmbarked && !IsCaptive && !WorkPriorities.Red
                 && (Satiety <= GameBalance.EatBelowSatiety || IsSleepTime || Hygiene < GameBalanceNeeds.TemporaryCap))
             {
@@ -141,7 +141,12 @@ namespace AntColony.Units
             if (TickMeal(seconds)) { LeaveWash(); return; }
             if (TickSleep(seconds)) { LeaveWash(); return; }
             if (TickHygiene(seconds) || TickCorpseWork(seconds) || TickJoy(seconds)) return;
-            if (IsAwayFromHome || !CanReceiveOrders) return;
+            if (TickMed(seconds)) return;
+            if (TickBossRewardWork()) return;
+            if (CanSelfTend && MedicalRules.NeedsDoctor(Health, MedicineAllowed(Health)) && !Taken(this, MedJob.Tend)
+                && StartMed(MedJob.Tend, this)) return;
+            if (IsAwayFromHome) { WorkState.quietSeconds = 0; return; }
+            if (!CanReceiveOrders) return;
             if (ServiceJob == CommanderJobs.Firefighting && TickService(seconds)) return;
             if (IsReturning)
             {
@@ -151,12 +156,13 @@ namespace AntColony.Units
             }
             if (IsDeployed)
             {
+                if (DeploymentEating || WorkState.holdDeployment || !HomeDefenseReturn.Allows(this) || BossCargoCount > 0) { WorkState.quietSeconds = 0; return; }
                 WorkState.quietSeconds = IsInCombat || CombatTargeting.FindNearestEnemy(Position, GameBalance.ReturnEnemyRadius, Role) != null
                     ? 0 : Mathf.Min(GameBalance.AutoReturnSeconds, WorkState.quietSeconds + seconds);
                 if (WorkState.quietSeconds >= GameBalance.AutoReturnSeconds) ReturnToPost();
                 return;
             }
-            if (TickMed(seconds) || TickBurial(seconds) || TickService(seconds) || TickHunt(seconds) || TickAnimalTask(seconds)) return;
+            if (TickBurial(seconds) || TickService(seconds) || TickHunt(seconds) || TickAnimalTask(seconds)) return;
             if (TickGroundCraft(seconds)) return;
             if (TickBedRest()) return;
             if (!IsWorking && ScienceAssignment == null && CraftingWorkshop == null) SetWorkTarget(null);
@@ -183,6 +189,7 @@ namespace AntColony.Units
             }
             if (IsFlying ? !HasReachedDestination() : Agent.pathPending || Agent.hasPath) return;
             if (WorkState.resting && !WorkPriorities.Red) return;
+            if (AntColony.World.ExpeditionTransport.HasPendingCrewOrder(this)) return; // G42 직접 지시가 자율 작업보다 우선
             workScan -= seconds; if (workScan > 0) return; workScan = GameBalance.WorkScanSeconds;
             // ponytail: one scan per second for the small commander roster; index jobs if profiling shows contention.
             // 노란 경보 대상 → 작업 종류 우선순위 → 대상 우선순위 1~9 → 실제 이동 거리 → 거리까지 같으면 오래 기다린 요청(2026-10-12).
@@ -245,7 +252,7 @@ namespace AntColony.Units
                     yield break;
                 case CommanderJobs.Crafting:
                     foreach (var shop in FindObjectsByType<Workshop>(FindObjectsSortMode.None))
-                        yield return (shop, () => !shop.Ruined && !shop.IsDead && shop.Crafter == null && shop.Jobs.Count > 0 && GoToFacility(shop));
+                        yield return (shop, () => !shop.Ruined && !shop.IsDead && shop.Crafter == null && shop.CanContinue(this) && GoToFacility(shop));
                     foreach (var processor in FindObjectsByType<Processor>(FindObjectsSortMode.None).Where(p => !p.IsMedical && p.NeedsWork)) // 약제대는 간호(의료)
                         yield return (processor, () => StartService(processor, CommanderJobs.Crafting));
                     yield break;
@@ -273,6 +280,8 @@ namespace AntColony.Units
             {
                 foreach (var wheel in PowerNode.All.Where(p => p.NeedsRunner))
                     yield return (wheel, () => StartService(wheel, CommanderJobs.Hauling));
+                foreach (var well in SupplyFacility.All.Where(ManualWellNeedsWork))
+                    yield return (well, () => StartService(well, CommanderJobs.Hauling));
                 foreach (var t in RescueTasks()) yield return t; // 쓰러진 장수 구조 → 의료 침상(2026-10-15)
                 foreach (var t in BurialTasks()) yield return t; // 안치 지시된 시신 → 묘비(2026-10-15)
                 foreach (var t in PrisonerFeedTasks()) yield return t; // 포로 급식(2026-10-15)

@@ -26,6 +26,7 @@ namespace AntColony.World
             public List<Seizure> seizures = new List<Seizure>();
             public List<string> reputation = new List<string>();
             public int trust, threat, nextTalk;
+            public List<TravellingRaid> travellingRaids = new List<TravellingRaid>();
         }
         public static DiplomacyManager Instance { get; private set; }
         public State Data { get; private set; } = new State();
@@ -84,15 +85,15 @@ namespace AntColony.World
             if (!Available) return;
             var c = Faction(site);
             if (c == null || c.contacted) return;
-            c.contacted = true;
-            CampaignHistory.Record("접촉", c.name, c.leader, true);
+            MarkContact(c);
         }
         public bool DeclareWar(Civilization c, bool surprise = false)
         {
-            if (!Available || c == null || !Data.civilizations.Contains(c) || c.extinct || c.war
+            if (!Available || c == null || !Data.civilizations.Contains(c) || c.extinct || c.war || !c.contacted && !surprise
                 || c.HasTreaty(TreatyKind.NonAggression, Data.elapsed)) return false;
             var broken = c.HasTreaty(TreatyKind.Trade, Data.elapsed) || c.HasTreaty(TreatyKind.Alliance, Data.elapsed);
-            c.contacted = c.war = true; c.warStarted = Data.elapsed; c.nextRaid = Data.elapsed + 3 * DiplomacyRules.Month;
+            MarkContact(c);
+            c.war = true; c.warStarted = Data.elapsed; c.nextRaid = Data.elapsed + DiplomacyRules.Season;
             c.playerScore = c.enemyScore = 0; Array.Clear(c.treaties, 0, c.treaties.Length); c.offerExpires = 0;
             c.ChangeAffinity(-10, "전쟁");
             if (surprise) foreach (var other in Data.civilizations.Where(x => !x.extinct)) other.ChangeAffinity(DiplomacyRules.SurprisePenalty, "기습 선전포고");
@@ -109,9 +110,9 @@ namespace AntColony.World
             if (!CanNegotiatePeace(c)) return false;
             var compensation = Reparations(c); var resources = ResourceManager.Instance;
             if (resources == null || compensation > 0 && (!resources.CanAfford(compensation, 0) || c.resources[0] > int.MaxValue - compensation)
-                || compensation < 0 && (c.resources[0] < -compensation || resources.GetCapacity(ResourceType.Food) - resources.GetAmount(ResourceType.Food) < -compensation)) return false;
+                || compensation < 0 && (c.resources[0] < -compensation || resources.GetCapacity(AntColony.Data.ResourceType.Food) - resources.GetAmount(AntColony.Data.ResourceType.Food) < -compensation)) return false;
             if (compensation > 0) { resources.TrySpend(compensation, 0, reason: ResourceReason.Trade); c.resources[0] += compensation; }
-            if (compensation < 0) { c.resources[0] += compensation; resources.Add(ResourceType.Food, -compensation, ResourceReason.Trade); }
+            if (compensation < 0) { c.resources[0] += compensation; resources.Add(AntColony.Data.ResourceType.Food, -compensation, ResourceReason.Trade); }
             c.war = false; c.nextOffer = Data.elapsed + DiplomacyRules.Month * 3;
             foreach (var raider in FindObjectsByType<WildMonster>(FindObjectsSortMode.None))
                 if (raider.DiplomaticFactionId == c.id && string.IsNullOrEmpty(raider.RebelId)) Destroy(raider.gameObject);
@@ -128,7 +129,9 @@ namespace AntColony.World
         }
         public bool AcceptOffer(Civilization c)
         {
-            if (c == null || c.offerExpires <= Data.elapsed || !SignTreaty(c, c.offeredTreaty)) return false;
+            if (c == null) return false;
+            var offer = Data.talks.Find(n => n.civ == c.id && n.kind == TalkKind.TreatyOffer);
+            if (offer == null || Respond(offer, true) != "수락") return false;
             c.offerExpires = 0; return true;
         }
         public static bool Hostile(Component target)
@@ -164,9 +167,11 @@ namespace AntColony.World
         {
             if (Data.airshipStarted) return;
             Data.airshipStarted = true;
-            foreach (var c in Data.civilizations.Where(c => !c.extinct && (c.war || c.affinity <= -40 || c.agenda == LeaderAgenda.Scientist)))
+            foreach (var c in Data.civilizations.Where(c => c.contacted && !c.extinct && (c.war || c.affinity <= -40 || c.agenda == LeaderAgenda.Scientist)))
             {
+                if (c.agenda == LeaderAgenda.Conqueror && Data.elapsed < c.contactedAt + DiplomacyRules.Season) continue;
                 if (!c.war && !DeclareWar(c)) continue;
+                if (c.agenda == LeaderAgenda.Conqueror) continue;
                 Raid(c, true);
             }
         }
@@ -177,6 +182,8 @@ namespace AntColony.World
             TickHomecomings();
             if (!Available) return;
             TickTalks();
+            TickRaidTravel();
+            TickConquerors();
             while (Data.nextMonth <= Data.elapsed)
             {
                 Data.nextMonth += DiplomacyRules.Month;
@@ -186,14 +193,15 @@ namespace AntColony.World
         }
         private void Monthly(Civilization c)
         {
+            if (!c.contacted) return;
             if (c.contacted && !c.war)
             {
                 if (c.HasTreaty(TreatyKind.Trade, Data.elapsed))
                 {
                     var r = ResourceManager.Instance; var amount = DiplomacyRules.MonthlyTradeAmount;
-                    if (r != null && c.resources[1] >= amount && r.GetCapacity(ResourceType.Soil) - r.GetAmount(ResourceType.Soil) >= amount
+                    if (r != null && c.resources[1] >= amount && r.GetCapacity(AntColony.Data.ResourceType.Soil) - r.GetAmount(AntColony.Data.ResourceType.Soil) >= amount
                         && c.resources[0] <= int.MaxValue - amount && r.TrySpend(amount, 0, reason: ResourceReason.Trade))
-                    { r.Add(ResourceType.Soil, amount, ResourceReason.Trade); c.resources[0] += amount; c.resources[1] -= amount; c.ChangeAffinity(1, "월별 교역"); }
+                    { r.Add(AntColony.Data.ResourceType.Soil, amount, ResourceReason.Trade); c.resources[0] += amount; c.resources[1] -= amount; c.ChangeAffinity(1, "월별 교역"); }
                 }
                 if (Data.elapsed >= c.nextOffer)
                 {
@@ -202,12 +210,12 @@ namespace AntColony.World
                         OfferTreaty(c, (TreatyKind)UnityEngine.Random.Range(0, 3));
                 }
                 var chance = c.affinity <= -40 ? DiplomacyRules.HostileWarChance : 0;
-                if (c.agenda == LeaderAgenda.Conqueror && world.Sites.Count(s => s.Disposition == ConquestDisposition.Annexed) < world.Sites.Count(s => Faction(s) == c && s.Disposition != ConquestDisposition.Annexed)) chance = Mathf.Max(chance, DiplomacyRules.ConquerorWarChance);
+                if (c.agenda == LeaderAgenda.Conqueror) chance = 0; // 정복자는 접촉 후 계절별 실제 공격대 전력으로 판단한다.
                 if (UnityEngine.Random.value < chance) DeclareWar(c);
             }
-            if (c.war && Data.elapsed >= c.nextRaid)
-            { if (Raid(c, c.rebel && Data.elapsed - c.founded < DiplomacyRules.Year)) c.nextRaid = Data.elapsed + DiplomacyRules.Month * 3; }
-            if (Data.airshipStarted && c.war && !FindObjectsByType<AirshipYard>(FindObjectsSortMode.None).Any(y => y.Ready)
+            if (c.agenda != LeaderAgenda.Conqueror && c.war && Data.elapsed >= c.nextRaid)
+            { if (Raid(c, c.rebel && Data.elapsed - c.founded < DiplomacyRules.Year) || RocketCampaign.SuppressNewCrises) c.nextRaid = Data.elapsed + DiplomacyRules.Season; }
+            if (Data.airshipStarted && c.agenda != LeaderAgenda.Conqueror && c.war && !FindObjectsByType<AirshipYard>(FindObjectsSortMode.None).Any(y => y.Ready)
                 && UnityEngine.Random.value < DiplomacyRules.AirshipRaidChance) Raid(c, true);
             if (c.HasTreaty(TreatyKind.Alliance, Data.elapsed))
             {
@@ -218,15 +226,17 @@ namespace AntColony.World
         }
         private bool Raid(Civilization c, bool home)
         {
-            if (!c.war) return false;
-            var source = world.Sites.FirstOrDefault(s => Faction(s) == c && s.Disposition != ConquestDisposition.Annexed && s.Colony != null && !s.Colony.IsDefeated);
-            var food = source?.Colony.GetStock(ResourceType.Food) ?? c.resources[0];
+            if (!c.contacted || !c.war || c.agenda == LeaderAgenda.Conqueror && Data.elapsed < c.contactedAt + DiplomacyRules.Season) return false;
+            if (RocketCampaign.SuppressNewCrises) return false; // G39: 신규 출발만 막는다. 이미 이동 중인 원정대는 도착한다.
+            var source = RaidSource(c);
+            var food = source?.Colony?.GetStock(AntColony.Data.ResourceType.Food) ?? c.resources[0];
             var count = Mathf.Clamp((int)food / 20, 1, 20);
             if (food < count * 10) return false;
+            if (c.agenda == LeaderAgenda.Conqueror && !IsWeakAgainst(count * 20, AvailableHomePower)) return false;
             var destination = home ? null : world.Sites.FirstOrDefault(s => s.Disposition == ConquestDisposition.Annexed && s.Defense != null && !s.Defense.UnderAttack);
-            var spawned = destination != null ? destination.Defense.TryStartRaid(count, c.id) : FindFirstObjectByType<LocalIncursions>()?.TrySpawnFaction(c, count) == true;
+            var spawned = destination != null ? destination.Defense.TryStartRaid(count, c.id) : DispatchRaid(source, c, count);
             if (!spawned) return false;
-            if (source != null) source.Colony.TrySpendResources(count * 10, 0); else c.resources[0] -= count * 10;
+            if (source?.Colony != null) source.Colony.TrySpendResources(count * 10, 0); else c.resources[0] -= count * 10;
             CampaignHistory.Record("침공", c.name, destination?.Title ?? "본거지", true); return true;
         }
         public float ScheduledRaidSeconds(ExpeditionSite site)
@@ -236,7 +246,22 @@ namespace AntColony.World
                 .Select(c => Mathf.Max(0, c.nextRaid - Data.elapsed)).DefaultIfEmpty(3 * DiplomacyRules.Month).Min();
         }
         public State Capture() { CaptureRebels(); return JsonUtility.FromJson<State>(JsonUtility.ToJson(Data)); }
-        public void Restore(State state) { if (state != null) Data = JsonUtility.FromJson<State>(JsonUtility.ToJson(state)); }
+        public void Restore(State state)
+        {
+            if (state == null) return;
+            Data = JsonUtility.FromJson<State>(JsonUtility.ToJson(state));
+            Data.travellingRaids ??= new List<TravellingRaid>();
+            foreach (var c in Data.civilizations.Where(c => c.contacted && c.nextConquestCheck == 0))
+            { c.contactedAt = Data.elapsed; c.nextConquestCheck = Data.elapsed + DiplomacyRules.Season; }
+            foreach (var n in Data.talks.Where(n => n.deadline <= 0 && n.expires <= 0)) n.expires = Data.elapsed + DiplomacyRules.OfferSeconds;
+            // 옛 즉시 수락 버튼도 담당 지정이 있는 협상 경로로 이관한다.
+            foreach (var c in Data.civilizations.Where(c => c.offerExpires > Data.elapsed))
+            {
+                var n = StartTalk(c, TalkKind.TreatyOffer); n.expires = c.offerExpires;
+                if (n.take.treaties.Count == 0) n.take.treaties.Add(c.offeredTreaty);
+                c.offerExpires = 0;
+            }
+        }
         public static bool Validate(State s, int sites)
         {
             bool Finite(float f) => f >= 0 && !float.IsNaN(f) && !float.IsInfinity(f);
@@ -249,11 +274,12 @@ namespace AntColony.World
                 if (c == null || string.IsNullOrEmpty(c.id) || !ids.Add(c.id) || !Enum.IsDefined(typeof(LeaderAgenda), c.agenda)
                     || !Enum.IsDefined(typeof(LeaderAgenda), c.hiddenAgenda) || !s.markets.Contains(c) && c.agenda == c.hiddenAgenda || c.affinity < -100 || c.affinity > 100
                     || c.treaties == null || c.treaties.Length != 3 || c.treaties.Any(t => !Finite(t)) || !Finite(c.warStarted) || !Finite(c.founded)
-                    || !Finite(c.nextRaid) || !Finite(c.nextOffer) || !Finite(c.offerExpires) || c.resources == null || c.resources.Length != 3
+                    || !Finite(c.nextRaid) || !Finite(c.nextOffer) || !Finite(c.offerExpires) || !Finite(c.contactedAt) || !Finite(c.nextConquestCheck) || c.resources == null || c.resources.Length != 3
                     || c.resources.Any(r => r < 0) || c.reasons == null || c.equipment == null || c.equipment.Any(e => e == null || !e.IsValid)
                     || c.prisoners == null || c.rebels == null || c.playerScore < 0 || c.enemyScore < 0
                     || !Enum.IsDefined(typeof(TreatyKind), c.offeredTreaty)) return false;
             if (s.markets.Any(m => !m.id.StartsWith("market:") || !int.TryParse(m.id.Substring(7), out var i) || i < -1 || i >= sites)) return false;
+            if (!ValidRaidTravel(s, sites)) return false;
             var members = new HashSet<string>();
             foreach (var m in s.rebelMembers)
                 if (m?.commander?.PersonalState == null || !members.Add(m.commander.PersonalState.id) || m.site < 0 || m.site >= sites

@@ -152,7 +152,7 @@ namespace AntColony.Core
         public const float HotSpringFatigue = 40, BanquetMealMultiplier = 1.5f;
         public const int BanquetDecorations = 3;
         public const float FloorMoveMultiplier = 1.15f, FloorPoisonMultiplier = .5f, MatSleepMood = -3, PrisonRoomEscapeMultiplier = .5f;
-        public const float TreadmillWatts = 40, WoodGeneratorWatts = 100, LampWatts = 10, BatteryCapacity = 1000, WoodBurnSeconds = 10, TreadmillExtraFatigue = .5f;
+        public const float TreadmillWatts = 100, WoodGeneratorWatts = 100, LampWatts = 10, BatteryCapacity = 1000, WoodBurnSeconds = 10, TreadmillExtraFatigue = .5f;
         public const int CampfireSoil = 15, GamblingDenSoil = 25, CampfireSeats = 6, GamblingDenSeats = 4;
         // 도박장(2026-09-29 초안 승인): 함께 한 판 끝나면 승자 +5·패자 -3(3분), 10% 말다툼 관계 -5.
         public const float GambleWinMood = 5, GambleLoseMood = -3, GambleQuarrelChance = .1f, GambleQuarrel = -5;

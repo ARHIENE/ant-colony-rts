@@ -41,7 +41,7 @@ namespace AntColony.UI
                 status.text = $"의식 {h.Consciousness:P0} · 이동 {h.Moving:P0} · 조작 {h.Manipulation:P0}\n시력 {h.Sight:P0} · 통증 {h.Pain:P0}"
                     + $"\n출혈량 {h.bloodLoss:P0}" + (h.Bleeding ? $" · <color=#d9534f>출혈 중 — 예상 사망 {h.SecondsToBleedOut:0}초</color>" : "")
                     + $"\n위치: " + (c.TreatmentFacility != null ? "의료 침상" : c.RescueCarrier != null ? $"구조 운반 중({c.RescueCarrier.CommanderName})" : c.PersonalHealth <= 0 ? "쓰러짐(현장)" : "활동 중")
-                    + $" · 배고픔 {100 - c.Satiety:0}" + (c.IsMedicalPatient && c.Satiety < AntColony.Core.GameBalance.EatBelowSatiety ? " · 급식 대기" : "")
+                    + $" · 배고픔 {100 - c.Satiety:0}" + (c.IsMedicalPatient && c.Satiety < AntColony.Core.GameBalance.EatBelowSatiety ? " · 급식 대기" : "") + "\n" + c.RecoveryStatus
                     + "\n" + (CommanderAnt.CareWaitReason(c) is string wait && wait != "" ? "<color=#f2c94c>대기: " + wait + "</color>" : h.NeedsTend ? "의료 장수가 처치하러 옵니다" : "처치 완료 또는 필요 없음");
                 body.text = HealthLines(h);
             }

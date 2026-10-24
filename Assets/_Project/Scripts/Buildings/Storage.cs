@@ -14,7 +14,7 @@ namespace AntColony.Buildings
             && CampaignResearch.Instance.Has(ScienceTechnology.Fermentation)
             ? new Vector3Int(data.foodCapacityBonus / 2, data.soilCapacityBonus / 2, data.specialCapacityBonus / 2) : Vector3Int.zero;
         protected override bool IsDepositPoint => true;
-        internal int RegisteredCapacity(ResourceType t) => t.IsFood() ? registeredCapacity.x : t.IsMaterial() ? registeredCapacity.y : registeredCapacity.z;
+        internal int RegisteredCapacity(ResourceType t) => t.IsFood() ? registeredCapacity.x : t == ResourceType.Special ? registeredCapacity.z : registeredCapacity.y;
 
         private void Start()
         {

@@ -18,7 +18,7 @@ namespace AntColony.UI
             content = V5Section(window, "생산 품목 / 주문 설정", 20, 104, 520, 544);
             var inventory = EquipmentInventory.Instance;
             MenuTheme.Text(content, $"보관함 {inventory?.Items.Count ?? 0}/{EquipmentInventory.Capacity} · 대기열 {workshop.Jobs.Count}/{GameBalance.CraftQueueCapacity}", 19, 45);
-            MenuTheme.Text(content, workshop.Ruined ? "파괴됨 — 제작 중단, 대기열 취소 가능" : $"제작 장수: {workshop.Crafter?.CommanderName ?? "미배정"}", 18, 45);
+            MenuTheme.Text(content, workshop.WaitReason, 18, 45);
             // 생산 목록: 방식·수량을 고른 뒤 품목을 누르면 목록에 추가. 제작이 허용된 장수가 자율로 와서 만든다.
             ProductionControls(() => ShowWorkshop(workshop));
             foreach (EquipmentRecipe recipe in Enum.GetValues(typeof(EquipmentRecipe)))
@@ -39,13 +39,13 @@ namespace AntColony.UI
             for (int i = 0; i < workshop.Jobs.Count; i++)
             {
                 int index = i; var job = workshop.Jobs[i];
-                MenuTheme.Button(content, $"{i + 1}. {EquipmentRecipes.Name(job.recipe)} {job.work / GameBalance.CraftWork:P0} · 취소 ({(job.work > 0 ? 50 : 100)}% 환급)",
+                MenuTheme.Button(content, $"{i + 1}. {EquipmentRecipes.Name(job.recipe)} {job.work / GameBalance.CraftWork:P0} · {(!string.IsNullOrEmpty(job.makerId) ? "원제작자 전용 · 보관 중" : "미착수")} · 취소 (일반 {(job.work > 0 ? 70 : 100)}% · 핵심 100%)",
                     () => { workshop.Cancel(index); ShowWorkshop(workshop); });
             }
             if (workshop.Crafter != null) MenuTheme.Button(content, "장수 배정 해제 (진행도 유지)", () => { workshop.Release(); ShowWorkshop(workshop); });
             else foreach (var c in SortedCommanders())
                 if (workshop.CanAssign(c)) MenuTheme.Button(content, "제작 배정: " + c.CommanderName, () => { workshop.TryAssign(c); ShowWorkshop(workshop); });
-            MenuTheme.Text(content, "생산 목록은 대기열이 빌 때마다 위에서부터 1개씩 대기열에 넣고 그때 비용을 냅니다. 작업표에서 제작이 켜진 장수가 자율로 와서 만듭니다. 장비 장착·해제는 장수 상세에서 가능합니다.", 17, 70);
+            MenuTheme.Text(content, "재료는 제작 착수 시 소비합니다. 미완성품은 원제작자만 이어 만들며, 이탈 시 보관하거나 취소할 수 있습니다. 회수한 핵심물로 다른 장수가 새로 제작할 수 있습니다.", 17, 70);
             MenuTheme.Button(content, "새로고침", () => ShowWorkshop(workshop));
             V5Fit(window);
         }

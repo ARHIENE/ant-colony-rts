@@ -9,6 +9,12 @@ namespace AntColony.UI
 {
     public sealed class BetaProgress : MonoBehaviour
     {
+        // 정식 캠페인은 첫 보스로 종료하지 않는다. 전용 베타 시나리오 진입부에서만 설정한다.
+        public bool BetaScenario
+        {
+            get => CampaignResearch.Instance != null && CampaignResearch.Instance.BetaScenario;
+            set { if (CampaignResearch.Instance != null) CampaignResearch.Instance.BetaScenario = value; }
+        }
         private UnityEngine.UI.Text objective;
         private GameObject objectivePanel;
         private GameManager game;
@@ -57,7 +63,7 @@ namespace AntColony.UI
             if (campaign != null && campaign.Departed) return "로켓 발사 완료";
             if (campaign != null && campaign.Active != null)
                 return $"연구 · {campaign.Active.Name}\n{campaign.Progress:0}/{campaign.Active.Work:0} · 과학 화면에서 연구 장수 지시";
-            if (game.SavedBoss) return "로켓 탈출 · 보스 보상 회수\n본거지로 귀환 후 로켓 연구";
+            if (game.SavedBoss) return "보스 보상 회수 · 본거지 반입\n과학 시설에서 다음 탐지기 확인 (A→B/C→D)";
             var world = WorldMapManager.Instance;
             if (world != null)
             {
@@ -96,8 +102,8 @@ namespace AntColony.UI
             foreach (var candidate in FindObjectsByType<Barracks>())
                 if (candidate.IsUpgrading) return "병영 강화 중\n과학연구소에 필요한 자원을 모으세요";
             var resources = ResourceManager.Instance;
-            if (resources != null && (resources.GetAmount(ResourceType.Food) >= resources.GetCapacity(ResourceType.Food)
-                || resources.GetAmount(ResourceType.Soil) >= resources.GetCapacity(ResourceType.Soil)))
+            if (resources != null && (resources.GetAmount(AntColony.Data.ResourceType.Food) >= resources.GetCapacity(AntColony.Data.ResourceType.Food)
+                || resources.GetAmount(AntColony.Data.ResourceType.Soil) >= resources.GetCapacity(AntColony.Data.ResourceType.Soil)))
                 return "창고 가득 참 · 자원 사용 또는 창고 건설\n다음 목표 · 병영 2티어 강화";
             return "병영 강화 · 2티어 달성\n병영을 선택해 티어를 강화하세요";
         }
@@ -105,7 +111,7 @@ namespace AntColony.UI
         private void Victory()
         {
             if (CampaignResearch.Instance != null && CampaignResearch.Instance.Departed) GameMenuController.Instance?.ShowDeparture();
-            else GameMenuController.Instance?.ShowOutcome(true);
+            else if (BetaScenario) GameMenuController.Instance?.ShowOutcome(true);
         }
         private void Defeat() => GameMenuController.Instance?.ShowOutcome(false);
     }

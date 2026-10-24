@@ -262,7 +262,7 @@ public static class RegressionChecks
             selection.ClearSelection();
 
             var bossGo = NewObject("RegressionBoss", origin + Vector3.right * 20);
-            var boss = bossGo.AddComponent<BossHealth>();
+            var boss = bossGo.AddComponent<AntColony.Boss.BossHealth>();
             var circle = bossGo.AddComponent<BossCircleAoE>();
             var cone = bossGo.AddComponent<BossConeAoE>();
             var line = bossGo.AddComponent<BossLineAoE>();

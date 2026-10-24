@@ -43,12 +43,23 @@ namespace AntColony.UI
                 lines.Add($"<b>{ResourceNames[r]}</b>  획득 {d.acquired[r]} · 사용 {d.spent[r]}" + (uses.Length > 0 ? $"  ({uses})" : ""));
             }
             lines.Add($"<b>시민</b>  유입 {d.antsProduced} · 손실 {d.antsLost}");
-            lines.Add("<b>탑승</b>  " + (research.Passengers.Count == 0 ? "없음" : string.Join(", ", research.Passengers)));
-            lines.Add("<b>남겨진 장수</b>  " + (research.LeftBehind.Count == 0 ? "없음" : string.Join(", ", research.LeftBehind)));
-            lines.Add("<b>사망</b>  " + Names("사망"));
-            lines.Add("<b>포로</b>  " + Names("포로"));
+            var ending = RocketCampaign.Instance?.Ending;
+            if (ending != null)
+            {
+                var labels = new[] { "탈출", "생존 잔류", "외부 원정/이동", "포로", "사망", "이탈" };
+                foreach (EndingCategory category in Enum.GetValues(typeof(EndingCategory)))
+                {
+                    var names = ending.commanders.Where(c => c.category == category).Select(c => c.name).ToArray();
+                    lines.Add($"<b>{labels[(int)category]}</b>  " + (names.Length == 0 ? "없음" : string.Join(", ", names)));
+                }
+                lines.Add($"<b>시민 최종 합계</b>  탈출 {ending.citizensEscaped} · 잔류 {ending.citizensStaying} · 전체 {ending.citizensEscaped + ending.citizensStaying}");
+            }
+            else
+            {
+                lines.Add("<b>탑승</b>  " + (research.Passengers.Count == 0 ? "없음" : string.Join(", ", research.Passengers)));
+                lines.Add("<b>남겨진 장수(이전 저장)</b>  " + (research.LeftBehind.Count == 0 ? "없음" : string.Join(", ", research.LeftBehind)));
+            }
             lines.Add("<b>합류</b>  " + Names("합류"));
-            lines.Add("<b>떠난 장수</b>  " + Names("떠난 장수"));
             lines.Add("<b>처치한 보스</b>  " + Names("보스 처치"));
             lines.Add($"<b>거점</b>  편입 {Count("편입")} · 유기 {Count("유기")}");
             lines.Add($"<b>전쟁·동맹</b>  선전포고 {Count("선전포고")} · 협정 {Count("협정")} · 평화 {Count("평화")}");

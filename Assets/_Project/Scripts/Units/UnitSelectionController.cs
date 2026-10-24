@@ -49,6 +49,8 @@ namespace AntColony.Units
             if (cam == null) return;
 
             var selected = selectionManager.GetSelectedObjects();
+            // G42: 새 우클릭 명령은 원정 수송의 대기 지시(탑승·주둔·하차)를 대신한다.
+            foreach (var s in selected) if (s != null && s.GetComponent<CommanderAnt>() is CommanderAnt ordered) ExpeditionTransport.CancelCrewOrdersFor(ordered);
             if (selected.Count == 0)
             {
                 if (Physics.Raycast(cam.ScreenPointToRay(screenPos), out var context, 500, ~0))
@@ -64,6 +66,14 @@ namespace AntColony.Units
             }
 
             var ray = cam.ScreenPointToRay(screenPos);
+            foreach (var bossHit in Physics.RaycastAll(ray, 500f, ~0))
+            {
+                var stronghold = bossHit.collider.GetComponentInParent<BossStronghold>();
+                if (stronghold == null) continue;
+                foreach (var selectable in selected)
+                    if (selectable != null && selectable.GetComponent<CommanderAnt>() is CommanderAnt collector
+                        && collector.CommandCollectBossReward(stronghold)) return;
+            }
             if (Physics.Raycast(ray, out var fireHit, 500f, ~0) && fireHit.collider.GetComponentInParent<WallFire>() is WallFire fire && fire.Burning)
             {
                 foreach (var selectable in selected)
@@ -136,7 +146,8 @@ namespace AntColony.Units
                         || hit.collider.GetComponentInParent<BuildingConstructionSite>() != null)) carrier.DropCargo();
                 if (worker is CommanderAnt artisan && deposit != null && deposit.CountsTowardPlayerDefeat)
                 {
-                    var job = deposit is Infirmary ? CommanderJobs.Nursing : deposit is Kitchen ? CommanderJobs.Cooking : CommanderJobs.Repair;
+                    var job = deposit is Infirmary ? CommanderJobs.Nursing : deposit is Kitchen ? CommanderJobs.Cooking
+                        : deposit is SupplyFacility well && well.Kind == AntColony.Data.BuildingKind.ManualWell ? CommanderJobs.Hauling : CommanderJobs.Repair;
                     if ((job != CommanderJobs.Repair || BuildingRepair.Needed(deposit)) && artisan.StartService(deposit, job)) { index++; continue; }
                 }
                 if (worker is CommanderAnt hunter && !hunter.IsDeployed && target is WildMonster animal && animal.Huntable && animal.HuntDesignated && hunter.StartHunt(animal)) { index++; continue; }

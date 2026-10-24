@@ -63,7 +63,10 @@ namespace AntColony.Data
         Fridge, Freezer,
         // 2026-10-15 퇴비통(배설물·썩은 식품 → 비료), 묘비(장수 시신 1구 안치)
         CompostBin, Tombstone,
-        CrashWreck // 2026-10-23 불시착 잔해(건설 목록에는 없음)
+        CrashWreck, // 2026-10-23 불시착 잔해(건설 목록에는 없음)
+        CivicPublicService, School, CitizenClinic, // B8: 기존 저장 번호 유지
+        PlanterBed, StarterMushroomBed, WaterSource, OilDeposit, // B10
+        ManualWell, WaterPump, FluidPipe, FluidTank, SteamGenerator, OilDrill, OilRefinery, FuelCharger
     }
 
     [CreateAssetMenu(fileName = "BuildingData", menuName = "AntColony/Building Data")]

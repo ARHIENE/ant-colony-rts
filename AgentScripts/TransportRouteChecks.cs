@@ -81,7 +81,7 @@ public static class TransportRouteChecks
         Check(ship.TryReturn(), "return after annexation"); ship.Tick(ship.TravelSeconds);
         Check(!ship.Route.TryStart(site), "empty route rejected on annexed site");
         Move(c, ship.Position + Vector3.right * 3);
-        Check(ship.TryBoard(new[] { c }), "board auto crew");
+        Check(c.Transport == ship || ship.TryBoard(new[] { c }), "board auto crew"); // G42: 이미 승무원이면 다시 탑승 지시는 거부된다
         Check(!ship.Route.TryStart(world.Sites.First(s => s.Kind == ExpeditionSiteKind.BossNest)) && !ship.Route.TryStart(world.Sites.First(s => s.Kind == ExpeditionSiteKind.ResourceSite)), "boss and neutral route rejected");
         var other = world.CreateTransport(false, position + Vector3.forward * 10);
         Check(other.TryDepart(site), "another transport occupies destination");
@@ -94,24 +94,25 @@ public static class TransportRouteChecks
         Check(ship.Route.IsRunning && ship.Route.Destination == site, "UI starts chosen route");
         ship.Route.Tick(float.NaN); ship.Route.Tick(float.PositiveInfinity); ship.Route.Tick(-1);
         ship.Route.Tick(1);
-        Check(ship.State == ExpeditionState.Home && site.Visitor == other, "occupied site waits without stealing visitor");
+        Check(ship.State == ExpeditionState.Outbound && site.Visitor == other, "G15 occupied site permits follow-up departure without stealing visitor");
         Check(!ship.Route.TryStart(site) && !ship.TryUnloadCrew() && !ship.TryBoard(new[] { c })
             && !ship.TryDepart(world.Sites[1]), "active route rejects restart, manifest edits and other destinations");
-        other.Tick(other.TravelSeconds); Check(other.TryReturn(), "other transport leaves"); other.Tick(other.TravelSeconds);
-        ship.Route.Tick(1); Check(ship.State == ExpeditionState.Outbound, "route departs when site is free");
+        other.Tick(other.TravelSeconds);
         ship.Tick(ship.TravelSeconds);
+        Check(ship.State == ExpeditionState.Outbound && other.State == ExpeditionState.Deployed, "G15 simultaneous docking waits");
+        other.Tick(ExpeditionRules.DockSeconds);
+        ship.Tick(.01f);
+        Check(ship.State == ExpeditionState.Deployed && other.State == ExpeditionState.Deployed, "G15 both parties stay after docking interval");
+        Check(other.TryReturn(), "other transport leaves"); other.Tick(other.TravelSeconds);
         Check(!ship.TryStation(ship.Crew), "auto crew cannot be stationed");
         var beforeFood = rm.GetAmount(ResourceType.Food);
         Check(await Wait(() => ship.State == ExpeditionState.Returning), "real collection automatically returns: " + Diagnose());
         Check(ship.GetCargo(ResourceType.Food) == 12 && ship.GetCargo(ResourceType.Soil) == 7
             && rm.GetAmount(ResourceType.Food) == beforeFood, "both resources remain cargo until arrival");
         rm.Add(ResourceType.Food, 10000); rm.Add(ResourceType.Soil, 10000);
-        ship.Tick(ship.TravelSeconds); ship.Route.Tick(120);
-        Check(ship.State == ExpeditionState.Home && ship.HasCargo && c.IsEmbarked && ship.Crew.Count == 1,
-            "full home storage preserves cargo and crew and blocks next departure");
-        Check(!ship.TryDepart(site), "manual departure cannot bypass auto storage wait");
-        Check(rm.TrySpend(12, 7), "make exact storage room");
-        Check(await Wait(() => !ship.HasCargo), "stored cargo unloads when room opens");
+        ship.Tick(ship.TravelSeconds);
+        Check(ship.State == ExpeditionState.Home && !ship.HasCargo && c.IsEmbarked && ship.Crew.Count == 1,
+            "G69 full storage unloads overflow to floor once and preserves auto crew");
         Check(rm.GetAmount(ResourceType.Food) == rm.GetCapacity(ResourceType.Food)
             && rm.GetAmount(ResourceType.Soil) == rm.GetCapacity(ResourceType.Soil), "cargo delivered exactly once");
         ship.Route.Tick(1);

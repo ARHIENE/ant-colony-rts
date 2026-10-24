@@ -271,6 +271,15 @@ namespace AntColony.Map
                             var bottom = renderers.Min(r => r.bounds.min.y);
                             obj.transform.position += Vector3.up * (worldPos.y - bottom);
                         }
+                        var seedIndex = 0;
+                        foreach (var node in obj.GetComponentsInChildren<AntColony.World.ResourceNode>())
+                        {
+                            if (node.ResourceType != AntColony.Data.ResourceType.Food || node.IsLooseCargo || node.RequiresFishing) continue;
+                            var source = node.GetComponent<AntColony.Buildings.FarmSeedSource>();
+                            if (source == null) source = node.gameObject.AddComponent<AntColony.Buildings.FarmSeedSource>();
+                            else continue; // 프리팹에 지정된 작물은 보존한다.
+                            source.Configure(AntColony.Core.CrashLandingStart.StartingCrop(AntColony.Core.BiomeRules.Current), "terrain:" + spawnedObjects.Count + ":" + seedIndex++); // 같은 시드면 같은 생성 순번
+                        }
                         spawnedObjects.Add(obj);
                         occupied.Add(new Vector2Int(Mathf.FloorToInt(worldPos.x), Mathf.FloorToInt(worldPos.z)));
                         if (styled && !spawnObj.solid) foreach (var c in obj.GetComponentsInChildren<Collider>()) DestroyImmediate(c); // 같은 프레임 NavMesh 재구축 전에 빠져야 한다.

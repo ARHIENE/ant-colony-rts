@@ -5,6 +5,7 @@ namespace AntColony.Core
 {
     // 로컬 맵 바이옴: 6종(Phase 6, 2026-10-01 확정). 시작할 때 고른다(= 난이도), 월드맵 거점마다도 다르다. None은 옛 저장·검사용(보정 없음).
     public enum MapBiome { None, Forest, Garden, Waterside, City, Desert, Cave }
+    public enum MapClimate { Temperate, Cold, TropicalWet }
 
     // 바이옴 차이는 강하게(±60%, 확정). 숲 바닥은 확정, 나머지 3종은 잠정안.
     // ponytail: 바이옴 전용 이벤트(발자국·물뿌리개·배수구 역류·쓰레기 더미)·물가 형태·숲 그늘은 다음 단계.
@@ -28,7 +29,7 @@ namespace AntColony.Core
 
         public static string Name(MapBiome b) => b switch
         {
-            MapBiome.Forest => "숲 바닥", MapBiome.Garden => "뒷마당 정원", MapBiome.Waterside => "물가 모래밭", MapBiome.City => "도시 구석", MapBiome.Desert => "사막", MapBiome.Cave => "동굴", _ => "기본"
+            MapBiome.Forest => "온대 숲", MapBiome.Garden => "초원", MapBiome.Waterside => "해안", MapBiome.City => "온대 숲 폐허", MapBiome.Desert => "건조 지대", MapBiome.Cave => "고산·지상 동굴", _ => "기본"
         };
 
         // 맵 생성 때 로컬 자원 노드 양에 곱한다.
@@ -51,7 +52,7 @@ namespace AntColony.Core
         public static float MoveAt(bool indoors) => Current == MapBiome.Desert && !indoors ? .9f : 1f;
         // 동굴 어둠: 방 밖 작업 -15%(방 = 불 밝힌 공간).
         public static float WorkAt(bool indoors) => Current == MapBiome.Cave && !indoors ? .85f : 1f;
-        public static bool FarmAllowed => Current != MapBiome.City;
+        public static bool FarmAllowed => true; // 포장 여부는 건설 위치에서 판정한다.
         public static float FishingYield => Current == MapBiome.Waterside ? 1 + Strong : 1f;
         public static float MoldSpread => Current == MapBiome.Forest ? 2f : 1f;
         public static float WildfireDamage => Current == MapBiome.Forest ? 2f : 1f;

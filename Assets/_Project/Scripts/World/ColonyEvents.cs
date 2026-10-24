@@ -13,7 +13,7 @@ using Random = UnityEngine.Random;
 
 namespace AntColony.World
 {
-    public sealed class ColonyEvents : MonoBehaviour
+    public sealed partial class ColonyEvents : MonoBehaviour
     {
         [Serializable] public class State
         {
@@ -21,6 +21,8 @@ namespace AntColony.World
             public float cold, flood, drought;
             public float[] cooldowns = new float[11];
             public int lastNight = -1; // 야행성 포식자가 나온 마지막 날
+            public int caravanSeason = -1; // 계절당 방문 보장. 옛 저장은 첫 틱부터 현재 계절 대상으로 계산.
+            public float caravanRemaining;
             public float migrationOffer; // 이주 개미떼 합류 제안 남은 시간(0 = 없음). 수락·거절하거나 만료되면 0
             public List<EventActor.State> actors = new List<EventActor.State>();
         }
@@ -59,9 +61,11 @@ namespace AntColony.World
                 var dt = Mathf.Min(seconds, 1); seconds -= dt;
                 if (state.migrationOffer > 0) { if (state.migrationOffer <= dt) DeclineMigration("기한 만료"); else state.migrationOffer -= dt; }
                 state.cold = Mathf.Max(0, state.cold - dt); state.flood = Mathf.Max(0, state.flood - dt); state.drought = Mathf.Max(0, state.drought - dt);
+                state.caravanRemaining = Mathf.Max(0, state.caravanRemaining - dt);
                 state.sinceLast = Mathf.Min(EventRules.Cooldown, state.sinceLast + dt);
                 for (int i = 0; i < state.cooldowns.Length; i++) state.cooldowns[i] = Mathf.Max(0, state.cooldowns[i] - dt);
                 foreach (var actor in FindObjectsByType<EventActor>(FindObjectsSortMode.None)) actor.Tick(dt);
+                if (GameCalendar.DayOfSeason == GameCalendar.DaysPerSeason) EnsureSeasonCaravan(GameCalendar.TotalSeasons);
                 // G08 하루 150초: 밤이 계절당 6번이라 첫날 밤에만 출현시켜 옛 빈도(계절당 1회)를 유지한다.
                 if (GameCalendar.IsNight && GameCalendar.DayOfSeason == 1 && state.lastNight != GameCalendar.Day) SpawnNightPredators();
                 state.checkRemaining -= dt;
@@ -69,6 +73,7 @@ namespace AntColony.World
                 state.checkRemaining += EventRules.CheckSeconds;
                 if (state.sinceLast < EventRules.MinimumGap || Random.value >= EventRules.Chance(DifficultyRuntime.Level)) continue;
                 var crisis = Random.value < EventRules.CrisisChance(DifficultyRuntime.Level);
+                if (crisis && RocketCampaign.SuppressNewCrises) continue;
                 var choices = Enum.GetValues(typeof(ColonyEvent)).Cast<ColonyEvent>().Where(e => ((int)e <= 5) == crisis && Eligible(e)).ToArray();
                 if (choices.Length > 0) TryTrigger(choices[Random.Range(0, choices.Length)]);
             }
@@ -77,6 +82,7 @@ namespace AntColony.World
         private static ResourceNode[] Farms() => FindObjectsByType<ResourceNode>(FindObjectsSortMode.None)
             .Where(n => n.RegrowSeconds > 0 && n.GetComponent<BuildingBase>() != null && Home(n.transform.position)).ToArray();
         public bool Eligible(ColonyEvent e) => Enum.IsDefined(typeof(ColonyEvent), e) && state.cooldowns[(int)e] == 0
+            && !(RocketCampaign.SuppressNewCrises && (int)e <= (int)ColonyEvent.Wasps)
             && EventRules.InSeason(e, GameCalendar.CurrentSeason) && (e switch
             {
                 ColonyEvent.Wildfire => Farms().Length > 0 && !AntColony.Map.WeatherSystem.Wet, // 비가 오면 산불이 나지 않는다(2026-10-03 날씨).
@@ -84,6 +90,7 @@ namespace AntColony.World
                 ColonyEvent.Mold => HomeCommanders().Any(c => !c.HasMold),
                 ColonyEvent.Wasps => false, // Phase 4: 기생 말벌 이벤트 삭제(여왕방 삭제). 이전 저장의 말벌은 그대로 처리된다.
                 ColonyEvent.Wanderer => CommanderRoster.Instance != null && CommanderRoster.Instance.Count < ScoutPost.DefaultMaxCommanders,
+                ColonyEvent.Caravan => state.caravanSeason != GameCalendar.TotalSeasons,
                 _ => true
             });
         public bool TryTrigger(ColonyEvent e)
@@ -123,6 +130,8 @@ namespace AntColony.World
                     result = $"이주민 무리(장수 1 + 시민 {EventRules.Migrants})가 합류를 청합니다. {EventRules.MigrationOfferSeconds:0}초 안에 수락·거절하세요."; break;
                 case ColonyEvent.Caravan:
                     DiplomacyManager.Instance.Data.caravanUntil = DiplomacyManager.Instance.Data.elapsed + DiplomacyRules.CaravanSeconds;
+                    state.caravanSeason = GameCalendar.TotalSeasons;
+                    state.caravanRemaining = DiplomacyRules.CaravanSeconds;
                     result = "교역 캐러밴 도착 — J 외교에서 거래 (90초)"; break;
                 default: return false;
             }
@@ -132,9 +141,23 @@ namespace AntColony.World
             return true;
         }
         // 밤마다 맵 가장자리에서 야행성 포식자가 나온다. 새벽이 되면 남은 개체는 물러간다(EventActor).
+        public bool EnsureSeasonCaravan(int season)
+        {
+            if (season < 0 || state.caravanSeason >= season || DiplomacyManager.Instance == null) return false;
+            var diplomacy = DiplomacyManager.Instance;
+            diplomacy.Data.caravanUntil = diplomacy.Data.elapsed + DiplomacyRules.CaravanSeconds;
+            state.caravanSeason = season;
+            state.caravanRemaining = DiplomacyRules.CaravanSeconds;
+            state.cooldowns[(int)ColonyEvent.Caravan] = EventRules.Cooldown;
+            if (CampaignHistory.Recording) CampaignHistory.Instance.Data.events[(int)ColonyEvent.Caravan]++;
+            CampaignHistory.Record("이벤트", "교역 캐러밴", "계절 방문 보장 — 교역 가능 시간 90초", true);
+            return true;
+        }
+
         public bool SpawnNightPredators()
         {
             state.lastNight = GameCalendar.Day;
+            if (RocketCampaign.SuppressNewCrises) return false;
             if (!TryEdge(out var point)) return false;
             for (int i = 0; i < EventRules.NightPredators; i++) EventActor.Spawn(new EventActor.State { kind = EventActorKind.NightPredator,
                 position = new Vec3Dto(point + Vector3.right * i * 1.5f), amount = EventRules.NightPredatorHealth });
@@ -168,16 +191,15 @@ namespace AntColony.World
         }
         private static bool TryEdge(out Vector3 point)
         {
-            var bounds = HomeMapBuilder.CurrentWorldBounds; var queen = FindFirstObjectByType<Stockpile>(); point = bounds.center;
-            if (queen == null) return false;
+            var bounds = HomeMapBuilder.CurrentWorldBounds; var home = ResourceManager.HomePosition; point = bounds.center; // 불시착 시작엔 비축더미가 없다.
             // 가장자리 후보만 사용한다. 본거지 근처로 순간 이동시키지 않는다.
             for (int i = 0; i < 64; i++)
             {
                 float t = Random.Range(-.9f, .9f); int side = i % 4;
-                var p = bounds.center + new Vector3(side < 2 ? (side == 0 ? -.9f : .9f) * bounds.extents.x : t * bounds.extents.x, queen.Position.y,
+                var p = bounds.center + new Vector3(side < 2 ? (side == 0 ? -.9f : .9f) * bounds.extents.x : t * bounds.extents.x, home.y,
                     side >= 2 ? (side == 2 ? -.9f : .9f) * bounds.extents.z : t * bounds.extents.z);
                 if (!NavMesh.SamplePosition(p, out var hit, 10, NavMesh.AllAreas)) continue;
-                if (!AntColony.Map.NavRoute.Reachable(hit.position, queen.Position)) continue; // 맵 끝→본거지 먼 길(2026-10-22)
+                if (!AntColony.Map.NavRoute.Reachable(hit.position, home)) continue; // 맵 끝→본거지 먼 길(2026-10-22)
                 point = hit.position; return true;
             }
             return false;
@@ -202,7 +224,7 @@ namespace AntColony.World
             if (!MigrationPending) return false;
             state.migrationOffer = 0; RefreshMigrationNotice();
             AntPool.Instance?.Breed(EventRules.Migrants);
-            var arrival = FindFirstObjectByType<Stockpile>()?.Position ?? HomeMapBuilder.CurrentWorldBounds.center;
+            var arrival = ResourceManager.HomePosition;
             var migrant = CommanderRoster.Instance != null && CommanderRoster.Instance.Count < ScoutPost.DefaultMaxCommanders
                 ? CommanderRoster.Instance.Create(null, CommanderRank.Corporal, new[] { UnitRole.Worker }, UnitRole.Worker, CommanderTraits.Random(), arrival) : null;
             if (migrant != null) CampaignHistory.Record("합류", migrant.CommanderName, "이주민 무리");
@@ -224,7 +246,8 @@ namespace AntColony.World
             bool N(float v, float max) => !float.IsNaN(v) && !float.IsInfinity(v) && v >= 0 && v <= max;
             return s != null && N(s.checkRemaining, EventRules.CheckSeconds) && s.checkRemaining > 0 && N(s.sinceLast, EventRules.Cooldown)
                 && N(s.cold, EventRules.ColdSeconds) && N(s.flood, EventRules.FloodSeconds) && N(s.drought, EventRules.DroughtSeconds)
-                && N(s.migrationOffer, EventRules.MigrationOfferSeconds) && s.cooldowns != null && s.cooldowns.Length == 11 && s.cooldowns.All(v => N(v, EventRules.Cooldown)) && s.lastNight >= -1
+                && N(s.migrationOffer, EventRules.MigrationOfferSeconds) && N(s.caravanRemaining, DiplomacyRules.CaravanSeconds)
+                && s.cooldowns != null && s.cooldowns.Length == 11 && s.cooldowns.All(v => N(v, EventRules.Cooldown)) && s.lastNight >= -1 && s.caravanSeason >= -1
                 && s.actors != null && s.actors.Count <= 6 + EventRules.NightPredators && s.actors.All(a => a != null && Enum.IsDefined(typeof(EventActorKind), a.kind)
                     && a.position != null && a.position.IsFinite() && Mathf.Abs(a.position.x) < 100000 && Mathf.Abs(a.position.y) < 100000 && Mathf.Abs(a.position.z) < 100000
                     && N(a.attackCooldown, EventRules.WaspInterval) && N(a.remaining, a.kind == EventActorKind.Wanderer ? EventRules.WandererSeconds : EventRules.DriftSeconds)

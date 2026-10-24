@@ -45,6 +45,47 @@ namespace AntColony.World
         private float economyTimer;
         private int waveIndex;
 
+        private static ColonyInvasion FinalSource()
+        {
+            foreach (var source in FindObjectsByType<ColonyInvasion>(FindObjectsInactive.Include, FindObjectsSortMode.InstanceID))
+                if (source.GetComponentInParent<ExpeditionSite>() == null && source.raiderTemplate != null && source.spawnPoint != null) return source;
+            return null;
+        }
+        public static bool FinalAssaultAvailable => FinalSource() != null && FindAnyObjectByType<LocalIncursions>() != null;
+        internal static float FinalFirstDelay => FinalSource()?.firstWaveDelay * DifficultyRuntime.IntervalScale ?? 90f * DifficultyRuntime.IntervalScale;
+        // 잠정(결정 원문에 없음): 인구 10명/재산 100당 파동 병력 +1. 기존 파동 상한·난이도는 유지한다.
+        private const float FinalPopulationPerRaider = 10f, FinalWealthPerRaider = 100f;
+        private int WaveCount(int index, RocketSnapshot snapshot = null)
+        {
+            var strength = snapshot == null ? 0 : snapshot.Population / FinalPopulationPerRaider + snapshot.Wealth / FinalWealthPerRaider;
+            var baseline = firstWaveCount + (double)index * waveCountGrowth + strength;
+            return Mathf.Min(DifficultyRuntime.ScaleCount((int)System.Math.Min(int.MaxValue / 4, baseline)), maxWaveCount);
+        }
+        // G45 가동 전 미리보기: 고정 입력으로 계산한 첫 파동 병력(생성기가 없으면 -1).
+        public static int PredictedFirstWave(RocketSnapshot snapshot) { var source = FinalSource(); return source == null ? -1 : source.WaveCount(0, snapshot); }
+        // 평시 위기 차단과 별도인 최종 공세. 기존 생성 위치·분산·병력 상한·장수 구성을 재사용한다.
+        internal static bool SpawnFinalWave(RocketSnapshot snapshot, int index, out float nextDelay)
+        {
+            var source = FinalSource();
+            var local = FindAnyObjectByType<LocalIncursions>();
+            nextDelay = source != null ? source.waveRetryDelay : 15f;
+            if (source == null || local == null) return false;
+            source.raiders.RemoveAll(r => r == null || r.IsDead);
+            var active = 0;
+            foreach (var visitor in local.Visitors) if (visitor != null && !visitor.IsDead) active++;
+            var count = Mathf.Min(source.WaveCount(index, snapshot), source.maxActiveRaiders - active);
+            var spawned = 0;
+            for (var i = 0; i < count; i++) if (source.Spawn(false)) spawned++;
+            if (spawned == 0) return false;
+            var hasCommander = false;
+            foreach (var visitor in local.Visitors)
+                if (visitor is EnemyCommander && !visitor.IsDead) hasCommander = true;
+            if (!hasCommander) source.SpawnCommander(false);
+            nextDelay = source.ScaledWaveInterval;
+            AntColony.UI.ToastManager.Show("최종 공세 접근 중: " + spawned + "마리");
+            return true;
+        }
+
         private void Awake()
         {
             colony = GetComponent<EnemyColony>();
@@ -83,15 +124,19 @@ namespace AntColony.World
         // 전리품 노드 설정이 빠지면 경제가 조용히 멈추므로 시작할 때 알린다.
         private void WarnMissingStock()
         {
-            if (raiderFoodCost > 0 && !colony.HasResourceNode(ResourceType.Food))
+            if (raiderFoodCost > 0 && !colony.HasResourceNode(AntColony.Data.ResourceType.Food))
                 Debug.LogWarning($"{name}: Food 전리품 노드가 없어 침공 자원 소비를 건너뛴다.", this);
-            if (expansionSoilCost > 0 && !colony.HasResourceNode(ResourceType.Soil))
+            if (expansionSoilCost > 0 && !colony.HasResourceNode(AntColony.Data.ResourceType.Soil))
                 Debug.LogWarning($"{name}: Soil 전리품 노드가 없어 자동 확장을 건너뛴다.", this);
         }
 
         private void Update()
         {
             TickEconomy();
+            if (RocketCampaign.SuppressNewCrises) return;
+            // 월드 거점의 출발·이동은 DiplomacyManager가 관리한다. 로컬 소굴만 이 경로를 사용한다.
+            if (GetComponentInParent<ExpeditionSite>() != null) return;
+            if (ExpeditionRules.HomeCommanders == 0) return;
             // 밤 위협(2026-09-28 확정): 밤에는 침공이 1.5배 잦다.
             timer -= Time.deltaTime * (GameCalendar.IsNight ? EventRules.NightThreatScale : 1f);
             if (timer > 0f) return;
@@ -105,7 +150,7 @@ namespace AntColony.World
             }
 
             raiders.RemoveAll(raider => raider == null || raider.IsDead);
-            var count = Mathf.Min(AntColony.Core.DifficultyRuntime.ScaleCount(firstWaveCount + waveIndex * waveCountGrowth), maxWaveCount);
+            var count = WaveCount(waveIndex);
             count = Mathf.Min(count, maxActiveRaiders - raiders.Count);
             if (count <= 0)
             {
@@ -138,23 +183,24 @@ namespace AntColony.World
             colony.TryExpand(expansionFoodCost, expansionSoilCost, maxBuildings, expansionRadius);
         }
 
-        private bool Spawn()
+        private bool Spawn(bool payCost = true)
         {
             var scatter = Random.insideUnitCircle * spawnScatter;
             var origin = spawnPoint.position + new Vector3(scatter.x, 0f, scatter.y);
             if (!NavMesh.SamplePosition(origin, out var hit, spawnScatter + 2f, NavMesh.AllAreas)) return false;
-            if (!TryPayRaiderCost()) return false;
+            if (payCost && !TryPayRaiderCost()) return false;
 
             // 소굴이 파괴돼도 침공 부대는 남도록 소굴 밑에 붙이지 않는다.
             var raider = Instantiate(raiderTemplate, hit.position, spawnPoint.rotation);
             raider.MakeRaider();
             raider.gameObject.SetActive(true);
             raiders.Add(raider);
+            if (!payCost) FindAnyObjectByType<LocalIncursions>()?.RestoreVisitor(raider);
             return true;
         }
 
         // 파동을 이끄는 적 장수. 쓰러지면 플레이어의 포로 수용소로 넘어간다.
-        private void SpawnCommander()
+        private void SpawnCommander(bool payCost = true)
         {
             if (commanderTemplate == null) return;
             if (raiders.Exists(raider => raider is EnemyCommander)) return;
@@ -162,21 +208,22 @@ namespace AntColony.World
             var scatter = Random.insideUnitCircle * spawnScatter;
             var origin = spawnPoint.position + new Vector3(scatter.x, 0f, scatter.y);
             if (!NavMesh.SamplePosition(origin, out var hit, spawnScatter + 2f, NavMesh.AllAreas)) return;
-            if (commanderFoodCost > 0 && colony.HasResourceNode(ResourceType.Food)
+            if (payCost && commanderFoodCost > 0 && colony.HasResourceNode(AntColony.Data.ResourceType.Food)
                 && !colony.TrySpendResources(commanderFoodCost, 0)) return;
 
             var commander = Instantiate(commanderTemplate, hit.position, spawnPoint.rotation);
-            commander.ConfigureCommander($"{colony.name} Commander {waveIndex + 1}",
+            commander.ConfigureCommander($"{(colony != null ? colony.name : "최종 공세")} Commander {waveIndex + 1}", // 최종 공세 원본은 소굴이 없을 수 있다
                 CommanderRank.Sergeant, null, CommanderTraits.Random());
             commander.MakeRaider();
             commander.gameObject.SetActive(true);
             raiders.Add(commander);
+            if (!payCost) FindAnyObjectByType<LocalIncursions>()?.RestoreVisitor(commander);
         }
 
         // Food 전리품 노드가 없는 소굴은 경제 도입 전처럼 비용 없이 침공한다.
         private bool TryPayRaiderCost()
         {
-            if (raiderFoodCost <= 0 || !colony.HasResourceNode(ResourceType.Food)) return true;
+            if (raiderFoodCost <= 0 || !colony.HasResourceNode(AntColony.Data.ResourceType.Food)) return true;
             return colony.TrySpendResources(raiderFoodCost, 0);
         }
     }

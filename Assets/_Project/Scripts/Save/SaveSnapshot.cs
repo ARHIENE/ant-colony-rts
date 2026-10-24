@@ -31,14 +31,16 @@ namespace AntColony.Save
             SaveRuntime.RegisterMonsters();
             var file = new SaveFileV1 { savedAtUtc = DateTime.UtcNow.ToString("O"), unityVersion = Application.unityVersion,
                 label = options.mapSize + " / " + options.difficulty, playSeconds = GameSession.Instance.PlaySeconds, gameSeconds = GameSession.Instance.GameSeconds,
-                options = new OptionsDto { mapSize = (int)options.mapSize, difficulty = (int)options.difficulty, commanderDeath = (int)options.commanderDeath, seed = options.seed, biome = (int)options.biome },
+                options = new OptionsDto { mapSize = (int)options.mapSize, difficulty = (int)options.difficulty, commanderDeath = (int)options.commanderDeath, seed = options.seed, biome = (int)options.biome, climate = (int)options.climate },
                 randomState = JsonUtility.ToJson(UnityEngine.Random.state),
                 upkeepTimer = Object.FindFirstObjectByType<UpkeepManager>()?.SavedTimer ?? 0,
                 upkeepFailures = Object.FindFirstObjectByType<UpkeepManager>()?.ConsecutiveFailures ?? 0,
                 campaign = CampaignResearch.Instance?.CaptureState() ?? new CampaignResearch.State(),
                 history = CampaignHistory.Instance?.Capture() ?? new CampaignHistory.State(),
+                rocket = RocketCampaign.Instance?.Capture(),
                 events = ColonyEvents.Instance?.Capture() ?? new ColonyEvents.State(),
                 memorial = Memorial.Capture(),
+                farmSeeds = FarmSeeds.Capture(),
                 weather = AntColony.Map.WeatherSystem.Instance?.CaptureState(),
                 population = ColonyPopulation.Instance?.Capture() ?? new ColonyPopulation.State(),
                 workPriorities = WorkPriorities.Capture(),
@@ -50,7 +52,7 @@ namespace AntColony.Save
                 equipmentLoot = SaveCatalog.Ordered<EquipmentLoot>().Select(l => new EquipmentLootDto { position = new Vec3Dto(l.transform.position),
                     items = l.Items.Select(e => JsonUtility.FromJson<EquipmentItem>(JsonUtility.ToJson(e))).ToList() }).ToList(),
                 incursionTimer = Object.FindFirstObjectByType<LocalIncursions>()?.SavedTimer ?? 0,
-                loopCompleted = GameManager.Instance.SavedLoop, bossDefeated = GameManager.Instance.SavedBoss, defeated = GameManager.Instance.SavedDefeat,
+                loopCompleted = GameManager.Instance.SavedLoop, bossDefeated = GameManager.Instance.SavedBoss, defeated = GameManager.Instance.SavedDefeat, defeatReason = GameManager.Instance.DefeatReason,
                 colony = new ColonyDto { food = rm.GetAmount(ResourceType.Food), soil = rm.GetAmount(ResourceType.Soil), special = rm.GetAmount(ResourceType.Special), materials = rm.CaptureMaterials(), baseBin = rm.BaseBin.Capture(),
                     foodCapacity = rm.GetCapacity(ResourceType.Food), soilCapacity = rm.GetCapacity(ResourceType.Soil), specialCapacity = rm.GetCapacity(ResourceType.Special),
                     storageResearchApplied = true,
@@ -87,7 +89,10 @@ namespace AntColony.Save
                 defenseCaptureProgress = site.Defense?.CaptureProgress ?? 0 });
             var home = Object.FindObjectsByType<EnemyColony>(FindObjectsSortMode.None).FirstOrDefault(c => c.GetComponentInParent<ExpeditionSite>() == null);
             file.world.hadHomeColony = home != null; file.world.homeColony = Colony(home);
-            foreach (var s in world.Transports.Where(s => s != null)) file.world.transports.Add(new TransportDto { aircraft = s.Aircraft, state = (int)s.State,
+            file.world.pause = AntColony.UI.SimulationPause.Capture();
+            file.world.defenseReturn = JsonUtility.FromJson<HomeDefenseReturn>(JsonUtility.ToJson(world.DefenseReturn));
+            foreach (var s in world.Transports.Where(s => s != null)) file.world.transports.Add(new TransportDto { walking = s.Walking, foodDebt = s.FoodDebt, dockingRemaining = s.DockingRemaining, aircraft = s.Aircraft, state = (int)s.State,
+                bossCarrierId = BossRewardTransfer.Carrier(s),
                 blueprintCargo = s.BlueprintCargo, equipmentCargo = s.EquipmentCargo.Select(e => JsonUtility.FromJson<EquipmentItem>(JsonUtility.ToJson(e))).ToList(),
                 remaining = s.Remaining, siteIndex = SaveCatalog.SiteIndex(s.Site), position = new Vec3Dto(s.Position), homePosition = new Vec3Dto(s.HomePosition),
                 cargoFood = s.GetCargo(ResourceType.Food), cargoSoil = s.GetCargo(ResourceType.Soil), cargoSpecial = s.GetCargo(ResourceType.Special),
@@ -100,6 +105,7 @@ namespace AntColony.Save
             for (int i = 0; i < file.world.transports.Count; i++) {
                 var ship = ships[i]; ship.Route.CaptureProgress(file.world.transports[i].route);
                 file.world.transports[i].route.crew = ship.Crew.Select(c => commanders.IndexOf(c)).ToList();
+                file.world.transports[i].crewOrders = ship.CaptureCrewOrders();
             }
             file.discoveries = Encyclopedia.Entries.ToList();
             return file;
@@ -111,7 +117,8 @@ namespace AntColony.Save
             return new ResourceNodeDto { key = key, exists = n != null,
             looseCargo = n != null && n.IsLooseCargo,
             amount = n != null ? n.AmountRemaining : 0, regrowTimer = n != null ? n.RegrowTimeRemaining : 0, sowRemaining = n != null ? n.SowRemaining : 0, bountifulHarvest = n != null && n.BountifulHarvest, gatheringForbidden = n != null && n.GatheringForbidden, fishMonth = n != null ? n.FishSeason : -1, lots = n != null && n.TryGetComponent<FloorFood>(out var food) ? food.Sync() : null,
-            position = new Vec3Dto(n != null ? n.transform.position : Vector3.zero), type = n != null ? (int)n.ResourceType : 0 };
+            position = new Vec3Dto(n != null ? n.transform.position : Vector3.zero), type = n != null ? (int)n.ResourceType : 0,
+            seedCrop = n != null && n.TryGetComponent<FarmSeedSource>(out var seed) ? (int)seed.Crop : -1, seedKey = n != null && n.TryGetComponent<FarmSeedSource>(out var seedKey) ? seedKey.FixedKey : null };
         }
 
         private static EnemyColonyDto Colony(EnemyColony c)
@@ -154,6 +161,7 @@ namespace AntColony.Save
 
         internal static IEnumerator Restore(SaveFileV1 file)
         {
+            if (!FarmSeeds.Valid(file.farmSeeds)) throw new InvalidOperationException("Invalid farm seed state");
             SaveReferences.Clear();
             var world = WorldMapManager.Instance;
             CommanderRoster.Instance.ClearAll();
@@ -173,7 +181,10 @@ namespace AntColony.Save
                 if (d.key.StartsWith("new:"))
                 {
                     var go = GameObject.CreatePrimitive(PrimitiveType.Cube); go.name = "Saved Loot"; go.SetActive(false);
-                    node = go.AddComponent<ResourceNode>(); node.ConfigureLoot((ResourceType)d.type, d.amount);
+                    go.transform.localScale = Vector3.one * .6f; go.GetComponent<Collider>().isTrigger = true;
+                    node = go.AddComponent<ResourceNode>();
+                    if (d.looseCargo) node.ConfigureLoot((ResourceType)d.type, d.amount);
+                    else node.ConfigureNatural((ResourceType)d.type, d.amount, 0);
                 }
                 else if (d.key.StartsWith("mat:"))
                 {
@@ -186,8 +197,11 @@ namespace AntColony.Save
                 if (!d.exists) { Object.Destroy(node.gameObject); continue; }
                 node.transform.position = d.position.ToVector3(); node.RestoreState(d.amount, d.regrowTimer, d.sowRemaining);
                 node.IsLooseCargo = d.looseCargo;
+                if (d.seedCrop >= 0) // G28: 저장된 종자 출처(시작 야생 작물 등 새 노드 포함)를 같은 키로 되살린다.
+                { if (!node.TryGetComponent<FarmSeedSource>(out var seed)) seed = node.gameObject.AddComponent<FarmSeedSource>(); seed.Configure((FarmCrop)d.seedCrop, d.seedKey); }
                 node.BountifulHarvest = d.bountifulHarvest; node.GatheringForbidden = d.gatheringForbidden; node.FishSeason = d.fishMonth;
                 if (d.lots != null && d.lots.lots.Count > 0 && d.lots.Valid && node.TryGetComponent<FloorFood>(out var food)) food.Lots = d.lots;
+                if (d.key.StartsWith("new:")) node.gameObject.SetActive(d.amount > 0 || d.regrowTimer > 0);
             }
             foreach (var d in file.monsters)
             {
@@ -212,11 +226,16 @@ namespace AntColony.Save
                 { ec.ConfigureCommander(ec.CommanderName, ec.Rank, ec.Roles, SaveCatalog.Traits(d.traits)); ec.RestoreTalents(d.talents); }
             }
             world.VehicleResearched = file.world.vehicleResearched; world.AircraftResearched = file.world.aircraftResearched;
+            world.DefenseReturn = file.world.defenseReturn == null ? new HomeDefenseReturn()
+                : JsonUtility.FromJson<HomeDefenseReturn>(JsonUtility.ToJson(file.world.defenseReturn));
             world.RestoreUnlock(file.world.unlocked); world.SettlementNotice = file.world.notice;
             var ships = new List<ExpeditionTransport>();
             foreach (var d in file.world.transports)
             {
-                var ship = world.CreateTransport(d.aircraft, d.homePosition.ToVector3()); SaveReferences.Register("ship:" + ships.Count, ship); ships.Add(ship);
+                var ship = world.CreateTransport(d.aircraft, d.homePosition.ToVector3(), d.walking);
+                BossRewardTransfer.RestoreCarrier(ship, d.bossCarrierId, ships.Count);
+                SaveReferences.Register("ship:" + ships.Count, ship); ships.Add(ship);
+                ship.FoodDebt = d.foodDebt; ship.DockingRemaining = d.dockingRemaining;
                 ship.BlueprintCargo = d.blueprintCargo; ship.EquipmentCargo = d.equipmentCargo.Select(e => JsonUtility.FromJson<EquipmentItem>(JsonUtility.ToJson(e))).ToList();
                 ship.RestoreState((ExpeditionState)d.state, d.remaining, d.siteIndex < 0 ? null : world.Sites[d.siteIndex],
                     d.position.ToVector3(), d.homePosition.ToVector3(), d.cargoFood, d.cargoSoil, d.cargoSpecial);
@@ -245,6 +264,8 @@ namespace AntColony.Save
                 if (ships[i].State == ExpeditionState.Deployed)
                     foreach (var d in file.commanders.Where(d => d.location == 1 && d.transportIndex == i)) commanders[d.id].SetEmbarked(false, d.position.ToVector3());
             }
+            // G42: 승무원·주둔 재연결 뒤 대기 지시만 되살린다(실행은 다음 Tick).
+            for (var i = 0; i < ships.Count; i++) ships[i].RestoreCrewOrders(file.world.transports[i].crewOrders);
             var restoredBuildings = new List<(BuildingBase building, BuildingDto dto)>();
             foreach (var d in file.buildings) { var b = SaveBuildings.Resolve(d); SaveBuildings.Restore(b, d, commanders); SaveReferences.Building(d.key, b); restoredBuildings.Add((b, d)); }
             yield return null; // 제거된 건물의 OnDisable/창고 상한 변경 후 확정값 복원.
@@ -268,7 +289,7 @@ namespace AntColony.Save
             CommanderAnt.CommonDiet = p.commonDiet & CommanderAnt.AllDiet;
             GameManager.Instance.FishingUnlocked = p.fishingUnlocked
                 || CampaignResearch.Instance != null && CampaignResearch.Instance.Has(ScienceTechnology.Fishing);
-            GameManager.Instance.RestoreFlags(file.loopCompleted, file.bossDefeated, file.defeated);
+            GameManager.Instance.RestoreFlags(file.loopCompleted, file.bossDefeated, file.defeated, file.defeatReason);
             for (var i = 0; i < commanders.Count; i++)
                 if (!file.commanders[i].activeInScene || commanders[i].IsDead) commanders[i].gameObject.SetActive(false);
             var upkeep = Object.FindFirstObjectByType<UpkeepManager>(); if (upkeep != null) upkeep.SavedTimer = file.upkeepTimer;
@@ -283,8 +304,11 @@ namespace AntColony.Save
             if (file.camera.viewedSite >= 0) world.ViewSite(world.Sites[file.camera.viewedSite]);
             Object.FindFirstObjectByType<AntColony.Camera.IsometricCameraController>().RestoreView(file.camera.focus.ToVector3(), Mathf.Round(file.camera.yaw / 90f) * 90f, file.camera.orthoSize); // 옛 쿼터뷰 45° 저장은 정면 시점으로
             Encyclopedia.Merge(file.discoveries); GameSession.Instance.MarkStarted(file.playSeconds, file.gameSeconds);
+            var rocket = RocketCampaign.Instance ?? new GameObject("RocketCampaign").AddComponent<RocketCampaign>();
+            rocket.Restore(file.rocket);
             foreach (var corpse in Corpse.All.ToArray())
                 commanders.FirstOrDefault(c => c.PersonalState.id == corpse.Data.workerId)?.RestoreCorpseWork(corpse);
+            FarmSeeds.Restore(file.farmSeeds);
             Memorial.Restore(file.memorial); CampaignHistory.Instance.Restore(file.history); ColonyEvents.Instance.Restore(file.events); ColonyPopulation.Instance?.Restore(file.population); AntColony.Map.WeatherSystem.Instance?.RestoreState(file.weather); DiplomacyManager.Instance.RestoreRebels(); WorkPriorities.Restore(file.workPriorities);
             SaveReferences.Colonies(); SaveReferences.Actors();
             SaveRuntime.RestoreMonsters(file);

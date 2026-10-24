@@ -35,7 +35,7 @@ public static class DayNightChecks
     static void Warp(CommanderAnt c, Vector3 p) { c.CommandStop(); Check(NavMesh.SamplePosition(p, out var hit, 10, NavMesh.AllAreas), "walkable"); Check(c.Agent.Warp(hit.position), "warp"); }
     static void At(float timeOfDay, int day = 0) => GameSession.Instance.MarkStarted(GameSession.Instance.PlaySeconds, day * GameCalendar.SecondsPerDay + timeOfDay);
     // 한 밤을 1초 단위로 흘린다(TickDuty가 수면·이동·회복을 처리).
-    static void Night(CommanderAnt[] cs, int day, float seconds = 300)
+    static void Night(CommanderAnt[] cs, int day, float seconds = GameCalendar.SecondsPerDay - GameCalendar.DaySeconds)
     {
         for (var t = 0f; t < seconds; t += 1) { At(GameCalendar.DaySeconds + t, day); foreach (var c in cs) c.TickDuty(1); }
         At(1, day + 1); foreach (var c in cs) c.TickDuty(1);
@@ -50,6 +50,10 @@ public static class DayNightChecks
         {
             await Ready(); SaveSystem.NewGame(new NewGameOptions { seed = 260928, mapSize = MapSize.Small }); await Ready(); await Task.Delay(300);
             GameMenuController.Instance.Resume(); Time.timeScale = 0;
+            // 불시착 시작은 장수 1~3명이라 숙소 정원·배우자·야행성·출전 검사용 9명을 채운다.
+            var seed = CommanderRoster.Instance.Commanders.First(c => c.IsColonyMember && !c.IsDead).Position;
+            for (var i = 0; i < 18 && CommanderRoster.Instance.Commanders.Count(c => c.IsColonyMember && !c.IsDead) < 9; i++)
+                CommanderRoster.Instance.Create(null, CommanderRank.Corporal, new[] { UnitRole.Worker }, UnitRole.Worker, CommanderTraits.Random(), seed);
             var all = CommanderRoster.Instance.Commanders.Where(c => c.IsColonyMember && !c.IsDead).ToArray();
             foreach (var x in all) { x.SetJobEnabled(CommanderJobs.All, false); x.CommandStop(); x.Traits.values.Remove(CommanderTrait.Nocturnal); x.Traits.values.Remove(CommanderTrait.Workaholic); }
             var c = all[0]; var home = c.Position;
@@ -90,7 +94,7 @@ public static class DayNightChecks
             Check(dorm.Residents.Count == 4 && five.Count(x => x.SleepsRough) == 1, "four beds, fifth sleeps rough");
             c.PersonalState.sleep.fatigue = 90;
             var bedded = five.Where(x => !x.SleepsRough).ToArray();
-            foreach (var x in bedded) x.PersonalState.sleep.fatigue = 90;
+            foreach (var x in bedded) { x.PersonalState.sleep.fatigue = 90; x.PersonalState.meal.satiety = 100; } // G10: 배고프면 먹고 자므로 50초 밤에서 식사 시간이 빠진다.
             Night(five, 3);
             Check(bedded.All(x => x.Fatigue == 0 && !x.SleptPoorly), "full night in dormitory restores fatigue: " + string.Join(",", bedded.Select(x => x.Fatigue)));
 
@@ -134,8 +138,8 @@ public static class DayNightChecks
             copy.sleep.fatigue = 500; Check(!copy.Validate(out _), "reject fatigue out of range");
 
             // 밤 화면: 한낮 0, 한밤 1.
-            At(300); Check(DayNightLighting.NightAmount == 0, "noon light");
-            At(750); Check(DayNightLighting.NightAmount == 1, "midnight light");
+            At(GameCalendar.DaySeconds * .5f); Check(DayNightLighting.NightAmount == 0, "noon light");
+            At(GameCalendar.DaySeconds + (GameCalendar.SecondsPerDay - GameCalendar.DaySeconds) * .5f); Check(DayNightLighting.NightAmount == 1, "midnight light");
             Check(Object.FindAnyObjectByType<DayNightLighting>() != null, "lighting component present");
             return "PASS " + checks + " day/night checks";
         }

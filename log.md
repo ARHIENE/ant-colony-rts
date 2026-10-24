@@ -1,42 +1,29 @@
 # 프로젝트 로그
 
-## 현재 상태 — 2026-10-24 SAVE(Claude+Codex) — 플레이 점검 결정 G01~G69 구현 3단계 진행 중
-- 프로젝트 E:\Git\ant / develop 개발, master 안정. 공동 보드 docs/IMPLEMENTATION_BOARD.md(맨 위 IMPL-B1~B4·IMPL-G08·G01 항목). 결정 원본 docs/PLAY_CHECK_DECISIONS_1023.md(추천안 자동 선택·잠정 수치).
-- 진행 순서(사용자 승인): 1) A2 시작 생존 마무리 → 2) Notion 결정 반영 → 3) 나머지 결정 묶음별 구현(Codex 비중 크게, 사용자 요청). **이어서 하자 하면 아래 '재개 순서'부터.**
+## 현재 상태 — 2026-10-24 SAVE 2(Claude+Codex) — 플레이 점검 결정 G01~G69 코드 구현 완료, 검증 진행 중
+- 프로젝트 E:\Git\ant / develop 개발, master 안정. 결정 원본 docs/PLAY_CHECK_DECISIONS_1023.md(추천안 자동 선택). 통합 인계 docs/IMPL-I1-HANDOFF.md, 묶음별 인계 docs/IMPL-B3·B5~B10-HANDOFF.md, IMPL-C2~C5-HANDOFF.md.
+- **이어서 하자 하면 아래 '재개 순서'부터.**
 
-### 완료
-- **1단계 A2(G02·G03·G12·G24·G29·G34·G54·G56·G57):** NewGame→CrashLandingStart.Prepare, 화재·서비스 지시 저장/복원, v15 작업표 이관 14→15칸, 단궁 원거리 12m·2초(Codex), CrashWreck 템플릿이 연구소를 잡던 버그 수정(FindTemplate<CrashWreck>). ImplA2 208·SaveRoundtrip 57 통과(G08 이전 기준).
-- **2단계 Notion:** 기획 하위 14페이지 결정 반영 완료(Claude 7페이지 잔여 '월/주간/매주' 정리 + Codex 교체안 docs/NOTION_APPLY_1023_codex.md 77건 적용, 중복 상단 삽입 4건 제외). 점검 페이지에 '구현 현황' 섹션 추가.
-- **3단계 코드(미검증 포함):**
-  - Claude G08 달력: GameCalendar 1일 150초(낮100/밤50)·계절 6일·1년 24일, 표시 '일', 하루 2끼(SatietyPerSecond 70/75), 매일 납세(TaxSeconds/DailyFood/DailySoil), 낚시 계절 한도 300(FishSeason), 밤 포식자 계절 첫날 밤만, SeasonVisuals 계절 900초.
-  - Claude G01: 병력 0 장수 1인분 교전(AttackDamage×max(1,병력)), 민간 무병력 장수는 대기 중 자동 교전 안 함(SoldierAnt.AutoEngages).
-  - Codex B1(G32·G04·G36): 징집소/정찰 초소 목재20·무연구, 동원 상한 ColonyPopulation.Military.cs, 정찰 실패 +20%p·4회차 확정. Claude가 MaxSoldiers/TryDraft 위임·GameMenuConscription 연결.
-  - Codex B2(G33·G38·G30): 3일 주기 이주·연령 매년 전환·식품별 상온 보존. 원산지별 생산 경로 연결은 미완.
-  - Codex B3(G41·G09): 모든 상태 저장(저장 v19, Save/SaveOrders·SaveOrderValidation·SaveRuntime 신규). Codex 쓰기 거부로 docs/patches/IMPL-B3.patch를 Claude가 git apply. 인계 docs/IMPL-B3-HANDOFF.md.
-  - Codex B4(G60·G31·G10): 위생·기분 보정/경고·마지막 장수 배회 붕괴·생활 욕구 우선. 남음: 재산 등급 자동 판정, 물 공급, 독립 의자.
-- Unity 전체 컴파일 오류 0(B3 패치 적용 후 확인).
+### 완료(코드, Unity 컴파일 오류 0)
+- G01~G69 중 G26(측정)·G27(판정표) 외 전부 코드 연결. Codex 2차 B5~B10·3차 C1~C6(사용량 한도로 5개 중단 → Claude가 I1 worktree에서 통합·마무리).
+- Claude 직접 구현: G33 이주 수용 중단 UI, G06 표본 연구(CampaignResearch.Resources.cs), G31 재산 등급 자동 판정, G39 외교 습격 위기 중단, G11 패배 사유 표시·저장, G42 직접 지시 저장·취소·자율 작업보다 우선, G28 종자 출처 고정 키·저장, G30 원산지별 상온 보존, G45 예상 공세 표시, G16 대피 버튼, G43 이탈자 기록, G69 하역 보류 범위, G04 노년 상한, G26 측정 검사(PerfG26Checks).
+- 실제 버그 수정: 비축더미 없는 시작에서 가장자리 이벤트 미출현, 수송 경로 커서 저장 거부, 로켓 snapshot 빈 객체로 모든 로드 실패, 최종 공세 적 장수 생성 null, 새 건물 저장 키 순서(objectName 저장), PowerGrid 씬 종료 재생성, 구저장 노년 이관, 모닥불 정원.
+- 월드맵 행성 → 'Planet Earth Free' EarthMedium(Resources/WorldMap 사본, 머티리얼 URP 변환, glow 끔, 없으면 절차 구체). 플레이 캡처 확인.
+- Notion 장수 페이지 '개월' 8곳 1개월=2일 환산(사용자 승인). 잠정값 전부 사용자 승인으로 유지.
 
-### 검사 결과(2026-10-24, Codex 작업 종료 후 일괄 실행, AgentScripts/RunChecks.cs 경유)
-- 통과: FoundationChecks 17, ImplG01Checks 7, ImplB1Checks 72.
-- **실패: ImplB2Checks 36행 NullReference** — 검사가 FindAnyObjectByType<Stockpile>()을 가정하나 불시착 시작에는 비축더미가 없음(검사 전제 문제로 추정, 코드 버그 여부 미확인).
-- **미실행/결과 미확인:** ImplB3·ImplB4·DayNight·Phase4·ResourceRule·Fishing·Biome·NightThreat·Stage1·SeasonWeather·ImplA2·SaveRoundtrip·TransportRoute·SettlementDefense. G08·B1~B4 변경 뒤 회귀 검증 안 됨 — 완료로 보지 말 것.
-- 기존 과거 검사 다수가 12장수/40시민·비축더미 시작을 가정함. 새 시작 사양 기준으로 전제 이관 필요.
-
-### 진행 중 Codex(중단 가능) — worktree 분리
-- B5(G05 도보 원정·G48·G15·G21·G44) `E:\Git\ant-wt\B5`, B6(보스 사슬 G07·G19·G22·G23·G47·G51·G06·G40) `E:\Git\ant-wt\B6`, B7(G13·G18·G25·G28·G37·G42·G55·G61·G63·G64) `E:\Git\ant-wt\B7`. 본 프로젝트 재컴파일 방지용 git worktree(detached, 2026-10-24 작업 트리 상태 복제 후 index에 올림). 각 폴더의 docs/IMPL-B5~B7-HANDOFF.md 확인.
-- 합치는 법: `cd E:/Git/ant-wt/B5 && git add -A -N && git diff > ../B5.patch` → 본 프로젝트에서 `git apply --check` 후 적용(줄바꿈 차이 주의: worktree는 CRLF 체크아웃). 합친 뒤 `git worktree remove --force`.
-- Codex가 중간에 끊겼으면 핸드오프 문서가 없을 수 있음 — git diff로 진행분 확인 후 이어서 맡기거나 폐기.
+### 검사(2026-10-24, RunChecks)
+- 통과: A2 208, B1 72, B2 136, B4 74, B5 82, B6 128, B7 92, B8 80, B9 62, B10 332, C1 97, C4 34, G01 7, Foundation 17, Biome 22, SeasonWeather 323, NightThreat 17, SaveRoundtrip 57, DayNight 42, ResourceRule 30.
+- **미실행/재실행 필요(메모리 부족으로 중단):** C2·C3·C5·C6·Phase4·Fishing·Stage1·SettlementDefense·TransportRoute(검사 수정 후 미확인), B3(로드 30초 정지 원인 미확인), G06(신규), G26(CHECK_POLLS=180 필요). 완료로 보지 말 것.
 
 ### 재개 순서
-1. Codex B5~B7 상태 확인(`node <codex-companion> status`는 각 worktree 폴더에서) → 결과/진행분 patch로 본 프로젝트에 합치기 → 컴파일.
-2. ImplB2Checks Stockpile 전제 수정 후, 미실행 검사 일괄 실행: `bash AgentScripts/tools/run_checks.sh <이름...>`(Play 재시작·SessionState·RunChecks·Temp/check-result.txt 폴링). worktree 생성은 AgentScripts/tools/make_wt.sh NAME. **Codex가 본 프로젝트를 고치는 동안에는 검사 금지(재컴파일로 중단됨).**
-3. 실패 수정 → 남은 결정(G11·G14·G16·G17·G20·G26·G27·G35·G39·G43·G45·G46·G49·G50·G52·G53·G58·G59·G62·G65~G69 등) 묶음으로 Codex에 worktree 분리로 배정.
-4. 사용자 확인 대기: 장수 Notion 페이지 옛 '개월' 표기(특성·이벤트 지속시간) 일괄 1개월=2일 환산 여부. G08로 밤 50초·식사 75초마다 → 체감 플레이 확인 필요.
+1. 메모리 확인(Unity가 반복 검사로 12GB까지 늘어남) → 위 미실행 검사 3~4개씩: `CHECK_POLLS=90 bash AgentScripts/tools/run_checks.sh <이름...>`.
+2. 실패 수정 후 docs/G27_PLAY_PATH_1024.md(C01~C14 × 1명·3명) 칸 채우기 = G27.
+3. G26 PerfG26Checks 실행(CHECK_POLLS=180) → 기준 미달 항목 정리.
+4. G01~G69 밖 Notion 기획 전체 대조는 사용자 확인 후.
 
 ### 주의
-- Codex는 백그라운드에서 approval policy=never라 Unity MCP·Notion 쓰기 불가, 일부 Save/* 쓰기도 거부됨 → Unity 실행·Notion 쓰기·패치 적용은 Claude 담당(사용자: 현 구조 유지).
-- 검사 시 ResourceType은 AntColony.Data.ResourceType 전체 이름(전역 ResourceType 충돌). run_script 60초 제한 → RunChecks.cs 비동기 경유.
-- prefab/prefab.meta, 씬, Water.mat, TimeManager, art 등은 커밋 제외. graphify-out 대량 변경도 커밋 제외.
+- 검사 스크립트는 `_TeamImport`의 전역 동명 타입(BossHealth·Boss 패턴·IDamageable 등)에 가려지므로 `AntColony.Boss.BossHealth`처럼 전체 이름 사용. internal 멤버는 리플렉션.
+- Unity 없이 컴파일 확인: 내장 Roslyn + Bee rsp(메모리 ant_offline_roslyn_compile). 통합 worktree E:/Git/ant-wt/I1(Temp/off/a.rsp·c.rsp).
+- Codex 백그라운드는 Unity·Notion 불가, 사용량 한도로 끊기면 Claude가 이어서(broker.json 낡으면 .stale로). 끊긴 worktree C1~C6·I1은 SAVE 때 정리.
+- 커밋 제외: prefab/prefab.meta, 씬, Water.mat, TimeManager, art, graphify-out, Planet Earth Free(서드파티 원본·4k 텍스처), Assets/Resources/WorldMap.
 - 카카오 MemoChat은 SAVE 완료 시만.
-- SAVE 기록: 커밋 1691729 develop push. Notion 개발 일지 https://app.notion.com/p/402c4a0ecd3181949012de8382fb4747 (Trouble Shooting은 사용자 버그 요청 없어 생략).
-- **미확인 관찰:** SAVE 캡처 직전 eval로 CrashLandingStart.Begin(2명) 호출 후 확인 시 장수 12명·잔해 0개(옛 씬 기본 상태). 로딩 타이밍 문제인지 G08/B1~B4 통합 뒤 회귀인지 미확인 → 재개 시 ImplA2Checks로 먼저 확인.

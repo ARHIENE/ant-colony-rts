@@ -119,7 +119,7 @@ public static class ImplB4Checks
             var mat = Template(BuildingKind.SleepingMat).GetComponent<BuildingBase>().Data;
             Check(mat.foodCost == 0 && mat.soilCost == 0 && mat.specialCost == 0 && mat.constructionAnts == 0 && mat.buildTimeSeconds == 0, "G31 free sleeping spot");
             var fire = Put<RecreationSpot>(BuildingKind.Campfire, c.Position + Vector3.forward);
-            Check(fire.Seats == 1 && fire.MinimumUsers == 1, "G31 one person campfire");
+            Check(fire.Seats == GameBalance.CampfireSeats && fire.MinimumUsers == 1, "G31/G54 campfire usable solo, 6 seats");
 
             c.PersonalState.meal.satiety = 20; var food = c.PersonalState.carriedRations.Total;
             c.TickDuty(.1f); Check(c.IsEating && c.PersonalState.carriedRations.Total == food - c.RationPortion, "G10 personal food before work");

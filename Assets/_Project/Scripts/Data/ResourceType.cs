@@ -15,6 +15,9 @@ namespace AntColony.Data
             ResourceType.Manure => "배설물", ResourceType.Fertilizer => "비료",
             ResourceType.MedicineBasic => "기초 약품", ResourceType.MedicineNormal => "일반 약품", ResourceType.MedicineAdvanced => "고급 약품", ResourceType.Component => "부품",
             ResourceType.Water => "물",
+            ResourceType.PlantingMaterial => "기본 파종재", ResourceType.TinOre => "주석광석", ResourceType.Bronze => "청동",
+            ResourceType.CrudeOil => "원유", ResourceType.Petroleum => "정제유", ResourceType.Drum => "드럼통", ResourceType.GasCylinder => "가스 용기",
+            ResourceType.FilledFuelDrum => "정제유 드럼통",
             _ => type.ToString()
         };
         // 물은 건설 주재료로 고를 수 없다. 재료 종류마다 저장 한도는 기존 재료(흙) 한도를 같이 쓴다.
@@ -53,7 +56,8 @@ namespace AntColony.Data
         // 2026-10-15 장수용 약품 3등급(이름·재료 미정, 잠정 표기). 동물용 의약품과 별개
         MedicineBasic, MedicineNormal, MedicineAdvanced,
         Component, // 일반 부품. 고장 부품·수리 변환 자원은 추가하지 않는다.
-        Water // 위생 시설 소비용. 기존 자원 저장 번호 보존.
+        Water, // 위생 시설 소비용. 기존 자원 저장 번호 보존.
+        PlantingMaterial, TinOre, Bronze, CrudeOil, Petroleum, Drum, GasCylinder, FilledFuelDrum
     }
 
     // 재료 특성(내구·무게·가연성·미관·단열). 후반 재료가 모든 면에서 우월하지 않게 용도를 나눈다.

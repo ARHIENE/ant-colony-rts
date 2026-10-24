@@ -153,13 +153,14 @@ namespace AntColony.World
                 return true;
             }
             var p = h.commander; var roster = CommanderRoster.Instance; if (roster == null || p == null) return false;
-            var recruit = roster.Create(p.Name, p.Rank, p.Roles, p.Roles[0], p.Traits, world.HomePosition + Vector3.right * 3);
+            if (ExpeditionTransport.HomeHasEnemies() || !HomeReturnPoint.TryGround(HomeReturnPoint.Anchor, out var landing)) return false;
+            var recruit = roster.Create(p.Name, p.Rank, p.Roles, p.Roles[0], p.Traits, landing);
             if (recruit == null) return false;
             recruit.RestoreTalents(p.Talents); recruit.RestorePersonalState(p.PersonalState); recruit.WorkState.duty = CommanderDuty.Civilian;
             recruit.Social.departure = DepartureState.None; recruit.Social.pendingDeparture = false; recruit.PersonalState.departure = ""; recruit.PersonalState.originFaction = "";
             recruit.RestoreLabLevels(p.LabAttack, p.LabArmor); recruit.Skills.Restore(false, p.StrikeCooldown, p.StanceCooldown, 0);
             // 반환 장비는 자동 장착하지 않고 실물로 보관함(가득 차면 창고 주변 바닥)에 들어온다(2026-10-15 V5 기획).
-            StoreEquipment(h.gear, world.HomePosition);
+            StoreEquipment(h.gear, landing);
             Data.seizures.RemoveAll(s => s.owner == p.PersonalState.id);
             AntColony.UI.ToastManager.Show($"{p.Name} 귀환 ({h.from}) — 부상은 본거지에서 치료하세요.");
             CampaignHistory.Record("귀환", p.Name, h.from, true);

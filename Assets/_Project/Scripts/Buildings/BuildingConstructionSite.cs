@@ -12,7 +12,7 @@ namespace AntColony.Buildings
     public class BuildingConstructionSite : MonoBehaviour, IMaterialSink
     {
         [Serializable] public sealed class Need { public ResourceType type; public int need, reserved, delivered; }
-        public enum Wait { None, Paused, MaterialShortage, AwaitingHaul, NoWorker, Unreachable, InUse }
+        public enum Wait { None, Paused, MaterialShortage, AwaitingHaul, NoWorker, Unreachable, InUse, Forbidden, Tool }
 
         private static long orderSeq;
         private GameObject completedBuilding;
@@ -70,6 +70,7 @@ namespace AntColony.Buildings
             var rm = ResourceManager.Instance; if (rm == null) return;
             var sites = FindObjectsByType<BuildingConstructionSite>().Where(s => !s.finished && !s.Started)
                 .OrderByDescending(s => AntColony.Units.WorkPriorities.Level(s)).ThenBy(s => s.Order).ToList();
+            foreach (var site in sites) site.ReevaluateReservations();
             foreach (var type in sites.SelectMany(s => s.Needs).Select(n => n.type).Distinct().ToList())
             {
                 var stock = rm.GetAmount(type);
@@ -80,7 +81,7 @@ namespace AntColony.Buildings
                 foreach (var s in sites)
                 {
                     if (free <= 0) break;
-                    if (s.Paused) continue;
+                    if (!s.HasAvailableCrew) continue;
                     foreach (var n in s.Needs.Where(n => n.type == type))
                     {
                         var want = n.need - n.delivered - n.reserved - s.InTransit(type);
@@ -89,7 +90,25 @@ namespace AntColony.Buildings
                 }
             }
         }
-        private void Update() => Allocate();
+        private bool HasAvailableCrew => !Paused && !finished && AntColony.Units.AntUnitBase.Active.OfType<AntColony.Units.CommanderAnt>()
+            .Any(c => c.CivilianWorkReady && !c.IsCaptive && !c.IsEmbarked && (c.AllowsJob(Job) || !Ready && c.AllowsJob(AntColony.Units.CommanderJobs.Hauling))
+                && c.TryWorkApproach(Position, out _));
+        internal void ReevaluateReservations()
+        {
+            if (!HasAvailableCrew) ReleaseUnusedReservations();
+        }
+        internal void ReleaseUnusedReservations()
+        {
+            foreach (var n in Needs) n.reserved = 0;
+            ReturnWorkforce(); allocatedFrame = -1;
+        }
+        private void Update()
+        {
+            if (AntColony.Save.SaveSystem.Busy) return;
+            foreach (var courier in inTransit.Keys.OfType<AntColony.Units.WorkerAnt>().ToArray())
+                if (courier == null || !courier.isActiveAndEnabled || courier.DeliverySite != this) inTransit.Remove(courier);
+            ReevaluateReservations(); Allocate();
+        }
 
         // 장수가 창고에서 실제로 집은 만큼 예약 → 배송 중으로 옮긴다.
         public bool BeginPickup(object courier, ResourceType type, int amount)
@@ -126,7 +145,7 @@ namespace AntColony.Buildings
         {
             if (finished || Paused == on) return;
             Paused = on;
-            if (on) { foreach (var n in Needs) n.reserved = 0; foreach (var b in Builders.ToList()) b.CommandStop(); }
+            if (on) { ReleaseUnusedReservations(); foreach (var b in Builders.Concat(Couriers).Distinct().ToList()) b.CommandStop(); }
         }
         // 시공 시작 전 재료 변경: 기존 예약 해제·도착분 바닥 배출 후 새 재료를 요청한다.
         public bool ChangeMaterial(ResourceType material)
@@ -165,6 +184,8 @@ namespace AntColony.Buildings
         {
             if (finished) return;
             finished = true;
+            ReleaseUnusedReservations();
+            foreach (var c in Builders.Concat(Couriers).Distinct().ToList()) c.CommandStop();
             foreach (var n in Needs) DropOnFloor(n.type, n.delivered);
             if (TryGetComponent<DemolitionSite>(out var marker)) marker.Abort(); // 개보수 취소: 건물 사용 재개
             ReturnWorkforce();
@@ -183,12 +204,17 @@ namespace AntColony.Buildings
                 if (!Ready)
                 {
                     if (Couriers.Any()) return Wait.None;
+                    if (crew.Count == 0) return Wait.NoWorker;
+                    var haulers = crew.Where(c => c.AllowsJob(AntColony.Units.CommanderJobs.Hauling) || c.AllowsJob(Job)).ToArray();
+                    if (haulers.Length == 0) return Wait.Forbidden;
+                    if (!haulers.Any(c => c.CivilianWorkReady && c.TryWorkApproach(Position, out _))) return Wait.Unreachable;
                     if (Needs.Any(n => n.reserved > 0)) return crew.Any(c => c.AllowsJob(AntColony.Units.CommanderJobs.Hauling) || c.AllowsJob(Job)) ? Wait.AwaitingHaul : Wait.NoWorker;
                     return Wait.MaterialShortage;
                 }
                 if (HasBuilder) return Wait.None;
                 var able = crew.Where(c => c.AllowsJob(Job)).ToList();
-                if (able.Count == 0) return Wait.NoWorker;
+                if (crew.Count == 0) return Wait.NoWorker;
+                if (able.Count == 0) return Wait.Forbidden;
                 return able.Any(c => c.TryWorkApproach(Position, out _)) ? Wait.None : Wait.Unreachable;
             }
         }
@@ -196,7 +222,7 @@ namespace AntColony.Buildings
         public static string Describe(Wait w) => w switch
         {
             Wait.Paused => "일시정지", Wait.MaterialShortage => "재료 부족", Wait.AwaitingHaul => "운반 대기",
-            Wait.NoWorker => "담당 장수 없음", Wait.Unreachable => "접근 불가", Wait.InUse => "사용 중(나올 때까지 대기)", _ => "진행 중"
+            Wait.NoWorker => "담당 없음", Wait.Forbidden => "작업 금지", Wait.Tool => "도구 없음", Wait.Unreachable => "경로 없음", Wait.InUse => "사용 중(나올 때까지 대기)", _ => "진행 중"
         };
 
         private void ReturnWorkforce()
@@ -208,11 +234,19 @@ namespace AntColony.Buildings
 
         private void OnDestroy()
         {
+            ReleaseUnusedReservations();
+            foreach (var c in Builders.Concat(Couriers).Distinct().ToList()) c.CommandStop();
             ReturnWorkforce();
             if (completedBuilding != null)
             {
                 Destroy(completedBuilding);
             }
+        }
+
+        private void OnDisable()
+        {
+            ReleaseUnusedReservations();
+            foreach (var c in Builders.Concat(Couriers).Distinct().ToList()) c.CommandStop();
         }
     }
 }

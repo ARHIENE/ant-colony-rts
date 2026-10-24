@@ -21,7 +21,9 @@ namespace AntColony.Buildings
         private static readonly List<IUser> users = new List<IUser>();
         private static readonly Dictionary<IUser, int> userNet = new Dictionary<IUser, int>();
         public static void Register(IUser u) { if (!users.Contains(u)) users.Add(u); MarkDirty(); }
-        public static void Unregister(IUser u) { users.Remove(u); MarkDirty(); }
+        public static void Unregister(IUser u) { users.Remove(u); Invalidate(); }
+        // 비활성·파괴 경로용: 씬 종료 OnDisable 중 망 오브젝트를 새로 만들지 않는다(다음 사용 때 Ensure).
+        public static void Invalidate() => dirty = true;
         private static void Ensure()
         {
             if (instance != null || !Application.isPlaying) return;
@@ -34,7 +36,9 @@ namespace AntColony.Buildings
         public static bool WantsPower(PowerNode node)
         {
             var net = NetworkOf(node);
-            return net.Any(n => n.IsBattery) ? net.Any(n => n.IsBattery && n.Charge < Core.GameBalance.BatteryCapacity - .01f) : net.Any(n => n.IsConsumer);
+            var index = networkOf.TryGetValue(node, out var i) ? i : -1;
+            return net.Any(n => n.IsConsumer || n.IsBattery && n.Charge < Core.GameBalance.BatteryCapacity - .01f)
+                || users.Any(u => userNet.TryGetValue(u, out var j) && j == index && u.Demand > 0);
         }
 
         private void Update()

@@ -273,7 +273,7 @@ namespace AntColony.UI
 
         private void ShowDefeatMessage()
         {
-            ToastManager.Show("활동 가능한 장수가 없습니다.");
+            ToastManager.Show(GameManager.Instance?.DefeatReason ?? "활동 가능한 장수가 없습니다.");
         }
 
         private void UpdateBossHealthText(float current, float max)

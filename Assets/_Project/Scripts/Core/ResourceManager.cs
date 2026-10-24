@@ -53,7 +53,7 @@ namespace AntColony.Core
                 return pile != null ? pile.Position : AntColony.World.WorldMapManager.Instance?.HomePosition ?? Vector3.zero;
             }
         }
-        private static ResourceType Key(ResourceType t) => t.IsFood() ? ResourceType.Food : t.IsMaterial() ? ResourceType.Soil : ResourceType.Special;
+        private static ResourceType Key(ResourceType t) => t.IsFood() ? ResourceType.Food : t == ResourceType.Special ? ResourceType.Special : ResourceType.Soil;
         // 비축더미 칸 한도 = 전체 한도 − 창고 건물이 늘린 한도.
         private int BaseCapacity(ResourceType t) => GetCapacity(t) - bins.Where(b => !b.IsBase && b.Host is Storage).Sum(b => ((Storage)b.Host).RegisteredCapacity(t));
 
@@ -94,7 +94,8 @@ namespace AntColony.Core
             }
             OnResourcesChanged?.Invoke();
         }
-        internal static readonly ResourceType[] OtherMaterials = Array.FindAll(ResourceLabels.Materials, t => t != ResourceType.Soil);
+        internal static readonly ResourceType[] OtherMaterials = Array.FindAll((ResourceType[])Enum.GetValues(typeof(ResourceType)),
+            t => !t.IsFood() && t != ResourceType.Special && t != ResourceType.Soil); // 물도 저장 총량에 포함. 기존 재료 순서 보존.
         // 칸별 저장값(v17)을 그대로 되돌린다. 이전 저장(null)은 RestoreState가 나눠 담은 그대로 둔다.
         internal void RestoreBins(StoreBin.Dto baseBin, IEnumerable<(Storage storage, StoreBin.Dto dto)> storages)
         {
@@ -158,10 +159,13 @@ namespace AntColony.Core
         internal int ReservedFor(StoreBin bin, ResourceType type, object except)
             => reservations.Where(r => r.Key != except && r.Value.bin == bin && r.Value.type == type).Sum(r => r.Value.amount);
 
+        // G06 표본 반입: 실제로 들여온 물자(채집·원정·교역·보상)만 센다. 환불·생산·세금·제작 결과는 표본이 아니다.
+        private static bool DeliversSample(ResourceReason r) => r == ResourceReason.Gathering || r == ResourceReason.Expedition || r == ResourceReason.Trade || r == ResourceReason.Reward;
         // 들어갈 칸에 담고 넘친 몫은 바닥(near 주변, 없으면 비축더미 주변)에 둔다. 담은 양을 돌려준다.
         public int Add(ResourceType type, int amount, ResourceReason reason = ResourceReason.Gathering, Vector3? near = null)
         {
             if (amount <= 0) return 0;
+            if (!AntColony.Save.SaveSystem.Busy && DeliversSample(reason)) CampaignResearch.Instance?.RecordSampleDelivery(type, amount);
             var from = near ?? HomePosition; int placed = 0;
             foreach (var b in Destinations(type, from, null).ToList())
             {
@@ -179,6 +183,7 @@ namespace AntColony.Core
             if (bin == null || amount <= 0 || !bin.Usable || !bin.Allows(type)) return 0;
             var n = Mathf.Min(amount, bin.Free(type, owner));
             if (n <= 0) return 0;
+            if (!AntColony.Save.SaveSystem.Busy && DeliversSample(reason)) CampaignResearch.Instance?.RecordSampleDelivery(type, n);
             var have = bin.Lots(type); // 넣기 전 신선도를 맞춰 둔다
             bin.amounts[(int)type] += n;
             if (have != null) { if (lots != null) have.Add(lots.Take(n)); have.Match(bin.amounts[(int)type], type); } // 들고 온 물량의 신선도를 그대로

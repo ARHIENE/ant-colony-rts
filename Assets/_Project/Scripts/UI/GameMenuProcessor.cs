@@ -16,6 +16,8 @@ namespace AntColony.UI
             if (p.Data.kind == AntColony.Data.BuildingKind.Carpentry)
                 MenuTheme.Button(content, "돌 도구 · 단궁 제작", GroundCrafting);
             MenuTheme.Text(content, p.Current != null ? $"진행 중: {p.Current.name} {p.Progress:P0}" : "진행 중인 가공 없음", 19, 45);
+            MenuTheme.Text(content, p.WaitReason, 17, 35);
+            if (p.Current != null) MenuTheme.Button(content, "미완성품 취소 · 일반 70% / 핵심 100% 반환", () => { p.CancelCurrent(); ShowProcessor(p); });
             ProductionControls(() => ShowProcessor(p));
             for (int i = 0; i < p.Recipes.Count; i++)
             {

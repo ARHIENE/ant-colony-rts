@@ -86,6 +86,7 @@ namespace AntColony.Units
             TickPersonal(Time.deltaTime);
             if (IsDeparting || Social.diving) return;
             if (CorpseTarget != null) return;
+            if (DeploymentEating) return;
             if (!IsEmbarked && !IsDead && PersonalState.rageRemaining > 0) { TickRevenge(Time.deltaTime); return; }
             if (!IsEmbarked && !IsDead && PersonalHealth > 0 && !PersonalState.treating && PersonalState.mentalBreak == MentalBreak.None && !LabUpgradeBusy) base.Update();
         }
@@ -94,6 +95,8 @@ namespace AntColony.Units
         {
             if (CanReceiveOrders && !LabUpgradeBusy)
             {
+                WorkState.deploymentMealSeconds = 0;
+                WorkState.bossPickup = -1;
                 ReleaseCorpse();
                 if (!IsConstructing) { ServiceTarget = null; ServiceJob = CommanderJobs.None; HuntTarget = null; SetWorkTarget(null); }
                 automaticFacility = null; ScienceAssignment?.ReleaseResearcher(); WorkState.resting = false;
@@ -188,7 +191,7 @@ namespace AntColony.Units
         }
 
         // 운반 중이거나 건설 중에는 배정/회수/보직 변경을 막는다. 중간에 인원이 바뀌면 자원이 증발한다.
-        public bool CanChangeAllocation => CanReceiveOrders && !IsCarrying && !IsConstructing && !LabUpgradeBusy;
+        public bool CanChangeAllocation => CanReceiveOrders && !IsCarrying && BossCargoCount == 0 && !IsConstructing && !LabUpgradeBusy;
 
         public override bool CanStartConstruction => CanChangeAllocation && !IsAwayFromHome && !IsDeployed && base.CanStartConstruction;
 
@@ -239,6 +242,7 @@ namespace AntColony.Units
             if (!AntPool.Instance.TryAssign(count)) return false;
             troopsReleased = false;
             troopCount += count;
+            AllocateDeploymentFood();
             return true;
         }
 
@@ -278,6 +282,7 @@ namespace AntColony.Units
             Social.combatSeen = true; PersonalState.lastCombatSeconds = 0; WorkState.quietSeconds = 0;
             GetComponent<AntVisual>()?.Action("Hit");
             var damage = Mathf.Max(Mathf.Min(1, amount), amount - Armor);
+            damage = AbsorbDurableDamage(damage);
             var troopDamage = Mathf.Min(damage, TroopHealth);
             damage -= troopDamage; pendingDamage += troopDamage;
             var casualties = Mathf.Min(troopCount, Mathf.FloorToInt(pendingDamage));
@@ -291,12 +296,14 @@ namespace AntColony.Units
 
         // G01(2026-10-23): 병력 0은 부대 소진일 뿐이고 장수는 혼자(1인분) 계속 교전한다.
         protected override bool AutoEngages => HasTroops || IsDeployed; // 병력 없는 민간 장수는 일하다 적에게 달려들지 않는다
-        public override bool CanAttackTarget(IDamageable target) => CanReceiveOrders && !IsReturning && !LabUpgradeBusy && base.CanAttackTarget(target);
+        public override bool CanAttackTarget(IDamageable target) => CanReceiveOrders && !DeploymentEating && !IsReturning && !LabUpgradeBusy && base.CanAttackTarget(target);
 
         public override void CommandAttack(IDamageable target)
         {
             if (!CanReceiveOrders || LabUpgradeBusy) return;
             if (target is Component component && !AntColony.World.DiplomacyManager.TryAttack(component)) return;
+            WorkState.deploymentMealSeconds = 0;
+            WorkState.bossPickup = -1;
             ReleaseCorpse();
             base.CommandAttack(target);
         }
@@ -304,6 +311,8 @@ namespace AntColony.Units
         public override void CommandAttackMove(Vector3 destination)
         {
             if (!CanReceiveOrders || LabUpgradeBusy) return;
+            WorkState.deploymentMealSeconds = 0;
+            WorkState.bossPickup = -1;
             ReleaseCorpse();
             base.CommandAttackMove(destination);
         }
@@ -337,8 +346,8 @@ namespace AntColony.Units
             var wasAlive = !target.IsDead;
             // 강타는 살아 있는 대상에 대한 다음 실제 타격 한 번에만 소모된다.
             var multiplier = wasAlive && skills.ConsumePowerStrike() ? CommanderSkills.PowerStrikeMultiplier : 1f;
-            target.TakeDamage(AttackDamage * multiplier);
-            if (wasAlive && reward > 0 && IsKilled(target))
+            StrikeWithEquipment(target, AttackDamage * multiplier);
+            if ((Weapon?.AttackRadius ?? 0) <= 0 && wasAlive && reward > 0 && IsKilled(target))
             {
                 GainExperience(CombatActivity, reward);
                 if (target is AntColony.Boss.BossHealth && Random.value < .2f) ShiftEventTrait(CommanderTrait.Coward, true);
@@ -353,6 +362,7 @@ namespace AntColony.Units
 
         protected override void OnDisable()
         {
+            if (IsDead || Social.departure == DepartureState.Left || Social.departure == DepartureState.Imprisoned) LoseBossCargo();
             ReleaseCorpse();
             SetWorkTarget(null); ServiceTarget = null; HuntTarget = null;
             if (acidVisual != null) Destroy(acidVisual);
@@ -369,6 +379,7 @@ namespace AntColony.Units
 
         private void OnDestroy()
         {
+            if (!AntColony.Save.SaveSystem.Busy && GameSession.Exists && GameSession.Instance.GameStarted) LoseBossCargo();
             if (acidVisual != null) Destroy(acidVisual);
             ReleaseTroopsOnce();
             if (runtimeData != null) Destroy(runtimeData);

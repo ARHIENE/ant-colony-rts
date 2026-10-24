@@ -22,6 +22,11 @@ namespace AntColony.Core
             public int[] ages; // 0~64세 집계. 65세 이상은 old로 집계한다.
             public float immigrationSeconds, immigrationRemainder, ageSeconds;
             public bool immigrationStopped;
+            public float educationBonus, educationSeconds;
+            public float schoolFoodDebt, schoolMaterialDebt, clinicFoodDebt, clinicMedicineDebt;
+            public bool schoolsSuspended, clinicsSuspended;
+            public int nextCivilianLocation = 1;
+            public System.Collections.Generic.List<CivilianLocation> civilianLocations = new System.Collections.Generic.List<CivilianLocation>();
             public float sentiment = 60, taxRate = .2f, monthSeconds, raidSeconds = 9999;
             public MilitaryPolicy policy;
             public bool elderlyService;
@@ -37,18 +42,22 @@ namespace AntColony.Core
         private void Awake() { if (Instance != null && Instance != this) { Destroy(this); return; } Instance = this; }
         private void OnEnable() => UI.EnemyAlert.Alarm += OnRaid;
         private void OnDisable() => UI.EnemyAlert.Alarm -= OnRaid;
-        private void OnDestroy() { if (Instance == this) Instance = null; }
+        private void OnDestroy() { ClearCivilianViews(); if (Instance == this) Instance = null; }
         private void OnRaid() { if (S.raidSeconds >= GameCalendar.SecondsPerMonth) S.sentiment = Mathf.Max(0, S.sentiment - GameBalance.RaidSentiment); S.raidSeconds = 0; }
 
         public State Capture() => JsonUtility.FromJson<State>(JsonUtility.ToJson(S));
         public void Restore(State s)
         {
             S = s == null ? new State() : JsonUtility.FromJson<State>(JsonUtility.ToJson(s));
-            if (S.ages == null)
+            if (S.ages == null || S.ages.Length == 0) // JsonUtility는 없는 배열을 빈 배열로 복원한다.
             {
                 // 구 저장의 agingDue는 아직 old에 포함되지 않았던 인원이다.
                 S.old += S.agingDue; S.ages = new int[65];
             }
+            S.civilianLocations ??= new System.Collections.Generic.List<CivilianLocation>();
+            S.nextCivilianLocation = Mathf.Max(1, S.nextCivilianLocation);
+            civilianPaths.Clear();
+            ClearCivilianViews();
         }
 
         public static int Adults => AntPool.Instance != null ? Mathf.Max(0, AntPool.Instance.Total - (Instance != null ? Instance.S.agingDue : 0)) : 0;
@@ -77,7 +86,7 @@ namespace AntColony.Core
         public int Taxpayers => Mathf.Max(0, Total - S.young - (AntPool.Instance?.Assigned ?? 0));
         public static float FoodShare(TaxFocus f) => f switch { TaxFocus.Food => .8f, TaxFocus.Material => .2f, _ => .5f };
         public static string FocusName(TaxFocus f) => f switch { TaxFocus.Food => "식량 중심", TaxFocus.Material => "재료 중심", _ => "균형" };
-        public float MonthlyTax => Taxpayers * S.taxRate * GameBalance.TaxPerAntMonth * (S.policy == MilitaryPolicy.Total ? .5f : 1f) * Productivity * TaxCollection;
+        public float MonthlyTax => Taxpayers * S.taxRate * GameBalance.TaxPerAntMonth * (S.policy == MilitaryPolicy.Total ? .5f : 1f) * Productivity * TaxCollection * (1f + S.educationBonus);
         public int DailyFood => Mathf.RoundToInt(MonthlyTax * FoodShare(S.taxFocus) * TaxSeconds / GameCalendar.SecondsPerMonth);
         public int DailySoil => Mathf.RoundToInt(MonthlyTax * (1f - FoodShare(S.taxFocus)) * TaxSeconds / GameCalendar.SecondsPerMonth);
         public float NextTaxSeconds => Mathf.Max(0, TaxSeconds - S.taxWeek);
@@ -100,8 +109,8 @@ namespace AntColony.Core
             rm.Add(main, first, ResourceReason.Tax);
             int k = 0; foreach (var m in basics) if (m != main) { rm.Add(m, rest / others + (k++ < rest % others ? 1 : 0), ResourceReason.Tax); }
         }
-        // 지역(바이옴)별 기초 원재료 3종. 고급·희귀 재료는 세금으로 받지 않는다.
-        public static ResourceType[] TaxMaterials => BiomeRules.Current switch
+        // 지역 기초 원재료에 G14 공통 목재·석재를 합친다. 기존 세액 총량은 나눠 지급한다.
+        public static ResourceType[] TaxMaterials => (BiomeRules.Current switch
         {
             MapBiome.Forest => new[] { ResourceType.Wood, ResourceType.Leaf, ResourceType.Soil },
             MapBiome.Garden => new[] { ResourceType.Fiber, ResourceType.Soil, ResourceType.Leaf },
@@ -110,7 +119,7 @@ namespace AntColony.Core
             MapBiome.Desert => new[] { ResourceType.Sand, ResourceType.Stone, ResourceType.Clay },
             MapBiome.Cave => new[] { ResourceType.Stone, ResourceType.Clay, ResourceType.Soil },
             _ => new[] { ResourceType.Soil, ResourceType.Wood, ResourceType.Stone }
-        };
+        }).Concat(new[] { AntColony.Data.ResourceType.Wood, AntColony.Data.ResourceType.Stone }).Distinct().ToArray();
         public void SetTaxMaterial(ResourceType m) { if (Array.IndexOf(TaxMaterials, m) >= 0) S.taxMaterial = m; }
 
         // ── 병역: 제도별 병력 상한(성체 기준, 병역 나이 확대 시 늙은 개미 포함). 예비군제는 침입 중에만 25%.
@@ -134,7 +143,7 @@ namespace AntColony.Core
 
         // ── 이주 수요 0~100: 주거·공공서비스·안전·민심 평균(2026-10-08: 창고 식량 제외).
         public float HousingDemand => Mathf.Clamp01((HousingCapacity - Total) / Mathf.Max(1f, HousingCapacity * .1f)) * 100f;
-        public float FacilityDemand => Mathf.Min(100f, Facilities * 15f);
+        public float FacilityDemand => PublicServiceCoverage * 100f;
         // 안전: 지난 한 달 침입이 있으면 30. 성벽이 있으면 성벽 밖 주거 비율만큼 최대 -50(Phase 5).
         public float SafetyDemand
         {
@@ -147,9 +156,9 @@ namespace AntColony.Core
             }
         }
         // 기존 HUD는 백분율을 표시하므로 D=1을 100으로 노출한다.
-        public float ImmigrationDemand => Total == 0 ? 1f : GameBalancePopulation.Demand(
-            FacilityDemand / 100f * .5f, (SafetyDemand - 100f) / 100f * .5f,
-            (S.sentiment - 60f) / 100f, GameBalance.AdminDemand * Administration / 100f);
+        public float ImmigrationDemand => (Total == 0 ? 1f : GameBalancePopulation.Demand(
+            FacilityDemand / 100f * .5f + MedicalCoverage * .5f, (SafetyDemand - 100f) / 100f * .5f,
+            (S.sentiment - 60f) / 100f, GameBalance.AdminDemand * Administration / 100f)) * PublicServiceCoverage;
         public float Demand => ImmigrationDemand * 100f;
 
         public void SetImmigrationStopped(bool stopped) => S.immigrationStopped = stopped;
@@ -177,13 +186,15 @@ namespace AntColony.Core
             {
                 var step = Mathf.Min(seconds, TaxSeconds - S.taxWeek, GameCalendar.SecondsPerMonth - S.monthSeconds,
                     GameCalendar.SecondsPerYear - S.ageSeconds,
+                    S.educationSeconds > 0 ? S.educationSeconds : float.PositiveInfinity,
                     S.immigrationStopped ? float.PositiveInfinity : GameBalancePopulation.ImmigrationSeconds - S.immigrationSeconds);
                 S.raidSeconds += step;
                 AccrueTax(step); S.taxWeek += step; TickAdministration(step);
+                TickCivicEconomy(step); TickCivilianLocations(step);
                 S.monthSeconds += step; S.ageSeconds += step;
                 if (!S.immigrationStopped) S.immigrationSeconds += step;
                 seconds -= step;
-                if (S.taxWeek >= TaxSeconds) { S.taxWeek -= TaxSeconds; PayTax(); }
+                if (S.taxWeek >= TaxSeconds) { S.taxWeek -= TaxSeconds; PayTax(); PayCivicUpkeep(); }
                 if (S.ageSeconds >= GameCalendar.SecondsPerYear) { S.ageSeconds -= GameCalendar.SecondsPerYear; AgeYear(); }
                 if (S.monthSeconds >= GameCalendar.SecondsPerMonth) { S.monthSeconds -= GameCalendar.SecondsPerMonth; Monthly(); }
                 if (S.immigrationSeconds >= GameBalancePopulation.ImmigrationSeconds) { S.immigrationSeconds -= GameBalancePopulation.ImmigrationSeconds; Immigrate(); }
@@ -197,7 +208,7 @@ namespace AntColony.Core
             // 세율이 높을수록 불이익이 가파르다(30% 초과분 제곱 가산, 잠정). 창고 식량은 시민 민심에 반영하지 않는다.
             var over = Mathf.Max(0, S.taxRate - .3f);
             var target = 60f - (S.taxRate - .2f) * 100f - over * over * 500f - PolicySentiment(S.policy)
-                + (Total > HousingCapacity ? -10 : 0) + Mathf.Min(10, Facilities * 2) + (S.raidSeconds < GameCalendar.SecondsPerMonth ? -10 : 0) + GameBalance.AdminSentiment * Administration + GameBalance.HousingBeautySentiment * HousingBeauty;
+                + (Total > HousingCapacity ? -10 : 0) + Mathf.Min(10, Facilities * 2) + CivicSentiment + (S.raidSeconds < GameCalendar.SecondsPerMonth ? -10 : 0) + GameBalance.AdminSentiment * Administration + GameBalance.HousingBeautySentiment * HousingBeauty;
             S.sentiment = Mathf.Clamp(S.sentiment + Mathf.Clamp(target - S.sentiment, -10, 10), 0, 100);
             if (Unrest)
             {

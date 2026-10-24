@@ -32,14 +32,8 @@ namespace AntColony.UI
         private void Build()
         {
             var rig = new GameObject("WorldPlanetRig"); rig.transform.position = Origin;
-            var sphere = GameObject.CreatePrimitive(PrimitiveType.Sphere); sphere.name = "Planet Sphere";
-            Destroy(sphere.GetComponent<Collider>());
-            sphere.layer = Layer; sphere.transform.SetParent(rig.transform, false); sphere.transform.localScale = Vector3.one * Radius * 2;
-            var shader = Shader.Find("Universal Render Pipeline/Lit") ?? Shader.Find("Standard");
-            var material = new Material(shader) { mainTexture = Surface() };
-            if (material.HasProperty("_BaseMap")) material.SetTexture("_BaseMap", material.mainTexture);
-            if (material.HasProperty("_Smoothness")) material.SetFloat("_Smoothness", .15f);
-            sphere.GetComponent<MeshRenderer>().sharedMaterial = material;
+            var sphere = Earth() ?? ProceduralSphere();
+            sphere.transform.SetParent(rig.transform, false);
             planet = sphere.transform;
 
             var sun = new GameObject("Planet Sun").AddComponent<Light>(); sun.type = LightType.Directional; sun.cullingMask = 1 << Layer;
@@ -56,6 +50,37 @@ namespace AntColony.UI
             image.texture = view.targetTexture;
             if (UnityEngine.Camera.main != null) UnityEngine.Camera.main.cullingMask &= ~(1 << Layer);
             view.enabled = false;
+        }
+
+        // 2026-10-24: 'Planet Earth Free' 지구 프리팹(Resources/WorldMap/EarthMedium, URP 머티리얼로 변환). 프리팹은 git에 없으므로 없으면 절차 구체.
+        private static GameObject Earth()
+        {
+            var prefab = Resources.Load<GameObject>("WorldMap/EarthMedium");
+            if (prefab == null) return null;
+            var earth = Instantiate(prefab); earth.name = "Planet Earth";
+            foreach (var spin in earth.GetComponentsInChildren<SpinFree>(true)) Destroy(spin); // 회전은 드래그·초점이 맡는다
+            foreach (var t in earth.GetComponentsInChildren<Transform>(true))
+            {
+                t.gameObject.layer = Layer;
+                if (t.name == "EarthGlow") t.gameObject.SetActive(false); // 대기 빛 머티리얼은 텍스처가 없어 URP에서 행성을 하얗게 덮는다
+                if (t.TryGetComponent<Collider>(out var collider)) Destroy(collider);
+            }
+            var bounds = earth.GetComponentInChildren<MeshRenderer>().bounds;
+            earth.transform.localScale *= Radius / Mathf.Max(.0001f, bounds.extents.x); // 마커 투영 반지름(Radius)과 표면을 맞춘다
+            return earth;
+        }
+
+        private static GameObject ProceduralSphere()
+        {
+            var sphere = GameObject.CreatePrimitive(PrimitiveType.Sphere); sphere.name = "Planet Sphere";
+            Destroy(sphere.GetComponent<Collider>());
+            sphere.layer = Layer; sphere.transform.localScale = Vector3.one * Radius * 2;
+            var shader = Shader.Find("Universal Render Pipeline/Lit") ?? Shader.Find("Standard");
+            var material = new Material(shader) { mainTexture = Surface() };
+            if (material.HasProperty("_BaseMap")) material.SetTexture("_BaseMap", material.mainTexture);
+            if (material.HasProperty("_Smoothness")) material.SetFloat("_Smoothness", .15f);
+            sphere.GetComponent<MeshRenderer>().sharedMaterial = material;
+            return sphere;
         }
 
         // 갈색·녹색 대륙과 어두운 바다를 가진 작은 절차 텍스처.

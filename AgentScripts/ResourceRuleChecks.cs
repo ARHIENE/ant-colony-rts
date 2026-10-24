@@ -37,11 +37,14 @@ public static class ResourceRuleChecks
             foreach (var x in CommanderRoster.Instance.Commanders) { x.SetJobEnabled(CommanderJobs.All, false); x.CommandStop(); }
 
             // 밭: 새로 심은 기본 균류는 180초 전체를 자란 뒤 Food 40.
+            // G28: 파종·재파종에 칸당 종자 1개가 필요하다. 검사 중 작물 변경·재파종분까지 넉넉히 준다.
+            foreach (FarmCrop crop in Enum.GetValues(typeof(FarmCrop))) FarmSeeds.Add(crop, 20);
             var template = (GameObject)typeof(BuildingPlacementController).GetMethod("GetTemplate", BindingFlags.NonPublic | BindingFlags.Static).Invoke(null, new object[] { BuildingKind.Farm, UnitRole.Worker });
             Check(template != null, "farm template");
             farmObject = Object.Instantiate(template); farmObject.name = "Rule farm"; farmObject.SetActive(true);
             var farm = farmObject.GetComponent<ResourceNode>();
             farmObject.AddComponent<FarmPlot>().Configure(FarmCrop.Fungus, false);
+            farmObject.GetComponent<FarmPlot>().Tick(.01f); // G28: 종자 1개를 써야 파종 대기로 들어간다.
             Check(farm.RegrowSeconds == GameBalance.FungusSeconds && farm.RegrowAmount == GameBalance.FungusFood, "fungus 180s / Food 40");
             Check(Near(farm.RegrowTimeRemaining, 180), "fresh farm grows full 180s, got " + farm.RegrowTimeRemaining);
             Check(farm.NeedsSowing && farm.IsDepleted, "fresh farm waits for sowing");
@@ -92,12 +95,13 @@ public static class ResourceRuleChecks
             typeof(WorkerAnt).GetField("fishingProgress", Private).SetValue(c, 5f);
             Time.timeScale = 1; await Task.Yield(); tick.Invoke(c, null);
             Check(c.CarriedAmount == 0, "no catch before 20s");
+            var before = spot.AmountRemaining;
             typeof(WorkerAnt).GetField("fishingProgress", Private).SetValue(c, GameBalance.FishingCatchSeconds);
             // 프레임 사이 자율 판단이 대상을 비울 수 있어 직전에 다시 지정한다.
             typeof(WorkerAnt).GetField("targetNode", Private).SetValue(c, spot); stateField.SetValue(c, Enum.Parse(stateField.FieldType, "Gathering"));
             tick.Invoke(c, null); Time.timeScale = 0;
-            var expected = Mathf.Min(GameBalance.FishingCatchFood * multiplier, 100);
-            Check(Near(c.CarriedAmount, expected) && Near(spot.AmountRemaining, 100 - expected), $"one catch = 6 x skill ({c.CarriedAmount} vs {expected})");
+            var expected = Mathf.Min(GameBalance.FishingCatchFood * multiplier, before);
+            Check(Near(c.CarriedAmount, expected) && Near(spot.AmountRemaining, before - expected), $"one catch = 6 x skill ({c.CarriedAmount} vs {expected}, spot {spot.AmountRemaining} from {before})");
             c.CommandStop(); typeof(WorkerAnt).GetMethod("RestoreCargo", Private).Invoke(c, new object[] { 0f, AntColony.Data.ResourceType.Food, null });
 
             // 저장 왕복: 이번 달 잔량과 월 기록이 유지되어 불러와도 다시 채워지지 않는다.

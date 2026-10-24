@@ -1,3 +1,6 @@
+# 2026-10-24 SAVE 1(Claude+Codex) — 2026-10-24 SAVE 2 이관
+- 1단계 A2 시작 생존 완료, 2단계 Notion 14페이지 결정 반영, 3단계 G08 달력·G01·Codex B1~B4 코드 통합(B3 패치 git apply). 검사 Foundation 17·G01 7·B1 72 통과, B2 NullReference(비축더미 전제)·나머지 미실행 상태로 보고. Codex B5~B7 worktree 작업 시작. 커밋 1691729 develop push, 개발 일지 https://app.notion.com/p/402c4a0ecd3181949012de8382fb4747.
+
 # 2026-10-23 SAVE 2(Codex)·통합 SAVE — 2026-10-24 SAVE 이관
 - 지도·카메라·지형·날씨·HUD: 미니맵 높이 지도·클릭/드래그·수평 시야 테두리, 가장자리 이동 2배, 절벽 암반 텍스처, 셰이더 재임포트 회색 지면 SetTint 복구, 월드 이름표 HUD 겹침 숨김, 비/눈 입자 뷰포트 덮기. HudV6 17·MapHud 128·SeasonWeather 323·V6Layout 2070 통과. 날씨 실제 화면 검수(비·눈)는 미완.
 - 통합 SAVE: Codex A2(중단분)·V6 관리 창 포함 101파일 653f0a0 develop push, 0cdafc6 문서. Notion 개발 일지 https://app.notion.com/p/401c4a0ecd31816fb1f2ea2360701ccb / Trouble https://app.notion.com/p/401c4a0ecd31811b99e4c6aebb4fe995. 큰 물가 길찾기 4곳 미해결 유지.

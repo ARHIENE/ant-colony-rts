@@ -28,17 +28,19 @@ namespace AntColony.Units
         public WildMonster HuntTarget { get; private set; }
         private float huntCooldown;
         private Workforce workTarget;
-        public bool CivilianWorkReady => isActiveAndEnabled && !IsDead && PersonalHealth > 0 && !IsDeployed && !IsAwayFromHome
+        public bool CivilianWorkReady => isActiveAndEnabled && !IsDead && !IsCaptive && !IsEmbarked && !Health.Downed && PersonalHealth > 0 && !IsDeployed && !IsAwayFromHome
             && !IsAsleep && (!IsSleepTime || WorkPriorities.Red) && !IsDeparting && !PersonalState.treating && PersonalState.mentalBreak == MentalBreak.None && PersonalState.rageRemaining <= 0;
         public Workforce WorkTarget => CivilianWorkReady && workTarget != null && workTarget.isActiveAndEnabled ? workTarget : null;
         public float WorkRate(CommanderActivity activity) => talents.Multiplier(activity) * WorkFactor * AgeWorkMultiplier(activity) * AntColony.Buildings.RoomSystem.WorkBonus(WorkTarget) * BiomeRules.WorkAt(AntColony.Buildings.RoomSystem.IsIndoors(Position)) * AntColony.Map.WeatherSystem.WorkAt(AntColony.Buildings.RoomSystem.IsIndoors(Position));
-        public float LoadCapacity => Mathf.Max(0, TotalLoadCapacity - StartingLoadWeight);
+        public float LoadCapacity => Mathf.Max(0, TotalLoadCapacity - StartingLoadWeight - BossCargoCount);
         internal void SetWorkTarget(Component target)
         {
             workTarget = Workforce.For(target);
         }
         public override void CommandStop()
         {
+            WorkState.deploymentMealSeconds = 0;
+            WorkState.bossPickup = -1;
             ReleaseCorpse();
             ReleaseAnimalTask();
             EndMed(); EndBurial();
@@ -64,8 +66,8 @@ namespace AntColony.Units
             var firefighting = job == CommanderJobs.Firefighting;
             if ((!firefighting && !CivilianWorkReady || firefighting && (IsDead || IsAwayFromHome || IsAsleep || IsCaptive || PersonalState.health.Downed)) || !CanReceiveOrders || IsWorking || LabUpgradeBusy || !CanDoJob(job)
                 || Active.OfType<CommanderAnt>().Any(c => c != this && c.ServiceTarget == target)
-                || target == null || target.IsDead || !target.isActiveAndEnabled || !target.CountsTowardPlayerDefeat
-                || job != CommanderJobs.Nursing && job != CommanderJobs.Repair && job != CommanderJobs.Cooking && !(firefighting && target.GetComponent<WallFire>()?.Burning == true) && !(job == CommanderJobs.Hauling && target is PowerNode) && !(job == CommanderJobs.Administration && target is AdminDesk) && !(job == CommanderJobs.Crafting && target is Processor)
+                || target == null || target.IsDead || !target.isActiveAndEnabled || !target.CountsTowardPlayerDefeat || target is Processor processor && !processor.CanContinue(this)
+                || job != CommanderJobs.Nursing && job != CommanderJobs.Repair && job != CommanderJobs.Cooking && !(firefighting && target.GetComponent<WallFire>()?.Burning == true) && !(job == CommanderJobs.Hauling && (target is PowerNode || target is SupplyFacility well && ManualWellNeedsWork(well))) && !(job == CommanderJobs.Administration && target is AdminDesk) && !(job == CommanderJobs.Crafting && target is Processor)
                 || !TryWorkApproach(target.Position, out var approach)) return false;
             CommandStop(); ServiceTarget = target; ServiceJob = job;
             SetMoveDestination(approach); SetWorkTarget(target); return true;
@@ -81,9 +83,17 @@ namespace AntColony.Units
         {
             if (ServiceTarget == null) { if (ServiceJob != CommanderJobs.None) CommandStop(); return false; }
             bool firefighting = ServiceJob == CommanderJobs.Firefighting;
-            if ((!firefighting && !CivilianWorkReady || firefighting && (!CanReceiveOrders || IsAwayFromHome || IsAsleep || PersonalState.health.Downed)) || !ServiceTarget.isActiveAndEnabled || ServiceTarget.IsDead) { CommandStop(); return false; }
+            if ((!firefighting && (!CivilianWorkReady || !AllowsJob(ServiceJob)) || firefighting && (!CanReceiveOrders || IsAwayFromHome || IsAsleep || PersonalState.health.Downed)) || !ServiceTarget.isActiveAndEnabled || ServiceTarget.IsDead) { CommandStop(); return false; }
             if (firefighting && ServiceTarget.GetComponent<WallFire>()?.Burning != true) { CommandStop(); return false; }
-            if ((Position - ServiceTarget.Position).sqrMagnitude > (firefighting ? 20.25f : 49)) return true;
+            if (ServiceTarget is SupplyFacility manual && !ManualWellNeedsWork(manual)) { CommandStop(); return false; }
+            if (ServiceTarget is SupplyFacility && !CanReach(ServiceTarget.Position)) { CommandStop(); return false; }
+            if ((Position - ServiceTarget.Position).sqrMagnitude > (firefighting ? 20.25f : 49)
+                || ServiceTarget is SupplyFacility && !HasReachedDestination())
+            {
+                if (!TryWorkApproach(ServiceTarget.Position, out var approach)) { CommandStop(); return false; }
+                if (IsFlying || Agent != null && !Agent.pathPending && !Agent.hasPath) SetMoveDestination(approach);
+                return true;
+            }
             StopMoving();
             if (firefighting)
             {
@@ -107,6 +117,15 @@ namespace AntColony.Units
             }
             else if (ServiceJob == CommanderJobs.Hauling) // 쳇바퀴 뛰기(운반 작업, 근력 경험치·피로↑)
             {
+                if (ServiceTarget is SupplyFacility well)
+                {
+                    // 큰 틱도 한 배치까지만: 가득 찬 뒤 WorkManual의 바닥 반출 fallback을 실행하지 않는다.
+                    var dt = Mathf.Min(seconds, StartSupplyRules.ManualWaterSeconds - well.Supply.work);
+                    if (!well.WorkManual(dt)) { CommandStop(); return false; }
+                    GainExperience(CommanderActivity.Gathering, dt);
+                    if (!ManualWellNeedsWork(well)) CommandStop();
+                    return true;
+                }
                 if (!(ServiceTarget is PowerNode wheel) || !wheel.Run(this, seconds)) { CommandStop(); return false; }
             }
             else if (ServiceJob == CommanderJobs.Administration) // 행정 책상에서 정치 업무(2026-10-08)

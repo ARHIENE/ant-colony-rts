@@ -26,7 +26,7 @@ namespace AntColony.Units
         }
         private bool StartBurial(Corpse body, Tombstone tomb)
         {
-            if (!CivilianWorkReady || IsCarrying || !TryWorkApproach(body.Position, out var approach)) return false;
+            if (!CivilianWorkReady || !AllowsJob(CommanderJobs.Hauling) || IsCarrying || !SameBattlefield(body.Position) || !TryWorkApproach(body.Position, out var approach)) return false;
             CommandStop(); if (!body.Claim(this)) return false;
             burialBody = body; burialTomb = tomb; burialCarrying = false; SetMoveDestination(approach); return true;
         }
@@ -35,20 +35,30 @@ namespace AntColony.Units
         private bool TickBurial(float seconds)
         {
             if (burialBody == null) return false;
-            if (!CivilianWorkReady || burialTomb == null || !burialTomb.isActiveAndEnabled || !burialTomb.Data2.burialOrdered || burialBody.Handler != this)
+            if (!CivilianWorkReady || !AllowsJob(CommanderJobs.Hauling) || burialTomb == null || !burialTomb.isActiveAndEnabled || !burialTomb.Data2.burialOrdered || burialBody.Handler != this)
             {
                 // 취소·묘비 사라짐: 들고 있던 시신은 그 자리에 내려놓는다.
                 EndBurial(); return false;
             }
             if (!burialCarrying)
             {
-                if ((burialBody.Position - Position).sqrMagnitude > 6.25f) return true;
+                if ((burialBody.Position - Position).sqrMagnitude > 6.25f)
+                {
+                    if (!TryWorkApproach(burialBody.Position, out var approach)) EndBurial();
+                    else if (IsFlying || Agent != null && !Agent.pathPending && !Agent.hasPath) SetMoveDestination(approach);
+                    return true;
+                }
                 burialCarrying = true;
                 if (TryWorkApproach(burialTomb.Position, out var a)) SetMoveDestination(a); else { EndBurial(); return false; }
                 return true;
             }
             burialBody.transform.position = Position;
-            if ((burialTomb.Position - Position).sqrMagnitude > 9) return true;
+            if ((burialTomb.Position - Position).sqrMagnitude > 9)
+            {
+                if (!TryWorkApproach(burialTomb.Position, out var approach)) EndBurial();
+                else if (IsFlying || Agent != null && !Agent.pathPending && !Agent.hasPath) SetMoveDestination(approach);
+                return true;
+            }
             burialTomb.Inter(burialBody); burialBody = null; burialTomb = null; burialCarrying = false;
             return true;
         }

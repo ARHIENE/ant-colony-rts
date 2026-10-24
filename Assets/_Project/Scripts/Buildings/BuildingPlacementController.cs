@@ -176,7 +176,7 @@ namespace AntColony.Buildings
         public static string LockReason(BuildingKind kind)
         {
             if (kind == BuildingKind.ConscriptionPost && (FindFirstObjectByType<ConscriptionPost>() != null || System.Array.Exists(FindObjectsByType<BuildingConstructionSite>(FindObjectsSortMode.None), s => s.BuildingKind == kind))) return "본거지 징집소는 한 곳만 건설할 수 있습니다.";
-            if ((kind == BuildingKind.Farm || kind == BuildingKind.MushroomFarm || kind == BuildingKind.AphidPen) && !BiomeRules.FarmAllowed) return "도시 구석에는 밭을 지을 수 없습니다.";
+            if (kind == BuildingKind.WaterSource || kind == BuildingKind.OilDeposit) return "자연 지점은 건설할 수 없습니다.";
             if (kind == BuildingKind.AphidPen && !ScienceEffects.CropUnlocked(FarmCrop.Honeydew)) return "감로 목장 연구가 필요합니다.";
             if (!ScienceEffects.BuildingUnlocked(kind)) return "관련 과학 기술을 먼저 연구하세요.";
             if (kind == BuildingKind.MineField && MineField.Count >= GameBalance.MaxMines) return $"Up to {GameBalance.MaxMines} mine fields at once.";
@@ -218,7 +218,7 @@ namespace AntColony.Buildings
             // 재개발 보상비만 배치 순간 지급하고 취소해도 돌려주지 않는다.
             var quote = redevelop != null ? Redevelopment.Price(cost, redevelop) : default;
             int food = redevelop != null ? quote.food : cost.foodCost, soil = redevelop != null ? quote.soil : cost.soilCost, special = redevelop != null ? quote.special : cost.specialCost;
-            var material = redevelop != null ? ResourceType.Soil : EarlyConstruction.HasFixedCost(pendingKind) ? ResourceType.Wood : PendingMaterial;
+            var material = redevelop != null ? ResourceType.Soil : EarlyConstruction.HasFixedCost(pendingKind) ? EarlyConstruction.Cost(pendingKind).FirstOrDefault().type : PendingMaterial;
             if (ResourceManager.Instance == null) return null;
             if (pendingKind != BuildingKind.SleepingMat && builder is CommanderAnt commander && !commander.CanDoJob(Decoration.IsKind(pendingKind) ? CommanderJobs.Art : CommanderJobs.Building))
             { PlacementFailed("이 장수는 해당 작업을 할 수 없습니다."); return null; }
@@ -239,6 +239,12 @@ namespace AntColony.Buildings
             completedBuilding.GetComponent<BuildingBase>().MainMaterial = material;
             if (pendingKind == BuildingKind.Farm)
                 completedBuilding.AddComponent<FarmPlot>().Configure(pendingCrop ?? SelectedCrop, ScienceEffects.WideFarms);
+            if ((pendingKind == BuildingKind.Farm || pendingKind == BuildingKind.AphidPen)
+                && !StartGroundRules.OpenFieldAllowed(completedBuilding.GetComponent<BuildingBase>()))
+            {
+                Destroy(completedBuilding);
+                PlacementFailed("포장 지면에는 노지 밭 대신 화분형 밭·기본 버섯밭을 놓으세요."); return null;
+            }
 
             var siteObject = GameObject.CreatePrimitive(PrimitiveType.Cube);
             siteObject.name = completedBuilding.name + "ConstructionSite";
@@ -392,6 +398,8 @@ namespace AntColony.Buildings
         {
             var template = kind switch
             {
+                _ when SupplyBuildingTemplates.IsKind(kind) => SupplyBuildingTemplates.Create(kind),
+                BuildingKind.CivicPublicService or BuildingKind.School or BuildingKind.CitizenClinic => FindTemplate<CivicService>(kind) ?? CivicService.CreateTemplate(kind),
                 BuildingKind.CrashWreck => FindTemplate<CrashWreck>(kind) ?? RuntimeBuildingTemplates.Create(kind), // BuildingBase로 찾으면 Data 없는 연구소 템플릿이 먼저 걸린다
                 BuildingKind.ResearchLab => FindTemplate<ResearchLab>(role),
                 BuildingKind.Farm or BuildingKind.MushroomFarm or BuildingKind.AphidPen => FindFarmTemplate(),

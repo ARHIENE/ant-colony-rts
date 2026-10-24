@@ -43,7 +43,10 @@ namespace AntColony.Core
             CommanderActivity.Art => "예술", CommanderActivity.Politics => "정치", CommanderActivity.Husbandry => "사육", _ => "소화"
         };
         public string Blocked => string.Join(" · ", Required.Select((job, i) => traits.Blocks(job) ? RequiredNames[i] : null).Where(n => n != null));
-        public static string Clothes(MapBiome biome) => biome == MapBiome.Desert ? "평범한 통풍 옷" : biome == MapBiome.Cave ? "평범한 보온 옷" : "평범한 작업복";
+        public static string Clothes(MapBiome biome) => Clothes(biome, GameSession.Exists ? GameSession.Instance.Options.climate : MapClimate.Temperate);
+        public static string Clothes(MapBiome biome, MapClimate climate) => climate == MapClimate.Cold ? "평범한 보온 옷"
+            : climate == MapClimate.TropicalWet ? "평범한 통풍 옷"
+            : biome == MapBiome.Desert ? "평범한 통풍 옷" : biome == MapBiome.Cave ? "평범한 보온 옷" : "평범한 작업복";
         public static string AppearanceName(int seed) => new[] { "흙빛", "밤색", "회갈색", "황갈색", "적갈색" }[Math.Abs(seed % 5)]
             + " · " + new[] { "작은 체격", "보통 체격", "큰 체격" }[Math.Abs(seed % 3)];
         public static Color AppearanceColor(int seed) => new[] { new Color(.48f, .4f, .3f), new Color(.34f, .26f, .22f),

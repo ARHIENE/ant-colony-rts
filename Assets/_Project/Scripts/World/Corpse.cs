@@ -33,8 +33,8 @@ namespace AntColony.World
         public Vector3 Position => transform.position;
         public bool Available => isActiveAndEnabled && Data.count > 0 && (Data.remaining > 0 || IsCommanderBody);
         // 장수 시신은 식량으로 쓰지 않는다(2026-10-13 기획: 시신의 식량·재료 사용 없음).
-        public bool Edible => Available && Data.kind != CorpseKind.Wildlife && Data.kind != CorpseKind.ColonyCommander;
-        public bool IsCommanderBody => Data.kind == CorpseKind.ColonyCommander && !string.IsNullOrEmpty(Data.commanderId);
+        public bool Edible => Available && Data.kind != CorpseKind.Wildlife && !IsCommanderBody;
+        public bool IsCommanderBody => (Data.kind == CorpseKind.ColonyCommander || Data.kind == CorpseKind.EnemyCommander);
         public bool Remains => IsCommanderBody && Data.remaining <= 0;
         public bool Priority { get => Data.priority; set => Data.priority = value; }
         private void OnEnable() => All.Add(this);
@@ -54,7 +54,7 @@ namespace AntColony.World
         public void Release(CommanderAnt commander) { if (Handler == commander) Handler = null; }
         public bool Finish(CommanderAnt commander, bool eat)
         {
-            if (!Available || Handler != commander || eat && (!Edible || !commander.Traits.Has(CommanderTrait.Cannibal))) return false;
+            if (!Available || IsCommanderBody || Handler != commander || eat && (!Edible || !commander.Traits.Has(CommanderTrait.Cannibal))) return false;
             Handler = null;
             if (eat && --Data.count > 0) return true;
             Remove(); return true;
@@ -75,11 +75,22 @@ namespace AntColony.World
         public static Corpse Drop(Component source, CorpseKind kind, string name, int count = 1, float food = 0)
         {
             if (count <= 0) return null;
+            string commanderId = null;
+            if (source is EnemyCommander enemy)
+            {
+                if (enemy.WasCaptured) return null;
+                kind = CorpseKind.EnemyCommander; name = enemy.CommanderName; count = 1; food = 0;
+            }
+            if (kind == CorpseKind.ColonyCommander || kind == CorpseKind.EnemyCommander)
+            {
+                commanderId = source is CommanderAnt commander ? commander.PersonalState.id : Guid.NewGuid().ToString("N");
+                if (kind == CorpseKind.EnemyCommander) Memorial.RecordEnemy(commanderId, name);
+            }
             var body = source.GetComponent<AntVisual>()?.Death(true);
             var position = source.transform.position;
             if (UnityEngine.AI.NavMesh.SamplePosition(position, out var ground, 32, UnityEngine.AI.NavMesh.AllAreas)) position = ground.position;
             return Spawn(new State { position = position,
-                kind = kind, name = name, count = count, food = food }, body);
+                kind = kind, name = name, count = count, food = food, commanderId = commanderId }, body);
         }
         public static Corpse Spawn(State state, GameObject body = null)
         {

@@ -28,10 +28,12 @@ namespace AntColony.Boss
         private float searchTimer;
         private Transform currentTarget;
 
-        private void Start()
+        private void OnEnable()
         {
+            if (circleAttack == null) circleAttack = GetComponent<BossCircleAoE>();
             castTimer = firstCastDelay;
             searchTimer = 0f;
+            currentTarget = null;
         }
 
         private void Update()

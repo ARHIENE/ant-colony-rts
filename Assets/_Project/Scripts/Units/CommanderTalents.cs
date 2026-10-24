@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace AntColony.Units
@@ -12,7 +13,9 @@ namespace AntColony.Units
     {
         public const int Count = 16, MaxLevel = 20, MaxPotential = 200;
         // ponytail: 성장·감소 잠정 수치(기획 미정). 최근 이력 길이(작업량 단위)·감소 시작 표본·최소 유지 비중·작업량당 감소 경험치.
-        public const float UsageWindow = 600f, MinUsageSample = 300f, MinUsageShare = .05f, DecayPerWork = .05f, MainShare = .8f;
+        public const float UsageWindow = 1800f, MinUsageSample = 600f, MinUsageShare = .01f, DecayPerWork = .1f / 600f, MainShare = .8f;
+        [Serializable] public sealed class Use { public int main, support = -1; public float seconds; }
+        public List<Use> recentWork = new List<Use>();
         public int[] levels = new int[Count];
         public float[] experience = new float[Count];
         public float combatSeconds;
@@ -54,20 +57,16 @@ namespace AntColony.Units
         {
             if (!(work > 0) || float.IsInfinity(work) || !Enum.IsDefined(typeof(CommanderActivity), main)) return;
             EnsurePotential();
+            float previousSample = 0; if (recentWork != null) foreach (var use in recentWork) previousSample += use.seconds;
             var support = topic == main ? null : topic ?? Support(main); // topic == main: 보조 없음(약제대 생산 — 의료만, 2026-10-11)
             float mainShare = support == null ? 1f : MainShare;
-            float keep = Mathf.Exp(-work / UsageWindow), total = 0;
-            for (int i = 0; i < Count; i++) { usage[i] *= keep; }
-            usage[(int)main] += work * mainShare;
-            if (support != null) usage[(int)support.Value] += work * (1f - mainShare);
-            foreach (var u in usage) total += u;
+            float total = RecordUse(main, support, work);
             // 최근 활용이 부족한 기술 전체에 감소를 나눈다(한 기술에 몰지 않음, 0 아래로 안 내려감).
             if (total >= MinUsageSample)
             {
-                int candidates = 0;
-                for (int i = 0; i < Count; i++) if (usage[i] / total < MinUsageShare && Value(i) > 0) candidates++;
-                if (candidates > 0)
-                    for (int i = 0; i < Count; i++) if (usage[i] / total < MinUsageShare && Value(i) > 0) Remove(i, work * DecayPerWork / candidates);
+                for (int i = 0; i < Count; i++)
+                    if (usage[i] / total < MinUsageShare && Value(i) > 10)
+                        SetValue(i, Mathf.Max(10, Value(i) - Mathf.Min(work, Mathf.Max(0, previousSample + work - MinUsageSample)) * DecayPerWork));
             }
             // 주·보조를 함께 성장시킨 뒤 CA가 PA를 넘으면 넘친 만큼 두 성장분에서 비율대로 되돌린다(주 능력이 여유를 독점하지 않음, 내릴 후보가 없으면 정체).
             int m = (int)main, s = support.HasValue ? (int)support.Value : -1;
@@ -81,6 +80,31 @@ namespace AntColony.Units
             float cut = Mathf.Min(excess, gain);
             SetValue(m, Value(m) - cut * gainMain / gain);
             if (s >= 0) SetValue(s, Value(s) - cut * gainSupport / gain);
+        }
+        private float RecordUse(CommanderActivity main, CommanderActivity? support, float work)
+        {
+            recentWork ??= new List<Use>();
+            int m = (int)main, s = support.HasValue ? (int)support.Value : -1;
+            var last = recentWork.Count > 0 ? recentWork[recentWork.Count - 1] : null;
+            if (last != null && last.main == m && last.support == s) last.seconds += work;
+            else recentWork.Add(new Use { main = m, support = s, seconds = work });
+            float total = 0; foreach (var use in recentWork) total += use.seconds;
+            float excess = Mathf.Max(0, total - UsageWindow);
+            while (excess > 0 && recentWork.Count > 0)
+            {
+                var use = recentWork[0]; var cut = Mathf.Min(excess, use.seconds);
+                use.seconds -= cut; excess -= cut;
+                if (use.seconds <= 0) recentWork.RemoveAt(0);
+            }
+            Array.Clear(usage, 0, Count);
+            total = 0;
+            foreach (var use in recentWork)
+            {
+                total += use.seconds;
+                usage[use.main] += use.seconds * (use.support < 0 ? 1 : MainShare);
+                if (use.support >= 0) usage[use.support] += use.seconds * (1 - MainShare);
+            }
+            return total;
         }
         private void Remove(int i, float xp)
         {
@@ -107,7 +131,7 @@ namespace AntColony.Units
         public void Generate(CommanderTraits traits, CommanderTalents first = null, CommanderTalents second = null)
         {
             // 씬·프리팹에 직렬화된 기술표는 옛 길이(13)일 수 있어 새로 만든다.
-            levels = new int[Count]; experience = new float[Count]; usage = new float[Count]; combatSeconds = 0; potential = 0;
+            levels = new int[Count]; experience = new float[Count]; usage = new float[Count]; recentWork = new List<Use>(); combatSeconds = 0; potential = 0;
             if (first != null && second != null)
             {
                 for (int i = 0; i < Count; i++) levels[i] = Mathf.Clamp(Mathf.RoundToInt((first.levels[i] + second.levels[i]) * .25f) + UnityEngine.Random.Range(0, 4), 0, MaxLevel);
@@ -128,6 +152,10 @@ namespace AntColony.Units
         public CommanderTalents Copy() => JsonUtility.FromJson<CommanderTalents>(JsonUtility.ToJson(this));
         public bool Validate()
         {
+            recentWork ??= new List<Use>();
+            foreach (var use in recentWork)
+                if (use == null || use.main < 0 || use.main >= Count || use.support < -1 || use.support >= Count
+                    || !(use.seconds > 0) || float.IsInfinity(use.seconds)) return false;
             if (levels?.Length == 15 && experience?.Length == 15) { Array.Resize(ref levels, Count); Array.Resize(ref experience, Count); }
             if (usage?.Length == 15) Array.Resize(ref usage, Count);
             if (usage == null || usage.Length != Count) usage = new float[Count]; // 이전 저장에는 활용 이력이 없다.

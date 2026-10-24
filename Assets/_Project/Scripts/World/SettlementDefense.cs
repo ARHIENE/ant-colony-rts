@@ -92,6 +92,7 @@ namespace AntColony.World
 
         public bool TryStartRaid(int requestedCount = 0, string factionId = null)
         {
+            if (RocketCampaign.SuppressNewCrises) return false;
             if (!isActiveAndEnabled || site.Disposition != ConquestDisposition.Annexed
                 || UnderAttack || site.GuardTemplate == null) return false;
             if (DiplomacyManager.Instance != null && !DiplomacyManager.Instance.Data.civilizations.Exists(c => c.war && !c.extinct)) return false;
@@ -133,6 +134,7 @@ namespace AntColony.World
                 || site.Disposition != ConquestDisposition.Annexed) return;
             if (!UnderAttack)
             {
+                if (RocketCampaign.SuppressNewCrises) return;
                 var before = Remaining;
                 Remaining = DiplomacyManager.Instance != null ? DiplomacyManager.Instance.ScheduledRaidSeconds(site) : Mathf.Max(0, Remaining - seconds);
                 if (!Warned && before > GameBalance.WatchtowerWarningSeconds && Remaining <= GameBalance.WatchtowerWarningSeconds
@@ -197,7 +199,8 @@ namespace AntColony.World
                 if (ship != null && ship.Route?.Destination == site) ship.Route.Stop("Stopped: destination lost");
             site.Visitor?.EvacuateLostSite();
             if (world.ViewedSite == site) world.ViewSite(null);
-            Notify($"LOST — {prisoners.Count} captured, {escaped} escaped. Retake to rescue.");
+            Notify($"LOST — {prisoners.Count} captured, {escaped} escaped. Retake to rescue."
+                + (prisoners.Count > 0 ? " " + CampaignOutcome.CaptureWarning : ""));
         }
 
         // 몸값·교환으로 석방: 억류 목록에서만 뺀다(오브젝트 정리와 귀환은 DiplomacyManager가 한다).

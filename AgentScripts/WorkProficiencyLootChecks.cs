@@ -1,4 +1,4 @@
-// 전역 서드파티 타입(ResourceType, BossHealth 등)보다 프로젝트 타입이 먼저 해석되도록 네임스페이스 안에서 using 한다.
+// 전역 서드파티 타입(ResourceType, AntColony.Boss.BossHealth 등)보다 프로젝트 타입이 먼저 해석되도록 네임스페이스 안에서 using 한다.
 namespace AntColony.Regression
 {
 using System;
@@ -58,13 +58,13 @@ public static class WorkProficiencyLootChecks
         return node;
     }
 
-    static BossHealth SpawnBoss(Vector3 position, int food, int special)
+    static AntColony.Boss.BossHealth SpawnBoss(Vector3 position, int food, int special)
     {
         var go = new GameObject("LootCheckBoss");
         go.SetActive(false);
         go.transform.position = position;
         go.AddComponent<BoxCollider>().size = new Vector3(3f, 3f, 3f);
-        var boss = go.AddComponent<BossHealth>();
+        var boss = go.AddComponent<AntColony.Boss.BossHealth>();
         Set(boss, "maxHp", 100f);
         Set(boss, "foodReward", food);
         Set(boss, "specialReward", special);
@@ -162,7 +162,7 @@ public static class WorkProficiencyLootChecks
             Check(!commander.IsDeployed && !commander.HasTroops, "civilian gathers without troops");
 
             // 4) 씬 보스 전리품은 원정 거점의 고정 난이도를 따른다.
-            var sceneBoss = Object.FindObjectsByType<BossHealth>().FirstOrDefault(b => b.name != "LootCheckBoss");
+            var sceneBoss = Object.FindObjectsByType<AntColony.Boss.BossHealth>().FirstOrDefault(b => b.name != "LootCheckBoss");
             if (sceneBoss != null)
             {
                 var difficulty = sceneBoss.GetComponentInParent<ExpeditionSite>()?.Difficulty ?? 1;
@@ -291,7 +291,7 @@ public static class WorkProficiencyLootChecks
     {
         if (!Application.isPlaying) throw new Exception("Play mode required");
         checks = 0;
-        var boss = Object.FindObjectsByType<BossHealth>().Single();
+        var boss = Object.FindObjectsByType<AntColony.Boss.BossHealth>().Single();
         Check(!boss.IsDead && LootNodes().Count == 0, "fresh play mode with live scene boss");
         var bossPos = boss.transform.position;
         var commander = Object.FindObjectsByType<CommanderAnt>()

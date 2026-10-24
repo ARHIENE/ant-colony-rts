@@ -28,7 +28,8 @@ namespace AntColony.World
             {
                 c = new Civilization { id = "rebel:" + commander.PersonalState.id, name = commander.CommanderName + " 반란군", leader = commander.CommanderName,
                     rebel = true, contacted = true, war = true, affinity = -60, founded = Data.elapsed, warStarted = Data.elapsed,
-                    nextRaid = Data.elapsed + 3 * DiplomacyRules.Month, agenda = LeaderAgenda.Conqueror, hiddenAgenda = LeaderAgenda.Warrior,
+                    contactedAt = Data.elapsed, nextConquestCheck = Data.elapsed + DiplomacyRules.Season,
+                    nextRaid = Data.elapsed + DiplomacyRules.Season, agenda = LeaderAgenda.Conqueror, hiddenAgenda = LeaderAgenda.Warrior,
                     color = Color.HSVToRGB((Data.civilizations.Count * .137f) % 1, .8f, .95f) };
                 Data.civilizations.Add(c);
                 var site = world.Sites.FirstOrDefault(s => Faction(s) == null && s.Visitor == null && s.Disposition != ConquestDisposition.Annexed
@@ -53,6 +54,7 @@ namespace AntColony.World
             var member = new RebelMember { faction = c.id, commander = prisoner, troops = commander.TroopCount,
                 health = Mathf.Max(1, commander.TroopCount * 10), site = world.Sites.ToList().IndexOf(home), position = home.Landing + Vector3.forward * (8 + c.rebels.Count * 2) };
             Data.rebelMembers.Add(member); SpawnRebel(member);
+            CampaignResearch.Instance?.RecordDeparted(commander.PersonalState.id, commander.CommanderName);
             CommanderRoster.Instance.Forget(commander);
             commander.PersonalState.equipment.Clear();
             Destroy(commander.gameObject);

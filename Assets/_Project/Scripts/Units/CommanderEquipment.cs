@@ -9,8 +9,9 @@ namespace AntColony.Units
     public enum TrinketEffect { Move, Gather, Mood, Command }
     public enum WeaponKind { Mandible, AcidSprayer, Shield, Pheromone, WoodenSword, ShortBow }
     public enum ArmorKind { Coating, Wings }
+    public enum BossEquipmentKind { None, Durable, HeatShield, AreaWeapon }
     [Serializable]
-    public class EquipmentItem
+    public partial class EquipmentItem
     {
         public string id = Guid.NewGuid().ToString("N");
         public EquipmentSlot slot;
@@ -18,10 +19,16 @@ namespace AntColony.Units
         public TrinketEffect effect;
         public WeaponKind weapon;
         public ArmorKind armor;
+        public BossEquipmentKind bossEquipment;
+        public float durability;
         public bool IsValid => !string.IsNullOrEmpty(id) && Enum.IsDefined(typeof(EquipmentSlot), slot) && quality >= 0 && quality <= 3
-            && Enum.IsDefined(typeof(TrinketEffect), effect) && Enum.IsDefined(typeof(WeaponKind), weapon) && Enum.IsDefined(typeof(ArmorKind), armor);
+            && Enum.IsDefined(typeof(TrinketEffect), effect) && Enum.IsDefined(typeof(WeaponKind), weapon) && Enum.IsDefined(typeof(ArmorKind), armor)
+            && Enum.IsDefined(typeof(BossEquipmentKind), bossEquipment) && !float.IsNaN(durability) && !float.IsInfinity(durability)
+            && durability >= 0 && durability <= DurableCapacity
+            && (bossEquipment == BossEquipmentKind.None || bossEquipment == BossEquipmentKind.AreaWeapon && slot == EquipmentSlot.Weapon
+                || (bossEquipment == BossEquipmentKind.Durable || bossEquipment == BossEquipmentKind.HeatShield) && slot == EquipmentSlot.Armor);
         public string Label => new[] { "조잡", "보통", "정교", "걸작" }[Mathf.Clamp(quality,0,3)] + " "
-            + (slot == EquipmentSlot.Weapon && weapon == WeaponKind.WoodenSword ? "나무칼"
+            + (bossEquipment != BossEquipmentKind.None ? BossLabel : slot == EquipmentSlot.Weapon && weapon == WeaponKind.WoodenSword ? "나무칼"
                 : slot == EquipmentSlot.Weapon && weapon == WeaponKind.ShortBow ? "단궁"
                 : EquipmentRecipes.Name((EquipmentRecipe)(slot == EquipmentSlot.Weapon ? (int)weapon : slot == EquipmentSlot.Armor ? 4 + (int)armor : 6 + (int)effect)));
         public static EquipmentItem Random(int quality) => new EquipmentItem { slot = (EquipmentSlot)UnityEngine.Random.Range(0,3), quality = Mathf.Clamp(quality,0,3),

@@ -1,10 +1,14 @@
 using System;
 using System.Collections.Generic;
 using AntColony.Buildings;
+using AntColony.Units;
+using AntColony.World;
+using System.Linq;
 using UnityEngine;
 
 namespace AntColony.Core
 {
+    [DefaultExecutionOrder(10000)]
     public class GameManager : MonoBehaviour
     {
         public static GameManager Instance { get; private set; }
@@ -13,6 +17,7 @@ namespace AntColony.Core
         public event Action OnLoopComplete;
         public event Action OnBossDefeated;
         public event Action OnDefeat;
+        public string DefeatReason { get; private set; }
 
         private readonly List<BuildingBase> buildings = new List<BuildingBase>();
         private bool loopCompleted;
@@ -22,8 +27,8 @@ namespace AntColony.Core
         internal bool SavedLoop => loopCompleted;
         internal bool SavedBoss => bossDefeated;
         internal bool SavedDefeat => defeated;
-        internal void RestoreFlags(bool loop, bool boss, bool defeat)
-        { loopCompleted = loop; bossDefeated = boss; defeated = defeat; }
+        internal void RestoreFlags(bool loop, bool boss, bool defeat, string reason = null)
+        { loopCompleted = loop; bossDefeated = boss; defeated = defeat; DefeatReason = defeat ? reason : null; }
 
         private void Awake()
         {
@@ -33,6 +38,8 @@ namespace AntColony.Core
                 return;
             }
             Instance = this;
+            if (GetComponent<RocketCampaign>() == null) gameObject.AddComponent<RocketCampaign>();
+            if (GetComponent<AntColony.UI.RocketSafetyHud>() == null) gameObject.AddComponent<AntColony.UI.RocketSafetyHud>();
         }
 
         private void Start()
@@ -68,10 +75,14 @@ namespace AntColony.Core
             if (quitting || defeated || Save.SaveSystem.Busy || !GameSession.Exists
                 || !GameSession.Instance.GameStarted || CommanderRoster.Instance == null
                 || CampaignResearch.Instance != null && CampaignResearch.Instance.Departed) return;
-            // 회복 가능한 쓰러짐·수면·치료·원정·수송은 생존 전력에 포함한다.
-            foreach (var commander in CommanderRoster.Instance.Commanders)
-                if (!commander.IsDead && !commander.IsCaptive && !commander.IsDeparting && !commander.IsHostile) return;
+            // Update의 피해·소유권 변경 후 탑승 갱신→발사→패배 순서로 한 곳에서 확정한다.
+            foreach (var yard in FindObjectsByType<AirshipYard>(FindObjectsSortMode.None)) yard.ResolveLaunch();
+            if (CampaignResearch.Instance != null && CampaignResearch.Instance.Departed
+                || CommanderAnt.HasRecoveryOrRescueRoute(CommanderRoster.Instance.Commanders)
+                || DiplomacyManager.Instance != null && DiplomacyManager.Instance.Data.homecomings.Any(CampaignOutcome.SafeHomecoming)) return;
+            DefeatReason = CampaignOutcome.HasSurvivors ? "구조 불가: 쓰러진 장수를 회복시키거나 구조할 방법이 없습니다." : "활동 가능한 장수가 없습니다.";
             defeated = true;
+            AntColony.UI.ToastManager.SetCrisis("defeat", DefeatReason);
             OnDefeat?.Invoke();
         }
 

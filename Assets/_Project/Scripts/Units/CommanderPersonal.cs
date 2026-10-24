@@ -15,7 +15,7 @@ namespace AntColony.Units
         public Infirmary TreatmentFacility { get; internal set; }
         public Workshop CraftingWorkshop { get; internal set; }
         public bool CanReceiveOrders => isActiveAndEnabled && !IsDead && !IsCaptive && !IsEmbarked
-            && PersonalHealth > 0 && !IsDeparting && personalState.rageRemaining <= 0 && !Social.diving
+            && PersonalHealth > 0 && !Health.Downed && !IsDeparting && personalState.rageRemaining <= 0 && !Social.diving
             && CraftingWorkshop == null && !personalState.treating && personalState.mentalBreak == MentalBreak.None;
         public bool HasTrinket(TrinketEffect effect) => personalState.equipment.Exists(e => e.slot == EquipmentSlot.Trinket && e.effect == effect);
         public float EquipmentBonus(EquipmentSlot slot) => slot == EquipmentSlot.Weapon
@@ -40,7 +40,11 @@ namespace AntColony.Units
                 // 장식 효과는 생활 공간 미관(TickSpace)에 포함된다(2026-10-10: 미관은 실제 생활 공간 기준, 지나가기만 해서는 바뀌지 않음).
                 var value = 60f + traits.BaseMood + (HasNearbyFriend ? 3 : 0) + TrinketBonus(TrinketEffect.Mood);
                 value += GameBalanceNeeds.ExpectationMood(personalState.expectationTier);
-                foreach (var f in personalState.moodFactors) value += f.value < 0 ? f.value * traits.NegativeMoodMultiplier : f.value;
+                float deathMood = 0;
+                foreach (var f in personalState.moodFactors)
+                    if (f.reason.StartsWith("DeathEvent:") || f.reason.StartsWith("Death: ")) deathMood += f.value;
+                    else value += f.value < 0 ? f.value * traits.NegativeMoodMultiplier : f.value;
+                value += Mathf.Max(-40, deathMood);
                 if (IsWorking || LabUpgradeBusy) value += 3 * traits.Flame(CurrentActivity);
                 if (personalState.treating) value -= 5;
                 if (HasRivalFaction) value -= 3;
@@ -59,6 +63,7 @@ namespace AntColony.Units
             CraftingWorkshop?.Release();
             personalState = value == null ? new CommanderPersonalState() : JsonUtility.FromJson<CommanderPersonalState>(JsonUtility.ToJson(value));
             personalState.treating = false; // Building restoration reconnects the patient after commanders load.
+            MigrateAge(personalState);
             personalState.health ??= new HealthState(); MedicalRules.Migrate(personalState); // 옛 6부위 부상·곰팡이 → 부위별 건강(2026-10-15)
             RefreshEquipment();
         }
@@ -75,7 +80,7 @@ namespace AntColony.Units
             var t = living ? AntColony.Buildings.SpaceQuality.At(Position) : AntColony.Buildings.TemperatureBand.Comfortable;
             personalState.moodFactors.RemoveAll(f => f.reason == "추움" && t != AntColony.Buildings.TemperatureBand.Cold || f.reason == "더움" && t != AntColony.Buildings.TemperatureBand.Hot);
             if (t == AntColony.Buildings.TemperatureBand.Cold) personalState.AddMood("추움", GameBalance.TemperatureMood * ScienceEffects.ColdEffectMultiplier, 3);
-            else if (t == AntColony.Buildings.TemperatureBand.Hot) personalState.AddMood("더움", GameBalance.TemperatureMood, 3);
+            else if (t == AntColony.Buildings.TemperatureBand.Hot) personalState.AddMood("더움", GameBalance.TemperatureMood * (1 - HeatResistance), 3);
         }
         public bool TryReward()
         {
@@ -218,12 +223,12 @@ namespace AntColony.Units
             ScienceAssignment?.ReleaseResearcher(); LabUpgradeLab?.CancelResearch();
             CraftingWorkshop?.Release();
             personalState.dead = fatal;
-            WorkState.health = 0; WorkState.recoverySeconds = fatal ? 0 : GameBalance.CommanderRecoverySeconds;
+            WorkState.health = 0; WorkState.unconsciousSeconds = 0; WorkState.recoverySeconds = fatal ? 0 : GameCalendar.SecondsPerDay;
             AntColony.World.DiplomacyManager.Instance?.CommanderDowned(transform.position);
             NotifyDowned(fatal, cause);
             foreach (var c in CommanderRoster.Instance != null ? CommanderRoster.Instance.Commanders : Active.OfType<CommanderAnt>().ToArray())
             {
-                if (c == this || c.IsDead || c.Traits.Has(CommanderTrait.ColdBlooded)) continue;
+                if (fatal || c == this || c.IsDead || c.Traits.Has(CommanderTrait.ColdBlooded)) continue;
                 var relation = c.PersonalState.relations.Find(r => r.otherId == personalState.id);
                 var friend = relation != null && relation.value >= 40;
                 if (fatal || (c.Position - Position).sqrMagnitude <= 144)
@@ -234,6 +239,7 @@ namespace AntColony.Units
             }
             if (fatal)
             {
+                LoseBossCargo();
                 personalState.departure = "Deceased";
                 CampaignHistory.Record("사망", commanderName, cause);
                 AntColony.World.Memorial.RecordDeath(this, cause);

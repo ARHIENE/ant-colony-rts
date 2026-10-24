@@ -23,7 +23,11 @@ namespace AntColony.UI
 
             L.Label(p, $"<b>민심</b>  {pop.S.sentiment:0} / 100{(pop.Unrest ? "  <color=#d9534f>바닥: 인구 탈주·병력 동원 불가</color>" : "")}", 14, 24, 132, 792, 24);
             L.Meter(p, 24, 158, 792, 8, pop.S.sentiment / 100f, pop.Unrest ? MenuTheme.Danger : MenuTheme.Hp);
-            L.Label(p, $"<b>이주 수요</b>  {pop.Demand:0} / 100  <color=#b1b3a7>({GameBalance.MinImmigrationDemand} 이상이면 매달 이주 · 주거 주변 미관 {pop.HousingBeauty:+0.#;-0.#;0})</color>", 14, 24, 176, 792, 24);
+            var nextArrival = pop.S.immigrationStopped ? "수용 중단" : $"다음 {GameBalancePopulation.ImmigrationSeconds - pop.S.immigrationSeconds:0}초";
+            L.Label(p, $"<b>이주 수요</b>  {pop.Demand:0} / 200  <color=#b1b3a7>(3일마다 빈 정원 × 10% × 수요/100 · 서비스 {pop.PublicServiceCoverage:P0} · {nextArrival})</color>", 13, 24, 176, 600, 24);
+            // G33: 수용 중단 중에는 주기 시간과 소수 누적이 모두 멈춘다(ColonyPopulation.Tick).
+            L.Button(p, "Immigration Stop", pop.S.immigrationStopped ? "이주 수용 재개" : "이주 수용 중단", 632, 172, 184, 28,
+                () => { pop.SetImmigrationStopped(!pop.S.immigrationStopped); Population(); }, "중단하면 새 시민이 오지 않고, 이주 주기와 누적도 멈춥니다.", pop.S.immigrationStopped);
             L.Meter(p, 24, 202, 792, 8, pop.Demand / 100f, MenuTheme.Accent);
             (string name, float value)[] causes = { ("주거", pop.HousingDemand), ("시설", pop.FacilityDemand), ("안전", pop.SafetyDemand), ("민심", pop.S.sentiment) };
             for (var i = 0; i < causes.Length; i++)
@@ -86,6 +90,7 @@ namespace AntColony.UI
             L.Button(p, "Compensation Down", "−10%", 236, 558, 70, 32, () => Compensation(-.1f), "보상이 기본보다 적으면 재개발 때 민심이 내려갑니다.");
             L.Button(p, "Compensation Up", "+10%", 312, 558, 70, 32, () => Compensation(.1f), "보상을 올리면 비용이 늘고 불만은 줄어듭니다.");
             L.Button(p, "Close", "닫기", 676, 600, 140, 40, Resume, null, true);
+            L.Button(p, "Civic Services", "공공서비스 · 대피", 24, 600, 200, 40, CivicServices);
         }
     }
 }

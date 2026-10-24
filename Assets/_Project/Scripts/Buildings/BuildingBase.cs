@@ -60,10 +60,10 @@ namespace AntColony.Buildings
             RoomSystem.MarkDirty(); SpaceQuality.Invalidate();
         }
 
-        // 저장 복원 전용. 0 이하로는 내리지 않는다(복원 중 파괴 연쇄를 일으키지 않기 위해).
+        // 생산대 잔해는 0을 보존하되 파괴 부작용을 재실행하지 않는다.
         internal void RestoreHealth(float value)
         {
-            currentHealth = Mathf.Clamp(value, this is Workshop ? 0f : 0.01f, MaxHealth);
+            currentHealth = Mathf.Clamp(value, this is Workshop || this is Processor ? 0f : 0.01f, MaxHealth);
         }
 
         public void TakeDamage(float amount)

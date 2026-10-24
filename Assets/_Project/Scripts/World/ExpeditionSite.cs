@@ -24,7 +24,19 @@ namespace AntColony.World
         public Vector3 Landing => transform.position + new Vector3(0, 0, -22);
         public EnemyColony Colony { get; private set; }
         public BossHealth Boss { get; private set; }
-        public ExpeditionTransport Visitor { get; internal set; }
+        private ExpeditionTransport visitor;
+        public ExpeditionTransport Visitor
+        {
+            get
+            {
+                if (visitor != null && visitor.Site == this && visitor.State == ExpeditionState.Deployed) return visitor;
+                var world = WorldMapManager.Instance;
+                if (world != null) foreach (var ship in world.Transports)
+                    if (ship != null && ship.Site == this && ship.State == ExpeditionState.Deployed) return ship;
+                return visitor != null && visitor.Site == this && visitor.State == ExpeditionState.Outbound ? visitor : null;
+            }
+            internal set => visitor = value;
+        }
         public bool Cleared { get; private set; }
         public bool RewardsClaimed { get; internal set; }
         public ConquestDisposition Disposition { get; private set; }
@@ -41,7 +53,7 @@ namespace AntColony.World
                 foreach (var guard in GetComponentsInChildren<WildMonster>(true))
                     if (!guard.IsDead) return false;
                 foreach (var commander in Visitor.Crew)
-                    if (commander != null && commander.isActiveAndEnabled && commander.HasTroops) return true;
+                    if (commander != null && commander.isActiveAndEnabled && commander.CanReceiveOrders && !commander.IsDead) return true;
                 return false;
             }
         }
@@ -83,7 +95,7 @@ namespace AntColony.World
                 {
                     var node = GameObject.CreatePrimitive(PrimitiveType.Cube);
                     node.SetActive(false);
-                    var type = i == 0 ? ResourceType.Food : ResourceType.Soil;
+                    var type = i == 0 ? AntColony.Data.ResourceType.Food : AntColony.Data.ResourceType.Soil;
                     node.name = title + " " + type;
                     node.transform.SetParent(transform, false);
                     node.transform.localPosition = new Vector3(i == 0 ? -4 : 4, .6f, 0);

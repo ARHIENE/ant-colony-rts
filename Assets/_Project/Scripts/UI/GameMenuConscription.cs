@@ -29,6 +29,8 @@ namespace AntColony.UI
             L.Label(p, "선택   장수 / 무기 / 개인 체력 / 기분 / 현재 상태", 14, 24, 104, 700, 32);
             L.Label(p, "병력 / 지휘한도", 14, 756, 104, 270, 32);
             var list = L.List(p, 24, 144, 1032, 420);
+            var autoReturn = DutyToggle(p, "Home Defense Auto Return", 620, 608, true);
+            L.Label(p, "방어 자동 귀환 20초", 13, 650, 602, 200, 34);
             var choices = new List<(CommanderAnt commander, Toggle toggle, Slider slider)>();
             foreach (var c in SortedCommanders().Where(c => !c.Traits.Has(CommanderTrait.Pacifist)))
             {
@@ -59,6 +61,7 @@ namespace AntColony.UI
                 var selected = choices.Where(x => x.toggle.isOn).ToArray();
                 if (post == null || !post.TryDeploy(selected.Select(x => x.commander).ToArray(), selected.Select(x => (int)x.slider.value).ToArray()))
                 { ToastManager.Show("출전할 수 없습니다. 장수 상태·지휘한도·대기 시민과 징집소 접근 경로를 확인하세요."); refreshDutyScreen?.Invoke(); return; }
+                foreach (var choice in selected) AntColony.World.WorldMapManager.Instance.DefenseReturn.Set(choice.commander, autoReturn.isOn);
                 Resume();
             }, primary: true);
             refreshDutyScreen += () => {

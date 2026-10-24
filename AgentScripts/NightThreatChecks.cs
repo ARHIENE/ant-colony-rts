@@ -61,9 +61,13 @@ public static class NightThreatChecks
             // 새벽이 되면 물러간다. 다음 밤에 다시 나온다.
             At(1, 1); events.Tick(1); await Task.Delay(100);
             Check(Predators().Length == 0, "predators retreat at dawn");
+            // G08: 계절 첫날 밤에만 나온다(하루 150초라 매일 밤이면 옛 빈도의 6배).
             At(GameCalendar.DaySeconds + 1, 1); events.Tick(1);
-            Check(Predators().Length == EventRules.NightPredators, "next night spawns again");
-            At(1, 2); events.Tick(1); await Task.Delay(100);
+            Check(Predators().Length == 0, "second night of season stays quiet");
+            var nextSeason = GameCalendar.DaysPerSeason;
+            At(GameCalendar.DaySeconds + 1, nextSeason); events.Tick(1);
+            Check(Predators().Length == EventRules.NightPredators, "next season first night spawns again");
+            At(1, nextSeason + 1); events.Tick(1); await Task.Delay(100);
             Check(Predators().Length == 0, "cleanup");
             return $"NightThreatChecks passed: {checks}";
         }

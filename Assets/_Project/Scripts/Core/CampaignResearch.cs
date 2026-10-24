@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using AntColony.Buildings;
 using AntColony.Units;
 using AntColony.World;
@@ -33,7 +34,7 @@ namespace AntColony.Core
         }
     }
 
-    public sealed class CampaignResearch : MonoBehaviour
+    public sealed partial class CampaignResearch : MonoBehaviour
     {
         // 연구 주제별 보조 능력(2026-10-07 기획 표: 생물·의료 → 의료, 농업 → 농사, 기계 → 제작, 군사 전술 → 지휘, 무기 → 근접/원거리).
         // 항목별 분류는 잠정(Claude 초안). 표에 맞는 분야가 없는 항목(저장·치수·방화·보온·휴게·낚시)은 연구만 성장한다.
@@ -93,10 +94,17 @@ namespace AntColony.Core
 
         [Serializable] public sealed class State
         {
+            public AntColony.Boss.BossProgress.State bosses = new AntColony.Boss.BossProgress.State();
+            public List<int> samples = new List<int>();
+            public List<int> resourceResearch = new List<int>();
+            public int resourceActive = -1; public float resourceProgress; // G06 진행 중인 자원 표본 연구(구저장 -1)
+            public List<CampaignOutcome.Entry> leftCommanders = new List<CampaignOutcome.Entry>(); // G43: 명부에서 지워진 이탈자(포획된 이탈자·반란 합류)
+            public List<string> consumptionOverrides = new List<string>();
             public List<int> completed = new List<int>();
             public int active = -1;
             public float progress;
             public bool blueprint;
+            public bool betaScenario;
             public bool departed;
             public List<string> passengers = new List<string>();
             public List<string> leftBehind = new List<string>();
@@ -120,6 +128,7 @@ namespace AntColony.Core
             return i < 0 ? -1 : state.partialProgress[i];
         }
         public bool HasBlueprint => state.blueprint;
+        public bool BetaScenario { get => state.betaScenario; set => state.betaScenario = value; }
         public bool Departed => state.departed;
         public IReadOnlyList<string> Passengers => state.passengers;
         public IReadOnlyList<string> LeftBehind => state.leftBehind;
@@ -135,19 +144,24 @@ namespace AntColony.Core
             while (state.defense.Count < 4) state.defense.Add(0);
             state.defense[(int)line] = level;
         }
-        public void AcquireBlueprint() { state.blueprint = true; AntColony.UI.ToastManager.Show("로켓 추진기관 설계도를 얻었습니다."); }
+        public void AcquireBlueprint()
+        {
+            if (!BossProgress.Delivered(AntColony.Boss.BossId.D)) return;
+            state.blueprint = true;
+        }
 
         public string BlockReason(ScienceTechnology technology)
         {
             var i = (int)technology;
             if (i < 0 || i >= Technologies.Length) return "알 수 없는 기술입니다.";
             if (Departed) return "로켓이 이미 발사되었습니다.";
+            if (state.resourceActive >= 0) return "자원 표본 연구 중입니다.";
             if (Has(technology)) return "이미 연구했습니다.";
             if (Active != null && Active.Technology == technology) return "이미 진행 중인 연구입니다.";
             var definition = Technologies[i];
             foreach (var prerequisite in definition.Prerequisites)
                 if (!Has(prerequisite)) return "선행 연구 필요: " + Technologies[(int)prerequisite].Name + ".";
-            if (technology == ScienceTechnology.Engine && !HasBlueprint) return "보스 둥지나 교역소에서 엔진 설계도를 획득해 귀환하세요.";
+            if (technology == ScienceTechnology.Engine && !HasBlueprint) return "D 보스의 로켓 핵심물을 본거지에 하역하세요.";
             foreach (var lab in FindObjectsByType<ScienceLab>(FindObjectsSortMode.None))
                 if (lab.isActiveAndEnabled && lab.Tier >= definition.Tier) return "";
             return "과학 연구소 " + definition.Tier + "등급(" + EraNames[definition.Tier - 1] + " 시대)이 필요합니다.";
@@ -171,11 +185,11 @@ namespace AntColony.Core
         // 연구소 한 곳이 지금 공동 연구에 기여하지 못하는 이유. 빈 문자열이면 기여 중.
         public string LabWaitReason(ScienceLab lab)
         {
-            if (Active == null) return "선택한 연구 없음";
+            if (Active == null && state.resourceActive < 0) return "선택한 연구 없음";
             if (state.paused) return "연구 정지됨";
             if (!lab.isActiveAndEnabled) return "시설 비활성";
             if (lab.Busy) return "연구소가 차량 작업 중";
-            if (lab.Tier < Active.Tier) return $"연구소 {lab.Tier}등급 — {EraNames[Active.Tier - 1]} 시대 연구 불가({Active.Tier}등급 필요)";
+            if (Active != null && lab.Tier < Active.Tier) return $"연구소 {lab.Tier}등급 — {EraNames[Active.Tier - 1]} 시대 연구 불가({Active.Tier}등급 필요)";
             var c = lab.Target;
             if (c == null) return "담당 장수 없음";
             if (c.IsAwayFromHome) return c.CommanderName + " 본거지 밖";
@@ -186,6 +200,8 @@ namespace AntColony.Core
         private void Update() => Tick(Time.deltaTime);
         public void Tick(float seconds)
         {
+            if (seconds > 0 && !float.IsInfinity(seconds)) BossProgress.TickCraft(seconds);
+            if (Active == null && state.resourceActive >= 0 && seconds > 0 && !float.IsInfinity(seconds) && !Departed) { TickResourceResearch(seconds); return; }
             if (!(seconds > 0) || float.IsInfinity(seconds) || Active == null || Departed || state.paused) return;
             foreach (var lab in FindObjectsByType<ScienceLab>(FindObjectsSortMode.None))
             {
@@ -235,6 +251,10 @@ namespace AntColony.Core
         public void RestoreState(State value)
         {
             state = value == null ? new State() : JsonUtility.FromJson<State>(JsonUtility.ToJson(value));
+            state.bosses ??= new AntColony.Boss.BossProgress.State();
+            state.samples ??= new List<int>();
+            state.resourceResearch ??= new List<int>();
+            state.consumptionOverrides ??= new List<string>();
             if (state.defense == null) state.defense = new List<int>();
             if (state.partialIds == null || state.partialProgress == null || state.partialIds.Count != state.partialProgress.Count)
             { state.partialIds = new List<int>(); state.partialProgress = new List<float>(); }
@@ -244,6 +264,14 @@ namespace AntColony.Core
         {
             error = "Invalid campaign research state.";
             if (value == null) { error = ""; return true; }
+            if (!AntColony.Boss.BossProgress.Validate(value.bosses)) return false;
+            if (!ValidResourceRecords(value.samples) || !ValidResourceRecords(value.resourceResearch)) return false;
+            if (value.resourceResearch != null && value.resourceResearch.Exists(i => value.samples == null || !value.samples.Contains(i))) return false;
+            if (!ValidResourceActive(value)) return false;
+            if (value.leftCommanders != null && (value.leftCommanders.Exists(e => e == null || string.IsNullOrEmpty(e.id) || e.name == null)
+                || value.leftCommanders.Select(e => e.id).Distinct().Count() != value.leftCommanders.Count)) return false;
+            if (value.consumptionOverrides != null && (value.consumptionOverrides.Exists(string.IsNullOrWhiteSpace)
+                || new HashSet<string>(value.consumptionOverrides).Count != value.consumptionOverrides.Count)) return false;
             if (value.completed == null || value.passengers == null || value.leftBehind == null
                 || value.active < -1 || value.active >= Technologies.Length || float.IsNaN(value.progress)
                 || float.IsInfinity(value.progress) || value.progress < 0 || value.endingGameSeconds < 0

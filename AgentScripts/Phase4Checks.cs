@@ -36,8 +36,9 @@ public static class Phase4Checks
         Check(pop != null && pool != null, "population attached to ant pool");
 
         // 여왕방 삭제 → 비축더미(반납 지점), 생산·말벌 없음.
-        var stockpile = Object.FindAnyObjectByType<Stockpile>();
-        Check(stockpile != null && Type.GetType("AntColony.Buildings.QueenChamber, Assembly-CSharp") == null, "queen replaced by stockpile");
+        // 불시착 시작(G02)엔 비축더미가 없다. 여왕방 삭제만 확인하고 위치는 본거지 기준점을 쓴다.
+        var home = (Vector3)typeof(ResourceManager).GetProperty("HomePosition", System.Reflection.BindingFlags.Static | System.Reflection.BindingFlags.NonPublic).GetValue(null);
+        Check(Type.GetType("AntColony.Buildings.QueenChamber, Assembly-CSharp") == null, "queen chamber removed");
         Check(!ColonyEvents.Instance.TryTrigger(ColonyEvent.Wasps), "wasp event removed");
 
         // 세금(2026-10-08): 납세 시민 × 세율 × 월 5 × 시민 생산력 × 징수율(행정), 1% 단위·최대 50%, 주(75초)마다 식량·재료 현물 지급.
@@ -82,7 +83,7 @@ public static class Phase4Checks
         // Monthly sentiment remains; immigration and aging have independent clocks.
         pop.S.sentiment = 60; pop.S.young = 4; pop.S.old = 20; pop.TrySetPolicy(MilitaryPolicy.Volunteer);
         var total0 = pop.Total; var adults0 = pool.Total;
-        var hut = Object.Instantiate((GameObject)typeof(BuildingPlacementController).GetMethod("GetTemplate", BindingFlags.Static | BindingFlags.NonPublic).Invoke(null, new object[] { BuildingKind.Hut, UnitRole.Worker }), stockpile.Position + Vector3.right * 12, Quaternion.identity);
+        var hut = Object.Instantiate((GameObject)typeof(BuildingPlacementController).GetMethod("GetTemplate", BindingFlags.Static | BindingFlags.NonPublic).Invoke(null, new object[] { BuildingKind.Hut, UnitRole.Worker }), home + Vector3.right * 12, Quaternion.identity);
         hut.SetActive(true); await Task.Yield();
         Check(hut.GetComponent<Housing>().Capacity == GameBalance.HutHousing && pop.HousingCapacity == GameBalance.BaseHousing + GameBalance.HutHousing, "hut adds housing");
         pop.Monthly();

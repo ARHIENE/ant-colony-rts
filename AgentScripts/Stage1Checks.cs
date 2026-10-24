@@ -55,6 +55,9 @@ public static class Stage1Checks
             var rm = ResourceManager.Instance;
             foreach (ColonyResourceType type in Enum.GetValues(typeof(ColonyResourceType))) { rm.AddCapacity(type, 10000); rm.Add(type, 10000); }
             var roster = CommanderRoster.Instance;
+            // 불시착 시작은 장수 1~3명이라 원정 검사용 5명을 채운다.
+            for (var i = 0; i < 10 && roster.Commanders.Count < 5; i++)
+                roster.Create(null, AntColony.Data.CommanderRank.Corporal, new[] { UnitRole.Worker }, UnitRole.Worker, new CommanderTraits(CommanderPersonality.Balanced), roster.Commanders[0].Position);
             foreach (var c in roster.Commanders) c.ApplyTraits(new CommanderTraits(CommanderPersonality.Balanced));
 
             // 1. 과학 연구량·자원·한글 이름
@@ -91,6 +94,7 @@ public static class Stage1Checks
             var vehicle = world.CreateTransport(false, shipPoint);
             Check(vehicle.CommanderCapacity == 4 && vehicle.Capacity == 40 && vehicle.CargoCapacity == 200, "vehicle capacities");
             // 원정 병력은 출전 편성으로 받는다(평시 민간인은 병력 0).
+            AntColony.Core.AntPool.Instance.Breed(1000); // G04 동원 상한 때문에 5명×2 배정용 시민을 확보한다
             foreach (var m in roster.Commanders.Take(5)) { m.SetJobEnabled(AntColony.Units.CommanderJobs.All, false); m.CommandStop(); m.WorkState.duty = AntColony.Units.CommanderDuty.Deployed; if (!m.HasTroops) m.TryAssign(2); }
             var crew = roster.Commanders.Where(c => c.HasTroops).Take(5).ToArray();
             Check(crew.Length == 5, "five commanders with troops");

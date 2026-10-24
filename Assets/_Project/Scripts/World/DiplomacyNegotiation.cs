@@ -40,7 +40,7 @@ namespace AntColony.World
         {
             var n = Data.talks.Find(x => x.civ == c.id && x.kind == kind);
             if (n != null) return n;
-            n = new Negotiation { id = ++Data.nextTalk, civ = c.id, kind = kind };
+            n = new Negotiation { id = ++Data.nextTalk, civ = c.id, kind = kind, expires = Data.elapsed + DiplomacyRules.OfferSeconds };
             Data.talks.Add(n); return n;
         }
         public void EndTalk(Negotiation n, string result)
@@ -50,8 +50,8 @@ namespace AntColony.World
         }
 
         // 담당 장수: 본거지에서 활동 가능한 장수만(원정·수송·전투·치료·쓰러짐·귀환 중 제외).
-        public static bool CanNegotiate(CommanderAnt a) => a != null && !a.IsDead && a.IsColonyMember && !a.IsCaptive && !a.IsAwayFromHome
-            && !a.IsDeployed && a.CanReceiveOrders && !a.PersonalState.treating && a.PersonalHealth > 0 && !a.IsChild;
+        public static bool CanNegotiate(CommanderAnt a) => a != null && !a.IsDead && a.IsColonyMember && !a.IsCaptive && !a.IsAwayFromHome && !a.IsReturning && !a.IsInCombat
+            && !a.IsDeployed && a.CanReceiveOrders && !a.PersonalState.treating && !a.PersonalState.health.Downed && a.PersonalHealth > 0 && !a.IsChild;
         public static CommanderAnt Negotiator(Negotiation n) => CommanderRoster.Instance?.Commanders.FirstOrDefault(c => c.PersonalState.id == n.negotiator);
         public static float Politics(Negotiation n) => Negotiator(n)?.Talents.Level(CommanderActivity.Politics) ?? 0;
         // 정치력은 애매한 조건의 설득·추가 양보에만 쓴다(좋은 조건은 정치력과 무관하게 성사).
@@ -83,7 +83,7 @@ namespace AntColony.World
 
         // 군사력 추정(잠정): 우리 = 장수 20 + 인구, 상대 = 거점 수 × 20 + 거점 식량 재고 / 10.
         public float PlayerPower => (CommanderRoster.Instance?.Commanders.Count(c => c.IsColonyMember && !c.IsDead) ?? 0) * 20 + (AntPool.Instance?.Total ?? 0);
-        public float PowerOf(Civilization c) => world.Sites.Where(s => Faction(s) == c).Sum(s => 20 + (s.Colony != null ? s.Colony.GetStock(ResourceType.Food) / 10f : 0)) + c.resources[0] / 20f;
+        public float PowerOf(Civilization c) => world.Sites.Where(s => Faction(s) == c).Sum(s => 20 + (s.Colony != null ? s.Colony.GetStock(AntColony.Data.ResourceType.Food) / 10f : 0)) + c.resources[0] / 20f;
         private double DemandScore(Civilization c, Negotiation n)
         {
             var stock = Math.Max(1, c.resources[0] + c.resources[1] + c.resources[2] * 10d);
@@ -94,6 +94,7 @@ namespace AntColony.World
         // 제안(거래·요구). 결과 문구를 돌려주고 협상 상태를 갱신한다.
         public string Propose(Negotiation n)
         {
+            if (!TalkOpen(n)) return "이미 끝났거나 기한이 지난 협상입니다.";
             var c = CivOf(n);
             if (CheckInvalid(n)) return "상황이 바뀌어 이 협상은 무효입니다.";
             if (!CanNegotiate(Negotiator(n))) return "협상 담당 장수를 지정하세요(본거지에서 활동 가능한 장수).";
@@ -114,7 +115,7 @@ namespace AntColony.World
             if (n.kind == TalkKind.Demand)
             {
                 c.ChangeAffinity(-3, "무리한 요구");
-                if (n.ultimatum) { n.deadline = Data.elapsed + DiplomacyRules.Month; n.last = "최후통첩 거절 — 기한 안에 실행 또는 철회"; return n.last; }
+                if (n.ultimatum) { n.expires = 0; n.deadline = Data.elapsed + EstimatedTravel(c) + DiplomacyRules.UltimatumGrace; n.last = "최후통첩 거절 — 예상 이동 시간 + 3일 안에 실행 또는 철회"; return n.last; }
             }
             if (n.patience <= 0)
             {
@@ -131,7 +132,7 @@ namespace AntColony.World
             var rm = ResourceManager.Instance; if (rm == null || deficit <= 0) return false;
             for (var i = 0; i < 3 && deficit > 0; i++)
             {
-                var unit = i == 2 ? 10 : 1; var room = rm.GetAmount((ResourceType)i) - n.give.resources[i];
+                var unit = i == 2 ? 10 : 1; var room = rm.GetAmount((AntColony.Data.ResourceType)i) - n.give.resources[i];
                 var add = Mathf.Min(room, Mathf.CeilToInt((float)(deficit / unit)));
                 if (add <= 0) continue;
                 n.give.resources[i] += add; deficit -= add * unit;
@@ -142,10 +143,11 @@ namespace AntColony.World
         // 상대 요청 응답. counter = 우리가 줄인 양으로 다시 제시.
         public string Respond(Negotiation n, bool accept)
         {
+            if (!TalkOpen(n)) return "이미 끝났거나 기한이 지난 협상입니다.";
             var c = CivOf(n); if (CheckInvalid(n)) return "상황이 바뀌어 이 협상은 무효입니다.";
-            if (!CanNegotiate(Negotiator(n))) return "협상 담당 장수를 지정하세요.";
             if (n.kind == TalkKind.Trade || n.kind == TalkKind.Demand) return "";
             if (!accept) { Refuse(c, n); return "거절했습니다."; }
+            if (!CanNegotiate(Negotiator(n))) return "협상 담당 장수를 지정하세요.";
             if (n.kind == TalkKind.TreatyOffer)
             {
                 var treaty = n.take.treaties.FirstOrDefault();
@@ -194,14 +196,15 @@ namespace AntColony.World
         // 최후통첩 거절 후 선택. 실행 = 선전포고(위협 신뢰 회복), 철회 = 위협 신뢰 하락. 기한 초과는 철회.
         public void ExecuteUltimatum(Negotiation n)
         {
-            var c = CivOf(n); if (c == null || n.deadline <= 0) return;
-            DeclareWar(c);
+            if (!TalkOpen(n)) return;
+            var c = CivOf(n); if (c == null || n.deadline <= 0 || !c.war && !DeclareWar(c)) return;
             c.threatCred = Mathf.Clamp(c.threatCred + 15, -100, 100); Data.threat = Mathf.Clamp(Data.threat + 10, -100, 100);
             Reputation("최후통첩을 실행함 (" + c.name + ")");
             EndTalk(n, "최후통첩 실행");
         }
         public void WithdrawUltimatum(Negotiation n)
         {
+            if (n == null || !Data.talks.Contains(n) || n.deadline <= 0) return;
             var c = CivOf(n); if (c == null) return;
             c.threatCred = Mathf.Clamp(c.threatCred - 20, -100, 100);
             foreach (var other in Data.civilizations.Where(x => x != c)) other.threatCred = Mathf.Clamp(other.threatCred - 5, -100, 100);
@@ -262,13 +265,13 @@ namespace AntColony.World
         private void Request(Civilization c, TalkKind kind, int food)
         {
             var n = StartTalk(c, kind); n.give.resources[0] = food; n.asked = food;
-            n.expires = Data.elapsed + DiplomacyRules.Month; n.patience = 100;
+            n.expires = Data.elapsed + DiplomacyRules.OfferSeconds; n.patience = 100;
             AntColony.UI.ToastManager.Show($"{c.name} {KindName(kind)}: 식량 {food} — 오른쪽 알림에서 협상", AntColony.UI.ToastKind.Warning);
         }
         internal void OfferTreaty(Civilization c, TreatyKind kind)
         {
-            var n = StartTalk(c, TalkKind.TreatyOffer); n.take = new TradeOffer(); n.take.treaties.Add(kind); n.expires = Data.elapsed + DiplomacyRules.Month;
-            AntColony.UI.ToastManager.Show(c.name + " 협정 제안 — 오른쪽 알림에서 확인 (1개월)");
+            var n = StartTalk(c, TalkKind.TreatyOffer); n.take = new TradeOffer(); n.take.treaties.Add(kind); n.expires = Data.elapsed + DiplomacyRules.OfferSeconds;
+            AntColony.UI.ToastManager.Show(c.name + " 협정 제안 — 오른쪽 알림에서 확인 (1계절·6일)");
         }
         // 기한: 상대 요청 만료는 거절과 같은 결과(관계 변화 없이 사라지지 않음), 최후통첩 기한 초과는 철회.
         private void TickTalks()
@@ -280,5 +283,7 @@ namespace AntColony.World
             }
         }
         public float Remaining(Negotiation n) => n.deadline > 0 ? n.deadline - Data.elapsed : n.expires > 0 ? n.expires - Data.elapsed : -1;
+        private bool TalkOpen(Negotiation n) => n != null && Data.talks.Contains(n)
+            && (n.deadline > 0 ? Data.elapsed < n.deadline : n.expires <= 0 || Data.elapsed < n.expires);
     }
 }

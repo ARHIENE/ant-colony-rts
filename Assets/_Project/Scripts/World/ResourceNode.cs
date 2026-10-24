@@ -36,6 +36,9 @@ namespace AntColony.World
         [SerializeField, Min(1f)] private float fishingRateMultiplier = 2f;
 
         public bool RequiresFishing => requiresFishing;
+        // G30: 원산지별 상온 보존 기간. 낚시=생선, 균류 밭=버섯, 그 밖의 밭·야생 채집=열매(바닥 더미는 FloorFood 신선도를 쓴다).
+        public FoodPreservation Preservation => RequiresFishing ? FoodPreservation.Fish
+            : TryGetComponent<AntColony.Buildings.FarmPlot>(out var farm) && farm.Crop != AntColony.Buildings.FarmCrop.Honeydew ? FoodPreservation.Mushroom : FoodPreservation.Berry;
         public bool IsRaidLoot => ownerColony != null;
         public bool IsRaidLocked => ownerColony != null && ownerColony.GetComponentInParent<ExpeditionSite>()?.Disposition != ConquestDisposition.Annexed && (!ownerColony.IsDefeated
             || ownerColony.GetComponentInParent<ExpeditionSite>()?.Disposition == ConquestDisposition.Lost);
@@ -43,9 +46,33 @@ namespace AntColony.World
             && (!requiresFishing || (GameManager.Instance != null && GameManager.Instance.FishingUnlocked));
         public bool CanGather => !GatheringForbidden && isActiveAndEnabled && (!IsDepleted || IsFarm && NeedsSowing || HoldsHandWork) && IsUnlocked && !ColonyEvents.Flooded(this);
         public bool RequiresMiningTool => !IsLooseCargo && (resourceType == ResourceType.Stone || resourceType == ResourceType.IronOre
-            || resourceType == ResourceType.CopperOre || resourceType == ResourceType.Coal || resourceType == ResourceType.Sulfur);
+            || resourceType == ResourceType.CopperOre || resourceType == AntColony.Data.ResourceType.TinOre || resourceType == ResourceType.Coal || resourceType == ResourceType.Sulfur);
+        // 돌 도구 연구의 재료인 석재에는 새 자원 연구 관문을 추가하지 않는다.
+        public bool RequiresResourceResearch => RequiresMiningTool && resourceType != AntColony.Data.ResourceType.Stone;
+        public const int MiningToolTier = 2; // 현재 제작 가능한 도구는 나무(1)/돌(2)까지다.
         public bool CanGatherWith(AntColony.Units.WorkerAnt worker) => CanGather && (!RequiresMiningTool
-            || worker is AntColony.Units.CommanderAnt commander && commander.PersonalState.toolTier >= 2);
+            || worker is AntColony.Units.CommanderAnt commander && (RequiresResourceResearch
+                ? CanMine(commander) || CanTakeSample(commander) : commander.PersonalState.toolTier >= MiningToolTier));
+        private bool CanMine(AntColony.Units.CommanderAnt c) => CampaignResearch.Instance?.CanMine(resourceType, c.PersonalState.toolTier, MiningToolTier) == true;
+        private bool CanTakeSample(AntColony.Units.CommanderAnt c)
+        {
+            if (amountRemaining < 1 || CampaignResearch.Instance?.CanRecoverSample(resourceType, c.PersonalState.toolTier, MiningToolTier) != true) return false;
+            // 반입 전 표본도 한 개뿐: 여러 장수·노드가 같은 프레임에 중복 회수하지 않는다.
+            foreach (var unit in AntColony.Units.AntUnitBase.Active)
+                if (unit is AntColony.Units.WorkerAnt w && w.CarriedType == resourceType && w.CarriedAmount > 0) return false;
+            foreach (var node in Active)
+                if (node != null && node.IsLooseCargo && node.resourceType == resourceType && !node.IsDepleted) return false;
+            return true;
+        }
+        public float ExtractFor(AntColony.Units.WorkerAnt worker, float amount)
+        {
+            if (!(amount > 0) || float.IsInfinity(amount) || !CanGatherWith(worker)) return 0;
+            if (!RequiresResourceResearch) return ExtractStock(amount);
+            var c = (AntColony.Units.CommanderAnt)worker;
+            if (CanMine(c)) return ExtractStock(amount);
+            // 표본은 분할 화물이 아닌 완전한 1개로 회수한다.
+            return amount >= 1 && CanTakeSample(c) ? ExtractStock(1) : 0;
+        }
         // 밭 손일(뿌리뽑기·비료) 중에는 수확하지 않고 FarmPlot이 작업량을 받는다(2026-10-15).
         public bool HoldsHandWork => Plot != null && Plot.HasHandWork;
         private AntColony.Buildings.FarmPlot plot;
@@ -126,6 +153,12 @@ namespace AntColony.World
         }
 
         public float Extract(float amount)
+        {
+            // 작업자 없는 호출로 연구/도구 관문을 우회하지 못하게 한다.
+            if (RequiresMiningTool) return 0;
+            return ExtractStock(amount);
+        }
+        private float ExtractStock(float amount)
         {
             if (amount <= 0f || !CanGather) return 0f;
             var extracted = Mathf.Min(amount, amountRemaining);

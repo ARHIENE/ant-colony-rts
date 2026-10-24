@@ -25,19 +25,27 @@ namespace AntColony.World
         private void Start() => remaining = NextDelay();
         private void Update()
         {
+            if (RocketCampaign.SuppressNewCrises) return;
+            if (ExpeditionRules.HomeCommanders == 0) return;
             remaining -= Time.deltaTime;
             if (remaining > 0) return;
-            TrySpawn();
-            remaining = NextDelay();
+            if (TrySpawn()) remaining = NextDelay();
         }
 
         public bool TrySpawn()
-            => Spawn(null, 3);
+            => !RocketCampaign.SuppressNewCrises && DiplomacyManager.Instance?.TryDispatchIndependentRaid() == true;
 
-        public bool TrySpawnFaction(Civilization faction, int count) => faction != null && faction.war && Spawn(faction, Mathf.Clamp(count, 1, 20));
+        public bool TrySpawnFaction(Civilization faction, int count) => faction != null && faction.contacted && faction.war && Spawn(faction, Mathf.Clamp(count, 1, 20));
+        public bool TrySpawnIndependent(int count) => Spawn(null, Mathf.Clamp(count, 1, 20));
 
-        private bool Spawn(Civilization faction, int count)
+        // 이미 출발한 적은 G39의 신규 추첨 차단 대상이 아니다. 이동 침공대 도착 경로에서만 호출한다.
+        public bool TryArriveRaid(Civilization faction, int count) => (faction == null || faction.contacted && faction.war)
+            && Spawn(faction, Mathf.Clamp(count, 1, 20), true);
+
+        private bool Spawn(Civilization faction, int count, bool alreadyDispatched = false)
         {
+            if (!alreadyDispatched && RocketCampaign.SuppressNewCrises) return false;
+            if (faction == null && ExpeditionRules.HomeCommanders == 0) return false;
             visitors.RemoveAll(v => v == null || v.IsDead);
             if ((faction == null && visitors.Count > 0) || raiderTemplate == null || commanderTemplate == null) return false;
             var home = GameManager.Instance?.FindNearestPlayerBuilding(Vector3.zero);

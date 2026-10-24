@@ -34,6 +34,7 @@ namespace AntColony.UI
             }
             Choices("맵 크기", (MapSize[])Enum.GetValues(typeof(MapSize)), s => new[] { "소", "중", "대" }[(int)s], options.mapSize, s => options.mapSize = s);
             Choices("침공 난이도", (DifficultyLevel[])Enum.GetValues(typeof(DifficultyLevel)), s => new[] { "온화", "보통", "가혹" }[(int)s], options.difficulty, s => options.difficulty = s);
+            Choices("기후", (MapClimate[])Enum.GetValues(typeof(MapClimate)), s => new[] { "온대", "한랭", "열대습윤" }[(int)s], options.climate, s => options.climate = s);
             Choices("장수 사망", (CommanderDeathMode[])Enum.GetValues(typeof(CommanderDeathMode)), s => new[] { "관대", "보통", "가혹" }[(int)s], options.commanderDeath, s => options.commanderDeath = s);
             var biome = L.Cell(settings, "Starting Climate", 136);
             L.Label(biome, "시작 지역", 15, 0, 0, 260, 26, bold: true);
@@ -84,7 +85,7 @@ namespace AntColony.UI
             L.Button(card, "Reroll Candidate " + slot, "전체 재추첨", 12, 42, 240, 32, () =>
             { ReadSeed(); options.startingTeam[slot] = StartingCandidate.Roll(slot); NewGameScreen(); }, "능력·특성·나이·외형을 모두 새로 뽑습니다");
             L.Label(card, "외형: " + StartingCandidate.AppearanceName(c.appearanceSeed), 12, 12, 80, 240, 22, MenuTheme.Muted);
-            L.Label(card, "기후 적합: " + (options.biome == MapBiome.None ? "지역 결정 후 복장 지급" : StartingCandidate.Clothes(options.biome)), 12, 12, 104, 240, 22, MenuTheme.Muted);
+            L.Label(card, "기후 적합: " + (options.biome == MapBiome.None && options.climate == MapClimate.Temperate ? "지역 결정 후 복장 지급" : StartingCandidate.Clothes(options.biome, options.climate)), 12, 12, 104, 240, 22, MenuTheme.Muted);
             L.Label(card, "특성: " + string.Join(" · ", c.traits.values.Select(CommanderTraits.DisplayName)), 12, 12, 130, 240, 48);
             L.Label(card, "작업 불가: " + (c.Blocked.Length == 0 ? "없음" : c.Blocked), 12, 12, 180, 240, 42,
                 c.Blocked.Length == 0 ? MenuTheme.Muted : MenuTheme.Warning);

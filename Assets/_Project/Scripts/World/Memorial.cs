@@ -19,16 +19,20 @@ namespace AntColony.World
         public static State Capture() => JsonUtility.FromJson<State>(JsonUtility.ToJson(state));
         public static void Restore(State s) => state = s == null ? new State() : JsonUtility.FromJson<State>(JsonUtility.ToJson(s));
         public static Record Find(string id) => state.deaths.Find(r => r.id == id);
+        internal static void RecordEnemy(string id, string name)
+        {
+            if (Find(id) == null) state.deaths.Add(new Record { id = id, name = name, cause = "전투", date = GameCalendar.GameSeconds });
+        }
         public static void RecordDeath(CommanderAnt c, string cause)
         {
             if (c == null || Find(c.PersonalState.id) != null) return;
             state.deaths.Add(new Record { id = c.PersonalState.id, name = c.CommanderName, cause = cause, date = GameCalendar.GameSeconds });
         }
 
-        // ponytail: 추모 위로·목격 기분·쿨다운 수치는 기획 미정 잠정값.
-        public const float ComfortSeconds = 180f, ComfortCooldown = 600f, MourningRadius = 4f, SightRadius = 8f;
-        public static float ComfortValue(CommanderRelation r) => r == null ? 1 : r.spouse ? 6 : r.family || r.value >= 60 ? 5 : r.value >= 40 ? 3 : r.value > 0 ? 1 : 0;
-        public static float UnburiedMood(CommanderRelation r) => r == null ? -2 : r.spouse ? -10 : r.family || r.value >= 40 ? -6 : -2;
+        // 같은 고인의 위로는 달력상 하루 한 번만 받는다.
+        public const float ComfortSeconds = GameCalendar.SecondsPerDay, ComfortCooldown = GameCalendar.SecondsPerDay, MourningRadius = 4f, SightRadius = 8f;
+        public static float ComfortValue(CommanderRelation r) => 3;
+        public static float UnburiedMood(CommanderRelation r) => -3;
 
         // 장수 1명의 주기 판정(CommanderAnt.TickSocial 등에서 1초마다 부른다): 지나가며 추모, 미안치 시신 목격.
         public static void Tick(CommanderAnt c, float dt)
@@ -43,26 +47,27 @@ namespace AntColony.World
             CommanderRelation worst = null; string seen = null;
             foreach (var body in Corpse.All)
             {
-                if (body.Data.kind != CorpseKind.ColonyCommander || string.IsNullOrEmpty(body.Data.commanderId) || (body.Position - c.Position).sqrMagnitude > SightRadius * SightRadius) continue;
+                if (!body.IsCommanderBody || (body.Position - c.Position).sqrMagnitude > SightRadius * SightRadius) continue;
                 var r = c.PersonalState.relations.Find(x => x.otherId == body.Data.commanderId);
                 if (seen == null || UnburiedMood(r) < UnburiedMood(worst)) { worst = r; seen = body.Data.name; }
             }
-            if (seen != null && !c.Traits.Has(CommanderTrait.ColdBlooded)) c.PersonalState.AddMood("미안치 시신 목격", UnburiedMood(worst), 60);
+            if (seen != null && !c.PersonalState.moodFactors.Any(f => f.reason == "미안치 시신 목격"))
+                c.PersonalState.AddMood("미안치 시신 목격", -3, GameCalendar.SecondsPerDay);
         }
         // 같은 고인에 대한 위로는 쿨다운 동안 다시 받지 않는다(지속시간 갱신으로 영구화 방지).
         public static bool Comfort(CommanderAnt c, Tombstone tomb)
         {
             var r = c.PersonalState.relations.Find(x => x.otherId == tomb.Data2.deceasedId);
             var value = ComfortValue(r);
-            if (value <= 0 || r != null && r.memorialCooldown > 0) return false;
+            if (tomb.Empty || r != null && r.lastComfortDay == GameCalendar.Day) return false;
             if (r == null) { r = c.PersonalState.Relation(tomb.Data2.deceasedId); }
-            r.memorialCooldown = ComfortCooldown;
-            c.PersonalState.AddMood("추모: " + tomb.Data2.name, value, ComfortSeconds);
+            r.memorialCooldown = ComfortCooldown; r.lastComfortDay = GameCalendar.Day;
+            c.PersonalState.AddMood("추모: " + tomb.Data2.deceasedId, value, ComfortSeconds);
             return true;
         }
         // 친한 장수의 여가 방문 대상(관계 40 이상, 쿨다운 끝남).
         public static Tombstone VisitTarget(CommanderAnt c) => Tombstone.All.Where(t => t.Data2.deceasedId != "" && t.isActiveAndEnabled
-            && c.PersonalState.relations.Any(r => r.otherId == t.Data2.deceasedId && (r.value >= 40 || r.spouse || r.family) && r.memorialCooldown <= 0))
+            && c.PersonalState.relations.Any(r => r.otherId == t.Data2.deceasedId && (r.value >= 40 || r.spouse || r.family) && r.lastComfortDay != GameCalendar.Day))
             .OrderBy(t => (t.Position - c.Position).sqrMagnitude).FirstOrDefault();
     }
 }

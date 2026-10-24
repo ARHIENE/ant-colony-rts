@@ -94,7 +94,7 @@ public static class SaveRoundtripChecks
             SaveStorage.WriteAtomic(path, JsonUtility.ToJson(expected));
             var actual = await Load(path);
             Verify(expected, actual, queen.key, barracks.key, destroyed.key, shipIndex);
-            var aSpike = actual.buildings.Single(b => b.key == spike.key);
+            var aSpike = actual.buildings.Single(b => b.kind == "SpikeTrap"); // 새 건물 키는 이름순이라 손으로 붙인 픽스처는 순번이 바뀔 수 있다
             Check(aSpike.kind == "SpikeTrap" && aSpike.trapArmed && aSpike.trapSpikeHits == 3, $"spike trap restored: {aSpike.kind} hits={aSpike.trapSpikeHits}");
             Check(actual.population.agingDue == 4, "deferred aging restored: " + actual.population.agingDue);
             Check(SaveSystem.TrySave(false, 1, out var error), "save restored state: " + error);

@@ -109,6 +109,7 @@ namespace AntColony.Units
             var camp = PrisonerCamp.Instance;
             if (camp != null && camp.TryCapture(this))
             {
+                CampaignResearch.Instance?.RecordDeparted(personalState.id, commanderName);
                 CommanderRoster.Instance?.Forget(this);
                 Social.departure = DepartureState.Imprisoned;
                 gameObject.SetActive(false); Destroy(gameObject);

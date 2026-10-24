@@ -1,6 +1,7 @@
 using System.Linq;
 using AntColony.Buildings;
 using AntColony.Core;
+using AntColony.Data;
 using AntColony.Units;
 using UnityEngine;
 using L = AntColony.UI.MenuLayout;
@@ -87,6 +88,17 @@ namespace AntColony.UI
                 L.Label(row, ResearchState(r, d), 12, 404, 0, 98, 42, MenuTheme.Muted, TextAnchor.MiddleRight);
             }
             if (defs.Length == 0) MenuTheme.Text(content, "연구 항목 미구현", 13, 40);
+            // G06: 반입한 표본으로 자원 연구(연구 전에는 표본 회수만 가능, 완료 후 본격 채굴).
+            foreach (var sample in r.PendingSamples.ToArray())
+            {
+                var type = sample; var running = r.ActiveResource == type;
+                var row = L.Cell(content, "Sample " + type, 42, MenuTheme.Plate2);
+                L.Button(row, "Sample Research " + type, "표본 연구: " + type.DisplayName(), 8, 5, 390, 32, () => {
+                    if (!r.TryStartResourceResearch(type)) ToastManager.Show("다른 연구가 진행 중이면 표본 연구를 시작할 수 없습니다.");
+                    Science();
+                }, "연구량 " + CampaignResearch.ResourceResearchWork + " · 완료하면 이 자원을 본격 채굴", running).interactable = !running && r.Active == null && r.ActiveResource == null;
+                L.Label(row, running ? $"진행 중 {r.ResourceProgress / CampaignResearch.ResourceResearchWork:P0}" : "표본 확보", 12, 404, 0, 98, 42, MenuTheme.Muted, TextAnchor.MiddleRight);
+            }
 
             // 오른쪽: 현재 시대에서 선택한 연구 상세와 조작
             var def = researchPick.HasValue ? CampaignResearch.Technologies[(int)researchPick.Value] : null;

@@ -13,18 +13,22 @@ namespace AntColony.Buildings
         private static readonly List<PowerNode> Active = new List<PowerNode>();
         public static IReadOnlyList<PowerNode> All => Active;
         public BuildingKind Kind => Data.kind;
-        public bool IsGenerator => Kind == BuildingKind.Treadmill || Kind == BuildingKind.WoodGenerator;
+        public bool IsGenerator => Kind == BuildingKind.Treadmill || Kind == BuildingKind.WoodGenerator || Kind == BuildingKind.SteamGenerator;
         public bool IsConsumer => Kind == BuildingKind.ElectricLamp;
         public bool IsBattery => Kind == BuildingKind.Battery;
         public float Charge { get; internal set; }
         public bool Powered { get; internal set; }
         public CommanderAnt Runner { get; private set; }
         private float runnerSeconds, burnSeconds;
+        public const float SteamWatts = 400; // 잠정: 시추 100W + 정유 200W를 고체연료만으로 가동.
+        public float FuelSeconds => burnSeconds;
+        public void RestoreFuel(float value) => burnSeconds = Mathf.Clamp(value, 0, GameBalance.WoodBurnSeconds);
         private Light lamp;
 
         // 지금 내는 전력(W). 쳇바퀴는 최근 0.5초 안에 장수가 뛰었을 때만, 장작 발전기는 태울 재료가 있을 때만.
         public float Output => Kind == BuildingKind.Treadmill ? (runnerSeconds > 0 ? GameBalance.TreadmillWatts : 0)
-            : Kind == BuildingKind.WoodGenerator ? (burnSeconds > 0 ? GameBalance.WoodGeneratorWatts : 0) : 0;
+            : Kind == BuildingKind.WoodGenerator ? (burnSeconds > 0 ? GameBalance.WoodGeneratorWatts : 0)
+            : Kind == BuildingKind.SteamGenerator && burnSeconds > 0 ? SteamWatts : 0;
         public float Demand => IsConsumer ? GameBalance.LampWatts : 0;
         // 쳇바퀴를 돌릴 필요(PowerGrid.WantsPower).
         public bool NeedsRunner => Kind == BuildingKind.Treadmill && isActiveAndEnabled && !IsDead && PowerGrid.WantsPower(this);
@@ -38,7 +42,7 @@ namespace AntColony.Buildings
                 lamp.type = LightType.Point; lamp.range = 8; lamp.color = new Color(1, .95f, .8f); lamp.intensity = 2; lamp.enabled = false;
             }
         }
-        protected override void OnDisable() { Active.Remove(this); Runner = null; Powered = false; PowerGrid.MarkDirty(); base.OnDisable(); }
+        protected override void OnDisable() { Active.Remove(this); Runner = null; Powered = false; PowerGrid.Invalidate(); base.OnDisable(); }
 
         // 장수가 쳇바퀴에서 뛰는 한 틱. 필요 없어지면 false(작업 끝).
         public bool Run(CommanderAnt c, float seconds)
@@ -54,13 +58,15 @@ namespace AntColony.Buildings
         private void Update()
         {
             var dt = Time.deltaTime;
+            if (Time.timeScale <= 0 || !(dt > 0) || AntColony.Save.SaveSystem.Busy || !GameSession.Exists || !GameSession.Instance.GameStarted) return;
             runnerSeconds = Mathf.Max(0, runnerSeconds - dt);
-            if (Kind == BuildingKind.WoodGenerator)
+            if (Kind == BuildingKind.WoodGenerator || Kind == BuildingKind.SteamGenerator)
             {
                 burnSeconds = Mathf.Max(0, burnSeconds - dt);
                 // 전력이 필요할 때만 장작(재료 1)을 새로 넣는다.
                 if (burnSeconds == 0 && PowerGrid.WantsPower(this) && ResourceManager.Instance != null
-                    && ResourceManager.Instance.TrySpend(0, 1, reason: ResourceReason.Production)) burnSeconds = GameBalance.WoodBurnSeconds;
+                    && ResourceManager.Instance.TrySpend(Kind == BuildingKind.SteamGenerator ? AntColony.Data.ResourceType.Coal : AntColony.Data.ResourceType.Wood,
+                        1, ResourceReason.Production)) burnSeconds = GameBalance.WoodBurnSeconds;
             }
             if (lamp != null) lamp.enabled = Powered && GameCalendar.IsNight;
         }

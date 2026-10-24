@@ -26,6 +26,7 @@ namespace AntColony.Save
         public int commanderDeath = 1;
         public int seed;
         public int biome; // 옛 저장은 0 = None
+        public int climate; // 0 = 온대(구 저장 기본값)
     }
 
     [Serializable]
@@ -110,6 +111,7 @@ namespace AntColony.Save
     [Serializable]
     public class BuildingDto
     {
+        public string objectName; // 새 건물 키는 오브젝트 이름순이므로 이름을 보존해야 불러온 뒤에도 같은 순서·키가 된다(없으면 종류 이름).
         public Core.StoreBin.Dto storeBin; // v17: 창고 칸의 실제 재고·허용 품목·우선순위
         public bool packed; // v17: 회수·포장된 가구(기능 정지, 다시 설치 대기)
         public Buildings.WallFire.State fire; // 불타는 중인 건물만(남은 시간·소화 진행). 없으면 null
@@ -137,6 +139,9 @@ namespace AntColony.Save
         public bool labResearchAttack;
         public bool gateOpen = true; // Phase 5 성문
         public float powerCharge; // 2026-10-05 배터리 충전량
+        public float powerFuelSeconds;
+        public Buildings.SupplyFacility.State supply;
+        public Buildings.StarterCropBed.State starterCrop;
         public float coldness; // 2026-10-15 냉장고·냉동고 냉각 정도(0~1). 옛 저장은 0 = 상온에서 다시 냉각
         public int materialTier; // 2026-10-05 재료 업그레이드 단계(0 = 처음 재료). 재료 목록 미정
         public int mainMaterial = (int)Data.ResourceType.Soil; // v16 주재료(옛 저장은 흙)
@@ -190,6 +195,7 @@ namespace AntColony.Save
         public float amount;
         public float regrowTimer;
         public float sowRemaining; // 밭 파종 남은 작업량(2026-10-08). 옛 저장은 0 = 이미 심음.
+        public int seedCrop = -1; public string seedKey; // G28 야생 작물 종자 출처(-1 = 없음, 구저장 호환)
         public bool bountifulHarvest;
         public bool gatheringForbidden;
         public AntColony.Core.FoodLots lots; // 바닥 식품 신선도(2026-10-12). 옛 저장은 비어 있음 = 신선
@@ -247,6 +253,9 @@ namespace AntColony.Save
     [Serializable]
     public class TransportDto
     {
+        public string bossCarrierId;
+        public bool walking;
+        public float foodDebt, dockingRemaining;
         public bool blueprintCargo;
         public List<Units.EquipmentItem> equipmentCargo = new List<Units.EquipmentItem>();
         public bool aircraft;
@@ -257,11 +266,14 @@ namespace AntColony.Save
         public Vec3Dto homePosition = new Vec3Dto();
         public int cargoFood, cargoSoil, cargoSpecial;
         public RouteDto route = new RouteDto();
+        public List<World.CrewOrderState> crewOrders = new List<World.CrewOrderState>(); // G42 직접 지시 대기(구저장 빈 목록)
     }
 
     [Serializable]
     public class WorldDto
     {
+        public UI.SimulationPause.State pause;
+        public World.HomeDefenseReturn defenseReturn = new World.HomeDefenseReturn();
         public bool legacyLayout;
         public bool unlocked;
         public bool vehicleResearched;
@@ -294,10 +306,12 @@ namespace AntColony.Save
     [Serializable]
     public class SaveFileV1
     {
+        public Core.RocketCampaign.State rocket;
         public List<ResourceNodeDto> nodes = new List<ResourceNodeDto>();
         public List<MonsterDto> monsters = new List<MonsterDto>();
         public float upkeepTimer, incursionTimer;
         public bool loopCompleted, bossDefeated, defeated;
+        public string defeatReason; // G11 패배 사유(구저장 없음)
         public string randomState;
         public const int CurrentVersion = 19;
         public List<World.Corpse.State> corpses = new List<World.Corpse.State>();
@@ -307,6 +321,7 @@ namespace AntColony.Save
         public Core.CampaignHistory.State history = new Core.CampaignHistory.State();
         public World.ColonyEvents.State events = new World.ColonyEvents.State();
         public World.Memorial.State memorial; // 2026-10-15 사망 기록(이름·날짜·원인). 옛 저장은 null = 없음
+        public Buildings.FarmSeeds.State farmSeeds;
         public Map.WeatherSystem.State weather; // v13: 날씨(없으면 맑음으로 시작)
         public Core.ColonyPopulation.State population = new Core.ColonyPopulation.State(); // v12 Phase 4 인구
         public Units.WorkPriorities.State workPriorities; // 2026-10-09 대상 우선순위·노란/빨간 경보(없으면 기본값)

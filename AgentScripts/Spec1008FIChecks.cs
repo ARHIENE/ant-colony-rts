@@ -71,7 +71,8 @@ public static class Spec1008FIChecks
             var politicsXp = c.Talents.Xp(CommanderActivity.Politics) + c.Talents.Level(CommanderActivity.Politics) * 1000;
             Check(pop.Administration > 0 && pop.MonthlyTax >= lowTax, "admin raises collection");
             pop.AddAdministration(1e6f); Check(Mathf.Approximately(pop.Administration, 1) && !desk.NeedsWork, "admin saturates, desk idle");
-            var full = pop.S.adminWork; pop.Tick(60); Check(pop.S.adminWork < full && pop.S.adminWork > full * .8f, "admin decays slowly");
+            var full = pop.S.adminWork; var dailyWork = pop.AdminDemandWork;
+            pop.Tick(60); Check(Mathf.Abs(pop.S.adminWork - Mathf.Max(0, full - dailyWork * 60 / GameCalendar.SecondsPerDay)) < .0001f, "G17 admin consumed linearly per day");
 
             // 시민 생산력: 큰 아파트가 주거 배율을 올린다
             var before = ColonyPopulation.HousingProductivity;

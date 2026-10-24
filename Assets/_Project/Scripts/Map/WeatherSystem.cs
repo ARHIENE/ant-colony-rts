@@ -48,6 +48,8 @@ namespace AntColony.Map
         };
 
         public static WeatherKind Roll(Season season, MapBiome biome, float value)
+            => Roll(season, biome, value, GameSession.Exists ? GameSession.Instance.Options.climate : MapClimate.Temperate);
+        public static WeatherKind Roll(Season season, MapBiome biome, float value, MapClimate climate)
         {
             // 맑음·비·폭풍·안개·눈·눈보라 가중치(계절), 그다음 바이옴 보정.
             float[] w = season switch
@@ -56,6 +58,9 @@ namespace AntColony.Map
                 Season.Autumn => new float[] { 40, 25, 10, 25, 0, 0 }, _ => new float[] { 40, 0, 0, 10, 35, 15 }
             };
             float sand = 0;
+            // 기존 강수 가중치를 재사용한다. 기후별 별도 난수나 생존 배율은 추가하지 않는다.
+            if (climate == MapClimate.Cold) { w[4] += w[1]; w[5] += w[2]; w[1] = w[2] = 0; }
+            if (climate == MapClimate.TropicalWet) { w[1] += w[4]; w[2] += w[5]; w[4] = w[5] = 0; }
             if (biome == MapBiome.Waterside) { w[1] *= 1.5f; w[3] *= 1.5f; }
             if (biome == MapBiome.Desert) { w[0] += w[1] + w[4]; sand = w[2] + w[5]; w[1] = w[2] = w[4] = w[5] = 0; }
             if (biome == MapBiome.Cave) { w[0] += w[1] + w[2] + w[4] + w[5]; w[1] = w[2] = w[4] = w[5] = 0; } // 땅속: 비·눈 없음

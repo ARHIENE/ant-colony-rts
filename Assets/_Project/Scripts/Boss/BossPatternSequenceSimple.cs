@@ -30,7 +30,7 @@ namespace AntColony.Boss
         private int nextPatternIndex;
         private Transform currentTarget;
 
-        private void Start()
+        private void OnEnable()
         {
             if (circleAttack == null) circleAttack = GetComponent<BossCircleAoE>();
             if (coneAttack == null) coneAttack = GetComponent<BossConeAoE>();
@@ -38,6 +38,8 @@ namespace AntColony.Boss
 
             castTimer = firstCastDelay;
             searchTimer = 0f;
+            nextPatternIndex = 0;
+            currentTarget = null;
         }
 
         private void Update()

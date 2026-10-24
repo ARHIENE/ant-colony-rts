@@ -23,6 +23,7 @@ namespace AntColony.Boss
 
         private float currentHp;
         private bool deathProcessed;
+        public BossId? CampaignId { get; internal set; }
 
         public float CurrentHp => currentHp;
         public float MaxHp => maxHp;
@@ -67,11 +68,24 @@ namespace AntColony.Boss
         // 저장 복원 전용. 죽은 상태로는 복원하지 않는다(사망 처리는 전리품/이벤트를 동반하므로 되돌릴 수 없다).
         internal void RestoreHp(float value)
         {
+            deathProcessed = false;
             currentHp = Mathf.Clamp(value, 0f, maxHp);
             onHPChanged?.Invoke(currentHp, maxHp);
         }
 
         internal bool DeathProcessed => deathProcessed;
+
+        internal void Respawn()
+        {
+            deathProcessed = false; currentHp = maxHp; RootRemaining = 0;
+            foreach (var aoe in GetComponents<BossCircleAoE>()) aoe.enabled = true;
+            foreach (var aoe in GetComponents<BossConeAoE>()) aoe.enabled = true;
+            foreach (var aoe in GetComponents<BossLineAoE>()) aoe.enabled = true;
+            foreach (var loop in GetComponents<BossBasicPatternLoop>()) loop.enabled = true;
+            foreach (var sequence in GetComponents<BossPatternSequenceSimple>()) sequence.enabled = true;
+            gameObject.SetActive(true);
+            onHPChanged?.Invoke(currentHp, maxHp);
+        }
 
         // 저장 복원 전용. 이미 쓰러져 있던 보스를 전리품/이벤트 없이 쓰러진 상태로만 되돌린다.
         internal void RestoreDefeated()
@@ -105,6 +119,8 @@ namespace AntColony.Boss
             // onHPChanged 구독자가 비치명 피격 중 치명타를 넣으면 안쪽/바깥쪽 TakeDamage가 모두 여기로 온다.
             if (deathProcessed) return;
             deathProcessed = true;
+            if (CampaignId.HasValue)
+                CampaignResearch.Instance?.BossProgress.RecordKill(CampaignId.Value, GameCalendar.GameSeconds);
 
             var circle = GetComponent<BossCircleAoE>();
             if (circle != null) circle.enabled = false;
@@ -129,6 +145,9 @@ namespace AntColony.Boss
             }
             BossLoot.Drop(transform.position, radius, foodReward, specialReward);
             CampaignHistory.Record("보스 처치", gameObject.name, GetComponentInParent<AntColony.World.ExpeditionSite>()?.Title ?? "본거지");
+            if (CampaignId.HasValue)
+                AntColony.UI.ToastManager.Show("보스 " + CampaignId.Value + " 처치 · " + BossProgress.Reward(CampaignId.Value)
+                    + " · 보상을 실어 본거지에 반입한 뒤 과학 시설에서 다음 탐지를 확인하세요.");
 
             GameManager.Instance?.ReportBossDefeated();
             onDead?.Invoke();

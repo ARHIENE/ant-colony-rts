@@ -33,7 +33,7 @@ public static class ImplB2Checks
         var random = UnityEngine.Random.state;
         var template = (GameObject)typeof(BuildingPlacementController).GetMethod("GetTemplate", BindingFlags.Static | BindingFlags.NonPublic)
             .Invoke(null, new object[] { BuildingKind.Hut, UnitRole.Worker });
-        var hut = Object.Instantiate(template, Object.FindAnyObjectByType<Stockpile>().Position + Vector3.right * 12, Quaternion.identity);
+        var hut = Object.Instantiate(template, (Object.FindAnyObjectByType<Stockpile>() is { } pile ? pile.Position : Vector3.zero) + Vector3.right * 12, Quaternion.identity);
         hut.SetActive(true); await Task.Yield();
         try
         {

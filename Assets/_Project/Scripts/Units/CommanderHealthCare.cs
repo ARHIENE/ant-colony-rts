@@ -32,7 +32,7 @@ namespace AntColony.Units
                 AntColony.UI.ToastManager.SetCrisis("med:" + personalState.id, null);
                 OnDowned(cause, true); return;
             }
-            if (h.Downed && PersonalHealth > 0) { CommandStop(); DropCargo(); WorkState.health = 0; WorkState.recoverySeconds = Mathf.Max(WorkState.recoverySeconds, 1f); }
+            if (h.Downed && PersonalHealth > 0) { CommandStop(); DropCargo(); WorkState.health = 0; WorkState.unconsciousSeconds = 0; WorkState.recoverySeconds = GameCalendar.SecondsPerDay; }
             // 병상 퇴원: 처치가 끝나고 중상이 아니며 대기 중인 수술이 없을 때.
             if (TreatmentFacility != null && !h.Downed && !h.Serious && !h.NeedsTend && !h.surgeries.Any(s => s.Active)) { TreatmentFacility.Release(this); MoodEvent("치료 완료", 3); }
             if (!IsColonyMember || IsHostile) return;
@@ -55,7 +55,7 @@ namespace AntColony.Units
             if (h.medicine == MedicineLevel.NoCare) return "치료 안 함 설정";
             if (p.PersonalHealth <= 0 && p.TreatmentFacility == null && p.RescueCarrier == null && FreeBed(p.Position) == null) return "구조할 자리 없음(빈 의료 침상 필요)";
             if (!h.NeedsTend) return "";
-            if (!HomePatients().Any(d => d != p && d.AllowsJob(CommanderJobs.Nursing)) && !(h.selfTend && p.AllowsJob(CommanderJobs.Nursing))) return "치료할 장수 없음";
+            if (!HomePatients().Any(d => d != p && d.CivilianWorkReady && d.AllowsJob(CommanderJobs.Nursing)) && !p.CanSelfTend) return "치료할 장수 없음";
             var meds = MedicalRules.BestMedicine(h.medicine, FreeMedicine) >= 0;
             if (h.illnesses.Any(i => i.NeedsTend) && !meds && !h.wounds.Any(w => w.NeedsTend))
                 return h.medicine == MedicineLevel.NoMedicine ? "약 없이 설정 — 질병 투약 불가" : "약품 부족(투약 불가)";
@@ -76,7 +76,7 @@ namespace AntColony.Units
             foreach (var p in HomePatients())
             {
                 var h = p.Health; var patient = p;
-                if (MedicalRules.NeedsDoctor(h, MedicineAllowed(h)) && !Taken(p, MedJob.Tend) && (p != this || h.selfTend && !h.Downed && Health.Manipulation > .3f))
+                if (MedicalRules.NeedsDoctor(h, MedicineAllowed(h)) && !Taken(p, MedJob.Tend) && (p != this || CanSelfTend))
                     list.Add((Urgency(h), p, () => StartMed(MedJob.Tend, patient)));
                 if (p.IsMedicalPatient && p.Satiety < GameBalance.EatBelowSatiety && p != this && !Taken(p, MedJob.Feed) && HasFood())
                     list.Add((Urgency(h), p, () => StartMed(MedJob.Feed, patient)));
@@ -156,7 +156,7 @@ namespace AntColony.Units
 
         private bool StartMed(MedJob job, CommanderAnt patient)
         {
-            if (patient == null || !CivilianWorkReady || IsCarrying) return false;
+            if (patient == null || (patient == this ? job != MedJob.Tend || !CanSelfTend : !CivilianWorkReady) || IsCarrying) return false;
             if (patient != this && !TryWorkApproach(patient.Position, out var approach)) return false;
             CommandStop(); medJob = job; medPatient = patient; medWork = 0;
             if (patient != this && TryWorkApproach(patient.Position, out approach)) SetMoveDestination(approach);
@@ -174,7 +174,7 @@ namespace AntColony.Units
             if (medJob == MedJob.None) return false;
             if (medCamp != null) return TickCampMed(seconds);
             var p = medPatient;
-            if (p == null || p.IsDead || !CivilianWorkReady || p.IsAwayFromHome) { if (p != null && p.RescueCarrier == this) p.RescueCarrier = null; EndMed(); return false; }
+            if (p == null || p.IsDead || (p == this ? !CanSelfTend : !CivilianWorkReady) || p.IsAwayFromHome) { if (p != null && p.RescueCarrier == this) p.RescueCarrier = null; EndMed(); return false; }
             if (medJob == MedJob.Rescue) return TickRescue(p);
             if (p != this && (p.Position - Position).sqrMagnitude > 6.25f)
             {
@@ -187,7 +187,7 @@ namespace AntColony.Units
             switch (medJob)
             {
                 case MedJob.Tend:
-                    if (medWork < MedicalRules.TendSeconds) return true;
+                    if (medWork < MedicalRules.TendSeconds * (p == this ? 2 : 1)) return true;
                     var h = p.Health; var rm = ResourceManager.Instance;
                     var tier = MedicalRules.BestMedicine(h.medicine, FreeMedicine);
                     var quality = MedicalRules.TendQuality(talents.Level(CommanderActivity.Medicine), tier, p.TreatmentFacility != null, Health.Manipulation, p == this);

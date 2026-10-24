@@ -18,7 +18,7 @@ namespace AntColony.Units
         public bool StartCorpseWork(Corpse corpse, bool eat = false)
         {
             if (!CivilianWorkReady || !CanReceiveOrders || LabUpgradeBusy || IsCarrying || IsConstructing || IsEating || IsPlaying || IsFoodPoisoned
-                || corpse == null || !corpse.Available || corpse.Handler != null && corpse.Handler != this
+                || corpse == null || corpse.IsCommanderBody || !corpse.Available || corpse.Handler != null && corpse.Handler != this
                 || eat && (!traits.Has(CommanderTrait.Cannibal) || !corpse.Edible)
                 || !SameBattlefield(corpse.Position) || !TryWorkApproach(corpse.Position, out var approach)
                 || (approach - corpse.Position).sqrMagnitude > 4) return false;

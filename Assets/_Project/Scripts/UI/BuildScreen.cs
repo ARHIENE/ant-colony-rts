@@ -35,19 +35,22 @@ namespace AntColony.UI
             new[] { new Entry("창고", BuildingKind.Storage), new Entry("저장고", BuildingKind.FoodStore), new Entry("항아리", BuildingKind.Jar), new Entry("냉장고", BuildingKind.Fridge), new Entry("냉동고", BuildingKind.Freezer), new Entry("퇴비통", BuildingKind.CompostBin) },
             new[] { new Entry("전등", BuildingKind.ElectricLamp), new Entry("화롯불", BuildingKind.Brazier), new Entry("등불", BuildingKind.Lantern), new Entry("횃불", BuildingKind.Torch) }, // 환경: TODO 난로·환풍구(보온 연구)
             new[] { new Entry("쳇바퀴", BuildingKind.Treadmill), new Entry("장작 발전기", BuildingKind.WoodGenerator), new Entry("전선", BuildingKind.PowerWire),
-                new Entry("배터리", BuildingKind.Battery) },
+                new Entry("배터리", BuildingKind.Battery), new Entry("증기 발전기", BuildingKind.SteamGenerator),
+                new Entry("석유 시추기", BuildingKind.OilDrill), new Entry("정유기", BuildingKind.OilRefinery), new Entry("연료 충전기", BuildingKind.FuelCharger) },
             new Entry[0], // 자동화: TODO 센서·논리(신호선)
-            new Entry[0], // 배관: TODO 배관·펌프·밸브·액체 탱크
+            new[] { new Entry("수동 우물", BuildingKind.ManualWell), new Entry("급수 펌프", BuildingKind.WaterPump),
+                new Entry("배관", BuildingKind.FluidPipe), new Entry("유체 탱크", BuildingKind.FluidTank) },
             new[] { new Entry("밭", BuildingKind.Farm), new Entry("버섯밭", BuildingKind.MushroomFarm), new Entry("축사", BuildingKind.AphidPen), new Entry("화덕", BuildingKind.Hearth),
                 new Entry("우리 표지", BuildingKind.Pen), new Entry("먹이통", BuildingKind.Feeder), new Entry("돌봄대", BuildingKind.CareStation),
-                new Entry("동물 치료대", BuildingKind.AnimalClinic), new Entry("도축대", BuildingKind.ButcherTable) },
+                new Entry("동물 치료대", BuildingKind.AnimalClinic), new Entry("도축대", BuildingKind.ButcherTable),
+                new Entry("재배 화분", BuildingKind.PlanterBed), new Entry("초기 버섯 배지", BuildingKind.StarterMushroomBed) },
             new[] { new Entry("근접 연구소", BuildingKind.ResearchLab, UnitRole.Melee), new Entry("원거리 연구소", BuildingKind.ResearchLab, UnitRole.Ranged),
                 new Entry("방패 연구소", BuildingKind.ResearchLab, UnitRole.Defense), new Entry("지휘 연구소", BuildingKind.ResearchLab, UnitRole.Support),
                 new Entry("비행 연구소", BuildingKind.ResearchLab, UnitRole.Flying), new Entry("정착지 연구대", BuildingKind.ScienceLab),
                 new Entry("방어 연구소", BuildingKind.DefenseLab), new Entry("공방", BuildingKind.Workshop),
                 new Entry("기초 목공대", BuildingKind.Carpentry), new Entry("석공대", BuildingKind.Stonecutter), new Entry("가마", BuildingKind.Kiln),
                 new Entry("물레", BuildingKind.SpinningWheel), new Entry("용광로", BuildingKind.Smelter) },
-            new[] { new Entry("의무실", BuildingKind.Infirmary), new Entry("약제대", BuildingKind.MedicineBench), new Entry("묘비", BuildingKind.Tombstone) },
+            new[] { new Entry("의무실", BuildingKind.Infirmary), new Entry("약제대", BuildingKind.MedicineBench), new Entry("묘비", BuildingKind.Tombstone), new Entry("시민 진료소", BuildingKind.CitizenClinic) },
             new[] { new Entry("성벽", BuildingKind.CastleWall), new Entry("성문", BuildingKind.Gate), new Entry("끈끈이 함정", BuildingKind.TrapPit), new Entry("가시 함정", BuildingKind.SpikeTrap),
                 new Entry("지뢰밭", BuildingKind.MineField), new Entry("산성탑", BuildingKind.AcidTower), new Entry("광역 산성탑", BuildingKind.AreaAcidTower),
                 new Entry("감시탑", BuildingKind.Watchtower) },
@@ -65,7 +68,7 @@ namespace AntColony.UI
                 new Entry("방패 훈련장", BuildingKind.Barracks, UnitRole.Defense), new Entry("지휘 훈련장", BuildingKind.Barracks, UnitRole.Support),
                 new Entry("비행 훈련장", BuildingKind.Barracks, UnitRole.Flying), new Entry("징집소", BuildingKind.ConscriptionPost),
                 new Entry("정찰 초소", BuildingKind.ScoutPost), new Entry("포로 수용소", BuildingKind.PrisonerCamp), new Entry("무기고", BuildingKind.Armory) },
-            new[] { new Entry("초가집", BuildingKind.Hut), new Entry("흙집", BuildingKind.House), new Entry("큰 아파트", BuildingKind.Apartment), new Entry("행정 책상", BuildingKind.AdminDesk) },
+            new[] { new Entry("초가집", BuildingKind.Hut), new Entry("흙집", BuildingKind.House), new Entry("큰 아파트", BuildingKind.Apartment), new Entry("행정 책상", BuildingKind.AdminDesk), new Entry("학당", BuildingKind.School), new Entry("공공서비스", BuildingKind.CivicPublicService) },
             new[] { new Entry("로켓 발사대", BuildingKind.AirshipYard) }
         };
         private static int TabOf(string name) => System.Array.IndexOf(TabNames, name);

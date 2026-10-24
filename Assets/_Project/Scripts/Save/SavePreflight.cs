@@ -8,7 +8,7 @@ using UnityEngine;
 
 namespace AntColony.Save
 {
-    public static class SavePreflight
+    public static partial class SavePreflight
     {
         private static void Check(bool valid, string field) { if (!valid) throw new FormatException("Invalid " + field + "."); }
         private static bool N(float n) => !float.IsNaN(n) && !float.IsInfinity(n) && n >= 0 && n <= 100000000;
@@ -42,6 +42,9 @@ namespace AntColony.Save
             try
             {
                 Check(DateTime.TryParse(f.savedAtUtc, out _) && f.camera != null, "save header");
+                ValidateIntegration(f);
+                Check(AntColony.Core.RocketCampaign.Validate(f.rocket), "rocket campaign");
+                Check(f.rocket == null || f.rocket.economy.samples.All(s => s.at <= f.gameSeconds), "rocket economy dates");
                 Check(N(f.playSeconds) && N(f.gameSeconds) && N(f.upkeepTimer) && N(f.incursionTimer), "timers");
                 Check(f.upkeepFailures >= 0, "upkeep failures");
                 Check(Core.CampaignResearch.Validate(f.campaign, out _), "campaign research");
@@ -126,6 +129,10 @@ namespace AntColony.Save
                     Check(b.workforce >= 0 && N(b.repairCredit) && b.repairCredit <= 100000000
                         && b.decorationQuality >= 0 && b.decorationQuality <= 3 && Kitchen.Valid(b.kitchen), "workforce/repair/kitchen/decoration");
                     Check(b.key != null && V(b.position) && N(b.health) && !float.IsNaN(b.rotationY) && !float.IsInfinity(b.rotationY), "building");
+                    Check(N(b.powerFuelSeconds) && b.powerFuelSeconds <= Core.GameBalance.WoodBurnSeconds, "power fuel");
+                    Check(!Enum.TryParse<BuildingKind>(b.kind, out var supplyKind) || !Buildings.SupplyFacility.IsKind(supplyKind)
+                        || b.supply == null || Buildings.SupplyFacility.Valid(b.supply), "supply facility");
+                    Check(b.kind != "PlanterBed" && b.kind != "StarterMushroomBed" || b.starterCrop == null || Buildings.StarterCropBed.Valid(b.starterCrop), "starter crop");
                     Check(N(b.powerCharge) && b.powerCharge <= Core.GameBalance.BatteryCapacity
                         && (b.kind == "Battery" || b.powerCharge == 0) && b.materialTier >= 0 && Enum.IsDefined(typeof(ResourceType), b.mainMaterial) && ((ResourceType)b.mainMaterial).IsMaterial(), "building power/material");
                     Check(new[] { b.barracksUpgradeRemaining, b.labResearchRemaining, b.queenProductionRemaining, b.queenFishingRemaining, b.scienceRemaining,
@@ -136,7 +143,13 @@ namespace AntColony.Save
                     Check(b.scienceTier >= 1 && b.scienceTier <= Buildings.ScienceLab.MaxTier && b.scientist >= -1 && b.scientist < f.commanders.Count, "scientist/tier");
                     if (b.scientist >= 0) Check(b.kind == "ScienceLab" && targets.Add(b.scientist)
                         && f.commanders[b.scientist].location == 0 && !f.commanders[b.scientist].personalState.dead, "scientist ownership");
-                    Check(AirshipYard.Validate(b.airship, f.commanders.Count, out _), "airship");
+                    Check(b.kind != "AirshipYard" || AirshipYard.Validate(b.airship, f.commanders.Count, out _), "airship");
+                    if (b.kind == "AirshipYard" && b.airship != null)
+                    {
+                        Check(!Core.RocketSnapshot.Present(b.airship.snapshot) || b.airship.snapshot.at <= f.gameSeconds, "rocket snapshot date");
+                        Check(b.airship.passengers.Sum(id => 1L + f.commanders[id].troopCount) + b.airship.civilianPassengers
+                            <= AirshipYard.BaseSeats + AirshipYard.SeatsPerModule * b.airship.cocoons, "rocket occupied seats");
+                    }
                     var w = b.workshop;
                     Check(w != null, "workshop state"); L(w.jobs, Core.GameBalance.CraftQueueCapacity, "craft queue");
                     if (w.orders != null)
@@ -157,7 +170,7 @@ namespace AntColony.Save
                         && targets.Add(id) && f.commanders[id].location == 0 && f.commanders[id].activeInScene
                         && !f.commanders[id].personalState.dead && f.commanders[id].personalState.treating
                         && f.commanders[id].personalState.mentalBreak == MentalBreak.None, "patient ownership");
-                    if (b.airship != null && b.airship.passengers != null)
+                    if (b.kind == "AirshipYard" && b.airship != null && b.airship.passengers != null)
                         foreach (var id in b.airship.passengers) Check(b.kind == "AirshipYard" && targets.Add(id)
                             && f.commanders[id].location == 0 && !f.commanders[id].personalState.dead, "airship passenger ownership");
                     Check(new[] { b.scoutDispatchedAnts, b.scoutSuccess, b.scoutFailure, b.prisonRecruited, b.prisonExecuted, b.prisonEscaped, b.nurseryBirths }.All(v => v >= 0), "building counters");
@@ -179,7 +192,8 @@ namespace AntColony.Save
                 for (var i = 0; i < f.world.sites.Count; i++) { var s = f.world.sites[i]; Check(s != null && s.index == i && s.disposition >= 0 && s.disposition <= 3
                     && N(s.growthTimer) && N(s.settlementElapsed) && N(s.defenseRemaining) && N(s.defenseCaptureProgress), "site state"); Colony(s.colony); }
                 Colony(f.world.homeColony);
-                var occupied = new HashSet<int>();
+                Check(UI.SimulationPause.Valid(f.world.pause), "pause state");
+                Check(f.world.defenseReturn == null || f.world.defenseReturn.disabled != null && f.world.defenseReturn.disabled.Count <= 10000 && f.world.defenseReturn.disabled.All(id => !string.IsNullOrEmpty(id)), "defense return");
                 for (var i = 0; i < f.world.transports.Count; i++)
                 {
                     var s = f.world.transports[i]; Check(s != null && s.state >= 0 && s.state <= 3 && N(s.remaining) && s.siteIndex >= -1 && s.siteIndex < f.world.sites.Count
@@ -187,12 +201,12 @@ namespace AntColony.Save
                     Check(s.state == 0 || s.siteIndex >= 0, "transport destination");
                     L(s.equipmentCargo, 10000, "equipment cargo");
                     foreach (var item in s.equipmentCargo) Check(item != null && item.IsValid && equipmentIds.Add(item.id), "equipment cargo ownership");
-                    if (s.state == 1 || s.state == 2) Check(occupied.Add(s.siteIndex), "duplicate visitor");
+                    Check(N(s.foodDebt) && s.foodDebt <= 100000000 && N(s.dockingRemaining) && s.dockingRemaining <= World.ExpeditionRules.DockSeconds && !(s.walking && s.aircraft), "expedition state");
                     Check(s.route != null && N(s.route.waitSeconds) && s.route.destinationIndex >= -1 && s.route.destinationIndex < f.world.sites.Count
                         && (!s.route.running || s.route.destinationIndex >= 0 && f.world.sites[s.route.destinationIndex].disposition == 1 ), "route");
                     var crew = f.commanders.Where(c => c.location == 1 && c.transportIndex == i).ToArray();
                     var heavy = f.campaign.completed.Contains((int)Core.ScienceTechnology.HeavyTransport);
-                    Check(crew.Sum(c => (long)c.troopCount) <= (s.aircraft ? Core.GameBalance.AircraftTroops : Core.GameBalance.VehicleTroops) * (heavy ? 1.5f : 1f)
+                    Check(s.walking || crew.Sum(c => (long)c.troopCount) <= (s.aircraft ? Core.GameBalance.AircraftTroops : Core.GameBalance.VehicleTroops) * (heavy ? 1.5f : 1f)
                         && crew.Length <= (s.aircraft ? Core.GameBalance.AircraftCommanders : Core.GameBalance.VehicleCommanders) + (heavy ? 2 : 0), "transport capacity");
                 }
                 Check(f.nodes.All(n => n != null && n.key != null && N(n.amount) && N(n.regrowTimer) && N(n.sowRemaining) && n.fishMonth >= -1 && V(n.position) && Enum.IsDefined(typeof(ResourceType), n.type))

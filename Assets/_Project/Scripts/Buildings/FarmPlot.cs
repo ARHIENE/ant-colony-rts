@@ -27,6 +27,8 @@ namespace AntColony.Buildings
             public bool fallow, pest, uproot, fertilize, fertilized;
             public float uprootWork, fertilizeWork, pestTimer;
             public int nextCrop = -1;
+            public int seedVersion, harvests;
+            public bool seedPending;
         }
         public State Data { get; private set; } = new State();
         public FarmCrop Crop { get; private set; }
@@ -43,19 +45,22 @@ namespace AntColony.Buildings
                 var scale = transform.localScale; scale.x *= WideFactor; transform.localScale = scale;
                 Wide = true;
             }
+            if (Crop != crop) Data.harvests = 0;
             Crop = crop;
             node.ConfigureRegrowth(
                 crop == FarmCrop.Honeydew ? GameBalance.HoneydewSeconds : crop == FarmCrop.AdvancedFungus ? GameBalance.AdvancedFungusSeconds : GameBalance.FungusSeconds,
                 crop == FarmCrop.Honeydew ? GameBalance.HoneydewFood : crop == FarmCrop.AdvancedFungus ? GameBalance.AdvancedFungusFood : GameBalance.FungusFood);
+            if (Data.seedVersion == 0) { Data.seedVersion = 1; Data.seedPending = true; Node.ClearCrop(); }
         }
-        public void RestoreState(State s) { Data = s ?? new State(); }
+        public void RestoreState(State s) { Data = s ?? new State(); Data.seedVersion = 1; }
 
         // 가뭄 성장 감소(4단계 이벤트가 사용). 감로는 항상 -20%만 받는다.
         public float DroughtPenalty => Crop == FarmCrop.Honeydew ? .2f : ScienceEffects.DroughtGrowthPenalty;
         public bool Planted => !Data.fallow && !Node.NeedsSowing;
         public bool Growing => Planted && Node.IsRegrowing;
         // ResourceNode.TickGrowth가 곱하는 밭 고유 배율(병충해·비료).
-        public float GrowthMultiplier => (Data.pest ? PestGrowth : 1f) * (Data.fertilized ? FertilizedGrowth : 1f);
+        public float GrowthMultiplier => Data.seedPending ? 0 : (Data.pest ? PestGrowth : 1f) * (Data.fertilized ? FertilizedGrowth : 1f);
+        public int SeedCost => Wide ? 2 : 1;
         public bool NeedsFertilizer => Data.fertilize && !Data.fertilized && Growing && ResourceManager.Instance != null && ResourceManager.Instance.GetAmount(ResourceType.Fertilizer) > 0;
         // 장수가 와서 해야 할 손일(파종·수확 외).
         public bool HasHandWork => Data.uproot || NeedsFertilizer;
@@ -67,6 +72,7 @@ namespace AntColony.Buildings
             {
                 if (Data.uproot) return "뿌리뽑기 지시 대기";
                 if (Data.fallow) return "빈 밭 · 다시 심기 필요";
+                if (Data.seedPending) return $"종자 대기 · {Crop} {FarmSeeds.Count(Crop)}/{SeedCost}";
                 if (Node.NeedsSowing) return "파종 대기";
                 if (ColonyEvents.Flooded(Node)) return "홍수 · 작업 불가";
                 if (Node.IsRegrowing && GameCalendar.CurrentSeason == Season.Winter) return "겨울 · 성장 정지";
@@ -80,7 +86,7 @@ namespace AntColony.Buildings
         {
             if (!Data.fallow) return;
             if (Data.nextCrop >= 0) { Configure((FarmCrop)Data.nextCrop, Wide); Data.nextCrop = -1; }
-            Data.fallow = false; Node.StartSowing();
+            Data.seedVersion = 1; Data.seedPending = true; Data.fallow = false; Node.ClearCrop();
         }
         // 작물 변경은 다음 수확(빈 밭이면 다시 심을 때) 이후 적용한다.
         public void SetNextCrop(FarmCrop crop) => Data.nextCrop = crop == Crop ? -1 : (int)crop;
@@ -90,16 +96,23 @@ namespace AntColony.Buildings
 
         internal void OnHarvested()
         {
+            if (++Data.harvests >= 3) { Data.harvests = 0; FarmSeeds.Add(Crop, SeedCost); }
             if (Crop == FarmCrop.AdvancedFungus && Random.value < GameBalance.AdvancedFungusSpecialChance)
                 ResourceManager.Instance?.Add(ResourceType.Special, GameBalance.AdvancedFungusSpecial);
             Data.fertilized = false; // 다음 성장 주기에는 다시 비료가 필요하다
-            if (Data.nextCrop >= 0) { var next = (FarmCrop)Data.nextCrop; Data.nextCrop = -1; Configure(next, Wide); Node.RestartGrowth(); }
+            if (Data.nextCrop >= 0) { var next = (FarmCrop)Data.nextCrop; Data.nextCrop = -1; Configure(next, Wide); Data.seedPending = true; Node.ClearCrop(); }
         }
 
         private void Update() { if (!AntColony.Save.SaveSystem.Busy) Tick(Time.deltaTime); }
         public void Tick(float seconds)
         {
             if (!(seconds > 0) || float.IsInfinity(seconds)) return;
+            if (Data.seedPending && !Data.fallow)
+            {
+                Node.ClearCrop();
+                if (!FarmSeeds.Take(Crop, SeedCost)) return;
+                Data.seedPending = false; Node.StartSowing();
+            }
             var labor = Labor(seconds);
             if (Data.uproot)
             {

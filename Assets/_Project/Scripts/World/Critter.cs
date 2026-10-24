@@ -334,7 +334,7 @@ namespace AntColony.World
             timer += Time.deltaTime; if (timer < GameCalendar.SecondsPerMonth) return; timer = 0;
             if (Critter.All.Count(c => c != null && !c.Tame && !c.Managed) >= GameBalance.WildCritterTarget) return;
             rng ??= new System.Random(GameSession.Instance.Options.seed + Environment.TickCount);
-            var home = FindFirstObjectByType<Stockpile>()?.Position ?? Vector3.zero;
+            var home = ResourceManager.HomePosition;
             Critter.Spawn((Species)rng.Next(0, 4), Critter.RingPoint(home, rng), false);
         }
     }

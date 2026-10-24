@@ -11,6 +11,9 @@ namespace AntColony.World
     public static class DiplomacyRules
     {
         public const float Month = 300, Year = 12 * Month, PeaceDelay = 600, CaravanSeconds = 90;
+        public const float Season = AntColony.Core.GameCalendar.SecondsPerSeason;
+        public const float OfferSeconds = Season, UltimatumGrace = 3 * AntColony.Core.GameCalendar.SecondsPerDay;
+        public const float WeaknessRatio = 1.5f;
         public const int BlueprintPrice = 150, SurprisePenalty = -30, MonthlyTradeAmount = 10;
         public const float OfferChance = .25f, TraderOfferChance = .5f, HostileWarChance = .3f, ConquerorWarChance = .2f, AirshipRaidChance = .2f;
         public static readonly int[] EquipmentValues = { 40, 80, 160, 320 };
@@ -31,6 +34,7 @@ namespace AntColony.World
         public int threatCred; // 이 세력이 보는 우리 위협 신뢰(-100~100). 최후통첩 실행 시 상승, 철회 시 하락, 매달 0으로 서서히 회복.
         public float talksCooldown; // 협상 결렬 뒤 재협상 가능 시각(조건을 크게 개선하면 더 일찍 가능).
         public float warStarted, founded, nextRaid, nextOffer, offerExpires;
+        public float contactedAt, nextConquestCheck;
         public TreatyKind offeredTreaty;
         public float[] treaties = new float[3];
         public List<string> reasons = new List<string>();

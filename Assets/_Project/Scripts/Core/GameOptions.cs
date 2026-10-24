@@ -17,6 +17,7 @@ namespace AntColony.Core
         public CommanderDeathMode commanderDeath = CommanderDeathMode.Normal;
         public int seed = 12345;
         public MapBiome biome; // 새 게임 화면이 게임 시작 때 무작위로 정한다. None = 보정 없음(옛 저장·검사)
+        public MapClimate climate; // 한랭·열대/습지는 독립 바이옴 대신 기후 변형.
         public int startingCount = 3;
         public StartingCandidate[] startingTeam;
 

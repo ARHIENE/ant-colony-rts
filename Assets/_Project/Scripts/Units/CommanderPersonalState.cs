@@ -11,7 +11,7 @@ namespace AntColony.Units
     public enum MentalBreak { None, Idle, Flee, AttackBuilding, AttackCommander, SelfHarm, Binge, Wander }
     [Serializable] public class CommanderInjury { public InjuryPart part; public InjurySeverity severity; public float remaining; public bool regenerating, prognosisPending; }
     [Serializable] public class MoodFactor { public string reason; public float value, remaining; }
-    [Serializable] public class CommanderRelation { public string otherId; public float value, nearbySeconds, quarrelSeconds, duelSeconds, memorialCooldown; public bool spouse, family; }
+    [Serializable] public class CommanderRelation { public string otherId; public float value, nearbySeconds, quarrelSeconds, duelSeconds, memorialCooldown; public bool spouse, family; public int lastComfortDay = -1; }
     [Serializable]
     public class CommanderPersonalState
     {
@@ -30,6 +30,8 @@ namespace AntColony.Units
         public float craftProgress, researchProgress;
         public float beautyExposure; // 생활 공간 미관의 체류 평균(2026-10-10)
         public float ageMonths = -1, lifespanMonths; // Phase 4 나이(개월)
+        public int ageScaleVersion;
+        public List<string> deathEvents = new List<string>();
         public int craftLevel, researchLevel;
         public int expectationTier; // 저재산 0 / 정착지급 1 / 산업급 2
         public MentalBreak mentalBreak;
@@ -83,6 +85,9 @@ namespace AntColony.Units
         public bool Validate(out string error)
         {
             error = "Invalid commander personal state";
+            deathEvents ??= new List<string>();
+            if (ageScaleVersion < 0 || ageScaleVersion > 1 || !Finite(ageMonths) || ageMonths < -1
+                || deathEvents.Exists(string.IsNullOrEmpty) || new HashSet<string>(deathEvents).Count != deathEvents.Count) return false;
             if (expectationTier < 0 || expectationTier > 2 || toolTier < 0 || toolTier > 2 || carriedRations != null && !carriedRations.Valid
                 || groundCraft != null && !groundCraft.Valid) return false;
             if (work == null || !work.Valid || string.IsNullOrEmpty(id) || social == null || !social.Validate() || sleep == null || !sleep.Valid || meal == null || !meal.Valid || joy == null || !joy.Valid || hygiene == null || !hygiene.Valid || health == null || health.wounds == null || health.illnesses == null || health.surgeries == null
