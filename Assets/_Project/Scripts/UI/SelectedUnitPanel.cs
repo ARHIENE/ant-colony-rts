@@ -11,12 +11,12 @@ namespace AntColony.UI
     // 초상 클릭 = 상세 탭 창(전체 기술·포상·연구), 무기 칸 클릭 = 무기 교체.
     public class SelectedUnitPanel : MonoBehaviour
     {
-        public static readonly string[] ActivityNames = { "채집", "건설", "농사", "낚시", "제작", "연구", "근접", "원거리", "지휘", "의료", "요리", "근력", "예술", "정치", "사육" };
+        public static readonly string[] ActivityNames = { "채집", "건설", "농사", "낚시", "제작", "연구", "근접", "원거리", "지휘", "의료", "요리", "근력", "예술", "정치", "사육", "소방" };
 
         private SelectionManager selection;
         private GameObject panel;
         private Text portrait, header, job, healthText, topSkills;
-        private RawImage portraitAnt;
+        private RawImage portraitFace;
         private RectTransform troopFill, healthFill;
         private readonly Text[] statValues = new Text[3], statNotes = new Text[3], needValues = new Text[4];
         private readonly RectTransform[] needFills = new RectTransform[4]; // 욕구 4종: 배고픔·피로·오락·위생
@@ -53,10 +53,10 @@ namespace AntColony.UI
             por.gameObject.AddComponent<MenuTooltip>().Message = "초상 클릭: 상세·나이·특성·전체 기술·포상·연구";
             portrait = Label(por, "", 21, Vector2.zero, new Vector2(110, 126), MenuTheme.Selection);
             portrait.alignment = TextAnchor.MiddleCenter;
-            var ant = MenuTheme.Rect("PortraitAnt", por);
-            ant.anchorMin = ant.anchorMax = ant.pivot = new Vector2(.5f, 1);
-            ant.sizeDelta = new Vector2(80, 80); ant.anchoredPosition = new Vector2(0, -8);
-            portraitAnt = ant.gameObject.AddComponent<RawImage>(); portraitAnt.texture = RosterBar.AntFace; portraitAnt.raycastTarget = false;
+            var face = MenuTheme.Rect("PortraitFace", por);
+            face.anchorMin = face.anchorMax = face.pivot = new Vector2(.5f, 1);
+            face.sizeDelta = new Vector2(80, 80); face.anchoredPosition = new Vector2(0, -8);
+            portraitFace = face.gameObject.AddComponent<RawImage>(); portraitFace.raycastTarget = false;
             string[] slotNames = { "무기", "방어구", "장신구" };
             string[] objectNames = { "Weapon", "Armor Slot", "Trinket Slot" };
             for (var i = 0; i < 3; i++)
@@ -156,7 +156,7 @@ namespace AntColony.UI
             var c = count == 1 ? first as CommanderAnt : null;
             if (c == null)
             {
-                portrait.text = count.ToString(); portraitAnt.gameObject.SetActive(false);
+                portrait.text = count.ToString(); portraitFace.gameObject.SetActive(false);
                 header.text = count > 1 ? $"<size=17><b><color=#efe7da>선택된 부대 {count}</color></b></size>" : $"<size=17><b><color=#efe7da>{first.name}</color></b></size>";
                 job.text = topSkills.text = "";
                 for (var i = 0; i < 3; i++) statValues[i].text = statNotes[i].text = "";
@@ -165,7 +165,7 @@ namespace AntColony.UI
                 return;
             }
 
-            portraitAnt.gameObject.SetActive(true); portraitAnt.color = RosterBar.ColorOf(c);
+            portraitFace.texture = CharacterPortraits.Get(c); portraitFace.gameObject.SetActive(portraitFace.texture != null); // 캐릭터 얼굴(2026-10-24)
             portrait.text = "\n\n\n<size=12>" + CommandCard.RoleName(c.Role) + " · 상세 ↗</size>";
             header.text = $"<size=17><b><color=#efe7da>{c.CommanderName}</color></b></size>   {c.WeaponLabel}";
             var activity = CommanderOverhead.Activity(c);

@@ -36,6 +36,9 @@ namespace AntColony.Core
         public int Total => lots.Sum(l => l.amount);
         public float Freshest => lots.Count == 0 ? 0 : lots.Max(l => l.shelf);
         public float Stalest => lots.Count == 0 ? 0 : lots.Min(l => l.shelf);
+        public int StalestAmount => lots.Where(l => l.shelf == Stalest).Sum(l => l.amount);
+        public static IEnumerable<StoreBin> MealSources(IEnumerable<StoreBin> bins, ResourceType type) => bins
+            .Where(b => b.Spendable && b.Amount(type) > 0).OrderBy(b => b.Lots(type)?.Stalest ?? 0);
         public void Add(int amount, float shelf)
         {
             if (amount <= 0) return;

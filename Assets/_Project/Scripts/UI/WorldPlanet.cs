@@ -5,8 +5,9 @@ using UnityEngine.UI;
 namespace AntColony.UI
 {
     // 월드맵 3D 행성: 멀리 떨어진 전용 레이어의 구체를 전용 카메라가 RenderTexture로 찍어 RawImage에 보인다.
-    // 거점 MapPosition(0~1)을 경도·위도로 바꿔 구 표면 위치를 만들고, 화면 좌표로 투영해 UI 마커를 따라 붙인다. 드래그로 회전.
-    public sealed class WorldPlanet : MonoBehaviour, IDragHandler
+    // 거점 MapPosition(0~1)을 경도·위도로 바꿔 구 표면 위치를 만들고, 화면 좌표로 투영해 UI 마커를 따라 붙인다. 드래그로 회전, 휠로 확대.
+    // 2026-10-24 림월드식: RawImage가 월드맵 전체 화면을 채우고, 화면 크기가 바뀌면 RenderTexture를 다시 만든다.
+    public sealed class WorldPlanet : MonoBehaviour, IDragHandler, IScrollHandler
     {
         public const int Layer = 31;
         private const float Radius = 10f, LonSpread = 300f, LatSpread = 120f;
@@ -14,15 +15,15 @@ namespace AntColony.UI
         private Transform planet;
         private UnityEngine.Camera view;
         private RawImage image;
-        private float yaw, pitch, targetYaw, targetPitch;
+        private float yaw, pitch, targetYaw, targetPitch, distance = Radius * 3.9f;
 
         public RectTransform Rect => (RectTransform)transform;
 
-        public static WorldPlanet Create(RectTransform parent, float x, float y, float size)
+        // parent를 꽉 채운다(전체 화면 월드맵).
+        public static WorldPlanet Create(RectTransform parent)
         {
             var rect = MenuTheme.Rect("Planet", parent);
-            rect.anchorMin = rect.anchorMax = rect.pivot = new Vector2(0, 1);
-            rect.anchoredPosition = new Vector2(x, -y); rect.sizeDelta = new Vector2(size, size);
+            rect.anchorMin = Vector2.zero; rect.anchorMax = Vector2.one; rect.pivot = new Vector2(0, 1); rect.offsetMin = rect.offsetMax = Vector2.zero;
             var p = rect.gameObject.AddComponent<WorldPlanet>();
             p.image = rect.gameObject.AddComponent<RawImage>();
             p.Build();
@@ -41,13 +42,10 @@ namespace AntColony.UI
             sun.transform.SetParent(rig.transform, false); sun.transform.rotation = Quaternion.Euler(25, -35, 0);
 
             view = new GameObject("Planet Camera").AddComponent<UnityEngine.Camera>();
-            view.transform.SetParent(rig.transform, false); view.transform.localPosition = new Vector3(0, 0, -Radius * 3.9f);
+            view.transform.SetParent(rig.transform, false); view.transform.localPosition = new Vector3(0, 0, -distance);
             view.fieldOfView = 34; view.nearClipPlane = 1; view.farClipPlane = Radius * 8;
             view.clearFlags = CameraClearFlags.SolidColor; view.backgroundColor = MenuTheme.Hex(0x16120e);
             view.cullingMask = 1 << Layer;
-            var size = Mathf.RoundToInt(Rect.sizeDelta.x);
-            view.targetTexture = new RenderTexture(size * 2, size * 2, 16) { name = "WorldPlanet" };
-            image.texture = view.targetTexture;
             if (UnityEngine.Camera.main != null) UnityEngine.Camera.main.cullingMask &= ~(1 << Layer);
             view.enabled = false;
         }
@@ -119,15 +117,31 @@ namespace AntColony.UI
 
         public void OnDrag(PointerEventData e)
         {
-            targetYaw = yaw -= e.delta.x * .3f;
-            targetPitch = pitch = Mathf.Clamp(pitch + e.delta.y * .3f, -60, 60);
+            var k = .3f * distance / (Radius * 3.9f); // 확대할수록 천천히 돈다
+            targetYaw = yaw -= e.delta.x * k;
+            targetPitch = pitch = Mathf.Clamp(pitch + e.delta.y * k, -60, 60);
         }
 
-        public void SetVisible(bool visible) { if (view != null) view.enabled = visible; }
+        public void OnScroll(PointerEventData e) => distance = Mathf.Clamp(distance * (e.scrollDelta.y > 0 ? .88f : 1.14f), Radius * 1.8f, Radius * 6f);
+
+        // 화면 크기에 맞춰 RenderTexture를 만든다(창 크기 변경 포함).
+        private void Fit()
+        {
+            var size = Rect.rect.size;
+            int w = Mathf.Max(64, Mathf.RoundToInt(size.x)), h = Mathf.Max(64, Mathf.RoundToInt(size.y));
+            if (view.targetTexture != null && view.targetTexture.width == w && view.targetTexture.height == h) return;
+            if (view.targetTexture != null) { view.targetTexture.Release(); Destroy(view.targetTexture); }
+            view.targetTexture = new RenderTexture(w, h, 16) { name = "WorldPlanet" };
+            image.texture = view.targetTexture;
+        }
+
+        public void SetVisible(bool visible) { if (view != null) { view.enabled = visible; if (visible) Fit(); } }
 
         private void LateUpdate()
         {
             if (planet == null || !view.enabled) return;
+            Fit();
+            view.transform.localPosition = new Vector3(0, 0, -distance);
             yaw = Mathf.LerpAngle(yaw, targetYaw, 1 - Mathf.Exp(-8 * Time.unscaledDeltaTime));
             pitch = Mathf.Lerp(pitch, targetPitch, 1 - Mathf.Exp(-8 * Time.unscaledDeltaTime));
             planet.rotation = Quaternion.Euler(pitch, 0, 0) * Quaternion.Euler(0, yaw, 0);
@@ -143,7 +157,7 @@ namespace AntColony.UI
             var point = planet.position + dir * Radius;
             if (Vector3.Dot(dir, (view.transform.position - point).normalized) < .12f) return false;
             var v = view.WorldToViewportPoint(point);
-            local = new Vector2(v.x * Rect.sizeDelta.x, (1 - v.y) * Rect.sizeDelta.y);
+            local = new Vector2(v.x * Rect.rect.width, (1 - v.y) * Rect.rect.height);
             return true;
         }
 

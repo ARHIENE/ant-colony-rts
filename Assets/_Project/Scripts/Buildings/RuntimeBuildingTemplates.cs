@@ -107,7 +107,7 @@ namespace AntColony.Buildings
                 BuildingKind.CareStation => ("돌봄대", new Vector3(1, .6f, 1), new Color(.75f, .65f, .5f), 0, 20, 0, 0, 5f, 120f, false),
                 BuildingKind.AnimalClinic => ("동물 치료대", new Vector3(1.5f, .8f, 1.5f), new Color(.85f, .85f, .8f), 0, 40, 2, 0, 8f, 150f, false),
                 BuildingKind.ButcherTable => ("도축대", new Vector3(1.5f, .9f, 1), new Color(.6f, .35f, .3f), 0, 25, 0, 0, 5f, 150f, false),
-                BuildingKind.MedicineBench => ("약제대", new Vector3(1.5f, 1, 1), new Color(.6f, .75f, .6f), 0, 30, 2, 0, 6f, 150f, false),
+                BuildingKind.MedicineBench => ("약제대", new Vector3(1.5f, 1, 1), new Color(.6f, .75f, .6f), 0, 30, 0, 0, 15f, 150f, false),
                 BuildingKind.Apartment => ("큰 아파트", new Vector3(3, 3.2f, 3), new Color(.62f, .62f, .66f), 0, GameBalance.ApartmentSoil, GameBalance.ApartmentSpecial, 8, 16f, 500f, false),
                 _ => (null, Vector3.one, Color.white, 0, 0, 0, 0, 0f, 0f, false)
             };

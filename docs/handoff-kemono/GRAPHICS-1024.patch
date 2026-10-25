@@ -1,0 +1,1306 @@
+--- a/Assets/_Project/Scripts/Units/AntVisual.cs
++++ b/Assets/_Project/Scripts/Units/AntVisual.cs
+@@ -20,6 +20,8 @@
+         private MaterialPropertyBlock ringColor;
+         private bool kemono;
+         private string playedClip, heldTool;
++        private KemonoAppearance appearance;
++        private GameObject heldArrow;
+         public string StateName => state;
+ 
+         public static void Attach(GameObject owner)
+@@ -37,6 +39,7 @@
+             foreach (var renderer in GetComponentsInChildren<MeshRenderer>()) renderer.enabled = false;
+             model = kemono ? KemonoModel.Create(transform, Seed(name)) : Instantiate(prefab, transform, false);
+             animator = model.GetComponentInChildren<Animator>();
++            appearance = model.GetComponent<KemonoAppearance>();
+             animator.applyRootMotion = false;
+             selection = GetComponent<SelectableObject>(); soldier = GetComponent<SoldierAnt>();
+             worker = GetComponent<WorkerAnt>(); commander = GetComponent<CommanderAnt>(); enemy = GetComponent<WildMonster>();
+@@ -64,7 +67,7 @@
+         public void Attack(Vector3 target)
+         {
+             Face(target - transform.position);
+-            Action("Attack", .45f);
++            Action("Attack", kemono && commander != null && commander.Weapon?.weapon == WeaponKind.ShortBow ? 1.5f : .45f);
+         }
+ 
+         private void Face(Vector3 direction)
+@@ -82,7 +85,14 @@
+             var hash = Animator.StringToHash("Base Layer." + clip);
+             if (!animator.HasState(0, hash)) return;
+             animator.CrossFadeInFixedTime(hash, .1f, 0); state = name; playedClip = clip;
+-            if (kemono && heldTool != tool) { KemonoModel.Hold(model, tool); heldTool = tool; }
++            appearance?.FollowClip(clip);
++            if (kemono && heldTool != tool)
++            {
++                KemonoModel.Hold(model, tool); heldTool = tool; heldArrow = null;
++                if (tool == "Weapon_ShortBow")
++                    foreach (var t in model.GetComponentsInChildren<Transform>(true))
++                        if (t.name.StartsWith("Ammo_Arrow") && t.gameObject.activeSelf) { heldArrow = t.gameObject; heldArrow.SetActive(false); break; }
++            }
+         }
+ 
+         // 논리 상태 → kemono 클립·손 도구. 채집은 자원별 도구 동작, 건설은 망치, 전투는 검.
+@@ -95,6 +105,7 @@
+                 "Idle_A" => ("Idle_A", null), "Hit" => ("Hit", null),
+                 "Sit" => (commander != null && commander.IsCaptive ? "Captive" : "Downed", null),
+                 "Attack" when worker != null && worker.IsBuildingAnimation => ("Tool_Hammer", "Tool_Hammer_Stone"),
++                "Attack" when commander != null && commander.Weapon?.weapon == WeaponKind.ShortBow => ("BowShoot", "Weapon_ShortBow"),
+                 "Attack" => ("Attack", "Weapon_Sword_Copper"),
+                 _ => (name, null)
+             };
+@@ -105,6 +116,7 @@
+         private void LateUpdate()
+         {
+             if (model == null || Time.deltaTime <= 0) return;
++            appearance?.SetArmor(commander != null && commander.EquippedArmor?.armor == ArmorKind.Coating);
+             if (enemy == null && soldier == null) enemy = GetComponent<WildMonster>();
+             if (commander != null && commander.IsEmbarked) { previousPosition = transform.position; return; }
+             var delta = transform.position - previousPosition; previousPosition = transform.position;
+@@ -114,9 +126,17 @@
+             ring.startColor = ring.endColor = color;
+             ringColor.SetColor("_BaseColor", color); ring.SetPropertyBlock(ringColor);
+             ring.widthMultiplier = selection != null && selection.IsSelected ? .13f : .055f;
++            if (heldArrow != null)
++            {
++                var bow = animator.GetCurrentAnimatorStateInfo(0);
++                var frame = Mathf.Repeat(bow.normalizedTime, 1) * 36;
++                heldArrow.SetActive(bow.IsName("Base Layer.BowShoot") && frame >= 9 && frame < 23);
++            }
+             if (Time.time < actionUntil) return;
+             if (moving) Face(delta);
+-            if (commander != null && (commander.IsCaptive || commander.PersonalHealth <= 0)) Play("Sit");
++            if (commander != null && (commander.IsCaptive || commander.PersonalHealth <= 0)) Play("Sit");
++            else if (commander != null && commander.IsAsleep) Play("Sleep");
++            else if (commander != null && commander.IsEating) Play("Eat");
+             else if (soldier != null && soldier.IsFlying || enemy != null && enemy.IsFlying) Play("Fly");
+             else if (moving) Play(delta.magnitude / Time.deltaTime > 2f ? "Run" : "Walk");
+             else if (worker != null && worker.IsBuildingAnimation) Play("Attack");
+@@ -131,6 +151,7 @@
+             body.transform.localScale = model.transform.lossyScale;
+             body.GetComponentInChildren<Animator>().Play("Base Layer.Death", 0, 0);
+             if (kemono) KemonoModel.Hold(body, null);
++            body.GetComponent<KemonoAppearance>()?.SetExpression("DEAD");
+             if (!persistent) Destroy(body, 2.5f);
+             return body;
+         }
+--- a/AgentScripts/AntWorkVisualChecks.cs
++++ b/AgentScripts/AntWorkVisualChecks.cs
+@@ -17,6 +17,24 @@
+         if (!ready()) throw new Exception("FAIL: " + label);
+     }
+     public static async Task<string> Main()
++    {
++        var original = SaveStorage.RootOverride;
++        SaveStorage.RootOverride = System.IO.Path.Combine(Application.temporaryCachePath, "AntWorkVisual-" + Guid.NewGuid().ToString("N"));
++        try
++        {
++            if (!Application.isPlaying) throw new Exception("Play mode required.");
++            await Wait(() => !SaveSystem.Busy, "previous load ready");
++            SaveSystem.NewGame(new NewGameOptions { seed = 241024, mapSize = MapSize.Small });
++            var until = DateTime.UtcNow.AddSeconds(90);
++            while (SaveSystem.Busy && DateTime.UtcNow < until) await Task.Delay(100);
++            if (SaveSystem.Busy) throw new Exception("New game load timed out.");
++            await Task.Delay(300);
++            return await Run();
++        }
++        finally { SaveStorage.RootOverride = original; }
++    }
++
++    static async Task<string> Run()
+     {
+         if (!Application.isPlaying || SaveSystem.Busy) throw new Exception("Start an initialized Play session.");
+         Time.timeScale = 1;
+--- a/AgentScripts/BetaChecks.cs
++++ b/AgentScripts/BetaChecks.cs
+@@ -49,7 +49,7 @@
+             await Ready();
+             Check(GameSession.Instance.GameStarted && Time.timeScale > 0, "new game simulation running");
+             var commanders = CommanderRoster.Instance.Commanders;
+-            Check(commanders.Count == 12 && commanders.All(c => c.GetComponent<AntVisual>() != null), "all generated commanders use Quirky");
++            Check(commanders.Count == GameSession.Instance.Options.startingCount && commanders.All(c => c.GetComponent<AntVisual>() != null), "all generated commanders use Quirky");
+             var commander = commanders[0]; var visual = commander.GetComponent<AntVisual>();
+             var animator = commander.GetComponentInChildren<Animator>();
+             Check(animator != null && animator.avatar != null && !animator.applyRootMotion, "avatar and no root motion");
+--- a/Assets/_Project/Scripts/World/BossStronghold.cs
++++ b/Assets/_Project/Scripts/World/BossStronghold.cs
+@@ -14,6 +14,7 @@
+         public void Initialize(BossId id, ExpeditionSite value)
+         {
+             Id = id; site = value;
++            if (GetComponent<BossRewardVisual>() == null) gameObject.AddComponent<BossRewardVisual>();
+             if (site.Boss != null) site.Boss.CampaignId = id;
+         }
+         private void Update()
+--- a/Assets/_Project/Scripts/Core/CampaignResearch.cs
++++ b/Assets/_Project/Scripts/Core/CampaignResearch.cs
+@@ -134,7 +134,11 @@
+         public IReadOnlyList<string> LeftBehind => state.leftBehind;
+         public float EndingGameSeconds => state.endingGameSeconds;
+         public event Action OnDeparted;
+-        private void Awake() => Instance = this;
++        private void Awake()
++        {
++            Instance = this;
++            if (GetComponent<AntColony.World.BossRewardVisual>() == null) gameObject.AddComponent<AntColony.World.BossRewardVisual>();
++        }
+         private void OnDestroy() { if (Instance == this) Instance = null; }
+         public bool Has(ScienceTechnology technology) => state.completed.Contains((int)technology)
+             || technology == ScienceTechnology.Fishing && GameManager.Instance != null && GameManager.Instance.FishingUnlocked;
+--- a/Assets/_Project/Scripts/World/Corpse.cs
++++ b/Assets/_Project/Scripts/World/Corpse.cs
+@@ -118,7 +118,9 @@
+                 node.GatheringForbidden = state.gatheringForbidden;
+             }
+             if (!string.IsNullOrEmpty(state.carcass)) root.AddComponent<CritterCarcass>().Data = JsonUtility.FromJson<CritterCarcass.State>(state.carcass);
++            root.AddComponent<CorpseProp>();
+             root.SetActive(true);
++            body.GetComponent<KemonoAppearance>()?.SetExpression("DEAD");
+             var animator = body.GetComponentInChildren<Animator>();
+             if (animator != null) { animator.applyRootMotion = false; animator.Play("Base Layer.Death", 0, freshDeath ? 0 : 1); animator.Update(0); animator.speed = freshDeath ? 1 : 0; }
+             return corpse;
+--- a/AgentScripts/FacilityVisualChecks.cs
++++ b/AgentScripts/FacilityVisualChecks.cs
+@@ -49,8 +49,8 @@
+                 Object.Destroy(go); shown++;
+             }
+             Check(mapped == 120, "120 kinds mapped (" + mapped + ")"); // 2026-10-24 새 시설 16종 연결
+-            var stockpile = Object.FindFirstObjectByType<Stockpile>();
+-            Check(stockpile != null && stockpile.GetComponent<FacilityVisual>()?.Model != null, "start stockpile shows model");
++            var wreck = Object.FindFirstObjectByType<CrashWreck>();
++            Check(wreck != null && wreck.GetComponent<FacilityVisual>()?.Model != null, "crash landing wreck shows model (old stockpile removed by new start)");
+             return $"PASS {checks} facility visual checks ({shown} built with models)";
+         }
+         finally { SaveStorage.RootOverride = original; }
+--- a/Assets/_Project/Editor/KemonoImport.cs
++++ b/Assets/_Project/Editor/KemonoImport.cs
+@@ -25,6 +25,12 @@
+ 
+         [MenuItem("AntColony/Kemono/Configure Import + Animator")]
+         public static string Run()
++        {
++            try { var result = Configure(); File.WriteAllText("Temp/kemono-import-result.txt", result); return result; }
++            catch (Exception e) { File.WriteAllText("Temp/kemono-import-result.txt", e.ToString()); throw; }
++        }
++
++        static string Configure()
+         {
+             if (EditorApplication.isPlayingOrWillChangePlaymode) throw new InvalidOperationException("Stop Play before importing kemono.");
+             AssetDatabase.Refresh();
+@@ -80,6 +86,7 @@
+                 count++;
+             }
+             foreach (var path in Directory.GetFiles("Assets/Resources/Kemono/Handheld", "*.fbx")) ImportProp(path.Replace('\\', '/'));
++            foreach (var path in Directory.GetFiles("Assets/Resources/Kemono/Props", "*.fbx")) ImportProp(path.Replace('\\', '/'));
+             foreach (var name in Facilities) ImportProp("Assets/Resources/Facilities/CC_" + name + ".fbx");
+             foreach (var name in new[] { "Idle_A", "Walk", "Run", "Eat", "Attack", "Hit", "Fly", "Sit", "Death", "Captive", "Tool_Hammer", "Tool_Chop", "Tool_Mine", "Tool_Dig", "Tool_Harvest" })
+                 if (!states.ContainsKey(name)) throw new InvalidOperationException("Missing kemono state: " + name);
+@@ -105,6 +112,9 @@
+             ConvertMaterials(path);
+         }
+ 
++        [Serializable] class SourceMaterial { public string name; public float[] color; public bool linked; }
++        [Serializable] class SourceMaterials { public SourceMaterial[] materials; }
++
+         static void ConvertMaterials(string path)
+         {
+             Directory.CreateDirectory(MaterialDir);
+@@ -115,9 +125,17 @@
+             // 지워진 머티리얼을 가리키는 리맵이 남으면 원본 머티리얼이 안 나와 다시 만들 수 없다(2026-10-24).
+             var stale = importer.GetExternalObjectMap().Where(kv => kv.Value == null).Select(kv => kv.Key).ToList();
+             if (stale.Count > 0) { foreach (var k in stale) importer.RemoveRemap(k); importer.SaveAndReimport(); }
+-            foreach (var original in AssetDatabase.LoadAllAssetsAtPath(path).OfType<Material>())
++            var originals = AssetDatabase.LoadAllAssetsAtPath(path).OfType<Material>()
++                .Select(m => (name: m.name, material: m))
++                .Concat(importer.GetExternalObjectMap().Where(kv => kv.Key.type == typeof(Material) && kv.Value is Material)
++                    .Select(kv => (name: kv.Key.name, material: (Material)kv.Value)))
++                .GroupBy(m => m.name).Select(g => g.First()).ToArray();
++            var sourcePath = "Assets/Resources/Kemono/Textures/SourceMaterials.json";
++            var source = path == Character && File.Exists(sourcePath) ? JsonUtility.FromJson<SourceMaterials>(File.ReadAllText(sourcePath)) : null;
++            foreach (var entry in originals)
+             {
+-                var name = Path.GetFileNameWithoutExtension(path) + "_" + original.name;
++                var original = entry.material;
++                var name = Path.GetFileNameWithoutExtension(path) + "_" + entry.name;
+                 foreach (var c in Path.GetInvalidFileNameChars()) name = name.Replace(c, '_');
+                 var materialPath = MaterialDir + "/" + name + ".mat";
+                 var material = AssetDatabase.LoadAssetAtPath<Material>(materialPath);
+@@ -128,14 +146,26 @@
+                     var texture = original.mainTexture;
+                     if (path.EndsWith("CC_ManualWell.fbx")) texture = AssetDatabase.LoadAssetAtPath<Texture2D>("Assets/ThirdParty/LowPoly Fantasy Village/Textures/Texture_01.png");
+                     // Blender 노드(색 분리·혼합)를 거친 텍스처는 FBX에 안 실려 원본을 직접 연결한다(2026-10-24).
+-                    var known = original.name switch { "Face.001" => "Face", "Eye.001" => "Iris", "Hair.001" or "Hair lightReflect.001" => "Hair_1", "Settler_RecoloredSourceCloth.001" => "XmasDress", _ => null };
++                    var known = entry.name switch { "Face.001" => "Face", "Eye.001" => "Iris", "Hair.001" or "Hair lightReflect.001" => "Hair_1", "Settler_RecoloredSourceCloth.001" => "Linen_Baked", _ => null };
+                     if (path == Character && known != null) { texture = AssetDatabase.LoadAssetAtPath<Texture2D>("Assets/Resources/Kemono/Textures/" + known + ".png"); color = Color.white; }
+                     material.SetColor("_BaseColor", color);
+                     material.SetTexture("_BaseMap", texture);
+                     material.SetFloat("_Smoothness", 0);
+                     AssetDatabase.CreateAsset(material, materialPath);
+                 }
+-                importer.AddRemap(new AssetImporter.SourceAssetIdentifier(typeof(Material), original.name), material);
++                if (path == Character)
++                {
++                    var data = source?.materials.FirstOrDefault(m => m.name == entry.name);
++                    if (data != null && !data.linked)
++                        material.SetColor("_BaseColor", new Color(data.color[0], data.color[1], data.color[2], data.color[3]).gamma);
++                    if (entry.name == "Settler_RecoloredSourceCloth.001")
++                    {
++                        material.SetTexture("_BaseMap", AssetDatabase.LoadAssetAtPath<Texture2D>("Assets/Resources/Kemono/Textures/Linen_Baked.png"));
++                        material.SetColor("_BaseColor", Color.white);
++                    }
++                    EditorUtility.SetDirty(material);
++                }
++                importer.AddRemap(new AssetImporter.SourceAssetIdentifier(typeof(Material), entry.name), material);
+             }
+             importer.SaveAndReimport();
+         }
+--- a/Assets/_Project/Scripts/Units/KemonoModel.cs
++++ b/Assets/_Project/Scripts/Units/KemonoModel.cs
+@@ -44,20 +44,24 @@
+             foreach (var r in parts) r.enabled = !r.name.Contains("_ARMOR") && keep.Any(k => r.name.StartsWith("Part_" + k));
+             var bounds = parts.Where(r => r.enabled).Select(r => r.bounds).Aggregate((a, b) => { a.Encapsulate(b); return a; });
+             model.transform.localScale *= Height / Mathf.Max(bounds.size.y, .01f); // 월드 키 = Height
++            pivot.gameObject.AddComponent<KemonoAppearance>().Initialize(seed);
+             return pivot.gameObject;
+         }
+ 
+         // 손 소켓(Socket.Tool.R)에 도구·무기를 붙인다. name=null이면 치운다.
+         public static void Hold(GameObject model, string name)
+         {
+-            var socket = model.GetComponentsInChildren<Transform>(true).FirstOrDefault(t => t.name == "Socket.Tool.R");
+-            if (socket == null) return;
+-            foreach (Transform child in socket) Object.Destroy(child.gameObject);
+-            if (name == null) return;
+-            if (!tools.TryGetValue(name, out var prefab)) tools[name] = prefab = Resources.Load<GameObject>("Kemono/Handheld/" + name);
+-            if (prefab == null) return;
+-            var tool = Object.Instantiate(prefab, socket, false); tool.transform.localPosition = Vector3.zero; tool.transform.localRotation = Quaternion.identity;
+-            foreach (var c in tool.GetComponentsInChildren<Collider>()) Object.Destroy(c);
++            var sockets = model.GetComponentsInChildren<Transform>(true);
++            foreach (var socket in sockets.Where(t => t.name == "Socket.Tool.R" || t.name == "Socket.Tool.L"))
++            {
++                foreach (Transform child in socket) { child.gameObject.SetActive(false); Object.Destroy(child.gameObject); }
++                var item = name == "Weapon_ShortBow" ? (socket.name.EndsWith(".L") ? name : "Ammo_Arrow") : socket.name.EndsWith(".R") ? name : null;
++                if (item == null) continue;
++                if (!tools.TryGetValue(item, out var prefab)) tools[item] = prefab = Resources.Load<GameObject>("Kemono/Handheld/" + item);
++                if (prefab == null) continue;
++                var tool = Object.Instantiate(prefab, socket, false); tool.transform.localPosition = Vector3.zero; tool.transform.localRotation = Quaternion.identity;
++                foreach (var c in tool.GetComponentsInChildren<Collider>()) Object.Destroy(c);
++            }
+         }
+ 
+         // 채집 자원별 동작과 손 도구(석기 등급, 키트 Tool_*_Stone).
+--- a/Assets/_Project/Scripts/World/ResourceNode.cs
++++ b/Assets/_Project/Scripts/World/ResourceNode.cs
+@@ -191,6 +191,7 @@
+             regrowSeconds = 0f;
+             requiresFishing = false;
+             ownerColony = null;
++            ProductionProp.ShowResource(this);
+             if (FoodLots.Perishable(type) && !TryGetComponent<FloorFood>(out _)) gameObject.AddComponent<FloorFood>(); // 바닥 식품은 상온 부패(2026-10-12)
+         }
+ 
+--- /dev/null
++++ b/Assets/_Project/Scripts/Units/KemonoAppearance.cs
+@@ -0,0 +1,78 @@
++using System;
++using System.Collections.Generic;
++using System.Linq;
++using UnityEngine;
++
++namespace AntColony.Units
++{
++    // Appearance only: never changes equipment stats or animation timing.
++    public sealed class KemonoAppearance : MonoBehaviour
++    {
++        static readonly Color[] Palettes = {
++            new Color(.82f, .79f, .76f), new Color(.47f, .53f, .62f), new Color(.62f, .37f, .15f),
++            new Color(.62f, .29f, .36f), new Color(.43f, .32f, .59f), new Color(.28f, .52f, .43f)
++        };
++        Renderer[] parts;
++        Renderer[] plates;
++        readonly List<(Renderer normal, Renderer armor)> armorPairs = new List<(Renderer, Renderer)>();
++        string expression;
++        bool armored;
++        public int PaletteIndex { get; private set; }
++
++        public void Initialize(int seed)
++        {
++            parts = GetComponentsInChildren<Renderer>(true);
++            plates = parts.Where(r => r.name.StartsWith("Part_Equipment_Armor_")).ToArray();
++            PaletteIndex = (int)(unchecked((uint)seed) % (uint)Palettes.Length);
++            foreach (var r in parts)
++            {
++                if (r.name.StartsWith("Part_Hair_") || r.name.StartsWith("Part_Ears_") || r.name.StartsWith("Part_Tail_"))
++                {
++                    for (var i = 0; i < r.sharedMaterials.Length; i++)
++                    {
++                        var material = r.sharedMaterials[i];
++                        if (material == null || material.name.IndexOf("Inner", StringComparison.OrdinalIgnoreCase) >= 0) continue;
++                        var block = new MaterialPropertyBlock();
++                        r.GetPropertyBlock(block, i);
++                        block.SetColor("_BaseColor", Palettes[PaletteIndex].gamma);
++                        // Blender's combo replaces the entire hair/fur colour, including its texture.
++                        block.SetTexture("_BaseMap", Texture2D.whiteTexture);
++                        r.SetPropertyBlock(block, i);
++                    }
++                }
++                if (!r.enabled || !r.name.EndsWith("_00")) continue;
++                var alternative = parts.FirstOrDefault(p => p.name == r.name.Substring(0, r.name.Length - 3) + "_ARMOR");
++                if (alternative != null) armorPairs.Add((r, alternative));
++            }
++            SetExpression("NEUTRAL");
++        }
++
++        public void SetArmor(bool value)
++        {
++            // Do not expose the cut-away body until the matching plates were imported.
++            if (plates == null || plates.Length == 0) return;
++            if (armored == value) return;
++            armored = value;
++            foreach (var pair in armorPairs) { pair.normal.enabled = !value; pair.armor.enabled = value; }
++            foreach (var plate in plates) plate.enabled = value;
++        }
++
++        public void SetExpression(string value)
++        {
++            if (expression == value) return;
++            expression = value;
++            if (parts == null) parts = GetComponentsInChildren<Renderer>(true); // Death clones retain renderer visibility, not managed caches.
++            foreach (var r in parts)
++                if (r.name.StartsWith("Part_Face_")) r.enabled = r.name.StartsWith("Part_Face_" + value + "_");
++        }
++
++        public void FollowClip(string clip)
++        {
++            SetExpression(clip switch {
++                "Death" => "DEAD", "Hit" or "Hurt" or "Downed" or "SelfTreat" => "PAIN",
++                "Sleep" => "SLEEP", "Eat" => "TASTY", "Captive" or "Mourn" => "SAD",
++                "Rest" or "Bathe" => "SLEEPY", _ => "NEUTRAL"
++            });
++        }
++    }
++}
+--- /dev/null
++++ b/Assets/_Project/Scripts/World/ProductionProp.cs
+@@ -0,0 +1,45 @@
++using AntColony.Data;
++using UnityEngine;
++
++namespace AntColony.World
++{
++    public static class ProductionProp
++    {
++        public static string ForResource(ResourceType type) => type switch {
++            ResourceType.Stone => "Prop_StoneChunk",
++            ResourceType.Drum or ResourceType.FilledFuelDrum => "Prop_OilDrum",
++            ResourceType.GasCylinder => "Prop_GasCanister", _ => null
++        };
++
++        // Preserve the imported axis correction. Fit only the display; owner colliders and stock stay intact.
++        public static GameObject Attach(Transform owner, string id, float width, Vector3 floor)
++        {
++            var prefab = Resources.Load<GameObject>("Kemono/Props/" + id);
++            if (prefab == null) return null;
++            var model = Object.Instantiate(prefab);
++            var renderers = model.GetComponentsInChildren<Renderer>();
++            if (renderers.Length == 0) { Object.Destroy(model); return null; }
++            var bounds = renderers[0].bounds;
++            foreach (var r in renderers) bounds.Encapsulate(r.bounds);
++            var scale = width / Mathf.Max(bounds.size.x, bounds.size.z, .01f);
++            model.transform.localScale *= scale;
++            bounds = renderers[0].bounds;
++            foreach (var r in renderers) bounds.Encapsulate(r.bounds);
++            model.transform.position += floor - new Vector3(bounds.center.x, bounds.min.y, bounds.center.z);
++            model.transform.SetParent(owner, true);
++            foreach (var collider in model.GetComponentsInChildren<Collider>()) Object.Destroy(collider);
++            return model;
++        }
++
++        public static void ShowResource(ResourceNode node)
++        {
++            var id = ForResource(node.ResourceType);
++            if (id == null || node.transform.Find(id + "(Clone)") != null) return;
++            var box = node.GetComponent<Renderer>();
++            if (box == null) return;
++            var b = box.bounds;
++            if (Attach(node.transform, id, Mathf.Max(b.size.x, b.size.z), new Vector3(b.center.x, b.min.y, b.center.z)) != null)
++                box.forceRenderingOff = true;
++        }
++    }
++}
+--- /dev/null
++++ b/Assets/_Project/Scripts/World/CorpseProp.cs
+@@ -0,0 +1,23 @@
++using UnityEngine;
++
++namespace AntColony.World
++{
++    public sealed class CorpseProp : MonoBehaviour
++    {
++        Corpse corpse;
++        bool shown;
++        float born;
++        void Awake() { corpse = GetComponent<Corpse>(); born = Time.time; }
++        void LateUpdate()
++        {
++            if (shown || corpse.Data == null || Time.time - born < .5f) return;
++            var id = corpse.Remains ? "Prop_Remains" : corpse.Data.kind == CorpseKind.Ant ? "Prop_CorpseBundle" : null;
++            if (id == null) return;
++            var prop = ProductionProp.Attach(transform, id, .9f, corpse.Position);
++            if (prop == null) return;
++            foreach (var r in GetComponentsInChildren<Renderer>())
++                if (!r.transform.IsChildOf(prop.transform)) r.enabled = false;
++            shown = true;
++        }
++    }
++}
+--- /dev/null
++++ b/Assets/_Project/Scripts/World/BossRewardVisual.cs
+@@ -0,0 +1,31 @@
++using System.Linq;
++using AntColony.Core;
++using UnityEngine;
++
++namespace AntColony.World
++{
++    // Read the existing reward ledger. Display objects never grant or consume rewards.
++    public sealed class BossRewardVisual : MonoBehaviour
++    {
++        readonly GameObject[] items = new GameObject[7];
++        float next;
++        void LateUpdate()
++        {
++            if (Time.unscaledTime < next || AntColony.Save.SaveSystem.Busy || CampaignResearch.Instance == null) return;
++            next = Time.unscaledTime + .5f;
++            var state = CampaignResearch.Instance.CaptureState().bosses;
++            var stronghold = GetComponent<BossStronghold>();
++            for (var i = 0; i < items.Length; i++)
++            {
++                var ground = stronghold != null;
++                var show = ground ? i == (int)stronghold.Id && state.unclaimed.Any(p => p.boss == i)
++                    : i < 4 ? state.home[i] > 0 : state.tools[i - 3] > 0;
++                if (!show) { if (items[i] != null) Destroy(items[i]); items[i] = null; continue; }
++                if (items[i] != null) continue;
++                var id = i < 4 ? "Prop_BossCore_" + (char)('A' + i) : "Prop_Detector_" + (char)('B' + i - 4);
++                var position = ground ? transform.position + Vector3.right * 4 : ResourceManager.HomePosition + new Vector3(i - 3, 0, -3);
++                items[i] = ProductionProp.Attach(transform, id, .7f, position);
++            }
++        }
++    }
++}
+--- /dev/null
++++ b/AgentScripts/KemonoQualityChecks.cs
+@@ -0,0 +1,62 @@
++using System;
++using System.Linq;
++using System.Threading.Tasks;
++using AntColony.Units;
++using AntColony.World;
++using UnityEngine;
++using Object = UnityEngine.Object;
++
++public static class KemonoQualityChecks
++{
++    static int checks;
++    static void Check(bool value, string label) { if (!value) throw new Exception(label); checks++; }
++    public static async Task<string> Main()
++    {
++        Check(Application.isPlaying && KemonoModel.Available, "Play mode and configured Kemono required");
++        checks = 0;
++        var root = new GameObject("KemonoQualityChecks");
++        root.transform.position = new Vector3(1000, 0, 1000);
++        try
++        {
++            for (var seed = 0; seed < 6; seed++)
++            {
++                var model = KemonoModel.Create(root.transform, seed);
++                var appearance = model.GetComponent<KemonoAppearance>();
++                Check(appearance.PaletteIndex == seed, "six deterministic palettes");
++                var parts = model.GetComponentsInChildren<Renderer>(true);
++                foreach (var face in new[] { "PAIN", "SLEEP", "DEAD", "NEUTRAL" })
++                {
++                    appearance.SetExpression(face);
++                    var faces = parts.Where(r => r.enabled && r.name.StartsWith("Part_Face_")).ToArray();
++                    Check(faces.Length > 0 && faces.All(r => r.name.StartsWith("Part_Face_" + face + "_")), "exclusive expression " + face);
++                }
++                var plates = parts.Where(r => r.name.StartsWith("Part_Equipment_Armor_")).ToArray();
++                Check(plates.Length >= 10, "rigid armor plates imported");
++                appearance.SetArmor(true);
++                Check(plates.All(r => r.enabled), "equipped plates visible");
++                Check(parts.Any(r => r.enabled && r.name == "Part_Body_BASE_ARMOR"), "armor body selected");
++                Check(!parts.Any(r => r.enabled && r.name == "Part_Body_BASE_00"), "regular body hidden");
++                appearance.SetArmor(false);
++                Check(plates.All(r => !r.enabled) && parts.Any(r => r.enabled && r.name == "Part_Body_BASE_00"), "unequip restores body");
++                KemonoModel.Hold(model, "Weapon_ShortBow");
++                var sockets = model.GetComponentsInChildren<Transform>(true);
++                Check(sockets.Single(t => t.name == "Socket.Tool.L").GetChild(0).name.StartsWith("Weapon_ShortBow"), "bow in left hand");
++                Check(sockets.Single(t => t.name == "Socket.Tool.R").GetChild(0).name.StartsWith("Ammo_Arrow"), "arrow in right hand");
++                KemonoModel.Hold(model, null);
++                var clone = Object.Instantiate(model, root.transform);
++                clone.GetComponent<KemonoAppearance>().SetExpression("DEAD");
++                Check(clone.GetComponentsInChildren<Renderer>().Any(r => r.enabled && r.name.StartsWith("Part_Face_DEAD_")), "death clone has initialized expression cache");
++                Object.Destroy(clone); Object.Destroy(model);
++                await Task.Yield();
++            }
++            foreach (var type in new[] { AntColony.Data.ResourceType.Stone, AntColony.Data.ResourceType.Drum, AntColony.Data.ResourceType.GasCylinder })
++            {
++                var id = ProductionProp.ForResource(type);
++                Check(Resources.Load<GameObject>("Kemono/Props/" + id) != null, "prop resource " + id);
++            }
++            Check(Resources.Load<Texture2D>("Kemono/Textures/Linen_Baked") != null, "baked linen texture imported");
++            return "PASS " + checks + " kemono quality checks";
++        }
++        finally { Object.Destroy(root); }
++    }
++}
+--- /dev/null
++++ b/art/production-kit-20261019/scripts/inspect_unity_character.py
+@@ -0,0 +1,23 @@
++"""Report source materials and equipment anchors without changing the kit."""
++import bpy, json
++from pathlib import Path
++root = Path('E:/Git/ant')
++bpy.ops.wm.open_mainfile(filepath=str(root / 'art/production-kit-20261019/pk-motions.blend'))
++materials = {}
++for obj in bpy.data.objects:
++    if not obj.name.startswith('Part_') or obj.type != 'MESH':
++        continue
++    for material in obj.data.materials:
++        if material is None or material.name in materials:
++            continue
++        nodes = material.node_tree.nodes if material.use_nodes else []
++        materials[material.name] = {'diffuse': list(material.diffuse_color), 'nodes': [
++            {'name': n.name, 'type': n.type, 'image': n.image.name if n.type == 'TEX_IMAGE' and n.image else None,
++             'inputs': {s.name: list(s.default_value) if hasattr(s.default_value, '__len__') and not isinstance(s.default_value, str) else s.default_value
++                        for s in n.inputs if hasattr(s, 'default_value') and s.type in {'RGBA', 'VALUE'}},
++             'links': [f'{l.from_node.name}.{l.from_socket.name}->{l.to_socket.name}' for s in n.inputs for l in s.links]}
++            for n in nodes]}
++report = {'materials': materials, 'parts': sorted(o.name for o in bpy.data.objects if o.name.startswith('Part_'))}
++out = root / 'Temp/kemono-source-report.json'
++out.write_text(json.dumps(report, indent=2), encoding='utf-8')
++print('REPORT', out, len(materials))
+--- /dev/null
++++ b/art/production-kit-20261019/scripts/export_unity_materials.py
+@@ -0,0 +1,43 @@
++"""Export the existing Blender cloth colour graph to pixels and source material colours."""
++import bpy, json
++import numpy as np
++from pathlib import Path
++root = Path('E:/Git/ant')
++bpy.ops.wm.open_mainfile(filepath=str(root / 'art/production-kit-20261019/pk-motions.blend'))
++out = root / 'Assets/Resources/Kemono/Textures'
++out.mkdir(parents=True, exist_ok=True)
++materials = []
++for material in bpy.data.materials:
++    if not material.use_nodes:
++        continue
++    shader = next((n for n in material.node_tree.nodes if n.type == 'BSDF_PRINCIPLED'), None)
++    if shader is not None:
++        materials.append({'name': material.name, 'color': list(shader.inputs['Base Color'].default_value),
++                          'linked': bool(shader.inputs['Base Color'].links)})
++cloth = bpy.data.materials['Settler_RecoloredSourceCloth.001']
++nodes = cloth.node_tree.nodes
++# Exact source graph: red minus green > threshold selects a constant cloth colour.
++assert nodes['Math'].operation == 'SUBTRACT'
++assert nodes['Math.001'].operation == 'GREATER_THAN'
++assert nodes['Mix (Legacy)'].blend_type == 'MIX'
++source = nodes['Image Texture'].image
++pixels = np.empty(len(source.pixels), dtype=np.float32)
++source.pixels.foreach_get(pixels)
++pixels = pixels.reshape((-1, 4))
++rgb = pixels[:, :3]
++linear = np.where(rgb <= .04045, rgb / 12.92, ((rgb + .055) / 1.055) ** 2.4)
++mask = linear[:, 0] - linear[:, 1] > nodes['Math.001'].inputs[1].default_value
++color = nodes['Mix (Legacy)'].inputs[2].default_value[:3]
++color = np.array(color, dtype=np.float32)
++color = np.where(color <= .0031308, color * 12.92, 1.055 * color ** (1 / 2.4) - .055)
++assert mask.any(), 'No recoloured cloth pixels'
++pixels[mask, :3] = color
++image = bpy.data.images.new('Linen_Baked', width=source.size[0], height=source.size[1], alpha=True)
++image.pixels.foreach_set(pixels.ravel())
++image.filepath_raw = str(out / 'Linen_Baked.png')
++image.file_format = 'PNG'
++image.save()
++assert float(pixels[:, :3].max()) > .1
++assert np.allclose(pixels[mask, :3], color)
++(out / 'SourceMaterials.json').write_text(json.dumps({'materials': materials}, indent=2), encoding='utf-8')
++print('PASS cloth graph pixels', int(mask.sum()), 'of', len(pixels), 'size', image.size[:], 'source colours', len(materials))
+--- /dev/null
++++ b/art/production-kit-20261019/scripts/check_unity_character.py
+@@ -0,0 +1,22 @@
++"""Check the exported character's rigid armour and material/part inventory after FBX reimport."""
++import bpy, json
++from pathlib import Path
++root = Path('E:/Git/ant')
++bpy.ops.wm.read_factory_settings(use_empty=True)
++bpy.ops.import_scene.fbx(filepath=str(root / 'Assets/Resources/Kemono/Kemono_Character.fbx'))
++rig = next(o for o in bpy.data.objects if o.type == 'ARMATURE')
++parts = [o for o in bpy.data.objects if o.type == 'MESH' and o.name.startswith('Part_')]
++plates = [o for o in parts if o.name.startswith('Part_Equipment_Armor_')]
++assert len(plates) >= 10, len(plates)
++assert all(n in [o.name for o in parts] for n in ['Part_Body_BASE_ARMOR', 'Part_Outfit_LINEN_ARMOR', 'Part_Hair_LONG_ARMOR'])
++assert all('Part_Face_' + expression + '_00' in [o.name for o in parts] for expression in ['NEUTRAL', 'SLEEP', 'DEAD', 'PAIN'])
++for plate in plates:
++    assert any(m.type == 'ARMATURE' and m.object == rig for m in plate.modifiers), plate.name
++    groups = {g.group for v in plate.data.vertices for g in v.groups if g.weight > 0}
++    assert len(groups) == 1, (plate.name, groups)
++    assert all(abs(sum(g.weight for g in v.groups) - 1) < .0001 for v in plate.data.vertices), plate.name
++    assert plate.vertex_groups[next(iter(groups))].name in rig.data.bones
++report = {'parts': len(parts), 'rigid_plates': len(plates), 'bones': len(rig.data.bones),
++          'plate_names': [o.name for o in plates], 'result': 'PASS; Unity Play not run'}
++(root / 'Temp/graphics-1024/character-reimport.json').write_text(json.dumps(report, indent=2), encoding='utf-8')
++print('PASS', len(parts), 'parts', len(plates), 'single-bone rigid plates', len(rig.data.bones), 'bones')
+--- /dev/null
++++ b/art/production-kit-20261019/scripts/repair_wrist_roll.py
+@@ -0,0 +1,79 @@
++"""Try a bounded handle roll; retain a clip only if wrist and mesh-clearance checks improve.
++
++Uses the kit's existing two-bone solver. Hand positions, timing, left-hand grip and
++tool length stay fixed. Rejected candidates do not change the source action.
++"""
++import ast, bpy, json, math, shutil
++from pathlib import Path
++from mathutils import Matrix, Vector
++
++root = Path('E:/Git/ant')
++kit = root / 'art/production-kit-20261019'
++bpy.ops.wm.open_mainfile(filepath=str(kit / 'pk-motions.blend'))
++rig = bpy.data.objects['KemonoRig']; vl = bpy.context.view_layer; scene = bpy.context.scene; E = bpy.data.objects
++tree = ast.parse((kit / 'scripts/build_motions.py').read_text(encoding='utf-8-sig'))
++for node in tree.body:
++    if isinstance(node, ast.FunctionDef) and node.name in {'arm_cost', 'solve_arm', 'attach', 'hand_verts', 'clearance', 'wrist_bend', 'tool_length'}:
++        exec(compile(ast.Module(body=[node], type_ignores=[]), 'kit_solver', 'exec'))
++    if isinstance(node, ast.Assign) and any(isinstance(t, ast.Name) and t.id in {'CLEAR_PARTS', 'ARMOUR_PARTS'} for t in node.targets):
++        exec(compile(ast.Module(body=[node], type_ignores=[]), 'kit_constants', 'exec'))
++hand_in = rig.data.bones['Socket.Tool.R'].matrix_local.inverted() @ rig.data.bones['hand.R'].matrix_local
++report = {}
++accepted = []
++for name, tool in [('Tool_Mine', 'Tool_Pickaxe_Steel'), ('Tool_Dig', 'Tool_Shovel_Steel'), ('Tool_Till', 'Tool_Hoe_Steel')]:
++    original = bpy.data.actions['PK|' + name]
++    frames = list(range(1, int(original.get('duration_frames', original.frame_range[1])) + 2))
++    def use(action):
++        rig.animation_data.action = action
++        rig.animation_data.action_slot = action.slots[0]
++    use(original)
++    prop = attach(tool, 'Socket.Tool.R')
++    before_clear = clearance(prop, frames, 'RL')
++    before_bend = 0
++    poses = {}; rolls = []; previous = 0
++    for frame in frames:
++        scene.frame_set(frame); vl.update()
++        before_bend = max(before_bend, wrist_bend('R'))
++        socket = rig.pose.bones['Socket.Tool.R'].matrix.copy()
++        shoulder = rig.pose.bones['upper_arm.R'].head.copy()
++        def score(angle):
++            h = socket @ Matrix.Rotation(math.radians(angle), 4, 'Y') @ hand_in
++            return arm_cost('R', h, shoulder) + math.radians(.02 * abs(angle) + .04 * abs(angle - previous))
++        angle = min(range(-45, 46, 5), key=score)
++        if original.get('loop') and frame == frames[-1]: angle = rolls[0]
++        previous = angle; rolls.append(angle)
++        solve_arm('R', socket @ Matrix.Rotation(math.radians(angle), 4, 'Y') @ hand_in)
++        poses[frame] = {n: rig.pose.bones[n].matrix.copy() for n in ('upper_arm.R', 'forearm.R', 'hand.R')}
++    candidate = original.copy(); use(candidate)
++    for frame in frames:
++        scene.frame_set(frame)
++        for name_bone, matrix in poses[frame].items():
++            bone = rig.pose.bones[name_bone]; bone.matrix = matrix; vl.update()
++            bone.keyframe_insert('rotation_euler', frame=frame, group=name_bone)
++    after_clear = clearance(prop, frames, 'RL')
++    after_bend = 0; left_error = 0; lengths = []
++    for frame in frames:
++        scene.frame_set(frame); vl.update()
++        after_bend = max(after_bend, wrist_bend('R'))
++        left = rig.matrix_world @ rig.pose.bones['Socket.Tool.L'].head
++        left_error = max(left_error, (left - prop.matrix_world @ Vector(E[tool]['grip2'])).length)
++        lengths.append(tool_length(prop))
++    count = lambda hits: sum(v['frames'] for v in hits.values())
++    keep = after_bend < 60 and after_bend < before_bend - 3 and count(after_clear) <= count(before_clear) and left_error < .001 and max(lengths) - min(lengths) < .00001
++    report[name] = {'accepted': keep, 'wrist_before_deg': before_bend, 'wrist_after_deg': after_bend,
++                    'clearance_before': before_clear, 'clearance_after': after_clear, 'left_grip_error_m': left_error,
++                    'rigid_length_drift_m': max(lengths) - min(lengths), 'roll_deg': rolls}
++    if keep:
++        bpy.data.actions.remove(original); candidate.name = 'PK|' + name; candidate.use_fake_user = True; accepted.append(name)
++    else:
++        use(original); bpy.data.actions.remove(candidate)
++    bpy.data.objects.remove(prop)
++rig.animation_data.action = None
++for bone in rig.pose.bones:
++    bone.matrix_basis.identity()
++if accepted:
++    backup = root / 'Temp/graphics-1024/pk-motions-before-wrist.blend'
++    if not backup.exists(): shutil.copyfile(kit / 'pk-motions.blend', backup)
++    bpy.ops.wm.save_as_mainfile(filepath=str(kit / 'pk-motions.blend'))
++(root / 'Temp/graphics-1024/wrist-repair.json').write_text(json.dumps(report, indent=2), encoding='utf-8')
++print('WRIST', {k: {'accepted': v['accepted'], 'before': round(v['wrist_before_deg'], 1), 'after': round(v['wrist_after_deg'], 1)} for k,v in report.items()})
+--- /dev/null
++++ b/Assets/Resources/Kemono/Textures/SourceMaterials.json
+@@ -0,0 +1,534 @@
++{
++  "materials": [
++    {
++      "name": "Bandage",
++      "color": [
++        0.7799999713897705,
++        0.6299999952316284,
++        0.4300000071525574,
++        1.0
++      ],
++      "linked": false
++    },
++    {
++      "name": "BlushInk",
++      "color": [
++        0.8399999737739563,
++        0.2800000011920929,
++        0.2800000011920929,
++        1.0
++      ],
++      "linked": false
++    },
++    {
++      "name": "Bruise",
++      "color": [
++        0.36000001430511475,
++        0.2199999988079071,
++        0.4000000059604645,
++        1.0
++      ],
++      "linked": false
++    },
++    {
++      "name": "Eye.001",
++      "color": [
++        1.0,
++        1.0,
++        1.0,
++        1.0
++      ],
++      "linked": true
++    },
++    {
++      "name": "EyeBrowAndlash.001",
++      "color": [
++        0.04500000178813934,
++        0.019999999552965164,
++        0.02500000037252903,
++        1.0
++      ],
++      "linked": false
++    },
++    {
++      "name": "Face.001",
++      "color": [
++        0.800000011920929,
++        0.800000011920929,
++        0.800000011920929,
++        1.0
++      ],
++      "linked": true
++    },
++    {
++      "name": "FaceInk",
++      "color": [
++        0.10000000149011612,
++        0.03500000014901161,
++        0.03500000014901161,
++        1.0
++      ],
++      "linked": false
++    },
++    {
++      "name": "Fur_Ivory",
++      "color": [
++        0.8199999928474426,
++        0.7900000214576721,
++        0.7599999904632568,
++        1.0
++      ],
++      "linked": false
++    },
++    {
++      "name": "Hair lightReflect.001",
++      "color": [
++        0.8999999761581421,
++        0.8999999761581421,
++        0.8999999761581421,
++        1.0
++      ],
++      "linked": true
++    },
++    {
++      "name": "Hair.001",
++      "color": [
++        0.800000011920929,
++        0.800000011920929,
++        0.800000011920929,
++        1.0
++      ],
++      "linked": true
++    },
++    {
++      "name": "InnerRose",
++      "color": [
++        0.699999988079071,
++        0.3400000035762787,
++        0.3700000047683716,
++        1.0
++      ],
++      "linked": false
++    },
++    {
++      "name": "PK_2a2340_0010",
++      "color": [
++        0.023153366521000862,
++        0.016807375475764275,
++        0.05126945674419403,
++        1.0
++      ],
++      "linked": false
++    },
++    {
++      "name": "PK_2f3640_0010",
++      "color": [
++        0.028426039963960648,
++        0.03688944876194,
++        0.05126945674419403,
++        1.0
++      ],
++      "linked": false
++    },
++    {
++      "name": "PK_3a2414_0010",
++      "color": [
++        0.0423114113509655,
++        0.017641954123973846,
++        0.006995410192757845,
++        1.0
++      ],
++      "linked": false
++    },
++    {
++      "name": "PK_3a3f48_0010",
++      "color": [
++        0.0423114113509655,
++        0.04970656707882881,
++        0.06480326503515244,
++        1.0
++      ],
++      "linked": false
++    },
++    {
++      "name": "PK_5a3a22_0010",
++      "color": [
++        0.10224173218011856,
++        0.0423114113509655,
++        0.01599629409611225,
++        1.0
++      ],
++      "linked": false
++    },
++    {
++      "name": "PK_6a4426_0010",
++      "color": [
++        0.1441284716129303,
++        0.05780543014407158,
++        0.019382361322641373,
++        1.0
++      ],
++      "linked": false
++    },
++    {
++      "name": "PK_6f93b4_0010",
++      "color": [
++        0.15896083414554596,
++        0.2917706370353699,
++        0.4564110338687897,
++        1.0
++      ],
++      "linked": false
++    },
++    {
++      "name": "PK_6f93b4_5010",
++      "color": [
++        0.15896083414554596,
++        0.2917706370353699,
++        0.4564110338687897,
++        1.0
++      ],
++      "linked": false
++    },
++    {
++      "name": "PK_7a4e2a_0010",
++      "color": [
++        0.1946178376674652,
++        0.07618538290262222,
++        0.023153366521000862,
++        1.0
++      ],
++      "linked": false
++    },
++    {
++      "name": "PK_7a5a34_0010",
++      "color": [
++        0.1946178376674652,
++        0.10224173218011856,
++        0.03433980792760849,
++        1.0
++      ],
++      "linked": false
++    },
++    {
++      "name": "PK_7d68e0_0010",
++      "color": [
++        0.20507873594760895,
++        0.1384316086769104,
++        0.7454041838645935,
++        1.0
++      ],
++      "linked": false
++    },
++    {
++      "name": "PK_7d68e0_5010",
++      "color": [
++        0.20507873594760895,
++        0.1384316086769104,
++        0.7454041838645935,
++        1.0
++      ],
++      "linked": false
++    },
++    {
++      "name": "PK_8a5a30_0010",
++      "color": [
++        0.2541520893573761,
++        0.10224173218011856,
++        0.02955683507025242,
++        1.0
++      ],
++      "linked": false
++    },
++    {
++      "name": "PK_8a8580_0010",
++      "color": [
++        0.2541520893573761,
++        0.2345505803823471,
++        0.2158605009317398,
++        1.0
++      ],
++      "linked": false
++    },
++    {
++      "name": "PK_8a9096_0010",
++      "color": [
++        0.2541520893573761,
++        0.2788942754268646,
++        0.3049873113632202,
++        1.0
++      ],
++      "linked": false
++    },
++    {
++      "name": "PK_8a9096_5010",
++      "color": [
++        0.2541520893573761,
++        0.2788942754268646,
++        0.3049873113632202,
++        1.0
++      ],
++      "linked": false
++    },
++    {
++      "name": "PK_a8783a_0010",
++      "color": [
++        0.3915724754333496,
++        0.18782077729701996,
++        0.0423114113509655,
++        1.0
++      ],
++      "linked": false
++    },
++    {
++      "name": "PK_a8783a_5010",
++      "color": [
++        0.3915724754333496,
++        0.18782077729701996,
++        0.0423114113509655,
++        1.0
++      ],
++      "linked": false
++    },
++    {
++      "name": "PK_b8c2ca_0010",
++      "color": [
++        0.4793201684951782,
++        0.5394794940948486,
++        0.5906188488006592,
++        1.0
++      ],
++      "linked": false
++    },
++    {
++      "name": "PK_b8c2ca_6010",
++      "color": [
++        0.4793201684951782,
++        0.5394794940948486,
++        0.5906188488006592,
++        1.0
++      ],
++      "linked": false
++    },
++    {
++      "name": "PK_c06a3c_5010",
++      "color": [
++        0.5271151065826416,
++        0.1441284716129303,
++        0.045186202973127365,
++        1.0
++      ],
++      "linked": false
++    },
++    {
++      "name": "PK_c8a050_8010",
++      "color": [
++        0.577580451965332,
++        0.35153260827064514,
++        0.0802198201417923,
++        1.0
++      ],
++      "linked": false
++    },
++    {
++      "name": "PK_c8a870_0010",
++      "color": [
++        0.577580451965332,
++        0.3915724754333496,
++        0.16202937066555023,
++        1.0
++      ],
++      "linked": false
++    },
++    {
++      "name": "PK_c9a8ff_0010",
++      "color": [
++        0.5840784311294556,
++        0.3915724754333496,
++        1.0,
++        1.0
++      ],
++      "linked": false
++    },
++    {
++      "name": "PK_c9a8ff_02510",
++      "color": [
++        0.5840784311294556,
++        0.3915724754333496,
++        1.0,
++        1.0
++      ],
++      "linked": false
++    },
++    {
++      "name": "PK_c9a8ff_03010",
++      "color": [
++        0.5840784311294556,
++        0.3915724754333496,
++        1.0,
++        1.0
++      ],
++      "linked": false
++    },
++    {
++      "name": "PK_e8eef2_0010",
++      "color": [
++        0.8069522380828857,
++        0.8549926280975342,
++        0.8879231214523315,
++        1.0
++      ],
++      "linked": false
++    },
++    {
++      "name": "PK_Equip_Brass",
++      "color": [
++        0.577580451965332,
++        0.35153260827064514,
++        0.0802198201417923,
++        1.0
++      ],
++      "linked": false
++    },
++    {
++      "name": "PK_Equip_Leather",
++      "color": [
++        0.2541520893573761,
++        0.10224173218011856,
++        0.03433980792760849,
++        1.0
++      ],
++      "linked": false
++    },
++    {
++      "name": "PK_Equip_Plate",
++      "color": [
++        0.5271151065826416,
++        0.1441284716129303,
++        0.045186202973127365,
++        1.0
++      ],
++      "linked": false
++    },
++    {
++      "name": "PK_Equip_Shell",
++      "color": [
++        0.5271151065826416,
++        0.1441284716129303,
++        0.045186202973127365,
++        1.0
++      ],
++      "linked": false
++    },
++    {
++      "name": "PK_Equip_Strap",
++      "color": [
++        0.1441284716129303,
++        0.05780543014407158,
++        0.019382361322641373,
++        1.0
++      ],
++      "linked": false
++    },
++    {
++      "name": "PlainLinen",
++      "color": [
++        0.6200000047683716,
++        0.5899999737739563,
++        0.47999998927116394,
++        1.0
++      ],
++      "linked": false
++    },
++    {
++      "name": "Scar",
++      "color": [
++        0.3499999940395355,
++        0.11999999731779099,
++        0.10000000149011612,
++        1.0
++      ],
++      "linked": false
++    },
++    {
++      "name": "Settler_Blue.001",
++      "color": [
++        0.20000000298023224,
++        0.3700000047683716,
++        0.4699999988079071,
++        1.0
++      ],
++      "linked": false
++    },
++    {
++      "name": "Settler_EarFur.001",
++      "color": [
++        0.8299999833106995,
++        0.800000011920929,
++        0.800000011920929,
++        1.0
++      ],
++      "linked": false
++    },
++    {
++      "name": "Settler_EarInner.001",
++      "color": [
++        0.699999988079071,
++        0.3400000035762787,
++        0.3700000047683716,
++        1.0
++      ],
++      "linked": false
++    },
++    {
++      "name": "Settler_Leather.001",
++      "color": [
++        0.20000000298023224,
++        0.10499999672174454,
++        0.05999999865889549,
++        1.0
++      ],
++      "linked": false
++    },
++    {
++      "name": "Settler_Linen.001",
++      "color": [
++        0.800000011920929,
++        0.7400000095367432,
++        0.6100000143051147,
++        1.0
++      ],
++      "linked": false
++    },
++    {
++      "name": "Settler_RecoloredSourceCloth.001",
++      "color": [
++        0.800000011920929,
++        0.800000011920929,
++        0.800000011920929,
++        1.0
++      ],
++      "linked": true
++    },
++    {
++      "name": "Sweat",
++      "color": [
++        0.25999999046325684,
++        0.6499999761581421,
++        0.8500000238418579,
++        1.0
++      ],
++      "linked": false
++    },
++    {
++      "name": "Tears",
++      "color": [
++        0.25999999046325684,
++        0.6499999761581421,
++        0.8500000238418579,
++        1.0
++      ],
++      "linked": false
++    }
++  ]
++}
+\ No newline at end of file
+--- a/art/production-kit-20261019/scripts/export_character.py
++++ b/art/production-kit-20261019/scripts/export_character.py
+@@ -28,11 +28,29 @@
+ 
+ 
+ parts = [o for o in R.parts() if o.parent == rig or any(m.type == 'ARMATURE' and m.object == rig for m in o.modifiers)]
++# Rigid plates use the same skeleton, with one bone weight per vertex. This avoids
++# recreating Blender bone-parent inverse matrices in the Unity equipment code.
++for src in list(bpy.data.objects):
++    if not src.name.startswith('Armor_') or not src.get('rigid') or src.name.startswith('Armor_Breastplate_Trim_'):
++        continue
++    bone = src.get('bone')
++    if bone not in rig.data.bones:
++        continue
++    obj = src.copy(); obj.data = src.data.copy()
++    bpy.context.scene.collection.objects.link(obj)
++    obj.name = 'Part_Equipment_' + src.name
++    obj.data.transform(rig.matrix_world.inverted() @ src.matrix_world)
++    obj.parent = rig; obj.matrix_parent_inverse.identity(); obj.matrix_basis.identity()
++    obj.modifiers.clear(); obj.vertex_groups.clear()
++    group = obj.vertex_groups.new(name=bone)
++    group.add(list(range(len(obj.data.vertices))), 1, 'REPLACE')
++    modifier = obj.modifiers.new('RigidBone', 'ARMATURE'); modifier.object = rig
++    parts.append(obj)
+ select([rig] + parts)
+ bpy.ops.export_scene.fbx(filepath=str(out / 'Kemono_Character.fbx'), object_types={'MESH', 'ARMATURE'}, bake_anim=False, path_mode='COPY', embed_textures=True, **COMMON)  # 얼굴·눈·옷 텍스처 포함
+ listing = {'Kemono_Character.fbx': {'parts': sorted(o.name for o in parts), 'bones': len(rig.data.bones)}}
+ 
+-acts = R.load_actions()
++acts = {} if '--model-only' in sys.argv else R.load_actions()
+ rig.animation_data_create(); sc = bpy.context.scene
+ for name, act in acts.items():
+     rig.animation_data.action = act

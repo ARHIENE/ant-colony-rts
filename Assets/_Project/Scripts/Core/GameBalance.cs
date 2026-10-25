@@ -128,6 +128,7 @@ namespace AntColony.Core
         // 포만 0~100, 깨어 있는 낮(10분) 동안 3끼 먹도록 30 이하에서 식당으로 간다.
         public const float SatietyPerSecond = 70f / 75f, // 하루(150초) 2끼(2026-10-23 G08): 100→30까지 75초
             EatBelowSatiety = 30, EatSeconds = 10, StarveRetrySeconds = 30;
+        public const float UnconsciousSatietyFactor = .5f; // G11: 의식 불명 중 포만도 감소 절반 — 포만도 100이면 하루(150초) 뒤 30 남아 자연 회복 가능(2026-10-25 추천안 자동 선택)
         public static readonly float[] MealMood = { -8, 0, 5, 10 }; // 날것·간단·좋은·고급
         public const float FoodPoisonSeconds = 60, FoodPoisonMood = -10;
         // ponytail: 썩은 식품 식사 기분 −12·식중독 25%(잠정, 증상·치료는 질병 기획에서). 확정되면 여기만 고친다.

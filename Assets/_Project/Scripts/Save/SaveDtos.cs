@@ -246,6 +246,8 @@ namespace AntColony.Save
         public List<int> crew = new List<int>();
         public bool running;
         public int destinationIndex = -1;
+        public List<int> stops; // 2026-10-25 경유지 1~3곳(사이트 순번). null = 구저장(destinationIndex 하나)
+        public int leg;
         public float waitSeconds;
         public string status = "Off";
     }

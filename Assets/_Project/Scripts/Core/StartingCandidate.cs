@@ -16,8 +16,8 @@ namespace AntColony.Core
 
         public static StartingCandidate Roll(int slot)
         {
-            var t = CommanderTraits.Random();
-            // 노망은 노화로 얻는 특성이다. 시작 다이아 특성은 현재 생성 목록에 없다.
+            var t = CommanderTraits.Random(true);
+            // 노망은 노화로 얻는 특성이다. 시작 후보는 다이아를 제외해 정규화한다.
             t.values.Remove(CommanderTrait.Senile);
             var skills = new CommanderTalents(); skills.Generate(t);
             return new StartingCandidate { name = "생존자 " + (slot + 1), ageYears = UnityEngine.Random.Range(18, 31),

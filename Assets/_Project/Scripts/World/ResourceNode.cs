@@ -191,6 +191,7 @@ namespace AntColony.World
             regrowSeconds = 0f;
             requiresFishing = false;
             ownerColony = null;
+            ProductionProp.ShowResource(this);
             if (FoodLots.Perishable(type) && !TryGetComponent<FloorFood>(out _)) gameObject.AddComponent<FloorFood>(); // 바닥 식품은 상온 부패(2026-10-12)
         }
 

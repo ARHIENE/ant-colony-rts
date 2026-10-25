@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using AntColony.Buildings;
 using AntColony.Units;
 using AntColony.World;
@@ -11,23 +12,24 @@ namespace AntColony.UI
     // 검사가 찾는 이름(WorldMap, Annex, Abandon, Station Selected, Start/Stop Auto, SettlementDefenseStatus, 마커=거점 제목)은 유지한다.
     public class WorldMapPanel : MonoBehaviour
     {
-        private const float MapW = 672, MapH = 480, MarkerW = 46, MarkerH = 22;
+        private const float MarkerSize = 22, Dock = 60; // Dock: 하단 HUD 메뉴바(V6Dock 52) 위 여백
         private GameObject panel;
         private UnityEngine.UI.Text status, siteInfo, scienceStatus, feedback, mapTitle, routeStatus, defenseStatus, worldNotice;
         private UnityEngine.UI.Button annex, abandon, startRoute, stopRoute;
         private readonly List<UnityEngine.UI.Button> markers = new List<UnityEngine.UI.Button>();
-        private RectTransform mapRoot, selectionRing;
+        private RectTransform mapRoot, selectionRing, overlay, expeditions, science, legend, siteRect;
+        private float uiScale = 1;
         private ExpeditionSite selectedSite;
         private ExpeditionTransport selectedShip;
         private bool seenUnlock = true, cameraWasEnabled;
         private UnityEngine.UI.Text departurePlan;
         private ExpeditionTransport warnedShip;
         private ExpeditionSite warnedSite;
-        private const float PlanetX = (MapW - 390) / 2, PlanetY = 38, PlanetSize = 390;
         private WorldPlanet planetView;
         private RectTransform expeditionList;
         private readonly Dictionary<ExpeditionTransport, UnityEngine.UI.Text> boxes = new Dictionary<ExpeditionTransport, UnityEngine.UI.Text>();
         private ExpeditionTransport expanded;
+        private readonly List<ExpeditionSite> routeStops = new List<ExpeditionSite>();
         public bool IsOpen => panel != null && panel.activeSelf;
         // 월드 위 OnGUI 표시(장수 머리 위·채집 금지)가 전체 화면 월드맵 위에 그려지지 않게 한다.
         public static bool AnyOpen { get; private set; }
@@ -39,93 +41,134 @@ namespace AntColony.UI
             worldNotice.name = "SettlementNotice";
             worldNotice.raycastTarget = false;
 
+            // 2026-10-24 림월드식: 지구가 전체 화면, 패널은 모서리에 작게. HUD 캔버스는 고정 픽셀이라 overlay를 화면 높이에 맞춰 확대한다.
             var rect = MenuTheme.Rect("WorldMapPanel", transform);
             rect.anchorMin = Vector2.zero; rect.anchorMax = Vector2.one; rect.offsetMin = Vector2.zero; rect.offsetMax = new Vector2(0, -40);
             rect.gameObject.AddComponent<UnityEngine.UI.Image>().color = MenuTheme.Hex(0x0f0c09);
             panel = rect.gameObject;
+            planetView = WorldPlanet.Create(rect);
+            overlay = MenuTheme.Rect("Overlay", rect); overlay.anchorMin = overlay.anchorMax = overlay.pivot = new Vector2(.5f, .5f);
 
-            // 왼쪽: 원정대(수송 수단·승무원).
-            var left = L.Plate(rect, "Expeditions", 12, 12, 360, 746);
-            L.Label(left, "<b>원정대</b>", 15, 12, 8, 200, 26);
-            // 원정 1건 = 박스(목적지·남은 시간·상태·장수·병력·수단/적재·전리품·부대 기분/부상). 클릭 = 행성을 그 목적지로 돌리고 박스를 펼침.
-            expeditionList = L.List(rect, 24, 44, 336, 166, 4);
-            status = L.Label(rect, "", 13, 24, 48, 336, 160, MenuTheme.Muted, TextAnchor.UpperLeft);
-            status.gameObject.SetActive(false);
-            Btn(rect, "Next Transport", "다음 수송 수단", 24, 214, NextShip);
-            Btn(rect, "Board Selected", "선택 장수 탑승", 196, 214, () => ChangeCrew(false));
-            Btn(rect, "Unload Crew", "승무원 내리기", 24, 254, () => Result(selectedShip != null && selectedShip.TryUnloadCrew(), "하차 지시를 내렸습니다."));
-            Btn(rect, "Station Selected", "선택 장수 주둔", 196, 254, () => ChangeCrew(true));
-            Btn(rect, "Return Home", "귀환", 24, 294, () => Result(selectedShip != null && selectedShip.TryReturn(), "장수와 화물을 싣고 귀환합니다."));
-            Btn(rect, "Collect Equipment / Blueprint", "전리품·설계도 싣기", 196, 294,
-                () => Result(selectedShip != null && BossRewardTransfer.TryCollect(selectedShip), "전리품을 실었습니다. 귀환하면 사용할 수 있습니다."));
-            Btn(rect, "Walking Formation", "도보 편성", 24, 540, () => {
-                Toggle(); GameMenuController.Instance.WalkingFormation(party => { selectedShip = party; Toggle(); });
-            });
-            Btn(rect, "Load Expedition Food", "권장 보급 싣기", 196, 540, () => Result(selectedShip != null && selectedShip.TryLoadFood(
-                Mathf.Min(selectedShip.ReturnCargoSpace, selectedShip.RecommendedFood(selectedSite) - selectedShip.AvailableFood)), "보급을 실었습니다."));
-            departurePlan = L.Label(rect, "", 12, 24, 582, 336, 90, MenuTheme.Warning, TextAnchor.UpperLeft);
-            L.Line(rect, 24, 340, 336);
-            routeStatus = L.Label(rect, "", 12, 24, 348, 336, 80, MenuTheme.Muted, TextAnchor.UpperLeft);
-            L.Label(rect, "탑승·주둔·귀환: 8m 이내, 운반 중인 자원은 먼저 내려놓기.\n주둔: 수송 수단이 돌아와도 거점에 남음. 탑승: 선택한 주둔 장수를 다시 태움.\n편입 거점 생산: 60초마다 (식량 10 / 재료 5) × 난이도, 수송으로 집에 옮김.",
-                12, 24, 436, 336, 90, MenuTheme.Dim, TextAnchor.UpperLeft);
-            feedback = L.Label(rect, "", 13, 24, 680, 336, 70, MenuTheme.Accent, TextAnchor.UpperLeft);
-
-            // 가운데: 행성 지도. 마커는 거점의 MapPosition(0~1)을 지도 안으로 옮긴다.
-            var map = L.Box(rect, "WorldMap", 384, 12, MapW, MapH, MenuTheme.Hex(0x16120e), true);
-            planetView = WorldPlanet.Create(map, PlanetX, PlanetY, PlanetSize);
-            mapTitle = L.Label(map, "", 13, 12, 6, 600, 40, MenuTheme.Muted, TextAnchor.UpperLeft);
-            selectionRing = L.Box(map, "SelectionRing", 0, 0, MarkerW + 8, MarkerH + 8, MenuTheme.Accent);
+            // 가운데(전체): 지구 위 마커·제목. 이미지가 없어 클릭이 통과하므로 드래그·휠은 지구가 받는다.
+            var map = MenuTheme.Rect("WorldMap", overlay);
+            map.anchorMin = Vector2.zero; map.anchorMax = Vector2.one; map.pivot = new Vector2(0, 1); map.offsetMin = map.offsetMax = Vector2.zero;
+            mapRoot = map;
+            mapTitle = L.Label(map, "", 14, 0, 0, 520, 44, MenuTheme.TextColor, TextAnchor.UpperCenter);
+            Corner(mapTitle.rectTransform, new Vector2(.5f, 1), 0, 10);
+            selectionRing = L.Box(map, "SelectionRing", 0, 0, MarkerSize + 8, MarkerSize + 8, MenuTheme.Accent);
             selectionRing.GetComponent<UnityEngine.UI.Image>().raycastTarget = false;
             selectionRing.gameObject.SetActive(false);
-            L.Button(map, "Home", "정착지로", 12, MapH - 46, 90, 34, () => { WorldMapManager.Instance.ViewSite(null); Toggle(); }, "홈 둥지 화면으로 돌아갑니다.");
-            startRoute = L.Button(map, "Start Auto", "자동 수송 시작", 110, MapH - 46, 150, 34, () =>
-                Result(selectedShip != null && selectedShip.Route != null && selectedShip.Route.TryStart(selectedSite), "자동 수송을 시작했습니다. 장수가 모아서 돌아옵니다."));
-            stopRoute = L.Button(map, "Stop Auto", "자동 수송 중지", 268, MapH - 46, 150, 34, () => {
+            BuildMarkers();
+
+            // 오른쪽 아래 버튼줄. 검사 경로(WorldMap/Start Auto·Stop Auto)를 지키려고 자동 수송 버튼은 WorldMap 아래에 둔다.
+            var bar = Corner(MenuTheme.Rect("Map Actions", overlay), new Vector2(1, 0), 12, Dock, 618, 34);
+            L.Button(bar, "Home", "정착지로", 0, 0, 90, 34, () => { WorldMapManager.Instance.ViewSite(null); Toggle(); }, "홈 둥지 화면으로 돌아갑니다.");
+            L.Button(bar, "Diplomacy", "외교", 368, 0, 76, 34, () => GameMenuController.Instance?.Diplomacy(), "접촉한 문명 · 협정 · 전쟁 · 거래");
+            L.Button(bar, "Science Toggle", "과학·수송", 450, 0, 96, 34, () => science.gameObject.SetActive(!science.gameObject.activeSelf));
+            L.Button(bar, "Legend Toggle", "범례", 552, 0, 66, 34, () => legend.gameObject.SetActive(!legend.gameObject.activeSelf));
+            startRoute = L.Button(map, "Start Auto", "자동 수송 시작", 0, 0, 130, 34, () =>
+            {
+                // 경유지를 지정했으면 그 순서로, 아니면 선택 거점 하나로 시작한다.
+                var route = routeStops.Count > 0 ? (IReadOnlyList<ExpeditionSite>)routeStops.ToArray() : new[] { selectedSite };
+                var ok = selectedShip != null && selectedShip.Route != null && selectedShip.Route.TryStart(route);
+                Result(ok, "자동 수송을 시작했습니다. 장수가 경유지를 차례로 돌며 모아서 돌아옵니다.");
+                if (ok) routeStops.Clear();
+            });
+            stopRoute = L.Button(map, "Stop Auto", "자동 수송 중지", 0, 0, 130, 34, () => {
                 selectedShip?.Route?.Stop();
                 feedback.text = "자동 수송을 멈췄습니다. 진행 중인 이동·작업은 계속되며, 나가 있다면 직접 귀환시키세요.";
             });
-            // HUD v3: 외교는 상단 메뉴에서 빼고 월드맵 안으로.
-            L.Button(map, "Diplomacy", "외교", 426, MapH - 46, 90, 34, () => GameMenuController.Instance?.Diplomacy(), "접촉한 문명 · 협정 · 전쟁 · 거래");
-            mapRoot = map;
-            BuildMarkers();
+            Corner((RectTransform)startRoute.transform, new Vector2(1, 0), 12 + 618 - 96 - 130, Dock);
+            Corner((RectTransform)stopRoute.transform, new Vector2(1, 0), 12 + 618 - 232 - 130, Dock);
 
-            // 가운데 아래: 선택 거점 정보와 행동.
-            L.Plate(rect, "SiteInfo", 384, 504, MapW, 254);
-            siteInfo = L.Label(rect, "", 13, 398, 514, 644, 100, align: TextAnchor.UpperLeft);
-            Btn(rect, "Depart", "원정 보내기", 398, 622, Depart, 156);
-            Btn(rect, "View Battlefield", "전장 보기", 560, 622, () => {
+            // 왼쪽 위: 원정대(버튼으로 접기). 원정 1건 = 박스, 클릭 = 지구를 그 목적지로 돌리고 펼침.
+            var toggle = L.Button(overlay, "Expeditions Toggle", "원정대 ▾", 0, 0, 120, 32, () => expeditions.gameObject.SetActive(!expeditions.gameObject.activeSelf));
+            Corner((RectTransform)toggle.transform, new Vector2(0, 1), 12, 10);
+            expeditions = Corner(L.Plate(overlay, "Expeditions", 0, 0, 360, 500), new Vector2(0, 1), 12, 48);
+            var e = expeditions;
+            expeditionList = L.List(e, 12, 10, 336, 160, 4);
+            status = L.Label(e, "", 13, 12, 10, 336, 160, MenuTheme.Muted, TextAnchor.UpperLeft);
+            status.gameObject.SetActive(false);
+            Btn(e, "Next Transport", "다음 수송 수단", 12, 178, NextShip);
+            Btn(e, "Board Selected", "선택 장수 탑승", 184, 178, () => ChangeCrew(false));
+            Btn(e, "Unload Crew", "승무원 내리기", 12, 216, () => Result(selectedShip != null && selectedShip.TryUnloadCrew(), "하차 지시를 내렸습니다."));
+            Btn(e, "Station Selected", "선택 장수 주둔", 184, 216, () => ChangeCrew(true));
+            Btn(e, "Return Home", "귀환", 12, 254, () => Result(selectedShip != null && selectedShip.TryReturn(), "장수와 화물을 싣고 귀환합니다."));
+            Btn(e, "Collect Equipment / Blueprint", "전리품·설계도 싣기", 184, 254,
+                () => Result(selectedShip != null && BossRewardTransfer.TryCollect(selectedShip), "전리품을 실었습니다. 귀환하면 사용할 수 있습니다."));
+            Btn(e, "Walking Formation", "도보 편성", 12, 292, () => {
+                Toggle(); GameMenuController.Instance.WalkingFormation(party => { selectedShip = party; Toggle(); });
+            });
+            Btn(e, "Load Expedition Food", "권장 보급 싣기", 184, 292, () => Result(selectedShip != null && selectedShip.TryLoadFood(
+                Mathf.Min(selectedShip.ReturnCargoSpace, selectedShip.RecommendedFood(selectedSite) - selectedShip.AvailableFood)), "보급을 실었습니다."));
+            departurePlan = L.Label(e, "", 12, 12, 332, 336, 74, MenuTheme.Warning, TextAnchor.UpperLeft);
+            L.Line(e, 12, 410, 336);
+            routeStatus = L.Label(e, "", 12, 12, 416, 336, 40, MenuTheme.Muted, TextAnchor.UpperLeft);
+            Btn(e, "Add Route Stop", "경유지 추가", 12, 460, () =>
+            {
+                if (selectedSite == null || selectedSite.Disposition != ConquestDisposition.Annexed || routeStops.Contains(selectedSite)
+                    || routeStops.Count >= TransportRoute.MaxStops) feedback.text = $"편입 거점을 중복 없이 최대 {TransportRoute.MaxStops}곳까지 지정할 수 있습니다.";
+                else routeStops.Add(selectedSite);
+            });
+            Btn(e, "Clear Route Stops", "경유지 비우기", 184, 460, routeStops.Clear);
+
+            // 왼쪽 아래: 선택 거점 정보와 행동. 지구·이름표를 덜 가리게 다른 모서리 패널과 같은 360폭, 선택이 없으면 숨긴다(Update).
+            var site = siteRect = Corner(L.Plate(overlay, "SiteInfo", 0, 0, 360, 248), new Vector2(0, 0), 12, Dock);
+            siteInfo = L.Label(site, "", 13, 14, 10, 332, 100, align: TextAnchor.UpperLeft);
+            Btn(site, "Depart", "원정 보내기", 14, 114, Depart);
+            Btn(site, "View Battlefield", "전장 보기", 182, 114, () => {
                 var world = WorldMapManager.Instance;
                 if (world != null && selectedSite != null && world.ViewSite(selectedSite)) Toggle();
                 else feedback.text = "수송 수단이 도착해야 전장에 들어갈 수 있습니다.";
-            }, 156);
-            annex = Btn(rect, "Annex", "편입", 722, 622, () => ResolveConquest(ConquestDisposition.Annexed), 156);
-            abandon = Btn(rect, "Abandon", "포기", 884, 622, () => ResolveConquest(ConquestDisposition.Abandoned), 156);
-            defenseStatus = L.Label(rect, "", 12, 398, 668, 644, 22, MenuTheme.DangerInk);
+            });
+            annex = Btn(site, "Annex", "편입", 14, 152, () => ResolveConquest(ConquestDisposition.Annexed));
+            abandon = Btn(site, "Abandon", "포기", 182, 152, () => ResolveConquest(ConquestDisposition.Abandoned));
+            defenseStatus = L.Label(site, "", 12, 14, 190, 332, 20, MenuTheme.DangerInk);
             defenseStatus.name = "SettlementDefenseStatus";
+            feedback = L.Label(site, "", 12, 14, 212, 332, 32, MenuTheme.Accent, TextAnchor.UpperLeft);
 
-            // 오른쪽: 과학·수송 수단 건조 + 범례.
-            L.Plate(rect, "Science", 1068, 12, 360, 300);
-            L.Label(rect, "<b>과학 · 수송 수단</b>", 15, 1080, 20, 336, 26);
-            scienceStatus = L.Label(rect, "", 12, 1080, 50, 336, 110, MenuTheme.Muted, TextAnchor.UpperLeft);
-            Btn(rect, "Build Science Lab", "과학 연구소 건설", 1080, 170, () => {
+            // 오른쪽 아래: 과학·수송 수단 건조, 범례(버튼으로 펼침, 기본 숨김).
+            science = Corner(L.Plate(overlay, "Science", 0, 0, 360, 200), new Vector2(1, 0), 12, Dock + 44);
+            L.Label(science, "<b>과학 · 수송 수단</b>", 15, 12, 8, 336, 26);
+            scienceStatus = L.Label(science, "", 12, 12, 36, 336, 84, MenuTheme.Muted, TextAnchor.UpperLeft);
+            Btn(science, "Build Science Lab", "과학 연구소 건설", 12, 120, () => {
                 if (FindFirstObjectByType<BuildingPlacementController>().BeginScienceLabPlacement()) Toggle();
                 else feedback.text = "본거지, 시민 60, 낚시, 2단계 병영, 선택한 건설 장수가 필요합니다.";
             });
-            Btn(rect, "Science / Researchers", "과학 연구 · 연구원", 1252, 170, () => { Toggle(); GameMenuController.Instance.Science(); });
-            Btn(rect, "Build Vehicle 50F/60 재료", "차량 건조 식50 재료60", 1080, 210, () => ScienceAction(false, true));
-            Btn(rect, "Build Aircraft 80F/100 재료", "비행기 건조 식80 재료100", 1252, 210, () => ScienceAction(true, true));
-            var legend = L.Plate(rect, "Legend", 1068, 324, 360, 220);
-            L.Label(legend, "<b>범례</b>", 14, 12, 8, 200, 24);
-            L.Label(legend, "거점 종류   C 정착지 · B 보스 둥지 · R 자원지 · T 교역소", 12, 12, 38, 336, 20, MenuTheme.Muted);
+            Btn(science, "Science / Researchers", "과학 연구 · 연구원", 184, 120, () => { Toggle(); GameMenuController.Instance.Science(); });
+            Btn(science, "Build Vehicle 50F/60 재료", "차량 건조 식50 재료60", 12, 158, () => ScienceAction(false, true));
+            Btn(science, "Build Aircraft 80F/100 재료", "비행기 건조 식80 재료100", 184, 158, () => ScienceAction(true, true));
+            science.gameObject.SetActive(false);
+            legend = Corner(L.Plate(overlay, "Legend", 0, 0, 360, 150), new Vector2(1, 0), 12, Dock + 44);
+            L.Label(legend, "<b>범례</b>  C 정착지 · B 보스 둥지 · R 자원지 · T 교역소", 13, 12, 8, 336, 24);
             string[] names = { "편입 거점", "공격받는 거점", "포기한 거점", "문명·중립 (세력 색)" };
             Color[] colors = { new Color(.3f, .85f, .5f), new Color(1f, .25f, .15f), Color.gray, MenuTheme.Accent };
             for (var i = 0; i < names.Length; i++)
             {
-                L.Box(legend, "Swatch", 12, 68 + i * 26, 14, 14, colors[i] * .75f);
-                L.Label(legend, names[i], 12, 34, 64 + i * 26, 300, 22, MenuTheme.Muted);
+                L.Box(legend, "Swatch", 12, 40 + i * 26, 14, 14, colors[i] * .75f);
+                L.Label(legend, names[i], 12, 34, 36 + i * 26, 300, 22, MenuTheme.Muted);
             }
-            L.Button(rect, "Close", "닫기   M", 1318, 724, 110, 34, Toggle);
+            legend.gameObject.SetActive(false);
+            var close = L.Button(overlay, "Close", "닫기   M", 0, 0, 110, 34, Toggle);
+            Corner((RectTransform)close.transform, new Vector2(1, 1), 12, 10);
             panel.SetActive(false);
+        }
+
+        // 모서리 기준 배치: corner(0~1) 쪽에서 안쪽으로 (dx, dy) 띄운다. w·h를 주면 크기도 정한다.
+        private static RectTransform Corner(RectTransform r, Vector2 corner, float dx, float dy, float w = -1, float h = -1)
+        {
+            r.anchorMin = r.anchorMax = r.pivot = corner;
+            if (w >= 0) r.sizeDelta = new Vector2(w, h);
+            r.anchoredPosition = new Vector2(corner.x < .25f ? dx : corner.x > .75f ? -dx : 0, corner.y < .25f ? dy : corner.y > .75f ? -dy : 0);
+            return r;
+        }
+
+        // overlay를 패널 크기에 맞춘다: 높이 820 기준으로 확대(1~3배), 크기는 패널/배율 → 모서리 배치가 화면 모서리에 붙는다.
+        private void FitOverlay()
+        {
+            var size = ((RectTransform)panel.transform).rect.size;
+            uiScale = Mathf.Clamp(size.y / 820f, 1f, 3f);
+            overlay.localScale = Vector3.one * uiScale; overlay.sizeDelta = size / uiScale; overlay.anchoredPosition = Vector2.zero;
         }
 
         private UnityEngine.UI.Button Btn(Transform parent, string name, string label, float x, float y, System.Action action, float w = 164) =>
@@ -139,6 +182,7 @@ namespace AntColony.UI
             BuildMarkers();
             if (world.Unlocked && !seenUnlock) { seenUnlock = true; if (!IsOpen) Toggle(); }
             if (!IsOpen) return;
+            FitOverlay();
             defenseStatus.text = selectedSite != null && selectedSite.Defense != null ? selectedSite.Defense.Status : "";
             if (selectedShip == null) NextShip();
             departurePlan.text = selectedShip == null ? "도보 편성: 장수 1명·병력 0명부터 가능합니다." :
@@ -150,20 +194,21 @@ namespace AntColony.UI
                 && selectedSite != null && selectedSite.Disposition == ConquestDisposition.Annexed;
             stopRoute.interactable = route != null && route.IsRunning;
             routeStatus.text = route != null && route.IsRunning
-                ? $"<b>자동 수송</b>: {route.Destination.Title}\n{route.Status}\n자원·일꾼마다 한 번 싣고, 집에서 {TransportRoute.IntervalSeconds:0}초 뒤 반복."
-                : $"<b>자동 수송</b>: {(route != null ? route.Status : "꺼짐")}\n집에서 일꾼 장수를 태우고, 편입 거점을 고른 뒤 자동 수송 시작.";
+                ? $"<b>자동 수송</b>: {string.Join(" → ", route.Stops.Select(s => s.Title))}\n{route.Status} · 집에서 {TransportRoute.IntervalSeconds:0}초 뒤 반복"
+                : routeStops.Count > 0 ? $"<b>경유지</b>: {string.Join(" → ", routeStops.Select(s => s.Title))}\n일꾼 장수를 태우고 자동 수송 시작."
+                : $"<b>자동 수송</b>: {(route != null ? route.Status : "꺼짐")}\n편입 거점을 고르거나 경유지(최대 {TransportRoute.MaxStops}곳)를 추가한 뒤 시작.";
             var lab = FindLab();
             scienceStatus.text = $"과학 연구소: {(lab != null ? lab.Busy ? $"작업 중 {lab.Remaining:0}초" : "대기" : "없음")}\n"
                 + $"차량: {(world.VehicleResearched ? "연구 완료" : "잠김")} · 비행기: {(world.AircraftResearched ? "연구 완료" : "잠김")}\n"
                 + "연구소: 식량 100 / 재료 100 / 시민 8. 연구원을 배정하고, 차량은 2단계·비행기는 3단계로 강화. 건조 10초.";
-            mapTitle.text = world.Unlocked ? $"<b>월드맵</b>  거점 {world.Sites.Count}" : "<b>월드맵 잠김</b>\n첫 차량이나 비행기를 건조하세요.";
+            mapTitle.text = world.Unlocked ? $"<b>월드맵</b>  거점 {world.Sites.Count} · 드래그 회전 · 휠 확대" : "<b>월드맵 잠김</b>\n첫 차량이나 비행기를 건조하세요.";
             for (var i = 0; i < markers.Count; i++)
             {
                 var site = world.Sites[i];
                 var local = Vector2.zero;
                 var visible = world.Unlocked && WorldMapManager.SiteRevealed(site) && planetView.Project(site.MapPosition, out local);
                 markers[i].gameObject.SetActive(visible);
-                if (visible) ((RectTransform)markers[i].transform).anchoredPosition = new Vector2(PlanetX + local.x - MarkerW / 2, -(PlanetY + local.y - MarkerH / 2));
+                if (visible) ((RectTransform)markers[i].transform).anchoredPosition = new Vector2(local.x / uiScale - MarkerSize / 2, -(local.y / uiScale - MarkerSize / 2));
                 var color = site.Defense != null && (site.Defense.UnderAttack || site.Disposition == ConquestDisposition.Lost)
                     ? new Color(1f, .25f, .15f) : site.Disposition == ConquestDisposition.Annexed ? new Color(.3f, .85f, .5f)
                     : site.Disposition == ConquestDisposition.Abandoned ? Color.gray : DiplomacyManager.Instance?.Faction(site)?.color ?? site.Color;
@@ -177,6 +222,8 @@ namespace AntColony.UI
             if (selectedSite == null) selectionRing.gameObject.SetActive(false);
             annex.interactable = abandon.interactable = selectedSite != null && selectedSite.CanResolveConquest;
             siteInfo.text = SiteText(selectedSite);
+            // 과학·수송 버튼도 feedback에 결과를 쓰므로 선택이 없어도 안내가 있으면 보인다.
+            siteRect.gameObject.SetActive(selectedSite != null || feedback.text != "");
             RefreshExpeditions(world);
             status.text = selectedShip == null ? "수송 수단이 없습니다. 연구하고 건조하세요."
                 : $"<b>{selectedShip.name}</b>  {StateName(selectedShip.State)} {selectedShip.Remaining:0}초\n"
@@ -276,11 +323,16 @@ namespace AntColony.UI
                 : site.Cleared ? site.Kind == ExpeditionSiteKind.ResourceSite ? "고갈" : site.Kind == ExpeditionSiteKind.Settlement ? "정복 결정 대기" : "정리됨"
                 : site.Kind == ExpeditionSiteKind.ResourceSite ? "중립" : "적대";
             var text = $"<b><size=16>{site.Title}</size></b>\n{site.Faction} · {kind} · {AntColony.Core.BiomeRules.Name(site.Biome)} · 상태 <b>{state}</b>\n난이도 "
-                + new string('■', Mathf.Clamp(site.Difficulty, 0, 5)) + new string('□', Mathf.Clamp(5 - site.Difficulty, 0, 5));
+                + DifficultyText(site.Difficulty);
             if (site.Settlement != null && site.Colony != null)
                 text += $"\n주둔 {site.Settlement.Garrison.Count} · 현지 비축 식량 {site.Colony.GetStock(AntColony.Data.ResourceType.Food):0} / 재료 {site.Colony.GetStock(AntColony.Data.ResourceType.Soil):0}";
             return text;
         }
+
+        // 거점 난이도 1~3: 쉬움 하늘색 · 보통 노랑 · 어려움 빨강(4 이상은 매우 어려움).
+        private static string DifficultyText(int difficulty) => difficulty <= 1 ? "<b><color=#6cc8f0>쉬움</color></b>"
+            : difficulty == 2 ? $"<b><color=#{ColorUtility.ToHtmlStringRGB(MenuTheme.HpMid)}>보통</color></b>"
+            : $"<b><color=#{ColorUtility.ToHtmlStringRGB(MenuTheme.Danger)}>{(difficulty == 3 ? "어려움" : "매우 어려움")}</color></b>";
 
         // 거점 생성(WorldMapManager.Start)이 이 패널보다 늦게 돌 수 있어 아직 없는 마커만 이어서 만든다.
         private void BuildMarkers()
@@ -291,7 +343,11 @@ namespace AntColony.UI
             {
                 var site = world.Sites[i];
                 var symbol = site.Kind == ExpeditionSiteKind.Settlement ? "C" : site.Kind == ExpeditionSiteKind.BossNest ? "B" : site.Kind == ExpeditionSiteKind.TradePost ? "T" : "R";
-                var marker = L.Button(mapRoot, site.Title, $"{symbol}{i + 1:00}", 0, 0, MarkerW, MarkerH, () => selectedSite = site, site.Title, false, 11);
+                // 림월드식 거점 표시: 지구 표면을 따라가는 작은 아이콘(종류 글자) + 오른쪽 이름표. 이름표는 클릭을 막지 않는다.
+                var marker = L.Button(mapRoot, site.Title, symbol, 0, 0, MarkerSize, MarkerSize, () => selectedSite = site, site.Title, false, 11);
+                var tag = L.Label(marker.transform, site.Title, 12, MarkerSize + 4, 0, 160, MarkerSize, MenuTheme.TextColor);
+                tag.raycastTarget = false; tag.horizontalOverflow = HorizontalWrapMode.Overflow;
+                tag.gameObject.AddComponent<UnityEngine.UI.Shadow>().effectColor = new Color(0, 0, 0, .9f);
                 marker.GetComponent<UnityEngine.UI.Image>().color = new Color(site.Color.r * .65f, site.Color.g * .65f, site.Color.b * .65f, 1);
                 marker.gameObject.SetActive(false);
                 markers.Add(marker);

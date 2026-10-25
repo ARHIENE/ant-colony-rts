@@ -14,6 +14,7 @@ namespace AntColony.World
         public void Initialize(BossId id, ExpeditionSite value)
         {
             Id = id; site = value;
+            if (GetComponent<BossRewardVisual>() == null) gameObject.AddComponent<BossRewardVisual>();
             if (site.Boss != null) site.Boss.CampaignId = id;
         }
         private void Update()

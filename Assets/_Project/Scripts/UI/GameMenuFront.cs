@@ -20,7 +20,7 @@ namespace AntColony.UI
             var side = L.Plate(f, "MainSide", 0, 0, 440, 900);
             side.anchorMin = Vector2.zero; side.anchorMax = new Vector2(0, 1); side.sizeDelta = new Vector2(440, 0); side.anchoredPosition = Vector2.zero;
             var logo = L.Well(side, "Logo", 48, 88, 344, 132);
-            L.Label(logo, "개미 소굴 RTS", 28, 18, 30, 320, 44, bold: true);
+            L.Label(logo, "소굴 RTS", 28, 18, 30, 320, 44, bold: true);
             L.Label(logo, "가제 · 정착지 경영과 장수 부대 전투", 12, 18, 78, 320, 20, MenuTheme.Dim);
             L.Line(side, 48, 252, 344);
 

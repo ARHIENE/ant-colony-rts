@@ -16,7 +16,9 @@ for name in "$@"; do
   done
   if [ -z "$ok" ]; then echo "$name: SETUP FAIL $out"; continue; fi
   start=$(date +%s)
-  unity cmd eval_file --file AgentScripts/RunChecks.cs --timeout 30 >/dev/null 2>&1
+  run=$(unity cmd eval_file --file AgentScripts/RunChecks.cs --timeout 30 --result-only 2>&1)
+  # 검사 스크립트 컴파일 실패는 결과 파일을 남기지 않으므로 TIMEOUT으로 보이지 않게 바로 출력한다.
+  if echo "$run" | grep -q '"success": false\|Severity\|Exception'; then echo "$name: EVAL FAIL $(echo "$run" | head -c 600)"; continue; fi
   res="TIMEOUT"
   for i in $(seq 1 ${CHECK_POLLS:-60}); do
     if [ -f Temp/check-result.txt ] && [ $(stat -c %Y Temp/check-result.txt) -gt $start ]; then res=$(head -c 600 Temp/check-result.txt); break; fi

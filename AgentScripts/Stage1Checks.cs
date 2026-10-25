@@ -119,9 +119,10 @@ public static class Stage1Checks
             nursery.Tick(60);
             Check(roster.Count == count && nursery.GetAffinity(a, b) == 0, "non-lovers do not breed");
             Love(a, b, 70);
-            a.PersonalState.injuries.Add(new CommanderInjury { part = InjuryPart.Legs, severity = InjurySeverity.Serious, remaining = 240 });
+            // 부위별 건강(CommanderHealth): 미처치 큰 상처가 중상이다. 옛 injuries 목록은 이관 전용.
+            a.Health.wounds.Add(new Wound { part = BodyPart.LegL, kind = WoundKind.Cut, damage = MedicalRules.MaxHp(BodyPart.LegL) * .6f });
             Check(NurseryChamber.BreedMultiplier(a, b) == 0, "serious injury halts breeding");
-            a.PersonalState.injuries.Clear();
+            a.Health.wounds.Clear();
             a.PersonalState.AddMood("Stage1", 30, 999); b.PersonalState.AddMood("Stage1", 30, 999);
             Check(a.Mood >= 60 && b.Mood >= 60 && NurseryChamber.BreedMultiplier(a, b) == 1.5f, "happy lovers x1.5");
             b.PersonalState.AddMood("Stage1", -80, 999);

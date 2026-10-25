@@ -15,7 +15,8 @@ namespace AntColony.Core
         Blades, ArmorPlates, Vehicle, Drainage, Firebreaks,
         EfficientTransport, Mines, Regeneration, Trinkets, AdvancedWeapons, Gliding,
         Aircraft, HeavyTransport, Insulation, MigrationTheory, Hull, Cocoons, Engine, Fishing,
-        ConscriptionLaw, ReserveForces, TotalMobilization // Phase 4 병역 제도
+        ConscriptionLaw, ReserveForces, TotalMobilization, // Phase 4 병역 제도
+        Pharmacy, PrecisionPharmacy // 2026-10-25 D01 장수용 약품
     }
 
     public sealed class ScienceDefinition
@@ -41,7 +42,8 @@ namespace AntColony.Core
         public static CommanderActivity? Topic(ScienceTechnology t) => t switch
         {
             ScienceTechnology.FungalFarming or ScienceTechnology.HoneydewRanch or ScienceTechnology.AdvancedCrops => CommanderActivity.Farming,
-            ScienceTechnology.Herbs or ScienceTechnology.Sanitation or ScienceTechnology.Infirmary or ScienceTechnology.Regeneration => CommanderActivity.Medicine,
+            ScienceTechnology.Herbs or ScienceTechnology.Sanitation or ScienceTechnology.Infirmary or ScienceTechnology.Regeneration
+                or ScienceTechnology.Pharmacy or ScienceTechnology.PrecisionPharmacy => CommanderActivity.Medicine,
             ScienceTechnology.Blades or ScienceTechnology.AdvancedWeapons => CommanderActivity.Melee,
             ScienceTechnology.AcidRefining => CommanderActivity.Ranged,
             ScienceTechnology.ArmorPlates or ScienceTechnology.Trinkets or ScienceTechnology.Gliding or ScienceTechnology.Traps or ScienceTechnology.Mines
@@ -55,7 +57,7 @@ namespace AntColony.Core
         // TODO 석유(3)·원자(5) 시대 연구 항목은 아직 없음(빈 시대).
         public static readonly string[] EraNames = { "정착", "증기", "석유", "전기", "원자", "미래" };
         public const int EraCount = 6;
-        public static readonly ScienceDefinition[] Technologies = {
+        public static readonly ScienceDefinition[] Technologies = new[] {
             new ScienceDefinition(ScienceTechnology.FungalFarming, "균류 재배", 1),
             new ScienceDefinition(ScienceTechnology.HoneydewRanch, "감로 목장", 1, ScienceTechnology.FungalFarming),
             new ScienceDefinition(ScienceTechnology.Resin, "흙벽 공법", 1),
@@ -90,7 +92,7 @@ namespace AntColony.Core
             new ScienceDefinition(ScienceTechnology.ConscriptionLaw, "징병제", 1),
             new ScienceDefinition(ScienceTechnology.ReserveForces, "예비군제", 2, ScienceTechnology.ConscriptionLaw),
             new ScienceDefinition(ScienceTechnology.TotalMobilization, "국민개병", 4, ScienceTechnology.ReserveForces)
-        };
+        }.Concat(MedicineResearch.Definitions(ScienceTechnology.Pharmacy, ScienceTechnology.PrecisionPharmacy)).ToArray();
 
         [Serializable] public sealed class State
         {
@@ -134,7 +136,11 @@ namespace AntColony.Core
         public IReadOnlyList<string> LeftBehind => state.leftBehind;
         public float EndingGameSeconds => state.endingGameSeconds;
         public event Action OnDeparted;
-        private void Awake() => Instance = this;
+        private void Awake()
+        {
+            Instance = this;
+            if (GetComponent<AntColony.World.BossRewardVisual>() == null) gameObject.AddComponent<AntColony.World.BossRewardVisual>();
+        }
         private void OnDestroy() { if (Instance == this) Instance = null; }
         public bool Has(ScienceTechnology technology) => state.completed.Contains((int)technology)
             || technology == ScienceTechnology.Fishing && GameManager.Instance != null && GameManager.Instance.FishingUnlocked;

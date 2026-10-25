@@ -109,7 +109,7 @@ namespace AntColony.UI
         {
             if (canvas == null) return;
             var scaler = GetComponent<CanvasScaler>();
-            scaler.uiScaleMode = CanvasScaler.ScaleMode.ConstantPixelSize;
+            scaler.uiScaleMode = CanvasScaler.ScaleMode.ConstantPixelSize; scaler.scaleFactor = MenuTheme.UiScale;
             float width = canvas.rect.width;
             var top = (RectTransform)transform.Find("ResourceBar");
             TopHeight = width < 960 ? 116 : 66; top.sizeDelta = new Vector2(0, TopHeight);

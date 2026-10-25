@@ -14,38 +14,7 @@ namespace AntColony.UI
         public const int Visible = 10;
         private const float Cell = 46f, CellH = 54f, Gap = 2f, DoubleClick = .35f;
 
-        private sealed class Slot { public Button button; public Text letter; public Image face; public RawImage ant; public RectTransform mood; public Image moodFill; public RawImage icon; public Text alert; public CanvasGroup group; public MenuTooltip tip; }
-
-        // v4.4 초상: 초상 에셋 전까지 개미 얼굴 실루엣(24×24, 흰색 + 눈 구멍)을 장수 색으로 칠한다.
-        private static Texture2D antFace;
-        public static Texture2D AntFace
-        {
-            get
-            {
-                if (antFace != null) return antFace;
-                const int N = 48; antFace = new Texture2D(N, N, TextureFormat.RGBA32, false) { name = "Ant Face", wrapMode = TextureWrapMode.Clamp };
-                bool Ellipse(float x, float y, float cx, float cy, float rx, float ry) => (x - cx) * (x - cx) / (rx * rx) + (y - cy) * (y - cy) / (ry * ry) <= 1;
-                bool Line(float x, float y, float ax, float ay, float bx, float by, float w)
-                {
-                    var t = Mathf.Clamp01(((x - ax) * (bx - ax) + (y - ay) * (by - ay)) / ((bx - ax) * (bx - ax) + (by - ay) * (by - ay)));
-                    return new Vector2(x - ax - t * (bx - ax), y - ay - t * (by - ay)).magnitude <= w * .5f;
-                }
-                for (var py = 0; py < N; py++)
-                    for (var px = 0; px < N; px++)
-                    {
-                        float x = (px + .5f) * 24f / N, y = 24f - (py + .5f) * 24f / N; // 시안 SVG 좌표(위가 0)
-                        bool eye = Ellipse(x, y, 9.3f, 10.8f, 1.3f, 1.6f) || Ellipse(x, y, 14.7f, 10.8f, 1.3f, 1.6f);
-                        bool head = Ellipse(x, y, 12, 12, 6.5f, 6);
-                        bool limbs = Line(x, y, 8, 6, 5, 1.5f, 1.4f) || Line(x, y, 16, 6, 19, 1.5f, 1.4f)
-                            || Line(x, y, 9.5f, 17, 7.7f, 20.5f, 1.6f) || Line(x, y, 14.5f, 17, 16.3f, 20.5f, 1.6f);
-                        bool body = Ellipse(x, y, 12, 25, 6, 3.5f);
-                        var a = eye ? 0 : head ? .92f : limbs ? 1 : body ? .55f : 0;
-                        antFace.SetPixel(px, py, new Color(1, 1, 1, a));
-                    }
-                antFace.Apply();
-                return antFace;
-            }
-        }
+        private sealed class Slot { public Button button; public Text letter; public Image face; public RawImage portrait; public RectTransform mood; public Image moodFill; public RawImage icon; public Text alert; public CanvasGroup group; public MenuTooltip tip; public string shown = "", pending = ""; public float pendingSince; }
 
         private static readonly int[] Palette = { 0x6cc46a, 0xc9634a, 0xd9b45a, 0x86a9e6, 0xd8d0c0, 0xb98a52, 0x9a8fd8, 0xe08a3a, 0x7fb08a, 0xd97a9a, 0xa8a07a, 0x5fb2b8 };
         // 이름으로 고정되는 장수 색(저장·순서와 무관하게 같은 장수는 같은 색).
@@ -127,14 +96,18 @@ namespace AntColony.UI
                 var tint = ColorOf(c);
                 s.letter.text = Initial(c.CommanderName) is var id && id.All(char.IsDigit) ? "#" + id : c.CommanderName.Length > 4 ? c.CommanderName.Substring(0, 4) : c.CommanderName;
                 s.letter.color = selected.Contains(c) ? MenuTheme.TextColor : MenuTheme.Muted;
-                s.ant.color = tint;
+                s.portrait.texture = CharacterPortraits.Get(c); s.portrait.enabled = s.portrait.texture != null; // 캐릭터 얼굴(2026-10-24, 개미 실루엣 대체)
                 s.face.color = Color.Lerp(MenuTheme.Well, tint, .22f);
                 s.face.GetComponent<Outline>().effectColor = selected.Contains(c) ? MenuTheme.Hp : MenuTheme.Line;
                 s.button.GetComponent<Outline>().effectColor = selected.Contains(c) ? MenuTheme.Selection : MenuTheme.Line;
                 var mood = Mathf.Clamp01(c.Mood / 100f);
                 s.mood.anchorMax = new Vector2(mood, 1);
                 s.moodFill.color = c.Mood <= 20 ? MenuTheme.Danger : c.Mood <= CommanderOverhead.MoodWarning ? MenuTheme.Accent : MenuTheme.Hp;
-                var activity = CommanderOverhead.Activity(c);
+                // 배속에서 활동이 몇 프레임 단위로 바뀌면 아이콘이 깜빡인다(2026-10-24). 새 활동이 0.4초(실시간) 이어질 때만 바꾼다.
+                var now = CommanderOverhead.Activity(c);
+                if (now != s.pending) { s.pending = now; s.pendingSince = Time.unscaledTime; }
+                if (s.pending != s.shown && Time.unscaledTime - s.pendingSince >= .4f) s.shown = s.pending;
+                var activity = s.shown;
                 var alert = CommanderOverhead.MoodAlert(c);
                 s.alert.gameObject.SetActive(alert);
                 s.icon.texture = ActivityIcons.Get(activity);
@@ -172,11 +145,9 @@ namespace AntColony.UI
             face.sizeDelta = new Vector2(34, 30); face.anchoredPosition = new Vector2(0, -3);
             s.face = face.gameObject.AddComponent<Image>(); s.face.raycastTarget = false;
             face.gameObject.AddComponent<Outline>();
-            var ant = MenuTheme.Rect("Ant", face);
-            ant.anchorMin = ant.anchorMax = ant.pivot = new Vector2(.5f, 0);
-            ant.sizeDelta = new Vector2(28, 28); ant.anchoredPosition = Vector2.zero;
-            s.ant = ant.gameObject.AddComponent<RawImage>(); s.ant.texture = AntFace; s.ant.raycastTarget = false;
-            face.gameObject.AddComponent<RectMask2D>(); // 몸통 아래쪽이 칸 밖으로 넘치지 않게
+            var portrait = MenuTheme.Rect("Portrait", face); MenuTheme.Stretch(portrait);
+            s.portrait = portrait.gameObject.AddComponent<RawImage>(); s.portrait.raycastTarget = false; s.portrait.enabled = false;
+            face.gameObject.AddComponent<RectMask2D>();
             s.letter = MenuTheme.Text(rect, "", 10);
             var name = s.letter.rectTransform; name.anchorMin = new Vector2(0, 0); name.anchorMax = new Vector2(1, 0); name.pivot = new Vector2(.5f, 0);
             name.sizeDelta = new Vector2(0, 13); name.anchoredPosition = new Vector2(0, 7);

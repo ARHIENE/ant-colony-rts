@@ -18,6 +18,24 @@ public static class AntWorkVisualChecks
     }
     public static async Task<string> Main()
     {
+        var original = SaveStorage.RootOverride;
+        SaveStorage.RootOverride = System.IO.Path.Combine(Application.temporaryCachePath, "AntWorkVisual-" + Guid.NewGuid().ToString("N"));
+        try
+        {
+            if (!Application.isPlaying) throw new Exception("Play mode required.");
+            await Wait(() => !SaveSystem.Busy, "previous load ready");
+            SaveSystem.NewGame(new NewGameOptions { seed = 241024, mapSize = MapSize.Small });
+            var until = DateTime.UtcNow.AddSeconds(90);
+            while (SaveSystem.Busy && DateTime.UtcNow < until) await Task.Delay(100);
+            if (SaveSystem.Busy) throw new Exception("New game load timed out.");
+            await Task.Delay(300);
+            return await Run();
+        }
+        finally { SaveStorage.RootOverride = original; }
+    }
+
+    static async Task<string> Run()
+    {
         if (!Application.isPlaying || SaveSystem.Busy) throw new Exception("Start an initialized Play session.");
         Time.timeScale = 1;
         var commander = CommanderRoster.Instance.Commanders[0];

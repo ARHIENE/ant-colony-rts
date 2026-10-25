@@ -10,11 +10,14 @@ namespace AntColony.Units
     [Serializable] public class CommanderMealState
     {
         public float satiety = 100, eatSeconds, poisonSeconds, retrySeconds;
+        public int pickedFood, pickedType; public bool served; // 집은 식품은 식탁 이동·저장을 넘어 보존한다.
         public int quality, cookSkill; // 먹는 중인 식사: 0 날것 / 1 간단 / 2 좋은 / 3 고급
         public bool rotten; // 정상 식품이 없어 썩은 식품을 먹는 중(2026-10-12)
         public int diet = -1; // 2026-10-15 장수별 식단 덮어쓰기(날것 1·간단 2·좋은 4). -1 = 공통 식단
         public bool Valid => Finite(satiety) && satiety >= 0 && satiety <= 100 && Finite(eatSeconds) && eatSeconds >= 0
             && Finite(poisonSeconds) && poisonSeconds >= 0 && Finite(retrySeconds) && retrySeconds >= 0
+            && pickedFood >= 0 && pickedFood <= Mathf.CeilToInt(GameBalance.MealFood * 1.5f) && pickedType >= 0 && pickedType < StoreBin.TypeCount
+            && (pickedFood == 0 || pickedType == (int)AntColony.Data.ResourceType.Food || pickedType == (int)AntColony.Data.ResourceType.RottenFood)
             && quality >= 0 && quality <= 3 && cookSkill >= 0 && cookSkill <= CommanderTalents.MaxLevel && diet >= -1 && diet <= CommanderAnt.AllDiet;
         private static bool Finite(float v) => !float.IsNaN(v) && !float.IsInfinity(v);
     }
@@ -31,6 +34,7 @@ namespace AntColony.Units
         public float Satiety => MealState.satiety;
         public bool IsEating => MealState.eatSeconds > 0;
         public bool IsFoodPoisoned => MealState.poisonSeconds > 0;
+        public static float MealPoisonChance(int cookSkill) => Mathf.Max(0, 6 - cookSkill * .5f) / 100f;
 
         // TickDuty에서 수면 다음에 부른다. true면 이번 틱은 식사(또는 식중독)로 끝낸다.
         private bool TickMeal(float seconds)
@@ -52,68 +56,22 @@ namespace AntColony.Units
                 return true;
             }
             if (EatingCorpse) return false;
-            if (m.satiety > GameBalance.EatBelowSatiety || IsCarrying || LabUpgradeBusy || IsPlaying) return false;
+            if ((m.satiety > GameBalance.EatBelowSatiety && !m.served && m.pickedFood == 0) || IsCarrying || LabUpgradeBusy || IsPlaying) return false;
             if (m.retrySeconds > 0) { m.retrySeconds = Mathf.Max(0, m.retrySeconds - seconds); return false; }
             if (IsWorking || ServiceTarget != null || HuntTarget != null || CorpseTarget != null || ScienceAssignment != null || CraftingWorkshop != null) CommandStop();
             if (!CanReceiveOrders) return false;
-            if (traits.Has(CommanderTrait.Cannibal) && FindCorpseWork(true)) return true;
+            if (!m.served && m.pickedFood == 0 && traits.Has(CommanderTrait.Cannibal) && FindCorpseWork(true)) return true;
 
-            // ponytail: 배고픈 동안 매 틱 식당을 다시 찾는다. 장수 수가 많아져 느려지면 목표를 캐시한다.
-            var kitchen = FindObjectsByType<Kitchen>(FindObjectsSortMode.None).Where(k => k.HasMeal) // 옛 저장의 비축 식사
-                .OrderBy(k => (k.Position - Position).sqrMagnitude).FirstOrDefault();
-            // 접근 가능한 식탁(식당·큰 식탁)에서 먹는다. 없으면 음식이 있는 곳에서 먹고 기분 불이익(2026-10-12).
-            // ponytail: 식사는 원격으로 집는다(창고 → 식탁 두 번 이동 없음). 운반 연출이 필요하면 두 단계로 나눈다.
-            var res = ResourceManager.Instance; // 먹을 것이 없으면 식탁까지 걷지 않고 바로 굶주림 처리
-            var anyFood = kitchen != null || res != null && (DietAllows(DietFine) && res.GetAmount(AntColony.Data.ResourceType.FineMeal) > 0 || DietAllows(DietSimple) && res.GetAmount(AntColony.Data.ResourceType.SimpleMeal) > 0
-                || DietAllows(DietRaw) && res.GetAmount(AntColony.Data.ResourceType.Food) > 0 || res.GetAmount(AntColony.Data.ResourceType.RottenFood) > 0);
-            var table = !anyFood ? null : FindObjectsByType<Kitchen>(FindObjectsSortMode.None).Where(k => !k.IsDead && k.isActiveAndEnabled && (k.IsTable || k.Data != null && k.Data.kind == AntColony.Data.BuildingKind.Kitchen))
-                .OrderBy(k => (k.Position - Position).sqrMagnitude).FirstOrDefault();
-            BuildingBase place = table != null ? table : kitchen != null ? kitchen : BuildingBase.FindNearestDepositPoint(Position);
-            if (place != null && (place.Position - Position).sqrMagnitude > 49)
-            {
-                var moving = IsFlying ? !HasReachedDestination() : Agent.pathPending || Agent.hasPath;
-                if (!moving && UnityEngine.AI.NavMesh.SamplePosition(place.Position, out var hit, 7, UnityEngine.AI.NavMesh.AllAreas) && CanReach(hit.position))
-                { base.CommandMove(hit.position); return true; }
-                if (moving) return true;
-                if (kitchen != null) kitchen = null; // 닿지 못하면 그 자리에서 날로 먹는다.
-            }
-            StartMeal(kitchen);
-            return true;
-        }
-
-        private void StartMeal(Kitchen kitchen)
-        {
-            var m = MealState;
-            var meal = kitchen != null ? kitchen.TakeMeal() : null;
-            var rm = ResourceManager.Instance;
-            if (meal != null)
-            {
-                m.quality = meal.quality; m.cookSkill = meal.skill; m.rotten = false;
-                // 대식은 한 끼 양 ×1.5: 조리된 몫 외에 모자란 Food를 더 쓴다(없으면 그냥 먹는다).
-                var extra = Mathf.CeilToInt(GameBalance.MealFood * traits.FoodMultiplier - GameBalance.MealFood);
-                if (extra > 0) rm?.TrySpend(extra, 0, reason: ResourceReason.Upkeep);
-            }
-            // 요리(창고 자원): 좋은 요리 → 간단한 요리. 같은 종류는 신선도 낮은 것부터(창고 꺼내기 규칙). 대식은 모자란 몫을 날것으로 더 먹는다.
-            else if (rm != null && (DietAllows(DietFine) && rm.TrySpend(AntColony.Data.ResourceType.FineMeal, 1, ResourceReason.Upkeep) ? (m.quality = 2) > 0 : DietAllows(DietSimple) && rm.TrySpend(AntColony.Data.ResourceType.SimpleMeal, 1, ResourceReason.Upkeep) && (m.quality = 1) > 0))
-            {
-                m.cookSkill = Kitchen.SkillOf(m.quality == 2 ? AntColony.Data.ResourceType.FineMeal : AntColony.Data.ResourceType.SimpleMeal); m.rotten = false;
-                var extra = Mathf.CeilToInt(GameBalance.MealFood * traits.FoodMultiplier - GameBalance.MealFood);
-                if (extra > 0) rm.TrySpend(extra, 0, reason: ResourceReason.Upkeep);
-            }
-            else if (rm != null && DietAllows(DietRaw) && rm.TrySpend(Mathf.CeilToInt(GameBalance.MealFood * traits.FoodMultiplier), 0, reason: ResourceReason.Upkeep))
-            { m.quality = 0; m.cookSkill = 0; m.rotten = false; }
-            // 정상 식품이 없으면 썩은 식품을 먹는다: 기분 하락·식중독 위험(2026-10-12).
-            else if (rm != null && rm.TrySpend(AntColony.Data.ResourceType.RottenFood, Mathf.CeilToInt(GameBalance.MealFood * traits.FoodMultiplier), ResourceReason.Upkeep))
-            { m.quality = 0; m.cookSkill = 0; m.rotten = true; }
-            else
-            {
-                // 먹을 것이 없다: 굶주림. 잠시 뒤 다시 먹으러 간다.
-                personalState.AddMood("Hunger", traits.Has(CommanderTrait.Ascetic) ? 5 : -15, GameBalance.StarveRetrySeconds + 1);
-                OnHunger();
-                m.retrySeconds = GameBalance.StarveRetrySeconds;
-                return;
-            }
+            if (!m.served && !FetchMeal()) return true;
+            if (!m.served) return true;
+            // 음식을 집은 뒤 접근 가능한 식탁으로 이동한다. 식탁이 없으면 그 자리에서 먹는다.
+            var table = FindObjectsByType<Kitchen>(FindObjectsSortMode.None)
+                .Where(k => !k.IsDead && k.isActiveAndEnabled && (k.IsTable || k.Data != null && k.Data.kind == AntColony.Data.BuildingKind.Kitchen)
+                    && TryWorkApproach(k.Position, out _)).OrderBy(k => (k.Position - Position).sqrMagnitude).FirstOrDefault();
+            if (table != null && MoveForMeal(table.Position)) return true;
+            StopMoving(); m.served = false;
             m.eatSeconds = GameBalance.EatSeconds * (traits.Has(CommanderTrait.SlowEater) ? 2 : 1);
+            return true;
         }
 
         private void FinishMeal()
@@ -142,7 +100,7 @@ namespace AntColony.Units
                 m.rotten = false; return;
             }
             if (m.quality > 0 && !traits.Has(CommanderTrait.IronStomach)
-                && UnityEngine.Random.value * 100 < Mathf.Max(0, 6 - m.cookSkill * .5f) * ((AntColony.Buildings.RoomSystem.RoomAt(Position)?.Floors ?? 0) > 0 ? GameBalance.FloorPoisonMultiplier : 1f)) // 바닥 깔린 방은 청결
+                && UnityEngine.Random.value < MealPoisonChance(m.cookSkill))
             {
                 m.poisonSeconds = GameBalance.FoodPoisonSeconds;
                 personalState.AddMood("식중독", GameBalance.FoodPoisonMood, GameBalance.FoodPoisonSeconds);

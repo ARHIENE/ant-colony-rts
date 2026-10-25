@@ -95,10 +95,12 @@ namespace AntColony.UI
             colors.disabledColor = Well; colors.fadeDuration = .12f;
             button.colors = colors;
         }
+        // 2026-10-24: UI는 1440×900 기준 고정 배치라 큰 화면에서 왼쪽 위에 작게 몰렸다. 화면 높이 900 기준으로 키운다(1배 미만으로는 안 줄임).
+        public static float UiScale => Mathf.Max(1f, Screen.height / 900f);
         public static Canvas Canvas(string name, Transform parent, int order)
         {
             var rect = Rect(name, parent); var canvas = rect.gameObject.AddComponent<Canvas>(); canvas.renderMode = RenderMode.ScreenSpaceOverlay; canvas.sortingOrder = order;
-            var scale = rect.gameObject.AddComponent<CanvasScaler>(); scale.uiScaleMode = CanvasScaler.ScaleMode.ConstantPixelSize;
+            var scale = rect.gameObject.AddComponent<CanvasScaler>(); scale.uiScaleMode = CanvasScaler.ScaleMode.ConstantPixelSize; scale.scaleFactor = UiScale;
             rect.gameObject.AddComponent<GraphicRaycaster>(); return canvas;
         }
         public static Text Text(Transform parent, string value, int size = 13, float height = 40)

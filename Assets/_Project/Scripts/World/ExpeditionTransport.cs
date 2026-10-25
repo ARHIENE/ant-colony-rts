@@ -165,6 +165,26 @@ namespace AntColony.World
 
         public bool TryReturn()
         {
+            if (!TryEmbarkToLeave()) return false;
+            State = ExpeditionState.Returning;
+            Remaining = TravelSeconds;
+            return true;
+        }
+
+        // 자동 수송 경유: 본거지를 거치지 않고 현지에서 다음 편입 거점으로 출발한다.
+        internal bool TryContinueTo(ExpeditionSite next)
+        {
+            if (next == null || next == Site || !TryEmbarkToLeave()) return false;
+            if (Site != null && Site.Visitor == this) Site.Visitor = null;
+            Site = next;
+            if (next.Visitor == null) next.Visitor = this;
+            State = ExpeditionState.Outbound;
+            Remaining = TravelSeconds;
+            return true;
+        }
+
+        private bool TryEmbarkToLeave()
+        {
             if (PendingCrewOrderCount > 0) return false;
             if (!isActiveAndEnabled || State != ExpeditionState.Deployed) return false;
             foreach (var c in crew)
@@ -179,8 +199,6 @@ namespace AntColony.World
             }
             foreach (var c in crew) if (c != null) c.SetEmbarked(true, Position);
             if (WorldMapManager.Instance.ViewedSite == Site) WorldMapManager.Instance.ViewSite(null);
-            State = ExpeditionState.Returning;
-            Remaining = TravelSeconds;
             return true;
         }
 

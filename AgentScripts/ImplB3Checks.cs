@@ -25,6 +25,22 @@ public static class ImplB3Checks
     }
     private static void Check(bool value, string label) { if (!value) throw new Exception("B3 FAIL: " + label); checks++; }
     private static T Copy<T>(T value) => JsonUtility.FromJson<T>(JsonUtility.ToJson(value));
+    private static void InactiveMonsterAgent()
+    {
+        var go = new GameObject("B3 inactive restore regression"); go.SetActive(false);
+        try
+        {
+            var monster = go.AddComponent<WildMonster>();
+            Check(monster.Agent != null && monster.Agent == go.GetComponent<UnityEngine.AI.NavMeshAgent>(), "inactive runtime enemy resolves Agent before Awake");
+            monster.Agent.enabled = false; // SaveRuntime.RestoreMonsters의 최초 접근과 동일.
+            var state = new WildMonsterDto { raidSite = -1, speed = 2.5f, range = 1.5f, maxHealth = 15 };
+            monster.RestoreHealth(0);
+            typeof(WildMonster).GetMethod("RestoreRuntime", BindingFlags.Instance | BindingFlags.NonPublic)
+                .Invoke(monster, new object[] { state, false });
+            Check(!monster.Agent.enabled && !go.activeSelf && monster.CurrentHealth == 0, "dead runtime enemy restores without activation or Awake");
+        }
+        finally { Object.Destroy(go); }
+    }
     private static async Task Ready()
     {
         var deadline = DateTime.UtcNow.AddSeconds(30);
@@ -66,6 +82,7 @@ public static class ImplB3Checks
     public static async Task<string> Main()
     {
         checks = reloads = 0; started = DateTime.UtcNow; Check(Application.isPlaying, "Play required");
+        InactiveMonsterAgent();
         var previousRoot = SaveStorage.RootOverride;
         var settings = UserSettings.Current.Clone();
         SaveStorage.RootOverride = Path.Combine(Application.temporaryCachePath, "ImplB3-" + Guid.NewGuid().ToString("N"));
@@ -145,7 +162,8 @@ public static class ImplB3Checks
             var site = fixture.world.sites.First(s => s.colony != null && s.colony.buildingHealth.Count > 0);
             site.cleared = true; site.disposition = (int)ConquestDisposition.Annexed;
             site.defenseUnderAttack = true; site.defenseRemaining = 81; site.defenseCaptureProgress = 7;
-            var source = fixture.nodes.First(n => n.exists && n.amount > 0 && (n.position.ToVector3() - site.colony.rootPosition.ToVector3()).sqrMagnitude < 10000);
+            // 지도 생성에 따라 100m 안에 자원이 없을 수 있어 가장 가까운 남은 자원을 쓴다.
+            var source = fixture.nodes.Where(n => n.exists && n.amount > 0).OrderBy(n => (n.position.ToVector3() - site.colony.rootPosition.ToVector3()).sqrMagnitude).First();
             var liveSite = WorldMapManager.Instance.Sites[site.index];
             var home = WorldMapManager.Instance.HomePosition;
             fixture.world.transports.Add(new TransportDto { state = (int)ExpeditionState.Deployed, siteIndex = site.index,

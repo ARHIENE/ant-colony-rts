@@ -48,9 +48,9 @@ public static class FacilityVisualChecks
                 Check(Mathf.Abs(model.min.y - box.min.y) < .05f, "sits on ground " + kind);
                 Object.Destroy(go); shown++;
             }
-            Check(mapped == 104, "104 kinds mapped (" + mapped + ")");
-            var stockpile = Object.FindFirstObjectByType<Stockpile>();
-            Check(stockpile != null && stockpile.GetComponent<FacilityVisual>()?.Model != null, "start stockpile shows model");
+            Check(mapped == 120, "120 kinds mapped (" + mapped + ")"); // 2026-10-24 새 시설 16종 연결
+            var wreck = Object.FindFirstObjectByType<CrashWreck>();
+            Check(wreck != null && wreck.GetComponent<FacilityVisual>()?.Model != null, "crash landing wreck shows model (old stockpile removed by new start)");
             return $"PASS {checks} facility visual checks ({shown} built with models)";
         }
         finally { SaveStorage.RootOverride = original; }

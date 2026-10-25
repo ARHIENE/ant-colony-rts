@@ -102,29 +102,21 @@ public static class Phase4Checks
         // 장수 나이: 첫 틱에 성체 나이, 어린 장수는 일·출전 불가, 늙으면 지혜 작업 +20%, 수명이 다하면 죽음.
         var c = CommanderRoster.Instance.Commanders.First(x => x.IsColonyMember && !x.IsEmbarked);
         c.PersonalState.ageMonths = -1; c.TickPersonal(.01f);
-        Check(c.AgeMonths >= GameBalance.ChildMonths && c.AgeMonths <= 72.1f && c.PersonalState.lifespanMonths >= GameBalance.MinLifespan, "starting age assigned");
+        Check(c.AgeMonths >= 18 * 12 && c.AgeMonths <= 30 * 12 && c.PersonalState.lifespanMonths == CommanderAnt.ExpectedAgeMonths, "starting age assigned (G37 18~30)");
         c.SetBorn(); Check(c.IsChild && !c.CanDoJob(CommanderJobs.Gathering) && c.AgeLabel == "0세", "child cannot work");
         c.Traits.values.Remove(CommanderTrait.Senile);
-        var normal = 0f; c.PersonalState.ageMonths = 40; normal = c.WorkRate(CommanderActivity.Research);
-        c.PersonalState.ageMonths = 100; Check(c.IsElder && Mathf.Abs(c.WorkRate(CommanderActivity.Research) - normal * 1.2f) < .001f, "elder wisdom +20%");
+        var normal = 0f; c.PersonalState.ageMonths = 40 * 12; normal = c.WorkRate(CommanderActivity.Research);
+        c.PersonalState.ageMonths = 70 * 12; Check(c.IsElder && Mathf.Abs(c.WorkRate(CommanderActivity.Research) - normal * 1.2f) < .001f, "elder wisdom +20%");
         Check(Mathf.Abs(c.WorkRate(CommanderActivity.Strength) / c.Talents.Multiplier(CommanderActivity.Strength) - normal / c.Talents.Multiplier(CommanderActivity.Research) * .8f) < .001f, "elder body -20%");
         // 노망: 늙으면 지혜 보너스 대신 모든 작업 ×0.8, 젊을 때는 영향 없음.
         c.Traits.values.Add(CommanderTrait.Senile);
         Check(Mathf.Abs(c.WorkRate(CommanderActivity.Research) - normal * .8f) < .001f && CommanderTraits.DisplayName(CommanderTrait.Senile) == "노망", "senile elder -20%");
-        c.PersonalState.ageMonths = 40; Check(Mathf.Abs(c.WorkRate(CommanderActivity.Research) - normal) < .001f, "senile young unaffected");
-        c.Traits.values.Remove(CommanderTrait.Senile); c.PersonalState.ageMonths = 100;
-        // 확률 사망 분기로 잘못 들어가도 우연히 통과하지 않도록 생존 난수를 고정한다.
-        var randomState = UnityEngine.Random.state;
-        for (var seed = 0; ; seed++)
-        {
-            UnityEngine.Random.InitState(seed);
-            var beforeRoll = UnityEngine.Random.state;
-            if (UnityEngine.Random.value < .3f) continue;
-            UnityEngine.Random.state = beforeRoll; break;
-        }
-        c.PersonalState.lifespanMonths = 100.001f;
-        try { c.TickPersonal(1); } finally { UnityEngine.Random.state = randomState; }
-        Check(c.IsDead && c.PersonalState.departure == "Deceased", "dies of old age");
+        c.PersonalState.ageMonths = 40 * 12; Check(Mathf.Abs(c.WorkRate(CommanderActivity.Research) - normal) < .001f, "senile young unaffected");
+        c.Traits.values.Remove(CommanderTrait.Senile);
+        // G37: 확정 사망 생일 없음 — 기대수명을 넘겨도 나이만으로 죽지 않는다.
+        c.PersonalState.ageMonths = 90 * 12; c.TickPersonal(1);
+        Check(!c.IsDead, "no fixed death age (G37)");
+        c.PersonalState.ageMonths = 25 * 12;
 
         // 이주 개미떼: 장수 1명 + 개미 5마리.
         var commanders = CommanderRoster.Instance.Count; var ants = pool.Total;

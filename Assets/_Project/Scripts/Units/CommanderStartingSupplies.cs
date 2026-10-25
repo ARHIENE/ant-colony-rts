@@ -24,6 +24,7 @@ namespace AntColony.Units
         private bool TickCarriedMeal(float seconds)
         {
             var m = PersonalState.meal;
+            if (m.served || m.pickedFood > 0) return false; // 집은 식사·부분 식량이 있는 동안 소지 식량을 또 꺼내지 않는다
             if (m.satiety > GameBalance.EatBelowSatiety || m.eatSeconds > 0 || m.poisonSeconds > 0 || IsDeployed || IsAwayFromHome
                 || IsEmbarked || IsCaptive || WorkPriorities.Red || !DietAllows(DietRaw) || !CanReceiveOrders || CarriedRationMeals < 1) return false;
             CommandStop();

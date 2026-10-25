@@ -49,7 +49,7 @@ public static class BetaChecks
             await Ready();
             Check(GameSession.Instance.GameStarted && Time.timeScale > 0, "new game simulation running");
             var commanders = CommanderRoster.Instance.Commanders;
-            Check(commanders.Count == 12 && commanders.All(c => c.GetComponent<AntVisual>() != null), "all generated commanders use Quirky");
+            Check(commanders.Count == GameSession.Instance.Options.startingCount && commanders.All(c => c.GetComponent<AntVisual>() != null), "all generated commanders use Quirky");
             var commander = commanders[0]; var visual = commander.GetComponent<AntVisual>();
             var animator = commander.GetComponentInChildren<Animator>();
             Check(animator != null && animator.avatar != null && !animator.applyRootMotion, "avatar and no root motion");
@@ -95,6 +95,8 @@ public static class BetaChecks
             Check(SaveSystem.TryLoad(SaveSlots.PathFor(false, 0), out error), "load accepted: " + error);
             await Ready();
             Check(CommanderRoster.Instance.Commanders.All(c => c.GetComponentInChildren<Animator>() != null), "loaded commanders keep models/animations");
+            // B6: 정식 캠페인은 보스로 끝나지 않는다. 결과 화면은 베타 시나리오에서만 검사한다.
+            Object.FindFirstObjectByType<BetaProgress>().BetaScenario = true;
             GameManager.Instance.ReportBossDefeated(); await Task.Delay(100);
             Check(GameMenuController.Instance.ScreenName == "VICTORY - BETA COMPLETE" && Time.timeScale == 0, "boss victory pauses on results");
             GameMenuController.Instance.GetComponentsInChildren<UnityEngine.UI.Button>().Single(b => b.name == "Continue Colony").onClick.Invoke();

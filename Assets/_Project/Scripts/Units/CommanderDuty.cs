@@ -168,7 +168,7 @@ namespace AntColony.Units
             if (!IsWorking && ScienceAssignment == null && CraftingWorkshop == null) SetWorkTarget(null);
             if (ScienceAssignment != null)
             {
-                if (CampaignResearch.Instance?.Active == null || !AllowsJob(CommanderJobs.Research)) ScienceAssignment.ReleaseResearcher();
+                if ((CampaignResearch.Instance?.Active == null && CampaignResearch.Instance?.ActiveResource == null) || !AllowsJob(CommanderJobs.Research)) ScienceAssignment.ReleaseResearcher();
                 else return;
             }
             if (WorkState.resting && (IsWorking || !IsFatigued)) WorkState.resting = false;

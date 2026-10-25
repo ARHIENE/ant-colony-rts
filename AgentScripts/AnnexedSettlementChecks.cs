@@ -126,7 +126,7 @@ using Object = UnityEngine.Object;
             var ui = Object.FindAnyObjectByType<AntColony.UI.WorldMapPanel>();
             if (!ui.IsOpen) ui.Toggle();
             Set(ui, "selectedShip", ship); Set(ui, "selectedSite", site);
-            ui.PanelRect.Find("Station Selected").GetComponent<UnityEngine.UI.Button>().onClick.Invoke();
+            ui.PanelRect.GetComponentsInChildren<Transform>(true).First(t => t.name == "Station Selected").GetComponent<UnityEngine.UI.Button>().onClick.Invoke();
             Check(ship.Crew.Count == 0 && settlement.Garrison.Count == 1 && commander.Garrison == settlement
                 && commander.Transport == null && !commander.IsEmbarked, "station UI detaches visible commander from transport");
             Check(commander.TroopCount == troops && AntPool.Instance.Assigned == assigned && commander.Talents.Level(CommanderActivity.Melee) == level,
@@ -184,7 +184,7 @@ using Object = UnityEngine.Object;
             Check(resources.GetAmount(ResourceType.Food) == homeFood + 10 && commander.TryAssign(1),
                 "delivery is once only and returned commander can replenish");
             Canvas.ForceUpdateCanvases();
-            var stationButton = (RectTransform)ui.PanelRect.Find("Station Selected");
+            var stationButton = (RectTransform)ui.PanelRect.GetComponentsInChildren<Transform>(true).First(t => t.name == "Station Selected");
             var corners = new Vector3[4]; stationButton.GetWorldCorners(corners);
             Check(corners.All(c => ui.PanelRect.rect.Contains(ui.PanelRect.InverseTransformPoint(c))), "station button inside panel");
             Check(Object.FindObjectsByType<UnityEngine.EventSystems.EventSystem>().Length == 1

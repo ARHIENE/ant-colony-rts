@@ -1,3 +1,6 @@
+# 2026-10-24 SAVE 2(Claude+Codex) — 2026-10-25 SAVE 이관
+- 플레이 점검 결정 G01~G69 중 G26·G27 외 코드 연결(Codex B5~B10·C1~C6, 한도 중단분 Claude가 I1에서 통합). Claude 직접: G33·G06·G31·G39·G11·G42·G28·G30·G45·G16·G43·G69·G04·G26 측정 검사. 버그: 로켓 snapshot 로드 실패, 수송 커서 저장 거부, 최종 공세 장수 null, 건물 저장 키 순서, PowerGrid 재생성 등. 월드맵 행성 Planet Earth Free. 검사 20종 통과, C2~C6·Phase4 등은 메모리 부족으로 미실행 상태로 보고(→ 10-25 전부 통과). 커밋 eec134c.
+
 # 2026-10-24 SAVE 1(Claude+Codex) — 2026-10-24 SAVE 2 이관
 - 1단계 A2 시작 생존 완료, 2단계 Notion 14페이지 결정 반영, 3단계 G08 달력·G01·Codex B1~B4 코드 통합(B3 패치 git apply). 검사 Foundation 17·G01 7·B1 72 통과, B2 NullReference(비축더미 전제)·나머지 미실행 상태로 보고. Codex B5~B7 worktree 작업 시작. 커밋 1691729 develop push, 개발 일지 https://app.notion.com/p/402c4a0ecd3181949012de8382fb4747.
 

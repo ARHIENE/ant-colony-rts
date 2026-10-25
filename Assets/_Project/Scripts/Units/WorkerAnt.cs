@@ -466,13 +466,15 @@ namespace AntColony.Units
             {
                 // 낚시: 20초마다 한 번, Food 6 × 낚시 배율. 진행도는 반납 왕복·저장을 넘어 이어지고, 다른 낚시터로 바꾸면 처음부터.
                 if (fishingNode != targetNode) { if (fishingNode != null) fishingProgress = 0f; fishingNode = targetNode; }
-                fishingProgress += Time.deltaTime * FishingWorkSpeed;
+                var traitSpeed = this is CommanderAnt fisher ? TraitRules.FishingWorkFactor(fisher) : 1f;
+                fishingProgress += Time.deltaTime * FishingWorkSpeed * traitSpeed;
                 if (fishingProgress < GameBalance.FishingCatchSeconds) return;
                 fishingProgress -= GameBalance.FishingCatchSeconds;
-                extracted = targetNode.Extract(Mathf.Min(GameBalance.FishingCatchFood * FishingCatchMultiplier * BiomeRules.FishingYield, CarryCapacity - carriedAmount));
+                var yield = TraitRules.YieldMultiplier(this, targetNode);
+                extracted = targetNode.Extract(Mathf.Min(GameBalance.FishingCatchFood * FishingCatchMultiplier * BiomeRules.FishingYield, (CarryCapacity - carriedAmount) / yield)) * yield;
                 carriedAmount += extracted;
                 carriedType = targetNode.ResourceType;
-                if (extracted > 0f) { OnGathered(extracted); OnWorked(GameBalance.FishingCatchSeconds / FishingWorkSpeed); }
+                if (extracted > 0f) { OnGathered(extracted / yield); OnWorked(GameBalance.FishingCatchSeconds / (FishingWorkSpeed * traitSpeed)); }
             }
             else
             {
@@ -488,12 +490,13 @@ namespace AntColony.Units
                     if (work.sampleWork < 1) return;
                     gathering = 1; work.sampleWork = 0;
                 }
-                extracted = targetNode.ExtractFor(this, Mathf.Min(gathering, CarryCapacity - carriedAmount));
+                var yield = TraitRules.YieldMultiplier(this, targetNode);
+                extracted = targetNode.ExtractFor(this, Mathf.Min(gathering, (CarryCapacity - carriedAmount) / yield)) * yield;
                 if (floor != null) carriedLots.Add(floor.Take(before - Mathf.RoundToInt(targetNode.AmountRemaining))); // 바닥 식품은 신선도 낮은 몫부터 집는다
                 else if (extracted > 0f && targetNode.ResourceType == AntColony.Data.ResourceType.Food) carriedLots.Add(Mathf.RoundToInt(extracted), FoodLots.ShelfLife(targetNode.Preservation)); // G30 원산지별 보존
                 carriedAmount += extracted;
                 carriedType = targetNode.ResourceType;
-                if (extracted > 0f) { AntColony.Buildings.FarmSeeds.Collect(targetNode.GetComponent<AntColony.Buildings.FarmSeedSource>()); OnGathered(extracted); OnWorked(extracted / (GatherRate * targetNode.GatherRateMultiplier)); }
+                if (extracted > 0f) { AntColony.Buildings.FarmSeeds.Collect(targetNode.GetComponent<AntColony.Buildings.FarmSeedSource>()); OnGathered(extracted / yield); OnWorked(extracted / (yield * GatherRate * targetNode.GatherRateMultiplier)); }
             }
 
             // 같은 물자는 운반량 한도까지 묶어 나른다: 바닥 더미를 다 집었는데 자리가 남으면 가까운 같은 종류 더미를 더 집는다(2026-10-12).

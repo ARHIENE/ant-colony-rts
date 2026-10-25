@@ -225,6 +225,13 @@ public static class ImplB7Checks
             Check(!c.CanSelfTend, "G11 unconscious cannot self treat");
             Check(CommanderAnt.HasRecoveryOrRescueRoute(new[] { c }), "G11 recovery route inside survival window");
             c.TickDuty(1); Near(c.PersonalHealth, GameBalance.CommanderHealth * .2f, "G11 one day recovery restores twenty percent");
+            // 의식 불명 포만도 감소 ×0.5: 포만도 100에서 쓰러져도 급식 없이 하루 뒤 깨어난다. 70 이하는 급식이 필요하다.
+            c.WorkState.health = 0; c.WorkState.unconsciousSeconds = 0; c.PersonalState.meal.satiety = 100;
+            Check(CommanderAnt.HasRecoveryOrRescueRoute(new[] { c }), "G11 full satiety survives a day unconscious");
+            for (var t = 0; t <= GameCalendar.SecondsPerDay && c.PersonalHealth <= 0; t++) c.TickDuty(1);
+            Check(c.PersonalHealth > 0 && c.Satiety > 0, "G11 full satiety recovers without feeding " + c.Satiety);
+            c.WorkState.health = 0; c.WorkState.unconsciousSeconds = 0; c.PersonalState.meal.satiety = 69;
+            Check(!CommanderAnt.HasRecoveryOrRescueRoute(new[] { c }), "G11 satiety 69 alone starves before waking");
             c.WorkState.health = 0; c.WorkState.unconsciousSeconds = 0; c.PersonalState.meal.satiety = 0;
             Check(!CommanderAnt.HasRecoveryOrRescueRoute(new[] { c }), "G11 no recovery or rescue when all unconscious and starving");
             Check(CommanderAnt.HasRecoveryOrRescueRoute(new[] { c, other }), "G11 conscious survivor prevents impossible rescue defeat");

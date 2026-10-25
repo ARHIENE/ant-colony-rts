@@ -36,7 +36,10 @@ namespace AntColony.Buildings
                 new Recipe("강철", ResourceType.Steel, 1, 20, CommanderActivity.Strength, (ResourceType.Iron, 2), (ResourceType.Coal, 1)) }.Concat(SupplyRecipes.For(kind)).ToArray(),
             // 약제대(2026-10-11): 동물용 의약품·동물 수술 키트(장수용 약과 별도 자원, 재료는 잠정). 의료 능력만 사용(보조 기술 없음).
             BuildingKind.MedicineBench => new[] { new Recipe("동물용 의약품", ResourceType.AnimalMedicine, 1, 8, null, (ResourceType.Leaf, 2), (ResourceType.Honeydew, 1)),
-                new Recipe("동물 수술 키트", ResourceType.SurgeryKit, 1, 14, null, (ResourceType.Cloth, 1), (ResourceType.Cobweb, 2), (ResourceType.Chitin, 1)) },
+                new Recipe("동물 수술 키트", ResourceType.SurgeryKit, 1, 14, null, (ResourceType.Cloth, 1), (ResourceType.Cobweb, 2), (ResourceType.Chitin, 1)),
+                new Recipe("기초 약품", ResourceType.MedicineBasic, 1, 8, null, (ResourceType.Herb, 2)),
+                new Recipe("일반 약품", ResourceType.MedicineNormal, 1, 12, null, (ResourceType.Herb, 2), (ResourceType.Cloth, 1)),
+                new Recipe("고급 약품", ResourceType.MedicineAdvanced, 1, 20, null, (ResourceType.MedicineNormal, 1), (ResourceType.Herb, 2), (ResourceType.Component, 1)) },
             _ => Array.Empty<Recipe>()
         };
         public static bool IsKind(BuildingKind kind) => RecipesFor(kind).Length > 0;
@@ -71,13 +74,13 @@ namespace AntColony.Buildings
 
         public bool AddOrder(int recipe, Workshop.OrderMode mode, int amount)
         {
-            if (state.orders.Count >= Workshop.MaxOrders || recipe < 0 || recipe >= Recipes.Count) return false;
+            if (state.orders.Count >= Workshop.MaxOrders || recipe < 0 || recipe >= Recipes.Count || !MedicineResearch.Unlocked(Recipes[recipe].output)) return false;
             state.orders.Add(new Order { recipe = recipe, mode = mode, amount = Mathf.Clamp(amount, 1, Workshop.MaxOrderAmount) }); return true;
         }
         private static bool Wants(Order o, Recipe r) => o.mode == Workshop.OrderMode.KeepStock ? ResourceManager.Instance.GetAmount(r.output) < o.amount : o.amount > 0;
-        private static bool Affordable(Recipe r) => r.inputs.All(i => ResourceManager.Instance.GetAmount(i.type) >= i.amount);
+        private static bool Affordable(Recipe r) => MedicineResearch.Unlocked(r.output) && r.inputs.All(i => ResourceManager.Instance.GetAmount(i.type) >= i.amount);
         public bool NeedsWork => !state.ruined && !IsDead && isActiveAndEnabled && ResourceManager.Instance != null
-            && (Current != null || state.orders.Any(o => o.recipe < Recipes.Count && Wants(o, Recipes[o.recipe]) && Affordable(Recipes[o.recipe])));
+            && (Current != null && MedicineResearch.Unlocked(Current.output) || state.orders.Any(o => o.recipe < Recipes.Count && Wants(o, Recipes[o.recipe]) && Affordable(Recipes[o.recipe])));
 
         // 목록 위에서부터 원하는 품목 중 재료가 있는 것 하나를 시작한다.
         private bool StartNext()
@@ -97,7 +100,8 @@ namespace AntColony.Buildings
 
         public bool Work(CommanderAnt c, float seconds)
         {
-            if (!NeedsWork || !(seconds > 0) || float.IsInfinity(seconds) || !CanContinue(c) || !c.CivilianWorkReady || !c.AllowsJob(Job)) return false;
+            if (!NeedsWork || !(seconds > 0) || float.IsInfinity(seconds) || !CanContinue(c) || !c.CivilianWorkReady || !c.AllowsJob(Job)
+                || Current != null && !MedicineResearch.Unlocked(Current.output)) return false;
             if (Current == null && !StartNext()) return false;
             var r = Current;
             state.makerId = c.PersonalState.id;

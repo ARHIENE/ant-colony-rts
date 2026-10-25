@@ -131,6 +131,8 @@ namespace AntColony.Buildings
 
         // 옛 저장의 비축 식사(새 요리는 창고 자원).
         public bool HasMeal => !IsDead && isActiveAndEnabled && meals.meals.Count > 0;
+        public Meal BestMeal(int diet) => !HasMeal ? null : meals.meals.Where(m => (diet & (m.quality >= 2 ? CommanderAnt.DietFine : CommanderAnt.DietSimple)) != 0).OrderByDescending(m => m.quality).FirstOrDefault();
+        public Meal TakeMeal(Meal choice) => HasMeal && meals.meals.Remove(choice) ? choice : null;
         public Meal TakeMeal()
         {
             if (!HasMeal) return null;

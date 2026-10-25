@@ -18,7 +18,11 @@ namespace AntColony.Units
         // 식사 특성(ONI): 미식가·무딘 미각·주방 테러범·강철 위장·느긋한 식사
         Gourmet, DullTaste, KitchenMenace, IronStomach, SlowEater,
         Undertaker, Cannibal, Neat,
-        Senile // 노망(2026-10-03): 늙으면 지혜 보너스 대신 모든 작업·연구 속도 ×0.8(잠정).
+        Senile, // 노망(2026-10-03): 늙으면 지혜 보너스 대신 모든 작업·연구 속도 ×0.8(잠정).
+        GoldGathering, GoldBuilding, GoldFarming, GoldFishing, GoldCrafting, GoldResearch, GoldMedicine,
+        GoldCooking, GoldStrength, GoldArt, GoldPolitics, GoldHusbandry, GoldInvestigation,
+        DiamondGathering, DiamondBuilding, DiamondFarming, DiamondFishing, DiamondCrafting, DiamondResearch, DiamondMedicine,
+        DiamondCooking, DiamondStrength, DiamondArt, DiamondPolitics, DiamondHusbandry, DiamondInvestigation
     }
     // 기술 15종: 기존 9종 뒤에 의료·요리·근력·예술(2026-09-28), 정치(2026-10-08), 사육(2026-10-10). 저장 번호가 밀리지 않게 끝에 붙인다.
     public enum CommanderActivity { Gathering, Building, Farming, Fishing, Crafting, Research, Melee, Ranged, Command, Medicine, Cooking, Strength, Art, Politics, Husbandry, Firefighting }
@@ -27,7 +31,7 @@ namespace AntColony.Units
     public class CommanderTraits
     {
         [SerializeField] private CommanderPersonality personality;
-        public const int MaxTraits = 4; // 2026-10-07: 등급 무관 합계 최대 4개(등급 배정·시작 개수 확률은 미정이라 기존 추첨 유지)
+        public const int MaxTraits = 4; // 등급 무관 합계 최대 4개.
         public List<CommanderTrait> values = new List<CommanderTrait>();
         public List<CommanderPassion> passions = new List<CommanderPassion>();
         public CommanderPersonality Personality => Has(CommanderTrait.Brave) ? CommanderPersonality.Brave : Has(CommanderTrait.Cautious) ? CommanderPersonality.Cautious : Has(CommanderTrait.Loyal) ? CommanderPersonality.Devoted : CommanderPersonality.Balanced;
@@ -39,7 +43,7 @@ namespace AntColony.Units
         public float WorkMultiplier => Has(CommanderTrait.Lazy) ? .7f : Has(CommanderTrait.Relaxed) ? .85f : Has(CommanderTrait.Industrious) ? 1.15f : Has(CommanderTrait.Workaholic) ? 1.3f : 1f;
         public float MoveMultiplier => Has(CommanderTrait.Sluggish) ? .8f : Has(CommanderTrait.Slow) ? .9f : Has(CommanderTrait.Nimble) ? 1.1f : Has(CommanderTrait.Swift) ? 1.2f : 1f;
         public float LearningMultiplier => Has(CommanderTrait.SlowLearner) ? .5f : Has(CommanderTrait.Genius) ? 1.5f : 1f;
-        public float CarryMultiplier => Has(CommanderTrait.Muscular) ? 1.5f : Has(CommanderTrait.Mighty) ? 2f : Has(CommanderTrait.ThinLegs) ? .7f : 1f;
+        public float CarryMultiplier => (Has(CommanderTrait.Muscular) ? 1.5f : Has(CommanderTrait.Mighty) ? 2f : Has(CommanderTrait.ThinLegs) ? .7f : 1f) + MetricBonus(CommanderActivity.Strength);
         public bool Blocks(CommanderJobs job) => job switch {
             CommanderJobs.Building or CommanderJobs.Repair => Has(CommanderTrait.CannotBuild),
             CommanderJobs.Gathering => Has(CommanderTrait.CannotGather), CommanderJobs.Research => Has(CommanderTrait.CannotResearch),
@@ -56,9 +60,12 @@ namespace AntColony.Units
         public float GrowthMultiplier(CommanderActivity activity) => LearningMultiplier * (1f + .5f * Flame(activity));
         public CommanderTraits() { }
         public static string DisplayName(CommanderTrait trait) => trait switch {
-            CommanderTrait.Undertaker => "장의사", CommanderTrait.Cannibal => "동족 포식", CommanderTrait.Neat => "결벽", CommanderTrait.Senile => "노망", _ => trait.ToString() };
+            CommanderTrait.Undertaker => "장의사", CommanderTrait.Cannibal => "동족 포식", CommanderTrait.Neat => "결벽", CommanderTrait.Senile => "노망", _ => Core.TraitRules.Name(trait) };
         public CommanderTraits(CommanderPersonality legacy) { personality = legacy; }
-        private static int Group(CommanderTrait t) => (int)t < 20 ? (int)t / 4 : (int)t < 24 ? 5 + ((int)t - 20) / 2 : -1;
+        private static int Group(CommanderTrait t) => Core.TraitRules.Specialty(t) >= 0 ? 100 + Core.TraitRules.Specialty(t)
+            : (int)t < 20 ? (int)t / 4 : (int)t < 24 ? 5 + ((int)t - 20) / 2 : -1;
+        public Core.TraitGrade Grade(CommanderTrait t) => Core.TraitRules.Grade(t);
+        public float MetricBonus(CommanderActivity activity) => Core.TraitRules.Bonus(this, activity);
         public bool TryAdd(CommanderTrait t)
         {
             if (values.Count >= MaxTraits || values.Contains(t)) return false;
@@ -78,18 +85,23 @@ namespace AntColony.Units
                 || Pair(a,b,CommanderTrait.Muscular,CommanderTrait.Mighty) || Pair(a,b,CommanderTrait.Muscular,CommanderTrait.ThinLegs) || Pair(a,b,CommanderTrait.Mighty,CommanderTrait.ThinLegs);
         }
         private static bool Pair(CommanderTrait a, CommanderTrait b, CommanderTrait x, CommanderTrait y) => a == x && b == y || a == y && b == x;
-        public static CommanderTraits Random() => Generate(null, null);
-        public static CommanderTraits Inherit(CommanderTraits first, CommanderTraits second) => Generate(first, second);
-        private static CommanderTraits Generate(CommanderTraits first, CommanderTraits second)
+        public static CommanderTraits Random(bool starting = false) => Generate(null, null, starting);
+        public static CommanderTraits Inherit(CommanderTraits first, CommanderTraits second) => Generate(first, second, false);
+        private static CommanderTraits Generate(CommanderTraits first, CommanderTraits second, bool starting)
         {
             var result = new CommanderTraits();
             float roll = UnityEngine.Random.value;
-            int count = roll < .3f ? 1 : roll < .8f ? 2 : 3;
-            if (first != null && second != null)
-                foreach (var parent in new[] { first, second })
-                    foreach (CommanderTrait t in Enum.GetValues(typeof(CommanderTrait)))
-                        if (result.values.Count < count && parent.Has(t) && UnityEngine.Random.value < .5f) result.TryAdd(t);
-            while (result.values.Count < count) result.TryAdd((CommanderTrait)UnityEngine.Random.Range(0, Enum.GetValues(typeof(CommanderTrait)).Length));
+            int count = Core.TraitRules.Count(roll);
+            while (result.values.Count < count)
+            {
+                var grade = Core.TraitRules.RollGrade(UnityEngine.Random.value, starting);
+                var pool = Core.TraitRules.Candidates(result, grade, starting);
+                var inherited = new List<CommanderTrait>();
+                if (first != null && second != null)
+                    foreach (var t in pool) if (first.Has(t) || second.Has(t)) inherited.Add(t);
+                if (inherited.Count > 0 && UnityEngine.Random.value < .5f) pool = inherited;
+                result.TryAdd(pool[UnityEngine.Random.Range(0, pool.Count)]);
+            }
             int passionCount = UnityEngine.Random.Range(1,5), major = 0;
             if (first != null && second != null && UnityEngine.Random.value < .5f)
             {

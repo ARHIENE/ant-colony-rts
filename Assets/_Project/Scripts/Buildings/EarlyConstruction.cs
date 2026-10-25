@@ -8,7 +8,7 @@ namespace AntColony.Buildings
     public static class EarlyConstruction
     {
         public static bool HasFixedCost(BuildingKind kind) => kind is BuildingKind.Carpentry or BuildingKind.ScienceLab
-            or BuildingKind.ConscriptionPost or BuildingKind.ScoutPost or BuildingKind.Treadmill or BuildingKind.PowerWire or BuildingKind.Battery
+            or BuildingKind.ConscriptionPost or BuildingKind.ScoutPost or BuildingKind.Treadmill or BuildingKind.PowerWire or BuildingKind.Battery or BuildingKind.MedicineBench
             || SupplyBuildingTemplates.IsKind(kind);
         public static (ResourceType type, int amount)[] Cost(BuildingKind kind) => kind switch
         {
@@ -27,7 +27,7 @@ namespace AntColony.Buildings
             if (SupplyBuildingTemplates.IsKind(kind)) return template;
             var building = template.GetComponent<BuildingBase>();
             var name = kind switch { BuildingKind.Carpentry => "기초 목공대", BuildingKind.ConscriptionPost => "징집소",
-                BuildingKind.ScoutPost => "정찰 초소", BuildingKind.Treadmill => "쳇바퀴", BuildingKind.PowerWire => "전선", BuildingKind.Battery => "배터리", _ => "정착지 연구대" };
+                BuildingKind.ScoutPost => "정찰 초소", BuildingKind.Treadmill => "쳇바퀴", BuildingKind.PowerWire => "전선", BuildingKind.Battery => "배터리", BuildingKind.MedicineBench => "약제대", _ => "정착지 연구대" };
             var cost = Cost(kind).Sum(c => c.amount);
             if (building.Data.displayName == name && building.Data.constructionAnts == 0 && building.Data.foodCost == 0
                 && building.Data.soilCost == cost && building.Data.specialCost == 0) return template;

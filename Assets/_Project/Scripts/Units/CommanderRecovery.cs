@@ -23,7 +23,7 @@ namespace AntColony.Units
         {
             if (PersonalHealth > 0 && !Health.Downed) { WorkState.unconsciousSeconds = 0; return false; }
             if (PersonalHealth > 0) { CommandStop(); DropCargo(); WorkState.health = 0; }
-            MealState.satiety = Mathf.Max(0, Satiety - GameBalance.SatietyPerSecond * seconds);
+            MealState.satiety = Mathf.Max(0, Satiety - GameBalance.SatietyPerSecond * GameBalance.UnconsciousSatietyFactor * seconds);
             WorkState.unconsciousSeconds = Mathf.Min(GameCalendar.SecondsPerDay, WorkState.unconsciousSeconds + seconds);
             WorkState.recoverySeconds = RecoveryRemaining;
             if (StableForRecovery && !Health.Downed && RecoveryRemaining == 0)
@@ -69,7 +69,7 @@ namespace AntColony.Units
                                 tendWork = 0;
                             }
                         }
-                        MedicalRules.Tick(h, 1, true, false); elapsed++; hunger -= GameBalance.SatietyPerSecond;
+                        MedicalRules.Tick(h, 1, true, false); elapsed++; hunger -= GameBalance.SatietyPerSecond * GameBalance.UnconsciousSatietyFactor;
                     }
                 }
                 finally { MedicalRules.Roll = roll; }

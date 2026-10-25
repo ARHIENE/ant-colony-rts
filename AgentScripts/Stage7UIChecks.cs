@@ -69,7 +69,7 @@ public static class Stage7UIChecks
             var c = CommanderRoster.Instance.Commanders[0];
             var watch = Object.FindAnyObjectByType<MoodWatch>();
             ClearToasts(); c.PersonalState.AddMood("Test grief", -200, 60); watch.Scan();
-            Check(ToastManager.VisibleLines.Any(l => l.Contains("기분 경고: " + c.CommanderName)), "mood warning toast");
+            Check(ToastManager.VisibleLines.Any(l => l.StartsWith("기분 ") && l.Contains(": " + c.CommanderName)), "mood warning toast"); // G31: 기분 주의·위험·위급
             Check(FirstHints.Seen("collapse"), "collapse hint");
             Check((bool)typeof(GameMenuController).GetMethod("InFilter", BindingFlags.NonPublic | BindingFlags.Static).Invoke(null, new object[] { c, 4 }), "mood warning roster filter includes commander");
             c.StartMentalBreak(MentalBreak.Idle); watch.Scan();

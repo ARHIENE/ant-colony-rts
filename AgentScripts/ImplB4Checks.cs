@@ -127,7 +127,10 @@ public static class ImplB4Checks
             c.PersonalState.carriedRations.Take(c.PersonalState.carriedRations.Total);
             rm.Add(AntColony.Data.ResourceType.Food, c.RationPortion);
             c.PersonalState.meal.satiety = 20; c.PersonalState.meal.retrySeconds = 0;
-            c.TickDuty(.1f); Check(c.IsEating && c.PersonalState.meal.quality == 0, "G10 existing raw food fallback");
+            // R07/R08(2026-10-25): 창고 식량은 실제 접근점까지 걸어가 집은 뒤 먹는다. 이동은 목적지 순간이동으로 대신한다.
+            c.TickDuty(.1f);
+            for (var i = 0; i < 4 && !c.IsEating; i++) { c.Agent.Warp(c.Agent.destination); c.TickDuty(.1f); }
+            Check(c.IsEating && c.PersonalState.meal.quality == 0, "G10 existing raw food fallback");
             c.TickDuty(GameBalance.EatSeconds * 2);
             var playSeconds = GameSession.Instance.PlaySeconds; var gameSeconds = GameSession.Instance.GameSeconds;
             GameSession.Instance.MarkStarted(playSeconds, GameCalendar.DaySeconds + 1);

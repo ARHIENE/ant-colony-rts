@@ -44,7 +44,8 @@ namespace AntColony.World
         internal void ConfigureCritter(float health, float damage) { maxHealth = health; attackDamage = damage; Docile = true; }
         public bool Docile { get; internal set; }
         internal void Calm() { provoked = false; currentTarget = null; StopMoving(); }
-        public NavMeshAgent Agent => agent;
+        // 비활성 상태로 생성된 저장 개체는 아직 Awake가 실행되지 않았다.
+        public NavMeshAgent Agent => agent != null ? agent : agent = GetComponent<NavMeshAgent>();
         internal float MoveSpeed => moveSpeed;
         internal float MaxHealth => maxHealth;
         internal void Heal(float amount) { if (!IsDead && amount > 0) currentHealth = Mathf.Min(maxHealth, currentHealth + amount); }

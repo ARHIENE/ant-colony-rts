@@ -101,9 +101,14 @@ namespace AntColony.World
             bool freshDeath = body != null;
             if (body == null)
             {
-                var ant = state.kind != CorpseKind.Wildlife ? Resources.Load<GameObject>("QuirkyAnt") : null;
-                body = ant != null ? Instantiate(ant) : GameObject.CreatePrimitive(PrimitiveType.Cube);
-                if (ant == null) body.transform.localScale = new Vector3(.9f, .2f, .6f);
+                if (state.kind != CorpseKind.Wildlife && KemonoModel.Available)
+                    body = KemonoModel.Create(null, 0);
+                else
+                {
+                    var ant = state.kind != CorpseKind.Wildlife ? Resources.Load<GameObject>("QuirkyAnt") : null;
+                    body = ant != null ? Instantiate(ant) : GameObject.CreatePrimitive(PrimitiveType.Cube);
+                    if (ant == null) body.transform.localScale = new Vector3(.9f, .2f, .6f);
+                }
             }
             body.transform.SetParent(root.transform, true); body.transform.position = state.position;
             foreach (var c in body.GetComponentsInChildren<Collider>()) c.enabled = false;
@@ -113,7 +118,9 @@ namespace AntColony.World
                 node.GatheringForbidden = state.gatheringForbidden;
             }
             if (!string.IsNullOrEmpty(state.carcass)) root.AddComponent<CritterCarcass>().Data = JsonUtility.FromJson<CritterCarcass.State>(state.carcass);
+            root.AddComponent<CorpseProp>();
             root.SetActive(true);
+            body.GetComponent<KemonoAppearance>()?.SetExpression("DEAD");
             var animator = body.GetComponentInChildren<Animator>();
             if (animator != null) { animator.applyRootMotion = false; animator.Play("Base Layer.Death", 0, freshDeath ? 0 : 1); animator.Update(0); animator.speed = freshDeath ? 1 : 0; }
             return corpse;

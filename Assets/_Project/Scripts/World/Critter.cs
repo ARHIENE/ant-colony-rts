@@ -254,7 +254,7 @@ namespace AntColony.World
         // ---------- 장수 작업 결과 ----------
         internal void FinishCare(CommanderAnt c)
         {
-            s.care = GameBalance.CritterCareBaseSeconds * (1 + c.Talents.Level(CommanderActivity.Husbandry) / 10f); // 사육 능력이 높으면 돌봄 효과가 오래간다
+            s.care = GameBalance.CritterCareBaseSeconds * (1 + c.Talents.Level(CommanderActivity.Husbandry) / 10f + c.Traits.MetricBonus(CommanderActivity.Husbandry)); // 능력·특성은 지속시간만 보정
             s.waiting = 0; s.careOrder = false;
         }
         internal int TakeDirect() { var n = Mathf.FloorToInt(s.direct); s.direct -= n; return n; }

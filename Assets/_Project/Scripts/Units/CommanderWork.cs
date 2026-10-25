@@ -31,7 +31,9 @@ namespace AntColony.Units
         public bool CivilianWorkReady => isActiveAndEnabled && !IsDead && !IsCaptive && !IsEmbarked && !Health.Downed && PersonalHealth > 0 && !IsDeployed && !IsAwayFromHome
             && !IsAsleep && (!IsSleepTime || WorkPriorities.Red) && !IsDeparting && !PersonalState.treating && PersonalState.mentalBreak == MentalBreak.None && PersonalState.rageRemaining <= 0;
         public Workforce WorkTarget => CivilianWorkReady && workTarget != null && workTarget.isActiveAndEnabled ? workTarget : null;
-        public float WorkRate(CommanderActivity activity) => talents.Multiplier(activity) * WorkFactor * AgeWorkMultiplier(activity) * AntColony.Buildings.RoomSystem.WorkBonus(WorkTarget) * BiomeRules.WorkAt(AntColony.Buildings.RoomSystem.IsIndoors(Position)) * AntColony.Map.WeatherSystem.WorkAt(AntColony.Buildings.RoomSystem.IsIndoors(Position));
+        public float WorkRate(CommanderActivity activity) => talents.Multiplier(activity)
+            * (traits.WorkMultiplier + TraitRules.WorkBonus(traits, activity, CraftingWorkshop != null)) * (Sleep.poorly ? GameBalance.PoorSleepWork : 1f)
+            * AgeWorkMultiplier(activity) * AntColony.Buildings.RoomSystem.WorkBonus(WorkTarget) * BiomeRules.WorkAt(AntColony.Buildings.RoomSystem.IsIndoors(Position)) * AntColony.Map.WeatherSystem.WorkAt(AntColony.Buildings.RoomSystem.IsIndoors(Position));
         public float LoadCapacity => Mathf.Max(0, TotalLoadCapacity - StartingLoadWeight - BossCargoCount);
         internal void SetWorkTarget(Component target)
         {

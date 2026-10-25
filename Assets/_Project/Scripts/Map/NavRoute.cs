@@ -44,7 +44,8 @@ namespace AntColony.Map
             if (follower != null) follower.Clear();
             // 이미 같은 곳(3m 안)으로 가는 중이면 다시 확인하지 않는다(움직이는 대상을 매 프레임 쫓는 경우).
             var d = to - agent.destination; var same = (agent.hasPath || agent.pathPending) && new Vector2(d.x, d.z).sqrMagnitude < 9f;
-            if (!same && (to - agent.transform.position).sqrMagnitude > CheckDistance * CheckDistance)
+            if ((agent.hasPath || agent.pathPending) && d.sqrMagnitude < .0001f) return; // 동일 목적지의 중복 요청만 생략한다. 높이가 다른 목적지는 새 경로가 필요하다.
+            if (!same &&(to - agent.transform.position).sqrMagnitude > CheckDistance * CheckDistance)
             {
                 var route = new List<Vector3>();
                 if (!float.IsPositiveInfinity(Length(agent.nextPosition, to, route)) && route.Count > 1)
