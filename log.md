@@ -14,4 +14,6 @@
 - 미통합: F1 D02/D03 평가·외부 조사, F2 D08 탐사. 오프라인 사본이며 Unity/UI 미완. `docs/patches/unfinished-20261026`에 소스 스냅샷/인계 보존(기준 E 변경 포함, 그대로 apply 금지). 전용 자원5종·낚시터·DigSite·원정지 지형과 과거 `docs/NOTION_APPLY_1025_codex.md` 미반영 항목은 남는다.
 - 보류: 성능 최적화·림월드식 채취. 기존 G26 변경은 보존하되 목표 성능 달성 주장 없음. prefab/씬/Water/TimeManager/URP 재직렬화/서드파티/raw art/graphify/Temp는 로컬 보존·이번 커밋 제외.
 - Notion [개발 일지](https://app.notion.com/p/404c4a0ecd318193a247fb8204810f3d) · [Trouble Shooting](https://app.notion.com/p/404c4a0ecd31816782e3d8d33aa6c9ee) 작성·재확인, 검수 캡처3장 업로드/첨부. 맵·UI·자원·메인 화면 기획4페이지 이번 변경도 교체·재확인했다. 과거 기획 반영 잔여 전체 완료는 아니다.
-- 임시 저장 경로로 검사하고 Play 종료 확인. 카카오톡 도구는 없어 완료 알림 전송 불가. develop 커밋·push 결과는 완료 후 덧붙인다. SAVE 완료 뒤 컴퓨터 종료 요청: 2026-10-26 01:34:53 KST부터1시간 유효.
+- 임시 저장 경로로 검사하고 Play 종료 확인. graphify update 완료. 카카오톡 도구는 없어 완료 알림 전송 불가. SAVE 완료 뒤 컴퓨터 종료 요청: 2026-10-26 01:34:53 KST부터1시간 유효.
+- 저장 완료: `36fc08a903de853cec294f1cf0efad957e5ff02a` (2010파일) develop 커밋·origin/develop push·ls-remote 일치 확인. Notion 두 일지에 커밋/푸시 결과도 기록했다. 이 링크 기록은 후속 문서 커밋으로 저장한다.
+- Git 자동 geometric repack에서 기존 `refs/codex/turn-diffs/checkpoints/...` bad object가 발생했다. 커밋/푸시는 성공했으며 앱 내부 참조를 임의 삭제하지 않았다. 자동 정리 오류는 후속 점검 대상.

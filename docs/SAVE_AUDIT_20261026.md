@@ -41,6 +41,11 @@
 - Notion 맵·UI·자원·메인 화면 4개 기획 페이지의 환경별 연출·칩 화살표 제거·우클릭 채집/피드백·바닥 운반 조건을 최신 요구로 교체하고 다시 읽어 확인했다. 과거 D01~D08 미반영 목록 전체를 완료했다는 뜻은 아니다.
 - Unity Play 종료 확인. 사용자 실제 저장 대신 임시 SaveStorage 경로에서 검사했다.
 
+## 최종 저장
+- develop `36fc08a903de853cec294f1cf0efad957e5ff02a`, 2010파일 커밋·origin/develop push·원격 해시 일치 확인.
+- Git 자동 geometric repack의 기존 Codex checkpoint bad object 오류는 남았다. 커밋/푸시는 성공했으며 내부 참조를 임의 삭제하지 않았다.
+- Notion 개발 일지/Trouble Shooting에 캡처3장·결과·커밋 링크 반영. graphify update 완료. Player 빌드 미수행, 카카오톡 도구 없음.
+
 ## 전체 소스 대조 목록
 
 ### AgentScripts
