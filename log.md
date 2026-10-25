@@ -2,6 +2,7 @@
 
 ## 현재 상태 — 2026-10-25 SAVE(Claude+Codex) — 미실행 검사 완료, Notion 전체 대조, 미정 9항목 확정, 1차 구현
 - 프로젝트 E:\Git\ant / develop 개발, master 안정. 작업 분담 `docs/IMPLEMENTATION_BOARD.md`(VERIFY-1025·IMPL-1025-CODEX·IMPL-1025-CLAUDE).
+- SAVE 기록: 커밋 6af9e5a, 개발 일지 https://app.notion.com/p/404c4a0ecd3181339045f8aca1e3ae1f, Trouble Shooting https://app.notion.com/p/404c4a0ecd3181738670fc51725d045e
 - **이어서 하자 하면 아래 '재개 순서'부터.**
 
 ### 오늘 완료
