@@ -114,7 +114,7 @@ namespace AntColony.UI
 
         private void Start()
         {
-            placement = FindFirstObjectByType<BuildingPlacementController>();
+            placement = AntColony.Core.SceneObjects.Any<BuildingPlacementController>();
             buildWindow = MenuLayout.Plate(transform, "BuildWindowV5", 170, 90, 1100, 656);
             buildWindow.gameObject.AddComponent<MenuViewport>().FitSelf = true;
             var windowCanvas = buildWindow.gameObject.AddComponent<Canvas>();
@@ -331,7 +331,7 @@ namespace AntColony.UI
         }
 
         private static BuildingData Data(Entry entry) => BuildingPlacementController.GetTemplate(entry.kind, entry.role)?.GetComponent<BuildingBase>()?.Data;
-        private static string Cost(BuildingData data) => EarlyConstruction.HasFixedCost(data.kind) ? EarlyConstruction.Label(data.kind) : $"식{data.foodCost} 재료{data.soilCost}{(data.specialCost > 0 ? $" 특{data.specialCost}" : "")}";
+        private static string Cost(BuildingData data) => EarlyConstruction.HasFixedCost(data.kind) ? EarlyConstruction.Label(data.kind) : $"식량 {data.foodCost} · 재료 {data.soilCost}{(data.specialCost > 0 ? $" · 특수 자원 {data.specialCost}" : "")}";
         private static string ButtonName(Entry entry) => "Build " + entry.kind + (entry.kind == BuildingKind.Barracks || entry.kind == BuildingKind.ResearchLab ? " " + entry.role : "");
         // 재료 비교: 보유/필요 수량, 내구도·미관·단열·가연성. 부족하면 빨강(배치 불가).
         public static string MaterialLine(ResourceType m, int need)

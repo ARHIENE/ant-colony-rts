@@ -33,8 +33,8 @@ namespace AntColony.World
 
         private void Awake() => EnsureStockCache();
 
-        private void OnEnable() => Active.Add(this);
-        private void OnDisable() => Active.Remove(this);
+        private void OnEnable() { Active.Add(this); AntColony.Core.SceneObjects.Register(this); }
+        private void OnDisable() { Active.Remove(this); AntColony.Core.SceneObjects.Unregister(this); }
 
         private void Start()
         {

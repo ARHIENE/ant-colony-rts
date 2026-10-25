@@ -187,7 +187,7 @@ namespace AntColony.Save
                     foreach (var a in b.nurseryAffinity) Check(a != null && a.firstCommanderId >= 0 && a.firstCommanderId < f.commanders.Count && a.secondCommanderId >= 0 && a.secondCommanderId < f.commanders.Count && a.firstCommanderId != a.secondCommanderId && N(a.value), "affinity");
                     for (var i = 0; i < b.nodes.Count; i++) Check(b.nodes[i] != null && b.nodes[i].index == i && N(b.nodes[i].amount) && N(b.nodes[i].regrowTimer) && N(b.nodes[i].sowRemaining), "building node");
                 }
-                Check((long)p.antsAssigned == f.commanders.Where(c => c.personalState.social.departure == DepartureState.None).Sum(c => (long)c.troopCount) + f.buildings.Sum(b => (long)b.scoutDispatchedAnts), "assigned population");
+                Check((long)p.antsAssigned == f.commanders.Where(c => c.personalState.social.departure == DepartureState.None).Sum(c => (long)c.troopCount) + f.buildings.Sum(b => (long)b.scoutDispatchedAnts) + f.world.transports.Sum(t => (long)(t.withdrawal?.troops ?? 0)), "assigned population");
                 Check(f.weather == null || f.weather.kind >= 0 && f.weather.kind <= 6 && N(f.weather.remaining), "weather");
                 for (var i = 0; i < f.world.sites.Count; i++) { var s = f.world.sites[i]; Check(s != null && s.index == i && s.disposition >= 0 && s.disposition <= 3
                     && N(s.growthTimer) && N(s.settlementElapsed) && N(s.defenseRemaining) && N(s.defenseCaptureProgress), "site state"); Colony(s.colony); }
@@ -206,7 +206,7 @@ namespace AntColony.Save
                         && (!s.route.running || s.route.destinationIndex >= 0 && f.world.sites[s.route.destinationIndex].disposition == 1 ), "route");
                     var crew = f.commanders.Where(c => c.location == 1 && c.transportIndex == i).ToArray();
                     var heavy = f.campaign.completed.Contains((int)Core.ScienceTechnology.HeavyTransport);
-                    Check(s.walking || crew.Sum(c => (long)c.troopCount) <= (s.aircraft ? Core.GameBalance.AircraftTroops : Core.GameBalance.VehicleTroops) * (heavy ? 1.5f : 1f)
+                    Check(s.walking || crew.Sum(c => (long)c.troopCount) + (s.withdrawal?.troops ?? 0) <= (s.aircraft ? Core.GameBalance.AircraftTroops : Core.GameBalance.VehicleTroops) * (heavy ? 1.5f : 1f)
                         && crew.Length <= (s.aircraft ? Core.GameBalance.AircraftCommanders : Core.GameBalance.VehicleCommanders) + (heavy ? 2 : 0), "transport capacity");
                 }
                 Check(f.nodes.All(n => n != null && n.key != null && N(n.amount) && N(n.regrowTimer) && N(n.sowRemaining) && n.fishMonth >= -1 && V(n.position) && Enum.IsDefined(typeof(ResourceType), n.type))

@@ -21,7 +21,7 @@ namespace AntColony.Buildings
         public static void Invalidate() => cacheTime = -10; // 건물이 생기거나 사라지면 다시 모은다
         private static IEnumerable<BuildingBase> Buildings()
         {
-            if (Time.unscaledTime - cacheTime > 1f || cache.Any(b => b == null)) { cache = Object.FindObjectsByType<BuildingBase>(FindObjectsSortMode.None); cacheTime = Time.unscaledTime; }
+            if (Time.unscaledTime - cacheTime > 1f || cache.Any(b => b == null)) { cache = AntColony.Core.SceneObjects.All<BuildingBase>(); cacheTime = Time.unscaledTime; }
             return cache.Where(b => b != null && b.isActiveAndEnabled && !b.IsDead && b.CountsTowardPlayerDefeat);
         }
 

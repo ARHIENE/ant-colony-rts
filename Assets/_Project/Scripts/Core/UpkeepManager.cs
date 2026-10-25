@@ -33,6 +33,8 @@ namespace AntColony.Core
             }
             ConsecutiveFailures++;
             var hungry = new System.Collections.Generic.List<AntUnitBase>(AntUnitBase.Active);
+            // 창고가 비어도 소지 식량이 있거나 아직 배부른 장수는 굶주림·이탈 대상이 아니다.
+            hungry.RemoveAll(unit => unit is not CommanderAnt c || c.CarriedRationMeals > 0 || c.Satiety > 0 || c.IsEating);
             foreach (var c in hungry)
             {
                 if (c is CommanderAnt commander && commander.IsColonyMember && !commander.IsCaptive)

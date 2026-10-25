@@ -10,8 +10,8 @@ namespace AntColony.World
         void Awake() { corpse = GetComponent<Corpse>(); born = Time.time; }
         void LateUpdate()
         {
-            if (shown || corpse.Data == null || Time.time - born < .5f) return;
-            var id = corpse.Remains ? "Prop_Remains" : corpse.Data.kind == CorpseKind.Ant ? "Prop_CorpseBundle" : null;
+            if (shown || corpse.Data == null || corpse.Data.kind != CorpseKind.Wildlife && Time.time - born < .5f) return;
+            var id = corpse.Remains || corpse.Data.kind == CorpseKind.Wildlife ? "Prop_Remains" : corpse.Data.kind == CorpseKind.Ant ? "Prop_CorpseBundle" : null;
             if (id == null) return;
             var prop = ProductionProp.Attach(transform, id, .9f, corpse.Position);
             if (prop == null) return;

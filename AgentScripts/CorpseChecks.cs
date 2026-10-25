@@ -123,7 +123,7 @@ public static class CorpseChecks
             var a = cs[0]; var b = cs[1]; var victim = cs[2];
             Warp(a, WorldMapManager.Instance.HomePosition + Vector3.right * 8); Warp(b, a.Position + Vector3.right);
             var corpse = Body(a, count: 3);
-            Check(corpse.GetComponentInChildren<Animator>().GetCurrentAnimatorStateInfo(0).IsName("Base Layer.Death"), "corpse death pose");
+            Check(AntColony.Units.RigAnimator.Find(corpse.gameObject).GetCurrentAnimatorStateInfo(0).IsName("Base Layer.Death"), "corpse death pose");
             Check(corpse.GetComponent<IDamageable>() == null && corpse.GetComponent<AntColony.Units.SelectableObject>() == null, "body has no combat identity");
             Check(!a.StartCorpseWork(corpse, true), "non-cannibal cannot eat");
             Check(a.StartCorpseWork(corpse), "manual cleaning");

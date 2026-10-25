@@ -67,7 +67,7 @@ namespace AntColony.World
         }
         internal void RestoreProgress(Save.RouteDto dto)
         {
-            rallying = dto.rallying; nextNode = dto.nextNode == null ? null : (int[])dto.nextNode.Clone();
+            rallying = dto.rallying; nextNode = dto.nextNode == null || dto.nextNode.Length == 0 ? null : (int[])dto.nextNode.Clone(); // JsonUtility: null → []
             nodes = dto.nodes?.Select(n => Save.SaveReferences.Get<ResourceNode>(n)).ToArray();
             // 구저장(단일 거점)은 목적지 하나를 경유지로 본다.
             var sites = WorldMapManager.Instance.Sites;
@@ -92,7 +92,7 @@ namespace AntColony.World
             var found = false;
             foreach (var c in ship.Crew)
             {
-                if (c == null || !c.isActiveAndEnabled || c.Transport != ship || !c.HasTroops) return false;
+                if (c == null || !c.isActiveAndEnabled || c.Transport != ship || !c.HasTroops && !ship.HasBoardedTroopsFor(c)) return false;
                 if (c.Data.gatherRate > 0 && c.Data.carryCapacity > 0) found = true;
             }
             return found;
@@ -101,6 +101,7 @@ namespace AntColony.World
         public void Tick(float seconds)
         {
             if (!IsRunning || !(seconds > 0) || float.IsInfinity(seconds)) return;
+            if (ship.FieldWorkActive) { Status = "현장 수리 진행 중"; return; }
             if (ship.State == ExpeditionState.Home)
             {
                 // 잃은 경유지는 본거지에서 빼고 남은 순서로 계속한다(다음 사이클부터 반영).
@@ -124,6 +125,7 @@ namespace AntColony.World
                 rallying = false;
             }
             if (ship.State != ExpeditionState.Deployed) { Status = ship.State.ToString(); return; }
+            if (ship.IsWithdrawing || ship.ReservedCargo > 0) { Status = "철수 / 적재 진행 중"; return; }
             if (ship.Site != Destination) { Stop("Stopped: destination changed"); return; }
             if (nextNode == null)
             {
@@ -158,10 +160,16 @@ namespace AntColony.World
             }
             Status = "Waiting for crew / garrison cargo";
             // 화물 여유가 남으면 다음 경유지로, 아니면 귀환한다.
-            if (leg + 1 < stops.Length && ship.CargoLoad < ship.CargoCapacity && Valid(stops[leg + 1]))
+            int nextLeg = leg + 1;
+            while (nextLeg < stops.Length && !Valid(stops[nextLeg]))
             {
-                if (!ship.TryContinueTo(stops[leg + 1])) return;
-                leg++;
+                AntColony.UI.ToastManager.Show("자동 수송: 잃은 경유지를 제외합니다.", AntColony.UI.ToastKind.Warning);
+                nextLeg++;
+            }
+            if (nextLeg < stops.Length && ship.ReturnCargoSpace >= 1)
+            {
+                if (!ship.TryContinueTo(stops[nextLeg])) return;
+                leg = nextLeg;
                 Destination = stops[leg];
                 nextNode = null;
                 rallying = false;

@@ -34,7 +34,7 @@ namespace AntColony.UI
 
         private void Start()
         {
-            selection = FindFirstObjectByType<SelectionManager>();
+            selection = AntColony.Core.SceneObjects.Any<SelectionManager>();
             screen = MenuTheme.Rect("ColonySummaryScreen", HudConsole.Center);
             MenuTheme.Stretch(screen); screen.offsetMin = new Vector2(12, 8); screen.offsetMax = new Vector2(-12, -14);
             MenuTheme.InsetScreen(screen.gameObject).raycastTarget = false;
@@ -76,7 +76,7 @@ namespace AntColony.UI
             var dorm = Dormitory.All.FirstOrDefault(d => d != null && d.isActiveAndEnabled && !d.IsDead);
             if (dorm == null) { BuildScreen.OpenDormitory(); return; }
             WorkTargetPanel.Select(dorm);
-            FindFirstObjectByType<AntColony.Camera.IsometricCameraController>()?.FocusOn(dorm.Position);
+            AntColony.Core.SceneObjects.Any<AntColony.Camera.IsometricCameraController>()?.FocusOn(dorm.Position);
         }
         private void OnDestroy() => ToastManager.SetCrisis("beds", null);
     }

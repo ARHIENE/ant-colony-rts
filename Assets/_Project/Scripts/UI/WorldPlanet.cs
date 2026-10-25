@@ -10,7 +10,7 @@ namespace AntColony.UI
     public sealed class WorldPlanet : MonoBehaviour, IDragHandler, IScrollHandler
     {
         public const int Layer = 31;
-        private const float Radius = 10f, LonSpread = 300f, LatSpread = 120f;
+        private const float Radius = 10f, LonSpread = 360f, LatSpread = 180f;
         private static readonly Vector3 Origin = new Vector3(0, -5000, 0);
         private Transform planet;
         private UnityEngine.Camera view;

@@ -25,7 +25,7 @@ namespace AntColony.Save
 
     internal static class SaveConstruction
     {
-        internal static List<ConstructionDto> Capture() => UnityEngine.Object.FindObjectsByType<BuildingConstructionSite>().Where(s => s != null && s.isActiveAndEnabled).OrderBy(s => s.Order).Select((s, i) => Capture(s, i)).ToList();
+        internal static List<ConstructionDto> Capture() => AntColony.Core.SceneObjects.All<BuildingConstructionSite>().Where(s => s != null && s.isActiveAndEnabled).OrderBy(s => s.Order).Select((s, i) => Capture(s, i)).ToList();
         private static ConstructionDto Capture(BuildingConstructionSite s, int index)
         {
             SaveReferences.Register("construction:" + index, s);
@@ -52,7 +52,7 @@ namespace AntColony.Save
         }
 
         // ponytail: 철거 대상·재개발 집은 위치(0.3m)·종류로 다시 찾는다. 같은 자리에 같은 종류가 겹치면 저장 식별자로 바꾼다.
-        private static T Find<T>(Vec3Dto at, string kind = null) where T : BuildingBase => at == null ? null : UnityEngine.Object.FindObjectsByType<T>()
+        private static T Find<T>(Vec3Dto at, string kind = null) where T : BuildingBase => at == null ? null : AntColony.Core.SceneObjects.All<T>()
             .Where(b => (b.Position - at.ToVector3()).sqrMagnitude < .09f && (kind == null || SaveCatalog.Kind(b) == kind)).FirstOrDefault();
 
         internal static void Restore(List<ConstructionDto> list)

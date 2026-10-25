@@ -76,6 +76,7 @@ namespace AntColony.Units
         public bool IsCarrying => carriedAmount > 0f;
         public bool IsWorking => state != State.Idle;
         public bool IsGatheringAnimation => state == State.Gathering;
+        public bool IsReturningCargo => state == State.ReturningToStorage || state == State.Depositing;
         public bool IsBuildingAnimation => state == State.Building;
         public BuildingConstructionSite ConstructionTarget => targetConstruction;
         public bool IsConstructing => state == State.MovingToBuildSite || state == State.Building;
@@ -128,7 +129,7 @@ namespace AntColony.Units
             if (site == null || !site.NextPickup(out var needType, out var needAmount) || rm == null || IsCarrying || !isActiveAndEnabled || IsDead || !TryWorkApproach(site.Position, out _)) return false;
             foreach (var bin in rm.Bins.Where(b => b.Spendable && b.Amount(needType) > 0).OrderBy(b => (b.Position - Position).sqrMagnitude))
             {
-                var host = bin.Host != null ? bin.Host : BuildingBase.FindNearestDepositPoint(bin.Position);
+                var host = DepositHost(bin);
                 if (host == null || !TryWorkApproach(host.Position, out var approach)) continue;
                 var amount = Mathf.Min(needAmount, Mathf.FloorToInt(CarryCapacity), bin.Amount(needType));
                 if (amount <= 0) return false;
@@ -196,11 +197,14 @@ namespace AntColony.Units
         {
             if (IsFlying) return Vector3.Distance(Position, destination);
             if (!Agent.enabled || !Agent.isOnNavMesh || !NavMesh.SamplePosition(destination, out var hit, 4, NavMesh.AllAreas)) return float.PositiveInfinity;
+            if (unreachableUntil.TryGetValue(hit.position, out var until) && Time.unscaledTime < until) return float.PositiveInfinity; // G26: TryWorkApproach와 같은 10초 기억
             var path = new NavMeshPath();
             if (!Agent.CalculatePath(hit.position, path)) return float.PositiveInfinity;
-            if (path.status == NavMeshPathStatus.PathPartial) return AntColony.Map.NavRoute.Length(Agent.nextPosition, hit.position); // 먼 길(2026-10-22)
-            if (path.status != NavMeshPathStatus.PathComplete) return float.PositiveInfinity;
-            float length = 0; for (int i = 1; i < path.corners.Length; i++) length += Vector3.Distance(path.corners[i - 1], path.corners[i]);
+            var length = path.status == NavMeshPathStatus.PathPartial ? AntColony.Map.NavRoute.Length(Agent.nextPosition, hit.position) // 먼 길(2026-10-22)
+                : path.status == NavMeshPathStatus.PathComplete ? 0f : float.PositiveInfinity;
+            if (float.IsPositiveInfinity(length)) { if (unreachableUntil.Count > 512) unreachableUntil.Clear(); unreachableUntil[hit.position] = Time.unscaledTime + 10f; }
+            if (path.status != NavMeshPathStatus.PathComplete) return length;
+            for (int i = 1; i < path.corners.Length; i++) length += Vector3.Distance(path.corners[i - 1], path.corners[i]);
             return length;
         }
 
@@ -210,8 +214,15 @@ namespace AntColony.Units
             if (IsFlying) return true;
             if (!NavMesh.SamplePosition(target, out var hit, 4, NavMesh.AllAreas)) return false;
             destination = hit.position;
-            return CanReach(destination);
+            // G26: 닿지 않는 작업 대상마다 경로 계산(장거리 10~35ms)을 매 작업 탐색마다 되풀이하지 않는다.
+            // ponytail: 10초 동안 같은 지점은 못 간다고 본다. 다리·문이 생긴 직후 최대 10초 늦게 반응; 지형 변경 이벤트로 비우게 할 수 있다.
+            if (unreachableUntil.TryGetValue(destination, out var until) && Time.unscaledTime < until) return false;
+            if (CanReach(destination)) return true;
+            if (unreachableUntil.Count > 512) unreachableUntil.Clear();
+            unreachableUntil[destination] = Time.unscaledTime + 10f;
+            return false;
         }
+        private readonly System.Collections.Generic.Dictionary<Vector3, float> unreachableUntil = new System.Collections.Generic.Dictionary<Vector3, float>();
 
         public override void Initialize(UnitData data, ObjectPool sourcePool, GameObject prefab)
         {
@@ -279,6 +290,7 @@ namespace AntColony.Units
         {
             if (IsConstructing) return;
             if (node == null || !node.CanGatherWith(this)) return;
+            if (node.IsLooseCargo && !(this is CommanderAnt away && away.IsAwayFromHome) && !HasCargoDestination(node.ResourceType)) return;
             if (!TryWorkApproach(node.transform.position, out var approach)) return;
             if (carriedAmount > 0f && (carriedType != node.ResourceType || carriedAmount >= CarryCapacity))
             {
@@ -292,6 +304,20 @@ namespace AntColony.Units
             SetMoveDestination(approach);
             state = State.MovingToNode;
         }
+
+        internal bool HasCargoDestination(ResourceType type)
+        {
+            var resources = ResourceManager.Instance;
+            if (resources == null) return false;
+            foreach (var bin in resources.Destinations(type, Position, this))
+            {
+                var host = DepositHost(bin);
+                if (host != null && TryWorkApproach(host.Position, out _)) return true;
+            }
+            return false;
+        }
+        private static BuildingBase DepositHost(StoreBin bin) => bin.Host != null ? bin.Host
+            : SceneObjects.All<Stockpile>().FirstOrDefault(p => p.isActiveAndEnabled && !p.IsDead);
 
         public virtual void CommandBuild(BuildingConstructionSite site)
         {
@@ -401,7 +427,7 @@ namespace AntColony.Units
                 CommandStop(); return;
             }
 
-            if (HasReachedDestination()) state = State.Building;
+            if (HasReachedDestination() || NearDestination) { StopMoving(); state = State.Building; }
         }
 
         private void TickBuilding()
@@ -444,8 +470,9 @@ namespace AntColony.Units
                 return;
             }
 
-            if (HasReachedDestination())
+            if (HasReachedDestination() || NearDestination)
             {
+                StopMoving();
                 state = State.Gathering;
             }
         }
@@ -521,8 +548,9 @@ namespace AntColony.Units
         }
 
         // ponytail: 8m 안 같은 종류 바닥 더미만 묶는다. 다른 장수가 맡은 더미는 건너뛴다.
-        private ResourceNode NextLoosePile() => ResourceNode.Available.Where(n => n != null && n != targetNode && n.IsLooseCargo && n.CanGather
-                && n.ResourceType == carriedType && !n.IsRaidLoot && (n.transform.position - Position).sqrMagnitude < 64f
+        // G26: 싼 조건(종류·거리)을 먼저 본다. CanGather는 부모 검색이 있어 1만 개에 다 부르면 수십 ms.
+        private ResourceNode NextLoosePile() => ResourceNode.Available.Where(n => n != null && n != targetNode && n.IsLooseCargo
+                && n.ResourceType == carriedType && (n.transform.position - Position).sqrMagnitude < 64f && !n.IsRaidLoot && n.CanGather
                 && !AntUnitBase.Active.OfType<WorkerAnt>().Any(w => w != this && w.CurrentResourceNode == n))
             .OrderBy(n => (n.transform.position - Position).sqrMagnitude).FirstOrDefault();
 
@@ -548,7 +576,7 @@ namespace AntColony.Units
             if (rm != null)
                 foreach (var bin in rm.Destinations(carriedType, Position, this))
                 {
-                    var host = bin.Host != null ? bin.Host : BuildingBase.FindNearestDepositPoint(bin.Position);
+                    var host = DepositHost(bin);
                     if (host == null || !TryWorkApproach(host.Position, out approach)) continue;
                     targetBin = bin; targetDeposit = host; break;
                 }
@@ -567,8 +595,9 @@ namespace AntColony.Units
                 return;
             }
 
-            if (HasReachedDestination())
+            if (HasReachedDestination() || NearDestination)
             {
+                StopMoving();
                 state = State.Depositing;
             }
         }
@@ -592,7 +621,8 @@ namespace AntColony.Units
             }
             if (carriedAmount > 0f && ResourceManager.Instance != null)
             {
-                if (targetDeposit != null) { targetDeposit.DepositResources(carriedType, Mathf.RoundToInt(carriedAmount)); OnDelivered(carriedAmount); }
+                if (targetDeposit is ExpeditionTransport ship && !ship.TryLoadFromWorker(this, carriedType, Mathf.RoundToInt(carriedAmount))) return;
+                if (targetDeposit != null) { if (!(targetDeposit is ExpeditionTransport)) targetDeposit.DepositResources(carriedType, Mathf.RoundToInt(carriedAmount)); OnDelivered(carriedAmount); }
             }
             carriedAmount = 0f;
             state = State.Idle;

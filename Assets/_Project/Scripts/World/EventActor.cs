@@ -13,6 +13,8 @@ namespace AntColony.World
     public enum EventActorKind { Wasp, Wanderer, Food, Soil, NightPredator }
     public sealed class EventActor : MonoBehaviour
     {
+        private void OnEnable() => AntColony.Core.SceneObjects.Register(this);
+        private void OnDisable() => AntColony.Core.SceneObjects.Unregister(this);
         [Serializable] public class State
         {
             public EventActorKind kind;
@@ -52,7 +54,7 @@ namespace AntColony.World
                 var node = go.AddComponent<ResourceNode>(); node.ConfigureLoot(state.kind == EventActorKind.Food ? ResourceType.Food : ResourceType.Soil, state.amount);
                 go.SetActive(true);
             }
-            else go.SetActive(true);
+            else { go.SetActive(true); AntVisual.Attach(go); }
             return actor;
         }
         public State Capture() => new State { kind = Kind, position = new Vec3Dto(transform.position), remaining = Remaining,
@@ -73,7 +75,7 @@ namespace AntColony.World
             var visitor = CommanderRoster.Instance.Commanders.FirstOrDefault(c => c.CanReceiveOrders && !c.IsAwayFromHome
                 && Vector3.Distance(c.Position, transform.position) <= EventRules.ApproachRadius);
             if (visitor == null) return;
-            var post = FindFirstObjectByType<ScoutPost>();
+            var post = AntColony.Core.SceneObjects.Any<ScoutPost>();
             var chance = Mathf.Clamp01((post != null ? post.CurrentChance : ScoutPost.RecruitmentChance(CommanderRoster.Instance.Count)) + EventRules.RecruitBonus);
             CommanderAnt recruit = null;
             if (CommanderRoster.Instance.Count < ScoutPost.DefaultMaxCommanders && UnityEngine.Random.value < chance)

@@ -51,7 +51,7 @@ public static class BetaChecks
             var commanders = CommanderRoster.Instance.Commanders;
             Check(commanders.Count == GameSession.Instance.Options.startingCount && commanders.All(c => c.GetComponent<AntVisual>() != null), "all generated commanders use Quirky");
             var commander = commanders[0]; var visual = commander.GetComponent<AntVisual>();
-            var animator = commander.GetComponentInChildren<Animator>();
+            var animator = RigAnimator.Find(commander.gameObject);
             Check(animator != null && animator.avatar != null && !animator.applyRootMotion, "avatar and no root motion");
             foreach (var state in new[] { "Idle_A", "Walk", "Run", "Eat", "Attack", "Hit", "Fly", "Sit", "Death" })
                 Check(animator.HasState(0, Animator.StringToHash("Base Layer." + state)), "animation state " + state);

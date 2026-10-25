@@ -9,15 +9,20 @@ namespace AntColony.World
             ResourceType.Food => "Prop_PreservedRation",
             ResourceType.Stone => "Prop_StoneChunk",
             ResourceType.Drum or ResourceType.FilledFuelDrum => "Prop_OilDrum",
-            ResourceType.GasCylinder => "Prop_GasCanister", _ => null
+            ResourceType.GasCylinder => "Prop_GasCanister",
+            ResourceType.Special => "Prop_BossCore_A", _ => null
         };
 
         // Preserve the imported axis correction. Fit only the display; owner colliders and stock stay intact.
         public static GameObject Attach(Transform owner, string id, float width, Vector3 floor)
         {
-            var prefab = Resources.Load<GameObject>("Kemono/Props/" + id);
+            var prefab = Resources.Load<GameObject>(id.Contains("/") ? id : "Kemono/Props/" + id);
             if (prefab == null) return null;
             var model = Object.Instantiate(prefab);
+            // Production FBX에는 단품·묶음·씨앗·부패 변형이 같은 원점에 들어 있다.
+            if (id.StartsWith(ResourceVisual.Folder))
+                foreach (var r in model.GetComponentsInChildren<Renderer>())
+                    if (r.name.Contains("__")) r.gameObject.SetActive(false);
             var renderers = model.GetComponentsInChildren<Renderer>();
             if (renderers.Length == 0) { Object.Destroy(model); return null; }
             var bounds = renderers[0].bounds;
@@ -39,8 +44,12 @@ namespace AntColony.World
             var box = node.GetComponent<Renderer>();
             if (box == null) return;
             var b = box.bounds;
-            if (Attach(node.transform, id, Mathf.Max(b.size.x, b.size.z), new Vector3(b.center.x, b.min.y, b.center.z)) != null)
+            var model = Attach(node.transform, id, Mathf.Max(1.2f, Mathf.Max(b.size.x, b.size.z)), new Vector3(b.center.x, b.min.y, b.center.z));
+            if (model != null)
+            {
                 box.forceRenderingOff = true;
+                ResourceVisual.FitHitbox(node, model);
+            }
         }
     }
 }

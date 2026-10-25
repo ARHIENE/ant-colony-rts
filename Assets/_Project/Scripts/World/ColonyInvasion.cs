@@ -51,7 +51,7 @@ namespace AntColony.World
                 if (source.GetComponentInParent<ExpeditionSite>() == null && source.raiderTemplate != null && source.spawnPoint != null) return source;
             return null;
         }
-        public static bool FinalAssaultAvailable => FinalSource() != null && FindAnyObjectByType<LocalIncursions>() != null;
+        public static bool FinalAssaultAvailable => FinalSource() != null && AntColony.Core.SceneObjects.Any<LocalIncursions>() != null;
         internal static float FinalFirstDelay => FinalSource()?.firstWaveDelay * DifficultyRuntime.IntervalScale ?? 90f * DifficultyRuntime.IntervalScale;
         // 잠정(결정 원문에 없음): 인구 10명/재산 100당 파동 병력 +1. 기존 파동 상한·난이도는 유지한다.
         private const float FinalPopulationPerRaider = 10f, FinalWealthPerRaider = 100f;
@@ -67,7 +67,7 @@ namespace AntColony.World
         internal static bool SpawnFinalWave(RocketSnapshot snapshot, int index, out float nextDelay)
         {
             var source = FinalSource();
-            var local = FindAnyObjectByType<LocalIncursions>();
+            var local = AntColony.Core.SceneObjects.Any<LocalIncursions>();
             nextDelay = source != null ? source.waveRetryDelay : 15f;
             if (source == null || local == null) return false;
             source.raiders.RemoveAll(r => r == null || r.IsDead);
@@ -195,7 +195,7 @@ namespace AntColony.World
             raider.MakeRaider();
             raider.gameObject.SetActive(true);
             raiders.Add(raider);
-            if (!payCost) FindAnyObjectByType<LocalIncursions>()?.RestoreVisitor(raider);
+            if (!payCost) AntColony.Core.SceneObjects.Any<LocalIncursions>()?.RestoreVisitor(raider);
             return true;
         }
 
@@ -217,7 +217,7 @@ namespace AntColony.World
             commander.MakeRaider();
             commander.gameObject.SetActive(true);
             raiders.Add(commander);
-            if (!payCost) FindAnyObjectByType<LocalIncursions>()?.RestoreVisitor(commander);
+            if (!payCost) AntColony.Core.SceneObjects.Any<LocalIncursions>()?.RestoreVisitor(commander);
         }
 
         // Food 전리품 노드가 없는 소굴은 경제 도입 전처럼 비용 없이 침공한다.

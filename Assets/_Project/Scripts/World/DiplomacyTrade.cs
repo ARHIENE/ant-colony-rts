@@ -36,7 +36,7 @@ namespace AntColony.World
         }
         public bool CanTrade(Civilization c) => Available && c != null && (Data.civilizations.Contains(c) && c.contacted && !c.extinct && !c.war
             || Data.markets.Contains(c) && int.TryParse(c.id.Substring(7), out var index) && Market(index) == c);
-        public static IEnumerable<PrisonerCamp> Camps => FindObjectsByType<PrisonerCamp>(FindObjectsSortMode.None).Where(c => c.isActiveAndEnabled);
+        public static IEnumerable<PrisonerCamp> Camps => AntColony.Core.SceneObjects.All<PrisonerCamp>().Where(c => c.isActiveAndEnabled);
         public static IEnumerable<Prisoner> PlayerPrisoners => Camps.SelectMany(c => c.Prisoners);
         public double TradeValue(TradeOffer offer, Civilization c, bool player)
         {

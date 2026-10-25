@@ -21,7 +21,7 @@ namespace AntColony.Units
         {
             var m = MealState; var rm = ResourceManager.Instance;
             var bins = rm == null ? new StoreBin[0] : rm.Bins.Where(b => b.Spendable && TryWorkApproach(b.Position, out _)).ToArray();
-            var kitchens = FindObjectsByType<Kitchen>(FindObjectsSortMode.None)
+            var kitchens = AntColony.Core.SceneObjects.All<Kitchen>()
                 .Where(k => k.BestMeal(Diet) != null && TryWorkApproach(k.Position, out _)).ToArray();
             foreach (var type in new[] { ResourceType.FineMeal, ResourceType.SimpleMeal, ResourceType.Food, ResourceType.RottenFood })
             {

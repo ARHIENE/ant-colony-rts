@@ -15,13 +15,13 @@ namespace AntColony.UI
             MenuTheme.Text(content, "로켓 핵심물: " + (research.HasBlueprint ? "반입 완료" : "D 보스 보상 본거지 반입 필요"), 18, 55);
             BossProgressionSection(research);
             MenuTheme.Button(content, "의무실 건설 (식량 40 / 재료 40 / 인력 4마리)", () => {
-                Resume(); FindFirstObjectByType<BuildingPlacementController>()?.BeginInfirmaryPlacement();
+                Resume(); AntColony.Core.SceneObjects.Any<BuildingPlacementController>()?.BeginInfirmaryPlacement();
             }, "중상 장수를 최대 2명 치료합니다. 장수 상세에서 근처 환자를 배정하세요.").interactable = Infirmary.Unlocked;
             ScienceBuildings();
             MenuTheme.Button(content, "로켓 발사대 건설 (식량 100 / 재료 150 / 인력 10마리)", () => {
-                Resume(); FindFirstObjectByType<BuildingPlacementController>()?.BeginAirshipYardPlacement();
+                Resume(); AntColony.Core.SceneObjects.Any<BuildingPlacementController>()?.BeginAirshipYardPlacement();
             });
-            foreach (var yard in FindObjectsByType<AirshipYard>(FindObjectsSortMode.None))
+            foreach (var yard in AntColony.Core.SceneObjects.All<AirshipYard>())
             {
                 MenuTheme.Text(content, $"로켓 {yard.Phase} · 선체 {(yard.Hull ? "완성" : "미완성")} / 엔진 {(yard.Engine ? "완성" : "미완성")} · 좌석 {yard.OccupiedSeats}/{yard.Capacity} · 준비 잔여 {yard.PreparationRemaining / GameCalendar.SecondsPerDay:0.00}일", 13, 55);
                 foreach (AirshipPart part in Enum.GetValues(typeof(AirshipPart)))

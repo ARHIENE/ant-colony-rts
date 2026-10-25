@@ -92,8 +92,15 @@ namespace AntColony.UI
             colors.normalColor = Plate2;
             colors.highlightedColor = PlateHover;
             colors.pressedColor = Well; colors.selectedColor = PlateHover;
-            colors.disabledColor = Well; colors.fadeDuration = .12f;
-            button.colors = colors;
+            colors.disabledColor = Well;
+            SetColorsInstant(button, colors);
+        }
+        // colors를 넣으면 버튼이 흰색(기본)에서 새 색으로 0.12초 페이드한다. 화면을 클릭마다 다시 그리므로
+        // 그때마다 모든 버튼이 번쩍였다(2026-10-25). 페이드 0으로 즉시 적용한 뒤 마우스 올림 페이드만 되돌린다.
+        public static void SetColorsInstant(UnityEngine.UI.Button button, UnityEngine.UI.ColorBlock colors)
+        {
+            colors.fadeDuration = 0; button.colors = colors;
+            colors.fadeDuration = .12f; button.colors = colors;
         }
         // 2026-10-24: UI는 1440×900 기준 고정 배치라 큰 화면에서 왼쪽 위에 작게 몰렸다. 화면 높이 900 기준으로 키운다(1배 미만으로는 안 줄임).
         public static float UiScale => Mathf.Max(1f, Screen.height / 900f);

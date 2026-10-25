@@ -16,9 +16,9 @@ namespace AntColony.UI
 
         private void ScienceBuildings()
         {
-            foreach (var workshop in FindObjectsByType<Workshop>())
+            foreach (var workshop in AntColony.Core.SceneObjects.All<Workshop>())
                 MenuTheme.Button(content, "공방 열기: " + workshop.name, () => ShowWorkshop(workshop));
-            var placement = FindFirstObjectByType<BuildingPlacementController>();
+            var placement = AntColony.Core.SceneObjects.Any<BuildingPlacementController>();
             foreach (var kind in ScienceBuildingKinds)
             {
                 var data = BuildingPlacementController.GetTemplate(kind, UnitRole.Worker)?.GetComponent<BuildingBase>()?.Data;

@@ -316,3 +316,25 @@
 - 남음: 동물 위생·배설물·퇴비·질병 발생 경로/진행 중 임신 상세·통합 의료 우선순위·실행 회귀, 장수 의료 전면 개편, 시체/묘비, 원정 장비 압수/실물 수송/철수, 포로 실물 관리. 전체 기획 구현 완료 아님.
 - 추가 담당: `Buildings/RanchFacility.cs` 먹이통 우선순위 기본5/상한9 기획 일치. 급식 실물 창고 인출과 운반 식품 신선도 보존 관련 `Units/WorkerAnt.cs`, `Save/SaveDtos.cs`, `Save/SaveSnapshot.cs`, `Save/SavePreflight.cs`, `AgentScripts/Spec1013ClinicChecks.cs`.
 - SAVE 미수행: log/changelog/개발 일지/캡처/커밋/push 하지 않음.
+- **RECOVERY-1025 / Codex / 진행 중(사용자 인계 요청)** — Claude·Codex G1/G2 중단 기록 확인. 기존 변경 보존. 우선 소유: Map/Precipitation.cs·SeasonVisuals.cs, UI/GameMenuCrashStart.cs·MenuTheme.cs·GameMenuController.cs, World/ResourceNodeStatus.cs; 필요 시 G1 입력·시작 인원 경로 및 F3 시설 회전 수정 통합. 기능 확장보다 실플레이 오류 우선. Unity 검증 잠금 Codex 인계, SAVE 전 로그·캡처·커밋 없음.
+- **협업 소유권 정정(2026-10-25 사용자 전달): c13 원정대 UI·c22 파편 크기는 Claude 담당.** Codex는 `UI/WorldMapPanel.cs`·`World/ProductionProp.cs` 추가 수정 중단. 이미 들어간 변경: 원정대 다음 수송 버튼 y=10·빈 목록 안내, 기존 바닥 소품 최소 너비 1.2. `ProductionProp.Attach`의 ResourceModels 경로/변형 선택과 `ResourceVisual.FitHitbox` 연결은 그래픽 연결 수정이므로 유지·협의. Codex 현재: `World/ResourceVisual.cs`, `Units/KemonoModel.cs`, `Buildings/FacilityVisual.cs`, `World/CritterVisual.cs`·`Critter.cs`·`WildMonster.cs`, Resources 모델·URP 머티리얼. H1 특성 디자인은 `docs/HANDOFF-CLAUDE-TRAITCHIP-1025.md`·H1 패치를 그래픽/기존 버그 완료 뒤 적용. 성능 최적화·림월드식 채취 변경 보류.
+
+- **RECOVERY-1025 통합 상태 (2026-10-26 / Codex)** — H1 특성·c13·c22, H2 c10·설정 패치 적용. H2의 수면 장수 자동 제외는 적용하지 않고 기존 선택 규칙 유지. Unity: H2 17, 시작/클릭/보급 13, 원정 UI 27, 시설 710, 자원 200, 리그 41, 사건/공사/시체 14, 시민/전리품/사체 10, 특성 25, 메뉴/날씨 14 통과(각 검사 최신 결과 기준). 장수/생물의 실제 리그로 Animator 바인딩, Wasp/NightBeetle·Resident·공사/철거/광맥·전리품 모델 연결. Light의 Unity null 처리 수정. 새 캡처·SAVE 미수행. Claude 추가 전달 범위: Chitin/Wax/Component/Water/Soil 전용 자원 모델 제작(별도 사본, 본 프로젝트·Unity 수정 금지); 아직 납품/통합되지 않음. 미해결 감사 항목: 이 자원 모델, 낚시터 표시, 미사용 DigSite 모델, 원정지 평판 지형. 성능/림월드식 채취 보류.
+
+- **REOPEN-1026 / Codex / 진행 중** — 사용자 Game 화면 재현: 엎드린 장수·정지 애니메이션·상단 초상화·가장자리 카메라 이동·우클릭 채집. 담당 Units/KemonoModel·RigAnimator·AntVisual·UnitSelectionController, UI/TraitChip·CharacterPortraits, Camera/IsometricCameraController, Core/UserSettings 및 관련 검사. 특성 화살표 제거. 강제 Animator.Update만의 검증 대신 실제 프레임 진행 상태·채집/운반을 검증. SAVE 전 캡처/일지/커밋 없음.
+
+- **REOPEN-1026 수정 검증 / Codex** — 리그 이전 뒤 남은 KemonoModel 부모 +90도 제거, Idle_A 실제 포즈 평가 후 크기/클릭 범위 계산. CharacterPortraits의 잘못된 Idle 상태를 Idle_A로 교체·AlwaysAnimate 평가. TraitChip의 화살표 그리기·빈 영역 제거. 가장자리 이동 저장 설정 0→18 복구, H2 검사 종료 시 실제 카메라 값 원복 추가. LiveGraphicsProbe로 기존 눕는 자세(up≈0.09) 재현 후 LiveRepairChecks에서 실제 프레임상 upright/걷기/뼈대/상단 가장자리팬/우클릭목재 채집량감소·운반량증가 12 통과. 기존 리그41·특성16 통과. 초상화 정면모델 수직up=1 수치 확인, 육안 캡처 검수 미실시(SAVE 규칙). SAVE/commit 없음.
+
+- **GATHER-1026 / Codex / 진행 중** — 실제 사용자 Play에서 자원 접근 잔여거리 0.003~0.47m·stoppingDistance=0으로 MovingToNode 고착 재현. WorkerAnt 기존 NearDestination(.5m) 허용·도착 시 경로 정지(채집/반납/건설), AntVisual은 작업 상태를 미세 이동보다 우선. UnitSelectionController에서 채집 지시 성공/실패와 이동 마커 구분, 신규 GatherOrderFeedback·ResourceNodeStatus로 대상 링 및 이동/채집 상태 표시. 좌클릭 선택·우클릭 명령 규칙 유지.
+
+- **GATHER-1026 공통 재생 원인 수정 / Codex** — Animator 아래 SkinnedMeshRenderer 0개(메시가 형제 노드)인데 CullUpdateTransforms로 설정되어 전체 재생이 생략됨. GatherArrivalChecks에서 Tool_Chop 상태 진입 후 실제 뼈대 정지 FAIL 재현. RigAnimator 공통 AlwaysAnimate + 스킨 updateWhenOffscreen, Kemono/Critter/Civilian의 Cull 덮어쓰기 제거. 수정 뒤 실제 5m 접근·메시 걷기·도착/벌목 전환·채집량·경로정지·취소표시 14 통과. 강제 Animator.Update 없이 장수 13동작·생물6리그·시민 실제 메시변형 40검사 통과. 표시상태는 채집 이동/채집/자원운반 구분. 새 캡처·SAVE 없음.
+
+- **WEATHER-1026 / Codex / 진행 중** — 사용자 사막 벚꽃 오류 및 전 맵 생물군계·기후·계절 반영 요청. 담당 Map/SeasonVisuals·WeatherSystem, 관련 검사. 사막 드문 강수/모래폭풍, 물가·숲 강수/안개, 한랭/열대 강수형, 꽃잎·낙엽·적설 제한 통합검증. 성능/림월드 채취 변경 아님.
+
+- **LOOT-LOOP-1026 / Codex / 진행 중** — 사용자 '캐자마자 동일 물건 재생' 확인. 운반 목적지 없는 바닥 더미를 다시 줍고 DropCargo로 재생성하는 경로 차단: WorkerAnt.HasCargoDestination, 수동 바닥 줍기 및 CommanderDuty 자동 운반에 같은 도달/허용/공간 조건 적용. 자연 식물의 기존 재성장 규칙은 변경하지 않음. WEATHER-1026: 445 매트릭스/실제 입자·셰이더·저장 복원 검사 통과.
+
+- LOOT-LOOP 추가 원인: 비축더미가 삭제된 시작에서도 BaseBin의 추상 공간이 남고, 그 입고 지점을 임의의 창고로 대신 골라 품목 금지를 우회함. WorkerAnt 입고/배송 목적지 해석은 실제 BaseBin=Stockpile, 다른 칸=해당 Host로 통일. 새 창고의 품목 금지/허용 검사에서 발견해 수정 중.
+
+- **WEATHER/LOOT-1026 실행 검증 / Codex** — 날씨 445검사(7biome×3climate×4season 난수 및 6biome×3climate×4season 실제 계절 입자/셰이더/복원), 자연 채집14 회귀 통과. 운반 루프10: 추상 공간만 있는 상태 수동/자동 줍기 거부·바닥 동일 더미 보존, 창고 품목 금지 준수·허용 뒤 실제3개 한 번 입고. 초기 돌 픽스처는 근처 다른 돌 더미까지 묶어 운반하는 정상 로직 때문에 정확3 검사와 충돌하여 독립 부품 더미로 검증. 기존 식물 재성장 시간은 보존. SAVE/캡처/커밋 없음.
+
+- **SAVE-1026 / Codex** — Claude 3세션·Codex E/F/G 인계·현재 diff 전체 대조 완료. D04 363·D06/D07 82·D09 208 재검증. 실제 채집 Tool_Harvest/표시·후보 특성·원정UI 캡처 확인. 본 프로젝트 반영과 F1/F2 미통합 스냅샷을 분리 보존. 전체 근거/잔여는 docs/SAVE_AUDIT_20261026.md, 최종 커밋·Notion 링크는 log.md. 성능/림월드식 채취 보류 유지.

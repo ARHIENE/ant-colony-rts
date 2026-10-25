@@ -151,7 +151,7 @@ namespace AntColony.Buildings
         {
             if (!dirty) return;
             dirty = false; rooms.Clear(); roomOf.Clear(); insideWalls.Clear(); hasCastleWalls = false;
-            var buildings = Object.FindObjectsByType<BuildingBase>(FindObjectsSortMode.None).Where(b => b.isActiveAndEnabled && !b.IsDead).ToArray();
+            var buildings = AntColony.Core.SceneObjects.All<BuildingBase>().Where(b => b.isActiveAndEnabled && !b.IsDead).ToArray();
             var blocked = new HashSet<Vector2Int>(); var castle = new HashSet<Vector2Int>();
             foreach (var b in buildings.Where(IsBoundary))
             {

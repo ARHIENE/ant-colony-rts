@@ -15,17 +15,21 @@ using Object = UnityEngine.Object;
 public static class FacilityVisualChecks
 {
     static int checks;
-    static void Check(bool value, string message) { if (!value) throw new Exception("FAIL " + message); checks++; }
+    static void Check(bool value, string message) { if (!value) { File.WriteAllText("Temp/facility-visual-checks.txt", "FAIL " + message); throw new Exception("FAIL " + message); } checks++; }
     static async Task Ready() { for (int i = 0; i < 1800 && SaveSystem.Busy; i++) await Task.Delay(50); Check(!SaveSystem.Busy, "scene ready"); }
 
-    public static async Task<string> Main()
+    public static Task<string> Main() => Run(true);
+    public static Task<string> Existing() => Run(false);
+    private static async Task<string> Run(bool fresh)
     {
         checks = 0; Check(Application.isPlaying, "play mode");
         string original = SaveStorage.RootOverride;
         SaveStorage.RootOverride = Path.Combine(Application.temporaryCachePath, "FacVis-" + Guid.NewGuid().ToString("N"));
         try
         {
-            await Ready(); SaveSystem.NewGame(new NewGameOptions { seed = 261018, mapSize = MapSize.Small }); await Ready();
+            await Ready();
+            if (fresh) { SaveSystem.NewGame(new NewGameOptions { seed = 261018, mapSize = MapSize.Small }); await Ready(); }
+            File.WriteAllText("Temp/facility-visual-checks.txt", "RUNNING");
             var getTemplate = typeof(BuildingPlacementController).GetMethod("GetTemplate", BindingFlags.Static | BindingFlags.NonPublic);
             int mapped = 0, shown = 0;
             foreach (BuildingKind kind in Enum.GetValues(typeof(BuildingKind)))
@@ -40,7 +44,10 @@ public static class FacilityVisualChecks
                 go.SetActive(true);
                 await Task.Yield(); await Task.Delay(30);
                 var visual = go.GetComponent<FacilityVisual>();
+                if (kind == BuildingKind.ElectricLamp) Check(go.GetComponent<Light>() != null, "electric lamp has runtime light");
                 Check(visual != null && visual.Model != null, "model attached " + kind);
+                var prefab = Resources.Load<GameObject>("Facilities/" + id);
+                Check(Quaternion.Angle(visual.Model.rotation, go.transform.rotation * prefab.transform.localRotation) < .01f, "imported axis preserved " + kind);
                 Check(go.GetComponent<Renderer>().forceRenderingOff && go.GetComponent<Renderer>().enabled, "box hidden but kept " + kind);
                 var box = go.GetComponent<Renderer>().bounds;
                 var model = visual.Model.GetComponentsInChildren<Renderer>().Select(r => r.bounds).Aggregate((a, b) => { a.Encapsulate(b); return a; });
@@ -51,7 +58,9 @@ public static class FacilityVisualChecks
             Check(mapped == 120, "120 kinds mapped (" + mapped + ")"); // 2026-10-24 새 시설 16종 연결
             var wreck = Object.FindFirstObjectByType<CrashWreck>();
             Check(wreck != null && wreck.GetComponent<FacilityVisual>()?.Model != null, "crash landing wreck shows model (old stockpile removed by new start)");
-            return $"PASS {checks} facility visual checks ({shown} built with models)";
+            var result = $"PASS {checks} facility visual checks ({shown} built with models)";
+            File.WriteAllText("Temp/facility-visual-checks.txt", result);
+            return result;
         }
         finally { SaveStorage.RootOverride = original; }
     }

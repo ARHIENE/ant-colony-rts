@@ -1,3 +1,8 @@
+# 2026-10-25 SAVE — 2026-10-26 이관
+- 6af9e5a(링크 후속 d0501a0/6b9cfb1). 전 세션 미실행 검사 완료, 기획 전체 대조(구현108/부분69/미구현54), D01/D05/D09 1차 구현과 월드맵 정리. C2~C6·Phase4·Stage1·SettlementDefense·TransportRoute·WorldMap·SaveRoundtrip·ImplA2/ImplB4/Impl1025Codex 통과 기록.
+- G26은 기준 미달(fps1.1/저장9.7초/로드38초), 픽스처 인원 부족. 당시는 D04·D06/D07·D02/D03·D08 및 다거점 순회 검사가 남았음. 이후 상태는 최신 log와 SAVE_AUDIT 참조.
+- Notion 개발 일지 https://app.notion.com/p/404c4a0ecd3181339045f8aca1e3ae1f / Trouble https://app.notion.com/p/404c4a0ecd3181738670fc51725d045e. 일부 기획 미반영 목록은 NOTION_APPLY_1025_codex.md.
+
 # 2026-10-24 SAVE 2(Claude+Codex) — 2026-10-25 SAVE 이관
 - 플레이 점검 결정 G01~G69 중 G26·G27 외 코드 연결(Codex B5~B10·C1~C6, 한도 중단분 Claude가 I1에서 통합). Claude 직접: G33·G06·G31·G39·G11·G42·G28·G30·G45·G16·G43·G69·G04·G26 측정 검사. 버그: 로켓 snapshot 로드 실패, 수송 커서 저장 거부, 최종 공세 장수 null, 건물 저장 키 순서, PowerGrid 재생성 등. 월드맵 행성 Planet Earth Free. 검사 20종 통과, C2~C6·Phase4 등은 메모리 부족으로 미실행 상태로 보고(→ 10-25 전부 통과). 커밋 eec134c.
 

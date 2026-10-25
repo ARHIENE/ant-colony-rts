@@ -30,7 +30,7 @@ namespace AntColony.Core
         public Vector3 Home => state.home;
         public bool HasHome => state.hasHome;
         public int InitialCommanders => state.initialCommanders;
-        public static bool Operating => FindObjectsByType<AirshipYard>(FindObjectsSortMode.None).Any(y => y.Operating && !y.IsDead);
+        public static bool Operating => AntColony.Core.SceneObjects.All<AirshipYard>().Any(y => y.Operating && !y.IsDead);
         public static bool SuppressNewCrises => Operating || Instance != null && GameCalendar.GameSeconds < Instance.state.crisisResumeAt;
         // 생성기는 이 이벤트에 연결한다. 준비 완료 후에도 발사/파괴까지 계속 호출한다.
         public static event Action<AirshipYard, RocketSnapshot, float> AssaultTick;

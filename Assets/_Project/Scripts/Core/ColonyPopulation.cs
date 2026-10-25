@@ -64,7 +64,7 @@ namespace AntColony.Core
         public int Total => S.young + Adults + S.old;
         public int HousingCapacity => GameBalance.BaseHousing + Housing.TotalCapacity;
         public bool Unrest => S.sentiment <= GameBalance.UnrestSentiment;
-        public static int Facilities => FindObjectsByType<BuildingBase>(FindObjectsSortMode.None).Count(b => b.isActiveAndEnabled && !b.IsDead
+        public static int Facilities => AntColony.Core.SceneObjects.All<BuildingBase>().Count(b => b.isActiveAndEnabled && !b.IsDead
             && (b is Infirmary || b is RestRoom || b is Decoration || b is RecreationSpot || b is Kitchen));
 
         // ── 세금(2026-10-08): 시민 현물 납세. 2026-10-23 G08부터 매일 아침 식량·재료 지급. 누적은 초 단위라 주기 중 변화는 그 시간만 반영된다.
@@ -77,7 +77,7 @@ namespace AntColony.Core
             {
                 if (Time.unscaledTime - housingBeautyAt < 2f) return housingBeauty;
                 housingBeautyAt = Time.unscaledTime;
-                var homes = FindObjectsByType<Housing>(FindObjectsSortMode.None).Where(h => h.isActiveAndEnabled && !h.IsDead).ToArray();
+                var homes = AntColony.Core.SceneObjects.All<Housing>().Where(h => h.isActiveAndEnabled && !h.IsDead).ToArray();
                 housingBeauty = homes.Length == 0 ? 0 : Mathf.Clamp(homes.Average(h => SpaceQuality.BeautyAt(h.Position)), -5, 5);
                 return housingBeauty;
             }

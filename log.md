@@ -1,26 +1,17 @@
 # 프로젝트 로그
 
-## 현재 상태 — 2026-10-25 SAVE(Claude+Codex) — 미실행 검사 완료, Notion 전체 대조, 미정 9항목 확정, 1차 구현
-- 프로젝트 E:\Git\ant / develop 개발, master 안정. 작업 분담 `docs/IMPLEMENTATION_BOARD.md`(VERIFY-1025·IMPL-1025-CODEX·IMPL-1025-CLAUDE).
-- SAVE 기록: 커밋 6af9e5a, 개발 일지 https://app.notion.com/p/404c4a0ecd3181339045f8aca1e3ae1f, Trouble Shooting https://app.notion.com/p/404c4a0ecd3181738670fc51725d045e
-- **이어서 하자 하면 아래 '재개 순서'부터.**
-
-### 오늘 완료
-- 검사 전부 통과: C2 40·C3 43·C5 77·C6 58·Phase4 38·Fishing·Stage1 116·SettlementDefense 86·TransportRoute 57·G06 23·B3 107(30초 정지 재현 안 됨)·WorldMap 230·SaveRoundtrip 57·ImplA2 143/29/36·ImplB4 74·Impl1025Codex 1635.
-- 월드맵: 거점 정보 패널 640→360폭·선택 없으면 숨김(지구·이름표 가림 해소), 난이도 칸(■□)→글자+색(쉬움 하늘색·보통 노랑·어려움 빨강). 캡처 확인.
-- Notion 기획 전체 대조: `docs/SPEC_AUDIT_1025_codex.md`(자원·장수·건물·과학·특성 236행: 구현108·부분69·미구현54), `docs/SPEC_AUDIT_1025_claude.md`(전투·맵·월드맵·UI·메인·구현현황).
-- 미정 9항목 D01~D09: Codex·Claude 각 3안 → 9개 모두 Codex안 채택 `docs/DECISIONS_1025.md`. Notion 반영: 전투·월드맵·맵·UI(Claude), 자원·장수·과학·특성 핵심 10건(Codex 쓰기 차단으로 Claude가 적용, 나머지는 `docs/NOTION_APPLY_1025_codex.md` 미적용 목록).
-- 구현: D09 자동 수송 경유지 1~3곳(`World/TransportRoute.cs`, `ExpeditionTransport.TryContinueTo`, 월드맵 '경유지 추가/비우기', 저장 `RouteDto.stops/leg`). Codex: R07/R08 식사 실제 접근·신선도 순·청결 보정 제거, D01 약제대 장수약 3등급+약제 연구 2종(Claude가 CampaignResearch 등록), D05 특성 등급 생성·비전투 다이아 +30%.
-- G26 성능 측정(기준 미달): 시민 3만·묶음 1만에서 fps 1.1·저장 9.7초·로드 38초(기준 30fps·5초·10초). 픽스처도 장수 0/30·적 42/200으로 덜 채워짐.
-
-### 재개 순서
-1. G26 성능: 묶음 1만 개 각각의 `OnGUI`(`World/ResourceNodeStatus.cs`)·`Update`(`ResourceNode.cs:100`)·매 프레임 `ResourceNode.Available` 전체 순회(GatherDesignation·WorkerAnt·Kitchen 등) 의심 → 프로파일러로 확인 후 수정. 로드 38초는 B3 30초 대기와 같은 원인 가능(`docs/B3-FREEZE-1025.md`). PerfG26Checks 픽스처(장수·적 수)도 보정.
-2. 남은 확정 결정 구현: D04 진형(삼국지풍 7+현대식 6, 출전 편성 선택), D06/D07 철수·수송 파손·수리, D02/D03 평가·조사 파견(후긴 `TraitRules.InvestigationMultiplier` 연결), D08 지하 탐사. Codex와 분배.
-3. 대조 우선 후보 나머지: 청동/철 도구 사슬, 도구 실물·마모·수리, 지역 작물·요리, 생산 목표 재고 일관화, 고정 성향 사건 변형 중단, 약초 공급 경로(현재 없음), 전투 다이아 5종.
-4. D09는 중복·4곳 이상 거부만 검사됨 — 실제 다거점 순회 검사 추가 필요.
-
-### 주의
-- 검사 스크립트는 `_TeamImport` 전역 동명 타입 때문에 `AntColony.Boss.BossHealth`처럼 전체 이름 사용. internal 멤버는 리플렉션.
-- Codex(rescue)는 Notion MCP 읽기는 되지만 쓰기는 승인 정책 never로 차단 → Notion 쓰기는 Claude가. Unity 실행도 Claude만. Codex 연결이 끊기면 `~/.claude/plugins/data/codex-openai-codex/state/ant-*/broker.json`을 `.stale`로.
-- 커밋 제외: prefab/prefab.meta, 씬, Water.mat, TimeManager, art, graphify-out, Planet Earth Free, Assets/Resources/WorldMap.
-- 카카오 MemoChat은 SAVE 완료 시만.
+## 현재 상태 — 2026-10-26 통합 SAVE (10월 25일~26일 Claude·Codex 대조)
+- 프로젝트 `E:\Git\ant`, 개발 `develop`, 안정 `master`. 기존 SAVE `6b9cfb1` 이후 Claude 3세션·Codex E/F/G 인계·실제 diff 전체 대조 완료. 근거: `docs/SAVE_AUDIT_20261026.md`.
+- 이전 log는 날짜와 함께 changelog.md로 요약 이관했다. 원문은 `work/save-20261026/log-before-save.md`에 로컬 보존.
+- 구조: `Assets/_Project/Scripts`의 Core/Units/World/Buildings/Map/UI/Save, `_Project/Editor` 임포터, `Assets/Resources` 런타임 자산, `_Project/Art/Kemono/Anim` 공통 클립, `AgentScripts` Pipeline 검사, `docs` 기획/인계. 목표는 Notion 기획 전체 구현이며 전체 완성 상태는 아니다.
+- Claude E1 D04 진형14종/연구6·출전 UI, E2 D06/D07/D09 철수/실물 수송/파손·수리·해체/순회 저장 반영. 이번 SAVE 재실행363·82·208 통과.
+- Codex 복구: 맵 설정 입력/재추첨/스크롤, 시작 인원, 선택 범위·드래그, 날씨 일시정지·꽃잎, 자원/건물/생물/시민/전리품 모델 연결. Claude H1 특성·원정대 UI·잔해 크기와 H2 드래그·설정 패치 통합.
+- 후속 사용자 재현으로 정정: Animator 리그 경로와 중복90도 회전, 초상화 Idle_A 상태, 화면 가장자리 설정 복구. 전체 애니메이션 정지 원인은 리그와 형제인 메시가 CullUpdateTransforms 가시성 판정에서 빠진 것. 공통 AlwaysAnimate 및 스킨 갱신으로 수정. 도착 거리0 고착은 .5m 작업 허용 및 경로 정지로 수정.
+- 채집: 좌클릭 선택/우클릭 지시 유지. 채집 이동/작업/운반을 표시하며 단순 이동 마커와 구분. 창고 없는 바닥 물품의 반복 줍기/내려놓기 차단, 실제 입고 장소·허용 품목·도달 가능성 확인.
+- 날씨: 생물군계·기후·계절 가중치/입자/적설 통합. 사막 드문 강수·모래폭풍, 숲/물가 비·안개, 한랭/열대 강수형, 동굴 야외 강수 제외. 식물 재성장(120~300초)은 기존 규칙 유지.
+- 최근 실행 검증: 실제 프레임 애니메이션40, 실제 접근/벌목/표시14, 운반 반복·입고10, 날씨445. H2 17·시작/클릭/보급13·시설710·자원200·원정UI27·특성25 등은 대조 문서에 구분. 앞선 강제 Animator.Update 기반 통과를 전체 재생 해결 근거로 쓰지 않는다.
+- 실제 화면: 공식 Unity screen 캡처에서 잎 채집 Tool_Harvest/대상 문구·링/상단 초상, 후보 칩 화살표 제거, 원정 패널을 직접 확인했다. 초기 밤/Sleep·식사/Eat 캡처는 작업 검수에서 제외. 후보는 실행 게임 위 메뉴여서 HUD/알림이 남는다. 전 맵 장시간 육안 검수·Player 빌드는 미수행. 대형 수관의 작업자 가림은 후속 시각 점검 대상.
+- 미통합: F1 D02/D03 평가·외부 조사, F2 D08 탐사. 오프라인 사본이며 Unity/UI 미완. `docs/patches/unfinished-20261026`에 소스 스냅샷/인계 보존(기준 E 변경 포함, 그대로 apply 금지). 전용 자원5종·낚시터·DigSite·원정지 지형과 과거 `docs/NOTION_APPLY_1025_codex.md` 미반영 항목은 남는다.
+- 보류: 성능 최적화·림월드식 채취. 기존 G26 변경은 보존하되 목표 성능 달성 주장 없음. prefab/씬/Water/TimeManager/URP 재직렬화/서드파티/raw art/graphify/Temp는 로컬 보존·이번 커밋 제외.
+- Notion [개발 일지](https://app.notion.com/p/404c4a0ecd318193a247fb8204810f3d) · [Trouble Shooting](https://app.notion.com/p/404c4a0ecd31816782e3d8d33aa6c9ee) 작성·재확인, 검수 캡처3장 업로드/첨부. 맵·UI·자원·메인 화면 기획4페이지 이번 변경도 교체·재확인했다. 과거 기획 반영 잔여 전체 완료는 아니다.
+- 임시 저장 경로로 검사하고 Play 종료 확인. 카카오톡 도구는 없어 완료 알림 전송 불가. develop 커밋·push 결과는 완료 후 덧붙인다. SAVE 완료 뒤 컴퓨터 종료 요청: 2026-10-26 01:34:53 KST부터1시간 유효.

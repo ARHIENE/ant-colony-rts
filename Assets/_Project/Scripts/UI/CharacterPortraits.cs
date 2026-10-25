@@ -45,8 +45,8 @@ namespace AntColony.UI
                 t.gameObject.layer = Layer;
                 if (t.name.StartsWith("Socket.")) foreach (var r in t.GetComponentsInChildren<Renderer>()) r.enabled = false; // 손에 든 도구는 빼고 찍는다
             }
-            var animator = clone.GetComponentInChildren<Animator>();
-            if (animator != null) { animator.Play("Base Layer.Idle", 0, 0); animator.Update(0); }
+            var animator = RigAnimator.Find(clone);
+            if (animator != null) { animator.cullingMode = AnimatorCullingMode.AlwaysAnimate; animator.Rebind(); animator.Play("Base Layer.Idle_A", 0, 0); animator.Update(.01f); }
             var renderers = clone.GetComponentsInChildren<Renderer>().Where(r => r.enabled).ToArray();
             if (renderers.Length == 0) { Object.Destroy(clone); return null; }
             var b = renderers[0].bounds; foreach (var r in renderers) b.Encapsulate(r.bounds);

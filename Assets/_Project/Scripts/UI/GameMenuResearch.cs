@@ -127,7 +127,7 @@ namespace AntColony.UI
 
             // 하단: 연구소별 담당 장수·대기 사유
             content = V5Section(window, "연구소 배정", 12, 428, 1076, 176);
-            var labs = FindObjectsByType<ScienceLab>(FindObjectsSortMode.None);
+            var labs = AntColony.Core.SceneObjects.All<ScienceLab>();
             if (labs.Length == 0) MenuTheme.Text(content, "과학 연구소가 없습니다. 건설 메뉴에서 지으세요.", 15, 30);
             var assigned = labs.Select(l => l.Target).Where(c => c != null).ToHashSet();
             foreach (var lab in labs)
@@ -159,7 +159,7 @@ namespace AntColony.UI
             L.Tab(window, "시설", 88, 64, 70, true, ScienceFacilities);
             content = V5Section(window, "연구소 강화", 12, 104, 350, 544);
             var research = CampaignResearch.Instance;
-            foreach (var lab in FindObjectsByType<ScienceLab>(FindObjectsSortMode.None))
+            foreach (var lab in AntColony.Core.SceneObjects.All<ScienceLab>())
             {
                 var captured = lab;
                 MenuTheme.Button(content, $"연구소 {lab.Tier}등급 강화 (식량 {lab.Tier * 60} / 재료 {lab.Tier * 80})", () => { if (!captured.TryUpgrade()) ToastManager.Show("강화 조건을 충족하지 못했거나 자원이 부족합니다."); ScienceFacilities(); }).interactable = lab.Tier < ScienceLab.MaxTier && !lab.Busy;

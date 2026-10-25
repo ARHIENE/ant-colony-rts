@@ -18,9 +18,9 @@ namespace AntColony.UI
             if (KeyBindings.Pressed(GameAction.EventLog)) { menu.EventLog(); return; }
             if (KeyBindings.Pressed(GameAction.Diplomacy)) { menu.Diplomacy(); return; }
             if (KeyBindings.Pressed(GameAction.SciencePanel) || KeyBindings.Pressed(GameAction.WorldMap))
-                Object.FindFirstObjectByType<WorldMapPanel>()?.Toggle();
+                AntColony.Core.SceneObjects.Any<WorldMapPanel>()?.Toggle();
 
-            var selection = Object.FindFirstObjectByType<SelectionManager>();
+            var selection = AntColony.Core.SceneObjects.Any<SelectionManager>();
             if (selection != null && (KeyBindings.Pressed(GameAction.WeaponSkill) || KeyBindings.Pressed(GameAction.WingSkill)))
             {
                 var commanders = new System.Collections.Generic.List<CommanderAnt>();
@@ -33,7 +33,7 @@ namespace AntColony.UI
             if (KeyBindings.Pressed(GameAction.RemoveTroop))
             {
                 if (single.IsDeployed) { if (!single.ReturnToPost()) ToastManager.Show("지금은 징집소로 귀환할 수 없습니다."); }
-                else Object.FindFirstObjectByType<CommandCard>()?.RestOrTreat();
+                else AntColony.Core.SceneObjects.Any<CommandCard>()?.RestOrTreat();
             }
             if (KeyBindings.Pressed(GameAction.CycleWeapon)) single.CycleWeapon();
             // 커맨드 카드 고정 글자(HUD v2): S 정지(출전) · F 우선 작업 · X 휴식 · V 포상.

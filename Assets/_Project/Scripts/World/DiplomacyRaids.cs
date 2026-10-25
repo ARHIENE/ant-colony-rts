@@ -98,7 +98,7 @@ namespace AntColony.World
                 var c = Data.civilizations.Find(c => c.id == raid.faction);
                 if (raid.faction != "" && (c == null || c.extinct || !c.war)) { Data.travellingRaids.Remove(raid); continue; }
                 if (Data.elapsed < raid.arrive || c == null && ExpeditionRules.HomeCommanders == 0) continue;
-                var incursions = FindAnyObjectByType<LocalIncursions>();
+                var incursions = AntColony.Core.SceneObjects.Any<LocalIncursions>();
                 if (incursions == null || !incursions.TryArriveRaid(c, raid.count)) continue;
                 Data.travellingRaids.Remove(raid);
             }

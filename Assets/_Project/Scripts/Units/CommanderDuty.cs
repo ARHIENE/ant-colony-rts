@@ -194,22 +194,34 @@ namespace AntColony.Units
             // ponytail: one scan per second for the small commander roster; index jobs if profiling shows contention.
             // 노란 경보 대상 → 작업 종류 우선순위 → 대상 우선순위 1~9 → 실제 이동 거리 → 거리까지 같으면 오래 기다린 요청(2026-10-12).
             // 같은 작업 우선순위 단계의 후보는 작업 종류와 무관하게 함께 비교한다. 연구는 플레이어 지시 전용이라 자율 목록에 없다.
-            var tiers = AutoJobs.Where(AllowsJob).GroupBy(j => WorkState.Priority(j)).OrderByDescending(g => g.Key).ToArray();
-            foreach (var yellow in new[] { true, false })
+            // G26: 바닥 묶음 1만 개면 후보 수집·우선순위 조회가 수백 ms라 두 번(노란 경보/일반) 하지 않고 한 번 모은다.
+            var marked = AntColony.Core.SceneObjects.All<TargetPriority>().Length > 0; // 대상 우선순위를 붙인 곳이 없으면 조회하지 않는다
+            var tiers = AutoJobs.Where(AllowsJob).GroupBy(j => WorkState.Priority(j)).OrderByDescending(g => g.Key)
+                .Select(tier => tier.SelectMany(AutoCandidates).Where(c => c.target != null).Select(c =>
+                {
+                    TargetPriority p = null; if (marked) c.target.TryGetComponent(out p);
+                    return (c.target, c.start, level: p != null ? p.level : WorkPriorities.Default, yellow: p != null && p.yellow, corpse: c.target is Corpse k && k.Priority);
+                }).ToList()).ToList();
+            var anyYellow = tiers.Any(t => t.Any(c => c.yellow));
+            foreach (var yellow in anyYellow ? new[] { true, false } : new[] { false })
                 foreach (var tier in tiers)
-                    foreach (var level in tier.SelectMany(AutoCandidates).Where(c => c.target != null && (!yellow || WorkPriorities.Yellow(c.target)))
-                        .GroupBy(c => (WorkPriorities.Level(c.target), c.target is Corpse k && k.Priority)).OrderByDescending(g => g.Key.Item1).ThenByDescending(g => g.Key.Item2))
-                        foreach (var (_, start) in ByTravel(level))
+                    foreach (var level in tier.Where(c => !yellow || c.yellow)
+                        .GroupBy(c => (c.level, c.corpse)).OrderByDescending(g => g.Key.Item1).ThenByDescending(g => g.Key.Item2))
+                        foreach (var (_, start) in ByTravel(level.Select(c => (c.target, c.start))))
                             if (start()) return;
         }
         // 같은 대상 우선순위 안에서 실제 경로 길이 → 오래 기다린 요청 순. 경로 계산은 직선거리로 가까운 몇 개만 한다.
         // ponytail: 직선 상위 8개만 경로를 잰다. 후보가 많아 먼 곳이 실제로 더 가까운 경우가 잦으면 늘린다.
         private IEnumerable<(Component target, Func<bool> start)> ByTravel(IEnumerable<(Component target, Func<bool> start)> group)
         {
-            var sorted = group.OrderBy(c => (c.target.transform.position - Position).sqrMagnitude).ToList();
-            var head = sorted.Take(8).Select(c => (c, d: Mathf.Round(TravelDistance(c.target.transform.position) * 2) / 2))
+            // G26: 후보 1만 개를 다 정렬하지 않는다. 가까운 8개를 먼저 뽑고, 그 8개가 모두 실패할 때만 나머지를 정렬한다.
+            var all = group.Select(c => (c, d2: (c.target.transform.position - Position).sqrMagnitude)).ToList();
+            var near = all.Count <= 8 ? all.OrderBy(x => x.d2).ToList() : all.OrderBy(x => x.d2).Take(8).ToList();
+            var head = near.Select(x => (x.c, d: Mathf.Round(TravelDistance(x.c.target.transform.position) * 2) / 2))
                 .OrderBy(x => x.d).ThenBy(x => WorkPriorities.RequestedAt(x.c.target)).Select(x => x.c);
-            return head.Concat(sorted.Skip(8));
+            foreach (var c in head) yield return c;
+            if (all.Count <= 8) yield break;
+            foreach (var x in all.OrderBy(x => x.d2).Skip(8)) yield return x.c;
         }
         private static readonly CommanderJobs[] AutoJobs = { CommanderJobs.Firefighting, CommanderJobs.Nursing, CommanderJobs.Repair, CommanderJobs.Cleaning, CommanderJobs.Building, CommanderJobs.Art,
             CommanderJobs.Crafting, CommanderJobs.Administration, CommanderJobs.Cooking, CommanderJobs.Hunting, CommanderJobs.Hauling, CommanderJobs.Husbandry, CommanderJobs.Farming, CommanderJobs.Fishing, CommanderJobs.Gathering };
@@ -219,7 +231,7 @@ namespace AntColony.Units
             switch (job)
             {
                 case CommanderJobs.Firefighting:
-                    foreach (var fire in FindObjectsByType<WallFire>(FindObjectsSortMode.None).Where(f => f.Burning && f.Managed))
+                    foreach (var fire in AntColony.Core.SceneObjects.All<WallFire>().Where(f => f.Burning && f.Managed))
                         yield return (fire, () => CommandExtinguish(fire));
                     yield break;
                 case CommanderJobs.Nursing:
@@ -230,11 +242,11 @@ namespace AntColony.Units
                     var treatments = commanderCare.Concat(HasLifeThreateningPatient && commanderCare.Count > 0 ? Enumerable.Empty<(Component, Func<bool>)>() : AnimalNursingTasks()).ToList();
                     foreach (var t in treatments) yield return t;
                     if (treatments.Count == 0)
-                        foreach (var bench in FindObjectsByType<Processor>(FindObjectsSortMode.None).Where(p => p.IsMedical && p.NeedsWork))
+                        foreach (var bench in AntColony.Core.SceneObjects.All<Processor>().Where(p => p.IsMedical && p.NeedsWork))
                             yield return (bench, () => StartService(bench, CommanderJobs.Nursing));
                     yield break;
                 case CommanderJobs.Repair:
-                    foreach (var building in FindObjectsByType<BuildingBase>(FindObjectsSortMode.None).Where(BuildingRepair.Needed))
+                    foreach (var building in AntColony.Core.SceneObjects.All<BuildingBase>().Where(BuildingRepair.Needed))
                         yield return (building, () => !Active.OfType<CommanderAnt>().Any(c => c != this && c.ServiceTarget == building) && StartService(building, CommanderJobs.Repair));
                     yield break;
                 case CommanderJobs.Cleaning:
@@ -243,7 +255,7 @@ namespace AntColony.Units
                 case CommanderJobs.Building: case CommanderJobs.Art:
                     // 중심 대신 주변 접근 지점으로 판정한다(철거·이동 예정지는 가구가 길을 막아 중심에 닿지 못한다).
                     // 재료가 모두 도착한 예정지는 시공, 아직이면 예약된 재료를 직접 가져온다(건설 장수도 배송 가능, 2026-10-12).
-                    foreach (var site in FindObjectsByType<BuildingConstructionSite>().Where(s => s.Job == job && !s.Paused))
+                    foreach (var site in AntColony.Core.SceneObjects.All<BuildingConstructionSite>().Where(s => s.Job == job && !s.Paused))
                         yield return (site, () =>
                         {
                             if (!site.CanWork) return site.PendingPickup != null && CommandFetchFor(site);
@@ -251,21 +263,21 @@ namespace AntColony.Units
                         });
                     yield break;
                 case CommanderJobs.Crafting:
-                    foreach (var shop in FindObjectsByType<Workshop>(FindObjectsSortMode.None))
+                    foreach (var shop in AntColony.Core.SceneObjects.All<Workshop>())
                         yield return (shop, () => !shop.Ruined && !shop.IsDead && shop.Crafter == null && shop.CanContinue(this) && GoToFacility(shop));
-                    foreach (var processor in FindObjectsByType<Processor>(FindObjectsSortMode.None).Where(p => !p.IsMedical && p.NeedsWork)) // 약제대는 간호(의료)
+                    foreach (var processor in AntColony.Core.SceneObjects.All<Processor>().Where(p => !p.IsMedical && p.NeedsWork)) // 약제대는 간호(의료)
                         yield return (processor, () => StartService(processor, CommanderJobs.Crafting));
                     yield break;
                 case CommanderJobs.Cooking:
-                    foreach (var kitchen in FindObjectsByType<Kitchen>(FindObjectsSortMode.None).Where(k => k.NeedsCook))
+                    foreach (var kitchen in AntColony.Core.SceneObjects.All<Kitchen>().Where(k => k.NeedsCook))
                         yield return (kitchen, () => !Active.OfType<CommanderAnt>().Any(c => c != this && c.ServiceTarget == kitchen) && StartService(kitchen, CommanderJobs.Cooking));
                     // 요리사가 재료를 창고에서 가져다 놓는다(2026-10-15, 원격 차감 제거).
-                    foreach (var kitchen in FindObjectsByType<Kitchen>(FindObjectsSortMode.None).Where(k => k.NeedsIngredients))
+                    foreach (var kitchen in AntColony.Core.SceneObjects.All<Kitchen>().Where(k => k.NeedsIngredients))
                         yield return (kitchen, () => CommandFetchFor(kitchen));
                     foreach (var t in ButcherTasks()) yield return t; // 도축대 해체(2026-10-11)
                     yield break;
                 case CommanderJobs.Administration:
-                    foreach (var desk in FindObjectsByType<AdminDesk>(FindObjectsSortMode.None).Where(d => d.NeedsWork))
+                    foreach (var desk in AntColony.Core.SceneObjects.All<AdminDesk>().Where(d => d.NeedsWork))
                         yield return (desk, () => StartService(desk, CommanderJobs.Administration));
                     yield break;
                 case CommanderJobs.Husbandry: // 포획·돌봄·직접 채취·도축(2026-10-11)
@@ -287,11 +299,11 @@ namespace AntColony.Units
                 foreach (var t in PrisonerFeedTasks()) yield return t; // 포로 급식(2026-10-15)
                 foreach (var t in AnimalHaulingTasks()) yield return t; // 생물 운반·먹이통 보충·사체 → 도축대(2026-10-11)
                 // 건설 재료 배송(2026-10-12): 예약된 재료를 창고에서 예정지로.
-                foreach (var site in FindObjectsByType<BuildingConstructionSite>().Where(s => s.PendingPickup != null))
+                foreach (var site in AntColony.Core.SceneObjects.All<BuildingConstructionSite>().Where(s => s.PendingPickup != null))
                     yield return (site, () => CommandFetchFor(site));
                 // 바닥 장비(외교 초과분·사망 장수 장비 등)를 장비 보관함으로 옮긴다. 기존 우클릭 회수 동작을 재사용.
                 if (EquipmentInventory.Instance != null && !EquipmentInventory.Instance.Full)
-                    foreach (var loot in FindObjectsByType<AntColony.World.EquipmentLoot>(FindObjectsSortMode.None).Where(l => l.Collector == null))
+                    foreach (var loot in AntColony.Core.SceneObjects.All<AntColony.World.EquipmentLoot>().Where(l => l.Collector == null))
                         yield return (loot, () => CanReach(loot.transform.position) && loot.TryCollect(this));
             }
             foreach (var node in ResourceNode.Available.Where(n => n != null && JobFor(n) == job))
@@ -299,6 +311,7 @@ namespace AntColony.Units
                 {
                     if (!node.CanGatherWith(this) || CarriedAmount != 0 && CarriedType != node.ResourceType
                         || ResourceManager.Instance == null || ResourceManager.Instance.Room(node.ResourceType, this) <= 0
+                        || node.IsLooseCargo && !HasCargoDestination(node.ResourceType)
                         || node.IsLooseCargo && Active.OfType<WorkerAnt>().Any(w => w != this && w.CurrentResourceNode == node) // 바닥 더미는 한 장수만 맡는다
                         || node.GetComponentInParent<ExpeditionSite>() != null || node.IsRaidLoot || !TryWorkApproach(node.transform.position, out _)) return false;
                     CommandGather(node); return true;
@@ -316,7 +329,7 @@ namespace AntColony.Units
             if (room != null && UnityEngine.AI.NavMesh.SamplePosition(room.Position, out var hit, 7, UnityEngine.AI.NavMesh.AllAreas) && CanReach(hit.position)) base.CommandMove(hit.position);
             WorkState.resting = true; return true;
         }
-        public Infirmary TreatmentTarget => FindObjectsByType<Infirmary>(FindObjectsSortMode.None)
+        public Infirmary TreatmentTarget => AntColony.Core.SceneObjects.All<Infirmary>()
             .Where(i => Infirmary.Unlocked && i.isActiveAndEnabled && !i.IsDead && i.Patients.Count < Infirmary.Capacity)
             .OrderBy(i => (i.Position - Position).sqrMagnitude).FirstOrDefault();
         public bool CanSendToTreatment => !WorkPriorities.Red && CanTakeCivilianOrder && PersonalState.NeedsTreatment && TreatmentFacility == null && TreatmentTarget != null;

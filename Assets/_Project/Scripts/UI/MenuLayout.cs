@@ -54,7 +54,7 @@ namespace AntColony.UI
         {
             var button = Button(parent, "Tab " + label, label, x, y, width, 32, action);
             UnityEngine.Object.Destroy(button.GetComponent<Outline>());
-            var colors = button.colors; colors.normalColor = Color.clear; button.colors = colors;
+            var colors = button.colors; colors.normalColor = Color.clear; MenuTheme.SetColorsInstant(button, colors);
             if (selected) Box(button.transform, "Underline", 0, 30, width, 2, MenuTheme.Accent).GetComponent<Image>().raycastTarget = false;
         }
 
@@ -69,7 +69,7 @@ namespace AntColony.UI
             MenuTheme.StyleButton(button);
             if (primary)
             {
-                var colors = button.colors; colors.normalColor = MenuTheme.Plate2; colors.highlightedColor = MenuTheme.PlateHover; button.colors = colors;
+                var colors = button.colors; colors.normalColor = MenuTheme.Plate2; colors.highlightedColor = MenuTheme.PlateHover; MenuTheme.SetColorsInstant(button, colors);
             }
             button.onClick.AddListener(() => action());
             var text = Label(rect, label, size, align == TextAnchor.MiddleCenter ? 0 : 12, 0, align == TextAnchor.MiddleCenter ? w : w - 24, h,

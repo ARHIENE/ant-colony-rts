@@ -71,19 +71,20 @@ namespace AntColony.Buildings
             var bottom = center.y - size.y / 2f;
 
             var model = Instantiate(prefab).transform;
-            model.SetPositionAndRotation(Vector3.zero, Quaternion.identity);
+            // FBX 루트의 축 변환을 보존한 상태에서 크기와 바닥 위치를 계산한다.
+            var importedRotation = model.rotation;
+            var importedScale = model.localScale;
+            model.position = Vector3.zero;
             var renderers = model.GetComponentsInChildren<Renderer>();
             if (renderers.Length == 0) { Destroy(model.gameObject); Destroy(this); return; }
             var bounds = renderers[0].bounds;
             foreach (var r in renderers) bounds.Encapsulate(r.bounds);
             var scale = Mathf.Min(size.x / Mathf.Max(bounds.size.x, .01f), size.z / Mathf.Max(bounds.size.z, .01f));
-            model.localScale = Vector3.one * scale;
+            model.localScale = importedScale * scale;
             var offset = new Vector3(bounds.center.x, bounds.min.y, bounds.center.z) * scale;
-            model.rotation = transform.rotation;
+            model.rotation = transform.rotation * importedRotation;
             model.position = new Vector3(center.x, bottom, center.z) - transform.rotation * offset;
-            var lossy = transform.lossyScale;
             model.SetParent(transform, true);
-            model.localScale = new Vector3(scale / lossy.x, scale / lossy.y, scale / lossy.z);
             foreach (var c in model.GetComponentsInChildren<Collider>()) Destroy(c);
             box.forceRenderingOff = true;
             Model = model;

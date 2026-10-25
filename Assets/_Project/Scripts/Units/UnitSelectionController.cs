@@ -1,6 +1,7 @@
 using AntColony.Core;
 using AntColony.Buildings;
 using AntColony.World;
+using AntColony.Data;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.EventSystems;
@@ -23,9 +24,9 @@ namespace AntColony.Units
         private void Awake()
         {
             cam = UnityEngine.Camera.main;
-            attackMoveController = FindFirstObjectByType<AttackMoveController>();
-            if (selectionManager == null) selectionManager = FindFirstObjectByType<SelectionManager>();
-            if (buildingPlacementController == null) buildingPlacementController = FindFirstObjectByType<BuildingPlacementController>();
+            attackMoveController = AntColony.Core.SceneObjects.Any<AttackMoveController>();
+            if (selectionManager == null) selectionManager = AntColony.Core.SceneObjects.Any<SelectionManager>();
+            if (buildingPlacementController == null) buildingPlacementController = AntColony.Core.SceneObjects.Any<BuildingPlacementController>();
         }
 
         private void Update()
@@ -47,6 +48,7 @@ namespace AntColony.Units
         private void IssueCommand(Vector2 screenPos)
         {
             if (cam == null) return;
+            Physics.SyncTransforms();
 
             var selected = selectionManager.GetSelectedObjects();
             // G42: 새 우클릭 명령은 원정 수송의 대기 지시(탑승·주둔·하차)를 대신한다.
@@ -123,6 +125,7 @@ namespace AntColony.Units
             var cols = Mathf.CeilToInt(Mathf.Sqrt(selected.Count));
             var index = 0;
             var issuedMove = false;
+            var gatherers = 0;
 
             foreach (var selectable in selected)
             {
@@ -153,10 +156,14 @@ namespace AntColony.Units
                 if (worker is CommanderAnt hunter && !hunter.IsDeployed && target is WildMonster animal && animal.Huntable && animal.HuntDesignated && hunter.StartHunt(animal)) { index++; continue; }
                 if (worker is CommanderAnt builder && hit.collider.GetComponentInParent<BuildingConstructionSite>() is BuildingConstructionSite site)
                 { builder.CommandBuild(site); index++; continue; }
-                if (worker != null && resourceNode != null && resourceNode.CanGather)
+                if (worker != null && resourceNode != null)
                 {
                     worker.CommandGather(resourceNode);
-                    issuedMove = true;
+                    if (worker.CurrentResourceNode == resourceNode && worker.IsWorking)
+                    {
+                        GatherOrderFeedback.Show(resourceNode, worker);
+                        gatherers++;
+                    }
                     index++;
                     continue;
                 }
@@ -179,7 +186,13 @@ namespace AntColony.Units
                 }
             }
 
-            if (issuedMove)
+            if (resourceNode != null)
+            {
+                AntColony.UI.ToastManager.Show(gatherers > 0 ? $"{resourceNode.ResourceType.DisplayName()} 채집 지시 · {gatherers}명"
+                    : resourceNode.IsLooseCargo ? "운반 불가: 보관 가능한 창고·비축더미, 이동 경로와 장수 상태를 확인하세요."
+                    : "채집 불가: 연구·도구·작업 가능 여부와 이동 경로를 확인하세요.");
+            }
+            else if (issuedMove)
             {
                 MoveMarker.Spawn(hit.point, moveMarkerColor);
             }

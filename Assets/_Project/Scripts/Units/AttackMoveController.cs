@@ -26,8 +26,8 @@ namespace AntColony.Units
         private void Awake()
         {
             cam = UnityEngine.Camera.main;
-            placement = FindFirstObjectByType<BuildingPlacementController>();
-            if (selectionManager == null) selectionManager = FindFirstObjectByType<SelectionManager>();
+            placement = AntColony.Core.SceneObjects.Any<BuildingPlacementController>();
+            if (selectionManager == null) selectionManager = AntColony.Core.SceneObjects.Any<SelectionManager>();
         }
 
         private void Update()

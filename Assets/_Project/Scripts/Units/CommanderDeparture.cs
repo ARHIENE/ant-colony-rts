@@ -53,18 +53,18 @@ namespace AntColony.Units
             var site = Transport?.Site ?? Garrison?.GetComponent<AntColony.World.ExpeditionSite>();
             var bounds = site != null ? new Bounds(site.transform.position, new Vector3(64, 100, 64)) : HomeMapBuilder.CurrentWorldBounds;
             point = Position;
-            float distance = float.MaxValue;
+            // G26: 경로 계산(CanReach)이 1회 수십 ms라 36곳을 다 재면 장수 1명에 2초. 직선거리 순으로 재서 처음 닿는 곳(=기존 최솟값)에서 멈춘다.
+            var samples = new System.Collections.Generic.List<(Vector3 p, float d)>();
             for (int side = 0; side < 4; side++)
                 for (int step = -4; step <= 4; step++)
                 {
                     var p = bounds.center + new Vector3(side < 2 ? (side == 0 ? -1 : 1) * (bounds.extents.x - 2) : step * .2f * bounds.extents.x,
                         Position.y - bounds.center.y, side >= 2 ? (side == 2 ? -1 : 1) * (bounds.extents.z - 2) : step * .2f * bounds.extents.z);
-                    if (!NavMesh.SamplePosition(p, out var hit, 6, NavMesh.AllAreas) || !CanReach(hit.position)) continue;
-                    var d = (hit.position - Position).sqrMagnitude;
-                    if (d >= distance) continue;
-                    distance = d; point = hit.position;
+                    if (NavMesh.SamplePosition(p, out var hit, 6, NavMesh.AllAreas)) samples.Add((hit.position, (hit.position - Position).sqrMagnitude));
                 }
-            return distance < float.MaxValue;
+            foreach (var s in samples.OrderBy(s => s.d))
+                if (CanReach(s.p)) { point = s.p; return true; }
+            return false;
         }
         public void TickDeparture(float seconds)
         {
@@ -78,7 +78,7 @@ namespace AntColony.Units
                 else
                 {
                     var units = Active.OfType<CommanderAnt>().Where(c => c.IsColonyMember && CombatTargeting.IsAlive(c)).Cast<IDamageable>();
-                    var buildings = FindObjectsByType<BuildingBase>(FindObjectsSortMode.None).Where(b => b.CountsTowardPlayerDefeat && !b.IsDead).Cast<IDamageable>();
+                    var buildings = AntColony.Core.SceneObjects.All<BuildingBase>().Where(b => b.CountsTowardPlayerDefeat && !b.IsDead).Cast<IDamageable>();
                     TickForcedAttack(units.Concat(buildings).Where(t => SameBattlefield(t.Position)).OrderBy(t => (t.Position - Position).sqrMagnitude).FirstOrDefault(), seconds);
                     return;
                 }
@@ -91,14 +91,14 @@ namespace AntColony.Units
         private void TickForcedAttack(IDamageable target, float seconds)
         {
             if (target == null || !HasTroops || Data == null) { StopMoving(); return; }
-            if (GetDistanceTo(target.Position) > Data.attackRange)
+            if (GetDistanceTo(target.Position) > AttackRange)
             {
                 if (Social.rootRemaining > 0) { StopMoving(); return; }
                 SetMoveDestination(target.Position); TickFlightMovement(); return;
             }
             StopMoving(); Social.attackSeconds = Mathf.Max(0, Social.attackSeconds - seconds);
             if (Social.attackSeconds > 0) return;
-            Social.attackSeconds = Data.attackInterval;
+            Social.attackSeconds = AttackInterval;
             GetComponent<AntVisual>()?.Attack(target.Position);
             DealDamage(target);
         }

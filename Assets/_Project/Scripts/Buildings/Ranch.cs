@@ -26,9 +26,9 @@ namespace AntColony.Buildings
         }
         private State s = new State();
         public string Key => $"{Mathf.RoundToInt(Position.x * 10)}:{Mathf.RoundToInt(Position.z * 10)}";
-        public static Ranch Find(string key) => FindObjectsByType<Ranch>(FindObjectsSortMode.None).FirstOrDefault(r => r.Key == key && !r.IsDead);
+        public static Ranch Find(string key) => AntColony.Core.SceneObjects.All<Ranch>().FirstOrDefault(r => r.Key == key && !r.IsDead);
         // 한 방에 표지가 여럿이면 같은 우리다(키 순서로 첫 표지가 대표).
-        public static Ranch InRoom(Room room) => room == null ? null : FindObjectsByType<Ranch>(FindObjectsSortMode.None)
+        public static Ranch InRoom(Room room) => room == null ? null : AntColony.Core.SceneObjects.All<Ranch>()
             .Where(r => r.isActiveAndEnabled && !r.IsDead && RoomSystem.RoomAt(r.Position) == room).OrderBy(r => r.Key, StringComparer.Ordinal).FirstOrDefault();
         public Room Room => RoomSystem.RoomAt(Position);
         public bool Operating => isActiveAndEnabled && !IsDead && Room != null;

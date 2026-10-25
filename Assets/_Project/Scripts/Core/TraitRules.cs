@@ -31,7 +31,23 @@ namespace AntColony.Core
                 or CommanderTrait.KitchenMenace or CommanderTrait.SlowEater or CommanderTrait.Senile => TraitGrade.Red,
                 _ => TraitGrade.Silver };
         }
-        public static string Name(CommanderTrait t) => Specialty(t) < 0 ? t.ToString()
+        // 일반 특성 한글 이름(화면에 영어 enum 이름이 그대로 나오던 문제, 2026-10-25).
+        private static readonly System.Collections.Generic.Dictionary<CommanderTrait, string> Korean = new System.Collections.Generic.Dictionary<CommanderTrait, string> {
+            [CommanderTrait.Lazy] = "게으름", [CommanderTrait.Relaxed] = "느긋함", [CommanderTrait.Industrious] = "부지런함", [CommanderTrait.Workaholic] = "일중독",
+            [CommanderTrait.Depressive] = "우울", [CommanderTrait.Pessimist] = "비관", [CommanderTrait.Optimist] = "낙관", [CommanderTrait.Cheerful] = "명랑",
+            [CommanderTrait.Fragile] = "유리 멘탈", [CommanderTrait.Sensitive] = "예민", [CommanderTrait.Easygoing] = "태평", [CommanderTrait.IronWill] = "강철 의지",
+            [CommanderTrait.Coward] = "겁쟁이", [CommanderTrait.Cautious] = "신중", [CommanderTrait.Brave] = "용감", [CommanderTrait.Reckless] = "무모",
+            [CommanderTrait.Sluggish] = "굼뜸", [CommanderTrait.Slow] = "느림", [CommanderTrait.Nimble] = "날렵", [CommanderTrait.Swift] = "신속",
+            [CommanderTrait.SlowLearner] = "느린 학습", [CommanderTrait.Genius] = "천재", [CommanderTrait.LightEater] = "소식가", [CommanderTrait.Glutton] = "대식가",
+            [CommanderTrait.Loyal] = "충성", [CommanderTrait.Ambitious] = "야심", [CommanderTrait.Cunning] = "교활", [CommanderTrait.Sociable] = "사교적",
+            [CommanderTrait.Loner] = "외톨이", [CommanderTrait.ColdBlooded] = "냉혈", [CommanderTrait.Bloodthirsty] = "피에 굶주림", [CommanderTrait.Ascetic] = "금욕",
+            [CommanderTrait.Wanderer] = "방랑자", [CommanderTrait.Homebody] = "집순이", [CommanderTrait.Robust] = "튼튼함", [CommanderTrait.Frail] = "허약", [CommanderTrait.Greedy] = "탐욕",
+            [CommanderTrait.Nocturnal] = "야행성", [CommanderTrait.Muscular] = "왕근육", [CommanderTrait.Mighty] = "괴력", [CommanderTrait.ThinLegs] = "가는 다리",
+            [CommanderTrait.CannotBuild] = "건설 불가", [CommanderTrait.CannotGather] = "채집 불가", [CommanderTrait.CannotResearch] = "연구 불가", [CommanderTrait.CannotNurse] = "간호 불가",
+            [CommanderTrait.CannotCook] = "요리 불가", [CommanderTrait.Uncultured] = "무교양", [CommanderTrait.Pacifist] = "평화주의", [CommanderTrait.Chef] = "요리사",
+            [CommanderTrait.Gourmet] = "미식가", [CommanderTrait.DullTaste] = "무딘 미각", [CommanderTrait.KitchenMenace] = "주방 테러범", [CommanderTrait.IronStomach] = "강철 위장", [CommanderTrait.SlowEater] = "느긋한 식사",
+        };
+        public static string Name(CommanderTrait t) => Specialty(t) < 0 ? t == CommanderTrait.Legion ? "레기온" : Korean.TryGetValue(t, out var ko) ? ko : t.ToString()
             : Grade(t) == TraitGrade.Diamond ? diamonds[Specialty(t)] : "전문성: " + (Specialty(t) < activities.Length ? StartingCandidate.SkillName(activities[Specialty(t)]) : "조사");
         public static int Count(float roll) => roll < .95f ? 1 : roll < .995f ? 2 : 3;
         public static TraitGrade RollGrade(float roll, bool starting)

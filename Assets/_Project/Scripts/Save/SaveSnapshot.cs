@@ -33,8 +33,8 @@ namespace AntColony.Save
                 label = options.mapSize + " / " + options.difficulty, playSeconds = GameSession.Instance.PlaySeconds, gameSeconds = GameSession.Instance.GameSeconds,
                 options = new OptionsDto { mapSize = (int)options.mapSize, difficulty = (int)options.difficulty, commanderDeath = (int)options.commanderDeath, seed = options.seed, biome = (int)options.biome, climate = (int)options.climate },
                 randomState = JsonUtility.ToJson(UnityEngine.Random.state),
-                upkeepTimer = Object.FindFirstObjectByType<UpkeepManager>()?.SavedTimer ?? 0,
-                upkeepFailures = Object.FindFirstObjectByType<UpkeepManager>()?.ConsecutiveFailures ?? 0,
+                upkeepTimer = AntColony.Core.SceneObjects.Any<UpkeepManager>()?.SavedTimer ?? 0,
+                upkeepFailures = AntColony.Core.SceneObjects.Any<UpkeepManager>()?.ConsecutiveFailures ?? 0,
                 campaign = CampaignResearch.Instance?.CaptureState() ?? new CampaignResearch.State(),
                 history = CampaignHistory.Instance?.Capture() ?? new CampaignHistory.State(),
                 rocket = RocketCampaign.Instance?.Capture(),
@@ -46,12 +46,12 @@ namespace AntColony.Save
                 workPriorities = WorkPriorities.Capture(),
                 diplomacy = DiplomacyManager.Instance?.Capture(),
                 equipmentInventory = EquipmentInventory.Instance == null ? new List<EquipmentItem>() : EquipmentInventory.Instance.Items.Select(e => JsonUtility.FromJson<EquipmentItem>(JsonUtility.ToJson(e))).ToList(),
-                corpses = Corpse.All.Where(c => c.Available).Select(c => c.Capture()).ToList(),
+                corpses = Corpse.All.Where(c => c.Available).Select(ExpeditionTransport.CaptureFloorBody).ToList(),
                 construction = SaveConstruction.Capture(),
                 critters = Critter.CaptureAll(),
                 equipmentLoot = SaveCatalog.Ordered<EquipmentLoot>().Select(l => new EquipmentLootDto { position = new Vec3Dto(l.transform.position),
                     items = l.Items.Select(e => JsonUtility.FromJson<EquipmentItem>(JsonUtility.ToJson(e))).ToList() }).ToList(),
-                incursionTimer = Object.FindFirstObjectByType<LocalIncursions>()?.SavedTimer ?? 0,
+                incursionTimer = AntColony.Core.SceneObjects.Any<LocalIncursions>()?.SavedTimer ?? 0,
                 loopCompleted = GameManager.Instance.SavedLoop, bossDefeated = GameManager.Instance.SavedBoss, defeated = GameManager.Instance.SavedDefeat, defeatReason = GameManager.Instance.DefeatReason,
                 colony = new ColonyDto { food = rm.GetAmount(ResourceType.Food), soil = rm.GetAmount(ResourceType.Soil), special = rm.GetAmount(ResourceType.Special), materials = rm.CaptureMaterials(), baseBin = rm.BaseBin.Capture(),
                     foodCapacity = rm.GetCapacity(ResourceType.Food), soilCapacity = rm.GetCapacity(ResourceType.Soil), specialCapacity = rm.GetCapacity(ResourceType.Special),
@@ -87,17 +87,19 @@ namespace AntColony.Save
                 settlementElapsed = site.Settlement?.Elapsed ?? 0, defenseRemaining = site.Defense?.Remaining ?? 0,
                 defenseUnderAttack = site.Defense?.UnderAttack ?? false, defenseFaction = site.Defense?.CaptureFaction(),
                 defenseCaptureProgress = site.Defense?.CaptureProgress ?? 0 });
-            var home = Object.FindObjectsByType<EnemyColony>(FindObjectsSortMode.None).FirstOrDefault(c => c.GetComponentInParent<ExpeditionSite>() == null);
+            var home = AntColony.Core.SceneObjects.All<EnemyColony>().FirstOrDefault(c => c.GetComponentInParent<ExpeditionSite>() == null);
             file.world.hadHomeColony = home != null; file.world.homeColony = Colony(home);
             file.world.pause = AntColony.UI.SimulationPause.Capture();
             file.world.defenseReturn = JsonUtility.FromJson<HomeDefenseReturn>(JsonUtility.ToJson(world.DefenseReturn));
             foreach (var s in world.Transports.Where(s => s != null)) file.world.transports.Add(new TransportDto { walking = s.Walking, foodDebt = s.FoodDebt, dockingRemaining = s.DockingRemaining, aircraft = s.Aircraft, state = (int)s.State,
+                bodyCargo = s.bodyCargo.Select(b => JsonUtility.FromJson<Corpse.State>(JsonUtility.ToJson(b))).ToList(),
+                cargoAmounts = Enum.GetValues(typeof(ResourceType)).Cast<ResourceType>().Select(s.GetCargo).ToArray(), damage = s.CaptureDamage(), withdrawal = s.CaptureWithdrawal(),
                 bossCarrierId = BossRewardTransfer.Carrier(s),
                 blueprintCargo = s.BlueprintCargo, equipmentCargo = s.EquipmentCargo.Select(e => JsonUtility.FromJson<EquipmentItem>(JsonUtility.ToJson(e))).ToList(),
                 remaining = s.Remaining, siteIndex = SaveCatalog.SiteIndex(s.Site), position = new Vec3Dto(s.Position), homePosition = new Vec3Dto(s.HomePosition),
                 cargoFood = s.GetCargo(ResourceType.Food), cargoSoil = s.GetCargo(ResourceType.Soil), cargoSpecial = s.GetCargo(ResourceType.Special),
                 route = new RouteDto { running = s.Route.IsRunning, destinationIndex = SaveCatalog.SiteIndex(s.Route.Destination), waitSeconds = s.Route.WaitSeconds, status = s.Route.Status } });
-            var camera = Object.FindFirstObjectByType<AntColony.Camera.IsometricCameraController>();
+            var camera = AntColony.Core.SceneObjects.Any<AntColony.Camera.IsometricCameraController>();
             file.camera = new CameraDto { focus = new Vec3Dto(camera.FocusPoint), yaw = camera.Yaw,
                 orthoSize = camera.GetComponent<UnityEngine.Camera>().orthographicSize, viewedSite = SaveCatalog.SiteIndex(world.ViewedSite) };
             SaveReferences.Colonies();
@@ -108,6 +110,7 @@ namespace AntColony.Save
                 file.world.transports[i].crewOrders = ship.CaptureCrewOrders();
             }
             file.discoveries = Encyclopedia.Entries.ToList();
+            for (int i = 0; i < commanders.Count; i++) file.commanders[i].personalState.formation = commanders[i].CaptureFormationForSave();
             return file;
         }
 
@@ -173,7 +176,7 @@ namespace AntColony.Save
                 s.RewardsClaimed = d.rewardsClaimed;
                 s.Settlement?.RestoreElapsed(d.settlementElapsed); s.Defense?.RestoreState(d.defenseRemaining, d.defenseCaptureProgress);
             }
-            if (file.world.hadHomeColony) RestoreColony(Object.FindObjectsByType<EnemyColony>(FindObjectsSortMode.None)
+            if (file.world.hadHomeColony) RestoreColony(AntColony.Core.SceneObjects.All<EnemyColony>()
                 .First(c => c.GetComponentInParent<ExpeditionSite>() == null), file.world.homeColony);
             foreach (var d in file.nodes)
             {
@@ -235,10 +238,13 @@ namespace AntColony.Save
                 var ship = world.CreateTransport(d.aircraft, d.homePosition.ToVector3(), d.walking);
                 BossRewardTransfer.RestoreCarrier(ship, d.bossCarrierId, ships.Count);
                 SaveReferences.Register("ship:" + ships.Count, ship); ships.Add(ship);
+                ship.RestoreDamage(d.damage);
+                ship.bodyCargo = d.bodyCargo ?? new List<Corpse.State>();
                 ship.FoodDebt = d.foodDebt; ship.DockingRemaining = d.dockingRemaining;
                 ship.BlueprintCargo = d.blueprintCargo; ship.EquipmentCargo = d.equipmentCargo.Select(e => JsonUtility.FromJson<EquipmentItem>(JsonUtility.ToJson(e))).ToList();
                 ship.RestoreState((ExpeditionState)d.state, d.remaining, d.siteIndex < 0 ? null : world.Sites[d.siteIndex],
                     d.position.ToVector3(), d.homePosition.ToVector3(), d.cargoFood, d.cargoSoil, d.cargoSpecial);
+                if (d.cargoAmounts != null && d.cargoAmounts.Length > 0) ship.RestoreCargoAmounts(d.cargoAmounts);
                 ship.Route.RestoreState(d.route.running, d.route.destinationIndex < 0 ? null : world.Sites[d.route.destinationIndex], d.route.waitSeconds, d.route.status);
             }
             var commanders = new List<CommanderAnt>();
@@ -280,7 +286,7 @@ namespace AntColony.Save
             // Older saves include base warehouse capacity only, even if Fermentation was researched.
             var storageBonus = Vector3Int.zero;
             if (!p.storageResearchApplied)
-                foreach (var storage in Object.FindObjectsByType<Storage>()) storageBonus += storage.ResearchBonus;
+                foreach (var storage in AntColony.Core.SceneObjects.All<Storage>()) storageBonus += storage.ResearchBonus;
             ResourceManager.Instance.RestoreState(p.food, p.soil, p.special,
                 p.foodCapacity + storageBonus.x, p.soilCapacity + storageBonus.y, p.specialCapacity + storageBonus.z);
             ResourceManager.Instance.RestoreMaterials(p.materials);
@@ -292,7 +298,7 @@ namespace AntColony.Save
             GameManager.Instance.RestoreFlags(file.loopCompleted, file.bossDefeated, file.defeated, file.defeatReason);
             for (var i = 0; i < commanders.Count; i++)
                 if (!file.commanders[i].activeInScene || commanders[i].IsDead) commanders[i].gameObject.SetActive(false);
-            var upkeep = Object.FindFirstObjectByType<UpkeepManager>(); if (upkeep != null) upkeep.SavedTimer = file.upkeepTimer;
+            var upkeep = AntColony.Core.SceneObjects.Any<UpkeepManager>(); if (upkeep != null) upkeep.SavedTimer = file.upkeepTimer;
             if (upkeep != null) upkeep.RestoreFailures(file.upkeepFailures);
             if (EquipmentInventory.Instance != null) EquipmentInventory.Instance.Items = file.equipmentInventory.Select(e => JsonUtility.FromJson<EquipmentItem>(JsonUtility.ToJson(e))).ToList();
             foreach (var loot in file.equipmentLoot)
@@ -300,9 +306,9 @@ namespace AntColony.Save
             foreach (var corpse in file.corpses) Corpse.Spawn(corpse);
             SaveConstruction.Restore(file.construction);
             Critter.RestoreAll(file.critters); // 2026-10-10 야생·탈출 사육 생물(옛 저장은 없음)
-            var incursions = Object.FindFirstObjectByType<LocalIncursions>(); if (incursions != null) incursions.SavedTimer = file.incursionTimer;
+            var incursions = AntColony.Core.SceneObjects.Any<LocalIncursions>(); if (incursions != null) incursions.SavedTimer = file.incursionTimer;
             if (file.camera.viewedSite >= 0) world.ViewSite(world.Sites[file.camera.viewedSite]);
-            Object.FindFirstObjectByType<AntColony.Camera.IsometricCameraController>().RestoreView(file.camera.focus.ToVector3(), Mathf.Round(file.camera.yaw / 90f) * 90f, file.camera.orthoSize); // 옛 쿼터뷰 45° 저장은 정면 시점으로
+            AntColony.Core.SceneObjects.Any<AntColony.Camera.IsometricCameraController>().RestoreView(file.camera.focus.ToVector3(), Mathf.Round(file.camera.yaw / 90f) * 90f, file.camera.orthoSize); // 옛 쿼터뷰 45° 저장은 정면 시점으로
             Encyclopedia.Merge(file.discoveries); GameSession.Instance.MarkStarted(file.playSeconds, file.gameSeconds);
             var rocket = RocketCampaign.Instance ?? new GameObject("RocketCampaign").AddComponent<RocketCampaign>();
             rocket.Restore(file.rocket);
@@ -319,6 +325,8 @@ namespace AntColony.Save
                 if (site != null) for (int i = 0; i < d.needs.Count; i++) site.Needs[i].reserved = d.needs[i].reserved;
             }
             for (int i = 0; i < ships.Count; i++) ships[i].Route.RestoreProgress(file.world.transports[i].route);
+            foreach (var c in commanders) c.RestoreFormationHit();
+            for (int i = 0; i < ships.Count; i++) { ships[i].RestoreWithdrawal(file.world.transports[i].withdrawal); ships[i].RestoreDamageWorkers(file.world.transports[i].damage); }
             CommanderAnt.RefreshDepartureNotice();
             UnityEngine.Random.state = JsonUtility.FromJson<UnityEngine.Random.State>(file.randomState);
         }

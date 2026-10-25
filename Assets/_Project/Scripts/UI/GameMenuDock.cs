@@ -28,7 +28,7 @@ namespace AntColony.UI
                 width += element.preferredWidth + 4;
                 var button = child.GetComponent<Button>(); var colors = button.colors;
                 colors.normalColor = i == Keys.Length - 1 ? MenuTheme.Plate2 : Color.clear;
-                button.colors = colors;
+                MenuTheme.SetColorsInstant(button, colors);
             }
             rect.sizeDelta = new Vector2(width, 34);
         }

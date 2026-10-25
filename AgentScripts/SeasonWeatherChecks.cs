@@ -43,10 +43,10 @@ public static class SeasonWeatherChecks
             Check(DayNightLighting.SeasonIntensity < 1 && DayNightLighting.SeasonTint.b > DayNightLighting.SeasonTint.r, "winter sun cold and low");
             Check(Shader.GetGlobalFloat("_SeasonWinter") > .9f, "winter snow on trees");
 
-            // 날씨 굴림: 사막은 비·눈 대신 모래폭풍, 동굴은 비·눈 없음, 겨울에만 눈.
+            // 사막 강수는 드물지만 가능하고 눈보라는 없다. 동굴은 야외 강수 없음.
             for (var v = 0f; v < 1; v += .01f)
             {
-                var d = WeatherSystem.Roll(Season.Summer, MapBiome.Desert, v); Check(d == WeatherKind.Clear || d == WeatherKind.Fog || d == WeatherKind.Sandstorm, "desert weather " + d);
+                var d = WeatherSystem.Roll(Season.Summer, MapBiome.Desert, v); Check(d != WeatherKind.Snow && d != WeatherKind.Blizzard, "desert summer weather " + d);
                 var c = WeatherSystem.Roll(Season.Winter, MapBiome.Cave, v); Check(c == WeatherKind.Clear || c == WeatherKind.Fog, "cave weather " + c);
                 var s = WeatherSystem.Roll(Season.Summer, MapBiome.Forest, v); Check(s != WeatherKind.Snow && s != WeatherKind.Blizzard, "no summer snow");
             }

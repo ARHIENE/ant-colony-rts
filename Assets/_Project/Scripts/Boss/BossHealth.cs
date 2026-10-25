@@ -50,6 +50,8 @@ namespace AntColony.Boss
             if (agent != null && agent.enabled && agent.isOnNavMesh) agent.isStopped = RootRemaining > 0 || !resumeMovement;
         }
 
+        private void OnEnable() => AntColony.Core.SceneObjects.Register(this);
+        private void OnDisable() => AntColony.Core.SceneObjects.Unregister(this);
         private void Awake()
         {
             currentHp = maxHp;

@@ -15,6 +15,7 @@ namespace AntColony.Units
     [Serializable]
     public class CommanderPersonalState
     {
+        public FormationState formation = new FormationState();
         public CommanderWorkState work = new CommanderWorkState();
         public string id = Guid.NewGuid().ToString("N");
         public List<CommanderInjury> injuries = new List<CommanderInjury>();
@@ -90,6 +91,7 @@ namespace AntColony.Units
                 || deathEvents.Exists(string.IsNullOrEmpty) || new HashSet<string>(deathEvents).Count != deathEvents.Count) return false;
             if (expectationTier < 0 || expectationTier > 2 || toolTier < 0 || toolTier > 2 || carriedRations != null && !carriedRations.Valid
                 || groundCraft != null && !groundCraft.Valid) return false;
+            if (formation != null && !formation.Valid) return false;
             if (work == null || !work.Valid || string.IsNullOrEmpty(id) || social == null || !social.Validate() || sleep == null || !sleep.Valid || meal == null || !meal.Valid || joy == null || !joy.Valid || hygiene == null || !hygiene.Valid || health == null || health.wounds == null || health.illnesses == null || health.surgeries == null
                 || health.wounds.Count > 64 || health.illnesses.Count > 16 || health.surgeries.Count > 8 || !Finite(health.bloodLoss) || health.bloodLoss < 0 || health.bloodLoss > 1
                 || health.wounds.Exists(w => w == null || !Enum.IsDefined(typeof(BodyPart), w.part) || !Enum.IsDefined(typeof(WoundKind), w.kind) || !Finite(w.damage) || w.damage < 0 || !Finite(w.age) || !Finite(w.quality))

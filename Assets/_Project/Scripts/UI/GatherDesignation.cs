@@ -79,8 +79,8 @@ namespace AntColony.UI
         {
             if (!active) return;
             if (GameMenuController.BlocksInput || BuildScreen.IsOpen || SkillTargeting.ConsumesPointerInput
-                || FindFirstObjectByType<AntColony.Buildings.BuildingPlacementController>()?.IsPlacing == true
-                || FindFirstObjectByType<AntColony.Units.AttackMoveController>()?.IsAttackMode == true) { End(); return; }
+                || AntColony.Core.SceneObjects.Any<AntColony.Buildings.BuildingPlacementController>()?.IsPlacing == true
+                || AntColony.Core.SceneObjects.Any<AntColony.Units.AttackMoveController>()?.IsAttackMode == true) { End(); return; }
             var mouse = Mouse.current;
             if (mouse == null) return;
             if (mouse.rightButton.wasPressedThisFrame || Keyboard.current?.escapeKey.wasPressedThisFrame == true)
@@ -131,7 +131,7 @@ namespace AntColony.UI
                 if (HudResponsiveLayout.ReserveWorldLabel(label)) GUI.Box(label, "채집 금지", markStyle);
             }
             // 노란 경보는 항상, 대상 우선순위 숫자는 지정 도구를 쓰는 동안 표시한다.
-            foreach (var tp in FindObjectsByType<AntColony.Units.TargetPriority>(FindObjectsSortMode.None))
+            foreach (var tp in AntColony.Core.SceneObjects.All<AntColony.Units.TargetPriority>())
             {
                 if (!tp.yellow && !(active && priority)) continue;
                 var p = camera.WorldToScreenPoint(tp.transform.position + Vector3.up * 2.4f);

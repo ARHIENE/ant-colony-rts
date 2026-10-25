@@ -16,7 +16,8 @@ namespace AntColony.Core
         EfficientTransport, Mines, Regeneration, Trinkets, AdvancedWeapons, Gliding,
         Aircraft, HeavyTransport, Insulation, MigrationTheory, Hull, Cocoons, Engine, Fishing,
         ConscriptionLaw, ReserveForces, TotalMobilization, // Phase 4 병역 제도
-        Pharmacy, PrecisionPharmacy // 2026-10-25 D01 장수용 약품
+        Pharmacy, PrecisionPharmacy, // 2026-10-25 D01 장수용 약품
+        FormationLine, FormationColumn, FormationWedge, FormationDispersed, FormationCover, FormationFocus
     }
 
     public sealed class ScienceDefinition
@@ -49,7 +50,9 @@ namespace AntColony.Core
             ScienceTechnology.ArmorPlates or ScienceTechnology.Trinkets or ScienceTechnology.Gliding or ScienceTechnology.Traps or ScienceTechnology.Mines
                 or ScienceTechnology.Vehicle or ScienceTechnology.Aircraft or ScienceTechnology.HeavyTransport or ScienceTechnology.EfficientTransport
                 or ScienceTechnology.MigrationTheory or ScienceTechnology.Hull or ScienceTechnology.Cocoons or ScienceTechnology.Engine => CommanderActivity.Crafting,
-            ScienceTechnology.Watchtowers or ScienceTechnology.ConscriptionLaw or ScienceTechnology.ReserveForces or ScienceTechnology.TotalMobilization => CommanderActivity.Command,
+            ScienceTechnology.FormationLine or ScienceTechnology.FormationColumn or ScienceTechnology.FormationWedge
+                or ScienceTechnology.FormationDispersed or ScienceTechnology.FormationCover or ScienceTechnology.FormationFocus
+                or ScienceTechnology.Watchtowers or ScienceTechnology.ConscriptionLaw or ScienceTechnology.ReserveForces or ScienceTechnology.TotalMobilization => CommanderActivity.Command,
             _ => null
         };
         public static CampaignResearch Instance { get; private set; }
@@ -92,7 +95,7 @@ namespace AntColony.Core
             new ScienceDefinition(ScienceTechnology.ConscriptionLaw, "징병제", 1),
             new ScienceDefinition(ScienceTechnology.ReserveForces, "예비군제", 2, ScienceTechnology.ConscriptionLaw),
             new ScienceDefinition(ScienceTechnology.TotalMobilization, "국민개병", 4, ScienceTechnology.ReserveForces)
-        }.Concat(MedicineResearch.Definitions(ScienceTechnology.Pharmacy, ScienceTechnology.PrecisionPharmacy)).ToArray();
+        }.Concat(MedicineResearch.Definitions(ScienceTechnology.Pharmacy, ScienceTechnology.PrecisionPharmacy)).Concat(FormationResearch.Definitions()).ToArray();
 
         [Serializable] public sealed class State
         {
@@ -168,7 +171,7 @@ namespace AntColony.Core
             foreach (var prerequisite in definition.Prerequisites)
                 if (!Has(prerequisite)) return "선행 연구 필요: " + Technologies[(int)prerequisite].Name + ".";
             if (technology == ScienceTechnology.Engine && !HasBlueprint) return "D 보스의 로켓 핵심물을 본거지에 하역하세요.";
-            foreach (var lab in FindObjectsByType<ScienceLab>(FindObjectsSortMode.None))
+            foreach (var lab in AntColony.Core.SceneObjects.All<ScienceLab>())
                 if (lab.isActiveAndEnabled && lab.Tier >= definition.Tier) return "";
             return "과학 연구소 " + definition.Tier + "등급(" + EraNames[definition.Tier - 1] + " 시대)이 필요합니다.";
         }
@@ -209,7 +212,7 @@ namespace AntColony.Core
             if (seconds > 0 && !float.IsInfinity(seconds)) BossProgress.TickCraft(seconds);
             if (Active == null && state.resourceActive >= 0 && seconds > 0 && !float.IsInfinity(seconds) && !Departed) { TickResourceResearch(seconds); return; }
             if (!(seconds > 0) || float.IsInfinity(seconds) || Active == null || Departed || state.paused) return;
-            foreach (var lab in FindObjectsByType<ScienceLab>(FindObjectsSortMode.None))
+            foreach (var lab in AntColony.Core.SceneObjects.All<ScienceLab>())
             {
                 var c = lab.Target;
                 if (!lab.isActiveAndEnabled || lab.Busy || lab.Tier < Active.Tier || c == null
@@ -227,7 +230,7 @@ namespace AntColony.Core
             if (completed.Technology == ScienceTechnology.Fishing && GameManager.Instance != null)
                 GameManager.Instance.FishingUnlocked = true;
             if (completed.Technology == ScienceTechnology.Fermentation)
-                foreach (var storage in FindObjectsByType<Storage>()) storage.RefreshCapacity();
+                foreach (var storage in AntColony.Core.SceneObjects.All<Storage>()) storage.RefreshCapacity();
             if (world != null)
             {
                 if (completed.Technology == ScienceTechnology.Vehicle) world.VehicleResearched = true;
@@ -264,7 +267,7 @@ namespace AntColony.Core
             if (state.defense == null) state.defense = new List<int>();
             if (state.partialIds == null || state.partialProgress == null || state.partialIds.Count != state.partialProgress.Count)
             { state.partialIds = new List<int>(); state.partialProgress = new List<float>(); }
-            foreach (var storage in FindObjectsByType<Storage>()) storage.RefreshCapacity();
+            foreach (var storage in AntColony.Core.SceneObjects.All<Storage>()) storage.RefreshCapacity();
         }
         public static bool Validate(State value, out string error)
         {

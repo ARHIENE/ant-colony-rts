@@ -61,8 +61,15 @@ namespace AntColony.Map
             // 기존 강수 가중치를 재사용한다. 기후별 별도 난수나 생존 배율은 추가하지 않는다.
             if (climate == MapClimate.Cold) { w[4] += w[1]; w[5] += w[2]; w[1] = w[2] = 0; }
             if (climate == MapClimate.TropicalWet) { w[1] += w[4]; w[2] += w[5]; w[4] = w[5] = 0; }
+            if (climate == MapClimate.TropicalWet) { w[1] *= 1.35f; w[2] *= 1.2f; w[3] *= 1.2f; }
+            if (biome == MapBiome.Forest) { w[1] *= 1.2f; w[3] *= 1.3f; }
             if (biome == MapBiome.Waterside) { w[1] *= 1.5f; w[3] *= 1.5f; }
-            if (biome == MapBiome.Desert) { w[0] += w[1] + w[4]; sand = w[2] + w[5]; w[1] = w[2] = w[4] = w[5] = 0; }
+            if (biome == MapBiome.Desert)
+            {
+                sand = w[2] + w[5]; w[0] += (w[1] + w[4]) * .9f;
+                w[1] *= .04f; w[2] *= .04f; w[3] *= .15f;
+                w[4] *= climate == MapClimate.Cold ? .15f : .02f; w[5] = 0;
+            }
             if (biome == MapBiome.Cave) { w[0] += w[1] + w[2] + w[4] + w[5]; w[1] = w[2] = w[4] = w[5] = 0; } // 땅속: 비·눈 없음
             var total = sand; foreach (var x in w) total += x;
             var pick = value * total;
@@ -76,10 +83,21 @@ namespace AntColony.Map
         private void OnDestroy() { if (Instance == this) Instance = null; RenderSettings.fog = false; }
 
         public State CaptureState() => new State { kind = state.kind, remaining = state.remaining };
+        public static WeatherKind ForEnvironment(WeatherKind kind, MapBiome biome, MapClimate climate)
+        {
+            if (biome == MapBiome.Cave) return kind == WeatherKind.Fog ? kind : WeatherKind.Clear;
+            if (kind == WeatherKind.Sandstorm && biome != MapBiome.Desert) kind = WeatherKind.Storm;
+            if (climate == MapClimate.TropicalWet)
+            { if (kind == WeatherKind.Snow) kind = WeatherKind.Rain; if (kind == WeatherKind.Blizzard) kind = WeatherKind.Storm; }
+            if (climate == MapClimate.Cold)
+            { if (kind == WeatherKind.Rain) kind = WeatherKind.Snow; if (kind == WeatherKind.Storm) kind = WeatherKind.Blizzard; }
+            if (biome == MapBiome.Desert && kind == WeatherKind.Blizzard) kind = WeatherKind.Sandstorm;
+            return kind;
+        }
         public void RestoreState(State s) { state = s != null ? new State { kind = Mathf.Clamp(s.kind, 0, 6), remaining = Mathf.Max(0, s.remaining) } : new State(); Apply(); }
         public void Set(WeatherKind kind, float seconds = RollSeconds)
         {
-            var was = Current; state.kind = (int)kind; state.remaining = seconds; Apply();
+            var was = Current; state.kind = (int)kind; state.remaining = seconds; Apply(); kind = Current;
             if (kind != was && kind != WeatherKind.Clear) AntColony.UI.ToastManager.Show($"날씨: {Name(kind)}" + (Severe ? " — 방 밖 작업·이동이 크게 느려집니다." : ""));
             if (kind == WeatherKind.Storm && !float.IsNaN(MapGenerator.WaterLevel) && UnityEngine.Random.value < .3f)
                 AntColony.World.ColonyEvents.Instance?.TryTrigger(AntColony.World.ColonyEvent.Flood); // 폭풍우는 물가 홍수를 부를 수 있다.
@@ -95,6 +113,8 @@ namespace AntColony.Map
         private void Apply()
         {
             if (fall == null) return;
+            state.kind = (int)ForEnvironment((WeatherKind)state.kind, BiomeRules.Current,
+                GameSession.Exists ? GameSession.Instance.Options.climate : MapClimate.Temperate);
             var k = Current;
             switch (k)
             {

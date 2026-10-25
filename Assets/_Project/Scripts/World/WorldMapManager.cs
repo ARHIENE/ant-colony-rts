@@ -33,7 +33,7 @@ namespace AntColony.World
 
         private void Start()
         {
-            var queen = FindFirstObjectByType<Stockpile>();
+            var queen = AntColony.Core.SceneObjects.Any<Stockpile>();
             HomePosition = queen != null ? queen.Position : Vector3.zero;
             var camera = UnityEngine.Camera.main.GetComponent<AntColony.Camera.IsometricCameraController>();
             homeFocus = camera.FocusPoint;
@@ -107,8 +107,8 @@ namespace AntColony.World
             var camera = UnityEngine.Camera.main.GetComponent<AntColony.Camera.IsometricCameraController>();
             if (ViewedSite == null) homeFocus = camera.FocusPoint;
             ViewedSite = site;
-            FindFirstObjectByType<SelectionManager>()?.ClearSelection();
-            FindFirstObjectByType<BuildingPlacementController>()?.CancelPlacement();
+            AntColony.Core.SceneObjects.Any<SelectionManager>()?.ClearSelection();
+            AntColony.Core.SceneObjects.Any<BuildingPlacementController>()?.CancelPlacement();
             // 본거지 영역은 실제 생성된 지형 크기를 따른다(맵 크기 옵션이 카메라 한계에도 반영된다).
             camera.SetRegion(site == null ? homeFocus : site.Landing + Vector3.forward * 15,
                 site == null ? AntColony.Map.HomeMapBuilder.CurrentWorldBounds

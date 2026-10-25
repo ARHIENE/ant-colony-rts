@@ -27,12 +27,11 @@ namespace AntColony.Units
             Load();
             // FBX 최상위에는 Blender 축 변환 회전이 있다. AntVisual.Face가 최상위 회전을 바꾸므로 빈 부모(pivot)에 넣어 그 회전을 보존한다(2026-10-24 캐릭터가 눕던 원인).
             var pivot = new GameObject("Kemono").transform; pivot.SetParent(parent, false);
-            // 클립이 FBX 최상위에 -90°X(Blender 축 변환)를 매 프레임 다시 쓰는데 메시는 이미 Y-up이라 그대로면 눕는다(2026-10-24 실측). +90°X 부모로 상쇄.
-            var upright = new GameObject("Upright").transform; upright.SetParent(pivot, false); upright.localRotation = Quaternion.Euler(90, 0, 0);
+            // 리그에 연결된 클립이 축 변환까지 담당하므로 부모에서 추가 회전하지 않는다.
+            var upright = new GameObject("Upright").transform; upright.SetParent(pivot, false);
             var model = Object.Instantiate(source, upright, false);
-            var animator = model.GetComponent<Animator>() ?? model.AddComponent<Animator>();
-            animator.runtimeAnimatorController = controller; animator.applyRootMotion = false;
-            animator.cullingMode = AnimatorCullingMode.CullUpdateTransforms;
+            var animator = RigAnimator.Bind(model, "KemonoRig", controller);
+            animator.cullingMode = AnimatorCullingMode.AlwaysAnimate;
             var parts = model.GetComponentsInChildren<Renderer>(true);
             string Pick(string slot)
             {
@@ -42,10 +41,27 @@ namespace AntColony.Units
             }
             var keep = new[] { "Hair_" + Pick("Hair") + "_", "Ears_" + Pick("Ears") + "_", "Tail_" + Pick("Tail") + "_", "Face_NEUTRAL_", "Body_", "Outfit_" };
             foreach (var r in parts) r.enabled = !r.name.Contains("_ARMOR") && keep.Any(k => r.name.StartsWith("Part_" + k));
-            var bounds = parts.Where(r => r.enabled).Select(r => r.bounds).Aggregate((a, b) => { a.Encapsulate(b); return a; });
-            model.transform.localScale *= Height / Mathf.Max(bounds.size.y, .01f); // 월드 키 = Height
+            // 초기 FBX 자세와 첫 애니메이션 자세의 축이 달라 먼저 포즈를 평가해야 실제 키를 잰다.
+            animator.Rebind(); animator.Play("Base Layer.Idle_A", 0, 0); animator.Update(.01f);
+            Bounds Bounds() => parts.Where(r => r.enabled).Select(r => r.bounds).Aggregate((a, b) => { a.Encapsulate(b); return a; });
+            var bounds = Bounds();
+            upright.localScale *= Height / Mathf.Max(bounds.size.y, .01f); // 애니메이션이 쓰지 않는 부모에서 월드 키 고정
+            bounds = Bounds(); upright.position += Vector3.up * ((parent != null ? parent.position.y : 0) - bounds.min.y);
+            bounds = Bounds();
+            if (parent != null) FitCollider(parent);
             pivot.gameObject.AddComponent<KemonoAppearance>().Initialize(seed);
             return pivot.gameObject;
+        }
+
+        public static void FitCollider(Transform owner)
+        {
+            if (!owner.TryGetComponent<CapsuleCollider>(out var capsule)) return;
+            var bounds = owner.GetComponentsInChildren<SkinnedMeshRenderer>().Where(r => r.enabled).Select(r => r.bounds)
+                .Aggregate((a, b) => { a.Encapsulate(b); return a; });
+            var scale = owner.lossyScale;
+            capsule.center = owner.InverseTransformPoint(bounds.center);
+            capsule.height = bounds.size.y / Mathf.Abs(scale.y);
+            capsule.radius = Mathf.Max(bounds.extents.x / Mathf.Abs(scale.x), bounds.extents.z / Mathf.Abs(scale.z));
         }
 
         // 손 소켓(Socket.Tool.R)에 도구·무기를 붙인다. name=null이면 치운다.

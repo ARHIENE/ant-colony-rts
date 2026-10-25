@@ -54,7 +54,7 @@ namespace AntColony.UI
             }
             void Facilities<T>(Action<T> show) where T : Component
             {
-                var facilities = FindObjectsByType<T>(FindObjectsSortMode.None);
+                var facilities = AntColony.Core.SceneObjects.All<T>();
                 foreach (var facility in facilities)
                 {
                     var captured = facility;
@@ -103,7 +103,7 @@ namespace AntColony.UI
                     Info("대상을 선택해 처치·투약·수술·구조·병상 휴식을 지시합니다.");
                     break;
                 case "동물 위생":
-                    foreach (var a in FindObjectsByType<Critter>(FindObjectsSortMode.None))
+                    foreach (var a in AntColony.Core.SceneObjects.All<Critter>())
                         Link(a.DisplayName, () => OpenCritterTab(a, true));
                     Facilities<Ranch>(ShowRanch);
                     Info("기존 개체 의료·목장 관리에 연결합니다. 통합 위생 대시보드는 미구현입니다.");

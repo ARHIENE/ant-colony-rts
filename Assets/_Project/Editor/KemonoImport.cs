@@ -103,22 +103,22 @@ namespace AntColony.EditorTools
             importer.materialLocation = ModelImporterMaterialLocation.InPrefab;
         }
 
-        static void ImportProp(string path)
+        static void ImportProp(string path, bool refresh = true)
         {
             var importer = (ModelImporter)AssetImporter.GetAtPath(path);
             ConfigureModel(importer);
             importer.importAnimation = false;
             importer.SaveAndReimport();
-            ConvertMaterials(path);
+            ConvertMaterials(path, refresh);
         }
 
         [Serializable] class SourceMaterial { public string name; public float[] color; public bool linked; }
         [Serializable] class SourceMaterials { public SourceMaterial[] materials; }
 
-        static void ConvertMaterials(string path)
+        static void ConvertMaterials(string path, bool refresh = true)
         {
             Directory.CreateDirectory(MaterialDir);
-            AssetDatabase.Refresh();
+            if (refresh) AssetDatabase.Refresh();
             var shader = Shader.Find("Universal Render Pipeline/Lit");
             if (shader == null) throw new InvalidOperationException("URP Lit shader is missing.");
             var importer = (ModelImporter)AssetImporter.GetAtPath(path);

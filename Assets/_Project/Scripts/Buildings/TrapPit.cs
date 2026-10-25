@@ -34,7 +34,7 @@ namespace AntColony.Buildings
                     Spring();
                     return;
                 }
-                foreach (var boss in FindObjectsByType<AntColony.Boss.BossHealth>())
+                foreach (var boss in AntColony.Core.SceneObjects.All<AntColony.Boss.BossHealth>())
                     if (CombatTargeting.IsAlive(boss) && !CombatTargeting.IsAirborne(boss)
                         && (boss.Position - Position).sqrMagnitude <= GameBalance.TrapTriggerRadius * GameBalance.TrapTriggerRadius)
                     { boss.Root(GameBalance.TrapBossRootSeconds); Spring(); return; }
@@ -61,11 +61,11 @@ namespace AntColony.Buildings
             var r = GameBalance.TrapTriggerRadius * GameBalance.TrapTriggerRadius; var hit = false;
             foreach (var monster in new System.Collections.Generic.List<WildMonster>(WildMonster.All))
                 if (monster != null && !monster.IsDead && !monster.IsFlying && !monster.Docile && (monster.Position - Position).sqrMagnitude <= r) { monster.TakeDamage(GameBalance.SpikeTrapDamage); hit = true; }
-            foreach (var boss in FindObjectsByType<AntColony.Boss.BossHealth>())
+            foreach (var boss in AntColony.Core.SceneObjects.All<AntColony.Boss.BossHealth>())
                 if (CombatTargeting.IsAlive(boss) && !CombatTargeting.IsAirborne(boss) && boss.GetComponent<WildMonster>() == null
                     && (boss.Position - Position).sqrMagnitude <= r) { boss.TakeDamage(GameBalance.SpikeTrapDamage); hit = true; }
             foreach (var unit in new System.Collections.Generic.List<AntUnitBase>(AntUnitBase.Active))
-                if (unit is CommanderAnt c && c.IsHostile && !c.IsDead && !c.IsFlying && (c.Position - Position).sqrMagnitude <= r) { c.TakeDamage(GameBalance.SpikeTrapDamage); hit = true; }
+                if (unit is CommanderAnt c && c.IsHostile && !c.IsDead && !c.IsFlying && (c.Position - Position).sqrMagnitude <= r) { FormationDamage.Apply(c, GameBalance.SpikeTrapDamage, Position, area: true); hit = true; }
             if (!hit) return;
             spikeCooldown = GameBalance.SpikeTrapInterval;
             if (++SpikeHits >= GameBalance.SpikeTrapHits) Spring();

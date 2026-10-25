@@ -254,7 +254,7 @@ namespace AntColony.UI
         private static List<T> FindActive<T>() where T : Behaviour
         {
             var found = new List<T>();
-            foreach (var component in FindObjectsByType<T>(FindObjectsSortMode.None))
+            foreach (var component in AntColony.Core.SceneObjects.All<T>())
                 if (component.isActiveAndEnabled) found.Add(component);
             return found;
         }

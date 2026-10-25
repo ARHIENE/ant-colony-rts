@@ -51,6 +51,13 @@ namespace AntColony.World
         {
             var world = WorldMapManager.Instance; if (world == null || commander == null) return;
             foreach (var ship in world.Transports) if (ship != null) ship.CancelCrewOrder(commander);
+            foreach (var ship in world.Transports.Where(t => t != null))
+            {
+                if (ship.IsWithdrawing && ship.Crew.Contains(commander)) ship.CancelWithdrawal();
+                if (ship.repairWorker == commander || ship.salvageWorker == commander) ship.CancelFieldWork();
+                ship.withdraw.loads.RemoveAll(l => l.workerId == commander.PersonalState.id);
+                foreach (var job in ship.withdraw.bodies.Where(j => j.carrierId == commander.PersonalState.id).ToArray()) ship.CancelBodyRecovery(job.bodyId);
+            }
         }
 
         private void ClearCrewOrders()
@@ -61,7 +68,7 @@ namespace AntColony.World
 
         private bool QueueCrewOrders(IReadOnlyList<CommanderAnt> passengers, CrewOrderKind kind)
         {
-            if (!isActiveAndEnabled || Route?.IsRunning == true || passengers == null || passengers.Count == 0) return false;
+            if (!isActiveAndEnabled || IsWithdrawing || Route?.IsRunning == true || passengers == null || passengers.Count == 0) return false;
             if (kind == CrewOrderKind.Unload ? State != ExpeditionState.Home
                 : kind == CrewOrderKind.Station ? State != ExpeditionState.Deployed || Site?.Settlement == null
                     || Site.Disposition != ConquestDisposition.Annexed

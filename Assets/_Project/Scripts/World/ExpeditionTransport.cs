@@ -26,18 +26,18 @@ namespace AntColony.World
         public TransportRoute Route { get; private set; }
         public bool HasCargo
         {
-            get { foreach (var amount in cargo.Values) if (amount > 0) return true; return BlueprintCargo || EquipmentCargo.Count > 0 || BossRewardTransfer.CargoLoad(this) > 0; }
+            get { foreach (var amount in cargo.Values) if (amount > 0) return true; return BlueprintCargo || EquipmentCargo.Count > 0 || BodyLoad > 0 || BossRewardTransfer.CargoLoad(this) > 0; }
         }
         // 장수 슬롯과 일반개미 정원은 따로 센다.
         // 대형 수송: 일반개미 +50%·장수 +2 / 수송 효율: 화물 +50%
         public int Capacity => Walking ? int.MaxValue : Mathf.FloorToInt((Aircraft ? GameBalance.AircraftTroops : GameBalance.VehicleTroops) * ScienceEffects.TroopCapacityMultiplier);
         public int CommanderCapacity => Walking ? int.MaxValue : (Aircraft ? GameBalance.AircraftCommanders : GameBalance.VehicleCommanders) + ScienceEffects.CommanderSlotBonus;
         public int CargoCapacity => Walking ? WalkingCargoCapacity : Mathf.FloorToInt((Aircraft ? GameBalance.AircraftCargo : GameBalance.VehicleCargo) * ScienceEffects.CargoMultiplier);
-        public float TravelSeconds => Walking ? ExpeditionRules.WalkSeconds(Site) : Aircraft ? 10 : 20;
+        public float TravelSeconds => Walking ? ExpeditionRules.WalkSeconds(Site) / FormationWalkMultiplier : Aircraft ? 10 : 20;
         public float Remaining { get; private set; }
         public int Load
         {
-            get { var total = 0; foreach (var c in crew) if (c != null) total += c.TroopCount; return total; }
+            get { var total = withdraw.troops; foreach (var c in crew) if (c != null) total += c.TroopCount; return total; }
         }
         public int CommanderLoad
         {
@@ -45,9 +45,9 @@ namespace AntColony.World
         }
         public int CargoLoad
         {
-            get { var total = BossRewardTransfer.CargoLoad(this); foreach (var amount in cargo.Values) total += amount; return total; }
+            get { var total = BossRewardTransfer.CargoLoad(this) + EquipmentCargo.Count + BodyLoad; foreach (var amount in cargo.Values) total += amount; return total; }
         }
-        public bool CargoFull => CargoLoad >= CargoCapacity;
+        public bool CargoFull => CargoLoad + ReservedCargo >= CargoCapacity;
         protected override bool IsDepositPoint => true;
 
         public void Initialize(bool aircraft, bool walking = false)
@@ -55,6 +55,7 @@ namespace AntColony.World
             Route = new TransportRoute(this);
             Aircraft = aircraft;
             Walking = walking;
+            RestoreHealth(MaxHealth);
             homePosition = transform.position;
             name = walking ? "도보 원정대" : aircraft ? "Aircraft" : "Vehicle";
             GetComponent<Renderer>().material.color = aircraft ? Color.cyan : new Color(.85f, .7f, .3f);
@@ -146,7 +147,7 @@ namespace AntColony.World
 
         public bool TryDepart(ExpeditionSite site)
         {
-            if (PendingCrewOrderCount > 0) return false;
+            if (!CanOperate || !HasPilot || IsWithdrawing || ReservedCargo > 0 || PendingCrewOrderCount > 0) return false;
             if (Route != null && Route.IsRunning
                 && (site != Route.Destination || HasCargo || Route.WaitSeconds > 0)) return false;
             var world = WorldMapManager.Instance;
@@ -163,55 +164,25 @@ namespace AntColony.World
             return true;
         }
 
-        public bool TryReturn()
-        {
-            if (!TryEmbarkToLeave()) return false;
-            State = ExpeditionState.Returning;
-            Remaining = TravelSeconds;
-            return true;
-        }
+        public bool TryReturn() => RequestWithdrawal(null);
 
-        // 자동 수송 경유: 본거지를 거치지 않고 현지에서 다음 편입 거점으로 출발한다.
         internal bool TryContinueTo(ExpeditionSite next)
         {
-            if (next == null || next == Site || !TryEmbarkToLeave()) return false;
-            if (Site != null && Site.Visitor == this) Site.Visitor = null;
-            Site = next;
-            if (next.Visitor == null) next.Visitor = this;
-            State = ExpeditionState.Outbound;
-            Remaining = TravelSeconds;
-            return true;
-        }
-
-        private bool TryEmbarkToLeave()
-        {
-            if (PendingCrewOrderCount > 0) return false;
-            if (!isActiveAndEnabled || State != ExpeditionState.Deployed) return false;
-            foreach (var c in crew)
-                if (c != null && !c.IsDead && (!c.isActiveAndEnabled || c.OrderRefusalReason != "" || c.IsCarrying || c.IsConstructing
-                    || Vector3.Distance(c.Position, Position) > 8)) return false;
-            if (Site != null && Site.Settlement != null)
-            {
-                foreach (var c in Site.Settlement.Garrison)
-                    if (c != null && c.IsCarrying) return false;
-                // 수송수단이 떠난 뒤 채집을 계속해 반납할 곳 없이 화물을 들지 않게 한다.
-                foreach (var c in Site.Settlement.Garrison) if (c != null && c.IsWorking) c.CommandStop();
-            }
-            foreach (var c in crew) if (c != null) c.SetEmbarked(true, Position);
-            if (WorldMapManager.Instance.ViewedSite == Site) WorldMapManager.Instance.ViewSite(null);
-            return true;
+            if (next == null || next == Site || !next.isActiveAndEnabled || next.Disposition != ConquestDisposition.Annexed) return false;
+            return RequestWithdrawal(next);
         }
 
         private void Update()
         {
             Tick(Time.deltaTime);
-            if (State == ExpeditionState.Home) UnloadCargo();
+            if (State == ExpeditionState.Home && !IsDead) UnloadCargo();
             Route?.Tick(Time.deltaTime);
         }
 
         internal void EvacuateLostSite()
         {
             Route?.Stop("Stopped: destination lost");
+            if (!Walking) { TryEmergencyReturn(); return; }
             if (State == ExpeditionState.Home || State == ExpeditionState.Returning) return;
             foreach (var c in crew)
                 if (c != null)
@@ -226,15 +197,21 @@ namespace AntColony.World
         public void Tick(float seconds)
         {
             if (!isActiveAndEnabled || !(seconds > 0) || float.IsInfinity(seconds)) return;
+            TickDamage(seconds);
             TickCrewOrders();
+            if (IsDead) return;
+            foreach (var body in bodyCargo) body.remaining = Mathf.Max(0, body.remaining - seconds);
             DockingRemaining = Mathf.Max(0, DockingRemaining - seconds);
             if (State != ExpeditionState.Home) TickSupplies(seconds);
+            var withdrawing = IsWithdrawing;
+            TickWithdrawal(seconds);
+            if (withdrawing) return;
             if (State != ExpeditionState.Outbound && State != ExpeditionState.Returning) return;
-            Remaining = Mathf.Max(0, Remaining - seconds);
+            Remaining = Mathf.Max(0, Remaining - seconds * TravelSpeedMultiplier);
             if (Remaining > 0) return;
             if (State == ExpeditionState.Outbound)
             {
-                if (!Walking && WorldMapManager.Instance.Transports.Any(t => t != null && t != this && t.Site == Site
+                if (!Walking && WorldMapManager.Instance.Transports.Any(t => t != null && !t.IsDead && t != this && t.Site == Site
                     && t.State == ExpeditionState.Deployed && t.DockingRemaining > 0)) return;
                 DockingRemaining = Walking ? 0 : ExpeditionRules.DockSeconds;
                 transform.position = Site.Landing;
@@ -248,6 +225,7 @@ namespace AntColony.World
                 if (!TryHomeLanding(out var landing)) return;
                 transform.position = landing;
                 State = ExpeditionState.Home;
+                ReturnTroopPassengers();
                 if (Site != null && Site.Visitor == this) Site.Visitor = null;
                 Site = null;
                 TryUnloadCrew();
@@ -269,13 +247,24 @@ namespace AntColony.World
         public override void DepositResources(AntColony.Data.ResourceType type, int amount)
         {
             // 핵심물과 일반 화물은 같은 적재 한도를 사용한다.
-            AddCargo(type, amount);
-            if (State == ExpeditionState.Home) UnloadCargo();
+            if (IsDead || amount <= 0) return;
+            if (State == ExpeditionState.Deployed && !Walking)
+            {
+                int accepted = Mathf.Min(amount, ReturnCargoSpace);
+                if (accepted > 0)
+                {
+                    var worker = CommanderRoster.Instance?.Commanders.FirstOrDefault(c => c.IsCarrying && c.CarriedType == type && (c.Position - Position).sqrMagnitude <= 64);
+                    withdraw.loads.Add(new WithdrawLoad { type = type, amount = accepted, rate = worker != null ? worker.WorkRate(CommanderActivity.Strength) : 1 });
+                }
+                if (accepted < amount) DiplomacyManager.DropFloor(type, amount - accepted, Position);
+            }
+            else AddCargo(type, amount);
+            if (State == ExpeditionState.Home && !IsDead) UnloadCargo();
         }
 
         public int AddCargo(AntColony.Data.ResourceType type, int amount)
         {
-            var added = Mathf.Clamp(amount, 0, Mathf.Max(0, CargoCapacity - CargoLoad));
+            var added = Mathf.Clamp(amount, 0, Mathf.Max(0, CargoCapacity - CargoLoad - ReservedCargo));
             if (added > 0) cargo[type] = GetCargo(type) + added;
             return added;
         }
@@ -283,6 +272,7 @@ namespace AntColony.World
         private void UnloadCargo()
         {
             if (State != ExpeditionState.Home || !TryHomeLanding(out var landing)) return;
+            UnloadBodies(landing);
             BossRewardTransfer.Deliver(this);
             var resources = ResourceManager.Instance;
             foreach (AntColony.Data.ResourceType type in System.Enum.GetValues(typeof(AntColony.Data.ResourceType)))
@@ -311,6 +301,7 @@ namespace AntColony.World
 
         public bool TryCollectRewards()
         {
+            if (IsDead || IsWithdrawing) return false;
             if (Site != null && Site.GetComponent<BossStronghold>() != null) return BossRewardTransfer.TryCollect(this);
             if (State != ExpeditionState.Deployed || Site == null || !Site.Cleared || Site.RewardsClaimed
                 || Site.Kind == ExpeditionSiteKind.ResourceSite || Site.Kind == ExpeditionSiteKind.TradePost
@@ -325,7 +316,7 @@ namespace AntColony.World
             for (var i = 0; i < count; i++)
             {
                 var item = EquipmentItem.Random(Site.Difficulty);
-                if (EquipmentInventory.Instance == null || EquipmentInventory.Instance.Items.Count + EquipmentCargo.Count >= EquipmentInventory.Capacity) overflow.Add(item);
+                if (ReturnCargoSpace < 1 || EquipmentInventory.Instance == null || EquipmentInventory.Instance.Items.Count + EquipmentCargo.Count >= EquipmentInventory.Capacity) overflow.Add(item);
                 else EquipmentCargo.Add(item);
             }
             if (overflow.Count > 0) EquipmentLoot.Drop(Position, overflow);
@@ -334,6 +325,7 @@ namespace AntColony.World
 
         protected override void OnDisable()
         {
+            CancelWithdrawal(); DropPendingLoads();
             ClearCrewOrders();
             AntColony.UI.ToastManager.SetPinned("supplies:" + GetEntityId(), null);
             Route?.Stop();
@@ -350,7 +342,7 @@ namespace AntColony.World
         protected override void Die()
         {
             BossRewardTransfer.Lose(this); // 확정 파괴만 소실. 복원/씬 정리/정상 해산은 OnDisable만 거친다.
-            base.Die();
+            if (Walking) base.Die(); else BecomeWreck();
         }
     }
 }

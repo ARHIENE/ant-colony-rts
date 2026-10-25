@@ -33,7 +33,7 @@ namespace AntColony.Map
         {
             sun = RenderSettings.sun;
             if (sun == null)
-                foreach (var l in FindObjectsByType<Light>(FindObjectsSortMode.None)) if (l.type == LightType.Directional) { sun = l; break; }
+                foreach (var l in AntColony.Core.SceneObjects.All<Light>()) if (l.type == LightType.Directional) { sun = l; break; }
             if (sun != null) { dayColor = sun.color; dayIntensity = sun.intensity; }
             dayAmbient = RenderSettings.ambientIntensity;
         }

@@ -49,7 +49,7 @@ namespace AntColony.Core
         {
             get
             {
-                var pile = FindObjectsByType<Stockpile>(FindObjectsSortMode.None).FirstOrDefault(s => s.isActiveAndEnabled && !s.IsDead);
+                var pile = AntColony.Core.SceneObjects.All<Stockpile>().FirstOrDefault(s => s.isActiveAndEnabled && !s.IsDead);
                 return pile != null ? pile.Position : AntColony.World.WorldMapManager.Instance?.HomePosition ?? Vector3.zero;
             }
         }

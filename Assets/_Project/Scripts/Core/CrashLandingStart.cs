@@ -27,7 +27,7 @@ namespace AntColony.Core
         {
             var origin = ResourceManager.HomePosition;
             // 씬 기본 시설은 저장 카탈로그에 빈 자리로 남겨 옛 저장의 키를 유지한다.
-            foreach (var b in Object.FindObjectsByType<BuildingBase>(FindObjectsSortMode.None)
+            foreach (var b in AntColony.Core.SceneObjects.All<BuildingBase>()
                 .Where(b => b.CountsTowardPlayerDefeat && b.GetComponentInParent<ExpeditionSite>() == null).ToArray())
             { b.gameObject.SetActive(false); Object.Destroy(b.gameObject); }
             AntPool.Instance?.RestoreCounts(0, 0, 0);
@@ -42,8 +42,8 @@ namespace AntColony.Core
             StartingEnvironment.Create(origin, BiomeRules.Current, GameSession.Instance.Options.startingCount);
             CreateWildCrops(origin, BiomeRules.Current);
             var go = GameObject.CreatePrimitive(PrimitiveType.Cube); go.name = "불시착 잔해"; go.SetActive(false);
-            go.transform.position = FindFree(origin, new Vector3(-5, 0, 3)) + Vector3.up * .5f;
-            go.transform.localScale = new Vector3(3, 1, 2);
+            go.transform.position = FindFree(origin, new Vector3(-7, 0, 4)) + Vector3.up * .5f;
+            go.transform.localScale = new Vector3(6, 1, 4); // 3×2에선 잔해 모델이 장수(1.6m)보다 작아 보였다(2026-10-25). FacilityVisual이 x·z에 맞춰 키운다.
             var data = ScriptableObject.CreateInstance<BuildingData>();
             data.name = "CrashWreck"; data.displayName = "불시착 잔해"; data.kind = BuildingKind.CrashWreck;
             data.foodCost = data.soilCost = data.specialCost = data.constructionAnts = 0; data.buildTimeSeconds = 20;

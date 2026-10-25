@@ -33,13 +33,14 @@ namespace AntColony.Units
 
         private Vector2 dragStartScreen;
         private Vector2 dragEndScreen;
+        private Vector3 dragStartWorld; private bool dragAnchored; // 가장자리 스크롤로 카메라가 움직여도 박스 시작점이 땅에 붙어 있게(c10, 2026-10-25)
 
         private void Awake()
         {
             if (cam == null) cam = UnityEngine.Camera.main;
             if (selectionBoxImage == null) selectionBoxImage = CreateSelectionBoxImage();
-            if (attackMoveController == null) attackMoveController = FindFirstObjectByType<AttackMoveController>();
-            if (buildingPlacementController == null) buildingPlacementController = FindFirstObjectByType<BuildingPlacementController>();
+            if (attackMoveController == null) attackMoveController = AntColony.Core.SceneObjects.Any<AttackMoveController>();
+            if (buildingPlacementController == null) buildingPlacementController = AntColony.Core.SceneObjects.Any<BuildingPlacementController>();
 
             selectionBoxImage.gameObject.SetActive(false);
         }
@@ -76,7 +77,7 @@ namespace AntColony.Units
             // 어택무브 모드 중 좌클릭은 공격 명령 전용 — 여기서 선택이 바뀌지 않도록 건너뛴다.
             if ((attackMoveController != null && attackMoveController.ConsumesPointerInput)
                 || (buildingPlacementController != null && buildingPlacementController.ConsumesPointerInput)
-                || (EventSystem.current != null && EventSystem.current.IsPointerOverGameObject()))
+                || (!isMouseDown && EventSystem.current != null && EventSystem.current.IsPointerOverGameObject()))
             {
                 isMouseDown = false;
                 isDragging = false;
@@ -92,11 +93,16 @@ namespace AntColony.Units
 
                 dragStartScreen = mouse.position.ReadValue();
                 dragEndScreen = dragStartScreen;
+                dragAnchored = TryGroundPoint(dragStartScreen, out dragStartWorld);
             }
+
+            // 창 포커스를 잃는 등으로 놓은 프레임을 놓치면 박스가 멈춘 채 남았다 → 놓은 것으로 처리.
+            var released = mouse.leftButton.wasReleasedThisFrame || isMouseDown && !mouse.leftButton.isPressed;
 
             if (isMouseDown && mouse.leftButton.isPressed)
             {
                 dragEndScreen = mouse.position.ReadValue();
+                if (cam != null && dragAnchored) dragStartScreen = cam.WorldToScreenPoint(dragStartWorld);
 
                 if (!isDragging && Vector2.Distance(dragStartScreen, dragEndScreen) >= dragStartThreshold)
                 {
@@ -108,7 +114,7 @@ namespace AntColony.Units
                     UpdateSelectionBox(dragStartScreen, dragEndScreen);
             }
 
-            if (isMouseDown && mouse.leftButton.wasReleasedThisFrame)
+            if (isMouseDown && released)
             {
                 isMouseDown = false;
 
@@ -132,6 +138,7 @@ namespace AntColony.Units
             if (cam == null) return;
 
             var ray = cam.ScreenPointToRay(mouseScreen);
+            Physics.SyncTransforms();
 
             if (Physics.Raycast(ray, out var hit, 1000f, selectableLayerMask))
             {
@@ -175,7 +182,7 @@ namespace AntColony.Units
             if (cam == null) return;
             if (!additive) ClearSelection();
 
-            var allSelectables = FindObjectsByType<SelectableObject>(FindObjectsSortMode.None);
+            var allSelectables = AntColony.Core.SceneObjects.All<SelectableObject>();
 
             foreach (var selectable in allSelectables)
             {
@@ -187,6 +194,16 @@ namespace AntColony.Units
                 if (screenRect.Contains(new Vector2(screenPos.x, screenPos.y)))
                     AddToSelection(selectable);
             }
+        }
+
+        private bool TryGroundPoint(Vector2 screen, out Vector3 point)
+        {
+            point = Vector3.zero;
+            if (cam == null) return false;
+            var ray = cam.ScreenPointToRay(screen);
+            if (Physics.Raycast(ray, out var hit, 1000f, selectableLayerMask, QueryTriggerInteraction.Ignore)) { point = hit.point; return true; }
+            if (!new Plane(Vector3.up, Vector3.zero).Raycast(ray, out var d)) return false;
+            point = ray.GetPoint(d); return true;
         }
 
         // 일반개미는 GameObject가 아니라 AntPool의 숫자이고, 기존 WorkerAnt/SoldierAnt 프로토타입도

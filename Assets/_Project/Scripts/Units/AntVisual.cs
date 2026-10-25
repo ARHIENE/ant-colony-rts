@@ -38,7 +38,7 @@ namespace AntColony.Units
             if (!kemono && prefab == null) { enabled = false; return; }
             foreach (var renderer in GetComponentsInChildren<MeshRenderer>()) renderer.enabled = false;
             model = kemono ? KemonoModel.Create(transform, Seed(name)) : Instantiate(prefab, transform, false);
-            animator = model.GetComponentInChildren<Animator>();
+            animator = RigAnimator.Find(model);
             appearance = model.GetComponent<KemonoAppearance>();
             animator.applyRootMotion = false;
             selection = GetComponent<SelectableObject>(); soldier = GetComponent<SoldierAnt>();
@@ -138,9 +138,13 @@ namespace AntColony.Units
             else if (commander != null && commander.IsAsleep) Play("Sleep");
             else if (commander != null && commander.IsEating) Play("Eat");
             else if (soldier != null && soldier.IsFlying || enemy != null && enemy.IsFlying) Play("Fly");
-            else if (moving) Play(delta.magnitude / Time.deltaTime > 2f ? "Run" : "Walk");
             else if (worker != null && worker.IsBuildingAnimation) Play("Attack");
-            else if (worker != null && worker.IsGatheringAnimation) Play("Eat");
+            else if (worker != null && worker.IsGatheringAnimation)
+            {
+                if (worker.CurrentResourceNode != null) Face(worker.CurrentResourceNode.transform.position - transform.position);
+                Play("Eat");
+            }
+            else if (moving) Play(delta.magnitude / Time.deltaTime > 2f ? "Run" : "Walk");
             else Play("Idle_A");
         }
 
@@ -149,7 +153,7 @@ namespace AntColony.Units
             if (model == null) return null;
             var body = Instantiate(model, model.transform.position, model.transform.rotation);
             body.transform.localScale = model.transform.lossyScale;
-            body.GetComponentInChildren<Animator>().Play("Base Layer.Death", 0, 0);
+            RigAnimator.Find(body).Play("Base Layer.Death", 0, 0);
             if (kemono) KemonoModel.Hold(body, null);
             body.GetComponent<KemonoAppearance>()?.SetExpression("DEAD");
             if (!persistent) Destroy(body, 2.5f);

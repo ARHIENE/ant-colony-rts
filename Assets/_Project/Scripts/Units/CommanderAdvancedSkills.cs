@@ -73,11 +73,11 @@ namespace AntColony.Units
         }
         private void DamageArea(Vector3 point, float radius, float damage, UnitRole role)
         {
-            foreach (var target in FindObjectsByType<MonoBehaviour>(FindObjectsSortMode.None).OfType<IDamageable>().ToArray())
+            foreach (var target in AntColony.Core.SceneObjects.All<MonoBehaviour>().OfType<IDamageable>().ToArray())
             {
                 if (!CombatTargeting.CanAttack(role, target) || (target.Position - point).sqrMagnitude > radius * radius) continue;
                 bool wasAlive = CombatTargeting.IsAlive(target);
-                target.TakeDamage(damage);
+                FormationDamage.Apply(target, damage, point, role == UnitRole.Ranged, true);
                 Social.combatSeen = true;
                 personalState.lastCombatSeconds = 0;
                 if (wasAlive && !CombatTargeting.IsAlive(target))

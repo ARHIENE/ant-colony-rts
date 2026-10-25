@@ -8,26 +8,9 @@ namespace AntColony.UI
     {
         private GameAction? rebinding;
 
-        private void KeyBindingButtons()
-        {
-            foreach (GameAction action in System.Enum.GetValues(typeof(GameAction)))
-            {
-                var label = rebinding == action ? "press a key (Esc cancels)" : KeyBindings.Get(action).ToString();
-                var name = action == GameAction.AddTroop ? "징집소" : action == GameAction.RemoveTroop ? "귀환" : action.ToString();
-                MenuTheme.Button(content, $"Key - {name}: {label}", () => { rebinding = action; Settings(); });
-            }
-            MenuTheme.Button(content, "Reset keys to default", () =>
-            {
-                var value = UserSettings.Current.Clone();
-                value.keyBindings = new System.Collections.Generic.List<string>();
-                UserSettings.Apply(value);
-                Settings();
-            });
-        }
-
         private bool PollRebind()
         {
-            if (rebinding == null) return false;
+            if (rebinding == null || Keyboard.current == null) return false;
             if (!open || ScreenName != "Settings") { rebinding = null; return false; }
             if (Keyboard.current.escapeKey.wasPressedThisFrame) { rebinding = null; Settings(); return true; }
             foreach (var control in Keyboard.current.allKeys)

@@ -22,7 +22,7 @@ namespace AntColony.Buildings
         // 주재료(2026-10-10): 건설비의 재료 몫(soilCost)을 이 재료로 낸다. 내구도 배율·미관·단열·가연성이 재료를 따른다.
         public ResourceType MainMaterial { get; set; } = ResourceType.Soil;
         public MaterialInfo Material => MaterialInfo.For(MainMaterial);
-        public float MaxHealth => BaseMaxHealth * Material.durability * (UsesDefenseDurability ? DefenseUpgrades.DurabilityMultiplier : 1f);
+        public virtual float MaxHealth => BaseMaxHealth * Material.durability * (UsesDefenseDurability ? DefenseUpgrades.DurabilityMultiplier : 1f);
         // 저장 검증용: 연구소 내구 라인이 최고 단계·가장 단단한 재료일 때의 체력 상한.
         internal float MaxPossibleHealth => BaseMaxHealth * 3f * (UsesDefenseDurability ? 1f + .2f * DefenseUpgrades.MaxLevel : 1f);
         private float BaseMaxHealth => data != null ? data.maxHealth : fallbackMaxHealth;
@@ -35,6 +35,7 @@ namespace AntColony.Buildings
         internal void ConfigureRuntime(BuildingData definition) { data = definition; currentHealth = MaxHealth; }
 
         protected virtual bool IsDepositPoint => false;
+        private bool listed;
 
         protected virtual void Awake()
         {
@@ -47,6 +48,8 @@ namespace AntColony.Buildings
             {
                 DepositPoints.Add(this);
             }
+            // 철거 중처럼 컴포넌트만 꺼진 건물도 FindObjectsByType처럼 찾도록 파괴될 때까지 목록에 둔다.
+            if (!listed) { SceneObjects.AddBuilding(this); listed = true; }
             // 건설 중인 건물과 배치용 템플릿은 비활성 상태이므로, 완공되어 활성화된 건물만 콜로니 존속 판정에 등록된다.
             GameManager.Instance?.RegisterBuilding(this);
             RoomSystem.MarkDirty(); SpaceQuality.Invalidate(); // Phase 5: 벽·가구가 바뀌면 방을 다시 판정한다.
@@ -63,7 +66,7 @@ namespace AntColony.Buildings
         // 생산대 잔해는 0을 보존하되 파괴 부작용을 재실행하지 않는다.
         internal void RestoreHealth(float value)
         {
-            currentHealth = Mathf.Clamp(value, this is Workshop || this is Processor || this is AirshipYard ? 0f : 0.01f, MaxHealth);
+            currentHealth = Mathf.Clamp(value, this is Workshop || this is Processor || this is AirshipYard || this is AntColony.World.ExpeditionTransport ? 0f : 0.01f, MaxHealth);
         }
 
         public void TakeDamage(float amount)
@@ -93,7 +96,7 @@ namespace AntColony.Buildings
             var nearestDistSqr = float.MaxValue;
             foreach (var point in DepositPoints)
             {
-                if (point == null) continue;
+                if (point == null || point.IsDead) continue;
                 var distSqr = (point.transform.position - from).sqrMagnitude;
                 if (distSqr < nearestDistSqr)
                 {

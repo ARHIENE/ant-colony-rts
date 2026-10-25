@@ -47,7 +47,7 @@ namespace AntColony.Core
                 "세금은 미동원 성인·노년의 시간별 과세 생산 × 세율로 매일 정산합니다. 인원 변동은 이후 시간에만 반영됩니다." };
             var costs = new Dictionary<AntColony.Data.ResourceType, float>();
             void Add(AntColony.Data.ResourceType type, float amount) { costs.TryGetValue(type, out var old); costs[type] = old + amount; }
-            foreach (var b in UnityEngine.Object.FindObjectsByType<BuildingBase>(FindObjectsSortMode.None))
+            foreach (var b in AntColony.Core.SceneObjects.All<BuildingBase>())
             {
                 if (!b.isActiveAndEnabled || b.IsDead || b.Data == null || !IsMajorDefense(b.Data.kind)) continue;
                 Add(AntColony.Data.ResourceType.Food, b.Data.foodCost * .3f);
@@ -63,7 +63,7 @@ namespace AntColony.Core
                 // 식량 권장은 병력 20일분과 재건 몫을 합산한다.
                 if (cost.Key == AntColony.Data.ResourceType.Food) required += RecommendedFood(HomeDailyFood);
                 var available = cost.Key == AntColony.Data.ResourceType.Food ? FoodOnHand : (ResourceManager.Instance?.GetAmount(cost.Key) ?? 0)
-                    + UnityEngine.Object.FindObjectsByType<AirshipYard>(FindObjectsSortMode.None)
+                    + AntColony.Core.SceneObjects.All<AirshipYard>()
                         .Where(y => !y.IsDead && y.Phase == RocketPhase.Construction).Sum(y => y.LoadedFuel(cost.Key));
                 lines.Add($"{cost.Key.DisplayName()}: {available} / 권장 합계 {required}" + (available < required ? "  부족" : "  충족"));
             }

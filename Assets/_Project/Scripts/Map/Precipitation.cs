@@ -10,6 +10,8 @@ namespace AntColony.Map
         private UnityEngine.Camera camera;
         private Material material;
         private Texture2D texture;
+        private Texture2D petalTexture;
+        private bool previousPetals;
         private Color previousColor;
         private float previousRate;
 
@@ -21,6 +23,7 @@ namespace AntColony.Map
             p.system.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
             var main = p.system.main; main.loop = true; main.maxParticles = 20000; main.simulationSpace = ParticleSystemSimulationSpace.Local;
             main.startLifetime = 6; main.playOnAwake = false;
+            main.useUnscaledTime = true;
             var shape = p.system.shape; shape.shapeType = ParticleSystemShapeType.Box; shape.scale = new Vector3(80, 1, 80);
             p.emission = p.system.emission; p.emission.rateOverTime = 0;
             var renderer = go.GetComponent<ParticleSystemRenderer>();
@@ -31,6 +34,17 @@ namespace AntColony.Map
                 p.texture.SetPixel(x, y, new Color(1, 1, 1, 1 - Mathf.SmoothStep(0, 1, Mathf.InverseLerp(.35f, 1, radius))));
             }
             p.texture.Apply();
+            p.petalTexture = new Texture2D(32, 32, TextureFormat.RGBA32, false);
+            for (var y = 0; y < 32; y++) for (var x = 0; x < 32; x++)
+            {
+                var u = (x - 15.5f) / 15.5f;
+                var v = y / 31f;
+                var width = Mathf.Sin(v * Mathf.PI) * .65f;
+                var edge = Mathf.Clamp01((width - Mathf.Abs(u)) * 16);
+                var notch = Mathf.Clamp01((1 - v - .13f * Mathf.Clamp01(1 - Mathf.Abs(u) / .2f)) * 32);
+                p.petalTexture.SetPixel(x, y, new Color(1, Mathf.Lerp(.7f, 1, v), Mathf.Lerp(.8f, 1, v), edge * notch));
+            }
+            p.petalTexture.Apply();
             p.material = new Material(Shader.Find("Universal Render Pipeline/Particles/Unlit"));
             p.material.SetTexture("_BaseMap", p.texture);
             p.material.SetFloat("_Surface", 1);
@@ -45,14 +59,19 @@ namespace AntColony.Map
         }
 
         // rate 0 = 끔. stretch > 0 이면 빗줄기처럼 늘인다. drift = 옆바람.
-        public void Set(float rate, Color color, float size, float fallSpeed, float stretch = 0, float drift = 0)
+        public void Set(float rate, Color color, float size, float fallSpeed, float stretch = 0, float drift = 0, bool petals = false)
         {
             // 같은 입자계를 재사용하므로 낙엽·모래가 눈으로 바뀔 때 남아 있는 옛 색 입자는 비운다.
-            if (previousRate > 0 && (rate <= 0 || color != previousColor)) system.Clear();
+            if (previousRate > 0 && (rate <= 0 || color != previousColor || petals != previousPetals)) system.Clear();
+            if (petals != previousPetals) material.SetTexture("_BaseMap", petals ? petalTexture : texture);
+            previousPetals = petals;
             previousColor = color; previousRate = rate;
             emission.rateOverTime = rate;
             var main = system.main; main.startColor = color; main.startSize = size; main.startSpeed = 0;
             main.startLifetime = 30f / Mathf.Max(1, fallSpeed);
+            main.startRotation = petals ? new ParticleSystem.MinMaxCurve(0, Mathf.PI * 2) : new ParticleSystem.MinMaxCurve(0);
+            var rotation = system.rotationOverLifetime; rotation.enabled = petals;
+            rotation.z = new ParticleSystem.MinMaxCurve(-1.5f, 1.5f);
             var velocity = system.velocityOverLifetime; velocity.enabled = true; velocity.space = ParticleSystemSimulationSpace.Local;
             velocity.x = new ParticleSystem.MinMaxCurve(drift - .5f, drift + .5f); velocity.y = new ParticleSystem.MinMaxCurve(-fallSpeed, -fallSpeed); velocity.z = new ParticleSystem.MinMaxCurve(-.5f, .5f);
             var renderer = GetComponent<ParticleSystemRenderer>();
@@ -62,7 +81,7 @@ namespace AntColony.Map
 
         public float Rate => emission.rateOverTime.constant;
 
-        private void OnDestroy() { Destroy(material); Destroy(texture); }
+        private void OnDestroy() { Destroy(material); Destroy(texture); Destroy(petalTexture); }
 
         private void LateUpdate()
         {

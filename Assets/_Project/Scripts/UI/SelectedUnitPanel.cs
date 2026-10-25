@@ -41,7 +41,7 @@ namespace AntColony.UI
 
         private void Start()
         {
-            selection = FindFirstObjectByType<SelectionManager>();
+            selection = AntColony.Core.SceneObjects.Any<SelectionManager>();
             var rect = MenuTheme.Rect("SelectedUnitPanel", HudConsole.Center);
             MenuTheme.Stretch(rect); rect.offsetMin = new Vector2(12, 8); rect.offsetMax = new Vector2(-12, -14);
             panel = rect.gameObject;
@@ -49,7 +49,7 @@ namespace AntColony.UI
             MenuTheme.InsetScreen(por.gameObject).raycastTarget = true;
             por.GetComponent<Image>().color = MenuTheme.Hex(0x1c261c);
             por.gameObject.AddComponent<Button>().onClick.AddListener(() =>
-                FindFirstObjectByType<DetailTabs>()?.Toggle(FindSingleSelectedCommander(selection)));
+                AntColony.Core.SceneObjects.Any<DetailTabs>()?.Toggle(FindSingleSelectedCommander(selection)));
             por.gameObject.AddComponent<MenuTooltip>().Message = "초상 클릭: 상세·나이·특성·전체 기술·포상·연구";
             portrait = Label(por, "", 21, Vector2.zero, new Vector2(110, 126), MenuTheme.Selection);
             portrait.alignment = TextAnchor.MiddleCenter;

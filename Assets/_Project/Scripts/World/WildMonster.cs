@@ -36,6 +36,7 @@ namespace AntColony.World
         private bool isRaider;
         private bool eventWasp;
         private bool nightPredator;
+        internal string VisualModel => eventWasp ? "Wasp" : "NightBeetle";
         public string DiplomaticFactionId { get; internal set; }
         public bool Allied { get; internal set; }
         public string RebelId { get; internal set; }
@@ -100,7 +101,7 @@ namespace AntColony.World
         internal Save.WildMonsterDto CaptureRuntime()
         {
             var world = WorldMapManager.Instance;
-            var invasion = UnityEngine.Object.FindObjectsByType<ColonyInvasion>(FindObjectsSortMode.None).FirstOrDefault(i => i.Owns(this));
+            var invasion = AntColony.Core.SceneObjects.All<ColonyInvasion>().FirstOrDefault(i => i.Owns(this));
             var d = new Save.WildMonsterDto { commander = this is EnemyCommander, name = name, raider = isRaider, wasp = eventWasp,
                 night = nightPredator, flying = IsFlying, allied = Allied, docile = Docile, provoked = provoked, rebel = RebelId,
                 rotationY = transform.eulerAngles.y, scale = new Save.Vec3Dto(transform.localScale),
@@ -110,7 +111,7 @@ namespace AntColony.World
                 parentSite = Save.SaveCatalog.SiteIndex(GetComponentInParent<ExpeditionSite>()), raidSite = Save.SaveCatalog.SiteIndex(raidSite),
                 invasionSite = invasion == null ? -2 : Save.SaveCatalog.SiteIndex(invasion.GetComponentInParent<ExpeditionSite>()),
                 defenseSite = world.Sites.ToList().FindIndex(s => s.Defense != null && s.Defense.Owns(this)),
-                visitor = UnityEngine.Object.FindFirstObjectByType<LocalIncursions>()?.Visitors.Contains(this) == true };
+                visitor = AntColony.Core.SceneObjects.Any<LocalIncursions>()?.Visitors.Contains(this) == true };
             if (this is EnemyCommander c) { d.commanderName = c.CommanderName; d.rank = (int)c.Rank; d.roles = c.Roles.Select(x => (int)x).ToList(); d.captureChance = c.CaptureChance; }
             return d;
         }
@@ -127,6 +128,11 @@ namespace AntColony.World
         }
 
         private Critter critter;
+        private void Start()
+        {
+            if (GetComponent<Critter>() == null && GetComponent<AntVisual>() == null)
+                gameObject.AddComponent<CritterVisual>();
+        }
         private void Awake()
         {
             agent = GetComponent<NavMeshAgent>();
@@ -191,7 +197,8 @@ namespace AntColony.World
                 {
                     targetSearchTimer = targetSearchInterval;
                     currentTarget = Allied ? CombatTargeting.FindNearestEnemy(Position, detectionRadius, UnitRole.Melee)
-                        : (eventWasp ? FindFirstObjectByType<Stockpile>() : null) ?? (IDamageable)FindNearestAnt()
+                        : (eventWasp ? AntColony.Core.SceneObjects.Any<Stockpile>() : null) ?? (IDamageable)FindNearestAnt()
+                        ?? TransportDamage.FindTarget(Position, detectionRadius)
                         ?? FindCivilianTarget()
                         ?? (isRaider && raidSite == null ? GameManager.Instance?.FindNearestPlayerBuilding(transform.position) : null);
                     if (currentTarget == null)
@@ -237,8 +244,9 @@ namespace AntColony.World
             {
                 attackTimer = attackInterval;
                 GetComponent<AntVisual>()?.Attack(currentTarget.Position);
+                GetComponent<CritterVisual>()?.Attack();
                 if (currentTarget is BuildingBase flammable && WallFire.Flammable(flammable)) WallFire.Ignite(flammable); // 가연성 재료(나뭇잎 벽·목재 등)엔 불을 지른다.
-                currentTarget.TakeDamage(attackDamage);
+                FormationDamage.Apply(currentTarget, attackDamage, Position);
             }
         }
 
@@ -281,6 +289,7 @@ namespace AntColony.World
             if (critter != null) critter.OnHurtByUnit(); // 사냥·전투로 공격받은 목장 생물은 성향대로 반응
             currentHealth -= amount;
             GetComponent<AntVisual>()?.Action("Hit");
+            GetComponent<CritterVisual>()?.Hurt();
             if (currentHealth <= 0f)
             {
                 currentHealth = 0f;

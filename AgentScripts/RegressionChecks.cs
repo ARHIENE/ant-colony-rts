@@ -202,7 +202,7 @@ public static class RegressionChecks
             worker.CommandGather(farm);
             await Until(() => !farm.IsDepleted, "commander farms first growth", 8000);
             var farmStatus = farm.GetComponent<ResourceNodeStatus>();
-            Check(farmStatus != null && farmStatus.StatusText == "Ready · 20 " + AntColony.Data.ResourceLabels.DisplayName(AntColony.Data.ResourceType.Food), "grown farm displays harvest amount");
+            Check(farmStatus != null && farmStatus.StatusText == AntColony.Data.ResourceLabels.DisplayName(AntColony.Data.ResourceType.Food) + " · 20", "grown farm displays harvest amount");
             Check(node.GetComponent<ResourceNodeStatus>() == null, "ordinary resource does not acquire regrowth display");
             expectedFood = rm.GetAmount(ResourceType.Food) + worker.Data.carryCapacity;
             Field(farm, "sowRemaining").SetValue(farm, 0f); // 2026-10-08 파종은 장수만 한다. 이 검사의 일꾼은 장수가 아니므로 파종 완료로 두고 성장·수확만 본다.
@@ -211,7 +211,7 @@ public static class RegressionChecks
             farm.Extract(1000);
             Check(farmStatus.StatusText.StartsWith("파종 필요"), "depleted farm needs sowing (2026-10-08)");
             Field(farm, "sowRemaining").SetValue(farm, 0f);
-            Check(farmStatus.StatusText.StartsWith("Growing · "), "sown farm displays growth countdown");
+            Check(farmStatus.StatusText.StartsWith("성장 중 · "), "sown farm displays growth countdown");
             var timer = (float)Field(farm, "regrowTimer").GetValue(farm);
             Check(farm.Extract(1) == 0 && (float)Field(farm, "regrowTimer").GetValue(farm) == timer,
                 "empty farm extraction does not restart growth");

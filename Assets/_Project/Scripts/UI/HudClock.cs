@@ -66,7 +66,8 @@ namespace AntColony.UI
             for (var i = 0; i < speeds.Length; i++)
             {
                 var on = i == 0 ? Time.timeScale == 0 : Time.timeScale == GameMenuController.Speeds[i - 1];
-                var colors = speeds[i].colors; colors.normalColor = on ? MenuTheme.Accent : MenuTheme.Plate2; speeds[i].colors = colors;
+                var colors = speeds[i].colors; var want = on ? MenuTheme.Accent : MenuTheme.Plate2;
+                if (colors.normalColor != want) { colors.normalColor = want; MenuTheme.SetColorsInstant(speeds[i], colors); }
                 speeds[i].GetComponentInChildren<Text>().color = on ? MenuTheme.AccentInk : MenuTheme.Muted;
             }
         }

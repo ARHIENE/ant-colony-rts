@@ -13,7 +13,7 @@ namespace AntColony.Buildings
         public static bool OpenFieldAllowed(BuildingBase building) => OpenFieldAllowed(RoomSystem.Footprint(building));
         private static bool OpenFieldAllowed(System.Collections.Generic.IEnumerable<Vector2Int> cells)
         {
-            return !Object.FindObjectsByType<FloorTile>(FindObjectsSortMode.None)
+            return !AntColony.Core.SceneObjects.All<FloorTile>()
                 .Any(f => !f.IsDead && RoomSystem.Footprint(f).Any(cells.Contains));
         }
     }

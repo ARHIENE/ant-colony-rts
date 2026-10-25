@@ -121,7 +121,7 @@ namespace AntColony.World
             root.AddComponent<CorpseProp>();
             root.SetActive(true);
             body.GetComponent<KemonoAppearance>()?.SetExpression("DEAD");
-            var animator = body.GetComponentInChildren<Animator>();
+            var animator = RigAnimator.Find(body);
             if (animator != null) { animator.applyRootMotion = false; animator.Play("Base Layer.Death", 0, freshDeath ? 0 : 1); animator.Update(0); animator.speed = freshDeath ? 1 : 0; }
             return corpse;
         }

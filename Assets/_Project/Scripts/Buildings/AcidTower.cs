@@ -39,7 +39,7 @@ namespace AntColony.Buildings
                 spray.SetPosition(1, target.Position);
                 spray.enabled = true; sprayTime = .15f;
             }
-            target.TakeDamage(Damage);
+            FormationDamage.Apply(target, Damage, Position, ranged: true);
         }
 
         internal void RestoreCooldown(float value) => cooldown = Mathf.Clamp(value, 0, attackInterval);

@@ -73,7 +73,8 @@ namespace AntColony.Camera
 
         private void Update()
         {
-            if (AntColony.UI.GameMenuController.BlocksInput) return;
+            if (!AntColony.Core.GameSession.Exists || !AntColony.Core.GameSession.Instance.GameStarted
+                || AntColony.UI.GameMenuController.BlocksInput) return;
             HandleRotateInput();
             if (rotateTimer >= 0f)
             {

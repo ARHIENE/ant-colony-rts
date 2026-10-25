@@ -50,6 +50,7 @@ namespace AntColony.Core
 
         private void Start()
         {
+            if (GameSession.Exists && !GameSession.Instance.GameStarted) return;
             if (roleProfiles == null || roleProfiles.Length == 0 || roleProfiles[0] == null || AntPool.Instance == null) return;
             var origin = spawnOrigin != null ? spawnOrigin.position : transform.position;
             if (GameSession.Exists && GameSession.Instance.GameStarted)

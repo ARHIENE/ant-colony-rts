@@ -38,7 +38,8 @@ namespace AntColony.Buildings
             base.OnEnable(); Active.Add(this); PowerGrid.MarkDirty();
             if (Kind == BuildingKind.ElectricLamp)
             {
-                lamp = GetComponent<Light>() ?? gameObject.AddComponent<Light>();
+                lamp = GetComponent<Light>();
+                if (lamp == null) lamp = gameObject.AddComponent<Light>();
                 lamp.type = LightType.Point; lamp.range = 8; lamp.color = new Color(1, .95f, .8f); lamp.intensity = 2; lamp.enabled = false;
             }
         }

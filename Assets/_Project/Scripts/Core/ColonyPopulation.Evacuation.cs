@@ -65,6 +65,7 @@ namespace AntColony.Core
                     view = GameObject.CreatePrimitive(PrimitiveType.Capsule);
                     view.GetComponent<Collider>().enabled = false;
                     view.transform.localScale = new Vector3(.6f, .6f, .6f);
+                    view.AddComponent<AntColony.Units.CivilianVisual>();
                     civilianViews[group.id] = view;
                 }
                 view.name = $"시민 대피 #{group.id} ({group.count}명)";

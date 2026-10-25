@@ -44,7 +44,7 @@ namespace AntColony.UI
             L.Label(side, "프로토타입 빌드", 11, 48, 762, 344, 20, MenuTheme.Dim);
         }
 
-        private static SaveSlots.SlotInfo LatestSave() => SaveSlots.List().Where(s => s.Valid)
+        private static SaveSlots.SlotInfo LatestSave() => SaveSlots.List().Where(s => s.Valid && (!s.Auto || s.PlaySeconds >= 60))
             .OrderByDescending(s => DateTime.TryParse(s.SavedAtUtc, out var t) ? t : DateTime.MinValue).FirstOrDefault();
         private static string SlotTime(SaveSlots.SlotInfo s) =>
             (DateTime.TryParse(s.SavedAtUtc, null, System.Globalization.DateTimeStyles.RoundtripKind, out var t) ? t.ToLocalTime().ToString("yyyy-MM-dd HH:mm") : "")
@@ -84,7 +84,8 @@ namespace AntColony.UI
             Item("Encyclopedia", "도감", Book);
             Item("How to Play [F2]", "설명서  F2", Guide);
             Item("Save & Main Menu", "메인 메뉴로", () => {
-                if (!SaveSystem.TrySave(true, 0, out var error)) { ToastManager.Show("저장하지 못해 메인 메뉴로 돌아갈 수 없습니다: " + error); return; }
+                // 1분도 안 한 판은 저장하지 않는다(시작만 하고 나와도 '이어하기'가 생기던 문제, 2026-10-25).
+                if (GameSession.Instance.PlaySeconds >= 60 && !SaveSystem.TrySave(true, 0, out var error)) { ToastManager.Show("저장하지 못해 메인 메뉴로 돌아갈 수 없습니다: " + error); return; }
                 GameSession.Instance.MarkNotStarted(); Main();
             }, "먼저 자동 슬롯에 저장합니다. 저장에 실패하면 게임은 그대로 열려 있습니다.");
             L.Line(pm, 12, 402, 256);

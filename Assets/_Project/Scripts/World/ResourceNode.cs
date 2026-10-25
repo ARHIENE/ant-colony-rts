@@ -97,6 +97,7 @@ namespace AntColony.World
                 gameObject.AddComponent<ResourceNodeStatus>();
         }
 
+        private void Start() => ResourceVisual.Attach(this);
         private void Update() { if (requiresFishing && !AntColony.Save.SaveSystem.Busy && GameSession.Exists && GameSession.Instance.GameStarted) RefreshFishingSeason(); TickGrowth(Time.deltaTime); }
         // 낚시터: 재성장 대신 계절마다 한도만큼 재고를 채운다. FishSeason은 마지막으로 채운 계절(저장 키 fishMonth).
         internal int FishSeason { get; set; } = -1;

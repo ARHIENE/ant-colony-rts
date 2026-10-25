@@ -84,7 +84,7 @@ namespace AntColony.Boss.AoE
                 if (flatDistance <= radius && heightDifference <= verticalTolerance)
                 {
                     alreadyDamaged.Add(damageable);
-                    damageable.TakeDamage(damage);
+                    FormationDamage.Apply(damageable, damage, center, area: true);
                 }
             }
         }

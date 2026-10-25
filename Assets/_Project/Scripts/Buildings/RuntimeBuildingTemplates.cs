@@ -13,7 +13,7 @@ namespace AntColony.Buildings
             // 함정·매설지는 밟혀야 하므로 길을 막지 않는 납작한 발판이다.
             var (name, scale, color, food, soil, special, ants, seconds, hp, walkable) = kind switch
             {
-                BuildingKind.CrashWreck => ("불시착 잔해", new Vector3(3, 1, 2), new Color(.4f, .4f, .38f), 0, 0, 0, 0, 20f, 200f, false),
+                BuildingKind.CrashWreck => ("불시착 잔해", new Vector3(6, 1, 4), new Color(.4f, .4f, .38f), 0, 0, 0, 0, 20f, 200f, false),
                 BuildingKind.ScienceLab => ("정착지 연구대", new Vector3(2, 1.2f, 1.5f), new Color(.6f, .5f, .35f), 0, 30, 0, 0, 8f, 200f, false),
                 BuildingKind.ConscriptionPost => ("징집소", new Vector3(3, 2, 3), new Color(.6f, .4f, .2f), 0, 20, 0, 0, GameBalance.ConscriptionBuildSeconds, 300f, false),
                 BuildingKind.SoilWall => ("Soil Wall", new Vector3(2, 1.5f, .6f), new Color(.45f, .33f, .2f), 0, 25, 0, 3, 4f, 400f, false),

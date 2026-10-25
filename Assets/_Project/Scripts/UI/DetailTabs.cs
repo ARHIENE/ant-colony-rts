@@ -50,7 +50,7 @@ namespace AntColony.UI
             var b = d.body.rectTransform; b.anchorMin = Vector2.zero; b.anchorMax = Vector2.one;
             b.offsetMin = new Vector2(10, 40); b.offsetMax = new Vector2(-10, -34);
             d.body.alignment = TextAnchor.UpperLeft; d.body.supportRichText = true; d.body.lineSpacing = 1.1f;
-            HUDController Hud() => FindFirstObjectByType<HUDController>();
+            HUDController Hud() => AntColony.Core.SceneObjects.Any<HUDController>();
             d.Action(root, 0, "Reward", "포상", () => Reward(d.opened), () => "Food 30을 써서 기분을 올립니다(한 달). 게임 달마다 1번.");
             d.Action(root, 1, "Attack Research", "공격 연구", () => Hud()?.TryLabResearch(true),
                 () => Hud()?.LabResearchLabel(d.opened, true) + "\n무기와 같은 종류의 연구소에서 이 장수의 공격을 올립니다.");
@@ -77,7 +77,7 @@ namespace AntColony.UI
 
         private void LateUpdate()
         {
-            if (selection == null) selection = FindFirstObjectByType<SelectionManager>();
+            if (selection == null) selection = AntColony.Core.SceneObjects.Any<SelectionManager>();
             var c = SelectedUnitPanel.FindSingleSelectedCommander(selection);
             if (c != opened) opened = null;
             var visible = c != null && opened == c && !GameMenuController.BlocksInput && !BuildScreen.Picking;

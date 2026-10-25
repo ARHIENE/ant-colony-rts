@@ -89,7 +89,7 @@ namespace AntColony.World
         private void Awake() { AllList.Add(this); Monster = GetComponent<WildMonster>(); }
         private void OnDestroy() { AllList.Remove(this); ClearAlert(); }
 
-        // ponytail: 종별 체력·크기는 잠정. 외형은 임시 캡슐(새끼는 작게).
+        // ponytail: 종별 체력·크기는 잠정(새끼는 작게). 외형은 CritterVisual이 연결한다.
         public static Critter Spawn(Species sp, Vector3 at, bool tame, float age = -1, float health = -1)
         {
             if (NavMesh.SamplePosition(at, out var hit, 8f, NavMesh.AllAreas)) at = hit.position;
@@ -105,6 +105,7 @@ namespace AntColony.World
             var critter = go.AddComponent<Critter>();
             critter.s = new State { species = (int)sp, id = id, tame = tame, age = age >= 0 ? age : info.babyMonths + 1, home = new Vec3Dto(at) };
             critter.Rescale();
+            go.AddComponent<CritterVisual>();
             go.SetActive(true);
             if (health > 0) monster.RestoreHealth(Mathf.Min(health, info.health));
             return critter;
@@ -221,7 +222,7 @@ namespace AntColony.World
             Handler?.CommandStop();
             Destroy(gameObject);
         }
-        internal static Action FocusAction(Vector3 at) => () => FindFirstObjectByType<AntColony.Camera.IsometricCameraController>()?.FocusOn(at);
+        internal static Action FocusAction(Vector3 at) => () => AntColony.Core.SceneObjects.Any<AntColony.Camera.IsometricCameraController>()?.FocusOn(at);
 
         // ---------- 결박·운반·치료 시설 ----------
         internal void Bind() { s.bind = GameBalance.CritterBindSeconds; s.designated = false; Halt(); }
@@ -279,7 +280,7 @@ namespace AntColony.World
         internal void RaiseEscape(string text)
         {
             AlertKey = "escape:" + GetHashCode();
-            ToastManager.SetCrisis(AlertKey, text, () => FindFirstObjectByType<AntColony.Camera.IsometricCameraController>()?.FocusOn(transform.position), "위치로 이동");
+            ToastManager.SetCrisis(AlertKey, text, () => AntColony.Core.SceneObjects.Any<AntColony.Camera.IsometricCameraController>()?.FocusOn(transform.position), "위치로 이동");
         }
 
         // ---------- 저장 ----------

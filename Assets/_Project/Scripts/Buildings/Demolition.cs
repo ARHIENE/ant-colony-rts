@@ -11,7 +11,7 @@ namespace AntColony.Buildings
     // 개보수: 새 재료 예약·배송 → 시작 때 소비·사용 중지(주문·진행도 보존) → 완료 시 기존 재료 70% 바닥, 취소 시 새 재료 100% 반환·기능 복구.
     public static class Demolition
     {
-        public static bool Pending(BuildingBase b) => Object.FindObjectsByType<DemolitionSite>().Any(s => s.Target == b);
+        public static bool Pending(BuildingBase b) => AntColony.Core.SceneObjects.All<DemolitionSite>().Any(s => s.Target == b);
         private static bool Orderable(BuildingBase b) => b != null && !b.IsDead && b.Data != null && b.CountsTowardPlayerDefeat && !(b is Stockpile)
             && !(b is AirshipYard yard && yard.ModificationsLocked)
             && !(b is SupplyFacility source && source.IsNaturalSource) && !Pending(b);
@@ -90,6 +90,8 @@ namespace AntColony.Buildings
     public sealed class PackedFurniture : MonoBehaviour
     {
         private Vector3 scale;
+        private void OnEnable() => AntColony.Core.SceneObjects.Register(this);
+        private void OnDisable() => AntColony.Core.SceneObjects.Unregister(this);
         private void Awake() { scale = transform.localScale; transform.localScale = scale * .5f; }
         internal void Unpack() { transform.localScale = scale; Destroy(this); }
     }

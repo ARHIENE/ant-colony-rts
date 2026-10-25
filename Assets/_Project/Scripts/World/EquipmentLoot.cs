@@ -6,9 +6,18 @@ namespace AntColony.World
 {
     public sealed class EquipmentLoot : MonoBehaviour
     {
+        private void OnEnable() => AntColony.Core.SceneObjects.Register(this);
+        private void OnDisable() => AntColony.Core.SceneObjects.Unregister(this);
         public List<EquipmentItem> Items { get; private set; } = new List<EquipmentItem>();
         private CommanderAnt collector;
         public CommanderAnt Collector => collector;
+        private void Start()
+        {
+            var box = GetComponent<Renderer>(); var bounds = box.bounds;
+            var model = ProductionProp.Attach(transform, "ResourceModels/Prop_Basket", bounds.size.x,
+                new Vector3(bounds.center.x, bounds.min.y, bounds.center.z));
+            if (model != null) box.forceRenderingOff = true;
+        }
         public static EquipmentLoot Drop(Vector3 position, IEnumerable<EquipmentItem> items)
         {
             var go = GameObject.CreatePrimitive(PrimitiveType.Cube);

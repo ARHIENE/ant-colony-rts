@@ -54,6 +54,17 @@ namespace AntColony.Buildings
             workforcePool = pool;
             reservedAnts = workforce;
         }
+        private void Start()
+        {
+            var box = GetComponent<Renderer>();
+            if (box == null) return;
+            var bounds = box.bounds;
+            var demolition = GetComponent<DemolitionSite>();
+            var id = demolition != null && !demolition.Move && !demolition.Renovate ? "CC_DemolitionRubble" : "CC_ConstructionPlan";
+            var model = AntColony.World.ProductionProp.Attach(transform, "ResourceModels/" + id,
+                Mathf.Max(bounds.size.x, bounds.size.z), new Vector3(bounds.center.x, bounds.min.y, bounds.center.z));
+            if (model != null) box.forceRenderingOff = true;
+        }
         // 필요 재료를 등록한다(0은 건너뜀). 같은 종류는 합친다.
         public void Require(ResourceType type, int amount)
         {
@@ -68,7 +79,7 @@ namespace AntColony.Buildings
         {
             if (allocatedFrame == Time.frameCount) return; allocatedFrame = Time.frameCount;
             var rm = ResourceManager.Instance; if (rm == null) return;
-            var sites = FindObjectsByType<BuildingConstructionSite>().Where(s => !s.finished && !s.Started)
+            var sites = AntColony.Core.SceneObjects.All<BuildingConstructionSite>().Where(s => !s.finished && !s.Started)
                 .OrderByDescending(s => AntColony.Units.WorkPriorities.Level(s)).ThenBy(s => s.Order).ToList();
             foreach (var site in sites) site.ReevaluateReservations();
             foreach (var type in sites.SelectMany(s => s.Needs).Select(n => n.type).Distinct().ToList())
@@ -243,8 +254,10 @@ namespace AntColony.Buildings
             }
         }
 
+        private void OnEnable() => AntColony.Core.SceneObjects.Register(this);
         private void OnDisable()
         {
+            AntColony.Core.SceneObjects.Unregister(this);
             ReleaseUnusedReservations();
             foreach (var c in Builders.Concat(Couriers).Distinct().ToList()) c.CommandStop();
         }

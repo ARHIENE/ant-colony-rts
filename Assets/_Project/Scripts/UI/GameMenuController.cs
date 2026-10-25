@@ -15,6 +15,7 @@ namespace AntColony.UI
         public static GameMenuController Instance { get; private set; }
         public static bool BlocksInput => Instance != null && (Instance.open || Time.frameCount <= Instance.closedFrame || SaveSystem.Busy);
         public string ScreenName { get; private set; }
+        private bool pauseChain;
         private RectTransform panel, content, tooltipPanel, scrollArea, legacyContent, frame;
         private GameObject toolbar;
         private Text tip;
@@ -50,7 +51,7 @@ namespace AntColony.UI
             ToolbarButton(bar, "Menu [Esc]", "≡", Pause, "메뉴: 설정 · 저장 · 불러오기");
             ToolbarButton(bar, "Work Schedule [T]", "작업표", WorkSchedule, "장수 × 작업 체크박스");
             ToolbarButton(bar, "Science [K]", "과학", Science, "과학 연구");
-            ToolbarButton(bar, "WorldMapToggle", "월드맵", () => FindFirstObjectByType<WorldMapPanel>()?.Toggle(), "월드맵 · 원정 · 외교");
+            ToolbarButton(bar, "WorldMapToggle", "월드맵", () => AntColony.Core.SceneObjects.Any<WorldMapPanel>()?.Toggle(), "월드맵 · 원정 · 외교");
             ToolbarButton(bar, "V6 Logistics", "물류·식품", () => Management("물류·식품"), "창고 · 식단 · 건설·작업 · 퇴비·비료");
             ToolbarButton(bar, "V6 Colony", "의료·관리", () => Management("의료·관리"), "의료 · 동물 위생 · 묘비·추모 · 포로 · 기록");
             ToolbarButton(bar, "V6 Production", "생산·자원", () => Management("생산·자원"), "자원 · 생산 · 장비·도구 · 수리 · 매장지·배관 · 음주");
@@ -84,8 +85,8 @@ namespace AntColony.UI
             if (Keyboard.current.escapeKey.wasPressedThisFrame)
             {
                 if (SkillTargeting.ConsumesPointerInput || GatherDesignation.ConsumesPointerInput) return;
-                if (!open && (FindFirstObjectByType<AntColony.Buildings.BuildingPlacementController>()?.IsPlacing == true
-                    || FindFirstObjectByType<AttackMoveController>()?.IsAttackMode == true)) return;
+                if (!open && (AntColony.Core.SceneObjects.Any<AntColony.Buildings.BuildingPlacementController>()?.IsPlacing == true
+                    || AntColony.Core.SceneObjects.Any<AttackMoveController>()?.IsAttackMode == true)) return;
                 if (!open && BuildScreen.Back()) return;
                 if (!open) Pause(); else if (GameSession.Instance.GameStarted) Resume(); else Main();
             }
@@ -108,10 +109,12 @@ namespace AntColony.UI
         private void BeginScreen(string title, float scrim)
         {
             refreshDutyScreen = null;
-            if (!open) resumeScale = SimulationPause.Speed;
+            if (!open) { resumeScale = SimulationPause.Speed; pauseChain = false; }
+            // 일시정지 메뉴(Esc)와 거기서 연 화면만 게임을 멈춘다. 하단 과학·창고 같은 패널은 게임을 멈추지 않는다(2026-10-25).
+            if (title == "Paused") pauseChain = true;
             SimulationPause.Release("negotiation");
             open = true; ScreenName = title; panel.gameObject.SetActive(true); toolbar.SetActive(false); Tooltip("");
-            if (!GameSession.Instance.GameStarted || UserSettings.Current.pauseSimulationOnMenu) SimulationPause.Hold("menu");
+            if (!GameSession.Instance.GameStarted || pauseChain) SimulationPause.Hold("menu");
             else SimulationPause.Release("menu");
             content = legacyContent;
             foreach (Transform child in content) { child.gameObject.SetActive(false); Destroy(child.gameObject); }
@@ -125,7 +128,7 @@ namespace AntColony.UI
             scrollArea.gameObject.SetActive(false);
             frame = MenuTheme.Rect("ScreenFrame", panel); MenuTheme.Stretch(frame);
             frame.gameObject.AddComponent<MenuViewport>();
-            FindFirstObjectByType<AntColony.Buildings.BuildingPlacementController>()?.CancelPlacement();
+            AntColony.Core.SceneObjects.Any<AntColony.Buildings.BuildingPlacementController>()?.CancelPlacement();
             return frame;
         }
         private void Screen(string title, string displayTitle = null)
@@ -134,7 +137,7 @@ namespace AntColony.UI
             scrollArea.gameObject.SetActive(true);
             var heading = MenuTheme.Text(content, displayTitle ?? title, 32, 70);
             heading.color = MenuTheme.Accent; heading.fontStyle = FontStyle.Bold;
-            FindFirstObjectByType<AntColony.Buildings.BuildingPlacementController>()?.CancelPlacement();
+            AntColony.Core.SceneObjects.Any<AntColony.Buildings.BuildingPlacementController>()?.CancelPlacement();
         }
         private void Back() { if (GameSession.Instance.GameStarted) Pause(); else Main(); }
         public void Tooltip(string value)
@@ -180,36 +183,18 @@ namespace AntColony.UI
             MenuTheme.Text(content, $"플레이 시간: {(int)seconds / 60:00}:{(int)seconds % 60:00}  /  장수: {CommanderRoster.Instance?.Count ?? 0}", 18, 48);
             if (victory) MenuTheme.Button(content, "Continue Colony", () => { resumeScale = 1; Resume(); });
             MenuTheme.Button(content, "Load Game", () => Slots(false));
-            MenuTheme.Button(content, "Restart Same Map", () => {
+            var restart = MenuTheme.Button(content, "Restart Same Map", () => {
                 Screen("Restart colony?", "정착지를 다시 시작할까요?");
                 MenuTheme.Text(content, "저장하지 않은 진행 상황은 사라집니다. 기존 저장 슬롯은 유지됩니다.", 20, 70);
-                MenuTheme.Button(content, "Restart", () => CrashLandingStart.Begin(GameSession.Instance.Options.Clone()));
+                var confirm = MenuTheme.Button(content, "Restart", () => CrashLandingStart.Begin(GameSession.Instance.Options.Clone()));
+                confirm.GetComponentInChildren<Text>().text = "다시 시작";
                 MenuTheme.Button(content, "Back", () => ShowOutcome(victory));
             });
+            restart.GetComponentInChildren<Text>().text = "같은 맵에서 다시 시작";
             MenuTheme.Button(content, "New Game", NewGameScreen);
         }
         private bool ReadSeed()
         { if (seed == null || !int.TryParse(seed.text, out var value)) { ToastManager.Show("시드는 -2147483648~2147483647 사이의 정수로 입력하세요."); return false; } options.seed = value; return true; }
-        private void Settings()
-        {
-            Screen("Settings", "설정");
-            var s = UserSettings.Current;
-            void Apply(Action<UserSettingsData> change) { var value = s.Clone(); change(value); UserSettings.Apply(value);
-                FindFirstObjectByType<AntColony.Camera.IsometricCameraController>()?.ApplySettings(value.cameraPanSpeed, value.edgeScrollThickness); Settings(); }
-            MenuTheme.Button(content, "Camera speed: " + s.cameraPanSpeed + " (cycle)", () => Apply(v => v.cameraPanSpeed = v.cameraPanSpeed >= 60 ? 10 : v.cameraPanSpeed + 10));
-            MenuTheme.Button(content, "Edge scrolling: " + (s.edgeScrollThickness > 0 ? "On" : "Off"), () => Apply(v => v.edgeScrollThickness = v.edgeScrollThickness > 0 ? 0 : 18));
-            MenuTheme.Button(content, "Autosave: " + (s.autoSaveEnabled ? "On" : "Off"), () => Apply(v => v.autoSaveEnabled = !v.autoSaveEnabled));
-            MenuTheme.Button(content, "Autosave interval: " + s.autoSaveMinutes + " minutes", () => Apply(v => v.autoSaveMinutes = v.autoSaveMinutes >= 15 ? 1 : v.autoSaveMinutes + 1));
-            MenuTheme.Button(content, "Toast duration: " + s.toastSeconds + " seconds", () => Apply(v => v.toastSeconds = v.toastSeconds >= 10 ? 2 : v.toastSeconds + 1));
-            MenuTheme.Button(content, "새 위협 자동정지: " + s.autoPauseThreat, () => Apply(v => v.autoPauseThreat = !v.autoPauseThreat));
-            MenuTheme.Button(content, "장수 쓰러짐 자동정지: " + s.autoPauseDowned, () => Apply(v => v.autoPauseDowned = !v.autoPauseDowned));
-            MenuTheme.Button(content, "로켓 파괴 자동정지: " + s.autoPauseRocket, () => Apply(v => v.autoPauseRocket = !v.autoPauseRocket));
-            MenuTheme.Button(content, "Pause simulation in menus: " + s.pauseSimulationOnMenu, () => Apply(v => v.pauseSimulationOnMenu = !v.pauseSimulationOnMenu));
-            MenuTheme.Button(content, "First-time hints: " + (s.firstHints ? "On" : "Off"), () => Apply(v => v.firstHints = !v.firstHints));
-            MenuTheme.Button(content, "Reset seen hints (" + s.shownHints.Count + ")", () => Apply(v => v.shownHints.Clear()));
-            KeyBindingButtons();
-            MenuTheme.Button(content, "Back", Back);
-        }
         public static CommanderAnt[] SortedCommanders() => CommanderRoster.Instance == null ? Array.Empty<CommanderAnt>()
             : CommanderRoster.Instance.Commanders.OrderBy(c => c.CommanderName, StringComparer.Ordinal).ToArray();
         private void Book()
