@@ -18,6 +18,7 @@
 - 캡처 후 저장 경로/메모리 설정 복원, Play 종료. 전체 기획·모든 화면·전 장비/행동 조합 육안·Player 빌드·성능 검증 완료는 아니다.
 
 ## 기록
+- 구현/모델/검사/문서364개 커밋 `7a134a7`, origin/develop push 성공. 최종 상태 기록은 후속 문서 커밋으로 보존한다. 코드/Markdown/Python staged diff check 통과; Unity 생성 YAML 빈 필드 뒤 공백은 보존했다. Graphify 갱신16015노드/34569간선, LLM 토큰0.
 - 개발 일지: https://app.notion.com/p/405c4a0ecd3181b2beddfd53845cd723
 - Trouble Shooting: https://app.notion.com/p/405c4a0ecd3181179153eaf8cf639539
 - 자동 작업·자원·건물·연구·유닛·UI·메인 게임·구현 점검·미정·외부 조사 관련 페이지와 전날 일지의 미통합 표기를 함께 갱신했다. 루트 기획 페이지의 하위 페이지는 보존했다.
