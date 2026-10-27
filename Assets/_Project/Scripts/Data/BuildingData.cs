@@ -67,7 +67,8 @@ namespace AntColony.Data
         CivicPublicService, School, CitizenClinic, // B8: 기존 저장 번호 유지
         PlanterBed, StarterMushroomBed, WaterSource, OilDeposit, // B10
         ManualWell, WaterPump, FluidPipe, FluidTank, SteamGenerator, OilDrill, OilRefinery, FuelCharger,
-        UndergroundScanner, DeepDrill, GasExtractor, GasPipe, GasTank, AdvancedDeepDrill, GasSmelter, GasGenerator
+        UndergroundScanner, DeepDrill, GasExtractor, GasPipe, GasTank, AdvancedDeepDrill, GasSmelter, GasGenerator,
+        ChemistryBench
     }
 
     [CreateAssetMenu(fileName = "BuildingData", menuName = "AntColony/Building Data")]

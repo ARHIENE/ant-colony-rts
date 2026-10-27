@@ -6,11 +6,11 @@ namespace AntColony.Buildings
     public static class SupplyBuildingTemplates
     {
         public static bool IsKind(BuildingKind kind) => kind >= BuildingKind.PlanterBed && kind <= BuildingKind.FuelCharger
-            || kind is BuildingKind.DeepDrill or BuildingKind.GasExtractor or BuildingKind.GasPipe or BuildingKind.GasTank or BuildingKind.AdvancedDeepDrill or BuildingKind.GasSmelter or BuildingKind.GasGenerator;
+            || kind is BuildingKind.DeepDrill or BuildingKind.GasExtractor or BuildingKind.GasPipe or BuildingKind.GasTank or BuildingKind.AdvancedDeepDrill or BuildingKind.GasSmelter or BuildingKind.GasGenerator or BuildingKind.ChemistryBench;
         public static (AntColony.Data.ResourceType type, int amount)[] Cost(BuildingKind kind) => kind switch
         {
             BuildingKind.AdvancedDeepDrill => new[] { (AntColony.Data.ResourceType.TitaniumAlloy, 10), (AntColony.Data.ResourceType.Copper, 5) },
-            BuildingKind.DeepDrill or BuildingKind.GasExtractor or BuildingKind.GasSmelter or BuildingKind.GasGenerator => new[] { (AntColony.Data.ResourceType.Steel, 10), (AntColony.Data.ResourceType.Copper, 5) },
+            BuildingKind.DeepDrill or BuildingKind.GasExtractor or BuildingKind.GasSmelter or BuildingKind.GasGenerator or BuildingKind.ChemistryBench => new[] { (AntColony.Data.ResourceType.Steel, 10), (AntColony.Data.ResourceType.Copper, 5) },
             BuildingKind.WaterSource or BuildingKind.OilDeposit => System.Array.Empty<(AntColony.Data.ResourceType, int)>(),
             BuildingKind.FluidPipe or BuildingKind.GasPipe => new[] { (AntColony.Data.ResourceType.Copper, 1) },
             BuildingKind.FluidTank or BuildingKind.GasTank or BuildingKind.FuelCharger => new[] { (AntColony.Data.ResourceType.Steel, 5) },
@@ -25,7 +25,7 @@ namespace AntColony.Buildings
             foreach (var b in Object.FindObjectsByType<BuildingBase>(FindObjectsInactive.Include, FindObjectsSortMode.None))
                 if (b.Data != null && b.Data.kind == kind && b.name.EndsWith("Template")) return b.gameObject;
             var go = GameObject.CreatePrimitive(PrimitiveType.Cube); go.SetActive(false);
-            go.name = kind + "Template"; go.transform.localScale = Vector3.one;
+            go.name = kind + "Template"; go.transform.localScale = kind == BuildingKind.ChemistryBench ? new Vector3(2, 1.4f, 1.2f) : Vector3.one;
             go.GetComponent<Collider>().isTrigger = true;
             var data = ScriptableObject.CreateInstance<BuildingData>(); data.name = kind + "Data";
             data.kind = kind; data.displayName = Name(kind); data.foodCost = data.soilCost = data.specialCost = data.constructionAnts = 0;
@@ -34,7 +34,7 @@ namespace AntColony.Buildings
             BuildingBase building;
             if (kind == BuildingKind.PlanterBed || kind == BuildingKind.StarterMushroomBed) building = go.AddComponent<StarterCropBed>();
             else if (kind == BuildingKind.SteamGenerator || kind == BuildingKind.GasGenerator) building = go.AddComponent<PowerNode>();
-            else if (kind == BuildingKind.GasSmelter) building = go.AddComponent<Processor>();
+            else if (kind is BuildingKind.GasSmelter or BuildingKind.ChemistryBench) building = go.AddComponent<Processor>();
             else building = go.AddComponent<SupplyFacility>();
             building.ConfigureRuntime(data);
             return go;
@@ -42,6 +42,7 @@ namespace AntColony.Buildings
 
         private static string Name(BuildingKind kind) => kind switch
         {
+            BuildingKind.ChemistryBench => "화학 작업대",
             BuildingKind.AdvancedDeepDrill => "합금 심층 채굴기", BuildingKind.GasSmelter => "가스 제련로", BuildingKind.GasGenerator => "가스 발전기",
             BuildingKind.DeepDrill => "심층 채굴기", BuildingKind.GasExtractor => "가스 추출기",
             BuildingKind.GasPipe => "기체 배관", BuildingKind.GasTank => "기체 탱크",

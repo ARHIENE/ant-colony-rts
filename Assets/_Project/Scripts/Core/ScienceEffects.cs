@@ -57,7 +57,7 @@ namespace AntColony.Core
 
         public static bool BuildingUnlocked(BuildingKind kind) => kind switch
         {
-            BuildingKind.AdvancedDeepDrill or BuildingKind.GasSmelter or BuildingKind.GasGenerator or BuildingKind.DeepDrill or BuildingKind.GasExtractor or BuildingKind.GasPipe or BuildingKind.GasTank => Has(ScienceTechnology.UndergroundSurvey),
+            BuildingKind.ChemistryBench or BuildingKind.AdvancedDeepDrill or BuildingKind.GasSmelter or BuildingKind.GasGenerator or BuildingKind.DeepDrill or BuildingKind.GasExtractor or BuildingKind.GasPipe or BuildingKind.GasTank => Has(ScienceTechnology.UndergroundSurvey),
             BuildingKind.UndergroundScanner => Has(ScienceTechnology.UndergroundSurvey),
             BuildingKind.SoilWall or BuildingKind.CapWall or BuildingKind.CastleWall or BuildingKind.Gate => Has(ScienceTechnology.Resin),
             BuildingKind.TrapPit or BuildingKind.SpikeTrap => Has(ScienceTechnology.Traps),

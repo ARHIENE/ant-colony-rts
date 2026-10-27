@@ -14,6 +14,7 @@ namespace AntColony.World
             ResourceType.Food => "CC_WildFungus", ResourceType.Wood => "CC_TreeBroadleaf",
             ResourceType.Leaf => "CC_Bush", ResourceType.Fiber => "CC_GrassTuft", ResourceType.Resin => "CC_TreeTall",
             ResourceType.Stone => "CC_RockOutcrop",
+            ResourceType.Chitin => "Deposit_Chitin",
             ResourceType.IronOre or ResourceType.CopperOre or ResourceType.TinOre or ResourceType.Coal or ResourceType.Sulfur => "CC_OreOutcrop",
             _ => CargoModel(type)
         } : CargoModel(type);
@@ -39,6 +40,9 @@ namespace AntColony.World
             ResourceType.MedicineBasic => "CC_MedicineHerbal", ResourceType.MedicineNormal => "CC_MedicineStandard",
             ResourceType.MedicineAdvanced => "CC_MedicineAdvanced", ResourceType.PlantingMaterial => "Grain_Wheat",
             ResourceType.CrudeOil => "Fossil_CrudeOil", ResourceType.Petroleum => "Proc_Fuel", ResourceType.Herb => "Crop_Herb",
+            ResourceType.Plastic => "Proc_Plastic",
+            ResourceType.Chitin => "Mat_Chitin", ResourceType.Wax => "Mat_Wax", ResourceType.Component => "Part_Component",
+            ResourceType.Water => "Water_Jug", ResourceType.Soil => "Resource_Soil",
             _ => null
         };
 
@@ -47,12 +51,13 @@ namespace AntColony.World
             if (node.RequiresFishing || node.GetComponent<BuildingBase>() != null || node.transform.Find("ResourceModel") != null) return;
             var box = node.GetComponent<Renderer>();
             if (box == null) return;
-            if (!node.IsLooseCargo && node.ResourceType == ResourceType.Soil) { box.forceRenderingOff = true; return; }
             if (node.IsLooseCargo && ProductionProp.ForResource(node.ResourceType) != null) return;
             var id = ModelFor(node.ResourceType, node.IsLooseCargo);
             if (id == null) return;
             var width = !node.IsLooseCargo && node.ResourceType is ResourceType.Wood or ResourceType.Resin ? 2.8f
-                : !node.IsLooseCargo && ModelFor(node.ResourceType, false) is "CC_RockOutcrop" or "CC_OreOutcrop" ? 1.8f : 1.2f;
+                : !node.IsLooseCargo && ModelFor(node.ResourceType, false) is "CC_RockOutcrop" or "CC_OreOutcrop" or "Deposit_Chitin" ? 1.8f
+                : node.ResourceType == ResourceType.Water ? .45f : node.ResourceType == ResourceType.Wax ? .6f
+                : node.ResourceType == ResourceType.Component ? .65f : node.ResourceType == ResourceType.Chitin ? .8f : 1.2f;
             var bounds = box.bounds;
             var floor = new Vector3(bounds.center.x, bounds.min.y, bounds.center.z);
             if (!node.IsLooseCargo && UnityEngine.AI.NavMesh.SamplePosition(node.transform.position, out var hit, 3, UnityEngine.AI.NavMesh.AllAreas)) floor = hit.position;

@@ -16,6 +16,9 @@ namespace AntColony.Buildings
             public int fluid = -1, amount;
             public bool depositPresent;
             public int depositRemaining;
+            public int containerMode, containerOrders;
+            public bool containerPaused;
+            public List<ProductionInputs.Stock> containerStock = new List<ProductionInputs.Stock>();
         }
         public const int Capacity = 100;
         // 펌프·시추·정유의 처리량과 펌프 전력은 G46 미정이므로 잠정값.
@@ -25,7 +28,7 @@ namespace AntColony.Buildings
         public BuildingKind Kind => Data.kind;
         public bool IsNaturalSource => Kind == BuildingKind.WaterSource || Kind == BuildingKind.OilDeposit;
         public static bool IsKind(BuildingKind kind) => SupplyBuildingTemplates.IsKind(kind)
-            && kind != BuildingKind.PlanterBed && kind != BuildingKind.StarterMushroomBed && kind != BuildingKind.SteamGenerator && kind != BuildingKind.GasGenerator && kind != BuildingKind.GasSmelter;
+            && kind != BuildingKind.PlanterBed && kind != BuildingKind.StarterMushroomBed && kind != BuildingKind.SteamGenerator && kind != BuildingKind.GasGenerator && kind != BuildingKind.GasSmelter && kind != BuildingKind.ChemistryBench;
         public bool Powered { get; set; }
         public IEnumerable<Vector2Int> Cells => RoomSystem.Footprint(this);
         public float Demand => UndergroundProduction.IsExtractor(Kind) ? DrillWatts : Kind == BuildingKind.OilRefinery ? RefineryWatts
@@ -73,19 +76,15 @@ namespace AntColony.Buildings
             if (!Operational || !Powered || !(seconds > 0) || float.IsInfinity(seconds)) return;
             if (Time.timeScale <= 0) return;
             if (Kind == BuildingKind.OilDrill || Kind == BuildingKind.GasExtractor) { TickExtraction(seconds); return; }
-            if (Kind != BuildingKind.WaterPump && Kind != BuildingKind.OilRefinery) return;
-            if (Kind == BuildingKind.WaterPump && !NearSource(BuildingKind.WaterSource)) return;
-            var output = Kind == BuildingKind.WaterPump ? AntColony.Data.ResourceType.Water
-                : AntColony.Data.ResourceType.Petroleum;
-            var batch = Kind == BuildingKind.OilRefinery ? 1 : 10;
+            if (Kind != BuildingKind.WaterPump || !NearSource(BuildingKind.WaterSource)) return;
+            var output = AntColony.Data.ResourceType.Water;
+            var batch = 10;
             while (seconds > 0)
             {
                 if (!FluidNetwork.CanDeliver(this, output, batch)) return;
-                if (Kind == BuildingKind.OilRefinery && !FluidNetwork.Has(this, AntColony.Data.ResourceType.CrudeOil, 1)) return;
                 var dt = Mathf.Min(seconds, ProcessSeconds - Supply.work); Supply.work += dt; seconds -= dt;
                 if (Supply.work < ProcessSeconds) break;
                 Supply.work = 0;
-                if (Kind == BuildingKind.OilRefinery) FluidNetwork.Take(this, AntColony.Data.ResourceType.CrudeOil, 1);
                 FluidNetwork.Deliver(this, output, batch);
             }
         }
@@ -97,14 +96,11 @@ namespace AntColony.Buildings
         // 용기는 첫 시추·정유에 필요 없으며 망 밖으로 연료를 반출할 때만 소비한다.
         public bool FillFuelDrum()
         {
-            if (!Operational || Kind != BuildingKind.FuelCharger || ResourceManager.Instance == null
-                || !FluidNetwork.Has(this, AntColony.Data.ResourceType.Petroleum, 10)
-                || !ResourceManager.Instance.TrySpend(AntColony.Data.ResourceType.Drum, 1, ResourceReason.Production)) return false;
-            FluidNetwork.Take(this, AntColony.Data.ResourceType.Petroleum, 10);
-            DiplomacyManager.DropFloor(AntColony.Data.ResourceType.FilledFuelDrum, 1, Position + Vector3.right); return true;
+            return Kind == BuildingKind.FuelCharger && SetContainerMode(0) && AddContainerOrder(1);
         }
         public void EjectStored()
         {
+            if (Kind == BuildingKind.FuelCharger) CancelContainerWork();
             if (Supply.amount <= 0 || !IsFluid(Supply.fluid) || GasNetwork) return; // 기체 유출 규칙 확정 전 바닥 고체로 바꾸지 않는다.
             var fluid = (AntColony.Data.ResourceType)Supply.fluid; var amount = Supply.amount;
             Drain(amount); DiplomacyManager.DropFloor(fluid, amount, Position + Vector3.right);

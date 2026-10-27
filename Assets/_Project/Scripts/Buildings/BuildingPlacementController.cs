@@ -157,7 +157,7 @@ namespace AntColony.Buildings
         // 가구 이동: 같은 모양의 청사진을 새 위치에 놓으면 장수가 옮긴다(추가 비용 없음, 해금·개수 조건은 보지 않는다).
         public bool BeginMove(BuildingBase target)
         {
-            if (!Demolition.CanMove(target)) return PlacementFailed("이 대상은 옮길 수 없습니다(방 가구·장식만 이동, 나머지는 철거 후 다시 지으세요).");
+            if (!Demolition.CanMove(target)) return PlacementFailed("방 가구·장식·전력 가구와 고갈된 심층 채굴기만 옮길 수 있습니다.");
             var role = target is Barracks barracks ? barracks.Role : target is ResearchLab lab ? lab.Role : UnitRole.Worker;
             var template = GetTemplate(target.Data.kind, role);
             if (template == null) return PlacementFailed("This building template is unavailable.");

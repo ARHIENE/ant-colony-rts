@@ -21,7 +21,7 @@ namespace AntColony.EditorTools
             "SelfTreat", "SewRepair", "ShieldBlock", "SkyGaze", "SmithRepair", "SpearThrust", "Stagger", "SwordAttack", "Tool_Chop", "Tool_Dig", "Tool_Hammer",
             "Tool_Harvest", "Tool_Mine", "Tool_Till", "ValveTurn", "WalkTipsy" };
         static readonly string[] Facilities = { "OilDerrick", "Refinery", "LiquidTank", "PipeL_Straight", "Deposit_Oil_Normal", "FillingStation", "ManualWell",
-            "CrashWreck", "School", "CitizenClinic", "CivicPublicService", "PlanterBed", "WaterSource", "WaterPump", "SteamGenerator" };
+            "CrashWreck", "School", "CitizenClinic", "CivicPublicService", "PlanterBed", "WaterSource", "WaterPump", "SteamGenerator", "ChemistryBench" };
 
         [MenuItem("AntColony/Kemono/Configure Import + Animator")]
         public static string Run()

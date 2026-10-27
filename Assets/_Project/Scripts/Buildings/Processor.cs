@@ -26,6 +26,7 @@ namespace AntColony.Buildings
         public static Recipe[] RecipesFor(BuildingKind kind) => kind switch
         {
             BuildingKind.GasSmelter => IndustrialRecipes.GasSmelting(),
+            BuildingKind.ChemistryBench => IndustrialRecipes.Chemistry(),
             BuildingKind.Carpentry => new[] { new Recipe("판재", ResourceType.Plank, 1, 8, CommanderActivity.Strength, (ResourceType.Wood, 2)) },
             BuildingKind.Stonecutter => new[] { new Recipe("석재 블록", ResourceType.StoneBlock, 1, 10, CommanderActivity.Strength, (ResourceType.Stone, 2)) },
             BuildingKind.Kiln => new[] { new Recipe("벽돌", ResourceType.Brick, 1, 8, null, (ResourceType.Clay, 2)),
@@ -50,7 +51,7 @@ namespace AntColony.Buildings
         public CommanderActivity Skill => IsMedical ? CommanderActivity.Medicine : CommanderActivity.Crafting;
 
         [Serializable] public class Order { public int recipe; public Workshop.OrderMode mode; public int amount = 1; }
-        [Serializable] public class State { public List<Order> orders = new List<Order>(); public int current = -1, pending = -1; public float progress; public string makerId = ""; public bool ruined, paused, gasPaid; public List<ProductionInputs.Stock> staged = new List<ProductionInputs.Stock>(); }
+        [Serializable] public class State { public List<Order> orders = new List<Order>(); public int current = -1, pending = -1; public float progress; public string makerId = ""; public bool ruined, paused, gasPaid; public int bufferedOil; public List<ProductionInputs.Stock> staged = new List<ProductionInputs.Stock>(); }
         private State state = new State();
         private readonly ProductionInputs inputs = new ProductionInputs();
         public bool Paused { get => state.paused; set { state.paused = value; if (value) ReleaseWorkers(); } }
@@ -132,6 +133,8 @@ namespace AntColony.Buildings
 
         public bool Work(CommanderAnt c, float seconds)
         {
+            if (Chemical && (c == null || c.ServiceTarget != this || !c.AtDrill(this) || (c.Position - Position).sqrMagnitude > 49
+                || c.IsEating || c.IsWashing || c.IsPlaying || c.IsInCombat)) return false;
             if (Industrial && UnityEngine.Time.timeScale <= 0 || !NeedsWork || !(seconds > 0) || float.IsInfinity(seconds) || !CanContinue(c) || !c.CivilianWorkReady || !c.AllowsJob(Job)
                 || Current != null && !MedicineResearch.Unlocked(Current.output)) return false;
             if (Current == null && !StartNext()) return false;
@@ -140,6 +143,7 @@ namespace AntColony.Buildings
             state.progress += c.WorkRate(Skill) * seconds; // 능력은 속도만 보정(산출·품질 동일)
             c.GainExperience(Skill, seconds, IsMedical ? Skill : r.support); // 약제대 생산은 의료만(보조 기술 연결 없음)
             if (state.progress < r.work) return true;
+            state.bufferedOil = 0;
             state.current = -1; state.progress = 0; state.makerId = ""; state.gasPaid = false;
             AntColony.World.DiplomacyManager.DropFloor(r.output, r.amount, Position + ResourceManager.Scatter());
             return true;
@@ -148,6 +152,7 @@ namespace AntColony.Buildings
         // 미완성품 취소: 소비 전은 전량, 작업한 일반 재료는 70%를 실물로 반환한다.
         public void CancelCurrent()
         {
+            if (Chemical && Current != null) state.bufferedOil = Mathf.FloorToInt(state.bufferedOil * (state.progress > 0 ? .7f : 1));
             inputs.Drop(Position); state.pending = -1;
             if (Current != null) foreach (var input in Current.inputs)
                 AntColony.World.DiplomacyManager.DropFloor(input.type, input.type == AntColony.Data.ResourceType.Special || input.type == AntColony.Data.ResourceType.Component ? input.amount : Mathf.FloorToInt(input.amount * (state.progress > 0 ? .7f : 1)), Position + ResourceManager.Scatter());

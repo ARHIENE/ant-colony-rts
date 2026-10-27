@@ -50,7 +50,7 @@ namespace AntColony.UI
                 new Entry("비행 연구소", BuildingKind.ResearchLab, UnitRole.Flying), new Entry("정착지 연구대", BuildingKind.ScienceLab),
                 new Entry("방어 연구소", BuildingKind.DefenseLab), new Entry("공방", BuildingKind.Workshop),
                 new Entry("기초 목공대", BuildingKind.Carpentry), new Entry("석공대", BuildingKind.Stonecutter), new Entry("가마", BuildingKind.Kiln),
-                new Entry("물레", BuildingKind.SpinningWheel), new Entry("용광로", BuildingKind.Smelter), new Entry("지하 탐사기", BuildingKind.UndergroundScanner), new Entry("심층 채굴기", BuildingKind.DeepDrill), new Entry("합금 심층 채굴기", BuildingKind.AdvancedDeepDrill), new Entry("가스 제련로", BuildingKind.GasSmelter) },
+                new Entry("물레", BuildingKind.SpinningWheel), new Entry("용광로", BuildingKind.Smelter), new Entry("지하 탐사기", BuildingKind.UndergroundScanner), new Entry("심층 채굴기", BuildingKind.DeepDrill), new Entry("합금 심층 채굴기", BuildingKind.AdvancedDeepDrill), new Entry("가스 제련로", BuildingKind.GasSmelter), new Entry("화학 작업대", BuildingKind.ChemistryBench) },
             new[] { new Entry("의무실", BuildingKind.Infirmary), new Entry("약제대", BuildingKind.MedicineBench), new Entry("묘비", BuildingKind.Tombstone), new Entry("시민 진료소", BuildingKind.CitizenClinic) },
             new[] { new Entry("성벽", BuildingKind.CastleWall), new Entry("성문", BuildingKind.Gate), new Entry("끈끈이 함정", BuildingKind.TrapPit), new Entry("가시 함정", BuildingKind.SpikeTrap),
                 new Entry("지뢰밭", BuildingKind.MineField), new Entry("산성탑", BuildingKind.AcidTower), new Entry("광역 산성탑", BuildingKind.AreaAcidTower),

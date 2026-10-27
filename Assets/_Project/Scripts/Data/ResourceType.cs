@@ -20,6 +20,8 @@
             ResourceType.PlantingMaterial => "기본 파종재", ResourceType.TinOre => "주석광석", ResourceType.Bronze => "청동",
             ResourceType.CrudeOil => "원유", ResourceType.Petroleum => "정제유", ResourceType.Drum => "드럼통", ResourceType.GasCylinder => "가스 용기",
             ResourceType.FilledFuelDrum => "정제유 드럼통",
+            ResourceType.FilledCrudeDrum => "원유 드럼통", ResourceType.FilledGasCylinder => "압축 가스 용기",
+            ResourceType.Plastic => "플라스틱",
             _ => type.ToString()
         };
         // 물은 건설 주재료로 고를 수 없다. 재료 종류마다 저장 한도는 기존 재료(흙) 한도를 같이 쓴다.
@@ -61,7 +63,9 @@
         Water, // 위생 시설 소비용. 기존 자원 저장 번호 보존.
         PlantingMaterial, TinOre, Bronze, CrudeOil, Petroleum, Drum, GasCylinder, FilledFuelDrum,
         Herb, // 약제대 전용 원료. 잎과 혼용하지 않는다.
-        NaturalGas, TitaniumOre, StellarOre, Titanium, TitaniumAlloy // D08 유한 매장층. 기존 번호 보존.
+        NaturalGas, TitaniumOre, StellarOre, Titanium, TitaniumAlloy, // D08 유한 매장층. 기존 번호 보존.
+        FilledCrudeDrum, FilledGasCylinder, // 운반 후 배출하면 빈 용기를 회수한다.
+        Plastic
     }
 
     // 재료 특성(내구·무게·가연성·미관·단열). 후반 재료가 모든 면에서 우월하지 않게 용도를 나눈다.

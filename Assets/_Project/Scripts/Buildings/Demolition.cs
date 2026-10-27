@@ -26,7 +26,7 @@ namespace AntColony.Buildings
         public static bool CanDemolish(BuildingBase b) => Orderable(b) && !HoldsPrisoners(b) && !(b is Tombstone t && t.RemovalBlock != "");
         // 무료 이동은 방 가구(RoomSystem.KindOf)·장식·전력 가구만. 주거·벽·문·바닥·기둥·전선·방어 시설은 철거 후 다시 짓는다(2026-10-10). 포장된 가구는 다시 설치할 수 있다.
         public static bool CanMove(BuildingBase b) => Orderable(b) && !HoldsPrisoners(b) && (IsPacked(b) || b.Data.kind != BuildingKind.Pillar && b.Data.kind != BuildingKind.PowerWire
-            && (RoomSystem.KindOf(b) != RoomKind.None || b is Decoration || b is PowerNode));
+            && (RoomSystem.KindOf(b) != RoomKind.None || b is Decoration || b is PowerNode || UndergroundProduction.CanRelocate(b)));
 
         public static BuildingConstructionSite OrderDemolish(BuildingBase b)
         {
@@ -38,6 +38,7 @@ namespace AntColony.Buildings
         public static BuildingConstructionSite OrderMove(BuildingBase b, Vector3 to)
         {
             if (!CanMove(b)) return null;
+            if (UndergroundProduction.IsSolidDrill(b.Data.kind) && UndergroundProduction.PlacementReason(b.Data.kind, to, b) != null) return null;
             var packed = IsPacked(b);
             var site = Site(b, packed ? to : b.Position, true);
             var mark = site.GetComponent<DemolitionSite>(); mark.MoveTo = to;
@@ -99,6 +100,8 @@ namespace AntColony.Buildings
     // 철거·이동·개보수 예정지 표식. 대상이 사라지면 예정지도 없앤다.
     public sealed class DemolitionSite : MonoBehaviour
     {
+        private void OnEnable() => SceneObjects.Register(this);
+        private void OnDisable() => SceneObjects.Unregister(this);
         public BuildingBase Target { get; internal set; }
         public bool Move { get; internal set; }
         public Vector3 MoveTo { get; internal set; }
@@ -143,6 +146,11 @@ namespace AntColony.Buildings
             }
             else if (Move)
             {
+                if (UndergroundProduction.IsSolidDrill(Target.Data.kind) && UndergroundProduction.PlacementReason(Target.Data.kind, MoveTo, Target) is string reason)
+                {
+                    var site = GetComponent<BuildingConstructionSite>(); site.RemainingWork = Demolition.MoveHalfWork(Target); site.SetPaused(true);
+                    AntColony.UI.ToastManager.Show("채굴기 설치 대기: " + reason); return false;
+                }
                 Target.transform.position = new Vector3(MoveTo.x, Target.Position.y, MoveTo.z);
                 if (Target.TryGetComponent<PackedFurniture>(out var pack)) pack.Unpack();
                 Target.enabled = WasEnabled;

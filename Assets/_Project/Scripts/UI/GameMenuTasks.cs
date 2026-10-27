@@ -19,19 +19,21 @@ namespace AntColony.UI
             .Concat(AntColony.Core.SceneObjects.All<Kitchen>().Where(k => !k.IsTable && !k.IsDead))
             .Concat(AntColony.Core.SceneObjects.All<Processor>().Where(p => !p.IsDead && (p.Current != null || p.Orders.Count > 0)))
             .Concat(AntColony.Core.SceneObjects.All<Workshop>().Where(w => !w.IsDead && (w.Jobs.Count > 0 || w.Orders.Count > 0)))
+            .Concat(SupplyFacility.All.Where(s => s.Kind == BuildingKind.FuelCharger && s.Supply.containerOrders > 0))
             .Concat(AntColony.World.ResourceNode.Available.Where(n => n != null && n.NeedsDesignation && n.WorkRequested));
 
         private static string TaskName(Component c) => c is AntColony.World.ResourceNode n ? n.ResourceType.DisplayName() + " " + n.WorkName : c is BuildingConstructionSite s ? s.name.Replace("ConstructionSite", " 건설 예정지") : c is Kitchen k ? k.Data.displayName + " 요리" : c is BuildingBase b ? b.Data.displayName : c.name;
-        private static string TaskWait(Component c) => c is Processor p ? p.WaitReason : c is Workshop w ? w.WaitReason : c is AntColony.World.ResourceNode n ? n.WorkWaitReason : c is BuildingConstructionSite s ? BuildingConstructionSite.Describe(s.WaitReason) : c is Kitchen k ? k.WaitReason ?? "진행 중" : "";
-        private static bool TaskPaused(Component c) => c is Processor p ? p.Paused : c is Workshop w ? w.Paused : c is AntColony.World.ResourceNode n ? n.WorkPaused : c is BuildingConstructionSite s ? s.Paused : c is Kitchen k && k.Paused;
-        private static void TaskPause(Component c, bool on) { if (c is Processor p) p.Paused = on; else if (c is Workshop w) w.Paused = on; else if (c is AntColony.World.ResourceNode n) n.PauseWork(on); else if (c is BuildingConstructionSite s) s.SetPaused(on); else if (c is Kitchen k) k.Paused = on; }
+        private static string TaskWait(Component c) => c is SupplyFacility f ? f.ContainerStatus : c is Processor p ? p.WaitReason : c is Workshop w ? w.WaitReason : c is AntColony.World.ResourceNode n ? n.WorkWaitReason : c is BuildingConstructionSite s ? BuildingConstructionSite.Describe(s.WaitReason) : c is Kitchen k ? k.WaitReason ?? "진행 중" : "";
+        private static bool TaskPaused(Component c) => c is SupplyFacility f ? f.Paused : c is Processor p ? p.Paused : c is Workshop w ? w.Paused : c is AntColony.World.ResourceNode n ? n.WorkPaused : c is BuildingConstructionSite s ? s.Paused : c is Kitchen k && k.Paused;
+        private static void TaskPause(Component c, bool on) { if (c is SupplyFacility f) f.PauseContainers(on); else if (c is Processor p) p.Paused = on; else if (c is Workshop w) w.Paused = on; else if (c is AntColony.World.ResourceNode n) n.PauseWork(on); else if (c is BuildingConstructionSite s) s.SetPaused(on); else if (c is Kitchen k) k.Paused = on; }
         // 손실이 생기는 취소: 시작된 요리(소비한 재료). 예정지 취소는 재료를 전부 바닥에 돌려준다.
         private static bool TaskLoses(Component c) => c is Kitchen k && k.Current != null || c is Processor p && p.Current != null || c is Workshop w && w.Jobs.Count > 0 && w.Jobs[0].work > 0;
-        private static void TaskCancel(Component c) { if (c is Processor p) { p.CancelCurrent(); p.Orders.Clear(); } else if (c is Workshop w) { while (w.Jobs.Count > 0) w.Cancel(0); w.Orders.Clear(); } else if (c is AntColony.World.ResourceNode n) n.CancelWork(); else if (c is BuildingConstructionSite s) s.Cancel(); else if (c is Kitchen k) { k.CancelCurrent(); k.Orders.Clear(); k.EjectStaged(); } }
+        private static void TaskCancel(Component c) { if (c is SupplyFacility f) f.CancelContainerWork(); else if (c is Processor p) { p.CancelCurrent(); p.Orders.Clear(); } else if (c is Workshop w) { while (w.Jobs.Count > 0) w.Cancel(0); w.Orders.Clear(); } else if (c is AntColony.World.ResourceNode n) n.CancelWork(); else if (c is BuildingConstructionSite s) s.Cancel(); else if (c is Kitchen k) { k.CancelCurrent(); k.Orders.Clear(); k.EjectStaged(); } }
         private static IEnumerable<CommanderAnt> TaskCrew(Component c) => c is BuildingConstructionSite s ? s.Builders.Concat(s.Couriers).Distinct()
             : AntUnitBase.Active.OfType<CommanderAnt>().Where(x => x.ServiceTarget == (Object)c || x.CurrentResourceNode == c || x.CraftingWorkshop == c || x.DeliverySite is Component sink && sink == c);
         private static string TaskAmounts(Component c) => c is BuildingConstructionSite s
             ? string.Join(" · ", s.Needs.Select(n => $"{n.type.DisplayName()} 필요 {n.need}/예약 {n.reserved + s.InTransit(n.type)}/도착 {n.delivered}"))
+            : c is SupplyFacility f ? $"남은 용기 {f.Supply.containerOrders}개 · 작업 {f.Supply.work:0.#}/{SupplyFacility.ProcessSeconds:0}초"
             : c is Processor p && p.Current != null ? $"{p.Current.name} {p.Progress:P0}"
             : c is Workshop w && w.Jobs.Count > 0 ? $"제작 대기 {w.Jobs.Count}건 · 진행 {w.Jobs[0].work:0}"
             : c is Kitchen k && k.Current != null ? $"{k.Current.name} {k.Progress:P0}" : "";
@@ -65,7 +67,7 @@ namespace AntColony.UI
             MenuTheme.Button(content, "종류: " + kinds[taskFilter], () => { taskFilter = (taskFilter + 1) % kinds.Length; ShowTasks(taskPick); });
             MenuTheme.Button(content, waitingOnly ? "대기 중인 작업만 표시" : "진행·대기 모두 표시", () => { waitingOnly = !waitingOnly; ShowTasks(taskPick); });
             var visible = taskPick.Where(c => taskFilter == 0 || taskFilter == 1 && c is AntColony.World.ResourceNode
-                || taskFilter == 2 && c is BuildingConstructionSite || taskFilter == 3 && (c is Kitchen || c is Processor || c is Workshop))
+                || taskFilter == 2 && c is BuildingConstructionSite || taskFilter == 3 && (c is Kitchen || c is Processor || c is Workshop || c is SupplyFacility))
                 .Where(c => !waitingOnly || !TaskCrew(c).Any(x => x.IsGatheringAnimation || x.IsBuildingAnimation || x.ServiceTarget == c || x.CraftingWorkshop == c));
             foreach (var c in visible.OrderByDescending(WorkPriorities.Yellow).ThenByDescending(WorkPriorities.Level).ThenBy(WorkPriorities.RequestedAt).ToList())
             {

@@ -47,9 +47,10 @@ namespace AntColony.Buildings
                 if (UndergroundSurvey.Instance.MapAt(Position) == 0) CampaignResearch.Instance.RecordSampleDelivery(type, amount);
             }
         }
-        public bool GasNetwork => Kind is BuildingKind.GasExtractor or BuildingKind.GasPipe or BuildingKind.GasTank;
+        public bool GasNetwork => Kind is BuildingKind.GasExtractor or BuildingKind.GasPipe or BuildingKind.GasTank
+            || Kind == BuildingKind.FuelCharger && Supply.containerMode % 3 == 2;
         public bool AcceptsFluid(ResourceType type) => !UndergroundProduction.IsSolidDrill(Kind) && IsFluid((int)type) && (GasNetwork == (type == ResourceType.NaturalGas));
-        public static bool ValidForKind(BuildingKind kind, State s) => Valid(s) && (s.amount == 0
-            || (kind is BuildingKind.GasExtractor or BuildingKind.GasPipe or BuildingKind.GasTank) == (s.fluid == (int)ResourceType.NaturalGas));
+        public static bool ValidForKind(BuildingKind kind, State s) => Valid(s) && ValidContainers(kind, s) && (s.amount == 0
+            || (kind is BuildingKind.GasExtractor or BuildingKind.GasPipe or BuildingKind.GasTank || kind == BuildingKind.FuelCharger && s.containerMode % 3 == 2) == (s.fluid == (int)ResourceType.NaturalGas));
     }
 }

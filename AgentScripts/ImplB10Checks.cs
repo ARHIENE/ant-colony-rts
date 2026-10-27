@@ -145,14 +145,14 @@ public static class ImplB10Checks
             steam.RestoreFuel(7); PowerGrid.Tick(.5f);
             Check(drill.Powered && refinery.Powered, "G46 solid fuel powers drill and refinery");
             drill.Tick(5); Check(oilTank.Supply.amount == 10, "G46 drill sends crude through pipe without drum");
-            refinery.Tick(5); Check(oilTank.Supply.amount == 9 && refinery.Supply.amount == 1, "G46 direct pipeline refining without container");
+            refinery.Tick(5); Check(oilTank.Supply.amount == 10 && refinery.Supply.amount == 0 && refinery.NeedsRefiner, "G46 powered refinery awaits onsite worker without container");
             pipe.gameObject.SetActive(false); var crude = oilTank.Supply.amount; drill.Tick(5);
             Check(oilTank.Supply.amount == crude && drill.Supply.amount == 10, "G46 broken pipe isolates drill output");
             var depositPosition = oilSource.Position; oilSource.transform.position = pipe.Position;
             drill.Tick(5);
             Check(oilTank.Supply.amount == crude && drill.Supply.amount == 20, "G46 natural deposit cannot bridge broken pipe");
             oilSource.transform.position = depositPosition;
-            refinery.Tick(5); Check(oilTank.Supply.amount == crude - 1, "G46 refinery can finish buffered crude after disconnection");
+            refinery.Tick(5); Check(oilTank.Supply.amount == crude && refinery.NeedsRefiner, "G46 buffered crude remains available to onsite refiner after upstream disconnection");
             pipe.gameObject.SetActive(true);
             crude = oilTank.Supply.amount;
             oilSource.gameObject.SetActive(false); drill.Tick(5); Check(oilTank.Supply.amount == crude && drill.Supply.amount == 20, "G46 no deposit no oil"); oilSource.gameObject.SetActive(true);
@@ -165,11 +165,11 @@ public static class ImplB10Checks
             var charger = Put<SupplyFacility>(BuildingKind.FuelCharger, origin + new Vector3(5, 0, 1));
             oilTank.RestoreSupply(new SupplyFacility.State { fluid = (int)AntColony.Data.ResourceType.Petroleum, amount = 10 });
             var drums = FloorAmount(AntColony.Data.ResourceType.FilledFuelDrum);
-            Check(!charger.FillFuelDrum() && oilTank.Supply.amount == 10, "G46 missing drum preserves petroleum");
+            Check(charger.FillFuelDrum() && oilTank.Supply.amount == 10 && charger.Supply.containerOrders == 1, "G46 charging queues without remote consumption");
             rm.Add(AntColony.Data.ResourceType.Drum, 1);
-            Check(charger.FillFuelDrum() && oilTank.Supply.amount == 0
-                && FloorAmount(AntColony.Data.ResourceType.FilledFuelDrum) == drums + 1, "G46 charger consumes one drum and ten petroleum");
-            Check(!charger.FillFuelDrum(), "G46 no duplicate charged drum");
+            Check(charger.NextPickup(out var containerType, out var containerNeed) && containerType == AntColony.Data.ResourceType.Drum && containerNeed == 1
+                && FloorAmount(AntColony.Data.ResourceType.FilledFuelDrum) == drums, "G46 charger requests real drum delivery before production");
+            charger.CancelContainerWork(); Check(charger.Supply.containerOrders == 0 && oilTank.Supply.amount == 10, "G46 unstarted container cancellation preserves fluid");
 
             var wood = FloorAmount(AntColony.Data.ResourceType.Wood);
             var demolition = Demolition.OrderDemolish(well); Check(demolition != null, "G14 demolition order");

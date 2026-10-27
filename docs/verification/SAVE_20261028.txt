@@ -1,0 +1,36 @@
+# SAVE verification — 2026-10-28
+Results include repeated regression checks; do not sum as unique cases.
+
+industry-followup-result.txt | 2026-10-28T00:12:51.9055845+09:00
+PASS 37 refinery worker/power/input/output and drill relocation/reservation/save checks
+
+container-industry-result.txt | 2026-10-28T00:15:41.9188855+09:00
+PASS 61 container real delivery, 3 fluid round trips, reuse, pause/cancel, save and UI checks
+
+chemical-industry-result.txt | 2026-10-28T00:32:15.2617183+09:00
+PASS 48 chemical power, real work, piped raw conservation, refund, save, models and UI checks
+
+chemical-import1028-result.txt | 2026-10-28T00:25:01.1870009+09:00
+PASS 2 chemical/plastic FBX imports, 3 renderers/material sets
+
+resource-graphics1028-result.txt | 2026-10-28T00:50:39.7944895+09:00
+PASS 239 all resource cargo models/colliders/stock, natural chitin/soil and real save/load checks
+
+underground-production1027-result.txt | 2026-10-28T00:10:34.9704232+09:00
+PASS 59 underground production, physical hauling, finite reserve, phase separation and real save/load checks
+
+advanced-industry1027-result.txt | 2026-10-28T00:33:53.9623793+09:00
+PASS 52 titanium/alloy delivery, paid gas industry, upper drill, generation, save/load and menus checks
+
+autowork-ui1026-result.txt | 2026-10-28T00:35:03.7902879+09:00
+PASS 16 work designation/list interaction and bounds checks
+
+autowork-save1026-result.txt | 2026-10-28T00:35:56.8841398+09:00
+PASS 20 save/load, ingredient freshness and cancellation checks
+
+loot-loop-result.txt | 2026-10-28T00:54:37.0199579+09:00
+PASS 10 no-store pickup/drop loop and actual storage delivery checks
+
+ResourceGraphics1028Checks.Import: PASS 6 resource FBX/URP imports (official Unity CLI result).
+Actual reviewed Game captures: 01-resources, 02-chemical, 03-containers, 04-refinery, 05-work.
+Player build and complete visual review not performed.

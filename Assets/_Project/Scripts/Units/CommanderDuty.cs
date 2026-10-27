@@ -268,6 +268,10 @@ namespace AntColony.Units
                         });
                     yield break;
                 case CommanderJobs.Crafting:
+                    foreach (var charger in SupplyFacility.All.Where(s => s.ContainerNeedsIngredients))
+                        yield return (charger, () => CommandFetchFor(charger));
+                    foreach (var refinery in SupplyFacility.All.Where(SupplyCraftNeedsWork))
+                        yield return (refinery, () => StartService(refinery, CommanderJobs.Crafting));
                     foreach (var shop in AntColony.Core.SceneObjects.All<Workshop>().Where(w => w.NeedsIngredients))
                         yield return (shop, () => CommandFetchFor(shop));
                     foreach (var processor in AntColony.Core.SceneObjects.All<Processor>().Where(p => !p.IsMedical && p.NeedsIngredients))
@@ -302,6 +306,8 @@ namespace AntColony.Units
                     yield return (drill, () => StartService(drill, CommanderJobs.Gathering));
             if (job == CommanderJobs.Hauling)
             {
+                foreach (var charger in SupplyFacility.All.Where(s => s.ContainerNeedsIngredients))
+                    yield return (charger, () => CommandFetchFor(charger));
                 foreach (var shop in AntColony.Core.SceneObjects.All<Workshop>().Where(w => w.NeedsIngredients))
                     yield return (shop, () => CommandFetchFor(shop));
                 foreach (var processor in AntColony.Core.SceneObjects.All<Processor>().Where(p => p.NeedsIngredients))

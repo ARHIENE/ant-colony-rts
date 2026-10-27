@@ -7,6 +7,8 @@ namespace AntColony.Units
     {
         private bool HasStationaryWork => commander != null && commander.CivilianWorkReady && !commander.IsEating && !commander.IsPlaying
             && (commander.ServiceTarget == null || (commander.ServiceTarget.Position - transform.position).sqrMagnitude <= 49)
+            && (!(commander.ServiceTarget is SupplyFacility station) || commander.AtDrill(station))
+            && (!(commander.ServiceTarget is Processor chemical && chemical.Chemical) || commander.AtDrill(chemical))
             && (commander.ScienceAssignment == null || (commander.ScienceAssignment.Position - transform.position).sqrMagnitude <= 64)
             && (commander.ServiceTarget != null || commander.ScienceAssignment != null || commander.CraftingWorkshop != null
                 || commander.SurveyAssignment != null && commander.SurveyAssignment.Powered && commander.SurveyAssignment.CandidateId >= 0

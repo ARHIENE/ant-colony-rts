@@ -117,7 +117,8 @@ public static class ImplC5Checks
             var charger = Put<SupplyFacility>(BuildingKind.FuelCharger, home + Vector3.forward * 8);
             Check(charger.Fill(AntColony.Data.ResourceType.Petroleum, 10), "test petroleum");
             var drums = FloorAmount(AntColony.Data.ResourceType.FilledFuelDrum); Act(charger); Act(charger);
-            Check(FloorAmount(AntColony.Data.ResourceType.FilledFuelDrum) == drums + 1 && charger.Supply.amount == 0, "panel fills drum once");
+            Check(FloorAmount(AntColony.Data.ResourceType.FilledFuelDrum) == drums && charger.Supply.amount == 10
+                && GameMenuController.Instance.GetComponentsInChildren<UnityEngine.UI.Text>().Any(t => t.text == "용기 충전·배출"), "panel opens container orders without instant remote production");
             GameMenuController.Instance.Diplomacy();
             // 월드맵이 이미 해금된 세션이면 외교 화면의 캐러밴 버튼으로 들어간다(해금 전에는 바로 캐러밴 화면).
             Object.FindObjectsByType<UnityEngine.UI.Button>(FindObjectsSortMode.None).FirstOrDefault(b => b.name == "SupplyCaravan")?.onClick.Invoke();

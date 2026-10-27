@@ -12,6 +12,8 @@ namespace AntColony.Buildings
     {
         public const int MachineGrade = 4; // 강철급. 성휘석의 티타늄 합금급(5) 요구는 우회하지 않는다.
         public static bool IsSolidDrill(BuildingKind kind) => kind is BuildingKind.DeepDrill or BuildingKind.AdvancedDeepDrill;
+        public static bool CanRelocate(BuildingBase building) => building is SupplyFacility drill && IsSolidDrill(drill.Kind)
+            && LayerAt(drill.Kind, drill.Position) is UndergroundSurvey.Layer layer && layer.remaining < 1;
         public static int Grade(BuildingKind kind) => kind == BuildingKind.AdvancedDeepDrill ? 5 : MachineGrade;
         public static bool IsExtractor(BuildingKind kind) => kind is BuildingKind.DeepDrill or BuildingKind.AdvancedDeepDrill or BuildingKind.OilDrill or BuildingKind.GasExtractor;
         public static int RequiredGrade(ResourceType type) => type == ResourceType.StellarOre ? 5
@@ -27,7 +29,9 @@ namespace AntColony.Buildings
         public static bool Occupied(UndergroundSurvey.Layer layer, BuildingBase ignore = null) => layer != null
             && (SupplyFacility.All.Any(s => s != ignore && s.Operational && IsExtractor(s.Kind) && LayerAt(s.Kind, s.Position)?.id == layer.id)
                 || SceneObjects.All<BuildingConstructionSite>().Any(s => s.Building != null && s.Building.GetComponent<BuildingBase>() != ignore
-                    && s.BuildingKind.HasValue && IsExtractor(s.BuildingKind.Value) && LayerAt(s.BuildingKind.Value, s.Position)?.id == layer.id));
+                    && s.BuildingKind.HasValue && IsExtractor(s.BuildingKind.Value) && LayerAt(s.BuildingKind.Value, s.Position)?.id == layer.id)
+                || SceneObjects.All<DemolitionSite>().Any(s => s.Move && s.Target != null && s.Target != ignore
+                    && IsSolidDrill(s.Target.Data.kind) && LayerAt(s.Target.Data.kind, s.MoveTo)?.id == layer.id));
         public static string PlacementReason(BuildingKind kind, Vector3 at, BuildingBase ignore = null)
         {
             if (!IsExtractor(kind)) return null;

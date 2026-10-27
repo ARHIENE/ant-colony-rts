@@ -150,6 +150,7 @@ namespace AntColony.Units
                 if (worker is CommanderAnt artisan && deposit != null && deposit.CountsTowardPlayerDefeat)
                 {
                     var job = deposit is Infirmary ? CommanderJobs.Nursing : deposit is Kitchen ? CommanderJobs.Cooking
+                        : deposit is SupplyFacility refinery && refinery.Kind is AntColony.Data.BuildingKind.OilRefinery or AntColony.Data.BuildingKind.FuelCharger ? CommanderJobs.Crafting
                         : deposit is SupplyFacility drill && UndergroundProduction.IsSolidDrill(drill.Kind) ? CommanderJobs.Gathering
                         : deposit is SupplyFacility well && well.Kind == AntColony.Data.BuildingKind.ManualWell ? CommanderJobs.Hauling : CommanderJobs.Repair;
                     if ((job != CommanderJobs.Repair || BuildingRepair.Needed(deposit)) && artisan.StartService(deposit, job)) { index++; continue; }

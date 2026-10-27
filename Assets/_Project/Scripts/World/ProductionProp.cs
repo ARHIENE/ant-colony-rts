@@ -8,8 +8,8 @@ namespace AntColony.World
         public static string ForResource(ResourceType type) => type switch {
             ResourceType.Food => "Prop_PreservedRation",
             ResourceType.Stone => "Prop_StoneChunk",
-            ResourceType.Drum or ResourceType.FilledFuelDrum => "Prop_OilDrum",
-            ResourceType.GasCylinder => "Prop_GasCanister",
+            ResourceType.Drum or ResourceType.FilledFuelDrum or ResourceType.FilledCrudeDrum => "Prop_OilDrum",
+            ResourceType.GasCylinder or ResourceType.FilledGasCylinder or ResourceType.NaturalGas => "Prop_GasCanister",
             ResourceType.Special => "Prop_BossCore_A", _ => null
         };
 

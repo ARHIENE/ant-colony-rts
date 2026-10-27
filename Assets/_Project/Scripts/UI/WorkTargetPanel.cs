@@ -157,20 +157,25 @@ namespace AntColony.UI
             }
             if (Target is SupplyFacility supply)
             {
-                action.gameObject.SetActive(supply.Kind == BuildingKind.ManualWell || UndergroundProduction.IsSolidDrill(supply.Kind) || supply.Kind == BuildingKind.FuelCharger);
-                label.text = UndergroundProduction.IsSolidDrill(supply.Kind) ? "채굴 작업 지시" : supply.Kind == BuildingKind.ManualWell ? "취수 작업 지시" : "연료 드럼통 충전";
+                action.gameObject.SetActive(supply.Kind is BuildingKind.ManualWell or BuildingKind.OilRefinery or BuildingKind.FuelCharger || UndergroundProduction.IsSolidDrill(supply.Kind));
+                label.text = supply.Kind == BuildingKind.OilRefinery ? "정유 작업 지시" : UndergroundProduction.IsSolidDrill(supply.Kind) ? "채굴 작업 지시" : supply.Kind == BuildingKind.ManualWell ? "취수 작업 지시" : "용기 충전·배출";
                 status.text = supply.Supply.amount > 0 ? $"{((AntColony.Data.ResourceType)supply.Supply.fluid).DisplayName()} {supply.Supply.amount}/{SupplyFacility.Capacity}" : "비어 있음";
                 instruction.text = supply.Kind == BuildingKind.ManualWell ? "수원 근처에서 장수 운반 작업 · 5초당 물 10 · 물 반출 후 운반 가능"
                     : supply.Kind == BuildingKind.FuelCharger ? "빈 드럼통 1 + 정제유 10 → 충전 드럼통 1" : "배관으로 연결 · 보관된 물은 바닥으로 반출 가능";
                 if (UndergroundProduction.IsExtractor(supply.Kind))
                 { status.text = UndergroundProduction.Status(supply); instruction.text = UndergroundProduction.Preview(supply.Kind, supply.Position); }
+                else if (supply.Kind == BuildingKind.OilRefinery)
+                { status.text = supply.RefineryStatus; instruction.text = "제작 담당 + 전력 200W · 원유 1 → 정제유 1 · 기본 작업 5초 · 배관/탱크 출력"; }
+                else if (supply.Kind == BuildingKind.FuelCharger)
+                { status.text = supply.ContainerStatus; instruction.text = "원유·정제유 드럼통 / 압축 가스 용기 · 용기 배송 후 제작 담당 작업 · 배출하면 빈 용기 반환"; }
                 else if (supply.GasNetwork) instruction.text = "기체 전용 배관/탱크 · 액체와 연결되지 않음";
                 eatCorpse.GetComponentInChildren<Text>().text = "물 전량 반출";
             }
             if (Target is Processor industrial && industrial.Industrial)
             {
                 status.text = industrial.WaitReason;
-                instruction.text = "티타늄 광석 → 티타늄 → 합금 · 재료 배송 + 제작 담당\n가스1/묶음 · 200W · 완성품은 바닥에서 운반";
+                instruction.text = industrial.Chemical ? "원유 2 → 플라스틱 1 · 액체 배관 + 제작 담당\n200W · 완성품은 바닥에서 운반 · 내부 원유 " + industrial.BufferedOil
+                    : "티타늄 광석 → 티타늄 → 합금 · 재료 배송 + 제작 담당\n가스1/묶음 · 200W · 완성품은 바닥에서 운반";
             }
             if (Target is PowerNode gasPower && gasPower.Kind == BuildingKind.GasGenerator)
             {
@@ -221,12 +226,12 @@ namespace AntColony.UI
             if (Target is StarterCropBed crop) { if (!crop.Plant()) ToastManager.Show("파종재 보유량과 파종 상태를 확인하세요."); return; }
             if (Target is SupplyFacility supply)
             {
-                if (supply.Kind == BuildingKind.FuelCharger) { if (!supply.FillFuelDrum()) ToastManager.Show("빈 드럼통 1개와 배관망의 정제유 10이 필요합니다."); return; }
-                if (supply.Kind == BuildingKind.ManualWell || UndergroundProduction.IsSolidDrill(supply.Kind))
+                if (supply.Kind == BuildingKind.FuelCharger) { GameMenuController.Instance?.ShowContainers(supply); return; }
+                if (supply.Kind is BuildingKind.ManualWell or BuildingKind.OilRefinery || UndergroundProduction.IsSolidDrill(supply.Kind))
                 {
                     foreach (var commander in AntUnitBase.Active.OfType<CommanderAnt>().OrderBy(c => (c.Position - supply.Position).sqrMagnitude))
-                        if (commander.StartService(supply, UndergroundProduction.IsSolidDrill(supply.Kind) ? CommanderJobs.Gathering : CommanderJobs.Hauling)) return;
-                    ToastManager.Show("취수 작업이 가능한 평시 장수가 없습니다.");
+                        if (commander.StartService(supply, supply.Kind == BuildingKind.OilRefinery ? CommanderJobs.Crafting : UndergroundProduction.IsSolidDrill(supply.Kind) ? CommanderJobs.Gathering : CommanderJobs.Hauling)) return;
+                    ToastManager.Show("작업 허용 장수·접근 경로·전력·입출력 상태를 확인하세요.");
                 }
                 return;
             }

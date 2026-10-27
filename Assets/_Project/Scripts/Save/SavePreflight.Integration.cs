@@ -63,7 +63,9 @@ namespace AntColony.Save
                 if (Enum.TryParse(b.kind, out AntColony.Data.BuildingKind kind) && Processor.IsKind(kind) && b.processor != null)
                 {
                     var s = b.processor; var recipes = Processor.RecipesFor(kind);
-                    Check(kind == AntColony.Data.BuildingKind.GasSmelter ? s.gasPaid == (s.current >= 0) : !s.gasPaid, "industrial paid fuel");
+                    Check(kind is AntColony.Data.BuildingKind.GasSmelter or AntColony.Data.BuildingKind.ChemistryBench ? s.gasPaid == (s.current >= 0) : !s.gasPaid, "industrial paid fuel");
+                    Check(kind == AntColony.Data.BuildingKind.ChemistryBench ? s.bufferedOil >= 0 && s.bufferedOil <= IndustrialRecipes.PlasticOil
+                        && (s.current < 0 || s.bufferedOil == IndustrialRecipes.PlasticOil) : s.bufferedOil == 0, "industrial oil buffer");
                     ValidateStaged(s.staged);
                     Check(s.pending >= -1 && s.pending < recipes.Length, "processor pending recipe");
                     Check(s.orders != null && s.orders.Count <= Workshop.MaxOrders && s.orders.All(o => o != null

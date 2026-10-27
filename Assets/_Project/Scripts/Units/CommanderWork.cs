@@ -71,7 +71,7 @@ namespace AntColony.Units
             if ((!firefighting && !CivilianWorkReady || firefighting && (IsDead || IsAwayFromHome || IsAsleep || IsCaptive || PersonalState.health.Downed)) || !CanReceiveOrders || IsWorking || LabUpgradeBusy || !AllowsJob(job)
                 || Active.OfType<CommanderAnt>().Any(c => c != this && c.ServiceTarget == target)
                 || target == null || target.IsDead || !target.isActiveAndEnabled || !target.CountsTowardPlayerDefeat || target is Processor processor && !processor.CanContinue(this)
-                || job != CommanderJobs.Nursing && job != CommanderJobs.Repair && job != CommanderJobs.Cooking && !(firefighting && target.GetComponent<WallFire>()?.Burning == true) && !(job == CommanderJobs.Hauling && (target is PowerNode || target is SupplyFacility well && ManualWellNeedsWork(well))) && !(job == CommanderJobs.Administration && target is AdminDesk) && !(job == CommanderJobs.Crafting && target is Processor) && !(job == CommanderJobs.Gathering && target is SupplyFacility drill && DeepDrillNeedsWork(drill))
+                || job != CommanderJobs.Nursing && job != CommanderJobs.Repair && job != CommanderJobs.Cooking && !(firefighting && target.GetComponent<WallFire>()?.Burning == true) && !(job == CommanderJobs.Hauling && (target is PowerNode || target is SupplyFacility well && ManualWellNeedsWork(well))) && !(job == CommanderJobs.Administration && target is AdminDesk) && !(job == CommanderJobs.Crafting && (target is Processor || target is SupplyFacility supply && SupplyCraftNeedsWork(supply))) && !(job == CommanderJobs.Gathering && target is SupplyFacility drill && DeepDrillNeedsWork(drill))
                 || !TryWorkApproach(target.Position, out var approach)) return false;
             CommandStop(); ServiceTarget = target; ServiceJob = job;
             SetMoveDestination(approach); SetWorkTarget(target); return true;
@@ -89,10 +89,11 @@ namespace AntColony.Units
             bool firefighting = ServiceJob == CommanderJobs.Firefighting;
             if ((!firefighting && (!CivilianWorkReady || !AllowsJob(ServiceJob)) || firefighting && (!CanReceiveOrders || IsAwayFromHome || IsAsleep || PersonalState.health.Downed)) || !ServiceTarget.isActiveAndEnabled || ServiceTarget.IsDead) { CommandStop(); return false; }
             if (firefighting && ServiceTarget.GetComponent<WallFire>()?.Burning != true) { CommandStop(); return false; }
-            if (ServiceTarget is SupplyFacility manual && !(ServiceJob == CommanderJobs.Gathering ? DeepDrillNeedsWork(manual) : ManualWellNeedsWork(manual))) { CommandStop(); return false; }
+            if (ServiceTarget is SupplyFacility manual && ServiceJob != CommanderJobs.Repair && !(ServiceJob == CommanderJobs.Gathering ? DeepDrillNeedsWork(manual)
+                : ServiceJob == CommanderJobs.Crafting ? SupplyCraftNeedsWork(manual) : ServiceJob == CommanderJobs.Hauling && ManualWellNeedsWork(manual))) { CommandStop(); return false; }
             if (ServiceTarget is SupplyFacility && !CanReach(ServiceTarget.Position)) { CommandStop(); return false; }
             if ((Position - ServiceTarget.Position).sqrMagnitude > (firefighting ? 20.25f : 49)
-                || ServiceTarget is SupplyFacility && !HasReachedDestination())
+                || (ServiceTarget is SupplyFacility || ServiceTarget is Processor chemical && chemical.Chemical) && !HasReachedDestination())
             {
                 if (!TryWorkApproach(ServiceTarget.Position, out var approach)) { CommandStop(); return false; }
                 if (IsFlying || Agent != null && !Agent.pathPending && !Agent.hasPath) SetMoveDestination(approach);
@@ -112,6 +113,11 @@ namespace AntColony.Units
             {
                 if (!drill.WorkDrill(this, seconds)) { CommandStop(); return false; }
                 if (!DeepDrillNeedsWork(drill)) CommandStop();
+            }
+            else if (ServiceJob == CommanderJobs.Crafting && ServiceTarget is SupplyFacility refinery)
+            {
+                if (!(refinery.Kind == AntColony.Data.BuildingKind.FuelCharger ? refinery.WorkContainers(this, seconds) : refinery.WorkRefinery(this, seconds))) { CommandStop(); return false; }
+                if (!SupplyCraftNeedsWork(refinery)) CommandStop();
             }
             else if (ServiceJob == CommanderJobs.Nursing)
             {
