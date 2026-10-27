@@ -29,8 +29,8 @@ namespace AntColony.Core
             foreach (var lab in AntColony.Core.SceneObjects.All<ScienceLab>())
             {
                 var c = lab.Target;
-                if (!lab.isActiveAndEnabled || lab.Busy || c == null || !c.CivilianWorkReady || !c.CanReceiveOrders
-                    || c.IsAwayFromHome || c.ScienceAssignment != lab) continue;
+                if (!lab.isActiveAndEnabled || lab.Busy || c == null || !c.ResearchWorkReady || !c.CanReceiveOrders
+                    || c.IsAwayFromHome || c.ScienceAssignment != lab || (c.Position - lab.Position).sqrMagnitude > 64) continue;
                 state.resourceProgress += seconds * c.WorkRate(CommanderActivity.Research) * (1f + .25f * (lab.Tier - 1));
             }
             if (state.resourceProgress < ResourceResearchWork) return;

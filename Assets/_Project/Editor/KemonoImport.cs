@@ -79,6 +79,7 @@ namespace AntColony.EditorTools
                 importer.SaveAndReimport();
                 var clip = AssetDatabase.LoadAllAssetsAtPath(path).OfType<AnimationClip>().First(c => !c.name.StartsWith("__preview__"));
                 State(name, clip);
+                if (!production && name == "Attack") State("Attack_Unarmed", clip);
                 if (name == "Idle") State("Idle_A", clip);
                 if (name == "Hurt") State("Hit", clip);
                 // 기존 검사와 호출자가 실제 Base Layer.Attack 상태도 확인한다.

@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using AntColony.Buildings;
 using AntColony.Core;
@@ -35,11 +35,12 @@ namespace AntColony.UI
             new[] { new Entry("창고", BuildingKind.Storage), new Entry("저장고", BuildingKind.FoodStore), new Entry("항아리", BuildingKind.Jar), new Entry("냉장고", BuildingKind.Fridge), new Entry("냉동고", BuildingKind.Freezer), new Entry("퇴비통", BuildingKind.CompostBin) },
             new[] { new Entry("전등", BuildingKind.ElectricLamp), new Entry("화롯불", BuildingKind.Brazier), new Entry("등불", BuildingKind.Lantern), new Entry("횃불", BuildingKind.Torch) }, // 환경: TODO 난로·환풍구(보온 연구)
             new[] { new Entry("쳇바퀴", BuildingKind.Treadmill), new Entry("장작 발전기", BuildingKind.WoodGenerator), new Entry("전선", BuildingKind.PowerWire),
-                new Entry("배터리", BuildingKind.Battery), new Entry("증기 발전기", BuildingKind.SteamGenerator),
+                new Entry("배터리", BuildingKind.Battery), new Entry("증기 발전기", BuildingKind.SteamGenerator), new Entry("가스 발전기", BuildingKind.GasGenerator),
                 new Entry("석유 시추기", BuildingKind.OilDrill), new Entry("정유기", BuildingKind.OilRefinery), new Entry("연료 충전기", BuildingKind.FuelCharger) },
             new Entry[0], // 자동화: TODO 센서·논리(신호선)
             new[] { new Entry("수동 우물", BuildingKind.ManualWell), new Entry("급수 펌프", BuildingKind.WaterPump),
-                new Entry("배관", BuildingKind.FluidPipe), new Entry("유체 탱크", BuildingKind.FluidTank) },
+                new Entry("배관", BuildingKind.FluidPipe), new Entry("유체 탱크", BuildingKind.FluidTank),
+                new Entry("기체 배관", BuildingKind.GasPipe), new Entry("기체 탱크", BuildingKind.GasTank), new Entry("가스 추출기", BuildingKind.GasExtractor) },
             new[] { new Entry("밭", BuildingKind.Farm), new Entry("버섯밭", BuildingKind.MushroomFarm), new Entry("축사", BuildingKind.AphidPen), new Entry("화덕", BuildingKind.Hearth),
                 new Entry("우리 표지", BuildingKind.Pen), new Entry("먹이통", BuildingKind.Feeder), new Entry("돌봄대", BuildingKind.CareStation),
                 new Entry("동물 치료대", BuildingKind.AnimalClinic), new Entry("도축대", BuildingKind.ButcherTable),
@@ -49,7 +50,7 @@ namespace AntColony.UI
                 new Entry("비행 연구소", BuildingKind.ResearchLab, UnitRole.Flying), new Entry("정착지 연구대", BuildingKind.ScienceLab),
                 new Entry("방어 연구소", BuildingKind.DefenseLab), new Entry("공방", BuildingKind.Workshop),
                 new Entry("기초 목공대", BuildingKind.Carpentry), new Entry("석공대", BuildingKind.Stonecutter), new Entry("가마", BuildingKind.Kiln),
-                new Entry("물레", BuildingKind.SpinningWheel), new Entry("용광로", BuildingKind.Smelter) },
+                new Entry("물레", BuildingKind.SpinningWheel), new Entry("용광로", BuildingKind.Smelter), new Entry("지하 탐사기", BuildingKind.UndergroundScanner), new Entry("심층 채굴기", BuildingKind.DeepDrill), new Entry("합금 심층 채굴기", BuildingKind.AdvancedDeepDrill), new Entry("가스 제련로", BuildingKind.GasSmelter) },
             new[] { new Entry("의무실", BuildingKind.Infirmary), new Entry("약제대", BuildingKind.MedicineBench), new Entry("묘비", BuildingKind.Tombstone), new Entry("시민 진료소", BuildingKind.CitizenClinic) },
             new[] { new Entry("성벽", BuildingKind.CastleWall), new Entry("성문", BuildingKind.Gate), new Entry("끈끈이 함정", BuildingKind.TrapPit), new Entry("가시 함정", BuildingKind.SpikeTrap),
                 new Entry("지뢰밭", BuildingKind.MineField), new Entry("산성탑", BuildingKind.AcidTower), new Entry("광역 산성탑", BuildingKind.AreaAcidTower),
@@ -234,7 +235,8 @@ namespace AntColony.UI
                 placeBar.sizeDelta = redevelop != null ? new Vector2(980, 58) : selectable ? new Vector2(760, 58) : new Vector2(520, 34);
                 placeText.rectTransform.sizeDelta = placeBar.sizeDelta - new Vector2(selectable ? 200 : 20, 4);
                 placeText.text = $"<b>{NameOf(placement.PendingKind, placement.PendingRole)} 배치</b>   ·   Esc 취소   ·   담당 장수: <color=#f2a93b>{(placement.Builder as CommanderAnt)?.CommanderName ?? "미지정(자율 시공)"}</color>"
-                    + (redevelop != null ? "\n" + redevelop : selectable ? "\n" + MaterialLine(placement.PendingMaterial, data.soilCost) : "");
+                    + (redevelop != null ? "\n" + redevelop : selectable ? "\n" + MaterialLine(placement.PendingMaterial, data.soilCost) : "")
+                    + (UndergroundProduction.IsExtractor(placement.PendingKind) ? "\n" + UndergroundProduction.Preview(placement.PendingKind, placement.PreviewPosition) : "");
                 materialButton.gameObject.SetActive(selectable);
                 if (selectable)
                 {

@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using AntColony.Buildings;
@@ -165,11 +165,12 @@ namespace AntColony.Units
             if (TickBurial(seconds) || TickService(seconds) || TickHunt(seconds) || TickAnimalTask(seconds)) return;
             if (TickGroundCraft(seconds)) return;
             if (TickBedRest()) return;
+            if (TickSurveyAssignment()) return;
             if (!IsWorking && ScienceAssignment == null && CraftingWorkshop == null) SetWorkTarget(null);
             if (ScienceAssignment != null)
             {
                 if ((CampaignResearch.Instance?.Active == null && CampaignResearch.Instance?.ActiveResource == null) || !AllowsJob(CommanderJobs.Research)) ScienceAssignment.ReleaseResearcher();
-                else return;
+                else { ReturnToResearch(); return; }
             }
             if (WorkState.resting && (IsWorking || !IsFatigued)) WorkState.resting = false;
             if (LabUpgradeBusy || IsWorking || IsInCombat) return;
@@ -242,8 +243,12 @@ namespace AntColony.Units
                     var treatments = commanderCare.Concat(HasLifeThreateningPatient && commanderCare.Count > 0 ? Enumerable.Empty<(Component, Func<bool>)>() : AnimalNursingTasks()).ToList();
                     foreach (var t in treatments) yield return t;
                     if (treatments.Count == 0)
+                    {
+                        foreach (var bench in AntColony.Core.SceneObjects.All<Processor>().Where(p => p.IsMedical && p.NeedsIngredients))
+                            yield return (bench, () => CommandFetchFor(bench));
                         foreach (var bench in AntColony.Core.SceneObjects.All<Processor>().Where(p => p.IsMedical && p.NeedsWork))
                             yield return (bench, () => StartService(bench, CommanderJobs.Nursing));
+                    }
                     yield break;
                 case CommanderJobs.Repair:
                     foreach (var building in AntColony.Core.SceneObjects.All<BuildingBase>().Where(BuildingRepair.Needed))
@@ -263,7 +268,11 @@ namespace AntColony.Units
                         });
                     yield break;
                 case CommanderJobs.Crafting:
-                    foreach (var shop in AntColony.Core.SceneObjects.All<Workshop>())
+                    foreach (var shop in AntColony.Core.SceneObjects.All<Workshop>().Where(w => w.NeedsIngredients))
+                        yield return (shop, () => CommandFetchFor(shop));
+                    foreach (var processor in AntColony.Core.SceneObjects.All<Processor>().Where(p => !p.IsMedical && p.NeedsIngredients))
+                        yield return (processor, () => CommandFetchFor(processor));
+                    foreach (var shop in AntColony.Core.SceneObjects.All<Workshop>().Where(w => w.InputsReady))
                         yield return (shop, () => !shop.Ruined && !shop.IsDead && shop.Crafter == null && shop.CanContinue(this) && GoToFacility(shop));
                     foreach (var processor in AntColony.Core.SceneObjects.All<Processor>().Where(p => !p.IsMedical && p.NeedsWork)) // 약제대는 간호(의료)
                         yield return (processor, () => StartService(processor, CommanderJobs.Crafting));
@@ -288,8 +297,15 @@ namespace AntColony.Units
                         yield return (animal, () => !Active.OfType<CommanderAnt>().Any(c => c != this && c.HuntTarget == animal) && StartHunt(animal));
                     yield break;
             }
+            if (job == CommanderJobs.Gathering)
+                foreach (var drill in SupplyFacility.All.Where(DeepDrillNeedsWork))
+                    yield return (drill, () => StartService(drill, CommanderJobs.Gathering));
             if (job == CommanderJobs.Hauling)
             {
+                foreach (var shop in AntColony.Core.SceneObjects.All<Workshop>().Where(w => w.NeedsIngredients))
+                    yield return (shop, () => CommandFetchFor(shop));
+                foreach (var processor in AntColony.Core.SceneObjects.All<Processor>().Where(p => p.NeedsIngredients))
+                    yield return (processor, () => CommandFetchFor(processor));
                 foreach (var wheel in PowerNode.All.Where(p => p.NeedsRunner))
                     yield return (wheel, () => StartService(wheel, CommanderJobs.Hauling));
                 foreach (var well in SupplyFacility.All.Where(ManualWellNeedsWork))
@@ -306,11 +322,13 @@ namespace AntColony.Units
                     foreach (var loot in AntColony.Core.SceneObjects.All<AntColony.World.EquipmentLoot>().Where(l => l.Collector == null))
                         yield return (loot, () => CanReach(loot.transform.position) && loot.TryCollect(this));
             }
-            foreach (var node in ResourceNode.Available.Where(n => n != null && JobFor(n) == job))
+            foreach (var node in ResourceNode.Available.Where(n => n != null && JobFor(n) == job
+                && (!n.NeedsDesignation || n.WorkRequested && !n.WorkPaused)))
                 yield return (node, () =>
                 {
                     if (!node.CanGatherWith(this) || CarriedAmount != 0 && CarriedType != node.ResourceType
-                        || ResourceManager.Instance == null || ResourceManager.Instance.Room(node.ResourceType, this) <= 0
+                        || !node.NeedsDesignation && (ResourceManager.Instance == null || ResourceManager.Instance.Room(node.ResourceType, this) <= 0)
+                        || node.NeedsDesignation && Active.OfType<WorkerAnt>().Any(w => w != this && w.CurrentResourceNode == node && w.IsWorking)
                         || node.IsLooseCargo && !HasCargoDestination(node.ResourceType)
                         || node.IsLooseCargo && Active.OfType<WorkerAnt>().Any(w => w != this && w.CurrentResourceNode == node) // 바닥 더미는 한 장수만 맡는다
                         || node.GetComponentInParent<ExpeditionSite>() != null || node.IsRaidLoot || !TryWorkApproach(node.transform.position, out _)) return false;

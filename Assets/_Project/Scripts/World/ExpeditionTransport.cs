@@ -203,6 +203,7 @@ namespace AntColony.World
             foreach (var body in bodyCargo) body.remaining = Mathf.Max(0, body.remaining - seconds);
             DockingRemaining = Mathf.Max(0, DockingRemaining - seconds);
             if (State != ExpeditionState.Home) TickSupplies(seconds);
+            if (TickInvestigation(seconds)) return;
             var withdrawing = IsWithdrawing;
             TickWithdrawal(seconds);
             if (withdrawing) return;
@@ -225,6 +226,7 @@ namespace AntColony.World
                 if (!TryHomeLanding(out var landing)) return;
                 transform.position = landing;
                 State = ExpeditionState.Home;
+                ReportInvestigation();
                 ReturnTroopPassengers();
                 if (Site != null && Site.Visitor == this) Site.Visitor = null;
                 Site = null;
@@ -242,6 +244,7 @@ namespace AntColony.World
                 if (NavMesh.SamplePosition(candidate, out var hit, 6, NavMesh.AllAreas)) candidate = hit.position;
                 crew[i].SetEmbarked(false, candidate);
             }
+            ConcealInvestigators();
         }
 
         public override void DepositResources(AntColony.Data.ResourceType type, int amount)

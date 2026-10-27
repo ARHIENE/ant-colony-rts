@@ -1,4 +1,4 @@
-using AntColony.Buildings;
+﻿using AntColony.Buildings;
 using AntColony.Data;
 using UnityEngine;
 
@@ -29,6 +29,8 @@ namespace AntColony.World
             ResourceType.Sand => "Mineral_Sand", ResourceType.Clay => "Mineral_Clay", ResourceType.Resin => "Gather_Resin",
             ResourceType.StoneBlock => "Block_Granite", ResourceType.Brick => "Proc_Brick", ResourceType.Glass => "Proc_Glass",
             ResourceType.Cloth => "Cloth_Plant", ResourceType.Iron => "Ingot_Iron", ResourceType.Copper => "Ingot_Copper",
+            ResourceType.TitaniumOre => "Ore_Titanium", ResourceType.StellarOre => "Ore_Starlight",
+            ResourceType.Titanium => "Ingot_Titanium", ResourceType.TitaniumAlloy => "Ingot_TitaniumAlloy",
             ResourceType.Bronze => "Ingot_Bronze", ResourceType.Steel => "Ingot_Steel",
             ResourceType.Honeydew => "Ranch_Honeydew", ResourceType.Honey => "Ranch_Honey",
             ResourceType.AnimalMedicine => "CC_MedicineAnimal", ResourceType.SurgeryKit => "CC_SurgeryKit",

@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using AntColony.Buildings;
@@ -31,7 +31,7 @@ namespace AntColony.Save
             if (d == null) return;
             Check(V(d.rootPosition) && N(d.waveTimer) && N(d.economyTimer) && d.waveIndex >= 0, "enemy colony");
             L(d.nodes, 10000, "enemy colony nodes");
-            Check(d.nodes.All(n => n != null && n.key != null && N(n.amount) && N(n.regrowTimer) && N(n.sowRemaining) && V(n.position)
+            Check(d.nodes.All(n => n != null && n.key != null && N(n.amount) && N(n.regrowTimer) && N(n.sowRemaining) && ValidNaturalWork(n) && V(n.position)
                 && Enum.IsDefined(typeof(ResourceType), n.type)), "enemy colony resource data");
             L(d.buildingHealth, 10000, "enemy buildings"); L(d.extraBuildings, 10000, "building positions");
             Check(d.buildingHealth.Count == d.extraBuildings.Count && d.buildingHealth.All(N) && d.extraBuildings.All(V), "enemy building data");
@@ -43,6 +43,8 @@ namespace AntColony.Save
             {
                 Check(DateTime.TryParse(f.savedAtUtc, out _) && f.camera != null, "save header");
                 ValidateIntegration(f);
+                Check(Core.TalentAssessment.Validate(f.assessment, f.world.transports.Count, f.world.sites.Count), "talent assessment");
+                Check(SaveUnderground.Valid(f), "underground survey");
                 Check(AntColony.Core.RocketCampaign.Validate(f.rocket), "rocket campaign");
                 Check(f.rocket == null || f.rocket.economy.samples.All(s => s.at <= f.gameSeconds), "rocket economy dates");
                 Check(N(f.playSeconds) && N(f.gameSeconds) && N(f.upkeepTimer) && N(f.incursionTimer), "timers");
@@ -120,7 +122,7 @@ namespace AntColony.Save
                     Check(c.transportIndex >= -1 && c.transportIndex < f.world.transports.Count && c.siteIndex >= -1 && c.siteIndex < f.world.sites.Count, "commander location");
                     Check(c.location != 1 || c.transportIndex >= 0, "crew reference"); Check(c.location < 2 || c.siteIndex >= 0, "settlement reference");
                     if (c.location == 2) Check(f.world.sites[c.siteIndex]?.disposition == 1, "garrison disposition");
-                    if (c.location == 3) Check(f.world.sites[c.siteIndex]?.disposition == 3 && c.troopCount == 0, "captivity");
+                    if (c.location == 3) Check((f.world.sites[c.siteIndex]?.disposition == 3 || f.diplomacy?.seizures?.Any(s => s.owner == c.personalState.id && s.item == "" && s.holder != "player") == true) && c.troopCount == 0, "captivity");
                 }
                 Check(f.buildings.Select(b => b.key).Distinct().Count() == f.buildings.Count, "building IDs");
                 var targets = new HashSet<int>();
@@ -131,7 +133,7 @@ namespace AntColony.Save
                     Check(b.key != null && V(b.position) && N(b.health) && !float.IsNaN(b.rotationY) && !float.IsInfinity(b.rotationY), "building");
                     Check(N(b.powerFuelSeconds) && b.powerFuelSeconds <= Core.GameBalance.WoodBurnSeconds, "power fuel");
                     Check(!Enum.TryParse<BuildingKind>(b.kind, out var supplyKind) || !Buildings.SupplyFacility.IsKind(supplyKind)
-                        || b.supply == null || Buildings.SupplyFacility.Valid(b.supply), "supply facility");
+                        || b.supply == null || Buildings.SupplyFacility.ValidForKind(supplyKind, b.supply), "supply facility");
                     Check(b.kind != "PlanterBed" && b.kind != "StarterMushroomBed" || b.starterCrop == null || Buildings.StarterCropBed.Valid(b.starterCrop), "starter crop");
                     Check(N(b.powerCharge) && b.powerCharge <= Core.GameBalance.BatteryCapacity
                         && (b.kind == "Battery" || b.powerCharge == 0) && b.materialTier >= 0 && Enum.IsDefined(typeof(ResourceType), b.mainMaterial) && ((ResourceType)b.mainMaterial).IsMaterial(), "building power/material");
@@ -185,7 +187,7 @@ namespace AntColony.Save
                         Check(prisoner.labAttack >= 0 && prisoner.labAttack <= 3 && prisoner.labArmor >= 0 && prisoner.labArmor <= 3 && N(prisoner.strikeCooldown) && N(prisoner.stanceCooldown), "prisoner upgrades/skills");
                         L(prisoner.roles, 6, "prisoner roles"); Check(prisoner.roles.Count > 0 && prisoner.roles.All(R), "prisoner roles"); }
                     foreach (var a in b.nurseryAffinity) Check(a != null && a.firstCommanderId >= 0 && a.firstCommanderId < f.commanders.Count && a.secondCommanderId >= 0 && a.secondCommanderId < f.commanders.Count && a.firstCommanderId != a.secondCommanderId && N(a.value), "affinity");
-                    for (var i = 0; i < b.nodes.Count; i++) Check(b.nodes[i] != null && b.nodes[i].index == i && N(b.nodes[i].amount) && N(b.nodes[i].regrowTimer) && N(b.nodes[i].sowRemaining), "building node");
+                    for (var i = 0; i < b.nodes.Count; i++) Check(b.nodes[i] != null && b.nodes[i].index == i && N(b.nodes[i].amount) && N(b.nodes[i].regrowTimer) && N(b.nodes[i].sowRemaining) && ValidNaturalWork(b.nodes[i]), "building node");
                 }
                 Check((long)p.antsAssigned == f.commanders.Where(c => c.personalState.social.departure == DepartureState.None).Sum(c => (long)c.troopCount) + f.buildings.Sum(b => (long)b.scoutDispatchedAnts) + f.world.transports.Sum(t => (long)(t.withdrawal?.troops ?? 0)), "assigned population");
                 Check(f.weather == null || f.weather.kind >= 0 && f.weather.kind <= 6 && N(f.weather.remaining), "weather");
@@ -209,13 +211,14 @@ namespace AntColony.Save
                     Check(s.walking || crew.Sum(c => (long)c.troopCount) + (s.withdrawal?.troops ?? 0) <= (s.aircraft ? Core.GameBalance.AircraftTroops : Core.GameBalance.VehicleTroops) * (heavy ? 1.5f : 1f)
                         && crew.Length <= (s.aircraft ? Core.GameBalance.AircraftCommanders : Core.GameBalance.VehicleCommanders) + (heavy ? 2 : 0), "transport capacity");
                 }
-                Check(f.nodes.All(n => n != null && n.key != null && N(n.amount) && N(n.regrowTimer) && N(n.sowRemaining) && n.fishMonth >= -1 && V(n.position) && Enum.IsDefined(typeof(ResourceType), n.type))
+                Check(f.nodes.All(n => n != null && n.key != null && N(n.amount) && N(n.regrowTimer) && N(n.sowRemaining) && ValidNaturalWork(n) && n.fishMonth >= -1 && V(n.position) && Enum.IsDefined(typeof(ResourceType), n.type))
                     && f.nodes.Select(n => n.key).Distinct().Count() == f.nodes.Count, "resource nodes");
                 Check(f.critters == null || f.critters.Count <= 1000 && f.critters.All(c => c != null && Enum.IsDefined(typeof(Buildings.Species), c.species) && N(c.health) && c.health > 0 && V(c.position) && (c.disease == null || c.disease.Valid)), "critters");
                 Check(f.monsters.All(m => m != null && m.key != null && N(m.health) && V(m.position)) && f.monsters.Select(m => m.key).Distinct().Count() == f.monsters.Count, "monsters");
                 foreach (var m in f.monsters) if (m.traits != null)
                 { Traits(m.traits); Check(m.talents != null && m.talents.Validate(), "enemy talents"); }
                 Check(f.monsters.All(m => string.IsNullOrEmpty(m.diplomaticFactionId) || f.diplomacy.civilizations.Any(c => c.id == m.diplomaticFactionId)), "enemy faction");
+                Check(Core.TalentAssessment.ValidateReferences(f), "assessment references");
                 SaveOrderValidation.Validate(f);
                 return true;
             }
@@ -245,6 +248,7 @@ namespace AntColony.Save
                 // JsonUtility writes null inline classes as empty objects.
                 for (var i = 0; i < f.world.sites.Count; i++) Check((i >= SaveCatalog.ColonySizes.Length || SaveCatalog.ColonySizes[i] == 0) ? f.world.sites[i].colony == null || f.world.sites[i].colony.buildingHealth.Count == 0
                     : f.world.sites[i].colony != null && f.world.sites[i].colony.buildingHealth.Count >= SaveCatalog.ColonySizes[i], "colony schema");
+                Check(Core.TalentAssessment.ValidateReferences(f), "assessment references");
                 SaveOrderValidation.Validate(f);
                 return true;
             }

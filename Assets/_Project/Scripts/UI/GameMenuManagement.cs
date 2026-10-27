@@ -41,6 +41,9 @@ namespace AntColony.UI
             if (selected == "의료" && SortedCommanders().Length > 0) { ShowHealth(SortedCommanders()[0]); return; }
             if (selected == "묘비·추모") { ShowMemorial(); return; }
             if (selected == "장수") { Roster(); return; }
+            if (selected == "평가") { ShowAssessment(); return; }
+            if (selected == "외부 조사") { ShowInvestigation(); return; }
+            if (selected == "매장지·배관") { ShowSurvey(); return; }
             var window = V5Window(group, "정착지 관리 · 실제 시설과 장수의 현재 상태");
             ManagementTabs(window, group, selected);
             var left = V5Section(window, selected, 12, 112, 530, 536);
@@ -134,7 +137,6 @@ namespace AntColony.UI
                     Link("전체 작업", () => ShowTasks(TaskCandidates().ToList()));
                     Info("기존 수리 작업은 작업표에서 지정합니다. 시안의 통합 수리 주문 대시보드는 미구현입니다.");
                     break;
-                case "매장지·배관": Missing("시안의 매장지 개발·배관 연결 관리 기능은 아직 구현되지 않았습니다."); break;
                 case "음주": Missing("시안의 음주 정책·배급 관리 기능은 아직 구현되지 않았습니다."); break;
                 case "장수":
                     foreach (var c in SortedCommanders()) Link(c.CommanderName + " · " + Status(c), () => Details(c));
@@ -143,16 +145,11 @@ namespace AntColony.UI
                     MenuTheme.Button(right, "작업표", WorkSchedule);
                     Info("장수 상세·장비·출전 편성은 기존 게임 기능입니다.");
                     break;
-                case "외부 조사":
-                    Facilities<ScoutPost>(ShowScout);
-                    Info("기존 정찰 초소의 영입 파견에 연결합니다. 시안의 세력별 인재 조사·보고서는 미구현입니다.");
-                    break;
                 case "특성 도감":
                     foreach (var c in SortedCommanders())
                         MenuTheme.Text(left, c.CommanderName + "\n" + string.Join(" · ", c.Traits.values.Select(CommanderTraits.DisplayName)), 13, 64);
                     Info("현재 장수가 실제로 보유한 특성입니다. 시안의 전체 특성 도감·등급 표시는 미구현입니다.");
                     break;
-                case "평가": Missing("시안의 담당자 평가·별점·조사 기술 기능은 아직 구현되지 않았습니다."); break;
                 case "진형": Missing("시안의 14종 진형 선택·적성·전투 보정 기능은 아직 구현되지 않았습니다."); break;
             }
             V5Fit(window);

@@ -1,4 +1,4 @@
-using System.Linq;
+﻿using System.Linq;
 using AntColony.Buildings;
 using AntColony.Core;
 using AntColony.Data;
@@ -76,7 +76,12 @@ namespace AntColony.UI
                     + (HudOverview.BedShortage > 0 ? $"\n<color=#ef955f>군체 전체 침대 {HudOverview.BedShortage}개 부족</color>" : "\n군체 전체 침대 충분");
                 instruction.text = RoomDescription(dorm) + "\n배정: " + ResidentNames(dorm);
             }
-            if (Target is ResourceNode node) { label.text = node.GatheringForbidden ? "채집 허용" : "채집 금지"; instruction.text = $"남은 자원 {node.AmountRemaining:0.#} · {(node.IsLooseCargo ? "운반" : "채집")} 작업"; }
+            if (Target is ResourceNode node)
+            {
+                label.text = node.NeedsDesignation ? node.WorkRequested ? "지정 작업 취소" : node.WorkName + " 지정" : node.GatheringForbidden ? "채집 허용" : "채집 금지";
+                instruction.text = $"남은 자원 {node.AmountRemaining:0.#} · " + (node.NeedsDesignation ? node.WorkWaitReason : node.IsLooseCargo ? "운반 작업" : "시설 자동 작업");
+                if (node.NeedsDesignation) { eatCorpse.gameObject.SetActive(true); eatCorpse.GetComponentInChildren<Text>().text = node.GatheringForbidden ? "채집 금지 해제" : "채집 금지"; }
+            }
             if (Target.GetComponent<PrisonerCamp>() is PrisonerCamp campInfo) { label.text = "포로 관리"; instruction.text = $"포로 {campInfo.Count}/{campInfo.Capacity} · 경비 {(campInfo.Guarded ? "있음" : "없음")}"; }
             if (Target is CompostBin compostInfo) { label.text = "퇴비통 관리"; instruction.text = compostInfo.Status; }
             if (Target is Tombstone tombInfo) { label.text = "묘비"; instruction.text = tombInfo.Empty ? "빈 묘비 · 사망 기록에서 고인을 등록하세요" : $"{tombInfo.Data2.name} · " + (tombInfo.Data2.body ? "안치됨" : "시신 미안치"); }
@@ -109,6 +114,12 @@ namespace AntColony.UI
             }
             if (Target is BuildingBase packed && Demolition.IsPacked(packed)) status.text = "포장된 가구(기능 정지) · 명령 '이동'으로 새 위치에 다시 설치합니다.";
             if (Target is Barracks barracks) label.text = "병영 강화";
+            if (Target is UndergroundScanner scanner)
+            {
+                action.gameObject.SetActive(true); action.interactable = true;
+                label.text = "지하 탐사 관리"; status.text = scanner.Status;
+                instruction.text = $"200W · 반경 35m · 후보당 300초 · 담당: {scanner.Target?.CommanderName ?? "없음"}";
+            }
             if (Target is DigSite) label.text = "굴착 확장";
             if (Target is BuildingConstructionSite site)
             {
@@ -146,12 +157,25 @@ namespace AntColony.UI
             }
             if (Target is SupplyFacility supply)
             {
-                action.gameObject.SetActive(supply.Kind == BuildingKind.ManualWell || supply.Kind == BuildingKind.FuelCharger);
-                label.text = supply.Kind == BuildingKind.ManualWell ? "취수 작업 지시" : "연료 드럼통 충전";
+                action.gameObject.SetActive(supply.Kind == BuildingKind.ManualWell || UndergroundProduction.IsSolidDrill(supply.Kind) || supply.Kind == BuildingKind.FuelCharger);
+                label.text = UndergroundProduction.IsSolidDrill(supply.Kind) ? "채굴 작업 지시" : supply.Kind == BuildingKind.ManualWell ? "취수 작업 지시" : "연료 드럼통 충전";
                 status.text = supply.Supply.amount > 0 ? $"{((AntColony.Data.ResourceType)supply.Supply.fluid).DisplayName()} {supply.Supply.amount}/{SupplyFacility.Capacity}" : "비어 있음";
                 instruction.text = supply.Kind == BuildingKind.ManualWell ? "수원 근처에서 장수 운반 작업 · 5초당 물 10 · 물 반출 후 운반 가능"
                     : supply.Kind == BuildingKind.FuelCharger ? "빈 드럼통 1 + 정제유 10 → 충전 드럼통 1" : "배관으로 연결 · 보관된 물은 바닥으로 반출 가능";
+                if (UndergroundProduction.IsExtractor(supply.Kind))
+                { status.text = UndergroundProduction.Status(supply); instruction.text = UndergroundProduction.Preview(supply.Kind, supply.Position); }
+                else if (supply.GasNetwork) instruction.text = "기체 전용 배관/탱크 · 액체와 연결되지 않음";
                 eatCorpse.GetComponentInChildren<Text>().text = "물 전량 반출";
+            }
+            if (Target is Processor industrial && industrial.Industrial)
+            {
+                status.text = industrial.WaitReason;
+                instruction.text = "티타늄 광석 → 티타늄 → 합금 · 재료 배송 + 제작 담당\n가스1/묶음 · 200W · 완성품은 바닥에서 운반";
+            }
+            if (Target is PowerNode gasPower && gasPower.Kind == BuildingKind.GasGenerator)
+            {
+                status.text = gasPower.GasStatus;
+                instruction.text = "기체 배관·전력망을 각각 연결하세요. 공급 단절 시 투입된 연료까지 발전합니다.";
             }
             if (Target is WildMonster animal)
             {
@@ -193,14 +217,15 @@ namespace AntColony.UI
         public static ScoutPost Scout => Target != null ? Target.GetComponent<ScoutPost>() : null;
         private void Act()
         {
+            if (Target is UndergroundScanner scanner) { GameMenuController.Instance?.ShowSurvey(scanner); return; }
             if (Target is StarterCropBed crop) { if (!crop.Plant()) ToastManager.Show("파종재 보유량과 파종 상태를 확인하세요."); return; }
             if (Target is SupplyFacility supply)
             {
                 if (supply.Kind == BuildingKind.FuelCharger) { if (!supply.FillFuelDrum()) ToastManager.Show("빈 드럼통 1개와 배관망의 정제유 10이 필요합니다."); return; }
-                if (supply.Kind == BuildingKind.ManualWell)
+                if (supply.Kind == BuildingKind.ManualWell || UndergroundProduction.IsSolidDrill(supply.Kind))
                 {
                     foreach (var commander in AntUnitBase.Active.OfType<CommanderAnt>().OrderBy(c => (c.Position - supply.Position).sqrMagnitude))
-                        if (commander.StartService(supply, CommanderJobs.Hauling)) return;
+                        if (commander.StartService(supply, UndergroundProduction.IsSolidDrill(supply.Kind) ? CommanderJobs.Gathering : CommanderJobs.Hauling)) return;
                     ToastManager.Show("취수 작업이 가능한 평시 장수가 없습니다.");
                 }
                 return;
@@ -212,7 +237,11 @@ namespace AntColony.UI
             if (Target is Tombstone tomb) { GameMenuController.Instance?.ShowMemorial(tomb); return; }
             if (Target is Infirmary bed) { if (bed.Patients.Count > 0) GameMenuController.Instance?.ShowHealth(bed.Patients[0]); return; }
             if (Target is Corpse corpse) corpse.Priority = !corpse.Priority;
-            if (Target is ResourceNode node) node.GatheringForbidden = !node.GatheringForbidden;
+            if (Target is ResourceNode node)
+            {
+                if (node.NeedsDesignation) { if (node.WorkRequested) node.CancelWork(); else if (!node.RequestWork()) ToastManager.Show("작업 지정 불가: 채집 금지·대상 상태를 확인하세요."); }
+                else node.GatheringForbidden = !node.GatheringForbidden;
+            }
             if (Target is Workshop shop) GameMenuController.Instance?.ShowWorkshop(shop);
             if (Target is Processor processor) GameMenuController.Instance?.ShowProcessor(processor);
             if (Target is Kitchen cook && !cook.IsTable) GameMenuController.Instance?.ShowKitchen(cook);
@@ -230,6 +259,7 @@ namespace AntColony.UI
         }
         private void EatCorpse()
         {
+            if (Target is ResourceNode natural && natural.NeedsDesignation) { natural.GatheringForbidden = !natural.GatheringForbidden; return; }
             if (Target is SupplyFacility supply)
             { if (!supply.Unload(AntColony.Data.ResourceType.Water, supply.Supply.amount)) ToastManager.Show("반출할 물이 없습니다."); return; }
             if (!(Target is Corpse corpse)) return;

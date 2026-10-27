@@ -10,7 +10,7 @@ namespace AntColony.UI
     // V6 인재·편성: 왼쪽 장수 목록(필터·열 머리·합계) + 오른쪽 선택 장수 상세.
     public sealed partial class GameMenuController
     {
-        private static readonly string[] SkillNames = { "채집", "건설", "농사", "낚시", "제작", "연구", "근접", "원거리", "지휘", "의료", "요리", "근력", "예술", "정치", "사육", "소화" };
+        private static readonly string[] SkillNames = { "채집", "건설", "농사", "낚시", "제작", "연구", "근접", "원거리", "지휘", "의료", "요리", "근력", "예술", "정치", "사육", "조사" };
         private static readonly string[] FilterNames = { "전체", "대기", "작업 중", "원정 중", "기분 경고" };
         private int rosterFilter;
         private string rosterSearch = "";
@@ -111,7 +111,10 @@ namespace AntColony.UI
 
             var skills = L.Cell(content, "Skills", 26 + ((CommanderTalents.Count + 2) / 3) * 46);
             c.Talents.EnsurePotential();
-            L.Label(skills, $"<b>기술</b>  <color=#b1b3a7>0~20 · ★ 열정 · 최근 활용 비중</color>   <b>CA {c.Talents.Current:0.#} / PA {c.Talents.potential}</b>", 13, 0, 0, 496, 22);
+            var evaluation = L.Cell(content, "TalentAssessment", 78);
+            L.Label(evaluation, TalentSummary(c.PersonalState.id), 13, 0, 0, 496, 36);
+            L.Button(evaluation, "Open Assessment", "인재 평가 · 분야별 별점", 0, 40, 496, 30, () => ShowAssessment(c.PersonalState.id));
+            L.Label(skills, "<b>기술</b>  <color=#b1b3a7>0~20 · ★ 열정 · 최근 활용 비중</color>", 13, 0, 0, 496, 22);
             foreach (CommanderActivity skill in Enum.GetValues(typeof(CommanderActivity)))
             {
                 var i = (int)skill; var level = c.Talents.Level(skill);

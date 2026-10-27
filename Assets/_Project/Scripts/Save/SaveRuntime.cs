@@ -30,6 +30,7 @@ namespace AntColony.Save
                 file.monsters.Add(Capture(m, SaveReferences.Key(m)));
         }
         private static MonsterDto Capture(WildMonster m, string key) => new MonsterDto { key = key,
+            investigationId = (m as EnemyCommander)?.InvestigationId,
             health = m != null ? m.CurrentHealth : 0, position = new Vec3Dto(m != null ? m.Position : Vector3.zero),
             hasRuntime = m != null, runtime = m != null ? m.CaptureRuntime() : null, diplomaticFactionId = m?.DiplomaticFactionId,
             temperament = m != null ? m.Temperament : WildlifeTemperament.Predator, huntDesignated = m != null && m.HuntDesignated,
@@ -78,7 +79,7 @@ namespace AntColony.Save
                 m.DiplomaticFactionId = d.diplomaticFactionId; m.Temperament = d.temperament; m.HuntDesignated = d.huntDesignated;
                 if (m is EnemyCommander c && d.traits != null) {
                     c.ConfigureCommander(state.commanderName, (CommanderRank)state.rank, state.roles.Select(r => (UnitRole)r).ToArray(), SaveCatalog.Traits(d.traits));
-                    c.RestoreTalents(d.talents); c.CaptureChance = state.captureChance;
+                    c.RestoreTalents(d.talents); c.CaptureChance = state.captureChance; c.InvestigationId = d.investigationId;
                 }
                 // OnEnable initializes health. Apply saved health and combat timers after activation; never Die/TakeDamage.
                 m.RestoreHealth(d.health); m.RestoreRuntime(state);

@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using AntColony.Buildings;
@@ -10,6 +10,14 @@ namespace AntColony.Save
 {
     public static partial class SavePreflight
     {
+        private static bool ValidNaturalWork(ResourceNodeDto n) => n.workRequestOrder >= 0 && n.workRequestOrder < long.MaxValue / 2 && (!n.workPaused || n.workRequested);
+        private static void ValidateStaged(List<ProductionInputs.Stock> staged)
+        {
+            Check(staged == null || staged.Count <= Enum.GetValues(typeof(AntColony.Data.ResourceType)).Length
+                  && staged.All(s => s != null && Enum.IsDefined(typeof(AntColony.Data.ResourceType), s.type) && s.amount >= 0 && s.amount <= 100000000
+                      && (s.lots == null || s.lots.Valid && s.lots.Total <= s.amount))
+                && staged.Select(s => s.type).Distinct().Count() == staged.Count, "staged production materials");
+        }
         private static void ValidateIntegration(SaveFileV1 f)
         {
             SaveTransportValidation.Validate(f);
@@ -40,6 +48,7 @@ namespace AntColony.Save
                 {
                     var s = b.workshop;
                     Check(s != null && s.materialVersion >= 0 && s.materialVersion <= 1, "craft material version");
+                    ValidateStaged(s.staged);
                     Check(!s.ruined || b.health == 0 && s.crafter == -1, "workshop ruin");
                     foreach (var j in s.jobs)
                     {
@@ -54,6 +63,9 @@ namespace AntColony.Save
                 if (Enum.TryParse(b.kind, out AntColony.Data.BuildingKind kind) && Processor.IsKind(kind) && b.processor != null)
                 {
                     var s = b.processor; var recipes = Processor.RecipesFor(kind);
+                    Check(kind == AntColony.Data.BuildingKind.GasSmelter ? s.gasPaid == (s.current >= 0) : !s.gasPaid, "industrial paid fuel");
+                    ValidateStaged(s.staged);
+                    Check(s.pending >= -1 && s.pending < recipes.Length, "processor pending recipe");
                     Check(s.orders != null && s.orders.Count <= Workshop.MaxOrders && s.orders.All(o => o != null
                         && o.recipe >= 0 && o.recipe < recipes.Length && Enum.IsDefined(typeof(Workshop.OrderMode), o.mode)
                         && o.amount >= 1 && o.amount <= Workshop.MaxOrderAmount), "processor orders");

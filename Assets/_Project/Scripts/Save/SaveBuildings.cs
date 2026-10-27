@@ -70,7 +70,7 @@ namespace AntColony.Save
                 for (var i = 0; i < values.Count; i++) d.nurseryAffinity.Add(new AffinityDto {
                     firstCommanderId = commanders.IndexOf(first[i]), secondCommanderId = commanders.IndexOf(second[i]), value = values[i] }); }
             var nodes = b.GetComponentsInChildren<ResourceNode>(true);
-            for (var i = 0; i < nodes.Length; i++) d.nodes.Add(new ResourceNodeDto { index = i, looseCargo = nodes[i].IsLooseCargo, amount = nodes[i].AmountRemaining, regrowTimer = nodes[i].RegrowTimeRemaining, sowRemaining = nodes[i].SowRemaining, gatheringForbidden = nodes[i].GatheringForbidden, bountifulHarvest = nodes[i].BountifulHarvest });
+            for (var i = 0; i < nodes.Length; i++) d.nodes.Add(new ResourceNodeDto { index = i, looseCargo = nodes[i].IsLooseCargo, amount = nodes[i].AmountRemaining, regrowTimer = nodes[i].RegrowTimeRemaining, sowRemaining = nodes[i].SowRemaining, gatheringForbidden = nodes[i].GatheringForbidden, workRequested = nodes[i].WorkRequested, workPaused = nodes[i].WorkPaused, workRequestOrder = nodes[i].WorkRequestOrder, bountifulHarvest = nodes[i].BountifulHarvest });
             return d;
         }
 
@@ -134,7 +134,7 @@ namespace AntColony.Save
                 d.nurseryAffinity.Select(a => commanders[a.firstCommanderId]).ToList(),
                 d.nurseryAffinity.Select(a => commanders[a.secondCommanderId]).ToList(), d.nurseryAffinity.Select(a => a.value).ToList());
             var nodes = b.GetComponentsInChildren<ResourceNode>(true);
-            foreach (var node in d.nodes) { nodes[node.index].RestoreState(node.amount, node.regrowTimer, node.sowRemaining); nodes[node.index].IsLooseCargo = node.looseCargo; nodes[node.index].BountifulHarvest = node.bountifulHarvest; nodes[node.index].GatheringForbidden = node.gatheringForbidden; }
+            foreach (var node in d.nodes) { nodes[node.index].RestoreState(node.amount, node.regrowTimer, node.sowRemaining); nodes[node.index].IsLooseCargo = node.looseCargo; nodes[node.index].BountifulHarvest = node.bountifulHarvest; nodes[node.index].GatheringForbidden = node.gatheringForbidden; nodes[node.index].WorkRequested = node.workRequested; nodes[node.index].WorkPaused = node.workPaused; nodes[node.index].WorkRequestOrder = node.workRequestOrder; }
             if (d.packed && !b.TryGetComponent<PackedFurniture>(out _)) { b.gameObject.AddComponent<PackedFurniture>(); b.enabled = false; }
         }
     }

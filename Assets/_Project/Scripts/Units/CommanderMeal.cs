@@ -45,7 +45,7 @@ namespace AntColony.Units
             if (IsDeployed || IsAwayFromHome || IsEmbarked || IsCaptive) return false;
             if (m.poisonSeconds > 0)
             {
-                if (IsWorking || ServiceTarget != null || HuntTarget != null || CorpseTarget != null || ScienceAssignment != null || CraftingWorkshop != null) CommandStop();
+                if (IsWorking || ServiceTarget != null || HuntTarget != null || CorpseTarget != null || ScienceAssignment != null || CraftingWorkshop != null) SuspendForNeeds("meal");
                 return true;
             }
             if (WorkPriorities.Red) { m.eatSeconds = 0; return false; } // 빨간 경보: 먹던 식사도 멈추고 작업한다.
@@ -56,9 +56,9 @@ namespace AntColony.Units
                 return true;
             }
             if (EatingCorpse) return false;
-            if ((m.satiety > GameBalance.EatBelowSatiety && !m.served && m.pickedFood == 0) || IsCarrying || LabUpgradeBusy || IsPlaying) return false;
+            if ((m.satiety > GameBalance.EatBelowSatiety && !m.served && m.pickedFood == 0) || IsCarrying || LabUpgradeLab != null || IsPlaying) return false;
             if (m.retrySeconds > 0) { m.retrySeconds = Mathf.Max(0, m.retrySeconds - seconds); return false; }
-            if (IsWorking || ServiceTarget != null || HuntTarget != null || CorpseTarget != null || ScienceAssignment != null || CraftingWorkshop != null) CommandStop();
+            if (IsWorking || ServiceTarget != null || HuntTarget != null || CorpseTarget != null || ScienceAssignment != null || CraftingWorkshop != null) SuspendForNeeds("meal");
             if (!CanReceiveOrders) return false;
             if (!m.served && m.pickedFood == 0 && traits.Has(CommanderTrait.Cannibal) && FindCorpseWork(true)) return true;
 

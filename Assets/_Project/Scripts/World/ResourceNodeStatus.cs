@@ -18,7 +18,8 @@ namespace AntColony.World
             : node.FishedOut ? "고갈 · 다음 계절 보충"
             : node.NeedsSowing ? $"파종 필요 · {node.SowRemaining:0.#}s"
             : node.IsRegrowing ? $"{(node.RequiresFishing ? "보충 중" : "성장 중")} · {Mathf.CeilToInt(node.RegrowTimeRemaining)}초"
-            : node.IsDepleted ? "고갈" : $"{node.ResourceType.DisplayName()} · {Mathf.CeilToInt(node.AmountRemaining)}");
+            : node.IsDepleted ? "고갈" : $"{node.ResourceType.DisplayName()} · {Mathf.CeilToInt(node.AmountRemaining)}"
+                + (node.NeedsDesignation && node.WorkRequested ? node.WorkPaused ? " · 일시중지" : " · " + node.WorkName + " 지정" : ""));
 
         private void Awake()
         {

@@ -7,8 +7,8 @@ namespace AntColony.UI
     [DefaultExecutionOrder(800)]
     public sealed class GameMenuDock : MonoBehaviour
     {
-        private static readonly string[] Keys = { "Menu [Esc]", "Work Schedule [T]", "Science [K]", "WorldMapToggle", "V6 Logistics", "V6 Colony", "V6 Production", "V6 Roster", "V6 Build" };
-        private static readonly string[] Labels = { "≡", "작업표", "과학", "월드맵", "물류·식품", "의료·관리", "생산·자원", "인재·편성", "＋ 건설" };
+        private static readonly string[] Keys = { "Menu [Esc]", "Work Schedule [T]", "Work Designations", "Science [K]", "WorldMapToggle", "V6 Logistics", "V6 Colony", "V6 Production", "V6 Roster", "V6 Build" };
+        private static readonly string[] Labels = { "≡", "작업표", "작업 지정", "과학", "월드맵", "물류·식품", "의료·관리", "생산·자원", "인재·편성", "＋ 건설" };
         private void LateUpdate()
         {
             var rect = (RectTransform)transform;

@@ -51,7 +51,7 @@ namespace AntColony.Save
                 var s = d.soldier; var w = d.worker;
                 Check(s != null && w != null && s.state >= 0 && s.state <= 3 && V(s.destination) && V(s.attackDestination)
                     && F(s.attackTimer) && F(s.searchTimer), "soldier");
-                Check(w.state >= 0 && w.state <= 8 && Enum.IsDefined(typeof(ResourceType), w.fetchType) && w.fetchAmount >= 0 && N(w.buildTimer), "worker");
+                Check(w.state >= 0 && w.state <= 8 && Enum.IsDefined(typeof(ResourceType), w.fetchType) && w.fetchAmount >= 0 && N(w.buildTimer) && w.constructionStep >= 0 && w.constructionStep <= 2, "worker");
                 Check(F(d.huntCooldown) && F(d.workScan) && (d.serviceJob == 0 || Units.CommanderWorkState.Index((Units.CommanderJobs)d.serviceJob) >= 0), "commander work");
                 foreach (var key in new[] { s.target, w.node, w.deposit, w.construction, w.delivery, w.fetchHost, w.fishingNode, d.service, d.hunt, d.automaticFacility }) Ref(key);
                 Check(w.state != 1 && w.state != 2 || !string.IsNullOrEmpty(w.node), "gather target");

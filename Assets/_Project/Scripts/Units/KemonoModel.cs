@@ -71,7 +71,9 @@ namespace AntColony.Units
             foreach (var socket in sockets.Where(t => t.name == "Socket.Tool.R" || t.name == "Socket.Tool.L"))
             {
                 foreach (Transform child in socket) { child.gameObject.SetActive(false); Object.Destroy(child.gameObject); }
-                var item = name == "Weapon_ShortBow" ? (socket.name.EndsWith(".L") ? name : "Ammo_Arrow") : socket.name.EndsWith(".R") ? name : null;
+                var item = name == "Weapon_ShortBow" ? (socket.name.EndsWith(".L") ? name : "Ammo_Arrow")
+                    : name != null && name.StartsWith("Weapon_Shield_") ? socket.name.EndsWith(".L") ? name : null
+                    : socket.name.EndsWith(".R") ? name : null;
                 if (item == null) continue;
                 if (!tools.TryGetValue(item, out var prefab)) tools[item] = prefab = Resources.Load<GameObject>("Kemono/Handheld/" + item);
                 if (prefab == null) continue;
@@ -84,9 +86,9 @@ namespace AntColony.Units
         public static (string clip, string tool) Gather(ResourceType type) => type switch
         {
             ResourceType.Wood or ResourceType.Resin => ("Tool_Chop", "Tool_Axe_Stone"),
-            ResourceType.Stone or ResourceType.IronOre or ResourceType.CopperOre or ResourceType.Coal or ResourceType.Sulfur => ("Tool_Mine", "Tool_Pickaxe_Stone"),
+            ResourceType.Stone or ResourceType.IronOre or ResourceType.CopperOre or ResourceType.TinOre or ResourceType.Coal or ResourceType.Sulfur => ("Tool_Mine", "Tool_Pickaxe_Stone"),
             ResourceType.Sand or ResourceType.Clay or ResourceType.Soil => ("Tool_Dig", "Tool_Shovel_Stone"),
-            ResourceType.Food or ResourceType.Leaf or ResourceType.Fiber => ("Tool_Harvest", "Tool_Sickle_Stone"),
+            ResourceType.Food or ResourceType.Leaf or ResourceType.Fiber or ResourceType.Herb => ("Tool_Harvest", "Tool_Sickle_Stone"),
             _ => ("GroundWork", null)
         };
     }

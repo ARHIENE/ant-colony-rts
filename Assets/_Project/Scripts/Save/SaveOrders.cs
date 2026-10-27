@@ -21,6 +21,7 @@ namespace AntColony.Save
     {
         public int state, fetchType, fetchAmount;
         public string node, deposit, construction, delivery, fetchHost, fishingNode;
+        public int constructionStep;
         public bool fetchBase, depositBin;
         public float buildTimer;
     }

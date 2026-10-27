@@ -50,11 +50,11 @@ namespace AntColony.Units
                 return true;
             }
             if (h.retrySeconds > 0) { h.retrySeconds = Mathf.Max(0, h.retrySeconds - seconds); return false; }
-            if (h.hygiene > GameBalance.WashBelowHygiene || IsCarrying || LabUpgradeBusy) return false;
+            if (h.hygiene > GameBalance.WashBelowHygiene || IsCarrying || LabUpgradeLab != null) return false;
             // ponytail: 매 틱 가장 가까운 빈 가구를 찾는다. 가구가 많아지면 목표를 캐시한다.
             var spot = HygieneFixture.All.Where(s => s != null && s.Free && s.CanUse)
                 .OrderBy(s => (s.Position - Position).sqrMagnitude).FirstOrDefault();
-            if (IsWorking || ServiceTarget != null || HuntTarget != null || ScienceAssignment != null || CraftingWorkshop != null) CommandStop();
+            if (IsWorking || ServiceTarget != null || HuntTarget != null || ScienceAssignment != null || CraftingWorkshop != null) SuspendForNeeds("hygiene");
             if (!CanReceiveOrders) return false;
             if (spot == null) return StartTemporaryWash();
             if ((spot.Position - Position).sqrMagnitude > 49)

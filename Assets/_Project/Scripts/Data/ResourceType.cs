@@ -1,4 +1,4 @@
-namespace AntColony.Data
+﻿namespace AntColony.Data
 {
     public static class ResourceLabels
     {
@@ -14,6 +14,8 @@ namespace AntColony.Data
             ResourceType.AnimalMedicine => "동물용 의약품", ResourceType.SurgeryKit => "동물 수술 키트", ResourceType.RottenFood => "썩은 식품", ResourceType.SimpleMeal => "간단한 요리", ResourceType.FineMeal => "좋은 요리",
             ResourceType.Manure => "배설물", ResourceType.Fertilizer => "비료",
             ResourceType.MedicineBasic => "기초 약품", ResourceType.MedicineNormal => "일반 약품", ResourceType.MedicineAdvanced => "고급 약품", ResourceType.Component => "부품",
+            ResourceType.Titanium => "티타늄", ResourceType.TitaniumAlloy => "티타늄 합금",
+            ResourceType.NaturalGas => "천연가스", ResourceType.TitaniumOre => "티타늄 광석", ResourceType.StellarOre => "성휘 광석",
             ResourceType.Water => "물", ResourceType.Herb => "약초",
             ResourceType.PlantingMaterial => "기본 파종재", ResourceType.TinOre => "주석광석", ResourceType.Bronze => "청동",
             ResourceType.CrudeOil => "원유", ResourceType.Petroleum => "정제유", ResourceType.Drum => "드럼통", ResourceType.GasCylinder => "가스 용기",
@@ -58,7 +60,8 @@ namespace AntColony.Data
         Component, // 일반 부품. 고장 부품·수리 변환 자원은 추가하지 않는다.
         Water, // 위생 시설 소비용. 기존 자원 저장 번호 보존.
         PlantingMaterial, TinOre, Bronze, CrudeOil, Petroleum, Drum, GasCylinder, FilledFuelDrum,
-        Herb // 약제대 전용 원료. 잎과 혼용하지 않는다.
+        Herb, // 약제대 전용 원료. 잎과 혼용하지 않는다.
+        NaturalGas, TitaniumOre, StellarOre, Titanium, TitaniumAlloy // D08 유한 매장층. 기존 번호 보존.
     }
 
     // 재료 특성(내구·무게·가연성·미관·단열). 후반 재료가 모든 면에서 우월하지 않게 용도를 나눈다.

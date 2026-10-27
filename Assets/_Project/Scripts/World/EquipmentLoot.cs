@@ -28,7 +28,7 @@ namespace AntColony.World
         }
         public bool TryCollect(CommanderAnt c)
         {
-            if (c == null || !c.CanChangeEquipment || c.IsCarrying || EquipmentInventory.Instance == null || EquipmentInventory.Instance.Full) return false;
+            if (c == null || !c.AllowsJob(CommanderJobs.Hauling) || !c.CanChangeEquipment || c.IsCarrying || EquipmentInventory.Instance == null || EquipmentInventory.Instance.Full) return false;
             if (Vector3.Distance(c.Position, transform.position) > 3)
             {
                 if (!c.CanReach(transform.position)) return false;

@@ -60,7 +60,7 @@ namespace AntColony.UI
                 }
             }
             L.Button(p, "Forbid Gathering", "채집 금지", 24, 592, 150, 36, () => { Resume(); GatherDesignation.Begin(true); });
-            L.Button(p, "Clear Designation", "지정 취소", 186, 592, 150, 36, () => { Resume(); GatherDesignation.Begin(false); });
+            L.Button(p, "Clear Designation", "작업 지정·취소", 186, 592, 150, 36, WorkDesignations);
             L.Button(p, "Select Tasks", "작업 선택", 348, 592, 150, 36, () => { Resume(); GatherDesignation.BeginTaskSelect(); }); // 드래그로 일괄 관리(2026-10-12)
             L.Button(p, "All Tasks", "전체 작업", 510, 592, 150, 36, () => ShowTasks(System.Linq.Enumerable.ToList(TaskCandidates())));
             L.Line(p, 0, 580, 1080);

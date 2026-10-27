@@ -56,7 +56,7 @@ namespace AntColony.Units
                 return true;
             }
             if (j.retrySeconds > 0) { j.retrySeconds = Mathf.Max(0, j.retrySeconds - seconds); return false; }
-            if (j.joy > GameBalance.PlayBelowJoy || IsCarrying || LabUpgradeBusy) return false;
+            if (j.joy > GameBalance.PlayBelowJoy || IsCarrying || LabUpgradeLab != null) return false;
             // 친한 고인의 묘비를 여가에 찾아간다(전투·위독 환자 처치보다 우선하지 않는다, 2026-10-13).
             if (!IsInCombat && !(AllowsJob(CommanderJobs.Nursing) && HasLifeThreateningPatient) && AntColony.World.Memorial.VisitTarget(this) is Tombstone grave)
             {
@@ -71,7 +71,7 @@ namespace AntColony.Units
             // ponytail: 매 틱 가장 가까운 빈 시설을 찾는다. 시설이 많아지면 목표를 캐시한다.
             var spot = RecreationSpot.All.Where(s => s != null && s.HasSeat).OrderBy(s => (s.Position - Position).sqrMagnitude).FirstOrDefault();
             if (spot == null) return BeginFreeWalk();
-            if (IsWorking || ServiceTarget != null || HuntTarget != null || ScienceAssignment != null || CraftingWorkshop != null) CommandStop();
+            if (IsWorking || ServiceTarget != null || HuntTarget != null || ScienceAssignment != null || CraftingWorkshop != null) SuspendForNeeds("joy");
             if (!CanReceiveOrders) return false;
             if ((spot.Position - Position).sqrMagnitude > 49)
             {
@@ -88,8 +88,8 @@ namespace AntColony.Units
 
         private bool BeginFreeWalk()
         {
-            if (!CanReceiveOrders || IsInCombat || IsDeployed || IsAwayFromHome || LabUpgradeBusy || HasLifeThreateningPatient) return false;
-            CommandStop();
+            if (!CanReceiveOrders || IsInCombat || IsDeployed || IsAwayFromHome || LabUpgradeLab != null || HasLifeThreateningPatient) return false;
+            SuspendForNeeds("joy");
             var offset = UnityEngine.Random.insideUnitCircle * 6;
             var target = Position + new Vector3(offset.x, 0, offset.y);
             if (UnityEngine.AI.NavMesh.SamplePosition(target, out var hit, 3, UnityEngine.AI.NavMesh.AllAreas) && CanReach(hit.position)) base.CommandMove(hit.position);

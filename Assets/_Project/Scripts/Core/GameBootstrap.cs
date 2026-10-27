@@ -46,6 +46,7 @@ namespace AntColony.Core
             new GameObject("CommanderOverhead").AddComponent<CommanderOverhead>();
             new GameObject("FirstHints").AddComponent<FirstHints>();
             new GameObject("MoodWatch").AddComponent<MoodWatch>();
+            new GameObject("UndergroundSurvey").AddComponent<AntColony.World.UndergroundSurvey>().Initialize();
             SaveCatalog.Initialize();
             var file = GameSession.Instance.PendingLoad as SaveFileV1;
             GameSession.Instance.PendingLoad = null;

@@ -89,6 +89,7 @@ namespace AntColony.Units
             if (CorpseTarget != null) return;
             if (DeploymentEating) return;
             if (!IsEmbarked && !IsDead && PersonalState.rageRemaining > 0) { TickRevenge(Time.deltaTime); return; }
+            if ((ScienceAssignment != null || SurveyAssignment != null) && !IsEmbarked && !IsDead && PersonalHealth > 0) TickFlightMovement();
             if (!IsEmbarked && !IsDead && PersonalHealth > 0 && !PersonalState.treating && PersonalState.mentalBreak == MentalBreak.None && !LabUpgradeBusy) base.Update();
         }
 
@@ -134,7 +135,7 @@ namespace AntColony.Units
         // 한 장수는 동시에 한 연구소에서만 강화된다. 연구소가 시작·해제한다.
         public ResearchLab LabUpgradeLab { get; set; }
         public ScienceLab ScienceAssignment { get; internal set; }
-        public bool LabUpgradeBusy => LabUpgradeLab != null || ScienceAssignment != null;
+        public bool LabUpgradeBusy => LabUpgradeLab != null || ScienceAssignment != null || SurveyAssignment != null;
 
         public CommanderSkills Skills => skills;
 
@@ -336,7 +337,8 @@ namespace AntColony.Units
             if (!CanReceiveOrders || LabUpgradeBusy || IsDeployed && !IsAwayFromHome) return;
             if (Garrison != null && Garrison.DockedTransport == null) return;
             automaticFacility = null; ScienceAssignment?.ReleaseResearcher();
-            if (node == null || !CanDoJob(JobFor(node))) return;
+            if (node == null || !AllowsJob(JobFor(node))) return;
+            if (node.NeedsDesignation && !node.RequestWork()) return;
             base.CommandGather(node);
             if (CurrentResourceNode == node) SetWorkTarget(node);
         }

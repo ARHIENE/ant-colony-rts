@@ -36,7 +36,7 @@ public static class LootLoopChecks
    UnityEngine.AI.NavMesh.SamplePosition(c.Position+Vector3.forward*4,out hit,4,UnityEngine.AI.NavMesh.AllAreas);warehouse=Object.Instantiate(template,hit.position,Quaternion.identity);warehouse.SetActive(true);await Task.Yield();await Task.Yield();
    var storage=warehouse.GetComponent<AntColony.Buildings.Storage>();storage.Bin.allowed=0;Check(!(bool)canStore.Invoke(c,new object[]{AntColony.Data.ResourceType.Component}),"disallowed storage is not destination");
    storage.Bin.allowed=StoreBin.Bit(AntColony.Data.ResourceType.Component);Check((bool)canStore.Invoke(c,new object[]{AntColony.Data.ResourceType.Component}),"new accepting reachable storage enables hauling");
-   c.CommandGather(node);Check(c.CurrentResourceNode==node,"manual pickup resumes when store available");
+   c.SetJobEnabled(CommanderJobs.Hauling,true);c.CommandGather(node);Check(c.CurrentResourceNode==node,"manual pickup resumes when store available");
    var end=Time.realtimeSinceStartup+18;while(storage.Bin.Amount(AntColony.Data.ResourceType.Component)<3&&Time.realtimeSinceStartup<end)await Task.Delay(100);
    Check(storage.Bin.Amount(AntColony.Data.ResourceType.Component)==3,"three items actually delivered once");Check(c.CarriedAmount==0,"cargo cleared after deposit");
    var result="PASS "+n+" no-store pickup/drop loop and actual storage delivery checks";System.IO.File.WriteAllText("Temp/loot-loop-result.txt",result);return result;

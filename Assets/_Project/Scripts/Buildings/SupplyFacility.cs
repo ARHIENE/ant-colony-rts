@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using AntColony.Core;
@@ -8,12 +8,14 @@ using UnityEngine;
 
 namespace AntColony.Buildings
 {
-    public sealed class SupplyFacility : BuildingBase, PowerGrid.IUser
+    public sealed partial class SupplyFacility : BuildingBase, PowerGrid.IUser
     {
         [Serializable] public sealed class State
         {
             public float work;
             public int fluid = -1, amount;
+            public bool depositPresent;
+            public int depositRemaining;
         }
         public const int Capacity = 100;
         // 펌프·시추·정유의 처리량과 펌프 전력은 G46 미정이므로 잠정값.
@@ -23,26 +25,27 @@ namespace AntColony.Buildings
         public BuildingKind Kind => Data.kind;
         public bool IsNaturalSource => Kind == BuildingKind.WaterSource || Kind == BuildingKind.OilDeposit;
         public static bool IsKind(BuildingKind kind) => SupplyBuildingTemplates.IsKind(kind)
-            && kind != BuildingKind.PlanterBed && kind != BuildingKind.StarterMushroomBed && kind != BuildingKind.SteamGenerator;
+            && kind != BuildingKind.PlanterBed && kind != BuildingKind.StarterMushroomBed && kind != BuildingKind.SteamGenerator && kind != BuildingKind.GasGenerator && kind != BuildingKind.GasSmelter;
         public bool Powered { get; set; }
         public IEnumerable<Vector2Int> Cells => RoomSystem.Footprint(this);
-        public float Demand => Kind == BuildingKind.OilDrill ? DrillWatts : Kind == BuildingKind.OilRefinery ? RefineryWatts
+        public float Demand => UndergroundProduction.IsExtractor(Kind) ? DrillWatts : Kind == BuildingKind.OilRefinery ? RefineryWatts
             : Kind == BuildingKind.WaterPump ? PumpWatts : 0;
         public bool Operational => isActiveAndEnabled && !IsDead;
-        protected override void OnEnable() { base.OnEnable(); All.Add(this); if (Demand > 0) PowerGrid.Register(this); }
+        protected override void OnEnable() { base.OnEnable(); All.Add(this); InitializeDeposit(); if (Demand > 0) PowerGrid.Register(this); }
         protected override void OnDisable() { All.Remove(this); PowerGrid.Unregister(this); Powered = false; base.OnDisable(); }
         private void Update()
         {
             if (!AntColony.Save.SaveSystem.Busy && GameSession.Exists && GameSession.Instance.GameStarted) Tick(Time.deltaTime);
         }
-        public void RestoreSupply(State value) => Supply = value ?? new State();
+        public void RestoreSupply(State value) { Supply = value ?? new State(); InitializeDeposit(); }
         public static bool Valid(State s) => s != null && !float.IsNaN(s.work) && !float.IsInfinity(s.work)
             && s.work >= 0 && s.work < ProcessSeconds && s.amount >= 0 && s.amount <= Capacity
+            && (!s.depositPresent || s.depositRemaining >= 0 && s.depositRemaining <= 600)
             && (s.fluid == -1 && s.amount == 0 || IsFluid(s.fluid));
         public static bool IsFluid(int value) => value == (int)AntColony.Data.ResourceType.Water
-            || value == (int)AntColony.Data.ResourceType.CrudeOil || value == (int)AntColony.Data.ResourceType.Petroleum;
+            || value == (int)AntColony.Data.ResourceType.CrudeOil || value == (int)AntColony.Data.ResourceType.Petroleum || value == (int)AntColony.Data.ResourceType.NaturalGas;
         public bool NearSource(BuildingKind source) => All.Any(n => n != this && n.Operational && n.Kind == source && (n.Position - Position).sqrMagnitude <= 16);
-        public bool CanHold(AntColony.Data.ResourceType fluid, int amount) => amount > 0 && Supply.amount <= Capacity - amount
+        public bool CanHold(AntColony.Data.ResourceType fluid, int amount) => AcceptsFluid(fluid) && amount > 0 && Supply.amount <= Capacity - amount
             && (Supply.amount == 0 || Supply.fluid == (int)fluid);
         public bool Fill(AntColony.Data.ResourceType fluid, int amount)
         {
@@ -68,11 +71,12 @@ namespace AntColony.Buildings
         public void Tick(float seconds)
         {
             if (!Operational || !Powered || !(seconds > 0) || float.IsInfinity(seconds)) return;
-            if (Kind != BuildingKind.WaterPump && Kind != BuildingKind.OilDrill && Kind != BuildingKind.OilRefinery) return;
-            if (Kind == BuildingKind.WaterPump && !NearSource(BuildingKind.WaterSource)
-                || Kind == BuildingKind.OilDrill && !NearSource(BuildingKind.OilDeposit)) return;
+            if (Time.timeScale <= 0) return;
+            if (Kind == BuildingKind.OilDrill || Kind == BuildingKind.GasExtractor) { TickExtraction(seconds); return; }
+            if (Kind != BuildingKind.WaterPump && Kind != BuildingKind.OilRefinery) return;
+            if (Kind == BuildingKind.WaterPump && !NearSource(BuildingKind.WaterSource)) return;
             var output = Kind == BuildingKind.WaterPump ? AntColony.Data.ResourceType.Water
-                : Kind == BuildingKind.OilDrill ? AntColony.Data.ResourceType.CrudeOil : AntColony.Data.ResourceType.Petroleum;
+                : AntColony.Data.ResourceType.Petroleum;
             var batch = Kind == BuildingKind.OilRefinery ? 1 : 10;
             while (seconds > 0)
             {
@@ -101,7 +105,7 @@ namespace AntColony.Buildings
         }
         public void EjectStored()
         {
-            if (Supply.amount <= 0 || !IsFluid(Supply.fluid)) return;
+            if (Supply.amount <= 0 || !IsFluid(Supply.fluid) || GasNetwork) return; // 기체 유출 규칙 확정 전 바닥 고체로 바꾸지 않는다.
             var fluid = (AntColony.Data.ResourceType)Supply.fluid; var amount = Supply.amount;
             Drain(amount); DiplomacyManager.DropFloor(fluid, amount, Position + Vector3.right);
         }

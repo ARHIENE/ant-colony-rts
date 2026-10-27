@@ -28,12 +28,18 @@ namespace AntColony.Units
         private static void Hook() => SceneManager.sceneLoaded += (_, __) => { Red = false; requested.Clear(); }; // 새 게임은 경보 해제 상태(불러오기는 Restore가 다시 켠다)
 
         // 요청이 처음 후보로 보인 순서. 거리까지 같을 때 오래 기다린 요청을 먼저 한다(2026-10-12).
-        // ponytail: 처음 본 순서를 기억한다(저장 안 함, 불러오면 다시 센다). 저장 후에도 순서를 유지해야 하면 대상별 생성 순번을 저장한다.
+        // 자연 작업의 요청 순서는 노드와 함께 저장한다. 나머지 기존 대상은 처음 후보로 보인 순서다.
         private static readonly Dictionary<Component, long> requested = new Dictionary<Component, long>();
         private static long requestSeq;
         public static long RequestedAt(Component c)
         {
             if (c == null) return long.MaxValue;
+            if (c is ResourceNode n && n.NeedsDesignation)
+            {
+                if (n.WorkRequestOrder <= 0) n.WorkRequestOrder = ++requestSeq;
+                requestSeq = Math.Max(requestSeq, n.WorkRequestOrder);
+                return n.WorkRequestOrder;
+            }
             if (!requested.TryGetValue(c, out var t)) requested[c] = t = ++requestSeq;
             return t;
         }
@@ -73,6 +79,7 @@ namespace AntColony.Units
         public static void Restore(State s)
         {
             SetRed(s?.red == true);
+            foreach (var n in ResourceNode.Available.Where(n => n != null && n.WorkRequested)) RequestedAt(n);
             if (s?.targets == null) return;
             var candidates = Candidates().ToList();
             foreach (var e in s.targets)

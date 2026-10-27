@@ -26,7 +26,7 @@ namespace AntColony.Save
         public static void Initialize()
         {
             Buildings = Ordered<BuildingBase>().Where(b => b.CountsTowardPlayerDefeat && !(b is ExpeditionTransport)).ToArray();
-            Nodes = Ordered<ResourceNode>().Where(n => n.GetComponent<Map.MaterialDeposit>() == null).Where(n => n.GetComponentInParent<BuildingBase>() == null
+            Nodes = Ordered<ResourceNode>().Where(n => n.GetComponent<Map.MaterialDeposit>() == null && n.GetComponent<UndergroundLayer>() == null).Where(n => n.GetComponentInParent<BuildingBase>() == null
                 || !n.GetComponentInParent<BuildingBase>().CountsTowardPlayerDefeat).ToArray();
             Monsters = Ordered<WildMonster>().Where(m => m.GetComponent<Critter>() == null).ToArray(); // 사육 생물은 따로 저장(critters)
             Bosses = Ordered<BossHealth>();

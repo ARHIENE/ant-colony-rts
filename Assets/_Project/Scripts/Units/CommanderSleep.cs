@@ -48,8 +48,8 @@ namespace AntColony.Units
             }
 
             s.phaseSeconds += seconds;
-            if (!IsDeployed && !IsAwayFromHome && !IsCarrying && (ScienceAssignment != null || CraftingWorkshop != null || ServiceTarget != null || HuntTarget != null || CorpseTarget != null)) CommandStop();
-            var canSleep = !IsDeployed && !IsAwayFromHome && !IsEmbarked && !IsCaptive && CanReceiveOrders && !LabUpgradeBusy && !IsCarrying;
+            if (!s.asleep && !IsDeployed && !IsAwayFromHome && !IsCarrying && (ScienceAssignment != null || CraftingWorkshop != null || ServiceTarget != null || HuntTarget != null || CorpseTarget != null)) SuspendForNeeds("sleep");
+            var canSleep = !IsDeployed && !IsAwayFromHome && !IsEmbarked && !IsCaptive && CanReceiveOrders && LabUpgradeLab == null && !IsCarrying;
             if (!canSleep)
             {
                 if (s.asleep) { s.asleep = false; s.interrupted = true; }
@@ -58,7 +58,7 @@ namespace AntColony.Units
             if (!s.asleep)
             {
                 s.asleep = true;
-                SuspendWork(); ScienceAssignment?.ReleaseResearcher(); CraftingWorkshop?.Release();
+                SuspendForNeeds("sleep"); DropCargo(); CraftingWorkshop?.Release();
                 automaticFacility = null; WorkState.resting = false;
             }
             var dorm = Dormitory.Assign(this);

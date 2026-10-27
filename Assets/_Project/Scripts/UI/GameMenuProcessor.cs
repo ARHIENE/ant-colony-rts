@@ -10,7 +10,9 @@ namespace AntColony.UI
         public void ShowProcessor(Processor p)
         {
             if (p == null) { Resume(); return; }
-            var window = V5Window(p.Data.displayName + " / 가공", "생산 방식과 수량을 선택한 뒤 품목을 추가하세요.");
+            var window = V5Window(p.Data.displayName + " / 가공", p.Industrial
+                ? "제작 담당 · 전력 200W · 묶음 시작 시 가스 1 투입 · 복원 시 중복 소비 없음"
+                : "생산 방식과 수량을 선택한 뒤 품목을 추가하세요.");
             content = V5Section(window, "생산 품목 / 주문 설정", 20, 104, 520, 544);
             var rm = ResourceManager.Instance;
             if (p.Data.kind == AntColony.Data.BuildingKind.Carpentry)
@@ -30,11 +32,11 @@ namespace AntColony.UI
             foreach (var order in p.Orders.ToArray())
             {
                 var r = p.Recipes[order.recipe];
-                var state = order.mode == Workshop.OrderMode.Count ? $"남은 {order.amount}묶음" : order.mode == Workshop.OrderMode.KeepStock ? $"재고 {rm?.GetAmount(r.output) ?? 0}/{order.amount}" : "반복";
-                MenuTheme.Button(content, $"{r.name} · {ModeName(order.mode)} · {state} — 삭제", () => { p.Orders.Remove(order); ShowProcessor(p); });
+                var state = order.mode == Workshop.OrderMode.Count ? $"남은 {order.amount}묶음" : order.mode == Workshop.OrderMode.KeepStock ? $"재고 {Kitchen.Stock(r.output)}/{order.amount}" : "반복";
+                MenuTheme.Button(content, $"{r.name} · {ModeName(order.mode)} · {state} — 삭제", () => { p.RemoveOrder(order); ShowProcessor(p); });
             }
             MenuTheme.Text(content, (p.IsMedical ? "작업표에서 의료가 켜진 장수가 할 수 있는 치료가 없을 때 와서 만듭니다(의료 능력은 속도만)." : "작업표에서 제작이 켜진 장수가 자율로 와서 가공합니다.")
-                + " 재료는 한 묶음을 시작할 때 차감하고, 창고가 차면 결과물은 창고 주변 바닥에 둡니다.", 17, 70);
+                + " 재료를 실제 배송받은 뒤 한 묶음 시작 때 소비합니다. 결과물은 제작대 주변 바닥에 나오며 운반 담당이 회수합니다.", 17, 70);
             MenuTheme.Button(content, "새로고침", () => ShowProcessor(p));
             V5Fit(window);
         }

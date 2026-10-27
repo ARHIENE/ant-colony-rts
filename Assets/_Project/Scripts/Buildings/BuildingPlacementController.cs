@@ -1,4 +1,4 @@
-using System.Linq;
+﻿using System.Linq;
 using AntColony.Core;
 using AntColony.Data;
 using AntColony.Units;
@@ -33,6 +33,7 @@ namespace AntColony.Buildings
 
         public bool IsPlacing { get; private set; }
         public bool IsMoving => moveTarget != null;
+        public Vector3 PreviewPosition => preview != null ? preview.transform.position : Vector3.zero;
         // 새로 짓는 밭의 작물. 해금되지 않은 작물은 고를 수 없다.
         public static FarmCrop SelectedCrop { get; private set; }
         public static void CycleCrop()
@@ -85,7 +86,7 @@ namespace AntColony.Buildings
             placementValid = Vector3.Angle(hit.normal, Vector3.up) <= maxGroundSlope && AntColony.Map.MapGenerator.FlatAt(position, PlacementExtents())
                 && !HasObstruction(position, moveTarget != null ? moveTarget : redevelopTarget)
                 && !(Housing.IsKind(pendingKind) && RoomSystem.IsIndoors(position))
-                && Reachable(hit.point);
+                && Reachable(hit.point) && UndergroundProduction.PlacementReason(pendingKind, position, moveTarget) == null;
             UpdatePreview(position, placementValid);
 
             // 연속 배치(2026-10-08): 좌클릭 = 1개 배치 후 종료, Shift+좌클릭 = 배치 후 선택 유지, Shift+드래그 = 한 줄 연속 배치.
@@ -203,6 +204,8 @@ namespace AntColony.Buildings
         {
             if (moveTarget != null) return placementValid ? Demolition.OrderMove(moveTarget, position) : null;
             if (LockReason(pendingKind) != null) return null;
+            var extractionReason = UndergroundProduction.PlacementReason(pendingKind, position, moveTarget);
+            if (extractionReason != null) { PlacementFailed(extractionReason); return null; }
             if (pendingKind == BuildingKind.MineField && MineField.Count >= GameBalance.MaxMines) return null;
             if (pendingKind == BuildingKind.Infirmary && !Infirmary.Unlocked) return null;
             var template = GetTemplate(pendingKind, pendingRole);
@@ -294,7 +297,7 @@ namespace AntColony.Buildings
 
         // 재개발도 Shift 배치 가능: 칸마다 겹친 더 작은 집을 찾아 교체 대상으로 삼는다.
         private Housing RedevelopAt(Vector3 cell) => Redevelopment.FindTarget(pendingKind, cell, PlacementExtents(), obstructionMask);
-        private bool CellValid(Vector3 cell) => AntColony.Map.MapGenerator.FlatAt(cell, PlacementExtents()) && !HasObstruction(cell, RedevelopAt(cell)) && !(Housing.IsKind(pendingKind) && RoomSystem.IsIndoors(cell)) && Reachable(cell);
+        private bool CellValid(Vector3 cell) => AntColony.Map.MapGenerator.FlatAt(cell, PlacementExtents()) && !HasObstruction(cell, RedevelopAt(cell)) && !(Housing.IsKind(pendingKind) && RoomSystem.IsIndoors(cell)) && Reachable(cell) && UndergroundProduction.PlacementReason(pendingKind, cell) == null;
 
         // 장수 미지정 배치(2026-10-08): 고른 장수가 없으면 본거지의 아무 장수 기준으로 도달 가능 여부를 본다.
         private bool Reachable(Vector3 point)
@@ -398,6 +401,7 @@ namespace AntColony.Buildings
         {
             var template = kind switch
             {
+                BuildingKind.UndergroundScanner => UndergroundScanner.Template(),
                 _ when SupplyBuildingTemplates.IsKind(kind) => SupplyBuildingTemplates.Create(kind),
                 BuildingKind.CivicPublicService or BuildingKind.School or BuildingKind.CitizenClinic => FindTemplate<CivicService>(kind) ?? CivicService.CreateTemplate(kind),
                 BuildingKind.CrashWreck => FindTemplate<CrashWreck>(kind) ?? RuntimeBuildingTemplates.Create(kind), // BuildingBase로 찾으면 Data 없는 연구소 템플릿이 먼저 걸린다
@@ -543,6 +547,7 @@ namespace AntColony.Buildings
             {
                 if ((groundMask.value & (1 << hit.gameObject.layer)) != 0) continue;
                 if (ignore != null && hit.GetComponentInParent<BuildingBase>() == ignore) continue;
+                if (UndergroundProduction.IsExtractor(pendingKind) && hit.GetComponentInParent<AntColony.World.UndergroundLayer>() != null) continue;
                 return true;
             }
             return false;

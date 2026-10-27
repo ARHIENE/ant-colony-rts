@@ -111,6 +111,8 @@ namespace AntColony.Save
     [Serializable]
     public class BuildingDto
     {
+        public bool surveyPresent;
+        public int surveyCommander = -1, surveyCandidate = -1;
         public string objectName; // 새 건물 키는 오브젝트 이름순이므로 이름을 보존해야 불러온 뒤에도 같은 순서·키가 된다(없으면 종류 이름).
         public Core.StoreBin.Dto storeBin; // v17: 창고 칸의 실제 재고·허용 품목·우선순위
         public bool packed; // v17: 회수·포장된 가구(기능 정지, 다시 설치 대기)
@@ -198,6 +200,8 @@ namespace AntColony.Save
         public int seedCrop = -1; public string seedKey; // G28 야생 작물 종자 출처(-1 = 없음, 구저장 호환)
         public bool bountifulHarvest;
         public bool gatheringForbidden;
+        public bool workRequested, workPaused; // 구저장은 false: 자연 자원을 임의로 지정하지 않는다.
+        public long workRequestOrder;
         public AntColony.Core.FoodLots lots; // 바닥 식품 신선도(2026-10-12). 옛 저장은 비어 있음 = 신선
         public int fishMonth = -1; // v9: 낚시터 월 한도를 마지막으로 채운 달(-1 = 다음 틱에 이번 달로 채움)
     }
@@ -312,6 +316,8 @@ namespace AntColony.Save
     [Serializable]
     public class SaveFileV1
     {
+        public Core.TalentAssessmentState assessment;
+        public World.UndergroundSurvey.State underground;
         public Core.RocketCampaign.State rocket;
         public List<ResourceNodeDto> nodes = new List<ResourceNodeDto>();
         public List<MonsterDto> monsters = new List<MonsterDto>();
@@ -366,6 +372,7 @@ namespace AntColony.Save
     [Serializable]
     public class MonsterDto
     {
+        public string investigationId;
         public bool hasRuntime;
         public WildMonsterDto runtime; // v19
         public bool huntDesignated;

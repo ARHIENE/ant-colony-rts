@@ -231,6 +231,8 @@ namespace AntColony.Core
         public void Spoil(float seconds)
         {
             bool changed = false; SpoilNotice.Tick(seconds);
+            foreach (var sink in SceneObjects.All<BuildingBase>().OfType<IFreshMaterialSink>()) sink.AgeIngredients(seconds);
+            foreach (var worker in AntColony.Units.AntUnitBase.Active.OfType<AntColony.Units.WorkerAnt>()) worker.AgeCargoFood(seconds);
             foreach (var b in bins)
                 foreach (var t in b.Stocked.Where(FoodLots.Perishable).ToList())
                 {

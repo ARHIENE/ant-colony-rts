@@ -17,7 +17,8 @@ namespace AntColony.Core
         Aircraft, HeavyTransport, Insulation, MigrationTheory, Hull, Cocoons, Engine, Fishing,
         ConscriptionLaw, ReserveForces, TotalMobilization, // Phase 4 병역 제도
         Pharmacy, PrecisionPharmacy, // 2026-10-25 D01 장수용 약품
-        FormationLine, FormationColumn, FormationWedge, FormationDispersed, FormationCover, FormationFocus
+        FormationLine, FormationColumn, FormationWedge, FormationDispersed, FormationCover, FormationFocus,
+        UndergroundSurvey
     }
 
     public sealed class ScienceDefinition
@@ -49,7 +50,7 @@ namespace AntColony.Core
             ScienceTechnology.AcidRefining => CommanderActivity.Ranged,
             ScienceTechnology.ArmorPlates or ScienceTechnology.Trinkets or ScienceTechnology.Gliding or ScienceTechnology.Traps or ScienceTechnology.Mines
                 or ScienceTechnology.Vehicle or ScienceTechnology.Aircraft or ScienceTechnology.HeavyTransport or ScienceTechnology.EfficientTransport
-                or ScienceTechnology.MigrationTheory or ScienceTechnology.Hull or ScienceTechnology.Cocoons or ScienceTechnology.Engine => CommanderActivity.Crafting,
+                or ScienceTechnology.MigrationTheory or ScienceTechnology.Hull or ScienceTechnology.Cocoons or ScienceTechnology.Engine or ScienceTechnology.UndergroundSurvey => CommanderActivity.Crafting,
             ScienceTechnology.FormationLine or ScienceTechnology.FormationColumn or ScienceTechnology.FormationWedge
                 or ScienceTechnology.FormationDispersed or ScienceTechnology.FormationCover or ScienceTechnology.FormationFocus
                 or ScienceTechnology.Watchtowers or ScienceTechnology.ConscriptionLaw or ScienceTechnology.ReserveForces or ScienceTechnology.TotalMobilization => CommanderActivity.Command,
@@ -95,7 +96,7 @@ namespace AntColony.Core
             new ScienceDefinition(ScienceTechnology.ConscriptionLaw, "징병제", 1),
             new ScienceDefinition(ScienceTechnology.ReserveForces, "예비군제", 2, ScienceTechnology.ConscriptionLaw),
             new ScienceDefinition(ScienceTechnology.TotalMobilization, "국민개병", 4, ScienceTechnology.ReserveForces)
-        }.Concat(MedicineResearch.Definitions(ScienceTechnology.Pharmacy, ScienceTechnology.PrecisionPharmacy)).Concat(FormationResearch.Definitions()).ToArray();
+        }.Concat(MedicineResearch.Definitions(ScienceTechnology.Pharmacy, ScienceTechnology.PrecisionPharmacy)).Concat(FormationResearch.Definitions()).Concat(UndergroundResearch.Definitions()).ToArray();
 
         [Serializable] public sealed class State
         {
@@ -202,7 +203,8 @@ namespace AntColony.Core
             var c = lab.Target;
             if (c == null) return "담당 장수 없음";
             if (c.IsAwayFromHome) return c.CommanderName + " 본거지 밖";
-            if (!c.CivilianWorkReady || !c.CanReceiveOrders) return c.CommanderName + " 작업 불가 상태(수면·부상·식사 등)";
+            if (!c.ResearchWorkReady || !c.CanReceiveOrders) return c.CommanderName + " 작업 불가 상태(이동·수면·부상·식사 등)";
+            if ((c.Position - lab.Position).sqrMagnitude > 64) return c.CommanderName + " 연구소로 복귀 중";
             return "";
         }
 
@@ -216,7 +218,7 @@ namespace AntColony.Core
             {
                 var c = lab.Target;
                 if (!lab.isActiveAndEnabled || lab.Busy || lab.Tier < Active.Tier || c == null
-                    || !c.CivilianWorkReady || !c.CanReceiveOrders || c.IsAwayFromHome || c.ScienceAssignment != lab) continue;
+                    || !c.ResearchWorkReady || !c.CanReceiveOrders || c.IsAwayFromHome || c.ScienceAssignment != lab || (c.Position - lab.Position).sqrMagnitude > 64) continue;
                 state.progress += seconds * c.WorkRate(CommanderActivity.Research) * (1f + .25f * (lab.Tier - 1));
                 c.GainExperience(CommanderActivity.Research, seconds, Topic(Active.Technology));
             }

@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using AntColony.Core;
 using AntColony.Data;
 using AntColony.Units;
@@ -8,12 +8,12 @@ namespace AntColony.Buildings
 {
     // 전력 1차(2026-10-05, 산소미포함식 전선 잇기): 발전기 → 전선 → 가구. 이웃 칸으로 이어진 전력 가구가 한 전력망(PowerGrid).
     // 쳇바퀴 = 장수가 뛰어야 발전(운반 작업), 장작 발전기 = 재료를 태움, 배터리 = 남는 전력 저장, 전등 = 소비.
-    public sealed class PowerNode : BuildingBase
+    public sealed partial class PowerNode : BuildingBase
     {
         private static readonly List<PowerNode> Active = new List<PowerNode>();
         public static IReadOnlyList<PowerNode> All => Active;
         public BuildingKind Kind => Data.kind;
-        public bool IsGenerator => Kind == BuildingKind.Treadmill || Kind == BuildingKind.WoodGenerator || Kind == BuildingKind.SteamGenerator;
+        public bool IsGenerator => Kind == BuildingKind.Treadmill || Kind == BuildingKind.WoodGenerator || Kind == BuildingKind.SteamGenerator || Kind == BuildingKind.GasGenerator;
         public bool IsConsumer => Kind == BuildingKind.ElectricLamp;
         public bool IsBattery => Kind == BuildingKind.Battery;
         public float Charge { get; internal set; }
@@ -28,7 +28,8 @@ namespace AntColony.Buildings
         // 지금 내는 전력(W). 쳇바퀴는 최근 0.5초 안에 장수가 뛰었을 때만, 장작 발전기는 태울 재료가 있을 때만.
         public float Output => Kind == BuildingKind.Treadmill ? (runnerSeconds > 0 ? GameBalance.TreadmillWatts : 0)
             : Kind == BuildingKind.WoodGenerator ? (burnSeconds > 0 ? GameBalance.WoodGeneratorWatts : 0)
-            : Kind == BuildingKind.SteamGenerator && burnSeconds > 0 ? SteamWatts : 0;
+            : Kind == BuildingKind.SteamGenerator && burnSeconds > 0 ? SteamWatts
+            : Kind == BuildingKind.GasGenerator && burnSeconds > 0 && PowerGrid.WantsPower(this) ? SteamWatts : 0;
         public float Demand => IsConsumer ? GameBalance.LampWatts : 0;
         // 쳇바퀴를 돌릴 필요(PowerGrid.WantsPower).
         public bool NeedsRunner => Kind == BuildingKind.Treadmill && isActiveAndEnabled && !IsDead && PowerGrid.WantsPower(this);
@@ -61,6 +62,7 @@ namespace AntColony.Buildings
             var dt = Time.deltaTime;
             if (Time.timeScale <= 0 || !(dt > 0) || AntColony.Save.SaveSystem.Busy || !GameSession.Exists || !GameSession.Instance.GameStarted) return;
             runnerSeconds = Mathf.Max(0, runnerSeconds - dt);
+            if (Kind == BuildingKind.GasGenerator) TickGas(dt);
             if (Kind == BuildingKind.WoodGenerator || Kind == BuildingKind.SteamGenerator)
             {
                 burnSeconds = Mathf.Max(0, burnSeconds - dt);

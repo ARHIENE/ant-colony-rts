@@ -4,7 +4,7 @@ using UnityEngine;
 namespace AntColony.Units
 {
     // Visuals follow simulation; animation never changes damage, movement or resource timers.
-    public sealed class AntVisual : MonoBehaviour
+    public sealed partial class AntVisual : MonoBehaviour
     {
         private Animator animator;
         private GameObject model;
@@ -98,14 +98,20 @@ namespace AntColony.Units
         // 논리 상태 → kemono 클립·손 도구. 채집은 자원별 도구 동작, 건설은 망치, 전투는 검.
         private (string clip, string tool) Clip(string name)
         {
+            if (name == "Work") return WorkClip();
             if (name == "Eat" && worker != null && worker.IsGatheringAnimation && worker.CurrentResourceNode != null)
+            {
+                if (worker.CurrentResourceNode.NeedsSowing) return ("Tool_Till", "Tool_Hoe_Stone");
                 return KemonoModel.Gather(worker.CurrentResourceNode.ResourceType);
+            }
             return name switch
             {
                 "Idle_A" => ("Idle_A", null), "Hit" => ("Hit", null),
                 "Sit" => (commander != null && commander.IsCaptive ? "Captive" : "Downed", null),
-                "Attack" when worker != null && worker.IsBuildingAnimation => ("Tool_Hammer", "Tool_Hammer_Stone"),
+                "Attack" when worker != null && worker.IsBuildingAnimation => (worker.ConstructionClip, worker.ConstructionStep == 1 ? "Tool_Saw" : "Tool_Hammer_Stone"),
                 "Attack" when commander != null && commander.Weapon?.weapon == WeaponKind.ShortBow => ("BowShoot", "Weapon_ShortBow"),
+                "Attack" when commander != null && commander.Weapon?.weapon == WeaponKind.Shield => ("ShieldBlock", "Weapon_Shield_Copper"),
+                "Attack" when commander != null && commander.Weapon == null => ("Attack_Unarmed", null),
                 "Attack" => ("Attack", "Weapon_Sword_Copper"),
                 _ => (name, null)
             };
@@ -135,16 +141,19 @@ namespace AntColony.Units
             if (Time.time < actionUntil) return;
             if (moving) Face(delta);
             if (commander != null && (commander.IsCaptive || commander.PersonalHealth <= 0)) Play("Sit");
-            else if (commander != null && commander.IsAsleep) Play("Sleep");
+            else if (commander != null && commander.IsAsleep && !moving) Play("Sleep");
             else if (commander != null && commander.IsEating) Play("Eat");
+            else if (commander != null && commander.IsWashing) Play("Wash");
             else if (soldier != null && soldier.IsFlying || enemy != null && enemy.IsFlying) Play("Fly");
-            else if (worker != null && worker.IsBuildingAnimation) Play("Attack");
+            else if (worker != null && worker.IsBuildingAnimation) { if (worker.ConstructionTarget != null) Face(worker.ConstructionTarget.Position - transform.position); Play("Attack"); }
             else if (worker != null && worker.IsGatheringAnimation)
             {
                 if (worker.CurrentResourceNode != null) Face(worker.CurrentResourceNode.transform.position - transform.position);
                 Play("Eat");
             }
-            else if (moving) Play(delta.magnitude / Time.deltaTime > 2f ? "Run" : "Walk");
+            else if (moving) Play(CarryingPerson ? "CarryPerson" : worker != null && worker.IsCarrying ? "Carry" : delta.magnitude / Time.deltaTime > 2f ? "Run" : "Walk");
+            else if (commander != null && commander.IsPlaying) Play(JoyClip());
+            else if (HasStationaryWork) Play("Work");
             else Play("Idle_A");
         }
 

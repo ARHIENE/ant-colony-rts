@@ -1,4 +1,4 @@
-using AntColony.Buildings;
+﻿using AntColony.Buildings;
 using AntColony.Core;
 using AntColony.Data;
 using AntColony.Units;
@@ -11,7 +11,7 @@ namespace AntColony.UI
         private static readonly BuildingKind[] ScienceBuildingKinds =
         {
             BuildingKind.SoilWall, BuildingKind.TrapPit, BuildingKind.SpikeTrap, BuildingKind.AreaAcidTower, BuildingKind.Watchtower,
-            BuildingKind.MineField, BuildingKind.DefenseLab, BuildingKind.RestRoom, BuildingKind.Workshop
+            BuildingKind.MineField, BuildingKind.DefenseLab, BuildingKind.RestRoom, BuildingKind.Workshop, BuildingKind.UndergroundScanner, BuildingKind.DeepDrill, BuildingKind.GasExtractor, BuildingKind.GasPipe, BuildingKind.GasTank, BuildingKind.AdvancedDeepDrill, BuildingKind.GasSmelter, BuildingKind.GasGenerator
         };
 
         private void ScienceBuildings()

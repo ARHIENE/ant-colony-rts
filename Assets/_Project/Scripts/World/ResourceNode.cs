@@ -5,10 +5,11 @@ using UnityEngine;
 
 namespace AntColony.World
 {
-    public class ResourceNode : MonoBehaviour
+    public partial class ResourceNode : MonoBehaviour
     {
         public static IReadOnlyList<ResourceNode> Available => Active;
         public bool GatheringForbidden { get; set; }
+        internal bool IsUndergroundLayer { get; set; }
         public bool IsLooseCargo { get; internal set; }
         private static readonly List<ResourceNode> Active = new List<ResourceNode>();
 
@@ -44,13 +45,13 @@ namespace AntColony.World
             || ownerColony.GetComponentInParent<ExpeditionSite>()?.Disposition == ConquestDisposition.Lost);
         public bool IsUnlocked => !IsRaidLocked && (GetComponentInParent<ExpeditionSite>()?.Disposition == ConquestDisposition.Annexed || DiplomacyManager.Hostile(this))
             && (!requiresFishing || (GameManager.Instance != null && GameManager.Instance.FishingUnlocked));
-        public bool CanGather => !GatheringForbidden && isActiveAndEnabled && (!IsDepleted || IsFarm && NeedsSowing || HoldsHandWork) && IsUnlocked && !ColonyEvents.Flooded(this);
+        public bool CanGather => !IsUndergroundLayer && !GatheringForbidden && isActiveAndEnabled && (!IsDepleted || IsFarm && NeedsSowing || HoldsHandWork) && IsUnlocked && !ColonyEvents.Flooded(this);
         public bool RequiresMiningTool => !IsLooseCargo && (resourceType == ResourceType.Stone || resourceType == ResourceType.IronOre
             || resourceType == ResourceType.CopperOre || resourceType == AntColony.Data.ResourceType.TinOre || resourceType == ResourceType.Coal || resourceType == ResourceType.Sulfur);
         // 돌 도구 연구의 재료인 석재에는 새 자원 연구 관문을 추가하지 않는다.
         public bool RequiresResourceResearch => RequiresMiningTool && resourceType != AntColony.Data.ResourceType.Stone;
         public const int MiningToolTier = 2; // 현재 제작 가능한 도구는 나무(1)/돌(2)까지다.
-        public bool CanGatherWith(AntColony.Units.WorkerAnt worker) => CanGather && (!RequiresMiningTool
+        public bool CanGatherWith(AntColony.Units.WorkerAnt worker) => CanGather && (!NeedsDesignation || WorkRequested && !WorkPaused) && (!RequiresMiningTool
             || worker is AntColony.Units.CommanderAnt commander && (RequiresResourceResearch
                 ? CanMine(commander) || CanTakeSample(commander) : commander.PersonalState.toolTier >= MiningToolTier));
         private bool CanMine(AntColony.Units.CommanderAnt c) => CampaignResearch.Instance?.CanMine(resourceType, c.PersonalState.toolTier, MiningToolTier) == true;
@@ -166,6 +167,7 @@ namespace AntColony.World
             amountRemaining -= extracted;
             if (IsDepleted)
             {
+                if (NeedsDesignation) { WorkRequested = false; WorkPaused = false; WorkRequestOrder = 0; }
                 if (requiresFishing) { }
                 // 밭은 수확 뒤에도 심어진 채 다시 자란다(2026-10-15 사용자 지시: 뿌리뽑기 전까지 재파종 없음).
                 else if (regrowSeconds > 0f) { regrowTimer = regrowSeconds; BountifulHarvest = false; Harvested?.Invoke(); }

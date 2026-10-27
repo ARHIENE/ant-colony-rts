@@ -50,6 +50,7 @@ namespace AntColony.UI
             var layout = bar.gameObject.AddComponent<HorizontalLayoutGroup>(); layout.spacing = 4; layout.childForceExpandWidth = false;
             ToolbarButton(bar, "Menu [Esc]", "≡", Pause, "메뉴: 설정 · 저장 · 불러오기");
             ToolbarButton(bar, "Work Schedule [T]", "작업표", WorkSchedule, "장수 × 작업 체크박스");
+            ToolbarButton(bar, "Work Designations", "작업 지정", WorkDesignations, "벌목 · 채굴 · 야생 채집 · 취소");
             ToolbarButton(bar, "Science [K]", "과학", Science, "과학 연구");
             ToolbarButton(bar, "WorldMapToggle", "월드맵", () => AntColony.Core.SceneObjects.Any<WorldMapPanel>()?.Toggle(), "월드맵 · 원정 · 외교");
             ToolbarButton(bar, "V6 Logistics", "물류·식품", () => Management("물류·식품"), "창고 · 식단 · 건설·작업 · 퇴비·비료");

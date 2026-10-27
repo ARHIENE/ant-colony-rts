@@ -1,4 +1,4 @@
-using System.Linq;
+﻿using System.Linq;
 using AntColony.Buildings;
 using AntColony.Core;
 using AntColony.World;
@@ -37,10 +37,12 @@ namespace AntColony.Units
         public float LoadCapacity => Mathf.Max(0, TotalLoadCapacity - StartingLoadWeight - BossCargoCount);
         internal void SetWorkTarget(Component target)
         {
+            if (SurveyAssignment != null && target != SurveyAssignment) SurveyAssignment.Release();
             workTarget = Workforce.For(target);
         }
         public override void CommandStop()
         {
+            suspendedResearchNeed = null;
             WorkState.deploymentMealSeconds = 0;
             WorkState.bossPickup = -1;
             ReleaseCorpse();
@@ -58,7 +60,7 @@ namespace AntColony.Units
             CommanderJobs.Crafting => CommanderActivity.Crafting, CommanderJobs.Research => CommanderActivity.Research,
             CommanderJobs.Farming => CommanderActivity.Farming, CommanderJobs.Fishing => CommanderActivity.Fishing,
             CommanderJobs.Nursing => CommanderActivity.Medicine, CommanderJobs.Cooking => CommanderActivity.Cooking,
-            CommanderJobs.Firefighting => CommanderActivity.Firefighting,
+            CommanderJobs.Firefighting => CommanderActivity.Strength,
             CommanderJobs.Art => CommanderActivity.Art, CommanderJobs.Hunting => CommanderActivity.Melee, CommanderJobs.Administration => CommanderActivity.Politics, CommanderJobs.Husbandry => CommanderActivity.Husbandry,
             _ => CommanderActivity.Gathering
         };
@@ -66,10 +68,10 @@ namespace AntColony.Units
         public bool StartService(BuildingBase target, CommanderJobs job)
         {
             var firefighting = job == CommanderJobs.Firefighting;
-            if ((!firefighting && !CivilianWorkReady || firefighting && (IsDead || IsAwayFromHome || IsAsleep || IsCaptive || PersonalState.health.Downed)) || !CanReceiveOrders || IsWorking || LabUpgradeBusy || !CanDoJob(job)
+            if ((!firefighting && !CivilianWorkReady || firefighting && (IsDead || IsAwayFromHome || IsAsleep || IsCaptive || PersonalState.health.Downed)) || !CanReceiveOrders || IsWorking || LabUpgradeBusy || !AllowsJob(job)
                 || Active.OfType<CommanderAnt>().Any(c => c != this && c.ServiceTarget == target)
                 || target == null || target.IsDead || !target.isActiveAndEnabled || !target.CountsTowardPlayerDefeat || target is Processor processor && !processor.CanContinue(this)
-                || job != CommanderJobs.Nursing && job != CommanderJobs.Repair && job != CommanderJobs.Cooking && !(firefighting && target.GetComponent<WallFire>()?.Burning == true) && !(job == CommanderJobs.Hauling && (target is PowerNode || target is SupplyFacility well && ManualWellNeedsWork(well))) && !(job == CommanderJobs.Administration && target is AdminDesk) && !(job == CommanderJobs.Crafting && target is Processor)
+                || job != CommanderJobs.Nursing && job != CommanderJobs.Repair && job != CommanderJobs.Cooking && !(firefighting && target.GetComponent<WallFire>()?.Burning == true) && !(job == CommanderJobs.Hauling && (target is PowerNode || target is SupplyFacility well && ManualWellNeedsWork(well))) && !(job == CommanderJobs.Administration && target is AdminDesk) && !(job == CommanderJobs.Crafting && target is Processor) && !(job == CommanderJobs.Gathering && target is SupplyFacility drill && DeepDrillNeedsWork(drill))
                 || !TryWorkApproach(target.Position, out var approach)) return false;
             CommandStop(); ServiceTarget = target; ServiceJob = job;
             SetMoveDestination(approach); SetWorkTarget(target); return true;
@@ -87,7 +89,7 @@ namespace AntColony.Units
             bool firefighting = ServiceJob == CommanderJobs.Firefighting;
             if ((!firefighting && (!CivilianWorkReady || !AllowsJob(ServiceJob)) || firefighting && (!CanReceiveOrders || IsAwayFromHome || IsAsleep || PersonalState.health.Downed)) || !ServiceTarget.isActiveAndEnabled || ServiceTarget.IsDead) { CommandStop(); return false; }
             if (firefighting && ServiceTarget.GetComponent<WallFire>()?.Burning != true) { CommandStop(); return false; }
-            if (ServiceTarget is SupplyFacility manual && !ManualWellNeedsWork(manual)) { CommandStop(); return false; }
+            if (ServiceTarget is SupplyFacility manual && !(ServiceJob == CommanderJobs.Gathering ? DeepDrillNeedsWork(manual) : ManualWellNeedsWork(manual))) { CommandStop(); return false; }
             if (ServiceTarget is SupplyFacility && !CanReach(ServiceTarget.Position)) { CommandStop(); return false; }
             if ((Position - ServiceTarget.Position).sqrMagnitude > (firefighting ? 20.25f : 49)
                 || ServiceTarget is SupplyFacility && !HasReachedDestination())
@@ -100,12 +102,16 @@ namespace AntColony.Units
             if (firefighting)
             {
                 var fire = ServiceTarget.GetComponent<WallFire>();
-                GainExperience(CommanderActivity.Firefighting, seconds);
                 if (!fire.Extinguish(seconds)) CommandStop();
             }
             else if (ServiceTarget is Processor bench) // 가공대(제작)·약제대(간호=의료, 2026-10-11)
             {
                 if (ServiceJob != bench.Job || !bench.Work(this, seconds)) { CommandStop(); return false; }
+            }
+            else if (ServiceJob == CommanderJobs.Gathering && ServiceTarget is SupplyFacility drill)
+            {
+                if (!drill.WorkDrill(this, seconds)) { CommandStop(); return false; }
+                if (!DeepDrillNeedsWork(drill)) CommandStop();
             }
             else if (ServiceJob == CommanderJobs.Nursing)
             {

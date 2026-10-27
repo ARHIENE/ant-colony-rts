@@ -11,7 +11,7 @@ namespace AntColony.Units
     // 채집/건설 작업을 SoldierAnt(이동·전투) 위에 얹은 계층.
     // workState가 Idle이면 전투 계층이 그대로 돌고, 작업 중에는 전투 tick을 돌리지 않는다.
     // 이렇게 해야 한 GameObject에 AntUnitBase 파생 컴포넌트를 둘 이상 붙이지 않고도 보직 전환이 가능하다.
-    public class WorkerAnt : SoldierAnt
+    public partial class WorkerAnt : SoldierAnt
     {
         private new enum State
         {
@@ -41,7 +41,7 @@ namespace AntColony.Units
 
         internal Save.WorkerOrderDto CaptureWorkerOrder() => new Save.WorkerOrderDto {
             state = (int)state, node = Save.SaveReferences.Key(targetNode), deposit = Save.SaveReferences.Key(targetDeposit),
-            construction = Save.SaveReferences.Key(targetConstruction), delivery = Save.SaveReferences.Key(deliverySite),
+            construction = Save.SaveReferences.Key(targetConstruction), delivery = Save.SaveReferences.Key(deliverySite), constructionStep = constructionStep,
             fetchHost = Save.SaveReferences.Key(fetchBin?.Host), fetchBase = fetchBin != null && fetchBin.IsBase,
             depositBin = targetBin != null, fetchType = (int)fetchType, fetchAmount = fetchAmount,
             fishingNode = Save.SaveReferences.Key(fishingNode), buildTimer = buildTimer };
@@ -55,10 +55,10 @@ namespace AntColony.Units
             fetchBin = d.fetchBase ? ResourceManager.Instance.BaseBin : ResourceManager.Instance.BinOf(Save.SaveReferences.Get<BuildingBase>(d.fetchHost));
             fetchType = (ResourceType)d.fetchType; fetchAmount = d.fetchAmount;
             targetBin = d.depositBin ? ResourceManager.Instance.BinOf(targetDeposit) : null;
-            buildTimer = d.buildTimer; fishingNode = Save.SaveReferences.Get<ResourceNode>(d.fishingNode);
+            buildTimer = d.buildTimer; constructionStep = Mathf.Clamp(d.constructionStep, 0, 2); fishingNode = Save.SaveReferences.Get<ResourceNode>(d.fishingNode);
             if (targetBin != null) ResourceManager.Instance.Reserve(this, targetBin, carriedType, Mathf.CeilToInt(carriedAmount));
             if (deliverySite != null && !deliverySite.BeginPickup(this, fetchType, fetchAmount))
-                throw new System.InvalidOperationException("Cannot restore material pickup reservation.");
+            { deliverySite = null; state = State.Idle; } // 저장 직전 목표 달성/취소로 사라진 배송은 화물을 보존한 채 재판단한다.
             if (this is CommanderAnt c) c.SetWorkTarget((Component)targetConstruction ?? targetNode);
         }
 
@@ -160,7 +160,10 @@ namespace AntColony.Units
             if (!DeliveryExists || deliverySite.Paused) { ReleaseDestination(); state = State.Idle; if (IsCarrying) BeginReturnIfNeeded(); return; } // 예정지가 사라지면 짐은 창고로
             if (DeliveryRouteLost) { CommandStop(); if (IsCarrying) BeginReturnIfNeeded(); return; }
             if (!HasReachedDestination() && !NearDestination) return;
-            var given = deliverySite.Deliver(this, carriedType, Mathf.FloorToInt(carriedAmount + .001f));
+            var given = deliverySite is IFreshMaterialSink fresh
+                ? fresh.DeliverFood(this, carriedType, Mathf.FloorToInt(carriedAmount + .001f), carriedLots)
+                : deliverySite.Deliver(this, carriedType, Mathf.FloorToInt(carriedAmount + .001f));
+            if (FoodLots.Perishable(carriedType)) carriedLots.Take(given);
             carriedAmount = Mathf.Max(0, carriedAmount - given); deliverySite = null;
             if (carriedAmount >= 1) BeginReturnIfNeeded(); else { carriedAmount = 0; state = State.Idle; }
         }
@@ -303,6 +306,7 @@ namespace AntColony.Units
             if (this is CommanderAnt sampler) sampler.WorkState.sampleWork = 0;
             SetMoveDestination(approach);
             state = State.MovingToNode;
+              GatherOrderFeedback.Show(node, this);
         }
 
         internal bool HasCargoDestination(ResourceType type)
@@ -326,7 +330,8 @@ namespace AntColony.Units
             CommandStop();
             targetNode = null;
             targetConstruction = site;
-            SetMoveDestination(site.Position);
+            constructionStep = 0; buildTimer = 0;
+            SetMoveDestination(ConstructionPoint(0, out var point) ? point : site.Position);
             state = State.MovingToBuildSite;
         }
 
@@ -440,6 +445,13 @@ namespace AntColony.Units
             }
 
             if (!targetConstruction.CanWork) { targetConstruction = null; StopMoving(); state = State.Idle; return; } // 일시정지 등
+            buildTimer += Time.deltaTime;
+            if (buildTimer >= 3.4f && targetConstruction.RemainingWork > 2f)
+            {
+                buildTimer = 0; constructionStep = (constructionStep + 1) % 3;
+                if (ConstructionPoint(constructionStep, out var point) && (point - Position).sqrMagnitude > .36f)
+                { SetMoveDestination(point); state = State.MovingToBuildSite; return; }
+            }
             targetConstruction.BeginWork(); // 재료가 모두 도착한 뒤 첫 시공 순간 소비
             // 공동 건설: 참여한 장수마다 자기 작업 효율만큼 현장의 남은 작업량을 줄인다.
             OnWorked(Mathf.Min(Time.deltaTime, targetConstruction.RemainingWork / WorkSpeed));
@@ -534,8 +546,8 @@ namespace AntColony.Units
                 if (this is CommanderAnt self) self.SetWorkTarget(next);
                 return;
             }
-            // 밭 수확물은 현장 바닥에 내려놓고 운반 작업이 옮긴다(2026-10-15 V5 기획).
-            if (targetNode.TryGetComponent<AntColony.Buildings.FarmPlot>(out _) && (carriedAmount >= CarryCapacity || targetNode.IsDepleted))
+            // 자연 채취·밭 수확과 운반을 분리한다. 창고 유무로 채취 자체를 막지 않는다.
+            if ((targetNode.NeedsDesignation || targetNode.TryGetComponent<AntColony.Buildings.FarmPlot>(out _)) && (carriedAmount >= CarryCapacity || targetNode.IsDepleted))
             {
                 var node = targetNode; DropCargo();
                 if (!node.IsDepleted && node.CanGather) { targetNode = node; state = State.Gathering; if (this is CommanderAnt me) me.SetWorkTarget(node); }

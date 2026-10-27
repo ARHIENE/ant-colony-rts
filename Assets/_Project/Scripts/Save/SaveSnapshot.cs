@@ -33,6 +33,8 @@ namespace AntColony.Save
                 label = options.mapSize + " / " + options.difficulty, playSeconds = GameSession.Instance.PlaySeconds, gameSeconds = GameSession.Instance.GameSeconds,
                 options = new OptionsDto { mapSize = (int)options.mapSize, difficulty = (int)options.difficulty, commanderDeath = (int)options.commanderDeath, seed = options.seed, biome = (int)options.biome, climate = (int)options.climate },
                 randomState = JsonUtility.ToJson(UnityEngine.Random.state),
+                assessment = WorldMapManager.Instance.Assessment.Capture(),
+                underground = UndergroundSurvey.Instance.Capture(),
                 upkeepTimer = AntColony.Core.SceneObjects.Any<UpkeepManager>()?.SavedTimer ?? 0,
                 upkeepFailures = AntColony.Core.SceneObjects.Any<UpkeepManager>()?.ConsecutiveFailures ?? 0,
                 campaign = CampaignResearch.Instance?.CaptureState() ?? new CampaignResearch.State(),
@@ -72,7 +74,7 @@ namespace AntColony.Save
                 file.buildings.Add(SaveBuildings.Capture(w, "new:" + file.buildings.Count, true, commanders));
             for (var i = 0; i < SaveCatalog.Nodes.Length; i++) file.nodes.Add(Node(SaveCatalog.Nodes[i], i.ToString()));
             for (var i = 0; i < Map.MaterialDeposits.Spawned.Count; i++) file.nodes.Add(Node(Map.MaterialDeposits.Spawned[i], "mat:" + i));
-            foreach (var n in SaveCatalog.Ordered<ResourceNode>().Where(n => n.GetComponent<Map.MaterialDeposit>() == null && !SaveCatalog.Nodes.Contains(n) && n.GetComponentInParent<BuildingBase>() == null && n.GetComponent<EventActor>() == null && n.GetComponent<Corpse>() == null))
+            foreach (var n in SaveCatalog.Ordered<ResourceNode>().Where(n => n.GetComponent<Map.MaterialDeposit>() == null && n.GetComponent<UndergroundLayer>() == null && !SaveCatalog.Nodes.Contains(n) && n.GetComponentInParent<BuildingBase>() == null && n.GetComponent<EventActor>() == null && n.GetComponent<Corpse>() == null))
                 file.nodes.Add(Node(n, "new:" + file.nodes.Count));
             SaveRuntime.CaptureMonsters(file);
             for (var i = 0; i < SaveCatalog.Bosses.Length; i++)
@@ -111,6 +113,7 @@ namespace AntColony.Save
             }
             file.discoveries = Encyclopedia.Entries.ToList();
             for (int i = 0; i < commanders.Count; i++) file.commanders[i].personalState.formation = commanders[i].CaptureFormationForSave();
+            SaveUnderground.Capture(file, commanders);
             return file;
         }
 
@@ -119,7 +122,7 @@ namespace AntColony.Save
             SaveReferences.Register("node:" + key, n);
             return new ResourceNodeDto { key = key, exists = n != null,
             looseCargo = n != null && n.IsLooseCargo,
-            amount = n != null ? n.AmountRemaining : 0, regrowTimer = n != null ? n.RegrowTimeRemaining : 0, sowRemaining = n != null ? n.SowRemaining : 0, bountifulHarvest = n != null && n.BountifulHarvest, gatheringForbidden = n != null && n.GatheringForbidden, fishMonth = n != null ? n.FishSeason : -1, lots = n != null && n.TryGetComponent<FloorFood>(out var food) ? food.Sync() : null,
+            amount = n != null ? n.AmountRemaining : 0, regrowTimer = n != null ? n.RegrowTimeRemaining : 0, sowRemaining = n != null ? n.SowRemaining : 0, bountifulHarvest = n != null && n.BountifulHarvest, gatheringForbidden = n != null && n.GatheringForbidden, workRequested = n != null && n.WorkRequested, workPaused = n != null && n.WorkPaused, workRequestOrder = n != null ? n.WorkRequestOrder : 0, fishMonth = n != null ? n.FishSeason : -1, lots = n != null && n.TryGetComponent<FloorFood>(out var food) ? food.Sync() : null,
             position = new Vec3Dto(n != null ? n.transform.position : Vector3.zero), type = n != null ? (int)n.ResourceType : 0,
             seedCrop = n != null && n.TryGetComponent<FarmSeedSource>(out var seed) ? (int)seed.Crop : -1, seedKey = n != null && n.TryGetComponent<FarmSeedSource>(out var seedKey) ? seedKey.FixedKey : null };
         }
@@ -155,7 +158,7 @@ namespace AntColony.Save
                 if (node == null) throw new InvalidOperationException("Missing colony resource node: " + n.key);
                 nodes.Remove(node); node.transform.position = n.position.ToVector3();
                 node.RestoreState(n.amount, n.regrowTimer, n.sowRemaining); node.FishSeason = n.fishMonth;
-                node.IsLooseCargo = n.looseCargo; node.BountifulHarvest = n.bountifulHarvest; node.GatheringForbidden = n.gatheringForbidden;
+                node.IsLooseCargo = n.looseCargo; node.BountifulHarvest = n.bountifulHarvest; node.GatheringForbidden = n.gatheringForbidden; node.WorkRequested = n.workRequested; node.WorkPaused = n.workPaused; node.WorkRequestOrder = n.workRequestOrder;
                 if (n.lots != null && node.TryGetComponent<FloorFood>(out var food)) food.Lots = n.lots;
                 SaveReferences.Register("node:" + n.key, node);
             }
@@ -202,7 +205,7 @@ namespace AntColony.Save
                 node.IsLooseCargo = d.looseCargo;
                 if (d.seedCrop >= 0) // G28: 저장된 종자 출처(시작 야생 작물 등 새 노드 포함)를 같은 키로 되살린다.
                 { if (!node.TryGetComponent<FarmSeedSource>(out var seed)) seed = node.gameObject.AddComponent<FarmSeedSource>(); seed.Configure((FarmCrop)d.seedCrop, d.seedKey); }
-                node.BountifulHarvest = d.bountifulHarvest; node.GatheringForbidden = d.gatheringForbidden; node.FishSeason = d.fishMonth;
+                node.BountifulHarvest = d.bountifulHarvest; node.GatheringForbidden = d.gatheringForbidden; node.WorkRequested = d.workRequested; node.WorkPaused = d.workPaused; node.WorkRequestOrder = d.workRequestOrder; node.FishSeason = d.fishMonth;
                 if (d.lots != null && d.lots.lots.Count > 0 && d.lots.Valid && node.TryGetComponent<FloorFood>(out var food)) food.Lots = d.lots;
                 if (d.key.StartsWith("new:")) node.gameObject.SetActive(d.amount > 0 || d.regrowTimer > 0);
             }
@@ -260,7 +263,7 @@ namespace AntColony.Save
                 c.SetEmbarked(false, d.position.ToVector3());
                 c.RefreshDepartureVisual();
                 if (d.location == 2) world.Sites[d.siteIndex].Settlement.Add(c);
-                if (d.location == 3) world.Sites[d.siteIndex].Defense.RestorePrisoner(c);
+                if (d.location == 3) world.Sites[d.siteIndex].HoldInvestigator(c);
             }
             for (var i = 0; i < ships.Count; i++)
             {
@@ -327,6 +330,9 @@ namespace AntColony.Save
             for (int i = 0; i < ships.Count; i++) ships[i].Route.RestoreProgress(file.world.transports[i].route);
             foreach (var c in commanders) c.RestoreFormationHit();
             for (int i = 0; i < ships.Count; i++) { ships[i].RestoreWithdrawal(file.world.transports[i].withdrawal); ships[i].RestoreDamageWorkers(file.world.transports[i].damage); }
+            world.Assessment.Restore(file.assessment);
+            UndergroundSurvey.Instance.Restore(file.underground);
+            SaveUnderground.Restore(restoredBuildings, commanders);
             CommanderAnt.RefreshDepartureNotice();
             UnityEngine.Random.state = JsonUtility.FromJson<UnityEngine.Random.State>(file.randomState);
         }

@@ -1,16 +1,19 @@
-using AntColony.Data;
+﻿using AntColony.Data;
 using UnityEngine;
 
 namespace AntColony.Buildings
 {
     public static class SupplyBuildingTemplates
     {
-        public static bool IsKind(BuildingKind kind) => kind >= BuildingKind.PlanterBed && kind <= BuildingKind.FuelCharger;
+        public static bool IsKind(BuildingKind kind) => kind >= BuildingKind.PlanterBed && kind <= BuildingKind.FuelCharger
+            || kind is BuildingKind.DeepDrill or BuildingKind.GasExtractor or BuildingKind.GasPipe or BuildingKind.GasTank or BuildingKind.AdvancedDeepDrill or BuildingKind.GasSmelter or BuildingKind.GasGenerator;
         public static (AntColony.Data.ResourceType type, int amount)[] Cost(BuildingKind kind) => kind switch
         {
+            BuildingKind.AdvancedDeepDrill => new[] { (AntColony.Data.ResourceType.TitaniumAlloy, 10), (AntColony.Data.ResourceType.Copper, 5) },
+            BuildingKind.DeepDrill or BuildingKind.GasExtractor or BuildingKind.GasSmelter or BuildingKind.GasGenerator => new[] { (AntColony.Data.ResourceType.Steel, 10), (AntColony.Data.ResourceType.Copper, 5) },
             BuildingKind.WaterSource or BuildingKind.OilDeposit => System.Array.Empty<(AntColony.Data.ResourceType, int)>(),
-            BuildingKind.FluidPipe => new[] { (AntColony.Data.ResourceType.Copper, 1) },
-            BuildingKind.FluidTank or BuildingKind.FuelCharger => new[] { (AntColony.Data.ResourceType.Steel, 5) },
+            BuildingKind.FluidPipe or BuildingKind.GasPipe => new[] { (AntColony.Data.ResourceType.Copper, 1) },
+            BuildingKind.FluidTank or BuildingKind.GasTank or BuildingKind.FuelCharger => new[] { (AntColony.Data.ResourceType.Steel, 5) },
             BuildingKind.ManualWell or BuildingKind.PlanterBed or BuildingKind.StarterMushroomBed => new[] { (AntColony.Data.ResourceType.Wood, 10) },
             _ => new[] { (AntColony.Data.ResourceType.Iron, 10), (AntColony.Data.ResourceType.Copper, 5) }
         };
@@ -30,7 +33,8 @@ namespace AntColony.Buildings
             data.buildTimeSeconds = 5;
             BuildingBase building;
             if (kind == BuildingKind.PlanterBed || kind == BuildingKind.StarterMushroomBed) building = go.AddComponent<StarterCropBed>();
-            else if (kind == BuildingKind.SteamGenerator) building = go.AddComponent<PowerNode>();
+            else if (kind == BuildingKind.SteamGenerator || kind == BuildingKind.GasGenerator) building = go.AddComponent<PowerNode>();
+            else if (kind == BuildingKind.GasSmelter) building = go.AddComponent<Processor>();
             else building = go.AddComponent<SupplyFacility>();
             building.ConfigureRuntime(data);
             return go;
@@ -38,6 +42,9 @@ namespace AntColony.Buildings
 
         private static string Name(BuildingKind kind) => kind switch
         {
+            BuildingKind.AdvancedDeepDrill => "합금 심층 채굴기", BuildingKind.GasSmelter => "가스 제련로", BuildingKind.GasGenerator => "가스 발전기",
+            BuildingKind.DeepDrill => "심층 채굴기", BuildingKind.GasExtractor => "가스 추출기",
+            BuildingKind.GasPipe => "기체 배관", BuildingKind.GasTank => "기체 탱크",
             BuildingKind.PlanterBed => "화분형 밭", BuildingKind.StarterMushroomBed => "기본 버섯밭",
             BuildingKind.WaterSource => "수원", BuildingKind.OilDeposit => "석유 매장 지점", BuildingKind.ManualWell => "수동 우물",
             BuildingKind.WaterPump => "취수 펌프", BuildingKind.FluidPipe => "기초 배관", BuildingKind.FluidTank => "유체 탱크",

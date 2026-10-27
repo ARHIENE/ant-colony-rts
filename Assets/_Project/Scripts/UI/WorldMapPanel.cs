@@ -105,6 +105,7 @@ namespace AntColony.UI
             Btn(k, "Walking Formation", "도보 편성", 12, 114, () => {
                 Toggle(); GameMenuController.Instance.WalkingFormation(party => { selectedShip = party; Toggle(); });
             });
+            Btn(k, "Talent Investigation", "인재 조사 파견", 184, 114, () => { Toggle(); GameMenuController.Instance.ShowInvestigation(selectedSite, selectedShip); });
             departurePlan = L.Label(k, "", 12, 12, 154, 336, 74, MenuTheme.Warning, TextAnchor.UpperLeft);
             L.Line(k, 12, 232, 336);
             routeStatus = L.Label(k, "", 12, 12, 238, 336, 40, MenuTheme.Muted, TextAnchor.UpperLeft);
