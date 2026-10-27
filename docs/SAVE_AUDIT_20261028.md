@@ -24,6 +24,7 @@
 - 전체 기획·전 장비/동작/전 화면 육안·Player 빌드·성능 검증 완료는 아니다. 유출 규칙·기타 가공시설/제조법·낚시터/원정지 지형 등은 남는다.
 
 ## 문서와 보존
+- 구현/모델/검사/문서129개 커밋 `7812eab`, origin/develop push와 원격 동일 SHA 확인 완료. 이후 완료 기록만 후속 문서 커밋으로 저장한다. 원래 Unity Editor 씬은 clean이며 저장되지 않은 씬 변경이 없음을 확인했다.
 - Graphify 코드 갱신16164노드/34979간선, LLM 토큰0.
 - log.md를 SAVE 첫 단계로 갱신하고 이전 로그를 날짜별로 changelog에 요약했다. 이전 원문은 `work/save-20261028/log-before-save.md`.
 - 개발 일지/실제 캡처: https://app.notion.com/p/406c4a0ecd31811a9dd2c269e43fc098
