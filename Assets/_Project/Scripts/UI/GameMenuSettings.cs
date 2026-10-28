@@ -51,12 +51,13 @@ namespace AntColony.UI
                 }
             }
             // 이전·다음으로 넘기는 줄(선택지가 많은 해상도·속도).
-            void Stepper(string title, string value, Action prev, Action next, string note = null)
+            RectTransform Stepper(string title, string value, Action prev, Action next, string note = null)
             {
                 var row = Row(title, note);
                 L.Button(row, title + " Prev", "◀", 340, 7, 44, 34, prev);
                 L.Label(row, value, 15, 390, 0, 200, 48, align: TextAnchor.MiddleCenter);
                 L.Button(row, title + " Next", "▶", 596, 7, 44, 34, next);
+                return row;
             }
             switch (settingsTab)
             {
@@ -69,13 +70,16 @@ namespace AntColony.UI
                     var from = cur >= 0 ? cur : res.FindIndex(r => r.width == UnityEngine.Screen.currentResolution.width && r.height == UnityEngine.Screen.currentResolution.height);
                     if (from < 0) from = res.Count - 1;
                     void Res(int d) => Apply(v => { var i = Mathf.Clamp(from + d, 0, res.Count - 1); if (res.Count > 0) { v.resolutionWidth = res[i].width; v.resolutionHeight = res[i].height; } });
-                    Stepper("해상도", s.resolutionWidth > 0 ? $"{s.resolutionWidth} × {s.resolutionHeight}" : "모니터 기본", () => Res(-1), () => Res(1),
+                    var resolutionRow = Stepper("해상도", s.resolutionWidth > 0 ? $"{s.resolutionWidth} × {s.resolutionHeight}" : "모니터 기본", () => Res(-1), () => Res(1),
                         Application.isEditor ? "에디터에서는 게임 창 크기를 따릅니다" : null);
+                    L.Button(resolutionRow, "Native Resolution", "모니터 기본", 660, 7, 140, 34,
+                        () => Apply(v => { v.resolutionWidth = 0; v.resolutionHeight = 0; }));
                     Options("수직 동기화", new[] { true, false }, b => b ? "켜기" : "끄기", s.vSync, (v, b) => v.vSync = b, "화면 찢어짐 방지");
                     Options("최대 프레임", new[] { 30, 60, 120, 0 }, n => n == 0 ? "제한 없음" : n + "", s.frameLimit, (v, n) => v.frameLimit = n,
                         s.vSync ? "수직 동기화를 끄면 적용됩니다" : "노트북 발열이 크면 낮추세요");
                     var names = QualitySettings.names;
-                    Options("그래픽 품질", Enumerable.Range(-1, names.Length + 1).ToArray(), q => q < 0 ? "기본" : names[q], s.quality, (v, q) => v.quality = q);
+                    Options("그래픽 품질", Enumerable.Range(-1, names.Length + 1).ToArray(), q => q < 0 ? "기본"
+                        : names[q] == "Mobile" ? "낮음" : names[q] == "PC" ? "높음" : names[q], s.quality, (v, q) => v.quality = q);
                     break;
                 case 1:
                     Stepper("전체 볼륨", Mathf.RoundToInt(s.masterVolume * 100) + "%",

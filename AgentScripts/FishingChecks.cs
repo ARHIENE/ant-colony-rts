@@ -16,6 +16,14 @@ namespace AntColony.Regression
     {
         public static async Task<string> Main()
         {
+            var root = Save.SaveStorage.RootOverride;
+            Save.SaveStorage.RootOverride = System.IO.Path.Combine(Application.temporaryCachePath, "FishingChecks-" + Guid.NewGuid().ToString("N"));
+            try { return await Run(); }
+            finally { Save.SaveStorage.RootOverride = root; }
+        }
+
+        private static async Task<string> Run()
+        {
             if (!Application.isPlaying) throw new Exception("Run in Play mode.");
             // 새 Play 세션은 메인 메뉴(일시정지)로 시작하므로 필요하면 게임을 직접 시작한다.
             if (!GameSession.Instance.GameStarted)
@@ -103,6 +111,7 @@ namespace AntColony.Regression
                 GameSession.Instance.MarkStarted(GameSession.Instance.PlaySeconds, (GameCalendar.Day + 1) * GameCalendar.SecondsPerDay);
                 await Task.Delay(100);
                 Assert(worker.TryWorkApproach(spot.transform.position, out var approach), "fishing approach lies on a reachable navmesh");
+                worker.SetJobEnabled(CommanderJobs.Fishing, true);
                 worker.CommandGather(spot);
                 Assert(worker.CurrentResourceNode == spot && worker.IsWorking, "fisher accepts gathering order");
                 var destination = approach; // 장거리 경유지 경로라면 최종 목적지를 반복 요청해야 한다.

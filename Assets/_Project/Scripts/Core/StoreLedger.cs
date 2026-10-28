@@ -14,11 +14,12 @@ namespace AntColony.Core
         public static readonly int TypeCount = Enum.GetValues(typeof(ResourceType)).Length;
         // 새 칸은 썩은 식품 외 전부 허용(뒤에 붙을 종류도 켜지도록 모든 비트를 켠다).
         public static ulong DefaultAllowed => ~0UL & ~Bit(ResourceType.RottenFood);
-        public static ulong Bit(ResourceType t) => 1UL << (int)t;
+        public static ulong Bit(ResourceType t) => (int)t < 64 ? 1UL << (int)t : 0;
 
         public BuildingBase Host { get; internal set; }
         public int priority = AntColony.Units.WorkPriorities.Default;
         public ulong allowed = DefaultAllowed;
+        private readonly HashSet<int> extraForbidden = new HashSet<int>();
         internal readonly int[] amounts = new int[TypeCount];
         // 부패하는 식품의 물량별 신선도. 총량(amounts)이 바뀌면 읽을 때 맞춘다(늘면 신선한 몫, 줄면 신선도 낮은 몫부터).
         private readonly Dictionary<ResourceType, FoodLots> food = new Dictionary<ResourceType, FoodLots>();
@@ -38,7 +39,12 @@ namespace AntColony.Core
         public bool Spendable => Usable && !(Host is CompostBin);
         public Vector3 Position => Host != null ? Host.Position : ResourceManager.HomePosition;
         public string Name => Host != null && Host.Data != null ? Host.Data.displayName : "비축더미";
-        public bool Allows(ResourceType t) => (allowed & Bit(t)) != 0;
+        public bool Allows(ResourceType t) => (int)t < 64 ? (allowed & Bit(t)) != 0 : !extraForbidden.Contains((int)t) && !(Host is CompostBin) && (!(Host is ColdStorage) || ColdStorage.Holds(t));
+        internal void Allow(ResourceType t, bool on)
+        {
+            if ((int)t < 64) allowed = on ? allowed | Bit(t) : allowed & ~Bit(t);
+            else if (on) extraForbidden.Remove((int)t); else extraForbidden.Add((int)t);
+        }
         public int Amount(ResourceType t) => amounts[(int)t];
         public int Capacity(ResourceType t) => Mathf.Max(0, capacity(t));
         // 다른 운반자가 이미 예약한 공간은 빼고 계산한다.
@@ -47,13 +53,15 @@ namespace AntColony.Core
         public IEnumerable<ResourceType> Stocked => Enumerable.Range(0, TypeCount).Where(i => amounts[i] > 0).Select(i => (ResourceType)i);
 
         [Serializable] public sealed class TypedLots { public int type; public FoodLots lots; }
-        [Serializable] public sealed class Dto { public int priority = 5; public long allowed = -1; public int[] amounts; public List<TypedLots> food = new List<TypedLots>(); }
+        [Serializable] public sealed class Dto { public int priority = 5; public long allowed = -1; public int[] amounts; public List<TypedLots> food = new List<TypedLots>(); public List<int> extraForbidden = new List<int>(); }
         public Dto Capture() => new Dto { priority = priority, allowed = unchecked((long)allowed), amounts = (int[])amounts.Clone(),
-            food = Stocked.Where(FoodLots.Perishable).Select(t => new TypedLots { type = (int)t, lots = JsonUtility.FromJson<FoodLots>(JsonUtility.ToJson(Lots(t))) }).ToList() };
+            food = Stocked.Where(FoodLots.Perishable).Select(t => new TypedLots { type = (int)t, lots = JsonUtility.FromJson<FoodLots>(JsonUtility.ToJson(Lots(t))) }).ToList(), extraForbidden = extraForbidden.OrderBy(i => i).ToList() };
         internal void Apply(Dto d)
         {
             priority = Mathf.Clamp(d.priority, AntColony.Units.WorkPriorities.Min, AntColony.Units.WorkPriorities.Max);
             allowed = unchecked((ulong)d.allowed);
+            extraForbidden.Clear();
+            if (d.extraForbidden != null) foreach (var type in d.extraForbidden) extraForbidden.Add(type);
             Array.Clear(amounts, 0, amounts.Length);
             if (d.amounts != null) for (int i = 0; i < Mathf.Min(d.amounts.Length, TypeCount); i++) amounts[i] = Mathf.Max(0, d.amounts[i]);
             food.Clear();

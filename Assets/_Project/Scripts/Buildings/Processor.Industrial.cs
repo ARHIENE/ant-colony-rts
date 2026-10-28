@@ -11,8 +11,11 @@ namespace AntColony.Buildings
         public bool Chemical => Data != null && Data.kind == BuildingKind.ChemistryBench;
         public bool Industrial => Data != null && Data.kind is BuildingKind.GasSmelter or BuildingKind.ChemistryBench;
         public int BufferedOil => state.bufferedOil;
-        private bool HasIndustrialInput => Chemical ? state.bufferedOil >= IndustrialRecipes.PlasticOil
+        private int OilRequired(Recipe recipe) => recipe?.output == ResourceType.Plastic ? IndustrialRecipes.PlasticOil : 0;
+        private bool HasIndustrialInputFor(Recipe recipe) => Chemical ? OilRequired(recipe) <= state.bufferedOil
             || FluidNetwork.Has(this, ResourceType.CrudeOil, IndustrialRecipes.PlasticOil - state.bufferedOil) : FluidNetwork.Has(this, ResourceType.NaturalGas, 1);
+        private bool HasIndustrialInput => HasIndustrialInputFor(Current ?? (PendingOrder is Order order ? Recipes[order.recipe]
+            : state.orders.Where(o => o.recipe >= 0 && o.recipe < Recipes.Count && Wants(o, Recipes[o.recipe])).Select(o => Recipes[o.recipe]).FirstOrDefault()));
         public bool Powered { get; set; }
         public float Demand => Industrial && isActiveAndEnabled && !IsDead ? SupplyFacility.RefineryWatts : 0;
         public IEnumerable<UnityEngine.Vector2Int> Cells => RoomSystem.Footprint(this);
@@ -22,10 +25,11 @@ namespace AntColony.Buildings
         // gasPaid는 기존 저장 필드명을 유지하며 화학 작업대에서도 묶음 유체 선투입을 뜻한다.
         private bool IndustrialReady => !Industrial || Powered && IndustrialSpace && (state.gasPaid || HasIndustrialInput);
         protected override void OnEnable() { base.OnEnable(); if (Industrial) PowerGrid.Register(this); }
-        private bool PayIndustrialFuel()
+        private bool PayIndustrialFuel(Recipe recipe)
         {
             if (!Industrial) return true;
             if (!Chemical) return FluidNetwork.Take(this, ResourceType.NaturalGas, 1);
+            if (OilRequired(recipe) == 0) return true;
             var need = IndustrialRecipes.PlasticOil - state.bufferedOil;
             if (need > 0 && !FluidNetwork.Take(this, ResourceType.CrudeOil, need)) return false;
             state.bufferedOil = IndustrialRecipes.PlasticOil; return true;

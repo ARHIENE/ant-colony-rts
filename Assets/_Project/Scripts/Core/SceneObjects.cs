@@ -63,9 +63,22 @@ namespace AntColony.Core
         private static readonly Dictionary<Type, Object> AnyCache = new Dictionary<Type, Object>();
         public static T Any<T>() where T : Object
         {
-            if (typeof(BuildingBase).IsAssignableFrom(typeof(T)) || Registered.ContainsKey(typeof(T)))
+#if DEVELOPMENT_BUILD || UNITY_EDITOR
+            // Development-player A/B uses identical assets and simulation with the previous lookup path.
+            if (PlayerPerformanceProbe.Baseline && (typeof(BuildingBase).IsAssignableFrom(typeof(T)) || Registered.ContainsKey(typeof(T))))
+            { var all = All<T>(); return all.Length > 0 ? all[0] : null; }
+#endif
+            if (typeof(BuildingBase).IsAssignableFrom(typeof(T)))
             {
-                var all = All<T>(); return all.Length > 0 ? all[0] : null;
+                Buildings.RemoveAll(b => b == null);
+                foreach (var b in Buildings) if (b is T item && b != null && b.gameObject.activeInHierarchy) return item;
+                return null;
+            }
+            if (Registered.TryGetValue(typeof(T), out var list))
+            {
+                foreach (var item in list)
+                    if (item != null && (!(item is Component component) || component.gameObject.activeInHierarchy)) return (T)item;
+                return null;
             }
             if (AnyCache.TryGetValue(typeof(T), out var cached) && cached != null && (!(cached is Component c) || c.gameObject.activeInHierarchy)) return (T)cached;
             var found = Object.FindAnyObjectByType<T>();

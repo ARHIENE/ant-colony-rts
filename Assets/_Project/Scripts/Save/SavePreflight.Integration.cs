@@ -20,6 +20,10 @@ namespace AntColony.Save
         }
         private static void ValidateIntegration(SaveFileV1 f)
         {
+            void Filter(StoreBin.Dto bin) => Check(bin?.extraForbidden == null || bin.extraForbidden.Count <= StoreBin.TypeCount
+                && bin.extraForbidden.Distinct().Count() == bin.extraForbidden.Count
+                && bin.extraForbidden.All(i => i >= 64 && Enum.IsDefined(typeof(AntColony.Data.ResourceType), i)), "extended storage filter");
+            Filter(f.colony.baseBin); foreach (var building in f.buildings) Filter(building.storeBin);
             SaveTransportValidation.Validate(f);
             Check(FarmSeeds.Valid(f.farmSeeds), "farm seeds");
             Check(f.nodes.All(n => n.seedCrop == -1 || Enum.IsDefined(typeof(FarmCrop), n.seedCrop)), "seed source");
@@ -65,7 +69,13 @@ namespace AntColony.Save
                     var s = b.processor; var recipes = Processor.RecipesFor(kind);
                     Check(kind is AntColony.Data.BuildingKind.GasSmelter or AntColony.Data.BuildingKind.ChemistryBench ? s.gasPaid == (s.current >= 0) : !s.gasPaid, "industrial paid fuel");
                     Check(kind == AntColony.Data.BuildingKind.ChemistryBench ? s.bufferedOil >= 0 && s.bufferedOil <= IndustrialRecipes.PlasticOil
-                        && (s.current < 0 || s.bufferedOil == IndustrialRecipes.PlasticOil) : s.bufferedOil == 0, "industrial oil buffer");
+                        && (s.current < 0 || s.current < recipes.Length && (recipes[s.current].output != AntColony.Data.ResourceType.Plastic || s.bufferedOil == IndustrialRecipes.PlasticOil)) : s.bufferedOil == 0, "industrial oil buffer");
+                    Check(N(s.fermentation) && s.fermentation >= 0 && s.fermentation <= FoodProcessingRecipes.FermentSeconds
+                        && (!(s.fermenting || s.fermented) || kind == AntColony.Data.BuildingKind.BrewingBarrel && s.current >= 0 && s.progress == 0)
+                        && !(s.fermenting && s.fermented) && (!s.fermented || s.fermentation == FoodProcessingRecipes.FermentSeconds)
+                        && (s.fermenting || s.fermented || s.fermentation == 0)
+                        && (!s.fermenting || s.fermentation < FoodProcessingRecipes.FermentSeconds)
+                        && (kind == AntColony.Data.BuildingKind.BrewingBarrel || s.fermentation == 0), "fermentation state");
                     ValidateStaged(s.staged);
                     Check(s.pending >= -1 && s.pending < recipes.Length, "processor pending recipe");
                     Check(s.orders != null && s.orders.Count <= Workshop.MaxOrders && s.orders.All(o => o != null

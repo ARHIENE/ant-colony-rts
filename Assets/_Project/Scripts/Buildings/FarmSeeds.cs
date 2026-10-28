@@ -10,7 +10,7 @@ namespace AntColony.Buildings
     {
         [Serializable] public sealed class State
         {
-            public int[] counts = new int[3];
+            public int[] counts = new int[Enum.GetValues(typeof(FarmCrop)).Length];
             public List<string> collected = new List<string>();
         }
         private static State state = new State();
@@ -34,13 +34,14 @@ namespace AntColony.Buildings
             state.collected.Add(source.Key); Add(source.Crop, 1); return true;
         }
         public static State Capture() => JsonUtility.FromJson<State>(JsonUtility.ToJson(state));
-        public static bool Valid(State s) => s == null || s.counts != null && s.counts.Length == 3
+        public static bool Valid(State s) => s == null || s.counts != null && (s.counts.Length == 3 || s.counts.Length == Enum.GetValues(typeof(FarmCrop)).Length)
             && Array.TrueForAll(s.counts, n => n >= 0) && s.collected != null
             && !s.collected.Exists(string.IsNullOrEmpty) && new HashSet<string>(s.collected).Count == s.collected.Count;
         public static void Restore(State s)
         {
             if (!Valid(s)) throw new ArgumentException("Invalid farm seed state");
             state = s == null ? new State() : JsonUtility.FromJson<State>(JsonUtility.ToJson(s));
+            Array.Resize(ref state.counts, Enum.GetValues(typeof(FarmCrop)).Length);
         }
     }
 

@@ -184,6 +184,7 @@ namespace AntColony.World
             regrowAmount = Mathf.Max(0f, amount);
             regrowTimer = fresh ? regrowSeconds : Mathf.Min(regrowTimer, regrowSeconds);
         }
+        internal void SetCropResource(ResourceType type) => resourceType = type;
 
         // 런타임 생성 노드(보스 전리품) 전용. 활성화 전에 호출해야 OnEnable 판정이 맞다.
         public void ConfigureLoot(ResourceType type, float amount)

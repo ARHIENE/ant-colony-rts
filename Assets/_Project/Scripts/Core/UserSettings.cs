@@ -47,10 +47,11 @@ namespace AntColony.Core
         public void ApplyRuntime()
         {
             if (defaultQuality < 0) defaultQuality = QualitySettings.GetQualityLevel();
-            QualitySettings.vSyncCount = vSync ? 1 : 0;
-            Application.targetFrameRate = vSync || frameLimit == 0 ? -1 : frameLimit;
             var level = quality >= 0 ? quality : defaultQuality;
             if (QualitySettings.GetQualityLevel() != level) QualitySettings.SetQualityLevel(level, true);
+            // Quality presets include vSync; apply the player's explicit choice after switching presets.
+            QualitySettings.vSyncCount = vSync ? 1 : 0;
+            Application.targetFrameRate = vSync || frameLimit == 0 ? -1 : frameLimit;
             AudioListener.volume = masterVolume;
 #if !UNITY_EDITOR
             var mode = screenMode == 1 ? FullScreenMode.Windowed : screenMode == 2 ? FullScreenMode.ExclusiveFullScreen : FullScreenMode.FullScreenWindow;

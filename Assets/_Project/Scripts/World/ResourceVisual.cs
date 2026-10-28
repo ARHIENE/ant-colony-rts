@@ -41,20 +41,21 @@ namespace AntColony.World
             ResourceType.MedicineAdvanced => "CC_MedicineAdvanced", ResourceType.PlantingMaterial => "Grain_Wheat",
             ResourceType.CrudeOil => "Fossil_CrudeOil", ResourceType.Petroleum => "Proc_Fuel", ResourceType.Herb => "Crop_Herb",
             ResourceType.Plastic => "Proc_Plastic",
+            ResourceType.Charcoal => "Proc_Charcoal", ResourceType.Coke => "Proc_Coke", ResourceType.Pottery => "Proc_Pottery",
             ResourceType.Chitin => "Mat_Chitin", ResourceType.Wax => "Mat_Wax", ResourceType.Component => "Part_Component",
             ResourceType.Water => "Water_Jug", ResourceType.Soil => "Resource_Soil",
-            _ => null
+            _ => ProcessingResources.Model(type)
         };
 
         public static void Attach(ResourceNode node)
         {
-            if (node.RequiresFishing || node.GetComponent<BuildingBase>() != null || node.transform.Find("ResourceModel") != null) return;
+            if (node.GetComponent<BuildingBase>() != null || node.transform.Find("ResourceModel") != null) return;
             var box = node.GetComponent<Renderer>();
             if (box == null) return;
             if (node.IsLooseCargo && ProductionProp.ForResource(node.ResourceType) != null) return;
-            var id = ModelFor(node.ResourceType, node.IsLooseCargo);
+            var id = node.RequiresFishing ? "Fishing_Bank" : ModelFor(node.ResourceType, node.IsLooseCargo);
             if (id == null) return;
-            var width = !node.IsLooseCargo && node.ResourceType is ResourceType.Wood or ResourceType.Resin ? 2.8f
+            var width = node.RequiresFishing ? 2.2f : !node.IsLooseCargo && node.ResourceType is ResourceType.Wood or ResourceType.Resin ? 2.8f
                 : !node.IsLooseCargo && ModelFor(node.ResourceType, false) is "CC_RockOutcrop" or "CC_OreOutcrop" or "Deposit_Chitin" ? 1.8f
                 : node.ResourceType == ResourceType.Water ? .45f : node.ResourceType == ResourceType.Wax ? .6f
                 : node.ResourceType == ResourceType.Component ? .65f : node.ResourceType == ResourceType.Chitin ? .8f : 1.2f;

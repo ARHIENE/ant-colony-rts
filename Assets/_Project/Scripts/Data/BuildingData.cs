@@ -68,7 +68,9 @@ namespace AntColony.Data
         PlanterBed, StarterMushroomBed, WaterSource, OilDeposit, // B10
         ManualWell, WaterPump, FluidPipe, FluidTank, SteamGenerator, OilDrill, OilRefinery, FuelCharger,
         UndergroundScanner, DeepDrill, GasExtractor, GasPipe, GasTank, AdvancedDeepDrill, GasSmelter, GasGenerator,
-        ChemistryBench
+        ChemistryBench,
+        CharcoalKiln, CokeOven,
+        Mill, OilPress, BrewingBarrel, Still
     }
 
     [CreateAssetMenu(fileName = "BuildingData", menuName = "AntColony/Building Data")]

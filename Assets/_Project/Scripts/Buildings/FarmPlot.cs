@@ -10,7 +10,7 @@ using Random = UnityEngine.Random;
 
 namespace AntColony.Buildings
 {
-    public enum FarmCrop { Fungus, Honeydew, AdvancedFungus }
+    public enum FarmCrop { Fungus, Honeydew, AdvancedFungus, Wheat, Barley, Rice, Grapes, Sunflower }
 
     // 밭(2026-10-15 V5): 수확 뒤에도 심어진 채 다시 자란다. 뿌리뽑기(확인 후 장수 작업) → 빈 밭, 다시 심기 지시 전까지 비워 둔다.
     // 병충해는 실제 칸 좌표의 상하좌우 밭으로만 퍼진다(대각선 없음). 비료는 성장 주기당 1회, 농사 장수가 넣는다.
@@ -47,6 +47,8 @@ namespace AntColony.Buildings
             }
             if (Crop != crop) Data.harvests = 0;
             Crop = crop;
+            if (FoodProcessingRecipes.CropResource(crop) is ResourceType type) node.SetCropResource(type);
+            else node.SetCropResource(ResourceType.Food);
             node.ConfigureRegrowth(
                 crop == FarmCrop.Honeydew ? GameBalance.HoneydewSeconds : crop == FarmCrop.AdvancedFungus ? GameBalance.AdvancedFungusSeconds : GameBalance.FungusSeconds,
                 crop == FarmCrop.Honeydew ? GameBalance.HoneydewFood : crop == FarmCrop.AdvancedFungus ? GameBalance.AdvancedFungusFood : GameBalance.FungusFood);
@@ -72,7 +74,7 @@ namespace AntColony.Buildings
             {
                 if (Data.uproot) return "뿌리뽑기 지시 대기";
                 if (Data.fallow) return "빈 밭 · 다시 심기 필요";
-                if (Data.seedPending) return $"종자 대기 · {Crop} {FarmSeeds.Count(Crop)}/{SeedCost}";
+                if (Data.seedPending) return $"종자 대기 · {FoodProcessingRecipes.CropResource(Crop)?.DisplayName() ?? Crop.ToString()} {FarmSeeds.Count(Crop)}/{SeedCost}";
                 if (Node.NeedsSowing) return "파종 대기";
                 if (ColonyEvents.Flooded(Node)) return "홍수 · 작업 불가";
                 if (Node.IsRegrowing && GameCalendar.CurrentSeason == Season.Winter) return "겨울 · 성장 정지";

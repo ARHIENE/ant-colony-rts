@@ -26,7 +26,7 @@ namespace AntColony.Buildings
         {
             base.OnEnable();
             PowerGrid.Register(this);
-            if (Bin != null && !configured) { configured = true; foreach (ResourceType t in System.Enum.GetValues(typeof(ResourceType))) if (!t.IsEdible() && Bin.Allows(t)) Bin.allowed &= ~StoreBin.Bit(t); }
+            if (Bin != null && !configured) { configured = true; foreach (ResourceType t in System.Enum.GetValues(typeof(ResourceType))) if (!t.IsEdible() && Bin.Allows(t)) Bin.Allow(t, false); }
         }
         private bool configured;
         protected override void OnDisable() { PowerGrid.Unregister(this); Powered = false; base.OnDisable(); }

@@ -13,7 +13,7 @@ namespace AntColony.UI
     {
         private FarmPlot uprootConfirm;
 
-        public static string CropName(FarmCrop c) => c switch { FarmCrop.Honeydew => "감로", FarmCrop.AdvancedFungus => "고급 균류", _ => "균류" };
+        public static string CropName(FarmCrop c) => c switch { FarmCrop.Honeydew => "감로", FarmCrop.AdvancedFungus => "고급 균류", FarmCrop.Wheat => "밀", FarmCrop.Barley => "보리", FarmCrop.Rice => "쌀", FarmCrop.Grapes => "포도", FarmCrop.Sunflower => "해바라기", _ => "균류" };
 
         public void ShowFarm(FarmPlot p)
         {
@@ -40,14 +40,15 @@ namespace AntColony.UI
             Refresh(); refreshDutyScreen = Refresh;
 
             MenuTheme.Text(content, "작물(다음 수확 이후 적용, 빈 밭이면 다시 심을 때)", 15, 26);
-            var crops = L.Cell(content, "Crops", 44);
+            var crops = L.Cell(content, "Crops", 44 * Mathf.CeilToInt(System.Enum.GetValues(typeof(FarmCrop)).Length / 3f));
             var i = 0;
             foreach (FarmCrop crop in System.Enum.GetValues(typeof(FarmCrop)))
             {
                 var choice = crop; var unlocked = ScienceEffects.CropUnlocked(crop);
-                var b = L.Button(crops, "Crop " + crop, CropName(crop) + (unlocked ? "" : " (연구 필요)"), i++ * 210, 0, 204, 40,
+                var b = L.Button(crops, "Crop " + crop, CropName(crop) + (unlocked ? "" : " (연구 필요)"), (i % 3) * 210, (i / 3) * 44, 204, 40,
                     () => { p.SetNextCrop(choice); ShowFarm(p); }, primary: (p.Data.nextCrop >= 0 ? (FarmCrop)p.Data.nextCrop : p.Crop) == crop);
                 b.interactable = unlocked;
+                i++;
             }
 
             var level = WorkPriorities.Level(p.Node);

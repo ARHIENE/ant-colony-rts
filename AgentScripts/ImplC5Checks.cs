@@ -60,7 +60,7 @@ public static class ImplC5Checks
             var recipes = Processor.RecipesFor(BuildingKind.Smelter);
             Check(recipes.Take(3).Select(r => r.output).SequenceEqual(new[] { AntColony.Data.ResourceType.Iron,
                 AntColony.Data.ResourceType.Copper, AntColony.Data.ResourceType.Steel }), "old smelter order indices");
-            Check(recipes.Skip(3).Select(r => r.output).SequenceEqual(SupplyRecipes.For(BuildingKind.Smelter).Select(r => r.output)), "supply recipes appended");
+            Check(recipes.Skip(3).Take(SupplyRecipes.For(BuildingKind.Smelter).Length).Select(r => r.output).SequenceEqual(SupplyRecipes.For(BuildingKind.Smelter).Select(r => r.output)), "supply recipe save indices preserved before fuel variants");
             var tabs = (IEnumerable)typeof(BuildScreen).GetField("Tabs", StaticHidden).GetValue(null);
             var kinds = new List<BuildingKind>();
             foreach (IEnumerable tab in tabs)

@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using AntColony.Core;
+using AntColony.Buildings;
 using AntColony.Data;
 using AntColony.World;
 using UnityEngine;
@@ -36,6 +37,18 @@ namespace AntColony.Map
             new Spec(ResourceType.CopperOre, 1, 120, 0, new Color(.75f, .5f, .3f)),
             new Spec(ResourceType.Coal, 2, 200, 0, new Color(.12f, .12f, .12f)),
             new Spec(ResourceType.Sulfur, 1, 80, 0, new Color(.9f, .85f, .2f)),
+            new Spec(ResourceType.Wheat, 1, 30, 0, new Color(.8f, .7f, .3f)),
+            new Spec(ResourceType.Barley, 1, 30, 0, new Color(.7f, .65f, .3f)),
+            new Spec(ResourceType.Rice, 1, 30, 0, new Color(.7f, .8f, .5f)),
+            new Spec(ResourceType.Grapes, 1, 30, 0, new Color(.5f, .3f, .6f)),
+            new Spec(ResourceType.SunflowerSeed, 1, 30, 0, new Color(.7f, .6f, .2f)),
+            new Spec(ResourceType.RubberSap, 2, 40, 300, new Color(.8f, .8f, .6f)),
+            // 넓은 밭의 종자2개를 확보할 두 번째 야생 개체. 기존 mat:순번은 바꾸지 않고 뒤에 붙인다.
+            new Spec(ResourceType.Wheat, 1, 30, 0, new Color(.8f, .7f, .3f)),
+            new Spec(ResourceType.Barley, 1, 30, 0, new Color(.7f, .65f, .3f)),
+            new Spec(ResourceType.Rice, 1, 30, 0, new Color(.7f, .8f, .5f)),
+            new Spec(ResourceType.Grapes, 1, 30, 0, new Color(.5f, .3f, .6f)),
+            new Spec(ResourceType.SunflowerSeed, 1, 30, 0, new Color(.7f, .6f, .2f)),
         };
 
         // 지역별 편차(±60%): 기초 생활 재료는 어디에나 있고 산업 자원은 바이옴마다 많고 적다.
@@ -86,6 +99,8 @@ namespace AntColony.Map
             go.AddComponent<MaterialDeposit>();
             var node = go.AddComponent<ResourceNode>();
             node.ConfigureNatural(spec.type, amount, spec.regrow);
+            foreach (FarmCrop crop in System.Enum.GetValues(typeof(FarmCrop)))
+                if (FoodProcessingRecipes.CropResource(crop) == spec.type) go.AddComponent<FarmSeedSource>().Configure(crop, "processing-seed:" + index);
             go.SetActive(true);
             return node;
         }

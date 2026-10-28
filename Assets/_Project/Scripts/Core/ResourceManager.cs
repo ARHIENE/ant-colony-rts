@@ -106,7 +106,7 @@ namespace AntColony.Core
             foreach (var (storage, dto) in storages) if (storage.Bin != null && dto != null) storage.Bin.Apply(dto);
             for (int i = 0; i < totals.Length; i++)
             {
-                var t = (ResourceType)i; if (t == ResourceType.RottenFood) continue; // 썩은 식품은 칸 값만 있다
+                var t = (ResourceType)i; if (t.IsFood() && t != ResourceType.Food) continue; // 개별 식품은 총량 칸 없이 창고별 값으로 저장한다.
                 var diff = totals[i] - bins.Sum(b => b.amounts[i]);
                 if (diff > 0) Fill(t, diff); else if (diff < 0) Take(t, -diff);
             }
@@ -208,7 +208,7 @@ namespace AntColony.Core
         public void SetAllowed(StoreBin bin, ResourceType type, bool on)
         {
             if (bin == null || bin.Allows(type) == on) return;
-            bin.allowed = on ? bin.allowed | StoreBin.Bit(type) : bin.allowed & ~StoreBin.Bit(type);
+            bin.Allow(type, on);
             if (!on) Eject(bin, type);
             OnResourcesChanged?.Invoke();
         }

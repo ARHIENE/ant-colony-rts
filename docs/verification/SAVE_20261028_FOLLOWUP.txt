@@ -1,0 +1,80 @@
+2026-10-28 followup SAVE: recorded results; repeated suites are not unique totals.
+
+Temp\advanced-industry1027-result.txt
+PASS 52 titanium/alloy delivery, paid gas industry, upper drill, generation, save/load and menus checks
+
+Temp\animation-units1028-result.txt
+PASS 88 character clips use avatar-sized translations; 87 animation FBX imports repaired
+
+Temp\automatic-animation-result.txt
+PASS 40 real-frame automatic animation checks; no forced Animator.Update; 13 hero states, 6 wildlife rigs, resident
+
+Temp\build-screen-performance1028-result.txt
+PASS 18 construction UI open/resize/all tabs; closed allocation=unavailable (Mono counter does not register control allocation)
+
+Temp\chemical-industry-result.txt
+PASS 48 chemical power, real work, piped raw conservation, refund, save, models and UI checks
+
+Temp\expedition-terrain-gather1028-result.txt
+PASS 12 real transport boarding, landing, two resource pickups and cargo return on rebuilt expedition terrain
+
+Temp\expedition-terrain1028-result.txt
+PASS 2008 all 33 sites/six biomes, mesh/collision/navmesh/scenery, season-climate matrix and real save-load checks
+
+Temp\fermentation-clock1028-result.txt
+PASS 3 real-frame unattended fermentation and game-pause checks
+
+Temp\fishing-visual1028-result.txt
+PASS 26 fishing model/click/stock/research/season/real save-load checks
+
+Temp\food-industry-result.txt
+PASS 96 typed raw/seed/farm, actual mill work, oil, fermentation/cancel/recovery/save, distillation, rubber and extended filter checks
+
+Temp\food-industry-ui-result.txt
+PASS 13 crop row bounds, fermentation confirmation, chemical costs and distillation UI checks
+
+Temp\grounding1028-result.txt
+PASS 71 actual skinned size, feet/terrain/collider, walking and paused save-load grounding checks
+
+Temp\move-marker1028-result.txt
+PASS 8 paused/normal/fast marker expiry, material cleanup and 32 rapid clicks
+
+Temp\remaining-industry-result.txt
+PASS 66 new processing, actual charcoal delivery/work, fuel variants, legacy indices, models and save reload checks
+
+Temp\resource-compatibility1028-result.txt
+PASS 6 legacy v19 cargo/bin migration and oversized cargo rejection checks
+
+Temp\settings1028-result.txt
+PASS 15 settings tabs/buttons/camera/keys/reset/persistence checks
+
+Controlled development Player comparison (before later production expansion):
+{
+  "condition": "same development player, 1920x1080, PC quality, medium forest seed281028, 3 commanders, 1x, uncapped, 2 alternating runs each",
+  "before": {
+    "mode": "baseline",
+    "runs": 2,
+    "frames": 4416.0,
+    "meanMs": 11.332610074348032,
+    "fps": 88.24092538607266,
+    "worstP99Ms": 21.923504769802094,
+    "gcBytes": 240577.60394021738,
+    "scriptMs": 2.7072381114130435
+  },
+  "after": {
+    "mode": "optimized",
+    "runs": 2,
+    "frames": 4968.0,
+    "meanMs": 10.07518066374897,
+    "fps": 99.25380331868912,
+    "worstP99Ms": 16.051799058914185,
+    "gcBytes": 227396.6811594203,
+    "scriptMs": 1.8310971819645732
+  },
+  "frameTimeReductionPercent": 11.09567347989252,
+  "scriptTimeReductionPercent": 32.362906157196804,
+  "gcReductionPercent": 5.478865266308208
+}
+
+
+Final release build: {"buildId": "build_39682295663e", "result": "Succeeded", "totalErrors": 0, "totalWarnings": 33, "buildTimeMs": 39844, "totalSizeBytes": 304601641}

@@ -50,6 +50,8 @@ namespace AntColony.Buildings
             { BuildingKind.GasPipe, "CC_PipeL_Straight" }, { BuildingKind.GasTank, "CC_LiquidTank" },
             { BuildingKind.StarterMushroomBed, "CC_MushroomFarm" },
             { BuildingKind.ChemistryBench, "CC_ChemistryBench" },
+            { BuildingKind.CharcoalKiln, "CharcoalKiln" }, { BuildingKind.CokeOven, "CokeOven" },
+            { BuildingKind.Mill, "Mill" }, { BuildingKind.OilPress, "OilPress" }, { BuildingKind.BrewingBarrel, "BrewingBarrel" }, { BuildingKind.Still, "Still" },
         };
 
         public static string ModelFor(BuildingKind kind) => Models.TryGetValue(kind, out var id) ? id : null;

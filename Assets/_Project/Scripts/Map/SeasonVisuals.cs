@@ -32,6 +32,8 @@ namespace AntColony.Map
             return (s, (s + 1) % 4, Mathf.SmoothStep(0, 1, Mathf.InverseLerp(.8f, 1f, t - s)));
         }
         static Color Mix(Color[] table, (int s, int n, float b) p) => Color.Lerp(table[p.s], table[p.n], p.b);
+        public static Color GroundSeasonTint(MapBiome biome, MapClimate climate) => biome is MapBiome.Desert or MapBiome.Cave
+            ? Color.white : climate == MapClimate.TropicalWet ? Ground[(int)Season.Summer] : Mix(Ground, Position());
         public static bool HasSeasonalLeaves(MapBiome biome, MapClimate climate) => climate == MapClimate.Temperate
             && biome is MapBiome.Forest or MapBiome.Garden or MapBiome.Waterside;
         public static bool HasSpringPetals(MapBiome biome, MapClimate climate) => climate == MapClimate.Temperate
@@ -54,8 +56,7 @@ namespace AntColony.Map
             var climate = GameSession.Exists ? GameSession.Instance.Options.climate : MapClimate.Temperate;
             var leaves = HasSeasonalLeaves(biome, climate);
             var snow = HasSeasonalSnow(biome, climate);
-            terrain.SetTint(biomeTint * (biome is MapBiome.Desert or MapBiome.Cave ? Color.white
-                : climate == MapClimate.TropicalWet ? Ground[(int)Season.Summer] : Mix(Ground, p)));
+            terrain.SetTint(biomeTint * GroundSeasonTint(biome, climate));
             // 동굴은 땅속이라 눈·낙엽 없음, 사막은 나무가 없어 낙엽 없음.
             terrain.SetSeasonGround(snow ? Mathf.Lerp(SnowCover[p.season], SnowCover[p.next], p.blend) : 0,
                 leaves ? Mathf.Lerp(LeafCover[p.season], LeafCover[p.next], p.blend) : 0);

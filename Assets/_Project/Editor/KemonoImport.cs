@@ -61,6 +61,8 @@ namespace AntColony.EditorTools
                 var name = production ? raw.Substring(3) : raw;
                 var importer = (ModelImporter)AssetImporter.GetAtPath(path);
                 ConfigureModel(importer);
+                // Animation FBX translations are centimetres; the character avatar's bones are in metres.
+                importer.globalScale = 100f;
                 importer.animationType = ModelImporterAnimationType.Generic;
                 importer.avatarSetup = ModelImporterAvatarSetup.CopyFromOther;
                 importer.sourceAvatar = avatar;
@@ -89,6 +91,10 @@ namespace AntColony.EditorTools
             foreach (var path in Directory.GetFiles("Assets/Resources/Kemono/Handheld", "*.fbx")) ImportProp(path.Replace('\\', '/'));
             foreach (var path in Directory.GetFiles("Assets/Resources/Kemono/Props", "*.fbx")) ImportProp(path.Replace('\\', '/'));
             foreach (var name in Facilities) ImportProp("Assets/Resources/Facilities/CC_" + name + ".fbx");
+            foreach (var name in new[] { "CharcoalKiln", "CokeOven", "Mill", "OilPress", "BrewingBarrel", "Still" }) ImportProp("Assets/Resources/Facilities/" + name + ".fbx");
+            foreach (AntColony.Data.ResourceType type in Enum.GetValues(typeof(AntColony.Data.ResourceType)))
+                if (AntColony.Data.ProcessingResources.Model(type) is string name) ImportProp("Assets/Resources/ResourceModels/" + name + ".fbx");
+            foreach (var name in new[] { "Charcoal", "Coke", "Pottery" }) ImportProp("Assets/Resources/ResourceModels/Proc_" + name + ".fbx");
             foreach (var name in new[] { "Idle_A", "Walk", "Run", "Eat", "Attack", "Hit", "Fly", "Sit", "Death", "Captive", "Tool_Hammer", "Tool_Chop", "Tool_Mine", "Tool_Dig", "Tool_Harvest" })
                 if (!states.ContainsKey(name)) throw new InvalidOperationException("Missing kemono state: " + name);
             EditorUtility.SetDirty(controller);

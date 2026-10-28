@@ -16,6 +16,7 @@ namespace AntColony.Core
         public static float FarmYieldMultiplier => Has(ScienceTechnology.FungalFarming) ? 1.2f : 1f;
         public static bool WideFarms => Has(ScienceTechnology.FungalFarming);
         public static bool CropUnlocked(FarmCrop crop) => crop == FarmCrop.Fungus
+            || crop >= FarmCrop.Wheat
             || (crop == FarmCrop.Honeydew && Has(ScienceTechnology.HoneydewRanch))
             || (crop == FarmCrop.AdvancedFungus && Has(ScienceTechnology.AdvancedCrops));
 
@@ -57,6 +58,7 @@ namespace AntColony.Core
 
         public static bool BuildingUnlocked(BuildingKind kind) => kind switch
         {
+            BuildingKind.BrewingBarrel or BuildingKind.Still => Has(ScienceTechnology.Fermentation),
             BuildingKind.ChemistryBench or BuildingKind.AdvancedDeepDrill or BuildingKind.GasSmelter or BuildingKind.GasGenerator or BuildingKind.DeepDrill or BuildingKind.GasExtractor or BuildingKind.GasPipe or BuildingKind.GasTank => Has(ScienceTechnology.UndergroundSurvey),
             BuildingKind.UndergroundScanner => Has(ScienceTechnology.UndergroundSurvey),
             BuildingKind.SoilWall or BuildingKind.CapWall or BuildingKind.CastleWall or BuildingKind.Gate => Has(ScienceTechnology.Resin),

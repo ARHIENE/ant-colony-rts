@@ -49,8 +49,8 @@ namespace AntColony.UI
                 new Entry("방패 연구소", BuildingKind.ResearchLab, UnitRole.Defense), new Entry("지휘 연구소", BuildingKind.ResearchLab, UnitRole.Support),
                 new Entry("비행 연구소", BuildingKind.ResearchLab, UnitRole.Flying), new Entry("정착지 연구대", BuildingKind.ScienceLab),
                 new Entry("방어 연구소", BuildingKind.DefenseLab), new Entry("공방", BuildingKind.Workshop),
-                new Entry("기초 목공대", BuildingKind.Carpentry), new Entry("석공대", BuildingKind.Stonecutter), new Entry("가마", BuildingKind.Kiln),
-                new Entry("물레", BuildingKind.SpinningWheel), new Entry("용광로", BuildingKind.Smelter), new Entry("지하 탐사기", BuildingKind.UndergroundScanner), new Entry("심층 채굴기", BuildingKind.DeepDrill), new Entry("합금 심층 채굴기", BuildingKind.AdvancedDeepDrill), new Entry("가스 제련로", BuildingKind.GasSmelter), new Entry("화학 작업대", BuildingKind.ChemistryBench) },
+                new Entry("기초 목공대", BuildingKind.Carpentry), new Entry("석공대", BuildingKind.Stonecutter), new Entry("가마", BuildingKind.Kiln), new Entry("숯가마", BuildingKind.CharcoalKiln), new Entry("코크스로", BuildingKind.CokeOven),
+                new Entry("물레", BuildingKind.SpinningWheel), new Entry("용광로", BuildingKind.Smelter), new Entry("제분기", BuildingKind.Mill), new Entry("착유기", BuildingKind.OilPress), new Entry("양조통", BuildingKind.BrewingBarrel), new Entry("증류기", BuildingKind.Still), new Entry("지하 탐사기", BuildingKind.UndergroundScanner), new Entry("심층 채굴기", BuildingKind.DeepDrill), new Entry("합금 심층 채굴기", BuildingKind.AdvancedDeepDrill), new Entry("가스 제련로", BuildingKind.GasSmelter), new Entry("화학 작업대", BuildingKind.ChemistryBench) },
             new[] { new Entry("의무실", BuildingKind.Infirmary), new Entry("약제대", BuildingKind.MedicineBench), new Entry("묘비", BuildingKind.Tombstone), new Entry("시민 진료소", BuildingKind.CitizenClinic) },
             new[] { new Entry("성벽", BuildingKind.CastleWall), new Entry("성문", BuildingKind.Gate), new Entry("끈끈이 함정", BuildingKind.TrapPit), new Entry("가시 함정", BuildingKind.SpikeTrap),
                 new Entry("지뢰밭", BuildingKind.MineField), new Entry("산성탑", BuildingKind.AcidTower), new Entry("광역 산성탑", BuildingKind.AreaAcidTower),
@@ -88,6 +88,8 @@ namespace AntColony.UI
         private Button materialButton;
         private int tab;
         private Entry? picking;
+        private Vector2 layoutSize;
+        private bool layoutVisible;
 
         public static bool IsOpen => instance != null && instance.buildPanel != null && instance.buildPanel.gameObject.activeSelf;
 
@@ -187,40 +189,53 @@ namespace AntColony.UI
 
         private void Update()
         {
-            var width = buildPanel.rect.width;
-            for (var i = 0; i < tabButtons.Count; i++)
+            var open = IsOpen;
+            var baseline = false;
+#if DEVELOPMENT_BUILD || UNITY_EDITOR
+            baseline = PlayerPerformanceProbe.Baseline;
+#endif
+            // Hidden construction controls still receive Update; lay them out only on opening or resize.
+            if (baseline || open && (!layoutVisible || layoutSize != buildPanel.rect.size))
             {
-                MenuLayout.Place((RectTransform)tabButtons[i].transform, i % TabsPerRow * width / TabsPerRow, i / TabsPerRow * 28, width / TabsPerRow - 2, 26);
-                MenuTheme.Stretch(tabButtons[i].GetComponentsInChildren<Text>(true)[1].rectTransform); // 단축키 글자가 숨겨져 있어 이름이 칸 전체를 쓴다
-            }
-            foreach (var page in tabPages)
-            {
-                var buttons = page.GetComponentsInChildren<Button>(true);
-                // 줄이 많으면 칸 높이를 줄여 콘솔 안에 맞춘다(최대 52).
-                // 12칸을 넘으면 4열(가구 5차로 휴게 13칸, 2026-10-06) — 5줄이면 이름과 상태 글자가 겹친다.
-                var cols = buttons.Length > 12 ? 4 : 3;
-                var rowHeight = Mathf.Min(96f, ((RectTransform)page.transform).rect.height / Mathf.Max(1, (buttons.Length + cols - 1) / cols));
-                for (var i = 0; i < buttons.Length; i++)
+                layoutSize = buildPanel.rect.size;
+                var width = layoutSize.x;
+                for (var i = 0; i < tabButtons.Count; i++)
                 {
-                    MenuLayout.Place((RectTransform)buttons[i].transform, i % cols * width / cols, i / cols * rowHeight, width / cols - 4, rowHeight - 4);
-                    var label = buttons[i].GetComponentsInChildren<Text>(true)[1];
-                    MenuTheme.Stretch(label.rectTransform);
-                    label.verticalOverflow = VerticalWrapMode.Truncate; label.resizeTextForBestFit = true; label.resizeTextMinSize = 11; label.resizeTextMaxSize = 16;
+                    MenuLayout.Place((RectTransform)tabButtons[i].transform, i % TabsPerRow * width / TabsPerRow, i / TabsPerRow * 28, width / TabsPerRow - 2, 26);
+                    MenuTheme.Stretch(tabButtons[i].GetComponentsInChildren<Text>(true)[1].rectTransform); // 단축키 글자가 숨겨져 있어 이름이 칸 전체를 쓴다
+                }
+                foreach (var page in tabPages)
+                {
+                    var buttons = page.GetComponentsInChildren<Button>(true);
+                    // 줄이 많으면 칸 높이를 줄여 콘솔 안에 맞춘다(최대 52).
+                    // 12칸을 넘으면 4열(가구 5차로 휴게 13칸, 2026-10-06) — 5줄이면 이름과 상태 글자가 겹친다.
+                    var cols = buttons.Length > 12 ? 4 : 3;
+                    var rowHeight = Mathf.Min(96f, ((RectTransform)page.transform).rect.height / Mathf.Max(1, (buttons.Length + cols - 1) / cols));
+                    for (var i = 0; i < buttons.Length; i++)
+                    {
+                        MenuLayout.Place((RectTransform)buttons[i].transform, i % cols * width / cols, i / cols * rowHeight, width / cols - 4, rowHeight - 4);
+                        var label = buttons[i].GetComponentsInChildren<Text>(true)[1];
+                        MenuTheme.Stretch(label.rectTransform);
+                        label.verticalOverflow = VerticalWrapMode.Truncate; label.resizeTextForBestFit = true; label.resizeTextMinSize = 11; label.resizeTextMaxSize = 16;
+                    }
+                }
+                pickTitle.rectTransform.sizeDelta = new Vector2(picker.rect.width, 58);
+                foreach (var row in pickRows)
+                {
+                    ((RectTransform)row.transform).sizeDelta = new Vector2(picker.rect.width, 40);
+                    MenuTheme.Stretch(row.GetComponentsInChildren<Text>(true)[1].rectTransform);
                 }
             }
-            pickTitle.rectTransform.sizeDelta = new Vector2(picker.rect.width, 58);
-            foreach (var row in pickRows)
+            layoutVisible = open;
+            if (open || baseline)
             {
-                ((RectTransform)row.transform).sizeDelta = new Vector2(picker.rect.width, 40);
-                MenuTheme.Stretch(row.GetComponentsInChildren<Text>(true)[1].rectTransform);
+                for (var t = 0; t < tabPages.Count; t++)
+                {
+                    tabPages[t].SetActive(t == tab);
+                    tabButtons[t].GetComponentsInChildren<Text>()[1].color = t == tab ? MenuTheme.Accent : MenuTheme.TextColor;
+                }
+                if (open) RefreshPage();
             }
-            var open = IsOpen;
-            for (var t = 0; t < tabPages.Count; t++)
-            {
-                tabPages[t].SetActive(t == tab);
-                tabButtons[t].GetComponentsInChildren<Text>()[1].color = t == tab ? MenuTheme.Accent : MenuTheme.TextColor;
-            }
-            if (open) RefreshPage();
             picker.gameObject.SetActive(open && picking != null);
             if (open && picking != null) RefreshPicker(picking.Value);
 

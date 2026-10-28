@@ -39,12 +39,13 @@ namespace AntColony.Units
             marker.startScale = startScale;
             marker.endScale = endScale;
 
-            Destroy(visual, lifetime);
         }
 
         private void Update()
         {
-            timer += Time.deltaTime;
+            // Command feedback must expire even while the simulation is paused.
+            timer += Time.unscaledDeltaTime;
+            if (timer >= lifetime) { Destroy(gameObject); return; }
             var t = Mathf.Clamp01(timer / lifetime);
             var scale = Mathf.Lerp(startScale, endScale, t);
             transform.localScale = new Vector3(scale, DiscHeight, scale);

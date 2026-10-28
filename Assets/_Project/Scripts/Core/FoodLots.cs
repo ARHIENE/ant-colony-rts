@@ -29,6 +29,8 @@ namespace AntColony.Core
             ResourceType.Honeydew => GameCalendar.SecondsPerMonth,
             ResourceType.SimpleMeal => ShelfLife(FoodPreservation.Cooked),
             ResourceType.FineMeal => ShelfLife(FoodPreservation.Cooked),
+            ResourceType.Grapes => ShelfLife(FoodPreservation.Berry),
+            ResourceType.Wheat or ResourceType.Barley or ResourceType.Rice or ResourceType.SunflowerSeed or ResourceType.WheatFlour => ShelfLife(FoodPreservation.Grain),
             _ => 0f
         };
         public static bool Perishable(ResourceType t) => ShelfLife(t) > 0;

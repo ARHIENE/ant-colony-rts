@@ -10,7 +10,7 @@ namespace AntColony.World
     public enum ExpeditionSiteKind { Settlement, BossNest, ResourceSite, TradePost, Empty }
     public enum ConquestDisposition { Undecided, Annexed, Abandoned, Lost }
 
-    // ponytail: 원정 전장은 서로 끊어진 70m NavMesh 섬이다. 아트가 준비되면 전용 씬으로 교체한다.
+    // 원정 전장은 서로 끊어진 70m NavMesh 섬이며 외곽 연출은 이동 영역 밖에 둔다.
     public partial class ExpeditionSite : MonoBehaviour
     {
         public string Title { get; private set; }
@@ -73,16 +73,10 @@ namespace AntColony.World
             GuardTemplate = guardTemplate;
             Color = color;
             MapPosition = mapPosition;
-            var ground = GameObject.CreatePrimitive(PrimitiveType.Cube);
-            ground.name = title + " Ground";
-            ground.transform.SetParent(transform, false);
-            ground.transform.localPosition = new Vector3(0, -.25f, 0);
-            ground.transform.localScale = new Vector3(70, .5f, 70);
-            ground.layer = 8;
-            ground.GetComponent<Renderer>().material.color = new Color(.25f, .32f, .2f);
+            ExpeditionTerrain.Create(this);
             var sources = new List<NavMeshBuildSource> { new NavMeshBuildSource {
                 shape = NavMeshBuildSourceShape.Box, size = new Vector3(70, .5f, 70),
-                transform = Matrix4x4.TRS(ground.transform.position, Quaternion.identity, Vector3.one)
+                transform = Matrix4x4.TRS(transform.position + Vector3.down * .25f, Quaternion.identity, Vector3.one)
             }};
             navData = NavMeshBuilder.BuildNavMeshData(NavMesh.GetSettingsByIndex(0), sources,
                 new Bounds(transform.position, new Vector3(72, 10, 72)), Vector3.zero, Quaternion.identity);

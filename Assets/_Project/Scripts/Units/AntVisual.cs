@@ -121,7 +121,9 @@ namespace AntColony.Units
 
         private void LateUpdate()
         {
-            if (model == null || Time.deltaTime <= 0) return;
+            if (model == null) return;
+            AlignToGround();
+            if (Time.deltaTime <= 0) return;
             appearance?.SetArmor(commander != null && commander.EquippedArmor?.armor == ArmorKind.Coating);
             if (enemy == null && soldier == null) enemy = GetComponent<WildMonster>();
             if (commander != null && commander.IsEmbarked) { previousPosition = transform.position; return; }

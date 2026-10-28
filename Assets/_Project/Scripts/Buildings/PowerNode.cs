@@ -68,8 +68,9 @@ namespace AntColony.Buildings
                 burnSeconds = Mathf.Max(0, burnSeconds - dt);
                 // 전력이 필요할 때만 장작(재료 1)을 새로 넣는다.
                 if (burnSeconds == 0 && PowerGrid.WantsPower(this) && ResourceManager.Instance != null
-                    && ResourceManager.Instance.TrySpend(Kind == BuildingKind.SteamGenerator ? AntColony.Data.ResourceType.Coal : AntColony.Data.ResourceType.Wood,
-                        1, ResourceReason.Production)) burnSeconds = GameBalance.WoodBurnSeconds;
+                    && (ResourceManager.Instance.TrySpend(Kind == BuildingKind.SteamGenerator ? AntColony.Data.ResourceType.Coal : AntColony.Data.ResourceType.Wood,
+                        1, ResourceReason.Production) || ResourceManager.Instance.TrySpend(Kind == BuildingKind.SteamGenerator ? AntColony.Data.ResourceType.Coke : AntColony.Data.ResourceType.Charcoal,
+                        1, ResourceReason.Production))) burnSeconds = GameBalance.WoodBurnSeconds;
             }
             if (lamp != null) lamp.enabled = Powered && GameCalendar.IsNight;
         }

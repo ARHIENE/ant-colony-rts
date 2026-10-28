@@ -174,13 +174,19 @@ namespace AntColony.UI
             if (Target is Processor industrial && industrial.Industrial)
             {
                 status.text = industrial.WaitReason;
-                instruction.text = industrial.Chemical ? "원유 2 → 플라스틱 1 · 액체 배관 + 제작 담당\n200W · 완성품은 바닥에서 운반 · 내부 원유 " + industrial.BufferedOil
+                instruction.text = industrial.Chemical ? "플라스틱: 배관 원유2 / 고무: 수액2 · 제작 담당\n200W · 바닥 산출/운반 · 내부 원유 " + industrial.BufferedOil
                     : "티타늄 광석 → 티타늄 → 합금 · 재료 배송 + 제작 담당\n가스1/묶음 · 200W · 완성품은 바닥에서 운반";
             }
             if (Target is PowerNode gasPower && gasPower.Kind == BuildingKind.GasGenerator)
             {
                 status.text = gasPower.GasStatus;
                 instruction.text = "기체 배관·전력망을 각각 연결하세요. 공급 단절 시 투입된 연료까지 발전합니다.";
+            }
+            if (Target is PowerNode solidPower && solidPower.Kind is BuildingKind.WoodGenerator or BuildingKind.SteamGenerator)
+            {
+                status.text = $"발전 {solidPower.Output:0}W · 투입 연료 남은 시간 {solidPower.FuelSeconds:0.0}초";
+                instruction.text = solidPower.Kind == BuildingKind.WoodGenerator ? "전력망 연결 필요 · 목재를 먼저 쓰고, 없으면 숯을 사용합니다."
+                    : "전력망 연결 필요 · 석탄을 먼저 쓰고, 없으면 코크스를 사용합니다.";
             }
             if (Target is WildMonster animal)
             {

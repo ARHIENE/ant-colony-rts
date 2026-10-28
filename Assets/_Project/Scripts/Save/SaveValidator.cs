@@ -221,6 +221,13 @@ namespace AntColony.Save
             }
             if (file.version == 17) BodyMigration.Upgrade(file); // 2026-10-18 캐릭터 전환: 신체 부위 두 팔·두 다리
             if (file.version == 18) file.version = 19; // Legacy saves have no active orders or runtime combat state.
+            if (file.version == 19)
+            {
+                if (file.world?.transports != null) foreach (var transport in file.world.transports)
+                    if (transport?.cargoAmounts != null && transport.cargoAmounts.Length > 0 && transport.cargoAmounts.Length < Core.StoreBin.TypeCount)
+                        Array.Resize(ref transport.cargoAmounts, Core.StoreBin.TypeCount);
+                file.version = 20;
+            }
             if (file.version != SaveFileV1.CurrentVersion)
             {
                 error = $"Save version {file.version} cannot be read by this build (expects {SaveFileV1.CurrentVersion}).";

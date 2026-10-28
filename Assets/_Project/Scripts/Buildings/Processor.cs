@@ -23,19 +23,28 @@ namespace AntColony.Buildings
         }
 
         // ponytail: 레시피·수량·작업량은 잠정(기획 미정). 중량 가공은 근력, 정밀 가공(유리·직물)은 보조 없음.
-        public static Recipe[] RecipesFor(BuildingKind kind) => kind switch
+        private static readonly Dictionary<BuildingKind, Recipe[]> RecipeCatalog = new Dictionary<BuildingKind, Recipe[]>();
+        public static Recipe[] RecipesFor(BuildingKind kind)
+        {
+            if (!RecipeCatalog.TryGetValue(kind, out var recipes)) RecipeCatalog[kind] = recipes = BuildRecipes(kind);
+            return recipes;
+        }
+        private static Recipe[] BuildRecipes(BuildingKind kind) => kind switch
         {
             BuildingKind.GasSmelter => IndustrialRecipes.GasSmelting(),
             BuildingKind.ChemistryBench => IndustrialRecipes.Chemistry(),
+            BuildingKind.CharcoalKiln or BuildingKind.CokeOven => IndustrialRecipes.Carbonization(kind),
+            BuildingKind.Mill or BuildingKind.OilPress or BuildingKind.BrewingBarrel or BuildingKind.Still => FoodProcessingRecipes.For(kind),
             BuildingKind.Carpentry => new[] { new Recipe("판재", ResourceType.Plank, 1, 8, CommanderActivity.Strength, (ResourceType.Wood, 2)) },
             BuildingKind.Stonecutter => new[] { new Recipe("석재 블록", ResourceType.StoneBlock, 1, 10, CommanderActivity.Strength, (ResourceType.Stone, 2)) },
-            BuildingKind.Kiln => new[] { new Recipe("벽돌", ResourceType.Brick, 1, 8, null, (ResourceType.Clay, 2)),
-                new Recipe("유리", ResourceType.Glass, 1, 12, null, (ResourceType.Sand, 2), (ResourceType.Coal, 1)) },
+            BuildingKind.Kiln => IndustrialRecipes.SolidFuelAlternatives(new[] { new Recipe("벽돌", ResourceType.Brick, 1, 8, null, (ResourceType.Clay, 2)),
+                new Recipe("유리", ResourceType.Glass, 1, 12, null, (ResourceType.Sand, 2), (ResourceType.Coal, 1)),
+                new Recipe("도자기", ResourceType.Pottery, 1, 12, null, (ResourceType.Clay, 2), (ResourceType.Coal, 1)) }),
             BuildingKind.SpinningWheel => new[] { new Recipe("직물(섬유)", ResourceType.Cloth, 1, 10, null, (ResourceType.Fiber, 3)),
                 new Recipe("직물(실)", ResourceType.Cloth, 1, 8, null, (ResourceType.Thread, 2)), new Recipe("직물(거미줄)", ResourceType.Cloth, 1, 8, null, (ResourceType.Cobweb, 2)) },
-            BuildingKind.Smelter => new[] { new Recipe("철", ResourceType.Iron, 1, 14, CommanderActivity.Strength, (ResourceType.IronOre, 2), (ResourceType.Coal, 1)),
+            BuildingKind.Smelter => IndustrialRecipes.SolidFuelAlternatives(new[] { new Recipe("철", ResourceType.Iron, 1, 14, CommanderActivity.Strength, (ResourceType.IronOre, 2), (ResourceType.Coal, 1)),
                 new Recipe("구리", ResourceType.Copper, 1, 14, CommanderActivity.Strength, (ResourceType.CopperOre, 2), (ResourceType.Coal, 1)),
-                new Recipe("강철", ResourceType.Steel, 1, 20, CommanderActivity.Strength, (ResourceType.Iron, 2), (ResourceType.Coal, 1)) }.Concat(SupplyRecipes.For(kind)).ToArray(),
+                new Recipe("강철", ResourceType.Steel, 1, 20, CommanderActivity.Strength, (ResourceType.Iron, 2), (ResourceType.Coal, 1)) }.Concat(SupplyRecipes.For(kind)).ToArray()),
             // 약제대(2026-10-11): 동물용 의약품·동물 수술 키트(장수용 약과 별도 자원, 재료는 잠정). 의료 능력만 사용(보조 기술 없음).
             BuildingKind.MedicineBench => new[] { new Recipe("동물용 의약품", ResourceType.AnimalMedicine, 1, 8, null, (ResourceType.Leaf, 2), (ResourceType.Honeydew, 1)),
                 new Recipe("동물 수술 키트", ResourceType.SurgeryKit, 1, 14, null, (ResourceType.Cloth, 1), (ResourceType.Cobweb, 2), (ResourceType.Chitin, 1)),
@@ -51,7 +60,7 @@ namespace AntColony.Buildings
         public CommanderActivity Skill => IsMedical ? CommanderActivity.Medicine : CommanderActivity.Crafting;
 
         [Serializable] public class Order { public int recipe; public Workshop.OrderMode mode; public int amount = 1; }
-        [Serializable] public class State { public List<Order> orders = new List<Order>(); public int current = -1, pending = -1; public float progress; public string makerId = ""; public bool ruined, paused, gasPaid; public int bufferedOil; public List<ProductionInputs.Stock> staged = new List<ProductionInputs.Stock>(); }
+        [Serializable] public class State { public List<Order> orders = new List<Order>(); public int current = -1, pending = -1; public float progress; public string makerId = ""; public bool ruined, paused, gasPaid; public int bufferedOil; public List<ProductionInputs.Stock> staged = new List<ProductionInputs.Stock>(); public bool fermenting, fermented; public float fermentation; }
         private State state = new State();
         private readonly ProductionInputs inputs = new ProductionInputs();
         public bool Paused { get => state.paused; set { state.paused = value; if (value) ReleaseWorkers(); } }
@@ -82,6 +91,7 @@ namespace AntColony.Buildings
             {
                 if (state.ruined || !isActiveAndEnabled || IsDead) return "도구: 제작대 사용 불가 · 미완성품 보관/취소";
                 if (Paused) return "일시중지";
+                if (Brewing && (state.fermenting || state.fermented)) return FermentationStatus;
                 if (Industrial && !IndustrialReady) return IndustrialStatus;
                 if (NeedsIngredients) return "재료 배송 대기";
                 if (!NeedsWork) return "재료 또는 주문 대기";
@@ -108,8 +118,9 @@ namespace AntColony.Buildings
         private Recipe PlannedOutput => Current ?? (state.pending >= 0 && state.pending < Recipes.Count ? Recipes[state.pending] : null);
         private bool Wants(Order o, Recipe r) => o.mode == Workshop.OrderMode.KeepStock ? Kitchen.Stock(r.output)
             + SceneObjects.All<Processor>().Where(p => p != this && p.PlannedOutput != null && p.PlannedOutput.output == r.output).Sum(p => p.PlannedOutput.amount) < o.amount : o.amount > 0;
-        private bool Affordable(Recipe r) => MedicineResearch.Unlocked(r.output) && r.inputs.All(i => (ResourceManager.Instance?.GetAmount(i.type) ?? 0) + inputs.Amount(i.type) >= i.amount);
+        private bool Affordable(Recipe r) => MedicineResearch.Unlocked(r.output) && (!Industrial || HasIndustrialInputFor(r)) && r.inputs.All(i => (ResourceManager.Instance?.GetAmount(i.type) ?? 0) + inputs.Amount(i.type) >= i.amount);
         public bool NeedsWork => !Paused && !state.ruined && !IsDead && isActiveAndEnabled && ResourceManager.Instance != null
+            && !state.fermenting
             && IndustrialReady && (Current != null && MedicineResearch.Unlocked(Current.output) || PendingOrder != null && inputs.Ready(Required));
 
         // 목록 위에서부터 원하는 품목 중 재료가 있는 것 하나를 시작한다.
@@ -121,7 +132,7 @@ namespace AntColony.Buildings
                 var r = Recipes[o.recipe];
                 if (!Wants(o, r) || !Affordable(r)) continue;
                 if (!inputs.Ready(r.inputs) || Industrial && !HasIndustrialSpace(r)) continue;
-                if (!PayIndustrialFuel()) continue;
+                if (!PayIndustrialFuel(r)) continue;
                 if (!inputs.Consume(r.inputs)) continue;
                 state.gasPaid = Industrial;
                 state.current = o.recipe; state.pending = -1; state.progress = 0;
@@ -139,24 +150,33 @@ namespace AntColony.Buildings
                 || Current != null && !MedicineResearch.Unlocked(Current.output)) return false;
             if (Current == null && !StartNext()) return false;
             var r = Current;
+            if (Brewing && state.fermented) { CompleteBatch(); return true; }
             state.makerId = c.PersonalState.id;
             state.progress += c.WorkRate(Skill) * seconds; // 능력은 속도만 보정(산출·품질 동일)
             c.GainExperience(Skill, seconds, IsMedical ? Skill : r.support); // 약제대 생산은 의료만(보조 기술 연결 없음)
             if (state.progress < r.work) return true;
-            state.bufferedOil = 0;
-            state.current = -1; state.progress = 0; state.makerId = ""; state.gasPaid = false;
-            AntColony.World.DiplomacyManager.DropFloor(r.output, r.amount, Position + ResourceManager.Scatter());
+            if (Brewing) { state.progress = 0; state.makerId = ""; state.fermenting = true; return true; }
+            CompleteBatch();
             return true;
+        }
+        private void CompleteBatch()
+        {
+            var r = Current;
+            if (r.output == ResourceType.Plastic) state.bufferedOil = 0;
+            state.current = -1; state.progress = 0; state.makerId = ""; state.gasPaid = false;
+            state.fermenting = state.fermented = false; state.fermentation = 0;
+            AntColony.World.DiplomacyManager.DropFloor(r.output, r.amount, Position + ResourceManager.Scatter());
         }
 
         // 미완성품 취소: 소비 전은 전량, 작업한 일반 재료는 70%를 실물로 반환한다.
         public void CancelCurrent()
         {
-            if (Chemical && Current != null) state.bufferedOil = Mathf.FloorToInt(state.bufferedOil * (state.progress > 0 ? .7f : 1));
+            if (Chemical && Current?.output == ResourceType.Plastic) state.bufferedOil = Mathf.FloorToInt(state.bufferedOil * (state.progress > 0 ? .7f : 1));
             inputs.Drop(Position); state.pending = -1;
-            if (Current != null) foreach (var input in Current.inputs)
+            if (Current != null && !Brewing) foreach (var input in Current.inputs)
                 AntColony.World.DiplomacyManager.DropFloor(input.type, input.type == AntColony.Data.ResourceType.Special || input.type == AntColony.Data.ResourceType.Component ? input.amount : Mathf.FloorToInt(input.amount * (state.progress > 0 ? .7f : 1)), Position + ResourceManager.Scatter());
             state.current = -1; state.progress = 0; state.makerId = ""; state.gasPaid = false;
+            state.fermenting = state.fermented = false; state.fermentation = 0;
             ReleaseWorkers();
         }
 

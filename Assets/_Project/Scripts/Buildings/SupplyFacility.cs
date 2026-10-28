@@ -28,7 +28,7 @@ namespace AntColony.Buildings
         public BuildingKind Kind => Data.kind;
         public bool IsNaturalSource => Kind == BuildingKind.WaterSource || Kind == BuildingKind.OilDeposit;
         public static bool IsKind(BuildingKind kind) => SupplyBuildingTemplates.IsKind(kind)
-            && kind != BuildingKind.PlanterBed && kind != BuildingKind.StarterMushroomBed && kind != BuildingKind.SteamGenerator && kind != BuildingKind.GasGenerator && kind != BuildingKind.GasSmelter && kind != BuildingKind.ChemistryBench;
+            && kind != BuildingKind.PlanterBed && kind != BuildingKind.StarterMushroomBed && kind != BuildingKind.SteamGenerator && kind != BuildingKind.GasGenerator && !Processor.IsKind(kind);
         public bool Powered { get; set; }
         public IEnumerable<Vector2Int> Cells => RoomSystem.Footprint(this);
         public float Demand => UndergroundProduction.IsExtractor(Kind) ? DrillWatts : Kind == BuildingKind.OilRefinery ? RefineryWatts
