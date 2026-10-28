@@ -17,7 +17,8 @@ namespace AntColony.Save
         private static void Traits(TraitsDto t)
         {
             Check(t != null && Enum.IsDefined(typeof(CommanderPersonality), t.personality), "traits");
-            L(t.values, 3, "trait list"); L(t.passions, 4, "passions");
+            L(t.values, CommanderTraits.MaxTraits, "trait list"); L(t.passions, 4, "passions");
+            Check(SpecialtyProgress.Valid(t.specialties), "specialty progress");
             var traits = new CommanderTraits();
             foreach (var value in t.values) Check(Enum.IsDefined(typeof(CommanderTrait), value) && traits.TryAdd(value), "trait conflicts");
             var activities = new HashSet<CommanderActivity>();
@@ -135,7 +136,7 @@ namespace AntColony.Save
                     Check(!Enum.TryParse<BuildingKind>(b.kind, out var supplyKind) || !Buildings.SupplyFacility.IsKind(supplyKind)
                         || b.supply == null || Buildings.SupplyFacility.ValidForKind(supplyKind, b.supply), "supply facility");
                     Check(b.kind != "PlanterBed" && b.kind != "StarterMushroomBed" || b.starterCrop == null || Buildings.StarterCropBed.Valid(b.starterCrop), "starter crop");
-                    Check(N(b.powerCharge) && b.powerCharge <= Core.GameBalance.BatteryCapacity
+                    Check(b.powerPriority >= 0 && b.powerPriority <= 9 && N(b.powerCharge) && b.powerCharge <= Core.GameBalance.BatteryCapacity
                         && (b.kind == "Battery" || b.powerCharge == 0) && b.materialTier >= 0 && Enum.IsDefined(typeof(ResourceType), b.mainMaterial) && ((ResourceType)b.mainMaterial).IsMaterial(), "building power/material");
                     Check(new[] { b.barracksUpgradeRemaining, b.labResearchRemaining, b.queenProductionRemaining, b.queenFishingRemaining, b.scienceRemaining,
                         b.scoutRemaining, b.prisonEscapeTimer, b.towerCooldown }.All(N) && V(b.scienceSpawn), "building timers");

@@ -98,7 +98,7 @@ namespace AntColony.Units
             foreach (var x in list.Where(x => x.rank == top)) yield return (x.target, x.start);
         }
         public bool HasLifeThreateningPatient => HomePatients().Any(p => p.Health.LifeThreatening);
-        private static bool HasFood() => ResourceManager.Instance != null && new[] { ResourceType.FineMeal, ResourceType.SimpleMeal, ResourceType.Food, ResourceType.RottenFood }.Any(t => ResourceManager.Instance.GetAmount(t) > 0);
+        private static bool HasFood() => ResourceManager.Instance != null && CookedFoods.MealTypes.Any(t => ResourceManager.Instance.GetAmount(t) > 0);
 
         // 구조(운반 작업): 쓰러진 장수를 빈 의료 침상으로. 이동 중 사망 위험이 큰 미처치 출혈은 의료 장수가 현장에서 먼저 처치한다.
         private IEnumerable<(Component target, Func<bool> start)> RescueTasks()

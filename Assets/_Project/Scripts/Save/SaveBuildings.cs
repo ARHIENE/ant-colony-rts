@@ -36,6 +36,7 @@ namespace AntColony.Save
             if (b is StarterCropBed crop) d.starterCrop = JsonUtility.FromJson<StarterCropBed.State>(JsonUtility.ToJson(crop.Crop));
             if (b is ColdStorage cold) d.coldness = cold.Coldness;
             d.materialTier = b.MaterialTier; d.mainMaterial = (int)b.MainMaterial;
+            d.powerPriority = b.PowerPriorityOverride;
             if (b is AcidTower tower) d.towerCooldown = tower.Cooldown;
             if (b is AreaAcidTower areaTower) d.towerCooldown = areaTower.Cooldown;
             if (b is TrapPit trap) { d.trapArmed = trap.Armed; d.trapBroken = trap.BrokenSeconds; d.trapRepair = trap.RepairProgress; d.trapRepairPaid = trap.RepairPaid; d.trapSpikeHits = trap.SpikeHits; }
@@ -106,6 +107,7 @@ namespace AntColony.Save
             if (b is StarterCropBed crop) crop.RestoreCrop(d.starterCrop);
             if (b is ColdStorage cold) cold.Coldness = float.IsNaN(d.coldness) ? 0 : Mathf.Clamp01(d.coldness);
             b.MaterialTier = Mathf.Max(0, d.materialTier);
+            b.PowerPriorityOverride = d.powerPriority;
             b.MainMaterial = (ResourceType)d.mainMaterial;
             if (b is AcidTower tower) tower.RestoreCooldown(d.towerCooldown);
             if (b is AreaAcidTower areaTower) areaTower.RestoreCooldown(d.towerCooldown);

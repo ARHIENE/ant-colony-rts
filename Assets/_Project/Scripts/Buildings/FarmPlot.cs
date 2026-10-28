@@ -49,9 +49,7 @@ namespace AntColony.Buildings
             Crop = crop;
             if (FoodProcessingRecipes.CropResource(crop) is ResourceType type) node.SetCropResource(type);
             else node.SetCropResource(ResourceType.Food);
-            node.ConfigureRegrowth(
-                crop == FarmCrop.Honeydew ? GameBalance.HoneydewSeconds : crop == FarmCrop.AdvancedFungus ? GameBalance.AdvancedFungusSeconds : GameBalance.FungusSeconds,
-                crop == FarmCrop.Honeydew ? GameBalance.HoneydewFood : crop == FarmCrop.AdvancedFungus ? GameBalance.AdvancedFungusFood : GameBalance.FungusFood);
+            node.ConfigureRegrowth(FarmCropRules.GrowSeconds(crop), FarmCropRules.Yield(crop));
             if (Data.seedVersion == 0) { Data.seedVersion = 1; Data.seedPending = true; Node.ClearCrop(); }
         }
         public void RestoreState(State s) { Data = s ?? new State(); Data.seedVersion = 1; }

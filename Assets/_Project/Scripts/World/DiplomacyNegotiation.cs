@@ -56,6 +56,8 @@ namespace AntColony.World
         public static float Politics(Negotiation n) => Negotiator(n)?.Talents.Level(CommanderActivity.Politics) ?? 0;
         // 정치력은 애매한 조건의 설득·추가 양보에만 쓴다(좋은 조건은 정치력과 무관하게 성사).
         public static double Persuasion(Negotiation n) => Mathf.Clamp(Politics(n), 0, 20) * .005;
+        // 일반 거래에서 설득은 추가 요구액만 줄인다. 기본 가치를 깎으면 역제안으로도 왕복 차익이 생긴다.
+        private double NegotiatedPriceFactor(Civilization c, Negotiation n) => 1 + (PriceFactor(c) - 1) * (1 - Persuasion(n));
 
         // 무효: 대상 포로가 회유·사망·이미 석방되어 사라짐. 자원 부족은 무효가 아니라 조건 수정 대상.
         public bool CheckInvalid(Negotiation n)
@@ -69,14 +71,14 @@ namespace AntColony.World
         public double Ratio(Civilization c, Negotiation n)
         {
             if (n.kind == TalkKind.Demand) return DemandScore(c, n);
-            var paid = TradeValue(n.take, c, false) * PriceFactor(c);
+            var paid = TradeValue(n.take, c, false) * NegotiatedPriceFactor(c, n);
             return paid <= 0 ? 10 : TradeValue(n.give, c, true) / paid;
         }
         // 정치력이 낮으면 반응을 덜 정확하게 읽는다(협상마다 고정된 오차, 확답 없음).
         public TalkReaction Reaction(Civilization c, Negotiation n)
         {
             var noise = ((n.id * 7919 % 21) - 10) / 100d * (1 - Politics(n) / 20d);
-            var r = Ratio(c, n) + Persuasion(n) + noise;
+            var r = Ratio(c, n) + (n.kind == TalkKind.Trade ? 0 : Persuasion(n)) + noise;
             return r >= WarmRatio ? TalkReaction.Warm : r >= HesitantRatio ? TalkReaction.Hesitant : TalkReaction.Cold;
         }
         public static string ReactionName(TalkReaction r) => r == TalkReaction.Warm ? "호의적" : r == TalkReaction.Hesitant ? "망설임" : "냉담";
@@ -100,7 +102,7 @@ namespace AntColony.World
             if (!CanNegotiate(Negotiator(n))) return "협상 담당 장수를 지정하세요(본거지에서 활동 가능한 장수).";
             if (n.kind != TalkKind.Trade && n.kind != TalkKind.Demand) return "상대 요청에는 수락·거절·역제안으로 답하세요.";
             if (n.deadline > 0) return "최후통첩 거절됨 — 실행 또는 철회를 선택하세요.";
-            var ratio = Ratio(c, n) + Persuasion(n);
+            var ratio = Ratio(c, n) + (n.kind == TalkKind.Trade ? 0 : Persuasion(n));
             if (Data.elapsed < c.talksCooldown && ratio < ImprovedRatio)
                 return $"결렬 후 재협상 대기 중({c.talksCooldown - Data.elapsed:0}초). 조건을 크게 개선하면 바로 재개할 수 있습니다.";
             var reason = TradeReason(c, n.give, n.take, false);
@@ -128,7 +130,7 @@ namespace AntColony.World
         // 역제안: 부족한 가치를 우리 쪽 자원(식량 → 재료 → 특수)으로 채워 다시 내민다.
         private bool Counter(Civilization c, Negotiation n)
         {
-            var deficit = TradeValue(n.take, c, false) * PriceFactor(c) * (1 - Persuasion(n)) - TradeValue(n.give, c, true);
+            var deficit = TradeValue(n.take, c, false) * NegotiatedPriceFactor(c, n) - TradeValue(n.give, c, true);
             var rm = ResourceManager.Instance; if (rm == null || deficit <= 0) return false;
             for (var i = 0; i < 3 && deficit > 0; i++)
             {

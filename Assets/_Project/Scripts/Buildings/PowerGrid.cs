@@ -5,7 +5,7 @@ using UnityEngine;
 namespace AntColony.Buildings
 {
     // 전력망 계산(2026-10-05): 칸이 맞닿은 전력 가구끼리 한 망. 0.5초마다 발전량 → 소비 → 남으면 배터리 충전, 모자라면 배터리 방전.
-    // 모자란 망은 소비 가구 전체가 꺼진다(산소미포함처럼 순서 차단은 아직 없음).
+    // 부족하면 건물의 전력 우선순위가 높은 부하부터 공급한다. 공급할 수 없는 부하는 진행을 보존한다.
     public sealed class PowerGrid : MonoBehaviour
     {
         public const float TickSeconds = .5f;
@@ -56,19 +56,27 @@ namespace AntColony.Buildings
                 var supply = net.Sum(n => n.Output) * seconds;
                 var netIndex = networks.IndexOf(net);
                 var netUsers = users.Where(u => userNet.TryGetValue(u, out var i) && i == netIndex).ToList();
-                var demand = (net.Sum(n => n.Demand) + netUsers.Sum(u => u.Demand)) * seconds;
                 var batteries = net.Where(n => n.IsBattery).ToList();
                 var stored = batteries.Sum(b => b.Charge);
-                var powered = supply + stored >= demand && demand > 0;
-                var surplus = supply - (powered ? demand : 0); // 꺼진 망은 소비하지 않는다
+                var available = supply + stored; float used = 0;
+                var loads = net.Where(n => n.IsConsumer).Select(n => (Node: n, User: (IUser)null, Priority: n.PowerPriority))
+                    .Concat(netUsers.Select(u => (Node: (PowerNode)null, User: u, Priority: (u as BuildingBase)?.PowerPriority ?? 5)))
+                    .OrderByDescending(l => l.Priority);
+                foreach (var load in loads)
+                {
+                    var energy = (load.Node != null ? load.Node.Demand : load.User.Demand) * seconds;
+                    var powered = energy > 0 && available >= energy;
+                    if (powered) { available -= energy; used += energy; }
+                    if (load.Node != null) load.Node.Powered = powered;
+                    else load.User.Powered = powered;
+                }
+                var surplus = supply - used; // 실제 공급한 부하만 소비한다.
                 foreach (var b in batteries)
                 {
                     // 남으면 차례로 충전, 모자라면 차례로 방전.
                     var change = surplus >= 0 ? Mathf.Min(surplus, Core.GameBalance.BatteryCapacity - b.Charge) : -Mathf.Min(-surplus, b.Charge);
                     b.Charge += change; surplus -= change;
                 }
-                foreach (var n in net) if (n.IsConsumer) n.Powered = powered;
-                foreach (var u in netUsers) u.Powered = powered;
             }
             foreach (var u in users) if (!userNet.ContainsKey(u)) u.Powered = false; // 망에 닿지 않으면 정전
         }

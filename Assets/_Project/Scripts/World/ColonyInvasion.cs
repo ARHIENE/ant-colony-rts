@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using AntColony.Core;
+using AntColony.Buildings;
 using AntColony.Data;
 using AntColony.Units;
 using UnityEngine;
@@ -74,16 +75,42 @@ namespace AntColony.World
             var active = 0;
             foreach (var visitor in local.Visitors) if (visitor != null && !visitor.IsDead) active++;
             var count = Mathf.Min(source.WaveCount(index, snapshot), source.maxActiveRaiders - active);
-            var spawned = 0;
-            for (var i = 0; i < count; i++) if (source.Spawn(false)) spawned++;
+            var spawned = 0; var fallback = 0;
+            var elapsed = Mathf.Max(0, GameCalendar.GameSeconds - snapshot.at);
+            for (var i = 0; i < count; i++)
+            {
+                Vector3? approach = null;
+                if (FinalAssaultPlan.Phase(elapsed) > 0 && TryFinalApproach(elapsed, index, i, out var point)) approach = point;
+                if (source.Spawn(false, approach)) { spawned++; if (FinalAssaultPlan.Phase(elapsed) > 0 && !approach.HasValue) fallback++; }
+            }
             if (spawned == 0) return false;
             var hasCommander = false;
             foreach (var visitor in local.Visitors)
                 if (visitor is EnemyCommander && !visitor.IsDead) hasCommander = true;
             if (!hasCommander) source.SpawnCommander(false);
             nextDelay = source.ScaledWaveInterval;
-            AntColony.UI.ToastManager.Show("최종 공세 접근 중: " + spawned + "마리");
+            AntColony.UI.ToastManager.Show(FinalAssaultPlan.Description(elapsed) + " · 최종 공세 " + spawned + "마리"
+                + (fallback > 0 ? $" · 외곽 경로 부족으로 기존 진입 {fallback}마리" : ""));
             return true;
+        }
+
+        private static bool TryFinalApproach(float elapsed, int wave, int member, out Vector3 point)
+        {
+            point = default;
+            var home = RocketCampaign.Instance?.Home ?? Vector3.zero;
+            if (!NavMesh.SamplePosition(home, out var center, 10, NavMesh.AllAreas)) return false;
+            var homes = AntColony.Core.SceneObjects.All<BuildingBase>();
+            var radius = 45f;
+            foreach (var b in homes)
+                if (b.isActiveAndEnabled && !b.IsDead && b.CountsTowardPlayerDefeat && b.GetComponentInParent<ExpeditionSite>() == null)
+                    radius = Mathf.Max(radius, Vector3.Distance(home, b.Position) + 15);
+            var candidate = center.position + FinalAssaultPlan.Direction(elapsed, wave, member) * radius;
+            if (!NavMesh.SamplePosition(candidate, out var hit, 8, NavMesh.AllAreas)) return false;
+            foreach (var b in homes)
+                if (b.isActiveAndEnabled && !b.IsDead && b.CountsTowardPlayerDefeat && (b.Position - hit.position).sqrMagnitude < 144) return false;
+            var path = new NavMeshPath();
+            if (!NavMesh.CalculatePath(hit.position, center.position, NavMesh.AllAreas, path) || path.status != NavMeshPathStatus.PathComplete) return false;
+            point = hit.position; return true;
         }
 
         private void Awake()
@@ -183,10 +210,10 @@ namespace AntColony.World
             colony.TryExpand(expansionFoodCost, expansionSoilCost, maxBuildings, expansionRadius);
         }
 
-        private bool Spawn(bool payCost = true)
+        private bool Spawn(bool payCost = true, Vector3? finalApproach = null)
         {
             var scatter = Random.insideUnitCircle * spawnScatter;
-            var origin = spawnPoint.position + new Vector3(scatter.x, 0f, scatter.y);
+            var origin = finalApproach ?? spawnPoint.position + new Vector3(scatter.x, 0f, scatter.y);
             if (!NavMesh.SamplePosition(origin, out var hit, spawnScatter + 2f, NavMesh.AllAreas)) return false;
             if (payCost && !TryPayRaiderCost()) return false;
 

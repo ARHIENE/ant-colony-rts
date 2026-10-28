@@ -28,6 +28,15 @@ namespace AntColony.Core
         public float Administration => AdminDemandWork <= 0 ? 0f : Mathf.Clamp01(S.adminWork / AdminDemandWork);
         public bool NeedsAdministration => Total > 0 && S.adminWork < AdminDemandWork;
         public float TaxCollection => 1f - GameBalance.AdminTaxLoss * (1f - Administration);
+        // 처리된 행정 업무는 하루 동안 선형 소모된다. 프레임 시작값을 전체 구간에 적용하지 않는다.
+        private float AverageTaxCollection(float seconds)
+        {
+            if (!(seconds > 0)) return TaxCollection;
+            var start = Administration;
+            var active = Mathf.Min(seconds, start * GameCalendar.SecondsPerDay);
+            var end = Mathf.Max(0, start - active / GameCalendar.SecondsPerDay);
+            return 1f - GameBalance.AdminTaxLoss + GameBalance.AdminTaxLoss * (start + end) * .5f * active / seconds;
+        }
         public void AddAdministration(float work)
         {
             if (work > 0 && !float.IsInfinity(work)) S.adminWork = Mathf.Min(AdminDemandWork, S.adminWork + work);

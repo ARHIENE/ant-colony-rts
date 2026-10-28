@@ -47,6 +47,7 @@ namespace AntColony.Boss.AoE
         public void CastFrom(Vector3 origin, Vector3 forward)
         {
             if (!isActiveAndEnabled || IsCasting) return;
+            BossTelegraphTiming.Prepare();
 
             var flatForward = Vector3.ProjectOnPlane(forward, Vector3.up);
             if (flatForward.sqrMagnitude < 0.0001f) flatForward = transform.forward;

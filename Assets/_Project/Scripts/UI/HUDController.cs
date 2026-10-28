@@ -117,7 +117,7 @@ namespace AntColony.UI
             sep.sizeDelta = new Vector2(1, 20); sep.anchoredPosition = new Vector2(-148, -27);
             sep.gameObject.AddComponent<Image>().color = MenuTheme.Line;
             resourceTexts[1] = ResourceButton(top, "Materials", 92, -158, ToggleMaterials);
-            resourceTexts[0] = ResourceButton(top, "Food", 96, -258, null);
+            resourceTexts[0] = ResourceButton(top, "Food", 96, -258, () => GameMenuController.Instance?.ShowDiet());
             materialsList = MenuTheme.Panel(canvasGO.transform, "MaterialsList", new Vector2(1, 1), new Vector2(200, 80), new Vector2(-158, -100));
             var listText = MenuTheme.Text(materialsList, "", 12); MenuTheme.Stretch(listText.rectTransform);
             listText.rectTransform.offsetMin = new Vector2(10, 6); listText.rectTransform.offsetMax = new Vector2(-10, -6);
@@ -239,9 +239,8 @@ namespace AntColony.UI
         {
             if (resourceTexts[0] == null || ResourceManager.Instance == null) return;
             var rm = ResourceManager.Instance;
-            string Tip(ResourceType type, string label) => $"{label} {rm.GetAmount(type):N0} / 저장 한도 {rm.GetCapacity(type):N0}";
-            resourceTexts[0].text = $"<color=#e5bd6b>식량</color> <b>{rm.GetAmount(ResourceType.Food):N0}</b>";
-            resourceTexts[0].transform.parent.GetComponent<MenuTooltip>().Message = Tip(ResourceType.Food, "식량");
+            resourceTexts[0].text = $"<color=#e5bd6b>식량</color> <b>{FoodAvailability.StoredEdibleCount:N0}</b>";
+            resourceTexts[0].transform.parent.GetComponent<MenuTooltip>().Message = "창고의 정상 먹거리 수량(식사 횟수 아님). 곡물·가루·기름·술·썩은 식품은 제외합니다.\n눌러서 장수별 식단·접근 가능한 식량과 바닥/운반/수송칸을 확인하세요.";
             // 재료 종류별 보유량(2026-10-10 자원 분화). 상단 숫자는 재료 합계, 목록은 가진 재료만(흙은 항상).
             int total = 0; var list = new System.Text.StringBuilder();
             foreach (var m in ResourceLabels.Materials)
@@ -263,7 +262,7 @@ namespace AntColony.UI
             resourceTexts[2].text = $"<color=#b1b3a7>인구</color> <b><color={color}>{pop.Total}</color></b> <color=#b1b3a7>· 납세 {pop.NextTaxSeconds:0}초</color>";
             demandFill.rectTransform.sizeDelta = new Vector2(118 * Mathf.Clamp01(pop.Demand / 100f), 3);
             resourceTexts[2].transform.parent.GetComponent<MenuTooltip>().Message = $"인구 {pop.Total} / 살 자리 {pop.HousingCapacity} · 어린 {pop.S.young} · 성체 {pool.Total} · 늙은 {pop.S.old}"
-                + $"\n민심 {pop.S.sentiment:0} · 이주 수요 {pop.Demand:0} · 세금 {pop.S.taxRate:P0} (다음 납세 {pop.NextTaxSeconds:0}초: 식량 +{pop.DailyFood} · 재료 +{pop.DailySoil}) · {ColonyPopulation.PolicyName(pop.S.policy)}\n누르면 인구 창";
+                + $"\n민심 {pop.S.sentiment:0} · 이주 수요 {pop.Demand:0} · 세금 {pop.S.taxRate:P0} (현재 조건 유지 시 다음 납세 {pop.NextTaxSeconds:0}초: 식량 +{pop.NextFoodTax} · 재료 +{pop.NextMaterialTax}) · {ColonyPopulation.PolicyName(pop.S.policy)}\n누르면 인구 창";
         }
 
         private void ShowVictoryMessage()

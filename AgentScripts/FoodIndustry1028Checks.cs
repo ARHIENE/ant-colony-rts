@@ -51,7 +51,7 @@ public static class FoodIndustry1028Checks
             var c = CommanderRoster.Instance.Commanders[0]; var home = c.Position;
             var research = CampaignResearch.Instance; var rs = research.CaptureState(); rs.completed.Add((int)ScienceTechnology.Fermentation); rs.completed.Add((int)ScienceTechnology.UndergroundSurvey); research.RestoreState(rs);
             var store = Put<Storage>(B.Storage, home + Vector3.left * 3); var bin = store.Bin;
-            Check(StoreBin.TypeCount == 75 && (int)R.Rubber >= 64, "expanded resource catalog crosses old 64 bit boundary");
+            Check(StoreBin.TypeCount == 78 && (int)R.Rubber >= 64, "expanded resource catalog crosses old 64 bit boundary");
             var alias = (R)((int)R.Rubber % 64); var oldAlias = bin.Allows(alias);
             ResourceManager.Instance.SetAllowed(bin, R.Rubber, false); Check(!bin.Allows(R.Rubber) && bin.Allows(alias) == oldAlias, "high filter does not alias low bit");
             Check(bin.Capture().extraForbidden.Contains((int)R.Rubber), "high filter serialized");
@@ -99,9 +99,9 @@ public static class FoodIndustry1028Checks
             var chemical = Put<Processor>(B.ChemistryBench, home + Vector3.back * 12); Feed(chemical, store, 1); chemical.Powered = true; Park(c, chemical); Time.timeScale = 1;
             Check(chemical.Work(c, 1000) && Floor(R.Rubber) == 1 && chemical.BufferedOil == 0, "rubber uses sap without taking crude oil"); Time.timeScale = 0; c.CommandStop();
             Check(SaveSystem.TrySave(false, 1, out error), "new chain final save " + error);
-            var json = File.ReadAllText(SaveSlots.PathFor(false, 1)); Check(SaveValidator.TryParse(json, out var file, out error) && file.version == 20, "new save version validated");
+            var json = File.ReadAllText(SaveSlots.PathFor(false, 1)); Check(SaveValidator.TryParse(json, out var file, out error) && file.version == SaveFileV1.CurrentVersion, "new save version validated");
             file.version = 19; file.colony.baseBin.extraForbidden = null; foreach (var b in file.buildings) if (b.storeBin != null) b.storeBin.extraForbidden = null;
-            Check(SaveValidator.Validate(file, out error) && file.version == 20, "v19 save migrates without changing legacy bits");
+            Check(SaveValidator.Validate(file, out error) && file.version == SaveFileV1.CurrentVersion, "v19 save migrates without changing legacy bits");
             var corrupt = file.buildings.First(b => b.storeBin != null).storeBin; corrupt.extraForbidden = new System.Collections.Generic.List<int> { 9999 }; Check(!SavePreflight.Validate(file, out error), "unknown high filter ID rejected");
             var result = "PASS " + count + " typed raw/seed/farm, actual mill work, oil, fermentation/cancel/recovery/save, distillation, rubber and extended filter checks"; File.WriteAllText("Temp/food-industry-result.txt", result); return result;
         }

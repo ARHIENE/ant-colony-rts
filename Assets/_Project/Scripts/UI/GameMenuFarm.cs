@@ -48,6 +48,7 @@ namespace AntColony.UI
                 var b = L.Button(crops, "Crop " + crop, CropName(crop) + (unlocked ? "" : " (연구 필요)"), (i % 3) * 210, (i / 3) * 44, 204, 40,
                     () => { p.SetNextCrop(choice); ShowFarm(p); }, primary: (p.Data.nextCrop >= 0 ? (FarmCrop)p.Data.nextCrop : p.Crop) == crop);
                 b.interactable = unlocked;
+                b.gameObject.AddComponent<MenuTooltip>().Message = FarmCropRules.Description(crop);
                 i++;
             }
 

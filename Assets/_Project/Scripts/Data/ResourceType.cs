@@ -22,14 +22,14 @@
             ResourceType.FilledFuelDrum => "정제유 드럼통",
             ResourceType.FilledCrudeDrum => "원유 드럼통", ResourceType.FilledGasCylinder => "압축 가스 용기",
             ResourceType.Plastic => "플라스틱", ResourceType.Charcoal => "숯", ResourceType.Coke => "코크스", ResourceType.Pottery => "도자기",
-            _ => ProcessingResources.Name(type) ?? type.ToString()
+            _ => CookedFoods.Name(type) ?? ProcessingResources.Name(type) ?? type.ToString()
         };
         // 물은 건설 주재료로 고를 수 없다. 재료 종류마다 저장 한도는 기존 재료(흙) 한도를 같이 쓴다.
         public static bool IsMaterial(this ResourceType type) => type != ResourceType.Special && type != ResourceType.Water && !type.IsFood();
         // 썩은 식품(2026-10-12)은 식량 칸·식량 한도를 쓰지만 소굴 식량 합계에는 들어가지 않는 별도 자원이다.
-        public static bool IsFood(this ResourceType type) => type == ResourceType.Food || type == ResourceType.RottenFood || type == ResourceType.SimpleMeal || type == ResourceType.FineMeal || ProcessingResources.Food(type);
+        public static bool IsFood(this ResourceType type) => type == ResourceType.Food || type == ResourceType.RottenFood || CookedFoods.Quality(type) > 0 || ProcessingResources.Food(type);
         // 장수가 먹을 수 있는 정상 식품(날것·간단한 요리·좋은 요리). 썩은 식품은 정상 식품이 없을 때만 먹는다.
-        public static bool IsEdible(this ResourceType type) => type == ResourceType.Food || type == ResourceType.SimpleMeal || type == ResourceType.FineMeal;
+        public static bool IsEdible(this ResourceType type) => type == ResourceType.Food || CookedFoods.Quality(type) > 0;
         // 누적 기록·외교는 기존 3칸(식량·재료·특수)으로 묶는다.
         public static int Group(this ResourceType type) => type.IsFood() ? 0 : type == ResourceType.Special ? 2 : 1;
         public static readonly ResourceType[] Materials = System.Linq.Enumerable.ToArray(System.Linq.Enumerable.Where(
@@ -68,7 +68,8 @@
         Plastic,
         Charcoal, Coke, Pottery,
         Wheat, Barley, Rice, Grapes, SunflowerSeed, WheatFlour, SunflowerOil, RubberSap, Rubber,
-        Beer, RiceWine, FruitWine, Mead, HoneydewWine, Spirits
+        Beer, RiceWine, FruitWine, Mead, HoneydewWine, Spirits,
+        CookedRice, Flatbread, FriedRice
     }
 
     // 재료 특성(내구·무게·가연성·미관·단열). 후반 재료가 모든 면에서 우월하지 않게 용도를 나눈다.

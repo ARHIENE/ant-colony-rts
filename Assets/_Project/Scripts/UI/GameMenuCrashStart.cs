@@ -10,13 +10,21 @@ namespace AntColony.UI
 {
     public sealed partial class GameMenuController
     {
+        private static string StartRiskSummary(NewGameOptions value)
+        {
+            var invasion = $"침공 인원 ×{DifficultyProfile.StrengthScale(value.difficulty):0.##} · 간격 ×{DifficultyProfile.IntervalScale(value.difficulty):0.##}";
+            var death = value.commanderDeath == CommanderDeathMode.Harsh ? "가혹 사망: 쓰러짐 즉사30%(잠정)" : value.commanderDeath == CommanderDeathMode.Normal ? "보통 사망: 중상 쓰러짐에 즉사 위험" : "관대 사망: 쓰러짐 즉사 없음";
+            return $"시민·건물 없이 장수 {value.startingCount}명 시작 · {invasion}\n{death} · "
+                + (value.startingCount == 1 ? "1명은 동료 구조 불가 · 마지막 장수 포로=패배" : "쓰러진 장수는 동료 구조·치료 필요");
+        }
         private void DrawCrashStart(RectTransform f)
         {
             if (options.startingTeam == null || options.startingTeam.Length != 3)
                 options.startingTeam = Enumerable.Range(0, 3).Select(StartingCandidate.Roll).ToArray();
             var p = L.Plate(f, "NewGamePanel", 120, 90, 1200, 720);
             L.Label(p, "불시착 생존자", 20, 24, 10, 400, 38, bold: true);
-            L.Label(p, "시민과 건물 없이 정착을 시작합니다", 12, 440, 10, 720, 38, MenuTheme.Muted);
+            L.Label(p, StartRiskSummary(options), 12, 440, 10, 720, 38,
+                options.startingCount == 1 || options.commanderDeath == CommanderDeathMode.Harsh ? MenuTheme.Warning : MenuTheme.Muted);
             L.Line(p, 0, 56, 1200);
             var settings = L.List(p, 24, 72, 290, 546);
             var settingsScroll = settings.GetComponentInParent<ScrollRect>();
@@ -76,7 +84,7 @@ namespace AntColony.UI
                 var chosen = options.Clone(); chosen.startingTeam = selectedTeam;
                 if (chosen.biome == MapBiome.None) chosen.biome = BiomeRules.Random();
                 try { CrashLandingStart.Begin(chosen); } catch (Exception e) { ToastManager.Show(e.Message); }
-            }, missing.Length == 0 ? "선택한 생존자로 시작합니다" : "부족한 작업 수행자를 재추첨하세요", true);
+            }, (missing.Length == 0 ? "선택한 생존자로 시작합니다\n" : "부족한 작업 수행자를 재추첨하세요\n") + StartRiskSummary(options), true);
             start.interactable = missing.Length == 0;
         }
 

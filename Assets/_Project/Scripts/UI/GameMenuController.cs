@@ -145,6 +145,7 @@ namespace AntColony.UI
         {
             if (tip == null) return;
             tip.text = value;
+            if (!string.IsNullOrEmpty(value)) tooltipPanel.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, Mathf.Max(76, tip.preferredHeight + 16));
             tooltipPanel.gameObject.SetActive(!string.IsNullOrEmpty(value));
             if (!string.IsNullOrEmpty(value) && tooltipPanel.gameObject.activeInHierarchy) tooltipPanel.SetAsLastSibling();
         }

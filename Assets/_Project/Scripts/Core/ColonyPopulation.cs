@@ -90,11 +90,15 @@ namespace AntColony.Core
         public int DailyFood => Mathf.RoundToInt(MonthlyTax * FoodShare(S.taxFocus) * TaxSeconds / GameCalendar.SecondsPerMonth);
         public int DailySoil => Mathf.RoundToInt(MonthlyTax * (1f - FoodShare(S.taxFocus)) * TaxSeconds / GameCalendar.SecondsPerMonth);
         public float NextTaxSeconds => Mathf.Max(0, TaxSeconds - S.taxWeek);
+        // 현재 인구/방침/생산력 유지 가정. 지난 구간의 누적액과 남은 기간의 행정 감소를 함께 반영한다.
+        private float TaxForInterval(float seconds) => MonthlyTax / TaxCollection * AverageTaxCollection(seconds) * seconds / GameCalendar.SecondsPerMonth;
+        public int NextFoodTax => Mathf.FloorToInt(S.taxFood + TaxForInterval(NextTaxSeconds) * FoodShare(S.taxFocus));
+        public int NextMaterialTax => Mathf.FloorToInt(S.taxSoil + TaxForInterval(NextTaxSeconds) * (1f - FoodShare(S.taxFocus)));
         public void SetTaxRate(float rate) => S.taxRate = Mathf.Clamp(Mathf.Round(rate * 100f) / 100f, 0f, GameBalance.MaxTaxRate);
         public void SetTaxFocus(TaxFocus f) { if (Enum.IsDefined(typeof(TaxFocus), f)) S.taxFocus = f; }
         private void AccrueTax(float seconds)
         {
-            var month = MonthlyTax * seconds / GameCalendar.SecondsPerMonth;
+            var month = TaxForInterval(seconds);
             S.taxFood += month * FoodShare(S.taxFocus); S.taxSoil += month * (1f - FoodShare(S.taxFocus));
         }
         public void PayTax()

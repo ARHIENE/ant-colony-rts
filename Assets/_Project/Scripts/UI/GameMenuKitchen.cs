@@ -13,15 +13,16 @@ namespace AntColony.UI
             var window = V5Window(k.Data.displayName + " / 요리", "생산 방식과 수량을 선택한 뒤 요리를 추가하세요.");
             content = V5Section(window, "요리 / 주문 설정", 20, 104, 520, 544);
             MenuTheme.Text(content, k.Current != null ? $"조리 중: {k.Current.name} {k.Progress:P0}" : "조리 중인 요리 없음" + (k.WaitReason != null ? $" · {k.WaitReason}" : ""), 19, 45);
+            MenuTheme.Text(content, WorkDiagnostics.Describe(k), 15, 68);
             ProductionControls(() => ShowKitchen(k));
             for (int i = 0; i < Kitchen.Recipes.Length; i++)
             {
                 var index = i; var r = Kitchen.Recipes[i];
-                MenuTheme.Button(content, $"목록 추가: {r.name} ← 식량 {r.food} · {r.seconds:0}초 · 재고 {Kitchen.Stock(r.output)}", () => {
+                MenuTheme.Button(content, $"목록 추가: {r.name} ← {r.Cost} · 작업 {r.seconds:0} · 재고 {Kitchen.Stock(r.output)}", () => {
                     if (!k.AddOrder(index, orderMode, orderAmount)) ToastManager.Show($"생산 목록은 최대 {Workshop.MaxOrders}개입니다."); ShowKitchen(k);
                 }).interactable = k.isActiveAndEnabled && k.Orders.Count < Workshop.MaxOrders;
             }
-            MenuTheme.Text(content, $"조리대에 놓인 재료: 식량 {k.Staged}" + (k.NeedsIngredients ? " · 요리사가 창고에서 가져오는 중" : ""), 16, 30);
+            MenuTheme.Text(content, "조리대 재료: " + (k.Staged > 0 ? k.StagedDescription : "없음") + (k.NeedsIngredients ? " · 배송 대기" : ""), 16, 45);
             MenuTheme.Button(content, k.Paused ? "재개" : "일시정지", () => { k.Paused = !k.Paused; ShowKitchen(k); });
             MenuTheme.Button(content, "식단 관리(공통·장수별)", () => ShowDiet());
             if (k.Current != null)
@@ -33,7 +34,7 @@ namespace AntColony.UI
             {
                 var r = Kitchen.Recipes[order.recipe];
                 var state = order.mode == Workshop.OrderMode.Count ? $"남은 {order.amount}회" : order.mode == Workshop.OrderMode.KeepStock ? $"재고 {Kitchen.Stock(r.output)}/{order.amount}" : "반복";
-                MenuTheme.Button(content, $"{r.name} · {ModeName(order.mode)} · {state} — 삭제", () => { k.Orders.Remove(order); ShowKitchen(k); });
+                MenuTheme.Button(content, $"{r.name} · {ModeName(order.mode)} · {state} — 삭제", () => { k.RemoveOrder(order); ShowKitchen(k); });
             }
             MenuTheme.Text(content, "작업표에서 요리가 켜진 장수가 와서 조리합니다. 요리사가 재료를 창고에서 조리대로 가져오고, 조리를 시작할 때 소비하며, 완성 요리는 주변 바닥에 놓여 운반 장수가 창고로 옮깁니다. 요리사가 떠나도 진행도는 남습니다.", 17, 70);
             MenuTheme.Button(content, "새로고침", () => ShowKitchen(k));

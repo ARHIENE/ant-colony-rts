@@ -120,6 +120,7 @@ namespace AntColony.UI
                 var i = (int)skill; var level = c.Talents.Level(skill);
                 var x = i % 3 * 166f; var y = 26 + i / 3 * 46f;
                 var cell = L.Box(skills, "Skill " + skill, x, y, 160, 42, MenuTheme.Plate2);
+                cell.gameObject.AddComponent<MenuTooltip>().Message = AntColony.Core.SpecialtyAcquisition.Description(c, skill);
                 L.Label(cell, $"{SkillNames[i]} <color=#f2a93b>{new string('★', c.Traits.Flame(skill))}</color> <color=#b1b3a7>{c.Talents.UsageShare(skill):P0}</color>", 12, 8, 2, 100, 20, MenuTheme.Muted);
                 L.Label(cell, level.ToString(), 16, 112, 2, 40, 20, align: TextAnchor.MiddleRight, bold: true);
                 var progress = level >= CommanderTalents.MaxLevel ? 1f : c.Talents.Xp(skill) / CommanderTalents.Required(level);

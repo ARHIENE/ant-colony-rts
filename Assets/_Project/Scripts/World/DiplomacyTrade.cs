@@ -49,9 +49,9 @@ namespace AntColony.World
             if (offer.blueprint) value += DiplomacyRules.BlueprintPrice * 10;
             return value;
         }
-        // 상대가 요구하는 최소 가치 배율(호감도·교역 협정·외교 신뢰 반영).
-        public double PriceFactor(Civilization c) => Data.markets.Contains(c) ? 1 : DiplomacyRules.AcceptanceMultiplier(c.affinity) * DiplomacyRules.PriceMultiplier(c.affinity)
-            * (c.HasTreaty(TreatyKind.Trade, Data.elapsed) ? .9f : 1) * (1 - Mathf.Clamp(Data.trust, -100, 100) / 1000d);
+        // 호감도·협정·신뢰는 추가 요구액을 낮춘다. 공정 가치 아래로 내려가면 왕복 교역으로 재고가 증식한다.
+        public double PriceFactor(Civilization c) => Data.markets.Contains(c) ? 1 : Math.Max(1, DiplomacyRules.AcceptanceMultiplier(c.affinity) * DiplomacyRules.PriceMultiplier(c.affinity)
+            * (c.HasTreaty(TreatyKind.Trade, Data.elapsed) ? .9f : 1) * (1 - Mathf.Clamp(Data.trust, -100, 100) / 1000d));
         // checkValue=false: 협상 계층이 수락 판단을 끝낸 뒤 소유·재고만 다시 확인한다(보류 중 자원은 예약하지 않으므로 성립 직전 재확인).
         public string TradeReason(Civilization c, TradeOffer give, TradeOffer take, bool checkValue = true)
         {

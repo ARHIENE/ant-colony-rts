@@ -24,6 +24,8 @@ namespace AntColony.UI
             foreach (var yard in AntColony.Core.SceneObjects.All<AirshipYard>())
             {
                 MenuTheme.Text(content, $"로켓 {yard.Phase} · 선체 {(yard.Hull ? "완성" : "미완성")} / 엔진 {(yard.Engine ? "완성" : "미완성")} · 좌석 {yard.OccupiedSeats}/{yard.Capacity} · 준비 잔여 {yard.PreparationRemaining / GameCalendar.SecondsPerDay:0.00}일", 13, 55);
+                MenuTheme.Text(content, yard.Operating ? FinalAssaultPlan.Description(Mathf.Max(0, FinalBattleEconomy.DefenseSeconds - yard.PreparationRemaining))
+                    : "가동 후15일 방어: 첫5일 단일 방향 → 다음5일 양방향 → 마지막5일 다방향. 외곽 접근 경로가 없으면 기존 진입점을 사용합니다.", 12, 52);
                 foreach (AirshipPart part in Enum.GetValues(typeof(AirshipPart)))
                     MenuTheme.Button(content, (part == AirshipPart.Cocoon ? "50석 확장 모듈" : part.ToString()) + " 건조" + (part == AirshipPart.Cocoon ? $" (식량 {GameBalance.CocoonFood}/재료 {GameBalance.CocoonSoil}/특수 자원 {GameBalance.CocoonSpecial}, {yard.Cocoons}/{GameBalance.MaxCocoons})" : " (식량 100/재료 150/특수 자원 150)"),
                         () => { if (!yard.TryBuild(part)) ToastManager.Show("관련 연구·자원과 작업 중이 아닌 발사대가 필요합니다."); ScienceFacilities(); }).interactable = !yard.ModificationsLocked;

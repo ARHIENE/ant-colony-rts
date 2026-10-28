@@ -16,6 +16,7 @@ namespace AntColony.UI
         private RectTransform root;
         private Text title, status, instruction;
         private Button action, eatCorpse;
+        private Button powerDown, powerUp;
         public static void Clear() => Target = null;
         public static void Select(Component target)
         {
@@ -31,6 +32,8 @@ namespace AntColony.UI
             status = L.Label(root, "", 15, 16, 42, 780, 44);
             instruction = L.Label(root, "", 12, 16, 126, 780, 42, MenuTheme.Muted);
             action = L.Button(root, "TargetAction", "", 544, 94, 246, 32, Act);
+            powerDown = L.Button(root, "PowerPriorityDown", "", 16, 94, 178, 32, () => ChangePowerPriority(-1));
+            powerUp = L.Button(root, "PowerPriorityUp", "", 204, 94, 178, 32, () => ChangePowerPriority(1));
             eatCorpse = L.Button(root, "EatCorpse", "동족 포식 지시", 544, 136, 246, 32, EatCorpse);
             root.gameObject.SetActive(false);
         }
@@ -42,9 +45,21 @@ namespace AntColony.UI
             status.rectTransform.sizeDelta = new Vector2(width, 44);
             L.Place((RectTransform)action.transform, 16 + width * .6f, 94, width * .4f, 32);
             L.Place((RectTransform)eatCorpse.transform, 16 + width * .6f, 136, width * .4f, 32);
-            foreach (var button in new[] { action, eatCorpse }) MenuTheme.Stretch(button.GetComponentInChildren<Text>().rectTransform);
+            var powerWidth = (width * .6f - 20) / 2;
+            L.Place((RectTransform)powerDown.transform, 16, 94, powerWidth, 32);
+            L.Place((RectTransform)powerUp.transform, 26 + powerWidth, 94, powerWidth, 32);
+            foreach (var button in new[] { action, eatCorpse, powerDown, powerUp }) MenuTheme.Stretch(button.GetComponentInChildren<Text>().rectTransform);
             bool visible = Target != null && Target.gameObject.activeInHierarchy && !BuildScreen.Picking;
             root.gameObject.SetActive(visible); if (!visible) return;
+            var consumer = Target as BuildingBase;
+            var powerControls = consumer != null && (consumer is PowerGrid.IUser powerUser && powerUser.Demand > 0 || consumer is PowerNode consumerNode && consumerNode.IsConsumer);
+            powerDown.gameObject.SetActive(powerControls); powerUp.gameObject.SetActive(powerControls);
+            if (powerControls)
+            {
+                powerDown.GetComponentInChildren<Text>().text = $"전력 우선 {consumer.PowerPriority} (−)";
+                powerUp.GetComponentInChildren<Text>().text = $"전력 우선 {consumer.PowerPriority} (+)";
+                powerDown.interactable = consumer.PowerPriority > 1; powerUp.interactable = consumer.PowerPriority < 9;
+            }
             eatCorpse.gameObject.SetActive(Target is Corpse edible && (edible.Edible || edible.GetComponent<ResourceNode>() != null)
                 || Target is SupplyFacility water && !water.IsNaturalSource && water.Supply.fluid == (int)AntColony.Data.ResourceType.Water && water.Supply.amount > 0);
             if (Target is Corpse corpse)
@@ -111,6 +126,7 @@ namespace AntColony.UI
             {
                 label.text = "창고 설정";
                 instruction.text = $"우선순위 {bin.priority} · " + (bin.Stocked.Any() ? string.Join(" · ", bin.Stocked.Select(t => $"{t.DisplayName()} {bin.Amount(t)}")) : "비어 있음");
+                if (Target is ColdStorage cold) status.text = cold.State + " · 전력 부족 시 높은 전력 우선순위부터 공급";
             }
             if (Target is BuildingBase packed && Demolition.IsPacked(packed)) status.text = "포장된 가구(기능 정지) · 명령 '이동'으로 새 위치에 다시 설치합니다.";
             if (Target is Barracks barracks) label.text = "병영 강화";
@@ -202,6 +218,10 @@ namespace AntColony.UI
                 }
             }
             title.text += $"  <size=14><color=#b1b3a7>우선 {WorkPriorities.Level(Target)}</color>{(WorkPriorities.Yellow(Target) ? "  <color=#f2c94c>노란 경보</color>" : "")}</size>";
+        }
+        private void ChangePowerPriority(int delta)
+        {
+            if (Target is BuildingBase b) b.PowerPriorityOverride = Mathf.Clamp(b.PowerPriority + delta, 1, 9);
         }
         private static string ResidentNames(Dormitory dorm)
         {

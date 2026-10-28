@@ -32,6 +32,7 @@ namespace AntColony.Core
         public const float HappyMood = 60, HappyBreedMultiplier = 1.5f;
         public const float SadMood = 30, SadBreedMultiplier = .5f;
         public const float ParentChildRelation = 40;
+        public const float BirthRecoverySeconds = GameCalendar.SecondsPerSeason; // 잠정: 부모마다 출산 뒤 1계절 회복
 
         // 한 끼 Food(2026-09-28: 장수 자동 유지비 삭제, 식사로 대체). 식성 특성은 한 끼 양 배율.
         public const float MealFood = 2;

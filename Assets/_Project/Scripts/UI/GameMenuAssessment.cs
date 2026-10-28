@@ -46,6 +46,7 @@ namespace AntColony.UI
                 var r = rating.Value;
                 MenuTheme.Text(right, selected.name + "\n종합 현재 능력 " + RatingStars(r.Current) + "\n예상 잠재력 " + PotentialStars(r), 15, 86);
                 MenuTheme.Text(right, "평가일 " + GameCalendar.Format(r.At) + $" · 현재 평가 기준 {r.BasisVersion} / 잠재 기준 {r.PotentialBasisVersion}\n비교 기준 변경 전의 일반 평가는 다음 갱신까지 보존합니다.", 12, 56);
+                MenuTheme.Text(right, "별점은 우리 성인 장수와 비교한 평가입니다. 더 강한 인재가 합류하면 다음 평가에서 별점이 내려갈 수 있으며, 그 자체로 개인 기술이 감소한 것은 아닙니다.\n연구자·요리사 등은 아래 해당 분야를 비교하세요. 종합 별점이 모든 직무의 적합성을 뜻하지는 않습니다. 잠재력도 도달 보장이 아닙니다.", 12, 90).color = MenuTheme.Muted;
                 MenuTheme.Button(right, selected.interested ? "관심 등록 해제" : "관심 등록", () => { assessment.SetInterested(selected.target, !selected.interested); ShowAssessment(selected.target); });
                 for (var i = 0; i < r.Skills.Length; i++) MenuTheme.Text(right, SkillNames[i] + "  " + RatingStars(r.Skills[i]), 13, 24);
             }

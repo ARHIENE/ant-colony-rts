@@ -84,7 +84,7 @@ namespace AntColony.Core
                 if (b is Processor processor && processor.Current != null)
                     foreach (var input in processor.Current.inputs) wealth += ResourceValue(input.type, input.amount);
                 if (b is Kitchen kitchen)
-                    wealth += kitchen.Meals.staged + (kitchen.Current?.food ?? 0) + kitchen.Meals.meals.Count * GameBalance.MealFood;
+                    wealth += kitchen.Meals.ingredients.Sum(s => ResourceValue(s.type, s.amount)) + (kitchen.Current?.inputs.Sum(i => ResourceValue(i.type, i.amount)) ?? 0) + kitchen.Meals.meals.Count * GameBalance.MealFood;
                 if (b is Workshop workshop)
                     foreach (var job in workshop.Jobs.Where(j => j.materialsPaid))
                     {

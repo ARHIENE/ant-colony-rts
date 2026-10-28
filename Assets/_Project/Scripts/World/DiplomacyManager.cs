@@ -110,9 +110,9 @@ namespace AntColony.World
             if (!CanNegotiatePeace(c)) return false;
             var compensation = Reparations(c); var resources = ResourceManager.Instance;
             if (resources == null || compensation > 0 && (!resources.CanAfford(compensation, 0) || c.resources[0] > int.MaxValue - compensation)
-                || compensation < 0 && (c.resources[0] < -compensation || resources.GetCapacity(AntColony.Data.ResourceType.Food) - resources.GetAmount(AntColony.Data.ResourceType.Food) < -compensation)) return false;
+                || compensation < 0 && c.resources[0] < -compensation) return false;
             if (compensation > 0) { resources.TrySpend(compensation, 0, reason: ResourceReason.Trade); c.resources[0] += compensation; }
-            if (compensation < 0) { c.resources[0] += compensation; resources.Add(AntColony.Data.ResourceType.Food, -compensation, ResourceReason.Trade); }
+            if (compensation < 0) { c.resources[0] += compensation; StoreResource(AntColony.Data.ResourceType.Food, -compensation, ResourceReason.Trade); }
             c.war = false; c.nextOffer = Data.elapsed + DiplomacyRules.Month * 3;
             foreach (var raider in AntColony.Core.SceneObjects.All<WildMonster>())
                 if (raider.DiplomaticFactionId == c.id && string.IsNullOrEmpty(raider.RebelId)) Destroy(raider.gameObject);

@@ -50,7 +50,7 @@ namespace AntColony.UI
             slider.wholeNumbers = true; slider.minValue = 0; slider.maxValue = Mathf.RoundToInt(GameBalance.MaxTaxRate * 100); slider.value = Mathf.RoundToInt(pop.S.taxRate * 100);
             var input = MenuTheme.Input(p, Mathf.RoundToInt(pop.S.taxRate * 100).ToString()); input.name = "TaxInput";
             L.Place((RectTransform)input.transform, 436, 304, 70, 30); input.characterLimit = 3; input.textComponent.fontSize = 14;
-            void Tax() => taxLabel.text = $"<b>세금</b> {pop.S.taxRate:P0} · {ColonyPopulation.FocusName(pop.S.taxFocus)}  →  매일 식량 +{pop.DailyFood} · 재료 +{pop.DailySoil}"
+            void Tax() => taxLabel.text = $"<b>세금</b> {pop.S.taxRate:P0} · {ColonyPopulation.FocusName(pop.S.taxFocus)}  →  다음 식량 +{pop.NextFoodTax} · 재료 +{pop.NextMaterialTax}"
                 + $"  <color=#b1b3a7>(다음 납세 {pop.NextTaxSeconds:0}초 · 높을수록 민심↓)</color>";
             slider.onValueChanged.AddListener(v => { pop.SetTaxRate(v / 100f); input.SetTextWithoutNotify(((int)v).ToString()); Tax(); });
             input.onEndEdit.AddListener(v => { if (int.TryParse(v, out var n)) pop.SetTaxRate(n / 100f); slider.SetValueWithoutNotify(Mathf.RoundToInt(pop.S.taxRate * 100)); input.SetTextWithoutNotify(Mathf.RoundToInt(pop.S.taxRate * 100).ToString()); Tax(); });
@@ -63,6 +63,7 @@ namespace AntColony.UI
                 fx += 100;
             }
             Tax();
+            taxLabel.gameObject.AddComponent<MenuTooltip>().Message = "현재 인구·세율·생산력 유지 시 다음 지급 예상액입니다. 이미 누적된 세액과 남은 기간의 행정 성과 감소를 반영합니다. 인구·동원·방침이 바뀌면 이후 구간만 달라집니다.";
 
             L.Line(p, 24, 344, 792);
             L.Label(p, $"<b>병역 제도</b>  병력 상한 {pop.MobilizationLimit(EnemyAlert.CrisisActive)} (지금 출전 {pool.Assigned})", 15, 24, 356, 792, 26);

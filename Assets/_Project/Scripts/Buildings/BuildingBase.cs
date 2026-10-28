@@ -19,6 +19,10 @@ namespace AntColony.Buildings
         // 재료 업그레이드(2026-10-05 공통 원칙): 같은 가구를 더 좋은 재료로 다시 지어 올린 단계. 재료 목록·효과가 미정이라 저장만 한다.
         // TODO 재료 목록이 정해지면 FurnitureCatalog.MaterialUpgradable 가구에 업그레이드 명령·효과를 붙인다.
         public int MaterialTier { get; set; }
+        private int powerPriority;
+        public int PowerPriorityOverride { get => powerPriority; set => powerPriority = Mathf.Clamp(value, 0, 9); }
+        // 0은 구 저장/기본값. 식품 보존을 먼저 살리되 플레이어가 1~9로 바꿀 수 있다.
+        public int PowerPriority => powerPriority > 0 ? powerPriority : this is ColdStorage ? 8 : this is PowerNode ? 3 : 5;
         // 주재료(2026-10-10): 건설비의 재료 몫(soilCost)을 이 재료로 낸다. 내구도 배율·미관·단열·가연성이 재료를 따른다.
         public ResourceType MainMaterial { get; set; } = ResourceType.Soil;
         public MaterialInfo Material => MaterialInfo.For(MainMaterial);

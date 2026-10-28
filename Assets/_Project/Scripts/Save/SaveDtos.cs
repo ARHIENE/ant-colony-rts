@@ -46,6 +46,7 @@ namespace AntColony.Save
     public class TraitsDto
     {
         public int personality;
+        public Units.SpecialtyProgress specialties;
         public List<Units.CommanderTrait> values = new List<Units.CommanderTrait>();
         public List<Units.CommanderPassion> passions = new List<Units.CommanderPassion>();
     }
@@ -141,6 +142,7 @@ namespace AntColony.Save
         public bool labResearchAttack;
         public bool gateOpen = true; // Phase 5 성문
         public float powerCharge; // 2026-10-05 배터리 충전량
+        public int powerPriority; // 0 = 종류별 기본값(옛 저장), 1~9 = 플레이어 설정
         public float powerFuelSeconds;
         public Buildings.SupplyFacility.State supply;
         public Buildings.StarterCropBed.State starterCrop;
@@ -325,7 +327,7 @@ namespace AntColony.Save
         public bool loopCompleted, bossDefeated, defeated;
         public string defeatReason; // G11 패배 사유(구저장 없음)
         public string randomState;
-        public const int CurrentVersion = 20;
+        public const int CurrentVersion = 21;
         public List<World.Corpse.State> corpses = new List<World.Corpse.State>();
         public List<ConstructionDto> construction; // v17 건설·철거·이동·개보수 예정지(옛 저장은 null = 없음)
         public List<World.Critter.State> critters; // v16 목장 생물 개체(2026-10-11 개편: 나이·배고픔·길들임·돌봄·결박 등, 옛 필드는 같은 이름으로 읽힘)

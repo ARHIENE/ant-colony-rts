@@ -44,7 +44,7 @@ namespace AntColony.World
             ResourceType.Charcoal => "Proc_Charcoal", ResourceType.Coke => "Proc_Coke", ResourceType.Pottery => "Proc_Pottery",
             ResourceType.Chitin => "Mat_Chitin", ResourceType.Wax => "Mat_Wax", ResourceType.Component => "Part_Component",
             ResourceType.Water => "Water_Jug", ResourceType.Soil => "Resource_Soil",
-            _ => ProcessingResources.Model(type)
+            _ => CookedFoods.Model(type) ?? ProcessingResources.Model(type)
         };
 
         public static void Attach(ResourceNode node)

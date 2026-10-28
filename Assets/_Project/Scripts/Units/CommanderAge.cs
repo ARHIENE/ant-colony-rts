@@ -24,6 +24,7 @@ namespace AntColony.Units
         public static float AgingChance(float years) => years < 65 ? 0 : Mathf.Clamp01(.02f + (years - 65) * .002f);
         private void TickAge(float seconds)
         {
+            personalState.birthRecoverySeconds = Mathf.Max(0, personalState.birthRecoverySeconds - seconds);
             MigrateAge(personalState);
             if (AgeMonths < 0) personalState.ageMonths = Random.Range(18 * 12f, 30 * 12f);
             var previous = AgeMonths;

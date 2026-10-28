@@ -42,6 +42,7 @@ namespace AntColony.Boss.AoE
         public void CastAt(Vector3 center)
         {
             if (!isActiveAndEnabled || IsCasting) return;
+            BossTelegraphTiming.Prepare();
             StartCoroutine(CastRoutine(center));
         }
 

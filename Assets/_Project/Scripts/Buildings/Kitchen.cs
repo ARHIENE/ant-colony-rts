@@ -22,22 +22,30 @@ namespace AntColony.Buildings
             public List<Order> orders = new List<Order>(); public int current = -1; public bool paused, configured;
             public int staged; // 2026-10-15 요리사가 가져다 놓은 재료(식량). 조리 시작 때 소비, 철거 시 바닥으로
             public FoodLots stagedLots;
+            public List<ProductionInputs.Stock> ingredients; public int pending = -1;
         }
         public sealed class Recipe
         {
             public readonly string name; public readonly ResourceType output; public readonly int food; public readonly float seconds;
-            public Recipe(string name, ResourceType output, int food, float seconds) { this.name = name; this.output = output; this.food = food; this.seconds = seconds; }
+            public readonly (ResourceType type, int amount)[] inputs;
+            public Recipe(string name, ResourceType output, int food, float seconds) : this(name, output, seconds, (ResourceType.Food, food)) { }
+            public Recipe(string name, ResourceType output, float seconds, params (ResourceType, int)[] inputs)
+            { this.name = name; this.output = output; this.seconds = seconds; this.inputs = inputs; food = inputs.Sum(i => i.Item2); }
+            public string Cost => string.Join(" + ", inputs.Select(i => $"{i.type.DisplayName()} {i.amount}"));
         }
         // ponytail: 레시피·재료·시간은 잠정(기획 미정). 좋은 요리는 재료·시간을 두 배로 쓴다. 썩은 식품은 쓰지 않는다.
         public static readonly Recipe[] Recipes =
         {
             new Recipe("간단한 요리", ResourceType.SimpleMeal, (int)GameBalance.MealFood, 10),
             new Recipe("좋은 요리", ResourceType.FineMeal, (int)GameBalance.MealFood * 2, 20),
+            new Recipe("밥", ResourceType.CookedRice, 10f, (ResourceType.Rice, 2)),
+            new Recipe("납작빵", ResourceType.Flatbread, 12f, (ResourceType.WheatFlour, 1)),
+            new Recipe("볶음밥", ResourceType.FriedRice, 18f, (ResourceType.Rice, 2), (ResourceType.SunflowerOil, 1)),
         };
         public const int Capacity = 30;
         public const float CookSeconds = 20; // 가장 긴 레시피(저장 검증용)
         private State meals = new State();
-        public State Meals { get => meals; internal set { meals = value ?? new State(); Normalize(); } }
+        public State Meals { get { CaptureIngredients(); return meals; } internal set { meals = value ?? new State(); Normalize(); } }
         // 큰 식탁(가구 5차): 먹기 전용. 요리·비축은 하지 않고 장수가 와서 먹는 자리만 된다(CommanderMeal).
         public bool IsTable => Data != null && (Data.kind == BuildingKind.BigTable || Data.kind == BuildingKind.BanquetTable); // 연회용 긴 식탁도 먹기 전용
         public Recipe Current => meals.current >= 0 && meals.current < Recipes.Length ? Recipes[meals.current] : null;
@@ -50,6 +58,7 @@ namespace AntColony.Buildings
         private void Normalize()
         {
             meals.orders ??= new List<Order>(); meals.meals ??= new List<Meal>();
+            RestoreIngredients();
             if (!meals.configured && !IsTable) { meals.configured = true; if (meals.orders.Count == 0) meals.orders.Add(new Order { recipe = 0, mode = Workshop.OrderMode.KeepStock, amount = 10 }); }
             if (meals.paid && meals.current < 0) meals.current = 0; // 옛 저장: 값 치른 조리 = 간단한 요리 진행 중
             meals.paid = false;
@@ -67,43 +76,47 @@ namespace AntColony.Buildings
             + SceneObjects.All<Kitchen>().Count(k => k != this && k.PlannedOutput == Recipes[o.recipe].output) < o.amount : o.amount > 0;
         private bool Usable => !IsTable && !IsDead && isActiveAndEnabled;
         // 다음에 만들 주문(조리 중이 아닐 때). 재료는 조리대에 실제로 놓인 양(staged)으로만 시작한다.
-        private Order NextOrder => meals.orders.FirstOrDefault(o => o.recipe < Recipes.Length && Wants(o));
-        public bool NeedsCook => Usable && !meals.paused && (Current != null || NextOrder is Order o && meals.staged >= Recipes[o.recipe].food);
+        private Order NextOrder => meals.orders.FirstOrDefault(o => o.recipe >= 0 && o.recipe < Recipes.Length && (meals.pending >= 0 ? o.recipe == meals.pending : Wants(o)));
+        public bool NeedsCook => Usable && !meals.paused && (Current != null || NextOrder is Order o && inputs.Ready(Recipes[o.recipe].inputs));
         // 아직 가져와야 할 재료(운반 중인 몫 제외). 창고에 없으면 0.
-        private readonly Dictionary<object, int> inTransit = new Dictionary<object, int>();
-        private int Missing => !Usable || meals.paused || Current != null || !(NextOrder is Order o) ? 0
-            : Mathf.Max(0, Recipes[o.recipe].food - meals.staged - inTransit.Values.Sum());
-        public bool NeedsIngredients => Missing > 0 && (ResourceManager.Instance?.GetAmount(ResourceType.Food) ?? 0) > 0;
-        public int Staged => meals.staged;
-        public bool NextPickup(out ResourceType type, out int amount) { type = ResourceType.Food; amount = NeedsIngredients ? Missing : 0; return amount > 0; }
-        public bool BeginPickup(object courier, ResourceType type, int amount) { if (type != ResourceType.Food || amount <= 0 || !Usable) return false; inTransit[courier] = amount; return true; }
+        private readonly ProductionInputs inputs = new ProductionInputs();
+        private IEnumerable<(ResourceType type, int amount)> Required => Current == null && NextOrder is Order o ? Recipes[o.recipe].inputs : Array.Empty<(ResourceType, int)>();
+        public bool NeedsIngredients => NextPickup(out _, out _);
+        public int Staged => inputs.staged.Sum(s => s.amount);
+        public IReadOnlyList<ProductionInputs.Stock> IngredientStock => inputs.staged;
+        public IEnumerable<(ResourceType type, int amount)> IngredientNeeds => Required;
+        public string StagedDescription => string.Join(" + ", inputs.staged.Select(s => $"{s.type.DisplayName()} {s.amount}"));
+        public bool NextPickup(out ResourceType type, out int amount) { type = default; amount = 0; return Usable && !Paused && inputs.Next(Required, out type, out amount); }
+        public bool BeginPickup(object courier, ResourceType type, int amount)
+        {
+            var order = NextOrder;
+            if (!Usable || Current != null || order == null || !inputs.Reserve(courier, type, amount, Recipes[order.recipe].inputs)) return false;
+            meals.pending = order.recipe; return true;
+        }
         public int Deliver(object courier, ResourceType type, int amount)
             => DeliverFood(courier, type, amount, null);
-        public void AbortPickup(object courier) => inTransit.Remove(courier);
+        public void AbortPickup(object courier) => inputs.Abort(courier);
         // 철거·이동: 놓아둔 재료는 그대로 바닥에(손실 없음).
         internal void EjectStaged()
         {
-            if (meals.staged > 0) AntColony.World.DiplomacyManager.DropFloor(ResourceType.Food, meals.staged, Position + Vector3.right * 1.5f, meals.stagedLots);
-            meals.staged = 0; meals.stagedLots = null; inTransit.Clear();
+            inputs.Drop(Position); meals.pending = -1; CaptureIngredients();
         }
+        public void RemoveOrder(Order order) { if (order != null && meals.orders.Remove(order) && order.recipe == meals.pending && !meals.orders.Any(o => o.recipe == meals.pending)) EjectStaged(); }
         // 기다리는 이유(작업 UI): 정지 / 재료 부족 / 재료 운반 대기 / 목표 달성.
         public string WaitReason => !Usable ? null : meals.paused ? "일시정지" : Current != null || NeedsCook ? null
-            : meals.orders.Count == 0 ? "생산 목록 없음" : NextOrder == null ? "목표 달성" : NeedsIngredients || inTransit.Count > 0 ? "재료 운반 대기" : "재료 부족";
+            : meals.orders.Count == 0 ? "생산 목록 없음" : NextOrder == null ? "목표 달성" : "재료 부족/배송 대기";
 
         private bool StartNext()
         {
-            foreach (var o in meals.orders.ToArray())
-            {
-                if (o.recipe >= Recipes.Length) continue;
-                var r = Recipes[o.recipe];
-                if (!Wants(o)) continue;
-                if (meals.staged < r.food) return false; // 첫 주문의 재료가 모일 때까지 기다린다
-                meals.stagedLots?.Take(r.food); meals.staged -= r.food; CampaignHistory.Resource(ResourceType.Food, r.food, true, ResourceReason.Crafting);
-                meals.current = o.recipe; meals.progress = 0;
-                if (o.mode == Workshop.OrderMode.Count && --o.amount <= 0) meals.orders.Remove(o);
-                return true;
-            }
-            return false;
+            var o = NextOrder;
+            if (o == null || !inputs.Consume(Recipes[o.recipe].inputs)) return false;
+            var r = Recipes[o.recipe];
+            foreach (var input in r.inputs) CampaignHistory.Resource(input.type, input.amount, true, ResourceReason.Crafting);
+            // 비용이 낮아진 옛 저장의 초과 도착 재료를 주문 없는 조리대에 가두지 않는다.
+            if (inputs.staged.Count > 0) inputs.Drop(Position);
+            meals.current = o.recipe; meals.progress = 0; meals.pending = -1; CaptureIngredients();
+            if (o.mode == Workshop.OrderMode.Count && --o.amount <= 0) meals.orders.Remove(o);
+            return true;
         }
         public bool Work(CommanderAnt c, float seconds)
         {
@@ -123,9 +136,9 @@ namespace AntColony.Buildings
         public void CancelCurrent() { meals.current = -1; meals.progress = 0; }
 
         // 식중독 확률용 요리 기술. ponytail: 요리 종류별 최근 요리사 기술의 이동 평균. 개별 요리마다 기술을 들고 다니게 하려면 FoodLots에 붙인다.
-        private static readonly float[] cookedSkill = { 5, 5 };
-        private static void RecordSkill(ResourceType t, int skill) { var i = t == ResourceType.FineMeal ? 1 : 0; cookedSkill[i] = Mathf.Lerp(cookedSkill[i], skill, .3f); }
-        public static int SkillOf(ResourceType t) => Mathf.RoundToInt(cookedSkill[t == ResourceType.FineMeal ? 1 : 0]);
+        private static readonly Dictionary<ResourceType, float> cookedSkill = new Dictionary<ResourceType, float>();
+        private static void RecordSkill(ResourceType t, int skill) { cookedSkill[t] = Mathf.Lerp(SkillOf(t), skill, .3f); }
+        public static int SkillOf(ResourceType t) => cookedSkill.TryGetValue(t, out var skill) ? Mathf.RoundToInt(skill) : 5;
 
         // 옛 저장의 비축 식사(새 요리는 창고 자원).
         public bool HasMeal => !IsDead && isActiveAndEnabled && meals.meals.Count > 0;
@@ -139,6 +152,7 @@ namespace AntColony.Buildings
             meals.meals.Remove(best); return best;
         }
         public static bool Valid(State state) => state != null && state.meals != null && state.meals.Count <= Capacity
+            && ValidIngredients(state)
             && state.staged >= 0 && (state.stagedLots == null || state.stagedLots.Valid && state.stagedLots.Total <= state.staged) && !float.IsNaN(state.progress) && state.progress >= 0 && state.progress < CookSeconds && (state.paid || state.current >= 0 || state.progress == 0)
             && state.current >= -1 && state.current < Recipes.Length && (state.orders == null || state.orders.Count <= Workshop.MaxOrders && state.orders.TrueForAll(o => o != null
                 && o.recipe >= 0 && o.recipe < Recipes.Length && o.amount >= 1 && o.amount <= Workshop.MaxOrderAmount && Enum.IsDefined(typeof(Workshop.OrderMode), o.mode)))

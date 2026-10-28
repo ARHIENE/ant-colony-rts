@@ -1,4 +1,5 @@
 using System.Linq;
+using System.Collections.Generic;
 using AntColony.Buildings;
 using AntColony.Core;
 using AntColony.Data;
@@ -14,6 +15,27 @@ namespace AntColony.UI
     {
         private ScienceTechnology? researchPick;
         private int researchEra = 1;
+
+        private static string ResearchBudgetText(CampaignResearch r, ScienceDefinition target)
+        {
+            var remaining = new HashSet<ScienceTechnology>();
+            void Visit(ScienceTechnology t)
+            {
+                if (r.Has(t) || !remaining.Add(t)) return;
+                foreach (var p in CampaignResearch.Technologies[(int)t].Prerequisites) Visit(p);
+            }
+            Visit(target.Technology);
+            int food = 0, material = 0, special = 0; float work = 0;
+            foreach (var t in remaining)
+            {
+                var d = CampaignResearch.Technologies[(int)t];
+                var progress = r.Active?.Technology == t ? r.Progress : r.SavedProgress(t);
+                work += Mathf.Max(0, d.Work - Mathf.Max(0, progress));
+                if (progress >= 0) continue; // 이미 지불한 진행/중단 연구는 다시 비용에 넣지 않는다.
+                food += d.Food; material += d.Soil; special += d.Special;
+            }
+            return $"미완 선행 포함 {remaining.Count}개 · 추가 식량 {food} / 재료 {material} / Special {special}\n남은 연구량 {work:0} · 담당 인원/등급/생활 시간에 따라 소요 시간 변동\n연구소 승급·건설·표본/핵심물 확보 비용은 별도";
+        }
 
         // 실제 코드(ScienceEffects 등)에 연결된 해금 효과만 적는다.
         private static string ResearchEffect(ScienceTechnology t) => t switch
@@ -123,6 +145,7 @@ namespace AntColony.UI
                 L.Button(actions, "Stop Research", "연구 정지", 118, 0, 110, 32, () => { r.SetPaused(true); Science(); }, "진행도를 보존합니다.")
                     .interactable = r.Active == def && !r.Paused;
                 if (reason != "" && r.Active != def) MenuTheme.Text(content, reason, 12, 36).color = MenuTheme.Warning;
+                MenuTheme.Text(content, ResearchBudgetText(r, def), 12, 66).color = MenuTheme.Muted;
             }
 
             // 하단: 연구소별 담당 장수·대기 사유

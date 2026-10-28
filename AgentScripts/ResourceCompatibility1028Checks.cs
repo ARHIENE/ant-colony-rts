@@ -16,7 +16,7 @@ public static class ResourceCompatibility1028Checks
         var ship = new TransportDto { cargoAmounts = new int[60], cargoFood = 3 }; ship.cargoAmounts[0] = 3;
         file.world.transports.Add(ship); file.version = 19;
         Check(SaveValidator.Validate(file, out error), "v19 cargo migration fully validates " + error);
-        Check(file.version == 20 && ship.cargoAmounts.Length == StoreBin.TypeCount && ship.cargoAmounts[0] == 3 && ship.cargoAmounts.Skip(60).All(n => n == 0), "cargo padded with zero, previous quantities retained");
+        Check(file.version == SaveFileV1.CurrentVersion && ship.cargoAmounts.Length == StoreBin.TypeCount && ship.cargoAmounts[0] == 3 && ship.cargoAmounts.Skip(60).All(n => n == 0), "cargo padded with zero, previous quantities retained");
         ship.cargoAmounts = new int[StoreBin.TypeCount + 1]; file.version = 19;
         Check(!SaveValidator.Validate(file, out error), "oversized cargo rejected");
         var bin = new StoreBin(); var dto = new StoreBin.Dto { amounts = new int[60], allowed = unchecked((long)(StoreBin.DefaultAllowed & ~StoreBin.Bit(R.Sand))), extraForbidden = null }; dto.amounts[(int)R.Iron] = 7;

@@ -49,9 +49,9 @@ namespace AntColony.Save
         internal static int SiteIndex(ExpeditionSite site) => site == null ? -1 : WorldMapManager.Instance.Sites.ToList().IndexOf(site);
         internal static int ShipIndex(ExpeditionTransport ship) => ship == null ? -1 : WorldMapManager.Instance.Transports.Where(s => s != null).ToList().IndexOf(ship);
         internal static TraitsDto Traits(CommanderTraits t) => new TraitsDto { personality = (int)t.Personality,
-            values = new List<CommanderTrait>(t.values), passions = t.passions.Select(p => new CommanderPassion { activity = p.activity, flame = p.flame }).ToList() };
+            values = new List<CommanderTrait>(t.values), specialties = SpecialtyProgress.Copy(t.specialties), passions = t.passions.Select(p => new CommanderPassion { activity = p.activity, flame = p.flame }).ToList() };
         internal static CommanderTraits Traits(TraitsDto t) => new CommanderTraits((CommanderPersonality)t.personality)
-            { values = new List<CommanderTrait>(t.values), passions = t.passions.Select(p => new CommanderPassion { activity = p.activity, flame = p.flame }).ToList() };
+            { values = new List<CommanderTrait>(t.values), specialties = SpecialtyProgress.Copy(t.specialties), passions = t.passions.Select(p => new CommanderPassion { activity = p.activity, flame = p.flame }).ToList() };
 
         public static bool CanSave(out string error)
         {

@@ -20,7 +20,7 @@ namespace AntColony.UI
             if (p.Data.kind == AntColony.Data.BuildingKind.Carpentry)
                 MenuTheme.Button(content, "돌 도구 · 단궁 제작", GroundCrafting);
             MenuTheme.Text(content, p.Current != null ? $"진행 중: {p.Current.name}" + (p.Brewing ? "" : $" {p.Progress:P0}") : "진행 중인 가공 없음", 19, 45);
-            MenuTheme.Text(content, p.WaitReason, 17, 35);
+            MenuTheme.Text(content, WorkDiagnostics.Describe(p), 15, 68);
             if (p.Brewing) MenuTheme.Text(content, "원료 투입 후 게임 1일 무인 발효 · 완료 후 장수가 회수합니다.\n시작 후 취소하면 투입 원료는 돌아오지 않습니다.", 14, 58);
             if (p.Chemical) MenuTheme.Text(content, $"내부 원유 {p.BufferedOil} · 플라스틱 취소: 원유 70% 내부 보관 / 고무 취소: 수액 70% 바닥 반환", 14, 58);
             if (p.Current != null) MenuTheme.Button(content, p.Brewing ? fermentationCancelConfirm == p ? "정말 취소 · 투입 원료 소실" : "발효 취소 (원료 소실·확인 필요)" : "미완성품 취소 · 일반 70% / 핵심 100% 반환", () => {

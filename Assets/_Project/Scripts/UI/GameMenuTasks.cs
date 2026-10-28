@@ -23,7 +23,7 @@ namespace AntColony.UI
             .Concat(AntColony.World.ResourceNode.Available.Where(n => n != null && n.NeedsDesignation && n.WorkRequested));
 
         private static string TaskName(Component c) => c is AntColony.World.ResourceNode n ? n.ResourceType.DisplayName() + " " + n.WorkName : c is BuildingConstructionSite s ? s.name.Replace("ConstructionSite", " 건설 예정지") : c is Kitchen k ? k.Data.displayName + " 요리" : c is BuildingBase b ? b.Data.displayName : c.name;
-        private static string TaskWait(Component c) => c is SupplyFacility f ? f.ContainerStatus : c is Processor p ? p.WaitReason : c is Workshop w ? w.WaitReason : c is AntColony.World.ResourceNode n ? n.WorkWaitReason : c is BuildingConstructionSite s ? BuildingConstructionSite.Describe(s.WaitReason) : c is Kitchen k ? k.WaitReason ?? "진행 중" : "";
+        private static string TaskWait(Component c) => AntColony.Core.WorkDiagnostics.Describe(c);
         private static bool TaskPaused(Component c) => c is SupplyFacility f ? f.Paused : c is Processor p ? p.Paused : c is Workshop w ? w.Paused : c is AntColony.World.ResourceNode n ? n.WorkPaused : c is BuildingConstructionSite s ? s.Paused : c is Kitchen k && k.Paused;
         private static void TaskPause(Component c, bool on) { if (c is SupplyFacility f) f.PauseContainers(on); else if (c is Processor p) p.Paused = on; else if (c is Workshop w) w.Paused = on; else if (c is AntColony.World.ResourceNode n) n.PauseWork(on); else if (c is BuildingConstructionSite s) s.SetPaused(on); else if (c is Kitchen k) k.Paused = on; }
         // 손실이 생기는 취소: 시작된 요리(소비한 재료). 예정지 취소는 재료를 전부 바닥에 돌려준다.
@@ -46,7 +46,7 @@ namespace AntColony.UI
             var window = V5Window("작업 관리", $"선택한 작업 {taskPick.Count}개 · 우선순위 높은 순(9 최우선)");
             content = V5Section(window, "막힌 작업 / 일괄 지시", 20, 104, 520, 544);
             var blocked = taskPick.Select(TaskWait).Where(w => w != "진행 중").GroupBy(w => w).Select(g => $"{g.Key} {g.Count()}").ToList();
-            MenuTheme.Text(content, blocked.Count > 0 ? "막힌 작업: " + string.Join(" · ", blocked) : "막힌 작업 없음", 19, 45);
+            MenuTheme.Text(content, blocked.Count > 0 ? "작업 상태: " + string.Join(" · ", blocked) : "대기 작업 없음", 15, 110);
             MenuTheme.Button(content, $"지정할 단계: {GatherDesignation.PriorityLabel} (눌러서 바꾸기)", () => { GatherDesignation.CyclePriority(); ShowTasks(taskPick); });
             MenuTheme.Button(content, $"선택 전체에 {GatherDesignation.PriorityLabel} 적용", () => {
                 foreach (var c in taskPick.Where(c => c != null))
@@ -75,7 +75,7 @@ namespace AntColony.UI
                 var level = WorkPriorities.Yellow(row) ? "노란 경보" : "우선 " + WorkPriorities.Level(row);
                 var amounts = TaskAmounts(row);
                 MenuTheme.Button(content, "위치 → " + TaskName(row), () => { Resume(); AntColony.Core.SceneObjects.Any<AntColony.Camera.IsometricCameraController>()?.FocusOn(row.transform.position); });
-                MenuTheme.Text(content, $"{TaskName(row)} · {level} · {TaskWait(row)}" + (amounts.Length > 0 ? "\n" + amounts : ""), 15, amounts.Length > 0 ? 44 : 24);
+                MenuTheme.Text(content, $"{TaskName(row)} · {level} · {TaskWait(row)}" + (amounts.Length > 0 ? "\n" + amounts : ""), 15, amounts.Length > 0 ? 86 : 64);
                 foreach (var crew in TaskCrew(row).ToList())
                 {
                     var who = crew;

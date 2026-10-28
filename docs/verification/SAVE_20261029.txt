@@ -1,0 +1,83 @@
+Temp/specialty1028-result.json
+{
+  "success": true,
+  "command": "command run_script",
+  "data": {
+    "command": "run_script",
+    "parameters": {
+      "file": "AgentScripts/Specialty1028Checks.cs",
+      "entry": "Specialty1028Checks.Main",
+      "timeout_ms": "240000"
+    },
+    "result": {
+      "diagnostics": [],
+      "compileMs": 141,
+      "executeMs": 86735,
+      "assemblyName": "PipelineRunScript_Specialty1028Checks_3a4fcc4c9da74bb0a19c6387c539b720",
+      "success": true,
+      "result": "PASS 51 specialty acquisition checks"
+    },
+    "target": {
+      "host": "127.0.0.1",
+      "port": 7800,
+      "projectPath": "E:\\Git\\ant"
+    }
+  },
+  "errors": [],
+  "warnings": []
+}
+
+Temp/storagefilters1029-result.json
+{
+  "success": true,
+  "command": "command run_script",
+  "data": {
+    "command": "run_script",
+    "parameters": {
+      "file": "AgentScripts/StorageFilters1029Checks.cs",
+      "entry": "StorageFilters1029Checks.Main",
+      "timeout_ms": "240000"
+    },
+    "result": {
+      "diagnostics": [],
+      "compileMs": 1435,
+      "executeMs": 64233,
+      "assemblyName": "PipelineRunScript_StorageFilters1029Checks_4254ca36784c4b11949cf8a929cd8332",
+      "success": true,
+      "result": "PASS 21 storage filter checks"
+    },
+    "target": {
+      "host": "127.0.0.1",
+      "port": 7800,
+      "projectPath": "E:\\Git\\ant"
+    }
+  },
+  "errors": [],
+  "warnings": []
+}
+
+Temp/review1029-build-summary.json
+{
+  "status": "completed",
+  "buildId": "build_227d7c36b46e",
+  "result": "Succeeded",
+  "platform": "StandaloneWindows64",
+  "totalSizeBytes": 304777241,
+  "buildTimeMs": 142527,
+  "totalWarnings": 518,
+  "totalErrors": 0
+}
+
+Temp/review1029-startup-summary.json
+{
+  "pid": 28696,
+  "responding": true,
+  "existingJsonFiles": 3,
+  "changedJsonFiles": 0,
+  "newJsonFiles": 0,
+  "errors": [
+    "d3d12: failed to query info queue interface (0x80004002).",
+    "Failed to create agent because there is no valid NavMesh"
+  ]
+}
+

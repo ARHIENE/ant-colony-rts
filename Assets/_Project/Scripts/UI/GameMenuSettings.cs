@@ -107,7 +107,7 @@ namespace AntColony.UI
                     Options("자동 저장", new[] { true, false }, b => b ? "켜기" : "끄기", s.autoSaveEnabled, (v, b) => v.autoSaveEnabled = b);
                     Options("자동 저장 간격", new[] { 3f, 5f, 10f, 15f, 30f }, m => m + "분", s.autoSaveMinutes, (v, m) => v.autoSaveMinutes = m);
                     Options("알림 표시 시간", new[] { 3f, 6f, 10f, 15f }, t => t + "초", s.toastSeconds, (v, t) => v.toastSeconds = t);
-                    Options("새 위협 시 자동 정지", new[] { true, false }, b => b ? "켜기" : "끄기", s.autoPauseThreat, (v, b) => v.autoPauseThreat = b);
+                    Options("새 위협 자동 정지 · 보스 예고 1배속", new[] { true, false }, b => b ? "켜기" : "끄기", s.autoPauseThreat, (v, b) => v.autoPauseThreat = b);
                     Options("장수 쓰러짐 시 자동 정지", new[] { true, false }, b => b ? "켜기" : "끄기", s.autoPauseDowned, (v, b) => v.autoPauseDowned = b);
                     Options("로켓 파괴 시 자동 정지", new[] { true, false }, b => b ? "켜기" : "끄기", s.autoPauseRocket, (v, b) => v.autoPauseRocket = b);
                     Options("처음 보는 기능 도움말", new[] { true, false }, b => b ? "켜기" : "끄기", s.firstHints, (v, b) => v.firstHints = b);

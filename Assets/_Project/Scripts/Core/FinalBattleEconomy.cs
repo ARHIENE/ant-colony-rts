@@ -26,8 +26,7 @@ namespace AntColony.Core
         public static float HomeDailyFood => CommanderRoster.Instance == null ? 0 : CommanderRoster.Instance.Commanders
             .Where(c => c != null && c.isActiveAndEnabled && c.IsColonyMember && !c.IsDead && !c.IsAwayFromHome)
             .Sum(AntColony.World.ExpeditionRules.FoodPerDay);
-        public static int FoodOnHand => (ResourceManager.Instance == null ? 0 : new[] {
-                AntColony.Data.ResourceType.Food, AntColony.Data.ResourceType.SimpleMeal, AntColony.Data.ResourceType.FineMeal }
+        public static int FoodOnHand => (ResourceManager.Instance == null ? 0 : CookedFoods.MealTypes.Where(t => t.IsEdible())
                 .Sum(ResourceManager.Instance.GetAmount))
             + (CommanderRoster.Instance == null ? 0 : CommanderRoster.Instance.Commanders
                 .Where(c => c != null && c.isActiveAndEnabled && c.IsColonyMember && !c.IsDead && !c.IsAwayFromHome)

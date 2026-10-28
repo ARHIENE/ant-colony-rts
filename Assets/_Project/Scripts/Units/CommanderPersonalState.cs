@@ -31,6 +31,7 @@ namespace AntColony.Units
         public float craftProgress, researchProgress;
         public float beautyExposure; // 생활 공간 미관의 체류 평균(2026-10-10)
         public float ageMonths = -1, lifespanMonths; // Phase 4 나이(개월)
+        public float birthRecoverySeconds; // 부모별 출산 회복. 옛 저장은 0, 양육실 교체/짝 변경으로 초기화하지 않는다.
         public int ageScaleVersion;
         public List<string> deathEvents = new List<string>();
         public int craftLevel, researchLevel;
@@ -104,7 +105,7 @@ namespace AntColony.Units
             foreach (var r in relations) if (r == null || string.IsNullOrEmpty(r.otherId) || !Finite(r.value) || r.value < -100 || r.value > 100 || !Finite(r.nearbySeconds) || r.nearbySeconds < 0 || !Finite(r.quarrelSeconds) || r.quarrelSeconds < 0 || !Finite(r.duelSeconds) || r.duelSeconds < 0) return false;
             var slots = new HashSet<EquipmentSlot>();
             foreach (var e in equipment) if (e == null || !e.IsValid || !slots.Add(e.slot)) return false;
-            foreach (float value in new[] { workedSeconds, breakCheck, lowMoodSeconds, captiveSeconds, unsupportedSeconds, breakRemaining, rageRemaining, rewardCooldown, lastCombatSeconds, homeSeconds, craftProgress, researchProgress }) if (!Finite(value) || value < 0) return false;
+            foreach (float value in new[] { workedSeconds, breakCheck, lowMoodSeconds, captiveSeconds, unsupportedSeconds, breakRemaining, rageRemaining, rewardCooldown, lastCombatSeconds, homeSeconds, craftProgress, researchProgress, birthRecoverySeconds }) if (!Finite(value) || value < 0) return false;
             if (craftLevel < 0 || craftLevel > 5 || researchLevel < 0 || researchLevel > 5 || !Enum.IsDefined(typeof(MentalBreak), mentalBreak)) return false;
             if (!Finite(moldLoss) || moldLoss < 0 || moldLoss >= 20 || !Finite(moldSpread) || moldSpread < 0 || moldSpread >= 30
                 || !Finite(moldTreatment) || moldTreatment < 0 || moldTreatment > 60) return false;

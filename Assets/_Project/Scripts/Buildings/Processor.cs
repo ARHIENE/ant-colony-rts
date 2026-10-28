@@ -79,6 +79,10 @@ namespace AntColony.Buildings
         public void AgeIngredients(float seconds) => inputs.Age(seconds, Position);
         public void AbortPickup(object courier) => inputs.Abort(courier);
         public bool NeedsIngredients => NextPickup(out _, out _);
+        public IReadOnlyList<ProductionInputs.Stock> IngredientStock => inputs.staged;
+        public IEnumerable<(ResourceType type, int amount)> IngredientNeeds => Current == null
+            && (PendingOrder ?? state.orders.FirstOrDefault(o => o.recipe >= 0 && o.recipe < Recipes.Count && Wants(o, Recipes[o.recipe]))) is Order order
+            ? Recipes[order.recipe].inputs : Array.Empty<(ResourceType, int)>();
         public IReadOnlyList<Recipe> Recipes => RecipesFor(Data != null ? Data.kind : default);
         public List<Order> Orders => state.orders;
         public Recipe Current => state.current >= 0 && state.current < Recipes.Count ? Recipes[state.current] : null;

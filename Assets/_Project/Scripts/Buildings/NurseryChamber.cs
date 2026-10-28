@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using AntColony.Core;
 using AntColony.Data;
 using AntColony.Units;
@@ -114,7 +115,9 @@ namespace AntColony.Buildings
         // 연인(서로 관계 70 이상, 가족 아님)만 호감도가 쌓인다. 중상이면 정지, 기분에 따라 속도가 바뀐다.
         public static float BreedMultiplier(CommanderAnt first, CommanderAnt second)
         {
-            if (!IsLover(first, second) || first.IsDead || second.IsDead
+            if (first == null || second == null || first.IsChild || second.IsChild
+                || first.PersonalState.birthRecoverySeconds > 0 || second.PersonalState.birthRecoverySeconds > 0
+                || !IsLover(first, second) || first.IsDead || second.IsDead
                 || first.PersonalState.HasTreatableInjury || second.PersonalState.HasTreatableInjury) return 0f;
             if (first.Mood <= GameBalance.SadMood || second.Mood <= GameBalance.SadMood) return GameBalance.SadBreedMultiplier;
             if (first.Mood >= GameBalance.HappyMood && second.Mood >= GameBalance.HappyMood) return GameBalance.HappyBreedMultiplier;
@@ -151,6 +154,7 @@ namespace AntColony.Buildings
             child.SetBorn(); // Phase 4: 어린 장수로 태어난다.
             foreach (var parent in new[] { first, second })
             {
+                parent.PersonalState.birthRecoverySeconds = GameBalance.BirthRecoverySeconds;
                 parent.PersonalState.Relation(child.PersonalState.id).value = GameBalance.ParentChildRelation;
                 parent.PersonalState.Relation(child.PersonalState.id).family = true;
                 child.PersonalState.Relation(parent.PersonalState.id).value = GameBalance.ParentChildRelation;
@@ -210,7 +214,8 @@ namespace AntColony.Buildings
                 : "범위 안에 연인 쌍이 없습니다";
             var head = Primary == this ? "양육실" : "양육실 (다른 양육실에서 진행 중)";
             return $"{head}  장수 {count}/{maxCommanders}명  출산 비용 식량 {birthFoodCost}  출산 {BirthCount}회\n"
-                + $"양육실 {GameBalance.NurseryRadius:0.#}m 안의 연인(관계 {GameBalance.LoverRelation:0} 이상): {pair}";
+                + $"양육실 {GameBalance.NurseryRadius:0.#}m 안의 성인 연인(관계 {GameBalance.LoverRelation:0} 이상): {pair}\n"
+                + $"출산 후 부모마다 {GameBalance.BirthRecoverySeconds / GameCalendar.SecondsPerDay:0}일 회복 · 회복 중인 장수 {CommanderRoster.Instance?.Commanders.Count(c => c.PersonalState.birthRecoverySeconds > 0) ?? 0}명";
         }
 
         // 가장 많이 쌓인 쌍 하나. 표시용이라 정렬 없이 한 번 훑는다.

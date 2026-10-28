@@ -35,6 +35,8 @@ namespace AntColony.Units
         public const int MaxTraits = 4; // 등급 무관 합계 최대 4개.
         public List<CommanderTrait> values = new List<CommanderTrait>();
         public List<CommanderPassion> passions = new List<CommanderPassion>();
+        public SpecialtyProgress specialties; // 실제 성장 전에는 기록을 만들지 않는다(특성 후보 검사도 이 클래스를 쓴다).
+        public bool CanInherit(CommanderTrait t) => specialties?.version == 1 ? specialties.innate.Contains(t) : Has(t);
         public CommanderPersonality Personality => Has(CommanderTrait.Brave) ? CommanderPersonality.Brave : Has(CommanderTrait.Cautious) ? CommanderPersonality.Cautious : Has(CommanderTrait.Loyal) ? CommanderPersonality.Devoted : CommanderPersonality.Balanced;
         // Phase 3(2026-10-01): 충성심 삭제. 기분이 이 값 이하로 한 달 이어지면 탈주·반란 판정. 충직은 더 버티고 교활은 쉽게 떠난다(잠정).
         public int DepartureMood => Has(CommanderTrait.Loyal) ? 10 : Has(CommanderTrait.Cunning) ? 30 : 20;
@@ -99,7 +101,7 @@ namespace AntColony.Units
                 var pool = Core.TraitRules.Candidates(result, grade, starting);
                 var inherited = new List<CommanderTrait>();
                 if (first != null && second != null)
-                    foreach (var t in pool) if (first.Has(t) || second.Has(t)) inherited.Add(t);
+                    foreach (var t in pool) if (first.CanInherit(t) || second.CanInherit(t)) inherited.Add(t);
                 if (inherited.Count > 0 && UnityEngine.Random.value < .5f) pool = inherited;
                 result.TryAdd(pool[UnityEngine.Random.Range(0, pool.Count)]);
             }

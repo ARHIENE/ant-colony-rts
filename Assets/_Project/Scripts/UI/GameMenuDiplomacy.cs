@@ -101,7 +101,7 @@ namespace AntColony.UI
             { var b = L.Button(p, name, label, 872, y, 460, 40, action); b.interactable = enabled; y += 46; return b; }
             Act("선전포고", "선전포고", () => { if (!d.DeclareWar(s)) ToastManager.Show("불가침 협정 중에는 선전포고할 수 없습니다."); Diplomacy(s); }, !s.war)
                 .GetComponentInChildren<Text>().color = MenuTheme.Danger;
-            Act("평화 협상", "평화 협상 · 배상 식량 " + d.Reparations(s), () => { if (!d.MakePeace(s)) ToastManager.Show("선전포고 후 10분 및 배상 자원·창고 공간을 확인하세요."); Diplomacy(s); }, d.CanNegotiatePeace(s));
+            Act("평화 협상", "평화 협상 · 배상 식량 " + d.Reparations(s), () => { if (!d.MakePeace(s)) ToastManager.Show("선전포고 후 10분 및 양쪽의 배상 자원을 확인하세요. 받는 배상금의 창고 초과분은 바닥에 둡니다."); Diplomacy(s); }, d.CanNegotiatePeace(s));
             Act("거래 제안", "거래 제안", () => OpenTrade(s), !s.war);
             Act("협정 제안", "협정 제안", () => { tradeTab = 4; OpenTrade(s); }, !s.war);
             Act("요구", "요구 · 최후통첩", () => { tradeTab = 0; OpenTalk(d.StartTalk(s, TalkKind.Demand)); }, !s.war);

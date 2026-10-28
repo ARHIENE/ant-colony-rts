@@ -1,4 +1,6 @@
 using System.Linq;
+using AntColony.Core;
+using AntColony.Data;
 using AntColony.Units;
 using L = AntColony.UI.MenuLayout;
 
@@ -44,6 +46,14 @@ namespace AntColony.UI
             });
             if (target != null)
                 MenuTheme.Button(content, "공통 식단 따르기", () => { target.PersonalState.meal.diet = -1; ShowDiet(target); }).interactable = target.PersonalState.meal.diet >= 0;
+            var observer = target ?? SortedCommanders().FirstOrDefault(c => c.IsColonyMember && !c.IsDead && !c.IsAwayFromHome);
+            var food = FoodAvailability.Read(observer);
+            MenuTheme.Text(content, "식량 상태" + (observer != null ? " · " + observer.CommanderName + " 기준" : ""), 18, 32);
+            MenuTheme.Text(content, food.Summary, 15, 65);
+            MenuTheme.Text(content, "가용 = 이 장수의 식단·창고 접근 조건. 건설 배정은 창고 재고에 포함됩니다. 바닥·운반·조리대·수송칸은 서로 다른 실물이며 합산하지 않습니다. 부패 임박은 창고에서 1일 이내 남은 물량입니다.", 14, 80);
+            foreach (var f in food.rows.Where(r => r.HasStock))
+                MenuTheme.Text(content, $"{f.type.DisplayName()}{(!f.type.IsEdible() ? " (조리 재료/비식사용)" : "")} · 창고 {f.stored} / 가용 {f.available} / 건설 배정 {f.construction}\n조리대 {f.cooking} · 바닥 {f.floor} · 운반 {f.carried} · 수송칸 {f.transport} · 타 지역 창고 {f.remote} · 부패 임박 {f.spoiling}", 14, 62);
+            MenuTheme.Button(content, "식량 상태 새로고침", () => ShowDiet(target));
             refreshDutyScreen = null;
             V5Fit(window);
         }

@@ -23,10 +23,10 @@ namespace AntColony.Units
             var bins = rm == null ? new StoreBin[0] : rm.Bins.Where(b => b.Spendable && TryWorkApproach(b.Position, out _)).ToArray();
             var kitchens = AntColony.Core.SceneObjects.All<Kitchen>()
                 .Where(k => k.BestMeal(Diet) != null && TryWorkApproach(k.Position, out _)).ToArray();
-            foreach (var type in new[] { ResourceType.FineMeal, ResourceType.SimpleMeal, ResourceType.Food, ResourceType.RottenFood })
+            foreach (var type in AntColony.Data.CookedFoods.MealTypes)
             {
                 if (m.pickedFood > 0 && m.pickedType != (int)type) continue;
-                var quality = type == ResourceType.FineMeal ? 2 : type == ResourceType.SimpleMeal ? 1 : 0;
+                var quality = AntColony.Data.CookedFoods.Quality(type);
                 var kitchen = m.pickedFood > 0 ? null : kitchens.Where(k => k.BestMeal(Diet).quality >= quality && k.BestMeal(Diet).quality > 0)
                     .OrderByDescending(k => k.BestMeal(Diet).quality).ThenBy(k => (k.Position - Position).sqrMagnitude).FirstOrDefault();
                 var allowed = type == ResourceType.RottenFood || DietAllows(quality == 2 ? DietFine : quality == 1 ? DietSimple : DietRaw);

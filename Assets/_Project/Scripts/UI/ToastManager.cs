@@ -16,7 +16,7 @@ namespace AntColony.UI
         public const int MaxVisible = 5;
         public const float WarningSeconds = 10f, HintSeconds = 10f;
         public static readonly Color Mint = MenuTheme.Hex(0x6fd6b8);
-        private sealed class Toast { public string key, message, actionLabel; public System.Action action; public ToastKind kind; public int count = 1; public float remaining; public bool crisis, pinned; }
+        private sealed class Toast { public string key, message, actionLabel; public System.Action action; public ToastKind kind; public int count = 1; public float remaining; public bool crisis, pinned, seen; }
 
         private static ToastManager instance;
         private readonly List<Toast> toasts = new List<Toast>();
@@ -27,9 +27,12 @@ namespace AntColony.UI
         private readonly Dictionary<string, (string message, System.Action action, string label)> pins = new Dictionary<string, (string, System.Action, string)>();
         private RectTransform panel, list;
         private bool hovered, dirty = true;
+        private bool expanded;
 
         public static int Count => instance != null ? instance.toasts.Count : 0;
         public static bool Paused => instance != null && instance.hovered;
+        public static int OverflowCount => instance != null ? Mathf.Max(0, instance.All().Count - MaxVisible) : 0;
+        public static void Expand(bool on) { if (instance != null) { instance.expanded = on; instance.dirty = true; } }
         // 검사·다른 UI용: 현재 화면에 보이는 줄(위기 포함, 최대 5 + 넘침 줄).
         public static IReadOnlyList<string> VisibleLines => instance != null ? instance.Lines() : new List<string>();
 
@@ -112,13 +115,15 @@ namespace AntColony.UI
             .Select(c => new Toast { key = c.Key, message = c.Value, crisis = true,
                 action = locations.TryGetValue(c.Key, out var location) ? location.action : null,
                 actionLabel = locations.TryGetValue(c.Key, out var target) ? target.label : null })
-            .Concat(pins.Select(p => new Toast { key = p.Key, message = p.Value.message, action = p.Value.action, actionLabel = p.Value.label, pinned = true })).Concat(toasts).ToList();
-        private List<Toast> Shown() => All().Take(MaxVisible).ToList();
+            .Concat(pins.Select(p => new Toast { key = p.Key, message = p.Value.message, action = p.Value.action, actionLabel = p.Value.label, pinned = true })).Concat(toasts).OrderBy(Rank).ToList();
+        private static int Rank(Toast t) => t.crisis ? t.key == "defeat" || t.key == "enemy" || t.key.StartsWith("med:") || t.key.StartsWith("incident:") ? 0 : 1
+            : t.pinned && (t.key.StartsWith("medwait:") || t.key.StartsWith("supplies:")) ? 2 : t.kind == ToastKind.Warning && !t.pinned ? 3 : t.pinned ? 4 : 5;
+        private List<Toast> Shown() => expanded ? All() : All().Take(MaxVisible).ToList();
         private List<string> Lines()
         {
             var all = All();
-            var lines = all.Take(MaxVisible).Select(Label).ToList();
-            if (all.Count > MaxVisible) lines.Add($"+{all.Count - MaxVisible}건");
+            var lines = (expanded ? all : all.Take(MaxVisible)).Select(Label).ToList();
+            if (!expanded && all.Count > MaxVisible) lines.Add($"+{all.Count - MaxVisible}건 · 전체 알림");
             return lines;
         }
         private static string Label(Toast t) => t.count > 1 ? $"{t.message} ×{t.count}" : t.message;
@@ -127,6 +132,7 @@ namespace AntColony.UI
         {
             if (!hovered)
                 for (var i = toasts.Count - 1; i >= 0; i--)
+                    if (toasts[i].kind != ToastKind.Warning || toasts[i].seen)
                     if ((toasts[i].remaining -= Time.unscaledDeltaTime) <= 0) { toasts.RemoveAt(i); dirty = true; }
             if (dirty) Rebuild();
         }
@@ -141,14 +147,16 @@ namespace AntColony.UI
             dirty = false;
             for (var i = list.childCount - 1; i >= 0; i--)
                 if (list.GetChild(i).name.StartsWith("Toast")) { list.GetChild(i).gameObject.SetActive(false); Destroy(list.GetChild(i).gameObject); }
-            var all = All(); var shown = all.Take(MaxVisible).ToList();
+            var all = All(); var shown = expanded ? all : all.Take(MaxVisible).ToList();
             for (var i = 0; i < shown.Count; i++)
             {
                 var index = i; var t = shown[i];
+                t.seen = true;
                 Row("Toast " + i, Label(t), t.crisis ? MenuTheme.DangerInk : t.pinned ? MenuTheme.Accent : t.kind == ToastKind.Warning ? MenuTheme.Warning : t.kind == ToastKind.Hint ? Mint : MenuTheme.TextColor,
                     t.pinned ? null : (System.Action)(() => Dismiss(index)), t.action, t.actionLabel);
             }
-            if (all.Count > MaxVisible) Row("Toast More", $"+{all.Count - MaxVisible}건", MenuTheme.Dim, null);
+            if (!expanded && all.Count > MaxVisible) Row("Toast More", $"+{all.Count - MaxVisible}건", MenuTheme.Dim, () => Expand(true), () => Expand(true), "전체 알림 보기");
+            if (expanded) Row("Toast Collapse", "알림 목록", MenuTheme.Dim, () => Expand(false), () => Expand(false), "접기");
             panel.gameObject.SetActive(all.Count > 0);
             if (all.Count == 0) hovered = false;
         }

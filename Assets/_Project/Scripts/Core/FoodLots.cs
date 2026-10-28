@@ -28,7 +28,7 @@ namespace AntColony.Core
             ResourceType.Food => ShelfLife(FoodPreservation.RawMeat),
             ResourceType.Honeydew => GameCalendar.SecondsPerMonth,
             ResourceType.SimpleMeal => ShelfLife(FoodPreservation.Cooked),
-            ResourceType.FineMeal => ShelfLife(FoodPreservation.Cooked),
+            ResourceType.FineMeal or ResourceType.CookedRice or ResourceType.Flatbread or ResourceType.FriedRice => ShelfLife(FoodPreservation.Cooked),
             ResourceType.Grapes => ShelfLife(FoodPreservation.Berry),
             ResourceType.Wheat or ResourceType.Barley or ResourceType.Rice or ResourceType.SunflowerSeed or ResourceType.WheatFlour => ShelfLife(FoodPreservation.Grain),
             _ => 0f
