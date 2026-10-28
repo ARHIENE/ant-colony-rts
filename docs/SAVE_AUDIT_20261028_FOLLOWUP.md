@@ -23,3 +23,7 @@
 - log.md를 SAVE 첫 단계로 갱신했고 이전 내용은 changelog로 날짜 요약 이관했다. 원문은 work/save-20261028-followup/log-before-save.md. master 변경 없음. 종료 요청 만료·새 작업으로 취소, 카카오 완료 알림 도구 없음.
 
 - 최종 실행 파일 시작/응답 확인 후 정상 종료했다. 메뉴 초기화 시 기존 NavMesh 경고1건은 남아 있으며 실제 새 게임 전체 플레이 검증으로 확대 해석하지 않는다. Graphify16434노드/35589간선·LLM0.
+
+## 원격 보존 완료
+- 구현/모델/검사/문서498개 f12e6ba 커밋, origin/develop push와 원격 동일 SHA 확인. 이번 애니메이션88개는 globalScale만 변경, 신규 실행 FBX24개/재질282파일·prefab0 확인. 코드/문서 diff check 통과, Unity 생성 YAML의 빈 필드 뒤 공백은 유지했다.
+- Git 자동 geometric repack이 기존 refs/codex/turn-diffs/checkpoints 내부 참조 오류를 출력했지만 커밋과 push는 성공했다. 내부 참조·기존 로컬 변경은 삭제/정리하지 않았다. 이 완료 기록만 후속 문서 커밋으로 남긴다.

@@ -398,3 +398,5 @@
 - **FOOD-INDUSTRY-1028 / 배포 확인 완료** — Builds/Windows/ant.exe 일반 빌드 build_fbaa181ca726 성공(오류0·기존 패키지/셰이더 경고518, 114.4초). 시작/응답 확인, 시작 검사 전후 사용자 settings/discoveries 해시 변경0, 기존 auto1.json은10/25 수정 시각 유지. 테스트용 실행만 경로/전용 로그 인수로 식별해 종료. 배포에 개발용 성능 자동 실행 훅 없음, Editor Play 종료·컴파일 오류0·관련 diff check 통과. 최종 Graphify16416노드/35539간선(LLM0). 실제 화면/장시간 성능은 보류 유지. SAVE/캡처/일지/Notion/커밋·push 없음. 카카오 완료 알림 도구 미제공으로 전송 불가.
 
 - **SAVE-1028-FOLLOWUP / 검증·문서 완료, 원격 보존 단계** — 최종 일반 빌드 build_39682295663e 오류0/증분 경고33·시작 응답 확인(메뉴 초기화 기존 NavMesh 경고 기록). UI13 재통과·실제 화면7장 검수/Notion 첨부, 발효0% 중복/밀 영어/고무 취소 안내 수정. 사용자 설정/저장 경로/카메라 복원·Play 종료. Graphify16434/35589, LLM0. 일부 용기 비율·전체 그래픽/전 동작·대규모 장시간 성능은 미완/보류. 기존 첫 SAVE/구현 단계 기록은 당시 상태이며 후속 audit/일지를 현재 기준으로 사용.
+
+- **SAVE-1028-FOLLOWUP / 완료** — f12e6ba 구현498파일 origin/develop push·원격 일치 확인. log/changelog/README·검증 사본·당일 Notion 일지/오류·캡처7장 보존 완료. 기존 로컬 변경 보존. 내부 checkpoint 자동 repack 오류는 기록하고 참조 삭제 안 함.
