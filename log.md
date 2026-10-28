@@ -1,6 +1,6 @@
 # 프로젝트 로그
 
-## 현재 상태 — 2026-10-29 SAVE 검증·문서 완료
+## 현재 상태 — 2026-10-29 SAVE 완료
 - 프로젝트 E:\Git\ant, develop(일반 개발)/master(안정). 시작 HEAD a69f9a3. 이번 범위: 곡물 요리3종·정착지 운영 개선·100항목의 경제/성장/연구/전투 안내·후천 전문성·창고 필터 복사. 전체100항목 완성은 아니다.
 - 구조: Assets/_Project/Scripts(Core/Units/World/Buildings/Map/UI/Save), Assets/Resources 실행 모델/재질, _Project/Editor 임포터, AgentScripts 검사, docs/IMPLEMENTATION_BOARD.md 및 docs/OPERATIONS_100_STATUS.md(100행)가 진행 근거. 목표는 Notion 전체 기획 구현.
 - 저장21·자원78종. 밥/납작빵/볶음밥의 실물 배송→조리→바닥 산출→운반/섭취·식단·신선도·냉장·구19/20 이관 연결. 빵 밀가루1/작업12(잠정), 옛 도착2개는 초과1개 반출. 전용 FBX3/URP 연결.
@@ -14,4 +14,4 @@
 - 최신 일반 Windows build_227d7c36b46e 성공: 오류0/패키지·셰이더 경고518,142527ms/304777241bytes. 시작/응답 및 실행 전후 사용자 JSON3개 해시 변경0·신규0. 시작 D3D12 info queue 진단/기존 메뉴 NavMesh 경고 남음. Play 종료. Graphify16696노드/36251간선/804커뮤니티, LLM0.
 - 남음: 전체 연구소 승급/시대별 기술·산업 배치, 다른 전문성/큰사건/전 다이아 전용효과, 기타100항목·10시간/15일 실전. 유체 유출·전면 그래픽/대규모 장시간 성능은 사용자 보류. 이번 SAVE 변경 화면9장만 캡처/검수 완료.
 - 보존: 기존 씬/Water/URP/Quality/TimeManager/ProjectSettings·raw art·서드파티·graphify/임시/백업 보존. prefab/.prefab.meta 커밋 금지. 실제 사용자 저장과 검증용 Root 분리. log 이전 원문 work/save-20261029/log-before-save.md.
-- SAVE: 변경 화면9장 육안 검수/Notion 첨부 완료. 일지 https://app.notion.com/p/407c4a0ecd318121b19bf87efd9877dc / Trouble https://app.notion.com/p/407c4a0ecd3181b69559e8149f0875b2. 선택 커밋/push·원격 동일 SHA 확인 진행, 상세 docs/SAVE_AUDIT_20261029.md. 컴퓨터 종료 요청 없음. 카카오 완료 알림 도구 미제공.
+- SAVE: 변경 화면9장 육안 검수/Notion 첨부 완료. 일지 https://app.notion.com/p/407c4a0ecd318121b19bf87efd9877dc / Trouble https://app.notion.com/p/407c4a0ecd3181b69559e8149f0875b2. 구현/검사/모델/문서155개 e0a65d3 커밋·origin/develop push·원격 동일 SHA 확인 완료. 완료 기록만 후속 문서 커밋으로 보존, 상세 docs/SAVE_AUDIT_20261029.md. 컴퓨터 종료 요청 없음. 카카오 완료 알림 도구 미제공.
