@@ -25,7 +25,7 @@ namespace AntColony.UI
             if (c.IsPlaying) return c.PersonalState.joy.freeWalk ? "산책" : c.PlaySpot != null && !c.PersonalState.joy.groupStarted && !c.PlaySpot.HasMinimumUsers ? "오락 인원 대기" : "오락";
             if (c.CorpseTarget != null) return c.EatingCorpse ? "동족 포식" : "치우기";
             if (c.PersonalState.mentalBreak != MentalBreak.None) return "붕괴";
-            if (c.ServiceTarget != null) return c.ServiceJob == CommanderJobs.Firefighting ? "소화" : c.ServiceJob == CommanderJobs.Nursing ? "의료" : c.ServiceJob == CommanderJobs.Repair ? "수리" : c.ServiceJob == CommanderJobs.Administration ? "정치" : c.ServiceJob == CommanderJobs.Crafting ? "제작" : c.ServiceJob == CommanderJobs.Husbandry ? "사육" : "요리";
+            if (c.ServiceTarget != null) return c.ServiceJob == CommanderJobs.Firefighting ? "소화" : c.ServiceJob == CommanderJobs.Nursing ? "의료" : c.ServiceJob == CommanderJobs.Repair ? "수리" : c.ServiceJob == CommanderJobs.Administration ? "정치" : c.ServiceJob == CommanderJobs.Crafting ? "제작" : c.ServiceJob == CommanderJobs.Husbandry ? "사육" : c.ServiceJob == CommanderJobs.Hunting ? "훈련" : "요리";
             if (c.HuntTarget != null) return "사냥";
             if (c.CurrentResourceNode != null && c.CurrentResourceNode.IsLooseCargo) return "운반";
             if (c.ConstructionTarget != null && c.ConstructionTarget.IsArt) return "예술";

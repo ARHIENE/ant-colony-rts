@@ -1,0 +1,999 @@
+diff --git a/AgentScripts/Review1029K2Checks.cs b/AgentScripts/Review1029K2Checks.cs
+new file mode 100644
+index 0000000..81f44e1
+--- /dev/null
++++ b/AgentScripts/Review1029K2Checks.cs
+@@ -0,0 +1,169 @@
++using System;
++using System.Collections;
++using System.Linq;
++using System.Reflection;
++using System.Threading.Tasks;
++using UnityEngine;
++
++public static class Review1029K2Checks
++{
++    private const BindingFlags Hidden = BindingFlags.NonPublic | BindingFlags.Instance;
++    private static object Call(object target, string name, params object[] args) => target.GetType().GetMethod(name, Hidden).Invoke(target, args);
++    private static void Check(bool ok, string label) { if (!ok) throw new Exception(label); }
++
++    // 실제 게임 DLL의 상태 기계·거리식·입력 검증을 오프라인으로 실행한다.
++    public static async Task<string> Main()
++    {
++        await Task.CompletedTask;
++        int count = 0;
++        void Assert(bool ok, string label) { Check(ok, label); count++; }
++        Assert(AntColony.Boss.AoE.BossAoEState.Valid(null), "old null state");
++        Assert(AntColony.Boss.AoE.BossAoEState.Valid(new AntColony.Boss.AoE.BossAoEState())
++            && !AntColony.Boss.AoE.BossAoEState.Present(new AntColony.Boss.AoE.BossAoEState()), "JsonUtility empty inline state stays idle");
++        foreach (float duration in new[] { 1.5f, 1.2f, 1.2f })
++        foreach (float speed in new[] { 1f, 5f })
++        {
++            var original = new AntColony.Boss.AoE.BossAoEState { captured = true, origin = new Vector3(4, 2, -3), forward = new Vector3(1, 0, 0), remaining = duration, afterHit = .15f };
++            Assert(AntColony.Boss.AoE.BossAoEState.Valid(original), "warning valid");
++            Assert(!original.Advance(duration / 2), "half warning no hit");
++            var restored = original.Copy();
++            Assert(restored.origin.x == 4 && restored.origin.y == 2 && restored.origin.z == -3 && restored.forward.x == 1, "fixed position/direction");
++            Assert(restored.remaining == duration / 2 && !restored.hitResolved, "remaining preserved");
++            Assert(!restored.Advance(0) && restored.remaining == duration / 2, "pause holds timer");
++            int hits = 0; float elapsed = 0;
++            while (elapsed < duration + 1) { if (restored.Advance(.01f * speed)) hits++; elapsed += .01f * speed; }
++            Assert(hits == 1 && restored.hitResolved && restored.remaining == 0, "exactly one hit after resume");
++            Assert(original.remaining == duration / 2 && !original.hitResolved, "capture independent from live clock");
++            var afterHit = restored.Copy();
++            Assert(!afterHit.Advance(100) && afterHit.afterHit == 0, "post-hit load cannot damage again");
++            foreach (float invalid in new[] { float.NaN, float.PositiveInfinity, -1f, 61f })
++            {
++                var bad = original.Copy(); bad.remaining = invalid;
++                Assert(!AntColony.Boss.AoE.BossAoEState.Valid(bad), "bad remaining rejected");
++            }
++            var direction = original.Copy(); direction.forward = new Vector3(0, 0, 0);
++            Assert(!AntColony.Boss.AoE.BossAoEState.Valid(direction), "zero direction rejected");
++            direction = original.Copy(); direction.origin.x = float.NaN;
++            Assert(!AntColony.Boss.AoE.BossAoEState.Valid(direction), "NaN origin rejected");
++        }
++        foreach (bool walk in new[] { false, true })
++        foreach (bool air in new[] { false, true })
++        {
++            var a = new Vector2(.66f, .5f); var near = new Vector2(.65f, .51f); var far = new Vector2(.34f, .5f);
++            float close = AntColony.World.ExpeditionRules.BetweenSeconds(a, near, walk, air);
++            float distant = AntColony.World.ExpeditionRules.BetweenSeconds(a, far, walk, air);
++            Assert(close < distant / 10, "same home ring, distinct actual travel");
++            Assert(Math.Abs(distant - (walk ? 300 : air ? 20 : 40)) < .001, "diameter distance budget");
++            Assert(Math.Abs(distant - AntColony.World.ExpeditionRules.BetweenSeconds(far, a, walk, air)) < .001, "symmetric route");
++            Assert(AntColony.World.ExpeditionRules.BetweenSeconds(a, a, walk, air) == 0, "zero actual distance");
++        }
++        var valid = typeof(AntColony.World.DiplomacyManager).GetMethod("ValidHomecomingEntry", BindingFlags.Static | BindingFlags.NonPublic);
++        var state = new AntColony.World.DiplomacyManager.State();
++        Assert((bool)valid.Invoke(null, new object[] { state }) && !state.homecomingEntrySet, "old entry defaults to boundary");
++        state.homecomingEntrySet = true; state.homecomingEntry = new Vector3(-20, 3, 12);
++        Assert((bool)valid.Invoke(null, new object[] { state }), "valid signed coordinates");
++        foreach (float invalid in new[] { float.NaN, float.PositiveInfinity, 1000001f })
++        { state.homecomingEntry.x = invalid; Assert(!(bool)valid.Invoke(null, new object[] { state }), "bad entry rejected"); }
++        return $"K2 offline PASS {count}; Unity roundtrip/NavMesh/UI not executed (RunScene separately).";
++    }
++
++    private static async Task Drain(IEnumerator routine)
++    {
++        while (routine.MoveNext())
++            if (routine.Current is IEnumerator nested) await Drain(nested); else await Task.Yield();
++    }
++
++    // Claude 전용: 사용자 저장을 쓰지 않는 격리 새 게임에서 실행. 저장 파일 I/O 없음.
++    public static async Task<string> RunScene()
++    {
++        Check(Application.isPlaying, "isolated Play scene required");
++        var before = AntColony.Save.SaveSnapshot.Capture();
++        Check(AntColony.Save.SavePreflight.Validate(before, out var error), "baseline: " + error);
++        var world = AntColony.World.WorldMapManager.Instance;
++        var boss = world.Sites.Select(s => s.Boss).First(b => b != null && !b.IsDead && b.gameObject.activeInHierarchy);
++        var added = new System.Collections.Generic.List<Component>();
++        T AoE<T>() where T : Component { var c = boss.GetComponent<T>(); if (c == null) { c = boss.gameObject.AddComponent<T>(); added.Add(c); } return c; }
++        var circle = AoE<AntColony.Boss.AoE.BossCircleAoE>();
++        var cone = AoE<AntColony.Boss.AoE.BossConeAoE>();
++        var line = AoE<AntColony.Boss.AoE.BossLineAoE>();
++        float speed = Time.timeScale;
++        var restore = typeof(AntColony.Save.SaveSnapshot).GetMethod("Restore", BindingFlags.NonPublic | BindingFlags.Static);
++        int count = 0;
++        void Assert(bool ok, string label) { Check(ok, label); count++; }
++        try
++        {
++            Time.timeScale = 0;
++            var origin = boss.Position + Vector3.up * 50;
++            circle.CastAt(origin); cone.CastFrom(origin, Vector3.right); line.CastFrom(origin, Vector3.back);
++            var c = circle.Capture(); var k = cone.Capture(); var l = line.Capture();
++            c.remaining *= .5f; k.remaining *= .5f; l.remaining *= .5f;
++            circle.Restore(c); cone.Restore(k); line.Restore(l);
++            var save = AntColony.Save.SaveSnapshot.Capture();
++            Assert(AntColony.Save.SavePreflight.Validate(save, out error), "warning preflight: " + error);
++            var json = JsonUtility.ToJson(save);
++            Assert(AntColony.Save.SaveValidator.TryParse(json, out var parsed, out error), "warning JSON parse: " + error);
++            await Drain((IEnumerator)restore.Invoke(null, new object[] { parsed }));
++            Assert(circle.IsCasting && cone.IsCasting && line.IsCasting, "three warnings resume");
++            Assert(circle.Capture().remaining == c.remaining && cone.Capture().remaining == k.remaining && line.Capture().remaining == l.remaining, "timers unchanged while paused");
++            Assert(circle.Capture().origin == c.origin && cone.Capture().origin == k.origin && line.Capture().origin == l.origin
++                && cone.Capture().forward == k.forward && line.Capture().forward == l.forward, "no origin re-snap/rotation on load");
++            c.hitResolved = true; c.remaining = 0; circle.Restore(c);
++            Assert(!circle.IsCasting && circle.Capture().hitResolved && !circle.Capture().Advance(1), "hit-once restore");
++            circle.Restore(new AntColony.Boss.AoE.BossAoEState());
++            Assert(!circle.IsCasting && circle.Capture() == null, "old empty state produces no cast");
++
++            var ship = world.Transports.FirstOrDefault(t => t != null && !t.IsDead);
++            Check(ship != null, "scene requires one transport");
++            var sites = world.Sites.Take(2).ToArray();
++            Call(ship, "RestoreState", AntColony.World.ExpeditionState.Deployed, 0f, sites[0], sites[0].Landing, world.HomePosition, 0, 0, 0);
++            Call(ship, "StartWithdrawTravel", sites[1]);
++            Assert(Math.Abs(ship.Remaining - AntColony.World.ExpeditionRules.BetweenSeconds(sites[0].MapPosition, sites[1].MapPosition, ship.Walking, ship.Aircraft)
++                / (ship.Walking ? ship.FormationWalkMultiplier : 1)) < .001, "actual departure uses source and destination");
++            Call(ship, "RestoreState", AntColony.World.ExpeditionState.Returning, 7.25f, sites[1], ship.Position, world.HomePosition, 0, 0, 0);
++            save = AntColony.Save.SaveSnapshot.Capture();
++            var savedShip = save.world.transports.First(t => t.remaining == 7.25f);
++            Assert(savedShip.remaining == 7.25f, "capture preserves in-flight timer");
++            await Drain((IEnumerator)restore.Invoke(null, new object[] { save }));
++            Assert(world.Transports.Any(t => t != null && t.State == AntColony.World.ExpeditionState.Returning && t.Remaining == 7.25f), "full restore preserves return timer");
++
++            var dm = AntColony.World.DiplomacyManager.Instance;
++            Assert(!dm.SetHomecomingEntry(new Vector3(float.NaN, 0, 0), out _), "invalid landing rejected");
++            Assert(!dm.SetHomecomingEntry(new Vector3(999999, 0, 999999), out _), "off-map landing rejected");
++            var member = AntColony.Core.CommanderRoster.Instance.Commanders.First(a => a.IsColonyMember && !a.IsAwayFromHome);
++            var snapshot = (AntColony.Buildings.Prisoner)typeof(AntColony.World.DiplomacyManager)
++                .GetMethod("Snapshot", BindingFlags.NonPublic | BindingFlags.Static).Invoke(null, new object[] { member });
++            snapshot.PersonalState.id = Guid.NewGuid().ToString();
++            snapshot.PersonalState.equipment.Clear();
++            var homecoming = new AntColony.World.Homecoming { commander = snapshot, arrive = dm.Data.elapsed, from = "K2 fixture" };
++            dm.Data.homecomings.Add(homecoming);
++            dm.Data.homecomingEntrySet = true; dm.Data.homecomingEntry = new Vector3(999999, 0, 999999);
++            Assert(!(bool)Call(dm, "Arrive", homecoming) && dm.Data.homecomings.Contains(homecoming), "blocked arrival keeps prisoner pending");
++            Assert(dm.HomecomingWaitReason(homecoming).Length > 0, "blocked arrival explains cause");
++            var candidate = member.Position;
++            Assert(dm.SetHomecomingEntry(candidate, out error), "empty home commander position: " + error);
++            var entry = dm.HomecomingAnchor;
++            save = AntColony.Save.SaveSnapshot.Capture();
++            Assert(AntColony.Save.SavePreflight.Validate(save, out error), "entry preflight: " + error);
++            Assert(AntColony.Save.SaveValidator.TryParse(JsonUtility.ToJson(save), out parsed, out error), "entry JSON: " + error);
++            await Drain((IEnumerator)restore.Invoke(null, new object[] { parsed }));
++            Assert(dm.Data.homecomingEntrySet && dm.HomecomingAnchor == entry, "entry saved and restored");
++            int people = AntColony.Core.CommanderRoster.Instance.Commanders.Count;
++            Call(dm, "TickHomecomings");
++            Assert(!dm.Data.homecomings.Any(h => h.commander.PersonalState.id == snapshot.PersonalState.id)
++                && AntColony.Core.CommanderRoster.Instance.Commanders.Count == people + 1, "manual safe entry releases pending prisoner");
++            Call(dm, "TickHomecomings");
++            Assert(AntColony.Core.CommanderRoster.Instance.Commanders.Count == people + 1, "arrival not duplicated");
++            dm.ResetHomecomingEntry();
++            Assert(!dm.Data.homecomingEntrySet && dm.HomecomingAnchor == AntColony.Core.HomeReturnPoint.Anchor, "reset boundary default");
++            AntColony.UI.GameMenuController.Instance.ShowPrisoners(null);
++            Assert(AntColony.UI.GameMenuController.Instance.ScreenName.Contains("포로"), "existing prisoner window without camp");
++            return $"K2 scene PASS {count}; actual visual widths and hostile landing scenario require UI/NavMesh inspection.";
++        }
++        finally
++        {
++            await Drain((IEnumerator)restore.Invoke(null, new object[] { before }));
++            foreach (var component in added) if (component != null) UnityEngine.Object.Destroy(component);
++            Time.timeScale = speed;
++        }
++    }
++}
+diff --git a/AgentScripts/Review1029K2Compile.ps1 b/AgentScripts/Review1029K2Compile.ps1
+new file mode 100644
+index 0000000..043d8f3
+--- /dev/null
++++ b/AgentScripts/Review1029K2Compile.ps1
+@@ -0,0 +1,82 @@
++﻿param([switch]$OfflineChecks)
++$ErrorActionPreference = 'Stop'
++$project = (Resolve-Path (Join-Path $PSScriptRoot '..')).Path
++if ($project -ne 'E:\Git\ant-wt\K2') { throw 'K2 worktree only' }
++$unityRoot = 'E:/unity/6000.5.8f1/Editor/Data'
++$bee = 'E:/Git/ant/Library/Bee/artifacts/1900b0aE.dag'
++$temp = Join-Path $project 'Temp/Review1029K2'
++New-Item -ItemType Directory -Path $temp -Force | Out-Null
++$utf8 = [Text.UTF8Encoding]::new($false)
++function Compile([string]$rsp) {
++    & "$unityRoot/DotNetSdk/dotnet.exe" exec "$unityRoot/DotNetSdk/sdk/8.0.318/Roslyn/bincore/csc.dll" -nologo "@$rsp"
++    if ($LASTEXITCODE -ne 0) { throw "Compile failed: $rsp" }
++}
++$lines = [Collections.Generic.List[string]]::new()
++$known = @{}; $missing = 0
++foreach ($line in (Get-Content -LiteralPath "$bee/Assembly-CSharp.rsp")) {
++    if ($line -match '\.cs"?$' -and $line -notmatch '^[-/]') {
++        $relative = $line.Trim('"').Replace('\', '/')
++        if ($relative.StartsWith('Assets/_Project/')) { continue }
++        $source = Join-Path $project $relative
++        if (Test-Path -LiteralPath $source) { $lines.Add('"' + $source + '"'); $known[$relative] = $true }
++        else {
++            $missing++
++            $original = Join-Path 'E:/Git/ant' $relative
++            if (Test-Path -LiteralPath $original) {
++                $copy = Join-Path "$temp/ReferenceSources" $relative
++                New-Item -ItemType Directory -Path (Split-Path $copy) -Force | Out-Null
++                Copy-Item -LiteralPath $original -Destination $copy -Force
++                $lines.Add('"' + $copy + '"')
++            }
++        }
++    } elseif ($line -notmatch '^[-/](out|refout|analyzer|generatedfilesout):') { $lines.Add($line.Replace('"Library/', '"E:/Git/ant/Library/')) }
++}
++foreach ($source in (Get-ChildItem -LiteralPath "$project/Assets/_Project/Scripts" -Recurse -Filter *.cs)) {
++    $relative = $source.FullName.Substring($project.Length + 1).Replace('\', '/')
++    if (-not $known.ContainsKey($relative)) { $lines.Add('"' + $source.FullName + '"') }
++}
++$lines.Add('-out:"' + "$temp/Assembly-CSharp.dll" + '"')
++[IO.File]::WriteAllLines("$temp/game.rsp", $lines, $utf8)
++Compile "$temp/game.rsp"
++Write-Output "Game compile PASS; missing external sources copied read-only from original into K2 Temp: $missing"
++$checks = @(Get-Item (Join-Path $PSScriptRoot 'Review1029K2Checks.cs'))
++$editor = [Collections.Generic.List[string]]::new()
++foreach ($line in (Get-Content -LiteralPath "$bee/Assembly-CSharp-Editor.rsp")) {
++    if ($line -match '\.cs"?$' -and $line -notmatch '^[-/]') { continue }
++    if ($line -match '^[-/](out|refout|analyzer|generatedfilesout):') { continue }
++    if ($line -match '^[-/](r|reference):.*Assembly-CSharp(\.ref)?\.dll') { continue }
++    $editor.Add($line.Replace('"Library/', '"E:/Git/ant/Library/'))
++}
++$editor.Add('-r:"' + "$temp/Assembly-CSharp.dll" + '"')
++$editor.Add('-out:"' + "$temp/Review1029K2Checks.dll" + '"')
++foreach ($source in $checks) { $editor.Add('"' + $source.FullName + '"') }
++[IO.File]::WriteAllLines("$temp/checks.rsp", $editor, $utf8)
++Compile "$temp/checks.rsp"
++Write-Output 'Editor checks compile PASS (execution requires isolated game scene)'
++if (-not $OfflineChecks) { return }
++$offline = [Collections.Generic.List[string]]::new()
++$offline.Add('-target:exe'); $offline.Add('-out:"' + "$temp/OfflineChecks.dll" + '"')
++foreach ($ref in (Get-ChildItem "$unityRoot/DotNetSdk/packs/Microsoft.NETCore.App.Ref/8.0.21/ref/net8.0/*.dll")) { $offline.Add('-r:"' + $ref.FullName + '"') }
++foreach ($name in @('UnityEngine', 'UnityEngine.CoreModule', 'UnityEngine.PhysicsModule', 'UnityEngine.AIModule', 'UnityEngine.JSONSerializeModule')) {
++    $path = "$unityRoot/Managed/UnityEngine/$name.dll"
++    $offline.Add('-r:"' + $path + '"'); Copy-Item -LiteralPath $path -Destination $temp -Force
++}
++$offline.Add('-r:"' + "$temp/Assembly-CSharp.dll" + '"')
++foreach ($source in $checks | Where-Object { $_.Name -notmatch 'Runtime' }) { $offline.Add('"' + $source.FullName + '"') }
++$hostSource = @'
++using System;
++using System.Threading.Tasks;
++public static class OfflineRunner {
++    public static async Task<int> Main() {
++        Console.WriteLine(await Review1029K2Checks.Main());
++        return 0;
++    }
++}
++'@
++[IO.File]::WriteAllText("$temp/OfflineRunner.cs", $hostSource, $utf8)
++$offline.Add('"' + "$temp/OfflineRunner.cs" + '"'); $offline.Add('-main:OfflineRunner')
++[IO.File]::WriteAllLines("$temp/offline.rsp", $offline, $utf8)
++Compile "$temp/offline.rsp"
++[IO.File]::WriteAllText("$temp/OfflineChecks.runtimeconfig.json", '{"runtimeOptions":{"tfm":"net8.0","framework":{"name":"Microsoft.NETCore.App","version":"8.0.21"}}}', $utf8)
++& "$unityRoot/DotNetSdk/dotnet.exe" "$temp/OfflineChecks.dll"
++if ($LASTEXITCODE -ne 0) { throw 'Offline checks failed' }
+diff --git a/Assets/_Project/Scripts/Boss/AoE/BossAoEState.cs b/Assets/_Project/Scripts/Boss/AoE/BossAoEState.cs
+new file mode 100644
+index 0000000..a471109
+--- /dev/null
++++ b/Assets/_Project/Scripts/Boss/AoE/BossAoEState.cs
+@@ -0,0 +1,40 @@
++using System;
++using UnityEngine;
++
++namespace AntColony.Boss.AoE
++{
++    // 경고와 명중 뒤 표시를 같은 게임 시간으로 보존한다. 피해 판정 전에 hitResolved를 세운다.
++    [Serializable]
++    public sealed class BossAoEState
++    {
++        public Vector3 origin, forward;
++        public float remaining, afterHit;
++        public bool captured, hitResolved;
++        public BossAoEState Copy() => (BossAoEState)MemberwiseClone();
++        public static bool Present(BossAoEState s) => s != null && s.captured;
++
++        public bool Advance(float seconds)
++        {
++            if (!(seconds > 0) || float.IsInfinity(seconds)) return false;
++            if (hitResolved) { afterHit = Math.Max(0, afterHit - seconds); return false; }
++            remaining = Math.Max(0, remaining - seconds);
++            if (remaining > 0) return false;
++            hitResolved = true;
++            return true;
++        }
++
++        public static bool Valid(BossAoEState s)
++        {
++            bool N(float n) => !float.IsNaN(n) && !float.IsInfinity(n) && n >= 0 && n <= 60;
++            bool V(Vector3 v) => !float.IsNaN(v.x) && !float.IsNaN(v.y) && !float.IsNaN(v.z)
++                && Math.Abs(v.x) <= 1000000 && Math.Abs(v.y) <= 1000000 && Math.Abs(v.z) <= 1000000;
++            if (s == null) return true;
++            // JsonUtility가 null/없는 인라인 객체를 0으로 만들 때 구저장과 유휴 상태를 유지한다.
++            if (!s.captured) return s.origin.x == 0 && s.origin.y == 0 && s.origin.z == 0
++                && s.forward.x == 0 && s.forward.y == 0 && s.forward.z == 0 && s.remaining == 0 && s.afterHit == 0 && !s.hitResolved;
++            return V(s.origin) && V(s.forward) && N(s.remaining) && N(s.afterHit)
++                && Math.Abs(s.forward.y) < .001f && Math.Abs(s.forward.x * s.forward.x + s.forward.z * s.forward.z - 1) < .001f
++                && (!s.hitResolved || s.remaining == 0);
++        }
++    }
++}
+diff --git a/Assets/_Project/Scripts/Boss/AoE/BossCircleAoE.cs b/Assets/_Project/Scripts/Boss/AoE/BossCircleAoE.cs
+index 8234aa5..abc2309 100644
+--- a/Assets/_Project/Scripts/Boss/AoE/BossCircleAoE.cs
++++ b/Assets/_Project/Scripts/Boss/AoE/BossCircleAoE.cs
+@@ -20,14 +20,16 @@ namespace AntColony.Boss.AoE
+         [SerializeField] private LayerMask targetMask;
+         [SerializeField] private float verticalTolerance = 3f;
+ 
+-        public bool IsCasting { get; private set; }
++        public bool IsCasting => cast != null && !cast.hitResolved;
++        private BossAoEState cast;
++        public BossAoEState Capture() => cast?.Copy();
+         private GroundTelegraphCircle telegraph;
+ 
+         private void OnDisable()
+         {
+             StopAllCoroutines();
+             if (telegraph != null) Destroy(telegraph.gameObject);
+-            IsCasting = false;
++            cast = null;
+         }
+ 
+         private void Awake()
+@@ -43,27 +45,46 @@ namespace AntColony.Boss.AoE
+         {
+             if (!isActiveAndEnabled || IsCasting) return;
+             BossTelegraphTiming.Prepare();
++            StopAllCoroutines();
+             StartCoroutine(CastRoutine(center));
+         }
+ 
+         private IEnumerator CastRoutine(Vector3 center)
+         {
+-            IsCasting = true;
++            ResetCast();
++            cast = new BossAoEState { captured = true, origin = center, forward = Vector3.forward, remaining = telegraphDuration, afterHit = telegraphRemainAfterHit };
++            yield return ResumeCast();
++        }
+ 
++        private void ResetCast()
++        {
++            if (telegraph != null) Destroy(telegraph.gameObject);
++            telegraph = null;
++            cast = null;
++        }
++
++        public void Restore(BossAoEState saved)
++        {
++            StopAllCoroutines();
++            ResetCast();
++            if (!BossAoEState.Present(saved) || !isActiveAndEnabled) return;
++            cast = saved.Copy();
++            StartCoroutine(ResumeCast());
++        }
++
++        private IEnumerator ResumeCast()
++        {
+             if (telegraphPrefab != null)
+             {
+-                telegraph = Instantiate(telegraphPrefab, center, Quaternion.identity);
+-                telegraph.SetCenterAndRadius(center, radius);
++                telegraph = Instantiate(telegraphPrefab, cast.origin, Quaternion.identity);
++                telegraph.SetCenterAndRadius(cast.origin, radius);
+             }
+-
+-            yield return new WaitForSeconds(telegraphDuration);
+-
+-            ResolveHit(center);
+-
+-            if (telegraph != null)
+-                Destroy(telegraph.gameObject, telegraphRemainAfterHit);
+-
+-            IsCasting = false;
++            while (cast != null && (!cast.hitResolved || cast.afterHit > 0))
++            {
++                yield return null;
++                if (cast.Advance(Time.deltaTime)) ResolveHit(cast.origin);
++            }
++            ResetCast();
+         }
+ 
+         private void ResolveHit(Vector3 center)
+diff --git a/Assets/_Project/Scripts/Boss/AoE/BossConeAoE.cs b/Assets/_Project/Scripts/Boss/AoE/BossConeAoE.cs
+index fddc238..c9c32e5 100644
+--- a/Assets/_Project/Scripts/Boss/AoE/BossConeAoE.cs
++++ b/Assets/_Project/Scripts/Boss/AoE/BossConeAoE.cs
+@@ -26,14 +26,16 @@ namespace AntColony.Boss.AoE
+         [SerializeField] private float groundCastHeight = 50f;
+         [SerializeField] private float groundOffset = 0.05f;
+ 
+-        public bool IsCasting { get; private set; }
++        public bool IsCasting => cast != null && !cast.hitResolved;
++        private BossAoEState cast;
++        public BossAoEState Capture() => cast?.Copy();
+         private GroundTelegraphSector telegraph;
+ 
+         private void OnDisable()
+         {
+             StopAllCoroutines();
+             if (telegraph != null) Destroy(telegraph.gameObject);
+-            IsCasting = false;
++            cast = null;
+         }
+ 
+         private void Awake()
+@@ -52,30 +54,47 @@ namespace AntColony.Boss.AoE
+             var flatForward = Vector3.ProjectOnPlane(forward, Vector3.up);
+             if (flatForward.sqrMagnitude < 0.0001f) flatForward = transform.forward;
+ 
++            StopAllCoroutines();
+             StartCoroutine(CastRoutine(origin, flatForward.normalized));
+         }
+ 
+         private IEnumerator CastRoutine(Vector3 origin, Vector3 flatForward)
+         {
+-            IsCasting = true;
++            ResetCast();
++            cast = new BossAoEState { captured = true, origin = SnapToGround(origin), forward = flatForward, remaining = telegraphDuration, afterHit = telegraphRemainAfterHit };
++            yield return ResumeCast();
++        }
++
++        private void ResetCast()
++        {
++            if (telegraph != null) Destroy(telegraph.gameObject);
++            telegraph = null;
++            cast = null;
++        }
+ 
+-            var groundOrigin = SnapToGround(origin);
+-            var telegraphRotation = Quaternion.LookRotation(flatForward, Vector3.up);
++        public void Restore(BossAoEState saved)
++        {
++            StopAllCoroutines();
++            ResetCast();
++            if (!BossAoEState.Present(saved) || !isActiveAndEnabled) return;
++            cast = saved.Copy();
++            StartCoroutine(ResumeCast());
++        }
+ 
++        private IEnumerator ResumeCast()
++        {
+             if (telegraphPrefab != null)
+             {
+-                telegraph = Instantiate(telegraphPrefab, groundOrigin, telegraphRotation);
+-                telegraph.SetData(groundOrigin, telegraphRotation, range, angleDeg);
++                var rotation = Quaternion.LookRotation(cast.forward, Vector3.up);
++                telegraph = Instantiate(telegraphPrefab, cast.origin, rotation);
++                telegraph.SetData(cast.origin, rotation, range, angleDeg);
+             }
+-
+-            yield return new WaitForSeconds(telegraphDuration);
+-
+-            ResolveHit(groundOrigin, flatForward);
+-
+-            if (telegraph != null)
+-                Destroy(telegraph.gameObject, telegraphRemainAfterHit);
+-
+-            IsCasting = false;
++            while (cast != null && (!cast.hitResolved || cast.afterHit > 0))
++            {
++                yield return null;
++                if (cast.Advance(Time.deltaTime)) ResolveHit(cast.origin, cast.forward);
++            }
++            ResetCast();
+         }
+ 
+         private Vector3 SnapToGround(Vector3 position)
+diff --git a/Assets/_Project/Scripts/Boss/AoE/BossLineAoE.cs b/Assets/_Project/Scripts/Boss/AoE/BossLineAoE.cs
+index a32c987..4b29c3c 100644
+--- a/Assets/_Project/Scripts/Boss/AoE/BossLineAoE.cs
++++ b/Assets/_Project/Scripts/Boss/AoE/BossLineAoE.cs
+@@ -26,14 +26,16 @@ namespace AntColony.Boss.AoE
+         [SerializeField] private float groundCastHeight = 50f;
+         [SerializeField] private float groundOffset = 0.05f;
+ 
+-        public bool IsCasting { get; private set; }
++        public bool IsCasting => cast != null && !cast.hitResolved;
++        private BossAoEState cast;
++        public BossAoEState Capture() => cast?.Copy();
+         private GroundTelegraphLine telegraph;
+ 
+         private void OnDisable()
+         {
+             StopAllCoroutines();
+             if (telegraph != null) Destroy(telegraph.gameObject);
+-            IsCasting = false;
++            cast = null;
+         }
+ 
+         private void Awake()
+@@ -52,30 +54,47 @@ namespace AntColony.Boss.AoE
+             var flatForward = Vector3.ProjectOnPlane(forward, Vector3.up);
+             if (flatForward.sqrMagnitude < 0.0001f) flatForward = transform.forward;
+ 
++            StopAllCoroutines();
+             StartCoroutine(CastRoutine(origin, flatForward.normalized));
+         }
+ 
+         private IEnumerator CastRoutine(Vector3 origin, Vector3 flatForward)
+         {
+-            IsCasting = true;
++            ResetCast();
++            cast = new BossAoEState { captured = true, origin = SnapToGround(origin), forward = flatForward, remaining = telegraphDuration, afterHit = telegraphRemainAfterHit };
++            yield return ResumeCast();
++        }
++
++        private void ResetCast()
++        {
++            if (telegraph != null) Destroy(telegraph.gameObject);
++            telegraph = null;
++            cast = null;
++        }
+ 
+-            var groundOrigin = SnapToGround(origin);
+-            var telegraphRotation = Quaternion.LookRotation(flatForward, Vector3.up);
++        public void Restore(BossAoEState saved)
++        {
++            StopAllCoroutines();
++            ResetCast();
++            if (!BossAoEState.Present(saved) || !isActiveAndEnabled) return;
++            cast = saved.Copy();
++            StartCoroutine(ResumeCast());
++        }
+ 
++        private IEnumerator ResumeCast()
++        {
+             if (telegraphPrefab != null)
+             {
+-                telegraph = Instantiate(telegraphPrefab, groundOrigin, telegraphRotation);
+-                telegraph.SetData(groundOrigin, telegraphRotation, length, width);
++                var rotation = Quaternion.LookRotation(cast.forward, Vector3.up);
++                telegraph = Instantiate(telegraphPrefab, cast.origin, rotation);
++                telegraph.SetData(cast.origin, rotation, length, width);
+             }
+-
+-            yield return new WaitForSeconds(telegraphDuration);
+-
+-            ResolveHit(groundOrigin, flatForward);
+-
+-            if (telegraph != null)
+-                Destroy(telegraph.gameObject, telegraphRemainAfterHit);
+-
+-            IsCasting = false;
++            while (cast != null && (!cast.hitResolved || cast.afterHit > 0))
++            {
++                yield return null;
++                if (cast.Advance(Time.deltaTime)) ResolveHit(cast.origin, cast.forward);
++            }
++            ResetCast();
+         }
+ 
+         private Vector3 SnapToGround(Vector3 position)
+diff --git a/Assets/_Project/Scripts/Save/SaveDtos.cs b/Assets/_Project/Scripts/Save/SaveDtos.cs
+index 83aff3a..ca447d8 100644
+--- a/Assets/_Project/Scripts/Save/SaveDtos.cs
++++ b/Assets/_Project/Scripts/Save/SaveDtos.cs
+@@ -375,6 +375,7 @@ namespace AntColony.Save
+     [Serializable]
+     public class MonsterDto
+     {
++        public AntColony.Boss.AoE.BossAoEState circleAoE, coneAoE, lineAoE;
+         public AntColony.Boss.BossEncounter.State bossEncounter; // 구저장 null: 첫 착지 상태
+         public string investigationId;
+         public bool hasRuntime;
+diff --git a/Assets/_Project/Scripts/Save/SavePreflight.cs b/Assets/_Project/Scripts/Save/SavePreflight.cs
+index 547ee8f..679a1bb 100644
+--- a/Assets/_Project/Scripts/Save/SavePreflight.cs
++++ b/Assets/_Project/Scripts/Save/SavePreflight.cs
+@@ -216,6 +216,9 @@ namespace AntColony.Save
+                     && f.nodes.Select(n => n.key).Distinct().Count() == f.nodes.Count, "resource nodes");
+                 Check(f.critters == null || f.critters.Count <= 1000 && f.critters.All(c => c != null && Enum.IsDefined(typeof(Buildings.Species), c.species) && N(c.health) && c.health > 0 && V(c.position) && (c.disease == null || c.disease.Valid)), "critters");
+                 Check(f.monsters.All(m => m != null && m.key != null && N(m.health) && V(m.position)
++                    && AntColony.Boss.AoE.BossAoEState.Valid(m.circleAoE) && AntColony.Boss.AoE.BossAoEState.Valid(m.coneAoE)
++                    && AntColony.Boss.AoE.BossAoEState.Valid(m.lineAoE)
++                    && (!AntColony.Boss.AoE.BossAoEState.Present(m.circleAoE) && !AntColony.Boss.AoE.BossAoEState.Present(m.coneAoE) && !AntColony.Boss.AoE.BossAoEState.Present(m.lineAoE) || m.key.StartsWith("boss:") && m.health > 0)
+                     && AntColony.Boss.BossEncounter.Validate(m.bossEncounter) && (!AntColony.Boss.BossEncounter.Present(m.bossEncounter) || m.key.StartsWith("boss:")))
+                     && f.monsters.Select(m => m.key).Distinct().Count() == f.monsters.Count, "monsters");
+                 foreach (var m in f.monsters) if (m.traits != null)
+diff --git a/Assets/_Project/Scripts/Save/SaveSnapshot.cs b/Assets/_Project/Scripts/Save/SaveSnapshot.cs
+index 07d0f22..fd8487e 100644
+--- a/Assets/_Project/Scripts/Save/SaveSnapshot.cs
++++ b/Assets/_Project/Scripts/Save/SaveSnapshot.cs
+@@ -79,6 +79,9 @@ namespace AntColony.Save
+             SaveRuntime.CaptureMonsters(file);
+             for (var i = 0; i < SaveCatalog.Bosses.Length; i++)
+             { var b = SaveCatalog.Bosses[i]; file.monsters.Add(new MonsterDto { key = "boss:" + i, health = b != null ? b.CurrentHp : 0,
++                circleAoE = b != null ? b.GetComponent<AntColony.Boss.AoE.BossCircleAoE>()?.Capture() : null,
++                coneAoE = b != null ? b.GetComponent<AntColony.Boss.AoE.BossConeAoE>()?.Capture() : null,
++                lineAoE = b != null ? b.GetComponent<AntColony.Boss.AoE.BossLineAoE>()?.Capture() : null,
+                 position = new Vec3Dto(b != null ? b.Position : Vector3.zero), bossEncounter = b != null ? b.GetComponent<BossEncounter>()?.Capture() : null }); }
+             file.world.unlocked = world.Unlocked; file.world.vehicleResearched = world.VehicleResearched; file.world.aircraftResearched = world.AircraftResearched;
+             file.world.notice = world.SettlementNotice;
+@@ -220,6 +223,9 @@ namespace AntColony.Save
+                     var b = SaveCatalog.Bosses[index]; SaveReferences.Register(d.key, b); if (b == null) continue;
+                     if (d.health <= 0) b.RestoreDefeated(); else { b.transform.position = d.position.ToVector3(); b.RestoreHp(d.health); }
+                     b.GetComponent<BossEncounter>()?.Restore(d.bossEncounter);
++                    b.GetComponent<AntColony.Boss.AoE.BossCircleAoE>()?.Restore(d.health > 0 ? d.circleAoE : null);
++                    b.GetComponent<AntColony.Boss.AoE.BossConeAoE>()?.Restore(d.health > 0 ? d.coneAoE : null);
++                    b.GetComponent<AntColony.Boss.AoE.BossLineAoE>()?.Restore(d.health > 0 ? d.lineAoE : null);
+                     continue;
+                 }
+                 var m = parts[0] == "monster" ? SaveCatalog.Monsters[index]
+diff --git a/Assets/_Project/Scripts/UI/GameMenuHomecomings.cs b/Assets/_Project/Scripts/UI/GameMenuHomecomings.cs
+new file mode 100644
+index 0000000..b4127eb
+--- /dev/null
++++ b/Assets/_Project/Scripts/UI/GameMenuHomecomings.cs
+@@ -0,0 +1,44 @@
++using System.Globalization;
++using AntColony.World;
++using UnityEngine;
++using UnityEngine.UI;
++
++namespace AntColony.UI
++{
++    public sealed partial class GameMenuController
++    {
++        private void HomecomingEntries()
++        {
++            var dm = DiplomacyManager.Instance;
++            if (dm == null) { MenuTheme.Text(content, "외교 정보 준비 대기", 13, 28); return; }
++            foreach (var r in dm.Data.homecomings)
++            {
++                string reason = dm.HomecomingWaitReason(r);
++                MenuTheme.Text(content, $"{r.commander?.Name} · {(string.IsNullOrEmpty(r.to) ? "우리 본거지로" : "상대 세력으로")} · {DiplomacyManager.HomecomingTimeLabel(r.arrive - dm.Data.elapsed)}"
++                    + (r.gear.Count > 0 ? $" · 동반 장비 {r.gear.Count}" : "") + (reason == "" ? "" : "\n대기: " + reason), 13, reason == "" ? 52 : 76);
++            }
++            if (dm.Data.homecomings.Count == 0) MenuTheme.Text(content, "귀환 중인 장수가 없습니다.", 13, 28);
++            var at = dm.HomecomingAnchor;
++            MenuTheme.Text(content, $"진입 기준: {(dm.Data.homecomingEntrySet ? "직접 지정" : "본거지 기준점에서 가장 가까운 지도 경계")}\nX {at.x:0.##} / Y {at.y:0.##} / Z {at.z:0.##}", 13, 56);
++            MenuTheme.Text(content, "대체 진입 좌표 X / Y(높이) / Z\n본거지 안의 빈 보행 지점만 허용. 적 잔류 시 귀환 대기.", 13, 52);
++            InputField Coordinate(string name, float value)
++            {
++                var field = MenuTheme.Input(content, value.ToString("0.##", CultureInfo.InvariantCulture));
++                field.gameObject.name = "HomecomingEntry" + name;
++                field.contentType = InputField.ContentType.DecimalNumber;
++                return field;
++            }
++            var x = Coordinate("X", at.x); var y = Coordinate("Y", at.y); var z = Coordinate("Z", at.z);
++            MenuTheme.Button(content, "대체 안전 진입점 지정", () =>
++            {
++                if (!float.TryParse(x.text, NumberStyles.Float, CultureInfo.InvariantCulture, out float px)
++                    || !float.TryParse(y.text, NumberStyles.Float, CultureInfo.InvariantCulture, out float py)
++                    || !float.TryParse(z.text, NumberStyles.Float, CultureInfo.InvariantCulture, out float pz))
++                { ToastManager.Show("X / Y / Z에 숫자를 입력하세요."); return; }
++                if (!dm.SetHomecomingEntry(new Vector3(px, py, pz), out var error)) { ToastManager.Show(error); return; }
++                ShowPrisoners(null);
++            });
++            MenuTheme.Button(content, "기본 경계 진입으로 복귀", () => { dm.ResetHomecomingEntry(); ShowPrisoners(null); });
++        }
++    }
++}
+diff --git a/Assets/_Project/Scripts/UI/GameMenuManagement.cs b/Assets/_Project/Scripts/UI/GameMenuManagement.cs
+index a2862d8..7d0627f 100644
+--- a/Assets/_Project/Scripts/UI/GameMenuManagement.cs
++++ b/Assets/_Project/Scripts/UI/GameMenuManagement.cs
+@@ -112,7 +112,7 @@ namespace AntColony.UI
+                     Info("기존 개체 의료·목장 관리에 연결합니다. 통합 위생 대시보드는 미구현입니다.");
+                     break;
+                 case "묘비·추모": Link("사망 기록 / 묘비", () => ShowMemorial()); Info("사망 기록·시신 수습·추모 설정을 관리합니다."); break;
+-                case "포로": Facilities<PrisonerCamp>(ShowPrisoners); Info("수용소별 실제 포로와 경비 상태를 관리합니다."); break;
++                case "포로": Facilities<PrisonerCamp>(ShowPrisoners); Link("안전 귀환 · 진입점 관리", () => ShowPrisoners(null)); Info("수용소별 실제 포로와 경비 상태를 관리합니다."); break;
+                 case "인구": Link("인구 · 이주 · 세금 · 병역", Population); Info("현재 인구와 이주 수요·민심·병역 정책을 확인합니다."); break;
+                 case "기록": Link("이벤트 기록", EventLog); Info("최근 사건과 누적 자원 획득·소비 기록입니다."); break;
+                 case "자원":
+diff --git a/Assets/_Project/Scripts/UI/GameMenuPrisoners.cs b/Assets/_Project/Scripts/UI/GameMenuPrisoners.cs
+index be33e32..b0ff8e1 100644
+--- a/Assets/_Project/Scripts/UI/GameMenuPrisoners.cs
++++ b/Assets/_Project/Scripts/UI/GameMenuPrisoners.cs
+@@ -15,23 +15,19 @@ namespace AntColony.UI
+ 
+         public void ShowPrisoners(PrisonerCamp camp)
+         {
+-            if (camp == null || !camp.isActiveAndEnabled) { Resume(); return; }
+-            if (prisonerPick == null || !camp.Prisoners.Contains(prisonerPick)) { prisonerPick = camp.Prisoners.FirstOrDefault(); releaseConfirm = executeConfirm = false; }
+-            var window = V5Window("포로 수용소", $"정원 {camp.Count}/{camp.Capacity} · 경비 {(camp.Guarded ? "있음(탈출 시 제압 판정)" : "없음")} · 움직일 수 없는 포로는 탈출하지 않음");
++            if (camp != null && !camp.isActiveAndEnabled) camp = null;
++            if (camp == null || prisonerPick == null || !camp.Prisoners.Contains(prisonerPick)) { prisonerPick = camp?.Prisoners.FirstOrDefault(); releaseConfirm = executeConfirm = false; }
++            var window = V5Window("포로 수용소 · 안전 귀환", camp == null ? "수용소가 없어도 석방 장수의 안전 귀환을 관리할 수 있습니다."
++                : $"정원 {camp.Count}/{camp.Capacity} · 경비 {(camp.Guarded ? "있음(탈출 시 제압 판정)" : "없음")} · 움직일 수 없는 포로는 탈출하지 않음");
+             content = V5Section(window, "포로", 20, 104, 420, 330);
+-            if (camp.Count == 0) MenuTheme.Text(content, "수용 중인 포로가 없습니다.", 15, 30);
+-            foreach (var p in camp.Prisoners.ToArray())
++            if (camp == null || camp.Count == 0) MenuTheme.Text(content, "수용 중인 포로가 없습니다.", 15, 30);
++            foreach (var p in camp?.Prisoners.ToArray() ?? new Prisoner[0])
+             {
+                 var pick = p; var h = p.PersonalState.health;
+                 MenuTheme.Button(content, (p == prisonerPick ? "▶ " : "") + $"{p.Name} · {h?.Summary ?? "건강"} · 배고픔 {100 - p.PersonalState.meal.satiety:0}", () => { prisonerPick = pick; releaseConfirm = executeConfirm = false; ShowPrisoners(camp); });
+             }
+-            var dm = DiplomacyManager.Instance;
+             content = V5Section(window, "귀환 중", 20, 446, 420, 202);
+-            var returning = dm != null ? dm.Data.homecomings : null;
+-            if (returning == null || returning.Count == 0) MenuTheme.Text(content, "귀환 중인 장수가 없습니다.", 15, 30);
+-            else foreach (var r in returning)
+-                    MenuTheme.Text(content, $"{r.commander?.Name} · {(string.IsNullOrEmpty(r.to) ? "우리 본거지로" : "상대 세력으로")} · {DiplomacyManager.HomecomingTimeLabel(r.arrive - dm.Data.elapsed)}"
+-                        + (r.gear.Count > 0 ? $" · 동반 장비 {r.gear.Count}" : ""), 13, 52);
++            HomecomingEntries();
+ 
+             content = V5Section(window, prisonerPick == null ? "선택 없음" : prisonerPick.Name, 454, 104, 626, 544);
+             if (prisonerPick == null) { V5Fit(window); return; }
+diff --git a/Assets/_Project/Scripts/World/DiplomacyHomecomingEntry.cs b/Assets/_Project/Scripts/World/DiplomacyHomecomingEntry.cs
+new file mode 100644
+index 0000000..47ed671
+--- /dev/null
++++ b/Assets/_Project/Scripts/World/DiplomacyHomecomingEntry.cs
+@@ -0,0 +1,63 @@
++using AntColony.Buildings;
++using AntColony.Core;
++using AntColony.Map;
++using System.Linq;
++using UnityEngine;
++using UnityEngine.AI;
++
++namespace AntColony.World
++{
++    public sealed partial class DiplomacyManager
++    {
++        public Vector3 HomecomingAnchor => Data.homecomingEntrySet ? Data.homecomingEntry : HomeReturnPoint.Anchor;
++
++        internal static bool ValidHomecomingEntry(State s) => !s.homecomingEntrySet || ValidEntryCoordinates(s.homecomingEntry);
++        internal static bool ValidEntryCoordinates(Vector3 p) => !float.IsNaN(p.x) && !float.IsNaN(p.y) && !float.IsNaN(p.z)
++            && System.Math.Abs(p.x) <= 1000000 && System.Math.Abs(p.y) <= 1000000 && System.Math.Abs(p.z) <= 1000000;
++
++        private bool TryHomecomingLanding(out Vector3 landing)
++        {
++            if (!Data.homecomingEntrySet) return HomeReturnPoint.TryGround(HomeReturnPoint.Anchor, out landing);
++            return TryEntry(Data.homecomingEntry, out landing);
++        }
++
++        private static bool TryEntry(Vector3 candidate, out Vector3 landing)
++        {
++            landing = candidate;
++            if (!ValidEntryCoordinates(candidate)) return false;
++            var bounds = HomeMapBuilder.CurrentWorldBounds;
++            if (bounds.size.x <= 0 || bounds.size.z <= 0 || !NavMesh.SamplePosition(candidate, out var hit, 1, NavMesh.AllAreas)) return false;
++            if (hit.position.x < bounds.min.x || hit.position.x > bounds.max.x || hit.position.z < bounds.min.z || hit.position.z > bounds.max.z) return false;
++            foreach (var collider in Physics.OverlapSphere(hit.position + Vector3.up, 1))
++                if (collider.GetComponentInParent<BuildingBase>() != null) return false;
++            landing = hit.position;
++            return true;
++        }
++
++        public bool SetHomecomingEntry(Vector3 candidate, out string error)
++        {
++            if (!TryEntry(candidate, out var landing))
++            { error = "본거지 지도 안의 건물 없는 보행 지점을 지정하세요(탐색 반경 1m)."; return false; }
++            Data.homecomingEntry = landing; Data.homecomingEntrySet = true;
++            error = null;
++            return true;
++        }
++
++        public void ResetHomecomingEntry() { Data.homecomingEntrySet = false; Data.homecomingEntry = Vector3.zero; }
++
++        private bool HomecomingThreatened() => ExpeditionTransport.HomeHasEnemies()
++            || Data.homecomingEntrySet && WildMonster.All.Any(m => m != null && m.Threatening
++                && (m.Position - Data.homecomingEntry).sqrMagnitude <= 25 * 25
++                && CombatTargeting.CanAttack(AntColony.Data.UnitRole.Ranged, m));
++
++        public string HomecomingWaitReason(Homecoming h)
++        {
++            if (!string.IsNullOrEmpty(h.to) || h.arrive > Data.elapsed) return "";
++            if (HomecomingThreatened()) return "본거지·지정 진입점 주변에 적 잔류: 적을 물리친 뒤 귀환";
++            if (!TryHomecomingLanding(out _)) return Data.homecomingEntrySet
++                ? "지정 진입점 통행 불가·건물 점유: 다른 안전 지점 지정"
++                : "본거지 경계의 보행 진입점 없음: 대체 안전 진입점 지정";
++            return CommanderRoster.Instance == null ? "본거지 장수 명부 준비 대기" : "안전 진입 준비: 게임 재개 후 귀환";
++        }
++    }
++}
+diff --git a/Assets/_Project/Scripts/World/DiplomacyManager.cs b/Assets/_Project/Scripts/World/DiplomacyManager.cs
+index 4a13414..8971cfd 100644
+--- a/Assets/_Project/Scripts/World/DiplomacyManager.cs
++++ b/Assets/_Project/Scripts/World/DiplomacyManager.cs
+@@ -23,6 +23,8 @@ namespace AntColony.World
+             public List<RebelMember> rebelMembers = new List<RebelMember>();
+             public List<Negotiation> talks = new List<Negotiation>();
+             public List<Homecoming> homecomings = new List<Homecoming>();
++            public bool homecomingEntrySet; // 구저장 false: 기존 본거지 경계 진입
++            public Vector3 homecomingEntry;
+             public List<Seizure> seizures = new List<Seizure>();
+             public List<string> reputation = new List<string>();
+             public int trust, threat, nextTalk;
+@@ -265,7 +267,7 @@ namespace AntColony.World
+         public static bool Validate(State s, int sites)
+         {
+             bool Finite(float f) => f >= 0 && !float.IsNaN(f) && !float.IsInfinity(f);
+-            if (s == null || s.civilizations == null || s.civilizations.Count < 4 || s.civilizations.Count > 100
++            if (s == null || !ValidHomecomingEntry(s) || s.civilizations == null || s.civilizations.Count < 4 || s.civilizations.Count > 100
+                 || s.owners == null || s.owners.Count != sites || !Finite(s.elapsed) || !Finite(s.nextMonth) || !Finite(s.caravanUntil)
+                 || s.blueprintSite < -1 || s.blueprintSite >= sites || s.extraSites < 0 || s.extraSites > 100
+                 || s.markets == null || s.markets.Count > 4 || s.rebelMembers == null || s.rebelMembers.Count > 1000) return false;
+diff --git a/Assets/_Project/Scripts/World/DiplomacyPrisoners.cs b/Assets/_Project/Scripts/World/DiplomacyPrisoners.cs
+index 4b1089f..5e47431 100644
+--- a/Assets/_Project/Scripts/World/DiplomacyPrisoners.cs
++++ b/Assets/_Project/Scripts/World/DiplomacyPrisoners.cs
+@@ -155,7 +155,7 @@ namespace AntColony.World
+                 return true;
+             }
+             var p = h.commander; var roster = CommanderRoster.Instance; if (roster == null || p == null) return false;
+-            if (ExpeditionTransport.HomeHasEnemies() || !HomeReturnPoint.TryGround(HomeReturnPoint.Anchor, out var landing)) return false;
++            if (HomecomingThreatened() || !TryHomecomingLanding(out var landing)) return false;
+             var recruit = roster.Create(p.Name, p.Rank, p.Roles, p.Roles[0], p.Traits, landing);
+             if (recruit == null) return false;
+             recruit.RestoreTalents(p.Talents); recruit.RestorePersonalState(p.PersonalState); recruit.WorkState.duty = CommanderDuty.Civilian;
+diff --git a/Assets/_Project/Scripts/World/ExpeditionRules.cs b/Assets/_Project/Scripts/World/ExpeditionRules.cs
+index 92d641f..b27fd83 100644
+--- a/Assets/_Project/Scripts/World/ExpeditionRules.cs
++++ b/Assets/_Project/Scripts/World/ExpeditionRules.cs
+@@ -14,6 +14,12 @@ namespace AntColony.World
+             int ring = distance < .235f ? 0 : distance < .385f ? 1 : 2;
+             return aircraft ? (ring == 0 ? 10 : ring == 1 ? 20 : 35) : (ring == 0 ? 20 : ring == 1 ? 40 : 70);
+         }
++        // 편입지 간에는 본거지 띠를 쓰지 않고 최근거리 .16의 기존 속도로 실제 거리를 환산한다(잠정).
++        public static float BetweenSeconds(Vector2 from, Vector2 to, bool walking, bool aircraft)
++        {
++            double x = to.x - from.x, y = to.y - from.y;
++            return (float)(System.Math.Sqrt(x * x + y * y) / .16 * (walking ? GameCalendar.SecondsPerDay : aircraft ? 10 : 20));
++        }
+         public static float WalkSeconds(ExpeditionSite site) => GameCalendar.SecondsPerDay
+             * Mathf.Max(.25f, site == null ? 1 : Mathf.Round(Vector2.Distance(site.MapPosition, new Vector2(.5f, .5f)) / .16f * 1000) / 1000);
+         public static int HomeCommanders => CommanderRoster.Instance == null ? 0 : CommanderRoster.Instance.Commanders
+diff --git a/Assets/_Project/Scripts/World/ExpeditionWithdraw.cs b/Assets/_Project/Scripts/World/ExpeditionWithdraw.cs
+index 13ccbcf..1bf748d 100644
+--- a/Assets/_Project/Scripts/World/ExpeditionWithdraw.cs
++++ b/Assets/_Project/Scripts/World/ExpeditionWithdraw.cs
+@@ -179,6 +179,9 @@ namespace AntColony.World
+         }
+         private void StartWithdrawTravel(ExpeditionSite next)
+         {
++            float travel = next != null && Site != null
++                ? ExpeditionRules.BetweenSeconds(Site.MapPosition, next.MapPosition, Walking, Aircraft) / (Walking ? FormationWalkMultiplier : 1)
++                : TravelSeconds;
+             if (Site?.Settlement != null)
+                 foreach (var c in Site.Settlement.Garrison) if (c != null && c.IsWorking && !c.IsCarrying) c.CommandStop();
+             if (WorldMapManager.Instance?.ViewedSite == Site) WorldMapManager.Instance.ViewSite(null);
+@@ -189,7 +192,7 @@ namespace AntColony.World
+                 State = ExpeditionState.Outbound;
+             }
+             else State = ExpeditionState.Returning;
+-            Remaining = TravelSeconds;
++            Remaining = travel;
+         }
+         private bool Approach(CommanderAnt c, Vector3 target)
+         {
+diff --git a/README.md b/README.md
+index 91dab75..5d2157e 100644
+--- a/README.md
++++ b/README.md
+@@ -4,6 +4,8 @@
+ 
+ 현재 외형은 SD kemono 주민 모델입니다. 직접 제작한 시설·자원·생물·시민·소품 모델을 연결했습니다. 실제 프레임에서 이동·전투·작업 메시가 변하는 검사와 그래픽 연결 검사를 통과했습니다. 기획 전체 완성·모든 화면 검수·Player 빌드 완료를 뜻하지 않습니다.
+ 
++> **K2 작업 사본:** 기존 보스 지상 범위3종의 경고 위치·방향·남은 시간·명중 여부 저장 경로를 추가했습니다. 편입지 간 이동은 실제 두 월드맵 좌표의 거리로 계산하며 본거지 왕복 규칙과 로드된 귀환 잔여시간은 유지합니다. ‘의료·관리 → 포로 → 안전 귀환·진입점 관리’에서 대기 사유와 기준점을 보고 X/Y/Z로 대체 안전 지점을 지정하거나 기본 경계 진입으로 돌릴 수 있습니다. 수용소 없이도 열 수 있고 적 잔류 시에는 대기합니다. 게임/검사 Roslyn 오류0·오프라인107검사 통과 범위이며 실제 Unity 저장 왕복·지형·화면 검수는 미실행입니다. [K2 인계](docs/HANDOFF-CODEX-K2-1029.md)를 참조하세요.
++
+ > **2026-10-26 통합 SAVE:** Claude/Codex의 10월25일 낮 SAVE 이후 작업을 대조했습니다. 진형14종·연구6종과 출전 선택 UI, 철수·실물 수송·파손/수리/해체 및 원정 패널, 설정/드래그/시작 인원, 그래픽·공통 애니메이션/초상, 등급 특성 칩을 반영했습니다. 특성 칩 화살표는 제거했습니다. 상세 근거·검증 범위·미통합 사본은 [통합 대조](docs/SAVE_AUDIT_20261026.md)와 [현재 상태](log.md)를 참조합니다.
+ 
+ > **2026-10-27 SAVE:** 자동 작업·실물 공급, 장비/동작, Claude 평가·외부 조사·지하 탐사, 유한 지하 생산과 가스/티타늄 산업을 통합했습니다. 실제 메뉴5장을 검수해 개발 일지에 첨부했습니다. 저장 범위·검증 한계와 잔여는 [SAVE 대조](docs/SAVE_AUDIT_20261027.md)를 참조합니다.
+diff --git a/docs/DECISIONS_1029_K2.md b/docs/DECISIONS_1029_K2.md
+new file mode 100644
+index 0000000..8c80a66
+--- /dev/null
++++ b/docs/DECISIONS_1029_K2.md
+@@ -0,0 +1,24 @@
++# K2 기획 공백 결정 — 2026-10-29 배정 / 2026-10-31 작업
++
++필수 3건의 최소 구현 추천안이다. 확정 기획을 임의 변경한 것으로 읽지 않는다. Unity 에디터 실행은 Claude 전용이며 아래 실행 검사는 미실행이다.
++
++| 항목번호 | 선택지 | 고른 추천안 | 이유 | 확인 상태 |
++| --- | --- | --- | --- | --- |
++| K2-1 / J2 공백 상: 지상 AoE 저장 | 경고 취소 / 경고 처음부터 재시작 / 남은 경고와 명중 후 표시 복원 | 고정된 지면 위치·방향, 남은 게임 시간, 명중 판정 여부·명중 후 표시 시간을 복원 | 로드로 공격을 없애거나 경고를 무한 연장하지 않으며 이미 준 피해를 다시 주지 않음. 기존 범위·피해·공중 제외·배속 정책 유지 | 추천안 자동 선택(사용자 미확인) |
++| K2-2 / J2 공백 상: 편입지 간 이동 | 목적지의 본거지 띠 / 양 끝의 띠 합 / 두 좌표 사이 직선거리 | 편입지 좌표 간 거리 ÷ .16 × 최근거리 편도 시간, 도보는 기존 진형 속도 보정 | 같은 띠의 이웃과 반대편을 구별. 새 경로 탐색·무작위 시간 없이 실제 두 끝 좌표 사용. 본거지 왕복 기존식과 저장된 진행 중 Remaining은 유지 | 추천안 자동 선택(사용자 미확인) |
++| K2-3 / J2 공백 상: 포로 안전 귀환 | 자동 순간이동 / 경계만 재검색 / 플레이어가 대체 지점 직접 지정 | 기존 포로 창의 좌표 입력 X/Y/Z로 본거지 안의 빈 NavMesh 지점 지정·기본 경계로 초기화 | 건물이 없어도 기존 의료·관리 → 포로에서 진입. 적 잔류 금지는 유지하고, 지정점 주변 위협도 추가 확인. 출정·전쟁 자동 결정 없음 | 추천안 자동 선택(사용자 미확인) |
++
++## 잠정 수치
++
++| 대상 | 값 | 출처·범위 |
++| --- | --- | --- |
++| 편입지 간 거리 기준 | 월드맵 정규화 좌표 .16 | 기존 최근거리 띠 기준 재사용 |
++| 편입지 간 도보 / 차량 / 항공 | 거리 .16당 150 / 20 / 10 게임 초 | 기존 도보 하루 / 최근 띠 수송 시간 재사용. 도보 진형 보정·기존 이동속도 보정 적용 |
++| 두 거점 거리 .32 | 도보300 / 차량40 / 항공20 게임 초 | 예: (.66,.5) → (.34,.5). 같은 거점 0초이며 실제 요청은 같은 거점 목적지를 기존 경로에서 거부 |
++| 대체 진입점 검색 | 지정 좌표 반경1m | 기존 HomeReturnPoint의 NavMesh 샘플 반경 재사용 |
++| 대체 진입점 건물 이격 검사 | 지면+높이1m 중심의 반경1m 구 | 기존 항공 빈 착륙점 검사와 같은 기준. 본거지 Bounds X/Z 안이어야 함 |
++| 대체 진입점 주변 위협 | 25m | 기존 본거지 야생 위협 반경 재사용. 본거지 습격대·적 장수 잔류 검사는 그대로 추가 적용 |
++
++AoE 저장 필드의 `captured=false` 빈 인라인 객체는 구저장/유휴 상태로 취급한다. JsonUtility가 null 클래스를 빈 객체로 만드는 경우에도 공격이 새로 발생하지 않는다. 저장 검증은 유한 좌표·단위 수평 방향·0~60초 타이머·명중 후 경고0을 요구한다(기존 예고1.2/1.5초, 명중 뒤.15초는 변경 없음).
++
++원정 시간 계산·AoE 상태 기계·구저장 기본값·잘못된 입력은 실제 DLL로 오프라인 판정했다. 경고 중 실제 JSON/SaveSnapshot 복원·실피해/경고 표시·지형·포로 도착·화면 폭은 `Review1029K2Checks.RunScene` 및 인계서의 Claude 실행 항목이며, 장시간 플레이 필요로 분류하지 않는다.
+diff --git a/docs/GAPS_1029_J2.md b/docs/GAPS_1029_J2.md
+index 7765ec3..26d5aa5 100644
+--- a/docs/GAPS_1029_J2.md
++++ b/docs/GAPS_1029_J2.md
+@@ -4,11 +4,11 @@
+ 
+ | 우선순위 | 공백 | 코드·기획 근거 | 추천 해결안 |
+ | --- | --- | --- | --- |
+-| 상 | 보스전 중 저장은 기존 지상 AoE의 발동 중 상태를 보존하지 않음 | `SaveSnapshot.cs`는 기존 보스HP만, 신규 `MonsterDto.bossEncounter`는 이번 비행 공격만 보존. `BossCircleAoE`/`BossConeAoE`/`BossLineAoE` 코루틴은 별개 | 기존 AoE도 경고 위치·방향·잔여·피해1회 여부를 저장하고 경고 중 저장왕복 검사 |
++| 상 / K2 구현·실행 잔여 | 보스전 중 기존 지상 AoE 상태 저장 | K2: 3종의 고정 위치·방향·잔여·명중 여부·명중 후 표시 시간을 MonsterDto/SaveSnapshot/SavePreflight에 연결. 구저장 빈 객체는 유휴 상태 | 오프라인 상태 기계 검사 통과. `Review1029K2Checks.RunScene` 경고 중 JSON/전체 복원 및 실제 표시·피해 검사는 Claude 실행 잔여 |
+ | 상 | 발사대의 최초 가동에 실물 핵심물을 썼다는 전용 기록 없음 | 이번 `BossProgress.TryConsumeRocketCore`는 home감소, `AirshipYard.State`에는 핵심물 원산지/회차 식별자가 없음 | 핵심물을 다른 로켓으로 되돌릴 계획이 생기면 parcel 계보와 장착 소유권을 추가. 현재는 소비형 유지 |
+ | 상 | 전체 건물 바벨 기초의 공통 제공자가 없음 | Notion 건물 문서는 모든 건물·가구·벽에 적용, 소스에는 기존 바벨 기본 건설 효율만 있음. 이번은 `AirshipYard.Recovery` 한정 | 건설 기여·자진철거/피해 구분·기초 재건을 공통 건설 담당에게 이관하고 로켓 제공자를 공통 경로로 교체 |
+-| 상 | 편입지→다른 편입지의 이동은 본거지 띠 시간과 구분되지 않음 | `ExpeditionWithdraw.cs`의 다음 거점 이동에도 `TravelSeconds` 사용. 이번 띠별 시간은 본거지 기준 | 실제 출발/목적 좌표 간 거리로 별도 이동 예산 계산. 기존 진행 중 귀환 타이머는 로드시 보존 |
+-| 상 | 포로 안전 귀환이 영구 진입 불가 지형에 도착하면 회복 수단 설명이 없음 | `DiplomacyPrisoners.Arrive`는 적 잔류/안전 지점 실패 때 대기만 함 | 대기 원인과 본거지 진입 기준점을 표시하고, 플레이어가 대체 안전 진입점을 지정하도록 설계 |
++| 상 / K2 구현·실행 잔여 | 편입지→다른 편입지의 실제 거리 이동 | K2: Site 변경 전에 양 끝 MapPosition 거리로 예산 계산. 본거지 왕복식·RestoreState의 저장 Remaining 보존. .16당 도보150/차량20/항공10초는 추천 잠정값 | 같은 띠 근접/반대편·대칭/거리0 계산 통과. 전체 저장복원 타이머 검사는 Claude 실행 잔여 |
++| 상 / K2 구현·실행 잔여 | 포로 안전 귀환 대기 회복 경로 | K2: 기존 포로 창에 대기 사유·기준점·대체 X/Y/Z 지정/초기화. 수용소 없이 진입 가능. 본거지 NavMesh·빈 지점 검사·적 잔류 금지·설정 저장 연결 | 유한 좌표/구저장 기본값 검사 통과. 실제 지형 지정/포로 도착/화면 폭 검사는 Claude 실행 잔여 |
+ | 중 | 보스 핵심물 복구 제작이 시설·작업자 없이 시간만 흐르면 완료됨 | `BossProgress.TickCraft`는 `CampaignResearch.Tick`에서 초당 진행 | 기존 제작대 목록·실물 배송·담당 장수 경로에 탐지/복구 제작을 연결. 자동 제조법 선택은 금지 |
+ | 중 | 호위 소환으로 얻는 전투 경험치의 장기 농사 기준 없음 | 신규 `BossEncounter.SpawnAdds`, `CommanderProgression.KillXp`, 재등장/회복과 독립된 전투 경험 | 호위의 경험치/처치 기록을 보스 회차 단위 예산으로 묶을지 결정하고 정상 전투의 성장량과 비교 |
+ | 중 | 보스 추가 호위의 시신 종류가 일반 야생 시신을 재사용 | `WildMonster.Die`의 비침공·비장수 분류, 신규 호위는 식량보상 없이 생성 | 호위의 종족·시신·도축/장례/잔해 처리를 정하고 재등장에도 현장 소유권 유지 |
+diff --git a/docs/HANDOFF-CODEX-K2-1029.md b/docs/HANDOFF-CODEX-K2-1029.md
+new file mode 100644
+index 0000000..1333710
+--- /dev/null
++++ b/docs/HANDOFF-CODEX-K2-1029.md
+@@ -0,0 +1,68 @@
++# Codex K2 인계 — 2026-10-29 배정 / 2026-10-31 작업
++
++- 작업 폴더: `E:/Git/ant-wt/K2`, 브랜치 `codex/k2-1029`.
++- 필수 3건 구현. 선택 범위인 milestones 압축·원정 식량 예상 통합은 착수하지 않음.
++- 원본·K1/Claude 담당 코드는 수정하지 않음. 기존 Claude·J1·J2 미커밋 기준선 보존. Unity 실행·캡처·개발 일지·Notion·커밋·push 없음.
++- 패치: `docs/patches/K2-1029.patch`. **세션 시작 미커밋 병합본에 대한 K2 추가분만** 포함한다. HEAD 전체 diff는 기존 병합본까지 중복 적용하므로 사용하지 않는다.
++- 패치 검증: 22파일, 기준선에 정방향 적용 검사·적용 후 전체 파일 대조·현재본에서 역방향 적용 검사 통과. 기존 미커밋 병합분·Graphify·Temp·prefab 변경은 패치에 포함하지 않았다.
++
++## 항목별 판정·변경
++
++| 항목 | 판정 | 수정 | 검사·남은 것 |
++| --- | --- | --- | --- |
++| 1. 지상 AoE 발동 중 저장 | 실제 공백: WaitForSeconds의 진행/조준·명중 상태가 저장에 없음 | BossAoEState로 위치/수평 방향/남은 게임 시간/명중 여부/명중 후 표시를 보존. 3종 Capture/Restore, MonsterDto·SaveSnapshot·SavePreflight 연결. 명중 전 플래그 설정으로 재판정 차단. null/빈 인라인 객체는 구저장 유휴 | Main 상태 기계·오염 입력·복사 독립성 통과. RunScene 실제 경고 중 JSON·전체 저장복원/정지 중 잔여/방향·위치 보존/명중 후 복원 작성, 미실행. 실제 경고 표시·실피해 중복 여부는 Claude 확인 |
++| 2. 편입지 간 이동 거리 | 실제 오류: 목적지의 본거지 띠 시간으로 동일 띠 이웃/반대편이 같음 | StartWithdrawTravel에서 Site 변경 전 실제 양 끝 좌표의 거리를 계산. 도보 진형 보정·기존 이동 배속 사용. 본거지 왕복 기존식 유지. 저장 타이머는 재계산하지 않음 | Main 거리 차이·대칭·0거리·운송수단별 계산 통과. RunScene 실제 출발 코드·Returning 7.25초 전체 저장복원 작성, 미실행 |
++| 3. 포로 안전 귀환 대기 | 실제 공백: 적 잔류·경계 진입 실패 모두 원인/수동 대안 없이 대기 | 적 잔류/진입 불가/명부 준비/재개 대기 구분. 기존 포로 창에 진입 기준점과 X/Y/Z 대체 지점·초기화. 본거지 안 NavMesh(1m), 건물 점유, 기존 적 잔류+지정점25m 위협 확인. 외교 State에 설정 저장, 구저장 false는 기본 경계. 수용소 없는 진입 추가 | Main 유한 좌표/구저장 기본값 통과. RunScene 불가 지점 대기·유효 지정/JSON복원·실제 Arrive/중복 방지·수용소 없이 창 열기 작성, 미실행. NavMesh·위협 fixture/화면 폭은 Claude 실행 잔여 |
++
++## 검증 근거
++
++- 실행: `powershell -NoProfile -ExecutionPolicy Bypass -File AgentScripts/Review1029K2Compile.ps1 -OfflineChecks`.
++- 공식 Unity 설치의 dotnet/csc와 원본 Bee 응답 파일 참조를 사용한다. `Assets/_Project` 소스는 전부 K2에서 새 파일 포함 열거한다. 원본 응답 파일에 새 Claude 파일이 추가되어도 K2에 섞지 않는다.
++- 첫 시도는 원본 응답 파일의 새 훈련 partial을 읽어 Barracks 중복 선언 오류가 났다. 검사 도구의 소스 열거만 수정해 해소했고 Barracks 파일은 변경하지 않았다.
++- 게임 DLL·K2 검사 DLL·오프라인 호스트 컴파일 오류 **0**. 기존 Unity 폐기 API 경고는 남음.
++- 실제 K2 게임 DLL을 참조한 `Review1029K2Checks.Main()` **107 PASS**. Unity 스텁·복제 계산식으로 통과시킨 결과가 아니다.
++- 로컬 근거: `Temp/K2-compile-run.txt`, `Temp/Review1029K2/game.rsp`, `checks.rsp`, `Assembly-CSharp.dll`.
++- `git diff --check`는 K2 수정 코드에서 통과. Graphify AST 갱신 완료: 11,748노드·27,199간선·532커뮤니티, LLM 사용 없음. 그래프 산출물은 코드 패치에서 제외한다.
++- 요청한 `git -C E:/Git/ant-wt/K2 add -N .`은 공용 `E:/Git/ant/.git/worktrees/K2/index.lock` 쓰기 권한 거부로 실패했다. K2 내부 임시 저장소의 기준선 인덱스를 사용해 `git add -N .`·`git diff`로 동일한 K2 추가분 패치를 만든다. 임시 저장소에서도 커밋은 하지 않는다.
++
++## Claude 실행·UI 연결 요청
++
++1. 미커밋 병합본에 K2 패치를 적용하고 게임/검사 컴파일을 다시 확인한다. SaveSnapshot·SavePreflight·DiplomacyManager·README·IMPLEMENTATION_BOARD는 다른 담당 변경과 해당 줄만 병합한다.
++2. **격리 새 게임**에서 본거지에 장수1명(건물과 떨어진 빈 지점)·수송대1개·살아 있는 보스가 있는 상태로 `Review1029K2Checks.RunScene()`을 호출한다. 메모리 스냅샷을 finally에서 복원하며 저장 파일 I/O는 없다. Unity CLI용 진입점이 Main만 허용되면 임시 래퍼에서 RunScene을 호출한다.
++3. 3종 경고 중 저장 → 로드 → 원래 위치/방향·잔여·단1회 실제 피해를 확인한다. Runtime 함수는 경고 및 명중 플래그 왕복을 검사하며 실제 피해량·물리 콜라이더 검수는 별도로 한다.
++4. 적 잔류 fixture에서 귀환이 막히는지, 지정점 주변 위협/건물 설치 뒤 대기로 돌아가는지, 적 제거 후 기존 귀환 장수가 한 번만 도착하는지 확인한다. 경계 NavMesh가 없는 fixture에서도 내부의 빈 NavMesh 지점 지정으로 회복되는지 확인한다. 장시간 플레이가 필요한 검사가 아니다.
++5. 메뉴 연결은 구현됨: **의료·관리 → 포로 → 안전 귀환·진입점 관리**, 수용소 선택 창에도 같은 귀환 구역. 별도 새 창 추가 불필요. 좌표 입력3개와 대기 행은 기존 스크롤 구역에 배치한다. 1920×1080·1280×720에서 스크롤 도달·입력/버튼·문구 겹침 검수 필요. 캡처는 사용자 SAVE 때만 수행한다.
++6. `docs/DECISIONS_1029_K2.md`의 추천 수치/정책은 사용자 미확인이다. SAVE 때 Notion의 관련 기획·참조 페이지를 함께 대조/반영하며 부모 페이지 replace_content는 금지한다.
++
++## 수정·신규 파일 전체 목록
++
++기존 수정 15개:
++
++- `Assets/_Project/Scripts/Boss/AoE/BossCircleAoE.cs`
++- `Assets/_Project/Scripts/Boss/AoE/BossConeAoE.cs`
++- `Assets/_Project/Scripts/Boss/AoE/BossLineAoE.cs`
++- `Assets/_Project/Scripts/Save/SaveDtos.cs`
++- `Assets/_Project/Scripts/Save/SaveSnapshot.cs`
++- `Assets/_Project/Scripts/Save/SavePreflight.cs`
++- `Assets/_Project/Scripts/World/ExpeditionRules.cs`
++- `Assets/_Project/Scripts/World/ExpeditionWithdraw.cs`
++- `Assets/_Project/Scripts/World/DiplomacyManager.cs`
++- `Assets/_Project/Scripts/World/DiplomacyPrisoners.cs`
++- `Assets/_Project/Scripts/UI/GameMenuPrisoners.cs`
++- `Assets/_Project/Scripts/UI/GameMenuManagement.cs`
++- `README.md`
++- `docs/IMPLEMENTATION_BOARD.md`
++- `docs/GAPS_1029_J2.md`
++
++신규 7개(패치 자체 포함 8개):
++
++- `Assets/_Project/Scripts/Boss/AoE/BossAoEState.cs`
++- `Assets/_Project/Scripts/World/DiplomacyHomecomingEntry.cs`
++- `Assets/_Project/Scripts/UI/GameMenuHomecomings.cs`
++- `AgentScripts/Review1029K2Checks.cs`
++- `AgentScripts/Review1029K2Compile.ps1`
++- `docs/DECISIONS_1029_K2.md`
++- `docs/HANDOFF-CODEX-K2-1029.md`
++- `docs/patches/K2-1029.patch` (자기 자신은 패치 내용에 미포함)
++
++생성된 `Temp/K2Baseline`, `Temp/Review1029K2`, 검증 로그와 Graphify 산출물은 인계 코드 패치에서 제외한다. prefab·기존 meta 파일은 만들거나 수정하지 않았다. Unity 임포트 시 신규 .cs의 meta 생성은 Claude가 처리한다.
+diff --git a/docs/IMPLEMENTATION_BOARD.md b/docs/IMPLEMENTATION_BOARD.md
+index 38dd852..68c62a8 100644
+--- a/docs/IMPLEMENTATION_BOARD.md
++++ b/docs/IMPLEMENTATION_BOARD.md
+@@ -437,3 +437,5 @@
+ - **REVIEW100-1029 분업 / 진행 중** — Codex J1(ant-wt/J1, codex/j1-1029): 11·13~17·19·20·23·25·26·28·35~38·40·72·73·77·78 경제/식품/산업/교역 파일. Codex J2(ant-wt/J2, codex/j2-1029): 61~71·75·76·80·83~90 전투/보스/원정/최종방어/엔딩 파일. Claude(원본): 2~10·29·30·41~47·50·53~60·92·95·96 성장/특성/관계/의료/알림·UI 공통 + Codex 패치 병합·Unity 검사. 각 담당 외 파일 동시 수정 금지. 결정은 docs/DECISIONS_1029_<담당>.md, 추가 공백은 docs/GAPS_1029_<담당>.md.
+ - **REVIEW100-J1-1029 / Codex J1 / 오프라인 검증·인계 완료** — 담당21개 중10개 수정·9개 계산/대조·23/77 구현 잔여. 소유 Core/ColonyTaxRules·ResourceStudyRules 신규, ColonyPopulation.Monthly·CampaignResearch.Resources, Buildings/Redevelopment·Processor.Industrial, World/DiplomacyMarketDelivery 신규·DiplomacyTrade, UI/GameMenuPopulation·CivicServices·Diet·Diplomacy, AgentScripts/Review1029*Checks4종·RunReview1029J1.py. 게임442소스/검사14소스 컴파일 오류0(경고32/13), 실제 게임DLL 순수72검사 통과. Unity 실거래/실저장/UI/원정 통합 검사 미실행, SceneChecks 준비. docs/HANDOFF-CODEX-J1-1029.md·DECISIONS_1029_J1·GAPS_1029_J1(추가12건)·상태21행/README 반영. 원본 index.lock 쓰기 거부로 J1 Temp 임시index에서 패치 생성, 커밋 없음.
+ - **REVIEW100-J2-1029 / Codex J2 / 구현·오프라인 검증 완료, Unity 실행 인계** — codex/j2-1029, E:/Git/ant-wt/J2 전용. 61~71·75·76·80·83~90 (22항목). 소유: Commander 병력/진형 전투, Boss/원정, DiplomacyPrisoners, Rocket/CampaignOutcome 및 해당 GameMenu 전투·원정·캠페인·포로 UI, Review1029 검사·J2 결정/인계/공백 문서. 경제·식품·산업·교역 UI 및 79·81·82·97·98 기존 수정 유지. Unity 조작·원본 수정·커밋 없음. 22항목 대조(17보완/5규칙유지), 게임/검사 Roslyn 오류0·계산339PASS. Runtime/실제 저장복원/실플레이·월드맵 표시/진형 메뉴 연결은 Claude 인계. 결정/공백15건/인계·docs/patches/J2-1029.patch.
++
++- **REVIEW100-K2-1029 / Codex K2 / 구현·오프라인 검증 완료, Unity 실행 인계** — 소유 Boss/AoE 3종·BossAoEState 신규, SaveDtos/SaveSnapshot/SavePreflight 해당 경로, ExpeditionWithdraw/ExpeditionRules 거리 계산, DiplomacyPrisoners/Manager·DiplomacyHomecomingEntry 신규, GameMenuPrisoners/Management·GameMenuHomecomings 신규. 필수 공백3건 구현, 게임/검사 Roslyn 오류0·오프라인107검사. Review1029K2Checks.RunScene의 실저장 왕복·NavMesh·UI 실행은 Claude 전용 잔여. 원본·K1·Claude 담당 파일 수정/Unity 실행/커밋 없음. 결정/인계·docs/patches/K2-1029.patch.

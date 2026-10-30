@@ -138,6 +138,8 @@ namespace AntColony.Buildings
             Crafter.GainExperience(CommanderActivity.Crafting, elapsed, EquipmentRecipes.Topic(job.recipe));
             if (job.work < GameBalance.CraftWork) return;
             var item = EquipmentRecipes.Create(job.recipe, EquipmentRecipes.Quality(Crafter.Talents.Level(CommanderActivity.Crafting), UnityEngine.Random.value, UnityEngine.Random.value));
+            // 다이아 무라마사: 보유 장수가 혼자 만든 걸작은 10% 확률로 유일작.
+            if (item.quality == 3 && Crafter.Traits.Has(AntColony.Units.CommanderTrait.DiamondCrafting) && UnityEngine.Random.value < .1f) item.unique = true;
             AntColony.World.EquipmentLoot.Drop(Position + ResourceManager.Scatter(), new[] { item });
             jobs.RemoveAt(0);
             AntColony.UI.ToastManager.Show("제작 완료: " + item.Label);

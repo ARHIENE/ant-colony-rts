@@ -1,4 +1,4 @@
-﻿namespace AntColony.Data
+namespace AntColony.Data
 {
     public static class ResourceLabels
     {
@@ -69,7 +69,7 @@
         Charcoal, Coke, Pottery,
         Wheat, Barley, Rice, Grapes, SunflowerSeed, WheatFlour, SunflowerOil, RubberSap, Rubber,
         Beer, RiceWine, FruitWine, Mead, HoneydewWine, Spirits,
-        CookedRice, Flatbread, FriedRice
+        CookedRice, Flatbread, FriedRice, SmokedFood
     }
 
     // 재료 특성(내구·무게·가연성·미관·단열). 후반 재료가 모든 면에서 우월하지 않게 용도를 나눈다.

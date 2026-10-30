@@ -15,7 +15,11 @@ namespace AntColony.World
         {
             Id = id; site = value;
             if (GetComponent<BossRewardVisual>() == null) gameObject.AddComponent<BossRewardVisual>();
-            if (site.Boss != null) site.Boss.CampaignId = id;
+            if (site.Boss != null)
+            {
+                site.Boss.CampaignId = id;
+                (site.Boss.GetComponent<BossEncounter>() ?? site.Boss.gameObject.AddComponent<BossEncounter>()).Initialize(site.Boss, id);
+            }
         }
         private void Update()
         {
@@ -37,6 +41,6 @@ namespace AntColony.World
         }
         public string Guide => "보스 " + Id + " · " + BossProgress.Hazard(Id) + "\n"
             + (Revealed ? "위치 공개됨" : CampaignResearch.Instance?.BossProgress.DetectionBlock(Id))
-            + " / 보상: " + BossProgress.Reward(Id);
+            + " / 보상: " + BossProgress.Reward(Id) + "\n" + BossEncounterRules.Guide(Id);
     }
 }

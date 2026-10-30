@@ -10,8 +10,8 @@ namespace AntColony.Units
     public enum InjurySeverity { Minor, Serious, Permanent }
     public enum MentalBreak { None, Idle, Flee, AttackBuilding, AttackCommander, SelfHarm, Binge, Wander }
     [Serializable] public class CommanderInjury { public InjuryPart part; public InjurySeverity severity; public float remaining; public bool regenerating, prognosisPending; }
-    [Serializable] public class MoodFactor { public string reason; public float value, remaining; }
-    [Serializable] public class CommanderRelation { public string otherId; public float value, nearbySeconds, quarrelSeconds, duelSeconds, memorialCooldown; public bool spouse, family; public int lastComfortDay = -1; }
+    [Serializable] public class MoodFactor { public string reason; public float value, remaining, politicalReduction; }
+    [Serializable] public class CommanderRelation { public string otherId; public float value, nearbySeconds, quarrelSeconds, duelSeconds, memorialCooldown; public bool spouse, family; public int lastComfortDay = -1; public float widowedAt = -1; }
     [Serializable]
     public class CommanderPersonalState
     {
@@ -27,7 +27,7 @@ namespace AntColony.Units
         public string ordinaryClothes = "";
         public FoodLots carriedRations = new FoodLots(); // 원식량 단위, 개인 재고는 창고 합계에 포함하지 않는다.
         public GroundCraftState groundCraft = new GroundCraftState();
-        public float workedSeconds, breakCheck, lowMoodSeconds, captiveSeconds, unsupportedSeconds, breakRemaining, rageRemaining, rewardCooldown, lastCombatSeconds, homeSeconds;
+        public float workedSeconds, breakCheck, lowMoodSeconds, captiveSeconds, unsupportedSeconds, breakRemaining, rageRemaining, rewardCooldown, lastCombatSeconds, homeSeconds, wrathRemaining, wrathExhaust;
         public float craftProgress, researchProgress;
         public float beautyExposure; // 생활 공간 미관의 체류 평균(2026-10-10)
         public float ageMonths = -1, lifespanMonths; // Phase 4 나이(개월)
@@ -62,8 +62,11 @@ namespace AntColony.Units
         };
         public void AddMood(string reason, float value, float seconds)
         {
+            var prior = moodFactors.Find(f => f.reason == reason && f.remaining > 0);
+            var reduction = value < 0 ? prior?.politicalReduction ?? 1 - (CampaignResearch.Instance?.DiscontentMultiplier(id) ?? 1) : 0;
+            if (value < 0) value *= 1 - reduction;
             moodFactors.RemoveAll(f => f.reason == reason);
-            moodFactors.Add(new MoodFactor { reason = reason, value = value, remaining = seconds });
+            moodFactors.Add(new MoodFactor { reason = reason, value = value, remaining = seconds, politicalReduction = reduction });
         }
         public CommanderRelation Relation(string other)
         {
@@ -83,6 +86,8 @@ namespace AntColony.Units
             moodFactors.RemoveAll(f => f.remaining <= 0);
             rewardCooldown = Mathf.Max(0, rewardCooldown - dt);
             rageRemaining = Mathf.Max(0, rageRemaining - dt);
+            if (wrathRemaining > 0) { wrathRemaining -= dt; if (wrathRemaining <= 0) { wrathRemaining = 0; wrathExhaust = CommanderAnt.WrathExhaustSeconds; } }
+            else wrathExhaust = Mathf.Max(0, wrathExhaust - dt);
         }
         public bool Validate(out string error)
         {
@@ -101,11 +106,12 @@ namespace AntColony.Units
                 || injuries == null || injuries.Count > 6 || moodFactors == null || moodFactors.Count > 64 || relations == null || equipment == null || equipment.Count > 3) return false;
             var parts = new HashSet<InjuryPart>();
             foreach (var i in injuries) if (i == null || !Enum.IsDefined(typeof(InjuryPart), i.part) || !parts.Add(i.part) || !Enum.IsDefined(typeof(InjurySeverity), i.severity) || !Finite(i.remaining) || i.remaining < 0) return false;
-            foreach (var f in moodFactors) if (f == null || f.reason == null || !Finite(f.value) || !Finite(f.remaining) || f.remaining < 0) return false;
+            foreach (var f in moodFactors) if (f == null || f.reason == null || !Finite(f.value) || !Finite(f.remaining) || f.remaining < 0
+                || !Finite(f.politicalReduction) || f.politicalReduction < 0 || f.politicalReduction > .6f) return false;
             foreach (var r in relations) if (r == null || string.IsNullOrEmpty(r.otherId) || !Finite(r.value) || r.value < -100 || r.value > 100 || !Finite(r.nearbySeconds) || r.nearbySeconds < 0 || !Finite(r.quarrelSeconds) || r.quarrelSeconds < 0 || !Finite(r.duelSeconds) || r.duelSeconds < 0) return false;
             var slots = new HashSet<EquipmentSlot>();
             foreach (var e in equipment) if (e == null || !e.IsValid || !slots.Add(e.slot)) return false;
-            foreach (float value in new[] { workedSeconds, breakCheck, lowMoodSeconds, captiveSeconds, unsupportedSeconds, breakRemaining, rageRemaining, rewardCooldown, lastCombatSeconds, homeSeconds, craftProgress, researchProgress, birthRecoverySeconds }) if (!Finite(value) || value < 0) return false;
+            foreach (float value in new[] { workedSeconds, breakCheck, lowMoodSeconds, captiveSeconds, unsupportedSeconds, breakRemaining, rageRemaining, rewardCooldown, lastCombatSeconds, homeSeconds, wrathRemaining, wrathExhaust, craftProgress, researchProgress, birthRecoverySeconds }) if (!Finite(value) || value < 0) return false;
             if (craftLevel < 0 || craftLevel > 5 || researchLevel < 0 || researchLevel > 5 || !Enum.IsDefined(typeof(MentalBreak), mentalBreak)) return false;
             if (!Finite(moldLoss) || moldLoss < 0 || moldLoss >= 20 || !Finite(moldSpread) || moldSpread < 0 || moldSpread >= 30
                 || !Finite(moldTreatment) || moldTreatment < 0 || moldTreatment > 60) return false;

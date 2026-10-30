@@ -1,4 +1,4 @@
-﻿using System.Linq;
+using System.Linq;
 using AntColony.Buildings;
 using AntColony.Core;
 using AntColony.World;
@@ -71,7 +71,7 @@ namespace AntColony.Units
             if ((!firefighting && !CivilianWorkReady || firefighting && (IsDead || IsAwayFromHome || IsAsleep || IsCaptive || PersonalState.health.Downed)) || !CanReceiveOrders || IsWorking || LabUpgradeBusy || !AllowsJob(job)
                 || Active.OfType<CommanderAnt>().Any(c => c != this && c.ServiceTarget == target)
                 || target == null || target.IsDead || !target.isActiveAndEnabled || !target.CountsTowardPlayerDefeat || target is Processor processor && !processor.CanContinue(this)
-                || job != CommanderJobs.Nursing && job != CommanderJobs.Repair && job != CommanderJobs.Cooking && !(firefighting && target.GetComponent<WallFire>()?.Burning == true) && !(job == CommanderJobs.Hauling && (target is PowerNode || target is SupplyFacility well && ManualWellNeedsWork(well))) && !(job == CommanderJobs.Administration && target is AdminDesk) && !(job == CommanderJobs.Crafting && (target is Processor || target is SupplyFacility supply && SupplyCraftNeedsWork(supply))) && !(job == CommanderJobs.Gathering && target is SupplyFacility drill && DeepDrillNeedsWork(drill))
+                || job != CommanderJobs.Nursing && job != CommanderJobs.Repair && job != CommanderJobs.Cooking && !(firefighting && target.GetComponent<WallFire>()?.Burning == true) && !(job == CommanderJobs.Hauling && (target is PowerNode || target is SupplyFacility well && ManualWellNeedsWork(well))) && !(job == CommanderJobs.Administration && target is AdminDesk) && !(job == CommanderJobs.Hunting && target is Barracks) && !(job == CommanderJobs.Crafting && (target is Processor || target is SupplyFacility supply && SupplyCraftNeedsWork(supply))) && !(job == CommanderJobs.Gathering && target is SupplyFacility drill && DeepDrillNeedsWork(drill))
                 || !TryWorkApproach(target.Position, out var approach)) return false;
             CommandStop(); ServiceTarget = target; ServiceJob = job;
             SetMoveDestination(approach); SetWorkTarget(target); return true;
@@ -145,6 +145,10 @@ namespace AntColony.Units
             else if (ServiceJob == CommanderJobs.Administration) // 행정 책상에서 정치 업무(2026-10-08)
             {
                 if (!(ServiceTarget is AdminDesk desk) || !desk.Work(this, seconds)) { CommandStop(); return false; }
+            }
+            else if (ServiceJob == CommanderJobs.Hunting) // 병영 훈련(2026-10-31)
+            {
+                if (!(ServiceTarget is Barracks barracks) || !barracks.Train(this, seconds)) { CommandStop(); return false; }
             }
             else if (!BuildingRepair.For(ServiceTarget).Work(this, seconds)) { CommandStop(); return false; }
             return true;

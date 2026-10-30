@@ -16,7 +16,8 @@ namespace AntColony.UI
             var f = Frame("공공서비스"); var p = L.Plate(f, "CivicServices", 300, 100, 840, 660);
             L.Label(p, "시민 · 공공서비스", 20, 24, 16, 792, 34);
             L.Label(p, $"서비스 {pop.PublicServiceCapacity}명 / 시민 {pop.Total}명 · 충족 {pop.PublicServiceCoverage:P0} · 이주 수요에 곱함", 13, 24, 60, 792, 28);
-            L.Label(p, $"기본 500명 · 시설당 500명     행정 하루 {pop.AdminDemandWork:0.###}업무 · 성과 {pop.Administration:P0}", 13, 24, 90, 792, 28);
+            L.Label(p, $"기본 500명 · 시설당 500명 · 시민 서비스는 거리 무관     행정 하루 {pop.AdminDemandWork:0.###}업무 · 성과 {pop.Administration:P0}", 13, 24, 90, 792, 28)
+                .gameObject.AddComponent<MenuTooltip>().Message = "시민의 공공서비스·교육·의료는 본거지 전체의 정원 비율입니다. 장수의 식탁·휴식·오락 이용과 주거 주변 미관은 실제 위치에 영향을 받습니다.";
             L.Line(p, 24, 128, 792);
             L.Label(p, $"학당 {pop.SchoolCount}동 · 어린 시민 {pop.S.young}명 · 교육 {pop.EducationCoverage:P0}" + (pop.SchoolsOperating ? "" : " · 운영비 부족"), 15, 24, 140, 792, 28);
             L.Label(p, "1동당 어린 시민 20명 · 하루 식량 0.3 / 재료(흙) 0.15. 성인 전환 시 교육 효과 적용.", 13, 24, 172, 792, 26, MenuTheme.Muted);

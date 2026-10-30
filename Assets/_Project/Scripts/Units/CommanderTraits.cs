@@ -23,7 +23,8 @@ namespace AntColony.Units
         GoldCooking, GoldStrength, GoldArt, GoldPolitics, GoldHusbandry, GoldInvestigation,
         DiamondGathering, DiamondBuilding, DiamondFarming, DiamondFishing, DiamondCrafting, DiamondResearch, DiamondMedicine,
         DiamondCooking, DiamondStrength, DiamondArt, DiamondPolitics, DiamondHusbandry, DiamondInvestigation,
-        Legion // D04 지휘·진형 강화(군세 계승은 별도)
+        Legion, // D04 지휘·진형 강화(군세 계승은 별도)
+        DiamondDoubleStrike, DiamondArmorBreak, DiamondWrath, DiamondPierce // D21~D24 무간·참경·역린·엑스텐(저장 번호 보존을 위해 끝에 추가)
     }
     // 기술 16종. 마지막 저장 슬롯(15)은 조사이며 소화는 작업만 있고 독립 기술은 아니다.
     public enum CommanderActivity { Gathering, Building, Farming, Fishing, Crafting, Research, Melee, Ranged, Command, Medicine, Cooking, Strength, Art, Politics, Husbandry, Investigation }

@@ -121,6 +121,8 @@ namespace AntColony.Save
         public int serviceCommander = -1, serviceJob; // 이 건물을 서비스 중인 장수 번호·CommanderJobs
         public int workforce;
         public float repairCredit;
+        public Buildings.BabelState babel;
+        public string artistId; public bool diamondArtwork;
         public int decorationQuality = 1;
         public Buildings.Kitchen.State kitchen = new Buildings.Kitchen.State();
         public string key;
@@ -199,6 +201,7 @@ namespace AntColony.Save
         public float amount;
         public float regrowTimer;
         public float sowRemaining; // 밭 파종 남은 작업량(2026-10-08). 옛 저장은 0 = 이미 심음.
+        public bool rebirthUsed; public float rebirthTimer, rebirthPeak; // 다이아 무중생유(구저장 기본 미사용)
         public int seedCrop = -1; public string seedKey; // G28 야생 작물 종자 출처(-1 = 없음, 구저장 호환)
         public bool bountifulHarvest;
         public bool gatheringForbidden;
@@ -261,6 +264,7 @@ namespace AntColony.Save
     [Serializable]
     public class TransportDto
     {
+        public List<World.ExpeditionTransport.FoodCargo> cargoFreshness;
         public List<World.Corpse.State> bodyCargo;
         public int[] cargoAmounts;
         public World.TransportDamageState damage;
@@ -327,8 +331,9 @@ namespace AntColony.Save
         public bool loopCompleted, bossDefeated, defeated;
         public string defeatReason; // G11 패배 사유(구저장 없음)
         public string randomState;
-        public const int CurrentVersion = 21;
+        public const int CurrentVersion = 22;
         public List<World.Corpse.State> corpses = new List<World.Corpse.State>();
+        public List<ConstructionAttributionDto> constructionAttribution;
         public List<ConstructionDto> construction; // v17 건설·철거·이동·개보수 예정지(옛 저장은 null = 없음)
         public List<World.Critter.State> critters; // v16 목장 생물 개체(2026-10-11 개편: 나이·배고픔·길들임·돌봄·결박 등, 옛 필드는 같은 이름으로 읽힘)
         public World.DiplomacyManager.State diplomacy;
@@ -374,6 +379,8 @@ namespace AntColony.Save
     [Serializable]
     public class MonsterDto
     {
+        public AntColony.Boss.AoE.BossAoEState circleAoE, coneAoE, lineAoE;
+        public AntColony.Boss.BossEncounter.State bossEncounter; // 구저장 null: 첫 착지 상태
         public string investigationId;
         public bool hasRuntime;
         public WildMonsterDto runtime; // v19

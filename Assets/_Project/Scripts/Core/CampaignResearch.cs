@@ -106,6 +106,9 @@ namespace AntColony.Core
             public int resourceActive = -1; public float resourceProgress; // G06 진행 중인 자원 표본 연구(구저장 -1)
             public List<CampaignOutcome.Entry> leftCommanders = new List<CampaignOutcome.Entry>(); // G43: 명부에서 지워진 이탈자(포획된 이탈자·반란 합류)
             public List<string> consumptionOverrides = new List<string>();
+            public List<Contribution> contributions = new List<Contribution>();
+            public List<int> insights = new List<int>(), insightApplied = new List<int>();
+            public List<PoliticalPresence> politicalPresence = new List<PoliticalPresence>();
             public List<int> completed = new List<int>();
             public int active = -1;
             public float progress;
@@ -188,7 +191,9 @@ namespace AntColony.Core
             state.active = (int)technology;
             state.progress = 0;
             if (saved >= 0) { state.progress = state.partialProgress[saved]; state.partialIds.RemoveAt(saved); state.partialProgress.RemoveAt(saved); }
+            ApplyInsight();
             state.paused = false;
+            if (state.progress >= definition.Work) CompleteResearch();
             return true;
         }
 
@@ -211,7 +216,7 @@ namespace AntColony.Core
         private void Update() => Tick(Time.deltaTime);
         public void Tick(float seconds)
         {
-            if (seconds > 0 && !float.IsInfinity(seconds)) BossProgress.TickCraft(seconds);
+            if (seconds > 0 && !float.IsInfinity(seconds)) { BossProgress.TickCraft(seconds); TickPoliticalPresence(seconds); }
             if (Active == null && state.resourceActive >= 0 && seconds > 0 && !float.IsInfinity(seconds) && !Departed) { TickResourceResearch(seconds); return; }
             if (!(seconds > 0) || float.IsInfinity(seconds) || Active == null || Departed || state.paused) return;
             foreach (var lab in AntColony.Core.SceneObjects.All<ScienceLab>())
@@ -219,11 +224,17 @@ namespace AntColony.Core
                 var c = lab.Target;
                 if (!lab.isActiveAndEnabled || lab.Busy || lab.Tier < Active.Tier || c == null
                     || !c.ResearchWorkReady || !c.CanReceiveOrders || c.IsAwayFromHome || c.ScienceAssignment != lab || (c.Position - lab.Position).sqrMagnitude > 64) continue;
-                state.progress += seconds * c.WorkRate(CommanderActivity.Research) * (1f + .25f * (lab.Tier - 1));
+                CreditResearch(c, seconds * c.WorkRate(CommanderActivity.Research) * (1f + .25f * (lab.Tier - 1)));
                 c.GainExperience(CommanderActivity.Research, seconds, Topic(Active.Technology));
             }
             if (state.progress < Active.Work) return;
+            CompleteResearch();
+        }
+
+        private void CompleteResearch()
+        {
             var completed = Active;
+            GrantInsight(completed);
             state.completed.Add(state.active);
             state.active = -1;
             state.progress = 0;
@@ -278,6 +289,7 @@ namespace AntColony.Core
             if (!AntColony.Boss.BossProgress.Validate(value.bosses)) return false;
             if (!ValidResourceRecords(value.samples) || !ValidResourceRecords(value.resourceResearch)) return false;
             if (value.resourceResearch != null && value.resourceResearch.Exists(i => value.samples == null || !value.samples.Contains(i))) return false;
+            if (!ValidInsight(value) || !ValidPoliticalPresence(value)) return false;
             if (!ValidResourceActive(value)) return false;
             if (value.leftCommanders != null && (value.leftCommanders.Exists(e => e == null || string.IsNullOrEmpty(e.id) || e.name == null)
                 || value.leftCommanders.Select(e => e.id).Distinct().Count() != value.leftCommanders.Count)) return false;

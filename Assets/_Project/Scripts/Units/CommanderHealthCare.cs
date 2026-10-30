@@ -76,7 +76,8 @@ namespace AntColony.Units
             foreach (var p in HomePatients())
             {
                 var h = p.Health; var patient = p;
-                if (MedicalRules.NeedsDoctor(h, MedicineAllowed(h)) && !Taken(p, MedJob.Tend) && (p != this || CanSelfTend))
+                if ((MedicalRules.NeedsDoctor(h, MedicineAllowed(h)) || p != this && h.medicine != MedicineLevel.NoCare && traits.Has(CommanderTrait.DiamondMedicine) && h.wounds.Any(w => w.kind == WoundKind.Scar))
+                    && !Taken(p, MedJob.Tend) && (p != this || CanSelfTend))
                     list.Add((Urgency(h), p, () => StartMed(MedJob.Tend, patient)));
                 if (p.IsMedicalPatient && p.Satiety < GameBalance.EatBelowSatiety && p != this && !Taken(p, MedJob.Feed) && HasFood())
                     list.Add((Urgency(h), p, () => StartMed(MedJob.Feed, patient)));
@@ -196,6 +197,9 @@ namespace AntColony.Units
                     if (!used && tier >= 0 && h.wounds.Any(w => w.NeedsTend) && rm.TrySpend(MedicalRules.Medicines[tier], 1, ResourceReason.Treatment)) used = true;
                     if (!used) quality = MedicalRules.TendQuality(talents.Level(CommanderActivity.Medicine), -1, p.TreatmentFacility != null, Health.Manipulation, p == this);
                     MedicalRules.ApplyTend(h, quality, used);
+                    // 다이아 파나케이아: 이 장수가 처치하면 흉터(영구 손상)를 함께 치유한다. 상실 부위는 제외.
+                    if (traits.Has(CommanderTrait.DiamondMedicine) && h.wounds.RemoveAll(w => w.kind == WoundKind.Scar) > 0)
+                        AntColony.UI.ToastManager.Show($"{CommanderName}의 파나케이아: {p.CommanderName}의 흉터를 치유했습니다");
                     EndMed(); return true;
                 case MedJob.Feed:
                     if (medWork < FeedSeconds) return true;

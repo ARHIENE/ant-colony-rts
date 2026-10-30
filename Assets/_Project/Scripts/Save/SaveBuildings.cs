@@ -25,7 +25,8 @@ namespace AntColony.Save
             var servicer = commanders.FindIndex(c => c != null && c.ServiceTarget == b);
             if (servicer >= 0) { d.serviceCommander = servicer; d.serviceJob = (int)commanders[servicer].ServiceJob; }
             if (b is Kitchen kitchen) d.kitchen = JsonUtility.FromJson<Kitchen.State>(JsonUtility.ToJson(kitchen.Meals));
-            if (b is Decoration decoration) d.decorationQuality = decoration.Quality;
+            d.babel = b.Babel == null ? null : JsonUtility.FromJson<BabelState>(JsonUtility.ToJson(b.Babel));
+            if (b is Decoration decoration) { d.decorationQuality = decoration.Quality; d.artistId = decoration.ArtistId; d.diamondArtwork = decoration.DiamondArtwork; }
             if (b is Barracks barracks) { d.role = (int)barracks.Role; d.barracksTier = barracks.CurrentTier; d.barracksUpgradeRemaining = barracks.UpgradeRemaining; }
             if (b is ResearchLab lab) { d.role = (int)lab.Role; d.labResearchRemaining = lab.ResearchRemaining;
                 d.labResearchCommanderId = commanders.IndexOf(lab.Target); d.labResearchAttack = lab.ResearchIsAttack; }
@@ -95,7 +96,8 @@ namespace AntColony.Save
             BuildingRepair.For(b).Credit = d.repairCredit;
             if (d.fire != null) (b.TryGetComponent<WallFire>(out var fire) ? fire : b.gameObject.AddComponent<WallFire>()).RestoreState(d.fire);
             if (b is Kitchen kitchen) kitchen.Meals = JsonUtility.FromJson<Kitchen.State>(JsonUtility.ToJson(d.kitchen));
-            if (b is Decoration decoration) decoration.Quality = d.decorationQuality;
+            b.Babel = d.babel == null ? null : JsonUtility.FromJson<BabelState>(JsonUtility.ToJson(d.babel));
+            if (b is Decoration decoration) { decoration.Quality = d.decorationQuality; decoration.ArtistId = d.artistId; decoration.DiamondArtwork = d.diamondArtwork; }
             if (b is Barracks barracks) barracks.RestoreState(d.barracksTier, d.barracksUpgradeRemaining);
             if (b is ResearchLab lab && d.labResearchCommanderId >= 0) lab.RestoreState(commanders[d.labResearchCommanderId], d.labResearchAttack, d.labResearchRemaining);
             // Phase 4: 여왕방 삭제. 이전 저장에서 진행 중이던 여왕방 낚시 연구는 완료로 처리한다.

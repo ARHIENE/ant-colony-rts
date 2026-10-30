@@ -206,6 +206,7 @@ namespace AntColony.Units
             }
             if (animalProgress < 0) animalProgress = 0;
             a.Halt();
+            a.NoteTamer(this);
             if (!Work(seconds, GameBalance.CritterCareWorkSeconds, AnimalTask.Care)) return true;
             a.CalledTo = null;
             if (Handled(a, CommanderActivity.Husbandry)) a.FinishCare(this);

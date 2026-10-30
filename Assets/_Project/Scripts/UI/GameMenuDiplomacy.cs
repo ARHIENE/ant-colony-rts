@@ -23,6 +23,7 @@ namespace AntColony.UI
             var d = DiplomacyManager.Instance;
             if (d?.Available != true) { SupplyCaravan(); return; }
             var f = Frame("외교 [J]");
+            L.Button(f, "Artwork", "화룡 걸작 선물", 700, 47, 290, 32, ArtworkDiplomacy);
             L.Button(f, "SupplyCaravan", "기초 자원 캐러밴", 1010, 47, 270, 32, SupplyCaravan);
             var contacted = d.Data.civilizations.Where(c => c.contacted && !c.extinct).ToArray();
             var tab = L.Plate(f, "DiplomacyTab", 48, 47, 200, 34);
@@ -66,7 +67,7 @@ namespace AntColony.UI
 
             if (selected == null)
             {
-                L.Label(p, "접촉한 문명을 선택하세요. 첫 원정 도착 시 접촉합니다.", 16, 400, 280, 900, 40, MenuTheme.Dim, TextAnchor.MiddleCenter);
+                L.Label(p, "첫 접촉: 기본 자원·장비 협상, 협정·지도자 정보 해금\n접촉한 문명을 선택하세요. 접촉 후에는 관계·전력에 따라 선전포고 위험이 생깁니다.", 13, 400, 260, 900, 70, MenuTheme.Dim, TextAnchor.MiddleCenter);
                 return;
             }
             var s = selected;
@@ -164,7 +165,9 @@ namespace AntColony.UI
             L.Label(badge, c.name.Substring(0, 1), 16, 0, 0, 36, 36, MenuTheme.AccentInk, TextAnchor.MiddleCenter, true);
             L.Label(p, $"<b>{c.name}</b>  <color=#b1b3a7>{c.leader}</color>", 16, 60, 10, 420, 22);
             L.Label(p, $"관계 {(c.war ? "전쟁" : "평화")} · 호감도 <b>{c.affinity:+0;-0;0}</b> · 공개 어젠다 {DiplomacyRules.AgendaNames[(int)c.agenda]}", 12, 60, 32, 520, 20, MenuTheme.Muted);
-            L.Label(p, "상대는 받는 가치가 주는 가치 × (1.2 - 호감도 / 250) 이상이면 수락", 12, 700, 20, 630, 20, MenuTheme.Dim, TextAnchor.MiddleRight);
+            var transport = d.MarketTransport(c);
+            L.Label(p, transport != null ? $"현지 수령 · 수송칸 여유 {transport.ReturnCargoSpace} · 귀환 후 사용" : "본거지 수령 · 자원·장비 교환", 12, 700, 20, 630, 20, MenuTheme.Dim, TextAnchor.MiddleRight)
+                .gameObject.AddComponent<MenuTooltip>().Message = "기초 자원 캐러밴은 계절 방문 때 광석·가공품을 판매합니다. 교역소는 방문·귀환이 필요하고 지정 교역소만 설계도를 판매합니다. 문명은 기본 3자원·장비와 협정·거점·포로를 협상합니다. 현지 교역 결제는 본거지 재고를 사용합니다.";
             L.Line(p, 0, 60, 1344);
             var names = new[] { "자원", "장비", "거점", "포로 장수", "협정" };
             for (var i = 0; i < names.Length; i++)
@@ -198,8 +201,8 @@ namespace AntColony.UI
         private void TradeSide(RectTransform parent, Civilization c, bool player, Action preview)
         {
             var d = DiplomacyManager.Instance; var offer = player ? tradeGive : tradeTake;
-            MenuTheme.Text(parent, player ? "<b>우리 정착지</b>  <color=#b1b3a7>보유 / 제시</color>" : $"<b>{c.name}</b>  <color=#b1b3a7>보유 / 요청</color>", 15, 32);
-            string[] resourceNames = { "식량", "재료", "특수 자원" };
+            MenuTheme.Text(parent, player ? "<b>우리 정착지</b>  <color=#b1b3a7>본거지 결제 / 제시</color>" : $"<b>{c.name}</b>  <color=#b1b3a7>보유 / 요청</color>", 15, 32);
+            string[] resourceNames = { "식량", "흙", "특수 자원" };
             // 목록 버튼은 디자인 행 크기(높이 36, 14pt)로 줄인다.
             Button Item(string label, Action action)
             {
@@ -240,7 +243,7 @@ namespace AntColony.UI
                     : c.rebels.Select(p => (p.PersonalState.id, p.Name + " · 반란 합류")).Concat(d.HeldCaptives(c).Select(a => (a.PersonalState.id, a.CommanderName + " · 억류")));
                 foreach (var (id, name) in entries.ToArray())
                 {
-                    var arrival = player ? "" : $" · 귀환 약 {d.HomecomingSeconds(id, c) / DiplomacyRules.Month:0.0}개월";
+                    var arrival = player ? "" : " · 안전 귀환 " + DiplomacyManager.HomecomingTimeLabel(d.HomecomingSeconds(id, c));
                     Item((offer.prisoners.Contains(id) ? "✓ " : "") + name + $" · 몸값 {d.RansomValue(id, c):0}" + arrival, () => { if (!offer.prisoners.Remove(id)) offer.prisoners.Add(id); rebuildTrade(); });
                 }
                 if (!entries.Any()) MenuTheme.Text(parent, player ? "이 세력 출신 포로가 없습니다." : "이 세력이 붙잡은 자국 장수가 없습니다.", 13, 24).color = MenuTheme.Dim;

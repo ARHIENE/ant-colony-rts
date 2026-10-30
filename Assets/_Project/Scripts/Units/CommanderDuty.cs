@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using AntColony.Buildings;
@@ -210,6 +210,10 @@ namespace AntColony.Units
                         .GroupBy(c => (c.level, c.corpse)).OrderByDescending(g => g.Key.Item1).ThenByDescending(g => g.Key.Item2))
                         foreach (var (_, start) in ByTravel(level.Select(c => (c.target, c.start))))
                             if (start()) return;
+            // 할 일이 하나도 없을 때만 병영에서 훈련한다(사냥 칸 허용 장수, 검토45 공백).
+            if (AllowsJob(CommanderJobs.Hunting))
+                foreach (var (_, start) in ByTravel(Barracks.Training.Where(b => b.FreeForTraining).Select(b => ((Component)b, (Func<bool>)(() => StartService(b, CommanderJobs.Hunting) && b.BeginTraining())))))
+                    if (start()) return;
         }
         // 같은 대상 우선순위 안에서 실제 경로 길이 → 오래 기다린 요청 순. 경로 계산은 직선거리로 가까운 몇 개만 한다.
         // ponytail: 직선 상위 8개만 경로를 잰다. 후보가 많아 먼 곳이 실제로 더 가까운 경우가 잦으면 늘린다.

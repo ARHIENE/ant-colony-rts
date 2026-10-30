@@ -43,7 +43,7 @@ namespace AntColony.Units
                     if (!TryWorkApproach(kitchen.Position, out _)) continue;
                     var meal = kitchen.TakeMeal(kitchen.BestMeal(Diet));
                     if (meal == null) continue;
-                    m.quality = meal.quality; m.cookSkill = meal.skill; m.rotten = false; m.served = true;
+                    m.quality = meal.quality; m.cookSkill = meal.skill; m.inspired = false; m.rotten = false; m.served = true;
                     TakeMealExtra(bins);
                     return true;
                 }
@@ -52,9 +52,10 @@ namespace AntColony.Units
                 if (walk && MoveForMeal(bin.Position)) return false;
                 if (!bin.Spendable || !TryWorkApproach(bin.Position, out _)) continue;
                 m.pickedType = (int)type;
-                m.pickedFood += rm.TakeFrom(bin, type, Mathf.Min(need - m.pickedFood, bin.Lots(type)?.StalestAmount ?? need));
+                m.pickedFood += rm.TakeFrom(bin, type, Mathf.Min(need - m.pickedFood, bin.Lots(type)?.StalestAmount ?? need), out var eatenLots);
                 if (m.pickedFood < need) return false;
-                m.pickedFood = 0; m.quality = quality; m.cookSkill = quality > 0 ? Kitchen.SkillOf(type) : 0;
+                m.pickedFood = 0; m.quality = quality; m.cookSkill = quality > 0 ? eatenLots?.CookingSkill ?? 5 : 0;
+                m.inspired = quality > 0 && eatenLots?.Inspired == true;
                 m.rotten = type == ResourceType.RottenFood; m.served = true;
                 if (quality > 0) TakeMealExtra(bins);
                 return true;

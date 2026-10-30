@@ -12,7 +12,7 @@ namespace AntColony.Core
     // 꺼낼 때는 남은 시간이 짧은 것부터(썩기 전 식품 중 신선도 낮은 것부터 먹는다). 시간이 다 되면 썩은 식품이 된다.
     [Serializable] public sealed class FoodLots
     {
-        [Serializable] public struct Lot { public int amount; public float shelf; }
+        [Serializable] public struct Lot { public int amount; public float shelf; public int cookSkillPlusOne; public bool inspired; }
         public List<Lot> lots = new List<Lot>();
 
         public static float ShelfLife(FoodPreservation food) => GameCalendar.SecondsPerDay * (food switch
@@ -27,7 +27,7 @@ namespace AntColony.Core
         {
             ResourceType.Food => ShelfLife(FoodPreservation.RawMeat),
             ResourceType.Honeydew => GameCalendar.SecondsPerMonth,
-            ResourceType.SimpleMeal => ShelfLife(FoodPreservation.Cooked),
+            ResourceType.SimpleMeal or ResourceType.SmokedFood => ShelfLife(FoodPreservation.Cooked),
             ResourceType.FineMeal or ResourceType.CookedRice or ResourceType.Flatbread or ResourceType.FriedRice => ShelfLife(FoodPreservation.Cooked),
             ResourceType.Grapes => ShelfLife(FoodPreservation.Berry),
             ResourceType.Wheat or ResourceType.Barley or ResourceType.Rice or ResourceType.SunflowerSeed or ResourceType.WheatFlour => ShelfLife(FoodPreservation.Grain),
@@ -39,16 +39,18 @@ namespace AntColony.Core
         public float Freshest => lots.Count == 0 ? 0 : lots.Max(l => l.shelf);
         public float Stalest => lots.Count == 0 ? 0 : lots.Min(l => l.shelf);
         public int StalestAmount => lots.Where(l => l.shelf == Stalest).Sum(l => l.amount);
+        public int CookingSkill => Total == 0 ? 5 : (int)Math.Round(lots.Sum(l => (double)l.amount * (l.cookSkillPlusOne == 0 ? 5 : l.cookSkillPlusOne - 1)) / Total);
+        public bool Inspired => Total > 0 && lots.All(l => l.inspired);
         public static IEnumerable<StoreBin> MealSources(IEnumerable<StoreBin> bins, ResourceType type) => bins
             .Where(b => b.Spendable && b.Amount(type) > 0).OrderBy(b => b.Lots(type)?.Stalest ?? 0);
-        public void Add(int amount, float shelf)
+        public void Add(int amount, float shelf, int cookSkillPlusOne = 0, bool inspired = false)
         {
             if (amount <= 0) return;
-            var i = lots.FindIndex(l => Mathf.Abs(l.shelf - shelf) < 1f); // 거의 같은 신선도는 합친다
-            if (i >= 0) lots[i] = new Lot { amount = lots[i].amount + amount, shelf = Mathf.Min(lots[i].shelf, shelf) };
-            else lots.Add(new Lot { amount = amount, shelf = shelf });
+            var i = lots.FindIndex(l => Math.Abs(l.shelf - shelf) < 1f && l.cookSkillPlusOne == cookSkillPlusOne && l.inspired == inspired);
+            if (i >= 0) lots[i] = new Lot { amount = lots[i].amount + amount, shelf = Math.Min(lots[i].shelf, shelf), cookSkillPlusOne = cookSkillPlusOne, inspired = inspired };
+            else lots.Add(new Lot { amount = amount, shelf = shelf, cookSkillPlusOne = cookSkillPlusOne, inspired = inspired });
         }
-        public void Add(FoodLots other) { if (other != null) foreach (var l in other.lots) Add(l.amount, l.shelf); }
+        public void Add(FoodLots other) { if (other != null) foreach (var l in other.lots) Add(l.amount, l.shelf, l.cookSkillPlusOne, l.inspired); }
         // 신선도 낮은 것부터 amount만큼 떼어 낸다.
         public FoodLots Take(int amount)
         {
@@ -56,8 +58,8 @@ namespace AntColony.Core
             lots.Sort((a, b) => a.shelf.CompareTo(b.shelf));
             for (int i = 0; i < lots.Count && amount > 0;)
             {
-                var n = Mathf.Min(amount, lots[i].amount); taken.Add(n, lots[i].shelf); amount -= n;
-                if (n == lots[i].amount) lots.RemoveAt(i); else { lots[i] = new Lot { amount = lots[i].amount - n, shelf = lots[i].shelf }; i++; }
+                var l = lots[i]; var n = Math.Min(amount, l.amount); taken.Add(n, l.shelf, l.cookSkillPlusOne, l.inspired); amount -= n;
+                if (n == l.amount) lots.RemoveAt(i); else { l.amount -= n; lots[i] = l; i++; }
             }
             return taken;
         }
@@ -78,7 +80,8 @@ namespace AntColony.Core
             var diff = total - Total;
             if (diff > 0) Add(diff, ShelfLife(t)); else if (diff < 0) Take(-diff);
         }
-        public bool Valid => lots != null && lots.All(l => l.amount > 0 && !float.IsNaN(l.shelf) && l.shelf > 0);
+        public bool Valid => lots != null && lots.Count <= 100000 && lots.All(l => l.amount > 0 && !float.IsNaN(l.shelf) && !float.IsInfinity(l.shelf) && l.shelf > 0
+            && l.cookSkillPlusOne >= 0 && l.cookSkillPlusOne <= 21);
     }
 }
 

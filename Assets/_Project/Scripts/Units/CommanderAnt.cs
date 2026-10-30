@@ -158,14 +158,14 @@ namespace AntColony.Units
             + labAttackLevel * LabAttackBonusPerLevel + EquipmentBonus(EquipmentSlot.Weapon);
         private float AttackAgainst(IDamageable target) => Mathf.Max(1f, FormationRules.Stat(FormationAttackBasis,
             traits.AttackBonus + (HasNearbyFriend ? 1 : 0) + (HasSupportAura ? SupportAttackBonus : 0), FormationEffect(target).Attack))
-            * Mathf.Max(1, troopCount) * (1f - .25f * PersonalState.Severity(InjuryPart.Arms)) * (PersonalState.rageRemaining > 0 ? 1.3f : 1f);
+            * Mathf.Max(1, troopCount) * (1f - .25f * PersonalState.Severity(InjuryPart.Arms)) * (PersonalState.rageRemaining > 0 ? 1.3f : 1f) * WrathFactor;
         public override float AttackDamage => AttackAgainst(CombatTarget);
         private float FormationArmorBasis => base.Armor + labArmorLevel * LabArmorBonusPerLevel + EquipmentBonus(EquipmentSlot.Armor)
             + (Role == UnitRole.Melee ? .5f * talents.Level(CommanderActivity.Melee) : Role == UnitRole.Defense ? talents.Level(CommanderActivity.Melee) : 0);
-        public override float Armor => FormationRules.Stat(FormationArmorBasis, traits.ArmorBonus
+        public override float Armor => (FormationRules.Stat(FormationArmorBasis, traits.ArmorBonus
             + (AntColony.Buildings.RoomSystem.NearCastleWall(Position) ? AntColony.Buildings.GameBalanceRooms.CastleWallArmor : 0)
             + (HasSupportAura ? SupportArmorBonus : 0) + (skills.DefensiveStanceActive ? CommanderSkills.DefensiveStanceArmor : 0), FormationEffect().Armor)
-            - 2f * PersonalState.Severity(InjuryPart.Thorax);
+            - 2f * PersonalState.Severity(InjuryPart.Thorax)) * WrathFactor;
         protected override float GatherRate => base.GatherRate * Mathf.Max(1, troopCount) * WorkRate(CurrentActivity) * (1f - .3f * PersonalState.Severity(InjuryPart.Arms)) * (1f + TrinketBonus(TrinketEffect.Gather)) * ColonyEvents.GatherMultiplier(this);
         protected override float FishingCatchMultiplier => talents.Multiplier(CommanderActivity.Fishing) * ColonyEvents.GatherMultiplier(this);
         protected override void OnGathered(float amount)
@@ -175,6 +175,9 @@ namespace AntColony.Units
         protected override void OnWorked(float seconds)
         {
             if (CurrentActivity != CommanderActivity.Gathering) GainExperience(CurrentActivity, seconds);
+            if (ConstructionTarget != null && ConstructionTarget.Building != null
+                && ConstructionTarget.Building.GetComponent<AntColony.Buildings.AirshipYard>() is AntColony.Buildings.AirshipYard rocket)
+                rocket.RecordBuilder(this, Mathf.Min(ConstructionTarget.RemainingWork, seconds * WorkSpeed), ConstructionTarget.BuildTimeSeconds);
         }
         // 포텐 성장(2026-10-07): 작업량은 그대로 활용 이력에, 학습 배율(열정·학습 특성·나이·머리 부상)은 성장 속도에만 쓴다.
         public void GainExperience(CommanderActivity activity, float amount, CommanderActivity? topic = null)
@@ -296,7 +299,7 @@ namespace AntColony.Units
             if (IsDead || IsEmbarked || PersonalHealth <= 0 || float.IsNaN(amount) || amount <= 0) return;
             Social.combatSeen = true; PersonalState.lastCombatSeconds = 0; WorkState.quietSeconds = 0;
             GetComponent<AntVisual>()?.Action("Hit");
-            var damage = Mathf.Max(Mathf.Min(1, amount), amount - Armor) * receivedMultiplier;
+            var damage = FormationDamage.AfterArmor(amount, Armor, receivedMultiplier);
             damage = AbsorbDurableDamage(damage);
             var troopDamage = Mathf.Min(damage, TroopHealth);
             damage -= troopDamage; pendingDamage += troopDamage;
@@ -367,7 +370,8 @@ namespace AntColony.Units
             var multiplier = wasAlive && skills.ConsumePowerStrike() ? CommanderSkills.PowerStrikeMultiplier : 1f;
             FaceFormation(target.Position - Position);
             FormationState.Target(FormationTargetKey(target));
-            StrikeWithEquipment(target, AttackAgainst(target) * multiplier);
+            StrikeWithEquipment(target, AttackAgainst(target) * multiplier + ArmorBreakBonus(target));
+            DiamondFollowUp(target, AttackAgainst(target) + ArmorBreakBonus(target));
             if (SelectedFormation == Formation.Focus && wasAlive && multiplier == 1 && !string.IsNullOrEmpty(FormationTargetKey(target))
                 && (!(target is CommanderAnt defender) || !defender.IsEmbarked && defender.PersonalHealth > 0))
                 { formationHitTarget = target; FormationState.Hit(FormationTargetKey(target)); }

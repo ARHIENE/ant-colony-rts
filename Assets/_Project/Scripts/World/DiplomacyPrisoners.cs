@@ -49,6 +49,8 @@ namespace AntColony.World
         public ExpeditionSite HomeSiteOf(Civilization c) => world?.Sites.FirstOrDefault(s => Faction(s) == c);
         public float HomecomingSeconds(ExpeditionSite from)
             => HomecomingBaseSeconds + (from == null ? 0 : Vector2.Distance(from.MapPosition, new Vector2(.5f, .5f)) * HomecomingDistanceSeconds);
+        public static string HomecomingTimeLabel(float seconds) => seconds > 0
+            ? $"{seconds / GameCalendar.SecondsPerDay:0.0}일 (1배속 {seconds / 60:0.0}분)" : "도착 대기(본거지의 적·진입 경로 확인)";
         public float HomecomingSeconds(string id, Civilization c)
             => HomecomingSeconds(HeldCaptives(c).FirstOrDefault(p => p.PersonalState.id == id)?.Captor ?? HomeSiteOf(c));
 
@@ -153,7 +155,7 @@ namespace AntColony.World
                 return true;
             }
             var p = h.commander; var roster = CommanderRoster.Instance; if (roster == null || p == null) return false;
-            if (ExpeditionTransport.HomeHasEnemies() || !HomeReturnPoint.TryGround(HomeReturnPoint.Anchor, out var landing)) return false;
+            if (HomecomingThreatened() || !TryHomecomingLanding(out var landing)) return false;
             var recruit = roster.Create(p.Name, p.Rank, p.Roles, p.Roles[0], p.Traits, landing);
             if (recruit == null) return false;
             recruit.RestoreTalents(p.Talents); recruit.RestorePersonalState(p.PersonalState); recruit.WorkState.duty = CommanderDuty.Civilian;

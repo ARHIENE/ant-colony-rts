@@ -1,3 +1,7 @@
+# 2026-10-29 SAVE + 10/29~31 진행 — 2026-10-31 SAVE 이관
+- e0a65d3(+e42430d 기록): 곡물 요리3종·정착지 운영 진단·후천 전문성(기술10 골드20%/20 다이아5%)·창고 필터 복사·경제/교역 보정. 일지 https://app.notion.com/p/407c4a0ecd318121b19bf87efd9877dc / Trouble https://app.notion.com/p/407c4a0ecd3181b69559e8149f0875b2.
+- 10/29 밤: 100항목 분업(Claude/Codex J1·J2) 결과 원본 병합·Unity 검사(Claude19·Delivery19·Trade23·Economy21·J2Runtime35·SaveRoundtrip57). 원문 work/save-20261031/log-before-save.md.
+
 # 2026-10-25 SAVE — 2026-10-26 이관
 - 6af9e5a(링크 후속 d0501a0/6b9cfb1). 전 세션 미실행 검사 완료, 기획 전체 대조(구현108/부분69/미구현54), D01/D05/D09 1차 구현과 월드맵 정리. C2~C6·Phase4·Stage1·SettlementDefense·TransportRoute·WorldMap·SaveRoundtrip·ImplA2/ImplB4/Impl1025Codex 통과 기록.
 - G26은 기준 미달(fps1.1/저장9.7초/로드38초), 픽스처 인원 부족. 당시는 D04·D06/D07·D02/D03·D08 및 다거점 순회 검사가 남았음. 이후 상태는 최신 log와 SAVE_AUDIT 참조.

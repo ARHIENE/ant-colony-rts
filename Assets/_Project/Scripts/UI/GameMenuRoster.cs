@@ -151,7 +151,7 @@ namespace AntColony.UI
             {
                 var relation = relations[i];
                 var other = SortedCommanders().FirstOrDefault(o => o.PersonalState.id == relation.otherId);
-                var label = relation.spouse ? "배우자" : !relation.family && relation.value >= 70 ? "연인" : relation.value >= 40 ? "친구" : relation.value <= -40 ? "라이벌" : "지인";
+                var label = relation.spouse ? "배우자" : !relation.family && relation.value >= 70 && other != null && !c.HasOtherSpouse(other) && !other.HasOtherSpouse(c) ? "연인" : relation.value >= 40 ? "친구(쓰러지면 복수 돌진)" : relation.value <= -40 ? "라이벌" : "지인";
                 L.Label(social, $"{label}  <b>{other?.CommanderName ?? "떠난 장수"}</b>  <color=#b1b3a7>{relation.value:0}</color>", 12, 0, 22 + i * 18, 496, 18, MenuTheme.Muted);
             }
             L.Label(social, "파벌: " + (faction.Count == 0 ? "없음" : string.Join(", ", faction.Select(m => m.CommanderName))), 12, 0, 22 + relations.Count * 18, 496, 20, MenuTheme.Muted);

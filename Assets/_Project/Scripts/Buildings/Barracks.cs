@@ -5,7 +5,7 @@ using UnityEngine;
 
 namespace AntColony.Buildings
 {
-    public class Barracks : BuildingBase
+    public partial class Barracks : BuildingBase
     {
         private static readonly List<Barracks> Active = new List<Barracks>();
         [SerializeField] private UnitRole role = UnitRole.Melee;

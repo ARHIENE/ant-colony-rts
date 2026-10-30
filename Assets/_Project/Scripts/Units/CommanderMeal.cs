@@ -12,6 +12,7 @@ namespace AntColony.Units
         public float satiety = 100, eatSeconds, poisonSeconds, retrySeconds;
         public int pickedFood, pickedType; public bool served; // 집은 식품은 식탁 이동·저장을 넘어 보존한다.
         public int quality, cookSkill; // 먹는 중인 식사: 0 날것 / 1 간단 / 2 좋은 / 3 고급
+        public bool inspired;
         public bool rotten; // 정상 식품이 없어 썩은 식품을 먹는 중(2026-10-12)
         public int diet = -1; // 2026-10-15 장수별 식단 덮어쓰기(날것 1·간단 2·좋은 4). -1 = 공통 식단
         public bool Valid => Finite(satiety) && satiety >= 0 && satiety <= 100 && Finite(eatSeconds) && eatSeconds >= 0
@@ -99,6 +100,8 @@ namespace AntColony.Units
                 if (!traits.Has(CommanderTrait.IronStomach) && UnityEngine.Random.value < GameBalance.RottenPoisonChance) { m.poisonSeconds = GameBalance.FoodPoisonSeconds; personalState.AddMood("식중독", GameBalance.FoodPoisonMood, GameBalance.FoodPoisonSeconds); }
                 m.rotten = false; return;
             }
+            if (m.inspired) ApplyDiamondMeal();
+            m.inspired = false;
             if (m.quality > 0 && !traits.Has(CommanderTrait.IronStomach)
                 && UnityEngine.Random.value < MealPoisonChance(m.cookSkill))
             {

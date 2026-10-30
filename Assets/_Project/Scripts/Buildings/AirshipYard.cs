@@ -25,6 +25,9 @@ namespace AntColony.Buildings
             public bool launchRequested;
             public int civilianPassengers, civilianYoung, civilianOld;
             public List<int> passengers = new List<int>();
+            public bool babelEligible, foundationUsed;
+            public float constructionWork;
+            public List<RocketBuilderWork> builders = new List<RocketBuilderWork>();
         }
         private State state = new State();
         private readonly List<CommanderAnt> passengers = new List<CommanderAnt>();
@@ -82,16 +85,25 @@ namespace AntColony.Buildings
 
         public void Unload()
         {
+            state.launchRequested = false;
             UnloadCivilians();
             for (var i = 0; i < passengers.Count; i++)
                 if (passengers[i] != null) passengers[i].SetEmbarked(false, Position + Vector3.right * (3 + i));
             passengers.Clear();
         }
 
+        public bool TryDisembark(CommanderAnt commander)
+        {
+            if (!isActiveAndEnabled || IsDead || Phase != RocketPhase.Boarding || commander == null || !passengers.Remove(commander)) return false;
+            state.launchRequested = false;
+            commander.SetEmbarked(false, Position + Vector3.right * 3);
+            return true;
+        }
+
         public bool TryDepart()
         {
             var research = CampaignResearch.Instance;
-            if (!isActiveAndEnabled || IsDead || Phase != RocketPhase.Boarding || !Ready || state.launchRequested || OccupiedSeats == 0 || research == null || research.Departed) return false;
+            if (!isActiveAndEnabled || IsDead || Phase != RocketPhase.Boarding || !Ready || state.launchRequested || !HasLaunchCommander || research == null || research.Departed) return false;
             state.launchRequested = true;
             return true;
         }
@@ -121,6 +133,7 @@ namespace AntColony.Buildings
         {
             error = "Invalid rocket launch pad state.";
             if (value == null) { error = ""; return true; }
+            if (!ValidFoundation(value)) return false;
             if (value.cocoons < 0 || value.building < -1 || value.building > 2 || value.remaining < 0
                 || value.civilianPassengers < 0 || value.civilianYoung < 0 || value.civilianOld < 0
                 || (long)value.civilianYoung + value.civilianOld > value.civilianPassengers

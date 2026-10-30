@@ -112,7 +112,7 @@ namespace AntColony.UI
                     Info("기존 개체 의료·목장 관리에 연결합니다. 통합 위생 대시보드는 미구현입니다.");
                     break;
                 case "묘비·추모": Link("사망 기록 / 묘비", () => ShowMemorial()); Info("사망 기록·시신 수습·추모 설정을 관리합니다."); break;
-                case "포로": Facilities<PrisonerCamp>(ShowPrisoners); Info("수용소별 실제 포로와 경비 상태를 관리합니다."); break;
+                case "포로": Facilities<PrisonerCamp>(ShowPrisoners); Link("안전 귀환 · 진입점 관리", () => ShowPrisoners(null)); Info("수용소별 실제 포로와 경비 상태를 관리합니다."); break;
                 case "인구": Link("인구 · 이주 · 세금 · 병역", Population); Info("현재 인구와 이주 수요·민심·병역 정책을 확인합니다."); break;
                 case "기록": Link("이벤트 기록", EventLog); Info("최근 사건과 누적 자원 획득·소비 기록입니다."); break;
                 case "자원":
@@ -150,7 +150,7 @@ namespace AntColony.UI
                         MenuTheme.Text(left, c.CommanderName + "\n" + string.Join(" · ", c.Traits.values.Select(CommanderTraits.DisplayName)), 13, 64);
                     Info("현재 장수가 실제로 보유한 특성입니다. 시안의 전체 특성 도감·등급 표시는 미구현입니다.");
                     break;
-                case "진형": Missing("시안의 14종 진형 선택·적성·전투 보정 기능은 아직 구현되지 않았습니다."); break;
+                case "진형": OpenConscription(); return; // 진형은 출전 편성(징집) 화면에서 고른다
             }
             V5Fit(window);
         }

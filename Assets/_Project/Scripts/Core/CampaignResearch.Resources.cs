@@ -15,11 +15,12 @@ namespace AntColony.Core
         public const float ResourceResearchWork = 300f; // 잠정: 1시대 연구(낚시)와 같은 연구량
         public ResourceType? ActiveResource => state.resourceActive >= 0 ? (ResourceType)state.resourceActive : (ResourceType?)null;
         public float ResourceProgress => state.resourceProgress;
-        public IEnumerable<ResourceType> PendingSamples => state.samples.Where(i => !state.resourceResearch.Contains(i)).Select(i => (ResourceType)i);
+        public IEnumerable<ResourceType> PendingSamples => state.samples.Where(i => !state.resourceResearch.Contains(i))
+            .Select(i => (ResourceType)i).Where(ResourceStudyRules.RequiresResearch);
 
         public bool TryStartResourceResearch(ResourceType type)
         {
-            if (Departed || !HasSample(type) || ResourceResearched(type) || Active != null || state.resourceActive >= 0) return false;
+            if (!ResourceStudyRules.RequiresResearch(type) || Departed || !HasSample(type) || ResourceResearched(type) || Active != null || state.resourceActive >= 0) return false;
             state.resourceActive = (int)type; state.resourceProgress = 0;
             return true;
         }

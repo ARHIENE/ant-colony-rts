@@ -235,6 +235,12 @@ namespace AntColony.Save
                         Array.Resize(ref transport.cargoAmounts, Core.StoreBin.TypeCount);
                 file.version = 21;
             }
+            if (file.version == 21)
+            {
+                if (file.world?.transports != null) foreach (var transport in file.world.transports)
+                    if (transport?.cargoAmounts?.Length == 78) Array.Resize(ref transport.cargoAmounts, Core.StoreBin.TypeCount);
+                file.version = 22;
+            }
             if (file.version != SaveFileV1.CurrentVersion)
             {
                 error = $"Save version {file.version} cannot be read by this build (expects {SaveFileV1.CurrentVersion}).";

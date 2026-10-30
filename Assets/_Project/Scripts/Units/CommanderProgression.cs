@@ -14,6 +14,8 @@ namespace AntColony.Units
         public const int MaxLevel = 20;
 
         // ponytail: 프로토타입 잠정 수치. 밸런스 조정은 이 상수 4개와 XpForNext만 고치면 된다.
+        // 검토45: 전투 중 10초마다 주는 경험치. 2(작업의 1/5)로는 0→10에 순수 전투 약 9.5시간이 걸려 작업과 같은 초당 1로 맞춘다(잠정).
+        public const int CombatXpPer10Seconds = 10;
         public const int MonsterKillXp = 25;
         public const int BuildingKillXp = 50;
         public const int BossKillXp = 100;

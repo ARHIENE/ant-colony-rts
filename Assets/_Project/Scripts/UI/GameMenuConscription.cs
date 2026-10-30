@@ -25,7 +25,7 @@ namespace AntColony.UI
             var f = Frame("징집소");
             var p = L.Plate(f, "Conscription", 180, 100, 1080, 650);
             L.Label(p, "징집소 · 출전 편성", 26, 24, 12, 1032, 40, MenuTheme.Accent);
-            L.Label(p, "장수와 병력을 선택하세요. 출전하면 작업을 중단하고, 귀환하면 생존 병력을 반납합니다.", 14, 24, 58, 1032, 34, MenuTheme.Muted);
+            L.Label(p, "장수 1명이 병력 전체를 움직입니다. 집중 공격·범위 회피·철수도 부대 단위입니다. 병력 손실만큼 공격이 줄고, 0명에도 장수는 계속 싸웁니다.", 13, 24, 56, 1032, 44, MenuTheme.Muted);
             L.Label(p, "선택   장수 / 무기 / 개인 체력 / 기분 / 현재 상태", 14, 24, 104, 700, 32);
             L.Label(p, "병력 / 지휘한도", 14, 756, 104, 270, 32);
             var list = L.List(p, 24, 144, 1032, 420);
@@ -47,7 +47,7 @@ namespace AntColony.UI
                         if (c.FormationBlockReason(next) == "" && c.TrySelectFormation(next)) break;
                     }
                     refreshDutyScreen?.Invoke();
-                }, size: 12);
+                }, "전투·원정 중 변경 불가. 방원=방어 / 어린=공방 / 산개=범위 회피 / 안행=원거리 / 장사=숲·동굴(평지 불이익) / 종대=도보 이동. 선택한 진형의 조건·불이익을 비교하세요.", size: 12);
                 var track = L.Box(row, "Troops " + c.CommanderName, 732, 34, 264, 18, MenuTheme.Well);
                 var handle = L.Box(track, "Handle", 0, 0, 16, 18, MenuTheme.Accent);
                 var slider = track.gameObject.AddComponent<Slider>();
@@ -97,7 +97,7 @@ namespace AntColony.UI
             Add(f == Formation.Focus ? "공격(연속)" : f == Formation.Wedge ? "공격(전방)" : f == Formation.Geese ? "공격(원거리)" : "공격", m.Attack);
             Add("방어", m.Armor); Add("이동", m.Move); Add("사거리", m.Range); Add("공속", m.AttackSpeed); Add("도보", m.WorldMove);
             Add(f == Formation.Cover ? "원거리피해(철수)" : "원거리피해", -m.RangedReduction); Add("범위피해", -m.AreaReduction); Add("측후방피해", m.RearIncrease);
-            return (f == Formation.Snake ? "산·숲 " : "") + (parts.Count == 0 ? "보정 없음" : string.Join(" ", parts));
+            return (f == Formation.Snake ? "숲·동굴(평지 공방-10%) " : "") + (parts.Count == 0 ? "보정 없음" : string.Join(" ", parts));
         }
     }
 }

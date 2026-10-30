@@ -1,0 +1,2195 @@
+diff --git a/Assets/_Project/Scripts/Buildings/BuildingBase.cs b/Assets/_Project/Scripts/Buildings/BuildingBase.cs
+--- a/Assets/_Project/Scripts/Buildings/BuildingBase.cs
++++ b/Assets/_Project/Scripts/Buildings/BuildingBase.cs
+@@ -5,7 +5,7 @@
+ 
+ namespace AntColony.Buildings
+ {
+-    public class BuildingBase : MonoBehaviour, IDamageable
++    public partial class BuildingBase : MonoBehaviour, IDamageable
+     {
+         private static readonly List<BuildingBase> DepositPoints = new List<BuildingBase>();
+ 
+@@ -83,7 +83,9 @@
+             {
+                 currentHealth = 0f;
+                 RoomSystem.MarkDirty(); SpaceQuality.Invalidate(); // 부서진 벽은 같은 프레임부터 방 판정에서 빠진다.
++                var foundation = LeaveBabelFoundation();
+                 Die();
++                if (foundation) Destroy(gameObject);
+             }
+         }
+ 
+diff --git a/Assets/_Project/Scripts/Buildings/BuildingBase.Babel.cs b/Assets/_Project/Scripts/Buildings/BuildingBase.Babel.cs
+new file mode 100644
+--- /dev/null
++++ b/Assets/_Project/Scripts/Buildings/BuildingBase.Babel.cs
+@@ -0,0 +1,44 @@
++using System;
++using System.Collections.Generic;
++using System.Linq;
++using AntColony.Data;
++using AntColony.Units;
++using UnityEngine;
++
++namespace AntColony.Buildings
++{
++    [Serializable] public sealed class BabelState
++    {
++        [Serializable] public sealed class Cost { public ResourceType type; public int amount; }
++        public bool eligible, used;
++        public float work;
++        public List<Cost> costs = new List<Cost>();
++        public static int RebuildCost(int amount) => (int)Math.Ceiling(amount * .75m);
++        public static bool Valid(BabelState s) => s == null || s.work >= 0 && !float.IsInfinity(s.work) && s.costs != null && s.costs.Count <= 100
++            && s.costs.All(c => c != null && Enum.IsDefined(typeof(ResourceType), c.type) && c.amount >= 0 && c.amount <= 100000000);
++    }
++    public partial class BuildingBase
++    {
++        internal BabelState Babel;
++        private bool LeaveBabelFoundation()
++        {
++            if (Babel?.eligible != true || Babel.used || Data == null || this is AirshipYard || this is AntColony.World.ExpeditionTransport) return false;
++            var role = this is Barracks barracks ? barracks.Role : this is ResearchLab lab ? lab.Role : default;
++            var template = BuildingPlacementController.GetTemplate(Data.kind, role);
++            if (template == null) return false;
++            Babel.used = true;
++            var next = Instantiate(template, Position, transform.rotation); next.SetActive(false); next.name = name;
++            next.GetComponent<BuildingBase>().MainMaterial = MainMaterial;
++            if (TryGetComponent<FarmPlot>(out var farm)) (next.GetComponent<FarmPlot>() ?? next.AddComponent<FarmPlot>()).Configure(farm.Crop, farm.Wide);
++            var go = GameObject.CreatePrimitive(PrimitiveType.Cube); go.name = name + " · 바벨 기초(재건 대기)";
++            go.transform.position = Position; go.transform.localScale = new Vector3(2.5f, .2f, 2.5f);
++            go.GetComponent<Collider>().isTrigger = true;
++            var site = go.AddComponent<BuildingConstructionSite>();
++            site.Initialize(next, Babel.work * .5f); site.BabelUsed = true;
++            foreach (var cost in Babel.costs) site.Require(cost.type, BabelState.RebuildCost(cost.amount));
++            site.SetPaused(true); // 재건은 기존 예정지의 재개 버튼으로 직접 지시한다.
++            AntColony.UI.ToastManager.Show(name + ": 바벨 기초가 남았습니다. 재료75%·작업50%, 예정지에서 재개하세요.");
++            return true;
++        }
++    }
++}
+diff --git a/Assets/_Project/Scripts/Buildings/BuildingBase.Babel.cs.meta b/Assets/_Project/Scripts/Buildings/BuildingBase.Babel.cs.meta
+new file mode 100644
+--- /dev/null
++++ b/Assets/_Project/Scripts/Buildings/BuildingBase.Babel.cs.meta
+@@ -0,0 +1,2 @@
++fileFormatVersion: 2
++guid: 1ce08155e4a84155a63c367c335a18aa
+diff --git a/Assets/_Project/Scripts/Buildings/BuildingConstructionSite.cs b/Assets/_Project/Scripts/Buildings/BuildingConstructionSite.cs
+--- a/Assets/_Project/Scripts/Buildings/BuildingConstructionSite.cs
++++ b/Assets/_Project/Scripts/Buildings/BuildingConstructionSite.cs
+@@ -9,7 +9,7 @@
+ {
+     // 건설 예정지(2026-10-12 기획): 자원이 부족해도 배치한다. 가능한 자원만 예약 → 운반 장수(또는 건설 장수)가 창고에서 가져와 배송 →
+     // 전부 도착하면 실제 시공을 시작하며 그때 소비한다. 우선순위 1~9(같으면 먼저 지시한 곳)로 예약하고, 순위를 바꿔도 이미 예약·배송한 몫은 빼앗지 않는다.
+-    public class BuildingConstructionSite : MonoBehaviour, IMaterialSink
++    public partial class BuildingConstructionSite : MonoBehaviour, IMaterialSink
+     {
+         [Serializable] public sealed class Need { public ResourceType type; public int need, reserved, delivered; }
+         public enum Wait { None, Paused, MaterialShortage, AwaitingHaul, NoWorker, Unreachable, InUse, Forbidden, Tool }
+@@ -181,6 +181,7 @@
+             {
+                 if (builder != null && completedBuilding.GetComponent<Decoration>() is Decoration decor)
+                     decor.Quality = AntColony.Units.EquipmentRecipes.Quality(builder.Talents.Level(AntColony.Units.CommanderActivity.Art), UnityEngine.Random.value, UnityEngine.Random.value);
++                CompleteAttribution(completedBuilding.GetComponent<BuildingBase>());
+                 if (TryGetComponent<RedevelopmentSite>(out var redevelop)) redevelop.Finish(); // 재개발이면 완공 순간 기존 집을 허문다.
+                 completedBuilding.SetActive(true);
+                 AntColony.UI.ToastManager.Show(completedBuilding.name + " construction complete.");
+diff --git a/Assets/_Project/Scripts/Buildings/BuildingConstructionSite.Attribution.cs b/Assets/_Project/Scripts/Buildings/BuildingConstructionSite.Attribution.cs
+new file mode 100644
+--- /dev/null
++++ b/Assets/_Project/Scripts/Buildings/BuildingConstructionSite.Attribution.cs
+@@ -0,0 +1,34 @@
++using AntColony.Core;
++using AntColony.Units;
++using UnityEngine;
++
++namespace AntColony.Buildings
++{
++    public partial class BuildingConstructionSite
++    {
++        internal WorkContribution Contributions = new WorkContribution();
++        internal SoleWorker Artist = new SoleWorker();
++        internal bool BabelUsed;
++        public void ApplyWork(WorkerAnt worker, float work)
++        {
++            var applied = Mathf.Clamp(work, 0, RemainingWork);
++            if (!(applied > 0)) return;
++            if (IsArt && Contributions.total == 0 && RemainingWork < BuildTimeSeconds) Artist.mixed = true;
++            var c = worker as CommanderAnt;
++            Contributions.Add(c?.PersonalState.id, applied, c != null && c.Traits.Has(CommanderTrait.DiamondBuilding));
++            if (IsArt) Artist.Note(c?.PersonalState.id ?? "", c != null && c.Traits.Has(CommanderTrait.DiamondArt));
++            RemainingWork -= applied;
++        }
++        private void CompleteAttribution(BuildingBase building)
++        {
++            if (building == null || TryGetComponent<DemolitionSite>(out _)) return;
++            building.Babel = new BabelState { used = BabelUsed, eligible = Contributions.Majority(BuildTimeSeconds) != null,
++                work = BuildTimeSeconds, costs = Needs.ConvertAll(n => new BabelState.Cost { type = n.type, amount = n.need }) };
++            if (building is Decoration decor)
++            {
++                decor.ArtistId = Artist.id;
++                decor.DiamondArtwork = Artist.Empowered && decor.Quality == 3;
++            }
++        }
++    }
++}
+diff --git a/Assets/_Project/Scripts/Buildings/BuildingConstructionSite.Attribution.cs.meta b/Assets/_Project/Scripts/Buildings/BuildingConstructionSite.Attribution.cs.meta
+new file mode 100644
+--- /dev/null
++++ b/Assets/_Project/Scripts/Buildings/BuildingConstructionSite.Attribution.cs.meta
+@@ -0,0 +1,2 @@
++fileFormatVersion: 2
++guid: 8d9a17feb3034f6293163e17c85f2a67
+diff --git a/Assets/_Project/Scripts/Buildings/Decoration.cs b/Assets/_Project/Scripts/Buildings/Decoration.cs
+--- a/Assets/_Project/Scripts/Buildings/Decoration.cs
++++ b/Assets/_Project/Scripts/Buildings/Decoration.cs
+@@ -6,8 +6,10 @@
+ 
+ namespace AntColony.Buildings
+ {
+-    public sealed class Decoration : BuildingBase
++    public sealed partial class Decoration : BuildingBase
+     {
++        public string ArtistId;
++        public bool DiamondArtwork;
+         public int Quality { get; internal set; } = 1;
+         public static bool IsKind(BuildingKind kind) => kind >= BuildingKind.FlowerPot && kind <= BuildingKind.FireflyLamp || kind >= BuildingKind.Statue && kind <= BuildingKind.Pillar
+             || kind >= BuildingKind.Brazier && kind <= BuildingKind.CuriosDisplay;
+diff --git a/Assets/_Project/Scripts/Buildings/FarmPlot.cs b/Assets/_Project/Scripts/Buildings/FarmPlot.cs
+--- a/Assets/_Project/Scripts/Buildings/FarmPlot.cs
++++ b/Assets/_Project/Scripts/Buildings/FarmPlot.cs
+@@ -15,7 +15,7 @@
+     // 밭(2026-10-15 V5): 수확 뒤에도 심어진 채 다시 자란다. 뿌리뽑기(확인 후 장수 작업) → 빈 밭, 다시 심기 지시 전까지 비워 둔다.
+     // 병충해는 실제 칸 좌표의 상하좌우 밭으로만 퍼진다(대각선 없음). 비료는 성장 주기당 1회, 농사 장수가 넣는다.
+     [RequireComponent(typeof(ResourceNode))]
+-    public sealed class FarmPlot : MonoBehaviour
++    public sealed partial class FarmPlot : MonoBehaviour
+     {
+         public const float WideFactor = 2f;
+         // ponytail: 병충해·비료·뿌리뽑기 수치는 기획 미정 잠정값. 확정되면 여기만 고친다.
+@@ -29,6 +29,7 @@
+             public int nextCrop = -1;
+             public int seedVersion, harvests;
+             public bool seedPending;
++            public SoleWorker diamondCycle; public string diamondReason;
+         }
+         public State Data { get; private set; } = new State();
+         public FarmCrop Crop { get; private set; }
+@@ -45,7 +46,7 @@
+                 var scale = transform.localScale; scale.x *= WideFactor; transform.localScale = scale;
+                 Wide = true;
+             }
+-            if (Crop != crop) Data.harvests = 0;
++            if (Crop != crop) { Data.harvests = 0; Data.diamondCycle = null; Data.diamondReason = null; }
+             Crop = crop;
+             if (FoodProcessingRecipes.CropResource(crop) is ResourceType type) node.SetCropResource(type);
+             else node.SetCropResource(ResourceType.Food);
+@@ -75,7 +76,7 @@
+                 if (Data.seedPending) return $"종자 대기 · {FoodProcessingRecipes.CropResource(Crop)?.DisplayName() ?? Crop.ToString()} {FarmSeeds.Count(Crop)}/{SeedCost}";
+                 if (Node.NeedsSowing) return "파종 대기";
+                 if (ColonyEvents.Flooded(Node)) return "홍수 · 작업 불가";
+-                if (Node.IsRegrowing && GameCalendar.CurrentSeason == Season.Winter) return "겨울 · 성장 정지";
++                if (Node.IsRegrowing && !Blessed && GameCalendar.CurrentSeason == Season.Winter) return "겨울 · 성장 정지";
+                 if (Node.IsRegrowing) return (Data.pest ? "병충해 · 성장 저하 · " : "") + $"성장 중 {1f - Node.RegrowTimeRemaining / Mathf.Max(1f, Node.RegrowSeconds):P0}" + (Data.fertilized ? " · 비료" : "");
+                 return Data.pest ? "병충해 · 수확 가능" : "수확 가능";
+             }
+@@ -86,6 +87,7 @@
+         {
+             if (!Data.fallow) return;
+             if (Data.nextCrop >= 0) { Configure((FarmCrop)Data.nextCrop, Wide); Data.nextCrop = -1; }
++            Data.diamondCycle = null; Data.diamondReason = null;
+             Data.seedVersion = 1; Data.seedPending = true; Data.fallow = false; Node.ClearCrop();
+         }
+         // 작물 변경은 다음 수확(빈 밭이면 다시 심을 때) 이후 적용한다.
+@@ -96,6 +98,7 @@
+ 
+         internal void OnHarvested()
+         {
++            NextDiamondCycle();
+             if (++Data.harvests >= 3) { Data.harvests = 0; FarmSeeds.Add(Crop, SeedCost); }
+             if (Crop == FarmCrop.AdvancedFungus && Random.value < GameBalance.AdvancedFungusSpecialChance)
+                 ResourceManager.Instance?.Add(ResourceType.Special, GameBalance.AdvancedFungusSpecial);
+@@ -143,7 +146,7 @@
+             float labor = 0;
+             foreach (var unit in AntUnitBase.Active)
+                 if (unit is CommanderAnt c && c.CivilianWorkReady && c.CurrentResourceNode == Node && c.IsGatheringAnimation)
+-                { labor += c.WorkRate(CommanderActivity.Farming); c.GainExperience(CommanderActivity.Farming, seconds); }
++                { NoteFarmer(c); labor += c.WorkRate(CommanderActivity.Farming); c.GainExperience(CommanderActivity.Farming, seconds); }
+             return labor;
+         }
+ 
+diff --git a/Assets/_Project/Scripts/Buildings/FarmPlot.Diamond.cs b/Assets/_Project/Scripts/Buildings/FarmPlot.Diamond.cs
+new file mode 100644
+--- /dev/null
++++ b/Assets/_Project/Scripts/Buildings/FarmPlot.Diamond.cs
+@@ -0,0 +1,27 @@
++using AntColony.Core;
++using AntColony.Units;
++
++namespace AntColony.Buildings
++{
++    public sealed partial class FarmPlot
++    {
++        internal void NoteFarmer(CommanderAnt farmer)
++        {
++            Data.diamondCycle ??= new SoleWorker { mixed = !Node.NeedsSowing };
++            var before = Data.diamondCycle.Empowered;
++            Data.diamondCycle.Note(farmer.PersonalState.id, farmer.Traits.Has(CommanderTrait.DiamondFarming));
++            if (before && !Data.diamondCycle.Empowered)
++                Data.diamondReason = "낙토 해제 · 다른 장수 " + farmer.CommanderName + " 관여";
++            else if (string.IsNullOrEmpty(Data.diamondReason) && !Data.diamondCycle.Empowered)
++                Data.diamondReason = "낙토 미적용 · 전 과정 동일 보유자 필요";
++        }
++        public bool Blessed => Data.diamondCycle?.Empowered == true;
++        public string DiamondStatus => Blessed ? "낙토 · 토양/지역/계절/온도 불이익 면제" : Data.diamondReason ?? "낙토 미적용 · 파종 담당 없음";
++        private void NextDiamondCycle()
++        {
++            // 다년생 밭은 재파종하지 않으므로 첫 파종자의 자격을 다음 관리/수확 주기에도 보존한다.
++            if (!Blessed) return;
++            Data.diamondReason = null;
++        }
++    }
++}
+diff --git a/Assets/_Project/Scripts/Buildings/FarmPlot.Diamond.cs.meta b/Assets/_Project/Scripts/Buildings/FarmPlot.Diamond.cs.meta
+new file mode 100644
+--- /dev/null
++++ b/Assets/_Project/Scripts/Buildings/FarmPlot.Diamond.cs.meta
+@@ -0,0 +1,2 @@
++fileFormatVersion: 2
++guid: f73530fca1734ae0af1de025652b766b
+diff --git a/Assets/_Project/Scripts/Buildings/Kitchen.cs b/Assets/_Project/Scripts/Buildings/Kitchen.cs
+--- a/Assets/_Project/Scripts/Buildings/Kitchen.cs
++++ b/Assets/_Project/Scripts/Buildings/Kitchen.cs
+@@ -20,6 +20,7 @@
+         {
+             public List<Meal> meals = new List<Meal>(); public float progress; public bool paid;
+             public List<Order> orders = new List<Order>(); public int current = -1; public bool paused, configured;
++            public SoleWorker cook;
+             public int staged; // 2026-10-15 요리사가 가져다 놓은 재료(식량). 조리 시작 때 소비, 철거 시 바닥으로
+             public FoodLots stagedLots;
+             public List<ProductionInputs.Stock> ingredients; public int pending = -1;
+@@ -41,6 +42,7 @@
+             new Recipe("밥", ResourceType.CookedRice, 10f, (ResourceType.Rice, 2)),
+             new Recipe("납작빵", ResourceType.Flatbread, 12f, (ResourceType.WheatFlour, 1)),
+             new Recipe("볶음밥", ResourceType.FriedRice, 18f, (ResourceType.Rice, 2), (ResourceType.SunflowerOil, 1)),
++            SmokedFood,
+         };
+         public const int Capacity = 30;
+         public const float CookSeconds = 20; // 가장 긴 레시피(저장 검증용)
+@@ -114,6 +116,7 @@
+             foreach (var input in r.inputs) CampaignHistory.Resource(input.type, input.amount, true, ResourceReason.Crafting);
+             // 비용이 낮아진 옛 저장의 초과 도착 재료를 주문 없는 조리대에 가두지 않는다.
+             if (inputs.staged.Count > 0) inputs.Drop(Position);
++            meals.cook = new SoleWorker();
+             meals.current = o.recipe; meals.progress = 0; meals.pending = -1; CaptureIngredients();
+             if (o.mode == Workshop.OrderMode.Count && --o.amount <= 0) meals.orders.Remove(o);
+             return true;
+@@ -122,23 +125,20 @@
+         {
+             if (!NeedsCook || !(seconds > 0) || float.IsInfinity(seconds)) return false;
+             if (Current == null && !StartNext()) return false;
++            meals.cook ??= new SoleWorker { mixed = meals.progress > 0 };
++            meals.cook.Note(c.PersonalState.id, c.Traits.Has(CommanderTrait.DiamondCooking));
+             var r = Current; var rate = c.WorkRate(CommanderActivity.Cooking); // 요리 기술은 속도만(등급은 레시피)
+             var elapsed = Mathf.Min(seconds, (r.seconds - meals.progress) / rate);
+             meals.progress += elapsed * rate; c.GainExperience(CommanderActivity.Cooking, elapsed);
+             if (meals.progress < r.seconds) return true;
+             int skill = Mathf.Clamp(c.Talents.Level(CommanderActivity.Cooking) + c.Traits.CookingBonus, 0, CommanderTalents.MaxLevel);
+-            RecordSkill(r.output, skill);
+-            AntColony.World.DiplomacyManager.DropFloor(r.output, 1, Position + Vector3.right * 1.5f); // 새 보존 기간으로 바닥에(운반은 따로)
++            var lots = new FoodLots(); lots.Add(1, FoodLots.ShelfLife(r.output), skill + 1, meals.cook.Empowered);
++            AntColony.World.DiplomacyManager.DropFloor(r.output, 1, Position + Vector3.right * 1.5f, lots); // 새 보존 기간으로 바닥에(운반은 따로)
+             meals.current = -1; meals.progress = 0;
+             return true;
+         }
+         // 진행 중 조리 취소: 이미 소비한 재료는 돌려주지 않는다. 철거·이동 시작 때도 쓴다.
+-        public void CancelCurrent() { meals.current = -1; meals.progress = 0; }
+-
+-        // 식중독 확률용 요리 기술. ponytail: 요리 종류별 최근 요리사 기술의 이동 평균. 개별 요리마다 기술을 들고 다니게 하려면 FoodLots에 붙인다.
+-        private static readonly Dictionary<ResourceType, float> cookedSkill = new Dictionary<ResourceType, float>();
+-        private static void RecordSkill(ResourceType t, int skill) { cookedSkill[t] = Mathf.Lerp(SkillOf(t), skill, .3f); }
+-        public static int SkillOf(ResourceType t) => cookedSkill.TryGetValue(t, out var skill) ? Mathf.RoundToInt(skill) : 5;
++        public void CancelCurrent() { meals.current = -1; meals.progress = 0; meals.cook = null; }
+ 
+         // 옛 저장의 비축 식사(새 요리는 창고 자원).
+         public bool HasMeal => !IsDead && isActiveAndEnabled && meals.meals.Count > 0;
+@@ -152,6 +152,7 @@
+             meals.meals.Remove(best); return best;
+         }
+         public static bool Valid(State state) => state != null && state.meals != null && state.meals.Count <= Capacity
++            && (state.cook == null || state.cook.Valid)
+             && ValidIngredients(state)
+             && state.staged >= 0 && (state.stagedLots == null || state.stagedLots.Valid && state.stagedLots.Total <= state.staged) && !float.IsNaN(state.progress) && state.progress >= 0 && state.progress < CookSeconds && (state.paid || state.current >= 0 || state.progress == 0)
+             && state.current >= -1 && state.current < Recipes.Length && (state.orders == null || state.orders.Count <= Workshop.MaxOrders && state.orders.TrueForAll(o => o != null
+diff --git a/Assets/_Project/Scripts/Buildings/Kitchen.PreservedFood.cs b/Assets/_Project/Scripts/Buildings/Kitchen.PreservedFood.cs
+new file mode 100644
+--- /dev/null
++++ b/Assets/_Project/Scripts/Buildings/Kitchen.PreservedFood.cs
+@@ -0,0 +1,10 @@
++using AntColony.Data;
++
++namespace AntColony.Buildings
++{
++    public sealed partial class Kitchen
++    {
++        // 통합 Food에는 어육 원산지가 없으므로 범용 훈연식으로 명시한다. 목재/노동을 들여 원식량1→1끼, 추가 보존 보너스 없음.
++        public static Recipe SmokedFood => new Recipe("훈연식", ResourceType.SmokedFood, 16f, (ResourceType.Food, 1), (ResourceType.Wood, 1));
++    }
++}
+diff --git a/Assets/_Project/Scripts/Buildings/Kitchen.PreservedFood.cs.meta b/Assets/_Project/Scripts/Buildings/Kitchen.PreservedFood.cs.meta
+new file mode 100644
+--- /dev/null
++++ b/Assets/_Project/Scripts/Buildings/Kitchen.PreservedFood.cs.meta
+@@ -0,0 +1,2 @@
++fileFormatVersion: 2
++guid: 8d1ee8e1e15848f09d75871205ac35f6
+diff --git a/Assets/_Project/Scripts/Core/CampaignResearch.cs b/Assets/_Project/Scripts/Core/CampaignResearch.cs
+--- a/Assets/_Project/Scripts/Core/CampaignResearch.cs
++++ b/Assets/_Project/Scripts/Core/CampaignResearch.cs
+@@ -106,6 +106,9 @@
+             public int resourceActive = -1; public float resourceProgress; // G06 진행 중인 자원 표본 연구(구저장 -1)
+             public List<CampaignOutcome.Entry> leftCommanders = new List<CampaignOutcome.Entry>(); // G43: 명부에서 지워진 이탈자(포획된 이탈자·반란 합류)
+             public List<string> consumptionOverrides = new List<string>();
++            public List<Contribution> contributions = new List<Contribution>();
++            public List<int> insights = new List<int>(), insightApplied = new List<int>();
++            public List<PoliticalPresence> politicalPresence = new List<PoliticalPresence>();
+             public List<int> completed = new List<int>();
+             public int active = -1;
+             public float progress;
+@@ -188,7 +191,9 @@
+             state.active = (int)technology;
+             state.progress = 0;
+             if (saved >= 0) { state.progress = state.partialProgress[saved]; state.partialIds.RemoveAt(saved); state.partialProgress.RemoveAt(saved); }
++            ApplyInsight();
+             state.paused = false;
++            if (state.progress >= definition.Work) CompleteResearch();
+             return true;
+         }
+ 
+@@ -211,7 +216,7 @@
+         private void Update() => Tick(Time.deltaTime);
+         public void Tick(float seconds)
+         {
+-            if (seconds > 0 && !float.IsInfinity(seconds)) BossProgress.TickCraft(seconds);
++            if (seconds > 0 && !float.IsInfinity(seconds)) { BossProgress.TickCraft(seconds); TickPoliticalPresence(seconds); }
+             if (Active == null && state.resourceActive >= 0 && seconds > 0 && !float.IsInfinity(seconds) && !Departed) { TickResourceResearch(seconds); return; }
+             if (!(seconds > 0) || float.IsInfinity(seconds) || Active == null || Departed || state.paused) return;
+             foreach (var lab in AntColony.Core.SceneObjects.All<ScienceLab>())
+@@ -219,11 +224,17 @@
+                 var c = lab.Target;
+                 if (!lab.isActiveAndEnabled || lab.Busy || lab.Tier < Active.Tier || c == null
+                     || !c.ResearchWorkReady || !c.CanReceiveOrders || c.IsAwayFromHome || c.ScienceAssignment != lab || (c.Position - lab.Position).sqrMagnitude > 64) continue;
+-                state.progress += seconds * c.WorkRate(CommanderActivity.Research) * (1f + .25f * (lab.Tier - 1));
++                CreditResearch(c, seconds * c.WorkRate(CommanderActivity.Research) * (1f + .25f * (lab.Tier - 1)));
+                 c.GainExperience(CommanderActivity.Research, seconds, Topic(Active.Technology));
+             }
+             if (state.progress < Active.Work) return;
++            CompleteResearch();
++        }
++
++        private void CompleteResearch()
++        {
+             var completed = Active;
++            GrantInsight(completed);
+             state.completed.Add(state.active);
+             state.active = -1;
+             state.progress = 0;
+@@ -278,6 +289,7 @@
+             if (!AntColony.Boss.BossProgress.Validate(value.bosses)) return false;
+             if (!ValidResourceRecords(value.samples) || !ValidResourceRecords(value.resourceResearch)) return false;
+             if (value.resourceResearch != null && value.resourceResearch.Exists(i => value.samples == null || !value.samples.Contains(i))) return false;
++            if (!ValidInsight(value) || !ValidPoliticalPresence(value)) return false;
+             if (!ValidResourceActive(value)) return false;
+             if (value.leftCommanders != null && (value.leftCommanders.Exists(e => e == null || string.IsNullOrEmpty(e.id) || e.name == null)
+                 || value.leftCommanders.Select(e => e.id).Distinct().Count() != value.leftCommanders.Count)) return false;
+diff --git a/Assets/_Project/Scripts/Core/CampaignResearch.Insight.cs b/Assets/_Project/Scripts/Core/CampaignResearch.Insight.cs
+new file mode 100644
+--- /dev/null
++++ b/Assets/_Project/Scripts/Core/CampaignResearch.Insight.cs
+@@ -0,0 +1,48 @@
++using System;
++using System.Collections.Generic;
++using System.Linq;
++using AntColony.Units;
++
++namespace AntColony.Core
++{
++    public sealed partial class CampaignResearch
++    {
++        [Serializable] public sealed class Contribution { public int technology; public WorkContribution work = new WorkContribution(); }
++        private WorkContribution WorkFor(int technology)
++        {
++            state.contributions ??= new List<Contribution>();
++            var record = state.contributions.Find(c => c.technology == technology);
++            if (record == null) { record = new Contribution { technology = technology }; state.contributions.Add(record); }
++            return record.work;
++        }
++        private void CreditResearch(CommanderAnt c, float work)
++        {
++            work = Math.Max(0, Math.Min(work, Active.Work - state.progress));
++            WorkFor(state.active).Add(c.PersonalState.id, work, c.Traits.Has(CommanderTrait.DiamondResearch));
++            state.progress += work;
++        }
++        private void GrantInsight(ScienceDefinition completed)
++        {
++            if (WorkFor((int)completed.Technology).Majority(completed.Work) == null) return;
++            state.insights ??= new List<int>();
++            var next = InsightSuccessor(completed.Technology, state.completed, state.insights);
++            if (next == null) return;
++            state.insights.Add((int)next.Technology);
++            AntColony.UI.ToastManager.Show("천기 · " + next.Name + " 필요 연구량20% 통찰(선택/해금 후 적용)");
++        }
++        public static ScienceDefinition InsightSuccessor(ScienceTechnology completed, IEnumerable<int> known, IEnumerable<int> rewarded) =>
++            Technologies.FirstOrDefault(t => t.Prerequisites.Contains(completed) && !known.Contains((int)t.Technology) && !rewarded.Contains((int)t.Technology));
++        public float Insight(ScienceTechnology technology) => state.insights?.Contains((int)technology) == true ? Technologies[(int)technology].Work * .2f : 0;
++        public float PendingInsight(ScienceTechnology technology) => state.insightApplied?.Contains((int)technology) == true ? 0 : Insight(technology);
++        private void ApplyInsight()
++        {
++            state.insightApplied ??= new List<int>();
++            if (state.insights?.Contains(state.active) != true || state.insightApplied.Contains(state.active)) return;
++            state.insightApplied.Add(state.active); state.progress += Insight((ScienceTechnology)state.active);
++        }
++        private static bool ValidInsight(State s) => (s.insights == null || s.insights.Count <= Technologies.Length && s.insights.Distinct().Count() == s.insights.Count && s.insights.All(i => i >= 0 && i < Technologies.Length))
++            && (s.insightApplied == null || s.insightApplied.Distinct().Count() == s.insightApplied.Count && s.insightApplied.All(i => s.insights?.Contains(i) == true))
++            && (s.contributions == null || s.contributions.Count <= Technologies.Length && s.contributions.Select(c => c?.technology).Distinct().Count() == s.contributions.Count
++                && s.contributions.All(c => c != null && c.technology >= 0 && c.technology < Technologies.Length && c.work?.Valid == true));
++    }
++}
+diff --git a/Assets/_Project/Scripts/Core/CampaignResearch.Insight.cs.meta b/Assets/_Project/Scripts/Core/CampaignResearch.Insight.cs.meta
+new file mode 100644
+--- /dev/null
++++ b/Assets/_Project/Scripts/Core/CampaignResearch.Insight.cs.meta
+@@ -0,0 +1,2 @@
++fileFormatVersion: 2
++guid: 605185fd5f474aa28ea9de53ef19cf4c
+diff --git a/Assets/_Project/Scripts/Core/CampaignResearch.Politics.cs b/Assets/_Project/Scripts/Core/CampaignResearch.Politics.cs
+new file mode 100644
+--- /dev/null
++++ b/Assets/_Project/Scripts/Core/CampaignResearch.Politics.cs
+@@ -0,0 +1,48 @@
++using System;
++using System.Collections.Generic;
++using System.Linq;
++using AntColony.Units;
++using AntColony.World;
++
++namespace AntColony.Core
++{
++    public sealed partial class CampaignResearch
++    {
++        [Serializable] public sealed class PoliticalPresence { public string id; public int site = -1; public float remaining; }
++        internal static int SettlementOf(CommanderAnt c) => c.Garrison != null ? WorldMapManager.Instance.Sites.ToList().IndexOf(c.Garrison.Site)
++            : c.Transport?.State == ExpeditionState.Deployed ? WorldMapManager.Instance.Sites.ToList().IndexOf(c.Transport.Site) : -1;
++        internal static bool Present(CommanderAnt c) => c != null && c.IsColonyMember && !c.IsDead && !c.IsCaptive
++            && (c.Transport == null || c.Transport.State == ExpeditionState.Deployed) && !c.PersonalState.social.departure.Equals(DepartureState.Left);
++        private void TickPoliticalPresence(float seconds)
++        {
++            state.politicalPresence ??= new List<PoliticalPresence>();
++            foreach (var p in state.politicalPresence) p.remaining = Math.Max(0, p.remaining - seconds);
++            foreach (var c in CommanderRoster.Instance?.Commanders.AsEnumerable() ?? Enumerable.Empty<CommanderAnt>())
++            {
++                if (!Present(c) || !c.Traits.Has(CommanderTrait.DiamondPolitics)) continue;
++                var site = SettlementOf(c);
++                var p = state.politicalPresence.Find(p => p.id == c.PersonalState.id && p.site == site);
++                if (p == null) { p = new PoliticalPresence { id = c.PersonalState.id, site = site }; state.politicalPresence.Add(p); }
++                p.remaining = GameCalendar.SecondsPerDay * 3;
++            }
++            state.politicalPresence.RemoveAll(p => p.remaining <= 0);
++        }
++        public static float PoliticalMultiplier(int count) => (float)(1 - .6 * (1 - Math.Pow(.5, Math.Max(0, count))));
++        public float SettlementDiscontentMultiplier(int site)
++        {
++            // 다른 정착지에 현존하면 이전 정착지의 부재 잔여보다 현지 효과를 우선한다.
++            var locals = CommanderRoster.Instance?.Commanders.Where(Present).ToDictionary(c => c.PersonalState.id, SettlementOf);
++            return PoliticalMultiplier(state.politicalPresence?.Count(p => p.site == site && p.remaining > 0
++                && (locals == null || !locals.TryGetValue(p.id, out var current) || current == site)) ?? 0);
++        }
++        public float DiscontentMultiplier(string id)
++        {
++            var c = CommanderRoster.Instance?.Commanders.FirstOrDefault(c => c.PersonalState.id == id);
++            return Present(c) ? SettlementDiscontentMultiplier(SettlementOf(c)) : 1;
++        }
++        private static bool ValidPoliticalPresence(State s) => s.politicalPresence == null || s.politicalPresence.Count <= 10000
++            && s.politicalPresence.All(p => p != null && !string.IsNullOrEmpty(p.id) && p.id.Length <= 1000 && p.site >= -1
++                && p.remaining >= 0 && p.remaining <= GameCalendar.SecondsPerDay * 3)
++            && s.politicalPresence.Select(p => (p.id, p.site)).Distinct().Count() == s.politicalPresence.Count;
++    }
++}
+diff --git a/Assets/_Project/Scripts/Core/CampaignResearch.Politics.cs.meta b/Assets/_Project/Scripts/Core/CampaignResearch.Politics.cs.meta
+new file mode 100644
+--- /dev/null
++++ b/Assets/_Project/Scripts/Core/CampaignResearch.Politics.cs.meta
+@@ -0,0 +1,2 @@
++fileFormatVersion: 2
++guid: 7d5447f4992b4544b17101319a0a88cc
+diff --git a/Assets/_Project/Scripts/Core/ColonyPopulation.cs b/Assets/_Project/Scripts/Core/ColonyPopulation.cs
+--- a/Assets/_Project/Scripts/Core/ColonyPopulation.cs
++++ b/Assets/_Project/Scripts/Core/ColonyPopulation.cs
+@@ -43,7 +43,7 @@
+         private void OnEnable() => UI.EnemyAlert.Alarm += OnRaid;
+         private void OnDisable() => UI.EnemyAlert.Alarm -= OnRaid;
+         private void OnDestroy() { ClearCivilianViews(); if (Instance == this) Instance = null; }
+-        private void OnRaid() { if (S.raidSeconds >= GameCalendar.SecondsPerMonth) S.sentiment = Mathf.Max(0, S.sentiment - GameBalance.RaidSentiment); S.raidSeconds = 0; }
++        private void OnRaid() { if (S.raidSeconds >= GameCalendar.SecondsPerMonth) S.sentiment = Mathf.Max(0, S.sentiment - GameBalance.RaidSentiment * (CampaignResearch.Instance?.SettlementDiscontentMultiplier(-1) ?? 1)); S.raidSeconds = 0; }
+ 
+         public State Capture() => JsonUtility.FromJson<State>(JsonUtility.ToJson(S));
+         public void Restore(State s)
+@@ -212,7 +212,7 @@
+             // 세율이 높을수록 불이익이 가파르다(30% 초과분 제곱 가산, 잠정). 창고 식량은 시민 민심에 반영하지 않는다.
+             var target = ColonyTaxRules.BaseSentiment(S.taxRate) - PolicySentiment(S.policy)
+                 + (Total > HousingCapacity ? -10 : 0) + Mathf.Min(10, Facilities * 2) + CivicSentiment + (S.raidSeconds < GameCalendar.SecondsPerMonth ? -10 : 0) + GameBalance.AdminSentiment * Administration + GameBalance.HousingBeautySentiment * HousingBeauty;
+-            S.sentiment = Mathf.Clamp(S.sentiment + Mathf.Clamp(target - S.sentiment, -10, 10), 0, 100);
++            S.sentiment = Mathf.Clamp(S.sentiment + (target < S.sentiment ? Mathf.Max(target - S.sentiment, -10) * (CampaignResearch.Instance?.SettlementDiscontentMultiplier(-1) ?? 1) : Mathf.Min(target - S.sentiment, 10)), 0, 100);
+             if (Unrest)
+             {
+                 var left = pool.RemoveFree(Mathf.CeilToInt(pool.Free * GameBalance.UnrestDesertion), true);
+diff --git a/Assets/_Project/Scripts/Core/FoodLots.cs b/Assets/_Project/Scripts/Core/FoodLots.cs
+--- a/Assets/_Project/Scripts/Core/FoodLots.cs
++++ b/Assets/_Project/Scripts/Core/FoodLots.cs
+@@ -12,7 +12,7 @@
+     // 꺼낼 때는 남은 시간이 짧은 것부터(썩기 전 식품 중 신선도 낮은 것부터 먹는다). 시간이 다 되면 썩은 식품이 된다.
+     [Serializable] public sealed class FoodLots
+     {
+-        [Serializable] public struct Lot { public int amount; public float shelf; }
++        [Serializable] public struct Lot { public int amount; public float shelf; public int cookSkillPlusOne; public bool inspired; }
+         public List<Lot> lots = new List<Lot>();
+ 
+         public static float ShelfLife(FoodPreservation food) => GameCalendar.SecondsPerDay * (food switch
+@@ -27,7 +27,7 @@
+         {
+             ResourceType.Food => ShelfLife(FoodPreservation.RawMeat),
+             ResourceType.Honeydew => GameCalendar.SecondsPerMonth,
+-            ResourceType.SimpleMeal => ShelfLife(FoodPreservation.Cooked),
++            ResourceType.SimpleMeal or ResourceType.SmokedFood => ShelfLife(FoodPreservation.Cooked),
+             ResourceType.FineMeal or ResourceType.CookedRice or ResourceType.Flatbread or ResourceType.FriedRice => ShelfLife(FoodPreservation.Cooked),
+             ResourceType.Grapes => ShelfLife(FoodPreservation.Berry),
+             ResourceType.Wheat or ResourceType.Barley or ResourceType.Rice or ResourceType.SunflowerSeed or ResourceType.WheatFlour => ShelfLife(FoodPreservation.Grain),
+@@ -39,16 +39,18 @@
+         public float Freshest => lots.Count == 0 ? 0 : lots.Max(l => l.shelf);
+         public float Stalest => lots.Count == 0 ? 0 : lots.Min(l => l.shelf);
+         public int StalestAmount => lots.Where(l => l.shelf == Stalest).Sum(l => l.amount);
++        public int CookingSkill => Total == 0 ? 5 : (int)Math.Round(lots.Sum(l => (double)l.amount * (l.cookSkillPlusOne == 0 ? 5 : l.cookSkillPlusOne - 1)) / Total);
++        public bool Inspired => Total > 0 && lots.All(l => l.inspired);
+         public static IEnumerable<StoreBin> MealSources(IEnumerable<StoreBin> bins, ResourceType type) => bins
+             .Where(b => b.Spendable && b.Amount(type) > 0).OrderBy(b => b.Lots(type)?.Stalest ?? 0);
+-        public void Add(int amount, float shelf)
++        public void Add(int amount, float shelf, int cookSkillPlusOne = 0, bool inspired = false)
+         {
+             if (amount <= 0) return;
+-            var i = lots.FindIndex(l => Mathf.Abs(l.shelf - shelf) < 1f); // 거의 같은 신선도는 합친다
+-            if (i >= 0) lots[i] = new Lot { amount = lots[i].amount + amount, shelf = Mathf.Min(lots[i].shelf, shelf) };
+-            else lots.Add(new Lot { amount = amount, shelf = shelf });
++            var i = lots.FindIndex(l => Math.Abs(l.shelf - shelf) < 1f && l.cookSkillPlusOne == cookSkillPlusOne && l.inspired == inspired);
++            if (i >= 0) lots[i] = new Lot { amount = lots[i].amount + amount, shelf = Math.Min(lots[i].shelf, shelf), cookSkillPlusOne = cookSkillPlusOne, inspired = inspired };
++            else lots.Add(new Lot { amount = amount, shelf = shelf, cookSkillPlusOne = cookSkillPlusOne, inspired = inspired });
+         }
+-        public void Add(FoodLots other) { if (other != null) foreach (var l in other.lots) Add(l.amount, l.shelf); }
++        public void Add(FoodLots other) { if (other != null) foreach (var l in other.lots) Add(l.amount, l.shelf, l.cookSkillPlusOne, l.inspired); }
+         // 신선도 낮은 것부터 amount만큼 떼어 낸다.
+         public FoodLots Take(int amount)
+         {
+@@ -56,8 +58,8 @@
+             lots.Sort((a, b) => a.shelf.CompareTo(b.shelf));
+             for (int i = 0; i < lots.Count && amount > 0;)
+             {
+-                var n = Mathf.Min(amount, lots[i].amount); taken.Add(n, lots[i].shelf); amount -= n;
+-                if (n == lots[i].amount) lots.RemoveAt(i); else { lots[i] = new Lot { amount = lots[i].amount - n, shelf = lots[i].shelf }; i++; }
++                var l = lots[i]; var n = Math.Min(amount, l.amount); taken.Add(n, l.shelf, l.cookSkillPlusOne, l.inspired); amount -= n;
++                if (n == l.amount) lots.RemoveAt(i); else { l.amount -= n; lots[i] = l; i++; }
+             }
+             return taken;
+         }
+@@ -78,7 +80,8 @@
+             var diff = total - Total;
+             if (diff > 0) Add(diff, ShelfLife(t)); else if (diff < 0) Take(-diff);
+         }
+-        public bool Valid => lots != null && lots.All(l => l.amount > 0 && !float.IsNaN(l.shelf) && l.shelf > 0);
++        public bool Valid => lots != null && lots.Count <= 100000 && lots.All(l => l.amount > 0 && !float.IsNaN(l.shelf) && !float.IsInfinity(l.shelf) && l.shelf > 0
++            && l.cookSkillPlusOne >= 0 && l.cookSkillPlusOne <= 21);
+     }
+ }
+ 
+diff --git a/Assets/_Project/Scripts/Core/WorkContribution.cs b/Assets/_Project/Scripts/Core/WorkContribution.cs
+new file mode 100644
+--- /dev/null
++++ b/Assets/_Project/Scripts/Core/WorkContribution.cs
+@@ -0,0 +1,39 @@
++using System;
++using System.Collections.Generic;
++using System.Linq;
++
++namespace AntColony.Core
++{
++    [Serializable] public sealed class WorkContribution
++    {
++        [Serializable] public sealed class Entry { public string id; public float work; }
++        public float total;
++        public List<Entry> qualified = new List<Entry>();
++        public void Add(string id, float work, bool diamond)
++        {
++            if (!(work > 0) || float.IsInfinity(work)) return;
++            total += work;
++            if (!diamond || string.IsNullOrEmpty(id)) return;
++            var entry = qualified.Find(e => e.id == id);
++            if (entry == null) qualified.Add(new Entry { id = id, work = work }); else entry.work += work;
++        }
++        public string Majority(float required) => required > 0 ? qualified.FirstOrDefault(e => e.work + .0001f >= required * .75f)?.id : null;
++        public bool Valid => !float.IsNaN(total) && !float.IsInfinity(total) && total >= 0 && qualified != null && qualified.Count <= 1000
++            && qualified.All(e => e != null && !string.IsNullOrEmpty(e.id) && e.id.Length <= 1000 && e.work > 0 && !float.IsInfinity(e.work))
++            && qualified.Select(e => e.id).Distinct().Count() == qualified.Count && qualified.Sum(e => (double)e.work) <= total + .01;
++    }
++
++    [Serializable] public sealed class SoleWorker
++    {
++        public string id;
++        public bool mixed, diamond;
++        public void Note(string worker, bool eligible)
++        {
++            if (string.IsNullOrEmpty(worker)) { mixed = true; return; }
++            if (string.IsNullOrEmpty(id)) { id = worker; diamond = eligible; }
++            else { mixed |= id != worker; diamond &= eligible; }
++        }
++        public bool Empowered => !mixed && diamond && !string.IsNullOrEmpty(id);
++        public bool Valid => id == null || id.Length <= 1000;
++    }
++}
+diff --git a/Assets/_Project/Scripts/Core/WorkContribution.cs.meta b/Assets/_Project/Scripts/Core/WorkContribution.cs.meta
+new file mode 100644
+--- /dev/null
++++ b/Assets/_Project/Scripts/Core/WorkContribution.cs.meta
+@@ -0,0 +1,2 @@
++fileFormatVersion: 2
++guid: 6069aa4f05ba4df0b9e82f38039d35eb
+diff --git a/Assets/_Project/Scripts/Core/ResourceManager.cs b/Assets/_Project/Scripts/Core/ResourceManager.cs
+--- a/Assets/_Project/Scripts/Core/ResourceManager.cs
++++ b/Assets/_Project/Scripts/Core/ResourceManager.cs
+@@ -162,7 +162,7 @@
+         // G06 표본 반입: 실제로 들여온 물자(채집·원정·교역·보상)만 센다. 환불·생산·세금·제작 결과는 표본이 아니다.
+         private static bool DeliversSample(ResourceReason r) => r == ResourceReason.Gathering || r == ResourceReason.Expedition || r == ResourceReason.Trade || r == ResourceReason.Reward;
+         // 들어갈 칸에 담고 넘친 몫은 바닥(near 주변, 없으면 비축더미 주변)에 둔다. 담은 양을 돌려준다.
+-        public int Add(ResourceType type, int amount, ResourceReason reason = ResourceReason.Gathering, Vector3? near = null)
++        public int Add(ResourceType type, int amount, ResourceReason reason = ResourceReason.Gathering, Vector3? near = null, FoodLots lots = null)
+         {
+             if (amount <= 0) return 0;
+             if (!AntColony.Save.SaveSystem.Busy && DeliversSample(reason)) CampaignResearch.Instance?.RecordSampleDelivery(type, amount);
+@@ -170,10 +170,12 @@
+             foreach (var b in Destinations(type, from, null).ToList())
+             {
+                 if (amount - placed <= 0) break;
+-                var n = Mathf.Min(amount - placed, b.Free(type)); b.amounts[(int)type] += n; placed += n;
++                var n = Mathf.Min(amount - placed, b.Free(type));
++                var have = b.Lots(type); if (have != null) { have.Match(b.amounts[(int)type], type); if (lots != null) have.Add(lots.Take(n)); }
++                b.amounts[(int)type] += n; have?.Match(b.amounts[(int)type], type); placed += n;
+             }
+             CampaignHistory.Resource(type, placed, false, reason);
+-            if (amount > placed) AntColony.World.DiplomacyManager.DropFloor(type, amount - placed, from + Scatter());
++            if (amount > placed) AntColony.World.DiplomacyManager.DropFloor(type, amount - placed, from + Scatter(), lots);
+             OnResourcesChanged?.Invoke();
+             return placed;
+         }
+diff --git a/Assets/_Project/Scripts/Data/CookedFoods.cs b/Assets/_Project/Scripts/Data/CookedFoods.cs
+--- a/Assets/_Project/Scripts/Data/CookedFoods.cs
++++ b/Assets/_Project/Scripts/Data/CookedFoods.cs
+@@ -2,13 +2,13 @@
+ {
+     public static class CookedFoods
+     {
+-        public static readonly ResourceType[] MealTypes = { ResourceType.FineMeal, ResourceType.FriedRice, ResourceType.SimpleMeal, ResourceType.CookedRice, ResourceType.Flatbread, ResourceType.Food, ResourceType.RottenFood };
++        public static readonly ResourceType[] MealTypes = { ResourceType.FineMeal, ResourceType.FriedRice, ResourceType.SimpleMeal, ResourceType.SmokedFood, ResourceType.CookedRice, ResourceType.Flatbread, ResourceType.Food, ResourceType.RottenFood };
+         public static int Quality(ResourceType type) => type switch
+         {
+             ResourceType.FineMeal or ResourceType.FriedRice => 2,
+-            ResourceType.SimpleMeal or ResourceType.CookedRice or ResourceType.Flatbread => 1, _ => 0
++            ResourceType.SimpleMeal or ResourceType.SmokedFood or ResourceType.CookedRice or ResourceType.Flatbread => 1, _ => 0
+         };
+         public static string Model(ResourceType type) => type switch { ResourceType.CookedRice => "Dish_Rice", ResourceType.Flatbread => "Bread_Flat", ResourceType.FriedRice => "Dish_FriedRice", _ => null };
+-        public static string Name(ResourceType type) => type switch { ResourceType.CookedRice => "밥", ResourceType.Flatbread => "납작빵", ResourceType.FriedRice => "볶음밥", _ => null };
++        public static string Name(ResourceType type) => type switch { ResourceType.SmokedFood => "훈연식", ResourceType.CookedRice => "밥", ResourceType.Flatbread => "납작빵", ResourceType.FriedRice => "볶음밥", _ => null };
+     }
+ }
+diff --git a/Assets/_Project/Scripts/Data/ResourceType.cs b/Assets/_Project/Scripts/Data/ResourceType.cs
+--- a/Assets/_Project/Scripts/Data/ResourceType.cs
++++ b/Assets/_Project/Scripts/Data/ResourceType.cs
+@@ -69,7 +69,7 @@
+         Charcoal, Coke, Pottery,
+         Wheat, Barley, Rice, Grapes, SunflowerSeed, WheatFlour, SunflowerOil, RubberSap, Rubber,
+         Beer, RiceWine, FruitWine, Mead, HoneydewWine, Spirits,
+-        CookedRice, Flatbread, FriedRice
++        CookedRice, Flatbread, FriedRice, SmokedFood
+     }
+ 
+     // 재료 특성(내구·무게·가연성·미관·단열). 후반 재료가 모든 면에서 우월하지 않게 용도를 나눈다.
+diff --git a/Assets/_Project/Scripts/Save/SaveAttribution.cs b/Assets/_Project/Scripts/Save/SaveAttribution.cs
+new file mode 100644
+--- /dev/null
++++ b/Assets/_Project/Scripts/Save/SaveAttribution.cs
+@@ -0,0 +1,39 @@
++using System;
++using System.Collections.Generic;
++using System.Linq;
++using AntColony.Buildings;
++using AntColony.Core;
++using UnityEngine;
++
++namespace AntColony.Save
++{
++    [Serializable] public sealed class ConstructionAttributionDto
++    {
++        public long order;
++        public WorkContribution contributions;
++        public SoleWorker artist;
++        public bool babelUsed;
++    }
++    [Serializable] public sealed class FoodCargoWrapper { public List<AntColony.World.ExpeditionTransport.FoodCargo> values; }
++    internal static class SaveAttribution
++    {
++        internal static List<ConstructionAttributionDto> Capture() => SceneObjects.All<BuildingConstructionSite>()
++            .Where(s => s.isActiveAndEnabled).Select(s => new ConstructionAttributionDto { order = s.Order,
++                contributions = s.Contributions, artist = s.Artist, babelUsed = s.BabelUsed })
++            .Select(d => JsonUtility.FromJson<ConstructionAttributionDto>(JsonUtility.ToJson(d))).ToList();
++        internal static void Restore(List<ConstructionAttributionDto> list)
++        {
++            foreach (var d in list ?? new List<ConstructionAttributionDto>())
++            {
++                var s = SceneObjects.All<BuildingConstructionSite>().FirstOrDefault(s => s.Order == d.order);
++                if (s == null) continue;
++                var copy = JsonUtility.FromJson<ConstructionAttributionDto>(JsonUtility.ToJson(d));
++                s.Contributions = copy.contributions ?? new WorkContribution(); s.Artist = copy.artist ?? new SoleWorker(); s.BabelUsed = copy.babelUsed;
++            }
++        }
++        internal static bool Valid(List<ConstructionAttributionDto> list, List<ConstructionDto> sites) => list == null
++            || list.Count <= 10000 && list.All(d => d != null && sites?.Any(s => s.order == d.order) == true
++                && d.contributions?.Valid == true && d.artist?.Valid == true)
++            && list.Select(d => d.order).Distinct().Count() == list.Count;
++    }
++}
+diff --git a/Assets/_Project/Scripts/Save/SaveAttribution.cs.meta b/Assets/_Project/Scripts/Save/SaveAttribution.cs.meta
+new file mode 100644
+--- /dev/null
++++ b/Assets/_Project/Scripts/Save/SaveAttribution.cs.meta
+@@ -0,0 +1,2 @@
++fileFormatVersion: 2
++guid: fdfa7127c6bf448c9a45c50fced1530a
+diff --git a/Assets/_Project/Scripts/Save/SaveBuildings.cs b/Assets/_Project/Scripts/Save/SaveBuildings.cs
+--- a/Assets/_Project/Scripts/Save/SaveBuildings.cs
++++ b/Assets/_Project/Scripts/Save/SaveBuildings.cs
+@@ -25,7 +25,8 @@
+             var servicer = commanders.FindIndex(c => c != null && c.ServiceTarget == b);
+             if (servicer >= 0) { d.serviceCommander = servicer; d.serviceJob = (int)commanders[servicer].ServiceJob; }
+             if (b is Kitchen kitchen) d.kitchen = JsonUtility.FromJson<Kitchen.State>(JsonUtility.ToJson(kitchen.Meals));
+-            if (b is Decoration decoration) d.decorationQuality = decoration.Quality;
++            d.babel = b.Babel == null ? null : JsonUtility.FromJson<BabelState>(JsonUtility.ToJson(b.Babel));
++            if (b is Decoration decoration) { d.decorationQuality = decoration.Quality; d.artistId = decoration.ArtistId; d.diamondArtwork = decoration.DiamondArtwork; }
+             if (b is Barracks barracks) { d.role = (int)barracks.Role; d.barracksTier = barracks.CurrentTier; d.barracksUpgradeRemaining = barracks.UpgradeRemaining; }
+             if (b is ResearchLab lab) { d.role = (int)lab.Role; d.labResearchRemaining = lab.ResearchRemaining;
+                 d.labResearchCommanderId = commanders.IndexOf(lab.Target); d.labResearchAttack = lab.ResearchIsAttack; }
+@@ -95,7 +96,8 @@
+             BuildingRepair.For(b).Credit = d.repairCredit;
+             if (d.fire != null) (b.TryGetComponent<WallFire>(out var fire) ? fire : b.gameObject.AddComponent<WallFire>()).RestoreState(d.fire);
+             if (b is Kitchen kitchen) kitchen.Meals = JsonUtility.FromJson<Kitchen.State>(JsonUtility.ToJson(d.kitchen));
+-            if (b is Decoration decoration) decoration.Quality = d.decorationQuality;
++            b.Babel = d.babel == null ? null : JsonUtility.FromJson<BabelState>(JsonUtility.ToJson(d.babel));
++            if (b is Decoration decoration) { decoration.Quality = d.decorationQuality; decoration.ArtistId = d.artistId; decoration.DiamondArtwork = d.diamondArtwork; }
+             if (b is Barracks barracks) barracks.RestoreState(d.barracksTier, d.barracksUpgradeRemaining);
+             if (b is ResearchLab lab && d.labResearchCommanderId >= 0) lab.RestoreState(commanders[d.labResearchCommanderId], d.labResearchAttack, d.labResearchRemaining);
+             // Phase 4: 여왕방 삭제. 이전 저장에서 진행 중이던 여왕방 낚시 연구는 완료로 처리한다.
+diff --git a/Assets/_Project/Scripts/Save/SaveDtos.cs b/Assets/_Project/Scripts/Save/SaveDtos.cs
+--- a/Assets/_Project/Scripts/Save/SaveDtos.cs
++++ b/Assets/_Project/Scripts/Save/SaveDtos.cs
+@@ -121,6 +121,8 @@
+         public int serviceCommander = -1, serviceJob; // 이 건물을 서비스 중인 장수 번호·CommanderJobs
+         public int workforce;
+         public float repairCredit;
++        public Buildings.BabelState babel;
++        public string artistId; public bool diamondArtwork;
+         public int decorationQuality = 1;
+         public Buildings.Kitchen.State kitchen = new Buildings.Kitchen.State();
+         public string key;
+@@ -262,6 +264,7 @@
+     [Serializable]
+     public class TransportDto
+     {
++        public List<World.ExpeditionTransport.FoodCargo> cargoFreshness;
+         public List<World.Corpse.State> bodyCargo;
+         public int[] cargoAmounts;
+         public World.TransportDamageState damage;
+@@ -328,8 +331,9 @@
+         public bool loopCompleted, bossDefeated, defeated;
+         public string defeatReason; // G11 패배 사유(구저장 없음)
+         public string randomState;
+-        public const int CurrentVersion = 21;
++        public const int CurrentVersion = 22;
+         public List<World.Corpse.State> corpses = new List<World.Corpse.State>();
++        public List<ConstructionAttributionDto> constructionAttribution;
+         public List<ConstructionDto> construction; // v17 건설·철거·이동·개보수 예정지(옛 저장은 null = 없음)
+         public List<World.Critter.State> critters; // v16 목장 생물 개체(2026-10-11 개편: 나이·배고픔·길들임·돌봄·결박 등, 옛 필드는 같은 이름으로 읽힘)
+         public World.DiplomacyManager.State diplomacy;
+diff --git a/Assets/_Project/Scripts/Save/SavePreflight.cs b/Assets/_Project/Scripts/Save/SavePreflight.cs
+--- a/Assets/_Project/Scripts/Save/SavePreflight.cs
++++ b/Assets/_Project/Scripts/Save/SavePreflight.cs
+@@ -58,6 +58,7 @@
+                 foreach (var item in f.equipmentInventory) Check(item != null && item.IsValid && equipmentIds.Add(item.id), "inventory item");
+                 L(f.equipmentLoot, 10000, "equipment loot");
+                 L(f.corpses, 10000, "corpses");
++                Check(SaveAttribution.Valid(f.constructionAttribution, f.construction), "construction attribution");
+                 Check(SaveConstruction.Valid(f.construction), "construction sites");
+                 var corpseWorkers = new HashSet<string>();
+                 foreach (var corpse in f.corpses)
+@@ -82,6 +83,7 @@
+                 }
+                 var personalIds = new HashSet<string>();
+                 Check(World.DiplomacyManager.Validate(f.diplomacy, f.world.sites.Count), "diplomacy");
++                Check(f.campaign?.politicalPresence == null || f.campaign.politicalPresence.All(p => p.site < f.world.sites.Count), "political settlement");
+                 foreach (var faction in f.diplomacy.civilizations.Concat(f.diplomacy.markets))
+                 {
+                     foreach (var item in faction.equipment) Check(equipmentIds.Add(item.id), "diplomatic equipment ownership");
+@@ -130,6 +132,7 @@
+                 foreach (var b in f.buildings)
+                 {
+                     Check(b.workforce >= 0 && N(b.repairCredit) && b.repairCredit <= 100000000
++                        && BabelState.Valid(b.babel) && (b.artistId == null || b.artistId.Length <= 1000)
+                         && b.decorationQuality >= 0 && b.decorationQuality <= 3 && Kitchen.Valid(b.kitchen), "workforce/repair/kitchen/decoration");
+                     Check(b.key != null && V(b.position) && N(b.health) && !float.IsNaN(b.rotationY) && !float.IsInfinity(b.rotationY), "building");
+                     Check(N(b.powerFuelSeconds) && b.powerFuelSeconds <= Core.GameBalance.WoodBurnSeconds, "power fuel");
+@@ -167,7 +170,8 @@
+                         && f.commanders[w.crafter].location == 0 && f.commanders[w.crafter].activeInScene
+                         && !f.commanders[w.crafter].personalState.dead && f.commanders[w.crafter].personalState.mentalBreak == MentalBreak.None, "crafter ownership");
+                     Check(N(b.trapBroken) && N(b.trapRepair) && b.trapRepair <= Core.GameBalance.TrapRepairSeconds
+-                        && Enum.IsDefined(typeof(FarmCrop), b.crop), "trap/farm state");
++                        && Enum.IsDefined(typeof(FarmCrop), b.crop) && (b.farm?.diamondCycle == null || b.farm.diamondCycle.Valid)
++                        && (b.farm?.diamondReason == null || b.farm.diamondReason.Length <= 1000), "trap/farm state");
+                     L(b.patients, Infirmary.Capacity, "infirmary patients");
+                     foreach (var id in b.patients) Check(b.kind == "Infirmary" && b.health > 0 && id >= 0 && id < f.commanders.Count
+                         && targets.Add(id) && f.commanders[id].location == 0 && f.commanders[id].activeInScene
+@@ -199,7 +203,7 @@
+                 Check(f.world.defenseReturn == null || f.world.defenseReturn.disabled != null && f.world.defenseReturn.disabled.Count <= 10000 && f.world.defenseReturn.disabled.All(id => !string.IsNullOrEmpty(id)), "defense return");
+                 for (var i = 0; i < f.world.transports.Count; i++)
+                 {
+-                    var s = f.world.transports[i]; Check(s != null && s.state >= 0 && s.state <= 3 && N(s.remaining) && s.siteIndex >= -1 && s.siteIndex < f.world.sites.Count
++                    var s = f.world.transports[i]; Check(s != null && World.ExpeditionTransport.ValidFoodAmounts(s), "cargo freshness"); Check(s != null && s.state >= 0 && s.state <= 3 && N(s.remaining) && s.siteIndex >= -1 && s.siteIndex < f.world.sites.Count
+                         && V(s.position) && V(s.homePosition) && s.cargoFood >= 0 && s.cargoSoil >= 0 && s.cargoSpecial >= 0, "transport");
+                     Check(s.state == 0 || s.siteIndex >= 0, "transport destination");
+                     L(s.equipmentCargo, 10000, "equipment cargo");
+@@ -214,7 +218,7 @@
+                 }
+                 Check(f.nodes.All(n => n != null && n.key != null && N(n.amount) && N(n.regrowTimer) && N(n.sowRemaining) && ValidNaturalWork(n) && n.fishMonth >= -1 && V(n.position) && Enum.IsDefined(typeof(ResourceType), n.type))
+                     && f.nodes.Select(n => n.key).Distinct().Count() == f.nodes.Count, "resource nodes");
+-                Check(f.critters == null || f.critters.Count <= 1000 && f.critters.All(c => c != null && Enum.IsDefined(typeof(Buildings.Species), c.species) && N(c.health) && c.health > 0 && V(c.position) && (c.disease == null || c.disease.Valid)), "critters");
++                Check(f.critters == null || f.critters.Count <= 1000 && f.critters.All(c => c != null && Enum.IsDefined(typeof(Buildings.Species), c.species) && N(c.health) && c.health > 0 && V(c.position) && (c.tamer == null || c.tamer.Valid) && (c.disease == null || c.disease.Valid)), "critters");
+                 Check(f.monsters.All(m => m != null && m.key != null && N(m.health) && V(m.position)
+                     && AntColony.Boss.BossEncounter.Validate(m.bossEncounter) && (!AntColony.Boss.BossEncounter.Present(m.bossEncounter) || m.key.StartsWith("boss:")))
+                     && f.monsters.Select(m => m.key).Distinct().Count() == f.monsters.Count, "monsters");
+diff --git a/Assets/_Project/Scripts/Save/SaveSnapshot.cs b/Assets/_Project/Scripts/Save/SaveSnapshot.cs
+--- a/Assets/_Project/Scripts/Save/SaveSnapshot.cs
++++ b/Assets/_Project/Scripts/Save/SaveSnapshot.cs
+@@ -50,6 +50,7 @@
+                 equipmentInventory = EquipmentInventory.Instance == null ? new List<EquipmentItem>() : EquipmentInventory.Instance.Items.Select(e => JsonUtility.FromJson<EquipmentItem>(JsonUtility.ToJson(e))).ToList(),
+                 corpses = Corpse.All.Where(c => c.Available).Select(ExpeditionTransport.CaptureFloorBody).ToList(),
+                 construction = SaveConstruction.Capture(),
++                constructionAttribution = SaveAttribution.Capture(),
+                 critters = Critter.CaptureAll(),
+                 equipmentLoot = SaveCatalog.Ordered<EquipmentLoot>().Select(l => new EquipmentLootDto { position = new Vec3Dto(l.transform.position),
+                     items = l.Items.Select(e => JsonUtility.FromJson<EquipmentItem>(JsonUtility.ToJson(e))).ToList() }).ToList(),
+@@ -94,6 +95,7 @@
+             file.world.pause = AntColony.UI.SimulationPause.Capture();
+             file.world.defenseReturn = JsonUtility.FromJson<HomeDefenseReturn>(JsonUtility.ToJson(world.DefenseReturn));
+             foreach (var s in world.Transports.Where(s => s != null)) file.world.transports.Add(new TransportDto { walking = s.Walking, foodDebt = s.FoodDebt, dockingRemaining = s.DockingRemaining, aircraft = s.Aircraft, state = (int)s.State,
++                cargoFreshness = JsonUtility.FromJson<FoodCargoWrapper>(JsonUtility.ToJson(new FoodCargoWrapper { values = s.CaptureFoodCargo() })).values,
+                 bodyCargo = s.bodyCargo.Select(b => JsonUtility.FromJson<Corpse.State>(JsonUtility.ToJson(b))).ToList(),
+                 cargoAmounts = Enum.GetValues(typeof(ResourceType)).Cast<ResourceType>().Select(s.GetCargo).ToArray(), damage = s.CaptureDamage(), withdrawal = s.CaptureWithdrawal(),
+                 bossCarrierId = BossRewardTransfer.Carrier(s),
+@@ -251,6 +253,7 @@
+                 ship.RestoreState((ExpeditionState)d.state, d.remaining, d.siteIndex < 0 ? null : world.Sites[d.siteIndex],
+                     d.position.ToVector3(), d.homePosition.ToVector3(), d.cargoFood, d.cargoSoil, d.cargoSpecial);
+                 if (d.cargoAmounts != null && d.cargoAmounts.Length > 0) ship.RestoreCargoAmounts(d.cargoAmounts);
++                ship.RestoreFoodCargo(d.cargoFreshness);
+                 ship.Route.RestoreState(d.route.running, d.route.destinationIndex < 0 ? null : world.Sites[d.route.destinationIndex], d.route.waitSeconds, d.route.status);
+             }
+             var commanders = new List<CommanderAnt>();
+@@ -311,6 +314,7 @@
+                 EquipmentLoot.Drop(loot.position.ToVector3() - Vector3.up * .35f, loot.items.Select(e => JsonUtility.FromJson<EquipmentItem>(JsonUtility.ToJson(e))));
+             foreach (var corpse in file.corpses) Corpse.Spawn(corpse);
+             SaveConstruction.Restore(file.construction);
++            SaveAttribution.Restore(file.constructionAttribution);
+             Critter.RestoreAll(file.critters); // 2026-10-10 야생·탈출 사육 생물(옛 저장은 없음)
+             var incursions = AntColony.Core.SceneObjects.Any<LocalIncursions>(); if (incursions != null) incursions.SavedTimer = file.incursionTimer;
+             if (file.camera.viewedSite >= 0) world.ViewSite(world.Sites[file.camera.viewedSite]);
+diff --git a/Assets/_Project/Scripts/Save/SaveValidator.cs b/Assets/_Project/Scripts/Save/SaveValidator.cs
+--- a/Assets/_Project/Scripts/Save/SaveValidator.cs
++++ b/Assets/_Project/Scripts/Save/SaveValidator.cs
+@@ -235,6 +235,12 @@
+                         Array.Resize(ref transport.cargoAmounts, Core.StoreBin.TypeCount);
+                 file.version = 21;
+             }
++            if (file.version == 21)
++            {
++                if (file.world?.transports != null) foreach (var transport in file.world.transports)
++                    if (transport?.cargoAmounts?.Length == 78) Array.Resize(ref transport.cargoAmounts, Core.StoreBin.TypeCount);
++                file.version = 22;
++            }
+             if (file.version != SaveFileV1.CurrentVersion)
+             {
+                 error = $"Save version {file.version} cannot be read by this build (expects {SaveFileV1.CurrentVersion}).";
+diff --git a/Assets/_Project/Scripts/UI/GameMenuArtwork.cs b/Assets/_Project/Scripts/UI/GameMenuArtwork.cs
+new file mode 100644
+--- /dev/null
++++ b/Assets/_Project/Scripts/UI/GameMenuArtwork.cs
+@@ -0,0 +1,47 @@
++using System;
++using System.Linq;
++using AntColony.Buildings;
++using AntColony.Core;
++using AntColony.World;
++using UnityEngine;
++using L = AntColony.UI.MenuLayout;
++
++namespace AntColony.UI
++{
++    public sealed partial class GameMenuController
++    {
++        private Decoration giftArtwork;
++        private void ArtworkDiplomacy()
++        {
++            var d = DiplomacyManager.Instance; if (d?.Available != true) return;
++            var f = Frame("외교 · 화룡 걸작 선물");
++            L.Label(f, "작품과 목적을 직접 선택 · 성공 때만 소모 · 거절 후 같은 문명/목적 15일 대기 · 성공률 +30%p(상한100%)", 13, 48, 48, 1344, 40);
++            var list = L.List(f, 48, 100, 1344, 620);
++            foreach (var artwork in d.GiftArtworks)
++            {
++                var a = artwork;
++                MenuTheme.Button(list, (giftArtwork == a ? "선택됨 · " : "작품 선택 · ") + a.name + " · " + a.ArtistId, () => { giftArtwork = a; ArtworkDiplomacy(); });
++            }
++            if (!d.GiftArtworks.Any()) MenuTheme.Text(list, "전 과정을 화룡 보유자가 제작한 걸작(품질3)이 없습니다.", 13, 28);
++            foreach (var civ in d.Data.civilizations.Where(c => !c.extinct))
++            {
++                var c = civ;
++                MenuTheme.Text(list, c.name + $" · 수락 확률 {DiplomacyManager.ArtworkChance(c.affinity):P0}", 15, 28);
++                void Offer(ArtworkPurpose purpose, string label, string prisoner = null)
++                {
++                    var reason = d.ArtworkReason(c, purpose, prisoner);
++                    var button = MenuTheme.Button(list, label + (reason == "" ? "" : " · " + reason), () =>
++                    { ToastManager.Show(d.OfferArtwork(c, giftArtwork, purpose, prisoner)); giftArtwork = null; ArtworkDiplomacy(); });
++                    button.interactable = reason == "" && giftArtwork != null;
++                }
++                if (!c.contacted) Offer(ArtworkPurpose.Contact, "접촉 선물");
++                else
++                {
++                    if (c.war) Offer(ArtworkPurpose.Peace, "휴전 선물 · 기존 배상 유지");
++                    foreach (var id in d.RansomableIds(c).ToArray()) Offer(ArtworkPurpose.Release, "석방 요청 · " + id, id);
++                }
++            }
++            L.Button(f, "Back", "외교로 돌아가기", 1180, 764, 212, 34, Diplomacy);
++        }
++    }
++}
+diff --git a/Assets/_Project/Scripts/UI/GameMenuArtwork.cs.meta b/Assets/_Project/Scripts/UI/GameMenuArtwork.cs.meta
+new file mode 100644
+--- /dev/null
++++ b/Assets/_Project/Scripts/UI/GameMenuArtwork.cs.meta
+@@ -0,0 +1,2 @@
++fileFormatVersion: 2
++guid: 47ba86de84414ef3afdd4f0664eee3e5
+diff --git a/Assets/_Project/Scripts/UI/GameMenuDiplomacy.cs b/Assets/_Project/Scripts/UI/GameMenuDiplomacy.cs
+--- a/Assets/_Project/Scripts/UI/GameMenuDiplomacy.cs
++++ b/Assets/_Project/Scripts/UI/GameMenuDiplomacy.cs
+@@ -23,6 +23,7 @@
+             var d = DiplomacyManager.Instance;
+             if (d?.Available != true) { SupplyCaravan(); return; }
+             var f = Frame("외교 [J]");
++            L.Button(f, "Artwork", "화룡 걸작 선물", 700, 47, 290, 32, ArtworkDiplomacy);
+             L.Button(f, "SupplyCaravan", "기초 자원 캐러밴", 1010, 47, 270, 32, SupplyCaravan);
+             var contacted = d.Data.civilizations.Where(c => c.contacted && !c.extinct).ToArray();
+             var tab = L.Plate(f, "DiplomacyTab", 48, 47, 200, 34);
+@@ -201,7 +202,7 @@
+         {
+             var d = DiplomacyManager.Instance; var offer = player ? tradeGive : tradeTake;
+             MenuTheme.Text(parent, player ? "<b>우리 정착지</b>  <color=#b1b3a7>본거지 결제 / 제시</color>" : $"<b>{c.name}</b>  <color=#b1b3a7>보유 / 요청</color>", 15, 32);
+-            string[] resourceNames = { "식량", "재료", "특수 자원" };
++            string[] resourceNames = { "식량", "흙", "특수 자원" };
+             // 목록 버튼은 디자인 행 크기(높이 36, 14pt)로 줄인다.
+             Button Item(string label, Action action)
+             {
+@@ -242,7 +243,7 @@
+                     : c.rebels.Select(p => (p.PersonalState.id, p.Name + " · 반란 합류")).Concat(d.HeldCaptives(c).Select(a => (a.PersonalState.id, a.CommanderName + " · 억류")));
+                 foreach (var (id, name) in entries.ToArray())
+                 {
+-                    var arrival = player ? "" : $" · 귀환 약 {d.HomecomingSeconds(id, c) / DiplomacyRules.Month:0.0}개월";
++                    var arrival = player ? "" : " · 안전 귀환 " + DiplomacyManager.HomecomingTimeLabel(d.HomecomingSeconds(id, c));
+                     Item((offer.prisoners.Contains(id) ? "✓ " : "") + name + $" · 몸값 {d.RansomValue(id, c):0}" + arrival, () => { if (!offer.prisoners.Remove(id)) offer.prisoners.Add(id); rebuildTrade(); });
+                 }
+                 if (!entries.Any()) MenuTheme.Text(parent, player ? "이 세력 출신 포로가 없습니다." : "이 세력이 붙잡은 자국 장수가 없습니다.", 13, 24).color = MenuTheme.Dim;
+diff --git a/Assets/_Project/Scripts/UI/GameMenuFarm.cs b/Assets/_Project/Scripts/UI/GameMenuFarm.cs
+--- a/Assets/_Project/Scripts/UI/GameMenuFarm.cs
++++ b/Assets/_Project/Scripts/UI/GameMenuFarm.cs
+@@ -28,13 +28,13 @@
+             }
+ 
+             content = V5Section(window, $"선택한 밭 · {CropName(p.Crop)}" + (p.Data.nextCrop >= 0 ? $" → 다음 {CropName((FarmCrop)p.Data.nextCrop)}" : ""), 394, 104, 686, 544);
+-            var status = MenuTheme.Text(content, "", 16, 70);
++            var status = MenuTheme.Text(content, "", 16, 94);
+             void Refresh()
+             {
+                 if (p == null) return;
+                 var workers = AntUnitBase.Active.OfType<CommanderAnt>().Where(c => c.CurrentResourceNode == p.Node).Select(c => c.CommanderName).ToArray();
+                 var farmers = AntUnitBase.Active.OfType<CommanderAnt>().Count(c => c.IsColonyMember && !c.IsDead && c.AllowsJob(CommanderJobs.Farming));
+-                status.text = $"{p.Status}\n작업 장수: " + (workers.Length > 0 ? string.Join(", ", workers) : farmers == 0 ? "<color=#f2c94c>농사 작업을 켠 장수 없음</color>" : "대기")
++                status.text = $"{p.Status}\n{p.DiamondStatus}\n작업 장수: " + (workers.Length > 0 ? string.Join(", ", workers) : farmers == 0 ? "<color=#f2c94c>농사 작업을 켠 장수 없음</color>" : "대기")
+                     + $" · 인접 밭(상하좌우) {p.Neighbors().Count()}곳" + (p.Node.GatheringForbidden ? " · <color=#f2c94c>작업 금지</color>" : "");
+             }
+             Refresh(); refreshDutyScreen = Refresh;
+diff --git a/Assets/_Project/Scripts/UI/GameMenuResearch.cs b/Assets/_Project/Scripts/UI/GameMenuResearch.cs
+--- a/Assets/_Project/Scripts/UI/GameMenuResearch.cs
++++ b/Assets/_Project/Scripts/UI/GameMenuResearch.cs
+@@ -30,7 +30,7 @@
+             {
+                 var d = CampaignResearch.Technologies[(int)t];
+                 var progress = r.Active?.Technology == t ? r.Progress : r.SavedProgress(t);
+-                work += Mathf.Max(0, d.Work - Mathf.Max(0, progress));
++                work += Mathf.Max(0, d.Work - Mathf.Max(0, progress) - r.PendingInsight(t));
+                 if (progress >= 0) continue; // 이미 지불한 진행/중단 연구는 다시 비용에 넣지 않는다.
+                 food += d.Food; material += d.Soil; special += d.Special;
+             }
+@@ -131,7 +131,7 @@
+                 var saved = r.SavedProgress(def.Technology);
+                 var cost = r.Active == def || saved >= 0 ? "비용 지불 완료" : $"식량 {def.Food} · 재료 {def.Soil}" + (def.Special > 0 ? $" · 특수 {def.Special}" : "");
+                 var progress = r.Active == def ? r.Progress : Mathf.Max(0, saved);
+-                MenuTheme.Text(content, $"상태 {ResearchState(r, def)} · 연구량 {progress:0}/{def.Work:0} · {cost}\n해금: {ResearchEffect(def.Technology)}"
++                MenuTheme.Text(content, $"상태 {ResearchState(r, def)} · 연구량 {progress:0}/{def.Work:0} · {cost}" + (r.Insight(def.Technology) > 0 ? $" · 천기20%({r.PendingInsight(def.Technology):0} 대기)" : "") + $"\n해금: {ResearchEffect(def.Technology)}"
+                     + "\n선행: " + (def.Prerequisites.Length == 0 ? "없음" : string.Join(", ", def.Prerequisites.Select(p => (r.Has(p) ? "✓ " : "✗ ") + CampaignResearch.Technologies[(int)p].Name))), 15, 82);
+                 var meter = L.Cell(content, "ResearchProgress", 12);
+                 L.Meter(meter, 0, 3, 494, 6, progress / def.Work, MenuTheme.Accent);
+diff --git a/Assets/_Project/Scripts/Units/CommanderHusbandry.cs b/Assets/_Project/Scripts/Units/CommanderHusbandry.cs
+--- a/Assets/_Project/Scripts/Units/CommanderHusbandry.cs
++++ b/Assets/_Project/Scripts/Units/CommanderHusbandry.cs
+@@ -206,6 +206,7 @@
+             }
+             if (animalProgress < 0) animalProgress = 0;
+             a.Halt();
++            a.NoteTamer(this);
+             if (!Work(seconds, GameBalance.CritterCareWorkSeconds, AnimalTask.Care)) return true;
+             a.CalledTo = null;
+             if (Handled(a, CommanderActivity.Husbandry)) a.FinishCare(this);
+diff --git a/Assets/_Project/Scripts/Units/CommanderMeal.cs b/Assets/_Project/Scripts/Units/CommanderMeal.cs
+--- a/Assets/_Project/Scripts/Units/CommanderMeal.cs
++++ b/Assets/_Project/Scripts/Units/CommanderMeal.cs
+@@ -12,6 +12,7 @@
+         public float satiety = 100, eatSeconds, poisonSeconds, retrySeconds;
+         public int pickedFood, pickedType; public bool served; // 집은 식품은 식탁 이동·저장을 넘어 보존한다.
+         public int quality, cookSkill; // 먹는 중인 식사: 0 날것 / 1 간단 / 2 좋은 / 3 고급
++        public bool inspired;
+         public bool rotten; // 정상 식품이 없어 썩은 식품을 먹는 중(2026-10-12)
+         public int diet = -1; // 2026-10-15 장수별 식단 덮어쓰기(날것 1·간단 2·좋은 4). -1 = 공통 식단
+         public bool Valid => Finite(satiety) && satiety >= 0 && satiety <= 100 && Finite(eatSeconds) && eatSeconds >= 0
+@@ -99,6 +100,8 @@
+                 if (!traits.Has(CommanderTrait.IronStomach) && UnityEngine.Random.value < GameBalance.RottenPoisonChance) { m.poisonSeconds = GameBalance.FoodPoisonSeconds; personalState.AddMood("식중독", GameBalance.FoodPoisonMood, GameBalance.FoodPoisonSeconds); }
+                 m.rotten = false; return;
+             }
++            if (m.inspired) ApplyDiamondMeal();
++            m.inspired = false;
+             if (m.quality > 0 && !traits.Has(CommanderTrait.IronStomach)
+                 && UnityEngine.Random.value < MealPoisonChance(m.cookSkill))
+             {
+diff --git a/Assets/_Project/Scripts/Units/CommanderMeal.Diamond.cs b/Assets/_Project/Scripts/Units/CommanderMeal.Diamond.cs
+new file mode 100644
+--- /dev/null
++++ b/Assets/_Project/Scripts/Units/CommanderMeal.Diamond.cs
+@@ -0,0 +1,14 @@
++using System.Linq;
++using AntColony.Core;
++
++namespace AntColony.Units
++{
++    public partial class CommanderAnt
++    {
++        internal static bool DiamondMealAvailable(CommanderPersonalState state) => !state.moodFactors.Any(f => f.reason == "식선: 잊지 못할 한 끼" && f.remaining > 0);
++        private void ApplyDiamondMeal()
++        {
++            if (DiamondMealAvailable(personalState)) personalState.AddMood("식선: 잊지 못할 한 끼", 20, GameCalendar.SecondsPerDay);
++        }
++    }
++}
+diff --git a/Assets/_Project/Scripts/Units/CommanderMeal.Diamond.cs.meta b/Assets/_Project/Scripts/Units/CommanderMeal.Diamond.cs.meta
+new file mode 100644
+--- /dev/null
++++ b/Assets/_Project/Scripts/Units/CommanderMeal.Diamond.cs.meta
+@@ -0,0 +1,2 @@
++fileFormatVersion: 2
++guid: d4d11e3699f54320a479b27fcca360ea
+diff --git a/Assets/_Project/Scripts/Units/CommanderMealSources.cs b/Assets/_Project/Scripts/Units/CommanderMealSources.cs
+--- a/Assets/_Project/Scripts/Units/CommanderMealSources.cs
++++ b/Assets/_Project/Scripts/Units/CommanderMealSources.cs
+@@ -43,7 +43,7 @@
+                     if (!TryWorkApproach(kitchen.Position, out _)) continue;
+                     var meal = kitchen.TakeMeal(kitchen.BestMeal(Diet));
+                     if (meal == null) continue;
+-                    m.quality = meal.quality; m.cookSkill = meal.skill; m.rotten = false; m.served = true;
++                    m.quality = meal.quality; m.cookSkill = meal.skill; m.inspired = false; m.rotten = false; m.served = true;
+                     TakeMealExtra(bins);
+                     return true;
+                 }
+@@ -52,9 +52,10 @@
+                 if (walk && MoveForMeal(bin.Position)) return false;
+                 if (!bin.Spendable || !TryWorkApproach(bin.Position, out _)) continue;
+                 m.pickedType = (int)type;
+-                m.pickedFood += rm.TakeFrom(bin, type, Mathf.Min(need - m.pickedFood, bin.Lots(type)?.StalestAmount ?? need));
++                m.pickedFood += rm.TakeFrom(bin, type, Mathf.Min(need - m.pickedFood, bin.Lots(type)?.StalestAmount ?? need), out var eatenLots);
+                 if (m.pickedFood < need) return false;
+-                m.pickedFood = 0; m.quality = quality; m.cookSkill = quality > 0 ? Kitchen.SkillOf(type) : 0;
++                m.pickedFood = 0; m.quality = quality; m.cookSkill = quality > 0 ? eatenLots?.CookingSkill ?? 5 : 0;
++                m.inspired = quality > 0 && eatenLots?.Inspired == true;
+                 m.rotten = type == ResourceType.RottenFood; m.served = true;
+                 if (quality > 0) TakeMealExtra(bins);
+                 return true;
+diff --git a/Assets/_Project/Scripts/Units/CommanderPersonalState.cs b/Assets/_Project/Scripts/Units/CommanderPersonalState.cs
+--- a/Assets/_Project/Scripts/Units/CommanderPersonalState.cs
++++ b/Assets/_Project/Scripts/Units/CommanderPersonalState.cs
+@@ -10,7 +10,7 @@
+     public enum InjurySeverity { Minor, Serious, Permanent }
+     public enum MentalBreak { None, Idle, Flee, AttackBuilding, AttackCommander, SelfHarm, Binge, Wander }
+     [Serializable] public class CommanderInjury { public InjuryPart part; public InjurySeverity severity; public float remaining; public bool regenerating, prognosisPending; }
+-    [Serializable] public class MoodFactor { public string reason; public float value, remaining; }
++    [Serializable] public class MoodFactor { public string reason; public float value, remaining, politicalReduction; }
+     [Serializable] public class CommanderRelation { public string otherId; public float value, nearbySeconds, quarrelSeconds, duelSeconds, memorialCooldown; public bool spouse, family; public int lastComfortDay = -1; public float widowedAt = -1; }
+     [Serializable]
+     public class CommanderPersonalState
+@@ -62,8 +62,11 @@
+         };
+         public void AddMood(string reason, float value, float seconds)
+         {
++            var prior = moodFactors.Find(f => f.reason == reason && f.remaining > 0);
++            var reduction = value < 0 ? prior?.politicalReduction ?? 1 - (CampaignResearch.Instance?.DiscontentMultiplier(id) ?? 1) : 0;
++            if (value < 0) value *= 1 - reduction;
+             moodFactors.RemoveAll(f => f.reason == reason);
+-            moodFactors.Add(new MoodFactor { reason = reason, value = value, remaining = seconds });
++            moodFactors.Add(new MoodFactor { reason = reason, value = value, remaining = seconds, politicalReduction = reduction });
+         }
+         public CommanderRelation Relation(string other)
+         {
+@@ -101,7 +104,8 @@
+                 || injuries == null || injuries.Count > 6 || moodFactors == null || moodFactors.Count > 64 || relations == null || equipment == null || equipment.Count > 3) return false;
+             var parts = new HashSet<InjuryPart>();
+             foreach (var i in injuries) if (i == null || !Enum.IsDefined(typeof(InjuryPart), i.part) || !parts.Add(i.part) || !Enum.IsDefined(typeof(InjurySeverity), i.severity) || !Finite(i.remaining) || i.remaining < 0) return false;
+-            foreach (var f in moodFactors) if (f == null || f.reason == null || !Finite(f.value) || !Finite(f.remaining) || f.remaining < 0) return false;
++            foreach (var f in moodFactors) if (f == null || f.reason == null || !Finite(f.value) || !Finite(f.remaining) || f.remaining < 0
++                || !Finite(f.politicalReduction) || f.politicalReduction < 0 || f.politicalReduction > .6f) return false;
+             foreach (var r in relations) if (r == null || string.IsNullOrEmpty(r.otherId) || !Finite(r.value) || r.value < -100 || r.value > 100 || !Finite(r.nearbySeconds) || r.nearbySeconds < 0 || !Finite(r.quarrelSeconds) || r.quarrelSeconds < 0 || !Finite(r.duelSeconds) || r.duelSeconds < 0) return false;
+             var slots = new HashSet<EquipmentSlot>();
+             foreach (var e in equipment) if (e == null || !e.IsValid || !slots.Add(e.slot)) return false;
+diff --git a/Assets/_Project/Scripts/Units/WorkerAnt.cs b/Assets/_Project/Scripts/Units/WorkerAnt.cs
+--- a/Assets/_Project/Scripts/Units/WorkerAnt.cs
++++ b/Assets/_Project/Scripts/Units/WorkerAnt.cs
+@@ -85,7 +85,7 @@
+         internal void EvacuateCargo(ExpeditionSite site, ExpeditionTransport ship = null)
+         {
+             if (!IsCarrying) return;
+-            if (ship != null) ship.DepositResources(carriedType, Mathf.RoundToInt(carriedAmount));
++            if (ship != null) { ship.IncomingFood = CaptureCargoLots(); try { ship.DepositResources(carriedType, Mathf.RoundToInt(carriedAmount)); } finally { ship.IncomingFood = null; } }
+             else
+             {
+                 var drop = GameObject.CreatePrimitive(PrimitiveType.Cube);
+@@ -455,7 +455,7 @@
+             targetConstruction.BeginWork(); // 재료가 모두 도착한 뒤 첫 시공 순간 소비
+             // 공동 건설: 참여한 장수마다 자기 작업 효율만큼 현장의 남은 작업량을 줄인다.
+             OnWorked(Mathf.Min(Time.deltaTime, targetConstruction.RemainingWork / WorkSpeed));
+-            targetConstruction.RemainingWork = Mathf.Max(0, targetConstruction.RemainingWork - Time.deltaTime * WorkSpeed);
++            targetConstruction.ApplyWork(this, Time.deltaTime * WorkSpeed);
+             if (targetConstruction.RemainingWork > 0f) return;
+ 
+             targetConstruction.Complete(this as CommanderAnt);
+@@ -513,7 +513,7 @@
+                 extracted = targetNode.Extract(Mathf.Min(GameBalance.FishingCatchFood * FishingCatchMultiplier * BiomeRules.FishingYield, (CarryCapacity - carriedAmount) / yield)) * yield;
+                 carriedAmount += extracted;
+                 carriedType = targetNode.ResourceType;
+-                if (extracted > 0f) { OnGathered(extracted / yield); OnWorked(GameBalance.FishingCatchSeconds / (FishingWorkSpeed * traitSpeed)); }
++                if (extracted > 0f) { targetNode.FishingTreasure(this, extracted); OnGathered(extracted / yield); OnWorked(GameBalance.FishingCatchSeconds / (FishingWorkSpeed * traitSpeed)); }
+             }
+             else
+             {
+@@ -633,7 +633,12 @@
+             }
+             if (carriedAmount > 0f && ResourceManager.Instance != null)
+             {
+-                if (targetDeposit is ExpeditionTransport ship && !ship.TryLoadFromWorker(this, carriedType, Mathf.RoundToInt(carriedAmount))) return;
++                if (targetDeposit is ExpeditionTransport ship)
++                {
++                    ship.IncomingFood = CaptureCargoLots();
++                    try { if (!ship.TryLoadFromWorker(this, carriedType, Mathf.RoundToInt(carriedAmount))) return; }
++                    finally { ship.IncomingFood = null; }
++                }
+                 if (targetDeposit != null) { if (!(targetDeposit is ExpeditionTransport)) targetDeposit.DepositResources(carriedType, Mathf.RoundToInt(carriedAmount)); OnDelivered(carriedAmount); }
+             }
+             carriedAmount = 0f;
+diff --git a/Assets/_Project/Scripts/World/Critter.cs b/Assets/_Project/Scripts/World/Critter.cs
+--- a/Assets/_Project/Scripts/World/Critter.cs
++++ b/Assets/_Project/Scripts/World/Critter.cs
+@@ -23,6 +23,7 @@
+ 
+         [Serializable] public class State
+         {
++            public SoleWorker tamer;
+             public int species, id; public bool tame, designated, careBlocked, treatOrder, careOrder, surgeryStarted;
+             public float tameProgress, age, hunger = 80, care, waiting, medicated, direct, floorProgress, bind, surgery, health;
+             public string pen = "", transport = "", clinic = "", returnPen = "", approved = "";
+@@ -255,6 +256,7 @@
+         // ---------- 장수 작업 결과 ----------
+         internal void FinishCare(CommanderAnt c)
+         {
++            NoteTamer(c);
+             s.care = GameBalance.CritterCareBaseSeconds * (1 + c.Talents.Level(CommanderActivity.Husbandry) / 10f + c.Traits.MetricBonus(CommanderActivity.Husbandry)); // 능력·특성은 지속시간만 보정
+             s.waiting = 0; s.careOrder = false;
+         }
+@@ -265,6 +267,7 @@
+         // 취급 실패·공격받음: 성향대로 도주(도주형)·주변 공격(공격형)·다룬 장수 공격(조건부). 잠시 뒤 진정한다.
+         public void Agitate(IDamageable handler)
+         {
++            if (HamelinProtected) return;
+             agitated = GameBalance.CritterAgitatedSeconds; foodTarget = null; CalledTo = null;
+             if (Monster == null) return;
+             Monster.Docile = false; Monster.Provoke();
+diff --git a/Assets/_Project/Scripts/World/CritterBehaviour.cs b/Assets/_Project/Scripts/World/CritterBehaviour.cs
+--- a/Assets/_Project/Scripts/World/CritterBehaviour.cs
++++ b/Assets/_Project/Scripts/World/CritterBehaviour.cs
+@@ -21,6 +21,7 @@
+ 
+         private void TickBehaviour(float dt)
+         {
++            if (HamelinProtected) { if (agitated > 0) { agitated = 0; Monster.Calm(); ClearAlert(); } if (prey != null && (prey.Tame || prey.Managed)) prey = null; fleeUntil = 0; }
+             if (agitated > 0)
+             {
+                 if ((agitated -= dt) > 0) return;
+@@ -70,6 +71,7 @@
+             // 먹을 게 없는 배고픈 포식자는 먹잇감을 사냥한다(합사한 동물도 대상, 사전 경고 없음).
+             if (best == null && Info.prey.Length > 0 && s.hunger < GameBalance.CritterHuntHunger)
+                 prey = All.Where(p => p != this && p != null && Info.prey.Contains(p.Species) && p.Carrier == null && p.Clinic == null && p.Monster != null && !p.Monster.IsDead
++                    && (!HamelinProtected || !p.Tame && !p.Managed)
+                     && (p.transform.position - here).sqrMagnitude < GameBalance.CritterHuntRadius * GameBalance.CritterHuntRadius && Reachable(p.transform.position))
+                     .OrderBy(p => (p.transform.position - here).sqrMagnitude).FirstOrDefault();
+         }
+@@ -115,7 +117,7 @@
+                 var away = transform.position + (transform.position - predator.transform.position).normalized * 6;
+                 if (NavMesh.SamplePosition(away, out var hit, 4, NavMesh.AllAreas) && Reachable(hit.position)) { MoveTo(hit.position); fleeUntil = Time.time + 3; }
+             }
+-            else predator.Wound(Info.damage * .5f, "싸움");
++            else if (!HamelinProtected || !predator.Tame && !predator.Managed) predator.Wound(Info.damage * .5f, "싸움");
+             Wound(damage, "포식", predator);
+         }
+ 
+diff --git a/Assets/_Project/Scripts/World/Critter.Hamelin.cs b/Assets/_Project/Scripts/World/Critter.Hamelin.cs
+new file mode 100644
+--- /dev/null
++++ b/Assets/_Project/Scripts/World/Critter.Hamelin.cs
+@@ -0,0 +1,20 @@
++using System.Linq;
++using AntColony.Core;
++
++namespace AntColony.World
++{
++    public sealed partial class Critter
++    {
++        internal void NoteTamer(AntColony.Units.CommanderAnt c)
++        {
++            if (s.tame) return;
++            s.tamer ??= new SoleWorker { mixed = s.tameProgress > 0 };
++            s.tamer.Note(c.PersonalState.id, c.Traits.Has(AntColony.Units.CommanderTrait.DiamondHusbandry));
++        }
++        public bool HamelinProtected => s.tame && s.tamer?.Empowered == true && CommanderRoster.Instance != null
++            && CommanderRoster.Instance.Commanders.Any(c => c.PersonalState.id == s.tamer.id && CampaignResearch.Present(c)
++                && CampaignResearch.SettlementOf(c) == AnimalSettlement);
++        private int AnimalSettlement => WorldMapManager.Instance == null ? -1 : WorldMapManager.Instance.Sites.ToList().FindIndex(site =>
++            (site.transform.position - transform.position).sqrMagnitude < 100 * 100);
++    }
++}
+diff --git a/Assets/_Project/Scripts/World/Critter.Hamelin.cs.meta b/Assets/_Project/Scripts/World/Critter.Hamelin.cs.meta
+new file mode 100644
+--- /dev/null
++++ b/Assets/_Project/Scripts/World/Critter.Hamelin.cs.meta
+@@ -0,0 +1,2 @@
++fileFormatVersion: 2
++guid: 8ad3ccc7401e4f608e79d0babb81690f
+diff --git a/Assets/_Project/Scripts/World/DiplomacyArtwork.cs b/Assets/_Project/Scripts/World/DiplomacyArtwork.cs
+new file mode 100644
+--- /dev/null
++++ b/Assets/_Project/Scripts/World/DiplomacyArtwork.cs
+@@ -0,0 +1,60 @@
++using System;
++using System.Collections.Generic;
++using System.Linq;
++using AntColony.Buildings;
++using AntColony.Core;
++using AntColony.Units;
++using UnityEngine;
++
++namespace AntColony.World
++{
++    public enum ArtworkPurpose { Contact, Peace, Release }
++    public sealed partial class DiplomacyManager
++    {
++        [Serializable] public sealed class ArtworkRetry { public string civ; public ArtworkPurpose purpose; public float until; }
++        public static float ArtworkChance(float affinity) => Math.Max(0, Math.Min(1, .5f + affinity / 200f + .3f));
++        public float ArtworkWait(Civilization c, ArtworkPurpose purpose) => Math.Max(0, Data.artworkRetries?.FirstOrDefault(r => r.civ == c.id && r.purpose == purpose)?.until - Data.elapsed ?? 0);
++        public IEnumerable<Decoration> GiftArtworks => SceneObjects.All<Decoration>().Where(a => a.isActiveAndEnabled && !a.IsDead && a.DiamondArtwork && a.Quality == 3);
++        public string ArtworkReason(Civilization c, ArtworkPurpose purpose, string prisoner = null)
++        {
++            if (!Available || c == null || !Data.civilizations.Contains(c) || c.extinct || !Enum.IsDefined(typeof(ArtworkPurpose), purpose)) return "유효한 문명을 선택하세요.";
++            if (ArtworkWait(c, purpose) > 0) return $"화룡 재시도 대기 {ArtworkWait(c, purpose) / GameCalendar.SecondsPerDay:0.0}일";
++            if (purpose == ArtworkPurpose.Contact) return !c.contacted && world.Sites.Any(s => Faction(s) == c && WorldMapManager.SiteRevealed(s)) ? "" : "미접촉 문명의 거점을 먼저 발견하세요.";
++            if (!c.contacted) return "접촉이 필요합니다.";
++            if (purpose == ArtworkPurpose.Peace)
++            {
++                if (!CanNegotiatePeace(c)) return "기존 평화 협상 대기 시간이 필요합니다.";
++                var due = Reparations(c);
++                if (ResourceManager.Instance == null || due > 0 && (!ResourceManager.Instance.CanAfford(due, 0) || (long)c.resources[0] + due > int.MaxValue)
++                    || due < 0 && c.resources[0] < -due) return "배상 자원이 부족합니다.";
++            }
++            if (purpose == ArtworkPurpose.Release && !RansomableIds(c).Contains(prisoner)) return "석방받을 자국 장수를 선택하세요.";
++            return "";
++        }
++        public string OfferArtwork(Civilization c, Decoration artwork, ArtworkPurpose purpose, string prisoner = null)
++        {
++            var reason = ArtworkReason(c, purpose, prisoner); if (reason != "") return reason;
++            if (!GiftArtworks.Contains(artwork)) return "사용 가능한 화룡 걸작을 선택하세요.";
++            if (UnityEngine.Random.value >= ArtworkChance(c.affinity))
++            {
++                Data.artworkRetries ??= new List<ArtworkRetry>();
++                Data.artworkRetries.RemoveAll(r => r.civ == c.id && r.purpose == purpose);
++                Data.artworkRetries.Add(new ArtworkRetry { civ = c.id, purpose = purpose, until = Data.elapsed + GameCalendar.SecondsPerDay * 15 });
++                return "거절 · 작품 보존, 해당 문명/목적은 15일 후 재시도";
++            }
++            if (purpose == ArtworkPurpose.Peace && !MakePeace(c)) return "평화 조건이 바뀌었습니다. 작품은 보존됩니다.";
++            if (purpose == ArtworkPurpose.Contact) MarkContact(c);
++            if (purpose == ArtworkPurpose.Release)
++            {
++                BeginHomecoming(prisoner, c, new List<EquipmentItem>());
++                c.rebels.RemoveAll(p => p.PersonalState.id == prisoner);
++            }
++            artwork.DiamondArtwork = false; artwork.gameObject.SetActive(false); Destroy(artwork.gameObject);
++            CampaignHistory.Record("화룡", c.name, purpose + " 성공 · 걸작 선물", true);
++            return "화룡 선물 수락 · 작품 소모";
++        }
++        private static bool ValidArtwork(State s) => s.artworkRetries == null || s.artworkRetries.Count <= 300
++            && s.artworkRetries.All(r => r != null && s.civilizations.Any(c => c.id == r.civ) && Enum.IsDefined(typeof(ArtworkPurpose), r.purpose)
++                && r.until >= 0 && !float.IsInfinity(r.until)) && s.artworkRetries.Select(r => (r.civ, r.purpose)).Distinct().Count() == s.artworkRetries.Count;
++    }
++}
+diff --git a/Assets/_Project/Scripts/World/DiplomacyArtwork.cs.meta b/Assets/_Project/Scripts/World/DiplomacyArtwork.cs.meta
+new file mode 100644
+--- /dev/null
++++ b/Assets/_Project/Scripts/World/DiplomacyArtwork.cs.meta
+@@ -0,0 +1,2 @@
++fileFormatVersion: 2
++guid: b383965e9be545a39f2ebbb443ea4247
+diff --git a/Assets/_Project/Scripts/World/DiplomacyManager.cs b/Assets/_Project/Scripts/World/DiplomacyManager.cs
+--- a/Assets/_Project/Scripts/World/DiplomacyManager.cs
++++ b/Assets/_Project/Scripts/World/DiplomacyManager.cs
+@@ -13,6 +13,7 @@
+     {
+         [Serializable] public sealed class State
+         {
++            public List<ArtworkRetry> artworkRetries = new List<ArtworkRetry>();
+             public List<Civilization> civilizations = new List<Civilization>();
+             public List<Civilization> markets = new List<Civilization>();
+             public List<string> owners = new List<string>();
+@@ -264,6 +265,7 @@
+         }
+         public static bool Validate(State s, int sites)
+         {
++            if (s != null && !ValidArtwork(s)) return false;
+             bool Finite(float f) => f >= 0 && !float.IsNaN(f) && !float.IsInfinity(f);
+             if (s == null || s.civilizations == null || s.civilizations.Count < 4 || s.civilizations.Count > 100
+                 || s.owners == null || s.owners.Count != sites || !Finite(s.elapsed) || !Finite(s.nextMonth) || !Finite(s.caravanUntil)
+diff --git a/Assets/_Project/Scripts/World/DiplomacyNegotiation.cs b/Assets/_Project/Scripts/World/DiplomacyNegotiation.cs
+--- a/Assets/_Project/Scripts/World/DiplomacyNegotiation.cs
++++ b/Assets/_Project/Scripts/World/DiplomacyNegotiation.cs
+@@ -243,7 +243,7 @@
+         { TalkKind.Trade => "거래", TalkKind.Demand => "요구", TalkKind.TreatyOffer => "협정 제안", TalkKind.AidRequest => "원조 요청", _ => "공물 요구" };
+         public static string Summary(TradeOffer o)
+         {
+-            string[] names = { "식량", "재료", "특수" };
++            string[] names = { "식량", "흙", "특수" };
+             var parts = Enumerable.Range(0, 3).Where(i => o.resources[i] > 0).Select(i => names[i] + " " + o.resources[i]).ToList();
+             if (o.equipment.Count > 0) parts.Add("장비 " + o.equipment.Count);
+             if (o.prisoners.Count > 0) parts.Add("장수 " + o.prisoners.Count);
+diff --git a/Assets/_Project/Scripts/World/ExpeditionSupplies.cs b/Assets/_Project/Scripts/World/ExpeditionSupplies.cs
+--- a/Assets/_Project/Scripts/World/ExpeditionSupplies.cs
++++ b/Assets/_Project/Scripts/World/ExpeditionSupplies.cs
+@@ -17,7 +17,7 @@
+             .Select(c => c.FormationWorldMoveMultiplier).DefaultIfEmpty(1).Min();
+         public float DailyFood => crew.Where(c => c != null && !c.IsDead).Sum(ExpeditionRules.FoodPerDay) + withdraw.troops * 2 * GameBalance.MealFood;
+         public int RecommendedFood(ExpeditionSite destination) => ExpeditionRules.RecommendedFood(
+-            Walking ? ExpeditionRules.WalkSeconds(destination) / FormationWalkMultiplier : TravelSeconds, DailyFood);
++            TravelSecondsTo(destination), DailyFood);
+         public int AvailableFood => GetCargo(AntColony.Data.ResourceType.Food) + crew.Where(c => c != null && !c.IsDead)
+             .Sum(c => c.PersonalState.carriedRations?.Total ?? 0);
+         public bool LeavesHomeUnattended => State == ExpeditionState.Home && CommanderLoad > 0 && ExpeditionRules.HomeCommanders == 0;
+@@ -25,8 +25,17 @@
+         public bool TryLoadFood(int amount)
+         {
+             if (State != ExpeditionState.Home || Route?.IsRunning == true || amount <= 0 || amount > ReturnCargoSpace
+-                || ResourceManager.Instance == null || !ResourceManager.Instance.TrySpend(amount, 0, reason: ResourceReason.Expedition)) return false;
+-            cargo[AntColony.Data.ResourceType.Food] = GetCargo(AntColony.Data.ResourceType.Food) + amount;
++                || ResourceManager.Instance == null || ResourceManager.Instance.GetAmount(AntColony.Data.ResourceType.Food) < amount) return false;
++            var lots = new FoodLots();
++            foreach (var bin in FoodLots.MealSources(ResourceManager.Instance.Bins, AntColony.Data.ResourceType.Food).ToArray())
++            {
++                var taken = ResourceManager.Instance.TakeFrom(bin, AntColony.Data.ResourceType.Food, amount - lots.Total, out var part);
++                if (taken > 0) lots.Add(part);
++                if (lots.Total >= amount) break;
++            }
++            if (lots.Total == 0) return false;
++            CampaignHistory.Resource(AntColony.Data.ResourceType.Food, lots.Total, true, ResourceReason.Expedition);
++            IncomingFood = lots; try { AddCargo(AntColony.Data.ResourceType.Food, lots.Total); } finally { IncomingFood = null; }
+             return true;
+         }
+ 
+@@ -37,6 +46,7 @@
+             if (needed == 0) return;
+             var take = Mathf.Min(needed, GetCargo(AntColony.Data.ResourceType.Food));
+             cargo[AntColony.Data.ResourceType.Food] = GetCargo(AntColony.Data.ResourceType.Food) - take;
++            TakeCargoFood(AntColony.Data.ResourceType.Food, take);
+             needed -= take; FoodDebt -= take;
+             foreach (var c in crew)
+             {
+diff --git a/Assets/_Project/Scripts/World/ExpeditionTransport.cs b/Assets/_Project/Scripts/World/ExpeditionTransport.cs
+--- a/Assets/_Project/Scripts/World/ExpeditionTransport.cs
++++ b/Assets/_Project/Scripts/World/ExpeditionTransport.cs
+@@ -33,7 +33,9 @@
+         public int Capacity => Walking ? int.MaxValue : Mathf.FloorToInt((Aircraft ? GameBalance.AircraftTroops : GameBalance.VehicleTroops) * ScienceEffects.TroopCapacityMultiplier);
+         public int CommanderCapacity => Walking ? int.MaxValue : (Aircraft ? GameBalance.AircraftCommanders : GameBalance.VehicleCommanders) + ScienceEffects.CommanderSlotBonus;
+         public int CargoCapacity => Walking ? WalkingCargoCapacity : Mathf.FloorToInt((Aircraft ? GameBalance.AircraftCargo : GameBalance.VehicleCargo) * ScienceEffects.CargoMultiplier);
+-        public float TravelSeconds => Walking ? ExpeditionRules.WalkSeconds(Site) / FormationWalkMultiplier : Aircraft ? 10 : 20;
++        public float TravelSeconds => TravelSecondsTo(Site);
++        public float TravelSecondsTo(ExpeditionSite destination) => Walking ? ExpeditionRules.WalkSeconds(destination) / FormationWalkMultiplier
++            : ExpeditionRules.TransportSeconds(destination == null ? .16f : Vector2.Distance(destination.MapPosition, new Vector2(.5f, .5f)), Aircraft);
+         public float Remaining { get; private set; }
+         public int Load
+         {
+@@ -174,6 +176,7 @@
+ 
+         private void Update()
+         {
++            AgeCargoFood(Time.deltaTime);
+             Tick(Time.deltaTime);
+             if (State == ExpeditionState.Home && !IsDead) UnloadCargo();
+             Route?.Tick(Time.deltaTime);
+@@ -262,13 +265,14 @@
+                 if (accepted < amount) DiplomacyManager.DropFloor(type, amount - accepted, Position);
+             }
+             else AddCargo(type, amount);
++            CreditCargoFood(type, amount);
+             if (State == ExpeditionState.Home && !IsDead) UnloadCargo();
+         }
+ 
+         public int AddCargo(AntColony.Data.ResourceType type, int amount)
+         {
+             var added = Mathf.Clamp(amount, 0, Mathf.Max(0, CargoCapacity - CargoLoad - ReservedCargo));
+-            if (added > 0) cargo[type] = GetCargo(type) + added;
++            if (added > 0) { cargo[type] = GetCargo(type) + added; CreditCargoFood(type, added); }
+             return added;
+         }
+ 
+@@ -284,8 +288,9 @@
+                 var amount = GetCargo(type);
+                 if (amount <= 0) continue;
+                 cargo[type] = 0; // Add는 창고 초과분까지 바닥에 보존한다. 이벤트 재진입 전에 화물을 뺀다.
+-                if (resources != null) resources.Add(type, amount, ResourceReason.Expedition, landing);
+-                else DiplomacyManager.DropFloor(type, amount, landing);
++                var lots = TakeCargoFood(type, amount);
++                if (resources != null) resources.Add(type, amount, ResourceReason.Expedition, landing, lots);
++                else DiplomacyManager.DropFloor(type, amount, landing, lots);
+             }
+             if (BlueprintCargo && CampaignResearch.Instance != null) { CampaignResearch.Instance.AcquireBlueprint(); BlueprintCargo = false; }
+             if (EquipmentInventory.Instance != null)
+@@ -328,7 +333,7 @@
+ 
+         protected override void OnDisable()
+         {
+-            CancelWithdrawal(); DropPendingLoads();
++            CancelWithdrawal(); DropPendingFood(); DropPendingLoads();
+             ClearCrewOrders();
+             AntColony.UI.ToastManager.SetPinned("supplies:" + GetEntityId(), null);
+             Route?.Stop();
+diff --git a/Assets/_Project/Scripts/World/ExpeditionTransport.Food.cs b/Assets/_Project/Scripts/World/ExpeditionTransport.Food.cs
+new file mode 100644
+--- /dev/null
++++ b/Assets/_Project/Scripts/World/ExpeditionTransport.Food.cs
+@@ -0,0 +1,83 @@
++using System;
++using System.Collections.Generic;
++using System.Linq;
++using AntColony.Core;
++using AntColony.Data;
++
++namespace AntColony.World
++{
++    public partial class ExpeditionTransport
++    {
++        [Serializable] public sealed class FoodCargo { public ResourceType type; public FoodLots lots = new FoodLots(); }
++        internal List<FoodCargo> CargoFood = new List<FoodCargo>();
++        internal List<FoodCargo> CaptureFoodCargo() { MatchCargoFood(); return CargoFood; }
++        internal void RestoreFoodCargo(List<FoodCargo> values)
++        {
++            CargoFood = values == null ? new List<FoodCargo>() : UnityEngine.JsonUtility.FromJson<AntColony.Save.FoodCargoWrapper>(
++                UnityEngine.JsonUtility.ToJson(new AntColony.Save.FoodCargoWrapper { values = values })).values;
++            MatchCargoFood();
++        }
++        internal FoodLots IncomingFood;
++        private int FoodTotal(ResourceType type) => GetCargo(type) + withdraw.loads.Where(l => l.type == type && string.IsNullOrEmpty(l.workerId)).Sum(l => l.amount);
++        private FoodLots CargoLots(ResourceType type)
++        {
++            var entry = CargoFood.Find(e => e.type == type);
++            if (entry == null) { entry = new FoodCargo { type = type }; CargoFood.Add(entry); }
++            return entry.lots;
++        }
++        internal void MatchCargoFood()
++        {
++            foreach (ResourceType type in Enum.GetValues(typeof(ResourceType)))
++                if (FoodLots.Perishable(type)) CargoLots(type).Match(FoodTotal(type), type);
++        }
++        internal void AgeCargoFood(float seconds)
++        {
++            if (!(seconds > 0) || float.IsInfinity(seconds)) return;
++            MatchCargoFood();
++            foreach (var e in CargoFood)
++            {
++                var spoiled = e.lots.Age(seconds); if (spoiled == 0) continue;
++                var fromCargo = Math.Min(spoiled, GetCargo(e.type)); cargo[e.type] = GetCargo(e.type) - fromCargo;
++                var pending = spoiled - fromCargo;
++                foreach (var load in withdraw.loads.Where(l => l.type == e.type && string.IsNullOrEmpty(l.workerId)).ToArray())
++                { var n = Math.Min(pending, load.amount); load.amount -= n; pending -= n; if (load.amount == 0) withdraw.loads.Remove(load); }
++                cargo[ResourceType.RottenFood] = GetCargo(ResourceType.RottenFood) + spoiled;
++                SpoilNotice.Add(e.type, spoiled);
++            }
++        }
++        private void DropPendingFood()
++        {
++            MatchCargoFood();
++            foreach (var load in withdraw.loads.Where(l => string.IsNullOrEmpty(l.workerId) && FoodLots.Perishable(l.type)).ToArray())
++            {
++                DiplomacyManager.DropFloor(load.type, load.amount, Position, TakeCargoFood(load.type, load.amount));
++                withdraw.loads.Remove(load);
++            }
++        }
++        internal FoodLots TakeCargoFood(ResourceType type, int amount) => FoodLots.Perishable(type) ? CargoLots(type).Take(amount) : null;
++        internal void CreditCargoFood(ResourceType type, int amount)
++        {
++            if (!FoodLots.Perishable(type) || amount <= 0) return;
++            // 대기 화물은 이미 묶음에 들어 있다. 실제 운반 장수의 물량만 신규 적재한다.
++            var lots = CargoLots(type); var missing = FoodTotal(type) - lots.Total;
++            if (missing > 0 && IncomingFood != null) lots.Add(IncomingFood.Take(Math.Min(missing, amount)));
++            lots.Match(FoodTotal(type), type);
++        }
++        internal static bool ValidFoodCargo(List<FoodCargo> foods) => foods == null || foods.Count <= Enum.GetValues(typeof(ResourceType)).Length
++            && foods.All(e => e != null && FoodLots.Perishable(e.type) && e.lots?.Valid == true)
++            && foods.Select(e => e.type).Distinct().Count() == foods.Count;
++        internal static bool ValidFoodAmounts(AntColony.Save.TransportDto dto)
++        {
++            if (dto.cargoFreshness == null) return true; // 구저장만 기본 보존 시간/숙련5로 생성한다.
++            if (!ValidFoodCargo(dto.cargoFreshness)) return false;
++            foreach (ResourceType type in Enum.GetValues(typeof(ResourceType)))
++            {
++                if (!FoodLots.Perishable(type)) continue;
++                long expected = dto.cargoAmounts != null && (int)type < dto.cargoAmounts.Length ? dto.cargoAmounts[(int)type] : type == ResourceType.Food ? dto.cargoFood : 0;
++                expected += dto.withdrawal?.loads?.Where(l => l != null && l.type == type && string.IsNullOrEmpty(l.workerId)).Sum(l => (long)l.amount) ?? 0;
++                if ((dto.cargoFreshness.FirstOrDefault(e => e.type == type)?.lots.lots.Sum(l => (long)l.amount) ?? 0) != expected) return false;
++            }
++            return true;
++        }
++    }
++}
+diff --git a/Assets/_Project/Scripts/World/ExpeditionTransport.Food.cs.meta b/Assets/_Project/Scripts/World/ExpeditionTransport.Food.cs.meta
+new file mode 100644
+--- /dev/null
++++ b/Assets/_Project/Scripts/World/ExpeditionTransport.Food.cs.meta
+@@ -0,0 +1,2 @@
++fileFormatVersion: 2
++guid: 6c8823424df94a029983cb23104caca9
+diff --git a/Assets/_Project/Scripts/World/ResourceNode.cs b/Assets/_Project/Scripts/World/ResourceNode.cs
+--- a/Assets/_Project/Scripts/World/ResourceNode.cs
++++ b/Assets/_Project/Scripts/World/ResourceNode.cs
+@@ -68,6 +68,7 @@
+         public float ExtractFor(AntColony.Units.WorkerAnt worker, float amount)
+         {
+             if (!(amount > 0) || float.IsInfinity(amount) || !CanGatherWith(worker)) return 0;
++            if (Plot != null && worker is AntColony.Units.CommanderAnt farmer) Plot.NoteFarmer(farmer);
+             NotePeak();
+             if (!RequiresResourceResearch) { var taken = ExtractStock(amount); TryRebirth(worker); return taken; }
+             var c = (AntColony.Units.CommanderAnt)worker;
+@@ -122,11 +123,11 @@
+                 labor = 0;
+                 foreach (var unit in AntColony.Units.AntUnitBase.Active)
+                     if (unit is AntColony.Units.CommanderAnt c && c.CivilianWorkReady && c.CurrentResourceNode == this && c.IsGatheringAnimation)
+-                    { labor += c.WorkRate(AntColony.Units.CommanderActivity.Farming); c.GainExperience(AntColony.Units.CommanderActivity.Farming, Mathf.Min(seconds, sowRemaining / Mathf.Max(.01f, labor))); }
++                    { Plot?.NoteFarmer(c); labor += c.WorkRate(AntColony.Units.CommanderActivity.Farming); c.GainExperience(AntColony.Units.CommanderActivity.Farming, Mathf.Min(seconds, sowRemaining / Mathf.Max(.01f, labor))); }
+                 sowRemaining = Mathf.Max(0, sowRemaining - seconds * labor);
+                 return;
+             }
+-            regrowTimer = Mathf.Max(0, regrowTimer - seconds * labor * ColonyEvents.GrowthMultiplier(this) * (IsFarm ? BiomeRules.FarmGrowth * AntColony.Map.WeatherSystem.FarmGrowth * (Plot != null ? Plot.GrowthMultiplier : 1f) : 1f));
++            regrowTimer = Mathf.Max(0, regrowTimer - seconds * labor * ColonyEvents.GrowthMultiplier(this) * (IsFarm ? (Plot?.Blessed == true ? Mathf.Max(1f, BiomeRules.FarmGrowth) : BiomeRules.FarmGrowth) * (Plot?.Blessed == true ? Mathf.Max(1f, AntColony.Map.WeatherSystem.FarmGrowth) : AntColony.Map.WeatherSystem.FarmGrowth) * (Plot != null ? Plot.GrowthMultiplier : 1f) : 1f));
+             // 밭(건물 노드)만 균류 재배 수확량 보정과 가을 수확 배율을 받는다.
+             if (regrowTimer <= 0f) amountRemaining = regrowAmount * (IsFarm ? ScienceEffects.FarmYieldMultiplier
+                 * (GameCalendar.CurrentSeason == Season.Autumn ? GameBalance.AutumnHarvestMultiplier : 1f) : 1f) * (BountifulHarvest ? 1.5f : 1f);
+diff --git a/Assets/_Project/Scripts/World/ResourceNode.FishingTreasure.cs b/Assets/_Project/Scripts/World/ResourceNode.FishingTreasure.cs
+new file mode 100644
+--- /dev/null
++++ b/Assets/_Project/Scripts/World/ResourceNode.FishingTreasure.cs
+@@ -0,0 +1,31 @@
++using System;
++using System.Linq;
++using AntColony.Core;
++using AntColony.Data;
++using AntColony.Units;
++using UnityEngine;
++
++namespace AntColony.World
++{
++    public partial class ResourceNode
++    {
++        public static bool TreasureCatch(float roll) => roll >= 0 && roll < .05f;
++        public static bool TreasureEquipment(float roll) => roll >= 0 && roll < .1f;
++        public static int TreasureQuality(float roll) => roll < .05f ? 0 : roll < .2f ? 1 : roll < .7f ? 2 : 3;
++        public static ResourceType[] TreasureResources(int era) => era >= 4 ? new[] { ResourceType.Special, ResourceType.Iron, ResourceType.Component }
++            : era >= 3 ? new[] { ResourceType.Special, ResourceType.Iron, ResourceType.Copper } : new[] { ResourceType.Special, ResourceType.Stone, ResourceType.Herb };
++        internal void FishingTreasure(AntColony.Units.WorkerAnt worker, float caught)
++        {
++            if (!(caught > 0) || !(worker is CommanderAnt c) || !c.Traits.Has(CommanderTrait.DiamondFishing) || !TreasureCatch(UnityEngine.Random.value)) return;
++            var era = SceneObjects.All<AntColony.Buildings.ScienceLab>().Where(l => l.isActiveAndEnabled && !l.IsDead).Select(l => l.Tier).DefaultIfEmpty(1).Max();
++            var resources = TreasureResources(era);
++            foreach (var type in resources) DiplomacyManager.DropFloor(type, type == ResourceType.Special ? 1 : 3, worker.Position);
++            if (TreasureEquipment(UnityEngine.Random.value))
++            {
++                var recipes = Enum.GetValues(typeof(EquipmentRecipe)).Cast<EquipmentRecipe>().Where(r => EquipmentRecipes.Unlocked(r)).ToArray();
++                if (recipes.Length > 0) EquipmentLoot.Drop(worker.Position, new[] { EquipmentRecipes.Create(recipes[UnityEngine.Random.Range(0, recipes.Length)], TreasureQuality(UnityEngine.Random.value)) });
++            }
++            AntColony.UI.ToastManager.Show(c.CommanderName + ": 태공 · 희귀 묶음 어획");
++        }
++    }
++}
+diff --git a/Assets/_Project/Scripts/World/ResourceNode.FishingTreasure.cs.meta b/Assets/_Project/Scripts/World/ResourceNode.FishingTreasure.cs.meta
+new file mode 100644
+--- /dev/null
++++ b/Assets/_Project/Scripts/World/ResourceNode.FishingTreasure.cs.meta
+@@ -0,0 +1,2 @@
++fileFormatVersion: 2
++guid: 0f5a735685d84093800e9e7c3017a76b
+diff --git a/Assets/_Project/Scripts/World/ColonyEvents.cs b/Assets/_Project/Scripts/World/ColonyEvents.cs
+--- a/Assets/_Project/Scripts/World/ColonyEvents.cs
++++ b/Assets/_Project/Scripts/World/ColonyEvents.cs
+@@ -41,6 +41,7 @@
+         public static float GrowthMultiplier(ResourceNode node)
+         {
+             if (Flooded(node)) return 0;
++            if (node.GetComponent<FarmPlot>()?.Blessed == true) return 1;
+             if (GameCalendar.CurrentSeason == Season.Winter && node.GetComponent<BuildingBase>() != null) return 0; // 겨울: 밭 성장 정지
+             if (Instance == null || Instance.state.drought <= 0 || !Home(node.transform.position) || node.GetComponent<BuildingBase>() == null) return 1;
+             return 1 - (node.GetComponent<FarmPlot>()?.DroughtPenalty ?? ScienceEffects.DroughtGrowthPenalty);
+diff --git a/Assets/_Project/Scripts/World/WildMonster.cs b/Assets/_Project/Scripts/World/WildMonster.cs
+--- a/Assets/_Project/Scripts/World/WildMonster.cs
++++ b/Assets/_Project/Scripts/World/WildMonster.cs
+@@ -166,6 +166,7 @@
+ 
+         private void Update()
+         {
++            if (critter != null && critter.HamelinProtected) { if (!Docile) Calm(); Docile = true; return; }
+             if (IsDead || Docile) return;
+             if (!Allied && !DiplomacyManager.Hostile(this)) { currentTarget = null; StopMoving(); return; }
+             RootRemaining = Mathf.Max(0f, RootRemaining - Time.deltaTime);
+diff --git a/AgentScripts/Review1029K1Checks.cs b/AgentScripts/Review1029K1Checks.cs
+new file mode 100644
+--- /dev/null
++++ b/AgentScripts/Review1029K1Checks.cs
+@@ -0,0 +1,160 @@
++using System;
++using System.Collections.Generic;
++using System.Linq;
++using System.Reflection;
++using System.Threading.Tasks;
++
++public static class Review1029K1Checks
++{
++    private static int count;
++    private static void Check(bool value, string name) { if (!value) throw new Exception("K1 FAIL: " + name); count++; }
++    private static bool Near(float a, float b) => Math.Abs(a - b) < .0001f;
++    private static object Call(Type t, string name, params object[] args) => t.GetMethod(name, BindingFlags.Static | BindingFlags.NonPublic).Invoke(null, args);
++    private static void Set(object obj, string name, object value) => obj.GetType().GetField(name, BindingFlags.Instance | BindingFlags.NonPublic).SetValue(obj, value);
++    private static object Invoke(object obj, string name, params object[] args) => obj.GetType().GetMethod(name, BindingFlags.Instance | BindingFlags.NonPublic).Invoke(obj, args);
++    private static T Managed<T>() => (T)System.Runtime.Serialization.FormatterServices.GetUninitializedObject(typeof(T));
++    public static async Task<string> Main()
++    {
++        count = 0;
++        var work = new AntColony.Core.WorkContribution();
++        work.Add("builder", 74.9f, true); work.Add("other", 25.1f, false);
++        Check(work.Majority(100) == null, "바벨/천기 75% 미만");
++        work.Add("builder", .1f, true); Check(work.Majority(100) == "builder", "75% 경계 포함");
++        Check(work.Valid, "기여도 정상");
++        var combined = new AntColony.Core.WorkContribution(); combined.Add("A", 40, true); combined.Add("B", 40, true); combined.Add("C", 20, false);
++        Check(combined.Majority(100) == null, "복수 보유자 기여도 합산 금지");
++        var before = combined.total; combined.Add("A", float.NaN, true); combined.Add("A", float.PositiveInfinity, true); combined.Add("A", -1, true);
++        Check(combined.total == before, "비정상 작업량 거부");
++        combined.qualified.Add(new AntColony.Core.WorkContribution.Entry { id = "A", work = 1 }); Check(!combined.Valid, "중복 기여자 저장 거부");
++        foreach (var n in new[] { 1, 2, 3, 4, 5, 100, 200 })
++            Check(AntColony.Buildings.BabelState.RebuildCost(n) == (int)Math.Ceiling(n * .75m), "바벨 정수 자재 " + n);
++        Check(AntColony.Buildings.BabelState.RebuildCost(200) == 150, "float 올림 오차 회귀");
++        Check(AntColony.Buildings.BabelState.Valid(null), "구저장 바벨 기본값");
++        Check(!AntColony.Buildings.BabelState.Valid(new AntColony.Buildings.BabelState { work = float.NaN }), "바벨 NaN 거부");
++        var sole = new AntColony.Core.SoleWorker(); sole.Note("A", true); sole.Note("A", true);
++        Check(sole.Empowered && sole.Valid, "낙토/식선/하멜른 전과정 동일 보유자");
++        sole.Note("B", true); sole.Note("A", true); Check(!sole.Empowered, "다른 장수 관여 해제 유지");
++        sole = new AntColony.Core.SoleWorker(); sole.Note("", false); sole.Note("A", true); Check(!sole.Empowered, "일반 개미 작업 후 자격 소급 금지");
++        sole = new AntColony.Core.SoleWorker(); sole.Note("A", false); sole.Note("A", true); Check(!sole.Empowered, "중간 특성 획득 소급 금지");
++        var food = new AntColony.Core.FoodLots(); food.Add(1, 40, 21, true); food.Add(1, 40, 2, false);
++        Check(food.lots.Count == 2, "동일 신선도도 요리사 숙련/식선 분리");
++        var one = food.Take(1); Check(one.CookingSkill == 20 && one.Inspired, "실제 섭취 묶음 숙련20/식선");
++        Check(food.CookingSkill == 1 && !food.Inspired, "다른 묶음 숙련1/일반");
++        one.Age(10); var move = new AntColony.Core.FoodLots(); move.Add(one); Check(Near(move.Stalest, 30), "수송 적재 신선도 보존");
++        var unload = move.Take(1); Check(Near(unload.Stalest, 30) && unload.Inspired && unload.CookingSkill == 20, "하역 숙련/식선/신선도 보존");
++        Check(unload.Age(30) == 1 && unload.Total == 0, "수송 중 부패 경계");
++        var legacy = new AntColony.Core.FoodLots(); legacy.Add(2, 100); Check(legacy.CookingSkill == 5 && !legacy.Inspired, "구저장 요리 숙련5/식선없음");
++        legacy.lots.Add(new AntColony.Core.FoodLots.Lot { amount = 1, shelf = 30, cookSkillPlusOne = 22 }); Check(!legacy.Valid, "잘못된 숙련 저장 거부");
++        Check(AntColony.Data.CookedFoods.Quality(AntColony.Data.ResourceType.SmokedFood) == 1, "훈연식 간단식 식단");
++        Check(AntColony.Data.ResourceLabels.IsEdible(AntColony.Data.ResourceType.SmokedFood), "훈연식 섭취 가능");
++        Check(AntColony.Core.FoodLots.ShelfLife(AntColony.Data.ResourceType.SmokedFood) == AntColony.Core.FoodLots.ShelfLife(AntColony.Data.ResourceType.SimpleMeal), "별도 보존 보너스 없음");
++        Check((int)AntColony.Data.ResourceType.SmokedFood == (int)AntColony.Data.ResourceType.FriedRice + 1, "자원 enum 끝 추가 호환");
++        Check(AntColony.Buildings.Kitchen.Recipes.Last().output == AntColony.Data.ResourceType.SmokedFood, "기존 제조법 번호 보존/훈연 연결");
++        Check(AntColony.Buildings.Kitchen.SmokedFood.inputs.Single(i => i.type == AntColony.Data.ResourceType.Food).amount == 1, "통합 식량1+목재 → 1끼");
++        Check(AntColony.Buildings.Kitchen.SmokedFood.inputs.Single(i => i.type == AntColony.Data.ResourceType.Wood).amount == 1, "훈연 목재1");
++        var meal = new AntColony.Units.CommanderPersonalState();
++        Check((bool)Call(typeof(AntColony.Units.CommanderAnt), "DiamondMealAvailable", meal), "식선 첫 섭취 허용");
++        meal.moodFactors.Add(new AntColony.Units.MoodFactor { reason = "식선: 잊지 못할 한 끼", value = 20, remaining = 50 });
++        Check(!(bool)Call(typeof(AntColony.Units.CommanderAnt), "DiamondMealAvailable", meal) && meal.moodFactors[0].remaining == 50, "식선 재섭취 비중첩/비갱신");
++        meal.moodFactors[0].remaining = 0; Check((bool)Call(typeof(AntColony.Units.CommanderAnt), "DiamondMealAvailable", meal), "식선 종료 후 허용");
++        Check(Near(AntColony.Core.CampaignResearch.PoliticalMultiplier(0), 1), "여래장0명");
++        Check(Near(AntColony.Core.CampaignResearch.PoliticalMultiplier(1), .7f), "여래장1명30%");
++        Check(Near(AntColony.Core.CampaignResearch.PoliticalMultiplier(2), .55f), "여래장2명45%");
++        Check(Near(AntColony.Core.CampaignResearch.PoliticalMultiplier(3), .475f), "여래장3명52.5%");
++        Check(AntColony.Core.CampaignResearch.PoliticalMultiplier(1000) >= .4f, "여래장 수렴상한60%");
++        foreach (var affinity in new[] { -100f, 0, 100 })
++            Check(Near(AntColony.World.DiplomacyManager.ArtworkChance(affinity), Math.Min(1, .5f + affinity / 200 + .3f)), "화룡 +30%p " + affinity);
++        Check(Near(AntColony.World.DiplomacyManager.ArtworkChance(-100), .3f), "화룡 최소30%");
++        Check(Near(AntColony.World.DiplomacyManager.ArtworkChance(100), 1), "화룡 상한100%");
++        Check(AntColony.World.ResourceNode.TreasureCatch(.04999f) && !AntColony.World.ResourceNode.TreasureCatch(.05f), "태공5% 경계");
++        Check(AntColony.World.ResourceNode.TreasureEquipment(.09999f) && !AntColony.World.ResourceNode.TreasureEquipment(.1f), "장비10% 조건부 경계");
++        var treasures = 0; var gear = 0;
++        for (var a = 0; a < 100; a++) for (var b = 0; b < 100; b++)
++            if (AntColony.World.ResourceNode.TreasureCatch((a + .5f) / 100)) { treasures++; if (AntColony.World.ResourceNode.TreasureEquipment((b + .5f) / 100)) gear++; }
++        Check(treasures == 500 && gear == 50, "태공10000 조합 보물5%/장비0.5%");
++        Check(!AntColony.World.ResourceNode.TreasureResources(1).Contains(AntColony.Data.ResourceType.Iron), "신석기 철 제외");
++        Check(!AntColony.World.ResourceNode.TreasureResources(2).Contains(AntColony.Data.ResourceType.Iron), "청동기 철 제외");
++        Check(AntColony.World.ResourceNode.TreasureResources(3).Contains(AntColony.Data.ResourceType.Iron), "철기 묶음");
++        var next = AntColony.Core.CampaignResearch.InsightSuccessor(AntColony.Core.ScienceTechnology.Vehicle, Array.Empty<int>(), Array.Empty<int>());
++        Check(next != null && next.Prerequisites.Contains(AntColony.Core.ScienceTechnology.Vehicle), "천기 직접 후속만 선택");
++        Check(AntColony.Core.CampaignResearch.InsightSuccessor(AntColony.Core.ScienceTechnology.Vehicle, new[] { (int)next.Technology }, Array.Empty<int>())?.Technology != next.Technology, "완료 후속 제외");
++        Check(AntColony.Core.CampaignResearch.InsightSuccessor(AntColony.Core.ScienceTechnology.Vehicle, Array.Empty<int>(), new[] { (int)next.Technology })?.Technology != next.Technology, "통찰 중복 제외");
++        var state = new AntColony.Core.CampaignResearch.State();
++        Check((bool)Call(typeof(AntColony.Core.CampaignResearch), "ValidInsight", state), "구저장 천기 유효");
++        state.insights.Add((int)next.Technology); state.insightApplied.Add((int)next.Technology);
++        Check((bool)Call(typeof(AntColony.Core.CampaignResearch), "ValidInsight", state), "통찰 저장 적용 마커");
++        state.insightApplied.Add((int)next.Technology); Check(!(bool)Call(typeof(AntColony.Core.CampaignResearch), "ValidInsight", state), "통찰 중복 적용 저장 거부");
++        var fields = new[] { (typeof(AntColony.Save.BuildingDto), "babel"), (typeof(AntColony.Save.BuildingDto), "diamondArtwork"),
++            (typeof(AntColony.Save.TransportDto), "cargoFreshness"), (typeof(AntColony.Save.SaveFileV1), "constructionAttribution"),
++            (typeof(AntColony.World.Critter.State), "tamer"), (typeof(AntColony.Buildings.FarmPlot.State), "diamondCycle") };
++        foreach (var field in fields) Check(field.Item1.GetField(field.Item2) != null, "저장 필드 " + field.Item2);
++        var transport = new AntColony.Save.TransportDto { cargoFood = 2, cargoFreshness = null };
++        Check((bool)Call(typeof(AntColony.World.ExpeditionTransport), "ValidFoodAmounts", transport), "구저장 수송 신선도 기본 허용");
++        var cargoLots = new AntColony.Core.FoodLots(); cargoLots.Add(2, 17, 12, true);
++        transport.cargoFreshness = new List<AntColony.World.ExpeditionTransport.FoodCargo> { new AntColony.World.ExpeditionTransport.FoodCargo { type = AntColony.Data.ResourceType.Food, lots = cargoLots } };
++        Check((bool)Call(typeof(AntColony.World.ExpeditionTransport), "ValidFoodAmounts", transport), "화물 수량/묶음 일치");
++        transport.cargoFood = 3; Check(!(bool)Call(typeof(AntColony.World.ExpeditionTransport), "ValidFoodAmounts", transport), "누락 묶음 신선도 재생 거부");
++        transport.cargoFood = 1; transport.withdrawal = new AntColony.World.WithdrawState();
++        transport.withdrawal.loads.Add(new AntColony.World.WithdrawLoad { type = AntColony.Data.ResourceType.Food, amount = 1 });
++        Check((bool)Call(typeof(AntColony.World.ExpeditionTransport), "ValidFoodAmounts", transport), "장수 없는 하역 대기 묶음 보존");
++        transport.withdrawal.loads[0].workerId = "courier";
++        Check(!(bool)Call(typeof(AntColony.World.ExpeditionTransport), "ValidFoodAmounts", transport), "장수 보유 물량 중복 집계 거부");
++        var aura = new AntColony.Core.CampaignResearch.State();
++        aura.politicalPresence.Add(new AntColony.Core.CampaignResearch.PoliticalPresence { id = "A", site = -1, remaining = AntColony.Core.GameCalendar.SecondsPerDay * 3 });
++        Check((bool)Call(typeof(AntColony.Core.CampaignResearch), "ValidPoliticalPresence", aura), "부재3일 저장 경계");
++        aura.politicalPresence[0].remaining += 1; Check(!(bool)Call(typeof(AntColony.Core.CampaignResearch), "ValidPoliticalPresence", aura), "부재3일 초과 거부");
++        var diplomacy = new AntColony.World.DiplomacyManager.State(); diplomacy.civilizations.Add(new AntColony.World.Civilization { id = "civ" });
++        diplomacy.artworkRetries.Add(new AntColony.World.DiplomacyManager.ArtworkRetry { civ = "civ", purpose = AntColony.World.ArtworkPurpose.Peace, until = 100 });
++        Check((bool)Call(typeof(AntColony.World.DiplomacyManager), "ValidArtwork", diplomacy), "화룡 거절 대기 저장");
++        diplomacy.artworkRetries.Add(diplomacy.artworkRetries[0]); Check(!(bool)Call(typeof(AntColony.World.DiplomacyManager), "ValidArtwork", diplomacy), "화룡 중복 대기 거부");
++        var attribution = new List<AntColony.Save.ConstructionAttributionDto> { new AntColony.Save.ConstructionAttributionDto { order = 7, contributions = work, artist = sole, babelUsed = true } };
++        var construction = new List<AntColony.Save.ConstructionDto> { new AntColony.Save.ConstructionDto { order = 7 } };
++        var attributionType = typeof(AntColony.Save.SaveSnapshot).Assembly.GetType("AntColony.Save.SaveAttribution");
++        Check((bool)Call(attributionType, "Valid", attribution, construction), "공사 저장 보조 연결");
++        construction.Clear(); Check(!(bool)Call(attributionType, "Valid", attribution, construction), "고아 공사 기여도 거부");
++        // Unity native 객체를 만들지 않고 managed 필드만 주입해 실제 수송/효과 메서드를 실행한다.
++        var ship = Managed<AntColony.World.ExpeditionTransport>();
++        var quantities = new Dictionary<AntColony.Data.ResourceType, int> { [AntColony.Data.ResourceType.Food] = 2 };
++        Set(ship, "cargo", quantities); Set(ship, "withdraw", new AntColony.World.WithdrawState());
++        var actualLots = new AntColony.Core.FoodLots(); actualLots.Add(2, 10, 8, true);
++        Set(ship, "CargoFood", new List<AntColony.World.ExpeditionTransport.FoodCargo> { new AntColony.World.ExpeditionTransport.FoodCargo { type = AntColony.Data.ResourceType.Food, lots = actualLots } });
++        Invoke(ship, "AgeCargoFood", 5f);
++        Check(Near(actualLots.Stalest, 5) && ship.GetCargo(AntColony.Data.ResourceType.Food) == 2, "실제 수송 AgeCargoFood 5초");
++        var incoming = new AntColony.Core.FoodLots(); incoming.Add(1, 1, 4, false);
++        quantities[AntColony.Data.ResourceType.Food] = 3; Set(ship, "IncomingFood", incoming);
++        Invoke(ship, "CreditCargoFood", AntColony.Data.ResourceType.Food, 1);
++        Check(actualLots.Total == 3 && Near(actualLots.Stalest, 1), "실제 적재 신선도 보존");
++        Invoke(ship, "AgeCargoFood", 2f);
++        Check(ship.GetCargo(AntColony.Data.ResourceType.Food) == 2 && ship.GetCargo(AntColony.Data.ResourceType.RottenFood) == 1 && Near(actualLots.Stalest, 3), "실제 화물 부패 수량/잔여 시간");
++        var actualUnload = (AntColony.Core.FoodLots)Invoke(ship, "TakeCargoFood", AntColony.Data.ResourceType.Food, 1);
++        Check(actualUnload.CookingSkill == 7 && actualUnload.Inspired && Near(actualUnload.Stalest, 3), "실제 하역 숙련/식선/보존");
++        var research = Managed<AntColony.Core.CampaignResearch>();
++        var researchState = new AntColony.Core.CampaignResearch.State { active = (int)next.Technology };
++        researchState.insights.Add((int)next.Technology); Set(research, "state", researchState);
++        Invoke(research, "ApplyInsight"); var credited = research.Progress;
++        Invoke(research, "ApplyInsight");
++        Check(Near(credited, next.Work * .2f) && research.Progress == credited && researchState.insightApplied.Count == 1, "실제 천기20% 1회 적용/재선택 방지");
++        researchState.politicalPresence.Add(new AntColony.Core.CampaignResearch.PoliticalPresence { id = "absent", site = -1, remaining = AntColony.Core.GameCalendar.SecondsPerDay * 3 });
++        Invoke(research, "TickPoliticalPresence", 100f);
++        Check(Near(researchState.politicalPresence[0].remaining, 350), "실제 부재 잔여 시간 감소");
++        Check(Near(research.SettlementDiscontentMultiplier(-1), .7f), "실제 부재 중 불만30% 유지");
++        Invoke(research, "TickPoliticalPresence", 350f);
++        Check(researchState.politicalPresence.Count == 0 && Near(research.SettlementDiscontentMultiplier(-1), 1), "실제 부재3일 만료");
++        var diner = Managed<AntColony.Units.CommanderAnt>(); var personal = new AntColony.Units.CommanderPersonalState(); Set(diner, "personalState", personal);
++        Invoke(diner, "ApplyDiamondMeal"); Check(personal.moodFactors.Single().value == 20 && personal.moodFactors.Single().remaining == AntColony.Core.GameCalendar.SecondsPerDay, "실제 식선20/1일");
++        personal.moodFactors[0].remaining = 50; Invoke(diner, "ApplyDiamondMeal");
++        Check(personal.moodFactors.Count == 1 && personal.moodFactors[0].remaining == 50, "실제 식선 재섭취 비갱신");
++        await Task.CompletedTask;
++        return "Review1029K1: PASS " + count + " (actual game DLL; Unity scene/save roundtrip/UI not executed)";
++    }
++    // Claude 전용 Unity 실행 인계. 디스크·씬 복원은 하지 않고 실제 저장 스냅샷/JSON/사전검증을 검사한다.
++    public static async Task<string> SceneSaveChecks()
++    {
++        var result = await Main();
++        var file = AntColony.Save.SaveSnapshot.Capture();
++        var json = UnityEngine.JsonUtility.ToJson(file);
++        if (!AntColony.Save.SaveValidator.TryParse(json, out var parsed, out var error)) throw new Exception("K1 snapshot parse: " + error);
++        if (!AntColony.Save.SavePreflight.Validate(parsed, out error)) throw new Exception("K1 preflight: " + error);
++        return result + "; live snapshot/JSON/preflight PASS (scene restore/UI still separate)";
++    }
++}
+diff --git a/AgentScripts/Review1029K1Compile.ps1 b/AgentScripts/Review1029K1Compile.ps1
+new file mode 100644
+--- /dev/null
++++ b/AgentScripts/Review1029K1Compile.ps1
+@@ -0,0 +1,82 @@
++param([switch]$OfflineChecks)
++$ErrorActionPreference = 'Stop'
++$project = (Resolve-Path (Join-Path $PSScriptRoot '..')).Path
++if ($project -ne 'E:\Git\ant-wt\K1') { throw 'K1 worktree only' }
++$unityRoot = 'E:/unity/6000.5.8f1/Editor/Data'
++$bee = 'E:/Git/ant/Library/Bee/artifacts/1900b0aE.dag'
++$temp = Join-Path $project 'Temp/Review1029K1'
++New-Item -ItemType Directory -Path $temp -Force | Out-Null
++$utf8 = [Text.UTF8Encoding]::new($false)
++function Compile([string]$rsp) {
++    & "$unityRoot/DotNetSdk/dotnet.exe" exec "$unityRoot/DotNetSdk/sdk/8.0.318/Roslyn/bincore/csc.dll" -nologo "@$rsp"
++    if ($LASTEXITCODE -ne 0) { throw "Compile failed: $rsp" }
++}
++$lines = [Collections.Generic.List[string]]::new()
++$known = @{}; $missing = 0
++foreach ($line in (Get-Content -LiteralPath "$bee/Assembly-CSharp.rsp")) {
++    if ($line -match '\.cs"?$' -and $line -notmatch '^[-/]') {
++        $relative = $line.Trim('"').Replace('\', '/')
++        $source = Join-Path $project $relative
++        if (Test-Path -LiteralPath $source) { $lines.Add('"' + $source + '"'); $known[$relative] = $true }
++        else {
++            if ($relative.StartsWith('Assets/_Project/')) { continue } # 원본의 후속 개발 소스를 K1 기준선에 섞지 않는다.
++            $missing++
++            $original = Join-Path 'E:/Git/ant' $relative
++            if (Test-Path -LiteralPath $original) {
++                $copy = Join-Path "$temp/ReferenceSources" $relative
++                New-Item -ItemType Directory -Path (Split-Path $copy) -Force | Out-Null
++                Copy-Item -LiteralPath $original -Destination $copy -Force
++                $lines.Add('"' + $copy + '"')
++            }
++        }
++    } elseif ($line -notmatch '^[-/](out|refout|analyzer|generatedfilesout):') { $lines.Add($line.Replace('"Library/', '"E:/Git/ant/Library/')) }
++}
++foreach ($source in (Get-ChildItem -LiteralPath "$project/Assets/_Project/Scripts" -Recurse -Filter *.cs)) {
++    $relative = $source.FullName.Substring($project.Length + 1).Replace('\', '/')
++    if (-not $known.ContainsKey($relative)) { $lines.Add('"' + $source.FullName + '"') }
++}
++$lines.Add('-out:"' + "$temp/Assembly-CSharp.dll" + '"')
++[IO.File]::WriteAllLines("$temp/game.rsp", $lines, $utf8)
++Compile "$temp/game.rsp"
++Write-Output "Game compile PASS; missing external sources copied read-only from original into K1 Temp: $missing"
++$checks = @(Get-ChildItem -LiteralPath $PSScriptRoot -Filter Review1029K1Checks.cs)
++$editor = [Collections.Generic.List[string]]::new()
++foreach ($line in (Get-Content -LiteralPath "$bee/Assembly-CSharp-Editor.rsp")) {
++    if ($line -match '\.cs"?$' -and $line -notmatch '^[-/]') { continue }
++    if ($line -match '^[-/](out|refout|analyzer|generatedfilesout):') { continue }
++    if ($line -match '^[-/](r|reference):.*Assembly-CSharp(\.ref)?\.dll') { continue }
++    $editor.Add($line.Replace('"Library/', '"E:/Git/ant/Library/'))
++}
++$editor.Add('-r:"' + "$temp/Assembly-CSharp.dll" + '"')
++$editor.Add('-out:"' + "$temp/Review1029K1Checks.dll" + '"')
++foreach ($source in $checks) { $editor.Add('"' + $source.FullName + '"') }
++[IO.File]::WriteAllLines("$temp/checks.rsp", $editor, $utf8)
++Compile "$temp/checks.rsp"
++Write-Output 'Editor checks compile PASS (execution requires isolated game scene)'
++if (-not $OfflineChecks) { return }
++$offline = [Collections.Generic.List[string]]::new()
++$offline.Add('-target:exe'); $offline.Add('-out:"' + "$temp/OfflineChecks.dll" + '"')
++foreach ($ref in (Get-ChildItem "$unityRoot/DotNetSdk/packs/Microsoft.NETCore.App.Ref/8.0.21/ref/net8.0/*.dll")) { $offline.Add('-r:"' + $ref.FullName + '"') }
++foreach ($name in @('UnityEngine', 'UnityEngine.CoreModule', 'UnityEngine.PhysicsModule', 'UnityEngine.AIModule', 'UnityEngine.JSONSerializeModule')) {
++    $path = "$unityRoot/Managed/UnityEngine/$name.dll"
++    $offline.Add('-r:"' + $path + '"'); Copy-Item -LiteralPath $path -Destination $temp -Force
++}
++$offline.Add('-r:"' + "$temp/Assembly-CSharp.dll" + '"')
++foreach ($source in $checks | Where-Object { $_.Name -notmatch 'Runtime' }) { $offline.Add('"' + $source.FullName + '"') }
++$hostSource = @'
++using System;
++using System.Threading.Tasks;
++public static class OfflineRunner {
++    public static async Task<int> Main() {
++        Console.WriteLine(await Review1029K1Checks.Main());
++        return 0;
++    }
++}
++'@
++[IO.File]::WriteAllText("$temp/OfflineRunner.cs", $hostSource, $utf8)
++$offline.Add('"' + "$temp/OfflineRunner.cs" + '"'); $offline.Add('-main:OfflineRunner')
++[IO.File]::WriteAllLines("$temp/offline.rsp", $offline, $utf8)
++Compile "$temp/offline.rsp"
++[IO.File]::WriteAllText("$temp/OfflineChecks.runtimeconfig.json", '{"runtimeOptions":{"tfm":"net8.0","framework":{"name":"Microsoft.NETCore.App","version":"8.0.21"}}}', $utf8)
++& "$unityRoot/DotNetSdk/dotnet.exe" "$temp/OfflineChecks.dll"
++if ($LASTEXITCODE -ne 0) { throw 'Offline checks failed' }
+diff --git a/README.md b/README.md
+--- a/README.md
++++ b/README.md
+@@ -339,3 +339,10 @@
+ 과거 저장 기록(2026-10-01 당시): HUD v3·Phase 2 재료 표기/낚시 과학 이전/장수 기준 패배를 반영했습니다. 컴파일, Phase2 15·Commander 34·SaveRoundtrip 50 및 실제 낚시 연구·채집·반납·월별 회복 검사를 통과했습니다. SAVE에서 HUD v3 39·CommanderStatus 37·CommanderEdge 23·Tooltip 151도 확인했습니다. 충성심 로직 삭제는 Phase 3, 여왕방 삭제는 Phase 4 인구·이주 개편과 함께 진행합니다. 전체 회귀·Player 빌드는 미실행.
+ 
+ Phase 2 당시 기록(이후 인구·이주 개편으로 여왕방 생산 삭제): 재료는 기존 Soil의 표시 이름이며 재료 종류 목록은 미정입니다. 저장 필드·enum 값은 유지하고 Special은 별도 자원으로 보존합니다. 낚시는 1티어 과학 연구(기존 티어 공통 비용·연구량 사용)이며, 과학 연구소 건설 조건은 일반개미 60마리와 2티어 병영입니다. 기존 저장의 낚시 해금과 진행 중인 여왕방 낚시 연구는 보존합니다. 여왕방 삭제는 인구·이주 개편과 함께 진행할 예정입니다.
++
++## K1 추가 구현 (분업 worktree, 2026-10-31)
++
++- 다이아 전용 바벨·낙토·태공·천기·식선·화룡·여래장·하멜른을 연결했습니다. 일반 바벨 기초는 기존 예정지에서 직접 재개하고, 로켓은 J2 전용 경로를 유지합니다. 낙토 해제 사유는 밭, 천기 통찰은 과학, 작품/목적 선택은 외교의 ‘화룡 걸작 선물’에서 확인합니다.
++- 부엌 생산목록에 훈연식을 직접 추가할 수 있습니다. 식량1+목재1/16작업→간단식1끼·보존3일입니다. 추가 보존 보너스 없이 일반 간단식보다 식량을 절약하고 목재/노동을 추가 사용합니다.
++- 요리사 숙련·식선 이력은 식품 묶음에 저장하고 수송 적재/경과/하역도 신선도를 유지합니다. 외교 기본 재료통화는 실제 흙으로 표시합니다. 저장22는 기존21의78칸 화물을79칸으로 보충합니다.
++- 게임/검사 오프라인 컴파일 오류0·실제DLL87검사 통과. Unity실행/실저장복원/UI 육안/원본통합은 미실행입니다. 잠정값·병합목록: docs/DECISIONS_1029_K1.md, docs/HANDOFF-CODEX-K1-1029.md.
+diff --git a/docs/DECISIONS_1029_K1.md b/docs/DECISIONS_1029_K1.md
+new file mode 100644
+--- /dev/null
++++ b/docs/DECISIONS_1029_K1.md
+@@ -0,0 +1,28 @@
++# K1 추천안 — 2026-10-29 지시 / 2026-10-31 재개
++
++이 worktree에만 적용. 원본/Notion은 변경하지 않았다. 확정 전용 숫자에 골드 보정 등을 재증폭하지 않는다.
++
++| 항목번호 | 선택지 | 고른 추천안 | 이유 | 확인 상태 |
++| --- | --- | --- | --- | --- |
++| D16 바벨 | 로켓 교체 / 일반 공통 경로 | BuildingBase 공통, AirshipYard·수송 제외. 자재75% decimal 올림·작업50%, 기초 일시정지 후 직접 재개 | J2 로켓 중복 생성 방지. 직접 철거 제외·처음1회만 | 추천안 자동 선택(사용자 미확인) |
++| D17·29 낙토 | 감사표 계절/온도 유지 / 최신 지시 면제 | 최신 지시대로 토양·지역·계절·온도 불이익 면제. 홍수/병충해/화재는 별도 재해로 유지 | 10/25 문서보다 이번 사용자 지시 우선. 해제 사유는 기존 밭 창 | 추천안 자동 선택(사용자 미확인) |
++| D17 다년생 | 수확마다 가상 파종 / 기존 파종자 유지 | 기존 파종자 자격을 다음 재성장에도 유지. 타인 관여 해제는 실제 재파종까지 유지 | 확정인 ‘수확 후 재파종 없음’ 유지. 구저장 이력 소급 없음 | 추천안 자동 선택(사용자 미확인) |
++| D18 태공 | 미래 물자 허용 / 현재 단계 제한 | 시대1~2 특수1+돌3+약초3, 시대3 특수1+철3+구리3, 시대4+ 특수1+철3+부품3. 장비는 현재 해금 제조법만 | 미래 단계 우회 방지, 품질0/1/2/3=5/15/50/30% | 추천안 자동 선택(사용자 미확인) |
++| D20 천기 | 무작위 / 등록순 첫 직접 후속 | 미완·무통찰 직접후속1개, 선택/해금 후 필요량20%1회. 비용·선행 유지. 90%중단+20%는 선택 시 완료 | 저장/재선택 중복 차단. 다음 연구 자동선택 없음 | 추천안 자동 선택(사용자 미확인) |
++| D27 식선 | 재섭취 연장 / 고정1일 | 전과정 동일 보유자 묶음에 기록, +20/1일 비중첩·시간 비갱신 | 운반/저장 뒤에도 동일한 식사 이력. 옛 진행도 소급 없음 | 추천안 자동 선택(사용자 미확인) |
++| D29 화룡 | 기존 교섭 대체 / 직접 선물 요청 | 작품·문명·목적·포로 직접 선택. 기본50%+호감도/200에+30%p,0~100%상한. 성공만 소모 | 기존 휴전 대기/배상·일반 접촉 경로 유지 | 추천안 자동 선택(사용자 미확인) |
++| D29 대기 | 작품별 / 문명·목적별 | 문명·목적별15일, 다른 작품/포로로 바꿔도 대기 | 거절 직후 반복 우회 방지, 일반 협상은 계속 가능 | 추천안 자동 선택(사용자 미확인) |
++| D30 여래장 | 기존불만 소급 / 새불만만 | 30%+15%+7.5%…; 동일불만 갱신은 최초 보정 유지. 시민 민심 하락·장수 새불만에 적용 | 반복 곱연산·갱신 때 보정 풀림 방지 | 추천안 자동 선택(사용자 미확인) |
++| D30 부재/사망 | 즉시소멸 /3일잔여 | 모두3일잔여. 다른 정착지에 실제 현존하면 현지 우선 | 복수 부재/사망 미정의 최소 일관 정책. 세금/병역/생산식 유지 | 추천안 자동 선택(사용자 미확인) |
++| D31 하멜른 | 영구버프 / 현지 재계산 | 전과정 돌봄/길들임 기록, 동일 정착지 보유자 생존 시 적용·떠남/귀환 재계산 | 아군 공격·도주 선동 차단, 야생 먹이 사냥은 유지. 기아/노령/질병/물리운반 면제 없음 | 추천안 자동 선택(사용자 미확인) |
++| 23 보존식 | 보존기간 증가 / 식량·운반 효율 | 통합Food1+목재1/16작업→간단식1끼,상온3일 | 어육 출처가 없어 ‘훈제 고기’로 오표기하지 않음. 일반 간단식Food2/10작업 대비 식량50%절약·노동60%증가+목재. 별도 보존 보너스 없음 | 추천안 자동 선택(사용자 미확인) |
++| J1상1 | 품목평균 저장 / 묶음숙련 | cookSkillPlusOne=0이면 구저장숙련5, 실제 먹은 묶음의 숙련 사용. static 평균 제거 | 다른 요리/세션의 값 혼입 방지 | 추천안 자동 선택(사용자 미확인) |
++| J1상2 | 도착초기화 / 화물묶음 | 실제화물+장수 없는 적재대기 물량을 저장/경과/소비/하역. 장수 예약은 carriedLots로만 | 이중집계·신선도 재생 방지. 구저장만 기본기간/숙련5 | 추천안 자동 선택(사용자 미확인) |
++| J1상3 | 재료 유지 / 실제흙 | 외교 자원선택·협상요약을 흙으로 표시 | 다종재료 환전이나 새 통화 없음 | 추천안 자동 선택(사용자 미확인) |
++
++## 수치·검증
++
++- 확정: 바벨75%기여/75%자재/50%작업; 태공5%×10%=전체장비0.5%; 천기75%기여/20%통찰; 식선20/1일; 화룡+30%p/거절15일; 여래장30%+15%…/부재3일.
++- 잠정 신규: 훈연식1Food+1Wood/16작업/품질1/3일, 보물 묶음수량, 화룡 기본50%+호감도/200.
++- 저장22: SmokedFood78을 끝에 추가,21의78칸 수송배열을79칸으로 보충. 옛 전과정 이력 소급 없음.
++- 실제DLL87검사 통과·게임/검사 컴파일 오류0. Unity실행/실저장복원/UI 육안 미실행. 관련 Notion 하위문서/참조 갱신은 Claude의 통합/SAVE 단계에 인계.
+diff --git a/docs/HANDOFF-CODEX-K1-1029.md b/docs/HANDOFF-CODEX-K1-1029.md
+new file mode 100644
+--- /dev/null
++++ b/docs/HANDOFF-CODEX-K1-1029.md
+@@ -0,0 +1,119 @@
++# K1 인계 — 2026-10-29 지시 / 2026-10-31 재개 완료
++
++K1 worktree·codex/k1-1029에서만 수정. 원본 읽기만·기존 Claude/J1/J2 변경 보존. Unity조작/캡처/커밋/Notion/개발일지 없음.
++
++## 12항목 판정·수정·검사
++
++| 항목 | 확인한 위험·수정 | 검사 / 실행 잔여 |
++| --- | --- | --- |
++| D16 바벨 | 시공기여/일반기초 부재. 1인75%·최초피해파괴·자재75%올림/작업50%·수동재개·직접철거 제외 | 74.9/75%·다이아 복수기여 합산금지·정수비용 검사. 실제 파괴/재건/저장복원은 Claude |
++| D17 낙토·29 | 전과정 추적부재. 파종/관리/수확 연결·타인해제사유·최신지시 계절/온도면제·구저장 소급금지 | SoleWorker 교대/특성중간획득 검사. Unity 파종/교대/겨울/밭UI 잔여 |
++| D18 태공 | 어획보물 경로부재. 5%묶음·그중10%장비·현재시대/해금 제한 | 10000조합=보물500/장비50, 경계·단계 검사. 실제어획/바닥/장비 잔여 |
++| D20 천기 | 기여/통찰 이력부재. 75%1인·직접후속1개20%·선택/해금 후1회·비용/선행유지 | 실제 ApplyInsight2회로20%1회확인·직접후속/완료/중복 제외. Unity연구완료·90%중단+통찰 완료·로드 잔여 |
++| D27 식선 | 요리 원제작자 이력부재. 묶음별 전과정·+20/1일 비중첩/비갱신 | 실제 ApplyDiamondMeal·재섭취50초유지. Unity조리/섭취/저장복원 잔여 |
++| D29 화룡 | 제작자/걸작선물 부재. 전과정동일제작 품질3만·목적/작품직접선택·+30%p·성공소모/거절보존·15일저장 | 확률/대기유효성. 실제 소비/거절/배상/포로귀환/접촉·UI 잔여 |
++| D30 여래장 | 새불만/부재이력 부재. 30%+15%+7.5%…/3일·현지우선. 시민민심 하락/장수 새불만·동일불만 갱신 최초보정 유지 | 실제 부재100+350초 후 만료/30%유지·수렴값 검사. 실제 이동/사망/복수보유자/기분 잔여 |
++| D31 하멜른 | 길들임 담당자부재. 실제돌봄 전과정·동정착지 생존보유자·아군공격/도주선동 방지·야생먹이 사냥유지 | 전과정 교대상태 검사. 실제길들이기/출발귀환/포식반격 잔여 |
++| 23 훈연식 | enum/제조법부재. 초기2Food+목재/16은 간단식2Food/10보다 열등→1Food+목재/16 | 레시피/식단/보존/enum호환 검사. 식량50%절약·노동60%추가+목재,상온3일·추가보존없음. 실제생산/배송/이관/UI 잔여 |
++| J1상1 숙련 | static품목평균이 다른세션/요리값 참조 | static평균제거·묶음별 숙련. 같은신선도 다른숙련 분리/섭취묶음/구기본5 검사. Unity식중독/로드 잔여 |
++| J1상2 수송 | 정수화물 하역 시 신선도재생 | 화물/무인적재대기 묶음·시간/부패/보급/하역. 실제 Credit/Age/Take로1초품목부패·잔여3초/숙련7/식선보존. 장수예약 이중집계거부. Unity실적재/철수/저장왕복 잔여 |
++| J1상3 흙 | offer.resources[1]=Soil인데 재료로 오표기 | 자원선택/협상요약 흙 교정·환전없음. 실제화면 잔여 |
++
++## 검증과 실행
++
++- `powershell -ExecutionPolicy Bypass -NoProfile -File AgentScripts/Review1029K1Compile.ps1 -OfflineChecks`
++- Unity6000.5.8f1 Roslyn·원본Bee 게임/Editor rsp 옵션. 게임소스는 K1을 전부 재나열(신규포함), 외부art/demo 소스만 원본에서 읽어Temp 복사. 원본의 후속 Barracks.Training/CommanderCombatDiamonds를 K1 기준선에 섞지 않음.
++- 게임/별도Editor검사 컴파일 오류0(게임 기존API경고32), 실제DLL `Review1029K1Checks.Main()` **87검사 통과**. 오프라인호스트 FormatterServices경고1(네이티브 생성 없이 managed필드 주입해 실제 메서드 검사).
++- 로그: Temp/k1-1029/compile.log·docs/validation/K1-1029-offline.txt. 응답/실행호스트: Temp/Review1029K1/.
++- `SceneSaveChecks()`는 격리된 시작완료 게임에서 Main+실제Capture→JSON→SaveValidator/Preflight 진입점. **미실행**. 전체씬복원은 기존 SaveRoundtripChecks로 따로 확인.
++- 계산·확률·효율·묶음경과·통찰/식선/부재의 managed상태는 판정완료. Unity작업자이동/네이티브씬복원/실제재미/화면만 실행잔여. 전체 Player빌드·장시간플레이 미실행.
++- Graphify AST update(LLM0) 실행. 11830노드/27443간선/534커뮤니티, 이전554라벨 불일치로240개 허브기준 재명명 경고. 그래프생성물은 게임병합 필수대상 아님.
++
++## 저장·병합 및 Claude 요청
++
++- 저장22·SmokedFood78:21→22에서78칸 수송배열→79칸. 새화물묶음 총량대조/비정상숙련·정치보정·기여/이력 Preflight 연결. null묶음 구저장만 기본신선도/숙련5. 전과정 이력 소급없음.
++- SaveConstruction은 수정하지 않았다. SaveAttribution이 공사Order 키로 기여/예술가/바벨사용을 보조저장하고 Snapshot/Preflight에서 연결한다.
++- 바벨 공통경로는 AirshipYard 제외. J2 로켓을 교체하지 않았다. Claude가 공통시공 기여결과와 J2 RecordBabelConstruction을 대조해 필요시 연결할 것.
++- Boss/*·AirshipYard*·FormationDamage·ColonyInvasion·CommanderAnt.cs·SaveConstruction·ExpeditionWithdraw·DiplomacyPrisoners 수정없음. WildMonster.cs는 하멜른 공격차단용 Update 첫줄 가드1개만 추가했으므로 J2와 병합 시 해당줄만 반영.
++- UI는 기존창재사용·밭낙토/연구통찰/외교작품선택 연결됨. Claude가1920×1080/1280×720에서 밭상태94높이·연구통찰문구·작품목록/이름길이/버튼을 확인해 넘침/겹침 조정. 캡처는 SAVE 전용.
++- 최신 스펙변경/잠정값은 DECISIONS_1029_K1.md. Notion 관련하위/참조문서 갱신은 통합/SAVE에 인계(부모기획 전체교체 금지). 낙토는10/25감사표의 계절/온도유지보다 이번 사용자지시 면제우선.
++- K1-1029.patch는 지시한 전체 worktree diff: 기존타담당변경/그래프가 포함될 수 있으므로 통째덮어쓰기 금지. 공유index.lock 쓰기거부로 K1 Temp 임시인덱스를 사용했다.
++- K1-only-1029.patch는 아래 소유파일만 시작 baseline.patch와 대조한 병합용보조패치. baseline.patch·기존untracked GAPS문서 수정전사본은 Temp/k1-1029에 보존.
++- 유출/전면그래픽/대규모장시간성능은 사용자보류. 카카오톡도구 미제공으로 완료알림 전송불가.
++
++## K1 생성·수정 파일 전체 목록
++
++이전 실행의 K1 partial 포함. 새C#14개에 meta14개 생성. 일회편집도우미는 Temp로 옮김. 타담당 기준선/그래프변경은 아래 소유목록 아님.
++
++- `Assets/_Project/Scripts/Buildings/BuildingBase.cs`
++- `Assets/_Project/Scripts/Buildings/BuildingBase.Babel.cs`
++- `Assets/_Project/Scripts/Buildings/BuildingBase.Babel.cs.meta`
++- `Assets/_Project/Scripts/Buildings/BuildingConstructionSite.cs`
++- `Assets/_Project/Scripts/Buildings/BuildingConstructionSite.Attribution.cs`
++- `Assets/_Project/Scripts/Buildings/BuildingConstructionSite.Attribution.cs.meta`
++- `Assets/_Project/Scripts/Buildings/Decoration.cs`
++- `Assets/_Project/Scripts/Buildings/FarmPlot.cs`
++- `Assets/_Project/Scripts/Buildings/FarmPlot.Diamond.cs`
++- `Assets/_Project/Scripts/Buildings/FarmPlot.Diamond.cs.meta`
++- `Assets/_Project/Scripts/Buildings/Kitchen.cs`
++- `Assets/_Project/Scripts/Buildings/Kitchen.PreservedFood.cs`
++- `Assets/_Project/Scripts/Buildings/Kitchen.PreservedFood.cs.meta`
++- `Assets/_Project/Scripts/Core/CampaignResearch.cs`
++- `Assets/_Project/Scripts/Core/CampaignResearch.Insight.cs`
++- `Assets/_Project/Scripts/Core/CampaignResearch.Insight.cs.meta`
++- `Assets/_Project/Scripts/Core/CampaignResearch.Politics.cs`
++- `Assets/_Project/Scripts/Core/CampaignResearch.Politics.cs.meta`
++- `Assets/_Project/Scripts/Core/ColonyPopulation.cs`
++- `Assets/_Project/Scripts/Core/FoodLots.cs`
++- `Assets/_Project/Scripts/Core/WorkContribution.cs`
++- `Assets/_Project/Scripts/Core/WorkContribution.cs.meta`
++- `Assets/_Project/Scripts/Core/ResourceManager.cs`
++- `Assets/_Project/Scripts/Data/CookedFoods.cs`
++- `Assets/_Project/Scripts/Data/ResourceType.cs`
++- `Assets/_Project/Scripts/Save/SaveAttribution.cs`
++- `Assets/_Project/Scripts/Save/SaveAttribution.cs.meta`
++- `Assets/_Project/Scripts/Save/SaveBuildings.cs`
++- `Assets/_Project/Scripts/Save/SaveDtos.cs`
++- `Assets/_Project/Scripts/Save/SavePreflight.cs`
++- `Assets/_Project/Scripts/Save/SaveSnapshot.cs`
++- `Assets/_Project/Scripts/Save/SaveValidator.cs`
++- `Assets/_Project/Scripts/UI/GameMenuArtwork.cs`
++- `Assets/_Project/Scripts/UI/GameMenuArtwork.cs.meta`
++- `Assets/_Project/Scripts/UI/GameMenuDiplomacy.cs`
++- `Assets/_Project/Scripts/UI/GameMenuFarm.cs`
++- `Assets/_Project/Scripts/UI/GameMenuResearch.cs`
++- `Assets/_Project/Scripts/Units/CommanderHusbandry.cs`
++- `Assets/_Project/Scripts/Units/CommanderMeal.cs`
++- `Assets/_Project/Scripts/Units/CommanderMeal.Diamond.cs`
++- `Assets/_Project/Scripts/Units/CommanderMeal.Diamond.cs.meta`
++- `Assets/_Project/Scripts/Units/CommanderMealSources.cs`
++- `Assets/_Project/Scripts/Units/CommanderPersonalState.cs`
++- `Assets/_Project/Scripts/Units/WorkerAnt.cs`
++- `Assets/_Project/Scripts/World/Critter.cs`
++- `Assets/_Project/Scripts/World/CritterBehaviour.cs`
++- `Assets/_Project/Scripts/World/Critter.Hamelin.cs`
++- `Assets/_Project/Scripts/World/Critter.Hamelin.cs.meta`
++- `Assets/_Project/Scripts/World/DiplomacyArtwork.cs`
++- `Assets/_Project/Scripts/World/DiplomacyArtwork.cs.meta`
++- `Assets/_Project/Scripts/World/DiplomacyManager.cs`
++- `Assets/_Project/Scripts/World/DiplomacyNegotiation.cs`
++- `Assets/_Project/Scripts/World/ExpeditionSupplies.cs`
++- `Assets/_Project/Scripts/World/ExpeditionTransport.cs`
++- `Assets/_Project/Scripts/World/ExpeditionTransport.Food.cs`
++- `Assets/_Project/Scripts/World/ExpeditionTransport.Food.cs.meta`
++- `Assets/_Project/Scripts/World/ResourceNode.cs`
++- `Assets/_Project/Scripts/World/ResourceNode.FishingTreasure.cs`
++- `Assets/_Project/Scripts/World/ResourceNode.FishingTreasure.cs.meta`
++- `Assets/_Project/Scripts/World/ColonyEvents.cs`
++- `Assets/_Project/Scripts/World/WildMonster.cs`
++- `AgentScripts/Review1029K1Checks.cs`
++- `AgentScripts/Review1029K1Compile.ps1`
++- `README.md`
++- `docs/DECISIONS_1029_K1.md`
++- `docs/HANDOFF-CODEX-K1-1029.md`
++- `docs/GAPS_1029_J1.md`
++- `docs/OPERATIONS_100_STATUS.md`
++- `docs/IMPLEMENTATION_BOARD.md`
++- `docs/validation/K1-1029-offline.txt`
++- `docs/patches/K1-1029.patch`
++- `docs/patches/K1-only-1029.patch`
+diff --git a/docs/GAPS_1029_J1.md b/docs/GAPS_1029_J1.md
+--- a/docs/GAPS_1029_J1.md
++++ b/docs/GAPS_1029_J1.md
+@@ -16,3 +16,7 @@
+ | 중 | **운영비 부족이 종류 전체 서비스 중단으로 번짐.** 학교/진료소 각각 하나의 합산 부채와 suspended 상태를 쓴다. 여러 동 중 일부만 운영비가 부족해도 종류 전체 정원이 사라지는 정책이다. | `Core/ColonyPopulation.Economy.cs` PayCivicUpkeep/SchoolsOperating/ClinicsOperating | 전체 중단 정책이면 부족액과 복구에 필요한 재고를 명확히 표시. 부분 운영을 채택하면 건물별 운영 우선순위·비용·정원과 저장을 함께 연결. 거리 시스템을 억지로 섞지 않는다. |
+ | 하 | **한 캐러밴처럼 보이는 두 방문 상태가 따로 존재.** 기초 원료 상점은 ColonyEvents.CaravanPresent, 외교 상점은 DiplomacyManager.caravanUntil로 열리며 상품/방문 보장이 별개다. 한쪽만 열렸을 때 다른 상점을 기대하기 쉽다. | `World/CaravanSupplies.cs`, `World/ColonyEvents.cs`, `World/DiplomacyTrade.cs` Market(-1), `UI/GameMenuDiplomacy.cs` | 다른 상인이라면 이름·다음 방문 설명을 구분. 같은 행렬이라면 이벤트와 외교 상점의 방문 시계를 하나로 연결하되 기존 저장 두 필드의 이관 필요. |
+ | 하 | **교역 협정의 정기 물물교환만 중단하는 선택이 없음.** 협정이 있으면 월 식량10→흙10 자동 거래를 시도한다. 정보 공개/호감 혜택은 유지하면서 식량 유출만 잠깐 멈추는 상태가 없다. | `World/DiplomacyManager.cs` Monthly, `World/DiplomacyRules.cs` MonthlyTradeAmount, `UI/GameMenuDiplomacy.cs` TreatySummary | 정기 교환이 협정의 의무인지 선택적 서비스인지 기획에 명시. 선택적이면 기존 협정 영역에 정기 교환 허용 설정과 저장을 추가하고, 계약 해지는 별도 행위로 유지. |
++
++## K1 후속 (2026-10-31, 이 worktree)
++
++상위3건은 묶음별 숙련 저장·수송 신선도·외교 흙 표기로 구현했다. 표는 J1 분석 당시 사실이다. 검증/잠정값/실행 잔여는 HANDOFF-CODEX-K1-1029.md·DECISIONS_1029_K1.md 참조. 다른9건 완료를 뜻하지 않는다.
+diff --git a/docs/OPERATIONS_100_STATUS.md b/docs/OPERATIONS_100_STATUS.md
+--- a/docs/OPERATIONS_100_STATUS.md
++++ b/docs/OPERATIONS_100_STATUS.md
+@@ -26,7 +26,7 @@
+ | 20 | [공백] 시민 피해가 만드는 장기 변화가 약합니다. 전사·주거 파괴·이탈 후 세입과 병력이 얼마나 오래 영향을 받는지 정해야 방어 실패의 무게가 생깁니다. | 회복 모델 검증 | J1: 정원1000 복구·500생존·서비스100/민심60 기준 손실95% 회복57일. 연령/병력/추가피해 별도 |
+ | 21 | [위험] 식재료 종류에 비해 플레이 차이가 적을 수 있습니다. 작물별 생육·수확·보존·조리 역할이 충분히 다르지 않으면 많은 품목이 재고 목록만 늘립니다. | 부분 수정·검증 | 요리3종 실물88·원료/제분96, 신규작물5종 성장/수확 구분·19검사. 전체 식품 수지는 잔여 |
+ | 22 | [공백] 각 작물을 선택하는 이유를 비교표로 정할 필요가 있습니다. 빠른 비상식량·낮은 노동량·높은 수확·추위 내성처럼 분명한 역할이 있어야 합니다. | 1차 수정·검증 | 작물별 성장/수확·제분/조리/양조/착유 역할·보존 비교를 기존 버튼에 표시.19검사 |
+-| 23 | [위험] 건조·훈연·염장 식품의 생산 이유가 약합니다. 별도 보존 보너스를 주지 않기로 했으므로, 맛·가공 가치·운반 효율 등 어떤 이득이 있는지 정해야 합니다. | 미구현 확인·후속 | J1: 건조/훈연/염장 전용 enum·제조법 미존재. 가치 구현 완료로 판정 안 함·전용 실물/저장 연결 잔여 |
++| 23 | [위험] 건조·훈연·염장 식품의 생산 이유가 약합니다. 별도 보존 보너스를 주지 않기로 했으므로, 맛·가공 가치·운반 효율 등 어떤 이득이 있는지 정해야 합니다. | K1 구현·오프라인검증 / 실행잔여 | 훈연식Food1+목재1→1끼/16작업·3일, 별도 보존보너스 없음. 자원/제조법/식단/저장22 연결·관련 계산검사 통과. Unity 생산/실저장복원/UI 미실행. K1 인계 참조 |
+ | 24 | [공백] 6일짜리 겨울과 3일 보존 식품의 실제 수지가 필요합니다. 겨울 생존 불가능이라는 뜻은 아닙니다. 곡물·낚시·납세·냉장 도입을 합친 선택지가 성립하는지 확인해야 합니다. | 계산·부분 수정 검증 | 3명/6일36끼 수지·곡물24일/요리3일 구분.빵 밀가루2→1·작업1008→720·구도착재료 보존91검사.전체겨울실전잔여 |
+ | 25 | [위험] 고급 요리가 기분 문제를 너무 싸게 해결할 수 있습니다. 식사·장식·오락·포상 중 어느 수단이 어느 상황에 효율적인지 비교가 필요합니다. | 비용·효과 대조 완료 | J1: 하루2끼 좋은식8식량/40작업·기분5/75초 vs 간단식4/20. 기분 중첩 없음·수치 유지 |
+ | 26 | [위험] 목축이 농사보다 관리 부담만 클 수 있습니다. 먹이·길들이기·운반·위생·치료를 감수할 만한 생산물의 가치가 있어야 합니다. | 산물·수지 대조 완료 | J1: 월 먹이4 vs 감로3/실2/거미줄2/꿀2+밀랍1, 별도 산업 경로. 의료/운반 포함 경제적 동가 미정 |
+diff --git a/docs/IMPLEMENTATION_BOARD.md b/docs/IMPLEMENTATION_BOARD.md
+--- a/docs/IMPLEMENTATION_BOARD.md
++++ b/docs/IMPLEMENTATION_BOARD.md
+@@ -437,4 +437,6 @@
+ - **REVIEW100-1029 분업 / 진행 중** — Codex J1(ant-wt/J1, codex/j1-1029): 11·13~17·19·20·23·25·26·28·35~38·40·72·73·77·78 경제/식품/산업/교역 파일. Codex J2(ant-wt/J2, codex/j2-1029): 61~71·75·76·80·83~90 전투/보스/원정/최종방어/엔딩 파일. Claude(원본): 2~10·29·30·41~47·50·53~60·92·95·96 성장/특성/관계/의료/알림·UI 공통 + Codex 패치 병합·Unity 검사. 각 담당 외 파일 동시 수정 금지. 결정은 docs/DECISIONS_1029_<담당>.md, 추가 공백은 docs/GAPS_1029_<담당>.md.
+ - **REVIEW100-J1-1029 / Codex J1 / 오프라인 검증·인계 완료** — 담당21개 중10개 수정·9개 계산/대조·23/77 구현 잔여. 소유 Core/ColonyTaxRules·ResourceStudyRules 신규, ColonyPopulation.Monthly·CampaignResearch.Resources, Buildings/Redevelopment·Processor.Industrial, World/DiplomacyMarketDelivery 신규·DiplomacyTrade, UI/GameMenuPopulation·CivicServices·Diet·Diplomacy, AgentScripts/Review1029*Checks4종·RunReview1029J1.py. 게임442소스/검사14소스 컴파일 오류0(경고32/13), 실제 게임DLL 순수72검사 통과. Unity 실거래/실저장/UI/원정 통합 검사 미실행, SceneChecks 준비. docs/HANDOFF-CODEX-J1-1029.md·DECISIONS_1029_J1·GAPS_1029_J1(추가12건)·상태21행/README 반영. 원본 index.lock 쓰기 거부로 J1 Temp 임시index에서 패치 생성, 커밋 없음.
+ 
+-
++- **REVIEW100-K1-1029 / Codex K1 / 오프라인 검증·인계 완료** — worktree K1만: 다이아 바벨·낙토·태공·천기·식선·화룡·여래장·하멜른, 보존식23, J1 상위3건(숙련저장/수송신선도/흙 문구). 소유 해당 기능 partial·Buildings/FarmPlot/Kitchen/BuildingBase/BuildingConstructionSite/Decoration·Core/FoodLots/CampaignResearch/ColonyPopulation·World/Critter/ResourceNode/Diplomacy/ExpeditionTransport·SaveDtos/Snapshot/Preflight 및 관련 검사/문서. SaveConstruction·Boss/*·AirshipYard*·FormationDamage·ColonyInvasion·CommanderAnt 전투부 수정 금지. Claude/J1 미커밋 기준선 보존·Unity 조작/캡처/커밋 없음.
++
++- K1: 12항목(다이아8+23+J1상3) 구현, 실제DLL87검사·게임/검사 컴파일 오류0. 저장22, 금지파일 보존. Unity실행/실저장복원/UI 육안/원본병합은 Claude 잔여. 파일목록·패치구분: docs/HANDOFF-CODEX-K1-1029.md.
+diff --git a/docs/validation/K1-1029-offline.txt b/docs/validation/K1-1029-offline.txt
+new file mode 100644
+--- /dev/null
++++ b/docs/validation/K1-1029-offline.txt
+@@ -0,0 +1,36 @@
++Assets\_Project\Scripts\Map\MapGenerator.cs(179,56): warning CS0618: 'FindObjectsSortMode' is obsolete: 'FindObjectsSortMode has been deprecated. Use the FindObjectsByType overloads that do not take a FindObjectsSortMode parameter.'
++Assets\_Project\Scripts\Map\MapGenerator.cs(179,24): warning CS0618: 'Object.FindObjectsByType<T>(FindObjectsSortMode)' is obsolete: 'FindObjectsByType with FindObjectsSortMode parameter has been deprecated. Use FindObjectsByType<T>() or FindObjectsByType<T>(FindObjectsInactive) instead. InstanceID will be replaced in the future with EntityId and previous sort order cannot be maintained.'
++Assets\_Project\Scripts\Buildings\BuildingConstructionSite.cs(33,155): warning CS0252: Possible unintended reference comparison; to get a value comparison, cast the left hand side to type 'Object'
++Assets\_Project\Scripts\Buildings\SupplyBuildingTemplates.cs(31,99): warning CS0618: 'FindObjectsSortMode' is obsolete: 'FindObjectsSortMode has been deprecated. Use the FindObjectsByType overloads that do not take a FindObjectsSortMode parameter.'
++Assets\_Project\Scripts\Buildings\SupplyBuildingTemplates.cs(31,31): warning CS0618: 'Object.FindObjectsByType<T>(FindObjectsInactive, FindObjectsSortMode)' is obsolete: 'FindObjectsByType with FindObjectsSortMode parameter has been deprecated. Use FindObjectsByType<T>() or FindObjectsByType<T>(FindObjectsInactive) instead. InstanceID will be replaced in the future with EntityId and previous sort order cannot be maintained.'
++Assets\_Project\Scripts\Buildings\BuildingConstructionSite.cs(120,71): warning CS0252: Possible unintended reference comparison; to get a value comparison, cast the left hand side to type 'Object'
++Assets\_Project\Scripts\Core\ScienceEffects.cs(52,116): warning CS0618: 'FindObjectsSortMode' is obsolete: 'FindObjectsSortMode has been deprecated. Use the FindObjectsByType overloads that do not take a FindObjectsSortMode parameter.'
++Assets\_Project\Scripts\Core\ScienceEffects.cs(52,69): warning CS0618: 'Object.FindObjectsByType<T>(FindObjectsSortMode)' is obsolete: 'FindObjectsByType with FindObjectsSortMode parameter has been deprecated. Use FindObjectsByType<T>() or FindObjectsByType<T>(FindObjectsInactive) instead. InstanceID will be replaced in the future with EntityId and previous sort order cannot be maintained.'
++Assets\_Project\Scripts\Core\SceneObjects.cs(57,102): warning CS0618: 'FindObjectsSortMode' is obsolete: 'FindObjectsSortMode has been deprecated. Use the FindObjectsByType overloads that do not take a FindObjectsSortMode parameter.'
++Assets\_Project\Scripts\Core\SceneObjects.cs(57,74): warning CS0618: 'Object.FindObjectsByType<T>(FindObjectsSortMode)' is obsolete: 'FindObjectsByType with FindObjectsSortMode parameter has been deprecated. Use FindObjectsByType<T>() or FindObjectsByType<T>(FindObjectsInactive) instead. InstanceID will be replaced in the future with EntityId and previous sort order cannot be maintained.'
++Assets\_Project\Scripts\Buildings\BuildingPlacementController.cs(498,111): warning CS0618: 'FindObjectsSortMode' is obsolete: 'FindObjectsSortMode has been deprecated. Use the FindObjectsByType overloads that do not take a FindObjectsSortMode parameter.'
++Assets\_Project\Scripts\Buildings\BuildingPlacementController.cs(498,34): warning CS0618: 'Object.FindObjectsByType<T>(FindObjectsInactive, FindObjectsSortMode)' is obsolete: 'FindObjectsByType with FindObjectsSortMode parameter has been deprecated. Use FindObjectsByType<T>() or FindObjectsByType<T>(FindObjectsInactive) instead. InstanceID will be replaced in the future with EntityId and previous sort order cannot be maintained.'
++Assets\_Project\Scripts\Buildings\BuildingPlacementController.cs(508,89): warning CS0618: 'FindObjectsSortMode' is obsolete: 'FindObjectsSortMode has been deprecated. Use the FindObjectsByType overloads that do not take a FindObjectsSortMode parameter.'
++Assets\_Project\Scripts\Buildings\BuildingPlacementController.cs(508,39): warning CS0618: 'Object.FindObjectsByType<T>(FindObjectsInactive, FindObjectsSortMode)' is obsolete: 'FindObjectsByType with FindObjectsSortMode parameter has been deprecated. Use FindObjectsByType<T>() or FindObjectsByType<T>(FindObjectsInactive) instead. InstanceID will be replaced in the future with EntityId and previous sort order cannot be maintained.'
++Assets\_Project\Scripts\Buildings\BuildingPlacementController.cs(519,89): warning CS0618: 'FindObjectsSortMode' is obsolete: 'FindObjectsSortMode has been deprecated. Use the FindObjectsByType overloads that do not take a FindObjectsSortMode parameter.'
++Assets\_Project\Scripts\Buildings\BuildingPlacementController.cs(519,39): warning CS0618: 'Object.FindObjectsByType<T>(FindObjectsInactive, FindObjectsSortMode)' is obsolete: 'FindObjectsByType with FindObjectsSortMode parameter has been deprecated. Use FindObjectsByType<T>() or FindObjectsByType<T>(FindObjectsInactive) instead. InstanceID will be replaced in the future with EntityId and previous sort order cannot be maintained.'
++Assets\_Project\Scripts\Buildings\BuildingPlacementController.cs(527,89): warning CS0618: 'FindObjectsSortMode' is obsolete: 'FindObjectsSortMode has been deprecated. Use the FindObjectsByType overloads that do not take a FindObjectsSortMode parameter.'
++Assets\_Project\Scripts\Buildings\BuildingPlacementController.cs(527,39): warning CS0618: 'Object.FindObjectsByType<T>(FindObjectsInactive, FindObjectsSortMode)' is obsolete: 'FindObjectsByType with FindObjectsSortMode parameter has been deprecated. Use FindObjectsByType<T>() or FindObjectsByType<T>(FindObjectsInactive) instead. InstanceID will be replaced in the future with EntityId and previous sort order cannot be maintained.'
++Assets\_Project\Scripts\UI\HudResponsiveLayout.cs(49,90): warning CS0618: 'FindObjectsSortMode' is obsolete: 'FindObjectsSortMode has been deprecated. Use the FindObjectsByType overloads that do not take a FindObjectsSortMode parameter.'
++Assets\_Project\Scripts\UI\HudResponsiveLayout.cs(49,28): warning CS0618: 'Object.FindObjectsByType<T>(FindObjectsInactive, FindObjectsSortMode)' is obsolete: 'FindObjectsByType with FindObjectsSortMode parameter has been deprecated. Use FindObjectsByType<T>() or FindObjectsByType<T>(FindObjectsInactive) instead. InstanceID will be replaced in the future with EntityId and previous sort order cannot be maintained.'
++Assets\_Project\Scripts\UI\HudResponsiveLayout.cs(52,85): warning CS0618: 'FindObjectsSortMode' is obsolete: 'FindObjectsSortMode has been deprecated. Use the FindObjectsByType overloads that do not take a FindObjectsSortMode parameter.'
++Assets\_Project\Scripts\UI\HudResponsiveLayout.cs(52,23): warning CS0618: 'Object.FindObjectsByType<T>(FindObjectsInactive, FindObjectsSortMode)' is obsolete: 'FindObjectsByType with FindObjectsSortMode parameter has been deprecated. Use FindObjectsByType<T>() or FindObjectsByType<T>(FindObjectsInactive) instead. InstanceID will be replaced in the future with EntityId and previous sort order cannot be maintained.'
++Assets\_Project\Scripts\Buildings\MineField.cs(11,94): warning CS0618: 'FindObjectsSortMode' is obsolete: 'FindObjectsSortMode has been deprecated. Use the FindObjectsByType overloads that do not take a FindObjectsSortMode parameter.'
++Assets\_Project\Scripts\Buildings\MineField.cs(11,36): warning CS0618: 'Object.FindObjectsByType<T>(FindObjectsInactive, FindObjectsSortMode)' is obsolete: 'FindObjectsByType with FindObjectsSortMode parameter has been deprecated. Use FindObjectsByType<T>() or FindObjectsByType<T>(FindObjectsInactive) instead. InstanceID will be replaced in the future with EntityId and previous sort order cannot be maintained.'
++Assets\_Project\Scripts\World\ColonyInvasion.cs(51,99): warning CS0618: 'FindObjectsSortMode' is obsolete: 'FindObjectsSortMode has been deprecated. Use the FindObjectsByType overloads that do not take a FindObjectsSortMode parameter.'
++Assets\_Project\Scripts\World\ColonyInvasion.cs(51,36): warning CS0618: 'Object.FindObjectsByType<T>(FindObjectsInactive, FindObjectsSortMode)' is obsolete: 'FindObjectsByType with FindObjectsSortMode parameter has been deprecated. Use FindObjectsByType<T>() or FindObjectsByType<T>(FindObjectsInactive) instead. InstanceID will be replaced in the future with EntityId and previous sort order cannot be maintained.'
++Assets\_Project\Scripts\UI\GameMenuRanch.cs(121,62): warning CS0618: 'FindObjectsSortMode' is obsolete: 'FindObjectsSortMode has been deprecated. Use the FindObjectsByType overloads that do not take a FindObjectsSortMode parameter.'
++Assets\_Project\Scripts\UI\GameMenuRanch.cs(121,37): warning CS0618: 'Object.FindObjectsByType<T>(FindObjectsSortMode)' is obsolete: 'FindObjectsByType with FindObjectsSortMode parameter has been deprecated. Use FindObjectsByType<T>() or FindObjectsByType<T>(FindObjectsInactive) instead. InstanceID will be replaced in the future with EntityId and previous sort order cannot be maintained.'
++Assets\_Project\Scripts\UI\GameMenuRanch.cs(167,56): warning CS0618: 'FindObjectsSortMode' is obsolete: 'FindObjectsSortMode has been deprecated. Use the FindObjectsByType overloads that do not take a FindObjectsSortMode parameter.'
++Assets\_Project\Scripts\UI\GameMenuRanch.cs(167,27): warning CS0618: 'Object.FindObjectsByType<T>(FindObjectsSortMode)' is obsolete: 'FindObjectsByType with FindObjectsSortMode parameter has been deprecated. Use FindObjectsByType<T>() or FindObjectsByType<T>(FindObjectsInactive) instead. InstanceID will be replaced in the future with EntityId and previous sort order cannot be maintained.'
++Assets\_Project\Scripts\UI\GameMenuRanchBulk.cs(92,49): warning CS0618: 'FindObjectsSortMode' is obsolete: 'FindObjectsSortMode has been deprecated. Use the FindObjectsByType overloads that do not take a FindObjectsSortMode parameter.'
++Assets\_Project\Scripts\UI\GameMenuRanchBulk.cs(92,24): warning CS0618: 'Object.FindObjectsByType<T>(FindObjectsSortMode)' is obsolete: 'FindObjectsByType with FindObjectsSortMode parameter has been deprecated. Use FindObjectsByType<T>() or FindObjectsByType<T>(FindObjectsInactive) instead. InstanceID will be replaced in the future with EntityId and previous sort order cannot be maintained.'
++Game compile PASS; missing external sources copied read-only from original into K1 Temp: 43
++Editor checks compile PASS (execution requires isolated game scene)
++AgentScripts\Review1029K1Checks.cs(15,41): warning SYSLIB0050: 'FormatterServices'은(는) 사용되지 않습니다. 'Formatter-based serialization is obsolete and should not be used.' (https://aka.ms/dotnet-warnings/SYSLIB0050)
++Review1029K1: PASS 87 (actual game DLL; Unity scene/save roundtrip/UI not executed)

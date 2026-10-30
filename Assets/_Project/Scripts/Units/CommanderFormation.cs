@@ -85,8 +85,8 @@ namespace AntColony.Units
         public float EffectiveAttackRange => AttackRange;
         public float EffectiveAttackInterval => AttackInterval;
         public float FormationWorldMoveMultiplier => 1 + FormationRules.Modifiers(SelectedFormation, HasLegion).WorldMove;
-        protected override float AttackRange => base.AttackRange * (1 + FormationEffect().Range);
-        protected override float AttackInterval => base.AttackInterval / (1 + FormationEffect().AttackSpeed);
+        protected override float AttackRange => base.AttackRange * (1 + FormationEffect().Range) * PierceRangeMultiplier;
+        protected override float AttackInterval => base.AttackInterval / (1 + FormationEffect().AttackSpeed) / WrathFactor;
         public void TakeFormationDamage(float amount, Vector3? source, bool ranged, bool area, float reduction = 0)
         {
             var m = FormationEffect();

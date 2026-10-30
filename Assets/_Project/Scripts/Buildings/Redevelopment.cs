@@ -42,15 +42,18 @@ namespace AntColony.Buildings
             var pop = ColonyPopulation.Instance;
             float admin = pop != null ? pop.Administration : 0f, level = pop != null ? pop.S.redevelopCompensation : 1f;
             var q = new Quote { target = target, residents = Residents(target) };
-            q.food = Mathf.CeilToInt(data.foodCost * GameBalance.RedevelopCostShare);
-            q.soil = Mathf.CeilToInt(data.soilCost * GameBalance.RedevelopCostShare);
-            q.special = Mathf.CeilToInt(data.specialCost * GameBalance.RedevelopCostShare);
+            q.food = DiscountedCost(data.foodCost);
+            q.soil = DiscountedCost(data.soilCost);
+            q.special = DiscountedCost(data.specialCost);
             var paid = q.residents * level * (1f - GameBalance.AdminCompensationRelief * admin);
             q.compensationFood = Mathf.CeilToInt(paid * GameBalance.RedevelopFoodPerResident);
             q.compensationSoil = Mathf.CeilToInt(paid * GameBalance.RedevelopSoilPerResident);
             q.sentiment = -q.residents * GameBalance.RedevelopUnrestPerResident * Mathf.Max(0f, 1f - level) * (1f - GameBalance.AdminRedevelopRelief * admin);
             return q;
         }
+
+        // float의 200×0.6=120.00001 때문에 정수 비용을 121로 올리지 않는다.
+        internal static int DiscountedCost(int cost) => (int)decimal.Ceiling(cost * (decimal)GameBalance.RedevelopCostShare);
 
         public static string Describe(Quote q)
         {

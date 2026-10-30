@@ -11,7 +11,8 @@ namespace AntColony.Units
         public int CarriedRationMeals => (PersonalState.carriedRations?.Total ?? 0) / RationPortion;
         public float StartingLoadWeight => (PersonalState.carriedRations?.Total ?? 0) * .05f + (Weapon != null ? 1 : 0)
             + (PersonalState.toolTier > 0 ? 1.5f : 0) + (string.IsNullOrEmpty(PersonalState.ordinaryClothes) ? 0 : .5f); // 무게 잠정. 가장 약한 시작 장수도 7일분을 소지한다.
-        public float TotalLoadCapacity => (GameBalance.CarryBase + Talents.Level(CommanderActivity.Strength) * GameBalance.CarryPerStrength) * Traits.CarryMultiplier;
+        public float TotalLoadCapacity => (GameBalance.CarryBase + Talents.Level(CommanderActivity.Strength) * GameBalance.CarryPerStrength) * Traits.CarryMultiplier
+            * (Traits.Has(CommanderTrait.DiamondStrength) ? 5 : 1); // 다이아 역발산: 근력·기본 보정 뒤 운반 한도 ×5(무게 감속 규칙은 현재 없음)
 
         private void TickCarriedSupplies(float seconds)
         {

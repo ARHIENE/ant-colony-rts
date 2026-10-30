@@ -14,7 +14,7 @@ namespace AntColony.Buildings
             var group = pop.S.civilianLocations.Find(l => l.id == groupId);
             if (group == null || group.moving || !group.arrived || Vector3.Distance(group.position, Position) > 8) return 0;
             int young = pop.S.young, old = pop.S.old;
-            int boarded = pop.TakeArrivedCivilians(groupId, Capacity - OccupiedSeats);
+            int boarded = pop.TakeArrivedCivilians(groupId, Mathf.Max(0, Capacity - OccupiedSeats - (HasLaunchCommander ? 0 : 1)));
             state.civilianPassengers += boarded;
             state.civilianYoung += young - pop.S.young;
             state.civilianOld += old - pop.S.old;

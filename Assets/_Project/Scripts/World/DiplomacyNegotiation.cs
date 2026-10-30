@@ -243,7 +243,7 @@ namespace AntColony.World
         { TalkKind.Trade => "거래", TalkKind.Demand => "요구", TalkKind.TreatyOffer => "협정 제안", TalkKind.AidRequest => "원조 요청", _ => "공물 요구" };
         public static string Summary(TradeOffer o)
         {
-            string[] names = { "식량", "재료", "특수" };
+            string[] names = { "식량", "흙", "특수" };
             var parts = Enumerable.Range(0, 3).Where(i => o.resources[i] > 0).Select(i => names[i] + " " + o.resources[i]).ToList();
             if (o.equipment.Count > 0) parts.Add("장비 " + o.equipment.Count);
             if (o.prisoners.Count > 0) parts.Add("장수 " + o.prisoners.Count);

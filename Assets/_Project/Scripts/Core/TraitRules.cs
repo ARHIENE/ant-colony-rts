@@ -46,6 +46,7 @@ namespace AntColony.Core
             [CommanderTrait.CannotBuild] = "건설 불가", [CommanderTrait.CannotGather] = "채집 불가", [CommanderTrait.CannotResearch] = "연구 불가", [CommanderTrait.CannotNurse] = "간호 불가",
             [CommanderTrait.CannotCook] = "요리 불가", [CommanderTrait.Uncultured] = "무교양", [CommanderTrait.Pacifist] = "평화주의", [CommanderTrait.Chef] = "요리사",
             [CommanderTrait.Gourmet] = "미식가", [CommanderTrait.DullTaste] = "무딘 미각", [CommanderTrait.KitchenMenace] = "주방 테러범", [CommanderTrait.IronStomach] = "강철 위장", [CommanderTrait.SlowEater] = "느긋한 식사",
+            [CommanderTrait.DiamondDoubleStrike] = "무간", [CommanderTrait.DiamondArmorBreak] = "참경", [CommanderTrait.DiamondWrath] = "역린", [CommanderTrait.DiamondPierce] = "엑스텐",
         };
         public static string Name(CommanderTrait t) => Specialty(t) < 0 ? t == CommanderTrait.Legion ? "레기온" : Korean.TryGetValue(t, out var ko) ? ko : t.ToString()
             : Grade(t) == TraitGrade.Diamond ? diamonds[Specialty(t)] : "전문성: " + (Specialty(t) < activities.Length ? StartingCandidate.SkillName(activities[Specialty(t)]) : "조사");

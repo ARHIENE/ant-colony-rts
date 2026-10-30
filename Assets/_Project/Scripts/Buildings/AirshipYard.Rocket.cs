@@ -20,6 +20,7 @@ namespace AntColony.Buildings
         public int Capacity => BaseSeats + SeatsPerModule * Cocoons;
         public int CivilianPassengers => state.civilianPassengers;
         public int OccupiedSeats => CivilianPassengers + passengers.Where(c => c != null && !c.IsDead).Sum(c => 1 + c.TroopCount);
+        public bool HasLaunchCommander => passengers.Any(c => CampaignOutcome.Survivor(c) && c.IsEmbarked);
         public ReserveRequirement[] ActivationReserves => new[] { new ReserveRequirement(FuelResource, FuelUnitsPerDay * FinalBattleEconomy.DefenseDays) };
         public int LoadedFuel(AntColony.Data.ResourceType type) => state.fuelType == (int)type ? state.fuelUnits : 0;
         public float PreparationRemaining => state.preparationRemaining;
@@ -55,7 +56,7 @@ namespace AntColony.Buildings
                 || Demolition.Pending(this) || campaign == null || CampaignResearch.Instance == null
                 || CampaignResearch.Instance.Departed || RocketCampaign.Operating || !RocketCampaign.AssaultAvailable) return false;
             var snapshot = campaign.Economy.Preview(GameCalendar.GameSeconds, currentWealth, currentPopulation);
-            if (snapshot == null) return false;
+            if (snapshot == null || !CampaignResearch.Instance.BossProgress.TryConsumeRocketCore()) return false;
             state.snapshot = snapshot;
             state.preparationRemaining = PreparationSeconds;
             state.phase = RocketPhase.Preparing;
@@ -75,7 +76,7 @@ namespace AntColony.Buildings
             if (!state.launchRequested) return;
             state.launchRequested = false;
             var research = CampaignResearch.Instance;
-            if (!isActiveAndEnabled || IsDead || Phase != RocketPhase.Boarding || OccupiedSeats == 0
+            if (!isActiveAndEnabled || IsDead || Phase != RocketPhase.Boarding || !HasLaunchCommander
                 || research == null || research.Departed) return;
             RocketCampaign.Instance?.RecordEnding(this);
             state.phase = RocketPhase.Launched;
@@ -84,9 +85,11 @@ namespace AntColony.Buildings
         protected override void Die()
         {
             if (Operating) RocketCampaign.Instance?.RocketDestroyed();
+            RecordDestruction();
             state.phase = RocketPhase.Destroyed;
             state.launchRequested = false;
-            Unload();
+            DestroyPassengers();
+            if (HasFoundation) return;
             base.Die();
         }
     }

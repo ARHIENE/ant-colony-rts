@@ -13,6 +13,7 @@ namespace AntColony.World
     {
         [Serializable] public sealed class State
         {
+            public List<ArtworkRetry> artworkRetries = new List<ArtworkRetry>();
             public List<Civilization> civilizations = new List<Civilization>();
             public List<Civilization> markets = new List<Civilization>();
             public List<string> owners = new List<string>();
@@ -23,6 +24,8 @@ namespace AntColony.World
             public List<RebelMember> rebelMembers = new List<RebelMember>();
             public List<Negotiation> talks = new List<Negotiation>();
             public List<Homecoming> homecomings = new List<Homecoming>();
+            public bool homecomingEntrySet; // 구저장 false: 기존 본거지 경계 진입
+            public Vector3 homecomingEntry;
             public List<Seizure> seizures = new List<Seizure>();
             public List<string> reputation = new List<string>();
             public int trust, threat, nextTalk;
@@ -264,8 +267,9 @@ namespace AntColony.World
         }
         public static bool Validate(State s, int sites)
         {
+            if (s != null && !ValidArtwork(s)) return false;
             bool Finite(float f) => f >= 0 && !float.IsNaN(f) && !float.IsInfinity(f);
-            if (s == null || s.civilizations == null || s.civilizations.Count < 4 || s.civilizations.Count > 100
+            if (s == null || !ValidHomecomingEntry(s) || s.civilizations == null || s.civilizations.Count < 4 || s.civilizations.Count > 100
                 || s.owners == null || s.owners.Count != sites || !Finite(s.elapsed) || !Finite(s.nextMonth) || !Finite(s.caravanUntil)
                 || s.blueprintSite < -1 || s.blueprintSite >= sites || s.extraSites < 0 || s.extraSites > 100
                 || s.markets == null || s.markets.Count > 4 || s.rebelMembers == null || s.rebelMembers.Count > 1000) return false;

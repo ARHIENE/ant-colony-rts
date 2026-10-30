@@ -15,6 +15,11 @@ namespace AntColony.Units
         private static CommanderAnt[] SocialRoster => CommanderRoster.Instance != null
             ? CommanderRoster.Instance.Commanders.ToArray() : Active.OfType<CommanderAnt>().ToArray();
         public bool IsFriend(CommanderAnt other) => other != null && personalState.relations.Exists(r => r.otherId == other.personalState.id && r.value >= SocialRules.Friend);
+        // 검토58: 살아 있는 정착지 배우자가 따로 있으면 다른 상대와는 연인·출산이 성립하지 않는다(배우자 사망·이탈 시 해소).
+        public bool HasOtherSpouse(CommanderAnt other) => personalState.relations.Exists(r => r.spouse && r.otherId != other?.personalState.id
+            && SocialRoster.Any(c => c.personalState.id == r.otherId && c.IsColonyMember)) || InMourning;
+        // 기획 공백(2026-10-29): 배우자가 죽으면 1계절 동안 새 연인·출산이 성립하지 않는다(잠정).
+        public bool InMourning => personalState.relations.Exists(r => r.spouse && r.widowedAt >= 0 && GameCalendar.GameSeconds - r.widowedAt < GameCalendar.SecondsPerSeason);
         private bool MutualFriend(CommanderAnt other) => IsFriend(other) && other.IsFriend(this);
 
         // ponytail: 장수 수십 명 규모의 상호 친구 집단을 직접 검색한다. 대규모 명부가 되면 관계 변경 시 캐시한다.
@@ -68,6 +73,7 @@ namespace AntColony.Units
             if (personalState.deathEvents.Contains(id)) return false;
             personalState.deathEvents.Add(id);
             var relation = personalState.relations.Find(r => r.otherId == id);
+            if (relation?.spouse == true) relation.widowedAt = GameCalendar.GameSeconds;
             personalState.AddMood("DeathEvent:" + id, relation?.spouse == true ? -30 : relation?.value >= SocialRules.Friend ? -15 : -10, GameCalendar.SecondsPerDay * 2);
             return true;
         }
@@ -76,14 +82,15 @@ namespace AntColony.Units
             foreach (var c in SocialRoster.Where(c => c != this && c.IsColonyMember))
             {
                 if (fatal && !c.RecordDeathMood(personalState.id, commanderName)) continue;
-                if (c.IsFriend(this)) c.StartRevenge(fatal);
+                if (fatal) c.TryWrath(Position);
+                if (c.IsFriend(this)) c.StartRevenge(Position, fatal);
             }
         }
         public void OnCaptured()
         {
             personalState.captiveSeconds = personalState.unsupportedSeconds = 0;
             Social.captiveDebt = 0;
-            foreach (var c in SocialRoster.Where(c => c != this && c.IsColonyMember && c.IsFriend(this))) c.StartRevenge();
+            foreach (var c in SocialRoster.Where(c => c != this && c.IsColonyMember && c.IsFriend(this))) c.StartRevenge(Position);
         }
         public void TickCaptivity(float seconds)
         {
@@ -107,9 +114,10 @@ namespace AntColony.Units
                 ChangeEventTrait(CommanderTrait.ColdBlooded, CommanderTrait.Sociable);
             personalState.captiveSeconds = personalState.unsupportedSeconds = 0;
         }
-        private void StartRevenge(bool additionalDeath = false)
+        // 검토59: 쓰러진/잡힌 친구와 같은 전장에 있을 때만 분노한다(본거지에서 일하던 친구가 멈추지 않게).
+        private void StartRevenge(Vector3 place, bool additionalDeath = false)
         {
-            if (!isActiveAndEnabled || IsCaptive || IsEmbarked || IsDeparting || !HasTroops) return;
+            if (!isActiveAndEnabled || IsCaptive || IsEmbarked || IsDeparting || !HasTroops || !SameBattlefield(place)) return;
             InterruptPersonalWork();
             personalState.rageRemaining = personalState.rageRemaining > 0
                 ? Mathf.Min(120, personalState.rageRemaining + (additionalDeath ? 20 : 0))

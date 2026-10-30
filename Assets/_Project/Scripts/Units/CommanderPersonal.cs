@@ -19,11 +19,11 @@ namespace AntColony.Units
             && CraftingWorkshop == null && !personalState.treating && personalState.mentalBreak == MentalBreak.None;
         public bool HasTrinket(TrinketEffect effect) => personalState.equipment.Exists(e => e.slot == EquipmentSlot.Trinket && e.effect == effect);
         public float EquipmentBonus(EquipmentSlot slot) => slot == EquipmentSlot.Weapon
-            ? (Weapon != null && (Weapon.weapon == WeaponKind.Mandible || Weapon.weapon == WeaponKind.AcidSprayer) ? Weapon.quality + 1 : 0)
-            : (EquippedArmor?.armor == ArmorKind.Coating ? EquippedArmor.quality + 1 : 0)
-                + (Weapon?.weapon == WeaponKind.Shield ? 2 * (Weapon.quality + 1) : 0);
+            ? (Weapon != null && (Weapon.weapon == WeaponKind.Mandible || Weapon.weapon == WeaponKind.AcidSprayer) ? Weapon.Power : 0)
+            : (EquippedArmor?.armor == ArmorKind.Coating ? EquippedArmor.Power : 0)
+                + (Weapon?.weapon == WeaponKind.Shield ? 2 * Weapon.Power : 0);
         protected override float WorkSpeed => WorkRate(ConstructionTarget != null && ConstructionTarget.IsArt ? CommanderActivity.Art : CommanderActivity.Building);
-        protected override float MovementSpeed => base.MovementSpeed * (traits.MoveMultiplier + TrinketBonus(TrinketEffect.Move) + FormationEffect().Move) * AgeMoveMultiplier * BiomeRules.MoveAt(AntColony.Buildings.RoomSystem.IsIndoors(Position)) * AntColony.Map.WeatherSystem.MoveAt(AntColony.Buildings.RoomSystem.IsIndoors(Position)) * (AntColony.Map.MapGenerator.InWater(Position) ? AntColony.Map.MapGenerator.WaterMoveMultiplier : 1f)
+        protected override float MovementSpeed => WrathFactor * base.MovementSpeed * (traits.MoveMultiplier + TrinketBonus(TrinketEffect.Move) + FormationEffect().Move) * AgeMoveMultiplier * BiomeRules.MoveAt(AntColony.Buildings.RoomSystem.IsIndoors(Position)) * AntColony.Map.WeatherSystem.MoveAt(AntColony.Buildings.RoomSystem.IsIndoors(Position)) * (AntColony.Map.MapGenerator.InWater(Position) ? AntColony.Map.MapGenerator.WaterMoveMultiplier : 1f)
             * (1f - .3f * personalState.Severity(InjuryPart.Legs))
             * (Weapon?.weapon == WeaponKind.Shield ? .9f : 1f) * (IsFlying ? 1f + .05f * EquippedArmor.quality : 1f)
             * AntColony.World.ColonyEvents.MoveMultiplier(this) * (Social.rallyRemaining > 0 ? 1.3f : 1f) * (AntColony.Buildings.FloorTile.At(Position) ? GameBalance.FloorMoveMultiplier : 1f) * AnimalCarryMultiplier * AntColony.World.ExpeditionWithdraw.CarryMultiplier(this);
@@ -103,8 +103,8 @@ namespace AntColony.Units
                 while (talents.combatSeconds >= 10)
                 {
                     talents.combatSeconds -= 10;
-                    if (CombatActivity != CommanderActivity.Command) GainExperience(CombatActivity, 2);
-                    GainExperience(CommanderActivity.Command, 2);
+                    if (CombatActivity != CommanderActivity.Command) GainExperience(CombatActivity, CommanderProgression.CombatXpPer10Seconds);
+                    GainExperience(CommanderActivity.Command, CommanderProgression.CombatXpPer10Seconds);
                 }
             }
             if (TreatmentFacility != null && (!TreatmentFacility.IsTreating(this) || WorkPriorities.Red && !personalState.health.Downed)) TreatmentFacility.Release(this); // 빨간 경보: 움직일 수 있으면 병상에서 나온다
@@ -139,9 +139,7 @@ namespace AntColony.Units
             personalState.breakCheck += seconds;
             if (personalState.breakCheck < 60) return;
             personalState.breakCheck %= 60;
-            var mood = Mood + (traits.Has(CommanderTrait.IronWill) ? 10 : traits.Has(CommanderTrait.Fragile) ? -10 : 0);
-            var chance = mood <= 5 ? .4f : mood <= 20 ? .15f : mood <= 35 ? .05f : 0;
-            if (Random.value >= chance) return;
+            if (Random.value >= BreakChance) return;
             var choices = new System.Collections.Generic.List<MentalBreak> { MentalBreak.Idle, MentalBreak.Flee,
                 MentalBreak.AttackBuilding, MentalBreak.AttackCommander, MentalBreak.SelfHarm, MentalBreak.Binge };
             if (traits.Has(CommanderTrait.Coward) || traits.Has(CommanderTrait.Cautious)) choices.AddRange(new[] { MentalBreak.Idle, MentalBreak.Flee, MentalBreak.Flee });
@@ -149,6 +147,15 @@ namespace AntColony.Units
             if (traits.Has(CommanderTrait.Loyal) || traits.Has(CommanderTrait.Ascetic)) choices.AddRange(new[] { MentalBreak.SelfHarm, MentalBreak.SelfHarm });
             if (traits.Has(CommanderTrait.Glutton)) choices.AddRange(new[] { MentalBreak.Binge, MentalBreak.Binge });
             StartMentalBreak(choices[Random.Range(0, choices.Count)]);
+        }
+        // 분당 정신 붕괴 확률(기분 경고에도 같은 값을 보여 준다).
+        public float BreakChance
+        {
+            get
+            {
+                var mood = Mood + (traits.Has(CommanderTrait.IronWill) ? 10 : traits.Has(CommanderTrait.Fragile) ? -10 : 0);
+                return mood <= 5 ? .4f : mood <= 20 ? .15f : mood <= 35 ? .05f : 0;
+            }
         }
         public void StartMentalBreak(MentalBreak kind)
         {
@@ -271,9 +278,11 @@ namespace AntColony.Units
                 bool workingTogether = distance <= 64 && CurrentActivity == other.CurrentActivity
                     && (IsWorking || LabUpgradeBusy) && (other.IsWorking || other.LabUpgradeBusy);
                 bool fightingTogether = distance <= 64 && Social.combatSeen && other.Social.combatSeen && personalState.lastCombatSeconds < 30 && other.personalState.lastCombatSeconds < 30;
-                if (workingTogether || fightingTogether)
+                // 기획 공백(2026-10-29): 같이 먹거나 같이 노는 시간도 공동 경험으로 인정하되 작업·전투의 절반 속도(잠정).
+                bool restingTogether = distance <= 64 && (IsEating && other.IsEating || IsPlaying && other.IsPlaying);
+                if (workingTogether || fightingTogether || restingTogether)
                 {
-                    relation.nearbySeconds += seconds;
+                    relation.nearbySeconds += workingTogether || fightingTogether ? seconds : seconds * .5f;
                     while (relation.nearbySeconds >= 60)
                     {
                         relation.nearbySeconds -= 60;

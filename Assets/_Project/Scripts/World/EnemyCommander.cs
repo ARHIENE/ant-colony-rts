@@ -56,6 +56,7 @@ namespace AntColony.World
             {
                 WasCaptured = true;
                 if (!string.IsNullOrEmpty(InvestigationId)) camp.Prisoners[camp.Count - 1].PersonalState.id = InvestigationId;
+                if (WorldMapManager.Instance != null && System.Linq.Enumerable.Any(WorldMapManager.Instance.Assessment.Reports, r => r.target == InvestigationId && r.interested)) AntColony.UI.ToastManager.Show($"관심 인재 {commanderName}을(를) 포로로 잡았습니다 — 포로 수용소에서 회유할 수 있습니다.");
                 camp.Prisoners[camp.Count - 1].PersonalState.originFaction = GetComponentInParent<ExpeditionSite>()?.Faction ?? "Local enemy";
                 DiplomacyManager.Instance?.Seized(camp.Prisoners[camp.Count - 1], camp.transform.position);
             }

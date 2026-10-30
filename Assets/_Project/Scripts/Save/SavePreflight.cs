@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using AntColony.Buildings;
@@ -32,7 +32,7 @@ namespace AntColony.Save
             if (d == null) return;
             Check(V(d.rootPosition) && N(d.waveTimer) && N(d.economyTimer) && d.waveIndex >= 0, "enemy colony");
             L(d.nodes, 10000, "enemy colony nodes");
-            Check(d.nodes.All(n => n != null && n.key != null && N(n.amount) && N(n.regrowTimer) && N(n.sowRemaining) && ValidNaturalWork(n) && V(n.position)
+            Check(d.nodes.All(n => n != null && n.key != null && N(n.amount) && N(n.regrowTimer) && N(n.sowRemaining) && N(n.rebirthTimer) && n.rebirthTimer <= AntColony.World.ResourceNode.RebirthSeconds && N(n.rebirthPeak) && ValidNaturalWork(n) && V(n.position)
                 && Enum.IsDefined(typeof(ResourceType), n.type)), "enemy colony resource data");
             L(d.buildingHealth, 10000, "enemy buildings"); L(d.extraBuildings, 10000, "building positions");
             Check(d.buildingHealth.Count == d.extraBuildings.Count && d.buildingHealth.All(N) && d.extraBuildings.All(V), "enemy building data");
@@ -58,6 +58,7 @@ namespace AntColony.Save
                 foreach (var item in f.equipmentInventory) Check(item != null && item.IsValid && equipmentIds.Add(item.id), "inventory item");
                 L(f.equipmentLoot, 10000, "equipment loot");
                 L(f.corpses, 10000, "corpses");
+                Check(SaveAttribution.Valid(f.constructionAttribution, f.construction), "construction attribution");
                 Check(SaveConstruction.Valid(f.construction), "construction sites");
                 var corpseWorkers = new HashSet<string>();
                 foreach (var corpse in f.corpses)
@@ -82,6 +83,7 @@ namespace AntColony.Save
                 }
                 var personalIds = new HashSet<string>();
                 Check(World.DiplomacyManager.Validate(f.diplomacy, f.world.sites.Count), "diplomacy");
+                Check(f.campaign?.politicalPresence == null || f.campaign.politicalPresence.All(p => p.site < f.world.sites.Count), "political settlement");
                 foreach (var faction in f.diplomacy.civilizations.Concat(f.diplomacy.markets))
                 {
                     foreach (var item in faction.equipment) Check(equipmentIds.Add(item.id), "diplomatic equipment ownership");
@@ -130,6 +132,7 @@ namespace AntColony.Save
                 foreach (var b in f.buildings)
                 {
                     Check(b.workforce >= 0 && N(b.repairCredit) && b.repairCredit <= 100000000
+                        && BabelState.Valid(b.babel) && (b.artistId == null || b.artistId.Length <= 1000)
                         && b.decorationQuality >= 0 && b.decorationQuality <= 3 && Kitchen.Valid(b.kitchen), "workforce/repair/kitchen/decoration");
                     Check(b.key != null && V(b.position) && N(b.health) && !float.IsNaN(b.rotationY) && !float.IsInfinity(b.rotationY), "building");
                     Check(N(b.powerFuelSeconds) && b.powerFuelSeconds <= Core.GameBalance.WoodBurnSeconds, "power fuel");
@@ -167,7 +170,8 @@ namespace AntColony.Save
                         && f.commanders[w.crafter].location == 0 && f.commanders[w.crafter].activeInScene
                         && !f.commanders[w.crafter].personalState.dead && f.commanders[w.crafter].personalState.mentalBreak == MentalBreak.None, "crafter ownership");
                     Check(N(b.trapBroken) && N(b.trapRepair) && b.trapRepair <= Core.GameBalance.TrapRepairSeconds
-                        && Enum.IsDefined(typeof(FarmCrop), b.crop), "trap/farm state");
+                        && Enum.IsDefined(typeof(FarmCrop), b.crop) && (b.farm?.diamondCycle == null || b.farm.diamondCycle.Valid)
+                        && (b.farm?.diamondReason == null || b.farm.diamondReason.Length <= 1000), "trap/farm state");
                     L(b.patients, Infirmary.Capacity, "infirmary patients");
                     foreach (var id in b.patients) Check(b.kind == "Infirmary" && b.health > 0 && id >= 0 && id < f.commanders.Count
                         && targets.Add(id) && f.commanders[id].location == 0 && f.commanders[id].activeInScene
@@ -199,7 +203,7 @@ namespace AntColony.Save
                 Check(f.world.defenseReturn == null || f.world.defenseReturn.disabled != null && f.world.defenseReturn.disabled.Count <= 10000 && f.world.defenseReturn.disabled.All(id => !string.IsNullOrEmpty(id)), "defense return");
                 for (var i = 0; i < f.world.transports.Count; i++)
                 {
-                    var s = f.world.transports[i]; Check(s != null && s.state >= 0 && s.state <= 3 && N(s.remaining) && s.siteIndex >= -1 && s.siteIndex < f.world.sites.Count
+                    var s = f.world.transports[i]; Check(s != null && World.ExpeditionTransport.ValidFoodAmounts(s), "cargo freshness"); Check(s != null && s.state >= 0 && s.state <= 3 && N(s.remaining) && s.siteIndex >= -1 && s.siteIndex < f.world.sites.Count
                         && V(s.position) && V(s.homePosition) && s.cargoFood >= 0 && s.cargoSoil >= 0 && s.cargoSpecial >= 0, "transport");
                     Check(s.state == 0 || s.siteIndex >= 0, "transport destination");
                     L(s.equipmentCargo, 10000, "equipment cargo");
@@ -214,8 +218,13 @@ namespace AntColony.Save
                 }
                 Check(f.nodes.All(n => n != null && n.key != null && N(n.amount) && N(n.regrowTimer) && N(n.sowRemaining) && ValidNaturalWork(n) && n.fishMonth >= -1 && V(n.position) && Enum.IsDefined(typeof(ResourceType), n.type))
                     && f.nodes.Select(n => n.key).Distinct().Count() == f.nodes.Count, "resource nodes");
-                Check(f.critters == null || f.critters.Count <= 1000 && f.critters.All(c => c != null && Enum.IsDefined(typeof(Buildings.Species), c.species) && N(c.health) && c.health > 0 && V(c.position) && (c.disease == null || c.disease.Valid)), "critters");
-                Check(f.monsters.All(m => m != null && m.key != null && N(m.health) && V(m.position)) && f.monsters.Select(m => m.key).Distinct().Count() == f.monsters.Count, "monsters");
+                Check(f.critters == null || f.critters.Count <= 1000 && f.critters.All(c => c != null && Enum.IsDefined(typeof(Buildings.Species), c.species) && N(c.health) && c.health > 0 && V(c.position) && (c.tamer == null || c.tamer.Valid) && (c.disease == null || c.disease.Valid)), "critters");
+                Check(f.monsters.All(m => m != null && m.key != null && N(m.health) && V(m.position)
+                    && AntColony.Boss.AoE.BossAoEState.Valid(m.circleAoE) && AntColony.Boss.AoE.BossAoEState.Valid(m.coneAoE)
+                    && AntColony.Boss.AoE.BossAoEState.Valid(m.lineAoE)
+                    && (!AntColony.Boss.AoE.BossAoEState.Present(m.circleAoE) && !AntColony.Boss.AoE.BossAoEState.Present(m.coneAoE) && !AntColony.Boss.AoE.BossAoEState.Present(m.lineAoE) || m.key.StartsWith("boss:") && m.health > 0)
+                    && AntColony.Boss.BossEncounter.Validate(m.bossEncounter) && (!AntColony.Boss.BossEncounter.Present(m.bossEncounter) || m.key.StartsWith("boss:")))
+                    && f.monsters.Select(m => m.key).Distinct().Count() == f.monsters.Count, "monsters");
                 foreach (var m in f.monsters) if (m.traits != null)
                 { Traits(m.traits); Check(m.talents != null && m.talents.Validate(), "enemy talents"); }
                 Check(f.monsters.All(m => string.IsNullOrEmpty(m.diplomaticFactionId) || f.diplomacy.civilizations.Any(c => c.id == m.diplomaticFactionId)), "enemy faction");

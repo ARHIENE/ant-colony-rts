@@ -15,23 +15,19 @@ namespace AntColony.UI
 
         public void ShowPrisoners(PrisonerCamp camp)
         {
-            if (camp == null || !camp.isActiveAndEnabled) { Resume(); return; }
-            if (prisonerPick == null || !camp.Prisoners.Contains(prisonerPick)) { prisonerPick = camp.Prisoners.FirstOrDefault(); releaseConfirm = executeConfirm = false; }
-            var window = V5Window("포로 수용소", $"정원 {camp.Count}/{camp.Capacity} · 경비 {(camp.Guarded ? "있음(탈출 시 제압 판정)" : "없음")} · 움직일 수 없는 포로는 탈출하지 않음");
+            if (camp != null && !camp.isActiveAndEnabled) camp = null;
+            if (camp == null || prisonerPick == null || !camp.Prisoners.Contains(prisonerPick)) { prisonerPick = camp?.Prisoners.FirstOrDefault(); releaseConfirm = executeConfirm = false; }
+            var window = V5Window("포로 수용소 · 안전 귀환", camp == null ? "수용소가 없어도 석방 장수의 안전 귀환을 관리할 수 있습니다."
+                : $"정원 {camp.Count}/{camp.Capacity} · 경비 {(camp.Guarded ? "있음(탈출 시 제압 판정)" : "없음")} · 움직일 수 없는 포로는 탈출하지 않음");
             content = V5Section(window, "포로", 20, 104, 420, 330);
-            if (camp.Count == 0) MenuTheme.Text(content, "수용 중인 포로가 없습니다.", 15, 30);
-            foreach (var p in camp.Prisoners.ToArray())
+            if (camp == null || camp.Count == 0) MenuTheme.Text(content, "수용 중인 포로가 없습니다.", 15, 30);
+            foreach (var p in camp?.Prisoners.ToArray() ?? new Prisoner[0])
             {
                 var pick = p; var h = p.PersonalState.health;
                 MenuTheme.Button(content, (p == prisonerPick ? "▶ " : "") + $"{p.Name} · {h?.Summary ?? "건강"} · 배고픔 {100 - p.PersonalState.meal.satiety:0}", () => { prisonerPick = pick; releaseConfirm = executeConfirm = false; ShowPrisoners(camp); });
             }
-            var dm = DiplomacyManager.Instance;
             content = V5Section(window, "귀환 중", 20, 446, 420, 202);
-            var returning = dm != null ? dm.Data.homecomings : null;
-            if (returning == null || returning.Count == 0) MenuTheme.Text(content, "귀환 중인 장수가 없습니다.", 15, 30);
-            else foreach (var r in returning)
-                    MenuTheme.Text(content, $"{r.commander?.Name} · {(string.IsNullOrEmpty(r.to) ? "우리 본거지로" : "상대 세력으로")} · 남은 {(r.arrive - dm.Data.elapsed) / GameCalendar.SecondsPerMonth:0.0}개월"
-                        + (r.gear.Count > 0 ? $" · 동반 장비 {r.gear.Count}" : ""), 14, 26);
+            HomecomingEntries();
 
             content = V5Section(window, prisonerPick == null ? "선택 없음" : prisonerPick.Name, 454, 104, 626, 544);
             if (prisonerPick == null) { V5Fit(window); return; }

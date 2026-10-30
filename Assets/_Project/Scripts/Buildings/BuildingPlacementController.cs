@@ -75,6 +75,7 @@ namespace AntColony.Buildings
             if (!Physics.Raycast(ray, out var hit, 1000f, groundMask, QueryTriggerInteraction.Ignore))
             {
                 SetPreviewVisible(false);
+                AntColony.UI.ToastManager.SetPinned("placement", null);
                 placementValid = false;
                 return;
             }
@@ -88,6 +89,7 @@ namespace AntColony.Buildings
                 && !(Housing.IsKind(pendingKind) && RoomSystem.IsIndoors(position))
                 && Reachable(hit.point) && UndergroundProduction.PlacementReason(pendingKind, position, moveTarget) == null;
             UpdatePreview(position, placementValid);
+            AntColony.UI.ToastManager.SetPinned("placement", placementValid ? null : "배치 불가: " + BlockReason(hit, position));
 
             // 연속 배치(2026-10-08): 좌클릭 = 1개 배치 후 종료, Shift+좌클릭 = 배치 후 선택 유지, Shift+드래그 = 한 줄 연속 배치.
             var shift = keyboard != null && keyboard.shiftKey.isPressed;
@@ -212,7 +214,7 @@ namespace AntColony.Buildings
             var building = template != null ? template.GetComponent<BuildingBase>() : null;
             if (commandBuilder && (!placementValid || builder == null || !builder.CanStartConstruction) || building == null || building.Data == null)
             {
-                PlacementFailed("Choose a reachable, clear and level construction site.");
+                PlacementFailed("평평하고 비어 있으며 장수가 갈 수 있는 자리를 고르세요.");
                 return null;
             }
 
@@ -363,8 +365,18 @@ namespace AntColony.Buildings
             FinishPlacementMode();
         }
 
+        // 검토96: 미리보기 빨강/초록 색만이 아니라 막힌 이유를 글로 함께 보여 준다.
+        private string BlockReason(RaycastHit hit, Vector3 position)
+        {
+            if (Vector3.Angle(hit.normal, Vector3.up) > maxGroundSlope || !AntColony.Map.MapGenerator.FlatAt(position, PlacementExtents())) return "땅이 평평하지 않습니다";
+            if (HasObstruction(position, moveTarget != null ? moveTarget : redevelopTarget)) return "다른 건물·물체가 자리를 막고 있습니다";
+            if (Housing.IsKind(pendingKind) && RoomSystem.IsIndoors(position)) return "주거는 방 밖에만 지을 수 있습니다";
+            if (!Reachable(hit.point)) return "장수가 걸어갈 수 없는 곳입니다";
+            return UndergroundProduction.PlacementReason(pendingKind, position, moveTarget) ?? "놓을 수 없는 자리입니다";
+        }
         private void FinishPlacementMode()
         {
+            AntColony.UI.ToastManager.SetPinned("placement", null);
             IsPlacing = false;
             builder = null;
             redevelopTarget = null;

@@ -39,6 +39,12 @@ namespace AntColony.Boss
         public int Home(BossId id) => state.home[(int)id];
         public int Tools(BossId id) => state.tools[(int)id];
         public int Cycle(BossId id) => state.cycle[(int)id];
+        public bool TryConsumeRocketCore()
+        {
+            if (!Delivered(BossId.D) || Home(BossId.D) < 1) return false;
+            state.home[(int)BossId.D]--;
+            return true;
+        }
         public float CraftRemaining => state.craftRemaining;
         public IReadOnlyList<Parcel> Cargo => state.cargo;
         public static bool Tradable => false;
