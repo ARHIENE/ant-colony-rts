@@ -322,6 +322,7 @@ namespace AntColony.Buildings
                 linePreviews[i].SetActive(i < cells.Count);
                 if (i >= cells.Count) continue;
                 linePreviews[i].transform.position = cells[i];
+                linePreviews[i].GetComponent<PlacementPreviewSymbol>().Refresh(valid[i]);
                 linePreviews[i].GetComponent<Renderer>().material.color = valid[i] ? new Color(0.2f, 0.9f, 0.3f, 0.65f) : new Color(0.9f, 0.2f, 0.2f, 0.65f);
             }
             if (mouse.leftButton.wasReleasedThisFrame) { PlaceLine(cells, valid, true); dragStart = null; foreach (var p in linePreviews) p.SetActive(false); }
@@ -569,6 +570,7 @@ namespace AntColony.Buildings
         {
             preview = GameObject.CreatePrimitive(PrimitiveType.Cube);
             preview.name = "BuildingPlacementPreview";
+            preview.AddComponent<PlacementPreviewSymbol>();
             preview.transform.localScale = template != null ? Vector3.Scale(template.transform.localScale, new Vector3(WidthFactor(pendingKind), 1, 1)) : Vector3.one;
             var collider = preview.GetComponent<Collider>();
             if (collider != null)
@@ -582,6 +584,7 @@ namespace AntColony.Buildings
         {
             SetPreviewVisible(true);
             preview.transform.position = position;
+            preview.GetComponent<PlacementPreviewSymbol>().Refresh(valid);
             var renderer = preview.GetComponent<Renderer>();
             if (renderer != null)
                 renderer.material.color = valid ? new Color(0.2f, 0.9f, 0.3f, 0.65f) : new Color(0.9f, 0.2f, 0.2f, 0.65f);

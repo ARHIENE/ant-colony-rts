@@ -25,6 +25,9 @@ namespace AntColony.UI
                 foreach (var p in CampaignResearch.Technologies[(int)t].Prerequisites) Visit(p);
             }
             Visit(target.Technology);
+            var tier = SceneObjects.All<ScienceLab>().Where(l => !l.IsDead && l.isActiveAndEnabled).Select(l => l.Tier).DefaultIfEmpty(1).Max();
+            var steps = r.Has(target.Technology) ? System.Array.Empty<int>() : ScienceLabUpgrades.Steps(tier, target.Tier).ToArray();
+            foreach (var step in steps) Visit(ScienceLabUpgrades.RequiredResearch(step));
             int food = 0, material = 0, special = 0; float work = 0;
             foreach (var t in remaining)
             {
@@ -34,7 +37,11 @@ namespace AntColony.UI
                 if (progress >= 0) continue; // 이미 지불한 진행/중단 연구는 다시 비용에 넣지 않는다.
                 food += d.Food; material += d.Soil; special += d.Special;
             }
-            return $"미완 선행 포함 {remaining.Count}개 · 추가 식량 {food} / 재료 {material} / Special {special}\n남은 연구량 {work:0} · 담당 인원/등급/생활 시간에 따라 소요 시간 변동\n연구소 승급·건설·표본/핵심물 확보 비용은 별도";
+            var upgrades = steps.SelectMany(ScienceLabUpgrades.Cost).GroupBy(c => c.type)
+                .Select(g => $"{g.Key.DisplayName()} {g.Sum(c => c.amount)}");
+            return $"미완 선행·승급 조건 {remaining.Count}개 · 식량 {food} / 흙 {material} / 특수 {special}\n남은 연구량 {work:0} · 연구소"
+                + (steps.Length == 0 ? " 추가 승급 없음" : $" 1동 {tier}→{target.Tier}등급: " + string.Join(" / ", upgrades))
+                + "\n건설·표본/핵심물 확보·생활·이동 비용 별도";
         }
 
         // 실제 코드(ScienceEffects 등)에 연결된 해금 효과만 적는다.
@@ -74,6 +81,12 @@ namespace AntColony.UI
             ScienceTechnology.ConscriptionLaw => "징병제",
             ScienceTechnology.ReserveForces => "예비군제",
             ScienceTechnology.TotalMobilization => "국민개병",
+            ScienceTechnology.SettlementPromotion => "연구소 2등급 승급 조건(철 40 별도)",
+            ScienceTechnology.SteamPromotion => "연구소 3등급 승급 조건(강철 60 별도)",
+            ScienceTechnology.PetroleumPromotion => "연구소 4등급 승급 조건(강철 80·부품 10 별도)",
+            ScienceTechnology.ElectricPromotion => "연구소 5등급 승급 조건(티타늄 80·전자부품 20 별도)",
+            ScienceTechnology.AtomicPromotion => "연구소 6등급 승급 조건(성휘합금 80·전자부품 40 별도)",
+            ScienceTechnology.FuturePromotion => "미래 시대 최종 승급 연구(추가 연구소 등급 없음)",
             _ => "—"
         };
 
@@ -185,7 +198,7 @@ namespace AntColony.UI
             foreach (var lab in AntColony.Core.SceneObjects.All<ScienceLab>())
             {
                 var captured = lab;
-                MenuTheme.Button(content, $"연구소 {lab.Tier}등급 강화 (식량 {lab.Tier * 60} / 재료 {lab.Tier * 80})", () => { if (!captured.TryUpgrade()) ToastManager.Show("강화 조건을 충족하지 못했거나 자원이 부족합니다."); ScienceFacilities(); }).interactable = lab.Tier < ScienceLab.MaxTier && !lab.Busy;
+                MenuTheme.Button(content, ScienceLabUpgrades.Description(lab.Tier), () => { if (!captured.TryUpgrade()) ToastManager.Show("선행 연구와 표시된 실물 승급 재료를 확인하세요."); ScienceFacilities(); }).interactable = lab.Tier < ScienceLab.MaxTier && !lab.Busy;
             }
             content = V5Section(window, "과학 시설 · 로켓", 376, 104, 712, 544);
             RocketSection(research);

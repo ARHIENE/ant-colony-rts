@@ -103,8 +103,11 @@ namespace AntColony.Units
                 while (talents.combatSeconds >= 10)
                 {
                     talents.combatSeconds -= 10;
-                    if (CombatActivity != CommanderActivity.Command) GainExperience(CombatActivity, CommanderProgression.CombatXpPer10Seconds);
-                    GainExperience(CommanderActivity.Command, CommanderProgression.CombatXpPer10Seconds);
+                    int Budget() => CombatTarget is AntColony.World.WildMonster guard && guard.GuardBoss >= 0
+                        ? CampaignResearch.Instance?.BossProgress.ClaimGuardExperience((AntColony.Boss.BossId)guard.GuardBoss, guard.GuardCycle, CommanderProgression.CombatXpPer10Seconds) ?? 0
+                        : CommanderProgression.CombatXpPer10Seconds;
+                    if (CombatActivity != CommanderActivity.Command) GainExperience(CombatActivity, Budget());
+                    GainExperience(CommanderActivity.Command, Budget());
                 }
             }
             if (TreatmentFacility != null && (!TreatmentFacility.IsTreating(this) || WorkPriorities.Red && !personalState.health.Downed)) TreatmentFacility.Release(this); // 빨간 경보: 움직일 수 있으면 병상에서 나온다
@@ -292,6 +295,8 @@ namespace AntColony.Units
                 }
                 // 한 쌍을 한 번만 판정한다. 양쪽 관계와 손실을 같은 순간에 적용한다.
                 if (string.CompareOrdinal(personalState.id, other.personalState.id) >= 0) continue;
+                // 기획 공백(2026-10-31): 배우자 관계가 라이벌 수준(-40 이하)까지 떨어지면 이혼한다(잠정).
+                if (relation.spouse && relation.value <= SocialRules.Rival) Divorce(other);
                 bool opposed = (traits.Has(CommanderTrait.Brave) || traits.Has(CommanderTrait.Reckless)) && (other.traits.Has(CommanderTrait.Cautious) || other.traits.Has(CommanderTrait.Coward))
                     || (other.traits.Has(CommanderTrait.Brave) || other.traits.Has(CommanderTrait.Reckless)) && (traits.Has(CommanderTrait.Cautious) || traits.Has(CommanderTrait.Coward));
                 relation.quarrelSeconds = distance <= 64 && opposed ? relation.quarrelSeconds + seconds : 0;
@@ -308,6 +313,14 @@ namespace AntColony.Units
                     if (Random.value < .1f) Duel(other);
                 }
             }
+        }
+        internal void Divorce(CommanderAnt other)
+        {
+            personalState.Relation(other.personalState.id).spouse = false;
+            other.personalState.Relation(personalState.id).spouse = false;
+            MoodEvent("이혼", -10); other.MoodEvent("이혼", -10);
+            ToastManager.Show(commanderName + " / " + other.commanderName + ": 이혼");
+            CampaignHistory.Record("이혼", commanderName, other.commanderName, true);
         }
         private void ChangeRelation(CommanderAnt other, float delta)
         {

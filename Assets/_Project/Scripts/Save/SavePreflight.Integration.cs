@@ -58,7 +58,7 @@ namespace AntColony.Save
                     {
                         Check(j != null && (j.makerId == null || j.makerId.Length <= 200), "craft maker");
                         // A maker may have died or left the roster; their unfinished work remains cancellable.
-                        Check(s.materialVersion == 0 || (j.work == 0 || j.materialsPaid && !string.IsNullOrEmpty(j.makerId))
+                        Check(s.materialVersion == 0 || (j.work == 0 || j.materialsPaid && (!string.IsNullOrEmpty(j.makerId) || j.bossJob))
                             && (string.IsNullOrEmpty(j.makerId) || j.materialsPaid), "craft payment");
                     }
                     if (s.crafter >= 0 && s.jobs.Count > 0 && !string.IsNullOrEmpty(s.jobs[0].makerId))

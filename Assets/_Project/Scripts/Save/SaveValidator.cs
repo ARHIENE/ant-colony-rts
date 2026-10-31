@@ -241,6 +241,22 @@ namespace AntColony.Save
                     if (transport?.cargoAmounts?.Length == 78) Array.Resize(ref transport.cargoAmounts, Core.StoreBin.TypeCount);
                 file.version = 22;
             }
+            if (file.version == 22)
+            {
+                if (file.population != null) file.population.oldDeathRemainder = 0;
+                if (file.diplomacy?.civilizations != null && file.diplomacy.markets != null)
+                    foreach (var civilization in file.diplomacy.civilizations.Concat(file.diplomacy.markets))
+                        if (civilization != null) civilization.periodicTradePaused = false;
+                file.version = 23;
+            }
+            if (file.version == 23)
+            {
+                if (file.world?.transports != null) foreach (var transport in file.world.transports)
+                    if (transport?.cargoAmounts?.Length == 79) Array.Resize(ref transport.cargoAmounts, Core.StoreBin.TypeCount);
+                // 창고·재료 배열은 기존 가변 길이 복원 경로에서 새 자원을 0으로 채운다.
+                // 완료·진행 연구 ID 목록은 번호를 뒤에 추가했으므로 그대로 보존한다.
+                file.version = 24;
+            }
             if (file.version != SaveFileV1.CurrentVersion)
             {
                 error = $"Save version {file.version} cannot be read by this build (expects {SaveFileV1.CurrentVersion}).";
@@ -286,6 +302,7 @@ namespace AntColony.Save
             }
             if (file.world.sites == null || file.world.transports == null) { error = "Missing world sections."; return false; }
             SaveOptionalStates.Normalize(file);
+            SaveL2.Normalize(file);
             if (!Core.TalentAssessment.Validate(file.assessment, file.world.transports.Count, file.world.sites.Count)) { error = "Invalid talent assessment."; return false; }
             return SavePreflight.Validate(file, out error);
         }

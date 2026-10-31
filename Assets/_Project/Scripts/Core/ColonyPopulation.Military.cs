@@ -5,8 +5,9 @@ namespace AntColony.Core
     public sealed partial class ColonyPopulation
     {
         // 기존 MaxSoldiers/TryDraft는 이 계산으로 위임한다.
-        // 병역 나이 확대(늙은 시민 포함) 중에는 정산 대기분을 뺀 노년도 병역 인구로 센다.
-        private int MilitaryAge => Adults + (S.elderlyService ? Mathf.Max(0, S.old - S.agingDue) : 0);
+        // Adults가 이미 agingDue를 제외하므로 노년 소속은 한 번만 더한다.
+        public static int MilitaryAgeCount(int adults, State state) => adults + (state.elderlyService ? state.old : 0);
+        private int MilitaryAge => MilitaryAgeCount(Adults, S);
         public int MobilizationLimit(bool homeThreat) => Unrest ? 0
             : Mathf.Max(Mathf.FloorToInt(MilitaryAge * PolicyRate(S.policy, homeThreat)), MilitaryAge >= 10 ? 5 : 0);
 
@@ -25,7 +26,8 @@ namespace AntColony.Core
             if (pool.Free < count && S.elderlyService)
             {
                 var elders = Mathf.Min(Mathf.Max(0, S.old - S.agingDue), count - pool.Free);
-                S.old -= elders; pool.Breed(elders);
+                // 노년을 성체로 되돌리지 않고 기존 복귀/손실 정산을 재사용한다.
+                S.agingDue += elders; pool.Breed(elders);
             }
             return pool.Free >= count;
         }

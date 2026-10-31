@@ -8,6 +8,7 @@ namespace AntColony.UI
     {
         private void RocketActivation(AirshipYard yard)
         {
+            MenuTheme.Text(content, "장수 사망 없음 설정은 시민 승객의 생존 보장이 아닙니다. 로켓 파괴 시 탑승 시민·병력은 사망하고 장수는 중상으로 구조가 필요합니다. 여러 발사대 중 한 기만 가동하며 승객 예약은 발사대별로 직접 지정합니다.", 12, 85);
             if (yard.ModificationsLocked) { MenuTheme.Text(content, "내장 전원 가동 · 확장/이동/철거 잠금 · 준비 완료 후에도 공세 지속", 13, 40); return; }
             var preview = yard.ActivationPreview;
             MenuTheme.Text(content, yard.FuelLoaded ? "15일분 연료 전량 적재 완료" : $"잠정 연료 규격: 정제유 하루 {AirshipYard.FuelUnitsPerDay} · 15일분 전량 적재 필요", 13, 40);

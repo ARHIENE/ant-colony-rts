@@ -16,6 +16,7 @@ namespace AntColony.World
         public string Title { get; private set; }
         public AntColony.Core.MapBiome Biome => AntColony.Core.BiomeRules.ForSite(Title);
         public string Faction { get; private set; }
+        internal int MilitaryEra => DiplomacyManager.Instance?.Faction(this)?.era ?? 1;
         public ExpeditionSiteKind Kind { get; private set; }
         // 거리와 무관한 고정 난이도: 정착지 수비병·재고·생산, 보스 체력·전리품, 중립 자원량에 적용.
         public int Difficulty { get; private set; }
@@ -137,6 +138,7 @@ namespace AntColony.World
                     // 관직은 전투력이 아니라 포로 정보에만 쓰이므로 난이도와 엮지 않는다.
                     guard.ConfigureCommander(title + (Difficulty > 1 ? $" Commander {i + 1}" : " Commander"),
                         CommanderRank.Sergeant, null, AntColony.Units.CommanderTraits.Random());
+                    guard.ConfigureAIMilitary(MilitaryEra, i);
                     // MakeRaider를 사용하지 않는다. 원정 수비병은 본거지로 이동하지 않는다.
                     guard.gameObject.SetActive(true);
                 }
@@ -200,10 +202,15 @@ namespace AntColony.World
                 foreach (var c in Visitor.Crew) if (c != null && c.IsColonyMember) c.OnExpeditionVictory();
             if (Cleared || Colony == null) return;
             growthTimer += Time.deltaTime;
-            if (growthTimer < 60f) return;
-            growthTimer = 0;
-            Colony.AddResources(Colony.RemainingBuildings * 2, Colony.RemainingBuildings);
-            Colony.TryExpand(0, 30, DiplomacyManager.Instance?.Faction(this)?.rebel == true ? 2 : 5, 5);
+            while (growthTimer >= 60f)
+            {
+                growthTimer -= 60f;
+                var faction = DiplomacyManager.Instance?.Faction(this);
+                int era = faction?.era ?? 1, count = Colony.RemainingBuildings;
+                Colony.AddResources(count * 2 * era, count * era);
+                if (faction != null) AIEraProgress.Credit(faction, count);
+                Colony.TryExpand(0, 30, faction?.rebel == true ? 2 : 5, 5);
+            }
         }
 
         private void OnDestroy()

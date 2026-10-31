@@ -18,7 +18,8 @@ namespace AntColony.Core
         ConscriptionLaw, ReserveForces, TotalMobilization, // Phase 4 병역 제도
         Pharmacy, PrecisionPharmacy, // 2026-10-25 D01 장수용 약품
         FormationLine, FormationColumn, FormationWedge, FormationDispersed, FormationCover, FormationFocus,
-        UndergroundSurvey
+        UndergroundSurvey,
+        SettlementPromotion, SteamPromotion, PetroleumPromotion, ElectricPromotion, AtomicPromotion, FuturePromotion
     }
 
     public sealed class ScienceDefinition
@@ -58,7 +59,6 @@ namespace AntColony.Core
         };
         public static CampaignResearch Instance { get; private set; }
         // 6시대(2026-10-05). 기존 4시대 매핑: 소굴=소굴, 공학=증기, 항공=전기, 대이주=미래.
-        // TODO 석유(3)·원자(5) 시대 연구 항목은 아직 없음(빈 시대).
         public static readonly string[] EraNames = { "정착", "증기", "석유", "전기", "원자", "미래" };
         public const int EraCount = 6;
         public static readonly ScienceDefinition[] Technologies = new[] {
@@ -96,7 +96,7 @@ namespace AntColony.Core
             new ScienceDefinition(ScienceTechnology.ConscriptionLaw, "징병제", 1),
             new ScienceDefinition(ScienceTechnology.ReserveForces, "예비군제", 2, ScienceTechnology.ConscriptionLaw),
             new ScienceDefinition(ScienceTechnology.TotalMobilization, "국민개병", 4, ScienceTechnology.ReserveForces)
-        }.Concat(MedicineResearch.Definitions(ScienceTechnology.Pharmacy, ScienceTechnology.PrecisionPharmacy)).Concat(FormationResearch.Definitions()).Concat(UndergroundResearch.Definitions()).ToArray();
+        }.Concat(MedicineResearch.Definitions(ScienceTechnology.Pharmacy, ScienceTechnology.PrecisionPharmacy)).Concat(FormationResearch.Definitions()).Concat(UndergroundResearch.Definitions()).Concat(EraPromotionResearch.Definitions()).ToArray();
 
         [Serializable] public sealed class State
         {
@@ -216,7 +216,7 @@ namespace AntColony.Core
         private void Update() => Tick(Time.deltaTime);
         public void Tick(float seconds)
         {
-            if (seconds > 0 && !float.IsInfinity(seconds)) { BossProgress.TickCraft(seconds); TickPoliticalPresence(seconds); }
+            if (seconds > 0 && !float.IsInfinity(seconds)) { TickPoliticalPresence(seconds); }
             if (Active == null && state.resourceActive >= 0 && seconds > 0 && !float.IsInfinity(seconds) && !Departed) { TickResourceResearch(seconds); return; }
             if (!(seconds > 0) || float.IsInfinity(seconds) || Active == null || Departed || state.paused) return;
             foreach (var lab in AntColony.Core.SceneObjects.All<ScienceLab>())

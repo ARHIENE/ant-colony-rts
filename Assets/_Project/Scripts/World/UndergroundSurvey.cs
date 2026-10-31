@@ -78,6 +78,7 @@ namespace AntColony.World
                 int total = type < 0 ? 0 : Amount((ResourceType)type);
                 result.Add(new Layer { id = map * 12 + i, map = map, type = type, position = pos, total = total, remaining = total });
             }
+            if (map == 0) StellarSupply.EnsureHome(result);
             return result;
         }
         public int MapAt(Vector3 position)

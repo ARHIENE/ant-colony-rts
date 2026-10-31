@@ -30,12 +30,38 @@ namespace AntColony.Save
                 file.monsters.Add(Capture(m, SaveReferences.Key(m)));
         }
         private static MonsterDto Capture(WildMonster m, string key) => new MonsterDto { key = key,
+            guardVersion = 1, guardBoss = m != null ? m.GuardBoss : -1, guardCycle = m != null ? m.GuardCycle : 0, guardXpClaimed = m != null && m.GuardXpClaimed,
             investigationId = (m as EnemyCommander)?.InvestigationId,
             health = m != null ? m.CurrentHealth : 0, position = new Vec3Dto(m != null ? m.Position : Vector3.zero),
             hasRuntime = m != null, runtime = m != null ? m.CaptureRuntime() : null, diplomaticFactionId = m?.DiplomaticFactionId,
             temperament = m != null ? m.Temperament : WildlifeTemperament.Predator, huntDesignated = m != null && m.HuntDesignated,
             traits = m is EnemyCommander c ? SaveCatalog.Traits(c.Traits) : null,
             talents = m is EnemyCommander ec ? ec.Talents.Copy() : null };
+
+        // 저장 키는 숫자 순서로 읽는다. 방문대는 마지막 장수가 파동을 닫는다.
+        internal static IEnumerable<(MonsterDto monster, int member)> MilitaryMembers(IEnumerable<MonsterDto> monsters)
+        {
+            var next = new Dictionary<(int parent, int defense, int invasion, bool visitor, string faction), int>();
+            foreach (var d in monsters.Where(d => d.hasRuntime && d.guardBoss < 0 && !d.runtime.allied
+                && !d.runtime.docile && !d.runtime.wasp && !d.runtime.night && string.IsNullOrEmpty(d.runtime.rebel)
+                && (d.key.StartsWith("monster:") || d.key.StartsWith("runtime:"))
+                && (d.runtime.parentSite >= 0 || d.runtime.visitor || d.runtime.invasionSite >= -1))
+                .OrderBy(d => d.key.StartsWith("monster:") ? 0 : 1)
+                .ThenBy(d => int.Parse(d.key.Substring(d.key.IndexOf(':') + 1))))
+            {
+                var r = d.runtime;
+                var group = (r.parentSite, r.defenseSite, r.invasionSite, r.visitor, d.diplomaticFactionId);
+                next.TryGetValue(group, out int member);
+                // 기존 생성 번호는 앞 장수가 사망해도 유지된다.
+                var name = r.visitor || r.defenseSite >= 0 ? r.name : r.commanderName;
+                var marker = r.visitor ? " 침공군 " : r.defenseSite >= 0 ? " Invader " : " Commander ";
+                int at = name?.LastIndexOf(marker, StringComparison.Ordinal) ?? -1;
+                if (at >= 0 && int.TryParse(name.Substring(at + marker.Length), out int number) && number > 0)
+                    member = number - 1;
+                next[group] = r.visitor && r.commander ? 0 : member + 1;
+                yield return (d, member);
+            }
+        }
 
         internal static void RestoreMonsters(SaveFileV1 file)
         {
@@ -74,6 +100,12 @@ namespace AntColony.Save
                 m.gameObject.SetActive(false); m.Agent.enabled = false;
                 m.transform.SetParent(state.parentSite < 0 ? null : world.Sites[state.parentSite].transform, true);
                 m.name = state.name; m.transform.position = d.position.ToVector3();
+                m.GuardBoss = d.guardBoss; m.GuardCycle = d.guardCycle; m.GuardXpClaimed = d.guardXpClaimed;
+                if (m.GuardBoss < 0 && state.name == "보스 호위" && m.GetComponentInParent<BossStronghold>() is BossStronghold stronghold)
+                {
+                    m.GuardBoss = (int)stronghold.Id; m.GuardCycle = CampaignResearch.Instance?.BossProgress.Cycle(stronghold.Id) ?? 0;
+                    m.GuardXpClaimed = true; // 구저장 처치 보상 여부 불명: 소급 지급하지 않는다.
+                }
                 m.transform.rotation = Quaternion.Euler(0, state.rotationY, 0); m.transform.localScale = state.scale.ToVector3();
                 if (state.raider) m.MakeRaider();
                 m.DiplomaticFactionId = d.diplomaticFactionId; m.Temperament = d.temperament; m.HuntDesignated = d.huntDesignated;
@@ -93,6 +125,18 @@ namespace AntColony.Save
             }
             foreach (var d in file.monsters.Where(d => d.hasRuntime))
                 if (restored.TryGetValue(d.key, out var m)) m.RestoreRuntime(d.runtime, true);
+            foreach (var (d, member) in MilitaryMembers(file.monsters))
+            {
+                if (!restored.TryGetValue(d.key, out var m)) continue;
+                var faction = !string.IsNullOrEmpty(d.diplomaticFactionId)
+                    ? DiplomacyManager.Instance.Data.civilizations.Find(c => c.id == d.diplomaticFactionId)
+                    : d.runtime.parentSite >= 0 && world.Sites[d.runtime.parentSite].Disposition != ConquestDisposition.Annexed
+                        ? DiplomacyManager.Instance.Faction(world.Sites[d.runtime.parentSite]) : null;
+                if (faction == null) continue;
+                // 편성의 상한 처리 뒤 저장 체력을 적용한다. 회복/절삭하지 않는다.
+                m.RestoreAIMilitary(faction.era, member, d.health);
+                m.Agent.stoppingDistance = AIEraMilitary.Range(AIEraMilitary.Weapon(faction.era, member));
+            }
             for (int i = 0; i < world.Sites.Count; i++) {
                 var site = file.world.sites[i];
                 world.Sites[i].Defense?.RestoreAttack(site.defenseUnderAttack, site.defenseFaction,

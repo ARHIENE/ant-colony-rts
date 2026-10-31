@@ -18,6 +18,7 @@ namespace AntColony.Core
         [Serializable] public sealed class State
         {
             public int young, old;
+            public double oldDeathRemainder; // v23 연간 노년 자연사 소수 이월(구저장 0).
             public int agingDue; // 노년 집계에 포함됐지만 풀에서는 복귀 때 제거할 동원·예약 인원.
             public int[] ages; // 0~64세 집계. 65세 이상은 old로 집계한다.
             public float immigrationSeconds, immigrationRemainder, ageSeconds;
@@ -211,7 +212,7 @@ namespace AntColony.Core
             var pool = AntPool.Instance; if (pool == null) return;
             // 세율이 높을수록 불이익이 가파르다(30% 초과분 제곱 가산, 잠정). 창고 식량은 시민 민심에 반영하지 않는다.
             var target = ColonyTaxRules.BaseSentiment(S.taxRate) - PolicySentiment(S.policy)
-                + (Total > HousingCapacity ? -10 : 0) + Mathf.Min(10, Facilities * 2) + CivicSentiment + (S.raidSeconds < GameCalendar.SecondsPerMonth ? -10 : 0) + GameBalance.AdminSentiment * Administration + GameBalance.HousingBeautySentiment * HousingBeauty;
+                + (Total > HousingCapacity ? -10 : 0) + DisplacementPenalty + Mathf.Min(10, Facilities * 2) + CivicSentiment + (S.raidSeconds < GameCalendar.SecondsPerMonth ? -10 : 0) + GameBalance.AdminSentiment * Administration + GameBalance.HousingBeautySentiment * HousingBeauty;
             S.sentiment = Mathf.Clamp(S.sentiment + (target < S.sentiment ? Mathf.Max(target - S.sentiment, -10) * (CampaignResearch.Instance?.SettlementDiscontentMultiplier(-1) ?? 1) : Mathf.Min(target - S.sentiment, 10)), 0, 100);
             if (Unrest)
             {

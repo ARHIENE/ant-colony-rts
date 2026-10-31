@@ -29,8 +29,8 @@ namespace AntColony.UI
             var d = CampaignHistory.Instance != null ? CampaignHistory.Instance.Data : new CampaignHistory.State();
             var days = Mathf.FloorToInt(research.EndingGameSeconds / GameCalendar.SecondsPerDay);
             var play = TimeSpan.FromSeconds(GameSession.Exists ? GameSession.Instance.PlaySeconds : 0);
-            string Names(string kind) { var n = d.milestones.Where(e => e.kind == kind).Select(e => e.name + (e.result.Length > 0 ? $"({e.result})" : "")).ToArray(); return n.Length == 0 ? "없음" : string.Join(", ", n); }
-            int Count(string kind) => d.milestones.Count(e => e.kind == kind);
+            string Names(string kind) { var n = d.milestones.Where(e => e.kind == kind).Select(e => e.name + (e.result.Length > 0 ? $"({e.result})" : "")).ToArray(); var old = d.summaries?.Find(a => a.kind == kind); return (n.Length == 0 ? "없음" : string.Join(", ", n)) + (old == null ? "" : $" · 이전 {old.count}건 집계({old.first:0}~{old.last:0}초)"); }
+            long Count(string kind) => d.milestones.Count(e => e.kind == kind) + (d.summaries?.Where(a => a.kind == kind).Sum(a => a.count) ?? 0);
             var reasons = Enum.GetValues(typeof(ResourceReason)).Length;
             var lines = new System.Collections.Generic.List<string>
             {

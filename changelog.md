@@ -1,3 +1,6 @@
+# 2026-10-31 SAVE(오전) — 2026-10-31 SAVE(오후) 이관
+- 3bee12e/d9988f8: 전투 다이아 무간·참경·역린·엑스텐·레기온, 병영 훈련, Codex J1·J2·K1·K2 100항목·공백 병합(훈연식·저장22, 보스 AoE 저장, 편입지 이동). Unity: SaveRoundtrip57·Review1031Claude26·K1 87·K2 107 등. 일지 https://app.notion.com/p/409c4a0ecd31810785f5d87842efcbd9. 원문 work/save-20261031b/log-before-save.md.
+
 # 2026-10-29 SAVE + 10/29~31 진행 — 2026-10-31 SAVE 이관
 - e0a65d3(+e42430d 기록): 곡물 요리3종·정착지 운영 진단·후천 전문성(기술10 골드20%/20 다이아5%)·창고 필터 복사·경제/교역 보정. 일지 https://app.notion.com/p/407c4a0ecd318121b19bf87efd9877dc / Trouble https://app.notion.com/p/407c4a0ecd3181b69559e8149f0875b2.
 - 10/29 밤: 100항목 분업(Claude/Codex J1·J2) 결과 원본 병합·Unity 검사(Claude19·Delivery19·Trade23·Economy21·J2Runtime35·SaveRoundtrip57). 원문 work/save-20261031/log-before-save.md.

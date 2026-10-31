@@ -17,5 +17,10 @@ namespace AntColony.Buildings
         public static int TotalCapacity => Active.Where(h => h != null && !h.IsDead).Sum(h => h.Capacity);
         protected override void OnEnable() { base.OnEnable(); Active.Add(this); }
         protected override void OnDisable() { Active.Remove(this); base.OnDisable(); }
+        protected override void Die()
+        {
+            ColonyPopulation.Instance?.InvalidateHousing(Position);
+            base.Die();
+        }
     }
 }

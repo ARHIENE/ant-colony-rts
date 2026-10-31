@@ -71,5 +71,6 @@ namespace AntColony.Units
                 default: return 0;
             }
         }
+        public static int ClaimKillXp(IDamageable target) => target is WildMonster m && m.GuardBoss >= 0 ? m.ClaimGuardXp() : KillXp(target);
     }
 }

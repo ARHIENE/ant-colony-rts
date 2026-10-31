@@ -198,7 +198,7 @@ namespace AntColony.Units
             // G26: 바닥 묶음 1만 개면 후보 수집·우선순위 조회가 수백 ms라 두 번(노란 경보/일반) 하지 않고 한 번 모은다.
             var marked = AntColony.Core.SceneObjects.All<TargetPriority>().Length > 0; // 대상 우선순위를 붙인 곳이 없으면 조회하지 않는다
             var tiers = AutoJobs.Where(AllowsJob).GroupBy(j => WorkState.Priority(j)).OrderByDescending(g => g.Key)
-                .Select(tier => tier.SelectMany(AutoCandidates).Where(c => c.target != null).Select(c =>
+                .Select(tier => tier.SelectMany(job => AutoCandidates(job).Where(c => c.target != null && FixedTraitWork.Allows(c.target, this, job))).Select(c =>
                 {
                     TargetPriority p = null; if (marked) c.target.TryGetComponent(out p);
                     return (c.target, c.start, level: p != null ? p.level : WorkPriorities.Default, yellow: p != null && p.yellow, corpse: c.target is Corpse k && k.Priority);

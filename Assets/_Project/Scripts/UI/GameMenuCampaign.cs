@@ -30,13 +30,14 @@ namespace AntColony.UI
                     }, "부품·좌석·연료·핵심물은 다시 준비하고 15일 방어도 처음부터 시작합니다.");
                     continue;
                 }
-                MenuTheme.Text(content, $"로켓 {yard.Phase} · 선체 {(yard.Hull ? "완성" : "미완성")} / 엔진 {(yard.Engine ? "완성" : "미완성")} · 좌석 {yard.OccupiedSeats}/{yard.Capacity} · 준비 잔여 {yard.PreparationRemaining / GameCalendar.SecondsPerDay:0.00}일", 13, 55);
+                MenuTheme.Text(content, $"로켓 ({yard.Position.x:0},{yard.Position.z:0}) {yard.Phase} · 선체 {(yard.Hull ? "완성" : "미완성")} / 엔진 {(yard.Engine ? "완성" : "미완성")} · 좌석 {yard.OccupiedSeats}/{yard.Capacity} · 준비 잔여 {yard.PreparationRemaining / GameCalendar.SecondsPerDay:0.00}일", 13, 55);
                 MenuTheme.Text(content, yard.Operating ? FinalAssaultPlan.Description(Mathf.Max(0, FinalBattleEconomy.DefenseSeconds - yard.PreparationRemaining))
                     : "가동 후15일 방어: 첫5일 단일 방향 → 다음5일 양방향 → 마지막5일 다방향. 외곽 접근 경로가 없으면 기존 진입점을 사용합니다.", 12, 52);
                 foreach (AirshipPart part in Enum.GetValues(typeof(AirshipPart)))
                     MenuTheme.Button(content, (part == AirshipPart.Cocoon ? "50석 확장 모듈" : part.ToString()) + " 건조" + (part == AirshipPart.Cocoon ? $" (식량 {GameBalance.CocoonFood}/재료 {GameBalance.CocoonSoil}/특수 자원 {GameBalance.CocoonSpecial}, {yard.Cocoons}/{GameBalance.MaxCocoons})" : " (식량 100/재료 150/특수 자원 150)"),
                         () => { if (!yard.TryBuild(part)) ToastManager.Show("관련 연구·자원과 작업 중이 아닌 발사대가 필요합니다."); ScienceFacilities(); }).interactable = !yard.ModificationsLocked;
                 RocketActivation(yard);
+                RocketReservations(yard);
                 var population = ColonyPopulation.Instance;
                 if (population != null)
                 {
@@ -54,7 +55,7 @@ namespace AntColony.UI
                 MenuTheme.Text(content, "시민1명도 좌석1개를 사용합니다. 시민 탈출·잔류는 엔딩에 남습니다. 장수 탑승 전 마지막1석은 장수를 위해 남깁니다. 탑승한 병력은 방어에 참여하지 않습니다.", 12, 65);
                 if (yard.Phase == RocketPhase.Boarding)
                     foreach (var c in SortedCommanders().Where(c => c.CanReceiveOrders && !c.IsAwayFromHome && !c.IsEmbarked && Vector3.Distance(c.Position, yard.Position) > 8))
-                        MenuTheme.Button(content, "로켓으로 이동: " + c.CommanderName, () => { c.CommandMove(yard.Position + Vector3.right * 3); Resume(); }, "일반 이동 지시입니다. 도착 후 탑승을 직접 확정하세요. 이동 중에도 적에게 공격받습니다.");
+                        MenuTheme.Button(content, "로켓으로 이동: " + c.CommanderName, () => { if (yard.Reserve(c) || yard.ReservedCommanders.Contains(c.PersonalState.id)) { c.CommandMove(yard.Position + Vector3.right * 3); Resume(); } else ToastManager.Show("다른 로켓 예약 또는 좌석 부족입니다."); }, "일반 이동 지시입니다. 도착 후 탑승을 직접 확정하세요. 이동 중에도 적에게 공격받습니다.");
                 foreach (var c in SortedCommanders().Where(c => c.CanChangeAllocation && !c.IsAwayFromHome && Vector3.Distance(c.Position, yard.Position) <= 8))
                     MenuTheme.Button(content, "탑승: " + c.CommanderName, () => ConfirmRocketBoarding(yard, c)).interactable = yard.Phase == RocketPhase.Boarding;
                 MenuTheme.Text(content, "탑승 장수: " + string.Join(", ", yard.Passengers.Where(c => c != null).Select(c => c.CommanderName)), 13, 50);

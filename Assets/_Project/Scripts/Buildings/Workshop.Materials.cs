@@ -14,6 +14,12 @@ namespace AntColony.Buildings
             get
             {
                 if (jobs.Count == 0 || jobs[0].materialsPaid) yield break;
+                if (jobs[0].bossJob)
+                {
+                    foreach (var material in AntColony.Boss.BossProgress.CraftCost((AntColony.Boss.BossId)jobs[0].boss, jobs[0].recovery))
+                        yield return (material.Key, material.Value);
+                    yield break;
+                }
                 var cost = EquipmentRecipes.Cost(jobs[0].recipe);
                 if (cost.x > 0) yield return (ResourceType.Food, cost.x);
                 if (cost.y > 0) yield return (ResourceType.Soil, cost.y);

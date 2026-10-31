@@ -145,7 +145,7 @@ namespace AntColony.UI
             if ((refresh -= Time.unscaledDeltaTime) > 0 || mapCamera == null) return;
             refresh = RefreshSeconds;
             var used = 0;
-            void Dot(Vector3 world, Color color, float size)
+            void Dot(Vector3 world, Color color, float size, float angle = 0)
             {
                 var p = mapCamera.WorldToViewportPoint(world);
                 if (p.x < 0 || p.x > 1 || p.y < 0 || p.y > 1) return;
@@ -155,14 +155,14 @@ namespace AntColony.UI
                     var img = r.gameObject.AddComponent<Image>(); img.raycastTarget = false; pool.Add(img);
                 }
                 var dot = pool[used++]; dot.gameObject.SetActive(true); dot.color = color;
-                dot.rectTransform.anchorMin = dot.rectTransform.anchorMax = new Vector2(p.x, p.y); dot.rectTransform.sizeDelta = new Vector2(size, size);
+                dot.rectTransform.anchorMin = dot.rectTransform.anchorMax = new Vector2(p.x, p.y); dot.rectTransform.sizeDelta = new Vector2(size, size); dot.rectTransform.localEulerAngles = new Vector3(0, 0, angle);
             }
             if (Filters[(int)Filter.Units])
             {
                 if (AntColony.Core.CommanderRoster.Instance != null)
                     foreach (var c in AntColony.Core.CommanderRoster.Instance.Commanders) if (c.isActiveAndEnabled && !c.IsDead) Dot(c.Position, MenuTheme.Hp, 5);
                 foreach (var b in AntColony.Core.SceneObjects.All<AntColony.Buildings.BuildingBase>()) if (b.isActiveAndEnabled) Dot(b.transform.position, MenuTheme.Hex(0xa39880), 6);
-                foreach (var e in AntColony.Core.SceneObjects.All<AntColony.World.EnemyCommander>()) if (!e.IsDead) Dot(e.transform.position, MenuTheme.Danger, 6);
+                foreach (var e in AntColony.Core.SceneObjects.All<AntColony.World.EnemyCommander>()) if (!e.IsDead) Dot(e.transform.position, MenuTheme.Danger, 7, 45); // 검토96: 적 장수는 색 외에 마름모 모양으로도 구분한다.
             }
             if (Filters[(int)Filter.Resources])
                 // 바닥 묶음은 점으로 찍지 않는다(G26: 1만 개면 점 1만 개를 매 0.25초 갱신).

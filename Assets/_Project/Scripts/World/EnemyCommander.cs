@@ -26,6 +26,7 @@ namespace AntColony.World
         public string CommanderName => commanderName;
         public CommanderRank Rank => rank;
         public UnitRole[] Roles => roles;
+        internal void SetMilitaryRole(UnitRole role) => roles = new[] { UnitRole.Worker, role };
         public CommanderTraits Traits => traits;
         public CommanderTalents Talents => talents;
         internal void RestoreTalents(CommanderTalents value) => talents = value.Copy();

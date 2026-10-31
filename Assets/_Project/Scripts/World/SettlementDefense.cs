@@ -108,6 +108,8 @@ namespace AntColony.World
                 enemy.name = site.Title + " Invader " + (i + 1);
                 enemy.RaidSettlement(site);
                 enemy.DiplomaticFactionId = factionId;
+                var faction = DiplomacyManager.Instance?.Data.civilizations.Find(c => c.id == factionId);
+                if (faction != null) enemy.ConfigureAIMilitary(faction.era, i);
                 enemy.gameObject.SetActive(true);
                 attackers.Add(enemy);
             }

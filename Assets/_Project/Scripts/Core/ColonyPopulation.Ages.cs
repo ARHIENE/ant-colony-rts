@@ -33,6 +33,7 @@ namespace AntColony.Core
         {
             var pool = AntPool.Instance; if (pool == null) return;
             EnsureAges();
+            NaturalDeaths(S); // 올해 노년으로 넘어올 시민은 다음 해부터 적용한다.
             var grown = S.ages[17]; var elders = S.ages[64];
             if (grown > 0) ApplyEducationAtAdulthood();
             for (var age = 64; age > 0; age--) S.ages[age] = S.ages[age - 1];

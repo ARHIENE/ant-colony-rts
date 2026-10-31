@@ -77,7 +77,7 @@ namespace AntColony.Boss
                 var go = GameObject.CreatePrimitive(PrimitiveType.Capsule);
                 go.SetActive(false); go.name = "보스 호위"; go.transform.SetParent(site.transform);
                 go.transform.position = hit.position; go.transform.localScale = Vector3.one * .5f;
-                var guard = go.AddComponent<WildMonster>(); guard.ConfigureBossGuard(); go.SetActive(true);
+                var guard = go.AddComponent<WildMonster>(); guard.ConfigureBossGuard((int)id, CampaignResearch.Instance?.BossProgress.Cycle(id) ?? 0); go.SetActive(true);
             }
         }
         private void ShowTelegraph()

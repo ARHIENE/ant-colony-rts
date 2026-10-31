@@ -10,7 +10,13 @@ namespace AntColony.Buildings
 {
     public sealed partial class Workshop : BuildingBase, IFreshMaterialSink
     {
-        [Serializable] public class Job { public EquipmentRecipe recipe; public float work; public string makerId = ""; public bool materialsPaid; }
+        [Serializable] public class Job {
+            public EquipmentRecipe recipe; public float work; public string makerId = ""; public bool materialsPaid;
+            public bool bossJob, recovery; public int boss;
+            public float WorkRequired => bossJob ? AntColony.Boss.BossProgress.RecoverySeconds : GameBalance.CraftWork;
+            public string Label => bossJob ? $"{(AntColony.Boss.BossId)boss} {(recovery ? "핵심물 복구" : "탐지기")}" : EquipmentRecipes.Name(recipe);
+            public Job Copy() => (Job)MemberwiseClone();
+        }
         // 생산 목록(2026-10-08 기획): 지정 수량(amount개 만들고 끝) / 재고 유지(보관함 재고가 amount 미만이면 생산) / 계속 생산.
         // 대기열이 비면 목록에서 한 품목을 예약한다. 재료 배송 후 실제 작업 시작 때 소비한다.
         public enum OrderMode { Count, KeepStock, Forever }
@@ -104,6 +110,7 @@ namespace AntColony.Buildings
         {
             if (index < 0 || index >= jobs.Count || ResourceManager.Instance == null) return false;
             var job = jobs[index]; var cost = EquipmentRecipes.Cost(job.recipe); var fraction = job.work > 0 ? .7f : 1f;
+            if (job.bossJob) return CancelBossJob(index);
             if (index == 0 && !job.materialsPaid) inputs.Drop(Position);
             if (job.materialsPaid)
             {
@@ -133,10 +140,12 @@ namespace AntColony.Buildings
             }
             job.makerId = Crafter.PersonalState.id;
             float speed = Crafter.WorkRate(CommanderActivity.Crafting);
-            float elapsed = Mathf.Min(seconds, (GameBalance.CraftWork - job.work) / speed);
-            job.work = Mathf.Min(GameBalance.CraftWork, job.work + elapsed * speed);
+            float elapsed = Mathf.Min(seconds, (job.WorkRequired - job.work) / speed);
+            job.work = Mathf.Min(job.WorkRequired, job.work + elapsed * speed);
             Crafter.GainExperience(CommanderActivity.Crafting, elapsed, EquipmentRecipes.Topic(job.recipe));
-            if (job.work < GameBalance.CraftWork) return;
+            if (job.bossJob) CampaignResearch.Instance?.BossProgress.SetCraftWork(job.work);
+            if (job.work < job.WorkRequired) return;
+            if (job.bossJob) { jobs.RemoveAt(0); Release(); return; }
             var item = EquipmentRecipes.Create(job.recipe, EquipmentRecipes.Quality(Crafter.Talents.Level(CommanderActivity.Crafting), UnityEngine.Random.value, UnityEngine.Random.value));
             // 다이아 무라마사: 보유 장수가 혼자 만든 걸작은 10% 확률로 유일작.
             if (item.quality == 3 && Crafter.Traits.Has(AntColony.Units.CommanderTrait.DiamondCrafting) && UnityEngine.Random.value < .1f) item.unique = true;
@@ -154,11 +163,11 @@ namespace AntColony.Buildings
         }
         internal State CaptureState(List<CommanderAnt> commanders) => new State {
             materialVersion = 1, staged = inputs.staged,
-            jobs = jobs.ConvertAll(j => new Job { recipe = j.recipe, work = j.work, makerId = j.makerId, materialsPaid = j.materialsPaid }), orders = orders.ConvertAll(o => new Order { recipe = o.recipe, mode = o.mode, amount = o.amount }), crafter = commanders.IndexOf(Crafter), ruined = Ruined, paused = !enabled, inactive = !gameObject.activeSelf };
+            jobs = jobs.ConvertAll(j => j.Copy()), orders = orders.ConvertAll(o => new Order { recipe = o.recipe, mode = o.mode, amount = o.amount }), crafter = commanders.IndexOf(Crafter), ruined = Ruined, paused = !enabled, inactive = !gameObject.activeSelf };
         internal void RestoreState(State state, List<CommanderAnt> commanders)
         {
             inputs.Restore(state.staged);
-            Release(); jobs = state.jobs.ConvertAll(j => new Job { recipe = j.recipe, work = j.work, makerId = j.makerId, materialsPaid = state.materialVersion == 0 || j.materialsPaid });
+            Release(); jobs = state.jobs.ConvertAll(j => { var copy = j.Copy(); copy.materialsPaid |= state.materialVersion == 0; return copy; });
             if (jobs.Count > 0 && jobs[0].work > 0 && string.IsNullOrEmpty(jobs[0].makerId) && state.crafter >= 0 && state.crafter < commanders.Count)
                 jobs[0].makerId = commanders[state.crafter].PersonalState.id;
             orders = (state.orders ?? new List<Order>()).ConvertAll(o => new Order { recipe = o.recipe, mode = o.mode, amount = o.amount });

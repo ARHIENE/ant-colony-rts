@@ -52,6 +52,7 @@ namespace AntColony.Buildings
         public bool IsTable => Data != null && (Data.kind == BuildingKind.BigTable || Data.kind == BuildingKind.BanquetTable); // 연회용 긴 식탁도 먹기 전용
         public Recipe Current => meals.current >= 0 && meals.current < Recipes.Length ? Recipes[meals.current] : null;
         public float Progress => Current == null ? 0 : meals.progress / Current.seconds;
+        internal SoleWorker FixedCook => Current == null ? null : meals.cook;
         public bool Paused { get => meals.paused; set => meals.paused = value; }
         public List<Order> Orders => meals.orders;
 
@@ -71,9 +72,8 @@ namespace AntColony.Buildings
             if (IsTable || meals.orders.Count >= Workshop.MaxOrders || recipe < 0 || recipe >= Recipes.Length) return false;
             meals.orders.Add(new Order { recipe = recipe, mode = mode, amount = Mathf.Clamp(amount, 1, Workshop.MaxOrderAmount) }); return true;
         }
-        // 창고 재고 + 아직 운반되지 않은 바닥 요리(재고 유지가 운반 대기 중에 과잉 생산하지 않게).
-        public static int Stock(ResourceType t) => (ResourceManager.Instance?.GetAmount(t) ?? 0)
-            + Mathf.FloorToInt(AntColony.World.ResourceNode.Available.Where(n => n != null && n.IsLooseCargo && n.ResourceType == t).Sum(n => n.AmountRemaining));
+        // 창고·본거지 바닥·실제 운반 완제품을 한 번씩만 센다(원료 배송/원정 화물 제외).
+        public static int Stock(ResourceType t) => ProductionStock.Count(t);
         private bool Wants(Order o) => o.mode == Workshop.OrderMode.KeepStock ? Stock(Recipes[o.recipe].output)
             + SceneObjects.All<Kitchen>().Count(k => k != this && k.PlannedOutput == Recipes[o.recipe].output) < o.amount : o.amount > 0;
         private bool Usable => !IsTable && !IsDead && isActiveAndEnabled;

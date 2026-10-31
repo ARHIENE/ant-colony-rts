@@ -174,6 +174,7 @@ namespace AntColony.Buildings
                     AntColony.World.DiplomacyManager.DropFloor(ResourceType.Special, Mathf.FloorToInt(d.specialCost * share), at + ResourceManager.Scatter());
                 }
                 AntColony.UI.ToastManager.Show(d.displayName + " 철거 완료");
+                if (Target is Housing) ColonyPopulation.Instance?.InvalidateHousing(Target.Position);
                 Target.gameObject.SetActive(false); Destroy(Target.gameObject);
             }
             RoomSystem.MarkDirty(); Target = null;

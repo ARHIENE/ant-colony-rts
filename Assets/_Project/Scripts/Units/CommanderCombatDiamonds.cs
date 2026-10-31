@@ -45,7 +45,7 @@ namespace AntColony.Units
                 damage *= PierceFalloff;
                 var wasAlive = CombatTargeting.IsAlive(t);
                 FormationDamage.Apply(t, damage, Position, true);
-                if (wasAlive && !CombatTargeting.IsAlive(t)) GainExperience(CombatActivity, CommanderProgression.KillXp(t));
+                if (wasAlive && !CombatTargeting.IsAlive(t)) GainExperience(CombatActivity, CommanderProgression.ClaimKillXp(t));
             }
         }
 

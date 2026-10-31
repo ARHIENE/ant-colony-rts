@@ -21,6 +21,19 @@ namespace AntColony.World
         public int AvailableFood => GetCargo(AntColony.Data.ResourceType.Food) + crew.Where(c => c != null && !c.IsDead)
             .Sum(c => c.PersonalState.carriedRations?.Total ?? 0);
         public bool LeavesHomeUnattended => State == ExpeditionState.Home && CommanderLoad > 0 && ExpeditionRules.HomeCommanders == 0;
+        public static int ExpectedFood(float seconds, float dailyFood, float debt) => (int)System.Math.Min(int.MaxValue,
+            System.Math.Ceiling(System.Math.Max(0, seconds) * dailyFood / GameCalendar.SecondsPerDay + debt));
+        public string FoodComparison
+        {
+            get
+            {
+                if (!CanOperate) return $"식량 보유 {AvailableFood} · 이동 불가로 소비 예상 미정 · 대기 1일당 {DailyFood:0.#} 추가 (미지급 {FoodDebt:0.##})";
+                float known = Remaining / TravelSpeedMultiplier + DockingRemaining;
+                if (State == ExpeditionState.Outbound && !Walking) known += ExpeditionRules.DockSeconds;
+                if (State == ExpeditionState.Deployed) known += TravelSeconds / TravelSpeedMultiplier;
+                return $"식량 보유 {AvailableFood} / 확정 이동·접안{(State == ExpeditionState.Deployed ? "·귀환 계획" : "")} 예상 {ExpectedFood(known, DailyFood, FoodDebt)} · 미정 대기 1일당 {DailyFood:0.#} 추가 (미지급 소비 {FoodDebt:0.##})";
+            }
+        }
 
         public bool TryLoadFood(int amount)
         {

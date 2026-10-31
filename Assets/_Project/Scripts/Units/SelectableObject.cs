@@ -38,6 +38,11 @@ namespace AntColony.Units
         public void SetSelected(bool selected)
         {
             IsSelected = selected;
+            // AntVisual 유닛은 기존 원형 링 두께(.055 → .13)로 선택을 구분한다.
+            var visual = GetComponent<AntVisual>();
+            var outline = GetComponent<SelectionOutline>();
+            if (outline == null && selected && (visual == null || !visual.enabled)) outline = gameObject.AddComponent<SelectionOutline>();
+            if (outline != null) outline.Show(selected);
 
             for (var i = 0; i < renderers.Length; i++)
             {

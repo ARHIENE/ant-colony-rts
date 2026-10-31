@@ -9,8 +9,9 @@ namespace AntColony.Core
     [Serializable] public sealed class CivilianLocation
     {
         public int id, count;
-        public Vector3 position, destination;
+        public Vector3 position, destination, housingDestination;
         public bool housing, sheltered, moving, arrived;
+        public bool temporary, rehousing;
         public float damage;
     }
 
@@ -36,7 +37,7 @@ namespace AntColony.Core
                 {
                     var location = S.civilianLocations.FirstOrDefault(l => l.housing && (l.position - home.Position).sqrMagnitude < .01f);
                     if (location == null) location = AddCivilianLocation(home.Position, true, true);
-                    var added = Mathf.Min(difference, Mathf.Max(0, home.Capacity - location.count));
+                    var added = Mathf.Min(difference, HousingRoom(home));
                     location.count += added; difference -= added;
                     if (difference == 0) break;
                 }
@@ -110,6 +111,8 @@ namespace AntColony.Core
             var ids = new System.Collections.Generic.HashSet<int>();
             foreach (var l in s.civilianLocations)
                 if (l == null || l.id <= 0 || !ids.Add(l.id) || l.count < 0 || !FiniteRange(l.damage, 9.999999f)
+                    || l.temporary && (l.housing || l.rehousing) || l.rehousing && (l.housing || !l.moving && !l.arrived)
+                    || l.rehousing && !FinitePosition(l.housingDestination)
                     || !FinitePosition(l.position) || !FinitePosition(l.destination) || l.moving && (l.count > 50 || l.housing || l.sheltered || l.arrived)
                     || l.arrived && (l.count > 50 || l.housing) || s.nextCivilianLocation <= l.id) return false;
             return true;

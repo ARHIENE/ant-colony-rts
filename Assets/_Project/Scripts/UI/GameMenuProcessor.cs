@@ -12,8 +12,8 @@ namespace AntColony.UI
         {
             if (p == null) { Resume(); return; }
             var window = V5Window(p.Data.displayName + " / 가공", p.Industrial
-                ? p.Chemical ? "제작 담당 · 전력 200W · 플라스틱은 배관 원유, 고무는 배송받은 수액 사용"
-                    : "제작 담당 · 전력 200W · 묶음 시작 시 가스 1 투입 · 복원 시 중복 소비 없음"
+                ? p.Chemical ? "전력 200W(주문 없음·정지·원료 대기에도 고정) · 플라스틱: 배관 원유 / 고무: 수액 배송"
+                    : "전력 200W(주문 없음·정지·원료 대기에도 고정) · 묶음 시작 시 가스 1 투입"
                 : "제작 담당의 재료 배송·현장 작업 필요 · 완성품은 바닥에서 운반 · 생산 방식과 수량을 선택하세요.");
             content = V5Section(window, "생산 품목 / 주문 설정", 20, 104, 520, 544);
             var rm = ResourceManager.Instance;

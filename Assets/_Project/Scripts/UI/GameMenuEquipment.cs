@@ -44,6 +44,7 @@ namespace AntColony.UI
             }
 
             content = V5Section(window, $"본거지 보관함 {inventory.Items.Count}/{EquipmentInventory.Capacity}", 454, 104, 626, 544);
+            if (c.IsAwayFromHome) { FieldEquipment(c); refreshDutyScreen = null; V5Fit(window); return; }
             if (inventory.Items.Count == 0) MenuTheme.Text(content, "보관 중인 장비가 없습니다.", 15, 30);
             foreach (var item in inventory.Items.OrderBy(e => e.slot).ThenByDescending(e => e.quality).ToArray())
             {

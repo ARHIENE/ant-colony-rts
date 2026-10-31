@@ -28,14 +28,22 @@ namespace AntColony.World
         }
         public bool TryCollect(CommanderAnt c)
         {
-            if (c == null || !c.AllowsJob(CommanderJobs.Hauling) || !c.CanChangeEquipment || c.IsCarrying || EquipmentInventory.Instance == null || EquipmentInventory.Instance.Full) return false;
+            if (c == null || !c.AllowsJob(CommanderJobs.Hauling) || !c.CanChangeEquipment || c.IsCarrying) return false;
+            var ship = c.IsAwayFromHome ? c.Transport : null;
+            if (c.IsAwayFromHome ? ship == null || ship.State != ExpeditionState.Deployed || ship.ReturnCargoSpace < 1
+                : EquipmentInventory.Instance == null || EquipmentInventory.Instance.Full) return false;
             if (Vector3.Distance(c.Position, transform.position) > 3)
             {
                 if (!c.CanReach(transform.position)) return false;
                 collector = c; c.CommandMove(transform.position); return true;
             }
             for (int i = Items.Count - 1; i >= 0; i--)
-                if (EquipmentInventory.Instance.Add(Items[i])) Items.RemoveAt(i);
+                if (ship != null)
+                {
+                    if (ship.ReturnCargoSpace < 1) break;
+                    ship.EquipmentCargo.Add(Items[i]); Items.RemoveAt(i);
+                }
+                else if (EquipmentInventory.Instance.Add(Items[i])) Items.RemoveAt(i);
             collector = null;
             if (Items.Count == 0) { gameObject.SetActive(false); Destroy(gameObject); }
             return true;

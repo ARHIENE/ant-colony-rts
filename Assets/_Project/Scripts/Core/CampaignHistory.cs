@@ -14,6 +14,7 @@ namespace AntColony.Core
     public sealed class CampaignHistory : MonoBehaviour
     {
         [Serializable] public class Entry { public float seconds; public string kind, name, result; }
+        [Serializable] public class Summary { public string kind; public long count; public float first, last; }
         [Serializable] public class State
         {
             public long[] acquired = new long[3], spent = new long[3];
@@ -22,6 +23,7 @@ namespace AntColony.Core
             public int scoutRecruitSlot = -1, scoutRecruitFailures;
             public long[] events = new long[11];
             public List<Entry> recent = new List<Entry>(), milestones = new List<Entry>();
+            public List<Summary> summaries = new List<Summary>();
         }
         public static CampaignHistory Instance { get; private set; }
         public State Data { get; private set; } = new State();
@@ -49,6 +51,7 @@ namespace AntColony.Core
             var e = new Entry { seconds = GameCalendar.GameSeconds, kind = kind, name = name, result = result };
             var d = Instance.Data; d.recent.Add(e); if (d.recent.Count > 20) d.recent.RemoveAt(0);
             d.milestones.Add(e);
+            Compact(d);
             if (notify) ToastManager.Show(name + ": " + result);
         }
         public static bool Validate(State s)
@@ -61,7 +64,23 @@ namespace AntColony.Core
                 && Totals(s.spentByReason, 3 * Enum.GetValues(typeof(ResourceReason)).Length) && Totals(s.events, 11)
                 && s.antsProduced >= 0 && s.antsLost >= 0 && s.scoutRecruitSlot >= -1
                 && s.scoutRecruitFailures >= 0 && s.scoutRecruitFailures <= 3
-                && Entries(s.recent, 20) && Entries(s.milestones, 100000);
+                && Entries(s.recent, 20) && Entries(s.milestones, 100000)
+                && (s.summaries == null || s.summaries.Count <= 10000 && s.summaries.All(a => a != null && a.kind != null
+                    && a.kind.Length <= 100 && a.count > 0 && a.count <= 1000000000000L && a.first >= 0 && a.last >= a.first && !float.IsInfinity(a.last))
+                    && s.summaries.Select(a => a.kind).Distinct().Count() == s.summaries.Count);
+        }
+        public static void Compact(State s)
+        {
+            s.summaries ??= new List<Summary>();
+            if (s.milestones.Count <= 2000) return;
+            int count = s.milestones.Count - 1500;
+            foreach (var e in s.milestones.Take(count))
+            {
+                var a = s.summaries.Find(a => a.kind == e.kind);
+                if (a == null) { a = new Summary { kind = e.kind, first = e.seconds, last = e.seconds }; s.summaries.Add(a); }
+                a.count++; a.first = Math.Min(a.first, e.seconds); a.last = Math.Max(a.last, e.seconds);
+            }
+            s.milestones.RemoveRange(0, count);
         }
     }
 }

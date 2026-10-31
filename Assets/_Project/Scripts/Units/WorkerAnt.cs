@@ -77,6 +77,9 @@ namespace AntColony.Units
         public bool IsWorking => state != State.Idle;
         public bool IsGatheringAnimation => state == State.Gathering;
         public bool IsReturningCargo => state == State.ReturningToStorage || state == State.Depositing;
+        // 원료 배송·수송선 적재는 본거지 완제품 재고에 넣지 않는다.
+        public bool CountsForHomeStock => IsCarrying && deliverySite == null && !(targetDeposit is ExpeditionTransport)
+            && (!(this is CommanderAnt c) || c.IsColonyMember && !c.IsAwayFromHome && !c.IsEmbarked);
         public bool IsBuildingAnimation => state == State.Building;
         public BuildingConstructionSite ConstructionTarget => targetConstruction;
         public bool IsConstructing => state == State.MovingToBuildSite || state == State.Building;
