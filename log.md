@@ -10,4 +10,5 @@
 - 검증: Unity P1 21584·P2 181·P3 285·M1 103·M2 298·N2 77·L1 76·L2 97·Claude 28·Residue 11·Military 9·P1장면·P2장면 23 통과, 캡처 확인(Temp/shot-1101). 첫 일괄 실행은 시스템 메모리 부족으로 중단돼 단건 재실행.
 - 미해결/남은 일: 실전투·실파괴·장기 밸런스, 초가집 모델 외형/뒤집힘(미재현), 게임성 하 항목 약 20건(GAMEFEEL_1101_P1/P2/P3, claude 남은 관찰: 장수 라벨 겹침·잔해 모델·온대 봉우리 눈).
 - 환경 메모: offc.sh 오프라인 컴파일(scratchpad), Bash python 없음→node, Codex worktree 병합은 줄바꿈 정규화(tr -d '\r') 후 git merge-file. Codex는 ant-wt/patches 쓰기 거부 → worktree 내부 패치.
+- SAVE: 7113d6c develop push. Notion 일지 https://app.notion.com/p/40bc4a0ecd31813c80e6f87500308849(캡처: 시작 안내·월드맵·인재 상세). 기획 반영(추가): 자원·과학·전투·UI. Trouble Shooting: 이번 세션 사용자 버그 보고 없음.
 - 보존: prefab/.prefab.meta 커밋 금지. 커밋 제외: 재질/URP/씬/ProjectSettings/graphify/art. 이전 log 원문 work/save-20261101/log-before-save.md.
