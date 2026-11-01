@@ -135,13 +135,13 @@ public static class Review1031L1Checks
         save.population.oldDeathRemainder = .5;
         save.diplomacy = new DiplomacyManager.State();
         save.diplomacy.civilizations.Add(new Civilization { periodicTradePaused = true });
-        Check(!SaveValidator.Validate(save, out var error) && error == "Missing required sections.", "구저장 이관 뒤 신뢰경계 거부 유지");
+        Check(!SaveValidator.Validate(save, out var error) && error == "필수 저장 항목이 빠져 있습니다.", "구저장 이관 뒤 신뢰경계 거부 유지");
         Check(save.version == SaveFileV1.CurrentVersion && save.population.oldDeathRemainder == 0 && !save.diplomacy.civilizations[0].periodicTradePaused, "v22→현재 기본값 이관");
         save.population.oldDeathRemainder = .5; save.diplomacy.civilizations[0].periodicTradePaused = true;
         SaveValidator.Validate(save, out _);
         Check(save.population.oldDeathRemainder == .5 && save.diplomacy.civilizations[0].periodicTradePaused, "현재 저장 설정 보존·반복 이관 없음");
         save.savedAtUtc = DateTime.UtcNow.ToString("O"); save.population.oldDeathRemainder = double.NaN;
-        Check(!SavePreflight.Validate(save, out error) && error.Contains("natural death remainder"), "Preflight 비정상 이월 선차단");
+        Check(!SavePreflight.Validate(save, out error) && error.Contains("자연사 소수 이월"), "Preflight 비정상 이월 선차단");
         return Task.FromResult($"L1 오프라인 {count}검사 통과");
     }
 

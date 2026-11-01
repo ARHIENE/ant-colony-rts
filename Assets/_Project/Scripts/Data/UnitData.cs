@@ -15,7 +15,7 @@ namespace AntColony.Data
     [CreateAssetMenu(fileName = "UnitData", menuName = "AntColony/Unit Data")]
     public class UnitData : ScriptableObject
     {
-        public string displayName = "Ant";
+        public string displayName = "개미";
         public UnitRole role = UnitRole.Worker;
 
         [Header("Cost / Production")]

@@ -35,7 +35,7 @@ namespace AntColony.UI
                     if (!ready && toggle.isOn) toggle.SetIsOnWithoutNotify(false);
                     if (!ready && chosen == c) chosen = null;
                     label.text = c == null ? "이탈한 장수"
-                        : $"{c.CommanderName} · {c.WeaponLabel}\n체력 {c.PersonalHealth:0}/{GameBalance.CommanderHealth:0} · 기분 {c.Mood:0} · {Status(c)}";
+                        : $"{c.CommanderName} · {c.WeaponName}\n체력 {c.PersonalHealth:0}/{GameBalance.CommanderHealth:0} · 기분 {c.Mood:0} · {Status(c)}";
                 };
             }
             var summary = L.Label(p, "", 14, 24, 512, 600, 50);

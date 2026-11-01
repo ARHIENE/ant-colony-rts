@@ -128,7 +128,7 @@ namespace AntColony.UI
                     break;
                 case "장비·도구":
                     Link("맨바닥 제작 · 돌 도구 / 단궁", GroundCrafting);
-                    foreach (var c in SortedCommanders()) Link(c.CommanderName + " · " + c.WeaponLabel, () => ShowEquipment(c));
+                    foreach (var c in SortedCommanders()) Link(c.CommanderName + " · " + c.WeaponName, () => ShowEquipment(c));
                     Facilities<Workshop>(ShowWorkshop);
                     Info("기존 무기·갑옷·장신구 장착과 공방 생산에 연결합니다. 시안의 별도 도구 슬롯은 미구현입니다.");
                     break;

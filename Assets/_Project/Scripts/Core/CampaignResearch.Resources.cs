@@ -21,7 +21,7 @@ namespace AntColony.Core
         public bool TryStartResourceResearch(ResourceType type)
         {
             if (!ResourceStudyRules.RequiresResearch(type) || Departed || !HasSample(type) || ResourceResearched(type) || Active != null || state.resourceActive >= 0) return false;
-            state.resourceActive = (int)type; state.resourceProgress = 0;
+            state.resourceActive = (int)type; state.resourceProgress = 0; state.paused = false;
             return true;
         }
 
@@ -30,9 +30,11 @@ namespace AntColony.Core
             foreach (var lab in AntColony.Core.SceneObjects.All<ScienceLab>())
             {
                 var c = lab.Target;
-                if (!lab.isActiveAndEnabled || lab.Busy || c == null || !c.ResearchWorkReady || !c.CanReceiveOrders
-                    || c.IsAwayFromHome || c.ScienceAssignment != lab || (c.Position - lab.Position).sqrMagnitude > 64) continue;
-                state.resourceProgress += seconds * c.WorkRate(CommanderActivity.Research) * (1f + .25f * (lab.Tier - 1));
+                var rate = LabRate(lab);
+                if (!(rate > 0)) continue;
+                var worked = System.Math.Min(seconds, System.Math.Max(0, ResourceResearchWork - state.resourceProgress) / rate);
+                state.resourceProgress += worked * rate;
+                c.GainExperience(CommanderActivity.Research, worked);
             }
             if (state.resourceProgress < ResourceResearchWork) return;
             var type = (ResourceType)state.resourceActive;

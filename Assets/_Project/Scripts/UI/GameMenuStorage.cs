@@ -14,7 +14,7 @@ namespace AntColony.UI
         {
             var rm = ResourceManager.Instance;
             if (bin == null || rm == null || !rm.Bins.Contains(bin)) { Resume(); return; }
-            var window = V5Window(bin.Name + " / 창고", "허용 품목 · 우선순위 · 꺼내기");
+            var window = V5Window(bin.Name + " / 창고", "품목 행을 누르면 허용 전환 · 꺼낸 물자는 바닥에 놓이며 삭제되지 않음");
             ManagementTabs(window, "물류·식품", "창고");
             var bins = rm.Bins.ToArray();
             GameMenuSelect.Create(window, bins.Select(b => b.Name).ToArray(), System.Array.IndexOf(bins, bin), 20, 677, 300, i => ShowStorage(bins[i]));
@@ -31,7 +31,7 @@ namespace AntColony.UI
                     storageClipboardCold = bin.Host is ColdStorage;
                     ShowStorage(bin);
                 });
-                MenuTheme.Button(content, "허용 품목 붙여넣기", () =>
+                MenuTheme.Button(content, "허용 품목 붙여넣기 (같은 창고 종류)", () =>
                 {
                     if (storageAllowedClipboard == null || storageClipboardCold != (bin.Host is ColdStorage)) return;
                     for (int i = 0; i < storageAllowedClipboard.Length; i++) rm.SetAllowed(bin, (ResourceType)i, storageAllowedClipboard[i]);

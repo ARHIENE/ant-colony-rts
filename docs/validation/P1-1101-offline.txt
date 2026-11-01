@@ -1,0 +1,13 @@
+P1-1101 verification summary (observed commands/results; not a raw Unity log)
+Game: Unity 6000.5.8f1 offline Roslyn, 0 errors after read-only external-source rsp supplementation (43 files).
+Checks: offcheck.sh P1 Review1101P1Checks.cs, exit 0.
+Offline host compile: exit 0. Existing FormatterServices warnings in old checks.
+P1 offline: 21584 PASS
+M1 offline: 103 PASS
+L1 offline: 76 PASS
+K1 offline: 87 PASS
+N1 offline: 25742 PASS
+FBX static audit: 135 mappings, 0 missing files; Hut contains Thatch roof; -90 X FBX root preserved by existing visual code.
+Not executed: Unity, RunP1Scene, physical manufacturing, full scene restore, UI visual checks, long-play pacing.
+Reproduce: powershell -NoProfile -ExecutionPolicy Bypass -File AgentScripts/Review1101P1Compile.ps1 -OfflineChecks
+Initial failures and fixes: Titanium layers needed 2 and surplus stellar donors; UIModule dependency in offline reflection; nested UI callback tracing. Final results above are after corrections.

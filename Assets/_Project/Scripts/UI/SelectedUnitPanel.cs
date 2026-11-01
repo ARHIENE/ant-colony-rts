@@ -167,7 +167,7 @@ namespace AntColony.UI
 
             portraitFace.texture = CharacterPortraits.Get(c); portraitFace.gameObject.SetActive(portraitFace.texture != null); // 캐릭터 얼굴(2026-10-24)
             portrait.text = "\n\n\n<size=12>" + CommandCard.RoleName(c.Role) + " · 상세 ↗</size>";
-            header.text = $"<size=17><b><color=#efe7da>{c.CommanderName}</color></b></size>   {c.WeaponLabel}";
+            header.text = $"<size=17><b><color=#efe7da>{c.CommanderName}</color></b></size>   {c.WeaponName}";
             var activity = CommanderOverhead.Activity(c);
             var skill = c.Talents.Level(c.CurrentActivity);
             job.text = $"하는 일 <color=#efe7da>{(activity.Length > 0 ? activity : "대기")}</color>" + (activity.Length > 0 && !c.IsDeployed ? $" {skill}" : "");

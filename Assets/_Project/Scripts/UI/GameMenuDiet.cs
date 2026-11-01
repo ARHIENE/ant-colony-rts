@@ -16,7 +16,7 @@ namespace AntColony.UI
         public void ShowDiet(CommanderAnt target = null)
         {
             dietTarget = target;
-            var window = V5Window("식단", "허용한 정상 식품 중 좋은 요리 → 간단한 요리 → 날것 순 · 같은 종류는 먼저 썩을 것부터 · 썩은 식품은 최후 선택");
+            var window = V5Window("식단", "좋은 요리→간단한 요리→날것 순 · 같은 종류는 부패 임박 우선 · 개별 식단은 공통 설정보다 우선");
             ManagementTabs(window, "물류·식품", "식단");
             content = V5Section(window, "대상", 20, 104, 360, 544);
             MenuTheme.Button(content, (target == null ? "▶ " : "") + "공통 식단(모든 장수 기본)", () => ShowDiet(null));
@@ -27,7 +27,7 @@ namespace AntColony.UI
             }
 
             var current = target == null ? CommanderAnt.CommonDiet : target.Diet;
-            content = V5Section(window, target == null ? "공통 식단" : $"{target.CommanderName} 식단" + (target.PersonalState.meal.diet < 0 ? " (공통 식단 사용 중)" : " (개별 설정)"), 394, 104, 686, 544);
+            content = V5Section(window, target == null ? "공통 식단" : $"{target.CommanderName} 식단" + (target.PersonalState.meal.diet < 0 ? " (공통 식단 사용 중)" : " (개별 설정 · 공통 변경 미적용)"), 394, 104, 686, 544);
             void Set(int value)
             {
                 if (target == null) CommanderAnt.CommonDiet = value; else target.PersonalState.meal.diet = value;

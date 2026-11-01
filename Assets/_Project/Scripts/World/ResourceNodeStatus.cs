@@ -21,6 +21,10 @@ namespace AntColony.World
             : node.IsDepleted ? "고갈" : $"{node.ResourceType.DisplayName()} · {Mathf.CeilToInt(node.AmountRemaining)}"
                 + (node.NeedsDesignation && node.WorkRequested ? node.WorkPaused ? " · 일시중지" : " · " + node.WorkName + " 지정" : ""));
 
+        // 상태 정보가 있는 노드(작업 지정·잠김·고갈·재성장·파종)는 항상 라벨을 띄운다.
+        public bool Notable => GetComponent<AntColony.Units.GatherOrderFeedback>()?.OrderText != null || node.IsRaidLocked || !node.IsUnlocked
+            || node.FishedOut || node.NeedsSowing || node.IsRegrowing || node.IsDepleted || (node.NeedsDesignation && node.WorkRequested);
+
         private void Awake()
         {
             node = GetComponent<ResourceNode>();
@@ -48,12 +52,16 @@ namespace AntColony.World
                 if (cam == null) return;
                 if (style == null)
                     style = new GUIStyle(GUI.skin.box) { alignment = TextAnchor.MiddleCenter, fontSize = 13 };
+                // 림월드식(2026-11-01): 평범한 자원량 라벨은 숨기고, 상태가 있거나 커서 근처이거나 Alt를 누를 때만 보인다.
+                var mouse = UnityEngine.InputSystem.Mouse.current?.position.ReadValue() ?? new Vector2(-999, -999);
+                var showAll = UnityEngine.InputSystem.Keyboard.current?.leftAltKey.isPressed == true || UnityEngine.InputSystem.Keyboard.current?.rightAltKey.isPressed == true;
                 foreach (var status in Shown)
                 {
                     var node = status.node;
                     if (!node.isActiveAndEnabled) continue;
                     var point = cam.WorldToScreenPoint(status.transform.position + Vector3.up);
                     if (point.z <= 0f || point.x < 0f || point.x > Screen.width || point.y < 0f || point.y > Screen.height) continue;
+                    if (!showAll && !status.Notable && (new Vector2(point.x, point.y) - mouse).sqrMagnitude > 70f * 70f) continue;
                     style.normal.textColor = node.IsRegrowing ? new Color(1f, .85f, .4f) : new Color(.5f, 1f, .5f);
                     var width = status.GetComponent<AntColony.Units.GatherOrderFeedback>()?.OrderText != null ? 240f : 160f;
                     var rect = new Rect(point.x - width * .5f, Screen.height - point.y - 26f, width, 24f);

@@ -15,7 +15,7 @@ namespace AntColony.UI
         private Transform planet;
         private UnityEngine.Camera view;
         private RawImage image;
-        private float yaw, pitch, targetYaw, targetPitch, distance = Radius * 3.9f;
+        private float yaw, pitch, targetYaw, targetPitch, distance = Radius * 4.6f; // 실제 반지름 보정 뒤 하단 버튼 줄과 겹치지 않게 4.6
 
         public RectTransform Rect => (RectTransform)transform;
 
@@ -63,8 +63,10 @@ namespace AntColony.UI
                 if (t.name == "EarthGlow") t.gameObject.SetActive(false); // 대기 빛 머티리얼은 텍스처가 없어 URP에서 행성을 하얗게 덮는다
                 if (t.TryGetComponent<Collider>(out var collider)) Destroy(collider);
             }
-            var bounds = earth.GetComponentInChildren<MeshRenderer>().bounds;
-            earth.transform.localScale *= Radius / Mathf.Max(.0001f, bounds.extents.x); // 마커 투영 반지름(Radius)과 표면을 맞춘다
+            // 프리팹이 기울어져 있어 renderer.bounds(회전된 AABB)는 반지름보다 커진다 → 메시 로컬 반지름×스케일로 잰다.
+            var mesh = earth.GetComponentInChildren<MeshFilter>();
+            var radius = mesh.sharedMesh.bounds.extents.x * mesh.transform.lossyScale.x;
+            earth.transform.localScale *= Radius / Mathf.Max(.0001f, radius); // 마커 투영 반지름(Radius)과 표면을 맞춘다
             return earth;
         }
 
@@ -117,7 +119,7 @@ namespace AntColony.UI
 
         public void OnDrag(PointerEventData e)
         {
-            var k = .3f * distance / (Radius * 3.9f); // 확대할수록 천천히 돈다
+            var k = .3f * distance / (Radius * 4.6f); // 확대할수록 천천히 돈다
             targetYaw = yaw -= e.delta.x * k;
             targetPitch = pitch = Mathf.Clamp(pitch + e.delta.y * k, -60, 60);
         }

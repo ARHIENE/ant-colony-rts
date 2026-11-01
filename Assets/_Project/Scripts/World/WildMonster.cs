@@ -12,7 +12,7 @@ namespace AntColony.World
     public enum WildlifeTemperament { Timid, Defensive, Predator }
 
     [RequireComponent(typeof(NavMeshAgent))]
-    public class WildMonster : MonoBehaviour, IDamageable
+    public partial class WildMonster : MonoBehaviour, IDamageable
     {
         private static readonly List<WildMonster> Active = new List<WildMonster>();
         public static IReadOnlyList<WildMonster> All => Active;
@@ -43,11 +43,15 @@ namespace AntColony.World
         internal void ConfigureForce(float health) { maxHealth = health; }
         internal void ConfigureAIMilitary(int era, int member)
         {
+            MilitaryEra = System.Math.Clamp(era, 1, 6); MilitaryMember = System.Math.Max(0, member);
             var weapon = AIEraMilitary.Weapon(era, member);
+            if (MilitaryEquipment == null || MilitaryEquipment.weapon != weapon)
+                MilitaryEquipment = new EquipmentItem { slot = EquipmentSlot.Weapon, weapon = weapon };
             maxHealth = AIEraMilitary.Health(weapon);
             currentHealth = System.Math.Min(currentHealth, maxHealth); // 승급으로 부상 회복 없음.
             attackRange = AIEraMilitary.Range(weapon); attackInterval = AIEraMilitary.Interval(weapon);
             detectionRadius = System.Math.Max(8, attackRange);
+            if (agent != null) agent.stoppingDistance = attackRange;
             attackDamage = weapon == WeaponKind.Shield ? 6 : 8;
             if (this is EnemyCommander commander)
                 commander.SetMilitaryRole(AIEraMilitary.Role(weapon));
@@ -56,6 +60,7 @@ namespace AntColony.World
         internal void RestoreAIMilitary(int era, int member, float health)
         {
             ConfigureAIMilitary(era, member);
+            maxHealth = System.Math.Max(maxHealth, health); // 구저장 체력이 새 상한보다 커도 다음 저장 검증을 통과해야 한다.
             currentHealth = health; // 편성 상한보다 큰 저장 체력도 그대로 보존한다.
         }
         public int GuardCycle { get; internal set; }
@@ -237,6 +242,7 @@ namespace AntColony.World
             }
 
             var destination = currentTarget.Position;
+            if (agent != null) agent.stoppingDistance = attackRange;
             if (IsFlying) destination.y = transform.position.y;
             // 벽은 장애물이라 가운데까지 못 가므로 표면까지의 거리로 잰다.
             var distance = IsBarrier(currentTarget) && ((Component)currentTarget).GetComponent<Collider>() is Collider wallCollider
@@ -265,7 +271,7 @@ namespace AntColony.World
                 return;
             }
 
-            StopMoving();
+            if (!TryMilitarySpacing(destination, distance)) StopMoving();
             attackTimer -= Time.deltaTime;
             if (attackTimer <= 0f)
             {
@@ -327,6 +333,7 @@ namespace AntColony.World
         // 적 장수(EnemyCommander)가 포로 전환을 끼워 넣을 수 있도록 분리했다.
         protected virtual void Die()
         {
+            DropMilitaryEquipment();
             if (GuardBoss >= 0)
             {
                 Corpse.Drop(this, CorpseKind.Wildlife, "보스 호위 야생종 · 식용 불가", food: 0);

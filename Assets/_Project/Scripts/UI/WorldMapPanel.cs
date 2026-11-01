@@ -194,8 +194,8 @@ namespace AntColony.UI
                 && selectedSite != null && selectedSite.Disposition == ConquestDisposition.Annexed;
             stopRoute.interactable = route != null && route.IsRunning;
             routeStatus.text = route != null && route.IsRunning
-                ? $"<b>자동 수송</b>: {string.Join(" → ", route.Stops.Select(s => s.Title))}\n{route.Status} · 집에서 {TransportRoute.IntervalSeconds:0}초 뒤 반복"
-                : routeStops.Count > 0 ? $"<b>경유지</b>: {string.Join(" → ", routeStops.Select(s => s.Title))}\n일꾼 장수를 태우고 자동 수송 시작."
+                ? $"<b>자동 수송</b>: {string.Join(" → ", route.Stops.Select(s => SiteNames.Name(s)))}\n{route.Status} · 집에서 {TransportRoute.IntervalSeconds:0}초 뒤 반복"
+                : routeStops.Count > 0 ? $"<b>경유지</b>: {string.Join(" → ", routeStops.Select(s => SiteNames.Name(s)))}\n일꾼 장수를 태우고 자동 수송 시작."
                 : $"<b>자동 수송</b>: {(route != null ? route.Status : "꺼짐")}\n편입 거점을 고르거나 경유지(최대 {TransportRoute.MaxStops}곳)를 추가한 뒤 시작.";
             var lab = FindLab();
             scienceStatus.text = $"과학 연구소: {(lab != null ? lab.Busy ? $"작업 중 {lab.Remaining:0}초" : "대기" : "없음")}\n"
@@ -362,7 +362,7 @@ namespace AntColony.UI
                 : site.Disposition == ConquestDisposition.Lost ? "상실"
                 : site.Cleared ? site.Kind == ExpeditionSiteKind.ResourceSite ? "고갈" : site.Kind == ExpeditionSiteKind.Settlement ? "정복 결정 대기" : "정리됨"
                 : site.Kind == ExpeditionSiteKind.ResourceSite ? "중립" : "적대";
-            var text = $"<b><size=16>{site.Title}</size></b>\n{site.Faction} · {kind} · {AntColony.Core.BiomeRules.Name(site.Biome)} · 상태 <b>{state}</b>\n난이도 "
+            var text = $"<b><size=16>{SiteNames.Name(site)}</size></b>\n{SiteNames.Faction(site)} · {kind} · {AntColony.Core.BiomeRules.Name(site.Biome)} · 상태 <b>{state}</b>\n난이도 "
                 + DifficultyText(site.Difficulty);
             if (site.Settlement != null && site.Colony != null)
                 text += $"\n주둔 {site.Settlement.Garrison.Count} · 현지 비축 식량 {site.Colony.GetStock(AntColony.Data.ResourceType.Food):0} / 재료 {site.Colony.GetStock(AntColony.Data.ResourceType.Soil):0}";

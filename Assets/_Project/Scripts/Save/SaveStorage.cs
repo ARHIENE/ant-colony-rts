@@ -52,7 +52,7 @@ namespace AntColony.Save
             error = null;
             try
             {
-                if (!File.Exists(path)) { error = "File not found."; return false; }
+                if (!File.Exists(path)) { error = "저장 파일을 찾을 수 없습니다."; return false; }
                 contents = File.ReadAllText(path);
                 return true;
             }

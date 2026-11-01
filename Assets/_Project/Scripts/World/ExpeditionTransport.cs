@@ -184,7 +184,7 @@ namespace AntColony.World
 
         internal void EvacuateLostSite()
         {
-            Route?.Stop("Stopped: destination lost");
+            Route?.Stop("중단: 목적지 상실");
             if (!Walking) { TryEmergencyReturn(); return; }
             if (State == ExpeditionState.Home || State == ExpeditionState.Returning) return;
             foreach (var c in crew)

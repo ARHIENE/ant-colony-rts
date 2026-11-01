@@ -30,6 +30,9 @@ namespace AntColony.Save
                 file.monsters.Add(Capture(m, SaveReferences.Key(m)));
         }
         private static MonsterDto Capture(WildMonster m, string key) => new MonsterDto { key = key,
+            militaryVersion = m != null && m.MilitaryEra > 0 ? 1 : 0, militaryEra = m != null ? m.MilitaryEra : 0,
+            militaryMember = m != null ? m.MilitaryMember : 0,
+            militaryEquipment = m?.MilitaryEquipment == null ? null : JsonUtility.FromJson<EquipmentItem>(JsonUtility.ToJson(m.MilitaryEquipment)), militaryEquipped = m?.MilitaryEquipment != null,
             guardVersion = 1, guardBoss = m != null ? m.GuardBoss : -1, guardCycle = m != null ? m.GuardCycle : 0, guardXpClaimed = m != null && m.GuardXpClaimed,
             investigationId = (m as EnemyCommander)?.InvestigationId,
             health = m != null ? m.CurrentHealth : 0, position = new Vec3Dto(m != null ? m.Position : Vector3.zero),
@@ -86,7 +89,7 @@ namespace AntColony.Save
                     {
                         var template = state.parentSite >= 0 ? world.Sites[state.parentSite].GuardTemplate
                             : world.Sites.FirstOrDefault(s => s.GuardTemplate != null)?.GuardTemplate;
-                        if (template == null) throw new InvalidOperationException("Missing runtime commander template.");
+                        if (template == null) throw new InvalidOperationException("적 장수 생성 정보가 없습니다.");
                         m = Object.Instantiate(template, d.position.ToVector3(), Quaternion.identity, parent);
                     }
                     else
@@ -96,10 +99,12 @@ namespace AntColony.Save
                         m = go.AddComponent<WildMonster>();
                     }
                 }
-                if (m == null) { if (d.health > 0) throw new InvalidOperationException("Missing saved enemy: " + d.key); continue; }
+                if (m == null) { if (d.health > 0) throw new InvalidOperationException("저장된 적 복원 대상 누락: " + d.key); continue; }
                 m.gameObject.SetActive(false); m.Agent.enabled = false;
                 m.transform.SetParent(state.parentSite < 0 ? null : world.Sites[state.parentSite].transform, true);
                 m.name = state.name; m.transform.position = d.position.ToVector3();
+                m.MilitaryEra = d.militaryEra; m.MilitaryMember = d.militaryMember;
+                m.MilitaryEquipment = d.militaryEquipment == null ? null : JsonUtility.FromJson<EquipmentItem>(JsonUtility.ToJson(d.militaryEquipment));
                 m.GuardBoss = d.guardBoss; m.GuardCycle = d.guardCycle; m.GuardXpClaimed = d.guardXpClaimed;
                 if (m.GuardBoss < 0 && state.name == "보스 호위" && m.GetComponentInParent<BossStronghold>() is BossStronghold stronghold)
                 {
@@ -134,8 +139,13 @@ namespace AntColony.Save
                         ? DiplomacyManager.Instance.Faction(world.Sites[d.runtime.parentSite]) : null;
                 if (faction == null) continue;
                 // 편성의 상한 처리 뒤 저장 체력을 적용한다. 회복/절삭하지 않는다.
-                m.RestoreAIMilitary(faction.era, member, d.health);
-                m.Agent.stoppingDistance = AIEraMilitary.Range(AIEraMilitary.Weapon(faction.era, member));
+                int era = d.militaryVersion == 1 ? d.militaryEra : faction.era;
+                int index = d.militaryVersion == 1 ? d.militaryMember : member;
+                m.RestoreAIMilitary(era, index, d.health);
+                if (d.militaryVersion == 1) m.MilitaryEquipment = d.militaryEquipment == null ? null
+                    : JsonUtility.FromJson<EquipmentItem>(JsonUtility.ToJson(d.militaryEquipment));
+                // 구저장 생존 병력만 현재 시대로 1회 소급한다. 체력·경험치·재능·공격 타이머는 보존한다.
+                if (d.health <= 0) m.MilitaryEquipment = null;
             }
             for (int i = 0; i < world.Sites.Count; i++) {
                 var site = file.world.sites[i];

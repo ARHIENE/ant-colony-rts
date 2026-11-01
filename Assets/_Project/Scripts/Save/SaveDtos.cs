@@ -379,6 +379,9 @@ namespace AntColony.Save
     [Serializable]
     public class MonsterDto
     {
+        public int militaryVersion, militaryEra, militaryMember;
+        public bool militaryEquipped; // JsonUtility가 null 장비를 기본 객체로 되살리므로 보유 여부를 따로 저장
+        public Units.EquipmentItem militaryEquipment;
         public int guardVersion;
         public int guardBoss = -1, guardCycle;
         public bool guardXpClaimed;

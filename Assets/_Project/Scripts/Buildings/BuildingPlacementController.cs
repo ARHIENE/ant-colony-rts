@@ -102,22 +102,22 @@ namespace AntColony.Buildings
 
         public bool BeginFarmPlacement() => BeginPlacement(BuildingKind.Farm, UnitRole.Worker);
         public bool BeginStoragePlacement() => BeginPlacement(BuildingKind.Storage, UnitRole.Worker);
-        public string GetStorageBuildLabel() => GetBuildLabel(BuildingKind.Storage, UnitRole.Worker, "Build Storage");
+        public string GetStorageBuildLabel() => GetBuildLabel(BuildingKind.Storage, UnitRole.Worker, "창고 건설");
         public bool BeginAcidTowerPlacement() => BeginPlacement(BuildingKind.AcidTower, UnitRole.Worker);
-        public string GetAcidTowerBuildLabel() => GetBuildLabel(BuildingKind.AcidTower, UnitRole.Worker, "Acid Tower");
+        public string GetAcidTowerBuildLabel() => GetBuildLabel(BuildingKind.AcidTower, UnitRole.Worker, "산성탑");
         public bool BeginScienceLabPlacement() => BeginPlacement(BuildingKind.ScienceLab, UnitRole.Worker);
         public bool BeginAirshipYardPlacement() => BeginPlacement(BuildingKind.AirshipYard, UnitRole.Worker);
         public bool BeginInfirmaryPlacement() => BeginPlacement(BuildingKind.Infirmary, UnitRole.Worker);
         public string GetScienceLabBuildLabel() => GetBuildLabel(BuildingKind.ScienceLab, UnitRole.Worker, "정착지 연구대");
-        public string GetFarmBuildLabel() => GetBuildLabel(BuildingKind.Farm, UnitRole.Worker, "Build Farm");
+        public string GetFarmBuildLabel() => GetBuildLabel(BuildingKind.Farm, UnitRole.Worker, "밭 건설");
 
         // 장수 획득 건물 3종. 전투 보직과 무관하므로 역할은 Worker로 고정한다.
         public bool BeginNurseryPlacement() => BeginPlacement(BuildingKind.Nursery, UnitRole.Worker);
         public bool BeginScoutPostPlacement() => BeginPlacement(BuildingKind.ScoutPost, UnitRole.Worker);
         public bool BeginPrisonerCampPlacement() => BeginPlacement(BuildingKind.PrisonerCamp, UnitRole.Worker);
-        public string GetNurseryBuildLabel() => GetBuildLabel(BuildingKind.Nursery, UnitRole.Worker, "Build Nursery");
-        public string GetScoutPostBuildLabel() => GetBuildLabel(BuildingKind.ScoutPost, UnitRole.Worker, "Build Scout Post");
-        public string GetPrisonerCampBuildLabel() => GetBuildLabel(BuildingKind.PrisonerCamp, UnitRole.Worker, "Build Prison");
+        public string GetNurseryBuildLabel() => GetBuildLabel(BuildingKind.Nursery, UnitRole.Worker, "양육실 건설");
+        public string GetScoutPostBuildLabel() => GetBuildLabel(BuildingKind.ScoutPost, UnitRole.Worker, "정찰 초소 건설");
+        public string GetPrisonerCampBuildLabel() => GetBuildLabel(BuildingKind.PrisonerCamp, UnitRole.Worker, "포로 수용소 건설");
 
         public bool BeginBarracksPlacement() => BeginBarracksPlacement(UnitRole.Melee);
         public bool BeginResearchLabPlacement() => BeginResearchLabPlacement(UnitRole.Melee);
@@ -126,8 +126,8 @@ namespace AntColony.Buildings
 
         public string GetBarracksBuildLabel() => GetBarracksBuildLabel(UnitRole.Melee);
         public string GetResearchLabBuildLabel() => GetResearchLabBuildLabel(UnitRole.Melee);
-        public string GetBarracksBuildLabel(UnitRole role) => GetBuildLabel(BuildingKind.Barracks, role, $"Build {role} Barracks");
-        public string GetResearchLabBuildLabel(UnitRole role) => GetBuildLabel(BuildingKind.ResearchLab, role, $"Build {role} Lab");
+        public string GetBarracksBuildLabel(UnitRole role) => GetBuildLabel(BuildingKind.Barracks, role, $"{AntColony.UI.CommandCard.RoleName(role)} 병영 건설");
+        public string GetResearchLabBuildLabel(UnitRole role) => GetBuildLabel(BuildingKind.ResearchLab, role, $"{AntColony.UI.CommandCard.RoleName(role)} 연구소 건설");
 
         // 건설 화면에서 고른 장수에게 맡긴다. null이면 현재 선택된 장수를 쓴다.
         public bool BeginPlacement(BuildingKind kind, UnitRole role, WorkerAnt chosenBuilder)
@@ -138,11 +138,11 @@ namespace AntColony.Buildings
             var crop = kind == BuildingKind.MushroomFarm ? FarmCrop.Fungus : kind == BuildingKind.AphidPen ? FarmCrop.Honeydew : (FarmCrop?)null;
             if (crop != null) kind = BuildingKind.Farm;
             if (AntColony.World.WorldMapManager.Instance != null && AntColony.World.WorldMapManager.Instance.ViewedSite != null)
-                return PlacementFailed("Return to the home colony to construct buildings.");
+                return PlacementFailed("본거지로 돌아온 뒤 건물을 배치하세요.");
             var selectedBuilder = chosenBuilder != null ? chosenBuilder : GetSelectedBuilder();
             var template = GetTemplate(kind, role);
             var building = template != null ? template.GetComponent<BuildingBase>() : null;
-            if (building == null || building.Data == null) return PlacementFailed("This building template is unavailable.");
+            if (building == null || building.Data == null) return PlacementFailed("이 건물의 건설 정보를 불러올 수 없습니다.");
 
             CancelPlacement();
             pendingKind = kind;
@@ -162,7 +162,7 @@ namespace AntColony.Buildings
             if (!Demolition.CanMove(target)) return PlacementFailed("방 가구·장식·전력 가구와 고갈된 심층 채굴기만 옮길 수 있습니다.");
             var role = target is Barracks barracks ? barracks.Role : target is ResearchLab lab ? lab.Role : UnitRole.Worker;
             var template = GetTemplate(target.Data.kind, role);
-            if (template == null) return PlacementFailed("This building template is unavailable.");
+            if (template == null) return PlacementFailed("이 건물의 건설 정보를 불러올 수 없습니다.");
             CancelPlacement();
             pendingKind = target.Data.kind; pendingCrop = null; pendingRole = role; builder = null;
             IsPlacing = true; CreatePreview(template); moveTarget = target;
@@ -182,7 +182,7 @@ namespace AntColony.Buildings
             if (kind == BuildingKind.WaterSource || kind == BuildingKind.OilDeposit) return "자연 지점은 건설할 수 없습니다.";
             if (kind == BuildingKind.AphidPen && !ScienceEffects.CropUnlocked(FarmCrop.Honeydew)) return "감로 목장 연구가 필요합니다.";
             if (!ScienceEffects.BuildingUnlocked(kind)) return "관련 과학 기술을 먼저 연구하세요.";
-            if (kind == BuildingKind.MineField && MineField.Count >= GameBalance.MaxMines) return $"Up to {GameBalance.MaxMines} mine fields at once.";
+            if (kind == BuildingKind.MineField && MineField.Count >= GameBalance.MaxMines) return $"매설지는 동시에 {GameBalance.MaxMines}개까지 설치할 수 있습니다.";
             if (kind == BuildingKind.Infirmary && !Infirmary.Unlocked) return "의무실을 먼저 연구하세요.";
             if (kind == BuildingKind.AirshipYard && (CampaignResearch.Instance == null
                 || !CampaignResearch.Instance.Has(ScienceTechnology.MigrationTheory))) return "로켓 이론을 먼저 연구하세요.";
@@ -405,9 +405,9 @@ namespace AntColony.Buildings
         {
             var template = GetTemplate(kind, role);
             var building = template != null ? template.GetComponent<BuildingBase>() : null;
-            if (building == null || building.Data == null) return name + " (Unavailable)";
+            if (building == null || building.Data == null) return name + " (건설 정보 없음)";
             return EarlyConstruction.HasFixedCost(kind) ? $"{name}\n{EarlyConstruction.Label(kind)}"
-                : $"{name}\n{building.Data.foodCost}F {building.Data.soilCost} 재료{(building.Data.specialCost > 0 ? $" {building.Data.specialCost}Sp" : "")}";
+                : $"{name}\n식량 {building.Data.foodCost} · 재료 {building.Data.soilCost}{(building.Data.specialCost > 0 ? $" · 특수 자원 {building.Data.specialCost}" : "")}";
         }
 
         internal static GameObject GetTemplate(BuildingKind kind, UnitRole role)
@@ -467,7 +467,7 @@ namespace AntColony.Buildings
             go.GetComponent<Renderer>().material.color = new Color(.65f, .85f, .8f);
             var definition = ScriptableObject.CreateInstance<BuildingData>();
             definition.kind = BuildingKind.Infirmary;
-            definition.displayName = "Infirmary";
+            definition.displayName = "의무실";
             definition.foodCost = 40; definition.soilCost = 40;
             definition.constructionAnts = 4; definition.buildTimeSeconds = 8;
             go.AddComponent<Infirmary>().ConfigureRuntime(definition);
@@ -483,7 +483,7 @@ namespace AntColony.Buildings
             go.transform.localScale = new Vector3(6, 2, 4);
             var definition = ScriptableObject.CreateInstance<BuildingData>();
             definition.kind = BuildingKind.AirshipYard;
-            definition.displayName = "Rocket Launch Pad";
+            definition.displayName = "로켓 발사대";
             definition.foodCost = 100; definition.soilCost = 150;
             definition.constructionAnts = 10; definition.buildTimeSeconds = 30;
             definition.maxHealth = 600;

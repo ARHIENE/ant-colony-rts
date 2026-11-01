@@ -94,6 +94,8 @@ namespace AntColony.Camera
             if (mouse == null || edgeScrollThickness <= 0) return;
 
             var pos = mouse.position.ReadValue();
+            // 창이 포커스를 잃었거나 커서가 창 밖이면 흘러가지 않는다(창 모드·Alt+Tab, 2026-11-01).
+            if (!Application.isFocused || pos.x < 0 || pos.y < 0 || pos.x > Screen.width || pos.y > Screen.height) return;
             var move = Vector2.zero;
 
             if (pos.y >= Screen.height - edgeScrollThickness) move.y += 1f;

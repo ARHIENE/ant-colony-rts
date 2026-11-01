@@ -106,7 +106,7 @@ namespace AntColony.Buildings
             if (Busy) return;
             var world = WorldMapManager.Instance;
             if (world == null) return;
-            AntColony.UI.ToastManager.Show((aircraft ? "Aircraft" : "Vehicle") + (constructing ? " construction complete." : " research complete."));
+            AntColony.UI.ToastManager.Show((aircraft ? "비행기" : "차량") + (constructing ? " 건조 완료." : " 연구 완료."));
             if (constructing) world.CreateTransport(aircraft, spawnPosition);
             else
             {

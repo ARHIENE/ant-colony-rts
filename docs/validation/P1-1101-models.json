@@ -1,0 +1,1288 @@
+{
+  "mappings": 135,
+  "missing": [],
+  "samples": [
+    {
+      "file": "CC_Hut.fbx",
+      "models": [
+        {
+          "name": "CC_Hut",
+          "kind": "Null",
+          "transforms": [
+            [
+              "Lcl Rotation",
+              [
+                -90.00000933466734,
+                0,
+                0
+              ]
+            ]
+          ]
+        },
+        {
+          "name": "CC_Hut__WorkPoint_0",
+          "kind": "Null",
+          "transforms": [
+            [
+              "Lcl Translation",
+              [
+                0,
+                -2.5999999046325684,
+                0
+              ]
+            ]
+          ]
+        },
+        {
+          "name": "Hut door",
+          "kind": "Mesh",
+          "transforms": [
+            [
+              "Lcl Translation",
+              [
+                0,
+                -1.850000023841858,
+                0.8999999761581421
+              ]
+            ]
+          ]
+        },
+        {
+          "name": "Hut wall",
+          "kind": "Mesh",
+          "transforms": [
+            [
+              "Lcl Translation",
+              [
+                0,
+                0,
+                0.949999988079071
+              ]
+            ],
+            [
+              "Lcl Rotation",
+              [
+                0,
+                0,
+                -179.999991348578
+              ]
+            ]
+          ]
+        },
+        {
+          "name": "Thatch roof",
+          "kind": "Mesh",
+          "transforms": [
+            [
+              "Lcl Translation",
+              [
+                0,
+                0,
+                2.799999952316284
+              ]
+            ]
+          ]
+        }
+      ],
+      "axes": [
+        [
+          "UpAxis",
+          1
+        ],
+        [
+          "UpAxisSign",
+          1
+        ],
+        [
+          "FrontAxis",
+          2
+        ],
+        [
+          "FrontAxisSign",
+          1
+        ],
+        [
+          "CoordAxis",
+          0
+        ],
+        [
+          "CoordAxisSign",
+          1
+        ]
+      ],
+      "localMeshBounds": [
+        [
+          -2.4000000953674316,
+          2.4000000953674316
+        ],
+        [
+          -2.4000000953674316,
+          2.4000000953674316
+        ],
+        [
+          -0.949999988079071,
+          0.949999988079071
+        ]
+      ]
+    },
+    {
+      "file": "CC_House.fbx",
+      "models": [
+        {
+          "name": "CC_House",
+          "kind": "Null",
+          "transforms": [
+            [
+              "Lcl Rotation",
+              [
+                -90.00000933466734,
+                0,
+                0
+              ]
+            ]
+          ]
+        },
+        {
+          "name": "CC_House__WorkPoint_0",
+          "kind": "Null",
+          "transforms": [
+            [
+              "Lcl Translation",
+              [
+                0,
+                -2.5999999046325684,
+                0
+              ]
+            ]
+          ]
+        },
+        {
+          "name": "House door",
+          "kind": "Mesh",
+          "transforms": [
+            [
+              "Lcl Translation",
+              [
+                0,
+                -1.8200000524520874,
+                0.949999988079071
+              ]
+            ]
+          ]
+        },
+        {
+          "name": "House walls",
+          "kind": "Mesh",
+          "transforms": [
+            [
+              "Lcl Translation",
+              [
+                0,
+                0,
+                1.399999976158142
+              ]
+            ]
+          ]
+        },
+        {
+          "name": "Roof slab",
+          "kind": "Mesh",
+          "transforms": [
+            [
+              "Lcl Translation",
+              [
+                0,
+                -1,
+                3.3499999046325684
+              ]
+            ],
+            [
+              "Lcl Rotation",
+              [
+                31.512686245403366,
+                0,
+                0
+              ]
+            ]
+          ]
+        },
+        {
+          "name": "Roof slab.001",
+          "kind": "Mesh",
+          "transforms": [
+            [
+              "Lcl Translation",
+              [
+                0,
+                1,
+                3.3499999046325684
+              ]
+            ],
+            [
+              "Lcl Rotation",
+              [
+                -31.512686245403366,
+                0,
+                0
+              ]
+            ]
+          ]
+        },
+        {
+          "name": "Window",
+          "kind": "Mesh",
+          "transforms": [
+            [
+              "Lcl Translation",
+              [
+                -1.399999976158142,
+                -1.8200000524520874,
+                1.7000000476837158
+              ]
+            ]
+          ]
+        },
+        {
+          "name": "Window.001",
+          "kind": "Mesh",
+          "transforms": [
+            [
+              "Lcl Translation",
+              [
+                1.399999976158142,
+                -1.8200000524520874,
+                1.7000000476837158
+              ]
+            ]
+          ]
+        }
+      ],
+      "axes": [
+        [
+          "UpAxis",
+          1
+        ],
+        [
+          "UpAxisSign",
+          1
+        ],
+        [
+          "FrontAxis",
+          2
+        ],
+        [
+          "FrontAxisSign",
+          1
+        ],
+        [
+          "CoordAxis",
+          0
+        ],
+        [
+          "CoordAxisSign",
+          1
+        ]
+      ],
+      "localMeshBounds": [
+        [
+          -2.4000000953674316,
+          2.4000000953674316
+        ],
+        [
+          -1.7999999523162842,
+          1.7999999523162842
+        ],
+        [
+          -1.399999976158142,
+          1.399999976158142
+        ]
+      ]
+    },
+    {
+      "file": "CC_Dormitory.fbx",
+      "models": [
+        {
+          "name": "Back wall",
+          "kind": "Mesh",
+          "transforms": [
+            [
+              "Lcl Translation",
+              [
+                0,
+                1.6499996185302734,
+                1.2750000953674316
+              ]
+            ]
+          ]
+        },
+        {
+          "name": "CC_Dormitory",
+          "kind": "Null",
+          "transforms": [
+            [
+              "Lcl Rotation",
+              [
+                -90.00000933466734,
+                0,
+                0
+              ]
+            ]
+          ]
+        },
+        {
+          "name": "CC_Dormitory__WorkPoint_0",
+          "kind": "Null",
+          "transforms": [
+            [
+              "Lcl Translation",
+              [
+                9.5367431640625e-7,
+                -3.375,
+                0
+              ]
+            ],
+            [
+              "Lcl Rotation",
+              [
+                90.00000933466734,
+                -0.000008651421394828171,
+                -179.999991348578
+              ]
+            ]
+          ]
+        },
+        {
+          "name": "Corner",
+          "kind": "Mesh",
+          "transforms": [
+            [
+              "Lcl Translation",
+              [
+                -2.1000003814697266,
+                -1.5,
+                1.4249999523162842
+              ]
+            ],
+            [
+              "Lcl Rotation",
+              [
+                0,
+                0,
+                -179.999991348578
+              ]
+            ]
+          ]
+        },
+        {
+          "name": "Corner.001",
+          "kind": "Mesh",
+          "transforms": [
+            [
+              "Lcl Translation",
+              [
+                -2.1000003814697266,
+                1.5,
+                1.4249999523162842
+              ]
+            ],
+            [
+              "Lcl Rotation",
+              [
+                0,
+                0,
+                -179.999991348578
+              ]
+            ]
+          ]
+        },
+        {
+          "name": "Corner.002",
+          "kind": "Mesh",
+          "transforms": [
+            [
+              "Lcl Translation",
+              [
+                2.1000003814697266,
+                -1.5,
+                1.4249999523162842
+              ]
+            ],
+            [
+              "Lcl Rotation",
+              [
+                0,
+                0,
+                -179.999991348578
+              ]
+            ]
+          ]
+        },
+        {
+          "name": "Corner.003",
+          "kind": "Mesh",
+          "transforms": [
+            [
+              "Lcl Translation",
+              [
+                2.1000003814697266,
+                1.5,
+                1.4249999523162842
+              ]
+            ],
+            [
+              "Lcl Rotation",
+              [
+                0,
+                0,
+                -179.999991348578
+              ]
+            ]
+          ]
+        },
+        {
+          "name": "Door awning",
+          "kind": "Mesh",
+          "transforms": [
+            [
+              "Lcl Translation",
+              [
+                0,
+                -1.9499998092651367,
+                2.3249998092651367
+              ]
+            ],
+            [
+              "Lcl Rotation",
+              [
+                0,
+                0,
+                89.99998201391065
+              ]
+            ]
+          ]
+        },
+        {
+          "name": "Doorstep",
+          "kind": "Mesh",
+          "transforms": [
+            [
+              "Lcl Translation",
+              [
+                0,
+                -2.0249996185302734,
+                0.19499999284744263
+              ]
+            ]
+          ]
+        },
+        {
+          "name": "Front wall",
+          "kind": "Mesh",
+          "transforms": [
+            [
+              "Lcl Translation",
+              [
+                -1.5,
+                -1.6499996185302734,
+                1.2750000953674316
+              ]
+            ]
+          ]
+        },
+        {
+          "name": "Front wall.001",
+          "kind": "Mesh",
+          "transforms": [
+            [
+              "Lcl Translation",
+              [
+                1.5,
+                -1.6499996185302734,
+                1.2750000953674316
+              ]
+            ]
+          ]
+        },
+        {
+          "name": "Raised floor",
+          "kind": "Mesh",
+          "transforms": [
+            [
+              "Lcl Translation",
+              [
+                0,
+                0,
+                0.21000000834465027
+              ]
+            ]
+          ]
+        },
+        {
+          "name": "Roof ridge",
+          "kind": "Mesh",
+          "transforms": [
+            [
+              "Lcl Translation",
+              [
+                0,
+                0,
+                3.4200000762939453
+              ]
+            ],
+            [
+              "Lcl Rotation",
+              [
+                90.00000250447816,
+                0,
+                90.00000250447816
+              ]
+            ]
+          ]
+        },
+        {
+          "name": "Side wall",
+          "kind": "Mesh",
+          "transforms": [
+            [
+              "Lcl Translation",
+              [
+                -2.1000003814697266,
+                0,
+                1.2750000953674316
+              ]
+            ]
+          ]
+        },
+        {
+          "name": "Side wall.001",
+          "kind": "Mesh",
+          "transforms": [
+            [
+              "Lcl Translation",
+              [
+                2.1000003814697266,
+                0,
+                1.2750000953674316
+              ]
+            ]
+          ]
+        },
+        {
+          "name": "Thatched leaf",
+          "kind": "Mesh",
+          "transforms": [
+            [
+              "Lcl Translation",
+              [
+                -2.114999771118164,
+                -0.9899997711181641,
+                2.9250001907348633
+              ]
+            ],
+            [
+              "Lcl Rotation",
+              [
+                21.7723993568583,
+                0,
+                0
+              ]
+            ]
+          ]
+        },
+        {
+          "name": "Thatched leaf.001",
+          "kind": "Mesh",
+          "transforms": [
+            [
+              "Lcl Translation",
+              [
+                -1.4099998474121094,
+                -0.9899997711181641,
+                2.9250001907348633
+              ]
+            ],
+            [
+              "Lcl Rotation",
+              [
+                21.7723993568583,
+                0,
+                0
+              ]
+            ]
+          ]
+        },
+        {
+          "name": "Thatched leaf.002",
+          "kind": "Mesh",
+          "transforms": [
+            [
+              "Lcl Translation",
+              [
+                -0.7049999237060547,
+                -0.9899997711181641,
+                2.9250001907348633
+              ]
+            ],
+            [
+              "Lcl Rotation",
+              [
+                21.7723993568583,
+                0,
+                0
+              ]
+            ]
+          ]
+        },
+        {
+          "name": "Thatched leaf.003",
+          "kind": "Mesh",
+          "transforms": [
+            [
+              "Lcl Translation",
+              [
+                0,
+                -0.9899997711181641,
+                2.9250001907348633
+              ]
+            ],
+            [
+              "Lcl Rotation",
+              [
+                21.7723993568583,
+                0,
+                0
+              ]
+            ]
+          ]
+        },
+        {
+          "name": "Thatched leaf.004",
+          "kind": "Mesh",
+          "transforms": [
+            [
+              "Lcl Translation",
+              [
+                0.7049999237060547,
+                -0.9899997711181641,
+                2.9250001907348633
+              ]
+            ],
+            [
+              "Lcl Rotation",
+              [
+                21.7723993568583,
+                0,
+                0
+              ]
+            ]
+          ]
+        },
+        {
+          "name": "Thatched leaf.005",
+          "kind": "Mesh",
+          "transforms": [
+            [
+              "Lcl Translation",
+              [
+                1.4099998474121094,
+                -0.9899997711181641,
+                2.9250001907348633
+              ]
+            ],
+            [
+              "Lcl Rotation",
+              [
+                21.7723993568583,
+                0,
+                0
+              ]
+            ]
+          ]
+        },
+        {
+          "name": "Thatched leaf.006",
+          "kind": "Mesh",
+          "transforms": [
+            [
+              "Lcl Translation",
+              [
+                2.114999771118164,
+                -0.9899997711181641,
+                2.9250001907348633
+              ]
+            ],
+            [
+              "Lcl Rotation",
+              [
+                21.7723993568583,
+                0,
+                0
+              ]
+            ]
+          ]
+        },
+        {
+          "name": "Thatched leaf.007",
+          "kind": "Mesh",
+          "transforms": [
+            [
+              "Lcl Translation",
+              [
+                -2.114999771118164,
+                0.9899997711181641,
+                2.9250001907348633
+              ]
+            ],
+            [
+              "Lcl Rotation",
+              [
+                -21.7723993568583,
+                0,
+                0
+              ]
+            ]
+          ]
+        },
+        {
+          "name": "Thatched leaf.008",
+          "kind": "Mesh",
+          "transforms": [
+            [
+              "Lcl Translation",
+              [
+                -1.4099998474121094,
+                0.9899997711181641,
+                2.9250001907348633
+              ]
+            ],
+            [
+              "Lcl Rotation",
+              [
+                -21.7723993568583,
+                0,
+                0
+              ]
+            ]
+          ]
+        },
+        {
+          "name": "Thatched leaf.009",
+          "kind": "Mesh",
+          "transforms": [
+            [
+              "Lcl Translation",
+              [
+                -0.7049999237060547,
+                0.9899997711181641,
+                2.9250001907348633
+              ]
+            ],
+            [
+              "Lcl Rotation",
+              [
+                -21.7723993568583,
+                0,
+                0
+              ]
+            ]
+          ]
+        },
+        {
+          "name": "Thatched leaf.010",
+          "kind": "Mesh",
+          "transforms": [
+            [
+              "Lcl Translation",
+              [
+                0,
+                0.9899997711181641,
+                2.9250001907348633
+              ]
+            ],
+            [
+              "Lcl Rotation",
+              [
+                -21.7723993568583,
+                0,
+                0
+              ]
+            ]
+          ]
+        },
+        {
+          "name": "Thatched leaf.011",
+          "kind": "Mesh",
+          "transforms": [
+            [
+              "Lcl Translation",
+              [
+                0.7049999237060547,
+                0.9899997711181641,
+                2.9250001907348633
+              ]
+            ],
+            [
+              "Lcl Rotation",
+              [
+                -21.7723993568583,
+                0,
+                0
+              ]
+            ]
+          ]
+        },
+        {
+          "name": "Thatched leaf.012",
+          "kind": "Mesh",
+          "transforms": [
+            [
+              "Lcl Translation",
+              [
+                1.4099998474121094,
+                0.9899997711181641,
+                2.9250001907348633
+              ]
+            ],
+            [
+              "Lcl Rotation",
+              [
+                -21.7723993568583,
+                0,
+                0
+              ]
+            ]
+          ]
+        },
+        {
+          "name": "Thatched leaf.013",
+          "kind": "Mesh",
+          "transforms": [
+            [
+              "Lcl Translation",
+              [
+                2.114999771118164,
+                0.9899997711181641,
+                2.9250001907348633
+              ]
+            ],
+            [
+              "Lcl Rotation",
+              [
+                -21.7723993568583,
+                0,
+                0
+              ]
+            ]
+          ]
+        }
+      ],
+      "axes": [
+        [
+          "UpAxis",
+          1
+        ],
+        [
+          "UpAxisSign",
+          1
+        ],
+        [
+          "FrontAxis",
+          2
+        ],
+        [
+          "FrontAxisSign",
+          1
+        ],
+        [
+          "CoordAxis",
+          0
+        ],
+        [
+          "CoordAxisSign",
+          1
+        ]
+      ],
+      "localMeshBounds": [
+        [
+          -2.4000000953674316,
+          2.4000000953674316
+        ],
+        [
+          -1.9499999284744263,
+          1.9499999284744263
+        ],
+        [
+          -2.5500001907348633,
+          2.5500001907348633
+        ]
+      ]
+    },
+    {
+      "file": "CC_Apartment.fbx",
+      "models": [
+        {
+          "name": "Apartment door",
+          "kind": "Mesh",
+          "transforms": [
+            [
+              "Lcl Translation",
+              [
+                0,
+                -1.9199999570846558,
+                0.949999988079071
+              ]
+            ]
+          ]
+        },
+        {
+          "name": "Balcony",
+          "kind": "Mesh",
+          "transforms": [
+            [
+              "Lcl Translation",
+              [
+                0,
+                -2.0999999046325684,
+                2.700000047683716
+              ]
+            ]
+          ]
+        },
+        {
+          "name": "Balcony.001",
+          "kind": "Mesh",
+          "transforms": [
+            [
+              "Lcl Translation",
+              [
+                0,
+                -2.0999999046325684,
+                5.199999809265137
+              ]
+            ]
+          ]
+        },
+        {
+          "name": "CC_Apartment",
+          "kind": "Null",
+          "transforms": [
+            [
+              "Lcl Rotation",
+              [
+                -90.00000933466734,
+                0,
+                0
+              ]
+            ]
+          ]
+        },
+        {
+          "name": "CC_Apartment__WorkPoint_0",
+          "kind": "Null",
+          "transforms": [
+            [
+              "Lcl Translation",
+              [
+                0,
+                -2.700000047683716,
+                0
+              ]
+            ]
+          ]
+        },
+        {
+          "name": "Roof leaf.007",
+          "kind": "Mesh",
+          "transforms": [
+            [
+              "Lcl Translation",
+              [
+                -2.0999999046325684,
+                0,
+                7.599999904632568
+              ]
+            ]
+          ]
+        },
+        {
+          "name": "Roof leaf.008",
+          "kind": "Mesh",
+          "transforms": [
+            [
+              "Lcl Translation",
+              [
+                -1.399999976158142,
+                0,
+                7.599999904632568
+              ]
+            ]
+          ]
+        },
+        {
+          "name": "Roof leaf.009",
+          "kind": "Mesh",
+          "transforms": [
+            [
+              "Lcl Translation",
+              [
+                -0.699999988079071,
+                0,
+                7.599999904632568
+              ]
+            ]
+          ]
+        },
+        {
+          "name": "Roof leaf.010",
+          "kind": "Mesh",
+          "transforms": [
+            [
+              "Lcl Translation",
+              [
+                0,
+                0,
+                7.599999904632568
+              ]
+            ]
+          ]
+        },
+        {
+          "name": "Roof leaf.011",
+          "kind": "Mesh",
+          "transforms": [
+            [
+              "Lcl Translation",
+              [
+                0.699999988079071,
+                0,
+                7.599999904632568
+              ]
+            ]
+          ]
+        },
+        {
+          "name": "Roof leaf.012",
+          "kind": "Mesh",
+          "transforms": [
+            [
+              "Lcl Translation",
+              [
+                1.399999976158142,
+                0,
+                7.599999904632568
+              ]
+            ]
+          ]
+        },
+        {
+          "name": "Roof leaf.013",
+          "kind": "Mesh",
+          "transforms": [
+            [
+              "Lcl Translation",
+              [
+                2.0999999046325684,
+                0,
+                7.599999904632568
+              ]
+            ]
+          ]
+        },
+        {
+          "name": "Storey",
+          "kind": "Mesh",
+          "transforms": [
+            [
+              "Lcl Translation",
+              [
+                0,
+                0,
+                1.25
+              ]
+            ]
+          ]
+        },
+        {
+          "name": "Storey.001",
+          "kind": "Mesh",
+          "transforms": [
+            [
+              "Lcl Translation",
+              [
+                0,
+                0,
+                3.75
+              ]
+            ]
+          ]
+        },
+        {
+          "name": "Storey.002",
+          "kind": "Mesh",
+          "transforms": [
+            [
+              "Lcl Translation",
+              [
+                0,
+                0,
+                6.25
+              ]
+            ]
+          ]
+        },
+        {
+          "name": "Window.002",
+          "kind": "Mesh",
+          "transforms": [
+            [
+              "Lcl Translation",
+              [
+                -1.5,
+                -1.9199999570846558,
+                1.399999976158142
+              ]
+            ]
+          ]
+        },
+        {
+          "name": "Window.003",
+          "kind": "Mesh",
+          "transforms": [
+            [
+              "Lcl Translation",
+              [
+                1.5,
+                -1.9199999570846558,
+                1.399999976158142
+              ]
+            ]
+          ]
+        },
+        {
+          "name": "Window.004",
+          "kind": "Mesh",
+          "transforms": [
+            [
+              "Lcl Translation",
+              [
+                -1.5,
+                -1.9199999570846558,
+                3.9000000953674316
+              ]
+            ]
+          ]
+        },
+        {
+          "name": "Window.005",
+          "kind": "Mesh",
+          "transforms": [
+            [
+              "Lcl Translation",
+              [
+                0,
+                -1.9199999570846558,
+                3.9000000953674316
+              ]
+            ]
+          ]
+        },
+        {
+          "name": "Window.006",
+          "kind": "Mesh",
+          "transforms": [
+            [
+              "Lcl Translation",
+              [
+                1.5,
+                -1.9199999570846558,
+                3.9000000953674316
+              ]
+            ]
+          ]
+        },
+        {
+          "name": "Window.007",
+          "kind": "Mesh",
+          "transforms": [
+            [
+              "Lcl Translation",
+              [
+                -1.5,
+                -1.9199999570846558,
+                6.400000095367432
+              ]
+            ]
+          ]
+        },
+        {
+          "name": "Window.008",
+          "kind": "Mesh",
+          "transforms": [
+            [
+              "Lcl Translation",
+              [
+                0,
+                -1.9199999570846558,
+                6.400000095367432
+              ]
+            ]
+          ]
+        },
+        {
+          "name": "Window.009",
+          "kind": "Mesh",
+          "transforms": [
+            [
+              "Lcl Translation",
+              [
+                1.5,
+                -1.9199999570846558,
+                6.400000095367432
+              ]
+            ]
+          ]
+        }
+      ],
+      "axes": [
+        [
+          "UpAxis",
+          1
+        ],
+        [
+          "UpAxisSign",
+          1
+        ],
+        [
+          "FrontAxis",
+          2
+        ],
+        [
+          "FrontAxisSign",
+          1
+        ],
+        [
+          "CoordAxis",
+          0
+        ],
+        [
+          "CoordAxisSign",
+          1
+        ]
+      ],
+      "localMeshBounds": [
+        [
+          -2.4000000953674316,
+          2.4000000953674316
+        ],
+        [
+          -2.0999999046325684,
+          2.0999999046325684
+        ],
+        [
+          -1.25,
+          1.25
+        ]
+      ]
+    }
+  ]
+}

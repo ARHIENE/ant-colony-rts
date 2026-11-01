@@ -166,7 +166,7 @@ namespace AntColony.Buildings
             if (newbornTroops > 0) child.TryAssign(newbornTroops);
             BirthCount++;
             CampaignHistory.Record("합류", child.CommanderName, "출생");
-            AntColony.UI.ToastManager.Show(child.CommanderName + " was born.");
+            AntColony.UI.ToastManager.Show(child.CommanderName + " 출생.");
             return true;
         }
 

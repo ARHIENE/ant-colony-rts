@@ -76,8 +76,15 @@ namespace AntColony.UI
                 return;
             }
             instruction.rectTransform.sizeDelta = new Vector2(width, 64);
+            if (Target is BuildingBase aiBuilding && aiBuilding.GetComponent<AIIndustry>() is AIIndustry aiRole)
+            {
+                title.text = aiRole.Label;
+                status.text = $"체력 {aiBuilding.CurrentHealth:0}/{aiBuilding.MaxHealth:0} · 장갑 {AIEraMilitary.FortificationArmor(aiBuilding):0}";
+                instruction.text = "본부: 식량·자재 / 정련소: 자재 / 공방: 교체 장비 / 연구소: 연구·미래 장비 품질 / 지휘소: 장갑\n파괴한 역할은 정지하며, 소굴이 재건하면 재개합니다.";
+                action.gameObject.SetActive(false); return;
+            }
             var workforce = Workforce.For(Target);
-            title.text = Target is BuildingBase b && b.Data != null ? b.Data.displayName : Target.name;
+            title.text = DisplayNames.Target(Target);
             var workers = AntColony.Units.AntUnitBase.Active.OfType<AntColony.Units.CommanderAnt>().Where(c => c.WorkTarget == workforce).ToArray();
             status.text = workers.Length == 0 ? "작업 중인 장수 없음"
                 : $"작업 장수 {workers.Length}명: {string.Join(" · ", workers.Select(c => c.CommanderName))}";
@@ -101,7 +108,7 @@ namespace AntColony.UI
             if (Target is CompostBin compostInfo) { label.text = "퇴비통 관리"; instruction.text = compostInfo.Status; }
             if (Target is Tombstone tombInfo) { label.text = "묘비"; instruction.text = tombInfo.Empty ? "빈 묘비 · 사망 기록에서 고인을 등록하세요" : $"{tombInfo.Data2.name} · " + (tombInfo.Data2.body ? "안치됨" : "시신 미안치"); }
             if (Target is Infirmary bedInfo) { label.text = "환자 보기"; instruction.text = $"의료 침상 {bedInfo.Patients.Count}/{Infirmary.Capacity}" + (bedInfo.Patients.Count > 0 ? ": " + string.Join(", ", bedInfo.Patients.Select(p => $"{p.CommanderName}({p.Health.Summary})")) : ""); }
-            if (Target.GetComponent<FarmPlot>() is FarmPlot farmInfo) { label.text = "밭 관리"; instruction.text = $"{farmInfo.Crop.ToString()} · {farmInfo.Status}"; }
+            if (Target.GetComponent<FarmPlot>() is FarmPlot farmInfo) { label.text = "밭 관리"; instruction.text = $"{GameMenuController.CropName(farmInfo.Crop)} · {farmInfo.Status}"; }
             if (Target is Workshop shop) { label.text = "제작 대기열"; instruction.text = $"제작 대기 {shop.Jobs.Count}건 · {shop.WaitReason}"; }
             if (Target is Processor processor) { label.text = "가공 목록"; instruction.text = $"{processor.WaitReason} · {processor.Progress:P0} · 목록 {processor.Orders.Count}건"; }
             if (Target is Kitchen cookLabel && !cookLabel.IsTable) label.text = "요리 목록";
@@ -206,8 +213,14 @@ namespace AntColony.UI
             }
             if (Target is WildMonster animal)
             {
-                status.text = $"{animal.Temperament} · 체력 {animal.CurrentHealth:0} · {(animal.HuntDesignated ? "사냥 지정됨" : "사냥 미지정")}";
+                status.text = $"{DisplayNames.Wildlife(animal.Temperament)} · 체력 {animal.CurrentHealth:0} · {(animal.HuntDesignated ? "사냥 지정됨" : "사냥 미지정")}";
                 instruction.text = "사냥을 켠 장수만 지정된 야생 개체를 사냥합니다."; label.text = animal.HuntDesignated ? "사냥 취소" : "사냥 지정";
+                if (animal.MilitaryEra > 0)
+                {
+                    status.text = $"{animal.MilitaryEra}시대 병력 · 체력 {animal.CurrentHealth:0} · {animal.MilitaryEquipment?.Label ?? "장비 없음"}";
+                    instruction.text = $"사거리 {AIEraMilitary.Range(AIEraMilitary.Weapon(animal.MilitaryEra, animal.MilitaryMember)):0.#} · 공격 주기 {AIEraMilitary.Interval(AIEraMilitary.Weapon(animal.MilitaryEra, animal.MilitaryMember)):0.##}초 · 처치 시 장착 장비가 바닥에 남습니다.";
+                    action.gameObject.SetActive(false);
+                }
                 // 목장 생물(2026-10-11): 개체 관리(포획·운반·돌봄·치료·도축 금지·위험 작업 장수·방생).
                 if (animal.GetComponent<Critter>() is Critter critter)
                 {

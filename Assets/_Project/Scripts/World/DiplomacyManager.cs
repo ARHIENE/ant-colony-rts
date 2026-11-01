@@ -119,7 +119,7 @@ namespace AntColony.World
             c.war = false; c.nextOffer = Data.elapsed + DiplomacyRules.Month * 3;
             foreach (var raider in AntColony.Core.SceneObjects.All<WildMonster>())
                 if (raider.DiplomaticFactionId == c.id && string.IsNullOrEmpty(raider.RebelId)) Destroy(raider.gameObject);
-            CampaignHistory.Record("평화", c.name, "배상 Food " + compensation, true);
+            CampaignHistory.Record("평화", c.name, "배상 식량 " + compensation, true);
             return true;
         }
         public bool SignTreaty(Civilization c, TreatyKind kind)
@@ -127,8 +127,8 @@ namespace AntColony.World
             if (!Available || c == null || !Data.civilizations.Contains(c) || c.extinct || !c.contacted || c.war || !Enum.IsDefined(typeof(TreatyKind), kind)) return false;
             c.treaties[(int)kind] = Data.elapsed + DiplomacyRules.Year;
             if (kind == TreatyKind.Trade) c.hiddenRevealed = true;
-            c.ChangeAffinity(10, "협정 " + kind);
-            CampaignHistory.Record("협정", c.name, kind.ToString(), true); return true;
+            c.ChangeAffinity(10, "협정 " + AntColony.UI.DisplayNames.Treaty(kind));
+            CampaignHistory.Record("협정", c.name, AntColony.UI.DisplayNames.Treaty(kind), true); return true;
         }
         public bool AcceptOffer(Civilization c)
         {
@@ -185,10 +185,12 @@ namespace AntColony.World
             TickHomecomings();
             if (!Available) return;
             foreach (var c in Data.civilizations.Where(c => !c.extinct))
-                if (AIEraProgress.Tick(c, seconds, world.Sites.Where(s => Faction(s) == c && !s.Cleared).Sum(s => s.Colony?.RemainingBuildings ?? 0)))
+                if (AIEraProgress.Tick(c, seconds, world.Sites.Where(s => Faction(s) == c && !s.Cleared
+                    && AIIndustry.CanResearch(s.Colony, c.era)).Sum(s => s.Colony?.RemainingBuildings ?? 0)))
                 {
                     CampaignHistory.Record("세력 시대", c.name, CampaignResearch.EraNames[c.era - 1]);
-                    foreach (var site in world.Sites.Where(s => Faction(s) == c)) AIEraMilitary.UpgradeGuards(site, c);
+                    foreach (var site in world.Sites.Where(s => Faction(s) == c && s.Colony != null))
+                    { AIIndustry.Refresh(site.Colony, c.era); AIIndustry.Resupply(site, c); }
                 }
             TickTalks();
             TickRaidTravel();

@@ -137,7 +137,7 @@ namespace AntColony.Units
             if (Social.seriousInjuries >= 3 && !Social.injuryTraitChanged)
             {
                 Social.injuryTraitChanged = true;
-                if (traits.values.Remove(CommanderTrait.Robust)) ReportTrait("Robust 제거");
+                if (traits.values.Remove(CommanderTrait.Robust)) ReportTrait("튼튼함 제거");
                 else ChangeEventTrait(CommanderTrait.Frail);
             }
             // Phase 3: 기분이 탈주 기준 이하로 한 달 내내 이어지면 떠난다(파벌이면 무장 반란).
@@ -149,7 +149,7 @@ namespace AntColony.Units
             bool changed = remove.HasValue && traits.values.Remove(remove.Value);
             // 반대 특성은 제거만 한다. 다음 사건에서 빈칸에 새 특성을 얻는다.
             if (!changed) changed = traits.TryAdd(next);
-            if (changed) ReportTrait(remove.HasValue && !traits.Has(next) ? remove + " 제거" : next.ToString());
+            if (changed) ReportTrait(remove.HasValue && !traits.Has(next) ? CommanderTraits.DisplayName(remove.Value) + " 제거" : CommanderTraits.DisplayName(next));
         }
         private void ShiftEventTrait(CommanderTrait first, bool up)
         {
@@ -158,7 +158,7 @@ namespace AntColony.Units
             int value = (int)traits.values[index];
             int next = Mathf.Clamp(value + (up ? 1 : -1), (int)first, (int)first + 3);
             if (next == value) return;
-            traits.values[index] = (CommanderTrait)next; ReportTrait(traits.values[index].ToString());
+            traits.values[index] = (CommanderTrait)next; ReportTrait(CommanderTraits.DisplayName(traits.values[index]));
         }
         private void ReportTrait(string result)
         {

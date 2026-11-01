@@ -11,7 +11,7 @@ namespace AntColony.UI
             var w = V5Window("장수 소지품", "배고프면 소지 식량을 먼저 먹습니다. 개인 식량은 창고 재고에 포함되지 않습니다.");
             L.Label(w, "장수", 13, 24, 112, 180, 26, bold: true);
             L.Label(w, "무기 · 도구 · 복장", 13, 204, 112, 430, 26, bold: true);
-            L.Label(w, "보존식 · 무게", 13, 644, 112, 420, 26, bold: true);
+            L.Label(w, "보존식 · 소지 무게 / 한도", 13, 644, 112, 420, 26, bold: true);
             var list = L.List(w, 24, 148, 1052, 476);
             foreach (var c in SortedCommanders())
             {

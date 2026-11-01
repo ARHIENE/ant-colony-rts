@@ -28,7 +28,7 @@ namespace AntColony.UI
             L.Line(p, 0, 56, 1200);
             var settings = L.List(p, 24, 72, 290, 546);
             var settingsScroll = settings.GetComponentInParent<ScrollRect>();
-            settingsScroll.vertical = false; settingsScroll.inertia = false; settingsScroll.movementType = ScrollRect.MovementType.Clamped;
+            settingsScroll.vertical = true; settingsScroll.inertia = false; settingsScroll.movementType = ScrollRect.MovementType.Clamped; // 1080p에서도 시드 칸이 잘려 세로 스크롤 허용(2026-11-01)
             // newMap: 맵 모양이 바뀌는 선택(크기·기후·지역)은 시드도 새로 뽑는다(사용자 요청 2026-10-25).
             void Choices<T>(string title, T[] values, Func<T, string> label, T current, Action<T> choose, bool newMap = false)
             {
@@ -49,14 +49,14 @@ namespace AntColony.UI
             Choices("장수 사망", (CommanderDeathMode[])Enum.GetValues(typeof(CommanderDeathMode)), s => new[] { "관대", "보통", "가혹" }[(int)s], options.commanderDeath, s => options.commanderDeath = s);
             var rocketWarning = L.Cell(settings, "Rocket Civilian Warning", 52);
             L.Label(rocketWarning, "장수 즉사 없음이어도 로켓 파괴 시\n탑승 시민·병력은 사망합니다.", 12, 0, 0, 260, 48, MenuTheme.Warning);
-            var biome = L.Cell(settings, "Starting Climate", 130);
+            var biome = L.Cell(settings, "Starting Climate", 96); // 4개씩 2줄(1080p에서 시드 칸이 잘리지 않게, 2026-11-01)
             L.Label(biome, "시작 지역", 15, 0, 0, 260, 26, bold: true);
             var allBiomes = new[] { MapBiome.None }.Concat(BiomeRules.All).ToArray();
             for (var i = 0; i < allBiomes.Length; i++)
             {
                 var b = allBiomes[i];
                 var button = L.Button(biome, "Biome " + b, b == MapBiome.None ? "무작위" : (b == MapBiome.City ? "숲 폐허" : b == MapBiome.Cave ? "고산·동굴" : BiomeRules.Name(b).Replace(" 지대", "")),
-                    i % 3 * 88, 30 + i / 3 * 32, 82, 28, () => { ReadSeed(); if (options.biome != b) options.seed = NewGameOptions.RandomSeed(); options.biome = b; NewGameScreen(); });
+                    i % 4 * 66, 30 + i / 4 * 32, 62, 28, () => { ReadSeed(); if (options.biome != b) options.seed = NewGameOptions.RandomSeed(); options.biome = b; NewGameScreen(); });
                 if (options.biome == b) MarkSelected(button);
             }
             var seedRow = L.Cell(settings, "Seed", 72);

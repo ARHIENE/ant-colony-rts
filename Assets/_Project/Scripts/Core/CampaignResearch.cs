@@ -69,7 +69,7 @@ namespace AntColony.Core
             new ScienceDefinition(ScienceTechnology.Herbs, "약초 처방", 1),
             new ScienceDefinition(ScienceTechnology.Sanitation, "방역", 1, ScienceTechnology.Herbs),
             new ScienceDefinition(ScienceTechnology.Fermentation, "압축 저장", 2, ScienceTechnology.FungalFarming),
-            new ScienceDefinition(ScienceTechnology.AdvancedCrops, "고급 작물", 2, ScienceTechnology.HoneydewRanch),
+            new ScienceDefinition(ScienceTechnology.AdvancedCrops, "고급 작물", 3, ScienceTechnology.HoneydewRanch),
             new ScienceDefinition(ScienceTechnology.AcidRefining, "산성액 정제", 2, ScienceTechnology.Resin),
             new ScienceDefinition(ScienceTechnology.Watchtowers, "감시탑", 2, ScienceTechnology.Traps),
             new ScienceDefinition(ScienceTechnology.Infirmary, "의무실", 2, ScienceTechnology.Herbs),
@@ -77,17 +77,17 @@ namespace AntColony.Core
             new ScienceDefinition(ScienceTechnology.Blades, "근접 무기", 2, ScienceTechnology.Resin),
             new ScienceDefinition(ScienceTechnology.ArmorPlates, "보호 갑옷", 2, ScienceTechnology.Resin),
             new ScienceDefinition(ScienceTechnology.Vehicle, "바퀴 차량", 2),
-            new ScienceDefinition(ScienceTechnology.Drainage, "치수 공사", 2, ScienceTechnology.Sanitation),
+            new ScienceDefinition(ScienceTechnology.Drainage, "치수 공사", 3, ScienceTechnology.Sanitation),
             new ScienceDefinition(ScienceTechnology.Firebreaks, "방화대", 2, ScienceTechnology.Resin),
             new ScienceDefinition(ScienceTechnology.EfficientTransport, "수송 효율", 4, ScienceTechnology.Vehicle),
             new ScienceDefinition(ScienceTechnology.Mines, "폭약 매설", 4, ScienceTechnology.Traps),
-            new ScienceDefinition(ScienceTechnology.Regeneration, "부위 재생", 4, ScienceTechnology.Infirmary),
+            new ScienceDefinition(ScienceTechnology.Regeneration, "부위 재생", 5, ScienceTechnology.Infirmary),
             new ScienceDefinition(ScienceTechnology.Trinkets, "장신구", 4, ScienceTechnology.ArmorPlates),
             new ScienceDefinition(ScienceTechnology.AdvancedWeapons, "고급 무기", 4, ScienceTechnology.Blades),
             new ScienceDefinition(ScienceTechnology.Gliding, "비행 장비", 4, ScienceTechnology.Vehicle),
             new ScienceDefinition(ScienceTechnology.Aircraft, "비행기", 4, ScienceTechnology.Gliding),
             new ScienceDefinition(ScienceTechnology.HeavyTransport, "비행선(대형 수송)", 4, ScienceTechnology.Aircraft),
-            new ScienceDefinition(ScienceTechnology.Insulation, "보온 설비", 4, ScienceTechnology.Drainage),
+            new ScienceDefinition(ScienceTechnology.Insulation, "보온 설비", 5, ScienceTechnology.Drainage),
             new ScienceDefinition(ScienceTechnology.MigrationTheory, "로켓 이론", 6, ScienceTechnology.Aircraft),
             new ScienceDefinition(ScienceTechnology.Hull, "선체", 6, ScienceTechnology.MigrationTheory),
             new ScienceDefinition(ScienceTechnology.Cocoons, "동면 캡슐", 6, ScienceTechnology.MigrationTheory),
@@ -129,7 +129,7 @@ namespace AntColony.Core
         public ScienceDefinition Active => state.active >= 0 ? Technologies[state.active] : null;
         public float Progress => state.progress;
         public bool Paused => state.paused;
-        public void SetPaused(bool value) { if (Active != null) state.paused = value; }
+        public void SetPaused(bool value) { if (Active != null || ActiveResource != null) state.paused = value; }
         // 이전에 시작했던(비용 지불한) 연구의 보존 진행도. 없으면 -1.
         public float SavedProgress(ScienceTechnology t)
         {
@@ -149,6 +149,7 @@ namespace AntColony.Core
             if (GetComponent<AntColony.World.BossRewardVisual>() == null) gameObject.AddComponent<AntColony.World.BossRewardVisual>();
         }
         private void OnDestroy() { if (Instance == this) Instance = null; }
+        public int CompletedCount => state.completed.Count; // 시작 안내 체크리스트(2026-11-01)
         public bool Has(ScienceTechnology technology) => state.completed.Contains((int)technology)
             || technology == ScienceTechnology.Fishing && GameManager.Instance != null && GameManager.Instance.FishingUnlocked;
         public int DefenseLevel(DefenseLine line) => (int)line < state.defense.Count ? state.defense[(int)line] : 0;
@@ -202,11 +203,13 @@ namespace AntColony.Core
         {
             if (Active == null && state.resourceActive < 0) return "선택한 연구 없음";
             if (state.paused) return "연구 정지됨";
-            if (!lab.isActiveAndEnabled) return "시설 비활성";
+            if (!lab.isActiveAndEnabled || lab.IsDead) return "시설 비활성";
             if (lab.Busy) return "연구소가 차량 작업 중";
             if (Active != null && lab.Tier < Active.Tier) return $"연구소 {lab.Tier}등급 — {EraNames[Active.Tier - 1]} 시대 연구 불가({Active.Tier}등급 필요)";
             var c = lab.Target;
             if (c == null) return "담당 장수 없음";
+            if (c.ScienceAssignment != lab) return "담당 연결 해제 · 다시 배정하세요";
+            if (!c.AllowsJob(CommanderJobs.Research)) return c.CommanderName + " 작업표 연구 금지";
             if (c.IsAwayFromHome) return c.CommanderName + " 본거지 밖";
             if (!c.ResearchWorkReady || !c.CanReceiveOrders) return c.CommanderName + " 작업 불가 상태(이동·수면·부상·식사 등)";
             if ((c.Position - lab.Position).sqrMagnitude > 64) return c.CommanderName + " 연구소로 복귀 중";
@@ -217,15 +220,16 @@ namespace AntColony.Core
         public void Tick(float seconds)
         {
             if (seconds > 0 && !float.IsInfinity(seconds)) { TickPoliticalPresence(seconds); }
-            if (Active == null && state.resourceActive >= 0 && seconds > 0 && !float.IsInfinity(seconds) && !Departed) { TickResourceResearch(seconds); return; }
+            if (Active == null && state.resourceActive >= 0 && seconds > 0 && !float.IsInfinity(seconds) && !Departed && !state.paused) { TickResourceResearch(seconds); return; }
             if (!(seconds > 0) || float.IsInfinity(seconds) || Active == null || Departed || state.paused) return;
             foreach (var lab in AntColony.Core.SceneObjects.All<ScienceLab>())
             {
                 var c = lab.Target;
-                if (!lab.isActiveAndEnabled || lab.Busy || lab.Tier < Active.Tier || c == null
-                    || !c.ResearchWorkReady || !c.CanReceiveOrders || c.IsAwayFromHome || c.ScienceAssignment != lab || (c.Position - lab.Position).sqrMagnitude > 64) continue;
-                CreditResearch(c, seconds * c.WorkRate(CommanderActivity.Research) * (1f + .25f * (lab.Tier - 1)));
-                c.GainExperience(CommanderActivity.Research, seconds, Topic(Active.Technology));
+                var rate = LabRate(lab);
+                if (!(rate > 0)) continue;
+                var worked = Math.Min(seconds, Math.Max(0, Active.Work - state.progress) / rate);
+                CreditResearch(c, worked * rate);
+                c.GainExperience(CommanderActivity.Research, worked, Topic(Active.Technology));
             }
             if (state.progress < Active.Work) return;
             CompleteResearch();

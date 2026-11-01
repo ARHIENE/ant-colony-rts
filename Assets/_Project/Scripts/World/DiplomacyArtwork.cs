@@ -50,7 +50,7 @@ namespace AntColony.World
                 c.rebels.RemoveAll(p => p.PersonalState.id == prisoner);
             }
             artwork.DiamondArtwork = false; artwork.gameObject.SetActive(false); Destroy(artwork.gameObject);
-            CampaignHistory.Record("화룡", c.name, purpose + " 성공 · 걸작 선물", true);
+            CampaignHistory.Record("화룡", c.name, AntColony.UI.DisplayNames.Artwork(purpose) + " 성공 · 걸작 선물", true);
             return "화룡 선물 수락 · 작품 소모";
         }
         private static bool ValidArtwork(State s) => s.artworkRetries == null || s.artworkRetries.Count <= 300

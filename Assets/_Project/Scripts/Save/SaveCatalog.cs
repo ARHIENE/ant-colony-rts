@@ -20,6 +20,13 @@ namespace AntColony.Save
         internal static BossHealth[] Bosses;
         internal static int[] ColonySizes;
         public static bool Ready => Buildings != null;
+        // Destroy는 프레임 말미에 실행된다. 제거 예약과 동시에 저장 슬롯도 비운다.
+        internal static void RemoveBuilding(BuildingBase building)
+        {
+            if (Buildings == null) return;
+            for (int i = 0; i < Buildings.Length; i++)
+                if (ReferenceEquals(Buildings[i], building)) Buildings[i] = null;
+        }
         internal static T[] Ordered<T>() where T : Component => AntColony.Core.SceneObjects.All<T>()
             .OrderBy(x => Path(x.transform), StringComparer.Ordinal).ToArray();
         private static string Path(Transform t) => t.parent == null ? t.name : Path(t.parent) + "/" + t.name + ":" + t.GetSiblingIndex();
@@ -56,7 +63,7 @@ namespace AntColony.Save
         public static bool CanSave(out string error)
         {
             error = null;
-            if (!Ready || Core.CommanderRoster.Instance == null) error = "Game is still initializing.";
+            if (!Ready || Core.CommanderRoster.Instance == null) error = "게임을 준비하는 중입니다. 잠시 뒤 다시 저장하세요.";
             return error == null;
         }
     }

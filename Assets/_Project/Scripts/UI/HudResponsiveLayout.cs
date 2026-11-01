@@ -29,6 +29,15 @@ namespace AntColony.UI
             if (OverlapsHud(guiRect) || worldLabels.Any(r => r.Overlaps(guiRect))) return false;
             worldLabels.Add(guiRect); return true;
         }
+        // 선택 장수 한눈 요약(2026-11-01): 하는 일이 비면 "대기", 욕구 3종을 둘째 줄에. 30 이하/70 이상은 경고색.
+        private static string CommanderStatusLine(AntColony.Units.CommanderAnt c)
+        {
+            var activity = CommanderOverhead.Activity(c);
+            string Need(string name, float value) => value >= 70 ? $"<color=#e0705a>{name} {value:0}</color>" : $"{name} {value:0}";
+            return $"{(activity.Length > 0 ? activity : "대기")} · 체력 {c.PersonalHealth:0}/{AntColony.Core.GameBalance.CommanderHealth:0} · 기분 {c.Mood:0}\n"
+                + $"{Need("배고픔", 100f - c.Satiety)} · {Need("피로", c.Fatigue)} · {(c.Hygiene < 30 ? $"<color=#e0705a>위생 {c.Hygiene:0}</color>" : $"위생 {c.Hygiene:0}")}";
+        }
+
         private void Reserve(RectTransform rect)
         {
             if (rect == null || !rect.gameObject.activeInHierarchy) return;
@@ -136,7 +145,7 @@ namespace AntColony.UI
             Place(HudConsole.Right, 0, 0, cardWidth, 76);
             var commander = SelectedUnitPanel.FindSingleSelectedCommander(selection);
             var title = hasTarget ? target is AntColony.Buildings.BuildingBase building && building.Data != null ? building.Data.displayName : target.name : commander != null ? commander.CommanderName : $"{units.Length}명 선택";
-            var status = hasTarget ? "대상 관리" : commander != null ? CommanderOverhead.Activity(commander) + $" · 체력 {commander.PersonalHealth:0}/{AntColony.Core.GameBalance.CommanderHealth:0} · 기분 {commander.Mood:0}" : "공통으로 가능한 명령";
+            var status = hasTarget ? "대상 관리" : commander != null ? CommanderStatusLine(commander) : "공통으로 가능한 명령";
             identity.text = $"<b>{title}</b>\n<size=12>{status}</size>";
             Place(HudConsole.Center, left, 220, Mathf.Min(808, width - left - 16), 224);
             HudConsole.Center.gameObject.SetActive(visible && targetDetail);

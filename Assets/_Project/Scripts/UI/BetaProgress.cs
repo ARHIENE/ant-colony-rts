@@ -50,9 +50,17 @@ namespace AntColony.UI
         {
             if (objective == null) return;
             // V6 HUD에는 목표 패널이 없다(설명서 F2로 안내). 목표 문구는 계속 갱신해 둔다.
-            objectivePanel.SetActive(false);
+            // 예외: 불시착 초반엔 같은 패널을 시작 안내 체크리스트로 쓴다(2026-11-01).
             if (Time.unscaledTime < nextRefresh) return;
             nextRefresh = Time.unscaledTime + .5f;
+            var guide = StartGuide.Active && !GameMenuController.MenuOpen;
+            objectivePanel.SetActive(guide);
+            if (guide)
+            {
+                ((RectTransform)objectivePanel.transform).sizeDelta = new Vector2(360, 128);
+                objective.text = StartGuide.Text();
+                return;
+            }
             objective.text = "<color=#f2a93b><b>목표</b></color>\n" + CurrentObjective + "\n<color=#b1b3a7>F2 설명서</color>";
         }
 
@@ -71,12 +79,12 @@ namespace AntColony.UI
                 {
                     if (ship == null || ship.State == ExpeditionState.Home) continue;
                     if (ship.State == ExpeditionState.Outbound)
-                        return $"이동 중 · {Mathf.CeilToInt(ship.Remaining)}초\n{ship.Site.Title} · 도착 후 전장 보기";
+                        return $"이동 중 · {Mathf.CeilToInt(ship.Remaining)}초\n{SiteNames.Name(ship.Site)} · 도착 후 전장 보기";
                     if (ship.State == ExpeditionState.Returning)
                         return $"귀환 중 · {Mathf.CeilToInt(ship.Remaining)}초\n도착하면 화물을 본거지에 반납합니다";
                     return ship.Site.Cleared || ship.Site.Kind == ExpeditionSiteKind.ResourceSite
                         ? "전리품 · 수송수단에 자원 반납\n탑승 장수를 8m 안에 모은 뒤 귀환"
-                        : $"전투 · {ship.Site.Title}\n전장 보기에서 부대를 지휘하세요";
+                        : $"전투 · {SiteNames.Name(ship.Site)}\n전장 보기에서 부대를 지휘하세요";
                 }
                 foreach (var ship in world.Transports)
                 {

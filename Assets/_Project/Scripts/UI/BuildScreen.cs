@@ -354,13 +354,13 @@ namespace AntColony.UI
         public static string MaterialLine(ResourceType m, int need)
         {
             var info = MaterialInfo.For(m); var have = ResourceManager.Instance != null ? ResourceManager.Instance.GetAmount(m) : 0;
-            return $"<color={(have >= need ? "#b1b3a7" : "#d9534f")}>{m.DisplayName()} {have}/{need}</color> · 내구 ×{info.durability:0.##} · 미관 {info.beauty:+0;-0;0} · 단열 {info.insulation:0.#}{(info.flammable ? " · 불에 탐" : "")}{(info.rare ? " · 귀한 재료" : "")}";
+            return $"<color={(have >= need ? "#b1b3a7" : "#d9534f")}>{m.DisplayName()} 보유 {have}/필요 {need}</color> · 내구 ×{info.durability:0.##} · 미관 {info.beauty:+0;-0;0} · 단열 {info.insulation:0.#}{(info.flammable ? " · 불에 탐" : "")}{(info.rare ? " · 귀한 재료" : "")}";
         }
 
         private static string NameOf(BuildingKind kind, UnitRole role)
         {
             foreach (var page in Tabs) foreach (var entry in page) if (entry.kind == kind && (entry.role == role || entry.role == UnitRole.Worker)) return entry.name;
-            return kind.ToString();
+            return "건물";
         }
 
         private static Button Cell(Transform parent, string name, Vector2 position, Vector2 size, string key, string label, UnityEngine.Events.UnityAction action)

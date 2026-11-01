@@ -34,13 +34,13 @@ namespace AntColony.Save
 
             public string Summary()
             {
-                if (!Exists) return "Empty";
-                if (!Valid) return "Damaged: " + Error;
+                if (!Exists) return "비어 있음";
+                if (!Valid) return "손상된 저장: " + Error;
                 var local = SavedAtUtc;
                 if (DateTime.TryParse(SavedAtUtc, null, System.Globalization.DateTimeStyles.RoundtripKind, out var parsed))
                     local = parsed.ToLocalTime().ToString("yyyy-MM-dd HH:mm");
                 var minutes = Mathf.FloorToInt(PlaySeconds / 60f);
-                return $"{local}   played {minutes}m   {Label}";
+                return $"{local}   플레이 {minutes}분   {AntColony.UI.DisplayNames.SaveLabel(Label)}";
             }
         }
 

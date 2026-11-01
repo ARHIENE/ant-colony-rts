@@ -484,8 +484,31 @@ namespace AntColony.Map
             mesh.Clear();
             mesh.vertices = vertices;
             mesh.triangles = triangles;
+            mesh.SetUVs(1, CliffRim(terrace.heights, xSize, zSize));
             mesh.RecalculateNormals();
             meshCollider.sharedMesh = mesh;
+        }
+
+        // 절벽 위 가장자리 세기(셰이더 uv1.x): 2칸 안에 한 단계 이상 낮은 정점이 있으면 1칸=1, 2칸=.45. 경사로·웅덩이 둘레는 제외.
+        private static Vector2[] CliffRim(float[] heights, int xSize, int zSize)
+        {
+            var w = xSize + 1; var rim = new Vector2[heights.Length];
+            for (var z = 0; z <= zSize; z++)
+                for (var x = 0; x <= xSize; x++)
+                {
+                    var h = heights[z * w + x];
+                    if (h <= 0 || h != Mathf.Round(h)) continue;
+                    var best = 0f;
+                    for (var dz = -2; dz <= 2 && best < 1; dz++)
+                        for (var dx = -2; dx <= 2; dx++)
+                        {
+                            int nx = x + dx, nz = z + dz;
+                            if (nx < 0 || nz < 0 || nx > xSize || nz > zSize || heights[nz * w + nx] > h - .9f) continue;
+                            best = Mathf.Max(best, Mathf.Max(Mathf.Abs(dx), Mathf.Abs(dz)) <= 1 ? 1f : .45f);
+                        }
+                    rim[z * w + x] = new Vector2(best, 0);
+                }
+            return rim;
         }
 
         // 바이옴 바닥 색조(GenerateTerrain 뒤에 부른다).

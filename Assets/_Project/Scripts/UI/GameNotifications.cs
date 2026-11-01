@@ -18,9 +18,9 @@ namespace AntColony.UI
             foreach (var c in CommanderRoster.Instance.Commanders)
             {
                 int total = 0; foreach (var level in c.Talents.levels) total += level;
-                if (levels.TryGetValue(c, out var previous) && total > previous) ToastManager.Show(c.CommanderName + ": skill improved.");
+                if (levels.TryGetValue(c, out var previous) && total > previous) ToastManager.Show(c.CommanderName + ": 기술이 올랐습니다.");
                 levels[c] = total;
-                Encyclopedia.Discover("Ants", "weapon:" + c.WeaponLabel, c.WeaponLabel, "All commanders can work and fight. Equipment determines combat style; Command skill determines troop capacity.");
+                Encyclopedia.Discover("Ants", "weapon:" + c.WeaponLabel, c.WeaponName, "모든 장수는 일하고 싸울 수 있습니다. 장비가 전투 방식을, 지휘 기술이 병력 한도를 정합니다.");
             }
             // 우리 위생 '주의' 이상은 우리 단위로 묶어 오른쪽에 고정 알림(2026-10-13).
             foreach (var pen in AntColony.Core.SceneObjects.All<AntColony.Buildings.Ranch>())
@@ -33,8 +33,8 @@ namespace AntColony.UI
             { notice = world.SettlementNotice; if (!string.IsNullOrEmpty(notice)) ToastManager.Show(notice); }
             var site = world.ViewedSite;
             if (site == null) return;
-            Encyclopedia.Discover("World", "site:" + site.Title, site.Title, site.Faction + " / " + site.Kind + ". Fixed difficulty " + site.Difficulty + ".");
-            if (site.Boss != null) Encyclopedia.Discover("Bosses", "boss:MiniBird", "MiniBird", "Encountered at " + site.Title + ". Watch the marked ground attack areas and move away before impact. Specific weakness information is not yet discovered.");
+            Encyclopedia.Discover("World", "site:" + site.Title, SiteNames.Name(site), SiteNames.Faction(site) + " · " + SiteNames.Korean(site.Kind.ToString()) + " · 고정 위험도 D" + site.Difficulty);
+            if (site.Boss != null) Encyclopedia.Discover("Bosses", "boss:MiniBird", "미니버드", SiteNames.Name(site) + "에서 조우. 바닥에 표시되는 공격 범위를 보고 착탄 전에 피하세요. 구체적인 약점은 아직 밝혀지지 않았습니다.");
         }
     }
 }

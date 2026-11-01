@@ -36,10 +36,17 @@ namespace AntColony.UI
         // 검사·다른 UI용: 현재 화면에 보이는 줄(위기 포함, 최대 5 + 넘침 줄).
         public static IReadOnlyList<string> VisibleLines => instance != null ? instance.Lines() : new List<string>();
 
+        private Canvas notificationCanvas;
+        // 씬 전환(새 게임·불러오기) 시 이전 판의 알림·위기·고정 알림을 모두 비운다.
+        public static void ClearAll()
+        {
+            if (instance == null) return;
+            instance.toasts.Clear(); instance.crises.Clear(); instance.dismissed.Clear(); instance.locations.Clear(); instance.pins.Clear(); instance.dirty = true;
+        }
         private void Awake()
         {
             instance = this;
-            var canvas = MenuTheme.Canvas("Notifications", transform, 200);
+            var canvas = MenuTheme.Canvas("Notifications", transform, 200); notificationCanvas = canvas;
             // HUD v2: 달력·속도 판(HudClock) 아래 오른쪽 318px 판넬, 위에서 아래로 쌓인다. 비면 숨긴다.
             panel = MenuTheme.Panel(canvas.transform, "Toasts", new Vector2(1, 1), new Vector2(244, 0), new Vector2(-8, -100));
             var scroll = panel.gameObject.AddComponent<ScrollRect>(); scroll.horizontal = false; scroll.scrollSensitivity = 24;
@@ -130,6 +137,8 @@ namespace AntColony.UI
 
         private void Update()
         {
+            // 전체 메뉴 화면(인재·설정·새 게임 등)이 열려 있으면 알림이 창을 덮지 않게 숨긴다(2026-11-01).
+            if (notificationCanvas != null) notificationCanvas.enabled = !GameMenuController.MenuOpen;
             if (!hovered)
                 for (var i = toasts.Count - 1; i >= 0; i--)
                     if (toasts[i].kind != ToastKind.Warning || toasts[i].seen)

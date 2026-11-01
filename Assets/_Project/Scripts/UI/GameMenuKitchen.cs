@@ -18,7 +18,7 @@ namespace AntColony.UI
             for (int i = 0; i < Kitchen.Recipes.Length; i++)
             {
                 var index = i; var r = Kitchen.Recipes[i];
-                MenuTheme.Button(content, $"목록 추가: {r.name} ← {r.Cost} · 작업 {r.seconds:0} · 재고 {Kitchen.Stock(r.output)}", () => {
+                MenuTheme.Button(content, $"목록 추가: {r.name} ← {r.Cost} · 기본 작업량 {r.seconds:0} · 재고 {Kitchen.Stock(r.output)}", () => {
                     if (!k.AddOrder(index, orderMode, orderAmount)) ToastManager.Show($"생산 목록은 최대 {Workshop.MaxOrders}개입니다."); ShowKitchen(k);
                 }).interactable = k.isActiveAndEnabled && k.Orders.Count < Workshop.MaxOrders;
             }

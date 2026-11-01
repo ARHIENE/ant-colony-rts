@@ -42,7 +42,7 @@ namespace AntColony.UI
             else foreach (var layer in discovered)
             {
                 var id = layer.id;
-                MenuTheme.Text(right, (layer.map == 0 ? "본거지" : WorldMapManager.Instance.Sites[layer.map - 1].Title) + " · " + survey.Description(layer), 13, 80);
+                MenuTheme.Text(right, (layer.map == 0 ? "본거지" : SiteNames.Name(WorldMapManager.Instance.Sites[layer.map - 1])) + " · " + survey.Description(layer), 13, 80);
                 MenuTheme.Button(right, "발견 범위 보기", () => { Resume(); survey.Highlight(new[] { id }); });
                 if (layer.type >= 0 && layer.remaining >= 1)
                 {

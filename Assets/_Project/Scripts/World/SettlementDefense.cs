@@ -29,10 +29,10 @@ namespace AntColony.World
         // 감시탑이 이 거점을 감시하면 침공 60초 전에 경보가 켜지고, 월드맵에 진격 경로를 표시한다.
         public bool Warned { get; private set; }
         public string Status => site.Disposition == ConquestDisposition.Lost
-            ? $"Lost | Captives {prisoners.Count}. Defeat occupiers and resolve conquest to rescue."
-            : UnderAttack ? $"UNDER ATTACK: {attackers.Count} | Landing occupied {CaptureProgress:0}/{CaptureSeconds:0}s"
-            : Warned ? $"WATCHTOWER ALERT: raid in {Remaining:0}s | Route: north edge -> landing"
-            : $"Defense ready | Next raid {Remaining:0}s | Hold within 8m of landing.";
+            ? $"거점 상실 · 포로 {prisoners.Count}명 · 점령군을 격파하고 거점 처리를 확정하면 구출합니다."
+            : UnderAttack ? $"공격 중: 적 {attackers.Count}명 · 상륙지 점령 {CaptureProgress:0}/{CaptureSeconds:0}초"
+            : Warned ? $"감시탑 경고: {Remaining:0}초 뒤 습격 · 북쪽 경계 → 상륙지"
+            : $"방어 대기 · 다음 습격 {Remaining:0}초 · 상륙지 8m 안을 지키세요.";
 
         private void Awake()
         {
@@ -126,7 +126,7 @@ namespace AntColony.World
                         allies.Add(ally);
                     }
             CaptureProgress = 0;
-            Notify("Under attack — defend the landing zone!");
+            Notify("거점이 공격받고 있습니다. 상륙지를 방어하세요!");
             return true;
         }
 
@@ -143,8 +143,8 @@ namespace AntColony.World
                     && AntColony.Buildings.Watchtower.Watches(site))
                 {
                     Warned = true;
-                    Notify($"Watchtower: raid in {Remaining:0}s from the north edge.");
-                    AntColony.UI.ToastManager.Show(site.Title + $": watchtower alert, raid in {Remaining:0}s.");
+                    Notify($"감시탑: {Remaining:0}초 뒤 북쪽 경계에서 적이 접근합니다.");
+                    AntColony.UI.ToastManager.Show(site.Title + $": 감시탑 경고 · {Remaining:0}초 뒤 습격.");
                 }
                 if (Remaining == 0 && DiplomacyManager.Instance == null) TryStartRaid();
                 return;
@@ -153,7 +153,7 @@ namespace AntColony.World
             if (attackers.Count == 0)
             {
                 ResetAfterConquest();
-                Notify("Defense successful.");
+                Notify("거점 방어 성공.");
                 return;
             }
             var occupied = false;
@@ -198,10 +198,10 @@ namespace AntColony.World
             }
             var world = WorldMapManager.Instance;
             foreach (var ship in world.Transports)
-                if (ship != null && ship.Route?.Destination == site) ship.Route.Stop("Stopped: destination lost");
+                if (ship != null && ship.Route?.Destination == site) ship.Route.Stop("중단: 목적지 상실");
             site.Visitor?.EvacuateLostSite();
             if (world.ViewedSite == site) world.ViewSite(null);
-            Notify($"LOST — {prisoners.Count} captured, {escaped} escaped. Retake to rescue."
+            Notify($"거점 상실 · 포로 {prisoners.Count}명, 탈출 {escaped}명 · 탈환하면 포로를 구출할 수 있습니다."
                 + (prisoners.Count > 0 ? " " + CampaignOutcome.CaptureWarning : ""));
         }
 
@@ -223,7 +223,7 @@ namespace AntColony.World
                 if (annexed) site.Settlement.Add(c);
             }
             prisoners.Clear();
-            if (rescued > 0) Notify($"{rescued} commanders rescued without troops.");
+            if (rescued > 0) Notify($"장수 {rescued}명 구출 · 병력 없이 복귀했습니다.");
         }
 
         private static void MoveCommander(CommanderAnt c, Vector3 position)

@@ -70,7 +70,7 @@ namespace AntColony.Save
                 if (!string.IsNullOrEmpty(d.kind))
                 {
                     var template = BuildingPlacementController.GetTemplate(Enum.Parse<BuildingKind>(d.kind), (UnitRole)d.role);
-                    if (template == null) throw new InvalidOperationException("Missing building template: " + d.kind);
+                    if (template == null) throw new InvalidOperationException("건설 정보 누락: " + d.kind);
                     building = UnityEngine.Object.Instantiate(template, d.buildingPosition.ToVector3(), Quaternion.Euler(0, d.buildingRotY, 0));
                     building.SetActive(false); building.name = d.buildingName;
                     building.GetComponent<BuildingBase>().MainMaterial = (ResourceType)d.material;

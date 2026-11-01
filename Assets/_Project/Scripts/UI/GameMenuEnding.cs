@@ -20,7 +20,7 @@ namespace AntColony.UI
             var scene = MenuTheme.Text(content, "~ ~ ~   로켓이 정착지를 떠나 우주로 날아오릅니다   ~ ~ ~", 22, 60);
             scene.alignment = TextAnchor.MiddleCenter; scene.color = MenuTheme.Accent;
             foreach (var line in EndingRecord(research)) MenuTheme.Text(content, line, 17, Mathf.Max(30, 24 * (1 + line.Length / 70)));
-            MenuTheme.Button(content, "Main Menu", () => { GameSession.Instance.MarkNotStarted(); Main(); });
+            MenuTheme.Button(content, "Main Menu", () => { GameSession.Instance.MarkNotStarted(); Main(); }).GetComponentInChildren<UnityEngine.UI.Text>().text = "메인 메뉴";
         }
 
         // 엔딩 기록 줄. 검사도 같은 줄을 읽는다.
@@ -39,7 +39,7 @@ namespace AntColony.UI
             for (var r = 0; r < 3; r++)
             {
                 var uses = string.Join(", ", Enumerable.Range(0, reasons).Where(i => d.spentByReason[r * reasons + i] > 0)
-                    .Select(i => $"{(i < ReasonNames.Length ? ReasonNames[i] : ((ResourceReason)i).ToString())} {d.spentByReason[r * reasons + i]}"));
+                    .Select(i => $"{(i < ReasonNames.Length ? ReasonNames[i] : "기타")} {d.spentByReason[r * reasons + i]}"));
                 lines.Add($"<b>{ResourceNames[r]}</b>  획득 {d.acquired[r]} · 사용 {d.spent[r]}" + (uses.Length > 0 ? $"  ({uses})" : ""));
             }
             lines.Add($"<b>시민</b>  유입 {d.antsProduced} · 손실 {d.antsLost}");

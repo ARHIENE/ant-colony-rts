@@ -63,7 +63,7 @@ namespace AntColony.UI
                     slider.interactable = ready && toggle.isOn;
                     if (c == null) { label.text = "이탈한 장수"; return; }
                     slider.maxValue = Mathf.Max(1, cap);
-                    label.text = $"{c.CommanderName} · {c.WeaponLabel}\n체력 {c.PersonalHealth:0}/{GameBalance.CommanderHealth:0} · 기분 {c.Mood:0} · {Status(c)}";
+                    label.text = $"{c.CommanderName} · {c.WeaponName}\n체력 {c.PersonalHealth:0}/{GameBalance.CommanderHealth:0} · 기분 {c.Mood:0} · {Status(c)}";
                     amount.text = $"{slider.value:0} / 가능 {cap} (지휘 {c.CommandLimit})";
                     formation.interactable = c.CanSelectFormation;
                     formation.GetComponentInChildren<Text>().text = "진형 " + FormationRules.Name(c.SelectedFormation) + "\n" + FormationSummary(c.SelectedFormation, c.HasLegion);

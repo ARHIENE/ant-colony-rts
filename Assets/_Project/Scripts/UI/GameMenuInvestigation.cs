@@ -31,7 +31,7 @@ namespace AntColony.UI
             ManagementTabs(window, "인재·편성", "외부 조사");
             var left = V5Section(window, "세력 / 이동수단", 12, 112, 530, 536);
             foreach (var s in world.Sites.Where(s => DiplomacyManager.Instance?.Faction(s) != null))
-            { var pick = s; MenuTheme.Button(left, (s == investigationSite ? "선택 · " : "") + s.Title, () => { investigationSite = pick; investigationFocus = null; investigationFoodConfirmed = investigationUnattendedConfirmed = false; ShowInvestigation(); }); }
+            { var pick = s; MenuTheme.Button(left, (s == investigationSite ? "선택 · " : "") + SiteNames.Name(s), () => { investigationSite = pick; investigationFocus = null; investigationFoodConfirmed = investigationUnattendedConfirmed = false; ShowInvestigation(); }); }
             MenuTheme.Button(left, "도보 원정대 만들기", () => {
                 if (world.CanCreateTransport(world.HomePosition, out var point)) investigationShip = world.CreateTransport(false, point, walking: true);
                 else ToastManager.Show("원정대를 만들 수 있는 본거지 출입 공간이 없습니다."); ShowInvestigation(); });
@@ -47,7 +47,7 @@ namespace AntColony.UI
             }
             else
             {
-                MenuTheme.Text(right, "대상: " + (investigationSite?.Title ?? "세력 선택 필요") + "\n평가자: " + (investigationEvaluator?.CommanderName ?? "미지정")
+                MenuTheme.Text(right, "대상: " + ((investigationSite != null ? SiteNames.Name(investigationSite) : null) ?? "세력 선택 필요") + "\n평가자: " + (investigationEvaluator?.CommanderName ?? "미지정")
                     + " · 호위: " + (investigationEscort?.CommanderName ?? "없음"), 13, 56);
                 foreach (var c in SortedCommanders().Where(c => !c.IsChild && !c.IsCaptive && !c.IsAwayFromHome && !c.IsDeployed))
                 {

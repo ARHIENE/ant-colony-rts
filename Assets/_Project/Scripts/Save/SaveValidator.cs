@@ -12,7 +12,7 @@ namespace AntColony.Save
         {
             file = null;
             error = null;
-            if (string.IsNullOrWhiteSpace(json)) { error = "Empty file."; return false; }
+            if (string.IsNullOrWhiteSpace(json)) { error = "저장 파일이 비어 있습니다."; return false; }
             SaveFileV1 parsed;
             try
             {
@@ -21,10 +21,10 @@ namespace AntColony.Save
             }
             catch (Exception e)
             {
-                error = "Not valid JSON (" + e.GetType().Name + ").";
+                error = "저장 파일 형식이 올바르지 않습니다.";
                 return false;
             }
-            if (parsed == null) { error = "Not valid JSON."; return false; }
+            if (parsed == null) { error = "저장 파일 형식이 올바르지 않습니다."; return false; }
             if (!Validate(parsed, out error)) return false;
             file = parsed;
             return true;
@@ -33,8 +33,8 @@ namespace AntColony.Save
         public static bool Validate(SaveFileV1 file, out string error)
         {
             error = null;
-            if (file == null) { error = "No data."; return false; }
-            if (file.gameId != "AntColony") { error = "Not an Ant Colony save."; return false; }
+            if (file == null) { error = "저장 데이터가 없습니다."; return false; }
+            if (file.gameId != "AntColony") { error = "이 게임의 저장 파일이 아닙니다."; return false; }
             if (file.version >= 1 && file.version <= 9)
             {
                 void Talents(Units.CommanderTalents t)
@@ -103,7 +103,7 @@ namespace AntColony.Save
             {
                 foreach (var c in file.commanders ?? new System.Collections.Generic.List<CommanderDto>())
                 {
-                    if (c == null || c.position == null || !c.position.IsFinite() || c.personalState == null) { error = "Invalid legacy commander."; return false; }
+                    if (c == null || c.position == null || !c.position.IsFinite() || c.personalState == null) { error = "이전 버전의 장수 정보가 올바르지 않습니다."; return false; }
                     c.personalState.work = new Units.CommanderWorkState { duty = c.troopCount > 0 ? Units.CommanderDuty.Deployed : Units.CommanderDuty.Civilian,
                         returnPosition = c.position.ToVector3(), health = c.personalState.dead ? 0 : Core.GameBalance.CommanderHealth };
                 }
@@ -259,7 +259,7 @@ namespace AntColony.Save
             }
             if (file.version != SaveFileV1.CurrentVersion)
             {
-                error = $"Save version {file.version} cannot be read by this build (expects {SaveFileV1.CurrentVersion}).";
+                error = $"저장 버전 {file.version}은 이 빌드에서 읽을 수 없습니다(지원 버전 {SaveFileV1.CurrentVersion}).";
                 return false;
             }
             // 2026-10-05 휴게 종류 2 → 4(책장·목욕통): 이전 저장의 질림 배열을 늘린다.
@@ -269,14 +269,14 @@ namespace AntColony.Save
             if (file.options == null || file.colony == null || file.world == null
                 || file.commanders == null || file.buildings == null)
             {
-                error = "Missing required sections.";
+                error = "필수 저장 항목이 빠져 있습니다.";
                 return false;
             }
-            if (!Enum.IsDefined(typeof(Core.MapSize), file.options.mapSize)) { error = "Unknown map size."; return false; }
-            if (!Enum.IsDefined(typeof(Core.DifficultyLevel), file.options.difficulty)) { error = "Unknown difficulty."; return false; }
-            if (!Enum.IsDefined(typeof(Core.CommanderDeathMode), file.options.commanderDeath)) { error = "Unknown commander death mode."; return false; }
-            if (!Enum.IsDefined(typeof(Core.MapBiome), file.options.biome)) { error = "Unknown biome."; return false; }
-            if (!Enum.IsDefined(typeof(Core.MapClimate), file.options.climate)) { error = "Unknown climate."; return false; }
+            if (!Enum.IsDefined(typeof(Core.MapSize), file.options.mapSize)) { error = "지도 크기 정보가 올바르지 않습니다."; return false; }
+            if (!Enum.IsDefined(typeof(Core.DifficultyLevel), file.options.difficulty)) { error = "난이도 정보가 올바르지 않습니다."; return false; }
+            if (!Enum.IsDefined(typeof(Core.CommanderDeathMode), file.options.commanderDeath)) { error = "장수 사망 설정이 올바르지 않습니다."; return false; }
+            if (!Enum.IsDefined(typeof(Core.MapBiome), file.options.biome)) { error = "지형 정보가 올바르지 않습니다."; return false; }
+            if (!Enum.IsDefined(typeof(Core.MapClimate), file.options.climate)) { error = "기후 정보가 올바르지 않습니다."; return false; }
             var pop = file.population;
             if (!Core.ColonyPopulation.ValidCivicState(pop) || pop.young < 0 || pop.old < 0 || pop.agingDue < 0 || !Enum.IsDefined(typeof(Core.MilitaryPolicy), pop.policy)
                 || !(pop.sentiment >= 0 && pop.sentiment <= 100) || !(pop.taxRate >= 0 && pop.taxRate <= Core.GameBalance.MaxTaxRate)
@@ -284,26 +284,26 @@ namespace AntColony.Save
                 || !Enum.IsDefined(typeof(Core.TaxFocus), pop.taxFocus) || !Enum.IsDefined(typeof(Data.ResourceType), pop.taxMaterial) || !(pop.taxWeek >= 0 && pop.taxWeek <= Core.ColonyPopulation.TaxSeconds)
                 || !(pop.taxFood >= 0 && pop.taxFood < 1e7f) || !(pop.taxSoil >= 0 && pop.taxSoil < 1e7f)
                 || !(pop.adminWork >= 0 && pop.adminWork < 1e9f) || !(pop.redevelopCompensation >= Core.GameBalance.RedevelopMinCompensation && pop.redevelopCompensation <= Core.GameBalance.RedevelopMaxCompensation))
-            { error = "Invalid population."; return false; }
+            { error = "인구 정보가 올바르지 않습니다."; return false; }
             if (file.colony.antsFree < 0 || file.colony.antsAssigned < 0 || file.colony.antsReserved < 0)
-            { error = "Negative ant counts."; return false; }
+            { error = "시민 수가 음수로 저장되어 있습니다."; return false; }
             foreach (var commander in file.commanders)
             {
-                if (commander == null) { error = "Null commander entry."; return false; }
-                if (commander.talents == null || !commander.talents.Validate()) { error = "Invalid commander talents."; return false; }
-                if (commander.troopCount < 0) { error = "Negative troop count."; return false; }
-                if (commander.position == null || !commander.position.IsFinite()) { error = "Invalid commander position."; return false; }
-                if (commander.location < 0 || commander.location > 3) { error = "Unknown commander location."; return false; }
+                if (commander == null) { error = "장수 정보가 누락되어 있습니다."; return false; }
+                if (commander.talents == null || !commander.talents.Validate()) { error = "장수 재능 정보가 올바르지 않습니다."; return false; }
+                if (commander.troopCount < 0) { error = "병력 수가 음수로 저장되어 있습니다."; return false; }
+                if (commander.position == null || !commander.position.IsFinite()) { error = "장수 위치 정보가 올바르지 않습니다."; return false; }
+                if (commander.location < 0 || commander.location > 3) { error = "장수의 소속 지역이 올바르지 않습니다."; return false; }
             }
             foreach (var building in file.buildings)
             {
-                if (building == null || string.IsNullOrEmpty(building.kind)) { error = "Invalid building entry."; return false; }
-                if (building.position == null || !building.position.IsFinite()) { error = "Invalid building position."; return false; }
+                if (building == null || string.IsNullOrEmpty(building.kind)) { error = "건물 정보가 올바르지 않습니다."; return false; }
+                if (building.position == null || !building.position.IsFinite()) { error = "건물 위치 정보가 올바르지 않습니다."; return false; }
             }
-            if (file.world.sites == null || file.world.transports == null) { error = "Missing world sections."; return false; }
+            if (file.world.sites == null || file.world.transports == null) { error = "월드맵 필수 정보가 빠져 있습니다."; return false; }
             SaveOptionalStates.Normalize(file);
             SaveL2.Normalize(file);
-            if (!Core.TalentAssessment.Validate(file.assessment, file.world.transports.Count, file.world.sites.Count)) { error = "Invalid talent assessment."; return false; }
+            if (!Core.TalentAssessment.Validate(file.assessment, file.world.transports.Count, file.world.sites.Count)) { error = "인재 평가 정보가 올바르지 않습니다."; return false; }
             return SavePreflight.Validate(file, out error);
         }
         private static void MigrateTraits(TraitsDto traits)

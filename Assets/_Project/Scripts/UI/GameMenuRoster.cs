@@ -66,7 +66,7 @@ namespace AntColony.UI
                 row.gameObject.AddComponent<LayoutElement>().preferredHeight = 40;
                 if (c == selected) row.GetComponent<Outline>().effectColor = MenuTheme.Accent;
                 L.Label(row.transform, c.CommanderName, 14, cols[0] - 6, 0, 96, 40, MoodColor(c.Mood), bold: true);
-                L.Label(row.transform, $"{c.WeaponLabel} <color=#b1b3a7>· {CommandCard.RoleName(c.Role)}{(c.IsFlying ? " · 비행" : "")}</color>", 12, cols[1] - 6, 0, 106, 40, MenuTheme.Muted);
+                L.Label(row.transform, $"{c.WeaponName} <color=#b1b3a7>· {CommandCard.RoleName(c.Role)}{(c.IsFlying ? " · 비행" : "")}</color>", 12, cols[1] - 6, 0, 106, 40, MenuTheme.Muted);
                 L.Label(row.transform, $"<b>{c.TroopCount}</b><color=#b1b3a7>/{c.CommandLimit}</color>", 13, cols[2] - 6, 0, 60, 40);
                 L.Meter(row.transform, cols[2] - 6, 34, 80, 4, c.CommandLimit > 0 ? (float)c.TroopCount / c.CommandLimit : 0, MenuTheme.Hp);
                 L.Label(row.transform, $"{c.Mood:0}", 14, cols[3] - 6, 0, 54, 40, MoodColor(c.Mood));
@@ -85,20 +85,30 @@ namespace AntColony.UI
             V5Fit(window);
         }
 
+        private static string BreakName(AntColony.Units.MentalBreak b) => b switch
+        {
+            AntColony.Units.MentalBreak.None => "정상", AntColony.Units.MentalBreak.Idle => "무기력", AntColony.Units.MentalBreak.Flee => "도주",
+            AntColony.Units.MentalBreak.AttackBuilding => "기물 파손", AntColony.Units.MentalBreak.AttackCommander => "동료 공격", AntColony.Units.MentalBreak.SelfHarm => "자해",
+            AntColony.Units.MentalBreak.Binge => "폭식", AntColony.Units.MentalBreak.Wander => "배회", _ => b.ToString()
+        };
+
         private void CommanderDetail(CommanderAnt c)
         {
             var head = L.Cell(content, "DetailHead", 108);
             var portrait = L.Well(head, "Portrait", 0, 0, 96, 96);
-            L.Label(portrait, CommandCard.RoleName(c.Role), 20, 0, 0, 96, 96, MenuTheme.Dim, TextAnchor.MiddleCenter);
+            // 얼굴 초상화(HUD 명부와 같은 CharacterPortraits). 없을 때만 역할 글자(2026-11-01).
+            var face = CharacterPortraits.Get(c);
+            if (face != null) { var img = MenuTheme.Rect("Face", portrait).gameObject.AddComponent<UnityEngine.UI.RawImage>(); img.texture = face; MenuTheme.Stretch(img.rectTransform); img.raycastTarget = false; }
+            else L.Label(portrait, CommandCard.RoleName(c.Role), 20, 0, 0, 96, 96, MenuTheme.Dim, TextAnchor.MiddleCenter);
             L.Label(head, c.CommanderName, 20, 108, 0, 388, 30, MenuTheme.Accent, bold: true);
-            L.Label(head, $"{c.WeaponLabel} · {CommandCard.RoleName(c.Role)} · {Status(c)}", 13, 108, 30, 388, 20, MenuTheme.Muted);
+            L.Label(head, $"{c.WeaponName} · {CommandCard.RoleName(c.Role)} · {Status(c)}", 13, 108, 30, 388, 20, MenuTheme.Muted);
             TraitChip.Grid(head, c.Traits.values, 108, 50, 388, 18, 4, 3);
             L.Label(head, $"병력 <b>{c.TroopCount}</b> / {c.CommandLimit} 지휘한도    공격 <b>{c.AttackDamage:0.#}</b>    방어 <b>{c.Armor:0.#}</b>    연구 공격 {c.LabAttackLevel} · 방어 {c.LabArmorLevel}", 12, 108, 70, 388, 20);
             L.Meter(head, 108, 94, 388, 8, c.CommandLimit > 0 ? (float)c.TroopCount / c.CommandLimit : 0, MenuTheme.Hp);
 
             var factors = c.PersonalState.moodFactors;
             var mood = L.Cell(content, "Mood", 70 + factors.Count * 18);
-            L.Label(mood, $"<b>기분</b>   <size=15><b>{c.Mood:0}</b></size> / 100   <color=#b1b3a7>경고선 35/20/5 · {c.PersonalState.mentalBreak}</color>", 13, 0, 0, 496, 26);
+            L.Label(mood, $"<b>기분</b>   <size=15><b>{c.Mood:0}</b></size> / 100   <color=#b1b3a7>경고선 35/20/5 · {BreakName(c.PersonalState.mentalBreak)}</color>", 13, 0, 0, 496, 26);
             L.Meter(mood, 0, 30, 496, 8, c.Mood / 100f, MoodColor(c.Mood));
             L.Label(mood, $"기본 60 · 기대 수준 +{AntColony.Core.GameBalanceNeeds.ExpectationMood(c.PersonalState.expectationTier)}", 12, 0, 46, 496, 18, MenuTheme.Muted);
             for (var i = 0; i < factors.Count; i++)

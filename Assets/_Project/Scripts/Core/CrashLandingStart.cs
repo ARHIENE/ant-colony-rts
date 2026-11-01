@@ -29,7 +29,7 @@ namespace AntColony.Core
             // 씬 기본 시설은 저장 카탈로그에 빈 자리로 남겨 옛 저장의 키를 유지한다.
             foreach (var b in AntColony.Core.SceneObjects.All<BuildingBase>()
                 .Where(b => b.CountsTowardPlayerDefeat && b.GetComponentInParent<ExpeditionSite>() == null).ToArray())
-            { b.gameObject.SetActive(false); Object.Destroy(b.gameObject); }
+            { SaveCatalog.RemoveBuilding(b); b.gameObject.SetActive(false); Object.Destroy(b.gameObject); }
             AntPool.Instance?.RestoreCounts(0, 0, 0);
             if (ColonyPopulation.Instance != null) ColonyPopulation.Instance.Restore(new ColonyPopulation.State());
             var rm = ResourceManager.Instance;
@@ -48,6 +48,10 @@ namespace AntColony.Core
             data.name = "CrashWreck"; data.displayName = "불시착 잔해"; data.kind = BuildingKind.CrashWreck;
             data.foodCost = data.soilCost = data.specialCost = data.constructionAnts = 0; data.buildTimeSeconds = 20;
             go.AddComponent<CrashWreck>().ConfigureRuntime(data); go.SetActive(true);
+            // 새 게임 첫 화면은 불시착 지점을 비춘다(2026-11-01: 맵 중앙 기본값이 정착지 밖을 보여 장수가 화면에 없었음).
+            var view = AntColony.Core.SceneObjects.Any<AntColony.Camera.IsometricCameraController>();
+            // 첫 화면은 장수가 또렷이 보이게 조금 당겨 본다(기본 18 → 13, 림월드 시작 시점 참고).
+            if (view != null) view.RestoreView(new Vector3(origin.x, view.FocusPoint.y, origin.z), view.Yaw, 13f);
         }
 
         public static FarmCrop StartingCrop(MapBiome biome) => biome == MapBiome.Desert ? FarmCrop.Honeydew : FarmCrop.Fungus;

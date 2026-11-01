@@ -14,6 +14,7 @@ namespace AntColony.UI
     {
         public static GameMenuController Instance { get; private set; }
         public static bool BlocksInput => Instance != null && (Instance.open || Time.frameCount <= Instance.closedFrame || SaveSystem.Busy);
+        public static bool MenuOpen => Instance != null && Instance.open;
         public string ScreenName { get; private set; }
         private bool pauseChain;
         private RectTransform panel, content, tooltipPanel, scrollArea, legacyContent, frame;

@@ -48,12 +48,14 @@ Shader "AntColony/TerrainBlend"
             struct Attributes
             {
                 float4 positionOS : POSITION;
+                float2 uv1 : TEXCOORD1; // x: 절벽 위 가장자리 세기(MapGenerator가 기록, 0~1)
             };
 
             struct Varyings
             {
                 float4 positionHCS : SV_POSITION;
                 float3 worldPos : TEXCOORD0;
+                float rim : TEXCOORD1;
             };
 
             Varyings vert(Attributes IN)
@@ -61,6 +63,7 @@ Shader "AntColony/TerrainBlend"
                 Varyings OUT;
                 OUT.positionHCS = TransformObjectToHClip(IN.positionOS.xyz);
                 OUT.worldPos = TransformObjectToWorld(IN.positionOS.xyz);
+                OUT.rim = IN.uv1.x;
                 return OUT;
             }
 
@@ -163,6 +166,8 @@ Shader "AntColony/TerrainBlend"
                     float cliff = 1 - smoothstep(.55, .88, n.y);
                     float level = clamp(floor((IN.worldPos.y - terraceBase) / terraceStep + .02), 0, 2);
                     color *= .82 + level * .14;
+                    // 봉우리(맨 위 층: 눈 등)는 단계 보정까지 곱하면 흰 덩어리로 날아가 질감이 사라졌다(2026-11-01) → 낮춰 무늬를 살린다.
+                    if (layerIndex == count - 1) color *= .6;
                     // 절벽은 흙·암반색으로 드러내고 꼭대기 가까운 띠와 아래쪽 그늘로 방향을 읽게 한다.
                     float band = frac((IN.worldPos.y - terraceBase) / terraceStep);
                     // 수직면에도 높이 방향 UV로 기존 암반 무늬를 입힌다. XZ 투영만 쓰면 벽이 단색 띠가 된다.
@@ -178,6 +183,9 @@ Shader "AntColony/TerrainBlend"
                     color = lerp(color, rock, cliff);
                     float light = .68 + .32 * saturate(dot(n, normalize(float3(-.5, .8, -.35))));
                     color *= lerp(light, 1, n.y * n.y);
+                    // 스타크래프트식 고지대 테두리(2026-11-01): 절벽 위 윗면 가장자리를 밝은 띠로 둘러 높이 경계를 읽히게 한다.
+                    float lip = IN.rim * (1 - cliff);
+                    color = lerp(color, color * 1.55 + half3(.09, .08, .06), lip);
                 }
                 return half4(color, 1);
             }

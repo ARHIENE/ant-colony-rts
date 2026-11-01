@@ -18,7 +18,7 @@ namespace AntColony.Core
         public static Season CurrentSeason => (Season)(TotalSeasons % 4);
         public static int Day => Mathf.FloorToInt(GameSeconds / SecondsPerDay);
         public static int DayOfSeason => Day % DaysPerSeason + 1;
-        public static string Label => $"Year {Year} / {CurrentSeason} / Day {DayOfSeason}";
+        public static string Label => $"{Year}년 / {SeasonNames[(int)CurrentSeason]} / {DayOfSeason}일";
         static readonly string[] SeasonNames = { "봄", "여름", "가을", "겨울" };
         // 기록용 날짜(사망일·귀환 예정일 등).
         public static string Format(float gameSeconds)

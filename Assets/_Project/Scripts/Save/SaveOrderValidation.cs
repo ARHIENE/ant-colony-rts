@@ -8,14 +8,14 @@ namespace AntColony.Save
 {
     internal static class SaveOrderValidation
     {
-        private static void Check(bool valid, string field) { if (!valid) throw new InvalidOperationException("Invalid saved order: " + field); }
+        private static void Check(bool valid, string field) { if (!valid) throw new InvalidOperationException("저장된 작업 지시 오류: " + field); }
         private static bool F(float n) => !float.IsNaN(n) && !float.IsInfinity(n) && Mathf.Abs(n) <= 1e8f;
         private static bool N(float n) => F(n) && n >= 0;
         private static bool V(Vec3Dto v) => v != null && v.IsFinite();
         internal static void Validate(SaveFileV1 f)
         {
             var keys = new HashSet<string>();
-            void Add(string key) { Check(keys.Add(key), "duplicate reference " + key); }
+            void Add(string key) { Check(keys.Add(key), "중복 대상 " + key); }
             void Building(string key, int nodes) { Add("building:" + key); for (int i = 0; i < nodes; i++) Add("building:" + key + ":node:" + i); }
             for (int i = 0; i < f.commanders.Count; i++) Add("commander:" + i);
             for (int i = 0; i < f.world.transports.Count; i++) Add("ship:" + i);
@@ -23,7 +23,7 @@ namespace AntColony.Save
             foreach (var d in f.nodes) Add("node:" + d.key);
             foreach (var d in f.construction ?? new List<ConstructionDto>()) {
                 Add("construction:" + f.construction.IndexOf(d));
-                Check(d.needs.All(n => n.reserved >= 0 && (long)n.reserved + n.delivered <= n.need), "construction reservation");
+                Check(d.needs.All(n => n.reserved >= 0 && (long)n.reserved + n.delivered <= n.need), "건설 예약");
             }
             for (int i = -1; i < f.world.sites.Count; i++) {
                 var c = i < 0 ? f.world.homeColony : f.world.sites[i].colony;
@@ -38,55 +38,55 @@ namespace AntColony.Save
                 var key = "event:" + (int)a.kind + ":" + JsonUtility.ToJson(a.position);
                 if (!keys.Contains(key)) Add(key);
             }
-            void Ref(string key) { Check(string.IsNullOrEmpty(key) || keys.Contains(key), "reference " + key); }
+            void Ref(string key) { Check(string.IsNullOrEmpty(key) || keys.Contains(key), "연결 대상 " + key); }
             bool Site(int i) => i >= -1 && i < f.world.sites.Count;
             foreach (var c in f.commanders) {
                 var formation = c.personalState?.formation;
                 if (formation != null && formation.hits > 0) {
-                    Check(formation.hitTarget?.StartsWith("saved:") == true, "formation hit target");
+                    Check(formation.hitTarget?.StartsWith("saved:") == true, "진형 공격 대상");
                     Ref(formation.hitTarget.Substring(6));
                 }
                 if (!c.hasOrder) continue;
-                var d = c.order; Check(d != null, "commander order");
+                var d = c.order; Check(d != null, "장수 지시");
                 var s = d.soldier; var w = d.worker;
                 Check(s != null && w != null && s.state >= 0 && s.state <= 3 && V(s.destination) && V(s.attackDestination)
-                    && F(s.attackTimer) && F(s.searchTimer), "soldier");
-                Check(w.state >= 0 && w.state <= 8 && Enum.IsDefined(typeof(ResourceType), w.fetchType) && w.fetchAmount >= 0 && N(w.buildTimer) && w.constructionStep >= 0 && w.constructionStep <= 2, "worker");
-                Check(F(d.huntCooldown) && F(d.workScan) && (d.serviceJob == 0 || Units.CommanderWorkState.Index((Units.CommanderJobs)d.serviceJob) >= 0), "commander work");
+                    && F(s.attackTimer) && F(s.searchTimer), "병사");
+                Check(w.state >= 0 && w.state <= 8 && Enum.IsDefined(typeof(ResourceType), w.fetchType) && w.fetchAmount >= 0 && N(w.buildTimer) && w.constructionStep >= 0 && w.constructionStep <= 2, "일꾼");
+                Check(F(d.huntCooldown) && F(d.workScan) && (d.serviceJob == 0 || Units.CommanderWorkState.Index((Units.CommanderJobs)d.serviceJob) >= 0), "장수 작업");
                 foreach (var key in new[] { s.target, w.node, w.deposit, w.construction, w.delivery, w.fetchHost, w.fishingNode, d.service, d.hunt, d.automaticFacility }) Ref(key);
-                Check(w.state != 1 && w.state != 2 || !string.IsNullOrEmpty(w.node), "gather target");
-                Check(w.state != 3 && w.state != 4 || !string.IsNullOrEmpty(w.deposit), "deposit target");
-                Check(w.state != 5 && w.state != 6 || !string.IsNullOrEmpty(w.construction), "construction target");
-                Check(w.state != 7 && w.state != 8 || !string.IsNullOrEmpty(w.delivery) && w.fetchAmount > 0, "delivery target");
+                Check(w.state != 1 && w.state != 2 || !string.IsNullOrEmpty(w.node), "채집 대상");
+                Check(w.state != 3 && w.state != 4 || !string.IsNullOrEmpty(w.deposit), "반납 대상");
+                Check(w.state != 5 && w.state != 6 || !string.IsNullOrEmpty(w.construction), "건설 대상");
+                Check(w.state != 7 && w.state != 8 || !string.IsNullOrEmpty(w.delivery) && w.fetchAmount > 0, "배송 대상");
             }
             for (int i = 0; i < f.world.transports.Count; i++) {
                 var d = f.world.transports[i].route;
                 Check(d.crew != null && d.crew.Count <= f.commanders.Count && d.crew.Distinct().Count() == d.crew.Count
-                    && d.crew.All(id => id >= 0 && id < f.commanders.Count && f.commanders[id].location == 1 && f.commanders[id].transportIndex == i), "crew ownership");
+                    && d.crew.All(id => id >= 0 && id < f.commanders.Count && f.commanders[id].location == 1 && f.commanders[id].transportIndex == i), "승무원 소속");
                 // Empty crew is the legacy format, reconstructed from commander ownership.
-                Check(d.crew.Count == 0 || d.crew.Count == f.commanders.Count(c => c.location == 1 && c.transportIndex == i), "crew completeness");
+                Check(d.crew.Count == 0 || d.crew.Count == f.commanders.Count(c => c.location == 1 && c.transportIndex == i), "승무원 목록 일치");
                 // JsonUtility는 null 배열을 []로 저장한다: 빈 커서 = 커서 없음.
                 Check(d.nextNode == null || d.nextNode.Length == 0 || d.nodes != null && d.nodes.Count <= 10000 && d.nextNode.Length == d.crew.Count
-                    && d.nextNode.All(n => n >= 0 && n <= d.nodes.Count), "route cursor");
+                    && d.nextNode.All(n => n >= 0 && n <= d.nodes.Count), "경유 진행 위치");
                 if (d.nodes != null) foreach (var key in d.nodes) Ref(key);
             }
             foreach (var d in f.monsters.Where(m => m.hasRuntime)) {
                 var m = d.runtime;
                 Check(m != null && m.maxHealth > 0 && N(m.maxHealth) && d.health <= m.maxHealth && Site(m.parentSite) && Site(m.raidSite)
-                    && m.invasionSite >= -2 && m.invasionSite < f.world.sites.Count && Site(m.defenseSite), "monster owner/health");
+                    && m.invasionSite >= -2 && m.invasionSite < f.world.sites.Count && Site(m.defenseSite), "적 소속·체력");
                 Check(new[] { m.detection, m.damage, m.range, m.interval, m.searchInterval, m.speed, m.root }.All(N)
-                    && V(m.scale) && F(m.rotationY) && F(m.attackTimer) && F(m.searchTimer) && F(m.siegeCheck) && N(m.captureChance) && m.captureChance <= 1, "monster timers/config");
+                    && V(m.scale) && F(m.rotationY) && F(m.attackTimer) && F(m.searchTimer) && F(m.siegeCheck) && N(m.captureChance) && m.captureChance <= 1, "적 시간·설정");
                 Check(!m.commander || d.traits != null && m.roles != null && m.roles.Count > 0 && m.roles.Count <= 6
-                    && m.roles.All(r => Enum.IsDefined(typeof(UnitRole), r)) && Enum.IsDefined(typeof(CommanderRank), m.rank), "enemy commander");
-                Check(d.key.StartsWith("monster:") || d.key.StartsWith("runtime:") || d.key.StartsWith("event:") || d.key.StartsWith("critter:") || d.key.StartsWith("rebel:"), "monster key");
-                if (d.key.StartsWith("runtime:")) Check(int.TryParse(d.key.Substring(8), out var runtimeId) && runtimeId >= 0, "runtime key");
-                if (d.key.StartsWith("rebel:")) Check(f.diplomacy.rebelMembers.Any(r => "rebel:" + r.commander.PersonalState.id == d.key), "rebel identity");
-                if (d.key.StartsWith("critter:")) Check(f.critters != null && f.critters.Any(c => "critter:" + c.id == d.key), "critter identity");
-                if (d.key.StartsWith("event:")) Check(f.events.actors.Any(a => "event:" + (int)a.kind + ":" + JsonUtility.ToJson(a.position) == d.key), "event identity");
+                    && m.roles.All(r => Enum.IsDefined(typeof(UnitRole), r)) && Enum.IsDefined(typeof(CommanderRank), m.rank), "적 장수");
+                Check(d.key.StartsWith("monster:") || d.key.StartsWith("runtime:") || d.key.StartsWith("event:") || d.key.StartsWith("critter:") || d.key.StartsWith("rebel:"), "적 식별자");
+                if (d.key.StartsWith("runtime:")) Check(int.TryParse(d.key.Substring(8), out var runtimeId) && runtimeId >= 0, "생성 개체 식별자");
+                if (d.key.StartsWith("rebel:")) Check(f.diplomacy.rebelMembers.Any(r => "rebel:" + r.commander.PersonalState.id == d.key), "반란군 식별자");
+                if (d.key.StartsWith("critter:")) Check(f.critters != null && f.critters.Any(c => "critter:" + c.id == d.key), "동물 식별자");
+                if (d.key.StartsWith("event:")) Check(f.events.actors.Any(a => "event:" + (int)a.kind + ":" + JsonUtility.ToJson(a.position) == d.key), "사건 식별자");
                 Ref(m.target);
             }
             foreach (var s in f.world.sites)
-                Check(!s.defenseUnderAttack || f.monsters.Any(m => m.hasRuntime && m.runtime.defenseSite == s.index && !m.runtime.allied && m.health > 0), "active defense attackers");
+                Check(!s.defenseUnderAttack || f.monsters.Any(m => m.hasRuntime && m.runtime.defenseSite == s.index && !m.runtime.allied && m.health > 0), "현재 거점 공격자");
         }
     }
 }

@@ -19,7 +19,7 @@ namespace AntColony.UI
             string Region(Vector3 position)
             {
                 foreach (var site in world.Sites)
-                    if ((site.transform.position - position).sqrMagnitude < 70 * 70) return site.Title;
+                    if ((site.transform.position - position).sqrMagnitude < 70 * 70) return SiteNames.Name(site);
                 return "본거지";
             }
             bool VisibleThreat(Vector3 position, bool combat)
@@ -36,7 +36,7 @@ namespace AntColony.UI
                 { var region = Region(c.Position); active["threat:" + region] = region + ": 새 위협"; }
             foreach (var site in world.Sites)
                 if (site.Boss != null && !site.Boss.IsDead && site.Visitor != null && site.Visitor.State == ExpeditionState.Deployed)
-                    active["threat:" + site.Title] = site.Title + ": 보스 위협";
+                    active["threat:" + site.Title] = SiteNames.Name(site) + ": 보스 위협";
             if (CommanderRoster.Instance != null)
                 foreach (var c in CommanderRoster.Instance.Commanders)
                     if (c != null && c.IsColonyMember && (c.PersonalState.health.Downed || c.PersonalHealth <= 0))

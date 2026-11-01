@@ -66,7 +66,7 @@ namespace AntColony.UI
             rect.anchoredPosition = new Vector2(-10f, 138f);
             rect.sizeDelta = new Vector2(PanelWidth, PanelHeight);
 
-            CreateText("Title", rect, -8f, 20f, 15).text = "Commander Acquisition";
+            CreateText("Title", rect, -8f, 20f, 15).text = "장수 영입";
             nurseryText = CreateText("Nursery", rect, -32f, 36f, 13);
             scoutText = CreateText("Scout", rect, -74f, 36f, 13);
             prisonerHeaderText = CreateText("PrisonerHeader", rect, -116f, 20f, 13);
@@ -108,12 +108,12 @@ namespace AntColony.UI
             panel.SetActive(nursery != null || activeScout != null || activeCamp != null);
             if (!panel.activeSelf) return;
 
-            nurseryText.text = nursery != null ? nursery.GetStatusLabel() : "Nursery: not built";
+            nurseryText.text = nursery != null ? nursery.GetStatusLabel() : "양육실: 건설 필요";
             scoutText.text = activeScout != null
-                ? $"{activeScout.GetStatusLabel()}   (post {scoutIndex + 1}/{scoutCount})"
-                : "Scout Post: not built";
-            dispatchLabel.text = activeScout != null && activeScout.IsDispatched ? "Scouting..." : "Dispatch";
-            persuadeLabel.text = activeCamp != null ? $"Persuade {activeCamp.PersuadeFoodCost}F" : "Persuade";
+                ? $"{activeScout.GetStatusLabel()}   (초소 {scoutIndex + 1}/{scoutCount})"
+                : "정찰 초소: 건설 필요";
+            dispatchLabel.text = activeScout != null && activeScout.IsDispatched ? "정찰 중" : "정찰 파견";
+            persuadeLabel.text = activeCamp != null ? $"회유 · 식량 {activeCamp.PersuadeFoodCost}" : "회유";
             RefreshPrisoners(activeCamp);
             feedbackText.text = feedback;
 
@@ -132,7 +132,7 @@ namespace AntColony.UI
             if (activeCamp == null)
             {
                 selected = null;
-                prisonerHeaderText.text = "Prison: not built";
+                prisonerHeaderText.text = "포로 수용소: 건설 필요";
                 prisonerDetailText.text = "";
                 return;
             }
@@ -145,17 +145,17 @@ namespace AntColony.UI
                 index = prisoners.Count > 0 ? 0 : -1;
             }
 
-            prisonerHeaderText.text = $"Prison {activeCamp.Count}/{activeCamp.Capacity}"
-                + (campCount > 1 ? $" (prison {campIndex + 1}/{campCount})" : "")
-                + (selected != null ? $"   POW {index + 1}/{prisoners.Count}" : "   empty")
-                + $"   joined {activeCamp.RecruitedCount}  executed {activeCamp.ExecutedCount}  escaped {activeCamp.EscapedCount}";
+            prisonerHeaderText.text = $"수용 {activeCamp.Count}/{activeCamp.Capacity}명"
+                + (campCount > 1 ? $" (수용소 {campIndex + 1}/{campCount})" : "")
+                + (selected != null ? $"   포로 {index + 1}/{prisoners.Count}" : "   포로 없음")
+                + $"   합류 {activeCamp.RecruitedCount} · 처형 {activeCamp.ExecutedCount} · 탈출 {activeCamp.EscapedCount}";
 
             prisonerDetailText.text = selected == null
                 ? ""
                 : $"{selected.Name}\n"
-                + $"{selected.Traits.Personality}   mood {PrisonerCamp.MoodOf(selected):0} fatigue {selected.PersonalState?.sleep.fatigue ?? 0:0}   tries {selected.PersuadeAttempts}\n"
+                + $"{DisplayNames.Personality(selected.Traits.Personality)} · 기분 {PrisonerCamp.MoodOf(selected):0} · 피로 {selected.PersonalState?.sleep.fatigue ?? 0:0} · 시도 {selected.PersuadeAttempts}회\n"
                 // 실제 판정은 시도 횟수를 올린 뒤에 굴리므로 다음 시도 기준 확률을 보여준다.
-                + $"persuade {activeCamp.NextPersuadeChance(selected):P0} for {activeCamp.PersuadeFoodCost}F";
+                + $"다음 회유 {activeCamp.NextPersuadeChance(selected):P0} · 식량 {activeCamp.PersuadeFoodCost}";
         }
 
         public void CycleCamp()
@@ -164,7 +164,7 @@ namespace AntColony.UI
             if (camps.Count == 0)
             {
                 camp = null;
-                feedback = "No prison built.";
+                feedback = "포로 수용소를 먼저 건설하세요.";
                 return;
             }
             camp = camps[(camps.IndexOf(Camp) + 1) % camps.Count];
@@ -179,7 +179,7 @@ namespace AntColony.UI
             if (posts.Count == 0)
             {
                 scout = null;
-                feedback = "No scout post built.";
+                feedback = "정찰 초소를 먼저 건설하세요.";
                 return;
             }
             scout = posts[(posts.IndexOf(Scout) + 1) % posts.Count];
@@ -192,23 +192,23 @@ namespace AntColony.UI
             var activeScout = Scout;
             if (activeScout == null)
             {
-                feedback = "No scout post.";
+                feedback = "정찰 초소를 먼저 건설하세요.";
                 return;
             }
             if (activeScout.IsDispatched)
             {
-                feedback = "A scout is already out.";
+                feedback = "이미 정찰 중입니다. 귀환 후 다시 파견하세요.";
                 return;
             }
             // TryDispatch는 이유를 구분해주지 않으므로, 먼저 확인해 어떤 조건이 막았는지 알려준다.
             if (ResourceManager.Instance != null && !ResourceManager.Instance.CanAfford(activeScout.DispatchFoodCost, 0))
             {
-                feedback = $"Not enough food ({activeScout.DispatchFoodCost}F).";
+                feedback = $"식량 부족: 파견에 식량 {activeScout.DispatchFoodCost}이 필요합니다.";
                 return;
             }
             if (AntPool.Instance != null && AntPool.Instance.Free < activeScout.DispatchAnts)
             {
-                feedback = $"Not enough idle ants ({activeScout.DispatchAnts}).";
+                feedback = $"대기 시민 부족: 파견에 {activeScout.DispatchAnts}명이 필요합니다.";
                 return;
             }
             GameMenuController.Instance?.ShowScout(activeScout); // 동행 장수는 정찰 파견 창에서 고른다.
@@ -226,16 +226,16 @@ namespace AntColony.UI
             var activeCamp = Camp;
             if (activeCamp == null || selected == null)
             {
-                feedback = "No prisoner selected.";
+                feedback = "회유·처형할 포로를 먼저 선택하세요.";
                 return;
             }
             if (ResourceManager.Instance != null && !ResourceManager.Instance.CanAfford(activeCamp.PersuadeFoodCost, 0))
             {
-                feedback = $"Not enough food ({activeCamp.PersuadeFoodCost}F).";
+                feedback = $"식량 부족: 회유에 식량 {activeCamp.PersuadeFoodCost}이 필요합니다.";
                 return;
             }
             var name = selected.Name;
-            feedback = activeCamp.TryPersuade(selected) ? $"{name} joined the colony!" : $"{name} refused to join.";
+            feedback = activeCamp.TryPersuade(selected) ? $"{name} 정착지 합류!" : $"{name} 회유 거절.";
         }
 
         public void ExecuteSelected()
@@ -243,11 +243,11 @@ namespace AntColony.UI
             var activeCamp = Camp;
             if (activeCamp == null || selected == null)
             {
-                feedback = "No prisoner selected.";
+                feedback = "회유·처형할 포로를 먼저 선택하세요.";
                 return;
             }
             var name = selected.Name;
-            feedback = activeCamp.Execute(selected) ? $"{name} was executed." : "No prisoner selected.";
+            feedback = activeCamp.Execute(selected) ? $"{name} 처형." : "회유·처형할 포로를 먼저 선택하세요.";
         }
 
         // 켜져 있는 건물만, 씬에 놓인 순서대로. 배치용 템플릿과 부서진 건물은 빠진다.
@@ -281,7 +281,7 @@ namespace AntColony.UI
             button.onClick.AddListener(action);
 
             labelText = CreateText("Label", rect, 0f, 26f, 13);
-            labelText.text = label;
+            labelText.text = DisplayNames.AcquisitionButton(label);
             var labelRect = labelText.rectTransform;
             labelRect.anchorMin = Vector2.zero;
             labelRect.anchorMax = Vector2.one;

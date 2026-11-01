@@ -38,9 +38,9 @@ public static class Review1031N2Checks
         civ.rebel = true;
         Check(WorldMapSymbols.Affiliation(0, 0, false, civ, 0) == MapAffiliation.Rebel, "반란 우선");
         Check(WorldMapSymbols.Affiliation(ConquestDisposition.Annexed, 0, false, civ, 0) == MapAffiliation.Ours, "편입 소유 우선");
-        Check(WorldMapSymbols.State(ConquestDisposition.Lost, false) == " LOST", "상실 문자");
-        Check(WorldMapSymbols.State(ConquestDisposition.Abandoned, false) == " OFF", "포기 문자");
-        Check(WorldMapSymbols.State(ConquestDisposition.Annexed, true) == " ATK", "공격 문자");
+        Check(WorldMapSymbols.State(ConquestDisposition.Lost, false) == " 상실", "상실 문자");
+        Check(WorldMapSymbols.State(ConquestDisposition.Abandoned, false) == " 포기", "포기 문자");
+        Check(WorldMapSymbols.State(ConquestDisposition.Annexed, true) == " 공격 중", "공격 문자");
         Check(WorldMapSymbols.State(ConquestDisposition.Annexed, false) == "", "정상 거점 경고 없음");
         foreach (int difficulty in new[] { -1, 0, 1, 2, 3, 4, 5, 99 })
             Check(WorldMapSymbols.Risk(difficulty) == "D" + Math.Max(1, difficulty), "위험 숫자 " + difficulty);

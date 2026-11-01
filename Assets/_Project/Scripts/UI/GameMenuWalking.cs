@@ -33,7 +33,7 @@ namespace AntColony.UI
             if (world != null) foreach (var site in world.Sites.Where(WorldMapManager.SiteRevealed))
             {
                 var faction = world.Diplomacy?.Faction(site);
-                MenuTheme.Text(content, $"{site.Title} · {AntColony.Core.BiomeRules.Name(site.Biome)} · 도보 편도 {ExpeditionRules.WalkSeconds(site) / AntColony.Core.GameCalendar.SecondsPerDay:0.0}일"
+                MenuTheme.Text(content, $"{SiteNames.Name(site)} · {AntColony.Core.BiomeRules.Name(site.Biome)} · 도보 편도 {ExpeditionRules.WalkSeconds(site) / AntColony.Core.GameCalendar.SecondsPerDay:0.0}일"
                     + $" · {(faction == null ? "중립/야생" : faction.name + (faction.war ? " 전쟁" : " 평화"))}", 12, 48);
             }
         }

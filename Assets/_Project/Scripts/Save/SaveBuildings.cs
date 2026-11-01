@@ -80,7 +80,7 @@ namespace AntColony.Save
         {
             if (!d.runtimeBuilt) return SaveCatalog.Buildings[int.Parse(d.key)];
             var template = BuildingPlacementController.GetTemplate(Enum.Parse<BuildingKind>(d.kind), (UnitRole)d.role);
-            if (template == null) throw new InvalidOperationException("Missing building template: " + d.kind);
+            if (template == null) throw new InvalidOperationException("건설 정보 누락: " + d.kind);
             var go = UnityEngine.Object.Instantiate(template, d.position.ToVector3(), Quaternion.Euler(0, d.rotationY, 0));
             go.name = string.IsNullOrEmpty(d.objectName) ? d.kind : d.objectName;
             go.SetActive(true);
@@ -90,7 +90,7 @@ namespace AntColony.Save
         internal static void Restore(BuildingBase b, BuildingDto d, List<CommanderAnt> commanders)
         {
             if (d.kind == "Destroyed") { if (b != null) { b.gameObject.SetActive(false); UnityEngine.Object.Destroy(b.gameObject); } return; }
-            if (b == null) throw new InvalidOperationException("Missing building: " + d.key);
+            if (b == null) throw new InvalidOperationException("건물 복원 대상 누락: " + d.key);
             b.transform.SetPositionAndRotation(d.position.ToVector3(), Quaternion.Euler(0, d.rotationY, 0));
             b.RestoreHealth(d.health);
             BuildingRepair.For(b).Credit = d.repairCredit;

@@ -81,6 +81,11 @@ namespace AntColony.UI
             ScienceTechnology.ConscriptionLaw => "징병제",
             ScienceTechnology.ReserveForces => "예비군제",
             ScienceTechnology.TotalMobilization => "국민개병",
+            ScienceTechnology.Pharmacy => "일반 약품 제조(약제대, 의료 작업)",
+            ScienceTechnology.PrecisionPharmacy => "고급 약품 제조(약제대, 의료 작업)",
+            ScienceTechnology.UndergroundSurvey => "지하 탐사기·심층 채굴기·가스 추출/제련·화학 작업대 건설 · 발견 후 표본 연구 별도",
+            ScienceTechnology.FormationLine or ScienceTechnology.FormationColumn or ScienceTechnology.FormationWedge
+                or ScienceTechnology.FormationDispersed or ScienceTechnology.FormationCover or ScienceTechnology.FormationFocus => "해당 진형 편성 해금 · 인재·편성에서 효과와 불이익 확인",
             ScienceTechnology.SettlementPromotion => "연구소 2등급 승급 조건(철 40 별도)",
             ScienceTechnology.SteamPromotion => "연구소 3등급 승급 조건(강철 60 별도)",
             ScienceTechnology.PetroleumPromotion => "연구소 4등급 승급 조건(강철 80·부품 10 별도)",
@@ -100,8 +105,10 @@ namespace AntColony.UI
         public void Science()
         {
             var r = CampaignResearch.Instance;
-            if (r == null) { Screen("Science", "과학"); MenuTheme.Text(content, "과학 화면 준비 중입니다."); MenuTheme.Button(content, "Back", Back); return; }
+            if (r == null) { Screen("Science", "과학"); MenuTheme.Text(content, "과학 화면 준비 중입니다."); MenuTheme.Button(content, "Back", Back).GetComponentInChildren<UnityEngine.UI.Text>().text = "뒤로"; return; }
             var window = V5Window("과학 / 연구", "한 번에 하나 · 완료 후 다음 연구는 직접 선택", 676);
+            var estimate = L.Label(window, r.TimeEstimate, 12, 230, 633, 690, 30, MenuTheme.Muted);
+            refreshDutyScreen = () => estimate.text = r.TimeEstimate;
             L.Button(window, "Science Facilities", "로켓 · 과학 시설", 20, 633, 200, 30, ScienceFacilities);
 
             // 왼쪽: 시대별 연구 목록
@@ -120,7 +127,8 @@ namespace AntColony.UI
                 var pick = d.Technology;
                 var row = L.Cell(content, "Research " + pick, 42, MenuTheme.Plate2);
                 L.Button(row, "Pick " + pick, d.Name, 8, 5, 390, 32, () => { researchPick = pick; Science(); }, ResearchEffect(pick), researchPick == pick);
-                L.Label(row, ResearchState(r, d), 12, 404, 0, 98, 42, MenuTheme.Muted, TextAnchor.MiddleRight);
+                var rowState = L.Label(row, ResearchState(r, d), 12, 404, 0, 98, 42, MenuTheme.Muted, TextAnchor.MiddleRight);
+                refreshDutyScreen += () => rowState.text = ResearchState(r, d);
             }
             if (defs.Length == 0) MenuTheme.Text(content, "연구 항목 미구현", 13, 40);
             // G06: 반입한 표본으로 자원 연구(연구 전에는 표본 회수만 가능, 완료 후 본격 채굴).
@@ -128,11 +136,15 @@ namespace AntColony.UI
             {
                 var type = sample; var running = r.ActiveResource == type;
                 var row = L.Cell(content, "Sample " + type, 42, MenuTheme.Plate2);
-                L.Button(row, "Sample Research " + type, "표본 연구: " + type.DisplayName(), 8, 5, 390, 32, () => {
-                    if (!r.TryStartResourceResearch(type)) ToastManager.Show("다른 연구가 진행 중이면 표본 연구를 시작할 수 없습니다.");
+                var sampleButton = L.Button(row, "Sample Research " + type, "표본 연구: " + type.DisplayName(), 8, 5, 390, 32, () => {
+                    if (r.ActiveResource == type) r.SetPaused(!r.Paused);
+                    else if (!r.TryStartResourceResearch(type)) ToastManager.Show("다른 연구가 진행 중이면 표본 연구를 시작할 수 없습니다.");
                     Science();
-                }, "연구량 " + CampaignResearch.ResourceResearchWork + " · 완료하면 이 자원을 본격 채굴", running).interactable = !running && r.Active == null && r.ActiveResource == null;
-                L.Label(row, running ? $"진행 중 {r.ResourceProgress / CampaignResearch.ResourceResearchWork:P0}" : "표본 확보", 12, 404, 0, 98, 42, MenuTheme.Muted, TextAnchor.MiddleRight);
+                }, "연구량 " + CampaignResearch.ResourceResearchWork + " · 완료하면 이 자원을 본격 채굴 · 진행 중 클릭: 정지/재개", running);
+                var sampleState = L.Label(row, "", 12, 404, 0, 98, 42, MenuTheme.Muted, TextAnchor.MiddleRight);
+                refreshDutyScreen += () => sampleState.text = r.ResourceResearched(type) ? "완료" : r.ActiveResource == type
+                    ? $"{(r.Paused ? "정지" : "진행")} {r.ResourceProgress / CampaignResearch.ResourceResearchWork:P0}" : "표본 확보";
+                refreshDutyScreen += () => sampleButton.interactable = !r.ResourceResearched(type) && (r.ActiveResource == type || r.Active == null && r.ActiveResource == null);
             }
 
             // 오른쪽: 현재 시대에서 선택한 연구 상세와 조작
@@ -141,24 +153,38 @@ namespace AntColony.UI
             if (def == null) MenuTheme.Text(content, "선택한 시대에 표시할 연구 항목이 없습니다.", 13, 40);
             else
             {
-                var saved = r.SavedProgress(def.Technology);
-                var cost = r.Active == def || saved >= 0 ? "비용 지불 완료" : $"식량 {def.Food} · 재료 {def.Soil}" + (def.Special > 0 ? $" · 특수 {def.Special}" : "");
-                var progress = r.Active == def ? r.Progress : Mathf.Max(0, saved);
-                MenuTheme.Text(content, $"상태 {ResearchState(r, def)} · 연구량 {progress:0}/{def.Work:0} · {cost}" + (r.Insight(def.Technology) > 0 ? $" · 천기20%({r.PendingInsight(def.Technology):0} 대기)" : "") + $"\n해금: {ResearchEffect(def.Technology)}"
-                    + "\n선행: " + (def.Prerequisites.Length == 0 ? "없음" : string.Join(", ", def.Prerequisites.Select(p => (r.Has(p) ? "✓ " : "✗ ") + CampaignResearch.Technologies[(int)p].Name))), 15, 82);
+                float Progress() => r.Has(def.Technology) ? def.Work : r.Active == def ? r.Progress : Mathf.Max(0, r.SavedProgress(def.Technology));
+                string Detail()
+                {
+                    var cost = r.Has(def.Technology) || r.Active == def || r.SavedProgress(def.Technology) >= 0 ? "비용 지불 완료"
+                        : $"식량 {def.Food} · 흙 {def.Soil}" + (def.Special > 0 ? $" · 특수 {def.Special}" : "");
+                    return $"상태 {ResearchState(r, def)} · 연구량 {Progress():0}/{def.Work:0} · {cost}"
+                        + (r.Insight(def.Technology) > 0 ? $" · 천기20%({r.PendingInsight(def.Technology):0} 대기)" : "") + $"\n해금: {ResearchEffect(def.Technology)}"
+                        + "\n선행: " + (def.Prerequisites.Length == 0 ? "없음" : string.Join(", ", def.Prerequisites.Select(p => (r.Has(p) ? "✓ " : "✗ ") + CampaignResearch.Technologies[(int)p].Name)));
+                }
+                var detail = MenuTheme.Text(content, Detail(), 15, 82);
                 var meter = L.Cell(content, "ResearchProgress", 12);
-                L.Meter(meter, 0, 3, 494, 6, progress / def.Work, MenuTheme.Accent);
+                var fill = (RectTransform)L.Meter(meter, 0, 3, 494, 6, Progress() / def.Work, MenuTheme.Accent).GetChild(0);
                 var reason = r.BlockReason(def.Technology);
+                if (reason == "") reason = r.ResearchCostShortage(def.Technology);
                 var actions = L.Cell(content, "Research Commands", 38);
-                L.Button(actions, "Start Research", r.Active == def && r.Paused ? "연구 재개" : "연구 지시", 0, 0, 110, 32, () => {
+                var start = L.Button(actions, "Start Research", r.Active == def && r.Paused ? "연구 재개" : "연구 지시", 0, 0, 110, 32, () => {
                     if (r.Active == def) r.SetPaused(false);
                     else if (!r.TryStart(def.Technology)) ToastManager.Show("연구를 시작할 수 없습니다. 자원과 선행 연구를 확인하세요.");
                     Science();
-                }, reason, primary: true).interactable = !r.Has(def.Technology) && (r.Active == def ? r.Paused : reason == "");
-                L.Button(actions, "Stop Research", "연구 정지", 118, 0, 110, 32, () => { r.SetPaused(true); Science(); }, "진행도를 보존합니다.")
-                    .interactable = r.Active == def && !r.Paused;
-                if (reason != "" && r.Active != def) MenuTheme.Text(content, reason, 12, 36).color = MenuTheme.Warning;
-                MenuTheme.Text(content, ResearchBudgetText(r, def), 12, 66).color = MenuTheme.Muted;
+                }, reason, primary: true);
+                var stop = L.Button(actions, "Stop Research", "연구 정지", 118, 0, 110, 32, () => { r.SetPaused(true); Science(); }, "진행도를 보존합니다.");
+                var warning = MenuTheme.Text(content, "", 12, 36); warning.color = MenuTheme.Warning;
+                var budget = MenuTheme.Text(content, ResearchBudgetText(r, def), 12, 66); budget.color = MenuTheme.Muted;
+                refreshDutyScreen += () => {
+                    reason = r.BlockReason(def.Technology);
+                    if (reason == "") reason = r.ResearchCostShortage(def.Technology);
+                    start.interactable = !r.Has(def.Technology) && (r.Active == def ? r.Paused : reason == "");
+                    stop.interactable = r.Active == def && !r.Paused;
+                    warning.text = r.Active != def && !r.Has(def.Technology) ? reason : "";
+                    detail.text = Detail(); fill.sizeDelta = new Vector2(494 * Mathf.Clamp01(Progress() / def.Work), fill.sizeDelta.y);
+                    budget.text = ResearchBudgetText(r, def);
+                };
             }
 
             // 하단: 연구소별 담당 장수·대기 사유
@@ -168,7 +194,6 @@ namespace AntColony.UI
             var assigned = labs.Select(l => l.Target).Where(c => c != null).ToHashSet();
             foreach (var lab in labs)
             {
-                var wait = r.LabWaitReason(lab);
                 var captured = lab;
                 var row = L.Cell(content, "Lab Assignment", 40);
                 L.Label(row, $"연구소 {lab.Tier}등급 · 담당 장수", 13, 0, 0, 240, 36);
@@ -180,10 +205,12 @@ namespace AntColony.UI
                     else if (!candidates[index - 1].SendToResearch(captured)) ToastManager.Show("지시할 수 없습니다(경로·작업 중·작업표 연구 금지).");
                     Science();
                 });
-                dropdown.interactable = lab.Target != null || (r.Active != null && lab.Tier >= r.Active.Tier);
-                L.Label(row, wait == "" ? "참여 가능" : wait, 12, 530, 0, 490, 36, MenuTheme.Muted);
+                dropdown.interactable = lab.Target != null || r.ActiveResource != null || (r.Active != null && lab.Tier >= r.Active.Tier);
+                var status = L.Label(row, "", 12, 530, 0, 490, 36, MenuTheme.Muted);
+                status.gameObject.AddComponent<MenuTooltip>().Message = $"등급 연구 속도 ×{CampaignResearch.LabMultiplier(lab.Tier):0.00} · 장수 연구 능력·특성·건강/생활 상태 별도\n천기: 동일 장수가 전체 필요량의 75% 이상 기여하면 직접 후속 연구 1개에 20% 통찰. 다음 연구는 직접 선택합니다.";
+                refreshDutyScreen += () => { if (captured == null) { status.text = "연구소 소실"; return; } var why = r.LabWaitReason(captured); status.text = why == "" ? $"기여 {r.LabRate(captured):0.00}/초" : why; };
             }
-            refreshDutyScreen = null;
+            refreshDutyScreen?.Invoke();
             V5Fit(window);
         }
 
@@ -198,7 +225,12 @@ namespace AntColony.UI
             foreach (var lab in AntColony.Core.SceneObjects.All<ScienceLab>())
             {
                 var captured = lab;
-                MenuTheme.Button(content, ScienceLabUpgrades.Description(lab.Tier), () => { if (!captured.TryUpgrade()) ToastManager.Show("선행 연구와 표시된 실물 승급 재료를 확인하세요."); ScienceFacilities(); }).interactable = lab.Tier < ScienceLab.MaxTier && !lab.Busy;
+                var ready = research != null && lab.Tier < ScienceLab.MaxTier && research.Has(ScienceLabUpgrades.RequiredResearch(lab.Tier));
+                var stock = ScienceLabUpgrades.StockStatus(lab.Tier, t => ResourceManager.Instance?.GetAmount(t) ?? 0);
+                MenuTheme.Button(content, ScienceLabUpgrades.Description(lab.Tier), () => { if (!captured.TryUpgrade()) ToastManager.Show(stock); ScienceFacilities(); },
+                    stock + "\n입고된 재고로 1동만 승급 · 바닥/운반/타지역 재고 제외 · 연구 속도 +25%p")
+                    .interactable = ready && !lab.Busy && ScienceLabUpgrades.Cost(lab.Tier).All(c => (ResourceManager.Instance?.GetAmount(c.type) ?? 0) >= c.amount);
+                MenuTheme.Text(content, (ready ? "" : lab.Tier < ScienceLab.MaxTier ? "승급 연구 필요 · " : "") + stock, 12, 44);
             }
             content = V5Section(window, "과학 시설 · 로켓", 376, 104, 712, 544);
             RocketSection(research);

@@ -18,7 +18,7 @@ namespace AntColony.UI
             var p = L.Plate(f, "Population", 300, 100, 840, 660);
             L.Label(p, "인구 · 이주", 26, 24, 12, 792, 40, MenuTheme.Accent);
             L.Label(p, "주거·시설·안전·민심이 좋으면 시민이 이주해 옵니다. 살 자리는 주거 건물(건설 → 생활)로 늘립니다.", 14, 24, 54, 792, 30, MenuTheme.Muted);
-            L.Label(p, $"인구 <b>{pop.Total}</b> / 살 자리 {pop.HousingCapacity}     어린 {pop.S.young} · 성체 {pool.Total} · 늙은 {pop.S.old}     출전 {pool.Assigned}",
+            L.Label(p, $"인구 <b>{pop.Total}</b> / 살 자리 {pop.HousingCapacity}     어린 {pop.S.young} · 성체 {ColonyPopulation.Adults} · 늙은 {pop.S.old}     출전 {pool.Assigned}",
                 16, 24, 92, 792, 30).gameObject.AddComponent<MenuTooltip>().Message = "노년 시민은 연간 15% 자연사(소수 이월)합니다. 올해 노년이 된 시민은 다음 해부터 대상입니다. 동원·예약 노년 정산 대기분은 복귀 전 제외하며, 장수의 노화는 별도입니다.";
 
             L.Label(p, $"<b>민심</b>  {pop.S.sentiment:0} / 100{(pop.Unrest ? "  <color=#d9534f>바닥: 인구 탈주·병력 동원 불가</color>" : "")}", 14, 24, 132, 792, 24);
@@ -28,7 +28,7 @@ namespace AntColony.UI
             // G33: 수용 중단 중에는 주기 시간과 소수 누적이 모두 멈춘다(ColonyPopulation.Tick).
             L.Button(p, "Immigration Stop", pop.S.immigrationStopped ? "이주 수용 재개" : "이주 수용 중단", 632, 172, 184, 28,
                 () => { pop.SetImmigrationStopped(!pop.S.immigrationStopped); Population(); }, "중단하면 새 시민이 오지 않고, 이주 주기와 누적도 멈춥니다.", pop.S.immigrationStopped);
-            L.Meter(p, 24, 202, 792, 8, pop.Demand / 100f, MenuTheme.Accent);
+            L.Meter(p, 24, 202, 792, 8, pop.Demand / 200f, MenuTheme.Accent);
             (string name, float value)[] causes = { ("주거", pop.HousingDemand), ("시설", pop.FacilityDemand), ("안전", pop.SafetyDemand), ("민심", pop.S.sentiment) };
             for (var i = 0; i < causes.Length; i++)
             {
