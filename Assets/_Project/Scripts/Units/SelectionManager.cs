@@ -237,6 +237,7 @@ namespace AntColony.Units
 
         // 장수 바·다중 선택 그리드용: 한 명만 선택 / 선택에서 빼기.
         public void SelectOnly(SelectableObject selectable) { ClearSelection(); AddToSelection(selectable); }
+        public void Add(SelectableObject selectable) => AddToSelection(selectable); // 부대 지정(ControlGroups)
         public void Deselect(SelectableObject selectable)
         {
             if (selectable == null || !selectedObjects.Remove(selectable)) return;

@@ -57,6 +57,9 @@ namespace AntColony.Units
             }
             if (!s.asleep)
             {
+                // 이동 지시로 깨운 장수는 도착한 뒤에 눕는다(RimWorld: 지시받은 개척민은 이동을 마치고 잠자리로). 걷다가 픽 쓰러지지 않게.
+                if (s.interrupted && (IsFlying ? !HasReachedDestination()
+                    : Agent != null && (Agent.pathPending || Agent.hasPath) && !HasReachedDestination())) return true;
                 s.asleep = true;
                 SuspendForNeeds("sleep"); DropCargo(); CraftingWorkshop?.Release();
                 automaticFacility = null; WorkState.resting = false;

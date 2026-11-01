@@ -99,6 +99,7 @@ namespace AntColony.Units
             {
                 WorkState.deploymentMealSeconds = 0;
                 WorkState.bossPickup = -1;
+                WakeForDuty(); // 자던 장수에게 이동 지시: 깨워서 걷게 한다(도착 후 다시 잔다, CommanderSleep).
                 ReleaseCorpse();
                 if (!IsConstructing) { ServiceTarget = null; ServiceJob = CommanderJobs.None; HuntTarget = null; SetWorkTarget(null); }
                 automaticFacility = null; ScienceAssignment?.ReleaseResearcher(); WorkState.resting = false;

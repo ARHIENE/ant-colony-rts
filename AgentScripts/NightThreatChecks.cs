@@ -21,7 +21,8 @@ public static class NightThreatChecks
         while (SaveSystem.Busy && DateTime.UtcNow < until) await Task.Delay(50);
         Check(!SaveSystem.Busy, "scene ready"); Time.timeScale = 0;
     }
-    static void At(float timeOfDay, int day = 0) => GameSession.Instance.MarkStarted(GameSession.Instance.PlaySeconds, day * GameCalendar.SecondsPerDay + timeOfDay);
+    // 2026-11-01: 첫날 밤은 사건 감독 유예라 검사 전체를 한 계절 뒤에서 진행한다.
+    static void At(float timeOfDay, int day = 0) => GameSession.Instance.MarkStarted(GameSession.Instance.PlaySeconds, (day + GameCalendar.DaysPerSeason) * GameCalendar.SecondsPerDay + timeOfDay);
     static EventActor[] Predators() => Object.FindObjectsByType<EventActor>(FindObjectsSortMode.None)
         .Where(a => a.isActiveAndEnabled && a.Kind == EventActorKind.NightPredator && a.Alive).ToArray();
 
@@ -36,6 +37,8 @@ public static class NightThreatChecks
             var events = ColonyEvents.Instance; Check(events != null, "events");
             Check(EventRules.NightThreatScale == 1.5f, "night invasion x1.5");
 
+            GameSession.Instance.MarkStarted(GameSession.Instance.PlaySeconds, GameCalendar.DaySeconds + 1); events.Tick(1);
+            Check(Predators().Length == 0, "first night grace (storyteller)");
             // 낮에는 나오지 않는다.
             At(10); events.Tick(1);
             Check(Predators().Length == 0, "no predators by day");

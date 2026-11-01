@@ -60,6 +60,7 @@ namespace AntColony.Units
             InjuryPart.Thorax => 1 - health.PartFraction(BodyPart.Thorax),
             _ => 0 // 날개는 장비, 더듬이는 없음(2026-10-18 캐릭터 전환)
         };
+        public static event Action<CommanderPersonalState, string, float> MoodChanged;
         public void AddMood(string reason, float value, float seconds)
         {
             var prior = moodFactors.Find(f => f.reason == reason && f.remaining > 0);
@@ -67,6 +68,7 @@ namespace AntColony.Units
             if (value < 0) value *= 1 - reduction;
             moodFactors.RemoveAll(f => f.reason == reason);
             moodFactors.Add(new MoodFactor { reason = reason, value = value, remaining = seconds, politicalReduction = reduction });
+            if (prior == null || prior.value != value) MoodChanged?.Invoke(this, reason, value);
         }
         public CommanderRelation Relation(string other)
         {

@@ -10,7 +10,7 @@ namespace AntColony.UI
         {
             ("MiniBird Nest", "미니버드 둥지"), ("Resource Field", "자원 지대"), ("ResourceSite", "자원지"), ("TradePost", "교역소"),
             ("BossNest", "보스 둥지"), ("Settlement", "정착지"), ("Outpost", "전초기지"), ("Colony", "소굴"), ("Empty", "빈 거점"),
-            ("Amber", "호박"), ("Azure", "청람"), ("Jade", "비취"), ("Crimson", "진홍"), ("Trade", "교역"), ("Neutral", "중립"), ("Wildlife", "야생"),
+            ("Amber", "호박"), ("Azure", "청람"), ("Jade", "비취"), ("Crimson", "진홍"), ("Trade", "교역"), ("Neutral", "중립"), ("Wildlife", "야생"), ("Independent", "독립"),
         };
 
         public static string Name(ExpeditionSite site) => site == null ? "" : Korean(site.Title);

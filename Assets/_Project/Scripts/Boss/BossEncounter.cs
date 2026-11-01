@@ -25,6 +25,9 @@ namespace AntColony.Boss
         private Vector3 anchor;
         private GroundTelegraphCircle telegraph;
         public bool Airborne => BossEncounterRules.Flying(state.elapsed);
+        public string CombatStatus => state.warning ? $"착탄 {state.warningRemaining:0.0}초 · 반경 {BossEncounterRules.StrikeRadius:0}m 밖으로 회피"
+            : Airborne ? $"비행 · 착지까지 {System.Math.Max(0, BossEncounterRules.FlightSeconds - state.elapsed):0.0}초"
+            : "착지 · 근접 공격 가능";
         public void Initialize(BossHealth value, BossId bossId)
         {
             boss = value; id = bossId; anchor = value.Position;

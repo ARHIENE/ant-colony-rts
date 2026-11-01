@@ -7,7 +7,7 @@ using UnityEngine.UI;
 
 namespace AntColony.UI
 {
-    public enum ToastKind { Info, Warning, Hint }
+    public enum ToastKind { Info, Warning, Hint, Achievement }
 
     // 우상단 알림 스택. 위기 = 해결/닫기 전까지 고정, 경고 10초, 완료·행운(Info) = 설정값(기본 6초), 힌트(민트) 10초.
     // 실제 시간 기준, 마우스를 올리면 멈춘다. 동시 최대 5개, 같은 알림은 ×N으로 합치고 넘치면 +N건. 클릭 = 닫기.
@@ -124,7 +124,7 @@ namespace AntColony.UI
                 actionLabel = locations.TryGetValue(c.Key, out var target) ? target.label : null })
             .Concat(pins.Select(p => new Toast { key = p.Key, message = p.Value.message, action = p.Value.action, actionLabel = p.Value.label, pinned = true })).Concat(toasts).OrderBy(Rank).ToList();
         private static int Rank(Toast t) => t.crisis ? t.key == "defeat" || t.key == "enemy" || t.key.StartsWith("med:") || t.key.StartsWith("incident:") ? 0 : 1
-            : t.pinned && (t.key.StartsWith("medwait:") || t.key.StartsWith("supplies:")) ? 2 : t.kind == ToastKind.Warning && !t.pinned ? 3 : t.pinned ? 4 : 5;
+            : t.pinned && (t.key.StartsWith("medwait:") || t.key.StartsWith("supplies:")) ? 2 : t.kind == ToastKind.Warning && !t.pinned ? 3 : t.kind == ToastKind.Achievement ? 4 : t.pinned ? 5 : 6;
         private List<Toast> Shown() => expanded ? All() : All().Take(MaxVisible).ToList();
         private List<string> Lines()
         {
@@ -141,7 +141,7 @@ namespace AntColony.UI
             if (notificationCanvas != null) notificationCanvas.enabled = !GameMenuController.MenuOpen;
             if (!hovered)
                 for (var i = toasts.Count - 1; i >= 0; i--)
-                    if (toasts[i].kind != ToastKind.Warning || toasts[i].seen)
+                    if (toasts[i].kind != ToastKind.Warning && toasts[i].kind != ToastKind.Achievement || toasts[i].seen)
                     if ((toasts[i].remaining -= Time.unscaledDeltaTime) <= 0) { toasts.RemoveAt(i); dirty = true; }
             if (dirty) Rebuild();
         }
@@ -162,7 +162,7 @@ namespace AntColony.UI
                 var index = i; var t = shown[i];
                 t.seen = true;
                 Row("Toast " + i, Label(t), t.crisis ? MenuTheme.DangerInk : t.pinned ? MenuTheme.Accent : t.kind == ToastKind.Warning ? MenuTheme.Warning : t.kind == ToastKind.Hint ? Mint : MenuTheme.TextColor,
-                    t.pinned ? null : (System.Action)(() => Dismiss(index)), t.action, t.actionLabel);
+                    t.pinned ? null : (System.Action)(() => Dismiss(index)), t.action, t.actionLabel, t.kind == ToastKind.Achievement);
             }
             if (!expanded && all.Count > MaxVisible) Row("Toast More", $"+{all.Count - MaxVisible}건", MenuTheme.Dim, () => Expand(true), () => Expand(true), "전체 알림 보기");
             if (expanded) Row("Toast Collapse", "알림 목록", MenuTheme.Dim, () => Expand(false), () => Expand(false), "접기");
@@ -170,7 +170,7 @@ namespace AntColony.UI
             if (all.Count == 0) hovered = false;
         }
 
-        private void Row(string name, string text, Color color, System.Action onClick, System.Action action = null, string actionLabel = null)
+        private void Row(string name, string text, Color color, System.Action onClick, System.Action action = null, string actionLabel = null, bool achievement = false)
         {
             var rect = MenuTheme.Rect(name, list);
             rect.gameObject.AddComponent<Image>().color = MenuTheme.Plate2;
@@ -179,7 +179,8 @@ namespace AntColony.UI
             var heading = MenuTheme.Rect("Heading", rect);
             var horizontal = heading.gameObject.AddComponent<HorizontalLayoutGroup>();
             horizontal.childControlHeight = horizontal.childControlWidth = true; horizontal.childForceExpandWidth = false;
-            var label = MenuTheme.Text(heading, text, 13, 20); label.color = color; label.alignment = TextAnchor.UpperLeft;
+            var label = MenuTheme.Text(heading, text, achievement ? 15 : 13, 20); label.color = achievement ? MenuTheme.Accent : color; label.alignment = TextAnchor.UpperLeft;
+            if (achievement) label.fontStyle = FontStyle.Bold;
             DestroyImmediate(label.GetComponent<LayoutElement>());
             if (onClick != null)
             {

@@ -627,7 +627,7 @@ namespace AntColony.Units
                     // 프레임 단위 채집 합산 오차(10 → 9.9999971)로 1이 바닥 더미로 떨어지지 않게 여유를 둔다.
                     var bin = targetBin ?? resources.BinOf(targetDeposit);
                     int amount = resources.AddTo(bin, carriedType, Mathf.FloorToInt(carriedAmount + .001f), this, lots: carriedLots);
-                    if (amount > 0) { carriedAmount = Mathf.Max(0f, carriedAmount - amount); OnDelivered(amount); }
+                    if (amount > 0) { carriedAmount = Mathf.Max(0f, carriedAmount - amount); OnDelivered(amount); AntColony.UI.Juice.Float(targetDeposit.Position + Vector3.up * 2.5f, $"+{amount} {carriedType.DisplayName()}", new Color(.95f, .9f, .55f)); }
                 }
                 ReleaseDestination();
                 if (carriedAmount >= 1) { BeginReturnIfNeeded(); return; } // 다 못 넣었으면 다음 창고, 없으면 바닥

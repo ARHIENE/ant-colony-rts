@@ -1,3 +1,6 @@
+# 2026-11-01 SAVE(낮) — 2026-11-01 SAVE(밤) 이관
+- 7113d6c/b45d257: Codex P1(경제·연구 23건)·P2(AI 산업·저장 Missing building:0·장갑)·P3(화면 한국어화 73파일) 병합, Claude 게임성 1차(월드맵 지구 축소 버그·거점 한국어 이름·가장자리 스크롤 차단·시작 카메라·자원 라벨·고지대 테두리·시작 안내 체크리스트·인재 초상화), 저장 JsonUtility null 장비 부활 수정(militaryEquipped). Unity P1 21584·P2 181·P3 285 등 통과. 일지 https://app.notion.com/p/40bc4a0ecd31813c80e6f87500308849. 원문 work/save-20261101b/log-before-save.md.
+
 # 2026-10-31 SAVE(오후) — 2026-11-01 SAVE 이관
 - c900ee4/2ad0449: Codex L1·L2·M1·M2·N1·N2 병합(연구소 실물 승급·노년 자연사·AI 6시대·전자부품/성휘금속/합금·성휘161 보장·월드맵 세력 모양/위험도), 배우자 이혼·적장수 별점·미니맵 마름모. Unity Claude28·Residue11·Military9 등. TC 876건 요청(실수행 0). 일지 https://app.notion.com/p/40ac4a0ecd31812d83c3f3f57c97bd90. 원문 work/save-20261101/log-before-save.md.
 

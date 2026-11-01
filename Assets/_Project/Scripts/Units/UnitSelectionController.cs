@@ -126,6 +126,7 @@ namespace AntColony.Units
             var index = 0;
             var issuedMove = false;
             var gatherers = 0;
+            var rejectedAttacks = 0;
 
             foreach (var selectable in selected)
             {
@@ -181,6 +182,7 @@ namespace AntColony.Units
                     }
                     else
                     {
+                        if (target != null) rejectedAttacks++;
                         soldier.CommandMove(hit.point + offset);
                         issuedMove = true;
                     }
@@ -198,6 +200,10 @@ namespace AntColony.Units
             {
                 MoveMarker.Spawn(hit.point, moveMarkerColor);
             }
+            if (rejectedAttacks > 0)
+                AntColony.UI.ToastManager.Show($"{rejectedAttacks}명 공격 불가 · " + (CombatTargeting.IsAirborne(target)
+                    ? "공중 대상: 원거리·비행 장비가 필요합니다. 이동 지시만 적용했습니다."
+                    : "대상의 외교 관계·장수의 작업/명령 가능 상태를 확인하세요. 이동 지시만 적용했습니다."));
         }
     }
 }

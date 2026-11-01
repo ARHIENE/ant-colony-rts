@@ -21,14 +21,15 @@ namespace AntColony.World
             Instantiate(commander ? commanderTemplate : raiderTemplate, position, Quaternion.identity);
         internal void RestoreVisitor(WildMonster monster) { if (!visitors.Contains(monster)) visitors.Add(monster); }
         // 난이도는 방문 간격만 바꾼다. Normal이면 배수 1.0이라 기존과 같다.
-        private float NextDelay() => Random.Range(minimumDelay, maximumDelay) * AntColony.Core.DifficultyRuntime.IntervalScale;
-        private void Start() => remaining = NextDelay();
+        private float NextDelay() => Random.Range(minimumDelay, maximumDelay) * AntColony.Core.DifficultyRuntime.IntervalScale * Storyteller.RaidDelayScale(Storyteller.Current);
+        private void Start() { Storyteller.Reset(); remaining = NextDelay(); }
         private void Update()
         {
             if (RocketCampaign.SuppressNewCrises) return;
             if (ExpeditionRules.HomeCommanders == 0) return;
             remaining -= Time.deltaTime;
             if (remaining > 0) return;
+            if (Storyteller.Resting) { remaining = 30; return; } // 직전 위기 뒤 숨 쉴 틈(사건 감독)
             if (TrySpawn()) remaining = NextDelay();
         }
 
@@ -76,6 +77,7 @@ namespace AntColony.World
                     visitors.Add(visitor);
                 }
                 AntColony.UI.ToastManager.Show("침입자가 본거지로 접근합니다!");
+                Storyteller.MarkCrisis();
                 return true;
             }
             return false;
