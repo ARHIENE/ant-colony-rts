@@ -97,7 +97,7 @@ namespace AntColony.World
             {
                 var c = Data.civilizations.Find(c => c.id == raid.faction);
                 if (raid.faction != "" && (c == null || c.extinct || !c.war)) { Data.travellingRaids.Remove(raid); continue; }
-                if (Data.elapsed < raid.arrive || c == null && ExpeditionRules.HomeCommanders == 0) continue;
+                if (Data.elapsed < raid.arrive || c == null && ExpeditionRules.HomeCommanders == 0 || !WaveDefense.AcceptsArrivals) continue; // 평화 중 도착분은 다음 웨이브에 합류
                 var incursions = AntColony.Core.SceneObjects.Any<LocalIncursions>();
                 if (incursions == null || !incursions.TryArriveRaid(c, raid.count)) continue;
                 Data.travellingRaids.Remove(raid);

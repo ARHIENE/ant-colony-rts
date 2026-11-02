@@ -9,6 +9,7 @@ using AntColony.Core;
 using AntColony.Data;
 using AntColony.Units;
 using AntColony.World;
+using AntColony.UI;
 using UnityEngine;
 using UnityEngine.AI;
 using Object = UnityEngine.Object;
@@ -45,9 +46,29 @@ public static class WorldMapChecks
     {
         var debt = typeof(ExpeditionTransport).GetProperty("FoodDebt");
         foreach (var m in WildMonster.All.ToArray()) if (m != null && m.Threatening && m.GetComponentInParent<ExpeditionSite>() == null) m.TakeDamage(float.MaxValue);
-        await Wait(() => { debt.SetValue(ship, 0f); if (ship.State == ExpeditionState.Returning && ship.PendingCrewOrderCount == 0)
-                for (var t = 0; t < 600 && ship.State == ExpeditionState.Returning; t++) { debt.SetValue(ship, 0f); ship.Tick(1f); } // 1초씩: 한 번에 돌리면 그 안에서 보급이 화물을 먹는다
-            return ship.State == ExpeditionState.Home; }, 60);
+        foreach (var c in ship.Crew) if (!c.IsEmbarked && !c.IsCarrying) Move(c, ship.Position);
+        Check(await Wait(() =>
+        {
+            debt.SetValue(ship, 0f);
+            if (ship.IsWithdrawing) ship.Tick(1f);
+            for (var t = 0; t < 600 && ship.State == ExpeditionState.Returning; t++)
+            { debt.SetValue(ship, 0f); ship.Tick(1f); }
+            return ship.State == ExpeditionState.Home && ship.PendingCrewOrderCount == 0 && ship.Crew.Count == 0;
+        }, 60), "physical boarding, travel and home unload complete: " + ship.State + " / " + ship.CrewOrderStatus);
+    }
+    static void Upgrade(ScienceLab lab)
+    {
+        var research = CampaignResearch.Instance;
+        var promotion = ScienceLabUpgrades.RequiredResearch(lab.Tier);
+        if (!research.Has(promotion))
+        {
+            Check(research.TryStart(promotion), "promotion research starts: " + research.BlockReason(promotion));
+            Check(research.LabRate(lab) > 0, "promotion has active researcher");
+            research.Tick(10000);
+            Check(research.Has(promotion), "promotion research completes");
+        }
+        var tier = lab.Tier;
+        Check(lab.TryUpgrade() && lab.Tier == tier + 1, "promotion and material payment upgrade lab");
     }
     static void Move(CommanderAnt c, Vector3 position)
     {
@@ -63,7 +84,13 @@ public static class WorldMapChecks
     {
         Check(Application.isPlaying, "Play mode required");
         var savedAutoPause = UserSettings.Current.autoPauseThreat;
+        var savedDownPause = UserSettings.Current.autoPauseDowned;
+        var oldRoot = AntColony.Save.SaveStorage.RootOverride;
+        var savedAutoSave = UserSettings.Current.autoSaveEnabled;
+        AntColony.Save.SaveStorage.RootOverride = System.IO.Path.Combine(Application.temporaryCachePath, "WorldMapChecks-" + Guid.NewGuid().ToString("N"));
+        UserSettings.Current.autoSaveEnabled = false;
         UserSettings.Current.autoPauseThreat = false;
+        UserSettings.Current.autoPauseDowned = false;
         try
         {
         // 메인 메뉴 도입 후에는 새 게임이 지형과 NavMesh를 준비한다.
@@ -78,6 +105,7 @@ public static class WorldMapChecks
         AntColony.UI.GameMenuController.Instance.Resume(); Time.timeScale = 1;
         checks = 0;
         var world = WorldMapManager.Instance;
+        WaveDefense.Ensure().enabled = false; // LocalIncursions에 더는 독립 침입 타이머가 없다.
         Check(world != null && world.Sites.Count == 33, "thirty-three expedition sites configured");
         Check(world.Sites.Select(s => s.Title).Distinct().Count() == 33, "site names are unique");
         Check(world.Sites.Count(s => s.Kind == ExpeditionSiteKind.Settlement) == 18
@@ -94,8 +122,10 @@ public static class WorldMapChecks
             .All(s => s.GetComponentsInChildren<EnemyCommander>().Length == s.Difficulty), "each settlement defends with its own difficulty");
         var bossTemplate = (AntColony.Boss.BossHealth)Get(world, "bossTemplate");
         Check(world.Sites.Where(s => s.Kind == ExpeditionSiteKind.BossNest)
-            .All(s => s.Boss.MaxHp == bossTemplate.MaxHp * s.Difficulty && s.Boss.CurrentHp == s.Boss.MaxHp),
-            "boss difficulty scales template health and starts at full health");
+            .All(s => s.Boss.MaxHp == (s.Boss.CampaignId.HasValue
+                ? AntColony.Boss.BossEncounterRules.Health(s.Boss.CampaignId.Value)
+                : bossTemplate.MaxHp * s.Difficulty) && s.Boss.CurrentHp == s.Boss.MaxHp),
+            "캠페인 보스는 고정 체력, 일반 보스는 난이도 배수이며 모두 최대 체력으로 시작");
         Check(world.Sites.Where(s => s.Kind == ExpeditionSiteKind.ResourceSite)
             .All(s => s.GetComponentsInChildren<ResourceNode>().All(n => n.AmountRemaining == Mathf.Round(100 * s.Difficulty * AntColony.Core.BiomeRules.NodeMultiplier(s.Biome, n.ResourceType)))), // 거점 바이옴 배율
             "neutral stock scales with fixed site difficulty");
@@ -171,12 +201,14 @@ public static class WorldMapChecks
         var research = CampaignResearch.Instance;
         Check(!lab.TryResearch(true) && !lab.TryConstruct(false), "aircraft and construction blocked before vehicle research");
         Check(!lab.TryResearch(false), "vehicle research requires lab tier 2");
-        Check(lab.TryUpgrade() && lab.TryResearch(false) && !lab.TryResearch(false), "research starts once");
         var scientist = CommanderRoster.Instance.Commanders.Skip(1).First(x => x.CanDoJob(CommanderJobs.Research) && !x.IsDeployed && !x.IsAwayFromHome); // 무작위 특성이 연구를 막을 수 있다
         scientist.SetJobEnabled(CommanderJobs.Research, true);
         scientist.CommandStop(); // 자율 작업 중이면 배정이 거부된다
         Move(scientist, lab.Position + Vector3.right * 3);
         Check(lab.TryAssign(scientist), "researcher assigned: working=" + scientist.IsWorking + " deployed=" + scientist.IsDeployed + " alloc=" + scientist.CanChangeAllocation + " dist=" + Vector3.Distance(scientist.Position, lab.Position) + " busy=" + lab.Busy + " target=" + lab.Target + " canResearch=" + scientist.CanDoJob(CommanderJobs.Research) + " labBusy=" + scientist.LabUpgradeBusy);
+        Check(!lab.TryUpgrade(), "promotion research required before lab upgrade");
+        Upgrade(lab);
+        Check(lab.TryResearch(false) && !lab.TryResearch(false), "research starts once after promotion");
         research.Tick(1);
         Check(research.Progress > 0 && !world.VehicleResearched, "assigned researcher advances shared research");
         lab.gameObject.SetActive(false);
@@ -192,7 +224,8 @@ public static class WorldMapChecks
         var vehicle = world.Transports[0];
         Check(vehicle.Capacity == 40 && !vehicle.TryDepart(world.Sites.First(s => s.Kind == ExpeditionSiteKind.Settlement)), "empty vehicle cannot depart");
         Check(!lab.TryResearch(true), "aircraft research requires gliding and lab tier 4 (electric era)");
-        Check(lab.TryUpgrade() && lab.TryUpgrade() && research.TryStart(ScienceTechnology.Gliding), "gliding research starts");
+        Upgrade(lab); Upgrade(lab);
+        Check(research.TryStart(ScienceTechnology.Gliding), "gliding research starts");
         research.Tick(10000);
         Check(research.Has(ScienceTechnology.Gliding) && lab.TryResearch(true), "aircraft research requires completed prerequisites");
         research.Tick(10000);
@@ -312,7 +345,7 @@ public static class WorldMapChecks
         Check(vehicle.TryBoard(new[] { homeCommander }) && vehicle.TryDepart(world.Sites.First(s => s.Kind == ExpeditionSiteKind.Settlement)), "annexed settlement allows revisit");
         vehicle.Tick(vehicle.TravelSeconds);
         Check(vehicle.TryReturn(), "revisited settlement allows return");
-        vehicle.Tick(vehicle.TravelSeconds);
+        await ReturnHome(vehicle);
         Check(aircraft.State == ExpeditionState.Deployed && second.Transport == aircraft, "return does not disturb other expedition");
         world.ViewSite(world.Sites.First(s => s.Kind == ExpeditionSiteKind.BossNest));
         var boss = world.Sites.First(s => s.Kind == ExpeditionSiteKind.BossNest).Boss;
@@ -335,7 +368,7 @@ public static class WorldMapChecks
             && !world.Sites.First(s => s.Kind == ExpeditionSiteKind.BossNest).TryResolveConquest(ConquestDisposition.Abandoned), "boss nest has no settlement conquest choice");
         foreach (var drop in bossLoot) Check(second.CanReach(drop.transform.position), "boss loot reachable in expedition");
         Check(aircraft.TryReturn(), "second expedition can return independently");
-        aircraft.Tick(aircraft.TravelSeconds);
+        await ReturnHome(aircraft);
 
         var field = world.Sites.First(s => s.Kind == ExpeditionSiteKind.ResourceSite);
         Check(field.Colony == null && field.Boss == null && field.GetComponentsInChildren<WildMonster>().Length == 0,
@@ -374,7 +407,7 @@ public static class WorldMapChecks
             $"no remote resource transfer to home (food {resources.GetAmount(ResourceType.Food)} vs {homeFood}, soil {resources.GetAmount(ResourceType.Soil)} vs {homeSoil}, cargo {vehicle.GetCargo(ResourceType.Food)}/{vehicle.GetCargo(ResourceType.Soil)})");
         Check(vehicle.TryReturn(), "resource expedition can return");
         var supplyDebt = typeof(ExpeditionTransport).GetProperty("FoodDebt");
-        for (var t = 0f; t < vehicle.TravelSeconds; t += 1f) { supplyDebt.SetValue(vehicle, 0f); vehicle.Tick(Mathf.Min(1f, vehicle.TravelSeconds - t)); } // 귀환 중 보급이 식량 화물을 먹지 않게(G05는 별도 검사)
+        await ReturnHome(vehicle); // 탑승과 이동을 분리하고 보급 소비 검사는 G05에 맡긴다.
         Check(resources.GetAmount(ResourceType.Food) == homeFood + 1 && resources.GetAmount(ResourceType.Soil) == homeSoil + 1,
             "neutral resource cargo delivered on return");
         Check(field.Cleared && field.Visitor == null, "depleted site persists after returning");
@@ -452,7 +485,8 @@ public static class WorldMapChecks
         }
         return "PASS: " + checks + " world map / science / expedition / cargo / local incursion checks";
         }
-        finally { UserSettings.Current.autoPauseThreat = savedAutoPause; }
+        finally { UserSettings.Current.autoPauseThreat = savedAutoPause; UserSettings.Current.autoPauseDowned = savedDownPause;
+            UserSettings.Current.autoSaveEnabled = savedAutoSave; AntColony.Save.SaveStorage.RootOverride = oldRoot; }
     }
 }
 }

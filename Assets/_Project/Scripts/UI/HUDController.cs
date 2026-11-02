@@ -126,6 +126,7 @@ namespace AntColony.UI
             bossHealthText = CreateText(canvasGO.transform, new Vector2(.5f, 1f), new Vector2(440f, 42f), new Vector2(0f, -68f));
             bossHealthText.alignment = TextAnchor.UpperCenter;
             HudClock.Create(canvasGO.transform);
+            HudWave.Create(canvasGO.transform);
             RosterBar.Create(canvasGO.transform);
 
             HudConsole.Build(canvasGO.transform);

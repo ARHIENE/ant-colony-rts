@@ -18,6 +18,9 @@ namespace AntColony.Units
         private float actionUntil;
         private string state;
         private MaterialPropertyBlock ringColor;
+        private Color previousRingColor;
+        private float previousRingWidth;
+        private bool ringInitialized;
         private bool kemono;
         private string playedClip, heldTool;
         private KemonoAppearance appearance;
@@ -133,9 +136,14 @@ namespace AntColony.Units
             var moving = delta.sqrMagnitude > .000001f;
             var color = enemy != null ? new Color(1, .3f, .22f) : new Color(.3f, .85f, .65f);
             if (selection != null && selection.IsSelected) color = new Color(1, .9f, .35f);
-            ring.startColor = ring.endColor = color;
-            ringColor.SetColor("_BaseColor", color); ring.SetPropertyBlock(ringColor);
-            ring.widthMultiplier = selection != null && selection.IsSelected ? .13f : .055f;
+            var width = selection != null && selection.IsSelected ? .13f : .055f;
+            if (!ringInitialized || color != previousRingColor || width != previousRingWidth)
+            {
+                ring.startColor = ring.endColor = color;
+                ringColor.SetColor("_BaseColor", color); ring.SetPropertyBlock(ringColor);
+                ring.widthMultiplier = width;
+                previousRingColor = color; previousRingWidth = width; ringInitialized = true;
+            }
             if (heldArrow != null)
             {
                 var bow = animator.GetCurrentAnimatorStateInfo(0);

@@ -66,12 +66,24 @@ public static class Spec1015Checks
     public static async Task<string> Main()
     {
         checks = 0; done.Clear(); var previousRoot = SaveStorage.RootOverride;
+        var settings = UserSettings.Current.Clone(); var random = UnityEngine.Random.state; var roll = MedicalRules.Roll;
+        var isolated = settings.Clone(); isolated.autoSaveEnabled = false; isolated.autoPauseThreat = isolated.autoPauseDowned = false; UserSettings.Apply(isolated, false);
         SaveStorage.RootOverride = Path.Combine(Application.temporaryCachePath, "Spec1015-" + Guid.NewGuid().ToString("N"));
         try
         {
             Check(Application.isPlaying, "play mode"); await Ready();
-            SaveSystem.NewGame(new NewGameOptions { seed = 261015, mapSize = MapSize.Small }); await Ready(); await Task.Delay(300);
+            var team = Enumerable.Range(0, 3).Select(StartingCandidate.Roll).ToArray();
+            foreach (var candidate in team) candidate.traits = new CommanderTraits(CommanderPersonality.Balanced);
+            SaveSystem.NewGame(new NewGameOptions { seed = 261015, mapSize = MapSize.Small, startingCount = 3, startingTeam = team }); await Ready(); await Task.Delay(300);
             Object.FindAnyObjectByType<LocalIncursions>().enabled = false; // 무작위 침입이 검사 흐름·저장을 막지 않게(다른 검사와 동일)
+            WaveDefense.Ensure().enabled = false;
+            // 새 게임은 최대 3명이다. 의료 사망·추모·포로 돌봄까지 쓰는 인원은 검사 전용 영입으로 마련한다.
+            var roster = CommanderRoster.Instance;
+            while (roster.Commanders.Count < 8)
+                Check(roster.Create("검사 장수 " + roster.Commanders.Count, CommanderRank.Sergeant,
+                    new[] { UnitRole.Worker, UnitRole.Melee }, UnitRole.Worker,
+                    new CommanderTraits(CommanderPersonality.Balanced), WorldMapManager.Instance.HomePosition + Vector3.right * 4) != null,
+                    "additional fixture commander recruited");
             var list = CommanderRoster.Instance.Commanders.Where(x => x.IsColonyMember).ToList();
             foreach (var x in list) { x.SetJobEnabled(CommanderJobs.All, false); x.CommandStop(); }
             Rich();
@@ -86,7 +98,7 @@ public static class Spec1015Checks
             await SaveRoundtrip(); done.Add("Save");
             return $"PASS Spec1015Checks {checks} [{string.Join(",", done)}]";
         }
-        finally { Time.timeScale = 1; GameMenuController.Instance?.Resume(); SaveStorage.RootOverride = previousRoot; }
+        finally { MedicalRules.Roll = roll; UnityEngine.Random.state = random; Time.timeScale = 0; GameMenuController.Instance?.Resume(); SaveStorage.RootOverride = previousRoot; UserSettings.Apply(settings, false); }
     }
 
     static async Task Until(Func<bool> ok, float seconds, string label)
@@ -135,9 +147,11 @@ public static class Spec1015Checks
     static async Task Farm(List<CommanderAnt> list)
     {
         Daytime();
+        FarmSeeds.Add(FarmCrop.Fungus, 8);
         var farmer = list.First(x => !x.IsSleepTime && x.CanDoJob(CommanderJobs.Farming)); farmer.SetJobEnabled(CommanderJobs.Farming, true); farmer.WorkState.duty = CommanderDuty.Civilian;
         var a = Build<BuildingBase>(BuildingKind.Farm, Ground(farmer.Position + Vector3.right * 5));
         var pa = a.GetComponent<FarmPlot>() ?? a.gameObject.AddComponent<FarmPlot>(); pa.Configure(FarmCrop.Fungus, false);
+        Check(pa.Data.seedPending, "new plot waits for seed before sowing"); pa.Tick(.01f);
         var na = pa.Node;
         Check(na.NeedsSowing && !pa.Planted, "new plot waits sowing");
         Time.timeScale = 3;
@@ -153,7 +167,8 @@ public static class Spec1015Checks
         Time.timeScale = 3; await Until(() => pa.Data.fallow, 60, "farmer uproots"); Time.timeScale = 0;
         Check(!pa.Planted && !na.CanGather && !na.NeedsSowing && !na.IsRegrowing, "uprooted plot stays empty");
         na.TickGrowth(100000); Check(na.IsDepleted && pa.Data.fallow, "empty plot does not regrow");
-        pa.Replant(); Check(na.NeedsSowing && !pa.Data.fallow, "replant order needs sowing");
+        pa.Replant(); Check(pa.Data.seedPending && !pa.Data.fallow, "replant order needs new seed");
+        pa.Tick(.01f); Check(na.NeedsSowing, "replant consumes seed and starts sowing");
         farmer.SetJobEnabled(CommanderJobs.Farming, false); farmer.CommandStop();
         // 병충해: 실제 칸 좌표의 상하좌우만 전파, 대각선 없음
         var size = a.GetComponent<Renderer>().bounds.size;
@@ -163,7 +178,7 @@ public static class Spec1015Checks
         var d = Build<BuildingBase>(BuildingKind.Farm, a.Position + new Vector3(-size.x, 0, size.z));
         var pb = b.GetComponent<FarmPlot>() ?? b.gameObject.AddComponent<FarmPlot>(); pb.Configure(FarmCrop.Fungus, false);
         var pd = d.GetComponent<FarmPlot>() ?? d.gameObject.AddComponent<FarmPlot>(); pd.Configure(FarmCrop.Fungus, false);
-        foreach (var p in new[] { pa, pb, pd }) { SowField.SetValue(p.Node, 0f); p.Data.pest = false; }
+        foreach (var p in new[] { pa, pb, pd }) { p.Tick(.01f); SowField.SetValue(p.Node, 0f); p.Data.pest = false; }
         Check(pa.Neighbors().Contains(pb) && !pa.Neighbors().Contains(pd), "orthogonal neighbor yes, diagonal no");
         pa.Data.pest = true;
         for (var i = 0; i < 200; i++) pa.Tick(FarmPlot.PestCheckSeconds);
@@ -177,6 +192,7 @@ public static class Spec1015Checks
 
     static async Task SaveRoundtrip()
     {
+        SimulationPause.UserSpeed(0); // 건강·연구 타이머의 정확한 왕복을 검사한다.
         var r = CampaignResearch.Instance; var progress = r.Progress; var active = r.Active?.Technology;
         var fallow = FarmPlot.All.Count(f => f.Data.fallow); var pests = FarmPlot.All.Count(f => f.Data.pest);
         var equipped = CommanderRoster.Instance.Commanders.Where(x => x.PersonalState.equipment.Count > 0).ToDictionary(x => x.PersonalState.id, x => string.Join(",", x.PersonalState.equipment.Select(e => e.id).OrderBy(i => i)));
@@ -234,11 +250,12 @@ public static class Spec1015Checks
         Time.timeScale = 0; cook.SetJobEnabled(CommanderJobs.Cooking, false); cook.CommandStop();
         Check(k.Staged == 0 && k.Current == null, "ingredients consumed at start");
         // 철거: 놓아둔 재료는 바닥으로(손실 없음)
-        Call(k, "Deliver", cook, Resource.Food, 7);
+        Check(k.AddOrder(0, Workshop.OrderMode.Count, 1) && k.BeginPickup(cook, Resource.Food, r.food), "reserve ingredients for removal fixture");
+        Check(k.Deliver(cook, Resource.Food, r.food) == r.food && k.Staged == r.food, "stage only recipe-required ingredients");
         var floor0 = ResourceNode.Available.Where(n => n != null && n.IsLooseCargo && n.ResourceType == Resource.Food).Sum(n => n.AmountRemaining);
         Call(k, "EjectStaged");
         var floor1 = ResourceNode.Available.Where(n => n != null && n.IsLooseCargo && n.ResourceType == Resource.Food).Sum(n => n.AmountRemaining);
-        Check(k.Staged == 0 && Mathf.Abs(floor1 - floor0 - 7) < .01f, "staged ingredients dropped on removal");
+        Check(k.Staged == 0 && Mathf.Abs(floor1 - floor0 - r.food) < .01f, "staged ingredients dropped on removal");
         GameMenuController.Instance.ShowKitchen(k); NoOverlap("kitchen"); GameMenuController.Instance.Resume();
         Object.DestroyImmediate(k.gameObject);
         // 식단: 공통 = 날것만 → 요리가 있어도 날것을 먹음, 장수별 덮어쓰기 = 좋은 요리만
@@ -307,7 +324,7 @@ public static class Spec1015Checks
         var doctor = Awake(list, CommanderJobs.Nursing); var patient = Awake(list, CommanderJobs.None, doctor);
         Clear(patient); patient.Health.medicine = MedicineLevel.NoMedicine; patient.Health.selfTend = false;
         MedicalRules.AddWound(patient.Health, BodyPart.LegL, WoundKind.Cut, 2);
-        Check(CommanderAnt.CareWaitReason(patient) == "치료할 장수 없음", "no doctor reason");
+        Check(CommanderAnt.CareWaitReason(patient).StartsWith("치료할 장수 없음"), "no doctor reason with current eligibility guidance");
         doctor.SetJobEnabled(CommanderJobs.Nursing, true); doctor.WorkState.duty = CommanderDuty.Civilian;
         Time.timeScale = 3; await Until(() => patient.Health.wounds.All(w => w.tended), 60, "doctor tends patient"); Time.timeScale = 0;
         Check(patient.Health.wounds.First(w => w.kind == WoundKind.Cut).quality <= .5f, "no-medicine tend quality capped");
@@ -579,7 +596,7 @@ public static class Spec1015Checks
         NoOverlap("research");
         var btn = Object.FindObjectsByType<UnityEngine.UI.Button>().FirstOrDefault(x => x.GetComponentInChildren<UnityEngine.UI.Text>()?.text.StartsWith("흙벽 공법") == true);
         Check(btn != null, "research list button"); btn.onClick.Invoke(); await Task.Yield();
-        var start = Object.FindObjectsByType<UnityEngine.UI.Button>().FirstOrDefault(x => x.GetComponentInChildren<UnityEngine.UI.Text>()?.text == "이 연구 시작");
+        var start = Object.FindObjectsByType<UnityEngine.UI.Button>().FirstOrDefault(x => x.name == "Start Research" && x.GetComponentInChildren<UnityEngine.UI.Text>()?.text == "연구 지시");
         Check(start != null && start.interactable, "start button for resin");
         start.onClick.Invoke(); await Task.Yield();
         Check(r.Active?.Technology == ScienceTechnology.Resin && Mathf.Approximately(r.Progress, 0), "UI resumes paid partial");

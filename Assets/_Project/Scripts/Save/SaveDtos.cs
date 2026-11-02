@@ -329,6 +329,7 @@ namespace AntColony.Save
         public List<ResourceNodeDto> nodes = new List<ResourceNodeDto>();
         public List<MonsterDto> monsters = new List<MonsterDto>();
         public float upkeepTimer, incursionTimer;
+        public World.WaveDefense.State wave; // 2026-11-02 웨이브 수성. 구저장은 saved=false → 첫 평화 남은 시간으로 이관
         public bool loopCompleted, bossDefeated, defeated;
         public string defeatReason; // G11 패배 사유(구저장 없음)
         public string randomState;

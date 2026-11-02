@@ -16,6 +16,17 @@ namespace AntColony.World
     {
         private static readonly List<WildMonster> Active = new List<WildMonster>();
         public static IReadOnlyList<WildMonster> All => Active;
+        // 게임 난수·저장 상태를 건드리지 않고 같은 프레임에 태어난 적의 탐색을 분산한다.
+        private static readonly System.Random PerfPhases = new System.Random(1102);
+        private static readonly List<WildMonster> Allies = new List<WildMonster>();
+        private static int alliesFrame = -1, civilianSyncFrame = -1;
+        private static ColonyPopulation syncedPopulation;
+        private static Collider[] siegeHits = new Collider[64];
+        private float perfPhase, nextPathRequest, pathRefreshAt;
+        private bool pathRequested;
+        private Vector3 requestedDestination;
+        private IDamageable requestedTarget;
+        private CivilianTarget cachedCivilianTarget;
 
         [SerializeField] private float maxHealth = 150f;
         [SerializeField] private float detectionRadius = 8f;
@@ -137,7 +148,7 @@ namespace AntColony.World
                 night = nightPredator, flying = IsFlying, allied = Allied, docile = Docile, provoked = provoked, rebel = RebelId,
                 rotationY = transform.eulerAngles.y, scale = new Save.Vec3Dto(transform.localScale),
                 target = Save.SaveReferences.Key(currentTarget), maxHealth = maxHealth, detection = detectionRadius, damage = attackDamage,
-                range = attackRange, interval = attackInterval, searchInterval = targetSearchInterval, speed = moveSpeed,
+                range = attackRange, interval = attackInterval, hordeBody = hordeBodyHealth, searchInterval = targetSearchInterval, speed = moveSpeed,
                 attackTimer = attackTimer, searchTimer = targetSearchTimer, siegeCheck = siegeCheck, root = RootRemaining,
                 parentSite = Save.SaveCatalog.SiteIndex(GetComponentInParent<ExpeditionSite>()), raidSite = Save.SaveCatalog.SiteIndex(raidSite),
                 invasionSite = invasion == null ? -2 : Save.SaveCatalog.SiteIndex(invasion.GetComponentInParent<ExpeditionSite>()),
@@ -150,7 +161,8 @@ namespace AntColony.World
         {
             if (targets) { currentTarget = Save.SaveReferences.Get<IDamageable>(d.target); return; }
             maxHealth = d.maxHealth; detectionRadius = d.detection; attackDamage = d.damage; attackRange = d.range;
-            attackInterval = d.interval; targetSearchInterval = d.searchInterval; moveSpeed = d.speed;
+            attackInterval = d.interval; targetSearchInterval = d.searchInterval; moveSpeed = d.speed; hordeBodyHealth = d.hordeBody;
+            if (IsHorde) AntColony.Units.HordeVisual.Attach(gameObject, () => HordeCount);
             isRaider = d.raider; eventWasp = d.wasp; nightPredator = d.night; IsFlying = d.flying; Allied = d.allied;
             Docile = d.docile; provoked = d.provoked; RebelId = d.rebel; attackTimer = d.attackTimer;
             targetSearchTimer = d.searchTimer; siegeCheck = d.siegeCheck; RootRemaining = d.root;
@@ -185,11 +197,17 @@ namespace AntColony.World
         {
             currentHealth = maxHealth;
             Active.Add(this);
+            alliesFrame = -1;
+            perfPhase = (float)PerfPhases.NextDouble();
+            targetSearchTimer = perfPhase * Mathf.Min(.5f, targetSearchInterval);
+            siegeCheck = (float)PerfPhases.NextDouble() * Mathf.Min(.5f, targetSearchInterval);
+            pathRequested = false;
         }
 
         private void OnDisable()
         {
             Active.Remove(this);
+            alliesFrame = -1;
             currentTarget = null;
             StopMoving();
         }
@@ -211,7 +229,7 @@ namespace AntColony.World
                 return;
             }
             targetSearchTimer -= Time.deltaTime;
-            if (currentTarget is CivilianTarget) ColonyPopulation.Instance?.SyncCivilianLocations();
+            if (currentTarget is CivilianTarget) SyncCivilians();
             if (!TargetAlive(currentTarget)) currentTarget = null;
 
             // 침공 개체는 살아 있는 대상이 있어도 주기적으로 재탐색해, 가로막는 방어 유닛을 먼저 노린다.
@@ -227,7 +245,7 @@ namespace AntColony.World
                 }
                 else
                 {
-                    targetSearchTimer = targetSearchInterval;
+                    targetSearchTimer = targetSearchInterval * (.8f + .2f * (float)PerfPhases.NextDouble());
                     currentTarget = Allied ? CombatTargeting.FindNearestEnemy(Position, detectionRadius, UnitRole.Melee)
                         : (eventWasp ? AntColony.Core.SceneObjects.Any<Stockpile>() : null) ?? (IDamageable)FindNearestAnt()
                         ?? TransportDamage.FindTarget(Position, detectionRadius)
@@ -258,7 +276,7 @@ namespace AntColony.World
                     // 공성(2026-10-03): 침공 개체는 길이 벽에 막히면 가장 가까운 벽·문·닫힌 성문을 부순다.
                     if (isRaider && !IsBarrier(currentTarget) && (siegeCheck -= Time.deltaTime) <= 0)
                     {
-                        siegeCheck = targetSearchInterval; siegePath ??= new NavMeshPath();
+                        siegeCheck = targetSearchInterval * (.8f + .2f * (float)PerfPhases.NextDouble()); siegePath ??= new NavMeshPath();
                         if (NavMesh.SamplePosition(currentTarget.Position, out var goal, 2f, NavMesh.AllAreas)
                             && NavMesh.CalculatePath(agent.nextPosition, goal.position, NavMesh.AllAreas, siegePath)
                             && siegePath.status == NavMeshPathStatus.PathPartial
@@ -266,7 +284,7 @@ namespace AntColony.World
                             && FindBarrier() is BuildingBase barrier) currentTarget = barrier;
                     }
                     agent.speed = moveSpeed * AntColony.Map.WeatherSystem.MoveAt(false) * (AntColony.Map.MapGenerator.InWater(Position) ? AntColony.Map.MapGenerator.WaterMoveMultiplier : 1f);
-                    AntColony.Map.NavRoute.SetDestination(agent, currentTarget.Position);
+                    RequestDestination(currentTarget.Position);
                 }
                 return;
             }
@@ -279,15 +297,15 @@ namespace AntColony.World
                 GetComponent<AntVisual>()?.Attack(currentTarget.Position);
                 GetComponent<CritterVisual>()?.Attack();
                 if (currentTarget is BuildingBase flammable && WallFire.Flammable(flammable)) WallFire.Ignite(flammable); // 가연성 재료(나뭇잎 벽·목재 등)엔 불을 지른다.
-                FormationDamage.Apply(currentTarget, attackDamage + AIEraProgress.AttackBonus(AIEraProgress.CombatEra(this)), Position, ranged: attackRange > 2);
+                FormationDamage.Apply(currentTarget, (attackDamage + AIEraProgress.AttackBonus(AIEraProgress.CombatEra(this))) * AttackScale, Position, ranged: attackRange > 2);
             }
         }
 
         // 시민도 기존 접근·공성·공격 주기를 사용한다. 위치/피해는 인구 집계가 소유한다.
         private sealed class CivilianTarget : IDamageable
         {
-            private readonly ColonyPopulation population;
-            private readonly CivilianLocation location;
+            internal readonly ColonyPopulation population;
+            internal readonly CivilianLocation location;
             public CivilianTarget(ColonyPopulation population, CivilianLocation location)
             { this.population = population; this.location = location; }
             public bool IsDead => population == null || !population.isActiveAndEnabled || location.count == 0 || location.sheltered
@@ -301,7 +319,7 @@ namespace AntColony.World
         {
             if (Allied || raidSite != null || ColonyPopulation.Instance == null) return null;
             var population = ColonyPopulation.Instance;
-            population.SyncCivilianLocations();
+            SyncCivilians();
             CivilianLocation nearest = null;
             var distance = detectionRadius * detectionRadius;
             foreach (var location in population.CivilianLocations)
@@ -311,7 +329,10 @@ namespace AntColony.World
                 if (candidate > distance) continue;
                 nearest = location; distance = candidate;
             }
-            return nearest == null ? null : new CivilianTarget(population, nearest);
+            if (nearest == null) return null;
+            if (cachedCivilianTarget == null || cachedCivilianTarget.population != population || cachedCivilianTarget.location != nearest)
+                cachedCivilianTarget = new CivilianTarget(population, nearest);
+            return cachedCivilianTarget;
         }
 
         public void TakeDamage(float amount)
@@ -374,8 +395,15 @@ namespace AntColony.World
                     nearest = ant;
                 }
             }
-            foreach (var ally in Active)
-                if (ally.Allied && !ally.IsDead && (ally.Position - Position).sqrMagnitude < nearestDistanceSqr)
+            if (alliesFrame != Time.frameCount)
+            {
+                Allies.Clear();
+                foreach (var monster in Active)
+                    if (monster != null && monster.Allied) Allies.Add(monster);
+                alliesFrame = Time.frameCount;
+            }
+            foreach (var ally in Allies)
+                if (ally != null && ally.isActiveAndEnabled && ally.Allied && !ally.IsDead && (ally.Position - Position).sqrMagnitude < nearestDistanceSqr)
                 { nearestDistanceSqr = (ally.Position - Position).sqrMagnitude; nearest = ally; }
             return nearest;
         }
@@ -393,8 +421,14 @@ namespace AntColony.World
         private BuildingBase FindBarrier()
         {
             BuildingBase best = null; var bestSqr = float.MaxValue;
-            foreach (var hit in Physics.OverlapSphere(Position, GameBalance.SiegeSearchRadius, ~0, QueryTriggerInteraction.Ignore))
+            int count;
+            // 가득 차면 늘려 다시 검색한다. 밀집 전투에서도 후보를 잘라 버리지 않는다.
+            while ((count = Physics.OverlapSphereNonAlloc(Position, GameBalance.SiegeSearchRadius, siegeHits, ~0, QueryTriggerInteraction.Ignore)) == siegeHits.Length)
+                System.Array.Resize(ref siegeHits, siegeHits.Length * 2);
+            for (var i = 0; i < count; i++)
             {
+                var hit = siegeHits[i];
+                siegeHits[i] = null;
                 var b = hit.GetComponentInParent<BuildingBase>();
                 if (b == null || b.IsDead || !IsBarrier(b)) continue;
                 var d = (hit.ClosestPoint(Position) - Position).sqrMagnitude;
@@ -405,7 +439,7 @@ namespace AntColony.World
 
         private void ApproachSettlement()
         {
-            if (raidSite != null && CanMove()) agent.SetDestination(raidSite.Landing);
+            if (raidSite != null && CanMove()) RequestDestination(raidSite.Landing);
             else StopMoving();
         }
 
@@ -416,6 +450,44 @@ namespace AntColony.World
             attackInterval = 2f;
         }
 
+        // 무리 유닛(2026-11-02 사용자 확정, 좀보이드식): 체력 = 마릿수 × 한 마리 체력, 맞을수록 마릿수가 준다.
+        // 장수·유닛 공격은 붙을 수 있는 앞줄만, 벽·건물은 붙은 마릿수만큼 압력. 범위 공격은 일반 공격과 같이 1회.
+        // ponytail: 앞줄 6·벽 압력 상한 20은 잠정. 무리는 에이전트 하나로 근사(몸막기·접촉 범위는 무리 크기와 무관).
+        public const int HordeFrontline = 6, HordeWallPressureCap = 20;
+        private float hordeBodyHealth;
+        public bool IsHorde => hordeBodyHealth > 0;
+        public int HordeCount => IsDead ? 0 : IsHorde ? Mathf.Max(1, Mathf.CeilToInt(currentHealth / hordeBodyHealth - 1e-3f)) : 1;
+        internal void ConfigureHorde(int count)
+        {
+            ConfigureWeakIntruder();
+            hordeBodyHealth = maxHealth; maxHealth = hordeBodyHealth * Mathf.Max(1, count); currentHealth = maxHealth;
+            AntColony.Units.HordeVisual.Attach(gameObject, () => HordeCount);
+        }
+        private float AttackScale => !IsHorde ? 1 : Mathf.Min(HordeCount, currentTarget is BuildingBase ? HordeWallPressureCap : HordeFrontline);
+
+        private static void SyncCivilians()
+        {
+            var population = ColonyPopulation.Instance;
+            if (population == null || syncedPopulation == population && civilianSyncFrame == Time.frameCount) return;
+            population.SyncCivilianLocations();
+            syncedPopulation = population;
+            civilianSyncFrame = Time.frameCount;
+        }
+
+        private void RequestDestination(Vector3 destination)
+        {
+            if (!ReferenceEquals(requestedTarget, currentTarget)) pathRequested = false;
+            if (pathRequested && Time.time < nextPathRequest) return;
+            if (pathRequested && (agent.hasPath || agent.pathPending)
+                && (destination - requestedDestination).sqrMagnitude < .0625f && Time.time < pathRefreshAt) return;
+            nextPathRequest = Time.time + .15f + perfPhase * .05f;
+            pathRefreshAt = Time.time + .4f + perfPhase * .05f;
+            requestedDestination = destination;
+            requestedTarget = currentTarget;
+            pathRequested = true;
+            AntColony.Map.NavRoute.SetDestination(agent, destination);
+        }
+
         private bool CanMove()
         {
             return agent != null && agent.enabled && agent.isOnNavMesh && RootRemaining <= 0f;
@@ -423,6 +495,7 @@ namespace AntColony.World
 
         private void StopMoving()
         {
+            pathRequested = false;
             if (agent != null && agent.enabled && agent.isOnNavMesh && agent.hasPath)
             {
                 agent.ResetPath();

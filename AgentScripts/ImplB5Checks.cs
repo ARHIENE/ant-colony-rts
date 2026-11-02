@@ -36,6 +36,7 @@ public static class ImplB5Checks
         var isolated = settings.Clone(); isolated.autoSaveEnabled = false; UserSettings.Apply(isolated, false);
         SaveStorage.RootOverride = Path.Combine(Application.temporaryCachePath, "ImplB5-" + Guid.NewGuid().ToString("N"));
         GameObject pileObject = null; BuildingData pileData = null;
+        WaveDefense wave = null; WaveDefense.State waveState = null; var waveEnabled = false;
         try
         {
             await Ready();
@@ -87,8 +88,16 @@ public static class ImplB5Checks
             Check(second.State == ExpeditionState.Deployed && destination.Visitor != null, "G15 reinforcements enter occupied battlefield");
             Check(first.TryBoard(new[] { commanders[1] }) && second.Crew.Count == 0 && commanders[1].Transport == first, "G15 merge crews on site");
             Check(!HomeDefenseReturn.Allows(commanders[1]), "G48 local expedition excluded");
-            Check(first.TryReturn(), "G21 begin physical return"); first.Tick(oneWay / 2);
-            Check(first.State == ExpeditionState.Returning, "G21 return keeps travel time"); first.Tick(oneWay / 2);
+            // 10/25 D06: 집결·탑승을 마친 뒤에만 귀환 이동 시간이 줄어든다.
+            foreach (var c in first.Crew) { c.CommandStop(); Check(c.Agent.Warp(first.Position), "귀환 집결 위치"); }
+            Check(first.TryReturn(), "G21 begin physical return");
+            first.Tick(ExpeditionWithdraw.BoardSeconds * .5f);
+            Check(first.IsWithdrawing && first.State == ExpeditionState.Deployed, "탑승 중 즉시 귀환하지 않음");
+            first.Tick(ExpeditionWithdraw.BoardSeconds);
+            Check(first.State == ExpeditionState.Returning && first.Remaining > 0, "탑승 완료 후 귀환 시작");
+            var returnHalf = first.TravelRemainingSeconds * .5f;
+            first.Tick(returnHalf);
+            Check(first.State == ExpeditionState.Returning && first.Remaining > 0, "G21 return keeps travel time"); first.Tick(returnHalf + .01f);
             Check(first.State == ExpeditionState.Home && commanders.All(c => c.Transport == null), "G05 home unload preserves crew");
 
             var vehicle = world.CreateTransport(false, world.HomePosition);
@@ -103,7 +112,18 @@ public static class ImplB5Checks
             aircraft.Tick(ExpeditionRules.DockSeconds); vehicle.Tick(.01f);
             Check(vehicle.State == ExpeditionState.Deployed, "G15 dock frees after unloading, deployed unit does not block");
             Check(vehicle.TryReturn() && aircraft.TryReturn(), "G15 both transports return");
-            vehicle.Tick(vehicle.TravelSeconds); aircraft.Tick(aircraft.TravelSeconds);
+            foreach (var transport in new[] { vehicle, aircraft })
+            {
+                foreach (var c in transport.Crew) { c.CommandStop(); Check(c.Agent.Warp(transport.Position), "G15 return assembly"); }
+                transport.Tick(ExpeditionWithdraw.BoardSeconds + .01f);
+                Check(transport.State == ExpeditionState.Returning, "G15 boarding completes before travel");
+                transport.Tick(transport.TravelRemainingSeconds + .01f);
+                Check(transport.State == ExpeditionState.Home, "G15 transport physically returns home");
+            }
+            Check(ExpeditionRules.HomeCommanders == 2, "G62 home defenders restored before dispatch");
+            wave = WaveDefense.Ensure(); Check(wave != null && !wave.InWave, "wave starts in peace");
+            waveState = wave.Capture(); waveEnabled = wave.enabled;
+            wave.enabled = false; // 직접 Tick하는 외교 검사에 자동 생성·종료가 끼지 않게 한다.
             var disabled = world.DefenseReturn;
             Check(disabled.Enabled(commanders[0]), "G48 enabled by default"); disabled.Set(commanders[0], false);
             var defenseCopy = JsonUtility.FromJson<HomeDefenseReturn>(JsonUtility.ToJson(disabled));
@@ -121,6 +141,10 @@ public static class ImplB5Checks
             Check(diplomacy.Data.travellingRaids.Contains(independent), "G21 independent arrival waits with zero home commanders");
             Check(first.TryUnloadCrew() && second.TryUnloadCrew(), "G21 home defenders become available again");
             var independentVisitors = incursions.Visitors.Count;
+            Call(diplomacy, "TickRaidTravel");
+            Check(diplomacy.Data.travellingRaids.Contains(independent) && incursions.Visitors.Count == independentVisitors,
+                "wave rule: independent arrival waits during peace even with home defenders");
+            Check(wave.StartNow() && WaveDefense.AcceptsArrivals, "wave rule: arrivals enabled by explicit wave start");
             Call(diplomacy, "TickRaidTravel");
             Check(!diplomacy.Data.travellingRaids.Contains(independent) && incursions.Visitors.Count == independentVisitors + independent.count,
                 "G62 deferred independent army arrives once");
@@ -227,6 +251,7 @@ public static class ImplB5Checks
         }
         finally
         {
+            if (wave != null && waveState != null) { wave.Restore(waveState); wave.enabled = waveEnabled; }
             if (pileObject != null) Object.Destroy(pileObject);
             if (pileData != null) Object.Destroy(pileData);
             SimulationPause.Restore(null); Time.timeScale = scale;

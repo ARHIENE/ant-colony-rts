@@ -128,9 +128,10 @@ namespace AntColony.UI
             roster.anchorMin = roster.anchorMax = roster.pivot = centered ? new Vector2(.5f, 1) : new Vector2(0, 1);
             roster.anchoredPosition = centered ? new Vector2(-40, -4) : new Vector2(width >= 1100 ? 140 : 16, width < 960 ? -56 : -4);
             brand.gameObject.SetActive(width >= 1100);
-            if (notifications != null) notifications.anchoredPosition = new Vector2(-10, -TopHeight - 112);
+            if (notifications != null) notifications.anchoredPosition = new Vector2(-10, -TopHeight - 170); // 시계(94) 아래 웨이브 패널(52) 다음
             if (objective != null) objective.anchoredPosition = new Vector2(10, -TopHeight - 10);
             var clock = (RectTransform)transform.Find("HudClock"); clock.anchoredPosition = new Vector2(-10, -TopHeight - 10);
+            if (transform.Find("HudWave") is RectTransform wave) wave.anchoredPosition = new Vector2(-10, -TopHeight - 110);
             var materials = (RectTransform)transform.Find("MaterialsList"); materials.anchoredPosition = new Vector2(-266, -TopHeight - 10);
             var target = WorkTargetPanel.Target;
             if (target != lastTarget) { targetDetail = false; lastTarget = target; }

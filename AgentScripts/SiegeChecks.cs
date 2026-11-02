@@ -35,12 +35,12 @@ public static class SiegeChecks
         GameMenuController.Instance.Resume(); Time.timeScale = 0;
         try
         {
-            Check(WildMonster.IsBarrier(Put<Wall>(BuildingKind.LeafWall, new Vector3(0, -50, 0))) && !WildMonster.IsBarrier(Object.FindAnyObjectByType<Stockpile>()), "barrier kinds");
+            Check(WildMonster.IsBarrier(Put<Wall>(BuildingKind.LeafWall, new Vector3(0, -50, 0))) && !WildMonster.IsBarrier(CommanderRoster.Instance.Commanders[0]), "barrier kinds");
             var gate = Put<Gate>(BuildingKind.Gate, new Vector3(5, -50, 0)); gate.SetOpen(true);
             Check(!WildMonster.IsBarrier(gate), "open gate is not a barrier"); gate.SetOpen(false); Check(WildMonster.IsBarrier(gate), "closed gate is a barrier");
 
             // 불 번짐: 붙은 나뭇잎 벽 2칸 중 하나에 불 → 2초 뒤 확률로 옆 벽, 벽마다 한 번만 탄다.
-            var home = Object.FindAnyObjectByType<Stockpile>().Position;
+            var home = WorldMapManager.Instance.HomePosition; // 불시착 시작에는 비축더미가 없다.
             Check(NavMesh.SamplePosition(home + new Vector3(40, 0, 40), out var far, 20, NavMesh.AllAreas), "far ground");
             var o = new Vector3(Mathf.Floor(far.position.x), far.position.y, Mathf.Floor(far.position.z));
             Time.timeScale = 4;

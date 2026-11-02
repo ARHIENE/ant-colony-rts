@@ -10,9 +10,6 @@ namespace AntColony.World
     {
         [SerializeField] private WildMonster raiderTemplate;
         [SerializeField] private EnemyCommander commanderTemplate;
-        // ponytail: 빈도 5~8분, 병사 2+장수 1은 새 기획의 임시 밸런스다.
-        [SerializeField] private float minimumDelay = 300f;
-        [SerializeField] private float maximumDelay = 480f;
         private float remaining;
         internal float SavedTimer { get => remaining; set => remaining = value; }
         private readonly List<WildMonster> visitors = new List<WildMonster>();
@@ -20,18 +17,9 @@ namespace AntColony.World
         internal WildMonster RestoreSpawn(bool commander, Vector3 position) =>
             Instantiate(commander ? commanderTemplate : raiderTemplate, position, Quaternion.identity);
         internal void RestoreVisitor(WildMonster monster) { if (!visitors.Contains(monster)) visitors.Add(monster); }
-        // 난이도는 방문 간격만 바꾼다. Normal이면 배수 1.0이라 기존과 같다.
-        private float NextDelay() => Random.Range(minimumDelay, maximumDelay) * AntColony.Core.DifficultyRuntime.IntervalScale * Storyteller.RaidDelayScale(Storyteller.Current);
-        private void Start() { Storyteller.Reset(); remaining = NextDelay(); }
-        private void Update()
-        {
-            if (RocketCampaign.SuppressNewCrises) return;
-            if (ExpeditionRules.HomeCommanders == 0) return;
-            remaining -= Time.deltaTime;
-            if (remaining > 0) return;
-            if (Storyteller.Resting) { remaining = 30; return; } // 직전 위기 뒤 숨 쉴 틈(사건 감독)
-            if (TrySpawn()) remaining = NextDelay();
-        }
+        // 2026-11-02 웨이브 수성: 독립 방문 주기(5~8분·사건 감독 간격 보정)는 WaveDefense의 평화/웨이브 일정으로 대체했다.
+        // remaining은 구저장 호환용으로만 저장·복원한다.
+        private void Start() { Storyteller.Reset(); WaveDefense.Ensure(); }
 
         public bool TrySpawn()
             => !RocketCampaign.SuppressNewCrises && DiplomacyManager.Instance?.TryDispatchIndependentRaid() == true;
@@ -43,12 +31,17 @@ namespace AntColony.World
         public bool TryArriveRaid(Civilization faction, int count) => (faction == null || faction.contacted && faction.war)
             && Spawn(faction, Mathf.Clamp(count, 1, 20), true);
 
-        private bool Spawn(Civilization faction, int count, bool alreadyDispatched = false)
+        // 웨이브 병력 한 무리(최대 20). 첫 무리만 장수가 이끈다.
+        public bool TrySpawnWaveGroup(int count, bool withCommander) => Spawn(null, Mathf.Clamp(count, 1, 20), false, true, withCommander);
+        // 무리 유닛 하나(체력 = 마릿수 × 한 마리 체력).
+        public bool TrySpawnHorde(int bodies) => Spawn(null, 1, false, true, false, Mathf.Max(1, bodies));
+
+        private bool Spawn(Civilization faction, int count, bool alreadyDispatched = false, bool wave = false, bool withCommander = true, int hordeBodies = 0)
         {
             if (!alreadyDispatched && RocketCampaign.SuppressNewCrises) return false;
             if (faction == null && ExpeditionRules.HomeCommanders == 0) return false;
             visitors.RemoveAll(v => v == null || v.IsDead);
-            if ((faction == null && visitors.Count > 0) || raiderTemplate == null || commanderTemplate == null) return false;
+            if ((faction == null && !wave && visitors.Count > 0) || raiderTemplate == null || commanderTemplate == null) return false;
             var home = GameManager.Instance?.FindNearestPlayerBuilding(Vector3.zero);
             if (home == null || !NavMesh.SamplePosition(home.Position, out var homeHit, 10, NavMesh.AllAreas)) return false;
             for (var i = 0; i < 16; i++)
@@ -61,11 +54,12 @@ namespace AntColony.World
                     || path.status != NavMeshPathStatus.PathComplete) continue;
                 for (var n = 0; n < count; n++)
                 {
-                    var template = n == count - 1 ? commanderTemplate : raiderTemplate;
+                    var template = withCommander && n == count - 1 ? commanderTemplate : raiderTemplate;
                     var visitor = Instantiate(template, hit.position, Quaternion.identity);
                     visitor.name = n == 2 ? "Visiting Commander" : "Local Intruder";
                     visitor.MakeRaider();
-                    if (faction == null) visitor.ConfigureWeakIntruder();
+                    if (hordeBodies > 0) { visitor.ConfigureHorde(hordeBodies); visitor.name = $"침입 무리 {hordeBodies}"; }
+                    else if (faction == null) visitor.ConfigureWeakIntruder();
                     else
                     {
                         visitor.name = faction.name + " 침공군 " + (n + 1);
@@ -76,8 +70,7 @@ namespace AntColony.World
                     visitor.gameObject.SetActive(true);
                     visitors.Add(visitor);
                 }
-                AntColony.UI.ToastManager.Show("침입자가 본거지로 접근합니다!");
-                Storyteller.MarkCrisis();
+                if (!wave) { AntColony.UI.ToastManager.Show("침입자가 본거지로 접근합니다!"); Storyteller.MarkCrisis(); }
                 return true;
             }
             return false;

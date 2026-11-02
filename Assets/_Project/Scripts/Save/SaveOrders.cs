@@ -41,6 +41,7 @@ namespace AntColony.Save
         public List<int> roles = new List<int>();
         public float maxHealth, detection, damage, range, interval, searchInterval, speed, attackTimer, searchTimer, siegeCheck, root;
         public float captureChance, rotationY;
+        public float hordeBody; // 2026-11-02 무리 유닛 한 마리 체력(0 = 개별 유닛, 구저장 기본)
         public Vec3Dto scale = new Vec3Dto(Vector3.one);
     }
 

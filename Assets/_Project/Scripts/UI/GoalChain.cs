@@ -66,7 +66,7 @@ namespace AntColony.UI
             var before = state.completed;
             Observe();
             var changed = state.completed & ~before;
-            CurrentText = Describe(CurrentStage);
+            CurrentText = WaveLine() + Describe(CurrentStage);
             if (state.initialized && changed != 0)
             {
                 var last = 0;
@@ -79,6 +79,18 @@ namespace AntColony.UI
             state.initialized = true; // 구저장은 현재 사실로 조용히 이관한다. 불러올 때 완료 알림을 재생하지 않는다.
         }
         private static void Complete(int stage, bool done) { if (done) state.completed |= 1 << stage; }
+
+        // 웨이브 수성(2026-11-02 사용자 승인): 목표 사슬 단계는 바꾸지 않고(저장 비트 유지), 웨이브 중·직전에만 맨 위에 안내를 얹는다.
+        private static string WaveLine()
+        {
+            var wave = AntColony.World.WaveDefense.Instance;
+            if (wave == null) return "";
+            if (wave.InWave)
+                return $"<b>웨이브 {wave.Wave} 방어 · 남은 적 {wave.RemainingEnemies}</b>\n방패 장수를 앞에, 한 대상에 집중, 불리하면 후퇴\n\n";
+            if (wave.PeaceLeft > GameCalendar.SecondsPerDay) return "";
+            var s = UnityEngine.Mathf.CeilToInt(wave.PeaceLeft);
+            return $"<color=#e0a060><b>웨이브 {wave.Wave + 1}까지 {s / 60}:{s % 60:00}</b> · 적 {AntColony.World.WaveDefense.Count(wave.Wave + 1)}마리\n벽·탑·함정과 무기·약품 점검</color>\n\n";
+        }
         public static string Title(int stage) => stage switch
         {
             0 => "불시착 생존", 1 => "첫 생활 안정", 2 => "첫 연구 완료", 3 => "첫 시대 승급",

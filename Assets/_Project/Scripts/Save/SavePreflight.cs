@@ -63,6 +63,7 @@ namespace AntColony.Save
                 Check(AntColony.Core.RocketCampaign.Validate(f.rocket), "로켓 진행");
                 Check(f.rocket == null || f.rocket.economy.samples.All(s => s.at <= f.gameSeconds), "로켓 경제 집계 날짜");
                 Check(N(f.playSeconds) && N(f.gameSeconds) && N(f.upkeepTimer) && N(f.incursionTimer), "진행 시간");
+            if (f.wave != null && f.wave.saved) Check(N(f.wave.peaceLeft) && N(f.wave.sinceStart) && f.wave.wave >= 0 && f.wave.total >= 0 && f.wave.pending >= 0, "웨이브 상태");
                 Check(f.upkeepFailures >= 0, "유지비 부족 횟수");
                 Check(Core.CampaignResearch.Validate(f.campaign, out _), "과학 연구");
                 Check(Core.CampaignHistory.Validate(f.history) && World.ColonyEvents.Validate(f.events), "사건·기록");

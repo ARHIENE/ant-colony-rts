@@ -1,3 +1,6 @@
+# 2026-11-01 SAVE(밤) — 2026-11-03 SAVE 이관
+- 46cdf45/7c89631: 재미 라운드(사건 감독·목표 사슬·장수 서사·손맛), 2차 게임성(Codex Q1 21/32·Q2 32/60, Claude UI 6/9), 이동 후 쓰러짐 버그 수정, Codex R1 리뷰 8건. Unity Claude2 4·Q1 86·Q2 135·S2 59·S3 17·Story 9 등. 일지 https://app.notion.com/p/40bc4a0ecd31813c80e6f87500308849. 원문 work/save-20261103/log-before-save.md.
+
 # 2026-11-01 SAVE(낮) — 2026-11-01 SAVE(밤) 이관
 - 7113d6c/b45d257: Codex P1(경제·연구 23건)·P2(AI 산업·저장 Missing building:0·장갑)·P3(화면 한국어화 73파일) 병합, Claude 게임성 1차(월드맵 지구 축소 버그·거점 한국어 이름·가장자리 스크롤 차단·시작 카메라·자원 라벨·고지대 테두리·시작 안내 체크리스트·인재 초상화), 저장 JsonUtility null 장비 부활 수정(militaryEquipped). Unity P1 21584·P2 181·P3 285 등 통과. 일지 https://app.notion.com/p/40bc4a0ecd31813c80e6f87500308849. 원문 work/save-20261101b/log-before-save.md.
 

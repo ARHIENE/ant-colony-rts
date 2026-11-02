@@ -46,13 +46,37 @@ public static class SettlementDefenseChecks
     }
     static void KillInvaders(SettlementDefense defense)
     { foreach (var enemy in defense.Attackers.ToArray()) if (enemy != null) enemy.TakeDamage(float.MaxValue); }
+    static async Task ReturnHome(ExpeditionTransport ship)
+    {
+        foreach (var c in ship.Crew)
+            if (!c.IsEmbarked)
+            {
+                Move(c, ship.Position);
+                if (c.IsCarrying) Check(c.TryReturnCargo(ship), "physical cargo delivery before evacuation");
+            }
+        var debt = typeof(ExpeditionTransport).GetProperty("FoodDebt");
+        Check(await Wait(() =>
+        {
+            debt.SetValue(ship, 0f);
+            if (ship.IsWithdrawing) ship.Tick(1);
+            for (var t = 0; t < 600 && ship.State == ExpeditionState.Returning; t++)
+            { debt.SetValue(ship, 0f); ship.Tick(1); }
+            return ship.State == ExpeditionState.Home && ship.Crew.Count == 0 && ship.PendingCrewOrderCount == 0;
+        }, 60), "physical withdrawal, travel and home unloading complete: " + ship.State + " / " + ship.CrewOrderStatus);
+    }
 
     public static async Task<string> Main()
     {
         checks = 0;
         Check(Application.isPlaying, "Play mode required");
         var savedAutoPause = UserSettings.Current.autoPauseThreat;
+        var savedDownPause = UserSettings.Current.autoPauseDowned;
+        var savedAutoSave = UserSettings.Current.autoSaveEnabled;
+        var oldRoot = AntColony.Save.SaveStorage.RootOverride;
+        AntColony.Save.SaveStorage.RootOverride = System.IO.Path.Combine(Application.temporaryCachePath, "SettlementDefenseChecks-" + Guid.NewGuid().ToString("N"));
+        UserSettings.Current.autoSaveEnabled = false;
         UserSettings.Current.autoPauseThreat = false;
+        UserSettings.Current.autoPauseDowned = false;
         try
         {
         // 새 Play 세션은 메인 메뉴(일시정지)로 시작하므로 게임을 시작하고, 선전포고를 위해 월드맵을 연다.
@@ -70,6 +94,7 @@ public static class SettlementDefenseChecks
         var site = world.Sites.First(s => s.Kind == ExpeditionSiteKind.Settlement);
         Object.FindAnyObjectByType<UpkeepManager>().enabled = false;
         Object.FindAnyObjectByType<LocalIncursions>().enabled = false;
+        WaveDefense.Ensure().enabled = false; // 본거지 웨이브와 거점의 명시적 습격 검사를 분리한다.
         var resources = ResourceManager.Instance;
         foreach (ResourceType type in Enum.GetValues(typeof(ResourceType)))
         { resources.AddCapacity(type, 10000); resources.Add(type, 1000); }
@@ -78,6 +103,7 @@ public static class SettlementDefenseChecks
         for (var i = 0; i < 10 && CommanderRoster.Instance.Commanders.Count < 4; i++)
             CommanderRoster.Instance.Create(null, AntColony.Data.CommanderRank.Corporal, new[] { UnitRole.Worker }, UnitRole.Worker, new AntColony.Units.CommanderTraits(), CommanderRoster.Instance.Commanders[0].Position);
         var roster = CommanderRoster.Instance.Commanders;
+        Check(roster.Count >= 4, "four fixture commanders available");
         foreach (var x in roster) x.SetJobEnabled(AntColony.Units.CommanderJobs.All, false);
         var captive = roster[0]; var escapee = roster[1]; var crew = roster[2]; var collector = roster[3];
         foreach (var c in new[] { escapee, crew, collector })
@@ -123,7 +149,8 @@ public static class SettlementDefenseChecks
         Check(contactShip.TryBoard(new[] { collector }) && contactShip.TryDepart(contactSite), "first contact expedition departs");
         contactShip.Tick(contactShip.TravelSeconds);
         Check(foe.contacted && diplomacy.DeclareWar(foe), "first contact permits declaration of war");
-        Check(contactShip.TryReturn(), "contact expedition returns"); contactShip.Tick(contactShip.TravelSeconds);
+        Check(contactShip.TryReturn(), "contact expedition returns"); await ReturnHome(contactShip);
+        Check(!collector.IsAwayFromHome && collector.Transport == null, "contact collector is actually home before reuse");
         var before = defense.Remaining;
         defense.Tick(float.NaN); defense.Tick(float.PositiveInfinity); defense.Tick(-1);
         Check(defense.Remaining == before, "invalid time has no effect");
@@ -138,7 +165,7 @@ public static class SettlementDefenseChecks
         }
         Check(await Wait(() => !defense.UnderAttack), "invaders actually advance and garrison wins through automatic combat");
         Check(site.Disposition == ConquestDisposition.Annexed && defense.Remaining > 290, "victory keeps site and resets interval");
-        Check(world.SettlementNotice.Contains("successful"), "victory notification");
+        Check(world.SettlementNotice.Contains("거점 방어 성공."), "victory notification");
 
         Move(captive, site.Landing + Vector3.right * 22);
         Check(defense.TryStartRaid(), "next raid starts");
@@ -169,11 +196,14 @@ public static class SettlementDefenseChecks
         Set(escapee, "carriedType", ResourceType.Food); Set(escapee, "carriedAmount", 2.75f);
         Set(crew, "carriedType", ResourceType.Soil); Set(crew, "carriedAmount", 3f);
         ship.DepositResources(ResourceType.Wood, 17); // G05 보급과 화물 보존 검사를 분리한다.
+        Check(ship.ReservedCargo >= 17, "deployed wood deposit waits for loading work");
+        ship.Tick(ExpeditionWithdraw.LoadSeconds + .01f);
+        Check(ship.GetCargo(ResourceType.Wood) == 17, "wood loading completes before capture scenario");
         Check(world.CanCreateTransport(world.HomePosition, out var routePosition), "second transport placement");
         var automatic = world.CreateTransport(false, routePosition);
         Move(collector, routePosition + Vector3.right * 3);
         if (!collector.HasTroops) Check(collector.TryAssign(2), "replenish home collector before departure");
-        Check(automatic.TryBoard(new[] { collector }), "home auto route boards: troops=" + collector.TroopCount
+        Check(automatic.TryBoard(new[] { collector }) && automatic.PendingCrewOrderCount == 0 && collector.Transport == automatic, "home auto route boards: troops=" + collector.TroopCount
             + " carrying=" + collector.IsCarrying + " away=" + collector.IsAwayFromHome);
         Check(automatic.Route.TryStart(site), "home auto route ready: " + site.Disposition);
         Check(site.Settlement.Garrison.SequenceEqual(new[] { captive, escapee }), "capture fixture preserves defender order");
@@ -202,8 +232,10 @@ public static class SettlementDefenseChecks
         Check(!captive.TryAssign(1)
             && !captive.TryPowerStrike(), "captives cannot be controlled or upgraded");
         Check(!automatic.Route.IsRunning && automatic.Crew.Count == 0, "lost destination immediately stops home auto route");
-        Check(ship.State == ExpeditionState.Returning && crew.IsEmbarked && ship.GetCargo(ResourceType.Wood) == 17
-            && ship.GetCargo(ResourceType.Soil) == 3 && !crew.IsCarrying, "deployed crew and cargo evacuate intact");
+        // D06: 함락돼도 현장 승무원/손의 화물을 순간 탑승·적재하지 않는다.
+        Check(ship.State == ExpeditionState.Deployed && !crew.IsEmbarked && crew.Transport == ship
+            && ship.GetCargo(ResourceType.Wood) == 17 && crew.IsCarrying && crew.CarriedType == ResourceType.Soil
+            && Mathf.Abs(crew.CarriedAmount - 3) < .001f, "site loss preserves physical crew, loaded wood and carried soil");
         Check(Mathf.Abs(site.GetComponentsInChildren<ResourceNode>().Where(n => n.name.StartsWith("Dropped ")).Sum(n => n.AmountRemaining) - 7.25f) < .001f,
             "garrison carried resources remain recoverable without rounding loss");
         var stock = site.Colony.GetStock(ResourceType.Food);
@@ -212,9 +244,12 @@ public static class SettlementDefenseChecks
         Check(site.Colony.GetComponentsInChildren<ResourceNode>(true).All(n => !n.CanGather), "lost stock locked");
         Check(!site.TryResolveConquest(ConquestDisposition.Annexed), "living occupiers prevent recapture");
         var homeWood = resources.GetAmount(ResourceType.Wood);
-        ship.Tick(ship.TravelSeconds);
+        var homeSoil = resources.GetAmount(ResourceType.Soil);
+        Check(ship.TryReturn(), "surviving pilot requests physical evacuation from lost site");
+        await ReturnHome(ship);
         Check(resources.GetAmount(ResourceType.Wood) == homeWood + 17 && !crew.IsAwayFromHome && site.Visitor == null,
             "evacuation returns cargo once and clears visitor");
+        Check(resources.GetAmount(ResourceType.Soil) == homeSoil + 3 && !crew.IsCarrying, "carried soil is loaded and delivered intact");
         ship.Tick(ship.TravelSeconds);
         Check(resources.GetAmount(ResourceType.Wood) == homeWood + 17, "repeated tick cannot duplicate cargo");
 
@@ -235,7 +270,8 @@ public static class SettlementDefenseChecks
         Check(captive.PersonalHealth > 0, $"rescued commander recovers (downed {captive.Health.Downed} stable {captive.StableForRecovery} remain {captive.RecoveryRemaining})");
         Move(captive, ship.Position + Vector3.right * 3);
         Check(ship.TryBoard(new[] { captive }) && ship.TryReturn(), "rescued zero-troop commander can return");
-        ship.Tick(ship.TravelSeconds);
+        await ReturnHome(ship);
+        captive.WorkState.duty = CommanderDuty.Deployed;
         Check(captive.TryAssign(1) && !captive.IsAwayFromHome, "rescued commander can replenish at home");
         var ui = Object.FindAnyObjectByType<AntColony.UI.WorldMapPanel>();
         if (!ui.IsOpen) ui.Toggle();
@@ -243,26 +279,33 @@ public static class SettlementDefenseChecks
         await Task.Delay(100);
         Canvas.ForceUpdateCanvases();
         var label = ui.PanelRect.GetComponentsInChildren<Transform>(true).First(t => t.name == "SettlementDefenseStatus").GetComponent<UnityEngine.UI.Text>();
-        Check(label.text.Contains("Defense ready"), "defense state visible in panel");
+        Check(label.text == defense.Status && label.text.Contains("방어 대기"), "current defense state visible in panel");
         var corners = new Vector3[4]; ((RectTransform)label.transform).GetWorldCorners(corners);
         Check(corners.All(c => ui.PanelRect.rect.Contains(ui.PanelRect.InverseTransformPoint(c))), "defense label within panel");
-        Check(ui.transform.Find("SettlementNotice").GetComponent<UnityEngine.UI.Text>().text.Contains("rescued"), "global rescue notification");
+        Check(ui.transform.Find("SettlementNotice").GetComponent<UnityEngine.UI.Text>().text.Contains("구출"), "global rescue notification");
 
-        // 빈 수송수단이 출발한 사이 거점을 잃어도 적지에 고립되지 않고 복귀한다.
+        // D07: 빈 차량은 운행할 수 없다. 조종자가 탑승한 출발 도중의 목적지 함락을 검사한다.
         Move(captive, ship.Position + Vector3.right * 3);
-        Check(ship.TryBoard(new[] { captive }) && ship.TryDepart(site), "second deployment");
+        Move(crew, ship.Position + Vector3.right * 3);
+        Check(ship.TryBoard(new[] { captive, crew }) && ship.TryDepart(site), "second deployment with a return pilot");
         ship.Tick(ship.TravelSeconds);
-        Check(ship.TryStation(ship.Crew) && ship.TryReturn(), "leave rescued commander as garrison");
-        ship.Tick(ship.TravelSeconds);
-        Check(ship.TryDepart(site), "empty transport outbound for pickup");
+        Move(captive, ship.Position + Vector3.right * 3);
+        Check(ship.TryStation(new[] { captive }) && ship.TryReturn(), "leave rescued commander as garrison and retain pilot");
+        await ReturnHome(ship);
+        Check(!ship.HasPilot && !ship.TryDepart(site) && ship.State == ExpeditionState.Home, "empty transport cannot depart without pilot");
+        Move(crew, ship.Position + Vector3.right * 3);
+        Check(ship.TryBoard(new[] { crew }) && ship.TryDepart(site), "piloted transport outbound for pickup");
         Check(defense.TryStartRaid(), "raid during outbound transport");
         foreach (var enemy in defense.Attackers) enemy.GetComponent<NavMeshAgent>().Warp(site.Landing);
         Move(captive, site.Landing + Vector3.right * 20);
         Set(defense, "captureChance", 1f);
-        defense.Tick(30);
-        Check(captive.IsCaptive && ship.State == ExpeditionState.Returning && ship.Crew.Count == 0,
-            "empty outbound transport turns back on site loss");
-        ship.Tick(ship.TravelSeconds);
+        deathMode = GameSession.Instance.Options.commanderDeath;
+        try { GameSession.Instance.Options.commanderDeath = CommanderDeathMode.Gentle; defense.Tick(SettlementDefense.CaptureSeconds); }
+        finally { GameSession.Instance.Options.commanderDeath = deathMode; }
+        // 이동 중인 승무원은 이미 탑승했다. 게임 쪽 회항 회귀는 실패 검사로 남긴다.
+        Check(captive.IsCaptive && ship.State == ExpeditionState.Returning && ship.Crew.Count == 1 && crew.IsEmbarked,
+            "piloted outbound transport turns back on site loss (known evacuation regression; see handoff)");
+        await ReturnHome(ship);
         Check(site.Visitor == null && ship.State == ExpeditionState.Home, "outbound evacuation frees site");
         Move(escapee, ship.Position + Vector3.right * 3);
         if (!escapee.HasTroops) Check(escapee.TryAssign(2), "rescue party replenished");
@@ -275,10 +318,11 @@ public static class SettlementDefenseChecks
             "abandoned-site rescued commander returns home");
         Check(!site.TryResolveConquest(ConquestDisposition.Annexed) && !defense.TryStartRaid(), "abandoned site cannot resurrect defense");
         Check(ship.TryReturn(), "rescue party can leave abandoned site");
-        ship.Tick(ship.TravelSeconds);
+        await ReturnHome(ship);
         return "PASS: " + checks + " settlement invasion / capture / escape / evacuation / rescue checks";
         }
-        finally { UserSettings.Current.autoPauseThreat = savedAutoPause; }
+        finally { UserSettings.Current.autoPauseThreat = savedAutoPause; UserSettings.Current.autoPauseDowned = savedDownPause;
+            UserSettings.Current.autoSaveEnabled = savedAutoSave; AntColony.Save.SaveStorage.RootOverride = oldRoot; }
     }
 }
 }

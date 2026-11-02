@@ -101,9 +101,9 @@ public static class ImplC3Checks
             Check(!events.SpawnNightPredators(), "G39 new hostile actors suppressed");
             Check(events.Capture().lastNight == GameCalendar.Day, "G39 suppressed predator day consumed");
             var local = Object.FindAnyObjectByType<LocalIncursions>() ?? New("incursions").AddComponent<LocalIncursions>();
-            var remaining = Get<float>(local, "remaining"); Call(local, "Update");
-            Check(Get<float>(local, "remaining") == remaining && !local.TrySpawn() && !local.TrySpawnIndependent(2),
-                "G39 local timer and direct spawns blocked");
+            // 2026-11-02 웨이브 수성: 독립 방문 타이머는 WaveDefense 일정으로 대체. 로켓 가동 중엔 웨이브도 시작하지 않는다.
+            Check(!WaveDefense.CanStart && !local.TrySpawn() && !local.TrySpawnIndependent(2),
+                "G39 wave start and direct spawns blocked");
 
             foreach (var source in sources) Set(source, "raiderTemplate", null);
             var sourceObject = New("invasion source"); sourceObject.SetActive(false);

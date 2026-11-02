@@ -53,7 +53,7 @@ namespace AntColony.UI
             alerted.RemoveWhere(t => t == null || !known.Contains(t));
             fighting.RemoveWhere(t => t == null || !known.Contains(t));
             seeded = true;
-            ToastManager.SetCrisis("enemy", alerted.Count > 0 ? $"적 발견: 본거지에 적 {alerted.Count} — 징집소에서 출전하세요." : null, FocusThreat, "적 위치로 이동");
+            ToastManager.SetCrisis("enemy", alerted.Count > 0 ? $"적 발견: 본거지에 적 {alerted.Sum(t => t is WildMonster wm ? wm.HordeCount : 1)} — " + (AntColony.Core.SceneObjects.Any<AntColony.Buildings.ConscriptionPost>() != null ? "징집소에서 출전하세요." : "장수를 선택해 적을 공격(A+클릭)하세요.") : null, FocusThreat, "적 위치로 이동");
             if (!raised) return;
             AlarmCount++; Alarm?.Invoke(); FirstHints.Trigger("invasion");
             if (AlarmClip != null && Time.unscaledTime - lastSound >= SoundCooldown) { source.PlayOneShot(AlarmClip); lastSound = Time.unscaledTime; }
