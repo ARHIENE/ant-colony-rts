@@ -105,7 +105,7 @@ namespace AntColony.UI
                 ExpeditionPlanning.LoadAmount(selectedShip, selectedSite)), "보급을 실었습니다. 권장량 대비 부족분은 출정 계획에서 확인하세요."));
             Btn(k, "Walking Formation", "도보 편성", 12, 114, () => {
                 Toggle(); GameMenuController.Instance.WalkingFormation(party => { selectedShip = party; Toggle(); });
-            });
+            }).interactable = !ExpeditionRules.Paused;
             Btn(k, "Talent Investigation", "인재 조사 파견", 184, 114, () => { Toggle(); GameMenuController.Instance.ShowInvestigation(selectedSite, selectedShip); });
             departurePlan = L.Label(k, "", 12, 12, 154, 336, 74, MenuTheme.Warning, TextAnchor.UpperLeft);
             L.Line(k, 12, 232, 336);
@@ -123,7 +123,7 @@ namespace AntColony.UI
             siteInfo = L.Label(site, "", 13, 14, 10, 332, 100, align: TextAnchor.UpperLeft);
             siteInfo.gameObject.AddComponent<MenuTooltip>();
             siteInfo.raycastTarget = true;
-            Btn(site, "Depart", "원정 보내기", 14, 114, Depart);
+            Btn(site, "Depart", "원정 보내기", 14, 114, Depart).interactable = !ExpeditionRules.Paused;
             Btn(site, "View Battlefield", "전장 보기", 182, 114, () => {
                 var world = WorldMapManager.Instance;
                 if (world != null && selectedSite != null && world.ViewSite(selectedSite)) Toggle();
@@ -190,13 +190,13 @@ namespace AntColony.UI
             FitOverlay();
             defenseStatus.text = selectedSite != null && selectedSite.Defense != null ? selectedSite.Defense.Status : "";
             if (selectedShip == null) NextShip();
-            departurePlan.text = selectedShip == null ? "도보 편성: 장수 1명·병력 0명부터 가능합니다." :
+            departurePlan.text = ExpeditionRules.Paused ? ExpeditionRules.PauseReason : selectedShip == null ? "도보 편성: 장수 1명·병력 0명부터 가능합니다." :
                 ExpeditionPlanning.DepartureText(selectedShip, selectedSite);
             var route = selectedShip != null ? selectedShip.Route : null;
-            startRoute.interactable = route != null && !route.IsRunning && selectedShip.State == ExpeditionState.Home
+            startRoute.interactable = !ExpeditionRules.Paused && route != null && !route.IsRunning && selectedShip.State == ExpeditionState.Home
                 && selectedSite != null && selectedSite.Disposition == ConquestDisposition.Annexed;
             stopRoute.interactable = route != null && route.IsRunning;
-            routeStatus.text = route != null && route.IsRunning
+            routeStatus.text = ExpeditionRules.Paused ? ExpeditionRules.PauseReason : route != null && route.IsRunning
                 ? $"<b>자동 수송</b>: {string.Join(" → ", route.Stops.Select(s => SiteNames.Name(s)))}\n{route.Status} · 집에서 {TransportRoute.IntervalSeconds:0}초 뒤 반복"
                 : routeStops.Count > 0 ? $"<b>경유지</b>: {string.Join(" → ", routeStops.Select(s => SiteNames.Name(s)))}\n일꾼 장수를 태우고 자동 수송 시작."
                 : $"<b>자동 수송</b>: {(route != null ? route.Status : "꺼짐")}\n편입 거점을 고르거나 경유지(최대 {TransportRoute.MaxStops}곳)를 추가한 뒤 시작.";
@@ -456,7 +456,7 @@ namespace AntColony.UI
         }
         private void Depart()
         {
-            var block = selectedShip != null ? selectedShip.DepartureBlock(selectedSite) : "수송 수단을 선택하세요";
+            var block = ExpeditionRules.Paused ? ExpeditionRules.PauseReason : selectedShip != null ? selectedShip.DepartureBlock(selectedSite) : "수송 수단을 선택하세요";
             if (block != "") { feedback.text = block; return; }
             var warning = selectedShip.DepartureWarning(selectedSite);
             var plan = selectedShip.DepartureWarningKey(selectedSite);

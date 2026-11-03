@@ -1,3 +1,6 @@
+# 2026-11-03 SAVE(새벽, 11/02 작업) — 2026-11-04 SAVE 이관
+- c0bdead/2b792e4: 웨이브 수성 전환(평화 6일→웨이브→평화 4일, WaveDefense·HudWave·무리 유닛·HordeVisual 인스턴싱), Codex 적 AI 성능·노후 검사 정리·밸런스 분석. Wave1102 27·M2 298 등 통과, 4000마리 28ms. 일지 https://app.notion.com/p/40cc4a0ecd318176b6c2e70e0270531e. 원문 work/save-20261104/log-before-save.md.
+
 # 2026-11-01 SAVE(밤) — 2026-11-03 SAVE 이관
 - 46cdf45/7c89631: 재미 라운드(사건 감독·목표 사슬·장수 서사·손맛), 2차 게임성(Codex Q1 21/32·Q2 32/60, Claude UI 6/9), 이동 후 쓰러짐 버그 수정, Codex R1 리뷰 8건. Unity Claude2 4·Q1 86·Q2 135·S2 59·S3 17·Story 9 등. 일지 https://app.notion.com/p/40bc4a0ecd31813c80e6f87500308849. 원문 work/save-20261103/log-before-save.md.
 

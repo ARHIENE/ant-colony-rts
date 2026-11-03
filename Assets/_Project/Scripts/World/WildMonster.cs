@@ -119,7 +119,7 @@ namespace AntColony.World
         public bool HuntDesignated { get; set; }
         // 귀환·하역 보류(G69) 판정용: 순한 동물·아군·사육 생물은 위협이 아니다. 습격대·포식자·자극받은 개체만.
         public bool IsRaider => isRaider;
-        public bool Threatening => isActiveAndEnabled && !IsDead && !Allied && GetComponent<Critter>() == null && (isRaider || !Docile || provoked);
+        public bool Threatening => isActiveAndEnabled && !Retreating && !IsDead && !Allied && GetComponent<Critter>() == null && (isRaider || !Docile || provoked);
         public bool Huntable => GuardBoss < 0 && isActiveAndEnabled && !IsDead && !isRaider && !(this is EnemyCommander) && !Allied
             && string.IsNullOrEmpty(DiplomaticFactionId) && string.IsNullOrEmpty(RebelId) && GetComponentInParent<ExpeditionSite>() == null;
         private bool provoked;
@@ -214,6 +214,7 @@ namespace AntColony.World
 
         private void Update()
         {
+            if (Retreating) { if (!IsDead) TickRetreat(Time.deltaTime); return; }
             if (critter != null && critter.HamelinProtected) { if (!Docile) Calm(); Docile = true; return; }
             if (IsDead || Docile) return;
             if (!Allied && !DiplomacyManager.Hostile(this)) { currentTarget = null; StopMoving(); return; }

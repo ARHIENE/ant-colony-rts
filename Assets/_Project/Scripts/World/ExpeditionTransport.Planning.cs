@@ -10,6 +10,7 @@ namespace AntColony.World
         // 실제 출정과 UI가 같은 조건을 사용한다. 식량 부족은 경고이며 강제 금지가 아니다.
         public string DepartureBlock(ExpeditionSite destination)
         {
+            if (ExpeditionRules.Paused) return ExpeditionRules.PauseReason;
             if (!isActiveAndEnabled) return "비활성 수송 수단";
             if (!CanOperate) return "운행 불가 · 수리/잔해 상태를 확인하세요";
             if (!HasPilot) return "활동 가능한 조종 장수 없음";

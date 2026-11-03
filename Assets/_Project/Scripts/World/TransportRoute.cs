@@ -30,6 +30,7 @@ namespace AntColony.World
 
         public bool TryStart(System.Collections.Generic.IReadOnlyList<ExpeditionSite> route)
         {
+            if (ExpeditionRules.Paused) { Status = ExpeditionRules.PauseReason; return false; }
             if (IsRunning || !ship.isActiveAndEnabled || ship.State != ExpeditionState.Home
                 || WorldMapManager.Instance == null || !WorldMapManager.Instance.Unlocked
                 || route == null || route.Count < 1 || route.Count > MaxStops || route.Distinct().Count() != route.Count
@@ -104,6 +105,7 @@ namespace AntColony.World
             if (ship.FieldWorkActive) { Status = "현장 수리 진행 중"; return; }
             if (ship.State == ExpeditionState.Home)
             {
+                if (ExpeditionRules.Paused) { Status = ExpeditionRules.PauseReason; return; }
                 // 잃은 경유지는 본거지에서 빼고 남은 순서로 계속한다(다음 사이클부터 반영).
                 var kept = stops?.Where(Valid).ToArray();
                 if (kept != null && kept.Length != stops.Length && kept.Length > 0)
@@ -166,7 +168,7 @@ namespace AntColony.World
                 AntColony.UI.ToastManager.Show("자동 수송: 잃은 경유지를 제외합니다.", AntColony.UI.ToastKind.Warning);
                 nextLeg++;
             }
-            if (nextLeg < stops.Length && ship.ReturnCargoSpace >= 1)
+            if (!ExpeditionRules.Paused && nextLeg < stops.Length && ship.ReturnCargoSpace >= 1)
             {
                 if (!ship.TryContinueTo(stops[nextLeg])) return;
                 leg = nextLeg;

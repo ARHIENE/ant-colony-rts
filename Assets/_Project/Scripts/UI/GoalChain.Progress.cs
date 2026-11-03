@@ -65,6 +65,9 @@ namespace AntColony.UI
 
         private static string Describe(int stage)
         {
+            if (ExpeditionRules.Paused && stage >= 4 && stage < StageCount)
+                return "<b>정착지 운영 · 웨이브 방어</b>\n" + ExpeditionRules.PauseReason
+                    + "\n" + CampaignNextSteps.Context();
             if (stage == StageCount) return "<b>탈출 완료</b>\n결과 화면에서 구출·잔류 기록 확인";
             var context = CampaignNextSteps.Context();
             return "<b>현재 목표 · " + Title(stage) + "</b>\n" + Progress(stage)

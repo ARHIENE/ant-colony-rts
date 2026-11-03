@@ -8,6 +8,8 @@ namespace AntColony.World
     // 로컬 소굴 경제와 무관한 소규모 방문자. 시간/인구에 따른 병력 증가는 없다.
     public class LocalIncursions : MonoBehaviour
     {
+        // ponytail: 끊긴 경로 끝이 본거지 30m 안이면 '벽에 막힘'으로 본다(진입점은 45m). 물·절벽에 막힌 경우와 구분이 필요하면 벽 제외 경로로 다시 잰다.
+        private const float BlockedPathReach = 30f;
         [SerializeField] private WildMonster raiderTemplate;
         [SerializeField] private EnemyCommander commanderTemplate;
         private float remaining;
@@ -50,8 +52,9 @@ namespace AntColony.World
                 var candidate = homeHit.position + new Vector3(direction.x, 0, direction.y) * 45;
                 if (!NavMesh.SamplePosition(candidate, out var hit, 8, NavMesh.AllAreas)) continue;
                 var path = new NavMeshPath();
-                if (!NavMesh.CalculatePath(hit.position, homeHit.position, NavMesh.AllAreas, path)
-                    || path.status != NavMeshPathStatus.PathComplete) continue;
+                // 벽으로 둘러싼 본거지는 경로가 벽 앞에서 끊긴다(Partial). 끊긴 곳이 본거지 근처면 벽을 부수러 오게 허용한다(2026-11-03: 완전 경로만 받아 벽 고리가 웨이브를 통째로 없앴음).
+                if (!NavMesh.CalculatePath(hit.position, homeHit.position, NavMesh.AllAreas, path) || path.status == NavMeshPathStatus.PathInvalid
+                    || path.status == NavMeshPathStatus.PathPartial && (path.corners.Length == 0 || Vector3.Distance(path.corners[path.corners.Length - 1], homeHit.position) > BlockedPathReach)) continue;
                 for (var n = 0; n < count; n++)
                 {
                     var template = withCommander && n == count - 1 ? commanderTemplate : raiderTemplate;

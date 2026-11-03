@@ -79,7 +79,7 @@ namespace AntColony.UI
             Add(colonyGrid, 2, "Colony Build", () => "건설", BuildScreen.Open, () => "가구·건물·벽을 건설합니다.", null, null, true);
             Add(colonyGrid, 3, "Colony Science", () => "연구", () => GameMenuController.Instance?.Science(), () => "연구를 선택해 지시한 뒤 연구소에 장수를 배정하세요. 선행 연구·연구소 등급·자원이 필요합니다.");
             Add(colonyGrid, 4, "Colony Population", () => "인구", () => GameMenuController.Instance?.Population(), () => "시민·주거·민심·세금을 확인합니다. 시민은 생활·납세 인구이며 장수와 별도입니다.");
-            Add(colonyGrid, 5, "Colony Diplomacy", () => "외교", () => GameMenuController.Instance?.Diplomacy(), () => "접촉한 세력의 호감도·전쟁·협정을 확인합니다. 미접촉 문명은 먼저 원정으로 만나야 합니다.");
+            Add(colonyGrid, 5, "Colony Diplomacy", () => "외교", () => GameMenuController.Instance?.Diplomacy(), () => AntColony.World.ExpeditionRules.Paused ? AntColony.World.ExpeditionRules.PauseReason : "접촉한 세력의 호감도·전쟁·협정을 확인합니다. 미접촉 문명은 먼저 원정으로 만나야 합니다.");
             // 대상 우선순위 도구(1~9 · 노란 경보)와 소굴 전체 빨간 경보.
             Add(colonyGrid, 6, "Colony Target Priority", () => "우선 지정", GatherDesignation.BeginPriority,
                 () => "고른 단계를 대상(자원·건물·예정지·시체·사냥감)에 클릭·드래그로 지정합니다. 장수는 노란 경보 → 작업 종류 → 대상 우선순위(9 최우선) → 거리 순으로 고릅니다.");

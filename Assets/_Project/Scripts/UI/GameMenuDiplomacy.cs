@@ -48,7 +48,7 @@ namespace AntColony.UI
                 L.Label(card.transform, "공개 어젠다 " + DiplomacyRules.AgendaNames[(int)c.agenda] + " · " + TreatySummary(c, d), 12, 8, 54, 336, 22, MenuTheme.Dim);
             }
             var unknown = d.Data.civilizations.Count(c => !c.contacted && !c.extinct);
-            L.Label(p, $"미접촉 문명 {unknown} · 원정대가 거점에 도착하면 접촉", 12, 12, 596, 350, 20, MenuTheme.Dim);
+            L.Label(p, AntColony.World.ExpeditionRules.Paused ? AntColony.World.ExpeditionRules.PauseReason : $"미접촉 문명 {unknown} · 원정대가 거점에 도착하면 접촉", 12, 12, 596, 350, 20, MenuTheme.Dim);
             var x = 12f;
             if (d.Data.caravanUntil > d.Data.elapsed)
             {

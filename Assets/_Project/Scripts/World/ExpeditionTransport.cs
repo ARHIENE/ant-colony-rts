@@ -149,6 +149,7 @@ namespace AntColony.World
 
         public bool TryDepart(ExpeditionSite site)
         {
+            if (ExpeditionRules.Paused) return false;
             if (DepartureBlock(site) != "") return false;
             Site = site;
             if (site.Visitor == null) site.Visitor = this;
@@ -162,6 +163,7 @@ namespace AntColony.World
 
         internal bool TryContinueTo(ExpeditionSite next)
         {
+            if (ExpeditionRules.Paused) return false;
             if (next == null || next == Site || !next.isActiveAndEnabled || next.Disposition != ConquestDisposition.Annexed) return false;
             return RequestWithdrawal(next);
         }

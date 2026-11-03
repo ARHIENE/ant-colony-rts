@@ -74,7 +74,8 @@ namespace AntColony.UI
                 RecentAchievement = Title(last) + " 달성";
                 EmphasisUntil = now + 4f;
                 ToastManager.Show(RecentAchievement + "\n" + Reward(last) + "\n다음: "
-                    + (CurrentStage == StageCount ? "탈출 기록 확인" : Title(CurrentStage)), ToastKind.Achievement);
+                    + (CurrentStage == StageCount ? "탈출 기록 확인" : AntColony.World.ExpeditionRules.Paused && CurrentStage >= 4
+                        ? "정착지 운영 · 웨이브 방어" : Title(CurrentStage)), ToastKind.Achievement);
             }
             state.initialized = true; // 구저장은 현재 사실로 조용히 이관한다. 불러올 때 완료 알림을 재생하지 않는다.
         }
@@ -98,7 +99,8 @@ namespace AntColony.UI
             8 => "B 핵심물 반입", 9 => "C 핵심물 반입", 10 => "원자 시대 진입", 11 => "미래 시대 진입", 12 => "D 핵심물 반입",
             13 => "로켓 조립", 14 => "최종 방어 완수", 15 => "탑승과 발사", _ => "탈출 완료"
         };
-        public static string Reward(int stage) => stage switch
+        public static string Reward(int stage) => AntColony.World.ExpeditionRules.Paused && stage >= 3 && stage < StageCount
+            ? AntColony.World.ExpeditionRules.PauseReason : stage switch
         {
             0 => "잔해의 목재·돌로 첫 시설 준비", 1 => "잠자리·식량을 갖추고 연구에 인력 배정",
             2 => firstResearchReward, 3 => "증기 시대 연구·차량 원정 준비",

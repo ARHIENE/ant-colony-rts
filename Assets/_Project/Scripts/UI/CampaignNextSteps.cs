@@ -29,9 +29,9 @@ namespace AntColony.UI
         public static string ParallelGoal(int tier) => tier switch
         {
             0 or 1 => "침상·식탁·변소와 지정 채집으로 생활 안정",
-            2 => "학당·진료소 운영비와 차량 원정 준비",
+            2 => AntColony.World.ExpeditionRules.Paused ? "학당·진료소 운영비와 방어 준비" : "학당·진료소 운영비와 차량 원정 준비",
             3 => "고급 작물·치수 공사로 계절 대비",
-            4 => "냉장 물류·항공 수송과 B/C 장비 준비",
+            4 => AntColony.World.ExpeditionRules.Paused ? "냉장 물류와 방어 비축 준비" : "냉장 물류·항공 수송과 B/C 장비 준비",
             5 => "보온·부위 재생으로 부상자 복귀 준비",
             _ => "구출할 시민·장수와 로켓 좌석·방어 비축 준비"
         };

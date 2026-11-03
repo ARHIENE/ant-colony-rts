@@ -22,8 +22,8 @@ public static class Wave1102Checks
     {
         if (!Application.isPlaying) throw new Exception("Run in Play");
         count = 0; log = "";
-        // 물량 곡선(잠정): 초반 완만·후반 가파르게·상한 200.
-        Check(WaveDefense.Count(1) <= 3 && WaveDefense.Count(3) <= 5, "초반 웨이브 소수");
+        // 물량 곡선(2026-11-03 준비 기대치 기준, WaveBalance1103Checks 실측): 1웨이브는 장수만으로 막을 규모, 3웨이브는 방어시설이 필요한 규모.
+        Check(WaveDefense.Count(1) <= 20 && WaveDefense.Count(3) >= 60, "1웨이브 장수 규모·3웨이브 시설 필요 규모");
         Check(Enumerable.Range(1, 40).All(i => WaveDefense.Count(i + 1) >= WaveDefense.Count(i)), "웨이브마다 감소 없음");
         Check(WaveDefense.Count(20) >= 100 && WaveDefense.Count(60) == WaveDefense.MaxEnemies, "후반 100~200·상한");
 

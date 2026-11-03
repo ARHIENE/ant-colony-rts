@@ -91,6 +91,7 @@ namespace AntColony.Core
         }
         public bool TryDispatch(ExpeditionTransport ship, ExpeditionSite site, CommanderAnt evaluator, CommanderAnt escort, string focus, bool allowInsufficientFood)
         {
+            if (ExpeditionRules.Paused) return false;
             if (ship == null || ship.IsDead || ship.State != ExpeditionState.Home || ship.Route?.IsRunning == true || ship.PendingCrewOrderCount != 0
                 || ship.Investigation != null || evaluator == null || evaluator.IsDead || evaluator.IsChild || evaluator.IsCaptive || !evaluator.IsColonyMember
                 || evaluator.PersonalHealth <= 0 || evaluator.Health.Downed || evaluator.IsHostile || escort == evaluator

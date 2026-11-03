@@ -5,7 +5,7 @@ using UnityEngine;
 
 namespace AntColony.World
 {
-    // 웨이브 수성(2026-11-02 사용자 확정): 첫 평화 6일 → 웨이브(적 전멸 시 종료) → 평화 4일 반복.
+    // 웨이브 수성: 첫 평화 6일 → 웨이브(전멸 또는 대규모 잔당 퇴각) → 평화 4일 반복.
     // 평화가 끝나면 자동 시작, 플레이어가 '지금 시작'으로 앞당길 수 있다. 기존 침입자 생성(LocalIncursions)을 재사용한다.
     // 본거지 장수 0명(G21)·로켓 가동 중에는 웨이브를 시작하지 않는다(원정 중 웨이브·최종 방어 연결은 미정).
     public sealed class WaveDefense : MonoBehaviour
@@ -15,6 +15,8 @@ namespace AntColony.World
         public const int MaxEnemies = 4000, GroupSize = 20, IndividualCap = 30, HordeSize = 50;
         private const float GroupInterval = .5f, EndGrace = 5f;
         private const int MaxSpawnFailures = 30;
+        public const int RetreatMin = 3, RetreatFromTotal = 100;
+        public const float RetreatShare = .02f;
 
         [Serializable] public class State
         {
@@ -34,16 +36,21 @@ namespace AntColony.World
         public static bool AcceptsArrivals => Instance == null || Instance.s.inWave;
         public static bool CanStart => !RocketCampaign.SuppressNewCrises && ExpeditionRules.HomeCommanders > 0;
 
-        // 잠정(2026-11-02, 초반 완만·후반 가파르게·후반 3000 이상): 1→2, 3→4, 5→7, 10→25, 15→93, 20→348, 25→1290, 28→2835, 30→4000(상한).
-        public static int Count(int wave) => Mathf.Min(MaxEnemies, DifficultyRuntime.ScaleCount(wave <= 3 ? wave + 1
-            : Mathf.RoundToInt(4 * Mathf.Pow(1.3f, Mathf.Min(wave, 60) - 3))));
+        // 2026-11-03 '웨이브 준비 기대치'(사용자 확정, GAME_DIRECTION 6.1)로 맞춘 잠정값. 장수 3·병력 0 실측(WaveBalance1103Checks):
+        // 1웨이브 15=장수만으로 막음(체력 19%↓) / 3웨이브 120=방어 없으면 붕괴·탑 2개면 막음 / 5·8웨이브=탑만이면 큰 피해·벽+탑이면 경미.
+        // 이후 ×1.15: 10→319, 15→642, 20→1291, 25→2597, 28→3950, 29→4000(상한).
+        static readonly int[] EarlyCounts = { 15, 80, 120 };
+        public static int Count(int wave) => Mathf.Min(MaxEnemies, DifficultyRuntime.ScaleCount(Mathf.Max(3, Mathf.RoundToInt(StartFactor(wave) * (wave <= 3 ? EarlyCounts[Mathf.Max(1, wave) - 1]
+            : EarlyCounts[2] * Mathf.Pow(1.15f, Mathf.Min(wave, 60) - 3))))));
+        // 위 실측은 장수 3명 기준. 장수 1명 시작은 1웨이브 15마리에 체력 100→7로 겨우 버텼다(2026-11-03) → 초반은 시작 인원 비례, 6웨이브부터 같은 규모.
+        static float StartFactor(int wave) => Mathf.Lerp(Mathf.Clamp(GameSession.Exists ? GameSession.Instance.Options.startingCount : 3, 1, 3) / 3f, 1f, Mathf.Clamp01((wave - 1) / 5f));
 
         public int AliveEnemies
         {
             get
             {
                 var local = SceneObjects.Any<LocalIncursions>(); var n = 0;
-                if (local != null) foreach (var v in local.Visitors) if (v != null && !v.IsDead && v.isActiveAndEnabled) n += v.HordeCount;
+                if (local != null) foreach (var v in local.Visitors) if (v != null && !v.IsDead && !v.Retreating && v.isActiveAndEnabled) n += v.HordeCount;
                 return n;
             }
         }
@@ -75,7 +82,17 @@ namespace AntColony.World
             }
             s.sinceStart += dt;
             if (s.pending > 0 && (groupTimer -= dt) <= 0) SpawnGroup();
-            if (s.sinceStart >= EndGrace && s.pending == 0 && AliveEnemies == 0) End();
+            if (s.sinceStart < EndGrace || s.pending != 0) return;
+            var remaining = AliveEnemies;
+            if (remaining == 0) End();
+            else if (s.total >= RetreatFromTotal && remaining <= Mathf.Max(RetreatMin, Mathf.CeilToInt(s.total * RetreatShare)))
+            {
+                var local = SceneObjects.Any<LocalIncursions>();
+                if (local != null) foreach (var v in local.Visitors)
+                    if (v != null && !v.IsDead && v.isActiveAndEnabled) v.BeginRetreat();
+                End();
+                ToastManager.Show($"남은 적 {remaining}마리가 퇴각합니다");
+            }
         }
 
         public bool StartNow()

@@ -8,6 +8,7 @@ namespace AntColony.World
     {
         public ExpeditionTransport CreateWalkingParty(IReadOnlyList<CommanderAnt> commanders)
         {
+            if (ExpeditionRules.Paused) return null;
             if (transportTemplate == null || commanders == null || commanders.Count == 0 || commanders[0] == null) return null;
             var party = CreateTransport(false, commanders[0].Position, true);
             if (party.TryBoard(commanders)) return party;

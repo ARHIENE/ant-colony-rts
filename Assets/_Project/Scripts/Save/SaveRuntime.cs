@@ -35,7 +35,8 @@ namespace AntColony.Save
             militaryEquipment = m?.MilitaryEquipment == null ? null : JsonUtility.FromJson<EquipmentItem>(JsonUtility.ToJson(m.MilitaryEquipment)), militaryEquipped = m?.MilitaryEquipment != null,
             guardVersion = 1, guardBoss = m != null ? m.GuardBoss : -1, guardCycle = m != null ? m.GuardCycle : 0, guardXpClaimed = m != null && m.GuardXpClaimed,
             investigationId = (m as EnemyCommander)?.InvestigationId,
-            health = m != null ? m.CurrentHealth : 0, position = new Vec3Dto(m != null ? m.Position : Vector3.zero),
+            // 퇴각 개체는 로드 시 비활성 복원한다. 사망·포획·전리품 처리는 호출하지 않는다.
+            health = m != null && !m.Retreating ? m.CurrentHealth : 0, position = new Vec3Dto(m != null ? m.Position : Vector3.zero),
             hasRuntime = m != null, runtime = m != null ? m.CaptureRuntime() : null, diplomaticFactionId = m?.DiplomaticFactionId,
             temperament = m != null ? m.Temperament : WildlifeTemperament.Predator, huntDesignated = m != null && m.HuntDesignated,
             traits = m is EnemyCommander c ? SaveCatalog.Traits(c.Traits) : null,

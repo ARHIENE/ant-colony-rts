@@ -34,10 +34,11 @@ namespace AntColony.UI
             { var pick = s; MenuTheme.Button(left, (s == investigationSite ? "선택 · " : "") + SiteNames.Name(s), () => { investigationSite = pick; investigationFocus = null; investigationFoodConfirmed = investigationUnattendedConfirmed = false; ShowInvestigation(); }); }
             MenuTheme.Button(left, "도보 원정대 만들기", () => {
                 if (world.CanCreateTransport(world.HomePosition, out var point)) investigationShip = world.CreateTransport(false, point, walking: true);
-                else ToastManager.Show("원정대를 만들 수 있는 본거지 출입 공간이 없습니다."); ShowInvestigation(); });
+                else ToastManager.Show("원정대를 만들 수 있는 본거지 출입 공간이 없습니다."); ShowInvestigation(); }).interactable = !ExpeditionRules.Paused;
             foreach (var t in world.Transports.Where(t => t != null && !t.IsDead))
             { var pick = t; MenuTheme.Button(left, (t == investigationShip ? "선택 · " : "") + t.name + " · " + TransportState(t.State), () => { investigationShip = pick; investigationFoodConfirmed = investigationUnattendedConfirmed = false; ShowInvestigation(); }); }
             var right = V5Section(window, "담당 / 파견", 554, 112, 534, 536);
+            if (ExpeditionRules.Paused) MenuTheme.Text(right, ExpeditionRules.PauseReason, 13, 56);
             if (investigationShip != null && investigationShip.Investigation != null)
             {
                 var mission = investigationShip.Investigation;
@@ -47,6 +48,12 @@ namespace AntColony.UI
             }
             else
             {
+                if (ExpeditionRules.Paused)
+                {
+                    MenuTheme.Button(right, "귀환 보고서", () => ShowAssessment());
+                    V5Fit(window);
+                    return;
+                }
                 MenuTheme.Text(right, "대상: " + ((investigationSite != null ? SiteNames.Name(investigationSite) : null) ?? "세력 선택 필요") + "\n평가자: " + (investigationEvaluator?.CommanderName ?? "미지정")
                     + " · 호위: " + (investigationEscort?.CommanderName ?? "없음"), 13, 56);
                 foreach (var c in SortedCommanders().Where(c => !c.IsChild && !c.IsCaptive && !c.IsAwayFromHome && !c.IsDeployed))

@@ -7,6 +7,8 @@ namespace AntColony.World
 {
     public static class ExpeditionRules
     {
+        public static bool Paused { get; private set; } = true;
+        public const string PauseReason = "원정은 추가 기획 전까지 잠시 닫혀 있습니다";
         // 잠정: 가장 가까운 띠(.16)는 편도 하루, 이후 거리는 비례한다.
         public const float DockSeconds = 1;
         public static float TransportSeconds(float distance, bool aircraft)

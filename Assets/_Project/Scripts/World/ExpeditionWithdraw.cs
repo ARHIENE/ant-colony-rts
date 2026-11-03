@@ -179,6 +179,8 @@ namespace AntColony.World
         }
         private void StartWithdrawTravel(ExpeditionSite next)
         {
+            // 구저장에 예약된 거점 간 경유도 새 출발 대신 정상 귀환한다.
+            if (ExpeditionRules.Paused) next = null;
             float travel = next != null && Site != null
                 ? ExpeditionRules.BetweenSeconds(Site.MapPosition, next.MapPosition, Walking, Aircraft) / (Walking ? FormationWalkMultiplier : 1)
                 : TravelSeconds;

@@ -1,0 +1,12 @@
+# 프로젝트 로그
+
+## 현재 상태 — 2026-11-03 SAVE(새벽, 11/02 작업)
+- 프로젝트 E:\Git\ant, develop(일반)/master(안정). **작업 전 필독: GAME_DIRECTION.md**(웨이브 수성 방향·승인 경계·보고 형식). Notion 기획(스펙 문서) 전체 구현이 목표. 구조: Assets/_Project/Scripts(Core/Units/World/Buildings/Map/UI/Save/Boss), AgentScripts 검사, docs/IMPLEMENTATION_BOARD.md·HANDOFF-*·BALANCE-WAVE-1102.md.
+- **방향 전환(사용자 승인 2026-11-02): 웨이브 수성 게임.** 평화(운영·생산·연구·원정) → 습격 웨이브(장수·방어시설 직접 지휘) → 평화(복구·발전). 확정: 첫 평화 6일·이후 4일, 평화 만료 자동 시작+'지금 시작', 웨이브 적 전멸 시 종료, 후반 3000마리 이상(좀보이드식), 일반 적=무리 유닛(체력=마릿수)·적 장수/정예=개별, 무리 공격은 장수 상대 앞줄만·벽은 붙은 마릿수만큼 압력·범위 공격은 1회. Notion 하위 페이지(맵·진행/전투·보스/미정/UI·HUD/기술적 고려사항/상위 개요)에 반영 완료.
+- 이번 구현(11/02): World/WaveDefense.cs(평화/웨이브 일정·편성·저장, 독립 방문 타이머·사건 감독 침입 간격 대체, 평화 중 도착 공격대 대기), LocalIncursions(웨이브 무리·무리 유닛 생성), WildMonster 무리 모드(hordeBody 저장), UI/HudWave.cs(시계 아래 패널·지금 시작·남은 적 보기), GoalChain 웨이브 안내(첫 웨이브 달성 연출은 사용자 요청으로 삭제), 웨이브 시작/종료 말풍선·이야기 기록, 경보 적 수=무리 마릿수·징집소 없으면 A+클릭 안내. Codex: 적 AI 성능(PERF), 떼 표시 Units/HordeVisual.cs(인스턴싱·그림자 끔·LOD·단일 재질), 노후 검사 정리, 밸런스 분석(docs/BALANCE-WAVE-1102.md, 수치 미반영).
+- 마릿수 곡선(잠정): 3회까지 N+1, 이후 round(4×1.3^(N−3)), 상한 4000. 앞 30마리 개별, 나머지 50마리 무리. 앞줄 6·벽 압력 20·한 마리 체력 15.
+- 검증: Wave1102 27·ImplC3 43·ImplB5 96·Campaign 118·SaveRoundtrip 65·PlayableLoop 56·Siege 16·NightThreat 18·Story 9·FinalFronts 22·M2 298 통과. 실행 파일(Builds/WavePerf, -wavePerf 인자 측정기 World/WavePerfProbe.cs) 4000마리 평균 28ms·2823마리 20ms(i7-8700·RTX2070·1080p). 지휘 재현: 장수3·병력0으로 웨이브 1/3/5/8/12를 9/18/22/36/74초, 체력 합 300→85.
+- 미해결/다음: ①노후 검사 잔여: Spec1015(요리사 재료 가져오기)·WorldMap(원정 채집 화물 적재) 다음 지점 실패, SettlementDefense는 실제 회귀(이동 중 목적지 함락 시 회항 안 함, 웨이브와 무관) — docs/HANDOFF-CODEX-CHECKS-1102.md ②조작 없이 6일 보내면 식량0·잔해 미회수·기분 붕괴 이탈(기존 운영 문제, 첫 평화 운영이 다음 우선) ③적 생성 30회 실패 시 남은 적 버리고 방어 성공 처리 ④방어 밸런스(벽 압력 20→12·성장률 1.30→1.27 후보, 실플레이 후 결정) ⑤원정 잔류 규칙(Notion '확정' vs 승인 근거 없음 — GAME_DIRECTION 6.4 충돌, 사용자 결정 대기) ⑥로켓 최종 공세·원정 중 웨이브 연결 미정 ⑦사용자 20분 플레이 5문항 피드백.
+- 환경 메모: 포커스 없이 Unity 조작 — scratchpad(b6df1df2) reload.sh·runcheck_nf.sh(대기 300회). 빌드는 MCP build 도구(eval은 5초 제한). 성능 측정: Builds/WavePerf/ant.exe -wavePerf → LocalLow/DefaultCompany/ant/waveperf.txt. Codex는 worktree 쓰기 불가 → 원본 트리 담당 파일만. 검사 스크립트는 internal 접근 불가(public 또는 리플렉션).
+- SAVE: c0bdead develop push. Notion 일지 2026-11-03 https://app.notion.com/p/40cc4a0ecd318176b6c2e70e0270531e (🙂, 스크린샷2). 기획 반영: 상위 개요·맵·진행·전투·보스·미정·UI·HUD·기술적 고려사항. 사용자 버그 요청 없어 Trouble Shooting 생략.
+- 보존: prefab/.prefab.meta 커밋 금지. 커밋 제외: 재질/URP/씬/ProjectSettings/graphify/art/Assets 하위 외부 폴더·Builds. 이전 log 원문 work/save-20261103/log-before-save.md.
