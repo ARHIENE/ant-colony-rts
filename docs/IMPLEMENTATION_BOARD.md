@@ -300,3 +300,4 @@
 - 남음: 동물 위생·배설물·퇴비·질병 발생 경로/진행 중 임신 상세·통합 의료 우선순위·실행 회귀, 장수 의료 전면 개편, 시체/묘비, 원정 장비 압수/실물 수송/철수, 포로 실물 관리. 전체 기획 구현 완료 아님.
 - 추가 담당: `Buildings/RanchFacility.cs` 먹이통 우선순위 기본5/상한9 기획 일치. 급식 실물 창고 인출과 운반 식품 신선도 보존 관련 `Units/WorkerAnt.cs`, `Save/SaveDtos.cs`, `Save/SaveSnapshot.cs`, `Save/SavePreflight.cs`, `AgentScripts/Spec1013ClinicChecks.cs`.
 - SAVE 미수행: log/changelog/개발 일지/캡처/커밋/push 하지 않음.
+- **IMPL-D1 / Codex / 정적 수정·컴파일 완료, Play 미검증:** B3 로드 경로의 Awake 이전 Agent null 접근 수정. 소유 `World/WildMonster.cs`, `AgentScripts/ImplB3Checks.cs`, `docs/IMPL-D1-HANDOFF.md`. 게임·B3 별도 어셈블리 컴파일 오류 0. 실제 30초 원인·성능 개선 확정은 Play 측정 필요. D1만 수정, 커밋 없음. 컴파일용 원본 SpinFree.cs 읽기·D1 Temp 복사 포함.
