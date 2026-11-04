@@ -162,7 +162,7 @@ namespace AntColony.Core
         // G06 표본 반입: 실제로 들여온 물자(채집·원정·교역·보상)만 센다. 환불·생산·세금·제작 결과는 표본이 아니다.
         private static bool DeliversSample(ResourceReason r) => r == ResourceReason.Gathering || r == ResourceReason.Expedition || r == ResourceReason.Trade || r == ResourceReason.Reward;
         // 들어갈 칸에 담고 넘친 몫은 바닥(near 주변, 없으면 비축더미 주변)에 둔다. 담은 양을 돌려준다.
-        public int Add(ResourceType type, int amount, ResourceReason reason = ResourceReason.Gathering, Vector3? near = null)
+        public int Add(ResourceType type, int amount, ResourceReason reason = ResourceReason.Gathering, Vector3? near = null, FoodLots lots = null)
         {
             if (amount <= 0) return 0;
             if (!AntColony.Save.SaveSystem.Busy && DeliversSample(reason)) CampaignResearch.Instance?.RecordSampleDelivery(type, amount);
@@ -170,10 +170,12 @@ namespace AntColony.Core
             foreach (var b in Destinations(type, from, null).ToList())
             {
                 if (amount - placed <= 0) break;
-                var n = Mathf.Min(amount - placed, b.Free(type)); b.amounts[(int)type] += n; placed += n;
+                var n = Mathf.Min(amount - placed, b.Free(type));
+                var have = b.Lots(type); if (have != null) { have.Match(b.amounts[(int)type], type); if (lots != null) have.Add(lots.Take(n)); }
+                b.amounts[(int)type] += n; have?.Match(b.amounts[(int)type], type); placed += n;
             }
             CampaignHistory.Resource(type, placed, false, reason);
-            if (amount > placed) AntColony.World.DiplomacyManager.DropFloor(type, amount - placed, from + Scatter());
+            if (amount > placed) AntColony.World.DiplomacyManager.DropFloor(type, amount - placed, from + Scatter(), lots);
             OnResourcesChanged?.Invoke();
             return placed;
         }

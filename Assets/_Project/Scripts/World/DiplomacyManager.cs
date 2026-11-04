@@ -13,6 +13,7 @@ namespace AntColony.World
     {
         [Serializable] public sealed class State
         {
+            public List<ArtworkRetry> artworkRetries = new List<ArtworkRetry>();
             public List<Civilization> civilizations = new List<Civilization>();
             public List<Civilization> markets = new List<Civilization>();
             public List<string> owners = new List<string>();
@@ -264,6 +265,7 @@ namespace AntColony.World
         }
         public static bool Validate(State s, int sites)
         {
+            if (s != null && !ValidArtwork(s)) return false;
             bool Finite(float f) => f >= 0 && !float.IsNaN(f) && !float.IsInfinity(f);
             if (s == null || s.civilizations == null || s.civilizations.Count < 4 || s.civilizations.Count > 100
                 || s.owners == null || s.owners.Count != sites || !Finite(s.elapsed) || !Finite(s.nextMonth) || !Finite(s.caravanUntil)

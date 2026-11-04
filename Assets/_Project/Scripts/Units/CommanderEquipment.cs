@@ -21,13 +21,15 @@ namespace AntColony.Units
         public ArmorKind armor;
         public BossEquipmentKind bossEquipment;
         public float durability;
+        public bool unique; // 다이아 무라마사 유일작: 효과 단계 +1(장신구 ×1.5), 이름 앞 "유일작"
+        public int Power => quality + 1 + (unique ? 1 : 0);
         public bool IsValid => !string.IsNullOrEmpty(id) && Enum.IsDefined(typeof(EquipmentSlot), slot) && quality >= 0 && quality <= 3
             && Enum.IsDefined(typeof(TrinketEffect), effect) && Enum.IsDefined(typeof(WeaponKind), weapon) && Enum.IsDefined(typeof(ArmorKind), armor)
             && Enum.IsDefined(typeof(BossEquipmentKind), bossEquipment) && !float.IsNaN(durability) && !float.IsInfinity(durability)
             && durability >= 0 && durability <= DurableCapacity
             && (bossEquipment == BossEquipmentKind.None || bossEquipment == BossEquipmentKind.AreaWeapon && slot == EquipmentSlot.Weapon
                 || (bossEquipment == BossEquipmentKind.Durable || bossEquipment == BossEquipmentKind.HeatShield) && slot == EquipmentSlot.Armor);
-        public string Label => new[] { "조잡", "보통", "정교", "걸작" }[Mathf.Clamp(quality,0,3)] + " "
+        public string Label => (unique ? "유일작 " : "") + new[] { "조잡", "보통", "정교", "걸작" }[Mathf.Clamp(quality,0,3)] + " "
             + (bossEquipment != BossEquipmentKind.None ? BossLabel : slot == EquipmentSlot.Weapon && weapon == WeaponKind.WoodenSword ? "나무칼"
                 : slot == EquipmentSlot.Weapon && weapon == WeaponKind.ShortBow ? "단궁"
                 : EquipmentRecipes.Name((EquipmentRecipe)(slot == EquipmentSlot.Weapon ? (int)weapon : slot == EquipmentSlot.Armor ? 4 + (int)armor : 6 + (int)effect)));
@@ -96,12 +98,13 @@ namespace AntColony.Units
         {
             var item = personalState.equipment.Find(e => e.slot == EquipmentSlot.Trinket && e.effect == effect);
             if (item == null) return 0;
+            var unique = item.unique ? 1.5f : 1f;
             switch (effect)
             {
-                case TrinketEffect.Move: return .05f * (item.quality + 1);
-                case TrinketEffect.Gather: return new[] { .08f, .15f, .22f, .30f }[item.quality];
-                case TrinketEffect.Mood: return new[] { 3f, 5f, 7f, 10f }[item.quality];
-                default: return new[] { 3f, 5f, 7f, 10f }[item.quality];
+                case TrinketEffect.Move: return .05f * (item.quality + 1) * unique;
+                case TrinketEffect.Gather: return new[] { .08f, .15f, .22f, .30f }[item.quality] * unique;
+                case TrinketEffect.Mood: return new[] { 3f, 5f, 7f, 10f }[item.quality] * unique;
+                default: return new[] { 3f, 5f, 7f, 10f }[item.quality] * unique;
             }
         }
         public bool CanReplaceEquipment(EquipmentItem old, EquipmentItem next)

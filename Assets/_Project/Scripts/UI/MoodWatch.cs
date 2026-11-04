@@ -39,7 +39,7 @@ namespace AntColony.UI
                     warned[c] = level;
                     var cause = c.PersonalState.moodFactors.Where(f => f.value < 0).OrderBy(f => f.value).FirstOrDefault()?.reason ?? "부정 요인 없음";
                     var remaining = Mathf.Max(0, SocialRules.Month - c.PersonalState.lowMoodSeconds);
-                    ToastManager.Show($"기분 {new[] { "", "주의", "위험", "위급" }[level]}: {c.CommanderName} ({c.Mood:0}) — {cause} · 이탈까지 {remaining:0}초", ToastKind.Warning);
+                    ToastManager.Show($"기분 {new[] { "", "주의", "위험", "위급" }[level]}: {c.CommanderName} ({c.Mood:0}) — {cause} · 붕괴 분당 {c.BreakChance:P0} · 이탈까지 {remaining:0}초" + (!c.IsAwayFromHome && c.PersonalState.rewardCooldown <= 0 ? " · 장수 상세에서 포상(식량 30) 가능" : ""), ToastKind.Warning);
                     FirstHints.Trigger("collapse");
                 }
                 else if (!alert || level == 0) warned.Remove(c);

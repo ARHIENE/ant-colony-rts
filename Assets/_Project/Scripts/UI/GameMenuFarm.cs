@@ -28,13 +28,13 @@ namespace AntColony.UI
             }
 
             content = V5Section(window, $"선택한 밭 · {CropName(p.Crop)}" + (p.Data.nextCrop >= 0 ? $" → 다음 {CropName((FarmCrop)p.Data.nextCrop)}" : ""), 394, 104, 686, 544);
-            var status = MenuTheme.Text(content, "", 16, 70);
+            var status = MenuTheme.Text(content, "", 16, 94);
             void Refresh()
             {
                 if (p == null) return;
                 var workers = AntUnitBase.Active.OfType<CommanderAnt>().Where(c => c.CurrentResourceNode == p.Node).Select(c => c.CommanderName).ToArray();
                 var farmers = AntUnitBase.Active.OfType<CommanderAnt>().Count(c => c.IsColonyMember && !c.IsDead && c.AllowsJob(CommanderJobs.Farming));
-                status.text = $"{p.Status}\n작업 장수: " + (workers.Length > 0 ? string.Join(", ", workers) : farmers == 0 ? "<color=#f2c94c>농사 작업을 켠 장수 없음</color>" : "대기")
+                status.text = $"{p.Status}\n{p.DiamondStatus}\n작업 장수: " + (workers.Length > 0 ? string.Join(", ", workers) : farmers == 0 ? "<color=#f2c94c>농사 작업을 켠 장수 없음</color>" : "대기")
                     + $" · 인접 밭(상하좌우) {p.Neighbors().Count()}곳" + (p.Node.GatheringForbidden ? " · <color=#f2c94c>작업 금지</color>" : "");
             }
             Refresh(); refreshDutyScreen = Refresh;

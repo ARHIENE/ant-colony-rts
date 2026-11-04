@@ -41,6 +41,7 @@ namespace AntColony.World
         public bool Allied { get; internal set; }
         public string RebelId { get; internal set; }
         internal void ConfigureForce(float health) { maxHealth = health; }
+        internal void ConfigureBossGuard() { maxHealth = 12; attackDamage = 2; detectionRadius = 35; }
         // 목장 생물(2026-10-11): 평소엔 온순(Critter가 이동·먹기를 맡음, 함정·방어시설·경보 대상 아님), 취급 실패·공격받으면 잠시 성향대로 행동.
         internal void ConfigureCritter(float health, float damage) { maxHealth = health; attackDamage = damage; Docile = true; }
         public bool Docile { get; internal set; }
@@ -165,6 +166,7 @@ namespace AntColony.World
 
         private void Update()
         {
+            if (critter != null && critter.HamelinProtected) { if (!Docile) Calm(); Docile = true; return; }
             if (IsDead || Docile) return;
             if (!Allied && !DiplomacyManager.Hostile(this)) { currentTarget = null; StopMoving(); return; }
             RootRemaining = Mathf.Max(0f, RootRemaining - Time.deltaTime);

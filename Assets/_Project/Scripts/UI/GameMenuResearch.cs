@@ -30,7 +30,7 @@ namespace AntColony.UI
             {
                 var d = CampaignResearch.Technologies[(int)t];
                 var progress = r.Active?.Technology == t ? r.Progress : r.SavedProgress(t);
-                work += Mathf.Max(0, d.Work - Mathf.Max(0, progress));
+                work += Mathf.Max(0, d.Work - Mathf.Max(0, progress) - r.PendingInsight(t));
                 if (progress >= 0) continue; // 이미 지불한 진행/중단 연구는 다시 비용에 넣지 않는다.
                 food += d.Food; material += d.Soil; special += d.Special;
             }
@@ -131,7 +131,7 @@ namespace AntColony.UI
                 var saved = r.SavedProgress(def.Technology);
                 var cost = r.Active == def || saved >= 0 ? "비용 지불 완료" : $"식량 {def.Food} · 재료 {def.Soil}" + (def.Special > 0 ? $" · 특수 {def.Special}" : "");
                 var progress = r.Active == def ? r.Progress : Mathf.Max(0, saved);
-                MenuTheme.Text(content, $"상태 {ResearchState(r, def)} · 연구량 {progress:0}/{def.Work:0} · {cost}\n해금: {ResearchEffect(def.Technology)}"
+                MenuTheme.Text(content, $"상태 {ResearchState(r, def)} · 연구량 {progress:0}/{def.Work:0} · {cost}" + (r.Insight(def.Technology) > 0 ? $" · 천기20%({r.PendingInsight(def.Technology):0} 대기)" : "") + $"\n해금: {ResearchEffect(def.Technology)}"
                     + "\n선행: " + (def.Prerequisites.Length == 0 ? "없음" : string.Join(", ", def.Prerequisites.Select(p => (r.Has(p) ? "✓ " : "✗ ") + CampaignResearch.Technologies[(int)p].Name))), 15, 82);
                 var meter = L.Cell(content, "ResearchProgress", 12);
                 L.Meter(meter, 0, 3, 494, 6, progress / def.Work, MenuTheme.Accent);

@@ -17,7 +17,7 @@ namespace AntColony.World
             .Select(c => c.FormationWorldMoveMultiplier).DefaultIfEmpty(1).Min();
         public float DailyFood => crew.Where(c => c != null && !c.IsDead).Sum(ExpeditionRules.FoodPerDay) + withdraw.troops * 2 * GameBalance.MealFood;
         public int RecommendedFood(ExpeditionSite destination) => ExpeditionRules.RecommendedFood(
-            Walking ? ExpeditionRules.WalkSeconds(destination) / FormationWalkMultiplier : TravelSeconds, DailyFood);
+            TravelSecondsTo(destination), DailyFood);
         public int AvailableFood => GetCargo(AntColony.Data.ResourceType.Food) + crew.Where(c => c != null && !c.IsDead)
             .Sum(c => c.PersonalState.carriedRations?.Total ?? 0);
         public bool LeavesHomeUnattended => State == ExpeditionState.Home && CommanderLoad > 0 && ExpeditionRules.HomeCommanders == 0;
@@ -25,8 +25,17 @@ namespace AntColony.World
         public bool TryLoadFood(int amount)
         {
             if (State != ExpeditionState.Home || Route?.IsRunning == true || amount <= 0 || amount > ReturnCargoSpace
-                || ResourceManager.Instance == null || !ResourceManager.Instance.TrySpend(amount, 0, reason: ResourceReason.Expedition)) return false;
-            cargo[AntColony.Data.ResourceType.Food] = GetCargo(AntColony.Data.ResourceType.Food) + amount;
+                || ResourceManager.Instance == null || ResourceManager.Instance.GetAmount(AntColony.Data.ResourceType.Food) < amount) return false;
+            var lots = new FoodLots();
+            foreach (var bin in FoodLots.MealSources(ResourceManager.Instance.Bins, AntColony.Data.ResourceType.Food).ToArray())
+            {
+                var taken = ResourceManager.Instance.TakeFrom(bin, AntColony.Data.ResourceType.Food, amount - lots.Total, out var part);
+                if (taken > 0) lots.Add(part);
+                if (lots.Total >= amount) break;
+            }
+            if (lots.Total == 0) return false;
+            CampaignHistory.Resource(AntColony.Data.ResourceType.Food, lots.Total, true, ResourceReason.Expedition);
+            IncomingFood = lots; try { AddCargo(AntColony.Data.ResourceType.Food, lots.Total); } finally { IncomingFood = null; }
             return true;
         }
 
@@ -37,6 +46,7 @@ namespace AntColony.World
             if (needed == 0) return;
             var take = Mathf.Min(needed, GetCargo(AntColony.Data.ResourceType.Food));
             cargo[AntColony.Data.ResourceType.Food] = GetCargo(AntColony.Data.ResourceType.Food) - take;
+            TakeCargoFood(AntColony.Data.ResourceType.Food, take);
             needed -= take; FoodDebt -= take;
             foreach (var c in crew)
             {

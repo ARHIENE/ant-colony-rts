@@ -33,7 +33,9 @@ namespace AntColony.World
         public int Capacity => Walking ? int.MaxValue : Mathf.FloorToInt((Aircraft ? GameBalance.AircraftTroops : GameBalance.VehicleTroops) * ScienceEffects.TroopCapacityMultiplier);
         public int CommanderCapacity => Walking ? int.MaxValue : (Aircraft ? GameBalance.AircraftCommanders : GameBalance.VehicleCommanders) + ScienceEffects.CommanderSlotBonus;
         public int CargoCapacity => Walking ? WalkingCargoCapacity : Mathf.FloorToInt((Aircraft ? GameBalance.AircraftCargo : GameBalance.VehicleCargo) * ScienceEffects.CargoMultiplier);
-        public float TravelSeconds => Walking ? ExpeditionRules.WalkSeconds(Site) / FormationWalkMultiplier : Aircraft ? 10 : 20;
+        public float TravelSeconds => TravelSecondsTo(Site);
+        public float TravelSecondsTo(ExpeditionSite destination) => Walking ? ExpeditionRules.WalkSeconds(destination) / FormationWalkMultiplier
+            : ExpeditionRules.TransportSeconds(destination == null ? .16f : Vector2.Distance(destination.MapPosition, new Vector2(.5f, .5f)), Aircraft);
         public float Remaining { get; private set; }
         public int Load
         {
@@ -174,6 +176,7 @@ namespace AntColony.World
 
         private void Update()
         {
+            AgeCargoFood(Time.deltaTime);
             Tick(Time.deltaTime);
             if (State == ExpeditionState.Home && !IsDead) UnloadCargo();
             Route?.Tick(Time.deltaTime);
@@ -262,13 +265,14 @@ namespace AntColony.World
                 if (accepted < amount) DiplomacyManager.DropFloor(type, amount - accepted, Position);
             }
             else AddCargo(type, amount);
+            CreditCargoFood(type, amount);
             if (State == ExpeditionState.Home && !IsDead) UnloadCargo();
         }
 
         public int AddCargo(AntColony.Data.ResourceType type, int amount)
         {
             var added = Mathf.Clamp(amount, 0, Mathf.Max(0, CargoCapacity - CargoLoad - ReservedCargo));
-            if (added > 0) cargo[type] = GetCargo(type) + added;
+            if (added > 0) { cargo[type] = GetCargo(type) + added; CreditCargoFood(type, added); }
             return added;
         }
 
@@ -284,8 +288,9 @@ namespace AntColony.World
                 var amount = GetCargo(type);
                 if (amount <= 0) continue;
                 cargo[type] = 0; // Add는 창고 초과분까지 바닥에 보존한다. 이벤트 재진입 전에 화물을 뺀다.
-                if (resources != null) resources.Add(type, amount, ResourceReason.Expedition, landing);
-                else DiplomacyManager.DropFloor(type, amount, landing);
+                var lots = TakeCargoFood(type, amount);
+                if (resources != null) resources.Add(type, amount, ResourceReason.Expedition, landing, lots);
+                else DiplomacyManager.DropFloor(type, amount, landing, lots);
             }
             if (BlueprintCargo && CampaignResearch.Instance != null) { CampaignResearch.Instance.AcquireBlueprint(); BlueprintCargo = false; }
             if (EquipmentInventory.Instance != null)
@@ -328,7 +333,7 @@ namespace AntColony.World
 
         protected override void OnDisable()
         {
-            CancelWithdrawal(); DropPendingLoads();
+            CancelWithdrawal(); DropPendingFood(); DropPendingLoads();
             ClearCrewOrders();
             AntColony.UI.ToastManager.SetPinned("supplies:" + GetEntityId(), null);
             Route?.Stop();

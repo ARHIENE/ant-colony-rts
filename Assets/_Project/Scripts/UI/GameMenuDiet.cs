@@ -35,6 +35,11 @@ namespace AntColony.UI
             }
             foreach (var (bit, name) in DietItems)
                 MenuTheme.Button(content, ((current & bit) != 0 ? "☑ " : "☐ ") + name, () => Set(current ^ bit));
+            var presets = L.Cell(content, "DietPresets", 38);
+            L.Button(presets, "Save Fine Meals", "좋은 요리 아끼기", 0, 0, 240, 32,
+                () => Set(CommanderAnt.DietRaw | CommanderAnt.DietSimple), "좋은 요리만 금지합니다. 간단식·날것 중 선택 순서는 유지됩니다. 좋은 요리도 부패하므로 남은 재고를 확인하세요.");
+            L.Button(presets, "Allow All Meals", "모두 허용", 248, 0, 240, 32,
+                () => Set(CommanderAnt.AllDiet), "좋은 요리부터 다시 먹습니다. 종류 사이에는 신선도보다 요리 등급이 우선합니다.");
             if (current == 0) MenuTheme.Text(content, "<color=#f2c94c>허용한 정상 식품이 없어 썩은 식품만 먹습니다(기분 하락·식중독 위험).</color>", 15, 40);
             var row = L.Cell(content, "DietTools", 44);
             L.Button(row, "Diet Copy", "복사", 0, 0, 150, 40, () => { dietClipboard = current; ShowDiet(target); });

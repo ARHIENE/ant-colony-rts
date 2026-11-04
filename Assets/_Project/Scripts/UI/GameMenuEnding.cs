@@ -53,6 +53,7 @@ namespace AntColony.UI
                     lines.Add($"<b>{labels[(int)category]}</b>  " + (names.Length == 0 ? "없음" : string.Join(", ", names)));
                 }
                 lines.Add($"<b>시민 최종 합계</b>  탈출 {ending.citizensEscaped} · 잔류 {ending.citizensStaying} · 전체 {ending.citizensEscaped + ending.citizensStaying}");
+                if (ending.legacy != null) lines.AddRange(ending.legacy);
             }
             else
             {
@@ -63,6 +64,8 @@ namespace AntColony.UI
             lines.Add("<b>처치한 보스</b>  " + Names("보스 처치"));
             lines.Add($"<b>거점</b>  편입 {Count("편입")} · 유기 {Count("유기")}");
             lines.Add($"<b>전쟁·동맹</b>  선전포고 {Count("선전포고")} · 협정 {Count("협정")} · 평화 {Count("평화")}");
+            lines.Add("<b>구출·귀환</b>  " + Names("귀환"));
+            lines.Add("<b>최종 방어의 실패와 재건</b>  " + Names("로켓 파괴") + " / " + Names("로켓 재건"));
             var events = string.Join(", ", Enumerable.Range(0, Math.Min(d.events.Length, EventRules.Names.Length)).Where(i => d.events[i] > 0).Select(i => $"{EventRules.Names[i]} {d.events[i]}"));
             lines.Add("<b>주요 이벤트</b>  " + (events.Length == 0 ? "없음" : events));
             return lines.ToArray();

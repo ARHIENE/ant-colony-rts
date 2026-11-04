@@ -15,7 +15,7 @@ namespace AntColony.Buildings
     // 밭(2026-10-15 V5): 수확 뒤에도 심어진 채 다시 자란다. 뿌리뽑기(확인 후 장수 작업) → 빈 밭, 다시 심기 지시 전까지 비워 둔다.
     // 병충해는 실제 칸 좌표의 상하좌우 밭으로만 퍼진다(대각선 없음). 비료는 성장 주기당 1회, 농사 장수가 넣는다.
     [RequireComponent(typeof(ResourceNode))]
-    public sealed class FarmPlot : MonoBehaviour
+    public sealed partial class FarmPlot : MonoBehaviour
     {
         public const float WideFactor = 2f;
         // ponytail: 병충해·비료·뿌리뽑기 수치는 기획 미정 잠정값. 확정되면 여기만 고친다.
@@ -29,6 +29,7 @@ namespace AntColony.Buildings
             public int nextCrop = -1;
             public int seedVersion, harvests;
             public bool seedPending;
+            public SoleWorker diamondCycle; public string diamondReason;
         }
         public State Data { get; private set; } = new State();
         public FarmCrop Crop { get; private set; }
@@ -45,7 +46,7 @@ namespace AntColony.Buildings
                 var scale = transform.localScale; scale.x *= WideFactor; transform.localScale = scale;
                 Wide = true;
             }
-            if (Crop != crop) Data.harvests = 0;
+            if (Crop != crop) { Data.harvests = 0; Data.diamondCycle = null; Data.diamondReason = null; }
             Crop = crop;
             if (FoodProcessingRecipes.CropResource(crop) is ResourceType type) node.SetCropResource(type);
             else node.SetCropResource(ResourceType.Food);
@@ -75,7 +76,7 @@ namespace AntColony.Buildings
                 if (Data.seedPending) return $"종자 대기 · {FoodProcessingRecipes.CropResource(Crop)?.DisplayName() ?? Crop.ToString()} {FarmSeeds.Count(Crop)}/{SeedCost}";
                 if (Node.NeedsSowing) return "파종 대기";
                 if (ColonyEvents.Flooded(Node)) return "홍수 · 작업 불가";
-                if (Node.IsRegrowing && GameCalendar.CurrentSeason == Season.Winter) return "겨울 · 성장 정지";
+                if (Node.IsRegrowing && !Blessed && GameCalendar.CurrentSeason == Season.Winter) return "겨울 · 성장 정지";
                 if (Node.IsRegrowing) return (Data.pest ? "병충해 · 성장 저하 · " : "") + $"성장 중 {1f - Node.RegrowTimeRemaining / Mathf.Max(1f, Node.RegrowSeconds):P0}" + (Data.fertilized ? " · 비료" : "");
                 return Data.pest ? "병충해 · 수확 가능" : "수확 가능";
             }
@@ -86,6 +87,7 @@ namespace AntColony.Buildings
         {
             if (!Data.fallow) return;
             if (Data.nextCrop >= 0) { Configure((FarmCrop)Data.nextCrop, Wide); Data.nextCrop = -1; }
+            Data.diamondCycle = null; Data.diamondReason = null;
             Data.seedVersion = 1; Data.seedPending = true; Data.fallow = false; Node.ClearCrop();
         }
         // 작물 변경은 다음 수확(빈 밭이면 다시 심을 때) 이후 적용한다.
@@ -96,6 +98,7 @@ namespace AntColony.Buildings
 
         internal void OnHarvested()
         {
+            NextDiamondCycle();
             if (++Data.harvests >= 3) { Data.harvests = 0; FarmSeeds.Add(Crop, SeedCost); }
             if (Crop == FarmCrop.AdvancedFungus && Random.value < GameBalance.AdvancedFungusSpecialChance)
                 ResourceManager.Instance?.Add(ResourceType.Special, GameBalance.AdvancedFungusSpecial);
@@ -143,7 +146,7 @@ namespace AntColony.Buildings
             float labor = 0;
             foreach (var unit in AntUnitBase.Active)
                 if (unit is CommanderAnt c && c.CivilianWorkReady && c.CurrentResourceNode == Node && c.IsGatheringAnimation)
-                { labor += c.WorkRate(CommanderActivity.Farming); c.GainExperience(CommanderActivity.Farming, seconds); }
+                { NoteFarmer(c); labor += c.WorkRate(CommanderActivity.Farming); c.GainExperience(CommanderActivity.Farming, seconds); }
             return labor;
         }
 

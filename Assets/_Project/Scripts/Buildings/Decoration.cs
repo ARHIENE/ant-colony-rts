@@ -6,8 +6,10 @@ using UnityEngine;
 
 namespace AntColony.Buildings
 {
-    public sealed class Decoration : BuildingBase
+    public sealed partial class Decoration : BuildingBase
     {
+        public string ArtistId;
+        public bool DiamondArtwork;
         public int Quality { get; internal set; } = 1;
         public static bool IsKind(BuildingKind kind) => kind >= BuildingKind.FlowerPot && kind <= BuildingKind.FireflyLamp || kind >= BuildingKind.Statue && kind <= BuildingKind.Pillar
             || kind >= BuildingKind.Brazier && kind <= BuildingKind.CuriosDisplay;

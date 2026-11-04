@@ -21,6 +21,7 @@ namespace AntColony.World
 
         private void TickBehaviour(float dt)
         {
+            if (HamelinProtected) { if (agitated > 0) { agitated = 0; Monster.Calm(); ClearAlert(); } if (prey != null && (prey.Tame || prey.Managed)) prey = null; fleeUntil = 0; }
             if (agitated > 0)
             {
                 if ((agitated -= dt) > 0) return;
@@ -70,6 +71,7 @@ namespace AntColony.World
             // 먹을 게 없는 배고픈 포식자는 먹잇감을 사냥한다(합사한 동물도 대상, 사전 경고 없음).
             if (best == null && Info.prey.Length > 0 && s.hunger < GameBalance.CritterHuntHunger)
                 prey = All.Where(p => p != this && p != null && Info.prey.Contains(p.Species) && p.Carrier == null && p.Clinic == null && p.Monster != null && !p.Monster.IsDead
+                    && (!HamelinProtected || !p.Tame && !p.Managed)
                     && (p.transform.position - here).sqrMagnitude < GameBalance.CritterHuntRadius * GameBalance.CritterHuntRadius && Reachable(p.transform.position))
                     .OrderBy(p => (p.transform.position - here).sqrMagnitude).FirstOrDefault();
         }
@@ -115,7 +117,7 @@ namespace AntColony.World
                 var away = transform.position + (transform.position - predator.transform.position).normalized * 6;
                 if (NavMesh.SamplePosition(away, out var hit, 4, NavMesh.AllAreas) && Reachable(hit.position)) { MoveTo(hit.position); fleeUntil = Time.time + 3; }
             }
-            else predator.Wound(Info.damage * .5f, "싸움");
+            else if (!HamelinProtected || !predator.Tame && !predator.Managed) predator.Wound(Info.damage * .5f, "싸움");
             Wound(damage, "포식", predator);
         }
 

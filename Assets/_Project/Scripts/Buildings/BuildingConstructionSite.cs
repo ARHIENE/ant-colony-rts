@@ -9,7 +9,7 @@ namespace AntColony.Buildings
 {
     // 건설 예정지(2026-10-12 기획): 자원이 부족해도 배치한다. 가능한 자원만 예약 → 운반 장수(또는 건설 장수)가 창고에서 가져와 배송 →
     // 전부 도착하면 실제 시공을 시작하며 그때 소비한다. 우선순위 1~9(같으면 먼저 지시한 곳)로 예약하고, 순위를 바꿔도 이미 예약·배송한 몫은 빼앗지 않는다.
-    public class BuildingConstructionSite : MonoBehaviour, IMaterialSink
+    public partial class BuildingConstructionSite : MonoBehaviour, IMaterialSink
     {
         [Serializable] public sealed class Need { public ResourceType type; public int need, reserved, delivered; }
         public enum Wait { None, Paused, MaterialShortage, AwaitingHaul, NoWorker, Unreachable, InUse, Forbidden, Tool }
@@ -181,6 +181,7 @@ namespace AntColony.Buildings
             {
                 if (builder != null && completedBuilding.GetComponent<Decoration>() is Decoration decor)
                     decor.Quality = AntColony.Units.EquipmentRecipes.Quality(builder.Talents.Level(AntColony.Units.CommanderActivity.Art), UnityEngine.Random.value, UnityEngine.Random.value);
+                CompleteAttribution(completedBuilding.GetComponent<BuildingBase>());
                 if (TryGetComponent<RedevelopmentSite>(out var redevelop)) redevelop.Finish(); // 재개발이면 완공 순간 기존 집을 허문다.
                 completedBuilding.SetActive(true);
                 AntColony.UI.ToastManager.Show(completedBuilding.name + " construction complete.");

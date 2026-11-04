@@ -38,8 +38,13 @@ namespace AntColony.UI
             if (autoPause) Hold("incident:" + id);
             return true;
         }
+        // 검토95: 같은 위협이 잠깐 사라졌다 돌아오거나(30초 안) 쓰러짐이 연달아 나면(10초 안) 알림만 남기고 다시 멈추지 않는다(게임 시간, 잠정).
+        public const float RepeatPauseSeconds = 30, DownGroupSeconds = 10;
+        private static readonly Dictionary<string, float> endedAt = new Dictionary<string, float>();
+        private static float lastDownPause = float.NegativeInfinity;
         public static void Observe(Dictionary<string, string> active, bool announce)
         {
+            foreach (var ended in state.active.Where(key => !active.ContainsKey(key))) endedAt[ended] = Time.time;
             foreach (var ended in state.active.Where(key => !active.ContainsKey(key)))
                 foreach (var id in state.incidents.Where(id => id.StartsWith(ended + ":")))
                     ToastManager.SetCrisis("incident:" + id, null);
@@ -48,6 +53,8 @@ namespace AntColony.UI
                 {
                     var pause = entry.Key.StartsWith("down:") ? AntColony.Core.UserSettings.Current.autoPauseDowned
                         : AntColony.Core.UserSettings.Current.autoPauseThreat;
+                    if (endedAt.TryGetValue(entry.Key, out var ended) && Time.time - ended < RepeatPauseSeconds) pause = false;
+                    if (entry.Key.StartsWith("down:") && pause) { if (Time.time - lastDownPause < DownGroupSeconds) pause = false; else lastDownPause = Time.time; }
                     Incident(entry.Key + ":" + ++state.sequence, entry.Value, pause);
                 }
             state.active = active.Keys.ToList();

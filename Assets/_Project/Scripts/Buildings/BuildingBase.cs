@@ -5,7 +5,7 @@ using UnityEngine;
 
 namespace AntColony.Buildings
 {
-    public class BuildingBase : MonoBehaviour, IDamageable
+    public partial class BuildingBase : MonoBehaviour, IDamageable
     {
         private static readonly List<BuildingBase> DepositPoints = new List<BuildingBase>();
 
@@ -83,7 +83,9 @@ namespace AntColony.Buildings
             {
                 currentHealth = 0f;
                 RoomSystem.MarkDirty(); SpaceQuality.Invalidate(); // 부서진 벽은 같은 프레임부터 방 판정에서 빠진다.
+                var foundation = LeaveBabelFoundation();
                 Die();
+                if (foundation) Destroy(gameObject);
             }
         }
 

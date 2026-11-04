@@ -23,6 +23,7 @@ namespace AntColony.World
 
         [Serializable] public class State
         {
+            public SoleWorker tamer;
             public int species, id; public bool tame, designated, careBlocked, treatOrder, careOrder, surgeryStarted;
             public float tameProgress, age, hunger = 80, care, waiting, medicated, direct, floorProgress, bind, surgery, health;
             public string pen = "", transport = "", clinic = "", returnPen = "", approved = "";
@@ -255,6 +256,7 @@ namespace AntColony.World
         // ---------- 장수 작업 결과 ----------
         internal void FinishCare(CommanderAnt c)
         {
+            NoteTamer(c);
             s.care = GameBalance.CritterCareBaseSeconds * (1 + c.Talents.Level(CommanderActivity.Husbandry) / 10f + c.Traits.MetricBonus(CommanderActivity.Husbandry)); // 능력·특성은 지속시간만 보정
             s.waiting = 0; s.careOrder = false;
         }
@@ -265,6 +267,7 @@ namespace AntColony.World
         // 취급 실패·공격받음: 성향대로 도주(도주형)·주변 공격(공격형)·다룬 장수 공격(조건부). 잠시 뒤 진정한다.
         public void Agitate(IDamageable handler)
         {
+            if (HamelinProtected) return;
             agitated = GameBalance.CritterAgitatedSeconds; foodTarget = null; CalledTo = null;
             if (Monster == null) return;
             Monster.Docile = false; Monster.Provoke();

@@ -85,7 +85,7 @@ namespace AntColony.Units
         internal void EvacuateCargo(ExpeditionSite site, ExpeditionTransport ship = null)
         {
             if (!IsCarrying) return;
-            if (ship != null) ship.DepositResources(carriedType, Mathf.RoundToInt(carriedAmount));
+            if (ship != null) { ship.IncomingFood = CaptureCargoLots(); try { ship.DepositResources(carriedType, Mathf.RoundToInt(carriedAmount)); } finally { ship.IncomingFood = null; } }
             else
             {
                 var drop = GameObject.CreatePrimitive(PrimitiveType.Cube);
@@ -455,7 +455,7 @@ namespace AntColony.Units
             targetConstruction.BeginWork(); // 재료가 모두 도착한 뒤 첫 시공 순간 소비
             // 공동 건설: 참여한 장수마다 자기 작업 효율만큼 현장의 남은 작업량을 줄인다.
             OnWorked(Mathf.Min(Time.deltaTime, targetConstruction.RemainingWork / WorkSpeed));
-            targetConstruction.RemainingWork = Mathf.Max(0, targetConstruction.RemainingWork - Time.deltaTime * WorkSpeed);
+            targetConstruction.ApplyWork(this, Time.deltaTime * WorkSpeed);
             if (targetConstruction.RemainingWork > 0f) return;
 
             targetConstruction.Complete(this as CommanderAnt);
@@ -513,7 +513,7 @@ namespace AntColony.Units
                 extracted = targetNode.Extract(Mathf.Min(GameBalance.FishingCatchFood * FishingCatchMultiplier * BiomeRules.FishingYield, (CarryCapacity - carriedAmount) / yield)) * yield;
                 carriedAmount += extracted;
                 carriedType = targetNode.ResourceType;
-                if (extracted > 0f) { OnGathered(extracted / yield); OnWorked(GameBalance.FishingCatchSeconds / (FishingWorkSpeed * traitSpeed)); }
+                if (extracted > 0f) { targetNode.FishingTreasure(this, extracted); OnGathered(extracted / yield); OnWorked(GameBalance.FishingCatchSeconds / (FishingWorkSpeed * traitSpeed)); }
             }
             else
             {
@@ -633,7 +633,12 @@ namespace AntColony.Units
             }
             if (carriedAmount > 0f && ResourceManager.Instance != null)
             {
-                if (targetDeposit is ExpeditionTransport ship && !ship.TryLoadFromWorker(this, carriedType, Mathf.RoundToInt(carriedAmount))) return;
+                if (targetDeposit is ExpeditionTransport ship)
+                {
+                    ship.IncomingFood = CaptureCargoLots();
+                    try { if (!ship.TryLoadFromWorker(this, carriedType, Mathf.RoundToInt(carriedAmount))) return; }
+                    finally { ship.IncomingFood = null; }
+                }
                 if (targetDeposit != null) { if (!(targetDeposit is ExpeditionTransport)) targetDeposit.DepositResources(carriedType, Mathf.RoundToInt(carriedAmount)); OnDelivered(carriedAmount); }
             }
             carriedAmount = 0f;

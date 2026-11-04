@@ -433,3 +433,10 @@
 - **SAVE-1029 / 검증·문서·캡처 완료** — log/changelog/README 최신 상태, 공식CLI 실제 Game 화면9장 직접 검수/Notion 일지 첨부·Trouble 기록. 격리 검수시설/전문성 예시 상태이며 전체 플레이 검수 아님. 설정/Root/카메라 복원·Play 종료, 최신 build_227d7c36b46e 유지. docs/SAVE_AUDIT_20261029.md·검증 사본 참조. 선택 커밋/push 진행, 기존 로컬 씬/그래픽/설정/임시·prefab 보존.
 
 - **SAVE-1029 / 원격 보존 완료** —155파일 e0a65d3 origin/develop push·원격 동일 SHA 확인. 실행 FBX3/재질24·prefab0, 공식CLI 화면9장 검수/Notion 첨부·일지/Trouble 완료. 기존 씬/Water/그래픽·프로젝트 설정/임시/graphify 보존, Play 종료. 전체100항목/보류 검수 완료 아님. 완료 기록 후속 문서 커밋만 수행.
+
+- **REVIEW100-1029 분업 / 진행 중** — Codex J1(ant-wt/J1, codex/j1-1029): 11·13~17·19·20·23·25·26·28·35~38·40·72·73·77·78 경제/식품/산업/교역 파일. Codex J2(ant-wt/J2, codex/j2-1029): 61~71·75·76·80·83~90 전투/보스/원정/최종방어/엔딩 파일. Claude(원본): 2~10·29·30·41~47·50·53~60·92·95·96 성장/특성/관계/의료/알림·UI 공통 + Codex 패치 병합·Unity 검사. 각 담당 외 파일 동시 수정 금지. 결정은 docs/DECISIONS_1029_<담당>.md, 추가 공백은 docs/GAPS_1029_<담당>.md.
+- **REVIEW100-J1-1029 / Codex J1 / 오프라인 검증·인계 완료** — 담당21개 중10개 수정·9개 계산/대조·23/77 구현 잔여. 소유 Core/ColonyTaxRules·ResourceStudyRules 신규, ColonyPopulation.Monthly·CampaignResearch.Resources, Buildings/Redevelopment·Processor.Industrial, World/DiplomacyMarketDelivery 신규·DiplomacyTrade, UI/GameMenuPopulation·CivicServices·Diet·Diplomacy, AgentScripts/Review1029*Checks4종·RunReview1029J1.py. 게임442소스/검사14소스 컴파일 오류0(경고32/13), 실제 게임DLL 순수72검사 통과. Unity 실거래/실저장/UI/원정 통합 검사 미실행, SceneChecks 준비. docs/HANDOFF-CODEX-J1-1029.md·DECISIONS_1029_J1·GAPS_1029_J1(추가12건)·상태21행/README 반영. 원본 index.lock 쓰기 거부로 J1 Temp 임시index에서 패치 생성, 커밋 없음.
+
+- **REVIEW100-K1-1029 / Codex K1 / 오프라인 검증·인계 완료** — worktree K1만: 다이아 바벨·낙토·태공·천기·식선·화룡·여래장·하멜른, 보존식23, J1 상위3건(숙련저장/수송신선도/흙 문구). 소유 해당 기능 partial·Buildings/FarmPlot/Kitchen/BuildingBase/BuildingConstructionSite/Decoration·Core/FoodLots/CampaignResearch/ColonyPopulation·World/Critter/ResourceNode/Diplomacy/ExpeditionTransport·SaveDtos/Snapshot/Preflight 및 관련 검사/문서. SaveConstruction·Boss/*·AirshipYard*·FormationDamage·ColonyInvasion·CommanderAnt 전투부 수정 금지. Claude/J1 미커밋 기준선 보존·Unity 조작/캡처/커밋 없음.
+
+- K1: 12항목(다이아8+23+J1상3) 구현, 실제DLL87검사·게임/검사 컴파일 오류0. 저장22, 금지파일 보존. Unity실행/실저장복원/UI 육안/원본병합은 Claude 잔여. 파일목록·패치구분: docs/HANDOFF-CODEX-K1-1029.md.

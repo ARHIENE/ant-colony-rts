@@ -59,11 +59,11 @@ namespace AntColony.UI
             {
                 var captured = focus;
                 L.Button(p, "TaxFocus " + focus, (pop.S.taxFocus == focus ? "● " : "") + ColonyPopulation.FocusName(focus), fx, 302, 96, 32,
-                    () => { pop.SetTaxFocus(captured); Population(); }, $"식량 {ColonyPopulation.FoodShare(focus):P0} · 재료 {1 - ColonyPopulation.FoodShare(focus):P0}", pop.S.taxFocus == focus);
+                    () => { pop.SetTaxFocus(captured); Population(); }, $"식량 {ColonyPopulation.FoodShare(focus):P0} · 재료 {1 - ColonyPopulation.FoodShare(focus):P0}\n총세액·민심 효과는 같습니다. 부족한 쪽으로 납세 비율만 바꿉니다. 재료 납세에는 광석·연료·가공품이 포함되지 않습니다.", pop.S.taxFocus == focus);
                 fx += 100;
             }
             Tax();
-            taxLabel.gameObject.AddComponent<MenuTooltip>().Message = "현재 인구·세율·생산력 유지 시 다음 지급 예상액입니다. 이미 누적된 세액과 남은 기간의 행정 성과 감소를 반영합니다. 인구·동원·방침이 바뀌면 이후 구간만 달라집니다.";
+            taxLabel.gameObject.AddComponent<MenuTooltip>().Message = "현재 인구·세율·생산력 유지 시 다음 지급 예상액입니다. 이미 누적된 세액과 남은 기간의 행정 성과 감소를 반영합니다. 인구·동원·방침이 바뀌면 이후 구간만 달라집니다.\n30% 초과는 민심 불이익이 더 커집니다. 40% 초과는 민심이 높아도 매월 자유 시민 일부가 떠납니다. 단기 징수액과 이주·인력 유지를 함께 비교하세요.";
 
             L.Line(p, 24, 344, 792);
             L.Label(p, $"<b>병역 제도</b>  병력 상한 {pop.MobilizationLimit(EnemyAlert.CrisisActive)} (지금 출전 {pool.Assigned})", 15, 24, 356, 792, 26);

@@ -20,6 +20,7 @@ namespace AntColony.Buildings
         {
             public List<Meal> meals = new List<Meal>(); public float progress; public bool paid;
             public List<Order> orders = new List<Order>(); public int current = -1; public bool paused, configured;
+            public SoleWorker cook;
             public int staged; // 2026-10-15 요리사가 가져다 놓은 재료(식량). 조리 시작 때 소비, 철거 시 바닥으로
             public FoodLots stagedLots;
             public List<ProductionInputs.Stock> ingredients; public int pending = -1;
@@ -41,6 +42,7 @@ namespace AntColony.Buildings
             new Recipe("밥", ResourceType.CookedRice, 10f, (ResourceType.Rice, 2)),
             new Recipe("납작빵", ResourceType.Flatbread, 12f, (ResourceType.WheatFlour, 1)),
             new Recipe("볶음밥", ResourceType.FriedRice, 18f, (ResourceType.Rice, 2), (ResourceType.SunflowerOil, 1)),
+            SmokedFood,
         };
         public const int Capacity = 30;
         public const float CookSeconds = 20; // 가장 긴 레시피(저장 검증용)
@@ -114,6 +116,7 @@ namespace AntColony.Buildings
             foreach (var input in r.inputs) CampaignHistory.Resource(input.type, input.amount, true, ResourceReason.Crafting);
             // 비용이 낮아진 옛 저장의 초과 도착 재료를 주문 없는 조리대에 가두지 않는다.
             if (inputs.staged.Count > 0) inputs.Drop(Position);
+            meals.cook = new SoleWorker();
             meals.current = o.recipe; meals.progress = 0; meals.pending = -1; CaptureIngredients();
             if (o.mode == Workshop.OrderMode.Count && --o.amount <= 0) meals.orders.Remove(o);
             return true;
@@ -122,23 +125,20 @@ namespace AntColony.Buildings
         {
             if (!NeedsCook || !(seconds > 0) || float.IsInfinity(seconds)) return false;
             if (Current == null && !StartNext()) return false;
+            meals.cook ??= new SoleWorker { mixed = meals.progress > 0 };
+            meals.cook.Note(c.PersonalState.id, c.Traits.Has(CommanderTrait.DiamondCooking));
             var r = Current; var rate = c.WorkRate(CommanderActivity.Cooking); // 요리 기술은 속도만(등급은 레시피)
             var elapsed = Mathf.Min(seconds, (r.seconds - meals.progress) / rate);
             meals.progress += elapsed * rate; c.GainExperience(CommanderActivity.Cooking, elapsed);
             if (meals.progress < r.seconds) return true;
             int skill = Mathf.Clamp(c.Talents.Level(CommanderActivity.Cooking) + c.Traits.CookingBonus, 0, CommanderTalents.MaxLevel);
-            RecordSkill(r.output, skill);
-            AntColony.World.DiplomacyManager.DropFloor(r.output, 1, Position + Vector3.right * 1.5f); // 새 보존 기간으로 바닥에(운반은 따로)
+            var lots = new FoodLots(); lots.Add(1, FoodLots.ShelfLife(r.output), skill + 1, meals.cook.Empowered);
+            AntColony.World.DiplomacyManager.DropFloor(r.output, 1, Position + Vector3.right * 1.5f, lots); // 새 보존 기간으로 바닥에(운반은 따로)
             meals.current = -1; meals.progress = 0;
             return true;
         }
         // 진행 중 조리 취소: 이미 소비한 재료는 돌려주지 않는다. 철거·이동 시작 때도 쓴다.
-        public void CancelCurrent() { meals.current = -1; meals.progress = 0; }
-
-        // 식중독 확률용 요리 기술. ponytail: 요리 종류별 최근 요리사 기술의 이동 평균. 개별 요리마다 기술을 들고 다니게 하려면 FoodLots에 붙인다.
-        private static readonly Dictionary<ResourceType, float> cookedSkill = new Dictionary<ResourceType, float>();
-        private static void RecordSkill(ResourceType t, int skill) { cookedSkill[t] = Mathf.Lerp(SkillOf(t), skill, .3f); }
-        public static int SkillOf(ResourceType t) => cookedSkill.TryGetValue(t, out var skill) ? Mathf.RoundToInt(skill) : 5;
+        public void CancelCurrent() { meals.current = -1; meals.progress = 0; meals.cook = null; }
 
         // 옛 저장의 비축 식사(새 요리는 창고 자원).
         public bool HasMeal => !IsDead && isActiveAndEnabled && meals.meals.Count > 0;
@@ -152,6 +152,7 @@ namespace AntColony.Buildings
             meals.meals.Remove(best); return best;
         }
         public static bool Valid(State state) => state != null && state.meals != null && state.meals.Count <= Capacity
+            && (state.cook == null || state.cook.Valid)
             && ValidIngredients(state)
             && state.staged >= 0 && (state.stagedLots == null || state.stagedLots.Valid && state.stagedLots.Total <= state.staged) && !float.IsNaN(state.progress) && state.progress >= 0 && state.progress < CookSeconds && (state.paid || state.current >= 0 || state.progress == 0)
             && state.current >= -1 && state.current < Recipes.Length && (state.orders == null || state.orders.Count <= Workshop.MaxOrders && state.orders.TrueForAll(o => o != null
