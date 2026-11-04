@@ -43,6 +43,7 @@ namespace AntColony.Save
             try
             {
                 Check(DateTime.TryParse(f.savedAtUtc, out _) && f.camera != null, "save header");
+                Check(Core.ColonyPopulation.ValidNaturalDeaths(f.population), "natural death remainder");
                 ValidateIntegration(f);
                 Check(Core.TalentAssessment.Validate(f.assessment, f.world.transports.Count, f.world.sites.Count), "talent assessment");
                 Check(SaveUnderground.Valid(f), "underground survey");

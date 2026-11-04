@@ -18,6 +18,7 @@ namespace AntColony.Core
         [Serializable] public sealed class State
         {
             public int young, old;
+            public double oldDeathRemainder; // v23 연간 노년 자연사 소수 이월(구저장 0).
             public int agingDue; // 노년 집계에 포함됐지만 풀에서는 복귀 때 제거할 동원·예약 인원.
             public int[] ages; // 0~64세 집계. 65세 이상은 old로 집계한다.
             public float immigrationSeconds, immigrationRemainder, ageSeconds;

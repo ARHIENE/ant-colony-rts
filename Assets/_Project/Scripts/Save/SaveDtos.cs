@@ -331,7 +331,7 @@ namespace AntColony.Save
         public bool loopCompleted, bossDefeated, defeated;
         public string defeatReason; // G11 패배 사유(구저장 없음)
         public string randomState;
-        public const int CurrentVersion = 22;
+        public const int CurrentVersion = 23; // 노년 자연사 이월·문명별 정기 교환 중단은 중첩 상태에 저장.
         public List<World.Corpse.State> corpses = new List<World.Corpse.State>();
         public List<ConstructionAttributionDto> constructionAttribution;
         public List<ConstructionDto> construction; // v17 건설·철거·이동·개보수 예정지(옛 저장은 null = 없음)

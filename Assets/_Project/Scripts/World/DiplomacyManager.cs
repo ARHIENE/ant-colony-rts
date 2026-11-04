@@ -199,7 +199,7 @@ namespace AntColony.World
             if (!c.contacted) return;
             if (c.contacted && !c.war)
             {
-                if (c.HasTreaty(TreatyKind.Trade, Data.elapsed))
+                if (PeriodicTradeEnabled(c, Data.elapsed))
                 {
                     var r = ResourceManager.Instance; var amount = DiplomacyRules.MonthlyTradeAmount;
                     if (r != null && c.resources[1] >= amount && r.GetCapacity(AntColony.Data.ResourceType.Soil) - r.GetAmount(AntColony.Data.ResourceType.Soil) >= amount

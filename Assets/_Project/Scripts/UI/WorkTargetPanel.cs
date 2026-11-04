@@ -181,7 +181,7 @@ namespace AntColony.UI
                 if (UndergroundProduction.IsExtractor(supply.Kind))
                 { status.text = UndergroundProduction.Status(supply); instruction.text = UndergroundProduction.Preview(supply.Kind, supply.Position); }
                 else if (supply.Kind == BuildingKind.OilRefinery)
-                { status.text = supply.RefineryStatus; instruction.text = "제작 담당 + 전력 200W · 원유 1 → 정제유 1 · 기본 작업 5초 · 배관/탱크 출력"; }
+                { status.text = supply.RefineryStatus; instruction.text = "제작 담당 + 전력 200W(원료 대기에도 고정) · 원유 1 → 정제유 1 · 기본 작업 5초 · 배관/탱크 출력"; }
                 else if (supply.Kind == BuildingKind.FuelCharger)
                 { status.text = supply.ContainerStatus; instruction.text = "원유·정제유 드럼통 / 압축 가스 용기 · 용기 배송 후 제작 담당 작업 · 배출하면 빈 용기 반환"; }
                 else if (supply.GasNetwork) instruction.text = "기체 전용 배관/탱크 · 액체와 연결되지 않음";

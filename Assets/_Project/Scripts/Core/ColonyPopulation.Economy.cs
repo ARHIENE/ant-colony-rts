@@ -50,7 +50,18 @@ namespace AntColony.Core
             if (amount > 0 && rm.TrySpend(resource, amount, ResourceReason.Upkeep)) debt = Mathf.Max(0, debt - amount);
         }
 
+        public static string CivicRecoveryText(State state, int food, int soil, int medicine)
+        {
+            int Due(float debt) => Mathf.FloorToInt(debt + .00001f);
+            var requiredFood = Due(state.schoolFoodDebt) + Due(state.clinicFoodDebt);
+            var requiredSoil = Due(state.schoolMaterialDebt);
+            var requiredMedicine = Due(state.clinicMedicineDebt);
+            return $"전체 복구 재고: 식량 {requiredFood}(부족 {Mathf.Max(0, requiredFood - food)}) / 흙 {requiredSoil}(부족 {Mathf.Max(0, requiredSoil - soil)}) / 기초약 {requiredMedicine}(부족 {Mathf.Max(0, requiredMedicine - medicine)})"
+                + "\n종류별 전체 중단 · 매일 아침 재고로 정산 후 재개 · 식량은 학당 먼저 지불";
+        }
+
         public static bool ValidCivicState(State s) => s != null
+            && ValidNaturalDeaths(s)
             && FiniteRange(s.educationBonus, .1f) && FiniteRange(s.educationSeconds, GameCalendar.SecondsPerSeason)
             && FiniteRange(s.schoolFoodDebt, 1e7f) && FiniteRange(s.schoolMaterialDebt, 1e7f)
             && FiniteRange(s.clinicFoodDebt, 1e7f) && FiniteRange(s.clinicMedicineDebt, 1e7f)
