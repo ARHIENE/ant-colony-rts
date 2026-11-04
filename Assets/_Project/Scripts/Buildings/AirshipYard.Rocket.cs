@@ -79,11 +79,13 @@ namespace AntColony.Buildings
             if (!isActiveAndEnabled || IsDead || Phase != RocketPhase.Boarding || !HasLaunchCommander
                 || research == null || research.Departed) return;
             RocketCampaign.Instance?.RecordEnding(this);
+            ClearReservations();
             state.phase = RocketPhase.Launched;
             research.CompleteDeparture(passengers);
         }
         protected override void Die()
         {
+            ClearReservations();
             if (Operating) RocketCampaign.Instance?.RocketDestroyed();
             RecordDestruction();
             state.phase = RocketPhase.Destroyed;

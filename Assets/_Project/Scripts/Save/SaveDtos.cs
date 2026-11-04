@@ -379,6 +379,9 @@ namespace AntColony.Save
     [Serializable]
     public class MonsterDto
     {
+        public int guardVersion;
+        public int guardBoss = -1, guardCycle;
+        public bool guardXpClaimed;
         public AntColony.Boss.AoE.BossAoEState circleAoE, coneAoE, lineAoE;
         public AntColony.Boss.BossEncounter.State bossEncounter; // 구저장 null: 첫 착지 상태
         public string investigationId;

@@ -26,6 +26,9 @@ namespace AntColony.World
 
     [Serializable] public sealed class Civilization
     {
+        public int era = 1;
+        public float eraWork;
+        public bool eraPaid;
         public string id, name, leader;
         public Color color;
         public LeaderAgenda agenda, hiddenAgenda;

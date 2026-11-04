@@ -1,0 +1,45 @@
+using System.Linq;
+using AntColony.Buildings;
+using UnityEngine;
+
+namespace AntColony.Core
+{
+    public sealed partial class ColonyPopulation
+    {
+        public int TemporaryResidents => S.civilianLocations.Where(g => g.temporary && !g.moving && g.sheltered).Sum(g => g.count);
+        public int ExposedResidents => S.civilianLocations.Where(g => !g.sheltered).Sum(g => g.count);
+        public float DisplacementPenalty => LocatedCivilians == 0 ? 0 : -(10f * ExposedResidents + 5f * TemporaryResidents) / LocatedCivilians;
+        public int HousingRoom(Housing home) => Mathf.Max(0, home.Capacity - S.civilianLocations
+            .Where(g => g.housing && (g.position - home.Position).sqrMagnitude < .01f
+                || g.rehousing && (g.housingDestination - home.Position).sqrMagnitude < .01f).Sum(g => g.count));
+        public int BeginRehousing(int sourceId, Housing home)
+        {
+            if (home == null || home.IsDead || !home.isActiveAndEnabled || Buildings.AirshipYard.IsGroupReserved(sourceId)) return 0;
+            int room = HousingRoom(home); if (room == 0) return 0;
+            int id = BeginCivilianEvacuation(sourceId, home.Position, room);
+            var group = S.civilianLocations.Find(g => g.id == id);
+            if (group != null) { group.rehousing = true; group.housingDestination = home.Position; }
+            return id;
+        }
+        public int BeginTemporaryShelter(int sourceId)
+        {
+            if (AirshipYard.IsGroupReserved(sourceId)) return 0;
+            int id = BeginCivilianEvacuation(sourceId, transform.position);
+            var group = S.civilianLocations.Find(g => g.id == id);
+            if (group != null) group.temporary = true;
+            return id;
+        }
+        private void SettleArrivals()
+        {
+            foreach (var group in S.civilianLocations.Where(g => g.arrived && !g.moving))
+            {
+                if (group.temporary) { group.sheltered = true; continue; }
+                if (!group.rehousing) continue;
+                var home = Housing.All.FirstOrDefault(h => h.isActiveAndEnabled && !h.IsDead && (h.Position - group.housingDestination).sqrMagnitude < .01f);
+                group.rehousing = false;
+                if (home == null) continue;
+                group.position = home.Position; group.housing = true; group.sheltered = true; group.arrived = false;
+            }
+        }
+    }
+}

@@ -200,10 +200,15 @@ namespace AntColony.World
                 foreach (var c in Visitor.Crew) if (c != null && c.IsColonyMember) c.OnExpeditionVictory();
             if (Cleared || Colony == null) return;
             growthTimer += Time.deltaTime;
-            if (growthTimer < 60f) return;
-            growthTimer = 0;
-            Colony.AddResources(Colony.RemainingBuildings * 2, Colony.RemainingBuildings);
-            Colony.TryExpand(0, 30, DiplomacyManager.Instance?.Faction(this)?.rebel == true ? 2 : 5, 5);
+            while (growthTimer >= 60f)
+            {
+                growthTimer -= 60f;
+                var faction = DiplomacyManager.Instance?.Faction(this);
+                int era = faction?.era ?? 1, count = Colony.RemainingBuildings;
+                Colony.AddResources(count * 2 * era, count * era);
+                if (faction != null) AIEraProgress.Credit(faction, count);
+                Colony.TryExpand(0, 30, faction?.rebel == true ? 2 : 5, 5);
+            }
         }
 
         private void OnDestroy()

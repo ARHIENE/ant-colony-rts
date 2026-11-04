@@ -103,8 +103,11 @@ namespace AntColony.Units
                 while (talents.combatSeconds >= 10)
                 {
                     talents.combatSeconds -= 10;
-                    if (CombatActivity != CommanderActivity.Command) GainExperience(CombatActivity, CommanderProgression.CombatXpPer10Seconds);
-                    GainExperience(CommanderActivity.Command, CommanderProgression.CombatXpPer10Seconds);
+                    int Budget() => CombatTarget is AntColony.World.WildMonster guard && guard.GuardBoss >= 0
+                        ? CampaignResearch.Instance?.BossProgress.ClaimGuardExperience((AntColony.Boss.BossId)guard.GuardBoss, guard.GuardCycle, CommanderProgression.CombatXpPer10Seconds) ?? 0
+                        : CommanderProgression.CombatXpPer10Seconds;
+                    if (CombatActivity != CommanderActivity.Command) GainExperience(CombatActivity, Budget());
+                    GainExperience(CommanderActivity.Command, Budget());
                 }
             }
             if (TreatmentFacility != null && (!TreatmentFacility.IsTreating(this) || WorkPriorities.Red && !personalState.health.Downed)) TreatmentFacility.Release(this); // 빨간 경보: 움직일 수 있으면 병상에서 나온다

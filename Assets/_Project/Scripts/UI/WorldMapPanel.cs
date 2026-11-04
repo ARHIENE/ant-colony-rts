@@ -340,6 +340,7 @@ namespace AntColony.UI
                 text += $"\n철수 중 · 남은 인원 {w.People} · 짐 {w.Loads} · {(float.IsNaN(w.EstimatedSeconds) ? "이동/구조 대기" : $"약 {w.EstimatedSeconds:0}초")}";
             }
             if (!open) return text;
+            text += "\n" + ship.FoodComparison;
             foreach (var c in crew)
                 text += $"\n  {c.CommanderName}  병력 {c.TroopCount}/{c.CommandLimit} · 체력 {c.PersonalHealth:0} · 기분 {c.Mood:0}"
                     + (c.Health.Injured ? $" · {c.Health.Summary}" : "");

@@ -30,6 +30,7 @@ namespace AntColony.Save
                 file.monsters.Add(Capture(m, SaveReferences.Key(m)));
         }
         private static MonsterDto Capture(WildMonster m, string key) => new MonsterDto { key = key,
+            guardVersion = 1, guardBoss = m != null ? m.GuardBoss : -1, guardCycle = m != null ? m.GuardCycle : 0, guardXpClaimed = m != null && m.GuardXpClaimed,
             investigationId = (m as EnemyCommander)?.InvestigationId,
             health = m != null ? m.CurrentHealth : 0, position = new Vec3Dto(m != null ? m.Position : Vector3.zero),
             hasRuntime = m != null, runtime = m != null ? m.CaptureRuntime() : null, diplomaticFactionId = m?.DiplomaticFactionId,
@@ -74,6 +75,12 @@ namespace AntColony.Save
                 m.gameObject.SetActive(false); m.Agent.enabled = false;
                 m.transform.SetParent(state.parentSite < 0 ? null : world.Sites[state.parentSite].transform, true);
                 m.name = state.name; m.transform.position = d.position.ToVector3();
+                m.GuardBoss = d.guardBoss; m.GuardCycle = d.guardCycle; m.GuardXpClaimed = d.guardXpClaimed;
+                if (m.GuardBoss < 0 && state.name == "보스 호위" && m.GetComponentInParent<BossStronghold>() is BossStronghold stronghold)
+                {
+                    m.GuardBoss = (int)stronghold.Id; m.GuardCycle = CampaignResearch.Instance?.BossProgress.Cycle(stronghold.Id) ?? 0;
+                    m.GuardXpClaimed = true; // 구저장 처치 보상 여부 불명: 소급 지급하지 않는다.
+                }
                 m.transform.rotation = Quaternion.Euler(0, state.rotationY, 0); m.transform.localScale = state.scale.ToVector3();
                 if (state.raider) m.MakeRaider();
                 m.DiplomaticFactionId = d.diplomaticFactionId; m.Temperament = d.temperament; m.HuntDesignated = d.huntDesignated;

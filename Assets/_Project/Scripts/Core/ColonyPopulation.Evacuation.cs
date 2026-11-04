@@ -93,6 +93,7 @@ namespace AntColony.Core
             foreach (var id in new List<int>(civilianViews.Keys))
                 if (!S.civilianLocations.Exists(l => l.id == id && l.count > 0 && (l.moving || l.arrived)))
                 { Destroy(civilianViews[id]); civilianViews.Remove(id); civilianPaths.Remove(id); }
+            SettleArrivals();
             S.civilianLocations.RemoveAll(l => l.count == 0 && !l.housing);
         }
 

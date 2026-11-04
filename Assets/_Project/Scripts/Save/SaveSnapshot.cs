@@ -17,6 +17,7 @@ namespace AntColony.Save
     {
         public static SaveFileV1 Capture()
         {
+            // L2 추가 상태는 campaign/history/diplomacy/population/building 상태와 SaveRuntime에서 함께 캡처한다.
             if (!SaveCatalog.CanSave(out var error)) throw new InvalidOperationException(error);
             SaveReferences.Clear();
             var rm = ResourceManager.Instance;

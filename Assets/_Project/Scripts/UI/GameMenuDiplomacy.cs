@@ -76,7 +76,8 @@ namespace AntColony.UI
             var portrait = L.Box(head, "Portrait", 10, 10, 76, 76, s.color);
             L.Label(portrait, s.name.Substring(0, 1), 30, 0, 0, 76, 76, MenuTheme.AccentInk, TextAnchor.MiddleCenter, true);
             L.Label(head, s.leader, 20, 100, 10, 360, 30, bold: true);
-            L.Label(head, s.name + " 지도자", 12, 100, 40, 360, 20, MenuTheme.Muted);
+            L.Label(head, s.name + " · " + CampaignResearch.EraNames[s.era - 1] + (s.era < 6 ? $" 연구 {s.eraWork:0}/{AIEraProgress.Work(s.era):0}" : " 시대 완료"), 12, 100, 40, 360, 20, MenuTheme.Muted)
+                .gameObject.AddComponent<MenuTooltip>().Message = "세력 공동 연구는 외교 식량·흙 재고에서 비용을 지불합니다. 현장 재고와 별도 생산분이며 연구 후 생산·기존 수비대/침공대 공격·방어가 증가합니다. 전쟁·출정 결정은 기존 규칙을 유지합니다.";
             L.Label(head, $"관계 <b>{(s.war ? "<color=#e8574a>전쟁</color>" : "평화")}</b>     호감도 <b>{s.affinity:+0;-0;0}</b>     전쟁 점수 {s.playerScore} : {s.enemyScore}", 13, 100, 62, 360, 24);
             L.Label(p, "<b>어젠다</b>  <color=#b1b3a7>지도자마다 공개 1 · 숨김 1</color>", 13, 386, 120, 470, 22);
             L.Label(p, "공개  <b>" + DiplomacyRules.AgendaNames[(int)s.agenda] + "</b>", 13, 386, 144, 470, 22);
