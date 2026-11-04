@@ -21,6 +21,7 @@ namespace AntColony.UI
                 AntColony.Core.SceneObjects.Any<WorldMapPanel>()?.Toggle();
 
             var selection = AntColony.Core.SceneObjects.Any<SelectionManager>();
+            ControlGroups.Handle(selection);
             if (selection != null && (KeyBindings.Pressed(GameAction.WeaponSkill) || KeyBindings.Pressed(GameAction.WingSkill)))
             {
                 var commanders = new System.Collections.Generic.List<CommanderAnt>();

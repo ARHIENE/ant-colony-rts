@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using System.Linq;
 using AntColony.Core;
 using AntColony.Save;
 using AntColony.Units;
@@ -14,19 +13,23 @@ namespace AntColony.UI
         private readonly Dictionary<CommanderAnt, int> warned = new Dictionary<CommanderAnt, int>();
         private readonly Dictionary<CommanderAnt, LineRenderer> auras = new Dictionary<CommanderAnt, LineRenderer>();
         private float scan;
+        private readonly List<CommanderAnt> expired = new List<CommanderAnt>();
+        private void Awake() { if (GetComponent<SpeechBubbles>() == null) gameObject.AddComponent<SpeechBubbles>(); }
 
         public static bool HasAura(CommanderAnt c) => c != null && c.transform.Find("BreakAura") is Transform t && t.gameObject.activeSelf;
 
         private void Update()
         {
-            if (SaveSystem.Busy || CommanderRoster.Instance == null) { warned.Clear(); return; }
+            if (SaveSystem.Busy || CommanderRoster.Instance == null) { warned.Clear(); SpeechBubbles.Clear(); return; }
             scan -= Time.unscaledDeltaTime; if (scan > 0) return; scan = .5f;
             Scan();
         }
 
         public void Scan()
         {
-            foreach (var c in warned.Keys.Where(c => c == null).ToArray()) warned.Remove(c);
+            expired.Clear();
+            foreach (var c in warned.Keys) if (c == null) expired.Add(c);
+            foreach (var c in expired) warned.Remove(c);
             foreach (var c in CommanderRoster.Instance.Commanders)
             {
                 if (c == null) continue;
@@ -37,9 +40,12 @@ namespace AntColony.UI
                     && GameSession.Exists && GameSession.Instance.GameStarted)
                 {
                     warned[c] = level;
-                    var cause = c.PersonalState.moodFactors.Where(f => f.value < 0).OrderBy(f => f.value).FirstOrDefault()?.reason ?? "부정 요인 없음";
+                    var cause = "부정 요인 없음";
+                    float worst = 0;
+                    foreach (var f in c.PersonalState.moodFactors) if (f.value < worst) { worst = f.value; cause = f.reason; }
+                    SpeechBubbles.Say(c, "버티기 힘들어 · " + SpeechBubbles.MoodReason(c, cause), 2);
                     var remaining = Mathf.Max(0, SocialRules.Month - c.PersonalState.lowMoodSeconds);
-                    ToastManager.Show($"기분 {new[] { "", "주의", "위험", "위급" }[level]}: {c.CommanderName} ({c.Mood:0}) — {cause} · 붕괴 분당 {c.BreakChance:P0} · 이탈까지 {remaining:0}초" + (!c.IsAwayFromHome && c.PersonalState.rewardCooldown <= 0 ? " · 장수 상세에서 포상(식량 30) 가능" : ""), ToastKind.Warning);
+                    ToastManager.Show($"기분 {new[] { "", "주의", "위험", "위급" }[level]}: {c.CommanderName} ({c.Mood:0}) — {SpeechBubbles.MoodReason(c, cause)} · 붕괴 분당 {c.BreakChance:P0} · 이탈까지 {remaining:0}초" + (!c.IsAwayFromHome && c.PersonalState.rewardCooldown <= 0 ? " · 장수 상세에서 포상(식량 30) 가능" : ""), ToastKind.Warning);
                     FirstHints.Trigger("collapse");
                 }
                 else if (!alert || level == 0) warned.Remove(c);

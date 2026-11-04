@@ -96,7 +96,7 @@ public static class ImplB6Checks
             Check(CampaignResearch.Validate(rs, out _), "nested campaign state validates");
             research.RestoreState(JsonUtility.FromJson<CampaignResearch.State>(JsonUtility.ToJson(rs)));
             Check(research.HasSample(AntColony.Data.ResourceType.IronOre) && research.BossProgress.Cargo.Count == 1, "campaign JSON roundtrip");
-            Check(BossProgress.Hazard(BossId.B).Contains("열") && BossProgress.Reward(BossId.D).Contains("로켓"), "hazard/reward guide");
+            Check(BossProgress.Hazard(BossId.C).Contains("열") && BossProgress.Hazard(BossId.B).Contains("호위") && BossProgress.Reward(BossId.D).Contains("로켓"), "hazard/reward guide");
             CheckConsumption(research);
             CheckCrafting();
             CheckCarriers(research);

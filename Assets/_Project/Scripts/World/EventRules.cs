@@ -5,6 +5,7 @@ namespace AntColony.World
     public enum ColonyEvent { Cold, Flood, Drought, Wildfire, Mold, Wasps, Wanderer, Driftwood, Harvest, Migration, Caravan }
     public static class EventRules
     {
+        public static bool RecoveryNeeded(int commanders, int patients) => commanders > 0 && patients >= commanders;
         public const float CheckSeconds = 150, MinimumGap = 60, Cooldown = 600;
         public const float ColdSeconds = 90, FloodSeconds = 60, DroughtSeconds = 120;
         public const float ColdMovePenalty = .25f, ColdGatherPenalty = .2f;

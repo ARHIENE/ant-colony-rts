@@ -32,6 +32,15 @@ namespace AntColony.World
         public float ColdRemaining => state.cold;
         public float FloodRemaining => state.flood;
         public float DroughtRemaining => state.drought;
+        // 본거지 전원이 행동 불능이면 새 위기를 보류한다. 이미 발생한 피해·적·기후는 계속 진행한다.
+        public static bool RecoveryGrace
+        {
+            get
+            {
+                var home = HomeCommanders().Where(c => !c.IsCaptive && c.IsColonyMember).ToArray();
+                return EventRules.RecoveryNeeded(home.Length, home.Count(c => c.PersonalHealth <= 0 || c.Health.Downed));
+            }
+        }
         public static bool ProductionBlocked => AntColony.Core.SceneObjects.All<EventActor>().Any(a => a.Kind == EventActorKind.Wasp && a.Alive);
         public static float MoveMultiplier(CommanderAnt c) => Instance != null && Instance.state.cold > 0 && !c.IsAwayFromHome
             ? 1 - EventRules.ColdMovePenalty * ScienceEffects.ColdEffectMultiplier : 1;
@@ -83,6 +92,7 @@ namespace AntColony.World
         private static ResourceNode[] Farms() => AntColony.Core.SceneObjects.All<ResourceNode>()
             .Where(n => n.RegrowSeconds > 0 && n.GetComponent<BuildingBase>() != null && Home(n.transform.position)).ToArray();
         public bool Eligible(ColonyEvent e) => Enum.IsDefined(typeof(ColonyEvent), e) && state.cooldowns[(int)e] == 0
+            && ((int)e > (int)ColonyEvent.Wasps || !RecoveryGrace)
             && !(RocketCampaign.SuppressNewCrises && (int)e <= (int)ColonyEvent.Wasps)
             && EventRules.InSeason(e, GameCalendar.CurrentSeason) && (e switch
             {
@@ -158,7 +168,7 @@ namespace AntColony.World
         public bool SpawnNightPredators()
         {
             state.lastNight = GameCalendar.Day;
-            if (RocketCampaign.SuppressNewCrises) return false;
+            if (RocketCampaign.SuppressNewCrises || RecoveryGrace) return false;
             if (!TryEdge(out var point)) return false;
             for (int i = 0; i < EventRules.NightPredators; i++) EventActor.Spawn(new EventActor.State { kind = EventActorKind.NightPredator,
                 position = new Vec3Dto(point + Vector3.right * i * 1.5f), amount = EventRules.NightPredatorHealth });

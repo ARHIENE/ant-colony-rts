@@ -11,7 +11,7 @@ namespace AntColony.Core
     public enum ResourceReason { Gathering, Construction, Research, Upkeep, Expedition, Trade, Crafting, Production, Treatment, Reward, Refund, Other, Tax }
 
     // 최근 알림과 엔딩용 누적 기록은 별도 보관한다. 복원 중의 생성/반납은 기록하지 않는다.
-    public sealed class CampaignHistory : MonoBehaviour
+    public sealed partial class CampaignHistory : MonoBehaviour
     {
         [Serializable] public class Entry { public float seconds; public string kind, name, result; }
         [Serializable] public class Summary { public string kind; public long count; public float first, last; }
@@ -74,13 +74,7 @@ namespace AntColony.Core
             s.summaries ??= new List<Summary>();
             if (s.milestones.Count <= 2000) return;
             int count = s.milestones.Count - 1500;
-            foreach (var e in s.milestones.Take(count))
-            {
-                var a = s.summaries.Find(a => a.kind == e.kind);
-                if (a == null) { a = new Summary { kind = e.kind, first = e.seconds, last = e.seconds }; s.summaries.Add(a); }
-                a.count++; a.first = Math.Min(a.first, e.seconds); a.last = Math.Max(a.last, e.seconds);
-            }
-            s.milestones.RemoveRange(0, count);
+            CompactStories(s, count);
         }
     }
 }

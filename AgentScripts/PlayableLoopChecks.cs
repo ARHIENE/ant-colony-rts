@@ -66,7 +66,7 @@ public static class PlayableLoopChecks
             Object.FindAnyObjectByType<UpkeepManager>().enabled = false;
             Object.FindAnyObjectByType<LocalIncursions>().enabled = false;
             var progress = Object.FindAnyObjectByType<BetaProgress>();
-            Check(progress.CurrentObjective.Contains("/60마리"), "objective shows live population requirement");
+            Check(!string.IsNullOrEmpty(progress.CurrentObjective), "objective shown"); // 2026-11-01: 인구 조건 삭제(인구 제한 없음) 반영
             var commander = CommanderRoster.Instance.Commanders[0];
             foreach (var c in CommanderRoster.Instance.Commanders)
             {

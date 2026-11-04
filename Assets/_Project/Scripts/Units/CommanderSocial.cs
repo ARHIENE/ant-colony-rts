@@ -75,10 +75,12 @@ namespace AntColony.Units
             var relation = personalState.relations.Find(r => r.otherId == id);
             if (relation?.spouse == true) relation.widowedAt = GameCalendar.GameSeconds;
             personalState.AddMood("DeathEvent:" + id, relation?.spouse == true ? -30 : relation?.value >= SocialRules.Friend ? -15 : -10, GameCalendar.SecondsPerDay * 2);
+            TellStory(victimName + " 사망 · " + (relation?.spouse == true ? "배우자를 잃음" : relation?.value >= SocialRules.Friend ? "친구를 잃음" : "동료를 잃음"), victimName + "… 그리울 거야", 2);
             return true;
         }
         public void NotifyDowned(bool fatal, string cause)
         {
+            if (!fatal) TickPersonalStory(true);
             foreach (var c in SocialRoster.Where(c => c != this && c.IsColonyMember))
             {
                 if (fatal && !c.RecordDeathMood(personalState.id, commanderName)) continue;

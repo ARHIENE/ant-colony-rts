@@ -69,6 +69,7 @@ namespace AntColony.Units
             MigrateAge(personalState);
             personalState.health ??= new HealthState(); MedicalRules.Migrate(personalState); // 옛 6부위 부상·곰팡이 → 부위별 건강(2026-10-15)
             RefreshEquipment();
+            storyInjuryActive = personalState.HasSeriousInjury || Health.Downed || PersonalHealth <= 0;
         }
         // 미관·온도(2026-10-10): 잠·식사·작업 중인 실제 생활 공간만 본다. 미관은 체류 평균이라 잠깐 지나가도 급변하지 않고 상하한이 있다.
         private float spaceTimer;
@@ -116,6 +117,7 @@ namespace AntColony.Units
             MedicalRules.Tick(personalState.health, seconds, personalState.treating || PersonalHealth <= 0, CommanderDeathRuntime.Mode == CommanderDeathMode.Gentle);
             TickInfection(seconds);
             TickHealthState(seconds);
+            TickPersonalStory();
             if (IsDead) return;
             personalState.Tick(seconds, traits);
             var travelling = Transport != null && (Transport.State == AntColony.World.ExpeditionState.Outbound
@@ -239,17 +241,6 @@ namespace AntColony.Units
             WorkState.health = 0; WorkState.unconsciousSeconds = 0; WorkState.recoverySeconds = fatal ? 0 : GameCalendar.SecondsPerDay;
             AntColony.World.DiplomacyManager.Instance?.CommanderDowned(transform.position);
             NotifyDowned(fatal, cause);
-            foreach (var c in CommanderRoster.Instance != null ? CommanderRoster.Instance.Commanders : Active.OfType<CommanderAnt>().ToArray())
-            {
-                if (fatal || c == this || c.IsDead || c.Traits.Has(CommanderTrait.ColdBlooded)) continue;
-                var relation = c.PersonalState.relations.Find(r => r.otherId == personalState.id);
-                var friend = relation != null && relation.value >= 40;
-                if (fatal || (c.Position - Position).sqrMagnitude <= 144)
-                    c.PersonalState.AddMood((fatal ? "Death: " : "Downed: ") + commanderName,
-                        (fatal ? relation?.spouse == true ? -30 : friend ? -15 : -10 : friend ? -15 : c.Traits.Has(CommanderTrait.Coward) ? -16 : -8)
-                            * (c.Traits.Has(CommanderTrait.Undertaker) ? .5f : 1),
-                        fatal ? relation?.spouse == true ? 600 : 300 : 180);
-            }
             if (fatal)
             {
                 LoseBossCargo();
@@ -273,9 +264,10 @@ namespace AntColony.Units
         }
         private void TickRelations(float seconds)
         {
+            if (PersonalHealth <= 0 || Health.Downed) return;
             foreach (var other in Active.OfType<CommanderAnt>().ToArray())
             {
-                if (other == this || !other.IsColonyMember || other.IsEmbarked || other.IsCaptive) continue;
+                if (other == this || !other.IsColonyMember || other.IsEmbarked || other.IsCaptive || other.PersonalHealth <= 0 || other.Health.Downed) continue;
                 var relation = personalState.Relation(other.PersonalState.id);
                 var distance = (other.Position - Position).sqrMagnitude;
                 bool workingTogether = distance <= 64 && CurrentActivity == other.CurrentActivity
@@ -289,8 +281,10 @@ namespace AntColony.Units
                     while (relation.nearbySeconds >= 60)
                     {
                         relation.nearbySeconds -= 60;
+                        var before = relation.value;
                         relation.value = Mathf.Min(100, relation.value + 2 * (traits.Has(CommanderTrait.Sociable) ? 1.5f : traits.Has(CommanderTrait.ColdBlooded) ? .5f : 1)
                             * (other.Traits.Has(CommanderTrait.Undertaker) ? .8f : 1));
+                        RecordRelationMilestone(other, before, relation.value);
                     }
                 }
                 // 한 쌍을 한 번만 판정한다. 양쪽 관계와 손실을 같은 순간에 적용한다.
@@ -303,7 +297,12 @@ namespace AntColony.Units
                 while (relation.quarrelSeconds >= SocialRules.Month)
                 {
                     relation.quarrelSeconds -= SocialRules.Month;
-                    if (Random.value < .1f) { ChangeRelation(other, -10); CampaignHistory.Record("말다툼", commanderName, other.commanderName, true); }
+                    if (Random.value < .1f)
+                    {
+                        ChangeRelation(other, -10); CampaignHistory.Record("말다툼", commanderName, other.commanderName, true);
+                        TellStory(other.CommanderName + "와 말다툼", "말이 안 통하네", 1);
+                        other.TellStory(CommanderName + "와 말다툼", "왜 그렇게 말해?", 1);
+                    }
                 }
                 relation.duelSeconds = distance <= 100 && relation.value <= -60 && other.personalState.Relation(personalState.id).value <= -60
                     && HasTroops && other.HasTroops ? relation.duelSeconds + seconds : 0;
@@ -324,8 +323,10 @@ namespace AntColony.Units
         }
         private void ChangeRelation(CommanderAnt other, float delta)
         {
-            var a = personalState.Relation(other.personalState.id); a.value = Mathf.Clamp(a.value + delta, -100, 100);
-            var b = other.personalState.Relation(personalState.id); b.value = Mathf.Clamp(b.value + delta, -100, 100);
+            var a = personalState.Relation(other.personalState.id); var before = a.value;
+            a.value = Mathf.Clamp(a.value + delta, -100, 100); RecordRelationMilestone(other, before, a.value);
+            var b = other.personalState.Relation(personalState.id); before = b.value;
+            b.value = Mathf.Clamp(b.value + delta, -100, 100); other.RecordRelationMilestone(this, before, b.value);
         }
         private void Duel(CommanderAnt other)
         {

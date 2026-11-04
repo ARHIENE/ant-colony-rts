@@ -88,7 +88,7 @@ namespace AntColony.UI
             L.Label(p, "주력 " + AIEraMilitary.Summary(s.era) + $"\n소굴 방어 {AIEraMilitary.DefenseGrade(s.era)}등급 · 장갑 {AIEraMilitary.DefenseArmor(s.era)} · 장비 재고 {s.equipment.Count}", 12, 386, 242, 470, 42, MenuTheme.Muted)
                 .gameObject.AddComponent<MenuTooltip>().Message = "새 병력은 모집비에 기본 장비가 포함됩니다. 현장 수비대 교체품은 병기 공방의 실물 장비 재고에서 가져옵니다. 장비 교체 전 병력은 이전 시대 전력 유지, 부상 회복 없음. 원거리는 근접 압박 시 짧게 거리를 벌립니다. 처치 시 장착 장비를 바닥에 남깁니다.\n"
                     + string.Join("\n", WorldMapManager.Instance.Sites.Where(site => d.Faction(site) == s && site.Colony != null)
-                        .Select(site => site.Title + ": " + AIIndustry.Summary(site.Colony, s.era)));
+                        .Select(site => SiteNames.Name(site) + ": " + AIIndustry.Summary(site.Colony, s.era)));
             var reasons = L.List(p, 386, 290, 470, 372, 2);
             foreach (var reason in Enumerable.Reverse(s.reasons)) MenuTheme.Text(reasons, reason, 12, 20).color = MenuTheme.Muted;
 
@@ -112,7 +112,11 @@ namespace AntColony.UI
             { var b = L.Button(p, name, label, 872, y, 460, 40, action); b.interactable = enabled; y += 46; return b; }
             Act("선전포고", "선전포고", () => { if (!d.DeclareWar(s)) ToastManager.Show("불가침 협정 중에는 선전포고할 수 없습니다."); Diplomacy(s); }, !s.war)
                 .GetComponentInChildren<Text>().color = MenuTheme.Danger;
-            Act("평화 협상", "평화 협상 · 배상 식량 " + d.Reparations(s), () => { if (!d.MakePeace(s)) ToastManager.Show("선전포고 후 10분 및 양쪽의 배상 자원을 확인하세요. 받는 배상금의 창고 초과분은 바닥에 둡니다."); Diplomacy(s); }, d.CanNegotiatePeace(s));
+            var peace = Act("평화 협상", DiplomacyPlanning.PeaceLabel(s, d.Data.elapsed), () => { if (!d.MakePeace(s)) ToastManager.Show("선전포고 후 10분 및 양쪽의 배상 자원을 확인하세요. 받는 배상금의 창고 초과분은 바닥에 둡니다."); Diplomacy(s); }, d.CanNegotiatePeace(s));
+            refreshDutyScreen += () => {
+                peace.GetComponentInChildren<Text>().text = DiplomacyPlanning.PeaceLabel(s, d.Data.elapsed);
+                peace.interactable = d.CanNegotiatePeace(s);
+            };
             Act("거래 제안", "거래 제안", () => OpenTrade(s), !s.war);
             Act("협정 제안", "협정 제안", () => { tradeTab = 4; OpenTrade(s); }, !s.war);
             Act("요구", "요구 · 최후통첩", () => { tradeTab = 0; OpenTalk(d.StartTalk(s, TalkKind.Demand)); }, !s.war);
