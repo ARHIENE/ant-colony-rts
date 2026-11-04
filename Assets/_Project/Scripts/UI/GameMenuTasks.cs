@@ -22,7 +22,7 @@ namespace AntColony.UI
             .Concat(SupplyFacility.All.Where(s => s.Kind == BuildingKind.FuelCharger && s.Supply.containerOrders > 0))
             .Concat(AntColony.World.ResourceNode.Available.Where(n => n != null && n.NeedsDesignation && n.WorkRequested));
 
-        private static string TaskName(Component c) => c is AntColony.World.ResourceNode n ? n.ResourceType.DisplayName() + " " + n.WorkName : c is BuildingConstructionSite s ? s.name.Replace("ConstructionSite", " 건설 예정지") : c is Kitchen k ? k.Data.displayName + " 요리" : c is BuildingBase b ? b.Data.displayName : c.name;
+        private static string TaskName(Component c) => c is AntColony.World.ResourceNode n ? n.ResourceType.DisplayName() + " " + n.WorkName : c is BuildingConstructionSite s ? DisplayNames.Target(s) : c is Kitchen k ? k.Data.displayName + " 요리" : c is BuildingBase b ? b.Data.displayName : c.name;
         private static string TaskWait(Component c) => AntColony.Core.WorkDiagnostics.Describe(c);
         private static bool TaskPaused(Component c) => c is SupplyFacility f ? f.Paused : c is Processor p ? p.Paused : c is Workshop w ? w.Paused : c is AntColony.World.ResourceNode n ? n.WorkPaused : c is BuildingConstructionSite s ? s.Paused : c is Kitchen k && k.Paused;
         private static void TaskPause(Component c, bool on) { if (c is SupplyFacility f) f.PauseContainers(on); else if (c is Processor p) p.Paused = on; else if (c is Workshop w) w.Paused = on; else if (c is AntColony.World.ResourceNode n) n.PauseWork(on); else if (c is BuildingConstructionSite s) s.SetPaused(on); else if (c is Kitchen k) k.Paused = on; }
@@ -32,7 +32,7 @@ namespace AntColony.UI
         private static IEnumerable<CommanderAnt> TaskCrew(Component c) => c is BuildingConstructionSite s ? s.Builders.Concat(s.Couriers).Distinct()
             : AntUnitBase.Active.OfType<CommanderAnt>().Where(x => x.ServiceTarget == (Object)c || x.CurrentResourceNode == c || x.CraftingWorkshop == c || x.DeliverySite is Component sink && sink == c);
         private static string TaskAmounts(Component c) => c is BuildingConstructionSite s
-            ? string.Join(" · ", s.Needs.Select(n => $"{n.type.DisplayName()} 필요 {n.need}/예약 {n.reserved + s.InTransit(n.type)}/도착 {n.delivered}"))
+            ? string.Join(" · ", s.Needs.Select(n => $"{n.type.DisplayName()} 필요 {n.need}/배송 예정 {n.reserved + s.InTransit(n.type)}/도착 {n.delivered}"))
             : c is SupplyFacility f ? $"남은 용기 {f.Supply.containerOrders}개 · 작업 {f.Supply.work:0.#}/{SupplyFacility.ProcessSeconds:0}초"
             : c is Processor p && p.Current != null ? $"{p.Current.name} {p.Progress:P0}"
             : c is Workshop w && w.Jobs.Count > 0 ? $"제작 대기 {w.Jobs.Count}건 · 진행 {w.Jobs[0].work:0}"

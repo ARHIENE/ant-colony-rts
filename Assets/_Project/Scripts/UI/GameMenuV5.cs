@@ -68,10 +68,10 @@ namespace AntColony.UI
             }
             if (orderMode == AntColony.Buildings.Workshop.OrderMode.Forever)
             {
-                MenuTheme.Text(content, "재료가 있는 동안 계속 생산합니다.", 15, 32);
+                MenuTheme.Text(content, "재료가 있는 동안 반복 생산합니다. 재료가 떨어지면 대기하며 목록은 유지됩니다.", 15, 32);
                 return;
             }
-            MenuTheme.Text(content, orderMode == AntColony.Buildings.Workshop.OrderMode.Count ? "만들 수량" : "목표 재고", 15, 28);
+            MenuTheme.Text(content, orderMode == AntColony.Buildings.Workshop.OrderMode.Count ? "만들 횟수 (묶음 수)" : "목표 재고 (완성품 수)", 15, 28);
             var amountRow = L.Cell(content, "ProductionAmount", 44);
             var input = MenuTheme.Input(amountRow, orderAmount.ToString());
             input.name = "OrderAmount";

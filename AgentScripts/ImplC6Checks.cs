@@ -93,19 +93,19 @@ public static class ImplC6Checks
             Check(SaveFileV1.CurrentVersion == 19, "v19 retained");
             Check(SaveValidator.TryParse(JsonUtility.ToJson(f), out var parsed, out var error), "JsonUtility full snapshot: " + error);
             Check(parsed.buildings.Where(b => b.kind != "AirshipYard").All(b => b.airship == null), "unrelated inline airships discarded by kind");
-            Invalid(f, x => x.farmSeeds.counts = new[] { 1, 2 }, "farm seeds");
-            Invalid(f, x => x.farmSeeds.collected.Add("wild:one"), "farm seeds");
-            Invalid(f, x => Find(x, "Farm").farm.harvests = 3, "farm state");
-            Invalid(f, x => Find(x, "Farm").farm.seedVersion = 2, "farm state");
-            Invalid(f, x => Find(x, "Farm").farm.nextCrop = 99, "farm state");
-            Invalid(f, x => Find(x, "Workshop").workshop.materialVersion = 2, "craft material version");
-            Invalid(f, x => Find(x, "Workshop").workshop.jobs[0].materialsPaid = false, "craft payment");
-            Invalid(f, x => Find(x, "Carpentry").processor.progress = float.NaN, "processor state");
-            Invalid(f, x => Find(x, "Carpentry").health = 1, "processor state");
-            Invalid(f, x => Find(x, "Carpentry").processor.orders.Add(new Processor.Order { recipe = 99 }), "processor orders");
-            Invalid(f, x => Find(x, "FluidTank").supply.amount = SupplyFacility.Capacity + 1, "supply facility");
-            Invalid(f, x => Find(x, "StarterMushroomBed").starterCrop.wateredSeconds = float.PositiveInfinity, "starter crop");
-            Invalid(f, x => x.rocket.crisisResumeAt = x.gameSeconds + 3 * GameCalendar.SecondsPerDay + 1, "rocket crisis grace");
+            Invalid(f, x => x.farmSeeds.counts = new[] { 1, 2 }, "작물 종자");
+            Invalid(f, x => x.farmSeeds.collected.Add("wild:one"), "작물 종자");
+            Invalid(f, x => Find(x, "Farm").farm.harvests = 3, "밭 상태");
+            Invalid(f, x => Find(x, "Farm").farm.seedVersion = 2, "밭 상태");
+            Invalid(f, x => Find(x, "Farm").farm.nextCrop = 99, "밭 상태");
+            Invalid(f, x => Find(x, "Workshop").workshop.materialVersion = 2, "제작 재료 형식 버전");
+            Invalid(f, x => Find(x, "Workshop").workshop.jobs[0].materialsPaid = false, "제작 재료 소비");
+            Invalid(f, x => Find(x, "Carpentry").processor.progress = float.NaN, "가공대 상태");
+            Invalid(f, x => Find(x, "Carpentry").health = 1, "가공대 상태");
+            Invalid(f, x => Find(x, "Carpentry").processor.orders.Add(new Processor.Order { recipe = 99 }), "가공 생산 지시");
+            Invalid(f, x => Find(x, "FluidTank").supply.amount = SupplyFacility.Capacity + 1, "공급 시설");
+            Invalid(f, x => Find(x, "StarterMushroomBed").starterCrop.wateredSeconds = float.PositiveInfinity, "기초 작물");
+            Invalid(f, x => x.rocket.crisisResumeAt = x.gameSeconds + 3 * GameCalendar.SecondsPerDay + 1, "최종 공세 재개 유예");
             var legacy = Copy(f); legacy.rocket = null; legacy.farmSeeds = null; legacy.world.pause = null;
             Check(SaveValidator.TryParse(JsonUtility.ToJson(legacy), out _, out error), "legacy null inline states: " + error);
 
@@ -116,12 +116,12 @@ public static class ImplC6Checks
             var transport = f.world.transports.Last(); transport.bossCarrierId = "c6-carrier"; transport.foodDebt = .75f; transport.dockingRemaining = .5f;
             f.campaign.bosses.obtained[0] = true; f.campaign.bosses.claimed[0] = 0;
             f.campaign.bosses.cargo.Add(new BossProgress.Parcel { id = "c6-parcel", carrier = "c6-carrier", boss = 0, cycle = 0, count = 2 });
-            Invalid(f, x => x.world.transports.Add(Copy(x.world.transports.Last())), "boss carrier identity");
-            Invalid(f, x => x.campaign.bosses.cargo[0].carrier = "missing", "boss cargo carrier");
-            Invalid(f, x => x.world.transports.Last().cargoFood = GameBalance.VehicleCargo - 1, "boss inclusive cargo capacity");
-            Invalid(f, x => { x.campaign.bosses.cargo.Clear(); x.world.transports.Last().foodDebt = float.NaN; }, "expedition state"); // 핵심물 적재 초과가 먼저 걸리지 않게 비운다
-            Invalid(f, x => { x.campaign.bosses.cargo.Clear(); x.world.transports.Last().dockingRemaining = ExpeditionRules.DockSeconds + 1; }, "expedition state");
-            Invalid(f, x => { x.campaign.bosses.cargo.Clear(); x.world.transports.Last().walking = true; x.world.transports.Last().aircraft = true; }, "expedition state");
+            Invalid(f, x => x.world.transports.Add(Copy(x.world.transports.Last())), "보스 핵심물 운반자 식별자");
+            Invalid(f, x => x.campaign.bosses.cargo[0].carrier = "missing", "보스 핵심물 운반자");
+            Invalid(f, x => x.world.transports.Last().cargoFood = GameBalance.VehicleCargo - 1, "보스 핵심물 포함 적재 한도");
+            Invalid(f, x => { x.campaign.bosses.cargo.Clear(); x.world.transports.Last().foodDebt = float.NaN; }, "원정 상태"); // 핵심물 적재 초과가 먼저 걸리지 않게 비운다
+            Invalid(f, x => { x.campaign.bosses.cargo.Clear(); x.world.transports.Last().dockingRemaining = ExpeditionRules.DockSeconds + 1; }, "원정 상태");
+            Invalid(f, x => { x.campaign.bosses.cargo.Clear(); x.world.transports.Last().walking = true; x.world.transports.Last().aircraft = true; }, "원정 상태");
             var oldCarrier = Copy(f); oldCarrier.world.transports.Last().bossCarrierId = null;
             oldCarrier.campaign.bosses.cargo[0].carrier = "transport:" + (oldCarrier.world.transports.Count - 1);
             Check(SaveValidator.Validate(oldCarrier, out error), "legacy carrier index: " + error);
@@ -134,8 +134,8 @@ public static class ImplC6Checks
             pad.airship = new AirshipYard.State { hull = true, engine = true, phase = RocketPhase.Preparing,
                 preparationRemaining = AirshipYard.PreparationSeconds - 1, fuelType = (int)AntColony.Data.ResourceType.Special, fuelUnits = 15,
                 snapshot = economy.Preview(f.gameSeconds, 100, 2) };
-            Invalid(f, x => Find(x, "AirshipYard").airship.launchRequested = true, "rocket launch passengers");
-            Invalid(f, x => Find(x, "AirshipYard").airship.snapshot.taken = false, "airship");
+            Invalid(f, x => Find(x, "AirshipYard").airship.launchRequested = true, "로켓 발사 탑승자");
+            Invalid(f, x => Find(x, "AirshipYard").airship.snapshot.taken = false, "로켓");
             var actual = await Load(f);
             Check(Find(actual, "Carpentry").health == 0 && Find(actual, "Carpentry").processor.ruined
                 && Find(actual, "Carpentry").processor.makerId == "departed-maker", "ruin and absent maker restored");

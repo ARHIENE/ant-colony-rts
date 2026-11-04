@@ -19,9 +19,9 @@ namespace AntColony.UI
             var f = Frame("작업표");
             var p = L.Plate(f, "WorkSchedule", 180, 100, 1080, 650);
             L.Label(p, "작업표", 20, 12, 10, 88, 34, MenuTheme.TextColor, bold: true);
-            L.Label(p, "좌클릭 +1 · 우클릭 −1 · 0 = 금지 · 우선순위 1~9(기본 5 · 소화 9)", 12, 112, 10, 900, 34, MenuTheme.Muted);
+            L.Label(p, "좌클릭 +1 · 우클릭 −1 · — = 금지 · 1~9는 우선순위 · 아래 숫자=기술, ♥=열정", 12, 112, 10, 900, 34, MenuTheme.Muted);
             L.Line(p, 0, 54, 1080);
-            L.Label(p, "높은 숫자부터, 같으면 대상 우선순위 → 실제 거리 → 오래 기다린 요청 순입니다. 진행 중인 작업은 마친 뒤 적용합니다.", 12, 24, 64, 1032, 32, MenuTheme.Muted);
+            L.Label(p, "높은 숫자 우선 · 동률은 대상 우선순위→거리→대기 순. 진행 작업은 마친 뒤 적용. 자연물은 별도 지정 필요.", 12, 24, 64, 1032, 32, MenuTheme.Muted);
             L.Label(p, "장수 / 현재 상태", 14, 24, 110, 210, 32);
             for (var i = 0; i < DutyJobs.Length; i++) L.Label(p, DutyNames[i], 13, 244 + i * 49, 110, 49, 32);
             var list = L.List(p, 24, 148, 1032, 426);

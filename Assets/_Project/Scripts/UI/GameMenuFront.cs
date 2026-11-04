@@ -50,7 +50,7 @@ namespace AntColony.UI
             (DateTime.TryParse(s.SavedAtUtc, null, System.Globalization.DateTimeStyles.RoundtripKind, out var t) ? t.ToLocalTime().ToString("yyyy-MM-dd HH:mm") : "")
             + $" · 플레이 {Mathf.FloorToInt(s.PlaySeconds / 60f)}분";
         private static string SlotDesc(SaveSlots.SlotInfo s) => !s.Exists ? "빈 슬롯 · 새 저장을 만들 수 있음"
-            : !s.Valid ? "손상됨: " + s.Error : SlotTime(s) + "\n" + s.Label;
+            : !s.Valid ? "손상됨: " + s.Error : SlotTime(s) + "\n" + DisplayNames.SaveLabel(s.Label);
         private static string SlotName(SaveSlots.SlotInfo s) => s.Auto ? $"자동 저장 {s.Index + 1}" : $"수동 {s.Index + 1}";
         private static void LoadSlot(SaveSlots.SlotInfo slot)
         {

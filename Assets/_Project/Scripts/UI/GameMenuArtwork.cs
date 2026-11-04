@@ -20,7 +20,7 @@ namespace AntColony.UI
             foreach (var artwork in d.GiftArtworks)
             {
                 var a = artwork;
-                MenuTheme.Button(list, (giftArtwork == a ? "선택됨 · " : "작품 선택 · ") + a.name + " · " + a.ArtistId, () => { giftArtwork = a; ArtworkDiplomacy(); });
+                MenuTheme.Button(list, (giftArtwork == a ? "선택됨 · " : "작품 선택 · ") + a.Data.displayName + " · " + a.ArtistId, () => { giftArtwork = a; ArtworkDiplomacy(); });
             }
             if (!d.GiftArtworks.Any()) MenuTheme.Text(list, "전 과정을 화룡 보유자가 제작한 걸작(품질3)이 없습니다.", 13, 28);
             foreach (var civ in d.Data.civilizations.Where(c => !c.extinct))

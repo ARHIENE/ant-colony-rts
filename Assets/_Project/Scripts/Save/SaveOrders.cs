@@ -62,15 +62,15 @@ namespace AntColony.Save
             if (keys.TryGetValue(c, out var key)) return key;
             foreach (var component in c.GetComponents<Component>())
                 if (keys.TryGetValue(component, out key)) return key;
-            throw new InvalidOperationException("Unregistered save target: " + c.name + " / " + c.GetType().Name);
+            throw new InvalidOperationException("저장 대상 미등록: " + c.name + " / " + c.GetType().Name);
         }
         internal static T Get<T>(string key) where T : class
         {
             if (string.IsNullOrEmpty(key)) return null;
-            if (!objects.TryGetValue(key, out var c)) throw new InvalidOperationException("Missing save target: " + key);
+            if (!objects.TryGetValue(key, out var c)) throw new InvalidOperationException("저장 대상 누락: " + key);
             if (c == null) return null;
             var target = c as T ?? c.GetComponent(typeof(T)) as T;
-            if (target == null) throw new InvalidOperationException("Wrong saved target type: " + key + " / " + typeof(T).Name);
+            if (target == null) throw new InvalidOperationException("저장 대상 종류 불일치: " + key + " / " + typeof(T).Name);
             return target;
         }
         internal static void Building(string key, BuildingBase b)

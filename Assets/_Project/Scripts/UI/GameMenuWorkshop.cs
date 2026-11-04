@@ -25,7 +25,7 @@ namespace AntColony.UI
             {
                 if (!EquipmentRecipes.Unlocked(recipe)) continue;
                 var cost = EquipmentRecipes.Cost(recipe);
-                MenuTheme.Button(content, $"목록 추가: {EquipmentRecipes.Name(recipe)} — Food {cost.x} / 재료 {cost.y} / Special {cost.z} · 재고 {Workshop.Stock(recipe)}", () => {
+                MenuTheme.Button(content, $"목록 추가: {EquipmentRecipes.Name(recipe)} — 식량 {cost.x} / 재료 {cost.y} / 특수 자원 {cost.z} · 재고 {Workshop.Stock(recipe)}", () => {
                     if (!workshop.AddOrder(recipe, orderMode, orderAmount)) ToastManager.Show($"생산 목록은 최대 {Workshop.MaxOrders}개입니다."); ShowWorkshop(workshop);
                 }).interactable = !workshop.Ruined && workshop.isActiveAndEnabled && workshop.Orders.Count < Workshop.MaxOrders;
             }

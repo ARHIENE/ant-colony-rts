@@ -9,7 +9,7 @@ namespace AntColony.Save
     {
         internal static bool Upgrade(SaveFileV1 file, out string error)
         {
-            error = "Invalid legacy commander data.";
+            error = "이전 버전의 장수 정보를 변환할 수 없습니다.";
             if (file.commanders == null || file.equipmentInventory == null) return false;
             foreach (var c in file.commanders)
             {

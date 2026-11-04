@@ -56,7 +56,7 @@ namespace AntColony.Save
         public static bool CanSave(out string error)
         {
             error = null;
-            if (!Ready || Core.CommanderRoster.Instance == null) error = "Game is still initializing.";
+            if (!Ready || Core.CommanderRoster.Instance == null) error = "게임을 준비하는 중입니다. 잠시 뒤 다시 저장하세요.";
             return error == null;
         }
     }

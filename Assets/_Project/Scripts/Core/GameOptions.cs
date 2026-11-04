@@ -45,9 +45,9 @@ namespace AntColony.Core
 
         public static string Label(MapSize size) => size switch
         {
-            MapSize.Small => "Small (60% of base)",
-            MapSize.Large => "Large (160% of base)",
-            _ => "Medium (base size)"
+            MapSize.Small => "작음 (기본의 60%)",
+            MapSize.Large => "큼 (기본의 160%)",
+            _ => "보통 (기본 크기)"
         };
     }
 
@@ -73,17 +73,17 @@ namespace AntColony.Core
 
         public static string Label(DifficultyLevel level) => level switch
         {
-            DifficultyLevel.Gentle => "Gentle",
-            DifficultyLevel.Harsh => "Harsh",
-            _ => "Normal"
+            DifficultyLevel.Gentle => "쉬움",
+            DifficultyLevel.Harsh => "어려움",
+            _ => "보통"
         };
 
         // 문구는 실제 배수 그대로 적는다. 간격 x1.6 = 빈도 약 -37%, 간격 x0.65 = 빈도 약 +54%.
         public static string Description(DifficultyLevel level) => level switch
         {
-            DifficultyLevel.Gentle => "Invasion gaps x1.6 (about 37% fewer waves), wave size x0.6.",
-            DifficultyLevel.Harsh => "Invasion gaps x0.65 (about 54% more waves), wave size x1.5.",
-            _ => "Baseline pacing. Identical to the pre-difficulty build."
+            DifficultyLevel.Gentle => "침공 간격 1.6배(횟수 약 37% 감소), 침공 병력 0.6배.",
+            DifficultyLevel.Harsh => "침공 간격 0.65배(횟수 약 54% 증가), 침공 병력 1.5배.",
+            _ => "침공 간격과 병력이 기본값입니다."
         };
     }
 

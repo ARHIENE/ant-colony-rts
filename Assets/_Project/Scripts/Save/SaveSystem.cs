@@ -18,15 +18,15 @@ namespace AntColony.Save
             if (!GameSession.Instance.GameStarted || Busy) return;
             elapsed += Time.deltaTime; retry -= Time.unscaledDeltaTime;
             if (!UserSettings.Current.autoSaveEnabled || elapsed < UserSettings.Current.autoSaveMinutes * 60 || retry > 0) return;
-            if (TrySave(true, 0, out var error)) { elapsed = 0; ToastManager.Show("Autosaved."); }
-            else { retry = 30; ToastManager.Show("Autosave deferred: " + error); }
+            if (TrySave(true, 0, out var error)) { elapsed = 0; ToastManager.Show("자동 저장 완료."); }
+            else { retry = 30; ToastManager.Show("자동 저장 연기(30초 뒤 재시도): " + error); }
         }
         public static bool TrySave(bool auto, int index, out string error)
         {
             error = null;
             try
             {
-                if (Busy || !GameSession.Instance.GameStarted) throw new InvalidOperationException("No playable session to save.");
+                if (Busy || !GameSession.Instance.GameStarted) throw new InvalidOperationException("저장할 수 있는 진행 중 게임이 없습니다.");
                 if (index < 0 || index >= (auto ? SaveSlots.AutoSlotCount : SaveSlots.ManualSlotCount)) throw new ArgumentOutOfRangeException(nameof(index));
                 // Capture and atomic write do not yield. Autosaves run after Update; menu saves run while paused.
                 var file = SaveSnapshot.Capture();
@@ -39,7 +39,7 @@ namespace AntColony.Save
         public static bool TryLoad(string path, out string error)
         {
             error = null;
-            if (Busy) { error = "A game is already loading."; return false; }
+            if (Busy) { error = "게임을 이미 불러오는 중입니다."; return false; }
             if (!SaveStorage.TryReadText(path, out var text, out error) || !SaveValidator.TryParse(text, out var file, out error)
                 || !SavePreflight.ForScene(file, out error)) return false;
             try
@@ -59,7 +59,7 @@ namespace AntColony.Save
         }
         internal static void Reload(SaveFileV1 file, NewGameOptions options)
         {
-            if (!Application.CanStreamedLevelBeLoaded("AntColony")) throw new InvalidOperationException("AntColony is missing from Build Settings.");
+            if (!Application.CanStreamedLevelBeLoaded("AntColony")) throw new InvalidOperationException("게임 장면이 빌드에 포함되어 있지 않습니다.");
             var session = GameSession.Instance;
             var previousOptions = session.Options.Clone(); var previousLoad = session.PendingLoad;
             var playing = session.GameStarted; var playSeconds = session.PlaySeconds; var gameSeconds = session.GameSeconds;

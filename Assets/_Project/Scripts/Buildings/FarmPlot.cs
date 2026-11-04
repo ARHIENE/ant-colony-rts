@@ -73,7 +73,7 @@ namespace AntColony.Buildings
             {
                 if (Data.uproot) return "뿌리뽑기 지시 대기";
                 if (Data.fallow) return "빈 밭 · 다시 심기 필요";
-                if (Data.seedPending) return $"종자 대기 · {FoodProcessingRecipes.CropResource(Crop)?.DisplayName() ?? Crop.ToString()} {FarmSeeds.Count(Crop)}/{SeedCost}";
+                if (Data.seedPending) return $"종자 대기 · {FoodProcessingRecipes.CropResource(Crop)?.DisplayName() ?? AntColony.UI.GameMenuController.CropName(Crop)} {FarmSeeds.Count(Crop)}/{SeedCost}";
                 if (Node.NeedsSowing) return "파종 대기";
                 if (ColonyEvents.Flooded(Node)) return "홍수 · 작업 불가";
                 if (Node.IsRegrowing && !Blessed && GameCalendar.CurrentSeason == Season.Winter) return "겨울 · 성장 정지";

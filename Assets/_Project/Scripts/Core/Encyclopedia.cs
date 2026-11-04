@@ -30,7 +30,7 @@ namespace AntColony.Core
         public static void Merge(IEnumerable<DiscoveryDto> entries)
         { EnsureLoaded(); foreach (var e in entries) if (!book.entries.Any(x => x.key == e.key)) book.entries.Add(e); Persist(); }
         private static void Persist()
-        { try { SaveStorage.WriteAtomic(Path, JsonUtility.ToJson(book, true)); } catch (Exception e) { UI.ToastManager.Show("Discovery save failed: " + e.Message); } }
+        { try { SaveStorage.WriteAtomic(Path, JsonUtility.ToJson(book, true)); } catch (Exception e) { UI.ToastManager.Show("도감 저장 실패: " + e.Message); } }
         public static void ResetCache() => book = null;
     }
 }

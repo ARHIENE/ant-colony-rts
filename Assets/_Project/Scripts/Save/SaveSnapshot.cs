@@ -150,7 +150,7 @@ namespace AntColony.Save
             if (c == null || d == null) return;
             c.SuppressRandomPlacement(); c.transform.position = d.rootPosition.ToVector3();
             while (c.Buildings.Length < d.buildingHealth.Count)
-                if (c.RestoreExpansion(d.extraBuildings[c.Buildings.Length].ToVector3()) == null) throw new InvalidOperationException("Cannot restore colony expansion.");
+                if (c.RestoreExpansion(d.extraBuildings[c.Buildings.Length].ToVector3()) == null) throw new InvalidOperationException("소굴 확장 상태를 복원할 수 없습니다.");
             for (var i = 0; i < c.Buildings.Length; i++)
             {
                 var b = c.Buildings[i];
@@ -162,7 +162,7 @@ namespace AntColony.Save
             for (int i = 0; i < d.nodes.Count; i++) {
                 var n = d.nodes[i];
                 var node = nodes.FirstOrDefault(x => (int)x.ResourceType == n.type && (x.transform.position - n.position.ToVector3()).sqrMagnitude < .09f);
-                if (node == null) throw new InvalidOperationException("Missing colony resource node: " + n.key);
+                if (node == null) throw new InvalidOperationException("소굴 자원 복원 대상 누락: " + n.key);
                 nodes.Remove(node); node.transform.position = n.position.ToVector3();
                 node.RestoreState(n.amount, n.regrowTimer, n.sowRemaining); node.FishSeason = n.fishMonth;
                 node.IsLooseCargo = n.looseCargo; node.BountifulHarvest = n.bountifulHarvest; node.GatheringForbidden = n.gatheringForbidden; node.WorkRequested = n.workRequested; node.WorkPaused = n.workPaused; node.WorkRequestOrder = n.workRequestOrder;
@@ -174,7 +174,7 @@ namespace AntColony.Save
 
         internal static IEnumerator Restore(SaveFileV1 file)
         {
-            if (!FarmSeeds.Valid(file.farmSeeds)) throw new InvalidOperationException("Invalid farm seed state");
+            if (!FarmSeeds.Valid(file.farmSeeds)) throw new InvalidOperationException("작물 종자 저장 정보가 올바르지 않습니다.");
             SaveReferences.Clear();
             var world = WorldMapManager.Instance;
             CommanderRoster.Instance.ClearAll();
@@ -268,7 +268,7 @@ namespace AntColony.Save
             {
                 var c = CommanderRoster.Instance.CreateForLoad(d.name, CommanderRank.Sergeant, new[] { UnitRole.Worker },
                     UnitRole.Worker, SaveCatalog.Traits(d.traits), world.HomePosition + Vector3.right * 3);
-                if (c == null) throw new InvalidOperationException("No navigable commander spawn.");
+                if (c == null) throw new InvalidOperationException("장수를 배치할 수 있는 이동 가능 지점을 찾지 못했습니다.");
                 SaveReferences.Register("commander:" + commanders.Count, c);
                 commanders.Add(c); c.RestorePersonalState(d.personalState); c.RestoreTroops(d.troopCount, d.pendingDamage); c.RestoreCargo(d.carriedAmount, (ResourceType)d.carriedType, d.carriedLots); c.RestoreFishing(d.fishingProgress); c.RestoreLabLevels(d.labAttackLevel, d.labArmorLevel);
                 c.RestoreTalents(d.talents);

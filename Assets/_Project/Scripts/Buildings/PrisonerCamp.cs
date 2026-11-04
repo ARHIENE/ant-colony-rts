@@ -161,7 +161,7 @@ namespace AntColony.Buildings
                 CampaignHistory.Record("탈주", prisoners[i].Name, "포로 수용소 탈출");
                 prisoners.RemoveAt(i);
                 EscapedCount++;
-                AntColony.UI.ToastManager.Show("A prisoner escaped.");
+                AntColony.UI.ToastManager.Show("포로 1명이 탈출했습니다.");
             }
         }
 
@@ -173,7 +173,7 @@ namespace AntColony.Buildings
             if (talents != null) prisoner.Talents = talents.Copy();
             prisoners.Add(prisoner);
             CampaignHistory.Record("포로", name, "적 장수 포획");
-            AntColony.UI.ToastManager.Show(name + " captured.");
+            AntColony.UI.ToastManager.Show(name + " 포획 완료.");
             return true;
         }
 
@@ -250,7 +250,7 @@ namespace AntColony.Buildings
             prisoners.RemoveAt(index);
             RecruitedCount++;
             CampaignHistory.Record("합류", recruit.CommanderName, "포로 회유");
-            AntColony.UI.ToastManager.Show(prisoner.Name + " joined your colony.");
+            AntColony.UI.ToastManager.Show(prisoner.Name + " 정착지 합류.");
             return true;
         }
 

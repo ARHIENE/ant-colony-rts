@@ -92,7 +92,7 @@ public static class Review1031M1Checks
         var save = new SaveFileV1 { version = 23, options = null };
         save.campaign = state;
         save.world.transports.Add(new TransportDto { cargoAmounts = Enumerable.Range(0, 79).ToArray() });
-        Check(!SaveValidator.Validate(save, out var error) && error == "Missing required sections.", "이관 이후 필수검증 유지");
+        Check(!SaveValidator.Validate(save, out var error) && error == "필수 저장 항목이 빠져 있습니다.", "이관 이후 필수검증 유지");
         var cargo = save.world.transports[0].cargoAmounts;
         Check(save.version == 24 && cargo.Length == 82 && cargo.Take(79).SequenceEqual(Enumerable.Range(0, 79)) && cargo.Skip(79).All(n => n == 0), "23→24 적재 배열 보존·0 확장");
         Check(ReferenceEquals(save.campaign, state) && state.active == 48 && state.partialIds.Single() == 43, "이관 시 연구 상태 불변");
@@ -110,9 +110,9 @@ public static class Review1031M1Checks
         validateTransport.Invoke(null, new object[] { save });
         Check(ship.cargoAmounts[81] == 8, "현재 적재 검증 신규 자원 보존");
         ship.cargoAmounts = new int[79];
-        Check(!SavePreflight.Validate(save, out error) && error.Contains("cargo amounts"), "Preflight 현재버전 짧은 적재 배열 거부");
+        Check(!SavePreflight.Validate(save, out error) && error.Contains("화물 수량"), "Preflight 현재버전 짧은 적재 배열 거부");
         ship.cargoAmounts = new int[82]; ship.cargoAmounts[80] = -1;
-        Check(!SavePreflight.Validate(save, out error) && error.Contains("cargo amounts"), "Preflight 신규 자원 음수 거부");
+        Check(!SavePreflight.Validate(save, out error) && error.Contains("화물 수량"), "Preflight 신규 자원 음수 거부");
         return Task.FromResult($"M1 오프라인 {count}검사 통과");
     }
 

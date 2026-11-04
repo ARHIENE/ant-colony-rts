@@ -86,7 +86,7 @@ namespace AntColony.Save
                     {
                         var template = state.parentSite >= 0 ? world.Sites[state.parentSite].GuardTemplate
                             : world.Sites.FirstOrDefault(s => s.GuardTemplate != null)?.GuardTemplate;
-                        if (template == null) throw new InvalidOperationException("Missing runtime commander template.");
+                        if (template == null) throw new InvalidOperationException("적 장수 생성 정보가 없습니다.");
                         m = Object.Instantiate(template, d.position.ToVector3(), Quaternion.identity, parent);
                     }
                     else
@@ -96,7 +96,7 @@ namespace AntColony.Save
                         m = go.AddComponent<WildMonster>();
                     }
                 }
-                if (m == null) { if (d.health > 0) throw new InvalidOperationException("Missing saved enemy: " + d.key); continue; }
+                if (m == null) { if (d.health > 0) throw new InvalidOperationException("저장된 적 복원 대상 누락: " + d.key); continue; }
                 m.gameObject.SetActive(false); m.Agent.enabled = false;
                 m.transform.SetParent(state.parentSite < 0 ? null : world.Sites[state.parentSite].transform, true);
                 m.name = state.name; m.transform.position = d.position.ToVector3();

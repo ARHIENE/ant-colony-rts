@@ -122,7 +122,7 @@ namespace AntColony.World
                     if (!TryEdge(out var driftPoint)) return false;
                     EventActor.Spawn(new EventActor.State { kind = EventActorKind.Food, position = new Vec3Dto(driftPoint), remaining = EventRules.DriftSeconds, amount = EventRules.DriftFood });
                     EventActor.Spawn(new EventActor.State { kind = EventActorKind.Soil, position = new Vec3Dto(driftPoint + Vector3.right * 2), remaining = EventRules.DriftSeconds, amount = EventRules.DriftSoil });
-                    result = $"({driftPoint.x:0}, {driftPoint.z:0})에 Food 80·재료 40. 5분 안에 운반하세요."; break;
+                    result = $"({driftPoint.x:0}, {driftPoint.z:0})에 식량 80·재료 40. 5분 안에 운반하세요."; break;
                 case ColonyEvent.Harvest:
                     foreach (var farm in Farms()) farm.GrantBountifulHarvest(); result = "각 밭의 다음 수확 1회 +50%"; break;
                 case ColonyEvent.Migration:

@@ -48,11 +48,11 @@ namespace AntColony.UI
                 RestOrTreat, () => "휴식: 숙소로 보내 쉬게 합니다. 부상이 있으면 빈 침상이 있는 의무실로 보냅니다.",
                 () => Commander != null && (Commander.CanSendToTreatment || Commander.CanRest));
             Add(civilianGrid, 2, "Build", () => "건설", BuildScreen.Open, () => "건설: 타일 · 생활 · 작업 · 방어 등 16개 분류.", null, null, true);
-            Add(civilianGrid, 3, "Civilian Work Schedule", () => "작업표", () => GameMenuController.Instance?.WorkSchedule(), () => "장수의 자율 작업을 설정합니다.");
-            Add(civilianGrid, 4, "Civilian Details", () => "상세", ShowDetails, () => "장수의 기분·건강·장비·기술을 확인합니다.");
-            Add(civilianGrid, 5, "Civilian Cycle Weapon", () => "무기", CycleWeapon, () => "보유한 다음 무기로 바꿉니다.");
-            Add(civilianGrid, 6, "Civilian Science", () => "연구", () => GameMenuController.Instance?.Science(), () => "과학 연구를 확인합니다.");
-            Add(civilianGrid, 7, "Civilian Stop", () => "정지", () => Commander?.CommandStop(), () => "하던 일을 멈춥니다. 자율 작업은 다시 이어집니다.");
+            Add(civilianGrid, 3, "Civilian Work Schedule", () => "작업표", () => GameMenuController.Instance?.WorkSchedule(), () => "작업별 허용·우선순위를 정합니다. 높은 숫자부터 수행하며 0은 금지입니다. 자연물은 별도 작업 지정이 필요합니다.");
+            Add(civilianGrid, 4, "Civilian Details", () => "상세", ShowDetails, () => "기분의 원인·부상·장비·기술을 확인합니다. 능력이 낮거나 부상한 장수는 작업이 느려질 수 있습니다.");
+            Add(civilianGrid, 5, "Civilian Cycle Weapon", () => "무기", CycleWeapon, () => "소지한 다음 무기로 바꿉니다. 새 무기를 지급하지는 않습니다. 장비 화면에서 소지 무기를 확인하세요.");
+            Add(civilianGrid, 6, "Civilian Science", () => "연구", () => GameMenuController.Instance?.Science(), () => "연구를 선택해 지시한 뒤 연구소에 장수를 배정하세요. 선행 연구·연구소 등급·자원이 필요합니다.");
+            Add(civilianGrid, 7, "Civilian Stop", () => "정지", () => Commander?.CommandStop(), () => "현재 지시를 멈춥니다. 작업표가 허용한 자율 작업은 다시 시작합니다. 계속 쉬게 하려면 휴식을 지시하세요.");
 
             // 출전 중 카드는 기획 미정(2026-10-01) — 기존 전투 명령을 유지한다.
             Add(deployedGrid, 0, "Skill", () => SkillLabel(Commander), () => UseWeaponSkill(Commander),
@@ -66,20 +66,20 @@ namespace AntColony.UI
                 () => Commander?.DeploymentFoodStatus ?? "소집 유지 · 공격 정지 · 3초 식사", () => Commander != null && Commander.CanReceiveOrders && Commander.IsDeployed && !Commander.IsReturning);
             Add(deployedGrid, 8, "Partial Recall", () => "절반 해산", () => { if (Commander != null) Commander.RecallTroops((Commander.TroopCount + 1) / 2); },
                 () => "현재 병력 절반을 반납하고 나머지는 소집을 유지합니다.", () => Commander != null && Commander.CanReceiveOrders && !Commander.IsAwayFromHome && Commander.TroopCount > 0);
-            Add(deployedGrid, 4, "Stop", () => "정지", () => Commander?.CommandStop(), () => "이동과 공격을 멈춥니다.");
+            Add(deployedGrid, 4, "Stop", () => "정지", () => Commander?.CommandStop(), () => "현재 이동·공격 지시를 멈춥니다. 소집 상태와 배정 병력은 유지합니다. 병력을 돌려보내려면 귀환하세요.");
             Add(deployedGrid, 5, "Return To Post", () => Commander != null && Commander.IsReturning ? "귀환 중" : "귀환", () => {
                 if (Commander != null && !Commander.ReturnToPost()) ToastManager.Show("지금은 징집소로 귀환할 수 없습니다.");
             }, () => "징집소로 돌아가 생존 병력을 반납하고 자율 작업을 재개합니다.",
                 () => Commander != null && !Commander.IsReturning && !Commander.IsAwayFromHome);
-            Add(deployedGrid, 6, "Deployed Details", () => "상세", ShowDetails, () => "장수의 기분·건강·장비·기술을 확인합니다.");
-            Add(deployedGrid, 7, "Deployed Cycle Weapon", () => "무기", CycleWeapon, () => "보유한 다음 무기로 바꿉니다.");
+            Add(deployedGrid, 6, "Deployed Details", () => "상세", ShowDetails, () => "기분의 원인·부상·장비·기술을 확인합니다. 능력이 낮거나 부상한 장수는 작업이 느려질 수 있습니다.");
+            Add(deployedGrid, 7, "Deployed Cycle Weapon", () => "무기", CycleWeapon, () => "소지한 다음 무기로 바꿉니다. 새 무기를 지급하지는 않습니다. 장비 화면에서 소지 무기를 확인하세요.");
 
-            Add(colonyGrid, 0, "Colony Work Schedule", () => "작업표", () => GameMenuController.Instance?.WorkSchedule(), () => "장수의 자율 작업을 설정합니다.");
+            Add(colonyGrid, 0, "Colony Work Schedule", () => "작업표", () => GameMenuController.Instance?.WorkSchedule(), () => "작업별 허용·우선순위를 정합니다. 높은 숫자부터 수행하며 0은 금지입니다. 자연물은 별도 작업 지정이 필요합니다.");
             Add(colonyGrid, 1, "Colony Roster", () => "장수 관리", () => GameMenuController.Instance?.Roster(), () => "장수의 기분·건강·장비를 확인합니다.");
             Add(colonyGrid, 2, "Colony Build", () => "건설", BuildScreen.Open, () => "가구·건물·벽을 건설합니다.", null, null, true);
-            Add(colonyGrid, 3, "Colony Science", () => "연구", () => GameMenuController.Instance?.Science(), () => "과학 연구를 확인합니다.");
-            Add(colonyGrid, 4, "Colony Population", () => "인구", () => GameMenuController.Instance?.Population(), () => "시민 인구와 방을 확인합니다.");
-            Add(colonyGrid, 5, "Colony Diplomacy", () => "외교", () => GameMenuController.Instance?.Diplomacy(), () => "다른 세력과의 관계를 확인합니다.");
+            Add(colonyGrid, 3, "Colony Science", () => "연구", () => GameMenuController.Instance?.Science(), () => "연구를 선택해 지시한 뒤 연구소에 장수를 배정하세요. 선행 연구·연구소 등급·자원이 필요합니다.");
+            Add(colonyGrid, 4, "Colony Population", () => "인구", () => GameMenuController.Instance?.Population(), () => "시민·주거·민심·세금을 확인합니다. 시민은 생활·납세 인구이며 장수와 별도입니다.");
+            Add(colonyGrid, 5, "Colony Diplomacy", () => "외교", () => GameMenuController.Instance?.Diplomacy(), () => "접촉한 세력의 호감도·전쟁·협정을 확인합니다. 미접촉 문명은 먼저 원정으로 만나야 합니다.");
             // 대상 우선순위 도구(1~9 · 노란 경보)와 소굴 전체 빨간 경보.
             Add(colonyGrid, 6, "Colony Target Priority", () => "우선 지정", GatherDesignation.BeginPriority,
                 () => "고른 단계를 대상(자원·건물·예정지·시체·사냥감)에 클릭·드래그로 지정합니다. 장수는 노란 경보 → 작업 종류 → 대상 우선순위(9 최우선) → 거리 순으로 고릅니다.");
@@ -108,7 +108,7 @@ namespace AntColony.UI
             Add(targetGrid, 1, "Target Build", () => WorkTargetPanel.Target is Dormitory ? "숙소 건설" : "건설", () => {
                 if (WorkTargetPanel.Target is Dormitory) BuildScreen.OpenDormitory(); else BuildScreen.Open();
             }, () => "현재 숙소 가구 하나가 침대 4개를 제공합니다.", null, null, true);
-            Add(targetGrid, 2, "Target Room", () => "방 정보", WorkTargetPanel.ShowRoomInfo, () => "방 종류·등급을 확인합니다.", () => WorkTargetPanel.Target is BuildingBase);
+            Add(targetGrid, 2, "Target Room", () => "방 정보", WorkTargetPanel.ShowRoomInfo, () => "방 종류·등급과 시설 조건을 확인합니다. 벽·문으로 둘러싼 공간과 방 안 가구를 살펴보세요.", () => WorkTargetPanel.Target is BuildingBase);
             Add(targetGrid, 3, "Target Clear", () => "선택 해제", () => selection?.ClearSelection(), () => "선택을 해제합니다.");
             // 철거·이동(2026-10-08): 예정지만 만들고 건설 작업이 켜진 장수가 현장에서 처리한다.
             Add(targetGrid, 4, "Target Demolish", () => "철거", () => { if (Demolition.OrderDemolish(WorkTargetPanel.Target as BuildingBase) != null) ToastManager.Show("철거 예정지를 지정했습니다."); },
@@ -227,15 +227,15 @@ namespace AntColony.UI
             switch (c.Role)
             {
                 case UnitRole.Melee:
-                    if (talents.Level(CommanderActivity.Melee) < CommanderSkills.PowerStrikeLevel) return "강타\nLv" + CommanderSkills.PowerStrikeLevel;
+                    if (talents.Level(CommanderActivity.Melee) < CommanderSkills.PowerStrikeLevel) return "강타\n필요 기술 " + CommanderSkills.PowerStrikeLevel;
                     return skills.PowerStrikeArmed ? "강타 ON" : "강타" + Cooldown(skills.PowerStrikeCooldownLeft);
                 case UnitRole.Defense:
-                    if (talents.Level(CommanderActivity.Melee) < CommanderSkills.DefensiveStanceLevel) return "방어 태세\nLv" + CommanderSkills.DefensiveStanceLevel;
-                    return skills.DefensiveStanceActive ? $"방어 태세\n{Mathf.CeilToInt(skills.DefensiveStanceTimeLeft)}s" : "방어 태세" + Cooldown(skills.DefensiveStanceCooldownLeft);
+                    if (talents.Level(CommanderActivity.Melee) < CommanderSkills.DefensiveStanceLevel) return "방어 태세\n필요 기술 " + CommanderSkills.DefensiveStanceLevel;
+                    return skills.DefensiveStanceActive ? $"방어 태세\n{Mathf.CeilToInt(skills.DefensiveStanceTimeLeft)}초" : "방어 태세" + Cooldown(skills.DefensiveStanceCooldownLeft);
                 case UnitRole.Ranged:
-                    return (talents.Level(CommanderActivity.Ranged) < 5 ? "산성비\nLv5" : "산성비" + Cooldown(c.Social.acidCooldown));
+                    return (talents.Level(CommanderActivity.Ranged) < 5 ? "산성비\n사격 5 필요" : "산성비" + Cooldown(c.Social.acidCooldown));
                 case UnitRole.Support:
-                    return (talents.Level(CommanderActivity.Command) < 5 ? "집결\nLv5" : "집결" + Cooldown(c.Social.rallyCooldown));
+                    return (talents.Level(CommanderActivity.Command) < 5 ? "집결\n지휘 5 필요" : "집결" + Cooldown(c.Social.rallyCooldown));
                 default:
                     return "스킬 없음";
             }
@@ -257,6 +257,6 @@ namespace AntColony.UI
         private bool AllDeployed() { var list = HudOverview.Selected(selection); return list.Length > 1 && list.All(c => c.IsDeployed && c.CanReceiveOrders); }
         private bool AllCivilian() { var list = HudOverview.Selected(selection); return list.Length > 1 && list.All(c => !c.IsDeployed && c.CanReceiveOrders); }
 
-        private static string Cooldown(float seconds) => seconds > 0f ? $"\n{Mathf.CeilToInt(seconds)}s" : "";
+        private static string Cooldown(float seconds) => seconds > 0f ? $"\n{Mathf.CeilToInt(seconds)}초" : "";
     }
 }

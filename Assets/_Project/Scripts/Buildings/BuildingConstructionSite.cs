@@ -137,7 +137,7 @@ namespace AntColony.Buildings
             var n = Needs.FirstOrDefault(x => x.type == type);
             if (n == null || finished || Paused) return 0;
             var take = Mathf.Clamp(n.need - n.delivered, 0, amount); n.delivered += take;
-            if (take > 0 && Ready) AntColony.UI.ToastManager.Show(name + ": 재료가 모두 도착했습니다.");
+            if (take > 0 && Ready) AntColony.UI.ToastManager.Show(AntColony.UI.DisplayNames.Target(this) + ": 재료가 모두 도착했습니다.");
             return take;
         }
         public void AbortPickup(object courier) { inTransit.Remove(courier); }
@@ -184,7 +184,7 @@ namespace AntColony.Buildings
                 CompleteAttribution(completedBuilding.GetComponent<BuildingBase>());
                 if (TryGetComponent<RedevelopmentSite>(out var redevelop)) redevelop.Finish(); // 재개발이면 완공 순간 기존 집을 허문다.
                 completedBuilding.SetActive(true);
-                AntColony.UI.ToastManager.Show(completedBuilding.name + " construction complete.");
+                AntColony.UI.ToastManager.Show(completedBuilding.GetComponent<BuildingBase>().Data.displayName + " 건설 완료.");
                 completedBuilding = null;
             }
             Destroy(gameObject);

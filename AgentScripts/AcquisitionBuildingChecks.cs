@@ -98,10 +98,10 @@ namespace AntColony.Regression
                 Check(PrisonerCamp.Instance == campBefore, "비활성 수용소 템플릿은 수용소로 등록되지 않는다");
 
                 // 배치 컨트롤러가 새 건물 종류의 템플릿을 실제로 찾아낸다.
-                Check(!placement.GetNurseryBuildLabel().Contains("Unavailable"), "양육실 건설 라벨이 템플릿을 찾는다");
-                Check(!placement.GetScoutPostBuildLabel().Contains("Unavailable"), "파견소 건설 라벨이 템플릿을 찾는다");
-                Check(!placement.GetPrisonerCampBuildLabel().Contains("Unavailable"), "수용소 건설 라벨이 템플릿을 찾는다");
-                Check(placement.GetNurseryBuildLabel().Contains("Ants"), "건설 라벨에 비용과 인력이 표시된다");
+                Check(!placement.GetNurseryBuildLabel().Contains("건설 정보 없음"), "양육실 건설 라벨이 템플릿을 찾는다");
+                Check(!placement.GetScoutPostBuildLabel().Contains("건설 정보 없음"), "파견소 건설 라벨이 템플릿을 찾는다");
+                Check(!placement.GetPrisonerCampBuildLabel().Contains("건설 정보 없음"), "수용소 건설 라벨이 템플릿을 찾는다");
+                Check(placement.GetNurseryBuildLabel().Contains("재료"), "건설 라벨에 비용과 인력이 표시된다");
 
                 // 건설 완료 경로: 예약한 개미가 돌아오고 건물이 활성화된다.
                 var pending = Object.Instantiate(campTemplate, origin + new Vector3(9f, 0f, 0f), Quaternion.identity);
@@ -193,9 +193,9 @@ namespace AntColony.Regression
                     Check(secondNursery.GetAffinity(sample[0], sample[1]) == 0f,
                         "두 번째 양육실은 호감도를 쌓지 않는다");
                 Check(secondNursery.BirthCount == 0, "두 번째 양육실은 출산하지 않는다");
-                Check(secondNursery.GetStatusLabel().Contains("idle"), "두 번째 양육실은 대기 중이라고 표시된다");
+                Check(secondNursery.GetStatusLabel().Contains("다른 양육실에서 진행 중"), "두 번째 양육실은 다른 양육실 진행 상태를 표시한다");
                 // 현재 번식 조건: 연인 관계의 두 장수가 모두 양육실 반경 안에 있어야 한다.
-                Check(firstNursery.GetStatusLabel().Contains($"Lovers (relation {GameBalance.LoverRelation:0}+) within {GameBalance.NurseryRadius:0.#}m of the nursery"),
+                Check(firstNursery.GetStatusLabel().Contains($"양육실 {GameBalance.NurseryRadius:0.#}m 안의 성인 연인(관계 {GameBalance.LoverRelation:0} 이상)"),
                     "양육실 표시가 연인 관계와 건물 반경 조건을 설명한다");
 
                 firstNurseryGo.SetActive(false);
@@ -238,7 +238,7 @@ namespace AntColony.Regression
                 await Task.Yield();
                 var attemptsBefore = panel.SelectedPrisoner != null ? panel.SelectedPrisoner.PersuadeAttempts : 0;
                 panel.Persuade();
-                Check(panel.Feedback.Contains("Not enough food"), "식량이 모자라면 회유 실패 이유를 알린다");
+                Check(panel.Feedback.Contains("식량 부족"), "식량이 모자라면 회유 실패 이유를 알린다");
                 if (panel.SelectedPrisoner != null)
                     Check(panel.SelectedPrisoner.PersuadeAttempts == attemptsBefore,
                         "비용을 못 내면 회유 시도로 세지 않는다");

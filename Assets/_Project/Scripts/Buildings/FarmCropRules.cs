@@ -26,7 +26,7 @@ namespace AntColony.Buildings
             FarmCrop.Grapes => "곡물보다 짧은 보존 · 과실주 원료 · 바로 먹을 수 없음",
             FarmCrop.Sunflower => "착유→볶음밥/가공 · 씨앗은 바로 먹을 수 없음",
             FarmCrop.Honeydew => "가뭄 피해가 작음 · 감로주 원료",
-            FarmCrop.AdvancedFungus => "긴 주기·고수확 · 수확 시 Special 확률",
+            FarmCrop.AdvancedFungus => "긴 주기·고수확 · 수확 시 특수 자원 획득 확률",
             _ => "기본 식량 · 별도 제분/착유 없이 조리 가능"
         };
         public static string Description(FarmCrop crop)

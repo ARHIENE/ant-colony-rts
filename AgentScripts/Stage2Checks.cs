@@ -316,7 +316,7 @@ public static class Stage2Checks
             invader.nextRaid = diplomacy.Data.elapsed + 61; site.Defense.Tick(1);
             Check(!site.Defense.UnderAttack && !site.Defense.Warned, "before warning window");
             diplomacy.Data.elapsed += 2; site.Defense.Tick(2);
-            Check(site.Defense.Warned && site.Defense.Status.Contains("WATCHTOWER"), "watchtower warns 60s before raid with route");
+            Check(site.Defense.Warned && site.Defense.Status.Contains("감시탑"), "watchtower warns 60s before raid with route");
             Check(vehicle.TryReturn(), "return home"); vehicle.Tick(vehicle.TravelSeconds);
 
             // --- 휴게실 ---

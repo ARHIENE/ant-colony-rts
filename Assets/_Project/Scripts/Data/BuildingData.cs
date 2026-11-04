@@ -76,7 +76,7 @@ namespace AntColony.Data
     [CreateAssetMenu(fileName = "BuildingData", menuName = "AntColony/Building Data")]
     public class BuildingData : ScriptableObject
     {
-        public string displayName = "Building";
+        public string displayName = "건물";
         public BuildingKind kind = BuildingKind.Storage;
 
         [Header("Combat")]

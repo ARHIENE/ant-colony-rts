@@ -22,7 +22,7 @@ namespace AntColony.World
         public ExpeditionSite Destination { get; private set; }
         public bool IsRunning { get; private set; }
         public float WaitSeconds { get; private set; }
-        public string Status { get; private set; } = "Off";
+        public string Status { get; private set; } = "꺼짐";
 
         public TransportRoute(ExpeditionTransport transport) => ship = transport;
 
@@ -41,7 +41,7 @@ namespace AntColony.World
             nextNode = null;
             rallying = false;
             IsRunning = true;
-            Status = "Ready";
+            Status = "출발 준비";
             return true;
         }
 
@@ -51,7 +51,7 @@ namespace AntColony.World
             IsRunning = running && destination != null;
             Destination = destination;
             WaitSeconds = Mathf.Max(0f, wait);
-            Status = string.IsNullOrEmpty(status) ? (IsRunning ? "Ready" : "Off") : status;
+            Status = string.IsNullOrEmpty(status) ? (IsRunning ? "출발 준비" : "꺼짐") : AntColony.UI.DisplayNames.RouteStatus(status);
             nextNode = null;
             rallying = false;
         }
@@ -79,7 +79,7 @@ namespace AntColony.World
         private static bool Valid(ExpeditionSite s) => s != null && s.isActiveAndEnabled && s.Disposition == ConquestDisposition.Annexed
             && s.Settlement != null && s.Settlement.isActiveAndEnabled;
 
-        public void Stop(string reason = "Off")
+        public void Stop(string reason = "꺼짐")
         {
             IsRunning = false;
             Status = reason;
@@ -111,22 +111,22 @@ namespace AntColony.World
                 stops = kept; leg = 0;
                 Destination = stops != null && stops.Length > 0 ? stops[0] : null;
             }
-            if (!Valid(Destination) || !HasCollectors()) { Stop("Stopped: check site and worker crew"); return; }
+            if (!Valid(Destination) || !HasCollectors()) { Stop("중단: 편입 거점과 채집 가능한 탑승 장수를 확인하세요"); return; }
 
             if (ship.State == ExpeditionState.Home)
             {
                 if (ship.PendingCrewOrderCount > 0) { Status = ship.CrewOrderStatus; return; }
                 // HasCargo에는 핵심물도 포함한다. 반입 전에는 다음 왕복을 시작하지 않는다.
-                if (ship.HasCargo) { Status = "Waiting for home storage"; return; }
+                if (ship.HasCargo) { Status = "본거지 하역 대기 · 창고 여유를 확인하세요"; return; }
                 WaitSeconds = Mathf.Max(0, WaitSeconds - seconds);
-                if (WaitSeconds > 0) { Status = $"Next trip in {WaitSeconds:0}s"; return; }
-                if (!ship.TryDepart(Destination)) { Status = "Waiting for destination"; return; }
+                if (WaitSeconds > 0) { Status = $"다음 출발까지 {WaitSeconds:0}초"; return; }
+                if (!ship.TryDepart(Destination)) { Status = "목적지 출발 조건 대기"; return; }
                 nextNode = null;
                 rallying = false;
             }
-            if (ship.State != ExpeditionState.Deployed) { Status = ship.State.ToString(); return; }
+            if (ship.State != ExpeditionState.Deployed) { Status = AntColony.UI.DisplayNames.Expedition(ship.State); return; }
             if (ship.IsWithdrawing || ship.ReservedCargo > 0) { Status = "철수 / 적재 진행 중"; return; }
-            if (ship.Site != Destination) { Stop("Stopped: destination changed"); return; }
+            if (ship.Site != Destination) { Stop("중단: 목적지 변경"); return; }
             if (nextNode == null)
             {
                 nodes = Destination.Colony.GetComponentsInChildren<ResourceNode>(true);
@@ -145,20 +145,20 @@ namespace AntColony.World
                     // 한 짐에 다 못 실은 더미는 빌 때까지 다시 캔다(운반 한도 < 더미 양일 때 남기고 떠나지 않게).
                     var node = nodes[nextNode[i]];
                     if (node == null || !node.CanGather) { nextNode[i]++; continue; }
-                    if (!c.CanReach(node.transform.position)) { Stop("Stopped: resource unreachable"); return; }
+                    if (!c.CanReach(node.transform.position)) { Stop("중단: 자원까지 이동할 수 없음"); return; }
                     c.CommandGather(node);
                     if (!c.IsWorking && !c.IsCarrying) { nextNode[i]++; continue; } // 이 장수가 캘 수 없는 자원은 건너뛴다
                     finished = false;
                     break;
                 }
             }
-            if (!finished) { Status = "Collecting / depositing"; return; }
+            if (!finished) { Status = "채집·적재 중"; return; }
             if (!rallying)
             {
                 foreach (var c in ship.Crew) c.CommandMove(ship.Position + Vector3.right * 3);
                 rallying = true;
             }
-            Status = "Waiting for crew / garrison cargo";
+            Status = "승무원·주둔 부대 화물 대기";
             // 화물 여유가 남으면 다음 경유지로, 아니면 귀환한다.
             int nextLeg = leg + 1;
             while (nextLeg < stops.Length && !Valid(stops[nextLeg]))
@@ -173,13 +173,13 @@ namespace AntColony.World
                 Destination = stops[leg];
                 nextNode = null;
                 rallying = false;
-                Status = $"Moving to stop {leg + 1}";
+                Status = $"경유지 {leg + 1}번으로 이동 중";
                 return;
             }
             if (ship.TryReturn())
             {
                 WaitSeconds = IntervalSeconds;
-                Status = "Returning";
+                Status = "귀환 중";
             }
         }
     }

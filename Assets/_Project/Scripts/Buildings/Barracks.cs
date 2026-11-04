@@ -59,12 +59,12 @@ namespace AntColony.Buildings
             upgradeRemaining = 0f;
             isUpgrading = false;
             currentTier++;
-            AntColony.UI.ToastManager.Show(role + " barracks upgraded to tier " + currentTier + ".");
+            AntColony.UI.ToastManager.Show(AntColony.UI.CommandCard.RoleName(role) + " 병영 " + currentTier + "등급 승급 완료.");
         }
 
-        public string GetUpgradeLabel() => isUpgrading ? $"Researching {role}..." : currentTier >= maxTier
-            ? $"{role} Tier {currentTier} (Max)"
-            : $"{role} T{currentTier}>T{currentTier + 1}\n{UpgradeFoodCost}F {UpgradeSoilCost} 재료";
+        public string GetUpgradeLabel() => isUpgrading ? $"{AntColony.UI.CommandCard.RoleName(role)} 병영 승급 중" : currentTier >= maxTier
+            ? $"{AntColony.UI.CommandCard.RoleName(role)} 병영 {currentTier}등급 (최고)"
+            : $"{AntColony.UI.CommandCard.RoleName(role)} 병영 {currentTier}→{currentTier + 1}등급\n식량 {UpgradeFoodCost} · 재료 {UpgradeSoilCost}";
 
         public bool TryUpgrade()
         {

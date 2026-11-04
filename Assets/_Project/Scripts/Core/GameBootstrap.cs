@@ -67,7 +67,7 @@ namespace AntColony.Core
             if (error != null)
             {
                 var rollback = SaveSystem.Rollback; SaveSystem.Rollback = null;
-                ToastManager.Show("Load failed: " + error + (rollback != null ? " Restoring previous game." : " Recovery file preserved."));
+                ToastManager.Show("불러오기 실패: " + error + (rollback != null ? " 이전 게임을 복원합니다." : " 복구용 저장 파일은 보존했습니다."));
                 if (rollback != null)
                 {
                     SaveSystem.Reload(rollback, new NewGameOptions { mapSize = (MapSize)rollback.options.mapSize,

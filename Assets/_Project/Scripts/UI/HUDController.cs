@@ -76,11 +76,11 @@ namespace AntColony.UI
         // 둥지 명령(커맨드 카드에서 장수를 고르지 않았을 때). 버튼 문구는 짧게, 비용·상태는 도움말로 보인다.
         public UnitRole SelectedRole => selectedRole;
         public void UpgradeBarracks() => barracks?.TryUpgrade();
-        public string BarracksUpgradeLabel() => (barracks != null ? barracks.GetUpgradeLabel() : $"No {selectedRole} Barracks")
+        public string BarracksUpgradeLabel() => (barracks != null ? barracks.GetUpgradeLabel() : $"{CommandCard.RoleName(selectedRole)} 병영 필요")
             + "\n훈련 보직으로 고른 병영의 훈련을 강화합니다.";
         public void ResearchFishing() => GameMenuController.Instance?.Science();
         public string FishingLabel() => (GameManager.Instance != null && GameManager.Instance.FishingUnlocked
-            ? "Fishing Unlocked" : "과학 트리에서 낚시 연구")
+            ? "낚시 연구 완료" : "과학 트리에서 낚시 연구")
             + "\n과학 연구소에서 낚시를 연구하면 낚시터에서 식량을 모읍니다.";
         public void DigExpansion() => digSite?.TryExpand();
 
@@ -156,12 +156,12 @@ namespace AntColony.UI
         // 연구소 강화는 선택된 장수 한 명의 현재 보직과 같은 역할의 연구소에서 진행한다.
         public string LabResearchLabel(CommanderAnt commander, bool attack)
         {
-            if (commander == null) return attack ? "ATK: Select 1 Commander" : "Armor: Select 1 Commander";
+            if (commander == null) return attack ? "공격: 장수 1명을 선택하세요" : "방어: 장수 1명을 선택하세요";
             var lab = FindResearchLab(commander.Role);
             if (lab == null)
             {
                 var level = attack ? commander.LabAttackLevel : commander.LabArmorLevel;
-                return $"{(attack ? "ATK" : "Armor")} Lv{level}\nNo {commander.Role} Lab";
+                return $"{(attack ? "공격" : "방어")} {level}단계\n{CommandCard.RoleName(commander.Role)} 연구소 필요";
             }
             return attack ? lab.GetAttackResearchLabel(commander) : lab.GetArmorResearchLabel(commander);
         }
@@ -267,7 +267,7 @@ namespace AntColony.UI
 
         private void ShowVictoryMessage()
         {
-            ToastManager.Show("Wild Monster Defeated");
+            ToastManager.Show("야생 몬스터 처치");
         }
 
         private void ShowDefeatMessage()
@@ -278,13 +278,13 @@ namespace AntColony.UI
         private void UpdateBossHealthText(float current, float max)
         {
             if (bossHealthText == null) return;
-            bossHealthText.text = $"Boss HP {Mathf.CeilToInt(current)} / {Mathf.CeilToInt(max)}";
+            bossHealthText.text = $"보스 체력 {Mathf.CeilToInt(current)} / {Mathf.CeilToInt(max)}";
         }
 
         private void ShowBossDefeatedMessage()
         {
-            if (bossHealthText != null) bossHealthText.text = "Boss Defeated!";
-            ToastManager.Show("Raid Complete: Boss Defeated!");
+            if (bossHealthText != null) bossHealthText.text = "보스 처치!";
+            ToastManager.Show("레이드 완료: 보스를 처치했습니다!");
         }
     }
 }

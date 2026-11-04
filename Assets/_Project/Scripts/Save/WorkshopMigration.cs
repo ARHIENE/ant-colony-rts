@@ -7,7 +7,7 @@ namespace AntColony.Save
     {
         internal static bool Upgrade(SaveFileV1 file, out string error)
         {
-            error = "Invalid legacy equipment inventory.";
+            error = "이전 버전의 장비 재고를 변환할 수 없습니다.";
             if (file.equipmentInventory == null || file.equipmentInventory.Count > 10000 || file.buildings == null) return false;
             file.equipmentLoot = new List<EquipmentLootDto>();
             foreach (var b in file.buildings)

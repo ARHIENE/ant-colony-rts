@@ -100,7 +100,7 @@ namespace AntColony.UI
         public void Science()
         {
             var r = CampaignResearch.Instance;
-            if (r == null) { Screen("Science", "과학"); MenuTheme.Text(content, "과학 화면 준비 중입니다."); MenuTheme.Button(content, "Back", Back); return; }
+            if (r == null) { Screen("Science", "과학"); MenuTheme.Text(content, "과학 화면 준비 중입니다."); MenuTheme.Button(content, "Back", Back).GetComponentInChildren<UnityEngine.UI.Text>().text = "뒤로"; return; }
             var window = V5Window("과학 / 연구", "한 번에 하나 · 완료 후 다음 연구는 직접 선택", 676);
             L.Button(window, "Science Facilities", "로켓 · 과학 시설", 20, 633, 200, 30, ScienceFacilities);
 

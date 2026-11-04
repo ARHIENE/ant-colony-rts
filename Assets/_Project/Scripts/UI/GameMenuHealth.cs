@@ -26,7 +26,7 @@ namespace AntColony.UI
         {
             if (c == null) { Resume(); return; }
             var h = c.Health;
-            var window = V5Window($"{c.CommanderName} / 건강", "상태 → 치료 설정 → 수술 · 처치 완료와 완치는 다릅니다(시간에 따라 회복)");
+            var window = V5Window($"{c.CommanderName} / 건강", "처치는 의료 장수가 수행 · 처치 후에도 회복 시간 필요 · 수술은 아래에서 직접 요청");
             ManagementTabs(window, "의료·관리", "의료");
             var commanders = SortedCommanders();
             GameMenuSelect.Create(window, commanders.Select(a => a.CommanderName).ToArray(), System.Array.IndexOf(commanders, c), 200, 677, 280, i => ShowHealth(commanders[i]));
@@ -57,7 +57,7 @@ namespace AntColony.UI
             }
             // 검토60: 약 등급 선택의 대가(품질·감염·흉터 차이와 재고)를 같은 기준으로 보여 준다. 최고 의료 장수·침상 기준.
             var doctor = SortedCommanders().Where(d => d != c && d.IsColonyMember).Select(d => d.Talents.Level(CommanderActivity.Medicine)).DefaultIfEmpty(0).Max();
-            MenuTheme.Text(content, $"처치 품질(의료 {doctor} 장수·침상): " + string.Join(" / ", new[] { -1, 0, 1, 2 }.Select(t =>
+            MenuTheme.Text(content, $"예상 처치 품질(의료 {doctor}·침상 기준, 실제 담당에 따라 변동): " + string.Join(" / ", new[] { -1, 0, 1, 2 }.Select(t =>
             {
                 var q = MedicalRules.TendQuality(doctor, t, true, 1, false);
                 var stock = t < 0 ? "" : $" 재고 {AntColony.Core.ResourceManager.Instance?.GetAmount(MedicalRules.Medicines[t]) ?? 0}";

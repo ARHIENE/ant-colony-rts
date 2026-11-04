@@ -152,7 +152,7 @@ namespace AntColony.World
             Disposition = disposition;
             var faction = DiplomacyManager.Instance?.Faction(this);
             if (faction != null) faction.playerScore += 50;
-            AntColony.Core.CampaignHistory.Record(disposition == ConquestDisposition.Annexed ? "편입" : "유기", Title, disposition.ToString());
+            AntColony.Core.CampaignHistory.Record(disposition == ConquestDisposition.Annexed ? "편입" : "유기", Title, AntColony.UI.DisplayNames.Conquest(disposition));
             if (disposition == ConquestDisposition.Annexed)
             {
                 if (Settlement == null) Settlement = gameObject.AddComponent<AnnexedSettlement>();

@@ -67,7 +67,7 @@ namespace AntColony.Buildings
             if (remaining > 0f) return;
             remaining = 0f;
             target.CompleteLabUpgrade(researchingAttack, maxLevel);
-            AntColony.UI.ToastManager.Show(target.CommanderName + ": " + (researchingAttack ? "attack" : "armor") + " research complete.");
+            AntColony.UI.ToastManager.Show(target.CommanderName + ": " + (researchingAttack ? "공격" : "방어") + " 강화 연구 완료.");
             Release();
         }
 
@@ -79,14 +79,14 @@ namespace AntColony.Buildings
 
         private string GetLabel(CommanderAnt commander, bool attack)
         {
-            var name = attack ? "ATK" : "Armor";
-            if (commander == null) return $"{name}: Select 1 Commander";
+            var name = attack ? "공격" : "방어";
+            if (commander == null) return $"{name}: 장수 1명을 선택하세요";
             var level = attack ? commander.LabAttackLevel : commander.LabArmorLevel;
-            if (commander.LabUpgradeBusy) return $"{name} Lv{level}\nUpgrading...";
-            if (level >= maxLevel) return $"{name} Lv{level} (Max)";
-            if (commander.Role != role) return $"{name} Lv{level}\nNo {commander.Role} Lab";
-            if (IsResearching) return $"{name} Lv{level}\nLab Busy";
-            return $"{name} Lv{level}>{level + 1}\n{GetFoodCost(level)}F {GetSoilCost(level)} 재료";
+            if (commander.LabUpgradeBusy) return $"{name} {level}단계\n강화 연구 중";
+            if (level >= maxLevel) return $"{name} {level}단계 (최고)";
+            if (commander.Role != role) return $"{name} {level}단계\n{AntColony.UI.CommandCard.RoleName(commander.Role)} 연구소 필요";
+            if (IsResearching) return $"{name} {level}단계\n연구소 사용 중";
+            return $"{name} {level}→{level + 1}단계\n식량 {GetFoodCost(level)} · 재료 {GetSoilCost(level)}";
         }
 
         public bool TryResearchAttack(CommanderAnt commander) => TryStartResearch(commander, true);

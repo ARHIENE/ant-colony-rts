@@ -1,0 +1,32 @@
+P3 / 2026-11-01 / E:/Git/ant-wt/P3 / codex/p3-1101
+
+offc.sh: exit 0, 전체 게임 코드 오류 0.
+offcheck.sh: exit 0.
+  Review1101P3Checks.cs
+  Review1031L1Checks.cs
+  Review1031M1Checks.cs
+  Review1031N2Checks.cs
+  AcquisitionBuildingChecks.cs
+  ImplC6Checks.cs
+
+오프라인 실행:
+  P3 285검사 통과
+  L1 76검사 통과
+  M1 103검사 통과
+  N2 77검사 통과
+  합계 541 (서로 다른 검사의 합이며 기능 커버리지 비율이 아님)
+
+금지22파일·저장DTO/스냅샷필드·prefab 보호 확인.
+기존 게임 코드 수정68파일 + 신규 DisplayNames.cs 1파일.
+게임성40건 점검:32구현 / 금지파일8건 인계.
+site.Title 참조35곳 목록 인계.
+
+기존 검사 제한:
+  Stage2Checks.cs:140 Infirmary.CanRegenerate 없음(CS1061)
+  Stage2Checks.cs:143 Infirmary.TryRegenerate 없음(CS1061)
+  위 두 기존 API 오류는 게임 코드 컴파일 오류와 구분. 표시 기대값만 갱신.
+
+기존 obsolete 경고와 FormatterServices SYSLIB0050 경고 유지.
+Unity Editor/CLI/Play/화면/Player 빌드/실제 저장 복원은 미실행.
+원본에만 있던 SpinFree.cs는 오프라인 컴파일 중 worktree 임시 복사, 패치 제외.
+원본 수정·커밋·push·개발 일지·캡처·Notion 변경 없음.

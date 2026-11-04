@@ -18,7 +18,7 @@ namespace AntColony.Units
         public const float SupportAttackBonus = 1f;
         public const float SupportArmorBonus = 1f;
 
-        [SerializeField] private string commanderName = "Commander";
+        [SerializeField] private string commanderName = "장수";
         [SerializeField, Min(0)] private int troopCount;
         [SerializeField] private UnitData[] roleProfiles;
         [SerializeField] private CommanderTalents talents = new CommanderTalents();

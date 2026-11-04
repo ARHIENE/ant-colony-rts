@@ -63,9 +63,9 @@ namespace AntColony.World
                 && o.treaties.Distinct().Count() == o.treaties.Count && o.treaties.All(t => Enum.IsDefined(typeof(TreatyKind), t));
             if (!Shape(give) || !Shape(take)) return "잘못된 거래 항목입니다.";
             var market = Data.markets.Contains(c);
-            // 설계도 해금은 보스 D 보상 반입이 조건이다(CampaignResearch.AcquireBlueprint). 그 전에 팔면 Special 150만 사라졌다.
+            // 설계도 해금은 보스 D 보상 반입이 조건이다(CampaignResearch.AcquireBlueprint). 그 전에 팔면 특수 자원 150만 사라졌다.
             if (take.blueprint && CampaignResearch.Instance?.BossProgress.Delivered(AntColony.Boss.BossId.D) != true) return "설계도는 보스 D 보상을 본거지에 반입하면 얻습니다(교역소 구매 불가).";
-            if (give.blueprint || take.blueprint && (c.id != "market:" + Data.blueprintSite || CampaignResearch.Instance?.HasBlueprint != false || give.resources[2] < DiplomacyRules.BlueprintPrice)) return "설계도는 지정 교역소에서 Special 150에 판매합니다.";
+            if (give.blueprint || take.blueprint && (c.id != "market:" + Data.blueprintSite || CampaignResearch.Instance?.HasBlueprint != false || give.resources[2] < DiplomacyRules.BlueprintPrice)) return "설계도는 지정 교역소에서 특수 자원 150에 판매합니다.";
             if (market && (give.sites.Count + take.sites.Count + give.prisoners.Count + take.prisoners.Count + give.treaties.Count + take.treaties.Count > 0)) return "교역소는 자원·장비만 거래합니다.";
             var transport = MarketTransport(c);
             if (transport != null)

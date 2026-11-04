@@ -70,7 +70,7 @@ namespace AntColony.Buildings
             if (state.building == (int)AirshipPart.Hull) state.hull = true;
             else if (state.building == (int)AirshipPart.Engine) state.engine = true;
             else state.cocoons++;
-            AntColony.UI.ToastManager.Show("Rocket " + (AirshipPart)state.building + " complete.");
+            AntColony.UI.ToastManager.Show("로켓 " + AntColony.UI.DisplayNames.RocketPart((AirshipPart)state.building) + " 건조 완료.");
             state.building = -1;
         }
 
