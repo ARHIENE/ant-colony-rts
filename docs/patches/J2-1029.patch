@@ -1,0 +1,1693 @@
+diff --git a/AgentScripts/Review1029BossChecks.cs b/AgentScripts/Review1029BossChecks.cs
+new file mode 100644
+index 0000000..b2260a2
+--- /dev/null
++++ b/AgentScripts/Review1029BossChecks.cs
+@@ -0,0 +1,74 @@
++using System;
++using System.Linq;
++using System.Text;
++using System.Threading.Tasks;
++
++public static class Review1029BossChecks
++{
++    public static async Task<string> Main()
++    {
++        await Task.CompletedTask;
++        int count = 0;
++        void Check(bool ok, string label) { if (!ok) throw new Exception(label); count++; }
++        var report = new StringBuilder();
++        foreach (int troops in new[] { 4, 5, 6 })
++        {
++            float hp = AntColony.Boss.BossEncounterRules.Health(AntColony.Boss.BossId.A), elapsed = 0;
++            while (hp > 0 && elapsed < 1000)
++            {
++                if (!AntColony.Boss.BossEncounterRules.Flying(elapsed)) hp -= troops * 10;
++                elapsed++;
++            }
++            Check(elapsed >= 300 && elapsed <= 600, "A melee exposure target 4~6 troops");
++            report.AppendLine($"A melee, {troops} troops ×10 damage/1s, perfect dodge: {elapsed}s");
++        }
++        Check(!AntColony.Boss.BossEncounterRules.Flying(3) && AntColony.Boss.BossEncounterRules.Flying(8), "flight/landing boundaries");
++        Check(AntColony.Boss.BossEncounterRules.Heat(AntColony.Boss.BossId.C) > 0, "B armor helps C heat");
++        Check(AntColony.Boss.BossEncounterRules.AddLimit(AntColony.Boss.BossId.B) > 1, "C area weapon helps B guards");
++        Check(AntColony.Units.EquipmentItem.BossReward(AntColony.Boss.BossId.B, "b").HeatResistance == .5f, "actual B heat reduction");
++        Check(AntColony.Units.EquipmentItem.BossReward(AntColony.Boss.BossId.C, "c").AttackRadius == 3, "actual C area radius");
++        var state = new AntColony.Boss.BossProgress.State(); var progress = new AntColony.Boss.BossProgress(state);
++        Check(progress.Revealed(AntColony.Boss.BossId.A) && !progress.Revealed(AntColony.Boss.BossId.B), "exploration retains required detection");
++        Check(progress.RecordKill(AntColony.Boss.BossId.A, 10), "first kill");
++        Check(!progress.RecordKill(AntColony.Boss.BossId.A, 11), "kill once per cycle");
++        Check(progress.TryAcquire(AntColony.Boss.BossId.A, "ship", out var parcel) && parcel.count == 2, "A gives both branch cores");
++        Check(!progress.Recipe(AntColony.Boss.BossId.B), "acquisition does not replace home delivery");
++        Check(progress.TryDeliver(parcel.id) && progress.Home(AntColony.Boss.BossId.A) == 2, "actual home delivery");
++        Check(progress.Recipe(AntColony.Boss.BossId.B) && progress.Recipe(AntColony.Boss.BossId.C), "both orders available");
++        Check(!progress.TryRespawn(AntColony.Boss.BossId.A, 1809, false, false, false), "respawn 1s early");
++        Check(!progress.TryRespawn(AntColony.Boss.BossId.A, 1810, true, false, false), "allies hold respawn");
++        Check(!progress.TryRespawn(AntColony.Boss.BossId.A, 1810, false, true, false), "transport holds respawn");
++        Check(!progress.TryRespawn(AntColony.Boss.BossId.A, 1810, false, false, true), "combat holds respawn");
++        Check(progress.TryRespawn(AntColony.Boss.BossId.A, 1810, false, false, false), "12 day respawn");
++        Check(progress.RecordKill(AntColony.Boss.BossId.A, 1820) && progress.TryAcquire(AntColony.Boss.BossId.A, "ship", out var repeat)
++            && repeat.id != parcel.id && repeat.cycle == 1, "repeat yields new single parcel");
++        Check(!progress.TryAcquire(AntColony.Boss.BossId.A, "ship", out _), "repeat reward cannot duplicate");
++        Check(AntColony.Boss.BossProgress.Validate(state), "campaign progression state valid");
++        foreach (bool bFirst in new[] { true, false })
++        {
++            var branches = new AntColony.Boss.BossProgress.State(); var p = new AntColony.Boss.BossProgress(branches);
++            foreach (var id in bFirst ? new[] { AntColony.Boss.BossId.B, AntColony.Boss.BossId.C } : new[] { AntColony.Boss.BossId.C, AntColony.Boss.BossId.B })
++            {
++                branches.revealed[(int)id] = true;
++                Check(p.RecordKill(id, 0) && p.TryAcquire(id, "party", out var item) && p.TryDeliver(item.id), "branch delivery " + id);
++            }
++            Check(p.Recipe(AntColony.Boss.BossId.D) && p.DetectionBlock(AntColony.Boss.BossId.D) == "", "merge independent of branch order");
++        }
++        var encounter = new AntColony.Boss.BossEncounter.State { taken = true };
++        Check(!AntColony.Boss.BossEncounter.Present(new AntColony.Boss.BossEncounter.State())
++            && AntColony.Boss.BossEncounter.Validate(new AntColony.Boss.BossEncounter.State()), "null-to-empty JSON placeholder is not a captured encounter");
++        Check(AntColony.Boss.BossEncounter.Validate(null) && AntColony.Boss.BossEncounter.Validate(encounter), "old and new encounter defaults");
++        encounter.warning = true; Check(!AntColony.Boss.BossEncounter.Validate(encounter), "warning requires remaining time");
++        encounter.warningRemaining = 1; Check(AntColony.Boss.BossEncounter.Validate(encounter), "saved telegraph resumes");
++        encounter.elapsed = float.NaN; Check(!AntColony.Boss.BossEncounter.Validate(encounter), "invalid boss phase rejected");
++        foreach (float distance in new[] { .16f, .31f, .46f })
++        {
++            float vehicle = AntColony.World.ExpeditionRules.TransportSeconds(distance, false);
++            float aircraft = AntColony.World.ExpeditionRules.TransportSeconds(distance, true);
++            Check(vehicle == aircraft * 2, "transport ring ratio");
++            report.AppendLine($"distance={distance}: vehicle={vehicle}s aircraft={aircraft}s");
++        }
++        Check(AntColony.World.ExpeditionRules.TransportSeconds(.46f, false) == 70, "outer destination meaningful distance");
++        return $"PASS {count} boss/expedition checks\n" + report;
++    }
++}
+diff --git a/AgentScripts/Review1029CampaignRuntimeChecks.cs b/AgentScripts/Review1029CampaignRuntimeChecks.cs
+new file mode 100644
+index 0000000..2b2430b
+--- /dev/null
++++ b/AgentScripts/Review1029CampaignRuntimeChecks.cs
+@@ -0,0 +1,136 @@
++using System;
++using System.Linq;
++using System.Reflection;
++using System.Threading.Tasks;
++using UnityEngine;
++
++// Claude가 격리된 새 게임에서 실행한다. 이 J2 작업에서는 Unity를 실행하지 않는다.
++public static class Review1029CampaignRuntimeChecks
++{
++    private const BindingFlags Hidden = BindingFlags.Instance | BindingFlags.NonPublic;
++    private static object Call(object obj, string method, params object[] args) => obj.GetType().GetMethod(method, Hidden).Invoke(obj, args);
++    public static async Task<string> Main()
++    {
++        await Task.CompletedTask;
++        if (!Application.isPlaying || AntColony.Core.CommanderRoster.Instance == null) throw new Exception("isolated Play scene required");
++        var roster = AntColony.Core.CommanderRoster.Instance.Commanders.ToArray();
++        if (roster.Length < 2) throw new Exception("isolated scene needs two commanders");
++        var before = AntColony.Save.SaveSnapshot.Capture();
++        if (!AntColony.Save.SavePreflight.Validate(before, out var error)) throw new Exception("baseline save: " + error);
++        int count = 0;
++        void Check(bool ok, string label) { if (!ok) throw new Exception(label); count++; }
++        float speed = Time.timeScale; Time.timeScale = 0;
++        var random = UnityEngine.Random.state;
++        var c = roster[0]; var other = roster[1];
++        var traits = c.Traits.values.ToArray();
++        var personal = c.CapturePersonalState(); var otherPersonal = other.CapturePersonalState();
++        int troops = c.TroopCount; float pending = (float)typeof(AntColony.Units.CommanderAnt).GetProperty("PendingTroopDamage", Hidden).GetValue(c);
++        var positions = new[] { c.Position, other.Position };
++        var population = AntColony.Core.ColonyPopulation.Instance.Capture();
++        var pool = AntColony.Core.AntPool.Instance;
++        var counts = new[] { pool.Free, pool.Assigned, pool.Reserved };
++        var campaign = AntColony.Core.RocketCampaign.Instance.Capture();
++        var research = AntColony.Core.CampaignResearch.Instance.CaptureState();
++        var history = AntColony.Core.CampaignHistory.Instance?.Capture();
++        var boss = AntColony.World.WorldMapManager.Instance.Sites.First(s => s.GetComponent<AntColony.World.BossStronghold>()?.Id == AntColony.Boss.BossId.A).Boss;
++        var encounter = boss.GetComponent<AntColony.Boss.BossEncounter>(); var encounterState = encounter.Capture();
++        var bossPosition = boss.Position;
++        GameObject rocketObject = null; AntColony.Data.BuildingData definition = null;
++        AntColony.Buildings.BuildingConstructionSite rebuildSite = null;
++        Action<AntColony.Buildings.AirshipYard, AntColony.Core.RocketSnapshot, float> assault = (y, s, dt) => { };
++        AntColony.Core.RocketCampaign.AssaultTick += assault;
++        try
++        {
++            c.CommandStop(); other.CommandStop();
++            c.Traits.values.Clear();
++            var clean = c.CapturePersonalState(); clean.health = new AntColony.Units.HealthState(); clean.work = new AntColony.Units.CommanderWorkState();
++            clean.mentalBreak = AntColony.Units.MentalBreak.None; clean.rageRemaining = 0; clean.dead = false;
++            c.RestorePersonalState(clean);
++            foreach (int n in new[] { 0, 1, 5, 10, 20 })
++            {
++                Call(c, "RestoreTroops", n, 0f); float attack = c.AttackDamage;
++                Call(c, "RestoreTroops", 1, 0f);
++                Check(Mathf.Abs(attack - c.AttackDamage * Mathf.Max(1, n)) < .001f, "actual commander attack troop scale " + n);
++            }
++            Call(c, "RestoreTroops", 0, 0f);
++            Call(pool, "RestoreCounts", 20, 0, 0);
++            var p = new AntColony.Core.ColonyPopulation.State { ages = new int[65] }; p.ages[20] = 20;
++            p.civilianLocations.Add(new AntColony.Core.CivilianLocation { id = 1, count = 20, arrived = true, position = c.Position }); p.nextCivilianLocation = 2;
++            AntColony.Core.ColonyPopulation.Instance.Restore(p);
++            rocketObject = new GameObject("Review1029 J2 rocket"); rocketObject.SetActive(false); rocketObject.transform.position = c.Position;
++            var yard = rocketObject.AddComponent<AntColony.Buildings.AirshipYard>();
++            definition = ScriptableObject.CreateInstance<AntColony.Data.BuildingData>(); definition.kind = AntColony.Data.BuildingKind.AirshipYard;
++            definition.maxHealth = 300; definition.foodCost = 100; definition.soilCost = 150; definition.buildTimeSeconds = 10;
++            typeof(AntColony.Buildings.BuildingBase).GetMethod("ConfigureRuntime", Hidden).Invoke(yard, new object[] { definition });
++            yard.RestoreState(new AntColony.Buildings.AirshipYard.State { hull = true, engine = true, fuelType = (int)AntColony.Data.ResourceType.Petroleum, fuelUnits = 15 }, roster);
++            rocketObject.SetActive(true);
++            var r = AntColony.Core.CampaignResearch.Instance.CaptureState();
++            r.bosses.revealed[3] = r.bosses.obtained[3] = r.bosses.delivered[3] = true; r.bosses.claimed[3] = 0; r.bosses.home[3] = 1;
++            AntColony.Core.CampaignResearch.Instance.RestoreState(r);
++            var economy = AntColony.Core.RocketCampaign.Instance.Economy;
++            economy.Observe(AntColony.Core.GameCalendar.GameSeconds, 100, 22);
++            Check(yard.TryActivate(100, 22) && yard.PreparationRemaining == 2250, "actual activation consumes imported core and starts full15days");
++            Check(AntColony.Core.CampaignResearch.Instance.BossProgress.Home(AntColony.Boss.BossId.D) == 0, "actual core consumed once");
++            Check(!yard.TryBoard(c), "boarding blocked during preparation");
++            var ready = yard.CaptureState(roster); ready.phase = AntColony.Buildings.RocketPhase.Boarding; ready.preparationRemaining = 0;
++            yard.RestoreState(ready, roster);
++            Check(yard.TryBoard(1) == 9 && yard.OccupiedSeats == 9, "civilian boarding reserves commander seat");
++            Check(!yard.TryDepart(), "citizens alone cannot launch");
++            c.PersonalState.Relation(other.PersonalState.id).spouse = true;
++            Check(yard.TryBoard(c) && yard.HasLaunchCommander, "commander fills reserved seat");
++            Check(yard.TryDisembark(c) && !yard.HasLaunchCommander && yard.CivilianPassengers == 9 && !yard.TryDepart(), "individual defense redeployment retains civilians and blocks empty commander launch");
++            Check(yard.TryBoard(c), "commander can reboard manually");
++            var ending = AntColony.Core.CampaignOutcome.Capture(yard.Passengers);
++            Check(ending.citizensEscaped == 9 && ending.legacy.Any(line => line.Contains("배우자") && line.Contains("탈출") && line.Contains("잔류")), "relationship records split outcome");
++            var frozen = JsonUtility.FromJson<AntColony.Core.CampaignOutcome.State>(JsonUtility.ToJson(ending));
++            c.PersonalState.relations.Clear(); Check(frozen.legacy.SequenceEqual(ending.legacy), "ending narrative frozen on save");
++            if (!c.Traits.Has(AntColony.Units.CommanderTrait.DiamondBuilding)) c.Traits.values.Add(AntColony.Units.CommanderTrait.DiamondBuilding);
++            Call(yard, "RecordBuilder", c, 7.49f, 10f); Check(!yard.CaptureState(roster).babelEligible, "74.9 percent insufficient");
++            Call(yard, "RecordBuilder", c, .02f, 10f); Check(yard.CaptureState(roster).babelEligible, "individual75percent qualifies");
++            Check(yard.TryDepart(), "launch queued with commander");
++            yard.TakeDamage(100000);
++            Call(yard, "ResolveLaunch");
++            Check(yard.Phase == AntColony.Buildings.RocketPhase.Destroyed && !AntColony.Core.CampaignResearch.Instance.Departed, "same tick destruction wins");
++            Check(yard.CivilianPassengers == 0 && pool.Free == 11, "dead civilian passengers never return to pool");
++            Check(!c.IsDead && !c.IsEmbarked && c.PersonalHealth == 0 && c.Health.Serious, "passenger survives wounded and needs rescue");
++            Check(yard.HasFoundation && yard.TryRebuildFoundation(), "manual foundation rebuild request");
++            rebuildSite = AntColony.Core.SceneObjects.All<AntColony.Buildings.BuildingConstructionSite>().First(s => s.Building == rocketObject);
++            Check(rebuildSite.BuildTimeSeconds == 5 && rebuildSite.Needs.Single(n => n.type == yard.MainMaterial).need == 113, "foundation half work and rounded75percent materials");
++            var fresh = yard.CaptureState(roster);
++            Check(!fresh.hull && !fresh.engine && fresh.cocoons == 0 && fresh.fuelUnits == 0 && fresh.foundationUsed
++                && !AntColony.Core.RocketSnapshot.Present(fresh.snapshot), "rebuild keeps no modules fuel core or defense progress");
++            var saved = AntColony.Save.SaveSnapshot.Capture();
++            var savedRebuild = saved.construction.Single(d => d.name == "로켓 기초 재건");
++            Check(savedRebuild.hasRocketState && savedRebuild.rocket?.foundationUsed == true, "construction DTO preserves used foundation");
++            var savedCopy = JsonUtility.FromJson<AntColony.Save.SaveFileV1>(JsonUtility.ToJson(saved));
++            Check(AntColony.Save.SavePreflight.Validate(savedCopy, out error), "whole save preflight after rocket failure/rebuild: " + error);
++            other.transform.position = boss.Position + Vector3.back;
++            other.WorkState.health = 100; other.PersonalState.health = new AntColony.Units.HealthState();
++            encounter.Restore(new AntColony.Boss.BossEncounter.State { taken = true, elapsed = 0, warning = true, warningRemaining = .5f, pulseRemaining = 6.5f, strike = other.Position });
++            foreach (AntColony.Data.UnitRole role in Enum.GetValues(typeof(AntColony.Data.UnitRole)))
++                Check(AntColony.Core.CombatTargeting.CanAttack(role, boss, true) == (role == AntColony.Data.UnitRole.Ranged || role == AntColony.Data.UnitRole.Flying), "actual airborne boss targeting " + role);
++            float health = other.PersonalHealth;
++            encounter.Tick(.6f); Check(other.PersonalHealth < health, "saved telegraph hits actual commander once");
++            var resolvedHealth = other.PersonalHealth; encounter.Tick(.01f);
++            Check(other.PersonalHealth == resolvedHealth, "resolved telegraph not repeated");
++            savedCopy = JsonUtility.FromJson<AntColony.Save.SaveFileV1>(JsonUtility.ToJson(before));
++            savedCopy.monsters.First(m => m.key.StartsWith("boss:")).bossEncounter = new AntColony.Boss.BossEncounter.State { taken = true, elapsed = float.NaN };
++            Check(!AntColony.Save.SavePreflight.Validate(savedCopy, out error), "save preflight rejects invalid encounter timer");
++            return $"PASS {count} J2 runtime checks";
++        }
++        finally
++        {
++            if (rebuildSite != null) UnityEngine.Object.DestroyImmediate(rebuildSite.gameObject);
++            if (rocketObject != null) UnityEngine.Object.DestroyImmediate(rocketObject);
++            if (definition != null) UnityEngine.Object.DestroyImmediate(definition);
++            c.Traits.values.Clear(); c.Traits.values.AddRange(traits);
++            c.RestorePersonalState(personal); other.RestorePersonalState(otherPersonal);
++            Call(c, "RestoreTroops", troops, pending); c.transform.position = positions[0]; other.transform.position = positions[1];
++            Call(pool, "RestoreCounts", counts[0], counts[1], counts[2]); AntColony.Core.ColonyPopulation.Instance.Restore(population);
++            AntColony.Core.CampaignResearch.Instance.RestoreState(research); AntColony.Core.RocketCampaign.Instance.Restore(campaign);
++            if (history != null) AntColony.Core.CampaignHistory.Instance.Restore(history);
++            encounter.Restore(encounterState); boss.transform.position = bossPosition;
++            AntColony.Core.RocketCampaign.AssaultTick -= assault; UnityEngine.Random.state = random; Time.timeScale = speed;
++        }
++    }
++}
+diff --git a/AgentScripts/Review1029CombatChecks.cs b/AgentScripts/Review1029CombatChecks.cs
+new file mode 100644
+index 0000000..75571aa
+--- /dev/null
++++ b/AgentScripts/Review1029CombatChecks.cs
+@@ -0,0 +1,68 @@
++using System;
++using System.Text;
++using System.Threading.Tasks;
++
++public static class Review1029CombatChecks
++{
++    private sealed class Target : AntColony.Core.IDamageable, AntColony.Core.IAirborne
++    {
++        public bool IsDead => false;
++        public bool IsAirborne { get; set; }
++        public UnityEngine.Vector3 Position => default;
++        public void TakeDamage(float amount) { }
++    }
++    public static async Task<string> Main()
++    {
++        await Task.CompletedTask;
++        int checks = 0;
++        void Check(bool ok, string label) { if (!ok) throw new Exception(label); checks++; }
++        var report = new StringBuilder();
++        foreach (float raw in new[] { .2f, 1f, 5f, 8f, 25f, 100f })
++            foreach (float armor in new[] { 0f, 4f, 8f, 20f, 100f })
++                foreach (float reduction in new[] { 0f, .2f, .75f, 2f })
++                {
++                    float multiplier = AntColony.Units.FormationRules.ReceivedMultiplier(0, reduction);
++                    float damage = AntColony.Core.FormationDamage.AfterArmor(raw, armor, multiplier);
++                    float expected = Math.Max(Math.Min(1, raw), raw - armor) * (1 - Math.Min(.75f, reduction));
++                    Check(Math.Abs(damage - expected) < .0001f, $"damage {raw}/{armor}/{reduction}");
++                    Check(damage > 0 && damage <= raw, "positive finite damage");
++                }
++        foreach (int troops in new[] { 1, 5, 10, 20 })
++        {
++            // 실제 공유 피해 공식으로 병력 1HP·개인100HP·병력수 공격을 시간순 적분한다.
++            double enemyHp = 1000, health = 100, troopHp = troops, time = 0;
++            while (health > 0 && enemyHp > 0 && time < 5000)
++            {
++                enemyHp -= 10 * Math.Max(1, Math.Ceiling(troopHp));
++                float incoming = AntColony.Core.FormationDamage.AfterArmor(8, 4);
++                double absorbed = Math.Min(troopHp, incoming); troopHp -= absorbed; health -= incoming - absorbed;
++                time++;
++            }
++            report.AppendLine($"{troops} troops, incoming8/armor4 every1s: {(enemyHp <= 0 ? "win" : "downed")} at {time}s, enemyHP={Math.Max(0, enemyHp):0}");
++            Check(time <= 30, "attrition resolves by commander HP budget");
++        }
++        var air = new Target { IsAirborne = true };
++        Check(AntColony.Core.CombatTargeting.IsAirborne(air), "shared airborne interface");
++        Check(!AntColony.Core.CombatTargeting.CanAttack(AntColony.Data.UnitRole.Ranged, air), "non scene targets are never attackable");
++        foreach (AntColony.Units.Formation f in AntColony.Units.FormationRules.All)
++        {
++            var m = AntColony.Units.FormationRules.Modifiers(f, front: true, withdrawing: true, ranged: true, hits: 4);
++            Check(1 + m.Attack > 0 && 1 + m.Move > 0 && 1 + m.AttackSpeed > 0, "formation valid " + f);
++        }
++        Check(AntColony.Units.FormationRules.Modifiers(AntColony.Units.Formation.Swift).Move
++            > AntColony.Units.FormationRules.Modifiers(AntColony.Units.Formation.Column).Move, "swift escapes faster than column");
++        Check(AntColony.Units.FormationRules.Modifiers(AntColony.Units.Formation.Wedge, front: true).Attack
++            > AntColony.Units.FormationRules.Modifiers(AntColony.Units.Formation.Arrow).Attack, "wedge frontal advantage");
++        Check(AntColony.Units.FormationRules.Modifiers(AntColony.Units.Formation.Wedge).Attack == 0, "wedge flank loses advantage");
++        Check(AntColony.Units.FormationRules.Modifiers(AntColony.Units.Formation.Cover, withdrawing: true).RangedReduction
++            > AntColony.Units.FormationRules.Modifiers(AntColony.Units.Formation.Crane).RangedReduction, "cover withdrawal advantage");
++        Check(AntColony.Units.FormationRules.Modifiers(AntColony.Units.Formation.Cover).RangedReduction == 0, "cover requires withdrawal");
++        Check(AntColony.Units.FormationRules.Modifiers(AntColony.Units.Formation.Snake, forestOrMountain: true).Attack > 0
++            && AntColony.Units.FormationRules.Modifiers(AntColony.Units.Formation.Snake).Attack < 0, "snake terrain tradeoff");
++        var state = new AntColony.Units.FormationState(); state.Hit("boss"); state.Hit("boss");
++        Check(state.hits == 2, "same target accumulates"); state.Target("other"); Check(state.hits == 0, "target change resets focus");
++        state.Hit("boss"); state.Tick(3); Check(state.hits == 0, "focus expires");
++        Check(Math.Abs(AntColony.Units.FormationRules.Stat(10, 0, .3f) - 13) < .001, "equipment/training basis receives formation once");
++        return $"PASS {checks} combat checks\n" + report;
++    }
++}
+diff --git a/AgentScripts/Review1029FinaleChecks.cs b/AgentScripts/Review1029FinaleChecks.cs
+new file mode 100644
+index 0000000..4475ada
+--- /dev/null
++++ b/AgentScripts/Review1029FinaleChecks.cs
+@@ -0,0 +1,68 @@
++using System;
++using System.Collections.Generic;
++using System.Threading.Tasks;
++
++public static class Review1029FinaleChecks
++{
++    public static async Task<string> Main()
++    {
++        await Task.CompletedTask;
++        int count = 0;
++        void Check(bool ok, string label) { if (!ok) throw new Exception(label); count++; }
++        var economy = new AntColony.Core.RocketEconomy();
++        economy.Observe(0, 100, 20); economy.Observe(300, 400, 100);
++        var s = economy.Preview(900, 50, 10);
++        Check(Math.Abs(s.averageWealth - 300) < .001 && Math.Abs(s.averagePopulation - 73.333333) < .001, "duration weighted inputs");
++        Check(s.Wealth == 300 && Math.Abs(s.Population - 73.333333) < .001, "max current/season keeps all wealth");
++        var fixedWealth = s.Wealth; economy.Observe(950, 10000, 10000);
++        Check(s.Wealth == fixedWealth, "activation snapshot independent of population growth");
++        economy.Observe(1850, 0, 0); var latest = economy.Preview(1850, 0, 0);
++        Check(latest.Wealth == 10000, "entire last season retained");
++        economy.Observe(2750, 0, 0); Check(economy.Preview(2750, 0, 0).Wealth == 0, "wealth ages out after full season");
++        Check(AntColony.Buildings.AirshipYard.PreparationSeconds == 2250 && AntColony.Core.FinalBattleEconomy.DefenseSeconds == 2250, "15 days unchanged");
++        foreach (int population in new[] { 20, 100, 500, 1000 })
++        {
++            // 기본10석·모듈50석·최대1010석. 인구는 장수까지 포함한 구출 대상 전체다.
++            int modules = Math.Max(0, (int)Math.Ceiling((population - 10) / 50d));
++            int seats = AntColony.Buildings.AirshipYard.BaseSeats + modules * AntColony.Buildings.AirshipYard.SeatsPerModule;
++            Check(seats >= population && modules <= 20, "expand seats before activation " + population);
++        }
++        var progressState = new AntColony.Boss.BossProgress.State(); var progress = new AntColony.Boss.BossProgress(progressState);
++        Check(!progress.TryConsumeRocketCore(), "activation cannot invent core");
++        progressState.revealed[3] = true;
++        Check(progress.RecordKill(AntColony.Boss.BossId.D, 0), "D killed");
++        Check(progress.TryAcquire(AntColony.Boss.BossId.D, "party", out var parcel) && progress.TryDeliver(parcel.id), "D core imported");
++        Check(progress.TryConsumeRocketCore() && progress.Home(AntColony.Boss.BossId.D) == 0, "one core consumed per activation");
++        Check(!progress.TryConsumeRocketCore(), "destroyed rocket retry needs another core");
++        Check(progress.Delivered(AntColony.Boss.BossId.D), "research delivery history retained");
++        Check(AntColony.Boss.BossProgress.CraftCost(AntColony.Boss.BossId.D, true)[AntColony.Data.ResourceType.Steel] == 100, "core recovery alternative remains");
++        var oldRocket = new AntColony.Buildings.AirshipYard.State();
++        Check(AntColony.Buildings.AirshipYard.Validate(oldRocket, 0, out _), "old rocket default accepted");
++        oldRocket.builders = null; Check(AntColony.Buildings.AirshipYard.Validate(oldRocket, 0, out _), "missing builder list old save");
++        var construction = new AntColony.Save.ConstructionDto { kind = "ScienceLab", position = new AntColony.Save.Vec3Dto(),
++            scale = new AntColony.Save.Vec3Dto(), buildingPosition = new AntColony.Save.Vec3Dto(), buildTime = 10, remaining = 5,
++            rocket = new AntColony.Buildings.AirshipYard.State() };
++        var validConstruction = typeof(AntColony.Save.ConstructionDto).Assembly.GetType("AntColony.Save.SaveConstruction")
++            .GetMethod("Valid", System.Reflection.BindingFlags.Static | System.Reflection.BindingFlags.NonPublic);
++        bool ConstructionValid() => (bool)validConstruction.Invoke(null, new object[] { new List<AntColony.Save.ConstructionDto> { construction } });
++        Check(ConstructionValid(), "ordinary construction accepts null-to-empty rocket placeholder");
++        construction.hasRocketState = true; Check(!ConstructionValid(), "rocket marker cannot attach to another building kind");
++        construction.kind = "AirshipYard"; Check(ConstructionValid(), "marked rocket construction validated by shared state path");
++        var foundation = new AntColony.Buildings.AirshipYard.State { phase = AntColony.Buildings.RocketPhase.Destroyed,
++            babelEligible = true, constructionWork = 100, builders = new List<AntColony.Buildings.RocketBuilderWork> {
++                new AntColony.Buildings.RocketBuilderWork { id = "builder", work = 75 } } };
++        Check(AntColony.Buildings.AirshipYard.Validate(foundation, 0, out _), "Babel 75 percent qualifies");
++        foundation.builders[0].work = 74.99f; Check(!AntColony.Buildings.AirshipYard.Validate(foundation, 0, out _), "false eligibility rejected");
++        foundation.builders[0].work = 100.1f; Check(!AntColony.Buildings.AirshipYard.Validate(foundation, 0, out _), "excess contribution rejected");
++        Check(AntColony.Core.CampaignOutcome.Validate(new AntColony.Core.CampaignOutcome.State { legacy = null }), "old ending narrative optional");
++        var ending = new AntColony.Core.CampaignOutcome.State { citizensEscaped = 10, citizensStaying = 20,
++            legacy = new List<string> { "가족: 탈출 / 잔류", "재건 뒤 재도전" } };
++        Check(AntColony.Core.CampaignOutcome.Validate(ending), "saved narrative valid");
++        ending.legacy.Add(new string('x', 1001)); Check(!AntColony.Core.CampaignOutcome.Validate(ending), "oversize narrative rejected");
++        Check(AntColony.World.DiplomacyManager.HomecomingBaseSeconds == 900, "safe homecoming 15min unchanged");
++        Check(AntColony.World.DiplomacyManager.HomecomingTimeLabel(900).Contains("6.0일")
++            && AntColony.World.DiplomacyManager.HomecomingTimeLabel(900).Contains("15.0분"), "return shown in current calendar");
++        Check(AntColony.World.DiplomacyManager.HomecomingTimeLabel(0).Contains("도착 대기"), "blocked arrival not negative ETA");
++        return $"PASS {count} finale/prisoner checks";
++    }
++}
+diff --git a/AgentScripts/Review1029J2Compile.ps1 b/AgentScripts/Review1029J2Compile.ps1
+new file mode 100644
+index 0000000..faaf341
+--- /dev/null
++++ b/AgentScripts/Review1029J2Compile.ps1
+@@ -0,0 +1,83 @@
++param([switch]$OfflineChecks)
++$ErrorActionPreference = 'Stop'
++$project = (Resolve-Path (Join-Path $PSScriptRoot '..')).Path
++if ($project -ne 'E:\Git\ant-wt\J2') { throw 'J2 worktree only' }
++$unityRoot = 'E:/unity/6000.5.8f1/Editor/Data'
++$bee = 'E:/Git/ant/Library/Bee/artifacts/1900b0aE.dag'
++$temp = Join-Path $project 'Temp/Review1029J2'
++New-Item -ItemType Directory -Path $temp -Force | Out-Null
++$utf8 = [Text.UTF8Encoding]::new($false)
++function Compile([string]$rsp) {
++    & "$unityRoot/DotNetSdk/dotnet.exe" exec "$unityRoot/DotNetSdk/sdk/8.0.318/Roslyn/bincore/csc.dll" -nologo "@$rsp"
++    if ($LASTEXITCODE -ne 0) { throw "Compile failed: $rsp" }
++}
++$lines = [Collections.Generic.List[string]]::new()
++$known = @{}; $missing = 0
++foreach ($line in (Get-Content -LiteralPath "$bee/Assembly-CSharp.rsp")) {
++    if ($line -match '\.cs"?$' -and $line -notmatch '^[-/]') {
++        $relative = $line.Trim('"').Replace('\', '/')
++        $source = Join-Path $project $relative
++        if (Test-Path -LiteralPath $source) { $lines.Add('"' + $source + '"'); $known[$relative] = $true }
++        else {
++            $missing++
++            $original = Join-Path 'E:/Git/ant' $relative
++            if (Test-Path -LiteralPath $original) {
++                $copy = Join-Path "$temp/ReferenceSources" $relative
++                New-Item -ItemType Directory -Path (Split-Path $copy) -Force | Out-Null
++                Copy-Item -LiteralPath $original -Destination $copy -Force
++                $lines.Add('"' + $copy + '"')
++            }
++        }
++    } elseif ($line -notmatch '^[-/](out|refout|analyzer|generatedfilesout):') { $lines.Add($line.Replace('"Library/', '"E:/Git/ant/Library/')) }
++}
++foreach ($source in (Get-ChildItem -LiteralPath "$project/Assets/_Project/Scripts" -Recurse -Filter *.cs)) {
++    $relative = $source.FullName.Substring($project.Length + 1).Replace('\', '/')
++    if (-not $known.ContainsKey($relative)) { $lines.Add('"' + $source.FullName + '"') }
++}
++$lines.Add('-out:"' + "$temp/Assembly-CSharp.dll" + '"')
++[IO.File]::WriteAllLines("$temp/game.rsp", $lines, $utf8)
++Compile "$temp/game.rsp"
++Write-Output "Game compile PASS; missing external sources copied read-only from original into J2 Temp: $missing"
++$checks = @(Get-ChildItem -LiteralPath $PSScriptRoot -Filter Review1029*Checks.cs)
++$editor = [Collections.Generic.List[string]]::new()
++foreach ($line in (Get-Content -LiteralPath "$bee/Assembly-CSharp-Editor.rsp")) {
++    if ($line -match '\.cs"?$' -and $line -notmatch '^[-/]') { continue }
++    if ($line -match '^[-/](out|refout|analyzer|generatedfilesout):') { continue }
++    if ($line -match '^[-/](r|reference):.*Assembly-CSharp(\.ref)?\.dll') { continue }
++    $editor.Add($line.Replace('"Library/', '"E:/Git/ant/Library/'))
++}
++$editor.Add('-r:"' + "$temp/Assembly-CSharp.dll" + '"')
++$editor.Add('-out:"' + "$temp/Review1029J2Checks.dll" + '"')
++foreach ($source in $checks) { $editor.Add('"' + $source.FullName + '"') }
++[IO.File]::WriteAllLines("$temp/checks.rsp", $editor, $utf8)
++Compile "$temp/checks.rsp"
++Write-Output 'Editor checks compile PASS (execution requires isolated game scene)'
++if (-not $OfflineChecks) { return }
++$offline = [Collections.Generic.List[string]]::new()
++$offline.Add('-target:exe'); $offline.Add('-out:"' + "$temp/OfflineChecks.dll" + '"')
++foreach ($ref in (Get-ChildItem "$unityRoot/DotNetSdk/packs/Microsoft.NETCore.App.Ref/8.0.21/ref/net8.0/*.dll")) { $offline.Add('-r:"' + $ref.FullName + '"') }
++foreach ($name in @('UnityEngine', 'UnityEngine.CoreModule', 'UnityEngine.PhysicsModule', 'UnityEngine.AIModule', 'UnityEngine.JSONSerializeModule')) {
++    $path = "$unityRoot/Managed/UnityEngine/$name.dll"
++    $offline.Add('-r:"' + $path + '"'); Copy-Item -LiteralPath $path -Destination $temp -Force
++}
++$offline.Add('-r:"' + "$temp/Assembly-CSharp.dll" + '"')
++foreach ($source in $checks | Where-Object { $_.Name -notmatch 'Runtime' }) { $offline.Add('"' + $source.FullName + '"') }
++$hostSource = @'
++using System;
++using System.Threading.Tasks;
++public static class OfflineRunner {
++    public static async Task<int> Main() {
++        Console.WriteLine(await Review1029CombatChecks.Main());
++        Console.WriteLine(await Review1029BossChecks.Main());
++        Console.WriteLine(await Review1029FinaleChecks.Main());
++        return 0;
++    }
++}
++'@
++[IO.File]::WriteAllText("$temp/OfflineRunner.cs", $hostSource, $utf8)
++$offline.Add('"' + "$temp/OfflineRunner.cs" + '"'); $offline.Add('-main:OfflineRunner')
++[IO.File]::WriteAllLines("$temp/offline.rsp", $offline, $utf8)
++Compile "$temp/offline.rsp"
++[IO.File]::WriteAllText("$temp/OfflineChecks.runtimeconfig.json", '{"runtimeOptions":{"tfm":"net8.0","framework":{"name":"Microsoft.NETCore.App","version":"8.0.21"}}}', $utf8)
++& "$unityRoot/DotNetSdk/dotnet.exe" "$temp/OfflineChecks.dll"
++if ($LASTEXITCODE -ne 0) { throw 'Offline checks failed' }
+diff --git a/Assets/_Project/Scripts/Boss/BossEncounter.cs b/Assets/_Project/Scripts/Boss/BossEncounter.cs
+new file mode 100644
+index 0000000..537767d
+--- /dev/null
++++ b/Assets/_Project/Scripts/Boss/BossEncounter.cs
+@@ -0,0 +1,108 @@
++using System;
++using System.Linq;
++using AntColony.Boss.Telegraph;
++using AntColony.Core;
++using AntColony.Units;
++using AntColony.World;
++using UnityEngine;
++using UnityEngine.AI;
++
++namespace AntColony.Boss
++{
++    // 기존 지상 AoE는 그대로 둔다. 비행 공격만 대공 가능하며 착지 중 근접 공략도 유지한다.
++    public sealed class BossEncounter : MonoBehaviour
++    {
++        [Serializable] public sealed class State
++        {
++            public bool taken; // JsonUtility가 null을 빈 객체로 만들 때 구저장/비보스와 구분한다.
++            public float elapsed = BossEncounterRules.FlightSeconds, pulseRemaining = BossEncounterRules.CycleSeconds - BossEncounterRules.FlightSeconds, warningRemaining;
++            public bool warning;
++            public Vector3 strike;
++        }
++        private State state = new State { taken = true };
++        private BossHealth boss;
++        private BossId id;
++        private Vector3 anchor;
++        private GroundTelegraphCircle telegraph;
++        public bool Airborne => BossEncounterRules.Flying(state.elapsed);
++        public void Initialize(BossHealth value, BossId bossId)
++        {
++            boss = value; id = bossId; anchor = value.Position;
++            boss.ConfigureCampaign(bossId);
++        }
++        private void Update() => Tick(Time.deltaTime);
++        public void Tick(float seconds)
++        {
++            if (AntColony.Save.SaveSystem.Busy || boss == null || boss.IsDead || !(seconds > 0) || float.IsInfinity(seconds)) return;
++            var target = AntUnitBase.Active.OfType<CommanderAnt>().Where(c => c.IsColonyMember && !c.IsDead && !c.IsEmbarked
++                && !c.IsCaptive && c.PersonalHealth > 0 && (c.Position - anchor).sqrMagnitude <= 35 * 35)
++                .OrderBy(c => (c.Position - anchor).sqrMagnitude).FirstOrDefault();
++            if (target == null && !state.warning) return;
++            state.elapsed = (state.elapsed + seconds) % BossEncounterRules.CycleSeconds;
++            transform.position = anchor + (Airborne ? Vector3.up * 3 : Vector3.zero);
++            if (state.warning)
++            {
++                ShowTelegraph();
++                state.warningRemaining = Mathf.Max(0, state.warningRemaining - seconds);
++                if (state.warningRemaining > 0) return;
++                state.warning = false; ClearTelegraph();
++                foreach (var c in AntUnitBase.Active.OfType<CommanderAnt>().ToArray())
++                {
++                    if (!c.IsColonyMember || c.IsDead || c.IsEmbarked || c.IsCaptive || c.PersonalHealth <= 0) continue;
++                    var delta = c.Position - state.strike; delta.y = 0;
++                    if (delta.sqrMagnitude > BossEncounterRules.StrikeRadius * BossEncounterRules.StrikeRadius) continue;
++                    FormationDamage.Apply(c, 12, anchor, ranged: true, area: true);
++                    if (BossEncounterRules.Heat(id) > 0) c.TakeHeatDamage(BossEncounterRules.Heat(id));
++                }
++                SpawnAdds();
++                return;
++            }
++            state.pulseRemaining = Mathf.Max(0, state.pulseRemaining - seconds);
++            if (state.pulseRemaining > 0 || target == null) return;
++            state.elapsed = 0; // 비행 시작과 예고를 일치시킨다. 재등장·로드에서도 같은 상태를 사용한다.
++            state.warning = true; state.warningRemaining = BossEncounterRules.WarningSeconds;
++            state.pulseRemaining = BossEncounterRules.CycleSeconds - BossEncounterRules.WarningSeconds;
++            state.strike = target.Position; state.strike.y = anchor.y - 1;
++            AoE.BossTelegraphTiming.Prepare(); ShowTelegraph();
++        }
++        private void SpawnAdds()
++        {
++            var site = GetComponentInParent<ExpeditionSite>();
++            if (site == null) return;
++            int existing = site.GetComponentsInChildren<WildMonster>().Count(m => !m.IsDead && m.name == "보스 호위");
++            for (int i = existing; i < BossEncounterRules.AddLimit(id); i++)
++            {
++                var point = anchor + new Vector3((i - 1.5f) * 2, 0, -3);
++                if (!NavMesh.SamplePosition(point, out var hit, 5, NavMesh.AllAreas)) continue;
++                var go = GameObject.CreatePrimitive(PrimitiveType.Capsule);
++                go.SetActive(false); go.name = "보스 호위"; go.transform.SetParent(site.transform);
++                go.transform.position = hit.position; go.transform.localScale = Vector3.one * .5f;
++                var guard = go.AddComponent<WildMonster>(); guard.ConfigureBossGuard(); go.SetActive(true);
++            }
++        }
++        private void ShowTelegraph()
++        {
++            if (telegraph != null) return;
++            var prefab = Resources.Load<GroundTelegraphCircle>("Telegraph/BossTelegraphCircle");
++            if (prefab == null) return;
++            telegraph = Instantiate(prefab, state.strike, Quaternion.identity);
++            telegraph.SetCenterAndRadius(state.strike, BossEncounterRules.StrikeRadius);
++        }
++        private void ClearTelegraph() { if (telegraph != null) Destroy(telegraph.gameObject); }
++        private void OnDisable() => ClearTelegraph();
++        internal void ResetEncounter() { state = new State { taken = true }; transform.position = anchor; ClearTelegraph(); }
++        public State Capture() => JsonUtility.FromJson<State>(JsonUtility.ToJson(state));
++        public void Restore(State value)
++        {
++            if (!Validate(value)) throw new FormatException("Invalid boss encounter state.");
++            state = !Present(value) ? new State { taken = true } : JsonUtility.FromJson<State>(JsonUtility.ToJson(value));
++            transform.position = anchor + (Airborne ? Vector3.up * 3 : Vector3.zero); ClearTelegraph();
++        }
++        public static bool Present(State s) => s != null && s.taken;
++        public static bool Validate(State s) => !Present(s) || RocketSnapshot.Finite(s.elapsed) && s.elapsed <= BossEncounterRules.CycleSeconds
++            && RocketSnapshot.Finite(s.pulseRemaining) && s.pulseRemaining <= BossEncounterRules.CycleSeconds
++            && RocketSnapshot.Finite(s.warningRemaining) && s.warningRemaining <= BossEncounterRules.WarningSeconds
++            && s.warning == (s.warningRemaining > 0)
++            && !float.IsNaN(s.strike.sqrMagnitude) && !float.IsInfinity(s.strike.sqrMagnitude);
++    }
++}
+diff --git a/Assets/_Project/Scripts/Boss/BossEncounter.cs.meta b/Assets/_Project/Scripts/Boss/BossEncounter.cs.meta
+new file mode 100644
+index 0000000..7798f2c
+--- /dev/null
++++ b/Assets/_Project/Scripts/Boss/BossEncounter.cs.meta
+@@ -0,0 +1,2 @@
++fileFormatVersion: 2
++guid: 7387e288a20848a893078a8cf5a547c1
+diff --git a/Assets/_Project/Scripts/Boss/BossEncounterRules.cs b/Assets/_Project/Scripts/Boss/BossEncounterRules.cs
+new file mode 100644
+index 0000000..69fc557
+--- /dev/null
++++ b/Assets/_Project/Scripts/Boss/BossEncounterRules.cs
+@@ -0,0 +1,18 @@
++using AntColony.Core;
++
++namespace AntColony.Boss
++{
++    // 추천안 자동 선택(사용자 미확인): 목표 시간·장비 역할의 계산 기준은 DECISIONS_1029_J2.md.
++    public static class BossEncounterRules
++    {
++        public const float CycleSeconds = 8, FlightSeconds = 3, WarningSeconds = 1.5f, StrikeRadius = 3;
++        public static float Health(BossId id) => id == BossId.A ? 12000 : id == BossId.D ? 24000 : 18000;
++        public static bool Flying(float elapsed) => elapsed % CycleSeconds < FlightSeconds;
++        public static int AddLimit(BossId id) => id == BossId.A ? 0 : id == BossId.B ? 2 : 4;
++        public static float Heat(BossId id) => id == BossId.A ? 0 : id == BossId.C ? 6 : 12;
++        public static string BranchAdvice => "B 먼저: 방열 갑옷으로 C·D의 열 피해 완화. C 먼저: 범위 분사기로 B·D의 호위 무리 대응. 둘 다 필수이며 순서는 자유입니다.";
++        public static string Guide(BossId id) => $"체력 {Health(id):0} · 8초 중 비행3초/착지5초 · 비행 공격 예고1.5초, 반경3m 밖 회피"
++            + (id == BossId.A ? " · 초반 장수1명+병력4~6명 기준, 피격 없이 공격할 때 약5~8분(공격10/인·간격1초)"
++                : $" · 호위 최대{AddLimit(id)}마리 · 열 피해{Heat(id):0}(방열로 절반)");
++    }
++}
+diff --git a/Assets/_Project/Scripts/Boss/BossEncounterRules.cs.meta b/Assets/_Project/Scripts/Boss/BossEncounterRules.cs.meta
+new file mode 100644
+index 0000000..792ae0c
+--- /dev/null
++++ b/Assets/_Project/Scripts/Boss/BossEncounterRules.cs.meta
+@@ -0,0 +1,2 @@
++fileFormatVersion: 2
++guid: c01bb198a9c04699bff8184aa767bd69
+diff --git a/Assets/_Project/Scripts/Boss/BossHealth.cs b/Assets/_Project/Scripts/Boss/BossHealth.cs
+index 8b319f7..ecd8f86 100644
+--- a/Assets/_Project/Scripts/Boss/BossHealth.cs
++++ b/Assets/_Project/Scripts/Boss/BossHealth.cs
+@@ -7,7 +7,7 @@ namespace AntColony.Boss
+ {
+     // SIMUL-TeaamProject(hyeonyeop 브랜치) BossHealth.cs 참고 포팅.
+     // 자체 IDamageable 대신 프로젝트 공용 AntColony.Core.IDamageable을 구현해 SoldierAnt.CommandAttack 등과 그대로 호환됨.
+-    public class BossHealth : MonoBehaviour, IDamageable
++    public class BossHealth : MonoBehaviour, IDamageable, IAirborne
+     {
+         [Header("Stats")]
+         [SerializeField] private float maxHp = 1000f;
+@@ -24,6 +24,8 @@ namespace AntColony.Boss
+         private float currentHp;
+         private bool deathProcessed;
+         public BossId? CampaignId { get; internal set; }
++        public bool IsAirborne => GetComponent<BossEncounter>()?.Airborne == true;
++        internal void ConfigureCampaign(BossId id) { maxHp = BossEncounterRules.Health(id); currentHp = maxHp; }
+ 
+         public float CurrentHp => currentHp;
+         public float MaxHp => maxHp;
+@@ -79,6 +81,9 @@ namespace AntColony.Boss
+ 
+         internal void Respawn()
+         {
++            GetComponent<BossEncounter>()?.ResetEncounter();
++            var encounter = GetComponent<BossEncounter>();
++            if (encounter != null) encounter.enabled = true;
+             deathProcessed = false; currentHp = maxHp; RootRemaining = 0;
+             foreach (var aoe in GetComponents<BossCircleAoE>()) aoe.enabled = true;
+             foreach (var aoe in GetComponents<BossConeAoE>()) aoe.enabled = true;
+@@ -94,6 +99,8 @@ namespace AntColony.Boss
+         {
+             currentHp = 0f;
+             deathProcessed = true;
++            var encounter = GetComponent<BossEncounter>();
++            if (encounter != null) encounter.enabled = false;
+             onHPChanged?.Invoke(0f, maxHp);
+             gameObject.SetActive(false);
+         }
+@@ -121,6 +128,8 @@ namespace AntColony.Boss
+             // onHPChanged 구독자가 비치명 피격 중 치명타를 넣으면 안쪽/바깥쪽 TakeDamage가 모두 여기로 온다.
+             if (deathProcessed) return;
+             deathProcessed = true;
++            var encounter = GetComponent<BossEncounter>();
++            if (encounter != null) encounter.enabled = false;
+             if (CampaignId.HasValue)
+                 CampaignResearch.Instance?.BossProgress.RecordKill(CampaignId.Value, GameCalendar.GameSeconds);
+ 
+diff --git a/Assets/_Project/Scripts/Boss/BossProgress.cs b/Assets/_Project/Scripts/Boss/BossProgress.cs
+index b843201..36e46ae 100644
+--- a/Assets/_Project/Scripts/Boss/BossProgress.cs
++++ b/Assets/_Project/Scripts/Boss/BossProgress.cs
+@@ -39,6 +39,12 @@ namespace AntColony.Boss
+         public int Home(BossId id) => state.home[(int)id];
+         public int Tools(BossId id) => state.tools[(int)id];
+         public int Cycle(BossId id) => state.cycle[(int)id];
++        public bool TryConsumeRocketCore()
++        {
++            if (!Delivered(BossId.D) || Home(BossId.D) < 1) return false;
++            state.home[(int)BossId.D]--;
++            return true;
++        }
+         public float CraftRemaining => state.craftRemaining;
+         public IReadOnlyList<Parcel> Cargo => state.cargo;
+         public static bool Tradable => false;
+diff --git a/Assets/_Project/Scripts/Buildings/AirshipYard.Civilians.cs b/Assets/_Project/Scripts/Buildings/AirshipYard.Civilians.cs
+index 3c80106..7805792 100644
+--- a/Assets/_Project/Scripts/Buildings/AirshipYard.Civilians.cs
++++ b/Assets/_Project/Scripts/Buildings/AirshipYard.Civilians.cs
+@@ -14,7 +14,7 @@ namespace AntColony.Buildings
+             var group = pop.S.civilianLocations.Find(l => l.id == groupId);
+             if (group == null || group.moving || !group.arrived || Vector3.Distance(group.position, Position) > 8) return 0;
+             int young = pop.S.young, old = pop.S.old;
+-            int boarded = pop.TakeArrivedCivilians(groupId, Capacity - OccupiedSeats);
++            int boarded = pop.TakeArrivedCivilians(groupId, Mathf.Max(0, Capacity - OccupiedSeats - (HasLaunchCommander ? 0 : 1)));
+             state.civilianPassengers += boarded;
+             state.civilianYoung += young - pop.S.young;
+             state.civilianOld += old - pop.S.old;
+diff --git a/Assets/_Project/Scripts/Buildings/AirshipYard.Recovery.cs b/Assets/_Project/Scripts/Buildings/AirshipYard.Recovery.cs
+new file mode 100644
+index 0000000..b133947
+--- /dev/null
++++ b/Assets/_Project/Scripts/Buildings/AirshipYard.Recovery.cs
+@@ -0,0 +1,65 @@
++using System;
++using System.Collections.Generic;
++using System.Linq;
++using AntColony.Core;
++using AntColony.Units;
++using UnityEngine;
++
++namespace AntColony.Buildings
++{
++    [Serializable] public sealed class RocketBuilderWork { public string id; public float work; }
++
++    public sealed partial class AirshipYard
++    {
++        public bool HasFoundation => Phase == RocketPhase.Destroyed && state.babelEligible && !state.foundationUsed;
++        internal void RecordBuilder(CommanderAnt builder, float work, float total)
++        {
++            if (state.foundationUsed || work <= 0 || total <= 0 || !builder.Traits.Has(CommanderTrait.DiamondBuilding)) return;
++            state.constructionWork = total;
++            state.builders ??= new List<RocketBuilderWork>();
++            var entry = state.builders.Find(b => b.id == builder.PersonalState.id);
++            if (entry == null) { entry = new RocketBuilderWork { id = builder.PersonalState.id }; state.builders.Add(entry); }
++            entry.work = Mathf.Min(total, entry.work + work);
++            state.babelEligible |= entry.work >= total * .75f;
++        }
++        // 바벨은 발사대 기초만 복구한다. 부품·좌석·연료·핵심물·15일 진행은 다시 준비한다.
++        public bool TryRebuildFoundation()
++        {
++            if (!HasFoundation || !isActiveAndEnabled || Data == null || CampaignResearch.Instance?.Departed == true) return false;
++            var go = GameObject.CreatePrimitive(PrimitiveType.Cube);
++            go.name = "로켓 기초 재건";
++            go.transform.SetPositionAndRotation(Position, transform.rotation);
++            go.transform.localScale = transform.localScale;
++            go.GetComponent<Collider>().isTrigger = true;
++            var site = go.AddComponent<BuildingConstructionSite>();
++            site.Initialize(gameObject, Data.buildTimeSeconds * .5f);
++            site.Require(AntColony.Data.ResourceType.Food, Mathf.CeilToInt(Data.foodCost * .75f));
++            site.Require(MainMaterial, Mathf.CeilToInt(Data.soilCost * .75f));
++            site.Require(AntColony.Data.ResourceType.Special, Mathf.CeilToInt(Data.specialCost * .75f));
++            state = new State { foundationUsed = true };
++            RestoreHealth(MaxHealth);
++            gameObject.SetActive(false);
++            CampaignHistory.Record("로켓 재건", name, "바벨 기초: 자재75%·작업50%, 부품과 핵심물은 재준비");
++            return true;
++        }
++        private void RecordDestruction()
++        {
++            CampaignHistory.Record("로켓 파괴", name,
++                $"준비 경과 {(PreparationSeconds - PreparationRemaining) / GameCalendar.SecondsPerDay:0.00}/15일 · 장수 {passengers.Count}명 구조 필요 · 시민 {OccupiedSeats - passengers.Count}명 사망 · 고정 재산 {state.snapshot?.Wealth ?? 0:0} / 인구 {state.snapshot?.Population ?? 0:0}", true);
++        }
++        private void DestroyPassengers()
++        {
++            int citizens = CivilianPassengers;
++            state.civilianPassengers = state.civilianYoung = state.civilianOld = 0;
++            CampaignHistory.Ants(citizens, true);
++            var survivors = passengers.ToArray(); passengers.Clear();
++            for (int i = 0; i < survivors.Length; i++)
++                if (CampaignOutcome.Survivor(survivors[i])) survivors[i].SurviveRocketDestruction(Position + Vector3.right * (3 + i));
++        }
++        private static bool ValidFoundation(State s) => RocketSnapshot.Finite(s.constructionWork)
++            && (s.builders == null || s.builders.Count <= 10000 && s.builders.All(b => b != null && !string.IsNullOrEmpty(b.id)
++                && RocketSnapshot.Finite(b.work) && b.work <= s.constructionWork)
++                && s.builders.Select(b => b.id).Distinct().Count() == s.builders.Count)
++            && (!s.babelEligible || s.constructionWork > 0 && s.builders != null && s.builders.Any(b => b.work >= s.constructionWork * .75f));
++    }
++}
+diff --git a/Assets/_Project/Scripts/Buildings/AirshipYard.Recovery.cs.meta b/Assets/_Project/Scripts/Buildings/AirshipYard.Recovery.cs.meta
+new file mode 100644
+index 0000000..4961435
+--- /dev/null
++++ b/Assets/_Project/Scripts/Buildings/AirshipYard.Recovery.cs.meta
+@@ -0,0 +1,2 @@
++fileFormatVersion: 2
++guid: e1ce3b3e9884409e950af2f6990c76a0
+diff --git a/Assets/_Project/Scripts/Buildings/AirshipYard.Rocket.cs b/Assets/_Project/Scripts/Buildings/AirshipYard.Rocket.cs
+index 1bebdd1..28cd6e6 100644
+--- a/Assets/_Project/Scripts/Buildings/AirshipYard.Rocket.cs
++++ b/Assets/_Project/Scripts/Buildings/AirshipYard.Rocket.cs
+@@ -20,6 +20,7 @@ namespace AntColony.Buildings
+         public int Capacity => BaseSeats + SeatsPerModule * Cocoons;
+         public int CivilianPassengers => state.civilianPassengers;
+         public int OccupiedSeats => CivilianPassengers + passengers.Where(c => c != null && !c.IsDead).Sum(c => 1 + c.TroopCount);
++        public bool HasLaunchCommander => passengers.Any(c => CampaignOutcome.Survivor(c) && c.IsEmbarked);
+         public ReserveRequirement[] ActivationReserves => new[] { new ReserveRequirement(FuelResource, FuelUnitsPerDay * FinalBattleEconomy.DefenseDays) };
+         public int LoadedFuel(AntColony.Data.ResourceType type) => state.fuelType == (int)type ? state.fuelUnits : 0;
+         public float PreparationRemaining => state.preparationRemaining;
+@@ -55,7 +56,7 @@ namespace AntColony.Buildings
+                 || Demolition.Pending(this) || campaign == null || CampaignResearch.Instance == null
+                 || CampaignResearch.Instance.Departed || RocketCampaign.Operating || !RocketCampaign.AssaultAvailable) return false;
+             var snapshot = campaign.Economy.Preview(GameCalendar.GameSeconds, currentWealth, currentPopulation);
+-            if (snapshot == null) return false;
++            if (snapshot == null || !CampaignResearch.Instance.BossProgress.TryConsumeRocketCore()) return false;
+             state.snapshot = snapshot;
+             state.preparationRemaining = PreparationSeconds;
+             state.phase = RocketPhase.Preparing;
+@@ -75,7 +76,7 @@ namespace AntColony.Buildings
+             if (!state.launchRequested) return;
+             state.launchRequested = false;
+             var research = CampaignResearch.Instance;
+-            if (!isActiveAndEnabled || IsDead || Phase != RocketPhase.Boarding || OccupiedSeats == 0
++            if (!isActiveAndEnabled || IsDead || Phase != RocketPhase.Boarding || !HasLaunchCommander
+                 || research == null || research.Departed) return;
+             RocketCampaign.Instance?.RecordEnding(this);
+             state.phase = RocketPhase.Launched;
+@@ -84,9 +85,11 @@ namespace AntColony.Buildings
+         protected override void Die()
+         {
+             if (Operating) RocketCampaign.Instance?.RocketDestroyed();
++            RecordDestruction();
+             state.phase = RocketPhase.Destroyed;
+             state.launchRequested = false;
+-            Unload();
++            DestroyPassengers();
++            if (HasFoundation) return;
+             base.Die();
+         }
+     }
+diff --git a/Assets/_Project/Scripts/Buildings/AirshipYard.cs b/Assets/_Project/Scripts/Buildings/AirshipYard.cs
+index 9c73a7c..415bd7d 100644
+--- a/Assets/_Project/Scripts/Buildings/AirshipYard.cs
++++ b/Assets/_Project/Scripts/Buildings/AirshipYard.cs
+@@ -25,6 +25,9 @@ namespace AntColony.Buildings
+             public bool launchRequested;
+             public int civilianPassengers, civilianYoung, civilianOld;
+             public List<int> passengers = new List<int>();
++            public bool babelEligible, foundationUsed;
++            public float constructionWork;
++            public List<RocketBuilderWork> builders = new List<RocketBuilderWork>();
+         }
+         private State state = new State();
+         private readonly List<CommanderAnt> passengers = new List<CommanderAnt>();
+@@ -82,16 +85,25 @@ namespace AntColony.Buildings
+ 
+         public void Unload()
+         {
++            state.launchRequested = false;
+             UnloadCivilians();
+             for (var i = 0; i < passengers.Count; i++)
+                 if (passengers[i] != null) passengers[i].SetEmbarked(false, Position + Vector3.right * (3 + i));
+             passengers.Clear();
+         }
+ 
++        public bool TryDisembark(CommanderAnt commander)
++        {
++            if (!isActiveAndEnabled || IsDead || Phase != RocketPhase.Boarding || commander == null || !passengers.Remove(commander)) return false;
++            state.launchRequested = false;
++            commander.SetEmbarked(false, Position + Vector3.right * 3);
++            return true;
++        }
++
+         public bool TryDepart()
+         {
+             var research = CampaignResearch.Instance;
+-            if (!isActiveAndEnabled || IsDead || Phase != RocketPhase.Boarding || !Ready || state.launchRequested || OccupiedSeats == 0 || research == null || research.Departed) return false;
++            if (!isActiveAndEnabled || IsDead || Phase != RocketPhase.Boarding || !Ready || state.launchRequested || !HasLaunchCommander || research == null || research.Departed) return false;
+             state.launchRequested = true;
+             return true;
+         }
+@@ -121,6 +133,7 @@ namespace AntColony.Buildings
+         {
+             error = "Invalid rocket launch pad state.";
+             if (value == null) { error = ""; return true; }
++            if (!ValidFoundation(value)) return false;
+             if (value.cocoons < 0 || value.building < -1 || value.building > 2 || value.remaining < 0
+                 || value.civilianPassengers < 0 || value.civilianYoung < 0 || value.civilianOld < 0
+                 || (long)value.civilianYoung + value.civilianOld > value.civilianPassengers
+diff --git a/Assets/_Project/Scripts/Core/CampaignLegacy.cs b/Assets/_Project/Scripts/Core/CampaignLegacy.cs
+new file mode 100644
+index 0000000..a8f6eb3
+--- /dev/null
++++ b/Assets/_Project/Scripts/Core/CampaignLegacy.cs
+@@ -0,0 +1,34 @@
++using System.Collections.Generic;
++using System.Linq;
++using AntColony.World;
++
++namespace AntColony.Core
++{
++    public static class CampaignLegacy
++    {
++        public static List<string> Capture(CampaignOutcome.State ending)
++        {
++            var lines = new List<string>();
++            var entries = ending.commanders.ToDictionary(c => c.id);
++            var pairs = new HashSet<string>();
++            if (CommanderRoster.Instance != null) foreach (var c in CommanderRoster.Instance.Commanders)
++                foreach (var r in c.PersonalState.relations)
++                {
++                    if (!entries.TryGetValue(r.otherId, out var other) || !entries.TryGetValue(c.PersonalState.id, out var own)) continue;
++                    var key = string.CompareOrdinal(own.id, other.id) < 0 ? own.id + ":" + other.id : other.id + ":" + own.id;
++                    string relationship = r.spouse ? "배우자" : r.family ? "가족" : r.value >= 40 ? "친구" : r.value <= -40 ? "라이벌" : null;
++                    if (relationship != null && pairs.Add(key)) lines.Add($"관계: {own.name}({Label(own.category)}) · {other.name}({Label(other.category)}) — {relationship}");
++                }
++            foreach (var death in Memorial.Deaths)
++                if (entries.ContainsKey(death.id)) lines.Add($"기억하는 이: {death.name} · {death.cause} · {GameCalendar.Format(death.date)}");
++            if (DiplomacyManager.Instance != null) foreach (var faction in DiplomacyManager.Instance.Data.civilizations.Where(c => c.contacted || c.extinct))
++                lines.Add($"세력: {faction.name} · {(faction.extinct ? "소멸" : faction.war ? "전쟁 중" : "평화")} · 관계 {faction.affinity:0}");
++            if (WorldMapManager.Instance != null)
++                lines.Add($"남은 정착지: 편입 영토 {WorldMapManager.Instance.Sites.Count(s => s.Disposition == ConquestDisposition.Annexed)}곳 · 시민 {ending.citizensStaying}명");
++            return lines;
++        }
++        public static string Label(EndingCategory category) => category switch {
++            EndingCategory.Escaped => "탈출", EndingCategory.Staying => "잔류", EndingCategory.Outside => "외부",
++            EndingCategory.Captive => "포로", EndingCategory.Dead => "사망", _ => "이탈" };
++    }
++}
+diff --git a/Assets/_Project/Scripts/Core/CampaignLegacy.cs.meta b/Assets/_Project/Scripts/Core/CampaignLegacy.cs.meta
+new file mode 100644
+index 0000000..c25e4e1
+--- /dev/null
++++ b/Assets/_Project/Scripts/Core/CampaignLegacy.cs.meta
+@@ -0,0 +1,2 @@
++fileFormatVersion: 2
++guid: 77b1bfee703c4cdc934260ae5bfb2a85
+diff --git a/Assets/_Project/Scripts/Core/CampaignOutcome.cs b/Assets/_Project/Scripts/Core/CampaignOutcome.cs
+index 7fa1532..48d654c 100644
+--- a/Assets/_Project/Scripts/Core/CampaignOutcome.cs
++++ b/Assets/_Project/Scripts/Core/CampaignOutcome.cs
+@@ -18,6 +18,7 @@ namespace AntColony.Core
+         {
+             public List<Entry> commanders = new List<Entry>();
+             public int citizensEscaped, citizensStaying;
++            public List<string> legacy = new List<string>(); // 구저장 null/빈 목록: 당시 서사 스냅샷 없음
+         }
+         public static bool Survivor(CommanderAnt c) => c != null && !c.IsDead && !c.IsCaptive && !c.IsDeparting && !c.IsHostile;
+         public static bool SafeHomecoming(Homecoming h) => h?.commander?.PersonalState != null
+@@ -34,7 +35,12 @@ namespace AntColony.Core
+             if (boarded && c.IsEmbarked) return EndingCategory.Escaped;
+             return c.IsAwayFromHome ? EndingCategory.Outside : EndingCategory.Staying;
+         }
+-        public static State Capture(IReadOnlyList<CommanderAnt> boarded) => Capture(boarded, null);
++        public static State Capture(IReadOnlyList<CommanderAnt> boarded)
++        {
++            var result = Capture(boarded, null);
++            result.legacy = CampaignLegacy.Capture(result);
++            return result;
++        }
+         private static State Capture(IReadOnlyList<CommanderAnt> boarded, CommanderAnt boardingCandidate)
+         {
+             var result = new State(); var ids = new HashSet<string>();
+@@ -67,6 +73,7 @@ namespace AntColony.Core
+             return result;
+         }
+         public static bool Validate(State s) => s == null || s.commanders != null && s.citizensEscaped >= 0 && s.citizensStaying >= 0
++            && (s.legacy == null || s.legacy.Count <= 10000 && s.legacy.All(line => line != null && line.Length <= 1000))
+             && s.commanders.All(c => c != null && !string.IsNullOrEmpty(c.id) && c.name != null && Enum.IsDefined(typeof(EndingCategory), c.category))
+             && s.commanders.Select(c => c.id).Distinct().Count() == s.commanders.Count;
+         public static string Preview(IReadOnlyList<CommanderAnt> boarded, CommanderAnt boardingCandidate = null)
+diff --git a/Assets/_Project/Scripts/Core/FormationDamage.cs b/Assets/_Project/Scripts/Core/FormationDamage.cs
+index b9c9cfa..c5be72c 100644
+--- a/Assets/_Project/Scripts/Core/FormationDamage.cs
++++ b/Assets/_Project/Scripts/Core/FormationDamage.cs
+@@ -5,6 +5,8 @@ namespace AntColony.Core
+ {
+     public static class FormationDamage
+     {
++        public static float AfterArmor(float amount, float armor, float receivedMultiplier = 1) =>
++            Mathf.Max(Mathf.Min(1, amount), amount - armor) * receivedMultiplier;
+         // 출발점 없는 지속 피해는 기존 TakeDamage 경로를 사용한다.
+         public static void Apply(IDamageable target, float amount, Vector3 source, bool ranged = false, bool area = false)
+         {
+diff --git a/Assets/_Project/Scripts/Save/SaveConstruction.cs b/Assets/_Project/Scripts/Save/SaveConstruction.cs
+index 494c7c1..8b08150 100644
+--- a/Assets/_Project/Scripts/Save/SaveConstruction.cs
++++ b/Assets/_Project/Scripts/Save/SaveConstruction.cs
+@@ -21,6 +21,8 @@ namespace AntColony.Save
+         public int mark; public string targetKind; public Vec3Dto targetPosition, moveTo; public int newMaterial; public bool wasEnabled = true, workStarted, packed;
+         // 재개발 표식
+         public bool redevelop; public Vec3Dto redevelopTarget; public float redevelopAge;
++        public AirshipYard.State rocket; // 구저장 null: 바벨 기여 이력 없는 신규 발사대
++        public bool hasRocketState;
+     }
+ 
+     internal static class SaveConstruction
+@@ -40,6 +42,7 @@ namespace AntColony.Save
+                 d.kind = b.Data.kind.ToString(); d.material = (int)b.MainMaterial; d.buildingName = b.name;
+                 d.role = b is Barracks barracks ? (int)barracks.Role : b is ResearchLab lab ? (int)lab.Role : 0;
+                 d.buildingPosition = new Vec3Dto(b.transform.position); d.buildingRotY = b.transform.eulerAngles.y;
++                if (b is AirshipYard rocket) { d.rocket = rocket.CaptureState(Array.Empty<CommanderAnt>()); d.hasRocketState = true; }
+                 if (b.TryGetComponent<FarmPlot>(out var plot)) { d.crop = (int)plot.Crop; d.wide = plot.Wide; }
+             }
+             if (s.TryGetComponent<DemolitionSite>(out var m) && m.Target != null)
+@@ -71,6 +74,7 @@ namespace AntColony.Save
+                     building = UnityEngine.Object.Instantiate(template, d.buildingPosition.ToVector3(), Quaternion.Euler(0, d.buildingRotY, 0));
+                     building.SetActive(false); building.name = d.buildingName;
+                     building.GetComponent<BuildingBase>().MainMaterial = (ResourceType)d.material;
++                    if (building.TryGetComponent<AirshipYard>(out var rocket)) rocket.RestoreState(d.hasRocketState ? d.rocket : null, Array.Empty<CommanderAnt>());
+                     if (d.crop >= 0) building.AddComponent<FarmPlot>().Configure((FarmCrop)d.crop, d.wide);
+                 }
+                 var site = go.AddComponent<BuildingConstructionSite>();
+@@ -93,6 +97,7 @@ namespace AntColony.Save
+         internal static bool Valid(List<ConstructionDto> list) => list == null || list.Count <= 10000 && list.All(d => d != null && d.position != null && d.position.IsFinite() && d.scale != null
+             && !float.IsNaN(d.buildTime) && d.buildTime >= 0 && !float.IsNaN(d.remaining) && d.remaining >= 0 && d.priority >= WorkPriorities.Min && d.priority <= WorkPriorities.Max
+             && d.needs != null && d.needs.All(n => n != null && Enum.IsDefined(typeof(ResourceType), n.type) && n.need >= 0 && n.delivered >= 0 && n.delivered <= n.need)
++            && (!d.hasRocketState || d.rocket != null && d.kind == "AirshipYard" && d.rocket.phase == RocketPhase.Construction && AirshipYard.Validate(d.rocket, 0, out _))
+             && (string.IsNullOrEmpty(d.kind) ? d.mark > 0 : Enum.TryParse<BuildingKind>(d.kind, out _) && d.buildingPosition != null && d.buildingPosition.IsFinite())
+             && d.mark >= 0 && d.mark <= 3 && (d.mark == 0 || d.targetPosition != null && d.moveTo != null));
+     }
+diff --git a/Assets/_Project/Scripts/Save/SaveDtos.cs b/Assets/_Project/Scripts/Save/SaveDtos.cs
+index 563c8f9..85401b7 100644
+--- a/Assets/_Project/Scripts/Save/SaveDtos.cs
++++ b/Assets/_Project/Scripts/Save/SaveDtos.cs
+@@ -374,6 +374,7 @@ namespace AntColony.Save
+     [Serializable]
+     public class MonsterDto
+     {
++        public AntColony.Boss.BossEncounter.State bossEncounter; // 구저장 null: 첫 착지 상태
+         public string investigationId;
+         public bool hasRuntime;
+         public WildMonsterDto runtime; // v19
+diff --git a/Assets/_Project/Scripts/Save/SavePreflight.cs b/Assets/_Project/Scripts/Save/SavePreflight.cs
+index 9ef9229..f10953a 100644
+--- a/Assets/_Project/Scripts/Save/SavePreflight.cs
++++ b/Assets/_Project/Scripts/Save/SavePreflight.cs
+@@ -215,7 +215,9 @@ namespace AntColony.Save
+                 Check(f.nodes.All(n => n != null && n.key != null && N(n.amount) && N(n.regrowTimer) && N(n.sowRemaining) && ValidNaturalWork(n) && n.fishMonth >= -1 && V(n.position) && Enum.IsDefined(typeof(ResourceType), n.type))
+                     && f.nodes.Select(n => n.key).Distinct().Count() == f.nodes.Count, "resource nodes");
+                 Check(f.critters == null || f.critters.Count <= 1000 && f.critters.All(c => c != null && Enum.IsDefined(typeof(Buildings.Species), c.species) && N(c.health) && c.health > 0 && V(c.position) && (c.disease == null || c.disease.Valid)), "critters");
+-                Check(f.monsters.All(m => m != null && m.key != null && N(m.health) && V(m.position)) && f.monsters.Select(m => m.key).Distinct().Count() == f.monsters.Count, "monsters");
++                Check(f.monsters.All(m => m != null && m.key != null && N(m.health) && V(m.position)
++                    && AntColony.Boss.BossEncounter.Validate(m.bossEncounter) && (!AntColony.Boss.BossEncounter.Present(m.bossEncounter) || m.key.StartsWith("boss:")))
++                    && f.monsters.Select(m => m.key).Distinct().Count() == f.monsters.Count, "monsters");
+                 foreach (var m in f.monsters) if (m.traits != null)
+                 { Traits(m.traits); Check(m.talents != null && m.talents.Validate(), "enemy talents"); }
+                 Check(f.monsters.All(m => string.IsNullOrEmpty(m.diplomaticFactionId) || f.diplomacy.civilizations.Any(c => c.id == m.diplomaticFactionId)), "enemy faction");
+diff --git a/Assets/_Project/Scripts/Save/SaveSnapshot.cs b/Assets/_Project/Scripts/Save/SaveSnapshot.cs
+index 4bd3da8..6b88579 100644
+--- a/Assets/_Project/Scripts/Save/SaveSnapshot.cs
++++ b/Assets/_Project/Scripts/Save/SaveSnapshot.cs
+@@ -79,7 +79,7 @@ namespace AntColony.Save
+             SaveRuntime.CaptureMonsters(file);
+             for (var i = 0; i < SaveCatalog.Bosses.Length; i++)
+             { var b = SaveCatalog.Bosses[i]; file.monsters.Add(new MonsterDto { key = "boss:" + i, health = b != null ? b.CurrentHp : 0,
+-                position = new Vec3Dto(b != null ? b.Position : Vector3.zero) }); }
++                position = new Vec3Dto(b != null ? b.Position : Vector3.zero), bossEncounter = b != null ? b.GetComponent<BossEncounter>()?.Capture() : null }); }
+             file.world.unlocked = world.Unlocked; file.world.vehicleResearched = world.VehicleResearched; file.world.aircraftResearched = world.AircraftResearched;
+             file.world.notice = world.SettlementNotice;
+             file.world.legacyLayout = world.LegacyLayout;
+@@ -217,6 +217,7 @@ namespace AntColony.Save
+                 {
+                     var b = SaveCatalog.Bosses[index]; SaveReferences.Register(d.key, b); if (b == null) continue;
+                     if (d.health <= 0) b.RestoreDefeated(); else { b.transform.position = d.position.ToVector3(); b.RestoreHp(d.health); }
++                    b.GetComponent<BossEncounter>()?.Restore(d.bossEncounter);
+                     continue;
+                 }
+                 var m = parts[0] == "monster" ? SaveCatalog.Monsters[index]
+diff --git a/Assets/_Project/Scripts/UI/GameMenuBossProgression.cs b/Assets/_Project/Scripts/UI/GameMenuBossProgression.cs
+index 6617614..758c2b9 100644
+--- a/Assets/_Project/Scripts/UI/GameMenuBossProgression.cs
++++ b/Assets/_Project/Scripts/UI/GameMenuBossProgression.cs
+@@ -10,12 +10,15 @@ namespace AntColony.UI
+         private void BossProgressionSection(CampaignResearch research)
+         {
+             var progress = research.BossProgress;
+-            MenuTheme.Text(content, "보스 탐지 · A → B/C → D", 18, 35);
++            MenuTheme.Text(content, "보스 탐지 · A → B/C → D", 15, 35);
++            MenuTheme.Text(content, BossEncounterRules.BranchAdvice, 13, 65);
++            MenuTheme.Text(content, "탐험으로 보급·재료·표본을 준비하고, 핵심물을 본거지에 반입해 탐지기를 제작하세요. 보스 보상은 핵심물 복구 제작과 달리 재공략에서만 장비를 다시 얻습니다. 처치12일 후 현지 아군·수송수단이 모두 철수하면 재등장합니다.", 13, 85);
+             foreach (BossId id in Enum.GetValues(typeof(BossId)))
+             {
+                 var target = id;
+                 MenuTheme.Text(content, $"{id} · {BossProgress.Hazard(id)}\n보상: {BossProgress.Reward(id)}\n"
+                     + $"최초 획득 {(progress.Obtained(id) ? "완료" : "미획득")} / 반입 {(progress.Delivered(id) ? "완료" : "미반입")} / 핵심물 {progress.Home(id)} / {progress.DetectionBlock(id)}", 13, 90);
++                MenuTheme.Text(content, BossEncounterRules.Guide(id), 12, 72);
+                 if (id != BossId.A && !progress.Revealed(id))
+                 {
+                     var cost = id == BossId.D ? "B·C 핵심물 각1" : "A 핵심물1 + 목재5 + 돌5";
+diff --git a/Assets/_Project/Scripts/UI/GameMenuCampaign.cs b/Assets/_Project/Scripts/UI/GameMenuCampaign.cs
+index 85b9784..ad3d9b1 100644
+--- a/Assets/_Project/Scripts/UI/GameMenuCampaign.cs
++++ b/Assets/_Project/Scripts/UI/GameMenuCampaign.cs
+@@ -23,6 +23,13 @@ namespace AntColony.UI
+             });
+             foreach (var yard in AntColony.Core.SceneObjects.All<AirshipYard>())
+             {
++                if (yard.IsDead)
++                {
++                    if (yard.HasFoundation) MenuTheme.Button(content, "바벨 로켓 기초 재건 (발사대 자재75%·작업50%)", () => {
++                        yard.TryRebuildFoundation(); ScienceFacilities();
++                    }, "부품·좌석·연료·핵심물은 다시 준비하고 15일 방어도 처음부터 시작합니다.");
++                    continue;
++                }
+                 MenuTheme.Text(content, $"로켓 {yard.Phase} · 선체 {(yard.Hull ? "완성" : "미완성")} / 엔진 {(yard.Engine ? "완성" : "미완성")} · 좌석 {yard.OccupiedSeats}/{yard.Capacity} · 준비 잔여 {yard.PreparationRemaining / GameCalendar.SecondsPerDay:0.00}일", 13, 55);
+                 MenuTheme.Text(content, yard.Operating ? FinalAssaultPlan.Description(Mathf.Max(0, FinalBattleEconomy.DefenseSeconds - yard.PreparationRemaining))
+                     : "가동 후15일 방어: 첫5일 단일 방향 → 다음5일 양방향 → 마지막5일 다방향. 외곽 접근 경로가 없으면 기존 진입점을 사용합니다.", 12, 52);
+@@ -44,12 +51,20 @@ namespace AntColony.UI
+                     }
+                 }
+                 MenuTheme.Text(content, $"일반 시민 승객: {yard.CivilianPassengers}명", 13, 30);
++                MenuTheme.Text(content, "시민1명도 좌석1개를 사용합니다. 시민 탈출·잔류는 엔딩에 남습니다. 장수 탑승 전 마지막1석은 장수를 위해 남깁니다. 탑승한 병력은 방어에 참여하지 않습니다.", 12, 65);
++                if (yard.Phase == RocketPhase.Boarding)
++                    foreach (var c in SortedCommanders().Where(c => c.CanReceiveOrders && !c.IsAwayFromHome && !c.IsEmbarked && Vector3.Distance(c.Position, yard.Position) > 8))
++                        MenuTheme.Button(content, "로켓으로 이동: " + c.CommanderName, () => { c.CommandMove(yard.Position + Vector3.right * 3); Resume(); }, "일반 이동 지시입니다. 도착 후 탑승을 직접 확정하세요. 이동 중에도 적에게 공격받습니다.");
+                 foreach (var c in SortedCommanders().Where(c => c.CanChangeAllocation && !c.IsAwayFromHome && Vector3.Distance(c.Position, yard.Position) <= 8))
+                     MenuTheme.Button(content, "탑승: " + c.CommanderName, () => ConfirmRocketBoarding(yard, c)).interactable = yard.Phase == RocketPhase.Boarding;
+                 MenuTheme.Text(content, "탑승 장수: " + string.Join(", ", yard.Passengers.Where(c => c != null).Select(c => c.CommanderName)), 13, 50);
++                foreach (var passenger in yard.Passengers.Where(c => c != null).ToArray())
++                    MenuTheme.Button(content, "하선·방어 재투입: " + passenger.CommanderName, () => {
++                        yard.TryDisembark(passenger); ScienceFacilities();
++                    }).interactable = yard.Phase == RocketPhase.Boarding;
+                 MenuTheme.Text(content, CampaignOutcome.Preview(yard.Passengers), 13, 50);
+                 MenuTheme.Button(content, "탑승자 전원 하선", () => { yard.Unload(); ScienceFacilities(); }).interactable = yard.Phase != RocketPhase.Launched;
+-                MenuTheme.Button(content, "로켓 발사 — 이번 게임 종료", () => ConfirmRocketLaunch(yard)).interactable = yard.Phase == RocketPhase.Boarding && yard.OccupiedSeats > 0;
++                MenuTheme.Button(content, "로켓 발사 — 이번 게임 종료", () => ConfirmRocketLaunch(yard)).interactable = yard.Phase == RocketPhase.Boarding && yard.HasLaunchCommander;
+             }
+         }
+         // 장수 상세 아래쪽 행동 버튼: 치료·재생·포상·장비.
+diff --git a/Assets/_Project/Scripts/UI/GameMenuConscription.cs b/Assets/_Project/Scripts/UI/GameMenuConscription.cs
+index ee23e11..7a75b91 100644
+--- a/Assets/_Project/Scripts/UI/GameMenuConscription.cs
++++ b/Assets/_Project/Scripts/UI/GameMenuConscription.cs
+@@ -25,7 +25,7 @@ namespace AntColony.UI
+             var f = Frame("징집소");
+             var p = L.Plate(f, "Conscription", 180, 100, 1080, 650);
+             L.Label(p, "징집소 · 출전 편성", 26, 24, 12, 1032, 40, MenuTheme.Accent);
+-            L.Label(p, "장수와 병력을 선택하세요. 출전하면 작업을 중단하고, 귀환하면 생존 병력을 반납합니다.", 14, 24, 58, 1032, 34, MenuTheme.Muted);
++            L.Label(p, "장수 1명이 병력 전체를 움직입니다. 집중 공격·범위 회피·철수도 부대 단위입니다. 병력 손실만큼 공격이 줄고, 0명에도 장수는 계속 싸웁니다.", 13, 24, 56, 1032, 44, MenuTheme.Muted);
+             L.Label(p, "선택   장수 / 무기 / 개인 체력 / 기분 / 현재 상태", 14, 24, 104, 700, 32);
+             L.Label(p, "병력 / 지휘한도", 14, 756, 104, 270, 32);
+             var list = L.List(p, 24, 144, 1032, 420);
+@@ -47,7 +47,7 @@ namespace AntColony.UI
+                         if (c.FormationBlockReason(next) == "" && c.TrySelectFormation(next)) break;
+                     }
+                     refreshDutyScreen?.Invoke();
+-                }, size: 12);
++                }, "전투·원정 중 변경 불가. 방원=방어 / 어린=공방 / 산개=범위 회피 / 안행=원거리 / 장사=숲·동굴(평지 불이익) / 종대=도보 이동. 선택한 진형의 조건·불이익을 비교하세요.", size: 12);
+                 var track = L.Box(row, "Troops " + c.CommanderName, 732, 34, 264, 18, MenuTheme.Well);
+                 var handle = L.Box(track, "Handle", 0, 0, 16, 18, MenuTheme.Accent);
+                 var slider = track.gameObject.AddComponent<Slider>();
+@@ -97,7 +97,7 @@ namespace AntColony.UI
+             Add(f == Formation.Focus ? "공격(연속)" : f == Formation.Wedge ? "공격(전방)" : f == Formation.Geese ? "공격(원거리)" : "공격", m.Attack);
+             Add("방어", m.Armor); Add("이동", m.Move); Add("사거리", m.Range); Add("공속", m.AttackSpeed); Add("도보", m.WorldMove);
+             Add(f == Formation.Cover ? "원거리피해(철수)" : "원거리피해", -m.RangedReduction); Add("범위피해", -m.AreaReduction); Add("측후방피해", m.RearIncrease);
+-            return (f == Formation.Snake ? "산·숲 " : "") + (parts.Count == 0 ? "보정 없음" : string.Join(" ", parts));
++            return (f == Formation.Snake ? "숲·동굴(평지 공방-10%) " : "") + (parts.Count == 0 ? "보정 없음" : string.Join(" ", parts));
+         }
+     }
+ }
+diff --git a/Assets/_Project/Scripts/UI/GameMenuDiplomacy.cs b/Assets/_Project/Scripts/UI/GameMenuDiplomacy.cs
+index d55ec99..fbdbf82 100644
+--- a/Assets/_Project/Scripts/UI/GameMenuDiplomacy.cs
++++ b/Assets/_Project/Scripts/UI/GameMenuDiplomacy.cs
+@@ -240,7 +240,7 @@ namespace AntColony.UI
+                     : c.rebels.Select(p => (p.PersonalState.id, p.Name + " · 반란 합류")).Concat(d.HeldCaptives(c).Select(a => (a.PersonalState.id, a.CommanderName + " · 억류")));
+                 foreach (var (id, name) in entries.ToArray())
+                 {
+-                    var arrival = player ? "" : $" · 귀환 약 {d.HomecomingSeconds(id, c) / DiplomacyRules.Month:0.0}개월";
++                    var arrival = player ? "" : " · 안전 귀환 " + DiplomacyManager.HomecomingTimeLabel(d.HomecomingSeconds(id, c));
+                     Item((offer.prisoners.Contains(id) ? "✓ " : "") + name + $" · 몸값 {d.RansomValue(id, c):0}" + arrival, () => { if (!offer.prisoners.Remove(id)) offer.prisoners.Add(id); rebuildTrade(); });
+                 }
+                 if (!entries.Any()) MenuTheme.Text(parent, player ? "이 세력 출신 포로가 없습니다." : "이 세력이 붙잡은 자국 장수가 없습니다.", 13, 24).color = MenuTheme.Dim;
+diff --git a/Assets/_Project/Scripts/UI/GameMenuEnding.cs b/Assets/_Project/Scripts/UI/GameMenuEnding.cs
+index 7038d63..f341f47 100644
+--- a/Assets/_Project/Scripts/UI/GameMenuEnding.cs
++++ b/Assets/_Project/Scripts/UI/GameMenuEnding.cs
+@@ -53,6 +53,7 @@ namespace AntColony.UI
+                     lines.Add($"<b>{labels[(int)category]}</b>  " + (names.Length == 0 ? "없음" : string.Join(", ", names)));
+                 }
+                 lines.Add($"<b>시민 최종 합계</b>  탈출 {ending.citizensEscaped} · 잔류 {ending.citizensStaying} · 전체 {ending.citizensEscaped + ending.citizensStaying}");
++                if (ending.legacy != null) lines.AddRange(ending.legacy);
+             }
+             else
+             {
+@@ -63,6 +64,8 @@ namespace AntColony.UI
+             lines.Add("<b>처치한 보스</b>  " + Names("보스 처치"));
+             lines.Add($"<b>거점</b>  편입 {Count("편입")} · 유기 {Count("유기")}");
+             lines.Add($"<b>전쟁·동맹</b>  선전포고 {Count("선전포고")} · 협정 {Count("협정")} · 평화 {Count("평화")}");
++            lines.Add("<b>구출·귀환</b>  " + Names("귀환"));
++            lines.Add("<b>최종 방어의 실패와 재건</b>  " + Names("로켓 파괴") + " / " + Names("로켓 재건"));
+             var events = string.Join(", ", Enumerable.Range(0, Math.Min(d.events.Length, EventRules.Names.Length)).Where(i => d.events[i] > 0).Select(i => $"{EventRules.Names[i]} {d.events[i]}"));
+             lines.Add("<b>주요 이벤트</b>  " + (events.Length == 0 ? "없음" : events));
+             return lines.ToArray();
+diff --git a/Assets/_Project/Scripts/UI/GameMenuPrisoners.cs b/Assets/_Project/Scripts/UI/GameMenuPrisoners.cs
+index 57098aa..be33e32 100644
+--- a/Assets/_Project/Scripts/UI/GameMenuPrisoners.cs
++++ b/Assets/_Project/Scripts/UI/GameMenuPrisoners.cs
+@@ -30,8 +30,8 @@ namespace AntColony.UI
+             var returning = dm != null ? dm.Data.homecomings : null;
+             if (returning == null || returning.Count == 0) MenuTheme.Text(content, "귀환 중인 장수가 없습니다.", 15, 30);
+             else foreach (var r in returning)
+-                    MenuTheme.Text(content, $"{r.commander?.Name} · {(string.IsNullOrEmpty(r.to) ? "우리 본거지로" : "상대 세력으로")} · 남은 {(r.arrive - dm.Data.elapsed) / GameCalendar.SecondsPerMonth:0.0}개월"
+-                        + (r.gear.Count > 0 ? $" · 동반 장비 {r.gear.Count}" : ""), 14, 26);
++                    MenuTheme.Text(content, $"{r.commander?.Name} · {(string.IsNullOrEmpty(r.to) ? "우리 본거지로" : "상대 세력으로")} · {DiplomacyManager.HomecomingTimeLabel(r.arrive - dm.Data.elapsed)}"
++                        + (r.gear.Count > 0 ? $" · 동반 장비 {r.gear.Count}" : ""), 13, 52);
+ 
+             content = V5Section(window, prisonerPick == null ? "선택 없음" : prisonerPick.Name, 454, 104, 626, 544);
+             if (prisonerPick == null) { V5Fit(window); return; }
+diff --git a/Assets/_Project/Scripts/UI/GameMenuRocket.cs b/Assets/_Project/Scripts/UI/GameMenuRocket.cs
+index f0f118a..516857d 100644
+--- a/Assets/_Project/Scripts/UI/GameMenuRocket.cs
++++ b/Assets/_Project/Scripts/UI/GameMenuRocket.cs
+@@ -19,13 +19,16 @@ namespace AntColony.UI
+                 : $"재산 현재 {preview.currentWealth:0.##} / 직전 6일 평균 {preview.averageWealth:0.##} → 고정 입력 {preview.Wealth:0.##}\n인구 현재 {preview.currentPopulation:0.##} / 평균 {preview.averagePopulation:0.##} → 고정 입력 {preview.Population:0.##}", 13, 55);
+             if (!RocketCampaign.AssaultAvailable) MenuTheme.Text(content, "가동 불가: 예상 강도·최종 공세 생성기 연결 대기", 13, 35);
+             else if (preview != null) MenuTheme.Text(content, $"예상 최종 공세 첫 파동 {AntColony.World.ColonyInvasion.PredictedFirstWave(preview)}마리 (잠정: 인구 10·재산 100당 +1, 파동마다 증가·상한 적용)", 13, 35);
++            MenuTheme.Text(content, "전 지역 재산에는 장식·식량·생활 시설·외부 화물이 포함됩니다. 가동 후 좌석을 늘릴 수 없으므로 구할 인원(장수+병력+시민)을 먼저 정하세요. 준비 중 인구가 늘어도 공세 강도는 고정됩니다.", 12, 72);
++            MenuTheme.Text(content, $"로켓 핵심물: {CampaignResearch.Instance?.BossProgress.Home(AntColony.Boss.BossId.D) ?? 0}개 · 가동 시1개 소비. 파괴 후 재건에는 D 재공략 또는 핵심물 복구 제작이 필요합니다. 부분 손상은 타이머를 보존하지만 실제 파괴는15일을 다시 시작합니다.", 12, 72);
+             MenuTheme.Button(content, "로켓 가동 — 15일 준비 시작", () => {
+                 FinalBattleReserveWarning(() => {
+                     var current = yard.ActivationPreview;
+                     if (current == null || !yard.TryActivate(current.currentWealth, current.currentPopulation)) ToastManager.Show("연료·부품·경제 집계·공세 연결 상태를 확인하세요.");
+                     ScienceFacilities();
+                 }, yard.ActivationReserves);
+-            }).interactable = yard.Ready && yard.FuelLoaded && preview != null && RocketCampaign.AssaultAvailable;
++            }).interactable = yard.Ready && yard.FuelLoaded && preview != null && RocketCampaign.AssaultAvailable
++                && CampaignResearch.Instance?.BossProgress.Home(AntColony.Boss.BossId.D) > 0;
+         }
+         private void ConfirmRocketBoarding(AirshipYard yard, CommanderAnt commander)
+         {
+diff --git a/Assets/_Project/Scripts/UI/GameMenuWalking.cs b/Assets/_Project/Scripts/UI/GameMenuWalking.cs
+index c3399a0..46c7f8d 100644
+--- a/Assets/_Project/Scripts/UI/GameMenuWalking.cs
++++ b/Assets/_Project/Scripts/UI/GameMenuWalking.cs
+@@ -12,7 +12,8 @@ namespace AntColony.UI
+         public void WalkingFormation(Action<ExpeditionTransport> done)
+         {
+             Screen("도보 원정 편성");
+-            MenuTheme.Text(content, "장수 1명·병력 0명부터 출발할 수 있습니다. 병력 추가는 징집소에서 편성하세요. 보급과 왕복 시간은 월드맵에서 확인합니다.", 18, 72);
++            MenuTheme.Text(content, "장수 1명·병력 0명부터 출발할 수 있습니다. 병력 추가는 징집소에서 편성하세요. 원정 중에는 진형을 바꿀 수 없습니다.", 13, 52);
++            MenuTheme.Text(content, "일반 탐험은 처음부터 가능합니다. 식량·재료·표본을 반입해 보급과 연구를 준비하세요. 필수 보스 B/C/D는 탐지기로 위치를 공개해야 진입합니다. 먼 자원지는 왕복 보급과 본거지 무방비 시간을 비교하세요.", 13, 72);
+             var choices = new List<(CommanderAnt commander, Toggle toggle)>();
+             foreach (var c in SortedCommanders().Where(c => c.IsColonyMember && !c.IsAwayFromHome && !c.IsDead && !c.PersonalState.health.Downed && c.CanChangeAllocation))
+             {
+@@ -28,6 +29,13 @@ namespace AntColony.UI
+                 Resume(); done(party);
+             });
+             MenuTheme.Button(content, "취소", () => { Resume(); done(null); });
++            var world = WorldMapManager.Instance;
++            if (world != null) foreach (var site in world.Sites.Where(WorldMapManager.SiteRevealed))
++            {
++                var faction = world.Diplomacy?.Faction(site);
++                MenuTheme.Text(content, $"{site.Title} · {AntColony.Core.BiomeRules.Name(site.Biome)} · 도보 편도 {ExpeditionRules.WalkSeconds(site) / AntColony.Core.GameCalendar.SecondsPerDay:0.0}일"
++                    + $" · {(faction == null ? "중립/야생" : faction.name + (faction.war ? " 전쟁" : " 평화"))}", 12, 48);
++            }
+         }
+     }
+ }
+diff --git a/Assets/_Project/Scripts/Units/CommanderAnt.cs b/Assets/_Project/Scripts/Units/CommanderAnt.cs
+index 905b44d..7b6ccd2 100644
+--- a/Assets/_Project/Scripts/Units/CommanderAnt.cs
++++ b/Assets/_Project/Scripts/Units/CommanderAnt.cs
+@@ -175,6 +175,9 @@ namespace AntColony.Units
+         protected override void OnWorked(float seconds)
+         {
+             if (CurrentActivity != CommanderActivity.Gathering) GainExperience(CurrentActivity, seconds);
++            if (ConstructionTarget != null && ConstructionTarget.Building != null
++                && ConstructionTarget.Building.GetComponent<AntColony.Buildings.AirshipYard>() is AntColony.Buildings.AirshipYard rocket)
++                rocket.RecordBuilder(this, Mathf.Min(ConstructionTarget.RemainingWork, seconds * WorkSpeed), ConstructionTarget.BuildTimeSeconds);
+         }
+         // 포텐 성장(2026-10-07): 작업량은 그대로 활용 이력에, 학습 배율(열정·학습 특성·나이·머리 부상)은 성장 속도에만 쓴다.
+         public void GainExperience(CommanderActivity activity, float amount, CommanderActivity? topic = null)
+@@ -296,7 +299,7 @@ namespace AntColony.Units
+             if (IsDead || IsEmbarked || PersonalHealth <= 0 || float.IsNaN(amount) || amount <= 0) return;
+             Social.combatSeen = true; PersonalState.lastCombatSeconds = 0; WorkState.quietSeconds = 0;
+             GetComponent<AntVisual>()?.Action("Hit");
+-            var damage = Mathf.Max(Mathf.Min(1, amount), amount - Armor) * receivedMultiplier;
++            var damage = FormationDamage.AfterArmor(amount, Armor, receivedMultiplier);
+             damage = AbsorbDurableDamage(damage);
+             var troopDamage = Mathf.Min(damage, TroopHealth);
+             damage -= troopDamage; pendingDamage += troopDamage;
+diff --git a/Assets/_Project/Scripts/Units/CommanderRocket.cs b/Assets/_Project/Scripts/Units/CommanderRocket.cs
+new file mode 100644
+index 0000000..8a1da4c
+--- /dev/null
++++ b/Assets/_Project/Scripts/Units/CommanderRocket.cs
+@@ -0,0 +1,21 @@
++using AntColony.Core;
++using UnityEngine;
++
++namespace AntColony.Units
++{
++    public partial class CommanderAnt
++    {
++        // 로켓 파괴의 확정 생존·중상 규칙. 일반 피격의 즉사 추첨을 거치지 않는다.
++        internal void SurviveRocketDestruction(Vector3 wreck)
++        {
++            SetEmbarked(false, wreck);
++            CommandStop(); DropCargo(); LoseTroops(TroopCount, "로켓 파괴");
++            ScienceAssignment?.ReleaseResearcher(); LabUpgradeLab?.CancelResearch(); CraftingWorkshop?.Release();
++            WorkState.health = 0; WorkState.unconsciousSeconds = 0; WorkState.recoverySeconds = GameCalendar.SecondsPerDay;
++            Health.wounds.Add(new Wound { part = BodyPart.LegL, kind = WoundKind.Bruise, damage = MedicalRules.MaxHp(BodyPart.LegL) * .75f });
++            Health.wounds.Add(new Wound { part = BodyPart.LegR, kind = WoundKind.Bruise, damage = MedicalRules.MaxHp(BodyPart.LegR) * .75f });
++            NotifyDowned(false, "로켓 파괴");
++            CampaignHistory.Record("구조 필요", CommanderName, "로켓 잔해 주변 중상", true);
++        }
++    }
++}
+diff --git a/Assets/_Project/Scripts/Units/CommanderRocket.cs.meta b/Assets/_Project/Scripts/Units/CommanderRocket.cs.meta
+new file mode 100644
+index 0000000..3583509
+--- /dev/null
++++ b/Assets/_Project/Scripts/Units/CommanderRocket.cs.meta
+@@ -0,0 +1,2 @@
++fileFormatVersion: 2
++guid: e5201a0929b6443aa8f70bedf072fb67
+diff --git a/Assets/_Project/Scripts/Units/FormationRules.cs b/Assets/_Project/Scripts/Units/FormationRules.cs
+index 65ddad7..5f6a383 100644
+--- a/Assets/_Project/Scripts/Units/FormationRules.cs
++++ b/Assets/_Project/Scripts/Units/FormationRules.cs
+@@ -79,15 +79,15 @@ namespace AntColony.Units
+                 Formation.FishScale => new FormationModifiers(.15f, .15f, -.1f),
+                 Formation.Arrow => new FormationModifiers(.2f, -.1f, .15f),
+                 Formation.Circle => new FormationModifiers(armor: .2f, move: -.1f),
+-                Formation.Swift => new FormationModifiers(-.1f, -.1f, .2f),
++                Formation.Swift => new FormationModifiers(-.1f, -.1f, .25f),
+                 Formation.Geese => new FormationModifiers(ranged ? .15f : 0, -.1f, range: ranged ? .15f : 0),
+                 Formation.Crane => new FormationModifiers(-.1f, .15f, rangedReduction: .15f),
+                 Formation.Snake => new FormationModifiers(forestOrMountain ? .2f : -.1f, forestOrMountain ? .2f : -.1f),
+                 Formation.Line => new FormationModifiers(.15f, rearIncrease: .15f),
+                 Formation.Column => new FormationModifiers(-.1f, move: .2f, worldMove: .2f),
+-                Formation.Wedge => new FormationModifiers(front ? .2f : 0, -.1f),
++                Formation.Wedge => new FormationModifiers(front ? .3f : 0, -.1f),
+                 Formation.Dispersed => new FormationModifiers(-.1f, areaReduction: .2f),
+-                Formation.Cover => new FormationModifiers(-.15f, .15f, rangedReduction: withdrawing ? .15f : 0),
++                Formation.Cover => new FormationModifiers(-.15f, .15f, rangedReduction: withdrawing ? .3f : 0),
+                 Formation.Focus => new FormationModifiers(Mathf.Clamp(hits, 0, 4) * .05f, attackSpeed: -.1f),
+                 _ => new FormationModifiers() };
+             return new FormationModifiers(Favorable(m.Attack, legion), Favorable(m.Armor, legion), Favorable(m.Move, legion),
+diff --git a/Assets/_Project/Scripts/World/BossStronghold.cs b/Assets/_Project/Scripts/World/BossStronghold.cs
+index f201c1a..434df9f 100644
+--- a/Assets/_Project/Scripts/World/BossStronghold.cs
++++ b/Assets/_Project/Scripts/World/BossStronghold.cs
+@@ -15,7 +15,11 @@ namespace AntColony.World
+         {
+             Id = id; site = value;
+             if (GetComponent<BossRewardVisual>() == null) gameObject.AddComponent<BossRewardVisual>();
+-            if (site.Boss != null) site.Boss.CampaignId = id;
++            if (site.Boss != null)
++            {
++                site.Boss.CampaignId = id;
++                (site.Boss.GetComponent<BossEncounter>() ?? site.Boss.gameObject.AddComponent<BossEncounter>()).Initialize(site.Boss, id);
++            }
+         }
+         private void Update()
+         {
+@@ -37,6 +41,6 @@ namespace AntColony.World
+         }
+         public string Guide => "보스 " + Id + " · " + BossProgress.Hazard(Id) + "\n"
+             + (Revealed ? "위치 공개됨" : CampaignResearch.Instance?.BossProgress.DetectionBlock(Id))
+-            + " / 보상: " + BossProgress.Reward(Id);
++            + " / 보상: " + BossProgress.Reward(Id) + "\n" + BossEncounterRules.Guide(Id);
+     }
+ }
+diff --git a/Assets/_Project/Scripts/World/DiplomacyPrisoners.cs b/Assets/_Project/Scripts/World/DiplomacyPrisoners.cs
+index eb341a7..4b1089f 100644
+--- a/Assets/_Project/Scripts/World/DiplomacyPrisoners.cs
++++ b/Assets/_Project/Scripts/World/DiplomacyPrisoners.cs
+@@ -49,6 +49,8 @@ namespace AntColony.World
+         public ExpeditionSite HomeSiteOf(Civilization c) => world?.Sites.FirstOrDefault(s => Faction(s) == c);
+         public float HomecomingSeconds(ExpeditionSite from)
+             => HomecomingBaseSeconds + (from == null ? 0 : Vector2.Distance(from.MapPosition, new Vector2(.5f, .5f)) * HomecomingDistanceSeconds);
++        public static string HomecomingTimeLabel(float seconds) => seconds > 0
++            ? $"{seconds / GameCalendar.SecondsPerDay:0.0}일 (1배속 {seconds / 60:0.0}분)" : "도착 대기(본거지의 적·진입 경로 확인)";
+         public float HomecomingSeconds(string id, Civilization c)
+             => HomecomingSeconds(HeldCaptives(c).FirstOrDefault(p => p.PersonalState.id == id)?.Captor ?? HomeSiteOf(c));
+ 
+diff --git a/Assets/_Project/Scripts/World/ExpeditionRules.cs b/Assets/_Project/Scripts/World/ExpeditionRules.cs
+index da2cfba..92d641f 100644
+--- a/Assets/_Project/Scripts/World/ExpeditionRules.cs
++++ b/Assets/_Project/Scripts/World/ExpeditionRules.cs
+@@ -9,6 +9,11 @@ namespace AntColony.World
+     {
+         // 잠정: 가장 가까운 띠(.16)는 편도 하루, 이후 거리는 비례한다.
+         public const float DockSeconds = 1;
++        public static float TransportSeconds(float distance, bool aircraft)
++        {
++            int ring = distance < .235f ? 0 : distance < .385f ? 1 : 2;
++            return aircraft ? (ring == 0 ? 10 : ring == 1 ? 20 : 35) : (ring == 0 ? 20 : ring == 1 ? 40 : 70);
++        }
+         public static float WalkSeconds(ExpeditionSite site) => GameCalendar.SecondsPerDay
+             * Mathf.Max(.25f, site == null ? 1 : Mathf.Round(Vector2.Distance(site.MapPosition, new Vector2(.5f, .5f)) / .16f * 1000) / 1000);
+         public static int HomeCommanders => CommanderRoster.Instance == null ? 0 : CommanderRoster.Instance.Commanders
+diff --git a/Assets/_Project/Scripts/World/ExpeditionSupplies.cs b/Assets/_Project/Scripts/World/ExpeditionSupplies.cs
+index f3b09cc..02634b6 100644
+--- a/Assets/_Project/Scripts/World/ExpeditionSupplies.cs
++++ b/Assets/_Project/Scripts/World/ExpeditionSupplies.cs
+@@ -17,7 +17,7 @@ namespace AntColony.World
+             .Select(c => c.FormationWorldMoveMultiplier).DefaultIfEmpty(1).Min();
+         public float DailyFood => crew.Where(c => c != null && !c.IsDead).Sum(ExpeditionRules.FoodPerDay) + withdraw.troops * 2 * GameBalance.MealFood;
+         public int RecommendedFood(ExpeditionSite destination) => ExpeditionRules.RecommendedFood(
+-            Walking ? ExpeditionRules.WalkSeconds(destination) / FormationWalkMultiplier : TravelSeconds, DailyFood);
++            TravelSecondsTo(destination), DailyFood);
+         public int AvailableFood => GetCargo(AntColony.Data.ResourceType.Food) + crew.Where(c => c != null && !c.IsDead)
+             .Sum(c => c.PersonalState.carriedRations?.Total ?? 0);
+         public bool LeavesHomeUnattended => State == ExpeditionState.Home && CommanderLoad > 0 && ExpeditionRules.HomeCommanders == 0;
+diff --git a/Assets/_Project/Scripts/World/ExpeditionTransport.cs b/Assets/_Project/Scripts/World/ExpeditionTransport.cs
+index eeba3b7..12ae419 100644
+--- a/Assets/_Project/Scripts/World/ExpeditionTransport.cs
++++ b/Assets/_Project/Scripts/World/ExpeditionTransport.cs
+@@ -33,7 +33,9 @@ namespace AntColony.World
+         public int Capacity => Walking ? int.MaxValue : Mathf.FloorToInt((Aircraft ? GameBalance.AircraftTroops : GameBalance.VehicleTroops) * ScienceEffects.TroopCapacityMultiplier);
+         public int CommanderCapacity => Walking ? int.MaxValue : (Aircraft ? GameBalance.AircraftCommanders : GameBalance.VehicleCommanders) + ScienceEffects.CommanderSlotBonus;
+         public int CargoCapacity => Walking ? WalkingCargoCapacity : Mathf.FloorToInt((Aircraft ? GameBalance.AircraftCargo : GameBalance.VehicleCargo) * ScienceEffects.CargoMultiplier);
+-        public float TravelSeconds => Walking ? ExpeditionRules.WalkSeconds(Site) / FormationWalkMultiplier : Aircraft ? 10 : 20;
++        public float TravelSeconds => TravelSecondsTo(Site);
++        public float TravelSecondsTo(ExpeditionSite destination) => Walking ? ExpeditionRules.WalkSeconds(destination) / FormationWalkMultiplier
++            : ExpeditionRules.TransportSeconds(destination == null ? .16f : Vector2.Distance(destination.MapPosition, new Vector2(.5f, .5f)), Aircraft);
+         public float Remaining { get; private set; }
+         public int Load
+         {
+diff --git a/Assets/_Project/Scripts/World/WildMonster.cs b/Assets/_Project/Scripts/World/WildMonster.cs
+index 86881ed..958bd07 100644
+--- a/Assets/_Project/Scripts/World/WildMonster.cs
++++ b/Assets/_Project/Scripts/World/WildMonster.cs
+@@ -41,6 +41,7 @@ namespace AntColony.World
+         public bool Allied { get; internal set; }
+         public string RebelId { get; internal set; }
+         internal void ConfigureForce(float health) { maxHealth = health; }
++        internal void ConfigureBossGuard() { maxHealth = 12; attackDamage = 2; detectionRadius = 35; }
+         // 목장 생물(2026-10-11): 평소엔 온순(Critter가 이동·먹기를 맡음, 함정·방어시설·경보 대상 아님), 취급 실패·공격받으면 잠시 성향대로 행동.
+         internal void ConfigureCritter(float health, float damage) { maxHealth = health; attackDamage = damage; Docile = true; }
+         public bool Docile { get; internal set; }
+diff --git a/README.md b/README.md
+index 91dab75..d8ae820 100644
+--- a/README.md
++++ b/README.md
+@@ -4,6 +4,8 @@
+ 
+ 현재 외형은 SD kemono 주민 모델입니다. 직접 제작한 시설·자원·생물·시민·소품 모델을 연결했습니다. 실제 프레임에서 이동·전투·작업 메시가 변하는 검사와 그래픽 연결 검사를 통과했습니다. 기획 전체 완성·모든 화면 검수·Player 빌드 완료를 뜻하지 않습니다.
+ 
++> **2026-10-29 J2 작업 사본(통합·Unity 실행 대기):** 전투·원정·엔딩22항목을 대조했습니다. 필수 보스의 비행3초/착지5초·대공 예고 공격, B/C 열 피해와 호위, 첫 보스 목표 시간에 맞춘 HP, 진형3종의 조건부 이점, 띠별 차량/항공 이동을 연결했습니다. 로켓은 장수1명 이상이 있어야 발사하며 시민 탑승 때 장수1석을 남깁니다. 개별 하선·방어 재투입, 파괴 시 시민/병력 손실·장수 중상, 가동당 핵심물1개 소비, 바벨 발사대 기초 재건과 엔딩 관계/세력 기록을 추가했습니다. 기존 병력 공격식·최소 피해·안전 귀환15분·최종 방어15일·전지역 재산 집계는 유지합니다. 게임/검사 Roslyn 컴파일 오류0, 실제 어셈블리 계산 검사339개 통과. Unity 실행·JSON 실제 저장복원·화면 검수와 원본 통합은 미완입니다. 잠정값·항목별 판정은 [J2 결정](docs/DECISIONS_1029_J2.md), [인계](docs/HANDOFF-CODEX-J2-1029.md)를 참조하세요.
++
+ > **2026-10-26 통합 SAVE:** Claude/Codex의 10월25일 낮 SAVE 이후 작업을 대조했습니다. 진형14종·연구6종과 출전 선택 UI, 철수·실물 수송·파손/수리/해체 및 원정 패널, 설정/드래그/시작 인원, 그래픽·공통 애니메이션/초상, 등급 특성 칩을 반영했습니다. 특성 칩 화살표는 제거했습니다. 상세 근거·검증 범위·미통합 사본은 [통합 대조](docs/SAVE_AUDIT_20261026.md)와 [현재 상태](log.md)를 참조합니다.
+ 
+ > **2026-10-27 SAVE:** 자동 작업·실물 공급, 장비/동작, Claude 평가·외부 조사·지하 탐사, 유한 지하 생산과 가스/티타늄 산업을 통합했습니다. 실제 메뉴5장을 검수해 개발 일지에 첨부했습니다. 저장 범위·검증 한계와 잔여는 [SAVE 대조](docs/SAVE_AUDIT_20261027.md)를 참조합니다.
+diff --git a/docs/COMBAT_FINALE_REVIEW_1028.md b/docs/COMBAT_FINALE_REVIEW_1028.md
+index fd0873a..91c4e32 100644
+--- a/docs/COMBAT_FINALE_REVIEW_1028.md
++++ b/docs/COMBAT_FINALE_REVIEW_1028.md
+@@ -21,5 +21,13 @@
+ - 가동15일(37.5분)·장수1명 이상 탑승 승리·전지역 재산/인구 스냅샷은 확정 규칙이므로 시간을 단축하거나 장식/타지역 재산을 임의 제외하지 않는다.
+ - 최종 공세는 첫5일 단일 방향, 다음5일 양방향, 마지막5일 다방향 접근으로 구분했다. 총병력·상한·간격·적 장수 구성과15일은 유지한다. 기존 한 파동의 인원을 나누며, 완성된 본거지 건물 바깥15m 이상 후보에서 NavMesh 완전 경로·건물과12m 이격을 확인한 접근만 사용한다. 경로가 없으면 기존 진입점으로 되돌린다. 활성 병력이 상한에 있으면 기존 재시도 규칙을 쓴다.
+ - 단계는 가동 스냅샷의 시각과 현재 게임 시간으로 재계산해 별도 저장 추첨을 추가하지 않는다. 로켓 화면은 가동 전3단계와 가동 후 현재 단계를 표시한다. FinalFronts1028Checks22:5/10일 경계·15일 유지·실제3단계 생성/동일6병력·양/다방향 실좌표·JSON 시각 복원·외곽 경로불가 시 기존 진입점 대체·활성 병력 상한 통과. 대체 진입 횟수도 실제 알림에 표시한다. 새 적 구성·목표 변화·15일 실전 피로 검수까지 완료한 것은 아니다.
+-- 현재 엔딩은 장수별 탈출/잔류/외부/포로/사망/이탈과 시민 탈출/잔류를 기록한다. 관계·희생·세력·주요 선택까지 회수하는 서사 기록90은 추가 작업이다.
+-- 경제 이력·탑승 이동·하차/방어·로켓 파괴 구조와 바벨 재건 효과는 실제 조합 검증이 남아 있다.
++- J2(2026-10-29 작업 사본)는 기존6분류에 관계·사망 원인/날짜·세력·편입지/잔류 시민을 발사 시 스냅샷으로 기록하고, 귀환·로켓 실패/재건 이력을 엔딩에 표시한다. Unity 실행·실제 엔딩 화면 검증은 통합 담당자에게 인계했다.
++- J2는 시민 단독 발사 차단·시민 탑승 시 장수1석 확보·장수별 하선/재투입·수동 로켓 이동을 보완했다. 파괴 시 시민/병력 사망·장수 생존 중상, 가동당 D핵심물1소비, 바벨 발사대 기초만 재건(자재75%·작업50%)을 연결했다. 부품/좌석/연료/핵심물/15일 진행은 재건 시 다시 준비한다. 건설중·완공후 저장 경로/구저장 마커를 연결했으며 실제 저장복원·물리 이동/파괴는 Runtime 검사 실행이 남았다.
++
++## J2 계산·추천안 (2026-10-29 작업 사본)
++
++- 병력 공격·피해식은 유지한다.120개 피해 조합의 양수/상한240확인과 손실 곡선을 계산했다. 병력1/5/10/20·개인100HP·공격10/인·매초 피격8/방어4 대 적1000HP는26/27/28/30초에 패배한다. 피해 감소만으로 승리를 보장하지 않는 원문 위험을 확인한 수치이며 모든 조합의 판정이 아니다.
++- 효과상 열등 관계가 있던 추행/종대·쐐기/봉시·엄호/학익은 추행 이동25%, 쐐기 정면공격30%, 엄호 철수 중 원거리감소30%로만 조정했다. 새로운 진형/전투 중 변경은 추가하지 않았다. 나머지14종 전체의 실전 균형은 미검증이다.
++- 필수 A~D는3초비행/5초착지·대공 가능한 예고 공격, B/C의 열/호위와 보상 연계를 추가했다. 일반 지상 몬스터와 기존 지상 AoE의 공중 공격 금지·97 배속 수정은 유지한다. A12000HP·4/5/6병력×공격10·1초간격·근접 노출5/8·무피격 조건의 전투는480/384/320초다.
++- 전지역 재산·인구 스냅샷은 확정대로 유지한다. 보통 기본 파동2·상한6에서는 재산200/인구20부터 첫 파동이 상한에 도달한다. 장식 때문에 물량이 무제한 늘어난다는 가설은 이 기본값에서는 성립하지 않는다. 현재/계절평균 max와 가동 중 인구 증가의 독립성은 계산 검사로 확인했다.
++- 상세 잠정값·출처·항목별 실행 잔여는 `DECISIONS_1029_J2.md`·`HANDOFF-CODEX-J2-1029.md`를 따른다. 전체100항목 완료·Unity 실행 통과로 읽지 않는다.
+diff --git a/docs/DECISIONS_1029_J2.md b/docs/DECISIONS_1029_J2.md
+new file mode 100644
+index 0000000..10e8548
+--- /dev/null
++++ b/docs/DECISIONS_1029_J2.md
+@@ -0,0 +1,54 @@
++# J2 추천안 결정 — 2026-10-29
++
++작업 기준: `codex/j2-1029`, `E:/Git/ant-wt/J2`. 모든 신규 추천안은 **추천안 자동 선택(사용자 미확인)**이다. 확정 기획을 바꾼 것으로 해석하지 않는다. 원본 프로젝트·Unity·Notion 원문은 수정하지 않았다. Notion은 기획 대조용으로만 읽었으며 통합 담당자가 아래 추천안을 관련 참조 페이지와 함께 반영해야 한다.
++
++## 선택
++
++| 항목번호 | 선택지 | 고른 추천안 | 이유 | 승인 상태 |
++| --- | --- | --- | --- | --- |
++| 61~64 | 병력 공격식 변경 / 현행 유지·손실 설명 | 현행 `max(1, 병력)` 공격·병력1HP·개인100HP·피해 이월 유지. 수식과 조합 계산 공개 | 수치 곱셈은 부대 직접 조작의 기존 규칙. 무근거 제곱근·독립 병사 조작을 추가하지 않음 | 추천안 자동 선택(사용자 미확인), 현행 규칙 유지 |
++| 65·68 | 지상 몬스터에 대공 허용 / 날개 금지 / 보스의 비행·착지 공격 | 필수 보스만 3초 비행·5초 착지, 비행 중 위치 고정 예고 공격. 일반 지상 몬스터·기존 지상 AoE의 대공 금지는 유지 | G34의 첫 보스 착지·노출 구간과 양립. 날개만 장착한 무피격 공략 경로에 대응 | 추천안 자동 선택(사용자 미확인) |
++| 66·67 | 무효 진형 삭제 / 3수치 조정 / 진형 전면 재설계 | 추행 이동25%, 쐐기 정면공격30%, 엄호 철수 중 원거리감소30% | 추행/종대·쐐기/봉시·엄호/학익 간 기존 수치상 열등 관계 해소. 불이익·적성·연구·전투 중 변경 금지는 보존 | 추천안 자동 선택(사용자 미확인) |
++| 68·69 | 기존 난이도배수 HP / 첫 보스 전투 목표에 맞춘 고정 HP | A12000, B/C18000, D24000. 캠페인 A~D에만 적용 | 기존 HP1000×난이도1~3은 공격10×병력5 기준20~60초. A의 근접 노출률5/8에서4~6명은320~480초 | 추천안 자동 선택(사용자 미확인) |
++| 69·70 | 실패 때 전량 초기화 / 현행 미처치 HP 보존 | 미처치 HP 보존, 처치 후12일 재등장·회차당1보상 유지. 반복 공략은 고유 장비 재획득 목적이라고 안내 | 실패와 처치 후 재등장은 별개. A의 핵심물2개로 B/C 모두 탐지하므로 필수 파밍 횟수를 추가하지 않음 | 추천안 자동 선택(사용자 미확인), 현행 규칙 유지 |
++| 71 | 차량·항공 고정 시간 / 띠별 시간 | 차량20/40/70초, 항공10/20/35초. 도보는 기존 연속 거리 비례 유지 | Notion 월드맵의 이미 기재된 띠별 시간 적용. 목적지 기반 보급 예상도 같은 함수 사용 | 추천안 자동 선택(사용자 미확인), 기존 잠정안 연결 |
++| 75·76 | 탐지 관문 제거 / 탐험으로 탐지 자동 해금 / 보급·표본 탐험과 탐지 유지 | 현행 A→B/C→D 유지. B·C에 열 피해/호위 무리를 넣어 선행 보상 효과를 연결 | 자유 탐험을 막거나 출정을 자동 결정하지 않음. B 방열은 C, C 범위는 B의 준비를 다르게 함 | 추천안 자동 선택(사용자 미확인) |
++| 80 | 귀환 시간 단축 / 차량 시간과 통합 /15분 유지·정보 교정 | 안전 귀환900초+거리×1000 유지. 일/1배속분으로 표시하고 기한 경과 후엔 도착 대기로 표시 | 확정된 안전 귀환과 실제 차량 수송은 별개. 폐지된 개월·음수 남은 시간만 제거 | 추천안 자동 선택(사용자 미확인), 현행 규칙 유지 |
++| 83·84 | 장식·타지역 재산 제외 / 가중치 차등 / 전지역 포함 유지 | 전지역 실물과 현재/계절평균 max 유지, 가동 전 설명 보강 | 확정 G45. 기본 최종 파동 상한6으로 재산200·인구20부터 이미 포화되므로 꾸밈 때문에 무제한 강화되는 위험은 현 기본값에서 성립하지 않음 | 추천안 자동 선택(사용자 미확인), 현행 규칙 유지 |
++| 85~87 | 좌석 자동 증설 / 시민 우선 전석 / 최소 장수석 확보·개별 하선 | 장수 탑승 전 시민은 마지막1석을 남김. 장수 개별 하선·수동 이동 지원. 발사 요청/최종 판정 모두 장수1명 이상 | 새 승리 점수나 자동 구조 결정을 추가하지 않고 시민 단독 발사 버그·좌석 교착을 방지 | 추천안 자동 선택(사용자 미확인) |
++| 88·89 | 파괴 손실 완화 / 현행 코드의 안전 하선 / 확정 손실 적용 | 탑승 시민·병력 사망, 장수 생존 중상. 가동 때 D핵심물1개 소비. 연구·반입 자격 보존, 다음 가동엔 새 핵심물 | 기획의 핵심물 소실·중상 구조·재도전과 달리 기존 코드는 전원 안전 하선·핵심물 무소비였음 | 추천안 자동 선택(사용자 미확인); 병력도 시민 승객으로 처리 |
++| 89 | 바벨이 완성 로켓 복구 / 발사대 기초만 / 로켓 예외 | 한 바벨 장수의 발사대 시공75% 이상이면 첫 파괴 기초만 보존. 발사대 자재75%·작업50%, 부품/모듈/연료/핵심물/15일 진행은 보존하지 않음 | 핵심물 재확보 면제 금지와 합치며 아직 없는 전체 건물 바벨 시스템을 전투 담당이 확장하지 않음 | 추천안 자동 선택(사용자 미확인) |
++| 90 | 점수/등급 / 엔딩 대사 생성 / 실제 관계·희생·세력 상태 스냅샷 | 기존6분류에 가족/배우자/친구/라이벌의 탈출 결과, 사망 원인·날짜, 세력 상태·관계, 편입 영토/잔류 시민을 기록 | 추측 서사나 신규 점수를 생성하지 않고 이미 존재하는 플레이 상태를 회수. 엔딩 저장 이후 관계 변경과 분리 | 추천안 자동 선택(사용자 미확인) |
++
++## 잠정값
++
++| 항목 | 값 | 적용 범위·한계 |
++| --- | --- | --- |
++| 비행/착지 | 3초/5초 | 필수 A~D만. 지상 공격 대공 금지 유지 |
++| 비행 공격 | 주기8초·예고1.5초·반경3m·기본 피해12 | 지상/공중 대상, 기존 범위 경고 배속 정책 호출. 실제 반응성 미검증 |
++| 열 피해 | A0/B12/C6/D12 | 예고 위치 명중 시 추가. 실제 B장비 감소50% 재사용 |
++| 호위 | A0/B2/C4/D4, 체력12·공격2 | 생존 상한 유지, 공격 후 부족분만 보충. NavMesh 후보 실패 시 생성하지 않음 |
++| 보스 HP | A12000/B18000/C18000/D24000 | 시작 인원·장비·병력 수에 비례하지 않음. 거점 Difficulty는 전리품 기존 배수만 유지 |
++| 진형 | 추행 이동+25 / 쐐기 정면공격+30 / 엄호 철수 원거리감소30% | 다른 효과·불이익·레기온 유리 효과1.5배 유지 |
++| 로켓 장수 부상 | 양다리 각각 최대부위체력75% 타박상·개인체력0 | 일반 피격 즉사 추첨 없음. 기존 출혈·질병은 지우지 않아 치료 필요 |
++| 바벨 정수 자재 | 품목별 `ceil(원비용×.75)` | 원자재150은113. 전체 건물 바벨 구현은 이 패치 범위 밖 |
++| 차량/항공 띠 경계 | 본거지로부터 .235/.385 | 생성 띠 .16/.31/.46의 중간. 도보는 기존 실제거리 비례 |
++
++## 계산과 판정
++
++- 병력 공격: 0/1/5/10/20명은 같은 장수의1인 공격에1/1/5/10/20배. 기술·장비는1인 공격에 더해지고 병력 전체에 적용. 기본5·기술0·장비0·병력5는25, 기술5·병력1은10, 품질3 무기 보너스4·병력5는45(다른 보정 제외). 따라서 뛰어난 장수1명이 물량을 자동 대체하지 않는다.
++- 손실 모형: 개인100HP, 병력1HP, 매초 공격10×남은병력, 적1000HP·피격8·방어4. 병력1/5/10/20은26/27/28/30초에 쓰러지며 적 잔여740/690/570/150. 이 가정에서는 무피격 기준 TTK100/20/10/5초와 달리 누구도 이기지 못한다. 첫 손실의 가속 기전이 실제 공식에서 확인되며, 이를 모든 실제 전투의 패배 예측으로 확대하지 않는다.
++- 방어: 원공격8·방어0/4/8/20은8/4/1/1, 받는 피해20% 감소면6.4/3.2/.8/.8. 100HP 대상 TTK(간격1초)는13/25/100/100타,20%감소 시16/32/125/125타. 원공격25·방어20은5, 같은 방어에 원공격100은80으로 단발 공격의 관통이 남는다. 공식 변경 없이120조합을240회 확인했다(양수/상한 확인 포함).
++- A 목표: 병력4/5/6·공격10/인·간격1초·근접이 착지5/8에만 명중·회피100% 가정은480/384/320초. 실제 기술·성장·거리·회피·사망/의료·배속은 별도. 무조건5~10분 보장이 아니다.
++- 재도전: 첫 A 도보 편도≤150초, 무피격 전투320~480초이면 왕복 포함620~780초(약10.3~13분) + 실제 준비/적재. 미처치 HP를 초기화하지 않으므로 실패 때마다 이 전량을 다시 요구하지 않는다. 출정은 직접 결정한다.
++- 최종 파동 기본값: 보통·첫파동2·증가1·상한6에서 `min(6, floor(2+파동번호+인구/10+재산/100))`. (재산0,인구20)=4, (100,20)=5, (200,20)=6, (0,100/500/1000)=모두6. 실제 씬/난이도 설정이 다른 경우 결과가 달라진다. 기존 상한/전선 수정은 건드리지 않았다.
++- 구출 좌석: 총20/100/500/1000명을 구하려면 기본10석에 모듈1/2/10/20개 →60/110/510/1010석. 시민만으로 최대치를 넘는 경우 전원 탈출은 보장하지 않는다. 가동 중 인구 증가가 이미 고정된 공세 입력을 올리지는 않는다.
++- 안전 귀환: 중심900초=6일/15분, 거리.16/.31/.46이면1060/1210/1360초=17.67/20.17/22.67분. 실제 차량20/40/70초와 같은 수송 행위가 아니며 기획상의 안전 귀환이다.
++
++## 기획 대조 출처
++
++- [전투·보스](https://app.notion.com/p/3d0c4a0ecd31818a90e5d1ffac4ca4ec): 첫 보스 목표, 비행·지상 규칙, 보상·최종 공세.
++- [건물·방어시설](https://app.notion.com/p/3d0c4a0ecd3181c28b59e26337c15aba): 바벨75%기여·자재75%/작업50%, 로켓 핵심물 소실.
++- [월드맵·원정·외교](https://app.notion.com/p/3dec4a0ecd318158b488fa05230889be): 자유 탐험·탐지 사슬·띠별 수송·포로 안전 귀환.
++- [맵·진행·랜덤 이벤트](https://app.notion.com/p/3d4c4a0ecd318162a5e0c6f5b51e62dc): 장수 최소1명 승리, 로켓 파괴 후 중상/시민 사망·핵심물 소실·15일 재시작.
++- 로컬 기준: `PLAY_CHECK_DECISIONS_1023.md` G01/04/05/07/20/22/23/34/39/45/47/52, `DECISIONS_1025_codex.md` D04.
+diff --git a/docs/GAPS_1029_J2.md b/docs/GAPS_1029_J2.md
+new file mode 100644
+index 0000000..7765ec3
+--- /dev/null
++++ b/docs/GAPS_1029_J2.md
+@@ -0,0 +1,21 @@
++# J2 추가 기획 공백 — 100항목 밖 (2026-10-29)
++
++아래는 이번22개 항목의 반복 목록이 아니라 다음 구현 후보다. 추천안이며 이번 패치에서 구현 완료하지 않았다. 사용자가 보류한 유체 유출·전면 그래픽·대규모 장시간 성능은 포함하지 않는다.
++
++| 우선순위 | 공백 | 코드·기획 근거 | 추천 해결안 |
++| --- | --- | --- | --- |
++| 상 | 보스전 중 저장은 기존 지상 AoE의 발동 중 상태를 보존하지 않음 | `SaveSnapshot.cs`는 기존 보스HP만, 신규 `MonsterDto.bossEncounter`는 이번 비행 공격만 보존. `BossCircleAoE`/`BossConeAoE`/`BossLineAoE` 코루틴은 별개 | 기존 AoE도 경고 위치·방향·잔여·피해1회 여부를 저장하고 경고 중 저장왕복 검사 |
++| 상 | 발사대의 최초 가동에 실물 핵심물을 썼다는 전용 기록 없음 | 이번 `BossProgress.TryConsumeRocketCore`는 home감소, `AirshipYard.State`에는 핵심물 원산지/회차 식별자가 없음 | 핵심물을 다른 로켓으로 되돌릴 계획이 생기면 parcel 계보와 장착 소유권을 추가. 현재는 소비형 유지 |
++| 상 | 전체 건물 바벨 기초의 공통 제공자가 없음 | Notion 건물 문서는 모든 건물·가구·벽에 적용, 소스에는 기존 바벨 기본 건설 효율만 있음. 이번은 `AirshipYard.Recovery` 한정 | 건설 기여·자진철거/피해 구분·기초 재건을 공통 건설 담당에게 이관하고 로켓 제공자를 공통 경로로 교체 |
++| 상 | 편입지→다른 편입지의 이동은 본거지 띠 시간과 구분되지 않음 | `ExpeditionWithdraw.cs`의 다음 거점 이동에도 `TravelSeconds` 사용. 이번 띠별 시간은 본거지 기준 | 실제 출발/목적 좌표 간 거리로 별도 이동 예산 계산. 기존 진행 중 귀환 타이머는 로드시 보존 |
++| 상 | 포로 안전 귀환이 영구 진입 불가 지형에 도착하면 회복 수단 설명이 없음 | `DiplomacyPrisoners.Arrive`는 적 잔류/안전 지점 실패 때 대기만 함 | 대기 원인과 본거지 진입 기준점을 표시하고, 플레이어가 대체 안전 진입점을 지정하도록 설계 |
++| 중 | 보스 핵심물 복구 제작이 시설·작업자 없이 시간만 흐르면 완료됨 | `BossProgress.TickCraft`는 `CampaignResearch.Tick`에서 초당 진행 | 기존 제작대 목록·실물 배송·담당 장수 경로에 탐지/복구 제작을 연결. 자동 제조법 선택은 금지 |
++| 중 | 호위 소환으로 얻는 전투 경험치의 장기 농사 기준 없음 | 신규 `BossEncounter.SpawnAdds`, `CommanderProgression.KillXp`, 재등장/회복과 독립된 전투 경험 | 호위의 경험치/처치 기록을 보스 회차 단위 예산으로 묶을지 결정하고 정상 전투의 성장량과 비교 |
++| 중 | 보스 추가 호위의 시신 종류가 일반 야생 시신을 재사용 | `WildMonster.Die`의 비침공·비장수 분류, 신규 호위는 식량보상 없이 생성 | 호위의 종족·시신·도축/장례/잔해 처리를 정하고 재등장에도 현장 소유권 유지 |
++| 중 | 장기 자유 플레이에서 CampaignHistory.milestones가 검증 상한에 도달하면 저장 거부 가능 | `CampaignHistory.Record` 무제한 추가, Validate는100000건 | 엔딩에 필요한 누적 수치와 서사 사건을 분리하고 오래된 반복 사건은 집계·압축. 플레이 기록 조용히 삭제 금지 |
++| 중 | 원정 중 개인 장비를 다른 아군에게 넘기는 규칙 없음 | `EquipmentInventory.ChangeBlock`은 본거지 밖 장비 교체 차단 | 현지 화물함의 실물 장비를 직접 전달/교환하는 명시 행동과 작업시간·운반 중 취소·저장 소유권 설계 |
++| 중 | 본거지 전소 뒤 시민의 임시 거주·민심 회복 흐름이 불명확 | `ColonyPopulation.Civilians`의 노출 집단, 주거 재개발 기획은 임시 거처 제외 | 재개발 예외를 바꾸지 않고 파괴 후 긴급 대피·새 집 입주 순서와 생활 불이익의 회복 조건 정의 |
++| 중 | 여러 로켓을 만들 때 시민·장수를 어느 발사대에 예약할지 없음 | `RocketCampaign.Operating`은1기만 가동, `AirshipYard`는 여러 기 건조 가능, 시민 그룹은 특정 로켓 예약 없음 | 가동 로켓과 잔여 로켓의 용도를 명시하고 이동 지시·승객 예약의 중복/목적지 소실 처리 결정 |
++| 하 | 보스 비행 판정과 부상 신체 부위의 표현이 분리됨 | `BossHealth.IAirborne`, `CommanderHealth`는 인간형 부위, 보스는HP단일값 | 보스 부위 파괴를 추가할지, 단일HP·패턴 노출만 유지할지 명시. 장수 의료 시스템을 그대로 보스에 복제하지 않음 |
++| 하 | 원정 취소·진입 대기 상태의 식량 소비 예상이 실제와 한 화면에 비교되지 않음 | `ExpeditionTransport`/`ExpeditionSupplies`의 이동·현지·귀환 상태, G69 진입 대기 | 일정별 예상 소비와 현재 소지/화물 식량을 기존 원정 상세에 통합. 이동/생활 시계를 별개로 가속하지 않음 |
++| 하 | 사망 없음 설정의 로켓 승객 시민 손실 의미가 설명되지 않음 | 사망 모드는 `CommanderDeathRuntime`, 로켓 시민 사망은 별도 확정 규칙 | 시작 설정·로켓 가동 경고에 ‘장수 사망 설정은 시민 승객 생존 보장이 아님’을 설명. 승객 시민을 장수로 변환하지 않음 |
+diff --git a/docs/HANDOFF-CODEX-J2-1029.md b/docs/HANDOFF-CODEX-J2-1029.md
+new file mode 100644
+index 0000000..4665f44
+--- /dev/null
++++ b/docs/HANDOFF-CODEX-J2-1029.md
+@@ -0,0 +1,84 @@
++# Codex J2 인계 — 2026-10-29
++
++- 기준: `e42430d617f371d4c23c13f8e0472f7a7a177b01`, `codex/j2-1029`, `E:/Git/ant-wt/J2`에서만 수정. 원본은 log/응답파일/누락 외부소스 참조만 했다.
++- **22항목 대조: 17항목 구현·안내 보완, 5항목(62·63·64·83·84) 계산·현행 규칙 유지.** 이것은 Unity 실행22건 완료가 아니다.
++- 게임/검사 오프라인 Roslyn 컴파일 오류0. 실제 게임 DLL을 .NET8에서 호출한 계산 검사339개(전투270·보스/원정38·최종/포로31) 통과. `Review1029CampaignRuntimeChecks`는 컴파일만 했고 실행하지 않았다.
++- Unity 에디터 실행/조작·캡처·빌드·커밋·push·SAVE 일지·Notion 편집 없음. 79·81·82·97·98 기존 수정은 유지했다. 경제/식품/산업/교역 UI 파일은 수정하지 않았다. `GameMenuDiplomacy`는 포로 귀환 문구1곳만 수정했다.
++- 패치: `docs/patches/J2-1029.patch`. 원본의 공용 .git/index·objects를 수정하지 않도록 J2 Temp의 `GIT_INDEX_FILE`·`GIT_OBJECT_DIRECTORY`와 원본 읽기 전용 alternates에서 `git add -N .`을 실행하고 소스/검사/문서 diff를 추출했다. 생성된 `graphify-out`와 패치 자체는 이관 diff에서 제외했다. 로컬 Graphify는11610노드·26903간선·510커뮤니티로 갱신(LLM0), 커뮤니티 이름 일부 자동 재지정 안내가 있었다.
++
++## 항목별 판정
++
++‘Runtime’은 아래 Unity 실행용 스크립트의 검사다. 아직 통과로 계산하지 않았다. 재미·조작감이 필요한 항목만 ‘실플레이’라고 구분한다.
++
++| 항목 | 원문 위험 판정·처리 | 근거/검사 | 잔여 |
++| --- | --- | --- | --- |
++| 61 | 병력은 장수1개체에 합쳐져 집중 공격·범위 회피·철수에 같이 참여. 출전 안내 보완 | CommanderAnt.AttackAgainst, GameMenuConscription, Combat270/Runtime 실제 배율 | Runtime 실행·부대 정보 전달성 실플레이 |
++| 62 | 실제 손실 가속 성립. max(1,병력) 공격·병력1HP·개인100HP 확정 유지 | 공유 FormationDamage.AfterArmor로4개 손실 곡선, DECISIONS 계산표 | 피해 전반 밸런스를 새 공식으로 바꾸지 않음 |
++| 63 | 기술/장비가1인 공격에 더해진 뒤 병력에 적용. 장수1명의 기술만으로 물량 대체 보장 없음 | DECISIONS 기본5/기술5/품질3/병력5 비교, CommandLimit 기존식 | 전 분야 PA/성장 조정은 J2 범위 밖 |
++| 64 | 약한 다단 공격의 방어 억제 성립, 강한 단발 관통과 최소 피해 남음. 공식 유지 | 실제 공유 공식120조합·양수/상한240확인, TTK표 | 실제 모든 장비·진형 균형의 완료 아님 |
++| 65 | 기존 필수 보스가 지상 공격만 사용해 날개로 무력화 가능. 보스 비행·착지와 비행 대공 공격 추가 | BossEncounter/BossHealth.IAirborne, Runtime 역할별 실제 보스 판정·예고 타격 | Runtime·실제 예고 육안/회피 실플레이 |
++| 66 | 출전 전 선택 원칙 유지. 적·지형·철수 조건/불이익을 기존 버튼 툴팁에 표시, 장사진 ‘산’ 오표기 교정 | GameMenuConscription, FormationState 적중/타깃변경/만료 검사 | 전체 진형 실전 조합·선택 빈도 |
++| 67 | 추행≤종대·쐐기≤봉시·엄호≤학익 효과 열등 관계 확인. 해당3수치만 조정 | Swift25%/Wedge정면30%/Cover철수30%, Combat270 조건 반전 | 광범위 진형 재설계 없음 |
++| 68 | 장비와 회피의 역할이 미연결. 비행 예고·열·호위로 장비의 효용과 회피 창 구현 | B 실제 HeatResistance.5, C 실제 AttackRadius3 검사, Runtime 예고1회타격 | 실제 이동 회피율·고급장비 탱킹 실플레이 |
++| 69 | 기존 A HP1000×난이도는 공격50 기준20~60초로 목표5~10분과 불일치. A12000으로 조정 | 무피격 근접4/5/6병력320~480초 계산. 미처치 HP 보존, 처치 후 재등장과 구분 | 실제 이동/공격 중단·준비 노동 체감 |
++| 70 | 필수 사슬은 각 보스1회면 됨(A핵심물2개). 반복은 고유장비 재획득 목적.12일/잔류 보류/회차당1보상 유지·안내 | BossChecks 실제 BossProgress 경계·반복 획득·중복 차단 | 재획득 필요 횟수의 장기 체감 |
++| 71 | 차량/항공 고정시간을 Notion의3띠 시간에 연결, 보급도 목적지 기준으로 계산 | TravelSecondsTo·TransportSeconds, WalkingFormation의 거리/바이옴/세력, Boss38 | 월드맵 표시1곳 Claude 연결 요청(아래) |
++| 75 | 일반 탐험은 보급·표본·재료 확보, 필수 보스는 탐지로 진입. 강제 탐지 관문 유지·안내 | GameMenuWalking/BossProgression, 취득/반입·공개 분리 검사 | 표본별 연구 확장은 타 담당 |
++| 76 | B 방열→C의 열·C 범위→B의 호위로 분기 순서에 준비 차이 추가 | 실제 장비 효과·B/C 양 순서 D합류 검사 | B/C 실제 현장 패턴·호위 생성 Runtime 실행 |
++| 80 | 900초+거리×1000은 확정 안전 귀환. 시간 단축 안 함. 개월→일/1배속분, 기한 경과 후 도착 대기 | GameMenuPrisoners·Diplomacy 포로 문구, Finale31 | 본거지 적/경로 때문에 도착 보류되는 실제 상황 |
++| 83 | 기본 파동 상한6으로 재산200/인구20부터 이미 포화. 장식 때문에 무한 강화는 기본값에서 성립 안 함 | ColonyInvasion.WaveCount 기본값 수식표, Rocket 화면 설명 | 실제 씬 직렬화 값·난이도별 파동 확인 |
++| 84 | 전지역 재산 포함·예약 중복제외·현재/6일 평균 max는 확정. 원격 재산 제외 안 함 | RocketEconomy.CaptureOwned 대조·실제 Preview/Observe 계산, 가동 화면 설명 | 현지 자원 동원 체감은 실플레이 |
++| 85 | 가동 후 인구 증가가 고정 입력을 올리지는 않음. 구할 인원을 가동 전 정하고 모듈을 늘림 |20/100/500/1000명 모듈1/2/10/20 계산. 시민이 장수 마지막1석을 차지하지 않게 수정 | Runtime 시민 승차·실제 좌석 소유권 |
++| 86 | 신규 점수 없이 시민 탈출/잔류·남은 편입지와 관계 결과를 엔딩에 남김 | CampaignLegacy/CampaignOutcome, Runtime 배우자 분리 결과 | 엔딩 화면 읽기/감정적 의미 실플레이 |
++| 87 | 장수 이동→탑승 확정, 장수별 하선·방어 재투입 지원. 시민 단독 발사 양 경로 차단 | HasLaunchCommander·TryDisembark·Unload 요청취소, Runtime 탑승/하선/재탑승 | 실제 이동 경로·UI 두 해상도 검수 |
++| 88 | 기존 안전 하선은 확정 손실과 다름. 시민/병력 사망·장수 중상, 실패 시점·고정입력 기록.15일 재시작 유지 | RecordDestruction·DestroyPassengers·CommanderRocket, Runtime 동틱 파괴 우선·구조 상태 | 구조·치료→회복의 실제 플레이 |
++| 89 | 핵심물이 최초 연구 해금만 하고 재사용되던 경로 수정. 가동당1소비. 바벨은 발사대 기초만 재건 | TryConsumeRocketCore·AirshipYard.Recovery·SaveConstruction, Runtime 실제 재건/전체 Preflight | 전체 건물 바벨 제공자는 별도 공백. 로켓 Runtime 실행 |
++| 90 |6분류 외 실제 관계·사망 원인/날짜·세력·남은 편입지 스냅샷, 구출/귀환·실패/재건 이력 표시 | CampaignLegacy·EndingRecord, Finale31 검증·Runtime 저장된 관계 결과 | 실제 엔딩 화면·실제 저장복원 실행 |
++
++## 수정 파일
++
++- 전투: `Units/FormationRules.cs`3상수, `Core/FormationDamage.cs`실제 피해식 공유 함수, `Units/CommanderAnt.cs`동일 피해식 호출·로켓 시공 기여 연결4줄.
++- 보스: 신규 `Boss/BossEncounter.cs`·`BossEncounterRules.cs` 및 meta, `BossHealth.cs` 비행 판정/초기 HP/재등장·사망 제어, `World/BossStronghold.cs` 연결, `World/WildMonster.cs`호위12HP/공격2 설정1메서드.
++- 원정/포로: `World/ExpeditionRules.cs`·`ExpeditionTransport.cs`·`ExpeditionSupplies.cs`, `DiplomacyPrisoners.cs`시간 표시 함수. 외교 교환/평화 규칙은 건드리지 않음.
++- 로켓: `Buildings/AirshipYard.cs`·`.Rocket.cs`·`.Civilians.cs`, 신규 `.Recovery.cs`와 `Units/CommanderRocket.cs` 및 meta. 일반 장수 피격 즉사·의료 규칙은 변경하지 않음.
++- 엔딩: `Core/CampaignOutcome.cs`, 신규 `CampaignLegacy.cs` 및 meta.
++- 저장: `SaveDtos.cs`·`SaveSnapshot.cs`·`SavePreflight.cs`·`SaveConstruction.cs`. 필드와 구저장 호환은 아래 참고.
++- 기존 UI: `GameMenuConscription/Walking/BossProgression/Campaign/Rocket/Ending/Prisoners.cs`와 `GameMenuDiplomacy.cs`포로 문구1곳. 새 창/경제·식품·산업·교역 UI 없음.
++- 검사: `AgentScripts/Review1029CombatChecks.cs`, `Review1029BossChecks.cs`, `Review1029FinaleChecks.cs`, `Review1029CampaignRuntimeChecks.cs`, `Review1029J2Compile.ps1`.
++- 문서: 본 인계·DECISIONS·GAPS·100항목 상태·전투 검토·README·담당 보드.
++
++## 저장 경로·구저장
++
++| 상태 | Capture/Restore 경로 | 사전검증·기본값 |
++| --- | --- | --- |
++| 보스 비행·예고·위치·잔여 | MonsterDto.bossEncounter → SaveSnapshot Capture/Restore → BossEncounter.Capture/Restore | SavePreflight → BossEncounter.Validate. `taken` 마커가 없는 구저장/JsonUtility 빈 객체는 첫 착지 상태. 비보스의 빈 객체도 오인하지 않음 |
++| 바벨 시공 기여·첫 기초 사용 | AirshipYard.State.builders/constructionWork/babelEligible/foundationUsed → 기존 BuildingDto.airship | AirshipYard.Validate. 구저장 목록null/빈 목록은 기여 이력 없음, 소급 자격 부여 없음 |
++| 건설 중 로켓 | ConstructionDto.hasRocketState/rocket → SaveConstruction.Capture/Restore | SavePreflight → SaveConstruction.Valid → AirshipYard.Validate. 명시 마커로 일반 건설의 null→빈 객체와 구분 |
++| 핵심물 소비 | CampaignResearch.State.bosses.home[D] 기존 필드 | 획득/반입 자격·연구는 보존. 구저장의 이미 가동 중인 로켓에 소급 결제하지 않음. 이후 새 가동부터1개 요구 |
++| 엔딩 서사 | RocketCampaign.State.ending.legacy → 기존 SaveFileV1.rocket | CampaignOutcome.Validate, 구저장null/빈 목록 허용. 점수/등급 없음 |
++
++저장 버전21 유지. 실제 JsonUtility 및 전체 파일 저장복원은 Runtime 검사 실행 대상이며, .NET 계산 실행을 Unity JsonUtility 검증이라고 주장하지 않는다.
++
++## 검증 재현
++
++```powershell
++powershell -NoProfile -ExecutionPolicy Bypass -File AgentScripts/Review1029J2Compile.ps1 -OfflineChecks
++```
++
++- 원본 Bee 응답파일에서 source/out/refout/analyzer/generatedfilesout을 분리한다. 기존 응답파일의 worktree 소스와 신규 소스를 컴파일한다. worktree에 없는 외부 소스44개는 원본에서 **읽어 J2 Temp에 복사**한 참조 사본을 사용한다(SpinFree 등). 원본은 수정하지 않는다.
++- 게임 DLL과4개 검사 파일을 별도로 컴파일한다. 검사는 Editor.rsp+J2 DLL을 사용하며 internal은 리플렉션, 게임 타입은 `AntColony.*` 전체 이름으로 참조한다.
++- 오프라인 실행은3개 계산 검사만 호출한다. 전투270·보스/원정38·최종/포로31=339 PASS. 기존 API/참조비교 경고는 남음. 실제 GUI/물리·NavMesh·Unity JsonUtility를 .NET에서 흉내내지 않는다.
++- `Review1029CampaignRuntimeChecks.Main()`은 **장수2명의 격리된 새 게임**에서 Claude가 실행해야 한다. 기존 플레이의 작업 지시/씬 배치를 완벽히 되돌리는 테스트가 아니므로 실제 사용자 플레이에서 실행하지 않는다. 사용자 저장파일은 쓰지 않는다. 실제 장수 배율·로켓 가동 핵심물·시민9+장수1석·개별 하선·시민 단독 발사 거부·배우자 분리 엔딩·바벨75%경계·동틱 파괴·중상·시민 미환급·기초 재건·전체 SaveSnapshot/Preflight·실제 보스 대공/예고1회 타격·잘못된 보스 상태 거부 검사 작성.
++- 실행 후 추가로 전체 저장 파일→씬 재구성→불러오기를 수행할 것. Runtime 스크립트의 JSON/Preflight 통과만으로 실제 디스크 저장/로드·NavMesh 복원을 완료 처리하지 않는다.
++- 최신 로컬 결과: `Temp/Review1029J2/validation.txt`. `git diff --check` 통과. Unity Player 빌드는 하지 않았다.
++
++## Claude UI·통합 요청
++
++1. 허용 범위 밖이어서 `WorldMapPanel.cs`는 수정하지 않았다. 약194행 출정 계획의 왕복 시간을 `(selectedShip.Walking ? ... : selectedShip.TravelSeconds)` 대신 `selectedShip.TravelSecondsTo(selectedSite)`로 표시해야 한다. 도보 진형 보정과 새 목적지3띠를 모두 반영한다. 현재 보급 예상은 이미 새 함수 사용.
++2. `GameMenuManagement.cs`의 `case "진형"`은 아직 미구현 문구로 연결되어 있다. 기존 `OpenConscription()`으로 안내하거나 해당 출전 편성으로 연결할 것. 여러 파트를 포함하는 공통 화면이므로 J2가 수정하지 않았다.
++3. `GameMenuWalking`의 목적지 목록·징집 툴팁·보스 설명·로켓 시민/장수 하선 버튼·포로 귀환 줄·엔딩 서사를1920×1080/1280×720에서 확인할 것. SAVE 전 Unity 캡처는 하지 말 것. 신규 내용은 기존13/12px·표면/강조 규칙을 사용했다.
++4. `CommanderAnt.OnWorked`의 로켓 기여 연결4줄, `SaveConstruction`의 로켓 상태, `BossHealth` 사망/재등장, `SaveSnapshot/Preflight/Dtos`는 공통 파일 충돌 가능성이 크다. J1/J3/Claude 변경과 통합 시 이 작은 연결을 보존할 것. 전체 건물 바벨 구현이 들어오면 로켓 전용 기여 기록을 공통 제공자와 중복 계산하지 말 것.
++5. 기존 `ImplB9Checks` 등은 새 가동에 D핵심물1개를 준비해야 한다. 시민 단독 승리·파괴 후 건강한 하선·핵심물 무제한 재사용을 기대하는 옛 검사는 새 확정 규칙에 맞춰 교정할 것. 기존 검사 전부 통과로 보고하지 않았다.
++6. Notion 추천안 반영은 통합 후 담당자가 수행할 것. 전투·보스/건물·방어시설/월드맵·원정·외교/맵·진행/미정/참조 UI 페이지를 함께 교정하고, 하위 페이지가 있는 기획 루트에 replace_content+allow_deleting_content를 사용하지 말 것. 추천안과 미실행 상태를 확정·실행 완료로 쓰지 않는다.
++
++추가 기획15건은 `GAPS_1029_J2.md`, 모든 잠정 수치·선택 이유·기획 출처는 `DECISIONS_1029_J2.md`에 있다. 카카오 완료 도구는 세션에 제공되지 않아 전송할 수 없다.
+diff --git a/docs/IMPLEMENTATION_BOARD.md b/docs/IMPLEMENTATION_BOARD.md
+index 7b9b880..116cc67 100644
+--- a/docs/IMPLEMENTATION_BOARD.md
++++ b/docs/IMPLEMENTATION_BOARD.md
+@@ -433,3 +433,5 @@
+ - **SAVE-1029 / 검증·문서·캡처 완료** — log/changelog/README 최신 상태, 공식CLI 실제 Game 화면9장 직접 검수/Notion 일지 첨부·Trouble 기록. 격리 검수시설/전문성 예시 상태이며 전체 플레이 검수 아님. 설정/Root/카메라 복원·Play 종료, 최신 build_227d7c36b46e 유지. docs/SAVE_AUDIT_20261029.md·검증 사본 참조. 선택 커밋/push 진행, 기존 로컬 씬/그래픽/설정/임시·prefab 보존.
+ 
+ - **SAVE-1029 / 원격 보존 완료** —155파일 e0a65d3 origin/develop push·원격 동일 SHA 확인. 실행 FBX3/재질24·prefab0, 공식CLI 화면9장 검수/Notion 첨부·일지/Trouble 완료. 기존 씬/Water/그래픽·프로젝트 설정/임시/graphify 보존, Play 종료. 전체100항목/보류 검수 완료 아님. 완료 기록 후속 문서 커밋만 수행.
++
++- **REVIEW100-J2-1029 / Codex J2 / 구현·오프라인 검증 완료, Unity 실행 인계** — codex/j2-1029, E:/Git/ant-wt/J2 전용. 61~71·75·76·80·83~90 (22항목). 소유: Commander 병력/진형 전투, Boss/원정, DiplomacyPrisoners, Rocket/CampaignOutcome 및 해당 GameMenu 전투·원정·캠페인·포로 UI, Review1029 검사·J2 결정/인계/공백 문서. 경제·식품·산업·교역 UI 및 79·81·82·97·98 기존 수정 유지. Unity 조작·원본 수정·커밋 없음. 22항목 대조(17보완/5규칙유지), 게임/검사 Roslyn 오류0·계산339PASS. Runtime/실제 저장복원/실플레이·월드맵 표시/진형 메뉴 연결은 Claude 인계. 결정/공백15건/인계·docs/patches/J2-1029.patch.
+diff --git a/docs/OPERATIONS_100_STATUS.md b/docs/OPERATIONS_100_STATUS.md
+index 76950a0..7375811 100644
+--- a/docs/OPERATIONS_100_STATUS.md
++++ b/docs/OPERATIONS_100_STATUS.md
+@@ -64,36 +64,36 @@
+ | 58 | [공백] 연애 관계의 독점·갈등·해소 규칙이 부족합니다. 관계 70 이상이면 연인이라는 기준에서 여러 대상이 동시에 조건을 만족할 때 처리가 필요합니다. | 검토 대기 | 현재 코드/확정 기획과 대조 후 필요 수정 |
+ | 59 | [위험] 친구 복수·역린·기분 붕괴가 조작 실패로 체감될 수 있습니다. 명령 불응이 전투 중 발생하므로, 사전 경고와 플레이어가 준비할 대응 수단이 중요합니다. | 검토 대기 | 현재 코드/확정 기획과 대조 후 필요 수정 |
+ | 60 | [위험] 의료가 복잡한 관리에 비해 판단은 단순할 수 있습니다. 신체 부위·약품·처치·수술이 많아도 결국 ‘가장 좋은 약으로 치료’만 반복한다면 복잡도 대비 재미가 작습니다. | 검토 대기 | 현재 코드/확정 기획과 대조 후 필요 수정 |
+-| 61 | [공백·우선] 보이지 않는 병력과 직접 조작 전투의 관계가 더 필요합니다. 병력이 많아도 하나의 장수만 움직인다면, 물량을 잘 굴린다는 것이 어떤 조작을 뜻하는지 구체화해야 합니다. | 검토 대기 | 현재 코드/확정 기획과 대조 후 필요 수정 |
+-| 62 | [위험·우선] 병력 손실이 공격력 하락까지 이어져 패배가 급격히 가속될 수 있습니다. 병력 수를 공격 계산에 곱하는 구조에서 첫 피격이 남은 전투에 얼마나 큰 영향을 주는지 확인해야 합니다. | 계산·검증·실전 잔여 | 실제 병력0/1/5/10/20 공격10/10/50/100/200.13검사·손실곡선/TTK 잔여 |
+-| 63 | [공백] 장수 자체 전투력과 병력 전투력의 비중이 필요합니다. 뛰어난 장수 1명·평범한 장수와 많은 병력·좋은 장비 중 무엇이 어느 상황에서 유리한지 기준이 필요합니다. | 검토 대기 | 현재 코드/확정 기획과 대조 후 필요 수정 |
+-| 64 | [위험] 방어력이 공격을 지나치게 무력화할 수 있습니다. 기술·장비·진형·병영 보정이 중첩될 때 피해 공식과 최소 피해에 따라 승부가 극단적으로 갈릴 수 있습니다. | 공식 확인·실전 잔여 | 방어 차감 후 피해감소75% 상한이므로 최종 원공격25% 보장은 아님.조합별TTK 잔여 |
+-| 65 | [위험] 비행이 일부 적을 완전히 무력화할 수 있습니다. 지상 몬스터는 공중 공격이 불가능하므로, 비행 장비의 비용·제약·대응 적이 충분한지 확인해야 합니다. | 규칙 확인·대응 검증 잔여 | 공중은 원거리/비행만 공격·일반지상범위 제외.전체 적 대응경로 잔여 |
+-| 66 | [위험] 14종 진형이 실제 전술보다 출전 전 숫자 선택이 될 수 있습니다. 실제 대형이 없고 전투 중 변경도 못 하므로, 적·지형 정보에 따라 선택이 달라져야 합니다. | 조건 확인·전술 검증 잔여 | 장사진 숲/동굴·쐐기 정면·엄호 후퇴 등 조건 존재.실전선택 검증 잔여 |
+-| 67 | [위험] 일부 진형이 다른 진형을 대부분의 상황에서 대체할 수 있습니다. 예를 들어 공격·방어가 함께 오르는 진형과 방어만 오르는 진형의 차이는 이동 불이익까지 포함해 비교해야 합니다. | 비교 검증·밸런스 잔여 | 방원은 어린보다 방어높고 어린은 공격이점.레기온 불이익 유지·13검사 |
+-| 68 | [공백] 보스의 장비 점검과 컨트롤 점검을 구분해야 합니다. 회피를 잘해도 장비가 부족하면 못 깨는지, 장비가 좋으면 패턴을 무시할 수 있는지 의도한 범위가 필요합니다. | 검토 대기 | 현재 코드/확정 기획과 대조 후 필요 수정 |
+-| 69 | [위험] 첫 보스 5~10분은 반복 실패 시 부담이 클 수 있습니다. 이동·준비·전투·회수까지 포함한 재도전 시간을 기준으로 적절한 길이인지 봐야 합니다. | 검토 대기 | 현재 코드/확정 기획과 대조 후 필요 수정 |
+-| 70 | [위험] 반복 보스전에서 새롭게 판단할 것이 줄 수 있습니다. 체력 초기화·동일 거점 재등장만으로는 장비 파밍이 같은 패턴 반복이 되므로, 반복할 가치와 적정 횟수를 정해야 합니다. | 검토 대기 | 현재 코드/확정 기획과 대조 후 필요 수정 |
+-| 71 | [공백] 목적지 선택의 기준이 난이도·보상 외에도 필요합니다. 거리·현지 환경·세력 관계·귀환 위험이 서로 다른 선택을 만들어야 합니다. | 검토 대기 | 현재 코드/확정 기획과 대조 후 필요 수정 |
++| 61 | [공백·우선] 보이지 않는 병력과 직접 조작 전투의 관계가 더 필요합니다. 병력이 많아도 하나의 장수만 움직인다면, 물량을 잘 굴린다는 것이 어떤 조작을 뜻하는지 구체화해야 합니다. | J2 안내 보완·실행 인계 | 부대 단위 집중/회피/철수·병력0 개인전투 안내. Combat270·실제 장수 배율 Runtime 검사 작성 |
++| 62 | [위험·우선] 병력 손실이 공격력 하락까지 이어져 패배가 급격히 가속될 수 있습니다. 병력 수를 공격 계산에 곱하는 구조에서 첫 피격이 남은 전투에 얼마나 큰 영향을 주는지 확인해야 합니다. | J2 계산·현행 유지 | 실제 공유 피해식으로1/5/10/20병력 손실곡선 계산. 가속 확인, max(1,병력) 확정 규칙 유지 |
++| 63 | [공백] 장수 자체 전투력과 병력 전투력의 비중이 필요합니다. 뛰어난 장수 1명·평범한 장수와 많은 병력·좋은 장비 중 무엇이 어느 상황에서 유리한지 기준이 필요합니다. | J2 비교·현행 유지 | 기술/장비가1인 공격에 더해진 뒤 병력배수. 기본5·기술5·품질3 비교와 지휘한도 문서화 |
++| 64 | [위험] 방어력이 공격을 지나치게 무력화할 수 있습니다. 기술·장비·진형·병영 보정이 중첩될 때 피해 공식과 최소 피해에 따라 승부가 극단적으로 갈릴 수 있습니다. | J2 계산·현행 유지 | 피해120조합·양수/상한240확인. 방어8이 원공격8을1로 제한하나25/100공격은 관통 |
++| 65 | [위험] 비행이 일부 적을 완전히 무력화할 수 있습니다. 지상 몬스터는 공중 공격이 불가능하므로, 비행 장비의 비용·제약·대응 적이 충분한지 확인해야 합니다. | J2 수정·Unity 실행 인계 | 필수 보스3초비행/5초착지·대공 예고공격. 일반 지상 대공불가 유지, 실제 타격/판정 Runtime 검사 작성 |
++| 66 | [위험] 14종 진형이 실제 전술보다 출전 전 숫자 선택이 될 수 있습니다. 실제 대형이 없고 전투 중 변경도 못 하므로, 적·지형 정보에 따라 선택이 달라져야 합니다. | J2 조건 안내·실행 인계 | 기존 징집 진형 버튼 조건/불이익 툴팁과 숲·동굴/평지 설명. 전투중 변경금지 유지 |
++| 67 | [위험] 일부 진형이 다른 진형을 대부분의 상황에서 대체할 수 있습니다. 예를 들어 공격·방어가 함께 오르는 진형과 방어만 오르는 진형의 차이는 이동 불이익까지 포함해 비교해야 합니다. | J2 수정·계산 통과 | 추행25%이동·쐐기정면30%공격·엄호철수30%원거리감소. 열등 관계3종 계산, 나머지 보정 유지 |
++| 68 | [공백] 보스의 장비 점검과 컨트롤 점검을 구분해야 합니다. 회피를 잘해도 장비가 부족하면 못 깨는지, 장비가 좋으면 패턴을 무시할 수 있는지 의도한 범위가 필요합니다. | J2 수정·계산/실행 구분 | A~D 고정HP·회피 예고/비행 노출·B/C 위험 구현. 방어/장비·회피 조합 실제 검수 인계 |
++| 69 | [위험] 첫 보스 5~10분은 반복 실패 시 부담이 클 수 있습니다. 이동·준비·전투·회수까지 포함한 재도전 시간을 기준으로 적절한 길이인지 봐야 합니다. | J2 수정·계산 통과 | A12000HP·근접 노출5/8,4/5/6병력×공격10은480/384/320초. 미처치HP 보존·재도전 왕복 계산 |
++| 70 | [위험] 반복 보스전에서 새롭게 판단할 것이 줄 수 있습니다. 체력 초기화·동일 거점 재등장만으로는 장비 파밍이 같은 패턴 반복이 되므로, 반복할 가치와 적정 횟수를 정해야 합니다. | J2 안내·경계 검사 통과 | 필수 사슬은 A1회/B1회/C1회/D1회, 반복은 고유장비 재획득.12일·회차당1보상·재등장 보류 검사 |
++| 71 | [공백] 목적지 선택의 기준이 난이도·보상 외에도 필요합니다. 거리·현지 환경·세력 관계·귀환 위험이 서로 다른 선택을 만들어야 합니다. | J2 수정·계산 통과 | 차량20/40/70·항공10/20/35초와 목적지 기준 보급. 도보 편성에 바이옴/거리/세력 안내. 월드맵 표시 연결 Claude 인계 |
+ | 72 | [위험] 외교 즉시 교환이 실물 교역을 대체할 수 있습니다. 원정·용기·수송에 비용을 들이는 것보다 외교로 순간 교환하는 것이 얼마나 유리한지 비교해야 합니다. | 검토 대기 | 현재 코드/확정 기획과 대조 후 필요 수정 |
+ | 73 | [공백] 교역소·캐러밴·문명 교역의 고유 역할이 부족합니다. 같은 물건을 비슷하게 사고판다면 세 경로를 유지할 플레이상의 이유가 약합니다. | 검토 대기 | 현재 코드/확정 기획과 대조 후 필요 수정 |
+ | 74 | [위험] 교역 가격 차이로 무위험 자원 증식이 생길 수 있습니다. 세력별 가격 우대·납세·가공품·원재료를 연결한 반복 거래를 확인해야 합니다. | 수정·실행 검증 | 왕복 순증150→0. 공정 가치 하한·최대 정치/적대 요구액 완화·20검사 통과 |
+-| 75 | [위험] 자유 탐험과 강제 탐지 보스가 분리돼 보일 수 있습니다. 일반 지역은 갈 수 있지만 필수 보스는 탐지 전 접근 불가이므로, 탐험이 필수 진행에 주는 이익이 분명해야 합니다. | 검토 대기 | 현재 코드/확정 기획과 대조 후 필요 수정 |
+-| 76 | [공백] 분기 보스 공략 순서가 실제 전략을 바꾸는지 부족합니다. 둘 다 결국 잡아야 하므로 먼저 얻는 보상이 다른 분기 준비를 어떻게 바꾸는지 필요합니다. | 검토 대기 | 현재 코드/확정 기획과 대조 후 필요 수정 |
++| 75 | [위험] 자유 탐험과 강제 탐지 보스가 분리돼 보일 수 있습니다. 일반 지역은 갈 수 있지만 필수 보스는 탐지 전 접근 불가이므로, 탐험이 필수 진행에 주는 이익이 분명해야 합니다. | J2 안내 보완·규칙 유지 | 일반 탐험의 보급/표본/재료 역할과 B/C/D 탐지관문 분리 안내. 자동 탐지/출정 없음 |
++| 76 | [공백] 분기 보스 공략 순서가 실제 전략을 바꾸는지 부족합니다. 둘 다 결국 잡아야 하므로 먼저 얻는 보상이 다른 분기 준비를 어떻게 바꾸는지 필요합니다. | J2 수정·계산/실행 구분 | B방열→C열, C범위→B호위 상호 준비 효과. B/C 양 순서 D합류 검사, 실제 패턴 Runtime 인계 |
+ | 77 | [위험] 성장하는 AI와 제한된 AI 시설 규모가 어긋날 수 있습니다. 최대 5동 확장과 플레이어의 6시대 발전이 장기적으로 경쟁 관계를 유지하는지 필요합니다. | 검토 대기 | 현재 코드/확정 기획과 대조 후 필요 수정 |
+ | 78 | [위험] 첫 접촉이 손해여서 외교를 피하는 것이 유리할 수 있습니다. 미접촉 문명은 침공하지 않으므로, 접촉 위험을 감수할 교역·정보·협력 이득이 충분해야 합니다. | 검토 대기 | 현재 코드/확정 기획과 대조 후 필요 수정 |
+ | 79 | [위험] 전쟁 최소 10분이 빠른 전투 손실과 맞지 않을 수 있습니다. 큰 피해를 입어도 평화 협상을 기다려야 한다면, 협상 전까지 버틸 선택지가 필요합니다. | 부분 수정·검증 | 최소전쟁10분 유지.가득찬창고의 승전배상금 때문에 평화거부 버그 수정·교역23검사.전쟁회복실전 잔여 |
+-| 80 | [위험] 포로 안전 귀환의 기본 15분이 구출의 만족감을 늦출 수 있습니다. 차량 이동은 수십 초인 잠정값과 차이가 커서, 몸값 지불 후 긴 대기가 납득되는지 확인해야 합니다. | 검토 대기 | 현재 코드/확정 기획과 대조 후 필요 수정 |
++| 80 | [위험] 포로 안전 귀환의 기본 15분이 구출의 만족감을 늦출 수 있습니다. 차량 이동은 수십 초인 잠정값과 차이가 커서, 몸값 지불 후 긴 대기가 납득되는지 확인해야 합니다. | J2 표시 수정·계산 통과 | 900초+거리×1000 유지. 개월→일/1배속분, 도착기한 후 음수 대신 진입대기 표시 |
+ | 81 | [위험·우선] 37.5분 연속 방어는 긴장보다 피로가 커질 수 있습니다. 15일이라는 기간은 정해졌으므로, 그 안에서 적 구성·공격 방향·목표가 어떻게 바뀌는지가 중요합니다. | 1차 구현·실행 검증 | 15일 유지·5일씩 단일/양/다방향.기존총병력·상한·간격 유지.실제생성/경로대체/상한22검사·장기피로 잔여 |
+ | 82 | [공백·우선] 최종 방어의 구간별 전개가 필요합니다. 같은 적이 계속 추가되는 방식과 전선이 변하는 방식은 체감이 크게 다릅니다. | 1차 구현·실행 검증 | 경로 검증한 외곽으로 기존인원 분산·불가시기존진입.새 적구성/목표변화는 잔여 |
+-| 83 | [위험] 재산 기반 난이도가 잘 꾸민 정착지를 벌줄 수 있습니다. 장식·비축 식량·생활 시설이 실제 전투력과 얼마나 관련 있는지 분리해서 평가할 필요가 있습니다. | 확정 규칙 확인·검증 잔여 | 재산 스냅샷 확정 유지.장식/생활 가치를 임의제외 안 함·난이도실전 잔여 |
+-| 84 | [위험] 전 지역 재산을 포함하면 멀리 있는 자산이 방어 난이도만 올릴 수 있습니다. 현지에서 활용할 수 없는 화물·시설까지 같은 비중으로 계산하는지 확인해야 합니다. | 확정 규칙 확인·검증 잔여 | 전지역 자산 포함 확정 유지.현지동원차이 체감검증 잔여 |
+-| 85 | [위험] 인구 증가가 탈출 가능성을 오히려 낮출 수 있습니다. 공세 강도는 커지고 좌석은 제한되므로, 시민을 잘 받아 성장한 플레이의 보상이 무엇인지 필요합니다. | 검토 대기 | 현재 코드/확정 기획과 대조 후 필요 수정 |
+-| 86 | [위험] 장수 1명만 탈출해도 승리라 시민 구출의 실익이 약할 수 있습니다. 점수·등급을 추가할 필요는 없지만, 더 많이 구하는 선택의 의미를 플레이 중 형성해야 합니다. | 검토 대기 | 현재 코드/확정 기획과 대조 후 필요 수정 |
+-| 87 | [공백] 마지막 탑승 순간의 재미를 설계해야 합니다. 방어 인력을 언제 빼고 누구를 남길지, 로켓까지 이동하는 시간이 어떤 결정을 만드는지 필요합니다. | 검토 대기 | 현재 코드/확정 기획과 대조 후 필요 수정 |
+-| 88 | [위험] 뒤늦은 패배의 재도전 비용이 매우 큽니다. 30분 넘게 방어하다 로켓이 파괴되면 재건 뒤 다시 37.5분이므로, 실패에서 배우는 정보와 회복 부담을 함께 봐야 합니다. | 검토 대기 | 현재 코드/확정 기획과 대조 후 필요 수정 |
+-| 89 | [정합성] 로켓과 바벨 재건 효과의 연결이 남아 있습니다. 기초 재건·좌석 모듈·핵심물 소실이 함께 적용될 때 무엇을 보존하고 다시 준비하는지 명확해야 합니다. | 검토 대기 | 현재 코드/확정 기획과 대조 후 필요 수정 |
+-| 90 | [공백] 엔딩이 플레이 중 선택을 어떻게 회수하는지 부족합니다. 탈출 인원 집계 외에 관계·희생·세력·정착지의 변화가 기록에 반영돼야 긴 플레이의 결말이 강해집니다. | 부분 구현 확인 | 현재 장수6분류/시민탈출·잔류 기록.관계/희생/세력/결정 서사 회수 미구현 |
++| 83 | [위험] 재산 기반 난이도가 잘 꾸민 정착지를 벌줄 수 있습니다. 장식·비축 식량·생활 시설이 실제 전투력과 얼마나 관련 있는지 분리해서 평가할 필요가 있습니다. | J2 기본값 계산·유지 | 전지역재산 유지. 보통 기본 상한6에서 재산200/인구20이면 포화, 꾸밈 무한증폭 아님. 실제 씬 설정 확인 인계 |
++| 84 | [위험] 전 지역 재산을 포함하면 멀리 있는 자산이 방어 난이도만 올릴 수 있습니다. 현지에서 활용할 수 없는 화물·시설까지 같은 비중으로 계산하는지 확인해야 합니다. | J2 집계 대조·유지 | 창고/화물/현지 소유물 포함·예약 중복제외·현재/6일평균max 유지. 전지역 포함을 가동 화면에 명시 |
++| 85 | [위험] 인구 증가가 탈출 가능성을 오히려 낮출 수 있습니다. 공세 강도는 커지고 좌석은 제한되므로, 시민을 잘 받아 성장한 플레이의 보상이 무엇인지 필요합니다. | J2 안내·좌석 보완 | 가동 후 인구는 고정 공세를 높이지 않음.20/100/500/1000명 좌석모듈1/2/10/20 계산·장수1석 확보 |
++| 86 | [위험] 장수 1명만 탈출해도 승리라 시민 구출의 실익이 약할 수 있습니다. 점수·등급을 추가할 필요는 없지만, 더 많이 구하는 선택의 의미를 플레이 중 형성해야 합니다. | J2 기록 보완·실행 인계 | 시민 탈출/잔류·편입영토와 관계 분리 결과 기록. 점수/등급 추가 없음 |
++| 87 | [공백] 마지막 탑승 순간의 재미를 설계해야 합니다. 방어 인력을 언제 빼고 누구를 남길지, 로켓까지 이동하는 시간이 어떤 결정을 만드는지 필요합니다. | J2 수정·실행 인계 | 수동 로켓 이동·장수별 하선/방어 재투입. 시민 단독 발사 차단·승객 변경시 요청취소. Runtime 검사 작성 |
++| 88 | [위험] 뒤늦은 패배의 재도전 비용이 매우 큽니다. 30분 넘게 방어하다 로켓이 파괴되면 재건 뒤 다시 37.5분이므로, 실패에서 배우는 정보와 회복 부담을 함께 봐야 합니다. | J2 수정·실행 인계 | 파괴 때 시민/병력 손실·장수 중상, 실패 경과/입력 기록·15일 재시작 유지. 실제 파괴/구조 Runtime 인계 |
++| 89 | [정합성] 로켓과 바벨 재건 효과의 연결이 남아 있습니다. 기초 재건·좌석 모듈·핵심물 소실이 함께 적용될 때 무엇을 보존하고 다시 준비하는지 명확해야 합니다. | J2 수정·저장 연결 | 가동당 D핵심물1소비·반입 연구자격 보존. 바벨 발사대 기초75%자재/50%작업, 부품/좌석/진행 재준비·건설DTO연결 |
++| 90 | [공백] 엔딩이 플레이 중 선택을 어떻게 회수하는지 부족합니다. 탈출 인원 집계 외에 관계·희생·세력·정착지의 변화가 기록에 반영돼야 긴 플레이의 결말이 강해집니다. | J2 기록·저장 연결 | 6분류+관계/희생/세력/잔류정착지 서사 스냅샷과 구출/실패/재건 이력. Runtime/실제 엔딩 화면 미실행 |
+ | 91 | [위험] 툴팁과 설명서만으로는 시스템 연결을 배우기 어렵습니다. 버튼 설명 외에 ‘식량이 있는데 왜 굶는가’처럼 여러 규칙이 연결된 상황을 이해할 안내가 필요합니다. | 1차 수정·검증 | 작업 막힘 안내, 운영28 |
+ | 92 | [공백] 위험을 감수하기 전 보여주는 정보의 기준이 필요합니다. 보스 준비·원정 보급·수술·전쟁에서 정확한 값과 대략적 경고를 어디까지 제공할지 일관돼야 합니다. | 검토 대기 | 현재 코드/확정 기획과 대조 후 필요 수정 |
+ | 93 | [위험] 실물 자원이 많아질수록 총재고만 보고 잘못 판단할 수 있습니다. 사용 가능·예약·운반 중·다른 지역·부패 임박을 한눈에 구분할 수 있어야 합니다. | 1차 수정·검증 | 식단/가용/배정/물류 구분, 운영28 |

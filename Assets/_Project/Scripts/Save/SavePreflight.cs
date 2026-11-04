@@ -215,7 +215,9 @@ namespace AntColony.Save
                 Check(f.nodes.All(n => n != null && n.key != null && N(n.amount) && N(n.regrowTimer) && N(n.sowRemaining) && ValidNaturalWork(n) && n.fishMonth >= -1 && V(n.position) && Enum.IsDefined(typeof(ResourceType), n.type))
                     && f.nodes.Select(n => n.key).Distinct().Count() == f.nodes.Count, "resource nodes");
                 Check(f.critters == null || f.critters.Count <= 1000 && f.critters.All(c => c != null && Enum.IsDefined(typeof(Buildings.Species), c.species) && N(c.health) && c.health > 0 && V(c.position) && (c.disease == null || c.disease.Valid)), "critters");
-                Check(f.monsters.All(m => m != null && m.key != null && N(m.health) && V(m.position)) && f.monsters.Select(m => m.key).Distinct().Count() == f.monsters.Count, "monsters");
+                Check(f.monsters.All(m => m != null && m.key != null && N(m.health) && V(m.position)
+                    && AntColony.Boss.BossEncounter.Validate(m.bossEncounter) && (!AntColony.Boss.BossEncounter.Present(m.bossEncounter) || m.key.StartsWith("boss:")))
+                    && f.monsters.Select(m => m.key).Distinct().Count() == f.monsters.Count, "monsters");
                 foreach (var m in f.monsters) if (m.traits != null)
                 { Traits(m.traits); Check(m.talents != null && m.talents.Validate(), "enemy talents"); }
                 Check(f.monsters.All(m => string.IsNullOrEmpty(m.diplomaticFactionId) || f.diplomacy.civilizations.Any(c => c.id == m.diplomaticFactionId)), "enemy faction");

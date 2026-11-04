@@ -79,7 +79,7 @@ namespace AntColony.Save
             SaveRuntime.CaptureMonsters(file);
             for (var i = 0; i < SaveCatalog.Bosses.Length; i++)
             { var b = SaveCatalog.Bosses[i]; file.monsters.Add(new MonsterDto { key = "boss:" + i, health = b != null ? b.CurrentHp : 0,
-                position = new Vec3Dto(b != null ? b.Position : Vector3.zero) }); }
+                position = new Vec3Dto(b != null ? b.Position : Vector3.zero), bossEncounter = b != null ? b.GetComponent<BossEncounter>()?.Capture() : null }); }
             file.world.unlocked = world.Unlocked; file.world.vehicleResearched = world.VehicleResearched; file.world.aircraftResearched = world.AircraftResearched;
             file.world.notice = world.SettlementNotice;
             file.world.legacyLayout = world.LegacyLayout;
@@ -217,6 +217,7 @@ namespace AntColony.Save
                 {
                     var b = SaveCatalog.Bosses[index]; SaveReferences.Register(d.key, b); if (b == null) continue;
                     if (d.health <= 0) b.RestoreDefeated(); else { b.transform.position = d.position.ToVector3(); b.RestoreHp(d.health); }
+                    b.GetComponent<BossEncounter>()?.Restore(d.bossEncounter);
                     continue;
                 }
                 var m = parts[0] == "monster" ? SaveCatalog.Monsters[index]

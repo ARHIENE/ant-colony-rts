@@ -433,3 +433,5 @@
 - **SAVE-1029 / 검증·문서·캡처 완료** — log/changelog/README 최신 상태, 공식CLI 실제 Game 화면9장 직접 검수/Notion 일지 첨부·Trouble 기록. 격리 검수시설/전문성 예시 상태이며 전체 플레이 검수 아님. 설정/Root/카메라 복원·Play 종료, 최신 build_227d7c36b46e 유지. docs/SAVE_AUDIT_20261029.md·검증 사본 참조. 선택 커밋/push 진행, 기존 로컬 씬/그래픽/설정/임시·prefab 보존.
 
 - **SAVE-1029 / 원격 보존 완료** —155파일 e0a65d3 origin/develop push·원격 동일 SHA 확인. 실행 FBX3/재질24·prefab0, 공식CLI 화면9장 검수/Notion 첨부·일지/Trouble 완료. 기존 씬/Water/그래픽·프로젝트 설정/임시/graphify 보존, Play 종료. 전체100항목/보류 검수 완료 아님. 완료 기록 후속 문서 커밋만 수행.
+
+- **REVIEW100-J2-1029 / Codex J2 / 구현·오프라인 검증 완료, Unity 실행 인계** — codex/j2-1029, E:/Git/ant-wt/J2 전용. 61~71·75·76·80·83~90 (22항목). 소유: Commander 병력/진형 전투, Boss/원정, DiplomacyPrisoners, Rocket/CampaignOutcome 및 해당 GameMenu 전투·원정·캠페인·포로 UI, Review1029 검사·J2 결정/인계/공백 문서. 경제·식품·산업·교역 UI 및 79·81·82·97·98 기존 수정 유지. Unity 조작·원본 수정·커밋 없음. 22항목 대조(17보완/5규칙유지), 게임/검사 Roslyn 오류0·계산339PASS. Runtime/실제 저장복원/실플레이·월드맵 표시/진형 메뉴 연결은 Claude 인계. 결정/공백15건/인계·docs/patches/J2-1029.patch.

@@ -7,7 +7,7 @@ namespace AntColony.Boss
 {
     // SIMUL-TeaamProject(hyeonyeop 브랜치) BossHealth.cs 참고 포팅.
     // 자체 IDamageable 대신 프로젝트 공용 AntColony.Core.IDamageable을 구현해 SoldierAnt.CommandAttack 등과 그대로 호환됨.
-    public class BossHealth : MonoBehaviour, IDamageable
+    public class BossHealth : MonoBehaviour, IDamageable, IAirborne
     {
         [Header("Stats")]
         [SerializeField] private float maxHp = 1000f;
@@ -24,6 +24,8 @@ namespace AntColony.Boss
         private float currentHp;
         private bool deathProcessed;
         public BossId? CampaignId { get; internal set; }
+        public bool IsAirborne => GetComponent<BossEncounter>()?.Airborne == true;
+        internal void ConfigureCampaign(BossId id) { maxHp = BossEncounterRules.Health(id); currentHp = maxHp; }
 
         public float CurrentHp => currentHp;
         public float MaxHp => maxHp;
@@ -79,6 +81,9 @@ namespace AntColony.Boss
 
         internal void Respawn()
         {
+            GetComponent<BossEncounter>()?.ResetEncounter();
+            var encounter = GetComponent<BossEncounter>();
+            if (encounter != null) encounter.enabled = true;
             deathProcessed = false; currentHp = maxHp; RootRemaining = 0;
             foreach (var aoe in GetComponents<BossCircleAoE>()) aoe.enabled = true;
             foreach (var aoe in GetComponents<BossConeAoE>()) aoe.enabled = true;
@@ -94,6 +99,8 @@ namespace AntColony.Boss
         {
             currentHp = 0f;
             deathProcessed = true;
+            var encounter = GetComponent<BossEncounter>();
+            if (encounter != null) encounter.enabled = false;
             onHPChanged?.Invoke(0f, maxHp);
             gameObject.SetActive(false);
         }
@@ -121,6 +128,8 @@ namespace AntColony.Boss
             // onHPChanged 구독자가 비치명 피격 중 치명타를 넣으면 안쪽/바깥쪽 TakeDamage가 모두 여기로 온다.
             if (deathProcessed) return;
             deathProcessed = true;
+            var encounter = GetComponent<BossEncounter>();
+            if (encounter != null) encounter.enabled = false;
             if (CampaignId.HasValue)
                 CampaignResearch.Instance?.BossProgress.RecordKill(CampaignId.Value, GameCalendar.GameSeconds);
 

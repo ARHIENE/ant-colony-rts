@@ -240,7 +240,7 @@ namespace AntColony.UI
                     : c.rebels.Select(p => (p.PersonalState.id, p.Name + " · 반란 합류")).Concat(d.HeldCaptives(c).Select(a => (a.PersonalState.id, a.CommanderName + " · 억류")));
                 foreach (var (id, name) in entries.ToArray())
                 {
-                    var arrival = player ? "" : $" · 귀환 약 {d.HomecomingSeconds(id, c) / DiplomacyRules.Month:0.0}개월";
+                    var arrival = player ? "" : " · 안전 귀환 " + DiplomacyManager.HomecomingTimeLabel(d.HomecomingSeconds(id, c));
                     Item((offer.prisoners.Contains(id) ? "✓ " : "") + name + $" · 몸값 {d.RansomValue(id, c):0}" + arrival, () => { if (!offer.prisoners.Remove(id)) offer.prisoners.Add(id); rebuildTrade(); });
                 }
                 if (!entries.Any()) MenuTheme.Text(parent, player ? "이 세력 출신 포로가 없습니다." : "이 세력이 붙잡은 자국 장수가 없습니다.", 13, 24).color = MenuTheme.Dim;

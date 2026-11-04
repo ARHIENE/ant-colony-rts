@@ -175,6 +175,9 @@ namespace AntColony.Units
         protected override void OnWorked(float seconds)
         {
             if (CurrentActivity != CommanderActivity.Gathering) GainExperience(CurrentActivity, seconds);
+            if (ConstructionTarget != null && ConstructionTarget.Building != null
+                && ConstructionTarget.Building.GetComponent<AntColony.Buildings.AirshipYard>() is AntColony.Buildings.AirshipYard rocket)
+                rocket.RecordBuilder(this, Mathf.Min(ConstructionTarget.RemainingWork, seconds * WorkSpeed), ConstructionTarget.BuildTimeSeconds);
         }
         // 포텐 성장(2026-10-07): 작업량은 그대로 활용 이력에, 학습 배율(열정·학습 특성·나이·머리 부상)은 성장 속도에만 쓴다.
         public void GainExperience(CommanderActivity activity, float amount, CommanderActivity? topic = null)
@@ -296,7 +299,7 @@ namespace AntColony.Units
             if (IsDead || IsEmbarked || PersonalHealth <= 0 || float.IsNaN(amount) || amount <= 0) return;
             Social.combatSeen = true; PersonalState.lastCombatSeconds = 0; WorkState.quietSeconds = 0;
             GetComponent<AntVisual>()?.Action("Hit");
-            var damage = Mathf.Max(Mathf.Min(1, amount), amount - Armor) * receivedMultiplier;
+            var damage = FormationDamage.AfterArmor(amount, Armor, receivedMultiplier);
             damage = AbsorbDurableDamage(damage);
             var troopDamage = Mathf.Min(damage, TroopHealth);
             damage -= troopDamage; pendingDamage += troopDamage;

@@ -30,8 +30,8 @@ namespace AntColony.UI
             var returning = dm != null ? dm.Data.homecomings : null;
             if (returning == null || returning.Count == 0) MenuTheme.Text(content, "귀환 중인 장수가 없습니다.", 15, 30);
             else foreach (var r in returning)
-                    MenuTheme.Text(content, $"{r.commander?.Name} · {(string.IsNullOrEmpty(r.to) ? "우리 본거지로" : "상대 세력으로")} · 남은 {(r.arrive - dm.Data.elapsed) / GameCalendar.SecondsPerMonth:0.0}개월"
-                        + (r.gear.Count > 0 ? $" · 동반 장비 {r.gear.Count}" : ""), 14, 26);
+                    MenuTheme.Text(content, $"{r.commander?.Name} · {(string.IsNullOrEmpty(r.to) ? "우리 본거지로" : "상대 세력으로")} · {DiplomacyManager.HomecomingTimeLabel(r.arrive - dm.Data.elapsed)}"
+                        + (r.gear.Count > 0 ? $" · 동반 장비 {r.gear.Count}" : ""), 13, 52);
 
             content = V5Section(window, prisonerPick == null ? "선택 없음" : prisonerPick.Name, 454, 104, 626, 544);
             if (prisonerPick == null) { V5Fit(window); return; }
