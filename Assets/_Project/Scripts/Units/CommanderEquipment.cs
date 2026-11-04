@@ -91,10 +91,11 @@ namespace AntColony.Units
         public EquipmentItem EquippedArmor => personalState.equipment.Find(e => e.slot == EquipmentSlot.Armor);
         public string WeaponLabel => Weapon?.weapon.ToString() ?? "Bare mandibles";
         // 화면 표시용 한국어 이름(WeaponLabel은 도감 키로 남긴다).
-        public string WeaponName => Weapon == null ? "맨손" : Weapon.weapon switch
+        public string WeaponName => Weapon == null ? "맨손" : WeaponDisplayName(Weapon.weapon);
+        public static string WeaponDisplayName(WeaponKind weapon) => weapon switch
         {
             WeaponKind.Mandible => "큰턱", WeaponKind.AcidSprayer => "산 분사기", WeaponKind.Shield => "방패",
-            WeaponKind.Pheromone => "지휘 신호기", WeaponKind.WoodenSword => "나무칼", WeaponKind.ShortBow => "단궁", _ => Weapon.weapon.ToString()
+            WeaponKind.Pheromone => "지휘 신호기", WeaponKind.WoodenSword => "나무칼", WeaponKind.ShortBow => "단궁", _ => weapon.ToString()
         };
         public bool CanChangeEquipment => CanReceiveOrders && !IsConstructing && !LabUpgradeBusy;
         public float AuraRadius => SupportAuraRadius + (Weapon?.quality ?? 0);

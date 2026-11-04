@@ -6,7 +6,7 @@ using UnityEngine;
 namespace AntColony.World
 {
     // 거점 전체를 재생성하지 않는다. 바닥 전리품·시신·건물과 오래된 미회수 보상은 그대로 남긴다.
-    public sealed class BossStronghold : MonoBehaviour
+    public sealed partial class BossStronghold : MonoBehaviour
     {
         public BossId Id { get; private set; }
         private ExpeditionSite site;

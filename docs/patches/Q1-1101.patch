@@ -1,0 +1,1117 @@
+diff --git a/AgentScripts/ImplB6Checks.cs b/AgentScripts/ImplB6Checks.cs
+index 7cc4677..49306e8 100644
+--- a/AgentScripts/ImplB6Checks.cs
++++ b/AgentScripts/ImplB6Checks.cs
+@@ -96,7 +96,7 @@ public static class ImplB6Checks
+             Check(CampaignResearch.Validate(rs, out _), "nested campaign state validates");
+             research.RestoreState(JsonUtility.FromJson<CampaignResearch.State>(JsonUtility.ToJson(rs)));
+             Check(research.HasSample(AntColony.Data.ResourceType.IronOre) && research.BossProgress.Cargo.Count == 1, "campaign JSON roundtrip");
+-            Check(BossProgress.Hazard(BossId.B).Contains("열") && BossProgress.Reward(BossId.D).Contains("로켓"), "hazard/reward guide");
++            Check(BossProgress.Hazard(BossId.C).Contains("열") && BossProgress.Hazard(BossId.B).Contains("호위") && BossProgress.Reward(BossId.D).Contains("로켓"), "hazard/reward guide");
+             CheckConsumption(research);
+             CheckCrafting();
+             CheckCarriers(research);
+diff --git a/AgentScripts/Review1101Q1Checks.cs b/AgentScripts/Review1101Q1Checks.cs
+new file mode 100644
+index 0000000..7355027
+--- /dev/null
++++ b/AgentScripts/Review1101Q1Checks.cs
+@@ -0,0 +1,111 @@
++using System;
++using System.Linq;
++using System.Threading.Tasks;
++
++public static class Review1101Q1Checks
++{
++    private static int count;
++    private static void Check(bool ok, string name) { if (!ok) throw new Exception("Q1 실패: " + name); count++; }
++
++    public static async Task<string> Main()
++    {
++        count = 0;
++        Check(AntColony.UI.PersonalDisplayNames.Mood("Hunger") == "허기", "허기 표시");
++        Check(AntColony.UI.PersonalDisplayNames.Mood("Rest") == "휴식", "휴식 표시");
++        Check(AntColony.UI.PersonalDisplayNames.Mood("Catharsis") == "감정 해소", "감정 해소 표시");
++        Check(AntColony.UI.PersonalDisplayNames.Mood("Death: Rest") == "사망: Rest", "장수 이름 원문 보존");
++        Check(AntColony.UI.PersonalDisplayNames.Mood("Downed: 민수") == "쓰러짐: 민수", "쓰러짐 표시");
++        Check(AntColony.UI.PersonalDisplayNames.Mood(null) == "", "빈 구저장 표시");
++        Check(AntColony.UI.PersonalDisplayNames.Mood("사용자 원문") == "사용자 원문", "기존 원문 보존");
++        foreach (AntColony.Units.EquipmentSlot slot in Enum.GetValues(typeof(AntColony.Units.EquipmentSlot)))
++            Check(AntColony.UI.PersonalDisplayNames.Slot(slot) != slot.ToString(), "장비 부위 " + slot);
++        foreach (var category in new[] { "Ants", "World", "Bosses" })
++            Check(AntColony.UI.PersonalDisplayNames.Category(category) != category, "도감 범주 " + category);
++        Check(AntColony.UI.PersonalDisplayNames.Category("기존 분류") == "기존 분류", "도감 키 변환 없음");
++        Check(AntColony.UI.SiteNames.Korean("Independent 3 Settlement") == "독립 정착지", "거점 표시·내부 번호 숨김");
++        Check(AntColony.UI.SiteNames.Korean("Independent") == "독립", "독립 세력 단독 표시");
++        Check(AntColony.UI.SiteNames.Korean("Neutral ResourceSite 1") == "중립 자원지 1", "자원지 구별 번호 보존");
++        Check(AntColony.UI.SiteNames.Korean("사용자 거점") == "사용자 거점", "한국어 거점 보존");
++        var legacy = new AntColony.Save.DiscoveryDto { category = "World", key = "site:Amber Colony", title = "Amber Colony", body = "Amber / Settlement. Fixed difficulty 2." };
++        Check(AntColony.UI.PersonalDisplayNames.DiscoveryTitle(legacy) == "호박 소굴", "구도감 거점 제목");
++        Check(AntColony.UI.PersonalDisplayNames.DiscoveryBody(legacy) == "호박 · 정착지 · 고정 위험도 D2", "구도감 본문");
++        Check(legacy.key == "site:Amber Colony" && legacy.title == "Amber Colony" && legacy.body.StartsWith("Amber /"), "구도감 저장 원문 불변");
++        legacy.category = "Ants"; legacy.key = "weapon:ShortBow";
++        Check(AntColony.UI.PersonalDisplayNames.DiscoveryTitle(legacy) == "단궁", "기존 무기 함수 재사용");
++        legacy.body = "사용자가 보존한 원문";
++        Check(AntColony.UI.PersonalDisplayNames.DiscoveryBody(legacy) == legacy.body, "알려진 옛 문장만 표시 변환");
++        Check(AntColony.UI.ExpeditionPlanning.LoadAmount(100, 20, 90, 30) == 30, "재고만큼 부분 보급");
++        Check(AntColony.UI.ExpeditionPlanning.LoadAmount(100, 20, 5, 90) == 5, "예약을 뺀 적재 여유");
++        Check(AntColony.UI.ExpeditionPlanning.LoadAmount(10, 20, 90, 90) == 0, "충분한 보급 추가 차감 없음");
++        Check(AntColony.UI.ExpeditionPlanning.LoadAmount(100, 20, 90, 0) == 0, "재고 없음");
++        // 엔진 객체를 생성하지 않고 순수 필드 기반 속도/예산 속성만 검사한다.
++        var transport = (AntColony.World.ExpeditionTransport)System.Runtime.Serialization.FormatterServices.GetUninitializedObject(typeof(AntColony.World.ExpeditionTransport));
++        var health = typeof(AntColony.Buildings.BuildingBase).GetField("currentHealth", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic);
++        health.SetValue(transport, 400f);
++        Check(transport.PlannedRoundTripSeconds(null) == 41, "정상 차량 왕복40+접안1초");
++        health.SetValue(transport, 150f);
++        Check(Math.Abs(transport.PlannedRoundTripSeconds(null) - (40 / .75f + 1)) < .001f, "손상 차량 실속도 왕복");
++        typeof(AntColony.World.ExpeditionTransport).GetField("<Remaining>k__BackingField", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic).SetValue(transport, 30f);
++        Check(transport.TravelRemainingSeconds == 40, "감속 후 실제 도착 남은초");
++        health.SetValue(transport, 50f);
++        Check(float.IsPositiveInfinity(transport.PlannedRoundTripSeconds(null)) && transport.RecommendedFood(null) == 0, "이동 불가 예산 미정·무한대 변환 차단");
++        var civ = new AntColony.World.Civilization { war = true, warStarted = 100, enemyScore = 10, playerScore = 3 };
++        Check(AntColony.UI.DiplomacyPlanning.PeaceLabel(civ, 699).Contains("1초"), "평화 관문 직전");
++        Check(AntColony.UI.DiplomacyPlanning.PeaceLabel(civ, 700).Contains("7 지불"), "평화 관문 경계·지불 방향");
++        civ.playerScore = 20;
++        Check(AntColony.UI.DiplomacyPlanning.PeaceLabel(civ, 700).Contains("10 수령"), "배상 수령 방향");
++        civ.playerScore = 10;
++        Check(AntColony.UI.DiplomacyPlanning.PeaceLabel(civ, 700).Contains("배상 없음"), "무배상");
++        civ.war = false;
++        Check(AntColony.UI.DiplomacyPlanning.PeaceLabel(civ, 0).Contains("현재 평화"), "평화 중 협상 상태");
++
++        foreach (AntColony.Boss.BossId id in Enum.GetValues(typeof(AntColony.Boss.BossId)))
++        {
++            var state = new AntColony.Boss.BossProgress.State { revealed = new[] { true, true, true, true } };
++            var progress = new AntColony.Boss.BossProgress(state);
++            var reward = id == AntColony.Boss.BossId.A ? 2 : 1;
++            Check(progress.RespawnRemaining(id, 0) == 0, "생존 보스 재등장 없음 " + id);
++            Check(progress.RecordKill(id, 100), "처치 기록 " + id);
++            Check(progress.UnclaimedCount(id) == reward, "보상 꾸러미와 개수 구분 " + id);
++            Check(progress.RespawnRemaining(id, 100) == AntColony.Boss.BossProgress.RespawnSeconds, "재등장 시계 시작 " + id);
++            Check(progress.RespawnRemaining(id, 100 + AntColony.Boss.BossProgress.RespawnSeconds - 1) == 1, "재등장 직전 " + id);
++            Check(!progress.TryRespawn(id, 1900, true, false, false), "아군 잔류 재등장 보류 " + id);
++            Check(progress.RespawnRemaining(id, 1901) == 0, "기한 후 음수 없음 " + id);
++            Check(progress.TryAcquire(id, "test", out var parcel), "실물 회수 " + id);
++            Check(progress.UnclaimedCount(id) == 0 && progress.Cargo.Sum(p => p.count) == reward, "회수 후 현지/운송 구분 " + id);
++            Check(progress.TryDeliver(parcel.id) && progress.Home(id) == reward, "반입 후 본거지 수량 " + id);
++            Check(progress.TryRespawn(id, 1900, false, false, false), "빈 전장 재등장 " + id);
++            Check(progress.RespawnRemaining(id, 1901) == 0, "새 회차 대기 표시 없음 " + id);
++        }
++        Check(AntColony.Boss.BossProgress.Hazard(AntColony.Boss.BossId.B).Contains("호위 최대2"), "B 실제 호위 위험");
++        Check(AntColony.Boss.BossProgress.Hazard(AntColony.Boss.BossId.C).Contains("열 피해6"), "C 실제 열 위험");
++        await Task.CompletedTask;
++        return "Q1 " + count + "검사 통과 (순수 규칙·표시; 실제 전투/출정은 별도)";
++    }
++
++    // Claude: 시작 완료 격리 Play에서 출정 준비/이동/귀환 대기/보스 전장 각각 열고 재실행.
++    // 현재 게임을 바꾸지 않고 실제 컴포넌트의 안내와 판정이 일치하는지 확인한다.
++    public static async Task<string> RunQ1Scene()
++    {
++        var result = await Main();
++        var world = AntColony.World.WorldMapManager.Instance;
++        Check(world != null, "시작 완료 월드");
++        foreach (var ship in world.Transports.Where(s => s != null && s.isActiveAndEnabled))
++        {
++            Check(ship.ReturnCargoSpace >= 0, "실제 화물 여유");
++            foreach (var site in world.Sites.Where(AntColony.World.WorldMapManager.SiteRevealed))
++            {
++                var block = ship.DepartureBlock(site);
++                if (block != "") Check(!ship.TryDepart(site), "불가 출정은 상태를 바꾸지 않음: " + block);
++                if (!ship.CanOperate) Check(ship.RecommendedFood(site) == 0, "이동 불가 예산 미정");
++                else Check(ship.RecommendedFood(site) == AntColony.World.ExpeditionTransport.ExpectedFood(
++                    ship.PlannedRoundTripSeconds(site) + 2 * AntColony.Core.GameCalendar.SecondsPerDay, ship.DailyFood, 0), "실속도 보급 예산");
++            }
++            Check(!string.IsNullOrEmpty(ship.CargoSummary), "현재 실물 화물 요약");
++        }
++        var texts = UnityEngine.Object.FindObjectsByType<UnityEngine.UI.Text>(UnityEngine.FindObjectsInactive.Exclude);
++        foreach (var key in new[] { "Continue Colony", "Load Game", "New Game", "Back" })
++            foreach (var text in texts.Where(t => t.transform.parent.name == key)) Check(text.text != key, "버튼 키 보존·한국어 라벨 " + key);
++        return result + "\n실장면 검사 " + count + "개. 성공 출정→귀환, 실제 타격/회피, 화면 잘림은 Claude 수동 확인 필요.";
++    }
++}
+diff --git a/Assets/_Project/Scripts/Boss/BossEncounter.cs b/Assets/_Project/Scripts/Boss/BossEncounter.cs
+index 305c628..813e107 100644
+--- a/Assets/_Project/Scripts/Boss/BossEncounter.cs
++++ b/Assets/_Project/Scripts/Boss/BossEncounter.cs
+@@ -25,6 +25,9 @@ namespace AntColony.Boss
+         private Vector3 anchor;
+         private GroundTelegraphCircle telegraph;
+         public bool Airborne => BossEncounterRules.Flying(state.elapsed);
++        public string CombatStatus => state.warning ? $"착탄 {state.warningRemaining:0.0}초 · 반경 {BossEncounterRules.StrikeRadius:0}m 밖으로 회피"
++            : Airborne ? $"비행 · 착지까지 {System.Math.Max(0, BossEncounterRules.FlightSeconds - state.elapsed):0.0}초"
++            : "착지 · 근접 공격 가능";
+         public void Initialize(BossHealth value, BossId bossId)
+         {
+             boss = value; id = bossId; anchor = value.Position;
+diff --git a/Assets/_Project/Scripts/Boss/BossProgress.cs b/Assets/_Project/Scripts/Boss/BossProgress.cs
+index b095df2..e88ff73 100644
+--- a/Assets/_Project/Scripts/Boss/BossProgress.cs
++++ b/Assets/_Project/Scripts/Boss/BossProgress.cs
+@@ -40,6 +40,14 @@ namespace AntColony.Boss
+         public int Home(BossId id) => state.home[(int)id];
+         public int Tools(BossId id) => state.tools[(int)id];
+         public int Cycle(BossId id) => state.cycle[(int)id];
++        public float RespawnRemaining(BossId id, float now) => Defeated(id)
++            ? Math.Max(0, RespawnSeconds - (now - state.killedAt[(int)id])) : 0;
++        public int UnclaimedCount(BossId id)
++        {
++            var total = 0;
++            foreach (var parcel in state.unclaimed) if (parcel.boss == (int)id) total += parcel.count;
++            return total;
++        }
+         public bool TryConsumeRocketCore()
+         {
+             if (!Delivered(BossId.D) || Home(BossId.D) < 1) return false;
+@@ -54,8 +62,8 @@ namespace AntColony.Boss
+             BossId.A => "핵심물 2개 · 내구도 높은 고유 장비", BossId.B => "B 핵심물 · 방열 장비",
+             BossId.C => "C 핵심물 · 범위 공격 장비", _ => "로켓 핵심물" };
+         public static string Hazard(BossId id) => id switch {
+-            BossId.A => "강한 직접 공격 / 내구도 높은 장비 권장", BossId.B => "열 위험 / 방열 장비 권장",
+-            BossId.C => "다수 적 / 범위 공격 장비 권장", _ => "복합 위험 / 방열·범위 공격 장비 권장" };
++            BossId.A => "강한 직접 공격 / 내구도 높은 장비 권장", BossId.B => "호위 최대2 / 범위 공격 장비 권장",
++            BossId.C => "열 피해6·호위 최대4 / 방열 장비 권장", _ => "열 피해12·호위 최대4 / 방열·범위 공격 장비 권장" };
+         public bool Recipe(BossId id) => id switch {
+             BossId.A => false, BossId.B or BossId.C => Delivered(BossId.A),
+             BossId.D => Delivered(BossId.B) && Delivered(BossId.C), _ => false };
+diff --git a/Assets/_Project/Scripts/UI/DetailTabs.cs b/Assets/_Project/Scripts/UI/DetailTabs.cs
+index 98ec5d5..081ac17 100644
+--- a/Assets/_Project/Scripts/UI/DetailTabs.cs
++++ b/Assets/_Project/Scripts/UI/DetailTabs.cs
+@@ -26,7 +26,7 @@ namespace AntColony.UI
+ 
+         public static void Reward(CommanderAnt c)
+         {
+-            if (c != null && !c.TryReward()) ToastManager.Show("본거지에서 게임 달마다 1번, Food 30이 필요합니다.");
++            if (c != null && !c.TryReward()) ToastManager.Show("본거지의 명령 가능한 장수만 포상할 수 있습니다. 식량 30 · 재사용 대기 300초(게임 2일).");
+         }
+ 
+         public static DetailTabs Create(Transform canvas)
+@@ -51,7 +51,7 @@ namespace AntColony.UI
+             b.offsetMin = new Vector2(10, 40); b.offsetMax = new Vector2(-10, -34);
+             d.body.alignment = TextAnchor.UpperLeft; d.body.supportRichText = true; d.body.lineSpacing = 1.1f;
+             HUDController Hud() => AntColony.Core.SceneObjects.Any<HUDController>();
+-            d.Action(root, 0, "Reward", "포상", () => Reward(d.opened), () => "Food 30을 써서 기분을 올립니다(한 달). 게임 달마다 1번.");
++            d.Action(root, 0, "Reward", "포상", () => Reward(d.opened), () => "식량 30 소비 · 기분 보통 +8, 탐욕/야심 +15, 금욕 +3. 효과·재사용 대기 각 300초(게임 2일). 본거지에서 명령 가능한 장수만 포상.");
+             d.Action(root, 1, "Attack Research", "공격 연구", () => Hud()?.TryLabResearch(true),
+                 () => Hud()?.LabResearchLabel(d.opened, true) + "\n무기와 같은 종류의 연구소에서 이 장수의 공격을 올립니다.");
+             d.Action(root, 2, "Armor Research", "방어 연구", () => Hud()?.TryLabResearch(false),
+@@ -102,7 +102,7 @@ namespace AntColony.UI
+                         + $"체력 {Mathf.CeilToInt(c.PersonalHealth)}/{GameBalance.CommanderHealth:0} · 포만 {c.Satiety:0} · 피로 {c.Fatigue:0} · 오락 {c.Joy:0} · 위생 {c.Hygiene:0}\n"
+                         + (c.IsDeployed ? $"병력 {Mathf.CeilToInt(c.TroopHealth)}/{c.CommandLimit}" : "평시 병력 0 (출전 시 징집소에서 편성)");
+                 case 1:
+-                    var rows = p.moodFactors.OrderBy(f => f.value).Take(6).Select(f => Row(f.reason, f.value));
++                    var rows = p.moodFactors.OrderBy(f => f.value).Take(6).Select(f => Row(PersonalDisplayNames.Mood(f.reason), f.value));
+                     return string.Join("\n", rows) + $"\n<b>기분 {c.Mood:0}</b>  <color=#b1b3a7>/ 붕괴 위험 {CommanderOverhead.MoodWarning:0} 이하</color>";
+                 case 2:
+                     return c.Traits.values.Count == 0 ? "특성 없음" : string.Join("\n", c.Traits.values.Select(CommanderTraits.DisplayName));
+@@ -112,7 +112,7 @@ namespace AntColony.UI
+                         .Select(r => $"{(names != null && names.TryGetValue(r.otherId, out var n) ? n : "?")}  {(r.spouse ? "배우자" : r.family ? "가족" : r.value > 0 ? "친구" : "라이벌")} {r.value:+0;−0}");
+                     return rel.Any() ? string.Join("\n", rel) : "눈에 띄는 관계 없음";
+                 case 4:
+-                    return p.equipment.Count == 0 ? "장비 없음" : string.Join("\n", p.equipment.Select(e => $"{e.slot}: {e.Label}"));
++                    return p.equipment.Count == 0 ? "장비 없음" : string.Join("\n", p.equipment.Select(e => $"{PersonalDisplayNames.Slot(e.slot)}: {e.Label}"));
+                 default:
+                     return GameMenuController.HealthLines(p.health);
+             }
+diff --git a/Assets/_Project/Scripts/UI/DiplomacyPlanning.cs b/Assets/_Project/Scripts/UI/DiplomacyPlanning.cs
+new file mode 100644
+index 0000000..c9b2b03
+--- /dev/null
++++ b/Assets/_Project/Scripts/UI/DiplomacyPlanning.cs
+@@ -0,0 +1,16 @@
++using AntColony.World;
++
++namespace AntColony.UI
++{
++    public static class DiplomacyPlanning
++    {
++        public static string PeaceLabel(Civilization civ, float now)
++        {
++            if (!civ.war) return "평화 협상 · 현재 평화 상태";
++            var remaining = System.Math.Max(0, DiplomacyRules.PeaceDelay - (now - civ.warStarted));
++            if (remaining > 0) return $"평화 협상 · {System.Math.Ceiling(remaining):0}초 후 가능";
++            var due = civ.enemyScore - civ.playerScore;
++            return "평화 협상 · " + (due > 0 ? $"식량 {due} 지불" : due < 0 ? $"식량 {-(long)due} 수령" : "배상 없음");
++        }
++    }
++}
+diff --git a/Assets/_Project/Scripts/UI/DiplomacyPlanning.cs.meta b/Assets/_Project/Scripts/UI/DiplomacyPlanning.cs.meta
+new file mode 100644
+index 0000000..3259d9d
+--- /dev/null
++++ b/Assets/_Project/Scripts/UI/DiplomacyPlanning.cs.meta
+@@ -0,0 +1,2 @@
++fileFormatVersion: 2
++guid: 5f472e2f8e7a48048cab24e6d49e1a22
+diff --git a/Assets/_Project/Scripts/UI/ExpeditionPlanning.cs b/Assets/_Project/Scripts/UI/ExpeditionPlanning.cs
+new file mode 100644
+index 0000000..ec019a6
+--- /dev/null
++++ b/Assets/_Project/Scripts/UI/ExpeditionPlanning.cs
+@@ -0,0 +1,25 @@
++using AntColony.Core;
++using AntColony.World;
++
++namespace AntColony.UI
++{
++    public static class ExpeditionPlanning
++    {
++        public static string TransportName(ExpeditionTransport ship) => ship.name switch
++        { "Vehicle" => "차량", "Aircraft" => "비행기", _ => ship.name };
++        public static int LoadAmount(ExpeditionTransport ship, ExpeditionSite site) => ship == null ? 0
++            : LoadAmount(ship.RecommendedFood(site), ship.AvailableFood, ship.ReturnCargoSpace,
++                ResourceManager.Instance?.GetAmount(AntColony.Data.ResourceType.Food) ?? 0);
++        public static int LoadAmount(int recommended, int available, int space, int stock) =>
++            System.Math.Max(0, System.Math.Min(System.Math.Max(0, recommended - available), System.Math.Min(space, stock)));
++        public static string DepartureText(ExpeditionTransport ship, ExpeditionSite site)
++        {
++            var block = ship.DepartureBlock(site);
++            var time = ship.PlannedRoundTripSeconds(site);
++            return (float.IsInfinity(time) ? "이동 불가" : $"왕복 {time / GameCalendar.SecondsPerDay:0.0}일(감속·접안 포함)")
++                + (ship.CanOperate ? $" · 식량 {ship.AvailableFood}/{ship.RecommendedFood(site)}" : $" · 식량 {ship.AvailableFood} · 권장량 산정 불가")
++                + $"\n왕복 + 현지·예비 각 1일 · 화물 여유 {ship.ReturnCargoSpace}\n"
++                + (block != "" ? block : ship.DepartureWarning(site) is var warning && warning != "" ? warning : "출정 가능");
++        }
++    }
++}
+diff --git a/Assets/_Project/Scripts/UI/ExpeditionPlanning.cs.meta b/Assets/_Project/Scripts/UI/ExpeditionPlanning.cs.meta
+new file mode 100644
+index 0000000..e941762
+--- /dev/null
++++ b/Assets/_Project/Scripts/UI/ExpeditionPlanning.cs.meta
+@@ -0,0 +1,2 @@
++fileFormatVersion: 2
++guid: 2689fd8092c8403387f7232c11f534e6
+diff --git a/Assets/_Project/Scripts/UI/GameMenuController.cs b/Assets/_Project/Scripts/UI/GameMenuController.cs
+index 4c16684..b87ba94 100644
+--- a/Assets/_Project/Scripts/UI/GameMenuController.cs
++++ b/Assets/_Project/Scripts/UI/GameMenuController.cs
+@@ -173,7 +173,7 @@ namespace AntColony.UI
+             MenuTheme.Text(content, "기본 조작: 화면 가장자리·방향키로 카메라 이동, 휠로 확대·축소, Z/C로 회전합니다. Esc 메뉴, P 일시 정지, G/F1 장수 관리, Q 무기 기술, E 징집소, D 귀환, R 무기 교체, K 과학, M 월드맵입니다. 설정에서 단축키를 바꿀 수 있습니다.", 18, 95);
+             MenuTheme.Text(content, "첫 등장 안내", 20, 32);
+             foreach (var hint in FirstHints.All) MenuTheme.Text(content, hint.title + ": " + hint.body, 16, 50);
+-            MenuTheme.Button(content, "Back", Back);
++            MenuTheme.Button(content, "Back", Back).GetComponentInChildren<Text>().text = "뒤로";
+         }
+ 
+         public void ShowOutcome(bool victory)
+@@ -184,17 +184,17 @@ namespace AntColony.UI
+             var seconds = GameSession.Instance.PlaySeconds;
+             MenuTheme.Text(content, victory ? "보스를 처치했습니다. 정착지를 계속 확장하고 로켓 발사를 준비하세요." : (GameManager.Instance?.DefeatReason ?? "활동 가능한 장수가 없습니다.") + " 저장을 불러오거나 새 정착지를 시작하세요.", 22, 80);
+             MenuTheme.Text(content, $"플레이 시간: {(int)seconds / 60:00}:{(int)seconds % 60:00}  /  장수: {CommanderRoster.Instance?.Count ?? 0}", 18, 48);
+-            if (victory) MenuTheme.Button(content, "Continue Colony", () => { resumeScale = 1; Resume(); });
+-            MenuTheme.Button(content, "Load Game", () => Slots(false));
++            if (victory) MenuTheme.Button(content, "Continue Colony", () => { resumeScale = 1; Resume(); }).GetComponentInChildren<Text>().text = "정착지 계속하기";
++            MenuTheme.Button(content, "Load Game", () => Slots(false)).GetComponentInChildren<Text>().text = "불러오기";
+             var restart = MenuTheme.Button(content, "Restart Same Map", () => {
+                 Screen("Restart colony?", "정착지를 다시 시작할까요?");
+                 MenuTheme.Text(content, "저장하지 않은 진행 상황은 사라집니다. 기존 저장 슬롯은 유지됩니다.", 20, 70);
+                 var confirm = MenuTheme.Button(content, "Restart", () => CrashLandingStart.Begin(GameSession.Instance.Options.Clone()));
+                 confirm.GetComponentInChildren<Text>().text = "다시 시작";
+-                MenuTheme.Button(content, "Back", () => ShowOutcome(victory));
++                MenuTheme.Button(content, "Back", () => ShowOutcome(victory)).GetComponentInChildren<Text>().text = "뒤로";
+             });
+             restart.GetComponentInChildren<Text>().text = "같은 맵에서 다시 시작";
+-            MenuTheme.Button(content, "New Game", NewGameScreen);
++            MenuTheme.Button(content, "New Game", NewGameScreen).GetComponentInChildren<Text>().text = "새 게임";
+         }
+         private bool ReadSeed()
+         { if (seed == null || !int.TryParse(seed.text, out var value)) { ToastManager.Show("시드는 -2147483648~2147483647 사이의 정수로 입력하세요."); return false; } options.seed = value; return true; }
+@@ -205,8 +205,8 @@ namespace AntColony.UI
+             Screen("Encyclopedia", "도감");
+             if (Encyclopedia.Entries.Count == 0) MenuTheme.Text(content, "탐험하며 생물·보스·문명을 발견하세요.", 20, 60);
+             foreach (var e in Encyclopedia.Entries.OrderBy(e => e.category).ThenBy(e => e.title))
+-            { MenuTheme.Text(content, e.category + " / " + e.title, 23, 44); MenuTheme.Text(content, e.body, 18, 90); }
+-            MenuTheme.Button(content, "Back", Back);
++            { MenuTheme.Text(content, PersonalDisplayNames.Category(e.category) + " / " + PersonalDisplayNames.DiscoveryTitle(e), 23, 44); MenuTheme.Text(content, PersonalDisplayNames.DiscoveryBody(e), 18, 90); }
++            MenuTheme.Button(content, "Back", Back).GetComponentInChildren<Text>().text = "뒤로";
+         }
+     }
+ }
+diff --git a/Assets/_Project/Scripts/UI/GameMenuDiplomacy.cs b/Assets/_Project/Scripts/UI/GameMenuDiplomacy.cs
+index 279e044..433cc01 100644
+--- a/Assets/_Project/Scripts/UI/GameMenuDiplomacy.cs
++++ b/Assets/_Project/Scripts/UI/GameMenuDiplomacy.cs
+@@ -88,7 +88,7 @@ namespace AntColony.UI
+             L.Label(p, "주력 " + AIEraMilitary.Summary(s.era) + $"\n소굴 방어 {AIEraMilitary.DefenseGrade(s.era)}등급 · 장갑 {AIEraMilitary.DefenseArmor(s.era)} · 장비 재고 {s.equipment.Count}", 12, 386, 242, 470, 42, MenuTheme.Muted)
+                 .gameObject.AddComponent<MenuTooltip>().Message = "새 병력은 모집비에 기본 장비가 포함됩니다. 현장 수비대 교체품은 병기 공방의 실물 장비 재고에서 가져옵니다. 장비 교체 전 병력은 이전 시대 전력 유지, 부상 회복 없음. 원거리는 근접 압박 시 짧게 거리를 벌립니다. 처치 시 장착 장비를 바닥에 남깁니다.\n"
+                     + string.Join("\n", WorldMapManager.Instance.Sites.Where(site => d.Faction(site) == s && site.Colony != null)
+-                        .Select(site => site.Title + ": " + AIIndustry.Summary(site.Colony, s.era)));
++                        .Select(site => SiteNames.Name(site) + ": " + AIIndustry.Summary(site.Colony, s.era)));
+             var reasons = L.List(p, 386, 290, 470, 372, 2);
+             foreach (var reason in Enumerable.Reverse(s.reasons)) MenuTheme.Text(reasons, reason, 12, 20).color = MenuTheme.Muted;
+ 
+@@ -112,7 +112,11 @@ namespace AntColony.UI
+             { var b = L.Button(p, name, label, 872, y, 460, 40, action); b.interactable = enabled; y += 46; return b; }
+             Act("선전포고", "선전포고", () => { if (!d.DeclareWar(s)) ToastManager.Show("불가침 협정 중에는 선전포고할 수 없습니다."); Diplomacy(s); }, !s.war)
+                 .GetComponentInChildren<Text>().color = MenuTheme.Danger;
+-            Act("평화 협상", "평화 협상 · 배상 식량 " + d.Reparations(s), () => { if (!d.MakePeace(s)) ToastManager.Show("선전포고 후 10분 및 양쪽의 배상 자원을 확인하세요. 받는 배상금의 창고 초과분은 바닥에 둡니다."); Diplomacy(s); }, d.CanNegotiatePeace(s));
++            var peace = Act("평화 협상", DiplomacyPlanning.PeaceLabel(s, d.Data.elapsed), () => { if (!d.MakePeace(s)) ToastManager.Show("선전포고 후 10분 및 양쪽의 배상 자원을 확인하세요. 받는 배상금의 창고 초과분은 바닥에 둡니다."); Diplomacy(s); }, d.CanNegotiatePeace(s));
++            refreshDutyScreen += () => {
++                peace.GetComponentInChildren<Text>().text = DiplomacyPlanning.PeaceLabel(s, d.Data.elapsed);
++                peace.interactable = d.CanNegotiatePeace(s);
++            };
+             Act("거래 제안", "거래 제안", () => OpenTrade(s), !s.war);
+             Act("협정 제안", "협정 제안", () => { tradeTab = 4; OpenTrade(s); }, !s.war);
+             Act("요구", "요구 · 최후통첩", () => { tradeTab = 0; OpenTalk(d.StartTalk(s, TalkKind.Demand)); }, !s.war);
+diff --git a/Assets/_Project/Scripts/UI/GameMenuRoster.cs b/Assets/_Project/Scripts/UI/GameMenuRoster.cs
+index 4c5b122..b894f38 100644
+--- a/Assets/_Project/Scripts/UI/GameMenuRoster.cs
++++ b/Assets/_Project/Scripts/UI/GameMenuRoster.cs
+@@ -112,7 +112,7 @@ namespace AntColony.UI
+             L.Meter(mood, 0, 30, 496, 8, c.Mood / 100f, MoodColor(c.Mood));
+             L.Label(mood, $"기본 60 · 기대 수준 +{AntColony.Core.GameBalanceNeeds.ExpectationMood(c.PersonalState.expectationTier)}", 12, 0, 46, 496, 18, MenuTheme.Muted);
+             for (var i = 0; i < factors.Count; i++)
+-                L.Label(mood, $"{factors[i].reason}  <b>{factors[i].value:+0;-0;0}</b>  <color=#b1b3a7>{factors[i].remaining:0}초</color>", 12, 0, 64 + i * 18, 496, 18, MenuTheme.Muted);
++                L.Label(mood, $"{PersonalDisplayNames.Mood(factors[i].reason)}  <b>{factors[i].value:+0;-0;0}</b>  <color=#b1b3a7>{factors[i].remaining:0}초</color>", 12, 0, 64 + i * 18, 496, 18, MenuTheme.Muted);
+ 
+             // Phase 3: 충성심 대신 탈주 위험 — 기분이 기준 이하로 한 달 이어지면 떠난다.
+             var leave = L.Cell(content, "Departure", 48);
+diff --git a/Assets/_Project/Scripts/UI/HUDController.cs b/Assets/_Project/Scripts/UI/HUDController.cs
+index 73db9f5..a5a3b88 100644
+--- a/Assets/_Project/Scripts/UI/HUDController.cs
++++ b/Assets/_Project/Scripts/UI/HUDController.cs
+@@ -123,7 +123,7 @@ namespace AntColony.UI
+             listText.rectTransform.offsetMin = new Vector2(10, 6); listText.rectTransform.offsetMax = new Vector2(-10, -6);
+             listText.alignment = TextAnchor.UpperLeft; listText.supportRichText = true; listText.name = "MaterialsListText";
+             materialsList.gameObject.SetActive(false);
+-            bossHealthText = CreateText(canvasGO.transform, new Vector2(.5f, 1f), new Vector2(260f, 22f), new Vector2(0f, -46f));
++            bossHealthText = CreateText(canvasGO.transform, new Vector2(.5f, 1f), new Vector2(440f, 42f), new Vector2(0f, -68f));
+             bossHealthText.alignment = TextAnchor.UpperCenter;
+             HudClock.Create(canvasGO.transform);
+             RosterBar.Create(canvasGO.transform);
+@@ -279,6 +279,8 @@ namespace AntColony.UI
+         {
+             if (bossHealthText == null) return;
+             bossHealthText.text = $"보스 체력 {Mathf.CeilToInt(current)} / {Mathf.CeilToInt(max)}";
++            var encounter = boss != null ? boss.GetComponent<BossEncounter>() : null;
++            if (current > 0 && encounter != null) bossHealthText.text += "\n" + encounter.CombatStatus;
+         }
+ 
+         private void ShowBossDefeatedMessage()
+diff --git a/Assets/_Project/Scripts/UI/MoodWatch.cs b/Assets/_Project/Scripts/UI/MoodWatch.cs
+index 83cc700..71e0511 100644
+--- a/Assets/_Project/Scripts/UI/MoodWatch.cs
++++ b/Assets/_Project/Scripts/UI/MoodWatch.cs
+@@ -39,7 +39,7 @@ namespace AntColony.UI
+                     warned[c] = level;
+                     var cause = c.PersonalState.moodFactors.Where(f => f.value < 0).OrderBy(f => f.value).FirstOrDefault()?.reason ?? "부정 요인 없음";
+                     var remaining = Mathf.Max(0, SocialRules.Month - c.PersonalState.lowMoodSeconds);
+-                    ToastManager.Show($"기분 {new[] { "", "주의", "위험", "위급" }[level]}: {c.CommanderName} ({c.Mood:0}) — {cause} · 붕괴 분당 {c.BreakChance:P0} · 이탈까지 {remaining:0}초" + (!c.IsAwayFromHome && c.PersonalState.rewardCooldown <= 0 ? " · 장수 상세에서 포상(식량 30) 가능" : ""), ToastKind.Warning);
++                    ToastManager.Show($"기분 {new[] { "", "주의", "위험", "위급" }[level]}: {c.CommanderName} ({c.Mood:0}) — {PersonalDisplayNames.Mood(cause)} · 붕괴 분당 {c.BreakChance:P0} · 이탈까지 {remaining:0}초" + (!c.IsAwayFromHome && c.PersonalState.rewardCooldown <= 0 ? " · 장수 상세에서 포상(식량 30) 가능" : ""), ToastKind.Warning);
+                     FirstHints.Trigger("collapse");
+                 }
+                 else if (!alert || level == 0) warned.Remove(c);
+diff --git a/Assets/_Project/Scripts/UI/PersonalDisplayNames.cs b/Assets/_Project/Scripts/UI/PersonalDisplayNames.cs
+new file mode 100644
+index 0000000..8fa1cb3
+--- /dev/null
++++ b/Assets/_Project/Scripts/UI/PersonalDisplayNames.cs
+@@ -0,0 +1,58 @@
++using AntColony.Units;
++
++namespace AntColony.UI
++{
++    // 저장된 원인·도감 범주는 바꾸지 않고 표시할 때만 변환한다.
++    public static class PersonalDisplayNames
++    {
++        public static string Slot(EquipmentSlot slot) => slot switch
++        {
++            EquipmentSlot.Weapon => "무기", EquipmentSlot.Armor => "방어구", EquipmentSlot.Trinket => "장신구", _ => "장비"
++        };
++        public static string Category(string value) => value switch
++        { "Ants" => "장수", "World" => "세계", "Bosses" => "보스", _ => value };
++        public static string DiscoveryTitle(AntColony.Save.DiscoveryDto entry)
++        {
++            if (entry.key == "boss:MiniBird") return "미니버드";
++            if (entry.category == "World" && entry.key.StartsWith("site:")) return SiteNames.Korean(entry.title);
++            if (entry.category == "Ants" && entry.key.StartsWith("weapon:"))
++            {
++                var weapon = entry.key.Substring(7);
++                if (weapon == "Bare mandibles") return "맨손";
++                if (System.Enum.TryParse<WeaponKind>(weapon, out var kind) && System.Enum.IsDefined(typeof(WeaponKind), kind))
++                    return CommanderAnt.WeaponDisplayName(kind);
++            }
++            return entry.title;
++        }
++        public static string DiscoveryBody(AntColony.Save.DiscoveryDto entry)
++        {
++            var body = entry.body ?? "";
++            if (entry.category == "Ants" && entry.key.StartsWith("weapon:") && body.StartsWith("All commanders can work and fight"))
++                return "모든 장수는 작업과 전투를 할 수 있습니다. 장비가 전투 방식을, 지휘 기술이 병력 한도를 정합니다.";
++            if (entry.key == "boss:MiniBird" && body.StartsWith("Encountered at "))
++            {
++                var end = body.IndexOf(". Watch the marked ground attack areas", System.StringComparison.Ordinal);
++                if (end > 15) return SiteNames.Korean(body.Substring(15, end - 15))
++                    + "에서 발견. 지면의 공격 예고 범위를 확인하고 공격 전에 피하세요. 구체적인 약점은 아직 발견하지 못했습니다.";
++            }
++            if (entry.category == "World" && entry.key.StartsWith("site:"))
++            {
++                var match = System.Text.RegularExpressions.Regex.Match(body, @"^(.*?) / (.*?)\. Fixed difficulty (\d+)\.$");
++                if (match.Success) return SiteNames.Korean(match.Groups[1].Value) + " · " + SiteNames.Korean(match.Groups[2].Value)
++                    + " · 고정 위험도 D" + match.Groups[3].Value;
++            }
++            return body;
++        }
++        public static string Mood(string value)
++        {
++            if (value == null) return "";
++            if (value.StartsWith("Death: ", System.StringComparison.Ordinal)) return "사망: " + value.Substring(7);
++            if (value.StartsWith("Downed: ", System.StringComparison.Ordinal)) return "쓰러짐: " + value.Substring(8);
++            return value switch
++            {
++                "Hunger" => "허기", "Rest" => "휴식", "Catharsis" => "감정 해소",
++                "DeathEvent" => "죽음 목격", _ => value
++            };
++        }
++    }
++}
+diff --git a/Assets/_Project/Scripts/UI/PersonalDisplayNames.cs.meta b/Assets/_Project/Scripts/UI/PersonalDisplayNames.cs.meta
+new file mode 100644
+index 0000000..ec923a3
+--- /dev/null
++++ b/Assets/_Project/Scripts/UI/PersonalDisplayNames.cs.meta
+@@ -0,0 +1,2 @@
++fileFormatVersion: 2
++guid: a78cd703559145ec925fc2caa7b974e1
+diff --git a/Assets/_Project/Scripts/UI/SelectedUnitPanel.cs b/Assets/_Project/Scripts/UI/SelectedUnitPanel.cs
+index f9eac40..2b0cba8 100644
+--- a/Assets/_Project/Scripts/UI/SelectedUnitPanel.cs
++++ b/Assets/_Project/Scripts/UI/SelectedUnitPanel.cs
+@@ -175,7 +175,7 @@ namespace AntColony.UI
+             statValues[0].text = $"{c.Mood:0}";
+             statValues[0].color = c.Mood <= 20 ? MenuTheme.DangerInk : c.Mood <= CommanderOverhead.MoodWarning ? MenuTheme.Accent : MenuTheme.TextColor;
+             var factor = c.PersonalState.moodFactors.OrderByDescending(f => Mathf.Abs(f.value)).FirstOrDefault();
+-            statNotes[0].text = factor != null ? $"{factor.reason} {factor.value:+0;-0}" : "";
++            statNotes[0].text = factor != null ? $"{PersonalDisplayNames.Mood(factor.reason)} {factor.value:+0;-0}" : "";
+             statValues[1].text = $"{c.LoadCapacity:0.#}";
+             statNotes[1].text = $"근력 {c.Talents.Level(CommanderActivity.Strength)}";
+             statValues[2].text = $"{c.AttackDamage:0.#} / {c.Armor:0.#}";
+diff --git a/Assets/_Project/Scripts/UI/SiteNames.cs b/Assets/_Project/Scripts/UI/SiteNames.cs
+index 8ac8fb0..0a9d67e 100644
+--- a/Assets/_Project/Scripts/UI/SiteNames.cs
++++ b/Assets/_Project/Scripts/UI/SiteNames.cs
+@@ -10,7 +10,7 @@ namespace AntColony.UI
+         {
+             ("MiniBird Nest", "미니버드 둥지"), ("Resource Field", "자원 지대"), ("ResourceSite", "자원지"), ("TradePost", "교역소"),
+             ("BossNest", "보스 둥지"), ("Settlement", "정착지"), ("Outpost", "전초기지"), ("Colony", "소굴"), ("Empty", "빈 거점"),
+-            ("Amber", "호박"), ("Azure", "청람"), ("Jade", "비취"), ("Crimson", "진홍"), ("Trade", "교역"), ("Neutral", "중립"), ("Wildlife", "야생"),
++            ("Amber", "호박"), ("Azure", "청람"), ("Jade", "비취"), ("Crimson", "진홍"), ("Trade", "교역"), ("Neutral", "중립"), ("Wildlife", "야생"), ("Independent", "독립"),
+         };
+ 
+         public static string Name(ExpeditionSite site) => site == null ? "" : Korean(site.Title);
+diff --git a/Assets/_Project/Scripts/UI/WorldMapPanel.cs b/Assets/_Project/Scripts/UI/WorldMapPanel.cs
+index 3a31710..512d0af 100644
+--- a/Assets/_Project/Scripts/UI/WorldMapPanel.cs
++++ b/Assets/_Project/Scripts/UI/WorldMapPanel.cs
+@@ -25,6 +25,7 @@ namespace AntColony.UI
+         private UnityEngine.UI.Text departurePlan;
+         private ExpeditionTransport warnedShip;
+         private ExpeditionSite warnedSite;
++        private string warnedPlan;
+         private WorldPlanet planetView;
+         private RectTransform expeditionList, expeditionArea, expeditionControls;
+         private readonly Dictionary<ExpeditionTransport, UnityEngine.UI.Text> boxes = new Dictionary<ExpeditionTransport, UnityEngine.UI.Text>();
+@@ -101,7 +102,7 @@ namespace AntColony.UI
+             Btn(k, "Collect Equipment / Blueprint", "전리품·설계도 싣기", 12, 76,
+                 () => Result(selectedShip != null && BossRewardTransfer.TryCollect(selectedShip), "전리품을 실었습니다. 귀환하면 사용할 수 있습니다."));
+             Btn(k, "Load Expedition Food", "권장 보급 싣기", 184, 76, () => Result(selectedShip != null && selectedShip.TryLoadFood(
+-                Mathf.Min(selectedShip.ReturnCargoSpace, selectedShip.RecommendedFood(selectedSite) - selectedShip.AvailableFood)), "보급을 실었습니다."));
++                ExpeditionPlanning.LoadAmount(selectedShip, selectedSite)), "보급을 실었습니다. 권장량 대비 부족분은 출정 계획에서 확인하세요."));
+             Btn(k, "Walking Formation", "도보 편성", 12, 114, () => {
+                 Toggle(); GameMenuController.Instance.WalkingFormation(party => { selectedShip = party; Toggle(); });
+             });
+@@ -120,6 +121,8 @@ namespace AntColony.UI
+             // 왼쪽 아래: 선택 거점 정보와 행동. 지구·이름표를 덜 가리게 다른 모서리 패널과 같은 360폭, 선택이 없으면 숨긴다(Update).
+             var site = siteRect = Corner(L.Plate(overlay, "SiteInfo", 0, 0, 360, 248), new Vector2(0, 0), 12, Dock);
+             siteInfo = L.Label(site, "", 13, 14, 10, 332, 100, align: TextAnchor.UpperLeft);
++            siteInfo.gameObject.AddComponent<MenuTooltip>();
++            siteInfo.raycastTarget = true;
+             Btn(site, "Depart", "원정 보내기", 14, 114, Depart);
+             Btn(site, "View Battlefield", "전장 보기", 182, 114, () => {
+                 var world = WorldMapManager.Instance;
+@@ -131,6 +134,8 @@ namespace AntColony.UI
+             defenseStatus = L.Label(site, "", 12, 14, 190, 332, 20, MenuTheme.DangerInk);
+             defenseStatus.name = "SettlementDefenseStatus";
+             feedback = L.Label(site, "", 12, 14, 212, 332, 32, MenuTheme.Accent, TextAnchor.UpperLeft);
++            feedback.raycastTarget = true;
++            feedback.gameObject.AddComponent<MenuTooltip>();
+ 
+             // 오른쪽 아래: 과학·수송 수단 건조, 범례(버튼으로 펼침, 기본 숨김).
+             science = Corner(L.Plate(overlay, "Science", 0, 0, 360, 200), new Vector2(1, 0), 12, Dock + 44);
+@@ -141,8 +146,8 @@ namespace AntColony.UI
+                 else feedback.text = "본거지, 시민 60, 낚시, 2단계 병영, 선택한 건설 장수가 필요합니다.";
+             });
+             Btn(science, "Science / Researchers", "과학 연구 · 연구원", 184, 120, () => { Toggle(); GameMenuController.Instance.Science(); });
+-            Btn(science, "Build Vehicle 50F/60 재료", "차량 건조 식50 재료60", 12, 158, () => ScienceAction(false, true));
+-            Btn(science, "Build Aircraft 80F/100 재료", "비행기 건조 식80 재료100", 184, 158, () => ScienceAction(true, true));
++            Btn(science, "Build Vehicle 50F/60 재료", "차량 건조 식량 50 · 재료 60", 12, 158, () => ScienceAction(false, true));
++            Btn(science, "Build Aircraft 80F/100 재료", "비행기 건조 식량 80 · 재료 100", 184, 158, () => ScienceAction(true, true));
+             science.gameObject.SetActive(false);
+             legend = Corner(L.Plate(overlay, "Legend", 0, 0, 360, 210), new Vector2(1, 0), 12, Dock + 44);
+             L.Label(legend, "<b>범례</b>  C 정착지 · B 보스 · R 자원 · T 교역", 13, 12, 8, 336, 24);
+@@ -186,9 +191,7 @@ namespace AntColony.UI
+             defenseStatus.text = selectedSite != null && selectedSite.Defense != null ? selectedSite.Defense.Status : "";
+             if (selectedShip == null) NextShip();
+             departurePlan.text = selectedShip == null ? "도보 편성: 장수 1명·병력 0명부터 가능합니다." :
+-                $"왕복 {selectedShip.TravelSecondsTo(selectedSite) * 2 / AntColony.Core.GameCalendar.SecondsPerDay:0.0}일 · 권장 식량 {selectedShip.RecommendedFood(selectedSite)} / 보유 {selectedShip.AvailableFood}\n"
+-                + $"왕복 + 현지 1일 + 예비 1일 · 병력 포함\n귀환 화물 여유 {selectedShip.ReturnCargoSpace}"
+-                + (selectedShip.LeavesHomeUnattended ? "\n경고: 본거지 대응 장수 없음" : "");
++                ExpeditionPlanning.DepartureText(selectedShip, selectedSite);
+             var route = selectedShip != null ? selectedShip.Route : null;
+             startRoute.interactable = route != null && !route.IsRunning && selectedShip.State == ExpeditionState.Home
+                 && selectedSite != null && selectedSite.Disposition == ConquestDisposition.Annexed;
+@@ -222,12 +225,15 @@ namespace AntColony.UI
+             if (selectedSite == null) selectionRing.gameObject.SetActive(false);
+             annex.interactable = abandon.interactable = selectedSite != null && selectedSite.CanResolveConquest;
+             siteInfo.text = SiteText(selectedSite);
++            var selectedBoss = selectedSite != null ? selectedSite.GetComponent<BossStronghold>() : null;
++            siteInfo.GetComponent<MenuTooltip>().Message = selectedBoss != null ? selectedBoss.Guide + "\n" + selectedBoss.OutcomeSummary : siteInfo.text;
++            feedback.GetComponent<MenuTooltip>().Message = feedback.text;
+             // 과학·수송 버튼도 feedback에 결과를 쓰므로 선택이 없어도 안내가 있으면 보인다.
+             siteRect.gameObject.SetActive(selectedSite != null || feedback.text != "");
+             RefreshExpeditions(world);
+             status.gameObject.SetActive(world.Transports.Count == 0);
+             status.text = selectedShip == null ? "수송 수단이 없습니다. 연구하고 건조하세요."
+-                : $"<b>{selectedShip.name}</b>  {StateName(selectedShip.State)} {selectedShip.Remaining:0}초\n"
++                : $"<b>{ExpeditionPlanning.TransportName(selectedShip)}</b>  {StateName(selectedShip.State)} {selectedShip.Remaining:0}초\n"
+                     + $"장수 {selectedShip.CommanderLoad}/{selectedShip.CommanderCapacity} · 병력 {selectedShip.Load}/{selectedShip.Capacity} · 화물 {selectedShip.CargoLoad}/{selectedShip.CargoCapacity}\n"
+                     + $"승무원 {selectedShip.Crew.Count}명\n운반 중: 식량 {selectedShip.GetCargo(AntColony.Data.ResourceType.Food)} · 재료 {selectedShip.GetCargo(AntColony.Data.ResourceType.Soil)} · 특수 {selectedShip.GetCargo(AntColony.Data.ResourceType.Special)}"
+                     + $" · 장비 {selectedShip.EquipmentCargo.Count}{(selectedShip.BlueprintCargo ? " · 설계도" : "")}";
+@@ -320,7 +326,7 @@ namespace AntColony.UI
+             var injured = 0; var mood = 0f;
+             foreach (var c in crew) { mood += c.Mood; if (c.Health.Injured) injured++; }
+             var names = crew.Count == 0 ? "없음" : string.Join(", ", System.Linq.Enumerable.Select(crew, c => c.CommanderName));
+-            var text = $"<b>{ship.name}</b> · {(ship.Walking ? "도보" : ship.Aircraft ? "비행기" : "차량")} · {StateName(ship.State)}{(ship.Remaining > 0 ? $" {ship.Remaining:0}초" : "")} → {(ship.Site != null ? ship.Site.Title : "정착지")}\n"
++            var text = $"<b>{ExpeditionPlanning.TransportName(ship)}</b> · {(ship.Walking ? "도보" : ship.Aircraft ? "비행기" : "차량")} · {StateName(ship.State)}{(ship.Remaining > 0 ? ship.CanOperate ? $" {ship.TravelRemainingSeconds:0}초" : " 이동 불가" : "")} → {(ship.Site != null ? SiteNames.Name(ship.Site) : "정착지")}\n"
+                 + $"장수 {names} ({ship.CommanderLoad}/{ship.CommanderCapacity}) · 병력 {ship.Load}/{ship.Capacity}\n"
+                 + $"<color=#b1b3a7>화물 {ship.CargoLoad}/{ship.CargoCapacity} · 전리품 장비 {ship.EquipmentCargo.Count}{(ship.BlueprintCargo ? "·설계도" : "")}"
+                 + $" · 기분 {(crew.Count > 0 ? mood / crew.Count : 0):0} · 부상 {injured}</color>";
+@@ -334,8 +340,9 @@ namespace AntColony.UI
+                 var w = ship.WithdrawalProgress;
+                 text += $"\n철수 중 · 남은 인원 {w.People} · 짐 {w.Loads} · {(float.IsNaN(w.EstimatedSeconds) ? "이동/구조 대기" : $"약 {w.EstimatedSeconds:0}초")}";
+             }
++            if (ship.TravelWaitReason != "") text += "\n" + ship.TravelWaitReason;
+             if (!open) return text;
+-            text += "\n" + ship.FoodComparison;
++            text += "\n" + ship.FoodComparison + "\n" + ship.CargoSummary;
+             foreach (var c in crew)
+                 text += $"\n  {c.CommanderName}  병력 {c.TroopCount}/{c.CommandLimit} · 체력 {c.PersonalHealth:0} · 기분 {c.Mood:0}"
+                     + (c.Health.Injured ? $" · {c.Health.Summary}" : "");
+@@ -345,14 +352,14 @@ namespace AntColony.UI
+         private static string StateName(ExpeditionState state) => state switch
+         {
+             ExpeditionState.Home => "대기", ExpeditionState.Outbound => "이동 중", ExpeditionState.Deployed => "도착",
+-            ExpeditionState.Returning => "귀환 중", _ => state.ToString()
++            ExpeditionState.Returning => "귀환 중", _ => DisplayNames.Expedition(state)
+         };
+ 
+         private static string SiteText(ExpeditionSite site)
+         {
+             if (site == null) return "<color=#b1b3a7>지도에서 목적지를 선택하세요.</color>";
+             var stronghold = site.GetComponent<BossStronghold>();
+-            if (stronghold != null) return stronghold.Guide;
++            if (stronghold != null) return stronghold.OutcomeSummary;
+             var kind = site.Kind switch
+             {
+                 ExpeditionSiteKind.Settlement => "정착지", ExpeditionSiteKind.BossNest => "보스 둥지",
+@@ -361,7 +368,8 @@ namespace AntColony.UI
+             var state = site.Disposition == ConquestDisposition.Annexed ? "편입" : site.Disposition == ConquestDisposition.Abandoned ? "포기"
+                 : site.Disposition == ConquestDisposition.Lost ? "상실"
+                 : site.Cleared ? site.Kind == ExpeditionSiteKind.ResourceSite ? "고갈" : site.Kind == ExpeditionSiteKind.Settlement ? "정복 결정 대기" : "정리됨"
+-                : site.Kind == ExpeditionSiteKind.ResourceSite ? "중립" : "적대";
++                : site.Kind == ExpeditionSiteKind.TradePost ? "교역 가능"
++                : site.Kind == ExpeditionSiteKind.ResourceSite ? "중립" : DiplomacyManager.Hostile(site) ? "적대" : "평화";
+             var text = $"<b><size=16>{SiteNames.Name(site)}</size></b>\n{SiteNames.Faction(site)} · {kind} · {AntColony.Core.BiomeRules.Name(site.Biome)} · 상태 <b>{state}</b>\n난이도 "
+                 + DifficultyText(site.Difficulty);
+             if (site.Settlement != null && site.Colony != null)
+@@ -384,8 +392,8 @@ namespace AntColony.UI
+                 var site = world.Sites[i];
+                 var symbol = site.Kind == ExpeditionSiteKind.Settlement ? "C" : site.Kind == ExpeditionSiteKind.BossNest ? "B" : site.Kind == ExpeditionSiteKind.TradePost ? "T" : "R";
+                 // 림월드식 거점 표시: 지구 표면을 따라가는 작은 아이콘(종류 글자) + 오른쪽 이름표. 이름표는 클릭을 막지 않는다.
+-                var marker = L.Button(mapRoot, site.Title, symbol, 0, 0, MarkerSize, MarkerSize, () => selectedSite = site, site.Title, false, 11);
+-                var tag = L.Label(marker.transform, site.Title, 12, MarkerSize + 4, 0, 160, MarkerSize, MenuTheme.TextColor);
++                var marker = L.Button(mapRoot, site.Title, symbol, 0, 0, MarkerSize, MarkerSize, () => selectedSite = site, SiteNames.Name(site), false, 11);
++                var tag = L.Label(marker.transform, SiteNames.Name(site), 12, MarkerSize + 4, 0, 160, MarkerSize, MenuTheme.TextColor);
+                 tag.raycastTarget = false; tag.horizontalOverflow = HorizontalWrapMode.Overflow;
+                 tag.gameObject.AddComponent<UnityEngine.UI.Shadow>().effectColor = new Color(0, 0, 0, .9f);
+                 marker.GetComponent<UnityEngine.UI.Image>().color = new Color(site.Color.r * .65f, site.Color.g * .65f, site.Color.b * .65f, 1);
+@@ -426,14 +434,16 @@ namespace AntColony.UI
+         }
+         private void Depart()
+         {
+-            if (selectedShip != null && selectedShip.LeavesHomeUnattended && (warnedShip != selectedShip || warnedSite != selectedSite))
++            var block = selectedShip != null ? selectedShip.DepartureBlock(selectedSite) : "수송 수단을 선택하세요";
++            if (block != "") { feedback.text = block; return; }
++            var warning = selectedShip.DepartureWarning(selectedSite);
++            var plan = selectedShip.DepartureWarningKey(selectedSite);
++            if (warning != "" && (warnedShip != selectedShip || warnedSite != selectedSite || warnedPlan != plan))
+             {
+-                warnedShip = selectedShip; warnedSite = selectedSite;
+-                feedback.text = "본거지에 대응할 장수가 없습니다. 위 왕복 시간을 확인하고 원정 보내기를 다시 누르세요.";
++                warnedShip = selectedShip; warnedSite = selectedSite; warnedPlan = plan;
++                feedback.text = warning + " · 다시 누르면 출정";
+                 return;
+             }
+-            // G42: 탑승·하차 지시가 처리되기 전에는 출발하지 않는다.
+-            if (selectedShip != null && selectedShip.PendingCrewOrderCount > 0) { feedback.text = "승무원 지시 대기 중: " + selectedShip.CrewOrderStatus; return; }
+             Result(selectedShip != null && WorldMapManager.SiteRevealed(selectedSite) && selectedShip.TryDepart(selectedSite), "원정대가 출발했습니다.");
+             warnedShip = null; warnedSite = null;
+         }
+diff --git a/Assets/_Project/Scripts/Units/CommanderEquipment.cs b/Assets/_Project/Scripts/Units/CommanderEquipment.cs
+index 35b7f61..e4c8bd0 100644
+--- a/Assets/_Project/Scripts/Units/CommanderEquipment.cs
++++ b/Assets/_Project/Scripts/Units/CommanderEquipment.cs
+@@ -91,10 +91,11 @@ namespace AntColony.Units
+         public EquipmentItem EquippedArmor => personalState.equipment.Find(e => e.slot == EquipmentSlot.Armor);
+         public string WeaponLabel => Weapon?.weapon.ToString() ?? "Bare mandibles";
+         // 화면 표시용 한국어 이름(WeaponLabel은 도감 키로 남긴다).
+-        public string WeaponName => Weapon == null ? "맨손" : Weapon.weapon switch
++        public string WeaponName => Weapon == null ? "맨손" : WeaponDisplayName(Weapon.weapon);
++        public static string WeaponDisplayName(WeaponKind weapon) => weapon switch
+         {
+             WeaponKind.Mandible => "큰턱", WeaponKind.AcidSprayer => "산 분사기", WeaponKind.Shield => "방패",
+-            WeaponKind.Pheromone => "지휘 신호기", WeaponKind.WoodenSword => "나무칼", WeaponKind.ShortBow => "단궁", _ => Weapon.weapon.ToString()
++            WeaponKind.Pheromone => "지휘 신호기", WeaponKind.WoodenSword => "나무칼", WeaponKind.ShortBow => "단궁", _ => weapon.ToString()
+         };
+         public bool CanChangeEquipment => CanReceiveOrders && !IsConstructing && !LabUpgradeBusy;
+         public float AuraRadius => SupportAuraRadius + (Weapon?.quality ?? 0);
+diff --git a/Assets/_Project/Scripts/Units/UnitSelectionController.cs b/Assets/_Project/Scripts/Units/UnitSelectionController.cs
+index 4c6d129..69c7f4a 100644
+--- a/Assets/_Project/Scripts/Units/UnitSelectionController.cs
++++ b/Assets/_Project/Scripts/Units/UnitSelectionController.cs
+@@ -126,6 +126,7 @@ namespace AntColony.Units
+             var index = 0;
+             var issuedMove = false;
+             var gatherers = 0;
++            var rejectedAttacks = 0;
+ 
+             foreach (var selectable in selected)
+             {
+@@ -181,6 +182,7 @@ namespace AntColony.Units
+                     }
+                     else
+                     {
++                        if (target != null) rejectedAttacks++;
+                         soldier.CommandMove(hit.point + offset);
+                         issuedMove = true;
+                     }
+@@ -198,6 +200,10 @@ namespace AntColony.Units
+             {
+                 MoveMarker.Spawn(hit.point, moveMarkerColor);
+             }
++            if (rejectedAttacks > 0)
++                AntColony.UI.ToastManager.Show($"{rejectedAttacks}명 공격 불가 · " + (CombatTargeting.IsAirborne(target)
++                    ? "공중 대상: 원거리·비행 장비가 필요합니다. 이동 지시만 적용했습니다."
++                    : "대상의 외교 관계·장수의 작업/명령 가능 상태를 확인하세요. 이동 지시만 적용했습니다."));
+         }
+     }
+ }
+diff --git a/Assets/_Project/Scripts/World/BossStronghold.Planning.cs b/Assets/_Project/Scripts/World/BossStronghold.Planning.cs
+new file mode 100644
+index 0000000..2ef0a06
+--- /dev/null
++++ b/Assets/_Project/Scripts/World/BossStronghold.Planning.cs
+@@ -0,0 +1,24 @@
++using System.Linq;
++using AntColony.Core;
++
++namespace AntColony.World
++{
++    public sealed partial class BossStronghold
++    {
++        public string OutcomeSummary
++        {
++            get
++            {
++                var progress = CampaignResearch.Instance?.BossProgress;
++                if (progress == null) return "보스 정보 준비 중";
++                var remaining = progress.RespawnRemaining(Id, GameCalendar.GameSeconds);
++                var status = progress.Defeated(Id)
++                    ? remaining > 0 ? $"재등장까지 {remaining / GameCalendar.SecondsPerDay:0.0}일" : "재등장 대기 · 아군/수송 수단이 떠나야 함"
++                    : site.Boss != null ? $"남은 체력 {site.Boss.CurrentHp:0}/{site.Boss.MaxHp:0}" : "보스 정보 없음";
++                var transit = progress.Cargo.Where(p => p.boss == (int)Id).Sum(p => p.count);
++                return $"보스 {Id} · {status}\n핵심물: 현지 {progress.UnclaimedCount(Id)} · 운송 {transit} · 본거지 {progress.Home(Id)}\n"
++                    + (progress.Defeated(Id) ? "핵심물·장비는 전리품 싣기 후 귀환으로 반입" : Boss.BossProgress.Hazard(Id));
++            }
++        }
++    }
++}
+diff --git a/Assets/_Project/Scripts/World/BossStronghold.Planning.cs.meta b/Assets/_Project/Scripts/World/BossStronghold.Planning.cs.meta
+new file mode 100644
+index 0000000..8a4b1a8
+--- /dev/null
++++ b/Assets/_Project/Scripts/World/BossStronghold.Planning.cs.meta
+@@ -0,0 +1,2 @@
++fileFormatVersion: 2
++guid: c80b1e9bfe404ad49fb107d2adeff5d5
+diff --git a/Assets/_Project/Scripts/World/BossStronghold.cs b/Assets/_Project/Scripts/World/BossStronghold.cs
+index 434df9f..e53361e 100644
+--- a/Assets/_Project/Scripts/World/BossStronghold.cs
++++ b/Assets/_Project/Scripts/World/BossStronghold.cs
+@@ -6,7 +6,7 @@ using UnityEngine;
+ namespace AntColony.World
+ {
+     // 거점 전체를 재생성하지 않는다. 바닥 전리품·시신·건물과 오래된 미회수 보상은 그대로 남긴다.
+-    public sealed class BossStronghold : MonoBehaviour
++    public sealed partial class BossStronghold : MonoBehaviour
+     {
+         public BossId Id { get; private set; }
+         private ExpeditionSite site;
+diff --git a/Assets/_Project/Scripts/World/ExpeditionSupplies.cs b/Assets/_Project/Scripts/World/ExpeditionSupplies.cs
+index 77e938d..04d6010 100644
+--- a/Assets/_Project/Scripts/World/ExpeditionSupplies.cs
++++ b/Assets/_Project/Scripts/World/ExpeditionSupplies.cs
+@@ -16,8 +16,8 @@ namespace AntColony.World
+         public float FormationWalkMultiplier => crew.Where(c => c != null && !c.IsDead)
+             .Select(c => c.FormationWorldMoveMultiplier).DefaultIfEmpty(1).Min();
+         public float DailyFood => crew.Where(c => c != null && !c.IsDead).Sum(ExpeditionRules.FoodPerDay) + withdraw.troops * 2 * GameBalance.MealFood;
+-        public int RecommendedFood(ExpeditionSite destination) => ExpeditionRules.RecommendedFood(
+-            TravelSecondsTo(destination), DailyFood);
++        public int RecommendedFood(ExpeditionSite destination) => CanOperate ? ExpectedFood(
++            PlannedRoundTripSeconds(destination) + 2 * GameCalendar.SecondsPerDay, DailyFood, 0) : 0;
+         public int AvailableFood => GetCargo(AntColony.Data.ResourceType.Food) + crew.Where(c => c != null && !c.IsDead)
+             .Sum(c => c.PersonalState.carriedRations?.Total ?? 0);
+         public bool LeavesHomeUnattended => State == ExpeditionState.Home && CommanderLoad > 0 && ExpeditionRules.HomeCommanders == 0;
+diff --git a/Assets/_Project/Scripts/World/ExpeditionTransport.Planning.cs b/Assets/_Project/Scripts/World/ExpeditionTransport.Planning.cs
+new file mode 100644
+index 0000000..b150af5
+--- /dev/null
++++ b/Assets/_Project/Scripts/World/ExpeditionTransport.Planning.cs
+@@ -0,0 +1,61 @@
++using System.Linq;
++using AntColony.Core;
++using AntColony.Units;
++using UnityEngine;
++
++namespace AntColony.World
++{
++    public partial class ExpeditionTransport
++    {
++        // 실제 출정과 UI가 같은 조건을 사용한다. 식량 부족은 경고이며 강제 금지가 아니다.
++        public string DepartureBlock(ExpeditionSite destination)
++        {
++            if (!isActiveAndEnabled) return "비활성 수송 수단";
++            if (!CanOperate) return "운행 불가 · 수리/잔해 상태를 확인하세요";
++            if (!HasPilot) return "활동 가능한 조종 장수 없음";
++            if (IsWithdrawing) return "철수 작업 중";
++            if (ReservedCargo > 0) return "화물 적재 대기 중";
++            if (PendingCrewOrderCount > 0) return "승무원 지시 대기: " + CrewOrderStatus;
++            if (State != ExpeditionState.Home) return "본거지에 있는 수송 수단만 출정 가능";
++            var world = WorldMapManager.Instance;
++            if (world == null || !world.Unlocked) return "월드맵 잠김";
++            if (destination == null) return "목적지를 선택하세요";
++            if (!world.Sites.Contains(destination) || !WorldMapManager.SiteRevealed(destination)) return "공개되지 않은 목적지";
++            if (destination.Disposition == ConquestDisposition.Abandoned) return "포기한 거점은 재방문 불가";
++            if (crew.Count == 0 && destination.Disposition != ConquestDisposition.Annexed
++                || Walking && !crew.Any(c => c != null && !c.IsDead)) return "탑승 장수 없음";
++            if (Load > Capacity) return $"병력 정원 초과 {Load}/{Capacity}";
++            if (CommanderLoad > CommanderCapacity) return $"장수 정원 초과 {CommanderLoad}/{CommanderCapacity}";
++            if (Route?.IsRunning == true && (destination != Route.Destination || HasCargo || Route.WaitSeconds > 0))
++                return "자동 수송 작업 중 · 중지 후 직접 출정하세요";
++            return "";
++        }
++
++        public float PlannedRoundTripSeconds(ExpeditionSite destination) => CanOperate
++            ? 2 * TravelSecondsTo(destination) / TravelSpeedMultiplier + (Walking ? 0 : ExpeditionRules.DockSeconds) : float.PositiveInfinity;
++        public float TravelRemainingSeconds => CanOperate ? Remaining / TravelSpeedMultiplier : float.PositiveInfinity;
++        public string DepartureWarning(ExpeditionSite destination)
++        {
++            var food = RecommendedFood(destination);
++            return (AvailableFood < food ? $"보급 {food - AvailableFood} 부족 (권장 {food}/보유 {AvailableFood})" : "")
++                + (LeavesHomeUnattended ? (AvailableFood < food ? " · " : "") + "본거지 대응 장수 없음" : "");
++        }
++        public string TravelWaitReason
++        {
++            get
++            {
++                if (State != ExpeditionState.Outbound && State != ExpeditionState.Returning) return "";
++                if (!CanOperate) return "이동 중단 · 수송 수단 수리 필요";
++                if (Remaining > 0) return "";
++                if (State == ExpeditionState.Returning) return HomeHasEnemies()
++                    ? "귀환 착륙 대기 · 본거지의 적을 격퇴하세요" : "귀환 착륙 대기 · 착륙 공간/경로를 확보하세요";
++                return "현지 접안 대기 · 먼저 도착한 수송 수단이 접안 중";
++            }
++        }
++        public string CargoSummary => $"자원 {cargo.Values.Sum()} · 장비 {EquipmentCargo.Count} · 시신 {BodyLoad} · 핵심물 {BossRewardTransfer.CargoLoad(this)}"
++            + (BlueprintCargo ? " · 설계도" : "") + $" · 적재 예약 {ReservedCargo}";
++        // 확인 뒤 승무원·부대·보급·목적지가 바뀌면 경고를 다시 확인한다. 저장할 진행 상태는 아니다.
++        public string DepartureWarningKey(ExpeditionSite destination) => (destination != null ? destination.GetEntityId().ToString() : "")
++            + ":" + DepartureWarning(destination) + ":" + string.Join(",", crew.Where(c => c != null).Select(c => c.PersonalState.id + "/" + c.TroopCount));
++    }
++}
+diff --git a/Assets/_Project/Scripts/World/ExpeditionTransport.Planning.cs.meta b/Assets/_Project/Scripts/World/ExpeditionTransport.Planning.cs.meta
+new file mode 100644
+index 0000000..39da430
+--- /dev/null
++++ b/Assets/_Project/Scripts/World/ExpeditionTransport.Planning.cs.meta
+@@ -0,0 +1,2 @@
++fileFormatVersion: 2
++guid: dc97404f684f4c23b5458842ec2c67c6
+diff --git a/Assets/_Project/Scripts/World/ExpeditionTransport.cs b/Assets/_Project/Scripts/World/ExpeditionTransport.cs
+index 3d0050a..8893956 100644
+--- a/Assets/_Project/Scripts/World/ExpeditionTransport.cs
++++ b/Assets/_Project/Scripts/World/ExpeditionTransport.cs
+@@ -149,15 +149,7 @@ namespace AntColony.World
+ 
+         public bool TryDepart(ExpeditionSite site)
+         {
+-            if (!CanOperate || !HasPilot || IsWithdrawing || ReservedCargo > 0 || PendingCrewOrderCount > 0) return false;
+-            if (Route != null && Route.IsRunning
+-                && (site != Route.Destination || HasCargo || Route.WaitSeconds > 0)) return false;
+-            var world = WorldMapManager.Instance;
+-            if (!isActiveAndEnabled || world == null || !world.Unlocked || State != ExpeditionState.Home
+-                || site == null || !world.Sites.Contains(site) || !WorldMapManager.SiteRevealed(site)
+-                || (crew.Count == 0 && site.Disposition != ConquestDisposition.Annexed)
+-                || Walking && !crew.Any(c => c != null && !c.IsDead)
+-                || site.Disposition == ConquestDisposition.Abandoned || Load > Capacity || CommanderLoad > CommanderCapacity) return false;
++            if (DepartureBlock(site) != "") return false;
+             Site = site;
+             if (site.Visitor == null) site.Visitor = this;
+             State = ExpeditionState.Outbound;
+@@ -222,12 +214,15 @@ namespace AntColony.World
+                 State = ExpeditionState.Deployed;
+                 LandCrew();
+                 DiplomacyManager.Instance?.Contact(Site);
++                if (Route?.IsRunning != true) AntColony.UI.ToastManager.Show(AntColony.UI.SiteNames.Name(Site) + " 도착 · 월드맵에서 전장 보기를 눌러 지휘하세요.");
+                 if (Site.Kind == ExpeditionSiteKind.TradePost) AntColony.UI.GameMenuController.Instance?.TradeAt(Site);
+             }
+             else
+             {
+                 if (!TryHomeLanding(out var landing)) return;
+                 transform.position = landing;
++                if (Route?.IsRunning != true) AntColony.UI.ToastManager.Show("원정 귀환 · " + AntColony.UI.SiteNames.Name(Site) + " · 장수 " + CommanderLoad + " · 생존 병력 " + Load + " · " + CargoSummary);
++                AntColony.UI.ToastManager.SetPinned("supplies:" + GetEntityId(), null);
+                 State = ExpeditionState.Home;
+                 ReportInvestigation();
+                 ReturnTroopPassengers();
+diff --git a/README.md b/README.md
+index bd01e1b..e983f03 100644
+--- a/README.md
++++ b/README.md
+@@ -1,5 +1,7 @@
+ # 개미 소굴 RTS
+ 
++> **Q1 후속(2026-11-01, worktree 통합·Unity 검증 대기):** P3 잔여 한국어 표시8건을 대조·보완했습니다. 원정 출정 불가 사유, 식량 부족 재확인·부분 보급, 손상 감속을 반영한 왕복/보급 계획, 접안·귀환 대기 사유와 결과 요약을 기존 월드맵에 연결했습니다. 보스의 남은 체력·핵심물 위치·재등장과 실제 공격 예고를 표시하고 B/C 위험 안내를 실제 패턴에 맞췄습니다. 평화 협상은 대기 시간과 배상 지불/수령을 구분합니다. [Q1 인계](docs/HANDOFF-CODEX-Q1-1101.md) · [새 게임성32건(21구현/11후속)](docs/GAMEFEEL_1101_Q1.md) · [잠정 결정](docs/DECISIONS_1101_Q1.md). 실제 전투·출정·화면 검증 완료를 뜻하지 않습니다.
++
+ > **P1 현재 작업 사본:** 일반 부품은 제련로에서 철2·구리1/작업16으로 직접 주문 생산합니다. 새 게임 본거지 지하의 성휘240·티타늄320·원유600·가스600을 보장하며 기존 저장은 보충하지 않습니다. 고급 작물/치수는3시대, 보온/부위 재생은5시대입니다. 표본 연구도 연구 XP와 정지/재개를 지원합니다. 기존 과학·가공 창에 현재 속도/남은 작업·부족액·묶음 출력 예산을 연결했습니다. Unity 화면·실물 생산·장기 시간표는 Claude 확인 잔여이며, 상세는 [P1 인계](docs/HANDOFF-CODEX-P1-1101.md)입니다.
+ > **P2 작업 사본(2026-11-01, Unity 검증 대기):** 새 게임의 삭제 예약 시설 저장 오류, AI 소굴의 역할별 산업·실물 교체 장비 생산/재보급/전리품·유상 재건·원거리 거리 확보를 연결했습니다. 장갑은 시대별0~5, 지휘소 파괴 시 절반입니다. 기존 외교·월드맵·대상 패널에서 산업·장비를 확인하며, 보스 미완성품은 제작자 사망·영구 이탈 후 공방에서 수동 인계합니다. 구저장 병력은 장비를1회 소급하고 이후 개체 시대·장비를 저장합니다. 저장24의 선택 필드 확장이며 이전 빌드에서 새 저장을 읽는 역호환은 지원하지 않습니다. [P2 인계](docs/HANDOFF-CODEX-P2-1101.md) · [결정](docs/DECISIONS_1101_P2.md) · [게임성27건](docs/GAMEFEEL_1101_P2.md).
+ > **P3 한국어화·안내 개선(2026-11-01, worktree 통합 대기):** 건설·병영·연구·포로·로켓·거점 방어·저장 안내와 화면용 상태 이름을 한국어로 정리했습니다. 작업표·생산 수량·식단·치료 등 정보 전달 32건을 개선했습니다. 전체 게임 오프라인 컴파일 오류0, P3 285·L1 76·M1 103·N2 77검사 통과. Unity 화면은 미검증이며 Claude 담당 금지 파일의 잔여 영어·거점 이름은 [P3 인계](docs/HANDOFF-CODEX-P3-1101.md)에 남아 있습니다.
+diff --git a/docs/DECISIONS_1101_Q1.md b/docs/DECISIONS_1101_Q1.md
+new file mode 100644
+index 0000000..36d2a6a
+--- /dev/null
++++ b/docs/DECISIONS_1101_Q1.md
+@@ -0,0 +1,24 @@
++# Q1 선택·잠정 기준 — 2026-11-01
++
++모든 추천은 **추천안 자동 선택(사용자 미확인)**. 확정 기획으로 간주하지 않는다. 전투 피해·세금·시민·보스 재등장/보상 수치·전쟁/출정/수술/발사 수동 원칙 유지.
++
++| 항목 | 선택지 | 고른 추천안 | 레퍼런스 근거 | 확인 상태 |
++| --- | --- | --- | --- | --- |
++| 한국어 표시 | 내부 키 변경 / 화면만 변환 | SiteNames.Name/Faction·WeaponName 재사용. 기분/장비 부위/도감 범주만 별도 표시 함수. 버튼 GameObject 이름 유지 | Factorio FFF318의 대상 정보 일관성에 대한 적용 | 추천안 자동 선택(사용자 미확인) |
++| 출정 실패 | 공통 토스트 / 실제 판정 공유 | DepartureBlock 한 경로를 실제 TryDepart와 UI에서 공유. 기존 허용/금지 조건 유지 | Factorio의 상태·행동에 연결된 정보 원칙 | 추천안 자동 선택(사용자 미확인) |
++| 보급 부족 | 강제 금지 / 경고 후 수동 출정 | 수동 월드맵 버튼에서 부족량을 읽고 다시 눌러 출정. 자동 수송 정책은 기존 유지 | RimWorld식 원정 준비/위험을 감수하는 사용자 결정에서 추론 | 추천안 자동 선택(사용자 미확인) |
++| 식량 예산 | 기본 편도만 / 실속도 왕복 | `ceil((2×편도/속도+접안1초+현지150초+예비150초)×일소비/150)`; 도보는 접안0. 운행 불가는 예산 미정 | 같은 입력으로 실행·설명하는 Factorio 원칙 적용. 150초/일·차량0.75배·접안1초는 기존 값, 새 밸런스 수치 아님 | 추천안 자동 선택(사용자 미확인) |
++| 부분 보급 | 전량 아니면 실패 / 가능한 만큼 | min(권장 부족량, 예약 제외 화물 여유, 실제 창고 식량). 비용/신선도는 TryLoadFood 재사용 | 원정 준비의 수동 선택을 유지하는 최소 개선 | 추천안 자동 선택(사용자 미확인) |
++| 경고 확인 수명 | 수단/거점만 / 실제 편성 반영 | 수단·거점에 더해 승무원ID/병력·부족량·무방비 상태가 바뀌면 재확인. UI 일시 상태만 사용 | StarCraft의 현재 부대 상태에 따른 직접 통제에서 추론 | 추천안 자동 선택(사용자 미확인) |
++| 도착·귀환 결과 | 모든 경유마다 / 수동 원정만 | 도착 토스트1회, 귀환 하역 직전 생존 인원·실물 분류1회. 자동 수송 가동 중에는 생략 | RTS 수송 상태를 알리되 반복 운영 알림 누적 방지 | 추천안 자동 선택(사용자 미확인) |
++| 보스 정보 | 새 창 / 기존 패널+툴팁 | 월드맵3행에 잔여HP/재등장·미회수/운송/본거지 핵심물. 기존 Guide는 툴팁. 기존 HUD2행에 실예고/비행·착지 | StarCraft 직접 전투의 대응 시간, Factorio 정보 일관성의 프로젝트 적용 | 추천안 자동 선택(사용자 미확인) |
++| B/C 위험 안내 | 안내대로 패턴 변경 / 실행대로 안내 수정 | B 열0/호위2, C 열6/호위4, D 열12/호위4에 맞는 안내. B 방열 보상→C 준비의 기존 분기 이유 유지 | 적 정보를 보고 장비를 고르는 RTS 원칙. 기존 확정 피해/보상 보존 | 추천안 자동 선택(사용자 미확인) |
++| 명령 거부 | 이동만 / 이동+일괄 피드백 | 기존 이동 동작 유지, 선택 부대에서 공격 불가 인원과 대공/상태 사유 알림1회 | Blizzard 조작 가이드의 명시적 부대 명령·수송 운용을 바탕으로 한 개선 판단 | 추천안 자동 선택(사용자 미확인) |
++| 평화 협상 | 음수 배상/비활성 / 시간·방향 명시 | 기존600초 후 가능, 지불/수령/배상없음으로 표현하고 열린 창 갱신 | Civilization/Stellaris 외교 판단 정보와 Factorio 상태 설명에서 추론. 최소전쟁시간/배상 계산 유지 | 추천안 자동 선택(사용자 미확인) |
++| 후속11건 | 규칙 즉시 확대 / 근거 기록 후 후속 | GAMEFEEL 22~32는 실전/저장/경로 설계 필요로 하 우선순위. 자동 행동이나 검증 못한 신규 패턴을 넣지 않음 | 기존 시스템의 명확한 정보부터 완결하는 최소 구현 | 추천안 자동 선택(사용자 미확인) |
++
++1일150초·옛1개월300초=2일, 포상 식량30·기분8/탐욕·야심15/금욕3·지속300초·재사용300초는 **현재 구현 값을 설명한 것**이다. UI 크기는 기존 폰트/색을 유지하며 보스 텍스트440×42 두 행을 상단 바 아래로 이동한 잠정 배치다. 1280×720/1920×1080 실화면은 Claude 확인 잔여.
++
++새 DTO/저장 필드/enum/자원/도감 키 없음. 신규 요약은 기존 BossProgress.State(killedAt/unclaimed/cargo/home), 수송 Remaining/health/crew/cargo/withdraw에서 계산한다. 이전 저장은 기존 로더의 기본값 경로를 그대로 쓰며 상태를 소급 덮어쓰지 않는다. Notion에는 쓰지 않았으며 통합 담당자가 기존 하위 기획·참조 일지를 확인해 이 잠정안을 반영해야 한다(부모 페이지 전체 교체 금지).
++
++자료: [Factorio FFF318](https://www.factorio.com/blog/post/fff-318), [Blizzard StarCraft II 조작](https://news.blizzard.com/en-us/article/6640645/game-guide-simplified-controls), [공식 StarCraft 매뉴얼](https://ftp.blizzard.com/pub/misc/StarCraft.PDF). 정보 제공·직접 조작 원칙을 적용한 추천이며 레퍼런스 게임이 이 문서의 경고 UI/수치/보스 규칙을 제공한다는 뜻은 아니다.
+diff --git a/docs/GAMEFEEL_1101_P3.md b/docs/GAMEFEEL_1101_P3.md
+index 42f293f..95cc226 100644
+--- a/docs/GAMEFEEL_1101_P3.md
++++ b/docs/GAMEFEEL_1101_P3.md
+@@ -1,5 +1,7 @@
+ # P3 정보 전달·게임성 점검 — 2026-11-01
+ 
++현행 후속: Q1이 33~40번 8건을 대조·보완했다. 무기명·도감 설명·거점 일부는 시작 기준선에 이미 반영되어 재구현하지 않았고, 남은 표시 경로를 수정했다. 아래 '금지 파일' 판정은 P3 당시 이력이며 현재 미구현 목록이 아니다. [Q1 인계](HANDOFF-CODEX-Q1-1101.md) 참조.
++
+ 범위는 텍스트·안내다. 구현은 코드 반영을 뜻하며 Unity 화면 검수를 뜻하지 않는다. 상·중 32건 구현, 금지 파일에 걸리는 상·중 8건은 통합 담당에게 인계한다. 새 자동 행동·밸런스·저장 필드는 없다.
+ 
+ 비교 기준: [Factorio 318](https://www.factorio.com/blog/post/fff-318)의 대상 정보 일관성, [Factorio 361](https://www.factorio.com/blog/post/fff-361)의 상황별 도움말. 아래 추천은 이 원칙을 현재 코드에 적용한 판단이며, 해당 게임에 같은 기능·수치가 있다는 주장은 아니다.
+diff --git a/docs/GAMEFEEL_1101_Q1.md b/docs/GAMEFEEL_1101_Q1.md
+new file mode 100644
+index 0000000..43837a3
+--- /dev/null
++++ b/docs/GAMEFEEL_1101_Q1.md
+@@ -0,0 +1,42 @@
++# Q1 전투·원정 게임성 — 2026-11-01
++
++기준: `codex/q1-1101`, 시작 HEAD b45d257. 기존 GAMEFEEL_1101_P1/P2/P3/claude 전체 목록과 대조했다. P3 33~40은 아래 신규 건수에서 제외한다. **새 항목 32건: 상·중 21건 코드 구현, 하 11건 후속.** 코드를 연결했다는 판정이며 Unity 실전·화면·재미 개선 실측을 뜻하지 않는다.
++
++레퍼런스는 설계 방향 비교다. [Factorio FFF318](https://www.factorio.com/blog/post/fff-318)의 대상 정보 일관성(F), [Blizzard StarCraft II 조작 가이드](https://news.blizzard.com/en-us/article/6640645/game-guide-simplified-controls)의 명령·부대 통제(S), [Blizzard StarCraft 매뉴얼](https://ftp.blizzard.com/pub/misc/StarCraft.PDF)의 이동/공격/수송 운용(S)을 참고했다. 해당 게임의 수치를 이 게임에 그대로 적용한다는 주장은 아니다. RimWorld의 원정 준비·귀환 루프(R), Civilization/Stellaris의 외교·전쟁 목표(C) 비교는 장르 경험에 따른 추천이며 아래 독자 설계와 구분한다.
++
++| 번호 | 우선순위 | 부족점·코드/기획 근거 | 레퍼런스 비교·추천 해결안 | 판정·연결 |
++| --- | --- | --- | --- | --- |
++| 1 | 상 | ExpeditionTransport.TryDepart의 여러 실패 조건이 WorldMapPanel.Result 한 문장으로 합쳐져 준비가 막힌 원인을 찾기 어렵다 | F: 실행과 설명을 같은 판정으로 연결 | 구현: DepartureBlock을 실행·월드맵에서 공유, 조종/정원/적재/세계 공개/자동 수송 원인 구분 |
++| 2 | 상 | 권장 식량 아래에서도 출정 버튼이 바로 실행돼 손실이 시작된 뒤에야 보급 실수를 알게 된다 | R: 부족을 감수하는 수동 결정은 남기고 출발 전에 경고 | 구현: 수동 출정만 보급 부족 확인 후 재클릭. 강제 금지·자동 출정 없음 |
++| 3 | 중 | 권장 보급 버튼은 창고가 권장량 전체를 못 채우면 TryLoadFood의 전량 조건에 막혀 남은 식량조차 싣지 못한다 | R/F: 가능한 만큼 준비하고 남은 부족량 확인 | 구현: LoadAmount가 부족량·화물 여유·실재고의 최소값 사용. 실제 소비는 기존 API |
++| 4 | 상 | RecommendedFood가 손상 수송수단의 0.75배 속도를 무시해 느려진 왕복의 식량이 과소 추정된다 | F: 실행 속도 기반 계획 | 구현: PlannedRoundTripSeconds에 감속·접안 반영, 현지/예비 각 1일 유지. 운행 불가는 권장량 미정 |
++| 5 | 중 | 본거지 무방비 경고는 ship/site만 기억하므로 확인 후 부대·식량을 바꿔도 이전 확인이 유효하다 | S/R: 변경된 부대에 맞는 위험 확인 | 구현: 승무원 ID·병력·현재 부족량/무방비 상태를 확인 키에 포함 |
++| 6 | 상 | 귀환 Remaining=0인데 HomeHasEnemies가 착륙을 막으면 이동 완료 후 정지한 것으로 보인다 | S: 귀환 경로의 실제 위협을 대응 과제로 표시 | 구현: TravelWaitReason에서 본거지 적 격퇴와 착륙 경로/공간 대기를 구분 |
++| 7 | 중 | 같은 거점에 먼저 도착한 수송수단이 접안 중이면 후속 원정은 0초에서 대기하지만 이유가 없다 | S: 수송 병목을 명시 | 구현: 현지 접안 대기 사유를 원정 박스에 표시. 순서·접안 시간은 유지 |
++| 8 | 중 | 원정 박스의 Remaining은 기본 속도 기준 값이라 손상으로 실제 4초 남아도 3초로 보일 수 있다 | F: 실행과 남은 시간 일치 | 구현: TravelRemainingSeconds로 감속 후 게임초 표시. 운행 불가 시 초 대신 사유 |
++| 9 | 중 | CargoLoad 합계만으로는 예약 화물·핵심물·장비·시신이 공간을 차지한 이유를 알기 어렵다 | R/F: 귀환 화물 선택에 필요한 분류 | 구현: 펼친 박스에 CargoSummary(자원/장비/시신/핵심물/설계도/예약) |
++| 10 | 중 | 도착 전이를 직접 보지 않으면 전장 지휘를 시작할 때를 놓치고 월드맵을 반복 확인한다 | S: 도착을 전술 통제로 연결 | 구현: 수동 원정 도착 때 거점명·전장 보기 알림. 자동 수송 반복은 제외 |
++| 11 | 중 | 귀환 뒤 장비가 즉시 하역되어 무엇을 확보했는지 한 번에 확인하기 어렵다 | R: 원정→생존/회수 결과 피드백 | 구현: 하역 직전 생존 장수/병력·화물 분류 요약. 별도 점수·가상 보상 없음 |
++| 12 | 중 | TickSupplies는 원정 중에만 돌아 보급 부족 고정 알림이 귀환 후에도 남을 수 있다 | F: 경고 수명과 실제 상태 일치 | 구현: 정상 귀환 전이에서 supplies 핀 해제. 다시 출정해 부족하면 기존 틱으로 재발행 |
++| 13 | 중 | 월드맵 보스 Guide는 최대 체력만 보여 지난 시도의 잔여 체력을 다음 도전 준비에 활용하기 어렵다 | F: 대상의 현재 상태와 기본 규칙 구분 | 구현: BossStronghold.OutcomeSummary에 실제 잔여/최대 체력, 규칙은 툴팁 |
++| 14 | 중 | 처치된 보스의 12일 재등장 기한이 화면에 없어 비어 있는 거점 방문을 반복할 수 있다 | R: 재방문 시점 결정 정보 | 구현: 기존 killedAt로 잔여 일수, 기한 후 아군/수송 수단 철수 대기 표시. 저장 필드 없음 |
++| 15 | 상 | 처치/획득 영구 기록만 보고 현지 미회수 핵심물과 운송 중·본거지 재고를 혼동하면 다음 탐지를 준비하지 못한다 | R/F: 보상 소유권 이동을 현재 수량으로 공개 | 구현: UnclaimedCount와 Cargo/Home의 수량을 보스 패널에 구분. A의 꾸러미 1개=핵심물2개도 정확히 집계 |
++| 16 | 상 | BossProgress.Hazard는 B를 열 위험, C를 다수 적이라 쓰지만 BossEncounterRules는 B 열0/호위2, C 열6/호위4다 | S: 상대 위험을 보고 장비를 준비할 수 있어야 함 | 구현: 안내를 실제 패턴에 맞춤. B/C의 보상·공략 순서·피해 수치는 유지, ImplB6 기대값 수정 |
++| 17 | 상 | UnitSelectionController는 대공 불가 공격 클릭을 이동으로 바꿔 근접 장수가 보스에게 달려가도 공격 명령 실패 이유가 없다 | S: 명령의 수락/거부 피드백 | 구현: 이동 규칙 유지, 공격 불가 인원 수·대공/상태 확인 토스트 1회. 혼합 선택도 처리 |
++| 18 | 중 | 평화 협상 버튼 비활성만 보고 최소전쟁 기한 중 얼마나 더 방어해야 하는지 알 수 없다 | C/F: 대기를 방어 시간 계획으로 연결 | 구현: 남은 게임초·기한 뒤 활성화를 기존 외교 창에서 갱신 |
++| 19 | 중 | 평화 협상의 음수 배상액은 내가 받는 것인지 지불하는 것인지 모호하다 | C/F: 거래 결과의 방향 명시 | 구현: 지불/수령/배상 없음으로 표시. 점수·정전·자원 거래 공식 유지 |
++| 20 | 중 | WorldMapPanel.SiteText는 미정리 교역소와 평화 문명도 기본 '적대'로 보여 목적지 선택을 잘못 유도한다 | C: 외교 상태를 바탕으로 원정 목적 선택 | 구현: 교역 가능/평화/실제 적대 상태 구분. Hostile의 실제 규칙 재사용 |
++| 21 | 상 | 보스 공격 예고를 바닥 그래픽에서 놓치거나 비행 타이밍을 모르면 근접 공격이 안 되는 이유와 회피 시점을 놓친다 | S: 공격 가능 구간·피격 전 대응 기회 | 구현: 기존 보스 HUD 2행에 실제 warningRemaining·반경/비행 착지 시간·착지 상태. 패턴·회피 반경 변경 없음 |
++| 22 | 하 | BossEncounter의 8초 순환은 체력 구간과 무관해 긴 보스전 후반에 새 판단이 적다 | 보스 체력 구간별 패턴 전환 추천 | 미구현: 예고/저장/장비별 성공 시간과 난이도 재검증 필요. 새 피해 수치 임의 추가보다 현재 패턴 실전 검증 우선 |
++| 23 | 하 | 고정 Landing은 매 원정 같은 진입로를 만들어 정찰로 접근 방향을 고르는 선택이 없다 | S/R: 안전/단거리 진입점 중 수동 선택 추천 | 미구현: 지형·NavMesh·착륙점 검증은 Claude 실행 영역. 지형 메시 금지 범위도 있어 유보 |
++| 24 | 하 | 한 거점 여러 수송수단 도착 시 누구를 먼저 접안시킬지 수동 우선순위가 없다 | S: 구조선 우선 같은 수송 선택 추천 | 미구현: 기존 도착 순서·구저장 전이와 우선순위 저장 규칙 설계 필요. 이번에는 실제 대기 이유만 공개 |
++| 25 | 하 | 전쟁 점수 외에 특정 전초기지의 탈환 같은 플레이어 지정 군사 목표가 없다 | C: 기존 지도에 수동 목표 핀 추천 | 미구현: 새 창 없이 핀을 표시할 공간/해제 규칙을 실제 화면에서 결정해야 함 |
++| 26 | 하 | 외교의 전쟁 기록과 현재 지역 전장이 분리돼 어느 전투가 배상 점수를 바꿨는지 돌아보기 어렵다 | C: 기존 기록 창에서 전쟁/전투 사건 묶기 추천 | 미구현: 전투별 집계와 기록 압축·저장 정책이 필요. P2 장기 원문 보관 항목과 달리 단기 전쟁별 연결 문제 |
++| 27 | 하 | 철수 화물은 도착/작업 순서라 만재 시 핵심 자원과 저가 자원을 교환 적재할 조작이 없다 | R: 기존 수송 창에서 품목별 내려놓기·적재 우선순위 추천 | 미구현: 예약·운반 중 실물·신선도·핵심물 소유권의 원자적 교환과 저장 검증 필요 |
++| 28 | 하 | 원정 준비의 부상 숫자로는 어떤 장수가 운전/치료/근접 전선을 맡기 어려운지 비교하기 어렵다 | R: 각 장수의 해당 부상 효과를 준비 행에서 비교 추천 | 미구현: 기존 부상 상세를 재사용하되 작은 원정 박스 정보 밀도 실화면 확인 후 연결 |
++| 29 | 하 | 부대 이동에서는 명령 반응만 보이며 후미 장수를 기다리는 재집결 지시가 없다 | S: 선택 부대 수동 집결 지점 추천 | 미구현: 기존 이동 명령으로 가능하지만 자동 대기/속도 조절을 추가하면 전투 조작 규칙·저장 경로가 달라짐 |
++| 30 | 하 | 원정에서 병력이 줄었을 때 공격력 감소를 체감하기 전에 무리한 추격을 계속할 수 있다 | S: 기존 선택 패널에서 출정 당시 대비 손실 요약 추천 | 미구현: 출정 기준 병력 스냅샷과 저장 이관 필요. 병력 배율 자체는 기존 규칙 유지 |
++| 31 | 하 | 보스 호위 처치 후 재충원이 고정 상한까지 반복되어 회피와 호위 제거 중 무엇을 우선할지 단조로워질 수 있다 | S: 호위 재충원 예고/차단 가능한 시간창 추천 | 미구현: 호위 XP 한도·B/C 보상 역할·보스 처치시간을 실제 전투로 함께 검증해야 함. P2 패턴별 성적표와 별개 |
++| 32 | 하 | 보스 A~D의 전장 목표가 모두 체력0이라 지형/보급 기반의 고유 공략이 약하다 | S: 기존 패턴과 상호작용하는 수동 엄폐/위치 목표 추천 | 미구현: 새 전장 오브젝트·AI/경로/세이브 설계와 실전 검증 필요. 전면 그래픽·지형 메시 수정은 이번 범위 밖 |
++
++21건은 실제 코드와 회귀 검사로 연결했다. 상·중의 미구현은 없다. 하11건은 미구현 이유를 행별로 남겼다. 새 저장 필드는 없고 기존 상태에서 계산하므로 SaveDtos/SaveSnapshot/SavePreflight 구조·구저장 기본값을 바꾸지 않는다. 자세한 선택·잠정 기준은 DECISIONS_1101_Q1.md, 실행/미검증 경계는 HANDOFF-CODEX-Q1-1101.md 참조.
+diff --git a/docs/HANDOFF-CODEX-P3-1101.md b/docs/HANDOFF-CODEX-P3-1101.md
+index 551a325..06cd09e 100644
+--- a/docs/HANDOFF-CODEX-P3-1101.md
++++ b/docs/HANDOFF-CODEX-P3-1101.md
+@@ -1,5 +1,7 @@
+ # Codex P3 인계 — 2026-11-01
+ 
++Q1 후속: 아래 금지 파일 잔여 번역 제안 및 GAMEFEEL 33~40은 Q1에서 기준선 반영분을 확인하고 남은 표시를 보완했다. 현행 판정·검사는 [HANDOFF-CODEX-Q1-1101.md](HANDOFF-CODEX-Q1-1101.md) 참조. 아래 본문은 P3 작업 당시 이력이다.
++
+ 작업: `E:/Git/ant-wt/P3` / `codex/p3-1101`. 원본 `E:/Git/ant`는 로그·컴파일 참조·외부 예제 소스 읽기만 했다. Unity 실행·에디터 조작·캡처·커밋·push·Notion·개발 일지 작성 없음. 금지 파일 변경 없음. site.Title·파싱용 개체명·도감 키·저장 키·enum 이름·번호 보존.
+ 
+ ## 항목별 판정
+diff --git a/docs/HANDOFF-CODEX-Q1-1101.md b/docs/HANDOFF-CODEX-Q1-1101.md
+new file mode 100644
+index 0000000..1bbbe3f
+--- /dev/null
++++ b/docs/HANDOFF-CODEX-Q1-1101.md
+@@ -0,0 +1,74 @@
++# Codex Q1 인계 — 2026-11-01
++
++작업: `E:/Git/ant-wt/Q1`, `codex/q1-1101`, 기준 b45d257. 원본 `E:/Git/ant`는 로그·컴파일 rsp/DLL·SpinFree 소스를 읽기만 했다. Unity 실행/조작·캡처·커밋·push·SAVE 일지·Notion 쓰기 없음. WorldLabels*·ReserveWorldLabel 관련·FacilityVisual*·지형 메시·prefab 변경 없음.
++
++## 1단계: 한국어 표시8건
++
++| P3 번호 | 판정 | 수정·확인 |
++| --- | --- | --- |
++| 33 포상 | 구현 | DetailTabs: 식량30, 실제 기분8/15/3, 효과·재사용 각300초=2일. 실패 시 명령/본거지 조건 표시 |
++| 34 도감 | 기준선 확인+보완 | GameNotifications는 이미 한국어 제목/본문이며 키 유지 확인. GameMenuController 범주 화면 변환, 이미 저장된 알려진 영어 도감만 읽을 때 번역(PersonalDisplayNames). 구원문·키·범주 저장값 불변 |
++| 35 건조 비용 | 구현 | WorldMapPanel: 식량50/재료60, 식량80/재료100. TransportDamage/ScienceLab 실제 비용 대조. 버튼 ID 유지 |
++| 36 무기 | 기준선 확인+공유 보완 | 기존 WeaponName은 한국어, WeaponLabel은 도감 키에서만 사용. WeaponDisplayName으로 기존 switch를 공유하여 구도감도 같은 함수 사용. Bare mandibles 키 유지 |
++| 37 결과 버튼 | 구현 | Continue Colony/Load Game/New Game/Back 등 GameObject 이름 그대로, 자식 Text만 한국어. 이미 한국어인 Restart/Restart Same Map 표시 유지 |
++| 38 거점 | 기준선 확인+보완 | 기존 SiteNames.Name/Faction 재사용. 원정 박스·마커 생성 라벨/툴팁·외교 산업 툴팁 연결. 단독 Independent도 독립 표시. site.Title 키·마커 ID 유지. 수송수단 기본 이름 Vehicle/Aircraft도 표시만 차량/비행기로 변환 |
++| 39 장비 부위 | 구현 | PersonalDisplayNames.Slot: 무기/방어구/장신구. enum/번호 유지 |
++| 40 기분 | 구현 | DetailTabs·GameMenuRoster·MoodWatch·SelectedUnitPanel에서 Hunger/Rest/Catharsis·Death:/Downed: 접두사 표시 변환. 저장 mood 키·인물 이름·알 수 없는 원문 유지 |
++
++## 2단계: 새 게임성32건
++
++[GAMEFEEL_1101_Q1.md](GAMEFEEL_1101_Q1.md): 기존 1101 문서와 중복되지 않는32건, **상·중21건 코드 구현/하11건 후속**. 신규 자동 채집·제조법 선택·수술·전쟁·출정·발사 결정 없음. 정보 부족에서 생기는 손실·무의미한 반복 입력을 먼저 해결했다. 새 패턴/전장 목표/지형·보급 경제 확대11건은 행별 이유를 남겼다.
++
++- 출정: 실제 TryDepart와 UI가 DepartureBlock 공유. 기존 조건을 이동했으며 수동 버튼에서만 식량 부족 재확인 추가. 확인 후 부대/보급이 달라지면 다시 확인한다.
++- 계획: 감속0.75배·접안1초를 왕복·보급 예산에 반영. 기존 현지/예비 각150초 유지. 재고 부족 시 가능한 만큼 권장 보급 싣기. 운행 불가 권장량은 미정 표시.
++- 이동/귀환: 실제 감속 후 남은초, 현지 접안/본거지 적/착륙 경로 대기 사유, 실물 화물·예약 분류. 수동 도착·하역 직전 결과 알림, 귀환 후 보급 핀 해제. 자동 수송 반복 알림은 제외.
++- 보스: 월드맵 현재HP/재등장 기한/현지·운송·본거지 핵심물, 기존 Guide는 툴팁. 실제 HUD 예고/착지 타이밍. B 열0/호위2·C 열6/호위4에 맞춰 안내만 수정.
++- 직접 전투/외교: 대공/상태상 공격 불가 클릭의 이동 대체를 알려줌. 교역소·평화 거점 상태 정확화. 협상600초 관문 남은 시간·지불/수령 방향과 버튼 활성화 실시간 갱신.
++
++## 수정 파일
++
++경로 기준 `Assets/_Project/Scripts/`:
++
++- 신규(+meta): `UI/PersonalDisplayNames.cs`, `UI/ExpeditionPlanning.cs`, `UI/DiplomacyPlanning.cs`, `World/ExpeditionTransport.Planning.cs`, `World/BossStronghold.Planning.cs`.
++- UI: `DetailTabs`, `GameMenuController`, `GameMenuDiplomacy`, `GameMenuRoster`, `MoodWatch`, `SelectedUnitPanel`, `SiteNames`, `WorldMapPanel`, `HUDController`.
++- 전투/원정: `Units/CommanderEquipment`(기존 무기 표시 switch 공유만), `UnitSelectionController`(거부 피드백), `World/ExpeditionTransport`·`ExpeditionSupplies`·`BossStronghold`, `Boss/BossProgress`·`BossEncounter`.
++- 검사: `AgentScripts/Review1101Q1Checks.cs`, 기존 `ImplB6Checks.cs`의 B→C 열 위험 기대값.
++- 문서: Q1 GAMEFEEL/DECISIONS/본 인계/validation, IMPLEMENTATION_BOARD·OPERATIONS_100_STATUS·README, P3 GAMEFEEL/HANDOFF에 현행 후속 링크. log/changelog 변경 없음.
++
++저장: **추가 필드 없음**. SaveDtos/SaveSnapshot/SavePreflight의 기존 상태 경로(killedAt/unclaimed/cargo/home, transport health/Remaining/crew/withdraw)에서 계산만 한다. 구저장 원문/식별자/도감·기분 키를 이관하거나 덮어쓰지 않는다. 기존 완전 save/load를 이번에 통과했다고 주장하지 않는다.
++
++## 검증
++
++- 사용자 지정 offc.sh: 전체 게임 Roslyn **오류0**. offcheck.sh: Q1/P3/ImplB6 검사 DLL **오류0**.
++- Unity6000.5.8f1 내장 .NET8 호스트에서 Q1 **86** / 기존 P3 **285** 통과. 현재 필드만 읽는 수송 계획 검사(정상41초·손상54.333초·감속 남은40초·운행 불가), 구도감 읽기 변환/원문 보존, 부분 보급 경계, 정전600초 경계·배상 방향,4보스 미회수→운송→반입·재등장 대기 검사 포함.
++- `Review1101Q1Checks.Main()` / `RunQ1Scene()`은 public static async Task<string>. internal 경로는 리플렉션, 게임 타입은 AntColony 전체 이름. Main의 가짜 Unity 객체는 엔진 객체를 만들지 않고 필드 기반 계산만 검사한다.
++- `RunQ1Scene()` **컴파일만 완료, 미실행**. 시작 완료 격리 Play에서 실제 수송 컴포넌트의 출정 불가 판정/실속도 예산·화물/화면 버튼을 읽는다. 성공 출정을 강제로 실행하거나 게임을 초기화하지 않으므로 실제 출정→전투→귀환은 아래 수동 확인 필요.
++- 원시 로그: `Temp/off/out.txt`, `cout.txt`. 요약: `docs/validation/Q1-1101-offline.txt`. 오프라인 호스트 `Temp/off/RunQ1.ps1`는 임시 산출물이며 패치에서 제외.
++- 처음 offc는 worktree에 없는 외부 `Assets/Planet Earth Free/SpinFree.cs` 및 새 코드 GetInstanceID 금지 API 때문에 실패했다. 원본 외부 소스를 Q1에 임시 읽기 복사하고 GetEntityId로 수정한 최종 결과가 오류0이다. 임시 외부 소스는 패치에서 제외·제거했다. 기존 obsolete 경고는 유지.
++
++재현(Git Bash, 원본은 읽기만):
++
++```sh
++bash C:/TESTTEMP/claude/E--Git/9cd1f401-5158-48e6-8468-2180ba139fd8/scratchpad/offc.sh /e/Git/ant-wt/Q1
++bash C:/TESTTEMP/claude/E--Git/9cd1f401-5158-48e6-8468-2180ba139fd8/scratchpad/offcheck.sh /e/Git/ant-wt/Q1 /e/Git/ant-wt/Q1/AgentScripts/Review1101Q1Checks.cs /e/Git/ant-wt/Q1/AgentScripts/Review1101P3Checks.cs /e/Git/ant-wt/Q1/AgentScripts/ImplB6Checks.cs
++```
++
++외부 SpinFree 소스가 없는 이 worktree에서는 위 재현 시 같은 임시 복사 또는 **Q1 Temp/off/a.rsp에 원본 소스를 읽기 참조로 추가**해야 한다. 해당 art 파일을 통합하거나 원본 파일에 쓰지 않는다.
++
++## Claude 실행·화면 확인 요청
++
++1. 최신 원본에 코드 hunk·신규5파일/meta만 병합. UI/WorldMapPanel·HUDController·SiteNames의 Claude 동시 변경은 덮어쓰지 말고 개별 병합. 금지 파일은 Q1 패치에 없음.
++2. 격리 Play에서 Main/P3 Main/ImplB6 실행. 원정 준비·출정 중·손상 이동·귀환 착륙 대기·보스 전장을 각각 열고 RunQ1Scene 반복 실행. 기존 수송/도보/보급/저장 왕복 검사도 통합 후 실행.
++3. 건강한 차량→식량 부분 적재→부족 경고→다시 눌러 출정, 확인 후 병력·식량 변경 시 재경고. 보급·탑승·화물 비용 중복 없음을 확인. 자동 수송은 종전 운영·자동 반복 알림 없음 확인.
++4. 체력25~50% 차량의 실이동/왕복 보급/표시시간, 운행 불가 수리, 다중 접안, 본거지 적 때문에 착륙 불가→격퇴 후 귀환을 실제로 수행. 귀환 결과에 장수·병력·장비·핵심물·예약 집계와 실물 하역이 맞는지 확인.
++5. A 보스 미처치 후 철수→HP 유지 확인, 처치→미회수/적재/반입 각 상태,12일 후 잔류 보류/전원 철수 후 재등장 확인. 보스 HUD 착탄·비행 예고와 실제 판정, 혼합 부대 대공 불가 메시지 확인. B/C 위험 안내가 실제 공격과 일치해야 함.
++6. 1920×1080/1280×720: 보스 HUD(440×42, 상단바 아래), 월드맵3행/긴 숫자/전리품 분류, 포상 긴 툴팁, 버튼 ID 유지·한글, 기분 접두사, 옛 영어 도감 표시, 평화 협상 카운트다운 잘림·겹침·툴팁 접근 확인. **실화면 미검증이며 캡처는 SAVE 때만**.
++7. Notion 확정 기획/참조 일지 반영은 통합 담당자가 잠정 결정표와 대조 후 수행. 부모 페이지 전체 교체 금지. 카카오 완료 도구는 이 세션에 없어 미발송.
++
++## 패치·환경
++
++- 공용 요청 경로 `E:/Git/ant-wt/patches/Q1-1101.patch` 복사는 **Access denied로 거부됐다**. 이 세션 쓰기 루트는 Q1뿐이므로 아래 Q1 내부 패치로 전달한다.
++- 통합용: **`E:/Git/ant-wt/Q1/docs/patches/Q1-1101.patch`**. Graphify 생성물만 제외한 코드·검사·문서 변경. 전체 diff는 `Temp/Q1-1101-full.patch`.
++- 실제 `git add -N .`는 원본 `.git/worktrees/Q1/index.lock` 쓰기 거부. Q1 Temp/off의 임시 인덱스·객체 디렉터리와 원본 objects 읽기 alternate를 사용해 같은 intent-to-add/diff를 생성한다. 원본 Git 인덱스·브랜치/객체는 수정하지 않으며 커밋하지 않는다.
++- Graphify AST 갱신 완료: **12518노드/29180간선/576커뮤니티**, LLM0. 새 DiscoveryTitle/DepartureWarningKey/TravelRemainingSeconds 노드도 출력에 존재한다. 커뮤니티 수 변경으로228개 이름이 허브 기준으로 바뀌었다는 경고가 있고 의미 라벨 재작성은 안 했다. PowerShell이 이 stderr 경고를 NativeCommandError/exit1로 표시하지만 원시 출력에 Rebuilt·Code graph updated가 있고 graph.json/html/보고서가 갱신됨을 확인했다. Graphify 생성물은 게임 통합 패치에서 제외한다.
++- `git diff --check` 및 통합 패치의 `git apply --reverse --check` 통과. 패치에 원본 임시 SpinFree·금지 파일·prefab이 없는지 경로 목록 대조. 공용 경로 대신 **Q1/docs/patches/Q1-1101.patch**를 Claude가 읽기 반입하면 된다.
+diff --git a/docs/IMPLEMENTATION_BOARD.md b/docs/IMPLEMENTATION_BOARD.md
+index 31c656d..742d951 100644
+--- a/docs/IMPLEMENTATION_BOARD.md
++++ b/docs/IMPLEMENTATION_BOARD.md
+@@ -1,3 +1,4 @@
++- **Q1-1101 / Codex / 구현·오프라인 검증 완료, Unity 확인 인계** — Q1 worktree 전용. 소유: DetailTabs·GameMenuController·MoodWatch·GameMenuRoster·WorldMapPanel 및 거점 표시 경로, 신규 표시 helper, 전투/원정 준비·피드백 partial과 관련 Boss/World 최소 연결, Review1101Q1Checks·Q1 GAMEFEEL/DECISIONS/HANDOFF. WorldLabels*·ReserveWorldLabel·FacilityVisual*·지형 메시·원본·Unity 변경 금지. 저장 필드 추가 시 별도 경로 연결.
+ - **P-1101 / Claude+Codex / 진행 중(2026-11-01)** — Codex P1(경제·연구)·P2(AI·저장) 완료 후 Claude 병합. Codex P3(ant-wt/P3): 영문 표시 문자열 한국어화. Claude(원본): Unity 화면 확인, 월드맵·카메라·선택 패널·자원 라벨·고지대 테두리·UI 한국어 수정, 병합·Unity 검사.
+ - **P1-1101 / Codex / 구현·오프라인 검증 완료, Claude 실행 잔여** — P1 worktree 전용. 경제·연구·자원·생활·성장, ScienceLabUpgrades/CampaignResearch/IndustrialRecipes/StellarSupply/FacilityVisual 및 관련 최소 UI·검사 소유. P2 금지 파일·원본·Unity 수정 없음.
+ - **P2-1101 / Codex / 코드·오프라인 검증 완료, Unity 확인 인계** — P2 전용. 소유: Save/*, Core/CrashLandingStart·GameBootstrap(삭제 경계), World/AIIndustry·AIEra*·EnemyColony·ExpeditionSite·WildMonster*·DiplomacyManager, Workshop.Boss·Workshop(인계), UI/GameMenuDiplomacy·GameMenuWorkshop·WorldMapMarker·WorkTargetPanel(산업/장비 분기만), Units/SelectionOutline(bounds), Review1101P2Checks·Review1031M2Checks(새 장갑/체력 기준). P1 금지 파일·원본·Unity·prefab·커밋 변경 없음. 상세 docs/HANDOFF-CODEX-P2-1101.md.
+diff --git a/docs/OPERATIONS_100_STATUS.md b/docs/OPERATIONS_100_STATUS.md
+index a7a6a51..e49f485 100644
+--- a/docs/OPERATIONS_100_STATUS.md
++++ b/docs/OPERATIONS_100_STATUS.md
+@@ -1,5 +1,7 @@
+ # 100항목 검토·수정 상태
+ 
++Q1-1101 후속: [인계](HANDOFF-CODEX-Q1-1101.md). P3 잔여 표시8건 대조·보완, 전투/원정/외교의 새 게임성32건 중 상·중21건 구현·하11건 후속. 직접 전투·귀환·보스 실전/화면은 Claude 검증 잔여이며 기존100항목 전체 완료로 판정하지 않는다.
++
+ P1-1101 후속: [인계](HANDOFF-CODEX-P1-1101.md)·[게임성32건](GAMEFEEL_1101_P1.md)·[결정/생산 예산](DECISIONS_1101_P1.md). 31 승급 전용 관문은 통합본 재검사,3·5시대 생활 연구4종 재배치, 부품 직접 제조·본거지 희귀 산업 원료 보장, 표본 연구 성장/정지 및 기존 과학·가공·인구 정보 보완. 모델135매핑은 정적 확인이며 사용자 외형/축 지적 해결로 간주하지 않는다. Unity 실물/화면·전체 복원·10시간 밸런스는 Claude 잔여.
+ 
+ 원문은 위험 가설·공백·정합성 검토다. 검토 완료와 실제 수정/검증 완료를 구분한다. 장시간 플레이·기획 결정이 필요한 것은 완료로 덮지 않는다. 상세 근거는 OPERATIONS_REVIEW_1028.md와 구현 보드를 참조한다.
+diff --git a/docs/validation/Q1-1101-offline.txt b/docs/validation/Q1-1101-offline.txt
+new file mode 100644
+index 0000000..00c0862
+--- /dev/null
++++ b/docs/validation/Q1-1101-offline.txt
+@@ -0,0 +1,9 @@
++Q1 / 2026-11-01 / Unity 6000.5.8f1 Roslyn / base b45d257
++Game compile: offc.sh /e/Git/ant-wt/Q1 -> exit 0, errors 0.
++Check compile: offcheck.sh -> Review1101Q1Checks / Review1101P3Checks / ImplB6Checks -> exit 0, errors 0.
++.NET8 offline execution: Review1101Q1Checks.Main -> 86 passed; Review1101P3Checks.Main -> 285 passed.
++RunQ1Scene: compile only; not executed. Unity native/editor/play/visual/save-load/player-build verification: not performed.
++Initial environment issues: missing third-party SpinFree source (temporary read-copy inside Q1, removed before patch); GetInstanceID forbidden API (fixed to GetEntityId).
++Existing obsolete API / FormatterServices warnings retained.
++No new save fields, no prefab, no commits, no original source writes.
++Raw outputs: Q1/Temp/off/out.txt and cout.txt. Offline runner: Q1/Temp/off/RunQ1.ps1 (temporary, not in patch).
+\ No newline at end of file

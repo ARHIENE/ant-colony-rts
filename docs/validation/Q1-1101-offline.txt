@@ -1,0 +1,9 @@
+Q1 / 2026-11-01 / Unity 6000.5.8f1 Roslyn / base b45d257
+Game compile: offc.sh /e/Git/ant-wt/Q1 -> exit 0, errors 0.
+Check compile: offcheck.sh -> Review1101Q1Checks / Review1101P3Checks / ImplB6Checks -> exit 0, errors 0.
+.NET8 offline execution: Review1101Q1Checks.Main -> 86 passed; Review1101P3Checks.Main -> 285 passed.
+RunQ1Scene: compile only; not executed. Unity native/editor/play/visual/save-load/player-build verification: not performed.
+Initial environment issues: missing third-party SpinFree source (temporary read-copy inside Q1, removed before patch); GetInstanceID forbidden API (fixed to GetEntityId).
+Existing obsolete API / FormatterServices warnings retained.
+No new save fields, no prefab, no commits, no original source writes.
+Raw outputs: Q1/Temp/off/out.txt and cout.txt. Offline runner: Q1/Temp/off/RunQ1.ps1 (temporary, not in patch).
