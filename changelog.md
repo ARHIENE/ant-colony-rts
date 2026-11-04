@@ -1,3 +1,7 @@
+# 2026-11-04 SAVE(새벽, 11/03 밤 작업) — 2026-11-05 SAVE 이관
+- 웨이브 수성 방향 확정 및 WAVE-BAL-1103/EXPED-PAUSE-1103/WAVE-RETREAT-1103 구현. Wave1102 27·WaveRetreat1103 21·ExpeditionPause1103 43·SaveRoundtrip 65 Unity 검사 통과 기록을 보존한다.
+- 미해결: 원정 중단으로 새 게임 로켓 승리 불가, 적 일부 벽 밖 13~15m 정지(41마리·240초 초과)로 웨이브 미종료, 공성형 적·초반 준비 실플레이·노후 검사 잔여. 기존 일지 https://app.notion.com/p/40dc4a0ecd318118bd9fdf0ba698f559. 원문 `work/save-20261105/log-before-save.md`.
+
 # 2026-11-03 SAVE(새벽, 11/02 작업) — 2026-11-04 SAVE 이관
 - c0bdead/2b792e4: 웨이브 수성 전환(평화 6일→웨이브→평화 4일, WaveDefense·HudWave·무리 유닛·HordeVisual 인스턴싱), Codex 적 AI 성능·노후 검사 정리·밸런스 분석. Wave1102 27·M2 298 등 통과, 4000마리 28ms. 일지 https://app.notion.com/p/40cc4a0ecd318176b6c2e70e0270531e. 원문 work/save-20261104/log-before-save.md.
 

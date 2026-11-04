@@ -1,3 +1,16 @@
+## 복원 환경 (2026-11-05)
+
+- 프로젝트: F:\UnityProjects\ant-colony-rts, develop 브랜치.
+- 사용자가 지정한 도구는 Unity Hub가 설치·업데이트하는 Unity 공식 CLI이다. 특정 버전에 고정하지 않고, Akiojin unity-cli와 혼동하지 않는다.
+- CLI 실행: & 'F:\_tools\unity-official\unity-managed.ps1' <인수>. 매 실행마다 최신 사용자 PATH의 Unity\bin\unity.exe를 찾아 실행하므로 Hub 업데이트가 자동 반영된다. 별도 다운로드한 F:\_tools\unity-official\bin\unity.exe는 사용하지 않는다. 공식 설치가 보이지 않으면 접근 문제를 보고하고 구버전으로 대체하지 않는다.
+- 에디터 연결은 기존 com.unity.pipeline 0.7.0-exp.1을 사용한다. 공식 CLI 버전과 Unity 에디터 버전은 별개이며, 프로젝트 에디터 버전은 6000.5.8f1이다.
+- 예전 외부 com.akiojin.unity-cli-bridge 의존성은 공식 CLI 사용 요청에 따라 manifest/lock에서 제거했다. 원본 설정 백업: F:\_tools\recovery-backups\2026-11-05.
+- Graphify 실행 파일: C:\Users\gusdu\Documents\Codex\tools\bin\graphify.exe. PATH에 없으면 절대 경로를 사용한다. Python 경로는 graphify-out/.graphify_python에 복원되어 있다.
+
+- GitHub 저장: 연결된 GitHub 플러그인의 ARHIENE/ant-colony-rts 쓰기 권한 및 develop ref 업데이트 인증을 2026-11-05 확인했다. 플러그인 인증은 로컬 git push 자격 증명과 별개다. SAVE 시 플러그인으로 원격 커밋·브랜치를 갱신할 수 있으며, 원격 head 재확인과 기대 SHA 조건으로 동시 변경을 보호한다. 로컬 변경 보존 후 이력을 동기화하고 임의 force push나 hard reset을 하지 않는다.
+
+- Unity 연결 검증(2026-11-05): E:\Unity\6000.5.8f1\Editor\Unity.exe로 이 프로젝트를 열고 CLI 및 MCP editor_status의 ready 응답을 확인했다. 공식 MCP 도구 155개 탐색·호출 성공, Auto-tick 활성화. 샌드박스에서 전체 에디터 목록 감지가 비어 있을 수 있으므로 연결 판단은 unity command editor_status --project-path F:\UnityProjects\ant-colony-rts 응답으로 한다.
+
 # 프로젝트 작업 규칙
 
 - 코드 작성과 수정은 Codex와 Claude Code가 협업한다(2026-10-07 사용자 요청). 시작 전에 `docs/IMPLEMENTATION_BOARD.md`를 읽고 담당·수정 파일을 표시한다. 다른 담당자가 작업 중인 파일은 동시에 수정하지 않는다.

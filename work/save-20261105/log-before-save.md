@@ -1,0 +1,12 @@
+# 프로젝트 로그
+
+## 현재 상태 — 2026-11-04 SAVE(새벽, 11/03 밤 작업)
+- 프로젝트 E:\Git\ant, develop(일반)/master(안정). **작업 전 필독: GAME_DIRECTION.md**(웨이브 수성 방향·승인 경계·보고 형식). 구조: Assets/_Project/Scripts(Core/Units/World/Buildings/Map/UI/Save/Boss), AgentScripts 검사, docs/IMPLEMENTATION_BOARD.md·HANDOFF-*·BALANCE-WAVE-1103.md·DRAFT-WAVE-DESIGN-1103.md.
+- **사용자 확정(2026-11-03, GAME_DIRECTION 6.1 기록)**: ①웨이브 준비 기대치 — 1웨이브 장수만으로 막음 / 2~3웨이브 방어시설 없으면 못 막음·큰 피해 / 이후 준비 따라 피해 차등, 피해는 평화 시간 치료·수리 일거리. 판정은 마릿수 곡선이 아니라 같은 웨이브를 방어 있음/없음으로 돌려 확인. ②역할 분담 — 무리=벽·탑·범위 공격, 적 장수·정예=장수 집중 공격, 뚫린 곳=장수가 막고 교대·후퇴. ③원정 일시 제거(사용자가 추가 기획 예정). ④소수 잔여 퇴각 구현 승인. ⑤3(적 유형)·5(첫 평화 노출 범위)·6 초안 작성, 7 Notion 옛 진행 규칙 '이전 설계' 표시 승인.
+- 이번 구현: WaveDefense.Count 곡선 1=15·2=80·3=120·이후 ×1.15·상한 4000 + 시작 장수 보정(초반 × lerp(시작/3,1,(N−1)/5), 6웨이브부터 동일). LocalIncursions.Spawn 버그 수정(벽 고리로 완전 경로가 없으면 생성 실패 → 웨이브가 사라지던 문제, 막힌 부분 경로 끝 30m 내 허용). Codex EXPED-PAUSE-1103(ExpeditionRules.Paused 스위치 한 줄, 신규 원정·자동수송·인재조사 출발 차단, 귀환 유지; 로켓 발사 차단은 Claude가 되돌림). Codex WAVE-RETREAT-1103(총 100 이상·잔여 ≤ max(3,2%) 퇴각·종료, WildMonster.Retreat.cs, 저장 시 퇴각 개체 체력 0).
+- 측정(docs/BALANCE-WAVE-1103.md, AgentScripts/WaveBalance1103Checks.cs): 장수3 — 1웨이브 15 무방어 체력 19%↓ / 3웨이브 120 무방어 정착지 붕괴·탑2 27%↓·벽+탑 무피해 / 5·8웨이브 탑만 40~60%↓·벽+탑 경미. 장수1 — 5/37/72 동일 양상. 첫 평화 무조작 6일(PeaceIdle1103Probe): 이탈 없음, 기분 22~52(노숙·굶주림), 창고 없어 장수 미작업(정상 설계).
+- 검증: Wave1102 27·WaveRetreat1103 21·ExpeditionPause1103 43·SaveRoundtrip 65 통과(Unity Play).
+- 미해결/다음: ①**원정 차단으로 새 게임 로켓 승리 불가**(보스 핵심물이 원정 전용) — 사용자 원정 추가 기획 대기 ②3·5 초안 승인 대기(DRAFT-WAVE-DESIGN-1103.md, 5는 잠금 표시 추천) ③적이 장수만 노려 건물 피해 0 → 공성형 적 필요 ④6일 안에 흙벽+탑 준비 가능한지 실플레이 미검증 ⑤**적 일부가 벽 밖 13~15m에서 멈춰 공격하지 않음** — SAVE 캡처 실행(웨이브 3·벽+탑)에서 41마리가 240초 넘게 정지해 웨이브 미종료. 퇴각 임계(3마리)보다 많아 퇴각 규칙도 못 끝냄. 다음 우선 수정(WildMonster 공성 판정·부분 경로 정지 원인) ⑥이전 미해결: 노후 검사(Spec1015·WorldMap·SettlementDefense 회항) — docs/HANDOFF-CODEX-CHECKS-1102.md, 사용자 20분 플레이 피드백.
+- 환경 메모: 포커스 없이 Unity 조작 — scratchpad reload.sh·runcheck_nf.sh(이번 세션 scratchpad d5ca283f에 복사본). Play 진입 직후 첫 검사는 NewGame NRE가 날 수 있음(재실행). 장수 체력 0은 Health.Downed가 아니라 PersonalHealth<=0으로 판정. Codex는 원본 트리 담당 파일만, Unity 실행은 Claude.
+- SAVE: b06d1d0 develop push. Notion 일지 2026-11-04 https://app.notion.com/p/40dc4a0ecd318118bd9fdf0ba698f559 (🙂, 스크린샷1). 기획 반영: 상위 개요·전투·보스·맵·진행·월드맵·원정·외교(원정 중지 안내)·미정(11/03 결정 대기)·기술적 고려사항, 옛 침입 주기·정복자 계절 침공 "이전 설계" 표시(7번). 사용자 버그 요청 없어 Trouble Shooting 생략.
+- 보존: prefab/.prefab.meta 커밋 금지. 커밋 제외: 재질/URP/씬/ProjectSettings/graphify/art/Assets 하위 외부 폴더·Builds. 이전 log 원문 work/save-20261104/log-before-save.md.

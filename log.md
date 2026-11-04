@@ -1,12 +1,13 @@
 # 프로젝트 로그
 
-## 현재 상태 — 2026-11-04 SAVE(새벽, 11/03 밤 작업)
-- 프로젝트 E:\Git\ant, develop(일반)/master(안정). **작업 전 필독: GAME_DIRECTION.md**(웨이브 수성 방향·승인 경계·보고 형식). 구조: Assets/_Project/Scripts(Core/Units/World/Buildings/Map/UI/Save/Boss), AgentScripts 검사, docs/IMPLEMENTATION_BOARD.md·HANDOFF-*·BALANCE-WAVE-1103.md·DRAFT-WAVE-DESIGN-1103.md.
-- **사용자 확정(2026-11-03, GAME_DIRECTION 6.1 기록)**: ①웨이브 준비 기대치 — 1웨이브 장수만으로 막음 / 2~3웨이브 방어시설 없으면 못 막음·큰 피해 / 이후 준비 따라 피해 차등, 피해는 평화 시간 치료·수리 일거리. 판정은 마릿수 곡선이 아니라 같은 웨이브를 방어 있음/없음으로 돌려 확인. ②역할 분담 — 무리=벽·탑·범위 공격, 적 장수·정예=장수 집중 공격, 뚫린 곳=장수가 막고 교대·후퇴. ③원정 일시 제거(사용자가 추가 기획 예정). ④소수 잔여 퇴각 구현 승인. ⑤3(적 유형)·5(첫 평화 노출 범위)·6 초안 작성, 7 Notion 옛 진행 규칙 '이전 설계' 표시 승인.
-- 이번 구현: WaveDefense.Count 곡선 1=15·2=80·3=120·이후 ×1.15·상한 4000 + 시작 장수 보정(초반 × lerp(시작/3,1,(N−1)/5), 6웨이브부터 동일). LocalIncursions.Spawn 버그 수정(벽 고리로 완전 경로가 없으면 생성 실패 → 웨이브가 사라지던 문제, 막힌 부분 경로 끝 30m 내 허용). Codex EXPED-PAUSE-1103(ExpeditionRules.Paused 스위치 한 줄, 신규 원정·자동수송·인재조사 출발 차단, 귀환 유지; 로켓 발사 차단은 Claude가 되돌림). Codex WAVE-RETREAT-1103(총 100 이상·잔여 ≤ max(3,2%) 퇴각·종료, WildMonster.Retreat.cs, 저장 시 퇴각 개체 체력 0).
-- 측정(docs/BALANCE-WAVE-1103.md, AgentScripts/WaveBalance1103Checks.cs): 장수3 — 1웨이브 15 무방어 체력 19%↓ / 3웨이브 120 무방어 정착지 붕괴·탑2 27%↓·벽+탑 무피해 / 5·8웨이브 탑만 40~60%↓·벽+탑 경미. 장수1 — 5/37/72 동일 양상. 첫 평화 무조작 6일(PeaceIdle1103Probe): 이탈 없음, 기분 22~52(노숙·굶주림), 창고 없어 장수 미작업(정상 설계).
-- 검증: Wave1102 27·WaveRetreat1103 21·ExpeditionPause1103 43·SaveRoundtrip 65 통과(Unity Play).
-- 미해결/다음: ①**원정 차단으로 새 게임 로켓 승리 불가**(보스 핵심물이 원정 전용) — 사용자 원정 추가 기획 대기 ②3·5 초안 승인 대기(DRAFT-WAVE-DESIGN-1103.md, 5는 잠금 표시 추천) ③적이 장수만 노려 건물 피해 0 → 공성형 적 필요 ④6일 안에 흙벽+탑 준비 가능한지 실플레이 미검증 ⑤**적 일부가 벽 밖 13~15m에서 멈춰 공격하지 않음** — SAVE 캡처 실행(웨이브 3·벽+탑)에서 41마리가 240초 넘게 정지해 웨이브 미종료. 퇴각 임계(3마리)보다 많아 퇴각 규칙도 못 끝냄. 다음 우선 수정(WildMonster 공성 판정·부분 경로 정지 원인) ⑥이전 미해결: 노후 검사(Spec1015·WorldMap·SettlementDefense 회항) — docs/HANDOFF-CODEX-CHECKS-1102.md, 사용자 20분 플레이 피드백.
-- 환경 메모: 포커스 없이 Unity 조작 — scratchpad reload.sh·runcheck_nf.sh(이번 세션 scratchpad d5ca283f에 복사본). Play 진입 직후 첫 검사는 NewGame NRE가 날 수 있음(재실행). 장수 체력 0은 Health.Downed가 아니라 PersonalHealth<=0으로 판정. Codex는 원본 트리 담당 파일만, Unity 실행은 Claude.
-- SAVE: b06d1d0 develop push. Notion 일지 2026-11-04 https://app.notion.com/p/40dc4a0ecd318118bd9fdf0ba698f559 (🙂, 스크린샷1). 기획 반영: 상위 개요·전투·보스·맵·진행·월드맵·원정·외교(원정 중지 안내)·미정(11/03 결정 대기)·기술적 고려사항, 옛 침입 주기·정복자 계절 침공 "이전 설계" 표시(7번). 사용자 버그 요청 없어 Trouble Shooting 생략.
-- 보존: prefab/.prefab.meta 커밋 금지. 커밋 제외: 재질/URP/씬/ProjectSettings/graphify/art/Assets 하위 외부 폴더·Builds. 이전 log 원문 work/save-20261104/log-before-save.md.
+## 현재 상태 — 2026-11-05 SAVE (포맷 후 복원·작업 환경 연결)
+- 프로젝트: `F:\UnityProjects\ant-colony-rts`, 일반 개발 `develop`, 안정 `master`. GitHub 복원 기준 `3618e5c4`(2026-11-04 포맷 전 백업). 작업 전 `AGENTS.md`, `GAME_DIRECTION.md`, `docs/IMPLEMENTATION_BOARD.md`를 읽는다.
+- 오늘은 게임 기능·기획을 변경하지 않았다. Unity Hub에 기존 프로젝트를 등록하고 실제 씬 `Assets/_Project/Scenes/AntColony.unity`를 열어 저장했다. 최초 `Untitled`는 수정되지 않은 기본 빈 씬이었으므로 별도 저장하지 않았다.
+- 에디터: `E:\Unity\6000.5.8f1\Editor\Unity.exe`. Unity Hub 관리 공식 CLI `1.0.0-beta.16` 사용 확인. MSIX 설치 경로: `%LOCALAPPDATA%\Packages\UnityTechnologies.UnityHub_2vrhnee42bhxm\LocalCache\Local\Unity\bin\unity.exe`. 로컬 실행 래퍼 `F:\_tools\unity-official\unity-managed.ps1`는 일반 설치와 MSIX 경로를 매번 찾아 Hub 업데이트를 따른다.
+- 공식 `com.unity.pipeline 0.7.0-exp.1` 유지, 예전 PC 외부 Akiojin Bridge 로컬 의존성 제거. Codex Unity MCP 등록 완료. CLI와 MCP 양쪽 `editor_status`가 ready/compiling=false/playMode=stopped로 응답하고 MCP 도구 155개 탐색·호출 성공, Auto-tick 활성화. 전체 에디터 목록 감지는 샌드박스에서 비어 있을 수 있으므로 반드시 `--project-path`를 붙여 직접 상태를 확인한다.
+- GitHub 플러그인: `ARHIENE/ant-colony-rts` 쓰기 권한 및 develop의 동일 SHA ref 갱신 성공으로 인증 검증. 터미널 git push 자격 증명과는 별개다. SAVE는 플러그인으로 원격 head를 재확인하고 기대 SHA 조건으로 갱신한다. master·prefab은 커밋하지 않는다.
+- 프로젝트 CLAUDE.md/AGENTS.md와 ai-skills 전역 규칙·메모리 백업이 남아 있다. Codex 사용자 스킬 및 Claude Code 사용자/프로젝트 스킬을 설치했고 Graphify 실제 조회를 검증했다. Graphify 실행: `C:\Users\gusdu\Documents\Codex\tools\bin\graphify.exe`. 전역 규칙 파일 자체는 아직 사용자 홈에 복원하지 않았으며, SAVE는 프로젝트 규칙과 ai-skills 백업을 함께 참조한다.
+- Notion·GitHub·Lovable·Higgsfield의 Codex 계정 접근 확인. Blender 본체·MCP와 Claude 설정 작업은 별도 범위이며 Claude 앱 스킬 업로드·OAuth·Effortless 후속 확인은 사용자가 Claude에 직접 인계했다. 해당 후속 작업의 완료를 이 SAVE에서 보장하지 않는다.
+- 검증 범위: 복원 Git 연결성 검사, 설정 JSON/TOML 파싱, 변경 diff 검사, Graphify 조회, Unity C# 컴파일 오류 미발견 및 CLI/MCP 연결, AntColony 씬 저장 완료. 게임 Play 회귀·게임 기능 검증은 오늘 실행하지 않았다. 사용자 지시로 Unity 스크린샷·영상은 생략한다.
+- 보존: 첫 임포트/씬 저장으로 생긴 씬·재질·URP·ProjectSettings·graphify 로컬 경로 변경은 자동 생성 변경으로 구분한다. 게임 기능 작업으로 보고하지 않는다. `.prefab`/`.prefab.meta`는 커밋 금지.
+- 다음 작업: 기존 웨이브 수성 미해결 사항을 그대로 이어간다. 적 41마리 벽 밖 13~15m 정지로 웨이브 미종료 문제 우선 확인. 원정 중단에 따른 로켓 승리 경로, 공성형 적, 첫 평화 6일 실플레이, 노후 검사 잔여는 미해결 유지. 이전 상태 원문 `work/save-20261105/log-before-save.md`, 요약은 changelog 상단 참고.
