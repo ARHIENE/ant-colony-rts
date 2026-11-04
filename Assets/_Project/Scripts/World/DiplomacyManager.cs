@@ -185,10 +185,12 @@ namespace AntColony.World
             TickHomecomings();
             if (!Available) return;
             foreach (var c in Data.civilizations.Where(c => !c.extinct))
-                if (AIEraProgress.Tick(c, seconds, world.Sites.Where(s => Faction(s) == c && !s.Cleared).Sum(s => s.Colony?.RemainingBuildings ?? 0)))
+                if (AIEraProgress.Tick(c, seconds, world.Sites.Where(s => Faction(s) == c && !s.Cleared
+                    && AIIndustry.CanResearch(s.Colony, c.era)).Sum(s => s.Colony?.RemainingBuildings ?? 0)))
                 {
                     CampaignHistory.Record("세력 시대", c.name, CampaignResearch.EraNames[c.era - 1]);
-                    foreach (var site in world.Sites.Where(s => Faction(s) == c)) AIEraMilitary.UpgradeGuards(site, c);
+                    foreach (var site in world.Sites.Where(s => Faction(s) == c && s.Colony != null))
+                    { AIIndustry.Refresh(site.Colony, c.era); AIIndustry.Resupply(site, c); }
                 }
             TickTalks();
             TickRaidTravel();

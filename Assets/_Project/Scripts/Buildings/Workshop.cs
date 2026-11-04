@@ -76,7 +76,7 @@ namespace AntColony.Buildings
                 if (EquipmentInventory.Instance == null) return "장비 보관함 없음";
                 if (Crafter != null) return "제작 중";
                 var crew = AntUnitBase.Active.OfType<CommanderAnt>().Where(c => c.CivilianWorkReady && CanContinue(c)).ToArray();
-                if (crew.Length == 0) return "담당 없음 · 원제작자 미복귀 시 보관/취소";
+                if (crew.Length == 0) return "담당 없음 · 원제작자 사망·영구 이탈 시 보스 주문 수동 인계 가능";
                 var allowed = crew.Where(c => c.AllowsJob(CommanderJobs.Crafting)).ToArray();
                 if (allowed.Length == 0) return "금지: 제작 작업";
                 return allowed.Any(c => c.TryWorkApproach(Position, out _)) ? "담당 배정 대기" : "경로 없음";

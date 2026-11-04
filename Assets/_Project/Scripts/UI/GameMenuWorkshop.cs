@@ -45,7 +45,10 @@ namespace AntColony.UI
             if (workshop.Crafter != null) MenuTheme.Button(content, "장수 배정 해제 (진행도 유지)", () => { workshop.Release(); ShowWorkshop(workshop); });
             else foreach (var c in SortedCommanders())
                 if (workshop.CanAssign(c)) MenuTheme.Button(content, "제작 배정: " + c.CommanderName, () => { workshop.TryAssign(c); ShowWorkshop(workshop); });
-            MenuTheme.Text(content, "재료는 제작 착수 시 소비합니다. 보스 미완성품도 원제작자만 이어 만듭니다. 사망·영구 이탈 시 자동 인계·취소 없이 보관하며 직접 취소하세요. 취소 시 일반재료 미착수100%/착수70%, 핵심물100%를 환급받아 다른 장수가 새 주문을 만들 수 있습니다.", 17, 110);
+            foreach (var c in SortedCommanders())
+                if (workshop.CanTakeOverBossJob(c))
+                    MenuTheme.Button(content, "보스 미완성품 인계: " + c.CommanderName, () => { workshop.TryTakeOverBossJob(c); ShowWorkshop(workshop); });
+            MenuTheme.Text(content, "재료는 착수 시 소비합니다. 보스 미완성품은 원제작자 사망·영구 이탈 후 수동 인계할 수 있습니다. 진행도·결제는 유지하며 일시 부재 중에는 인계하지 않습니다. 취소 시 일반재료 미착수100%/착수70%, 핵심물100% 환급.", 17, 110);
             MenuTheme.Button(content, "새로고침", () => ShowWorkshop(workshop));
             V5Fit(window);
         }

@@ -1,0 +1,20 @@
+P2 2026-11-01 / Unity 에디터 실행 없음
+offc.sh /e/Git/ant-wt/P2: exit 0, game errors 0
+offcheck.sh /e/Git/ant-wt/P2 Review1101P2Checks.cs Review1031M2Checks.cs Review1031ClaudeMilitaryChecks.cs: exit 0
+Offline runner compile exit 0, runtime exit 0
+
+P2 오프라인 181검사 통과
+M2 오프라인 298검사 통과
+L2 오프라인 97검사 통과
+N2 오프라인 77검사 통과
+PASS 38 boss/expedition checks
+A melee, 4 troops ×10 damage/1s, perfect dodge: 480s
+A melee, 5 troops ×10 damage/1s, perfect dodge: 384s
+A melee, 6 troops ×10 damage/1s, perfect dodge: 320s
+distance=0.16: vehicle=20s aircraft=10s
+distance=0.31: vehicle=40s aircraft=20s
+distance=0.46: vehicle=70s aircraft=35s
+
+PASS 31 finale/prisoner checks
+Review1029K1: PASS 87 (actual game DLL; Unity scene/save roundtrip/UI not executed)
+K2 offline PASS 107; Unity roundtrip/NavMesh/UI not executed (RunScene separately).

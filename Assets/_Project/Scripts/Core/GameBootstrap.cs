@@ -50,7 +50,11 @@ namespace AntColony.Core
             SaveCatalog.Initialize();
             var file = GameSession.Instance.PendingLoad as SaveFileV1;
             GameSession.Instance.PendingLoad = null;
-            if (file == null && GameSession.Instance.GameStarted) CrashLandingStart.Apply();
+            if (file == null && GameSession.Instance.GameStarted)
+            {
+                CrashLandingStart.Apply();
+                yield return null; // 삭제 예약된 시작 시설이 사라진 뒤에만 Busy를 해제한다.
+            }
             string error = null;
             if (file != null)
             {

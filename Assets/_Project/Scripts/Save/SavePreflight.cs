@@ -27,6 +27,16 @@ namespace AntColony.Save
             Check(t.passions.Count(p => p.flame == 2) <= 2, "trait history");
         }
         private static void L<T>(List<T> list, int max, string field) => Check(list != null && list.Count <= max, field);
+        private static void Military(MonsterDto m, HashSet<string> equipmentIds)
+        {
+            Check(m.militaryVersion >= 0 && m.militaryVersion <= 1 && (m.militaryVersion == 0
+                ? m.militaryEquipment == null && m.militaryEra == 0 && m.militaryMember == 0
+                : m.hasRuntime && m.militaryEra >= 1 && m.militaryEra <= 6 && m.militaryMember >= 0 && m.militaryMember <= 10000), "military version");
+            if (m.militaryEquipment != null) Check(m.militaryVersion == 1 && m.health > 0 && m.militaryEquipment.IsValid
+                && m.militaryEquipment.slot == EquipmentSlot.Weapon
+                && m.militaryEquipment.weapon == World.AIEraMilitary.Weapon(m.militaryEra, m.militaryMember)
+                && equipmentIds.Add(m.militaryEquipment.id), "military equipment ownership");
+        }
         private static void Colony(EnemyColonyDto d)
         {
             if (d == null) return;
@@ -102,7 +112,11 @@ namespace AntColony.Save
                 L(f.world.sites, 133, "sites"); Check(f.world.sites.Count == (f.world.legacyLayout ? 30 : 33) + (f.diplomacy?.extraSites ?? 0), "site count"); Check(World.DiplomacyManager.Validate(f.diplomacy, f.world.sites.Count), "diplomacy"); L(f.world.transports, 1000, "transports");
                 L(f.discoveries, 1000, "discoveries"); Check(f.discoveries.All(d => d != null && !string.IsNullOrEmpty(d.key) && d.key.Length < 200 && d.body != null && d.body.Length < 10000), "discovery entry");
                 foreach (var n in f.nodes.Concat(f.buildings.SelectMany(b => b.nodes))) Check(n != null && n.workforce >= 0, "node workforce");
-                foreach (var m in f.monsters) Check(m != null && Enum.IsDefined(typeof(World.WildlifeTemperament), m.temperament), "wildlife temperament");
+                foreach (var m in f.monsters)
+                {
+                    Check(m != null && Enum.IsDefined(typeof(World.WildlifeTemperament), m.temperament), "wildlife temperament");
+                    Military(m, equipmentIds);
+                }
                 var p = f.colony;
                 Check(new[] { p.food, p.soil, p.special, p.foodCapacity, p.soilCapacity, p.specialCapacity, p.antsFree, p.antsAssigned, p.antsReserved }.All(v => v >= 0 && v <= 100000000), "colony amounts");
                 Check(p.materials == null || p.materials.Length <= AntColony.Core.ResourceManager.OtherMaterials.Length && p.materials.All(v => v >= 0 && v <= p.soilCapacity), "materials");

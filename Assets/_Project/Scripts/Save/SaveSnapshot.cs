@@ -175,8 +175,14 @@ namespace AntColony.Save
         internal static IEnumerator Restore(SaveFileV1 file)
         {
             if (!FarmSeeds.Valid(file.farmSeeds)) throw new InvalidOperationException("Invalid farm seed state");
+            // 직접 복원 진입점도 첫 yield/장수 제거 전에 누락된 시작 시설을 거부한다.
+            foreach (var d in file.buildings.Where(d => !d.runtimeBuilt && d.kind != "Destroyed"))
+                if (!int.TryParse(d.key, out int index) || SaveCatalog.Buildings == null || index < 0
+                    || index >= SaveCatalog.Buildings.Length || SaveCatalog.Buildings[index] == null)
+                    throw new InvalidOperationException("Missing building before restore: " + d.key + ". Reload the scene.");
             SaveReferences.Clear();
             var world = WorldMapManager.Instance;
+            DiplomacyManager.Instance.Restore(file.diplomacy);
             CommanderRoster.Instance.ClearAll();
             yield return null; // OnDestroy의 병력 반환을 끝낸 뒤 저장된 풀을 적용한다.
             foreach (var d in file.world.sites)
@@ -184,6 +190,7 @@ namespace AntColony.Save
                 var s = world.Sites[d.index]; RestoreColony(s.Colony, d.colony);
                 s.RestoreState(d.cleared, (ConquestDisposition)d.disposition); s.GrowthTimer = d.growthTimer;
                 s.RewardsClaimed = d.rewardsClaimed;
+                if (s.Colony != null) AIIndustry.Refresh(s.Colony, DiplomacyManager.Instance.Faction(s)?.era ?? 1);
                 s.Settlement?.RestoreElapsed(d.settlementElapsed); s.Defense?.RestoreState(d.defenseRemaining, d.defenseCaptureProgress);
             }
             if (file.world.hadHomeColony) RestoreColony(AntColony.Core.SceneObjects.All<EnemyColony>()

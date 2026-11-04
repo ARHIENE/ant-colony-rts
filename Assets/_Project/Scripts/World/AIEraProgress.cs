@@ -13,6 +13,7 @@ namespace AntColony.World
         public static int CombatEra(WildMonster unit)
         {
             if (unit.GuardBoss >= 0 || unit.Allied) return 1;
+            if (unit.MilitaryEra > 0) return unit.MilitaryEra;
             var manager = DiplomacyManager.Instance;
             var faction = string.IsNullOrEmpty(unit.DiplomaticFactionId) ? manager?.Faction(unit.GetComponentInParent<ExpeditionSite>())
                 : manager?.Data.civilizations.Find(c => c.id == unit.DiplomaticFactionId);

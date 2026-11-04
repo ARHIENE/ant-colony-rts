@@ -7,12 +7,13 @@ namespace AntColony.Units
         private LineRenderer line;
         private Bounds bounds;
         private Vector3 offset;
+        private Collider source;
         public void Show(bool selected)
         {
             if (line == null && selected)
             {
-                var collider = GetComponent<Collider>();
-                bounds = collider != null ? collider.bounds : new Bounds(transform.position, Vector3.one * 2.6f);
+                source = GetComponent<Collider>();
+                bounds = source != null ? source.bounds : new Bounds(transform.position, Vector3.one * 2.6f);
                 offset = bounds.center - transform.position;
                 var child = new GameObject("Selected Outline"); child.transform.SetParent(transform, false);
                 line = child.AddComponent<LineRenderer>(); line.useWorldSpace = true; line.loop = true;
@@ -27,6 +28,7 @@ namespace AntColony.Units
         private void LateUpdate()
         {
             if (line == null || !line.enabled) return;
+            if (source != null) { bounds = source.bounds; offset = bounds.center - transform.position; }
             var center = transform.position + offset;
             center.y -= bounds.extents.y - .08f;
             var x = bounds.extents.x + .18f; var z = bounds.extents.z + .18f;

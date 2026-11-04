@@ -39,6 +39,8 @@ namespace AntColony.World
         private void Start()
         {
             if (randomizeAtStart) TryRandomizePlacement();
+            var faction = DiplomacyManager.Instance?.Faction(GetComponentInParent<ExpeditionSite>());
+            if (faction != null) AIIndustry.Refresh(this, faction.era);
         }
 
         public void ConfigureExpedition(int difficulty)
@@ -190,9 +192,12 @@ namespace AntColony.World
                     height = 0f;
                 var building = Instantiate(template, hit.position + Vector3.up * height, template.transform.rotation, transform);
                 StripColonyOnlyParts(building);
-                building.name = $"Enemy Nest Building {buildings.Length + 1}";
-                System.Array.Resize(ref buildings, buildings.Length + 1);
-                buildings[buildings.Length - 1] = building;
+                var slot = System.Array.FindIndex(buildings, b => b == null || b.IsDead);
+                if (slot < 0) { slot = buildings.Length; System.Array.Resize(ref buildings, buildings.Length + 1); }
+                building.name = $"Enemy Nest Building {slot + 1}";
+                buildings[slot] = building;
+                var faction = DiplomacyManager.Instance?.Faction(GetComponentInParent<ExpeditionSite>());
+                if (faction != null) AIIndustry.Refresh(this, faction.era);
                 return true;
             }
             return false;

@@ -27,7 +27,7 @@ namespace AntColony.World
         public static float Interval(WeaponKind weapon) => weapon == WeaponKind.ShortBow ? 2 : weapon == WeaponKind.Shield ? 1.5f : 1.25f;
         public static float Health(WeaponKind weapon) => weapon == WeaponKind.Shield ? 180 : 150;
         public static int DefenseGrade(int era) => Math.Clamp(era, 1, 6);
-        public static int DefenseArmor(int era) => 2 * (DefenseGrade(era) - 1);
+        public static int DefenseArmor(int era) => DefenseGrade(era) - 1;
         public static string Summary(int era) => Math.Clamp(era, 1, 6) switch {
             1 => "나무칼 근접",
             2 => "나무칼 2 : 단궁 1",
@@ -41,8 +41,12 @@ namespace AntColony.World
             var site = building.GetComponentInParent<ExpeditionSite>();
             return site == null || site.Disposition == ConquestDisposition.Annexed ? null : DiplomacyManager.Instance?.Faction(site);
         }
-        public static float FortificationArmor(BuildingBase building) => building.GetComponentInParent<EnemyColony>() == null
-            ? 0 : DefenseArmor(Faction(building)?.era ?? 1);
+        public static int FacilityArmor(int era, bool commandPost) => commandPost ? DefenseArmor(era) : DefenseArmor(era) / 2;
+        public static float FortificationArmor(BuildingBase building)
+        {
+            var colony = building.GetComponentInParent<EnemyColony>();
+            return colony == null ? 0 : FacilityArmor(Faction(building)?.era ?? 1, AIIndustry.Alive(colony, 4));
+        }
         public static void UpgradeGuards(ExpeditionSite site, Civilization faction)
         {
             if (site.Disposition == ConquestDisposition.Annexed) return;

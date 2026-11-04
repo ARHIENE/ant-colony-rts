@@ -77,15 +77,18 @@ namespace AntColony.UI
             L.Label(portrait, s.name.Substring(0, 1), 30, 0, 0, 76, 76, MenuTheme.AccentInk, TextAnchor.MiddleCenter, true);
             L.Label(head, s.leader, 20, 100, 10, 360, 30, bold: true);
             L.Label(head, s.name + " · " + CampaignResearch.EraNames[s.era - 1] + (s.era < 6 ? $" 연구 {s.eraWork:0}/{AIEraProgress.Work(s.era):0}" : " 시대 완료"), 12, 100, 40, 360, 20, MenuTheme.Muted)
-                .gameObject.AddComponent<MenuTooltip>().Message = "세력 공동 연구는 외교 식량·흙 재고에서 비용을 지불합니다. 현장 재고와 별도 생산분이며 연구 후 생산·기존 수비대/침공대 공격·방어가 증가합니다. 전쟁·출정 결정은 기존 규칙을 유지합니다.";
+                .gameObject.AddComponent<MenuTooltip>().Message = $"연구비 식량·흙 각각 {AIEraProgress.Cost(s.era)} · 재고 {s.resources[0]}/{s.resources[1]}\n"
+                    + "1·2시대는 본부, 3시대부터 살아 있는 연구소가 있어야 연구합니다. 파괴 시 진행도·결제는 보존합니다. 전쟁·출정 결정은 기존 규칙을 유지합니다.";
             L.Label(head, $"관계 <b>{(s.war ? "<color=#e8574a>전쟁</color>" : "평화")}</b>     호감도 <b>{s.affinity:+0;-0;0}</b>     전쟁 점수 {s.playerScore} : {s.enemyScore}", 13, 100, 62, 360, 24);
             L.Label(p, "<b>어젠다</b>  <color=#b1b3a7>지도자마다 공개 1 · 숨김 1</color>", 13, 386, 120, 470, 22);
             L.Label(p, "공개  <b>" + DiplomacyRules.AgendaNames[(int)s.agenda] + "</b>", 13, 386, 144, 470, 22);
             L.Label(p, "숨김  " + (s.hiddenRevealed ? "<b>" + DiplomacyRules.AgendaNames[(int)s.hiddenAgenda] + "</b>" : "<color=#b1b3a7>교역 협정을 맺으면 공개</color>"), 13, 386, 166, 470, 22);
             L.Label(p, "<b>호감도</b>  <color=#b1b3a7>-100 ~ +100 · 최근 사유</color>", 13, 386, 200, 470, 22);
             L.Meter(p, 386, 226, 470, 8, (s.affinity + 100) / 200f, s.affinity >= 0 ? MenuTheme.Hp : MenuTheme.Danger);
-            L.Label(p, "주력 " + AIEraMilitary.Summary(s.era) + $"\n소굴 방어 {AIEraMilitary.DefenseGrade(s.era)}등급 · 추가 장갑 {AIEraMilitary.DefenseArmor(s.era)}", 12, 386, 242, 470, 42, MenuTheme.Muted)
-                .gameObject.AddComponent<MenuTooltip>().Message = "편성 비율은 반복 순서이며 소수 부대는 일부만 포함됩니다. 새 침공대·승급한 현장 수비대에 적용하며 이동 중인 부대는 도착 시 시대를 따릅니다. 기존 장비 종류의 전투 수치를 사용하고 실물 장비·전리품을 새로 생성하지 않습니다.";
+            L.Label(p, "주력 " + AIEraMilitary.Summary(s.era) + $"\n소굴 방어 {AIEraMilitary.DefenseGrade(s.era)}등급 · 장갑 {AIEraMilitary.DefenseArmor(s.era)} · 장비 재고 {s.equipment.Count}", 12, 386, 242, 470, 42, MenuTheme.Muted)
+                .gameObject.AddComponent<MenuTooltip>().Message = "새 병력은 모집비에 기본 장비가 포함됩니다. 현장 수비대 교체품은 병기 공방의 실물 장비 재고에서 가져옵니다. 장비 교체 전 병력은 이전 시대 전력 유지, 부상 회복 없음. 원거리는 근접 압박 시 짧게 거리를 벌립니다. 처치 시 장착 장비를 바닥에 남깁니다.\n"
+                    + string.Join("\n", WorldMapManager.Instance.Sites.Where(site => d.Faction(site) == s && site.Colony != null)
+                        .Select(site => site.Title + ": " + AIIndustry.Summary(site.Colony, s.era)));
             var reasons = L.List(p, 386, 290, 470, 372, 2);
             foreach (var reason in Enumerable.Reverse(s.reasons)) MenuTheme.Text(reasons, reason, 12, 20).color = MenuTheme.Muted;
 

@@ -44,7 +44,7 @@ public static class Review1031M2Checks
             var weapons = expected[era - 1];
             Check(Enumerable.Range(0, weapons.Length * 2).All(i => AIEraMilitary.Weapon(era, i) == weapons[i % weapons.Length]), "시대별 편성 반복 " + era);
             signatures.Add(AIEraMilitary.Summary(era));
-            Check(AIEraMilitary.DefenseGrade(era) == era && AIEraMilitary.DefenseArmor(era) == 2 * (era - 1), "시대별 시설 장갑 " + era);
+            Check(AIEraMilitary.DefenseGrade(era) == era && AIEraMilitary.DefenseArmor(era) == era - 1, "1101 완화된 시대별 시설 장갑 " + era);
             for (int member = 0; member < weapons.Length; member++)
             {
                 var unit = Managed<EnemyCommander>();
@@ -77,7 +77,7 @@ public static class Review1031M2Checks
                     Field(typeof(WildMonster), "maxHealth").SetValue(unit, 150f);
                     restore.Invoke(unit, new object[] { era, member, health });
                     var weapon = AIEraMilitary.Weapon(era, member);
-                    Check(unit.CurrentHealth == health && (float)Get(unit, "maxHealth") == AIEraMilitary.Health(weapon), "복원 체력 무회복·무절삭");
+                    Check(unit.CurrentHealth == health && (float)Get(unit, "maxHealth") == Math.Max(health, AIEraMilitary.Health(weapon)), "복원 체력 무회복·무절삭·차기 저장 상한");
                     Check((float)Get(unit, "attackRange") == AIEraMilitary.Range(weapon)
                         && (float)Get(unit, "attackInterval") == AIEraMilitary.Interval(weapon)
                         && (float)Get(unit, "attackDamage") == (weapon == WeaponKind.Shield ? 6 : 8)

@@ -207,8 +207,8 @@ namespace AntColony.World
                 growthTimer -= 60f;
                 var faction = DiplomacyManager.Instance?.Faction(this);
                 int era = faction?.era ?? 1, count = Colony.RemainingBuildings;
-                Colony.AddResources(count * 2 * era, count * era);
-                if (faction != null) AIEraProgress.Credit(faction, count);
+                if (faction != null) { AIIndustry.Produce(Colony, faction); AIIndustry.Resupply(this, faction); }
+                else Colony.AddResources(count * 2 * era, count * era);
                 Colony.TryExpand(0, 30, faction?.rebel == true ? 2 : 5, 5);
             }
         }

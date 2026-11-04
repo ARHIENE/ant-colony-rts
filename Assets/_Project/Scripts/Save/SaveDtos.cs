@@ -379,6 +379,8 @@ namespace AntColony.Save
     [Serializable]
     public class MonsterDto
     {
+        public int militaryVersion, militaryEra, militaryMember;
+        public Units.EquipmentItem militaryEquipment;
         public int guardVersion;
         public int guardBoss = -1, guardCycle;
         public bool guardXpClaimed;
