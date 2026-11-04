@@ -433,3 +433,7 @@
 - **SAVE-1029 / 검증·문서·캡처 완료** — log/changelog/README 최신 상태, 공식CLI 실제 Game 화면9장 직접 검수/Notion 일지 첨부·Trouble 기록. 격리 검수시설/전문성 예시 상태이며 전체 플레이 검수 아님. 설정/Root/카메라 복원·Play 종료, 최신 build_227d7c36b46e 유지. docs/SAVE_AUDIT_20261029.md·검증 사본 참조. 선택 커밋/push 진행, 기존 로컬 씬/그래픽/설정/임시·prefab 보존.
 
 - **SAVE-1029 / 원격 보존 완료** —155파일 e0a65d3 origin/develop push·원격 동일 SHA 확인. 실행 FBX3/재질24·prefab0, 공식CLI 화면9장 검수/Notion 첨부·일지/Trouble 완료. 기존 씬/Water/그래픽·프로젝트 설정/임시/graphify 보존, Play 종료. 전체100항목/보류 검수 완료 아님. 완료 기록 후속 문서 커밋만 수행.
+
+- **REVIEW100-J1-1029 / Codex J1 / 진행 중** — worktree E:/Git/ant-wt/J1, codex/j1-1029 전용. 담당 11/13~17/19~20/23/25~26/28/35~38/40/72~73/77~78. 소유 경제·식품·산업·외교 해당 영역의 최소 수정, AgentScripts/Review1029*Checks.cs, docs/*1029_J1.md·HANDOFF-CODEX-J1-1029.md·patches/J1-1029.patch. 완료 지정 항목·전투/보스/원정/최종방어 수정 금지. Unity 실행 없이 오프라인 Roslyn·계산 검증, SAVE/커밋 없음.
+
+- **REVIEW100-J1-1029 / Codex J1 / 오프라인 검증·인계 완료** — 담당21개 중10개 수정·9개 계산/대조·23/77 구현 잔여. 소유 Core/ColonyTaxRules·ResourceStudyRules 신규, ColonyPopulation.Monthly·CampaignResearch.Resources, Buildings/Redevelopment·Processor.Industrial, World/DiplomacyMarketDelivery 신규·DiplomacyTrade, UI/GameMenuPopulation·CivicServices·Diet·Diplomacy, AgentScripts/Review1029*Checks4종·RunReview1029J1.py. 게임442소스/검사14소스 컴파일 오류0(경고32/13), 실제 게임DLL 순수72검사 통과. Unity 실거래/실저장/UI/원정 통합 검사 미실행, SceneChecks 준비. docs/HANDOFF-CODEX-J1-1029.md·DECISIONS_1029_J1·GAPS_1029_J1(추가12건)·상태21행/README 반영. 원본 index.lock 쓰기 거부로 J1 Temp 임시index에서 패치 생성, 커밋 없음.
