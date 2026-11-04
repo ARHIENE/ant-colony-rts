@@ -55,7 +55,7 @@ namespace AntColony.Units
             if (h.medicine == MedicineLevel.NoCare) return "치료 안 함 설정";
             if (p.PersonalHealth <= 0 && p.TreatmentFacility == null && p.RescueCarrier == null && FreeBed(p.Position) == null) return "구조할 자리 없음(빈 의료 침상 필요)";
             if (!h.NeedsTend) return "";
-            if (!HomePatients().Any(d => d != p && d.CivilianWorkReady && d.AllowsJob(CommanderJobs.Nursing)) && !p.CanSelfTend) return "치료할 장수 없음";
+            if (!HomePatients().Any(d => d != p && d.CivilianWorkReady && d.AllowsJob(CommanderJobs.Nursing) && d.TryWorkApproach(p.Position, out _)) && !p.CanSelfTend) return "치료할 장수 없음(의료 허용·활동 가능·접근 경로 확인)";
             var meds = MedicalRules.BestMedicine(h.medicine, FreeMedicine) >= 0;
             if (h.illnesses.Any(i => i.NeedsTend) && !meds && !h.wounds.Any(w => w.NeedsTend))
                 return h.medicine == MedicineLevel.NoMedicine ? "약 없이 설정 — 질병 투약 불가" : "약품 부족(투약 불가)";
@@ -109,7 +109,7 @@ namespace AntColony.Units
             {
                 if (p == this || PersonalHealth <= 0 || p.PersonalHealth > 0 || p.TreatmentFacility != null || p.RescueCarrier != null || Taken(p, MedJob.Rescue)) continue;
                 if (doctors && p.Health.LifeThreatening && p.Health.wounds.Any(w => w.NeedsTend && MedicalRules.BleedFactor(w) > 0)) continue;
-                if (FreeBed(p.Position) == null) continue;
+                if (ReachableRescueBed() == null) continue;
                 var patient = p;
                 yield return (p, () => StartMed(MedJob.Rescue, patient));
             }
@@ -133,10 +133,20 @@ namespace AntColony.Units
         }
         private bool TickCampMed(float seconds)
         {
-            if (medCamp == null || !medCamp.isActiveAndEnabled || !medCamp.Prisoners.Contains(medPrisoner)) { EndMed(); return false; }
-            if ((medCamp.transform.position - Position).sqrMagnitude > 16) return true;
-            StopMoving(); medWork += seconds * WorkRate(medJob == MedJob.Tend ? CommanderActivity.Medicine : CommanderActivity.Strength);
+            if (medCamp == null || !medCamp.isActiveAndEnabled || !medCamp.Prisoners.Contains(medPrisoner) || !CivilianWorkReady) { EndMed(); return false; }
             var h = medPrisoner.PersonalState.health; var rm = ResourceManager.Instance;
+            if (medJob == MedJob.Tend && !MedicalRules.NeedsDoctor(h, MedicineAllowed(h)) || medJob == MedJob.Feed && medPrisoner.PersonalState.meal.satiety >= GameBalance.EatBelowSatiety)
+            { EndMed(); return false; }
+            if ((medCamp.transform.position - Position).sqrMagnitude > 16)
+            {
+                if (!Agent.pathPending && !Agent.hasPath)
+                {
+                    if (TryWorkApproach(medCamp.transform.position, out var approach)) SetMoveDestination(approach);
+                    else { EndMed(); return false; }
+                }
+                return true;
+            }
+            StopMoving(); medWork += seconds * WorkRate(medJob == MedJob.Tend ? CommanderActivity.Medicine : CommanderActivity.Strength);
             if (medJob == MedJob.Tend)
             {
                 GainExperience(CommanderActivity.Medicine, seconds);
@@ -166,7 +176,7 @@ namespace AntColony.Units
         internal void EndMed()
         {
             if (medJob == MedJob.Rescue && medPatient != null && medPatient.RescueCarrier == this) medPatient.RescueCarrier = null;
-            medJob = MedJob.None; medPatient = null; medWork = 0; medCamp = null; medPrisoner = null;
+            medJob = MedJob.None; medPatient = null; medWork = 0; medCamp = null; medPrisoner = null; rescueBed = null;
         }
 
         // TickDuty에서 다른 작업보다 먼저 부른다. true면 이번 틱은 의료 작업.
@@ -177,9 +187,15 @@ namespace AntColony.Units
             var p = medPatient;
             if (p == null || p.IsDead || (p == this ? !CanSelfTend : !CivilianWorkReady) || p.IsAwayFromHome) { if (p != null && p.RescueCarrier == this) p.RescueCarrier = null; EndMed(); return false; }
             if (medJob == MedJob.Rescue) return TickRescue(p);
+            if (medJob == MedJob.Tend && !NeedsCurrentTend(p) || medJob == MedJob.Feed && (!p.IsMedicalPatient || p.Satiety >= GameBalance.EatBelowSatiety))
+            { EndMed(); return false; }
             if (p != this && (p.Position - Position).sqrMagnitude > 6.25f)
             {
-                if (!IsFlying && !Agent.pathPending && !Agent.hasPath && TryWorkApproach(p.Position, out var approach)) SetMoveDestination(approach);
+                if (!IsFlying && !Agent.pathPending && !Agent.hasPath)
+                {
+                    if (TryWorkApproach(p.Position, out var approach)) SetMoveDestination(approach);
+                    else { EndMed(); return false; }
+                }
                 return true;
             }
             StopMoving();
@@ -196,14 +212,16 @@ namespace AntColony.Units
                     var used = tier >= 0 && h.illnesses.Any(i => i.NeedsTend) && rm.TrySpend(MedicalRules.Medicines[tier], 1, ResourceReason.Treatment);
                     if (!used && tier >= 0 && h.wounds.Any(w => w.NeedsTend) && rm.TrySpend(MedicalRules.Medicines[tier], 1, ResourceReason.Treatment)) used = true;
                     if (!used) quality = MedicalRules.TendQuality(talents.Level(CommanderActivity.Medicine), -1, p.TreatmentFacility != null, Health.Manipulation, p == this);
-                    MedicalRules.ApplyTend(h, quality, used);
+                    if (MedicalRules.ApplyTend(h, quality, used)) CareBond(p);
                     // 다이아 파나케이아: 이 장수가 처치하면 흉터(영구 손상)를 함께 치유한다. 상실 부위는 제외.
                     if (traits.Has(CommanderTrait.DiamondMedicine) && h.wounds.RemoveAll(w => w.kind == WoundKind.Scar) > 0)
                         AntColony.UI.ToastManager.Show($"{CommanderName}의 파나케이아: {p.CommanderName}의 흉터를 치유했습니다");
                     EndMed(); return true;
                 case MedJob.Feed:
                     if (medWork < FeedSeconds) return true;
-                    p.FeedInBed(); EndMed(); return true;
+                    var beforeMeal = p.Satiety;
+                    p.FeedInBed(); if (p.Satiety > beforeMeal) CareBond(p);
+                    EndMed(); return true;
                 case MedJob.Surgery:
                     return TickSurgery(p, seconds, rate);
             }
@@ -225,10 +243,14 @@ namespace AntColony.Units
                 if (p.PersonalHealth > 0 || bed != null) { EndMed(); return false; } // 일어났거나 이미 병상
                 if ((p.Position - Position).sqrMagnitude > 6.25f)
                 {
-                    if (!Agent.pathPending && !Agent.hasPath && TryWorkApproach(p.Position, out var a)) SetMoveDestination(a);
+                    if (!Agent.pathPending && !Agent.hasPath)
+                    {
+                        if (TryWorkApproach(p.Position, out var a)) SetMoveDestination(a);
+                        else { EndMed(); return false; }
+                    }
                     return true;
                 }
-                var target = FreeBed(Position);
+                var target = ReachableRescueBed();
                 if (target == null) { EndMed(); return false; }
                 p.RescueCarrier = this; rescueBed = target;
                 if (TryWorkApproach(target.Position, out var b)) SetMoveDestination(b); else { p.RescueCarrier = null; EndMed(); return false; }
@@ -238,12 +260,22 @@ namespace AntColony.Units
             p.Agent.Warp(Position);
             if (rescueBed == null || !rescueBed.isActiveAndEnabled || !rescueBed.HasFreeBed)
             {
-                rescueBed = FreeBed(Position);
+                rescueBed = ReachableRescueBed();
                 if (rescueBed == null) { p.RescueCarrier = null; EndMed(); return false; } // 자리가 없어지면 내려놓는다
                 if (TryWorkApproach(rescueBed.Position, out var b)) SetMoveDestination(b);
             }
-            if ((rescueBed.Position - Position).sqrMagnitude > 16) return true;
-            p.RescueCarrier = null; rescueBed.Admit(p); EndMed();
+            if ((rescueBed.Position - Position).sqrMagnitude > 16)
+            {
+                if (!Agent.pathPending && !Agent.hasPath)
+                {
+                    if (TryWorkApproach(rescueBed.Position, out var b)) SetMoveDestination(b);
+                    else { EndMed(); return false; }
+                }
+                return true;
+            }
+            p.RescueCarrier = null; rescueBed.Admit(p);
+            if (p.TreatmentFacility == rescueBed) CareBond(p);
+            EndMed();
             return true;
         }
         private Infirmary rescueBed;
@@ -255,7 +287,8 @@ namespace AntColony.Units
             var h = Health;
             if (TreatmentFacility != null || !CanReceiveOrders || IsAwayFromHome || IsDeployed || WorkPriorities.Red) return false;
             var wantsSurgery = h.surgeries.Any(s => s.Active);
-            var topJob = AutoJobs.Where(AllowsJob).Select(j => WorkState.Priority(j)).DefaultIfEmpty(0).Max();
+            if (!wantsSurgery && (!h.Serious || h.bedRest == 0)) return false;
+            var topJob = CompetingRestPriority();
             if (!wantsSurgery && !(h.Serious && h.bedRest > 0 && h.bedRest >= topJob)) return false;
             return SendToTreatment();
         }
@@ -272,6 +305,7 @@ namespace AntColony.Units
         {
             var h = p.Health;
             if (h.surgeries.Any(s => s.Active)) return "이미 대기 중인 수술이 있습니다";
+            if (MedicalRules.Parent(part) is BodyPart parent && h.Missing(parent)) return "팔·다리 재생을 먼저 해야 손·발을 수술할 수 있습니다";
             if (k == SurgeryKind.Amputate && (MedicalRules.Vital(part) || h.Missing(part))) return "절단할 수 없는 부위입니다";
             if (k == SurgeryKind.Regenerate && !ScienceEffects.Has(ScienceTechnology.Regeneration)) return "부위 재생 연구가 필요합니다";
             if (k == SurgeryKind.Regenerate && !h.wounds.Any(w => w.part == part && w.Permanent)) return "흉터·상실이 없는 부위입니다";
@@ -297,14 +331,20 @@ namespace AntColony.Units
             if (s.stage == SurgeryStage.Waiting)
                 foreach (var (type, amount) in SurgeryCost(s.kind))
                     if ((ResourceManager.Instance?.GetAmount(type) ?? 0) - Reserved(type, s) < amount) return $"{type.DisplayName()} 부족";
+            var available = AutoSurgeon(p);
+            if (s.surgeonId != "") available = HomePatients().FirstOrDefault(c => c.PersonalState.id == s.surgeonId && c != p && c.CivilianWorkReady && c.AllowsJob(CommanderJobs.Nursing) && c.TryWorkApproach(p.Position, out _));
+            if (available == null) return s.surgeonId == "" ? "수술 가능한 집도의 없음(의료·접근 경로 확인)" : "지정 집도의 대기(활동·의료·접근 경로 확인)";
             if (surgeon == null) return "";
             if (surgeon == p) return "자기 자신은 수술할 수 없습니다";
             if (s.surgeonId != "" && surgeon.PersonalState.id != s.surgeonId) return "지정 집도의만 수술합니다";
             if (!surgeon.AllowsJob(CommanderJobs.Nursing)) return "의료 작업이 꺼진 장수";
+            if (s.surgeonId == "" && surgeon != available) return "자동 집도의는 접근 가능한 최고 의료 장수입니다";
             return "";
         }
-        public static CommanderAnt AutoSurgeon(CommanderAnt p) => HomePatients().Where(c => c != p && c.AllowsJob(CommanderJobs.Nursing) && c.CivilianWorkReady && !c.IsMedicalPatient)
-            .OrderByDescending(c => c.Talents.Level(CommanderActivity.Medicine)).FirstOrDefault();
+        public static CommanderAnt AutoSurgeon(CommanderAnt p) => HomePatients().Where(c => c != p && c.AllowsJob(CommanderJobs.Nursing) && c.CivilianWorkReady && !c.IsMedicalPatient
+                && (c.medJob == MedJob.Surgery && c.medPatient == p || c.medJob == MedJob.None && !c.IsWorking && !c.LabUpgradeBusy && c.ScienceAssignment == null && c.CraftingWorkshop == null && !c.IsCarrying)
+                && c.TryWorkApproach(p.Position, out _))
+            .OrderByDescending(c => c.Talents.Level(CommanderActivity.Medicine)).ThenBy(c => (c.Position - p.Position).sqrMagnitude).ThenBy(c => c.PersonalState.id, StringComparer.Ordinal).FirstOrDefault();
         public static float SuccessChance(HealthState h, float skill) => Mathf.Clamp(.35f + skill * .03f - h.bloodLoss * .3f - (1 - h.Consciousness) * .1f, .05f, .97f);
         public float PredictedSuccess(SurgeryOrder s, CommanderAnt surgeon)
         {
@@ -326,7 +366,7 @@ namespace AntColony.Units
                 s.stage = SurgeryStage.Started;
             }
             if (p.TreatmentFacility == null) { EndMed(); return false; } // 병상 이탈: 진행 보존·정지
-            var work = seconds * rate;
+            var work = Mathf.Min(seconds * rate, Mathf.Max(0, SurgeryWork - s.work));
             s.work += work; s.weighted += work * talents.Level(CommanderActivity.Medicine);
             medWork = 0;
             if (s.work < SurgeryWork) return true;

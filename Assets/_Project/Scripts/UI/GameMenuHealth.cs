@@ -15,7 +15,7 @@ namespace AntColony.UI
         public static string HealthLines(HealthState h)
         {
             var lines = h.wounds.GroupBy(w => w.part).Select(g => $"{MedicalRules.PartName(g.Key)} {h.PartFraction(g.Key):P0}: " + string.Join(", ", g.Select(w =>
-                MedicalRules.WoundName(w.kind) + (w.Permanent ? "" : w.NeedsTend ? " · 미처치" : $" · 처치 {w.quality:P0}")))).ToList();
+                MedicalRules.WoundName(w.kind) + (w.Permanent ? " · 영구 손상" : w.NeedsTend ? " · 미처치" : $" · 처치 {w.quality:P0}")))).ToList();
             lines.AddRange(h.illnesses.Select(i => $"{MedicalRules.IllnessName(i.kind)} 심각도 {i.severity:P0} · 면역 {i.immunity:P0}"
                 + (i.tendLeft > 0 ? $" · 다음 투약까지 {i.tendLeft:0}초" : " · 투약 필요")));
             if (h.bloodLoss > .01f) lines.Add($"출혈량 {h.bloodLoss:P0}" + (h.Bleeding ? $" · 출혈 중(예상 사망 {h.SecondsToBleedOut:0}초)" : ""));
@@ -33,8 +33,8 @@ namespace AntColony.UI
             L.Button(window, "Back To Commander", "장수 상세", 20, 677, 160, 30, () => Details(c));
 
             content = V5Section(window, $"상태 · {h.Summary}", 20, 104, 520, 544);
-            var status = MenuTheme.Text(content, "", 15, 150);
-            var body = MenuTheme.Text(content, "", 15, 300);
+            var status = MenuTheme.Text(content, "", 13, 180);
+            var body = MenuTheme.Text(content, "", 13, 270);
             void Refresh()
             {
                 if (c == null) return;
@@ -43,7 +43,10 @@ namespace AntColony.UI
                     + $"\n위치: " + (c.TreatmentFacility != null ? "의료 침상" : c.RescueCarrier != null ? $"구조 운반 중({c.RescueCarrier.CommanderName})" : c.PersonalHealth <= 0 ? "쓰러짐(현장)" : "활동 중")
                     + $" · 배고픔 {100 - c.Satiety:0}" + (c.IsMedicalPatient && c.Satiety < AntColony.Core.GameBalance.EatBelowSatiety ? " · 급식 대기" : "") + "\n" + c.RecoveryStatus
                     + "\n" + (CommanderAnt.CareWaitReason(c) is string wait && wait != "" ? "<color=#f2c94c>대기: " + wait + "</color>" : h.NeedsTend ? "의료 장수가 처치하러 옵니다" : "처치 완료 또는 필요 없음");
-                body.text = HealthLines(h);
+                var care = CommanderAnt.CareProgress(c);
+                if (care != "") status.text += "\n" + care;
+                body.text = HealthLines(h) + "\n" + MedicalOutlook.RecoveryLines(h, c.TreatmentFacility != null || c.PersonalHealth <= 0)
+                    + "\n회복 시간은 현재 처치·휴식 기준 · 감염·흉터 판정 별도";
             }
             Refresh(); refreshDutyScreen = Refresh;
 
@@ -75,12 +78,20 @@ namespace AntColony.UI
             if (last != null) MenuTheme.Text(content, $"최근: {CommanderAnt.SurgeryName(last.kind)}({MedicalRules.PartName(last.part)}) {last.result}", 14, 26);
             if (op != null)
             {
-                var surgeon = op.surgeonId != "" ? CommanderAnt.Active.OfType<CommanderAnt>().FirstOrDefault(x => x.PersonalState.id == op.surgeonId) : CommanderAnt.AutoSurgeon(c);
-                var wait = CommanderAnt.SurgeryBlock(c, op, null);
-                MenuTheme.Text(content, $"{CommanderAnt.SurgeryName(op.kind)} · {MedicalRules.PartName(op.part)} · " + (op.stage == SurgeryStage.Started ? $"진행 {op.work / CommanderAnt.SurgeryWork:P0}" : "준비 중(물자 예약)")
+                string OperationStatus()
+                {
+                    if (c == null) return "";
+                    if (!op.Active) return "수술 결과: " + op.result + " · 건강 화면을 다시 열면 다음 수술을 요청할 수 있습니다";
+                    var surgeon = CommanderAnt.Active.OfType<CommanderAnt>().FirstOrDefault(x => x.MedicalJob == MedJob.Surgery && x.MedicalPatient == c)
+                        ?? (op.surgeonId != "" ? CommanderAnt.Active.OfType<CommanderAnt>().FirstOrDefault(x => x.PersonalState.id == op.surgeonId) : CommanderAnt.AutoSurgeon(c));
+                    var wait = CommanderAnt.SurgeryBlock(c, op, null);
+                    return $"{CommanderAnt.SurgeryName(op.kind)} · {MedicalRules.PartName(op.part)} · " + (op.stage == SurgeryStage.Started ? $"진행 {op.work / CommanderAnt.SurgeryWork:P0}" : "준비 중(물자 예약)")
                     + $"\n필요: " + string.Join(", ", CommanderAnt.SurgeryCost(op.kind).Select(x => $"{x.type.DisplayName()} {x.amount}"))
                     + $" · 집도의: {(op.surgeonId == "" ? "자동" : "지정")} {surgeon?.CommanderName ?? "없음"} · 예상 성공 {c.PredictedSuccess(op, surgeon):P0}"
-                    + (wait != "" ? $"\n<color=#f2c94c>대기: {wait}</color>" : ""), 14, 70);
+                    + (wait != "" ? $"\n<color=#f2c94c>대기: {wait}</color>" : "");
+                }
+                var operationText = MenuTheme.Text(content, OperationStatus(), 13, 70);
+                refreshDutyScreen = () => { Refresh(); operationText.text = OperationStatus(); };
                 if (op.stage == SurgeryStage.Waiting)
                 {
                     MenuTheme.Button(content, "수술 취소(예약 해제)", () => { CommanderAnt.CancelSurgery(c, op); ShowHealth(c); });

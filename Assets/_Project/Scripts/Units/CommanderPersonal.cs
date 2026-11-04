@@ -273,9 +273,10 @@ namespace AntColony.Units
         }
         private void TickRelations(float seconds)
         {
+            if (PersonalHealth <= 0 || Health.Downed) return;
             foreach (var other in Active.OfType<CommanderAnt>().ToArray())
             {
-                if (other == this || !other.IsColonyMember || other.IsEmbarked || other.IsCaptive) continue;
+                if (other == this || !other.IsColonyMember || other.IsEmbarked || other.IsCaptive || other.PersonalHealth <= 0 || other.Health.Downed) continue;
                 var relation = personalState.Relation(other.PersonalState.id);
                 var distance = (other.Position - Position).sqrMagnitude;
                 bool workingTogether = distance <= 64 && CurrentActivity == other.CurrentActivity
@@ -289,8 +290,10 @@ namespace AntColony.Units
                     while (relation.nearbySeconds >= 60)
                     {
                         relation.nearbySeconds -= 60;
+                        var before = relation.value;
                         relation.value = Mathf.Min(100, relation.value + 2 * (traits.Has(CommanderTrait.Sociable) ? 1.5f : traits.Has(CommanderTrait.ColdBlooded) ? .5f : 1)
                             * (other.Traits.Has(CommanderTrait.Undertaker) ? .8f : 1));
+                        RecordRelationMilestone(other, before, relation.value);
                     }
                 }
                 // 한 쌍을 한 번만 판정한다. 양쪽 관계와 손실을 같은 순간에 적용한다.
@@ -324,8 +327,10 @@ namespace AntColony.Units
         }
         private void ChangeRelation(CommanderAnt other, float delta)
         {
-            var a = personalState.Relation(other.personalState.id); a.value = Mathf.Clamp(a.value + delta, -100, 100);
-            var b = other.personalState.Relation(personalState.id); b.value = Mathf.Clamp(b.value + delta, -100, 100);
+            var a = personalState.Relation(other.personalState.id); var before = a.value;
+            a.value = Mathf.Clamp(a.value + delta, -100, 100); RecordRelationMilestone(other, before, a.value);
+            var b = other.personalState.Relation(personalState.id); before = b.value;
+            b.value = Mathf.Clamp(b.value + delta, -100, 100); other.RecordRelationMilestone(this, before, b.value);
         }
         private void Duel(CommanderAnt other)
         {
