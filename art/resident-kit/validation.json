@@ -1,0 +1,2480 @@
+{
+ "separation": {
+  "facility": {
+   "armatures": 0,
+   "meshes": 1600,
+   "facility_objects": 349,
+   "resident_parts": 0,
+   "resident_actions": 0
+  },
+  "animations": {
+   "armatures": 1,
+   "meshes": 0,
+   "facility_objects": 0,
+   "resident_parts": 1,
+   "resident_actions": 44
+  },
+  "tools": {
+   "armatures": 0,
+   "meshes": 16,
+   "facility_objects": 0,
+   "resident_parts": 0,
+   "resident_actions": 0
+  },
+  "character": {
+   "armatures": 5,
+   "meshes": 127,
+   "facility_objects": 0,
+   "resident_parts": 132,
+   "resident_actions": 0
+  }
+ },
+ "skin": {
+  "checked_meshes": 127,
+  "problems": []
+ },
+ "fbx": {
+  "anim_max_bone_error": 0.0,
+  "anim_per_clip": {
+   "Idle": 0.0,
+   "Walk": 0.0,
+   "Run": 0.0,
+   "StandEnter": 0.0,
+   "StandExit": 0.0,
+   "StandIdle": 0.0,
+   "Pickup": 0.0,
+   "PutDown": 0.0,
+   "Carry": 0.0,
+   "GroundWork": 0.0,
+   "BenchWork": 0.0,
+   "Hammer": 0.0,
+   "Chop": 0.0,
+   "Mine": 0.0,
+   "Treat": 0.0,
+   "Operate": 0.0,
+   "Stir": 0.0,
+   "Grind": 0.0,
+   "Saw": 0.0,
+   "Stamp": 0.0,
+   "Wash": 0.0,
+   "Eat": 0.0,
+   "Sit": 0.0,
+   "Rest": 0.0,
+   "Sleep": 0.0,
+   "Mourn": 0.0,
+   "Inspect": 0.0,
+   "Attack": 0.0,
+   "Hurt": 0.0,
+   "Death": 0.0,
+   "Fly": 0.0,
+   "Downed": 0.0,
+   "Captive": 0.0,
+   "CarryPerson": 0.0,
+   "PlayBoard": 0.0,
+   "Bathe": 0.0,
+   "Wrestle": 0.0,
+   "Throw": 0.0,
+   "PlayMusic": 0.0,
+   "Exercise": 0.0,
+   "Swing": 0.0,
+   "RockCradle": 0.0,
+   "Spin": 0.0,
+   "WaterPlant": 0.0
+  },
+  "parts": {
+   "bones": true,
+   "meshes": 94,
+   "skinned": 94,
+   "expected": 94
+  }
+ },
+ "facility_points": {
+  "facilities": 141,
+  "max_point_error": 0.0001,
+  "hinged_with_animation": 14,
+  "hinged_total": 14
+ },
+ "contacts": {
+  "Preview__CC_AdminDesk": {
+   "clip": "Stamp",
+   "samples": [
+    {
+     "tool_in_body": 2,
+     "grip_to_hand": 0.159,
+     "body_in_facility_pct": 0.0
+    },
+    {
+     "tool_in_body": 2,
+     "grip_to_hand": 0.159,
+     "body_in_facility_pct": 0.1
+    },
+    {
+     "tool_in_body": 2,
+     "grip_to_hand": 0.159,
+     "body_in_facility_pct": 0.0
+    },
+    {
+     "tool_in_body": 2,
+     "grip_to_hand": 0.159,
+     "body_in_facility_pct": 0.0
+    }
+   ]
+  },
+  "Preview__CC_AirshipYard": {
+   "clip": "Hammer",
+   "samples": [
+    {
+     "tool_in_body": 2,
+     "grip_to_hand": 0.159,
+     "body_in_facility_pct": 0.0
+    },
+    {
+     "tool_in_body": 9,
+     "grip_to_hand": 0.159,
+     "body_in_facility_pct": 0.0
+    },
+    {
+     "tool_in_body": 2,
+     "grip_to_hand": 0.159,
+     "body_in_facility_pct": 0.0
+    },
+    {
+     "tool_in_body": 1,
+     "grip_to_hand": 0.159,
+     "body_in_facility_pct": 0.0
+    }
+   ]
+  },
+  "Preview__CC_AnimalTreatment": {
+   "clip": "Operate",
+   "samples": [
+    {
+     "tool_in_body": 0,
+     "grip_to_hand": 0.159,
+     "body_in_facility_pct": 0.0
+    },
+    {
+     "tool_in_body": 0,
+     "grip_to_hand": 0.159,
+     "body_in_facility_pct": 0.0
+    },
+    {
+     "tool_in_body": 0,
+     "grip_to_hand": 0.159,
+     "body_in_facility_pct": 0.0
+    },
+    {
+     "tool_in_body": 0,
+     "grip_to_hand": 0.159,
+     "body_in_facility_pct": 0.0
+    }
+   ]
+  },
+  "Preview__CC_Apartment": {
+   "clip": "Walk",
+   "samples": [
+    {
+     "body_in_facility_pct": 0.0
+    },
+    {
+     "body_in_facility_pct": 0.0
+    },
+    {
+     "body_in_facility_pct": 0.0
+    },
+    {
+     "body_in_facility_pct": 0.0
+    }
+   ]
+  },
+  "Preview__CC_AphidPen": {
+   "clip": "PutDown",
+   "samples": [
+    {
+     "body_in_facility_pct": 0.1
+    },
+    {
+     "body_in_facility_pct": 0.1
+    },
+    {
+     "body_in_facility_pct": 0.7
+    },
+    {
+     "body_in_facility_pct": 0.1
+    }
+   ]
+  },
+  "Preview__CC_Apothecary": {
+   "clip": "Grind",
+   "samples": [
+    {
+     "tool_in_body": 0,
+     "grip_to_hand": 0.159,
+     "body_in_facility_pct": 0.1
+    },
+    {
+     "tool_in_body": 0,
+     "grip_to_hand": 0.159,
+     "body_in_facility_pct": 0.1
+    },
+    {
+     "tool_in_body": 0,
+     "grip_to_hand": 0.159,
+     "body_in_facility_pct": 0.0
+    },
+    {
+     "tool_in_body": 0,
+     "grip_to_hand": 0.159,
+     "body_in_facility_pct": 0.1
+    }
+   ]
+  },
+  "Preview__CC_Armory": {
+   "clip": "Pickup",
+   "samples": [
+    {
+     "body_in_facility_pct": 0.0
+    },
+    {
+     "body_in_facility_pct": 0.0
+    },
+    {
+     "body_in_facility_pct": 0.0
+    },
+    {
+     "body_in_facility_pct": 0.0
+    }
+   ]
+  },
+  "Preview__CC_Baduk": {
+   "clip": "PlayBoard",
+   "samples": [
+    {},
+    {},
+    {},
+    {}
+   ]
+  },
+  "Preview__CC_BanquetTable": {
+   "clip": "Eat",
+   "samples": [
+    {
+     "body_in_facility_pct": 0.0
+    },
+    {
+     "body_in_facility_pct": 0.0
+    },
+    {
+     "body_in_facility_pct": 0.1
+    },
+    {
+     "body_in_facility_pct": 0.0
+    }
+   ]
+  },
+  "Preview__CC_Barracks": {
+   "clip": "Attack",
+   "samples": [
+    {
+     "tool_in_body": 0,
+     "grip_to_hand": 0.159,
+     "body_in_facility_pct": 0.0
+    },
+    {
+     "tool_in_body": 0,
+     "grip_to_hand": 0.159,
+     "body_in_facility_pct": 0.0
+    },
+    {
+     "tool_in_body": 0,
+     "grip_to_hand": 0.159,
+     "body_in_facility_pct": 0.0
+    },
+    {
+     "tool_in_body": 0,
+     "grip_to_hand": 0.159,
+     "body_in_facility_pct": 0.0
+    }
+   ]
+  },
+  "Preview__CC_BarredDoor": {
+   "clip": "Walk",
+   "samples": [
+    {
+     "body_in_facility_pct": 0.0
+    },
+    {
+     "body_in_facility_pct": 0.0
+    },
+    {
+     "body_in_facility_pct": 0.0
+    },
+    {
+     "body_in_facility_pct": 0.0
+    }
+   ]
+  },
+  "Preview__CC_Bathtub": {
+   "clip": "Bathe",
+   "samples": [
+    {},
+    {},
+    {},
+    {}
+   ]
+  },
+  "Preview__CC_Battery": {
+   "clip": "Hammer",
+   "samples": [
+    {
+     "tool_in_body": 2,
+     "grip_to_hand": 0.159,
+     "body_in_facility_pct": 0.7
+    },
+    {
+     "tool_in_body": 9,
+     "grip_to_hand": 0.159,
+     "body_in_facility_pct": 0.1
+    },
+    {
+     "tool_in_body": 2,
+     "grip_to_hand": 0.159,
+     "body_in_facility_pct": 0.7
+    },
+    {
+     "tool_in_body": 1,
+     "grip_to_hand": 0.159,
+     "body_in_facility_pct": 1.0
+    }
+   ]
+  },
+  "Preview__CC_BoardGame": {
+   "clip": "PlayBoard",
+   "samples": [
+    {},
+    {},
+    {},
+    {}
+   ]
+  },
+  "Preview__CC_Bookshelf": {
+   "clip": "Inspect",
+   "samples": [
+    {
+     "body_in_facility_pct": 0.0
+    },
+    {
+     "body_in_facility_pct": 0.0
+    },
+    {
+     "body_in_facility_pct": 0.0
+    },
+    {
+     "body_in_facility_pct": 0.0
+    }
+   ]
+  },
+  "Preview__CC_BottleMobile": {
+   "clip": "Inspect",
+   "samples": [
+    {
+     "body_in_facility_pct": 2.4
+    },
+    {
+     "body_in_facility_pct": 0.0
+    },
+    {
+     "body_in_facility_pct": 0.9
+    },
+    {
+     "body_in_facility_pct": 2.4
+    }
+   ]
+  },
+  "Preview__CC_Brazier": {
+   "clip": "PutDown",
+   "samples": [
+    {
+     "body_in_facility_pct": 0.0
+    },
+    {
+     "body_in_facility_pct": 0.0
+    },
+    {
+     "body_in_facility_pct": 0.1
+    },
+    {
+     "body_in_facility_pct": 0.0
+    }
+   ]
+  },
+  "Preview__CC_BronzeStatue": {
+   "clip": "Inspect",
+   "samples": [
+    {
+     "body_in_facility_pct": 0.0
+    },
+    {
+     "body_in_facility_pct": 0.0
+    },
+    {
+     "body_in_facility_pct": 0.0
+    },
+    {
+     "body_in_facility_pct": 0.0
+    }
+   ]
+  },
+  "Preview__CC_BunkBed": {
+   "clip": "Sleep",
+   "samples": [
+    {},
+    {},
+    {},
+    {}
+   ]
+  },
+  "Preview__CC_Bush": {
+   "clip": "GroundWork",
+   "samples": [
+    {
+     "body_in_facility_pct": 0.0
+    },
+    {
+     "body_in_facility_pct": 0.0
+    },
+    {
+     "body_in_facility_pct": 0.0
+    },
+    {
+     "body_in_facility_pct": 0.0
+    }
+   ]
+  },
+  "Preview__CC_ButcherTable": {
+   "clip": "Saw",
+   "samples": [
+    {
+     "tool_in_body": 0,
+     "grip_to_hand": 0.159,
+     "body_in_facility_pct": 0.1
+    },
+    {
+     "tool_in_body": 0,
+     "grip_to_hand": 0.159,
+     "body_in_facility_pct": 0.0
+    },
+    {
+     "tool_in_body": 0,
+     "grip_to_hand": 0.159,
+     "body_in_facility_pct": 0.1
+    },
+    {
+     "tool_in_body": 0,
+     "grip_to_hand": 0.159,
+     "body_in_facility_pct": 0.2
+    }
+   ]
+  },
+  "Preview__CC_Campfire": {
+   "clip": "Rest",
+   "samples": [
+    {},
+    {},
+    {},
+    {}
+   ]
+  },
+  "Preview__CC_CapWall": {
+   "clip": "Hammer",
+   "samples": [
+    {
+     "tool_in_body": 2,
+     "grip_to_hand": 0.159,
+     "body_in_facility_pct": 0.0
+    },
+    {
+     "tool_in_body": 8,
+     "grip_to_hand": 0.159,
+     "body_in_facility_pct": 0.0
+    },
+    {
+     "tool_in_body": 2,
+     "grip_to_hand": 0.159,
+     "body_in_facility_pct": 0.0
+    },
+    {
+     "tool_in_body": 2,
+     "grip_to_hand": 0.159,
+     "body_in_facility_pct": 0.0
+    }
+   ]
+  },
+  "Preview__CC_CareStation": {
+   "clip": "Treat",
+   "samples": [
+    {
+     "body_in_facility_pct": 0.0
+    },
+    {
+     "body_in_facility_pct": 0.0
+    },
+    {
+     "body_in_facility_pct": 0.0
+    },
+    {
+     "body_in_facility_pct": 0.0
+    }
+   ]
+  },
+  "Preview__CC_Carpentry": {
+   "clip": "Saw",
+   "samples": [
+    {
+     "tool_in_body": 0,
+     "grip_to_hand": 0.159,
+     "body_in_facility_pct": 0.0
+    },
+    {
+     "tool_in_body": 0,
+     "grip_to_hand": 0.159,
+     "body_in_facility_pct": 0.0
+    },
+    {
+     "tool_in_body": 0,
+     "grip_to_hand": 0.159,
+     "body_in_facility_pct": 0.0
+    },
+    {
+     "tool_in_body": 0,
+     "grip_to_hand": 0.159,
+     "body_in_facility_pct": 0.0
+    }
+   ]
+  },
+  "Preview__CC_Carpet": {
+   "clip": "Rest",
+   "samples": [
+    {},
+    {},
+    {},
+    {}
+   ]
+  },
+  "Preview__CC_CastleGate": {
+   "clip": "Walk",
+   "samples": [
+    {
+     "body_in_facility_pct": 0.0
+    },
+    {
+     "body_in_facility_pct": 0.0
+    },
+    {
+     "body_in_facility_pct": 0.0
+    },
+    {
+     "body_in_facility_pct": 0.0
+    }
+   ]
+  },
+  "Preview__CC_CastleWall": {
+   "clip": "Hammer",
+   "samples": [
+    {
+     "tool_in_body": 2,
+     "grip_to_hand": 0.159,
+     "body_in_facility_pct": 0.6
+    },
+    {
+     "tool_in_body": 9,
+     "grip_to_hand": 0.159,
+     "body_in_facility_pct": 0.2
+    },
+    {
+     "tool_in_body": 2,
+     "grip_to_hand": 0.159,
+     "body_in_facility_pct": 0.6
+    },
+    {
+     "tool_in_body": 2,
+     "grip_to_hand": 0.159,
+     "body_in_facility_pct": 0.5
+    }
+   ]
+  },
+  "Preview__CC_Chair": {
+   "clip": "Sit",
+   "samples": [
+    {},
+    {},
+    {},
+    {}
+   ]
+  },
+  "Preview__CC_CommanderBed": {
+   "clip": "Treat",
+   "samples": [
+    {
+     "body_in_facility_pct": 0.0
+    },
+    {
+     "body_in_facility_pct": 0.0
+    },
+    {
+     "body_in_facility_pct": 0.0
+    },
+    {
+     "body_in_facility_pct": 0.0
+    }
+   ]
+  },
+  "Preview__CC_CompostBin": {
+   "clip": "PutDown",
+   "samples": [
+    {
+     "body_in_facility_pct": 0.0
+    },
+    {
+     "body_in_facility_pct": 0.0
+    },
+    {
+     "body_in_facility_pct": 0.3
+    },
+    {
+     "body_in_facility_pct": 0.0
+    }
+   ]
+  },
+  "Preview__CC_ConscriptionPost": {
+   "clip": "Stamp",
+   "samples": [
+    {
+     "tool_in_body": 2,
+     "grip_to_hand": 0.159,
+     "body_in_facility_pct": 0.0
+    },
+    {
+     "tool_in_body": 2,
+     "grip_to_hand": 0.159,
+     "body_in_facility_pct": 0.0
+    },
+    {
+     "tool_in_body": 2,
+     "grip_to_hand": 0.159,
+     "body_in_facility_pct": 0.0
+    },
+    {
+     "tool_in_body": 2,
+     "grip_to_hand": 0.159,
+     "body_in_facility_pct": 0.0
+    }
+   ]
+  },
+  "Preview__CC_ConstructionFrame": {
+   "clip": "Hammer",
+   "samples": [
+    {
+     "tool_in_body": 2,
+     "grip_to_hand": 0.159,
+     "body_in_facility_pct": 0.0
+    },
+    {
+     "tool_in_body": 8,
+     "grip_to_hand": 0.159,
+     "body_in_facility_pct": 0.0
+    },
+    {
+     "tool_in_body": 2,
+     "grip_to_hand": 0.159,
+     "body_in_facility_pct": 0.0
+    },
+    {
+     "tool_in_body": 1,
+     "grip_to_hand": 0.159,
+     "body_in_facility_pct": 0.0
+    }
+   ]
+  },
+  "Preview__CC_ConstructionPlan": {
+   "clip": "PutDown",
+   "samples": [
+    {
+     "body_in_facility_pct": 0.0
+    },
+    {
+     "body_in_facility_pct": 0.0
+    },
+    {
+     "body_in_facility_pct": 0.0
+    },
+    {
+     "body_in_facility_pct": 0.0
+    }
+   ]
+  },
+  "Preview__CC_CropFungus_Harvested": {
+   "clip": "PutDown",
+   "samples": [
+    {
+     "body_in_facility_pct": 0.0
+    },
+    {
+     "body_in_facility_pct": 0.0
+    },
+    {
+     "body_in_facility_pct": 0.0
+    },
+    {
+     "body_in_facility_pct": 0.0
+    }
+   ]
+  },
+  "Preview__CC_CropFungus_Mature": {
+   "clip": "Pickup",
+   "samples": [
+    {
+     "body_in_facility_pct": 0.0
+    },
+    {
+     "body_in_facility_pct": 0.0
+    },
+    {
+     "body_in_facility_pct": 0.0
+    },
+    {
+     "body_in_facility_pct": 0.0
+    }
+   ]
+  },
+  "Preview__CC_CropFungus_Pest": {
+   "clip": "GroundWork",
+   "samples": [
+    {
+     "body_in_facility_pct": 0.0
+    },
+    {
+     "body_in_facility_pct": 0.0
+    },
+    {
+     "body_in_facility_pct": 0.0
+    },
+    {
+     "body_in_facility_pct": 0.0
+    }
+   ]
+  },
+  "Preview__CC_CropFungus_Planted": {
+   "clip": "GroundWork",
+   "samples": [
+    {
+     "body_in_facility_pct": 0.0
+    },
+    {
+     "body_in_facility_pct": 0.0
+    },
+    {
+     "body_in_facility_pct": 0.0
+    },
+    {
+     "body_in_facility_pct": 0.0
+    }
+   ]
+  },
+  "Preview__CC_CuriosDisplay": {
+   "clip": "Inspect",
+   "samples": [
+    {
+     "body_in_facility_pct": 0.0
+    },
+    {
+     "body_in_facility_pct": 0.0
+    },
+    {
+     "body_in_facility_pct": 0.0
+    },
+    {
+     "body_in_facility_pct": 0.0
+    }
+   ]
+  },
+  "Preview__CC_DartBoard": {
+   "clip": "Throw",
+   "samples": [
+    {
+     "body_in_facility_pct": 0.0
+    },
+    {
+     "body_in_facility_pct": 0.0
+    },
+    {
+     "body_in_facility_pct": 0.0
+    },
+    {
+     "body_in_facility_pct": 0.0
+    }
+   ]
+  },
+  "Preview__CC_DemolitionRubble": {
+   "clip": "Mine",
+   "samples": [
+    {
+     "tool_in_body": 0,
+     "grip_to_hand": 0.159,
+     "body_in_facility_pct": 0.0
+    },
+    {
+     "tool_in_body": 17,
+     "grip_to_hand": 0.159,
+     "body_in_facility_pct": 0.0
+    },
+    {
+     "tool_in_body": 0,
+     "grip_to_hand": 0.159,
+     "body_in_facility_pct": 0.0
+    },
+    {
+     "tool_in_body": 0,
+     "grip_to_hand": 0.159,
+     "body_in_facility_pct": 0.0
+    }
+   ]
+  },
+  "Preview__CC_DiningTable": {
+   "clip": "Eat",
+   "samples": [
+    {
+     "body_in_facility_pct": 0.0
+    },
+    {
+     "body_in_facility_pct": 0.0
+    },
+    {
+     "body_in_facility_pct": 0.0
+    },
+    {
+     "body_in_facility_pct": 0.0
+    }
+   ]
+  },
+  "Preview__CC_DoorFrame": {
+   "clip": "Walk",
+   "samples": [
+    {
+     "body_in_facility_pct": 0.0
+    },
+    {
+     "body_in_facility_pct": 0.0
+    },
+    {
+     "body_in_facility_pct": 0.0
+    },
+    {
+     "body_in_facility_pct": 0.0
+    }
+   ]
+  },
+  "Preview__CC_Dormitory": {
+   "clip": "Walk",
+   "samples": [
+    {
+     "body_in_facility_pct": 0.0
+    },
+    {
+     "body_in_facility_pct": 0.0
+    },
+    {
+     "body_in_facility_pct": 0.0
+    },
+    {
+     "body_in_facility_pct": 0.0
+    }
+   ]
+  },
+  "Preview__CC_DoubleBed": {
+   "clip": "Sleep",
+   "samples": [
+    {},
+    {},
+    {},
+    {}
+   ]
+  },
+  "Preview__CC_ExerciseRig": {
+   "clip": "Exercise",
+   "samples": [
+    {
+     "body_in_facility_pct": 0.8
+    },
+    {
+     "body_in_facility_pct": 1.0
+    },
+    {
+     "body_in_facility_pct": 1.1
+    },
+    {
+     "body_in_facility_pct": 1.0
+    }
+   ]
+  },
+  "Preview__CC_FallenBranch": {
+   "clip": "Pickup",
+   "samples": [
+    {
+     "body_in_facility_pct": 0.0
+    },
+    {
+     "body_in_facility_pct": 0.0
+    },
+    {
+     "body_in_facility_pct": 0.0
+    },
+    {
+     "body_in_facility_pct": 0.0
+    }
+   ]
+  },
+  "Preview__CC_FarmTile": {
+   "clip": "GroundWork",
+   "samples": [
+    {
+     "body_in_facility_pct": 0.0
+    },
+    {
+     "body_in_facility_pct": 0.0
+    },
+    {
+     "body_in_facility_pct": 0.0
+    },
+    {
+     "body_in_facility_pct": 0.0
+    }
+   ]
+  },
+  "Preview__CC_Feeder": {
+   "clip": "PutDown",
+   "samples": [
+    {
+     "body_in_facility_pct": 0.0
+    },
+    {
+     "body_in_facility_pct": 0.0
+    },
+    {
+     "body_in_facility_pct": 0.0
+    },
+    {
+     "body_in_facility_pct": 0.0
+    }
+   ]
+  },
+  "Preview__CC_FeedMeat": {
+   "clip": "Carry",
+   "samples": [
+    {},
+    {},
+    {},
+    {}
+   ]
+  },
+  "Preview__CC_FeedPlant": {
+   "clip": "Carry",
+   "samples": [
+    {},
+    {},
+    {},
+    {}
+   ]
+  },
+  "Preview__CC_FireflyLamp": {
+   "clip": "PutDown",
+   "samples": [
+    {
+     "body_in_facility_pct": 0.0
+    },
+    {
+     "body_in_facility_pct": 0.0
+    },
+    {
+     "body_in_facility_pct": 0.0
+    },
+    {
+     "body_in_facility_pct": 0.0
+    }
+   ]
+  },
+  "Preview__CC_Flag": {
+   "clip": "Inspect",
+   "samples": [
+    {
+     "body_in_facility_pct": 0.0
+    },
+    {
+     "body_in_facility_pct": 0.0
+    },
+    {
+     "body_in_facility_pct": 0.0
+    },
+    {
+     "body_in_facility_pct": 0.0
+    }
+   ]
+  },
+  "Preview__CC_Floor": {
+   "clip": "Hammer",
+   "samples": [
+    {
+     "tool_in_body": 2,
+     "grip_to_hand": 0.159,
+     "body_in_facility_pct": 0.0
+    },
+    {
+     "tool_in_body": 9,
+     "grip_to_hand": 0.159,
+     "body_in_facility_pct": 0.0
+    },
+    {
+     "tool_in_body": 2,
+     "grip_to_hand": 0.159,
+     "body_in_facility_pct": 0.0
+    },
+    {
+     "tool_in_body": 2,
+     "grip_to_hand": 0.159,
+     "body_in_facility_pct": 0.0
+    }
+   ]
+  },
+  "Preview__CC_FlowerPot": {
+   "clip": "WaterPlant",
+   "samples": [
+    {
+     "tool_in_body": 23,
+     "grip_to_hand": 0.159,
+     "body_in_facility_pct": 0.0
+    },
+    {
+     "tool_in_body": 23,
+     "grip_to_hand": 0.159,
+     "body_in_facility_pct": 0.0
+    },
+    {
+     "tool_in_body": 23,
+     "grip_to_hand": 0.159,
+     "body_in_facility_pct": 0.0
+    },
+    {
+     "tool_in_body": 22,
+     "grip_to_hand": 0.159,
+     "body_in_facility_pct": 0.0
+    }
+   ]
+  },
+  "Preview__CC_FoodRotten": {
+   "clip": "Carry",
+   "samples": [
+    {},
+    {},
+    {},
+    {}
+   ]
+  },
+  "Preview__CC_FoodStore": {
+   "clip": "Pickup",
+   "samples": [
+    {
+     "body_in_facility_pct": 0.0
+    },
+    {
+     "body_in_facility_pct": 0.0
+    },
+    {
+     "body_in_facility_pct": 0.0
+    },
+    {
+     "body_in_facility_pct": 0.0
+    }
+   ]
+  },
+  "Preview__CC_Freezer": {
+   "clip": "Pickup",
+   "samples": [
+    {
+     "body_in_facility_pct": 0.0
+    },
+    {
+     "body_in_facility_pct": 0.0
+    },
+    {
+     "body_in_facility_pct": 0.0
+    },
+    {
+     "body_in_facility_pct": 0.0
+    }
+   ]
+  },
+  "Preview__CC_GamblingDen": {
+   "clip": "PlayBoard",
+   "samples": [
+    {},
+    {},
+    {},
+    {}
+   ]
+  },
+  "Preview__CC_GrassTuft": {
+   "clip": "GroundWork",
+   "samples": [
+    {
+     "body_in_facility_pct": 0.0
+    },
+    {
+     "body_in_facility_pct": 0.0
+    },
+    {
+     "body_in_facility_pct": 0.0
+    },
+    {
+     "body_in_facility_pct": 0.0
+    }
+   ]
+  },
+  "Preview__CC_Hammock": {
+   "clip": "Sleep",
+   "samples": [
+    {},
+    {},
+    {},
+    {}
+   ]
+  },
+  "Preview__CC_Hearth": {
+   "clip": "Stir",
+   "samples": [
+    {
+     "tool_in_body": 0,
+     "grip_to_hand": 0.159,
+     "body_in_facility_pct": 2.1
+    },
+    {
+     "tool_in_body": 0,
+     "grip_to_hand": 0.159,
+     "body_in_facility_pct": 2.2
+    },
+    {
+     "tool_in_body": 0,
+     "grip_to_hand": 0.159,
+     "body_in_facility_pct": 2.2
+    },
+    {
+     "tool_in_body": 0,
+     "grip_to_hand": 0.159,
+     "body_in_facility_pct": 2.3
+    }
+   ]
+  },
+  "Preview__CC_HotSpring": {
+   "clip": "Bathe",
+   "samples": [
+    {},
+    {},
+    {},
+    {}
+   ]
+  },
+  "Preview__CC_House": {
+   "clip": "Walk",
+   "samples": [
+    {
+     "body_in_facility_pct": 0.0
+    },
+    {
+     "body_in_facility_pct": 0.0
+    },
+    {
+     "body_in_facility_pct": 0.0
+    },
+    {
+     "body_in_facility_pct": 0.0
+    }
+   ]
+  },
+  "Preview__CC_Hut": {
+   "clip": "Walk",
+   "samples": [
+    {
+     "body_in_facility_pct": 1.8
+    },
+    {
+     "body_in_facility_pct": 1.9
+    },
+    {
+     "body_in_facility_pct": 1.8
+    },
+    {
+     "body_in_facility_pct": 1.4
+    }
+   ]
+  },
+  "Preview__CC_Instrument": {
+   "clip": "PlayMusic",
+   "samples": [
+    {
+     "body_in_facility_pct": 0.0
+    },
+    {
+     "body_in_facility_pct": 0.0
+    },
+    {
+     "body_in_facility_pct": 0.0
+    },
+    {
+     "body_in_facility_pct": 0.0
+    }
+   ]
+  },
+  "Preview__CC_Janggi": {
+   "clip": "PlayBoard",
+   "samples": [
+    {},
+    {},
+    {},
+    {}
+   ]
+  },
+  "Preview__CC_Jar": {
+   "clip": "PutDown",
+   "samples": [
+    {
+     "body_in_facility_pct": 0.0
+    },
+    {
+     "body_in_facility_pct": 0.0
+    },
+    {
+     "body_in_facility_pct": 0.0
+    },
+    {
+     "body_in_facility_pct": 0.0
+    }
+   ]
+  },
+  "Preview__CC_Kiln": {
+   "clip": "Pickup",
+   "samples": [
+    {
+     "body_in_facility_pct": 0.0
+    },
+    {
+     "body_in_facility_pct": 0.0
+    },
+    {
+     "body_in_facility_pct": 0.0
+    },
+    {
+     "body_in_facility_pct": 0.0
+    }
+   ]
+  },
+  "Preview__CC_Kitchen": {
+   "clip": "Stir",
+   "samples": [
+    {
+     "tool_in_body": 0,
+     "grip_to_hand": 0.159,
+     "body_in_facility_pct": 0.4
+    },
+    {
+     "tool_in_body": 0,
+     "grip_to_hand": 0.159,
+     "body_in_facility_pct": 0.4
+    },
+    {
+     "tool_in_body": 0,
+     "grip_to_hand": 0.159,
+     "body_in_facility_pct": 0.3
+    },
+    {
+     "tool_in_body": 0,
+     "grip_to_hand": 0.159,
+     "body_in_facility_pct": 0.5
+    }
+   ]
+  },
+  "Preview__CC_Lamp": {
+   "clip": "Hammer",
+   "samples": [
+    {
+     "tool_in_body": 2,
+     "grip_to_hand": 0.159,
+     "body_in_facility_pct": 0.0
+    },
+    {
+     "tool_in_body": 8,
+     "grip_to_hand": 0.159,
+     "body_in_facility_pct": 0.0
+    },
+    {
+     "tool_in_body": 2,
+     "grip_to_hand": 0.159,
+     "body_in_facility_pct": 0.0
+    },
+    {
+     "tool_in_body": 1,
+     "grip_to_hand": 0.159,
+     "body_in_facility_pct": 0.0
+    }
+   ]
+  },
+  "Preview__CC_Lantern": {
+   "clip": "PutDown",
+   "samples": [
+    {
+     "body_in_facility_pct": 0.0
+    },
+    {
+     "body_in_facility_pct": 0.0
+    },
+    {
+     "body_in_facility_pct": 0.0
+    },
+    {
+     "body_in_facility_pct": 0.0
+    }
+   ]
+  },
+  "Preview__CC_LeafWall": {
+   "clip": "Hammer",
+   "samples": [
+    {
+     "tool_in_body": 2,
+     "grip_to_hand": 0.159,
+     "body_in_facility_pct": 0.0
+    },
+    {
+     "tool_in_body": 9,
+     "grip_to_hand": 0.159,
+     "body_in_facility_pct": 0.0
+    },
+    {
+     "tool_in_body": 2,
+     "grip_to_hand": 0.159,
+     "body_in_facility_pct": 0.0
+    },
+    {
+     "tool_in_body": 1,
+     "grip_to_hand": 0.159,
+     "body_in_facility_pct": 0.0
+    }
+   ]
+  },
+  "Preview__CC_LockedDoor": {
+   "clip": "Walk",
+   "samples": [
+    {
+     "body_in_facility_pct": 0.0
+    },
+    {
+     "body_in_facility_pct": 0.0
+    },
+    {
+     "body_in_facility_pct": 0.0
+    },
+    {
+     "body_in_facility_pct": 0.0
+    }
+   ]
+  },
+  "Preview__CC_Manure": {
+   "clip": "Carry",
+   "samples": [
+    {},
+    {},
+    {},
+    {}
+   ]
+  },
+  "Preview__CC_MarbleMosaic": {
+   "clip": "Inspect",
+   "samples": [
+    {
+     "body_in_facility_pct": 0.0
+    },
+    {
+     "body_in_facility_pct": 0.0
+    },
+    {
+     "body_in_facility_pct": 0.0
+    },
+    {
+     "body_in_facility_pct": 0.0
+    }
+   ]
+  },
+  "Preview__CC_MealGood": {
+   "clip": "Carry",
+   "samples": [
+    {},
+    {},
+    {},
+    {}
+   ]
+  },
+  "Preview__CC_MealSimple": {
+   "clip": "Carry",
+   "samples": [
+    {},
+    {},
+    {},
+    {}
+   ]
+  },
+  "Preview__CC_MedicineAdvanced": {
+   "clip": "Carry",
+   "samples": [
+    {},
+    {},
+    {},
+    {}
+   ]
+  },
+  "Preview__CC_MedicineAnimal": {
+   "clip": "Carry",
+   "samples": [
+    {},
+    {},
+    {},
+    {}
+   ]
+  },
+  "Preview__CC_MedicineHerbal": {
+   "clip": "Carry",
+   "samples": [
+    {},
+    {},
+    {},
+    {}
+   ]
+  },
+  "Preview__CC_MedicineStandard": {
+   "clip": "Carry",
+   "samples": [
+    {},
+    {},
+    {},
+    {}
+   ]
+  },
+  "Preview__CC_MineField": {
+   "clip": "GroundWork",
+   "samples": [
+    {
+     "body_in_facility_pct": 0.0
+    },
+    {
+     "body_in_facility_pct": 0.0
+    },
+    {
+     "body_in_facility_pct": 0.0
+    },
+    {
+     "body_in_facility_pct": 0.0
+    }
+   ]
+  },
+  "Preview__CC_Monument": {
+   "clip": "Mourn",
+   "samples": [
+    {
+     "body_in_facility_pct": 0.0
+    },
+    {
+     "body_in_facility_pct": 0.0
+    },
+    {
+     "body_in_facility_pct": 0.0
+    },
+    {
+     "body_in_facility_pct": 0.0
+    }
+   ]
+  },
+  "Preview__CC_MushroomFarm": {
+   "clip": "GroundWork",
+   "samples": [
+    {
+     "body_in_facility_pct": 0.0
+    },
+    {
+     "body_in_facility_pct": 0.0
+    },
+    {
+     "body_in_facility_pct": 0.0
+    },
+    {
+     "body_in_facility_pct": 0.0
+    }
+   ]
+  },
+  "Preview__CC_NestEntrance": {
+   "clip": "Walk",
+   "samples": [
+    {
+     "body_in_facility_pct": 0.0
+    },
+    {
+     "body_in_facility_pct": 0.0
+    },
+    {
+     "body_in_facility_pct": 0.0
+    },
+    {
+     "body_in_facility_pct": 0.0
+    }
+   ]
+  },
+  "Preview__CC_Nursery": {
+   "clip": "RockCradle",
+   "samples": [
+    {
+     "body_in_facility_pct": 0.3
+    },
+    {
+     "body_in_facility_pct": 0.3
+    },
+    {
+     "body_in_facility_pct": 0.3
+    },
+    {
+     "body_in_facility_pct": 0.2
+    }
+   ]
+  },
+  "Preview__CC_OreOutcrop": {
+   "clip": "Mine",
+   "samples": [
+    {
+     "tool_in_body": 0,
+     "grip_to_hand": 0.159,
+     "body_in_facility_pct": 0.0
+    },
+    {
+     "tool_in_body": 17,
+     "grip_to_hand": 0.159,
+     "body_in_facility_pct": 0.0
+    },
+    {
+     "tool_in_body": 0,
+     "grip_to_hand": 0.159,
+     "body_in_facility_pct": 0.0
+    },
+    {
+     "tool_in_body": 0,
+     "grip_to_hand": 0.159,
+     "body_in_facility_pct": 0.0
+    }
+   ]
+  },
+  "Preview__CC_Painting": {
+   "clip": "Inspect",
+   "samples": [
+    {
+     "body_in_facility_pct": 0.0
+    },
+    {
+     "body_in_facility_pct": 0.0
+    },
+    {
+     "body_in_facility_pct": 0.0
+    },
+    {
+     "body_in_facility_pct": 0.0
+    }
+   ]
+  },
+  "Preview__CC_PebbleScatter": {
+   "clip": "Pickup",
+   "samples": [
+    {
+     "body_in_facility_pct": 0.0
+    },
+    {
+     "body_in_facility_pct": 0.0
+    },
+    {
+     "body_in_facility_pct": 0.0
+    },
+    {
+     "body_in_facility_pct": 0.0
+    }
+   ]
+  },
+  "Preview__CC_Pillar": {
+   "clip": "Hammer",
+   "samples": [
+    {
+     "tool_in_body": 2,
+     "grip_to_hand": 0.159,
+     "body_in_facility_pct": 0.0
+    },
+    {
+     "tool_in_body": 9,
+     "grip_to_hand": 0.159,
+     "body_in_facility_pct": 0.0
+    },
+    {
+     "tool_in_body": 2,
+     "grip_to_hand": 0.159,
+     "body_in_facility_pct": 0.0
+    },
+    {
+     "tool_in_body": 2,
+     "grip_to_hand": 0.159,
+     "body_in_facility_pct": 0.0
+    }
+   ]
+  },
+  "Preview__CC_PowerWire": {
+   "clip": "Hammer",
+   "samples": [
+    {
+     "tool_in_body": 2,
+     "grip_to_hand": 0.159,
+     "body_in_facility_pct": 0.0
+    },
+    {
+     "tool_in_body": 8,
+     "grip_to_hand": 0.159,
+     "body_in_facility_pct": 0.0
+    },
+    {
+     "tool_in_body": 2,
+     "grip_to_hand": 0.159,
+     "body_in_facility_pct": 0.0
+    },
+    {
+     "tool_in_body": 2,
+     "grip_to_hand": 0.159,
+     "body_in_facility_pct": 0.0
+    }
+   ]
+  },
+  "Preview__CC_PrisonerCamp": {
+   "clip": "Captive",
+   "samples": [
+    {},
+    {},
+    {},
+    {}
+   ]
+  },
+  "Preview__CC_RanchFence": {
+   "clip": "Hammer",
+   "samples": [
+    {
+     "tool_in_body": 2,
+     "grip_to_hand": 0.159,
+     "body_in_facility_pct": 0.0
+    },
+    {
+     "tool_in_body": 9,
+     "grip_to_hand": 0.159,
+     "body_in_facility_pct": 0.0
+    },
+    {
+     "tool_in_body": 2,
+     "grip_to_hand": 0.159,
+     "body_in_facility_pct": 0.0
+    },
+    {
+     "tool_in_body": 1,
+     "grip_to_hand": 0.159,
+     "body_in_facility_pct": 0.0
+    }
+   ]
+  },
+  "Preview__CC_RanchGate": {
+   "clip": "Walk",
+   "samples": [
+    {
+     "body_in_facility_pct": 0.0
+    },
+    {
+     "body_in_facility_pct": 0.0
+    },
+    {
+     "body_in_facility_pct": 0.0
+    },
+    {
+     "body_in_facility_pct": 0.0
+    }
+   ]
+  },
+  "Preview__CC_Refrigerator": {
+   "clip": "Pickup",
+   "samples": [
+    {
+     "body_in_facility_pct": 0.0
+    },
+    {
+     "body_in_facility_pct": 4.1
+    },
+    {
+     "body_in_facility_pct": 6.0
+    },
+    {
+     "body_in_facility_pct": 4.6
+    }
+   ]
+  },
+  "Preview__CC_ResearchDesk": {
+   "clip": "Inspect",
+   "samples": [
+    {
+     "body_in_facility_pct": 0.0
+    },
+    {
+     "body_in_facility_pct": 0.0
+    },
+    {
+     "body_in_facility_pct": 0.0
+    },
+    {
+     "body_in_facility_pct": 0.0
+    }
+   ]
+  },
+  "Preview__CC_ResourceCompost": {
+   "clip": "Carry",
+   "samples": [
+    {},
+    {},
+    {},
+    {}
+   ]
+  },
+  "Preview__CC_ResourceFiber": {
+   "clip": "Carry",
+   "samples": [
+    {},
+    {},
+    {},
+    {}
+   ]
+  },
+  "Preview__CC_ResourceGrain": {
+   "clip": "Carry",
+   "samples": [
+    {},
+    {},
+    {},
+    {}
+   ]
+  },
+  "Preview__CC_ResourceLeaf": {
+   "clip": "Carry",
+   "samples": [
+    {},
+    {},
+    {},
+    {}
+   ]
+  },
+  "Preview__CC_ResourceOre": {
+   "clip": "Carry",
+   "samples": [
+    {},
+    {},
+    {},
+    {}
+   ]
+  },
+  "Preview__CC_ResourcePlanks": {
+   "clip": "Carry",
+   "samples": [
+    {},
+    {},
+    {},
+    {}
+   ]
+  },
+  "Preview__CC_ResourceSilk": {
+   "clip": "Carry",
+   "samples": [
+    {},
+    {},
+    {},
+    {}
+   ]
+  },
+  "Preview__CC_ResourceStone": {
+   "clip": "Carry",
+   "samples": [
+    {},
+    {},
+    {},
+    {}
+   ]
+  },
+  "Preview__CC_ResourceWood": {
+   "clip": "Carry",
+   "samples": [
+    {},
+    {},
+    {},
+    {}
+   ]
+  },
+  "Preview__CC_RestBench": {
+   "clip": "Rest",
+   "samples": [
+    {},
+    {},
+    {},
+    {}
+   ]
+  },
+  "Preview__CC_RockOutcrop": {
+   "clip": "Mine",
+   "samples": [
+    {
+     "tool_in_body": 0,
+     "grip_to_hand": 0.159,
+     "body_in_facility_pct": 0.4
+    },
+    {
+     "tool_in_body": 17,
+     "grip_to_hand": 0.159,
+     "body_in_facility_pct": 0.0
+    },
+    {
+     "tool_in_body": 0,
+     "grip_to_hand": 0.159,
+     "body_in_facility_pct": 0.4
+    },
+    {
+     "tool_in_body": 0,
+     "grip_to_hand": 0.159,
+     "body_in_facility_pct": 0.4
+    }
+   ]
+  },
+  "Preview__CC_ScoutPost": {
+   "clip": "Inspect",
+   "samples": [
+    {
+     "body_in_facility_pct": 0.0
+    },
+    {
+     "body_in_facility_pct": 0.0
+    },
+    {
+     "body_in_facility_pct": 0.0
+    },
+    {
+     "body_in_facility_pct": 0.0
+    }
+   ]
+  },
+  "Preview__CC_ShellDecoration": {
+   "clip": "Inspect",
+   "samples": [
+    {
+     "body_in_facility_pct": 0.0
+    },
+    {
+     "body_in_facility_pct": 0.0
+    },
+    {
+     "body_in_facility_pct": 0.0
+    },
+    {
+     "body_in_facility_pct": 0.0
+    }
+   ]
+  },
+  "Preview__CC_Shower": {
+   "clip": "StandIdle",
+   "samples": [
+    {
+     "body_in_facility_pct": 3.9
+    },
+    {
+     "body_in_facility_pct": 3.8
+    },
+    {
+     "body_in_facility_pct": 3.9
+    },
+    {
+     "body_in_facility_pct": 5.2
+    }
+   ]
+  },
+  "Preview__CC_SingleBed": {
+   "clip": "Sleep",
+   "samples": [
+    {},
+    {},
+    {},
+    {}
+   ]
+  },
+  "Preview__CC_SleepingMat": {
+   "clip": "Sleep",
+   "samples": [
+    {},
+    {},
+    {},
+    {}
+   ]
+  },
+  "Preview__CC_Smelter": {
+   "clip": "PutDown",
+   "samples": [
+    {
+     "body_in_facility_pct": 0.0
+    },
+    {
+     "body_in_facility_pct": 0.0
+    },
+    {
+     "body_in_facility_pct": 0.0
+    },
+    {
+     "body_in_facility_pct": 0.0
+    }
+   ]
+  },
+  "Preview__CC_SoilWall": {
+   "clip": "Hammer",
+   "samples": [
+    {
+     "tool_in_body": 2,
+     "grip_to_hand": 0.159,
+     "body_in_facility_pct": 0.2
+    },
+    {
+     "tool_in_body": 8,
+     "grip_to_hand": 0.159,
+     "body_in_facility_pct": 0.1
+    },
+    {
+     "tool_in_body": 2,
+     "grip_to_hand": 0.159,
+     "body_in_facility_pct": 0.2
+    },
+    {
+     "tool_in_body": 1,
+     "grip_to_hand": 0.159,
+     "body_in_facility_pct": 0.4
+    }
+   ]
+  },
+  "Preview__CC_SpikeTrap": {
+   "clip": "Hammer",
+   "samples": [
+    {
+     "tool_in_body": 2,
+     "grip_to_hand": 0.159,
+     "body_in_facility_pct": 0.0
+    },
+    {
+     "tool_in_body": 8,
+     "grip_to_hand": 0.159,
+     "body_in_facility_pct": 0.0
+    },
+    {
+     "tool_in_body": 2,
+     "grip_to_hand": 0.159,
+     "body_in_facility_pct": 0.0
+    },
+    {
+     "tool_in_body": 2,
+     "grip_to_hand": 0.159,
+     "body_in_facility_pct": 0.0
+    }
+   ]
+  },
+  "Preview__CC_SpinningWheel": {
+   "clip": "Spin",
+   "samples": [
+    {},
+    {},
+    {},
+    {}
+   ]
+  },
+  "Preview__CC_Statue": {
+   "clip": "Inspect",
+   "samples": [
+    {
+     "body_in_facility_pct": 0.0
+    },
+    {
+     "body_in_facility_pct": 0.0
+    },
+    {
+     "body_in_facility_pct": 0.0
+    },
+    {
+     "body_in_facility_pct": 0.0
+    }
+   ]
+  },
+  "Preview__CC_StickyTrap": {
+   "clip": "GroundWork",
+   "samples": [
+    {
+     "body_in_facility_pct": 0.0
+    },
+    {
+     "body_in_facility_pct": 0.0
+    },
+    {
+     "body_in_facility_pct": 0.0
+    },
+    {
+     "body_in_facility_pct": 0.0
+    }
+   ]
+  },
+  "Preview__CC_Stonecutter": {
+   "clip": "Hammer",
+   "samples": [
+    {
+     "tool_in_body": 2,
+     "grip_to_hand": 0.159,
+     "body_in_facility_pct": 0.0
+    },
+    {
+     "tool_in_body": 9,
+     "grip_to_hand": 0.159,
+     "body_in_facility_pct": 0.0
+    },
+    {
+     "tool_in_body": 2,
+     "grip_to_hand": 0.159,
+     "body_in_facility_pct": 0.0
+    },
+    {
+     "tool_in_body": 2,
+     "grip_to_hand": 0.159,
+     "body_in_facility_pct": 0.0
+    }
+   ]
+  },
+  "Preview__CC_Storage": {
+   "clip": "PutDown",
+   "samples": [
+    {
+     "body_in_facility_pct": 0.0
+    },
+    {
+     "body_in_facility_pct": 0.0
+    },
+    {
+     "body_in_facility_pct": 0.0
+    },
+    {
+     "body_in_facility_pct": 0.0
+    }
+   ]
+  },
+  "Preview__CC_Stump": {
+   "clip": "Chop",
+   "samples": [
+    {
+     "tool_in_body": 4,
+     "grip_to_hand": 0.159,
+     "body_in_facility_pct": 0.0
+    },
+    {
+     "tool_in_body": 11,
+     "grip_to_hand": 0.159,
+     "body_in_facility_pct": 0.0
+    },
+    {
+     "tool_in_body": 4,
+     "grip_to_hand": 0.159,
+     "body_in_facility_pct": 0.0
+    },
+    {
+     "tool_in_body": 4,
+     "grip_to_hand": 0.159,
+     "body_in_facility_pct": 0.0
+    }
+   ]
+  },
+  "Preview__CC_SurgeryKit": {
+   "clip": "Carry",
+   "samples": [
+    {},
+    {},
+    {},
+    {}
+   ]
+  },
+  "Preview__CC_Tapestry": {
+   "clip": "Inspect",
+   "samples": [
+    {
+     "body_in_facility_pct": 0.0
+    },
+    {
+     "body_in_facility_pct": 0.0
+    },
+    {
+     "body_in_facility_pct": 0.0
+    },
+    {
+     "body_in_facility_pct": 0.0
+    }
+   ]
+  },
+  "Preview__CC_Toilet": {
+   "clip": "Sit",
+   "samples": [
+    {},
+    {},
+    {},
+    {}
+   ]
+  },
+  "Preview__CC_Tombstone": {
+   "clip": "Mourn",
+   "samples": [
+    {
+     "body_in_facility_pct": 0.0
+    },
+    {
+     "body_in_facility_pct": 0.0
+    },
+    {
+     "body_in_facility_pct": 0.0
+    },
+    {
+     "body_in_facility_pct": 0.0
+    }
+   ]
+  },
+  "Preview__CC_Torch": {
+   "clip": "PutDown",
+   "samples": [
+    {
+     "body_in_facility_pct": 0.0
+    },
+    {
+     "body_in_facility_pct": 0.0
+    },
+    {
+     "body_in_facility_pct": 0.0
+    },
+    {
+     "body_in_facility_pct": 0.0
+    }
+   ]
+  },
+  "Preview__CC_Treadmill": {
+   "clip": "Run",
+   "samples": [
+    {},
+    {},
+    {},
+    {}
+   ]
+  },
+  "Preview__CC_TreeBroadleaf": {
+   "clip": "Chop",
+   "samples": [
+    {
+     "tool_in_body": 4,
+     "grip_to_hand": 0.159,
+     "body_in_facility_pct": 0.2
+    },
+    {
+     "tool_in_body": 11,
+     "grip_to_hand": 0.159,
+     "body_in_facility_pct": 0.2
+    },
+    {
+     "tool_in_body": 4,
+     "grip_to_hand": 0.159,
+     "body_in_facility_pct": 0.2
+    },
+    {
+     "tool_in_body": 4,
+     "grip_to_hand": 0.159,
+     "body_in_facility_pct": 0.2
+    }
+   ]
+  },
+  "Preview__CC_TreeTall": {
+   "clip": "Chop",
+   "samples": [
+    {
+     "tool_in_body": 4,
+     "grip_to_hand": 0.159,
+     "body_in_facility_pct": 0.2
+    },
+    {
+     "tool_in_body": 11,
+     "grip_to_hand": 0.159,
+     "body_in_facility_pct": 0.2
+    },
+    {
+     "tool_in_body": 4,
+     "grip_to_hand": 0.159,
+     "body_in_facility_pct": 0.2
+    },
+    {
+     "tool_in_body": 4,
+     "grip_to_hand": 0.159,
+     "body_in_facility_pct": 0.2
+    }
+   ]
+  },
+  "Preview__CC_TrophyCase": {
+   "clip": "Inspect",
+   "samples": [
+    {
+     "body_in_facility_pct": 0.0
+    },
+    {
+     "body_in_facility_pct": 0.0
+    },
+    {
+     "body_in_facility_pct": 0.0
+    },
+    {
+     "body_in_facility_pct": 0.0
+    }
+   ]
+  },
+  "Preview__CC_Washbasin": {
+   "clip": "Wash",
+   "samples": [
+    {
+     "body_in_facility_pct": 0.2
+    },
+    {
+     "body_in_facility_pct": 0.3
+    },
+    {
+     "body_in_facility_pct": 0.2
+    },
+    {
+     "body_in_facility_pct": 0.3
+    }
+   ]
+  },
+  "Preview__CC_Watchtower": {
+   "clip": "Inspect",
+   "samples": [
+    {
+     "body_in_facility_pct": 0.0
+    },
+    {
+     "body_in_facility_pct": 0.0
+    },
+    {
+     "body_in_facility_pct": 0.0
+    },
+    {
+     "body_in_facility_pct": 0.0
+    }
+   ]
+  },
+  "Preview__CC_WebSwing": {
+   "clip": "Swing",
+   "samples": [
+    {},
+    {},
+    {},
+    {}
+   ]
+  },
+  "Preview__CC_WildFungus": {
+   "clip": "Pickup",
+   "samples": [
+    {
+     "body_in_facility_pct": 0.0
+    },
+    {
+     "body_in_facility_pct": 0.0
+    },
+    {
+     "body_in_facility_pct": 0.0
+    },
+    {
+     "body_in_facility_pct": 0.0
+    }
+   ]
+  },
+  "Preview__CC_WoodGenerator": {
+   "clip": "PutDown",
+   "samples": [
+    {
+     "body_in_facility_pct": 0.0
+    },
+    {
+     "body_in_facility_pct": 0.0
+    },
+    {
+     "body_in_facility_pct": 0.0
+    },
+    {
+     "body_in_facility_pct": 0.0
+    }
+   ]
+  },
+  "Preview__CC_Workshop": {
+   "clip": "Hammer",
+   "samples": [
+    {
+     "tool_in_body": 2,
+     "grip_to_hand": 0.159,
+     "body_in_facility_pct": 0.0
+    },
+    {
+     "tool_in_body": 9,
+     "grip_to_hand": 0.159,
+     "body_in_facility_pct": 0.0
+    },
+    {
+     "tool_in_body": 2,
+     "grip_to_hand": 0.159,
+     "body_in_facility_pct": 0.0
+    },
+    {
+     "tool_in_body": 1,
+     "grip_to_hand": 0.159,
+     "body_in_facility_pct": 0.1
+    }
+   ]
+  },
+  "Preview__CC_WrestlingRing": {
+   "clip": "Wrestle",
+   "samples": [
+    {
+     "body_in_facility_pct": 1.5
+    },
+    {
+     "body_in_facility_pct": 1.4
+    },
+    {
+     "body_in_facility_pct": 1.5
+    },
+    {
+     "body_in_facility_pct": 1.2
+    }
+   ]
+  },
+  "Swap__CC_Workshop__Combo_A": {
+   "clip": "Hammer",
+   "samples": [
+    {
+     "tool_in_body": 2,
+     "grip_to_hand": 0.159,
+     "body_in_facility_pct": 0.0
+    },
+    {
+     "tool_in_body": 9,
+     "grip_to_hand": 0.159,
+     "body_in_facility_pct": 0.0
+    },
+    {
+     "tool_in_body": 2,
+     "grip_to_hand": 0.159,
+     "body_in_facility_pct": 0.0
+    },
+    {
+     "tool_in_body": 1,
+     "grip_to_hand": 0.159,
+     "body_in_facility_pct": 0.1
+    }
+   ]
+  },
+  "Swap__CC_Workshop__Combo_B": {
+   "clip": "Hammer",
+   "samples": [
+    {
+     "tool_in_body": 2,
+     "grip_to_hand": 0.159,
+     "body_in_facility_pct": 0.0
+    },
+    {
+     "tool_in_body": 9,
+     "grip_to_hand": 0.159,
+     "body_in_facility_pct": 0.0
+    },
+    {
+     "tool_in_body": 2,
+     "grip_to_hand": 0.159,
+     "body_in_facility_pct": 0.0
+    },
+    {
+     "tool_in_body": 1,
+     "grip_to_hand": 0.159,
+     "body_in_facility_pct": 0.1
+    }
+   ]
+  },
+  "Swap__CC_Workshop__Combo_C": {
+   "clip": "Hammer",
+   "samples": [
+    {
+     "tool_in_body": 2,
+     "grip_to_hand": 0.159,
+     "body_in_facility_pct": 0.0
+    },
+    {
+     "tool_in_body": 9,
+     "grip_to_hand": 0.159,
+     "body_in_facility_pct": 0.0
+    },
+    {
+     "tool_in_body": 2,
+     "grip_to_hand": 0.159,
+     "body_in_facility_pct": 0.0
+    },
+    {
+     "tool_in_body": 1,
+     "grip_to_hand": 0.159,
+     "body_in_facility_pct": 0.1
+    }
+   ]
+  },
+  "Swap__CC_Workshop__Combo_D": {
+   "clip": "Hammer",
+   "samples": [
+    {
+     "tool_in_body": 2,
+     "grip_to_hand": 0.159,
+     "body_in_facility_pct": 0.0
+    },
+    {
+     "tool_in_body": 9,
+     "grip_to_hand": 0.159,
+     "body_in_facility_pct": 0.0
+    },
+    {
+     "tool_in_body": 2,
+     "grip_to_hand": 0.159,
+     "body_in_facility_pct": 0.0
+    },
+    {
+     "tool_in_body": 1,
+     "grip_to_hand": 0.159,
+     "body_in_facility_pct": 0.1
+    }
+   ]
+  }
+ },
+ "errors": [],
+ "contacts_flagged": [
+  "Preview__CC_FlowerPot",
+  "Preview__CC_Refrigerator",
+  "Preview__CC_Shower"
+ ],
+ "scope": "Blender-side checks only. Unity import/Animator playback NOT tested. Penetration = sampled 4 frames/scene, tool vertices >5cm inside the body mesh, or body vertices >5cm inside facility meshes."
+}

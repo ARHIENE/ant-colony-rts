@@ -1,0 +1,11 @@
+{
+  "scene": "Human_SD_V2_Studio",
+  "root": "Human_SD_V2",
+  "mesh_objects": 66,
+  "rigged": false,
+  "unity_imported": false,
+  "preserved": [
+    "TotoD",
+    "Human_SD_Model"
+  ]
+}

@@ -1,0 +1,930 @@
+{
+ "stages": {
+  "1": [
+   "새싹",
+   "0–25%"
+  ],
+  "2": [
+   "생장",
+   "25–60%"
+  ],
+  "3": [
+   "성숙",
+   "60–99%"
+  ],
+  "4": [
+   "수확 가능",
+   "100%"
+  ],
+  "5": [
+   "수확 직후(재성장 시작)",
+   "수확 후 0–25%, 이후 S2→S4"
+  ]
+ },
+ "crops": {
+  "Grain_Rice": {
+   "ko": "쌀",
+   "form": "grass",
+   "objects": [
+    "Crop_Grain_Rice__S1",
+    "Crop_Grain_Rice__S2",
+    "Crop_Grain_Rice__S3",
+    "Crop_Grain_Rice__S4",
+    "Crop_Grain_Rice__S5"
+   ]
+  },
+  "Grain_Wheat": {
+   "ko": "밀",
+   "form": "grass",
+   "objects": [
+    "Crop_Grain_Wheat__S1",
+    "Crop_Grain_Wheat__S2",
+    "Crop_Grain_Wheat__S3",
+    "Crop_Grain_Wheat__S4",
+    "Crop_Grain_Wheat__S5"
+   ]
+  },
+  "Grain_Barley": {
+   "ko": "보리",
+   "form": "grass",
+   "objects": [
+    "Crop_Grain_Barley__S1",
+    "Crop_Grain_Barley__S2",
+    "Crop_Grain_Barley__S3",
+    "Crop_Grain_Barley__S4",
+    "Crop_Grain_Barley__S5"
+   ]
+  },
+  "Grain_Corn": {
+   "ko": "옥수수",
+   "form": "stalk",
+   "objects": [
+    "Crop_Grain_Corn__S1",
+    "Crop_Grain_Corn__S2",
+    "Crop_Grain_Corn__S3",
+    "Crop_Grain_Corn__S4",
+    "Crop_Grain_Corn__S5"
+   ]
+  },
+  "Grain_Oat": {
+   "ko": "귀리",
+   "form": "grass",
+   "objects": [
+    "Crop_Grain_Oat__S1",
+    "Crop_Grain_Oat__S2",
+    "Crop_Grain_Oat__S3",
+    "Crop_Grain_Oat__S4",
+    "Crop_Grain_Oat__S5"
+   ]
+  },
+  "Grain_Rye": {
+   "ko": "호밀",
+   "form": "grass",
+   "objects": [
+    "Crop_Grain_Rye__S1",
+    "Crop_Grain_Rye__S2",
+    "Crop_Grain_Rye__S3",
+    "Crop_Grain_Rye__S4",
+    "Crop_Grain_Rye__S5"
+   ]
+  },
+  "Grain_Sorghum": {
+   "ko": "수수",
+   "form": "stalk",
+   "objects": [
+    "Crop_Grain_Sorghum__S1",
+    "Crop_Grain_Sorghum__S2",
+    "Crop_Grain_Sorghum__S3",
+    "Crop_Grain_Sorghum__S4",
+    "Crop_Grain_Sorghum__S5"
+   ]
+  },
+  "Grain_Millet": {
+   "ko": "기장",
+   "form": "grass",
+   "objects": [
+    "Crop_Grain_Millet__S1",
+    "Crop_Grain_Millet__S2",
+    "Crop_Grain_Millet__S3",
+    "Crop_Grain_Millet__S4",
+    "Crop_Grain_Millet__S5"
+   ]
+  },
+  "Grain_Buckwheat": {
+   "ko": "메밀",
+   "form": "rosette",
+   "objects": [
+    "Crop_Grain_Buckwheat__S1",
+    "Crop_Grain_Buckwheat__S2",
+    "Crop_Grain_Buckwheat__S3",
+    "Crop_Grain_Buckwheat__S4",
+    "Crop_Grain_Buckwheat__S5"
+   ]
+  },
+  "Veg_Potato": {
+   "ko": "감자",
+   "form": "bush",
+   "objects": [
+    "Crop_Veg_Potato__S1",
+    "Crop_Veg_Potato__S2",
+    "Crop_Veg_Potato__S3",
+    "Crop_Veg_Potato__S4",
+    "Crop_Veg_Potato__S5"
+   ]
+  },
+  "Veg_Carrot": {
+   "ko": "당근",
+   "form": "rosette",
+   "objects": [
+    "Crop_Veg_Carrot__S1",
+    "Crop_Veg_Carrot__S2",
+    "Crop_Veg_Carrot__S3",
+    "Crop_Veg_Carrot__S4",
+    "Crop_Veg_Carrot__S5"
+   ]
+  },
+  "Veg_Cabbage": {
+   "ko": "양배추",
+   "form": "rosette",
+   "objects": [
+    "Crop_Veg_Cabbage__S1",
+    "Crop_Veg_Cabbage__S2",
+    "Crop_Veg_Cabbage__S3",
+    "Crop_Veg_Cabbage__S4",
+    "Crop_Veg_Cabbage__S5"
+   ]
+  },
+  "Veg_Pumpkin": {
+   "ko": "호박",
+   "form": "bush",
+   "objects": [
+    "Crop_Veg_Pumpkin__S1",
+    "Crop_Veg_Pumpkin__S2",
+    "Crop_Veg_Pumpkin__S3",
+    "Crop_Veg_Pumpkin__S4",
+    "Crop_Veg_Pumpkin__S5"
+   ]
+  },
+  "Veg_Soybean": {
+   "ko": "콩",
+   "form": "bush",
+   "objects": [
+    "Crop_Veg_Soybean__S1",
+    "Crop_Veg_Soybean__S2",
+    "Crop_Veg_Soybean__S3",
+    "Crop_Veg_Soybean__S4",
+    "Crop_Veg_Soybean__S5"
+   ]
+  },
+  "Veg_ChiliPepper": {
+   "ko": "고추",
+   "form": "bush",
+   "objects": [
+    "Crop_Veg_ChiliPepper__S1",
+    "Crop_Veg_ChiliPepper__S2",
+    "Crop_Veg_ChiliPepper__S3",
+    "Crop_Veg_ChiliPepper__S4",
+    "Crop_Veg_ChiliPepper__S5"
+   ]
+  },
+  "Veg_SweetPotato": {
+   "ko": "고구마",
+   "form": "bush",
+   "objects": [
+    "Crop_Veg_SweetPotato__S1",
+    "Crop_Veg_SweetPotato__S2",
+    "Crop_Veg_SweetPotato__S3",
+    "Crop_Veg_SweetPotato__S4",
+    "Crop_Veg_SweetPotato__S5"
+   ]
+  },
+  "Veg_Radish": {
+   "ko": "무",
+   "form": "rosette",
+   "objects": [
+    "Crop_Veg_Radish__S1",
+    "Crop_Veg_Radish__S2",
+    "Crop_Veg_Radish__S3",
+    "Crop_Veg_Radish__S4",
+    "Crop_Veg_Radish__S5"
+   ]
+  },
+  "Veg_Turnip": {
+   "ko": "순무",
+   "form": "rosette",
+   "objects": [
+    "Crop_Veg_Turnip__S1",
+    "Crop_Veg_Turnip__S2",
+    "Crop_Veg_Turnip__S3",
+    "Crop_Veg_Turnip__S4",
+    "Crop_Veg_Turnip__S5"
+   ]
+  },
+  "Veg_Beet": {
+   "ko": "비트",
+   "form": "rosette",
+   "objects": [
+    "Crop_Veg_Beet__S1",
+    "Crop_Veg_Beet__S2",
+    "Crop_Veg_Beet__S3",
+    "Crop_Veg_Beet__S4",
+    "Crop_Veg_Beet__S5"
+   ]
+  },
+  "Veg_Taro": {
+   "ko": "토란",
+   "form": "rosette",
+   "objects": [
+    "Crop_Veg_Taro__S1",
+    "Crop_Veg_Taro__S2",
+    "Crop_Veg_Taro__S3",
+    "Crop_Veg_Taro__S4",
+    "Crop_Veg_Taro__S5"
+   ]
+  },
+  "Veg_LotusRoot": {
+   "ko": "연근",
+   "form": "rosette",
+   "objects": [
+    "Crop_Veg_LotusRoot__S1",
+    "Crop_Veg_LotusRoot__S2",
+    "Crop_Veg_LotusRoot__S3",
+    "Crop_Veg_LotusRoot__S4",
+    "Crop_Veg_LotusRoot__S5"
+   ]
+  },
+  "Veg_NapaCabbage": {
+   "ko": "배추",
+   "form": "rosette",
+   "objects": [
+    "Crop_Veg_NapaCabbage__S1",
+    "Crop_Veg_NapaCabbage__S2",
+    "Crop_Veg_NapaCabbage__S3",
+    "Crop_Veg_NapaCabbage__S4",
+    "Crop_Veg_NapaCabbage__S5"
+   ]
+  },
+  "Veg_Spinach": {
+   "ko": "시금치",
+   "form": "rosette",
+   "objects": [
+    "Crop_Veg_Spinach__S1",
+    "Crop_Veg_Spinach__S2",
+    "Crop_Veg_Spinach__S3",
+    "Crop_Veg_Spinach__S4",
+    "Crop_Veg_Spinach__S5"
+   ]
+  },
+  "Veg_Lettuce": {
+   "ko": "상추",
+   "form": "rosette",
+   "objects": [
+    "Crop_Veg_Lettuce__S1",
+    "Crop_Veg_Lettuce__S2",
+    "Crop_Veg_Lettuce__S3",
+    "Crop_Veg_Lettuce__S4",
+    "Crop_Veg_Lettuce__S5"
+   ]
+  },
+  "Veg_Onion": {
+   "ko": "양파",
+   "form": "rosette",
+   "objects": [
+    "Crop_Veg_Onion__S1",
+    "Crop_Veg_Onion__S2",
+    "Crop_Veg_Onion__S3",
+    "Crop_Veg_Onion__S4",
+    "Crop_Veg_Onion__S5"
+   ]
+  },
+  "Veg_Leek": {
+   "ko": "대파",
+   "form": "rosette",
+   "objects": [
+    "Crop_Veg_Leek__S1",
+    "Crop_Veg_Leek__S2",
+    "Crop_Veg_Leek__S3",
+    "Crop_Veg_Leek__S4",
+    "Crop_Veg_Leek__S5"
+   ]
+  },
+  "Veg_Garlic": {
+   "ko": "마늘",
+   "form": "rosette",
+   "objects": [
+    "Crop_Veg_Garlic__S1",
+    "Crop_Veg_Garlic__S2",
+    "Crop_Veg_Garlic__S3",
+    "Crop_Veg_Garlic__S4",
+    "Crop_Veg_Garlic__S5"
+   ]
+  },
+  "Veg_Asparagus": {
+   "ko": "아스파라거스",
+   "form": "rosette",
+   "objects": [
+    "Crop_Veg_Asparagus__S1",
+    "Crop_Veg_Asparagus__S2",
+    "Crop_Veg_Asparagus__S3",
+    "Crop_Veg_Asparagus__S4",
+    "Crop_Veg_Asparagus__S5"
+   ]
+  },
+  "Veg_Tomato": {
+   "ko": "토마토",
+   "form": "bush",
+   "objects": [
+    "Crop_Veg_Tomato__S1",
+    "Crop_Veg_Tomato__S2",
+    "Crop_Veg_Tomato__S3",
+    "Crop_Veg_Tomato__S4",
+    "Crop_Veg_Tomato__S5"
+   ]
+  },
+  "Veg_Cucumber": {
+   "ko": "오이",
+   "form": "bush",
+   "objects": [
+    "Crop_Veg_Cucumber__S1",
+    "Crop_Veg_Cucumber__S2",
+    "Crop_Veg_Cucumber__S3",
+    "Crop_Veg_Cucumber__S4",
+    "Crop_Veg_Cucumber__S5"
+   ]
+  },
+  "Veg_Eggplant": {
+   "ko": "가지",
+   "form": "bush",
+   "objects": [
+    "Crop_Veg_Eggplant__S1",
+    "Crop_Veg_Eggplant__S2",
+    "Crop_Veg_Eggplant__S3",
+    "Crop_Veg_Eggplant__S4",
+    "Crop_Veg_Eggplant__S5"
+   ]
+  },
+  "Veg_BellPepper": {
+   "ko": "피망",
+   "form": "bush",
+   "objects": [
+    "Crop_Veg_BellPepper__S1",
+    "Crop_Veg_BellPepper__S2",
+    "Crop_Veg_BellPepper__S3",
+    "Crop_Veg_BellPepper__S4",
+    "Crop_Veg_BellPepper__S5"
+   ]
+  },
+  "Veg_Zucchini": {
+   "ko": "애호박",
+   "form": "bush",
+   "objects": [
+    "Crop_Veg_Zucchini__S1",
+    "Crop_Veg_Zucchini__S2",
+    "Crop_Veg_Zucchini__S3",
+    "Crop_Veg_Zucchini__S4",
+    "Crop_Veg_Zucchini__S5"
+   ]
+  },
+  "Veg_Pea": {
+   "ko": "완두콩",
+   "form": "bush",
+   "objects": [
+    "Crop_Veg_Pea__S1",
+    "Crop_Veg_Pea__S2",
+    "Crop_Veg_Pea__S3",
+    "Crop_Veg_Pea__S4",
+    "Crop_Veg_Pea__S5"
+   ]
+  },
+  "Veg_RedBean": {
+   "ko": "팥",
+   "form": "bush",
+   "objects": [
+    "Crop_Veg_RedBean__S1",
+    "Crop_Veg_RedBean__S2",
+    "Crop_Veg_RedBean__S3",
+    "Crop_Veg_RedBean__S4",
+    "Crop_Veg_RedBean__S5"
+   ]
+  },
+  "Veg_KidneyBean": {
+   "ko": "강낭콩",
+   "form": "bush",
+   "objects": [
+    "Crop_Veg_KidneyBean__S1",
+    "Crop_Veg_KidneyBean__S2",
+    "Crop_Veg_KidneyBean__S3",
+    "Crop_Veg_KidneyBean__S4",
+    "Crop_Veg_KidneyBean__S5"
+   ]
+  },
+  "Veg_Chickpea": {
+   "ko": "병아리콩",
+   "form": "bush",
+   "objects": [
+    "Crop_Veg_Chickpea__S1",
+    "Crop_Veg_Chickpea__S2",
+    "Crop_Veg_Chickpea__S3",
+    "Crop_Veg_Chickpea__S4",
+    "Crop_Veg_Chickpea__S5"
+   ]
+  },
+  "Veg_Lentil": {
+   "ko": "렌틸콩",
+   "form": "bush",
+   "objects": [
+    "Crop_Veg_Lentil__S1",
+    "Crop_Veg_Lentil__S2",
+    "Crop_Veg_Lentil__S3",
+    "Crop_Veg_Lentil__S4",
+    "Crop_Veg_Lentil__S5"
+   ]
+  },
+  "Fruit_Apple": {
+   "ko": "사과",
+   "form": "tree",
+   "objects": [
+    "Crop_Fruit_Apple__S1",
+    "Crop_Fruit_Apple__S2",
+    "Crop_Fruit_Apple__S3",
+    "Crop_Fruit_Apple__S4",
+    "Crop_Fruit_Apple__S5"
+   ]
+  },
+  "Fruit_Pear": {
+   "ko": "배",
+   "form": "tree",
+   "objects": [
+    "Crop_Fruit_Pear__S1",
+    "Crop_Fruit_Pear__S2",
+    "Crop_Fruit_Pear__S3",
+    "Crop_Fruit_Pear__S4",
+    "Crop_Fruit_Pear__S5"
+   ]
+  },
+  "Fruit_Grape": {
+   "ko": "포도",
+   "form": "bush",
+   "objects": [
+    "Crop_Fruit_Grape__S1",
+    "Crop_Fruit_Grape__S2",
+    "Crop_Fruit_Grape__S3",
+    "Crop_Fruit_Grape__S4",
+    "Crop_Fruit_Grape__S5"
+   ]
+  },
+  "Fruit_Strawberry": {
+   "ko": "딸기",
+   "form": "bush",
+   "objects": [
+    "Crop_Fruit_Strawberry__S1",
+    "Crop_Fruit_Strawberry__S2",
+    "Crop_Fruit_Strawberry__S3",
+    "Crop_Fruit_Strawberry__S4",
+    "Crop_Fruit_Strawberry__S5"
+   ]
+  },
+  "Fruit_Peach": {
+   "ko": "복숭아",
+   "form": "tree",
+   "objects": [
+    "Crop_Fruit_Peach__S1",
+    "Crop_Fruit_Peach__S2",
+    "Crop_Fruit_Peach__S3",
+    "Crop_Fruit_Peach__S4",
+    "Crop_Fruit_Peach__S5"
+   ]
+  },
+  "Fruit_Plum": {
+   "ko": "자두",
+   "form": "tree",
+   "objects": [
+    "Crop_Fruit_Plum__S1",
+    "Crop_Fruit_Plum__S2",
+    "Crop_Fruit_Plum__S3",
+    "Crop_Fruit_Plum__S4",
+    "Crop_Fruit_Plum__S5"
+   ]
+  },
+  "Fruit_Apricot": {
+   "ko": "살구",
+   "form": "tree",
+   "objects": [
+    "Crop_Fruit_Apricot__S1",
+    "Crop_Fruit_Apricot__S2",
+    "Crop_Fruit_Apricot__S3",
+    "Crop_Fruit_Apricot__S4",
+    "Crop_Fruit_Apricot__S5"
+   ]
+  },
+  "Fruit_Cherry": {
+   "ko": "체리",
+   "form": "tree",
+   "objects": [
+    "Crop_Fruit_Cherry__S1",
+    "Crop_Fruit_Cherry__S2",
+    "Crop_Fruit_Cherry__S3",
+    "Crop_Fruit_Cherry__S4",
+    "Crop_Fruit_Cherry__S5"
+   ]
+  },
+  "Fruit_Persimmon": {
+   "ko": "감",
+   "form": "tree",
+   "objects": [
+    "Crop_Fruit_Persimmon__S1",
+    "Crop_Fruit_Persimmon__S2",
+    "Crop_Fruit_Persimmon__S3",
+    "Crop_Fruit_Persimmon__S4",
+    "Crop_Fruit_Persimmon__S5"
+   ]
+  },
+  "Fruit_Pomegranate": {
+   "ko": "석류",
+   "form": "tree",
+   "objects": [
+    "Crop_Fruit_Pomegranate__S1",
+    "Crop_Fruit_Pomegranate__S2",
+    "Crop_Fruit_Pomegranate__S3",
+    "Crop_Fruit_Pomegranate__S4",
+    "Crop_Fruit_Pomegranate__S5"
+   ]
+  },
+  "Fruit_Fig": {
+   "ko": "무화과",
+   "form": "tree",
+   "objects": [
+    "Crop_Fruit_Fig__S1",
+    "Crop_Fruit_Fig__S2",
+    "Crop_Fruit_Fig__S3",
+    "Crop_Fruit_Fig__S4",
+    "Crop_Fruit_Fig__S5"
+   ]
+  },
+  "Fruit_Tangerine": {
+   "ko": "귤",
+   "form": "tree",
+   "objects": [
+    "Crop_Fruit_Tangerine__S1",
+    "Crop_Fruit_Tangerine__S2",
+    "Crop_Fruit_Tangerine__S3",
+    "Crop_Fruit_Tangerine__S4",
+    "Crop_Fruit_Tangerine__S5"
+   ]
+  },
+  "Fruit_Orange": {
+   "ko": "오렌지",
+   "form": "tree",
+   "objects": [
+    "Crop_Fruit_Orange__S1",
+    "Crop_Fruit_Orange__S2",
+    "Crop_Fruit_Orange__S3",
+    "Crop_Fruit_Orange__S4",
+    "Crop_Fruit_Orange__S5"
+   ]
+  },
+  "Fruit_Lemon": {
+   "ko": "레몬",
+   "form": "tree",
+   "objects": [
+    "Crop_Fruit_Lemon__S1",
+    "Crop_Fruit_Lemon__S2",
+    "Crop_Fruit_Lemon__S3",
+    "Crop_Fruit_Lemon__S4",
+    "Crop_Fruit_Lemon__S5"
+   ]
+  },
+  "Fruit_Banana": {
+   "ko": "바나나",
+   "form": "tree",
+   "objects": [
+    "Crop_Fruit_Banana__S1",
+    "Crop_Fruit_Banana__S2",
+    "Crop_Fruit_Banana__S3",
+    "Crop_Fruit_Banana__S4",
+    "Crop_Fruit_Banana__S5"
+   ]
+  },
+  "Fruit_Pineapple": {
+   "ko": "파인애플",
+   "form": "rosette",
+   "objects": [
+    "Crop_Fruit_Pineapple__S1",
+    "Crop_Fruit_Pineapple__S2",
+    "Crop_Fruit_Pineapple__S3",
+    "Crop_Fruit_Pineapple__S4",
+    "Crop_Fruit_Pineapple__S5"
+   ]
+  },
+  "Fruit_Mango": {
+   "ko": "망고",
+   "form": "tree",
+   "objects": [
+    "Crop_Fruit_Mango__S1",
+    "Crop_Fruit_Mango__S2",
+    "Crop_Fruit_Mango__S3",
+    "Crop_Fruit_Mango__S4",
+    "Crop_Fruit_Mango__S5"
+   ]
+  },
+  "Fruit_Watermelon": {
+   "ko": "수박",
+   "form": "bush",
+   "objects": [
+    "Crop_Fruit_Watermelon__S1",
+    "Crop_Fruit_Watermelon__S2",
+    "Crop_Fruit_Watermelon__S3",
+    "Crop_Fruit_Watermelon__S4",
+    "Crop_Fruit_Watermelon__S5"
+   ]
+  },
+  "Fruit_Melon": {
+   "ko": "멜론",
+   "form": "bush",
+   "objects": [
+    "Crop_Fruit_Melon__S1",
+    "Crop_Fruit_Melon__S2",
+    "Crop_Fruit_Melon__S3",
+    "Crop_Fruit_Melon__S4",
+    "Crop_Fruit_Melon__S5"
+   ]
+  },
+  "Fruit_KoreanMelon": {
+   "ko": "참외",
+   "form": "bush",
+   "objects": [
+    "Crop_Fruit_KoreanMelon__S1",
+    "Crop_Fruit_KoreanMelon__S2",
+    "Crop_Fruit_KoreanMelon__S3",
+    "Crop_Fruit_KoreanMelon__S4",
+    "Crop_Fruit_KoreanMelon__S5"
+   ]
+  },
+  "Fruit_Blueberry": {
+   "ko": "블루베리",
+   "form": "bush",
+   "objects": [
+    "Crop_Fruit_Blueberry__S1",
+    "Crop_Fruit_Blueberry__S2",
+    "Crop_Fruit_Blueberry__S3",
+    "Crop_Fruit_Blueberry__S4",
+    "Crop_Fruit_Blueberry__S5"
+   ]
+  },
+  "Fruit_Raspberry": {
+   "ko": "라즈베리",
+   "form": "bush",
+   "objects": [
+    "Crop_Fruit_Raspberry__S1",
+    "Crop_Fruit_Raspberry__S2",
+    "Crop_Fruit_Raspberry__S3",
+    "Crop_Fruit_Raspberry__S4",
+    "Crop_Fruit_Raspberry__S5"
+   ]
+  },
+  "Fruit_Blackberry": {
+   "ko": "블랙베리",
+   "form": "bush",
+   "objects": [
+    "Crop_Fruit_Blackberry__S1",
+    "Crop_Fruit_Blackberry__S2",
+    "Crop_Fruit_Blackberry__S3",
+    "Crop_Fruit_Blackberry__S4",
+    "Crop_Fruit_Blackberry__S5"
+   ]
+  },
+  "Fruit_Cranberry": {
+   "ko": "크랜베리",
+   "form": "bush",
+   "objects": [
+    "Crop_Fruit_Cranberry__S1",
+    "Crop_Fruit_Cranberry__S2",
+    "Crop_Fruit_Cranberry__S3",
+    "Crop_Fruit_Cranberry__S4",
+    "Crop_Fruit_Cranberry__S5"
+   ]
+  },
+  "Fruit_Mulberry": {
+   "ko": "오디",
+   "form": "tree",
+   "objects": [
+    "Crop_Fruit_Mulberry__S1",
+    "Crop_Fruit_Mulberry__S2",
+    "Crop_Fruit_Mulberry__S3",
+    "Crop_Fruit_Mulberry__S4",
+    "Crop_Fruit_Mulberry__S5"
+   ]
+  },
+  "Fruit_Date": {
+   "ko": "대추야자",
+   "form": "tree",
+   "objects": [
+    "Crop_Fruit_Date__S1",
+    "Crop_Fruit_Date__S2",
+    "Crop_Fruit_Date__S3",
+    "Crop_Fruit_Date__S4",
+    "Crop_Fruit_Date__S5"
+   ]
+  },
+  "Nut_Chestnut": {
+   "ko": "밤",
+   "form": "tree",
+   "objects": [
+    "Crop_Nut_Chestnut__S1",
+    "Crop_Nut_Chestnut__S2",
+    "Crop_Nut_Chestnut__S3",
+    "Crop_Nut_Chestnut__S4",
+    "Crop_Nut_Chestnut__S5"
+   ]
+  },
+  "Nut_Walnut": {
+   "ko": "호두",
+   "form": "tree",
+   "objects": [
+    "Crop_Nut_Walnut__S1",
+    "Crop_Nut_Walnut__S2",
+    "Crop_Nut_Walnut__S3",
+    "Crop_Nut_Walnut__S4",
+    "Crop_Nut_Walnut__S5"
+   ]
+  },
+  "Nut_Almond": {
+   "ko": "아몬드",
+   "form": "tree",
+   "objects": [
+    "Crop_Nut_Almond__S1",
+    "Crop_Nut_Almond__S2",
+    "Crop_Nut_Almond__S3",
+    "Crop_Nut_Almond__S4",
+    "Crop_Nut_Almond__S5"
+   ]
+  },
+  "Nut_Peanut": {
+   "ko": "땅콩",
+   "form": "bush",
+   "objects": [
+    "Crop_Nut_Peanut__S1",
+    "Crop_Nut_Peanut__S2",
+    "Crop_Nut_Peanut__S3",
+    "Crop_Nut_Peanut__S4",
+    "Crop_Nut_Peanut__S5"
+   ]
+  },
+  "Nut_Sesame": {
+   "ko": "참깨",
+   "form": "rosette",
+   "objects": [
+    "Crop_Nut_Sesame__S1",
+    "Crop_Nut_Sesame__S2",
+    "Crop_Nut_Sesame__S3",
+    "Crop_Nut_Sesame__S4",
+    "Crop_Nut_Sesame__S5"
+   ]
+  },
+  "Nut_Sunflower": {
+   "ko": "해바라기씨",
+   "form": "stalk",
+   "objects": [
+    "Crop_Nut_Sunflower__S1",
+    "Crop_Nut_Sunflower__S2",
+    "Crop_Nut_Sunflower__S3",
+    "Crop_Nut_Sunflower__S4",
+    "Crop_Nut_Sunflower__S5"
+   ]
+  },
+  "Crop_Cotton": {
+   "ko": "목화",
+   "form": "bush",
+   "objects": [
+    "Crop_Crop_Cotton__S1",
+    "Crop_Crop_Cotton__S2",
+    "Crop_Crop_Cotton__S3",
+    "Crop_Crop_Cotton__S4",
+    "Crop_Crop_Cotton__S5"
+   ]
+  },
+  "Crop_Flax": {
+   "ko": "아마",
+   "form": "grass",
+   "objects": [
+    "Crop_Crop_Flax__S1",
+    "Crop_Crop_Flax__S2",
+    "Crop_Crop_Flax__S3",
+    "Crop_Crop_Flax__S4",
+    "Crop_Crop_Flax__S5"
+   ]
+  },
+  "Crop_Herb": {
+   "ko": "약초",
+   "form": "rosette",
+   "objects": [
+    "Crop_Crop_Herb__S1",
+    "Crop_Crop_Herb__S2",
+    "Crop_Crop_Herb__S3",
+    "Crop_Crop_Herb__S4",
+    "Crop_Crop_Herb__S5"
+   ]
+  },
+  "Crop_Sugarcane": {
+   "ko": "사탕수수",
+   "form": "stalk",
+   "objects": [
+    "Crop_Crop_Sugarcane__S1",
+    "Crop_Crop_Sugarcane__S2",
+    "Crop_Crop_Sugarcane__S3",
+    "Crop_Crop_Sugarcane__S4",
+    "Crop_Crop_Sugarcane__S5"
+   ]
+  },
+  "Crop_SugarBeet": {
+   "ko": "사탕무",
+   "form": "rosette",
+   "objects": [
+    "Crop_Crop_SugarBeet__S1",
+    "Crop_Crop_SugarBeet__S2",
+    "Crop_Crop_SugarBeet__S3",
+    "Crop_Crop_SugarBeet__S4",
+    "Crop_Crop_SugarBeet__S5"
+   ]
+  },
+  "Crop_Ginger": {
+   "ko": "생강",
+   "form": "rosette",
+   "objects": [
+    "Crop_Crop_Ginger__S1",
+    "Crop_Crop_Ginger__S2",
+    "Crop_Crop_Ginger__S3",
+    "Crop_Crop_Ginger__S4",
+    "Crop_Crop_Ginger__S5"
+   ]
+  },
+  "Crop_Pepper": {
+   "ko": "후추",
+   "form": "bush",
+   "objects": [
+    "Crop_Crop_Pepper__S1",
+    "Crop_Crop_Pepper__S2",
+    "Crop_Crop_Pepper__S3",
+    "Crop_Crop_Pepper__S4",
+    "Crop_Crop_Pepper__S5"
+   ]
+  },
+  "Crop_Basil": {
+   "ko": "바질",
+   "form": "rosette",
+   "objects": [
+    "Crop_Crop_Basil__S1",
+    "Crop_Crop_Basil__S2",
+    "Crop_Crop_Basil__S3",
+    "Crop_Crop_Basil__S4",
+    "Crop_Crop_Basil__S5"
+   ]
+  },
+  "Crop_Mint": {
+   "ko": "박하",
+   "form": "rosette",
+   "objects": [
+    "Crop_Crop_Mint__S1",
+    "Crop_Crop_Mint__S2",
+    "Crop_Crop_Mint__S3",
+    "Crop_Crop_Mint__S4",
+    "Crop_Crop_Mint__S5"
+   ]
+  },
+  "Crop_TeaLeaf": {
+   "ko": "찻잎",
+   "form": "tree",
+   "objects": [
+    "Crop_Crop_TeaLeaf__S1",
+    "Crop_Crop_TeaLeaf__S2",
+    "Crop_Crop_TeaLeaf__S3",
+    "Crop_Crop_TeaLeaf__S4",
+    "Crop_Crop_TeaLeaf__S5"
+   ]
+  },
+  "Crop_CoffeeCherry": {
+   "ko": "커피 열매",
+   "form": "tree",
+   "objects": [
+    "Crop_Crop_CoffeeCherry__S1",
+    "Crop_Crop_CoffeeCherry__S2",
+    "Crop_Crop_CoffeeCherry__S3",
+    "Crop_Crop_CoffeeCherry__S4",
+    "Crop_Crop_CoffeeCherry__S5"
+   ]
+  },
+  "Crop_CacaoPod": {
+   "ko": "카카오 열매",
+   "form": "tree",
+   "objects": [
+    "Crop_Crop_CacaoPod__S1",
+    "Crop_Crop_CacaoPod__S2",
+    "Crop_Crop_CacaoPod__S3",
+    "Crop_Crop_CacaoPod__S4",
+    "Crop_Crop_CacaoPod__S5"
+   ]
+  }
+ },
+ "failed": {},
+ "missing_plant_def": []
+}

@@ -1,0 +1,506 @@
+{
+ "SewingTable": {
+  "clip": "SewRepair",
+  "event": "stitch",
+  "frame": 12,
+  "measured": "palm",
+  "hand_world": [
+   -0.03,
+   -0.05,
+   0.436
+  ],
+  "hand_target": [
+   -0.03,
+   -0.05,
+   0.42
+  ],
+  "error_m": 0.016,
+  "stand_shift_m": [
+   0.0,
+   0.0
+  ],
+  "residual_z_m": -0.016,
+  "recommended_workpoint": [
+   -0.065,
+   -0.252,
+   0
+  ],
+  "verdict": "ok (<3 cm)"
+ },
+ "Blacksmith": {
+  "clip": "SmithRepair",
+  "event": "hit",
+  "frame": 20,
+  "measured": "Tool_Hammer",
+  "hand_world": [
+   0.32,
+   -0.1,
+   0.345
+  ],
+  "hand_target": [
+   0.32,
+   -0.1,
+   0.345
+  ],
+  "error_m": 0.0,
+  "stand_shift_m": [
+   -0.0,
+   -0.0
+  ],
+  "residual_z_m": 0.0,
+  "recommended_workpoint": [
+   0.205,
+   -0.486,
+   0
+  ],
+  "verdict": "ok (<3 cm)"
+ },
+ "OilPress": {
+  "clip": "PressLever",
+  "event": "press",
+  "frame": 18,
+  "measured": "palm",
+  "hand_world": [
+   0.0,
+   -0.42,
+   0.66
+  ],
+  "hand_target": [
+   0.0,
+   -0.42,
+   0.66
+  ],
+  "error_m": 0.0,
+  "stand_shift_m": [
+   -0.0,
+   0.0
+  ],
+  "residual_z_m": 0.0,
+  "recommended_workpoint": [
+   -0.05,
+   -0.64,
+   0
+  ],
+  "verdict": "ok (<3 cm)"
+ },
+ "Still": {
+  "clip": "ValveTurn",
+  "event": "turn",
+  "frame": 12,
+  "measured": "palm",
+  "hand_world": [
+   -0.0,
+   -0.1,
+   0.614
+  ],
+  "hand_target": [
+   0.0,
+   -0.1,
+   0.62
+  ],
+  "error_m": 0.006,
+  "stand_shift_m": [
+   0.0,
+   0.0
+  ],
+  "residual_z_m": 0.006,
+  "recommended_workpoint": [
+   -0.008,
+   -0.31,
+   0
+  ],
+  "verdict": "ok (<3 cm)"
+ },
+ "BrewingBarrel": {
+  "clip": "TapFill",
+  "event": "tap_open",
+  "frame": 14,
+  "measured": "palm",
+  "hand_world": [
+   -0.0,
+   -0.3,
+   0.306
+  ],
+  "hand_target": [
+   0.0,
+   -0.3,
+   0.29
+  ],
+  "error_m": 0.016,
+  "stand_shift_m": [
+   0.0,
+   0.0
+  ],
+  "residual_z_m": -0.016,
+  "recommended_workpoint": [
+   -0.042,
+   -0.507,
+   0
+  ],
+  "verdict": "ok (<3 cm)"
+ },
+ "GasExtractor": {
+  "clip": "ValveTurn",
+  "event": "turn",
+  "frame": 12,
+  "measured": "palm",
+  "hand_world": [
+   -0.35,
+   -0.18,
+   0.614
+  ],
+  "hand_target": [
+   -0.35,
+   -0.18,
+   0.62
+  ],
+  "error_m": 0.006,
+  "stand_shift_m": [
+   0.0,
+   0.0
+  ],
+  "residual_z_m": 0.006,
+  "recommended_workpoint": [
+   -0.358,
+   -0.39,
+   0
+  ],
+  "verdict": "ok (<3 cm)"
+ },
+ "Prospector": {
+  "clip": "ControlPanel",
+  "event": "press",
+  "frame": 9,
+  "measured": "palm",
+  "hand_world": [
+   0.0,
+   -0.6,
+   0.461
+  ],
+  "hand_target": [
+   0.0,
+   -0.6,
+   0.44
+  ],
+  "error_m": 0.021,
+  "stand_shift_m": [
+   -0.0,
+   -0.0
+  ],
+  "residual_z_m": -0.021,
+  "recommended_workpoint": [
+   -0.04,
+   -0.829,
+   0
+  ],
+  "verdict": "ok (<3 cm)"
+ },
+ "AdvancedDrill": {
+  "clip": "ControlPanel",
+  "event": "press",
+  "frame": 9,
+  "measured": "palm",
+  "hand_world": [
+   -0.5,
+   -0.65,
+   0.461
+  ],
+  "hand_target": [
+   -0.5,
+   -0.65,
+   0.47
+  ],
+  "error_m": 0.009,
+  "stand_shift_m": [
+   -0.0,
+   -0.0
+  ],
+  "residual_z_m": 0.009,
+  "recommended_workpoint": [
+   -0.54,
+   -0.879,
+   0
+  ],
+  "verdict": "ok (<3 cm)"
+ },
+ "Refinery": {
+  "clip": "ControlPanel",
+  "event": "press",
+  "frame": 9,
+  "measured": "palm",
+  "hand_world": [
+   -0.2,
+   -0.8,
+   0.461
+  ],
+  "hand_target": [
+   -0.2,
+   -0.8,
+   0.47
+  ],
+  "error_m": 0.009,
+  "stand_shift_m": [
+   -0.0,
+   -0.0
+  ],
+  "residual_z_m": 0.009,
+  "recommended_workpoint": [
+   -0.24,
+   -1.029,
+   0
+  ],
+  "verdict": "ok (<3 cm)"
+ },
+ "TitaniumRefinery": {
+  "clip": "ControlPanel",
+  "event": "press",
+  "frame": 9,
+  "measured": "palm",
+  "hand_world": [
+   0.55,
+   -0.58,
+   0.461
+  ],
+  "hand_target": [
+   0.55,
+   -0.58,
+   0.47
+  ],
+  "error_m": 0.009,
+  "stand_shift_m": [
+   -0.0,
+   -0.0
+  ],
+  "residual_z_m": 0.009,
+  "recommended_workpoint": [
+   0.51,
+   -0.809,
+   0
+  ],
+  "verdict": "ok (<3 cm)"
+ },
+ "ElectricWorkshop": {
+  "clip": "ControlPanel",
+  "event": "press",
+  "frame": 9,
+  "measured": "palm",
+  "hand_world": [
+   0.1,
+   -0.1,
+   0.461
+  ],
+  "hand_target": [
+   0.1,
+   -0.1,
+   0.45
+  ],
+  "error_m": 0.011,
+  "stand_shift_m": [
+   -0.0,
+   -0.0
+  ],
+  "residual_z_m": -0.011,
+  "recommended_workpoint": [
+   0.06,
+   -0.329,
+   0
+  ],
+  "verdict": "ok (<3 cm)"
+ },
+ "ChemistryBench": {
+  "clip": "SewRepair",
+  "event": "stitch",
+  "frame": 12,
+  "measured": "palm",
+  "hand_world": [
+   -0.0,
+   -0.15,
+   0.436
+  ],
+  "hand_target": [
+   0.0,
+   -0.15,
+   0.43
+  ],
+  "error_m": 0.006,
+  "stand_shift_m": [
+   0.0,
+   0.0
+  ],
+  "residual_z_m": -0.006,
+  "recommended_workpoint": [
+   -0.035,
+   -0.352,
+   0
+  ],
+  "verdict": "ok (<3 cm)"
+ },
+ "FillingStation": {
+  "clip": "CanisterConnect",
+  "event": "connect",
+  "frame": 26,
+  "measured": "palm",
+  "hand_world": [
+   -0.45,
+   -0.15,
+   0.32
+  ],
+  "hand_target": [
+   -0.45,
+   -0.15,
+   0.32
+  ],
+  "error_m": 0.0,
+  "stand_shift_m": [
+   -0.0,
+   0.0
+  ],
+  "residual_z_m": 0.0,
+  "recommended_workpoint": [
+   -0.49,
+   -0.37,
+   0
+  ],
+  "verdict": "ok (<3 cm)"
+ },
+ "Mill": {
+  "clip": "Kemono|Grind",
+  "event": null,
+  "frame": 1,
+  "measured": "palm",
+  "hand_world": [
+   0.3,
+   0.0,
+   0.611
+  ],
+  "hand_target": [
+   0.3,
+   0.0,
+   0.62
+  ],
+  "error_m": 0.009,
+  "stand_shift_m": [
+   0.0,
+   -0.0
+  ],
+  "residual_z_m": 0.009,
+  "recommended_workpoint": [
+   0.076,
+   -0.211,
+   0
+  ],
+  "verdict": "ok (<3 cm)"
+ },
+ "CharcoalKiln": {
+  "clip": "OvenLoad",
+  "event": "insert",
+  "frame": 18,
+  "measured": "palm",
+  "hand_world": [
+   -0.0,
+   -0.9,
+   0.447
+  ],
+  "hand_target": [
+   0.0,
+   -0.9,
+   0.44
+  ],
+  "error_m": 0.007,
+  "stand_shift_m": [
+   0.0,
+   -0.0
+  ],
+  "residual_z_m": -0.007,
+  "recommended_workpoint": [
+   -0.062,
+   -1.142,
+   0
+  ],
+  "verdict": "ok (<3 cm)"
+ },
+ "CokeOven": {
+  "clip": "OvenLoad",
+  "event": "insert",
+  "frame": 18,
+  "measured": "palm",
+  "hand_world": [
+   -0.25,
+   -0.42,
+   0.447
+  ],
+  "hand_target": [
+   -0.25,
+   -0.42,
+   0.445
+  ],
+  "error_m": 0.002,
+  "stand_shift_m": [
+   0.0,
+   -0.0
+  ],
+  "residual_z_m": -0.002,
+  "recommended_workpoint": [
+   -0.312,
+   -0.662,
+   0
+  ],
+  "verdict": "ok (<3 cm)"
+ },
+ "AlloyFurnace": {
+  "clip": "OvenLoad",
+  "event": "insert",
+  "frame": 18,
+  "measured": "palm",
+  "hand_world": [
+   0.12,
+   -0.6,
+   0.447
+  ],
+  "hand_target": [
+   0.12,
+   -0.6,
+   0.445
+  ],
+  "error_m": 0.002,
+  "stand_shift_m": [
+   0.0,
+   -0.0
+  ],
+  "residual_z_m": -0.002,
+  "recommended_workpoint": [
+   0.058,
+   -0.842,
+   0
+  ],
+  "verdict": "ok (<3 cm)"
+ },
+ "DeepDrill": {
+  "clip": "DriveSeated",
+  "event": null,
+  "frame": 1,
+  "measured": "palm",
+  "hand_world": [
+   -0.65,
+   -0.32,
+   0.5
+  ],
+  "hand_target": [
+   -0.65,
+   -0.33,
+   0.5
+  ],
+  "error_m": 0.01,
+  "stand_shift_m": [
+   0.0,
+   -0.01
+  ],
+  "residual_z_m": -0.0,
+  "recommended_workpoint": [
+   -0.75,
+   -0.53,
+   0
+  ],
+  "verdict": "ok (<3 cm)"
+ }
+}

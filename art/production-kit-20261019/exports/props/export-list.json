@@ -1,0 +1,236 @@
+{
+ "Prop_StoneChunk.fbx": {
+  "objects": {
+   "Prop_StoneChunk": {
+    "type": "MESH",
+    "dims": [
+     0.0866,
+     0.0757,
+     0.0655
+    ],
+    "mats": 1
+   }
+  },
+  "props": {
+   "id": "Prop_StoneChunk",
+   "ko": "돌 조각",
+   "note": "G02 시작 지점 근처 맨손 운반 돌 조각(20개 보장)"
+  }
+ },
+ "Prop_PreservedRation.fbx": {
+  "objects": {
+   "Prop_PreservedRation": {
+    "type": "MESH",
+    "dims": [
+     0.095,
+     0.065,
+     0.072
+    ],
+    "mats": 3
+   }
+  },
+  "props": {
+   "id": "Prop_PreservedRation",
+   "ko": "시작 보존식",
+   "note": "G12 상온 1년 보존 비상식(1인 14끼)"
+  }
+ },
+ "Prop_OilDrum.fbx": {
+  "objects": {
+   "Prop_OilDrum": {
+    "type": "MESH",
+    "dims": [
+     0.18,
+     0.1755,
+     0.27
+    ],
+    "mats": 2
+   }
+  },
+  "props": {
+   "id": "Prop_OilDrum",
+   "ko": "드럼통",
+   "note": "G46 강철 5, 원유·연료 액체 용기. FillingStation ChargePoint_Drum에 놓임"
+  }
+ },
+ "Prop_GasCanister.fbx": {
+  "objects": {
+   "Prop_GasCanister": {
+    "type": "MESH",
+    "dims": [
+     0.1,
+     0.1,
+     0.25
+    ],
+    "mats": 2
+   }
+  },
+  "props": {
+   "id": "Prop_GasCanister",
+   "ko": "가스 용기",
+   "note": "G46 강철 10, 압축 가스 용기. ChargePoint_Canister"
+  }
+ },
+ "Prop_BossCore_A.fbx": {
+  "objects": {
+   "Prop_BossCore_A": {
+    "type": "MESH",
+    "dims": [
+     0.09,
+     0.09,
+     0.12
+    ],
+    "mats": 2
+   }
+  },
+  "props": {
+   "id": "Prop_BossCore_A",
+   "ko": "보스 A 핵심물",
+   "note": "G07 보스 사슬 핵심물. 거래·재활용 불가(G23)"
+  }
+ },
+ "Prop_BossCore_B.fbx": {
+  "objects": {
+   "Prop_BossCore_B": {
+    "type": "MESH",
+    "dims": [
+     0.09,
+     0.09,
+     0.105
+    ],
+    "mats": 2
+   }
+  },
+  "props": {
+   "id": "Prop_BossCore_B",
+   "ko": "보스 B 핵심물",
+   "note": "G07 보스 사슬 핵심물. 거래·재활용 불가(G23)"
+  }
+ },
+ "Prop_BossCore_C.fbx": {
+  "objects": {
+   "Prop_BossCore_C": {
+    "type": "MESH",
+    "dims": [
+     0.09,
+     0.09,
+     0.1041
+    ],
+    "mats": 2
+   }
+  },
+  "props": {
+   "id": "Prop_BossCore_C",
+   "ko": "보스 C 핵심물",
+   "note": "G07 보스 사슬 핵심물. 거래·재활용 불가(G23)"
+  }
+ },
+ "Prop_BossCore_D.fbx": {
+  "objects": {
+   "Prop_BossCore_D": {
+    "type": "MESH",
+    "dims": [
+     0.09,
+     0.09,
+     0.1
+    ],
+    "mats": 4
+   }
+  },
+  "props": {
+   "id": "Prop_BossCore_D",
+   "ko": "로켓 핵심물(보스 D 보상)",
+   "note": "G07 보스 사슬 핵심물. 거래·재활용 불가(G23)"
+  }
+ },
+ "Prop_Detector_B.fbx": {
+  "objects": {
+   "Prop_Detector_B": {
+    "type": "MESH",
+    "dims": [
+     0.07,
+     0.0525,
+     0.155
+    ],
+    "mats": 4
+   }
+  },
+  "props": {
+   "id": "Prop_Detector_B",
+   "ko": "보스 B 탐지기",
+   "note": "G07 A 핵심물 1+목재 5+돌 5(B·C), 사용 시 위치 영구 공개"
+  }
+ },
+ "Prop_Detector_C.fbx": {
+  "objects": {
+   "Prop_Detector_C": {
+    "type": "MESH",
+    "dims": [
+     0.07,
+     0.0525,
+     0.155
+    ],
+    "mats": 4
+   }
+  },
+  "props": {
+   "id": "Prop_Detector_C",
+   "ko": "보스 C 탐지기",
+   "note": "G07 A 핵심물 1+목재 5+돌 5(B·C), 사용 시 위치 영구 공개"
+  }
+ },
+ "Prop_Detector_D.fbx": {
+  "objects": {
+   "Prop_Detector_D": {
+    "type": "MESH",
+    "dims": [
+     0.07,
+     0.0525,
+     0.155
+    ],
+    "mats": 4
+   }
+  },
+  "props": {
+   "id": "Prop_Detector_D",
+   "ko": "보스 D 탐지기",
+   "note": "G07 A 핵심물 1+목재 5+돌 5(B·C), 사용 시 위치 영구 공개"
+  }
+ },
+ "Prop_Remains.fbx": {
+  "objects": {
+   "Prop_Remains": {
+    "type": "MESH",
+    "dims": [
+     0.3266,
+     0.1558,
+     0.053
+    ],
+    "mats": 2
+   }
+  },
+  "props": {
+   "id": "Prop_Remains",
+   "ko": "장수 유해",
+   "note": "G63 개별 장수 시신→유해. 자동 소멸 없음, 운반·묘비 안치"
+  }
+ },
+ "Prop_CorpseBundle.fbx": {
+  "objects": {
+   "Prop_CorpseBundle": {
+    "type": "MESH",
+    "dims": [
+     0.3659,
+     0.3854,
+     0.08
+    ],
+    "mats": 2
+   }
+  },
+  "props": {
+   "id": "Prop_CorpseBundle",
+   "ko": "시민 시신 묶음",
+   "note": "G16 위치별 수량 시신 묶음, 300초 정리 대상(G63)"
+  }
+ }
+}

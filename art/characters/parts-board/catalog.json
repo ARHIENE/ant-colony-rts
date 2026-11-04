@@ -1,0 +1,400 @@
+[
+  {
+    "id": "FACE-01 ROUND",
+    "root": "FACE-01 ROUND",
+    "display_z_offset": 0,
+    "source_parts": [
+      "Tail.007",
+      "V4_Body.007",
+      "V4_Foot.014",
+      "V4_Foot.015",
+      "V4_Paw.014",
+      "V4_Paw.015"
+    ]
+  },
+  {
+    "id": "FACE-02 OVAL",
+    "root": "FACE-02 OVAL",
+    "display_z_offset": 0,
+    "source_parts": [
+      "Tail.007",
+      "V4_Body.007",
+      "V4_Foot.014",
+      "V4_Foot.015",
+      "V4_Paw.014",
+      "V4_Paw.015"
+    ]
+  },
+  {
+    "id": "FACE-03 CHEEK",
+    "root": "FACE-03 CHEEK",
+    "display_z_offset": 0,
+    "source_parts": [
+      "Tail.007",
+      "V4_Body.007",
+      "V4_Foot.014",
+      "V4_Foot.015",
+      "V4_Paw.014",
+      "V4_Paw.015"
+    ]
+  },
+  {
+    "id": "EAR-01 ROUND",
+    "root": "EAR-01 ROUND",
+    "display_z_offset": -0.65,
+    "source_parts": [
+      "EarInner",
+      "EarInner.001",
+      "EarRound",
+      "EarRound.001"
+    ]
+  },
+  {
+    "id": "EAR-02 SHORT",
+    "root": "EAR-02 SHORT",
+    "display_z_offset": -0.65,
+    "source_parts": [
+      "EarFlop.002",
+      "EarFlop.003"
+    ]
+  },
+  {
+    "id": "EAR-03 LONG",
+    "root": "EAR-03 LONG",
+    "display_z_offset": -0.65,
+    "source_parts": [
+      "EarFlop",
+      "EarFlop.001"
+    ]
+  },
+  {
+    "id": "EAR-04 POINT",
+    "root": "EAR-04 POINT",
+    "display_z_offset": -0.65,
+    "source_parts": [
+      "EarInner.002",
+      "EarInner.003",
+      "EarPoint",
+      "EarPoint.001"
+    ]
+  },
+  {
+    "id": "EAR-05 UPRIGHT",
+    "root": "EAR-05 UPRIGHT",
+    "display_z_offset": -0.65,
+    "source_parts": [
+      "EarInner.004",
+      "EarInner.005",
+      "EarPoint.002",
+      "EarPoint.003"
+    ]
+  },
+  {
+    "id": "EAR-06 FOLDED",
+    "root": "EAR-06 FOLDED",
+    "display_z_offset": -0.65,
+    "source_parts": [
+      "V4_FoldedEar.002",
+      "V4_FoldedEar.003",
+      "V4_InnerEar.001"
+    ]
+  },
+  {
+    "id": "TOP-01 TUFT",
+    "root": "TOP-01 TUFT",
+    "display_z_offset": -0.85,
+    "source_parts": [
+      "CrownTuft",
+      "CrownTuft.001",
+      "CrownTuft.002"
+    ]
+  },
+  {
+    "id": "TOP-02 LEAVES",
+    "root": "TOP-02 LEAVES",
+    "display_z_offset": -0.85,
+    "source_parts": [
+      "Leaf",
+      "Leaf.001"
+    ]
+  },
+  {
+    "id": "TOP-03 FLOWER",
+    "root": "TOP-03 FLOWER",
+    "display_z_offset": -0.6,
+    "source_parts": [
+      "FlowerCenter",
+      "Petal",
+      "Petal.001",
+      "Petal.002",
+      "Petal.003",
+      "Petal.004"
+    ]
+  },
+  {
+    "id": "TOP-04 SIDE FLUFF",
+    "root": "TOP-04 SIDE FLUFF",
+    "display_z_offset": -0.25,
+    "source_parts": [
+      "CheekTuft.006",
+      "CheekTuft.007",
+      "CheekTuft.008",
+      "CheekTuft.009",
+      "CheekTuft.010",
+      "CheekTuft.011"
+    ]
+  },
+  {
+    "id": "EXPR-01 CALM",
+    "root": "EXPR-01 CALM",
+    "display_z_offset": -0.3,
+    "source_parts": [
+      "V4_Blush.014",
+      "V4_Blush.015",
+      "V4_Eye.014",
+      "V4_Eye.015",
+      "V4_Mouth.007"
+    ]
+  },
+  {
+    "id": "EXPR-02 BRAVE",
+    "root": "EXPR-02 BRAVE",
+    "display_z_offset": -0.3,
+    "source_parts": [
+      "ConfidentBrow.002",
+      "ConfidentBrow.003",
+      "V4_Blush.028",
+      "V4_Blush.029",
+      "V4_Eye.028",
+      "V4_Eye.029",
+      "V4_Mouth.014"
+    ]
+  },
+  {
+    "id": "EXPR-03 HAPPY",
+    "root": "EXPR-03 HAPPY",
+    "display_z_offset": -0.3,
+    "source_parts": [
+      "HappyEye.001",
+      "HappyEye.002",
+      "OpenSmile.003",
+      "Tongue.003",
+      "V4_Blush.056",
+      "V4_Blush.057"
+    ]
+  },
+  {
+    "id": "EXPR-04 WINK",
+    "root": "EXPR-04 WINK",
+    "display_z_offset": -0.3,
+    "source_parts": [
+      "HappyEye",
+      "OpenSmile.001",
+      "Tongue.001",
+      "V4_Blush.050",
+      "V4_Blush.051",
+      "V4_Eye.050"
+    ]
+  },
+  {
+    "id": "MARK-01 BLAZE",
+    "root": "MARK-01 BLAZE",
+    "display_z_offset": -0.2,
+    "source_parts": [
+      "FaceBlaze.001"
+    ]
+  },
+  {
+    "id": "MARK-02 BLAZE",
+    "root": "MARK-02 BLAZE",
+    "display_z_offset": -0.2,
+    "source_parts": [
+      "FaceBlaze.003"
+    ]
+  },
+  {
+    "id": "MARK-03 BLAZE",
+    "root": "MARK-03 BLAZE",
+    "display_z_offset": -0.2,
+    "source_parts": [
+      "FaceBlaze.008"
+    ]
+  },
+  {
+    "id": "MIX-01",
+    "root": "MIX-01",
+    "display_z_offset": 0,
+    "source_parts": [
+      "Tail.007",
+      "V4_Body.007",
+      "V4_Foot.014",
+      "V4_Foot.015",
+      "V4_Paw.014",
+      "V4_Paw.015",
+      "EarInner",
+      "EarInner.001",
+      "EarRound",
+      "EarRound.001",
+      "CrownTuft",
+      "CrownTuft.001",
+      "CrownTuft.002",
+      "V4_Blush.014",
+      "V4_Blush.015",
+      "V4_Eye.014",
+      "V4_Eye.015",
+      "V4_Mouth.007",
+      "FaceBlaze.001"
+    ]
+  },
+  {
+    "id": "MIX-02",
+    "root": "MIX-02",
+    "display_z_offset": 0,
+    "source_parts": [
+      "Tail.007",
+      "V4_Body.007",
+      "V4_Foot.014",
+      "V4_Foot.015",
+      "V4_Paw.014",
+      "V4_Paw.015",
+      "EarFlop",
+      "EarFlop.001",
+      "Leaf",
+      "Leaf.001",
+      "ConfidentBrow.002",
+      "ConfidentBrow.003",
+      "V4_Blush.028",
+      "V4_Blush.029",
+      "V4_Eye.028",
+      "V4_Eye.029",
+      "V4_Mouth.014",
+      "FaceBlaze.003"
+    ]
+  },
+  {
+    "id": "MIX-03",
+    "root": "MIX-03",
+    "display_z_offset": 0,
+    "source_parts": [
+      "Tail.007",
+      "V4_Body.007",
+      "V4_Foot.014",
+      "V4_Foot.015",
+      "V4_Paw.014",
+      "V4_Paw.015",
+      "EarInner.002",
+      "EarInner.003",
+      "EarPoint",
+      "EarPoint.001",
+      "CrownTuft",
+      "CrownTuft.001",
+      "CrownTuft.002",
+      "HappyEye.001",
+      "HappyEye.002",
+      "OpenSmile.003",
+      "Tongue.003",
+      "V4_Blush.056",
+      "V4_Blush.057",
+      "FaceBlaze.008"
+    ]
+  },
+  {
+    "id": "MIX-04",
+    "root": "MIX-04",
+    "display_z_offset": 0,
+    "source_parts": [
+      "Tail.007",
+      "V4_Body.007",
+      "V4_Foot.014",
+      "V4_Foot.015",
+      "V4_Paw.014",
+      "V4_Paw.015",
+      "EarFlop.002",
+      "EarFlop.003",
+      "Leaf",
+      "Leaf.001",
+      "HappyEye",
+      "OpenSmile.001",
+      "Tongue.001",
+      "V4_Blush.050",
+      "V4_Blush.051",
+      "V4_Eye.050",
+      "FaceBlaze.001"
+    ]
+  },
+  {
+    "id": "MIX-05",
+    "root": "MIX-05",
+    "display_z_offset": 0,
+    "source_parts": [
+      "Tail.007",
+      "V4_Body.007",
+      "V4_Foot.014",
+      "V4_Foot.015",
+      "V4_Paw.014",
+      "V4_Paw.015",
+      "EarInner.004",
+      "EarInner.005",
+      "EarPoint.002",
+      "EarPoint.003",
+      "CrownTuft",
+      "CrownTuft.001",
+      "CrownTuft.002",
+      "ConfidentBrow.002",
+      "ConfidentBrow.003",
+      "V4_Blush.028",
+      "V4_Blush.029",
+      "V4_Eye.028",
+      "V4_Eye.029",
+      "V4_Mouth.014",
+      "FaceBlaze.008"
+    ]
+  },
+  {
+    "id": "MIX-06",
+    "root": "MIX-06",
+    "display_z_offset": 0,
+    "source_parts": [
+      "Tail.007",
+      "V4_Body.007",
+      "V4_Foot.014",
+      "V4_Foot.015",
+      "V4_Paw.014",
+      "V4_Paw.015",
+      "EarInner",
+      "EarInner.001",
+      "EarRound",
+      "EarRound.001",
+      "CrownTuft",
+      "CrownTuft.001",
+      "CrownTuft.002",
+      "HappyEye.001",
+      "HappyEye.002",
+      "OpenSmile.003",
+      "Tongue.003",
+      "V4_Blush.056",
+      "V4_Blush.057",
+      "FaceBlaze.003"
+    ]
+  },
+  {
+    "id": "EXPR-05 TEARY",
+    "preview": "CRY-MIX-01",
+    "display_z_offset": -0.3
+  },
+  {
+    "id": "EXPR-06 SOBBING",
+    "preview": "CRY-MIX-02",
+    "display_z_offset": -0.3
+  },
+  {
+    "id": "EXPR-07 NERVOUS",
+    "preview": "STATE-MIX-01",
+    "display_z_offset": -0.3
+  },
+  {
+    "id": "EXPR-08 DEAD",
+    "preview": "STATE-MIX-02",
+    "display_z_offset": -0.3
+  }
+]

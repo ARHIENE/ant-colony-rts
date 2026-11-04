@@ -1,0 +1,9 @@
+{
+  "actions": 30,
+  "curves": 2160,
+  "rigs": 101,
+  "weighted_meshes": 3497,
+  "facility_scenes": 79,
+  "errors": [],
+  "scope": "Structural validation only; not all contact poses or Unity import tested"
+}

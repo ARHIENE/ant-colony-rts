@@ -1,0 +1,188 @@
+{
+ "helm_radii": [
+  0.05,
+  0.331
+ ],
+ "shells": {
+  "CAT": [
+   {
+    "side": "L",
+    "centre": [
+     0.217,
+     -0.031,
+     1.159
+    ],
+    "size": [
+     0.104,
+     0.13,
+     0.1
+    ]
+   },
+   {
+    "side": "R",
+    "centre": [
+     -0.217,
+     -0.031,
+     1.159
+    ],
+    "size": [
+     0.104,
+     0.13,
+     0.1
+    ]
+   }
+  ],
+  "DROOP": [
+   {
+    "side": "L",
+    "centre": [
+     0.285,
+     -0.001,
+     0.978
+    ],
+    "size": [
+     0.097,
+     0.13,
+     0.422
+    ]
+   },
+   {
+    "side": "R",
+    "centre": [
+     -0.287,
+     -0.001,
+     0.978
+    ],
+    "size": [
+     0.101,
+     0.131,
+     0.423
+    ]
+   }
+  ],
+  "RABBIT": [
+   {
+    "side": "L",
+    "centre": [
+     0.151,
+     0.034,
+     1.201
+    ],
+    "size": [
+     0.088,
+     0.052,
+     0.025
+    ]
+   },
+   {
+    "side": "R",
+    "centre": [
+     -0.155,
+     0.024,
+     1.2
+    ],
+    "size": [
+     0.092,
+     0.04,
+     0.025
+    ]
+   }
+  ],
+  "ROUND": [
+   {
+    "side": "L",
+    "centre": [
+     0.2,
+     -0.011,
+     1.171
+    ],
+    "size": [
+     0.151,
+     0.107,
+     0.097
+    ]
+   },
+   {
+    "side": "R",
+    "centre": [
+     -0.2,
+     -0.011,
+     1.171
+    ],
+    "size": [
+     0.151,
+     0.107,
+     0.097
+    ]
+   }
+  ],
+  "UPRIGHT": [
+   {
+    "side": "L",
+    "centre": [
+     0.154,
+     0.001,
+     1.196
+    ],
+    "size": [
+     0.109,
+     0.076,
+     0.031
+    ]
+   },
+   {
+    "side": "R",
+    "centre": [
+     -0.154,
+     0.001,
+     1.196
+    ],
+    "size": [
+     0.11,
+     0.076,
+     0.031
+    ]
+   }
+  ]
+ },
+ "armor": [
+  "Armor_Breastplate",
+  "Armor_Breastplate_Lower",
+  "Armor_Backplate",
+  "Armor_Backplate_Lower",
+  "Armor_Fauld",
+  "Armor_Tasset_L",
+  "Armor_Tasset_R",
+  "Armor_Bracer_L",
+  "Armor_Bracer_R",
+  "Armor_Greave_L",
+  "Armor_Greave_R",
+  "Armor_LeatherVest"
+ ],
+ "armor_trims": 3,
+ "helm_trims": [
+  "HelmTrim_Bronze",
+  "HelmTrim_Iron",
+  "HelmTrim_Steel",
+  "HelmTrim_Titanium",
+  "HelmTrim_Starlight"
+ ],
+ "belt": {
+  "tail_gap_deg": 64
+ },
+ "handheld": 66,
+ "actions": 44,
+ "hair_variants": {
+  "Part_Hair_LONG_ARMOR": 15
+ },
+ "outfit_variants": {
+  "Part_Outfit_LINEN_ARMOR": {
+   "moved_vertices": 283,
+   "removed_faces": 278
+  },
+  "Part_Body_BASE_ARMOR": {
+   "moved_vertices": 0,
+   "removed_faces": 72
+  }
+ }
+}

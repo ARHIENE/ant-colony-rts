@@ -1,0 +1,2718 @@
+[
+  {
+    "id": "CC_NestEntrance",
+    "fbx": "exports/CC_NestEntrance.fbx",
+    "dimensions_blender_xyz": [
+      4.2678,
+      4.2399,
+      1.78
+    ],
+    "dimensions_unity_xyz": [
+      4.2678,
+      1.78,
+      4.2399
+    ],
+    "triangles": 644,
+    "mesh_count": 20,
+    "materials": [
+      "CC_Bark",
+      "CC_Cream",
+      "CC_Earth",
+      "CC_Leaf",
+      "CC_Stone"
+    ],
+    "children": [
+      "Entry post",
+      "Entry post.001",
+      "Fiber binding",
+      "Fiber binding.001",
+      "Fiber binding.002",
+      "Fiber binding.003",
+      "Fiber binding.004",
+      "Fiber binding.005",
+      "Leaf banner",
+      "Lintel",
+      "Open mound",
+      "Rim pebble",
+      "Rim pebble.001",
+      "Rim pebble.002",
+      "Rim pebble.003",
+      "Rim pebble.004",
+      "Rim pebble.005",
+      "Rim pebble.006",
+      "Rim pebble.007",
+      "Rim pebble.008"
+    ],
+    "ground_offset_applied": -0.05
+  },
+  {
+    "id": "CC_Storage",
+    "fbx": "exports/CC_Storage.fbx",
+    "dimensions_blender_xyz": [
+      3.08,
+      2.7,
+      2.31
+    ],
+    "dimensions_unity_xyz": [
+      3.08,
+      2.31,
+      2.7
+    ],
+    "triangles": 1344,
+    "mesh_count": 38,
+    "materials": [
+      "CC_Bark",
+      "CC_Cream",
+      "CC_Dark",
+      "CC_Leaf",
+      "CC_LeafLight",
+      "CC_Wood"
+    ],
+    "children": [
+      "Back slat",
+      "Back slat.001",
+      "Contents_RootMarker",
+      "Fiber binding.006",
+      "Fiber binding.007",
+      "Fiber binding.008",
+      "Fiber binding.009",
+      "Fiber binding.010",
+      "Fiber binding.011",
+      "Fiber binding.012",
+      "Fiber binding.013",
+      "Fiber binding.014",
+      "Fiber binding.015",
+      "Fiber binding.016",
+      "Fiber binding.017",
+      "Floor plank",
+      "Floor plank.001",
+      "Floor plank.002",
+      "Floor plank.003",
+      "Floor plank.004",
+      "Floor plank.005",
+      "Floor plank.006",
+      "Post",
+      "Post.001",
+      "Post.002",
+      "Post.003",
+      "Ridge",
+      "Roof leaf",
+      "Roof leaf.001",
+      "Roof leaf.002",
+      "Roof leaf.003",
+      "Roof leaf.004",
+      "Roof leaf.005",
+      "Roof leaf.006",
+      "Side slat",
+      "Side slat.001",
+      "Side slat.002",
+      "Side slat.003"
+    ],
+    "ground_offset_applied": 0.0
+  },
+  {
+    "id": "CC_FarmTile",
+    "fbx": "exports/CC_FarmTile.fbx",
+    "dimensions_blender_xyz": [
+      2.017,
+      2.017,
+      0.255
+    ],
+    "dimensions_unity_xyz": [
+      2.017,
+      0.255,
+      2.017
+    ],
+    "triangles": 272,
+    "mesh_count": 8,
+    "materials": [
+      "CC_Bark",
+      "CC_Earth",
+      "CC_Soil"
+    ],
+    "children": [
+      "Edge",
+      "Edge.001",
+      "Edge.002",
+      "Edge.003",
+      "Furrow",
+      "Furrow.001",
+      "Furrow.002",
+      "Soil"
+    ],
+    "ground_offset_applied": 0.0
+  },
+  {
+    "id": "CC_CropFungus_Young",
+    "fbx": "exports/CC_CropFungus_Young.fbx",
+    "dimensions_blender_xyz": [
+      0.8609,
+      0.8633,
+      0.3108
+    ],
+    "dimensions_unity_xyz": [
+      0.8609,
+      0.3108,
+      0.8633
+    ],
+    "triangles": 312,
+    "mesh_count": 6,
+    "materials": [
+      "CC_Cream",
+      "CC_Fungus"
+    ],
+    "children": [
+      "Cap",
+      "Cap.001",
+      "Cap.002",
+      "Stem",
+      "Stem.001",
+      "Stem.002"
+    ],
+    "ground_offset_applied": 0.0
+  },
+  {
+    "id": "CC_CropFungus_Mature",
+    "fbx": "exports/CC_CropFungus_Mature.fbx",
+    "dimensions_blender_xyz": [
+      1.1522,
+      1.227,
+      0.74
+    ],
+    "dimensions_unity_xyz": [
+      1.1522,
+      0.74,
+      1.227
+    ],
+    "triangles": 312,
+    "mesh_count": 6,
+    "materials": [
+      "CC_Cream",
+      "CC_Fungus"
+    ],
+    "children": [
+      "Cap.003",
+      "Cap.004",
+      "Cap.005",
+      "Stem.003",
+      "Stem.004",
+      "Stem.005"
+    ],
+    "ground_offset_applied": 0.0
+  },
+  {
+    "id": "CC_RanchFence",
+    "fbx": "exports/CC_RanchFence.fbx",
+    "dimensions_blender_xyz": [
+      2.19,
+      0.18,
+      1.25
+    ],
+    "dimensions_unity_xyz": [
+      2.19,
+      1.25,
+      0.18
+    ],
+    "triangles": 432,
+    "mesh_count": 13,
+    "materials": [
+      "CC_Bark",
+      "CC_Cream"
+    ],
+    "children": [
+      "Fiber binding.018",
+      "Fiber binding.019",
+      "Fiber binding.020",
+      "Fiber binding.021",
+      "Fiber binding.022",
+      "Fiber binding.023",
+      "Post.004",
+      "Post.005",
+      "Rail",
+      "Rail.001",
+      "Twig",
+      "Twig.001",
+      "Twig.002"
+    ],
+    "ground_offset_applied": 0.0
+  },
+  {
+    "id": "CC_RanchGate",
+    "fbx": "exports/CC_RanchGate.fbx",
+    "dimensions_blender_xyz": [
+      2.2145,
+      0.2091,
+      1.25
+    ],
+    "dimensions_unity_xyz": [
+      2.2145,
+      1.25,
+      0.2091
+    ],
+    "triangles": 216,
+    "mesh_count": 9,
+    "materials": [
+      "CC_Bark",
+      "CC_CutWood"
+    ],
+    "children": [
+      "Gate_Hinge",
+      "Post.006",
+      "Post.007"
+    ],
+    "ground_offset_applied": 0.0
+  },
+  {
+    "id": "CC_Feeder",
+    "fbx": "exports/CC_Feeder.fbx",
+    "dimensions_blender_xyz": [
+      1.85,
+      1.0,
+      0.65
+    ],
+    "dimensions_unity_xyz": [
+      1.85,
+      0.65,
+      1.0
+    ],
+    "triangles": 308,
+    "mesh_count": 7,
+    "materials": [
+      "CC_Bark",
+      "CC_Wood"
+    ],
+    "children": [
+      "Bottom",
+      "End",
+      "End.001",
+      "Foot",
+      "Foot.001",
+      "Side",
+      "Side.001"
+    ],
+    "ground_offset_applied": 0.0
+  },
+  {
+    "id": "CC_CommanderBed",
+    "fbx": "exports/CC_CommanderBed.fbx",
+    "dimensions_blender_xyz": [
+      1.775,
+      1.68,
+      1.68
+    ],
+    "dimensions_unity_xyz": [
+      1.775,
+      1.68,
+      1.68
+    ],
+    "triangles": 524,
+    "mesh_count": 16,
+    "materials": [
+      "CC_Amber",
+      "CC_Bark",
+      "CC_Cream",
+      "CC_CutWood",
+      "CC_Leaf",
+      "CC_Teal",
+      "CC_Wood"
+    ],
+    "children": [
+      "Brace",
+      "Cork",
+      "Equipment pole",
+      "Folded blanket",
+      "Head cushion",
+      "Leaf mattress",
+      "Leg",
+      "Leg.001",
+      "Leg.002",
+      "Leg.003",
+      "Medical marker",
+      "Medicine jar",
+      "Plank",
+      "Plank.001",
+      "Plank.002",
+      "Plank.003"
+    ],
+    "ground_offset_applied": 0.0
+  },
+  {
+    "id": "CC_AnimalTreatment",
+    "fbx": "exports/CC_AnimalTreatment.fbx",
+    "dimensions_blender_xyz": [
+      1.925,
+      1.68,
+      1.68
+    ],
+    "dimensions_unity_xyz": [
+      1.925,
+      1.68,
+      1.68
+    ],
+    "triangles": 568,
+    "mesh_count": 17,
+    "materials": [
+      "CC_Amber",
+      "CC_Bark",
+      "CC_Cream",
+      "CC_CutWood",
+      "CC_Teal",
+      "CC_Wood"
+    ],
+    "children": [
+      "Brace.001",
+      "Cork.001",
+      "Equipment pole.001",
+      "Head cushion.001",
+      "Leaf mattress.001",
+      "Leg.004",
+      "Leg.005",
+      "Leg.006",
+      "Leg.007",
+      "Medical marker.001",
+      "Medicine jar.001",
+      "Plank.004",
+      "Plank.005",
+      "Plank.006",
+      "Plank.007",
+      "Restraint strap",
+      "Restraint strap.001"
+    ],
+    "ground_offset_applied": 0.0
+  },
+  {
+    "id": "CC_Apothecary",
+    "fbx": "exports/CC_Apothecary.fbx",
+    "dimensions_blender_xyz": [
+      2.0,
+      1.009,
+      1.74
+    ],
+    "dimensions_unity_xyz": [
+      2.0,
+      1.74,
+      1.009
+    ],
+    "triangles": 784,
+    "mesh_count": 25,
+    "materials": [
+      "CC_Amber",
+      "CC_Bark",
+      "CC_CutWood",
+      "CC_LeafLight",
+      "CC_Stone",
+      "CC_Teal",
+      "CC_Wood"
+    ],
+    "children": [
+      "Brace.002",
+      "Cork.002",
+      "Cork.003",
+      "Cork.004",
+      "Cork.005",
+      "Cork.006",
+      "Herb",
+      "Leg.008",
+      "Leg.009",
+      "Leg.010",
+      "Leg.011",
+      "Medicine jar.002",
+      "Medicine jar.003",
+      "Medicine jar.004",
+      "Medicine jar.005",
+      "Medicine jar.006",
+      "Medicine shelf",
+      "Mortar",
+      "Pestle",
+      "Plank.008",
+      "Plank.009",
+      "Plank.010",
+      "Plank.011",
+      "Shelf post",
+      "Shelf post.001"
+    ],
+    "ground_offset_applied": 0.02
+  },
+  {
+    "id": "CC_ButcherTable",
+    "fbx": "exports/CC_ButcherTable.fbx",
+    "dimensions_blender_xyz": [
+      2.1,
+      1.08,
+      1.46
+    ],
+    "dimensions_unity_xyz": [
+      2.1,
+      1.46,
+      1.08
+    ],
+    "triangles": 484,
+    "mesh_count": 13,
+    "materials": [
+      "CC_Bark",
+      "CC_Iron",
+      "CC_Stone",
+      "CC_Wood"
+    ],
+    "children": [
+      "Blade",
+      "Brace.003",
+      "Catch basin",
+      "Cutting slab",
+      "Handle",
+      "Leg.012",
+      "Leg.013",
+      "Leg.014",
+      "Leg.015",
+      "Plank.012",
+      "Plank.013",
+      "Plank.014",
+      "Plank.015"
+    ],
+    "ground_offset_applied": 0.02
+  },
+  {
+    "id": "CC_Kitchen",
+    "fbx": "exports/CC_Kitchen.fbx",
+    "dimensions_blender_xyz": [
+      2.5057,
+      1.2913,
+      1.1
+    ],
+    "dimensions_unity_xyz": [
+      2.5057,
+      1.1,
+      1.2913
+    ],
+    "triangles": 556,
+    "mesh_count": 20,
+    "materials": [
+      "CC_Bark",
+      "CC_Cream",
+      "CC_Iron",
+      "CC_Leaf",
+      "CC_Stone",
+      "CC_Wood"
+    ],
+    "children": [
+      "Cooking pot",
+      "Firewood",
+      "Firewood.001",
+      "Hearth stone",
+      "Hearth stone.001",
+      "Hearth stone.002",
+      "Hearth stone.003",
+      "Hearth stone.004",
+      "Hearth stone.005",
+      "Hearth stone.006",
+      "Hearth stone.007",
+      "Hearth stone.008",
+      "Hearth stone.009",
+      "Ingredient bowl",
+      "Leg.016",
+      "Leg.017",
+      "Leg.018",
+      "Leg.019",
+      "Prep surface",
+      "Serving leaf"
+    ],
+    "ground_offset_applied": -0.03
+  },
+  {
+    "id": "CC_CompostBin",
+    "fbx": "exports/CC_CompostBin.fbx",
+    "dimensions_blender_xyz": [
+      1.5365,
+      1.4331,
+      1.05
+    ],
+    "dimensions_unity_xyz": [
+      1.5365,
+      1.05,
+      1.4331
+    ],
+    "triangles": 624,
+    "mesh_count": 16,
+    "materials": [
+      "CC_Bark",
+      "CC_Wood"
+    ],
+    "children": [
+      "Post.008",
+      "Post.009",
+      "Post.010",
+      "Post.011",
+      "Slat",
+      "Slat.001",
+      "Slat.002",
+      "Slat.003",
+      "Slat.004",
+      "Slat.005",
+      "Slat.006",
+      "Slat.007",
+      "Slat.008",
+      "Slat.009",
+      "Slat.010",
+      "Slat.011"
+    ],
+    "ground_offset_applied": 0.0
+  },
+  {
+    "id": "CC_Tombstone",
+    "fbx": "exports/CC_Tombstone.fbx",
+    "dimensions_blender_xyz": [
+      1.0733,
+      0.9385,
+      1.25
+    ],
+    "dimensions_unity_xyz": [
+      1.0733,
+      1.25,
+      0.9385
+    ],
+    "triangles": 96,
+    "mesh_count": 4,
+    "materials": [
+      "CC_Cream",
+      "CC_Leaf",
+      "CC_Stone"
+    ],
+    "children": [
+      "Carved leaf",
+      "Foundation",
+      "Memorial stone",
+      "Offering"
+    ],
+    "ground_offset_applied": -0.05
+  },
+  {
+    "id": "CC_ResourceWood",
+    "fbx": "exports/CC_ResourceWood.fbx",
+    "dimensions_blender_xyz": [
+      0.5535,
+      0.97,
+      0.4571
+    ],
+    "dimensions_unity_xyz": [
+      0.5535,
+      0.4571,
+      0.97
+    ],
+    "triangles": 144,
+    "mesh_count": 6,
+    "materials": [
+      "CC_Bark",
+      "CC_CutWood"
+    ],
+    "children": [
+      "Branch",
+      "Branch.001",
+      "Branch.002",
+      "Cut end",
+      "Cut end.001",
+      "Cut end.002"
+    ],
+    "ground_offset_applied": 0.00287
+  },
+  {
+    "id": "CC_ResourceStone",
+    "fbx": "exports/CC_ResourceStone.fbx",
+    "dimensions_blender_xyz": [
+      0.8651,
+      0.4039,
+      0.529
+    ],
+    "dimensions_unity_xyz": [
+      0.8651,
+      0.529,
+      0.4039
+    ],
+    "triangles": 60,
+    "mesh_count": 3,
+    "materials": [
+      "CC_Stone"
+    ],
+    "children": [
+      "Stone",
+      "Stone.001",
+      "Stone.002"
+    ],
+    "ground_offset_applied": -0.006
+  },
+  {
+    "id": "CC_ResourceLeaf",
+    "fbx": "exports/CC_ResourceLeaf.fbx",
+    "dimensions_blender_xyz": [
+      1.0666,
+      1.0697,
+      0.3341
+    ],
+    "dimensions_unity_xyz": [
+      1.0666,
+      0.3341,
+      1.0697
+    ],
+    "triangles": 64,
+    "mesh_count": 4,
+    "materials": [
+      "CC_Leaf",
+      "CC_LeafLight"
+    ],
+    "children": [
+      "Leaf",
+      "Leaf.001",
+      "Leaf.002",
+      "Leaf.003"
+    ],
+    "ground_offset_applied": 0.00589
+  },
+  {
+    "id": "CC_ResourceFiber",
+    "fbx": "exports/CC_ResourceFiber.fbx",
+    "dimensions_blender_xyz": [
+      0.7,
+      0.47,
+      0.12
+    ],
+    "dimensions_unity_xyz": [
+      0.7,
+      0.12,
+      0.47
+    ],
+    "triangles": 140,
+    "mesh_count": 7,
+    "materials": [
+      "CC_Bark",
+      "CC_Cream"
+    ],
+    "children": [
+      "Fiber",
+      "Fiber.001",
+      "Fiber.002",
+      "Fiber.003",
+      "Fiber.004",
+      "Fiber.005",
+      "Tie"
+    ],
+    "ground_offset_applied": 0.04
+  },
+  {
+    "id": "CC_ResourceGrain",
+    "fbx": "exports/CC_ResourceGrain.fbx",
+    "dimensions_blender_xyz": [
+      0.6692,
+      0.5847,
+      0.34
+    ],
+    "dimensions_unity_xyz": [
+      0.6692,
+      0.34,
+      0.5847
+    ],
+    "triangles": 140,
+    "mesh_count": 7,
+    "materials": [
+      "CC_Amber"
+    ],
+    "children": [
+      "Seed",
+      "Seed.001",
+      "Seed.002",
+      "Seed.003",
+      "Seed.004",
+      "Seed.005",
+      "Seed.006"
+    ],
+    "ground_offset_applied": 0.0
+  },
+  {
+    "id": "CC_ResourceCompost",
+    "fbx": "exports/CC_ResourceCompost.fbx",
+    "dimensions_blender_xyz": [
+      0.875,
+      0.76,
+      0.53
+    ],
+    "dimensions_unity_xyz": [
+      0.875,
+      0.53,
+      0.76
+    ],
+    "triangles": 96,
+    "mesh_count": 2,
+    "materials": [
+      "CC_Leaf",
+      "CC_Soil"
+    ],
+    "children": [
+      "Compost",
+      "Scrap"
+    ],
+    "ground_offset_applied": -0.05
+  },
+  {
+    "id": "CC_Dormitory",
+    "fbx": "exports/CC_Dormitory.fbx",
+    "dimensions_blender_xyz": [
+      3.54,
+      3.294,
+      2.4046
+    ],
+    "dimensions_unity_xyz": [
+      3.54,
+      2.4046,
+      3.294
+    ],
+    "triangles": 668,
+    "mesh_count": 27,
+    "materials": [
+      "CC_Bark",
+      "CC_Earth",
+      "CC_Leaf",
+      "CC_LeafLight",
+      "CC_Stone"
+    ],
+    "children": [
+      "Back wall",
+      "Corner",
+      "Corner.001",
+      "Corner.002",
+      "Corner.003",
+      "Door awning",
+      "Doorstep",
+      "Front wall",
+      "Front wall.001",
+      "Raised floor",
+      "Roof ridge",
+      "Side wall",
+      "Side wall.001",
+      "Thatched leaf",
+      "Thatched leaf.001",
+      "Thatched leaf.002",
+      "Thatched leaf.003",
+      "Thatched leaf.004",
+      "Thatched leaf.005",
+      "Thatched leaf.006",
+      "Thatched leaf.007",
+      "Thatched leaf.008",
+      "Thatched leaf.009",
+      "Thatched leaf.010",
+      "Thatched leaf.011",
+      "Thatched leaf.012",
+      "Thatched leaf.013"
+    ]
+  },
+  {
+    "id": "CC_Workshop",
+    "fbx": "exports/CC_Workshop.fbx",
+    "dimensions_blender_xyz": [
+      2.4,
+      1.08,
+      1.655
+    ],
+    "dimensions_unity_xyz": [
+      2.4,
+      1.655,
+      1.08
+    ],
+    "triangles": 836,
+    "mesh_count": 24,
+    "materials": [
+      "CC_Bark",
+      "CC_CutWood",
+      "CC_Iron",
+      "CC_Wood"
+    ],
+    "children": [
+      "Backboard",
+      "Brace.004",
+      "Leg.020",
+      "Leg.021",
+      "Leg.022",
+      "Leg.023",
+      "Plank.016",
+      "Plank.017",
+      "Plank.018",
+      "Plank.019",
+      "Saw blade",
+      "Saw handle",
+      "Tool head",
+      "Tool head.001",
+      "Tool head.002",
+      "Tool head.003",
+      "Tool shaft",
+      "Tool shaft.001",
+      "Tool shaft.002",
+      "Tool shaft.003",
+      "Uncut twig",
+      "Vise base",
+      "Vise jaw",
+      "Vise jaw.001"
+    ]
+  },
+  {
+    "id": "CC_ResearchDesk",
+    "fbx": "exports/CC_ResearchDesk.fbx",
+    "dimensions_blender_xyz": [
+      2.1,
+      1.13,
+      1.8
+    ],
+    "dimensions_unity_xyz": [
+      2.1,
+      1.8,
+      1.13
+    ],
+    "triangles": 560,
+    "mesh_count": 21,
+    "materials": [
+      "CC_Amber",
+      "CC_Bark",
+      "CC_Cream",
+      "CC_Iron",
+      "CC_Teal",
+      "CC_Wood"
+    ],
+    "children": [
+      "Brace.005",
+      "Journal spine",
+      "Leg.024",
+      "Leg.025",
+      "Leg.026",
+      "Leg.027",
+      "Lens face",
+      "Lens rim",
+      "Lens stand",
+      "Open journal",
+      "Plank.020",
+      "Plank.021",
+      "Plank.022",
+      "Plank.023",
+      "Specimen",
+      "Writing",
+      "Writing.001",
+      "Writing.002",
+      "Writing.003",
+      "Writing.004",
+      "Writing.005"
+    ]
+  },
+  {
+    "id": "CC_AdminDesk",
+    "fbx": "exports/CC_AdminDesk.fbx",
+    "dimensions_blender_xyz": [
+      1.8,
+      0.98,
+      1.2
+    ],
+    "dimensions_unity_xyz": [
+      1.8,
+      1.2,
+      0.98
+    ],
+    "triangles": 588,
+    "mesh_count": 18,
+    "materials": [
+      "CC_Amber",
+      "CC_Bark",
+      "CC_Cream",
+      "CC_CutWood",
+      "CC_Iron",
+      "CC_Wood"
+    ],
+    "children": [
+      "Brace.006",
+      "Cork.007",
+      "Ledger",
+      "Ledger.001",
+      "Ledger.002",
+      "Leg.028",
+      "Leg.029",
+      "Leg.030",
+      "Leg.031",
+      "Map",
+      "Map weight",
+      "Map weight.001",
+      "Map weight.002",
+      "Medicine jar.007",
+      "Plank.024",
+      "Plank.025",
+      "Plank.026",
+      "Plank.027"
+    ]
+  },
+  {
+    "id": "CC_Refrigerator",
+    "fbx": "exports/CC_Refrigerator.fbx",
+    "dimensions_blender_xyz": [
+      1.2,
+      1.3075,
+      1.8
+    ],
+    "dimensions_unity_xyz": [
+      1.2,
+      1.8,
+      1.3075
+    ],
+    "triangles": 704,
+    "mesh_count": 17,
+    "materials": [
+      "CC_Cream",
+      "CC_Iron",
+      "CC_Teal",
+      "CC_White"
+    ],
+    "children": [
+      "Cabinet back",
+      "Cabinet bottom",
+      "Cabinet side",
+      "Cabinet side.001",
+      "Cabinet top",
+      "Cold badge",
+      "Door_Hinge",
+      "Foot.002",
+      "Foot.003",
+      "Foot.004",
+      "Foot.005",
+      "Shelf",
+      "Shelf.001",
+      "Vent",
+      "Vent.001",
+      "Vent.002"
+    ]
+  },
+  {
+    "id": "CC_Freezer",
+    "fbx": "exports/CC_Freezer.fbx",
+    "dimensions_blender_xyz": [
+      1.95,
+      1.2473,
+      1.18
+    ],
+    "dimensions_unity_xyz": [
+      1.95,
+      1.18,
+      1.2473
+    ],
+    "triangles": 616,
+    "mesh_count": 15,
+    "materials": [
+      "CC_Cream",
+      "CC_Iron",
+      "CC_Teal",
+      "CC_White"
+    ],
+    "children": [
+      "Cabinet back.001",
+      "Cabinet bottom.001",
+      "Cabinet front",
+      "Cabinet side.002",
+      "Cabinet side.003",
+      "Cold badge.001",
+      "Foot.006",
+      "Foot.007",
+      "Foot.008",
+      "Foot.009",
+      "Lid_Hinge",
+      "Vent.003",
+      "Vent.004",
+      "Vent.005"
+    ]
+  },
+  {
+    "id": "CC_WoodGenerator",
+    "fbx": "exports/CC_WoodGenerator.fbx",
+    "dimensions_blender_xyz": [
+      2.0,
+      1.4,
+      2.12
+    ],
+    "dimensions_unity_xyz": [
+      2.0,
+      2.12,
+      1.4
+    ],
+    "triangles": 428,
+    "mesh_count": 12,
+    "materials": [
+      "CC_Bark",
+      "CC_Iron",
+      "CC_Stone",
+      "CC_Teal"
+    ],
+    "children": [
+      "Axle",
+      "Base",
+      "Chimney",
+      "Chimney rim",
+      "Door.001",
+      "Dynamo",
+      "Firebox",
+      "Fuel twig",
+      "Fuel twig.001",
+      "Grate",
+      "Grate.001",
+      "Grate.002"
+    ]
+  },
+  {
+    "id": "CC_Battery",
+    "fbx": "exports/CC_Battery.fbx",
+    "dimensions_blender_xyz": [
+      0.96,
+      0.7625,
+      1.225
+    ],
+    "dimensions_unity_xyz": [
+      0.96,
+      1.225,
+      0.7625
+    ],
+    "triangles": 312,
+    "mesh_count": 8,
+    "materials": [
+      "CC_Amber",
+      "CC_Iron",
+      "CC_Teal"
+    ],
+    "children": [
+      "Band",
+      "Band.001",
+      "Charge segment",
+      "Charge segment.001",
+      "Charge segment.002",
+      "Housing",
+      "Terminal",
+      "Terminal.001"
+    ]
+  },
+  {
+    "id": "CC_Lamp",
+    "fbx": "exports/CC_Lamp.fbx",
+    "dimensions_blender_xyz": [
+      1.013,
+      0.7,
+      1.88
+    ],
+    "dimensions_unity_xyz": [
+      1.013,
+      1.88,
+      0.7
+    ],
+    "triangles": 200,
+    "mesh_count": 9,
+    "materials": [
+      "CC_Amber",
+      "CC_Bark",
+      "CC_Iron",
+      "CC_Leaf",
+      "CC_Stone"
+    ],
+    "children": [
+      "Arm",
+      "Base.001",
+      "Guard",
+      "Guard.001",
+      "Lantern",
+      "Rim",
+      "Rim.001",
+      "Shade",
+      "Stem.006"
+    ]
+  },
+  {
+    "id": "CC_SoilWall",
+    "fbx": "exports/CC_SoilWall.fbx",
+    "dimensions_blender_xyz": [
+      1.96,
+      0.5,
+      1.46
+    ],
+    "dimensions_unity_xyz": [
+      1.96,
+      1.46,
+      0.5
+    ],
+    "triangles": 396,
+    "mesh_count": 9,
+    "materials": [
+      "CC_Earth"
+    ],
+    "children": [
+      "Earth block",
+      "Earth block.001",
+      "Earth block.002",
+      "Earth block.003",
+      "Earth block.004",
+      "Earth block.005",
+      "Earth block.006",
+      "Earth block.007",
+      "Earth block.008"
+    ]
+  },
+  {
+    "id": "CC_LeafWall",
+    "fbx": "exports/CC_LeafWall.fbx",
+    "dimensions_blender_xyz": [
+      2.15,
+      0.2241,
+      1.7
+    ],
+    "dimensions_unity_xyz": [
+      2.15,
+      1.7,
+      0.2241
+    ],
+    "triangles": 168,
+    "mesh_count": 8,
+    "materials": [
+      "CC_Bark",
+      "CC_Cream",
+      "CC_Leaf",
+      "CC_LeafLight"
+    ],
+    "children": [
+      "Binding rail",
+      "Binding rail.001",
+      "Frame",
+      "Frame.001",
+      "Frame.002",
+      "Panel",
+      "Panel.001",
+      "Panel.002"
+    ]
+  },
+  {
+    "id": "CC_DoorFrame",
+    "fbx": "exports/CC_DoorFrame.fbx",
+    "dimensions_blender_xyz": [
+      1.4,
+      0.2923,
+      1.92
+    ],
+    "dimensions_unity_xyz": [
+      1.4,
+      1.92,
+      0.2923
+    ],
+    "triangles": 400,
+    "mesh_count": 11,
+    "materials": [
+      "CC_Amber",
+      "CC_Bark",
+      "CC_Iron",
+      "CC_Wood"
+    ],
+    "children": [
+      "Door_Hinge.001",
+      "Lintel.001",
+      "Post.012",
+      "Post.013"
+    ]
+  },
+  {
+    "id": "CC_Bush",
+    "recipe": "models_nature",
+    "fbx": "exports/CC_Bush.fbx",
+    "dimensions_blender_xyz": [
+      1.5286,
+      1.0805,
+      1.15
+    ],
+    "dimensions_unity_xyz": [
+      1.5286,
+      1.15,
+      1.0805
+    ],
+    "triangles": 132,
+    "mesh_count": 6,
+    "materials": [
+      "CC_Bark",
+      "CC_Leaf"
+    ],
+    "children": [
+      "Foliage",
+      "Foliage.001",
+      "Foliage.002",
+      "Twig.003",
+      "Twig.004",
+      "Twig.005"
+    ]
+  },
+  {
+    "id": "CC_ConstructionFrame",
+    "recipe": "models_states",
+    "fbx": "exports/CC_ConstructionFrame.fbx",
+    "dimensions_blender_xyz": [
+      2.5755,
+      2.732,
+      2.1178
+    ],
+    "dimensions_unity_xyz": [
+      2.5755,
+      2.1178,
+      2.732
+    ],
+    "triangles": 492,
+    "mesh_count": 18,
+    "materials": [
+      "CC_Bark",
+      "CC_CutWood",
+      "CC_Wood"
+    ],
+    "children": [
+      "Diagonal brace",
+      "Frame post",
+      "Frame post.001",
+      "Frame post.002",
+      "Frame post.003",
+      "Header",
+      "Header.001",
+      "Ladder side",
+      "Ladder side.001",
+      "Rung",
+      "Rung.001",
+      "Rung.002",
+      "Rung.003",
+      "Rung.004",
+      "Rung.005",
+      "Staged plank",
+      "Staged plank.001",
+      "Staged plank.002"
+    ]
+  },
+  {
+    "id": "CC_ConstructionPlan",
+    "recipe": "models_states",
+    "fbx": "exports/CC_ConstructionPlan.fbx",
+    "dimensions_blender_xyz": [
+      2.99,
+      2.98,
+      0.55
+    ],
+    "dimensions_unity_xyz": [
+      2.99,
+      0.55,
+      2.98
+    ],
+    "triangles": 672,
+    "mesh_count": 20,
+    "materials": [
+      "CC_Cream",
+      "CC_CutWood"
+    ],
+    "children": [
+      "Fiber binding.030",
+      "Fiber binding.031",
+      "Fiber binding.032",
+      "Fiber binding.033",
+      "Fiber binding.034",
+      "Fiber binding.035",
+      "Fiber binding.036",
+      "Fiber binding.037",
+      "Fiber binding.038",
+      "Fiber binding.039",
+      "Fiber binding.040",
+      "Fiber binding.041",
+      "String",
+      "String.001",
+      "String.002",
+      "String.003",
+      "Survey stake",
+      "Survey stake.001",
+      "Survey stake.002",
+      "Survey stake.003"
+    ]
+  },
+  {
+    "id": "CC_CropFungus_Growing",
+    "recipe": "models_states",
+    "fbx": "exports/CC_CropFungus_Growing.fbx",
+    "dimensions_blender_xyz": [
+      1.0793,
+      1.0083,
+      0.73
+    ],
+    "dimensions_unity_xyz": [
+      1.0793,
+      0.73,
+      1.0083
+    ],
+    "triangles": 132,
+    "mesh_count": 6,
+    "materials": [
+      "CC_Cream",
+      "CC_Fungus"
+    ],
+    "children": [
+      "Cap.006",
+      "Cap.007",
+      "Cap.008",
+      "Stem.010",
+      "Stem.011",
+      "Stem.012"
+    ]
+  },
+  {
+    "id": "CC_CropFungus_Harvested",
+    "recipe": "models_states",
+    "fbx": "exports/CC_CropFungus_Harvested.fbx",
+    "dimensions_blender_xyz": [
+      0.9004,
+      0.8042,
+      0.195
+    ],
+    "dimensions_unity_xyz": [
+      0.9004,
+      0.195,
+      0.8042
+    ],
+    "triangles": 132,
+    "mesh_count": 6,
+    "materials": [
+      "CC_Cream"
+    ],
+    "children": [
+      "Cut stalk",
+      "Cut stalk.001",
+      "Cut stalk.002",
+      "Living root.003",
+      "Living root.004",
+      "Living root.005"
+    ]
+  },
+  {
+    "id": "CC_CropFungus_Pest",
+    "recipe": "models_states",
+    "fbx": "exports/CC_CropFungus_Pest.fbx",
+    "dimensions_blender_xyz": [
+      1.0793,
+      1.0083,
+      0.735
+    ],
+    "dimensions_unity_xyz": [
+      1.0793,
+      0.735,
+      1.0083
+    ],
+    "triangles": 252,
+    "mesh_count": 12,
+    "materials": [
+      "CC_Cream",
+      "CC_Dark",
+      "CC_Earth"
+    ],
+    "children": [
+      "Cap.009",
+      "Cap.010",
+      "Cap.011",
+      "Disease spot",
+      "Disease spot.001",
+      "Disease spot.002",
+      "Disease spot.003",
+      "Disease spot.004",
+      "Disease spot.005",
+      "Stem.013",
+      "Stem.014",
+      "Stem.015"
+    ]
+  },
+  {
+    "id": "CC_CropFungus_Planted",
+    "recipe": "models_states",
+    "fbx": "exports/CC_CropFungus_Planted.fbx",
+    "dimensions_blender_xyz": [
+      0.9004,
+      0.8042,
+      0.14
+    ],
+    "dimensions_unity_xyz": [
+      0.9004,
+      0.14,
+      0.8042
+    ],
+    "triangles": 60,
+    "mesh_count": 3,
+    "materials": [
+      "CC_Cream"
+    ],
+    "children": [
+      "Living root",
+      "Living root.001",
+      "Living root.002"
+    ]
+  },
+  {
+    "id": "CC_DemolitionRubble",
+    "recipe": "models_states",
+    "fbx": "exports/CC_DemolitionRubble.fbx",
+    "dimensions_blender_xyz": [
+      1.9259,
+      1.5684,
+      0.4
+    ],
+    "dimensions_unity_xyz": [
+      1.9259,
+      0.4,
+      1.5684
+    ],
+    "triangles": 212,
+    "mesh_count": 10,
+    "materials": [
+      "CC_Bark",
+      "CC_Earth"
+    ],
+    "children": [
+      "Broken block",
+      "Broken block.001",
+      "Broken block.002",
+      "Broken block.003",
+      "Broken block.004",
+      "Broken block.005",
+      "Broken block.006",
+      "Broken timber",
+      "Broken timber.001",
+      "Broken timber.002"
+    ]
+  },
+  {
+    "id": "CC_FallenBranch",
+    "recipe": "models_nature",
+    "fbx": "exports/CC_FallenBranch.fbx",
+    "dimensions_blender_xyz": [
+      2.1884,
+      1.162,
+      0.3932
+    ],
+    "dimensions_unity_xyz": [
+      2.1884,
+      0.3932,
+      1.162
+    ],
+    "triangles": 88,
+    "mesh_count": 4,
+    "materials": [
+      "CC_Bark",
+      "CC_CutWood",
+      "CC_Leaf"
+    ],
+    "children": [
+      "Attached leaf",
+      "Branch.011",
+      "Cut",
+      "Fork"
+    ]
+  },
+  {
+    "id": "CC_FeedMeat",
+    "recipe": "models_supplies",
+    "fbx": "exports/CC_FeedMeat.fbx",
+    "dimensions_blender_xyz": [
+      0.6502,
+      0.8,
+      0.2938
+    ],
+    "dimensions_unity_xyz": [
+      0.6502,
+      0.2938,
+      0.8
+    ],
+    "triangles": 116,
+    "mesh_count": 6,
+    "materials": [
+      "CC_Fungus",
+      "CC_Leaf"
+    ],
+    "children": [
+      "Feed piece.005",
+      "Feed piece.006",
+      "Feed piece.007",
+      "Feed piece.008",
+      "Feed piece.009",
+      "Wrapping.001"
+    ]
+  },
+  {
+    "id": "CC_FeedPlant",
+    "recipe": "models_supplies",
+    "fbx": "exports/CC_FeedPlant.fbx",
+    "dimensions_blender_xyz": [
+      0.6502,
+      0.8,
+      0.2938
+    ],
+    "dimensions_unity_xyz": [
+      0.6502,
+      0.2938,
+      0.8
+    ],
+    "triangles": 116,
+    "mesh_count": 6,
+    "materials": [
+      "CC_Leaf",
+      "CC_LeafLight"
+    ],
+    "children": [
+      "Feed piece",
+      "Feed piece.001",
+      "Feed piece.002",
+      "Feed piece.003",
+      "Feed piece.004",
+      "Wrapping"
+    ]
+  },
+  {
+    "id": "CC_FoodRotten",
+    "recipe": "models_supplies",
+    "fbx": "exports/CC_FoodRotten.fbx",
+    "dimensions_blender_xyz": [
+      0.76,
+      0.7228,
+      0.28
+    ],
+    "dimensions_unity_xyz": [
+      0.76,
+      0.28,
+      0.7228
+    ],
+    "triangles": 236,
+    "mesh_count": 9,
+    "materials": [
+      "CC_Leaf",
+      "CC_Soil",
+      "CC_Wood"
+    ],
+    "children": [
+      "Food.012",
+      "Food.013",
+      "Food.014",
+      "Food.015",
+      "Food.016",
+      "Food.017",
+      "Mold",
+      "Mold.001",
+      "Serving dish.002"
+    ]
+  },
+  {
+    "id": "CC_GrassTuft",
+    "recipe": "models_nature",
+    "fbx": "exports/CC_GrassTuft.fbx",
+    "dimensions_blender_xyz": [
+      0.71,
+      0.6466,
+      0.668
+    ],
+    "dimensions_unity_xyz": [
+      0.71,
+      0.668,
+      0.6466
+    ],
+    "triangles": 128,
+    "mesh_count": 8,
+    "materials": [
+      "CC_Leaf",
+      "CC_LeafLight"
+    ],
+    "children": [
+      "Blade.001",
+      "Blade.002",
+      "Blade.003",
+      "Blade.004",
+      "Blade.005",
+      "Blade.006",
+      "Blade.007",
+      "Blade.008"
+    ]
+  },
+  {
+    "id": "CC_Manure",
+    "recipe": "models_supplies",
+    "fbx": "exports/CC_Manure.fbx",
+    "dimensions_blender_xyz": [
+      0.5873,
+      0.2973,
+      0.292
+    ],
+    "dimensions_unity_xyz": [
+      0.5873,
+      0.292,
+      0.2973
+    ],
+    "triangles": 60,
+    "mesh_count": 3,
+    "materials": [
+      "CC_Earth"
+    ],
+    "children": [
+      "Dropping",
+      "Dropping.001",
+      "Dropping.002"
+    ]
+  },
+  {
+    "id": "CC_MealGood",
+    "recipe": "models_supplies",
+    "fbx": "exports/CC_MealGood.fbx",
+    "dimensions_blender_xyz": [
+      0.76,
+      0.7228,
+      0.39
+    ],
+    "dimensions_unity_xyz": [
+      0.76,
+      0.39,
+      0.7228
+    ],
+    "triangles": 232,
+    "mesh_count": 9,
+    "materials": [
+      "CC_Amber",
+      "CC_Fungus",
+      "CC_LeafLight",
+      "CC_Wood"
+    ],
+    "children": [
+      "Food.006",
+      "Food.007",
+      "Food.008",
+      "Food.009",
+      "Food.010",
+      "Food.011",
+      "Garnish",
+      "Protein portion",
+      "Serving dish.001"
+    ]
+  },
+  {
+    "id": "CC_MealSimple",
+    "recipe": "models_supplies",
+    "fbx": "exports/CC_MealSimple.fbx",
+    "dimensions_blender_xyz": [
+      0.76,
+      0.7228,
+      0.26
+    ],
+    "dimensions_unity_xyz": [
+      0.76,
+      0.26,
+      0.7228
+    ],
+    "triangles": 196,
+    "mesh_count": 7,
+    "materials": [
+      "CC_Cream",
+      "CC_Wood"
+    ],
+    "children": [
+      "Food",
+      "Food.001",
+      "Food.002",
+      "Food.003",
+      "Food.004",
+      "Food.005",
+      "Serving dish"
+    ]
+  },
+  {
+    "id": "CC_MedicineAdvanced",
+    "recipe": "models_supplies",
+    "fbx": "exports/CC_MedicineAdvanced.fbx",
+    "dimensions_blender_xyz": [
+      0.66,
+      0.2,
+      0.32
+    ],
+    "dimensions_unity_xyz": [
+      0.66,
+      0.32,
+      0.2
+    ],
+    "triangles": 168,
+    "mesh_count": 6,
+    "materials": [
+      "CC_Amber",
+      "CC_CutWood"
+    ],
+    "children": [
+      "Cork.011",
+      "Cork.012",
+      "Cork.013",
+      "Medicine jar.011",
+      "Medicine jar.012",
+      "Medicine jar.013"
+    ]
+  },
+  {
+    "id": "CC_MedicineAnimal",
+    "recipe": "models_supplies",
+    "fbx": "exports/CC_MedicineAnimal.fbx",
+    "dimensions_blender_xyz": [
+      0.2,
+      0.2125,
+      0.32
+    ],
+    "dimensions_unity_xyz": [
+      0.2,
+      0.32,
+      0.2125
+    ],
+    "triangles": 100,
+    "mesh_count": 3,
+    "materials": [
+      "CC_Cream",
+      "CC_CutWood",
+      "CC_Fungus"
+    ],
+    "children": [
+      "Animal label",
+      "Cork.014",
+      "Medicine jar.014"
+    ]
+  },
+  {
+    "id": "CC_MedicineHerbal",
+    "recipe": "models_supplies",
+    "fbx": "exports/CC_MedicineHerbal.fbx",
+    "dimensions_blender_xyz": [
+      0.4622,
+      0.5285,
+      0.32
+    ],
+    "dimensions_unity_xyz": [
+      0.4622,
+      0.32,
+      0.5285
+    ],
+    "triangles": 72,
+    "mesh_count": 3,
+    "materials": [
+      "CC_CutWood",
+      "CC_Leaf"
+    ],
+    "children": [
+      "Cork.008",
+      "Herb.001",
+      "Medicine jar.008"
+    ]
+  },
+  {
+    "id": "CC_MedicineStandard",
+    "recipe": "models_supplies",
+    "fbx": "exports/CC_MedicineStandard.fbx",
+    "dimensions_blender_xyz": [
+      0.43,
+      0.2,
+      0.32
+    ],
+    "dimensions_unity_xyz": [
+      0.43,
+      0.32,
+      0.2
+    ],
+    "triangles": 112,
+    "mesh_count": 4,
+    "materials": [
+      "CC_CutWood",
+      "CC_Teal"
+    ],
+    "children": [
+      "Cork.009",
+      "Cork.010",
+      "Medicine jar.009",
+      "Medicine jar.010"
+    ]
+  },
+  {
+    "id": "CC_OreOutcrop",
+    "recipe": "models_nature",
+    "fbx": "exports/CC_OreOutcrop.fbx",
+    "dimensions_blender_xyz": [
+      2.0628,
+      1.3675,
+      1.675
+    ],
+    "dimensions_unity_xyz": [
+      2.0628,
+      1.675,
+      1.3675
+    ],
+    "triangles": 180,
+    "mesh_count": 9,
+    "materials": [
+      "CC_Amber",
+      "CC_Iron",
+      "CC_Stone"
+    ],
+    "children": [
+      "Exposed ore",
+      "Exposed ore.001",
+      "Exposed ore.002",
+      "Mineral facet",
+      "Mineral facet.001",
+      "Mineral facet.002",
+      "Outcrop.003",
+      "Outcrop.004",
+      "Outcrop.005"
+    ]
+  },
+  {
+    "id": "CC_PebbleScatter",
+    "recipe": "models_nature",
+    "fbx": "exports/CC_PebbleScatter.fbx",
+    "dimensions_blender_xyz": [
+      1.477,
+      0.9889,
+      0.2
+    ],
+    "dimensions_unity_xyz": [
+      1.477,
+      0.2,
+      0.9889
+    ],
+    "triangles": 140,
+    "mesh_count": 7,
+    "materials": [
+      "CC_Stone"
+    ],
+    "children": [
+      "Pebble",
+      "Pebble.001",
+      "Pebble.002",
+      "Pebble.003",
+      "Pebble.004",
+      "Pebble.005",
+      "Pebble.006"
+    ]
+  },
+  {
+    "id": "CC_ResourceOre",
+    "recipe": "models_supplies",
+    "fbx": "exports/CC_ResourceOre.fbx",
+    "dimensions_blender_xyz": [
+      0.7614,
+      0.5486,
+      0.43
+    ],
+    "dimensions_unity_xyz": [
+      0.7614,
+      0.43,
+      0.5486
+    ],
+    "triangles": 120,
+    "mesh_count": 6,
+    "materials": [
+      "CC_Amber",
+      "CC_Iron"
+    ],
+    "children": [
+      "Facet",
+      "Facet.001",
+      "Facet.002",
+      "Ore",
+      "Ore.001",
+      "Ore.002"
+    ]
+  },
+  {
+    "id": "CC_ResourcePlanks",
+    "recipe": "models_supplies",
+    "fbx": "exports/CC_ResourcePlanks.fbx",
+    "dimensions_blender_xyz": [
+      0.65,
+      1.0,
+      0.32
+    ],
+    "dimensions_unity_xyz": [
+      0.65,
+      0.32,
+      1.0
+    ],
+    "triangles": 264,
+    "mesh_count": 6,
+    "materials": [
+      "CC_Cream",
+      "CC_CutWood"
+    ],
+    "children": [
+      "Binding",
+      "Binding.001",
+      "Plank.028",
+      "Plank.029",
+      "Plank.030",
+      "Plank.031"
+    ]
+  },
+  {
+    "id": "CC_ResourceSilk",
+    "recipe": "models_supplies",
+    "fbx": "exports/CC_ResourceSilk.fbx",
+    "dimensions_blender_xyz": [
+      0.5136,
+      0.54,
+      0.55
+    ],
+    "dimensions_unity_xyz": [
+      0.5136,
+      0.55,
+      0.54
+    ],
+    "triangles": 384,
+    "mesh_count": 11,
+    "materials": [
+      "CC_CutWood",
+      "CC_White",
+      "CC_Wood"
+    ],
+    "children": [
+      "Silk wrap",
+      "Silk wrap.001",
+      "Silk wrap.002",
+      "Silk wrap.003",
+      "Silk wrap.004",
+      "Silk wrap.005",
+      "Silk wrap.006",
+      "Silk wrap.007",
+      "Spindle",
+      "Spool rim",
+      "Spool rim.001"
+    ]
+  },
+  {
+    "id": "CC_RockOutcrop",
+    "recipe": "models_nature",
+    "fbx": "exports/CC_RockOutcrop.fbx",
+    "dimensions_blender_xyz": [
+      2.0628,
+      1.2408,
+      1.675
+    ],
+    "dimensions_unity_xyz": [
+      2.0628,
+      1.675,
+      1.2408
+    ],
+    "triangles": 60,
+    "mesh_count": 3,
+    "materials": [
+      "CC_Stone"
+    ],
+    "children": [
+      "Outcrop",
+      "Outcrop.001",
+      "Outcrop.002"
+    ]
+  },
+  {
+    "id": "CC_Stump",
+    "recipe": "models_nature",
+    "fbx": "exports/CC_Stump.fbx",
+    "dimensions_blender_xyz": [
+      1.1696,
+      1.2297,
+      0.5241
+    ],
+    "dimensions_unity_xyz": [
+      1.1696,
+      0.5241,
+      1.2297
+    ],
+    "triangles": 192,
+    "mesh_count": 8,
+    "materials": [
+      "CC_Bark",
+      "CC_CutWood",
+      "CC_Wood"
+    ],
+    "children": [
+      "Cut face",
+      "Heartwood",
+      "Root.010",
+      "Root.011",
+      "Root.012",
+      "Root.013",
+      "Root.014",
+      "Stump"
+    ]
+  },
+  {
+    "id": "CC_SurgeryKit",
+    "recipe": "models_supplies",
+    "fbx": "exports/CC_SurgeryKit.fbx",
+    "dimensions_blender_xyz": [
+      0.65,
+      0.48,
+      0.33
+    ],
+    "dimensions_unity_xyz": [
+      0.65,
+      0.33,
+      0.48
+    ],
+    "triangles": 156,
+    "mesh_count": 4,
+    "materials": [
+      "CC_Iron",
+      "CC_Teal"
+    ],
+    "children": [
+      "Case",
+      "Handle.003",
+      "Latch",
+      "Latch.001"
+    ]
+  },
+  {
+    "id": "CC_TreeBroadleaf",
+    "recipe": "models_nature",
+    "fbx": "exports/CC_TreeBroadleaf.fbx",
+    "dimensions_blender_xyz": [
+      3.1941,
+      2.5429,
+      4.1733
+    ],
+    "dimensions_unity_xyz": [
+      3.1941,
+      4.1733,
+      2.5429
+    ],
+    "triangles": 320,
+    "mesh_count": 14,
+    "materials": [
+      "CC_Bark",
+      "CC_Leaf",
+      "CC_LeafLight"
+    ],
+    "children": [
+      "Branch.003",
+      "Branch.004",
+      "Branch.005",
+      "Branch.006",
+      "Canopy",
+      "Canopy.001",
+      "Canopy.002",
+      "Canopy.003",
+      "Root",
+      "Root.001",
+      "Root.002",
+      "Root.003",
+      "Root.004",
+      "Trunk"
+    ]
+  },
+  {
+    "id": "CC_TreeTall",
+    "recipe": "models_nature",
+    "fbx": "exports/CC_TreeTall.fbx",
+    "dimensions_blender_xyz": [
+      3.1941,
+      2.5429,
+      5.0733
+    ],
+    "dimensions_unity_xyz": [
+      3.1941,
+      5.0733,
+      2.5429
+    ],
+    "triangles": 320,
+    "mesh_count": 14,
+    "materials": [
+      "CC_Bark",
+      "CC_Leaf",
+      "CC_LeafLight"
+    ],
+    "children": [
+      "Branch.007",
+      "Branch.008",
+      "Branch.009",
+      "Branch.010",
+      "Canopy.004",
+      "Canopy.005",
+      "Canopy.006",
+      "Canopy.007",
+      "Root.005",
+      "Root.006",
+      "Root.007",
+      "Root.008",
+      "Root.009",
+      "Trunk.001"
+    ]
+  },
+  {
+    "id": "CC_WildFungus",
+    "recipe": "models_nature",
+    "fbx": "exports/CC_WildFungus.fbx",
+    "dimensions_blender_xyz": [
+      1.3334,
+      0.9869,
+      1.075
+    ],
+    "dimensions_unity_xyz": [
+      1.3334,
+      1.075,
+      0.9869
+    ],
+    "triangles": 132,
+    "mesh_count": 6,
+    "materials": [
+      "CC_Cream",
+      "CC_Fungus"
+    ],
+    "children": [
+      "Stem.007",
+      "Stem.008",
+      "Stem.009",
+      "Wild cap",
+      "Wild cap.001",
+      "Wild cap.002"
+    ]
+  },
+  {
+    "id": "CC_AcidTower",
+    "recipe": "models_defense",
+    "fbx": "exports/CC_AcidTower.fbx",
+    "dimensions_blender_xyz": [
+      1.8261,
+      1.6248,
+      1.81
+    ],
+    "dimensions_unity_xyz": [
+      1.8261,
+      1.81,
+      1.6248
+    ],
+    "triangles": 284,
+    "mesh_count": 11,
+    "materials": [
+      "CC_Amber",
+      "CC_Iron",
+      "CC_Leaf",
+      "CC_Stone"
+    ],
+    "children": [
+      "Band.002",
+      "Band.003",
+      "Foundation.001",
+      "Foundation.002",
+      "Foundation.003",
+      "Foundation.004",
+      "Foundation.005",
+      "Foundation.006",
+      "Reservoir",
+      "Turret_Pivot"
+    ]
+  },
+  {
+    "id": "CC_Bookshelf",
+    "recipe": "models_living",
+    "fbx": "exports/CC_Bookshelf.fbx",
+    "dimensions_blender_xyz": [
+      1.42,
+      0.5,
+      1.7
+    ],
+    "dimensions_unity_xyz": [
+      1.42,
+      1.7,
+      0.5
+    ],
+    "triangles": 924,
+    "mesh_count": 21,
+    "materials": [
+      "CC_Cream",
+      "CC_Teal",
+      "CC_Wood"
+    ],
+    "children": [
+      "Bound volume",
+      "Bound volume.001",
+      "Bound volume.002",
+      "Bound volume.003",
+      "Bound volume.004",
+      "Bound volume.005",
+      "Bound volume.006",
+      "Bound volume.007",
+      "Bound volume.008",
+      "Bound volume.009",
+      "Bound volume.010",
+      "Bound volume.011",
+      "Bound volume.012",
+      "Bound volume.013",
+      "Bound volume.014",
+      "Shelf.002",
+      "Shelf.003",
+      "Shelf.004",
+      "Shelf.005",
+      "Side.002",
+      "Side.003"
+    ]
+  },
+  {
+    "id": "CC_Campfire",
+    "recipe": "models_living",
+    "fbx": "exports/CC_Campfire.fbx",
+    "dimensions_blender_xyz": [
+      1.5216,
+      1.471,
+      0.3
+    ],
+    "dimensions_unity_xyz": [
+      1.5216,
+      0.3,
+      1.471
+    ],
+    "triangles": 252,
+    "mesh_count": 12,
+    "materials": [
+      "CC_Bark",
+      "CC_Stone"
+    ],
+    "children": [
+      "Firewood.002",
+      "Firewood.003",
+      "Firewood.004",
+      "Stone ring",
+      "Stone ring.001",
+      "Stone ring.002",
+      "Stone ring.003",
+      "Stone ring.004",
+      "Stone ring.005",
+      "Stone ring.006",
+      "Stone ring.007",
+      "Stone ring.008"
+    ]
+  },
+  {
+    "id": "CC_CastleGate",
+    "recipe": "models_defense",
+    "fbx": "exports/CC_CastleGate.fbx",
+    "dimensions_blender_xyz": [
+      3.0,
+      0.9,
+      2.645
+    ],
+    "dimensions_unity_xyz": [
+      3.0,
+      2.645,
+      0.9
+    ],
+    "triangles": 1012,
+    "mesh_count": 23,
+    "materials": [
+      "CC_Iron",
+      "CC_Stone",
+      "CC_Wood"
+    ],
+    "children": [
+      "GateLeft_Hinge",
+      "GateRight_Hinge",
+      "Lintel.003",
+      "Pier",
+      "Pier.001",
+      "Pier.002",
+      "Pier.003",
+      "Pier.004",
+      "Pier.005",
+      "Pier.006",
+      "Pier.007",
+      "Pier.008",
+      "Pier.009"
+    ]
+  },
+  {
+    "id": "CC_CastleWall",
+    "recipe": "models_defense",
+    "fbx": "exports/CC_CastleWall.fbx",
+    "dimensions_blender_xyz": [
+      2.38,
+      0.92,
+      2.285
+    ],
+    "dimensions_unity_xyz": [
+      2.38,
+      2.285,
+      0.92
+    ],
+    "triangles": 660,
+    "mesh_count": 15,
+    "materials": [
+      "CC_Stone"
+    ],
+    "children": [
+      "Merlon",
+      "Merlon.001",
+      "Merlon.002",
+      "Stone block",
+      "Stone block.001",
+      "Stone block.002",
+      "Stone block.003",
+      "Stone block.004",
+      "Stone block.005",
+      "Stone block.006",
+      "Stone block.007",
+      "Stone block.008",
+      "Stone block.009",
+      "Stone block.010",
+      "Stone block.011"
+    ]
+  },
+  {
+    "id": "CC_Chair",
+    "recipe": "models_living",
+    "fbx": "exports/CC_Chair.fbx",
+    "dimensions_blender_xyz": [
+      0.65,
+      0.65,
+      1.015
+    ],
+    "dimensions_unity_xyz": [
+      0.65,
+      1.015,
+      0.65
+    ],
+    "triangles": 228,
+    "mesh_count": 7,
+    "materials": [
+      "CC_Bark",
+      "CC_CutWood",
+      "CC_Wood"
+    ],
+    "children": [
+      "Backrest",
+      "Backrest.001",
+      "Leg.044",
+      "Leg.045",
+      "Leg.046",
+      "Leg.047",
+      "Seat"
+    ]
+  },
+  {
+    "id": "CC_DiningTable",
+    "recipe": "models_living",
+    "fbx": "exports/CC_DiningTable.fbx",
+    "dimensions_blender_xyz": [
+      2.2,
+      1.13,
+      0.84
+    ],
+    "dimensions_unity_xyz": [
+      2.2,
+      0.84,
+      1.13
+    ],
+    "triangles": 296,
+    "mesh_count": 9,
+    "materials": [
+      "CC_Bark",
+      "CC_Wood"
+    ],
+    "children": [
+      "Brace.007",
+      "Leg.040",
+      "Leg.041",
+      "Leg.042",
+      "Leg.043",
+      "Plank.032",
+      "Plank.033",
+      "Plank.034",
+      "Plank.035"
+    ]
+  },
+  {
+    "id": "CC_RestBench",
+    "recipe": "models_living",
+    "fbx": "exports/CC_RestBench.fbx",
+    "dimensions_blender_xyz": [
+      1.9,
+      0.6,
+      1.08
+    ],
+    "dimensions_unity_xyz": [
+      1.9,
+      1.08,
+      0.6
+    ],
+    "triangles": 432,
+    "mesh_count": 13,
+    "materials": [
+      "CC_Bark",
+      "CC_Wood"
+    ],
+    "children": [
+      "Back post",
+      "Back post.001",
+      "Back slat.002",
+      "Back slat.003",
+      "Brace.008",
+      "Leg.048",
+      "Leg.049",
+      "Leg.050",
+      "Leg.051",
+      "Plank.036",
+      "Plank.037",
+      "Plank.038",
+      "Plank.039"
+    ]
+  },
+  {
+    "id": "CC_Shower",
+    "recipe": "models_living",
+    "fbx": "exports/CC_Shower.fbx",
+    "dimensions_blender_xyz": [
+      1.11,
+      1.1,
+      2.045
+    ],
+    "dimensions_unity_xyz": [
+      1.11,
+      2.045,
+      1.1
+    ],
+    "triangles": 432,
+    "mesh_count": 13,
+    "materials": [
+      "CC_Dark",
+      "CC_Iron",
+      "CC_Teal",
+      "CC_Wood"
+    ],
+    "children": [
+      "Arm.001",
+      "Drain slat",
+      "Drain slat.001",
+      "Drain slat.002",
+      "Drain slat.003",
+      "Drain slat.004",
+      "Drain slat.005",
+      "Nozzle",
+      "Nozzle.001",
+      "Nozzle.002",
+      "Shower head",
+      "Supply",
+      "Valve"
+    ]
+  },
+  {
+    "id": "CC_SleepingMat",
+    "recipe": "models_living",
+    "fbx": "exports/CC_SleepingMat.fbx",
+    "dimensions_blender_xyz": [
+      1.0,
+      1.65,
+      0.27
+    ],
+    "dimensions_unity_xyz": [
+      1.0,
+      0.27,
+      1.65
+    ],
+    "triangles": 460,
+    "mesh_count": 11,
+    "materials": [
+      "CC_Bark",
+      "CC_Cream",
+      "CC_LeafLight"
+    ],
+    "children": [
+      "Binding.002",
+      "Binding.003",
+      "Binding.004",
+      "Pillow",
+      "Woven strip",
+      "Woven strip.001",
+      "Woven strip.002",
+      "Woven strip.003",
+      "Woven strip.004",
+      "Woven strip.005",
+      "Woven strip.006"
+    ]
+  },
+  {
+    "id": "CC_SpikeTrap",
+    "recipe": "models_defense",
+    "fbx": "exports/CC_SpikeTrap.fbx",
+    "dimensions_blender_xyz": [
+      1.5,
+      1.5,
+      0.58
+    ],
+    "dimensions_unity_xyz": [
+      1.5,
+      0.58,
+      1.5
+    ],
+    "triangles": 116,
+    "mesh_count": 10,
+    "materials": [
+      "CC_CutWood",
+      "CC_Earth"
+    ],
+    "children": [
+      "Plate",
+      "Spike",
+      "Spike.001",
+      "Spike.002",
+      "Spike.003",
+      "Spike.004",
+      "Spike.005",
+      "Spike.006",
+      "Spike.007",
+      "Spike.008"
+    ]
+  },
+  {
+    "id": "CC_StickyTrap",
+    "recipe": "models_defense",
+    "fbx": "exports/CC_StickyTrap.fbx",
+    "dimensions_blender_xyz": [
+      1.5,
+      1.5,
+      0.19
+    ],
+    "dimensions_unity_xyz": [
+      1.5,
+      0.19,
+      1.5
+    ],
+    "triangles": 184,
+    "mesh_count": 5,
+    "materials": [
+      "CC_Amber",
+      "CC_Leaf"
+    ],
+    "children": [
+      "Leaf tray",
+      "Resin glob",
+      "Resin glob.001",
+      "Resin glob.002",
+      "Resin pool"
+    ]
+  },
+  {
+    "id": "CC_Toilet",
+    "recipe": "models_living",
+    "fbx": "exports/CC_Toilet.fbx",
+    "dimensions_blender_xyz": [
+      1.21,
+      1.015,
+      1.42
+    ],
+    "dimensions_unity_xyz": [
+      1.21,
+      1.42,
+      1.015
+    ],
+    "triangles": 276,
+    "mesh_count": 8,
+    "materials": [
+      "CC_Bark",
+      "CC_Cream",
+      "CC_CutWood",
+      "CC_Wood"
+    ],
+    "children": [
+      "Back panel",
+      "Hollow seat",
+      "Leaf paper",
+      "Leg.032",
+      "Leg.033",
+      "Leg.034",
+      "Leg.035",
+      "Paper holder"
+    ]
+  },
+  {
+    "id": "CC_Washbasin",
+    "recipe": "models_living",
+    "fbx": "exports/CC_Washbasin.fbx",
+    "dimensions_blender_xyz": [
+      1.0,
+      0.8,
+      1.215
+    ],
+    "dimensions_unity_xyz": [
+      1.0,
+      1.215,
+      0.8
+    ],
+    "triangles": 288,
+    "mesh_count": 9,
+    "materials": [
+      "CC_Bark",
+      "CC_Iron",
+      "CC_Stone",
+      "CC_Wood"
+    ],
+    "children": [
+      "Basin",
+      "Counter",
+      "Leg.036",
+      "Leg.037",
+      "Leg.038",
+      "Leg.039",
+      "Tap outlet",
+      "Tap riser",
+      "Tap spout"
+    ]
+  },
+  {
+    "id": "CC_Watchtower",
+    "recipe": "models_defense",
+    "fbx": "exports/CC_Watchtower.fbx",
+    "dimensions_blender_xyz": [
+      2.3,
+      2.2944,
+      3.5864
+    ],
+    "dimensions_unity_xyz": [
+      2.3,
+      3.5864,
+      2.2944
+    ],
+    "triangles": 920,
+    "mesh_count": 35,
+    "materials": [
+      "CC_Bark",
+      "CC_CutWood",
+      "CC_Leaf"
+    ],
+    "children": [
+      "Canopy.008",
+      "Canopy.009",
+      "Canopy.010",
+      "Canopy.011",
+      "Canopy.012",
+      "Cross brace",
+      "Cross brace.001",
+      "Cross brace.002",
+      "Cross brace.003",
+      "Guardrail",
+      "Guardrail.001",
+      "Guardrail.002",
+      "Guardrail.003",
+      "Ladder",
+      "Ladder.001",
+      "Platform",
+      "Platform.001",
+      "Platform.002",
+      "Platform.003",
+      "Platform.004",
+      "Platform.005",
+      "Roof post",
+      "Roof post.001",
+      "Rung.006",
+      "Rung.007",
+      "Rung.008",
+      "Rung.009",
+      "Rung.010",
+      "Rung.011",
+      "Rung.012",
+      "Rung.013",
+      "Tower leg",
+      "Tower leg.001",
+      "Tower leg.002",
+      "Tower leg.003"
+    ]
+  }
+]

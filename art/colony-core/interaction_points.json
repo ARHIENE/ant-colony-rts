@@ -1,0 +1,1872 @@
+{
+ "CC_NestEntrance": {
+  "clip": "Walk",
+  "tool": null,
+  "note": "입구 경사로 진입",
+  "points": {
+   "WorkPoint_0": {
+    "pos": [
+     0.016,
+     -2.577,
+     0.0
+    ],
+    "forward": [
+     -0.0,
+     1.0,
+     -0.0
+    ]
+   }
+  },
+  "hinges": []
+ },
+ "CC_Storage": {
+  "clip": "PutDown",
+  "tool": null,
+  "note": "보관 지점에 놓기·꺼내기",
+  "points": {
+   "WorkPoint_0": {
+    "pos": [
+     0.0,
+     -1.85,
+     0.0
+    ],
+    "forward": [
+     -0.0,
+     1.0,
+     -0.0
+    ]
+   },
+   "InputPoint": {
+    "pos": [
+     -0.616,
+     -1.2,
+     1.386
+    ],
+    "forward": [
+     -0.0,
+     1.0,
+     -0.0
+    ]
+   }
+  },
+  "hinges": []
+ },
+ "CC_FarmTile": {
+  "clip": "GroundWork",
+  "tool": null,
+  "note": "흙 고르기·심기",
+  "points": {
+   "WorkPoint_0": {
+    "pos": [
+     0.0,
+     -1.508,
+     0.0
+    ],
+    "forward": [
+     -0.0,
+     1.0,
+     -0.0
+    ]
+   }
+  },
+  "hinges": []
+ },
+ "CC_CropFungus_Planted": {
+  "clip": "GroundWork",
+  "tool": null,
+  "note": "파종",
+  "points": {
+   "WorkPoint_0": {
+    "pos": [
+     -0.025,
+     -0.902,
+     0.0
+    ],
+    "forward": [
+     -0.0,
+     1.0,
+     -0.0
+    ]
+   }
+  },
+  "hinges": []
+ },
+ "CC_CropFungus_Young": {
+  "clip": null,
+  "tool": null,
+  "note": "성장 중 작업자 없음",
+  "points": {},
+  "hinges": []
+ },
+ "CC_CropFungus_Growing": {
+  "clip": null,
+  "tool": null,
+  "note": "성장 중 작업자 없음",
+  "points": {},
+  "hinges": []
+ },
+ "CC_CropFungus_Mature": {
+  "clip": "Pickup",
+  "tool": null,
+  "note": "숙여 수확",
+  "points": {
+   "WorkPoint_0": {
+    "pos": [
+     0.006,
+     -1.13,
+     0.0
+    ],
+    "forward": [
+     -0.0,
+     1.0,
+     -0.0
+    ]
+   },
+   "OutputPoint": {
+    "pos": [
+     0.237,
+     -0.48,
+     0.444
+    ],
+    "forward": [
+     -0.0,
+     1.0,
+     -0.0
+    ]
+   }
+  },
+  "hinges": []
+ },
+ "CC_CropFungus_Harvested": {
+  "clip": "PutDown",
+  "tool": null,
+  "note": "수확물 내려놓기",
+  "points": {
+   "WorkPoint_0": {
+    "pos": [
+     -0.025,
+     -0.902,
+     0.0
+    ],
+    "forward": [
+     -0.0,
+     1.0,
+     -0.0
+    ]
+   },
+   "OutputPoint": {
+    "pos": [
+     0.155,
+     -0.252,
+     0.117
+    ],
+    "forward": [
+     -0.0,
+     1.0,
+     -0.0
+    ]
+   }
+  },
+  "hinges": []
+ },
+ "CC_CropFungus_Pest": {
+  "clip": "GroundWork",
+  "tool": null,
+  "note": "방제 작업 시에만",
+  "points": {
+   "WorkPoint_0": {
+    "pos": [
+     -0.025,
+     -1.004,
+     0.0
+    ],
+    "forward": [
+     -0.0,
+     1.0,
+     -0.0
+    ]
+   }
+  },
+  "hinges": []
+ },
+ "CC_RanchFence": {
+  "clip": "Hammer",
+  "tool": "Tool_Hammer",
+  "note": "건설·수리 때만",
+  "points": {
+   "WorkPoint_0": {
+    "pos": [
+     0.0,
+     -0.59,
+     0.0
+    ],
+    "forward": [
+     -0.0,
+     1.0,
+     -0.0
+    ]
+   }
+  },
+  "hinges": []
+ },
+ "CC_RanchGate": {
+  "clip": "Walk",
+  "tool": null,
+  "note": "통행 시 문 개폐",
+  "points": {
+   "WorkPoint_0": {
+    "pos": [
+     0.0,
+     -0.9,
+     0.0
+    ],
+    "forward": [
+     -0.0,
+     1.0,
+     -0.0
+    ]
+   }
+  },
+  "hinges": [
+   {
+    "pivot": "Gate_Hinge",
+    "axis": "Z",
+    "open_deg": 95
+   }
+  ]
+ },
+ "CC_Feeder": {
+  "clip": "PutDown",
+  "tool": null,
+  "note": "먹이 붓기",
+  "points": {
+   "WorkPoint_0": {
+    "pos": [
+     0.0,
+     -1.0,
+     0.0
+    ],
+    "forward": [
+     -0.0,
+     1.0,
+     -0.0
+    ]
+   },
+   "InputPoint": {
+    "pos": [
+     -0.37,
+     -0.35,
+     0.39
+    ],
+    "forward": [
+     -0.0,
+     1.0,
+     -0.0
+    ]
+   }
+  },
+  "hinges": []
+ },
+ "CC_CommanderBed": {
+  "clip": "Treat",
+  "tool": null,
+  "note": "병상 옆 처치",
+  "points": {
+   "WorkPoint_0": {
+    "pos": [
+     0.237,
+     -1.34,
+     0.0
+    ],
+    "forward": [
+     -0.0,
+     1.0,
+     -0.0
+    ]
+   },
+   "PatientPoint": {
+    "pos": [
+     0.237,
+     0.0,
+     0.924
+    ],
+    "forward": [
+     -0.0,
+     1.0,
+     -0.0
+    ]
+   }
+  },
+  "hinges": []
+ },
+ "CC_AnimalTreatment": {
+  "clip": "Operate",
+  "tool": "Tool_Scalpel",
+  "note": "직립 수술",
+  "points": {
+   "WorkPoint_0": {
+    "pos": [
+     0.162,
+     -1.34,
+     0.0
+    ],
+    "forward": [
+     -0.0,
+     1.0,
+     -0.0
+    ]
+   },
+   "PatientPoint": {
+    "pos": [
+     0.162,
+     0.0,
+     0.924
+    ],
+    "forward": [
+     -0.0,
+     1.0,
+     -0.0
+    ]
+   }
+  },
+  "hinges": []
+ },
+ "CC_Apothecary": {
+  "clip": "BenchWork",
+  "tool": "Tool_Pestle",
+  "note": "절구 찧기",
+  "points": {
+   "WorkPoint_0": {
+    "pos": [
+     0.0,
+     -0.984,
+     0.0
+    ],
+    "forward": [
+     -0.0,
+     1.0,
+     -0.0
+    ]
+   },
+   "InputPoint": {
+    "pos": [
+     -0.4,
+     -0.334,
+     1.044
+    ],
+    "forward": [
+     -0.0,
+     1.0,
+     -0.0
+    ]
+   },
+   "OutputPoint": {
+    "pos": [
+     0.4,
+     -0.334,
+     1.044
+    ],
+    "forward": [
+     -0.0,
+     1.0,
+     -0.0
+    ]
+   }
+  },
+  "hinges": []
+ },
+ "CC_ButcherTable": {
+  "clip": "Chop",
+  "tool": "Tool_Saw",
+  "note": "사체 해체",
+  "points": {
+   "WorkPoint_0": {
+    "pos": [
+     0.0,
+     -1.04,
+     0.0
+    ],
+    "forward": [
+     -0.0,
+     1.0,
+     -0.0
+    ]
+   },
+   "InputPoint": {
+    "pos": [
+     -0.42,
+     -0.39,
+     0.876
+    ],
+    "forward": [
+     -0.0,
+     1.0,
+     -0.0
+    ]
+   },
+   "OutputPoint": {
+    "pos": [
+     0.42,
+     -0.39,
+     0.876
+    ],
+    "forward": [
+     -0.0,
+     1.0,
+     -0.0
+    ]
+   }
+  },
+  "hinges": []
+ },
+ "CC_Kitchen": {
+  "clip": "BenchWork",
+  "tool": "Tool_Spoon",
+  "note": "냄비 젓기",
+  "points": {
+   "WorkPoint_0": {
+    "pos": [
+     -0.003,
+     -1.146,
+     0.0
+    ],
+    "forward": [
+     -0.0,
+     1.0,
+     -0.0
+    ]
+   },
+   "InputPoint": {
+    "pos": [
+     -0.504,
+     -0.496,
+     0.66
+    ],
+    "forward": [
+     -0.0,
+     1.0,
+     -0.0
+    ]
+   },
+   "OutputPoint": {
+    "pos": [
+     0.498,
+     -0.496,
+     0.66
+    ],
+    "forward": [
+     -0.0,
+     1.0,
+     -0.0
+    ]
+   }
+  },
+  "hinges": []
+ },
+ "CC_CompostBin": {
+  "clip": "PutDown",
+  "tool": null,
+  "note": "배설물 투입",
+  "points": {
+   "WorkPoint_0": {
+    "pos": [
+     0.0,
+     -1.22,
+     0.0
+    ],
+    "forward": [
+     -0.0,
+     1.0,
+     -0.0
+    ]
+   },
+   "InputPoint": {
+    "pos": [
+     -0.307,
+     -0.57,
+     0.63
+    ],
+    "forward": [
+     -0.0,
+     1.0,
+     -0.0
+    ]
+   }
+  },
+  "hinges": []
+ },
+ "CC_Tombstone": {
+  "clip": "Mourn",
+  "tool": null,
+  "note": "짧게 고개 숙이기",
+  "points": {
+   "WorkPoint_0": {
+    "pos": [
+     0.0,
+     -1.056,
+     0.0
+    ],
+    "forward": [
+     -0.0,
+     1.0,
+     -0.0
+    ]
+   }
+  },
+  "hinges": []
+ },
+ "CC_Dormitory": {
+  "clip": "Walk",
+  "tool": null,
+  "note": "출입 위치로 들어감",
+  "points": {
+   "WorkPoint_0": {
+    "pos": [
+     0.0,
+     -2.25,
+     0.0
+    ],
+    "forward": [
+     -0.0,
+     1.0,
+     -0.0
+    ]
+   }
+  },
+  "hinges": []
+ },
+ "CC_Workshop": {
+  "clip": "Hammer",
+  "tool": "Tool_Hammer",
+  "note": "고정하고 망치질",
+  "points": {
+   "WorkPoint_0": {
+    "pos": [
+     0.0,
+     -1.04,
+     0.0
+    ],
+    "forward": [
+     -0.0,
+     1.0,
+     -0.0
+    ]
+   },
+   "InputPoint": {
+    "pos": [
+     -0.48,
+     -0.39,
+     0.993
+    ],
+    "forward": [
+     -0.0,
+     1.0,
+     -0.0
+    ]
+   },
+   "OutputPoint": {
+    "pos": [
+     0.48,
+     -0.39,
+     0.993
+    ],
+    "forward": [
+     -0.0,
+     1.0,
+     -0.0
+    ]
+   }
+  },
+  "hinges": []
+ },
+ "CC_ResearchDesk": {
+  "clip": "Inspect",
+  "tool": null,
+  "note": "표본 살펴보기",
+  "points": {
+   "WorkPoint_0": {
+    "pos": [
+     0.0,
+     -1.065,
+     0.0
+    ],
+    "forward": [
+     -0.0,
+     1.0,
+     -0.0
+    ]
+   }
+  },
+  "hinges": []
+ },
+ "CC_AdminDesk": {
+  "clip": "BenchWork",
+  "tool": "Tool_Stamp",
+  "note": "서류·도장",
+  "points": {
+   "WorkPoint_0": {
+    "pos": [
+     0.0,
+     -0.99,
+     0.0
+    ],
+    "forward": [
+     -0.0,
+     1.0,
+     -0.0
+    ]
+   }
+  },
+  "hinges": []
+ },
+ "CC_Refrigerator": {
+  "clip": "Pickup",
+  "tool": null,
+  "note": "문 열고 물건 출입",
+  "points": {
+   "WorkPoint_0": {
+    "pos": [
+     0.0,
+     -1.25,
+     0.0
+    ],
+    "forward": [
+     -0.0,
+     1.0,
+     -0.0
+    ]
+   },
+   "InputPoint": {
+    "pos": [
+     -0.24,
+     -0.6,
+     1.08
+    ],
+    "forward": [
+     -0.0,
+     1.0,
+     -0.0
+    ]
+   }
+  },
+  "hinges": [
+   {
+    "pivot": "Door_Hinge",
+    "axis": "Z",
+    "open_deg": -100
+   }
+  ]
+ },
+ "CC_Freezer": {
+  "clip": "Pickup",
+  "tool": null,
+  "note": "뚜껑 들고 물건 출입",
+  "points": {
+   "WorkPoint_0": {
+    "pos": [
+     0.0,
+     -1.19,
+     0.0
+    ],
+    "forward": [
+     -0.0,
+     1.0,
+     -0.0
+    ]
+   },
+   "InputPoint": {
+    "pos": [
+     -0.39,
+     -0.54,
+     0.708
+    ],
+    "forward": [
+     -0.0,
+     1.0,
+     -0.0
+    ]
+   }
+  },
+  "hinges": [
+   {
+    "pivot": "Lid_Hinge",
+    "axis": "X",
+    "open_deg": -75
+   }
+  ]
+ },
+ "CC_WoodGenerator": {
+  "clip": "PutDown",
+  "tool": null,
+  "note": "연료 투입",
+  "points": {
+   "WorkPoint_0": {
+    "pos": [
+     0.0,
+     -1.2,
+     0.0
+    ],
+    "forward": [
+     -0.0,
+     1.0,
+     -0.0
+    ]
+   },
+   "InputPoint": {
+    "pos": [
+     -0.4,
+     -0.55,
+     1.272
+    ],
+    "forward": [
+     -0.0,
+     1.0,
+     -0.0
+    ]
+   }
+  },
+  "hinges": []
+ },
+ "CC_Battery": {
+  "clip": "Hammer",
+  "tool": "Tool_Hammer",
+  "note": "설치·수리 때만",
+  "points": {
+   "WorkPoint_0": {
+    "pos": [
+     0.0,
+     -0.882,
+     0.0
+    ],
+    "forward": [
+     -0.0,
+     1.0,
+     -0.0
+    ]
+   }
+  },
+  "hinges": []
+ },
+ "CC_Lamp": {
+  "clip": "Hammer",
+  "tool": "Tool_Hammer",
+  "note": "설치·수리 때만",
+  "points": {
+   "WorkPoint_0": {
+    "pos": [
+     0.193,
+     -0.85,
+     0.0
+    ],
+    "forward": [
+     -0.0,
+     1.0,
+     -0.0
+    ]
+   }
+  },
+  "hinges": []
+ },
+ "CC_SoilWall": {
+  "clip": "Hammer",
+  "tool": "Tool_Hammer",
+  "note": "건설·수리·철거 때만",
+  "points": {
+   "WorkPoint_0": {
+    "pos": [
+     0.0,
+     -0.75,
+     0.0
+    ],
+    "forward": [
+     -0.0,
+     1.0,
+     -0.0
+    ]
+   }
+  },
+  "hinges": []
+ },
+ "CC_LeafWall": {
+  "clip": "Hammer",
+  "tool": "Tool_Hammer",
+  "note": "건설·수리·철거 때만",
+  "points": {
+   "WorkPoint_0": {
+    "pos": [
+     0.0,
+     -0.67,
+     0.0
+    ],
+    "forward": [
+     -0.0,
+     1.0,
+     -0.0
+    ]
+   }
+  },
+  "hinges": []
+ },
+ "CC_CastleWall": {
+  "clip": "Hammer",
+  "tool": "Tool_Hammer",
+  "note": "건설·수리·철거 때만",
+  "points": {
+   "WorkPoint_0": {
+    "pos": [
+     0.0,
+     -0.96,
+     0.0
+    ],
+    "forward": [
+     -0.0,
+     1.0,
+     -0.0
+    ]
+   }
+  },
+  "hinges": []
+ },
+ "CC_DoorFrame": {
+  "clip": "Walk",
+  "tool": null,
+  "note": "통행 시 문 개폐",
+  "points": {
+   "WorkPoint_0": {
+    "pos": [
+     0.0,
+     -0.9,
+     0.0
+    ],
+    "forward": [
+     -0.0,
+     1.0,
+     -0.0
+    ]
+   }
+  },
+  "hinges": [
+   {
+    "pivot": "Door_Hinge.001",
+    "axis": "Z",
+    "open_deg": 95
+   }
+  ]
+ },
+ "CC_CastleGate": {
+  "clip": "Walk",
+  "tool": null,
+  "note": "통행 시 양쪽 문 개폐",
+  "points": {
+   "WorkPoint_0": {
+    "pos": [
+     0.0,
+     -1.4,
+     0.0
+    ],
+    "forward": [
+     -0.0,
+     1.0,
+     -0.0
+    ]
+   }
+  },
+  "hinges": [
+   {
+    "pivot": "GateLeft_Hinge",
+    "axis": "Z",
+    "open_deg": 90
+   },
+   {
+    "pivot": "GateRight_Hinge",
+    "axis": "Z",
+    "open_deg": -90
+   }
+  ]
+ },
+ "CC_ConstructionPlan": {
+  "clip": "PutDown",
+  "tool": null,
+  "note": "자재 내려놓기",
+  "points": {
+   "WorkPoint_0": {
+    "pos": [
+     0.0,
+     -1.99,
+     0.0
+    ],
+    "forward": [
+     -0.0,
+     1.0,
+     -0.0
+    ]
+   },
+   "InputPoint": {
+    "pos": [
+     -0.598,
+     -1.34,
+     0.33
+    ],
+    "forward": [
+     -0.0,
+     1.0,
+     -0.0
+    ]
+   }
+  },
+  "hinges": []
+ },
+ "CC_ConstructionFrame": {
+  "clip": "Hammer",
+  "tool": "Tool_Hammer",
+  "note": "골조 망치질",
+  "points": {
+   "WorkPoint_0": {
+    "pos": [
+     0.0,
+     -2.049,
+     0.0
+    ],
+    "forward": [
+     -0.0,
+     1.0,
+     -0.0
+    ]
+   }
+  },
+  "hinges": []
+ },
+ "CC_DemolitionRubble": {
+  "clip": "Mine",
+  "tool": "Tool_Pickaxe",
+  "note": "철거 도구질",
+  "points": {
+   "WorkPoint_0": {
+    "pos": [
+     0.005,
+     -1.293,
+     0.0
+    ],
+    "forward": [
+     -0.0,
+     1.0,
+     -0.0
+    ]
+   }
+  },
+  "hinges": []
+ },
+ "CC_TreeBroadleaf": {
+  "clip": "Chop",
+  "tool": "Tool_Axe",
+  "note": "도끼질",
+  "points": {
+   "WorkPoint_0": {
+    "pos": [
+     0.0,
+     -0.75,
+     0.0
+    ],
+    "forward": [
+     -0.0,
+     1.0,
+     -0.0
+    ]
+   }
+  },
+  "hinges": []
+ },
+ "CC_TreeTall": {
+  "clip": "Chop",
+  "tool": "Tool_Axe",
+  "note": "도끼질",
+  "points": {
+   "WorkPoint_0": {
+    "pos": [
+     0.0,
+     -0.75,
+     0.0
+    ],
+    "forward": [
+     -0.0,
+     1.0,
+     -0.0
+    ]
+   }
+  },
+  "hinges": []
+ },
+ "CC_Stump": {
+  "clip": "Chop",
+  "tool": "Tool_Axe",
+  "note": "낮게 절단",
+  "points": {
+   "WorkPoint_0": {
+    "pos": [
+     0.03,
+     -1.115,
+     0.0
+    ],
+    "forward": [
+     -0.0,
+     1.0,
+     -0.0
+    ]
+   }
+  },
+  "hinges": []
+ },
+ "CC_FallenBranch": {
+  "clip": "Pickup",
+  "tool": null,
+  "note": "집기",
+  "points": {
+   "WorkPoint_0": {
+    "pos": [
+     0.084,
+     -0.665,
+     0.0
+    ],
+    "forward": [
+     -0.0,
+     1.0,
+     -0.0
+    ]
+   }
+  },
+  "hinges": []
+ },
+ "CC_RockOutcrop": {
+  "clip": "Mine",
+  "tool": "Tool_Pickaxe",
+  "note": "곡괭이질",
+  "points": {
+   "WorkPoint_0": {
+    "pos": [
+     -0.045,
+     -0.976,
+     0.0
+    ],
+    "forward": [
+     -0.0,
+     1.0,
+     -0.0
+    ]
+   }
+  },
+  "hinges": []
+ },
+ "CC_OreOutcrop": {
+  "clip": "Mine",
+  "tool": "Tool_Pickaxe",
+  "note": "곡괭이질",
+  "points": {
+   "WorkPoint_0": {
+    "pos": [
+     -0.045,
+     -1.103,
+     0.0
+    ],
+    "forward": [
+     -0.0,
+     1.0,
+     -0.0
+    ]
+   }
+  },
+  "hinges": []
+ },
+ "CC_Bush": {
+  "clip": "GroundWork",
+  "tool": null,
+  "note": "뜯기",
+  "points": {
+   "WorkPoint_0": {
+    "pos": [
+     -0.015,
+     -1.09,
+     0.0
+    ],
+    "forward": [
+     -0.0,
+     1.0,
+     -0.0
+    ]
+   }
+  },
+  "hinges": []
+ },
+ "CC_GrassTuft": {
+  "clip": "GroundWork",
+  "tool": null,
+  "note": "뜯기",
+  "points": {
+   "WorkPoint_0": {
+    "pos": [
+     0.02,
+     -0.804,
+     0.0
+    ],
+    "forward": [
+     -0.0,
+     1.0,
+     -0.0
+    ]
+   }
+  },
+  "hinges": []
+ },
+ "CC_WildFungus": {
+  "clip": "Pickup",
+  "tool": null,
+  "note": "집기",
+  "points": {
+   "WorkPoint_0": {
+    "pos": [
+     0.036,
+     -1.004,
+     0.0
+    ],
+    "forward": [
+     -0.0,
+     1.0,
+     -0.0
+    ]
+   }
+  },
+  "hinges": []
+ },
+ "CC_PebbleScatter": {
+  "clip": "Pickup",
+  "tool": null,
+  "note": "집기",
+  "points": {
+   "WorkPoint_0": {
+    "pos": [
+     0.005,
+     -1.001,
+     0.0
+    ],
+    "forward": [
+     -0.0,
+     1.0,
+     -0.0
+    ]
+   }
+  },
+  "hinges": []
+ },
+ "CC_SleepingMat": {
+  "clip": "Sleep",
+  "tool": null,
+  "note": "엎드려 수면",
+  "points": {
+   "WorkPoint_0": {
+    "pos": [
+     0.0,
+     -1.325,
+     0.0
+    ],
+    "forward": [
+     -0.0,
+     1.0,
+     -0.0
+    ]
+   },
+   "SeatPoint": {
+    "pos": [
+     0.0,
+     0.0,
+     0.27
+    ],
+    "forward": [
+     -0.0,
+     1.0,
+     -0.0
+    ]
+   }
+  },
+  "hinges": []
+ },
+ "CC_Chair": {
+  "clip": "Sit",
+  "tool": null,
+  "note": "앉기",
+  "points": {
+   "WorkPoint_0": {
+    "pos": [
+     0.0,
+     -0.825,
+     0.0
+    ],
+    "forward": [
+     -0.0,
+     1.0,
+     -0.0
+    ]
+   },
+   "SeatPoint": {
+    "pos": [
+     0.0,
+     0.0,
+     0.457
+    ],
+    "forward": [
+     -0.0,
+     1.0,
+     -0.0
+    ]
+   }
+  },
+  "hinges": []
+ },
+ "CC_DiningTable": {
+  "clip": "Eat",
+  "tool": null,
+  "note": "앉아 먹기",
+  "points": {
+   "WorkPoint_0": {
+    "pos": [
+     0.0,
+     -1.065,
+     0.0
+    ],
+    "forward": [
+     -0.0,
+     1.0,
+     -0.0
+    ]
+   },
+   "SeatPoint": {
+    "pos": [
+     0.0,
+     0.0,
+     0.378
+    ],
+    "forward": [
+     -0.0,
+     1.0,
+     -0.0
+    ]
+   }
+  },
+  "hinges": []
+ },
+ "CC_RestBench": {
+  "clip": "Rest",
+  "tool": null,
+  "note": "앉아 더듬이 손질",
+  "points": {
+   "WorkPoint_0": {
+    "pos": [
+     0.0,
+     -0.8,
+     0.0
+    ],
+    "forward": [
+     -0.0,
+     1.0,
+     -0.0
+    ]
+   },
+   "SeatPoint": {
+    "pos": [
+     0.0,
+     0.0,
+     0.486
+    ],
+    "forward": [
+     -0.0,
+     1.0,
+     -0.0
+    ]
+   }
+  },
+  "hinges": []
+ },
+ "CC_Bookshelf": {
+  "clip": "Inspect",
+  "tool": null,
+  "note": "책 살펴보기",
+  "points": {
+   "WorkPoint_0": {
+    "pos": [
+     0.0,
+     -0.75,
+     0.0
+    ],
+    "forward": [
+     -0.0,
+     1.0,
+     -0.0
+    ]
+   }
+  },
+  "hinges": []
+ },
+ "CC_Campfire": {
+  "clip": "Rest",
+  "tool": null,
+  "note": "주변에서 휴식",
+  "points": {
+   "WorkPoint_0": {
+    "pos": [
+     0.0,
+     -1.25,
+     0.0
+    ],
+    "forward": [
+     -0.0,
+     1.0,
+     -0.0
+    ]
+   }
+  },
+  "hinges": []
+ },
+ "CC_Toilet": {
+  "clip": "Sit",
+  "tool": null,
+  "note": "앉기(절제)",
+  "points": {
+   "WorkPoint_0": {
+    "pos": [
+     0.105,
+     -0.975,
+     0.0
+    ],
+    "forward": [
+     -0.0,
+     1.0,
+     -0.0
+    ]
+   },
+   "SeatPoint": {
+    "pos": [
+     0.105,
+     0.032,
+     0.639
+    ],
+    "forward": [
+     -0.0,
+     1.0,
+     -0.0
+    ]
+   }
+  },
+  "hinges": []
+ },
+ "CC_Washbasin": {
+  "clip": "BenchWork",
+  "tool": null,
+  "note": "앞다리 씻기",
+  "points": {
+   "WorkPoint_0": {
+    "pos": [
+     0.0,
+     -0.9,
+     0.0
+    ],
+    "forward": [
+     -0.0,
+     1.0,
+     -0.0
+    ]
+   }
+  },
+  "hinges": []
+ },
+ "CC_Shower": {
+  "clip": "StandIdle",
+  "tool": null,
+  "note": "물 맞으며 서 있기",
+  "points": {
+   "WorkPoint_0": {
+    "pos": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "forward": [
+     -0.0,
+     1.0,
+     -0.0
+    ]
+   }
+  },
+  "hinges": []
+ },
+ "CC_Watchtower": {
+  "clip": "Inspect",
+  "tool": null,
+  "note": "둘러보기",
+  "points": {
+   "WorkPoint_0": {
+    "pos": [
+     0.0,
+     -1.5,
+     0.0
+    ],
+    "forward": [
+     -0.0,
+     1.0,
+     -0.0
+    ]
+   }
+  },
+  "hinges": []
+ },
+ "CC_AcidTower": {
+  "clip": null,
+  "tool": null,
+  "note": "포탑 조준(개미 없음)",
+  "points": {},
+  "hinges": [
+   {
+    "pivot": "Turret_Pivot",
+    "axis": "Z",
+    "open_deg": 40
+   }
+  ]
+ },
+ "CC_SpikeTrap": {
+  "clip": "Hammer",
+  "tool": "Tool_Hammer",
+  "note": "설치·해체 때만",
+  "points": {
+   "WorkPoint_0": {
+    "pos": [
+     0.0,
+     -1.25,
+     0.0
+    ],
+    "forward": [
+     -0.0,
+     1.0,
+     -0.0
+    ]
+   }
+  },
+  "hinges": []
+ },
+ "CC_StickyTrap": {
+  "clip": "GroundWork",
+  "tool": null,
+  "note": "수지 펴 바르기",
+  "points": {
+   "WorkPoint_0": {
+    "pos": [
+     0.0,
+     -1.25,
+     0.0
+    ],
+    "forward": [
+     -0.0,
+     1.0,
+     -0.0
+    ]
+   }
+  },
+  "hinges": []
+ },
+ "CC_ResourceWood": {
+  "clip": "Carry",
+  "tool": null,
+  "note": "집어서 운반",
+  "points": {
+   "CarryAnchor": {
+    "pos": [
+     0.0,
+     -0.005,
+     0.457
+    ],
+    "forward": [
+     0.0,
+     0.0,
+     1.0
+    ]
+   }
+  },
+  "hinges": []
+ },
+ "CC_ResourceStone": {
+  "clip": "Carry",
+  "tool": null,
+  "note": "집어서 운반",
+  "points": {
+   "CarryAnchor": {
+    "pos": [
+     -0.018,
+     0.011,
+     0.529
+    ],
+    "forward": [
+     0.0,
+     0.0,
+     1.0
+    ]
+   }
+  },
+  "hinges": []
+ },
+ "CC_ResourceLeaf": {
+  "clip": "Carry",
+  "tool": null,
+  "note": "집어서 운반",
+  "points": {
+   "CarryAnchor": {
+    "pos": [
+     0.0,
+     0.0,
+     0.334
+    ],
+    "forward": [
+     0.0,
+     0.0,
+     1.0
+    ]
+   }
+  },
+  "hinges": []
+ },
+ "CC_ResourceFiber": {
+  "clip": "Carry",
+  "tool": null,
+  "note": "집어서 운반",
+  "points": {
+   "CarryAnchor": {
+    "pos": [
+     0.0,
+     0.0,
+     0.12
+    ],
+    "forward": [
+     0.0,
+     0.0,
+     1.0
+    ]
+   }
+  },
+  "hinges": []
+ },
+ "CC_ResourceGrain": {
+  "clip": "Carry",
+  "tool": null,
+  "note": "집어서 운반",
+  "points": {
+   "CarryAnchor": {
+    "pos": [
+     0.002,
+     -0.003,
+     0.34
+    ],
+    "forward": [
+     0.0,
+     0.0,
+     1.0
+    ]
+   }
+  },
+  "hinges": []
+ },
+ "CC_ResourceCompost": {
+  "clip": "Carry",
+  "tool": null,
+  "note": "집어서 운반",
+  "points": {
+   "CarryAnchor": {
+    "pos": [
+     0.0,
+     0.0,
+     0.53
+    ],
+    "forward": [
+     0.0,
+     0.0,
+     1.0
+    ]
+   }
+  },
+  "hinges": []
+ },
+ "CC_ResourceOre": {
+  "clip": "Carry",
+  "tool": null,
+  "note": "집어서 운반",
+  "points": {
+   "CarryAnchor": {
+    "pos": [
+     -0.005,
+     -0.03,
+     0.43
+    ],
+    "forward": [
+     0.0,
+     0.0,
+     1.0
+    ]
+   }
+  },
+  "hinges": []
+ },
+ "CC_ResourcePlanks": {
+  "clip": "Carry",
+  "tool": null,
+  "note": "집어서 운반",
+  "points": {
+   "CarryAnchor": {
+    "pos": [
+     0.0,
+     0.0,
+     0.32
+    ],
+    "forward": [
+     0.0,
+     0.0,
+     1.0
+    ]
+   }
+  },
+  "hinges": []
+ },
+ "CC_ResourceSilk": {
+  "clip": "Carry",
+  "tool": null,
+  "note": "집어서 운반",
+  "points": {
+   "CarryAnchor": {
+    "pos": [
+     0.0,
+     0.0,
+     0.55
+    ],
+    "forward": [
+     0.0,
+     0.0,
+     1.0
+    ]
+   }
+  },
+  "hinges": []
+ },
+ "CC_FeedMeat": {
+  "clip": "Carry",
+  "tool": null,
+  "note": "집어서 운반",
+  "points": {
+   "CarryAnchor": {
+    "pos": [
+     0.0,
+     0.0,
+     0.294
+    ],
+    "forward": [
+     0.0,
+     0.0,
+     1.0
+    ]
+   }
+  },
+  "hinges": []
+ },
+ "CC_FeedPlant": {
+  "clip": "Carry",
+  "tool": null,
+  "note": "집어서 운반",
+  "points": {
+   "CarryAnchor": {
+    "pos": [
+     0.0,
+     0.0,
+     0.294
+    ],
+    "forward": [
+     0.0,
+     0.0,
+     1.0
+    ]
+   }
+  },
+  "hinges": []
+ },
+ "CC_FoodRotten": {
+  "clip": "Carry",
+  "tool": null,
+  "note": "집어서 운반",
+  "points": {
+   "CarryAnchor": {
+    "pos": [
+     0.0,
+     0.0,
+     0.28
+    ],
+    "forward": [
+     0.0,
+     0.0,
+     1.0
+    ]
+   }
+  },
+  "hinges": []
+ },
+ "CC_Manure": {
+  "clip": "Carry",
+  "tool": null,
+  "note": "집어서 운반",
+  "points": {
+   "CarryAnchor": {
+    "pos": [
+     -0.001,
+     0.04,
+     0.292
+    ],
+    "forward": [
+     0.0,
+     0.0,
+     1.0
+    ]
+   }
+  },
+  "hinges": []
+ },
+ "CC_MealGood": {
+  "clip": "Carry",
+  "tool": null,
+  "note": "집어서 운반",
+  "points": {
+   "CarryAnchor": {
+    "pos": [
+     0.0,
+     0.0,
+     0.39
+    ],
+    "forward": [
+     0.0,
+     0.0,
+     1.0
+    ]
+   }
+  },
+  "hinges": []
+ },
+ "CC_MealSimple": {
+  "clip": "Carry",
+  "tool": null,
+  "note": "집어서 운반",
+  "points": {
+   "CarryAnchor": {
+    "pos": [
+     0.0,
+     0.0,
+     0.26
+    ],
+    "forward": [
+     0.0,
+     0.0,
+     1.0
+    ]
+   }
+  },
+  "hinges": []
+ },
+ "CC_MedicineAdvanced": {
+  "clip": "Carry",
+  "tool": null,
+  "note": "집어서 운반",
+  "points": {
+   "CarryAnchor": {
+    "pos": [
+     0.0,
+     0.0,
+     0.32
+    ],
+    "forward": [
+     0.0,
+     0.0,
+     1.0
+    ]
+   }
+  },
+  "hinges": []
+ },
+ "CC_MedicineAnimal": {
+  "clip": "Carry",
+  "tool": null,
+  "note": "집어서 운반",
+  "points": {
+   "CarryAnchor": {
+    "pos": [
+     0.0,
+     -0.006,
+     0.32
+    ],
+    "forward": [
+     0.0,
+     0.0,
+     1.0
+    ]
+   }
+  },
+  "hinges": []
+ },
+ "CC_MedicineHerbal": {
+  "clip": "Carry",
+  "tool": null,
+  "note": "집어서 운반",
+  "points": {
+   "CarryAnchor": {
+    "pos": [
+     0.0,
+     -0.164,
+     0.32
+    ],
+    "forward": [
+     0.0,
+     0.0,
+     1.0
+    ]
+   }
+  },
+  "hinges": []
+ },
+ "CC_MedicineStandard": {
+  "clip": "Carry",
+  "tool": null,
+  "note": "집어서 운반",
+  "points": {
+   "CarryAnchor": {
+    "pos": [
+     0.0,
+     0.0,
+     0.32
+    ],
+    "forward": [
+     0.0,
+     0.0,
+     1.0
+    ]
+   }
+  },
+  "hinges": []
+ },
+ "CC_SurgeryKit": {
+  "clip": "Carry",
+  "tool": null,
+  "note": "집어서 운반",
+  "points": {
+   "CarryAnchor": {
+    "pos": [
+     0.0,
+     -0.015,
+     0.33
+    ],
+    "forward": [
+     0.0,
+     0.0,
+     1.0
+    ]
+   }
+  },
+  "hinges": []
+ }
+}

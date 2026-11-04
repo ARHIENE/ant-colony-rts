@@ -1,0 +1,74 @@
+{
+  "Tool_Hammer": {
+    "socket": "Socket.Tool.R (L also valid)",
+    "length": 0.62,
+    "grip_fraction": 0.28
+  },
+  "Tool_Axe": {
+    "socket": "Socket.Tool.R (L also valid)",
+    "length": 0.74,
+    "grip_fraction": 0.28
+  },
+  "Tool_Pickaxe": {
+    "socket": "Socket.Tool.R (L also valid)",
+    "length": 0.74,
+    "grip_fraction": 0.28
+  },
+  "Tool_Saw": {
+    "socket": "Socket.Tool.R (L also valid)",
+    "length": 0.56,
+    "grip_fraction": 0.18
+  },
+  "Tool_Spoon": {
+    "socket": "Socket.Tool.R (L also valid)",
+    "length": 0.46,
+    "grip_fraction": 0.3
+  },
+  "Tool_Pestle": {
+    "socket": "Socket.Tool.R (L also valid)",
+    "length": 0.4,
+    "grip_fraction": 0.4
+  },
+  "Tool_Scalpel": {
+    "socket": "Socket.Tool.R (L also valid)",
+    "length": 0.28,
+    "grip_fraction": 0.35
+  },
+  "Tool_Stamp": {
+    "socket": "Socket.Tool.R (L also valid)",
+    "length": 0.3,
+    "grip_fraction": 0.4
+  },
+  "Prop_Spear": {
+    "socket": "Socket.Tool.R",
+    "source": "Resident_07"
+  },
+  "Prop_Shield": {
+    "socket": "Socket.Tool.L",
+    "source": "Resident_08"
+  },
+  "Prop_Book": {
+    "socket": "Socket.Carry",
+    "source": "Resident_16"
+  },
+  "Prop_Basket": {
+    "socket": "Socket.Carry",
+    "source": "Resident_14"
+  },
+  "Prop_WateringCan": {
+    "socket": "Socket.Tool.R",
+    "source": "Resident_15"
+  },
+  "Prop_Cloth": {
+    "socket": "Socket.Carry",
+    "source": "Resident_17"
+  },
+  "Equip_AcidSprayer": {
+    "socket": "Socket.Tool.R",
+    "spec": "산 분사기(원거리 무기)"
+  },
+  "Equip_Signaller": {
+    "socket": "Socket.Tool.R",
+    "spec": "지휘 신호기(지원 무기)"
+  }
+}

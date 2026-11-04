@@ -1,0 +1,265 @@
+{
+  "Tool_Mine": {
+    "accepted": true,
+    "wrist_before_deg": 61.799817987653,
+    "wrist_after_deg": 56.11688886233812,
+    "clearance_before": {
+      "Armor_Breastplate": {
+        "frames": 1,
+        "of": 21,
+        "first": [
+          17
+        ]
+      },
+      "Armor_Breastplate_Lower": {
+        "frames": 1,
+        "of": 21,
+        "first": [
+          17
+        ]
+      },
+      "Armor_Bracer_R": {
+        "frames": 3,
+        "of": 21,
+        "first": [
+          21,
+          23,
+          25
+        ]
+      }
+    },
+    "clearance_after": {
+      "Armor_Breastplate": {
+        "frames": 1,
+        "of": 21,
+        "first": [
+          17
+        ]
+      },
+      "Armor_Breastplate_Lower": {
+        "frames": 1,
+        "of": 21,
+        "first": [
+          17
+        ]
+      }
+    },
+    "left_grip_error_m": 4.6079296159941634e-07,
+    "rigid_length_drift_m": 2.6232452787766647e-07,
+    "roll_deg": [
+      10,
+      10,
+      10,
+      15,
+      15,
+      20,
+      35,
+      40,
+      45,
+      45,
+      45,
+      45,
+      45,
+      45,
+      45,
+      30,
+      10,
+      -15,
+      -30,
+      -25,
+      -40,
+      -25,
+      -25,
+      -15,
+      -25,
+      -25,
+      -15,
+      -10,
+      -10,
+      -10,
+      -10,
+      -10,
+      -10,
+      -10,
+      -5,
+      -5,
+      -5,
+      0,
+      5,
+      5,
+      10
+    ]
+  },
+  "Tool_Dig": {
+    "accepted": true,
+    "wrist_before_deg": 78.02069764373289,
+    "wrist_after_deg": 53.697622197941264,
+    "clearance_before": {
+      "Part_Hair_BOB_00": {
+        "frames": 6,
+        "of": 21,
+        "first": [
+          9,
+          11,
+          19,
+          21,
+          23,
+          25
+        ]
+      },
+      "Part_Outfit_LINEN_ARMOR": {
+        "frames": 1,
+        "of": 21,
+        "first": [
+          17
+        ]
+      },
+      "Armor_Bracer_R": {
+        "frames": 1,
+        "of": 21,
+        "first": [
+          27
+        ]
+      }
+    },
+    "clearance_after": {
+      "Part_Hair_BOB_00": {
+        "frames": 6,
+        "of": 21,
+        "first": [
+          9,
+          11,
+          19,
+          21,
+          23,
+          25
+        ]
+      }
+    },
+    "left_grip_error_m": 8.925783116741143e-07,
+    "rigid_length_drift_m": 2.058349193312381e-07,
+    "roll_deg": [
+      5,
+      5,
+      0,
+      -5,
+      -20,
+      45,
+      45,
+      45,
+      45,
+      45,
+      45,
+      40,
+      40,
+      35,
+      30,
+      30,
+      30,
+      35,
+      40,
+      40,
+      40,
+      40,
+      45,
+      45,
+      45,
+      45,
+      45,
+      -45,
+      -5,
+      0,
+      0,
+      5,
+      5,
+      5,
+      5,
+      5,
+      5,
+      5,
+      5,
+      5,
+      5
+    ]
+  },
+  "Tool_Till": {
+    "accepted": false,
+    "wrist_before_deg": 69.78874875035842,
+    "wrist_after_deg": 67.15187225900495,
+    "clearance_before": {
+      "Armor_Breastplate_Lower": {
+        "frames": 1,
+        "of": 19,
+        "first": [
+          15
+        ]
+      },
+      "Armor_Bracer_R": {
+        "frames": 2,
+        "of": 19,
+        "first": [
+          17,
+          19
+        ]
+      }
+    },
+    "clearance_after": {
+      "Armor_Breastplate_Lower": {
+        "frames": 1,
+        "of": 19,
+        "first": [
+          15
+        ]
+      },
+      "Armor_Bracer_R": {
+        "frames": 2,
+        "of": 19,
+        "first": [
+          17,
+          19
+        ]
+      }
+    },
+    "left_grip_error_m": 1.1129082649849558e-06,
+    "rigid_length_drift_m": 1.5240791867432435e-07,
+    "roll_deg": [
+      -30,
+      -30,
+      -30,
+      -25,
+      -20,
+      -15,
+      5,
+      5,
+      20,
+      25,
+      25,
+      25,
+      0,
+      5,
+      0,
+      -15,
+      -10,
+      -5,
+      -10,
+      -25,
+      -25,
+      -25,
+      -25,
+      -25,
+      -25,
+      -25,
+      -25,
+      -25,
+      -25,
+      -25,
+      -25,
+      -25,
+      -25,
+      -25,
+      -25,
+      -30,
+      -30
+    ]
+  }
+}

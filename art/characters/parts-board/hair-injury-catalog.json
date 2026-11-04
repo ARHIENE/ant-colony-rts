@@ -1,0 +1,242 @@
+[
+  {
+    "id": "HAIR-01 SIDE PART",
+    "type": "hair"
+  },
+  {
+    "id": "HAIR-02 ROUND FRINGE",
+    "type": "hair"
+  },
+  {
+    "id": "HAIR-03 CURL",
+    "type": "hair"
+  },
+  {
+    "id": "HAIR-04 DOUBLE TUFT",
+    "type": "hair"
+  },
+  {
+    "id": "HAIR-05 LEAF SHOOTS",
+    "type": "hair"
+  },
+  {
+    "id": "HAIR-06 SOFT CREST",
+    "type": "hair"
+  },
+  {
+    "id": "SCAR-FOREHEAD",
+    "type": "SCAR",
+    "site": "FOREHEAD",
+    "local_center": [
+      0,
+      1.7
+    ]
+  },
+  {
+    "id": "SCAR-CHEEK",
+    "type": "SCAR",
+    "site": "CHEEK",
+    "local_center": [
+      -0.58,
+      1.2
+    ]
+  },
+  {
+    "id": "SCAR-TORSO",
+    "type": "SCAR",
+    "site": "TORSO",
+    "local_center": [
+      0,
+      0.4
+    ]
+  },
+  {
+    "id": "SCAR-ARM-L",
+    "type": "SCAR",
+    "site": "ARM-L",
+    "local_center": [
+      -0.43,
+      0.66
+    ]
+  },
+  {
+    "id": "SCAR-ARM-R",
+    "type": "SCAR",
+    "site": "ARM-R",
+    "local_center": [
+      0.43,
+      0.66
+    ]
+  },
+  {
+    "id": "SCAR-LEG",
+    "type": "SCAR",
+    "site": "LEG",
+    "local_center": [
+      -0.27,
+      0.13
+    ]
+  },
+  {
+    "id": "SCRATCH-FOREHEAD",
+    "type": "SCRATCH",
+    "site": "FOREHEAD",
+    "local_center": [
+      0,
+      1.7
+    ]
+  },
+  {
+    "id": "SCRATCH-CHEEK",
+    "type": "SCRATCH",
+    "site": "CHEEK",
+    "local_center": [
+      -0.58,
+      1.2
+    ]
+  },
+  {
+    "id": "SCRATCH-TORSO",
+    "type": "SCRATCH",
+    "site": "TORSO",
+    "local_center": [
+      0,
+      0.4
+    ]
+  },
+  {
+    "id": "SCRATCH-ARM-L",
+    "type": "SCRATCH",
+    "site": "ARM-L",
+    "local_center": [
+      -0.43,
+      0.66
+    ]
+  },
+  {
+    "id": "SCRATCH-ARM-R",
+    "type": "SCRATCH",
+    "site": "ARM-R",
+    "local_center": [
+      0.43,
+      0.66
+    ]
+  },
+  {
+    "id": "SCRATCH-LEG",
+    "type": "SCRATCH",
+    "site": "LEG",
+    "local_center": [
+      -0.27,
+      0.13
+    ]
+  },
+  {
+    "id": "BRUISE-FOREHEAD",
+    "type": "BRUISE",
+    "site": "FOREHEAD",
+    "local_center": [
+      0,
+      1.7
+    ]
+  },
+  {
+    "id": "BRUISE-CHEEK",
+    "type": "BRUISE",
+    "site": "CHEEK",
+    "local_center": [
+      -0.58,
+      1.2
+    ]
+  },
+  {
+    "id": "BRUISE-TORSO",
+    "type": "BRUISE",
+    "site": "TORSO",
+    "local_center": [
+      0,
+      0.4
+    ]
+  },
+  {
+    "id": "BRUISE-ARM-L",
+    "type": "BRUISE",
+    "site": "ARM-L",
+    "local_center": [
+      -0.43,
+      0.66
+    ]
+  },
+  {
+    "id": "BRUISE-ARM-R",
+    "type": "BRUISE",
+    "site": "ARM-R",
+    "local_center": [
+      0.43,
+      0.66
+    ]
+  },
+  {
+    "id": "BRUISE-LEG",
+    "type": "BRUISE",
+    "site": "LEG",
+    "local_center": [
+      -0.27,
+      0.13
+    ]
+  },
+  {
+    "id": "BANDAGE-FOREHEAD",
+    "type": "BANDAGE",
+    "site": "FOREHEAD",
+    "local_center": [
+      0,
+      1.7
+    ]
+  },
+  {
+    "id": "BANDAGE-CHEEK",
+    "type": "BANDAGE",
+    "site": "CHEEK",
+    "local_center": [
+      -0.58,
+      1.2
+    ]
+  },
+  {
+    "id": "BANDAGE-TORSO",
+    "type": "BANDAGE",
+    "site": "TORSO",
+    "local_center": [
+      0,
+      0.4
+    ]
+  },
+  {
+    "id": "BANDAGE-ARM-L",
+    "type": "BANDAGE",
+    "site": "ARM-L",
+    "local_center": [
+      -0.43,
+      0.66
+    ]
+  },
+  {
+    "id": "BANDAGE-ARM-R",
+    "type": "BANDAGE",
+    "site": "ARM-R",
+    "local_center": [
+      0.43,
+      0.66
+    ]
+  },
+  {
+    "id": "BANDAGE-LEG",
+    "type": "BANDAGE",
+    "site": "LEG",
+    "local_center": [
+      -0.27,
+      0.13
+    ]
+  }
+]

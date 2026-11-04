@@ -1,0 +1,8423 @@
+{
+ "AdvancedDrill.fbx": {
+  "objects": {
+   "FAC_AdvancedDrill": {
+    "type": "EMPTY",
+    "dims": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "mats": 0
+   },
+   "AdvancedDrill.ControlPoint": {
+    "type": "EMPTY",
+    "dims": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "mats": 0
+   },
+   "AdvancedDrill.HandTarget": {
+    "type": "EMPTY",
+    "dims": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "mats": 0
+   },
+   "AdvancedDrill.OutputPoint": {
+    "type": "EMPTY",
+    "dims": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "mats": 0
+   },
+   "AdvancedDrill.PowerIn": {
+    "type": "EMPTY",
+    "dims": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "mats": 0
+   },
+   "AdvancedDrill.Select": {
+    "type": "EMPTY",
+    "dims": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "mats": 0
+   },
+   "AdvancedDrill.WorkPoint_0": {
+    "type": "EMPTY",
+    "dims": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "mats": 0
+   },
+   "AdvancedDrill_Body": {
+    "type": "MESH",
+    "dims": [
+     1.51,
+     1.5936,
+     1.7
+    ],
+    "mats": 10
+   },
+   "AdvancedDrill_Rotor": {
+    "type": "MESH",
+    "dims": [
+     0.5,
+     0.1,
+     0.275
+    ],
+    "mats": 2
+   }
+  },
+  "points": {
+   "PowerIn": {
+    "pos": [
+     0.75,
+     0.5,
+     0.15
+    ],
+    "face": [
+     1.0,
+     0.0,
+     0.0
+    ]
+   },
+   "WorkPoint_0": {
+    "pos": [
+     -0.54,
+     -0.879,
+     0.0
+    ],
+    "face": [
+     0.0,
+     1.0,
+     0.0
+    ],
+    "source": "contact_check"
+   },
+   "ControlPoint": {
+    "pos": [
+     -0.5,
+     -0.63,
+     0.45
+    ],
+    "face": [
+     0.0,
+     1.0,
+     0.0
+    ]
+   },
+   "HandTarget": {
+    "pos": [
+     -0.5,
+     -0.65,
+     0.47
+    ],
+    "face": [
+     0.0,
+     1.0,
+     0.0
+    ]
+   },
+   "OutputPoint": {
+    "pos": [
+     0.45,
+     -1.0,
+     0.0
+    ],
+    "face": [
+     0.0,
+     1.0,
+     0.0
+    ]
+   }
+  },
+  "select_box": [
+   [
+    -0.75,
+    -0.844,
+    0.0
+   ],
+   [
+    0.76,
+    0.75,
+    1.975
+   ]
+  ],
+  "takes": {
+   "AdvancedDrill@Run.fbx": {
+    "parts": [
+     "AdvancedDrill_Rotor"
+    ],
+    "frames": [
+     1,
+     17
+    ]
+   }
+  }
+ },
+ "AlloyFurnace.fbx": {
+  "objects": {
+   "FAC_AlloyFurnace": {
+    "type": "EMPTY",
+    "dims": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "mats": 0
+   },
+   "AlloyFurnace.HandTarget": {
+    "type": "EMPTY",
+    "dims": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "mats": 0
+   },
+   "AlloyFurnace.InputPoint": {
+    "type": "EMPTY",
+    "dims": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "mats": 0
+   },
+   "AlloyFurnace.OutputPoint": {
+    "type": "EMPTY",
+    "dims": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "mats": 0
+   },
+   "AlloyFurnace.Select": {
+    "type": "EMPTY",
+    "dims": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "mats": 0
+   },
+   "AlloyFurnace.WorkPoint_0": {
+    "type": "EMPTY",
+    "dims": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "mats": 0
+   },
+   "AlloyFurnace_Body": {
+    "type": "MESH",
+    "dims": [
+     1.1,
+     1.4562,
+     1.28
+    ],
+    "mats": 6
+   },
+   "AlloyFurnace_Crucible": {
+    "type": "MESH",
+    "dims": [
+     0.22,
+     0.252,
+     0.15
+    ],
+    "mats": 2
+   }
+  },
+  "points": {
+   "WorkPoint_0": {
+    "pos": [
+     0.058,
+     -0.842,
+     0.0
+    ],
+    "face": [
+     0.0,
+     1.0,
+     0.0
+    ],
+    "source": "contact_check"
+   },
+   "InputPoint": {
+    "pos": [
+     -0.25,
+     -0.1,
+     0.95
+    ],
+    "face": [
+     0.0,
+     1.0,
+     0.0
+    ]
+   },
+   "HandTarget": {
+    "pos": [
+     0.12,
+     -0.6,
+     0.445
+    ],
+    "face": [
+     0.0,
+     1.0,
+     0.0
+    ]
+   },
+   "OutputPoint": {
+    "pos": [
+     0.45,
+     -0.85,
+     0.0
+    ],
+    "face": [
+     0.0,
+     1.0,
+     0.0
+    ]
+   }
+  },
+  "select_box": [
+   [
+    -0.55,
+    -0.92,
+    0.0
+   ],
+   [
+    0.55,
+    0.536,
+    1.28
+   ]
+  ],
+  "takes": {
+   "AlloyFurnace@Run.fbx": {
+    "parts": [
+     "AlloyFurnace_Crucible"
+    ],
+    "frames": [
+     1,
+     49
+    ]
+   }
+  }
+ },
+ "Blacksmith.fbx": {
+  "objects": {
+   "FAC_Blacksmith": {
+    "type": "EMPTY",
+    "dims": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "mats": 0
+   },
+   "Blacksmith.HandTarget": {
+    "type": "EMPTY",
+    "dims": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "mats": 0
+   },
+   "Blacksmith.InputPoint": {
+    "type": "EMPTY",
+    "dims": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "mats": 0
+   },
+   "Blacksmith.OutputPoint": {
+    "type": "EMPTY",
+    "dims": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "mats": 0
+   },
+   "Blacksmith.Select": {
+    "type": "EMPTY",
+    "dims": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "mats": 0
+   },
+   "Blacksmith.WorkPoint_0": {
+    "type": "EMPTY",
+    "dims": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "mats": 0
+   },
+   "Blacksmith_Bellows": {
+    "type": "MESH",
+    "dims": [
+     0.17,
+     0.3121,
+     0.14
+    ],
+    "mats": 3
+   },
+   "Blacksmith_Body": {
+    "type": "MESH",
+    "dims": [
+     1.4651,
+     0.72,
+     1.1
+    ],
+    "mats": 7
+   }
+  },
+  "points": {
+   "WorkPoint_0": {
+    "pos": [
+     0.205,
+     -0.486,
+     0.0
+    ],
+    "face": [
+     0.0,
+     1.0,
+     0.0
+    ],
+    "source": "contact_check"
+   },
+   "HandTarget": {
+    "pos": [
+     0.32,
+     -0.1,
+     0.345
+    ],
+    "face": [
+     0.0,
+     1.0,
+     0.0
+    ]
+   },
+   "InputPoint": {
+    "pos": [
+     -0.4,
+     0.05,
+     0.47
+    ],
+    "face": [
+     0.0,
+     1.0,
+     0.0
+    ]
+   },
+   "OutputPoint": {
+    "pos": [
+     0.75,
+     -0.35,
+     0.0
+    ],
+    "face": [
+     0.0,
+     1.0,
+     0.0
+    ]
+   }
+  },
+  "select_box": [
+   [
+    -0.92,
+    -0.18,
+    0.0
+   ],
+   [
+    0.715,
+    0.54,
+    1.1
+   ]
+  ],
+  "takes": {
+   "Blacksmith@Run.fbx": {
+    "parts": [
+     "Blacksmith_Bellows"
+    ],
+    "frames": [
+     1,
+     25
+    ]
+   }
+  }
+ },
+ "BrewingBarrel.fbx": {
+  "objects": {
+   "FAC_BrewingBarrel": {
+    "type": "EMPTY",
+    "dims": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "mats": 0
+   },
+   "BrewingBarrel.ChargePoint": {
+    "type": "EMPTY",
+    "dims": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "mats": 0
+   },
+   "BrewingBarrel.HandTarget": {
+    "type": "EMPTY",
+    "dims": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "mats": 0
+   },
+   "BrewingBarrel.InputPoint": {
+    "type": "EMPTY",
+    "dims": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "mats": 0
+   },
+   "BrewingBarrel.OutputPoint": {
+    "type": "EMPTY",
+    "dims": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "mats": 0
+   },
+   "BrewingBarrel.Select": {
+    "type": "EMPTY",
+    "dims": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "mats": 0
+   },
+   "BrewingBarrel.WorkPoint_0": {
+    "type": "EMPTY",
+    "dims": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "mats": 0
+   },
+   "BrewingBarrel_Airlock_Fermenting": {
+    "type": "MESH",
+    "dims": [
+     0.026,
+     0.03,
+     0.08
+    ],
+    "mats": 2
+   },
+   "BrewingBarrel_Body": {
+    "type": "MESH",
+    "dims": [
+     0.6,
+     0.5535,
+     0.62
+    ],
+    "mats": 4
+   },
+   "BrewingBarrel_Lid": {
+    "type": "MESH",
+    "dims": [
+     0.4095,
+     0.42,
+     0.055
+    ],
+    "mats": 1
+   }
+  },
+  "points": {
+   "WorkPoint_0": {
+    "pos": [
+     -0.042,
+     -0.507,
+     0.0
+    ],
+    "face": [
+     0.0,
+     1.0,
+     0.0
+    ],
+    "source": "contact_check"
+   },
+   "InputPoint": {
+    "pos": [
+     0.0,
+     0.0,
+     0.62
+    ],
+    "face": [
+     0.0,
+     1.0,
+     0.0
+    ]
+   },
+   "HandTarget": {
+    "pos": [
+     0.0,
+     -0.3,
+     0.29
+    ],
+    "face": [
+     0.0,
+     1.0,
+     0.0
+    ]
+   },
+   "ChargePoint": {
+    "pos": [
+     0.0,
+     -0.36,
+     0.0
+    ],
+    "face": [
+     0.0,
+     1.0,
+     0.0
+    ]
+   },
+   "OutputPoint": {
+    "pos": [
+     0.35,
+     -0.3,
+     0.0
+    ],
+    "face": [
+     0.0,
+     1.0,
+     0.0
+    ]
+   }
+  },
+  "select_box": [
+   [
+    -0.3,
+    -0.3,
+    0.0
+   ],
+   [
+    0.3,
+    0.253,
+    0.72
+   ]
+  ],
+  "takes": {
+   "BrewingBarrel@Fermenting.fbx": {
+    "parts": [
+     "BrewingBarrel_Airlock_Fermenting"
+    ],
+    "frames": [
+     1,
+     25
+    ]
+   },
+   "BrewingBarrel@LidOpen.fbx": {
+    "parts": [
+     "BrewingBarrel_Lid"
+    ],
+    "frames": [
+     1,
+     48
+    ]
+   }
+  }
+ },
+ "CharcoalKiln.fbx": {
+  "objects": {
+   "FAC_CharcoalKiln": {
+    "type": "EMPTY",
+    "dims": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "mats": 0
+   },
+   "CharcoalKiln.HandTarget": {
+    "type": "EMPTY",
+    "dims": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "mats": 0
+   },
+   "CharcoalKiln.InputPoint": {
+    "type": "EMPTY",
+    "dims": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "mats": 0
+   },
+   "CharcoalKiln.OutputPoint": {
+    "type": "EMPTY",
+    "dims": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "mats": 0
+   },
+   "CharcoalKiln.Select": {
+    "type": "EMPTY",
+    "dims": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "mats": 0
+   },
+   "CharcoalKiln.WorkPoint_0": {
+    "type": "EMPTY",
+    "dims": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "mats": 0
+   },
+   "CharcoalKiln_Body": {
+    "type": "MESH",
+    "dims": [
+     1.7,
+     1.7,
+     1.03
+    ],
+    "mats": 4
+   },
+   "CharcoalKiln_Door": {
+    "type": "MESH",
+    "dims": [
+     0.26,
+     0.045,
+     0.36
+    ],
+    "mats": 2
+   },
+   "CharcoalKiln_Glow_Running": {
+    "type": "MESH",
+    "dims": [
+     0.2,
+     0.01,
+     0.22
+    ],
+    "mats": 1
+   }
+  },
+  "points": {
+   "WorkPoint_0": {
+    "pos": [
+     -0.062,
+     -1.142,
+     0.0
+    ],
+    "face": [
+     0.0,
+     1.0,
+     0.0
+    ],
+    "source": "contact_check"
+   },
+   "InputPoint": {
+    "pos": [
+     0.0,
+     -0.8,
+     0.3
+    ],
+    "face": [
+     0.0,
+     1.0,
+     0.0
+    ]
+   },
+   "HandTarget": {
+    "pos": [
+     0.0,
+     -0.9,
+     0.44
+    ],
+    "face": [
+     0.0,
+     1.0,
+     0.0
+    ]
+   },
+   "OutputPoint": {
+    "pos": [
+     -0.5,
+     -0.55,
+     0.0
+    ],
+    "face": [
+     0.0,
+     1.0,
+     0.0
+    ]
+   }
+  },
+  "select_box": [
+   [
+    -0.85,
+    -0.89,
+    0.0
+   ],
+   [
+    0.85,
+    0.85,
+    1.03
+   ]
+  ],
+  "takes": {
+   "CharcoalKiln@DoorOpen.fbx": {
+    "parts": [
+     "CharcoalKiln_Door"
+    ],
+    "frames": [
+     1,
+     48
+    ]
+   }
+  }
+ },
+ "ChemistryBench.fbx": {
+  "objects": {
+   "FAC_ChemistryBench": {
+    "type": "EMPTY",
+    "dims": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "mats": 0
+   },
+   "ChemistryBench.FluidIn_L": {
+    "type": "EMPTY",
+    "dims": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "mats": 0
+   },
+   "ChemistryBench.HandTarget": {
+    "type": "EMPTY",
+    "dims": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "mats": 0
+   },
+   "ChemistryBench.InputPoint": {
+    "type": "EMPTY",
+    "dims": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "mats": 0
+   },
+   "ChemistryBench.OutputPoint": {
+    "type": "EMPTY",
+    "dims": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "mats": 0
+   },
+   "ChemistryBench.Select": {
+    "type": "EMPTY",
+    "dims": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "mats": 0
+   },
+   "ChemistryBench.WorkPoint_0": {
+    "type": "EMPTY",
+    "dims": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "mats": 0
+   },
+   "ChemistryBench_Body": {
+    "type": "MESH",
+    "dims": [
+     1.4,
+     0.55,
+     0.9
+    ],
+    "mats": 10
+   }
+  },
+  "points": {
+   "FluidIn_L": {
+    "pos": [
+     -0.7,
+     0.2,
+     0.2
+    ],
+    "face": [
+     -1.0,
+     0.0,
+     0.0
+    ]
+   },
+   "WorkPoint_0": {
+    "pos": [
+     -0.035,
+     -0.352,
+     0.0
+    ],
+    "face": [
+     0.0,
+     1.0,
+     0.0
+    ],
+    "source": "contact_check"
+   },
+   "HandTarget": {
+    "pos": [
+     0.0,
+     -0.15,
+     0.43
+    ],
+    "face": [
+     0.0,
+     1.0,
+     0.0
+    ]
+   },
+   "OutputPoint": {
+    "pos": [
+     0.9,
+     -0.35,
+     0.0
+    ],
+    "face": [
+     0.0,
+     1.0,
+     0.0
+    ]
+   },
+   "InputPoint": {
+    "pos": [
+     0.0,
+     -0.1,
+     0.42
+    ],
+    "face": [
+     0.0,
+     1.0,
+     0.0
+    ]
+   }
+  },
+  "select_box": [
+   [
+    -0.7,
+    -0.275,
+    0.0
+   ],
+   [
+    0.7,
+    0.275,
+    0.9
+   ]
+  ],
+  "takes": {}
+ },
+ "CitizenClinic.fbx": {
+  "objects": {
+   "FAC_CitizenClinic": {
+    "type": "EMPTY",
+    "dims": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "mats": 0
+   },
+   "CitizenClinic.Select": {
+    "type": "EMPTY",
+    "dims": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "mats": 0
+   },
+   "CitizenClinic.WorkPoint_0": {
+    "type": "EMPTY",
+    "dims": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "mats": 0
+   },
+   "CitizenClinic_Body": {
+    "type": "MESH",
+    "dims": [
+     2.84,
+     2.7972,
+     1.8575
+    ],
+    "mats": 9
+   }
+  },
+  "points": {
+   "WorkPoint_0": {
+    "pos": [
+     0.0,
+     -1.6,
+     0.0
+    ],
+    "face": [
+     0.0,
+     1.0,
+     0.0
+    ]
+   }
+  },
+  "select_box": [
+   [
+    -1.42,
+    -1.597,
+    0.0
+   ],
+   [
+    1.42,
+    1.2,
+    1.858
+   ]
+  ],
+  "takes": {}
+ },
+ "CivicPublicService.fbx": {
+  "objects": {
+   "FAC_CivicPublicService": {
+    "type": "EMPTY",
+    "dims": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "mats": 0
+   },
+   "CivicPublicService.Select": {
+    "type": "EMPTY",
+    "dims": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "mats": 0
+   },
+   "CivicPublicService.WorkPoint_0": {
+    "type": "EMPTY",
+    "dims": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "mats": 0
+   },
+   "CivicPublicService_Body": {
+    "type": "MESH",
+    "dims": [
+     2.95,
+     2.55,
+     2.3
+    ],
+    "mats": 10
+   }
+  },
+  "points": {
+   "WorkPoint_0": {
+    "pos": [
+     0.0,
+     -1.6,
+     0.0
+    ],
+    "face": [
+     0.0,
+     1.0,
+     0.0
+    ]
+   }
+  },
+  "select_box": [
+   [
+    -1.42,
+    -1.35,
+    0.0
+   ],
+   [
+    1.53,
+    1.2,
+    2.3
+   ]
+  ],
+  "takes": {}
+ },
+ "CokeOven.fbx": {
+  "objects": {
+   "FAC_CokeOven": {
+    "type": "EMPTY",
+    "dims": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "mats": 0
+   },
+   "CokeOven.HandTarget": {
+    "type": "EMPTY",
+    "dims": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "mats": 0
+   },
+   "CokeOven.InputPoint": {
+    "type": "EMPTY",
+    "dims": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "mats": 0
+   },
+   "CokeOven.OutputPoint": {
+    "type": "EMPTY",
+    "dims": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "mats": 0
+   },
+   "CokeOven.Select": {
+    "type": "EMPTY",
+    "dims": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "mats": 0
+   },
+   "CokeOven.WorkPoint_0": {
+    "type": "EMPTY",
+    "dims": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "mats": 0
+   },
+   "CokeOven_Body": {
+    "type": "MESH",
+    "dims": [
+     1.55,
+     1.125,
+     1.57
+    ],
+    "mats": 5
+   },
+   "CokeOven_Door_0": {
+    "type": "MESH",
+    "dims": [
+     0.42,
+     0.065,
+     0.5
+    ],
+    "mats": 2
+   },
+   "CokeOven_Door_1": {
+    "type": "MESH",
+    "dims": [
+     0.42,
+     0.065,
+     0.5
+    ],
+    "mats": 2
+   },
+   "CokeOven_Glow_Running": {
+    "type": "MESH",
+    "dims": [
+     1.2,
+     0.01,
+     0.06
+    ],
+    "mats": 1
+   }
+  },
+  "points": {
+   "WorkPoint_0": {
+    "pos": [
+     -0.312,
+     -0.662,
+     0.0
+    ],
+    "face": [
+     0.0,
+     1.0,
+     0.0
+    ],
+    "source": "contact_check"
+   },
+   "InputPoint": {
+    "pos": [
+     -0.4,
+     0.1,
+     0.92
+    ],
+    "face": [
+     0.0,
+     1.0,
+     0.0
+    ]
+   },
+   "HandTarget": {
+    "pos": [
+     -0.25,
+     -0.42,
+     0.445
+    ],
+    "face": [
+     0.0,
+     1.0,
+     0.0
+    ]
+   },
+   "OutputPoint": {
+    "pos": [
+     0.0,
+     -0.5,
+     0.04
+    ],
+    "face": [
+     0.0,
+     1.0,
+     0.0
+    ]
+   }
+  },
+  "select_box": [
+   [
+    -0.775,
+    -0.65,
+    0.0
+   ],
+   [
+    0.775,
+    0.475,
+    1.57
+   ]
+  ],
+  "takes": {
+   "CokeOven@Door0Open.fbx": {
+    "parts": [
+     "CokeOven_Door_0"
+    ],
+    "frames": [
+     1,
+     48
+    ]
+   },
+   "CokeOven@Door1Open.fbx": {
+    "parts": [
+     "CokeOven_Door_1"
+    ],
+    "frames": [
+     1,
+     48
+    ]
+   }
+  }
+ },
+ "CrashWreck.fbx": {
+  "objects": {
+   "FAC_CrashWreck": {
+    "type": "EMPTY",
+    "dims": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "mats": 0
+   },
+   "CrashWreck.OutputPoint": {
+    "type": "EMPTY",
+    "dims": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "mats": 0
+   },
+   "CrashWreck.Select": {
+    "type": "EMPTY",
+    "dims": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "mats": 0
+   },
+   "CrashWreck.WorkPoint_0": {
+    "type": "EMPTY",
+    "dims": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "mats": 0
+   },
+   "CrashWreck_Body": {
+    "type": "MESH",
+    "dims": [
+     2.8042,
+     1.8145,
+     1.3261
+    ],
+    "mats": 4
+   }
+  },
+  "points": {
+   "WorkPoint_0": {
+    "pos": [
+     0.0,
+     -1.05,
+     0.0
+    ],
+    "face": [
+     0.0,
+     1.0,
+     0.0
+    ]
+   },
+   "OutputPoint": {
+    "pos": [
+     -0.9,
+     -0.95,
+     0.0
+    ],
+    "face": [
+     0.0,
+     1.0,
+     0.0
+    ]
+   }
+  },
+  "select_box": [
+   [
+    -1.393,
+    -0.97,
+    -0.248
+   ],
+   [
+    1.411,
+    0.844,
+    1.078
+   ]
+  ],
+  "takes": {}
+ },
+ "DeepDrill.fbx": {
+  "objects": {
+   "FAC_DeepDrill": {
+    "type": "EMPTY",
+    "dims": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "mats": 0
+   },
+   "DeepDrill.ControlPoint": {
+    "type": "EMPTY",
+    "dims": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "mats": 0
+   },
+   "DeepDrill.HandTarget": {
+    "type": "EMPTY",
+    "dims": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "mats": 0
+   },
+   "DeepDrill.OutputPoint": {
+    "type": "EMPTY",
+    "dims": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "mats": 0
+   },
+   "DeepDrill.PowerIn": {
+    "type": "EMPTY",
+    "dims": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "mats": 0
+   },
+   "DeepDrill.SeatPoint": {
+    "type": "EMPTY",
+    "dims": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "mats": 0
+   },
+   "DeepDrill.Select": {
+    "type": "EMPTY",
+    "dims": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "mats": 0
+   },
+   "DeepDrill.WorkPoint_0": {
+    "type": "EMPTY",
+    "dims": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "mats": 0
+   },
+   "DeepDrill_Body": {
+    "type": "MESH",
+    "dims": [
+     2.46,
+     2.295,
+     1.95
+    ],
+    "mats": 6
+   },
+   "DeepDrill_Drill": {
+    "type": "MESH",
+    "dims": [
+     0.2,
+     0.2,
+     1.15
+    ],
+    "mats": 2
+   }
+  },
+  "points": {
+   "PowerIn": {
+    "pos": [
+     1.25,
+     0.9,
+     0.2
+    ],
+    "face": [
+     1.0,
+     0.0,
+     0.0
+    ]
+   },
+   "SeatPoint": {
+    "pos": [
+     -0.75,
+     -0.52,
+     0.41
+    ],
+    "face": [
+     0.0,
+     1.0,
+     0.0
+    ]
+   },
+   "WorkPoint_0": {
+    "pos": [
+     -0.75,
+     -1.3,
+     0.0
+    ],
+    "face": [
+     0.0,
+     1.0,
+     0.0
+    ]
+   },
+   "HandTarget": {
+    "pos": [
+     -0.65,
+     -0.33,
+     0.5
+    ],
+    "face": [
+     0.0,
+     1.0,
+     0.0
+    ]
+   },
+   "OutputPoint": {
+    "pos": [
+     0.85,
+     -1.2,
+     0.0
+    ],
+    "face": [
+     0.0,
+     1.0,
+     0.0
+    ]
+   },
+   "ControlPoint": {
+    "pos": [
+     -0.65,
+     -0.33,
+     0.5
+    ],
+    "face": [
+     0.0,
+     1.0,
+     0.0
+    ]
+   }
+  },
+  "select_box": [
+   [
+    -1.2,
+    -1.095,
+    0.0
+   ],
+   [
+    1.26,
+    1.2,
+    1.95
+   ]
+  ],
+  "takes": {
+   "DeepDrill@Run.fbx": {
+    "parts": [
+     "DeepDrill_Drill"
+    ],
+    "frames": [
+     1,
+     13
+    ]
+   }
+  }
+ },
+ "Deposit_Coal_Depleted.fbx": {
+  "objects": {
+   "FAC_Deposit_Coal_Depleted": {
+    "type": "EMPTY",
+    "dims": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "mats": 0
+   },
+   "Deposit_Coal_Depleted.Select": {
+    "type": "EMPTY",
+    "dims": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "mats": 0
+   },
+   "Deposit_Coal_Depleted_Body": {
+    "type": "MESH",
+    "dims": [
+     1.0,
+     1.0,
+     0.3715
+    ],
+    "mats": 4
+   }
+  },
+  "points": {},
+  "select_box": [
+   [
+    -0.5,
+    -0.5,
+    -0.007
+   ],
+   [
+    0.5,
+    0.5,
+    0.365
+   ]
+  ],
+  "takes": {}
+ },
+ "Deposit_Coal_Mining.fbx": {
+  "objects": {
+   "FAC_Deposit_Coal_Mining": {
+    "type": "EMPTY",
+    "dims": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "mats": 0
+   },
+   "Deposit_Coal_Mining.HandTarget": {
+    "type": "EMPTY",
+    "dims": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "mats": 0
+   },
+   "Deposit_Coal_Mining.Select": {
+    "type": "EMPTY",
+    "dims": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "mats": 0
+   },
+   "Deposit_Coal_Mining.WorkPoint_0": {
+    "type": "EMPTY",
+    "dims": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "mats": 0
+   },
+   "Deposit_Coal_Mining_Body": {
+    "type": "MESH",
+    "dims": [
+     1.0,
+     1.001,
+     0.4016
+    ],
+    "mats": 4
+   }
+  },
+  "points": {
+   "WorkPoint_0": {
+    "pos": [
+     0.0,
+     -0.75,
+     0.0
+    ],
+    "face": [
+     0.0,
+     1.0,
+     0.0
+    ]
+   },
+   "HandTarget": {
+    "pos": [
+     0.0,
+     -0.15,
+     0.3
+    ],
+    "face": [
+     0.0,
+     1.0,
+     0.0
+    ]
+   }
+  },
+  "select_box": [
+   [
+    -0.5,
+    -0.5,
+    -0.03
+   ],
+   [
+    0.5,
+    0.501,
+    0.372
+   ]
+  ],
+  "takes": {}
+ },
+ "Deposit_Coal_Normal.fbx": {
+  "objects": {
+   "FAC_Deposit_Coal_Normal": {
+    "type": "EMPTY",
+    "dims": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "mats": 0
+   },
+   "Deposit_Coal_Normal.HandTarget": {
+    "type": "EMPTY",
+    "dims": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "mats": 0
+   },
+   "Deposit_Coal_Normal.Select": {
+    "type": "EMPTY",
+    "dims": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "mats": 0
+   },
+   "Deposit_Coal_Normal.WorkPoint_0": {
+    "type": "EMPTY",
+    "dims": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "mats": 0
+   },
+   "Deposit_Coal_Normal_Body": {
+    "type": "MESH",
+    "dims": [
+     1.0,
+     1.0,
+     0.5706
+    ],
+    "mats": 3
+   }
+  },
+  "points": {
+   "WorkPoint_0": {
+    "pos": [
+     0.0,
+     -0.75,
+     0.0
+    ],
+    "face": [
+     0.0,
+     1.0,
+     0.0
+    ]
+   },
+   "HandTarget": {
+    "pos": [
+     0.0,
+     -0.15,
+     0.3
+    ],
+    "face": [
+     0.0,
+     1.0,
+     0.0
+    ]
+   }
+  },
+  "select_box": [
+   [
+    -0.5,
+    -0.5,
+    -0.038
+   ],
+   [
+    0.5,
+    0.5,
+    0.533
+   ]
+  ],
+  "takes": {}
+ },
+ "Deposit_Copper_Depleted.fbx": {
+  "objects": {
+   "FAC_Deposit_Copper_Depleted": {
+    "type": "EMPTY",
+    "dims": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "mats": 0
+   },
+   "Deposit_Copper_Depleted.Select": {
+    "type": "EMPTY",
+    "dims": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "mats": 0
+   },
+   "Deposit_Copper_Depleted_Body": {
+    "type": "MESH",
+    "dims": [
+     1.0,
+     1.0,
+     0.3771
+    ],
+    "mats": 4
+   }
+  },
+  "points": {},
+  "select_box": [
+   [
+    -0.5,
+    -0.5,
+    -0.012
+   ],
+   [
+    0.5,
+    0.5,
+    0.365
+   ]
+  ],
+  "takes": {}
+ },
+ "Deposit_Copper_Mining.fbx": {
+  "objects": {
+   "FAC_Deposit_Copper_Mining": {
+    "type": "EMPTY",
+    "dims": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "mats": 0
+   },
+   "Deposit_Copper_Mining.HandTarget": {
+    "type": "EMPTY",
+    "dims": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "mats": 0
+   },
+   "Deposit_Copper_Mining.Select": {
+    "type": "EMPTY",
+    "dims": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "mats": 0
+   },
+   "Deposit_Copper_Mining.WorkPoint_0": {
+    "type": "EMPTY",
+    "dims": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "mats": 0
+   },
+   "Deposit_Copper_Mining_Body": {
+    "type": "MESH",
+    "dims": [
+     1.0,
+     1.0111,
+     0.41
+    ],
+    "mats": 4
+   }
+  },
+  "points": {
+   "WorkPoint_0": {
+    "pos": [
+     0.0,
+     -0.75,
+     0.0
+    ],
+    "face": [
+     0.0,
+     1.0,
+     0.0
+    ]
+   },
+   "HandTarget": {
+    "pos": [
+     0.0,
+     -0.15,
+     0.3
+    ],
+    "face": [
+     0.0,
+     1.0,
+     0.0
+    ]
+   }
+  },
+  "select_box": [
+   [
+    -0.5,
+    -0.5,
+    -0.034
+   ],
+   [
+    0.5,
+    0.511,
+    0.376
+   ]
+  ],
+  "takes": {}
+ },
+ "Deposit_Copper_Normal.fbx": {
+  "objects": {
+   "FAC_Deposit_Copper_Normal": {
+    "type": "EMPTY",
+    "dims": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "mats": 0
+   },
+   "Deposit_Copper_Normal.HandTarget": {
+    "type": "EMPTY",
+    "dims": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "mats": 0
+   },
+   "Deposit_Copper_Normal.Select": {
+    "type": "EMPTY",
+    "dims": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "mats": 0
+   },
+   "Deposit_Copper_Normal.WorkPoint_0": {
+    "type": "EMPTY",
+    "dims": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "mats": 0
+   },
+   "Deposit_Copper_Normal_Body": {
+    "type": "MESH",
+    "dims": [
+     1.0,
+     1.0,
+     0.5942
+    ],
+    "mats": 3
+   }
+  },
+  "points": {
+   "WorkPoint_0": {
+    "pos": [
+     0.0,
+     -0.75,
+     0.0
+    ],
+    "face": [
+     0.0,
+     1.0,
+     0.0
+    ]
+   },
+   "HandTarget": {
+    "pos": [
+     0.0,
+     -0.15,
+     0.3
+    ],
+    "face": [
+     0.0,
+     1.0,
+     0.0
+    ]
+   }
+  },
+  "select_box": [
+   [
+    -0.5,
+    -0.5,
+    -0.05
+   ],
+   [
+    0.5,
+    0.5,
+    0.545
+   ]
+  ],
+  "takes": {}
+ },
+ "Deposit_Gas_Depleted.fbx": {
+  "objects": {
+   "FAC_Deposit_Gas_Depleted": {
+    "type": "EMPTY",
+    "dims": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "mats": 0
+   },
+   "Deposit_Gas_Depleted.Select": {
+    "type": "EMPTY",
+    "dims": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "mats": 0
+   },
+   "Deposit_Gas_Depleted_Body": {
+    "type": "MESH",
+    "dims": [
+     1.0,
+     1.0,
+     0.365
+    ],
+    "mats": 4
+   }
+  },
+  "points": {},
+  "select_box": [
+   [
+    -0.5,
+    -0.5,
+    0.0
+   ],
+   [
+    0.5,
+    0.5,
+    0.365
+   ]
+  ],
+  "takes": {}
+ },
+ "Deposit_Gas_Mining.fbx": {
+  "objects": {
+   "FAC_Deposit_Gas_Mining": {
+    "type": "EMPTY",
+    "dims": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "mats": 0
+   },
+   "Deposit_Gas_Mining.Select": {
+    "type": "EMPTY",
+    "dims": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "mats": 0
+   },
+   "Deposit_Gas_Mining_Body": {
+    "type": "MESH",
+    "dims": [
+     1.0,
+     1.0,
+     0.302
+    ],
+    "mats": 3
+   }
+  },
+  "points": {},
+  "select_box": [
+   [
+    -0.5,
+    -0.5,
+    0.0
+   ],
+   [
+    0.5,
+    0.5,
+    0.302
+   ]
+  ],
+  "takes": {}
+ },
+ "Deposit_Gas_Normal.fbx": {
+  "objects": {
+   "FAC_Deposit_Gas_Normal": {
+    "type": "EMPTY",
+    "dims": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "mats": 0
+   },
+   "Deposit_Gas_Normal.Select": {
+    "type": "EMPTY",
+    "dims": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "mats": 0
+   },
+   "Deposit_Gas_Normal_Body": {
+    "type": "MESH",
+    "dims": [
+     1.0,
+     1.0,
+     0.302
+    ],
+    "mats": 3
+   }
+  },
+  "points": {},
+  "select_box": [
+   [
+    -0.5,
+    -0.5,
+    0.0
+   ],
+   [
+    0.5,
+    0.5,
+    0.302
+   ]
+  ],
+  "takes": {}
+ },
+ "Deposit_Gold_Depleted.fbx": {
+  "objects": {
+   "FAC_Deposit_Gold_Depleted": {
+    "type": "EMPTY",
+    "dims": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "mats": 0
+   },
+   "Deposit_Gold_Depleted.Select": {
+    "type": "EMPTY",
+    "dims": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "mats": 0
+   },
+   "Deposit_Gold_Depleted_Body": {
+    "type": "MESH",
+    "dims": [
+     1.0,
+     1.0,
+     0.3763
+    ],
+    "mats": 4
+   }
+  },
+  "points": {},
+  "select_box": [
+   [
+    -0.5,
+    -0.5,
+    -0.011
+   ],
+   [
+    0.5,
+    0.5,
+    0.365
+   ]
+  ],
+  "takes": {}
+ },
+ "Deposit_Gold_Mining.fbx": {
+  "objects": {
+   "FAC_Deposit_Gold_Mining": {
+    "type": "EMPTY",
+    "dims": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "mats": 0
+   },
+   "Deposit_Gold_Mining.HandTarget": {
+    "type": "EMPTY",
+    "dims": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "mats": 0
+   },
+   "Deposit_Gold_Mining.Select": {
+    "type": "EMPTY",
+    "dims": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "mats": 0
+   },
+   "Deposit_Gold_Mining.WorkPoint_0": {
+    "type": "EMPTY",
+    "dims": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "mats": 0
+   },
+   "Deposit_Gold_Mining_Body": {
+    "type": "MESH",
+    "dims": [
+     1.0,
+     1.0,
+     0.416
+    ],
+    "mats": 4
+   }
+  },
+  "points": {
+   "WorkPoint_0": {
+    "pos": [
+     0.0,
+     -0.75,
+     0.0
+    ],
+    "face": [
+     0.0,
+     1.0,
+     0.0
+    ]
+   },
+   "HandTarget": {
+    "pos": [
+     0.0,
+     -0.15,
+     0.3
+    ],
+    "face": [
+     0.0,
+     1.0,
+     0.0
+    ]
+   }
+  },
+  "select_box": [
+   [
+    -0.5,
+    -0.5,
+    -0.037
+   ],
+   [
+    0.5,
+    0.5,
+    0.379
+   ]
+  ],
+  "takes": {}
+ },
+ "Deposit_Gold_Normal.fbx": {
+  "objects": {
+   "FAC_Deposit_Gold_Normal": {
+    "type": "EMPTY",
+    "dims": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "mats": 0
+   },
+   "Deposit_Gold_Normal.HandTarget": {
+    "type": "EMPTY",
+    "dims": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "mats": 0
+   },
+   "Deposit_Gold_Normal.Select": {
+    "type": "EMPTY",
+    "dims": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "mats": 0
+   },
+   "Deposit_Gold_Normal.WorkPoint_0": {
+    "type": "EMPTY",
+    "dims": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "mats": 0
+   },
+   "Deposit_Gold_Normal_Body": {
+    "type": "MESH",
+    "dims": [
+     1.0,
+     1.0,
+     0.5916
+    ],
+    "mats": 3
+   }
+  },
+  "points": {
+   "WorkPoint_0": {
+    "pos": [
+     0.0,
+     -0.75,
+     0.0
+    ],
+    "face": [
+     0.0,
+     1.0,
+     0.0
+    ]
+   },
+   "HandTarget": {
+    "pos": [
+     0.0,
+     -0.15,
+     0.3
+    ],
+    "face": [
+     0.0,
+     1.0,
+     0.0
+    ]
+   }
+  },
+  "select_box": [
+   [
+    -0.5,
+    -0.5,
+    -0.048
+   ],
+   [
+    0.5,
+    0.5,
+    0.543
+   ]
+  ],
+  "takes": {}
+ },
+ "Deposit_Iron_Depleted.fbx": {
+  "objects": {
+   "FAC_Deposit_Iron_Depleted": {
+    "type": "EMPTY",
+    "dims": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "mats": 0
+   },
+   "Deposit_Iron_Depleted.Select": {
+    "type": "EMPTY",
+    "dims": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "mats": 0
+   },
+   "Deposit_Iron_Depleted_Body": {
+    "type": "MESH",
+    "dims": [
+     1.0,
+     1.0,
+     0.3654
+    ],
+    "mats": 4
+   }
+  },
+  "points": {},
+  "select_box": [
+   [
+    -0.5,
+    -0.5,
+    -0.0
+   ],
+   [
+    0.5,
+    0.5,
+    0.365
+   ]
+  ],
+  "takes": {}
+ },
+ "Deposit_Iron_Mining.fbx": {
+  "objects": {
+   "FAC_Deposit_Iron_Mining": {
+    "type": "EMPTY",
+    "dims": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "mats": 0
+   },
+   "Deposit_Iron_Mining.HandTarget": {
+    "type": "EMPTY",
+    "dims": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "mats": 0
+   },
+   "Deposit_Iron_Mining.Select": {
+    "type": "EMPTY",
+    "dims": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "mats": 0
+   },
+   "Deposit_Iron_Mining.WorkPoint_0": {
+    "type": "EMPTY",
+    "dims": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "mats": 0
+   },
+   "Deposit_Iron_Mining_Body": {
+    "type": "MESH",
+    "dims": [
+     1.0,
+     1.0,
+     0.391
+    ],
+    "mats": 4
+   }
+  },
+  "points": {
+   "WorkPoint_0": {
+    "pos": [
+     0.0,
+     -0.75,
+     0.0
+    ],
+    "face": [
+     0.0,
+     1.0,
+     0.0
+    ]
+   },
+   "HandTarget": {
+    "pos": [
+     0.0,
+     -0.15,
+     0.3
+    ],
+    "face": [
+     0.0,
+     1.0,
+     0.0
+    ]
+   }
+  },
+  "select_box": [
+   [
+    -0.5,
+    -0.5,
+    -0.024
+   ],
+   [
+    0.5,
+    0.5,
+    0.366
+   ]
+  ],
+  "takes": {}
+ },
+ "Deposit_Iron_Normal.fbx": {
+  "objects": {
+   "FAC_Deposit_Iron_Normal": {
+    "type": "EMPTY",
+    "dims": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "mats": 0
+   },
+   "Deposit_Iron_Normal.HandTarget": {
+    "type": "EMPTY",
+    "dims": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "mats": 0
+   },
+   "Deposit_Iron_Normal.Select": {
+    "type": "EMPTY",
+    "dims": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "mats": 0
+   },
+   "Deposit_Iron_Normal.WorkPoint_0": {
+    "type": "EMPTY",
+    "dims": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "mats": 0
+   },
+   "Deposit_Iron_Normal_Body": {
+    "type": "MESH",
+    "dims": [
+     1.0,
+     1.0106,
+     0.5754
+    ],
+    "mats": 3
+   }
+  },
+  "points": {
+   "WorkPoint_0": {
+    "pos": [
+     0.0,
+     -0.75,
+     0.0
+    ],
+    "face": [
+     0.0,
+     1.0,
+     0.0
+    ]
+   },
+   "HandTarget": {
+    "pos": [
+     0.0,
+     -0.15,
+     0.3
+    ],
+    "face": [
+     0.0,
+     1.0,
+     0.0
+    ]
+   }
+  },
+  "select_box": [
+   [
+    -0.5,
+    -0.5,
+    -0.04
+   ],
+   [
+    0.5,
+    0.511,
+    0.535
+   ]
+  ],
+  "takes": {}
+ },
+ "Deposit_Oil_Depleted.fbx": {
+  "objects": {
+   "FAC_Deposit_Oil_Depleted": {
+    "type": "EMPTY",
+    "dims": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "mats": 0
+   },
+   "Deposit_Oil_Depleted.Select": {
+    "type": "EMPTY",
+    "dims": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "mats": 0
+   },
+   "Deposit_Oil_Depleted_Body": {
+    "type": "MESH",
+    "dims": [
+     1.0,
+     1.0,
+     0.365
+    ],
+    "mats": 4
+   }
+  },
+  "points": {},
+  "select_box": [
+   [
+    -0.5,
+    -0.5,
+    0.0
+   ],
+   [
+    0.5,
+    0.5,
+    0.365
+   ]
+  ],
+  "takes": {}
+ },
+ "Deposit_Oil_Mining.fbx": {
+  "objects": {
+   "FAC_Deposit_Oil_Mining": {
+    "type": "EMPTY",
+    "dims": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "mats": 0
+   },
+   "Deposit_Oil_Mining.Select": {
+    "type": "EMPTY",
+    "dims": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "mats": 0
+   },
+   "Deposit_Oil_Mining_Body": {
+    "type": "MESH",
+    "dims": [
+     1.0,
+     1.0,
+     0.045
+    ],
+    "mats": 2
+   }
+  },
+  "points": {},
+  "select_box": [
+   [
+    -0.5,
+    -0.5,
+    0.0
+   ],
+   [
+    0.5,
+    0.5,
+    0.045
+   ]
+  ],
+  "takes": {}
+ },
+ "Deposit_Oil_Normal.fbx": {
+  "objects": {
+   "FAC_Deposit_Oil_Normal": {
+    "type": "EMPTY",
+    "dims": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "mats": 0
+   },
+   "Deposit_Oil_Normal.Select": {
+    "type": "EMPTY",
+    "dims": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "mats": 0
+   },
+   "Deposit_Oil_Normal_Body": {
+    "type": "MESH",
+    "dims": [
+     1.0,
+     1.0,
+     0.045
+    ],
+    "mats": 2
+   }
+  },
+  "points": {},
+  "select_box": [
+   [
+    -0.5,
+    -0.5,
+    0.0
+   ],
+   [
+    0.5,
+    0.5,
+    0.045
+   ]
+  ],
+  "takes": {}
+ },
+ "Deposit_Silver_Depleted.fbx": {
+  "objects": {
+   "FAC_Deposit_Silver_Depleted": {
+    "type": "EMPTY",
+    "dims": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "mats": 0
+   },
+   "Deposit_Silver_Depleted.Select": {
+    "type": "EMPTY",
+    "dims": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "mats": 0
+   },
+   "Deposit_Silver_Depleted_Body": {
+    "type": "MESH",
+    "dims": [
+     1.0,
+     1.0,
+     0.3688
+    ],
+    "mats": 4
+   }
+  },
+  "points": {},
+  "select_box": [
+   [
+    -0.5,
+    -0.5,
+    -0.004
+   ],
+   [
+    0.5,
+    0.5,
+    0.365
+   ]
+  ],
+  "takes": {}
+ },
+ "Deposit_Silver_Mining.fbx": {
+  "objects": {
+   "FAC_Deposit_Silver_Mining": {
+    "type": "EMPTY",
+    "dims": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "mats": 0
+   },
+   "Deposit_Silver_Mining.HandTarget": {
+    "type": "EMPTY",
+    "dims": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "mats": 0
+   },
+   "Deposit_Silver_Mining.Select": {
+    "type": "EMPTY",
+    "dims": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "mats": 0
+   },
+   "Deposit_Silver_Mining.WorkPoint_0": {
+    "type": "EMPTY",
+    "dims": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "mats": 0
+   },
+   "Deposit_Silver_Mining_Body": {
+    "type": "MESH",
+    "dims": [
+     1.0,
+     1.0279,
+     0.4009
+    ],
+    "mats": 4
+   }
+  },
+  "points": {
+   "WorkPoint_0": {
+    "pos": [
+     0.0,
+     -0.75,
+     0.0
+    ],
+    "face": [
+     0.0,
+     1.0,
+     0.0
+    ]
+   },
+   "HandTarget": {
+    "pos": [
+     0.0,
+     -0.15,
+     0.3
+    ],
+    "face": [
+     0.0,
+     1.0,
+     0.0
+    ]
+   }
+  },
+  "select_box": [
+   [
+    -0.5,
+    -0.5,
+    -0.029
+   ],
+   [
+    0.5,
+    0.528,
+    0.371
+   ]
+  ],
+  "takes": {}
+ },
+ "Deposit_Silver_Normal.fbx": {
+  "objects": {
+   "FAC_Deposit_Silver_Normal": {
+    "type": "EMPTY",
+    "dims": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "mats": 0
+   },
+   "Deposit_Silver_Normal.HandTarget": {
+    "type": "EMPTY",
+    "dims": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "mats": 0
+   },
+   "Deposit_Silver_Normal.Select": {
+    "type": "EMPTY",
+    "dims": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "mats": 0
+   },
+   "Deposit_Silver_Normal.WorkPoint_0": {
+    "type": "EMPTY",
+    "dims": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "mats": 0
+   },
+   "Deposit_Silver_Normal_Body": {
+    "type": "MESH",
+    "dims": [
+     1.0,
+     1.0,
+     0.5788
+    ],
+    "mats": 3
+   }
+  },
+  "points": {
+   "WorkPoint_0": {
+    "pos": [
+     0.0,
+     -0.75,
+     0.0
+    ],
+    "face": [
+     0.0,
+     1.0,
+     0.0
+    ]
+   },
+   "HandTarget": {
+    "pos": [
+     0.0,
+     -0.15,
+     0.3
+    ],
+    "face": [
+     0.0,
+     1.0,
+     0.0
+    ]
+   }
+  },
+  "select_box": [
+   [
+    -0.5,
+    -0.5,
+    -0.042
+   ],
+   [
+    0.5,
+    0.5,
+    0.537
+   ]
+  ],
+  "takes": {}
+ },
+ "Deposit_Starlight_Depleted.fbx": {
+  "objects": {
+   "FAC_Deposit_Starlight_Depleted": {
+    "type": "EMPTY",
+    "dims": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "mats": 0
+   },
+   "Deposit_Starlight_Depleted.Select": {
+    "type": "EMPTY",
+    "dims": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "mats": 0
+   },
+   "Deposit_Starlight_Depleted_Body": {
+    "type": "MESH",
+    "dims": [
+     1.0,
+     1.0,
+     0.3727
+    ],
+    "mats": 4
+   }
+  },
+  "points": {},
+  "select_box": [
+   [
+    -0.5,
+    -0.5,
+    -0.008
+   ],
+   [
+    0.5,
+    0.5,
+    0.365
+   ]
+  ],
+  "takes": {}
+ },
+ "Deposit_Starlight_Mining.fbx": {
+  "objects": {
+   "FAC_Deposit_Starlight_Mining": {
+    "type": "EMPTY",
+    "dims": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "mats": 0
+   },
+   "Deposit_Starlight_Mining.HandTarget": {
+    "type": "EMPTY",
+    "dims": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "mats": 0
+   },
+   "Deposit_Starlight_Mining.Select": {
+    "type": "EMPTY",
+    "dims": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "mats": 0
+   },
+   "Deposit_Starlight_Mining.WorkPoint_0": {
+    "type": "EMPTY",
+    "dims": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "mats": 0
+   },
+   "Deposit_Starlight_Mining_Body": {
+    "type": "MESH",
+    "dims": [
+     1.0,
+     1.0,
+     0.415
+    ],
+    "mats": 4
+   }
+  },
+  "points": {
+   "WorkPoint_0": {
+    "pos": [
+     0.0,
+     -0.75,
+     0.0
+    ],
+    "face": [
+     0.0,
+     1.0,
+     0.0
+    ]
+   },
+   "HandTarget": {
+    "pos": [
+     0.0,
+     -0.15,
+     0.3
+    ],
+    "face": [
+     0.0,
+     1.0,
+     0.0
+    ]
+   }
+  },
+  "select_box": [
+   [
+    -0.5,
+    -0.5,
+    -0.036
+   ],
+   [
+    0.5,
+    0.5,
+    0.378
+   ]
+  ],
+  "takes": {}
+ },
+ "Deposit_Starlight_Normal.fbx": {
+  "objects": {
+   "FAC_Deposit_Starlight_Normal": {
+    "type": "EMPTY",
+    "dims": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "mats": 0
+   },
+   "Deposit_Starlight_Normal.HandTarget": {
+    "type": "EMPTY",
+    "dims": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "mats": 0
+   },
+   "Deposit_Starlight_Normal.Select": {
+    "type": "EMPTY",
+    "dims": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "mats": 0
+   },
+   "Deposit_Starlight_Normal.WorkPoint_0": {
+    "type": "EMPTY",
+    "dims": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "mats": 0
+   },
+   "Deposit_Starlight_Normal_Body": {
+    "type": "MESH",
+    "dims": [
+     1.0,
+     1.0,
+     0.5403
+    ],
+    "mats": 3
+   }
+  },
+  "points": {
+   "WorkPoint_0": {
+    "pos": [
+     0.0,
+     -0.75,
+     0.0
+    ],
+    "face": [
+     0.0,
+     1.0,
+     0.0
+    ]
+   },
+   "HandTarget": {
+    "pos": [
+     0.0,
+     -0.15,
+     0.3
+    ],
+    "face": [
+     0.0,
+     1.0,
+     0.0
+    ]
+   }
+  },
+  "select_box": [
+   [
+    -0.5,
+    -0.5,
+    -0.023
+   ],
+   [
+    0.5,
+    0.5,
+    0.518
+   ]
+  ],
+  "takes": {}
+ },
+ "Deposit_Tin_Depleted.fbx": {
+  "objects": {
+   "FAC_Deposit_Tin_Depleted": {
+    "type": "EMPTY",
+    "dims": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "mats": 0
+   },
+   "Deposit_Tin_Depleted.Select": {
+    "type": "EMPTY",
+    "dims": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "mats": 0
+   },
+   "Deposit_Tin_Depleted_Body": {
+    "type": "MESH",
+    "dims": [
+     1.0,
+     1.0,
+     0.3754
+    ],
+    "mats": 4
+   }
+  },
+  "points": {},
+  "select_box": [
+   [
+    -0.5,
+    -0.5,
+    -0.01
+   ],
+   [
+    0.5,
+    0.5,
+    0.365
+   ]
+  ],
+  "takes": {}
+ },
+ "Deposit_Tin_Mining.fbx": {
+  "objects": {
+   "FAC_Deposit_Tin_Mining": {
+    "type": "EMPTY",
+    "dims": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "mats": 0
+   },
+   "Deposit_Tin_Mining.HandTarget": {
+    "type": "EMPTY",
+    "dims": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "mats": 0
+   },
+   "Deposit_Tin_Mining.Select": {
+    "type": "EMPTY",
+    "dims": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "mats": 0
+   },
+   "Deposit_Tin_Mining.WorkPoint_0": {
+    "type": "EMPTY",
+    "dims": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "mats": 0
+   },
+   "Deposit_Tin_Mining_Body": {
+    "type": "MESH",
+    "dims": [
+     1.0,
+     1.0,
+     0.39
+    ],
+    "mats": 4
+   }
+  },
+  "points": {
+   "WorkPoint_0": {
+    "pos": [
+     0.0,
+     -0.75,
+     0.0
+    ],
+    "face": [
+     0.0,
+     1.0,
+     0.0
+    ]
+   },
+   "HandTarget": {
+    "pos": [
+     0.0,
+     -0.15,
+     0.3
+    ],
+    "face": [
+     0.0,
+     1.0,
+     0.0
+    ]
+   }
+  },
+  "select_box": [
+   [
+    -0.5,
+    -0.5,
+    -0.024
+   ],
+   [
+    0.5,
+    0.5,
+    0.366
+   ]
+  ],
+  "takes": {}
+ },
+ "Deposit_Tin_Normal.fbx": {
+  "objects": {
+   "FAC_Deposit_Tin_Normal": {
+    "type": "EMPTY",
+    "dims": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "mats": 0
+   },
+   "Deposit_Tin_Normal.HandTarget": {
+    "type": "EMPTY",
+    "dims": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "mats": 0
+   },
+   "Deposit_Tin_Normal.Select": {
+    "type": "EMPTY",
+    "dims": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "mats": 0
+   },
+   "Deposit_Tin_Normal.WorkPoint_0": {
+    "type": "EMPTY",
+    "dims": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "mats": 0
+   },
+   "Deposit_Tin_Normal_Body": {
+    "type": "MESH",
+    "dims": [
+     1.0,
+     1.0,
+     0.5913
+    ],
+    "mats": 3
+   }
+  },
+  "points": {
+   "WorkPoint_0": {
+    "pos": [
+     0.0,
+     -0.75,
+     0.0
+    ],
+    "face": [
+     0.0,
+     1.0,
+     0.0
+    ]
+   },
+   "HandTarget": {
+    "pos": [
+     0.0,
+     -0.15,
+     0.3
+    ],
+    "face": [
+     0.0,
+     1.0,
+     0.0
+    ]
+   }
+  },
+  "select_box": [
+   [
+    -0.5,
+    -0.5,
+    -0.048
+   ],
+   [
+    0.5,
+    0.5,
+    0.543
+   ]
+  ],
+  "takes": {}
+ },
+ "Deposit_Titanium_Depleted.fbx": {
+  "objects": {
+   "FAC_Deposit_Titanium_Depleted": {
+    "type": "EMPTY",
+    "dims": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "mats": 0
+   },
+   "Deposit_Titanium_Depleted.Select": {
+    "type": "EMPTY",
+    "dims": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "mats": 0
+   },
+   "Deposit_Titanium_Depleted_Body": {
+    "type": "MESH",
+    "dims": [
+     1.0,
+     1.0114,
+     0.3754
+    ],
+    "mats": 4
+   }
+  },
+  "points": {},
+  "select_box": [
+   [
+    -0.5,
+    -0.5,
+    -0.01
+   ],
+   [
+    0.5,
+    0.511,
+    0.365
+   ]
+  ],
+  "takes": {}
+ },
+ "Deposit_Titanium_Mining.fbx": {
+  "objects": {
+   "FAC_Deposit_Titanium_Mining": {
+    "type": "EMPTY",
+    "dims": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "mats": 0
+   },
+   "Deposit_Titanium_Mining.HandTarget": {
+    "type": "EMPTY",
+    "dims": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "mats": 0
+   },
+   "Deposit_Titanium_Mining.Select": {
+    "type": "EMPTY",
+    "dims": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "mats": 0
+   },
+   "Deposit_Titanium_Mining.WorkPoint_0": {
+    "type": "EMPTY",
+    "dims": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "mats": 0
+   },
+   "Deposit_Titanium_Mining_Body": {
+    "type": "MESH",
+    "dims": [
+     1.0,
+     1.0,
+     0.384
+    ],
+    "mats": 4
+   }
+  },
+  "points": {
+   "WorkPoint_0": {
+    "pos": [
+     0.0,
+     -0.75,
+     0.0
+    ],
+    "face": [
+     0.0,
+     1.0,
+     0.0
+    ]
+   },
+   "HandTarget": {
+    "pos": [
+     0.0,
+     -0.15,
+     0.3
+    ],
+    "face": [
+     0.0,
+     1.0,
+     0.0
+    ]
+   }
+  },
+  "select_box": [
+   [
+    -0.5,
+    -0.5,
+    -0.021
+   ],
+   [
+    0.5,
+    0.5,
+    0.363
+   ]
+  ],
+  "takes": {}
+ },
+ "Deposit_Titanium_Normal.fbx": {
+  "objects": {
+   "FAC_Deposit_Titanium_Normal": {
+    "type": "EMPTY",
+    "dims": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "mats": 0
+   },
+   "Deposit_Titanium_Normal.HandTarget": {
+    "type": "EMPTY",
+    "dims": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "mats": 0
+   },
+   "Deposit_Titanium_Normal.Select": {
+    "type": "EMPTY",
+    "dims": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "mats": 0
+   },
+   "Deposit_Titanium_Normal.WorkPoint_0": {
+    "type": "EMPTY",
+    "dims": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "mats": 0
+   },
+   "Deposit_Titanium_Normal_Body": {
+    "type": "MESH",
+    "dims": [
+     1.0,
+     1.0,
+     0.5627
+    ],
+    "mats": 3
+   }
+  },
+  "points": {
+   "WorkPoint_0": {
+    "pos": [
+     0.0,
+     -0.75,
+     0.0
+    ],
+    "face": [
+     0.0,
+     1.0,
+     0.0
+    ]
+   },
+   "HandTarget": {
+    "pos": [
+     0.0,
+     -0.15,
+     0.3
+    ],
+    "face": [
+     0.0,
+     1.0,
+     0.0
+    ]
+   }
+  },
+  "select_box": [
+   [
+    -0.5,
+    -0.5,
+    -0.034
+   ],
+   [
+    0.5,
+    0.5,
+    0.529
+   ]
+  ],
+  "takes": {}
+ },
+ "ElectricWorkshop.fbx": {
+  "objects": {
+   "FAC_ElectricWorkshop": {
+    "type": "EMPTY",
+    "dims": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "mats": 0
+   },
+   "ElectricWorkshop.ControlPoint": {
+    "type": "EMPTY",
+    "dims": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "mats": 0
+   },
+   "ElectricWorkshop.HandTarget": {
+    "type": "EMPTY",
+    "dims": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "mats": 0
+   },
+   "ElectricWorkshop.InputPoint": {
+    "type": "EMPTY",
+    "dims": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "mats": 0
+   },
+   "ElectricWorkshop.OutputPoint": {
+    "type": "EMPTY",
+    "dims": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "mats": 0
+   },
+   "ElectricWorkshop.PowerIn": {
+    "type": "EMPTY",
+    "dims": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "mats": 0
+   },
+   "ElectricWorkshop.Select": {
+    "type": "EMPTY",
+    "dims": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "mats": 0
+   },
+   "ElectricWorkshop.WorkPoint_0": {
+    "type": "EMPTY",
+    "dims": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "mats": 0
+   },
+   "ElectricWorkshop_Body": {
+    "type": "MESH",
+    "dims": [
+     1.51,
+     0.55,
+     0.6
+    ],
+    "mats": 7
+   },
+   "ElectricWorkshop_Chuck": {
+    "type": "MESH",
+    "dims": [
+     0.05,
+     0.1,
+     0.1
+    ],
+    "mats": 2
+   }
+  },
+  "points": {
+   "PowerIn": {
+    "pos": [
+     0.75,
+     0.2,
+     0.15
+    ],
+    "face": [
+     1.0,
+     0.0,
+     0.0
+    ]
+   },
+   "WorkPoint_0": {
+    "pos": [
+     0.06,
+     -0.329,
+     0.0
+    ],
+    "face": [
+     0.0,
+     1.0,
+     0.0
+    ],
+    "source": "contact_check"
+   },
+   "HandTarget": {
+    "pos": [
+     0.1,
+     -0.1,
+     0.45
+    ],
+    "face": [
+     0.0,
+     1.0,
+     0.0
+    ]
+   },
+   "ControlPoint": {
+    "pos": [
+     -0.5,
+     -0.12,
+     0.55
+    ],
+    "face": [
+     0.0,
+     1.0,
+     0.0
+    ]
+   },
+   "OutputPoint": {
+    "pos": [
+     0.95,
+     -0.35,
+     0.0
+    ],
+    "face": [
+     0.0,
+     1.0,
+     0.0
+    ]
+   },
+   "InputPoint": {
+    "pos": [
+     0.25,
+     -0.1,
+     0.42
+    ],
+    "face": [
+     0.0,
+     1.0,
+     0.0
+    ]
+   }
+  },
+  "select_box": [
+   [
+    -0.75,
+    -0.275,
+    0.0
+   ],
+   [
+    0.76,
+    0.275,
+    0.6
+   ]
+  ],
+  "takes": {
+   "ElectricWorkshop@Run.fbx": {
+    "parts": [
+     "ElectricWorkshop_Chuck"
+    ],
+    "frames": [
+     1,
+     13
+    ]
+   }
+  }
+ },
+ "FillingStation.fbx": {
+  "objects": {
+   "FAC_FillingStation": {
+    "type": "EMPTY",
+    "dims": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "mats": 0
+   },
+   "FillingStation.ChargePoint_Canister": {
+    "type": "EMPTY",
+    "dims": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "mats": 0
+   },
+   "FillingStation.ChargePoint_Drum": {
+    "type": "EMPTY",
+    "dims": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "mats": 0
+   },
+   "FillingStation.FluidIn_G": {
+    "type": "EMPTY",
+    "dims": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "mats": 0
+   },
+   "FillingStation.FluidIn_L": {
+    "type": "EMPTY",
+    "dims": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "mats": 0
+   },
+   "FillingStation.HandTarget": {
+    "type": "EMPTY",
+    "dims": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "mats": 0
+   },
+   "FillingStation.HandTarget_1": {
+    "type": "EMPTY",
+    "dims": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "mats": 0
+   },
+   "FillingStation.Select": {
+    "type": "EMPTY",
+    "dims": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "mats": 0
+   },
+   "FillingStation.WorkPoint_0": {
+    "type": "EMPTY",
+    "dims": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "mats": 0
+   },
+   "FillingStation.WorkPoint_1": {
+    "type": "EMPTY",
+    "dims": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "mats": 0
+   },
+   "FillingStation_Body": {
+    "type": "MESH",
+    "dims": [
+     1.6,
+     0.65,
+     1.0
+    ],
+    "mats": 8
+   },
+   "FillingStation_Valve_G": {
+    "type": "MESH",
+    "dims": [
+     0.106,
+     0.016,
+     0.106
+    ],
+    "mats": 1
+   },
+   "FillingStation_Valve_L": {
+    "type": "MESH",
+    "dims": [
+     0.106,
+     0.016,
+     0.106
+    ],
+    "mats": 1
+   }
+  },
+  "points": {
+   "FluidIn_L": {
+    "pos": [
+     -0.8,
+     0.25,
+     0.25
+    ],
+    "face": [
+     -1.0,
+     0.0,
+     0.0
+    ]
+   },
+   "FluidIn_G": {
+    "pos": [
+     0.8,
+     0.25,
+     0.25
+    ],
+    "face": [
+     1.0,
+     0.0,
+     0.0
+    ]
+   },
+   "ChargePoint_Drum": {
+    "pos": [
+     -0.45,
+     -0.1,
+     0.04
+    ],
+    "face": [
+     0.0,
+     1.0,
+     0.0
+    ]
+   },
+   "ChargePoint_Canister": {
+    "pos": [
+     0.45,
+     -0.1,
+     0.04
+    ],
+    "face": [
+     0.0,
+     1.0,
+     0.0
+    ]
+   },
+   "WorkPoint_0": {
+    "pos": [
+     -0.49,
+     -0.37,
+     0.0
+    ],
+    "face": [
+     0.0,
+     1.0,
+     0.0
+    ],
+    "source": "contact_check"
+   },
+   "WorkPoint_1": {
+    "pos": [
+     0.45,
+     -0.6,
+     0.0
+    ],
+    "face": [
+     0.0,
+     1.0,
+     0.0
+    ]
+   },
+   "HandTarget": {
+    "pos": [
+     -0.45,
+     -0.15,
+     0.32
+    ],
+    "face": [
+     0.0,
+     1.0,
+     0.0
+    ]
+   },
+   "HandTarget_1": {
+    "pos": [
+     0.45,
+     -0.15,
+     0.32
+    ],
+    "face": [
+     0.0,
+     1.0,
+     0.0
+    ]
+   }
+  },
+  "select_box": [
+   [
+    -0.8,
+    -0.3,
+    0.0
+   ],
+   [
+    0.8,
+    0.35,
+    1.0
+   ]
+  ],
+  "takes": {
+   "FillingStation@ValveG.fbx": {
+    "parts": [
+     "FillingStation_Valve_G"
+    ],
+    "frames": [
+     1,
+     25
+    ]
+   },
+   "FillingStation@ValveL.fbx": {
+    "parts": [
+     "FillingStation_Valve_L"
+    ],
+    "frames": [
+     1,
+     25
+    ]
+   }
+  }
+ },
+ "GasExtractor.fbx": {
+  "objects": {
+   "FAC_GasExtractor": {
+    "type": "EMPTY",
+    "dims": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "mats": 0
+   },
+   "GasExtractor.ControlPoint": {
+    "type": "EMPTY",
+    "dims": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "mats": 0
+   },
+   "GasExtractor.FluidOut_G": {
+    "type": "EMPTY",
+    "dims": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "mats": 0
+   },
+   "GasExtractor.HandTarget": {
+    "type": "EMPTY",
+    "dims": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "mats": 0
+   },
+   "GasExtractor.PowerIn": {
+    "type": "EMPTY",
+    "dims": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "mats": 0
+   },
+   "GasExtractor.Select": {
+    "type": "EMPTY",
+    "dims": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "mats": 0
+   },
+   "GasExtractor.WorkPoint_0": {
+    "type": "EMPTY",
+    "dims": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "mats": 0
+   },
+   "GasExtractor_Body": {
+    "type": "MESH",
+    "dims": [
+     1.51,
+     1.2,
+     0.74
+    ],
+    "mats": 8
+   },
+   "GasExtractor_Fan": {
+    "type": "MESH",
+    "dims": [
+     0.28,
+     0.02,
+     0.28
+    ],
+    "mats": 1
+   },
+   "GasExtractor_Valve": {
+    "type": "MESH",
+    "dims": [
+     0.136,
+     0.016,
+     0.136
+    ],
+    "mats": 1
+   }
+  },
+  "points": {
+   "FluidOut_G": {
+    "pos": [
+     0.75,
+     0.2,
+     0.35
+    ],
+    "face": [
+     1.0,
+     0.0,
+     0.0
+    ]
+   },
+   "PowerIn": {
+    "pos": [
+     0.75,
+     -0.3,
+     0.15
+    ],
+    "face": [
+     1.0,
+     0.0,
+     0.0
+    ]
+   },
+   "WorkPoint_0": {
+    "pos": [
+     -0.358,
+     -0.39,
+     0.0
+    ],
+    "face": [
+     0.0,
+     1.0,
+     0.0
+    ],
+    "source": "contact_check"
+   },
+   "HandTarget": {
+    "pos": [
+     -0.35,
+     -0.18,
+     0.62
+    ],
+    "face": [
+     0.0,
+     1.0,
+     0.0
+    ]
+   },
+   "ControlPoint": {
+    "pos": [
+     -0.35,
+     -0.18,
+     0.62
+    ],
+    "face": [
+     0.0,
+     1.0,
+     0.0
+    ]
+   }
+  },
+  "select_box": [
+   [
+    -0.75,
+    -0.6,
+    0.0
+   ],
+   [
+    0.76,
+    0.6,
+    0.74
+   ]
+  ],
+  "takes": {
+   "GasExtractor@Run.fbx": {
+    "parts": [
+     "GasExtractor_Fan"
+    ],
+    "frames": [
+     1,
+     9
+    ]
+   },
+   "GasExtractor@ValveTurn.fbx": {
+    "parts": [
+     "GasExtractor_Valve"
+    ],
+    "frames": [
+     1,
+     25
+    ]
+   }
+  }
+ },
+ "GasGenerator.fbx": {
+  "objects": {
+   "FAC_GasGenerator": {
+    "type": "EMPTY",
+    "dims": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "mats": 0
+   },
+   "GasGenerator.FluidIn_G": {
+    "type": "EMPTY",
+    "dims": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "mats": 0
+   },
+   "GasGenerator.HandTarget": {
+    "type": "EMPTY",
+    "dims": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "mats": 0
+   },
+   "GasGenerator.PowerOut": {
+    "type": "EMPTY",
+    "dims": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "mats": 0
+   },
+   "GasGenerator.Select": {
+    "type": "EMPTY",
+    "dims": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "mats": 0
+   },
+   "GasGenerator.WorkPoint_0": {
+    "type": "EMPTY",
+    "dims": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "mats": 0
+   },
+   "GasGenerator_Body": {
+    "type": "MESH",
+    "dims": [
+     1.51,
+     1.0,
+     1.2
+    ],
+    "mats": 10
+   },
+   "GasGenerator_Flywheel": {
+    "type": "MESH",
+    "dims": [
+     0.06,
+     0.4,
+     0.39
+    ],
+    "mats": 2
+   }
+  },
+  "points": {
+   "FluidIn_G": {
+    "pos": [
+     -0.75,
+     0.3,
+     0.25
+    ],
+    "face": [
+     -1.0,
+     0.0,
+     0.0
+    ]
+   },
+   "PowerOut": {
+    "pos": [
+     0.75,
+     0.3,
+     0.2
+    ],
+    "face": [
+     1.0,
+     0.0,
+     0.0
+    ]
+   },
+   "WorkPoint_0": {
+    "pos": [
+     0.4,
+     -0.75,
+     0.0
+    ],
+    "face": [
+     0.0,
+     1.0,
+     0.0
+    ]
+   },
+   "HandTarget": {
+    "pos": [
+     0.4,
+     -0.27,
+     0.5
+    ],
+    "face": [
+     0.0,
+     1.0,
+     0.0
+    ]
+   }
+  },
+  "select_box": [
+   [
+    -0.75,
+    -0.5,
+    0.0
+   ],
+   [
+    0.76,
+    0.5,
+    1.2
+   ]
+  ],
+  "takes": {
+   "GasGenerator@Run.fbx": {
+    "parts": [
+     "GasGenerator_Flywheel"
+    ],
+    "frames": [
+     1,
+     13
+    ]
+   }
+  }
+ },
+ "GasTank.fbx": {
+  "objects": {
+   "FAC_GasTank": {
+    "type": "EMPTY",
+    "dims": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "mats": 0
+   },
+   "GasTank.FluidIn_G": {
+    "type": "EMPTY",
+    "dims": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "mats": 0
+   },
+   "GasTank.FluidOut_G": {
+    "type": "EMPTY",
+    "dims": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "mats": 0
+   },
+   "GasTank.Select": {
+    "type": "EMPTY",
+    "dims": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "mats": 0
+   },
+   "GasTank.WorkPoint_0": {
+    "type": "EMPTY",
+    "dims": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "mats": 0
+   },
+   "GasTank_Body": {
+    "type": "MESH",
+    "dims": [
+     1.5,
+     1.2256,
+     1.4544
+    ],
+    "mats": 4
+   },
+   "GasTank_Level_Empty": {
+    "type": "MESH",
+    "dims": [
+     0.008,
+     0.004,
+     0.05
+    ],
+    "mats": 1
+   },
+   "GasTank_Level_Full": {
+    "type": "MESH",
+    "dims": [
+     0.008,
+     0.004,
+     0.05
+    ],
+    "mats": 1
+   },
+   "GasTank_Level_Partial": {
+    "type": "MESH",
+    "dims": [
+     0.008,
+     0.004,
+     0.05
+    ],
+    "mats": 1
+   }
+  },
+  "points": {
+   "FluidIn_G": {
+    "pos": [
+     -0.75,
+     0.3,
+     0.25
+    ],
+    "face": [
+     -1.0,
+     0.0,
+     0.0
+    ]
+   },
+   "FluidOut_G": {
+    "pos": [
+     0.75,
+     0.3,
+     0.25
+    ],
+    "face": [
+     1.0,
+     0.0,
+     0.0
+    ]
+   },
+   "WorkPoint_0": {
+    "pos": [
+     0.0,
+     -1.0,
+     0.0
+    ],
+    "face": [
+     0.0,
+     1.0,
+     0.0
+    ]
+   }
+  },
+  "select_box": [
+   [
+    -0.75,
+    -0.622,
+    -0.004
+   ],
+   [
+    0.75,
+    0.611,
+    1.45
+   ]
+  ],
+  "takes": {}
+ },
+ "Greenhouse_Corner.fbx": {
+  "objects": {
+   "FAC_Greenhouse_Corner": {
+    "type": "EMPTY",
+    "dims": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "mats": 0
+   },
+   "Greenhouse_Corner.Select": {
+    "type": "EMPTY",
+    "dims": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "mats": 0
+   },
+   "Greenhouse_Corner_Body": {
+    "type": "MESH",
+    "dims": [
+     0.07,
+     0.07,
+     1.44
+    ],
+    "mats": 1
+   }
+  },
+  "points": {},
+  "select_box": [
+   [
+    -0.035,
+    -0.035,
+    0.0
+   ],
+   [
+    0.035,
+    0.035,
+    1.44
+   ]
+  ],
+  "takes": {}
+ },
+ "Greenhouse_Door.fbx": {
+  "objects": {
+   "FAC_Greenhouse_Door": {
+    "type": "EMPTY",
+    "dims": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "mats": 0
+   },
+   "Greenhouse_Door.Select": {
+    "type": "EMPTY",
+    "dims": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "mats": 0
+   },
+   "Greenhouse_Door.WorkPoint_0": {
+    "type": "EMPTY",
+    "dims": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "mats": 0
+   },
+   "Greenhouse_Door_Body": {
+    "type": "MESH",
+    "dims": [
+     1.05,
+     0.06,
+     1.4
+    ],
+    "mats": 1
+   },
+   "Greenhouse_Door_Door": {
+    "type": "MESH",
+    "dims": [
+     0.9,
+     0.055,
+     1.26
+    ],
+    "mats": 3
+   }
+  },
+  "points": {
+   "WorkPoint_0": {
+    "pos": [
+     0.0,
+     -0.6,
+     0.0
+    ],
+    "face": [
+     0.0,
+     1.0,
+     0.0
+    ]
+   }
+  },
+  "select_box": [
+   [
+    -0.525,
+    -0.04,
+    0.0
+   ],
+   [
+    0.525,
+    0.03,
+    1.4
+   ]
+  ],
+  "takes": {
+   "Greenhouse_Door@Open.fbx": {
+    "parts": [
+     "Greenhouse_Door_Door"
+    ],
+    "frames": [
+     1,
+     48
+    ]
+   }
+  }
+ },
+ "Greenhouse_Roof.fbx": {
+  "objects": {
+   "FAC_Greenhouse_Roof": {
+    "type": "EMPTY",
+    "dims": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "mats": 0
+   },
+   "Greenhouse_Roof.Select": {
+    "type": "EMPTY",
+    "dims": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "mats": 0
+   },
+   "Greenhouse_Roof_Body": {
+    "type": "MESH",
+    "dims": [
+     1.0,
+     1.04,
+     0.1272
+    ],
+    "mats": 2
+   }
+  },
+  "points": {},
+  "select_box": [
+   [
+    -0.5,
+    -0.52,
+    1.536
+   ],
+   [
+    0.5,
+    0.52,
+    1.664
+   ]
+  ],
+  "takes": {}
+ },
+ "Greenhouse_Vent.fbx": {
+  "objects": {
+   "FAC_Greenhouse_Vent": {
+    "type": "EMPTY",
+    "dims": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "mats": 0
+   },
+   "Greenhouse_Vent.Select": {
+    "type": "EMPTY",
+    "dims": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "mats": 0
+   },
+   "Greenhouse_Vent_Body": {
+    "type": "MESH",
+    "dims": [
+     1.0,
+     0.05,
+     0.04
+    ],
+    "mats": 1
+   },
+   "Greenhouse_Vent_Vent": {
+    "type": "MESH",
+    "dims": [
+     0.9,
+     0.04,
+     0.24
+    ],
+    "mats": 2
+   }
+  },
+  "points": {},
+  "select_box": [
+   [
+    -0.5,
+    -0.025,
+    1.13
+   ],
+   [
+    0.5,
+    0.025,
+    1.4
+   ]
+  ],
+  "takes": {
+   "Greenhouse_Vent@Run.fbx": {
+    "parts": [
+     "Greenhouse_Vent_Vent"
+    ],
+    "frames": [
+     1,
+     97
+    ]
+   }
+  }
+ },
+ "Greenhouse_Wall.fbx": {
+  "objects": {
+   "FAC_Greenhouse_Wall": {
+    "type": "EMPTY",
+    "dims": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "mats": 0
+   },
+   "Greenhouse_Wall.Select": {
+    "type": "EMPTY",
+    "dims": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "mats": 0
+   },
+   "Greenhouse_Wall_Body": {
+    "type": "MESH",
+    "dims": [
+     1.04,
+     0.06,
+     1.4
+    ],
+    "mats": 2
+   }
+  },
+  "points": {},
+  "select_box": [
+   [
+    -0.52,
+    -0.03,
+    0.0
+   ],
+   [
+    0.52,
+    0.03,
+    1.4
+   ]
+  ],
+  "takes": {}
+ },
+ "LiquidTank.fbx": {
+  "objects": {
+   "FAC_LiquidTank": {
+    "type": "EMPTY",
+    "dims": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "mats": 0
+   },
+   "LiquidTank.FluidIn_L": {
+    "type": "EMPTY",
+    "dims": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "mats": 0
+   },
+   "LiquidTank.FluidOut_L": {
+    "type": "EMPTY",
+    "dims": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "mats": 0
+   },
+   "LiquidTank.Select": {
+    "type": "EMPTY",
+    "dims": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "mats": 0
+   },
+   "LiquidTank.WorkPoint_0": {
+    "type": "EMPTY",
+    "dims": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "mats": 0
+   },
+   "LiquidTank_Body": {
+    "type": "MESH",
+    "dims": [
+     1.5,
+     1.5,
+     1.58
+    ],
+    "mats": 5
+   },
+   "LiquidTank_Level_Empty": {
+    "type": "MESH",
+    "dims": [
+     0.1,
+     0.01,
+     0.02
+    ],
+    "mats": 1
+   },
+   "LiquidTank_Level_Full": {
+    "type": "MESH",
+    "dims": [
+     0.1,
+     0.01,
+     1.0
+    ],
+    "mats": 1
+   },
+   "LiquidTank_Level_Partial": {
+    "type": "MESH",
+    "dims": [
+     0.1,
+     0.01,
+     0.5
+    ],
+    "mats": 1
+   }
+  },
+  "points": {
+   "FluidIn_L": {
+    "pos": [
+     -0.75,
+     0.3,
+     0.25
+    ],
+    "face": [
+     -1.0,
+     0.0,
+     0.0
+    ]
+   },
+   "FluidOut_L": {
+    "pos": [
+     0.75,
+     0.3,
+     0.25
+    ],
+    "face": [
+     1.0,
+     0.0,
+     0.0
+    ]
+   },
+   "WorkPoint_0": {
+    "pos": [
+     0.0,
+     -1.0,
+     0.0
+    ],
+    "face": [
+     0.0,
+     1.0,
+     0.0
+    ]
+   }
+  },
+  "select_box": [
+   [
+    -0.75,
+    -0.75,
+    0.0
+   ],
+   [
+    0.75,
+    0.75,
+    1.58
+   ]
+  ],
+  "takes": {}
+ },
+ "Mill.fbx": {
+  "objects": {
+   "FAC_Mill": {
+    "type": "EMPTY",
+    "dims": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "mats": 0
+   },
+   "Mill.CarryPoint": {
+    "type": "EMPTY",
+    "dims": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "mats": 0
+   },
+   "Mill.HandTarget": {
+    "type": "EMPTY",
+    "dims": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "mats": 0
+   },
+   "Mill.InputPoint": {
+    "type": "EMPTY",
+    "dims": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "mats": 0
+   },
+   "Mill.OutputPoint": {
+    "type": "EMPTY",
+    "dims": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "mats": 0
+   },
+   "Mill.Select": {
+    "type": "EMPTY",
+    "dims": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "mats": 0
+   },
+   "Mill.WorkPoint_0": {
+    "type": "EMPTY",
+    "dims": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "mats": 0
+   },
+   "Mill_Body": {
+    "type": "MESH",
+    "dims": [
+     1.0,
+     1.17,
+     0.36
+    ],
+    "mats": 4
+   },
+   "Mill_TopStone": {
+    "type": "MESH",
+    "dims": [
+     0.8,
+     0.8,
+     0.36
+    ],
+    "mats": 4
+   }
+  },
+  "points": {
+   "WorkPoint_0": {
+    "pos": [
+     0.076,
+     -0.211,
+     0.0
+    ],
+    "face": [
+     0.0,
+     1.0,
+     0.0
+    ],
+    "source": "contact_check"
+   },
+   "InputPoint": {
+    "pos": [
+     0.0,
+     0.0,
+     0.72
+    ],
+    "face": [
+     0.0,
+     1.0,
+     0.0
+    ]
+   },
+   "HandTarget": {
+    "pos": [
+     0.3,
+     0.0,
+     0.62
+    ],
+    "face": [
+     0.0,
+     1.0,
+     0.0
+    ]
+   },
+   "OutputPoint": {
+    "pos": [
+     0.0,
+     -0.6,
+     0.0
+    ],
+    "face": [
+     0.0,
+     1.0,
+     0.0
+    ]
+   },
+   "CarryPoint": {
+    "pos": [
+     0.0,
+     -0.6,
+     0.14
+    ],
+    "face": [
+     0.0,
+     1.0,
+     0.0
+    ]
+   }
+  },
+  "select_box": [
+   [
+    -0.5,
+    -0.67,
+    0.0
+   ],
+   [
+    0.5,
+    0.5,
+    0.72
+   ]
+  ],
+  "takes": {
+   "Mill@Run.fbx": {
+    "parts": [
+     "Mill_TopStone"
+    ],
+    "frames": [
+     1,
+     49
+    ]
+   }
+  }
+ },
+ "OilDerrick.fbx": {
+  "objects": {
+   "FAC_OilDerrick": {
+    "type": "EMPTY",
+    "dims": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "mats": 0
+   },
+   "OilDerrick.FluidOut_L": {
+    "type": "EMPTY",
+    "dims": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "mats": 0
+   },
+   "OilDerrick.HandTarget": {
+    "type": "EMPTY",
+    "dims": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "mats": 0
+   },
+   "OilDerrick.PowerIn": {
+    "type": "EMPTY",
+    "dims": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "mats": 0
+   },
+   "OilDerrick.Select": {
+    "type": "EMPTY",
+    "dims": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "mats": 0
+   },
+   "OilDerrick.WorkPoint_0": {
+    "type": "EMPTY",
+    "dims": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "mats": 0
+   },
+   "OilDerrick_Beam": {
+    "type": "MESH",
+    "dims": [
+     1.06,
+     0.24,
+     0.5507
+    ],
+    "mats": 2
+   },
+   "OilDerrick_Body": {
+    "type": "MESH",
+    "dims": [
+     1.61,
+     1.0,
+     0.95
+    ],
+    "mats": 8
+   },
+   "OilDerrick_Crank": {
+    "type": "MESH",
+    "dims": [
+     0.295,
+     0.06,
+     0.14
+    ],
+    "mats": 2
+   }
+  },
+  "points": {
+   "FluidOut_L": {
+    "pos": [
+     -0.8,
+     0.0,
+     0.3
+    ],
+    "face": [
+     -1.0,
+     0.0,
+     0.0
+    ]
+   },
+   "PowerIn": {
+    "pos": [
+     0.8,
+     0.3,
+     0.15
+    ],
+    "face": [
+     1.0,
+     0.0,
+     0.0
+    ]
+   },
+   "WorkPoint_0": {
+    "pos": [
+     0.0,
+     -0.85,
+     0.0
+    ],
+    "face": [
+     0.0,
+     1.0,
+     0.0
+    ]
+   },
+   "HandTarget": {
+    "pos": [
+     0.55,
+     -0.2,
+     0.45
+    ],
+    "face": [
+     0.0,
+     1.0,
+     0.0
+    ]
+   }
+  },
+  "select_box": [
+   [
+    -0.8,
+    -0.5,
+    0.0
+   ],
+   [
+    0.81,
+    0.5,
+    1.05
+   ]
+  ],
+  "takes": {
+   "OilDerrick@Crank.fbx": {
+    "parts": [
+     "OilDerrick_Crank"
+    ],
+    "frames": [
+     1,
+     49
+    ]
+   },
+   "OilDerrick@Run.fbx": {
+    "parts": [
+     "OilDerrick_Beam"
+    ],
+    "frames": [
+     1,
+     49
+    ]
+   }
+  }
+ },
+ "OilPress.fbx": {
+  "objects": {
+   "FAC_OilPress": {
+    "type": "EMPTY",
+    "dims": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "mats": 0
+   },
+   "OilPress.CarryPoint": {
+    "type": "EMPTY",
+    "dims": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "mats": 0
+   },
+   "OilPress.HandTarget": {
+    "type": "EMPTY",
+    "dims": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "mats": 0
+   },
+   "OilPress.InputPoint": {
+    "type": "EMPTY",
+    "dims": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "mats": 0
+   },
+   "OilPress.OutputPoint": {
+    "type": "EMPTY",
+    "dims": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "mats": 0
+   },
+   "OilPress.Select": {
+    "type": "EMPTY",
+    "dims": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "mats": 0
+   },
+   "OilPress.WorkPoint_0": {
+    "type": "EMPTY",
+    "dims": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "mats": 0
+   },
+   "OilPress_Body": {
+    "type": "MESH",
+    "dims": [
+     0.7,
+     0.9,
+     0.86
+    ],
+    "mats": 4
+   },
+   "OilPress_Lever": {
+    "type": "MESH",
+    "dims": [
+     0.22,
+     0.66,
+     0.46
+    ],
+    "mats": 2
+   }
+  },
+  "points": {
+   "WorkPoint_0": {
+    "pos": [
+     -0.05,
+     -0.64,
+     0.0
+    ],
+    "face": [
+     0.0,
+     1.0,
+     0.0
+    ],
+    "source": "contact_check"
+   },
+   "HandTarget": {
+    "pos": [
+     0.0,
+     -0.42,
+     0.66
+    ],
+    "face": [
+     0.0,
+     1.0,
+     0.0
+    ]
+   },
+   "InputPoint": {
+    "pos": [
+     0.0,
+     0.1,
+     0.32
+    ],
+    "face": [
+     0.0,
+     1.0,
+     0.0
+    ]
+   },
+   "OutputPoint": {
+    "pos": [
+     0.4,
+     -0.4,
+     0.0
+    ],
+    "face": [
+     0.0,
+     1.0,
+     0.0
+    ]
+   },
+   "CarryPoint": {
+    "pos": [
+     0.0,
+     -0.3,
+     0.22
+    ],
+    "face": [
+     0.0,
+     1.0,
+     0.0
+    ]
+   }
+  },
+  "select_box": [
+   [
+    -0.35,
+    -0.45,
+    0.0
+   ],
+   [
+    0.35,
+    0.45,
+    0.86
+   ]
+  ],
+  "takes": {
+   "OilPress@Run.fbx": {
+    "parts": [
+     "OilPress_Lever"
+    ],
+    "frames": [
+     1,
+     33
+    ]
+   }
+  }
+ },
+ "Overlay_Corner.fbx": {
+  "objects": {
+   "FAC_Overlay_Corner": {
+    "type": "EMPTY",
+    "dims": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "mats": 0
+   },
+   "Overlay_Corner.Select": {
+    "type": "EMPTY",
+    "dims": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "mats": 0
+   },
+   "Overlay_Corner_Body": {
+    "type": "MESH",
+    "dims": [
+     0.06,
+     0.06,
+     0.012
+    ],
+    "mats": 1
+   }
+  },
+  "points": {},
+  "select_box": [
+   [
+    -0.03,
+    -0.03,
+    0.004
+   ],
+   [
+    0.03,
+    0.03,
+    0.016
+   ]
+  ],
+  "takes": {}
+ },
+ "Overlay_Edge.fbx": {
+  "objects": {
+   "FAC_Overlay_Edge": {
+    "type": "EMPTY",
+    "dims": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "mats": 0
+   },
+   "Overlay_Edge.Select": {
+    "type": "EMPTY",
+    "dims": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "mats": 0
+   },
+   "Overlay_Edge_Body": {
+    "type": "MESH",
+    "dims": [
+     1.0,
+     0.06,
+     0.01
+    ],
+    "mats": 1
+   }
+  },
+  "points": {},
+  "select_box": [
+   [
+    -0.5,
+    -0.03,
+    0.005
+   ],
+   [
+    0.5,
+    0.03,
+    0.015
+   ]
+  ],
+  "takes": {}
+ },
+ "Overlay_Fill.fbx": {
+  "objects": {
+   "FAC_Overlay_Fill": {
+    "type": "EMPTY",
+    "dims": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "mats": 0
+   },
+   "Overlay_Fill.Select": {
+    "type": "EMPTY",
+    "dims": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "mats": 0
+   },
+   "Overlay_Fill_Body": {
+    "type": "MESH",
+    "dims": [
+     1.316,
+     0.5164,
+     0.004
+    ],
+    "mats": 1
+   }
+  },
+  "points": {},
+  "select_box": [
+   [
+    -0.658,
+    -0.258,
+    0.004
+   ],
+   [
+    0.658,
+    0.258,
+    0.008
+   ]
+  ],
+  "takes": {}
+ },
+ "Overlay_Pin.fbx": {
+  "objects": {
+   "FAC_Overlay_Pin": {
+    "type": "EMPTY",
+    "dims": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "mats": 0
+   },
+   "Overlay_Pin.Select": {
+    "type": "EMPTY",
+    "dims": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "mats": 0
+   },
+   "Overlay_Pin_Body": {
+    "type": "MESH",
+    "dims": [
+     0.1141,
+     0.12,
+     0.61
+    ],
+    "mats": 1
+   }
+  },
+  "points": {},
+  "select_box": [
+   [
+    -0.057,
+    -0.06,
+    0.0
+   ],
+   [
+    0.057,
+    0.06,
+    0.61
+   ]
+  ],
+  "takes": {}
+ },
+ "PipeG_Corner.fbx": {
+  "objects": {
+   "FAC_PipeG_Corner": {
+    "type": "EMPTY",
+    "dims": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "mats": 0
+   },
+   "PipeG_Corner.Port+Y": {
+    "type": "EMPTY",
+    "dims": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "mats": 0
+   },
+   "PipeG_Corner.Port-X": {
+    "type": "EMPTY",
+    "dims": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "mats": 0
+   },
+   "PipeG_Corner.Select": {
+    "type": "EMPTY",
+    "dims": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "mats": 0
+   },
+   "PipeG_Corner_Body": {
+    "type": "MESH",
+    "dims": [
+     0.5495,
+     0.552,
+     0.302
+    ],
+    "mats": 3
+   }
+  },
+  "points": {
+   "Port-X": {
+    "pos": [
+     -0.5,
+     0.0,
+     0.25
+    ],
+    "face": [
+     -1.0,
+     0.0,
+     0.0
+    ]
+   },
+   "Port+Y": {
+    "pos": [
+     0.0,
+     0.5,
+     0.25
+    ],
+    "face": [
+     0.0,
+     1.0,
+     0.0
+    ]
+   }
+  },
+  "select_box": [
+   [
+    -0.5,
+    -0.052,
+    0.0
+   ],
+   [
+    0.049,
+    0.5,
+    0.302
+   ]
+  ],
+  "takes": {}
+ },
+ "PipeG_Cross.fbx": {
+  "objects": {
+   "FAC_PipeG_Cross": {
+    "type": "EMPTY",
+    "dims": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "mats": 0
+   },
+   "PipeG_Cross.Port+X": {
+    "type": "EMPTY",
+    "dims": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "mats": 0
+   },
+   "PipeG_Cross.Port+Y": {
+    "type": "EMPTY",
+    "dims": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "mats": 0
+   },
+   "PipeG_Cross.Port-X": {
+    "type": "EMPTY",
+    "dims": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "mats": 0
+   },
+   "PipeG_Cross.Port-Y": {
+    "type": "EMPTY",
+    "dims": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "mats": 0
+   },
+   "PipeG_Cross.Select": {
+    "type": "EMPTY",
+    "dims": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "mats": 0
+   },
+   "PipeG_Cross_Body": {
+    "type": "MESH",
+    "dims": [
+     1.0,
+     1.0,
+     0.302
+    ],
+    "mats": 3
+   }
+  },
+  "points": {
+   "Port-X": {
+    "pos": [
+     -0.5,
+     0.0,
+     0.25
+    ],
+    "face": [
+     -1.0,
+     0.0,
+     0.0
+    ]
+   },
+   "Port+X": {
+    "pos": [
+     0.5,
+     0.0,
+     0.25
+    ],
+    "face": [
+     1.0,
+     0.0,
+     0.0
+    ]
+   },
+   "Port-Y": {
+    "pos": [
+     0.0,
+     -0.5,
+     0.25
+    ],
+    "face": [
+     0.0,
+     -1.0,
+     0.0
+    ]
+   },
+   "Port+Y": {
+    "pos": [
+     0.0,
+     0.5,
+     0.25
+    ],
+    "face": [
+     0.0,
+     1.0,
+     0.0
+    ]
+   }
+  },
+  "select_box": [
+   [
+    -0.5,
+    -0.5,
+    0.0
+   ],
+   [
+    0.5,
+    0.5,
+    0.302
+   ]
+  ],
+  "takes": {}
+ },
+ "PipeG_End.fbx": {
+  "objects": {
+   "FAC_PipeG_End": {
+    "type": "EMPTY",
+    "dims": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "mats": 0
+   },
+   "PipeG_End.Port-X": {
+    "type": "EMPTY",
+    "dims": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "mats": 0
+   },
+   "PipeG_End.Select": {
+    "type": "EMPTY",
+    "dims": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "mats": 0
+   },
+   "PipeG_End_Body": {
+    "type": "MESH",
+    "dims": [
+     0.8114,
+     0.112,
+     0.3033
+    ],
+    "mats": 3
+   }
+  },
+  "points": {
+   "Port-X": {
+    "pos": [
+     -0.5,
+     0.0,
+     0.25
+    ],
+    "face": [
+     -1.0,
+     0.0,
+     0.0
+    ]
+   }
+  },
+  "select_box": [
+   [
+    -0.5,
+    -0.056,
+    0.0
+   ],
+   [
+    0.311,
+    0.056,
+    0.303
+   ]
+  ],
+  "takes": {}
+ },
+ "PipeG_Riser.fbx": {
+  "objects": {
+   "FAC_PipeG_Riser": {
+    "type": "EMPTY",
+    "dims": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "mats": 0
+   },
+   "PipeG_Riser.Port-X": {
+    "type": "EMPTY",
+    "dims": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "mats": 0
+   },
+   "PipeG_Riser.Select": {
+    "type": "EMPTY",
+    "dims": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "mats": 0
+   },
+   "PipeG_Riser_Body": {
+    "type": "MESH",
+    "dims": [
+     0.8114,
+     0.104,
+     0.75
+    ],
+    "mats": 3
+   }
+  },
+  "points": {
+   "Port-X": {
+    "pos": [
+     -0.5,
+     0.0,
+     0.25
+    ],
+    "face": [
+     -1.0,
+     0.0,
+     0.0
+    ]
+   }
+  },
+  "select_box": [
+   [
+    -0.5,
+    -0.052,
+    0.0
+   ],
+   [
+    0.311,
+    0.052,
+    0.75
+   ]
+  ],
+  "takes": {}
+ },
+ "PipeG_Straight.fbx": {
+  "objects": {
+   "FAC_PipeG_Straight": {
+    "type": "EMPTY",
+    "dims": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "mats": 0
+   },
+   "PipeG_Straight.Port+X": {
+    "type": "EMPTY",
+    "dims": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "mats": 0
+   },
+   "PipeG_Straight.Port-X": {
+    "type": "EMPTY",
+    "dims": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "mats": 0
+   },
+   "PipeG_Straight.Select": {
+    "type": "EMPTY",
+    "dims": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "mats": 0
+   },
+   "PipeG_Straight_Body": {
+    "type": "MESH",
+    "dims": [
+     1.0,
+     0.104,
+     0.2995
+    ],
+    "mats": 3
+   }
+  },
+  "points": {
+   "Port-X": {
+    "pos": [
+     -0.5,
+     0.0,
+     0.25
+    ],
+    "face": [
+     -1.0,
+     0.0,
+     0.0
+    ]
+   },
+   "Port+X": {
+    "pos": [
+     0.5,
+     0.0,
+     0.25
+    ],
+    "face": [
+     1.0,
+     0.0,
+     0.0
+    ]
+   }
+  },
+  "select_box": [
+   [
+    -0.5,
+    -0.052,
+    0.0
+   ],
+   [
+    0.5,
+    0.052,
+    0.299
+   ]
+  ],
+  "takes": {}
+ },
+ "PipeG_Tee.fbx": {
+  "objects": {
+   "FAC_PipeG_Tee": {
+    "type": "EMPTY",
+    "dims": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "mats": 0
+   },
+   "PipeG_Tee.Port+X": {
+    "type": "EMPTY",
+    "dims": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "mats": 0
+   },
+   "PipeG_Tee.Port+Y": {
+    "type": "EMPTY",
+    "dims": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "mats": 0
+   },
+   "PipeG_Tee.Port-X": {
+    "type": "EMPTY",
+    "dims": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "mats": 0
+   },
+   "PipeG_Tee.Select": {
+    "type": "EMPTY",
+    "dims": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "mats": 0
+   },
+   "PipeG_Tee_Body": {
+    "type": "MESH",
+    "dims": [
+     1.0,
+     0.552,
+     0.302
+    ],
+    "mats": 3
+   }
+  },
+  "points": {
+   "Port-X": {
+    "pos": [
+     -0.5,
+     0.0,
+     0.25
+    ],
+    "face": [
+     -1.0,
+     0.0,
+     0.0
+    ]
+   },
+   "Port+X": {
+    "pos": [
+     0.5,
+     0.0,
+     0.25
+    ],
+    "face": [
+     1.0,
+     0.0,
+     0.0
+    ]
+   },
+   "Port+Y": {
+    "pos": [
+     0.0,
+     0.5,
+     0.25
+    ],
+    "face": [
+     0.0,
+     1.0,
+     0.0
+    ]
+   }
+  },
+  "select_box": [
+   [
+    -0.5,
+    -0.052,
+    0.0
+   ],
+   [
+    0.5,
+    0.5,
+    0.302
+   ]
+  ],
+  "takes": {}
+ },
+ "PipeG_Valve.fbx": {
+  "objects": {
+   "FAC_PipeG_Valve": {
+    "type": "EMPTY",
+    "dims": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "mats": 0
+   },
+   "PipeG_Valve.HandTarget": {
+    "type": "EMPTY",
+    "dims": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "mats": 0
+   },
+   "PipeG_Valve.Port+X": {
+    "type": "EMPTY",
+    "dims": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "mats": 0
+   },
+   "PipeG_Valve.Port-X": {
+    "type": "EMPTY",
+    "dims": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "mats": 0
+   },
+   "PipeG_Valve.Select": {
+    "type": "EMPTY",
+    "dims": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "mats": 0
+   },
+   "PipeG_Valve.WorkPoint_0": {
+    "type": "EMPTY",
+    "dims": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "mats": 0
+   },
+   "PipeG_Valve_Body": {
+    "type": "MESH",
+    "dims": [
+     1.0,
+     0.104,
+     0.37
+    ],
+    "mats": 3
+   },
+   "PipeG_Valve_Wheel": {
+    "type": "MESH",
+    "dims": [
+     0.116,
+     0.116,
+     0.016
+    ],
+    "mats": 1
+   }
+  },
+  "points": {
+   "Port-X": {
+    "pos": [
+     -0.5,
+     0.0,
+     0.25
+    ],
+    "face": [
+     -1.0,
+     0.0,
+     0.0
+    ]
+   },
+   "Port+X": {
+    "pos": [
+     0.5,
+     0.0,
+     0.25
+    ],
+    "face": [
+     1.0,
+     0.0,
+     0.0
+    ]
+   },
+   "HandTarget": {
+    "pos": [
+     0.0,
+     0.0,
+     0.39
+    ],
+    "face": [
+     0.0,
+     1.0,
+     0.0
+    ]
+   },
+   "WorkPoint_0": {
+    "pos": [
+     0.0,
+     -0.55,
+     0.0
+    ],
+    "face": [
+     0.0,
+     1.0,
+     0.0
+    ]
+   }
+  },
+  "select_box": [
+   [
+    -0.5,
+    -0.058,
+    0.0
+   ],
+   [
+    0.5,
+    0.058,
+    0.388
+   ]
+  ],
+  "takes": {
+   "PipeG_Valve@Turn.fbx": {
+    "parts": [
+     "PipeG_Valve_Wheel"
+    ],
+    "frames": [
+     1,
+     25
+    ]
+   }
+  }
+ },
+ "PipeL_Corner.fbx": {
+  "objects": {
+   "FAC_PipeL_Corner": {
+    "type": "EMPTY",
+    "dims": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "mats": 0
+   },
+   "PipeL_Corner.Port+Y": {
+    "type": "EMPTY",
+    "dims": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "mats": 0
+   },
+   "PipeL_Corner.Port-X": {
+    "type": "EMPTY",
+    "dims": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "mats": 0
+   },
+   "PipeL_Corner.Select": {
+    "type": "EMPTY",
+    "dims": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "mats": 0
+   },
+   "PipeL_Corner_Body": {
+    "type": "MESH",
+    "dims": [
+     0.568,
+     0.5715,
+     0.3215
+    ],
+    "mats": 3
+   }
+  },
+  "points": {
+   "Port-X": {
+    "pos": [
+     -0.5,
+     0.0,
+     0.25
+    ],
+    "face": [
+     -1.0,
+     0.0,
+     0.0
+    ]
+   },
+   "Port+Y": {
+    "pos": [
+     0.0,
+     0.5,
+     0.25
+    ],
+    "face": [
+     0.0,
+     1.0,
+     0.0
+    ]
+   }
+  },
+  "select_box": [
+   [
+    -0.5,
+    -0.072,
+    0.0
+   ],
+   [
+    0.068,
+    0.5,
+    0.322
+   ]
+  ],
+  "takes": {}
+ },
+ "PipeL_Cross.fbx": {
+  "objects": {
+   "FAC_PipeL_Cross": {
+    "type": "EMPTY",
+    "dims": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "mats": 0
+   },
+   "PipeL_Cross.Port+X": {
+    "type": "EMPTY",
+    "dims": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "mats": 0
+   },
+   "PipeL_Cross.Port+Y": {
+    "type": "EMPTY",
+    "dims": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "mats": 0
+   },
+   "PipeL_Cross.Port-X": {
+    "type": "EMPTY",
+    "dims": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "mats": 0
+   },
+   "PipeL_Cross.Port-Y": {
+    "type": "EMPTY",
+    "dims": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "mats": 0
+   },
+   "PipeL_Cross.Select": {
+    "type": "EMPTY",
+    "dims": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "mats": 0
+   },
+   "PipeL_Cross_Body": {
+    "type": "MESH",
+    "dims": [
+     1.0,
+     1.0,
+     0.3215
+    ],
+    "mats": 3
+   }
+  },
+  "points": {
+   "Port-X": {
+    "pos": [
+     -0.5,
+     0.0,
+     0.25
+    ],
+    "face": [
+     -1.0,
+     0.0,
+     0.0
+    ]
+   },
+   "Port+X": {
+    "pos": [
+     0.5,
+     0.0,
+     0.25
+    ],
+    "face": [
+     1.0,
+     0.0,
+     0.0
+    ]
+   },
+   "Port-Y": {
+    "pos": [
+     0.0,
+     -0.5,
+     0.25
+    ],
+    "face": [
+     0.0,
+     -1.0,
+     0.0
+    ]
+   },
+   "Port+Y": {
+    "pos": [
+     0.0,
+     0.5,
+     0.25
+    ],
+    "face": [
+     0.0,
+     1.0,
+     0.0
+    ]
+   }
+  },
+  "select_box": [
+   [
+    -0.5,
+    -0.5,
+    0.0
+   ],
+   [
+    0.5,
+    0.5,
+    0.322
+   ]
+  ],
+  "takes": {}
+ },
+ "PipeL_End.fbx": {
+  "objects": {
+   "FAC_PipeL_End": {
+    "type": "EMPTY",
+    "dims": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "mats": 0
+   },
+   "PipeL_End.Port-X": {
+    "type": "EMPTY",
+    "dims": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "mats": 0
+   },
+   "PipeL_End.Select": {
+    "type": "EMPTY",
+    "dims": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "mats": 0
+   },
+   "PipeL_End_Body": {
+    "type": "MESH",
+    "dims": [
+     0.8114,
+     0.154,
+     0.3232
+    ],
+    "mats": 3
+   }
+  },
+  "points": {
+   "Port-X": {
+    "pos": [
+     -0.5,
+     0.0,
+     0.25
+    ],
+    "face": [
+     -1.0,
+     0.0,
+     0.0
+    ]
+   }
+  },
+  "select_box": [
+   [
+    -0.5,
+    -0.077,
+    0.0
+   ],
+   [
+    0.311,
+    0.077,
+    0.323
+   ]
+  ],
+  "takes": {}
+ },
+ "PipeL_Riser.fbx": {
+  "objects": {
+   "FAC_PipeL_Riser": {
+    "type": "EMPTY",
+    "dims": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "mats": 0
+   },
+   "PipeL_Riser.Port-X": {
+    "type": "EMPTY",
+    "dims": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "mats": 0
+   },
+   "PipeL_Riser.Select": {
+    "type": "EMPTY",
+    "dims": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "mats": 0
+   },
+   "PipeL_Riser_Body": {
+    "type": "MESH",
+    "dims": [
+     0.8114,
+     0.143,
+     0.75
+    ],
+    "mats": 3
+   }
+  },
+  "points": {
+   "Port-X": {
+    "pos": [
+     -0.5,
+     0.0,
+     0.25
+    ],
+    "face": [
+     -1.0,
+     0.0,
+     0.0
+    ]
+   }
+  },
+  "select_box": [
+   [
+    -0.5,
+    -0.072,
+    0.0
+   ],
+   [
+    0.311,
+    0.072,
+    0.75
+   ]
+  ],
+  "takes": {}
+ },
+ "PipeL_Straight.fbx": {
+  "objects": {
+   "FAC_PipeL_Straight": {
+    "type": "EMPTY",
+    "dims": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "mats": 0
+   },
+   "PipeL_Straight.Port+X": {
+    "type": "EMPTY",
+    "dims": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "mats": 0
+   },
+   "PipeL_Straight.Port-X": {
+    "type": "EMPTY",
+    "dims": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "mats": 0
+   },
+   "PipeL_Straight.Select": {
+    "type": "EMPTY",
+    "dims": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "mats": 0
+   },
+   "PipeL_Straight_Body": {
+    "type": "MESH",
+    "dims": [
+     1.0,
+     0.143,
+     0.318
+    ],
+    "mats": 3
+   }
+  },
+  "points": {
+   "Port-X": {
+    "pos": [
+     -0.5,
+     0.0,
+     0.25
+    ],
+    "face": [
+     -1.0,
+     0.0,
+     0.0
+    ]
+   },
+   "Port+X": {
+    "pos": [
+     0.5,
+     0.0,
+     0.25
+    ],
+    "face": [
+     1.0,
+     0.0,
+     0.0
+    ]
+   }
+  },
+  "select_box": [
+   [
+    -0.5,
+    -0.072,
+    0.0
+   ],
+   [
+    0.5,
+    0.072,
+    0.318
+   ]
+  ],
+  "takes": {}
+ },
+ "PipeL_Tee.fbx": {
+  "objects": {
+   "FAC_PipeL_Tee": {
+    "type": "EMPTY",
+    "dims": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "mats": 0
+   },
+   "PipeL_Tee.Port+X": {
+    "type": "EMPTY",
+    "dims": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "mats": 0
+   },
+   "PipeL_Tee.Port+Y": {
+    "type": "EMPTY",
+    "dims": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "mats": 0
+   },
+   "PipeL_Tee.Port-X": {
+    "type": "EMPTY",
+    "dims": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "mats": 0
+   },
+   "PipeL_Tee.Select": {
+    "type": "EMPTY",
+    "dims": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "mats": 0
+   },
+   "PipeL_Tee_Body": {
+    "type": "MESH",
+    "dims": [
+     1.0,
+     0.5715,
+     0.3215
+    ],
+    "mats": 3
+   }
+  },
+  "points": {
+   "Port-X": {
+    "pos": [
+     -0.5,
+     0.0,
+     0.25
+    ],
+    "face": [
+     -1.0,
+     0.0,
+     0.0
+    ]
+   },
+   "Port+X": {
+    "pos": [
+     0.5,
+     0.0,
+     0.25
+    ],
+    "face": [
+     1.0,
+     0.0,
+     0.0
+    ]
+   },
+   "Port+Y": {
+    "pos": [
+     0.0,
+     0.5,
+     0.25
+    ],
+    "face": [
+     0.0,
+     1.0,
+     0.0
+    ]
+   }
+  },
+  "select_box": [
+   [
+    -0.5,
+    -0.072,
+    0.0
+   ],
+   [
+    0.5,
+    0.5,
+    0.322
+   ]
+  ],
+  "takes": {}
+ },
+ "PipeL_Valve.fbx": {
+  "objects": {
+   "FAC_PipeL_Valve": {
+    "type": "EMPTY",
+    "dims": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "mats": 0
+   },
+   "PipeL_Valve.HandTarget": {
+    "type": "EMPTY",
+    "dims": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "mats": 0
+   },
+   "PipeL_Valve.Port+X": {
+    "type": "EMPTY",
+    "dims": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "mats": 0
+   },
+   "PipeL_Valve.Port-X": {
+    "type": "EMPTY",
+    "dims": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "mats": 0
+   },
+   "PipeL_Valve.Select": {
+    "type": "EMPTY",
+    "dims": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "mats": 0
+   },
+   "PipeL_Valve.WorkPoint_0": {
+    "type": "EMPTY",
+    "dims": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "mats": 0
+   },
+   "PipeL_Valve_Body": {
+    "type": "MESH",
+    "dims": [
+     1.0,
+     0.143,
+     0.37
+    ],
+    "mats": 3
+   },
+   "PipeL_Valve_Wheel": {
+    "type": "MESH",
+    "dims": [
+     0.116,
+     0.116,
+     0.016
+    ],
+    "mats": 1
+   }
+  },
+  "points": {
+   "Port-X": {
+    "pos": [
+     -0.5,
+     0.0,
+     0.25
+    ],
+    "face": [
+     -1.0,
+     0.0,
+     0.0
+    ]
+   },
+   "Port+X": {
+    "pos": [
+     0.5,
+     0.0,
+     0.25
+    ],
+    "face": [
+     1.0,
+     0.0,
+     0.0
+    ]
+   },
+   "HandTarget": {
+    "pos": [
+     0.0,
+     0.0,
+     0.39
+    ],
+    "face": [
+     0.0,
+     1.0,
+     0.0
+    ]
+   },
+   "WorkPoint_0": {
+    "pos": [
+     0.0,
+     -0.55,
+     0.0
+    ],
+    "face": [
+     0.0,
+     1.0,
+     0.0
+    ]
+   }
+  },
+  "select_box": [
+   [
+    -0.5,
+    -0.072,
+    0.0
+   ],
+   [
+    0.5,
+    0.072,
+    0.388
+   ]
+  ],
+  "takes": {
+   "PipeL_Valve@Turn.fbx": {
+    "parts": [
+     "PipeL_Valve_Wheel"
+    ],
+    "frames": [
+     1,
+     25
+    ]
+   }
+  }
+ },
+ "PlanterBed.fbx": {
+  "objects": {
+   "FAC_PlanterBed": {
+    "type": "EMPTY",
+    "dims": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "mats": 0
+   },
+   "PlanterBed.Select": {
+    "type": "EMPTY",
+    "dims": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "mats": 0
+   },
+   "PlanterBed.SoilPoint": {
+    "type": "EMPTY",
+    "dims": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "mats": 0
+   },
+   "PlanterBed.WorkPoint_0": {
+    "type": "EMPTY",
+    "dims": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "mats": 0
+   },
+   "PlanterBed_Body": {
+    "type": "MESH",
+    "dims": [
+     0.92,
+     0.92,
+     0.36
+    ],
+    "mats": 3
+   }
+  },
+  "points": {
+   "SoilPoint": {
+    "pos": [
+     0.0,
+     0.0,
+     0.34
+    ],
+    "face": [
+     0.0,
+     1.0,
+     0.0
+    ]
+   },
+   "WorkPoint_0": {
+    "pos": [
+     0.0,
+     -0.75,
+     0.0
+    ],
+    "face": [
+     0.0,
+     1.0,
+     0.0
+    ]
+   }
+  },
+  "select_box": [
+   [
+    -0.46,
+    -0.46,
+    0.0
+   ],
+   [
+    0.46,
+    0.46,
+    0.36
+   ]
+  ],
+  "takes": {}
+ },
+ "Prospector.fbx": {
+  "objects": {
+   "FAC_Prospector": {
+    "type": "EMPTY",
+    "dims": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "mats": 0
+   },
+   "Prospector.ControlPoint": {
+    "type": "EMPTY",
+    "dims": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "mats": 0
+   },
+   "Prospector.HandTarget": {
+    "type": "EMPTY",
+    "dims": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "mats": 0
+   },
+   "Prospector.PowerIn": {
+    "type": "EMPTY",
+    "dims": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "mats": 0
+   },
+   "Prospector.Select": {
+    "type": "EMPTY",
+    "dims": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "mats": 0
+   },
+   "Prospector.WorkPoint_0": {
+    "type": "EMPTY",
+    "dims": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "mats": 0
+   },
+   "Prospector_Body": {
+    "type": "MESH",
+    "dims": [
+     1.3,
+     1.0446,
+     1.1827
+    ],
+    "mats": 9
+   },
+   "Prospector_Probe": {
+    "type": "MESH",
+    "dims": [
+     0.06,
+     0.06,
+     1.02
+    ],
+    "mats": 1
+   }
+  },
+  "points": {
+   "PowerIn": {
+    "pos": [
+     0.8,
+     0.4,
+     0.12
+    ],
+    "face": [
+     1.0,
+     0.0,
+     0.0
+    ]
+   },
+   "WorkPoint_0": {
+    "pos": [
+     -0.04,
+     -0.829,
+     0.0
+    ],
+    "face": [
+     0.0,
+     1.0,
+     0.0
+    ],
+    "source": "contact_check"
+   },
+   "ControlPoint": {
+    "pos": [
+     0.0,
+     -0.58,
+     0.42
+    ],
+    "face": [
+     0.0,
+     1.0,
+     0.0
+    ]
+   },
+   "HandTarget": {
+    "pos": [
+     0.0,
+     -0.6,
+     0.44
+    ],
+    "face": [
+     0.0,
+     1.0,
+     0.0
+    ]
+   }
+  },
+  "select_box": [
+   [
+    -0.49,
+    -0.615,
+    -0.013
+   ],
+   [
+    0.81,
+    0.43,
+    1.17
+   ]
+  ],
+  "takes": {
+   "Prospector@Run.fbx": {
+    "parts": [
+     "Prospector_Probe"
+    ],
+    "frames": [
+     1,
+     49
+    ]
+   }
+  }
+ },
+ "Refinery.fbx": {
+  "objects": {
+   "FAC_Refinery": {
+    "type": "EMPTY",
+    "dims": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "mats": 0
+   },
+   "Refinery.ControlPoint": {
+    "type": "EMPTY",
+    "dims": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "mats": 0
+   },
+   "Refinery.FluidIn_L": {
+    "type": "EMPTY",
+    "dims": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "mats": 0
+   },
+   "Refinery.HandTarget": {
+    "type": "EMPTY",
+    "dims": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "mats": 0
+   },
+   "Refinery.OutputPoint": {
+    "type": "EMPTY",
+    "dims": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "mats": 0
+   },
+   "Refinery.PowerIn": {
+    "type": "EMPTY",
+    "dims": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "mats": 0
+   },
+   "Refinery.Select": {
+    "type": "EMPTY",
+    "dims": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "mats": 0
+   },
+   "Refinery.WorkPoint_0": {
+    "type": "EMPTY",
+    "dims": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "mats": 0
+   },
+   "Refinery_Body": {
+    "type": "MESH",
+    "dims": [
+     2.61,
+     2.4,
+     2.4
+    ],
+    "mats": 16
+   },
+   "Refinery_PumpWheel": {
+    "type": "MESH",
+    "dims": [
+     0.1522,
+     0.16,
+     0.2
+    ],
+    "mats": 2
+   }
+  },
+  "points": {
+   "FluidIn_L": {
+    "pos": [
+     -1.3,
+     0.4,
+     0.25
+    ],
+    "face": [
+     -1.0,
+     0.0,
+     0.0
+    ]
+   },
+   "PowerIn": {
+    "pos": [
+     1.3,
+     0.9,
+     0.15
+    ],
+    "face": [
+     1.0,
+     0.0,
+     0.0
+    ]
+   },
+   "WorkPoint_0": {
+    "pos": [
+     -0.24,
+     -1.029,
+     0.0
+    ],
+    "face": [
+     0.0,
+     1.0,
+     0.0
+    ],
+    "source": "contact_check"
+   },
+   "ControlPoint": {
+    "pos": [
+     -0.2,
+     -0.78,
+     0.45
+    ],
+    "face": [
+     0.0,
+     1.0,
+     0.0
+    ]
+   },
+   "HandTarget": {
+    "pos": [
+     -0.2,
+     -0.8,
+     0.47
+    ],
+    "face": [
+     0.0,
+     1.0,
+     0.0
+    ]
+   },
+   "OutputPoint": {
+    "pos": [
+     0.9,
+     -0.95,
+     0.0
+    ],
+    "face": [
+     0.0,
+     1.0,
+     0.0
+    ]
+   }
+  },
+  "select_box": [
+   [
+    -1.3,
+    -1.2,
+    0.0
+   ],
+   [
+    1.31,
+    1.2,
+    2.4
+   ]
+  ],
+  "takes": {
+   "Refinery@Run.fbx": {
+    "parts": [
+     "Refinery_PumpWheel"
+    ],
+    "frames": [
+     1,
+     17
+    ]
+   }
+  }
+ },
+ "School.fbx": {
+  "objects": {
+   "FAC_School": {
+    "type": "EMPTY",
+    "dims": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "mats": 0
+   },
+   "School.InputPoint": {
+    "type": "EMPTY",
+    "dims": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "mats": 0
+   },
+   "School.Select": {
+    "type": "EMPTY",
+    "dims": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "mats": 0
+   },
+   "School.WorkPoint_0": {
+    "type": "EMPTY",
+    "dims": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "mats": 0
+   },
+   "School_Body": {
+    "type": "MESH",
+    "dims": [
+     2.84,
+     2.64,
+     2.15
+    ],
+    "mats": 9
+   }
+  },
+  "points": {
+   "WorkPoint_0": {
+    "pos": [
+     0.0,
+     -1.5,
+     0.0
+    ],
+    "face": [
+     0.0,
+     1.0,
+     0.0
+    ]
+   },
+   "InputPoint": {
+    "pos": [
+     0.0,
+     -1.2,
+     0.0
+    ],
+    "face": [
+     0.0,
+     1.0,
+     0.0
+    ]
+   }
+  },
+  "select_box": [
+   [
+    -1.42,
+    -1.44,
+    0.0
+   ],
+   [
+    1.42,
+    1.2,
+    2.15
+   ]
+  ],
+  "takes": {}
+ },
+ "SewingTable.fbx": {
+  "objects": {
+   "FAC_SewingTable": {
+    "type": "EMPTY",
+    "dims": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "mats": 0
+   },
+   "SewingTable.HandTarget": {
+    "type": "EMPTY",
+    "dims": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "mats": 0
+   },
+   "SewingTable.InputPoint": {
+    "type": "EMPTY",
+    "dims": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "mats": 0
+   },
+   "SewingTable.OutputPoint": {
+    "type": "EMPTY",
+    "dims": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "mats": 0
+   },
+   "SewingTable.Select": {
+    "type": "EMPTY",
+    "dims": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "mats": 0
+   },
+   "SewingTable.WorkPoint_0": {
+    "type": "EMPTY",
+    "dims": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "mats": 0
+   },
+   "SewingTable_Body": {
+    "type": "MESH",
+    "dims": [
+     0.62,
+     0.4,
+     0.5
+    ],
+    "mats": 6
+   }
+  },
+  "points": {
+   "WorkPoint_0": {
+    "pos": [
+     -0.065,
+     -0.252,
+     0.0
+    ],
+    "face": [
+     0.0,
+     1.0,
+     0.0
+    ],
+    "source": "contact_check"
+   },
+   "HandTarget": {
+    "pos": [
+     -0.03,
+     -0.05,
+     0.42
+    ],
+    "face": [
+     0.0,
+     1.0,
+     0.0
+    ]
+   },
+   "OutputPoint": {
+    "pos": [
+     0.48,
+     -0.1,
+     0.0
+    ],
+    "face": [
+     0.0,
+     1.0,
+     0.0
+    ]
+   },
+   "InputPoint": {
+    "pos": [
+     0.0,
+     0.12,
+     0.42
+    ],
+    "face": [
+     0.0,
+     1.0,
+     0.0
+    ]
+   }
+  },
+  "select_box": [
+   [
+    -0.31,
+    -0.2,
+    0.0
+   ],
+   [
+    0.31,
+    0.2,
+    0.5
+   ]
+  ],
+  "takes": {}
+ },
+ "SteamGenerator.fbx": {
+  "objects": {
+   "FAC_SteamGenerator": {
+    "type": "EMPTY",
+    "dims": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "mats": 0
+   },
+   "SteamGenerator.InputPoint": {
+    "type": "EMPTY",
+    "dims": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "mats": 0
+   },
+   "SteamGenerator.PowerOut": {
+    "type": "EMPTY",
+    "dims": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "mats": 0
+   },
+   "SteamGenerator.Select": {
+    "type": "EMPTY",
+    "dims": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "mats": 0
+   },
+   "SteamGenerator.WorkPoint_0": {
+    "type": "EMPTY",
+    "dims": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "mats": 0
+   },
+   "SteamGenerator_Body": {
+    "type": "MESH",
+    "dims": [
+     0.91,
+     0.9,
+     1.455
+    ],
+    "mats": 9
+   },
+   "SteamGenerator_Flywheel": {
+    "type": "MESH",
+    "dims": [
+     0.04,
+     0.36,
+     0.351
+    ],
+    "mats": 2
+   }
+  },
+  "points": {
+   "PowerOut": {
+    "pos": [
+     0.45,
+     0.3,
+     0.15
+    ],
+    "face": [
+     1.0,
+     0.0,
+     0.0
+    ]
+   },
+   "WorkPoint_0": {
+    "pos": [
+     -0.1,
+     -0.7,
+     0.0
+    ],
+    "face": [
+     0.0,
+     1.0,
+     0.0
+    ]
+   },
+   "InputPoint": {
+    "pos": [
+     -0.1,
+     -0.2,
+     0.2
+    ],
+    "face": [
+     0.0,
+     1.0,
+     0.0
+    ]
+   }
+  },
+  "select_box": [
+   [
+    -0.45,
+    -0.45,
+    -0.025
+   ],
+   [
+    0.46,
+    0.45,
+    1.43
+   ]
+  ],
+  "takes": {
+   "SteamGenerator@Run.fbx": {
+    "parts": [
+     "SteamGenerator_Flywheel"
+    ],
+    "frames": [
+     1,
+     25
+    ]
+   }
+  }
+ },
+ "Still.fbx": {
+  "objects": {
+   "FAC_Still": {
+    "type": "EMPTY",
+    "dims": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "mats": 0
+   },
+   "Still.ChargePoint": {
+    "type": "EMPTY",
+    "dims": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "mats": 0
+   },
+   "Still.FuelPoint": {
+    "type": "EMPTY",
+    "dims": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "mats": 0
+   },
+   "Still.HandTarget": {
+    "type": "EMPTY",
+    "dims": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "mats": 0
+   },
+   "Still.InputPoint": {
+    "type": "EMPTY",
+    "dims": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "mats": 0
+   },
+   "Still.OutputPoint": {
+    "type": "EMPTY",
+    "dims": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "mats": 0
+   },
+   "Still.Select": {
+    "type": "EMPTY",
+    "dims": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "mats": 0
+   },
+   "Still.WorkPoint_0": {
+    "type": "EMPTY",
+    "dims": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "mats": 0
+   },
+   "Still_Body": {
+    "type": "MESH",
+    "dims": [
+     1.2576,
+     0.474,
+     0.8
+    ],
+    "mats": 7
+   },
+   "Still_Valve": {
+    "type": "MESH",
+    "dims": [
+     0.106,
+     0.016,
+     0.106
+    ],
+    "mats": 1
+   }
+  },
+  "points": {
+   "WorkPoint_0": {
+    "pos": [
+     -0.008,
+     -0.31,
+     0.0
+    ],
+    "face": [
+     0.0,
+     1.0,
+     0.0
+    ],
+    "source": "contact_check"
+   },
+   "HandTarget": {
+    "pos": [
+     0.0,
+     -0.1,
+     0.62
+    ],
+    "face": [
+     0.0,
+     1.0,
+     0.0
+    ]
+   },
+   "InputPoint": {
+    "pos": [
+     -0.35,
+     0.0,
+     0.82
+    ],
+    "face": [
+     0.0,
+     1.0,
+     0.0
+    ]
+   },
+   "ChargePoint": {
+    "pos": [
+     0.62,
+     -0.08,
+     0.0
+    ],
+    "face": [
+     0.0,
+     1.0,
+     0.0
+    ]
+   },
+   "OutputPoint": {
+    "pos": [
+     0.75,
+     -0.35,
+     0.0
+    ],
+    "face": [
+     0.0,
+     1.0,
+     0.0
+    ]
+   },
+   "FuelPoint": {
+    "pos": [
+     -0.35,
+     -0.3,
+     0.1
+    ],
+    "face": [
+     0.0,
+     1.0,
+     0.0
+    ]
+   }
+  },
+  "select_box": [
+   [
+    -0.59,
+    -0.24,
+    0.0
+   ],
+   [
+    0.668,
+    0.234,
+    0.8
+   ]
+  ],
+  "takes": {
+   "Still@ValveTurn.fbx": {
+    "parts": [
+     "Still_Valve"
+    ],
+    "frames": [
+     1,
+     25
+    ]
+   }
+  }
+ },
+ "TitaniumRefinery.fbx": {
+  "objects": {
+   "FAC_TitaniumRefinery": {
+    "type": "EMPTY",
+    "dims": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "mats": 0
+   },
+   "TitaniumRefinery.ControlPoint": {
+    "type": "EMPTY",
+    "dims": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "mats": 0
+   },
+   "TitaniumRefinery.FluidIn_G": {
+    "type": "EMPTY",
+    "dims": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "mats": 0
+   },
+   "TitaniumRefinery.HandTarget": {
+    "type": "EMPTY",
+    "dims": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "mats": 0
+   },
+   "TitaniumRefinery.InputPoint": {
+    "type": "EMPTY",
+    "dims": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "mats": 0
+   },
+   "TitaniumRefinery.OutputPoint": {
+    "type": "EMPTY",
+    "dims": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "mats": 0
+   },
+   "TitaniumRefinery.PowerIn": {
+    "type": "EMPTY",
+    "dims": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "mats": 0
+   },
+   "TitaniumRefinery.Select": {
+    "type": "EMPTY",
+    "dims": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "mats": 0
+   },
+   "TitaniumRefinery.WorkPoint_0": {
+    "type": "EMPTY",
+    "dims": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "mats": 0
+   },
+   "TitaniumRefinery_Body": {
+    "type": "MESH",
+    "dims": [
+     1.61,
+     1.6,
+     1.3
+    ],
+    "mats": 16
+   },
+   "TitaniumRefinery_Stirrer": {
+    "type": "MESH",
+    "dims": [
+     0.18,
+     0.04,
+     0.17
+    ],
+    "mats": 1
+   }
+  },
+  "points": {
+   "PowerIn": {
+    "pos": [
+     0.8,
+     0.5,
+     0.15
+    ],
+    "face": [
+     1.0,
+     0.0,
+     0.0
+    ]
+   },
+   "FluidIn_G": {
+    "pos": [
+     -0.8,
+     0.5,
+     0.2
+    ],
+    "face": [
+     -1.0,
+     0.0,
+     0.0
+    ]
+   },
+   "WorkPoint_0": {
+    "pos": [
+     0.51,
+     -0.809,
+     0.0
+    ],
+    "face": [
+     0.0,
+     1.0,
+     0.0
+    ],
+    "source": "contact_check"
+   },
+   "InputPoint": {
+    "pos": [
+     -0.3,
+     -0.45,
+     0.14
+    ],
+    "face": [
+     0.0,
+     1.0,
+     0.0
+    ]
+   },
+   "ControlPoint": {
+    "pos": [
+     0.55,
+     -0.58,
+     0.45
+    ],
+    "face": [
+     0.0,
+     1.0,
+     0.0
+    ]
+   },
+   "OutputPoint": {
+    "pos": [
+     0.5,
+     -0.95,
+     0.0
+    ],
+    "face": [
+     0.0,
+     1.0,
+     0.0
+    ]
+   },
+   "HandTarget": {
+    "pos": [
+     0.55,
+     -0.58,
+     0.47
+    ],
+    "face": [
+     0.0,
+     1.0,
+     0.0
+    ]
+   }
+  },
+  "select_box": [
+   [
+    -0.8,
+    -0.8,
+    0.0
+   ],
+   [
+    0.81,
+    0.8,
+    1.47
+   ]
+  ],
+  "takes": {
+   "TitaniumRefinery@Run.fbx": {
+    "parts": [
+     "TitaniumRefinery_Stirrer"
+    ],
+    "frames": [
+     1,
+     25
+    ]
+   }
+  }
+ },
+ "WaterPump.fbx": {
+  "objects": {
+   "FAC_WaterPump": {
+    "type": "EMPTY",
+    "dims": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "mats": 0
+   },
+   "WaterPump.FluidOut_L": {
+    "type": "EMPTY",
+    "dims": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "mats": 0
+   },
+   "WaterPump.HandTarget": {
+    "type": "EMPTY",
+    "dims": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "mats": 0
+   },
+   "WaterPump.Select": {
+    "type": "EMPTY",
+    "dims": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "mats": 0
+   },
+   "WaterPump.WorkPoint_0": {
+    "type": "EMPTY",
+    "dims": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "mats": 0
+   },
+   "WaterPump_Body": {
+    "type": "MESH",
+    "dims": [
+     0.7,
+     0.7,
+     0.75
+    ],
+    "mats": 4
+   },
+   "WaterPump_Handle": {
+    "type": "MESH",
+    "dims": [
+     0.0666,
+     0.435,
+     0.07
+    ],
+    "mats": 2
+   }
+  },
+  "points": {
+   "FluidOut_L": {
+    "pos": [
+     0.35,
+     0.1,
+     0.25
+    ],
+    "face": [
+     1.0,
+     0.0,
+     0.0
+    ]
+   },
+   "WorkPoint_0": {
+    "pos": [
+     0.0,
+     0.9,
+     0.0
+    ],
+    "face": [
+     0.0,
+     -1.0,
+     0.0
+    ]
+   },
+   "HandTarget": {
+    "pos": [
+     0.0,
+     0.5,
+     0.8
+    ],
+    "face": [
+     0.0,
+     1.0,
+     0.0
+    ]
+   }
+  },
+  "select_box": [
+   [
+    -0.35,
+    -0.35,
+    0.0
+   ],
+   [
+    0.35,
+    0.535,
+    0.835
+   ]
+  ],
+  "takes": {
+   "WaterPump@Run.fbx": {
+    "parts": [
+     "WaterPump_Handle"
+    ],
+    "frames": [
+     1,
+     49
+    ]
+   }
+  }
+ },
+ "WaterSource.fbx": {
+  "objects": {
+   "FAC_WaterSource": {
+    "type": "EMPTY",
+    "dims": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "mats": 0
+   },
+   "WaterSource.Select": {
+    "type": "EMPTY",
+    "dims": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "mats": 0
+   },
+   "WaterSource.WaterPoint": {
+    "type": "EMPTY",
+    "dims": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "mats": 0
+   },
+   "WaterSource.WorkPoint_0": {
+    "type": "EMPTY",
+    "dims": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "mats": 0
+   },
+   "WaterSource_Body": {
+    "type": "MESH",
+    "dims": [
+     0.9708,
+     0.9858,
+     0.12
+    ],
+    "mats": 3
+   }
+  },
+  "points": {
+   "WaterPoint": {
+    "pos": [
+     0.0,
+     0.0,
+     0.045
+    ],
+    "face": [
+     0.0,
+     1.0,
+     0.0
+    ]
+   },
+   "WorkPoint_0": {
+    "pos": [
+     0.0,
+     -0.6,
+     0.0
+    ],
+    "face": [
+     0.0,
+     1.0,
+     0.0
+    ]
+   }
+  },
+  "select_box": [
+   [
+    -0.47,
+    -0.493,
+    -0.01
+   ],
+   [
+    0.5,
+    0.493,
+    0.11
+   ]
+  ],
+  "takes": {}
+ }
+}

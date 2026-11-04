@@ -1,0 +1,32 @@
+[
+  {
+    "name": "Mat_Chitin",
+    "vertices": 906,
+    "faces": 720
+  },
+  {
+    "name": "Deposit_Chitin",
+    "vertices": 1546,
+    "faces": 1260
+  },
+  {
+    "name": "Mat_Wax",
+    "vertices": 180,
+    "faces": 176
+  },
+  {
+    "name": "Part_Component",
+    "vertices": 296,
+    "faces": 242
+  },
+  {
+    "name": "Water_Jug",
+    "vertices": 156,
+    "faces": 133
+  },
+  {
+    "name": "Resource_Soil",
+    "vertices": 84,
+    "faces": 140
+  }
+]

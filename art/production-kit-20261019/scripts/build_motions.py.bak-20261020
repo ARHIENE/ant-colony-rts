@@ -1,0 +1,106 @@
+"""blender -b --factory-startup --python scripts/build_motions.py → pk-motions.blend + previews/motion-report.json
+
+1. PK|<clip> actions from motions_pk (body key poses, finger curls, events).
+2. Two-handed clips: left hand IK to the tool's grip2 point, baked into dense keys (export-safe, no constraint left).
+3. Measured per clip with its prop on Socket.Tool.R (Steel tier):
+   fingertip→handle gap, left palm→grip2 error, tool length drift (rigid check), contact point offset at the hit frame.
+"""
+import bpy, sys, json, importlib, math
+from mathutils import Vector, Matrix
+sys.path.insert(0, r"E:\Git\ant\art\production-kit-20261019\scripts")
+import pk, motions_pk
+for m in (pk, motions_pk): importlib.reload(m)
+
+bpy.ops.wm.open_mainfile(filepath=str(pk.KIT / 'pk-equipment.blend'))
+scene = bpy.context.scene; vl = bpy.context.view_layer
+rig = bpy.data.objects['KemonoRig']
+rig.data.pose_position = 'POSE'
+for a in [a for a in bpy.data.actions if a.name.startswith('PK|')]: bpy.data.actions.remove(a)
+specs = motions_pk.create(rig)
+E = bpy.data.objects
+PROPS = {'Tool_Axe': 'Tool_Axe_Steel', 'Tool_Pickaxe': 'Tool_Pickaxe_Steel', 'Tool_Hammer': 'Tool_Hammer_Steel', 'Tool_Shovel': 'Tool_Shovel_Steel',
+         'Tool_Hoe': 'Tool_Hoe_Steel', 'Tool_Sickle': 'Tool_Sickle_Steel', 'Weapon_Sword': 'Weapon_Sword_Steel', 'Weapon_Spear': 'Weapon_Spear_Steel',
+         'Weapon_Shield': 'Weapon_Shield_Steel'}
+
+
+def attach(src_name, socket):
+    o = E[src_name].copy(); scene.collection.objects.link(o); o.name = 'Prop__' + src_name
+    o.parent = rig; o.parent_type = 'BONE'; o.parent_bone = socket; o.matrix_parent_inverse.identity()
+    o.location = (0, -rig.data.bones[socket].length, 0); o.rotation_euler = (0, 0, 0)
+    return o
+
+
+def use(act):
+    rig.animation_data.action = act
+    if act.slots: rig.animation_data.action_slot = act.slots[0]
+
+
+def bake_left_hand(act, prop, frames):
+    """IK forearm.L (chain 2) to the prop's grip2, then key the visual pose of the left arm chain on every frame."""
+    tgt = bpy.data.objects.new('Grip2Target', None); scene.collection.objects.link(tgt)
+    tgt.parent = prop; tgt.location = Vector(prop['grip2'])
+    pole = None
+    ik = rig.pose.bones['forearm.L'].constraints.new('IK'); ik.target = tgt; ik.chain_count = 2; ik.use_stretch = False
+    chain = ['upper_arm.L', 'forearm.L', 'hand.L']; mats = {}
+    for f in frames:
+        scene.frame_set(f); vl.update(); mats[f] = {b: rig.pose.bones[b].matrix.copy() for b in chain}
+    rig.pose.bones['forearm.L'].constraints.remove(ik)
+    for f in frames:
+        scene.frame_set(f)
+        for b in chain:
+            pb = rig.pose.bones[b]; pb.matrix = mats[f][b]; vl.update()
+            pb.keyframe_insert('rotation_euler', frame=f, group=b)
+    bpy.data.objects.remove(tgt)
+
+
+def handle_gap(prop, side='R'):
+    """Distance from each fingertip to the handle surface (tool local Y axis, radius .0105) → max over fingers."""
+    W = prop.matrix_world; inv = W.inverted(); gaps = []
+    for b in rig.pose.bones:
+        if b.name.endswith('.03.' + side) and b.name.startswith(('f_', 'thumb.')):
+            tip = inv @ (rig.matrix_world @ b.tail)
+            gaps.append(math.hypot(tip.x, tip.z) - .0105)
+    return max(gaps) if gaps else None
+
+
+def tool_length(prop):
+    vs = [prop.matrix_world @ v.co for v in prop.data.vertices]
+    return max((vs[i] - vs[0]).length for i in range(0, len(vs), max(1, len(vs) // 40)))
+
+
+report = {}
+for name, c in specs.items():
+    act = bpy.data.actions['PK|' + name]; use(act)
+    frames = list(range(1, c['frames'] + 2))
+    pid = PROPS.get(c.get('prop') or '')
+    r = {'frames': c['frames'], 'loop': c['loop'], 'events': c.get('events', {}), 'prop': c.get('prop'), 'target': c.get('target', ''),
+         'two_hand': bool(c.get('two_hand'))}
+    if pid:
+        sock = 'Socket.Tool.L' if pid.startswith('Weapon_Shield') else 'Socket.Tool.R'
+        prop = attach(pid, sock)
+        if c.get('two_hand') and prop.get('grip2'): bake_left_hand(act, prop, frames)
+        L0 = None; drift = 0; gapsR = []; errL = []
+        for f in frames:
+            scene.frame_set(f); vl.update()
+            L = tool_length(prop); L0 = L0 or L; drift = max(drift, abs(L - L0))
+            g = handle_gap(prop, 'L' if sock.endswith('L') else 'R')
+            if g is not None: gapsR.append(g)
+            if c.get('two_hand') and prop.get('grip2'):
+                palm = rig.matrix_world @ rig.pose.bones['Socket.Tool.L'].head
+                errL.append((palm - prop.matrix_world @ Vector(prop['grip2'])).length)
+        r['rigid_length_drift_m'] = round(drift, 6)
+        r['fingertip_gap_m'] = {'max': round(max(gapsR), 4), 'min': round(min(gapsR), 4)} if gapsR else None
+        if errL: r['left_hand_grip2_error_m'] = {'max': round(max(errL), 4), 'mean': round(sum(errL) / len(errL), 4)}
+        hit = c.get('events', {}).get('hit')
+        if hit and prop.get('contact'):
+            scene.frame_set(hit); vl.update()
+            p = prop.matrix_world @ Vector(prop['contact'])
+            r['contact_point_at_hit'] = [round(x, 3) for x in (rig.matrix_world.inverted() @ p)]
+            r['contact_frame'] = hit
+        bpy.data.objects.remove(prop)
+    report[name] = r
+rig.animation_data.action = None
+for pb in rig.pose.bones: pb.matrix_basis.identity()
+bpy.ops.wm.save_as_mainfile(filepath=str(pk.KIT / 'pk-motions.blend'))
+pk.write_json(pk.KIT / 'previews' / 'motion-report.json', {'clips': report, 'reuse': motions_pk.REUSE})
+print('MOTIONS', len(report))

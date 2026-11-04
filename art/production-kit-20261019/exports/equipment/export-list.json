@@ -1,0 +1,751 @@
+{
+ "Helm_CAT.fbx": {
+  "objects": {
+   "Helm_CAT": {
+    "type": "MESH",
+    "dims": [
+     0.6593,
+     0.6046,
+     0.4194
+    ],
+    "mats": 1
+   }
+  },
+  "props": {
+   "slot": "Helm",
+   "bone": "head",
+   "rigid": true,
+   "ears": "CAT",
+   "holes": [
+    {
+     "side": "L",
+     "centre": [
+      0.217,
+      -0.031,
+      1.159
+     ],
+     "size": [
+      0.104,
+      0.13,
+      0.1
+     ]
+    },
+    {
+     "side": "R",
+     "centre": [
+      -0.217,
+      -0.031,
+      1.159
+     ],
+     "size": [
+      0.104,
+      0.13,
+      0.1
+     ]
+    }
+   ]
+  }
+ },
+ "Helm_DROOP.fbx": {
+  "objects": {
+   "Helm_DROOP": {
+    "type": "MESH",
+    "dims": [
+     0.6422,
+     0.6046,
+     0.4194
+    ],
+    "mats": 1
+   }
+  },
+  "props": {
+   "slot": "Helm",
+   "bone": "head",
+   "rigid": true,
+   "ears": "DROOP",
+   "holes": [
+    {
+     "side": "L",
+     "centre": [
+      0.285,
+      -0.001,
+      0.978
+     ],
+     "size": [
+      0.097,
+      0.13,
+      0.422
+     ]
+    },
+    {
+     "side": "R",
+     "centre": [
+      -0.287,
+      -0.001,
+      0.978
+     ],
+     "size": [
+      0.101,
+      0.131,
+      0.423
+     ]
+    }
+   ]
+  }
+ },
+ "Helm_RABBIT.fbx": {
+  "objects": {
+   "Helm_RABBIT": {
+    "type": "MESH",
+    "dims": [
+     0.6593,
+     0.6046,
+     0.4194
+    ],
+    "mats": 1
+   }
+  },
+  "props": {
+   "slot": "Helm",
+   "bone": "head",
+   "rigid": true,
+   "ears": "RABBIT",
+   "holes": [
+    {
+     "side": "L",
+     "centre": [
+      0.151,
+      0.034,
+      1.201
+     ],
+     "size": [
+      0.088,
+      0.052,
+      0.025
+     ]
+    },
+    {
+     "side": "R",
+     "centre": [
+      -0.155,
+      0.024,
+      1.2
+     ],
+     "size": [
+      0.092,
+      0.04,
+      0.025
+     ]
+    }
+   ]
+  }
+ },
+ "Helm_ROUND.fbx": {
+  "objects": {
+   "Helm_ROUND": {
+    "type": "MESH",
+    "dims": [
+     0.6593,
+     0.6046,
+     0.4194
+    ],
+    "mats": 1
+   }
+  },
+  "props": {
+   "slot": "Helm",
+   "bone": "head",
+   "rigid": true,
+   "ears": "ROUND",
+   "holes": [
+    {
+     "side": "L",
+     "centre": [
+      0.2,
+      -0.011,
+      1.171
+     ],
+     "size": [
+      0.151,
+      0.107,
+      0.097
+     ]
+    },
+    {
+     "side": "R",
+     "centre": [
+      -0.2,
+      -0.011,
+      1.171
+     ],
+     "size": [
+      0.151,
+      0.107,
+      0.097
+     ]
+    }
+   ]
+  }
+ },
+ "Helm_UPRIGHT.fbx": {
+  "objects": {
+   "Helm_UPRIGHT": {
+    "type": "MESH",
+    "dims": [
+     0.6593,
+     0.6046,
+     0.4194
+    ],
+    "mats": 1
+   }
+  },
+  "props": {
+   "slot": "Helm",
+   "bone": "head",
+   "rigid": true,
+   "ears": "UPRIGHT",
+   "holes": [
+    {
+     "side": "L",
+     "centre": [
+      0.154,
+      0.001,
+      1.196
+     ],
+     "size": [
+      0.109,
+      0.076,
+      0.031
+     ]
+    },
+    {
+     "side": "R",
+     "centre": [
+      -0.154,
+      0.001,
+      1.196
+     ],
+     "size": [
+      0.11,
+      0.076,
+      0.031
+     ]
+    }
+   ]
+  }
+ },
+ "HelmTrim_Bronze.fbx": {
+  "objects": {
+   "HelmTrim_Bronze": {
+    "type": "MESH",
+    "dims": [
+     0.6343,
+     0.5933,
+     0.2167
+    ],
+    "mats": 1
+   }
+  },
+  "props": {
+   "slot": "HelmTrim",
+   "tier": "Bronze",
+   "bone": "head",
+   "rigid": true
+  }
+ },
+ "HelmTrim_Iron.fbx": {
+  "objects": {
+   "HelmTrim_Iron": {
+    "type": "MESH",
+    "dims": [
+     0.6384,
+     0.5992,
+     0.2187
+    ],
+    "mats": 2
+   }
+  },
+  "props": {
+   "slot": "HelmTrim",
+   "tier": "Iron",
+   "bone": "head",
+   "rigid": true
+  }
+ },
+ "HelmTrim_Steel.fbx": {
+  "objects": {
+   "HelmTrim_Steel": {
+    "type": "MESH",
+    "dims": [
+     0.6384,
+     0.5992,
+     0.4196
+    ],
+    "mats": 2
+   }
+  },
+  "props": {
+   "slot": "HelmTrim",
+   "tier": "Steel",
+   "bone": "head",
+   "rigid": true
+  }
+ },
+ "HelmTrim_Titanium.fbx": {
+  "objects": {
+   "HelmTrim_Titanium": {
+    "type": "MESH",
+    "dims": [
+     0.6384,
+     0.6004,
+     0.4196
+    ],
+    "mats": 2
+   }
+  },
+  "props": {
+   "slot": "HelmTrim",
+   "tier": "Titanium",
+   "bone": "head",
+   "rigid": true
+  }
+ },
+ "HelmTrim_Starlight.fbx": {
+  "objects": {
+   "HelmTrim_Starlight": {
+    "type": "MESH",
+    "dims": [
+     0.6384,
+     0.6083,
+     0.42
+    ],
+    "mats": 4
+   }
+  },
+  "props": {
+   "slot": "HelmTrim",
+   "tier": "Starlight",
+   "bone": "head",
+   "rigid": true
+  }
+ },
+ "Armor_Breastplate.fbx": {
+  "objects": {
+   "Armor_Breastplate": {
+    "type": "MESH",
+    "dims": [
+     0.2087,
+     0.1049,
+     0.1342
+    ],
+    "mats": 1
+   }
+  },
+  "props": {
+   "rest_overlap_pairs": 0,
+   "bone": "spine_02",
+   "rigid": true,
+   "slot": "Armor"
+  }
+ },
+ "Armor_Breastplate_Lower.fbx": {
+  "objects": {
+   "Armor_Breastplate_Lower": {
+    "type": "MESH",
+    "dims": [
+     0.2739,
+     0.1401,
+     0.121
+    ],
+    "mats": 1
+   }
+  },
+  "props": {
+   "rest_overlap_pairs": 0,
+   "bone": "spine_01",
+   "rigid": true,
+   "slot": "Armor"
+  }
+ },
+ "Armor_Backplate.fbx": {
+  "objects": {
+   "Armor_Backplate": {
+    "type": "MESH",
+    "dims": [
+     0.2011,
+     0.068,
+     0.0805
+    ],
+    "mats": 1
+   }
+  },
+  "props": {
+   "rest_overlap_pairs": 0,
+   "bone": "spine_02",
+   "rigid": true,
+   "slot": "Armor"
+  }
+ },
+ "Armor_Backplate_Lower.fbx": {
+  "objects": {
+   "Armor_Backplate_Lower": {
+    "type": "MESH",
+    "dims": [
+     0.2054,
+     0.0607,
+     0.0288
+    ],
+    "mats": 1
+   }
+  },
+  "props": {
+   "rest_overlap_pairs": 0,
+   "bone": "spine_01",
+   "rigid": true,
+   "slot": "Armor"
+  }
+ },
+ "Armor_Fauld.fbx": {
+  "objects": {
+   "Armor_Fauld": {
+    "type": "MESH",
+    "dims": [
+     0.3284,
+     0.1709,
+     0.091
+    ],
+    "mats": 1
+   }
+  },
+  "props": {
+   "rest_overlap_pairs": 0,
+   "bone": "pevis",
+   "rigid": true,
+   "slot": "Armor"
+  }
+ },
+ "Armor_Tasset_L.fbx": {
+  "objects": {
+   "Armor_Tasset_L": {
+    "type": "MESH",
+    "dims": [
+     0.2189,
+     0.1699,
+     0.1433
+    ],
+    "mats": 1
+   }
+  },
+  "props": {
+   "rest_overlap_pairs": 0,
+   "bone": "thigh.L",
+   "rigid": true,
+   "slot": "Armor"
+  }
+ },
+ "Armor_Tasset_R.fbx": {
+  "objects": {
+   "Armor_Tasset_R": {
+    "type": "MESH",
+    "dims": [
+     0.2205,
+     0.1699,
+     0.1433
+    ],
+    "mats": 1
+   }
+  },
+  "props": {
+   "rest_overlap_pairs": 0,
+   "bone": "thigh.R",
+   "rigid": true,
+   "slot": "Armor"
+  }
+ },
+ "Armor_LeatherVest.fbx": {
+  "objects": {
+   "Armor_LeatherVest": {
+    "type": "MESH",
+    "dims": [
+     0.3156,
+     0.2046,
+     0.2854
+    ],
+    "mats": 1
+   }
+  },
+  "props": {
+   "soft": true,
+   "weights_from": "Part_Outfit_LINEN_00 (nearest vertex)",
+   "slot": "ArmorSoft"
+  }
+ },
+ "Armor_Bracer_L.fbx": {
+  "objects": {
+   "Armor_Bracer_L": {
+    "type": "MESH",
+    "dims": [
+     0.1348,
+     0.1078,
+     0.1102
+    ],
+    "mats": 1
+   }
+  },
+  "props": {
+   "bone": "forearm.L",
+   "rigid": true,
+   "slot": "Armor",
+   "rest_overlap_pairs": 0
+  }
+ },
+ "Armor_Bracer_R.fbx": {
+  "objects": {
+   "Armor_Bracer_R": {
+    "type": "MESH",
+    "dims": [
+     0.1348,
+     0.1078,
+     0.1102
+    ],
+    "mats": 1
+   }
+  },
+  "props": {
+   "bone": "forearm.R",
+   "rigid": true,
+   "slot": "Armor",
+   "rest_overlap_pairs": 0
+  }
+ },
+ "Armor_Greave_L.fbx": {
+  "objects": {
+   "Armor_Greave_L": {
+    "type": "MESH",
+    "dims": [
+     0.0949,
+     0.0478,
+     0.0784
+    ],
+    "mats": 1
+   }
+  },
+  "props": {
+   "bone": "shin.L",
+   "rigid": true,
+   "slot": "Armor",
+   "rest_overlap_pairs": 0
+  }
+ },
+ "Armor_Greave_R.fbx": {
+  "objects": {
+   "Armor_Greave_R": {
+    "type": "MESH",
+    "dims": [
+     0.0949,
+     0.0478,
+     0.0784
+    ],
+    "mats": 1
+   }
+  },
+  "props": {
+   "bone": "shin.R",
+   "rigid": true,
+   "slot": "Armor",
+   "rest_overlap_pairs": 0
+  }
+ },
+ "Armor_Breastplate_Trim_Steel.fbx": {
+  "objects": {
+   "Armor_Breastplate_Trim_Steel": {
+    "type": "MESH",
+    "dims": [
+     0.01,
+     0.01,
+     0.0942
+    ],
+    "mats": 1
+   }
+  },
+  "props": {
+   "bone": "spine_02",
+   "rigid": true,
+   "slot": "ArmorTrim",
+   "tier": "Steel"
+  }
+ },
+ "Armor_Breastplate_Trim_Titanium.fbx": {
+  "objects": {
+   "Armor_Breastplate_Trim_Titanium": {
+    "type": "MESH",
+    "dims": [
+     0.01,
+     0.01,
+     0.0942
+    ],
+    "mats": 1
+   }
+  },
+  "props": {
+   "bone": "spine_02",
+   "rigid": true,
+   "slot": "ArmorTrim",
+   "tier": "Titanium"
+  }
+ },
+ "Armor_Breastplate_Trim_Starlight.fbx": {
+  "objects": {
+   "Armor_Breastplate_Trim_Starlight": {
+    "type": "MESH",
+    "dims": [
+     0.01,
+     0.01,
+     0.0942
+    ],
+    "mats": 1
+   }
+  },
+  "props": {
+   "bone": "spine_02",
+   "rigid": true,
+   "slot": "ArmorTrim",
+   "tier": "Starlight"
+  }
+ },
+ "Part_Hair_LONG_ARMOR.fbx": {
+  "objects": {
+   "Part_Hair_LONG_ARMOR": {
+    "type": "MESH",
+    "dims": [
+     0.5611,
+     0.5232,
+     0.6152
+    ],
+    "mats": 2
+   }
+  },
+  "props": {
+   "slot": "HairArmorVariant",
+   "choice": "LONG",
+   "derived_from": "Part_Hair_LONG_00",
+   "moved_vertices": 15,
+   "rest_overlap_pairs": 0
+  }
+ },
+ "Part_Outfit_LINEN_ARMOR.fbx": {
+  "objects": {
+   "Part_Outfit_LINEN_ARMOR": {
+    "type": "MESH",
+    "dims": [
+     0.505,
+     0.292,
+     0.4
+    ],
+    "mats": 4
+   }
+  },
+  "props": {
+   "slot": "OutfitArmorVariant",
+   "choice": "LINEN",
+   "derived_from": "Part_Outfit_LINEN_00",
+   "moved_vertices": 283,
+   "removed_faces": 278
+  }
+ },
+ "Part_Body_BASE_ARMOR.fbx": {
+  "objects": {
+   "Part_Body_BASE_ARMOR": {
+    "type": "MESH",
+    "dims": [
+     0.5624,
+     0.1549,
+     0.7282
+    ],
+    "mats": 4
+   }
+  },
+  "props": {
+   "slot": "BodyArmorVariant",
+   "choice": "BASE",
+   "derived_from": "Part_Body_BASE_00",
+   "removed_faces": 72
+  }
+ },
+ "Belt.fbx": {
+  "objects": {
+   "Belt": {
+    "type": "MESH",
+    "dims": [
+     0.2869,
+     0.1967,
+     0.026
+    ],
+    "mats": 2
+   }
+  },
+  "props": {
+   "bone": "pevis",
+   "rigid": true,
+   "slot": "Belt",
+   "fit": {
+    "tail_gap_deg": 64
+   },
+   "rest_overlap_pairs": 0
+  }
+ },
+ "Holder_Sword.fbx": {
+  "objects": {
+   "Holder_Sword": {
+    "type": "MESH",
+    "dims": [
+     0.1021,
+     0.1225,
+     0.0571
+    ],
+    "mats": 2
+   }
+  },
+  "props": {
+   "bone": "pevis",
+   "rigid": true,
+   "slot": "Holder"
+  }
+ },
+ "Holder_Shield.fbx": {
+  "objects": {
+   "Holder_Shield": {
+    "type": "MESH",
+    "dims": [
+     0.181,
+     0.0263,
+     0.2111
+    ],
+    "mats": 2
+   }
+  },
+  "props": {
+   "bone": "pevis",
+   "rigid": true,
+   "slot": "Holder"
+  }
+ },
+ "Holder_Spear.fbx": {
+  "objects": {
+   "Holder_Spear": {
+    "type": "MESH",
+    "dims": [
+     0.043,
+     0.1306,
+     0.0305
+    ],
+    "mats": 1
+   }
+  },
+  "props": {
+   "bone": "pevis",
+   "rigid": true,
+   "slot": "Holder"
+  }
+ }
+}

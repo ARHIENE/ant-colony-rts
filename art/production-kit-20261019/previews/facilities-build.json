@@ -1,0 +1,5773 @@
+{
+ "facilities": {
+  "SewingTable": {
+   "id": "SewingTable",
+   "ko": "재봉 작업대",
+   "cells": [
+    1,
+    1
+   ],
+   "group": "기초 가공",
+   "note": "천·가죽 제작과 수리. 작업물은 상판 위에 놓인 별도 물건",
+   "units": "kit m, 1 cell = 1 m, origin = footprint centre on floor, front -Y",
+   "bounds": [
+    [
+     -0.31,
+     -0.2,
+     0.0
+    ],
+    [
+     0.31,
+     0.2,
+     0.5
+    ]
+   ],
+   "select_box": [
+    [
+     -0.31,
+     -0.2,
+     0.0
+    ],
+    [
+     0.31,
+     0.2,
+     0.5
+    ]
+   ],
+   "points": {
+    "WorkPoint_0": {
+     "pos": [
+      -0.065,
+      -0.252,
+      0
+     ],
+     "face": [
+      0.0,
+      1.0,
+      0.0
+     ],
+     "source": "contact_check"
+    },
+    "HandTarget": {
+     "pos": [
+      -0.03,
+      -0.05,
+      0.42
+     ],
+     "face": [
+      0.0,
+      1.0,
+      0.0
+     ]
+    },
+    "OutputPoint": {
+     "pos": [
+      0.48,
+      -0.1,
+      0.0
+     ],
+     "face": [
+      0.0,
+      1.0,
+      0.0
+     ]
+    },
+    "InputPoint": {
+     "pos": [
+      0.0,
+      0.12,
+      0.42
+     ],
+     "face": [
+      0.0,
+      1.0,
+      0.0
+     ]
+    }
+   },
+   "collection": "Fac_Workshop",
+   "contact": {
+    "clip": "SewRepair",
+    "event": "stitch",
+    "frame": 12,
+    "residual_z_m": -0.016
+   }
+  },
+  "CharcoalKiln": {
+   "id": "CharcoalKiln",
+   "ko": "숯가마",
+   "cells": [
+    2,
+    2
+   ],
+   "group": "제련·장비",
+   "note": "목재 → 숯. 앞문으로 장작 투입, 숯은 앞 바닥에 배출",
+   "units": "kit m, 1 cell = 1 m, origin = footprint centre on floor, front -Y",
+   "bounds": [
+    [
+     -0.85,
+     -0.89,
+     0.0
+    ],
+    [
+     0.85,
+     0.85,
+     1.03
+    ]
+   ],
+   "select_box": [
+    [
+     -0.85,
+     -0.89,
+     0.0
+    ],
+    [
+     0.85,
+     0.85,
+     1.03
+    ]
+   ],
+   "points": {
+    "WorkPoint_0": {
+     "pos": [
+      -0.062,
+      -1.142,
+      0
+     ],
+     "face": [
+      0.0,
+      1.0,
+      0.0
+     ],
+     "source": "contact_check"
+    },
+    "InputPoint": {
+     "pos": [
+      0.0,
+      -0.8,
+      0.3
+     ],
+     "face": [
+      0.0,
+      1.0,
+      0.0
+     ]
+    },
+    "HandTarget": {
+     "pos": [
+      0.0,
+      -0.9,
+      0.44
+     ],
+     "face": [
+      0.0,
+      1.0,
+      0.0
+     ]
+    },
+    "OutputPoint": {
+     "pos": [
+      -0.5,
+      -0.55,
+      0.0
+     ],
+     "face": [
+      0.0,
+      1.0,
+      0.0
+     ]
+    }
+   },
+   "collection": "Fac_Workshop",
+   "contact": {
+    "clip": "OvenLoad",
+    "event": "insert",
+    "frame": 18,
+    "residual_z_m": -0.007
+   }
+  },
+  "Blacksmith": {
+   "id": "Blacksmith",
+   "ko": "대장간",
+   "cells": [
+    2,
+    2
+   ],
+   "group": "제련·장비",
+   "note": "금속 장비 제작·수리. 작업물은 모루 위에 고정, 망치 타격점=HandTarget",
+   "units": "kit m, 1 cell = 1 m, origin = footprint centre on floor, front -Y",
+   "bounds": [
+    [
+     -0.92,
+     -0.18,
+     0.0
+    ],
+    [
+     0.715,
+     0.54,
+     1.1
+    ]
+   ],
+   "select_box": [
+    [
+     -0.92,
+     -0.18,
+     0.0
+    ],
+    [
+     0.715,
+     0.54,
+     1.1
+    ]
+   ],
+   "points": {
+    "WorkPoint_0": {
+     "pos": [
+      0.205,
+      -0.486,
+      0
+     ],
+     "face": [
+      0.0,
+      1.0,
+      0.0
+     ],
+     "source": "contact_check"
+    },
+    "HandTarget": {
+     "pos": [
+      0.32,
+      -0.1,
+      0.345
+     ],
+     "face": [
+      0.0,
+      1.0,
+      0.0
+     ]
+    },
+    "InputPoint": {
+     "pos": [
+      -0.4,
+      0.05,
+      0.47
+     ],
+     "face": [
+      0.0,
+      1.0,
+      0.0
+     ]
+    },
+    "OutputPoint": {
+     "pos": [
+      0.75,
+      -0.35,
+      0.0
+     ],
+     "face": [
+      0.0,
+      1.0,
+      0.0
+     ]
+    }
+   },
+   "collection": "Fac_Workshop",
+   "contact": {
+    "clip": "SmithRepair",
+    "event": "hit",
+    "frame": 20,
+    "residual_z_m": 0.0
+   }
+  },
+  "CokeOven": {
+   "id": "CokeOven",
+   "ko": "코크스로",
+   "cells": [
+    2,
+    2
+   ],
+   "group": "제련·장비",
+   "note": "석탄 → 코크스. 위 투입구로 석탄, 앞 오븐 문에서 코크스 배출",
+   "units": "kit m, 1 cell = 1 m, origin = footprint centre on floor, front -Y",
+   "bounds": [
+    [
+     -0.775,
+     -0.65,
+     0.0
+    ],
+    [
+     0.775,
+     0.475,
+     1.57
+    ]
+   ],
+   "select_box": [
+    [
+     -0.775,
+     -0.65,
+     0.0
+    ],
+    [
+     0.775,
+     0.475,
+     1.57
+    ]
+   ],
+   "points": {
+    "WorkPoint_0": {
+     "pos": [
+      -0.312,
+      -0.662,
+      0
+     ],
+     "face": [
+      0.0,
+      1.0,
+      0.0
+     ],
+     "source": "contact_check"
+    },
+    "InputPoint": {
+     "pos": [
+      -0.4,
+      0.1,
+      0.92
+     ],
+     "face": [
+      0.0,
+      1.0,
+      0.0
+     ]
+    },
+    "HandTarget": {
+     "pos": [
+      -0.25,
+      -0.42,
+      0.445
+     ],
+     "face": [
+      0.0,
+      1.0,
+      0.0
+     ]
+    },
+    "OutputPoint": {
+     "pos": [
+      0.0,
+      -0.5,
+      0.04
+     ],
+     "face": [
+      0.0,
+      1.0,
+      0.0
+     ]
+    }
+   },
+   "collection": "Fac_Workshop",
+   "contact": {
+    "clip": "OvenLoad",
+    "event": "insert",
+    "frame": 18,
+    "residual_z_m": -0.002
+   }
+  },
+  "ElectricWorkshop": {
+   "id": "ElectricWorkshop",
+   "ko": "전기 가공 시설",
+   "cells": [
+    2,
+    1
+   ],
+   "group": "제련·장비",
+   "note": "전력으로 금속 부품 절삭. 척 회전=가동",
+   "units": "kit m, 1 cell = 1 m, origin = footprint centre on floor, front -Y",
+   "bounds": [
+    [
+     -0.75,
+     -0.275,
+     0.0
+    ],
+    [
+     0.76,
+     0.275,
+     0.6
+    ]
+   ],
+   "select_box": [
+    [
+     -0.75,
+     -0.275,
+     0.0
+    ],
+    [
+     0.76,
+     0.275,
+     0.6
+    ]
+   ],
+   "points": {
+    "PowerIn": {
+     "pos": [
+      0.75,
+      0.2,
+      0.15
+     ],
+     "face": [
+      1.0,
+      0.0,
+      0.0
+     ]
+    },
+    "WorkPoint_0": {
+     "pos": [
+      0.06,
+      -0.329,
+      0
+     ],
+     "face": [
+      0.0,
+      1.0,
+      0.0
+     ],
+     "source": "contact_check"
+    },
+    "HandTarget": {
+     "pos": [
+      0.1,
+      -0.1,
+      0.45
+     ],
+     "face": [
+      0.0,
+      1.0,
+      0.0
+     ]
+    },
+    "ControlPoint": {
+     "pos": [
+      -0.5,
+      -0.12,
+      0.55
+     ],
+     "face": [
+      0.0,
+      1.0,
+      0.0
+     ]
+    },
+    "OutputPoint": {
+     "pos": [
+      0.95,
+      -0.35,
+      0.0
+     ],
+     "face": [
+      0.0,
+      1.0,
+      0.0
+     ]
+    },
+    "InputPoint": {
+     "pos": [
+      0.25,
+      -0.1,
+      0.42
+     ],
+     "face": [
+      0.0,
+      1.0,
+      0.0
+     ]
+    }
+   },
+   "collection": "Fac_Workshop",
+   "contact": {
+    "clip": "ControlPanel",
+    "event": "press",
+    "frame": 9,
+    "residual_z_m": -0.011
+   }
+  },
+  "TitaniumRefinery": {
+   "id": "TitaniumRefinery",
+   "ko": "티타늄 제련 설비",
+   "cells": [
+    2,
+    2
+   ],
+   "group": "제련·장비",
+   "note": "티타늄 광석 → 티타늄. 전력+가스 사용, 반응로 교반기 회전=가동",
+   "units": "kit m, 1 cell = 1 m, origin = footprint centre on floor, front -Y",
+   "bounds": [
+    [
+     -0.8,
+     -0.8,
+     0.0
+    ],
+    [
+     0.81,
+     0.8,
+     1.47
+    ]
+   ],
+   "select_box": [
+    [
+     -0.8,
+     -0.8,
+     0.0
+    ],
+    [
+     0.81,
+     0.8,
+     1.47
+    ]
+   ],
+   "points": {
+    "PowerIn": {
+     "pos": [
+      0.8,
+      0.5,
+      0.15
+     ],
+     "face": [
+      1.0,
+      0.0,
+      0.0
+     ]
+    },
+    "FluidIn_G": {
+     "pos": [
+      -0.8,
+      0.5,
+      0.2
+     ],
+     "face": [
+      -1.0,
+      0.0,
+      0.0
+     ]
+    },
+    "WorkPoint_0": {
+     "pos": [
+      0.51,
+      -0.809,
+      0
+     ],
+     "face": [
+      0.0,
+      1.0,
+      0.0
+     ],
+     "source": "contact_check"
+    },
+    "InputPoint": {
+     "pos": [
+      -0.3,
+      -0.45,
+      0.14
+     ],
+     "face": [
+      0.0,
+      1.0,
+      0.0
+     ]
+    },
+    "ControlPoint": {
+     "pos": [
+      0.55,
+      -0.58,
+      0.45
+     ],
+     "face": [
+      0.0,
+      1.0,
+      0.0
+     ]
+    },
+    "OutputPoint": {
+     "pos": [
+      0.5,
+      -0.95,
+      0.0
+     ],
+     "face": [
+      0.0,
+      1.0,
+      0.0
+     ]
+    },
+    "HandTarget": {
+     "pos": [
+      0.55,
+      -0.58,
+      0.47
+     ],
+     "face": [
+      0.0,
+      1.0,
+      0.0
+     ]
+    }
+   },
+   "collection": "Fac_Workshop",
+   "contact": {
+    "clip": "ControlPanel",
+    "event": "press",
+    "frame": 9,
+    "residual_z_m": 0.009
+   }
+  },
+  "AlloyFurnace": {
+   "id": "AlloyFurnace",
+   "ko": "합금로",
+   "cells": [
+    2,
+    2
+   ],
+   "group": "제련·장비",
+   "note": "두 금속 투입구(A/B) → 도가니 → 주형. 지정 제조법으로만 합금",
+   "units": "kit m, 1 cell = 1 m, origin = footprint centre on floor, front -Y",
+   "input_slots": {
+    "A": "left chute (copper colour)",
+    "B": "right chute (steel colour)"
+   },
+   "bounds": [
+    [
+     -0.55,
+     -0.92,
+     0.0
+    ],
+    [
+     0.55,
+     0.536,
+     1.28
+    ]
+   ],
+   "select_box": [
+    [
+     -0.55,
+     -0.92,
+     0.0
+    ],
+    [
+     0.55,
+     0.536,
+     1.28
+    ]
+   ],
+   "points": {
+    "WorkPoint_0": {
+     "pos": [
+      0.058,
+      -0.842,
+      0
+     ],
+     "face": [
+      0.0,
+      1.0,
+      0.0
+     ],
+     "source": "contact_check"
+    },
+    "InputPoint": {
+     "pos": [
+      -0.25,
+      -0.1,
+      0.95
+     ],
+     "face": [
+      0.0,
+      1.0,
+      0.0
+     ]
+    },
+    "HandTarget": {
+     "pos": [
+      0.12,
+      -0.6,
+      0.445
+     ],
+     "face": [
+      0.0,
+      1.0,
+      0.0
+     ]
+    },
+    "OutputPoint": {
+     "pos": [
+      0.45,
+      -0.85,
+      0.0
+     ],
+     "face": [
+      0.0,
+      1.0,
+      0.0
+     ]
+    }
+   },
+   "collection": "Fac_Workshop",
+   "contact": {
+    "clip": "OvenLoad",
+    "event": "insert",
+    "frame": 18,
+    "residual_z_m": -0.002
+   }
+  },
+  "ChemistryBench": {
+   "id": "ChemistryBench",
+   "ko": "화학 작업대",
+   "cells": [
+    2,
+    1
+   ],
+   "group": "소재",
+   "note": "원유 → 플라스틱 등 화학 제조법. 원유는 액체 배관 포트로 공급",
+   "units": "kit m, 1 cell = 1 m, origin = footprint centre on floor, front -Y",
+   "bounds": [
+    [
+     -0.7,
+     -0.275,
+     0.0
+    ],
+    [
+     0.7,
+     0.275,
+     0.9
+    ]
+   ],
+   "select_box": [
+    [
+     -0.7,
+     -0.275,
+     0.0
+    ],
+    [
+     0.7,
+     0.275,
+     0.9
+    ]
+   ],
+   "points": {
+    "FluidIn_L": {
+     "pos": [
+      -0.7,
+      0.2,
+      0.2
+     ],
+     "face": [
+      -1.0,
+      0.0,
+      0.0
+     ]
+    },
+    "WorkPoint_0": {
+     "pos": [
+      -0.035,
+      -0.352,
+      0
+     ],
+     "face": [
+      0.0,
+      1.0,
+      0.0
+     ],
+     "source": "contact_check"
+    },
+    "HandTarget": {
+     "pos": [
+      0.0,
+      -0.15,
+      0.43
+     ],
+     "face": [
+      0.0,
+      1.0,
+      0.0
+     ]
+    },
+    "OutputPoint": {
+     "pos": [
+      0.9,
+      -0.35,
+      0.0
+     ],
+     "face": [
+      0.0,
+      1.0,
+      0.0
+     ]
+    },
+    "InputPoint": {
+     "pos": [
+      0.0,
+      -0.1,
+      0.42
+     ],
+     "face": [
+      0.0,
+      1.0,
+      0.0
+     ]
+    }
+   },
+   "collection": "Fac_Workshop",
+   "contact": {
+    "clip": "SewRepair",
+    "event": "stitch",
+    "frame": 12,
+    "residual_z_m": -0.006
+   }
+  },
+  "Mill": {
+   "id": "Mill",
+   "ko": "제분기",
+   "cells": [
+    2,
+    2
+   ],
+   "group": "식품",
+   "note": "곡물 → 가루. 위 깔때기에 곡물, 돌 사이로 가루가 앞 자루에 떨어짐. 윗돌 회전=가동",
+   "units": "kit m, 1 cell = 1 m, origin = footprint centre on floor, front -Y",
+   "bounds": [
+    [
+     -0.5,
+     -0.67,
+     0.0
+    ],
+    [
+     0.5,
+     0.5,
+     0.72
+    ]
+   ],
+   "select_box": [
+    [
+     -0.5,
+     -0.67,
+     0.0
+    ],
+    [
+     0.5,
+     0.5,
+     0.72
+    ]
+   ],
+   "points": {
+    "WorkPoint_0": {
+     "pos": [
+      0.076,
+      -0.211,
+      0
+     ],
+     "face": [
+      0.0,
+      1.0,
+      0.0
+     ],
+     "source": "contact_check"
+    },
+    "InputPoint": {
+     "pos": [
+      0.0,
+      0.0,
+      0.72
+     ],
+     "face": [
+      0.0,
+      1.0,
+      0.0
+     ]
+    },
+    "HandTarget": {
+     "pos": [
+      0.3,
+      0.0,
+      0.62
+     ],
+     "face": [
+      0.0,
+      1.0,
+      0.0
+     ]
+    },
+    "OutputPoint": {
+     "pos": [
+      0.0,
+      -0.6,
+      0.0
+     ],
+     "face": [
+      0.0,
+      1.0,
+      0.0
+     ]
+    },
+    "CarryPoint": {
+     "pos": [
+      0.0,
+      -0.6,
+      0.14
+     ],
+     "face": [
+      0.0,
+      1.0,
+      0.0
+     ]
+    }
+   },
+   "collection": "Fac_Food",
+   "contact": {
+    "clip": "Kemono|Grind",
+    "event": null,
+    "frame": 1,
+    "residual_z_m": 0.009
+   }
+  },
+  "OilPress": {
+   "id": "OilPress",
+   "ko": "착유기",
+   "cells": [
+    1,
+    2
+   ],
+   "group": "식품",
+   "note": "씨앗·열매 → 기름. 지렛대를 눌러 나사 압착, 아래 통에 기름. PressLever 동작의 HandTarget",
+   "units": "kit m, 1 cell = 1 m, origin = footprint centre on floor, front -Y",
+   "bounds": [
+    [
+     -0.35,
+     -0.45,
+     0.0
+    ],
+    [
+     0.35,
+     0.45,
+     0.86
+    ]
+   ],
+   "select_box": [
+    [
+     -0.35,
+     -0.45,
+     0.0
+    ],
+    [
+     0.35,
+     0.45,
+     0.86
+    ]
+   ],
+   "points": {
+    "WorkPoint_0": {
+     "pos": [
+      -0.05,
+      -0.64,
+      0
+     ],
+     "face": [
+      0.0,
+      1.0,
+      0.0
+     ],
+     "source": "contact_check"
+    },
+    "HandTarget": {
+     "pos": [
+      0.0,
+      -0.42,
+      0.66
+     ],
+     "face": [
+      0.0,
+      1.0,
+      0.0
+     ]
+    },
+    "InputPoint": {
+     "pos": [
+      0.0,
+      0.1,
+      0.32
+     ],
+     "face": [
+      0.0,
+      1.0,
+      0.0
+     ]
+    },
+    "OutputPoint": {
+     "pos": [
+      0.4,
+      -0.4,
+      0.0
+     ],
+     "face": [
+      0.0,
+      1.0,
+      0.0
+     ]
+    },
+    "CarryPoint": {
+     "pos": [
+      0.0,
+      -0.3,
+      0.22
+     ],
+     "face": [
+      0.0,
+      1.0,
+      0.0
+     ]
+    }
+   },
+   "collection": "Fac_Food",
+   "contact": {
+    "clip": "PressLever",
+    "event": "press",
+    "frame": 18,
+    "residual_z_m": 0.0
+   }
+  },
+  "BrewingBarrel": {
+   "id": "BrewingBarrel",
+   "ko": "양조통",
+   "cells": [
+    1,
+    1
+   ],
+   "group": "식품",
+   "note": "묶음당 한 종류 발효. 뚜껑 열고 원료 투입 → 닫고 무인 발효 → 꼭지로 회수. 발효 중 상주 작업 없음",
+   "units": "kit m, 1 cell = 1 m, origin = footprint centre on floor, front -Y",
+   "states": {
+    "idle": "lid closed, airlock hidden",
+    "fermenting": "Airlock_Fermenting shown + BrewingBarrel|Fermenting",
+    "ready": "airlock hidden"
+   },
+   "bounds": [
+    [
+     -0.3,
+     -0.3,
+     0.0
+    ],
+    [
+     0.3,
+     0.253,
+     0.72
+    ]
+   ],
+   "select_box": [
+    [
+     -0.3,
+     -0.3,
+     0.0
+    ],
+    [
+     0.3,
+     0.253,
+     0.72
+    ]
+   ],
+   "points": {
+    "WorkPoint_0": {
+     "pos": [
+      -0.042,
+      -0.507,
+      0
+     ],
+     "face": [
+      0.0,
+      1.0,
+      0.0
+     ],
+     "source": "contact_check"
+    },
+    "InputPoint": {
+     "pos": [
+      0.0,
+      0.0,
+      0.62
+     ],
+     "face": [
+      0.0,
+      1.0,
+      0.0
+     ]
+    },
+    "HandTarget": {
+     "pos": [
+      0.0,
+      -0.3,
+      0.29
+     ],
+     "face": [
+      0.0,
+      1.0,
+      0.0
+     ]
+    },
+    "ChargePoint": {
+     "pos": [
+      0.0,
+      -0.36,
+      0.0
+     ],
+     "face": [
+      0.0,
+      1.0,
+      0.0
+     ]
+    },
+    "OutputPoint": {
+     "pos": [
+      0.35,
+      -0.3,
+      0.0
+     ],
+     "face": [
+      0.0,
+      1.0,
+      0.0
+     ]
+    }
+   },
+   "collection": "Fac_Food",
+   "contact": {
+    "clip": "TapFill",
+    "event": "tap_open",
+    "frame": 14,
+    "residual_z_m": -0.016
+   }
+  },
+  "Still": {
+   "id": "Still",
+   "ko": "증류기",
+   "cells": [
+    2,
+    1
+   ],
+   "group": "식품",
+   "note": "완성 발효주 → 증류주. 화실 연료 + 구리 솥 → 냉각 코일 → 받는 단지. 밸브 조작=ValveTurn",
+   "units": "kit m, 1 cell = 1 m, origin = footprint centre on floor, front -Y",
+   "bounds": [
+    [
+     -0.59,
+     -0.24,
+     0.0
+    ],
+    [
+     0.668,
+     0.234,
+     0.8
+    ]
+   ],
+   "select_box": [
+    [
+     -0.59,
+     -0.24,
+     0.0
+    ],
+    [
+     0.668,
+     0.234,
+     0.8
+    ]
+   ],
+   "points": {
+    "WorkPoint_0": {
+     "pos": [
+      -0.008,
+      -0.31,
+      0
+     ],
+     "face": [
+      0.0,
+      1.0,
+      0.0
+     ],
+     "source": "contact_check"
+    },
+    "HandTarget": {
+     "pos": [
+      0.0,
+      -0.1,
+      0.62
+     ],
+     "face": [
+      0.0,
+      1.0,
+      0.0
+     ]
+    },
+    "InputPoint": {
+     "pos": [
+      -0.35,
+      0.0,
+      0.82
+     ],
+     "face": [
+      0.0,
+      1.0,
+      0.0
+     ]
+    },
+    "ChargePoint": {
+     "pos": [
+      0.62,
+      -0.08,
+      0.0
+     ],
+     "face": [
+      0.0,
+      1.0,
+      0.0
+     ]
+    },
+    "OutputPoint": {
+     "pos": [
+      0.75,
+      -0.35,
+      0.0
+     ],
+     "face": [
+      0.0,
+      1.0,
+      0.0
+     ]
+    },
+    "FuelPoint": {
+     "pos": [
+      -0.35,
+      -0.3,
+      0.1
+     ],
+     "face": [
+      0.0,
+      1.0,
+      0.0
+     ]
+    }
+   },
+   "collection": "Fac_Food",
+   "contact": {
+    "clip": "ValveTurn",
+    "event": "turn",
+    "frame": 12,
+    "residual_z_m": 0.006
+   }
+  },
+  "Greenhouse_Wall": {
+   "id": "Greenhouse_Wall",
+   "ko": "온실 벽",
+   "cells": [
+    1,
+    0
+   ],
+   "group": "재배·보관",
+   "note": "조립 모듈: 1칸 벽 패널(유리)",
+   "units": "kit m, 1 cell = 1 m, origin = footprint centre on floor, front -Y",
+   "bounds": [
+    [
+     -0.52,
+     -0.03,
+     0.0
+    ],
+    [
+     0.52,
+     0.03,
+     1.4
+    ]
+   ],
+   "select_box": [
+    [
+     -0.52,
+     -0.03,
+     0.0
+    ],
+    [
+     0.52,
+     0.03,
+     1.4
+    ]
+   ],
+   "points": {},
+   "collection": "Fac_Food"
+  },
+  "Greenhouse_Corner": {
+   "id": "Greenhouse_Corner",
+   "ko": "온실 모서리 기둥",
+   "cells": [
+    0,
+    0
+   ],
+   "group": "재배·보관",
+   "note": "조립 모듈: 모서리 기둥",
+   "units": "kit m, 1 cell = 1 m, origin = footprint centre on floor, front -Y",
+   "bounds": [
+    [
+     -0.035,
+     -0.035,
+     0.0
+    ],
+    [
+     0.035,
+     0.035,
+     1.44
+    ]
+   ],
+   "select_box": [
+    [
+     -0.035,
+     -0.035,
+     0.0
+    ],
+    [
+     0.035,
+     0.035,
+     1.44
+    ]
+   ],
+   "points": {},
+   "collection": "Fac_Food"
+  },
+  "Greenhouse_Roof": {
+   "id": "Greenhouse_Roof",
+   "ko": "온실 지붕",
+   "cells": [
+    1,
+    1
+   ],
+   "group": "재배·보관",
+   "note": "조립 모듈: 1×1칸 경사 지붕 패널(벽 위 1.4 m)",
+   "units": "kit m, 1 cell = 1 m, origin = footprint centre on floor, front -Y",
+   "bounds": [
+    [
+     -0.5,
+     -0.52,
+     1.536
+    ],
+    [
+     0.5,
+     0.52,
+     1.664
+    ]
+   ],
+   "select_box": [
+    [
+     -0.5,
+     -0.52,
+     1.536
+    ],
+    [
+     0.5,
+     0.52,
+     1.664
+    ]
+   ],
+   "points": {},
+   "collection": "Fac_Food"
+  },
+  "Greenhouse_Door": {
+   "id": "Greenhouse_Door",
+   "ko": "온실 문",
+   "cells": [
+    1,
+    0
+   ],
+   "group": "재배·보관",
+   "note": "조립 모듈: 여닫이 유리문",
+   "units": "kit m, 1 cell = 1 m, origin = footprint centre on floor, front -Y",
+   "bounds": [
+    [
+     -0.525,
+     -0.04,
+     0.0
+    ],
+    [
+     0.525,
+     0.03,
+     1.4
+    ]
+   ],
+   "select_box": [
+    [
+     -0.525,
+     -0.04,
+     0.0
+    ],
+    [
+     0.525,
+     0.03,
+     1.4
+    ]
+   ],
+   "points": {
+    "WorkPoint_0": {
+     "pos": [
+      0.0,
+      -0.6,
+      0.0
+     ],
+     "face": [
+      0.0,
+      1.0,
+      0.0
+     ]
+    }
+   },
+   "collection": "Fac_Food"
+  },
+  "Greenhouse_Vent": {
+   "id": "Greenhouse_Vent",
+   "ko": "온실 환기창",
+   "cells": [
+    1,
+    0
+   ],
+   "group": "재배·보관",
+   "note": "조립 모듈: 벽 위 환기창(열림 회전)",
+   "units": "kit m, 1 cell = 1 m, origin = footprint centre on floor, front -Y",
+   "bounds": [
+    [
+     -0.5,
+     -0.025,
+     1.13
+    ],
+    [
+     0.5,
+     0.025,
+     1.4
+    ]
+   ],
+   "select_box": [
+    [
+     -0.5,
+     -0.025,
+     1.13
+    ],
+    [
+     0.5,
+     0.025,
+     1.4
+    ]
+   ],
+   "points": {},
+   "collection": "Fac_Food"
+  },
+  "Prospector": {
+   "id": "Prospector",
+   "ko": "지하 탐사기",
+   "cells": [
+    2,
+    2
+   ],
+   "group": "채취",
+   "note": "전력 + 장수 조작으로 깊은 매장층 탐사. 탐침이 오르내림=가동, 조작=ControlPanel",
+   "units": "kit m, 1 cell = 1 m, origin = footprint centre on floor, front -Y",
+   "bounds": [
+    [
+     -0.49,
+     -0.615,
+     -0.013
+    ],
+    [
+     0.81,
+     0.43,
+     1.17
+    ]
+   ],
+   "select_box": [
+    [
+     -0.49,
+     -0.615,
+     -0.013
+    ],
+    [
+     0.81,
+     0.43,
+     1.17
+    ]
+   ],
+   "points": {
+    "PowerIn": {
+     "pos": [
+      0.8,
+      0.4,
+      0.12
+     ],
+     "face": [
+      1.0,
+      0.0,
+      0.0
+     ]
+    },
+    "WorkPoint_0": {
+     "pos": [
+      -0.04,
+      -0.829,
+      0
+     ],
+     "face": [
+      0.0,
+      1.0,
+      0.0
+     ],
+     "source": "contact_check"
+    },
+    "ControlPoint": {
+     "pos": [
+      0.0,
+      -0.58,
+      0.42
+     ],
+     "face": [
+      0.0,
+      1.0,
+      0.0
+     ]
+    },
+    "HandTarget": {
+     "pos": [
+      0.0,
+      -0.6,
+      0.44
+     ],
+     "face": [
+      0.0,
+      1.0,
+      0.0
+     ]
+    }
+   },
+   "collection": "Fac_Extract",
+   "contact": {
+    "clip": "ControlPanel",
+    "event": "press",
+    "frame": 9,
+    "residual_z_m": -0.021
+   }
+  },
+  "DeepDrill": {
+   "id": "DeepDrill",
+   "ko": "심층 채굴기",
+   "cells": [
+    3,
+    3
+   ],
+   "group": "채취",
+   "note": "작업자가 운전석에서 조작(DriveSeated), 전력 필요. 드릴 회전=가동, 컨베이어 끝=OutputPoint",
+   "units": "kit m, 1 cell = 1 m, origin = footprint centre on floor, front -Y",
+   "bounds": [
+    [
+     -1.2,
+     -1.095,
+     0.0
+    ],
+    [
+     1.26,
+     1.2,
+     1.95
+    ]
+   ],
+   "select_box": [
+    [
+     -1.2,
+     -1.095,
+     0.0
+    ],
+    [
+     1.26,
+     1.2,
+     1.95
+    ]
+   ],
+   "points": {
+    "PowerIn": {
+     "pos": [
+      1.25,
+      0.9,
+      0.2
+     ],
+     "face": [
+      1.0,
+      0.0,
+      0.0
+     ]
+    },
+    "SeatPoint": {
+     "pos": [
+      -0.75,
+      -0.52,
+      0.41
+     ],
+     "face": [
+      0.0,
+      1.0,
+      0.0
+     ]
+    },
+    "WorkPoint_0": {
+     "pos": [
+      -0.75,
+      -1.3,
+      0.0
+     ],
+     "face": [
+      0.0,
+      1.0,
+      0.0
+     ]
+    },
+    "HandTarget": {
+     "pos": [
+      -0.65,
+      -0.33,
+      0.5
+     ],
+     "face": [
+      0.0,
+      1.0,
+      0.0
+     ]
+    },
+    "OutputPoint": {
+     "pos": [
+      0.85,
+      -1.2,
+      0.0
+     ],
+     "face": [
+      0.0,
+      1.0,
+      0.0
+     ]
+    },
+    "ControlPoint": {
+     "pos": [
+      -0.65,
+      -0.33,
+      0.5
+     ],
+     "face": [
+      0.0,
+      1.0,
+      0.0
+     ]
+    }
+   },
+   "collection": "Fac_Extract"
+  },
+  "AdvancedDrill": {
+   "id": "AdvancedDrill",
+   "ko": "고급 채굴기",
+   "cells": [
+    2,
+    2
+   ],
+   "group": "채취",
+   "note": "자동 채굴(전력). 장수는 설치·수리만. 드릴 회전=가동, 배출구=OutputPoint",
+   "units": "kit m, 1 cell = 1 m, origin = footprint centre on floor, front -Y",
+   "bounds": [
+    [
+     -0.75,
+     -0.844,
+     0.0
+    ],
+    [
+     0.76,
+     0.75,
+     1.975
+    ]
+   ],
+   "select_box": [
+    [
+     -0.75,
+     -0.844,
+     0.0
+    ],
+    [
+     0.76,
+     0.75,
+     1.975
+    ]
+   ],
+   "points": {
+    "PowerIn": {
+     "pos": [
+      0.75,
+      0.5,
+      0.15
+     ],
+     "face": [
+      1.0,
+      0.0,
+      0.0
+     ]
+    },
+    "WorkPoint_0": {
+     "pos": [
+      -0.54,
+      -0.879,
+      0
+     ],
+     "face": [
+      0.0,
+      1.0,
+      0.0
+     ],
+     "source": "contact_check"
+    },
+    "ControlPoint": {
+     "pos": [
+      -0.5,
+      -0.63,
+      0.45
+     ],
+     "face": [
+      0.0,
+      1.0,
+      0.0
+     ]
+    },
+    "HandTarget": {
+     "pos": [
+      -0.5,
+      -0.65,
+      0.47
+     ],
+     "face": [
+      0.0,
+      1.0,
+      0.0
+     ]
+    },
+    "OutputPoint": {
+     "pos": [
+      0.45,
+      -1.0,
+      0.0
+     ],
+     "face": [
+      0.0,
+      1.0,
+      0.0
+     ]
+    }
+   },
+   "collection": "Fac_Extract",
+   "contact": {
+    "clip": "ControlPanel",
+    "event": "press",
+    "frame": 9,
+    "residual_z_m": 0.009
+   }
+  },
+  "OilDerrick": {
+   "id": "OilDerrick",
+   "ko": "원유 시추기",
+   "cells": [
+    2,
+    2
+   ],
+   "group": "채취",
+   "note": "매장 지점 위 설치, 전력 자동 추출. 액체 배관 출구(FluidOut_L). 펌프잭 끄덕임=가동",
+   "units": "kit m, 1 cell = 1 m, origin = footprint centre on floor, front -Y",
+   "bounds": [
+    [
+     -0.8,
+     -0.5,
+     0.0
+    ],
+    [
+     0.81,
+     0.5,
+     1.05
+    ]
+   ],
+   "select_box": [
+    [
+     -0.8,
+     -0.5,
+     0.0
+    ],
+    [
+     0.81,
+     0.5,
+     1.05
+    ]
+   ],
+   "points": {
+    "FluidOut_L": {
+     "pos": [
+      -0.8,
+      0.0,
+      0.3
+     ],
+     "face": [
+      -1.0,
+      0.0,
+      0.0
+     ]
+    },
+    "PowerIn": {
+     "pos": [
+      0.8,
+      0.3,
+      0.15
+     ],
+     "face": [
+      1.0,
+      0.0,
+      0.0
+     ]
+    },
+    "WorkPoint_0": {
+     "pos": [
+      0.0,
+      -0.85,
+      0.0
+     ],
+     "face": [
+      0.0,
+      1.0,
+      0.0
+     ]
+    },
+    "HandTarget": {
+     "pos": [
+      0.55,
+      -0.2,
+      0.45
+     ],
+     "face": [
+      0.0,
+      1.0,
+      0.0
+     ]
+    }
+   },
+   "collection": "Fac_Extract"
+  },
+  "GasExtractor": {
+   "id": "GasExtractor",
+   "ko": "가스 추출기",
+   "cells": [
+    2,
+    2
+   ],
+   "group": "채취",
+   "note": "가스 틈 위 설치, 전력 자동 추출. 기체 배관 출구(FluidOut_G). 압축기 팬 회전=가동, 밸브=ValveTurn",
+   "units": "kit m, 1 cell = 1 m, origin = footprint centre on floor, front -Y",
+   "bounds": [
+    [
+     -0.75,
+     -0.6,
+     0.0
+    ],
+    [
+     0.76,
+     0.6,
+     0.74
+    ]
+   ],
+   "select_box": [
+    [
+     -0.75,
+     -0.6,
+     0.0
+    ],
+    [
+     0.76,
+     0.6,
+     0.74
+    ]
+   ],
+   "points": {
+    "FluidOut_G": {
+     "pos": [
+      0.75,
+      0.2,
+      0.35
+     ],
+     "face": [
+      1.0,
+      0.0,
+      0.0
+     ]
+    },
+    "PowerIn": {
+     "pos": [
+      0.75,
+      -0.3,
+      0.15
+     ],
+     "face": [
+      1.0,
+      0.0,
+      0.0
+     ]
+    },
+    "WorkPoint_0": {
+     "pos": [
+      -0.358,
+      -0.39,
+      0
+     ],
+     "face": [
+      0.0,
+      1.0,
+      0.0
+     ],
+     "source": "contact_check"
+    },
+    "HandTarget": {
+     "pos": [
+      -0.35,
+      -0.18,
+      0.62
+     ],
+     "face": [
+      0.0,
+      1.0,
+      0.0
+     ]
+    },
+    "ControlPoint": {
+     "pos": [
+      -0.35,
+      -0.18,
+      0.62
+     ],
+     "face": [
+      0.0,
+      1.0,
+      0.0
+     ]
+    }
+   },
+   "collection": "Fac_Extract",
+   "contact": {
+    "clip": "ValveTurn",
+    "event": "turn",
+    "frame": 12,
+    "residual_z_m": 0.006
+   }
+  },
+  "Refinery": {
+   "id": "Refinery",
+   "ko": "정유소",
+   "cells": [
+    3,
+    3
+   ],
+   "group": "유체",
+   "note": "원유(액체 포트) → 정제 연료. 전력·작업자 필요. 증류탑 + 가열로, 결과 드럼은 OutputPoint 바닥",
+   "units": "kit m, 1 cell = 1 m, origin = footprint centre on floor, front -Y",
+   "bounds": [
+    [
+     -1.3,
+     -1.2,
+     0.0
+    ],
+    [
+     1.31,
+     1.2,
+     2.4
+    ]
+   ],
+   "select_box": [
+    [
+     -1.3,
+     -1.2,
+     0.0
+    ],
+    [
+     1.31,
+     1.2,
+     2.4
+    ]
+   ],
+   "points": {
+    "FluidIn_L": {
+     "pos": [
+      -1.3,
+      0.4,
+      0.25
+     ],
+     "face": [
+      -1.0,
+      0.0,
+      0.0
+     ]
+    },
+    "PowerIn": {
+     "pos": [
+      1.3,
+      0.9,
+      0.15
+     ],
+     "face": [
+      1.0,
+      0.0,
+      0.0
+     ]
+    },
+    "WorkPoint_0": {
+     "pos": [
+      -0.24,
+      -1.029,
+      0
+     ],
+     "face": [
+      0.0,
+      1.0,
+      0.0
+     ],
+     "source": "contact_check"
+    },
+    "ControlPoint": {
+     "pos": [
+      -0.2,
+      -0.78,
+      0.45
+     ],
+     "face": [
+      0.0,
+      1.0,
+      0.0
+     ]
+    },
+    "HandTarget": {
+     "pos": [
+      -0.2,
+      -0.8,
+      0.47
+     ],
+     "face": [
+      0.0,
+      1.0,
+      0.0
+     ]
+    },
+    "OutputPoint": {
+     "pos": [
+      0.9,
+      -0.95,
+      0.0
+     ],
+     "face": [
+      0.0,
+      1.0,
+      0.0
+     ]
+    }
+   },
+   "collection": "Fac_Fluid",
+   "contact": {
+    "clip": "ControlPanel",
+    "event": "press",
+    "frame": 9,
+    "residual_z_m": 0.009
+   }
+  },
+  "FillingStation": {
+   "id": "FillingStation",
+   "ko": "충전·배출 설비",
+   "cells": [
+    2,
+    1
+   ],
+   "group": "유체",
+   "note": "원유 드럼(왼쪽)·가스 압축 용기(오른쪽) 충전/배출. 바닥 ChargePoint에 용기를 놓고 연결(CanisterConnect)→밸브(ValveTurn)→회수",
+   "units": "kit m, 1 cell = 1 m, origin = footprint centre on floor, front -Y",
+   "bounds": [
+    [
+     -0.8,
+     -0.3,
+     0.0
+    ],
+    [
+     0.8,
+     0.35,
+     1.0
+    ]
+   ],
+   "select_box": [
+    [
+     -0.8,
+     -0.3,
+     0.0
+    ],
+    [
+     0.8,
+     0.35,
+     1.0
+    ]
+   ],
+   "points": {
+    "FluidIn_L": {
+     "pos": [
+      -0.8,
+      0.25,
+      0.25
+     ],
+     "face": [
+      -1.0,
+      0.0,
+      0.0
+     ]
+    },
+    "FluidIn_G": {
+     "pos": [
+      0.8,
+      0.25,
+      0.25
+     ],
+     "face": [
+      1.0,
+      0.0,
+      0.0
+     ]
+    },
+    "ChargePoint_Drum": {
+     "pos": [
+      -0.45,
+      -0.1,
+      0.04
+     ],
+     "face": [
+      0.0,
+      1.0,
+      0.0
+     ]
+    },
+    "ChargePoint_Canister": {
+     "pos": [
+      0.45,
+      -0.1,
+      0.04
+     ],
+     "face": [
+      0.0,
+      1.0,
+      0.0
+     ]
+    },
+    "WorkPoint_0": {
+     "pos": [
+      -0.49,
+      -0.37,
+      0
+     ],
+     "face": [
+      0.0,
+      1.0,
+      0.0
+     ],
+     "source": "contact_check"
+    },
+    "WorkPoint_1": {
+     "pos": [
+      0.45,
+      -0.6,
+      0.0
+     ],
+     "face": [
+      0.0,
+      1.0,
+      0.0
+     ]
+    },
+    "HandTarget": {
+     "pos": [
+      -0.45,
+      -0.15,
+      0.32
+     ],
+     "face": [
+      0.0,
+      1.0,
+      0.0
+     ]
+    },
+    "HandTarget_1": {
+     "pos": [
+      0.45,
+      -0.15,
+      0.32
+     ],
+     "face": [
+      0.0,
+      1.0,
+      0.0
+     ]
+    }
+   },
+   "collection": "Fac_Fluid",
+   "contact": {
+    "clip": "CanisterConnect",
+    "event": "connect",
+    "frame": 26,
+    "residual_z_m": 0.0
+   }
+  },
+  "GasGenerator": {
+   "id": "GasGenerator",
+   "ko": "가스 발전기",
+   "cells": [
+    2,
+    2
+   ],
+   "group": "에너지",
+   "note": "천연가스(기체 포트) → 전력(PowerOut, 기존 전선과 연결). 플라이휠 회전=가동",
+   "units": "kit m, 1 cell = 1 m, origin = footprint centre on floor, front -Y",
+   "connects_to": "resident-kit CC_WoodGenerator / CC_PowerWire / CC_Battery (same PowerIn/PowerOut points)",
+   "bounds": [
+    [
+     -0.75,
+     -0.5,
+     0.0
+    ],
+    [
+     0.76,
+     0.5,
+     1.2
+    ]
+   ],
+   "select_box": [
+    [
+     -0.75,
+     -0.5,
+     0.0
+    ],
+    [
+     0.76,
+     0.5,
+     1.2
+    ]
+   ],
+   "points": {
+    "FluidIn_G": {
+     "pos": [
+      -0.75,
+      0.3,
+      0.25
+     ],
+     "face": [
+      -1.0,
+      0.0,
+      0.0
+     ]
+    },
+    "PowerOut": {
+     "pos": [
+      0.75,
+      0.3,
+      0.2
+     ],
+     "face": [
+      1.0,
+      0.0,
+      0.0
+     ]
+    },
+    "WorkPoint_0": {
+     "pos": [
+      0.4,
+      -0.75,
+      0.0
+     ],
+     "face": [
+      0.0,
+      1.0,
+      0.0
+     ]
+    },
+    "HandTarget": {
+     "pos": [
+      0.4,
+      -0.27,
+      0.5
+     ],
+     "face": [
+      0.0,
+      1.0,
+      0.0
+     ]
+    }
+   },
+   "collection": "Fac_Fluid"
+  },
+  "LiquidTank": {
+   "id": "LiquidTank",
+   "ko": "액체 저장 탱크",
+   "cells": [
+    2,
+    2
+   ],
+   "group": "유체",
+   "note": "내용물 한 종류. 표시 3단계 Level_Empty/Partial/Full(엔진이 하나만 표시). 입출구 포트 액체",
+   "units": "kit m, 1 cell = 1 m, origin = footprint centre on floor, front -Y",
+   "levels": "Level_Empty (0%), Level_Partial (1–99%), Level_Full (100%)",
+   "bounds": [
+    [
+     -0.75,
+     -0.75,
+     0.0
+    ],
+    [
+     0.75,
+     0.75,
+     1.58
+    ]
+   ],
+   "select_box": [
+    [
+     -0.75,
+     -0.75,
+     0.0
+    ],
+    [
+     0.75,
+     0.75,
+     1.58
+    ]
+   ],
+   "points": {
+    "FluidIn_L": {
+     "pos": [
+      -0.75,
+      0.3,
+      0.25
+     ],
+     "face": [
+      -1.0,
+      0.0,
+      0.0
+     ]
+    },
+    "FluidOut_L": {
+     "pos": [
+      0.75,
+      0.3,
+      0.25
+     ],
+     "face": [
+      1.0,
+      0.0,
+      0.0
+     ]
+    },
+    "WorkPoint_0": {
+     "pos": [
+      0.0,
+      -1.0,
+      0.0
+     ],
+     "face": [
+      0.0,
+      1.0,
+      0.0
+     ]
+    }
+   },
+   "collection": "Fac_Fluid"
+  },
+  "GasTank": {
+   "id": "GasTank",
+   "ko": "기체 저장 탱크",
+   "cells": [
+    2,
+    2
+   ],
+   "group": "유체",
+   "note": "내용물 한 종류. 표시 3단계 Level_Empty/Partial/Full(엔진이 하나만 표시). 입출구 포트 기체",
+   "units": "kit m, 1 cell = 1 m, origin = footprint centre on floor, front -Y",
+   "levels": "Level_Empty (0%), Level_Partial (1–99%), Level_Full (100%)",
+   "bounds": [
+    [
+     -0.75,
+     -0.622,
+     -0.004
+    ],
+    [
+     0.75,
+     0.611,
+     1.45
+    ]
+   ],
+   "select_box": [
+    [
+     -0.75,
+     -0.622,
+     -0.004
+    ],
+    [
+     0.75,
+     0.611,
+     1.45
+    ]
+   ],
+   "points": {
+    "FluidIn_G": {
+     "pos": [
+      -0.75,
+      0.3,
+      0.25
+     ],
+     "face": [
+      -1.0,
+      0.0,
+      0.0
+     ]
+    },
+    "FluidOut_G": {
+     "pos": [
+      0.75,
+      0.3,
+      0.25
+     ],
+     "face": [
+      1.0,
+      0.0,
+      0.0
+     ]
+    },
+    "WorkPoint_0": {
+     "pos": [
+      0.0,
+      -1.0,
+      0.0
+     ],
+     "face": [
+      0.0,
+      1.0,
+      0.0
+     ]
+    }
+   },
+   "collection": "Fac_Fluid"
+  },
+  "PipeL_Straight": {
+   "id": "PipeL_Straight",
+   "ko": "액체 배관 직선",
+   "cells": [
+    1,
+    1
+   ],
+   "group": "유체",
+   "note": "액체 배관 모듈. 끝점 = 칸 가장자리 중앙, 높이 0.25 m",
+   "units": "kit m, 1 cell = 1 m, origin = footprint centre on floor, front -Y",
+   "ports": [
+    "-X",
+    "+X"
+   ],
+   "fluid": "liquid",
+   "bounds": [
+    [
+     -0.5,
+     -0.072,
+     0.0
+    ],
+    [
+     0.5,
+     0.072,
+     0.318
+    ]
+   ],
+   "select_box": [
+    [
+     -0.5,
+     -0.072,
+     0.0
+    ],
+    [
+     0.5,
+     0.072,
+     0.318
+    ]
+   ],
+   "points": {
+    "Port-X": {
+     "pos": [
+      -0.5,
+      0.0,
+      0.25
+     ],
+     "face": [
+      -1.0,
+      0.0,
+      0.0
+     ]
+    },
+    "Port+X": {
+     "pos": [
+      0.5,
+      0.0,
+      0.25
+     ],
+     "face": [
+      1.0,
+      0.0,
+      0.0
+     ]
+    }
+   },
+   "collection": "Fac_Fluid"
+  },
+  "PipeL_Corner": {
+   "id": "PipeL_Corner",
+   "ko": "액체 배관 회전",
+   "cells": [
+    1,
+    1
+   ],
+   "group": "유체",
+   "note": "액체 배관 모듈. 끝점 = 칸 가장자리 중앙, 높이 0.25 m",
+   "units": "kit m, 1 cell = 1 m, origin = footprint centre on floor, front -Y",
+   "ports": [
+    "-X",
+    "+Y"
+   ],
+   "fluid": "liquid",
+   "bounds": [
+    [
+     -0.5,
+     -0.072,
+     0.0
+    ],
+    [
+     0.068,
+     0.5,
+     0.322
+    ]
+   ],
+   "select_box": [
+    [
+     -0.5,
+     -0.072,
+     0.0
+    ],
+    [
+     0.068,
+     0.5,
+     0.322
+    ]
+   ],
+   "points": {
+    "Port-X": {
+     "pos": [
+      -0.5,
+      0.0,
+      0.25
+     ],
+     "face": [
+      -1.0,
+      0.0,
+      0.0
+     ]
+    },
+    "Port+Y": {
+     "pos": [
+      0.0,
+      0.5,
+      0.25
+     ],
+     "face": [
+      0.0,
+      1.0,
+      0.0
+     ]
+    }
+   },
+   "collection": "Fac_Fluid"
+  },
+  "PipeL_Tee": {
+   "id": "PipeL_Tee",
+   "ko": "액체 배관 분기(T)",
+   "cells": [
+    1,
+    1
+   ],
+   "group": "유체",
+   "note": "액체 배관 모듈. 끝점 = 칸 가장자리 중앙, 높이 0.25 m",
+   "units": "kit m, 1 cell = 1 m, origin = footprint centre on floor, front -Y",
+   "ports": [
+    "-X",
+    "+X",
+    "+Y"
+   ],
+   "fluid": "liquid",
+   "bounds": [
+    [
+     -0.5,
+     -0.072,
+     0.0
+    ],
+    [
+     0.5,
+     0.5,
+     0.322
+    ]
+   ],
+   "select_box": [
+    [
+     -0.5,
+     -0.072,
+     0.0
+    ],
+    [
+     0.5,
+     0.5,
+     0.322
+    ]
+   ],
+   "points": {
+    "Port-X": {
+     "pos": [
+      -0.5,
+      0.0,
+      0.25
+     ],
+     "face": [
+      -1.0,
+      0.0,
+      0.0
+     ]
+    },
+    "Port+X": {
+     "pos": [
+      0.5,
+      0.0,
+      0.25
+     ],
+     "face": [
+      1.0,
+      0.0,
+      0.0
+     ]
+    },
+    "Port+Y": {
+     "pos": [
+      0.0,
+      0.5,
+      0.25
+     ],
+     "face": [
+      0.0,
+      1.0,
+      0.0
+     ]
+    }
+   },
+   "collection": "Fac_Fluid"
+  },
+  "PipeL_Cross": {
+   "id": "PipeL_Cross",
+   "ko": "액체 배관 교차",
+   "cells": [
+    1,
+    1
+   ],
+   "group": "유체",
+   "note": "액체 배관 모듈. 끝점 = 칸 가장자리 중앙, 높이 0.25 m",
+   "units": "kit m, 1 cell = 1 m, origin = footprint centre on floor, front -Y",
+   "ports": [
+    "-X",
+    "+X",
+    "-Y",
+    "+Y"
+   ],
+   "fluid": "liquid",
+   "bounds": [
+    [
+     -0.5,
+     -0.5,
+     0.0
+    ],
+    [
+     0.5,
+     0.5,
+     0.322
+    ]
+   ],
+   "select_box": [
+    [
+     -0.5,
+     -0.5,
+     0.0
+    ],
+    [
+     0.5,
+     0.5,
+     0.322
+    ]
+   ],
+   "points": {
+    "Port-X": {
+     "pos": [
+      -0.5,
+      0.0,
+      0.25
+     ],
+     "face": [
+      -1.0,
+      0.0,
+      0.0
+     ]
+    },
+    "Port+X": {
+     "pos": [
+      0.5,
+      0.0,
+      0.25
+     ],
+     "face": [
+      1.0,
+      0.0,
+      0.0
+     ]
+    },
+    "Port-Y": {
+     "pos": [
+      0.0,
+      -0.5,
+      0.25
+     ],
+     "face": [
+      0.0,
+      -1.0,
+      0.0
+     ]
+    },
+    "Port+Y": {
+     "pos": [
+      0.0,
+      0.5,
+      0.25
+     ],
+     "face": [
+      0.0,
+      1.0,
+      0.0
+     ]
+    }
+   },
+   "collection": "Fac_Fluid"
+  },
+  "PipeL_End": {
+   "id": "PipeL_End",
+   "ko": "액체 배관 끝단",
+   "cells": [
+    1,
+    1
+   ],
+   "group": "유체",
+   "note": "액체 배관 모듈. 끝점 = 칸 가장자리 중앙, 높이 0.25 m",
+   "units": "kit m, 1 cell = 1 m, origin = footprint centre on floor, front -Y",
+   "ports": [
+    "-X"
+   ],
+   "fluid": "liquid",
+   "bounds": [
+    [
+     -0.5,
+     -0.077,
+     0.0
+    ],
+    [
+     0.311,
+     0.077,
+     0.323
+    ]
+   ],
+   "select_box": [
+    [
+     -0.5,
+     -0.077,
+     0.0
+    ],
+    [
+     0.311,
+     0.077,
+     0.323
+    ]
+   ],
+   "points": {
+    "Port-X": {
+     "pos": [
+      -0.5,
+      0.0,
+      0.25
+     ],
+     "face": [
+      -1.0,
+      0.0,
+      0.0
+     ]
+    }
+   },
+   "collection": "Fac_Fluid"
+  },
+  "PipeL_Valve": {
+   "id": "PipeL_Valve",
+   "ko": "액체 배관 밸브",
+   "cells": [
+    1,
+    1
+   ],
+   "group": "유체",
+   "note": "액체 배관 모듈. 끝점 = 칸 가장자리 중앙, 높이 0.25 m",
+   "units": "kit m, 1 cell = 1 m, origin = footprint centre on floor, front -Y",
+   "ports": [
+    "-X",
+    "+X"
+   ],
+   "fluid": "liquid",
+   "bounds": [
+    [
+     -0.5,
+     -0.072,
+     0.0
+    ],
+    [
+     0.5,
+     0.072,
+     0.388
+    ]
+   ],
+   "select_box": [
+    [
+     -0.5,
+     -0.072,
+     0.0
+    ],
+    [
+     0.5,
+     0.072,
+     0.388
+    ]
+   ],
+   "points": {
+    "Port-X": {
+     "pos": [
+      -0.5,
+      0.0,
+      0.25
+     ],
+     "face": [
+      -1.0,
+      0.0,
+      0.0
+     ]
+    },
+    "Port+X": {
+     "pos": [
+      0.5,
+      0.0,
+      0.25
+     ],
+     "face": [
+      1.0,
+      0.0,
+      0.0
+     ]
+    },
+    "HandTarget": {
+     "pos": [
+      0.0,
+      0.0,
+      0.39
+     ],
+     "face": [
+      0.0,
+      1.0,
+      0.0
+     ]
+    },
+    "WorkPoint_0": {
+     "pos": [
+      0.0,
+      -0.55,
+      0.0
+     ],
+     "face": [
+      0.0,
+      1.0,
+      0.0
+     ]
+    }
+   },
+   "collection": "Fac_Fluid"
+  },
+  "PipeL_Riser": {
+   "id": "PipeL_Riser",
+   "ko": "액체 배관 세움(시설 연결)",
+   "cells": [
+    1,
+    1
+   ],
+   "group": "유체",
+   "note": "액체 배관 모듈. 끝점 = 칸 가장자리 중앙, 높이 0.25 m",
+   "units": "kit m, 1 cell = 1 m, origin = footprint centre on floor, front -Y",
+   "ports": [
+    "-X"
+   ],
+   "fluid": "liquid",
+   "bounds": [
+    [
+     -0.5,
+     -0.072,
+     0.0
+    ],
+    [
+     0.311,
+     0.072,
+     0.75
+    ]
+   ],
+   "select_box": [
+    [
+     -0.5,
+     -0.072,
+     0.0
+    ],
+    [
+     0.311,
+     0.072,
+     0.75
+    ]
+   ],
+   "points": {
+    "Port-X": {
+     "pos": [
+      -0.5,
+      0.0,
+      0.25
+     ],
+     "face": [
+      -1.0,
+      0.0,
+      0.0
+     ]
+    }
+   },
+   "collection": "Fac_Fluid"
+  },
+  "PipeG_Straight": {
+   "id": "PipeG_Straight",
+   "ko": "기체 배관 직선",
+   "cells": [
+    1,
+    1
+   ],
+   "group": "유체",
+   "note": "기체 배관 모듈. 끝점 = 칸 가장자리 중앙, 높이 0.25 m",
+   "units": "kit m, 1 cell = 1 m, origin = footprint centre on floor, front -Y",
+   "ports": [
+    "-X",
+    "+X"
+   ],
+   "fluid": "gas",
+   "bounds": [
+    [
+     -0.5,
+     -0.052,
+     0.0
+    ],
+    [
+     0.5,
+     0.052,
+     0.299
+    ]
+   ],
+   "select_box": [
+    [
+     -0.5,
+     -0.052,
+     0.0
+    ],
+    [
+     0.5,
+     0.052,
+     0.299
+    ]
+   ],
+   "points": {
+    "Port-X": {
+     "pos": [
+      -0.5,
+      0.0,
+      0.25
+     ],
+     "face": [
+      -1.0,
+      0.0,
+      0.0
+     ]
+    },
+    "Port+X": {
+     "pos": [
+      0.5,
+      0.0,
+      0.25
+     ],
+     "face": [
+      1.0,
+      0.0,
+      0.0
+     ]
+    }
+   },
+   "collection": "Fac_Fluid"
+  },
+  "PipeG_Corner": {
+   "id": "PipeG_Corner",
+   "ko": "기체 배관 회전",
+   "cells": [
+    1,
+    1
+   ],
+   "group": "유체",
+   "note": "기체 배관 모듈. 끝점 = 칸 가장자리 중앙, 높이 0.25 m",
+   "units": "kit m, 1 cell = 1 m, origin = footprint centre on floor, front -Y",
+   "ports": [
+    "-X",
+    "+Y"
+   ],
+   "fluid": "gas",
+   "bounds": [
+    [
+     -0.5,
+     -0.052,
+     0.0
+    ],
+    [
+     0.049,
+     0.5,
+     0.302
+    ]
+   ],
+   "select_box": [
+    [
+     -0.5,
+     -0.052,
+     0.0
+    ],
+    [
+     0.049,
+     0.5,
+     0.302
+    ]
+   ],
+   "points": {
+    "Port-X": {
+     "pos": [
+      -0.5,
+      0.0,
+      0.25
+     ],
+     "face": [
+      -1.0,
+      0.0,
+      0.0
+     ]
+    },
+    "Port+Y": {
+     "pos": [
+      0.0,
+      0.5,
+      0.25
+     ],
+     "face": [
+      0.0,
+      1.0,
+      0.0
+     ]
+    }
+   },
+   "collection": "Fac_Fluid"
+  },
+  "PipeG_Tee": {
+   "id": "PipeG_Tee",
+   "ko": "기체 배관 분기(T)",
+   "cells": [
+    1,
+    1
+   ],
+   "group": "유체",
+   "note": "기체 배관 모듈. 끝점 = 칸 가장자리 중앙, 높이 0.25 m",
+   "units": "kit m, 1 cell = 1 m, origin = footprint centre on floor, front -Y",
+   "ports": [
+    "-X",
+    "+X",
+    "+Y"
+   ],
+   "fluid": "gas",
+   "bounds": [
+    [
+     -0.5,
+     -0.052,
+     0.0
+    ],
+    [
+     0.5,
+     0.5,
+     0.302
+    ]
+   ],
+   "select_box": [
+    [
+     -0.5,
+     -0.052,
+     0.0
+    ],
+    [
+     0.5,
+     0.5,
+     0.302
+    ]
+   ],
+   "points": {
+    "Port-X": {
+     "pos": [
+      -0.5,
+      0.0,
+      0.25
+     ],
+     "face": [
+      -1.0,
+      0.0,
+      0.0
+     ]
+    },
+    "Port+X": {
+     "pos": [
+      0.5,
+      0.0,
+      0.25
+     ],
+     "face": [
+      1.0,
+      0.0,
+      0.0
+     ]
+    },
+    "Port+Y": {
+     "pos": [
+      0.0,
+      0.5,
+      0.25
+     ],
+     "face": [
+      0.0,
+      1.0,
+      0.0
+     ]
+    }
+   },
+   "collection": "Fac_Fluid"
+  },
+  "PipeG_Cross": {
+   "id": "PipeG_Cross",
+   "ko": "기체 배관 교차",
+   "cells": [
+    1,
+    1
+   ],
+   "group": "유체",
+   "note": "기체 배관 모듈. 끝점 = 칸 가장자리 중앙, 높이 0.25 m",
+   "units": "kit m, 1 cell = 1 m, origin = footprint centre on floor, front -Y",
+   "ports": [
+    "-X",
+    "+X",
+    "-Y",
+    "+Y"
+   ],
+   "fluid": "gas",
+   "bounds": [
+    [
+     -0.5,
+     -0.5,
+     0.0
+    ],
+    [
+     0.5,
+     0.5,
+     0.302
+    ]
+   ],
+   "select_box": [
+    [
+     -0.5,
+     -0.5,
+     0.0
+    ],
+    [
+     0.5,
+     0.5,
+     0.302
+    ]
+   ],
+   "points": {
+    "Port-X": {
+     "pos": [
+      -0.5,
+      0.0,
+      0.25
+     ],
+     "face": [
+      -1.0,
+      0.0,
+      0.0
+     ]
+    },
+    "Port+X": {
+     "pos": [
+      0.5,
+      0.0,
+      0.25
+     ],
+     "face": [
+      1.0,
+      0.0,
+      0.0
+     ]
+    },
+    "Port-Y": {
+     "pos": [
+      0.0,
+      -0.5,
+      0.25
+     ],
+     "face": [
+      0.0,
+      -1.0,
+      0.0
+     ]
+    },
+    "Port+Y": {
+     "pos": [
+      0.0,
+      0.5,
+      0.25
+     ],
+     "face": [
+      0.0,
+      1.0,
+      0.0
+     ]
+    }
+   },
+   "collection": "Fac_Fluid"
+  },
+  "PipeG_End": {
+   "id": "PipeG_End",
+   "ko": "기체 배관 끝단",
+   "cells": [
+    1,
+    1
+   ],
+   "group": "유체",
+   "note": "기체 배관 모듈. 끝점 = 칸 가장자리 중앙, 높이 0.25 m",
+   "units": "kit m, 1 cell = 1 m, origin = footprint centre on floor, front -Y",
+   "ports": [
+    "-X"
+   ],
+   "fluid": "gas",
+   "bounds": [
+    [
+     -0.5,
+     -0.056,
+     0.0
+    ],
+    [
+     0.311,
+     0.056,
+     0.303
+    ]
+   ],
+   "select_box": [
+    [
+     -0.5,
+     -0.056,
+     0.0
+    ],
+    [
+     0.311,
+     0.056,
+     0.303
+    ]
+   ],
+   "points": {
+    "Port-X": {
+     "pos": [
+      -0.5,
+      0.0,
+      0.25
+     ],
+     "face": [
+      -1.0,
+      0.0,
+      0.0
+     ]
+    }
+   },
+   "collection": "Fac_Fluid"
+  },
+  "PipeG_Valve": {
+   "id": "PipeG_Valve",
+   "ko": "기체 배관 밸브",
+   "cells": [
+    1,
+    1
+   ],
+   "group": "유체",
+   "note": "기체 배관 모듈. 끝점 = 칸 가장자리 중앙, 높이 0.25 m",
+   "units": "kit m, 1 cell = 1 m, origin = footprint centre on floor, front -Y",
+   "ports": [
+    "-X",
+    "+X"
+   ],
+   "fluid": "gas",
+   "bounds": [
+    [
+     -0.5,
+     -0.058,
+     0.0
+    ],
+    [
+     0.5,
+     0.058,
+     0.388
+    ]
+   ],
+   "select_box": [
+    [
+     -0.5,
+     -0.058,
+     0.0
+    ],
+    [
+     0.5,
+     0.058,
+     0.388
+    ]
+   ],
+   "points": {
+    "Port-X": {
+     "pos": [
+      -0.5,
+      0.0,
+      0.25
+     ],
+     "face": [
+      -1.0,
+      0.0,
+      0.0
+     ]
+    },
+    "Port+X": {
+     "pos": [
+      0.5,
+      0.0,
+      0.25
+     ],
+     "face": [
+      1.0,
+      0.0,
+      0.0
+     ]
+    },
+    "HandTarget": {
+     "pos": [
+      0.0,
+      0.0,
+      0.39
+     ],
+     "face": [
+      0.0,
+      1.0,
+      0.0
+     ]
+    },
+    "WorkPoint_0": {
+     "pos": [
+      0.0,
+      -0.55,
+      0.0
+     ],
+     "face": [
+      0.0,
+      1.0,
+      0.0
+     ]
+    }
+   },
+   "collection": "Fac_Fluid"
+  },
+  "PipeG_Riser": {
+   "id": "PipeG_Riser",
+   "ko": "기체 배관 세움(시설 연결)",
+   "cells": [
+    1,
+    1
+   ],
+   "group": "유체",
+   "note": "기체 배관 모듈. 끝점 = 칸 가장자리 중앙, 높이 0.25 m",
+   "units": "kit m, 1 cell = 1 m, origin = footprint centre on floor, front -Y",
+   "ports": [
+    "-X"
+   ],
+   "fluid": "gas",
+   "bounds": [
+    [
+     -0.5,
+     -0.052,
+     0.0
+    ],
+    [
+     0.311,
+     0.052,
+     0.75
+    ]
+   ],
+   "select_box": [
+    [
+     -0.5,
+     -0.052,
+     0.0
+    ],
+    [
+     0.311,
+     0.052,
+     0.75
+    ]
+   ],
+   "points": {
+    "Port-X": {
+     "pos": [
+      -0.5,
+      0.0,
+      0.25
+     ],
+     "face": [
+      -1.0,
+      0.0,
+      0.0
+     ]
+    }
+   },
+   "collection": "Fac_Fluid"
+  },
+  "Deposit_Coal_Normal": {
+   "id": "Deposit_Coal_Normal",
+   "ko": "석탄 광맥 (정상)",
+   "cells": [
+    1,
+    1
+   ],
+   "group": "매장 지점",
+   "note": "자원 Fossil_Coal. 상태=정상. 시설과 별개 데이터",
+   "units": "kit m, 1 cell = 1 m, origin = footprint centre on floor, front -Y",
+   "resource": "Fossil_Coal",
+   "state": "Normal",
+   "snap": "extractor footprint centre on this cell; depleted = no new extractor",
+   "bounds": [
+    [
+     -0.5,
+     -0.5,
+     -0.038
+    ],
+    [
+     0.5,
+     0.5,
+     0.533
+    ]
+   ],
+   "select_box": [
+    [
+     -0.5,
+     -0.5,
+     -0.038
+    ],
+    [
+     0.5,
+     0.5,
+     0.533
+    ]
+   ],
+   "points": {
+    "WorkPoint_0": {
+     "pos": [
+      0.0,
+      -0.75,
+      0.0
+     ],
+     "face": [
+      0.0,
+      1.0,
+      0.0
+     ]
+    },
+    "HandTarget": {
+     "pos": [
+      0.0,
+      -0.15,
+      0.3
+     ],
+     "face": [
+      0.0,
+      1.0,
+      0.0
+     ]
+    }
+   },
+   "collection": "Fac_Deposit"
+  },
+  "Deposit_Coal_Mining": {
+   "id": "Deposit_Coal_Mining",
+   "ko": "석탄 광맥 (채굴 중)",
+   "cells": [
+    1,
+    1
+   ],
+   "group": "매장 지점",
+   "note": "자원 Fossil_Coal. 상태=채굴 중. 시설과 별개 데이터",
+   "units": "kit m, 1 cell = 1 m, origin = footprint centre on floor, front -Y",
+   "resource": "Fossil_Coal",
+   "state": "Mining",
+   "snap": "extractor footprint centre on this cell; depleted = no new extractor",
+   "bounds": [
+    [
+     -0.5,
+     -0.5,
+     -0.03
+    ],
+    [
+     0.5,
+     0.501,
+     0.372
+    ]
+   ],
+   "select_box": [
+    [
+     -0.5,
+     -0.5,
+     -0.03
+    ],
+    [
+     0.5,
+     0.501,
+     0.372
+    ]
+   ],
+   "points": {
+    "WorkPoint_0": {
+     "pos": [
+      0.0,
+      -0.75,
+      0.0
+     ],
+     "face": [
+      0.0,
+      1.0,
+      0.0
+     ]
+    },
+    "HandTarget": {
+     "pos": [
+      0.0,
+      -0.15,
+      0.3
+     ],
+     "face": [
+      0.0,
+      1.0,
+      0.0
+     ]
+    }
+   },
+   "collection": "Fac_Deposit"
+  },
+  "Deposit_Coal_Depleted": {
+   "id": "Deposit_Coal_Depleted",
+   "ko": "석탄 광맥 (고갈)",
+   "cells": [
+    1,
+    1
+   ],
+   "group": "매장 지점",
+   "note": "자원 Fossil_Coal. 상태=고갈. 시설과 별개 데이터",
+   "units": "kit m, 1 cell = 1 m, origin = footprint centre on floor, front -Y",
+   "resource": "Fossil_Coal",
+   "state": "Depleted",
+   "snap": "extractor footprint centre on this cell; depleted = no new extractor",
+   "bounds": [
+    [
+     -0.5,
+     -0.5,
+     -0.007
+    ],
+    [
+     0.5,
+     0.5,
+     0.365
+    ]
+   ],
+   "select_box": [
+    [
+     -0.5,
+     -0.5,
+     -0.007
+    ],
+    [
+     0.5,
+     0.5,
+     0.365
+    ]
+   ],
+   "points": {},
+   "collection": "Fac_Deposit"
+  },
+  "Deposit_Copper_Normal": {
+   "id": "Deposit_Copper_Normal",
+   "ko": "구리 광맥 (정상)",
+   "cells": [
+    1,
+    1
+   ],
+   "group": "매장 지점",
+   "note": "자원 Ore_Copper. 상태=정상. 시설과 별개 데이터",
+   "units": "kit m, 1 cell = 1 m, origin = footprint centre on floor, front -Y",
+   "resource": "Ore_Copper",
+   "state": "Normal",
+   "snap": "extractor footprint centre on this cell; depleted = no new extractor",
+   "bounds": [
+    [
+     -0.5,
+     -0.5,
+     -0.05
+    ],
+    [
+     0.5,
+     0.5,
+     0.545
+    ]
+   ],
+   "select_box": [
+    [
+     -0.5,
+     -0.5,
+     -0.05
+    ],
+    [
+     0.5,
+     0.5,
+     0.545
+    ]
+   ],
+   "points": {
+    "WorkPoint_0": {
+     "pos": [
+      0.0,
+      -0.75,
+      0.0
+     ],
+     "face": [
+      0.0,
+      1.0,
+      0.0
+     ]
+    },
+    "HandTarget": {
+     "pos": [
+      0.0,
+      -0.15,
+      0.3
+     ],
+     "face": [
+      0.0,
+      1.0,
+      0.0
+     ]
+    }
+   },
+   "collection": "Fac_Deposit"
+  },
+  "Deposit_Copper_Mining": {
+   "id": "Deposit_Copper_Mining",
+   "ko": "구리 광맥 (채굴 중)",
+   "cells": [
+    1,
+    1
+   ],
+   "group": "매장 지점",
+   "note": "자원 Ore_Copper. 상태=채굴 중. 시설과 별개 데이터",
+   "units": "kit m, 1 cell = 1 m, origin = footprint centre on floor, front -Y",
+   "resource": "Ore_Copper",
+   "state": "Mining",
+   "snap": "extractor footprint centre on this cell; depleted = no new extractor",
+   "bounds": [
+    [
+     -0.5,
+     -0.5,
+     -0.034
+    ],
+    [
+     0.5,
+     0.511,
+     0.376
+    ]
+   ],
+   "select_box": [
+    [
+     -0.5,
+     -0.5,
+     -0.034
+    ],
+    [
+     0.5,
+     0.511,
+     0.376
+    ]
+   ],
+   "points": {
+    "WorkPoint_0": {
+     "pos": [
+      0.0,
+      -0.75,
+      0.0
+     ],
+     "face": [
+      0.0,
+      1.0,
+      0.0
+     ]
+    },
+    "HandTarget": {
+     "pos": [
+      0.0,
+      -0.15,
+      0.3
+     ],
+     "face": [
+      0.0,
+      1.0,
+      0.0
+     ]
+    }
+   },
+   "collection": "Fac_Deposit"
+  },
+  "Deposit_Copper_Depleted": {
+   "id": "Deposit_Copper_Depleted",
+   "ko": "구리 광맥 (고갈)",
+   "cells": [
+    1,
+    1
+   ],
+   "group": "매장 지점",
+   "note": "자원 Ore_Copper. 상태=고갈. 시설과 별개 데이터",
+   "units": "kit m, 1 cell = 1 m, origin = footprint centre on floor, front -Y",
+   "resource": "Ore_Copper",
+   "state": "Depleted",
+   "snap": "extractor footprint centre on this cell; depleted = no new extractor",
+   "bounds": [
+    [
+     -0.5,
+     -0.5,
+     -0.012
+    ],
+    [
+     0.5,
+     0.5,
+     0.365
+    ]
+   ],
+   "select_box": [
+    [
+     -0.5,
+     -0.5,
+     -0.012
+    ],
+    [
+     0.5,
+     0.5,
+     0.365
+    ]
+   ],
+   "points": {},
+   "collection": "Fac_Deposit"
+  },
+  "Deposit_Tin_Normal": {
+   "id": "Deposit_Tin_Normal",
+   "ko": "주석 광맥 (정상)",
+   "cells": [
+    1,
+    1
+   ],
+   "group": "매장 지점",
+   "note": "자원 Ore_Tin. 상태=정상. 시설과 별개 데이터",
+   "units": "kit m, 1 cell = 1 m, origin = footprint centre on floor, front -Y",
+   "resource": "Ore_Tin",
+   "state": "Normal",
+   "snap": "extractor footprint centre on this cell; depleted = no new extractor",
+   "bounds": [
+    [
+     -0.5,
+     -0.5,
+     -0.048
+    ],
+    [
+     0.5,
+     0.5,
+     0.543
+    ]
+   ],
+   "select_box": [
+    [
+     -0.5,
+     -0.5,
+     -0.048
+    ],
+    [
+     0.5,
+     0.5,
+     0.543
+    ]
+   ],
+   "points": {
+    "WorkPoint_0": {
+     "pos": [
+      0.0,
+      -0.75,
+      0.0
+     ],
+     "face": [
+      0.0,
+      1.0,
+      0.0
+     ]
+    },
+    "HandTarget": {
+     "pos": [
+      0.0,
+      -0.15,
+      0.3
+     ],
+     "face": [
+      0.0,
+      1.0,
+      0.0
+     ]
+    }
+   },
+   "collection": "Fac_Deposit"
+  },
+  "Deposit_Tin_Mining": {
+   "id": "Deposit_Tin_Mining",
+   "ko": "주석 광맥 (채굴 중)",
+   "cells": [
+    1,
+    1
+   ],
+   "group": "매장 지점",
+   "note": "자원 Ore_Tin. 상태=채굴 중. 시설과 별개 데이터",
+   "units": "kit m, 1 cell = 1 m, origin = footprint centre on floor, front -Y",
+   "resource": "Ore_Tin",
+   "state": "Mining",
+   "snap": "extractor footprint centre on this cell; depleted = no new extractor",
+   "bounds": [
+    [
+     -0.5,
+     -0.5,
+     -0.024
+    ],
+    [
+     0.5,
+     0.5,
+     0.366
+    ]
+   ],
+   "select_box": [
+    [
+     -0.5,
+     -0.5,
+     -0.024
+    ],
+    [
+     0.5,
+     0.5,
+     0.366
+    ]
+   ],
+   "points": {
+    "WorkPoint_0": {
+     "pos": [
+      0.0,
+      -0.75,
+      0.0
+     ],
+     "face": [
+      0.0,
+      1.0,
+      0.0
+     ]
+    },
+    "HandTarget": {
+     "pos": [
+      0.0,
+      -0.15,
+      0.3
+     ],
+     "face": [
+      0.0,
+      1.0,
+      0.0
+     ]
+    }
+   },
+   "collection": "Fac_Deposit"
+  },
+  "Deposit_Tin_Depleted": {
+   "id": "Deposit_Tin_Depleted",
+   "ko": "주석 광맥 (고갈)",
+   "cells": [
+    1,
+    1
+   ],
+   "group": "매장 지점",
+   "note": "자원 Ore_Tin. 상태=고갈. 시설과 별개 데이터",
+   "units": "kit m, 1 cell = 1 m, origin = footprint centre on floor, front -Y",
+   "resource": "Ore_Tin",
+   "state": "Depleted",
+   "snap": "extractor footprint centre on this cell; depleted = no new extractor",
+   "bounds": [
+    [
+     -0.5,
+     -0.5,
+     -0.01
+    ],
+    [
+     0.5,
+     0.5,
+     0.365
+    ]
+   ],
+   "select_box": [
+    [
+     -0.5,
+     -0.5,
+     -0.01
+    ],
+    [
+     0.5,
+     0.5,
+     0.365
+    ]
+   ],
+   "points": {},
+   "collection": "Fac_Deposit"
+  },
+  "Deposit_Iron_Normal": {
+   "id": "Deposit_Iron_Normal",
+   "ko": "철 광맥 (정상)",
+   "cells": [
+    1,
+    1
+   ],
+   "group": "매장 지점",
+   "note": "자원 Ore_Iron. 상태=정상. 시설과 별개 데이터",
+   "units": "kit m, 1 cell = 1 m, origin = footprint centre on floor, front -Y",
+   "resource": "Ore_Iron",
+   "state": "Normal",
+   "snap": "extractor footprint centre on this cell; depleted = no new extractor",
+   "bounds": [
+    [
+     -0.5,
+     -0.5,
+     -0.04
+    ],
+    [
+     0.5,
+     0.511,
+     0.535
+    ]
+   ],
+   "select_box": [
+    [
+     -0.5,
+     -0.5,
+     -0.04
+    ],
+    [
+     0.5,
+     0.511,
+     0.535
+    ]
+   ],
+   "points": {
+    "WorkPoint_0": {
+     "pos": [
+      0.0,
+      -0.75,
+      0.0
+     ],
+     "face": [
+      0.0,
+      1.0,
+      0.0
+     ]
+    },
+    "HandTarget": {
+     "pos": [
+      0.0,
+      -0.15,
+      0.3
+     ],
+     "face": [
+      0.0,
+      1.0,
+      0.0
+     ]
+    }
+   },
+   "collection": "Fac_Deposit"
+  },
+  "Deposit_Iron_Mining": {
+   "id": "Deposit_Iron_Mining",
+   "ko": "철 광맥 (채굴 중)",
+   "cells": [
+    1,
+    1
+   ],
+   "group": "매장 지점",
+   "note": "자원 Ore_Iron. 상태=채굴 중. 시설과 별개 데이터",
+   "units": "kit m, 1 cell = 1 m, origin = footprint centre on floor, front -Y",
+   "resource": "Ore_Iron",
+   "state": "Mining",
+   "snap": "extractor footprint centre on this cell; depleted = no new extractor",
+   "bounds": [
+    [
+     -0.5,
+     -0.5,
+     -0.024
+    ],
+    [
+     0.5,
+     0.5,
+     0.366
+    ]
+   ],
+   "select_box": [
+    [
+     -0.5,
+     -0.5,
+     -0.024
+    ],
+    [
+     0.5,
+     0.5,
+     0.366
+    ]
+   ],
+   "points": {
+    "WorkPoint_0": {
+     "pos": [
+      0.0,
+      -0.75,
+      0.0
+     ],
+     "face": [
+      0.0,
+      1.0,
+      0.0
+     ]
+    },
+    "HandTarget": {
+     "pos": [
+      0.0,
+      -0.15,
+      0.3
+     ],
+     "face": [
+      0.0,
+      1.0,
+      0.0
+     ]
+    }
+   },
+   "collection": "Fac_Deposit"
+  },
+  "Deposit_Iron_Depleted": {
+   "id": "Deposit_Iron_Depleted",
+   "ko": "철 광맥 (고갈)",
+   "cells": [
+    1,
+    1
+   ],
+   "group": "매장 지점",
+   "note": "자원 Ore_Iron. 상태=고갈. 시설과 별개 데이터",
+   "units": "kit m, 1 cell = 1 m, origin = footprint centre on floor, front -Y",
+   "resource": "Ore_Iron",
+   "state": "Depleted",
+   "snap": "extractor footprint centre on this cell; depleted = no new extractor",
+   "bounds": [
+    [
+     -0.5,
+     -0.5,
+     -0.0
+    ],
+    [
+     0.5,
+     0.5,
+     0.365
+    ]
+   ],
+   "select_box": [
+    [
+     -0.5,
+     -0.5,
+     -0.0
+    ],
+    [
+     0.5,
+     0.5,
+     0.365
+    ]
+   ],
+   "points": {},
+   "collection": "Fac_Deposit"
+  },
+  "Deposit_Silver_Normal": {
+   "id": "Deposit_Silver_Normal",
+   "ko": "은 광맥 (정상)",
+   "cells": [
+    1,
+    1
+   ],
+   "group": "매장 지점",
+   "note": "자원 Ore_Silver. 상태=정상. 시설과 별개 데이터",
+   "units": "kit m, 1 cell = 1 m, origin = footprint centre on floor, front -Y",
+   "resource": "Ore_Silver",
+   "state": "Normal",
+   "snap": "extractor footprint centre on this cell; depleted = no new extractor",
+   "bounds": [
+    [
+     -0.5,
+     -0.5,
+     -0.042
+    ],
+    [
+     0.5,
+     0.5,
+     0.537
+    ]
+   ],
+   "select_box": [
+    [
+     -0.5,
+     -0.5,
+     -0.042
+    ],
+    [
+     0.5,
+     0.5,
+     0.537
+    ]
+   ],
+   "points": {
+    "WorkPoint_0": {
+     "pos": [
+      0.0,
+      -0.75,
+      0.0
+     ],
+     "face": [
+      0.0,
+      1.0,
+      0.0
+     ]
+    },
+    "HandTarget": {
+     "pos": [
+      0.0,
+      -0.15,
+      0.3
+     ],
+     "face": [
+      0.0,
+      1.0,
+      0.0
+     ]
+    }
+   },
+   "collection": "Fac_Deposit"
+  },
+  "Deposit_Silver_Mining": {
+   "id": "Deposit_Silver_Mining",
+   "ko": "은 광맥 (채굴 중)",
+   "cells": [
+    1,
+    1
+   ],
+   "group": "매장 지점",
+   "note": "자원 Ore_Silver. 상태=채굴 중. 시설과 별개 데이터",
+   "units": "kit m, 1 cell = 1 m, origin = footprint centre on floor, front -Y",
+   "resource": "Ore_Silver",
+   "state": "Mining",
+   "snap": "extractor footprint centre on this cell; depleted = no new extractor",
+   "bounds": [
+    [
+     -0.5,
+     -0.5,
+     -0.029
+    ],
+    [
+     0.5,
+     0.528,
+     0.371
+    ]
+   ],
+   "select_box": [
+    [
+     -0.5,
+     -0.5,
+     -0.029
+    ],
+    [
+     0.5,
+     0.528,
+     0.371
+    ]
+   ],
+   "points": {
+    "WorkPoint_0": {
+     "pos": [
+      0.0,
+      -0.75,
+      0.0
+     ],
+     "face": [
+      0.0,
+      1.0,
+      0.0
+     ]
+    },
+    "HandTarget": {
+     "pos": [
+      0.0,
+      -0.15,
+      0.3
+     ],
+     "face": [
+      0.0,
+      1.0,
+      0.0
+     ]
+    }
+   },
+   "collection": "Fac_Deposit"
+  },
+  "Deposit_Silver_Depleted": {
+   "id": "Deposit_Silver_Depleted",
+   "ko": "은 광맥 (고갈)",
+   "cells": [
+    1,
+    1
+   ],
+   "group": "매장 지점",
+   "note": "자원 Ore_Silver. 상태=고갈. 시설과 별개 데이터",
+   "units": "kit m, 1 cell = 1 m, origin = footprint centre on floor, front -Y",
+   "resource": "Ore_Silver",
+   "state": "Depleted",
+   "snap": "extractor footprint centre on this cell; depleted = no new extractor",
+   "bounds": [
+    [
+     -0.5,
+     -0.5,
+     -0.004
+    ],
+    [
+     0.5,
+     0.5,
+     0.365
+    ]
+   ],
+   "select_box": [
+    [
+     -0.5,
+     -0.5,
+     -0.004
+    ],
+    [
+     0.5,
+     0.5,
+     0.365
+    ]
+   ],
+   "points": {},
+   "collection": "Fac_Deposit"
+  },
+  "Deposit_Gold_Normal": {
+   "id": "Deposit_Gold_Normal",
+   "ko": "금 광맥 (정상)",
+   "cells": [
+    1,
+    1
+   ],
+   "group": "매장 지점",
+   "note": "자원 Ore_Gold. 상태=정상. 시설과 별개 데이터",
+   "units": "kit m, 1 cell = 1 m, origin = footprint centre on floor, front -Y",
+   "resource": "Ore_Gold",
+   "state": "Normal",
+   "snap": "extractor footprint centre on this cell; depleted = no new extractor",
+   "bounds": [
+    [
+     -0.5,
+     -0.5,
+     -0.048
+    ],
+    [
+     0.5,
+     0.5,
+     0.543
+    ]
+   ],
+   "select_box": [
+    [
+     -0.5,
+     -0.5,
+     -0.048
+    ],
+    [
+     0.5,
+     0.5,
+     0.543
+    ]
+   ],
+   "points": {
+    "WorkPoint_0": {
+     "pos": [
+      0.0,
+      -0.75,
+      0.0
+     ],
+     "face": [
+      0.0,
+      1.0,
+      0.0
+     ]
+    },
+    "HandTarget": {
+     "pos": [
+      0.0,
+      -0.15,
+      0.3
+     ],
+     "face": [
+      0.0,
+      1.0,
+      0.0
+     ]
+    }
+   },
+   "collection": "Fac_Deposit"
+  },
+  "Deposit_Gold_Mining": {
+   "id": "Deposit_Gold_Mining",
+   "ko": "금 광맥 (채굴 중)",
+   "cells": [
+    1,
+    1
+   ],
+   "group": "매장 지점",
+   "note": "자원 Ore_Gold. 상태=채굴 중. 시설과 별개 데이터",
+   "units": "kit m, 1 cell = 1 m, origin = footprint centre on floor, front -Y",
+   "resource": "Ore_Gold",
+   "state": "Mining",
+   "snap": "extractor footprint centre on this cell; depleted = no new extractor",
+   "bounds": [
+    [
+     -0.5,
+     -0.5,
+     -0.037
+    ],
+    [
+     0.5,
+     0.5,
+     0.379
+    ]
+   ],
+   "select_box": [
+    [
+     -0.5,
+     -0.5,
+     -0.037
+    ],
+    [
+     0.5,
+     0.5,
+     0.379
+    ]
+   ],
+   "points": {
+    "WorkPoint_0": {
+     "pos": [
+      0.0,
+      -0.75,
+      0.0
+     ],
+     "face": [
+      0.0,
+      1.0,
+      0.0
+     ]
+    },
+    "HandTarget": {
+     "pos": [
+      0.0,
+      -0.15,
+      0.3
+     ],
+     "face": [
+      0.0,
+      1.0,
+      0.0
+     ]
+    }
+   },
+   "collection": "Fac_Deposit"
+  },
+  "Deposit_Gold_Depleted": {
+   "id": "Deposit_Gold_Depleted",
+   "ko": "금 광맥 (고갈)",
+   "cells": [
+    1,
+    1
+   ],
+   "group": "매장 지점",
+   "note": "자원 Ore_Gold. 상태=고갈. 시설과 별개 데이터",
+   "units": "kit m, 1 cell = 1 m, origin = footprint centre on floor, front -Y",
+   "resource": "Ore_Gold",
+   "state": "Depleted",
+   "snap": "extractor footprint centre on this cell; depleted = no new extractor",
+   "bounds": [
+    [
+     -0.5,
+     -0.5,
+     -0.011
+    ],
+    [
+     0.5,
+     0.5,
+     0.365
+    ]
+   ],
+   "select_box": [
+    [
+     -0.5,
+     -0.5,
+     -0.011
+    ],
+    [
+     0.5,
+     0.5,
+     0.365
+    ]
+   ],
+   "points": {},
+   "collection": "Fac_Deposit"
+  },
+  "Deposit_Titanium_Normal": {
+   "id": "Deposit_Titanium_Normal",
+   "ko": "티타늄 광맥 (정상)",
+   "cells": [
+    1,
+    1
+   ],
+   "group": "매장 지점",
+   "note": "자원 Ore_Titanium. 상태=정상. 시설과 별개 데이터",
+   "units": "kit m, 1 cell = 1 m, origin = footprint centre on floor, front -Y",
+   "resource": "Ore_Titanium",
+   "state": "Normal",
+   "snap": "extractor footprint centre on this cell; depleted = no new extractor",
+   "bounds": [
+    [
+     -0.5,
+     -0.5,
+     -0.034
+    ],
+    [
+     0.5,
+     0.5,
+     0.529
+    ]
+   ],
+   "select_box": [
+    [
+     -0.5,
+     -0.5,
+     -0.034
+    ],
+    [
+     0.5,
+     0.5,
+     0.529
+    ]
+   ],
+   "points": {
+    "WorkPoint_0": {
+     "pos": [
+      0.0,
+      -0.75,
+      0.0
+     ],
+     "face": [
+      0.0,
+      1.0,
+      0.0
+     ]
+    },
+    "HandTarget": {
+     "pos": [
+      0.0,
+      -0.15,
+      0.3
+     ],
+     "face": [
+      0.0,
+      1.0,
+      0.0
+     ]
+    }
+   },
+   "collection": "Fac_Deposit"
+  },
+  "Deposit_Titanium_Mining": {
+   "id": "Deposit_Titanium_Mining",
+   "ko": "티타늄 광맥 (채굴 중)",
+   "cells": [
+    1,
+    1
+   ],
+   "group": "매장 지점",
+   "note": "자원 Ore_Titanium. 상태=채굴 중. 시설과 별개 데이터",
+   "units": "kit m, 1 cell = 1 m, origin = footprint centre on floor, front -Y",
+   "resource": "Ore_Titanium",
+   "state": "Mining",
+   "snap": "extractor footprint centre on this cell; depleted = no new extractor",
+   "bounds": [
+    [
+     -0.5,
+     -0.5,
+     -0.021
+    ],
+    [
+     0.5,
+     0.5,
+     0.363
+    ]
+   ],
+   "select_box": [
+    [
+     -0.5,
+     -0.5,
+     -0.021
+    ],
+    [
+     0.5,
+     0.5,
+     0.363
+    ]
+   ],
+   "points": {
+    "WorkPoint_0": {
+     "pos": [
+      0.0,
+      -0.75,
+      0.0
+     ],
+     "face": [
+      0.0,
+      1.0,
+      0.0
+     ]
+    },
+    "HandTarget": {
+     "pos": [
+      0.0,
+      -0.15,
+      0.3
+     ],
+     "face": [
+      0.0,
+      1.0,
+      0.0
+     ]
+    }
+   },
+   "collection": "Fac_Deposit"
+  },
+  "Deposit_Titanium_Depleted": {
+   "id": "Deposit_Titanium_Depleted",
+   "ko": "티타늄 광맥 (고갈)",
+   "cells": [
+    1,
+    1
+   ],
+   "group": "매장 지점",
+   "note": "자원 Ore_Titanium. 상태=고갈. 시설과 별개 데이터",
+   "units": "kit m, 1 cell = 1 m, origin = footprint centre on floor, front -Y",
+   "resource": "Ore_Titanium",
+   "state": "Depleted",
+   "snap": "extractor footprint centre on this cell; depleted = no new extractor",
+   "bounds": [
+    [
+     -0.5,
+     -0.5,
+     -0.01
+    ],
+    [
+     0.5,
+     0.511,
+     0.365
+    ]
+   ],
+   "select_box": [
+    [
+     -0.5,
+     -0.5,
+     -0.01
+    ],
+    [
+     0.5,
+     0.511,
+     0.365
+    ]
+   ],
+   "points": {},
+   "collection": "Fac_Deposit"
+  },
+  "Deposit_Starlight_Normal": {
+   "id": "Deposit_Starlight_Normal",
+   "ko": "성휘석(가칭) 광맥 (정상)",
+   "cells": [
+    1,
+    1
+   ],
+   "group": "매장 지점",
+   "note": "자원 Ore_Starlight. 상태=정상. 시설과 별개 데이터",
+   "units": "kit m, 1 cell = 1 m, origin = footprint centre on floor, front -Y",
+   "resource": "Ore_Starlight",
+   "state": "Normal",
+   "snap": "extractor footprint centre on this cell; depleted = no new extractor",
+   "bounds": [
+    [
+     -0.5,
+     -0.5,
+     -0.023
+    ],
+    [
+     0.5,
+     0.5,
+     0.518
+    ]
+   ],
+   "select_box": [
+    [
+     -0.5,
+     -0.5,
+     -0.023
+    ],
+    [
+     0.5,
+     0.5,
+     0.518
+    ]
+   ],
+   "points": {
+    "WorkPoint_0": {
+     "pos": [
+      0.0,
+      -0.75,
+      0.0
+     ],
+     "face": [
+      0.0,
+      1.0,
+      0.0
+     ]
+    },
+    "HandTarget": {
+     "pos": [
+      0.0,
+      -0.15,
+      0.3
+     ],
+     "face": [
+      0.0,
+      1.0,
+      0.0
+     ]
+    }
+   },
+   "collection": "Fac_Deposit"
+  },
+  "Deposit_Starlight_Mining": {
+   "id": "Deposit_Starlight_Mining",
+   "ko": "성휘석(가칭) 광맥 (채굴 중)",
+   "cells": [
+    1,
+    1
+   ],
+   "group": "매장 지점",
+   "note": "자원 Ore_Starlight. 상태=채굴 중. 시설과 별개 데이터",
+   "units": "kit m, 1 cell = 1 m, origin = footprint centre on floor, front -Y",
+   "resource": "Ore_Starlight",
+   "state": "Mining",
+   "snap": "extractor footprint centre on this cell; depleted = no new extractor",
+   "bounds": [
+    [
+     -0.5,
+     -0.5,
+     -0.036
+    ],
+    [
+     0.5,
+     0.5,
+     0.378
+    ]
+   ],
+   "select_box": [
+    [
+     -0.5,
+     -0.5,
+     -0.036
+    ],
+    [
+     0.5,
+     0.5,
+     0.378
+    ]
+   ],
+   "points": {
+    "WorkPoint_0": {
+     "pos": [
+      0.0,
+      -0.75,
+      0.0
+     ],
+     "face": [
+      0.0,
+      1.0,
+      0.0
+     ]
+    },
+    "HandTarget": {
+     "pos": [
+      0.0,
+      -0.15,
+      0.3
+     ],
+     "face": [
+      0.0,
+      1.0,
+      0.0
+     ]
+    }
+   },
+   "collection": "Fac_Deposit"
+  },
+  "Deposit_Starlight_Depleted": {
+   "id": "Deposit_Starlight_Depleted",
+   "ko": "성휘석(가칭) 광맥 (고갈)",
+   "cells": [
+    1,
+    1
+   ],
+   "group": "매장 지점",
+   "note": "자원 Ore_Starlight. 상태=고갈. 시설과 별개 데이터",
+   "units": "kit m, 1 cell = 1 m, origin = footprint centre on floor, front -Y",
+   "resource": "Ore_Starlight",
+   "state": "Depleted",
+   "snap": "extractor footprint centre on this cell; depleted = no new extractor",
+   "bounds": [
+    [
+     -0.5,
+     -0.5,
+     -0.008
+    ],
+    [
+     0.5,
+     0.5,
+     0.365
+    ]
+   ],
+   "select_box": [
+    [
+     -0.5,
+     -0.5,
+     -0.008
+    ],
+    [
+     0.5,
+     0.5,
+     0.365
+    ]
+   ],
+   "points": {},
+   "collection": "Fac_Deposit"
+  },
+  "Deposit_Oil_Normal": {
+   "id": "Deposit_Oil_Normal",
+   "ko": "원유가 배어 나오는 땅 (정상)",
+   "cells": [
+    1,
+    1
+   ],
+   "group": "매장 지점",
+   "note": "자원 Fossil_CrudeOil. 상태=정상. 시설과 별개 데이터",
+   "units": "kit m, 1 cell = 1 m, origin = footprint centre on floor, front -Y",
+   "resource": "Fossil_CrudeOil",
+   "state": "Normal",
+   "snap": "extractor footprint centre on this cell; depleted = no new extractor",
+   "bounds": [
+    [
+     -0.5,
+     -0.5,
+     0.0
+    ],
+    [
+     0.5,
+     0.5,
+     0.045
+    ]
+   ],
+   "select_box": [
+    [
+     -0.5,
+     -0.5,
+     0.0
+    ],
+    [
+     0.5,
+     0.5,
+     0.045
+    ]
+   ],
+   "points": {},
+   "collection": "Fac_Deposit"
+  },
+  "Deposit_Oil_Mining": {
+   "id": "Deposit_Oil_Mining",
+   "ko": "원유가 배어 나오는 땅 (채굴 중)",
+   "cells": [
+    1,
+    1
+   ],
+   "group": "매장 지점",
+   "note": "자원 Fossil_CrudeOil. 상태=채굴 중. 시설과 별개 데이터",
+   "units": "kit m, 1 cell = 1 m, origin = footprint centre on floor, front -Y",
+   "resource": "Fossil_CrudeOil",
+   "state": "Mining",
+   "snap": "extractor footprint centre on this cell; depleted = no new extractor",
+   "bounds": [
+    [
+     -0.5,
+     -0.5,
+     0.0
+    ],
+    [
+     0.5,
+     0.5,
+     0.045
+    ]
+   ],
+   "select_box": [
+    [
+     -0.5,
+     -0.5,
+     0.0
+    ],
+    [
+     0.5,
+     0.5,
+     0.045
+    ]
+   ],
+   "points": {},
+   "collection": "Fac_Deposit"
+  },
+  "Deposit_Oil_Depleted": {
+   "id": "Deposit_Oil_Depleted",
+   "ko": "원유가 배어 나오는 땅 (고갈)",
+   "cells": [
+    1,
+    1
+   ],
+   "group": "매장 지점",
+   "note": "자원 Fossil_CrudeOil. 상태=고갈. 시설과 별개 데이터",
+   "units": "kit m, 1 cell = 1 m, origin = footprint centre on floor, front -Y",
+   "resource": "Fossil_CrudeOil",
+   "state": "Depleted",
+   "snap": "extractor footprint centre on this cell; depleted = no new extractor",
+   "bounds": [
+    [
+     -0.5,
+     -0.5,
+     0.0
+    ],
+    [
+     0.5,
+     0.5,
+     0.365
+    ]
+   ],
+   "select_box": [
+    [
+     -0.5,
+     -0.5,
+     0.0
+    ],
+    [
+     0.5,
+     0.5,
+     0.365
+    ]
+   ],
+   "points": {},
+   "collection": "Fac_Deposit"
+  },
+  "Deposit_Gas_Normal": {
+   "id": "Deposit_Gas_Normal",
+   "ko": "가스가 새는 지면 틈 (정상)",
+   "cells": [
+    1,
+    1
+   ],
+   "group": "매장 지점",
+   "note": "자원 Fossil_NaturalGas. 상태=정상. 시설과 별개 데이터",
+   "units": "kit m, 1 cell = 1 m, origin = footprint centre on floor, front -Y",
+   "resource": "Fossil_NaturalGas",
+   "state": "Normal",
+   "snap": "extractor footprint centre on this cell; depleted = no new extractor",
+   "bounds": [
+    [
+     -0.5,
+     -0.5,
+     0.0
+    ],
+    [
+     0.5,
+     0.5,
+     0.302
+    ]
+   ],
+   "select_box": [
+    [
+     -0.5,
+     -0.5,
+     0.0
+    ],
+    [
+     0.5,
+     0.5,
+     0.302
+    ]
+   ],
+   "points": {},
+   "collection": "Fac_Deposit"
+  },
+  "Deposit_Gas_Mining": {
+   "id": "Deposit_Gas_Mining",
+   "ko": "가스가 새는 지면 틈 (채굴 중)",
+   "cells": [
+    1,
+    1
+   ],
+   "group": "매장 지점",
+   "note": "자원 Fossil_NaturalGas. 상태=채굴 중. 시설과 별개 데이터",
+   "units": "kit m, 1 cell = 1 m, origin = footprint centre on floor, front -Y",
+   "resource": "Fossil_NaturalGas",
+   "state": "Mining",
+   "snap": "extractor footprint centre on this cell; depleted = no new extractor",
+   "bounds": [
+    [
+     -0.5,
+     -0.5,
+     0.0
+    ],
+    [
+     0.5,
+     0.5,
+     0.302
+    ]
+   ],
+   "select_box": [
+    [
+     -0.5,
+     -0.5,
+     0.0
+    ],
+    [
+     0.5,
+     0.5,
+     0.302
+    ]
+   ],
+   "points": {},
+   "collection": "Fac_Deposit"
+  },
+  "Deposit_Gas_Depleted": {
+   "id": "Deposit_Gas_Depleted",
+   "ko": "가스가 새는 지면 틈 (고갈)",
+   "cells": [
+    1,
+    1
+   ],
+   "group": "매장 지점",
+   "note": "자원 Fossil_NaturalGas. 상태=고갈. 시설과 별개 데이터",
+   "units": "kit m, 1 cell = 1 m, origin = footprint centre on floor, front -Y",
+   "resource": "Fossil_NaturalGas",
+   "state": "Depleted",
+   "snap": "extractor footprint centre on this cell; depleted = no new extractor",
+   "bounds": [
+    [
+     -0.5,
+     -0.5,
+     0.0
+    ],
+    [
+     0.5,
+     0.5,
+     0.365
+    ]
+   ],
+   "select_box": [
+    [
+     -0.5,
+     -0.5,
+     0.0
+    ],
+    [
+     0.5,
+     0.5,
+     0.365
+    ]
+   ],
+   "points": {},
+   "collection": "Fac_Deposit"
+  },
+  "Overlay_Edge": {
+   "id": "Overlay_Edge",
+   "ko": "지하 매장 범위 경계",
+   "cells": [
+    1,
+    0
+   ],
+   "group": "매장 지점",
+   "note": "범위 경계 한 칸 변",
+   "units": "kit m, 1 cell = 1 m, origin = footprint centre on floor, front -Y",
+   "bounds": [
+    [
+     -0.5,
+     -0.03,
+     0.005
+    ],
+    [
+     0.5,
+     0.03,
+     0.015
+    ]
+   ],
+   "select_box": [
+    [
+     -0.5,
+     -0.03,
+     0.005
+    ],
+    [
+     0.5,
+     0.03,
+     0.015
+    ]
+   ],
+   "points": {},
+   "collection": "Fac_Deposit"
+  },
+  "Overlay_Corner": {
+   "id": "Overlay_Corner",
+   "ko": "지하 매장 범위 모서리",
+   "cells": [
+    0,
+    0
+   ],
+   "group": "매장 지점",
+   "note": "경계 모서리",
+   "units": "kit m, 1 cell = 1 m, origin = footprint centre on floor, front -Y",
+   "bounds": [
+    [
+     -0.03,
+     -0.03,
+     0.004
+    ],
+    [
+     0.03,
+     0.03,
+     0.016
+    ]
+   ],
+   "select_box": [
+    [
+     -0.03,
+     -0.03,
+     0.004
+    ],
+    [
+     0.03,
+     0.03,
+     0.016
+    ]
+   ],
+   "points": {},
+   "collection": "Fac_Deposit"
+  },
+  "Overlay_Fill": {
+   "id": "Overlay_Fill",
+   "ko": "지하 매장 범위 칸",
+   "cells": [
+    1,
+    1
+   ],
+   "group": "매장 지점",
+   "note": "범위 내부 칸(빗금)",
+   "units": "kit m, 1 cell = 1 m, origin = footprint centre on floor, front -Y",
+   "bounds": [
+    [
+     -0.658,
+     -0.258,
+     0.004
+    ],
+    [
+     0.658,
+     0.258,
+     0.008
+    ]
+   ],
+   "select_box": [
+    [
+     -0.658,
+     -0.258,
+     0.004
+    ],
+    [
+     0.658,
+     0.258,
+     0.008
+    ]
+   ],
+   "points": {},
+   "collection": "Fac_Deposit"
+  },
+  "Overlay_Pin": {
+   "id": "Overlay_Pin",
+   "ko": "발견 매장층 표시",
+   "cells": [
+    0,
+    0
+   ],
+   "group": "매장 지점",
+   "note": "발견 지점 핀(자원 아이콘은 엔진 UI)",
+   "units": "kit m, 1 cell = 1 m, origin = footprint centre on floor, front -Y",
+   "bounds": [
+    [
+     -0.057,
+     -0.06,
+     0.0
+    ],
+    [
+     0.057,
+     0.06,
+     0.61
+    ]
+   ],
+   "select_box": [
+    [
+     -0.057,
+     -0.06,
+     0.0
+    ],
+    [
+     0.057,
+     0.06,
+     0.61
+    ]
+   ],
+   "points": {},
+   "collection": "Fac_Deposit"
+  },
+  "CrashWreck": {
+   "id": "CrashWreck",
+   "ko": "불시착 잔해",
+   "cells": [
+    3,
+    2
+   ],
+   "group": "시작",
+   "note": "불시착한 수송정 잔해. 기울어진 동체·찢긴 판·흩어진 상자, 그을음. 해체 시 재료 회수",
+   "units": "kit m, 1 cell = 1 m, origin = footprint centre on floor, front -Y",
+   "bounds": [
+    [
+     -1.393,
+     -0.97,
+     -0.248
+    ],
+    [
+     1.411,
+     0.844,
+     1.078
+    ]
+   ],
+   "select_box": [
+    [
+     -1.393,
+     -0.97,
+     -0.248
+    ],
+    [
+     1.411,
+     0.844,
+     1.078
+    ]
+   ],
+   "points": {
+    "WorkPoint_0": {
+     "pos": [
+      0.0,
+      -1.05,
+      0.0
+     ],
+     "face": [
+      0.0,
+      1.0,
+      0.0
+     ]
+    },
+    "OutputPoint": {
+     "pos": [
+      -0.9,
+      -0.95,
+      0.0
+     ],
+     "face": [
+      0.0,
+      1.0,
+      0.0
+     ]
+    }
+   },
+   "collection": "Fac_Civic"
+  },
+  "School": {
+   "id": "School",
+   "ko": "학당",
+   "cells": [
+    3,
+    3
+   ],
+   "group": "공공",
+   "note": "어린 시민 20명 교육(G65). 목조 강당 + 칠판 간판 + 지붕 종",
+   "units": "kit m, 1 cell = 1 m, origin = footprint centre on floor, front -Y",
+   "bounds": [
+    [
+     -1.42,
+     -1.44,
+     0.0
+    ],
+    [
+     1.42,
+     1.2,
+     2.15
+    ]
+   ],
+   "select_box": [
+    [
+     -1.42,
+     -1.44,
+     0.0
+    ],
+    [
+     1.42,
+     1.2,
+     2.15
+    ]
+   ],
+   "points": {
+    "WorkPoint_0": {
+     "pos": [
+      0.0,
+      -1.5,
+      0.0
+     ],
+     "face": [
+      0.0,
+      1.0,
+      0.0
+     ]
+    },
+    "InputPoint": {
+     "pos": [
+      0.0,
+      -1.2,
+      0.0
+     ],
+     "face": [
+      0.0,
+      1.0,
+      0.0
+     ]
+    }
+   },
+   "collection": "Fac_Civic"
+  },
+  "CitizenClinic": {
+   "id": "CitizenClinic",
+   "ko": "시민 진료소",
+   "cells": [
+    3,
+    3
+   ],
+   "group": "공공",
+   "note": "시민 50명 의료 서비스(G66). 흰 벽 + 초록 십자 간판 + 차양",
+   "units": "kit m, 1 cell = 1 m, origin = footprint centre on floor, front -Y",
+   "bounds": [
+    [
+     -1.42,
+     -1.597,
+     0.0
+    ],
+    [
+     1.42,
+     1.2,
+     1.858
+    ]
+   ],
+   "select_box": [
+    [
+     -1.42,
+     -1.597,
+     0.0
+    ],
+    [
+     1.42,
+     1.2,
+     1.858
+    ]
+   ],
+   "points": {
+    "WorkPoint_0": {
+     "pos": [
+      0.0,
+      -1.6,
+      0.0
+     ],
+     "face": [
+      0.0,
+      1.0,
+      0.0
+     ]
+    }
+   },
+   "collection": "Fac_Civic"
+  },
+  "CivicPublicService": {
+   "id": "CivicPublicService",
+   "ko": "공공서비스",
+   "cells": [
+    3,
+    3
+   ],
+   "group": "공공",
+   "note": "행정·공공서비스 500명 기준(G17). 관청 + 깃발 + 게시판",
+   "units": "kit m, 1 cell = 1 m, origin = footprint centre on floor, front -Y",
+   "bounds": [
+    [
+     -1.42,
+     -1.35,
+     0.0
+    ],
+    [
+     1.53,
+     1.2,
+     2.3
+    ]
+   ],
+   "select_box": [
+    [
+     -1.42,
+     -1.35,
+     0.0
+    ],
+    [
+     1.53,
+     1.2,
+     2.3
+    ]
+   ],
+   "points": {
+    "WorkPoint_0": {
+     "pos": [
+      0.0,
+      -1.6,
+      0.0
+     ],
+     "face": [
+      0.0,
+      1.0,
+      0.0
+     ]
+    }
+   },
+   "collection": "Fac_Civic"
+  },
+  "PlanterBed": {
+   "id": "PlanterBed",
+   "ko": "화분형 밭",
+   "cells": [
+    1,
+    1
+   ],
+   "group": "농업",
+   "note": "포장 지면 위 화분형 밭(G58). 나무 틀 + 흙, 작물은 엔진이 SoilPoint 위에 배치",
+   "units": "kit m, 1 cell = 1 m, origin = footprint centre on floor, front -Y",
+   "bounds": [
+    [
+     -0.46,
+     -0.46,
+     0.0
+    ],
+    [
+     0.46,
+     0.46,
+     0.36
+    ]
+   ],
+   "select_box": [
+    [
+     -0.46,
+     -0.46,
+     0.0
+    ],
+    [
+     0.46,
+     0.46,
+     0.36
+    ]
+   ],
+   "points": {
+    "SoilPoint": {
+     "pos": [
+      0.0,
+      0.0,
+      0.34
+     ],
+     "face": [
+      0.0,
+      1.0,
+      0.0
+     ]
+    },
+    "WorkPoint_0": {
+     "pos": [
+      0.0,
+      -0.75,
+      0.0
+     ],
+     "face": [
+      0.0,
+      1.0,
+      0.0
+     ]
+    }
+   },
+   "collection": "Fac_Civic"
+  },
+  "WaterSource": {
+   "id": "WaterSource",
+   "ko": "수원",
+   "cells": [
+    1,
+    1
+   ],
+   "group": "자연",
+   "note": "얕은 수원(G59). 돌 테두리 웅덩이. 사막 지하수·동굴 용출수도 같은 모델(엔진 색만 변경 가능)",
+   "units": "kit m, 1 cell = 1 m, origin = footprint centre on floor, front -Y",
+   "bounds": [
+    [
+     -0.47,
+     -0.493,
+     -0.01
+    ],
+    [
+     0.5,
+     0.493,
+     0.11
+    ]
+   ],
+   "select_box": [
+    [
+     -0.47,
+     -0.493,
+     -0.01
+    ],
+    [
+     0.5,
+     0.493,
+     0.11
+    ]
+   ],
+   "points": {
+    "WaterPoint": {
+     "pos": [
+      0.0,
+      0.0,
+      0.045
+     ],
+     "face": [
+      0.0,
+      1.0,
+      0.0
+     ]
+    },
+    "WorkPoint_0": {
+     "pos": [
+      0.0,
+      -0.6,
+      0.0
+     ],
+     "face": [
+      0.0,
+      1.0,
+      0.0
+     ]
+    }
+   },
+   "collection": "Fac_Civic"
+  },
+  "WaterPump": {
+   "id": "WaterPump",
+   "ko": "취수 펌프",
+   "cells": [
+    1,
+    1
+   ],
+   "group": "유체",
+   "note": "수원 위 수동 취수 펌프(G59). 손잡이 왕복=취수, 액체 포트로 배관 연결",
+   "units": "kit m, 1 cell = 1 m, origin = footprint centre on floor, front -Y",
+   "bounds": [
+    [
+     -0.35,
+     -0.35,
+     0.0
+    ],
+    [
+     0.35,
+     0.535,
+     0.835
+    ]
+   ],
+   "select_box": [
+    [
+     -0.35,
+     -0.35,
+     0.0
+    ],
+    [
+     0.35,
+     0.535,
+     0.835
+    ]
+   ],
+   "points": {
+    "FluidOut_L": {
+     "pos": [
+      0.35,
+      0.1,
+      0.25
+     ],
+     "face": [
+      1.0,
+      0.0,
+      0.0
+     ]
+    },
+    "WorkPoint_0": {
+     "pos": [
+      0.0,
+      0.9,
+      0.0
+     ],
+     "face": [
+      0.0,
+      -1.0,
+      0.0
+     ]
+    },
+    "HandTarget": {
+     "pos": [
+      0.0,
+      0.5,
+      0.8
+     ],
+     "face": [
+      0.0,
+      1.0,
+      0.0
+     ]
+    }
+   },
+   "collection": "Fac_Civic"
+  },
+  "SteamGenerator": {
+   "id": "SteamGenerator",
+   "ko": "증기 고체연료 발전기",
+   "cells": [
+    1,
+    1
+   ],
+   "group": "에너지",
+   "note": "석탄을 태워 증기→전력(G46). 보일러 + 굴뚝 + 플라이휠, 화구=InputPoint",
+   "units": "kit m, 1 cell = 1 m, origin = footprint centre on floor, front -Y",
+   "bounds": [
+    [
+     -0.45,
+     -0.45,
+     -0.025
+    ],
+    [
+     0.46,
+     0.45,
+     1.43
+    ]
+   ],
+   "select_box": [
+    [
+     -0.45,
+     -0.45,
+     -0.025
+    ],
+    [
+     0.46,
+     0.45,
+     1.43
+    ]
+   ],
+   "points": {
+    "PowerOut": {
+     "pos": [
+      0.45,
+      0.3,
+      0.15
+     ],
+     "face": [
+      1.0,
+      0.0,
+      0.0
+     ]
+    },
+    "WorkPoint_0": {
+     "pos": [
+      -0.1,
+      -0.7,
+      0.0
+     ],
+     "face": [
+      0.0,
+      1.0,
+      0.0
+     ]
+    },
+    "InputPoint": {
+     "pos": [
+      -0.1,
+      -0.2,
+      0.2
+     ],
+     "face": [
+      0.0,
+      1.0,
+      0.0
+     ]
+    }
+   },
+   "collection": "Fac_Civic"
+  }
+ },
+ "failed": {},
+ "reuse_resident": {
+  "조리대·조리 시설": [
+   "CC_Kitchen",
+   "CC_Hearth"
+  ],
+  "목공 작업대": [
+   "CC_Carpentry"
+  ],
+  "석재 작업대": [
+   "CC_Stonecutter"
+  ],
+  "제련로": [
+   "CC_Smelter"
+  ],
+  "도자기 가마": [
+   "CC_Kiln"
+  ],
+  "냉장고": [
+   "CC_Refrigerator"
+  ],
+  "냉동고": [
+   "CC_Freezer"
+  ],
+  "퇴비통": [
+   "CC_CompostBin"
+  ],
+  "기존 발전기": [
+   "CC_WoodGenerator",
+   "CC_Battery",
+   "CC_PowerWire"
+  ]
+ },
+ "actions": [
+  "AdvancedDrill|Run",
+  "AlloyFurnace|Run",
+  "Blacksmith|Run",
+  "BrewingBarrel|Fermenting",
+  "BrewingBarrel|LidOpen",
+  "CharcoalKiln|DoorOpen",
+  "CokeOven|Door0Open",
+  "CokeOven|Door1Open",
+  "DeepDrill|Run",
+  "ElectricWorkshop|Run",
+  "FillingStation|ValveG",
+  "FillingStation|ValveL",
+  "GasExtractor|Run",
+  "GasExtractor|ValveTurn",
+  "GasGenerator|Run",
+  "Greenhouse_Door|Open",
+  "Greenhouse_Vent|Run",
+  "Mill|Run",
+  "OilDerrick|Crank",
+  "OilDerrick|Run",
+  "OilPress|Run",
+  "PipeG_Valve|Turn",
+  "PipeL_Valve|Turn",
+  "Prospector|Run",
+  "Refinery|Run",
+  "SteamGenerator|Run",
+  "Still|ValveTurn",
+  "TitaniumRefinery|Run",
+  "WaterPump|Run"
+ ]
+}

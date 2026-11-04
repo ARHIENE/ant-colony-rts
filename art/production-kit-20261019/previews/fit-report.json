@@ -1,0 +1,1355 @@
+{
+ "frames_checked": 678,
+ "step": 3,
+ "seconds": 160,
+ "items": [
+  "Helm_CAT",
+  "Helm_DROOP",
+  "Helm_RABBIT",
+  "Helm_ROUND",
+  "Helm_UPRIGHT",
+  "HelmTrim_Bronze",
+  "HelmTrim_Iron",
+  "HelmTrim_Steel",
+  "HelmTrim_Titanium",
+  "HelmTrim_Starlight",
+  "Armor_Breastplate",
+  "Armor_Breastplate_Lower",
+  "Armor_Backplate",
+  "Armor_Backplate_Lower",
+  "Armor_Fauld",
+  "Armor_Tasset_L",
+  "Armor_Tasset_R",
+  "Armor_Bracer_L",
+  "Armor_Bracer_R",
+  "Armor_Greave_L",
+  "Armor_Greave_R",
+  "Belt",
+  "Holder_Sword",
+  "Holder_Shield",
+  "Holder_Spear",
+  "Carry_Sword",
+  "Carry_Spear",
+  "Carry_Shield"
+ ],
+ "overlaps": {
+  "Armor_Breastplate": {
+   "Part_Outfit_LINEN_ARMOR": {
+    "clips": 40,
+    "worst_pairs": 140,
+    "list": {
+     "Attack": 99,
+     "BenchWork": 98,
+     "Captive": 60,
+     "Carry": 68,
+     "CarryPerson": 99,
+     "Chop": 59,
+     "Death": 47,
+     "Downed": 61,
+     "Eat": 118,
+     "Grind": 110,
+     "GroundWork": 61,
+     "Hammer": 88,
+     "Hurt": 56,
+     "Idle": 28,
+     "Inspect": 77,
+     "Mine": 58,
+     "Mourn": 57,
+     "Operate": 95,
+     "Pickup": 98,
+     "PlayBoard": 140,
+     "PlayMusic": 78,
+     "PutDown": 94,
+     "Rest": 48,
+     "RockCradle": 82,
+     "Run": 44,
+     "Saw": 82,
+     "Sit": 36,
+     "Sleep": 41,
+     "Spin": 101,
+     "Stamp": 98,
+     "StandEnter": 26,
+     "StandExit": 26,
+     "StandIdle": 28,
+     "Stir": 109,
+     "Throw": 60,
+     "Treat": 98,
+     "Walk": 26,
+     "Wash": 98,
+     "WaterPlant": 67,
+     "Wrestle": 67
+    }
+   },
+   "Part_Hair_LONG_ARMOR": {
+    "clips": 34,
+    "worst_pairs": 68,
+    "list": {
+     "Attack": 11,
+     "Bathe": 10,
+     "BenchWork": 60,
+     "Captive": 60,
+     "Carry": 8,
+     "CarryPerson": 46,
+     "Chop": 38,
+     "Death": 58,
+     "Downed": 63,
+     "Eat": 63,
+     "Grind": 60,
+     "Hammer": 63,
+     "Idle": 8,
+     "Inspect": 51,
+     "Mine": 38,
+     "Mourn": 62,
+     "Operate": 55,
+     "PlayBoard": 60,
+     "PlayMusic": 51,
+     "Rest": 68,
+     "RockCradle": 55,
+     "Saw": 60,
+     "Sit": 12,
+     "Sleep": 18,
+     "Spin": 63,
+     "Stamp": 60,
+     "StandIdle": 12,
+     "Stir": 61,
+     "Swing": 35,
+     "Treat": 58,
+     "Walk": 8,
+     "Wash": 60,
+     "WaterPlant": 64,
+     "Wrestle": 7
+    }
+   },
+   "Part_Hair_BOB_00": {
+    "clips": 8,
+    "worst_pairs": 70,
+    "list": {
+     "Captive": 19,
+     "Death": 13,
+     "Inspect": 17,
+     "Mourn": 14,
+     "Operate": 70,
+     "PlayBoard": 10,
+     "Stamp": 40,
+     "Treat": 14
+    }
+   },
+   "Part_Hair_BUNS_00": {
+    "clips": 8,
+    "worst_pairs": 70,
+    "list": {
+     "Captive": 19,
+     "Death": 13,
+     "Inspect": 17,
+     "Mourn": 14,
+     "Operate": 70,
+     "PlayBoard": 10,
+     "Stamp": 40,
+     "Treat": 14
+    }
+   },
+   "Part_Hair_PONY_00": {
+    "clips": 8,
+    "worst_pairs": 70,
+    "list": {
+     "Captive": 19,
+     "Death": 13,
+     "Inspect": 17,
+     "Mourn": 14,
+     "Operate": 70,
+     "PlayBoard": 10,
+     "Stamp": 40,
+     "Treat": 14
+    }
+   },
+   "Part_Hair_SIDE_00": {
+    "clips": 9,
+    "worst_pairs": 70,
+    "list": {
+     "Captive": 24,
+     "Death": 13,
+     "Inspect": 9,
+     "Mourn": 13,
+     "Operate": 70,
+     "PlayBoard": 8,
+     "Stamp": 40,
+     "Treat": 12,
+     "WaterPlant": 7
+    }
+   }
+  },
+  "Armor_Breastplate_Lower": {
+   "Part_Outfit_LINEN_ARMOR": {
+    "clips": 42,
+    "worst_pairs": 202,
+    "list": {
+     "Attack": 134,
+     "Bathe": 30,
+     "BenchWork": 148,
+     "Captive": 171,
+     "Carry": 130,
+     "CarryPerson": 59,
+     "Chop": 78,
+     "Death": 139,
+     "Downed": 142,
+     "Eat": 139,
+     "Grind": 157,
+     "GroundWork": 157,
+     "Hammer": 145,
+     "Hurt": 135,
+     "Idle": 78,
+     "Inspect": 125,
+     "Mine": 82,
+     "Mourn": 138,
+     "Operate": 159,
+     "Pickup": 200,
+     "PlayBoard": 150,
+     "PlayMusic": 132,
+     "PutDown": 202,
+     "Rest": 174,
+     "RockCradle": 88,
+     "Run": 87,
+     "Saw": 164,
+     "Sit": 160,
+     "Sleep": 99,
+     "Spin": 173,
+     "Stamp": 154,
+     "StandEnter": 74,
+     "StandExit": 78,
+     "StandIdle": 78,
+     "Stir": 159,
+     "Swing": 2,
+     "Throw": 92,
+     "Treat": 166,
+     "Walk": 77,
+     "Wash": 160,
+     "WaterPlant": 130,
+     "Wrestle": 38
+    }
+   },
+   "Part_Body_BASE_ARMOR": {
+    "clips": 16,
+    "worst_pairs": 48,
+    "list": {
+     "Attack": 9,
+     "Captive": 8,
+     "Death": 3,
+     "Eat": 8,
+     "GroundWork": 40,
+     "Inspect": 9,
+     "Mourn": 48,
+     "Pickup": 28,
+     "PlayBoard": 14,
+     "PutDown": 28,
+     "Rest": 6,
+     "Sit": 16,
+     "Spin": 8,
+     "Swing": 36,
+     "Throw": 5,
+     "Walk": 4
+    }
+   },
+   "Part_Hair_LONG_ARMOR": {
+    "clips": 24,
+    "worst_pairs": 37,
+    "list": {
+     "BenchWork": 14,
+     "Captive": 18,
+     "Chop": 26,
+     "Death": 27,
+     "Downed": 10,
+     "Eat": 13,
+     "Grind": 14,
+     "Hammer": 28,
+     "Inspect": 29,
+     "Mine": 28,
+     "Mourn": 12,
+     "Operate": 21,
+     "PlayBoard": 16,
+     "PlayMusic": 12,
+     "Rest": 6,
+     "RockCradle": 37,
+     "Saw": 14,
+     "Spin": 10,
+     "Stamp": 17,
+     "StandIdle": 3,
+     "Stir": 10,
+     "Treat": 21,
+     "Wash": 14,
+     "WaterPlant": 16
+    }
+   }
+  },
+  "Armor_Backplate": {
+   "Part_Outfit_LINEN_ARMOR": {
+    "clips": 35,
+    "worst_pairs": 45,
+    "list": {
+     "Attack": 22,
+     "BenchWork": 18,
+     "Captive": 24,
+     "Carry": 20,
+     "Death": 42,
+     "Downed": 23,
+     "Eat": 16,
+     "Fly": 12,
+     "Grind": 14,
+     "GroundWork": 17,
+     "Hurt": 42,
+     "Idle": 44,
+     "Inspect": 42,
+     "Mourn": 42,
+     "Operate": 17,
+     "Pickup": 42,
+     "PlayBoard": 16,
+     "PlayMusic": 18,
+     "PutDown": 42,
+     "Rest": 32,
+     "Run": 43,
+     "Saw": 24,
+     "Sit": 32,
+     "Sleep": 32,
+     "Spin": 7,
+     "Stamp": 18,
+     "StandEnter": 45,
+     "StandExit": 43,
+     "StandIdle": 44,
+     "Stir": 16,
+     "Throw": 21,
+     "Treat": 16,
+     "Walk": 43,
+     "Wash": 16,
+     "WaterPlant": 21
+    }
+   },
+   "Part_Hair_LONG_ARMOR": {
+    "clips": 14,
+    "worst_pairs": 47,
+    "list": {
+     "Attack": 5,
+     "Bathe": 14,
+     "Chop": 5,
+     "Fly": 29,
+     "GroundWork": 12,
+     "Hurt": 47,
+     "Mine": 5,
+     "Pickup": 12,
+     "PutDown": 12,
+     "Run": 14,
+     "Sit": 4,
+     "Swing": 12,
+     "Walk": 4,
+     "Wrestle": 23
+    }
+   }
+  },
+  "Armor_Tasset_L": {
+   "Part_Outfit_LINEN_ARMOR": {
+    "clips": 44,
+    "worst_pairs": 97,
+    "list": {
+     "Attack": 22,
+     "Bathe": 3,
+     "BenchWork": 22,
+     "Captive": 61,
+     "Carry": 28,
+     "CarryPerson": 28,
+     "Chop": 17,
+     "Death": 22,
+     "Downed": 6,
+     "Eat": 66,
+     "Exercise": 22,
+     "Fly": 20,
+     "Grind": 20,
+     "GroundWork": 97,
+     "Hammer": 22,
+     "Hurt": 27,
+     "Idle": 22,
+     "Inspect": 22,
+     "Mine": 17,
+     "Mourn": 22,
+     "Operate": 22,
+     "Pickup": 68,
+     "PlayBoard": 83,
+     "PlayMusic": 22,
+     "PutDown": 76,
+     "Rest": 51,
+     "RockCradle": 22,
+     "Run": 25,
+     "Saw": 17,
+     "Sit": 59,
+     "Sleep": 11,
+     "Spin": 74,
+     "Stamp": 22,
+     "StandEnter": 22,
+     "StandExit": 22,
+     "StandIdle": 22,
+     "Stir": 22,
+     "Swing": 3,
+     "Throw": 22,
+     "Treat": 17,
+     "Walk": 28,
+     "Wash": 20,
+     "WaterPlant": 22,
+     "Wrestle": 2
+    }
+   },
+   "Part_Body_BASE_ARMOR": {
+    "clips": 16,
+    "worst_pairs": 151,
+    "list": {
+     "Attack": 54,
+     "Captive": 49,
+     "Death": 128,
+     "Eat": 52,
+     "GroundWork": 63,
+     "Hurt": 43,
+     "Mourn": 21,
+     "Pickup": 58,
+     "PlayBoard": 67,
+     "PutDown": 62,
+     "Rest": 75,
+     "Sit": 151,
+     "Spin": 46,
+     "StandExit": 8,
+     "Throw": 64,
+     "Walk": 52
+    }
+   },
+   "Part_Hair_LONG_ARMOR": {
+    "clips": 4,
+    "worst_pairs": 19,
+    "list": {
+     "GroundWork": 19,
+     "Pickup": 15,
+     "PutDown": 15,
+     "Swing": 16
+    }
+   }
+  },
+  "Armor_Tasset_R": {
+   "Part_Outfit_LINEN_ARMOR": {
+    "clips": 44,
+    "worst_pairs": 103,
+    "list": {
+     "Attack": 38,
+     "Bathe": 7,
+     "BenchWork": 18,
+     "Captive": 66,
+     "Carry": 36,
+     "CarryPerson": 32,
+     "Chop": 22,
+     "Death": 20,
+     "Downed": 8,
+     "Eat": 78,
+     "Exercise": 18,
+     "Fly": 26,
+     "Grind": 18,
+     "GroundWork": 103,
+     "Hammer": 18,
+     "Hurt": 23,
+     "Idle": 18,
+     "Inspect": 18,
+     "Mine": 22,
+     "Mourn": 18,
+     "Operate": 18,
+     "Pickup": 74,
+     "PlayBoard": 90,
+     "PlayMusic": 18,
+     "PutDown": 79,
+     "Rest": 56,
+     "RockCradle": 18,
+     "Run": 32,
+     "Saw": 22,
+     "Sit": 64,
+     "Sleep": 19,
+     "Spin": 77,
+     "Stamp": 18,
+     "StandEnter": 21,
+     "StandExit": 19,
+     "StandIdle": 18,
+     "Stir": 18,
+     "Swing": 9,
+     "Throw": 18,
+     "Treat": 18,
+     "Walk": 36,
+     "Wash": 18,
+     "WaterPlant": 18,
+     "Wrestle": 20
+    }
+   },
+   "Part_Body_BASE_ARMOR": {
+    "clips": 16,
+    "worst_pairs": 151,
+    "list": {
+     "Captive": 49,
+     "Death": 36,
+     "Eat": 74,
+     "GroundWork": 87,
+     "Hurt": 66,
+     "Inspect": 73,
+     "Mourn": 21,
+     "Pickup": 59,
+     "PlayBoard": 98,
+     "PutDown": 62,
+     "Rest": 79,
+     "Run": 64,
+     "Sit": 151,
+     "Spin": 99,
+     "StandEnter": 10,
+     "Walk": 52
+    }
+   },
+   "Part_Hair_LONG_ARMOR": {
+    "clips": 4,
+    "worst_pairs": 21,
+    "list": {
+     "GroundWork": 21,
+     "Pickup": 16,
+     "PutDown": 16,
+     "Swing": 13
+    }
+   }
+  },
+  "Armor_Bracer_L": {
+   "Part_Outfit_LINEN_ARMOR": {
+    "clips": 44,
+    "worst_pairs": 59,
+    "list": {
+     "Attack": 15,
+     "Bathe": 10,
+     "BenchWork": 10,
+     "Captive": 10,
+     "Carry": 10,
+     "CarryPerson": 10,
+     "Chop": 10,
+     "Death": 33,
+     "Downed": 10,
+     "Eat": 10,
+     "Exercise": 20,
+     "Fly": 10,
+     "Grind": 10,
+     "GroundWork": 25,
+     "Hammer": 10,
+     "Hurt": 31,
+     "Idle": 33,
+     "Inspect": 38,
+     "Mine": 10,
+     "Mourn": 34,
+     "Operate": 10,
+     "Pickup": 31,
+     "PlayBoard": 10,
+     "PlayMusic": 10,
+     "PutDown": 31,
+     "Rest": 10,
+     "RockCradle": 10,
+     "Run": 55,
+     "Saw": 10,
+     "Sit": 10,
+     "Sleep": 10,
+     "Spin": 10,
+     "Stamp": 10,
+     "StandEnter": 34,
+     "StandExit": 33,
+     "StandIdle": 33,
+     "Stir": 10,
+     "Swing": 10,
+     "Throw": 31,
+     "Treat": 10,
+     "Walk": 59,
+     "Wash": 10,
+     "WaterPlant": 39,
+     "Wrestle": 10
+    }
+   },
+   "Part_Body_BASE_ARMOR": {
+    "clips": 19,
+    "worst_pairs": 43,
+    "list": {
+     "Attack": 3,
+     "Captive": 6,
+     "Death": 20,
+     "GroundWork": 19,
+     "Hurt": 20,
+     "Idle": 20,
+     "Inspect": 24,
+     "Mourn": 24,
+     "Pickup": 25,
+     "PutDown": 25,
+     "Rest": 1,
+     "Run": 26,
+     "Sit": 10,
+     "StandEnter": 43,
+     "StandExit": 20,
+     "StandIdle": 20,
+     "Throw": 22,
+     "Walk": 29,
+     "WaterPlant": 22
+    }
+   },
+   "Part_Hair_LONG_ARMOR": {
+    "clips": 7,
+    "worst_pairs": 97,
+    "list": {
+     "Carry": 8,
+     "Chop": 55,
+     "Eat": 19,
+     "Exercise": 97,
+     "Mine": 58,
+     "Pickup": 13,
+     "PutDown": 13
+    }
+   },
+   "Part_Hair_BOB_00": {
+    "clips": 3,
+    "worst_pairs": 94,
+    "list": {
+     "Chop": 17,
+     "Exercise": 94,
+     "Mine": 21
+    }
+   },
+   "Part_Hair_BUNS_00": {
+    "clips": 3,
+    "worst_pairs": 94,
+    "list": {
+     "Chop": 17,
+     "Exercise": 94,
+     "Mine": 21
+    }
+   },
+   "Part_Hair_PONY_00": {
+    "clips": 3,
+    "worst_pairs": 94,
+    "list": {
+     "Chop": 17,
+     "Exercise": 94,
+     "Mine": 21
+    }
+   },
+   "Part_Hair_SIDE_00": {
+    "clips": 3,
+    "worst_pairs": 82,
+    "list": {
+     "Chop": 25,
+     "Exercise": 82,
+     "Mine": 30
+    }
+   },
+   "Part_Ears_DROOP_00": {
+    "clips": 1,
+    "worst_pairs": 63,
+    "list": {
+     "Exercise": 63
+    }
+   },
+   "Part_Ears_DROOP_01": {
+    "clips": 1,
+    "worst_pairs": 24,
+    "list": {
+     "Exercise": 24
+    }
+   },
+   "Part_Hair_SHORT_00": {
+    "clips": 1,
+    "worst_pairs": 8,
+    "list": {
+     "Exercise": 8
+    }
+   }
+  },
+  "Armor_Bracer_R": {
+   "Part_Outfit_LINEN_ARMOR": {
+    "clips": 44,
+    "worst_pairs": 60,
+    "list": {
+     "Attack": 10,
+     "Bathe": 10,
+     "BenchWork": 10,
+     "Captive": 10,
+     "Carry": 10,
+     "CarryPerson": 10,
+     "Chop": 10,
+     "Death": 34,
+     "Downed": 10,
+     "Eat": 32,
+     "Exercise": 20,
+     "Fly": 10,
+     "Grind": 10,
+     "GroundWork": 43,
+     "Hammer": 10,
+     "Hurt": 28,
+     "Idle": 30,
+     "Inspect": 32,
+     "Mine": 10,
+     "Mourn": 32,
+     "Operate": 10,
+     "Pickup": 31,
+     "PlayBoard": 31,
+     "PlayMusic": 10,
+     "PutDown": 31,
+     "Rest": 10,
+     "RockCradle": 10,
+     "Run": 30,
+     "Saw": 10,
+     "Sit": 10,
+     "Sleep": 33,
+     "Spin": 40,
+     "Stamp": 10,
+     "StandEnter": 29,
+     "StandExit": 31,
+     "StandIdle": 30,
+     "Stir": 10,
+     "Swing": 10,
+     "Throw": 20,
+     "Treat": 10,
+     "Walk": 60,
+     "Wash": 10,
+     "WaterPlant": 10,
+     "Wrestle": 10
+    }
+   },
+   "Part_Body_BASE_ARMOR": {
+    "clips": 18,
+    "worst_pairs": 29,
+    "list": {
+     "Captive": 6,
+     "Death": 24,
+     "GroundWork": 24,
+     "Hurt": 20,
+     "Idle": 20,
+     "Inspect": 26,
+     "Mourn": 24,
+     "Pickup": 25,
+     "PlayBoard": 5,
+     "PutDown": 25,
+     "Rest": 1,
+     "Run": 20,
+     "Sit": 9,
+     "Sleep": 26,
+     "StandEnter": 20,
+     "StandExit": 26,
+     "StandIdle": 20,
+     "Walk": 29
+    }
+   },
+   "Part_Hair_LONG_ARMOR": {
+    "clips": 6,
+    "worst_pairs": 124,
+    "list": {
+     "Chop": 121,
+     "Eat": 23,
+     "Exercise": 108,
+     "Mine": 124,
+     "Mourn": 4,
+     "Saw": 10
+    }
+   },
+   "Part_Hair_SIDE_00": {
+    "clips": 3,
+    "worst_pairs": 134,
+    "list": {
+     "Chop": 106,
+     "Exercise": 90,
+     "Mine": 134
+    }
+   },
+   "Part_Ears_DROOP_02": {
+    "clips": 3,
+    "worst_pairs": 68,
+    "list": {
+     "Chop": 68,
+     "Exercise": 62,
+     "Mine": 46
+    }
+   },
+   "Part_Ears_DROOP_03": {
+    "clips": 3,
+    "worst_pairs": 52,
+    "list": {
+     "Chop": 40,
+     "Exercise": 24,
+     "Mine": 52
+    }
+   },
+   "Part_Hair_BOB_00": {
+    "clips": 3,
+    "worst_pairs": 129,
+    "list": {
+     "Chop": 116,
+     "Exercise": 82,
+     "Mine": 129
+    }
+   },
+   "Part_Hair_BUNS_00": {
+    "clips": 3,
+    "worst_pairs": 129,
+    "list": {
+     "Chop": 116,
+     "Exercise": 82,
+     "Mine": 129
+    }
+   },
+   "Part_Hair_PONY_00": {
+    "clips": 3,
+    "worst_pairs": 129,
+    "list": {
+     "Chop": 116,
+     "Exercise": 82,
+     "Mine": 129
+    }
+   },
+   "Part_Hair_SHORT_00": {
+    "clips": 2,
+    "worst_pairs": 48,
+    "list": {
+     "Chop": 48,
+     "Mine": 12
+    }
+   }
+  },
+  "Armor_Backplate_Lower": {
+   "Part_Outfit_LINEN_ARMOR": {
+    "clips": 24,
+    "worst_pairs": 28,
+    "list": {
+     "Attack": 10,
+     "Captive": 18,
+     "Carry": 5,
+     "Death": 22,
+     "Downed": 13,
+     "Fly": 8,
+     "Hurt": 26,
+     "Idle": 20,
+     "Inspect": 22,
+     "Mourn": 24,
+     "Pickup": 24,
+     "PlayBoard": 8,
+     "PutDown": 20,
+     "Rest": 16,
+     "Run": 28,
+     "Saw": 12,
+     "Sit": 20,
+     "Sleep": 10,
+     "StandEnter": 27,
+     "StandExit": 26,
+     "StandIdle": 20,
+     "Throw": 10,
+     "Walk": 25,
+     "WaterPlant": 10
+    }
+   },
+   "Part_Hair_LONG_ARMOR": {
+    "clips": 1,
+    "worst_pairs": 10,
+    "list": {
+     "Hurt": 10
+    }
+   }
+  },
+  "Armor_Fauld": {
+   "Part_Body_BASE_ARMOR": {
+    "clips": 25,
+    "worst_pairs": 158,
+    "list": {
+     "Attack": 37,
+     "Bathe": 34,
+     "Captive": 64,
+     "Death": 71,
+     "Eat": 64,
+     "GroundWork": 129,
+     "Hurt": 117,
+     "Idle": 20,
+     "Inspect": 76,
+     "Mourn": 158,
+     "Pickup": 117,
+     "PlayBoard": 71,
+     "PutDown": 138,
+     "Rest": 64,
+     "Run": 54,
+     "Sit": 82,
+     "Sleep": 6,
+     "Spin": 64,
+     "StandEnter": 34,
+     "StandExit": 33,
+     "StandIdle": 20,
+     "Swing": 65,
+     "Throw": 44,
+     "Walk": 61,
+     "WaterPlant": 15
+    }
+   },
+   "Part_Outfit_LINEN_ARMOR": {
+    "clips": 28,
+    "worst_pairs": 48,
+    "list": {
+     "Attack": 20,
+     "Bathe": 10,
+     "Captive": 6,
+     "Death": 36,
+     "Downed": 14,
+     "Eat": 6,
+     "GroundWork": 48,
+     "Hurt": 32,
+     "Idle": 26,
+     "Inspect": 31,
+     "Mourn": 42,
+     "Operate": 6,
+     "Pickup": 46,
+     "PlayBoard": 22,
+     "PutDown": 44,
+     "Rest": 6,
+     "Run": 25,
+     "Sit": 38,
+     "Sleep": 15,
+     "Spin": 6,
+     "Stamp": 18,
+     "StandEnter": 31,
+     "StandExit": 28,
+     "StandIdle": 26,
+     "Swing": 29,
+     "Throw": 24,
+     "Walk": 20,
+     "WaterPlant": 12
+    }
+   }
+  },
+  "Belt": {
+   "Part_Body_BASE_ARMOR": {
+    "clips": 22,
+    "worst_pairs": 51,
+    "list": {
+     "Attack": 3,
+     "Captive": 36,
+     "Death": 29,
+     "Eat": 36,
+     "GroundWork": 51,
+     "Hurt": 20,
+     "Inspect": 19,
+     "Mourn": 42,
+     "Pickup": 46,
+     "PlayBoard": 36,
+     "PutDown": 46,
+     "Rest": 36,
+     "Run": 19,
+     "Sit": 36,
+     "Sleep": 2,
+     "Spin": 36,
+     "StandEnter": 12,
+     "StandExit": 15,
+     "Swing": 44,
+     "Throw": 6,
+     "Walk": 18,
+     "WaterPlant": 7
+    }
+   },
+   "Part_Outfit_LINEN_ARMOR": {
+    "clips": 21,
+    "worst_pairs": 36,
+    "list": {
+     "Attack": 15,
+     "Death": 28,
+     "Downed": 16,
+     "GroundWork": 34,
+     "Hurt": 24,
+     "Idle": 28,
+     "Inspect": 30,
+     "Mourn": 28,
+     "Pickup": 36,
+     "PlayBoard": 18,
+     "PutDown": 36,
+     "Run": 28,
+     "Sit": 36,
+     "Sleep": 14,
+     "Stamp": 16,
+     "StandEnter": 29,
+     "StandExit": 30,
+     "StandIdle": 28,
+     "Throw": 18,
+     "Walk": 32,
+     "WaterPlant": 16
+    }
+   }
+  },
+  "Carry_Shield": {
+   "Part_Body_BASE_00": {
+    "clips": 2,
+    "worst_pairs": 110,
+    "list": {
+     "Bathe": 110,
+     "Fly": 96
+    }
+   },
+   "Part_Body_BASE_ARMOR": {
+    "clips": 2,
+    "worst_pairs": 110,
+    "list": {
+     "Bathe": 110,
+     "Fly": 96
+    }
+   }
+  },
+  "Helm_CAT": {
+   "Part_Body_BASE_00": {
+    "clips": 3,
+    "worst_pairs": 193,
+    "list": {
+     "Chop": 73,
+     "Exercise": 193,
+     "Mine": 42
+    }
+   },
+   "Part_Body_BASE_ARMOR": {
+    "clips": 3,
+    "worst_pairs": 193,
+    "list": {
+     "Chop": 73,
+     "Exercise": 193,
+     "Mine": 42
+    }
+   },
+   "Part_Outfit_LINEN_00": {
+    "clips": 1,
+    "worst_pairs": 3,
+    "list": {
+     "Exercise": 3
+    }
+   },
+   "Part_Outfit_LINEN_ARMOR": {
+    "clips": 1,
+    "worst_pairs": 3,
+    "list": {
+     "Exercise": 3
+    }
+   }
+  },
+  "Helm_RABBIT": {
+   "Part_Body_BASE_00": {
+    "clips": 3,
+    "worst_pairs": 193,
+    "list": {
+     "Chop": 73,
+     "Exercise": 193,
+     "Mine": 42
+    }
+   },
+   "Part_Body_BASE_ARMOR": {
+    "clips": 3,
+    "worst_pairs": 193,
+    "list": {
+     "Chop": 73,
+     "Exercise": 193,
+     "Mine": 42
+    }
+   },
+   "Part_Outfit_LINEN_00": {
+    "clips": 1,
+    "worst_pairs": 3,
+    "list": {
+     "Exercise": 3
+    }
+   },
+   "Part_Outfit_LINEN_ARMOR": {
+    "clips": 1,
+    "worst_pairs": 3,
+    "list": {
+     "Exercise": 3
+    }
+   },
+   "Part_Ears_RABBIT_00": {
+    "clips": 1,
+    "worst_pairs": 5,
+    "list": {
+     "Mourn": 5
+    }
+   }
+  },
+  "Helm_ROUND": {
+   "Part_Body_BASE_00": {
+    "clips": 3,
+    "worst_pairs": 193,
+    "list": {
+     "Chop": 73,
+     "Exercise": 193,
+     "Mine": 42
+    }
+   },
+   "Part_Body_BASE_ARMOR": {
+    "clips": 3,
+    "worst_pairs": 193,
+    "list": {
+     "Chop": 73,
+     "Exercise": 193,
+     "Mine": 42
+    }
+   },
+   "Part_Outfit_LINEN_00": {
+    "clips": 1,
+    "worst_pairs": 3,
+    "list": {
+     "Exercise": 3
+    }
+   },
+   "Part_Outfit_LINEN_ARMOR": {
+    "clips": 1,
+    "worst_pairs": 3,
+    "list": {
+     "Exercise": 3
+    }
+   }
+  },
+  "Helm_UPRIGHT": {
+   "Part_Body_BASE_00": {
+    "clips": 3,
+    "worst_pairs": 193,
+    "list": {
+     "Chop": 73,
+     "Exercise": 193,
+     "Mine": 42
+    }
+   },
+   "Part_Body_BASE_ARMOR": {
+    "clips": 3,
+    "worst_pairs": 193,
+    "list": {
+     "Chop": 73,
+     "Exercise": 193,
+     "Mine": 42
+    }
+   },
+   "Part_Outfit_LINEN_00": {
+    "clips": 1,
+    "worst_pairs": 3,
+    "list": {
+     "Exercise": 3
+    }
+   },
+   "Part_Outfit_LINEN_ARMOR": {
+    "clips": 1,
+    "worst_pairs": 3,
+    "list": {
+     "Exercise": 3
+    }
+   },
+   "Part_Ears_UPRIGHT_01": {
+    "clips": 2,
+    "worst_pairs": 26,
+    "list": {
+     "Fly": 8,
+     "Mourn": 26
+    }
+   },
+   "Part_Ears_UPRIGHT_03": {
+    "clips": 2,
+    "worst_pairs": 28,
+    "list": {
+     "Fly": 25,
+     "Mourn": 28
+    }
+   }
+  },
+  "HelmTrim_Bronze": {
+   "Part_Body_BASE_00": {
+    "clips": 2,
+    "worst_pairs": 74,
+    "list": {
+     "Chop": 74,
+     "Exercise": 12
+    }
+   },
+   "Part_Body_BASE_ARMOR": {
+    "clips": 2,
+    "worst_pairs": 74,
+    "list": {
+     "Chop": 74,
+     "Exercise": 12
+    }
+   }
+  },
+  "HelmTrim_Iron": {
+   "Part_Body_BASE_00": {
+    "clips": 2,
+    "worst_pairs": 74,
+    "list": {
+     "Chop": 74,
+     "Exercise": 12
+    }
+   },
+   "Part_Body_BASE_ARMOR": {
+    "clips": 2,
+    "worst_pairs": 74,
+    "list": {
+     "Chop": 74,
+     "Exercise": 12
+    }
+   }
+  },
+  "HelmTrim_Steel": {
+   "Part_Body_BASE_00": {
+    "clips": 2,
+    "worst_pairs": 74,
+    "list": {
+     "Chop": 74,
+     "Exercise": 12
+    }
+   },
+   "Part_Body_BASE_ARMOR": {
+    "clips": 2,
+    "worst_pairs": 74,
+    "list": {
+     "Chop": 74,
+     "Exercise": 12
+    }
+   }
+  },
+  "HelmTrim_Titanium": {
+   "Part_Body_BASE_00": {
+    "clips": 2,
+    "worst_pairs": 74,
+    "list": {
+     "Chop": 74,
+     "Exercise": 12
+    }
+   },
+   "Part_Body_BASE_ARMOR": {
+    "clips": 2,
+    "worst_pairs": 74,
+    "list": {
+     "Chop": 74,
+     "Exercise": 12
+    }
+   }
+  },
+  "HelmTrim_Starlight": {
+   "Part_Body_BASE_00": {
+    "clips": 2,
+    "worst_pairs": 93,
+    "list": {
+     "Chop": 93,
+     "Exercise": 12
+    }
+   },
+   "Part_Body_BASE_ARMOR": {
+    "clips": 2,
+    "worst_pairs": 93,
+    "list": {
+     "Chop": 93,
+     "Exercise": 12
+    }
+   }
+  },
+  "Holder_Sword": {
+   "Part_Body_BASE_ARMOR": {
+    "clips": 6,
+    "worst_pairs": 33,
+    "list": {
+     "Death": 22,
+     "Inspect": 16,
+     "Run": 33,
+     "Sleep": 13,
+     "StandExit": 14,
+     "Walk": 24
+    }
+   },
+   "Part_Outfit_LINEN_ARMOR": {
+    "clips": 4,
+    "worst_pairs": 22,
+    "list": {
+     "Inspect": 15,
+     "Sleep": 22,
+     "StandExit": 12,
+     "Walk": 4
+    }
+   }
+  },
+  "Holder_Shield": {
+   "Part_Body_BASE_ARMOR": {
+    "clips": 4,
+    "worst_pairs": 71,
+    "list": {
+     "Fly": 71,
+     "Run": 14,
+     "StandEnter": 13,
+     "Walk": 6
+    }
+   },
+   "Part_Outfit_LINEN_ARMOR": {
+    "clips": 3,
+    "worst_pairs": 12,
+    "list": {
+     "Run": 2,
+     "StandEnter": 9,
+     "Walk": 12
+    }
+   }
+  },
+  "Holder_Spear": {
+   "Part_Body_BASE_ARMOR": {
+    "clips": 1,
+    "worst_pairs": 6,
+    "list": {
+     "Fly": 6
+    }
+   },
+   "Part_Outfit_LINEN_ARMOR": {
+    "clips": 1,
+    "worst_pairs": 20,
+    "list": {
+     "Fly": 20
+    }
+   }
+  },
+  "Armor_Greave_L": {
+   "Part_Body_BASE_ARMOR": {
+    "clips": 3,
+    "worst_pairs": 20,
+    "list": {
+     "GroundWork": 19,
+     "Pickup": 19,
+     "PutDown": 20
+    }
+   }
+  },
+  "Armor_Greave_R": {
+   "Part_Body_BASE_ARMOR": {
+    "clips": 3,
+    "worst_pairs": 20,
+    "list": {
+     "GroundWork": 19,
+     "Pickup": 19,
+     "PutDown": 20
+    }
+   }
+  },
+  "Carry_Sword": {
+   "Part_Body_BASE_00": {
+    "clips": 1,
+    "worst_pairs": 44,
+    "list": {
+     "Run": 44
+    }
+   },
+   "Part_Body_BASE_ARMOR": {
+    "clips": 1,
+    "worst_pairs": 44,
+    "list": {
+     "Run": 44
+    }
+   },
+   "Part_Outfit_LINEN_00": {
+    "clips": 1,
+    "worst_pairs": 24,
+    "list": {
+     "Run": 24
+    }
+   },
+   "Part_Outfit_LINEN_ARMOR": {
+    "clips": 1,
+    "worst_pairs": 24,
+    "list": {
+     "Run": 24
+    }
+   }
+  }
+ }
+}

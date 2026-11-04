@@ -1,0 +1,78 @@
+"""Load the current kemono character (copy, originals untouched) + shared actions, add carry sockets.
+
+Extra sockets are non-deforming bones appended to the existing 58-bone rig, so existing clips still play:
+  Socket.Hip.R  – sword frog behind the right hip (left side is taken by the LONG tail) (parent pevis)
+  Socket.Back   – spear / shield holder between the shoulder blades (parent spine_02)
+  Socket.Helm   – helmet anchor = Socket.Hat (kept as alias, parent head)
+"""
+import bpy
+from pathlib import Path
+from mathutils import Vector
+
+KEMONO = Path('E:/Git/ant/art/kemono-kit')
+EXTRA_SOCKETS = {
+    'Socket.Hip.R': ((-.135, .10, .47), (-.135, .10, .57), 'pevis'),
+    'Socket.Back': ((0, .118, .60), (0, .118, .70), 'spine_02'),
+}
+
+
+def load_character(scene):
+    with bpy.data.libraries.load(str(KEMONO / 'kemono-character-kit.blend'), link=False) as (a, b):
+        b.collections = list(a.collections); b.objects = [n for n in a.objects if n == 'KemonoRig']
+    for c in b.collections:
+        if c.name not in scene.collection.children and not any(c.name in p.children for p in b.collections if p != c):
+            scene.collection.children.link(c)
+    rig = bpy.data.objects['KemonoRig']
+    if rig.name not in scene.collection.objects and not rig.users_collection: scene.collection.objects.link(rig)
+    # The kit file is saved with the armature in REST position: actions would key bones but nothing would move.
+    rig.data.pose_position = 'POSE'
+    return rig
+
+
+def load_actions():
+    with bpy.data.libraries.load(str(KEMONO / 'kemono-animations.blend'), link=False) as (a, b):
+        b.actions = [n for n in a.actions if n.startswith('Kemono|')]
+    acts = {}
+    for act in b.actions:
+        act.use_fake_user = True; acts[act.name.split('|', 1)[1].split('.')[0]] = act
+    return acts
+
+
+def add_sockets(rig):
+    vl = bpy.context.view_layer
+    for o in vl.objects: o.select_set(False)
+    vl.objects.active = rig; rig.select_set(True)
+    bpy.ops.object.mode_set(mode='EDIT')
+    eb = rig.data.edit_bones
+    for n, (h, t, parent) in EXTRA_SOCKETS.items():
+        b = eb.get(n) or eb.new(n); b.head, b.tail = h, t; b.parent = eb[parent]; b.use_deform = False
+    bpy.ops.object.mode_set(mode='OBJECT')
+    rig.select_set(False)
+
+
+def parts(prefix=''):
+    return [o for o in bpy.data.objects if o.type == 'MESH' and o.name.startswith('Part_' + prefix)]
+
+
+def show_only(rig, keep):
+    """Visibility for a combination: keep = set of Part_ object names (plus equipment shown by caller)."""
+    for o in parts():
+        on = o.name in keep
+        o.hide_viewport = o.hide_render = not on
+        o.hide_set(not on) if o.name in bpy.context.view_layer.objects else None
+
+
+def combo(hair='BOB', ears='RABBIT', tail='BOB', face='NEUTRAL', outfit='LINEN'):
+    names = set()
+    for o in parts():
+        n = o.name
+        if n.startswith('Part_Body_') or n.startswith(f'Part_Outfit_{outfit}') or n.startswith(f'Part_Hair_{hair}_') \
+                or n.startswith(f'Part_Ears_{ears}_') or n.startswith(f'Part_Tail_{tail}_') or n == f'Part_Face_{face}_00' \
+                or n.startswith(f'Part_Face_{face}_'):
+            names.add(n)
+    return names
+
+
+def evaluated_verts(o):
+    dg = bpy.context.evaluated_depsgraph_get(); ev = o.evaluated_get(dg); me = ev.to_mesh()
+    vs = [ev.matrix_world @ v.co for v in me.vertices]; ev.to_mesh_clear(); return vs

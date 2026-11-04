@@ -1,0 +1,15 @@
+=== build_equipment.py
+EQUIP OK [0.05, 0.331] 12 66
+=== fit_check.py -- search
+FIT 678 frames {'Armor_Breastplate': 6, 'Armor_Breastplate_Lower': 3, 'Armor_Backplate': 2, 'Armor_Tasset_L': 3, 'Armor_Tasset_R': 3, 'Armor_Bracer_L': 10, 'Armor_Bracer_R': 10, 'Armor_Backplate_Lower': 2, 'Armor_Fauld': 2, 'Belt': 2, 'Carry_Shield': 2, 'Helm_CAT': 4, 'Helm_RABBIT': 5, 'Helm_ROUND': 4, 'Helm_UPRIGHT': 6, 'HelmTrim_Bronze': 2, 'HelmTrim_Iron': 2, 'HelmTrim_Steel': 2, 'HelmTrim_Titanium': 2, 'HelmTrim_Starlight': 2, 'Armor_Greave_L': 1, 'Armor_Greave_R': 1, 'Carry_Sword': 4}
+=== build_holders.py
+HOLDERS ['Holder_Sword', 'Holder_Shield', 'Holder_Spear']
+=== fit_check.py
+FIT 678 frames {'Armor_Breastplate': 6, 'Armor_Breastplate_Lower': 3, 'Armor_Backplate': 2, 'Armor_Tasset_L': 3, 'Armor_Tasset_R': 3, 'Armor_Bracer_L': 10, 'Armor_Bracer_R': 10, 'Armor_Backplate_Lower': 2, 'Armor_Fauld': 2, 'Belt': 2, 'Carry_Shield': 2, 'Helm_CAT': 4, 'Helm_RABBIT': 5, 'Helm_ROUND': 4, 'Helm_UPRIGHT': 6, 'HelmTrim_Bronze': 2, 'HelmTrim_Iron': 2, 'HelmTrim_Steel': 2, 'HelmTrim_Titanium': 2, 'HelmTrim_Starlight': 2, 'Holder_Sword': 2, 'Holder_Shield': 2, 'Holder_Spear': 2, 'Armor_Greave_L': 1, 'Armor_Greave_R': 1, 'Carry_Sword': 4}
+=== build_handheld.py
+HANDHELD 66
+=== build_motions.py
+MOTIONS 38
+=== fit_check.py -- motions
+FIT 1122 frames {'Armor_Breastplate': 7, 'Armor_Breastplate_Lower': 3, 'Armor_Backplate': 3, 'Armor_Tasset_L': 3, 'Armor_Tasset_R': 3, 'Armor_Bracer_L': 11, 'Armor_Bracer_R': 10, 'Armor_Backplate_Lower': 3, 'Armor_Fauld': 2, 'Belt': 2, 'Carry_Shield': 2, 'HelmTrim_Bronze': 2, 'HelmTrim_Iron': 2, 'HelmTrim_Steel': 2, 'HelmTrim_Titanium': 2, 'HelmTrim_Starlight': 2, 'Holder_Sword': 2, 'Holder_Spear': 2, 'Carry_Sword': 4, 'Helm_CAT': 4, 'Helm_RABBIT': 5, 'Helm_ROUND': 4, 'Helm_UPRIGHT': 6, 'Holder_Shield': 2, 'Armor_Greave_L': 1, 'Armor_Greave_R': 1}
+DONE

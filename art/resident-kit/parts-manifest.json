@@ -1,0 +1,621 @@
+{
+  "parts": {
+    "Part_Body_01": {
+      "category": "Body",
+      "source": "Resident_01",
+      "bind": "Body/Hand/Foot",
+      "verts": 12970
+    },
+    "Part_Tail_01": {
+      "category": "Tail",
+      "source": "Resident_01",
+      "bind": "Tail",
+      "verts": 114
+    },
+    "Part_Ears_01": {
+      "category": "Ears",
+      "source": "Resident_01",
+      "bind": "side:Ear",
+      "verts": 160
+    },
+    "Part_TopCrown_01": {
+      "category": "TopCrown",
+      "source": "Resident_01",
+      "bind": "Head",
+      "verts": 144
+    },
+    "Part_TopCheek_01": {
+      "category": "TopCheek",
+      "source": "Resident_01",
+      "bind": "Head",
+      "verts": 288
+    },
+    "Part_TopFlower_01": {
+      "category": "TopFlower",
+      "source": "Resident_01",
+      "bind": "Head",
+      "verts": 684
+    },
+    "Part_Mark_01": {
+      "category": "Mark",
+      "source": "Resident_01",
+      "bind": "surface",
+      "verts": 641
+    },
+    "Part_Face_01": {
+      "category": "Face",
+      "source": "Resident_01",
+      "bind": "surface",
+      "verts": 348
+    },
+    "Part_OutfitBag_01": {
+      "category": "OutfitBag",
+      "source": "Resident_01",
+      "bind": "surface",
+      "verts": 292
+    },
+    "Part_OutfitCape_01": {
+      "category": "OutfitCape",
+      "source": "Resident_01",
+      "bind": "surface",
+      "verts": 99
+    },
+    "Part_OutfitCollar_01": {
+      "category": "OutfitCollar",
+      "source": "Resident_01",
+      "bind": "surface",
+      "verts": 60
+    },
+    "Part_Ears_02": {
+      "category": "Ears",
+      "source": "Resident_02",
+      "bind": "side:Ear",
+      "verts": 1256
+    },
+    "Part_Mark_02": {
+      "category": "Mark",
+      "source": "Resident_02",
+      "bind": "surface",
+      "verts": 641
+    },
+    "Part_OutfitCape_02": {
+      "category": "OutfitCape",
+      "source": "Resident_02",
+      "bind": "surface",
+      "verts": 99
+    },
+    "Part_OutfitCollar_02": {
+      "category": "OutfitCollar",
+      "source": "Resident_02",
+      "bind": "surface",
+      "verts": 60
+    },
+    "Part_Ears_03": {
+      "category": "Ears",
+      "source": "Resident_03",
+      "bind": "side:Ear",
+      "verts": 160
+    },
+    "Part_OutfitCape_03": {
+      "category": "OutfitCape",
+      "source": "Resident_03",
+      "bind": "surface",
+      "verts": 99
+    },
+    "Part_OutfitCollar_03": {
+      "category": "OutfitCollar",
+      "source": "Resident_03",
+      "bind": "surface",
+      "verts": 60
+    },
+    "Part_Ears_04": {
+      "category": "Ears",
+      "source": "Resident_04",
+      "bind": "side:Ear",
+      "verts": 628
+    },
+    "Part_Mark_03": {
+      "category": "Mark",
+      "source": "Resident_04",
+      "bind": "surface",
+      "verts": 641
+    },
+    "Part_Face_02": {
+      "category": "Face",
+      "source": "Resident_04",
+      "bind": "surface",
+      "verts": 438
+    },
+    "Part_TopLeaf_01": {
+      "category": "TopLeaf",
+      "source": "Resident_05",
+      "bind": "Head",
+      "verts": 96
+    },
+    "Part_TopFlower_02": {
+      "category": "TopFlower",
+      "source": "Resident_06",
+      "bind": "Head",
+      "verts": 684
+    },
+    "Part_Ears_05": {
+      "category": "Ears",
+      "source": "Resident_07",
+      "bind": "side:Ear",
+      "verts": 628
+    },
+    "Part_Face_03": {
+      "category": "Face",
+      "source": "Resident_07",
+      "bind": "surface",
+      "verts": 380
+    },
+    "Part_OutfitCollar_04": {
+      "category": "OutfitCollar",
+      "source": "Resident_07",
+      "bind": "surface",
+      "verts": 60
+    },
+    "Part_Mark_04": {
+      "category": "Mark",
+      "source": "Resident_08",
+      "bind": "surface",
+      "verts": 641
+    },
+    "Part_Face_04": {
+      "category": "Face",
+      "source": "Resident_08",
+      "bind": "surface",
+      "verts": 380
+    },
+    "Part_OutfitCollar_05": {
+      "category": "OutfitCollar",
+      "source": "Resident_08",
+      "bind": "surface",
+      "verts": 60
+    },
+    "Part_Mark_05": {
+      "category": "Mark",
+      "source": "Resident_09",
+      "bind": "surface",
+      "verts": 641
+    },
+    "Part_OutfitCollar_06": {
+      "category": "OutfitCollar",
+      "source": "Resident_09",
+      "bind": "surface",
+      "verts": 60
+    },
+    "Part_Mark_06": {
+      "category": "Mark",
+      "source": "Resident_10",
+      "bind": "surface",
+      "verts": 641
+    },
+    "Part_TopLeaf_02": {
+      "category": "TopLeaf",
+      "source": "Resident_13",
+      "bind": "Head",
+      "verts": 160
+    },
+    "Part_TopFlower_03": {
+      "category": "TopFlower",
+      "source": "Resident_15",
+      "bind": "Head",
+      "verts": 684
+    },
+    "Part_Glasses_01": {
+      "category": "Glasses",
+      "source": "Resident_16",
+      "bind": "Head",
+      "verts": 784
+    },
+    "Part_Face_05": {
+      "category": "Face",
+      "source": "Resident_19",
+      "bind": "surface",
+      "verts": 533
+    },
+    "Part_TopFlower_04": {
+      "category": "TopFlower",
+      "source": "Resident_22",
+      "bind": "Head",
+      "verts": 684
+    },
+    "Part_Face_06": {
+      "category": "Face",
+      "source": "Resident_22",
+      "bind": "surface",
+      "verts": 628
+    },
+    "Part_TopLeaf_03": {
+      "category": "TopLeaf",
+      "source": "Resident_23",
+      "bind": "Head",
+      "verts": 64
+    },
+    "Part_Mark_07": {
+      "category": "Mark",
+      "source": "Resident_23",
+      "bind": "surface",
+      "verts": 641
+    },
+    "Part_Expr_SURPRISE": {
+      "category": "Expr",
+      "source": "appearance-parts.blend:EXPR-SURPRISE",
+      "bind": "surface",
+      "verts": 219
+    },
+    "Part_Expr_ANGRY": {
+      "category": "Expr",
+      "source": "appearance-parts.blend:EXPR-ANGRY",
+      "bind": "surface",
+      "verts": 582
+    },
+    "Part_Expr_PAIN": {
+      "category": "Expr",
+      "source": "appearance-parts.blend:EXPR-PAIN",
+      "bind": "surface",
+      "verts": 193
+    },
+    "Part_Expr_SLEEPY": {
+      "category": "Expr",
+      "source": "appearance-parts.blend:EXPR-SLEEPY",
+      "bind": "surface",
+      "verts": 259
+    },
+    "Part_Expr_SLEEP": {
+      "category": "Expr",
+      "source": "appearance-parts.blend:EXPR-SLEEP",
+      "bind": "surface",
+      "verts": 750
+    },
+    "Part_Expr_SAD": {
+      "category": "Expr",
+      "source": "appearance-parts.blend:EXPR-SAD",
+      "bind": "surface",
+      "verts": 436
+    },
+    "Part_Expr_PROUD": {
+      "category": "Expr",
+      "source": "appearance-parts.blend:EXPR-PROUD",
+      "bind": "surface",
+      "verts": 1250
+    },
+    "Part_Expr_CURIOUS": {
+      "category": "Expr",
+      "source": "appearance-parts.blend:EXPR-CURIOUS",
+      "bind": "surface",
+      "verts": 259
+    },
+    "Part_Expr_FLUSTERED": {
+      "category": "Expr",
+      "source": "appearance-parts.blend:EXPR-FLUSTERED",
+      "bind": "surface",
+      "verts": 312
+    },
+    "Part_Expr_TASTY": {
+      "category": "Expr",
+      "source": "appearance-parts.blend:EXPR-TASTY",
+      "bind": "surface",
+      "verts": 823
+    },
+    "Part_Expr_EMPTY": {
+      "category": "Expr",
+      "source": "appearance-parts.blend:EXPR-EMPTY",
+      "bind": "surface",
+      "verts": 206
+    },
+    "Part_Overlay_SWEAT": {
+      "category": "Overlay",
+      "source": "appearance-parts.blend:OVERLAY-SWEAT",
+      "bind": "surface",
+      "verts": 146
+    },
+    "Part_Overlay_TEARS": {
+      "category": "Overlay",
+      "source": "appearance-parts.blend:OVERLAY-TEARS",
+      "bind": "surface",
+      "verts": 292
+    },
+    "Part_Overlay_BLUSH": {
+      "category": "Overlay",
+      "source": "appearance-parts.blend:OVERLAY-BLUSH",
+      "bind": "surface",
+      "verts": 266
+    },
+    "Part_Hair_01_SIDE_PART": {
+      "category": "Hair",
+      "source": "appearance-parts.blend:HAIR-01 SIDE PART",
+      "bind": "Head",
+      "verts": 192
+    },
+    "Part_Hair_02_ROUND_FRINGE": {
+      "category": "Hair",
+      "source": "appearance-parts.blend:HAIR-02 ROUND FRINGE",
+      "bind": "Head",
+      "verts": 192
+    },
+    "Part_Hair_03_CURL": {
+      "category": "Hair",
+      "source": "appearance-parts.blend:HAIR-03 CURL",
+      "bind": "Head",
+      "verts": 80
+    },
+    "Part_Hair_04_DOUBLE_TUFT": {
+      "category": "Hair",
+      "source": "appearance-parts.blend:HAIR-04 DOUBLE TUFT",
+      "bind": "Head",
+      "verts": 96
+    },
+    "Part_Hair_05_LEAF_SHOOTS": {
+      "category": "Hair",
+      "source": "appearance-parts.blend:HAIR-05 LEAF SHOOTS",
+      "bind": "Head",
+      "verts": 96
+    },
+    "Part_Hair_06_SOFT_CREST": {
+      "category": "Hair",
+      "source": "appearance-parts.blend:HAIR-06 SOFT CREST",
+      "bind": "Head",
+      "verts": 192
+    },
+    "Part_Injury_SCAR_FOREHEAD": {
+      "category": "Injury",
+      "source": "appearance-parts.blend:SCAR-FOREHEAD",
+      "bind": "surface",
+      "verts": 60
+    },
+    "Part_Injury_SCAR_CHEEK": {
+      "category": "Injury",
+      "source": "appearance-parts.blend:SCAR-CHEEK",
+      "bind": "surface",
+      "verts": 60
+    },
+    "Part_Injury_SCAR_TORSO": {
+      "category": "Injury",
+      "source": "appearance-parts.blend:SCAR-TORSO",
+      "bind": "surface",
+      "verts": 60
+    },
+    "Part_Injury_SCAR_ARM_L": {
+      "category": "Injury",
+      "source": "appearance-parts.blend:SCAR-ARM-L",
+      "bind": "Hand.L",
+      "verts": 60
+    },
+    "Part_Injury_SCAR_ARM_R": {
+      "category": "Injury",
+      "source": "appearance-parts.blend:SCAR-ARM-R",
+      "bind": "Hand.R",
+      "verts": 60
+    },
+    "Part_Injury_SCAR_LEG": {
+      "category": "Injury",
+      "source": "appearance-parts.blend:SCAR-LEG",
+      "bind": "side:Foot",
+      "verts": 60
+    },
+    "Part_Injury_SCRATCH_FOREHEAD": {
+      "category": "Injury",
+      "source": "appearance-parts.blend:SCRATCH-FOREHEAD",
+      "bind": "surface",
+      "verts": 60
+    },
+    "Part_Injury_SCRATCH_CHEEK": {
+      "category": "Injury",
+      "source": "appearance-parts.blend:SCRATCH-CHEEK",
+      "bind": "surface",
+      "verts": 60
+    },
+    "Part_Injury_SCRATCH_TORSO": {
+      "category": "Injury",
+      "source": "appearance-parts.blend:SCRATCH-TORSO",
+      "bind": "surface",
+      "verts": 60
+    },
+    "Part_Injury_SCRATCH_ARM_L": {
+      "category": "Injury",
+      "source": "appearance-parts.blend:SCRATCH-ARM-L",
+      "bind": "Hand.L",
+      "verts": 60
+    },
+    "Part_Injury_SCRATCH_ARM_R": {
+      "category": "Injury",
+      "source": "appearance-parts.blend:SCRATCH-ARM-R",
+      "bind": "Hand.R",
+      "verts": 60
+    },
+    "Part_Injury_SCRATCH_LEG": {
+      "category": "Injury",
+      "source": "appearance-parts.blend:SCRATCH-LEG",
+      "bind": "side:Foot",
+      "verts": 60
+    },
+    "Part_Injury_BRUISE_FOREHEAD": {
+      "category": "Injury",
+      "source": "appearance-parts.blend:BRUISE-FOREHEAD",
+      "bind": "surface",
+      "verts": 241
+    },
+    "Part_Injury_BRUISE_CHEEK": {
+      "category": "Injury",
+      "source": "appearance-parts.blend:BRUISE-CHEEK",
+      "bind": "surface",
+      "verts": 241
+    },
+    "Part_Injury_BRUISE_TORSO": {
+      "category": "Injury",
+      "source": "appearance-parts.blend:BRUISE-TORSO",
+      "bind": "surface",
+      "verts": 241
+    },
+    "Part_Injury_BRUISE_ARM_L": {
+      "category": "Injury",
+      "source": "appearance-parts.blend:BRUISE-ARM-L",
+      "bind": "Hand.L",
+      "verts": 241
+    },
+    "Part_Injury_BRUISE_ARM_R": {
+      "category": "Injury",
+      "source": "appearance-parts.blend:BRUISE-ARM-R",
+      "bind": "Hand.R",
+      "verts": 241
+    },
+    "Part_Injury_BRUISE_LEG": {
+      "category": "Injury",
+      "source": "appearance-parts.blend:BRUISE-LEG",
+      "bind": "side:Foot",
+      "verts": 241
+    },
+    "Part_Injury_BANDAGE_FOREHEAD": {
+      "category": "Injury",
+      "source": "appearance-parts.blend:BANDAGE-FOREHEAD",
+      "bind": "surface",
+      "verts": 482
+    },
+    "Part_Injury_BANDAGE_CHEEK": {
+      "category": "Injury",
+      "source": "appearance-parts.blend:BANDAGE-CHEEK",
+      "bind": "surface",
+      "verts": 482
+    },
+    "Part_Injury_BANDAGE_TORSO": {
+      "category": "Injury",
+      "source": "appearance-parts.blend:BANDAGE-TORSO",
+      "bind": "surface",
+      "verts": 482
+    },
+    "Part_Injury_BANDAGE_ARM_L": {
+      "category": "Injury",
+      "source": "appearance-parts.blend:BANDAGE-ARM-L",
+      "bind": "Hand.L",
+      "verts": 482
+    },
+    "Part_Injury_BANDAGE_ARM_R": {
+      "category": "Injury",
+      "source": "appearance-parts.blend:BANDAGE-ARM-R",
+      "bind": "Hand.R",
+      "verts": 482
+    },
+    "Part_Injury_BANDAGE_LEG": {
+      "category": "Injury",
+      "source": "appearance-parts.blend:BANDAGE-LEG",
+      "bind": "side:Foot",
+      "verts": 482
+    },
+    "Part_Equip_Armor": {
+      "category": "Equip",
+      "source": "kit_equipment.py",
+      "bind": "surface",
+      "verts": 476
+    },
+    "Part_Equip_FlightGear": {
+      "category": "Equip",
+      "source": "kit_equipment.py",
+      "bind": "Body",
+      "verts": 428
+    },
+    "Part_Trinket_Anklet": {
+      "category": "Trinket",
+      "source": "kit_equipment.py",
+      "bind": "Foot.R",
+      "verts": 120
+    },
+    "Part_Trinket_SensorGoggles": {
+      "category": "Trinket",
+      "source": "kit_equipment.py",
+      "bind": "Head",
+      "verts": 268
+    },
+    "Part_Trinket_ScentPouch": {
+      "category": "Trinket",
+      "source": "kit_equipment.py",
+      "bind": "surface",
+      "verts": 152
+    },
+    "Part_Trinket_Insignia": {
+      "category": "Trinket",
+      "source": "kit_equipment.py",
+      "bind": "surface",
+      "verts": 134
+    },
+    "Part_Expr_TEARY": {
+      "category": "Expr",
+      "source": "appearance-parts.blend:EXPR-05 TEARY",
+      "bind": "surface",
+      "verts": 986
+    },
+    "Part_Expr_SOBBING": {
+      "category": "Expr",
+      "source": "appearance-parts.blend:EXPR-06 SOBBING",
+      "bind": "surface",
+      "verts": 562
+    },
+    "Part_Expr_NERVOUS": {
+      "category": "Expr",
+      "source": "appearance-parts.blend:EXPR-07 NERVOUS",
+      "bind": "surface",
+      "verts": 548
+    },
+    "Part_Expr_DEAD": {
+      "category": "Expr",
+      "source": "appearance-parts.blend:EXPR-08 DEAD",
+      "bind": "surface",
+      "verts": 153
+    }
+  },
+  "fur_materials": [
+    "Fur_01",
+    "Fur_02",
+    "Fur_03",
+    "Fur_04",
+    "Fur_05",
+    "Fur_06",
+    "Fur_07",
+    "Fur_08",
+    "Fur_09",
+    "Fur_10",
+    "Fur_11",
+    "Fur_12",
+    "Fur_13",
+    "Fur_14",
+    "Fur_15",
+    "Fur_16",
+    "Fur_17",
+    "Fur_18",
+    "Fur_19",
+    "Fur_20",
+    "Fur_21",
+    "Fur_22",
+    "Fur_23",
+    "Fur_24"
+  ],
+  "props_excluded": [
+    "Staff",
+    "SpearTip",
+    "RoundShield",
+    "ShieldRim",
+    "ShieldStripe",
+    "Book",
+    "Basket",
+    "Berry",
+    "WateringCan",
+    "Handle",
+    "Spout",
+    "FoldedCloth"
+  ],
+  "inner_materials": [
+    "Inner_02",
+    "Inner_04",
+    "Inner_07",
+    "Inner_08",
+    "Inner_11",
+    "Inner_12",
+    "Inner_15",
+    "Inner_16",
+    "Inner_20",
+    "Inner_22",
+    "Inner_24"
+  ]
+}

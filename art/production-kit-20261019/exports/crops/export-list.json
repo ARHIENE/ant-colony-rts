@@ -1,0 +1,4020 @@
+{
+ "Crop_Crop_Basil.fbx": {
+  "objects": {
+   "Crop_Crop_Basil__S1": {
+    "type": "MESH",
+    "dims": [
+     0.0249,
+     0.0253,
+     0.0127
+    ],
+    "mats": 2
+   },
+   "Crop_Crop_Basil__S2": {
+    "type": "MESH",
+    "dims": [
+     0.0543,
+     0.0539,
+     0.0271
+    ],
+    "mats": 2
+   },
+   "Crop_Crop_Basil__S3": {
+    "type": "MESH",
+    "dims": [
+     0.0834,
+     0.0822,
+     0.0418
+    ],
+    "mats": 2
+   },
+   "Crop_Crop_Basil__S4": {
+    "type": "MESH",
+    "dims": [
+     0.0981,
+     0.0949,
+     0.0491
+    ],
+    "mats": 2
+   },
+   "Crop_Crop_Basil__S5": {
+    "type": "MESH",
+    "dims": [
+     0.0347,
+     0.0347,
+     0.0173
+    ],
+    "mats": 2
+   }
+  }
+ },
+ "Crop_Crop_CacaoPod.fbx": {
+  "objects": {
+   "Crop_Crop_CacaoPod__S1": {
+    "type": "MESH",
+    "dims": [
+     0.2617,
+     0.2543,
+     0.4218
+    ],
+    "mats": 3
+   },
+   "Crop_Crop_CacaoPod__S2": {
+    "type": "MESH",
+    "dims": [
+     0.3774,
+     0.3667,
+     0.6083
+    ],
+    "mats": 3
+   },
+   "Crop_Crop_CacaoPod__S3": {
+    "type": "MESH",
+    "dims": [
+     0.4931,
+     0.4791,
+     0.7948
+    ],
+    "mats": 4
+   },
+   "Crop_Crop_CacaoPod__S4": {
+    "type": "MESH",
+    "dims": [
+     0.551,
+     0.5353,
+     0.888
+    ],
+    "mats": 4
+   },
+   "Crop_Crop_CacaoPod__S5": {
+    "type": "MESH",
+    "dims": [
+     0.551,
+     0.5353,
+     0.888
+    ],
+    "mats": 3
+   }
+  }
+ },
+ "Crop_Crop_CoffeeCherry.fbx": {
+  "objects": {
+   "Crop_Crop_CoffeeCherry__S1": {
+    "type": "MESH",
+    "dims": [
+     0.2249,
+     0.2185,
+     0.2743
+    ],
+    "mats": 3
+   },
+   "Crop_Crop_CoffeeCherry__S2": {
+    "type": "MESH",
+    "dims": [
+     0.3243,
+     0.3151,
+     0.3956
+    ],
+    "mats": 3
+   },
+   "Crop_Crop_CoffeeCherry__S3": {
+    "type": "MESH",
+    "dims": [
+     0.4238,
+     0.4117,
+     0.5169
+    ],
+    "mats": 4
+   },
+   "Crop_Crop_CoffeeCherry__S4": {
+    "type": "MESH",
+    "dims": [
+     0.4735,
+     0.46,
+     0.5775
+    ],
+    "mats": 4
+   },
+   "Crop_Crop_CoffeeCherry__S5": {
+    "type": "MESH",
+    "dims": [
+     0.4735,
+     0.46,
+     0.5775
+    ],
+    "mats": 3
+   }
+  }
+ },
+ "Crop_Crop_Cotton.fbx": {
+  "objects": {
+   "Crop_Crop_Cotton__S1": {
+    "type": "MESH",
+    "dims": [
+     0.0547,
+     0.043,
+     0.0682
+    ],
+    "mats": 3
+   },
+   "Crop_Crop_Cotton__S2": {
+    "type": "MESH",
+    "dims": [
+     0.1201,
+     0.1105,
+     0.1485
+    ],
+    "mats": 3
+   },
+   "Crop_Crop_Cotton__S3": {
+    "type": "MESH",
+    "dims": [
+     0.1867,
+     0.1748,
+     0.2305
+    ],
+    "mats": 4
+   },
+   "Crop_Crop_Cotton__S4": {
+    "type": "MESH",
+    "dims": [
+     0.2192,
+     0.2023,
+     0.2661
+    ],
+    "mats": 4
+   },
+   "Crop_Crop_Cotton__S5": {
+    "type": "MESH",
+    "dims": [
+     0.1535,
+     0.147,
+     0.1932
+    ],
+    "mats": 3
+   }
+  }
+ },
+ "Crop_Crop_Flax.fbx": {
+  "objects": {
+   "Crop_Crop_Flax__S1": {
+    "type": "MESH",
+    "dims": [
+     0.0565,
+     0.0701,
+     0.0824
+    ],
+    "mats": 1
+   },
+   "Crop_Crop_Flax__S2": {
+    "type": "MESH",
+    "dims": [
+     0.1203,
+     0.1473,
+     0.1851
+    ],
+    "mats": 1
+   },
+   "Crop_Crop_Flax__S3": {
+    "type": "MESH",
+    "dims": [
+     0.1833,
+     0.1779,
+     0.3311
+    ],
+    "mats": 3
+   },
+   "Crop_Crop_Flax__S4": {
+    "type": "MESH",
+    "dims": [
+     0.1985,
+     0.2147,
+     0.3821
+    ],
+    "mats": 3
+   },
+   "Crop_Crop_Flax__S5": {
+    "type": "MESH",
+    "dims": [
+     0.0744,
+     0.0728,
+     0.0976
+    ],
+    "mats": 2
+   }
+  }
+ },
+ "Crop_Crop_Ginger.fbx": {
+  "objects": {
+   "Crop_Crop_Ginger__S1": {
+    "type": "MESH",
+    "dims": [
+     0.0234,
+     0.0236,
+     0.0516
+    ],
+    "mats": 2
+   },
+   "Crop_Crop_Ginger__S2": {
+    "type": "MESH",
+    "dims": [
+     0.0493,
+     0.0496,
+     0.1164
+    ],
+    "mats": 2
+   },
+   "Crop_Crop_Ginger__S3": {
+    "type": "MESH",
+    "dims": [
+     0.0757,
+     0.0768,
+     0.1812
+    ],
+    "mats": 2
+   },
+   "Crop_Crop_Ginger__S4": {
+    "type": "MESH",
+    "dims": [
+     0.0866,
+     0.089,
+     0.2136
+    ],
+    "mats": 2
+   },
+   "Crop_Crop_Ginger__S5": {
+    "type": "MESH",
+    "dims": [
+     0.0321,
+     0.0323,
+     0.0732
+    ],
+    "mats": 2
+   }
+  }
+ },
+ "Crop_Crop_Herb.fbx": {
+  "objects": {
+   "Crop_Crop_Herb__S1": {
+    "type": "MESH",
+    "dims": [
+     0.0251,
+     0.0254,
+     0.0127
+    ],
+    "mats": 2
+   },
+   "Crop_Crop_Herb__S2": {
+    "type": "MESH",
+    "dims": [
+     0.0543,
+     0.0539,
+     0.0271
+    ],
+    "mats": 2
+   },
+   "Crop_Crop_Herb__S3": {
+    "type": "MESH",
+    "dims": [
+     0.0836,
+     0.0824,
+     0.0576
+    ],
+    "mats": 3
+   },
+   "Crop_Crop_Herb__S4": {
+    "type": "MESH",
+    "dims": [
+     0.0982,
+     0.0964,
+     0.0671
+    ],
+    "mats": 3
+   },
+   "Crop_Crop_Herb__S5": {
+    "type": "MESH",
+    "dims": [
+     0.0347,
+     0.0349,
+     0.0173
+    ],
+    "mats": 2
+   }
+  }
+ },
+ "Crop_Crop_Mint.fbx": {
+  "objects": {
+   "Crop_Crop_Mint__S1": {
+    "type": "MESH",
+    "dims": [
+     0.022,
+     0.0219,
+     0.0112
+    ],
+    "mats": 2
+   },
+   "Crop_Crop_Mint__S2": {
+    "type": "MESH",
+    "dims": [
+     0.0467,
+     0.0466,
+     0.0232
+    ],
+    "mats": 2
+   },
+   "Crop_Crop_Mint__S3": {
+    "type": "MESH",
+    "dims": [
+     0.0717,
+     0.0717,
+     0.0358
+    ],
+    "mats": 2
+   },
+   "Crop_Crop_Mint__S4": {
+    "type": "MESH",
+    "dims": [
+     0.0843,
+     0.0843,
+     0.0421
+    ],
+    "mats": 2
+   },
+   "Crop_Crop_Mint__S5": {
+    "type": "MESH",
+    "dims": [
+     0.0299,
+     0.03,
+     0.0149
+    ],
+    "mats": 2
+   }
+  }
+ },
+ "Crop_Crop_Pepper.fbx": {
+  "objects": {
+   "Crop_Crop_Pepper__S1": {
+    "type": "MESH",
+    "dims": [
+     0.0652,
+     0.0517,
+     0.0938
+    ],
+    "mats": 4
+   },
+   "Crop_Crop_Pepper__S2": {
+    "type": "MESH",
+    "dims": [
+     0.1415,
+     0.1298,
+     0.2062
+    ],
+    "mats": 4
+   },
+   "Crop_Crop_Pepper__S3": {
+    "type": "MESH",
+    "dims": [
+     0.219,
+     0.2045,
+     0.3187
+    ],
+    "mats": 5
+   },
+   "Crop_Crop_Pepper__S4": {
+    "type": "MESH",
+    "dims": [
+     0.2571,
+     0.2424,
+     0.375
+    ],
+    "mats": 5
+   },
+   "Crop_Crop_Pepper__S5": {
+    "type": "MESH",
+    "dims": [
+     0.1804,
+     0.1669,
+     0.2625
+    ],
+    "mats": 4
+   }
+  }
+ },
+ "Crop_Crop_SugarBeet.fbx": {
+  "objects": {
+   "Crop_Crop_SugarBeet__S1": {
+    "type": "MESH",
+    "dims": [
+     0.0423,
+     0.0421,
+     0.0211
+    ],
+    "mats": 2
+   },
+   "Crop_Crop_SugarBeet__S2": {
+    "type": "MESH",
+    "dims": [
+     0.091,
+     0.0917,
+     0.0463
+    ],
+    "mats": 2
+   },
+   "Crop_Crop_SugarBeet__S3": {
+    "type": "MESH",
+    "dims": [
+     0.1381,
+     0.1391,
+     0.0822
+    ],
+    "mats": 3
+   },
+   "Crop_Crop_SugarBeet__S4": {
+    "type": "MESH",
+    "dims": [
+     0.1638,
+     0.1646,
+     0.0986
+    ],
+    "mats": 3
+   },
+   "Crop_Crop_SugarBeet__S5": {
+    "type": "MESH",
+    "dims": [
+     0.0574,
+     0.0583,
+     0.0295
+    ],
+    "mats": 2
+   }
+  }
+ },
+ "Crop_Crop_Sugarcane.fbx": {
+  "objects": {
+   "Crop_Crop_Sugarcane__S1": {
+    "type": "MESH",
+    "dims": [
+     0.2363,
+     0.0804,
+     0.15
+    ],
+    "mats": 2
+   },
+   "Crop_Crop_Sugarcane__S2": {
+    "type": "MESH",
+    "dims": [
+     0.2363,
+     0.1703,
+     0.33
+    ],
+    "mats": 2
+   },
+   "Crop_Crop_Sugarcane__S3": {
+    "type": "MESH",
+    "dims": [
+     0.2591,
+     0.1816,
+     0.51
+    ],
+    "mats": 2
+   },
+   "Crop_Crop_Sugarcane__S4": {
+    "type": "MESH",
+    "dims": [
+     0.2591,
+     0.1816,
+     0.6
+    ],
+    "mats": 2
+   },
+   "Crop_Crop_Sugarcane__S5": {
+    "type": "MESH",
+    "dims": [
+     0.2363,
+     0.0937,
+     0.27
+    ],
+    "mats": 2
+   }
+  }
+ },
+ "Crop_Crop_TeaLeaf.fbx": {
+  "objects": {
+   "Crop_Crop_TeaLeaf__S1": {
+    "type": "MESH",
+    "dims": [
+     0.1636,
+     0.1589,
+     0.1995
+    ],
+    "mats": 3
+   },
+   "Crop_Crop_TeaLeaf__S2": {
+    "type": "MESH",
+    "dims": [
+     0.2359,
+     0.2292,
+     0.2877
+    ],
+    "mats": 3
+   },
+   "Crop_Crop_TeaLeaf__S3": {
+    "type": "MESH",
+    "dims": [
+     0.3082,
+     0.2994,
+     0.3759
+    ],
+    "mats": 4
+   },
+   "Crop_Crop_TeaLeaf__S4": {
+    "type": "MESH",
+    "dims": [
+     0.3444,
+     0.3345,
+     0.42
+    ],
+    "mats": 3
+   },
+   "Crop_Crop_TeaLeaf__S5": {
+    "type": "MESH",
+    "dims": [
+     0.3444,
+     0.3345,
+     0.42
+    ],
+    "mats": 3
+   }
+  }
+ },
+ "Crop_Fruit_Apple.fbx": {
+  "objects": {
+   "Crop_Fruit_Apple__S1": {
+    "type": "MESH",
+    "dims": [
+     0.2617,
+     0.2543,
+     0.4218
+    ],
+    "mats": 3
+   },
+   "Crop_Fruit_Apple__S2": {
+    "type": "MESH",
+    "dims": [
+     0.3774,
+     0.3667,
+     0.6083
+    ],
+    "mats": 3
+   },
+   "Crop_Fruit_Apple__S3": {
+    "type": "MESH",
+    "dims": [
+     0.4931,
+     0.4791,
+     0.7948
+    ],
+    "mats": 4
+   },
+   "Crop_Fruit_Apple__S4": {
+    "type": "MESH",
+    "dims": [
+     0.551,
+     0.5353,
+     0.888
+    ],
+    "mats": 4
+   },
+   "Crop_Fruit_Apple__S5": {
+    "type": "MESH",
+    "dims": [
+     0.551,
+     0.5353,
+     0.888
+    ],
+    "mats": 3
+   }
+  }
+ },
+ "Crop_Fruit_Apricot.fbx": {
+  "objects": {
+   "Crop_Fruit_Apricot__S1": {
+    "type": "MESH",
+    "dims": [
+     0.2617,
+     0.2543,
+     0.4218
+    ],
+    "mats": 3
+   },
+   "Crop_Fruit_Apricot__S2": {
+    "type": "MESH",
+    "dims": [
+     0.3774,
+     0.3667,
+     0.6083
+    ],
+    "mats": 3
+   },
+   "Crop_Fruit_Apricot__S3": {
+    "type": "MESH",
+    "dims": [
+     0.4931,
+     0.4791,
+     0.7948
+    ],
+    "mats": 4
+   },
+   "Crop_Fruit_Apricot__S4": {
+    "type": "MESH",
+    "dims": [
+     0.551,
+     0.5353,
+     0.888
+    ],
+    "mats": 4
+   },
+   "Crop_Fruit_Apricot__S5": {
+    "type": "MESH",
+    "dims": [
+     0.551,
+     0.5353,
+     0.888
+    ],
+    "mats": 3
+   }
+  }
+ },
+ "Crop_Fruit_Banana.fbx": {
+  "objects": {
+   "Crop_Fruit_Banana__S1": {
+    "type": "MESH",
+    "dims": [
+     0.3454,
+     0.3543,
+     0.2761
+    ],
+    "mats": 3
+   },
+   "Crop_Fruit_Banana__S2": {
+    "type": "MESH",
+    "dims": [
+     0.4981,
+     0.5109,
+     0.3742
+    ],
+    "mats": 3
+   },
+   "Crop_Fruit_Banana__S3": {
+    "type": "MESH",
+    "dims": [
+     0.6508,
+     0.6675,
+     0.4724
+    ],
+    "mats": 3
+   },
+   "Crop_Fruit_Banana__S4": {
+    "type": "MESH",
+    "dims": [
+     0.7271,
+     0.7458,
+     0.5215
+    ],
+    "mats": 4
+   },
+   "Crop_Fruit_Banana__S5": {
+    "type": "MESH",
+    "dims": [
+     0.7271,
+     0.7458,
+     0.5215
+    ],
+    "mats": 3
+   }
+  }
+ },
+ "Crop_Fruit_Blackberry.fbx": {
+  "objects": {
+   "Crop_Fruit_Blackberry__S1": {
+    "type": "MESH",
+    "dims": [
+     0.0548,
+     0.0439,
+     0.0641
+    ],
+    "mats": 3
+   },
+   "Crop_Fruit_Blackberry__S2": {
+    "type": "MESH",
+    "dims": [
+     0.121,
+     0.1149,
+     0.1449
+    ],
+    "mats": 3
+   },
+   "Crop_Fruit_Blackberry__S3": {
+    "type": "MESH",
+    "dims": [
+     0.1858,
+     0.1771,
+     0.226
+    ],
+    "mats": 4
+   },
+   "Crop_Fruit_Blackberry__S4": {
+    "type": "MESH",
+    "dims": [
+     0.2198,
+     0.2059,
+     0.2593
+    ],
+    "mats": 4
+   },
+   "Crop_Fruit_Blackberry__S5": {
+    "type": "MESH",
+    "dims": [
+     0.1534,
+     0.1424,
+     0.1916
+    ],
+    "mats": 3
+   }
+  }
+ },
+ "Crop_Fruit_Blueberry.fbx": {
+  "objects": {
+   "Crop_Fruit_Blueberry__S1": {
+    "type": "MESH",
+    "dims": [
+     0.0518,
+     0.0425,
+     0.0619
+    ],
+    "mats": 3
+   },
+   "Crop_Fruit_Blueberry__S2": {
+    "type": "MESH",
+    "dims": [
+     0.1132,
+     0.1039,
+     0.1323
+    ],
+    "mats": 3
+   },
+   "Crop_Fruit_Blueberry__S3": {
+    "type": "MESH",
+    "dims": [
+     0.1751,
+     0.1659,
+     0.2108
+    ],
+    "mats": 4
+   },
+   "Crop_Fruit_Blueberry__S4": {
+    "type": "MESH",
+    "dims": [
+     0.2077,
+     0.1949,
+     0.2514
+    ],
+    "mats": 4
+   },
+   "Crop_Fruit_Blueberry__S5": {
+    "type": "MESH",
+    "dims": [
+     0.1442,
+     0.1371,
+     0.177
+    ],
+    "mats": 3
+   }
+  }
+ },
+ "Crop_Fruit_Cherry.fbx": {
+  "objects": {
+   "Crop_Fruit_Cherry__S1": {
+    "type": "MESH",
+    "dims": [
+     0.2617,
+     0.2543,
+     0.4218
+    ],
+    "mats": 3
+   },
+   "Crop_Fruit_Cherry__S2": {
+    "type": "MESH",
+    "dims": [
+     0.3774,
+     0.3667,
+     0.6083
+    ],
+    "mats": 3
+   },
+   "Crop_Fruit_Cherry__S3": {
+    "type": "MESH",
+    "dims": [
+     0.4931,
+     0.4791,
+     0.7948
+    ],
+    "mats": 4
+   },
+   "Crop_Fruit_Cherry__S4": {
+    "type": "MESH",
+    "dims": [
+     0.551,
+     0.5353,
+     0.888
+    ],
+    "mats": 4
+   },
+   "Crop_Fruit_Cherry__S5": {
+    "type": "MESH",
+    "dims": [
+     0.551,
+     0.5353,
+     0.888
+    ],
+    "mats": 3
+   }
+  }
+ },
+ "Crop_Fruit_Cranberry.fbx": {
+  "objects": {
+   "Crop_Fruit_Cranberry__S1": {
+    "type": "MESH",
+    "dims": [
+     0.0297,
+     0.0193,
+     0.0222
+    ],
+    "mats": 3
+   },
+   "Crop_Fruit_Cranberry__S2": {
+    "type": "MESH",
+    "dims": [
+     0.0655,
+     0.0626,
+     0.0487
+    ],
+    "mats": 3
+   },
+   "Crop_Fruit_Cranberry__S3": {
+    "type": "MESH",
+    "dims": [
+     0.1019,
+     0.0966,
+     0.0769
+    ],
+    "mats": 4
+   },
+   "Crop_Fruit_Cranberry__S4": {
+    "type": "MESH",
+    "dims": [
+     0.1199,
+     0.111,
+     0.0881
+    ],
+    "mats": 4
+   },
+   "Crop_Fruit_Cranberry__S5": {
+    "type": "MESH",
+    "dims": [
+     0.0839,
+     0.0744,
+     0.0642
+    ],
+    "mats": 3
+   }
+  }
+ },
+ "Crop_Fruit_Date.fbx": {
+  "objects": {
+   "Crop_Fruit_Date__S1": {
+    "type": "MESH",
+    "dims": [
+     0.386,
+     0.3959,
+     0.3022
+    ],
+    "mats": 3
+   },
+   "Crop_Fruit_Date__S2": {
+    "type": "MESH",
+    "dims": [
+     0.5567,
+     0.571,
+     0.4119
+    ],
+    "mats": 3
+   },
+   "Crop_Fruit_Date__S3": {
+    "type": "MESH",
+    "dims": [
+     0.7273,
+     0.746,
+     0.5216
+    ],
+    "mats": 3
+   },
+   "Crop_Fruit_Date__S4": {
+    "type": "MESH",
+    "dims": [
+     0.8127,
+     0.8336,
+     0.5765
+    ],
+    "mats": 4
+   },
+   "Crop_Fruit_Date__S5": {
+    "type": "MESH",
+    "dims": [
+     0.8127,
+     0.8336,
+     0.5765
+    ],
+    "mats": 3
+   }
+  }
+ },
+ "Crop_Fruit_Fig.fbx": {
+  "objects": {
+   "Crop_Fruit_Fig__S1": {
+    "type": "MESH",
+    "dims": [
+     0.3271,
+     0.3178,
+     0.399
+    ],
+    "mats": 3
+   },
+   "Crop_Fruit_Fig__S2": {
+    "type": "MESH",
+    "dims": [
+     0.4718,
+     0.4583,
+     0.5754
+    ],
+    "mats": 3
+   },
+   "Crop_Fruit_Fig__S3": {
+    "type": "MESH",
+    "dims": [
+     0.6164,
+     0.5988,
+     0.7518
+    ],
+    "mats": 4
+   },
+   "Crop_Fruit_Fig__S4": {
+    "type": "MESH",
+    "dims": [
+     0.6887,
+     0.6691,
+     0.84
+    ],
+    "mats": 4
+   },
+   "Crop_Fruit_Fig__S5": {
+    "type": "MESH",
+    "dims": [
+     0.6887,
+     0.6691,
+     0.84
+    ],
+    "mats": 3
+   }
+  }
+ },
+ "Crop_Fruit_Grape.fbx": {
+  "objects": {
+   "Crop_Fruit_Grape__S1": {
+    "type": "MESH",
+    "dims": [
+     0.0649,
+     0.0543,
+     0.0938
+    ],
+    "mats": 4
+   },
+   "Crop_Fruit_Grape__S2": {
+    "type": "MESH",
+    "dims": [
+     0.141,
+     0.1286,
+     0.2062
+    ],
+    "mats": 4
+   },
+   "Crop_Fruit_Grape__S3": {
+    "type": "MESH",
+    "dims": [
+     0.2189,
+     0.206,
+     0.3187
+    ],
+    "mats": 5
+   },
+   "Crop_Fruit_Grape__S4": {
+    "type": "MESH",
+    "dims": [
+     0.2575,
+     0.2452,
+     0.375
+    ],
+    "mats": 5
+   },
+   "Crop_Fruit_Grape__S5": {
+    "type": "MESH",
+    "dims": [
+     0.1796,
+     0.1694,
+     0.2625
+    ],
+    "mats": 4
+   }
+  }
+ },
+ "Crop_Fruit_KoreanMelon.fbx": {
+  "objects": {
+   "Crop_Fruit_KoreanMelon__S1": {
+    "type": "MESH",
+    "dims": [
+     0.0945,
+     0.096,
+     0.024
+    ],
+    "mats": 3
+   },
+   "Crop_Fruit_KoreanMelon__S2": {
+    "type": "MESH",
+    "dims": [
+     0.184,
+     0.1872,
+     0.025
+    ],
+    "mats": 3
+   },
+   "Crop_Fruit_KoreanMelon__S3": {
+    "type": "MESH",
+    "dims": [
+     0.2734,
+     0.2784,
+     0.031
+    ],
+    "mats": 4
+   },
+   "Crop_Fruit_KoreanMelon__S4": {
+    "type": "MESH",
+    "dims": [
+     0.3181,
+     0.324,
+     0.0611
+    ],
+    "mats": 4
+   },
+   "Crop_Fruit_KoreanMelon__S5": {
+    "type": "MESH",
+    "dims": [
+     0.2287,
+     0.2328,
+     0.028
+    ],
+    "mats": 3
+   }
+  }
+ },
+ "Crop_Fruit_Lemon.fbx": {
+  "objects": {
+   "Crop_Fruit_Lemon__S1": {
+    "type": "MESH",
+    "dims": [
+     0.3271,
+     0.3178,
+     0.399
+    ],
+    "mats": 3
+   },
+   "Crop_Fruit_Lemon__S2": {
+    "type": "MESH",
+    "dims": [
+     0.4718,
+     0.4583,
+     0.5754
+    ],
+    "mats": 3
+   },
+   "Crop_Fruit_Lemon__S3": {
+    "type": "MESH",
+    "dims": [
+     0.6164,
+     0.5988,
+     0.7518
+    ],
+    "mats": 4
+   },
+   "Crop_Fruit_Lemon__S4": {
+    "type": "MESH",
+    "dims": [
+     0.6887,
+     0.6691,
+     0.84
+    ],
+    "mats": 4
+   },
+   "Crop_Fruit_Lemon__S5": {
+    "type": "MESH",
+    "dims": [
+     0.6887,
+     0.6691,
+     0.84
+    ],
+    "mats": 3
+   }
+  }
+ },
+ "Crop_Fruit_Mango.fbx": {
+  "objects": {
+   "Crop_Fruit_Mango__S1": {
+    "type": "MESH",
+    "dims": [
+     0.3108,
+     0.3019,
+     0.5009
+    ],
+    "mats": 3
+   },
+   "Crop_Fruit_Mango__S2": {
+    "type": "MESH",
+    "dims": [
+     0.4482,
+     0.4354,
+     0.7223
+    ],
+    "mats": 3
+   },
+   "Crop_Fruit_Mango__S3": {
+    "type": "MESH",
+    "dims": [
+     0.5856,
+     0.5689,
+     0.9438
+    ],
+    "mats": 4
+   },
+   "Crop_Fruit_Mango__S4": {
+    "type": "MESH",
+    "dims": [
+     0.6543,
+     0.6356,
+     1.0545
+    ],
+    "mats": 4
+   },
+   "Crop_Fruit_Mango__S5": {
+    "type": "MESH",
+    "dims": [
+     0.6543,
+     0.6356,
+     1.0545
+    ],
+    "mats": 3
+   }
+  }
+ },
+ "Crop_Fruit_Melon.fbx": {
+  "objects": {
+   "Crop_Fruit_Melon__S1": {
+    "type": "MESH",
+    "dims": [
+     0.0945,
+     0.096,
+     0.024
+    ],
+    "mats": 3
+   },
+   "Crop_Fruit_Melon__S2": {
+    "type": "MESH",
+    "dims": [
+     0.184,
+     0.1872,
+     0.025
+    ],
+    "mats": 3
+   },
+   "Crop_Fruit_Melon__S3": {
+    "type": "MESH",
+    "dims": [
+     0.2734,
+     0.2784,
+     0.031
+    ],
+    "mats": 4
+   },
+   "Crop_Fruit_Melon__S4": {
+    "type": "MESH",
+    "dims": [
+     0.3181,
+     0.324,
+     0.076
+    ],
+    "mats": 4
+   },
+   "Crop_Fruit_Melon__S5": {
+    "type": "MESH",
+    "dims": [
+     0.2287,
+     0.2328,
+     0.028
+    ],
+    "mats": 3
+   }
+  }
+ },
+ "Crop_Fruit_Mulberry.fbx": {
+  "objects": {
+   "Crop_Fruit_Mulberry__S1": {
+    "type": "MESH",
+    "dims": [
+     0.2617,
+     0.2543,
+     0.4218
+    ],
+    "mats": 3
+   },
+   "Crop_Fruit_Mulberry__S2": {
+    "type": "MESH",
+    "dims": [
+     0.3774,
+     0.3667,
+     0.6083
+    ],
+    "mats": 3
+   },
+   "Crop_Fruit_Mulberry__S3": {
+    "type": "MESH",
+    "dims": [
+     0.4931,
+     0.4791,
+     0.7948
+    ],
+    "mats": 4
+   },
+   "Crop_Fruit_Mulberry__S4": {
+    "type": "MESH",
+    "dims": [
+     0.551,
+     0.5353,
+     0.888
+    ],
+    "mats": 4
+   },
+   "Crop_Fruit_Mulberry__S5": {
+    "type": "MESH",
+    "dims": [
+     0.551,
+     0.5353,
+     0.888
+    ],
+    "mats": 3
+   }
+  }
+ },
+ "Crop_Fruit_Orange.fbx": {
+  "objects": {
+   "Crop_Fruit_Orange__S1": {
+    "type": "MESH",
+    "dims": [
+     0.2617,
+     0.2543,
+     0.4218
+    ],
+    "mats": 3
+   },
+   "Crop_Fruit_Orange__S2": {
+    "type": "MESH",
+    "dims": [
+     0.3774,
+     0.3667,
+     0.6083
+    ],
+    "mats": 3
+   },
+   "Crop_Fruit_Orange__S3": {
+    "type": "MESH",
+    "dims": [
+     0.4931,
+     0.4791,
+     0.7948
+    ],
+    "mats": 4
+   },
+   "Crop_Fruit_Orange__S4": {
+    "type": "MESH",
+    "dims": [
+     0.551,
+     0.5353,
+     0.888
+    ],
+    "mats": 4
+   },
+   "Crop_Fruit_Orange__S5": {
+    "type": "MESH",
+    "dims": [
+     0.551,
+     0.5353,
+     0.888
+    ],
+    "mats": 3
+   }
+  }
+ },
+ "Crop_Fruit_Peach.fbx": {
+  "objects": {
+   "Crop_Fruit_Peach__S1": {
+    "type": "MESH",
+    "dims": [
+     0.2617,
+     0.2543,
+     0.4218
+    ],
+    "mats": 3
+   },
+   "Crop_Fruit_Peach__S2": {
+    "type": "MESH",
+    "dims": [
+     0.3774,
+     0.3667,
+     0.6083
+    ],
+    "mats": 3
+   },
+   "Crop_Fruit_Peach__S3": {
+    "type": "MESH",
+    "dims": [
+     0.4931,
+     0.4791,
+     0.7948
+    ],
+    "mats": 4
+   },
+   "Crop_Fruit_Peach__S4": {
+    "type": "MESH",
+    "dims": [
+     0.551,
+     0.5353,
+     0.888
+    ],
+    "mats": 4
+   },
+   "Crop_Fruit_Peach__S5": {
+    "type": "MESH",
+    "dims": [
+     0.551,
+     0.5353,
+     0.888
+    ],
+    "mats": 3
+   }
+  }
+ },
+ "Crop_Fruit_Pear.fbx": {
+  "objects": {
+   "Crop_Fruit_Pear__S1": {
+    "type": "MESH",
+    "dims": [
+     0.2617,
+     0.2543,
+     0.4218
+    ],
+    "mats": 3
+   },
+   "Crop_Fruit_Pear__S2": {
+    "type": "MESH",
+    "dims": [
+     0.3774,
+     0.3667,
+     0.6083
+    ],
+    "mats": 3
+   },
+   "Crop_Fruit_Pear__S3": {
+    "type": "MESH",
+    "dims": [
+     0.4931,
+     0.4791,
+     0.7948
+    ],
+    "mats": 4
+   },
+   "Crop_Fruit_Pear__S4": {
+    "type": "MESH",
+    "dims": [
+     0.551,
+     0.5353,
+     0.888
+    ],
+    "mats": 4
+   },
+   "Crop_Fruit_Pear__S5": {
+    "type": "MESH",
+    "dims": [
+     0.551,
+     0.5353,
+     0.888
+    ],
+    "mats": 3
+   }
+  }
+ },
+ "Crop_Fruit_Persimmon.fbx": {
+  "objects": {
+   "Crop_Fruit_Persimmon__S1": {
+    "type": "MESH",
+    "dims": [
+     0.2617,
+     0.2543,
+     0.4218
+    ],
+    "mats": 3
+   },
+   "Crop_Fruit_Persimmon__S2": {
+    "type": "MESH",
+    "dims": [
+     0.3774,
+     0.3667,
+     0.6083
+    ],
+    "mats": 3
+   },
+   "Crop_Fruit_Persimmon__S3": {
+    "type": "MESH",
+    "dims": [
+     0.4931,
+     0.4791,
+     0.7948
+    ],
+    "mats": 4
+   },
+   "Crop_Fruit_Persimmon__S4": {
+    "type": "MESH",
+    "dims": [
+     0.551,
+     0.5353,
+     0.888
+    ],
+    "mats": 4
+   },
+   "Crop_Fruit_Persimmon__S5": {
+    "type": "MESH",
+    "dims": [
+     0.551,
+     0.5353,
+     0.888
+    ],
+    "mats": 3
+   }
+  }
+ },
+ "Crop_Fruit_Pineapple.fbx": {
+  "objects": {
+   "Crop_Fruit_Pineapple__S1": {
+    "type": "MESH",
+    "dims": [
+     0.0212,
+     0.0214,
+     0.0456
+    ],
+    "mats": 2
+   },
+   "Crop_Fruit_Pineapple__S2": {
+    "type": "MESH",
+    "dims": [
+     0.0445,
+     0.0446,
+     0.1032
+    ],
+    "mats": 2
+   },
+   "Crop_Fruit_Pineapple__S3": {
+    "type": "MESH",
+    "dims": [
+     0.0683,
+     0.068,
+     0.164
+    ],
+    "mats": 3
+   },
+   "Crop_Fruit_Pineapple__S4": {
+    "type": "MESH",
+    "dims": [
+     0.0803,
+     0.0796,
+     0.1928
+    ],
+    "mats": 3
+   },
+   "Crop_Fruit_Pineapple__S5": {
+    "type": "MESH",
+    "dims": [
+     0.0284,
+     0.0291,
+     0.0648
+    ],
+    "mats": 2
+   }
+  }
+ },
+ "Crop_Fruit_Plum.fbx": {
+  "objects": {
+   "Crop_Fruit_Plum__S1": {
+    "type": "MESH",
+    "dims": [
+     0.2617,
+     0.2543,
+     0.4218
+    ],
+    "mats": 3
+   },
+   "Crop_Fruit_Plum__S2": {
+    "type": "MESH",
+    "dims": [
+     0.3774,
+     0.3667,
+     0.6083
+    ],
+    "mats": 3
+   },
+   "Crop_Fruit_Plum__S3": {
+    "type": "MESH",
+    "dims": [
+     0.4931,
+     0.4791,
+     0.7948
+    ],
+    "mats": 4
+   },
+   "Crop_Fruit_Plum__S4": {
+    "type": "MESH",
+    "dims": [
+     0.551,
+     0.5353,
+     0.888
+    ],
+    "mats": 4
+   },
+   "Crop_Fruit_Plum__S5": {
+    "type": "MESH",
+    "dims": [
+     0.551,
+     0.5353,
+     0.888
+    ],
+    "mats": 3
+   }
+  }
+ },
+ "Crop_Fruit_Pomegranate.fbx": {
+  "objects": {
+   "Crop_Fruit_Pomegranate__S1": {
+    "type": "MESH",
+    "dims": [
+     0.3271,
+     0.3178,
+     0.399
+    ],
+    "mats": 3
+   },
+   "Crop_Fruit_Pomegranate__S2": {
+    "type": "MESH",
+    "dims": [
+     0.4718,
+     0.4583,
+     0.5754
+    ],
+    "mats": 3
+   },
+   "Crop_Fruit_Pomegranate__S3": {
+    "type": "MESH",
+    "dims": [
+     0.6164,
+     0.5988,
+     0.7518
+    ],
+    "mats": 4
+   },
+   "Crop_Fruit_Pomegranate__S4": {
+    "type": "MESH",
+    "dims": [
+     0.6887,
+     0.6691,
+     0.84
+    ],
+    "mats": 4
+   },
+   "Crop_Fruit_Pomegranate__S5": {
+    "type": "MESH",
+    "dims": [
+     0.6887,
+     0.6691,
+     0.84
+    ],
+    "mats": 3
+   }
+  }
+ },
+ "Crop_Fruit_Raspberry.fbx": {
+  "objects": {
+   "Crop_Fruit_Raspberry__S1": {
+    "type": "MESH",
+    "dims": [
+     0.0549,
+     0.0443,
+     0.0689
+    ],
+    "mats": 3
+   },
+   "Crop_Fruit_Raspberry__S2": {
+    "type": "MESH",
+    "dims": [
+     0.12,
+     0.113,
+     0.1362
+    ],
+    "mats": 3
+   },
+   "Crop_Fruit_Raspberry__S3": {
+    "type": "MESH",
+    "dims": [
+     0.1858,
+     0.1735,
+     0.2218
+    ],
+    "mats": 4
+   },
+   "Crop_Fruit_Raspberry__S4": {
+    "type": "MESH",
+    "dims": [
+     0.2194,
+     0.2049,
+     0.2696
+    ],
+    "mats": 4
+   },
+   "Crop_Fruit_Raspberry__S5": {
+    "type": "MESH",
+    "dims": [
+     0.1533,
+     0.1429,
+     0.1889
+    ],
+    "mats": 3
+   }
+  }
+ },
+ "Crop_Fruit_Strawberry.fbx": {
+  "objects": {
+   "Crop_Fruit_Strawberry__S1": {
+    "type": "MESH",
+    "dims": [
+     0.0279,
+     0.0208,
+     0.0201
+    ],
+    "mats": 3
+   },
+   "Crop_Fruit_Strawberry__S2": {
+    "type": "MESH",
+    "dims": [
+     0.0624,
+     0.0589,
+     0.0428
+    ],
+    "mats": 3
+   },
+   "Crop_Fruit_Strawberry__S3": {
+    "type": "MESH",
+    "dims": [
+     0.0949,
+     0.0881,
+     0.0671
+    ],
+    "mats": 4
+   },
+   "Crop_Fruit_Strawberry__S4": {
+    "type": "MESH",
+    "dims": [
+     0.1131,
+     0.101,
+     0.0785
+    ],
+    "mats": 4
+   },
+   "Crop_Fruit_Strawberry__S5": {
+    "type": "MESH",
+    "dims": [
+     0.0796,
+     0.0754,
+     0.0555
+    ],
+    "mats": 3
+   }
+  }
+ },
+ "Crop_Fruit_Tangerine.fbx": {
+  "objects": {
+   "Crop_Fruit_Tangerine__S1": {
+    "type": "MESH",
+    "dims": [
+     0.3271,
+     0.3178,
+     0.399
+    ],
+    "mats": 3
+   },
+   "Crop_Fruit_Tangerine__S2": {
+    "type": "MESH",
+    "dims": [
+     0.4718,
+     0.4583,
+     0.5754
+    ],
+    "mats": 3
+   },
+   "Crop_Fruit_Tangerine__S3": {
+    "type": "MESH",
+    "dims": [
+     0.6164,
+     0.5988,
+     0.7518
+    ],
+    "mats": 4
+   },
+   "Crop_Fruit_Tangerine__S4": {
+    "type": "MESH",
+    "dims": [
+     0.6887,
+     0.6691,
+     0.84
+    ],
+    "mats": 4
+   },
+   "Crop_Fruit_Tangerine__S5": {
+    "type": "MESH",
+    "dims": [
+     0.6887,
+     0.6691,
+     0.84
+    ],
+    "mats": 3
+   }
+  }
+ },
+ "Crop_Fruit_Watermelon.fbx": {
+  "objects": {
+   "Crop_Fruit_Watermelon__S1": {
+    "type": "MESH",
+    "dims": [
+     0.0945,
+     0.096,
+     0.024
+    ],
+    "mats": 3
+   },
+   "Crop_Fruit_Watermelon__S2": {
+    "type": "MESH",
+    "dims": [
+     0.184,
+     0.1872,
+     0.025
+    ],
+    "mats": 3
+   },
+   "Crop_Fruit_Watermelon__S3": {
+    "type": "MESH",
+    "dims": [
+     0.2734,
+     0.2784,
+     0.031
+    ],
+    "mats": 4
+   },
+   "Crop_Fruit_Watermelon__S4": {
+    "type": "MESH",
+    "dims": [
+     0.3181,
+     0.324,
+     0.1045
+    ],
+    "mats": 4
+   },
+   "Crop_Fruit_Watermelon__S5": {
+    "type": "MESH",
+    "dims": [
+     0.2287,
+     0.2328,
+     0.028
+    ],
+    "mats": 3
+   }
+  }
+ },
+ "Crop_Grain_Barley.fbx": {
+  "objects": {
+   "Crop_Grain_Barley__S1": {
+    "type": "MESH",
+    "dims": [
+     0.0525,
+     0.0589,
+     0.0788
+    ],
+    "mats": 1
+   },
+   "Crop_Grain_Barley__S2": {
+    "type": "MESH",
+    "dims": [
+     0.1328,
+     0.1137,
+     0.1753
+    ],
+    "mats": 1
+   },
+   "Crop_Grain_Barley__S3": {
+    "type": "MESH",
+    "dims": [
+     0.1809,
+     0.1846,
+     0.3141
+    ],
+    "mats": 3
+   },
+   "Crop_Grain_Barley__S4": {
+    "type": "MESH",
+    "dims": [
+     0.1918,
+     0.1968,
+     0.3621
+    ],
+    "mats": 3
+   },
+   "Crop_Grain_Barley__S5": {
+    "type": "MESH",
+    "dims": [
+     0.0887,
+     0.0808,
+     0.0958
+    ],
+    "mats": 2
+   }
+  }
+ },
+ "Crop_Grain_Buckwheat.fbx": {
+  "objects": {
+   "Crop_Grain_Buckwheat__S1": {
+    "type": "MESH",
+    "dims": [
+     0.0257,
+     0.026,
+     0.0576
+    ],
+    "mats": 2
+   },
+   "Crop_Grain_Buckwheat__S2": {
+    "type": "MESH",
+    "dims": [
+     0.0547,
+     0.0552,
+     0.1296
+    ],
+    "mats": 2
+   },
+   "Crop_Grain_Buckwheat__S3": {
+    "type": "MESH",
+    "dims": [
+     0.1329,
+     0.1387,
+     0.2016
+    ],
+    "mats": 3
+   },
+   "Crop_Grain_Buckwheat__S4": {
+    "type": "MESH",
+    "dims": [
+     0.1546,
+     0.1616,
+     0.2376
+    ],
+    "mats": 3
+   },
+   "Crop_Grain_Buckwheat__S5": {
+    "type": "MESH",
+    "dims": [
+     0.0352,
+     0.0357,
+     0.0816
+    ],
+    "mats": 2
+   }
+  }
+ },
+ "Crop_Grain_Corn.fbx": {
+  "objects": {
+   "Crop_Grain_Corn__S1": {
+    "type": "MESH",
+    "dims": [
+     0.1763,
+     0.0784,
+     0.15
+    ],
+    "mats": 2
+   },
+   "Crop_Grain_Corn__S2": {
+    "type": "MESH",
+    "dims": [
+     0.1763,
+     0.1703,
+     0.33
+    ],
+    "mats": 2
+   },
+   "Crop_Grain_Corn__S3": {
+    "type": "MESH",
+    "dims": [
+     0.1991,
+     0.1816,
+     0.51
+    ],
+    "mats": 3
+   },
+   "Crop_Grain_Corn__S4": {
+    "type": "MESH",
+    "dims": [
+     0.1991,
+     0.1816,
+     0.6
+    ],
+    "mats": 4
+   },
+   "Crop_Grain_Corn__S5": {
+    "type": "MESH",
+    "dims": [
+     0.0404,
+     0.0499,
+     0.27
+    ],
+    "mats": 2
+   }
+  }
+ },
+ "Crop_Grain_Millet.fbx": {
+  "objects": {
+   "Crop_Grain_Millet__S1": {
+    "type": "MESH",
+    "dims": [
+     0.046,
+     0.0487,
+     0.0743
+    ],
+    "mats": 1
+   },
+   "Crop_Grain_Millet__S2": {
+    "type": "MESH",
+    "dims": [
+     0.1154,
+     0.1238,
+     0.1644
+    ],
+    "mats": 1
+   },
+   "Crop_Grain_Millet__S3": {
+    "type": "MESH",
+    "dims": [
+     0.183,
+     0.1611,
+     0.2971
+    ],
+    "mats": 3
+   },
+   "Crop_Grain_Millet__S4": {
+    "type": "MESH",
+    "dims": [
+     0.193,
+     0.2223,
+     0.3421
+    ],
+    "mats": 3
+   },
+   "Crop_Grain_Millet__S5": {
+    "type": "MESH",
+    "dims": [
+     0.0734,
+     0.066,
+     0.0881
+    ],
+    "mats": 2
+   }
+  }
+ },
+ "Crop_Grain_Oat.fbx": {
+  "objects": {
+   "Crop_Grain_Oat__S1": {
+    "type": "MESH",
+    "dims": [
+     0.0623,
+     0.0601,
+     0.0794
+    ],
+    "mats": 1
+   },
+   "Crop_Grain_Oat__S2": {
+    "type": "MESH",
+    "dims": [
+     0.1235,
+     0.1394,
+     0.1737
+    ],
+    "mats": 1
+   },
+   "Crop_Grain_Oat__S3": {
+    "type": "MESH",
+    "dims": [
+     0.1868,
+     0.1945,
+     0.3131
+    ],
+    "mats": 3
+   },
+   "Crop_Grain_Oat__S4": {
+    "type": "MESH",
+    "dims": [
+     0.2008,
+     0.1989,
+     0.3611
+    ],
+    "mats": 3
+   },
+   "Crop_Grain_Oat__S5": {
+    "type": "MESH",
+    "dims": [
+     0.0673,
+     0.0784,
+     0.0928
+    ],
+    "mats": 2
+   }
+  }
+ },
+ "Crop_Grain_Rice.fbx": {
+  "objects": {
+   "Crop_Grain_Rice__S1": {
+    "type": "MESH",
+    "dims": [
+     0.0587,
+     0.0627,
+     0.0746
+    ],
+    "mats": 1
+   },
+   "Crop_Grain_Rice__S2": {
+    "type": "MESH",
+    "dims": [
+     0.1363,
+     0.1145,
+     0.165
+    ],
+    "mats": 1
+   },
+   "Crop_Grain_Rice__S3": {
+    "type": "MESH",
+    "dims": [
+     0.1783,
+     0.1258,
+     0.2961
+    ],
+    "mats": 3
+   },
+   "Crop_Grain_Rice__S4": {
+    "type": "MESH",
+    "dims": [
+     0.2246,
+     0.1996,
+     0.3411
+    ],
+    "mats": 3
+   },
+   "Crop_Grain_Rice__S5": {
+    "type": "MESH",
+    "dims": [
+     0.0702,
+     0.0833,
+     0.0883
+    ],
+    "mats": 2
+   }
+  }
+ },
+ "Crop_Grain_Rye.fbx": {
+  "objects": {
+   "Crop_Grain_Rye__S1": {
+    "type": "MESH",
+    "dims": [
+     0.0774,
+     0.0766,
+     0.0934
+    ],
+    "mats": 1
+   },
+   "Crop_Grain_Rye__S2": {
+    "type": "MESH",
+    "dims": [
+     0.1202,
+     0.1513,
+     0.2048
+    ],
+    "mats": 1
+   },
+   "Crop_Grain_Rye__S3": {
+    "type": "MESH",
+    "dims": [
+     0.194,
+     0.181,
+     0.3651
+    ],
+    "mats": 3
+   },
+   "Crop_Grain_Rye__S4": {
+    "type": "MESH",
+    "dims": [
+     0.2362,
+     0.2395,
+     0.4221
+    ],
+    "mats": 3
+   },
+   "Crop_Grain_Rye__S5": {
+    "type": "MESH",
+    "dims": [
+     0.0709,
+     0.0654,
+     0.1083
+    ],
+    "mats": 2
+   }
+  }
+ },
+ "Crop_Grain_Sorghum.fbx": {
+  "objects": {
+   "Crop_Grain_Sorghum__S1": {
+    "type": "MESH",
+    "dims": [
+     0.1763,
+     0.0784,
+     0.1375
+    ],
+    "mats": 2
+   },
+   "Crop_Grain_Sorghum__S2": {
+    "type": "MESH",
+    "dims": [
+     0.1763,
+     0.1703,
+     0.3025
+    ],
+    "mats": 2
+   },
+   "Crop_Grain_Sorghum__S3": {
+    "type": "MESH",
+    "dims": [
+     0.1991,
+     0.1816,
+     0.5425
+    ],
+    "mats": 3
+   },
+   "Crop_Grain_Sorghum__S4": {
+    "type": "MESH",
+    "dims": [
+     0.1991,
+     0.1816,
+     0.625
+    ],
+    "mats": 3
+   },
+   "Crop_Grain_Sorghum__S5": {
+    "type": "MESH",
+    "dims": [
+     0.0512,
+     0.0588,
+     0.2475
+    ],
+    "mats": 2
+   }
+  }
+ },
+ "Crop_Grain_Wheat.fbx": {
+  "objects": {
+   "Crop_Grain_Wheat__S1": {
+    "type": "MESH",
+    "dims": [
+     0.0502,
+     0.0659,
+     0.079
+    ],
+    "mats": 1
+   },
+   "Crop_Grain_Wheat__S2": {
+    "type": "MESH",
+    "dims": [
+     0.1057,
+     0.1349,
+     0.1742
+    ],
+    "mats": 1
+   },
+   "Crop_Grain_Wheat__S3": {
+    "type": "MESH",
+    "dims": [
+     0.1887,
+     0.1825,
+     0.3141
+    ],
+    "mats": 3
+   },
+   "Crop_Grain_Wheat__S4": {
+    "type": "MESH",
+    "dims": [
+     0.2423,
+     0.2242,
+     0.3621
+    ],
+    "mats": 3
+   },
+   "Crop_Grain_Wheat__S5": {
+    "type": "MESH",
+    "dims": [
+     0.0918,
+     0.0822,
+     0.0934
+    ],
+    "mats": 2
+   }
+  }
+ },
+ "Crop_Nut_Almond.fbx": {
+  "objects": {
+   "Crop_Nut_Almond__S1": {
+    "type": "MESH",
+    "dims": [
+     0.2617,
+     0.2543,
+     0.4218
+    ],
+    "mats": 3
+   },
+   "Crop_Nut_Almond__S2": {
+    "type": "MESH",
+    "dims": [
+     0.3774,
+     0.3667,
+     0.6083
+    ],
+    "mats": 3
+   },
+   "Crop_Nut_Almond__S3": {
+    "type": "MESH",
+    "dims": [
+     0.4931,
+     0.4791,
+     0.7948
+    ],
+    "mats": 4
+   },
+   "Crop_Nut_Almond__S4": {
+    "type": "MESH",
+    "dims": [
+     0.551,
+     0.5353,
+     0.888
+    ],
+    "mats": 4
+   },
+   "Crop_Nut_Almond__S5": {
+    "type": "MESH",
+    "dims": [
+     0.551,
+     0.5353,
+     0.888
+    ],
+    "mats": 3
+   }
+  }
+ },
+ "Crop_Nut_Chestnut.fbx": {
+  "objects": {
+   "Crop_Nut_Chestnut__S1": {
+    "type": "MESH",
+    "dims": [
+     0.3108,
+     0.3019,
+     0.5009
+    ],
+    "mats": 3
+   },
+   "Crop_Nut_Chestnut__S2": {
+    "type": "MESH",
+    "dims": [
+     0.4482,
+     0.4354,
+     0.7223
+    ],
+    "mats": 3
+   },
+   "Crop_Nut_Chestnut__S3": {
+    "type": "MESH",
+    "dims": [
+     0.5856,
+     0.5689,
+     0.9438
+    ],
+    "mats": 4
+   },
+   "Crop_Nut_Chestnut__S4": {
+    "type": "MESH",
+    "dims": [
+     0.6543,
+     0.6356,
+     1.0545
+    ],
+    "mats": 4
+   },
+   "Crop_Nut_Chestnut__S5": {
+    "type": "MESH",
+    "dims": [
+     0.6543,
+     0.6356,
+     1.0545
+    ],
+    "mats": 3
+   }
+  }
+ },
+ "Crop_Nut_Peanut.fbx": {
+  "objects": {
+   "Crop_Nut_Peanut__S1": {
+    "type": "MESH",
+    "dims": [
+     0.0362,
+     0.0271,
+     0.0315
+    ],
+    "mats": 3
+   },
+   "Crop_Nut_Peanut__S2": {
+    "type": "MESH",
+    "dims": [
+     0.0797,
+     0.0721,
+     0.0742
+    ],
+    "mats": 3
+   },
+   "Crop_Nut_Peanut__S3": {
+    "type": "MESH",
+    "dims": [
+     0.1223,
+     0.1136,
+     0.1154
+    ],
+    "mats": 4
+   },
+   "Crop_Nut_Peanut__S4": {
+    "type": "MESH",
+    "dims": [
+     0.144,
+     0.1329,
+     0.135
+    ],
+    "mats": 3
+   },
+   "Crop_Nut_Peanut__S5": {
+    "type": "MESH",
+    "dims": [
+     0.1011,
+     0.0953,
+     0.0903
+    ],
+    "mats": 3
+   }
+  }
+ },
+ "Crop_Nut_Sesame.fbx": {
+  "objects": {
+   "Crop_Nut_Sesame__S1": {
+    "type": "MESH",
+    "dims": [
+     0.0284,
+     0.0282,
+     0.0636
+    ],
+    "mats": 2
+   },
+   "Crop_Nut_Sesame__S2": {
+    "type": "MESH",
+    "dims": [
+     0.0605,
+     0.0608,
+     0.1428
+    ],
+    "mats": 2
+   },
+   "Crop_Nut_Sesame__S3": {
+    "type": "MESH",
+    "dims": [
+     0.1452,
+     0.1517,
+     0.222
+    ],
+    "mats": 3
+   },
+   "Crop_Nut_Sesame__S4": {
+    "type": "MESH",
+    "dims": [
+     0.1691,
+     0.1768,
+     0.2616
+    ],
+    "mats": 3
+   },
+   "Crop_Nut_Sesame__S5": {
+    "type": "MESH",
+    "dims": [
+     0.0387,
+     0.0389,
+     0.09
+    ],
+    "mats": 2
+   }
+  }
+ },
+ "Crop_Nut_Sunflower.fbx": {
+  "objects": {
+   "Crop_Nut_Sunflower__S1": {
+    "type": "MESH",
+    "dims": [
+     0.1763,
+     0.0784,
+     0.15
+    ],
+    "mats": 2
+   },
+   "Crop_Nut_Sunflower__S2": {
+    "type": "MESH",
+    "dims": [
+     0.1763,
+     0.1703,
+     0.33
+    ],
+    "mats": 2
+   },
+   "Crop_Nut_Sunflower__S3": {
+    "type": "MESH",
+    "dims": [
+     0.1991,
+     0.1816,
+     0.535
+    ],
+    "mats": 4
+   },
+   "Crop_Nut_Sunflower__S4": {
+    "type": "MESH",
+    "dims": [
+     0.1991,
+     0.1816,
+     0.65
+    ],
+    "mats": 4
+   },
+   "Crop_Nut_Sunflower__S5": {
+    "type": "MESH",
+    "dims": [
+     0.0434,
+     0.0428,
+     0.27
+    ],
+    "mats": 2
+   }
+  }
+ },
+ "Crop_Nut_Walnut.fbx": {
+  "objects": {
+   "Crop_Nut_Walnut__S1": {
+    "type": "MESH",
+    "dims": [
+     0.3108,
+     0.3019,
+     0.5009
+    ],
+    "mats": 3
+   },
+   "Crop_Nut_Walnut__S2": {
+    "type": "MESH",
+    "dims": [
+     0.4482,
+     0.4354,
+     0.7223
+    ],
+    "mats": 3
+   },
+   "Crop_Nut_Walnut__S3": {
+    "type": "MESH",
+    "dims": [
+     0.5856,
+     0.5689,
+     0.9438
+    ],
+    "mats": 4
+   },
+   "Crop_Nut_Walnut__S4": {
+    "type": "MESH",
+    "dims": [
+     0.6543,
+     0.6356,
+     1.0545
+    ],
+    "mats": 4
+   },
+   "Crop_Nut_Walnut__S5": {
+    "type": "MESH",
+    "dims": [
+     0.6543,
+     0.6356,
+     1.0545
+    ],
+    "mats": 3
+   }
+  }
+ },
+ "Crop_Veg_Asparagus.fbx": {
+  "objects": {
+   "Crop_Veg_Asparagus__S1": {
+    "type": "MESH",
+    "dims": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "mats": 0
+   },
+   "Crop_Veg_Asparagus__S2": {
+    "type": "MESH",
+    "dims": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "mats": 0
+   },
+   "Crop_Veg_Asparagus__S3": {
+    "type": "MESH",
+    "dims": [
+     0.0421,
+     0.0433,
+     0.0769
+    ],
+    "mats": 1
+   },
+   "Crop_Veg_Asparagus__S4": {
+    "type": "MESH",
+    "dims": [
+     0.0421,
+     0.0433,
+     0.0903
+    ],
+    "mats": 1
+   },
+   "Crop_Veg_Asparagus__S5": {
+    "type": "MESH",
+    "dims": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "mats": 0
+   }
+  }
+ },
+ "Crop_Veg_Beet.fbx": {
+  "objects": {
+   "Crop_Veg_Beet__S1": {
+    "type": "MESH",
+    "dims": [
+     0.0416,
+     0.0422,
+     0.0211
+    ],
+    "mats": 2
+   },
+   "Crop_Veg_Beet__S2": {
+    "type": "MESH",
+    "dims": [
+     0.0884,
+     0.0912,
+     0.0463
+    ],
+    "mats": 2
+   },
+   "Crop_Veg_Beet__S3": {
+    "type": "MESH",
+    "dims": [
+     0.14,
+     0.1426,
+     0.0812
+    ],
+    "mats": 3
+   },
+   "Crop_Veg_Beet__S4": {
+    "type": "MESH",
+    "dims": [
+     0.1601,
+     0.1667,
+     0.0971
+    ],
+    "mats": 3
+   },
+   "Crop_Veg_Beet__S5": {
+    "type": "MESH",
+    "dims": [
+     0.0585,
+     0.0585,
+     0.0295
+    ],
+    "mats": 2
+   }
+  }
+ },
+ "Crop_Veg_BellPepper.fbx": {
+  "objects": {
+   "Crop_Veg_BellPepper__S1": {
+    "type": "MESH",
+    "dims": [
+     0.0485,
+     0.0384,
+     0.0551
+    ],
+    "mats": 3
+   },
+   "Crop_Veg_BellPepper__S2": {
+    "type": "MESH",
+    "dims": [
+     0.1067,
+     0.1001,
+     0.1228
+    ],
+    "mats": 3
+   },
+   "Crop_Veg_BellPepper__S3": {
+    "type": "MESH",
+    "dims": [
+     0.1656,
+     0.1568,
+     0.1789
+    ],
+    "mats": 4
+   },
+   "Crop_Veg_BellPepper__S4": {
+    "type": "MESH",
+    "dims": [
+     0.1943,
+     0.1862,
+     0.229
+    ],
+    "mats": 4
+   },
+   "Crop_Veg_BellPepper__S5": {
+    "type": "MESH",
+    "dims": [
+     0.1365,
+     0.1276,
+     0.1603
+    ],
+    "mats": 3
+   }
+  }
+ },
+ "Crop_Veg_Cabbage.fbx": {
+  "objects": {
+   "Crop_Veg_Cabbage__S1": {
+    "type": "MESH",
+    "dims": [
+     0.0347,
+     0.0356,
+     0.0176
+    ],
+    "mats": 2
+   },
+   "Crop_Veg_Cabbage__S2": {
+    "type": "MESH",
+    "dims": [
+     0.0759,
+     0.0772,
+     0.0386
+    ],
+    "mats": 2
+   },
+   "Crop_Veg_Cabbage__S3": {
+    "type": "MESH",
+    "dims": [
+     0.1141,
+     0.114,
+     0.0616
+    ],
+    "mats": 3
+   },
+   "Crop_Veg_Cabbage__S4": {
+    "type": "MESH",
+    "dims": [
+     0.1369,
+     0.139,
+     0.081
+    ],
+    "mats": 3
+   },
+   "Crop_Veg_Cabbage__S5": {
+    "type": "MESH",
+    "dims": [
+     0.0488,
+     0.0494,
+     0.0246
+    ],
+    "mats": 2
+   }
+  }
+ },
+ "Crop_Veg_Carrot.fbx": {
+  "objects": {
+   "Crop_Veg_Carrot__S1": {
+    "type": "MESH",
+    "dims": [
+     0.0165,
+     0.0165,
+     0.0336
+    ],
+    "mats": 2
+   },
+   "Crop_Veg_Carrot__S2": {
+    "type": "MESH",
+    "dims": [
+     0.0334,
+     0.0337,
+     0.0768
+    ],
+    "mats": 2
+   },
+   "Crop_Veg_Carrot__S3": {
+    "type": "MESH",
+    "dims": [
+     0.0512,
+     0.0508,
+     0.1274
+    ],
+    "mats": 3
+   },
+   "Crop_Veg_Carrot__S4": {
+    "type": "MESH",
+    "dims": [
+     0.0601,
+     0.0605,
+     0.1508
+    ],
+    "mats": 3
+   },
+   "Crop_Veg_Carrot__S5": {
+    "type": "MESH",
+    "dims": [
+     0.0221,
+     0.0221,
+     0.048
+    ],
+    "mats": 2
+   }
+  }
+ },
+ "Crop_Veg_Chickpea.fbx": {
+  "objects": {
+   "Crop_Veg_Chickpea__S1": {
+    "type": "MESH",
+    "dims": [
+     0.0422,
+     0.0332,
+     0.0442
+    ],
+    "mats": 3
+   },
+   "Crop_Veg_Chickpea__S2": {
+    "type": "MESH",
+    "dims": [
+     0.0932,
+     0.0884,
+     0.1006
+    ],
+    "mats": 3
+   },
+   "Crop_Veg_Chickpea__S3": {
+    "type": "MESH",
+    "dims": [
+     0.1441,
+     0.1375,
+     0.1537
+    ],
+    "mats": 4
+   },
+   "Crop_Veg_Chickpea__S4": {
+    "type": "MESH",
+    "dims": [
+     0.1697,
+     0.1612,
+     0.1818
+    ],
+    "mats": 4
+   },
+   "Crop_Veg_Chickpea__S5": {
+    "type": "MESH",
+    "dims": [
+     0.119,
+     0.1118,
+     0.1276
+    ],
+    "mats": 3
+   }
+  }
+ },
+ "Crop_Veg_ChiliPepper.fbx": {
+  "objects": {
+   "Crop_Veg_ChiliPepper__S1": {
+    "type": "MESH",
+    "dims": [
+     0.0484,
+     0.0394,
+     0.0534
+    ],
+    "mats": 3
+   },
+   "Crop_Veg_ChiliPepper__S2": {
+    "type": "MESH",
+    "dims": [
+     0.1066,
+     0.1004,
+     0.1226
+    ],
+    "mats": 3
+   },
+   "Crop_Veg_ChiliPepper__S3": {
+    "type": "MESH",
+    "dims": [
+     0.1641,
+     0.1555,
+     0.1789
+    ],
+    "mats": 4
+   },
+   "Crop_Veg_ChiliPepper__S4": {
+    "type": "MESH",
+    "dims": [
+     0.1949,
+     0.1814,
+     0.2259
+    ],
+    "mats": 4
+   },
+   "Crop_Veg_ChiliPepper__S5": {
+    "type": "MESH",
+    "dims": [
+     0.1363,
+     0.1284,
+     0.1467
+    ],
+    "mats": 3
+   }
+  }
+ },
+ "Crop_Veg_Cucumber.fbx": {
+  "objects": {
+   "Crop_Veg_Cucumber__S1": {
+    "type": "MESH",
+    "dims": [
+     0.0636,
+     0.0508,
+     0.0875
+    ],
+    "mats": 4
+   },
+   "Crop_Veg_Cucumber__S2": {
+    "type": "MESH",
+    "dims": [
+     0.1341,
+     0.1285,
+     0.1925
+    ],
+    "mats": 4
+   },
+   "Crop_Veg_Cucumber__S3": {
+    "type": "MESH",
+    "dims": [
+     0.2084,
+     0.1981,
+     0.2975
+    ],
+    "mats": 5
+   },
+   "Crop_Veg_Cucumber__S4": {
+    "type": "MESH",
+    "dims": [
+     0.2444,
+     0.2235,
+     0.35
+    ],
+    "mats": 5
+   },
+   "Crop_Veg_Cucumber__S5": {
+    "type": "MESH",
+    "dims": [
+     0.171,
+     0.1627,
+     0.245
+    ],
+    "mats": 4
+   }
+  }
+ },
+ "Crop_Veg_Eggplant.fbx": {
+  "objects": {
+   "Crop_Veg_Eggplant__S1": {
+    "type": "MESH",
+    "dims": [
+     0.0547,
+     0.0466,
+     0.0623
+    ],
+    "mats": 3
+   },
+   "Crop_Veg_Eggplant__S2": {
+    "type": "MESH",
+    "dims": [
+     0.1211,
+     0.1076,
+     0.1464
+    ],
+    "mats": 3
+   },
+   "Crop_Veg_Eggplant__S3": {
+    "type": "MESH",
+    "dims": [
+     0.1865,
+     0.1747,
+     0.2323
+    ],
+    "mats": 4
+   },
+   "Crop_Veg_Eggplant__S4": {
+    "type": "MESH",
+    "dims": [
+     0.2196,
+     0.2002,
+     0.2698
+    ],
+    "mats": 4
+   },
+   "Crop_Veg_Eggplant__S5": {
+    "type": "MESH",
+    "dims": [
+     0.1535,
+     0.1456,
+     0.1756
+    ],
+    "mats": 3
+   }
+  }
+ },
+ "Crop_Veg_Garlic.fbx": {
+  "objects": {
+   "Crop_Veg_Garlic__S1": {
+    "type": "MESH",
+    "dims": [
+     0.0153,
+     0.0169,
+     0.0336
+    ],
+    "mats": 2
+   },
+   "Crop_Veg_Garlic__S2": {
+    "type": "MESH",
+    "dims": [
+     0.0335,
+     0.0326,
+     0.0768
+    ],
+    "mats": 2
+   },
+   "Crop_Veg_Garlic__S3": {
+    "type": "MESH",
+    "dims": [
+     0.0513,
+     0.0492,
+     0.1281
+    ],
+    "mats": 3
+   },
+   "Crop_Veg_Garlic__S4": {
+    "type": "MESH",
+    "dims": [
+     0.0605,
+     0.055,
+     0.1518
+    ],
+    "mats": 3
+   },
+   "Crop_Veg_Garlic__S5": {
+    "type": "MESH",
+    "dims": [
+     0.0216,
+     0.0223,
+     0.048
+    ],
+    "mats": 2
+   }
+  }
+ },
+ "Crop_Veg_KidneyBean.fbx": {
+  "objects": {
+   "Crop_Veg_KidneyBean__S1": {
+    "type": "MESH",
+    "dims": [
+     0.0618,
+     0.0475,
+     0.0812
+    ],
+    "mats": 4
+   },
+   "Crop_Veg_KidneyBean__S2": {
+    "type": "MESH",
+    "dims": [
+     0.1273,
+     0.1202,
+     0.1787
+    ],
+    "mats": 4
+   },
+   "Crop_Veg_KidneyBean__S3": {
+    "type": "MESH",
+    "dims": [
+     0.1966,
+     0.1841,
+     0.2763
+    ],
+    "mats": 5
+   },
+   "Crop_Veg_KidneyBean__S4": {
+    "type": "MESH",
+    "dims": [
+     0.2314,
+     0.2185,
+     0.325
+    ],
+    "mats": 5
+   },
+   "Crop_Veg_KidneyBean__S5": {
+    "type": "MESH",
+    "dims": [
+     0.1629,
+     0.1522,
+     0.2275
+    ],
+    "mats": 4
+   }
+  }
+ },
+ "Crop_Veg_Leek.fbx": {
+  "objects": {
+   "Crop_Veg_Leek__S1": {
+    "type": "MESH",
+    "dims": [
+     0.0257,
+     0.0259,
+     0.0576
+    ],
+    "mats": 2
+   },
+   "Crop_Veg_Leek__S2": {
+    "type": "MESH",
+    "dims": [
+     0.0555,
+     0.0521,
+     0.1296
+    ],
+    "mats": 2
+   },
+   "Crop_Veg_Leek__S3": {
+    "type": "MESH",
+    "dims": [
+     0.0853,
+     0.0798,
+     0.2083
+    ],
+    "mats": 3
+   },
+   "Crop_Veg_Leek__S4": {
+    "type": "MESH",
+    "dims": [
+     0.1002,
+     0.0919,
+     0.2458
+    ],
+    "mats": 3
+   },
+   "Crop_Veg_Leek__S5": {
+    "type": "MESH",
+    "dims": [
+     0.0354,
+     0.0352,
+     0.0816
+    ],
+    "mats": 2
+   }
+  }
+ },
+ "Crop_Veg_Lentil.fbx": {
+  "objects": {
+   "Crop_Veg_Lentil__S1": {
+    "type": "MESH",
+    "dims": [
+     0.0391,
+     0.0316,
+     0.0364
+    ],
+    "mats": 3
+   },
+   "Crop_Veg_Lentil__S2": {
+    "type": "MESH",
+    "dims": [
+     0.0861,
+     0.0779,
+     0.0827
+    ],
+    "mats": 3
+   },
+   "Crop_Veg_Lentil__S3": {
+    "type": "MESH",
+    "dims": [
+     0.1325,
+     0.1283,
+     0.1313
+    ],
+    "mats": 4
+   },
+   "Crop_Veg_Lentil__S4": {
+    "type": "MESH",
+    "dims": [
+     0.1564,
+     0.1455,
+     0.1537
+    ],
+    "mats": 4
+   },
+   "Crop_Veg_Lentil__S5": {
+    "type": "MESH",
+    "dims": [
+     0.1093,
+     0.1043,
+     0.108
+    ],
+    "mats": 3
+   }
+  }
+ },
+ "Crop_Veg_Lettuce.fbx": {
+  "objects": {
+   "Crop_Veg_Lettuce__S1": {
+    "type": "MESH",
+    "dims": [
+     0.0319,
+     0.0321,
+     0.0159
+    ],
+    "mats": 2
+   },
+   "Crop_Veg_Lettuce__S2": {
+    "type": "MESH",
+    "dims": [
+     0.0685,
+     0.0695,
+     0.0348
+    ],
+    "mats": 2
+   },
+   "Crop_Veg_Lettuce__S3": {
+    "type": "MESH",
+    "dims": [
+     0.1009,
+     0.106,
+     0.0556
+    ],
+    "mats": 3
+   },
+   "Crop_Veg_Lettuce__S4": {
+    "type": "MESH",
+    "dims": [
+     0.1212,
+     0.1252,
+     0.0651
+    ],
+    "mats": 3
+   },
+   "Crop_Veg_Lettuce__S5": {
+    "type": "MESH",
+    "dims": [
+     0.0434,
+     0.0441,
+     0.0222
+    ],
+    "mats": 2
+   }
+  }
+ },
+ "Crop_Veg_LotusRoot.fbx": {
+  "objects": {
+   "Crop_Veg_LotusRoot__S1": {
+    "type": "MESH",
+    "dims": [
+     0.0232,
+     0.0284,
+     0.0143
+    ],
+    "mats": 2
+   },
+   "Crop_Veg_LotusRoot__S2": {
+    "type": "MESH",
+    "dims": [
+     0.0528,
+     0.0543,
+     0.0309
+    ],
+    "mats": 2
+   },
+   "Crop_Veg_LotusRoot__S3": {
+    "type": "MESH",
+    "dims": [
+     0.1511,
+     0.1666,
+     0.0477
+    ],
+    "mats": 2
+   },
+   "Crop_Veg_LotusRoot__S4": {
+    "type": "MESH",
+    "dims": [
+     0.1511,
+     0.1666,
+     0.1031
+    ],
+    "mats": 3
+   },
+   "Crop_Veg_LotusRoot__S5": {
+    "type": "MESH",
+    "dims": [
+     0.0336,
+     0.0388,
+     0.0197
+    ],
+    "mats": 2
+   }
+  }
+ },
+ "Crop_Veg_NapaCabbage.fbx": {
+  "objects": {
+   "Crop_Veg_NapaCabbage__S1": {
+    "type": "MESH",
+    "dims": [
+     0.0186,
+     0.019,
+     0.0396
+    ],
+    "mats": 2
+   },
+   "Crop_Veg_NapaCabbage__S2": {
+    "type": "MESH",
+    "dims": [
+     0.0378,
+     0.0391,
+     0.09
+    ],
+    "mats": 2
+   },
+   "Crop_Veg_NapaCabbage__S3": {
+    "type": "MESH",
+    "dims": [
+     0.0576,
+     0.0598,
+     0.1436
+    ],
+    "mats": 3
+   },
+   "Crop_Veg_NapaCabbage__S4": {
+    "type": "MESH",
+    "dims": [
+     0.069,
+     0.0702,
+     0.1688
+    ],
+    "mats": 3
+   },
+   "Crop_Veg_NapaCabbage__S5": {
+    "type": "MESH",
+    "dims": [
+     0.0255,
+     0.0253,
+     0.0564
+    ],
+    "mats": 2
+   }
+  }
+ },
+ "Crop_Veg_Onion.fbx": {
+  "objects": {
+   "Crop_Veg_Onion__S1": {
+    "type": "MESH",
+    "dims": [
+     0.0158,
+     0.0169,
+     0.0336
+    ],
+    "mats": 2
+   },
+   "Crop_Veg_Onion__S2": {
+    "type": "MESH",
+    "dims": [
+     0.0337,
+     0.0332,
+     0.0768
+    ],
+    "mats": 2
+   },
+   "Crop_Veg_Onion__S3": {
+    "type": "MESH",
+    "dims": [
+     0.0513,
+     0.0498,
+     0.1302
+    ],
+    "mats": 3
+   },
+   "Crop_Veg_Onion__S4": {
+    "type": "MESH",
+    "dims": [
+     0.0604,
+     0.056,
+     0.1548
+    ],
+    "mats": 3
+   },
+   "Crop_Veg_Onion__S5": {
+    "type": "MESH",
+    "dims": [
+     0.0217,
+     0.0224,
+     0.048
+    ],
+    "mats": 2
+   }
+  }
+ },
+ "Crop_Veg_Pea.fbx": {
+  "objects": {
+   "Crop_Veg_Pea__S1": {
+    "type": "MESH",
+    "dims": [
+     0.0621,
+     0.0484,
+     0.0812
+    ],
+    "mats": 4
+   },
+   "Crop_Veg_Pea__S2": {
+    "type": "MESH",
+    "dims": [
+     0.1274,
+     0.1168,
+     0.1787
+    ],
+    "mats": 4
+   },
+   "Crop_Veg_Pea__S3": {
+    "type": "MESH",
+    "dims": [
+     0.1964,
+     0.1826,
+     0.2763
+    ],
+    "mats": 5
+   },
+   "Crop_Veg_Pea__S4": {
+    "type": "MESH",
+    "dims": [
+     0.232,
+     0.215,
+     0.325
+    ],
+    "mats": 5
+   },
+   "Crop_Veg_Pea__S5": {
+    "type": "MESH",
+    "dims": [
+     0.1626,
+     0.1554,
+     0.2275
+    ],
+    "mats": 4
+   }
+  }
+ },
+ "Crop_Veg_Potato.fbx": {
+  "objects": {
+   "Crop_Veg_Potato__S1": {
+    "type": "MESH",
+    "dims": [
+     0.0425,
+     0.031,
+     0.0453
+    ],
+    "mats": 3
+   },
+   "Crop_Veg_Potato__S2": {
+    "type": "MESH",
+    "dims": [
+     0.0935,
+     0.0858,
+     0.0986
+    ],
+    "mats": 3
+   },
+   "Crop_Veg_Potato__S3": {
+    "type": "MESH",
+    "dims": [
+     0.1438,
+     0.135,
+     0.1466
+    ],
+    "mats": 4
+   },
+   "Crop_Veg_Potato__S4": {
+    "type": "MESH",
+    "dims": [
+     0.17,
+     0.1521,
+     0.1827
+    ],
+    "mats": 3
+   },
+   "Crop_Veg_Potato__S5": {
+    "type": "MESH",
+    "dims": [
+     0.119,
+     0.1114,
+     0.1268
+    ],
+    "mats": 3
+   }
+  }
+ },
+ "Crop_Veg_Pumpkin.fbx": {
+  "objects": {
+   "Crop_Veg_Pumpkin__S1": {
+    "type": "MESH",
+    "dims": [
+     0.0945,
+     0.096,
+     0.024
+    ],
+    "mats": 3
+   },
+   "Crop_Veg_Pumpkin__S2": {
+    "type": "MESH",
+    "dims": [
+     0.184,
+     0.1872,
+     0.025
+    ],
+    "mats": 3
+   },
+   "Crop_Veg_Pumpkin__S3": {
+    "type": "MESH",
+    "dims": [
+     0.2734,
+     0.2784,
+     0.031
+    ],
+    "mats": 4
+   },
+   "Crop_Veg_Pumpkin__S4": {
+    "type": "MESH",
+    "dims": [
+     0.3181,
+     0.324,
+     0.095
+    ],
+    "mats": 4
+   },
+   "Crop_Veg_Pumpkin__S5": {
+    "type": "MESH",
+    "dims": [
+     0.2287,
+     0.2328,
+     0.028
+    ],
+    "mats": 3
+   }
+  }
+ },
+ "Crop_Veg_Radish.fbx": {
+  "objects": {
+   "Crop_Veg_Radish__S1": {
+    "type": "MESH",
+    "dims": [
+     0.0421,
+     0.0425,
+     0.0211
+    ],
+    "mats": 2
+   },
+   "Crop_Veg_Radish__S2": {
+    "type": "MESH",
+    "dims": [
+     0.0887,
+     0.0923,
+     0.0463
+    ],
+    "mats": 2
+   },
+   "Crop_Veg_Radish__S3": {
+    "type": "MESH",
+    "dims": [
+     0.1349,
+     0.1406,
+     0.0805
+    ],
+    "mats": 3
+   },
+   "Crop_Veg_Radish__S4": {
+    "type": "MESH",
+    "dims": [
+     0.16,
+     0.1647,
+     0.0961
+    ],
+    "mats": 3
+   },
+   "Crop_Veg_Radish__S5": {
+    "type": "MESH",
+    "dims": [
+     0.0572,
+     0.0582,
+     0.0295
+    ],
+    "mats": 2
+   }
+  }
+ },
+ "Crop_Veg_RedBean.fbx": {
+  "objects": {
+   "Crop_Veg_RedBean__S1": {
+    "type": "MESH",
+    "dims": [
+     0.0424,
+     0.0323,
+     0.045
+    ],
+    "mats": 3
+   },
+   "Crop_Veg_RedBean__S2": {
+    "type": "MESH",
+    "dims": [
+     0.0933,
+     0.0879,
+     0.0902
+    ],
+    "mats": 3
+   },
+   "Crop_Veg_RedBean__S3": {
+    "type": "MESH",
+    "dims": [
+     0.1442,
+     0.1357,
+     0.1469
+    ],
+    "mats": 4
+   },
+   "Crop_Veg_RedBean__S4": {
+    "type": "MESH",
+    "dims": [
+     0.17,
+     0.1573,
+     0.1832
+    ],
+    "mats": 4
+   },
+   "Crop_Veg_RedBean__S5": {
+    "type": "MESH",
+    "dims": [
+     0.1188,
+     0.1122,
+     0.1218
+    ],
+    "mats": 3
+   }
+  }
+ },
+ "Crop_Veg_Soybean.fbx": {
+  "objects": {
+   "Crop_Veg_Soybean__S1": {
+    "type": "MESH",
+    "dims": [
+     0.0452,
+     0.0374,
+     0.0515
+    ],
+    "mats": 3
+   },
+   "Crop_Veg_Soybean__S2": {
+    "type": "MESH",
+    "dims": [
+     0.1002,
+     0.0947,
+     0.1124
+    ],
+    "mats": 3
+   },
+   "Crop_Veg_Soybean__S3": {
+    "type": "MESH",
+    "dims": [
+     0.1544,
+     0.1446,
+     0.1616
+    ],
+    "mats": 4
+   },
+   "Crop_Veg_Soybean__S4": {
+    "type": "MESH",
+    "dims": [
+     0.1816,
+     0.1674,
+     0.2059
+    ],
+    "mats": 4
+   },
+   "Crop_Veg_Soybean__S5": {
+    "type": "MESH",
+    "dims": [
+     0.1272,
+     0.1223,
+     0.1393
+    ],
+    "mats": 3
+   }
+  }
+ },
+ "Crop_Veg_Spinach.fbx": {
+  "objects": {
+   "Crop_Veg_Spinach__S1": {
+    "type": "MESH",
+    "dims": [
+     0.032,
+     0.0321,
+     0.0159
+    ],
+    "mats": 2
+   },
+   "Crop_Veg_Spinach__S2": {
+    "type": "MESH",
+    "dims": [
+     0.0688,
+     0.0695,
+     0.0348
+    ],
+    "mats": 2
+   },
+   "Crop_Veg_Spinach__S3": {
+    "type": "MESH",
+    "dims": [
+     0.106,
+     0.1059,
+     0.0537
+    ],
+    "mats": 2
+   },
+   "Crop_Veg_Spinach__S4": {
+    "type": "MESH",
+    "dims": [
+     0.125,
+     0.1238,
+     0.0631
+    ],
+    "mats": 2
+   },
+   "Crop_Veg_Spinach__S5": {
+    "type": "MESH",
+    "dims": [
+     0.0445,
+     0.0444,
+     0.0222
+    ],
+    "mats": 2
+   }
+  }
+ },
+ "Crop_Veg_SweetPotato.fbx": {
+  "objects": {
+   "Crop_Veg_SweetPotato__S1": {
+    "type": "MESH",
+    "dims": [
+     0.0945,
+     0.096,
+     0.024
+    ],
+    "mats": 3
+   },
+   "Crop_Veg_SweetPotato__S2": {
+    "type": "MESH",
+    "dims": [
+     0.184,
+     0.1872,
+     0.025
+    ],
+    "mats": 3
+   },
+   "Crop_Veg_SweetPotato__S3": {
+    "type": "MESH",
+    "dims": [
+     0.2734,
+     0.2784,
+     0.031
+    ],
+    "mats": 4
+   },
+   "Crop_Veg_SweetPotato__S4": {
+    "type": "MESH",
+    "dims": [
+     0.3181,
+     0.324,
+     0.034
+    ],
+    "mats": 3
+   },
+   "Crop_Veg_SweetPotato__S5": {
+    "type": "MESH",
+    "dims": [
+     0.2287,
+     0.2328,
+     0.028
+    ],
+    "mats": 3
+   }
+  }
+ },
+ "Crop_Veg_Taro.fbx": {
+  "objects": {
+   "Crop_Veg_Taro__S1": {
+    "type": "MESH",
+    "dims": [
+     0.0255,
+     0.0254,
+     0.0576
+    ],
+    "mats": 2
+   },
+   "Crop_Veg_Taro__S2": {
+    "type": "MESH",
+    "dims": [
+     0.0552,
+     0.0554,
+     0.1296
+    ],
+    "mats": 2
+   },
+   "Crop_Veg_Taro__S3": {
+    "type": "MESH",
+    "dims": [
+     0.0852,
+     0.0853,
+     0.2016
+    ],
+    "mats": 2
+   },
+   "Crop_Veg_Taro__S4": {
+    "type": "MESH",
+    "dims": [
+     0.1003,
+     0.1002,
+     0.2376
+    ],
+    "mats": 2
+   },
+   "Crop_Veg_Taro__S5": {
+    "type": "MESH",
+    "dims": [
+     0.0355,
+     0.0355,
+     0.0816
+    ],
+    "mats": 2
+   }
+  }
+ },
+ "Crop_Veg_Tomato.fbx": {
+  "objects": {
+   "Crop_Veg_Tomato__S1": {
+    "type": "MESH",
+    "dims": [
+     0.0635,
+     0.05,
+     0.0875
+    ],
+    "mats": 4
+   },
+   "Crop_Veg_Tomato__S2": {
+    "type": "MESH",
+    "dims": [
+     0.1349,
+     0.1266,
+     0.1925
+    ],
+    "mats": 4
+   },
+   "Crop_Veg_Tomato__S3": {
+    "type": "MESH",
+    "dims": [
+     0.2077,
+     0.1983,
+     0.2975
+    ],
+    "mats": 5
+   },
+   "Crop_Veg_Tomato__S4": {
+    "type": "MESH",
+    "dims": [
+     0.2446,
+     0.2242,
+     0.35
+    ],
+    "mats": 5
+   },
+   "Crop_Veg_Tomato__S5": {
+    "type": "MESH",
+    "dims": [
+     0.1713,
+     0.1636,
+     0.245
+    ],
+    "mats": 4
+   }
+  }
+ },
+ "Crop_Veg_Turnip.fbx": {
+  "objects": {
+   "Crop_Veg_Turnip__S1": {
+    "type": "MESH",
+    "dims": [
+     0.042,
+     0.0421,
+     0.0211
+    ],
+    "mats": 2
+   },
+   "Crop_Veg_Turnip__S2": {
+    "type": "MESH",
+    "dims": [
+     0.0903,
+     0.0906,
+     0.0463
+    ],
+    "mats": 2
+   },
+   "Crop_Veg_Turnip__S3": {
+    "type": "MESH",
+    "dims": [
+     0.1375,
+     0.1407,
+     0.0812
+    ],
+    "mats": 3
+   },
+   "Crop_Veg_Turnip__S4": {
+    "type": "MESH",
+    "dims": [
+     0.162,
+     0.1635,
+     0.0971
+    ],
+    "mats": 3
+   },
+   "Crop_Veg_Turnip__S5": {
+    "type": "MESH",
+    "dims": [
+     0.0584,
+     0.0592,
+     0.0295
+    ],
+    "mats": 2
+   }
+  }
+ },
+ "Crop_Veg_Zucchini.fbx": {
+  "objects": {
+   "Crop_Veg_Zucchini__S1": {
+    "type": "MESH",
+    "dims": [
+     0.0945,
+     0.096,
+     0.024
+    ],
+    "mats": 3
+   },
+   "Crop_Veg_Zucchini__S2": {
+    "type": "MESH",
+    "dims": [
+     0.184,
+     0.1872,
+     0.025
+    ],
+    "mats": 3
+   },
+   "Crop_Veg_Zucchini__S3": {
+    "type": "MESH",
+    "dims": [
+     0.2734,
+     0.2784,
+     0.031
+    ],
+    "mats": 4
+   },
+   "Crop_Veg_Zucchini__S4": {
+    "type": "MESH",
+    "dims": [
+     0.3181,
+     0.324,
+     0.0572
+    ],
+    "mats": 4
+   },
+   "Crop_Veg_Zucchini__S5": {
+    "type": "MESH",
+    "dims": [
+     0.2287,
+     0.2328,
+     0.028
+    ],
+    "mats": 3
+   }
+  }
+ }
+}

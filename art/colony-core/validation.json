@@ -1,0 +1,401 @@
+{
+  "checks": "FBX roundtrip: dimensions, ground pivot, mesh count, materials, flat shading, triangles, no camera/light",
+  "unity_import_tested": false,
+  "assets": [
+    {
+      "id": "CC_NestEntrance",
+      "passed": true,
+      "triangles": 644
+    },
+    {
+      "id": "CC_Storage",
+      "passed": true,
+      "triangles": 1344
+    },
+    {
+      "id": "CC_FarmTile",
+      "passed": true,
+      "triangles": 272
+    },
+    {
+      "id": "CC_CropFungus_Young",
+      "passed": true,
+      "triangles": 312
+    },
+    {
+      "id": "CC_CropFungus_Mature",
+      "passed": true,
+      "triangles": 312
+    },
+    {
+      "id": "CC_RanchFence",
+      "passed": true,
+      "triangles": 432
+    },
+    {
+      "id": "CC_RanchGate",
+      "passed": true,
+      "triangles": 216
+    },
+    {
+      "id": "CC_Feeder",
+      "passed": true,
+      "triangles": 308
+    },
+    {
+      "id": "CC_CommanderBed",
+      "passed": true,
+      "triangles": 524
+    },
+    {
+      "id": "CC_AnimalTreatment",
+      "passed": true,
+      "triangles": 568
+    },
+    {
+      "id": "CC_Apothecary",
+      "passed": true,
+      "triangles": 784
+    },
+    {
+      "id": "CC_ButcherTable",
+      "passed": true,
+      "triangles": 484
+    },
+    {
+      "id": "CC_Kitchen",
+      "passed": true,
+      "triangles": 556
+    },
+    {
+      "id": "CC_CompostBin",
+      "passed": true,
+      "triangles": 624
+    },
+    {
+      "id": "CC_Tombstone",
+      "passed": true,
+      "triangles": 96
+    },
+    {
+      "id": "CC_ResourceWood",
+      "passed": true,
+      "triangles": 144
+    },
+    {
+      "id": "CC_ResourceStone",
+      "passed": true,
+      "triangles": 60
+    },
+    {
+      "id": "CC_ResourceLeaf",
+      "passed": true,
+      "triangles": 64
+    },
+    {
+      "id": "CC_ResourceFiber",
+      "passed": true,
+      "triangles": 140
+    },
+    {
+      "id": "CC_ResourceGrain",
+      "passed": true,
+      "triangles": 140
+    },
+    {
+      "id": "CC_ResourceCompost",
+      "passed": true,
+      "triangles": 96
+    },
+    {
+      "id": "CC_Dormitory",
+      "passed": true,
+      "triangles": 668
+    },
+    {
+      "id": "CC_Workshop",
+      "passed": true,
+      "triangles": 836
+    },
+    {
+      "id": "CC_ResearchDesk",
+      "passed": true,
+      "triangles": 560
+    },
+    {
+      "id": "CC_AdminDesk",
+      "passed": true,
+      "triangles": 588
+    },
+    {
+      "id": "CC_Refrigerator",
+      "passed": true,
+      "triangles": 704
+    },
+    {
+      "id": "CC_Freezer",
+      "passed": true,
+      "triangles": 616
+    },
+    {
+      "id": "CC_WoodGenerator",
+      "passed": true,
+      "triangles": 428
+    },
+    {
+      "id": "CC_Battery",
+      "passed": true,
+      "triangles": 312
+    },
+    {
+      "id": "CC_Lamp",
+      "passed": true,
+      "triangles": 200
+    },
+    {
+      "id": "CC_SoilWall",
+      "passed": true,
+      "triangles": 396
+    },
+    {
+      "id": "CC_LeafWall",
+      "passed": true,
+      "triangles": 168
+    },
+    {
+      "id": "CC_DoorFrame",
+      "passed": true,
+      "triangles": 400
+    },
+    {
+      "id": "CC_Bush",
+      "passed": true,
+      "triangles": 132
+    },
+    {
+      "id": "CC_ConstructionFrame",
+      "passed": true,
+      "triangles": 492
+    },
+    {
+      "id": "CC_ConstructionPlan",
+      "passed": true,
+      "triangles": 672
+    },
+    {
+      "id": "CC_CropFungus_Growing",
+      "passed": true,
+      "triangles": 132
+    },
+    {
+      "id": "CC_CropFungus_Harvested",
+      "passed": true,
+      "triangles": 132
+    },
+    {
+      "id": "CC_CropFungus_Pest",
+      "passed": true,
+      "triangles": 252
+    },
+    {
+      "id": "CC_CropFungus_Planted",
+      "passed": true,
+      "triangles": 60
+    },
+    {
+      "id": "CC_DemolitionRubble",
+      "passed": true,
+      "triangles": 212
+    },
+    {
+      "id": "CC_FallenBranch",
+      "passed": true,
+      "triangles": 88
+    },
+    {
+      "id": "CC_FeedMeat",
+      "passed": true,
+      "triangles": 116
+    },
+    {
+      "id": "CC_FeedPlant",
+      "passed": true,
+      "triangles": 116
+    },
+    {
+      "id": "CC_FoodRotten",
+      "passed": true,
+      "triangles": 236
+    },
+    {
+      "id": "CC_GrassTuft",
+      "passed": true,
+      "triangles": 128
+    },
+    {
+      "id": "CC_Manure",
+      "passed": true,
+      "triangles": 60
+    },
+    {
+      "id": "CC_MealGood",
+      "passed": true,
+      "triangles": 232
+    },
+    {
+      "id": "CC_MealSimple",
+      "passed": true,
+      "triangles": 196
+    },
+    {
+      "id": "CC_MedicineAdvanced",
+      "passed": true,
+      "triangles": 168
+    },
+    {
+      "id": "CC_MedicineAnimal",
+      "passed": true,
+      "triangles": 100
+    },
+    {
+      "id": "CC_MedicineHerbal",
+      "passed": true,
+      "triangles": 72
+    },
+    {
+      "id": "CC_MedicineStandard",
+      "passed": true,
+      "triangles": 112
+    },
+    {
+      "id": "CC_OreOutcrop",
+      "passed": true,
+      "triangles": 180
+    },
+    {
+      "id": "CC_PebbleScatter",
+      "passed": true,
+      "triangles": 140
+    },
+    {
+      "id": "CC_ResourceOre",
+      "passed": true,
+      "triangles": 120
+    },
+    {
+      "id": "CC_ResourcePlanks",
+      "passed": true,
+      "triangles": 264
+    },
+    {
+      "id": "CC_ResourceSilk",
+      "passed": true,
+      "triangles": 384
+    },
+    {
+      "id": "CC_RockOutcrop",
+      "passed": true,
+      "triangles": 60
+    },
+    {
+      "id": "CC_Stump",
+      "passed": true,
+      "triangles": 192
+    },
+    {
+      "id": "CC_SurgeryKit",
+      "passed": true,
+      "triangles": 156
+    },
+    {
+      "id": "CC_TreeBroadleaf",
+      "passed": true,
+      "triangles": 320
+    },
+    {
+      "id": "CC_TreeTall",
+      "passed": true,
+      "triangles": 320
+    },
+    {
+      "id": "CC_WildFungus",
+      "passed": true,
+      "triangles": 132
+    },
+    {
+      "id": "CC_AcidTower",
+      "passed": true,
+      "triangles": 284
+    },
+    {
+      "id": "CC_Bookshelf",
+      "passed": true,
+      "triangles": 924
+    },
+    {
+      "id": "CC_Campfire",
+      "passed": true,
+      "triangles": 252
+    },
+    {
+      "id": "CC_CastleGate",
+      "passed": true,
+      "triangles": 1012
+    },
+    {
+      "id": "CC_CastleWall",
+      "passed": true,
+      "triangles": 660
+    },
+    {
+      "id": "CC_Chair",
+      "passed": true,
+      "triangles": 228
+    },
+    {
+      "id": "CC_DiningTable",
+      "passed": true,
+      "triangles": 296
+    },
+    {
+      "id": "CC_RestBench",
+      "passed": true,
+      "triangles": 432
+    },
+    {
+      "id": "CC_Shower",
+      "passed": true,
+      "triangles": 432
+    },
+    {
+      "id": "CC_SleepingMat",
+      "passed": true,
+      "triangles": 460
+    },
+    {
+      "id": "CC_SpikeTrap",
+      "passed": true,
+      "triangles": 116
+    },
+    {
+      "id": "CC_StickyTrap",
+      "passed": true,
+      "triangles": 184
+    },
+    {
+      "id": "CC_Toilet",
+      "passed": true,
+      "triangles": 276
+    },
+    {
+      "id": "CC_Washbasin",
+      "passed": true,
+      "triangles": 288
+    },
+    {
+      "id": "CC_Watchtower",
+      "passed": true,
+      "triangles": 920
+    }
+  ]
+}

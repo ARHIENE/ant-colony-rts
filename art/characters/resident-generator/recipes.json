@@ -1,0 +1,221 @@
+{
+  "version": 1,
+  "residents": [
+    {
+      "clothing": "sage",
+      "crown": "tuft",
+      "ears": "point",
+      "expression": "confident",
+      "palette": 5,
+      "pattern": "none",
+      "shape": "soft_oval"
+    },
+    {
+      "clothing": "rust",
+      "crown": "leaves",
+      "ears": "short",
+      "expression": "confident",
+      "palette": 1,
+      "pattern": "blaze_c",
+      "shape": "wide_cheek"
+    },
+    {
+      "clothing": "sage",
+      "crown": "none",
+      "ears": "short",
+      "expression": "calm",
+      "palette": 6,
+      "pattern": "blaze_c",
+      "shape": "wide_cheek"
+    },
+    {
+      "clothing": "none",
+      "crown": "tuft",
+      "ears": "upright",
+      "expression": "calm",
+      "palette": 3,
+      "pattern": "blaze_b",
+      "shape": "wide_cheek"
+    },
+    {
+      "clothing": "none",
+      "crown": "tuft",
+      "ears": "upright",
+      "expression": "wink",
+      "palette": 4,
+      "pattern": "blaze_c",
+      "shape": "soft_oval"
+    },
+    {
+      "clothing": "sage",
+      "crown": "none",
+      "ears": "short",
+      "expression": "calm",
+      "palette": 2,
+      "pattern": "blaze_b",
+      "shape": "soft_oval"
+    },
+    {
+      "clothing": "sage",
+      "crown": "tuft",
+      "ears": "point",
+      "expression": "calm",
+      "palette": 1,
+      "pattern": "blaze_a",
+      "shape": "wide_cheek"
+    },
+    {
+      "clothing": "sage",
+      "crown": "none",
+      "ears": "point",
+      "expression": "confident",
+      "palette": 4,
+      "pattern": "none",
+      "shape": "round"
+    },
+    {
+      "clothing": "blue",
+      "crown": "none",
+      "ears": "point",
+      "expression": "confident",
+      "palette": 7,
+      "pattern": "none",
+      "shape": "round"
+    },
+    {
+      "clothing": "rust",
+      "crown": "none",
+      "ears": "short",
+      "expression": "calm",
+      "palette": 0,
+      "pattern": "blaze_c",
+      "shape": "soft_oval"
+    },
+    {
+      "clothing": "blue",
+      "crown": "leaves",
+      "ears": "round",
+      "expression": "happy",
+      "palette": 6,
+      "pattern": "blaze_b",
+      "shape": "round"
+    },
+    {
+      "clothing": "none",
+      "crown": "none",
+      "ears": "upright",
+      "expression": "calm",
+      "palette": 2,
+      "pattern": "blaze_b",
+      "shape": "round"
+    },
+    {
+      "clothing": "none",
+      "crown": "none",
+      "ears": "long",
+      "expression": "wink",
+      "palette": 1,
+      "pattern": "blaze_b",
+      "shape": "wide_cheek"
+    },
+    {
+      "clothing": "rust",
+      "crown": "none",
+      "ears": "long",
+      "expression": "happy",
+      "palette": 0,
+      "pattern": "blaze_c",
+      "shape": "round"
+    },
+    {
+      "clothing": "rust",
+      "crown": "none",
+      "ears": "long",
+      "expression": "happy",
+      "palette": 6,
+      "pattern": "blaze_a",
+      "shape": "wide_cheek"
+    },
+    {
+      "clothing": "rust",
+      "crown": "leaves",
+      "ears": "long",
+      "expression": "happy",
+      "palette": 3,
+      "pattern": "none",
+      "shape": "wide_cheek"
+    },
+    {
+      "clothing": "rust",
+      "crown": "tuft",
+      "ears": "point",
+      "expression": "calm",
+      "palette": 0,
+      "pattern": "blaze_c",
+      "shape": "soft_oval"
+    },
+    {
+      "clothing": "none",
+      "crown": "leaves",
+      "ears": "short",
+      "expression": "calm",
+      "palette": 3,
+      "pattern": "blaze_c",
+      "shape": "round"
+    },
+    {
+      "clothing": "blue",
+      "crown": "none",
+      "ears": "point",
+      "expression": "calm",
+      "palette": 2,
+      "pattern": "blaze_b",
+      "shape": "wide_cheek"
+    },
+    {
+      "clothing": "blue",
+      "crown": "leaves",
+      "ears": "short",
+      "expression": "confident",
+      "palette": 2,
+      "pattern": "blaze_a",
+      "shape": "wide_cheek"
+    },
+    {
+      "clothing": "blue",
+      "crown": "tuft",
+      "ears": "point",
+      "expression": "confident",
+      "palette": 4,
+      "pattern": "blaze_b",
+      "shape": "round"
+    },
+    {
+      "clothing": "none",
+      "crown": "tuft",
+      "ears": "upright",
+      "expression": "happy",
+      "palette": 1,
+      "pattern": "blaze_c",
+      "shape": "wide_cheek"
+    },
+    {
+      "clothing": "sage",
+      "crown": "leaves",
+      "ears": "short",
+      "expression": "happy",
+      "palette": 1,
+      "pattern": "blaze_a",
+      "shape": "round"
+    },
+    {
+      "clothing": "rust",
+      "crown": "tuft",
+      "ears": "point",
+      "expression": "wink",
+      "palette": 6,
+      "pattern": "none",
+      "shape": "wide_cheek"
+    }
+  ]
+}

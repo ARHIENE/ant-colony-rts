@@ -1,0 +1,1519 @@
+{
+ "items": {
+  "Wood_Common": {
+   "single": "Wood_Common",
+   "stack": "Wood_Common__Stack"
+  },
+  "Wood_Hard": {
+   "single": "Wood_Hard",
+   "stack": "Wood_Hard__Stack"
+  },
+  "Wood_Light": {
+   "single": "Wood_Light",
+   "stack": "Wood_Light__Stack"
+  },
+  "Plank_Common": {
+   "single": "Plank_Common",
+   "stack": "Plank_Common__Stack"
+  },
+  "Plank_Hard": {
+   "single": "Plank_Hard",
+   "stack": "Plank_Hard__Stack"
+  },
+  "Plank_Light": {
+   "single": "Plank_Light",
+   "stack": "Plank_Light__Stack"
+  },
+  "Stone_Sandstone": {
+   "single": "Stone_Sandstone",
+   "stack": "Stone_Sandstone__Stack"
+  },
+  "Stone_Granite": {
+   "single": "Stone_Granite",
+   "stack": "Stone_Granite__Stack"
+  },
+  "Stone_Marble": {
+   "single": "Stone_Marble",
+   "stack": "Stone_Marble__Stack"
+  },
+  "Stone_Tuff": {
+   "single": "Stone_Tuff",
+   "stack": "Stone_Tuff__Stack"
+  },
+  "Block_Sandstone": {
+   "single": "Block_Sandstone",
+   "stack": "Block_Sandstone__Stack"
+  },
+  "Block_Granite": {
+   "single": "Block_Granite",
+   "stack": "Block_Granite__Stack"
+  },
+  "Block_Marble": {
+   "single": "Block_Marble",
+   "stack": "Block_Marble__Stack"
+  },
+  "Block_Tuff": {
+   "single": "Block_Tuff",
+   "stack": "Block_Tuff__Stack"
+  },
+  "Ore_Copper": {
+   "single": "Ore_Copper",
+   "stack": "Ore_Copper__Stack"
+  },
+  "Ore_Tin": {
+   "single": "Ore_Tin",
+   "stack": "Ore_Tin__Stack"
+  },
+  "Ore_Iron": {
+   "single": "Ore_Iron",
+   "stack": "Ore_Iron__Stack"
+  },
+  "Ore_Silver": {
+   "single": "Ore_Silver",
+   "stack": "Ore_Silver__Stack"
+  },
+  "Ore_Gold": {
+   "single": "Ore_Gold",
+   "stack": "Ore_Gold__Stack"
+  },
+  "Ore_Titanium": {
+   "single": "Ore_Titanium",
+   "stack": "Ore_Titanium__Stack"
+  },
+  "Ore_Starlight": {
+   "single": "Ore_Starlight",
+   "stack": "Ore_Starlight__Stack"
+  },
+  "Ingot_Copper": {
+   "single": "Ingot_Copper",
+   "stack": "Ingot_Copper__Stack"
+  },
+  "Ingot_Tin": {
+   "single": "Ingot_Tin",
+   "stack": "Ingot_Tin__Stack"
+  },
+  "Ingot_Bronze": {
+   "single": "Ingot_Bronze",
+   "stack": "Ingot_Bronze__Stack"
+  },
+  "Ingot_Iron": {
+   "single": "Ingot_Iron",
+   "stack": "Ingot_Iron__Stack"
+  },
+  "Ingot_Steel": {
+   "single": "Ingot_Steel",
+   "stack": "Ingot_Steel__Stack"
+  },
+  "Ingot_Silver": {
+   "single": "Ingot_Silver",
+   "stack": "Ingot_Silver__Stack"
+  },
+  "Ingot_Gold": {
+   "single": "Ingot_Gold",
+   "stack": "Ingot_Gold__Stack"
+  },
+  "Ingot_Titanium": {
+   "single": "Ingot_Titanium",
+   "stack": "Ingot_Titanium__Stack"
+  },
+  "Ingot_TitaniumAlloy": {
+   "single": "Ingot_TitaniumAlloy",
+   "stack": "Ingot_TitaniumAlloy__Stack"
+  },
+  "Ingot_Starlight": {
+   "single": "Ingot_Starlight",
+   "stack": "Ingot_Starlight__Stack"
+  },
+  "Ingot_StarlightAlloy": {
+   "single": "Ingot_StarlightAlloy",
+   "stack": "Ingot_StarlightAlloy__Stack"
+  },
+  "Fiber_Plant": {
+   "single": "Fiber_Plant",
+   "stack": "Fiber_Plant__Stack"
+  },
+  "Fiber_RanchYarn": {
+   "single": "Fiber_RanchYarn",
+   "stack": "Fiber_RanchYarn__Stack"
+  },
+  "Fiber_Wool": {
+   "single": "Fiber_Wool",
+   "stack": "Fiber_Wool__Stack"
+  },
+  "Cloth_Plant": {
+   "single": "Cloth_Plant",
+   "stack": "Cloth_Plant__Stack"
+  },
+  "Cloth_Yarn": {
+   "single": "Cloth_Yarn",
+   "stack": "Cloth_Yarn__Stack"
+  },
+  "Cloth_Wool": {
+   "single": "Cloth_Wool",
+   "stack": "Cloth_Wool__Stack"
+  },
+  "Leather_Thin": {
+   "single": "Leather_Thin",
+   "stack": "Leather_Thin__Stack"
+  },
+  "Leather_Thick": {
+   "single": "Leather_Thick",
+   "stack": "Leather_Thick__Stack"
+  },
+  "Leather_Fur": {
+   "single": "Leather_Fur",
+   "stack": "Leather_Fur__Stack"
+  },
+  "Fossil_Coal": {
+   "single": "Fossil_Coal",
+   "stack": "Fossil_Coal__Stack"
+  },
+  "Fossil_CrudeOil": {
+   "single": "Fossil_CrudeOil",
+   "stack": "Fossil_CrudeOil__Stack"
+  },
+  "Fossil_NaturalGas": {
+   "single": "Fossil_NaturalGas",
+   "stack": "Fossil_NaturalGas__Stack"
+  },
+  "Mineral_Sand": {
+   "single": "Mineral_Sand",
+   "stack": "Mineral_Sand__Stack"
+  },
+  "Mineral_Clay": {
+   "single": "Mineral_Clay",
+   "stack": "Mineral_Clay__Stack"
+  },
+  "Mineral_Limestone": {
+   "single": "Mineral_Limestone",
+   "stack": "Mineral_Limestone__Stack"
+  },
+  "Mineral_Sulfur": {
+   "single": "Mineral_Sulfur",
+   "stack": "Mineral_Sulfur__Stack"
+  },
+  "Gather_Resin": {
+   "single": "Gather_Resin",
+   "stack": "Gather_Resin__Stack"
+  },
+  "Gather_RubberSap": {
+   "single": "Gather_RubberSap",
+   "stack": "Gather_RubberSap__Stack"
+  },
+  "Byproduct_Straw": {
+   "single": "Byproduct_Straw",
+   "stack": "Byproduct_Straw__Stack"
+  },
+  "Byproduct_Manure": {
+   "single": "Byproduct_Manure",
+   "stack": "Byproduct_Manure__Stack"
+  },
+  "Proc_Charcoal": {
+   "single": "Proc_Charcoal",
+   "stack": "Proc_Charcoal__Stack"
+  },
+  "Proc_Coke": {
+   "single": "Proc_Coke",
+   "stack": "Proc_Coke__Stack"
+  },
+  "Proc_Fuel": {
+   "single": "Proc_Fuel",
+   "stack": "Proc_Fuel__Stack"
+  },
+  "Proc_Plastic": {
+   "single": "Proc_Plastic",
+   "stack": "Proc_Plastic__Stack"
+  },
+  "Proc_Rubber": {
+   "single": "Proc_Rubber",
+   "stack": "Proc_Rubber__Stack"
+  },
+  "Proc_Glass": {
+   "single": "Proc_Glass",
+   "stack": "Proc_Glass__Stack"
+  },
+  "Proc_Brick": {
+   "single": "Proc_Brick",
+   "stack": "Proc_Brick__Stack"
+  },
+  "Proc_Pottery": {
+   "single": "Proc_Pottery",
+   "stack": "Proc_Pottery__Stack"
+  },
+  "Proc_Quicklime": {
+   "single": "Proc_Quicklime",
+   "stack": "Proc_Quicklime__Stack"
+  },
+  "Proc_Compost": {
+   "single": "Proc_Compost",
+   "stack": "Proc_Compost__Stack"
+  },
+  "Grain_Rice": {
+   "single": "Grain_Rice",
+   "stack": "Grain_Rice__Stack",
+   "rotten": "Grain_Rice__Rotten",
+   "seed": "Grain_Rice__Seed"
+  },
+  "Grain_Wheat": {
+   "single": "Grain_Wheat",
+   "stack": "Grain_Wheat__Stack",
+   "rotten": "Grain_Wheat__Rotten",
+   "seed": "Grain_Wheat__Seed"
+  },
+  "Grain_Barley": {
+   "single": "Grain_Barley",
+   "stack": "Grain_Barley__Stack",
+   "rotten": "Grain_Barley__Rotten",
+   "seed": "Grain_Barley__Seed"
+  },
+  "Grain_Corn": {
+   "single": "Grain_Corn",
+   "stack": "Grain_Corn__Stack",
+   "rotten": "Grain_Corn__Rotten",
+   "seed": "Grain_Corn__Seed"
+  },
+  "Grain_Oat": {
+   "single": "Grain_Oat",
+   "stack": "Grain_Oat__Stack",
+   "rotten": "Grain_Oat__Rotten",
+   "seed": "Grain_Oat__Seed"
+  },
+  "Grain_Rye": {
+   "single": "Grain_Rye",
+   "stack": "Grain_Rye__Stack",
+   "rotten": "Grain_Rye__Rotten",
+   "seed": "Grain_Rye__Seed"
+  },
+  "Grain_Sorghum": {
+   "single": "Grain_Sorghum",
+   "stack": "Grain_Sorghum__Stack",
+   "rotten": "Grain_Sorghum__Rotten",
+   "seed": "Grain_Sorghum__Seed"
+  },
+  "Grain_Millet": {
+   "single": "Grain_Millet",
+   "stack": "Grain_Millet__Stack",
+   "rotten": "Grain_Millet__Rotten",
+   "seed": "Grain_Millet__Seed"
+  },
+  "Grain_Buckwheat": {
+   "single": "Grain_Buckwheat",
+   "stack": "Grain_Buckwheat__Stack",
+   "rotten": "Grain_Buckwheat__Rotten",
+   "seed": "Grain_Buckwheat__Seed"
+  },
+  "Veg_Potato": {
+   "single": "Veg_Potato",
+   "stack": "Veg_Potato__Stack",
+   "rotten": "Veg_Potato__Rotten",
+   "seed": "Veg_Potato__Seed"
+  },
+  "Veg_Carrot": {
+   "single": "Veg_Carrot",
+   "stack": "Veg_Carrot__Stack",
+   "rotten": "Veg_Carrot__Rotten",
+   "seed": "Veg_Carrot__Seed"
+  },
+  "Veg_Cabbage": {
+   "single": "Veg_Cabbage",
+   "stack": "Veg_Cabbage__Stack",
+   "rotten": "Veg_Cabbage__Rotten",
+   "seed": "Veg_Cabbage__Seed"
+  },
+  "Veg_Pumpkin": {
+   "single": "Veg_Pumpkin",
+   "stack": "Veg_Pumpkin__Stack",
+   "rotten": "Veg_Pumpkin__Rotten",
+   "seed": "Veg_Pumpkin__Seed"
+  },
+  "Veg_Soybean": {
+   "single": "Veg_Soybean",
+   "stack": "Veg_Soybean__Stack",
+   "rotten": "Veg_Soybean__Rotten",
+   "seed": "Veg_Soybean__Seed"
+  },
+  "Veg_ChiliPepper": {
+   "single": "Veg_ChiliPepper",
+   "stack": "Veg_ChiliPepper__Stack",
+   "rotten": "Veg_ChiliPepper__Rotten",
+   "seed": "Veg_ChiliPepper__Seed"
+  },
+  "Veg_SweetPotato": {
+   "single": "Veg_SweetPotato",
+   "stack": "Veg_SweetPotato__Stack",
+   "rotten": "Veg_SweetPotato__Rotten",
+   "seed": "Veg_SweetPotato__Seed"
+  },
+  "Veg_Radish": {
+   "single": "Veg_Radish",
+   "stack": "Veg_Radish__Stack",
+   "rotten": "Veg_Radish__Rotten",
+   "seed": "Veg_Radish__Seed"
+  },
+  "Veg_Turnip": {
+   "single": "Veg_Turnip",
+   "stack": "Veg_Turnip__Stack",
+   "rotten": "Veg_Turnip__Rotten",
+   "seed": "Veg_Turnip__Seed"
+  },
+  "Veg_Beet": {
+   "single": "Veg_Beet",
+   "stack": "Veg_Beet__Stack",
+   "rotten": "Veg_Beet__Rotten",
+   "seed": "Veg_Beet__Seed"
+  },
+  "Veg_Taro": {
+   "single": "Veg_Taro",
+   "stack": "Veg_Taro__Stack",
+   "rotten": "Veg_Taro__Rotten",
+   "seed": "Veg_Taro__Seed"
+  },
+  "Veg_LotusRoot": {
+   "single": "Veg_LotusRoot",
+   "stack": "Veg_LotusRoot__Stack",
+   "rotten": "Veg_LotusRoot__Rotten",
+   "seed": "Veg_LotusRoot__Seed"
+  },
+  "Veg_NapaCabbage": {
+   "single": "Veg_NapaCabbage",
+   "stack": "Veg_NapaCabbage__Stack",
+   "rotten": "Veg_NapaCabbage__Rotten",
+   "seed": "Veg_NapaCabbage__Seed"
+  },
+  "Veg_Spinach": {
+   "single": "Veg_Spinach",
+   "stack": "Veg_Spinach__Stack",
+   "rotten": "Veg_Spinach__Rotten",
+   "seed": "Veg_Spinach__Seed"
+  },
+  "Veg_Lettuce": {
+   "single": "Veg_Lettuce",
+   "stack": "Veg_Lettuce__Stack",
+   "rotten": "Veg_Lettuce__Rotten",
+   "seed": "Veg_Lettuce__Seed"
+  },
+  "Veg_Onion": {
+   "single": "Veg_Onion",
+   "stack": "Veg_Onion__Stack",
+   "rotten": "Veg_Onion__Rotten",
+   "seed": "Veg_Onion__Seed"
+  },
+  "Veg_Leek": {
+   "single": "Veg_Leek",
+   "stack": "Veg_Leek__Stack",
+   "rotten": "Veg_Leek__Rotten",
+   "seed": "Veg_Leek__Seed"
+  },
+  "Veg_Garlic": {
+   "single": "Veg_Garlic",
+   "stack": "Veg_Garlic__Stack",
+   "rotten": "Veg_Garlic__Rotten",
+   "seed": "Veg_Garlic__Seed"
+  },
+  "Veg_Asparagus": {
+   "single": "Veg_Asparagus",
+   "stack": "Veg_Asparagus__Stack",
+   "rotten": "Veg_Asparagus__Rotten",
+   "seed": "Veg_Asparagus__Seed"
+  },
+  "Veg_Tomato": {
+   "single": "Veg_Tomato",
+   "stack": "Veg_Tomato__Stack",
+   "rotten": "Veg_Tomato__Rotten",
+   "seed": "Veg_Tomato__Seed"
+  },
+  "Veg_Cucumber": {
+   "single": "Veg_Cucumber",
+   "stack": "Veg_Cucumber__Stack",
+   "rotten": "Veg_Cucumber__Rotten",
+   "seed": "Veg_Cucumber__Seed"
+  },
+  "Veg_Eggplant": {
+   "single": "Veg_Eggplant",
+   "stack": "Veg_Eggplant__Stack",
+   "rotten": "Veg_Eggplant__Rotten",
+   "seed": "Veg_Eggplant__Seed"
+  },
+  "Veg_BellPepper": {
+   "single": "Veg_BellPepper",
+   "stack": "Veg_BellPepper__Stack",
+   "rotten": "Veg_BellPepper__Rotten",
+   "seed": "Veg_BellPepper__Seed"
+  },
+  "Veg_Zucchini": {
+   "single": "Veg_Zucchini",
+   "stack": "Veg_Zucchini__Stack",
+   "rotten": "Veg_Zucchini__Rotten",
+   "seed": "Veg_Zucchini__Seed"
+  },
+  "Veg_Pea": {
+   "single": "Veg_Pea",
+   "stack": "Veg_Pea__Stack",
+   "rotten": "Veg_Pea__Rotten",
+   "seed": "Veg_Pea__Seed"
+  },
+  "Veg_RedBean": {
+   "single": "Veg_RedBean",
+   "stack": "Veg_RedBean__Stack",
+   "rotten": "Veg_RedBean__Rotten",
+   "seed": "Veg_RedBean__Seed"
+  },
+  "Veg_KidneyBean": {
+   "single": "Veg_KidneyBean",
+   "stack": "Veg_KidneyBean__Stack",
+   "rotten": "Veg_KidneyBean__Rotten",
+   "seed": "Veg_KidneyBean__Seed"
+  },
+  "Veg_Chickpea": {
+   "single": "Veg_Chickpea",
+   "stack": "Veg_Chickpea__Stack",
+   "rotten": "Veg_Chickpea__Rotten",
+   "seed": "Veg_Chickpea__Seed"
+  },
+  "Veg_Lentil": {
+   "single": "Veg_Lentil",
+   "stack": "Veg_Lentil__Stack",
+   "rotten": "Veg_Lentil__Rotten",
+   "seed": "Veg_Lentil__Seed"
+  },
+  "Fruit_Apple": {
+   "single": "Fruit_Apple",
+   "stack": "Fruit_Apple__Stack",
+   "rotten": "Fruit_Apple__Rotten",
+   "seed": "Fruit_Apple__Seed"
+  },
+  "Fruit_Pear": {
+   "single": "Fruit_Pear",
+   "stack": "Fruit_Pear__Stack",
+   "rotten": "Fruit_Pear__Rotten",
+   "seed": "Fruit_Pear__Seed"
+  },
+  "Fruit_Grape": {
+   "single": "Fruit_Grape",
+   "stack": "Fruit_Grape__Stack",
+   "rotten": "Fruit_Grape__Rotten",
+   "seed": "Fruit_Grape__Seed"
+  },
+  "Fruit_Strawberry": {
+   "single": "Fruit_Strawberry",
+   "stack": "Fruit_Strawberry__Stack",
+   "rotten": "Fruit_Strawberry__Rotten",
+   "seed": "Fruit_Strawberry__Seed"
+  },
+  "Fruit_WildBerry": {
+   "single": "Fruit_WildBerry",
+   "stack": "Fruit_WildBerry__Stack",
+   "rotten": "Fruit_WildBerry__Rotten"
+  },
+  "Fruit_Peach": {
+   "single": "Fruit_Peach",
+   "stack": "Fruit_Peach__Stack",
+   "rotten": "Fruit_Peach__Rotten",
+   "seed": "Fruit_Peach__Seed"
+  },
+  "Fruit_Plum": {
+   "single": "Fruit_Plum",
+   "stack": "Fruit_Plum__Stack",
+   "rotten": "Fruit_Plum__Rotten",
+   "seed": "Fruit_Plum__Seed"
+  },
+  "Fruit_Apricot": {
+   "single": "Fruit_Apricot",
+   "stack": "Fruit_Apricot__Stack",
+   "rotten": "Fruit_Apricot__Rotten",
+   "seed": "Fruit_Apricot__Seed"
+  },
+  "Fruit_Cherry": {
+   "single": "Fruit_Cherry",
+   "stack": "Fruit_Cherry__Stack",
+   "rotten": "Fruit_Cherry__Rotten",
+   "seed": "Fruit_Cherry__Seed"
+  },
+  "Fruit_Persimmon": {
+   "single": "Fruit_Persimmon",
+   "stack": "Fruit_Persimmon__Stack",
+   "rotten": "Fruit_Persimmon__Rotten",
+   "seed": "Fruit_Persimmon__Seed"
+  },
+  "Fruit_Pomegranate": {
+   "single": "Fruit_Pomegranate",
+   "stack": "Fruit_Pomegranate__Stack",
+   "rotten": "Fruit_Pomegranate__Rotten",
+   "seed": "Fruit_Pomegranate__Seed"
+  },
+  "Fruit_Fig": {
+   "single": "Fruit_Fig",
+   "stack": "Fruit_Fig__Stack",
+   "rotten": "Fruit_Fig__Rotten",
+   "seed": "Fruit_Fig__Seed"
+  },
+  "Fruit_Tangerine": {
+   "single": "Fruit_Tangerine",
+   "stack": "Fruit_Tangerine__Stack",
+   "rotten": "Fruit_Tangerine__Rotten",
+   "seed": "Fruit_Tangerine__Seed"
+  },
+  "Fruit_Orange": {
+   "single": "Fruit_Orange",
+   "stack": "Fruit_Orange__Stack",
+   "rotten": "Fruit_Orange__Rotten",
+   "seed": "Fruit_Orange__Seed"
+  },
+  "Fruit_Lemon": {
+   "single": "Fruit_Lemon",
+   "stack": "Fruit_Lemon__Stack",
+   "rotten": "Fruit_Lemon__Rotten",
+   "seed": "Fruit_Lemon__Seed"
+  },
+  "Fruit_Banana": {
+   "single": "Fruit_Banana",
+   "stack": "Fruit_Banana__Stack",
+   "rotten": "Fruit_Banana__Rotten",
+   "seed": "Fruit_Banana__Seed"
+  },
+  "Fruit_Pineapple": {
+   "single": "Fruit_Pineapple",
+   "stack": "Fruit_Pineapple__Stack",
+   "rotten": "Fruit_Pineapple__Rotten",
+   "seed": "Fruit_Pineapple__Seed"
+  },
+  "Fruit_Mango": {
+   "single": "Fruit_Mango",
+   "stack": "Fruit_Mango__Stack",
+   "rotten": "Fruit_Mango__Rotten",
+   "seed": "Fruit_Mango__Seed"
+  },
+  "Fruit_Watermelon": {
+   "single": "Fruit_Watermelon",
+   "stack": "Fruit_Watermelon__Stack",
+   "rotten": "Fruit_Watermelon__Rotten",
+   "seed": "Fruit_Watermelon__Seed"
+  },
+  "Fruit_Melon": {
+   "single": "Fruit_Melon",
+   "stack": "Fruit_Melon__Stack",
+   "rotten": "Fruit_Melon__Rotten",
+   "seed": "Fruit_Melon__Seed"
+  },
+  "Fruit_KoreanMelon": {
+   "single": "Fruit_KoreanMelon",
+   "stack": "Fruit_KoreanMelon__Stack",
+   "rotten": "Fruit_KoreanMelon__Rotten",
+   "seed": "Fruit_KoreanMelon__Seed"
+  },
+  "Fruit_Blueberry": {
+   "single": "Fruit_Blueberry",
+   "stack": "Fruit_Blueberry__Stack",
+   "rotten": "Fruit_Blueberry__Rotten",
+   "seed": "Fruit_Blueberry__Seed"
+  },
+  "Fruit_Raspberry": {
+   "single": "Fruit_Raspberry",
+   "stack": "Fruit_Raspberry__Stack",
+   "rotten": "Fruit_Raspberry__Rotten",
+   "seed": "Fruit_Raspberry__Seed"
+  },
+  "Fruit_Blackberry": {
+   "single": "Fruit_Blackberry",
+   "stack": "Fruit_Blackberry__Stack",
+   "rotten": "Fruit_Blackberry__Rotten",
+   "seed": "Fruit_Blackberry__Seed"
+  },
+  "Fruit_Cranberry": {
+   "single": "Fruit_Cranberry",
+   "stack": "Fruit_Cranberry__Stack",
+   "rotten": "Fruit_Cranberry__Rotten",
+   "seed": "Fruit_Cranberry__Seed"
+  },
+  "Fruit_Mulberry": {
+   "single": "Fruit_Mulberry",
+   "stack": "Fruit_Mulberry__Stack",
+   "rotten": "Fruit_Mulberry__Rotten",
+   "seed": "Fruit_Mulberry__Seed"
+  },
+  "Fruit_Date": {
+   "single": "Fruit_Date",
+   "stack": "Fruit_Date__Stack",
+   "rotten": "Fruit_Date__Rotten",
+   "seed": "Fruit_Date__Seed"
+  },
+  "Nut_Chestnut": {
+   "single": "Nut_Chestnut",
+   "stack": "Nut_Chestnut__Stack",
+   "rotten": "Nut_Chestnut__Rotten",
+   "seed": "Nut_Chestnut__Seed"
+  },
+  "Nut_Walnut": {
+   "single": "Nut_Walnut",
+   "stack": "Nut_Walnut__Stack",
+   "rotten": "Nut_Walnut__Rotten",
+   "seed": "Nut_Walnut__Seed"
+  },
+  "Nut_Acorn": {
+   "single": "Nut_Acorn",
+   "stack": "Nut_Acorn__Stack",
+   "rotten": "Nut_Acorn__Rotten"
+  },
+  "Nut_Almond": {
+   "single": "Nut_Almond",
+   "stack": "Nut_Almond__Stack",
+   "rotten": "Nut_Almond__Rotten",
+   "seed": "Nut_Almond__Seed"
+  },
+  "Nut_PineNut": {
+   "single": "Nut_PineNut",
+   "stack": "Nut_PineNut__Stack"
+  },
+  "Nut_Peanut": {
+   "single": "Nut_Peanut",
+   "stack": "Nut_Peanut__Stack",
+   "rotten": "Nut_Peanut__Rotten",
+   "seed": "Nut_Peanut__Seed"
+  },
+  "Nut_Sesame": {
+   "single": "Nut_Sesame",
+   "stack": "Nut_Sesame__Stack",
+   "seed": "Nut_Sesame__Seed"
+  },
+  "Nut_Sunflower": {
+   "single": "Nut_Sunflower",
+   "stack": "Nut_Sunflower__Stack",
+   "seed": "Nut_Sunflower__Seed"
+  },
+  "Mush_Oyster": {
+   "single": "Mush_Oyster",
+   "stack": "Mush_Oyster__Stack",
+   "rotten": "Mush_Oyster__Rotten"
+  },
+  "Mush_Shiitake": {
+   "single": "Mush_Shiitake",
+   "stack": "Mush_Shiitake__Stack",
+   "rotten": "Mush_Shiitake__Rotten"
+  },
+  "Mush_Button": {
+   "single": "Mush_Button",
+   "stack": "Mush_Button__Stack",
+   "rotten": "Mush_Button__Rotten"
+  },
+  "Mush_Matsutake": {
+   "single": "Mush_Matsutake",
+   "stack": "Mush_Matsutake__Stack",
+   "rotten": "Mush_Matsutake__Rotten"
+  },
+  "Mush_Enoki": {
+   "single": "Mush_Enoki",
+   "stack": "Mush_Enoki__Stack",
+   "rotten": "Mush_Enoki__Rotten"
+  },
+  "Mush_KingOyster": {
+   "single": "Mush_KingOyster",
+   "stack": "Mush_KingOyster__Stack",
+   "rotten": "Mush_KingOyster__Rotten"
+  },
+  "Mush_WoodEar": {
+   "single": "Mush_WoodEar",
+   "stack": "Mush_WoodEar__Stack",
+   "rotten": "Mush_WoodEar__Rotten"
+  },
+  "Mush_Shimeji": {
+   "single": "Mush_Shimeji",
+   "stack": "Mush_Shimeji__Stack",
+   "rotten": "Mush_Shimeji__Rotten"
+  },
+  "Mush_Chanterelle": {
+   "single": "Mush_Chanterelle",
+   "stack": "Mush_Chanterelle__Stack",
+   "rotten": "Mush_Chanterelle__Rotten"
+  },
+  "Mush_Morel": {
+   "single": "Mush_Morel",
+   "stack": "Mush_Morel__Stack",
+   "rotten": "Mush_Morel__Rotten"
+  },
+  "Mush_Truffle": {
+   "single": "Mush_Truffle",
+   "stack": "Mush_Truffle__Stack",
+   "rotten": "Mush_Truffle__Rotten"
+  },
+  "Fish_Crucian": {
+   "single": "Fish_Crucian",
+   "stack": "Fish_Crucian__Stack",
+   "rotten": "Fish_Crucian__Rotten"
+  },
+  "Fish_Carp": {
+   "single": "Fish_Carp",
+   "stack": "Fish_Carp__Stack",
+   "rotten": "Fish_Carp__Rotten"
+  },
+  "Fish_Trout": {
+   "single": "Fish_Trout",
+   "stack": "Fish_Trout__Stack",
+   "rotten": "Fish_Trout__Rotten"
+  },
+  "Fish_Salmon": {
+   "single": "Fish_Salmon",
+   "stack": "Fish_Salmon__Stack",
+   "rotten": "Fish_Salmon__Rotten"
+  },
+  "Fish_Catfish": {
+   "single": "Fish_Catfish",
+   "stack": "Fish_Catfish__Stack",
+   "rotten": "Fish_Catfish__Rotten"
+  },
+  "Fish_Loach": {
+   "single": "Fish_Loach",
+   "stack": "Fish_Loach__Stack",
+   "rotten": "Fish_Loach__Rotten"
+  },
+  "Fish_Eel": {
+   "single": "Fish_Eel",
+   "stack": "Fish_Eel__Stack",
+   "rotten": "Fish_Eel__Rotten"
+  },
+  "Fish_Mandarin": {
+   "single": "Fish_Mandarin",
+   "stack": "Fish_Mandarin__Stack",
+   "rotten": "Fish_Mandarin__Rotten"
+  },
+  "Fish_Smelt": {
+   "single": "Fish_Smelt",
+   "stack": "Fish_Smelt__Stack",
+   "rotten": "Fish_Smelt__Rotten"
+  },
+  "Fish_Mackerel": {
+   "single": "Fish_Mackerel",
+   "stack": "Fish_Mackerel__Stack",
+   "rotten": "Fish_Mackerel__Rotten"
+  },
+  "Fish_Herring": {
+   "single": "Fish_Herring",
+   "stack": "Fish_Herring__Stack",
+   "rotten": "Fish_Herring__Rotten"
+  },
+  "Fish_Cod": {
+   "single": "Fish_Cod",
+   "stack": "Fish_Cod__Stack",
+   "rotten": "Fish_Cod__Rotten"
+  },
+  "Fish_Tuna": {
+   "single": "Fish_Tuna",
+   "stack": "Fish_Tuna__Stack",
+   "rotten": "Fish_Tuna__Rotten"
+  },
+  "Fish_Sardine": {
+   "single": "Fish_Sardine",
+   "stack": "Fish_Sardine__Stack",
+   "rotten": "Fish_Sardine__Rotten"
+  },
+  "Fish_Anchovy": {
+   "single": "Fish_Anchovy",
+   "stack": "Fish_Anchovy__Stack",
+   "rotten": "Fish_Anchovy__Rotten"
+  },
+  "Fish_Flounder": {
+   "single": "Fish_Flounder",
+   "stack": "Fish_Flounder__Stack",
+   "rotten": "Fish_Flounder__Rotten"
+  },
+  "Sea_Shrimp": {
+   "single": "Sea_Shrimp",
+   "stack": "Sea_Shrimp__Stack",
+   "rotten": "Sea_Shrimp__Rotten"
+  },
+  "Sea_Crab": {
+   "single": "Sea_Crab",
+   "stack": "Sea_Crab__Stack",
+   "rotten": "Sea_Crab__Rotten"
+  },
+  "Sea_Crayfish": {
+   "single": "Sea_Crayfish",
+   "stack": "Sea_Crayfish__Stack",
+   "rotten": "Sea_Crayfish__Rotten"
+  },
+  "Sea_Squid": {
+   "single": "Sea_Squid",
+   "stack": "Sea_Squid__Stack",
+   "rotten": "Sea_Squid__Rotten"
+  },
+  "Sea_Octopus": {
+   "single": "Sea_Octopus",
+   "stack": "Sea_Octopus__Stack",
+   "rotten": "Sea_Octopus__Rotten"
+  },
+  "Sea_Clam": {
+   "single": "Sea_Clam",
+   "stack": "Sea_Clam__Stack",
+   "rotten": "Sea_Clam__Rotten"
+  },
+  "Sea_Mussel": {
+   "single": "Sea_Mussel",
+   "stack": "Sea_Mussel__Stack",
+   "rotten": "Sea_Mussel__Rotten"
+  },
+  "Sea_Oyster": {
+   "single": "Sea_Oyster",
+   "stack": "Sea_Oyster__Stack",
+   "rotten": "Sea_Oyster__Rotten"
+  },
+  "Sea_Scallop": {
+   "single": "Sea_Scallop",
+   "stack": "Sea_Scallop__Stack",
+   "rotten": "Sea_Scallop__Rotten"
+  },
+  "Sea_Abalone": {
+   "single": "Sea_Abalone",
+   "stack": "Sea_Abalone__Stack",
+   "rotten": "Sea_Abalone__Rotten"
+  },
+  "Sea_Laver": {
+   "single": "Sea_Laver",
+   "stack": "Sea_Laver__Stack",
+   "rotten": "Sea_Laver__Rotten"
+  },
+  "Sea_Wakame": {
+   "single": "Sea_Wakame",
+   "stack": "Sea_Wakame__Stack",
+   "rotten": "Sea_Wakame__Rotten"
+  },
+  "Sea_Kelp": {
+   "single": "Sea_Kelp",
+   "stack": "Sea_Kelp__Stack",
+   "rotten": "Sea_Kelp__Rotten"
+  },
+  "Meat_Rabbit": {
+   "single": "Meat_Rabbit",
+   "stack": "Meat_Rabbit__Stack",
+   "rotten": "Meat_Rabbit__Rotten"
+  },
+  "Meat_Boar": {
+   "single": "Meat_Boar",
+   "stack": "Meat_Boar__Stack",
+   "rotten": "Meat_Boar__Rotten"
+  },
+  "Meat_Venison": {
+   "single": "Meat_Venison",
+   "stack": "Meat_Venison__Stack",
+   "rotten": "Meat_Venison__Rotten"
+  },
+  "Meat_Bird": {
+   "single": "Meat_Bird",
+   "stack": "Meat_Bird__Stack",
+   "rotten": "Meat_Bird__Rotten"
+  },
+  "Meat_Insect": {
+   "single": "Meat_Insect",
+   "stack": "Meat_Insect__Stack",
+   "rotten": "Meat_Insect__Rotten"
+  },
+  "Meat_Chicken": {
+   "single": "Meat_Chicken",
+   "stack": "Meat_Chicken__Stack",
+   "rotten": "Meat_Chicken__Rotten"
+  },
+  "Meat_Duck": {
+   "single": "Meat_Duck",
+   "stack": "Meat_Duck__Stack",
+   "rotten": "Meat_Duck__Rotten"
+  },
+  "Meat_Goose": {
+   "single": "Meat_Goose",
+   "stack": "Meat_Goose__Stack",
+   "rotten": "Meat_Goose__Rotten"
+  },
+  "Meat_Beef": {
+   "single": "Meat_Beef",
+   "stack": "Meat_Beef__Stack",
+   "rotten": "Meat_Beef__Rotten"
+  },
+  "Meat_Mutton": {
+   "single": "Meat_Mutton",
+   "stack": "Meat_Mutton__Stack",
+   "rotten": "Meat_Mutton__Rotten"
+  },
+  "Meat_Goat": {
+   "single": "Meat_Goat",
+   "stack": "Meat_Goat__Stack",
+   "rotten": "Meat_Goat__Rotten"
+  },
+  "Insect_Cricket": {
+   "single": "Insect_Cricket",
+   "stack": "Insect_Cricket__Stack",
+   "rotten": "Insect_Cricket__Rotten"
+  },
+  "Insect_Grasshopper": {
+   "single": "Insect_Grasshopper",
+   "stack": "Insect_Grasshopper__Stack",
+   "rotten": "Insect_Grasshopper__Rotten"
+  },
+  "Insect_Larva": {
+   "single": "Insect_Larva",
+   "stack": "Insect_Larva__Stack",
+   "rotten": "Insect_Larva__Rotten"
+  },
+  "Ranch_Egg": {
+   "single": "Ranch_Egg",
+   "stack": "Ranch_Egg__Stack",
+   "rotten": "Ranch_Egg__Rotten"
+  },
+  "Ranch_ChickenEgg": {
+   "single": "Ranch_ChickenEgg",
+   "stack": "Ranch_ChickenEgg__Stack",
+   "rotten": "Ranch_ChickenEgg__Rotten"
+  },
+  "Ranch_DuckEgg": {
+   "single": "Ranch_DuckEgg",
+   "stack": "Ranch_DuckEgg__Stack",
+   "rotten": "Ranch_DuckEgg__Rotten"
+  },
+  "Ranch_QuailEgg": {
+   "single": "Ranch_QuailEgg",
+   "stack": "Ranch_QuailEgg__Stack",
+   "rotten": "Ranch_QuailEgg__Rotten"
+  },
+  "Ranch_Milk": {
+   "single": "Ranch_Milk",
+   "stack": "Ranch_Milk__Stack",
+   "rotten": "Ranch_Milk__Rotten"
+  },
+  "Ranch_GoatMilk": {
+   "single": "Ranch_GoatMilk",
+   "stack": "Ranch_GoatMilk__Stack",
+   "rotten": "Ranch_GoatMilk__Rotten"
+  },
+  "Ranch_Honeydew": {
+   "single": "Ranch_Honeydew",
+   "stack": "Ranch_Honeydew__Stack",
+   "rotten": "Ranch_Honeydew__Rotten"
+  },
+  "Ranch_Honey": {
+   "single": "Ranch_Honey",
+   "stack": "Ranch_Honey__Stack"
+  },
+  "Ranch_Salt": {
+   "single": "Ranch_Salt",
+   "stack": "Ranch_Salt__Stack"
+  },
+  "Crop_Cotton": {
+   "single": "Crop_Cotton",
+   "stack": "Crop_Cotton__Stack",
+   "seed": "Crop_Cotton__Seed"
+  },
+  "Crop_Flax": {
+   "single": "Crop_Flax",
+   "stack": "Crop_Flax__Stack",
+   "seed": "Crop_Flax__Seed"
+  },
+  "Crop_Herb": {
+   "single": "Crop_Herb",
+   "stack": "Crop_Herb__Stack",
+   "rotten": "Crop_Herb__Rotten",
+   "seed": "Crop_Herb__Seed"
+  },
+  "Crop_Sugarcane": {
+   "single": "Crop_Sugarcane",
+   "stack": "Crop_Sugarcane__Stack",
+   "rotten": "Crop_Sugarcane__Rotten",
+   "seed": "Crop_Sugarcane__Seed"
+  },
+  "Crop_SugarBeet": {
+   "single": "Crop_SugarBeet",
+   "stack": "Crop_SugarBeet__Stack",
+   "rotten": "Crop_SugarBeet__Rotten",
+   "seed": "Crop_SugarBeet__Seed"
+  },
+  "Crop_MapleSap": {
+   "single": "Crop_MapleSap",
+   "stack": "Crop_MapleSap__Stack"
+  },
+  "Crop_Ginger": {
+   "single": "Crop_Ginger",
+   "stack": "Crop_Ginger__Stack",
+   "rotten": "Crop_Ginger__Rotten",
+   "seed": "Crop_Ginger__Seed"
+  },
+  "Crop_Pepper": {
+   "single": "Crop_Pepper",
+   "stack": "Crop_Pepper__Stack",
+   "seed": "Crop_Pepper__Seed"
+  },
+  "Crop_Basil": {
+   "single": "Crop_Basil",
+   "stack": "Crop_Basil__Stack",
+   "rotten": "Crop_Basil__Rotten",
+   "seed": "Crop_Basil__Seed"
+  },
+  "Crop_Mint": {
+   "single": "Crop_Mint",
+   "stack": "Crop_Mint__Stack",
+   "rotten": "Crop_Mint__Rotten",
+   "seed": "Crop_Mint__Seed"
+  },
+  "Crop_Cinnamon": {
+   "single": "Crop_Cinnamon",
+   "stack": "Crop_Cinnamon__Stack"
+  },
+  "Crop_TeaLeaf": {
+   "single": "Crop_TeaLeaf",
+   "stack": "Crop_TeaLeaf__Stack",
+   "rotten": "Crop_TeaLeaf__Rotten",
+   "seed": "Crop_TeaLeaf__Seed"
+  },
+  "Crop_CoffeeCherry": {
+   "single": "Crop_CoffeeCherry",
+   "stack": "Crop_CoffeeCherry__Stack",
+   "rotten": "Crop_CoffeeCherry__Rotten",
+   "seed": "Crop_CoffeeCherry__Seed"
+  },
+  "Crop_CacaoPod": {
+   "single": "Crop_CacaoPod",
+   "stack": "Crop_CacaoPod__Stack",
+   "rotten": "Crop_CacaoPod__Rotten",
+   "seed": "Crop_CacaoPod__Seed"
+  },
+  "Proc_WheatFlour": {
+   "single": "Proc_WheatFlour",
+   "stack": "Proc_WheatFlour__Stack"
+  },
+  "Proc_RyeFlour": {
+   "single": "Proc_RyeFlour",
+   "stack": "Proc_RyeFlour__Stack"
+  },
+  "Proc_BuckwheatFlour": {
+   "single": "Proc_BuckwheatFlour",
+   "stack": "Proc_BuckwheatFlour__Stack"
+  },
+  "Proc_CornFlour": {
+   "single": "Proc_CornFlour",
+   "stack": "Proc_CornFlour__Stack"
+  },
+  "Proc_CookingOil": {
+   "single": "Proc_CookingOil",
+   "stack": "Proc_CookingOil__Stack"
+  },
+  "Proc_SoybeanOil": {
+   "single": "Proc_SoybeanOil",
+   "stack": "Proc_SoybeanOil__Stack"
+  },
+  "Proc_SesameOil": {
+   "single": "Proc_SesameOil",
+   "stack": "Proc_SesameOil__Stack"
+  },
+  "Proc_SunflowerOil": {
+   "single": "Proc_SunflowerOil",
+   "stack": "Proc_SunflowerOil__Stack"
+  },
+  "Proc_Tofu": {
+   "single": "Proc_Tofu",
+   "stack": "Proc_Tofu__Stack",
+   "rotten": "Proc_Tofu__Rotten"
+  },
+  "Proc_SoyMilk": {
+   "single": "Proc_SoyMilk",
+   "stack": "Proc_SoyMilk__Stack",
+   "rotten": "Proc_SoyMilk__Rotten"
+  },
+  "Proc_Butter": {
+   "single": "Proc_Butter",
+   "stack": "Proc_Butter__Stack",
+   "rotten": "Proc_Butter__Rotten"
+  },
+  "Proc_Cheese": {
+   "single": "Proc_Cheese",
+   "stack": "Proc_Cheese__Stack",
+   "rotten": "Proc_Cheese__Rotten"
+  },
+  "Proc_Yogurt": {
+   "single": "Proc_Yogurt",
+   "stack": "Proc_Yogurt__Stack",
+   "rotten": "Proc_Yogurt__Rotten"
+  },
+  "Proc_Cream": {
+   "single": "Proc_Cream",
+   "stack": "Proc_Cream__Stack",
+   "rotten": "Proc_Cream__Rotten"
+  },
+  "Proc_Sugar": {
+   "single": "Proc_Sugar",
+   "stack": "Proc_Sugar__Stack"
+  },
+  "Proc_Molasses": {
+   "single": "Proc_Molasses",
+   "stack": "Proc_Molasses__Stack"
+  },
+  "Proc_MapleSyrup": {
+   "single": "Proc_MapleSyrup",
+   "stack": "Proc_MapleSyrup__Stack"
+  },
+  "Proc_DriedFruit": {
+   "single": "Proc_DriedFruit",
+   "stack": "Proc_DriedFruit__Stack"
+  },
+  "Proc_DriedMushroom": {
+   "single": "Proc_DriedMushroom",
+   "stack": "Proc_DriedMushroom__Stack"
+  },
+  "Proc_Jerky": {
+   "single": "Proc_Jerky",
+   "stack": "Proc_Jerky__Stack"
+  },
+  "Proc_DriedFish": {
+   "single": "Proc_DriedFish",
+   "stack": "Proc_DriedFish__Stack"
+  },
+  "Proc_SmokedMeat": {
+   "single": "Proc_SmokedMeat",
+   "stack": "Proc_SmokedMeat__Stack",
+   "rotten": "Proc_SmokedMeat__Rotten"
+  },
+  "Proc_SmokedFish": {
+   "single": "Proc_SmokedFish",
+   "stack": "Proc_SmokedFish__Stack",
+   "rotten": "Proc_SmokedFish__Rotten"
+  },
+  "Proc_SaltedMeat": {
+   "single": "Proc_SaltedMeat",
+   "stack": "Proc_SaltedMeat__Stack",
+   "rotten": "Proc_SaltedMeat__Rotten"
+  },
+  "Proc_SaltedFish": {
+   "single": "Proc_SaltedFish",
+   "stack": "Proc_SaltedFish__Stack",
+   "rotten": "Proc_SaltedFish__Rotten"
+  },
+  "Proc_Jam": {
+   "single": "Proc_Jam",
+   "stack": "Proc_Jam__Stack",
+   "rotten": "Proc_Jam__Rotten"
+  },
+  "Proc_Pickles": {
+   "single": "Proc_Pickles",
+   "stack": "Proc_Pickles__Stack",
+   "rotten": "Proc_Pickles__Rotten"
+  },
+  "Proc_Canned": {
+   "single": "Proc_Canned",
+   "stack": "Proc_Canned__Stack"
+  },
+  "Proc_Vinegar": {
+   "single": "Proc_Vinegar",
+   "stack": "Proc_Vinegar__Stack"
+  },
+  "Proc_SoySauce": {
+   "single": "Proc_SoySauce",
+   "stack": "Proc_SoySauce__Stack"
+  },
+  "Proc_Doenjang": {
+   "single": "Proc_Doenjang",
+   "stack": "Proc_Doenjang__Stack"
+  },
+  "Proc_RoastedCoffee": {
+   "single": "Proc_RoastedCoffee",
+   "stack": "Proc_RoastedCoffee__Stack"
+  },
+  "Proc_CocoaPowder": {
+   "single": "Proc_CocoaPowder",
+   "stack": "Proc_CocoaPowder__Stack"
+  },
+  "Proc_Malt": {
+   "single": "Proc_Malt",
+   "stack": "Proc_Malt__Stack"
+  },
+  "Dish_Rice": {
+   "single": "Dish_Rice",
+   "stack": "Dish_Rice__Stack",
+   "rotten": "Dish_Rice__Rotten"
+  },
+  "Dish_MultigrainRice": {
+   "single": "Dish_MultigrainRice",
+   "stack": "Dish_MultigrainRice__Stack",
+   "rotten": "Dish_MultigrainRice__Rotten"
+  },
+  "Dish_Porridge": {
+   "single": "Dish_Porridge",
+   "stack": "Dish_Porridge__Stack",
+   "rotten": "Dish_Porridge__Rotten"
+  },
+  "Dish_FriedRice": {
+   "single": "Dish_FriedRice",
+   "stack": "Dish_FriedRice__Stack",
+   "rotten": "Dish_FriedRice__Rotten"
+  },
+  "Dish_RiceBall": {
+   "single": "Dish_RiceBall",
+   "stack": "Dish_RiceBall__Stack",
+   "rotten": "Dish_RiceBall__Rotten"
+  },
+  "Dish_RiceBowl": {
+   "single": "Dish_RiceBowl",
+   "stack": "Dish_RiceBowl__Stack",
+   "rotten": "Dish_RiceBowl__Rotten"
+  },
+  "Bread_Flat": {
+   "single": "Bread_Flat",
+   "stack": "Bread_Flat__Stack",
+   "rotten": "Bread_Flat__Rotten"
+  },
+  "Bread_Loaf": {
+   "single": "Bread_Loaf",
+   "stack": "Bread_Loaf__Stack",
+   "rotten": "Bread_Loaf__Rotten"
+  },
+  "Bread_Rye": {
+   "single": "Bread_Rye",
+   "stack": "Bread_Rye__Stack",
+   "rotten": "Bread_Rye__Rotten"
+  },
+  "Bread_Corn": {
+   "single": "Bread_Corn",
+   "stack": "Bread_Corn__Stack",
+   "rotten": "Bread_Corn__Rotten"
+  },
+  "Pie_Meat": {
+   "single": "Pie_Meat",
+   "stack": "Pie_Meat__Stack",
+   "rotten": "Pie_Meat__Rotten"
+  },
+  "Pie_Fruit": {
+   "single": "Pie_Fruit",
+   "stack": "Pie_Fruit__Stack",
+   "rotten": "Pie_Fruit__Rotten"
+  },
+  "Noodle_Plain": {
+   "single": "Noodle_Plain",
+   "stack": "Noodle_Plain__Stack",
+   "rotten": "Noodle_Plain__Rotten"
+  },
+  "Noodle_Fried": {
+   "single": "Noodle_Fried",
+   "stack": "Noodle_Fried__Stack",
+   "rotten": "Noodle_Fried__Rotten"
+  },
+  "Noodle_Meat": {
+   "single": "Noodle_Meat",
+   "stack": "Noodle_Meat__Stack",
+   "rotten": "Noodle_Meat__Rotten"
+  },
+  "Noodle_Buckwheat": {
+   "single": "Noodle_Buckwheat",
+   "stack": "Noodle_Buckwheat__Stack",
+   "rotten": "Noodle_Buckwheat__Rotten"
+  },
+  "Soup_Vegetable": {
+   "single": "Soup_Vegetable",
+   "stack": "Soup_Vegetable__Stack",
+   "rotten": "Soup_Vegetable__Rotten"
+  },
+  "Soup_Mushroom": {
+   "single": "Soup_Mushroom",
+   "stack": "Soup_Mushroom__Stack",
+   "rotten": "Soup_Mushroom__Rotten"
+  },
+  "Soup_Fish": {
+   "single": "Soup_Fish",
+   "stack": "Soup_Fish__Stack",
+   "rotten": "Soup_Fish__Rotten"
+  },
+  "Stew_Meat": {
+   "single": "Stew_Meat",
+   "stack": "Stew_Meat__Stack",
+   "rotten": "Stew_Meat__Rotten"
+  },
+  "Stew_Bean": {
+   "single": "Stew_Bean",
+   "stack": "Stew_Bean__Stack",
+   "rotten": "Stew_Bean__Rotten"
+  },
+  "Veg_Salad": {
+   "single": "Veg_Salad",
+   "stack": "Veg_Salad__Stack",
+   "rotten": "Veg_Salad__Rotten"
+  },
+  "Veg_Roasted": {
+   "single": "Veg_Roasted",
+   "stack": "Veg_Roasted__Stack",
+   "rotten": "Veg_Roasted__Rotten"
+  },
+  "Veg_StirFry": {
+   "single": "Veg_StirFry",
+   "stack": "Veg_StirFry__Stack",
+   "rotten": "Veg_StirFry__Rotten"
+  },
+  "Veg_Pancake": {
+   "single": "Veg_Pancake",
+   "stack": "Veg_Pancake__Stack",
+   "rotten": "Veg_Pancake__Rotten"
+  },
+  "Veg_BraisedTofu": {
+   "single": "Veg_BraisedTofu",
+   "stack": "Veg_BraisedTofu__Stack",
+   "rotten": "Veg_BraisedTofu__Rotten"
+  },
+  "Meat_Roast": {
+   "single": "Meat_Roast",
+   "stack": "Meat_Roast__Stack",
+   "rotten": "Meat_Roast__Rotten"
+  },
+  "Meat_Skewer": {
+   "single": "Meat_Skewer",
+   "stack": "Meat_Skewer__Stack",
+   "rotten": "Meat_Skewer__Rotten"
+  },
+  "Meat_StirFry": {
+   "single": "Meat_StirFry",
+   "stack": "Meat_StirFry__Stack",
+   "rotten": "Meat_StirFry__Rotten"
+  },
+  "Meat_Meatball": {
+   "single": "Meat_Meatball",
+   "stack": "Meat_Meatball__Stack",
+   "rotten": "Meat_Meatball__Rotten"
+  },
+  "Meat_Steamed": {
+   "single": "Meat_Steamed",
+   "stack": "Meat_Steamed__Stack",
+   "rotten": "Meat_Steamed__Rotten"
+  },
+  "Fish_Grilled": {
+   "single": "Fish_Grilled",
+   "stack": "Fish_Grilled__Stack",
+   "rotten": "Fish_Grilled__Rotten"
+  },
+  "Fish_Steamed": {
+   "single": "Fish_Steamed",
+   "stack": "Fish_Steamed__Stack",
+   "rotten": "Fish_Steamed__Rotten"
+  },
+  "Fish_Fried": {
+   "single": "Fish_Fried",
+   "stack": "Fish_Fried__Stack",
+   "rotten": "Fish_Fried__Rotten"
+  },
+  "Sea_StirFry": {
+   "single": "Sea_StirFry",
+   "stack": "Sea_StirFry__Stack",
+   "rotten": "Sea_StirFry__Rotten"
+  },
+  "Sea_ClamSoup": {
+   "single": "Sea_ClamSoup",
+   "stack": "Sea_ClamSoup__Stack",
+   "rotten": "Sea_ClamSoup__Rotten"
+  },
+  "Egg_Boiled": {
+   "single": "Egg_Boiled",
+   "stack": "Egg_Boiled__Stack",
+   "rotten": "Egg_Boiled__Rotten"
+  },
+  "Egg_Fried": {
+   "single": "Egg_Fried",
+   "stack": "Egg_Fried__Stack",
+   "rotten": "Egg_Fried__Rotten"
+  },
+  "Egg_Omelette": {
+   "single": "Egg_Omelette",
+   "stack": "Egg_Omelette__Stack",
+   "rotten": "Egg_Omelette__Rotten"
+  },
+  "Egg_Steamed": {
+   "single": "Egg_Steamed",
+   "stack": "Egg_Steamed__Stack",
+   "rotten": "Egg_Steamed__Rotten"
+  },
+  "Insect_Fried": {
+   "single": "Insect_Fried",
+   "stack": "Insect_Fried__Stack",
+   "rotten": "Insect_Fried__Rotten"
+  },
+  "Insect_Skewer": {
+   "single": "Insect_Skewer",
+   "stack": "Insect_Skewer__Stack",
+   "rotten": "Insect_Skewer__Rotten"
+  },
+  "Insect_Grilled": {
+   "single": "Insect_Grilled",
+   "stack": "Insect_Grilled__Stack",
+   "rotten": "Insect_Grilled__Rotten"
+  },
+  "Dessert_FruitSalad": {
+   "single": "Dessert_FruitSalad",
+   "stack": "Dessert_FruitSalad__Stack",
+   "rotten": "Dessert_FruitSalad__Rotten"
+  },
+  "Dessert_Cookie": {
+   "single": "Dessert_Cookie",
+   "stack": "Dessert_Cookie__Stack",
+   "rotten": "Dessert_Cookie__Rotten"
+  },
+  "Dessert_Cake": {
+   "single": "Dessert_Cake",
+   "stack": "Dessert_Cake__Stack",
+   "rotten": "Dessert_Cake__Rotten"
+  },
+  "Dessert_Pudding": {
+   "single": "Dessert_Pudding",
+   "stack": "Dessert_Pudding__Stack",
+   "rotten": "Dessert_Pudding__Rotten"
+  },
+  "Dessert_Pancake": {
+   "single": "Dessert_Pancake",
+   "stack": "Dessert_Pancake__Stack",
+   "rotten": "Dessert_Pancake__Rotten"
+  },
+  "Dessert_NutBar": {
+   "single": "Dessert_NutBar",
+   "stack": "Dessert_NutBar__Stack",
+   "rotten": "Dessert_NutBar__Rotten"
+  },
+  "Drink_Tea": {
+   "single": "Drink_Tea",
+   "stack": "Drink_Tea__Stack",
+   "rotten": "Drink_Tea__Rotten"
+  },
+  "Drink_Coffee": {
+   "single": "Drink_Coffee",
+   "stack": "Drink_Coffee__Stack",
+   "rotten": "Drink_Coffee__Rotten"
+  },
+  "Drink_FruitJuice": {
+   "single": "Drink_FruitJuice",
+   "stack": "Drink_FruitJuice__Stack",
+   "rotten": "Drink_FruitJuice__Rotten"
+  },
+  "Drink_Cocoa": {
+   "single": "Drink_Cocoa",
+   "stack": "Drink_Cocoa__Stack",
+   "rotten": "Drink_Cocoa__Rotten"
+  },
+  "Alc_Beer": {
+   "single": "Alc_Beer",
+   "stack": "Alc_Beer__Stack"
+  },
+  "Alc_RiceWine": {
+   "single": "Alc_RiceWine",
+   "stack": "Alc_RiceWine__Stack"
+  },
+  "Alc_FruitWine": {
+   "single": "Alc_FruitWine",
+   "stack": "Alc_FruitWine__Stack"
+  },
+  "Alc_Mead": {
+   "single": "Alc_Mead",
+   "stack": "Alc_Mead__Stack"
+  },
+  "Alc_HoneydewWine": {
+   "single": "Alc_HoneydewWine",
+   "stack": "Alc_HoneydewWine__Stack"
+  },
+  "Alc_Spirits": {
+   "single": "Alc_Spirits",
+   "stack": "Alc_Spirits__Stack"
+  }
+ },
+ "failed": {},
+ "counts": {
+  "single": 305,
+  "stack": 305,
+  "rotten": 205,
+  "seed": 82,
+  "failed": 0
+ }
+}

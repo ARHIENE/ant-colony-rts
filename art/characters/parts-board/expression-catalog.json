@@ -1,0 +1,58 @@
+[
+  {
+    "id": "EXPR-SURPRISE",
+    "type": "expression"
+  },
+  {
+    "id": "EXPR-ANGRY",
+    "type": "expression"
+  },
+  {
+    "id": "EXPR-PAIN",
+    "type": "expression"
+  },
+  {
+    "id": "EXPR-SLEEPY",
+    "type": "expression"
+  },
+  {
+    "id": "EXPR-SLEEP",
+    "type": "expression"
+  },
+  {
+    "id": "EXPR-SAD",
+    "type": "expression"
+  },
+  {
+    "id": "EXPR-PROUD",
+    "type": "expression"
+  },
+  {
+    "id": "EXPR-CURIOUS",
+    "type": "expression"
+  },
+  {
+    "id": "EXPR-FLUSTERED",
+    "type": "expression"
+  },
+  {
+    "id": "EXPR-TASTY",
+    "type": "expression"
+  },
+  {
+    "id": "EXPR-EMPTY",
+    "type": "expression"
+  },
+  {
+    "id": "OVERLAY-SWEAT",
+    "type": "overlay"
+  },
+  {
+    "id": "OVERLAY-TEARS",
+    "type": "overlay"
+  },
+  {
+    "id": "OVERLAY-BLUSH",
+    "type": "overlay"
+  }
+]

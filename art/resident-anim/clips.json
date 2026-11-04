@@ -1,0 +1,196 @@
+{
+  "Idle": {
+    "frames": 48,
+    "loop": true,
+    "fps": 24,
+    "visual_contacts": []
+  },
+  "Walk": {
+    "frames": 24,
+    "loop": true,
+    "fps": 24,
+    "visual_contacts": []
+  },
+  "Run": {
+    "frames": 16,
+    "loop": true,
+    "fps": 24,
+    "visual_contacts": []
+  },
+  "StandEnter": {
+    "frames": 10,
+    "loop": false,
+    "fps": 24,
+    "visual_contacts": []
+  },
+  "StandExit": {
+    "frames": 10,
+    "loop": false,
+    "fps": 24,
+    "visual_contacts": []
+  },
+  "StandIdle": {
+    "frames": 48,
+    "loop": true,
+    "fps": 24,
+    "visual_contacts": []
+  },
+  "Pickup": {
+    "frames": 24,
+    "loop": false,
+    "fps": 24,
+    "visual_contacts": [
+      15
+    ]
+  },
+  "PutDown": {
+    "frames": 24,
+    "loop": false,
+    "fps": 24,
+    "visual_contacts": [
+      15
+    ]
+  },
+  "Carry": {
+    "frames": 24,
+    "loop": true,
+    "fps": 24,
+    "visual_contacts": []
+  },
+  "GroundWork": {
+    "frames": 32,
+    "loop": true,
+    "fps": 24,
+    "visual_contacts": []
+  },
+  "BenchWork": {
+    "frames": 32,
+    "loop": true,
+    "fps": 24,
+    "visual_contacts": []
+  },
+  "Hammer": {
+    "frames": 24,
+    "loop": true,
+    "fps": 24,
+    "visual_contacts": [
+      13
+    ]
+  },
+  "Chop": {
+    "frames": 28,
+    "loop": true,
+    "fps": 24,
+    "visual_contacts": [
+      15
+    ]
+  },
+  "Mine": {
+    "frames": 28,
+    "loop": true,
+    "fps": 24,
+    "visual_contacts": [
+      15
+    ]
+  },
+  "Treat": {
+    "frames": 40,
+    "loop": true,
+    "fps": 24,
+    "visual_contacts": []
+  },
+  "Operate": {
+    "frames": 48,
+    "loop": true,
+    "fps": 24,
+    "visual_contacts": []
+  },
+  "Stir": {
+    "frames": 40,
+    "loop": true,
+    "fps": 24,
+    "visual_contacts": []
+  },
+  "Grind": {
+    "frames": 32,
+    "loop": true,
+    "fps": 24,
+    "visual_contacts": []
+  },
+  "Saw": {
+    "frames": 32,
+    "loop": true,
+    "fps": 24,
+    "visual_contacts": []
+  },
+  "Stamp": {
+    "frames": 32,
+    "loop": true,
+    "fps": 24,
+    "visual_contacts": [
+      17
+    ]
+  },
+  "Wash": {
+    "frames": 32,
+    "loop": true,
+    "fps": 24,
+    "visual_contacts": []
+  },
+  "Eat": {
+    "frames": 48,
+    "loop": true,
+    "fps": 24,
+    "visual_contacts": []
+  },
+  "Sit": {
+    "frames": 48,
+    "loop": true,
+    "fps": 24,
+    "visual_contacts": []
+  },
+  "Rest": {
+    "frames": 48,
+    "loop": true,
+    "fps": 24,
+    "visual_contacts": []
+  },
+  "Sleep": {
+    "frames": 64,
+    "loop": true,
+    "fps": 24,
+    "visual_contacts": []
+  },
+  "Mourn": {
+    "frames": 48,
+    "loop": false,
+    "fps": 24,
+    "visual_contacts": []
+  },
+  "Inspect": {
+    "frames": 64,
+    "loop": true,
+    "fps": 24,
+    "visual_contacts": []
+  },
+  "Attack": {
+    "frames": 24,
+    "loop": false,
+    "fps": 24,
+    "visual_contacts": [
+      13
+    ]
+  },
+  "Hurt": {
+    "frames": 16,
+    "loop": false,
+    "fps": 24,
+    "visual_contacts": []
+  },
+  "Death": {
+    "frames": 40,
+    "loop": false,
+    "fps": 24,
+    "visual_contacts": []
+  }
+}

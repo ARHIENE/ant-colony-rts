@@ -1,0 +1,170 @@
+[
+  {
+    "id": 1,
+    "root": "Resident_01",
+    "parts": 35,
+    "ear": "long",
+    "rigged": false
+  },
+  {
+    "id": 2,
+    "root": "Resident_02",
+    "parts": 31,
+    "ear": "round",
+    "rigged": false
+  },
+  {
+    "id": 3,
+    "root": "Resident_03",
+    "parts": 29,
+    "ear": "short",
+    "rigged": false
+  },
+  {
+    "id": 4,
+    "root": "Resident_04",
+    "parts": 32,
+    "ear": "point",
+    "rigged": false
+  },
+  {
+    "id": 5,
+    "root": "Resident_05",
+    "parts": 31,
+    "ear": "short",
+    "rigged": false
+  },
+  {
+    "id": 6,
+    "root": "Resident_06",
+    "parts": 35,
+    "ear": "long",
+    "rigged": false
+  },
+  {
+    "id": 7,
+    "root": "Resident_07",
+    "parts": 35,
+    "ear": "upright",
+    "rigged": false
+  },
+  {
+    "id": 8,
+    "root": "Resident_08",
+    "parts": 36,
+    "ear": "round",
+    "rigged": false
+  },
+  {
+    "id": 9,
+    "root": "Resident_09",
+    "parts": 33,
+    "ear": "short",
+    "rigged": false
+  },
+  {
+    "id": 10,
+    "root": "Resident_10",
+    "parts": 31,
+    "ear": "long",
+    "rigged": false
+  },
+  {
+    "id": 11,
+    "root": "Resident_11",
+    "parts": 36,
+    "ear": "round",
+    "rigged": false
+  },
+  {
+    "id": 12,
+    "root": "Resident_12",
+    "parts": 33,
+    "ear": "round",
+    "rigged": false
+  },
+  {
+    "id": 13,
+    "root": "Resident_13",
+    "parts": 33,
+    "ear": "short",
+    "rigged": false
+  },
+  {
+    "id": 14,
+    "root": "Resident_14",
+    "parts": 37,
+    "ear": "long",
+    "rigged": false
+  },
+  {
+    "id": 15,
+    "root": "Resident_15",
+    "parts": 40,
+    "ear": "point",
+    "rigged": false
+  },
+  {
+    "id": 16,
+    "root": "Resident_16",
+    "parts": 36,
+    "ear": "round",
+    "rigged": false
+  },
+  {
+    "id": 17,
+    "root": "Resident_17",
+    "parts": 32,
+    "ear": "short",
+    "rigged": false
+  },
+  {
+    "id": 18,
+    "root": "Resident_18",
+    "parts": 29,
+    "ear": "long",
+    "rigged": false
+  },
+  {
+    "id": 19,
+    "root": "Resident_19",
+    "parts": 30,
+    "ear": "long",
+    "rigged": false
+  },
+  {
+    "id": 20,
+    "root": "Resident_20",
+    "parts": 31,
+    "ear": "round",
+    "rigged": false
+  },
+  {
+    "id": 21,
+    "root": "Resident_21",
+    "parts": 34,
+    "ear": "short",
+    "rigged": false
+  },
+  {
+    "id": 22,
+    "root": "Resident_22",
+    "parts": 38,
+    "ear": "point",
+    "rigged": false
+  },
+  {
+    "id": 23,
+    "root": "Resident_23",
+    "parts": 31,
+    "ear": "short",
+    "rigged": false
+  },
+  {
+    "id": 24,
+    "root": "Resident_24",
+    "parts": 33,
+    "ear": "round",
+    "rigged": false
+  }
+]

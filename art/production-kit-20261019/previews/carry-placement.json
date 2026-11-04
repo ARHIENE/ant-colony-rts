@@ -1,0 +1,181 @@
+{
+ "Sword": {
+  "params": {
+   "dx": -0.04,
+   "dy": 0.04,
+   "back": 15,
+   "out": 0
+  },
+  "parent": "pevis",
+  "overlap_pairs": 148,
+  "frames_by_part": {
+   "Part_Body_BASE_00": 2,
+   "Part_Body_BASE_ARMOR": 2,
+   "Part_Outfit_LINEN_00": 1,
+   "Part_Outfit_LINEN_ARMOR": 1
+  },
+  "world_rest": [
+   [
+    [
+     -1.0,
+     0.0,
+     0.0,
+     -0.175
+    ],
+    [
+     0.0,
+     -0.2588,
+     0.9659,
+     0.2176
+    ],
+    [
+     0.0,
+     0.9659,
+     0.2588,
+     0.1802
+    ],
+    [
+     0.0,
+     0.0,
+     0.0,
+     1.0
+    ]
+   ],
+   [
+    [
+     -1.0,
+     0.0,
+     0.0,
+     -0.175
+    ],
+    [
+     0.0,
+     0.2588,
+     -0.9659,
+     0.1309
+    ],
+    [
+     0.0,
+     -0.9659,
+     -0.2588,
+     0.5038
+    ],
+    [
+     0.0,
+     0.0,
+     0.0,
+     1.0
+    ]
+   ]
+  ]
+ },
+ "Spear": {
+  "params": {
+   "parent": "pevis",
+   "dy": 0.06,
+   "dz": -0.04,
+   "angle": 15,
+   "lean": 20
+  },
+  "parent": "pevis",
+  "overlap_pairs": 0,
+  "frames_by_part": {},
+  "world_rest": [
+   [
+    [
+     0.9696,
+     -0.2449,
+     -0.0,
+     -0.2051
+    ],
+    [
+     0.0817,
+     0.3236,
+     -0.9427,
+     0.1535
+    ],
+    [
+     0.2308,
+     0.9139,
+     0.3338,
+     0.4617
+    ],
+    [
+     0.0,
+     0.0,
+     0.0,
+     1.0
+    ]
+   ]
+  ]
+ },
+ "Shield": {
+  "params": {
+   "parent": "pevis",
+   "base": [
+    0.24,
+    0.02,
+    0.4
+   ],
+   "dy": 0,
+   "dz": -0.05,
+   "tilt": 0
+  },
+  "parent": "pevis",
+  "overlap_pairs": 0,
+  "frames_by_part": {},
+  "world_rest": [
+   [
+    [
+     0.0,
+     0.0,
+     -1.0,
+     0.24
+    ],
+    [
+     0.0,
+     -1.0,
+     0.0,
+     0.02
+    ],
+    [
+     -1.0,
+     0.0,
+     0.0,
+     0.35
+    ],
+    [
+     0.0,
+     0.0,
+     0.0,
+     1.0
+    ]
+   ]
+  ]
+ },
+ "_clips": [
+  "Walk",
+  "Run",
+  "Idle",
+  "StandIdle",
+  "Attack",
+  "Chop",
+  "Mine",
+  "Hammer",
+  "Carry",
+  "Pickup",
+  "PutDown",
+  "GroundWork",
+  "BenchWork",
+  "Hurt",
+  "Throw",
+  "Exercise",
+  "Sit",
+  "Eat"
+ ],
+ "_candidates": {
+  "Sword": 144,
+  "Spear": 162,
+  "Shield": 81
+ }
+}

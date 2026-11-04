@@ -1,0 +1,91 @@
+"""Visible fixings for carried weapons (BLENDER-1019 §3: 칼집·고리·끈이 실제로 보이게).
+
+Uses the searched carry placements (previews/carry-placement.json) and the fitted Belt. Each holder is rigid on the
+same bone as the weapon it holds, so it can't drift away from it:
+  Holder_Sword  – belt ring → leather frog → loop round the scabbard throat (pevis)
+  Holder_Shield – belt ring → hanging strap → hook on the shield grip bar (pevis)
+  Holder_Spear  – leather pad on the back + two loops round the shaft joined to it (spine_02)
+"""
+import bpy, json, math
+from mathutils import Vector, Matrix
+from mathutils.bvhtree import BVHTree
+import pk
+from equip_spec import LEATHER
+
+LEA = '#6a4426'
+BRASS = '#c8a050'
+
+
+def nearest_on(obj, p):
+    vs = [obj.matrix_world @ v.co for v in obj.data.vertices]
+    tree = BVHTree.FromPolygons(vs, [tuple(f.vertices) for f in obj.data.polygons])
+    hit = tree.find_nearest(p)
+    return hit[0], hit[1]
+
+
+def strap(m, a, b, w=.012, t=.004, mat=LEA):
+    d = (b - a); L = d.length
+    if L < 1e-5: return
+    m.cyl(a, b, w * .5, mat, seg=4)
+
+
+def build(col):
+    data = json.loads((pk.KIT / 'previews' / 'carry-placement.json').read_text(encoding='utf-8'))
+    belt = bpy.data.objects['Belt']; E = bpy.data.objects; out = []
+    lea, brass = pk.mat(LEA, name='PK_Equip_Strap'), pk.mat(BRASS, metal=.8, rough=.4, name='PK_Equip_Brass')
+
+    # sword: scabbard throat = mouth − 0.03 along the scabbard; frog from the nearest belt point
+    sc = Matrix(data['Sword']['world_rest'][0])
+    throat = sc @ Vector((0, .27, 0)); axis = (sc.to_3x3() @ Vector((0, 1, 0))).normalized()
+    bp, bn = nearest_on(belt, throat)
+    m = pk.Mesh('Holder_Sword')
+    m.torus(bp + bn * .004, .008, .0025, brass, seg=10, tseg=4, rot=(0, math.pi / 2, math.atan2(bn.y, bn.x)))
+    mid = bp.lerp(throat, .5) + bn * .01
+    strap(m, bp + bn * .004, mid, mat=lea); strap(m, mid, throat, mat=lea)
+    q = Vector((0, 0, 1)).rotation_difference(axis)
+    for off in (0, -.035):
+        c = throat + axis * off
+        loop = pk.Mesh('l'); loop.torus((0, 0, 0), .022, .003, lea, seg=12, tseg=4)
+        m.merge(loop, Matrix.Translation(c) @ q.to_matrix().to_4x4() @ Matrix.Diagonal((1, .5, 1, 1)))
+    o = m.to_object(col, origin='keep'); o['bone'] = data['Sword']['parent']; o['rigid'] = True; o['slot'] = 'Holder'; out.append(o)
+
+    # shield: hook on the grip bar (origin) hanging from the nearest belt point
+    sh = Matrix(data['Shield']['world_rest'][0]); grip = sh.translation
+    # the left arm hangs between belt and shield: tie on at the back-left of the belt and run behind the arm
+    bp, bn = nearest_on(belt, Vector((.09, .12, .46)))
+    m = pk.Mesh('Holder_Shield')
+    m.torus(bp + bn * .004, .008, .0025, brass, seg=10, tseg=4, rot=(0, math.pi / 2, math.atan2(bn.y, bn.x)))
+    # level strap behind the hanging hand (hand y ≤ .03) to a hook on the inner top rim of the shield
+    rim = sh @ Vector((0, .006, .085)); rim.y = .085
+    start = bp + bn * .004; mid = Vector((rim.x, .085, start.z))
+    strap(m, start, Vector((start.x, .085, start.z)), mat=lea); strap(m, Vector((start.x, .085, start.z)), mid, mat=lea); strap(m, mid, rim, mat=lea)
+    m.torus(rim, .007, .0025, brass, seg=10, tseg=4, rot=(math.pi / 2, 0, 0), arc=.6)
+    o = m.to_object(col, origin='keep'); o['bone'] = data['Shield']['parent']; o['rigid'] = True; o['slot'] = 'Holder'; out.append(o)
+
+    # spear: two loops round the shaft at the points nearest the back, tied to a pad on the back plate area
+    sp = Matrix(data['Spear']['world_rest'][0]); ax = (sp.to_3x3() @ Vector((0, 1, 0))).normalized()
+    back = E['Part_Outfit_LINEN_00']
+    # window above every tail top (.50) and below the LONG hair tips (.57)
+    samples = [p for p in (sp @ Vector((0, y, 0)) for y in [i * .01 - .3 for i in range(61)]) if .505 < p.z < .555]
+    bvs = [back.matrix_world @ v.co for v in back.data.vertices]
+    btree = BVHTree.FromPolygons(bvs, [tuple(f.vertices) for f in back.data.polygons])
+    dist = []
+    for p in samples:  # pad straight in front of the loop (level strap), never down near the tail root
+        hit = btree.ray_cast(p, Vector((0, -1, 0)), .3)
+        if hit[0] is None: continue
+        dist.append(((p - hit[0]).length, p, hit[0], hit[1] if hit[1].y > 0 else -hit[1]))
+    dist.sort(key=lambda d: d[0])
+    picks = [dist[0]]
+    for d in dist[1:]:
+        if all((d[1] - x[1]).length > .05 for x in picks): picks.append(d)
+        if len(picks) == 2: break
+    m = pk.Mesh('Holder_Spear')
+    qa = Vector((0, 0, 1)).rotation_difference(ax)
+    for _, p, q2, n2 in picks:
+        loop = pk.Mesh('l'); loop.torus((0, 0, 0), .014, .003, lea, seg=12, tseg=4)
+        m.merge(loop, Matrix.Translation(p) @ qa.to_matrix().to_4x4())
+        pad = q2 + n2 * .022
+        strap(m, pad, p, w=.01, mat=lea)
+        m.box(pad, (.03, .006, .03), lea, rot=(0, 0, math.atan2(-n2.x, n2.y)))  # pad faces along the back normal
+    o = m.to_object(col, origin='keep'); o['bone'] = data['Spear']['parent']; o['rigid'] = True; o['slot'] = 'Holder'; out.append(o)
+    return out

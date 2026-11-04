@@ -1,0 +1,618 @@
+[
+  {
+    "file": "Kemono@Wrestle.fbx",
+    "frames": 33,
+    "category": "action",
+    "body_amplitude_rad": 0.12,
+    "source": "E:\\Git\\ant\\art\\production-kit-20261019\\pk-motions.blend"
+  },
+  {
+    "file": "Kemono@WaterPlant.fbx",
+    "frames": 61,
+    "category": "work",
+    "body_amplitude_rad": 0.28,
+    "source": "E:\\Git\\ant\\art\\production-kit-20261019\\pk-motions.blend"
+  },
+  {
+    "file": "Kemono@Wash.fbx",
+    "frames": 41,
+    "category": "work",
+    "body_amplitude_rad": 0.28,
+    "source": "E:\\Git\\ant\\art\\production-kit-20261019\\pk-motions.blend"
+  },
+  {
+    "file": "Kemono@Walk.fbx",
+    "frames": 25,
+    "category": "locomotion",
+    "body_amplitude_rad": 0.06,
+    "source": "E:\\Git\\ant\\art\\production-kit-20261019\\pk-motions.blend"
+  },
+  {
+    "file": "Kemono@Treat.fbx",
+    "frames": 49,
+    "category": "work",
+    "body_amplitude_rad": 0.28,
+    "source": "E:\\Git\\ant\\art\\production-kit-20261019\\pk-motions.blend"
+  },
+  {
+    "file": "Kemono@Throw.fbx",
+    "frames": 31,
+    "category": "action",
+    "body_amplitude_rad": 0.12,
+    "source": "E:\\Git\\ant\\art\\production-kit-20261019\\pk-motions.blend"
+  },
+  {
+    "file": "Kemono@Swing.fbx",
+    "frames": 49,
+    "category": "action",
+    "body_amplitude_rad": 0.12,
+    "source": "E:\\Git\\ant\\art\\production-kit-20261019\\pk-motions.blend"
+  },
+  {
+    "file": "Kemono@Stir.fbx",
+    "frames": 49,
+    "category": "work",
+    "body_amplitude_rad": 0.28,
+    "source": "E:\\Git\\ant\\art\\production-kit-20261019\\pk-motions.blend"
+  },
+  {
+    "file": "Kemono@StandIdle.fbx",
+    "frames": 73,
+    "category": "quiet",
+    "body_amplitude_rad": 0.015,
+    "source": "E:\\Git\\ant\\art\\production-kit-20261019\\pk-motions.blend"
+  },
+  {
+    "file": "Kemono@StandExit.fbx",
+    "frames": 11,
+    "category": "action",
+    "body_amplitude_rad": 0.12,
+    "source": "E:\\Git\\ant\\art\\production-kit-20261019\\pk-motions.blend"
+  },
+  {
+    "file": "Kemono@StandEnter.fbx",
+    "frames": 11,
+    "category": "action",
+    "body_amplitude_rad": 0.12,
+    "source": "E:\\Git\\ant\\art\\production-kit-20261019\\pk-motions.blend"
+  },
+  {
+    "file": "Kemono@Stamp.fbx",
+    "frames": 37,
+    "category": "work",
+    "body_amplitude_rad": 0.28,
+    "source": "E:\\Git\\ant\\art\\production-kit-20261019\\pk-motions.blend"
+  },
+  {
+    "file": "Kemono@Spin.fbx",
+    "frames": 33,
+    "category": "action",
+    "body_amplitude_rad": 0.12,
+    "source": "E:\\Git\\ant\\art\\production-kit-20261019\\pk-motions.blend"
+  },
+  {
+    "file": "Kemono@Sleep.fbx",
+    "frames": 97,
+    "category": "quiet",
+    "body_amplitude_rad": 0.015,
+    "source": "E:\\Git\\ant\\art\\production-kit-20261019\\pk-motions.blend"
+  },
+  {
+    "file": "Kemono@Sit.fbx",
+    "frames": 73,
+    "category": "action",
+    "body_amplitude_rad": 0.12,
+    "source": "E:\\Git\\ant\\art\\production-kit-20261019\\pk-motions.blend"
+  },
+  {
+    "file": "Kemono@Saw.fbx",
+    "frames": 29,
+    "category": "work",
+    "body_amplitude_rad": 0.28,
+    "source": "E:\\Git\\ant\\art\\production-kit-20261019\\pk-motions.blend"
+  },
+  {
+    "file": "Kemono@Run.fbx",
+    "frames": 17,
+    "category": "locomotion",
+    "body_amplitude_rad": 0.06,
+    "source": "E:\\Git\\ant\\art\\production-kit-20261019\\pk-motions.blend"
+  },
+  {
+    "file": "Kemono@RockCradle.fbx",
+    "frames": 49,
+    "category": "action",
+    "body_amplitude_rad": 0.12,
+    "source": "E:\\Git\\ant\\art\\production-kit-20261019\\pk-motions.blend"
+  },
+  {
+    "file": "Kemono@Rest.fbx",
+    "frames": 97,
+    "category": "quiet",
+    "body_amplitude_rad": 0.015,
+    "source": "E:\\Git\\ant\\art\\production-kit-20261019\\pk-motions.blend"
+  },
+  {
+    "file": "Kemono@PutDown.fbx",
+    "frames": 29,
+    "category": "action",
+    "body_amplitude_rad": 0.12,
+    "source": "E:\\Git\\ant\\art\\production-kit-20261019\\pk-motions.blend"
+  },
+  {
+    "file": "Kemono@PlayMusic.fbx",
+    "frames": 25,
+    "category": "action",
+    "body_amplitude_rad": 0.12,
+    "source": "E:\\Git\\ant\\art\\production-kit-20261019\\pk-motions.blend"
+  },
+  {
+    "file": "Kemono@PlayBoard.fbx",
+    "frames": 73,
+    "category": "action",
+    "body_amplitude_rad": 0.12,
+    "source": "E:\\Git\\ant\\art\\production-kit-20261019\\pk-motions.blend"
+  },
+  {
+    "file": "Kemono@Pickup.fbx",
+    "frames": 29,
+    "category": "action",
+    "body_amplitude_rad": 0.12,
+    "source": "E:\\Git\\ant\\art\\production-kit-20261019\\pk-motions.blend"
+  },
+  {
+    "file": "Kemono@Operate.fbx",
+    "frames": 49,
+    "category": "work",
+    "body_amplitude_rad": 0.28,
+    "source": "E:\\Git\\ant\\art\\production-kit-20261019\\pk-motions.blend"
+  },
+  {
+    "file": "Kemono@Mourn.fbx",
+    "frames": 61,
+    "category": "action",
+    "body_amplitude_rad": 0.12,
+    "source": "E:\\Git\\ant\\art\\production-kit-20261019\\pk-motions.blend"
+  },
+  {
+    "file": "Kemono@Mine.fbx",
+    "frames": 41,
+    "category": "work",
+    "body_amplitude_rad": 0.28,
+    "source": "E:\\Git\\ant\\art\\production-kit-20261019\\pk-motions.blend"
+  },
+  {
+    "file": "Kemono@Inspect.fbx",
+    "frames": 73,
+    "category": "work",
+    "body_amplitude_rad": 0.28,
+    "source": "E:\\Git\\ant\\art\\production-kit-20261019\\pk-motions.blend"
+  },
+  {
+    "file": "Kemono@Idle.fbx",
+    "frames": 73,
+    "category": "quiet",
+    "body_amplitude_rad": 0.015,
+    "source": "E:\\Git\\ant\\art\\production-kit-20261019\\pk-motions.blend"
+  },
+  {
+    "file": "Kemono@Hurt.fbx",
+    "frames": 19,
+    "category": "action",
+    "body_amplitude_rad": 0.12,
+    "source": "E:\\Git\\ant\\art\\production-kit-20261019\\pk-motions.blend"
+  },
+  {
+    "file": "Kemono@Hammer.fbx",
+    "frames": 23,
+    "category": "work",
+    "body_amplitude_rad": 0.28,
+    "source": "E:\\Git\\ant\\art\\production-kit-20261019\\pk-motions.blend"
+  },
+  {
+    "file": "Kemono@GroundWork.fbx",
+    "frames": 41,
+    "category": "work",
+    "body_amplitude_rad": 0.28,
+    "source": "E:\\Git\\ant\\art\\production-kit-20261019\\pk-motions.blend"
+  },
+  {
+    "file": "Kemono@Grind.fbx",
+    "frames": 33,
+    "category": "work",
+    "body_amplitude_rad": 0.28,
+    "source": "E:\\Git\\ant\\art\\production-kit-20261019\\pk-motions.blend"
+  },
+  {
+    "file": "Kemono@Fly.fbx",
+    "frames": 25,
+    "category": "action",
+    "body_amplitude_rad": 0.12,
+    "source": "E:\\Git\\ant\\art\\production-kit-20261019\\pk-motions.blend"
+  },
+  {
+    "file": "Kemono@Exercise.fbx",
+    "frames": 61,
+    "category": "action",
+    "body_amplitude_rad": 0.12,
+    "source": "E:\\Git\\ant\\art\\production-kit-20261019\\pk-motions.blend"
+  },
+  {
+    "file": "Kemono@Eat.fbx",
+    "frames": 73,
+    "category": "action",
+    "body_amplitude_rad": 0.12,
+    "source": "E:\\Git\\ant\\art\\production-kit-20261019\\pk-motions.blend"
+  },
+  {
+    "file": "Kemono@Downed.fbx",
+    "frames": 73,
+    "category": "quiet",
+    "body_amplitude_rad": 0.015,
+    "source": "E:\\Git\\ant\\art\\production-kit-20261019\\pk-motions.blend"
+  },
+  {
+    "file": "Kemono@Death.fbx",
+    "frames": 49,
+    "category": "action",
+    "body_amplitude_rad": 0.12,
+    "source": "E:\\Git\\ant\\art\\production-kit-20261019\\pk-motions.blend"
+  },
+  {
+    "file": "Kemono@Chop.fbx",
+    "frames": 41,
+    "category": "work",
+    "body_amplitude_rad": 0.28,
+    "source": "E:\\Git\\ant\\art\\production-kit-20261019\\pk-motions.blend"
+  },
+  {
+    "file": "Kemono@CarryPerson.fbx",
+    "frames": 29,
+    "category": "locomotion",
+    "body_amplitude_rad": 0.06,
+    "source": "E:\\Git\\ant\\art\\production-kit-20261019\\pk-motions.blend"
+  },
+  {
+    "file": "Kemono@Carry.fbx",
+    "frames": 25,
+    "category": "locomotion",
+    "body_amplitude_rad": 0.06,
+    "source": "E:\\Git\\ant\\art\\production-kit-20261019\\pk-motions.blend"
+  },
+  {
+    "file": "Kemono@Captive.fbx",
+    "frames": 73,
+    "category": "quiet",
+    "body_amplitude_rad": 0.015,
+    "source": "E:\\Git\\ant\\art\\production-kit-20261019\\pk-motions.blend"
+  },
+  {
+    "file": "Kemono@BenchWork.fbx",
+    "frames": 41,
+    "category": "work",
+    "body_amplitude_rad": 0.28,
+    "source": "E:\\Git\\ant\\art\\production-kit-20261019\\pk-motions.blend"
+  },
+  {
+    "file": "Kemono@Bathe.fbx",
+    "frames": 97,
+    "category": "action",
+    "body_amplitude_rad": 0.12,
+    "source": "E:\\Git\\ant\\art\\production-kit-20261019\\pk-motions.blend"
+  },
+  {
+    "file": "Kemono@Attack.fbx",
+    "frames": 27,
+    "category": "action",
+    "body_amplitude_rad": 0.12,
+    "source": "E:\\Git\\ant\\art\\production-kit-20261019\\pk-motions.blend"
+  },
+  {
+    "file": "Kemono@PK_WalkTipsy.fbx",
+    "frames": 33,
+    "category": "locomotion",
+    "body_amplitude_rad": 0.06,
+    "source": "E:\\Git\\ant\\art\\production-kit-20261019\\pk-motions.blend"
+  },
+  {
+    "file": "Kemono@PK_WakeUp.fbx",
+    "frames": 49,
+    "category": "action",
+    "body_amplitude_rad": 0.12,
+    "source": "E:\\Git\\ant\\art\\production-kit-20261019\\pk-motions.blend"
+  },
+  {
+    "file": "Kemono@PK_ValveTurn.fbx",
+    "frames": 25,
+    "category": "work",
+    "body_amplitude_rad": 0.28,
+    "source": "E:\\Git\\ant\\art\\production-kit-20261019\\pk-motions.blend"
+  },
+  {
+    "file": "Kemono@PK_UnequipToGround.fbx",
+    "frames": 41,
+    "category": "action",
+    "body_amplitude_rad": 0.12,
+    "source": "E:\\Git\\ant\\art\\production-kit-20261019\\pk-motions.blend"
+  },
+  {
+    "file": "Kemono@PK_ToolOut.fbx",
+    "frames": 13,
+    "category": "action",
+    "body_amplitude_rad": 0.12,
+    "source": "E:\\Git\\ant\\art\\production-kit-20261019\\pk-motions.blend"
+  },
+  {
+    "file": "Kemono@PK_ToolAway.fbx",
+    "frames": 13,
+    "category": "action",
+    "body_amplitude_rad": 0.12,
+    "source": "E:\\Git\\ant\\art\\production-kit-20261019\\pk-motions.blend"
+  },
+  {
+    "file": "Kemono@PK_Tool_Till.fbx",
+    "frames": 37,
+    "category": "work",
+    "body_amplitude_rad": 0.28,
+    "source": "E:\\Git\\ant\\art\\production-kit-20261019\\pk-motions.blend"
+  },
+  {
+    "file": "Kemono@PK_Tool_Mine.fbx",
+    "frames": 41,
+    "category": "work",
+    "body_amplitude_rad": 0.28,
+    "source": "E:\\Git\\ant\\art\\production-kit-20261019\\pk-motions.blend"
+  },
+  {
+    "file": "Kemono@PK_Tool_Harvest.fbx",
+    "frames": 29,
+    "category": "work",
+    "body_amplitude_rad": 0.28,
+    "source": "E:\\Git\\ant\\art\\production-kit-20261019\\pk-motions.blend"
+  },
+  {
+    "file": "Kemono@PK_Tool_Hammer.fbx",
+    "frames": 23,
+    "category": "work",
+    "body_amplitude_rad": 0.28,
+    "source": "E:\\Git\\ant\\art\\production-kit-20261019\\pk-motions.blend"
+  },
+  {
+    "file": "Kemono@PK_Tool_Dig.fbx",
+    "frames": 41,
+    "category": "work",
+    "body_amplitude_rad": 0.28,
+    "source": "E:\\Git\\ant\\art\\production-kit-20261019\\pk-motions.blend"
+  },
+  {
+    "file": "Kemono@PK_Tool_Chop.fbx",
+    "frames": 41,
+    "category": "work",
+    "body_amplitude_rad": 0.28,
+    "source": "E:\\Git\\ant\\art\\production-kit-20261019\\pk-motions.blend"
+  },
+  {
+    "file": "Kemono@PK_TapFill.fbx",
+    "frames": 41,
+    "category": "action",
+    "body_amplitude_rad": 0.12,
+    "source": "E:\\Git\\ant\\art\\production-kit-20261019\\pk-motions.blend"
+  },
+  {
+    "file": "Kemono@PK_SwordAttack.fbx",
+    "frames": 27,
+    "category": "action",
+    "body_amplitude_rad": 0.12,
+    "source": "E:\\Git\\ant\\art\\production-kit-20261019\\pk-motions.blend"
+  },
+  {
+    "file": "Kemono@PK_Stagger.fbx",
+    "frames": 41,
+    "category": "action",
+    "body_amplitude_rad": 0.12,
+    "source": "E:\\Git\\ant\\art\\production-kit-20261019\\pk-motions.blend"
+  },
+  {
+    "file": "Kemono@PK_SpearThrust.fbx",
+    "frames": 25,
+    "category": "action",
+    "body_amplitude_rad": 0.12,
+    "source": "E:\\Git\\ant\\art\\production-kit-20261019\\pk-motions.blend"
+  },
+  {
+    "file": "Kemono@PK_SmithRepair.fbx",
+    "frames": 25,
+    "category": "work",
+    "body_amplitude_rad": 0.28,
+    "source": "E:\\Git\\ant\\art\\production-kit-20261019\\pk-motions.blend"
+  },
+  {
+    "file": "Kemono@PK_SkyGaze.fbx",
+    "frames": 97,
+    "category": "quiet",
+    "body_amplitude_rad": 0.015,
+    "source": "E:\\Git\\ant\\art\\production-kit-20261019\\pk-motions.blend"
+  },
+  {
+    "file": "Kemono@PK_ShieldBlock.fbx",
+    "frames": 25,
+    "category": "action",
+    "body_amplitude_rad": 0.12,
+    "source": "E:\\Git\\ant\\art\\production-kit-20261019\\pk-motions.blend"
+  },
+  {
+    "file": "Kemono@PK_SheatheSword.fbx",
+    "frames": 21,
+    "category": "action",
+    "body_amplitude_rad": 0.12,
+    "source": "E:\\Git\\ant\\art\\production-kit-20261019\\pk-motions.blend"
+  },
+  {
+    "file": "Kemono@PK_SewRepair.fbx",
+    "frames": 49,
+    "category": "work",
+    "body_amplitude_rad": 0.28,
+    "source": "E:\\Git\\ant\\art\\production-kit-20261019\\pk-motions.blend"
+  },
+  {
+    "file": "Kemono@PK_SelfTreat.fbx",
+    "frames": 49,
+    "category": "work",
+    "body_amplitude_rad": 0.28,
+    "source": "E:\\Git\\ant\\art\\production-kit-20261019\\pk-motions.blend"
+  },
+  {
+    "file": "Kemono@PK_PressLever.fbx",
+    "frames": 33,
+    "category": "work",
+    "body_amplitude_rad": 0.28,
+    "source": "E:\\Git\\ant\\art\\production-kit-20261019\\pk-motions.blend"
+  },
+  {
+    "file": "Kemono@PK_PourSack.fbx",
+    "frames": 33,
+    "category": "action",
+    "body_amplitude_rad": 0.12,
+    "source": "E:\\Git\\ant\\art\\production-kit-20261019\\pk-motions.blend"
+  },
+  {
+    "file": "Kemono@PK_PassOut.fbx",
+    "frames": 41,
+    "category": "action",
+    "body_amplitude_rad": 0.12,
+    "source": "E:\\Git\\ant\\art\\production-kit-20261019\\pk-motions.blend"
+  },
+  {
+    "file": "Kemono@PK_OvenLoad.fbx",
+    "frames": 33,
+    "category": "action",
+    "body_amplitude_rad": 0.12,
+    "source": "E:\\Git\\ant\\art\\production-kit-20261019\\pk-motions.blend"
+  },
+  {
+    "file": "Kemono@PK_Muster.fbx",
+    "frames": 41,
+    "category": "action",
+    "body_amplitude_rad": 0.12,
+    "source": "E:\\Git\\ant\\art\\production-kit-20261019\\pk-motions.blend"
+  },
+  {
+    "file": "Kemono@PK_LatrineSquat.fbx",
+    "frames": 73,
+    "category": "action",
+    "body_amplitude_rad": 0.12,
+    "source": "E:\\Git\\ant\\art\\production-kit-20261019\\pk-motions.blend"
+  },
+  {
+    "file": "Kemono@PK_Ladle.fbx",
+    "frames": 29,
+    "category": "work",
+    "body_amplitude_rad": 0.28,
+    "source": "E:\\Git\\ant\\art\\production-kit-20261019\\pk-motions.blend"
+  },
+  {
+    "file": "Kemono@PK_Knead.fbx",
+    "frames": 33,
+    "category": "work",
+    "body_amplitude_rad": 0.28,
+    "source": "E:\\Git\\ant\\art\\production-kit-20261019\\pk-motions.blend"
+  },
+  {
+    "file": "Kemono@PK_HangoverIdle.fbx",
+    "frames": 73,
+    "category": "quiet",
+    "body_amplitude_rad": 0.015,
+    "source": "E:\\Git\\ant\\art\\production-kit-20261019\\pk-motions.blend"
+  },
+  {
+    "file": "Kemono@PK_EquipFromGround.fbx",
+    "frames": 41,
+    "category": "action",
+    "body_amplitude_rad": 0.12,
+    "source": "E:\\Git\\ant\\art\\production-kit-20261019\\pk-motions.blend"
+  },
+  {
+    "file": "Kemono@PK_DriveSeated.fbx",
+    "frames": 49,
+    "category": "action",
+    "body_amplitude_rad": 0.12,
+    "source": "E:\\Git\\ant\\art\\production-kit-20261019\\pk-motions.blend"
+  },
+  {
+    "file": "Kemono@PK_Drink.fbx",
+    "frames": 49,
+    "category": "action",
+    "body_amplitude_rad": 0.12,
+    "source": "E:\\Git\\ant\\art\\production-kit-20261019\\pk-motions.blend"
+  },
+  {
+    "file": "Kemono@PK_DrawSword.fbx",
+    "frames": 21,
+    "category": "action",
+    "body_amplitude_rad": 0.12,
+    "source": "E:\\Git\\ant\\art\\production-kit-20261019\\pk-motions.blend"
+  },
+  {
+    "file": "Kemono@PK_Crave.fbx",
+    "frames": 49,
+    "category": "action",
+    "body_amplitude_rad": 0.12,
+    "source": "E:\\Git\\ant\\art\\production-kit-20261019\\pk-motions.blend"
+  },
+  {
+    "file": "Kemono@PK_ControlPanel.fbx",
+    "frames": 37,
+    "category": "work",
+    "body_amplitude_rad": 0.28,
+    "source": "E:\\Git\\ant\\art\\production-kit-20261019\\pk-motions.blend"
+  },
+  {
+    "file": "Kemono@PK_CollapseDropWeapon.fbx",
+    "frames": 37,
+    "category": "action",
+    "body_amplitude_rad": 0.12,
+    "source": "E:\\Git\\ant\\art\\production-kit-20261019\\pk-motions.blend"
+  },
+  {
+    "file": "Kemono@PK_CanisterDisconnect.fbx",
+    "frames": 41,
+    "category": "action",
+    "body_amplitude_rad": 0.12,
+    "source": "E:\\Git\\ant\\art\\production-kit-20261019\\pk-motions.blend"
+  },
+  {
+    "file": "Kemono@PK_CanisterConnect.fbx",
+    "frames": 41,
+    "category": "action",
+    "body_amplitude_rad": 0.12,
+    "source": "E:\\Git\\ant\\art\\production-kit-20261019\\pk-motions.blend"
+  },
+  {
+    "file": "Kemono@PK_BowShoot.fbx",
+    "frames": 37,
+    "category": "action",
+    "body_amplitude_rad": 0.12,
+    "source": "E:\\Git\\ant\\art\\production-kit-20261019\\pk-motions.blend"
+  },
+  {
+    "file": "Kemono@PK_BenchPlace.fbx",
+    "frames": 29,
+    "category": "action",
+    "body_amplitude_rad": 0.12,
+    "source": "E:\\Git\\ant\\art\\production-kit-20261019\\pk-motions.blend"
+  },
+  {
+    "file": "Kemono@PK_BenchPickup.fbx",
+    "frames": 29,
+    "category": "action",
+    "body_amplitude_rad": 0.12,
+    "source": "E:\\Git\\ant\\art\\production-kit-20261019\\pk-motions.blend"
+  },
+  {
+    "file": "Kemono@PK_BeatFire.fbx",
+    "frames": 25,
+    "category": "work",
+    "body_amplitude_rad": 0.28,
+    "source": "E:\\Git\\ant\\art\\production-kit-20261019\\pk-motions.blend"
+  }
+]

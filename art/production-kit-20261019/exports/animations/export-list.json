@@ -1,0 +1,494 @@
+{
+ "Kemono@PK_BeatFire.fbx": {
+  "clip": "BeatFire",
+  "frames": [
+   1,
+   24
+  ],
+  "events": {
+   "hit": 6,
+   "hit_2": 18
+  },
+  "loop": true
+ },
+ "Kemono@PK_BenchPickup.fbx": {
+  "clip": "BenchPickup",
+  "frames": [
+   1,
+   28
+  ],
+  "events": {
+   "grab": 14
+  },
+  "loop": false
+ },
+ "Kemono@PK_BenchPlace.fbx": {
+  "clip": "BenchPlace",
+  "frames": [
+   1,
+   28
+  ],
+  "events": {
+   "release": 16
+  },
+  "loop": false
+ },
+ "Kemono@PK_BowShoot.fbx": {
+  "clip": "BowShoot",
+  "frames": [
+   1,
+   36
+  ],
+  "events": {
+   "nock": 9,
+   "release": 23
+  },
+  "loop": true
+ },
+ "Kemono@PK_CanisterConnect.fbx": {
+  "clip": "CanisterConnect",
+  "frames": [
+   1,
+   40
+  ],
+  "events": {
+   "place": 13,
+   "connect": 26
+  },
+  "loop": false
+ },
+ "Kemono@PK_CanisterDisconnect.fbx": {
+  "clip": "CanisterDisconnect",
+  "frames": [
+   1,
+   40
+  ],
+  "events": {
+   "disconnect": 12,
+   "lift": 26
+  },
+  "loop": false
+ },
+ "Kemono@PK_CollapseDropWeapon.fbx": {
+  "clip": "CollapseDropWeapon",
+  "frames": [
+   1,
+   36
+  ],
+  "events": {
+   "weapon_drop": 12
+  },
+  "loop": false
+ },
+ "Kemono@PK_ControlPanel.fbx": {
+  "clip": "ControlPanel",
+  "frames": [
+   1,
+   36
+  ],
+  "events": {
+   "press": 9,
+   "lever": 27
+  },
+  "loop": true
+ },
+ "Kemono@PK_Crave.fbx": {
+  "clip": "Crave",
+  "frames": [
+   1,
+   48
+  ],
+  "events": {},
+  "loop": true
+ },
+ "Kemono@PK_DrawSword.fbx": {
+  "clip": "DrawSword",
+  "frames": [
+   1,
+   20
+  ],
+  "events": {
+   "weapon_grab": 10,
+   "ready": 15
+  },
+  "loop": false
+ },
+ "Kemono@PK_Drink.fbx": {
+  "clip": "Drink",
+  "frames": [
+   1,
+   48
+  ],
+  "events": {
+   "lift": 8,
+   "sip": 20,
+   "lower": 36
+  },
+  "loop": false
+ },
+ "Kemono@PK_DriveSeated.fbx": {
+  "clip": "DriveSeated",
+  "frames": [
+   1,
+   48
+  ],
+  "events": {},
+  "loop": true
+ },
+ "Kemono@PK_EquipFromGround.fbx": {
+  "clip": "EquipFromGround",
+  "frames": [
+   1,
+   40
+  ],
+  "events": {
+   "pick": 13,
+   "equip": 32
+  },
+  "loop": false
+ },
+ "Kemono@PK_HangoverIdle.fbx": {
+  "clip": "HangoverIdle",
+  "frames": [
+   1,
+   72
+  ],
+  "events": {},
+  "loop": true
+ },
+ "Kemono@PK_Knead.fbx": {
+  "clip": "Knead",
+  "frames": [
+   1,
+   32
+  ],
+  "events": {
+   "press": 8
+  },
+  "loop": true
+ },
+ "Kemono@PK_Ladle.fbx": {
+  "clip": "Ladle",
+  "frames": [
+   1,
+   28
+  ],
+  "events": {
+   "scoop": 10,
+   "pour": 22
+  },
+  "loop": true
+ },
+ "Kemono@PK_LatrineSquat.fbx": {
+  "clip": "LatrineSquat",
+  "frames": [
+   1,
+   72
+  ],
+  "events": {
+   "sit": 12,
+   "stand": 64
+  },
+  "loop": false
+ },
+ "Kemono@PK_Muster.fbx": {
+  "clip": "Muster",
+  "frames": [
+   1,
+   40
+  ],
+  "events": {
+   "drop_load": 12,
+   "tool_hide": 17,
+   "weapon_grab": 27,
+   "ready": 34
+  },
+  "loop": false
+ },
+ "Kemono@PK_OvenLoad.fbx": {
+  "clip": "OvenLoad",
+  "frames": [
+   1,
+   32
+  ],
+  "events": {
+   "insert": 18,
+   "withdraw": 26
+  },
+  "loop": false
+ },
+ "Kemono@PK_PassOut.fbx": {
+  "clip": "PassOut",
+  "frames": [
+   1,
+   40
+  ],
+  "events": {
+   "down": 28
+  },
+  "loop": false
+ },
+ "Kemono@PK_PourSack.fbx": {
+  "clip": "PourSack",
+  "frames": [
+   1,
+   32
+  ],
+  "events": {
+   "pour_start": 16,
+   "pour_end": 26
+  },
+  "loop": false
+ },
+ "Kemono@PK_PressLever.fbx": {
+  "clip": "PressLever",
+  "frames": [
+   1,
+   32
+  ],
+  "events": {
+   "press": 18
+  },
+  "loop": true
+ },
+ "Kemono@PK_SelfTreat.fbx": {
+  "clip": "SelfTreat",
+  "frames": [
+   1,
+   48
+  ],
+  "events": {
+   "wrap": 12,
+   "wrap_2": 36
+  },
+  "loop": true
+ },
+ "Kemono@PK_SewRepair.fbx": {
+  "clip": "SewRepair",
+  "frames": [
+   1,
+   48
+  ],
+  "events": {
+   "stitch": 12,
+   "stitch_2": 36
+  },
+  "loop": true
+ },
+ "Kemono@PK_SheatheSword.fbx": {
+  "clip": "SheatheSword",
+  "frames": [
+   1,
+   20
+  ],
+  "events": {
+   "weapon_release": 11
+  },
+  "loop": false
+ },
+ "Kemono@PK_ShieldBlock.fbx": {
+  "clip": "ShieldBlock",
+  "frames": [
+   1,
+   24
+  ],
+  "events": {},
+  "loop": true
+ },
+ "Kemono@PK_SkyGaze.fbx": {
+  "clip": "SkyGaze",
+  "frames": [
+   1,
+   96
+  ],
+  "events": {},
+  "loop": true
+ },
+ "Kemono@PK_SmithRepair.fbx": {
+  "clip": "SmithRepair",
+  "frames": [
+   1,
+   24
+  ],
+  "events": {
+   "hit": 20
+  },
+  "loop": true
+ },
+ "Kemono@PK_SpearThrust.fbx": {
+  "clip": "SpearThrust",
+  "frames": [
+   1,
+   24
+  ],
+  "events": {
+   "hit": 14
+  },
+  "loop": true
+ },
+ "Kemono@PK_Stagger.fbx": {
+  "clip": "Stagger",
+  "frames": [
+   1,
+   40
+  ],
+  "events": {},
+  "loop": true
+ },
+ "Kemono@PK_SwordAttack.fbx": {
+  "clip": "SwordAttack",
+  "frames": [
+   1,
+   26
+  ],
+  "events": {
+   "hit": 13
+  },
+  "loop": true
+ },
+ "Kemono@PK_TapFill.fbx": {
+  "clip": "TapFill",
+  "frames": [
+   1,
+   40
+  ],
+  "events": {
+   "tap_open": 14,
+   "tap_close": 32
+  },
+  "loop": false
+ },
+ "Kemono@PK_Tool_Chop.fbx": {
+  "clip": "Tool_Chop",
+  "frames": [
+   1,
+   40
+  ],
+  "events": {
+   "hit": 19
+  },
+  "loop": true
+ },
+ "Kemono@PK_Tool_Dig.fbx": {
+  "clip": "Tool_Dig",
+  "frames": [
+   1,
+   40
+  ],
+  "events": {
+   "hit": 16,
+   "toss": 32
+  },
+  "loop": true
+ },
+ "Kemono@PK_Tool_Hammer.fbx": {
+  "clip": "Tool_Hammer",
+  "frames": [
+   1,
+   22
+  ],
+  "events": {
+   "hit": 19
+  },
+  "loop": true
+ },
+ "Kemono@PK_Tool_Harvest.fbx": {
+  "clip": "Tool_Harvest",
+  "frames": [
+   1,
+   28
+  ],
+  "events": {
+   "hit": 15
+  },
+  "loop": true
+ },
+ "Kemono@PK_Tool_Mine.fbx": {
+  "clip": "Tool_Mine",
+  "frames": [
+   1,
+   40
+  ],
+  "events": {
+   "hit": 19
+  },
+  "loop": true
+ },
+ "Kemono@PK_Tool_Till.fbx": {
+  "clip": "Tool_Till",
+  "frames": [
+   1,
+   36
+  ],
+  "events": {
+   "hit": 17
+  },
+  "loop": true
+ },
+ "Kemono@PK_ToolAway.fbx": {
+  "clip": "ToolAway",
+  "frames": [
+   1,
+   12
+  ],
+  "events": {
+   "tool_hide": 7
+  },
+  "loop": false
+ },
+ "Kemono@PK_ToolOut.fbx": {
+  "clip": "ToolOut",
+  "frames": [
+   1,
+   12
+  ],
+  "events": {
+   "tool_show": 6
+  },
+  "loop": false
+ },
+ "Kemono@PK_UnequipToGround.fbx": {
+  "clip": "UnequipToGround",
+  "frames": [
+   1,
+   40
+  ],
+  "events": {
+   "unequip": 9,
+   "release": 30
+  },
+  "loop": false
+ },
+ "Kemono@PK_ValveTurn.fbx": {
+  "clip": "ValveTurn",
+  "frames": [
+   1,
+   24
+  ],
+  "events": {
+   "turn": 12
+  },
+  "loop": true
+ },
+ "Kemono@PK_WakeUp.fbx": {
+  "clip": "WakeUp",
+  "frames": [
+   1,
+   48
+  ],
+  "events": {
+   "conscious": 10,
+   "up": 42
+  },
+  "loop": false
+ },
+ "Kemono@PK_WalkTipsy.fbx": {
+  "clip": "WalkTipsy",
+  "frames": [
+   1,
+   32
+  ],
+  "events": {},
+  "loop": true
+ }
+}

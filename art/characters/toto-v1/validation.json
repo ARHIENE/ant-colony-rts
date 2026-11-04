@@ -1,0 +1,41 @@
+{
+  "before": {
+    "meshes": 21,
+    "vertices": 2914,
+    "triangles": 5700,
+    "bounds_min": [
+      -1.0123909711837769,
+      -0.6790000200271606,
+      0.0
+    ],
+    "bounds_max": [
+      1.0123909711837769,
+      0.6499999761581421,
+      2.9248569011688232
+    ]
+  },
+  "fbx_roundtrip": {
+    "meshes": 21,
+    "vertices": 2914,
+    "triangles": 5700,
+    "bounds_min": [
+      -1.0123909711837769,
+      -0.6789997816085815,
+      -1.7444669708766014e-08
+    ],
+    "bounds_max": [
+      1.0123909711837769,
+      0.6500003337860107,
+      2.9248569011688232
+    ]
+  },
+  "checks": [
+    "mesh count",
+    "triangle count",
+    "bounds within 0.001",
+    "materials present"
+  ],
+  "rigged": false,
+  "animated": false,
+  "unity_import_verified": false
+}

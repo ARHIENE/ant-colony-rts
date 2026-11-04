@@ -1,0 +1,1975 @@
+{
+ "Tool_Pickaxe_Stone.fbx": {
+  "objects": {
+   "Tool_Pickaxe_Stone": {
+    "type": "MESH",
+    "dims": [
+     0.035,
+     0.4059,
+     0.1025
+    ],
+    "mats": 3
+   }
+  },
+  "props": {
+   "kind": "Pickaxe",
+   "tier": "Stone",
+   "length": 0.4,
+   "grip_from_butt": 0.07,
+   "contact": [
+    0.0,
+    0.318,
+    -0.085
+   ],
+   "rigid": true,
+   "socket": "Socket.Tool.R (L valid)",
+   "grip2": [
+    0.0,
+    0.12,
+    0.0
+   ],
+   "stone_note": "뾰족한 돌 머리를 자루 홈에 끼우고 끈으로 감음"
+  }
+ },
+ "Tool_Pickaxe_Copper.fbx": {
+  "objects": {
+   "Tool_Pickaxe_Copper": {
+    "type": "MESH",
+    "dims": [
+     0.028,
+     0.406,
+     0.16
+    ],
+    "mats": 2
+   }
+  },
+  "props": {
+   "kind": "Pickaxe",
+   "tier": "Copper",
+   "length": 0.4,
+   "grip_from_butt": 0.07,
+   "contact": [
+    0.0,
+    0.318,
+    -0.105
+   ],
+   "rigid": true,
+   "socket": "Socket.Tool.R (L valid)",
+   "grip2": [
+    0.0,
+    0.12,
+    0.0
+   ]
+  }
+ },
+ "Tool_Pickaxe_Bronze.fbx": {
+  "objects": {
+   "Tool_Pickaxe_Bronze": {
+    "type": "MESH",
+    "dims": [
+     0.0338,
+     0.406,
+     0.16
+    ],
+    "mats": 3
+   }
+  },
+  "props": {
+   "kind": "Pickaxe",
+   "tier": "Bronze",
+   "length": 0.4,
+   "grip_from_butt": 0.07,
+   "contact": [
+    0.0,
+    0.318,
+    -0.105
+   ],
+   "rigid": true,
+   "socket": "Socket.Tool.R (L valid)",
+   "grip2": [
+    0.0,
+    0.12,
+    0.0
+   ]
+  }
+ },
+ "Tool_Pickaxe_Iron.fbx": {
+  "objects": {
+   "Tool_Pickaxe_Iron": {
+    "type": "MESH",
+    "dims": [
+     0.0341,
+     0.406,
+     0.16
+    ],
+    "mats": 4
+   }
+  },
+  "props": {
+   "kind": "Pickaxe",
+   "tier": "Iron",
+   "length": 0.4,
+   "grip_from_butt": 0.07,
+   "contact": [
+    0.0,
+    0.318,
+    -0.105
+   ],
+   "rigid": true,
+   "socket": "Socket.Tool.R (L valid)",
+   "grip2": [
+    0.0,
+    0.12,
+    0.0
+   ]
+  }
+ },
+ "Tool_Pickaxe_Steel.fbx": {
+  "objects": {
+   "Tool_Pickaxe_Steel": {
+    "type": "MESH",
+    "dims": [
+     0.0341,
+     0.406,
+     0.16
+    ],
+    "mats": 4
+   }
+  },
+  "props": {
+   "kind": "Pickaxe",
+   "tier": "Steel",
+   "length": 0.4,
+   "grip_from_butt": 0.07,
+   "contact": [
+    0.0,
+    0.318,
+    -0.105
+   ],
+   "rigid": true,
+   "socket": "Socket.Tool.R (L valid)",
+   "grip2": [
+    0.0,
+    0.12,
+    0.0
+   ]
+  }
+ },
+ "Tool_Pickaxe_Titanium.fbx": {
+  "objects": {
+   "Tool_Pickaxe_Titanium": {
+    "type": "MESH",
+    "dims": [
+     0.0341,
+     0.406,
+     0.1443
+    ],
+    "mats": 5
+   }
+  },
+  "props": {
+   "kind": "Pickaxe",
+   "tier": "Titanium",
+   "length": 0.4,
+   "grip_from_butt": 0.07,
+   "contact": [
+    0.0,
+    0.318,
+    -0.0892
+   ],
+   "rigid": true,
+   "socket": "Socket.Tool.R (L valid)",
+   "grip2": [
+    0.0,
+    0.12,
+    0.0
+   ]
+  }
+ },
+ "Tool_Pickaxe_Starlight.fbx": {
+  "objects": {
+   "Tool_Pickaxe_Starlight": {
+    "type": "MESH",
+    "dims": [
+     0.0341,
+     0.406,
+     0.1443
+    ],
+    "mats": 7
+   }
+  },
+  "props": {
+   "kind": "Pickaxe",
+   "tier": "Starlight",
+   "length": 0.4,
+   "grip_from_butt": 0.07,
+   "contact": [
+    0.0,
+    0.318,
+    -0.0892
+   ],
+   "rigid": true,
+   "socket": "Socket.Tool.R (L valid)",
+   "grip2": [
+    0.0,
+    0.12,
+    0.0
+   ]
+  }
+ },
+ "Tool_Axe_Stone.fbx": {
+  "objects": {
+   "Tool_Axe_Stone": {
+    "type": "MESH",
+    "dims": [
+     0.033,
+     0.364,
+     0.0865
+    ],
+    "mats": 3
+   }
+  },
+  "props": {
+   "kind": "Axe",
+   "tier": "Stone",
+   "length": 0.36,
+   "grip_from_butt": 0.07,
+   "contact": [
+    0.0,
+    0.26,
+    -0.07
+   ],
+   "rigid": true,
+   "socket": "Socket.Tool.R (L valid)",
+   "grip2": [
+    0.0,
+    0.11,
+    0.0
+   ],
+   "stone_note": "갈아 만든 돌날을 자루 구멍에 끼우고 끈으로 감음"
+  }
+ },
+ "Tool_Axe_Copper.fbx": {
+  "objects": {
+   "Tool_Axe_Copper": {
+    "type": "MESH",
+    "dims": [
+     0.024,
+     0.368,
+     0.096
+    ],
+    "mats": 2
+   }
+  },
+  "props": {
+   "kind": "Axe",
+   "tier": "Copper",
+   "length": 0.36,
+   "grip_from_butt": 0.07,
+   "contact": [
+    0.0,
+    0.26,
+    -0.075
+   ],
+   "rigid": true,
+   "socket": "Socket.Tool.R (L valid)",
+   "grip2": [
+    0.0,
+    0.11,
+    0.0
+   ]
+  }
+ },
+ "Tool_Axe_Bronze.fbx": {
+  "objects": {
+   "Tool_Axe_Bronze": {
+    "type": "MESH",
+    "dims": [
+     0.0338,
+     0.368,
+     0.096
+    ],
+    "mats": 3
+   }
+  },
+  "props": {
+   "kind": "Axe",
+   "tier": "Bronze",
+   "length": 0.36,
+   "grip_from_butt": 0.07,
+   "contact": [
+    0.0,
+    0.26,
+    -0.075
+   ],
+   "rigid": true,
+   "socket": "Socket.Tool.R (L valid)",
+   "grip2": [
+    0.0,
+    0.11,
+    0.0
+   ]
+  }
+ },
+ "Tool_Axe_Iron.fbx": {
+  "objects": {
+   "Tool_Axe_Iron": {
+    "type": "MESH",
+    "dims": [
+     0.0338,
+     0.368,
+     0.096
+    ],
+    "mats": 4
+   }
+  },
+  "props": {
+   "kind": "Axe",
+   "tier": "Iron",
+   "length": 0.36,
+   "grip_from_butt": 0.07,
+   "contact": [
+    0.0,
+    0.26,
+    -0.075
+   ],
+   "rigid": true,
+   "socket": "Socket.Tool.R (L valid)",
+   "grip2": [
+    0.0,
+    0.11,
+    0.0
+   ]
+  }
+ },
+ "Tool_Axe_Steel.fbx": {
+  "objects": {
+   "Tool_Axe_Steel": {
+    "type": "MESH",
+    "dims": [
+     0.0338,
+     0.368,
+     0.096
+    ],
+    "mats": 4
+   }
+  },
+  "props": {
+   "kind": "Axe",
+   "tier": "Steel",
+   "length": 0.36,
+   "grip_from_butt": 0.07,
+   "contact": [
+    0.0,
+    0.26,
+    -0.075
+   ],
+   "rigid": true,
+   "socket": "Socket.Tool.R (L valid)",
+   "grip2": [
+    0.0,
+    0.11,
+    0.0
+   ]
+  }
+ },
+ "Tool_Axe_Titanium.fbx": {
+  "objects": {
+   "Tool_Axe_Titanium": {
+    "type": "MESH",
+    "dims": [
+     0.0338,
+     0.364,
+     0.0847
+    ],
+    "mats": 5
+   }
+  },
+  "props": {
+   "kind": "Axe",
+   "tier": "Titanium",
+   "length": 0.36,
+   "grip_from_butt": 0.07,
+   "contact": [
+    0.0,
+    0.26,
+    -0.0638
+   ],
+   "rigid": true,
+   "socket": "Socket.Tool.R (L valid)",
+   "grip2": [
+    0.0,
+    0.11,
+    0.0
+   ]
+  }
+ },
+ "Tool_Axe_Starlight.fbx": {
+  "objects": {
+   "Tool_Axe_Starlight": {
+    "type": "MESH",
+    "dims": [
+     0.0338,
+     0.364,
+     0.0847
+    ],
+    "mats": 7
+   }
+  },
+  "props": {
+   "kind": "Axe",
+   "tier": "Starlight",
+   "length": 0.36,
+   "grip_from_butt": 0.07,
+   "contact": [
+    0.0,
+    0.26,
+    -0.0638
+   ],
+   "rigid": true,
+   "socket": "Socket.Tool.R (L valid)",
+   "grip2": [
+    0.0,
+    0.11,
+    0.0
+   ]
+  }
+ },
+ "Tool_Shovel_Stone.fbx": {
+  "objects": {
+   "Tool_Shovel_Stone": {
+    "type": "MESH",
+    "dims": [
+     0.06,
+     0.528,
+     0.031
+    ],
+    "mats": 3
+   }
+  },
+  "props": {
+   "kind": "Shovel",
+   "tier": "Stone",
+   "length": 0.44,
+   "grip_from_butt": 0.06,
+   "contact": [
+    0.0,
+    0.45,
+    -0.004
+   ],
+   "rigid": true,
+   "socket": "Socket.Tool.R (L valid)",
+   "grip2": [
+    0.0,
+    0.14,
+    0.0
+   ],
+   "stone_note": "돌로는 넓은 날이 깨지므로 단단한 나무 날 + 끝에 얇은 돌 날을 끈으로 덧댐"
+  }
+ },
+ "Tool_Shovel_Copper.fbx": {
+  "objects": {
+   "Tool_Shovel_Copper": {
+    "type": "MESH",
+    "dims": [
+     0.08,
+     0.528,
+     0.0166
+    ],
+    "mats": 2
+   }
+  },
+  "props": {
+   "kind": "Shovel",
+   "tier": "Copper",
+   "length": 0.44,
+   "grip_from_butt": 0.06,
+   "contact": [
+    0.0,
+    0.45,
+    -0.004
+   ],
+   "rigid": true,
+   "socket": "Socket.Tool.R (L valid)",
+   "grip2": [
+    0.0,
+    0.14,
+    0.0
+   ]
+  }
+ },
+ "Tool_Shovel_Bronze.fbx": {
+  "objects": {
+   "Tool_Shovel_Bronze": {
+    "type": "MESH",
+    "dims": [
+     0.08,
+     0.528,
+     0.0338
+    ],
+    "mats": 3
+   }
+  },
+  "props": {
+   "kind": "Shovel",
+   "tier": "Bronze",
+   "length": 0.44,
+   "grip_from_butt": 0.06,
+   "contact": [
+    0.0,
+    0.45,
+    -0.004
+   ],
+   "rigid": true,
+   "socket": "Socket.Tool.R (L valid)",
+   "grip2": [
+    0.0,
+    0.14,
+    0.0
+   ]
+  }
+ },
+ "Tool_Shovel_Iron.fbx": {
+  "objects": {
+   "Tool_Shovel_Iron": {
+    "type": "MESH",
+    "dims": [
+     0.08,
+     0.528,
+     0.0338
+    ],
+    "mats": 4
+   }
+  },
+  "props": {
+   "kind": "Shovel",
+   "tier": "Iron",
+   "length": 0.44,
+   "grip_from_butt": 0.06,
+   "contact": [
+    0.0,
+    0.45,
+    -0.004
+   ],
+   "rigid": true,
+   "socket": "Socket.Tool.R (L valid)",
+   "grip2": [
+    0.0,
+    0.14,
+    0.0
+   ]
+  }
+ },
+ "Tool_Shovel_Steel.fbx": {
+  "objects": {
+   "Tool_Shovel_Steel": {
+    "type": "MESH",
+    "dims": [
+     0.08,
+     0.528,
+     0.0338
+    ],
+    "mats": 4
+   }
+  },
+  "props": {
+   "kind": "Shovel",
+   "tier": "Steel",
+   "length": 0.44,
+   "grip_from_butt": 0.06,
+   "contact": [
+    0.0,
+    0.45,
+    -0.004
+   ],
+   "rigid": true,
+   "socket": "Socket.Tool.R (L valid)",
+   "grip2": [
+    0.0,
+    0.14,
+    0.0
+   ]
+  }
+ },
+ "Tool_Shovel_Titanium.fbx": {
+  "objects": {
+   "Tool_Shovel_Titanium": {
+    "type": "MESH",
+    "dims": [
+     0.068,
+     0.528,
+     0.0338
+    ],
+    "mats": 5
+   }
+  },
+  "props": {
+   "kind": "Shovel",
+   "tier": "Titanium",
+   "length": 0.44,
+   "grip_from_butt": 0.06,
+   "contact": [
+    0.0,
+    0.45,
+    -0.004
+   ],
+   "rigid": true,
+   "socket": "Socket.Tool.R (L valid)",
+   "grip2": [
+    0.0,
+    0.14,
+    0.0
+   ]
+  }
+ },
+ "Tool_Shovel_Starlight.fbx": {
+  "objects": {
+   "Tool_Shovel_Starlight": {
+    "type": "MESH",
+    "dims": [
+     0.068,
+     0.528,
+     0.0338
+    ],
+    "mats": 7
+   }
+  },
+  "props": {
+   "kind": "Shovel",
+   "tier": "Starlight",
+   "length": 0.44,
+   "grip_from_butt": 0.06,
+   "contact": [
+    0.0,
+    0.45,
+    -0.004
+   ],
+   "rigid": true,
+   "socket": "Socket.Tool.R (L valid)",
+   "grip2": [
+    0.0,
+    0.14,
+    0.0
+   ]
+  }
+ },
+ "Tool_Hammer_Stone.fbx": {
+  "objects": {
+   "Tool_Hammer_Stone": {
+    "type": "MESH",
+    "dims": [
+     0.0429,
+     0.245,
+     0.06
+    ],
+    "mats": 3
+   }
+  },
+  "props": {
+   "kind": "Hammer",
+   "tier": "Stone",
+   "length": 0.24,
+   "grip_from_butt": 0.05,
+   "contact": [
+    0.0,
+    0.174,
+    -0.036
+   ],
+   "rigid": true,
+   "socket": "Socket.Tool.R (L valid)",
+   "stone_note": "둥근 돌을 갈라진 자루에 끼우고 끈으로 감음"
+  }
+ },
+ "Tool_Hammer_Copper.fbx": {
+  "objects": {
+   "Tool_Hammer_Copper": {
+    "type": "MESH",
+    "dims": [
+     0.034,
+     0.245,
+     0.075
+    ],
+    "mats": 2
+   }
+  },
+  "props": {
+   "kind": "Hammer",
+   "tier": "Copper",
+   "length": 0.24,
+   "grip_from_butt": 0.05,
+   "contact": [
+    0.0,
+    0.174,
+    -0.04
+   ],
+   "rigid": true,
+   "socket": "Socket.Tool.R (L valid)"
+  }
+ },
+ "Tool_Hammer_Bronze.fbx": {
+  "objects": {
+   "Tool_Hammer_Bronze": {
+    "type": "MESH",
+    "dims": [
+     0.034,
+     0.245,
+     0.075
+    ],
+    "mats": 3
+   }
+  },
+  "props": {
+   "kind": "Hammer",
+   "tier": "Bronze",
+   "length": 0.24,
+   "grip_from_butt": 0.05,
+   "contact": [
+    0.0,
+    0.174,
+    -0.04
+   ],
+   "rigid": true,
+   "socket": "Socket.Tool.R (L valid)"
+  }
+ },
+ "Tool_Hammer_Iron.fbx": {
+  "objects": {
+   "Tool_Hammer_Iron": {
+    "type": "MESH",
+    "dims": [
+     0.034,
+     0.245,
+     0.075
+    ],
+    "mats": 4
+   }
+  },
+  "props": {
+   "kind": "Hammer",
+   "tier": "Iron",
+   "length": 0.24,
+   "grip_from_butt": 0.05,
+   "contact": [
+    0.0,
+    0.174,
+    -0.04
+   ],
+   "rigid": true,
+   "socket": "Socket.Tool.R (L valid)"
+  }
+ },
+ "Tool_Hammer_Steel.fbx": {
+  "objects": {
+   "Tool_Hammer_Steel": {
+    "type": "MESH",
+    "dims": [
+     0.034,
+     0.245,
+     0.0772
+    ],
+    "mats": 4
+   }
+  },
+  "props": {
+   "kind": "Hammer",
+   "tier": "Steel",
+   "length": 0.24,
+   "grip_from_butt": 0.05,
+   "contact": [
+    0.0,
+    0.174,
+    -0.04
+   ],
+   "rigid": true,
+   "socket": "Socket.Tool.R (L valid)"
+  }
+ },
+ "Tool_Hammer_Titanium.fbx": {
+  "objects": {
+   "Tool_Hammer_Titanium": {
+    "type": "MESH",
+    "dims": [
+     0.0338,
+     0.244,
+     0.0712
+    ],
+    "mats": 5
+   }
+  },
+  "props": {
+   "kind": "Hammer",
+   "tier": "Titanium",
+   "length": 0.24,
+   "grip_from_butt": 0.05,
+   "contact": [
+    0.0,
+    0.174,
+    -0.034
+   ],
+   "rigid": true,
+   "socket": "Socket.Tool.R (L valid)"
+  }
+ },
+ "Tool_Hammer_Starlight.fbx": {
+  "objects": {
+   "Tool_Hammer_Starlight": {
+    "type": "MESH",
+    "dims": [
+     0.0338,
+     0.244,
+     0.0712
+    ],
+    "mats": 7
+   }
+  },
+  "props": {
+   "kind": "Hammer",
+   "tier": "Starlight",
+   "length": 0.24,
+   "grip_from_butt": 0.05,
+   "contact": [
+    0.0,
+    0.174,
+    -0.034
+   ],
+   "rigid": true,
+   "socket": "Socket.Tool.R (L valid)"
+  }
+ },
+ "Tool_Hoe_Stone.fbx": {
+  "objects": {
+   "Tool_Hoe_Stone": {
+    "type": "MESH",
+    "dims": [
+     0.033,
+     0.4353,
+     0.0908
+    ],
+    "mats": 3
+   }
+  },
+  "props": {
+   "kind": "Hoe",
+   "tier": "Stone",
+   "length": 0.42,
+   "grip_from_butt": 0.07,
+   "contact": [
+    0.0,
+    0.358,
+    -0.073
+   ],
+   "rigid": true,
+   "socket": "Socket.Tool.R (L valid)",
+   "grip2": [
+    0.0,
+    0.13,
+    0.0
+   ],
+   "stone_note": "납작한 돌날을 자루에 직각으로 묶음"
+  }
+ },
+ "Tool_Hoe_Copper.fbx": {
+  "objects": {
+   "Tool_Hoe_Copper": {
+    "type": "MESH",
+    "dims": [
+     0.026,
+     0.4314,
+     0.0853
+    ],
+    "mats": 2
+   }
+  },
+  "props": {
+   "kind": "Hoe",
+   "tier": "Copper",
+   "length": 0.42,
+   "grip_from_butt": 0.07,
+   "contact": [
+    0.0,
+    0.358,
+    -0.073
+   ],
+   "rigid": true,
+   "socket": "Socket.Tool.R (L valid)",
+   "grip2": [
+    0.0,
+    0.13,
+    0.0
+   ]
+  }
+ },
+ "Tool_Hoe_Bronze.fbx": {
+  "objects": {
+   "Tool_Hoe_Bronze": {
+    "type": "MESH",
+    "dims": [
+     0.0338,
+     0.4314,
+     0.0902
+    ],
+    "mats": 3
+   }
+  },
+  "props": {
+   "kind": "Hoe",
+   "tier": "Bronze",
+   "length": 0.42,
+   "grip_from_butt": 0.07,
+   "contact": [
+    0.0,
+    0.358,
+    -0.073
+   ],
+   "rigid": true,
+   "socket": "Socket.Tool.R (L valid)",
+   "grip2": [
+    0.0,
+    0.13,
+    0.0
+   ]
+  }
+ },
+ "Tool_Hoe_Iron.fbx": {
+  "objects": {
+   "Tool_Hoe_Iron": {
+    "type": "MESH",
+    "dims": [
+     0.0338,
+     0.4314,
+     0.0902
+    ],
+    "mats": 4
+   }
+  },
+  "props": {
+   "kind": "Hoe",
+   "tier": "Iron",
+   "length": 0.42,
+   "grip_from_butt": 0.07,
+   "contact": [
+    0.0,
+    0.358,
+    -0.073
+   ],
+   "rigid": true,
+   "socket": "Socket.Tool.R (L valid)",
+   "grip2": [
+    0.0,
+    0.13,
+    0.0
+   ]
+  }
+ },
+ "Tool_Hoe_Steel.fbx": {
+  "objects": {
+   "Tool_Hoe_Steel": {
+    "type": "MESH",
+    "dims": [
+     0.0338,
+     0.4491,
+     0.0902
+    ],
+    "mats": 4
+   }
+  },
+  "props": {
+   "kind": "Hoe",
+   "tier": "Steel",
+   "length": 0.42,
+   "grip_from_butt": 0.07,
+   "contact": [
+    0.0,
+    0.358,
+    -0.073
+   ],
+   "rigid": true,
+   "socket": "Socket.Tool.R (L valid)",
+   "grip2": [
+    0.0,
+    0.13,
+    0.0
+   ]
+  }
+ },
+ "Tool_Hoe_Titanium.fbx": {
+  "objects": {
+   "Tool_Hoe_Titanium": {
+    "type": "MESH",
+    "dims": [
+     0.0338,
+     0.4491,
+     0.0891
+    ],
+    "mats": 5
+   }
+  },
+  "props": {
+   "kind": "Hoe",
+   "tier": "Titanium",
+   "length": 0.42,
+   "grip_from_butt": 0.07,
+   "contact": [
+    0.0,
+    0.358,
+    -0.073
+   ],
+   "rigid": true,
+   "socket": "Socket.Tool.R (L valid)",
+   "grip2": [
+    0.0,
+    0.13,
+    0.0
+   ]
+  }
+ },
+ "Tool_Hoe_Starlight.fbx": {
+  "objects": {
+   "Tool_Hoe_Starlight": {
+    "type": "MESH",
+    "dims": [
+     0.0338,
+     0.4491,
+     0.0891
+    ],
+    "mats": 7
+   }
+  },
+  "props": {
+   "kind": "Hoe",
+   "tier": "Starlight",
+   "length": 0.42,
+   "grip_from_butt": 0.07,
+   "contact": [
+    0.0,
+    0.358,
+    -0.073
+   ],
+   "rigid": true,
+   "socket": "Socket.Tool.R (L valid)",
+   "grip2": [
+    0.0,
+    0.13,
+    0.0
+   ]
+  }
+ },
+ "Tool_Sickle_Stone.fbx": {
+  "objects": {
+   "Tool_Sickle_Stone": {
+    "type": "MESH",
+    "dims": [
+     0.0171,
+     0.267,
+     0.1259
+    ],
+    "mats": 2
+   }
+  },
+  "props": {
+   "kind": "Sickle",
+   "tier": "Stone",
+   "length": 0.2,
+   "grip_from_butt": 0.04,
+   "contact": [
+    0.0,
+    0.21,
+    -0.03
+   ],
+   "rigid": true,
+   "socket": "Socket.Tool.R (L valid)",
+   "stone_note": "휜 나무 몸체 안쪽에 뗀석기 조각을 박아 날로 씀"
+  }
+ },
+ "Tool_Sickle_Copper.fbx": {
+  "objects": {
+   "Tool_Sickle_Copper": {
+    "type": "MESH",
+    "dims": [
+     0.0171,
+     0.267,
+     0.1259
+    ],
+    "mats": 2
+   }
+  },
+  "props": {
+   "kind": "Sickle",
+   "tier": "Copper",
+   "length": 0.2,
+   "grip_from_butt": 0.04,
+   "contact": [
+    0.0,
+    0.21,
+    -0.03
+   ],
+   "rigid": true,
+   "socket": "Socket.Tool.R (L valid)"
+  }
+ },
+ "Tool_Sickle_Bronze.fbx": {
+  "objects": {
+   "Tool_Sickle_Bronze": {
+    "type": "MESH",
+    "dims": [
+     0.0297,
+     0.267,
+     0.1329
+    ],
+    "mats": 3
+   }
+  },
+  "props": {
+   "kind": "Sickle",
+   "tier": "Bronze",
+   "length": 0.2,
+   "grip_from_butt": 0.04,
+   "contact": [
+    0.0,
+    0.21,
+    -0.03
+   ],
+   "rigid": true,
+   "socket": "Socket.Tool.R (L valid)"
+  }
+ },
+ "Tool_Sickle_Iron.fbx": {
+  "objects": {
+   "Tool_Sickle_Iron": {
+    "type": "MESH",
+    "dims": [
+     0.0297,
+     0.267,
+     0.1329
+    ],
+    "mats": 4
+   }
+  },
+  "props": {
+   "kind": "Sickle",
+   "tier": "Iron",
+   "length": 0.2,
+   "grip_from_butt": 0.04,
+   "contact": [
+    0.0,
+    0.21,
+    -0.03
+   ],
+   "rigid": true,
+   "socket": "Socket.Tool.R (L valid)"
+  }
+ },
+ "Tool_Sickle_Steel.fbx": {
+  "objects": {
+   "Tool_Sickle_Steel": {
+    "type": "MESH",
+    "dims": [
+     0.0297,
+     0.267,
+     0.1329
+    ],
+    "mats": 4
+   }
+  },
+  "props": {
+   "kind": "Sickle",
+   "tier": "Steel",
+   "length": 0.2,
+   "grip_from_butt": 0.04,
+   "contact": [
+    0.0,
+    0.21,
+    -0.03
+   ],
+   "rigid": true,
+   "socket": "Socket.Tool.R (L valid)"
+  }
+ },
+ "Tool_Sickle_Titanium.fbx": {
+  "objects": {
+   "Tool_Sickle_Titanium": {
+    "type": "MESH",
+    "dims": [
+     0.0297,
+     0.267,
+     0.1329
+    ],
+    "mats": 5
+   }
+  },
+  "props": {
+   "kind": "Sickle",
+   "tier": "Titanium",
+   "length": 0.2,
+   "grip_from_butt": 0.04,
+   "contact": [
+    0.0,
+    0.21,
+    -0.03
+   ],
+   "rigid": true,
+   "socket": "Socket.Tool.R (L valid)"
+  }
+ },
+ "Tool_Sickle_Starlight.fbx": {
+  "objects": {
+   "Tool_Sickle_Starlight": {
+    "type": "MESH",
+    "dims": [
+     0.0297,
+     0.267,
+     0.1329
+    ],
+    "mats": 7
+   }
+  },
+  "props": {
+   "kind": "Sickle",
+   "tier": "Starlight",
+   "length": 0.2,
+   "grip_from_butt": 0.04,
+   "contact": [
+    0.0,
+    0.21,
+    -0.03
+   ],
+   "rigid": true,
+   "socket": "Socket.Tool.R (L valid)"
+  }
+ },
+ "Weapon_Sword_Copper.fbx": {
+  "objects": {
+   "Weapon_Sword_Copper": {
+    "type": "MESH",
+    "dims": [
+     0.07,
+     0.3793,
+     0.028
+    ],
+    "mats": 2
+   }
+  },
+  "props": {
+   "kind": "Sword",
+   "tier": "Copper",
+   "length": 0.37,
+   "contact": [
+    0.0,
+    0.3,
+    0.0
+   ],
+   "rigid": true,
+   "socket": "Socket.Tool.R; sheathed on Socket.Hip.R (grip origin at the scabbard mouth)"
+  }
+ },
+ "Weapon_Spear_Copper.fbx": {
+  "objects": {
+   "Weapon_Spear_Copper": {
+    "type": "MESH",
+    "dims": [
+     0.038,
+     0.72,
+     0.024
+    ],
+    "mats": 2
+   }
+  },
+  "props": {
+   "kind": "Spear",
+   "tier": "Copper",
+   "length": 0.72,
+   "contact": [
+    0.0,
+    0.38,
+    0.0
+   ],
+   "rigid": true,
+   "socket": "Socket.Tool.R (two-handed: grip2)",
+   "grip2": [
+    0.0,
+    -0.12,
+    0.0
+   ]
+  }
+ },
+ "Weapon_Shield_Copper.fbx": {
+  "objects": {
+   "Weapon_Shield_Copper": {
+    "type": "MESH",
+    "dims": [
+     0.234,
+     0.234,
+     0.0763
+    ],
+    "mats": 4
+   }
+  },
+  "props": {
+   "kind": "Shield",
+   "tier": "Copper",
+   "diameter": 0.22,
+   "rigid": true,
+   "socket": "Socket.Tool.L (grip bar at origin along +Y, face −Z)"
+  }
+ },
+ "Scabbard_Copper.fbx": {
+  "objects": {
+   "Scabbard_Copper": {
+    "type": "MESH",
+    "dims": [
+     0.044,
+     0.282,
+     0.044
+    ],
+    "mats": 3
+   }
+  },
+  "props": {
+   "kind": "Scabbard",
+   "tier": "Copper",
+   "rigid": true,
+   "mouth": [
+    0.0,
+    0.3,
+    0.0
+   ]
+  }
+ },
+ "Weapon_Sword_Bronze.fbx": {
+  "objects": {
+   "Weapon_Sword_Bronze": {
+    "type": "MESH",
+    "dims": [
+     0.07,
+     0.3793,
+     0.028
+    ],
+    "mats": 2
+   }
+  },
+  "props": {
+   "kind": "Sword",
+   "tier": "Bronze",
+   "length": 0.37,
+   "contact": [
+    0.0,
+    0.3,
+    0.0
+   ],
+   "rigid": true,
+   "socket": "Socket.Tool.R; sheathed on Socket.Hip.R (grip origin at the scabbard mouth)"
+  }
+ },
+ "Weapon_Spear_Bronze.fbx": {
+  "objects": {
+   "Weapon_Spear_Bronze": {
+    "type": "MESH",
+    "dims": [
+     0.038,
+     0.72,
+     0.024
+    ],
+    "mats": 2
+   }
+  },
+  "props": {
+   "kind": "Spear",
+   "tier": "Bronze",
+   "length": 0.72,
+   "contact": [
+    0.0,
+    0.38,
+    0.0
+   ],
+   "rigid": true,
+   "socket": "Socket.Tool.R (two-handed: grip2)",
+   "grip2": [
+    0.0,
+    -0.12,
+    0.0
+   ]
+  }
+ },
+ "Weapon_Shield_Bronze.fbx": {
+  "objects": {
+   "Weapon_Shield_Bronze": {
+    "type": "MESH",
+    "dims": [
+     0.234,
+     0.234,
+     0.0763
+    ],
+    "mats": 4
+   }
+  },
+  "props": {
+   "kind": "Shield",
+   "tier": "Bronze",
+   "diameter": 0.22,
+   "rigid": true,
+   "socket": "Socket.Tool.L (grip bar at origin along +Y, face −Z)"
+  }
+ },
+ "Scabbard_Bronze.fbx": {
+  "objects": {
+   "Scabbard_Bronze": {
+    "type": "MESH",
+    "dims": [
+     0.044,
+     0.282,
+     0.044
+    ],
+    "mats": 3
+   }
+  },
+  "props": {
+   "kind": "Scabbard",
+   "tier": "Bronze",
+   "rigid": true,
+   "mouth": [
+    0.0,
+    0.3,
+    0.0
+   ]
+  }
+ },
+ "Weapon_Sword_Iron.fbx": {
+  "objects": {
+   "Weapon_Sword_Iron": {
+    "type": "MESH",
+    "dims": [
+     0.07,
+     0.3793,
+     0.028
+    ],
+    "mats": 3
+   }
+  },
+  "props": {
+   "kind": "Sword",
+   "tier": "Iron",
+   "length": 0.37,
+   "contact": [
+    0.0,
+    0.3,
+    0.0
+   ],
+   "rigid": true,
+   "socket": "Socket.Tool.R; sheathed on Socket.Hip.R (grip origin at the scabbard mouth)"
+  }
+ },
+ "Weapon_Spear_Iron.fbx": {
+  "objects": {
+   "Weapon_Spear_Iron": {
+    "type": "MESH",
+    "dims": [
+     0.038,
+     0.72,
+     0.027
+    ],
+    "mats": 3
+   }
+  },
+  "props": {
+   "kind": "Spear",
+   "tier": "Iron",
+   "length": 0.72,
+   "contact": [
+    0.0,
+    0.38,
+    0.0
+   ],
+   "rigid": true,
+   "socket": "Socket.Tool.R (two-handed: grip2)",
+   "grip2": [
+    0.0,
+    -0.12,
+    0.0
+   ]
+  }
+ },
+ "Weapon_Shield_Iron.fbx": {
+  "objects": {
+   "Weapon_Shield_Iron": {
+    "type": "MESH",
+    "dims": [
+     0.234,
+     0.234,
+     0.0763
+    ],
+    "mats": 5
+   }
+  },
+  "props": {
+   "kind": "Shield",
+   "tier": "Iron",
+   "diameter": 0.22,
+   "rigid": true,
+   "socket": "Socket.Tool.L (grip bar at origin along +Y, face −Z)"
+  }
+ },
+ "Scabbard_Iron.fbx": {
+  "objects": {
+   "Scabbard_Iron": {
+    "type": "MESH",
+    "dims": [
+     0.044,
+     0.282,
+     0.044
+    ],
+    "mats": 3
+   }
+  },
+  "props": {
+   "kind": "Scabbard",
+   "tier": "Iron",
+   "rigid": true,
+   "mouth": [
+    0.0,
+    0.3,
+    0.0
+   ]
+  }
+ },
+ "Weapon_Sword_Steel.fbx": {
+  "objects": {
+   "Weapon_Sword_Steel": {
+    "type": "MESH",
+    "dims": [
+     0.085,
+     0.3793,
+     0.028
+    ],
+    "mats": 3
+   }
+  },
+  "props": {
+   "kind": "Sword",
+   "tier": "Steel",
+   "length": 0.37,
+   "contact": [
+    0.0,
+    0.3,
+    0.0
+   ],
+   "rigid": true,
+   "socket": "Socket.Tool.R; sheathed on Socket.Hip.R (grip origin at the scabbard mouth)"
+  }
+ },
+ "Weapon_Spear_Steel.fbx": {
+  "objects": {
+   "Weapon_Spear_Steel": {
+    "type": "MESH",
+    "dims": [
+     0.038,
+     0.72,
+     0.027
+    ],
+    "mats": 3
+   }
+  },
+  "props": {
+   "kind": "Spear",
+   "tier": "Steel",
+   "length": 0.72,
+   "contact": [
+    0.0,
+    0.38,
+    0.0
+   ],
+   "rigid": true,
+   "socket": "Socket.Tool.R (two-handed: grip2)",
+   "grip2": [
+    0.0,
+    -0.12,
+    0.0
+   ]
+  }
+ },
+ "Weapon_Shield_Steel.fbx": {
+  "objects": {
+   "Weapon_Shield_Steel": {
+    "type": "MESH",
+    "dims": [
+     0.234,
+     0.234,
+     0.0763
+    ],
+    "mats": 5
+   }
+  },
+  "props": {
+   "kind": "Shield",
+   "tier": "Steel",
+   "diameter": 0.22,
+   "rigid": true,
+   "socket": "Socket.Tool.L (grip bar at origin along +Y, face −Z)"
+  }
+ },
+ "Scabbard_Steel.fbx": {
+  "objects": {
+   "Scabbard_Steel": {
+    "type": "MESH",
+    "dims": [
+     0.044,
+     0.282,
+     0.044
+    ],
+    "mats": 3
+   }
+  },
+  "props": {
+   "kind": "Scabbard",
+   "tier": "Steel",
+   "rigid": true,
+   "mouth": [
+    0.0,
+    0.3,
+    0.0
+   ]
+  }
+ },
+ "Weapon_Sword_Titanium.fbx": {
+  "objects": {
+   "Weapon_Sword_Titanium": {
+    "type": "MESH",
+    "dims": [
+     0.085,
+     0.3793,
+     0.028
+    ],
+    "mats": 4
+   }
+  },
+  "props": {
+   "kind": "Sword",
+   "tier": "Titanium",
+   "length": 0.37,
+   "contact": [
+    0.0,
+    0.3,
+    0.0
+   ],
+   "rigid": true,
+   "socket": "Socket.Tool.R; sheathed on Socket.Hip.R (grip origin at the scabbard mouth)"
+  }
+ },
+ "Weapon_Spear_Titanium.fbx": {
+  "objects": {
+   "Weapon_Spear_Titanium": {
+    "type": "MESH",
+    "dims": [
+     0.0342,
+     0.72,
+     0.027
+    ],
+    "mats": 4
+   }
+  },
+  "props": {
+   "kind": "Spear",
+   "tier": "Titanium",
+   "length": 0.72,
+   "contact": [
+    0.0,
+    0.38,
+    0.0
+   ],
+   "rigid": true,
+   "socket": "Socket.Tool.R (two-handed: grip2)",
+   "grip2": [
+    0.0,
+    -0.12,
+    0.0
+   ]
+  }
+ },
+ "Weapon_Shield_Titanium.fbx": {
+  "objects": {
+   "Weapon_Shield_Titanium": {
+    "type": "MESH",
+    "dims": [
+     0.234,
+     0.234,
+     0.0763
+    ],
+    "mats": 5
+   }
+  },
+  "props": {
+   "kind": "Shield",
+   "tier": "Titanium",
+   "diameter": 0.22,
+   "rigid": true,
+   "socket": "Socket.Tool.L (grip bar at origin along +Y, face −Z)"
+  }
+ },
+ "Scabbard_Titanium.fbx": {
+  "objects": {
+   "Scabbard_Titanium": {
+    "type": "MESH",
+    "dims": [
+     0.044,
+     0.282,
+     0.044
+    ],
+    "mats": 3
+   }
+  },
+  "props": {
+   "kind": "Scabbard",
+   "tier": "Titanium",
+   "rigid": true,
+   "mouth": [
+    0.0,
+    0.3,
+    0.0
+   ]
+  }
+ },
+ "Weapon_Sword_Starlight.fbx": {
+  "objects": {
+   "Weapon_Sword_Starlight": {
+    "type": "MESH",
+    "dims": [
+     0.085,
+     0.3793,
+     0.028
+    ],
+    "mats": 4
+   }
+  },
+  "props": {
+   "kind": "Sword",
+   "tier": "Starlight",
+   "length": 0.37,
+   "contact": [
+    0.0,
+    0.3,
+    0.0
+   ],
+   "rigid": true,
+   "socket": "Socket.Tool.R; sheathed on Socket.Hip.R (grip origin at the scabbard mouth)"
+  }
+ },
+ "Weapon_Spear_Starlight.fbx": {
+  "objects": {
+   "Weapon_Spear_Starlight": {
+    "type": "MESH",
+    "dims": [
+     0.0342,
+     0.72,
+     0.027
+    ],
+    "mats": 4
+   }
+  },
+  "props": {
+   "kind": "Spear",
+   "tier": "Starlight",
+   "length": 0.72,
+   "contact": [
+    0.0,
+    0.38,
+    0.0
+   ],
+   "rigid": true,
+   "socket": "Socket.Tool.R (two-handed: grip2)",
+   "grip2": [
+    0.0,
+    -0.12,
+    0.0
+   ]
+  }
+ },
+ "Weapon_Shield_Starlight.fbx": {
+  "objects": {
+   "Weapon_Shield_Starlight": {
+    "type": "MESH",
+    "dims": [
+     0.234,
+     0.234,
+     0.0763
+    ],
+    "mats": 6
+   }
+  },
+  "props": {
+   "kind": "Shield",
+   "tier": "Starlight",
+   "diameter": 0.22,
+   "rigid": true,
+   "socket": "Socket.Tool.L (grip bar at origin along +Y, face −Z)"
+  }
+ },
+ "Scabbard_Starlight.fbx": {
+  "objects": {
+   "Scabbard_Starlight": {
+    "type": "MESH",
+    "dims": [
+     0.044,
+     0.282,
+     0.044
+    ],
+    "mats": 3
+   }
+  },
+  "props": {
+   "kind": "Scabbard",
+   "tier": "Starlight",
+   "rigid": true,
+   "mouth": [
+    0.0,
+    0.3,
+    0.0
+   ]
+  }
+ },
+ "Weapon_ShortBow.fbx": {
+  "objects": {
+   "Weapon_ShortBow": {
+    "type": "MESH",
+    "dims": [
+     0.0175,
+     0.4638,
+     0.0686
+    ],
+    "mats": 3
+   }
+  },
+  "props": {
+   "kind": "Bow",
+   "tier": "Unique",
+   "length": 0.46,
+   "contact": [
+    0.0,
+    0.0,
+    0.055
+   ],
+   "rigid": true,
+   "socket": "Socket.Tool.L (활), 화살은 Socket.Tool.R",
+   "string": [
+    [
+     0.0,
+     0.23,
+     0.055
+    ],
+    [
+     0.0,
+     -0.23,
+     0.055
+    ]
+   ],
+   "ko": "단궁"
+  }
+ },
+ "Ammo_Arrow.fbx": {
+  "objects": {
+   "Ammo_Arrow": {
+    "type": "MESH",
+    "dims": [
+     0.012,
+     0.31,
+     0.012
+    ],
+    "mats": 3
+   }
+  },
+  "props": {
+   "kind": "Arrow",
+   "tier": "Unique",
+   "length": 0.31,
+   "contact": [
+    0.0,
+    0.16,
+    0.0
+   ],
+   "rigid": true,
+   "socket": "Socket.Tool.R (시위 걸 때 끝 -Y가 시위 위)",
+   "ko": "화살"
+  }
+ },
+ "Weapon_BossA_Guardblade.fbx": {
+  "objects": {
+   "Weapon_BossA_Guardblade": {
+    "type": "MESH",
+    "dims": [
+     0.1,
+     0.4212,
+     0.032
+    ],
+    "mats": 3
+   }
+  },
+  "props": {
+   "kind": "Sword",
+   "tier": "Unique",
+   "length": 0.4,
+   "contact": [
+    0.0,
+    0.33,
+    0.0
+   ],
+   "rigid": true,
+   "socket": "Socket.Tool.R; 칼집은 Scabbard_Steel 공용",
+   "ko": "수호 대검(A 보상·고내구)"
+  }
+ },
+ "Weapon_BossB_HeatShield.fbx": {
+  "objects": {
+   "Weapon_BossB_HeatShield": {
+    "type": "MESH",
+    "dims": [
+     0.22,
+     0.22,
+     0.046
+    ],
+    "mats": 4
+   }
+  },
+  "props": {
+   "kind": "Shield",
+   "tier": "Unique",
+   "length": 0.22,
+   "contact": [
+    0.0,
+    0.0,
+    0.02
+   ],
+   "rigid": true,
+   "socket": "Socket.Tool.L (Weapon_Shield_* 와 같은 가운데 손잡이)",
+   "ko": "방열 방패(B 보상)"
+  }
+ },
+ "Weapon_BossC_Quakehammer.fbx": {
+  "objects": {
+   "Weapon_BossC_Quakehammer": {
+    "type": "MESH",
+    "dims": [
+     0.2,
+     0.46,
+     0.09
+    ],
+    "mats": 4
+   }
+  },
+  "props": {
+   "kind": "Hammer",
+   "tier": "Unique",
+   "length": 0.46,
+   "contact": [
+    0.1,
+    0.34,
+    0.0
+   ],
+   "rigid": true,
+   "socket": "Socket.Tool.R, 양손(grip2)",
+   "grip2": [
+    0.0,
+    0.12,
+    0.0
+   ],
+   "ko": "진동 망치(C 보상·범위)"
+  }
+ }
+}

@@ -1,0 +1,231 @@
+"""New key-pose clips for BLENDER-1019 §4, same conventions/helpers as art/kemono-kit/scripts/motions.py (imported, not
+modified). Existing kemono clips are reused where they already fit (REUSE below) and are not rewritten.
+
+Each clip: name -> dict(frames, loop, keys=[(frame, pose)], grip={'R': [(frame, curl)], 'L': ...}, events={name: frame},
+          prop=(tool/weapon id or None), two_hand=bool, target=description of what the contact frame touches).
+Event frames are where the engine swaps parents/visibility or applies a hit; nothing in Blender fakes the game logic.
+"""
+import math, sys
+sys.path.insert(0, r"E:\Git\ant\art\kemono-kit\scripts")
+import motions as K  # P, merge, spine, look, hips, crouch, SEAT, breathe, cyc, walk, RELAX
+
+P, merge, spine, look, hips, crouch, SEAT = K.P, K.merge, K.spine, K.look, K.hips, K.crouch, K.SEAT
+TAU = math.tau
+S = math.sin
+
+REUSE = {
+    'carry_unfinished': ['Carry', 'PutDown', 'Pickup'],  # 미완성품 운반·내려놓기·집기
+    'grind': ['Grind'], 'stir': ['Stir'], 'walk_with_sheathed_weapon': ['Walk', 'Run', 'Idle', 'StandIdle'],
+    'downed_idle': ['Downed'], 'operate_generic': ['Operate'], 'sow_by_hand': ['GroundWork'],
+}
+
+IDLE = merge(K.breathe(0), P(upper_arm_L=(0, 0, 0)))
+GUARD = P(upper_arm_R=(-.85, .15, 0), forearm_R=(-.75, 0, .1), hand_R=(.15, 0, 0), upper_arm_L=(-.35, -.1, 0), forearm_L=(-.7, 0, -.3))
+REACH_HIP_R = merge(spine(z=-.18, x=.05), look(z=-.15), P(upper_arm_R=(.45, .35, .2), forearm_R=(-.55, 0, 0), hand_R=(.2, 0, 0)))
+CARRY_POSE = P(upper_arm_L=(-.55, .2, 0), upper_arm_R=(-.55, -.2, 0), forearm_L=(-1.1, 0, -.25), forearm_R=(-1.1, 0, .25))
+DOWN_REACH = merge(crouch(.75), spine(x=.45), look(x=.25), P(upper_arm_L=(-.7, -.05, 0), upper_arm_R=(-.7, .05, 0), forearm_L=(-.3, 0, 0), forearm_R=(-.3, 0, 0)))
+HANDS_HEAD = merge(look(x=-.05), P(upper_arm_L=(-2.5, -.55, 0), upper_arm_R=(-2.5, .55, 0), forearm_L=(-1.2, 0, -.3), forearm_R=(-1.2, 0, .3)))
+BENCH = merge(spine(x=.12), look(x=.22), P(upper_arm_L=(-.95, -.1, 0), upper_arm_R=(-.95, .1, 0), forearm_L=(-.6, 0, -.15), forearm_R=(-.6, 0, .15)))
+LIE_SIDE = P(Root=(0, -math.pi / 2, 0), Root_loc=(0, 0, .20))
+OPEN, FIST = .05, .85  # finger curl (bone-local X radians)
+
+
+def two_hand_tool(up, hit, stuck):
+    return [(1, merge(stuck, spine(x=-.05))), (14, up), (19, hit), (23, stuck), (32, merge(stuck, spine(x=-.08))), (41, merge(stuck, spine(x=-.05)))]
+
+
+def clips():
+    C = {}
+    # ---------------- weapons: draw / sheathe / attack / block --------------------------------------------------
+    C['DrawSword'] = dict(frames=20, loop=False, prop='Weapon_Sword', keys=[(1, IDLE), (8, REACH_HIP_R), (10, REACH_HIP_R),
+                     (15, merge(GUARD, spine(z=.05))), (21, GUARD)],
+                     grip={'R': [(1, OPEN), (9, OPEN), (10, FIST)]}, events={'weapon_grab': 10, 'ready': 15},
+                     target='sword grip at Socket.Hip.R → Socket.Tool.R')
+    C['SheatheSword'] = dict(frames=20, loop=False, prop='Weapon_Sword', keys=[(1, GUARD), (8, REACH_HIP_R), (11, REACH_HIP_R), (21, IDLE)],
+                     grip={'R': [(1, FIST), (10, FIST), (11, OPEN)]}, events={'weapon_release': 11}, target='Socket.Tool.R → Socket.Hip.R')
+    wind = merge(GUARD, spine(z=.35, x=-.08), look(z=.2), P(upper_arm_R=(-2.4, .5, .4), forearm_R=(-.9, 0, 0)))
+    slash = merge(spine(z=-.4, x=.2), look(z=-.1), crouch(.2), P(upper_arm_R=(-.9, -.25, -.5), forearm_R=(-.2, 0, 0), hand_R=(.4, 0, 0), upper_arm_L=(-.2, -.1, 0)))
+    C['SwordAttack'] = dict(frames=26, loop=True, prop='Weapon_Sword', keys=[(1, GUARD), (9, wind), (13, slash), (17, merge(slash, spine(x=.05))), (27, GUARD)],
+                     grip={'R': [(1, FIST)]}, events={'hit': 13}, target='enemy at 0.35 m in front')
+    block = merge(spine(x=-.05), look(x=-.05), crouch(.15), P(upper_arm_L=(-1.1, -.35, .6), forearm_L=(-1.4, 0, -.4), hand_L=(0, 0, .3)))
+    C['ShieldBlock'] = dict(frames=24, loop=True, prop='Weapon_Shield', keys=[(1, block), (12, merge(block, spine(x=-.02))), (25, block)],
+                     grip={'L': [(1, FIST)]}, events={}, target='shield on Socket.Tool.L')
+    thrust_back = merge(spine(z=.2), P(upper_arm_R=(.2, .2, 0), forearm_R=(-1.2, 0, 0), upper_arm_L=(-1.0, -.1, .3), forearm_L=(-.5, 0, 0)))
+    thrust = merge(spine(z=-.15, x=.15), crouch(.25), P(upper_arm_R=(-1.2, .1, 0), forearm_R=(-.1, 0, 0), upper_arm_L=(-1.3, -.05, .2), forearm_L=(-.2, 0, 0)))
+    C['SpearThrust'] = dict(frames=24, loop=True, prop='Weapon_Spear', two_hand=True, keys=[(1, thrust_back), (10, thrust_back), (14, thrust), (18, thrust), (25, thrust_back)],
+                     grip={'R': [(1, FIST)], 'L': [(1, FIST)]}, events={'hit': 14}, target='enemy at 0.5 m in front')
+
+    # ---------------- muster: put the load down → hide tool → draw weapon --------------------------------------------
+    C['Muster'] = dict(frames=40, loop=False, prop='Weapon_Sword', keys=[(1, CARRY_POSE), (9, merge(CARRY_POSE, crouch(.55), spine(x=.25))),
+                     (12, merge(DOWN_REACH, P(upper_arm_L=(-.4, 0, 0), upper_arm_R=(-.4, 0, 0)))), (18, IDLE), (25, REACH_HIP_R), (27, REACH_HIP_R),
+                     (34, GUARD), (41, GUARD)], grip={'R': [(1, FIST), (12, OPEN), (26, OPEN), (27, FIST)], 'L': [(1, FIST), (12, OPEN)]},
+                     events={'drop_load': 12, 'tool_hide': 17, 'weapon_grab': 27, 'ready': 34}, target='load placed on the floor in front')
+    C['ToolOut'] = dict(frames=12, loop=False, prop='tool', keys=[(1, IDLE), (6, merge(REACH_HIP_R, spine(z=.08))), (13, P(upper_arm_R=(-.55, .05, 0), forearm_R=(-.6, 0, 0)))],
+                     grip={'R': [(1, OPEN), (6, FIST)]}, events={'tool_show': 6}, target='tool shown in Socket.Tool.R only while working')
+    C['ToolAway'] = dict(frames=12, loop=False, prop='tool', keys=[(1, P(upper_arm_R=(-.55, .05, 0), forearm_R=(-.6, 0, 0))), (7, REACH_HIP_R), (13, IDLE)],
+                     grip={'R': [(1, FIST), (7, OPEN)]}, events={'tool_hide': 7}, target='tool hidden (still owned)')
+
+    # ---------------- downed: weapon leaves the hand, armour stays ---------------------------------------------------
+    C['CollapseDropWeapon'] = dict(frames=36, loop=False, prop='Weapon_Sword', keys=[(1, GUARD), (8, merge(GUARD, spine(x=.3), crouch(.3))),
+                     (12, merge(spine(x=.42), look(x=.3), crouch(.65), P(upper_arm_R=(-.3, .3, 0), forearm_R=(-.2, 0, 0), upper_arm_L=(-.4, 0, 0)))),
+                     (22, merge(spine(x=.4), crouch(.9))), (30, merge(LIE_SIDE, spine(x=.12), P(upper_arm_L=(-.6, .1, 0), forearm_L=(-1.2, 0, 0), thigh_L=(-.5, 0, 0), shin_L=(.9, 0, 0)))),
+                     (37, merge(LIE_SIDE, spine(x=.15), P(upper_arm_L=(-.6, .1, 0), forearm_L=(-1.2, 0, 0), thigh_L=(-.6, 0, 0), shin_L=(1.0, 0, 0))))],
+                     grip={'R': [(1, FIST), (11, FIST), (12, OPEN)]}, events={'weapon_drop': 12}, target='weapon detaches to the floor; armour/clothes stay')
+
+    # ---------------- equip / unequip from the floor -------------------------------------------------------------------
+    C['EquipFromGround'] = dict(frames=40, loop=False, prop='helmet', keys=[(1, IDLE), (12, DOWN_REACH), (14, DOWN_REACH), (22, IDLE), (30, HANDS_HEAD), (33, HANDS_HEAD), (41, IDLE)],
+                     grip={'R': [(1, OPEN), (13, FIST), (32, FIST), (33, OPEN)], 'L': [(1, OPEN), (13, FIST), (32, FIST), (33, OPEN)]},
+                     events={'pick': 13, 'equip': 32}, target='item on the floor 0.25 m in front')
+    C['UnequipToGround'] = dict(frames=40, loop=False, prop='helmet', keys=[(1, IDLE), (8, HANDS_HEAD), (10, HANDS_HEAD), (20, IDLE), (28, DOWN_REACH), (30, DOWN_REACH), (41, IDLE)],
+                     grip={'R': [(1, OPEN), (9, FIST), (29, FIST), (30, OPEN)], 'L': [(1, OPEN), (9, FIST), (29, FIST), (30, OPEN)]},
+                     events={'unequip': 9, 'release': 30}, target='item placed 0.25 m in front')
+
+    # ---------------- repair hand-off and repair work ------------------------------------------------------------------
+    C['BenchPlace'] = dict(frames=28, loop=False, prop='repair_item', keys=[(1, CARRY_POSE), (12, BENCH), (16, BENCH), (29, IDLE)],
+                     grip={'R': [(1, FIST), (15, FIST), (16, OPEN)], 'L': [(1, FIST), (15, FIST), (16, OPEN)]}, events={'release': 16},
+                     target='bench top (facility HandTarget), equipment left as a work object')
+    C['BenchPickup'] = dict(frames=28, loop=False, prop='repair_item', keys=[(1, IDLE), (12, BENCH), (15, BENCH), (29, CARRY_POSE)],
+                     grip={'R': [(1, OPEN), (14, FIST)], 'L': [(1, OPEN), (14, FIST)]}, events={'grab': 14}, target='finished item on the bench')
+    tong = P(upper_arm_L=(-.9, -.2, 0), forearm_L=(-.7, 0, -.35), hand_L=(.15, 0, 0))
+    lift = merge(tong, spine(x=.25), look(x=.3), P(upper_arm_R=(-1.7, .15, 0), forearm_R=(-1.3, 0, 0), hand_R=(-.5, 0, 0)))
+    strike = merge(tong, spine(x=.33), look(x=.35), crouch(.08), P(upper_arm_R=(-.8, .05, 0), forearm_R=(-.55, 0, 0), hand_R=(.35, 0, 0)))
+    C['SmithRepair'] = dict(frames=24, loop=True, prop='Tool_Hammer', keys=[(1, strike), (5, merge(strike, P(upper_arm_R=(-.15, 0, 0)))), (15, lift), (20, strike), (25, strike)],
+                     grip={'R': [(1, FIST)], 'L': [(1, FIST)]}, events={'hit': 20}, target='workpiece fixed on the anvil (facility HandTarget)')
+    sew = lambda t: merge(BENCH, spine(x=.08), look(x=.3), P(upper_arm_R=(-1.0 - .25 * max(0, S(TAU * t)), .15, 0), forearm_R=(-.75 - .45 * max(0, S(TAU * t)), 0, .25),
+                                                             hand_R=(-.2 * S(TAU * t), 0, 0)))
+    C['SewRepair'] = dict(frames=48, loop=True, prop=None, keys=K.cyc(48, sew, 8), grip={'R': [(1, .55)], 'L': [(1, .4)]},
+                     events={'stitch': 12, 'stitch_2': 36}, target='cloth/leather item lying on the sewing table')
+
+    # ---------------- food work ----------------------------------------------------------------------------------------
+    press_up = merge(spine(x=-.05), P(upper_arm_L=(-2.0, -.15, 0), upper_arm_R=(-2.0, .15, 0), forearm_L=(-.6, 0, 0), forearm_R=(-.6, 0, 0)))
+    press_dn = merge(spine(x=.4), crouch(.3), P(upper_arm_L=(-1.1, -.1, 0), upper_arm_R=(-1.1, .1, 0), forearm_L=(-.2, 0, 0), forearm_R=(-.2, 0, 0)))
+    C['PressLever'] = dict(frames=32, loop=True, prop=None, keys=[(1, press_up), (18, press_dn), (24, press_dn), (33, press_up)],
+                     grip={'R': [(1, FIST)], 'L': [(1, FIST)]}, events={'press': 18}, target='oil/juice press lever (facility HandTarget)')
+    peel_in = merge(spine(x=.18), crouch(.15), P(upper_arm_L=(-1.2, -.05, 0), upper_arm_R=(-1.2, .05, 0), forearm_L=(-.1, 0, 0), forearm_R=(-.1, 0, 0)))
+    C['OvenLoad'] = dict(frames=32, loop=False, prop='peel', keys=[(1, BENCH), (12, merge(BENCH, spine(x=-.05))), (18, peel_in), (22, peel_in), (33, BENCH)],
+                     grip={'R': [(1, FIST)], 'L': [(1, FIST)]}, events={'insert': 18, 'withdraw': 26}, target='oven mouth')
+    ladle_dn = merge(BENCH, spine(x=.25), P(upper_arm_R=(-.75, .2, 0), forearm_R=(-.4, 0, 0), hand_R=(.4, 0, 0)))
+    ladle_up = merge(BENCH, P(upper_arm_R=(-1.3, .1, 0), forearm_R=(-.9, 0, 0), hand_R=(-.3, 0, 0)))
+    pour = merge(BENCH, spine(z=-.15), P(upper_arm_R=(-1.1, -.1, -.4), forearm_R=(-.7, 0, 0), hand_R=(.6, 0, .4)))
+    C['Ladle'] = dict(frames=28, loop=True, prop='ladle', keys=[(1, ladle_up), (10, ladle_dn), (16, ladle_up), (22, pour), (29, ladle_up)],
+                     grip={'R': [(1, FIST)], 'L': [(1, .4)]}, events={'scoop': 10, 'pour': 22}, target='pot → bowl')
+    knead = lambda t: merge(BENCH, spine(x=.2 + .1 * max(0, S(TAU * t))), P(upper_arm_L=(-1.0 + .15 * S(TAU * t), -.1, 0), upper_arm_R=(-1.0 + .15 * S(TAU * t), .1, 0)))
+    C['Knead'] = dict(frames=32, loop=True, prop=None, keys=K.cyc(32, knead, 8), grip={'R': [(1, .3)], 'L': [(1, .3)]}, events={'press': 8}, target='dough on the bench')
+
+    # ---------------- brewing / distilling ------------------------------------------------------------------------------
+    sack_up = merge(spine(x=-.1), P(upper_arm_L=(-1.7, -.25, 0), upper_arm_R=(-1.7, .25, 0), forearm_L=(-.9, 0, -.2), forearm_R=(-.9, 0, .2)))
+    sack_tip = merge(spine(x=.3), look(x=.2), P(upper_arm_L=(-1.5, -.2, 0), upper_arm_R=(-1.5, .2, 0), forearm_L=(-.4, 0, -.1), forearm_R=(-.4, 0, .1), hand_L=(.6, 0, 0), hand_R=(.6, 0, 0)))
+    C['PourSack'] = dict(frames=32, loop=False, prop='sack', keys=[(1, CARRY_POSE), (10, sack_up), (16, sack_tip), (26, sack_tip), (33, IDLE)],
+                     grip={'R': [(1, FIST), (30, OPEN)], 'L': [(1, FIST), (30, OPEN)]}, events={'pour_start': 16, 'pour_end': 26}, target='brewing barrel opening')
+    tap = merge(crouch(.55), spine(x=.25), P(upper_arm_L=(-.9, -.1, 0), forearm_L=(-.6, 0, -.2), upper_arm_R=(-1.0, .1, 0), forearm_R=(-.9, 0, .3)))
+    C['TapFill'] = dict(frames=40, loop=False, prop='jug', keys=[(1, IDLE), (10, tap), (14, merge(tap, P(hand_R=(0, 0, .6)))), (28, merge(tap, P(hand_R=(0, 0, .6)))), (32, tap), (41, CARRY_POSE)],
+                     grip={'R': [(1, OPEN), (10, FIST)], 'L': [(1, FIST)]}, events={'tap_open': 14, 'tap_close': 32}, target='barrel/still tap, jug under it')
+    valve = lambda t: merge(BENCH, spine(x=.1), P(upper_arm_R=(-1.15, .2 + .2 * S(TAU * t), .3 * math.cos(TAU * t)), forearm_R=(-.7, 0, 0), upper_arm_L=(-1.15, -.2 + .2 * S(TAU * t), .3 * math.cos(TAU * t)), forearm_L=(-.7, 0, 0)))
+    C['ValveTurn'] = dict(frames=24, loop=True, prop=None, keys=K.cyc(24, valve, 8), grip={'R': [(1, FIST)], 'L': [(1, FIST)]}, events={'turn': 12},
+                     target='valve wheel (still, gas extractor, tank)')
+
+    # ---------------- drinking and its after-effects ------------------------------------------------------------------
+    hold = P(upper_arm_R=(-.55, .1, 0), forearm_R=(-1.2, 0, .3))
+    sip = merge(look(x=-.35), spine(x=-.08), P(upper_arm_R=(-1.15, .35, .35), forearm_R=(-2.0, 0, .2), hand_R=(-.3, 0, 0)))
+    C['Drink'] = dict(frames=48, loop=False, prop='cup', keys=[(1, hold), (8, hold), (18, sip), (30, merge(sip, look(x=-.1))), (38, hold), (49, hold)],
+                     grip={'R': [(1, .6)]}, events={'lift': 8, 'sip': 20, 'lower': 36}, target='cup rim at the mouth')
+    C['WalkTipsy'] = dict(frames=32, loop=True, prop=None, keys=K.cyc(32, lambda t: merge(K.walk(t, stride=.45, lift=.4, arm=.5), spine(y=.12 * S(TAU * t), z=.08 * S(TAU * t / 2 * 2)),
+                     look(y=.15 * S(TAU * t + .7), x=-.05)), 8), events={}, target='tipsy (취기) walk')
+    sway = lambda t: merge(spine(y=.25 * S(TAU * t), x=.12), look(y=-.2 * S(TAU * t), x=.2), crouch(.15 + .1 * max(0, S(TAU * t))),
+                           P(upper_arm_L=(-.2, -.6 * max(0, S(TAU * t)), 0), upper_arm_R=(-.2, .6 * max(0, -S(TAU * t)), 0), thigh_L=(-.2 * S(TAU * t), 0, 0)))
+    C['Stagger'] = dict(frames=40, loop=True, prop=None, keys=K.cyc(40, sway, 8), events={}, target='drunk (만취) stagger in place')
+    C['PassOut'] = dict(frames=40, loop=False, prop=None, keys=[(1, sway(0)), (10, sway(.25)), (18, merge(crouch(.7), spine(x=.3))), (28, merge(LIE_SIDE, spine(x=.1))),
+                     (41, merge(LIE_SIDE, spine(x=.12), look(x=.1)))], events={'down': 28}, target='drunk collapse; Downed idle afterwards')
+    C['HangoverIdle'] = dict(frames=72, loop=True, prop=None, keys=K.cyc(72, lambda t: merge(K.breathe(t, .5), spine(x=.18), look(x=.3 + .05 * S(TAU * t)),
+                     P(upper_arm_R=(-1.1, .25, .3), forearm_R=(-2.1, 0, .3), Ear_L=(.4, 0, 0), Ear_R=(.4, 0, 0))), 8), events={}, target='hangover: hand on forehead, ears down')
+    C['Crave'] = dict(frames=48, loop=True, prop=None, keys=K.cyc(48, lambda t: merge(K.breathe(t, 1.3), look(z=.35 * S(TAU * t), x=.05), spine(z=.1 * S(TAU * t)),
+                     P(upper_arm_L=(-.35, .1, 0), forearm_L=(-.9, 0, -.5), upper_arm_R=(-.35, -.1, 0), forearm_R=(-.9, 0, .5))), 8), events={}, target='alcohol craving: restless looking around')
+
+    # ---------------- machines and containers -------------------------------------------------------------------------
+    panel = lambda t: merge(BENCH, spine(x=.06), P(upper_arm_R=(-1.05 - .15 * max(0, S(TAU * t)), .15, 0), forearm_R=(-.55, 0, 0), hand_R=(.2 * max(0, S(TAU * t)), 0, 0)))
+    C['ControlPanel'] = dict(frames=36, loop=True, prop=None, keys=K.cyc(36, panel, 6), grip={'R': [(1, .25)], 'L': [(1, .5)]}, events={'press': 9, 'lever': 27},
+                     target='prospector / extractor control panel (facility HandTarget)')
+    drive = lambda t: merge(SEAT, spine(x=.12), look(z=.12 * S(TAU * t)), P(upper_arm_L=(-.95 + .2 * S(TAU * t), -.1, 0), upper_arm_R=(-.95 - .2 * S(TAU * t), .1, 0),
+                                                                           forearm_L=(-.6, 0, 0), forearm_R=(-.6, 0, 0)))
+    C['DriveSeated'] = dict(frames=48, loop=True, prop=None, keys=K.cyc(48, drive, 8), grip={'R': [(1, FIST)], 'L': [(1, FIST)]}, events={},
+                     target='deep drill driver seat, both levers (facility SeatPoint + HandTarget)')
+    can_dn = merge(crouch(.8), spine(x=.35), P(upper_arm_L=(-.75, -.1, 0), upper_arm_R=(-.75, .1, 0), forearm_L=(-.45, 0, 0), forearm_R=(-.45, 0, 0)))
+    can_tw = merge(can_dn, P(hand_R=(0, 0, .8), forearm_R=(-.6, 0, .3)))
+    C['CanisterConnect'] = dict(frames=40, loop=False, prop='canister', keys=[(1, CARRY_POSE), (12, can_dn), (18, can_dn), (26, can_tw), (30, can_tw), (41, IDLE)],
+                     grip={'R': [(1, FIST), (13, OPEN), (20, FIST)], 'L': [(1, FIST), (13, OPEN)]}, events={'place': 13, 'connect': 26}, target='filling/discharge coupling at floor level')
+    C['CanisterDisconnect'] = dict(frames=40, loop=False, prop='canister', keys=[(1, IDLE), (10, can_tw), (16, can_dn), (26, can_dn), (30, merge(CARRY_POSE, crouch(.4))), (41, CARRY_POSE)],
+                     grip={'R': [(1, OPEN), (8, FIST), (16, OPEN), (24, FIST)], 'L': [(1, OPEN), (24, FIST)]}, events={'disconnect': 12, 'lift': 26}, target='coupling → carry')
+
+    # ---------------- six tool jobs (existing chop/mine/hammer/groundwork poses, now with grips, events, left-hand IK) -----
+    up = merge(spine(x=-.18, z=.30), look(x=-.12, z=.15), hips(-.02), P(pevis=(0, 0, .10)),
+               P(upper_arm_R=(-2.9, .3, 0), forearm_R=(-.75, 0, 0), hand_R=(-.45, 0, 0), upper_arm_L=(-2.7, -.35, 0), forearm_L=(-.85, 0, 0), hand_L=(-.3, 0, 0)),
+               P(thigh_L=(-.12, 0, 0), shin_L=(.25, 0, 0), thigh_R=(.12, 0, 0)))
+    hit = merge(spine(x=.32, z=-.18), look(x=.15), crouch(.25), P(pevis=(0, 0, -.12)),
+                P(upper_arm_R=(-.95, .05, 0), forearm_R=(-.35, 0, 0), hand_R=(.25, 0, 0), upper_arm_L=(-.8, -.05, 0), forearm_L=(-.45, 0, 0), hand_L=(.2, 0, 0)))
+    stuck = merge(hit, spine(x=.06), P(upper_arm_R=(.08, 0, 0), upper_arm_L=(.08, 0, 0)))
+    C['Tool_Chop'] = dict(frames=40, loop=True, prop='Tool_Axe', two_hand=True, keys=two_hand_tool(up, hit, stuck), grip={'R': [(1, FIST)], 'L': [(1, FIST)]},
+                     events={'hit': 19}, target='tree trunk / stump at the contact point')
+    C['Tool_Mine'] = dict(frames=40, loop=True, prop='Tool_Pickaxe', two_hand=True, keys=two_hand_tool(merge(up, spine(x=-.05)), merge(hit, spine(x=.12)), merge(stuck, crouch(.1))),
+                     grip={'R': [(1, FIST)], 'L': [(1, FIST)]}, events={'hit': 19}, target='ore vein / rock at the contact point')
+    steady = P(upper_arm_L=(-.8, .15, 0), forearm_L=(-.85, 0, -.2), hand_L=(.2, 0, 0))
+    hl = merge(steady, spine(x=.28), look(x=.25), P(upper_arm_R=(-1.65, .15, 0), forearm_R=(-1.35, 0, 0), hand_R=(-.45, 0, 0)))
+    hs = merge(steady, spine(x=.36), look(x=.32), crouch(.08), P(upper_arm_R=(-.7, .05, 0), forearm_R=(-.6, 0, 0), hand_R=(.3, 0, 0)))
+    C['Tool_Hammer'] = dict(frames=22, loop=True, prop='Tool_Hammer', keys=[(1, hs), (5, merge(hs, P(upper_arm_R=(-.15, 0, 0)))), (14, hl), (19, hs), (23, hs)],
+                     grip={'R': [(1, FIST)], 'L': [(1, .5)]}, events={'hit': 19}, target='construction / repair / demolition surface')
+    dig_in = merge(spine(x=.35), crouch(.3), P(upper_arm_R=(-.55, .1, 0), forearm_R=(-.5, 0, 0), upper_arm_L=(-1.0, -.1, 0), forearm_L=(-.3, 0, 0), thigh_R=(-.4, 0, 0), shin_R=(.3, 0, 0)))
+    dig_lift = merge(spine(x=.1, z=.35), look(z=.2), P(upper_arm_R=(-1.0, .2, .3), forearm_R=(-.9, 0, 0), upper_arm_L=(-1.4, -.2, .3), forearm_L=(-.6, 0, 0)))
+    C['Tool_Dig'] = dict(frames=40, loop=True, prop='Tool_Shovel', two_hand=True, keys=[(1, dig_lift), (10, merge(dig_in, spine(x=-.1))), (16, dig_in), (24, merge(dig_in, spine(x=-.15))), (32, dig_lift), (41, dig_lift)],
+                     grip={'R': [(1, FIST)], 'L': [(1, FIST)]}, events={'hit': 16, 'toss': 32}, target='sand / clay / soil at the contact point')
+    till_up = merge(spine(x=-.05), P(upper_arm_R=(-1.9, .15, 0), forearm_R=(-.7, 0, 0), upper_arm_L=(-1.6, -.15, 0), forearm_L=(-.8, 0, 0)))
+    till_hit = merge(spine(x=.4), crouch(.25), P(upper_arm_R=(-.6, .05, 0), forearm_R=(-.3, 0, 0), upper_arm_L=(-.7, -.05, 0), forearm_L=(-.4, 0, 0)))
+    C['Tool_Till'] = dict(frames=36, loop=True, prop='Tool_Hoe', two_hand=True, keys=[(1, till_hit), (12, till_up), (17, till_hit), (24, merge(till_hit, spine(x=.06), P(upper_arm_R=(.1, 0, 0)))), (37, till_hit)],
+                     grip={'R': [(1, FIST)], 'L': [(1, FIST)]}, events={'hit': 17}, target='field tile soil (밭 조성·파종)')
+    reap0 = merge(crouch(.55), spine(x=.3, z=.35), P(upper_arm_R=(-.6, .4, .3), forearm_R=(-.4, 0, 0), upper_arm_L=(-.9, -.1, 0), forearm_L=(-.6, 0, -.3)))
+    reap1 = merge(crouch(.55), spine(x=.35, z=-.3), P(upper_arm_R=(-.9, -.2, -.4), forearm_R=(-.3, 0, 0), upper_arm_L=(-.9, -.1, 0), forearm_L=(-.6, 0, -.3)))
+    C['Tool_Harvest'] = dict(frames=28, loop=True, prop='Tool_Sickle', keys=[(1, reap0), (9, reap0), (15, reap1), (20, reap1), (29, reap0)],
+                     grip={'R': [(1, FIST)], 'L': [(1, .7)]}, events={'hit': 15}, target='crop stalks at the contact point')
+    return C
+
+
+def create(rig):
+    """Build 'PK|<clip>' actions (body keys + finger curls). Returns {name: spec}."""
+    import bpy
+    from mathutils import Vector, Euler
+    rig.animation_data_create(); out = {}
+    fingers = {s: [b.name for b in rig.pose.bones if (b.name.startswith(('f_', 'thumb.')) and b.name.endswith('.' + s))] for s in 'LR'}
+    for name, c in clips().items():
+        act = bpy.data.actions.new('PK|' + name); act.use_fake_user = True
+        rig.animation_data.action = act; prev = {}
+        for frame, pose in c['keys']:
+            pose = merge(K.RELAX, pose)
+            for bn in K.DRIVEN:
+                pb = rig.pose.bones[bn]; basis = pb.bone.matrix_local.to_3x3()
+                e = (basis.inverted() @ Euler(pose.get(bn, (0, 0, 0))).to_matrix() @ basis).to_euler('XYZ', prev.get(bn, Euler()))
+                prev[bn] = e; pb.rotation_mode = 'XYZ'; pb.rotation_euler = e
+                pb.location = basis.inverted() @ Vector(pose.get(bn + '_loc', (0, 0, 0)))
+                pb.keyframe_insert('rotation_euler', frame=frame, group=bn); pb.keyframe_insert('location', frame=frame, group=bn)
+        for side, keys in c.get('grip', {}).items():
+            for frame, curl in keys:
+                for bn in fingers[side]:
+                    pb = rig.pose.bones[bn]; pb.rotation_mode = 'XYZ'
+                    pb.rotation_euler = (curl, 0, -.35 * curl / FIST if bn.startswith('thumb.') else 0)
+                    pb.keyframe_insert('rotation_euler', frame=frame, group=bn)
+            for bn in fingers[side]:  # hold the last grip to the end
+                rig.pose.bones[bn].keyframe_insert('rotation_euler', frame=c['frames'] + 1, group=bn)
+        for layer in act.layers:
+            for strip in layer.strips:
+                for bag in strip.channelbags:
+                    for fc in bag.fcurves:
+                        constant = fc.data_path.split('"')[1].startswith(('f_', 'thumb.')) if '"' in fc.data_path else False
+                        for kp in fc.keyframe_points:
+                            kp.interpolation = 'CONSTANT' if constant and len(fc.keyframe_points) > 2 else 'BEZIER'
+                            kp.handle_left_type = kp.handle_right_type = 'AUTO_CLAMPED'
+                        fc.update()
+                        if c['loop']: fc.modifiers.new('CYCLES')
+        act['loop'] = c['loop']; act['duration_frames'] = c['frames']; act['fps'] = 24
+        act['events'] = c.get('events', {}); act['prop'] = c.get('prop') or ''; act['two_hand'] = bool(c.get('two_hand'))
+        act['target'] = c.get('target', '')
+        out[name] = c
+    rig.animation_data.action = None
+    for pb in rig.pose.bones: pb.matrix_basis.identity()
+    return out

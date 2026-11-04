@@ -1,0 +1,2887 @@
+{
+  "CC_NestEntrance": {
+    "scene": "Work__CC_NestEntrance",
+    "clip": "Walk",
+    "tool": null,
+    "actor": "CC_NestEntrance__Resident",
+    "scale": 0.6499999761581421,
+    "work_position": [
+      0.01600000075995922,
+      -2.5769999027252197,
+      0.0
+    ],
+    "original_points": {
+      "WorkPoint_0": {
+        "pos": [
+          0.016,
+          -2.577,
+          0.0
+        ],
+        "forward": [
+          -0.0,
+          1.0,
+          -0.0
+        ]
+      }
+    },
+    "hinges_preserved": [],
+    "status": "Blender preview; gameplay not connected",
+    "facility_scale": [
+      1.0,
+      1.0,
+      1.0
+    ]
+  },
+  "CC_Storage": {
+    "scene": "Work__CC_Storage",
+    "clip": "PutDown",
+    "tool": null,
+    "actor": "CC_Storage__Resident",
+    "scale": 0.6499999761581421,
+    "work_position": [
+      0.0,
+      -1.850000023841858,
+      0.0
+    ],
+    "original_points": {
+      "WorkPoint_0": {
+        "pos": [
+          0.0,
+          -1.85,
+          0.0
+        ],
+        "forward": [
+          -0.0,
+          1.0,
+          -0.0
+        ]
+      },
+      "InputPoint": {
+        "pos": [
+          -0.616,
+          -1.2,
+          1.386
+        ],
+        "forward": [
+          -0.0,
+          1.0,
+          -0.0
+        ]
+      }
+    },
+    "hinges_preserved": [],
+    "status": "Blender preview; gameplay not connected",
+    "facility_scale": [
+      1.0,
+      1.0,
+      1.0
+    ]
+  },
+  "CC_FarmTile": {
+    "scene": "Work__CC_FarmTile",
+    "clip": "GroundWork",
+    "tool": null,
+    "actor": "CC_FarmTile__Resident",
+    "scale": 0.6499999761581421,
+    "work_position": [
+      0.0,
+      -1.5080000162124634,
+      0.0
+    ],
+    "original_points": {
+      "WorkPoint_0": {
+        "pos": [
+          0.0,
+          -1.508,
+          0.0
+        ],
+        "forward": [
+          -0.0,
+          1.0,
+          -0.0
+        ]
+      }
+    },
+    "hinges_preserved": [],
+    "status": "Blender preview; gameplay not connected",
+    "facility_scale": [
+      1.0,
+      1.0,
+      1.0
+    ]
+  },
+  "CC_CropFungus_Planted": {
+    "scene": "Work__CC_CropFungus_Planted",
+    "clip": "GroundWork",
+    "tool": null,
+    "actor": "CC_CropFungus_Planted__Resident",
+    "scale": 0.6499999761581421,
+    "work_position": [
+      -0.02500000037252903,
+      -0.9020000100135803,
+      0.0
+    ],
+    "original_points": {
+      "WorkPoint_0": {
+        "pos": [
+          -0.025,
+          -0.902,
+          0.0
+        ],
+        "forward": [
+          -0.0,
+          1.0,
+          -0.0
+        ]
+      }
+    },
+    "hinges_preserved": [],
+    "status": "Blender preview; gameplay not connected",
+    "facility_scale": [
+      1.0,
+      1.0,
+      1.0
+    ]
+  },
+  "CC_CropFungus_Young": {
+    "scene": "Work__CC_CropFungus_Young",
+    "clip": null,
+    "tool": null,
+    "actor": null,
+    "scale": null,
+    "work_position": null,
+    "original_points": {},
+    "hinges_preserved": [],
+    "status": "Blender preview; gameplay not connected",
+    "facility_scale": [
+      1.0,
+      1.0,
+      1.0
+    ]
+  },
+  "CC_CropFungus_Growing": {
+    "scene": "Work__CC_CropFungus_Growing",
+    "clip": null,
+    "tool": null,
+    "actor": null,
+    "scale": null,
+    "work_position": null,
+    "original_points": {},
+    "hinges_preserved": [],
+    "status": "Blender preview; gameplay not connected",
+    "facility_scale": [
+      1.0,
+      1.0,
+      1.0
+    ]
+  },
+  "CC_CropFungus_Mature": {
+    "scene": "Work__CC_CropFungus_Mature",
+    "clip": "Pickup",
+    "tool": null,
+    "actor": "CC_CropFungus_Mature__Resident",
+    "scale": 0.6499999761581421,
+    "work_position": [
+      0.006000000052154064,
+      -1.1299999952316284,
+      0.0
+    ],
+    "original_points": {
+      "WorkPoint_0": {
+        "pos": [
+          0.006,
+          -1.13,
+          0.0
+        ],
+        "forward": [
+          -0.0,
+          1.0,
+          -0.0
+        ]
+      },
+      "OutputPoint": {
+        "pos": [
+          0.237,
+          -0.48,
+          0.444
+        ],
+        "forward": [
+          -0.0,
+          1.0,
+          -0.0
+        ]
+      }
+    },
+    "hinges_preserved": [],
+    "status": "Blender preview; gameplay not connected",
+    "facility_scale": [
+      1.0,
+      1.0,
+      1.0
+    ]
+  },
+  "CC_CropFungus_Harvested": {
+    "scene": "Work__CC_CropFungus_Harvested",
+    "clip": "PutDown",
+    "tool": null,
+    "actor": "CC_CropFungus_Harvested__Resident",
+    "scale": 0.6499999761581421,
+    "work_position": [
+      -0.02500000037252903,
+      -0.9020000100135803,
+      0.0
+    ],
+    "original_points": {
+      "WorkPoint_0": {
+        "pos": [
+          -0.025,
+          -0.902,
+          0.0
+        ],
+        "forward": [
+          -0.0,
+          1.0,
+          -0.0
+        ]
+      },
+      "OutputPoint": {
+        "pos": [
+          0.155,
+          -0.252,
+          0.117
+        ],
+        "forward": [
+          -0.0,
+          1.0,
+          -0.0
+        ]
+      }
+    },
+    "hinges_preserved": [],
+    "status": "Blender preview; gameplay not connected",
+    "facility_scale": [
+      1.0,
+      1.0,
+      1.0
+    ]
+  },
+  "CC_CropFungus_Pest": {
+    "scene": "Work__CC_CropFungus_Pest",
+    "clip": "GroundWork",
+    "tool": null,
+    "actor": "CC_CropFungus_Pest__Resident",
+    "scale": 0.6499999761581421,
+    "work_position": [
+      -0.02500000037252903,
+      -1.003999948501587,
+      0.0
+    ],
+    "original_points": {
+      "WorkPoint_0": {
+        "pos": [
+          -0.025,
+          -1.004,
+          0.0
+        ],
+        "forward": [
+          -0.0,
+          1.0,
+          -0.0
+        ]
+      }
+    },
+    "hinges_preserved": [],
+    "status": "Blender preview; gameplay not connected",
+    "facility_scale": [
+      1.0,
+      1.0,
+      1.0
+    ]
+  },
+  "CC_RanchFence": {
+    "scene": "Work__CC_RanchFence",
+    "clip": "Hammer",
+    "tool": "Tool_Hammer",
+    "actor": "CC_RanchFence__Resident",
+    "scale": 0.6499999761581421,
+    "work_position": [
+      0.0,
+      -0.6525000333786011,
+      0.0
+    ],
+    "original_points": {
+      "WorkPoint_0": {
+        "pos": [
+          0.0,
+          -0.59,
+          0.0
+        ],
+        "forward": [
+          -0.0,
+          1.0,
+          -0.0
+        ]
+      }
+    },
+    "hinges_preserved": [],
+    "status": "Blender preview; gameplay not connected",
+    "facility_scale": [
+      1.0,
+      1.0,
+      1.0
+    ]
+  },
+  "CC_RanchGate": {
+    "scene": "Work__CC_RanchGate",
+    "clip": "Walk",
+    "tool": null,
+    "actor": "CC_RanchGate__Resident",
+    "scale": 0.6499999761581421,
+    "work_position": [
+      0.0,
+      -0.8999999761581421,
+      0.0
+    ],
+    "original_points": {
+      "WorkPoint_0": {
+        "pos": [
+          0.0,
+          -0.9,
+          0.0
+        ],
+        "forward": [
+          -0.0,
+          1.0,
+          -0.0
+        ]
+      }
+    },
+    "hinges_preserved": [
+      {
+        "pivot": "Gate_Hinge",
+        "axis": "Z",
+        "open_deg": 95
+      }
+    ],
+    "status": "Blender preview; gameplay not connected",
+    "facility_scale": [
+      1.0,
+      1.0,
+      1.0
+    ]
+  },
+  "CC_Feeder": {
+    "scene": "Work__CC_Feeder",
+    "clip": "PutDown",
+    "tool": null,
+    "actor": "CC_Feeder__Resident",
+    "scale": 0.6499999761581421,
+    "work_position": [
+      0.0,
+      -1.0,
+      0.0
+    ],
+    "original_points": {
+      "WorkPoint_0": {
+        "pos": [
+          0.0,
+          -1.0,
+          0.0
+        ],
+        "forward": [
+          -0.0,
+          1.0,
+          -0.0
+        ]
+      },
+      "InputPoint": {
+        "pos": [
+          -0.37,
+          -0.35,
+          0.39
+        ],
+        "forward": [
+          -0.0,
+          1.0,
+          -0.0
+        ]
+      }
+    },
+    "hinges_preserved": [],
+    "status": "Blender preview; gameplay not connected",
+    "facility_scale": [
+      1.0,
+      1.0,
+      1.0
+    ]
+  },
+  "CC_CommanderBed": {
+    "scene": "Work__CC_CommanderBed",
+    "clip": "Treat",
+    "tool": null,
+    "actor": "CC_CommanderBed__Resident",
+    "scale": 0.8500000238418579,
+    "work_position": [
+      0.2370000034570694,
+      -1.4024999141693115,
+      0.0
+    ],
+    "original_points": {
+      "WorkPoint_0": {
+        "pos": [
+          0.237,
+          -1.34,
+          0.0
+        ],
+        "forward": [
+          -0.0,
+          1.0,
+          -0.0
+        ]
+      },
+      "PatientPoint": {
+        "pos": [
+          0.237,
+          0.0,
+          0.924
+        ],
+        "forward": [
+          -0.0,
+          1.0,
+          -0.0
+        ]
+      }
+    },
+    "hinges_preserved": [],
+    "status": "Blender preview; gameplay not connected",
+    "facility_scale": [
+      1.5499999523162842,
+      1.4500000476837158,
+      1.0
+    ]
+  },
+  "CC_AnimalTreatment": {
+    "scene": "Work__CC_AnimalTreatment",
+    "clip": "Operate",
+    "tool": "Tool_Scalpel",
+    "actor": "CC_AnimalTreatment__Resident",
+    "scale": 0.8500000238418579,
+    "work_position": [
+      0.16200000047683716,
+      -1.4024999141693115,
+      0.0
+    ],
+    "original_points": {
+      "WorkPoint_0": {
+        "pos": [
+          0.162,
+          -1.34,
+          0.0
+        ],
+        "forward": [
+          -0.0,
+          1.0,
+          -0.0
+        ]
+      },
+      "PatientPoint": {
+        "pos": [
+          0.162,
+          0.0,
+          0.924
+        ],
+        "forward": [
+          -0.0,
+          1.0,
+          -0.0
+        ]
+      }
+    },
+    "hinges_preserved": [],
+    "status": "Blender preview; gameplay not connected",
+    "facility_scale": [
+      1.5499999523162842,
+      1.4500000476837158,
+      1.0
+    ]
+  },
+  "CC_Apothecary": {
+    "scene": "Work__CC_Apothecary",
+    "clip": "Grind",
+    "tool": "Tool_Pestle",
+    "actor": "CC_Apothecary__Resident",
+    "scale": 0.8500000238418579,
+    "work_position": [
+      0.0,
+      -0.8439820408821106,
+      0.0
+    ],
+    "original_points": {
+      "WorkPoint_0": {
+        "pos": [
+          0.0,
+          -0.984,
+          0.0
+        ],
+        "forward": [
+          -0.0,
+          1.0,
+          -0.0
+        ]
+      },
+      "InputPoint": {
+        "pos": [
+          -0.4,
+          -0.334,
+          1.044
+        ],
+        "forward": [
+          -0.0,
+          1.0,
+          -0.0
+        ]
+      },
+      "OutputPoint": {
+        "pos": [
+          0.4,
+          -0.334,
+          1.044
+        ],
+        "forward": [
+          -0.0,
+          1.0,
+          -0.0
+        ]
+      }
+    },
+    "hinges_preserved": [],
+    "status": "Blender preview; gameplay not connected",
+    "facility_scale": [
+      1.2999999523162842,
+      1.25,
+      0.800000011920929
+    ]
+  },
+  "CC_ButcherTable": {
+    "scene": "Work__CC_ButcherTable",
+    "clip": "Saw",
+    "tool": "Tool_Saw",
+    "actor": "CC_ButcherTable__Resident",
+    "scale": 0.8500000238418579,
+    "work_position": [
+      0.0,
+      -0.8999999761581421,
+      0.0
+    ],
+    "original_points": {
+      "WorkPoint_0": {
+        "pos": [
+          0.0,
+          -1.04,
+          0.0
+        ],
+        "forward": [
+          -0.0,
+          1.0,
+          -0.0
+        ]
+      },
+      "InputPoint": {
+        "pos": [
+          -0.42,
+          -0.39,
+          0.876
+        ],
+        "forward": [
+          -0.0,
+          1.0,
+          -0.0
+        ]
+      },
+      "OutputPoint": {
+        "pos": [
+          0.42,
+          -0.39,
+          0.876
+        ],
+        "forward": [
+          -0.0,
+          1.0,
+          -0.0
+        ]
+      }
+    },
+    "hinges_preserved": [],
+    "status": "Blender preview; gameplay not connected",
+    "facility_scale": [
+      1.2999999523162842,
+      1.25,
+      0.800000011920929
+    ]
+  },
+  "CC_Kitchen": {
+    "scene": "Work__CC_Kitchen",
+    "clip": "Stir",
+    "tool": "Tool_Spoon",
+    "actor": "CC_Kitchen__Resident",
+    "scale": 0.8500000238418579,
+    "work_position": [
+      -0.003000000026077032,
+      -1.0056562423706055,
+      0.0
+    ],
+    "original_points": {
+      "WorkPoint_0": {
+        "pos": [
+          -0.003,
+          -1.146,
+          0.0
+        ],
+        "forward": [
+          -0.0,
+          1.0,
+          -0.0
+        ]
+      },
+      "InputPoint": {
+        "pos": [
+          -0.504,
+          -0.496,
+          0.66
+        ],
+        "forward": [
+          -0.0,
+          1.0,
+          -0.0
+        ]
+      },
+      "OutputPoint": {
+        "pos": [
+          0.498,
+          -0.496,
+          0.66
+        ],
+        "forward": [
+          -0.0,
+          1.0,
+          -0.0
+        ]
+      }
+    },
+    "hinges_preserved": [],
+    "status": "Blender preview; gameplay not connected",
+    "facility_scale": [
+      1.2999999523162842,
+      1.25,
+      0.800000011920929
+    ]
+  },
+  "CC_CompostBin": {
+    "scene": "Work__CC_CompostBin",
+    "clip": "PutDown",
+    "tool": null,
+    "actor": "CC_CompostBin__Resident",
+    "scale": 0.6499999761581421,
+    "work_position": [
+      0.0,
+      -1.2200000286102295,
+      0.0
+    ],
+    "original_points": {
+      "WorkPoint_0": {
+        "pos": [
+          0.0,
+          -1.22,
+          0.0
+        ],
+        "forward": [
+          -0.0,
+          1.0,
+          -0.0
+        ]
+      },
+      "InputPoint": {
+        "pos": [
+          -0.307,
+          -0.57,
+          0.63
+        ],
+        "forward": [
+          -0.0,
+          1.0,
+          -0.0
+        ]
+      }
+    },
+    "hinges_preserved": [],
+    "status": "Blender preview; gameplay not connected",
+    "facility_scale": [
+      1.0,
+      1.0,
+      1.0
+    ]
+  },
+  "CC_Tombstone": {
+    "scene": "Work__CC_Tombstone",
+    "clip": "Mourn",
+    "tool": null,
+    "actor": "CC_Tombstone__Resident",
+    "scale": 0.6499999761581421,
+    "work_position": [
+      0.0,
+      -1.055999994277954,
+      0.0
+    ],
+    "original_points": {
+      "WorkPoint_0": {
+        "pos": [
+          0.0,
+          -1.056,
+          0.0
+        ],
+        "forward": [
+          -0.0,
+          1.0,
+          -0.0
+        ]
+      }
+    },
+    "hinges_preserved": [],
+    "status": "Blender preview; gameplay not connected",
+    "facility_scale": [
+      1.0,
+      1.0,
+      1.0
+    ]
+  },
+  "CC_Dormitory": {
+    "scene": "Work__CC_Dormitory",
+    "clip": "Walk",
+    "tool": null,
+    "actor": "CC_Dormitory__Resident",
+    "scale": 0.6499999761581421,
+    "work_position": [
+      0.0,
+      -2.25,
+      0.0
+    ],
+    "original_points": {
+      "WorkPoint_0": {
+        "pos": [
+          0.0,
+          -2.25,
+          0.0
+        ],
+        "forward": [
+          -0.0,
+          1.0,
+          -0.0
+        ]
+      }
+    },
+    "hinges_preserved": [],
+    "status": "Blender preview; gameplay not connected",
+    "facility_scale": [
+      1.0,
+      1.0,
+      1.0
+    ]
+  },
+  "CC_Workshop": {
+    "scene": "Work__CC_Workshop",
+    "clip": "Hammer",
+    "tool": "Tool_Hammer",
+    "actor": "CC_Workshop__Resident",
+    "scale": 0.8500000238418579,
+    "work_position": [
+      0.0,
+      -0.8999999761581421,
+      0.0
+    ],
+    "original_points": {
+      "WorkPoint_0": {
+        "pos": [
+          0.0,
+          -1.04,
+          0.0
+        ],
+        "forward": [
+          -0.0,
+          1.0,
+          -0.0
+        ]
+      },
+      "InputPoint": {
+        "pos": [
+          -0.48,
+          -0.39,
+          0.993
+        ],
+        "forward": [
+          -0.0,
+          1.0,
+          -0.0
+        ]
+      },
+      "OutputPoint": {
+        "pos": [
+          0.48,
+          -0.39,
+          0.993
+        ],
+        "forward": [
+          -0.0,
+          1.0,
+          -0.0
+        ]
+      }
+    },
+    "hinges_preserved": [],
+    "status": "Blender preview; gameplay not connected",
+    "facility_scale": [
+      1.2999999523162842,
+      1.25,
+      0.800000011920929
+    ]
+  },
+  "CC_ResearchDesk": {
+    "scene": "Work__CC_ResearchDesk",
+    "clip": "Inspect",
+    "tool": null,
+    "actor": "CC_ResearchDesk__Resident",
+    "scale": 0.8500000238418579,
+    "work_position": [
+      0.0,
+      -0.925000011920929,
+      0.0
+    ],
+    "original_points": {
+      "WorkPoint_0": {
+        "pos": [
+          0.0,
+          -1.065,
+          0.0
+        ],
+        "forward": [
+          -0.0,
+          1.0,
+          -0.0
+        ]
+      }
+    },
+    "hinges_preserved": [],
+    "status": "Blender preview; gameplay not connected",
+    "facility_scale": [
+      1.2999999523162842,
+      1.25,
+      0.800000011920929
+    ]
+  },
+  "CC_AdminDesk": {
+    "scene": "Work__CC_AdminDesk",
+    "clip": "Stamp",
+    "tool": "Tool_Stamp",
+    "actor": "CC_AdminDesk__Resident",
+    "scale": 0.8500000238418579,
+    "work_position": [
+      0.0,
+      -0.8500000238418579,
+      0.0
+    ],
+    "original_points": {
+      "WorkPoint_0": {
+        "pos": [
+          0.0,
+          -0.99,
+          0.0
+        ],
+        "forward": [
+          -0.0,
+          1.0,
+          -0.0
+        ]
+      }
+    },
+    "hinges_preserved": [],
+    "status": "Blender preview; gameplay not connected",
+    "facility_scale": [
+      1.2999999523162842,
+      1.25,
+      0.800000011920929
+    ]
+  },
+  "CC_Refrigerator": {
+    "scene": "Work__CC_Refrigerator",
+    "clip": "Pickup",
+    "tool": null,
+    "actor": "CC_Refrigerator__Resident",
+    "scale": 0.6499999761581421,
+    "work_position": [
+      0.0,
+      -1.25,
+      0.0
+    ],
+    "original_points": {
+      "WorkPoint_0": {
+        "pos": [
+          0.0,
+          -1.25,
+          0.0
+        ],
+        "forward": [
+          -0.0,
+          1.0,
+          -0.0
+        ]
+      },
+      "InputPoint": {
+        "pos": [
+          -0.24,
+          -0.6,
+          1.08
+        ],
+        "forward": [
+          -0.0,
+          1.0,
+          -0.0
+        ]
+      }
+    },
+    "hinges_preserved": [
+      {
+        "pivot": "Door_Hinge",
+        "axis": "Z",
+        "open_deg": -100
+      }
+    ],
+    "status": "Blender preview; gameplay not connected",
+    "facility_scale": [
+      1.0,
+      1.0,
+      1.0
+    ]
+  },
+  "CC_Freezer": {
+    "scene": "Work__CC_Freezer",
+    "clip": "Pickup",
+    "tool": null,
+    "actor": "CC_Freezer__Resident",
+    "scale": 0.6499999761581421,
+    "work_position": [
+      0.0,
+      -1.190000057220459,
+      0.0
+    ],
+    "original_points": {
+      "WorkPoint_0": {
+        "pos": [
+          0.0,
+          -1.19,
+          0.0
+        ],
+        "forward": [
+          -0.0,
+          1.0,
+          -0.0
+        ]
+      },
+      "InputPoint": {
+        "pos": [
+          -0.39,
+          -0.54,
+          0.708
+        ],
+        "forward": [
+          -0.0,
+          1.0,
+          -0.0
+        ]
+      }
+    },
+    "hinges_preserved": [
+      {
+        "pivot": "Lid_Hinge",
+        "axis": "X",
+        "open_deg": -75
+      }
+    ],
+    "status": "Blender preview; gameplay not connected",
+    "facility_scale": [
+      1.0,
+      1.0,
+      1.0
+    ]
+  },
+  "CC_WoodGenerator": {
+    "scene": "Work__CC_WoodGenerator",
+    "clip": "PutDown",
+    "tool": null,
+    "actor": "CC_WoodGenerator__Resident",
+    "scale": 0.6499999761581421,
+    "work_position": [
+      0.0,
+      -1.2000000476837158,
+      0.0
+    ],
+    "original_points": {
+      "WorkPoint_0": {
+        "pos": [
+          0.0,
+          -1.2,
+          0.0
+        ],
+        "forward": [
+          -0.0,
+          1.0,
+          -0.0
+        ]
+      },
+      "InputPoint": {
+        "pos": [
+          -0.4,
+          -0.55,
+          1.272
+        ],
+        "forward": [
+          -0.0,
+          1.0,
+          -0.0
+        ]
+      }
+    },
+    "hinges_preserved": [],
+    "status": "Blender preview; gameplay not connected",
+    "facility_scale": [
+      1.0,
+      1.0,
+      1.0
+    ]
+  },
+  "CC_Battery": {
+    "scene": "Work__CC_Battery",
+    "clip": "Hammer",
+    "tool": "Tool_Hammer",
+    "actor": "CC_Battery__Resident",
+    "scale": 0.6499999761581421,
+    "work_position": [
+      0.0,
+      -0.9450000524520874,
+      0.0
+    ],
+    "original_points": {
+      "WorkPoint_0": {
+        "pos": [
+          0.0,
+          -0.882,
+          0.0
+        ],
+        "forward": [
+          -0.0,
+          1.0,
+          -0.0
+        ]
+      }
+    },
+    "hinges_preserved": [],
+    "status": "Blender preview; gameplay not connected",
+    "facility_scale": [
+      1.0,
+      1.0,
+      1.0
+    ]
+  },
+  "CC_Lamp": {
+    "scene": "Work__CC_Lamp",
+    "clip": "Hammer",
+    "tool": "Tool_Hammer",
+    "actor": "CC_Lamp__Resident",
+    "scale": 0.6499999761581421,
+    "work_position": [
+      0.19300000369548798,
+      -0.9125000238418579,
+      0.0
+    ],
+    "original_points": {
+      "WorkPoint_0": {
+        "pos": [
+          0.193,
+          -0.85,
+          0.0
+        ],
+        "forward": [
+          -0.0,
+          1.0,
+          -0.0
+        ]
+      }
+    },
+    "hinges_preserved": [],
+    "status": "Blender preview; gameplay not connected",
+    "facility_scale": [
+      1.0,
+      1.0,
+      1.0
+    ]
+  },
+  "CC_SoilWall": {
+    "scene": "Work__CC_SoilWall",
+    "clip": "Hammer",
+    "tool": "Tool_Hammer",
+    "actor": "CC_SoilWall__Resident",
+    "scale": 0.6499999761581421,
+    "work_position": [
+      0.0,
+      -0.8125,
+      0.0
+    ],
+    "original_points": {
+      "WorkPoint_0": {
+        "pos": [
+          0.0,
+          -0.75,
+          0.0
+        ],
+        "forward": [
+          -0.0,
+          1.0,
+          -0.0
+        ]
+      }
+    },
+    "hinges_preserved": [],
+    "status": "Blender preview; gameplay not connected",
+    "facility_scale": [
+      1.0,
+      1.0,
+      1.0
+    ]
+  },
+  "CC_LeafWall": {
+    "scene": "Work__CC_LeafWall",
+    "clip": "Hammer",
+    "tool": "Tool_Hammer",
+    "actor": "CC_LeafWall__Resident",
+    "scale": 0.6499999761581421,
+    "work_position": [
+      0.0,
+      -0.7325000166893005,
+      0.0
+    ],
+    "original_points": {
+      "WorkPoint_0": {
+        "pos": [
+          0.0,
+          -0.67,
+          0.0
+        ],
+        "forward": [
+          -0.0,
+          1.0,
+          -0.0
+        ]
+      }
+    },
+    "hinges_preserved": [],
+    "status": "Blender preview; gameplay not connected",
+    "facility_scale": [
+      1.0,
+      1.0,
+      1.0
+    ]
+  },
+  "CC_CastleWall": {
+    "scene": "Work__CC_CastleWall",
+    "clip": "Hammer",
+    "tool": "Tool_Hammer",
+    "actor": "CC_CastleWall__Resident",
+    "scale": 0.6499999761581421,
+    "work_position": [
+      0.0,
+      -1.0225000381469727,
+      0.0
+    ],
+    "original_points": {
+      "WorkPoint_0": {
+        "pos": [
+          0.0,
+          -0.96,
+          0.0
+        ],
+        "forward": [
+          -0.0,
+          1.0,
+          -0.0
+        ]
+      }
+    },
+    "hinges_preserved": [],
+    "status": "Blender preview; gameplay not connected",
+    "facility_scale": [
+      1.0,
+      1.0,
+      1.0
+    ]
+  },
+  "CC_DoorFrame": {
+    "scene": "Work__CC_DoorFrame",
+    "clip": "Walk",
+    "tool": null,
+    "actor": "CC_DoorFrame__Resident",
+    "scale": 0.6499999761581421,
+    "work_position": [
+      0.0,
+      -0.8999999761581421,
+      0.0
+    ],
+    "original_points": {
+      "WorkPoint_0": {
+        "pos": [
+          0.0,
+          -0.9,
+          0.0
+        ],
+        "forward": [
+          -0.0,
+          1.0,
+          -0.0
+        ]
+      }
+    },
+    "hinges_preserved": [
+      {
+        "pivot": "Door_Hinge.001",
+        "axis": "Z",
+        "open_deg": 95
+      }
+    ],
+    "status": "Blender preview; gameplay not connected",
+    "facility_scale": [
+      1.0,
+      1.0,
+      1.0
+    ]
+  },
+  "CC_CastleGate": {
+    "scene": "Work__CC_CastleGate",
+    "clip": "Walk",
+    "tool": null,
+    "actor": "CC_CastleGate__Resident",
+    "scale": 0.6499999761581421,
+    "work_position": [
+      0.0,
+      -1.399999976158142,
+      0.0
+    ],
+    "original_points": {
+      "WorkPoint_0": {
+        "pos": [
+          0.0,
+          -1.4,
+          0.0
+        ],
+        "forward": [
+          -0.0,
+          1.0,
+          -0.0
+        ]
+      }
+    },
+    "hinges_preserved": [
+      {
+        "pivot": "GateLeft_Hinge",
+        "axis": "Z",
+        "open_deg": 90
+      },
+      {
+        "pivot": "GateRight_Hinge",
+        "axis": "Z",
+        "open_deg": -90
+      }
+    ],
+    "status": "Blender preview; gameplay not connected",
+    "facility_scale": [
+      1.0,
+      1.0,
+      1.0
+    ]
+  },
+  "CC_ConstructionPlan": {
+    "scene": "Work__CC_ConstructionPlan",
+    "clip": "PutDown",
+    "tool": null,
+    "actor": "CC_ConstructionPlan__Resident",
+    "scale": 0.6499999761581421,
+    "work_position": [
+      0.0,
+      -1.9900000095367432,
+      0.0
+    ],
+    "original_points": {
+      "WorkPoint_0": {
+        "pos": [
+          0.0,
+          -1.99,
+          0.0
+        ],
+        "forward": [
+          -0.0,
+          1.0,
+          -0.0
+        ]
+      },
+      "InputPoint": {
+        "pos": [
+          -0.598,
+          -1.34,
+          0.33
+        ],
+        "forward": [
+          -0.0,
+          1.0,
+          -0.0
+        ]
+      }
+    },
+    "hinges_preserved": [],
+    "status": "Blender preview; gameplay not connected",
+    "facility_scale": [
+      1.0,
+      1.0,
+      1.0
+    ]
+  },
+  "CC_ConstructionFrame": {
+    "scene": "Work__CC_ConstructionFrame",
+    "clip": "Hammer",
+    "tool": "Tool_Hammer",
+    "actor": "CC_ConstructionFrame__Resident",
+    "scale": 0.6499999761581421,
+    "work_position": [
+      0.0,
+      -2.111617088317871,
+      0.0
+    ],
+    "original_points": {
+      "WorkPoint_0": {
+        "pos": [
+          0.0,
+          -2.049,
+          0.0
+        ],
+        "forward": [
+          -0.0,
+          1.0,
+          -0.0
+        ]
+      }
+    },
+    "hinges_preserved": [],
+    "status": "Blender preview; gameplay not connected",
+    "facility_scale": [
+      1.0,
+      1.0,
+      1.0
+    ]
+  },
+  "CC_DemolitionRubble": {
+    "scene": "Work__CC_DemolitionRubble",
+    "clip": "Mine",
+    "tool": "Tool_Pickaxe",
+    "actor": "CC_DemolitionRubble__Resident",
+    "scale": 0.6499999761581421,
+    "work_position": [
+      0.004999999888241291,
+      -1.2929999828338623,
+      0.0
+    ],
+    "original_points": {
+      "WorkPoint_0": {
+        "pos": [
+          0.005,
+          -1.293,
+          0.0
+        ],
+        "forward": [
+          -0.0,
+          1.0,
+          -0.0
+        ]
+      }
+    },
+    "hinges_preserved": [],
+    "status": "Blender preview; gameplay not connected",
+    "facility_scale": [
+      1.0,
+      1.0,
+      1.0
+    ]
+  },
+  "CC_TreeBroadleaf": {
+    "scene": "Work__CC_TreeBroadleaf",
+    "clip": "Chop",
+    "tool": "Tool_Axe",
+    "actor": "CC_TreeBroadleaf__Resident",
+    "scale": 0.6499999761581421,
+    "work_position": [
+      0.0,
+      -1.5432395935058594,
+      0.0
+    ],
+    "original_points": {
+      "WorkPoint_0": {
+        "pos": [
+          0.0,
+          -0.75,
+          0.0
+        ],
+        "forward": [
+          -0.0,
+          1.0,
+          -0.0
+        ]
+      }
+    },
+    "hinges_preserved": [],
+    "status": "Blender preview; gameplay not connected",
+    "facility_scale": [
+      1.0,
+      1.0,
+      1.0
+    ]
+  },
+  "CC_TreeTall": {
+    "scene": "Work__CC_TreeTall",
+    "clip": "Chop",
+    "tool": "Tool_Axe",
+    "actor": "CC_TreeTall__Resident",
+    "scale": 0.6499999761581421,
+    "work_position": [
+      0.0,
+      -1.5432395935058594,
+      0.0
+    ],
+    "original_points": {
+      "WorkPoint_0": {
+        "pos": [
+          0.0,
+          -0.75,
+          0.0
+        ],
+        "forward": [
+          -0.0,
+          1.0,
+          -0.0
+        ]
+      }
+    },
+    "hinges_preserved": [],
+    "status": "Blender preview; gameplay not connected",
+    "facility_scale": [
+      1.0,
+      1.0,
+      1.0
+    ]
+  },
+  "CC_Stump": {
+    "scene": "Work__CC_Stump",
+    "clip": "Chop",
+    "tool": "Tool_Axe",
+    "actor": "CC_Stump__Resident",
+    "scale": 0.6499999761581421,
+    "work_position": [
+      0.029999999329447746,
+      -1.1150000095367432,
+      0.0
+    ],
+    "original_points": {
+      "WorkPoint_0": {
+        "pos": [
+          0.03,
+          -1.115,
+          0.0
+        ],
+        "forward": [
+          -0.0,
+          1.0,
+          -0.0
+        ]
+      }
+    },
+    "hinges_preserved": [],
+    "status": "Blender preview; gameplay not connected",
+    "facility_scale": [
+      1.0,
+      1.0,
+      1.0
+    ]
+  },
+  "CC_FallenBranch": {
+    "scene": "Work__CC_FallenBranch",
+    "clip": "Pickup",
+    "tool": null,
+    "actor": "CC_FallenBranch__Resident",
+    "scale": 0.6499999761581421,
+    "work_position": [
+      0.08399999886751175,
+      -0.6650000214576721,
+      0.0
+    ],
+    "original_points": {
+      "WorkPoint_0": {
+        "pos": [
+          0.084,
+          -0.665,
+          0.0
+        ],
+        "forward": [
+          -0.0,
+          1.0,
+          -0.0
+        ]
+      }
+    },
+    "hinges_preserved": [],
+    "status": "Blender preview; gameplay not connected",
+    "facility_scale": [
+      1.0,
+      1.0,
+      1.0
+    ]
+  },
+  "CC_RockOutcrop": {
+    "scene": "Work__CC_RockOutcrop",
+    "clip": "Mine",
+    "tool": "Tool_Pickaxe",
+    "actor": "CC_RockOutcrop__Resident",
+    "scale": 0.6499999761581421,
+    "work_position": [
+      -0.04500000178813934,
+      -0.9760000109672546,
+      0.0
+    ],
+    "original_points": {
+      "WorkPoint_0": {
+        "pos": [
+          -0.045,
+          -0.976,
+          0.0
+        ],
+        "forward": [
+          -0.0,
+          1.0,
+          -0.0
+        ]
+      }
+    },
+    "hinges_preserved": [],
+    "status": "Blender preview; gameplay not connected",
+    "facility_scale": [
+      1.0,
+      1.0,
+      1.0
+    ]
+  },
+  "CC_OreOutcrop": {
+    "scene": "Work__CC_OreOutcrop",
+    "clip": "Mine",
+    "tool": "Tool_Pickaxe",
+    "actor": "CC_OreOutcrop__Resident",
+    "scale": 0.6499999761581421,
+    "work_position": [
+      -0.04500000178813934,
+      -1.1030000448226929,
+      0.0
+    ],
+    "original_points": {
+      "WorkPoint_0": {
+        "pos": [
+          -0.045,
+          -1.103,
+          0.0
+        ],
+        "forward": [
+          -0.0,
+          1.0,
+          -0.0
+        ]
+      }
+    },
+    "hinges_preserved": [],
+    "status": "Blender preview; gameplay not connected",
+    "facility_scale": [
+      1.0,
+      1.0,
+      1.0
+    ]
+  },
+  "CC_Bush": {
+    "scene": "Work__CC_Bush",
+    "clip": "GroundWork",
+    "tool": null,
+    "actor": "CC_Bush__Resident",
+    "scale": 0.6499999761581421,
+    "work_position": [
+      -0.014999999664723873,
+      -1.090000033378601,
+      0.0
+    ],
+    "original_points": {
+      "WorkPoint_0": {
+        "pos": [
+          -0.015,
+          -1.09,
+          0.0
+        ],
+        "forward": [
+          -0.0,
+          1.0,
+          -0.0
+        ]
+      }
+    },
+    "hinges_preserved": [],
+    "status": "Blender preview; gameplay not connected",
+    "facility_scale": [
+      1.0,
+      1.0,
+      1.0
+    ]
+  },
+  "CC_GrassTuft": {
+    "scene": "Work__CC_GrassTuft",
+    "clip": "GroundWork",
+    "tool": null,
+    "actor": "CC_GrassTuft__Resident",
+    "scale": 0.6499999761581421,
+    "work_position": [
+      0.019999999552965164,
+      -0.8040000200271606,
+      0.0
+    ],
+    "original_points": {
+      "WorkPoint_0": {
+        "pos": [
+          0.02,
+          -0.804,
+          0.0
+        ],
+        "forward": [
+          -0.0,
+          1.0,
+          -0.0
+        ]
+      }
+    },
+    "hinges_preserved": [],
+    "status": "Blender preview; gameplay not connected",
+    "facility_scale": [
+      1.0,
+      1.0,
+      1.0
+    ]
+  },
+  "CC_WildFungus": {
+    "scene": "Work__CC_WildFungus",
+    "clip": "Pickup",
+    "tool": null,
+    "actor": "CC_WildFungus__Resident",
+    "scale": 0.6499999761581421,
+    "work_position": [
+      0.035999998450279236,
+      -1.003999948501587,
+      0.0
+    ],
+    "original_points": {
+      "WorkPoint_0": {
+        "pos": [
+          0.036,
+          -1.004,
+          0.0
+        ],
+        "forward": [
+          -0.0,
+          1.0,
+          -0.0
+        ]
+      }
+    },
+    "hinges_preserved": [],
+    "status": "Blender preview; gameplay not connected",
+    "facility_scale": [
+      1.0,
+      1.0,
+      1.0
+    ]
+  },
+  "CC_PebbleScatter": {
+    "scene": "Work__CC_PebbleScatter",
+    "clip": "Pickup",
+    "tool": null,
+    "actor": "CC_PebbleScatter__Resident",
+    "scale": 0.6499999761581421,
+    "work_position": [
+      0.004999999888241291,
+      -1.0010000467300415,
+      0.0
+    ],
+    "original_points": {
+      "WorkPoint_0": {
+        "pos": [
+          0.005,
+          -1.001,
+          0.0
+        ],
+        "forward": [
+          -0.0,
+          1.0,
+          -0.0
+        ]
+      }
+    },
+    "hinges_preserved": [],
+    "status": "Blender preview; gameplay not connected",
+    "facility_scale": [
+      1.0,
+      1.0,
+      1.0
+    ]
+  },
+  "CC_SleepingMat": {
+    "scene": "Work__CC_SleepingMat",
+    "clip": "Sleep",
+    "tool": null,
+    "actor": "CC_SleepingMat__Resident",
+    "scale": 0.8500000238418579,
+    "work_position": [
+      0.0,
+      -0.75,
+      0.10000000149011612
+    ],
+    "original_points": {
+      "WorkPoint_0": {
+        "pos": [
+          0.0,
+          -1.325,
+          0.0
+        ],
+        "forward": [
+          -0.0,
+          1.0,
+          -0.0
+        ]
+      },
+      "SeatPoint": {
+        "pos": [
+          0.0,
+          0.0,
+          0.27
+        ],
+        "forward": [
+          -0.0,
+          1.0,
+          -0.0
+        ]
+      }
+    },
+    "hinges_preserved": [],
+    "status": "Blender preview; gameplay not connected",
+    "facility_scale": [
+      1.5499999523162842,
+      1.4500000476837158,
+      1.0
+    ]
+  },
+  "CC_Chair": {
+    "scene": "Work__CC_Chair",
+    "clip": "Sit",
+    "tool": null,
+    "actor": "CC_Chair__Resident",
+    "scale": 0.6499999761581421,
+    "work_position": [
+      0.0,
+      0.0,
+      0.3269999921321869
+    ],
+    "original_points": {
+      "WorkPoint_0": {
+        "pos": [
+          0.0,
+          -0.825,
+          0.0
+        ],
+        "forward": [
+          -0.0,
+          1.0,
+          -0.0
+        ]
+      },
+      "SeatPoint": {
+        "pos": [
+          0.0,
+          0.0,
+          0.457
+        ],
+        "forward": [
+          -0.0,
+          1.0,
+          -0.0
+        ]
+      }
+    },
+    "hinges_preserved": [],
+    "status": "Blender preview; gameplay not connected",
+    "facility_scale": [
+      1.399999976158142,
+      1.399999976158142,
+      1.0
+    ]
+  },
+  "CC_DiningTable": {
+    "scene": "Work__CC_DiningTable",
+    "clip": "Eat",
+    "tool": null,
+    "actor": "CC_DiningTable__Resident",
+    "scale": 0.8500000238418579,
+    "work_position": [
+      0.0,
+      -0.925000011920929,
+      0.0
+    ],
+    "original_points": {
+      "WorkPoint_0": {
+        "pos": [
+          0.0,
+          -1.065,
+          0.0
+        ],
+        "forward": [
+          -0.0,
+          1.0,
+          -0.0
+        ]
+      },
+      "SeatPoint": {
+        "pos": [
+          0.0,
+          0.0,
+          0.378
+        ],
+        "forward": [
+          -0.0,
+          1.0,
+          -0.0
+        ]
+      }
+    },
+    "hinges_preserved": [],
+    "status": "Blender preview; gameplay not connected",
+    "facility_scale": [
+      1.2999999523162842,
+      1.25,
+      0.800000011920929
+    ]
+  },
+  "CC_RestBench": {
+    "scene": "Work__CC_RestBench",
+    "clip": "Rest",
+    "tool": null,
+    "actor": "CC_RestBench__Resident",
+    "scale": 0.6499999761581421,
+    "work_position": [
+      0.0,
+      0.0,
+      0.35600000619888306
+    ],
+    "original_points": {
+      "WorkPoint_0": {
+        "pos": [
+          0.0,
+          -0.8,
+          0.0
+        ],
+        "forward": [
+          -0.0,
+          1.0,
+          -0.0
+        ]
+      },
+      "SeatPoint": {
+        "pos": [
+          0.0,
+          0.0,
+          0.486
+        ],
+        "forward": [
+          -0.0,
+          1.0,
+          -0.0
+        ]
+      }
+    },
+    "hinges_preserved": [],
+    "status": "Blender preview; gameplay not connected",
+    "facility_scale": [
+      1.399999976158142,
+      1.399999976158142,
+      1.0
+    ]
+  },
+  "CC_Bookshelf": {
+    "scene": "Work__CC_Bookshelf",
+    "clip": "Inspect",
+    "tool": null,
+    "actor": "CC_Bookshelf__Resident",
+    "scale": 0.6499999761581421,
+    "work_position": [
+      0.0,
+      -0.75,
+      0.0
+    ],
+    "original_points": {
+      "WorkPoint_0": {
+        "pos": [
+          0.0,
+          -0.75,
+          0.0
+        ],
+        "forward": [
+          -0.0,
+          1.0,
+          -0.0
+        ]
+      }
+    },
+    "hinges_preserved": [],
+    "status": "Blender preview; gameplay not connected",
+    "facility_scale": [
+      1.0,
+      1.0,
+      1.0
+    ]
+  },
+  "CC_Campfire": {
+    "scene": "Work__CC_Campfire",
+    "clip": "Rest",
+    "tool": null,
+    "actor": "CC_Campfire__Resident",
+    "scale": 0.6499999761581421,
+    "work_position": [
+      0.0,
+      -1.25,
+      0.0
+    ],
+    "original_points": {
+      "WorkPoint_0": {
+        "pos": [
+          0.0,
+          -1.25,
+          0.0
+        ],
+        "forward": [
+          -0.0,
+          1.0,
+          -0.0
+        ]
+      }
+    },
+    "hinges_preserved": [],
+    "status": "Blender preview; gameplay not connected",
+    "facility_scale": [
+      1.0,
+      1.0,
+      1.0
+    ]
+  },
+  "CC_Toilet": {
+    "scene": "Work__CC_Toilet",
+    "clip": "Sit",
+    "tool": null,
+    "actor": "CC_Toilet__Resident",
+    "scale": 0.6499999761581421,
+    "work_position": [
+      0.10499999672174454,
+      0.03200000151991844,
+      0.5090000033378601
+    ],
+    "original_points": {
+      "WorkPoint_0": {
+        "pos": [
+          0.105,
+          -0.975,
+          0.0
+        ],
+        "forward": [
+          -0.0,
+          1.0,
+          -0.0
+        ]
+      },
+      "SeatPoint": {
+        "pos": [
+          0.105,
+          0.032,
+          0.639
+        ],
+        "forward": [
+          -0.0,
+          1.0,
+          -0.0
+        ]
+      }
+    },
+    "hinges_preserved": [],
+    "status": "Blender preview; gameplay not connected",
+    "facility_scale": [
+      1.399999976158142,
+      1.399999976158142,
+      1.0
+    ]
+  },
+  "CC_Washbasin": {
+    "scene": "Work__CC_Washbasin",
+    "clip": "Wash",
+    "tool": null,
+    "actor": "CC_Washbasin__Resident",
+    "scale": 0.8500000238418579,
+    "work_position": [
+      0.0,
+      -0.7599999904632568,
+      0.0
+    ],
+    "original_points": {
+      "WorkPoint_0": {
+        "pos": [
+          0.0,
+          -0.9,
+          0.0
+        ],
+        "forward": [
+          -0.0,
+          1.0,
+          -0.0
+        ]
+      }
+    },
+    "hinges_preserved": [],
+    "status": "Blender preview; gameplay not connected",
+    "facility_scale": [
+      1.2999999523162842,
+      1.25,
+      0.800000011920929
+    ]
+  },
+  "CC_Shower": {
+    "scene": "Work__CC_Shower",
+    "clip": "StandIdle",
+    "tool": null,
+    "actor": "CC_Shower__Resident",
+    "scale": 0.6499999761581421,
+    "work_position": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "original_points": {
+      "WorkPoint_0": {
+        "pos": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "forward": [
+          -0.0,
+          1.0,
+          -0.0
+        ]
+      }
+    },
+    "hinges_preserved": [],
+    "status": "Blender preview; gameplay not connected",
+    "facility_scale": [
+      1.0,
+      1.0,
+      1.0
+    ]
+  },
+  "CC_Watchtower": {
+    "scene": "Work__CC_Watchtower",
+    "clip": "Inspect",
+    "tool": null,
+    "actor": "CC_Watchtower__Resident",
+    "scale": 0.6499999761581421,
+    "work_position": [
+      0.0,
+      -1.5369354486465454,
+      0.0
+    ],
+    "original_points": {
+      "WorkPoint_0": {
+        "pos": [
+          0.0,
+          -1.5,
+          0.0
+        ],
+        "forward": [
+          -0.0,
+          1.0,
+          -0.0
+        ]
+      }
+    },
+    "hinges_preserved": [],
+    "status": "Blender preview; gameplay not connected",
+    "facility_scale": [
+      1.0,
+      1.0,
+      1.0
+    ]
+  },
+  "CC_AcidTower": {
+    "scene": "Work__CC_AcidTower",
+    "clip": null,
+    "tool": null,
+    "actor": null,
+    "scale": null,
+    "work_position": null,
+    "original_points": {},
+    "hinges_preserved": [
+      {
+        "pivot": "Turret_Pivot",
+        "axis": "Z",
+        "open_deg": 40
+      }
+    ],
+    "status": "Blender preview; gameplay not connected",
+    "facility_scale": [
+      1.0,
+      1.0,
+      1.0
+    ]
+  },
+  "CC_SpikeTrap": {
+    "scene": "Work__CC_SpikeTrap",
+    "clip": "Hammer",
+    "tool": "Tool_Hammer",
+    "actor": "CC_SpikeTrap__Resident",
+    "scale": 0.6499999761581421,
+    "work_position": [
+      0.0,
+      -1.25,
+      0.0
+    ],
+    "original_points": {
+      "WorkPoint_0": {
+        "pos": [
+          0.0,
+          -1.25,
+          0.0
+        ],
+        "forward": [
+          -0.0,
+          1.0,
+          -0.0
+        ]
+      }
+    },
+    "hinges_preserved": [],
+    "status": "Blender preview; gameplay not connected",
+    "facility_scale": [
+      1.0,
+      1.0,
+      1.0
+    ]
+  },
+  "CC_StickyTrap": {
+    "scene": "Work__CC_StickyTrap",
+    "clip": "GroundWork",
+    "tool": null,
+    "actor": "CC_StickyTrap__Resident",
+    "scale": 0.6499999761581421,
+    "work_position": [
+      0.0,
+      -1.25,
+      0.0
+    ],
+    "original_points": {
+      "WorkPoint_0": {
+        "pos": [
+          0.0,
+          -1.25,
+          0.0
+        ],
+        "forward": [
+          -0.0,
+          1.0,
+          -0.0
+        ]
+      }
+    },
+    "hinges_preserved": [],
+    "status": "Blender preview; gameplay not connected",
+    "facility_scale": [
+      1.0,
+      1.0,
+      1.0
+    ]
+  },
+  "CC_ResourceWood": {
+    "scene": "Work__CC_ResourceWood",
+    "clip": "Carry",
+    "tool": null,
+    "actor": "CC_ResourceWood__Resident",
+    "scale": 0.6499999761581421,
+    "work_position": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "original_points": {
+      "CarryAnchor": {
+        "pos": [
+          0.0,
+          -0.005,
+          0.457
+        ],
+        "forward": [
+          0.0,
+          0.0,
+          1.0
+        ]
+      }
+    },
+    "hinges_preserved": [],
+    "status": "Blender preview; gameplay not connected",
+    "facility_scale": [
+      0.4639175236225128,
+      0.4639175236225128,
+      0.4639175236225128
+    ]
+  },
+  "CC_ResourceStone": {
+    "scene": "Work__CC_ResourceStone",
+    "clip": "Carry",
+    "tool": null,
+    "actor": "CC_ResourceStone__Resident",
+    "scale": 0.6499999761581421,
+    "work_position": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "original_points": {
+      "CarryAnchor": {
+        "pos": [
+          -0.018,
+          0.011,
+          0.529
+        ],
+        "forward": [
+          0.0,
+          0.0,
+          1.0
+        ]
+      }
+    },
+    "hinges_preserved": [],
+    "status": "Blender preview; gameplay not connected",
+    "facility_scale": [
+      0.5201705098152161,
+      0.5201705098152161,
+      0.5201705098152161
+    ]
+  },
+  "CC_ResourceLeaf": {
+    "scene": "Work__CC_ResourceLeaf",
+    "clip": "Carry",
+    "tool": null,
+    "actor": "CC_ResourceLeaf__Resident",
+    "scale": 0.6499999761581421,
+    "work_position": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "original_points": {
+      "CarryAnchor": {
+        "pos": [
+          0.0,
+          0.0,
+          0.334
+        ],
+        "forward": [
+          0.0,
+          0.0,
+          1.0
+        ]
+      }
+    },
+    "hinges_preserved": [],
+    "status": "Blender preview; gameplay not connected",
+    "facility_scale": [
+      0.4206719994544983,
+      0.4206719994544983,
+      0.4206719994544983
+    ]
+  },
+  "CC_ResourceFiber": {
+    "scene": "Work__CC_ResourceFiber",
+    "clip": "Carry",
+    "tool": null,
+    "actor": "CC_ResourceFiber__Resident",
+    "scale": 0.6499999761581421,
+    "work_position": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "original_points": {
+      "CarryAnchor": {
+        "pos": [
+          0.0,
+          0.0,
+          0.12
+        ],
+        "forward": [
+          0.0,
+          0.0,
+          1.0
+        ]
+      }
+    },
+    "hinges_preserved": [],
+    "status": "Blender preview; gameplay not connected",
+    "facility_scale": [
+      0.6428571343421936,
+      0.6428571343421936,
+      0.6428571343421936
+    ]
+  },
+  "CC_ResourceGrain": {
+    "scene": "Work__CC_ResourceGrain",
+    "clip": "Carry",
+    "tool": null,
+    "actor": "CC_ResourceGrain__Resident",
+    "scale": 0.6499999761581421,
+    "work_position": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "original_points": {
+      "CarryAnchor": {
+        "pos": [
+          0.002,
+          -0.003,
+          0.34
+        ],
+        "forward": [
+          0.0,
+          0.0,
+          1.0
+        ]
+      }
+    },
+    "hinges_preserved": [],
+    "status": "Blender preview; gameplay not connected",
+    "facility_scale": [
+      0.6724629998207092,
+      0.6724629998207092,
+      0.6724629998207092
+    ]
+  },
+  "CC_ResourceCompost": {
+    "scene": "Work__CC_ResourceCompost",
+    "clip": "Carry",
+    "tool": null,
+    "actor": "CC_ResourceCompost__Resident",
+    "scale": 0.6499999761581421,
+    "work_position": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "original_points": {
+      "CarryAnchor": {
+        "pos": [
+          0.0,
+          0.0,
+          0.53
+        ],
+        "forward": [
+          0.0,
+          0.0,
+          1.0
+        ]
+      }
+    },
+    "hinges_preserved": [],
+    "status": "Blender preview; gameplay not connected",
+    "facility_scale": [
+      0.5143014192581177,
+      0.5143014192581177,
+      0.5143014192581177
+    ]
+  },
+  "CC_ResourceOre": {
+    "scene": "Work__CC_ResourceOre",
+    "clip": "Carry",
+    "tool": null,
+    "actor": "CC_ResourceOre__Resident",
+    "scale": 0.6499999761581421,
+    "work_position": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "original_points": {
+      "CarryAnchor": {
+        "pos": [
+          -0.005,
+          -0.03,
+          0.43
+        ],
+        "forward": [
+          0.0,
+          0.0,
+          1.0
+        ]
+      }
+    },
+    "hinges_preserved": [],
+    "status": "Blender preview; gameplay not connected",
+    "facility_scale": [
+      0.5909889936447144,
+      0.5909889936447144,
+      0.5909889936447144
+    ]
+  },
+  "CC_ResourcePlanks": {
+    "scene": "Work__CC_ResourcePlanks",
+    "clip": "Carry",
+    "tool": null,
+    "actor": "CC_ResourcePlanks__Resident",
+    "scale": 0.6499999761581421,
+    "work_position": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "original_points": {
+      "CarryAnchor": {
+        "pos": [
+          0.0,
+          0.0,
+          0.32
+        ],
+        "forward": [
+          0.0,
+          0.0,
+          1.0
+        ]
+      }
+    },
+    "hinges_preserved": [],
+    "status": "Blender preview; gameplay not connected",
+    "facility_scale": [
+      0.44999998807907104,
+      0.44999998807907104,
+      0.44999998807907104
+    ]
+  },
+  "CC_ResourceSilk": {
+    "scene": "Work__CC_ResourceSilk",
+    "clip": "Carry",
+    "tool": null,
+    "actor": "CC_ResourceSilk__Resident",
+    "scale": 0.6499999761581421,
+    "work_position": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "original_points": {
+      "CarryAnchor": {
+        "pos": [
+          0.0,
+          0.0,
+          0.55
+        ],
+        "forward": [
+          0.0,
+          0.0,
+          1.0
+        ]
+      }
+    },
+    "hinges_preserved": [],
+    "status": "Blender preview; gameplay not connected",
+    "facility_scale": [
+      0.8181818127632141,
+      0.8181818127632141,
+      0.8181818127632141
+    ]
+  },
+  "CC_FeedMeat": {
+    "scene": "Work__CC_FeedMeat",
+    "clip": "Carry",
+    "tool": null,
+    "actor": "CC_FeedMeat__Resident",
+    "scale": 0.6499999761581421,
+    "work_position": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "original_points": {
+      "CarryAnchor": {
+        "pos": [
+          0.0,
+          0.0,
+          0.294
+        ],
+        "forward": [
+          0.0,
+          0.0,
+          1.0
+        ]
+      }
+    },
+    "hinges_preserved": [],
+    "status": "Blender preview; gameplay not connected",
+    "facility_scale": [
+      0.5625,
+      0.5625,
+      0.5625
+    ]
+  },
+  "CC_FeedPlant": {
+    "scene": "Work__CC_FeedPlant",
+    "clip": "Carry",
+    "tool": null,
+    "actor": "CC_FeedPlant__Resident",
+    "scale": 0.6499999761581421,
+    "work_position": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "original_points": {
+      "CarryAnchor": {
+        "pos": [
+          0.0,
+          0.0,
+          0.294
+        ],
+        "forward": [
+          0.0,
+          0.0,
+          1.0
+        ]
+      }
+    },
+    "hinges_preserved": [],
+    "status": "Blender preview; gameplay not connected",
+    "facility_scale": [
+      0.5625,
+      0.5625,
+      0.5625
+    ]
+  },
+  "CC_FoodRotten": {
+    "scene": "Work__CC_FoodRotten",
+    "clip": "Carry",
+    "tool": null,
+    "actor": "CC_FoodRotten__Resident",
+    "scale": 0.6499999761581421,
+    "work_position": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "original_points": {
+      "CarryAnchor": {
+        "pos": [
+          0.0,
+          0.0,
+          0.28
+        ],
+        "forward": [
+          0.0,
+          0.0,
+          1.0
+        ]
+      }
+    },
+    "hinges_preserved": [],
+    "status": "Blender preview; gameplay not connected",
+    "facility_scale": [
+      0.5921052694320679,
+      0.5921052694320679,
+      0.5921052694320679
+    ]
+  },
+  "CC_Manure": {
+    "scene": "Work__CC_Manure",
+    "clip": "Carry",
+    "tool": null,
+    "actor": "CC_Manure__Resident",
+    "scale": 0.6499999761581421,
+    "work_position": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "original_points": {
+      "CarryAnchor": {
+        "pos": [
+          -0.001,
+          0.04,
+          0.292
+        ],
+        "forward": [
+          0.0,
+          0.0,
+          1.0
+        ]
+      }
+    },
+    "hinges_preserved": [],
+    "status": "Blender preview; gameplay not connected",
+    "facility_scale": [
+      0.7662551403045654,
+      0.7662551403045654,
+      0.7662551403045654
+    ]
+  },
+  "CC_MealGood": {
+    "scene": "Work__CC_MealGood",
+    "clip": "Carry",
+    "tool": null,
+    "actor": "CC_MealGood__Resident",
+    "scale": 0.6499999761581421,
+    "work_position": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "original_points": {
+      "CarryAnchor": {
+        "pos": [
+          0.0,
+          0.0,
+          0.39
+        ],
+        "forward": [
+          0.0,
+          0.0,
+          1.0
+        ]
+      }
+    },
+    "hinges_preserved": [],
+    "status": "Blender preview; gameplay not connected",
+    "facility_scale": [
+      0.5921052694320679,
+      0.5921052694320679,
+      0.5921052694320679
+    ]
+  },
+  "CC_MealSimple": {
+    "scene": "Work__CC_MealSimple",
+    "clip": "Carry",
+    "tool": null,
+    "actor": "CC_MealSimple__Resident",
+    "scale": 0.6499999761581421,
+    "work_position": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "original_points": {
+      "CarryAnchor": {
+        "pos": [
+          0.0,
+          0.0,
+          0.26
+        ],
+        "forward": [
+          0.0,
+          0.0,
+          1.0
+        ]
+      }
+    },
+    "hinges_preserved": [],
+    "status": "Blender preview; gameplay not connected",
+    "facility_scale": [
+      0.5921052694320679,
+      0.5921052694320679,
+      0.5921052694320679
+    ]
+  },
+  "CC_MedicineAdvanced": {
+    "scene": "Work__CC_MedicineAdvanced",
+    "clip": "Carry",
+    "tool": null,
+    "actor": "CC_MedicineAdvanced__Resident",
+    "scale": 0.6499999761581421,
+    "work_position": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "original_points": {
+      "CarryAnchor": {
+        "pos": [
+          0.0,
+          0.0,
+          0.32
+        ],
+        "forward": [
+          0.0,
+          0.0,
+          1.0
+        ]
+      }
+    },
+    "hinges_preserved": [],
+    "status": "Blender preview; gameplay not connected",
+    "facility_scale": [
+      0.6818181276321411,
+      0.6818181276321411,
+      0.6818181276321411
+    ]
+  },
+  "CC_MedicineAnimal": {
+    "scene": "Work__CC_MedicineAnimal",
+    "clip": "Carry",
+    "tool": null,
+    "actor": "CC_MedicineAnimal__Resident",
+    "scale": 0.6499999761581421,
+    "work_position": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "original_points": {
+      "CarryAnchor": {
+        "pos": [
+          0.0,
+          -0.006,
+          0.32
+        ],
+        "forward": [
+          0.0,
+          0.0,
+          1.0
+        ]
+      }
+    },
+    "hinges_preserved": [],
+    "status": "Blender preview; gameplay not connected",
+    "facility_scale": [
+      1.0,
+      1.0,
+      1.0
+    ]
+  },
+  "CC_MedicineHerbal": {
+    "scene": "Work__CC_MedicineHerbal",
+    "clip": "Carry",
+    "tool": null,
+    "actor": "CC_MedicineHerbal__Resident",
+    "scale": 0.6499999761581421,
+    "work_position": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "original_points": {
+      "CarryAnchor": {
+        "pos": [
+          0.0,
+          -0.164,
+          0.32
+        ],
+        "forward": [
+          0.0,
+          0.0,
+          1.0
+        ]
+      }
+    },
+    "hinges_preserved": [],
+    "status": "Blender preview; gameplay not connected",
+    "facility_scale": [
+      0.8514750003814697,
+      0.8514750003814697,
+      0.8514750003814697
+    ]
+  },
+  "CC_MedicineStandard": {
+    "scene": "Work__CC_MedicineStandard",
+    "clip": "Carry",
+    "tool": null,
+    "actor": "CC_MedicineStandard__Resident",
+    "scale": 0.6499999761581421,
+    "work_position": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "original_points": {
+      "CarryAnchor": {
+        "pos": [
+          0.0,
+          0.0,
+          0.32
+        ],
+        "forward": [
+          0.0,
+          0.0,
+          1.0
+        ]
+      }
+    },
+    "hinges_preserved": [],
+    "status": "Blender preview; gameplay not connected",
+    "facility_scale": [
+      1.0,
+      1.0,
+      1.0
+    ]
+  },
+  "CC_SurgeryKit": {
+    "scene": "Work__CC_SurgeryKit",
+    "clip": "Carry",
+    "tool": null,
+    "actor": "CC_SurgeryKit__Resident",
+    "scale": 0.6499999761581421,
+    "work_position": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "original_points": {
+      "CarryAnchor": {
+        "pos": [
+          0.0,
+          -0.015,
+          0.33
+        ],
+        "forward": [
+          0.0,
+          0.0,
+          1.0
+        ]
+      }
+    },
+    "hinges_preserved": [],
+    "status": "Blender preview; gameplay not connected",
+    "facility_scale": [
+      0.692307710647583,
+      0.692307710647583,
+      0.692307710647583
+    ]
+  }
+}

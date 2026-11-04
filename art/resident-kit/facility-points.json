@@ -1,0 +1,8054 @@
+{
+ "CC_NestEntrance": {
+  "scale_applied": [
+   1.5,
+   1.5,
+   1.5
+  ],
+  "bounds_min": [
+   -3.177,
+   -3.115,
+   0.0
+  ],
+  "bounds_max": [
+   3.225,
+   3.245,
+   2.67
+  ],
+  "points": {
+   "WorkPoint_0": {
+    "pos": [
+     0.0242,
+     -3.8653,
+     0.0
+    ],
+    "forward": [
+     -0.0,
+     1.0,
+     -0.0
+    ]
+   }
+  },
+  "work": {
+   "clip": "Walk",
+   "tool": null,
+   "stand": [
+    0.0242,
+    -3.8653,
+    0
+   ],
+   "facing": [
+    0,
+    1,
+    0
+   ]
+  },
+  "hinges": []
+ },
+ "CC_Storage": {
+  "scale_applied": [
+   1.5,
+   1.5,
+   1.5
+  ],
+  "bounds_min": [
+   -2.31,
+   -2.025,
+   0.0
+  ],
+  "bounds_max": [
+   2.31,
+   2.025,
+   3.465
+  ],
+  "points": {
+   "InputPoint": {
+    "pos": [
+     -0.924,
+     -1.8,
+     2.079
+    ],
+    "forward": [
+     -0.0,
+     1.0,
+     -0.0
+    ]
+   },
+   "WorkPoint_0": {
+    "pos": [
+     0.0,
+     -2.775,
+     0.0
+    ],
+    "forward": [
+     -0.0,
+     1.0,
+     -0.0
+    ]
+   }
+  },
+  "work": {
+   "clip": "PutDown",
+   "tool": null,
+   "stand": [
+    0.0,
+    -2.775,
+    0
+   ],
+   "facing": [
+    0,
+    1,
+    0
+   ]
+  },
+  "hinges": []
+ },
+ "CC_FarmTile": {
+  "scale_applied": [
+   1.5,
+   1.5,
+   1.5
+  ],
+  "bounds_min": [
+   -1.513,
+   -1.513,
+   0.0
+  ],
+  "bounds_max": [
+   1.513,
+   1.513,
+   0.382
+  ],
+  "points": {
+   "WorkPoint_0": {
+    "pos": [
+     0.0,
+     -2.2627,
+     0.0
+    ],
+    "forward": [
+     -0.0,
+     1.0,
+     -0.0
+    ]
+   }
+  },
+  "work": {
+   "clip": "GroundWork",
+   "tool": null,
+   "stand": [
+    0.0,
+    -2.2627,
+    0
+   ],
+   "facing": [
+    0,
+    1,
+    0
+   ]
+  },
+  "hinges": []
+ },
+ "CC_CropFungus_Planted": {
+  "scale_applied": [
+   1.5,
+   1.5,
+   1.5
+  ],
+  "bounds_min": [
+   -0.713,
+   -0.603,
+   0.0
+  ],
+  "bounds_max": [
+   0.638,
+   0.603,
+   0.21
+  ],
+  "points": {
+   "WorkPoint_0": {
+    "pos": [
+     -0.0375,
+     -1.3531,
+     0.0
+    ],
+    "forward": [
+     -0.0,
+     1.0,
+     -0.0
+    ]
+   }
+  },
+  "work": {
+   "clip": "GroundWork",
+   "tool": null,
+   "stand": [
+    -0.0375,
+    -1.3531,
+    0
+   ],
+   "facing": [
+    0,
+    1,
+    0
+   ]
+  },
+  "hinges": []
+ },
+ "CC_CropFungus_Young": {
+  "scale_applied": [
+   1.5,
+   1.5,
+   1.5
+  ],
+  "bounds_min": [
+   -0.663,
+   -0.658,
+   0.0
+  ],
+  "bounds_max": [
+   0.628,
+   0.637,
+   0.466
+  ],
+  "points": {},
+  "work": {
+   "clip": null,
+   "tool": null
+  },
+  "hinges": []
+ },
+ "CC_CropFungus_Growing": {
+  "scale_applied": [
+   1.5,
+   1.5,
+   1.5
+  ],
+  "bounds_min": [
+   -0.847,
+   -0.756,
+   0.0
+  ],
+  "bounds_max": [
+   0.772,
+   0.756,
+   1.095
+  ],
+  "points": {},
+  "work": {
+   "clip": null,
+   "tool": null
+  },
+  "hinges": []
+ },
+ "CC_CropFungus_Mature": {
+  "scale_applied": [
+   1.5,
+   1.5,
+   1.5
+  ],
+  "bounds_min": [
+   -0.855,
+   -0.945,
+   0.0
+  ],
+  "bounds_max": [
+   0.874,
+   0.895,
+   1.11
+  ],
+  "points": {
+   "OutputPoint": {
+    "pos": [
+     0.3552,
+     -0.72,
+     0.666
+    ],
+    "forward": [
+     -0.0,
+     1.0,
+     -0.0
+    ]
+   },
+   "WorkPoint_0": {
+    "pos": [
+     0.0096,
+     -1.695,
+     0.0
+    ],
+    "forward": [
+     -0.0,
+     1.0,
+     -0.0
+    ]
+   }
+  },
+  "work": {
+   "clip": "Pickup",
+   "tool": null,
+   "stand": [
+    0.0096,
+    -1.695,
+    0
+   ],
+   "facing": [
+    0,
+    1,
+    0
+   ]
+  },
+  "hinges": []
+ },
+ "CC_CropFungus_Harvested": {
+  "scale_applied": [
+   1.5,
+   1.5,
+   1.5
+  ],
+  "bounds_min": [
+   -0.713,
+   -0.603,
+   0.0
+  ],
+  "bounds_max": [
+   0.638,
+   0.603,
+   0.293
+  ],
+  "points": {
+   "OutputPoint": {
+    "pos": [
+     0.2326,
+     -0.3781,
+     0.1755
+    ],
+    "forward": [
+     -0.0,
+     1.0,
+     -0.0
+    ]
+   },
+   "WorkPoint_0": {
+    "pos": [
+     -0.0375,
+     -1.3531,
+     0.0
+    ],
+    "forward": [
+     -0.0,
+     1.0,
+     -0.0
+    ]
+   }
+  },
+  "work": {
+   "clip": "PutDown",
+   "tool": null,
+   "stand": [
+    -0.0375,
+    -1.3531,
+    0
+   ],
+   "facing": [
+    0,
+    1,
+    0
+   ]
+  },
+  "hinges": []
+ },
+ "CC_CropFungus_Pest": {
+  "scale_applied": [
+   1.5,
+   1.5,
+   1.5
+  ],
+  "bounds_min": [
+   -0.847,
+   -0.756,
+   0.0
+  ],
+  "bounds_max": [
+   0.772,
+   0.756,
+   1.102
+  ],
+  "points": {
+   "WorkPoint_0": {
+    "pos": [
+     -0.0375,
+     -1.5062,
+     0.0
+    ],
+    "forward": [
+     -0.0,
+     1.0,
+     -0.0
+    ]
+   }
+  },
+  "work": {
+   "clip": "GroundWork",
+   "tool": null,
+   "stand": [
+    -0.0375,
+    -1.5062,
+    0
+   ],
+   "facing": [
+    0,
+    1,
+    0
+   ]
+  },
+  "hinges": []
+ },
+ "CC_RanchFence": {
+  "scale_applied": [
+   1.5,
+   1.5,
+   1.5
+  ],
+  "bounds_min": [
+   -1.643,
+   -0.135,
+   0.0
+  ],
+  "bounds_max": [
+   1.643,
+   0.135,
+   1.875
+  ],
+  "points": {
+   "WorkPoint_0": {
+    "pos": [
+     0.0,
+     -0.885,
+     0.0
+    ],
+    "forward": [
+     -0.0,
+     1.0,
+     -0.0
+    ]
+   }
+  },
+  "work": {
+   "clip": "Hammer",
+   "tool": "Tool_Hammer",
+   "stand": [
+    0.0,
+    -0.885,
+    0
+   ],
+   "tool_contact": null,
+   "facing": [
+    0,
+    1,
+    0
+   ]
+  },
+  "hinges": []
+ },
+ "CC_RanchGate": {
+  "scale_applied": [
+   1.5,
+   1.5,
+   1.5
+  ],
+  "bounds_min": [
+   -1.661,
+   -0.165,
+   0.0
+  ],
+  "bounds_max": [
+   1.661,
+   0.149,
+   1.875
+  ],
+  "points": {
+   "WorkPoint_0": {
+    "pos": [
+     0.0,
+     -1.35,
+     0.0
+    ],
+    "forward": [
+     -0.0,
+     1.0,
+     -0.0
+    ]
+   }
+  },
+  "work": {
+   "clip": "Walk",
+   "tool": null,
+   "stand": [
+    0.0,
+    -1.35,
+    0
+   ],
+   "facing": [
+    0,
+    1,
+    0
+   ]
+  },
+  "hinges": [
+   {
+    "pivot": "Gate_Hinge",
+    "axis": "Z",
+    "open_deg": 95
+   }
+  ]
+ },
+ "CC_Feeder": {
+  "scale_applied": [
+   1.5,
+   1.5,
+   1.5
+  ],
+  "bounds_min": [
+   -1.388,
+   -0.75,
+   0.0
+  ],
+  "bounds_max": [
+   1.388,
+   0.75,
+   0.975
+  ],
+  "points": {
+   "InputPoint": {
+    "pos": [
+     -0.555,
+     -0.525,
+     0.585
+    ],
+    "forward": [
+     -0.0,
+     1.0,
+     -0.0
+    ]
+   },
+   "WorkPoint_0": {
+    "pos": [
+     0.0,
+     -1.5,
+     0.0
+    ],
+    "forward": [
+     -0.0,
+     1.0,
+     -0.0
+    ]
+   }
+  },
+  "work": {
+   "clip": "PutDown",
+   "tool": null,
+   "stand": [
+    0.0,
+    -1.5,
+    0
+   ],
+   "facing": [
+    0,
+    1,
+    0
+   ]
+  },
+  "hinges": []
+ },
+ "CC_CommanderBed": {
+  "scale_applied": [
+   1.8,
+   1.8,
+   0.8052
+  ],
+  "bounds_min": [
+   -1.17,
+   -1.512,
+   0.0
+  ],
+  "bounds_max": [
+   2.025,
+   1.512,
+   1.353
+  ],
+  "points": {
+   "PatientPoint": {
+    "pos": [
+     0.4275,
+     0.0,
+     0.744
+    ],
+    "forward": [
+     -0.0,
+     1.0,
+     -0.0
+    ]
+   },
+   "WorkPoint_0": {
+    "pos": [
+     0.4275,
+     -2.412,
+     0.0
+    ],
+    "forward": [
+     -0.0,
+     1.0,
+     -0.0
+    ]
+   }
+  },
+  "work": {
+   "clip": "Treat",
+   "tool": null,
+   "stand": [
+    0.4275,
+    -2.132,
+    0
+   ],
+   "hand_target": [
+    0.4275,
+    -1.292,
+    0.62
+   ],
+   "seat": [
+    0.4275,
+    0.0,
+    0.744
+   ],
+   "facing": [
+    0,
+    1,
+    0
+   ]
+  },
+  "hinges": []
+ },
+ "CC_AnimalTreatment": {
+  "scale_applied": [
+   1.8,
+   1.8,
+   0.8052
+  ],
+  "bounds_min": [
+   -1.44,
+   -1.512,
+   0.0
+  ],
+  "bounds_max": [
+   2.025,
+   1.512,
+   1.353
+  ],
+  "points": {
+   "PatientPoint": {
+    "pos": [
+     0.2925,
+     0.0,
+     0.744
+    ],
+    "forward": [
+     -0.0,
+     1.0,
+     -0.0
+    ]
+   },
+   "WorkPoint_0": {
+    "pos": [
+     0.2925,
+     -2.412,
+     0.0
+    ],
+    "forward": [
+     -0.0,
+     1.0,
+     -0.0
+    ]
+   }
+  },
+  "work": {
+   "clip": "Operate",
+   "tool": "Tool_Scalpel",
+   "stand": [
+    0.2925,
+    -2.132,
+    0
+   ],
+   "hand_target": [
+    0.2925,
+    -1.292,
+    0.62
+   ],
+   "seat": [
+    0.2925,
+    0.0,
+    0.744
+   ],
+   "tool_contact": [
+    0.2925,
+    -1.292,
+    0.62
+   ],
+   "facing": [
+    0,
+    1,
+    0
+   ]
+  },
+  "hinges": []
+ },
+ "CC_Apothecary": {
+  "scale_applied": [
+   1.5,
+   1.5,
+   0.5694
+  ],
+  "bounds_min": [
+   -1.5,
+   -0.726,
+   0.0
+  ],
+  "bounds_max": [
+   1.5,
+   0.788,
+   0.991
+  ],
+  "points": {
+   "InputPoint": {
+    "pos": [
+     -0.6,
+     -0.501,
+     0.5944
+    ],
+    "forward": [
+     -0.0,
+     1.0,
+     -0.0
+    ]
+   },
+   "OutputPoint": {
+    "pos": [
+     0.6,
+     -0.501,
+     0.5944
+    ],
+    "forward": [
+     -0.0,
+     1.0,
+     -0.0
+    ]
+   },
+   "WorkPoint_0": {
+    "pos": [
+     0.0,
+     -1.476,
+     0.0
+    ],
+    "forward": [
+     -0.0,
+     1.0,
+     -0.0
+    ]
+   }
+  },
+  "work": {
+   "clip": "Grind",
+   "tool": "Tool_Pestle",
+   "stand": [
+    0.0,
+    -1.346,
+    0
+   ],
+   "hand_target": [
+    0.0,
+    -0.506,
+    0.8
+   ],
+   "tool_contact": [
+    0.0,
+    -0.506,
+    0.8
+   ],
+   "facing": [
+    0,
+    1,
+    0
+   ]
+  },
+  "hinges": []
+ },
+ "CC_ButcherTable": {
+  "scale_applied": [
+   1.5,
+   1.5,
+   0.8421
+  ],
+  "bounds_min": [
+   -1.575,
+   -0.81,
+   0.0
+  ],
+  "bounds_max": [
+   1.575,
+   0.81,
+   1.229
+  ],
+  "points": {
+   "InputPoint": {
+    "pos": [
+     -0.63,
+     -0.585,
+     0.7377
+    ],
+    "forward": [
+     -0.0,
+     1.0,
+     -0.0
+    ]
+   },
+   "OutputPoint": {
+    "pos": [
+     0.63,
+     -0.585,
+     0.7377
+    ],
+    "forward": [
+     -0.0,
+     1.0,
+     -0.0
+    ]
+   },
+   "WorkPoint_0": {
+    "pos": [
+     0.0,
+     -1.56,
+     0.0
+    ],
+    "forward": [
+     -0.0,
+     1.0,
+     -0.0
+    ]
+   }
+  },
+  "work": {
+   "clip": "Saw",
+   "tool": "Tool_Saw",
+   "stand": [
+    0.0,
+    -1.43,
+    0
+   ],
+   "hand_target": [
+    0.0,
+    -0.59,
+    0.8
+   ],
+   "tool_contact": [
+    0.0,
+    -0.59,
+    0.8
+   ],
+   "facing": [
+    0,
+    1,
+    0
+   ]
+  },
+  "hinges": []
+ },
+ "CC_Kitchen": {
+  "scale_applied": [
+   1.5,
+   1.5,
+   0.8696
+  ],
+  "bounds_min": [
+   -1.884,
+   -0.968,
+   0.0
+  ],
+  "bounds_max": [
+   1.875,
+   0.968,
+   0.957
+  ],
+  "points": {
+   "InputPoint": {
+    "pos": [
+     -0.756,
+     -0.7435,
+     0.5739
+    ],
+    "forward": [
+     -0.0,
+     1.0,
+     -0.0
+    ]
+   },
+   "OutputPoint": {
+    "pos": [
+     0.7474,
+     -0.7435,
+     0.5739
+    ],
+    "forward": [
+     -0.0,
+     1.0,
+     -0.0
+    ]
+   },
+   "WorkPoint_0": {
+    "pos": [
+     -0.0043,
+     -1.7185,
+     0.0
+    ],
+    "forward": [
+     -0.0,
+     1.0,
+     -0.0
+    ]
+   }
+  },
+  "work": {
+   "clip": "Stir",
+   "tool": "Tool_Spoon",
+   "stand": [
+    -0.0043,
+    -1.5885,
+    0
+   ],
+   "hand_target": [
+    -0.0043,
+    -0.7485,
+    0.8
+   ],
+   "tool_contact": [
+    -0.0043,
+    -0.7485,
+    0.8
+   ],
+   "facing": [
+    0,
+    1,
+    0
+   ]
+  },
+  "hinges": []
+ },
+ "CC_CompostBin": {
+  "scale_applied": [
+   1.5,
+   1.5,
+   1.5
+  ],
+  "bounds_min": [
+   -1.152,
+   -1.08,
+   0.0
+  ],
+  "bounds_max": [
+   1.152,
+   1.07,
+   1.575
+  ],
+  "points": {
+   "InputPoint": {
+    "pos": [
+     -0.4609,
+     -0.855,
+     0.945
+    ],
+    "forward": [
+     -0.0,
+     1.0,
+     -0.0
+    ]
+   },
+   "WorkPoint_0": {
+    "pos": [
+     0.0,
+     -1.83,
+     0.0
+    ],
+    "forward": [
+     -0.0,
+     1.0,
+     -0.0
+    ]
+   }
+  },
+  "work": {
+   "clip": "PutDown",
+   "tool": null,
+   "stand": [
+    0.0,
+    -1.83,
+    0
+   ],
+   "facing": [
+    0,
+    1,
+    0
+   ]
+  },
+  "hinges": []
+ },
+ "CC_Tombstone": {
+  "scale_applied": [
+   1.5,
+   1.5,
+   1.5
+  ],
+  "bounds_min": [
+   -0.805,
+   -0.834,
+   0.0
+  ],
+  "bounds_max": [
+   0.805,
+   0.574,
+   1.875
+  ],
+  "points": {
+   "WorkPoint_0": {
+    "pos": [
+     0.0,
+     -1.5835,
+     0.0
+    ],
+    "forward": [
+     -0.0,
+     1.0,
+     -0.0
+    ]
+   }
+  },
+  "work": {
+   "clip": "Mourn",
+   "tool": null,
+   "stand": [
+    0.0,
+    -1.5835,
+    0
+   ],
+   "facing": [
+    0,
+    1,
+    0
+   ]
+  },
+  "hinges": []
+ },
+ "CC_Dormitory": {
+  "scale_applied": [
+   1.5,
+   1.5,
+   1.5
+  ],
+  "bounds_min": [
+   -2.655,
+   -2.625,
+   0.0
+  ],
+  "bounds_max": [
+   2.655,
+   2.316,
+   3.607
+  ],
+  "points": {
+   "WorkPoint_0": {
+    "pos": [
+     0.0,
+     -3.375,
+     0.0
+    ],
+    "forward": [
+     -0.0,
+     1.0,
+     -0.0
+    ]
+   }
+  },
+  "work": {
+   "clip": "Walk",
+   "tool": null,
+   "stand": [
+    0.0,
+    -3.375,
+    0
+   ],
+   "facing": [
+    0,
+    1,
+    0
+   ]
+  },
+  "hinges": []
+ },
+ "CC_Workshop": {
+  "scale_applied": [
+   1.5,
+   1.5,
+   0.8989
+  ],
+  "bounds_min": [
+   -1.8,
+   -0.81,
+   0.0
+  ],
+  "bounds_max": [
+   1.8,
+   0.81,
+   1.488
+  ],
+  "points": {
+   "InputPoint": {
+    "pos": [
+     -0.72,
+     -0.585,
+     0.8926
+    ],
+    "forward": [
+     -0.0,
+     1.0,
+     -0.0
+    ]
+   },
+   "OutputPoint": {
+    "pos": [
+     0.72,
+     -0.585,
+     0.8926
+    ],
+    "forward": [
+     -0.0,
+     1.0,
+     -0.0
+    ]
+   },
+   "WorkPoint_0": {
+    "pos": [
+     0.0,
+     -1.56,
+     0.0
+    ],
+    "forward": [
+     -0.0,
+     1.0,
+     -0.0
+    ]
+   }
+  },
+  "work": {
+   "clip": "Hammer",
+   "tool": "Tool_Hammer",
+   "stand": [
+    0.0,
+    -1.43,
+    0
+   ],
+   "hand_target": [
+    0.0,
+    -0.59,
+    0.8
+   ],
+   "tool_contact": [
+    0.0,
+    -0.59,
+    0.8
+   ],
+   "facing": [
+    0,
+    1,
+    0
+   ]
+  },
+  "hinges": []
+ },
+ "CC_ResearchDesk": {
+  "scale_applied": [
+   1.5,
+   1.5,
+   0.9302
+  ],
+  "bounds_min": [
+   -1.575,
+   -0.848,
+   0.0
+  ],
+  "bounds_max": [
+   1.575,
+   0.848,
+   1.674
+  ],
+  "points": {
+   "WorkPoint_0": {
+    "pos": [
+     0.0,
+     -1.5975,
+     0.0
+    ],
+    "forward": [
+     -0.0,
+     1.0,
+     -0.0
+    ]
+   }
+  },
+  "work": {
+   "clip": "Inspect",
+   "tool": null,
+   "stand": [
+    0.0,
+    -1.4675,
+    0
+   ],
+   "hand_target": [
+    0.0,
+    -0.6275,
+    0.8
+   ],
+   "facing": [
+    0,
+    1,
+    0
+   ]
+  },
+  "hinges": []
+ },
+ "CC_AdminDesk": {
+  "scale_applied": [
+   1.5,
+   1.5,
+   0.9169
+  ],
+  "bounds_min": [
+   -1.35,
+   -0.735,
+   0.0
+  ],
+  "bounds_max": [
+   1.35,
+   0.735,
+   1.1
+  ],
+  "points": {
+   "WorkPoint_0": {
+    "pos": [
+     0.0,
+     -1.485,
+     0.0
+    ],
+    "forward": [
+     -0.0,
+     1.0,
+     -0.0
+    ]
+   }
+  },
+  "work": {
+   "clip": "Stamp",
+   "tool": "Tool_Stamp",
+   "stand": [
+    0.0,
+    -1.355,
+    0
+   ],
+   "hand_target": [
+    0.0,
+    -0.515,
+    0.8
+   ],
+   "tool_contact": [
+    0.0,
+    -0.515,
+    0.8
+   ],
+   "facing": [
+    0,
+    1,
+    0
+   ]
+  },
+  "hinges": []
+ },
+ "CC_Refrigerator": {
+  "scale_applied": [
+   1.5,
+   1.5,
+   1.5
+  ],
+  "bounds_min": [
+   -0.9,
+   -1.125,
+   0.0
+  ],
+  "bounds_max": [
+   0.9,
+   0.836,
+   2.7
+  ],
+  "points": {
+   "InputPoint": {
+    "pos": [
+     -0.36,
+     -0.9,
+     1.62
+    ],
+    "forward": [
+     -0.0,
+     1.0,
+     -0.0
+    ]
+   },
+   "WorkPoint_0": {
+    "pos": [
+     0.0,
+     -1.875,
+     0.0
+    ],
+    "forward": [
+     -0.0,
+     1.0,
+     -0.0
+    ]
+   }
+  },
+  "work": {
+   "clip": "Pickup",
+   "tool": null,
+   "stand": [
+    0.0,
+    -1.975,
+    0
+   ],
+   "facing": [
+    0,
+    1,
+    0
+   ]
+  },
+  "hinges": [
+   {
+    "pivot": "Door_Hinge",
+    "axis": "Z",
+    "open_deg": -100
+   }
+  ]
+ },
+ "CC_Freezer": {
+  "scale_applied": [
+   1.5,
+   1.5,
+   1.5
+  ],
+  "bounds_min": [
+   -1.463,
+   -1.035,
+   0.0
+  ],
+  "bounds_max": [
+   1.463,
+   0.836,
+   1.77
+  ],
+  "points": {
+   "InputPoint": {
+    "pos": [
+     -0.585,
+     -0.8097,
+     1.062
+    ],
+    "forward": [
+     -0.0,
+     1.0,
+     -0.0
+    ]
+   },
+   "WorkPoint_0": {
+    "pos": [
+     0.0,
+     -1.7847,
+     0.0
+    ],
+    "forward": [
+     -0.0,
+     1.0,
+     -0.0
+    ]
+   }
+  },
+  "work": {
+   "clip": "Pickup",
+   "tool": null,
+   "stand": [
+    0.0,
+    -1.7847,
+    0
+   ],
+   "facing": [
+    0,
+    1,
+    0
+   ]
+  },
+  "hinges": [
+   {
+    "pivot": "Lid_Hinge",
+    "axis": "X",
+    "open_deg": -75
+   }
+  ]
+ },
+ "CC_WoodGenerator": {
+  "scale_applied": [
+   1.5,
+   1.5,
+   1.5
+  ],
+  "bounds_min": [
+   -1.5,
+   -1.05,
+   0.0
+  ],
+  "bounds_max": [
+   1.5,
+   1.05,
+   3.18
+  ],
+  "points": {
+   "InputPoint": {
+    "pos": [
+     -0.6,
+     -0.825,
+     1.908
+    ],
+    "forward": [
+     -0.0,
+     1.0,
+     -0.0
+    ]
+   },
+   "WorkPoint_0": {
+    "pos": [
+     0.0,
+     -1.8,
+     0.0
+    ],
+    "forward": [
+     -0.0,
+     1.0,
+     -0.0
+    ]
+   }
+  },
+  "work": {
+   "clip": "PutDown",
+   "tool": null,
+   "stand": [
+    0.0,
+    -1.8,
+    0
+   ],
+   "facing": [
+    0,
+    1,
+    0
+   ]
+  },
+  "hinges": []
+ },
+ "CC_Battery": {
+  "scale_applied": [
+   1.5,
+   1.5,
+   1.5
+  ],
+  "bounds_min": [
+   -0.72,
+   -0.574,
+   0.0
+  ],
+  "bounds_max": [
+   0.72,
+   0.57,
+   1.837
+  ],
+  "points": {
+   "WorkPoint_0": {
+    "pos": [
+     0.0,
+     -1.3237,
+     0.0
+    ],
+    "forward": [
+     -0.0,
+     1.0,
+     -0.0
+    ]
+   }
+  },
+  "work": {
+   "clip": "Hammer",
+   "tool": "Tool_Hammer",
+   "stand": [
+    0.0,
+    -1.3237,
+    0
+   ],
+   "tool_contact": null,
+   "facing": [
+    0,
+    1,
+    0
+   ]
+  },
+  "hinges": []
+ },
+ "CC_Lamp": {
+  "scale_applied": [
+   1.5,
+   1.5,
+   1.5
+  ],
+  "bounds_min": [
+   -0.47,
+   -0.525,
+   0.0
+  ],
+  "bounds_max": [
+   1.05,
+   0.525,
+   2.82
+  ],
+  "points": {
+   "WorkPoint_0": {
+    "pos": [
+     0.2902,
+     -1.275,
+     0.0
+    ],
+    "forward": [
+     -0.0,
+     1.0,
+     -0.0
+    ]
+   }
+  },
+  "work": {
+   "clip": "Hammer",
+   "tool": "Tool_Hammer",
+   "stand": [
+    0.2902,
+    -1.275,
+    0
+   ],
+   "tool_contact": null,
+   "facing": [
+    0,
+    1,
+    0
+   ]
+  },
+  "hinges": []
+ },
+ "CC_SoilWall": {
+  "scale_applied": [
+   1.5,
+   1.5,
+   1.5
+  ],
+  "bounds_min": [
+   -1.47,
+   -0.375,
+   0.0
+  ],
+  "bounds_max": [
+   1.47,
+   0.375,
+   2.19
+  ],
+  "points": {
+   "WorkPoint_0": {
+    "pos": [
+     0.0,
+     -1.125,
+     0.0
+    ],
+    "forward": [
+     -0.0,
+     1.0,
+     -0.0
+    ]
+   }
+  },
+  "work": {
+   "clip": "Hammer",
+   "tool": "Tool_Hammer",
+   "stand": [
+    0.0,
+    -1.125,
+    0
+   ],
+   "tool_contact": null,
+   "facing": [
+    0,
+    1,
+    0
+   ]
+  },
+  "hinges": []
+ },
+ "CC_LeafWall": {
+  "scale_applied": [
+   1.5,
+   1.5,
+   1.5
+  ],
+  "bounds_min": [
+   -1.613,
+   -0.255,
+   -0.0
+  ],
+  "bounds_max": [
+   1.613,
+   0.081,
+   2.55
+  ],
+  "points": {
+   "WorkPoint_0": {
+    "pos": [
+     0.0,
+     -1.005,
+     0.0
+    ],
+    "forward": [
+     -0.0,
+     1.0,
+     -0.0
+    ]
+   }
+  },
+  "work": {
+   "clip": "Hammer",
+   "tool": "Tool_Hammer",
+   "stand": [
+    0.0,
+    -1.005,
+    0
+   ],
+   "tool_contact": null,
+   "facing": [
+    0,
+    1,
+    0
+   ]
+  },
+  "hinges": []
+ },
+ "CC_CastleWall": {
+  "scale_applied": [
+   1.5,
+   1.5,
+   1.5
+  ],
+  "bounds_min": [
+   -1.785,
+   -0.69,
+   0.0
+  ],
+  "bounds_max": [
+   1.785,
+   0.69,
+   3.427
+  ],
+  "points": {
+   "WorkPoint_0": {
+    "pos": [
+     0.0,
+     -1.44,
+     0.0
+    ],
+    "forward": [
+     -0.0,
+     1.0,
+     -0.0
+    ]
+   }
+  },
+  "work": {
+   "clip": "Hammer",
+   "tool": "Tool_Hammer",
+   "stand": [
+    0.0,
+    -1.44,
+    0
+   ],
+   "tool_contact": null,
+   "facing": [
+    0,
+    1,
+    0
+   ]
+  },
+  "hinges": []
+ },
+ "CC_DoorFrame": {
+  "scale_applied": [
+   1.5,
+   1.5,
+   1.5
+  ],
+  "bounds_min": [
+   -1.05,
+   -0.263,
+   0.0
+  ],
+  "bounds_max": [
+   1.05,
+   0.175,
+   2.88
+  ],
+  "points": {
+   "WorkPoint_0": {
+    "pos": [
+     0.0,
+     -1.35,
+     0.0
+    ],
+    "forward": [
+     -0.0,
+     1.0,
+     -0.0
+    ]
+   }
+  },
+  "work": {
+   "clip": "Walk",
+   "tool": null,
+   "stand": [
+    0.0,
+    -1.35,
+    0
+   ],
+   "facing": [
+    0,
+    1,
+    0
+   ]
+  },
+  "hinges": [
+   {
+    "pivot": "Door_Hinge.001",
+    "axis": "Z",
+    "open_deg": 95
+   }
+  ]
+ },
+ "CC_CastleGate": {
+  "scale_applied": [
+   1.5,
+   1.5,
+   1.5
+  ],
+  "bounds_min": [
+   -2.25,
+   -0.675,
+   0.0
+  ],
+  "bounds_max": [
+   2.25,
+   0.675,
+   3.967
+  ],
+  "points": {
+   "WorkPoint_0": {
+    "pos": [
+     0.0,
+     -2.1,
+     0.0
+    ],
+    "forward": [
+     -0.0,
+     1.0,
+     -0.0
+    ]
+   }
+  },
+  "work": {
+   "clip": "Walk",
+   "tool": null,
+   "stand": [
+    0.0,
+    -2.1,
+    0
+   ],
+   "facing": [
+    0,
+    1,
+    0
+   ]
+  },
+  "hinges": [
+   {
+    "pivot": "GateLeft_Hinge",
+    "axis": "Z",
+    "open_deg": 90
+   },
+   {
+    "pivot": "GateRight_Hinge",
+    "axis": "Z",
+    "open_deg": -90
+   }
+  ]
+ },
+ "CC_ConstructionPlan": {
+  "scale_applied": [
+   1.5,
+   1.5,
+   1.5
+  ],
+  "bounds_min": [
+   -2.242,
+   -2.235,
+   0.0
+  ],
+  "bounds_max": [
+   2.242,
+   2.235,
+   0.825
+  ],
+  "points": {
+   "InputPoint": {
+    "pos": [
+     -0.897,
+     -2.01,
+     0.495
+    ],
+    "forward": [
+     -0.0,
+     1.0,
+     -0.0
+    ]
+   },
+   "WorkPoint_0": {
+    "pos": [
+     0.0,
+     -2.985,
+     0.0
+    ],
+    "forward": [
+     -0.0,
+     1.0,
+     -0.0
+    ]
+   }
+  },
+  "work": {
+   "clip": "PutDown",
+   "tool": null,
+   "stand": [
+    0.0,
+    -2.985,
+    0
+   ],
+   "facing": [
+    0,
+    1,
+    0
+   ]
+  },
+  "hinges": []
+ },
+ "CC_ConstructionFrame": {
+  "scale_applied": [
+   1.5,
+   1.5,
+   1.5
+  ],
+  "bounds_min": [
+   -1.932,
+   -2.324,
+   -0.0
+  ],
+  "bounds_max": [
+   1.932,
+   1.774,
+   3.177
+  ],
+  "points": {
+   "WorkPoint_0": {
+    "pos": [
+     0.0,
+     -3.0737,
+     0.0
+    ],
+    "forward": [
+     -0.0,
+     1.0,
+     -0.0
+    ]
+   }
+  },
+  "work": {
+   "clip": "Hammer",
+   "tool": "Tool_Hammer",
+   "stand": [
+    0.0,
+    -3.0737,
+    0
+   ],
+   "tool_contact": null,
+   "facing": [
+    0,
+    1,
+    0
+   ]
+  },
+  "hinges": []
+ },
+ "CC_DemolitionRubble": {
+  "scale_applied": [
+   1.5,
+   1.5,
+   1.5
+  ],
+  "bounds_min": [
+   -1.436,
+   -1.19,
+   0.0
+  ],
+  "bounds_max": [
+   1.452,
+   1.163,
+   0.6
+  ],
+  "points": {
+   "WorkPoint_0": {
+    "pos": [
+     0.008,
+     -1.94,
+     0.0
+    ],
+    "forward": [
+     -0.0,
+     1.0,
+     -0.0
+    ]
+   }
+  },
+  "work": {
+   "clip": "Mine",
+   "tool": "Tool_Pickaxe",
+   "stand": [
+    0.008,
+    -1.94,
+    0
+   ],
+   "tool_contact": null,
+   "facing": [
+    0,
+    1,
+    0
+   ]
+  },
+  "hinges": []
+ },
+ "CC_TreeBroadleaf": {
+  "scale_applied": [
+   1.5,
+   1.5,
+   1.5
+  ],
+  "bounds_min": [
+   -2.467,
+   -1.876,
+   -0.0
+  ],
+  "bounds_max": [
+   2.325,
+   1.938,
+   6.26
+  ],
+  "points": {
+   "WorkPoint_0": {
+    "pos": [
+     0.0,
+     -1.125,
+     0.0
+    ],
+    "forward": [
+     -0.0,
+     1.0,
+     -0.0
+    ]
+   }
+  },
+  "work": {
+   "clip": "Chop",
+   "tool": "Tool_Axe",
+   "stand": [
+    0.0,
+    -1.125,
+    0
+   ],
+   "tool_contact": null,
+   "facing": [
+    0,
+    1,
+    0
+   ]
+  },
+  "hinges": []
+ },
+ "CC_TreeTall": {
+  "scale_applied": [
+   1.5,
+   1.5,
+   1.5
+  ],
+  "bounds_min": [
+   -2.467,
+   -1.876,
+   -0.0
+  ],
+  "bounds_max": [
+   2.325,
+   1.938,
+   7.61
+  ],
+  "points": {
+   "WorkPoint_0": {
+    "pos": [
+     0.0,
+     -1.125,
+     0.0
+    ],
+    "forward": [
+     -0.0,
+     1.0,
+     -0.0
+    ]
+   }
+  },
+  "work": {
+   "clip": "Chop",
+   "tool": "Tool_Axe",
+   "stand": [
+    0.0,
+    -1.125,
+    0
+   ],
+   "tool_contact": null,
+   "facing": [
+    0,
+    1,
+    0
+   ]
+  },
+  "hinges": []
+ },
+ "CC_Stump": {
+  "scale_applied": [
+   1.5,
+   1.5,
+   1.5
+  ],
+  "bounds_min": [
+   -0.832,
+   -0.922,
+   -0.0
+  ],
+  "bounds_max": [
+   0.922,
+   0.922,
+   0.786
+  ],
+  "points": {
+   "WorkPoint_0": {
+    "pos": [
+     0.0451,
+     -1.6723,
+     0.0
+    ],
+    "forward": [
+     -0.0,
+     1.0,
+     -0.0
+    ]
+   }
+  },
+  "work": {
+   "clip": "Chop",
+   "tool": "Tool_Axe",
+   "stand": [
+    0.0451,
+    -1.6723,
+    0
+   ],
+   "tool_contact": null,
+   "facing": [
+    0,
+    1,
+    0
+   ]
+  },
+  "hinges": []
+ },
+ "CC_FallenBranch": {
+  "scale_applied": [
+   1.5,
+   1.5,
+   1.5
+  ],
+  "bounds_min": [
+   -1.515,
+   -0.248,
+   -0.0
+  ],
+  "bounds_max": [
+   1.768,
+   1.495,
+   0.59
+  ],
+  "points": {
+   "WorkPoint_0": {
+    "pos": [
+     0.1263,
+     -0.9982,
+     0.0
+    ],
+    "forward": [
+     -0.0,
+     1.0,
+     -0.0
+    ]
+   }
+  },
+  "work": {
+   "clip": "Pickup",
+   "tool": null,
+   "stand": [
+    0.1263,
+    -0.9982,
+    0
+   ],
+   "facing": [
+    0,
+    1,
+    0
+   ]
+  },
+  "hinges": []
+ },
+ "CC_RockOutcrop": {
+  "scale_applied": [
+   1.5,
+   1.5,
+   1.5
+  ],
+  "bounds_min": [
+   -1.614,
+   -0.715,
+   0.0
+  ],
+  "bounds_max": [
+   1.48,
+   1.147,
+   2.513
+  ],
+  "points": {
+   "WorkPoint_0": {
+    "pos": [
+     -0.0671,
+     -1.4645,
+     0.0
+    ],
+    "forward": [
+     -0.0,
+     1.0,
+     -0.0
+    ]
+   }
+  },
+  "work": {
+   "clip": "Mine",
+   "tool": "Tool_Pickaxe",
+   "stand": [
+    -0.0671,
+    -1.4645,
+    0
+   ],
+   "tool_contact": null,
+   "facing": [
+    0,
+    1,
+    0
+   ]
+  },
+  "hinges": []
+ },
+ "CC_OreOutcrop": {
+  "scale_applied": [
+   1.5,
+   1.5,
+   1.5
+  ],
+  "bounds_min": [
+   -1.614,
+   -0.905,
+   0.0
+  ],
+  "bounds_max": [
+   1.48,
+   1.147,
+   2.513
+  ],
+  "points": {
+   "WorkPoint_0": {
+    "pos": [
+     -0.0671,
+     -1.6547,
+     0.0
+    ],
+    "forward": [
+     -0.0,
+     1.0,
+     -0.0
+    ]
+   }
+  },
+  "work": {
+   "clip": "Mine",
+   "tool": "Tool_Pickaxe",
+   "stand": [
+    -0.0671,
+    -1.6547,
+    0
+   ],
+   "tool_contact": null,
+   "facing": [
+    0,
+    1,
+    0
+   ]
+  },
+  "hinges": []
+ },
+ "CC_Bush": {
+  "scale_applied": [
+   1.5,
+   1.5,
+   1.5
+  ],
+  "bounds_min": [
+   -1.169,
+   -0.885,
+   0.0
+  ],
+  "bounds_max": [
+   1.124,
+   0.735,
+   1.725
+  ],
+  "points": {
+   "WorkPoint_0": {
+    "pos": [
+     -0.0225,
+     -1.6354,
+     0.0
+    ],
+    "forward": [
+     -0.0,
+     1.0,
+     -0.0
+    ]
+   }
+  },
+  "work": {
+   "clip": "GroundWork",
+   "tool": null,
+   "stand": [
+    -0.0225,
+    -1.6354,
+    0
+   ],
+   "facing": [
+    0,
+    1,
+    0
+   ]
+  },
+  "hinges": []
+ },
+ "CC_GrassTuft": {
+  "scale_applied": [
+   1.5,
+   1.5,
+   1.5
+  ],
+  "bounds_min": [
+   -0.503,
+   -0.456,
+   -0.0
+  ],
+  "bounds_max": [
+   0.562,
+   0.514,
+   1.002
+  ],
+  "points": {
+   "WorkPoint_0": {
+    "pos": [
+     0.03,
+     -1.2058,
+     0.0
+    ],
+    "forward": [
+     -0.0,
+     1.0,
+     -0.0
+    ]
+   }
+  },
+  "work": {
+   "clip": "GroundWork",
+   "tool": null,
+   "stand": [
+    0.03,
+    -1.2058,
+    0
+   ],
+   "facing": [
+    0,
+    1,
+    0
+   ]
+  },
+  "hinges": []
+ },
+ "CC_WildFungus": {
+  "scale_applied": [
+   1.5,
+   1.5,
+   1.5
+  ],
+  "bounds_min": [
+   -0.946,
+   -0.756,
+   0.0
+  ],
+  "bounds_max": [
+   1.054,
+   0.724,
+   1.613
+  ],
+  "points": {
+   "WorkPoint_0": {
+    "pos": [
+     0.0537,
+     -1.5062,
+     0.0
+    ],
+    "forward": [
+     -0.0,
+     1.0,
+     -0.0
+    ]
+   }
+  },
+  "work": {
+   "clip": "Pickup",
+   "tool": null,
+   "stand": [
+    0.0537,
+    -1.5062,
+    0
+   ],
+   "facing": [
+    0,
+    1,
+    0
+   ]
+  },
+  "hinges": []
+ },
+ "CC_PebbleScatter": {
+  "scale_applied": [
+   1.5,
+   1.5,
+   1.5
+  ],
+  "bounds_min": [
+   -1.101,
+   -0.751,
+   0.0
+  ],
+  "bounds_max": [
+   1.115,
+   0.733,
+   0.3
+  ],
+  "points": {
+   "WorkPoint_0": {
+    "pos": [
+     0.0069,
+     -1.5008,
+     0.0
+    ],
+    "forward": [
+     -0.0,
+     1.0,
+     -0.0
+    ]
+   }
+  },
+  "work": {
+   "clip": "Pickup",
+   "tool": null,
+   "stand": [
+    0.0069,
+    -1.5008,
+    0
+   ],
+   "facing": [
+    0,
+    1,
+    0
+   ]
+  },
+  "hinges": []
+ },
+ "CC_SleepingMat": {
+  "scale_applied": [
+   2.4,
+   2.4,
+   1.2
+  ],
+  "bounds_min": [
+   -1.2,
+   -1.98,
+   0.0
+  ],
+  "bounds_max": [
+   1.2,
+   1.98,
+   0.324
+  ],
+  "points": {
+   "SeatPoint": {
+    "pos": [
+     0.0,
+     0.0,
+     0.324
+    ],
+    "forward": [
+     -0.0,
+     1.0,
+     -0.0
+    ]
+   },
+   "WorkPoint_0": {
+    "pos": [
+     0.0,
+     -3.18,
+     0.0
+    ],
+    "forward": [
+     -0.0,
+     1.0,
+     -0.0
+    ]
+   }
+  },
+  "work": {
+   "clip": "Sleep",
+   "tool": null,
+   "stand": [
+    0.0,
+    -3.18,
+    0
+   ],
+   "lie": [
+    0.0,
+    0.0,
+    0.324
+   ],
+   "facing": [
+    0,
+    1,
+    0
+   ]
+  },
+  "hinges": []
+ },
+ "CC_Chair": {
+  "scale_applied": [
+   2.4,
+   2.4,
+   0.7925
+  ],
+  "bounds_min": [
+   -0.78,
+   -0.78,
+   0.0
+  ],
+  "bounds_max": [
+   0.78,
+   0.78,
+   0.804
+  ],
+  "points": {
+   "SeatPoint": {
+    "pos": [
+     0.0,
+     0.0,
+     0.362
+    ],
+    "forward": [
+     -0.0,
+     1.0,
+     -0.0
+    ]
+   },
+   "WorkPoint_0": {
+    "pos": [
+     0.0,
+     -1.98,
+     0.0
+    ],
+    "forward": [
+     -0.0,
+     1.0,
+     -0.0
+    ]
+   }
+  },
+  "work": {
+   "clip": "Sit",
+   "tool": null,
+   "stand": [
+    0.0,
+    -1.98,
+    0
+   ],
+   "seat": [
+    0.0,
+    0.0,
+    0.362
+   ],
+   "facing": [
+    0,
+    1,
+    0
+   ]
+  },
+  "hinges": []
+ },
+ "CC_DiningTable": {
+  "scale_applied": [
+   1.5,
+   1.5,
+   0.9524
+  ],
+  "bounds_min": [
+   -1.65,
+   -0.847,
+   0.0
+  ],
+  "bounds_max": [
+   1.65,
+   0.847,
+   0.8
+  ],
+  "points": {
+   "SeatPoint": {
+    "pos": [
+     0.0,
+     0.0,
+     0.36
+    ],
+    "forward": [
+     -0.0,
+     1.0,
+     -0.0
+    ]
+   },
+   "WorkPoint_0": {
+    "pos": [
+     0.0,
+     -1.5975,
+     0.0
+    ],
+    "forward": [
+     -0.0,
+     1.0,
+     -0.0
+    ]
+   }
+  },
+  "work": {
+   "clip": "Eat",
+   "tool": null,
+   "stand": [
+    0.0,
+    -1.4675,
+    0
+   ],
+   "hand_target": [
+    0.0,
+    -0.6275,
+    0.8
+   ],
+   "facing": [
+    0,
+    1,
+    0
+   ]
+  },
+  "hinges": []
+ },
+ "CC_RestBench": {
+  "scale_applied": [
+   2.4,
+   2.4,
+   0.8077
+  ],
+  "bounds_min": [
+   -2.28,
+   -0.72,
+   0.0
+  ],
+  "bounds_max": [
+   2.28,
+   0.72,
+   0.872
+  ],
+  "points": {
+   "SeatPoint": {
+    "pos": [
+     0.0,
+     0.0,
+     0.3925
+    ],
+    "forward": [
+     -0.0,
+     1.0,
+     -0.0
+    ]
+   },
+   "WorkPoint_0": {
+    "pos": [
+     0.0,
+     -1.92,
+     0.0
+    ],
+    "forward": [
+     -0.0,
+     1.0,
+     -0.0
+    ]
+   }
+  },
+  "work": {
+   "clip": "Rest",
+   "tool": null,
+   "stand": [
+    0.0,
+    -1.92,
+    0
+   ],
+   "seat": [
+    0.0,
+    0.0,
+    0.3925
+   ],
+   "facing": [
+    0,
+    1,
+    0
+   ]
+  },
+  "hinges": []
+ },
+ "CC_Bookshelf": {
+  "scale_applied": [
+   1.5,
+   1.5,
+   1.5
+  ],
+  "bounds_min": [
+   -1.065,
+   -0.375,
+   0.0
+  ],
+  "bounds_max": [
+   1.065,
+   0.375,
+   2.55
+  ],
+  "points": {
+   "WorkPoint_0": {
+    "pos": [
+     0.0,
+     -1.125,
+     0.0
+    ],
+    "forward": [
+     -0.0,
+     1.0,
+     -0.0
+    ]
+   }
+  },
+  "work": {
+   "clip": "Inspect",
+   "tool": null,
+   "stand": [
+    0.0,
+    -1.125,
+    0
+   ],
+   "facing": [
+    0,
+    1,
+    0
+   ]
+  },
+  "hinges": []
+ },
+ "CC_Campfire": {
+  "scale_applied": [
+   1.5,
+   1.5,
+   1.5
+  ],
+  "bounds_min": [
+   -1.114,
+   -1.103,
+   0.0
+  ],
+  "bounds_max": [
+   1.168,
+   1.103,
+   0.45
+  ],
+  "points": {
+   "WorkPoint_0": {
+    "pos": [
+     0.0,
+     -1.875,
+     0.0
+    ],
+    "forward": [
+     -0.0,
+     1.0,
+     -0.0
+    ]
+   }
+  },
+  "work": {
+   "clip": "Rest",
+   "tool": null,
+   "stand": [
+    0.0,
+    -1.875,
+    0
+   ],
+   "facing": [
+    0,
+    1,
+    0
+   ]
+  },
+  "hinges": []
+ },
+ "CC_Toilet": {
+  "scale_applied": [
+   2.4,
+   2.4,
+   0.2958
+  ],
+  "bounds_min": [
+   -1.2,
+   -1.14,
+   0.0
+  ],
+  "bounds_max": [
+   1.704,
+   1.296,
+   0.42
+  ],
+  "points": {
+   "SeatPoint": {
+    "pos": [
+     0.252,
+     0.078,
+     0.189
+    ],
+    "forward": [
+     -0.0,
+     1.0,
+     -0.0
+    ]
+   },
+   "WorkPoint_0": {
+    "pos": [
+     0.252,
+     -2.34,
+     0.0
+    ],
+    "forward": [
+     -0.0,
+     1.0,
+     -0.0
+    ]
+   }
+  },
+  "work": {
+   "clip": "Sit",
+   "tool": null,
+   "stand": [
+    0.252,
+    -2.34,
+    0
+   ],
+   "seat": [
+    0.252,
+    0.078,
+    0.189
+   ],
+   "facing": [
+    0,
+    1,
+    0
+   ]
+  },
+  "hinges": []
+ },
+ "CC_Washbasin": {
+  "scale_applied": [
+   1.5,
+   1.5,
+   1.039
+  ],
+  "bounds_min": [
+   -0.75,
+   -0.6,
+   0.0
+  ],
+  "bounds_max": [
+   0.75,
+   0.6,
+   1.262
+  ],
+  "points": {
+   "WorkPoint_0": {
+    "pos": [
+     0.0,
+     -1.35,
+     0.0
+    ],
+    "forward": [
+     -0.0,
+     1.0,
+     -0.0
+    ]
+   }
+  },
+  "work": {
+   "clip": "Wash",
+   "tool": null,
+   "stand": [
+    0.0,
+    -1.22,
+    0
+   ],
+   "hand_target": [
+    0.0,
+    -0.38,
+    0.8
+   ],
+   "facing": [
+    0,
+    1,
+    0
+   ]
+  },
+  "hinges": []
+ },
+ "CC_Shower": {
+  "scale_applied": [
+   1.5,
+   1.5,
+   1.5
+  ],
+  "bounds_min": [
+   -0.832,
+   -0.825,
+   0.0
+  ],
+  "bounds_max": [
+   0.832,
+   0.825,
+   3.068
+  ],
+  "points": {
+   "WorkPoint_0": {
+    "pos": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "forward": [
+     -0.0,
+     1.0,
+     -0.0
+    ]
+   }
+  },
+  "work": {
+   "clip": "StandIdle",
+   "tool": null,
+   "stand": [
+    0.0,
+    0.0,
+    0
+   ],
+   "facing": [
+    0,
+    1,
+    0
+   ]
+  },
+  "hinges": []
+ },
+ "CC_Watchtower": {
+  "scale_applied": [
+   1.5,
+   1.5,
+   1.5
+  ],
+  "bounds_min": [
+   -1.725,
+   -1.867,
+   0.0
+  ],
+  "bounds_max": [
+   1.725,
+   1.575,
+   5.38
+  ],
+  "points": {
+   "WorkPoint_0": {
+    "pos": [
+     0.0,
+     -2.25,
+     0.0
+    ],
+    "forward": [
+     -0.0,
+     1.0,
+     -0.0
+    ]
+   }
+  },
+  "work": {
+   "clip": "Inspect",
+   "tool": null,
+   "stand": [
+    0.0,
+    -2.25,
+    0
+   ],
+   "facing": [
+    0,
+    1,
+    0
+   ]
+  },
+  "hinges": []
+ },
+ "CC_AcidTower": {
+  "scale_applied": [
+   1.5,
+   1.5,
+   1.5
+  ],
+  "bounds_min": [
+   -1.37,
+   -1.275,
+   0.0
+  ],
+  "bounds_max": [
+   1.37,
+   1.162,
+   2.715
+  ],
+  "points": {},
+  "work": {
+   "clip": null,
+   "tool": null
+  },
+  "hinges": [
+   {
+    "pivot": "Turret_Pivot",
+    "axis": "Z",
+    "open_deg": 40
+   }
+  ]
+ },
+ "CC_SpikeTrap": {
+  "scale_applied": [
+   1.5,
+   1.5,
+   1.5
+  ],
+  "bounds_min": [
+   -1.125,
+   -1.125,
+   0.0
+  ],
+  "bounds_max": [
+   1.125,
+   1.125,
+   0.87
+  ],
+  "points": {
+   "WorkPoint_0": {
+    "pos": [
+     0.0,
+     -1.875,
+     0.0
+    ],
+    "forward": [
+     -0.0,
+     1.0,
+     -0.0
+    ]
+   }
+  },
+  "work": {
+   "clip": "Hammer",
+   "tool": "Tool_Hammer",
+   "stand": [
+    0.0,
+    -1.875,
+    0
+   ],
+   "tool_contact": null,
+   "facing": [
+    0,
+    1,
+    0
+   ]
+  },
+  "hinges": []
+ },
+ "CC_StickyTrap": {
+  "scale_applied": [
+   1.5,
+   1.5,
+   1.5
+  ],
+  "bounds_min": [
+   -1.125,
+   -1.125,
+   0.0
+  ],
+  "bounds_max": [
+   1.125,
+   1.125,
+   0.285
+  ],
+  "points": {
+   "WorkPoint_0": {
+    "pos": [
+     0.0,
+     -1.875,
+     0.0
+    ],
+    "forward": [
+     -0.0,
+     1.0,
+     -0.0
+    ]
+   }
+  },
+  "work": {
+   "clip": "GroundWork",
+   "tool": null,
+   "stand": [
+    0.0,
+    -1.875,
+    0
+   ],
+   "facing": [
+    0,
+    1,
+    0
+   ]
+  },
+  "hinges": []
+ },
+ "CC_ResourceWood": {
+  "scale_applied": [
+   0.7216,
+   0.7216,
+   0.7216
+  ],
+  "bounds_min": [
+   -0.2,
+   -0.354,
+   -0.0
+  ],
+  "bounds_max": [
+   0.2,
+   0.346,
+   0.33
+  ],
+  "points": {
+   "CarryAnchor": {
+    "pos": [
+     0.0,
+     -0.0036,
+     0.3299
+    ],
+    "forward": [
+     0.0,
+     0.0,
+     1.0
+    ]
+   }
+  },
+  "work": {
+   "clip": "Carry",
+   "tool": null
+  },
+  "hinges": []
+ },
+ "CC_ResourceStone": {
+  "scale_applied": [
+   0.8092,
+   0.8092,
+   0.8092
+  ],
+  "bounds_min": [
+   -0.364,
+   -0.154,
+   0.0
+  ],
+  "bounds_max": [
+   0.336,
+   0.173,
+   0.428
+  ],
+  "points": {
+   "CarryAnchor": {
+    "pos": [
+     -0.0145,
+     0.0092,
+     0.428
+    ],
+    "forward": [
+     0.0,
+     0.0,
+     1.0
+    ]
+   }
+  },
+  "work": {
+   "clip": "Carry",
+   "tool": null
+  },
+  "hinges": []
+ },
+ "CC_ResourceLeaf": {
+  "scale_applied": [
+   0.6544,
+   0.6544,
+   0.6544
+  ],
+  "bounds_min": [
+   -0.349,
+   -0.35,
+   0.0
+  ],
+  "bounds_max": [
+   0.349,
+   0.35,
+   0.219
+  ],
+  "points": {
+   "CarryAnchor": {
+    "pos": [
+     0.0,
+     0.0,
+     0.2186
+    ],
+    "forward": [
+     0.0,
+     0.0,
+     1.0
+    ]
+   }
+  },
+  "work": {
+   "clip": "Carry",
+   "tool": null
+  },
+  "hinges": []
+ },
+ "CC_ResourceFiber": {
+  "scale_applied": [
+   1.0,
+   1.0,
+   1.0
+  ],
+  "bounds_min": [
+   -0.35,
+   -0.235,
+   0.0
+  ],
+  "bounds_max": [
+   0.35,
+   0.235,
+   0.12
+  ],
+  "points": {
+   "CarryAnchor": {
+    "pos": [
+     0.0,
+     0.0,
+     0.12
+    ],
+    "forward": [
+     0.0,
+     0.0,
+     1.0
+    ]
+   }
+  },
+  "work": {
+   "clip": "Carry",
+   "tool": null
+  },
+  "hinges": []
+ },
+ "CC_ResourceGrain": {
+  "scale_applied": [
+   1.0461,
+   1.0461,
+   1.0461
+  ],
+  "bounds_min": [
+   -0.348,
+   -0.309,
+   0.0
+  ],
+  "bounds_max": [
+   0.352,
+   0.302,
+   0.356
+  ],
+  "points": {
+   "CarryAnchor": {
+    "pos": [
+     0.0018,
+     -0.0035,
+     0.3557
+    ],
+    "forward": [
+     0.0,
+     0.0,
+     1.0
+    ]
+   }
+  },
+  "work": {
+   "clip": "Carry",
+   "tool": null
+  },
+  "hinges": []
+ },
+ "CC_ResourceCompost": {
+  "scale_applied": [
+   0.8,
+   0.8,
+   0.8
+  ],
+  "bounds_min": [
+   -0.35,
+   -0.304,
+   0.0
+  ],
+  "bounds_max": [
+   0.35,
+   0.304,
+   0.424
+  ],
+  "points": {
+   "CarryAnchor": {
+    "pos": [
+     0.0,
+     0.0,
+     0.424
+    ],
+    "forward": [
+     0.0,
+     0.0,
+     1.0
+    ]
+   }
+  },
+  "work": {
+   "clip": "Carry",
+   "tool": null
+  },
+  "hinges": []
+ },
+ "CC_ResourceOre": {
+  "scale_applied": [
+   0.9193,
+   0.9193,
+   0.9193
+  ],
+  "bounds_min": [
+   -0.355,
+   -0.279,
+   0.0
+  ],
+  "bounds_max": [
+   0.345,
+   0.225,
+   0.395
+  ],
+  "points": {
+   "CarryAnchor": {
+    "pos": [
+     -0.0046,
+     -0.0273,
+     0.3953
+    ],
+    "forward": [
+     0.0,
+     0.0,
+     1.0
+    ]
+   }
+  },
+  "work": {
+   "clip": "Carry",
+   "tool": null
+  },
+  "hinges": []
+ },
+ "CC_ResourcePlanks": {
+  "scale_applied": [
+   0.7,
+   0.7,
+   0.7
+  ],
+  "bounds_min": [
+   -0.227,
+   -0.35,
+   0.0
+  ],
+  "bounds_max": [
+   0.227,
+   0.35,
+   0.224
+  ],
+  "points": {
+   "CarryAnchor": {
+    "pos": [
+     0.0,
+     0.0,
+     0.224
+    ],
+    "forward": [
+     0.0,
+     0.0,
+     1.0
+    ]
+   }
+  },
+  "work": {
+   "clip": "Carry",
+   "tool": null
+  },
+  "hinges": []
+ },
+ "CC_ResourceSilk": {
+  "scale_applied": [
+   1.2727,
+   1.2727,
+   1.2727
+  ],
+  "bounds_min": [
+   -0.327,
+   -0.344,
+   0.0
+  ],
+  "bounds_max": [
+   0.327,
+   0.344,
+   0.7
+  ],
+  "points": {
+   "CarryAnchor": {
+    "pos": [
+     0.0,
+     0.0,
+     0.7
+    ],
+    "forward": [
+     0.0,
+     0.0,
+     1.0
+    ]
+   }
+  },
+  "work": {
+   "clip": "Carry",
+   "tool": null
+  },
+  "hinges": []
+ },
+ "CC_FeedMeat": {
+  "scale_applied": [
+   0.875,
+   0.875,
+   0.875
+  ],
+  "bounds_min": [
+   -0.284,
+   -0.35,
+   0.0
+  ],
+  "bounds_max": [
+   0.285,
+   0.35,
+   0.257
+  ],
+  "points": {
+   "CarryAnchor": {
+    "pos": [
+     0.0001,
+     0.0,
+     0.2571
+    ],
+    "forward": [
+     0.0,
+     0.0,
+     1.0
+    ]
+   }
+  },
+  "work": {
+   "clip": "Carry",
+   "tool": null
+  },
+  "hinges": []
+ },
+ "CC_FeedPlant": {
+  "scale_applied": [
+   0.875,
+   0.875,
+   0.875
+  ],
+  "bounds_min": [
+   -0.284,
+   -0.35,
+   0.0
+  ],
+  "bounds_max": [
+   0.285,
+   0.35,
+   0.257
+  ],
+  "points": {
+   "CarryAnchor": {
+    "pos": [
+     0.0001,
+     0.0,
+     0.2571
+    ],
+    "forward": [
+     0.0,
+     0.0,
+     1.0
+    ]
+   }
+  },
+  "work": {
+   "clip": "Carry",
+   "tool": null
+  },
+  "hinges": []
+ },
+ "CC_FoodRotten": {
+  "scale_applied": [
+   0.9211,
+   0.9211,
+   0.9211
+  ],
+  "bounds_min": [
+   -0.35,
+   -0.333,
+   0.0
+  ],
+  "bounds_max": [
+   0.35,
+   0.333,
+   0.258
+  ],
+  "points": {
+   "CarryAnchor": {
+    "pos": [
+     0.0,
+     0.0,
+     0.2579
+    ],
+    "forward": [
+     0.0,
+     0.0,
+     1.0
+    ]
+   }
+  },
+  "work": {
+   "clip": "Carry",
+   "tool": null
+  },
+  "hinges": []
+ },
+ "CC_Manure": {
+  "scale_applied": [
+   1.192,
+   1.192,
+   1.192
+  ],
+  "bounds_min": [
+   -0.351,
+   -0.13,
+   0.0
+  ],
+  "bounds_max": [
+   0.349,
+   0.225,
+   0.348
+  ],
+  "points": {
+   "CarryAnchor": {
+    "pos": [
+     -0.0006,
+     0.0474,
+     0.3481
+    ],
+    "forward": [
+     0.0,
+     0.0,
+     1.0
+    ]
+   }
+  },
+  "work": {
+   "clip": "Carry",
+   "tool": null
+  },
+  "hinges": []
+ },
+ "CC_MealGood": {
+  "scale_applied": [
+   0.9211,
+   0.9211,
+   0.9211
+  ],
+  "bounds_min": [
+   -0.35,
+   -0.333,
+   0.0
+  ],
+  "bounds_max": [
+   0.35,
+   0.333,
+   0.359
+  ],
+  "points": {
+   "CarryAnchor": {
+    "pos": [
+     0.0,
+     0.0,
+     0.3592
+    ],
+    "forward": [
+     0.0,
+     0.0,
+     1.0
+    ]
+   }
+  },
+  "work": {
+   "clip": "Carry",
+   "tool": null
+  },
+  "hinges": []
+ },
+ "CC_MealSimple": {
+  "scale_applied": [
+   0.9211,
+   0.9211,
+   0.9211
+  ],
+  "bounds_min": [
+   -0.35,
+   -0.333,
+   0.0
+  ],
+  "bounds_max": [
+   0.35,
+   0.333,
+   0.239
+  ],
+  "points": {
+   "CarryAnchor": {
+    "pos": [
+     0.0,
+     0.0,
+     0.2395
+    ],
+    "forward": [
+     0.0,
+     0.0,
+     1.0
+    ]
+   }
+  },
+  "work": {
+   "clip": "Carry",
+   "tool": null
+  },
+  "hinges": []
+ },
+ "CC_MedicineAdvanced": {
+  "scale_applied": [
+   1.0606,
+   1.0606,
+   1.0606
+  ],
+  "bounds_min": [
+   -0.35,
+   -0.106,
+   0.0
+  ],
+  "bounds_max": [
+   0.35,
+   0.106,
+   0.339
+  ],
+  "points": {
+   "CarryAnchor": {
+    "pos": [
+     0.0,
+     0.0,
+     0.3394
+    ],
+    "forward": [
+     0.0,
+     0.0,
+     1.0
+    ]
+   }
+  },
+  "work": {
+   "clip": "Carry",
+   "tool": null
+  },
+  "hinges": []
+ },
+ "CC_MedicineAnimal": {
+  "scale_applied": [
+   2.1875,
+   2.1875,
+   2.1875
+  ],
+  "bounds_min": [
+   -0.219,
+   -0.246,
+   0.0
+  ],
+  "bounds_max": [
+   0.219,
+   0.219,
+   0.7
+  ],
+  "points": {
+   "CarryAnchor": {
+    "pos": [
+     0.0,
+     -0.0137,
+     0.7
+    ],
+    "forward": [
+     0.0,
+     0.0,
+     1.0
+    ]
+   }
+  },
+  "work": {
+   "clip": "Carry",
+   "tool": null
+  },
+  "hinges": []
+ },
+ "CC_MedicineHerbal": {
+  "scale_applied": [
+   1.3245,
+   1.3245,
+   1.3245
+  ],
+  "bounds_min": [
+   -0.306,
+   -0.568,
+   0.0
+  ],
+  "bounds_max": [
+   0.306,
+   0.132,
+   0.424
+  ],
+  "points": {
+   "CarryAnchor": {
+    "pos": [
+     0.0,
+     -0.2175,
+     0.4238
+    ],
+    "forward": [
+     0.0,
+     0.0,
+     1.0
+    ]
+   }
+  },
+  "work": {
+   "clip": "Carry",
+   "tool": null
+  },
+  "hinges": []
+ },
+ "CC_MedicineStandard": {
+  "scale_applied": [
+   1.6279,
+   1.6279,
+   1.6279
+  ],
+  "bounds_min": [
+   -0.35,
+   -0.163,
+   0.0
+  ],
+  "bounds_max": [
+   0.35,
+   0.163,
+   0.521
+  ],
+  "points": {
+   "CarryAnchor": {
+    "pos": [
+     0.0,
+     0.0,
+     0.5209
+    ],
+    "forward": [
+     0.0,
+     0.0,
+     1.0
+    ]
+   }
+  },
+  "work": {
+   "clip": "Carry",
+   "tool": null
+  },
+  "hinges": []
+ },
+ "CC_SurgeryKit": {
+  "scale_applied": [
+   1.0769,
+   1.0769,
+   1.0769
+  ],
+  "bounds_min": [
+   -0.35,
+   -0.275,
+   0.0
+  ],
+  "bounds_max": [
+   0.35,
+   0.242,
+   0.355
+  ],
+  "points": {
+   "CarryAnchor": {
+    "pos": [
+     0.0,
+     -0.0162,
+     0.3554
+    ],
+    "forward": [
+     0.0,
+     0.0,
+     1.0
+    ]
+   }
+  },
+  "work": {
+   "clip": "Carry",
+   "tool": null
+  },
+  "hinges": []
+ },
+ "CC_Floor": {
+  "scale_applied": [
+   1,
+   1,
+   1
+  ],
+  "bounds_min": [
+   -1.2,
+   -1.2,
+   0.0
+  ],
+  "bounds_max": [
+   1.2,
+   1.2,
+   0.105
+  ],
+  "points": {
+   "WorkPoint_0": {
+    "pos": [
+     0.0,
+     -1.75,
+     0.0
+    ],
+    "forward": [
+     0.0,
+     1.0,
+     0.0
+    ]
+   }
+  },
+  "work": {
+   "clip": "Hammer",
+   "tool": "Tool_Hammer",
+   "stand": [
+    0.0,
+    -1.75,
+    0.0
+   ],
+   "facing": [
+    0,
+    1,
+    0
+   ],
+   "turn": 3.1416
+  },
+  "hinges": [],
+  "name_ko": "바닥",
+  "building_kind": "Floor",
+  "catalog_section": "건설·방어",
+  "memo": "깔기·수리 때만",
+  "source": "FURNITURE-97"
+ },
+ "CC_Pillar": {
+  "scale_applied": [
+   1,
+   1,
+   1
+  ],
+  "bounds_min": [
+   -0.5,
+   -0.5,
+   0.0
+  ],
+  "bounds_max": [
+   0.5,
+   0.5,
+   3.625
+  ],
+  "points": {
+   "WorkPoint_0": {
+    "pos": [
+     0.0,
+     -1.35,
+     0.0
+    ],
+    "forward": [
+     0.0,
+     1.0,
+     0.0
+    ]
+   }
+  },
+  "work": {
+   "clip": "Hammer",
+   "tool": "Tool_Hammer",
+   "stand": [
+    0.0,
+    -1.35,
+    0.0
+   ],
+   "facing": [
+    0,
+    1,
+    0
+   ],
+   "turn": 3.1416
+  },
+  "hinges": [],
+  "name_ko": "기둥",
+  "building_kind": "Pillar",
+  "catalog_section": "건설·방어",
+  "memo": "세우기·수리 때만",
+  "source": "FURNITURE-97"
+ },
+ "CC_CapWall": {
+  "scale_applied": [
+   1,
+   1,
+   1
+  ],
+  "bounds_min": [
+   -1.35,
+   -0.27,
+   0.0
+  ],
+  "bounds_max": [
+   1.35,
+   0.25,
+   2.5
+  ],
+  "points": {
+   "WorkPoint_0": {
+    "pos": [
+     0.0,
+     -1.3,
+     0.0
+    ],
+    "forward": [
+     0.0,
+     1.0,
+     0.0
+    ]
+   }
+  },
+  "work": {
+   "clip": "Hammer",
+   "tool": "Tool_Hammer",
+   "stand": [
+    0.0,
+    -1.3,
+    0.0
+   ],
+   "facing": [
+    0,
+    1,
+    0
+   ],
+   "turn": 3.1416
+  },
+  "hinges": [],
+  "name_ko": "병뚜껑 벽",
+  "building_kind": "CapWall",
+  "catalog_section": "건설·방어",
+  "memo": "건설·수리·철거 때만",
+  "source": "FURNITURE-97"
+ },
+ "CC_LockedDoor": {
+  "scale_applied": [
+   1,
+   1,
+   1
+  ],
+  "bounds_min": [
+   -1.4,
+   -0.18,
+   0.0
+  ],
+  "bounds_max": [
+   1.4,
+   0.18,
+   3.21
+  ],
+  "points": {
+   "WorkPoint_0": {
+    "pos": [
+     0.0,
+     -1.2,
+     0.0
+    ],
+    "forward": [
+     0.0,
+     1.0,
+     0.0
+    ]
+   }
+  },
+  "work": {
+   "clip": "Walk",
+   "tool": null,
+   "stand": [
+    0.0,
+    -1.2,
+    0.0
+   ],
+   "facing": [
+    0,
+    1,
+    0
+   ],
+   "turn": 3.1416
+  },
+  "hinges": [
+   {
+    "pivot": "CC_LockedDoor__Door_Hinge",
+    "axis": "Z",
+    "open_deg": 95,
+    "mode": "swing",
+    "frames": 48
+   }
+  ],
+  "name_ko": "잠금문",
+  "building_kind": "LockedDoor",
+  "catalog_section": "건설·방어",
+  "memo": "허가된 주민 통행 시 문 개폐",
+  "source": "FURNITURE-97"
+ },
+ "CC_BarredDoor": {
+  "scale_applied": [
+   1,
+   1,
+   1
+  ],
+  "bounds_min": [
+   -1.4,
+   -0.18,
+   0.0
+  ],
+  "bounds_max": [
+   1.4,
+   0.18,
+   3.21
+  ],
+  "points": {
+   "WorkPoint_0": {
+    "pos": [
+     0.0,
+     -1.2,
+     0.0
+    ],
+    "forward": [
+     0.0,
+     1.0,
+     0.0
+    ]
+   }
+  },
+  "work": {
+   "clip": "Walk",
+   "tool": null,
+   "stand": [
+    0.0,
+    -1.2,
+    0.0
+   ],
+   "facing": [
+    0,
+    1,
+    0
+   ],
+   "turn": 3.1416
+  },
+  "hinges": [
+   {
+    "pivot": "CC_BarredDoor__Door_Hinge",
+    "axis": "Z",
+    "open_deg": 95,
+    "mode": "swing",
+    "frames": 48
+   }
+  ],
+  "name_ko": "창살문",
+  "building_kind": "BarredDoor",
+  "catalog_section": "건설·방어",
+  "memo": "통행 시 창살문 개폐",
+  "source": "FURNITURE-97"
+ },
+ "CC_SingleBed": {
+  "scale_applied": [
+   1,
+   1,
+   1
+  ],
+  "bounds_min": [
+   -0.85,
+   -1.5,
+   0.0
+  ],
+  "bounds_max": [
+   0.85,
+   1.51,
+   1.32
+  ],
+  "points": {
+   "LiePoint": {
+    "pos": [
+     0.0,
+     0.0,
+     0.62
+    ],
+    "forward": [
+     0.0,
+     1.0,
+     0.0
+    ]
+   },
+   "WorkPoint_0": {
+    "pos": [
+     0.0,
+     -2.1,
+     0.0
+    ],
+    "forward": [
+     0.0,
+     1.0,
+     0.0
+    ]
+   }
+  },
+  "work": {
+   "clip": "Sleep",
+   "tool": null,
+   "stand": [
+    0.0,
+    -2.1,
+    0.0
+   ],
+   "facing": [
+    0,
+    -1,
+    0
+   ],
+   "turn": 0,
+   "lie": [
+    0.0,
+    0.0,
+    0.62
+   ]
+  },
+  "hinges": [],
+  "name_ko": "침대",
+  "building_kind": "SingleBed",
+  "catalog_section": "생활",
+  "memo": "누워 수면",
+  "source": "FURNITURE-97"
+ },
+ "CC_DoubleBed": {
+  "scale_applied": [
+   1,
+   1,
+   1
+  ],
+  "bounds_min": [
+   -1.6,
+   -1.5,
+   0.0
+  ],
+  "bounds_max": [
+   1.6,
+   1.51,
+   1.32
+  ],
+  "points": {
+   "LiePoint": {
+    "pos": [
+     -0.75,
+     0.0,
+     0.62
+    ],
+    "forward": [
+     0.0,
+     1.0,
+     0.0
+    ]
+   },
+   "WorkPoint_0": {
+    "pos": [
+     -0.75,
+     -2.1,
+     0.0
+    ],
+    "forward": [
+     0.0,
+     1.0,
+     0.0
+    ]
+   }
+  },
+  "work": {
+   "clip": "Sleep",
+   "tool": null,
+   "stand": [
+    -0.75,
+    -2.1,
+    0.0
+   ],
+   "facing": [
+    0,
+    -1,
+    0
+   ],
+   "turn": 0,
+   "lie": [
+    -0.75,
+    0.0,
+    0.62
+   ]
+  },
+  "hinges": [],
+  "name_ko": "큰침대",
+  "building_kind": "DoubleBed",
+  "catalog_section": "생활",
+  "memo": "두 명이 나란히 수면(한쪽 표시)",
+  "source": "FURNITURE-97"
+ },
+ "CC_BunkBed": {
+  "scale_applied": [
+   1,
+   1,
+   1
+  ],
+  "bounds_min": [
+   -1.038,
+   -1.54,
+   0.0
+  ],
+  "bounds_max": [
+   1.089,
+   1.531,
+   3.5
+  ],
+  "points": {
+   "LiePoint": {
+    "pos": [
+     0.0,
+     0.0,
+     0.62
+    ],
+    "forward": [
+     0.0,
+     1.0,
+     0.0
+    ]
+   },
+   "WorkPoint_0": {
+    "pos": [
+     0.0,
+     -2.1,
+     0.0
+    ],
+    "forward": [
+     0.0,
+     1.0,
+     0.0
+    ]
+   }
+  },
+  "work": {
+   "clip": "Sleep",
+   "tool": null,
+   "stand": [
+    0.0,
+    -2.1,
+    0.0
+   ],
+   "facing": [
+    0,
+    -1,
+    0
+   ],
+   "turn": 0,
+   "lie": [
+    0.0,
+    0.0,
+    0.62
+   ]
+  },
+  "hinges": [],
+  "name_ko": "2층침대",
+  "building_kind": "BunkBed",
+  "catalog_section": "생활",
+  "memo": "아래 칸 수면(위 칸은 사다리로)",
+  "source": "FURNITURE-97"
+ },
+ "CC_Hammock": {
+  "scale_applied": [
+   1,
+   1,
+   1
+  ],
+  "bounds_min": [
+   -0.65,
+   -2.097,
+   0.0
+  ],
+  "bounds_max": [
+   0.65,
+   2.097,
+   2.34
+  ],
+  "points": {
+   "LiePoint": {
+    "pos": [
+     0.0,
+     0.0,
+     0.6591
+    ],
+    "forward": [
+     0.0,
+     1.0,
+     0.0
+    ]
+   },
+   "WorkPoint_0": {
+    "pos": [
+     0.0,
+     -2.4,
+     0.0191
+    ],
+    "forward": [
+     0.0,
+     1.0,
+     0.0
+    ]
+   }
+  },
+  "work": {
+   "clip": "Sleep",
+   "tool": null,
+   "stand": [
+    0.0,
+    -2.4,
+    0.0191
+   ],
+   "facing": [
+    0,
+    -1,
+    0
+   ],
+   "turn": 0,
+   "lie": [
+    0.0,
+    0.0,
+    0.6591
+   ]
+  },
+  "hinges": [],
+  "name_ko": "해먹",
+  "building_kind": "Hammock",
+  "catalog_section": "생활",
+  "memo": "해먹에 누워 수면",
+  "source": "FURNITURE-97"
+ },
+ "CC_Nursery": {
+  "scale_applied": [
+   1,
+   1,
+   1
+  ],
+  "bounds_min": [
+   -0.622,
+   -0.59,
+   0.0
+  ],
+  "bounds_max": [
+   0.622,
+   0.8,
+   1.155
+  ],
+  "points": {
+   "HandTarget": {
+    "pos": [
+     0.0,
+     -0.45,
+     0.8255
+    ],
+    "forward": [
+     0.0,
+     1.0,
+     0.0
+    ]
+   },
+   "WorkPoint_0": {
+    "pos": [
+     0.0,
+     -1.4,
+     0.0255
+    ],
+    "forward": [
+     0.0,
+     1.0,
+     0.0
+    ]
+   }
+  },
+  "work": {
+   "clip": "RockCradle",
+   "tool": null,
+   "stand": [
+    0.0,
+    -1.4,
+    0.0255
+   ],
+   "facing": [
+    0,
+    1,
+    0
+   ],
+   "turn": 3.1416,
+   "hand_target": [
+    0.0,
+    -0.45,
+    0.8255
+   ]
+  },
+  "hinges": [
+   {
+    "pivot": "CC_Nursery__Cradle_Pivot",
+    "axis": "Y",
+    "open_deg": 12,
+    "mode": "rock",
+    "frames": 48
+   }
+  ],
+  "name_ko": "요람",
+  "building_kind": "Nursery",
+  "catalog_section": "생활",
+  "memo": "요람 흔들어 돌보기",
+  "source": "FURNITURE-97"
+ },
+ "CC_BanquetTable": {
+  "scale_applied": [
+   1,
+   1,
+   1
+  ],
+  "bounds_min": [
+   -2.6,
+   -1.525,
+   0.0
+  ],
+  "bounds_max": [
+   2.6,
+   1.525,
+   1.12
+  ],
+  "points": {
+   "SeatPoint": {
+    "pos": [
+     0.0,
+     -1.25,
+     0.42
+    ],
+    "forward": [
+     0.0,
+     1.0,
+     0.0
+    ]
+   },
+   "WorkPoint_0": {
+    "pos": [
+     0.0,
+     -2.2,
+     0.0
+    ],
+    "forward": [
+     0.0,
+     1.0,
+     0.0
+    ]
+   }
+  },
+  "work": {
+   "clip": "Eat",
+   "tool": null,
+   "stand": [
+    0.0,
+    -2.2,
+    0.0
+   ],
+   "facing": [
+    0,
+    1,
+    0
+   ],
+   "turn": 3.1416,
+   "seat": [
+    0.0,
+    -1.25,
+    0.42
+   ]
+  },
+  "hinges": [],
+  "name_ko": "연회용 긴 식탁",
+  "building_kind": "BanquetTable",
+  "catalog_section": "생활",
+  "memo": "긴 의자에 앉아 함께 식사",
+  "source": "FURNITURE-97"
+ },
+ "CC_Jar": {
+  "scale_applied": [
+   1,
+   1,
+   1
+  ],
+  "bounds_min": [
+   -0.713,
+   -0.75,
+   0.0
+  ],
+  "bounds_max": [
+   0.713,
+   0.75,
+   1.71
+  ],
+  "points": {
+   "InputPoint": {
+    "pos": [
+     0.0,
+     -0.2,
+     1.68
+    ],
+    "forward": [
+     0.0,
+     1.0,
+     0.0
+    ]
+   },
+   "WorkPoint_0": {
+    "pos": [
+     0.0,
+     -1.45,
+     0.03
+    ],
+    "forward": [
+     0.0,
+     1.0,
+     0.0
+    ]
+   }
+  },
+  "work": {
+   "clip": "PutDown",
+   "tool": null,
+   "stand": [
+    0.0,
+    -1.45,
+    0.03
+   ],
+   "facing": [
+    0,
+    1,
+    0
+   ],
+   "turn": 3.1416
+  },
+  "hinges": [],
+  "name_ko": "항아리",
+  "building_kind": "Jar",
+  "catalog_section": "보관·전력",
+  "memo": "항아리에 넣기·꺼내기",
+  "source": "FURNITURE-97"
+ },
+ "CC_FoodStore": {
+  "scale_applied": [
+   1,
+   1,
+   1
+  ],
+  "bounds_min": [
+   -1.2,
+   -0.9,
+   0.0
+  ],
+  "bounds_max": [
+   1.2,
+   0.9,
+   0.99
+  ],
+  "points": {
+   "InputPoint": {
+    "pos": [
+     0.0,
+     0.0,
+     0.8
+    ],
+    "forward": [
+     0.0,
+     1.0,
+     0.0
+    ]
+   },
+   "WorkPoint_0": {
+    "pos": [
+     0.0,
+     -1.6,
+     0.0
+    ],
+    "forward": [
+     0.0,
+     1.0,
+     0.0
+    ]
+   }
+  },
+  "work": {
+   "clip": "Pickup",
+   "tool": null,
+   "stand": [
+    0.0,
+    -1.6,
+    0.0
+   ],
+   "facing": [
+    0,
+    1,
+    0
+   ],
+   "turn": 3.1416
+  },
+  "hinges": [
+   {
+    "pivot": "CC_FoodStore__Lid_Hinge",
+    "axis": "X",
+    "open_deg": -75,
+    "mode": "swing",
+    "frames": 48
+   }
+  ],
+  "name_ko": "저장고",
+  "building_kind": "FoodStore",
+  "catalog_section": "보관·전력",
+  "memo": "뚜껑 열고 식량 출입",
+  "source": "FURNITURE-97"
+ },
+ "CC_Brazier": {
+  "scale_applied": [
+   1,
+   1,
+   1
+  ],
+  "bounds_min": [
+   -0.62,
+   -0.59,
+   0.0
+  ],
+  "bounds_max": [
+   0.62,
+   0.59,
+   1.165
+  ],
+  "points": {
+   "InputPoint": {
+    "pos": [
+     0.0,
+     -0.2,
+     0.9652
+    ],
+    "forward": [
+     0.0,
+     1.0,
+     0.0
+    ]
+   },
+   "WorkPoint_0": {
+    "pos": [
+     0.0,
+     -1.3,
+     0.0152
+    ],
+    "forward": [
+     0.0,
+     1.0,
+     0.0
+    ]
+   }
+  },
+  "work": {
+   "clip": "PutDown",
+   "tool": null,
+   "stand": [
+    0.0,
+    -1.3,
+    0.0152
+   ],
+   "facing": [
+    0,
+    1,
+    0
+   ],
+   "turn": 3.1416
+  },
+  "hinges": [],
+  "name_ko": "화롯불",
+  "building_kind": "Brazier",
+  "catalog_section": "보관·전력",
+  "memo": "장작 넣기",
+  "source": "FURNITURE-97"
+ },
+ "CC_Lantern": {
+  "scale_applied": [
+   1,
+   1,
+   1
+  ],
+  "bounds_min": [
+   -0.3,
+   -0.7,
+   0.0
+  ],
+  "bounds_max": [
+   0.3,
+   0.3,
+   2.5
+  ],
+  "points": {
+   "InputPoint": {
+    "pos": [
+     0.0,
+     -0.5,
+     2.0
+    ],
+    "forward": [
+     0.0,
+     1.0,
+     0.0
+    ]
+   },
+   "WorkPoint_0": {
+    "pos": [
+     0.0,
+     -1.3,
+     0.0
+    ],
+    "forward": [
+     0.0,
+     1.0,
+     0.0
+    ]
+   }
+  },
+  "work": {
+   "clip": "PutDown",
+   "tool": null,
+   "stand": [
+    0.0,
+    -1.3,
+    0.0
+   ],
+   "facing": [
+    0,
+    1,
+    0
+   ],
+   "turn": 3.1416
+  },
+  "hinges": [],
+  "name_ko": "등불",
+  "building_kind": "Lantern",
+  "catalog_section": "보관·전력",
+  "memo": "기름 채우기",
+  "source": "FURNITURE-97"
+ },
+ "CC_Torch": {
+  "scale_applied": [
+   1,
+   1,
+   1
+  ],
+  "bounds_min": [
+   -0.313,
+   -0.298,
+   0.0
+  ],
+  "bounds_max": [
+   0.313,
+   0.298,
+   2.55
+  ],
+  "points": {
+   "InputPoint": {
+    "pos": [
+     0.0,
+     0.0,
+     2.05
+    ],
+    "forward": [
+     0.0,
+     1.0,
+     0.0
+    ]
+   },
+   "WorkPoint_0": {
+    "pos": [
+     0.0,
+     -1.1,
+     0.05
+    ],
+    "forward": [
+     0.0,
+     1.0,
+     0.0
+    ]
+   }
+  },
+  "work": {
+   "clip": "PutDown",
+   "tool": null,
+   "stand": [
+    0.0,
+    -1.1,
+    0.05
+   ],
+   "facing": [
+    0,
+    1,
+    0
+   ],
+   "turn": 3.1416
+  },
+  "hinges": [],
+  "name_ko": "횃불",
+  "building_kind": "Torch",
+  "catalog_section": "보관·전력",
+  "memo": "불 붙이기·교체",
+  "source": "FURNITURE-97"
+ },
+ "CC_FireflyLamp": {
+  "scale_applied": [
+   1,
+   1,
+   1
+  ],
+  "bounds_min": [
+   -0.304,
+   -0.32,
+   0.0
+  ],
+  "bounds_max": [
+   0.304,
+   0.32,
+   2.0
+  ],
+  "points": {
+   "InputPoint": {
+    "pos": [
+     0.0,
+     0.0,
+     1.9
+    ],
+    "forward": [
+     0.0,
+     1.0,
+     0.0
+    ]
+   },
+   "WorkPoint_0": {
+    "pos": [
+     0.0,
+     -1.1,
+     0.0
+    ],
+    "forward": [
+     0.0,
+     1.0,
+     0.0
+    ]
+   }
+  },
+  "work": {
+   "clip": "PutDown",
+   "tool": null,
+   "stand": [
+    0.0,
+    -1.1,
+    0.0
+   ],
+   "facing": [
+    0,
+    1,
+    0
+   ],
+   "turn": 3.1416
+  },
+  "hinges": [],
+  "name_ko": "반딧불 등",
+  "building_kind": "FireflyLamp",
+  "catalog_section": "보관·전력",
+  "memo": "반딧불 먹이 넣기",
+  "source": "FURNITURE-97"
+ },
+ "CC_Treadmill": {
+  "scale_applied": [
+   1,
+   1,
+   1
+  ],
+  "bounds_min": [
+   -1.247,
+   -1.8,
+   0.0
+  ],
+  "bounds_max": [
+   1.247,
+   1.8,
+   3.719
+  ],
+  "points": {
+   "WorkPoint_0": {
+    "pos": [
+     0.0,
+     0.0,
+     0.199
+    ],
+    "forward": [
+     0.0,
+     1.0,
+     0.0
+    ]
+   }
+  },
+  "work": {
+   "clip": "Run",
+   "tool": null,
+   "stand": [
+    0.0,
+    0.0,
+    0.199
+   ],
+   "facing": [
+    0,
+    -1,
+    0
+   ],
+   "turn": 0
+  },
+  "hinges": [
+   {
+    "pivot": "CC_Treadmill__Wheel_Pivot",
+    "axis": "X",
+    "open_deg": -360,
+    "mode": "spin",
+    "frames": 48
+   }
+  ],
+  "name_ko": "쳇바퀴",
+  "building_kind": "Treadmill",
+  "catalog_section": "보관·전력",
+  "memo": "바퀴 안에서 달려 발전",
+  "source": "FURNITURE-97"
+ },
+ "CC_PowerWire": {
+  "scale_applied": [
+   1,
+   1,
+   1
+  ],
+  "bounds_min": [
+   -1.28,
+   -0.077,
+   0.0
+  ],
+  "bounds_max": [
+   1.28,
+   0.077,
+   1.72
+  ],
+  "points": {
+   "WorkPoint_0": {
+    "pos": [
+     0.0,
+     -1.0,
+     0.0
+    ],
+    "forward": [
+     0.0,
+     1.0,
+     0.0
+    ]
+   }
+  },
+  "work": {
+   "clip": "Hammer",
+   "tool": "Tool_Hammer",
+   "stand": [
+    0.0,
+    -1.0,
+    0.0
+   ],
+   "facing": [
+    0,
+    1,
+    0
+   ],
+   "turn": 3.1416
+  },
+  "hinges": [],
+  "name_ko": "전선",
+  "building_kind": "PowerWire",
+  "catalog_section": "보관·전력",
+  "memo": "설치·수리 때만",
+  "source": "FURNITURE-97"
+ },
+ "CC_MushroomFarm": {
+  "scale_applied": [
+   1,
+   1,
+   1
+  ],
+  "bounds_min": [
+   -1.256,
+   -1.206,
+   0.0
+  ],
+  "bounds_max": [
+   1.256,
+   1.206,
+   0.894
+  ],
+  "points": {
+   "WorkPoint_0": {
+    "pos": [
+     0.0,
+     -1.75,
+     -0.0058
+    ],
+    "forward": [
+     0.0,
+     1.0,
+     0.0
+    ]
+   }
+  },
+  "work": {
+   "clip": "GroundWork",
+   "tool": null,
+   "stand": [
+    0.0,
+    -1.75,
+    -0.0058
+   ],
+   "facing": [
+    0,
+    1,
+    0
+   ],
+   "turn": 3.1416
+  },
+  "hinges": [],
+  "name_ko": "버섯밭",
+  "building_kind": "MushroomFarm",
+  "catalog_section": "농업·목장",
+  "memo": "버섯 돌보기·수확",
+  "source": "FURNITURE-97"
+ },
+ "CC_AphidPen": {
+  "scale_applied": [
+   1,
+   1,
+   1
+  ],
+  "bounds_min": [
+   -1.675,
+   -1.4,
+   0.0
+  ],
+  "bounds_max": [
+   1.675,
+   1.4,
+   1.98
+  ],
+  "points": {
+   "InputPoint": {
+    "pos": [
+     0.0,
+     -1.0,
+     0.45
+    ],
+    "forward": [
+     0.0,
+     1.0,
+     0.0
+    ]
+   },
+   "WorkPoint_0": {
+    "pos": [
+     0.0,
+     -1.85,
+     0.0
+    ],
+    "forward": [
+     0.0,
+     1.0,
+     0.0
+    ]
+   }
+  },
+  "work": {
+   "clip": "PutDown",
+   "tool": null,
+   "stand": [
+    0.0,
+    -1.85,
+    0.0
+   ],
+   "facing": [
+    0,
+    1,
+    0
+   ],
+   "turn": 3.1416
+  },
+  "hinges": [],
+  "name_ko": "축사",
+  "building_kind": "AphidPen",
+  "catalog_section": "농업·목장",
+  "memo": "여물통에 먹이 붓기(가축은 critter-kit)",
+  "source": "FURNITURE-97"
+ },
+ "CC_Hearth": {
+  "scale_applied": [
+   1,
+   1,
+   1
+  ],
+  "bounds_min": [
+   -0.9,
+   -0.66,
+   0.0
+  ],
+  "bounds_max": [
+   0.9,
+   0.65,
+   2.2
+  ],
+  "points": {
+   "HandTarget": {
+    "pos": [
+     0.0,
+     -0.2,
+     0.85
+    ],
+    "forward": [
+     0.0,
+     1.0,
+     0.0
+    ]
+   },
+   "WorkPoint_0": {
+    "pos": [
+     0.0,
+     -1.3,
+     0.0
+    ],
+    "forward": [
+     0.0,
+     1.0,
+     0.0
+    ]
+   }
+  },
+  "work": {
+   "clip": "Stir",
+   "tool": "Tool_Spoon",
+   "stand": [
+    0.0,
+    -1.3,
+    0.0
+   ],
+   "facing": [
+    0,
+    1,
+    0
+   ],
+   "turn": 3.1416,
+   "hand_target": [
+    0.0,
+    -0.2,
+    0.85
+   ],
+   "tool_contact": [
+    0.0,
+    -0.2,
+    0.85
+   ]
+  },
+  "hinges": [],
+  "name_ko": "화덕",
+  "building_kind": "Hearth",
+  "catalog_section": "생활",
+  "memo": "솥 젓기",
+  "source": "FURNITURE-97"
+ },
+ "CC_CareStation": {
+  "scale_applied": [
+   1,
+   1,
+   1
+  ],
+  "bounds_min": [
+   -1.0,
+   -0.6,
+   0.0
+  ],
+  "bounds_max": [
+   1.0,
+   0.6,
+   1.12
+  ],
+  "points": {
+   "HandTarget": {
+    "pos": [
+     0.0,
+     -0.2,
+     0.9
+    ],
+    "forward": [
+     0.0,
+     1.0,
+     0.0
+    ]
+   },
+   "WorkPoint_0": {
+    "pos": [
+     0.0,
+     -1.25,
+     0.0
+    ],
+    "forward": [
+     0.0,
+     1.0,
+     0.0
+    ]
+   }
+  },
+  "work": {
+   "clip": "Treat",
+   "tool": null,
+   "stand": [
+    0.0,
+    -1.25,
+    0.0
+   ],
+   "facing": [
+    0,
+    1,
+    0
+   ],
+   "turn": 3.1416,
+   "hand_target": [
+    0.0,
+    -0.2,
+    0.9
+   ]
+  },
+  "hinges": [],
+  "name_ko": "돌봄대",
+  "building_kind": "CareStation",
+  "catalog_section": "농업·목장",
+  "memo": "가축 돌보기",
+  "source": "FURNITURE-97"
+ },
+ "CC_Carpentry": {
+  "scale_applied": [
+   1,
+   1,
+   1
+  ],
+  "bounds_min": [
+   -1.2,
+   -0.6,
+   0.0
+  ],
+  "bounds_max": [
+   1.2,
+   0.6,
+   1.0
+  ],
+  "points": {
+   "HandTarget": {
+    "pos": [
+     0.0,
+     -0.25,
+     0.86
+    ],
+    "forward": [
+     0.0,
+     1.0,
+     0.0
+    ]
+   },
+   "WorkPoint_0": {
+    "pos": [
+     0.0,
+     -1.25,
+     0.0
+    ],
+    "forward": [
+     0.0,
+     1.0,
+     0.0
+    ]
+   }
+  },
+  "work": {
+   "clip": "Saw",
+   "tool": "Tool_Saw",
+   "stand": [
+    0.0,
+    -1.25,
+    0.0
+   ],
+   "facing": [
+    0,
+    1,
+    0
+   ],
+   "turn": 3.1416,
+   "hand_target": [
+    0.0,
+    -0.25,
+    0.86
+   ],
+   "tool_contact": [
+    0.0,
+    -0.25,
+    0.86
+   ]
+  },
+  "hinges": [],
+  "name_ko": "목공대",
+  "building_kind": "Carpentry",
+  "catalog_section": "생산·연구",
+  "memo": "판재 톱질",
+  "source": "FURNITURE-97"
+ },
+ "CC_Stonecutter": {
+  "scale_applied": [
+   1,
+   1,
+   1
+  ],
+  "bounds_min": [
+   -1.1,
+   -0.6,
+   0.0
+  ],
+  "bounds_max": [
+   1.1,
+   0.6,
+   1.2
+  ],
+  "points": {
+   "HandTarget": {
+    "pos": [
+     0.0,
+     -0.3,
+     1.0
+    ],
+    "forward": [
+     0.0,
+     1.0,
+     0.0
+    ]
+   },
+   "WorkPoint_0": {
+    "pos": [
+     0.0,
+     -1.25,
+     0.0
+    ],
+    "forward": [
+     0.0,
+     1.0,
+     0.0
+    ]
+   }
+  },
+  "work": {
+   "clip": "Hammer",
+   "tool": "Tool_Hammer",
+   "stand": [
+    0.0,
+    -1.25,
+    0.0
+   ],
+   "facing": [
+    0,
+    1,
+    0
+   ],
+   "turn": 3.1416,
+   "hand_target": [
+    0.0,
+    -0.3,
+    1.0
+   ],
+   "tool_contact": [
+    0.0,
+    -0.3,
+    1.0
+   ]
+  },
+  "hinges": [],
+  "name_ko": "석공대",
+  "building_kind": "Stonecutter",
+  "catalog_section": "생산·연구",
+  "memo": "돌 다듬기",
+  "source": "FURNITURE-97"
+ },
+ "CC_SpinningWheel": {
+  "scale_applied": [
+   1,
+   1,
+   1
+  ],
+  "bounds_min": [
+   -0.8,
+   -1.09,
+   -0.0
+  ],
+  "bounds_max": [
+   0.8,
+   1.135,
+   1.757
+  ],
+  "points": {
+   "HandTarget": {
+    "pos": [
+     0.0,
+     -0.05,
+     0.922
+    ],
+    "forward": [
+     0.0,
+     1.0,
+     0.0
+    ]
+   },
+   "SeatPoint": {
+    "pos": [
+     0.0,
+     -0.75,
+     0.442
+    ],
+    "forward": [
+     0.0,
+     1.0,
+     0.0
+    ]
+   },
+   "WorkPoint_0": {
+    "pos": [
+     0.0,
+     -1.6,
+     0.022
+    ],
+    "forward": [
+     0.0,
+     1.0,
+     0.0
+    ]
+   }
+  },
+  "work": {
+   "clip": "Spin",
+   "tool": null,
+   "stand": [
+    0.0,
+    -1.6,
+    0.022
+   ],
+   "facing": [
+    0,
+    1,
+    0
+   ],
+   "turn": 3.1416,
+   "hand_target": [
+    0.0,
+    -0.05,
+    0.922
+   ],
+   "seat": [
+    0.0,
+    -0.75,
+    0.442
+   ]
+  },
+  "hinges": [
+   {
+    "pivot": "CC_SpinningWheel__Wheel_Pivot",
+    "axis": "X",
+    "open_deg": 360,
+    "mode": "spin",
+    "frames": 48
+   }
+  ],
+  "name_ko": "물레",
+  "building_kind": "SpinningWheel",
+  "catalog_section": "생산·연구",
+  "memo": "앉아서 물레 돌리기",
+  "source": "FURNITURE-97"
+ },
+ "CC_Smelter": {
+  "scale_applied": [
+   1,
+   1,
+   1
+  ],
+  "bounds_min": [
+   -0.808,
+   -1.05,
+   0.0
+  ],
+  "bounds_max": [
+   1.15,
+   0.85,
+   2.6
+  ],
+  "points": {
+   "InputPoint": {
+    "pos": [
+     0.0,
+     -0.85,
+     0.5
+    ],
+    "forward": [
+     0.0,
+     1.0,
+     0.0
+    ]
+   },
+   "WorkPoint_0": {
+    "pos": [
+     0.0,
+     -1.75,
+     0.0
+    ],
+    "forward": [
+     0.0,
+     1.0,
+     0.0
+    ]
+   }
+  },
+  "work": {
+   "clip": "PutDown",
+   "tool": null,
+   "stand": [
+    0.0,
+    -1.75,
+    0.0
+   ],
+   "facing": [
+    0,
+    1,
+    0
+   ],
+   "turn": 3.1416
+  },
+  "hinges": [],
+  "name_ko": "용광로·제련소",
+  "building_kind": "Smelter",
+  "catalog_section": "생산·연구",
+  "memo": "광석·연료 투입",
+  "source": "FURNITURE-97"
+ },
+ "CC_Kiln": {
+  "scale_applied": [
+   1,
+   1,
+   1
+  ],
+  "bounds_min": [
+   -1.094,
+   -1.01,
+   0.0
+  ],
+  "bounds_max": [
+   1.7,
+   1.0,
+   2.25
+  ],
+  "points": {
+   "InputPoint": {
+    "pos": [
+     0.0,
+     -1.0,
+     0.85
+    ],
+    "forward": [
+     0.0,
+     1.0,
+     0.0
+    ]
+   },
+   "WorkPoint_0": {
+    "pos": [
+     0.0,
+     -1.75,
+     0.3
+    ],
+    "forward": [
+     0.0,
+     1.0,
+     0.0
+    ]
+   }
+  },
+  "work": {
+   "clip": "Pickup",
+   "tool": null,
+   "stand": [
+    0.0,
+    -1.75,
+    0.3
+   ],
+   "facing": [
+    0,
+    1,
+    0
+   ],
+   "turn": 3.1416
+  },
+  "hinges": [],
+  "name_ko": "유리 가마",
+  "building_kind": "Kiln",
+  "catalog_section": "생산·연구",
+  "memo": "구운 유리 꺼내기",
+  "source": "FURNITURE-97"
+ },
+ "CC_MineField": {
+  "scale_applied": [
+   1,
+   1,
+   1
+  ],
+  "bounds_min": [
+   -1.3,
+   -1.2,
+   0.0
+  ],
+  "bounds_max": [
+   1.3,
+   1.1,
+   1.33
+  ],
+  "points": {
+   "WorkPoint_0": {
+    "pos": [
+     0.0,
+     -1.6,
+     0.05
+    ],
+    "forward": [
+     0.0,
+     1.0,
+     0.0
+    ]
+   }
+  },
+  "work": {
+   "clip": "GroundWork",
+   "tool": null,
+   "stand": [
+    0.0,
+    -1.6,
+    0.05
+   ],
+   "facing": [
+    0,
+    1,
+    0
+   ],
+   "turn": 3.1416
+  },
+  "hinges": [],
+  "name_ko": "폭발 함정",
+  "building_kind": "MineField",
+  "catalog_section": "건설·방어",
+  "memo": "묻기·해체 때만",
+  "source": "FURNITURE-97"
+ },
+ "CC_BoardGame": {
+  "scale_applied": [
+   1,
+   1,
+   1
+  ],
+  "bounds_min": [
+   -0.65,
+   -1.34,
+   0.0
+  ],
+  "bounds_max": [
+   0.65,
+   1.34,
+   0.722
+  ],
+  "points": {
+   "HandTarget": {
+    "pos": [
+     0.0,
+     -0.2,
+     0.682
+    ],
+    "forward": [
+     0.0,
+     1.0,
+     0.0
+    ]
+   },
+   "SeatPoint": {
+    "pos": [
+     0.0,
+     -1.0,
+     0.442
+    ],
+    "forward": [
+     0.0,
+     1.0,
+     0.0
+    ]
+   },
+   "WorkPoint_0": {
+    "pos": [
+     0.0,
+     -1.9,
+     0.022
+    ],
+    "forward": [
+     0.0,
+     1.0,
+     0.0
+    ]
+   }
+  },
+  "work": {
+   "clip": "PlayBoard",
+   "tool": null,
+   "stand": [
+    0.0,
+    -1.9,
+    0.022
+   ],
+   "facing": [
+    0,
+    1,
+    0
+   ],
+   "turn": 3.1416,
+   "hand_target": [
+    0.0,
+    -0.2,
+    0.682
+   ],
+   "seat": [
+    0.0,
+    -1.0,
+    0.442
+   ]
+  },
+  "hinges": [],
+  "name_ko": "놀이판",
+  "building_kind": "BoardGame",
+  "catalog_section": "휴게·장식",
+  "memo": "마주 앉아 말 옮기기",
+  "source": "FURNITURE-97"
+ },
+ "CC_Janggi": {
+  "scale_applied": [
+   1,
+   1,
+   1
+  ],
+  "bounds_min": [
+   -0.65,
+   -1.34,
+   0.0
+  ],
+  "bounds_max": [
+   0.65,
+   1.34,
+   0.732
+  ],
+  "points": {
+   "HandTarget": {
+    "pos": [
+     0.0,
+     -0.2,
+     0.682
+    ],
+    "forward": [
+     0.0,
+     1.0,
+     0.0
+    ]
+   },
+   "SeatPoint": {
+    "pos": [
+     0.0,
+     -1.0,
+     0.442
+    ],
+    "forward": [
+     0.0,
+     1.0,
+     0.0
+    ]
+   },
+   "WorkPoint_0": {
+    "pos": [
+     0.0,
+     -1.9,
+     0.022
+    ],
+    "forward": [
+     0.0,
+     1.0,
+     0.0
+    ]
+   }
+  },
+  "work": {
+   "clip": "PlayBoard",
+   "tool": null,
+   "stand": [
+    0.0,
+    -1.9,
+    0.022
+   ],
+   "facing": [
+    0,
+    1,
+    0
+   ],
+   "turn": 3.1416,
+   "hand_target": [
+    0.0,
+    -0.2,
+    0.682
+   ],
+   "seat": [
+    0.0,
+    -1.0,
+    0.442
+   ]
+  },
+  "hinges": [],
+  "name_ko": "장기판",
+  "building_kind": "Janggi",
+  "catalog_section": "휴게·장식",
+  "memo": "마주 앉아 장기",
+  "source": "FURNITURE-97"
+ },
+ "CC_Baduk": {
+  "scale_applied": [
+   1,
+   1,
+   1
+  ],
+  "bounds_min": [
+   -0.65,
+   -1.34,
+   0.0
+  ],
+  "bounds_max": [
+   0.65,
+   1.34,
+   0.852
+  ],
+  "points": {
+   "HandTarget": {
+    "pos": [
+     0.0,
+     -0.2,
+     0.682
+    ],
+    "forward": [
+     0.0,
+     1.0,
+     0.0
+    ]
+   },
+   "SeatPoint": {
+    "pos": [
+     0.0,
+     -1.0,
+     0.442
+    ],
+    "forward": [
+     0.0,
+     1.0,
+     0.0
+    ]
+   },
+   "WorkPoint_0": {
+    "pos": [
+     0.0,
+     -1.9,
+     0.022
+    ],
+    "forward": [
+     0.0,
+     1.0,
+     0.0
+    ]
+   }
+  },
+  "work": {
+   "clip": "PlayBoard",
+   "tool": null,
+   "stand": [
+    0.0,
+    -1.9,
+    0.022
+   ],
+   "facing": [
+    0,
+    1,
+    0
+   ],
+   "turn": 3.1416,
+   "hand_target": [
+    0.0,
+    -0.2,
+    0.682
+   ],
+   "seat": [
+    0.0,
+    -1.0,
+    0.442
+   ]
+  },
+  "hinges": [],
+  "name_ko": "바둑판",
+  "building_kind": "Baduk",
+  "catalog_section": "휴게·장식",
+  "memo": "마주 앉아 바둑",
+  "source": "FURNITURE-97"
+ },
+ "CC_WrestlingRing": {
+  "scale_applied": [
+   1,
+   1,
+   1
+  ],
+  "bounds_min": [
+   -2.657,
+   -2.657,
+   0.0
+  ],
+  "bounds_max": [
+   2.657,
+   2.657,
+   0.7
+  ],
+  "points": {
+   "WorkPoint_0": {
+    "pos": [
+     0.0,
+     -0.75,
+     0.12
+    ],
+    "forward": [
+     0.0,
+     1.0,
+     0.0
+    ]
+   }
+  },
+  "work": {
+   "clip": "Wrestle",
+   "tool": null,
+   "stand": [
+    0.0,
+    -0.75,
+    0.12
+   ],
+   "facing": [
+    0,
+    1,
+    0
+   ],
+   "turn": 3.1416
+  },
+  "hinges": [],
+  "name_ko": "씨름판",
+  "building_kind": "WrestlingRing",
+  "catalog_section": "휴게·장식",
+  "memo": "모래판에서 씨름",
+  "source": "FURNITURE-97"
+ },
+ "CC_DartBoard": {
+  "scale_applied": [
+   1,
+   1,
+   1
+  ],
+  "bounds_min": [
+   -0.591,
+   -0.402,
+   -0.0
+  ],
+  "bounds_max": [
+   0.591,
+   0.383,
+   2.161
+  ],
+  "points": {
+   "WorkPoint_0": {
+    "pos": [
+     0.0,
+     -3.2,
+     0.0114
+    ],
+    "forward": [
+     0.0,
+     1.0,
+     0.0
+    ]
+   }
+  },
+  "work": {
+   "clip": "Throw",
+   "tool": null,
+   "stand": [
+    0.0,
+    -3.2,
+    0.0114
+   ],
+   "facing": [
+    0,
+    1,
+    0
+   ],
+   "turn": 3.1416
+  },
+  "hinges": [],
+  "name_ko": "가시 다트",
+  "building_kind": "DartBoard",
+  "catalog_section": "휴게·장식",
+  "memo": "떨어져서 가시 던지기",
+  "source": "FURNITURE-97"
+ },
+ "CC_Instrument": {
+  "scale_applied": [
+   1,
+   1,
+   1
+  ],
+  "bounds_min": [
+   -1.037,
+   -0.5,
+   0.0
+  ],
+  "bounds_max": [
+   0.89,
+   0.8,
+   0.825
+  ],
+  "points": {
+   "HandTarget": {
+    "pos": [
+     0.0,
+     -0.2,
+     0.78
+    ],
+    "forward": [
+     0.0,
+     1.0,
+     0.0
+    ]
+   },
+   "WorkPoint_0": {
+    "pos": [
+     0.0,
+     -1.2,
+     0.0
+    ],
+    "forward": [
+     0.0,
+     1.0,
+     0.0
+    ]
+   }
+  },
+  "work": {
+   "clip": "PlayMusic",
+   "tool": null,
+   "stand": [
+    0.0,
+    -1.2,
+    0.0
+   ],
+   "facing": [
+    0,
+    1,
+    0
+   ],
+   "turn": 3.1416,
+   "hand_target": [
+    0.0,
+    -0.2,
+    0.78
+   ]
+  },
+  "hinges": [],
+  "name_ko": "악기",
+  "building_kind": "Instrument",
+  "catalog_section": "휴게·장식",
+  "memo": "북·실로폰 연주",
+  "source": "FURNITURE-97"
+ },
+ "CC_ExerciseRig": {
+  "scale_applied": [
+   1,
+   1,
+   1
+  ],
+  "bounds_min": [
+   -1.178,
+   -0.355,
+   0.0
+  ],
+  "bounds_max": [
+   1.178,
+   0.472,
+   2.6
+  ],
+  "points": {
+   "WorkPoint_0": {
+    "pos": [
+     0.0,
+     -0.6,
+     0.0
+    ],
+    "forward": [
+     0.0,
+     1.0,
+     0.0
+    ]
+   }
+  },
+  "work": {
+   "clip": "Exercise",
+   "tool": null,
+   "stand": [
+    0.0,
+    -0.6,
+    0.0
+   ],
+   "facing": [
+    0,
+    1,
+    0
+   ],
+   "turn": 3.1416
+  },
+  "hinges": [],
+  "name_ko": "운동기구",
+  "building_kind": "ExerciseRig",
+  "catalog_section": "휴게·장식",
+  "memo": "돌 역기 들기",
+  "source": "FURNITURE-97"
+ },
+ "CC_WebSwing": {
+  "scale_applied": [
+   1,
+   1,
+   1
+  ],
+  "bounds_min": [
+   -1.4,
+   -0.987,
+   -0.0
+  ],
+  "bounds_max": [
+   1.4,
+   0.987,
+   3.302
+  ],
+  "points": {
+   "SeatPoint": {
+    "pos": [
+     0.0,
+     0.0,
+     0.592
+    ],
+    "forward": [
+     0.0,
+     1.0,
+     0.0
+    ]
+   },
+   "WorkPoint_0": {
+    "pos": [
+     0.0,
+     -1.4,
+     0.022
+    ],
+    "forward": [
+     0.0,
+     1.0,
+     0.0
+    ]
+   }
+  },
+  "work": {
+   "clip": "Swing",
+   "tool": null,
+   "stand": [
+    0.0,
+    -1.4,
+    0.022
+   ],
+   "facing": [
+    0,
+    -1,
+    0
+   ],
+   "turn": 0,
+   "seat": [
+    0.0,
+    0.0,
+    0.592
+   ],
+   "ride": "CC_WebSwing__Swing_Seat"
+  },
+  "hinges": [
+   {
+    "pivot": "CC_WebSwing__Swing_Pivot",
+    "axis": "X",
+    "open_deg": 25,
+    "mode": "rock",
+    "frames": 48
+   }
+  ],
+  "name_ko": "거미줄 그네",
+  "building_kind": "WebSwing",
+  "catalog_section": "휴게·장식",
+  "memo": "그네 타기",
+  "source": "FURNITURE-97"
+ },
+ "CC_GamblingDen": {
+  "scale_applied": [
+   1,
+   1,
+   1
+  ],
+  "bounds_min": [
+   -0.731,
+   -1.34,
+   0.0
+  ],
+  "bounds_max": [
+   0.731,
+   1.34,
+   0.862
+  ],
+  "points": {
+   "HandTarget": {
+    "pos": [
+     0.0,
+     -0.2,
+     0.642
+    ],
+    "forward": [
+     0.0,
+     1.0,
+     0.0
+    ]
+   },
+   "SeatPoint": {
+    "pos": [
+     0.0,
+     -1.0,
+     0.442
+    ],
+    "forward": [
+     0.0,
+     1.0,
+     0.0
+    ]
+   },
+   "WorkPoint_0": {
+    "pos": [
+     0.0,
+     -1.9,
+     0.022
+    ],
+    "forward": [
+     0.0,
+     1.0,
+     0.0
+    ]
+   }
+  },
+  "work": {
+   "clip": "PlayBoard",
+   "tool": null,
+   "stand": [
+    0.0,
+    -1.9,
+    0.022
+   ],
+   "facing": [
+    0,
+    1,
+    0
+   ],
+   "turn": 3.1416,
+   "hand_target": [
+    0.0,
+    -0.2,
+    0.642
+   ],
+   "seat": [
+    0.0,
+    -1.0,
+    0.442
+   ]
+  },
+  "hinges": [],
+  "name_ko": "주사위 도박판",
+  "building_kind": "GamblingDen",
+  "catalog_section": "휴게·장식",
+  "memo": "주사위 굴리기",
+  "source": "FURNITURE-97"
+ },
+ "CC_Bathtub": {
+  "scale_applied": [
+   1,
+   1,
+   1
+  ],
+  "bounds_min": [
+   -1.15,
+   -1.14,
+   0.0
+  ],
+  "bounds_max": [
+   1.15,
+   1.094,
+   0.85
+  ],
+  "points": {
+   "SeatPoint": {
+    "pos": [
+     0.0,
+     0.0,
+     0.4
+    ],
+    "forward": [
+     0.0,
+     1.0,
+     0.0
+    ]
+   },
+   "WorkPoint_0": {
+    "pos": [
+     0.0,
+     -1.9,
+     0.0
+    ],
+    "forward": [
+     0.0,
+     1.0,
+     0.0
+    ]
+   }
+  },
+  "work": {
+   "clip": "Bathe",
+   "tool": null,
+   "stand": [
+    0.0,
+    -1.9,
+    0.0
+   ],
+   "facing": [
+    0,
+    -1,
+    0
+   ],
+   "turn": 0,
+   "seat": [
+    0.0,
+    0.0,
+    0.4
+   ]
+  },
+  "hinges": [],
+  "name_ko": "목욕통",
+  "building_kind": "Bathtub",
+  "catalog_section": "생활",
+  "memo": "통 안에 앉아 목욕",
+  "source": "FURNITURE-97"
+ },
+ "CC_HotSpring": {
+  "scale_applied": [
+   1,
+   1,
+   1
+  ],
+  "bounds_min": [
+   -2.702,
+   -2.583,
+   0.0
+  ],
+  "bounds_max": [
+   2.702,
+   2.583,
+   1.11
+  ],
+  "points": {
+   "SeatPoint": {
+    "pos": [
+     0.0,
+     -0.6,
+     0.45
+    ],
+    "forward": [
+     0.0,
+     1.0,
+     0.0
+    ]
+   },
+   "WorkPoint_0": {
+    "pos": [
+     0.0,
+     -3.1,
+     0.1
+    ],
+    "forward": [
+     0.0,
+     1.0,
+     0.0
+    ]
+   }
+  },
+  "work": {
+   "clip": "Bathe",
+   "tool": null,
+   "stand": [
+    0.0,
+    -3.1,
+    0.1
+   ],
+   "facing": [
+    0,
+    -1,
+    0
+   ],
+   "turn": 0,
+   "seat": [
+    0.0,
+    -0.6,
+    0.45
+   ]
+  },
+  "hinges": [],
+  "name_ko": "온천",
+  "building_kind": "HotSpring",
+  "catalog_section": "휴게·장식",
+  "memo": "온천에 몸 담그기",
+  "source": "FURNITURE-97"
+ },
+ "CC_Statue": {
+  "scale_applied": [
+   1,
+   1,
+   1
+  ],
+  "bounds_min": [
+   -0.55,
+   -0.55,
+   0.0
+  ],
+  "bounds_max": [
+   0.55,
+   0.55,
+   2.124
+  ],
+  "points": {
+   "WorkPoint_0": {
+    "pos": [
+     0.0,
+     -1.5,
+     0.0
+    ],
+    "forward": [
+     0.0,
+     1.0,
+     0.0
+    ]
+   }
+  },
+  "work": {
+   "clip": "Inspect",
+   "tool": null,
+   "stand": [
+    0.0,
+    -1.5,
+    0.0
+   ],
+   "facing": [
+    0,
+    1,
+    0
+   ],
+   "turn": 3.1416
+  },
+  "hinges": [],
+  "name_ko": "조각상",
+  "building_kind": "Statue",
+  "catalog_section": "휴게·장식",
+  "memo": "감상",
+  "source": "FURNITURE-97"
+ },
+ "CC_FlowerPot": {
+  "scale_applied": [
+   1,
+   1,
+   1
+  ],
+  "bounds_min": [
+   -0.5,
+   -0.476,
+   0.0
+  ],
+  "bounds_max": [
+   0.5,
+   0.476,
+   1.2
+  ],
+  "points": {
+   "HandTarget": {
+    "pos": [
+     0.0,
+     -0.1,
+     0.7
+    ],
+    "forward": [
+     0.0,
+     1.0,
+     0.0
+    ]
+   },
+   "WorkPoint_0": {
+    "pos": [
+     0.0,
+     -1.2,
+     0.0
+    ],
+    "forward": [
+     0.0,
+     1.0,
+     0.0
+    ]
+   }
+  },
+  "work": {
+   "clip": "WaterPlant",
+   "tool": "Prop_WateringCan",
+   "stand": [
+    0.0,
+    -1.2,
+    0.0
+   ],
+   "facing": [
+    0,
+    1,
+    0
+   ],
+   "turn": 3.1416,
+   "hand_target": [
+    0.0,
+    -0.1,
+    0.7
+   ],
+   "tool_contact": [
+    0.0,
+    -0.1,
+    0.7
+   ]
+  },
+  "hinges": [],
+  "name_ko": "화분",
+  "building_kind": "FlowerPot",
+  "catalog_section": "휴게·장식",
+  "memo": "물 주기",
+  "source": "FURNITURE-97"
+ },
+ "CC_Flag": {
+  "scale_applied": [
+   1,
+   1,
+   1
+  ],
+  "bounds_min": [
+   -0.402,
+   -0.383,
+   0.0
+  ],
+  "bounds_max": [
+   1.15,
+   0.383,
+   3.5
+  ],
+  "points": {
+   "WorkPoint_0": {
+    "pos": [
+     0.0,
+     -1.3,
+     0.1
+    ],
+    "forward": [
+     0.0,
+     1.0,
+     0.0
+    ]
+   }
+  },
+  "work": {
+   "clip": "Inspect",
+   "tool": null,
+   "stand": [
+    0.0,
+    -1.3,
+    0.1
+   ],
+   "facing": [
+    0,
+    1,
+    0
+   ],
+   "turn": 3.1416
+  },
+  "hinges": [],
+  "name_ko": "깃발",
+  "building_kind": "Flag",
+  "catalog_section": "휴게·장식",
+  "memo": "감상",
+  "source": "FURNITURE-97"
+ },
+ "CC_Painting": {
+  "scale_applied": [
+   1,
+   1,
+   1
+  ],
+  "bounds_min": [
+   -0.55,
+   -0.16,
+   0.0
+  ],
+  "bounds_max": [
+   0.55,
+   0.539,
+   2.015
+  ],
+  "points": {
+   "WorkPoint_0": {
+    "pos": [
+     0.0,
+     -1.3,
+     0.0083
+    ],
+    "forward": [
+     0.0,
+     1.0,
+     0.0
+    ]
+   }
+  },
+  "work": {
+   "clip": "Inspect",
+   "tool": null,
+   "stand": [
+    0.0,
+    -1.3,
+    0.0083
+   ],
+   "facing": [
+    0,
+    1,
+    0
+   ],
+   "turn": 3.1416
+  },
+  "hinges": [],
+  "name_ko": "그림",
+  "building_kind": "Painting",
+  "catalog_section": "휴게·장식",
+  "memo": "감상",
+  "source": "FURNITURE-97"
+ },
+ "CC_ShellDecoration": {
+  "scale_applied": [
+   1,
+   1,
+   1
+  ],
+  "bounds_min": [
+   -0.716,
+   -0.595,
+   -0.0
+  ],
+  "bounds_max": [
+   0.716,
+   0.595,
+   1.17
+  ],
+  "points": {
+   "WorkPoint_0": {
+    "pos": [
+     0.0,
+     -1.3,
+     0.07
+    ],
+    "forward": [
+     0.0,
+     1.0,
+     0.0
+    ]
+   }
+  },
+  "work": {
+   "clip": "Inspect",
+   "tool": null,
+   "stand": [
+    0.0,
+    -1.3,
+    0.07
+   ],
+   "facing": [
+    0,
+    1,
+    0
+   ],
+   "turn": 3.1416
+  },
+  "hinges": [],
+  "name_ko": "조개껍데기",
+  "building_kind": "ShellDecoration",
+  "catalog_section": "휴게·장식",
+  "memo": "감상",
+  "source": "FURNITURE-97"
+ },
+ "CC_MarbleMosaic": {
+  "scale_applied": [
+   1,
+   1,
+   1
+  ],
+  "bounds_min": [
+   -0.8,
+   -0.201,
+   0.0
+  ],
+  "bounds_max": [
+   0.8,
+   0.35,
+   1.403
+  ],
+  "points": {
+   "WorkPoint_0": {
+    "pos": [
+     0.0,
+     -1.3,
+     0.0
+    ],
+    "forward": [
+     0.0,
+     1.0,
+     0.0
+    ]
+   }
+  },
+  "work": {
+   "clip": "Inspect",
+   "tool": null,
+   "stand": [
+    0.0,
+    -1.3,
+    0.0
+   ],
+   "facing": [
+    0,
+    1,
+    0
+   ],
+   "turn": 3.1416
+  },
+  "hinges": [],
+  "name_ko": "구슬 모자이크",
+  "building_kind": "MarbleMosaic",
+  "catalog_section": "휴게·장식",
+  "memo": "감상",
+  "source": "FURNITURE-97"
+ },
+ "CC_BottleMobile": {
+  "scale_applied": [
+   1,
+   1,
+   1
+  ],
+  "bounds_min": [
+   -0.88,
+   -0.81,
+   0.0
+  ],
+  "bounds_max": [
+   0.94,
+   0.88,
+   2.63
+  ],
+  "points": {
+   "WorkPoint_0": {
+    "pos": [
+     0.0,
+     -1.3,
+     0.0
+    ],
+    "forward": [
+     0.0,
+     1.0,
+     0.0
+    ]
+   }
+  },
+  "work": {
+   "clip": "Inspect",
+   "tool": null,
+   "stand": [
+    0.0,
+    -1.3,
+    0.0
+   ],
+   "facing": [
+    0,
+    1,
+    0
+   ],
+   "turn": 3.1416
+  },
+  "hinges": [
+   {
+    "pivot": "CC_BottleMobile__Mobile_Pivot",
+    "axis": "Z",
+    "open_deg": 360,
+    "mode": "spin",
+    "frames": 48
+   }
+  ],
+  "name_ko": "병뚜껑 모빌",
+  "building_kind": "BottleMobile",
+  "catalog_section": "휴게·장식",
+  "memo": "돌아가는 모빌 감상",
+  "source": "FURNITURE-97"
+ },
+ "CC_Carpet": {
+  "scale_applied": [
+   1,
+   1,
+   1
+  ],
+  "bounds_min": [
+   -1.2,
+   -1.5,
+   0.0
+  ],
+  "bounds_max": [
+   1.2,
+   1.5,
+   0.055
+  ],
+  "points": {
+   "SeatPoint": {
+    "pos": [
+     0.0,
+     0.0,
+     0.34
+    ],
+    "forward": [
+     0.0,
+     1.0,
+     0.0
+    ]
+   },
+   "WorkPoint_0": {
+    "pos": [
+     0.0,
+     -2.0,
+     0.0
+    ],
+    "forward": [
+     0.0,
+     1.0,
+     0.0
+    ]
+   }
+  },
+  "work": {
+   "clip": "Rest",
+   "tool": null,
+   "stand": [
+    0.0,
+    -2.0,
+    0.0
+   ],
+   "facing": [
+    0,
+    -1,
+    0
+   ],
+   "turn": 0,
+   "seat": [
+    0.0,
+    0.0,
+    0.34
+   ]
+  },
+  "hinges": [],
+  "name_ko": "카펫",
+  "building_kind": "Carpet",
+  "catalog_section": "휴게·장식",
+  "memo": "카펫에 앉아 쉬기",
+  "source": "FURNITURE-97"
+ },
+ "CC_Tapestry": {
+  "scale_applied": [
+   1,
+   1,
+   1
+  ],
+  "bounds_min": [
+   -1.0,
+   -0.07,
+   0.0
+  ],
+  "bounds_max": [
+   1.0,
+   0.054,
+   2.7
+  ],
+  "points": {
+   "WorkPoint_0": {
+    "pos": [
+     0.0,
+     -1.3,
+     0.0
+    ],
+    "forward": [
+     0.0,
+     1.0,
+     0.0
+    ]
+   }
+  },
+  "work": {
+   "clip": "Inspect",
+   "tool": null,
+   "stand": [
+    0.0,
+    -1.3,
+    0.0
+   ],
+   "facing": [
+    0,
+    1,
+    0
+   ],
+   "turn": 3.1416
+  },
+  "hinges": [],
+  "name_ko": "태피스트리",
+  "building_kind": "Tapestry",
+  "catalog_section": "휴게·장식",
+  "memo": "감상",
+  "source": "FURNITURE-97"
+ },
+ "CC_CuriosDisplay": {
+  "scale_applied": [
+   1,
+   1,
+   1
+  ],
+  "bounds_min": [
+   -0.95,
+   -0.3,
+   0.0
+  ],
+  "bounds_max": [
+   0.95,
+   0.3,
+   1.89
+  ],
+  "points": {
+   "WorkPoint_0": {
+    "pos": [
+     0.0,
+     -1.3,
+     0.0
+    ],
+    "forward": [
+     0.0,
+     1.0,
+     0.0
+    ]
+   }
+  },
+  "work": {
+   "clip": "Inspect",
+   "tool": null,
+   "stand": [
+    0.0,
+    -1.3,
+    0.0
+   ],
+   "facing": [
+    0,
+    1,
+    0
+   ],
+   "turn": 3.1416
+  },
+  "hinges": [],
+  "name_ko": "사람 물건 전시대",
+  "building_kind": "CuriosDisplay",
+  "catalog_section": "휴게·장식",
+  "memo": "감상",
+  "source": "FURNITURE-97"
+ },
+ "CC_Monument": {
+  "scale_applied": [
+   1,
+   1,
+   1
+  ],
+  "bounds_min": [
+   -0.9,
+   -0.9,
+   0.0
+  ],
+  "bounds_max": [
+   0.9,
+   0.9,
+   3.6
+  ],
+  "points": {
+   "WorkPoint_0": {
+    "pos": [
+     0.0,
+     -1.5,
+     0.0
+    ],
+    "forward": [
+     0.0,
+     1.0,
+     0.0
+    ]
+   }
+  },
+  "work": {
+   "clip": "Mourn",
+   "tool": null,
+   "stand": [
+    0.0,
+    -1.5,
+    0.0
+   ],
+   "facing": [
+    0,
+    1,
+    0
+   ],
+   "turn": 3.1416
+  },
+  "hinges": [],
+  "name_ko": "기념비",
+  "building_kind": "Monument",
+  "catalog_section": "휴게·장식",
+  "memo": "고개 숙여 기리기",
+  "source": "FURNITURE-97"
+ },
+ "CC_BronzeStatue": {
+  "scale_applied": [
+   1,
+   1,
+   1
+  ],
+  "bounds_min": [
+   -0.65,
+   -0.675,
+   0.0
+  ],
+  "bounds_max": [
+   0.65,
+   0.65,
+   2.672
+  ],
+  "points": {
+   "WorkPoint_0": {
+    "pos": [
+     0.0,
+     -1.6,
+     0.0
+    ],
+    "forward": [
+     0.0,
+     1.0,
+     0.0
+    ]
+   }
+  },
+  "work": {
+   "clip": "Inspect",
+   "tool": null,
+   "stand": [
+    0.0,
+    -1.6,
+    0.0
+   ],
+   "facing": [
+    0,
+    1,
+    0
+   ],
+   "turn": 3.1416
+  },
+  "hinges": [],
+  "name_ko": "동상",
+  "building_kind": "BronzeStatue",
+  "catalog_section": "휴게·장식",
+  "memo": "감상",
+  "source": "FURNITURE-97"
+ },
+ "CC_TrophyCase": {
+  "scale_applied": [
+   1,
+   1,
+   1
+  ],
+  "bounds_min": [
+   -0.95,
+   -0.275,
+   0.0
+  ],
+  "bounds_max": [
+   0.95,
+   0.275,
+   1.64
+  ],
+  "points": {
+   "WorkPoint_0": {
+    "pos": [
+     0.0,
+     -1.3,
+     0.0
+    ],
+    "forward": [
+     0.0,
+     1.0,
+     0.0
+    ]
+   }
+  },
+  "work": {
+   "clip": "Inspect",
+   "tool": null,
+   "stand": [
+    0.0,
+    -1.3,
+    0.0
+   ],
+   "facing": [
+    0,
+    1,
+    0
+   ],
+   "turn": 3.1416
+  },
+  "hinges": [],
+  "name_ko": "전리품 진열대",
+  "building_kind": "TrophyCase",
+  "catalog_section": "휴게·장식",
+  "memo": "감상",
+  "source": "FURNITURE-97"
+ },
+ "CC_Barracks": {
+  "scale_applied": [
+   1,
+   1,
+   1
+  ],
+  "bounds_min": [
+   -0.75,
+   -0.425,
+   0.0
+  ],
+  "bounds_max": [
+   0.75,
+   0.425,
+   2.45
+  ],
+  "points": {
+   "WorkPoint_0": {
+    "pos": [
+     0.0,
+     -1.55,
+     0.05
+    ],
+    "forward": [
+     0.0,
+     1.0,
+     0.0
+    ]
+   }
+  },
+  "work": {
+   "clip": "Attack",
+   "tool": null,
+   "stand": [
+    0.0,
+    -1.55,
+    0.05
+   ],
+   "facing": [
+    0,
+    1,
+    0
+   ],
+   "turn": 3.1416
+  },
+  "hinges": [],
+  "name_ko": "허수아비(근접 훈련대)",
+  "building_kind": "Barracks",
+  "catalog_section": "군사·마을",
+  "memo": "창으로 허수아비 찌르기",
+  "source": "FURNITURE-97"
+ },
+ "CC_ConscriptionPost": {
+  "scale_applied": [
+   1,
+   1,
+   1
+  ],
+  "bounds_min": [
+   -1.0,
+   -0.55,
+   0.0
+  ],
+  "bounds_max": [
+   1.2,
+   0.55,
+   2.2
+  ],
+  "points": {
+   "HandTarget": {
+    "pos": [
+     0.0,
+     -0.2,
+     0.84
+    ],
+    "forward": [
+     0.0,
+     1.0,
+     0.0
+    ]
+   },
+   "WorkPoint_0": {
+    "pos": [
+     0.0,
+     -1.2,
+     0.0
+    ],
+    "forward": [
+     0.0,
+     1.0,
+     0.0
+    ]
+   }
+  },
+  "work": {
+   "clip": "Stamp",
+   "tool": "Tool_Stamp",
+   "stand": [
+    0.0,
+    -1.2,
+    0.0
+   ],
+   "facing": [
+    0,
+    1,
+    0
+   ],
+   "turn": 3.1416,
+   "hand_target": [
+    0.0,
+    -0.2,
+    0.84
+   ],
+   "tool_contact": [
+    0.0,
+    -0.2,
+    0.84
+   ]
+  },
+  "hinges": [],
+  "name_ko": "징집소",
+  "building_kind": "ConscriptionPost",
+  "catalog_section": "군사·마을",
+  "memo": "명부에 도장",
+  "source": "FURNITURE-97"
+ },
+ "CC_Armory": {
+  "scale_applied": [
+   1,
+   1,
+   1
+  ],
+  "bounds_min": [
+   -1.178,
+   -0.15,
+   0.0
+  ],
+  "bounds_max": [
+   1.178,
+   0.072,
+   2.47
+  ],
+  "points": {
+   "WorkPoint_0": {
+    "pos": [
+     0.0,
+     -1.1,
+     0.0
+    ],
+    "forward": [
+     0.0,
+     1.0,
+     0.0
+    ]
+   }
+  },
+  "work": {
+   "clip": "Pickup",
+   "tool": null,
+   "stand": [
+    0.0,
+    -1.1,
+    0.0
+   ],
+   "facing": [
+    0,
+    1,
+    0
+   ],
+   "turn": 3.1416
+  },
+  "hinges": [],
+  "name_ko": "무기고",
+  "building_kind": "Armory",
+  "catalog_section": "군사·마을",
+  "memo": "무기 꺼내기·걸기",
+  "source": "FURNITURE-97"
+ },
+ "CC_PrisonerCamp": {
+  "scale_applied": [
+   1,
+   1,
+   1
+  ],
+  "bounds_min": [
+   -1.25,
+   -1.25,
+   0.0
+  ],
+  "bounds_max": [
+   1.25,
+   1.25,
+   2.6
+  ],
+  "points": {
+   "SeatPoint": {
+    "pos": [
+     0.0,
+     0.2,
+     0.45
+    ],
+    "forward": [
+     0.0,
+     1.0,
+     0.0
+    ]
+   },
+   "WorkPoint_0": {
+    "pos": [
+     0.0,
+     -1.7,
+     0.0
+    ],
+    "forward": [
+     0.0,
+     1.0,
+     0.0
+    ]
+   }
+  },
+  "work": {
+   "clip": "Captive",
+   "tool": null,
+   "stand": [
+    0.0,
+    -1.7,
+    0.0
+   ],
+   "facing": [
+    0,
+    -1,
+    0
+   ],
+   "turn": 0,
+   "seat": [
+    0.0,
+    0.2,
+    0.45
+   ]
+  },
+  "hinges": [],
+  "name_ko": "포로 수용소",
+  "building_kind": "PrisonerCamp",
+  "catalog_section": "군사·마을",
+  "memo": "포로가 묶여 앉아 있음",
+  "source": "FURNITURE-97"
+ },
+ "CC_ScoutPost": {
+  "scale_applied": [
+   1,
+   1,
+   1
+  ],
+  "bounds_min": [
+   -0.85,
+   -1.014,
+   -0.0
+  ],
+  "bounds_max": [
+   1.629,
+   0.65,
+   1.858
+  ],
+  "points": {
+   "WorkPoint_0": {
+    "pos": [
+     1.3,
+     -1.6,
+     0.0066
+    ],
+    "forward": [
+     0.0,
+     1.0,
+     0.0
+    ]
+   }
+  },
+  "work": {
+   "clip": "Inspect",
+   "tool": null,
+   "stand": [
+    1.3,
+    -1.6,
+    0.0066
+   ],
+   "facing": [
+    0,
+    1,
+    0
+   ],
+   "turn": 3.1416
+  },
+  "hinges": [],
+  "name_ko": "정찰 초소",
+  "building_kind": "ScoutPost",
+  "catalog_section": "군사·마을",
+  "memo": "망원경으로 둘러보기",
+  "source": "FURNITURE-97"
+ },
+ "CC_Hut": {
+  "scale_applied": [
+   1,
+   1,
+   1
+  ],
+  "bounds_min": [
+   -2.4,
+   -2.4,
+   0.0
+  ],
+  "bounds_max": [
+   2.4,
+   2.4,
+   3.75
+  ],
+  "points": {
+   "WorkPoint_0": {
+    "pos": [
+     0.0,
+     -2.6,
+     0.0
+    ],
+    "forward": [
+     0.0,
+     1.0,
+     0.0
+    ]
+   }
+  },
+  "work": {
+   "clip": "Walk",
+   "tool": null,
+   "stand": [
+    0.0,
+    -2.6,
+    0.0
+   ],
+   "facing": [
+    0,
+    1,
+    0
+   ],
+   "turn": 3.1416
+  },
+  "hinges": [],
+  "name_ko": "초가집",
+  "building_kind": "Hut",
+  "catalog_section": "군사·마을",
+  "memo": "출입문으로 들어감",
+  "source": "FURNITURE-97"
+ },
+ "CC_House": {
+  "scale_applied": [
+   1,
+   1,
+   1
+  ],
+  "bounds_min": [
+   -2.4,
+   -2.07,
+   0.0
+  ],
+  "bounds_max": [
+   2.4,
+   2.07,
+   4.054
+  ],
+  "points": {
+   "WorkPoint_0": {
+    "pos": [
+     0.0,
+     -2.6,
+     0.0
+    ],
+    "forward": [
+     0.0,
+     1.0,
+     0.0
+    ]
+   }
+  },
+  "work": {
+   "clip": "Walk",
+   "tool": null,
+   "stand": [
+    0.0,
+    -2.6,
+    0.0
+   ],
+   "facing": [
+    0,
+    1,
+    0
+   ],
+   "turn": 3.1416
+  },
+  "hinges": [],
+  "name_ko": "흙집",
+  "building_kind": "House",
+  "catalog_section": "군사·마을",
+  "memo": "출입문으로 들어감",
+  "source": "FURNITURE-97"
+ },
+ "CC_Apartment": {
+  "scale_applied": [
+   1,
+   1,
+   1
+  ],
+  "bounds_min": [
+   -2.5,
+   -2.3,
+   0.0
+  ],
+  "bounds_max": [
+   2.5,
+   2.1,
+   7.73
+  ],
+  "points": {
+   "WorkPoint_0": {
+    "pos": [
+     0.0,
+     -2.7,
+     0.0
+    ],
+    "forward": [
+     0.0,
+     1.0,
+     0.0
+    ]
+   }
+  },
+  "work": {
+   "clip": "Walk",
+   "tool": null,
+   "stand": [
+    0.0,
+    -2.7,
+    0.0
+   ],
+   "facing": [
+    0,
+    1,
+    0
+   ],
+   "turn": 3.1416
+  },
+  "hinges": [],
+  "name_ko": "큰 아파트",
+  "building_kind": "Apartment",
+  "catalog_section": "군사·마을",
+  "memo": "1층 출입문으로 들어감",
+  "source": "FURNITURE-97"
+ },
+ "CC_AirshipYard": {
+  "scale_applied": [
+   1,
+   1,
+   1
+  ],
+  "bounds_min": [
+   -2.6,
+   -2.6,
+   0.0
+  ],
+  "bounds_max": [
+   2.6,
+   2.6,
+   5.0
+  ],
+  "points": {
+   "WorkPoint_0": {
+    "pos": [
+     0.0,
+     -1.4,
+     0.25
+    ],
+    "forward": [
+     0.0,
+     1.0,
+     0.0
+    ]
+   }
+  },
+  "work": {
+   "clip": "Hammer",
+   "tool": "Tool_Hammer",
+   "stand": [
+    0.0,
+    -1.4,
+    0.25
+   ],
+   "facing": [
+    0,
+    1,
+    0
+   ],
+   "turn": 3.1416
+  },
+  "hinges": [],
+  "name_ko": "로켓 발사대",
+  "building_kind": "AirshipYard",
+  "catalog_section": "군사·마을",
+  "memo": "로켓 조립 망치질",
+  "source": "FURNITURE-97"
+ },
+ "CC_Stockpile": {
+  "scale_applied": [
+   1,
+   1,
+   1
+  ],
+  "bounds_min": [
+   -1.617,
+   -1.5,
+   0.0
+  ],
+  "bounds_max": [
+   1.95,
+   1.5,
+   2.8
+  ],
+  "points": {
+   "InputPoint": {
+    "pos": [
+     0.0,
+     -0.9,
+     0.4
+    ],
+    "forward": [
+     0.0,
+     1.0,
+     0.0
+    ]
+   },
+   "WorkPoint_0": {
+    "pos": [
+     0.0,
+     -1.9,
+     0.2
+    ],
+    "forward": [
+     0.0,
+     1.0,
+     0.0
+    ]
+   }
+  },
+  "work": {
+   "clip": "PutDown",
+   "tool": null,
+   "stand": [
+    0.0,
+    -1.9,
+    0.2
+   ],
+   "facing": [
+    0,
+    1,
+    0
+   ],
+   "turn": 3.1416
+  },
+  "hinges": [],
+  "name_ko": "비축더미",
+  "building_kind": "QueenChamber",
+  "catalog_section": "보관·전력",
+  "memo": "자원 내려놓기",
+  "source": "FURNITURE-97"
+ },
+ "CC_ResearchLab": {
+  "scale_applied": [
+   1,
+   1,
+   1
+  ],
+  "bounds_min": [
+   -1.518,
+   -0.6,
+   0.0
+  ],
+  "bounds_max": [
+   1.518,
+   0.963,
+   2.2
+  ],
+  "points": {
+   "HandTarget": {
+    "pos": [
+     -0.55,
+     -0.15,
+     1.08
+    ],
+    "forward": [
+     0.0,
+     1.0,
+     0.0
+    ]
+   },
+   "WorkPoint_0": {
+    "pos": [
+     -0.4,
+     -1.25,
+     0.0
+    ],
+    "forward": [
+     0.0,
+     1.0,
+     0.0
+    ]
+   }
+  },
+  "work": {
+   "clip": "Hammer",
+   "tool": "Tool_Hammer",
+   "stand": [
+    -0.4,
+    -1.25,
+    0.0
+   ],
+   "facing": [
+    0,
+    1,
+    0
+   ],
+   "turn": 3.1416,
+   "hand_target": [
+    -0.55,
+    -0.15,
+    1.08
+   ],
+   "tool_contact": [
+    -0.55,
+    -0.15,
+    1.08
+   ]
+  },
+  "hinges": [],
+  "name_ko": "무기 연구소",
+  "building_kind": "ResearchLab",
+  "catalog_section": "생산·연구",
+  "memo": "시제품 두드려 보기",
+  "source": "FURNITURE-97"
+ },
+ "CC_DefenseLab": {
+  "scale_applied": [
+   1,
+   1,
+   1
+  ],
+  "bounds_min": [
+   -1.2,
+   -0.6,
+   0.0
+  ],
+  "bounds_max": [
+   1.2,
+   1.05,
+   2.2
+  ],
+  "points": {
+   "HandTarget": {
+    "pos": [
+     -0.6,
+     -0.3,
+     1.3
+    ],
+    "forward": [
+     0.0,
+     1.0,
+     0.0
+    ]
+   },
+   "WorkPoint_0": {
+    "pos": [
+     -0.4,
+     -1.25,
+     0.0
+    ],
+    "forward": [
+     0.0,
+     1.0,
+     0.0
+    ]
+   }
+  },
+  "work": {
+   "clip": "Inspect",
+   "tool": null,
+   "stand": [
+    -0.4,
+    -1.25,
+    0.0
+   ],
+   "facing": [
+    0,
+    1,
+    0
+   ],
+   "turn": 3.1416,
+   "hand_target": [
+    -0.6,
+    -0.3,
+    1.3
+   ]
+  },
+  "hinges": [],
+  "name_ko": "방어시설 연구소",
+  "building_kind": "DefenseLab",
+  "catalog_section": "생산·연구",
+  "memo": "분사기·함정 시험",
+  "source": "FURNITURE-97"
+ },
+ "CC_RestRoom": {
+  "scale_applied": [
+   1,
+   1,
+   1
+  ],
+  "bounds_min": [
+   -1.5,
+   -1.3,
+   0.0
+  ],
+  "bounds_max": [
+   1.55,
+   1.3,
+   0.95
+  ],
+  "points": {
+   "SeatPoint": {
+    "pos": [
+     0.0,
+     0.6,
+     0.5
+    ],
+    "forward": [
+     0.0,
+     1.0,
+     0.0
+    ]
+   },
+   "WorkPoint_0": {
+    "pos": [
+     0.0,
+     -0.1,
+     0.0
+    ],
+    "forward": [
+     0.0,
+     1.0,
+     0.0
+    ]
+   }
+  },
+  "work": {
+   "clip": "Rest",
+   "tool": null,
+   "stand": [
+    0.0,
+    -0.1,
+    0.0
+   ],
+   "facing": [
+    0,
+    -1,
+    0
+   ],
+   "turn": 0,
+   "seat": [
+    0.0,
+    0.6,
+    0.5
+   ]
+  },
+  "hinges": [],
+  "name_ko": "휴게실",
+  "building_kind": "RestRoom",
+  "catalog_section": "휴게·장식",
+  "memo": "긴 의자에 앉아 쉬기",
+  "source": "FURNITURE-97"
+ },
+ "CC_AreaAcidTower": {
+  "scale_applied": [
+   1,
+   1,
+   1
+  ],
+  "bounds_min": [
+   -1.24,
+   -1.172,
+   0.0
+  ],
+  "bounds_max": [
+   1.24,
+   1.172,
+   1.57
+  ],
+  "points": {
+   "WorkPoint_0": {
+    "pos": [
+     0.0,
+     -1.7,
+     0.05
+    ],
+    "forward": [
+     0.0,
+     1.0,
+     0.0
+    ]
+   }
+  },
+  "work": {
+   "clip": "Hammer",
+   "tool": "Tool_Hammer",
+   "stand": [
+    0.0,
+    -1.7,
+    0.05
+   ],
+   "facing": [
+    0,
+    1,
+    0
+   ],
+   "turn": 3.1416
+  },
+  "hinges": [
+   {
+    "pivot": "CC_AreaAcidTower__Turret_Pivot",
+    "axis": "Z",
+    "open_deg": 360,
+    "mode": "spin",
+    "frames": 48
+   }
+  ],
+  "name_ko": "범위형 분사탑",
+  "building_kind": "AreaAcidTower",
+  "catalog_section": "건설·방어",
+  "memo": "수리 때만(포탑 회전)",
+  "source": "FURNITURE-97"
+ }
+}

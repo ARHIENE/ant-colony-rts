@@ -1,0 +1,14 @@
+=== build_equipment.py
+EQUIP OK [0.05, 0.331] 10 66
+=== fit_check.py -- search
+FIT 678 frames {'Armor_Breastplate': 7, 'Armor_Backplate': 2, 'Armor_Bracer_R': 10, 'Armor_Tasset_L': 3, 'Armor_Tasset_R': 3, 'Armor_Fauld': 2, 'Armor_Bracer_L': 10, 'Belt': 2, 'Carry_Shield': 1, 'Helm_CAT': 2, 'Helm_RABBIT': 3, 'Helm_ROUND': 2, 'Helm_UPRIGHT': 4, 'HelmTrim_Bronze': 1, 'HelmTrim_Iron': 1, 'HelmTrim_Steel': 1, 'HelmTrim_Titanium': 1, 'HelmTrim_Starlight': 1, 'Armor_Greave_L': 1, 'Armor_Greave_R': 1, 'Carry_Sword': 2}
+=== build_holders.py
+HOLDERS ['Holder_Sword', 'Holder_Shield', 'Holder_Spear']
+=== fit_check.py
+FIT 678 frames {'Armor_Breastplate': 7, 'Armor_Backplate': 2, 'Armor_Bracer_R': 10, 'Armor_Tasset_L': 3, 'Armor_Tasset_R': 3, 'Armor_Fauld': 2, 'Armor_Bracer_L': 10, 'Belt': 2, 'Carry_Shield': 1, 'Helm_CAT': 2, 'Helm_RABBIT': 3, 'Helm_ROUND': 2, 'Helm_UPRIGHT': 4, 'HelmTrim_Bronze': 1, 'HelmTrim_Iron': 1, 'HelmTrim_Steel': 1, 'HelmTrim_Titanium': 1, 'HelmTrim_Starlight': 1, 'Holder_Sword': 2, 'Holder_Shield': 2, 'Holder_Spear': 2, 'Armor_Greave_L': 1, 'Armor_Greave_R': 1, 'Carry_Sword': 2}
+=== build_handheld.py
+HANDHELD 66
+=== build_motions.py
+Traceback (most recent call last):
+  File "E:\Git\ant\art\production-kit-20261019\scripts\build_motions.py", line 111, in <module>
+ValueError: min() iterable argument is empty

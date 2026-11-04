@@ -1,0 +1,86 @@
+{
+ "Fly": {
+  "frames": 16,
+  "loop": true,
+  "fps": 24,
+  "face": null
+ },
+ "Downed": {
+  "frames": 48,
+  "loop": true,
+  "fps": 24,
+  "face": "Expr_PAIN"
+ },
+ "Captive": {
+  "frames": 48,
+  "loop": true,
+  "fps": 24,
+  "face": "Expr_SAD"
+ },
+ "CarryPerson": {
+  "frames": 24,
+  "loop": true,
+  "fps": 24,
+  "face": null
+ },
+ "PlayBoard": {
+  "frames": 48,
+  "loop": true,
+  "fps": 24,
+  "face": null
+ },
+ "Bathe": {
+  "frames": 48,
+  "loop": true,
+  "fps": 24,
+  "face": "Expr_SLEEPY"
+ },
+ "Wrestle": {
+  "frames": 32,
+  "loop": true,
+  "fps": 24,
+  "face": null
+ },
+ "Throw": {
+  "frames": 24,
+  "loop": true,
+  "fps": 24,
+  "face": null
+ },
+ "PlayMusic": {
+  "frames": 32,
+  "loop": true,
+  "fps": 24,
+  "face": null
+ },
+ "Exercise": {
+  "frames": 48,
+  "loop": true,
+  "fps": 24,
+  "face": null
+ },
+ "Swing": {
+  "frames": 48,
+  "loop": true,
+  "fps": 24,
+  "face": null
+ },
+ "RockCradle": {
+  "frames": 48,
+  "loop": true,
+  "fps": 24,
+  "face": null
+ },
+ "Spin": {
+  "frames": 32,
+  "loop": true,
+  "fps": 24,
+  "face": null
+ },
+ "WaterPlant": {
+  "frames": 48,
+  "loop": true,
+  "fps": 24,
+  "face": null
+ }
+}

@@ -1,0 +1,289 @@
+{
+ "Aphid": {
+  "rig": "AphidRig",
+  "bones": [
+   "Root",
+   "Body",
+   "Head",
+   "Antenna.L",
+   "Antenna.R",
+   "Leg1.L",
+   "Leg1.R",
+   "Leg2.L",
+   "Leg2.R",
+   "Leg3.L",
+   "Leg3.R"
+  ],
+  "meshes": 19,
+  "clips": {
+   "Idle": {
+    "frames": 48,
+    "loop": true
+   },
+   "Walk": {
+    "frames": 24,
+    "loop": true
+   },
+   "Eat": {
+    "frames": 32,
+    "loop": true
+   },
+   "Lie": {
+    "frames": 48,
+    "loop": true
+   },
+   "Bound": {
+    "frames": 32,
+    "loop": true
+   },
+   "Hurt": {
+    "frames": 16,
+    "loop": false
+   },
+   "Death": {
+    "frames": 32,
+    "loop": false
+   }
+  }
+ },
+ "Silkworm": {
+  "rig": "SilkwormRig",
+  "bones": [
+   "Root",
+   "Seg0",
+   "Seg1",
+   "Seg2",
+   "Seg3",
+   "Seg4",
+   "Head"
+  ],
+  "meshes": 21,
+  "clips": {
+   "Idle": {
+    "frames": 48,
+    "loop": true
+   },
+   "Walk": {
+    "frames": 24,
+    "loop": true
+   },
+   "Eat": {
+    "frames": 32,
+    "loop": true
+   },
+   "Lie": {
+    "frames": 48,
+    "loop": true
+   },
+   "Bound": {
+    "frames": 32,
+    "loop": true
+   },
+   "Hurt": {
+    "frames": 16,
+    "loop": false
+   },
+   "Death": {
+    "frames": 32,
+    "loop": false
+   }
+  }
+ },
+ "Spider": {
+  "rig": "SpiderRig",
+  "bones": [
+   "Root",
+   "Body",
+   "Abdomen",
+   "Head",
+   "Leg1.L",
+   "Leg1.R",
+   "Leg2.L",
+   "Leg2.R",
+   "Leg3.L",
+   "Leg3.R",
+   "Leg4.L",
+   "Leg4.R"
+  ],
+  "meshes": 24,
+  "clips": {
+   "Idle": {
+    "frames": 48,
+    "loop": true
+   },
+   "Walk": {
+    "frames": 24,
+    "loop": true
+   },
+   "Eat": {
+    "frames": 32,
+    "loop": true
+   },
+   "Lie": {
+    "frames": 48,
+    "loop": true
+   },
+   "Bound": {
+    "frames": 32,
+    "loop": true
+   },
+   "Hurt": {
+    "frames": 16,
+    "loop": false
+   },
+   "Death": {
+    "frames": 32,
+    "loop": false
+   },
+   "Attack": {
+    "frames": 24,
+    "loop": false
+   }
+  }
+ },
+ "Bee": {
+  "rig": "BeeRig",
+  "bones": [
+   "Root",
+   "Body",
+   "Abdomen",
+   "Head",
+   "Antenna.L",
+   "Antenna.R",
+   "Wing.L",
+   "Wing.R",
+   "Leg1.L",
+   "Leg1.R",
+   "Leg2.L",
+   "Leg2.R",
+   "Leg3.L",
+   "Leg3.R"
+  ],
+  "meshes": 22,
+  "clips": {
+   "Idle": {
+    "frames": 48,
+    "loop": true
+   },
+   "Walk": {
+    "frames": 24,
+    "loop": true
+   },
+   "Eat": {
+    "frames": 32,
+    "loop": true
+   },
+   "Lie": {
+    "frames": 48,
+    "loop": true
+   },
+   "Bound": {
+    "frames": 32,
+    "loop": true
+   },
+   "Hurt": {
+    "frames": 16,
+    "loop": false
+   },
+   "Death": {
+    "frames": 32,
+    "loop": false
+   },
+   "Attack": {
+    "frames": 24,
+    "loop": false
+   },
+   "Fly": {
+    "frames": 16,
+    "loop": true
+   }
+  }
+ },
+ "Wasp": {
+  "rig": "WaspRig",
+  "bones": [
+   "Root",
+   "Body",
+   "Abdomen",
+   "Head",
+   "Antenna.L",
+   "Antenna.R",
+   "Wing.L",
+   "Wing.R",
+   "Leg1.L",
+   "Leg1.R",
+   "Leg2.L",
+   "Leg2.R",
+   "Leg3.L",
+   "Leg3.R"
+  ],
+  "meshes": 24,
+  "clips": {
+   "Idle": {
+    "frames": 48,
+    "loop": true
+   },
+   "Walk": {
+    "frames": 24,
+    "loop": true
+   },
+   "Hurt": {
+    "frames": 16,
+    "loop": false
+   },
+   "Death": {
+    "frames": 32,
+    "loop": false
+   },
+   "Attack": {
+    "frames": 24,
+    "loop": false
+   },
+   "Fly": {
+    "frames": 16,
+    "loop": true
+   }
+  }
+ },
+ "NightBeetle": {
+  "rig": "NightBeetleRig",
+  "bones": [
+   "Root",
+   "Body",
+   "Head",
+   "Leg1.L",
+   "Leg1.R",
+   "Leg2.L",
+   "Leg2.R",
+   "Leg3.L",
+   "Leg3.R"
+  ],
+  "meshes": 13,
+  "clips": {
+   "Idle": {
+    "frames": 48,
+    "loop": true
+   },
+   "Walk": {
+    "frames": 24,
+    "loop": true
+   },
+   "Lie": {
+    "frames": 48,
+    "loop": true
+   },
+   "Hurt": {
+    "frames": 16,
+    "loop": false
+   },
+   "Death": {
+    "frames": 32,
+    "loop": false
+   },
+   "Attack": {
+    "frames": 24,
+    "loop": false
+   }
+  }
+ }
+}

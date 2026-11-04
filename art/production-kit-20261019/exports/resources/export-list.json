@@ -1,0 +1,9295 @@
+{
+ "Alc_Beer.fbx": {
+  "objects": {
+   "Alc_Beer": {
+    "type": "MESH",
+    "dims": [
+     0.097,
+     0.068,
+     0.09
+    ],
+    "mats": 3
+   },
+   "Alc_Beer__Stack": {
+    "type": "MESH",
+    "dims": [
+     0.242,
+     0.106,
+     0.098
+    ],
+    "mats": 5
+   }
+  }
+ },
+ "Alc_FruitWine.fbx": {
+  "objects": {
+   "Alc_FruitWine": {
+    "type": "MESH",
+    "dims": [
+     0.056,
+     0.0575,
+     0.248
+    ],
+    "mats": 4
+   },
+   "Alc_FruitWine__Stack": {
+    "type": "MESH",
+    "dims": [
+     0.226,
+     0.163,
+     0.256
+    ],
+    "mats": 6
+   }
+  }
+ },
+ "Alc_HoneydewWine.fbx": {
+  "objects": {
+   "Alc_HoneydewWine": {
+    "type": "MESH",
+    "dims": [
+     0.08,
+     0.0815,
+     0.178
+    ],
+    "mats": 4
+   },
+   "Alc_HoneydewWine__Stack": {
+    "type": "MESH",
+    "dims": [
+     0.298,
+     0.211,
+     0.186
+    ],
+    "mats": 6
+   }
+  }
+ },
+ "Alc_Mead.fbx": {
+  "objects": {
+   "Alc_Mead": {
+    "type": "MESH",
+    "dims": [
+     0.105,
+     0.0975,
+     0.155
+    ],
+    "mats": 2
+   },
+   "Alc_Mead__Stack": {
+    "type": "MESH",
+    "dims": [
+     0.258,
+     0.1355,
+     0.163
+    ],
+    "mats": 4
+   }
+  }
+ },
+ "Alc_RiceWine.fbx": {
+  "objects": {
+   "Alc_RiceWine": {
+    "type": "MESH",
+    "dims": [
+     0.155,
+     0.08,
+     0.1
+    ],
+    "mats": 3
+   },
+   "Alc_RiceWine__Stack": {
+    "type": "MESH",
+    "dims": [
+     0.358,
+     0.118,
+     0.108
+    ],
+    "mats": 5
+   }
+  }
+ },
+ "Alc_Spirits.fbx": {
+  "objects": {
+   "Alc_Spirits": {
+    "type": "MESH",
+    "dims": [
+     0.048,
+     0.0495,
+     0.258
+    ],
+    "mats": 4
+   },
+   "Alc_Spirits__Stack": {
+    "type": "MESH",
+    "dims": [
+     0.202,
+     0.147,
+     0.266
+    ],
+    "mats": 6
+   }
+  }
+ },
+ "Block_Granite.fbx": {
+  "objects": {
+   "Block_Granite": {
+    "type": "MESH",
+    "dims": [
+     0.165,
+     0.0527,
+     0.081
+    ],
+    "mats": 3
+   },
+   "Block_Granite__Stack": {
+    "type": "MESH",
+    "dims": [
+     0.1722,
+     0.1242,
+     0.2398
+    ],
+    "mats": 3
+   }
+  }
+ },
+ "Block_Marble.fbx": {
+  "objects": {
+   "Block_Marble": {
+    "type": "MESH",
+    "dims": [
+     0.165,
+     0.0527,
+     0.081
+    ],
+    "mats": 3
+   },
+   "Block_Marble__Stack": {
+    "type": "MESH",
+    "dims": [
+     0.1722,
+     0.123,
+     0.2398
+    ],
+    "mats": 3
+   }
+  }
+ },
+ "Block_Sandstone.fbx": {
+  "objects": {
+   "Block_Sandstone": {
+    "type": "MESH",
+    "dims": [
+     0.165,
+     0.05,
+     0.081
+    ],
+    "mats": 2
+   },
+   "Block_Sandstone__Stack": {
+    "type": "MESH",
+    "dims": [
+     0.1722,
+     0.123,
+     0.2398
+    ],
+    "mats": 2
+   }
+  }
+ },
+ "Block_Tuff.fbx": {
+  "objects": {
+   "Block_Tuff": {
+    "type": "MESH",
+    "dims": [
+     0.165,
+     0.05,
+     0.081
+    ],
+    "mats": 2
+   },
+   "Block_Tuff__Stack": {
+    "type": "MESH",
+    "dims": [
+     0.1722,
+     0.123,
+     0.2398
+    ],
+    "mats": 2
+   }
+  }
+ },
+ "Bread_Corn.fbx": {
+  "objects": {
+   "Bread_Corn": {
+    "type": "MESH",
+    "dims": [
+     0.15,
+     0.1,
+     0.052
+    ],
+    "mats": 2
+   },
+   "Bread_Corn__Rotten": {
+    "type": "MESH",
+    "dims": [
+     0.15,
+     0.1,
+     0.052
+    ],
+    "mats": 3
+   },
+   "Bread_Corn__Stack": {
+    "type": "MESH",
+    "dims": [
+     0.348,
+     0.138,
+     0.06
+    ],
+    "mats": 3
+   }
+  }
+ },
+ "Bread_Flat.fbx": {
+  "objects": {
+   "Bread_Flat": {
+    "type": "MESH",
+    "dims": [
+     0.15,
+     0.1011,
+     0.022
+    ],
+    "mats": 2
+   },
+   "Bread_Flat__Rotten": {
+    "type": "MESH",
+    "dims": [
+     0.15,
+     0.1011,
+     0.0228
+    ],
+    "mats": 3
+   },
+   "Bread_Flat__Stack": {
+    "type": "MESH",
+    "dims": [
+     0.348,
+     0.1391,
+     0.04
+    ],
+    "mats": 3
+   }
+  }
+ },
+ "Bread_Loaf.fbx": {
+  "objects": {
+   "Bread_Loaf": {
+    "type": "MESH",
+    "dims": [
+     0.15,
+     0.1,
+     0.084
+    ],
+    "mats": 2
+   },
+   "Bread_Loaf__Rotten": {
+    "type": "MESH",
+    "dims": [
+     0.15,
+     0.1,
+     0.084
+    ],
+    "mats": 3
+   },
+   "Bread_Loaf__Stack": {
+    "type": "MESH",
+    "dims": [
+     0.348,
+     0.138,
+     0.092
+    ],
+    "mats": 3
+   }
+  }
+ },
+ "Bread_Rye.fbx": {
+  "objects": {
+   "Bread_Rye": {
+    "type": "MESH",
+    "dims": [
+     0.15,
+     0.104,
+     0.072
+    ],
+    "mats": 2
+   },
+   "Bread_Rye__Rotten": {
+    "type": "MESH",
+    "dims": [
+     0.15,
+     0.104,
+     0.0724
+    ],
+    "mats": 3
+   },
+   "Bread_Rye__Stack": {
+    "type": "MESH",
+    "dims": [
+     0.348,
+     0.142,
+     0.08
+    ],
+    "mats": 3
+   }
+  }
+ },
+ "Byproduct_Manure.fbx": {
+  "objects": {
+   "Byproduct_Manure": {
+    "type": "MESH",
+    "dims": [
+     0.14,
+     0.1365,
+     0.05
+    ],
+    "mats": 2
+   },
+   "Byproduct_Manure__Stack": {
+    "type": "MESH",
+    "dims": [
+     0.252,
+     0.2457,
+     0.0822
+    ],
+    "mats": 2
+   }
+  }
+ },
+ "Byproduct_Straw.fbx": {
+  "objects": {
+   "Byproduct_Straw": {
+    "type": "MESH",
+    "dims": [
+     0.1719,
+     0.1109,
+     0.13
+    ],
+    "mats": 3
+   },
+   "Byproduct_Straw__Stack": {
+    "type": "MESH",
+    "dims": [
+     0.1949,
+     0.1645,
+     0.3848
+    ],
+    "mats": 3
+   }
+  }
+ },
+ "Cloth_Plant.fbx": {
+  "objects": {
+   "Cloth_Plant": {
+    "type": "MESH",
+    "dims": [
+     0.235,
+     0.08,
+     0.06
+    ],
+    "mats": 2
+   },
+   "Cloth_Plant__Stack": {
+    "type": "MESH",
+    "dims": [
+     0.2433,
+     0.1485,
+     0.1776
+    ],
+    "mats": 2
+   }
+  }
+ },
+ "Cloth_Wool.fbx": {
+  "objects": {
+   "Cloth_Wool": {
+    "type": "MESH",
+    "dims": [
+     0.235,
+     0.08,
+     0.06
+    ],
+    "mats": 2
+   },
+   "Cloth_Wool__Stack": {
+    "type": "MESH",
+    "dims": [
+     0.2433,
+     0.1485,
+     0.1776
+    ],
+    "mats": 2
+   }
+  }
+ },
+ "Cloth_Yarn.fbx": {
+  "objects": {
+   "Cloth_Yarn": {
+    "type": "MESH",
+    "dims": [
+     0.235,
+     0.08,
+     0.06
+    ],
+    "mats": 2
+   },
+   "Cloth_Yarn__Stack": {
+    "type": "MESH",
+    "dims": [
+     0.2433,
+     0.1485,
+     0.1776
+    ],
+    "mats": 2
+   }
+  }
+ },
+ "Crop_Basil.fbx": {
+  "objects": {
+   "Crop_Basil": {
+    "type": "MESH",
+    "dims": [
+     0.0999,
+     0.0841,
+     0.0253
+    ],
+    "mats": 3
+   },
+   "Crop_Basil__Rotten": {
+    "type": "MESH",
+    "dims": [
+     0.0999,
+     0.0841,
+     0.0253
+    ],
+    "mats": 4
+   },
+   "Crop_Basil__Seed": {
+    "type": "MESH",
+    "dims": [
+     0.065,
+     0.0184,
+     0.09
+    ],
+    "mats": 4
+   },
+   "Crop_Basil__Stack": {
+    "type": "MESH",
+    "dims": [
+     0.2479,
+     0.1221,
+     0.04
+    ],
+    "mats": 5
+   }
+  }
+ },
+ "Crop_CacaoPod.fbx": {
+  "objects": {
+   "Crop_CacaoPod": {
+    "type": "MESH",
+    "dims": [
+     0.13,
+     0.0723,
+     0.0735
+    ],
+    "mats": 2
+   },
+   "Crop_CacaoPod__Rotten": {
+    "type": "MESH",
+    "dims": [
+     0.13,
+     0.0723,
+     0.0735
+    ],
+    "mats": 3
+   },
+   "Crop_CacaoPod__Seed": {
+    "type": "MESH",
+    "dims": [
+     0.0692,
+     0.0121,
+     0.09
+    ],
+    "mats": 4
+   },
+   "Crop_CacaoPod__Stack": {
+    "type": "MESH",
+    "dims": [
+     0.308,
+     0.1103,
+     0.0815
+    ],
+    "mats": 4
+   }
+  }
+ },
+ "Crop_Cinnamon.fbx": {
+  "objects": {
+   "Crop_Cinnamon": {
+    "type": "MESH",
+    "dims": [
+     0.1,
+     0.044,
+     0.036
+    ],
+    "mats": 2
+   },
+   "Crop_Cinnamon__Stack": {
+    "type": "MESH",
+    "dims": [
+     0.248,
+     0.082,
+     0.044
+    ],
+    "mats": 4
+   }
+  }
+ },
+ "Crop_CoffeeCherry.fbx": {
+  "objects": {
+   "Crop_CoffeeCherry": {
+    "type": "MESH",
+    "dims": [
+     0.0285,
+     0.0369,
+     0.04
+    ],
+    "mats": 2
+   },
+   "Crop_CoffeeCherry__Rotten": {
+    "type": "MESH",
+    "dims": [
+     0.0337,
+     0.0345,
+     0.04
+    ],
+    "mats": 3
+   },
+   "Crop_CoffeeCherry__Seed": {
+    "type": "MESH",
+    "dims": [
+     0.0683,
+     0.015,
+     0.09
+    ],
+    "mats": 4
+   },
+   "Crop_CoffeeCherry__Stack": {
+    "type": "MESH",
+    "dims": [
+     0.1743,
+     0.1224,
+     0.048
+    ],
+    "mats": 3
+   }
+  }
+ },
+ "Crop_Cotton.fbx": {
+  "objects": {
+   "Crop_Cotton": {
+    "type": "MESH",
+    "dims": [
+     0.11,
+     0.04,
+     0.038
+    ],
+    "mats": 2
+   },
+   "Crop_Cotton__Seed": {
+    "type": "MESH",
+    "dims": [
+     0.0683,
+     0.0134,
+     0.09
+    ],
+    "mats": 4
+   },
+   "Crop_Cotton__Stack": {
+    "type": "MESH",
+    "dims": [
+     0.268,
+     0.078,
+     0.046
+    ],
+    "mats": 4
+   }
+  }
+ },
+ "Crop_Flax.fbx": {
+  "objects": {
+   "Crop_Flax": {
+    "type": "MESH",
+    "dims": [
+     0.2043,
+     0.031,
+     0.03
+    ],
+    "mats": 3
+   },
+   "Crop_Flax__Seed": {
+    "type": "MESH",
+    "dims": [
+     0.0666,
+     0.0122,
+     0.09
+    ],
+    "mats": 4
+   },
+   "Crop_Flax__Stack": {
+    "type": "MESH",
+    "dims": [
+     0.4564,
+     0.0688,
+     0.04
+    ],
+    "mats": 5
+   }
+  }
+ },
+ "Crop_Ginger.fbx": {
+  "objects": {
+   "Crop_Ginger": {
+    "type": "MESH",
+    "dims": [
+     0.092,
+     0.0645,
+     0.022
+    ],
+    "mats": 1
+   },
+   "Crop_Ginger__Rotten": {
+    "type": "MESH",
+    "dims": [
+     0.092,
+     0.0645,
+     0.022
+    ],
+    "mats": 2
+   },
+   "Crop_Ginger__Seed": {
+    "type": "MESH",
+    "dims": [
+     0.0702,
+     0.0167,
+     0.09
+    ],
+    "mats": 4
+   },
+   "Crop_Ginger__Stack": {
+    "type": "MESH",
+    "dims": [
+     0.2319,
+     0.1025,
+     0.04
+    ],
+    "mats": 3
+   }
+  }
+ },
+ "Crop_Herb.fbx": {
+  "objects": {
+   "Crop_Herb": {
+    "type": "MESH",
+    "dims": [
+     0.103,
+     0.0862,
+     0.0253
+    ],
+    "mats": 4
+   },
+   "Crop_Herb__Rotten": {
+    "type": "MESH",
+    "dims": [
+     0.103,
+     0.0862,
+     0.027
+    ],
+    "mats": 5
+   },
+   "Crop_Herb__Seed": {
+    "type": "MESH",
+    "dims": [
+     0.0681,
+     0.016,
+     0.09
+    ],
+    "mats": 4
+   },
+   "Crop_Herb__Stack": {
+    "type": "MESH",
+    "dims": [
+     0.254,
+     0.1242,
+     0.04
+    ],
+    "mats": 6
+   }
+  }
+ },
+ "Crop_MapleSap.fbx": {
+  "objects": {
+   "Crop_MapleSap": {
+    "type": "MESH",
+    "dims": [
+     0.12,
+     0.117,
+     0.147
+    ],
+    "mats": 3
+   },
+   "Crop_MapleSap__Stack": {
+    "type": "MESH",
+    "dims": [
+     0.288,
+     0.155,
+     0.155
+    ],
+    "mats": 4
+   }
+  }
+ },
+ "Crop_Mint.fbx": {
+  "objects": {
+   "Crop_Mint": {
+    "type": "MESH",
+    "dims": [
+     0.0999,
+     0.0841,
+     0.0253
+    ],
+    "mats": 3
+   },
+   "Crop_Mint__Rotten": {
+    "type": "MESH",
+    "dims": [
+     0.0999,
+     0.0841,
+     0.0261
+    ],
+    "mats": 4
+   },
+   "Crop_Mint__Seed": {
+    "type": "MESH",
+    "dims": [
+     0.0701,
+     0.0137,
+     0.09
+    ],
+    "mats": 4
+   },
+   "Crop_Mint__Stack": {
+    "type": "MESH",
+    "dims": [
+     0.2479,
+     0.1221,
+     0.04
+    ],
+    "mats": 5
+   }
+  }
+ },
+ "Crop_Pepper.fbx": {
+  "objects": {
+   "Crop_Pepper": {
+    "type": "MESH",
+    "dims": [
+     0.09,
+     0.0856,
+     0.026
+    ],
+    "mats": 2
+   },
+   "Crop_Pepper__Seed": {
+    "type": "MESH",
+    "dims": [
+     0.0694,
+     0.0134,
+     0.09
+    ],
+    "mats": 4
+   },
+   "Crop_Pepper__Stack": {
+    "type": "MESH",
+    "dims": [
+     0.162,
+     0.1541,
+     0.0413
+    ],
+    "mats": 2
+   }
+  }
+ },
+ "Crop_SugarBeet.fbx": {
+  "objects": {
+   "Crop_SugarBeet": {
+    "type": "MESH",
+    "dims": [
+     0.084,
+     0.084,
+     0.1335
+    ],
+    "mats": 3
+   },
+   "Crop_SugarBeet__Rotten": {
+    "type": "MESH",
+    "dims": [
+     0.084,
+     0.084,
+     0.1335
+    ],
+    "mats": 4
+   },
+   "Crop_SugarBeet__Seed": {
+    "type": "MESH",
+    "dims": [
+     0.0704,
+     0.0191,
+     0.09
+    ],
+    "mats": 4
+   },
+   "Crop_SugarBeet__Stack": {
+    "type": "MESH",
+    "dims": [
+     0.31,
+     0.216,
+     0.1415
+    ],
+    "mats": 5
+   }
+  }
+ },
+ "Crop_Sugarcane.fbx": {
+  "objects": {
+   "Crop_Sugarcane": {
+    "type": "MESH",
+    "dims": [
+     0.28,
+     0.068,
+     0.024
+    ],
+    "mats": 2
+   },
+   "Crop_Sugarcane__Rotten": {
+    "type": "MESH",
+    "dims": [
+     0.28,
+     0.068,
+     0.0255
+    ],
+    "mats": 3
+   },
+   "Crop_Sugarcane__Seed": {
+    "type": "MESH",
+    "dims": [
+     0.0702,
+     0.0182,
+     0.09
+    ],
+    "mats": 4
+   },
+   "Crop_Sugarcane__Stack": {
+    "type": "MESH",
+    "dims": [
+     0.608,
+     0.106,
+     0.04
+    ],
+    "mats": 4
+   }
+  }
+ },
+ "Crop_TeaLeaf.fbx": {
+  "objects": {
+   "Crop_TeaLeaf": {
+    "type": "MESH",
+    "dims": [
+     0.09,
+     0.0856,
+     0.023
+    ],
+    "mats": 2
+   },
+   "Crop_TeaLeaf__Rotten": {
+    "type": "MESH",
+    "dims": [
+     0.09,
+     0.0856,
+     0.023
+    ],
+    "mats": 3
+   },
+   "Crop_TeaLeaf__Seed": {
+    "type": "MESH",
+    "dims": [
+     0.0686,
+     0.0149,
+     0.09
+    ],
+    "mats": 4
+   },
+   "Crop_TeaLeaf__Stack": {
+    "type": "MESH",
+    "dims": [
+     0.162,
+     0.1541,
+     0.0368
+    ],
+    "mats": 2
+   }
+  }
+ },
+ "Dessert_Cake.fbx": {
+  "objects": {
+   "Dessert_Cake": {
+    "type": "MESH",
+    "dims": [
+     0.14,
+     0.14,
+     0.067
+    ],
+    "mats": 4
+   },
+   "Dessert_Cake__Rotten": {
+    "type": "MESH",
+    "dims": [
+     0.14,
+     0.14,
+     0.067
+    ],
+    "mats": 5
+   },
+   "Dessert_Cake__Stack": {
+    "type": "MESH",
+    "dims": [
+     0.328,
+     0.178,
+     0.075
+    ],
+    "mats": 6
+   }
+  }
+ },
+ "Dessert_Cookie.fbx": {
+  "objects": {
+   "Dessert_Cookie": {
+    "type": "MESH",
+    "dims": [
+     0.14,
+     0.14,
+     0.018
+    ],
+    "mats": 2
+   },
+   "Dessert_Cookie__Rotten": {
+    "type": "MESH",
+    "dims": [
+     0.14,
+     0.14,
+     0.019
+    ],
+    "mats": 3
+   },
+   "Dessert_Cookie__Stack": {
+    "type": "MESH",
+    "dims": [
+     0.328,
+     0.178,
+     0.04
+    ],
+    "mats": 4
+   }
+  }
+ },
+ "Dessert_FruitSalad.fbx": {
+  "objects": {
+   "Dessert_FruitSalad": {
+    "type": "MESH",
+    "dims": [
+     0.1,
+     0.1,
+     0.052
+    ],
+    "mats": 5
+   },
+   "Dessert_FruitSalad__Rotten": {
+    "type": "MESH",
+    "dims": [
+     0.1,
+     0.1,
+     0.052
+    ],
+    "mats": 6
+   },
+   "Dessert_FruitSalad__Stack": {
+    "type": "MESH",
+    "dims": [
+     0.248,
+     0.138,
+     0.06
+    ],
+    "mats": 7
+   }
+  }
+ },
+ "Dessert_NutBar.fbx": {
+  "objects": {
+   "Dessert_NutBar": {
+    "type": "MESH",
+    "dims": [
+     0.15,
+     0.1,
+     0.027
+    ],
+    "mats": 2
+   },
+   "Dessert_NutBar__Rotten": {
+    "type": "MESH",
+    "dims": [
+     0.15,
+     0.1,
+     0.027
+    ],
+    "mats": 3
+   },
+   "Dessert_NutBar__Stack": {
+    "type": "MESH",
+    "dims": [
+     0.348,
+     0.138,
+     0.04
+    ],
+    "mats": 3
+   }
+  }
+ },
+ "Dessert_Pancake.fbx": {
+  "objects": {
+   "Dessert_Pancake": {
+    "type": "MESH",
+    "dims": [
+     0.14,
+     0.14,
+     0.037
+    ],
+    "mats": 3
+   },
+   "Dessert_Pancake__Rotten": {
+    "type": "MESH",
+    "dims": [
+     0.14,
+     0.14,
+     0.0384
+    ],
+    "mats": 4
+   },
+   "Dessert_Pancake__Stack": {
+    "type": "MESH",
+    "dims": [
+     0.328,
+     0.178,
+     0.045
+    ],
+    "mats": 5
+   }
+  }
+ },
+ "Dessert_Pudding.fbx": {
+  "objects": {
+   "Dessert_Pudding": {
+    "type": "MESH",
+    "dims": [
+     0.14,
+     0.14,
+     0.046
+    ],
+    "mats": 3
+   },
+   "Dessert_Pudding__Rotten": {
+    "type": "MESH",
+    "dims": [
+     0.14,
+     0.14,
+     0.046
+    ],
+    "mats": 4
+   },
+   "Dessert_Pudding__Stack": {
+    "type": "MESH",
+    "dims": [
+     0.328,
+     0.178,
+     0.054
+    ],
+    "mats": 5
+   }
+  }
+ },
+ "Dish_FriedRice.fbx": {
+  "objects": {
+   "Dish_FriedRice": {
+    "type": "MESH",
+    "dims": [
+     0.14,
+     0.14,
+     0.03
+    ],
+    "mats": 4
+   },
+   "Dish_FriedRice__Rotten": {
+    "type": "MESH",
+    "dims": [
+     0.14,
+     0.14,
+     0.03
+    ],
+    "mats": 5
+   },
+   "Dish_FriedRice__Stack": {
+    "type": "MESH",
+    "dims": [
+     0.328,
+     0.178,
+     0.04
+    ],
+    "mats": 6
+   }
+  }
+ },
+ "Dish_MultigrainRice.fbx": {
+  "objects": {
+   "Dish_MultigrainRice": {
+    "type": "MESH",
+    "dims": [
+     0.1,
+     0.1,
+     0.054
+    ],
+    "mats": 3
+   },
+   "Dish_MultigrainRice__Rotten": {
+    "type": "MESH",
+    "dims": [
+     0.1,
+     0.1,
+     0.054
+    ],
+    "mats": 4
+   },
+   "Dish_MultigrainRice__Stack": {
+    "type": "MESH",
+    "dims": [
+     0.248,
+     0.138,
+     0.062
+    ],
+    "mats": 5
+   }
+  }
+ },
+ "Dish_Porridge.fbx": {
+  "objects": {
+   "Dish_Porridge": {
+    "type": "MESH",
+    "dims": [
+     0.1,
+     0.1,
+     0.045
+    ],
+    "mats": 3
+   },
+   "Dish_Porridge__Rotten": {
+    "type": "MESH",
+    "dims": [
+     0.1,
+     0.1,
+     0.045
+    ],
+    "mats": 4
+   },
+   "Dish_Porridge__Stack": {
+    "type": "MESH",
+    "dims": [
+     0.248,
+     0.138,
+     0.053
+    ],
+    "mats": 5
+   }
+  }
+ },
+ "Dish_Rice.fbx": {
+  "objects": {
+   "Dish_Rice": {
+    "type": "MESH",
+    "dims": [
+     0.1,
+     0.1,
+     0.054
+    ],
+    "mats": 2
+   },
+   "Dish_Rice__Rotten": {
+    "type": "MESH",
+    "dims": [
+     0.1,
+     0.1,
+     0.054
+    ],
+    "mats": 3
+   },
+   "Dish_Rice__Stack": {
+    "type": "MESH",
+    "dims": [
+     0.248,
+     0.138,
+     0.062
+    ],
+    "mats": 4
+   }
+  }
+ },
+ "Dish_RiceBall.fbx": {
+  "objects": {
+   "Dish_RiceBall": {
+    "type": "MESH",
+    "dims": [
+     0.15,
+     0.1,
+     0.052
+    ],
+    "mats": 3
+   },
+   "Dish_RiceBall__Rotten": {
+    "type": "MESH",
+    "dims": [
+     0.15,
+     0.1,
+     0.0524
+    ],
+    "mats": 4
+   },
+   "Dish_RiceBall__Stack": {
+    "type": "MESH",
+    "dims": [
+     0.348,
+     0.138,
+     0.06
+    ],
+    "mats": 4
+   }
+  }
+ },
+ "Dish_RiceBowl.fbx": {
+  "objects": {
+   "Dish_RiceBowl": {
+    "type": "MESH",
+    "dims": [
+     0.1,
+     0.1,
+     0.0566
+    ],
+    "mats": 4
+   },
+   "Dish_RiceBowl__Rotten": {
+    "type": "MESH",
+    "dims": [
+     0.1,
+     0.1,
+     0.0572
+    ],
+    "mats": 5
+   },
+   "Dish_RiceBowl__Stack": {
+    "type": "MESH",
+    "dims": [
+     0.248,
+     0.138,
+     0.0646
+    ],
+    "mats": 6
+   }
+  }
+ },
+ "Drink_Cocoa.fbx": {
+  "objects": {
+   "Drink_Cocoa": {
+    "type": "MESH",
+    "dims": [
+     0.089,
+     0.06,
+     0.07
+    ],
+    "mats": 3
+   },
+   "Drink_Cocoa__Rotten": {
+    "type": "MESH",
+    "dims": [
+     0.089,
+     0.06,
+     0.0712
+    ],
+    "mats": 4
+   },
+   "Drink_Cocoa__Stack": {
+    "type": "MESH",
+    "dims": [
+     0.325,
+     0.168,
+     0.078
+    ],
+    "mats": 5
+   }
+  }
+ },
+ "Drink_Coffee.fbx": {
+  "objects": {
+   "Drink_Coffee": {
+    "type": "MESH",
+    "dims": [
+     0.089,
+     0.06,
+     0.07
+    ],
+    "mats": 2
+   },
+   "Drink_Coffee__Rotten": {
+    "type": "MESH",
+    "dims": [
+     0.089,
+     0.06,
+     0.0701
+    ],
+    "mats": 3
+   },
+   "Drink_Coffee__Stack": {
+    "type": "MESH",
+    "dims": [
+     0.325,
+     0.168,
+     0.078
+    ],
+    "mats": 4
+   }
+  }
+ },
+ "Drink_FruitJuice.fbx": {
+  "objects": {
+   "Drink_FruitJuice": {
+    "type": "MESH",
+    "dims": [
+     0.056,
+     0.0546,
+     0.09
+    ],
+    "mats": 2
+   },
+   "Drink_FruitJuice__Rotten": {
+    "type": "MESH",
+    "dims": [
+     0.056,
+     0.0546,
+     0.09
+    ],
+    "mats": 3
+   },
+   "Drink_FruitJuice__Stack": {
+    "type": "MESH",
+    "dims": [
+     0.226,
+     0.1572,
+     0.098
+    ],
+    "mats": 4
+   }
+  }
+ },
+ "Drink_Tea.fbx": {
+  "objects": {
+   "Drink_Tea": {
+    "type": "MESH",
+    "dims": [
+     0.064,
+     0.064,
+     0.035
+    ],
+    "mats": 2
+   },
+   "Drink_Tea__Rotten": {
+    "type": "MESH",
+    "dims": [
+     0.064,
+     0.064,
+     0.0359
+    ],
+    "mats": 3
+   },
+   "Drink_Tea__Stack": {
+    "type": "MESH",
+    "dims": [
+     0.25,
+     0.176,
+     0.043
+    ],
+    "mats": 4
+   }
+  }
+ },
+ "Egg_Boiled.fbx": {
+  "objects": {
+   "Egg_Boiled": {
+    "type": "MESH",
+    "dims": [
+     0.044,
+     0.044,
+     0.063
+    ],
+    "mats": 2
+   },
+   "Egg_Boiled__Rotten": {
+    "type": "MESH",
+    "dims": [
+     0.044,
+     0.044,
+     0.0634
+    ],
+    "mats": 3
+   },
+   "Egg_Boiled__Stack": {
+    "type": "MESH",
+    "dims": [
+     0.19,
+     0.136,
+     0.071
+    ],
+    "mats": 4
+   }
+  }
+ },
+ "Egg_Fried.fbx": {
+  "objects": {
+   "Egg_Fried": {
+    "type": "MESH",
+    "dims": [
+     0.14,
+     0.14,
+     0.019
+    ],
+    "mats": 3
+   },
+   "Egg_Fried__Rotten": {
+    "type": "MESH",
+    "dims": [
+     0.14,
+     0.14,
+     0.019
+    ],
+    "mats": 4
+   },
+   "Egg_Fried__Stack": {
+    "type": "MESH",
+    "dims": [
+     0.328,
+     0.178,
+     0.04
+    ],
+    "mats": 5
+   }
+  }
+ },
+ "Egg_Omelette.fbx": {
+  "objects": {
+   "Egg_Omelette": {
+    "type": "MESH",
+    "dims": [
+     0.14,
+     0.14,
+     0.032
+    ],
+    "mats": 2
+   },
+   "Egg_Omelette__Rotten": {
+    "type": "MESH",
+    "dims": [
+     0.14,
+     0.14,
+     0.032
+    ],
+    "mats": 3
+   },
+   "Egg_Omelette__Stack": {
+    "type": "MESH",
+    "dims": [
+     0.328,
+     0.178,
+     0.04
+    ],
+    "mats": 4
+   }
+  }
+ },
+ "Egg_Steamed.fbx": {
+  "objects": {
+   "Egg_Steamed": {
+    "type": "MESH",
+    "dims": [
+     0.1,
+     0.1,
+     0.0646
+    ],
+    "mats": 3
+   },
+   "Egg_Steamed__Rotten": {
+    "type": "MESH",
+    "dims": [
+     0.1,
+     0.1,
+     0.0646
+    ],
+    "mats": 4
+   },
+   "Egg_Steamed__Stack": {
+    "type": "MESH",
+    "dims": [
+     0.248,
+     0.138,
+     0.0726
+    ],
+    "mats": 5
+   }
+  }
+ },
+ "Fiber_Plant.fbx": {
+  "objects": {
+   "Fiber_Plant": {
+    "type": "MESH",
+    "dims": [
+     0.161,
+     0.0584,
+     0.056
+    ],
+    "mats": 2
+   },
+   "Fiber_Plant__Stack": {
+    "type": "MESH",
+    "dims": [
+     0.1673,
+     0.1122,
+     0.1658
+    ],
+    "mats": 2
+   }
+  }
+ },
+ "Fiber_RanchYarn.fbx": {
+  "objects": {
+   "Fiber_RanchYarn": {
+    "type": "MESH",
+    "dims": [
+     0.05,
+     0.05,
+     0.05
+    ],
+    "mats": 2
+   },
+   "Fiber_RanchYarn__Stack": {
+    "type": "MESH",
+    "dims": [
+     0.05,
+     0.05,
+     0.148
+    ],
+    "mats": 2
+   }
+  }
+ },
+ "Fiber_Wool.fbx": {
+  "objects": {
+   "Fiber_Wool": {
+    "type": "MESH",
+    "dims": [
+     0.0899,
+     0.0846,
+     0.05
+    ],
+    "mats": 1
+   },
+   "Fiber_Wool__Stack": {
+    "type": "MESH",
+    "dims": [
+     0.085,
+     0.1012,
+     0.148
+    ],
+    "mats": 1
+   }
+  }
+ },
+ "Fish_Anchovy.fbx": {
+  "objects": {
+   "Fish_Anchovy": {
+    "type": "MESH",
+    "dims": [
+     0.05,
+     0.0086,
+     0.0101
+    ],
+    "mats": 4
+   },
+   "Fish_Anchovy__Rotten": {
+    "type": "MESH",
+    "dims": [
+     0.05,
+     0.0114,
+     0.0101
+    ],
+    "mats": 5
+   },
+   "Fish_Anchovy__Stack": {
+    "type": "MESH",
+    "dims": [
+     0.208,
+     0.0651,
+     0.04
+    ],
+    "mats": 6
+   }
+  }
+ },
+ "Fish_Carp.fbx": {
+  "objects": {
+   "Fish_Carp": {
+    "type": "MESH",
+    "dims": [
+     0.1844,
+     0.0679,
+     0.0803
+    ],
+    "mats": 5
+   },
+   "Fish_Carp__Rotten": {
+    "type": "MESH",
+    "dims": [
+     0.1844,
+     0.0679,
+     0.0803
+    ],
+    "mats": 6
+   },
+   "Fish_Carp__Stack": {
+    "type": "MESH",
+    "dims": [
+     0.4169,
+     0.1059,
+     0.0883
+    ],
+    "mats": 7
+   }
+  }
+ },
+ "Fish_Catfish.fbx": {
+  "objects": {
+   "Fish_Catfish": {
+    "type": "MESH",
+    "dims": [
+     0.1843,
+     0.042,
+     0.0497
+    ],
+    "mats": 5
+   },
+   "Fish_Catfish__Rotten": {
+    "type": "MESH",
+    "dims": [
+     0.1843,
+     0.042,
+     0.0497
+    ],
+    "mats": 6
+   },
+   "Fish_Catfish__Stack": {
+    "type": "MESH",
+    "dims": [
+     0.4165,
+     0.08,
+     0.0577
+    ],
+    "mats": 7
+   }
+  }
+ },
+ "Fish_Cod.fbx": {
+  "objects": {
+   "Fish_Cod": {
+    "type": "MESH",
+    "dims": [
+     0.2059,
+     0.0578,
+     0.0684
+    ],
+    "mats": 6
+   },
+   "Fish_Cod__Rotten": {
+    "type": "MESH",
+    "dims": [
+     0.2059,
+     0.0578,
+     0.0694
+    ],
+    "mats": 7
+   },
+   "Fish_Cod__Stack": {
+    "type": "MESH",
+    "dims": [
+     0.4599,
+     0.0958,
+     0.0764
+    ],
+    "mats": 8
+   }
+  }
+ },
+ "Fish_Crucian.fbx": {
+  "objects": {
+   "Fish_Crucian": {
+    "type": "MESH",
+    "dims": [
+     0.12,
+     0.0571,
+     0.0675
+    ],
+    "mats": 4
+   },
+   "Fish_Crucian__Rotten": {
+    "type": "MESH",
+    "dims": [
+     0.12,
+     0.0571,
+     0.0675
+    ],
+    "mats": 5
+   },
+   "Fish_Crucian__Stack": {
+    "type": "MESH",
+    "dims": [
+     0.288,
+     0.0951,
+     0.0755
+    ],
+    "mats": 6
+   }
+  }
+ },
+ "Fish_Eel.fbx": {
+  "objects": {
+   "Fish_Eel": {
+    "type": "MESH",
+    "dims": [
+     0.2497,
+     0.0566,
+     0.0178
+    ],
+    "mats": 2
+   },
+   "Fish_Eel__Rotten": {
+    "type": "MESH",
+    "dims": [
+     0.2497,
+     0.0566,
+     0.0178
+    ],
+    "mats": 3
+   },
+   "Fish_Eel__Stack": {
+    "type": "MESH",
+    "dims": [
+     0.5475,
+     0.0946,
+     0.04
+    ],
+    "mats": 4
+   }
+  }
+ },
+ "Fish_Flounder.fbx": {
+  "objects": {
+   "Fish_Flounder": {
+    "type": "MESH",
+    "dims": [
+     0.1425,
+     0.084,
+     0.02
+    ],
+    "mats": 4
+   },
+   "Fish_Flounder__Rotten": {
+    "type": "MESH",
+    "dims": [
+     0.1425,
+     0.084,
+     0.0211
+    ],
+    "mats": 5
+   },
+   "Fish_Flounder__Stack": {
+    "type": "MESH",
+    "dims": [
+     0.333,
+     0.122,
+     0.04
+    ],
+    "mats": 6
+   }
+  }
+ },
+ "Fish_Fried.fbx": {
+  "objects": {
+   "Fish_Fried": {
+    "type": "MESH",
+    "dims": [
+     0.14,
+     0.14,
+     0.022
+    ],
+    "mats": 2
+   },
+   "Fish_Fried__Rotten": {
+    "type": "MESH",
+    "dims": [
+     0.14,
+     0.14,
+     0.022
+    ],
+    "mats": 3
+   },
+   "Fish_Fried__Stack": {
+    "type": "MESH",
+    "dims": [
+     0.328,
+     0.178,
+     0.04
+    ],
+    "mats": 4
+   }
+  }
+ },
+ "Fish_Grilled.fbx": {
+  "objects": {
+   "Fish_Grilled": {
+    "type": "MESH",
+    "dims": [
+     0.21,
+     0.14,
+     0.0575
+    ],
+    "mats": 5
+   },
+   "Fish_Grilled__Rotten": {
+    "type": "MESH",
+    "dims": [
+     0.21,
+     0.14,
+     0.0575
+    ],
+    "mats": 6
+   },
+   "Fish_Grilled__Stack": {
+    "type": "MESH",
+    "dims": [
+     0.468,
+     0.178,
+     0.0654
+    ],
+    "mats": 7
+   }
+  }
+ },
+ "Fish_Herring.fbx": {
+  "objects": {
+   "Fish_Herring": {
+    "type": "MESH",
+    "dims": [
+     0.13,
+     0.0321,
+     0.038
+    ],
+    "mats": 4
+   },
+   "Fish_Herring__Rotten": {
+    "type": "MESH",
+    "dims": [
+     0.13,
+     0.0321,
+     0.038
+    ],
+    "mats": 5
+   },
+   "Fish_Herring__Stack": {
+    "type": "MESH",
+    "dims": [
+     0.308,
+     0.0701,
+     0.046
+    ],
+    "mats": 6
+   }
+  }
+ },
+ "Fish_Loach.fbx": {
+  "objects": {
+   "Fish_Loach": {
+    "type": "MESH",
+    "dims": [
+     0.1084,
+     0.0152,
+     0.018
+    ],
+    "mats": 5
+   },
+   "Fish_Loach__Rotten": {
+    "type": "MESH",
+    "dims": [
+     0.1084,
+     0.0161,
+     0.0194
+    ],
+    "mats": 6
+   },
+   "Fish_Loach__Stack": {
+    "type": "MESH",
+    "dims": [
+     0.2649,
+     0.0532,
+     0.04
+    ],
+    "mats": 7
+   }
+  }
+ },
+ "Fish_Mackerel.fbx": {
+  "objects": {
+   "Fish_Mackerel": {
+    "type": "MESH",
+    "dims": [
+     0.15,
+     0.0371,
+     0.0439
+    ],
+    "mats": 5
+   },
+   "Fish_Mackerel__Rotten": {
+    "type": "MESH",
+    "dims": [
+     0.15,
+     0.0371,
+     0.0449
+    ],
+    "mats": 6
+   },
+   "Fish_Mackerel__Stack": {
+    "type": "MESH",
+    "dims": [
+     0.348,
+     0.0751,
+     0.0519
+    ],
+    "mats": 7
+   }
+  }
+ },
+ "Fish_Mandarin.fbx": {
+  "objects": {
+   "Fish_Mandarin": {
+    "type": "MESH",
+    "dims": [
+     0.15,
+     0.0514,
+     0.0608
+    ],
+    "mats": 5
+   },
+   "Fish_Mandarin__Rotten": {
+    "type": "MESH",
+    "dims": [
+     0.15,
+     0.0514,
+     0.0608
+    ],
+    "mats": 6
+   },
+   "Fish_Mandarin__Stack": {
+    "type": "MESH",
+    "dims": [
+     0.348,
+     0.0894,
+     0.0688
+    ],
+    "mats": 7
+   }
+  }
+ },
+ "Fish_Salmon.fbx": {
+  "objects": {
+   "Fish_Salmon": {
+    "type": "MESH",
+    "dims": [
+     0.19,
+     0.0542,
+     0.0641
+    ],
+    "mats": 4
+   },
+   "Fish_Salmon__Rotten": {
+    "type": "MESH",
+    "dims": [
+     0.19,
+     0.0542,
+     0.0641
+    ],
+    "mats": 5
+   },
+   "Fish_Salmon__Stack": {
+    "type": "MESH",
+    "dims": [
+     0.428,
+     0.0922,
+     0.0721
+    ],
+    "mats": 6
+   }
+  }
+ },
+ "Fish_Sardine.fbx": {
+  "objects": {
+   "Fish_Sardine": {
+    "type": "MESH",
+    "dims": [
+     0.08,
+     0.0167,
+     0.0198
+    ],
+    "mats": 5
+   },
+   "Fish_Sardine__Rotten": {
+    "type": "MESH",
+    "dims": [
+     0.08,
+     0.0167,
+     0.0198
+    ],
+    "mats": 6
+   },
+   "Fish_Sardine__Stack": {
+    "type": "MESH",
+    "dims": [
+     0.298,
+     0.0864,
+     0.04
+    ],
+    "mats": 7
+   }
+  }
+ },
+ "Fish_Smelt.fbx": {
+  "objects": {
+   "Fish_Smelt": {
+    "type": "MESH",
+    "dims": [
+     0.07,
+     0.0133,
+     0.0158
+    ],
+    "mats": 4
+   },
+   "Fish_Smelt__Rotten": {
+    "type": "MESH",
+    "dims": [
+     0.07,
+     0.0138,
+     0.0163
+    ],
+    "mats": 5
+   },
+   "Fish_Smelt__Stack": {
+    "type": "MESH",
+    "dims": [
+     0.268,
+     0.0773,
+     0.04
+    ],
+    "mats": 6
+   }
+  }
+ },
+ "Fish_Steamed.fbx": {
+  "objects": {
+   "Fish_Steamed": {
+    "type": "MESH",
+    "dims": [
+     0.21,
+     0.14,
+     0.0575
+    ],
+    "mats": 6
+   },
+   "Fish_Steamed__Rotten": {
+    "type": "MESH",
+    "dims": [
+     0.21,
+     0.14,
+     0.0575
+    ],
+    "mats": 7
+   },
+   "Fish_Steamed__Stack": {
+    "type": "MESH",
+    "dims": [
+     0.468,
+     0.178,
+     0.0654
+    ],
+    "mats": 8
+   }
+  }
+ },
+ "Fish_Trout.fbx": {
+  "objects": {
+   "Fish_Trout": {
+    "type": "MESH",
+    "dims": [
+     0.15,
+     0.0428,
+     0.0506
+    ],
+    "mats": 6
+   },
+   "Fish_Trout__Rotten": {
+    "type": "MESH",
+    "dims": [
+     0.15,
+     0.0428,
+     0.0506
+    ],
+    "mats": 7
+   },
+   "Fish_Trout__Stack": {
+    "type": "MESH",
+    "dims": [
+     0.348,
+     0.0808,
+     0.0586
+    ],
+    "mats": 8
+   }
+  }
+ },
+ "Fish_Tuna.fbx": {
+  "objects": {
+   "Fish_Tuna": {
+    "type": "MESH",
+    "dims": [
+     0.24,
+     0.0822,
+     0.0972
+    ],
+    "mats": 5
+   },
+   "Fish_Tuna__Rotten": {
+    "type": "MESH",
+    "dims": [
+     0.24,
+     0.0822,
+     0.0972
+    ],
+    "mats": 6
+   },
+   "Fish_Tuna__Stack": {
+    "type": "MESH",
+    "dims": [
+     0.528,
+     0.1202,
+     0.1052
+    ],
+    "mats": 7
+   }
+  }
+ },
+ "Fossil_Coal.fbx": {
+  "objects": {
+   "Fossil_Coal": {
+    "type": "MESH",
+    "dims": [
+     0.1108,
+     0.0892,
+     0.062
+    ],
+    "mats": 1
+   },
+   "Fossil_Coal__Stack": {
+    "type": "MESH",
+    "dims": [
+     0.1955,
+     0.18,
+     0.0992
+    ],
+    "mats": 1
+   }
+  }
+ },
+ "Fossil_CrudeOil.fbx": {
+  "objects": {
+   "Fossil_CrudeOil": {
+    "type": "MESH",
+    "dims": [
+     0.15,
+     0.15,
+     0.228
+    ],
+    "mats": 4
+   },
+   "Fossil_CrudeOil__Stack": {
+    "type": "MESH",
+    "dims": [
+     0.15,
+     0.1509,
+     0.6749
+    ],
+    "mats": 4
+   }
+  }
+ },
+ "Fossil_NaturalGas.fbx": {
+  "objects": {
+   "Fossil_NaturalGas": {
+    "type": "MESH",
+    "dims": [
+     0.084,
+     0.0819,
+     0.285
+    ],
+    "mats": 3
+   },
+   "Fossil_NaturalGas__Stack": {
+    "type": "MESH",
+    "dims": [
+     0.084,
+     0.084,
+     0.8436
+    ],
+    "mats": 3
+   }
+  }
+ },
+ "Fruit_Apple.fbx": {
+  "objects": {
+   "Fruit_Apple": {
+    "type": "MESH",
+    "dims": [
+     0.08,
+     0.08,
+     0.0875
+    ],
+    "mats": 3
+   },
+   "Fruit_Apple__Rotten": {
+    "type": "MESH",
+    "dims": [
+     0.08,
+     0.08,
+     0.0875
+    ],
+    "mats": 4
+   },
+   "Fruit_Apple__Seed": {
+    "type": "MESH",
+    "dims": [
+     0.068,
+     0.0165,
+     0.09
+    ],
+    "mats": 4
+   },
+   "Fruit_Apple__Stack": {
+    "type": "MESH",
+    "dims": [
+     0.298,
+     0.208,
+     0.0955
+    ],
+    "mats": 5
+   }
+  }
+ },
+ "Fruit_Apricot.fbx": {
+  "objects": {
+   "Fruit_Apricot": {
+    "type": "MESH",
+    "dims": [
+     0.056,
+     0.0571,
+     0.0477
+    ],
+    "mats": 2
+   },
+   "Fruit_Apricot__Rotten": {
+    "type": "MESH",
+    "dims": [
+     0.056,
+     0.0571,
+     0.0496
+    ],
+    "mats": 3
+   },
+   "Fruit_Apricot__Seed": {
+    "type": "MESH",
+    "dims": [
+     0.0703,
+     0.0181,
+     0.09
+    ],
+    "mats": 4
+   },
+   "Fruit_Apricot__Stack": {
+    "type": "MESH",
+    "dims": [
+     0.226,
+     0.1622,
+     0.0557
+    ],
+    "mats": 4
+   }
+  }
+ },
+ "Fruit_Banana.fbx": {
+  "objects": {
+   "Fruit_Banana": {
+    "type": "MESH",
+    "dims": [
+     0.1548,
+     0.0902,
+     0.0484
+    ],
+    "mats": 2
+   },
+   "Fruit_Banana__Rotten": {
+    "type": "MESH",
+    "dims": [
+     0.1548,
+     0.0902,
+     0.05
+    ],
+    "mats": 3
+   },
+   "Fruit_Banana__Seed": {
+    "type": "MESH",
+    "dims": [
+     0.0706,
+     0.0102,
+     0.09
+    ],
+    "mats": 4
+   },
+   "Fruit_Banana__Stack": {
+    "type": "MESH",
+    "dims": [
+     0.3575,
+     0.1282,
+     0.0564
+    ],
+    "mats": 4
+   }
+  }
+ },
+ "Fruit_Blackberry.fbx": {
+  "objects": {
+   "Fruit_Blackberry": {
+    "type": "MESH",
+    "dims": [
+     0.0357,
+     0.0331,
+     0.0168
+    ],
+    "mats": 1
+   },
+   "Fruit_Blackberry__Rotten": {
+    "type": "MESH",
+    "dims": [
+     0.0357,
+     0.0331,
+     0.0172
+    ],
+    "mats": 2
+   },
+   "Fruit_Blackberry__Seed": {
+    "type": "MESH",
+    "dims": [
+     0.0695,
+     0.0096,
+     0.09
+    ],
+    "mats": 4
+   },
+   "Fruit_Blackberry__Stack": {
+    "type": "MESH",
+    "dims": [
+     0.1651,
+     0.1143,
+     0.04
+    ],
+    "mats": 3
+   }
+  }
+ },
+ "Fruit_Blueberry.fbx": {
+  "objects": {
+   "Fruit_Blueberry": {
+    "type": "MESH",
+    "dims": [
+     0.0393,
+     0.0393,
+     0.014
+    ],
+    "mats": 1
+   },
+   "Fruit_Blueberry__Rotten": {
+    "type": "MESH",
+    "dims": [
+     0.0393,
+     0.0393,
+     0.0159
+    ],
+    "mats": 2
+   },
+   "Fruit_Blueberry__Seed": {
+    "type": "MESH",
+    "dims": [
+     0.0677,
+     0.0145,
+     0.09
+    ],
+    "mats": 4
+   },
+   "Fruit_Blueberry__Stack": {
+    "type": "MESH",
+    "dims": [
+     0.1759,
+     0.1266,
+     0.04
+    ],
+    "mats": 3
+   }
+  }
+ },
+ "Fruit_Cherry.fbx": {
+  "objects": {
+   "Fruit_Cherry": {
+    "type": "MESH",
+    "dims": [
+     0.0449,
+     0.0209,
+     0.0554
+    ],
+    "mats": 2
+   },
+   "Fruit_Cherry__Rotten": {
+    "type": "MESH",
+    "dims": [
+     0.0449,
+     0.0209,
+     0.0563
+    ],
+    "mats": 3
+   },
+   "Fruit_Cherry__Seed": {
+    "type": "MESH",
+    "dims": [
+     0.0653,
+     0.0155,
+     0.09
+    ],
+    "mats": 4
+   },
+   "Fruit_Cherry__Stack": {
+    "type": "MESH",
+    "dims": [
+     0.1928,
+     0.0898,
+     0.0634
+    ],
+    "mats": 4
+   }
+  }
+ },
+ "Fruit_Cranberry.fbx": {
+  "objects": {
+   "Fruit_Cranberry": {
+    "type": "MESH",
+    "dims": [
+     0.0393,
+     0.0393,
+     0.014
+    ],
+    "mats": 1
+   },
+   "Fruit_Cranberry__Rotten": {
+    "type": "MESH",
+    "dims": [
+     0.0393,
+     0.0393,
+     0.0155
+    ],
+    "mats": 2
+   },
+   "Fruit_Cranberry__Seed": {
+    "type": "MESH",
+    "dims": [
+     0.064,
+     0.0135,
+     0.09
+    ],
+    "mats": 4
+   },
+   "Fruit_Cranberry__Stack": {
+    "type": "MESH",
+    "dims": [
+     0.1759,
+     0.1266,
+     0.04
+    ],
+    "mats": 3
+   }
+  }
+ },
+ "Fruit_Date.fbx": {
+  "objects": {
+   "Fruit_Date": {
+    "type": "MESH",
+    "dims": [
+     0.0795,
+     0.0352,
+     0.015
+    ],
+    "mats": 1
+   },
+   "Fruit_Date__Rotten": {
+    "type": "MESH",
+    "dims": [
+     0.0795,
+     0.0352,
+     0.0165
+    ],
+    "mats": 2
+   },
+   "Fruit_Date__Seed": {
+    "type": "MESH",
+    "dims": [
+     0.0673,
+     0.0142,
+     0.09
+    ],
+    "mats": 4
+   },
+   "Fruit_Date__Stack": {
+    "type": "MESH",
+    "dims": [
+     0.2965,
+     0.1184,
+     0.04
+    ],
+    "mats": 3
+   }
+  }
+ },
+ "Fruit_Fig.fbx": {
+  "objects": {
+   "Fruit_Fig": {
+    "type": "MESH",
+    "dims": [
+     0.049,
+     0.049,
+     0.0714
+    ],
+    "mats": 2
+   },
+   "Fruit_Fig__Rotten": {
+    "type": "MESH",
+    "dims": [
+     0.049,
+     0.049,
+     0.0714
+    ],
+    "mats": 3
+   },
+   "Fruit_Fig__Seed": {
+    "type": "MESH",
+    "dims": [
+     0.0681,
+     0.0149,
+     0.09
+    ],
+    "mats": 4
+   },
+   "Fruit_Fig__Stack": {
+    "type": "MESH",
+    "dims": [
+     0.205,
+     0.146,
+     0.0794
+    ],
+    "mats": 4
+   }
+  }
+ },
+ "Fruit_Grape.fbx": {
+  "objects": {
+   "Fruit_Grape": {
+    "type": "MESH",
+    "dims": [
+     0.101,
+     0.0963,
+     0.114
+    ],
+    "mats": 3
+   },
+   "Fruit_Grape__Rotten": {
+    "type": "MESH",
+    "dims": [
+     0.101,
+     0.0963,
+     0.114
+    ],
+    "mats": 4
+   },
+   "Fruit_Grape__Seed": {
+    "type": "MESH",
+    "dims": [
+     0.0682,
+     0.0152,
+     0.09
+    ],
+    "mats": 4
+   },
+   "Fruit_Grape__Stack": {
+    "type": "MESH",
+    "dims": [
+     0.2499,
+     0.1343,
+     0.122
+    ],
+    "mats": 5
+   }
+  }
+ },
+ "Fruit_KoreanMelon.fbx": {
+  "objects": {
+   "Fruit_KoreanMelon": {
+    "type": "MESH",
+    "dims": [
+     0.13,
+     0.0872,
+     0.0872
+    ],
+    "mats": 3
+   },
+   "Fruit_KoreanMelon__Rotten": {
+    "type": "MESH",
+    "dims": [
+     0.13,
+     0.0872,
+     0.0872
+    ],
+    "mats": 4
+   },
+   "Fruit_KoreanMelon__Seed": {
+    "type": "MESH",
+    "dims": [
+     0.0691,
+     0.0109,
+     0.09
+    ],
+    "mats": 4
+   },
+   "Fruit_KoreanMelon__Stack": {
+    "type": "MESH",
+    "dims": [
+     0.308,
+     0.1252,
+     0.0952
+    ],
+    "mats": 5
+   }
+  }
+ },
+ "Fruit_Lemon.fbx": {
+  "objects": {
+   "Fruit_Lemon": {
+    "type": "MESH",
+    "dims": [
+     0.075,
+     0.06,
+     0.06
+    ],
+    "mats": 1
+   },
+   "Fruit_Lemon__Rotten": {
+    "type": "MESH",
+    "dims": [
+     0.075,
+     0.06,
+     0.06
+    ],
+    "mats": 2
+   },
+   "Fruit_Lemon__Seed": {
+    "type": "MESH",
+    "dims": [
+     0.0695,
+     0.0151,
+     0.09
+    ],
+    "mats": 4
+   },
+   "Fruit_Lemon__Stack": {
+    "type": "MESH",
+    "dims": [
+     0.283,
+     0.168,
+     0.068
+    ],
+    "mats": 3
+   }
+  }
+ },
+ "Fruit_Mango.fbx": {
+  "objects": {
+   "Fruit_Mango": {
+    "type": "MESH",
+    "dims": [
+     0.0879,
+     0.0737,
+     0.08
+    ],
+    "mats": 2
+   },
+   "Fruit_Mango__Rotten": {
+    "type": "MESH",
+    "dims": [
+     0.0879,
+     0.0737,
+     0.08
+    ],
+    "mats": 3
+   },
+   "Fruit_Mango__Seed": {
+    "type": "MESH",
+    "dims": [
+     0.0697,
+     0.0149,
+     0.09
+    ],
+    "mats": 4
+   },
+   "Fruit_Mango__Stack": {
+    "type": "MESH",
+    "dims": [
+     0.3217,
+     0.1955,
+     0.088
+    ],
+    "mats": 4
+   }
+  }
+ },
+ "Fruit_Melon.fbx": {
+  "objects": {
+   "Fruit_Melon": {
+    "type": "MESH",
+    "dims": [
+     0.2037,
+     0.1976,
+     0.1409
+    ],
+    "mats": 2
+   },
+   "Fruit_Melon__Rotten": {
+    "type": "MESH",
+    "dims": [
+     0.2037,
+     0.1976,
+     0.1409
+    ],
+    "mats": 3
+   },
+   "Fruit_Melon__Seed": {
+    "type": "MESH",
+    "dims": [
+     0.0671,
+     0.0118,
+     0.09
+    ],
+    "mats": 4
+   },
+   "Fruit_Melon__Stack": {
+    "type": "MESH",
+    "dims": [
+     0.4554,
+     0.2356,
+     0.1489
+    ],
+    "mats": 4
+   }
+  }
+ },
+ "Fruit_Mulberry.fbx": {
+  "objects": {
+   "Fruit_Mulberry": {
+    "type": "MESH",
+    "dims": [
+     0.034,
+     0.0319,
+     0.0192
+    ],
+    "mats": 1
+   },
+   "Fruit_Mulberry__Rotten": {
+    "type": "MESH",
+    "dims": [
+     0.034,
+     0.0319,
+     0.021
+    ],
+    "mats": 2
+   },
+   "Fruit_Mulberry__Seed": {
+    "type": "MESH",
+    "dims": [
+     0.0694,
+     0.0176,
+     0.09
+    ],
+    "mats": 4
+   },
+   "Fruit_Mulberry__Stack": {
+    "type": "MESH",
+    "dims": [
+     0.1599,
+     0.1119,
+     0.04
+    ],
+    "mats": 3
+   }
+  }
+ },
+ "Fruit_Orange.fbx": {
+  "objects": {
+   "Fruit_Orange": {
+    "type": "MESH",
+    "dims": [
+     0.084,
+     0.084,
+     0.0715
+    ],
+    "mats": 1
+   },
+   "Fruit_Orange__Rotten": {
+    "type": "MESH",
+    "dims": [
+     0.084,
+     0.084,
+     0.0715
+    ],
+    "mats": 2
+   },
+   "Fruit_Orange__Seed": {
+    "type": "MESH",
+    "dims": [
+     0.0682,
+     0.0141,
+     0.09
+    ],
+    "mats": 4
+   },
+   "Fruit_Orange__Stack": {
+    "type": "MESH",
+    "dims": [
+     0.31,
+     0.216,
+     0.0795
+    ],
+    "mats": 3
+   }
+  }
+ },
+ "Fruit_Peach.fbx": {
+  "objects": {
+   "Fruit_Peach": {
+    "type": "MESH",
+    "dims": [
+     0.08,
+     0.0816,
+     0.0681
+    ],
+    "mats": 3
+   },
+   "Fruit_Peach__Rotten": {
+    "type": "MESH",
+    "dims": [
+     0.08,
+     0.0816,
+     0.0681
+    ],
+    "mats": 4
+   },
+   "Fruit_Peach__Seed": {
+    "type": "MESH",
+    "dims": [
+     0.0701,
+     0.016,
+     0.09
+    ],
+    "mats": 4
+   },
+   "Fruit_Peach__Stack": {
+    "type": "MESH",
+    "dims": [
+     0.298,
+     0.2112,
+     0.0761
+    ],
+    "mats": 5
+   }
+  }
+ },
+ "Fruit_Pear.fbx": {
+  "objects": {
+   "Fruit_Pear": {
+    "type": "MESH",
+    "dims": [
+     0.07,
+     0.07,
+     0.102
+    ],
+    "mats": 2
+   },
+   "Fruit_Pear__Rotten": {
+    "type": "MESH",
+    "dims": [
+     0.07,
+     0.07,
+     0.102
+    ],
+    "mats": 3
+   },
+   "Fruit_Pear__Seed": {
+    "type": "MESH",
+    "dims": [
+     0.068,
+     0.015,
+     0.09
+    ],
+    "mats": 4
+   },
+   "Fruit_Pear__Stack": {
+    "type": "MESH",
+    "dims": [
+     0.268,
+     0.188,
+     0.11
+    ],
+    "mats": 4
+   }
+  }
+ },
+ "Fruit_Persimmon.fbx": {
+  "objects": {
+   "Fruit_Persimmon": {
+    "type": "MESH",
+    "dims": [
+     0.076,
+     0.076,
+     0.0566
+    ],
+    "mats": 2
+   },
+   "Fruit_Persimmon__Rotten": {
+    "type": "MESH",
+    "dims": [
+     0.076,
+     0.076,
+     0.0566
+    ],
+    "mats": 3
+   },
+   "Fruit_Persimmon__Seed": {
+    "type": "MESH",
+    "dims": [
+     0.0673,
+     0.0103,
+     0.09
+    ],
+    "mats": 4
+   },
+   "Fruit_Persimmon__Stack": {
+    "type": "MESH",
+    "dims": [
+     0.286,
+     0.2,
+     0.0646
+    ],
+    "mats": 4
+   }
+  }
+ },
+ "Fruit_Pineapple.fbx": {
+  "objects": {
+   "Fruit_Pineapple": {
+    "type": "MESH",
+    "dims": [
+     0.0932,
+     0.0932,
+     0.166
+    ],
+    "mats": 3
+   },
+   "Fruit_Pineapple__Rotten": {
+    "type": "MESH",
+    "dims": [
+     0.0932,
+     0.0932,
+     0.1667
+    ],
+    "mats": 4
+   },
+   "Fruit_Pineapple__Seed": {
+    "type": "MESH",
+    "dims": [
+     0.0688,
+     0.0123,
+     0.09
+    ],
+    "mats": 4
+   },
+   "Fruit_Pineapple__Stack": {
+    "type": "MESH",
+    "dims": [
+     0.2344,
+     0.1312,
+     0.174
+    ],
+    "mats": 5
+   }
+  }
+ },
+ "Fruit_Plum.fbx": {
+  "objects": {
+   "Fruit_Plum": {
+    "type": "MESH",
+    "dims": [
+     0.06,
+     0.0612,
+     0.0511
+    ],
+    "mats": 2
+   },
+   "Fruit_Plum__Rotten": {
+    "type": "MESH",
+    "dims": [
+     0.06,
+     0.0612,
+     0.0511
+    ],
+    "mats": 3
+   },
+   "Fruit_Plum__Seed": {
+    "type": "MESH",
+    "dims": [
+     0.0643,
+     0.0122,
+     0.09
+    ],
+    "mats": 4
+   },
+   "Fruit_Plum__Stack": {
+    "type": "MESH",
+    "dims": [
+     0.238,
+     0.1704,
+     0.0591
+    ],
+    "mats": 4
+   }
+  }
+ },
+ "Fruit_Pomegranate.fbx": {
+  "objects": {
+   "Fruit_Pomegranate": {
+    "type": "MESH",
+    "dims": [
+     0.08,
+     0.08,
+     0.0789
+    ],
+    "mats": 2
+   },
+   "Fruit_Pomegranate__Rotten": {
+    "type": "MESH",
+    "dims": [
+     0.08,
+     0.08,
+     0.0789
+    ],
+    "mats": 3
+   },
+   "Fruit_Pomegranate__Seed": {
+    "type": "MESH",
+    "dims": [
+     0.0692,
+     0.0116,
+     0.09
+    ],
+    "mats": 4
+   },
+   "Fruit_Pomegranate__Stack": {
+    "type": "MESH",
+    "dims": [
+     0.298,
+     0.208,
+     0.0869
+    ],
+    "mats": 4
+   }
+  }
+ },
+ "Fruit_Raspberry.fbx": {
+  "objects": {
+   "Fruit_Raspberry": {
+    "type": "MESH",
+    "dims": [
+     0.0357,
+     0.0331,
+     0.0168
+    ],
+    "mats": 1
+   },
+   "Fruit_Raspberry__Rotten": {
+    "type": "MESH",
+    "dims": [
+     0.0357,
+     0.0331,
+     0.0187
+    ],
+    "mats": 2
+   },
+   "Fruit_Raspberry__Seed": {
+    "type": "MESH",
+    "dims": [
+     0.0697,
+     0.0166,
+     0.09
+    ],
+    "mats": 4
+   },
+   "Fruit_Raspberry__Stack": {
+    "type": "MESH",
+    "dims": [
+     0.1651,
+     0.1143,
+     0.04
+    ],
+    "mats": 3
+   }
+  }
+ },
+ "Fruit_Strawberry.fbx": {
+  "objects": {
+   "Fruit_Strawberry": {
+    "type": "MESH",
+    "dims": [
+     0.092,
+     0.042,
+     0.032
+    ],
+    "mats": 2
+   },
+   "Fruit_Strawberry__Rotten": {
+    "type": "MESH",
+    "dims": [
+     0.092,
+     0.042,
+     0.0328
+    ],
+    "mats": 3
+   },
+   "Fruit_Strawberry__Seed": {
+    "type": "MESH",
+    "dims": [
+     0.0678,
+     0.0123,
+     0.09
+    ],
+    "mats": 4
+   },
+   "Fruit_Strawberry__Stack": {
+    "type": "MESH",
+    "dims": [
+     0.232,
+     0.08,
+     0.04
+    ],
+    "mats": 4
+   }
+  }
+ },
+ "Fruit_Tangerine.fbx": {
+  "objects": {
+   "Fruit_Tangerine": {
+    "type": "MESH",
+    "dims": [
+     0.06,
+     0.06,
+     0.0444
+    ],
+    "mats": 1
+   },
+   "Fruit_Tangerine__Rotten": {
+    "type": "MESH",
+    "dims": [
+     0.06,
+     0.06,
+     0.0444
+    ],
+    "mats": 2
+   },
+   "Fruit_Tangerine__Seed": {
+    "type": "MESH",
+    "dims": [
+     0.0696,
+     0.0174,
+     0.09
+    ],
+    "mats": 4
+   },
+   "Fruit_Tangerine__Stack": {
+    "type": "MESH",
+    "dims": [
+     0.238,
+     0.168,
+     0.0524
+    ],
+    "mats": 3
+   }
+  }
+ },
+ "Fruit_Watermelon.fbx": {
+  "objects": {
+   "Fruit_Watermelon": {
+    "type": "MESH",
+    "dims": [
+     0.2691,
+     0.247,
+     0.1861
+    ],
+    "mats": 2
+   },
+   "Fruit_Watermelon__Rotten": {
+    "type": "MESH",
+    "dims": [
+     0.2691,
+     0.247,
+     0.1861
+    ],
+    "mats": 3
+   },
+   "Fruit_Watermelon__Seed": {
+    "type": "MESH",
+    "dims": [
+     0.0689,
+     0.0155,
+     0.09
+    ],
+    "mats": 4
+   },
+   "Fruit_Watermelon__Stack": {
+    "type": "MESH",
+    "dims": [
+     0.5862,
+     0.285,
+     0.1941
+    ],
+    "mats": 4
+   }
+  }
+ },
+ "Fruit_WildBerry.fbx": {
+  "objects": {
+   "Fruit_WildBerry": {
+    "type": "MESH",
+    "dims": [
+     0.0393,
+     0.0358,
+     0.014
+    ],
+    "mats": 1
+   },
+   "Fruit_WildBerry__Rotten": {
+    "type": "MESH",
+    "dims": [
+     0.0393,
+     0.0358,
+     0.0157
+    ],
+    "mats": 2
+   },
+   "Fruit_WildBerry__Stack": {
+    "type": "MESH",
+    "dims": [
+     0.1759,
+     0.1197,
+     0.04
+    ],
+    "mats": 3
+   }
+  }
+ },
+ "Gather_Resin.fbx": {
+  "objects": {
+   "Gather_Resin": {
+    "type": "MESH",
+    "dims": [
+     0.1,
+     0.0951,
+     0.037
+    ],
+    "mats": 2
+   },
+   "Gather_Resin__Stack": {
+    "type": "MESH",
+    "dims": [
+     0.18,
+     0.1712,
+     0.0592
+    ],
+    "mats": 2
+   }
+  }
+ },
+ "Gather_RubberSap.fbx": {
+  "objects": {
+   "Gather_RubberSap": {
+    "type": "MESH",
+    "dims": [
+     0.12,
+     0.117,
+     0.147
+    ],
+    "mats": 3
+   },
+   "Gather_RubberSap__Stack": {
+    "type": "MESH",
+    "dims": [
+     0.12,
+     0.12,
+     0.4351
+    ],
+    "mats": 3
+   }
+  }
+ },
+ "Grain_Barley.fbx": {
+  "objects": {
+   "Grain_Barley": {
+    "type": "MESH",
+    "dims": [
+     0.34,
+     0.0587,
+     0.03
+    ],
+    "mats": 3
+   },
+   "Grain_Barley__Rotten": {
+    "type": "MESH",
+    "dims": [
+     0.34,
+     0.0587,
+     0.03
+    ],
+    "mats": 4
+   },
+   "Grain_Barley__Seed": {
+    "type": "MESH",
+    "dims": [
+     0.0704,
+     0.0113,
+     0.09
+    ],
+    "mats": 4
+   },
+   "Grain_Barley__Stack": {
+    "type": "MESH",
+    "dims": [
+     0.12,
+     0.096,
+     0.188
+    ],
+    "mats": 3
+   }
+  }
+ },
+ "Grain_Buckwheat.fbx": {
+  "objects": {
+   "Grain_Buckwheat": {
+    "type": "MESH",
+    "dims": [
+     0.2673,
+     0.0609,
+     0.033
+    ],
+    "mats": 3
+   },
+   "Grain_Buckwheat__Rotten": {
+    "type": "MESH",
+    "dims": [
+     0.2673,
+     0.0609,
+     0.033
+    ],
+    "mats": 4
+   },
+   "Grain_Buckwheat__Seed": {
+    "type": "MESH",
+    "dims": [
+     0.0657,
+     0.0121,
+     0.09
+    ],
+    "mats": 4
+   },
+   "Grain_Buckwheat__Stack": {
+    "type": "MESH",
+    "dims": [
+     0.12,
+     0.096,
+     0.188
+    ],
+    "mats": 3
+   }
+  }
+ },
+ "Grain_Corn.fbx": {
+  "objects": {
+   "Grain_Corn": {
+    "type": "MESH",
+    "dims": [
+     0.18,
+     0.0533,
+     0.058
+    ],
+    "mats": 2
+   },
+   "Grain_Corn__Rotten": {
+    "type": "MESH",
+    "dims": [
+     0.18,
+     0.0533,
+     0.059
+    ],
+    "mats": 3
+   },
+   "Grain_Corn__Seed": {
+    "type": "MESH",
+    "dims": [
+     0.0695,
+     0.0112,
+     0.09
+    ],
+    "mats": 4
+   },
+   "Grain_Corn__Stack": {
+    "type": "MESH",
+    "dims": [
+     0.408,
+     0.0913,
+     0.066
+    ],
+    "mats": 4
+   }
+  }
+ },
+ "Grain_Millet.fbx": {
+  "objects": {
+   "Grain_Millet": {
+    "type": "MESH",
+    "dims": [
+     0.3001,
+     0.0701,
+     0.0347
+    ],
+    "mats": 3
+   },
+   "Grain_Millet__Rotten": {
+    "type": "MESH",
+    "dims": [
+     0.3001,
+     0.0701,
+     0.035
+    ],
+    "mats": 4
+   },
+   "Grain_Millet__Seed": {
+    "type": "MESH",
+    "dims": [
+     0.0676,
+     0.012,
+     0.09
+    ],
+    "mats": 4
+   },
+   "Grain_Millet__Stack": {
+    "type": "MESH",
+    "dims": [
+     0.12,
+     0.096,
+     0.188
+    ],
+    "mats": 3
+   }
+  }
+ },
+ "Grain_Oat.fbx": {
+  "objects": {
+   "Grain_Oat": {
+    "type": "MESH",
+    "dims": [
+     0.2995,
+     0.0607,
+     0.03
+    ],
+    "mats": 3
+   },
+   "Grain_Oat__Rotten": {
+    "type": "MESH",
+    "dims": [
+     0.2995,
+     0.0607,
+     0.0319
+    ],
+    "mats": 4
+   },
+   "Grain_Oat__Seed": {
+    "type": "MESH",
+    "dims": [
+     0.0698,
+     0.0155,
+     0.09
+    ],
+    "mats": 4
+   },
+   "Grain_Oat__Stack": {
+    "type": "MESH",
+    "dims": [
+     0.12,
+     0.096,
+     0.188
+    ],
+    "mats": 3
+   }
+  }
+ },
+ "Grain_Rice.fbx": {
+  "objects": {
+   "Grain_Rice": {
+    "type": "MESH",
+    "dims": [
+     0.3062,
+     0.0587,
+     0.0565
+    ],
+    "mats": 3
+   },
+   "Grain_Rice__Rotten": {
+    "type": "MESH",
+    "dims": [
+     0.3062,
+     0.0587,
+     0.0569
+    ],
+    "mats": 4
+   },
+   "Grain_Rice__Seed": {
+    "type": "MESH",
+    "dims": [
+     0.0696,
+     0.0173,
+     0.09
+    ],
+    "mats": 4
+   },
+   "Grain_Rice__Stack": {
+    "type": "MESH",
+    "dims": [
+     0.12,
+     0.096,
+     0.188
+    ],
+    "mats": 3
+   }
+  }
+ },
+ "Grain_Rye.fbx": {
+  "objects": {
+   "Grain_Rye": {
+    "type": "MESH",
+    "dims": [
+     0.3101,
+     0.0587,
+     0.03
+    ],
+    "mats": 3
+   },
+   "Grain_Rye__Rotten": {
+    "type": "MESH",
+    "dims": [
+     0.3101,
+     0.0587,
+     0.03
+    ],
+    "mats": 4
+   },
+   "Grain_Rye__Seed": {
+    "type": "MESH",
+    "dims": [
+     0.069,
+     0.0159,
+     0.09
+    ],
+    "mats": 4
+   },
+   "Grain_Rye__Stack": {
+    "type": "MESH",
+    "dims": [
+     0.12,
+     0.096,
+     0.188
+    ],
+    "mats": 3
+   }
+  }
+ },
+ "Grain_Sorghum.fbx": {
+  "objects": {
+   "Grain_Sorghum": {
+    "type": "MESH",
+    "dims": [
+     0.3001,
+     0.0701,
+     0.0347
+    ],
+    "mats": 3
+   },
+   "Grain_Sorghum__Rotten": {
+    "type": "MESH",
+    "dims": [
+     0.3001,
+     0.0701,
+     0.0347
+    ],
+    "mats": 4
+   },
+   "Grain_Sorghum__Seed": {
+    "type": "MESH",
+    "dims": [
+     0.07,
+     0.0145,
+     0.09
+    ],
+    "mats": 4
+   },
+   "Grain_Sorghum__Stack": {
+    "type": "MESH",
+    "dims": [
+     0.12,
+     0.096,
+     0.188
+    ],
+    "mats": 3
+   }
+  }
+ },
+ "Grain_Wheat.fbx": {
+  "objects": {
+   "Grain_Wheat": {
+    "type": "MESH",
+    "dims": [
+     0.3101,
+     0.0587,
+     0.03
+    ],
+    "mats": 3
+   },
+   "Grain_Wheat__Rotten": {
+    "type": "MESH",
+    "dims": [
+     0.3101,
+     0.0587,
+     0.03
+    ],
+    "mats": 4
+   },
+   "Grain_Wheat__Seed": {
+    "type": "MESH",
+    "dims": [
+     0.0672,
+     0.0123,
+     0.09
+    ],
+    "mats": 4
+   },
+   "Grain_Wheat__Stack": {
+    "type": "MESH",
+    "dims": [
+     0.12,
+     0.096,
+     0.188
+    ],
+    "mats": 3
+   }
+  }
+ },
+ "Ingot_Bronze.fbx": {
+  "objects": {
+   "Ingot_Bronze": {
+    "type": "MESH",
+    "dims": [
+     0.11,
+     0.024,
+     0.038
+    ],
+    "mats": 1
+   },
+   "Ingot_Bronze__Stack": {
+    "type": "MESH",
+    "dims": [
+     0.1113,
+     0.0714,
+     0.1125
+    ],
+    "mats": 1
+   }
+  }
+ },
+ "Ingot_Copper.fbx": {
+  "objects": {
+   "Ingot_Copper": {
+    "type": "MESH",
+    "dims": [
+     0.11,
+     0.024,
+     0.038
+    ],
+    "mats": 1
+   },
+   "Ingot_Copper__Stack": {
+    "type": "MESH",
+    "dims": [
+     0.1113,
+     0.0714,
+     0.1125
+    ],
+    "mats": 1
+   }
+  }
+ },
+ "Ingot_Gold.fbx": {
+  "objects": {
+   "Ingot_Gold": {
+    "type": "MESH",
+    "dims": [
+     0.11,
+     0.024,
+     0.038
+    ],
+    "mats": 1
+   },
+   "Ingot_Gold__Stack": {
+    "type": "MESH",
+    "dims": [
+     0.1113,
+     0.0714,
+     0.1125
+    ],
+    "mats": 1
+   }
+  }
+ },
+ "Ingot_Iron.fbx": {
+  "objects": {
+   "Ingot_Iron": {
+    "type": "MESH",
+    "dims": [
+     0.11,
+     0.024,
+     0.038
+    ],
+    "mats": 1
+   },
+   "Ingot_Iron__Stack": {
+    "type": "MESH",
+    "dims": [
+     0.1113,
+     0.0714,
+     0.1125
+    ],
+    "mats": 1
+   }
+  }
+ },
+ "Ingot_Silver.fbx": {
+  "objects": {
+   "Ingot_Silver": {
+    "type": "MESH",
+    "dims": [
+     0.11,
+     0.024,
+     0.038
+    ],
+    "mats": 1
+   },
+   "Ingot_Silver__Stack": {
+    "type": "MESH",
+    "dims": [
+     0.1113,
+     0.0714,
+     0.1125
+    ],
+    "mats": 1
+   }
+  }
+ },
+ "Ingot_Starlight.fbx": {
+  "objects": {
+   "Ingot_Starlight": {
+    "type": "MESH",
+    "dims": [
+     0.11,
+     0.024,
+     0.038
+    ],
+    "mats": 1
+   },
+   "Ingot_Starlight__Stack": {
+    "type": "MESH",
+    "dims": [
+     0.1113,
+     0.0714,
+     0.1125
+    ],
+    "mats": 1
+   }
+  }
+ },
+ "Ingot_StarlightAlloy.fbx": {
+  "objects": {
+   "Ingot_StarlightAlloy": {
+    "type": "MESH",
+    "dims": [
+     0.11,
+     0.024,
+     0.038
+    ],
+    "mats": 1
+   },
+   "Ingot_StarlightAlloy__Stack": {
+    "type": "MESH",
+    "dims": [
+     0.1113,
+     0.0714,
+     0.1125
+    ],
+    "mats": 1
+   }
+  }
+ },
+ "Ingot_Steel.fbx": {
+  "objects": {
+   "Ingot_Steel": {
+    "type": "MESH",
+    "dims": [
+     0.11,
+     0.024,
+     0.038
+    ],
+    "mats": 1
+   },
+   "Ingot_Steel__Stack": {
+    "type": "MESH",
+    "dims": [
+     0.1113,
+     0.0714,
+     0.1125
+    ],
+    "mats": 1
+   }
+  }
+ },
+ "Ingot_Tin.fbx": {
+  "objects": {
+   "Ingot_Tin": {
+    "type": "MESH",
+    "dims": [
+     0.11,
+     0.024,
+     0.038
+    ],
+    "mats": 1
+   },
+   "Ingot_Tin__Stack": {
+    "type": "MESH",
+    "dims": [
+     0.1113,
+     0.0714,
+     0.1125
+    ],
+    "mats": 1
+   }
+  }
+ },
+ "Ingot_Titanium.fbx": {
+  "objects": {
+   "Ingot_Titanium": {
+    "type": "MESH",
+    "dims": [
+     0.11,
+     0.024,
+     0.038
+    ],
+    "mats": 1
+   },
+   "Ingot_Titanium__Stack": {
+    "type": "MESH",
+    "dims": [
+     0.1113,
+     0.0714,
+     0.1125
+    ],
+    "mats": 1
+   }
+  }
+ },
+ "Ingot_TitaniumAlloy.fbx": {
+  "objects": {
+   "Ingot_TitaniumAlloy": {
+    "type": "MESH",
+    "dims": [
+     0.11,
+     0.024,
+     0.038
+    ],
+    "mats": 1
+   },
+   "Ingot_TitaniumAlloy__Stack": {
+    "type": "MESH",
+    "dims": [
+     0.1113,
+     0.0714,
+     0.1125
+    ],
+    "mats": 1
+   }
+  }
+ },
+ "Insect_Cricket.fbx": {
+  "objects": {
+   "Insect_Cricket": {
+    "type": "MESH",
+    "dims": [
+     0.0513,
+     0.042,
+     0.0294
+    ],
+    "mats": 2
+   },
+   "Insect_Cricket__Rotten": {
+    "type": "MESH",
+    "dims": [
+     0.0513,
+     0.042,
+     0.0299
+    ],
+    "mats": 3
+   },
+   "Insect_Cricket__Stack": {
+    "type": "MESH",
+    "dims": [
+     0.2119,
+     0.1321,
+     0.04
+    ],
+    "mats": 4
+   }
+  }
+ },
+ "Insect_Fried.fbx": {
+  "objects": {
+   "Insect_Fried": {
+    "type": "MESH",
+    "dims": [
+     0.14,
+     0.14,
+     0.0364
+    ],
+    "mats": 3
+   },
+   "Insect_Fried__Rotten": {
+    "type": "MESH",
+    "dims": [
+     0.14,
+     0.14,
+     0.038
+    ],
+    "mats": 4
+   },
+   "Insect_Fried__Stack": {
+    "type": "MESH",
+    "dims": [
+     0.328,
+     0.178,
+     0.0444
+    ],
+    "mats": 5
+   }
+  }
+ },
+ "Insect_Grasshopper.fbx": {
+  "objects": {
+   "Insect_Grasshopper": {
+    "type": "MESH",
+    "dims": [
+     0.0661,
+     0.042,
+     0.0294
+    ],
+    "mats": 2
+   },
+   "Insect_Grasshopper__Rotten": {
+    "type": "MESH",
+    "dims": [
+     0.0661,
+     0.042,
+     0.0307
+    ],
+    "mats": 3
+   },
+   "Insect_Grasshopper__Stack": {
+    "type": "MESH",
+    "dims": [
+     0.2564,
+     0.132,
+     0.04
+    ],
+    "mats": 4
+   }
+  }
+ },
+ "Insect_Grilled.fbx": {
+  "objects": {
+   "Insect_Grilled": {
+    "type": "MESH",
+    "dims": [
+     0.14,
+     0.14,
+     0.018
+    ],
+    "mats": 3
+   },
+   "Insect_Grilled__Rotten": {
+    "type": "MESH",
+    "dims": [
+     0.14,
+     0.14,
+     0.0192
+    ],
+    "mats": 4
+   },
+   "Insect_Grilled__Stack": {
+    "type": "MESH",
+    "dims": [
+     0.328,
+     0.178,
+     0.04
+    ],
+    "mats": 5
+   }
+  }
+ },
+ "Insect_Larva.fbx": {
+  "objects": {
+   "Insect_Larva": {
+    "type": "MESH",
+    "dims": [
+     0.0585,
+     0.012,
+     0.012
+    ],
+    "mats": 2
+   },
+   "Insect_Larva__Rotten": {
+    "type": "MESH",
+    "dims": [
+     0.0585,
+     0.0131,
+     0.0139
+    ],
+    "mats": 3
+   },
+   "Insect_Larva__Stack": {
+    "type": "MESH",
+    "dims": [
+     0.2335,
+     0.0737,
+     0.04
+    ],
+    "mats": 4
+   }
+  }
+ },
+ "Insect_Skewer.fbx": {
+  "objects": {
+   "Insect_Skewer": {
+    "type": "MESH",
+    "dims": [
+     0.16,
+     0.14,
+     0.025
+    ],
+    "mats": 3
+   },
+   "Insect_Skewer__Rotten": {
+    "type": "MESH",
+    "dims": [
+     0.16,
+     0.14,
+     0.025
+    ],
+    "mats": 4
+   },
+   "Insect_Skewer__Stack": {
+    "type": "MESH",
+    "dims": [
+     0.368,
+     0.178,
+     0.04
+    ],
+    "mats": 4
+   }
+  }
+ },
+ "Leather_Fur.fbx": {
+  "objects": {
+   "Leather_Fur": {
+    "type": "MESH",
+    "dims": [
+     0.18,
+     0.125,
+     0.018
+    ],
+    "mats": 2
+   },
+   "Leather_Fur__Stack": {
+    "type": "MESH",
+    "dims": [
+     0.1846,
+     0.1605,
+     0.0533
+    ],
+    "mats": 2
+   }
+  }
+ },
+ "Leather_Thick.fbx": {
+  "objects": {
+   "Leather_Thick": {
+    "type": "MESH",
+    "dims": [
+     0.17,
+     0.13,
+     0.03
+    ],
+    "mats": 1
+   },
+   "Leather_Thick__Stack": {
+    "type": "MESH",
+    "dims": [
+     0.1752,
+     0.1645,
+     0.0888
+    ],
+    "mats": 1
+   }
+  }
+ },
+ "Leather_Thin.fbx": {
+  "objects": {
+   "Leather_Thin": {
+    "type": "MESH",
+    "dims": [
+     0.17,
+     0.13,
+     0.03
+    ],
+    "mats": 1
+   },
+   "Leather_Thin__Stack": {
+    "type": "MESH",
+    "dims": [
+     0.1752,
+     0.1645,
+     0.0888
+    ],
+    "mats": 1
+   }
+  }
+ },
+ "Meat_Beef.fbx": {
+  "objects": {
+   "Meat_Beef": {
+    "type": "MESH",
+    "dims": [
+     0.0938,
+     0.0938,
+     0.038
+    ],
+    "mats": 2
+   },
+   "Meat_Beef__Rotten": {
+    "type": "MESH",
+    "dims": [
+     0.0938,
+     0.0938,
+     0.038
+    ],
+    "mats": 3
+   },
+   "Meat_Beef__Stack": {
+    "type": "MESH",
+    "dims": [
+     0.2355,
+     0.1318,
+     0.046
+    ],
+    "mats": 4
+   }
+  }
+ },
+ "Meat_Bird.fbx": {
+  "objects": {
+   "Meat_Bird": {
+    "type": "MESH",
+    "dims": [
+     0.0959,
+     0.0396,
+     0.0416
+    ],
+    "mats": 2
+   },
+   "Meat_Bird__Rotten": {
+    "type": "MESH",
+    "dims": [
+     0.0959,
+     0.0396,
+     0.0416
+    ],
+    "mats": 3
+   },
+   "Meat_Bird__Stack": {
+    "type": "MESH",
+    "dims": [
+     0.2399,
+     0.0776,
+     0.0496
+    ],
+    "mats": 4
+   }
+  }
+ },
+ "Meat_Boar.fbx": {
+  "objects": {
+   "Meat_Boar": {
+    "type": "MESH",
+    "dims": [
+     0.09,
+     0.09,
+     0.036
+    ],
+    "mats": 3
+   },
+   "Meat_Boar__Rotten": {
+    "type": "MESH",
+    "dims": [
+     0.09,
+     0.09,
+     0.038
+    ],
+    "mats": 4
+   },
+   "Meat_Boar__Stack": {
+    "type": "MESH",
+    "dims": [
+     0.228,
+     0.128,
+     0.044
+    ],
+    "mats": 5
+   }
+  }
+ },
+ "Meat_Chicken.fbx": {
+  "objects": {
+   "Meat_Chicken": {
+    "type": "MESH",
+    "dims": [
+     0.1199,
+     0.0495,
+     0.052
+    ],
+    "mats": 2
+   },
+   "Meat_Chicken__Rotten": {
+    "type": "MESH",
+    "dims": [
+     0.1199,
+     0.0495,
+     0.0527
+    ],
+    "mats": 3
+   },
+   "Meat_Chicken__Stack": {
+    "type": "MESH",
+    "dims": [
+     0.2879,
+     0.0875,
+     0.06
+    ],
+    "mats": 4
+   }
+  }
+ },
+ "Meat_Duck.fbx": {
+  "objects": {
+   "Meat_Duck": {
+    "type": "MESH",
+    "dims": [
+     0.1319,
+     0.0544,
+     0.0572
+    ],
+    "mats": 2
+   },
+   "Meat_Duck__Rotten": {
+    "type": "MESH",
+    "dims": [
+     0.1319,
+     0.0544,
+     0.0587
+    ],
+    "mats": 3
+   },
+   "Meat_Duck__Stack": {
+    "type": "MESH",
+    "dims": [
+     0.3118,
+     0.0924,
+     0.0652
+    ],
+    "mats": 4
+   }
+  }
+ },
+ "Meat_Goat.fbx": {
+  "objects": {
+   "Meat_Goat": {
+    "type": "MESH",
+    "dims": [
+     0.099,
+     0.075,
+     0.03
+    ],
+    "mats": 3
+   },
+   "Meat_Goat__Rotten": {
+    "type": "MESH",
+    "dims": [
+     0.099,
+     0.075,
+     0.03
+    ],
+    "mats": 4
+   },
+   "Meat_Goat__Stack": {
+    "type": "MESH",
+    "dims": [
+     0.2461,
+     0.113,
+     0.04
+    ],
+    "mats": 5
+   }
+  }
+ },
+ "Meat_Goose.fbx": {
+  "objects": {
+   "Meat_Goose": {
+    "type": "MESH",
+    "dims": [
+     0.1499,
+     0.0618,
+     0.065
+    ],
+    "mats": 2
+   },
+   "Meat_Goose__Rotten": {
+    "type": "MESH",
+    "dims": [
+     0.1499,
+     0.0618,
+     0.065
+    ],
+    "mats": 3
+   },
+   "Meat_Goose__Stack": {
+    "type": "MESH",
+    "dims": [
+     0.3478,
+     0.0998,
+     0.073
+    ],
+    "mats": 4
+   }
+  }
+ },
+ "Meat_Insect.fbx": {
+  "objects": {
+   "Meat_Insect": {
+    "type": "MESH",
+    "dims": [
+     0.0655,
+     0.027,
+     0.023
+    ],
+    "mats": 2
+   },
+   "Meat_Insect__Rotten": {
+    "type": "MESH",
+    "dims": [
+     0.0655,
+     0.027,
+     0.023
+    ],
+    "mats": 3
+   },
+   "Meat_Insect__Stack": {
+    "type": "MESH",
+    "dims": [
+     0.2544,
+     0.102,
+     0.04
+    ],
+    "mats": 4
+   }
+  }
+ },
+ "Meat_Meatball.fbx": {
+  "objects": {
+   "Meat_Meatball": {
+    "type": "MESH",
+    "dims": [
+     0.14,
+     0.14,
+     0.028
+    ],
+    "mats": 2
+   },
+   "Meat_Meatball__Rotten": {
+    "type": "MESH",
+    "dims": [
+     0.14,
+     0.14,
+     0.0286
+    ],
+    "mats": 3
+   },
+   "Meat_Meatball__Stack": {
+    "type": "MESH",
+    "dims": [
+     0.328,
+     0.178,
+     0.04
+    ],
+    "mats": 4
+   }
+  }
+ },
+ "Meat_Mutton.fbx": {
+  "objects": {
+   "Meat_Mutton": {
+    "type": "MESH",
+    "dims": [
+     0.099,
+     0.075,
+     0.03
+    ],
+    "mats": 3
+   },
+   "Meat_Mutton__Rotten": {
+    "type": "MESH",
+    "dims": [
+     0.099,
+     0.075,
+     0.0301
+    ],
+    "mats": 4
+   },
+   "Meat_Mutton__Stack": {
+    "type": "MESH",
+    "dims": [
+     0.2461,
+     0.113,
+     0.04
+    ],
+    "mats": 5
+   }
+  }
+ },
+ "Meat_Rabbit.fbx": {
+  "objects": {
+   "Meat_Rabbit": {
+    "type": "MESH",
+    "dims": [
+     0.06,
+     0.06,
+     0.024
+    ],
+    "mats": 2
+   },
+   "Meat_Rabbit__Rotten": {
+    "type": "MESH",
+    "dims": [
+     0.06,
+     0.06,
+     0.0248
+    ],
+    "mats": 3
+   },
+   "Meat_Rabbit__Stack": {
+    "type": "MESH",
+    "dims": [
+     0.238,
+     0.168,
+     0.04
+    ],
+    "mats": 4
+   }
+  }
+ },
+ "Meat_Roast.fbx": {
+  "objects": {
+   "Meat_Roast": {
+    "type": "MESH",
+    "dims": [
+     0.14,
+     0.14,
+     0.0253
+    ],
+    "mats": 4
+   },
+   "Meat_Roast__Rotten": {
+    "type": "MESH",
+    "dims": [
+     0.14,
+     0.14,
+     0.0265
+    ],
+    "mats": 5
+   },
+   "Meat_Roast__Stack": {
+    "type": "MESH",
+    "dims": [
+     0.328,
+     0.178,
+     0.04
+    ],
+    "mats": 6
+   }
+  }
+ },
+ "Meat_Skewer.fbx": {
+  "objects": {
+   "Meat_Skewer": {
+    "type": "MESH",
+    "dims": [
+     0.16,
+     0.14,
+     0.025
+    ],
+    "mats": 3
+   },
+   "Meat_Skewer__Rotten": {
+    "type": "MESH",
+    "dims": [
+     0.16,
+     0.14,
+     0.0268
+    ],
+    "mats": 4
+   },
+   "Meat_Skewer__Stack": {
+    "type": "MESH",
+    "dims": [
+     0.368,
+     0.178,
+     0.04
+    ],
+    "mats": 4
+   }
+  }
+ },
+ "Meat_Steamed.fbx": {
+  "objects": {
+   "Meat_Steamed": {
+    "type": "MESH",
+    "dims": [
+     0.1,
+     0.1,
+     0.0731
+    ],
+    "mats": 3
+   },
+   "Meat_Steamed__Rotten": {
+    "type": "MESH",
+    "dims": [
+     0.1,
+     0.1,
+     0.0733
+    ],
+    "mats": 4
+   },
+   "Meat_Steamed__Stack": {
+    "type": "MESH",
+    "dims": [
+     0.248,
+     0.138,
+     0.0813
+    ],
+    "mats": 5
+   }
+  }
+ },
+ "Meat_StirFry.fbx": {
+  "objects": {
+   "Meat_StirFry": {
+    "type": "MESH",
+    "dims": [
+     0.14,
+     0.14,
+     0.035
+    ],
+    "mats": 3
+   },
+   "Meat_StirFry__Rotten": {
+    "type": "MESH",
+    "dims": [
+     0.14,
+     0.14,
+     0.0363
+    ],
+    "mats": 4
+   },
+   "Meat_StirFry__Stack": {
+    "type": "MESH",
+    "dims": [
+     0.328,
+     0.178,
+     0.043
+    ],
+    "mats": 5
+   }
+  }
+ },
+ "Meat_Venison.fbx": {
+  "objects": {
+   "Meat_Venison": {
+    "type": "MESH",
+    "dims": [
+     0.0732,
+     0.055,
+     0.033
+    ],
+    "mats": 1
+   },
+   "Meat_Venison__Rotten": {
+    "type": "MESH",
+    "dims": [
+     0.0732,
+     0.055,
+     0.033
+    ],
+    "mats": 2
+   },
+   "Meat_Venison__Stack": {
+    "type": "MESH",
+    "dims": [
+     0.2777,
+     0.158,
+     0.041
+    ],
+    "mats": 3
+   }
+  }
+ },
+ "Mineral_Clay.fbx": {
+  "objects": {
+   "Mineral_Clay": {
+    "type": "MESH",
+    "dims": [
+     0.0951,
+     0.08,
+     0.06
+    ],
+    "mats": 1
+   },
+   "Mineral_Clay__Stack": {
+    "type": "MESH",
+    "dims": [
+     0.0983,
+     0.085,
+     0.1776
+    ],
+    "mats": 1
+   }
+  }
+ },
+ "Mineral_Limestone.fbx": {
+  "objects": {
+   "Mineral_Limestone": {
+    "type": "MESH",
+    "dims": [
+     0.1537,
+     0.0742,
+     0.056
+    ],
+    "mats": 1
+   },
+   "Mineral_Limestone__Stack": {
+    "type": "MESH",
+    "dims": [
+     0.1537,
+     0.0999,
+     0.1658
+    ],
+    "mats": 1
+   }
+  }
+ },
+ "Mineral_Sand.fbx": {
+  "objects": {
+   "Mineral_Sand": {
+    "type": "MESH",
+    "dims": [
+     0.14,
+     0.1365,
+     0.05
+    ],
+    "mats": 1
+   },
+   "Mineral_Sand__Stack": {
+    "type": "MESH",
+    "dims": [
+     0.252,
+     0.2457,
+     0.08
+    ],
+    "mats": 1
+   }
+  }
+ },
+ "Mineral_Sulfur.fbx": {
+  "objects": {
+   "Mineral_Sulfur": {
+    "type": "MESH",
+    "dims": [
+     0.0805,
+     0.0646,
+     0.0802
+    ],
+    "mats": 2
+   },
+   "Mineral_Sulfur__Stack": {
+    "type": "MESH",
+    "dims": [
+     0.1449,
+     0.1164,
+     0.1283
+    ],
+    "mats": 2
+   }
+  }
+ },
+ "Mush_Button.fbx": {
+  "objects": {
+   "Mush_Button": {
+    "type": "MESH",
+    "dims": [
+     0.044,
+     0.044,
+     0.0465
+    ],
+    "mats": 1
+   },
+   "Mush_Button__Rotten": {
+    "type": "MESH",
+    "dims": [
+     0.044,
+     0.044,
+     0.0474
+    ],
+    "mats": 2
+   },
+   "Mush_Button__Stack": {
+    "type": "MESH",
+    "dims": [
+     0.19,
+     0.136,
+     0.0545
+    ],
+    "mats": 3
+   }
+  }
+ },
+ "Mush_Chanterelle.fbx": {
+  "objects": {
+   "Mush_Chanterelle": {
+    "type": "MESH",
+    "dims": [
+     0.05,
+     0.05,
+     0.048
+    ],
+    "mats": 2
+   },
+   "Mush_Chanterelle__Rotten": {
+    "type": "MESH",
+    "dims": [
+     0.05,
+     0.05,
+     0.048
+    ],
+    "mats": 3
+   },
+   "Mush_Chanterelle__Stack": {
+    "type": "MESH",
+    "dims": [
+     0.208,
+     0.148,
+     0.056
+    ],
+    "mats": 4
+   }
+  }
+ },
+ "Mush_Enoki.fbx": {
+  "objects": {
+   "Mush_Enoki": {
+    "type": "MESH",
+    "dims": [
+     0.0309,
+     0.0371,
+     0.0831
+    ],
+    "mats": 2
+   },
+   "Mush_Enoki__Rotten": {
+    "type": "MESH",
+    "dims": [
+     0.0322,
+     0.0362,
+     0.0831
+    ],
+    "mats": 3
+   },
+   "Mush_Enoki__Stack": {
+    "type": "MESH",
+    "dims": [
+     0.1655,
+     0.1105,
+     0.0911
+    ],
+    "mats": 4
+   }
+  }
+ },
+ "Mush_KingOyster.fbx": {
+  "objects": {
+   "Mush_KingOyster": {
+    "type": "MESH",
+    "dims": [
+     0.044,
+     0.044,
+     0.116
+    ],
+    "mats": 2
+   },
+   "Mush_KingOyster__Rotten": {
+    "type": "MESH",
+    "dims": [
+     0.044,
+     0.044,
+     0.116
+    ],
+    "mats": 3
+   },
+   "Mush_KingOyster__Stack": {
+    "type": "MESH",
+    "dims": [
+     0.19,
+     0.136,
+     0.124
+    ],
+    "mats": 4
+   }
+  }
+ },
+ "Mush_Matsutake.fbx": {
+  "objects": {
+   "Mush_Matsutake": {
+    "type": "MESH",
+    "dims": [
+     0.044,
+     0.044,
+     0.1015
+    ],
+    "mats": 2
+   },
+   "Mush_Matsutake__Rotten": {
+    "type": "MESH",
+    "dims": [
+     0.044,
+     0.044,
+     0.1015
+    ],
+    "mats": 3
+   },
+   "Mush_Matsutake__Stack": {
+    "type": "MESH",
+    "dims": [
+     0.19,
+     0.136,
+     0.1095
+    ],
+    "mats": 4
+   }
+  }
+ },
+ "Mush_Morel.fbx": {
+  "objects": {
+   "Mush_Morel": {
+    "type": "MESH",
+    "dims": [
+     0.0348,
+     0.0342,
+     0.075
+    ],
+    "mats": 3
+   },
+   "Mush_Morel__Rotten": {
+    "type": "MESH",
+    "dims": [
+     0.0348,
+     0.0342,
+     0.075
+    ],
+    "mats": 4
+   },
+   "Mush_Morel__Stack": {
+    "type": "MESH",
+    "dims": [
+     0.1624,
+     0.1164,
+     0.083
+    ],
+    "mats": 5
+   }
+  }
+ },
+ "Mush_Oyster.fbx": {
+  "objects": {
+   "Mush_Oyster": {
+    "type": "MESH",
+    "dims": [
+     0.0664,
+     0.0859,
+     0.0365
+    ],
+    "mats": 2
+   },
+   "Mush_Oyster__Rotten": {
+    "type": "MESH",
+    "dims": [
+     0.0664,
+     0.0859,
+     0.0365
+    ],
+    "mats": 3
+   },
+   "Mush_Oyster__Stack": {
+    "type": "MESH",
+    "dims": [
+     0.2571,
+     0.2198,
+     0.0445
+    ],
+    "mats": 4
+   }
+  }
+ },
+ "Mush_Shiitake.fbx": {
+  "objects": {
+   "Mush_Shiitake": {
+    "type": "MESH",
+    "dims": [
+     0.06,
+     0.06,
+     0.058
+    ],
+    "mats": 3
+   },
+   "Mush_Shiitake__Rotten": {
+    "type": "MESH",
+    "dims": [
+     0.06,
+     0.06,
+     0.058
+    ],
+    "mats": 4
+   },
+   "Mush_Shiitake__Stack": {
+    "type": "MESH",
+    "dims": [
+     0.238,
+     0.168,
+     0.066
+    ],
+    "mats": 5
+   }
+  }
+ },
+ "Mush_Shimeji.fbx": {
+  "objects": {
+   "Mush_Shimeji": {
+    "type": "MESH",
+    "dims": [
+     0.0477,
+     0.0507,
+     0.0629
+    ],
+    "mats": 2
+   },
+   "Mush_Shimeji__Rotten": {
+    "type": "MESH",
+    "dims": [
+     0.0477,
+     0.0507,
+     0.0629
+    ],
+    "mats": 3
+   },
+   "Mush_Shimeji__Stack": {
+    "type": "MESH",
+    "dims": [
+     0.2012,
+     0.1494,
+     0.0709
+    ],
+    "mats": 4
+   }
+  }
+ },
+ "Mush_Truffle.fbx": {
+  "objects": {
+   "Mush_Truffle": {
+    "type": "MESH",
+    "dims": [
+     0.0487,
+     0.0421,
+     0.036
+    ],
+    "mats": 2
+   },
+   "Mush_Truffle__Rotten": {
+    "type": "MESH",
+    "dims": [
+     0.0487,
+     0.0421,
+     0.036
+    ],
+    "mats": 3
+   },
+   "Mush_Truffle__Stack": {
+    "type": "MESH",
+    "dims": [
+     0.2042,
+     0.1323,
+     0.044
+    ],
+    "mats": 4
+   }
+  }
+ },
+ "Mush_WoodEar.fbx": {
+  "objects": {
+   "Mush_WoodEar": {
+    "type": "MESH",
+    "dims": [
+     0.0767,
+     0.0496,
+     0.0253
+    ],
+    "mats": 1
+   },
+   "Mush_WoodEar__Rotten": {
+    "type": "MESH",
+    "dims": [
+     0.0767,
+     0.0496,
+     0.0253
+    ],
+    "mats": 2
+   },
+   "Mush_WoodEar__Stack": {
+    "type": "MESH",
+    "dims": [
+     0.2882,
+     0.1472,
+     0.04
+    ],
+    "mats": 3
+   }
+  }
+ },
+ "Noodle_Buckwheat.fbx": {
+  "objects": {
+   "Noodle_Buckwheat": {
+    "type": "MESH",
+    "dims": [
+     0.15,
+     0.1126,
+     0.0287
+    ],
+    "mats": 2
+   },
+   "Noodle_Buckwheat__Rotten": {
+    "type": "MESH",
+    "dims": [
+     0.15,
+     0.1,
+     0.0287
+    ],
+    "mats": 3
+   },
+   "Noodle_Buckwheat__Stack": {
+    "type": "MESH",
+    "dims": [
+     0.348,
+     0.138,
+     0.04
+    ],
+    "mats": 4
+   }
+  }
+ },
+ "Noodle_Fried.fbx": {
+  "objects": {
+   "Noodle_Fried": {
+    "type": "MESH",
+    "dims": [
+     0.14,
+     0.14,
+     0.0248
+    ],
+    "mats": 4
+   },
+   "Noodle_Fried__Rotten": {
+    "type": "MESH",
+    "dims": [
+     0.14,
+     0.14,
+     0.0252
+    ],
+    "mats": 5
+   },
+   "Noodle_Fried__Stack": {
+    "type": "MESH",
+    "dims": [
+     0.328,
+     0.178,
+     0.04
+    ],
+    "mats": 6
+   }
+  }
+ },
+ "Noodle_Meat.fbx": {
+  "objects": {
+   "Noodle_Meat": {
+    "type": "MESH",
+    "dims": [
+     0.11,
+     0.11,
+     0.0676
+    ],
+    "mats": 4
+   },
+   "Noodle_Meat__Rotten": {
+    "type": "MESH",
+    "dims": [
+     0.11,
+     0.11,
+     0.0687
+    ],
+    "mats": 5
+   },
+   "Noodle_Meat__Stack": {
+    "type": "MESH",
+    "dims": [
+     0.268,
+     0.148,
+     0.0756
+    ],
+    "mats": 6
+   }
+  }
+ },
+ "Noodle_Plain.fbx": {
+  "objects": {
+   "Noodle_Plain": {
+    "type": "MESH",
+    "dims": [
+     0.11,
+     0.11,
+     0.0628
+    ],
+    "mats": 4
+   },
+   "Noodle_Plain__Rotten": {
+    "type": "MESH",
+    "dims": [
+     0.11,
+     0.11,
+     0.0636
+    ],
+    "mats": 5
+   },
+   "Noodle_Plain__Stack": {
+    "type": "MESH",
+    "dims": [
+     0.268,
+     0.148,
+     0.0708
+    ],
+    "mats": 6
+   }
+  }
+ },
+ "Nut_Acorn.fbx": {
+  "objects": {
+   "Nut_Acorn": {
+    "type": "MESH",
+    "dims": [
+     0.066,
+     0.038,
+     0.0275
+    ],
+    "mats": 2
+   },
+   "Nut_Acorn__Rotten": {
+    "type": "MESH",
+    "dims": [
+     0.066,
+     0.038,
+     0.0286
+    ],
+    "mats": 3
+   },
+   "Nut_Acorn__Stack": {
+    "type": "MESH",
+    "dims": [
+     0.256,
+     0.124,
+     0.04
+    ],
+    "mats": 4
+   }
+  }
+ },
+ "Nut_Almond.fbx": {
+  "objects": {
+   "Nut_Almond": {
+    "type": "MESH",
+    "dims": [
+     0.0446,
+     0.0418,
+     0.014
+    ],
+    "mats": 1
+   },
+   "Nut_Almond__Rotten": {
+    "type": "MESH",
+    "dims": [
+     0.0469,
+     0.0471,
+     0.0141
+    ],
+    "mats": 2
+   },
+   "Nut_Almond__Seed": {
+    "type": "MESH",
+    "dims": [
+     0.0698,
+     0.0161,
+     0.09
+    ],
+    "mats": 4
+   },
+   "Nut_Almond__Stack": {
+    "type": "MESH",
+    "dims": [
+     0.145,
+     0.1511,
+     0.04
+    ],
+    "mats": 3
+   }
+  }
+ },
+ "Nut_Chestnut.fbx": {
+  "objects": {
+   "Nut_Chestnut": {
+    "type": "MESH",
+    "dims": [
+     0.051,
+     0.0452,
+     0.027
+    ],
+    "mats": 2
+   },
+   "Nut_Chestnut__Rotten": {
+    "type": "MESH",
+    "dims": [
+     0.051,
+     0.0452,
+     0.0273
+    ],
+    "mats": 3
+   },
+   "Nut_Chestnut__Seed": {
+    "type": "MESH",
+    "dims": [
+     0.069,
+     0.0163,
+     0.09
+    ],
+    "mats": 4
+   },
+   "Nut_Chestnut__Stack": {
+    "type": "MESH",
+    "dims": [
+     0.211,
+     0.1385,
+     0.04
+    ],
+    "mats": 4
+   }
+  }
+ },
+ "Nut_Peanut.fbx": {
+  "objects": {
+   "Nut_Peanut": {
+    "type": "MESH",
+    "dims": [
+     0.0316,
+     0.046,
+     0.014
+    ],
+    "mats": 1
+   },
+   "Nut_Peanut__Rotten": {
+    "type": "MESH",
+    "dims": [
+     0.0316,
+     0.046,
+     0.0158
+    ],
+    "mats": 2
+   },
+   "Nut_Peanut__Seed": {
+    "type": "MESH",
+    "dims": [
+     0.0702,
+     0.0123,
+     0.09
+    ],
+    "mats": 4
+   },
+   "Nut_Peanut__Stack": {
+    "type": "MESH",
+    "dims": [
+     0.1528,
+     0.14,
+     0.04
+    ],
+    "mats": 3
+   }
+  }
+ },
+ "Nut_PineNut.fbx": {
+  "objects": {
+   "Nut_PineNut": {
+    "type": "MESH",
+    "dims": [
+     0.09,
+     0.0856,
+     0.0217
+    ],
+    "mats": 2
+   },
+   "Nut_PineNut__Stack": {
+    "type": "MESH",
+    "dims": [
+     0.162,
+     0.1541,
+     0.0348
+    ],
+    "mats": 2
+   }
+  }
+ },
+ "Nut_Sesame.fbx": {
+  "objects": {
+   "Nut_Sesame": {
+    "type": "MESH",
+    "dims": [
+     0.09,
+     0.0856,
+     0.0222
+    ],
+    "mats": 2
+   },
+   "Nut_Sesame__Seed": {
+    "type": "MESH",
+    "dims": [
+     0.0653,
+     0.0134,
+     0.09
+    ],
+    "mats": 4
+   },
+   "Nut_Sesame__Stack": {
+    "type": "MESH",
+    "dims": [
+     0.162,
+     0.1541,
+     0.034
+    ],
+    "mats": 2
+   }
+  }
+ },
+ "Nut_Sunflower.fbx": {
+  "objects": {
+   "Nut_Sunflower": {
+    "type": "MESH",
+    "dims": [
+     0.09,
+     0.0856,
+     0.0219
+    ],
+    "mats": 3
+   },
+   "Nut_Sunflower__Seed": {
+    "type": "MESH",
+    "dims": [
+     0.0704,
+     0.0145,
+     0.09
+    ],
+    "mats": 4
+   },
+   "Nut_Sunflower__Stack": {
+    "type": "MESH",
+    "dims": [
+     0.162,
+     0.1541,
+     0.0404
+    ],
+    "mats": 3
+   }
+  }
+ },
+ "Nut_Walnut.fbx": {
+  "objects": {
+   "Nut_Walnut": {
+    "type": "MESH",
+    "dims": [
+     0.0845,
+     0.028,
+     0.028
+    ],
+    "mats": 1
+   },
+   "Nut_Walnut__Rotten": {
+    "type": "MESH",
+    "dims": [
+     0.0845,
+     0.028,
+     0.0296
+    ],
+    "mats": 2
+   },
+   "Nut_Walnut__Seed": {
+    "type": "MESH",
+    "dims": [
+     0.0699,
+     0.0119,
+     0.09
+    ],
+    "mats": 4
+   },
+   "Nut_Walnut__Stack": {
+    "type": "MESH",
+    "dims": [
+     0.3116,
+     0.1069,
+     0.04
+    ],
+    "mats": 3
+   }
+  }
+ },
+ "Ore_Copper.fbx": {
+  "objects": {
+   "Ore_Copper": {
+    "type": "MESH",
+    "dims": [
+     0.1415,
+     0.0624,
+     0.0435
+    ],
+    "mats": 2
+   },
+   "Ore_Copper__Stack": {
+    "type": "MESH",
+    "dims": [
+     0.1392,
+     0.0898,
+     0.1267
+    ],
+    "mats": 2
+   }
+  }
+ },
+ "Ore_Gold.fbx": {
+  "objects": {
+   "Ore_Gold": {
+    "type": "MESH",
+    "dims": [
+     0.142,
+     0.0624,
+     0.0438
+    ],
+    "mats": 2
+   },
+   "Ore_Gold__Stack": {
+    "type": "MESH",
+    "dims": [
+     0.1376,
+     0.1019,
+     0.1313
+    ],
+    "mats": 2
+   }
+  }
+ },
+ "Ore_Iron.fbx": {
+  "objects": {
+   "Ore_Iron": {
+    "type": "MESH",
+    "dims": [
+     0.1426,
+     0.0625,
+     0.0442
+    ],
+    "mats": 2
+   },
+   "Ore_Iron__Stack": {
+    "type": "MESH",
+    "dims": [
+     0.1519,
+     0.0924,
+     0.1292
+    ],
+    "mats": 2
+   }
+  }
+ },
+ "Ore_Silver.fbx": {
+  "objects": {
+   "Ore_Silver": {
+    "type": "MESH",
+    "dims": [
+     0.1365,
+     0.0625,
+     0.0442
+    ],
+    "mats": 2
+   },
+   "Ore_Silver__Stack": {
+    "type": "MESH",
+    "dims": [
+     0.1408,
+     0.0877,
+     0.1281
+    ],
+    "mats": 2
+   }
+  }
+ },
+ "Ore_Starlight.fbx": {
+  "objects": {
+   "Ore_Starlight": {
+    "type": "MESH",
+    "dims": [
+     0.1365,
+     0.0624,
+     0.0424
+    ],
+    "mats": 2
+   },
+   "Ore_Starlight__Stack": {
+    "type": "MESH",
+    "dims": [
+     0.142,
+     0.0965,
+     0.1311
+    ],
+    "mats": 2
+   }
+  }
+ },
+ "Ore_Tin.fbx": {
+  "objects": {
+   "Ore_Tin": {
+    "type": "MESH",
+    "dims": [
+     0.1365,
+     0.0625,
+     0.044
+    ],
+    "mats": 2
+   },
+   "Ore_Tin__Stack": {
+    "type": "MESH",
+    "dims": [
+     0.1483,
+     0.1068,
+     0.1247
+    ],
+    "mats": 2
+   }
+  }
+ },
+ "Ore_Titanium.fbx": {
+  "objects": {
+   "Ore_Titanium": {
+    "type": "MESH",
+    "dims": [
+     0.1383,
+     0.0624,
+     0.0436
+    ],
+    "mats": 2
+   },
+   "Ore_Titanium__Stack": {
+    "type": "MESH",
+    "dims": [
+     0.1451,
+     0.0906,
+     0.1313
+    ],
+    "mats": 2
+   }
+  }
+ },
+ "Pie_Fruit.fbx": {
+  "objects": {
+   "Pie_Fruit": {
+    "type": "MESH",
+    "dims": [
+     0.124,
+     0.124,
+     0.0335
+    ],
+    "mats": 4
+   },
+   "Pie_Fruit__Rotten": {
+    "type": "MESH",
+    "dims": [
+     0.124,
+     0.124,
+     0.0335
+    ],
+    "mats": 5
+   },
+   "Pie_Fruit__Stack": {
+    "type": "MESH",
+    "dims": [
+     0.296,
+     0.162,
+     0.0415
+    ],
+    "mats": 6
+   }
+  }
+ },
+ "Pie_Meat.fbx": {
+  "objects": {
+   "Pie_Meat": {
+    "type": "MESH",
+    "dims": [
+     0.124,
+     0.124,
+     0.033
+    ],
+    "mats": 3
+   },
+   "Pie_Meat__Rotten": {
+    "type": "MESH",
+    "dims": [
+     0.124,
+     0.124,
+     0.0347
+    ],
+    "mats": 4
+   },
+   "Pie_Meat__Stack": {
+    "type": "MESH",
+    "dims": [
+     0.296,
+     0.162,
+     0.041
+    ],
+    "mats": 5
+   }
+  }
+ },
+ "Plank_Common.fbx": {
+  "objects": {
+   "Plank_Common": {
+    "type": "MESH",
+    "dims": [
+     0.3031,
+     0.0779,
+     0.051
+    ],
+    "mats": 2
+   },
+   "Plank_Common__Stack": {
+    "type": "MESH",
+    "dims": [
+     0.3055,
+     0.2102,
+     0.151
+    ],
+    "mats": 2
+   }
+  }
+ },
+ "Plank_Hard.fbx": {
+  "objects": {
+   "Plank_Hard": {
+    "type": "MESH",
+    "dims": [
+     0.3031,
+     0.0779,
+     0.051
+    ],
+    "mats": 2
+   },
+   "Plank_Hard__Stack": {
+    "type": "MESH",
+    "dims": [
+     0.3055,
+     0.2102,
+     0.151
+    ],
+    "mats": 2
+   }
+  }
+ },
+ "Plank_Light.fbx": {
+  "objects": {
+   "Plank_Light": {
+    "type": "MESH",
+    "dims": [
+     0.3031,
+     0.0779,
+     0.051
+    ],
+    "mats": 2
+   },
+   "Plank_Light__Stack": {
+    "type": "MESH",
+    "dims": [
+     0.3055,
+     0.2102,
+     0.151
+    ],
+    "mats": 2
+   }
+  }
+ },
+ "Proc_Brick.fbx": {
+  "objects": {
+   "Proc_Brick": {
+    "type": "MESH",
+    "dims": [
+     0.22,
+     0.03,
+     0.061
+    ],
+    "mats": 2
+   },
+   "Proc_Brick__Stack": {
+    "type": "MESH",
+    "dims": [
+     0.2208,
+     0.1318,
+     0.1806
+    ],
+    "mats": 2
+   }
+  }
+ },
+ "Proc_BuckwheatFlour.fbx": {
+  "objects": {
+   "Proc_BuckwheatFlour": {
+    "type": "MESH",
+    "dims": [
+     0.12,
+     0.096,
+     0.17
+    ],
+    "mats": 3
+   },
+   "Proc_BuckwheatFlour__Stack": {
+    "type": "MESH",
+    "dims": [
+     0.216,
+     0.1728,
+     0.272
+    ],
+    "mats": 3
+   }
+  }
+ },
+ "Proc_Butter.fbx": {
+  "objects": {
+   "Proc_Butter": {
+    "type": "MESH",
+    "dims": [
+     0.082,
+     0.0412,
+     0.0309
+    ],
+    "mats": 2
+   },
+   "Proc_Butter__Rotten": {
+    "type": "MESH",
+    "dims": [
+     0.082,
+     0.0412,
+     0.0319
+    ],
+    "mats": 3
+   },
+   "Proc_Butter__Stack": {
+    "type": "MESH",
+    "dims": [
+     0.304,
+     0.1357,
+     0.04
+    ],
+    "mats": 4
+   }
+  }
+ },
+ "Proc_Canned.fbx": {
+  "objects": {
+   "Proc_Canned": {
+    "type": "MESH",
+    "dims": [
+     0.064,
+     0.0624,
+     0.07
+    ],
+    "mats": 3
+   },
+   "Proc_Canned__Stack": {
+    "type": "MESH",
+    "dims": [
+     0.25,
+     0.1728,
+     0.078
+    ],
+    "mats": 5
+   }
+  }
+ },
+ "Proc_Charcoal.fbx": {
+  "objects": {
+   "Proc_Charcoal": {
+    "type": "MESH",
+    "dims": [
+     0.1152,
+     0.0885,
+     0.062
+    ],
+    "mats": 1
+   },
+   "Proc_Charcoal__Stack": {
+    "type": "MESH",
+    "dims": [
+     0.205,
+     0.1507,
+     0.0992
+    ],
+    "mats": 1
+   }
+  }
+ },
+ "Proc_Cheese.fbx": {
+  "objects": {
+   "Proc_Cheese": {
+    "type": "MESH",
+    "dims": [
+     0.175,
+     0.14,
+     0.045
+    ],
+    "mats": 3
+   },
+   "Proc_Cheese__Rotten": {
+    "type": "MESH",
+    "dims": [
+     0.175,
+     0.14,
+     0.045
+    ],
+    "mats": 4
+   },
+   "Proc_Cheese__Stack": {
+    "type": "MESH",
+    "dims": [
+     0.398,
+     0.178,
+     0.053
+    ],
+    "mats": 5
+   }
+  }
+ },
+ "Proc_CocoaPowder.fbx": {
+  "objects": {
+   "Proc_CocoaPowder": {
+    "type": "MESH",
+    "dims": [
+     0.09,
+     0.0877,
+     0.066
+    ],
+    "mats": 2
+   },
+   "Proc_CocoaPowder__Stack": {
+    "type": "MESH",
+    "dims": [
+     0.162,
+     0.1579,
+     0.1056
+    ],
+    "mats": 2
+   }
+  }
+ },
+ "Proc_Coke.fbx": {
+  "objects": {
+   "Proc_Coke": {
+    "type": "MESH",
+    "dims": [
+     0.1111,
+     0.0842,
+     0.062
+    ],
+    "mats": 1
+   },
+   "Proc_Coke__Stack": {
+    "type": "MESH",
+    "dims": [
+     0.1961,
+     0.1584,
+     0.0992
+    ],
+    "mats": 1
+   }
+  }
+ },
+ "Proc_Compost.fbx": {
+  "objects": {
+   "Proc_Compost": {
+    "type": "MESH",
+    "dims": [
+     0.14,
+     0.1365,
+     0.05
+    ],
+    "mats": 2
+   },
+   "Proc_Compost__Stack": {
+    "type": "MESH",
+    "dims": [
+     0.252,
+     0.2457,
+     0.08
+    ],
+    "mats": 2
+   }
+  }
+ },
+ "Proc_CookingOil.fbx": {
+  "objects": {
+   "Proc_CookingOil": {
+    "type": "MESH",
+    "dims": [
+     0.052,
+     0.052,
+     0.195
+    ],
+    "mats": 4
+   },
+   "Proc_CookingOil__Stack": {
+    "type": "MESH",
+    "dims": [
+     0.214,
+     0.152,
+     0.203
+    ],
+    "mats": 6
+   }
+  }
+ },
+ "Proc_CornFlour.fbx": {
+  "objects": {
+   "Proc_CornFlour": {
+    "type": "MESH",
+    "dims": [
+     0.12,
+     0.096,
+     0.17
+    ],
+    "mats": 3
+   },
+   "Proc_CornFlour__Stack": {
+    "type": "MESH",
+    "dims": [
+     0.216,
+     0.1728,
+     0.272
+    ],
+    "mats": 3
+   }
+  }
+ },
+ "Proc_Cream.fbx": {
+  "objects": {
+   "Proc_Cream": {
+    "type": "MESH",
+    "dims": [
+     0.0653,
+     0.0636,
+     0.0819
+    ],
+    "mats": 3
+   },
+   "Proc_Cream__Rotten": {
+    "type": "MESH",
+    "dims": [
+     0.0653,
+     0.0636,
+     0.0819
+    ],
+    "mats": 4
+   },
+   "Proc_Cream__Stack": {
+    "type": "MESH",
+    "dims": [
+     0.2538,
+     0.1753,
+     0.0899
+    ],
+    "mats": 5
+   }
+  }
+ },
+ "Proc_Doenjang.fbx": {
+  "objects": {
+   "Proc_Doenjang": {
+    "type": "MESH",
+    "dims": [
+     0.11,
+     0.1072,
+     0.13
+    ],
+    "mats": 3
+   },
+   "Proc_Doenjang__Stack": {
+    "type": "MESH",
+    "dims": [
+     0.268,
+     0.1452,
+     0.138
+    ],
+    "mats": 5
+   }
+  }
+ },
+ "Proc_DriedFish.fbx": {
+  "objects": {
+   "Proc_DriedFish": {
+    "type": "MESH",
+    "dims": [
+     0.11,
+     0.08,
+     0.029
+    ],
+    "mats": 5
+   },
+   "Proc_DriedFish__Stack": {
+    "type": "MESH",
+    "dims": [
+     0.268,
+     0.118,
+     0.04
+    ],
+    "mats": 7
+   }
+  }
+ },
+ "Proc_DriedFruit.fbx": {
+  "objects": {
+   "Proc_DriedFruit": {
+    "type": "MESH",
+    "dims": [
+     0.0739,
+     0.0703,
+     0.018
+    ],
+    "mats": 2
+   },
+   "Proc_DriedFruit__Stack": {
+    "type": "MESH",
+    "dims": [
+     0.1175,
+     0.1168,
+     0.0288
+    ],
+    "mats": 2
+   }
+  }
+ },
+ "Proc_DriedMushroom.fbx": {
+  "objects": {
+   "Proc_DriedMushroom": {
+    "type": "MESH",
+    "dims": [
+     0.0741,
+     0.0556,
+     0.018
+    ],
+    "mats": 2
+   },
+   "Proc_DriedMushroom__Stack": {
+    "type": "MESH",
+    "dims": [
+     0.127,
+     0.1201,
+     0.0288
+    ],
+    "mats": 2
+   }
+  }
+ },
+ "Proc_Fuel.fbx": {
+  "objects": {
+   "Proc_Fuel": {
+    "type": "MESH",
+    "dims": [
+     0.11,
+     0.052,
+     0.2277
+    ],
+    "mats": 4
+   },
+   "Proc_Fuel__Stack": {
+    "type": "MESH",
+    "dims": [
+     0.1205,
+     0.0966,
+     0.6741
+    ],
+    "mats": 4
+   }
+  }
+ },
+ "Proc_Glass.fbx": {
+  "objects": {
+   "Proc_Glass": {
+    "type": "MESH",
+    "dims": [
+     0.13,
+     0.05,
+     0.14
+    ],
+    "mats": 2
+   },
+   "Proc_Glass__Stack": {
+    "type": "MESH",
+    "dims": [
+     0.1405,
+     0.1062,
+     0.4145
+    ],
+    "mats": 2
+   }
+  }
+ },
+ "Proc_Jam.fbx": {
+  "objects": {
+   "Proc_Jam": {
+    "type": "MESH",
+    "dims": [
+     0.0704,
+     0.067,
+     0.0854
+    ],
+    "mats": 4
+   },
+   "Proc_Jam__Rotten": {
+    "type": "MESH",
+    "dims": [
+     0.0704,
+     0.067,
+     0.0854
+    ],
+    "mats": 5
+   },
+   "Proc_Jam__Stack": {
+    "type": "MESH",
+    "dims": [
+     0.2692,
+     0.1819,
+     0.0934
+    ],
+    "mats": 6
+   }
+  }
+ },
+ "Proc_Jerky.fbx": {
+  "objects": {
+   "Proc_Jerky": {
+    "type": "MESH",
+    "dims": [
+     0.0907,
+     0.0733,
+     0.044
+    ],
+    "mats": 2
+   },
+   "Proc_Jerky__Stack": {
+    "type": "MESH",
+    "dims": [
+     0.2287,
+     0.1077,
+     0.052
+    ],
+    "mats": 4
+   }
+  }
+ },
+ "Proc_Malt.fbx": {
+  "objects": {
+   "Proc_Malt": {
+    "type": "MESH",
+    "dims": [
+     0.12,
+     0.096,
+     0.17
+    ],
+    "mats": 3
+   },
+   "Proc_Malt__Stack": {
+    "type": "MESH",
+    "dims": [
+     0.216,
+     0.1728,
+     0.272
+    ],
+    "mats": 3
+   }
+  }
+ },
+ "Proc_MapleSyrup.fbx": {
+  "objects": {
+   "Proc_MapleSyrup": {
+    "type": "MESH",
+    "dims": [
+     0.06,
+     0.061,
+     0.125
+    ],
+    "mats": 4
+   },
+   "Proc_MapleSyrup__Stack": {
+    "type": "MESH",
+    "dims": [
+     0.238,
+     0.17,
+     0.133
+    ],
+    "mats": 6
+   }
+  }
+ },
+ "Proc_Molasses.fbx": {
+  "objects": {
+   "Proc_Molasses": {
+    "type": "MESH",
+    "dims": [
+     0.0653,
+     0.0636,
+     0.0819
+    ],
+    "mats": 3
+   },
+   "Proc_Molasses__Stack": {
+    "type": "MESH",
+    "dims": [
+     0.2538,
+     0.1753,
+     0.0899
+    ],
+    "mats": 5
+   }
+  }
+ },
+ "Proc_Pickles.fbx": {
+  "objects": {
+   "Proc_Pickles": {
+    "type": "MESH",
+    "dims": [
+     0.0816,
+     0.0796,
+     0.0994
+    ],
+    "mats": 4
+   },
+   "Proc_Pickles__Rotten": {
+    "type": "MESH",
+    "dims": [
+     0.0816,
+     0.0796,
+     0.0994
+    ],
+    "mats": 5
+   },
+   "Proc_Pickles__Stack": {
+    "type": "MESH",
+    "dims": [
+     0.3028,
+     0.2071,
+     0.1075
+    ],
+    "mats": 6
+   }
+  }
+ },
+ "Proc_Plastic.fbx": {
+  "objects": {
+   "Proc_Plastic": {
+    "type": "MESH",
+    "dims": [
+     0.1479,
+     0.096,
+     0.17
+    ],
+    "mats": 3
+   },
+   "Proc_Plastic__Stack": {
+    "type": "MESH",
+    "dims": [
+     0.27,
+     0.1728,
+     0.272
+    ],
+    "mats": 3
+   }
+  }
+ },
+ "Proc_Pottery.fbx": {
+  "objects": {
+   "Proc_Pottery": {
+    "type": "MESH",
+    "dims": [
+     0.11,
+     0.1072,
+     0.15
+    ],
+    "mats": 2
+   },
+   "Proc_Pottery__Stack": {
+    "type": "MESH",
+    "dims": [
+     0.11,
+     0.11,
+     0.444
+    ],
+    "mats": 2
+   }
+  }
+ },
+ "Proc_Quicklime.fbx": {
+  "objects": {
+   "Proc_Quicklime": {
+    "type": "MESH",
+    "dims": [
+     0.12,
+     0.096,
+     0.17
+    ],
+    "mats": 3
+   },
+   "Proc_Quicklime__Stack": {
+    "type": "MESH",
+    "dims": [
+     0.216,
+     0.1728,
+     0.272
+    ],
+    "mats": 3
+   }
+  }
+ },
+ "Proc_RoastedCoffee.fbx": {
+  "objects": {
+   "Proc_RoastedCoffee": {
+    "type": "MESH",
+    "dims": [
+     0.09,
+     0.0856,
+     0.0258
+    ],
+    "mats": 2
+   },
+   "Proc_RoastedCoffee__Stack": {
+    "type": "MESH",
+    "dims": [
+     0.162,
+     0.1541,
+     0.0397
+    ],
+    "mats": 2
+   }
+  }
+ },
+ "Proc_Rubber.fbx": {
+  "objects": {
+   "Proc_Rubber": {
+    "type": "MESH",
+    "dims": [
+     0.122,
+     0.105,
+     0.078
+    ],
+    "mats": 2
+   },
+   "Proc_Rubber__Stack": {
+    "type": "MESH",
+    "dims": [
+     0.1556,
+     0.1497,
+     0.2309
+    ],
+    "mats": 2
+   }
+  }
+ },
+ "Proc_RyeFlour.fbx": {
+  "objects": {
+   "Proc_RyeFlour": {
+    "type": "MESH",
+    "dims": [
+     0.12,
+     0.096,
+     0.17
+    ],
+    "mats": 3
+   },
+   "Proc_RyeFlour__Stack": {
+    "type": "MESH",
+    "dims": [
+     0.216,
+     0.1728,
+     0.272
+    ],
+    "mats": 3
+   }
+  }
+ },
+ "Proc_SaltedFish.fbx": {
+  "objects": {
+   "Proc_SaltedFish": {
+    "type": "MESH",
+    "dims": [
+     0.15,
+     0.0399,
+     0.0472
+    ],
+    "mats": 5
+   },
+   "Proc_SaltedFish__Rotten": {
+    "type": "MESH",
+    "dims": [
+     0.15,
+     0.0399,
+     0.0472
+    ],
+    "mats": 6
+   },
+   "Proc_SaltedFish__Stack": {
+    "type": "MESH",
+    "dims": [
+     0.348,
+     0.0779,
+     0.0553
+    ],
+    "mats": 7
+   }
+  }
+ },
+ "Proc_SaltedMeat.fbx": {
+  "objects": {
+   "Proc_SaltedMeat": {
+    "type": "MESH",
+    "dims": [
+     0.075,
+     0.075,
+     0.03
+    ],
+    "mats": 3
+   },
+   "Proc_SaltedMeat__Rotten": {
+    "type": "MESH",
+    "dims": [
+     0.075,
+     0.075,
+     0.03
+    ],
+    "mats": 4
+   },
+   "Proc_SaltedMeat__Stack": {
+    "type": "MESH",
+    "dims": [
+     0.283,
+     0.198,
+     0.04
+    ],
+    "mats": 5
+   }
+  }
+ },
+ "Proc_SesameOil.fbx": {
+  "objects": {
+   "Proc_SesameOil": {
+    "type": "MESH",
+    "dims": [
+     0.042,
+     0.042,
+     0.125
+    ],
+    "mats": 4
+   },
+   "Proc_SesameOil__Stack": {
+    "type": "MESH",
+    "dims": [
+     0.184,
+     0.132,
+     0.133
+    ],
+    "mats": 6
+   }
+  }
+ },
+ "Proc_SmokedFish.fbx": {
+  "objects": {
+   "Proc_SmokedFish": {
+    "type": "MESH",
+    "dims": [
+     0.15,
+     0.0399,
+     0.0472
+    ],
+    "mats": 5
+   },
+   "Proc_SmokedFish__Rotten": {
+    "type": "MESH",
+    "dims": [
+     0.15,
+     0.0399,
+     0.0472
+    ],
+    "mats": 6
+   },
+   "Proc_SmokedFish__Stack": {
+    "type": "MESH",
+    "dims": [
+     0.348,
+     0.0779,
+     0.0553
+    ],
+    "mats": 7
+   }
+  }
+ },
+ "Proc_SmokedMeat.fbx": {
+  "objects": {
+   "Proc_SmokedMeat": {
+    "type": "MESH",
+    "dims": [
+     0.075,
+     0.075,
+     0.0556
+    ],
+    "mats": 3
+   },
+   "Proc_SmokedMeat__Rotten": {
+    "type": "MESH",
+    "dims": [
+     0.075,
+     0.075,
+     0.0556
+    ],
+    "mats": 4
+   },
+   "Proc_SmokedMeat__Stack": {
+    "type": "MESH",
+    "dims": [
+     0.283,
+     0.198,
+     0.0636
+    ],
+    "mats": 5
+   }
+  }
+ },
+ "Proc_SoybeanOil.fbx": {
+  "objects": {
+   "Proc_SoybeanOil": {
+    "type": "MESH",
+    "dims": [
+     0.052,
+     0.052,
+     0.195
+    ],
+    "mats": 3
+   },
+   "Proc_SoybeanOil__Stack": {
+    "type": "MESH",
+    "dims": [
+     0.214,
+     0.152,
+     0.203
+    ],
+    "mats": 5
+   }
+  }
+ },
+ "Proc_SoyMilk.fbx": {
+  "objects": {
+   "Proc_SoyMilk": {
+    "type": "MESH",
+    "dims": [
+     0.06,
+     0.06,
+     0.155
+    ],
+    "mats": 3
+   },
+   "Proc_SoyMilk__Rotten": {
+    "type": "MESH",
+    "dims": [
+     0.06,
+     0.06,
+     0.155
+    ],
+    "mats": 4
+   },
+   "Proc_SoyMilk__Stack": {
+    "type": "MESH",
+    "dims": [
+     0.238,
+     0.168,
+     0.163
+    ],
+    "mats": 5
+   }
+  }
+ },
+ "Proc_SoySauce.fbx": {
+  "objects": {
+   "Proc_SoySauce": {
+    "type": "MESH",
+    "dims": [
+     0.042,
+     0.042,
+     0.125
+    ],
+    "mats": 3
+   },
+   "Proc_SoySauce__Stack": {
+    "type": "MESH",
+    "dims": [
+     0.184,
+     0.132,
+     0.133
+    ],
+    "mats": 5
+   }
+  }
+ },
+ "Proc_Sugar.fbx": {
+  "objects": {
+   "Proc_Sugar": {
+    "type": "MESH",
+    "dims": [
+     0.12,
+     0.096,
+     0.17
+    ],
+    "mats": 3
+   },
+   "Proc_Sugar__Stack": {
+    "type": "MESH",
+    "dims": [
+     0.216,
+     0.1728,
+     0.272
+    ],
+    "mats": 3
+   }
+  }
+ },
+ "Proc_SunflowerOil.fbx": {
+  "objects": {
+   "Proc_SunflowerOil": {
+    "type": "MESH",
+    "dims": [
+     0.052,
+     0.052,
+     0.195
+    ],
+    "mats": 3
+   },
+   "Proc_SunflowerOil__Stack": {
+    "type": "MESH",
+    "dims": [
+     0.214,
+     0.152,
+     0.203
+    ],
+    "mats": 5
+   }
+  }
+ },
+ "Proc_Tofu.fbx": {
+  "objects": {
+   "Proc_Tofu": {
+    "type": "MESH",
+    "dims": [
+     0.07,
+     0.05,
+     0.035
+    ],
+    "mats": 1
+   },
+   "Proc_Tofu__Rotten": {
+    "type": "MESH",
+    "dims": [
+     0.07,
+     0.05,
+     0.035
+    ],
+    "mats": 2
+   },
+   "Proc_Tofu__Stack": {
+    "type": "MESH",
+    "dims": [
+     0.268,
+     0.148,
+     0.043
+    ],
+    "mats": 3
+   }
+  }
+ },
+ "Proc_Vinegar.fbx": {
+  "objects": {
+   "Proc_Vinegar": {
+    "type": "MESH",
+    "dims": [
+     0.042,
+     0.042,
+     0.125
+    ],
+    "mats": 3
+   },
+   "Proc_Vinegar__Stack": {
+    "type": "MESH",
+    "dims": [
+     0.184,
+     0.132,
+     0.133
+    ],
+    "mats": 5
+   }
+  }
+ },
+ "Proc_WheatFlour.fbx": {
+  "objects": {
+   "Proc_WheatFlour": {
+    "type": "MESH",
+    "dims": [
+     0.12,
+     0.096,
+     0.17
+    ],
+    "mats": 3
+   },
+   "Proc_WheatFlour__Stack": {
+    "type": "MESH",
+    "dims": [
+     0.216,
+     0.1728,
+     0.272
+    ],
+    "mats": 3
+   }
+  }
+ },
+ "Proc_Yogurt.fbx": {
+  "objects": {
+   "Proc_Yogurt": {
+    "type": "MESH",
+    "dims": [
+     0.0604,
+     0.062,
+     0.053
+    ],
+    "mats": 2
+   },
+   "Proc_Yogurt__Rotten": {
+    "type": "MESH",
+    "dims": [
+     0.0604,
+     0.062,
+     0.053
+    ],
+    "mats": 3
+   },
+   "Proc_Yogurt__Stack": {
+    "type": "MESH",
+    "dims": [
+     0.2393,
+     0.172,
+     0.061
+    ],
+    "mats": 4
+   }
+  }
+ },
+ "Ranch_ChickenEgg.fbx": {
+  "objects": {
+   "Ranch_ChickenEgg": {
+    "type": "MESH",
+    "dims": [
+     0.13,
+     0.048,
+     0.048
+    ],
+    "mats": 1
+   },
+   "Ranch_ChickenEgg__Rotten": {
+    "type": "MESH",
+    "dims": [
+     0.13,
+     0.048,
+     0.048
+    ],
+    "mats": 2
+   },
+   "Ranch_ChickenEgg__Stack": {
+    "type": "MESH",
+    "dims": [
+     0.308,
+     0.086,
+     0.056
+    ],
+    "mats": 3
+   }
+  }
+ },
+ "Ranch_DuckEgg.fbx": {
+  "objects": {
+   "Ranch_DuckEgg": {
+    "type": "MESH",
+    "dims": [
+     0.1495,
+     0.0537,
+     0.0552
+    ],
+    "mats": 1
+   },
+   "Ranch_DuckEgg__Rotten": {
+    "type": "MESH",
+    "dims": [
+     0.1495,
+     0.0537,
+     0.0552
+    ],
+    "mats": 2
+   },
+   "Ranch_DuckEgg__Stack": {
+    "type": "MESH",
+    "dims": [
+     0.347,
+     0.0917,
+     0.0632
+    ],
+    "mats": 3
+   }
+  }
+ },
+ "Ranch_Egg.fbx": {
+  "objects": {
+   "Ranch_Egg": {
+    "type": "MESH",
+    "dims": [
+     0.13,
+     0.048,
+     0.048
+    ],
+    "mats": 1
+   },
+   "Ranch_Egg__Rotten": {
+    "type": "MESH",
+    "dims": [
+     0.13,
+     0.048,
+     0.0498
+    ],
+    "mats": 2
+   },
+   "Ranch_Egg__Stack": {
+    "type": "MESH",
+    "dims": [
+     0.308,
+     0.086,
+     0.056
+    ],
+    "mats": 3
+   }
+  }
+ },
+ "Ranch_GoatMilk.fbx": {
+  "objects": {
+   "Ranch_GoatMilk": {
+    "type": "MESH",
+    "dims": [
+     0.06,
+     0.06,
+     0.155
+    ],
+    "mats": 3
+   },
+   "Ranch_GoatMilk__Rotten": {
+    "type": "MESH",
+    "dims": [
+     0.06,
+     0.06,
+     0.1566
+    ],
+    "mats": 4
+   },
+   "Ranch_GoatMilk__Stack": {
+    "type": "MESH",
+    "dims": [
+     0.238,
+     0.168,
+     0.163
+    ],
+    "mats": 5
+   }
+  }
+ },
+ "Ranch_Honey.fbx": {
+  "objects": {
+   "Ranch_Honey": {
+    "type": "MESH",
+    "dims": [
+     0.0653,
+     0.0636,
+     0.1125
+    ],
+    "mats": 4
+   },
+   "Ranch_Honey__Stack": {
+    "type": "MESH",
+    "dims": [
+     0.2538,
+     0.1753,
+     0.1205
+    ],
+    "mats": 5
+   }
+  }
+ },
+ "Ranch_Honeydew.fbx": {
+  "objects": {
+   "Ranch_Honeydew": {
+    "type": "MESH",
+    "dims": [
+     0.0854,
+     0.0636,
+     0.0819
+    ],
+    "mats": 3
+   },
+   "Ranch_Honeydew__Rotten": {
+    "type": "MESH",
+    "dims": [
+     0.0854,
+     0.0636,
+     0.0819
+    ],
+    "mats": 4
+   },
+   "Ranch_Honeydew__Stack": {
+    "type": "MESH",
+    "dims": [
+     0.3143,
+     0.1753,
+     0.0899
+    ],
+    "mats": 5
+   }
+  }
+ },
+ "Ranch_Milk.fbx": {
+  "objects": {
+   "Ranch_Milk": {
+    "type": "MESH",
+    "dims": [
+     0.06,
+     0.06,
+     0.155
+    ],
+    "mats": 4
+   },
+   "Ranch_Milk__Rotten": {
+    "type": "MESH",
+    "dims": [
+     0.06,
+     0.06,
+     0.155
+    ],
+    "mats": 5
+   },
+   "Ranch_Milk__Stack": {
+    "type": "MESH",
+    "dims": [
+     0.238,
+     0.168,
+     0.163
+    ],
+    "mats": 6
+   }
+  }
+ },
+ "Ranch_QuailEgg.fbx": {
+  "objects": {
+   "Ranch_QuailEgg": {
+    "type": "MESH",
+    "dims": [
+     0.078,
+     0.0336,
+     0.0288
+    ],
+    "mats": 2
+   },
+   "Ranch_QuailEgg__Rotten": {
+    "type": "MESH",
+    "dims": [
+     0.078,
+     0.0328,
+     0.0295
+    ],
+    "mats": 3
+   },
+   "Ranch_QuailEgg__Stack": {
+    "type": "MESH",
+    "dims": [
+     0.292,
+     0.1142,
+     0.04
+    ],
+    "mats": 4
+   }
+  }
+ },
+ "Ranch_Salt.fbx": {
+  "objects": {
+   "Ranch_Salt": {
+    "type": "MESH",
+    "dims": [
+     0.14,
+     0.1365,
+     0.05
+    ],
+    "mats": 2
+   },
+   "Ranch_Salt__Stack": {
+    "type": "MESH",
+    "dims": [
+     0.252,
+     0.2457,
+     0.08
+    ],
+    "mats": 2
+   }
+  }
+ },
+ "Sea_Abalone.fbx": {
+  "objects": {
+   "Sea_Abalone": {
+    "type": "MESH",
+    "dims": [
+     0.07,
+     0.05,
+     0.0165
+    ],
+    "mats": 3
+   },
+   "Sea_Abalone__Rotten": {
+    "type": "MESH",
+    "dims": [
+     0.07,
+     0.05,
+     0.0167
+    ],
+    "mats": 4
+   },
+   "Sea_Abalone__Stack": {
+    "type": "MESH",
+    "dims": [
+     0.268,
+     0.148,
+     0.04
+    ],
+    "mats": 5
+   }
+  }
+ },
+ "Sea_Clam.fbx": {
+  "objects": {
+   "Sea_Clam": {
+    "type": "MESH",
+    "dims": [
+     0.0976,
+     0.0256,
+     0.0099
+    ],
+    "mats": 2
+   },
+   "Sea_Clam__Rotten": {
+    "type": "MESH",
+    "dims": [
+     0.0976,
+     0.0256,
+     0.0114
+    ],
+    "mats": 3
+   },
+   "Sea_Clam__Stack": {
+    "type": "MESH",
+    "dims": [
+     0.2433,
+     0.0636,
+     0.04
+    ],
+    "mats": 4
+   }
+  }
+ },
+ "Sea_ClamSoup.fbx": {
+  "objects": {
+   "Sea_ClamSoup": {
+    "type": "MESH",
+    "dims": [
+     0.1,
+     0.1,
+     0.038
+    ],
+    "mats": 3
+   },
+   "Sea_ClamSoup__Rotten": {
+    "type": "MESH",
+    "dims": [
+     0.1,
+     0.1,
+     0.038
+    ],
+    "mats": 4
+   },
+   "Sea_ClamSoup__Stack": {
+    "type": "MESH",
+    "dims": [
+     0.248,
+     0.138,
+     0.046
+    ],
+    "mats": 5
+   }
+  }
+ },
+ "Sea_Crab.fbx": {
+  "objects": {
+   "Sea_Crab": {
+    "type": "MESH",
+    "dims": [
+     0.1022,
+     0.0847,
+     0.0298
+    ],
+    "mats": 2
+   },
+   "Sea_Crab__Rotten": {
+    "type": "MESH",
+    "dims": [
+     0.1022,
+     0.0847,
+     0.031
+    ],
+    "mats": 3
+   },
+   "Sea_Crab__Stack": {
+    "type": "MESH",
+    "dims": [
+     0.2524,
+     0.1227,
+     0.04
+    ],
+    "mats": 4
+   }
+  }
+ },
+ "Sea_Crayfish.fbx": {
+  "objects": {
+   "Sea_Crayfish": {
+    "type": "MESH",
+    "dims": [
+     0.1168,
+     0.0527,
+     0.014
+    ],
+    "mats": 1
+   },
+   "Sea_Crayfish__Rotten": {
+    "type": "MESH",
+    "dims": [
+     0.1168,
+     0.0527,
+     0.0144
+    ],
+    "mats": 2
+   },
+   "Sea_Crayfish__Stack": {
+    "type": "MESH",
+    "dims": [
+     0.2815,
+     0.0907,
+     0.04
+    ],
+    "mats": 3
+   }
+  }
+ },
+ "Sea_Kelp.fbx": {
+  "objects": {
+   "Sea_Kelp": {
+    "type": "MESH",
+    "dims": [
+     0.13,
+     0.0969,
+     0.016
+    ],
+    "mats": 1
+   },
+   "Sea_Kelp__Rotten": {
+    "type": "MESH",
+    "dims": [
+     0.13,
+     0.0969,
+     0.0175
+    ],
+    "mats": 2
+   },
+   "Sea_Kelp__Stack": {
+    "type": "MESH",
+    "dims": [
+     0.308,
+     0.1349,
+     0.04
+    ],
+    "mats": 3
+   }
+  }
+ },
+ "Sea_Laver.fbx": {
+  "objects": {
+   "Sea_Laver": {
+    "type": "MESH",
+    "dims": [
+     0.1024,
+     0.1024,
+     0.0046
+    ],
+    "mats": 1
+   },
+   "Sea_Laver__Rotten": {
+    "type": "MESH",
+    "dims": [
+     0.1024,
+     0.1024,
+     0.0056
+    ],
+    "mats": 2
+   },
+   "Sea_Laver__Stack": {
+    "type": "MESH",
+    "dims": [
+     0.2529,
+     0.1404,
+     0.04
+    ],
+    "mats": 3
+   }
+  }
+ },
+ "Sea_Mussel.fbx": {
+  "objects": {
+   "Sea_Mussel": {
+    "type": "MESH",
+    "dims": [
+     0.0802,
+     0.036,
+     0.014
+    ],
+    "mats": 1
+   },
+   "Sea_Mussel__Rotten": {
+    "type": "MESH",
+    "dims": [
+     0.0802,
+     0.036,
+     0.0149
+    ],
+    "mats": 2
+   },
+   "Sea_Mussel__Stack": {
+    "type": "MESH",
+    "dims": [
+     0.2985,
+     0.1199,
+     0.04
+    ],
+    "mats": 3
+   }
+  }
+ },
+ "Sea_Octopus.fbx": {
+  "objects": {
+   "Sea_Octopus": {
+    "type": "MESH",
+    "dims": [
+     0.1282,
+     0.1281,
+     0.0654
+    ],
+    "mats": 2
+   },
+   "Sea_Octopus__Rotten": {
+    "type": "MESH",
+    "dims": [
+     0.1282,
+     0.1281,
+     0.0654
+    ],
+    "mats": 3
+   },
+   "Sea_Octopus__Stack": {
+    "type": "MESH",
+    "dims": [
+     0.3044,
+     0.1661,
+     0.0734
+    ],
+    "mats": 4
+   }
+  }
+ },
+ "Sea_Oyster.fbx": {
+  "objects": {
+   "Sea_Oyster": {
+    "type": "MESH",
+    "dims": [
+     0.0847,
+     0.0306,
+     0.016
+    ],
+    "mats": 1
+   },
+   "Sea_Oyster__Rotten": {
+    "type": "MESH",
+    "dims": [
+     0.0847,
+     0.0306,
+     0.017
+    ],
+    "mats": 2
+   },
+   "Sea_Oyster__Stack": {
+    "type": "MESH",
+    "dims": [
+     0.3122,
+     0.1107,
+     0.04
+    ],
+    "mats": 3
+   }
+  }
+ },
+ "Sea_Scallop.fbx": {
+  "objects": {
+   "Sea_Scallop": {
+    "type": "MESH",
+    "dims": [
+     0.094,
+     0.048,
+     0.0075
+    ],
+    "mats": 2
+   },
+   "Sea_Scallop__Rotten": {
+    "type": "MESH",
+    "dims": [
+     0.094,
+     0.048,
+     0.0089
+    ],
+    "mats": 3
+   },
+   "Sea_Scallop__Stack": {
+    "type": "MESH",
+    "dims": [
+     0.236,
+     0.086,
+     0.04
+    ],
+    "mats": 4
+   }
+  }
+ },
+ "Sea_Shrimp.fbx": {
+  "objects": {
+   "Sea_Shrimp": {
+    "type": "MESH",
+    "dims": [
+     0.0839,
+     0.0199,
+     0.0536
+    ],
+    "mats": 2
+   },
+   "Sea_Shrimp__Rotten": {
+    "type": "MESH",
+    "dims": [
+     0.0839,
+     0.0208,
+     0.0536
+    ],
+    "mats": 3
+   },
+   "Sea_Shrimp__Stack": {
+    "type": "MESH",
+    "dims": [
+     0.3097,
+     0.0964,
+     0.0616
+    ],
+    "mats": 4
+   }
+  }
+ },
+ "Sea_Squid.fbx": {
+  "objects": {
+   "Sea_Squid": {
+    "type": "MESH",
+    "dims": [
+     0.1505,
+     0.04,
+     0.036
+    ],
+    "mats": 2
+   },
+   "Sea_Squid__Rotten": {
+    "type": "MESH",
+    "dims": [
+     0.1505,
+     0.04,
+     0.0367
+    ],
+    "mats": 3
+   },
+   "Sea_Squid__Stack": {
+    "type": "MESH",
+    "dims": [
+     0.3489,
+     0.078,
+     0.044
+    ],
+    "mats": 4
+   }
+  }
+ },
+ "Sea_StirFry.fbx": {
+  "objects": {
+   "Sea_StirFry": {
+    "type": "MESH",
+    "dims": [
+     0.14,
+     0.14,
+     0.0333
+    ],
+    "mats": 5
+   },
+   "Sea_StirFry__Rotten": {
+    "type": "MESH",
+    "dims": [
+     0.14,
+     0.14,
+     0.0333
+    ],
+    "mats": 6
+   },
+   "Sea_StirFry__Stack": {
+    "type": "MESH",
+    "dims": [
+     0.328,
+     0.178,
+     0.0413
+    ],
+    "mats": 7
+   }
+  }
+ },
+ "Sea_Wakame.fbx": {
+  "objects": {
+   "Sea_Wakame": {
+    "type": "MESH",
+    "dims": [
+     0.13,
+     0.0719,
+     0.016
+    ],
+    "mats": 2
+   },
+   "Sea_Wakame__Rotten": {
+    "type": "MESH",
+    "dims": [
+     0.13,
+     0.0719,
+     0.0171
+    ],
+    "mats": 3
+   },
+   "Sea_Wakame__Stack": {
+    "type": "MESH",
+    "dims": [
+     0.308,
+     0.1099,
+     0.04
+    ],
+    "mats": 4
+   }
+  }
+ },
+ "Soup_Fish.fbx": {
+  "objects": {
+   "Soup_Fish": {
+    "type": "MESH",
+    "dims": [
+     0.1,
+     0.1,
+     0.0598
+    ],
+    "mats": 4
+   },
+   "Soup_Fish__Rotten": {
+    "type": "MESH",
+    "dims": [
+     0.1,
+     0.1,
+     0.0598
+    ],
+    "mats": 5
+   },
+   "Soup_Fish__Stack": {
+    "type": "MESH",
+    "dims": [
+     0.248,
+     0.138,
+     0.0678
+    ],
+    "mats": 6
+   }
+  }
+ },
+ "Soup_Mushroom.fbx": {
+  "objects": {
+   "Soup_Mushroom": {
+    "type": "MESH",
+    "dims": [
+     0.1,
+     0.1,
+     0.0494
+    ],
+    "mats": 3
+   },
+   "Soup_Mushroom__Rotten": {
+    "type": "MESH",
+    "dims": [
+     0.1,
+     0.1,
+     0.0494
+    ],
+    "mats": 4
+   },
+   "Soup_Mushroom__Stack": {
+    "type": "MESH",
+    "dims": [
+     0.248,
+     0.138,
+     0.0574
+    ],
+    "mats": 5
+   }
+  }
+ },
+ "Soup_Vegetable.fbx": {
+  "objects": {
+   "Soup_Vegetable": {
+    "type": "MESH",
+    "dims": [
+     0.1,
+     0.1,
+     0.0484
+    ],
+    "mats": 4
+   },
+   "Soup_Vegetable__Rotten": {
+    "type": "MESH",
+    "dims": [
+     0.1,
+     0.1,
+     0.0488
+    ],
+    "mats": 5
+   },
+   "Soup_Vegetable__Stack": {
+    "type": "MESH",
+    "dims": [
+     0.248,
+     0.138,
+     0.0566
+    ],
+    "mats": 6
+   }
+  }
+ },
+ "Stew_Bean.fbx": {
+  "objects": {
+   "Stew_Bean": {
+    "type": "MESH",
+    "dims": [
+     0.11,
+     0.11,
+     0.06
+    ],
+    "mats": 3
+   },
+   "Stew_Bean__Rotten": {
+    "type": "MESH",
+    "dims": [
+     0.11,
+     0.11,
+     0.0619
+    ],
+    "mats": 4
+   },
+   "Stew_Bean__Stack": {
+    "type": "MESH",
+    "dims": [
+     0.268,
+     0.148,
+     0.068
+    ],
+    "mats": 5
+   }
+  }
+ },
+ "Stew_Meat.fbx": {
+  "objects": {
+   "Stew_Meat": {
+    "type": "MESH",
+    "dims": [
+     0.11,
+     0.11,
+     0.0638
+    ],
+    "mats": 4
+   },
+   "Stew_Meat__Rotten": {
+    "type": "MESH",
+    "dims": [
+     0.11,
+     0.11,
+     0.0635
+    ],
+    "mats": 5
+   },
+   "Stew_Meat__Stack": {
+    "type": "MESH",
+    "dims": [
+     0.268,
+     0.148,
+     0.0717
+    ],
+    "mats": 6
+   }
+  }
+ },
+ "Stone_Granite.fbx": {
+  "objects": {
+   "Stone_Granite": {
+    "type": "MESH",
+    "dims": [
+     0.1537,
+     0.0742,
+     0.056
+    ],
+    "mats": 2
+   },
+   "Stone_Granite__Stack": {
+    "type": "MESH",
+    "dims": [
+     0.1537,
+     0.1009,
+     0.1658
+    ],
+    "mats": 2
+   }
+  }
+ },
+ "Stone_Marble.fbx": {
+  "objects": {
+   "Stone_Marble": {
+    "type": "MESH",
+    "dims": [
+     0.1537,
+     0.0742,
+     0.056
+    ],
+    "mats": 2
+   },
+   "Stone_Marble__Stack": {
+    "type": "MESH",
+    "dims": [
+     0.1537,
+     0.0999,
+     0.1658
+    ],
+    "mats": 2
+   }
+  }
+ },
+ "Stone_Sandstone.fbx": {
+  "objects": {
+   "Stone_Sandstone": {
+    "type": "MESH",
+    "dims": [
+     0.1537,
+     0.0742,
+     0.056
+    ],
+    "mats": 1
+   },
+   "Stone_Sandstone__Stack": {
+    "type": "MESH",
+    "dims": [
+     0.1537,
+     0.0999,
+     0.1658
+    ],
+    "mats": 1
+   }
+  }
+ },
+ "Stone_Tuff.fbx": {
+  "objects": {
+   "Stone_Tuff": {
+    "type": "MESH",
+    "dims": [
+     0.1537,
+     0.0742,
+     0.056
+    ],
+    "mats": 1
+   },
+   "Stone_Tuff__Stack": {
+    "type": "MESH",
+    "dims": [
+     0.1537,
+     0.0999,
+     0.1658
+    ],
+    "mats": 1
+   }
+  }
+ },
+ "Veg_Asparagus.fbx": {
+  "objects": {
+   "Veg_Asparagus": {
+    "type": "MESH",
+    "dims": [
+     0.1821,
+     0.0677,
+     0.046
+    ],
+    "mats": 3
+   },
+   "Veg_Asparagus__Rotten": {
+    "type": "MESH",
+    "dims": [
+     0.1821,
+     0.0677,
+     0.046
+    ],
+    "mats": 4
+   },
+   "Veg_Asparagus__Seed": {
+    "type": "MESH",
+    "dims": [
+     0.0681,
+     0.0155,
+     0.09
+    ],
+    "mats": 4
+   },
+   "Veg_Asparagus__Stack": {
+    "type": "MESH",
+    "dims": [
+     0.4121,
+     0.1057,
+     0.054
+    ],
+    "mats": 5
+   }
+  }
+ },
+ "Veg_Beet.fbx": {
+  "objects": {
+   "Veg_Beet": {
+    "type": "MESH",
+    "dims": [
+     0.084,
+     0.084,
+     0.1335
+    ],
+    "mats": 2
+   },
+   "Veg_Beet__Rotten": {
+    "type": "MESH",
+    "dims": [
+     0.084,
+     0.084,
+     0.1339
+    ],
+    "mats": 3
+   },
+   "Veg_Beet__Seed": {
+    "type": "MESH",
+    "dims": [
+     0.0681,
+     0.0125,
+     0.09
+    ],
+    "mats": 4
+   },
+   "Veg_Beet__Stack": {
+    "type": "MESH",
+    "dims": [
+     0.31,
+     0.216,
+     0.1415
+    ],
+    "mats": 4
+   }
+  }
+ },
+ "Veg_BellPepper.fbx": {
+  "objects": {
+   "Veg_BellPepper": {
+    "type": "MESH",
+    "dims": [
+     0.076,
+     0.076,
+     0.0798
+    ],
+    "mats": 2
+   },
+   "Veg_BellPepper__Rotten": {
+    "type": "MESH",
+    "dims": [
+     0.076,
+     0.076,
+     0.0798
+    ],
+    "mats": 3
+   },
+   "Veg_BellPepper__Seed": {
+    "type": "MESH",
+    "dims": [
+     0.0671,
+     0.0175,
+     0.09
+    ],
+    "mats": 4
+   },
+   "Veg_BellPepper__Stack": {
+    "type": "MESH",
+    "dims": [
+     0.286,
+     0.2,
+     0.0878
+    ],
+    "mats": 4
+   }
+  }
+ },
+ "Veg_BraisedTofu.fbx": {
+  "objects": {
+   "Veg_BraisedTofu": {
+    "type": "MESH",
+    "dims": [
+     0.14,
+     0.14,
+     0.037
+    ],
+    "mats": 3
+   },
+   "Veg_BraisedTofu__Rotten": {
+    "type": "MESH",
+    "dims": [
+     0.14,
+     0.14,
+     0.0372
+    ],
+    "mats": 4
+   },
+   "Veg_BraisedTofu__Stack": {
+    "type": "MESH",
+    "dims": [
+     0.328,
+     0.178,
+     0.0453
+    ],
+    "mats": 5
+   }
+  }
+ },
+ "Veg_Cabbage.fbx": {
+  "objects": {
+   "Veg_Cabbage": {
+    "type": "MESH",
+    "dims": [
+     0.1175,
+     0.1175,
+     0.1132
+    ],
+    "mats": 3
+   },
+   "Veg_Cabbage__Rotten": {
+    "type": "MESH",
+    "dims": [
+     0.1175,
+     0.1175,
+     0.1132
+    ],
+    "mats": 4
+   },
+   "Veg_Cabbage__Seed": {
+    "type": "MESH",
+    "dims": [
+     0.0702,
+     0.0154,
+     0.09
+    ],
+    "mats": 4
+   },
+   "Veg_Cabbage__Stack": {
+    "type": "MESH",
+    "dims": [
+     0.283,
+     0.1555,
+     0.1212
+    ],
+    "mats": 5
+   }
+  }
+ },
+ "Veg_Carrot.fbx": {
+  "objects": {
+   "Veg_Carrot": {
+    "type": "MESH",
+    "dims": [
+     0.21,
+     0.0387,
+     0.08
+    ],
+    "mats": 2
+   },
+   "Veg_Carrot__Rotten": {
+    "type": "MESH",
+    "dims": [
+     0.21,
+     0.0387,
+     0.08
+    ],
+    "mats": 3
+   },
+   "Veg_Carrot__Seed": {
+    "type": "MESH",
+    "dims": [
+     0.0703,
+     0.0137,
+     0.09
+    ],
+    "mats": 4
+   },
+   "Veg_Carrot__Stack": {
+    "type": "MESH",
+    "dims": [
+     0.468,
+     0.0767,
+     0.088
+    ],
+    "mats": 4
+   }
+  }
+ },
+ "Veg_Chickpea.fbx": {
+  "objects": {
+   "Veg_Chickpea": {
+    "type": "MESH",
+    "dims": [
+     0.0805,
+     0.0817,
+     0.0292
+    ],
+    "mats": 2
+   },
+   "Veg_Chickpea__Rotten": {
+    "type": "MESH",
+    "dims": [
+     0.0802,
+     0.0828,
+     0.0329
+    ],
+    "mats": 3
+   },
+   "Veg_Chickpea__Seed": {
+    "type": "MESH",
+    "dims": [
+     0.0701,
+     0.0115,
+     0.09
+    ],
+    "mats": 4
+   },
+   "Veg_Chickpea__Stack": {
+    "type": "MESH",
+    "dims": [
+     0.144,
+     0.144,
+     0.0486
+    ],
+    "mats": 2
+   }
+  }
+ },
+ "Veg_ChiliPepper.fbx": {
+  "objects": {
+   "Veg_ChiliPepper": {
+    "type": "MESH",
+    "dims": [
+     0.1061,
+     0.1285,
+     0.018
+    ],
+    "mats": 2
+   },
+   "Veg_ChiliPepper__Rotten": {
+    "type": "MESH",
+    "dims": [
+     0.1061,
+     0.1285,
+     0.0193
+    ],
+    "mats": 3
+   },
+   "Veg_ChiliPepper__Seed": {
+    "type": "MESH",
+    "dims": [
+     0.0703,
+     0.0139,
+     0.09
+    ],
+    "mats": 4
+   },
+   "Veg_ChiliPepper__Stack": {
+    "type": "MESH",
+    "dims": [
+     0.2602,
+     0.1665,
+     0.04
+    ],
+    "mats": 4
+   }
+  }
+ },
+ "Veg_Cucumber.fbx": {
+  "objects": {
+   "Veg_Cucumber": {
+    "type": "MESH",
+    "dims": [
+     0.151,
+     0.0418,
+     0.044
+    ],
+    "mats": 3
+   },
+   "Veg_Cucumber__Rotten": {
+    "type": "MESH",
+    "dims": [
+     0.151,
+     0.0418,
+     0.044
+    ],
+    "mats": 4
+   },
+   "Veg_Cucumber__Seed": {
+    "type": "MESH",
+    "dims": [
+     0.0689,
+     0.0133,
+     0.09
+    ],
+    "mats": 4
+   },
+   "Veg_Cucumber__Stack": {
+    "type": "MESH",
+    "dims": [
+     0.35,
+     0.0805,
+     0.052
+    ],
+    "mats": 5
+   }
+  }
+ },
+ "Veg_Eggplant.fbx": {
+  "objects": {
+   "Veg_Eggplant": {
+    "type": "MESH",
+    "dims": [
+     0.145,
+     0.0713,
+     0.075
+    ],
+    "mats": 3
+   },
+   "Veg_Eggplant__Rotten": {
+    "type": "MESH",
+    "dims": [
+     0.145,
+     0.0713,
+     0.075
+    ],
+    "mats": 4
+   },
+   "Veg_Eggplant__Seed": {
+    "type": "MESH",
+    "dims": [
+     0.0695,
+     0.0147,
+     0.09
+    ],
+    "mats": 4
+   },
+   "Veg_Eggplant__Stack": {
+    "type": "MESH",
+    "dims": [
+     0.338,
+     0.1093,
+     0.083
+    ],
+    "mats": 5
+   }
+  }
+ },
+ "Veg_Garlic.fbx": {
+  "objects": {
+   "Veg_Garlic": {
+    "type": "MESH",
+    "dims": [
+     0.048,
+     0.0416,
+     0.0576
+    ],
+    "mats": 1
+   },
+   "Veg_Garlic__Rotten": {
+    "type": "MESH",
+    "dims": [
+     0.048,
+     0.0416,
+     0.0576
+    ],
+    "mats": 2
+   },
+   "Veg_Garlic__Seed": {
+    "type": "MESH",
+    "dims": [
+     0.0632,
+     0.0155,
+     0.09
+    ],
+    "mats": 4
+   },
+   "Veg_Garlic__Stack": {
+    "type": "MESH",
+    "dims": [
+     0.202,
+     0.1311,
+     0.0656
+    ],
+    "mats": 3
+   }
+  }
+ },
+ "Veg_KidneyBean.fbx": {
+  "objects": {
+   "Veg_KidneyBean": {
+    "type": "MESH",
+    "dims": [
+     0.0836,
+     0.0817,
+     0.0277
+    ],
+    "mats": 2
+   },
+   "Veg_KidneyBean__Rotten": {
+    "type": "MESH",
+    "dims": [
+     0.0803,
+     0.08,
+     0.0255
+    ],
+    "mats": 3
+   },
+   "Veg_KidneyBean__Seed": {
+    "type": "MESH",
+    "dims": [
+     0.0686,
+     0.019,
+     0.09
+    ],
+    "mats": 4
+   },
+   "Veg_KidneyBean__Stack": {
+    "type": "MESH",
+    "dims": [
+     0.1482,
+     0.144,
+     0.0421
+    ],
+    "mats": 2
+   }
+  }
+ },
+ "Veg_Leek.fbx": {
+  "objects": {
+   "Veg_Leek": {
+    "type": "MESH",
+    "dims": [
+     0.3158,
+     0.0386,
+     0.064
+    ],
+    "mats": 3
+   },
+   "Veg_Leek__Rotten": {
+    "type": "MESH",
+    "dims": [
+     0.3158,
+     0.0386,
+     0.0653
+    ],
+    "mats": 4
+   },
+   "Veg_Leek__Seed": {
+    "type": "MESH",
+    "dims": [
+     0.0683,
+     0.0131,
+     0.09
+    ],
+    "mats": 4
+   },
+   "Veg_Leek__Stack": {
+    "type": "MESH",
+    "dims": [
+     0.6797,
+     0.0766,
+     0.072
+    ],
+    "mats": 5
+   }
+  }
+ },
+ "Veg_Lentil.fbx": {
+  "objects": {
+   "Veg_Lentil": {
+    "type": "MESH",
+    "dims": [
+     0.08,
+     0.08,
+     0.0253
+    ],
+    "mats": 2
+   },
+   "Veg_Lentil__Rotten": {
+    "type": "MESH",
+    "dims": [
+     0.08,
+     0.08,
+     0.0278
+    ],
+    "mats": 3
+   },
+   "Veg_Lentil__Seed": {
+    "type": "MESH",
+    "dims": [
+     0.0632,
+     0.0119,
+     0.09
+    ],
+    "mats": 4
+   },
+   "Veg_Lentil__Stack": {
+    "type": "MESH",
+    "dims": [
+     0.144,
+     0.1473,
+     0.042
+    ],
+    "mats": 2
+   }
+  }
+ },
+ "Veg_Lettuce.fbx": {
+  "objects": {
+   "Veg_Lettuce": {
+    "type": "MESH",
+    "dims": [
+     0.1008,
+     0.1008,
+     0.1017
+    ],
+    "mats": 3
+   },
+   "Veg_Lettuce__Rotten": {
+    "type": "MESH",
+    "dims": [
+     0.1008,
+     0.1008,
+     0.1017
+    ],
+    "mats": 4
+   },
+   "Veg_Lettuce__Seed": {
+    "type": "MESH",
+    "dims": [
+     0.0664,
+     0.0177,
+     0.09
+    ],
+    "mats": 4
+   },
+   "Veg_Lettuce__Stack": {
+    "type": "MESH",
+    "dims": [
+     0.2496,
+     0.1388,
+     0.1097
+    ],
+    "mats": 5
+   }
+  }
+ },
+ "Veg_LotusRoot.fbx": {
+  "objects": {
+   "Veg_LotusRoot": {
+    "type": "MESH",
+    "dims": [
+     0.141,
+     0.0616,
+     0.0616
+    ],
+    "mats": 2
+   },
+   "Veg_LotusRoot__Rotten": {
+    "type": "MESH",
+    "dims": [
+     0.141,
+     0.0616,
+     0.0616
+    ],
+    "mats": 3
+   },
+   "Veg_LotusRoot__Seed": {
+    "type": "MESH",
+    "dims": [
+     0.0702,
+     0.011,
+     0.09
+    ],
+    "mats": 4
+   },
+   "Veg_LotusRoot__Stack": {
+    "type": "MESH",
+    "dims": [
+     0.33,
+     0.0996,
+     0.0696
+    ],
+    "mats": 4
+   }
+  }
+ },
+ "Veg_NapaCabbage.fbx": {
+  "objects": {
+   "Veg_NapaCabbage": {
+    "type": "MESH",
+    "dims": [
+     0.2,
+     0.1018,
+     0.0986
+    ],
+    "mats": 3
+   },
+   "Veg_NapaCabbage__Rotten": {
+    "type": "MESH",
+    "dims": [
+     0.2,
+     0.1018,
+     0.0993
+    ],
+    "mats": 4
+   },
+   "Veg_NapaCabbage__Seed": {
+    "type": "MESH",
+    "dims": [
+     0.0706,
+     0.0087,
+     0.09
+    ],
+    "mats": 4
+   },
+   "Veg_NapaCabbage__Stack": {
+    "type": "MESH",
+    "dims": [
+     0.448,
+     0.1398,
+     0.1066
+    ],
+    "mats": 5
+   }
+  }
+ },
+ "Veg_Onion.fbx": {
+  "objects": {
+   "Veg_Onion": {
+    "type": "MESH",
+    "dims": [
+     0.064,
+     0.064,
+     0.0672
+    ],
+    "mats": 2
+   },
+   "Veg_Onion__Rotten": {
+    "type": "MESH",
+    "dims": [
+     0.064,
+     0.064,
+     0.0672
+    ],
+    "mats": 3
+   },
+   "Veg_Onion__Seed": {
+    "type": "MESH",
+    "dims": [
+     0.0694,
+     0.0136,
+     0.09
+    ],
+    "mats": 4
+   },
+   "Veg_Onion__Stack": {
+    "type": "MESH",
+    "dims": [
+     0.25,
+     0.176,
+     0.0752
+    ],
+    "mats": 4
+   }
+  }
+ },
+ "Veg_Pancake.fbx": {
+  "objects": {
+   "Veg_Pancake": {
+    "type": "MESH",
+    "dims": [
+     0.14,
+     0.14,
+     0.0318
+    ],
+    "mats": 3
+   },
+   "Veg_Pancake__Rotten": {
+    "type": "MESH",
+    "dims": [
+     0.14,
+     0.14,
+     0.0318
+    ],
+    "mats": 4
+   },
+   "Veg_Pancake__Stack": {
+    "type": "MESH",
+    "dims": [
+     0.328,
+     0.178,
+     0.04
+    ],
+    "mats": 5
+   }
+  }
+ },
+ "Veg_Pea.fbx": {
+  "objects": {
+   "Veg_Pea": {
+    "type": "MESH",
+    "dims": [
+     0.1,
+     0.0849,
+     0.019
+    ],
+    "mats": 2
+   },
+   "Veg_Pea__Rotten": {
+    "type": "MESH",
+    "dims": [
+     0.1,
+     0.0849,
+     0.0203
+    ],
+    "mats": 3
+   },
+   "Veg_Pea__Seed": {
+    "type": "MESH",
+    "dims": [
+     0.0683,
+     0.0123,
+     0.09
+    ],
+    "mats": 4
+   },
+   "Veg_Pea__Stack": {
+    "type": "MESH",
+    "dims": [
+     0.248,
+     0.1229,
+     0.04
+    ],
+    "mats": 4
+   }
+  }
+ },
+ "Veg_Potato.fbx": {
+  "objects": {
+   "Veg_Potato": {
+    "type": "MESH",
+    "dims": [
+     0.0618,
+     0.056,
+     0.05
+    ],
+    "mats": 2
+   },
+   "Veg_Potato__Rotten": {
+    "type": "MESH",
+    "dims": [
+     0.0618,
+     0.056,
+     0.0518
+    ],
+    "mats": 3
+   },
+   "Veg_Potato__Seed": {
+    "type": "MESH",
+    "dims": [
+     0.0676,
+     0.0134,
+     0.09
+    ],
+    "mats": 4
+   },
+   "Veg_Potato__Stack": {
+    "type": "MESH",
+    "dims": [
+     0.2435,
+     0.16,
+     0.058
+    ],
+    "mats": 4
+   }
+  }
+ },
+ "Veg_Pumpkin.fbx": {
+  "objects": {
+   "Veg_Pumpkin": {
+    "type": "MESH",
+    "dims": [
+     0.2244,
+     0.2134,
+     0.1783
+    ],
+    "mats": 3
+   },
+   "Veg_Pumpkin__Rotten": {
+    "type": "MESH",
+    "dims": [
+     0.2244,
+     0.2134,
+     0.1783
+    ],
+    "mats": 4
+   },
+   "Veg_Pumpkin__Seed": {
+    "type": "MESH",
+    "dims": [
+     0.0697,
+     0.0122,
+     0.09
+    ],
+    "mats": 4
+   },
+   "Veg_Pumpkin__Stack": {
+    "type": "MESH",
+    "dims": [
+     0.4968,
+     0.2514,
+     0.1863
+    ],
+    "mats": 5
+   }
+  }
+ },
+ "Veg_Radish.fbx": {
+  "objects": {
+   "Veg_Radish": {
+    "type": "MESH",
+    "dims": [
+     0.25,
+     0.0476,
+     0.089
+    ],
+    "mats": 2
+   },
+   "Veg_Radish__Rotten": {
+    "type": "MESH",
+    "dims": [
+     0.25,
+     0.0476,
+     0.089
+    ],
+    "mats": 3
+   },
+   "Veg_Radish__Seed": {
+    "type": "MESH",
+    "dims": [
+     0.0689,
+     0.0156,
+     0.09
+    ],
+    "mats": 4
+   },
+   "Veg_Radish__Stack": {
+    "type": "MESH",
+    "dims": [
+     0.548,
+     0.0856,
+     0.097
+    ],
+    "mats": 4
+   }
+  }
+ },
+ "Veg_RedBean.fbx": {
+  "objects": {
+   "Veg_RedBean": {
+    "type": "MESH",
+    "dims": [
+     0.08,
+     0.08,
+     0.025
+    ],
+    "mats": 2
+   },
+   "Veg_RedBean__Rotten": {
+    "type": "MESH",
+    "dims": [
+     0.08,
+     0.08,
+     0.0287
+    ],
+    "mats": 3
+   },
+   "Veg_RedBean__Seed": {
+    "type": "MESH",
+    "dims": [
+     0.0692,
+     0.0177,
+     0.09
+    ],
+    "mats": 4
+   },
+   "Veg_RedBean__Stack": {
+    "type": "MESH",
+    "dims": [
+     0.144,
+     0.144,
+     0.0451
+    ],
+    "mats": 2
+   }
+  }
+ },
+ "Veg_Roasted.fbx": {
+  "objects": {
+   "Veg_Roasted": {
+    "type": "MESH",
+    "dims": [
+     0.14,
+     0.14,
+     0.018
+    ],
+    "mats": 3
+   },
+   "Veg_Roasted__Rotten": {
+    "type": "MESH",
+    "dims": [
+     0.14,
+     0.14,
+     0.0183
+    ],
+    "mats": 4
+   },
+   "Veg_Roasted__Stack": {
+    "type": "MESH",
+    "dims": [
+     0.328,
+     0.178,
+     0.04
+    ],
+    "mats": 5
+   }
+  }
+ },
+ "Veg_Salad.fbx": {
+  "objects": {
+   "Veg_Salad": {
+    "type": "MESH",
+    "dims": [
+     0.1,
+     0.1,
+     0.059
+    ],
+    "mats": 4
+   },
+   "Veg_Salad__Rotten": {
+    "type": "MESH",
+    "dims": [
+     0.1,
+     0.1008,
+     0.0609
+    ],
+    "mats": 5
+   },
+   "Veg_Salad__Stack": {
+    "type": "MESH",
+    "dims": [
+     0.248,
+     0.1413,
+     0.067
+    ],
+    "mats": 6
+   }
+  }
+ },
+ "Veg_Soybean.fbx": {
+  "objects": {
+   "Veg_Soybean": {
+    "type": "MESH",
+    "dims": [
+     0.1,
+     0.0849,
+     0.019
+    ],
+    "mats": 2
+   },
+   "Veg_Soybean__Rotten": {
+    "type": "MESH",
+    "dims": [
+     0.1,
+     0.0849,
+     0.0196
+    ],
+    "mats": 3
+   },
+   "Veg_Soybean__Seed": {
+    "type": "MESH",
+    "dims": [
+     0.0672,
+     0.0135,
+     0.09
+    ],
+    "mats": 4
+   },
+   "Veg_Soybean__Stack": {
+    "type": "MESH",
+    "dims": [
+     0.248,
+     0.1229,
+     0.04
+    ],
+    "mats": 4
+   }
+  }
+ },
+ "Veg_Spinach.fbx": {
+  "objects": {
+   "Veg_Spinach": {
+    "type": "MESH",
+    "dims": [
+     0.1604,
+     0.0851,
+     0.031
+    ],
+    "mats": 3
+   },
+   "Veg_Spinach__Rotten": {
+    "type": "MESH",
+    "dims": [
+     0.1604,
+     0.0851,
+     0.0326
+    ],
+    "mats": 4
+   },
+   "Veg_Spinach__Seed": {
+    "type": "MESH",
+    "dims": [
+     0.0687,
+     0.0147,
+     0.09
+    ],
+    "mats": 4
+   },
+   "Veg_Spinach__Stack": {
+    "type": "MESH",
+    "dims": [
+     0.3688,
+     0.1231,
+     0.04
+    ],
+    "mats": 5
+   }
+  }
+ },
+ "Veg_StirFry.fbx": {
+  "objects": {
+   "Veg_StirFry": {
+    "type": "MESH",
+    "dims": [
+     0.14,
+     0.14,
+     0.035
+    ],
+    "mats": 4
+   },
+   "Veg_StirFry__Rotten": {
+    "type": "MESH",
+    "dims": [
+     0.14,
+     0.14,
+     0.0361
+    ],
+    "mats": 5
+   },
+   "Veg_StirFry__Stack": {
+    "type": "MESH",
+    "dims": [
+     0.328,
+     0.178,
+     0.043
+    ],
+    "mats": 6
+   }
+  }
+ },
+ "Veg_SweetPotato.fbx": {
+  "objects": {
+   "Veg_SweetPotato": {
+    "type": "MESH",
+    "dims": [
+     0.0951,
+     0.056,
+     0.05
+    ],
+    "mats": 2
+   },
+   "Veg_SweetPotato__Rotten": {
+    "type": "MESH",
+    "dims": [
+     0.0951,
+     0.056,
+     0.05
+    ],
+    "mats": 3
+   },
+   "Veg_SweetPotato__Seed": {
+    "type": "MESH",
+    "dims": [
+     0.068,
+     0.0186,
+     0.09
+    ],
+    "mats": 4
+   },
+   "Veg_SweetPotato__Stack": {
+    "type": "MESH",
+    "dims": [
+     0.2382,
+     0.094,
+     0.058
+    ],
+    "mats": 4
+   }
+  }
+ },
+ "Veg_Taro.fbx": {
+  "objects": {
+   "Veg_Taro": {
+    "type": "MESH",
+    "dims": [
+     0.0618,
+     0.056,
+     0.056
+    ],
+    "mats": 3
+   },
+   "Veg_Taro__Rotten": {
+    "type": "MESH",
+    "dims": [
+     0.0618,
+     0.056,
+     0.056
+    ],
+    "mats": 4
+   },
+   "Veg_Taro__Seed": {
+    "type": "MESH",
+    "dims": [
+     0.0675,
+     0.014,
+     0.09
+    ],
+    "mats": 4
+   },
+   "Veg_Taro__Stack": {
+    "type": "MESH",
+    "dims": [
+     0.2435,
+     0.16,
+     0.064
+    ],
+    "mats": 5
+   }
+  }
+ },
+ "Veg_Tomato.fbx": {
+  "objects": {
+   "Veg_Tomato": {
+    "type": "MESH",
+    "dims": [
+     0.09,
+     0.09,
+     0.0743
+    ],
+    "mats": 2
+   },
+   "Veg_Tomato__Rotten": {
+    "type": "MESH",
+    "dims": [
+     0.09,
+     0.09,
+     0.0745
+    ],
+    "mats": 3
+   },
+   "Veg_Tomato__Seed": {
+    "type": "MESH",
+    "dims": [
+     0.0699,
+     0.0162,
+     0.09
+    ],
+    "mats": 4
+   },
+   "Veg_Tomato__Stack": {
+    "type": "MESH",
+    "dims": [
+     0.228,
+     0.128,
+     0.0823
+    ],
+    "mats": 4
+   }
+  }
+ },
+ "Veg_Turnip.fbx": {
+  "objects": {
+   "Veg_Turnip": {
+    "type": "MESH",
+    "dims": [
+     0.084,
+     0.084,
+     0.1335
+    ],
+    "mats": 3
+   },
+   "Veg_Turnip__Rotten": {
+    "type": "MESH",
+    "dims": [
+     0.084,
+     0.084,
+     0.1335
+    ],
+    "mats": 4
+   },
+   "Veg_Turnip__Seed": {
+    "type": "MESH",
+    "dims": [
+     0.0702,
+     0.0131,
+     0.09
+    ],
+    "mats": 4
+   },
+   "Veg_Turnip__Stack": {
+    "type": "MESH",
+    "dims": [
+     0.31,
+     0.216,
+     0.1415
+    ],
+    "mats": 5
+   }
+  }
+ },
+ "Veg_Zucchini.fbx": {
+  "objects": {
+   "Veg_Zucchini": {
+    "type": "MESH",
+    "dims": [
+     0.164,
+     0.0533,
+     0.056
+    ],
+    "mats": 2
+   },
+   "Veg_Zucchini__Rotten": {
+    "type": "MESH",
+    "dims": [
+     0.164,
+     0.0533,
+     0.056
+    ],
+    "mats": 3
+   },
+   "Veg_Zucchini__Seed": {
+    "type": "MESH",
+    "dims": [
+     0.0615,
+     0.0111,
+     0.09
+    ],
+    "mats": 4
+   },
+   "Veg_Zucchini__Stack": {
+    "type": "MESH",
+    "dims": [
+     0.376,
+     0.0913,
+     0.064
+    ],
+    "mats": 4
+   }
+  }
+ },
+ "Wood_Common.fbx": {
+  "objects": {
+   "Wood_Common": {
+    "type": "MESH",
+    "dims": [
+     0.282,
+     0.1479,
+     0.1339
+    ],
+    "mats": 2
+   },
+   "Wood_Common__Stack": {
+    "type": "MESH",
+    "dims": [
+     0.3166,
+     0.264,
+     0.3965
+    ],
+    "mats": 2
+   }
+  }
+ },
+ "Wood_Hard.fbx": {
+  "objects": {
+   "Wood_Hard": {
+    "type": "MESH",
+    "dims": [
+     0.282,
+     0.1479,
+     0.1339
+    ],
+    "mats": 2
+   },
+   "Wood_Hard__Stack": {
+    "type": "MESH",
+    "dims": [
+     0.3166,
+     0.264,
+     0.3965
+    ],
+    "mats": 2
+   }
+  }
+ },
+ "Wood_Light.fbx": {
+  "objects": {
+   "Wood_Light": {
+    "type": "MESH",
+    "dims": [
+     0.282,
+     0.1479,
+     0.1339
+    ],
+    "mats": 2
+   },
+   "Wood_Light__Stack": {
+    "type": "MESH",
+    "dims": [
+     0.3166,
+     0.264,
+     0.3965
+    ],
+    "mats": 2
+   }
+  }
+ }
+}
