@@ -184,6 +184,12 @@ namespace AntColony.World
             Data.elapsed += seconds;
             TickHomecomings();
             if (!Available) return;
+            foreach (var c in Data.civilizations.Where(c => !c.extinct))
+                if (AIEraProgress.Tick(c, seconds, world.Sites.Where(s => Faction(s) == c && !s.Cleared).Sum(s => s.Colony?.RemainingBuildings ?? 0)))
+                {
+                    CampaignHistory.Record("세력 시대", c.name, CampaignResearch.EraNames[c.era - 1]);
+                    foreach (var site in world.Sites.Where(s => Faction(s) == c)) AIEraMilitary.UpgradeGuards(site, c);
+                }
             TickTalks();
             TickRaidTravel();
             TickConquerors();
@@ -199,7 +205,7 @@ namespace AntColony.World
             if (!c.contacted) return;
             if (c.contacted && !c.war)
             {
-                if (c.HasTreaty(TreatyKind.Trade, Data.elapsed))
+                if (PeriodicTradeEnabled(c, Data.elapsed))
                 {
                     var r = ResourceManager.Instance; var amount = DiplomacyRules.MonthlyTradeAmount;
                     if (r != null && c.resources[1] >= amount && r.GetCapacity(AntColony.Data.ResourceType.Soil) - r.GetAmount(AntColony.Data.ResourceType.Soil) >= amount
@@ -275,7 +281,7 @@ namespace AntColony.World
                 || s.markets == null || s.markets.Count > 4 || s.rebelMembers == null || s.rebelMembers.Count > 1000) return false;
             var ids = new HashSet<string>();
             foreach (var c in s.civilizations.Concat(s.markets))
-                if (c == null || string.IsNullOrEmpty(c.id) || !ids.Add(c.id) || !Enum.IsDefined(typeof(LeaderAgenda), c.agenda)
+                if (c == null || !AIEraProgress.Valid(c) || string.IsNullOrEmpty(c.id) || !ids.Add(c.id) || !Enum.IsDefined(typeof(LeaderAgenda), c.agenda)
                     || !Enum.IsDefined(typeof(LeaderAgenda), c.hiddenAgenda) || !s.markets.Contains(c) && c.agenda == c.hiddenAgenda || c.affinity < -100 || c.affinity > 100
                     || c.treaties == null || c.treaties.Length != 3 || c.treaties.Any(t => !Finite(t)) || !Finite(c.warStarted) || !Finite(c.founded)
                     || !Finite(c.nextRaid) || !Finite(c.nextOffer) || !Finite(c.offerExpires) || !Finite(c.contactedAt) || !Finite(c.nextConquestCheck) || c.resources == null || c.resources.Length != 3

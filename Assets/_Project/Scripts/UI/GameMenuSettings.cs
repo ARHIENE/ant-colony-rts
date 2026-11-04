@@ -98,6 +98,9 @@ namespace AntColony.UI
                             () => { rebinding = a; Settings(); });
                         if (rebinding == a) MarkSelected(b);
                     }
+                    var symbols = Row("색 외 구분");
+                    L.Label(symbols, WorldMapSymbols.SelectionLegend + " · 세력·D위험도는 월드맵 범례 참고",
+                        12, 340, 0, 600, 48, MenuTheme.Muted);
                     var fixedKeys = Row("고정 조작");
                     L.Label(fixedKeys, "좌클릭 선택 · 드래그 범위 선택 · 우클릭 이동/채집/공격 · 휠 확대 · Space 일시정지 · F5~F8 배속 · F1 장수 · F2 설명서 · Esc 메뉴",
                         12, 340, 0, 600, 48, MenuTheme.Muted);

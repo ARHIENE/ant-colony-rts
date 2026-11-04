@@ -67,9 +67,10 @@ namespace AntColony.World
                     if (faction == null) visitor.ConfigureWeakIntruder();
                     else
                     {
-                        visitor.name = faction.name + " 침공군";
+                        visitor.name = faction.name + " 침공군 " + (n + 1);
                         visitor.DiplomaticFactionId = faction.id;
                         if (visitor is EnemyCommander commander) commander.ConfigureCommander(faction.leader, AntColony.Data.CommanderRank.Sergeant, null, AntColony.Units.CommanderTraits.Random());
+                        visitor.ConfigureAIMilitary(faction.era, n);
                     }
                     visitor.gameObject.SetActive(true);
                     visitors.Add(visitor);

@@ -144,15 +144,10 @@ namespace AntColony.UI
             Btn(science, "Build Vehicle 50F/60 재료", "차량 건조 식50 재료60", 12, 158, () => ScienceAction(false, true));
             Btn(science, "Build Aircraft 80F/100 재료", "비행기 건조 식80 재료100", 184, 158, () => ScienceAction(true, true));
             science.gameObject.SetActive(false);
-            legend = Corner(L.Plate(overlay, "Legend", 0, 0, 360, 150), new Vector2(1, 0), 12, Dock + 44);
-            L.Label(legend, "<b>범례</b>  C 정착지 · B 보스 둥지 · R 자원지 · T 교역소", 13, 12, 8, 336, 24);
-            string[] names = { "편입 거점", "공격받는 거점", "포기한 거점", "문명·중립 (세력 색)" };
-            Color[] colors = { new Color(.3f, .85f, .5f), new Color(1f, .25f, .15f), Color.gray, MenuTheme.Accent };
-            for (var i = 0; i < names.Length; i++)
-            {
-                L.Box(legend, "Swatch", 12, 40 + i * 26, 14, 14, colors[i] * .75f);
-                L.Label(legend, names[i], 12, 34, 36 + i * 26, 300, 22, MenuTheme.Muted);
-            }
+            legend = Corner(L.Plate(overlay, "Legend", 0, 0, 360, 210), new Vector2(1, 0), 12, Dock + 44);
+            L.Label(legend, "<b>범례</b>  C 정착지 · B 보스 · R 자원 · T 교역", 13, 12, 8, 336, 24);
+            L.Label(legend, WorldMapSymbols.Legend + "\n" + WorldMapSymbols.SelectionLegend,
+                12, 12, 40, 336, 164, MenuTheme.TextColor, TextAnchor.UpperLeft);
             legend.gameObject.SetActive(false);
             var close = L.Button(overlay, "Close", "닫기   M", 0, 0, 110, 34, Toggle);
             Corner((RectTransform)close.transform, new Vector2(1, 1), 12, 10);
@@ -217,7 +212,7 @@ namespace AntColony.UI
                 var color = site.Defense != null && (site.Defense.UnderAttack || site.Disposition == ConquestDisposition.Lost)
                     ? new Color(1f, .25f, .15f) : site.Disposition == ConquestDisposition.Annexed ? new Color(.3f, .85f, .5f)
                     : site.Disposition == ConquestDisposition.Abandoned ? Color.gray : DiplomacyManager.Instance?.Faction(site)?.color ?? site.Color;
-                markers[i].GetComponent<UnityEngine.UI.Image>().color = new Color(color.r * .65f, color.g * .65f, color.b * .65f, 1);
+                markers[i].GetComponent<WorldMapMarker>().Refresh(site, new Color(color.r * .65f, color.g * .65f, color.b * .65f, 1));
                 if (site == selectedSite)
                 {
                     selectionRing.gameObject.SetActive(visible);
@@ -340,6 +335,7 @@ namespace AntColony.UI
                 text += $"\n철수 중 · 남은 인원 {w.People} · 짐 {w.Loads} · {(float.IsNaN(w.EstimatedSeconds) ? "이동/구조 대기" : $"약 {w.EstimatedSeconds:0}초")}";
             }
             if (!open) return text;
+            text += "\n" + ship.FoodComparison;
             foreach (var c in crew)
                 text += $"\n  {c.CommanderName}  병력 {c.TroopCount}/{c.CommandLimit} · 체력 {c.PersonalHealth:0} · 기분 {c.Mood:0}"
                     + (c.Health.Injured ? $" · {c.Health.Summary}" : "");
@@ -393,6 +389,7 @@ namespace AntColony.UI
                 tag.raycastTarget = false; tag.horizontalOverflow = HorizontalWrapMode.Overflow;
                 tag.gameObject.AddComponent<UnityEngine.UI.Shadow>().effectColor = new Color(0, 0, 0, .9f);
                 marker.GetComponent<UnityEngine.UI.Image>().color = new Color(site.Color.r * .65f, site.Color.g * .65f, site.Color.b * .65f, 1);
+                marker.gameObject.AddComponent<WorldMapMarker>().Initialize(tag);
                 marker.gameObject.SetActive(false);
                 markers.Add(marker);
             }

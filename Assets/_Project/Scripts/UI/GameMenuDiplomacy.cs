@@ -52,7 +52,7 @@ namespace AntColony.UI
             var x = 12f;
             if (d.Data.caravanUntil > d.Data.elapsed)
             {
-                L.Button(p, "Caravan", "캐러밴 · " + (d.Data.caravanUntil - d.Data.elapsed).ToString("0") + "초", x, 624, 170, 40, () => OpenTrade(d.Market(-1)));
+                L.Button(p, "Caravan", "외교 상점 · " + (d.Data.caravanUntil - d.Data.elapsed).ToString("0") + "초", x, 624, 170, 40, () => OpenTrade(d.Market(-1)), "기초 자원 상점과 별도 방문 상태입니다. 기본 3자원·장비를 거래합니다.");
                 x += 178;
             }
             foreach (var site in WorldMapManager.Instance.Sites.Where(s => s.Kind == ExpeditionSiteKind.TradePost && s.Visitor?.State == ExpeditionState.Deployed))
@@ -76,14 +76,17 @@ namespace AntColony.UI
             var portrait = L.Box(head, "Portrait", 10, 10, 76, 76, s.color);
             L.Label(portrait, s.name.Substring(0, 1), 30, 0, 0, 76, 76, MenuTheme.AccentInk, TextAnchor.MiddleCenter, true);
             L.Label(head, s.leader, 20, 100, 10, 360, 30, bold: true);
-            L.Label(head, s.name + " 지도자", 12, 100, 40, 360, 20, MenuTheme.Muted);
+            L.Label(head, s.name + " · " + CampaignResearch.EraNames[s.era - 1] + (s.era < 6 ? $" 연구 {s.eraWork:0}/{AIEraProgress.Work(s.era):0}" : " 시대 완료"), 12, 100, 40, 360, 20, MenuTheme.Muted)
+                .gameObject.AddComponent<MenuTooltip>().Message = "세력 공동 연구는 외교 식량·흙 재고에서 비용을 지불합니다. 현장 재고와 별도 생산분이며 연구 후 생산·기존 수비대/침공대 공격·방어가 증가합니다. 전쟁·출정 결정은 기존 규칙을 유지합니다.";
             L.Label(head, $"관계 <b>{(s.war ? "<color=#e8574a>전쟁</color>" : "평화")}</b>     호감도 <b>{s.affinity:+0;-0;0}</b>     전쟁 점수 {s.playerScore} : {s.enemyScore}", 13, 100, 62, 360, 24);
             L.Label(p, "<b>어젠다</b>  <color=#b1b3a7>지도자마다 공개 1 · 숨김 1</color>", 13, 386, 120, 470, 22);
             L.Label(p, "공개  <b>" + DiplomacyRules.AgendaNames[(int)s.agenda] + "</b>", 13, 386, 144, 470, 22);
             L.Label(p, "숨김  " + (s.hiddenRevealed ? "<b>" + DiplomacyRules.AgendaNames[(int)s.hiddenAgenda] + "</b>" : "<color=#b1b3a7>교역 협정을 맺으면 공개</color>"), 13, 386, 166, 470, 22);
             L.Label(p, "<b>호감도</b>  <color=#b1b3a7>-100 ~ +100 · 최근 사유</color>", 13, 386, 200, 470, 22);
             L.Meter(p, 386, 226, 470, 8, (s.affinity + 100) / 200f, s.affinity >= 0 ? MenuTheme.Hp : MenuTheme.Danger);
-            var reasons = L.List(p, 386, 242, 470, 420, 2);
+            L.Label(p, "주력 " + AIEraMilitary.Summary(s.era) + $"\n소굴 방어 {AIEraMilitary.DefenseGrade(s.era)}등급 · 추가 장갑 {AIEraMilitary.DefenseArmor(s.era)}", 12, 386, 242, 470, 42, MenuTheme.Muted)
+                .gameObject.AddComponent<MenuTooltip>().Message = "편성 비율은 반복 순서이며 소수 부대는 일부만 포함됩니다. 새 침공대·승급한 현장 수비대에 적용하며 이동 중인 부대는 도착 시 시대를 따릅니다. 기존 장비 종류의 전투 수치를 사용하고 실물 장비·전리품을 새로 생성하지 않습니다.";
+            var reasons = L.List(p, 386, 290, 470, 372, 2);
             foreach (var reason in Enumerable.Reverse(s.reasons)) MenuTheme.Text(reasons, reason, 12, 20).color = MenuTheme.Muted;
 
             // 오른쪽 열: 협정 + 행동.
@@ -97,7 +100,11 @@ namespace AntColony.UI
                 L.Label(box, active ? $"남은 {(s.treaties[i] - d.Data.elapsed) / DiplomacyRules.Month:0.0}개월" : "없음", 13, 300, 0, 150, 44,
                     active ? MenuTheme.Hp : MenuTheme.Dim, TextAnchor.MiddleRight);
             }
-            var y = 200f;
+            var y = 194f;
+            L.Button(p, "Periodic Trade", s.periodicTradePaused ? "정기 교환: 중단 (재개)" : "정기 교환: 허용 (중단)", 872, y, 460, 32,
+                () => { d.SetPeriodicTradePaused(s, !s.periodicTradePaused); Diplomacy(s); },
+                "교역 협정 중 매월 식량10→흙10. 중단해도 협정·숨김 정보 공개·협상 가격 할인은 유지합니다. 교환 성공 호감도+1은 발생하지 않습니다. 재개 시 누락 회차를 소급하지 않습니다.");
+            y += 38;
             Button Act(string name, string label, Action action, bool enabled)
             { var b = L.Button(p, name, label, 872, y, 460, 40, action); b.interactable = enabled; y += 46; return b; }
             Act("선전포고", "선전포고", () => { if (!d.DeclareWar(s)) ToastManager.Show("불가침 협정 중에는 선전포고할 수 없습니다."); Diplomacy(s); }, !s.war)
@@ -118,8 +125,12 @@ namespace AntColony.UI
         {
             var events = ColonyEvents.Instance;
             var f = Frame("기초 자원 캐러밴 [J]");
-            L.Label(f, events != null && events.CaravanPresent ? "방문 중 · 식량으로 구매, 물품은 본거지 바닥에 도착합니다" : "캐러밴 방문 대기 · 월드맵 해금 전에도 구매할 수 있습니다", 16, 48, 48, 1300, 40);
-            var list = L.List(f, 48, 100, 1344, 620);
+            L.Label(f, events != null && events.CaravanPresent ? $"기초 상점 방문 중 · 남은 {events.SupplyCaravanRemaining:0}초 · 식량으로 구매, 본거지 바닥에 도착" : "기초 상점 방문 대기 · 계절 방문 보장 · 월드맵 해금 전에도 이용 가능", 16, 48, 48, 1300, 40);
+            var diplomacy = DiplomacyManager.Instance;
+            var marketPresent = diplomacy?.Available == true && diplomacy.Data.caravanUntil > diplomacy.Data.elapsed;
+            L.Label(f, "외교 상점: " + (marketPresent ? $"방문 중 ({diplomacy.Data.caravanUntil - diplomacy.Data.elapsed:0}초)" : "대기/월드맵 미해금")
+                + " · 같은 캐러밴의 별도 상점·저장 시계 · 기초 상점만 열릴 수 있음", 12, 48, 88, 1300, 28, MenuTheme.Muted);
+            var list = L.List(f, 48, 124, 1344, 596);
             foreach (AntColony.Data.ResourceType type in Enum.GetValues(typeof(AntColony.Data.ResourceType)))
             {
                 var price = ColonyEvents.SupplyPrice(type); if (price <= 0) continue;
@@ -142,7 +153,8 @@ namespace AntColony.UI
         private static string TreatySummary(Civilization c, DiplomacyManager d)
         {
             var active = Enum.GetValues(typeof(TreatyKind)).Cast<TreatyKind>().Where(k => c.HasTreaty(k, d.Data.elapsed)).Select(k => TreatyNames[(int)k]).ToArray();
-            return c.war ? (d.CanNegotiatePeace(c) ? "평화 협상 가능" : "전쟁 중") : active.Length == 0 ? "협정 없음" : string.Join(", ", active);
+            return c.war ? (d.CanNegotiatePeace(c) ? "평화 협상 가능" : "전쟁 중") : active.Length == 0 ? "협정 없음" : string.Join(", ", active)
+                + (c.HasTreaty(TreatyKind.Trade, d.Data.elapsed) && c.periodicTradePaused ? " · 정기 교환 중단" : "");
         }
         public void TradeAt(ExpeditionSite site)
         { OpenTrade(DiplomacyManager.Instance?.Market(WorldMapManager.Instance.Sites.ToList().IndexOf(site))); }

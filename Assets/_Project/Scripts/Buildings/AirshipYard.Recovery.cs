@@ -11,17 +11,15 @@ namespace AntColony.Buildings
 
     public sealed partial class AirshipYard
     {
-        public bool HasFoundation => Phase == RocketPhase.Destroyed && state.babelEligible && !state.foundationUsed;
-        internal void RecordBuilder(CommanderAnt builder, float work, float total)
+        internal void AcceptBabelFoundation(BabelState foundation, WorkContribution contributions)
         {
-            if (state.foundationUsed || work <= 0 || total <= 0 || !builder.Traits.Has(CommanderTrait.DiamondBuilding)) return;
-            state.constructionWork = total;
-            state.builders ??= new List<RocketBuilderWork>();
-            var entry = state.builders.Find(b => b.id == builder.PersonalState.id);
-            if (entry == null) { entry = new RocketBuilderWork { id = builder.PersonalState.id }; state.builders.Add(entry); }
-            entry.work = Mathf.Min(total, entry.work + work);
-            state.babelEligible |= entry.work >= total * .75f;
+            state.foundationUsed = foundation.used;
+            state.babelEligible = foundation.eligible;
+            state.constructionWork = foundation.work;
+            state.builders = new List<RocketBuilderWork>();
+            foreach (var builder in contributions.qualified) state.builders.Add(new RocketBuilderWork { id = builder.id, work = builder.work });
         }
+        public bool HasFoundation => Phase == RocketPhase.Destroyed && state.babelEligible && !state.foundationUsed;
         // 바벨은 발사대 기초만 복구한다. 부품·좌석·연료·핵심물·15일 진행은 다시 준비한다.
         public bool TryRebuildFoundation()
         {
@@ -32,10 +30,15 @@ namespace AntColony.Buildings
             go.transform.localScale = transform.localScale;
             go.GetComponent<Collider>().isTrigger = true;
             var site = go.AddComponent<BuildingConstructionSite>();
-            site.Initialize(gameObject, Data.buildTimeSeconds * .5f);
-            site.Require(AntColony.Data.ResourceType.Food, Mathf.CeilToInt(Data.foodCost * .75f));
-            site.Require(MainMaterial, Mathf.CeilToInt(Data.soilCost * .75f));
-            site.Require(AntColony.Data.ResourceType.Special, Mathf.CeilToInt(Data.specialCost * .75f));
+            site.Initialize(gameObject, (Babel?.work > 0 ? Babel.work : Data.buildTimeSeconds) * .5f); site.BabelUsed = true;
+            if (Babel?.costs?.Count > 0)
+                foreach (var cost in Babel.costs) site.Require(cost.type, BabelState.RebuildCost(cost.amount));
+            else
+            {
+                site.Require(AntColony.Data.ResourceType.Food, BabelState.RebuildCost(Data.foodCost));
+                site.Require(MainMaterial, BabelState.RebuildCost(Data.soilCost));
+                site.Require(AntColony.Data.ResourceType.Special, BabelState.RebuildCost(Data.specialCost));
+            }
             state = new State { foundationUsed = true };
             RestoreHealth(MaxHealth);
             gameObject.SetActive(false);
@@ -58,8 +61,8 @@ namespace AntColony.Buildings
         }
         private static bool ValidFoundation(State s) => RocketSnapshot.Finite(s.constructionWork)
             && (s.builders == null || s.builders.Count <= 10000 && s.builders.All(b => b != null && !string.IsNullOrEmpty(b.id)
-                && RocketSnapshot.Finite(b.work) && b.work <= s.constructionWork)
+                && RocketSnapshot.Finite(b.work) && b.work <= s.constructionWork + .0001f)
                 && s.builders.Select(b => b.id).Distinct().Count() == s.builders.Count)
-            && (!s.babelEligible || s.constructionWork > 0 && s.builders != null && s.builders.Any(b => b.work >= s.constructionWork * .75f));
+            && (!s.babelEligible || s.constructionWork > 0 && s.builders != null && s.builders.Any(b => b.work + .0001f >= s.constructionWork * .75f));
     }
 }

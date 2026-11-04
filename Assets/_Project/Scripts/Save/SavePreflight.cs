@@ -43,6 +43,7 @@ namespace AntColony.Save
             try
             {
                 Check(DateTime.TryParse(f.savedAtUtc, out _) && f.camera != null, "save header");
+                Check(Core.ColonyPopulation.ValidNaturalDeaths(f.population), "natural death remainder");
                 ValidateIntegration(f);
                 Check(Core.TalentAssessment.Validate(f.assessment, f.world.transports.Count, f.world.sites.Count), "talent assessment");
                 Check(SaveUnderground.Valid(f), "underground survey");
@@ -165,7 +166,7 @@ namespace AntColony.Save
                         && (b.kind == "Workshop" || w.jobs.Count == 0 && w.crafter == -1 && !w.ruined && !w.paused && !w.inactive), "workshop kind");
                     for (int j = 0; j < w.jobs.Count; j++)
                         Check(w.jobs[j] != null && Enum.IsDefined(typeof(EquipmentRecipe), w.jobs[j].recipe)
-                            && N(w.jobs[j].work) && w.jobs[j].work <= Core.GameBalance.CraftWork && (j == 0 || w.jobs[j].work == 0), "craft job");
+                            && N(w.jobs[j].work) && w.jobs[j].work <= w.jobs[j].WorkRequired && (j == 0 || w.jobs[j].work == 0), "craft job");
                     if (w.crafter >= 0) Check(!w.ruined && !w.paused && !w.inactive && w.jobs.Count > 0 && b.health > 0 && targets.Add(w.crafter)
                         && f.commanders[w.crafter].location == 0 && f.commanders[w.crafter].activeInScene
                         && !f.commanders[w.crafter].personalState.dead && f.commanders[w.crafter].personalState.mentalBreak == MentalBreak.None, "crafter ownership");
@@ -230,6 +231,7 @@ namespace AntColony.Save
                 Check(f.monsters.All(m => string.IsNullOrEmpty(m.diplomaticFactionId) || f.diplomacy.civilizations.Any(c => c.id == m.diplomaticFactionId)), "enemy faction");
                 Check(Core.TalentAssessment.ValidateReferences(f), "assessment references");
                 SaveOrderValidation.Validate(f);
+                Check(SaveL2.Valid(f), "L2 ownership");
                 return true;
             }
             catch (Exception e) { error = e.Message; return false; }

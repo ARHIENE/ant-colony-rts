@@ -17,6 +17,7 @@ namespace AntColony.Save
     {
         public static SaveFileV1 Capture()
         {
+            // L2 추가 상태는 campaign/history/diplomacy/population/building 상태와 SaveRuntime에서 함께 캡처한다.
             if (!SaveCatalog.CanSave(out var error)) throw new InvalidOperationException(error);
             SaveReferences.Clear();
             var rm = ResourceManager.Instance;
@@ -44,9 +45,9 @@ namespace AntColony.Save
                 memorial = Memorial.Capture(),
                 farmSeeds = FarmSeeds.Capture(),
                 weather = AntColony.Map.WeatherSystem.Instance?.CaptureState(),
-                population = ColonyPopulation.Instance?.Capture() ?? new ColonyPopulation.State(),
+                population = ColonyPopulation.Instance?.Capture() ?? new ColonyPopulation.State(), // 자연사 이월 포함
                 workPriorities = WorkPriorities.Capture(),
-                diplomacy = DiplomacyManager.Instance?.Capture(),
+                diplomacy = DiplomacyManager.Instance?.Capture(), // 문명별 정기 교환 중단 포함
                 equipmentInventory = EquipmentInventory.Instance == null ? new List<EquipmentItem>() : EquipmentInventory.Instance.Items.Select(e => JsonUtility.FromJson<EquipmentItem>(JsonUtility.ToJson(e))).ToList(),
                 corpses = Corpse.All.Where(c => c.Available).Select(ExpeditionTransport.CaptureFloorBody).ToList(),
                 construction = SaveConstruction.Capture(),
