@@ -1,0 +1,222 @@
+{
+  "Idle": {
+    "frames": 72,
+    "loop": true,
+    "fps": 24
+  },
+  "StandIdle": {
+    "frames": 72,
+    "loop": true,
+    "fps": 24
+  },
+  "Walk": {
+    "frames": 24,
+    "loop": true,
+    "fps": 24
+  },
+  "Run": {
+    "frames": 16,
+    "loop": true,
+    "fps": 24
+  },
+  "Carry": {
+    "frames": 24,
+    "loop": true,
+    "fps": 24
+  },
+  "Chop": {
+    "frames": 40,
+    "loop": true,
+    "fps": 24
+  },
+  "Mine": {
+    "frames": 40,
+    "loop": true,
+    "fps": 24
+  },
+  "Hammer": {
+    "frames": 22,
+    "loop": true,
+    "fps": 24
+  },
+  "Sit": {
+    "frames": 72,
+    "loop": true,
+    "fps": 24
+  },
+  "StandEnter": {
+    "frames": 10,
+    "loop": false,
+    "fps": 24
+  },
+  "StandExit": {
+    "frames": 10,
+    "loop": false,
+    "fps": 24
+  },
+  "Pickup": {
+    "frames": 28,
+    "loop": false,
+    "fps": 24
+  },
+  "PutDown": {
+    "frames": 28,
+    "loop": false,
+    "fps": 24
+  },
+  "CarryPerson": {
+    "frames": 28,
+    "loop": true,
+    "fps": 24
+  },
+  "GroundWork": {
+    "frames": 40,
+    "loop": true,
+    "fps": 24
+  },
+  "BenchWork": {
+    "frames": 40,
+    "loop": true,
+    "fps": 24
+  },
+  "Treat": {
+    "frames": 48,
+    "loop": true,
+    "fps": 24
+  },
+  "Operate": {
+    "frames": 48,
+    "loop": true,
+    "fps": 24
+  },
+  "Stir": {
+    "frames": 48,
+    "loop": true,
+    "fps": 24
+  },
+  "Grind": {
+    "frames": 32,
+    "loop": true,
+    "fps": 24
+  },
+  "Saw": {
+    "frames": 28,
+    "loop": true,
+    "fps": 24
+  },
+  "Stamp": {
+    "frames": 36,
+    "loop": true,
+    "fps": 24
+  },
+  "Wash": {
+    "frames": 40,
+    "loop": true,
+    "fps": 24
+  },
+  "WaterPlant": {
+    "frames": 60,
+    "loop": true,
+    "fps": 24
+  },
+  "RockCradle": {
+    "frames": 48,
+    "loop": true,
+    "fps": 24
+  },
+  "Inspect": {
+    "frames": 72,
+    "loop": true,
+    "fps": 24
+  },
+  "Attack": {
+    "frames": 26,
+    "loop": false,
+    "fps": 24
+  },
+  "Throw": {
+    "frames": 30,
+    "loop": true,
+    "fps": 24
+  },
+  "PlayMusic": {
+    "frames": 24,
+    "loop": true,
+    "fps": 24
+  },
+  "Exercise": {
+    "frames": 60,
+    "loop": true,
+    "fps": 24
+  },
+  "Wrestle": {
+    "frames": 32,
+    "loop": true,
+    "fps": 24
+  },
+  "Fly": {
+    "frames": 24,
+    "loop": true,
+    "fps": 24
+  },
+  "Rest": {
+    "frames": 96,
+    "loop": true,
+    "fps": 24
+  },
+  "PlayBoard": {
+    "frames": 72,
+    "loop": true,
+    "fps": 24
+  },
+  "Eat": {
+    "frames": 72,
+    "loop": true,
+    "fps": 24
+  },
+  "Bathe": {
+    "frames": 96,
+    "loop": true,
+    "fps": 24
+  },
+  "Captive": {
+    "frames": 72,
+    "loop": true,
+    "fps": 24
+  },
+  "Swing": {
+    "frames": 48,
+    "loop": true,
+    "fps": 24
+  },
+  "Spin": {
+    "frames": 32,
+    "loop": true,
+    "fps": 24
+  },
+  "Sleep": {
+    "frames": 96,
+    "loop": true,
+    "fps": 24
+  },
+  "Downed": {
+    "frames": 72,
+    "loop": true,
+    "fps": 24
+  },
+  "Mourn": {
+    "frames": 60,
+    "loop": false,
+    "fps": 24
+  },
+  "Hurt": {
+    "frames": 18,
+    "loop": false,
+    "fps": 24
+  },
+  "Death": {
+    "frames": 48,
+    "loop": false,
+    "fps": 24
+  }
+}

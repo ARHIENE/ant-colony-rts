@@ -1,0 +1,571 @@
+{
+  "slots": [
+    {
+      "slot": "Body",
+      "choice": "BASE",
+      "objects": [
+        "Part_Body_BASE_00"
+      ],
+      "rule": "one"
+    },
+    {
+      "slot": "Outfit",
+      "choice": "LINEN",
+      "objects": [
+        "Part_Outfit_LINEN_00"
+      ],
+      "rule": "one"
+    },
+    {
+      "slot": "Face",
+      "choice": "NEUTRAL",
+      "objects": [
+        "Part_Face_NEUTRAL_00",
+        "Part_Face_NEUTRAL_01"
+      ],
+      "rule": "one"
+    },
+    {
+      "slot": "Face",
+      "choice": "HAPPY",
+      "objects": [
+        "Part_Face_HAPPY_00",
+        "Part_Face_HAPPY_01"
+      ],
+      "rule": "one"
+    },
+    {
+      "slot": "Face",
+      "choice": "SURPRISE",
+      "objects": [
+        "Part_Face_SURPRISE_00"
+      ],
+      "rule": "one"
+    },
+    {
+      "slot": "Face",
+      "choice": "ANGRY",
+      "objects": [
+        "Part_Face_ANGRY_00"
+      ],
+      "rule": "one"
+    },
+    {
+      "slot": "Face",
+      "choice": "PAIN",
+      "objects": [
+        "Part_Face_PAIN_00"
+      ],
+      "rule": "one"
+    },
+    {
+      "slot": "Face",
+      "choice": "SLEEPY",
+      "objects": [
+        "Part_Face_SLEEPY_00"
+      ],
+      "rule": "one"
+    },
+    {
+      "slot": "Face",
+      "choice": "SLEEP",
+      "objects": [
+        "Part_Face_SLEEP_00"
+      ],
+      "rule": "one"
+    },
+    {
+      "slot": "Face",
+      "choice": "SAD",
+      "objects": [
+        "Part_Face_SAD_00"
+      ],
+      "rule": "one"
+    },
+    {
+      "slot": "Face",
+      "choice": "PROUD",
+      "objects": [
+        "Part_Face_PROUD_00",
+        "Part_Face_PROUD_01"
+      ],
+      "rule": "one"
+    },
+    {
+      "slot": "Face",
+      "choice": "CURIOUS",
+      "objects": [
+        "Part_Face_CURIOUS_00",
+        "Part_Face_CURIOUS_01"
+      ],
+      "rule": "one"
+    },
+    {
+      "slot": "Face",
+      "choice": "EMBARRASSED",
+      "objects": [
+        "Part_Face_EMBARRASSED_00",
+        "Part_Face_EMBARRASSED_01"
+      ],
+      "rule": "one"
+    },
+    {
+      "slot": "Face",
+      "choice": "TASTY",
+      "objects": [
+        "Part_Face_TASTY_00"
+      ],
+      "rule": "one"
+    },
+    {
+      "slot": "Face",
+      "choice": "EMPTY",
+      "objects": [
+        "Part_Face_EMPTY_00"
+      ],
+      "rule": "one"
+    },
+    {
+      "slot": "Face",
+      "choice": "TEARY",
+      "objects": [
+        "Part_Face_TEARY_00"
+      ],
+      "rule": "one"
+    },
+    {
+      "slot": "Face",
+      "choice": "SOBBING",
+      "objects": [
+        "Part_Face_SOBBING_00"
+      ],
+      "rule": "one"
+    },
+    {
+      "slot": "Face",
+      "choice": "NERVOUS",
+      "objects": [
+        "Part_Face_NERVOUS_00"
+      ],
+      "rule": "one"
+    },
+    {
+      "slot": "Face",
+      "choice": "DEAD",
+      "objects": [
+        "Part_Face_DEAD_00",
+        "Part_Face_DEAD_01",
+        "Part_Face_DEAD_02",
+        "Part_Face_DEAD_03",
+        "Part_Face_DEAD_04"
+      ],
+      "rule": "one"
+    },
+    {
+      "slot": "Overlay",
+      "choice": "BLUSH",
+      "objects": [
+        "Part_Overlay_BLUSH_00",
+        "Part_Overlay_BLUSH_01",
+        "Part_Overlay_BLUSH_02",
+        "Part_Overlay_BLUSH_03"
+      ],
+      "rule": "additive"
+    },
+    {
+      "slot": "Overlay",
+      "choice": "TEARS",
+      "objects": [
+        "Part_Overlay_TEARS_00",
+        "Part_Overlay_TEARS_01"
+      ],
+      "rule": "additive"
+    },
+    {
+      "slot": "Overlay",
+      "choice": "SWEAT",
+      "objects": [
+        "Part_Overlay_SWEAT_00"
+      ],
+      "rule": "additive"
+    },
+    {
+      "slot": "Hair",
+      "choice": "BOB",
+      "objects": [
+        "Part_Hair_BOB_00"
+      ],
+      "rule": "one"
+    },
+    {
+      "slot": "Hair",
+      "choice": "SHORT",
+      "objects": [
+        "Part_Hair_SHORT_00"
+      ],
+      "rule": "one"
+    },
+    {
+      "slot": "Hair",
+      "choice": "LONG",
+      "objects": [
+        "Part_Hair_LONG_00"
+      ],
+      "rule": "one"
+    },
+    {
+      "slot": "Hair",
+      "choice": "SIDE",
+      "objects": [
+        "Part_Hair_SIDE_00"
+      ],
+      "rule": "one"
+    },
+    {
+      "slot": "Hair",
+      "choice": "BUNS",
+      "objects": [
+        "Part_Hair_BUNS_00",
+        "Part_Hair_BUNS_01",
+        "Part_Hair_BUNS_02"
+      ],
+      "rule": "one"
+    },
+    {
+      "slot": "Hair",
+      "choice": "PONY",
+      "objects": [
+        "Part_Hair_PONY_00",
+        "Part_Hair_PONY_01"
+      ],
+      "rule": "one"
+    },
+    {
+      "slot": "Ears",
+      "choice": "RABBIT",
+      "objects": [
+        "Part_Ears_RABBIT_00",
+        "Part_Ears_RABBIT_01",
+        "Part_Ears_RABBIT_02",
+        "Part_Ears_RABBIT_03"
+      ],
+      "rule": "one"
+    },
+    {
+      "slot": "Ears",
+      "choice": "UPRIGHT",
+      "objects": [
+        "Part_Ears_UPRIGHT_00",
+        "Part_Ears_UPRIGHT_01",
+        "Part_Ears_UPRIGHT_02",
+        "Part_Ears_UPRIGHT_03"
+      ],
+      "rule": "one"
+    },
+    {
+      "slot": "Ears",
+      "choice": "CAT",
+      "objects": [
+        "Part_Ears_CAT_00",
+        "Part_Ears_CAT_01",
+        "Part_Ears_CAT_02",
+        "Part_Ears_CAT_03"
+      ],
+      "rule": "one"
+    },
+    {
+      "slot": "Ears",
+      "choice": "ROUND",
+      "objects": [
+        "Part_Ears_ROUND_00",
+        "Part_Ears_ROUND_01",
+        "Part_Ears_ROUND_02",
+        "Part_Ears_ROUND_03"
+      ],
+      "rule": "one"
+    },
+    {
+      "slot": "Ears",
+      "choice": "DROOP",
+      "objects": [
+        "Part_Ears_DROOP_00",
+        "Part_Ears_DROOP_01",
+        "Part_Ears_DROOP_02",
+        "Part_Ears_DROOP_03"
+      ],
+      "rule": "one"
+    },
+    {
+      "slot": "Tail",
+      "choice": "BOB",
+      "objects": [
+        "Part_Tail_BOB_00"
+      ],
+      "rule": "one"
+    },
+    {
+      "slot": "Tail",
+      "choice": "LONG",
+      "objects": [
+        "Part_Tail_LONG_00"
+      ],
+      "rule": "one"
+    },
+    {
+      "slot": "Tail",
+      "choice": "FOX",
+      "objects": [
+        "Part_Tail_FOX_00"
+      ],
+      "rule": "one"
+    },
+    {
+      "slot": "Injury",
+      "choice": "SCAR_FOREHEAD",
+      "objects": [
+        "Part_Injury_SCAR_FOREHEAD_00"
+      ],
+      "rule": "additive"
+    },
+    {
+      "slot": "Injury",
+      "choice": "SCAR_CHEEK",
+      "objects": [
+        "Part_Injury_SCAR_CHEEK_00"
+      ],
+      "rule": "additive"
+    },
+    {
+      "slot": "Injury",
+      "choice": "SCAR_TORSO",
+      "objects": [
+        "Part_Injury_SCAR_TORSO_00"
+      ],
+      "rule": "additive"
+    },
+    {
+      "slot": "Injury",
+      "choice": "SCAR_ARM_L",
+      "objects": [
+        "Part_Injury_SCAR_ARM_L_00"
+      ],
+      "rule": "additive"
+    },
+    {
+      "slot": "Injury",
+      "choice": "SCAR_ARM_R",
+      "objects": [
+        "Part_Injury_SCAR_ARM_R_00"
+      ],
+      "rule": "additive"
+    },
+    {
+      "slot": "Injury",
+      "choice": "SCAR_LEG",
+      "objects": [
+        "Part_Injury_SCAR_LEG_00"
+      ],
+      "rule": "additive"
+    },
+    {
+      "slot": "Injury",
+      "choice": "SCRATCH_FOREHEAD",
+      "objects": [
+        "Part_Injury_SCRATCH_FOREHEAD_00",
+        "Part_Injury_SCRATCH_FOREHEAD_01",
+        "Part_Injury_SCRATCH_FOREHEAD_02"
+      ],
+      "rule": "additive"
+    },
+    {
+      "slot": "Injury",
+      "choice": "SCRATCH_CHEEK",
+      "objects": [
+        "Part_Injury_SCRATCH_CHEEK_00",
+        "Part_Injury_SCRATCH_CHEEK_01",
+        "Part_Injury_SCRATCH_CHEEK_02"
+      ],
+      "rule": "additive"
+    },
+    {
+      "slot": "Injury",
+      "choice": "SCRATCH_TORSO",
+      "objects": [
+        "Part_Injury_SCRATCH_TORSO_00",
+        "Part_Injury_SCRATCH_TORSO_01",
+        "Part_Injury_SCRATCH_TORSO_02"
+      ],
+      "rule": "additive"
+    },
+    {
+      "slot": "Injury",
+      "choice": "SCRATCH_ARM_L",
+      "objects": [
+        "Part_Injury_SCRATCH_ARM_L_00",
+        "Part_Injury_SCRATCH_ARM_L_01",
+        "Part_Injury_SCRATCH_ARM_L_02"
+      ],
+      "rule": "additive"
+    },
+    {
+      "slot": "Injury",
+      "choice": "SCRATCH_ARM_R",
+      "objects": [
+        "Part_Injury_SCRATCH_ARM_R_00",
+        "Part_Injury_SCRATCH_ARM_R_01",
+        "Part_Injury_SCRATCH_ARM_R_02"
+      ],
+      "rule": "additive"
+    },
+    {
+      "slot": "Injury",
+      "choice": "SCRATCH_LEG",
+      "objects": [
+        "Part_Injury_SCRATCH_LEG_00",
+        "Part_Injury_SCRATCH_LEG_01",
+        "Part_Injury_SCRATCH_LEG_02"
+      ],
+      "rule": "additive"
+    },
+    {
+      "slot": "Injury",
+      "choice": "BRUISE_FOREHEAD",
+      "objects": [
+        "Part_Injury_BRUISE_FOREHEAD_00"
+      ],
+      "rule": "additive"
+    },
+    {
+      "slot": "Injury",
+      "choice": "BRUISE_CHEEK",
+      "objects": [
+        "Part_Injury_BRUISE_CHEEK_00"
+      ],
+      "rule": "additive"
+    },
+    {
+      "slot": "Injury",
+      "choice": "BRUISE_TORSO",
+      "objects": [
+        "Part_Injury_BRUISE_TORSO_00"
+      ],
+      "rule": "additive"
+    },
+    {
+      "slot": "Injury",
+      "choice": "BRUISE_ARM_L",
+      "objects": [
+        "Part_Injury_BRUISE_ARM_L_00"
+      ],
+      "rule": "additive"
+    },
+    {
+      "slot": "Injury",
+      "choice": "BRUISE_ARM_R",
+      "objects": [
+        "Part_Injury_BRUISE_ARM_R_00"
+      ],
+      "rule": "additive"
+    },
+    {
+      "slot": "Injury",
+      "choice": "BRUISE_LEG",
+      "objects": [
+        "Part_Injury_BRUISE_LEG_00"
+      ],
+      "rule": "additive"
+    },
+    {
+      "slot": "Injury",
+      "choice": "BANDAGE_FOREHEAD",
+      "objects": [
+        "Part_Injury_BANDAGE_FOREHEAD_00"
+      ],
+      "rule": "additive"
+    },
+    {
+      "slot": "Injury",
+      "choice": "BANDAGE_CHEEK",
+      "objects": [
+        "Part_Injury_BANDAGE_CHEEK_00"
+      ],
+      "rule": "additive"
+    },
+    {
+      "slot": "Injury",
+      "choice": "BANDAGE_TORSO",
+      "objects": [
+        "Part_Injury_BANDAGE_TORSO_00"
+      ],
+      "rule": "additive"
+    },
+    {
+      "slot": "Injury",
+      "choice": "BANDAGE_ARM_L",
+      "objects": [
+        "Part_Injury_BANDAGE_ARM_L_00"
+      ],
+      "rule": "additive"
+    },
+    {
+      "slot": "Injury",
+      "choice": "BANDAGE_ARM_R",
+      "objects": [
+        "Part_Injury_BANDAGE_ARM_R_00"
+      ],
+      "rule": "additive"
+    },
+    {
+      "slot": "Injury",
+      "choice": "BANDAGE_LEG",
+      "objects": [
+        "Part_Injury_BANDAGE_LEG_00"
+      ],
+      "rule": "additive"
+    }
+  ],
+  "default": {
+    "Body": "BASE",
+    "Outfit": "LINEN",
+    "Face": "NEUTRAL",
+    "Hair": "BOB",
+    "Ears": "RABBIT",
+    "Tail": "BOB",
+    "Overlay": [
+      "BLUSH"
+    ],
+    "Injury": []
+  },
+  "palettes": {
+    "Ivory": [
+      0.82,
+      0.79,
+      0.76
+    ],
+    "Silver": [
+      0.47,
+      0.53,
+      0.62
+    ],
+    "Honey": [
+      0.62,
+      0.37,
+      0.15
+    ],
+    "Rose": [
+      0.62,
+      0.29,
+      0.36
+    ],
+    "Lavender": [
+      0.43,
+      0.32,
+      0.59
+    ],
+    "Mint": [
+      0.28,
+      0.52,
+      0.43
+    ]
+  }
+}

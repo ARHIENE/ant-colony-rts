@@ -1,0 +1,110 @@
+[
+  {
+    "scene": "Preview__CC_AirshipYard",
+    "contact_error": 1.534249491498318e-05
+  },
+  {
+    "scene": "Preview__CC_Battery",
+    "contact_error": 1.1935820814669602e-06
+  },
+  {
+    "scene": "Preview__CC_CapWall",
+    "contact_error": 1.9304912973286683e-06
+  },
+  {
+    "scene": "Preview__CC_CastleWall",
+    "contact_error": 7.90228121065534e-06
+  },
+  {
+    "scene": "Preview__CC_ConstructionFrame",
+    "contact_error": 7.630325796988134e-06
+  },
+  {
+    "scene": "Preview__CC_DemolitionRubble",
+    "contact_error": 3.816559456248789e-06
+  },
+  {
+    "scene": "Preview__CC_Floor",
+    "contact_error": 7.863892817835324e-06
+  },
+  {
+    "scene": "Preview__CC_Lamp",
+    "contact_error": 0.001975138107561261
+  },
+  {
+    "scene": "Preview__CC_LeafWall",
+    "contact_error": 8.604772267752427e-06
+  },
+  {
+    "scene": "Preview__CC_OreOutcrop",
+    "contact_error": 0.0012060933991302463
+  },
+  {
+    "scene": "Preview__CC_Pillar",
+    "contact_error": 1.5295996601434175e-05
+  },
+  {
+    "scene": "Preview__CC_PowerWire",
+    "contact_error": 3.481748068830235e-05
+  },
+  {
+    "scene": "Preview__CC_RanchFence",
+    "contact_error": 2.163954406466085e-06
+  },
+  {
+    "scene": "Preview__CC_RockOutcrop",
+    "contact_error": 4.324521338276161e-06
+  },
+  {
+    "scene": "Preview__CC_SoilWall",
+    "contact_error": 6.012983212112994e-06
+  },
+  {
+    "scene": "Preview__CC_SpikeTrap",
+    "contact_error": 1.7940205971603943e-05
+  },
+  {
+    "scene": "Preview__CC_Stonecutter",
+    "contact_error": 4.547564878514403e-06
+  },
+  {
+    "scene": "Preview__CC_Stump",
+    "contact_error": 0.0058998362470428336
+  },
+  {
+    "scene": "Preview__CC_TreeBroadleaf",
+    "contact_error": 5.922494588498781e-06
+  },
+  {
+    "scene": "Preview__CC_TreeTall",
+    "contact_error": 9.368553326675703e-06
+  },
+  {
+    "scene": "Preview__CC_Workshop",
+    "contact_error": 3.8522311763898195e-06
+  },
+  {
+    "scene": "Swap__CC_Workshop__A",
+    "contact_error": 3.8522311763898195e-06
+  },
+  {
+    "scene": "Swap__CC_Workshop__B",
+    "contact_error": 3.8522311763898195e-06
+  },
+  {
+    "scene": "Swap__CC_Workshop__C",
+    "contact_error": 3.8522311763898195e-06
+  },
+  {
+    "scene": "Swap__CC_Workshop__D",
+    "contact_error": 3.960906917056119e-06
+  },
+  {
+    "scene": "Swap__CC_Workshop__E",
+    "contact_error": 3.8522311763898195e-06
+  },
+  {
+    "scene": "Swap__CC_Workshop__F",
+    "contact_error": 3.8522311763898195e-06
+  }
+]

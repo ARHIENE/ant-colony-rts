@@ -1,0 +1,102 @@
+[
+  [
+    "A",
+    {
+      "Body": "BASE",
+      "Outfit": "LINEN",
+      "Face": "NEUTRAL",
+      "Hair": "BOB",
+      "Ears": "RABBIT",
+      "Tail": "BOB",
+      "Overlay": [
+        "BLUSH"
+      ],
+      "Injury": []
+    },
+    "Ivory"
+  ],
+  [
+    "B",
+    {
+      "Body": "BASE",
+      "Outfit": "LINEN",
+      "Face": "NEUTRAL",
+      "Hair": "SHORT",
+      "Ears": "CAT",
+      "Tail": "LONG",
+      "Overlay": [
+        "BLUSH"
+      ],
+      "Injury": [
+        "SCAR_CHEEK"
+      ]
+    },
+    "Honey"
+  ],
+  [
+    "C",
+    {
+      "Body": "BASE",
+      "Outfit": "LINEN",
+      "Face": "HAPPY",
+      "Hair": "BUNS",
+      "Ears": "ROUND",
+      "Tail": "BOB",
+      "Overlay": [
+        "BLUSH"
+      ],
+      "Injury": [
+        "BANDAGE_ARM_L"
+      ]
+    },
+    "Rose"
+  ],
+  [
+    "D",
+    {
+      "Body": "BASE",
+      "Outfit": "LINEN",
+      "Face": "TEARY",
+      "Hair": "LONG",
+      "Ears": "DROOP",
+      "Tail": "FOX",
+      "Overlay": [
+        "TEARS"
+      ],
+      "Injury": []
+    },
+    "Silver"
+  ],
+  [
+    "E",
+    {
+      "Body": "BASE",
+      "Outfit": "LINEN",
+      "Face": "PROUD",
+      "Hair": "SIDE",
+      "Ears": "UPRIGHT",
+      "Tail": "BOB",
+      "Overlay": [
+        "BLUSH"
+      ],
+      "Injury": []
+    },
+    "Lavender"
+  ],
+  [
+    "F",
+    {
+      "Body": "BASE",
+      "Outfit": "LINEN",
+      "Face": "NERVOUS",
+      "Hair": "PONY",
+      "Ears": "CAT",
+      "Tail": "LONG",
+      "Overlay": [
+        "SWEAT"
+      ],
+      "Injury": []
+    },
+    "Mint"
+  ]
+]

@@ -1,0 +1,14 @@
+{
+  "face_source_max_error": 2.9802322387695312e-08,
+  "parts": 60,
+  "mesh_objects": 103,
+  "actions": 44,
+  "combinations": 6,
+  "unweighted_vertices": 0,
+  "invalid_weight_bones": [],
+  "unity_validated": false,
+  "facility_contacts_validated": false,
+  "bones": 58,
+  "bone_offsets": {},
+  "bones_outside": []
+}
