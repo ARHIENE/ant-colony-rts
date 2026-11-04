@@ -173,7 +173,7 @@ namespace AntColony.UI
             MenuTheme.Text(content, "기본 조작: 화면 가장자리·방향키로 카메라 이동, 휠로 확대·축소, Z/C로 회전합니다. Esc 메뉴, P 일시 정지, G/F1 장수 관리, Q 무기 기술, E 징집소, D 귀환, R 무기 교체, K 과학, M 월드맵입니다. 설정에서 단축키를 바꿀 수 있습니다.", 18, 95);
             MenuTheme.Text(content, "첫 등장 안내", 20, 32);
             foreach (var hint in FirstHints.All) MenuTheme.Text(content, hint.title + ": " + hint.body, 16, 50);
-            MenuTheme.Button(content, "Back", Back);
+            MenuTheme.Button(content, "Back", Back).GetComponentInChildren<Text>().text = "뒤로";
         }
 
         public void ShowOutcome(bool victory)
@@ -184,17 +184,17 @@ namespace AntColony.UI
             var seconds = GameSession.Instance.PlaySeconds;
             MenuTheme.Text(content, victory ? "보스를 처치했습니다. 정착지를 계속 확장하고 로켓 발사를 준비하세요." : (GameManager.Instance?.DefeatReason ?? "활동 가능한 장수가 없습니다.") + " 저장을 불러오거나 새 정착지를 시작하세요.", 22, 80);
             MenuTheme.Text(content, $"플레이 시간: {(int)seconds / 60:00}:{(int)seconds % 60:00}  /  장수: {CommanderRoster.Instance?.Count ?? 0}", 18, 48);
-            if (victory) MenuTheme.Button(content, "Continue Colony", () => { resumeScale = 1; Resume(); });
-            MenuTheme.Button(content, "Load Game", () => Slots(false));
+            if (victory) MenuTheme.Button(content, "Continue Colony", () => { resumeScale = 1; Resume(); }).GetComponentInChildren<Text>().text = "정착지 계속하기";
+            MenuTheme.Button(content, "Load Game", () => Slots(false)).GetComponentInChildren<Text>().text = "불러오기";
             var restart = MenuTheme.Button(content, "Restart Same Map", () => {
                 Screen("Restart colony?", "정착지를 다시 시작할까요?");
                 MenuTheme.Text(content, "저장하지 않은 진행 상황은 사라집니다. 기존 저장 슬롯은 유지됩니다.", 20, 70);
                 var confirm = MenuTheme.Button(content, "Restart", () => CrashLandingStart.Begin(GameSession.Instance.Options.Clone()));
                 confirm.GetComponentInChildren<Text>().text = "다시 시작";
-                MenuTheme.Button(content, "Back", () => ShowOutcome(victory));
+                MenuTheme.Button(content, "Back", () => ShowOutcome(victory)).GetComponentInChildren<Text>().text = "뒤로";
             });
             restart.GetComponentInChildren<Text>().text = "같은 맵에서 다시 시작";
-            MenuTheme.Button(content, "New Game", NewGameScreen);
+            MenuTheme.Button(content, "New Game", NewGameScreen).GetComponentInChildren<Text>().text = "새 게임";
         }
         private bool ReadSeed()
         { if (seed == null || !int.TryParse(seed.text, out var value)) { ToastManager.Show("시드는 -2147483648~2147483647 사이의 정수로 입력하세요."); return false; } options.seed = value; return true; }
@@ -205,8 +205,8 @@ namespace AntColony.UI
             Screen("Encyclopedia", "도감");
             if (Encyclopedia.Entries.Count == 0) MenuTheme.Text(content, "탐험하며 생물·보스·문명을 발견하세요.", 20, 60);
             foreach (var e in Encyclopedia.Entries.OrderBy(e => e.category).ThenBy(e => e.title))
-            { MenuTheme.Text(content, e.category + " / " + e.title, 23, 44); MenuTheme.Text(content, e.body, 18, 90); }
-            MenuTheme.Button(content, "Back", Back);
+            { MenuTheme.Text(content, PersonalDisplayNames.Category(e.category) + " / " + PersonalDisplayNames.DiscoveryTitle(e), 23, 44); MenuTheme.Text(content, PersonalDisplayNames.DiscoveryBody(e), 18, 90); }
+            MenuTheme.Button(content, "Back", Back).GetComponentInChildren<Text>().text = "뒤로";
         }
     }
 }

@@ -26,7 +26,7 @@ namespace AntColony.UI
 
         public static void Reward(CommanderAnt c)
         {
-            if (c != null && !c.TryReward()) ToastManager.Show("본거지에서 게임 달마다 1번, Food 30이 필요합니다.");
+            if (c != null && !c.TryReward()) ToastManager.Show("본거지의 명령 가능한 장수만 포상할 수 있습니다. 식량 30 · 재사용 대기 300초(게임 2일).");
         }
 
         public static DetailTabs Create(Transform canvas)
@@ -51,7 +51,7 @@ namespace AntColony.UI
             b.offsetMin = new Vector2(10, 40); b.offsetMax = new Vector2(-10, -34);
             d.body.alignment = TextAnchor.UpperLeft; d.body.supportRichText = true; d.body.lineSpacing = 1.1f;
             HUDController Hud() => AntColony.Core.SceneObjects.Any<HUDController>();
-            d.Action(root, 0, "Reward", "포상", () => Reward(d.opened), () => "Food 30을 써서 기분을 올립니다(한 달). 게임 달마다 1번.");
+            d.Action(root, 0, "Reward", "포상", () => Reward(d.opened), () => "식량 30 소비 · 기분 보통 +8, 탐욕/야심 +15, 금욕 +3. 효과·재사용 대기 각 300초(게임 2일). 본거지에서 명령 가능한 장수만 포상.");
             d.Action(root, 1, "Attack Research", "공격 연구", () => Hud()?.TryLabResearch(true),
                 () => Hud()?.LabResearchLabel(d.opened, true) + "\n무기와 같은 종류의 연구소에서 이 장수의 공격을 올립니다.");
             d.Action(root, 2, "Armor Research", "방어 연구", () => Hud()?.TryLabResearch(false),
@@ -102,7 +102,7 @@ namespace AntColony.UI
                         + $"체력 {Mathf.CeilToInt(c.PersonalHealth)}/{GameBalance.CommanderHealth:0} · 포만 {c.Satiety:0} · 피로 {c.Fatigue:0} · 오락 {c.Joy:0} · 위생 {c.Hygiene:0}\n"
                         + (c.IsDeployed ? $"병력 {Mathf.CeilToInt(c.TroopHealth)}/{c.CommandLimit}" : "평시 병력 0 (출전 시 징집소에서 편성)");
                 case 1:
-                    var rows = p.moodFactors.OrderBy(f => f.value).Take(6).Select(f => Row(f.reason, f.value));
+                    var rows = p.moodFactors.OrderBy(f => f.value).Take(6).Select(f => Row(PersonalDisplayNames.Mood(f.reason), f.value));
                     return string.Join("\n", rows) + $"\n<b>기분 {c.Mood:0}</b>  <color=#b1b3a7>/ 붕괴 위험 {CommanderOverhead.MoodWarning:0} 이하</color>";
                 case 2:
                     return c.Traits.values.Count == 0 ? "특성 없음" : string.Join("\n", c.Traits.values.Select(CommanderTraits.DisplayName));
@@ -112,7 +112,7 @@ namespace AntColony.UI
                         .Select(r => $"{(names != null && names.TryGetValue(r.otherId, out var n) ? n : "?")}  {(r.spouse ? "배우자" : r.family ? "가족" : r.value > 0 ? "친구" : "라이벌")} {r.value:+0;−0}");
                     return rel.Any() ? string.Join("\n", rel) : "눈에 띄는 관계 없음";
                 case 4:
-                    return p.equipment.Count == 0 ? "장비 없음" : string.Join("\n", p.equipment.Select(e => $"{e.slot}: {e.Label}"));
+                    return p.equipment.Count == 0 ? "장비 없음" : string.Join("\n", p.equipment.Select(e => $"{PersonalDisplayNames.Slot(e.slot)}: {e.Label}"));
                 default:
                     return GameMenuController.HealthLines(p.health);
             }

@@ -93,6 +93,9 @@ namespace AntColony.Buildings
             model.position = new Vector3(center.x, bottom, center.z) - transform.rotation * offset;
             model.SetParent(transform, true);
             foreach (var c in model.GetComponentsInChildren<Collider>()) Destroy(c);
+            // 초가집 지붕이 FBX 내장 CC_Cream(거의 흰색)이라 흰 고깔처럼 보임 → 짚 색으로(2026-11-01 사용자 지적 '초가집이 아님').
+            foreach (var r in renderers)
+                if (r.name == "Thatch roof") { var block = new MaterialPropertyBlock(); r.GetPropertyBlock(block); block.SetColor("_BaseColor", new Color(.58f, .45f, .25f)); r.SetPropertyBlock(block); }
             box.forceRenderingOff = true;
             Model = model;
         }

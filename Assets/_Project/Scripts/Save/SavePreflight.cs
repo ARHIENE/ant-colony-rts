@@ -56,6 +56,7 @@ namespace AntColony.Save
             {
                 Check(DateTime.TryParse(f.savedAtUtc, out _) && f.camera != null, "저장 기본 정보");
                 Check(Core.ColonyPopulation.ValidNaturalDeaths(f.population), "자연사 소수 이월");
+                Check(AntColony.UI.GoalChain.Validate(f.goalChain), "목표 사슬");
                 ValidateIntegration(f);
                 Check(Core.TalentAssessment.Validate(f.assessment, f.world.transports.Count, f.world.sites.Count), "인재 평가");
                 Check(SaveUnderground.Valid(f), "지하 탐사");

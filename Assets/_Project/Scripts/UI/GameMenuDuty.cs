@@ -50,12 +50,14 @@ namespace AntColony.UI
                     var levelText = level.GetComponentInChildren<Text>();
                     var skill = job == CommanderJobs.Hunting ? (c.Role == AntColony.Data.UnitRole.Ranged ? CommanderActivity.Ranged : CommanderActivity.Melee) : CommanderAnt.SkillFor(job);
                     var skillText = L.Label(row, "", 12, 220 + i * 49, 35, 45, 24, MenuTheme.Muted);
+                    var trainingTip = skillText.gameObject.AddComponent<MenuTooltip>();
                     refreshDutyScreen += () => {
                         level.interactable = c != null && !c.IsDead && c.CanDoJob(job);
                         if (c != null) skillText.text = job == CommanderJobs.Cleaning ? (c.Traits.Has(CommanderTrait.Neat) ? "×1.5" : "—")
                             : c.CanDoJob(job) ? c.Talents.Level(skill) + new string('♥', c.Traits.Flame(skill)) : "불가";
 
                         if (c != null) levelText.text = c.AllowsJob(job) ? c.JobPriority(job).ToString() : "—";
+                        if (c != null) trainingTip.Message = job == CommanderJobs.Cleaning ? "치우기는 기술 경험치를 지급하지 않습니다." : CommanderDevelopment.TrainingText(c.Talents, skill);
                     };
                 }
             }

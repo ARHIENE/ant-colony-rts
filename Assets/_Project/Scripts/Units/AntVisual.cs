@@ -84,7 +84,8 @@ namespace AntColony.Units
             if (!restart && state == name && playedClip == clip) return;
             var hash = Animator.StringToHash("Base Layer." + clip);
             if (!animator.HasState(0, hash)) return;
-            animator.CrossFadeInFixedTime(hash, .1f, 0); state = name; playedClip = clip;
+            // 눕는 동작은 0.1초면 픽 쓰러지는 것처럼 보여 천천히 섞는다(2026-11-01 '캐릭터가 넘어진다').
+            animator.CrossFadeInFixedTime(hash, name == "Sleep" || name == "Sit" ? .6f : .1f, 0); state = name; playedClip = clip;
             appearance?.FollowClip(clip);
             if (kemono && heldTool != tool)
             {

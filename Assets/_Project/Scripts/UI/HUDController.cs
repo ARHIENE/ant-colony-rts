@@ -123,7 +123,7 @@ namespace AntColony.UI
             listText.rectTransform.offsetMin = new Vector2(10, 6); listText.rectTransform.offsetMax = new Vector2(-10, -6);
             listText.alignment = TextAnchor.UpperLeft; listText.supportRichText = true; listText.name = "MaterialsListText";
             materialsList.gameObject.SetActive(false);
-            bossHealthText = CreateText(canvasGO.transform, new Vector2(.5f, 1f), new Vector2(260f, 22f), new Vector2(0f, -46f));
+            bossHealthText = CreateText(canvasGO.transform, new Vector2(.5f, 1f), new Vector2(440f, 42f), new Vector2(0f, -68f));
             bossHealthText.alignment = TextAnchor.UpperCenter;
             HudClock.Create(canvasGO.transform);
             RosterBar.Create(canvasGO.transform);
@@ -279,6 +279,8 @@ namespace AntColony.UI
         {
             if (bossHealthText == null) return;
             bossHealthText.text = $"보스 체력 {Mathf.CeilToInt(current)} / {Mathf.CeilToInt(max)}";
+            var encounter = boss != null ? boss.GetComponent<BossEncounter>() : null;
+            if (current > 0 && encounter != null) bossHealthText.text += "\n" + encounter.CombatStatus;
         }
 
         private void ShowBossDefeatedMessage()

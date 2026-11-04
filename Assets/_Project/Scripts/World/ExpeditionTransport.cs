@@ -149,15 +149,7 @@ namespace AntColony.World
 
         public bool TryDepart(ExpeditionSite site)
         {
-            if (!CanOperate || !HasPilot || IsWithdrawing || ReservedCargo > 0 || PendingCrewOrderCount > 0) return false;
-            if (Route != null && Route.IsRunning
-                && (site != Route.Destination || HasCargo || Route.WaitSeconds > 0)) return false;
-            var world = WorldMapManager.Instance;
-            if (!isActiveAndEnabled || world == null || !world.Unlocked || State != ExpeditionState.Home
-                || site == null || !world.Sites.Contains(site) || !WorldMapManager.SiteRevealed(site)
-                || (crew.Count == 0 && site.Disposition != ConquestDisposition.Annexed)
-                || Walking && !crew.Any(c => c != null && !c.IsDead)
-                || site.Disposition == ConquestDisposition.Abandoned || Load > Capacity || CommanderLoad > CommanderCapacity) return false;
+            if (DepartureBlock(site) != "") return false;
             Site = site;
             if (site.Visitor == null) site.Visitor = this;
             State = ExpeditionState.Outbound;
@@ -222,12 +214,15 @@ namespace AntColony.World
                 State = ExpeditionState.Deployed;
                 LandCrew();
                 DiplomacyManager.Instance?.Contact(Site);
+                if (Route?.IsRunning != true) AntColony.UI.ToastManager.Show(AntColony.UI.SiteNames.Name(Site) + " 도착 · 월드맵에서 전장 보기를 눌러 지휘하세요.");
                 if (Site.Kind == ExpeditionSiteKind.TradePost) AntColony.UI.GameMenuController.Instance?.TradeAt(Site);
             }
             else
             {
                 if (!TryHomeLanding(out var landing)) return;
                 transform.position = landing;
+                if (Route?.IsRunning != true) AntColony.UI.ToastManager.Show("원정 귀환 · " + AntColony.UI.SiteNames.Name(Site) + " · 장수 " + CommanderLoad + " · 생존 병력 " + Load + " · " + CargoSummary);
+                AntColony.UI.ToastManager.SetPinned("supplies:" + GetEntityId(), null);
                 State = ExpeditionState.Home;
                 ReportInvestigation();
                 ReturnTroopPassengers();

@@ -40,6 +40,14 @@ namespace AntColony.Boss
         public int Home(BossId id) => state.home[(int)id];
         public int Tools(BossId id) => state.tools[(int)id];
         public int Cycle(BossId id) => state.cycle[(int)id];
+        public float RespawnRemaining(BossId id, float now) => Defeated(id)
+            ? Math.Max(0, RespawnSeconds - (now - state.killedAt[(int)id])) : 0;
+        public int UnclaimedCount(BossId id)
+        {
+            var total = 0;
+            foreach (var parcel in state.unclaimed) if (parcel.boss == (int)id) total += parcel.count;
+            return total;
+        }
         public bool TryConsumeRocketCore()
         {
             if (!Delivered(BossId.D) || Home(BossId.D) < 1) return false;
@@ -54,8 +62,8 @@ namespace AntColony.Boss
             BossId.A => "핵심물 2개 · 내구도 높은 고유 장비", BossId.B => "B 핵심물 · 방열 장비",
             BossId.C => "C 핵심물 · 범위 공격 장비", _ => "로켓 핵심물" };
         public static string Hazard(BossId id) => id switch {
-            BossId.A => "강한 직접 공격 / 내구도 높은 장비 권장", BossId.B => "열 위험 / 방열 장비 권장",
-            BossId.C => "다수 적 / 범위 공격 장비 권장", _ => "복합 위험 / 방열·범위 공격 장비 권장" };
+            BossId.A => "강한 직접 공격 / 내구도 높은 장비 권장", BossId.B => $"열 피해{BossEncounterRules.Heat(id):0}·호위 최대2 / 방열·범위 공격 장비 권장",
+            BossId.C => "열 피해6·호위 최대4 / 방열 장비 권장", _ => "열 피해12·호위 최대4 / 방열·범위 공격 장비 권장" };
         public bool Recipe(BossId id) => id switch {
             BossId.A => false, BossId.B or BossId.C => Delivered(BossId.A),
             BossId.D => Delivered(BossId.B) && Delivered(BossId.C), _ => false };

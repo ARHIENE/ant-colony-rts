@@ -102,7 +102,7 @@ namespace AntColony.UI
                     L.Label(symbols, WorldMapSymbols.SelectionLegend + " · 세력·D위험도는 월드맵 범례 참고",
                         12, 340, 0, 600, 48, MenuTheme.Muted);
                     var fixedKeys = Row("고정 조작");
-                    L.Label(fixedKeys, "좌클릭 선택 · 드래그 범위 선택 · 우클릭 이동/채집/공격 · 휠 확대 · Alt 자원량 전체 보기 · Space 일시정지 · F5~F8 배속 · F1 장수 · F2 설명서 · Esc 메뉴",
+                    L.Label(fixedKeys, "좌클릭 선택 · 드래그 범위 선택 · 우클릭 이동/채집/공격 · 휠 확대 · Alt 자원량 전체 보기 · Space 일시정지 · F5~F8 배속 · Ctrl+1~9 부대 지정·1~9 선택(두 번: 이동) · . 할 일 없는 장수 · F1 장수 · F2 설명서 · Esc 메뉴",
                         12, 340, 0, 600, 48, MenuTheme.Muted);
                     L.Button(Row("단축키 초기화"), "Reset Keys", "기본값으로", 340, 7, 140, 34, () => Apply(v => v.keyBindings = new System.Collections.Generic.List<string>()));
                     break;

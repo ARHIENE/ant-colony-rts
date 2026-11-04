@@ -38,6 +38,7 @@ namespace AntColony.Save
                 underground = UndergroundSurvey.Instance.Capture(),
                 upkeepTimer = AntColony.Core.SceneObjects.Any<UpkeepManager>()?.SavedTimer ?? 0,
                 upkeepFailures = AntColony.Core.SceneObjects.Any<UpkeepManager>()?.ConsecutiveFailures ?? 0,
+                goalChain = AntColony.UI.GoalChain.Capture(),
                 campaign = CampaignResearch.Instance?.CaptureState() ?? new CampaignResearch.State(),
                 history = CampaignHistory.Instance?.Capture() ?? new CampaignHistory.State(),
                 rocket = RocketCampaign.Instance?.Capture(),
@@ -354,6 +355,7 @@ namespace AntColony.Save
             world.Assessment.Restore(file.assessment);
             UndergroundSurvey.Instance.Restore(file.underground);
             SaveUnderground.Restore(restoredBuildings, commanders);
+            AntColony.UI.GoalChain.Restore(file.goalChain);
             CommanderAnt.RefreshDepartureNotice();
             UnityEngine.Random.state = JsonUtility.FromJson<UnityEngine.Random.State>(file.randomState);
         }

@@ -322,6 +322,7 @@ namespace AntColony.Save
     [Serializable]
     public class SaveFileV1
     {
+        public UI.GoalChain.State goalChain; // 구저장 null: 현재 사실에서 조용히 이관
         public Core.TalentAssessmentState assessment;
         public World.UndergroundSurvey.State underground;
         public Core.RocketCampaign.State rocket;

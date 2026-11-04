@@ -175,7 +175,7 @@ namespace AntColony.UI
             statValues[0].text = $"{c.Mood:0}";
             statValues[0].color = c.Mood <= 20 ? MenuTheme.DangerInk : c.Mood <= CommanderOverhead.MoodWarning ? MenuTheme.Accent : MenuTheme.TextColor;
             var factor = c.PersonalState.moodFactors.OrderByDescending(f => Mathf.Abs(f.value)).FirstOrDefault();
-            statNotes[0].text = factor != null ? $"{factor.reason} {factor.value:+0;-0}" : "";
+            statNotes[0].text = factor != null ? $"{PersonalDisplayNames.Mood(factor.reason)} {factor.value:+0;-0}" : "";
             statValues[1].text = $"{c.LoadCapacity:0.#}";
             statNotes[1].text = $"근력 {c.Talents.Level(CommanderActivity.Strength)}";
             statValues[2].text = $"{c.AttackDamage:0.#} / {c.Armor:0.#}";
