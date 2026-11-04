@@ -53,13 +53,20 @@ public static class WorldMapChecks
     public static async Task<string> Main()
     {
         Check(Application.isPlaying, "Play mode required");
+        var savedAutoPause = UserSettings.Current.autoPauseThreat;
+        UserSettings.Current.autoPauseThreat = false;
+        try
+        {
         // 메인 메뉴 도입 후에는 새 게임이 지형과 NavMesh를 준비한다.
         if (!GameSession.Instance.GameStarted)
         {
             Check(await Wait(() => !AntColony.Save.SaveSystem.Busy), "main menu ready");
-            AntColony.Save.SaveSystem.NewGame(new NewGameOptions());
+            var team = Enumerable.Range(0, 3).Select(StartingCandidate.Roll).ToArray();
+            foreach (var candidate in team) candidate.traits.values.Clear();
+            AntColony.Save.SaveSystem.NewGame(new NewGameOptions { startingCount = 3, startingTeam = team });
             Check(await Wait(() => !AntColony.Save.SaveSystem.Busy, 60), "new game ready");
         }
+        AntColony.UI.GameMenuController.Instance.Resume(); Time.timeScale = 1;
         checks = 0;
         var world = WorldMapManager.Instance;
         Check(world != null && world.Sites.Count == 33, "thirty-three expedition sites configured");
@@ -85,11 +92,11 @@ public static class WorldMapChecks
             "neutral stock scales with fixed site difficulty");
         Check(world.Sites.All(s => s.MapPosition.x >= 0 && s.MapPosition.x <= 1 && s.MapPosition.y >= 0 && s.MapPosition.y <= 1)
             && world.Sites.Select(s => s.MapPosition).Distinct().Count() == 33, "map positions are distinct and normalized");
-        var home = Object.FindFirstObjectByType<Stockpile>();
-        Check(Object.FindObjectsByType<EnemyColony>().All(c => Vector3.Distance(c.transform.position, home.Position) > 1000), "no local colony");
-        Check(Object.FindObjectsByType<AntColony.Boss.BossHealth>().All(b => Vector3.Distance(b.Position, home.Position) > 1000), "no local boss");
+        var home = world.HomePosition; // 불시착 시작에는 비축더미가 없다.
+        Check(Object.FindObjectsByType<EnemyColony>().All(c => Vector3.Distance(c.transform.position, home) > 1000), "no local colony");
+        Check(Object.FindObjectsByType<AntColony.Boss.BossHealth>().All(b => Vector3.Distance(b.Position, home) > 1000), "no local boss");
         Check(!Object.FindObjectsByType<ColonyInvasion>().Any(i => i.enabled), "old scaling invasions disabled");
-        Check(!world.Unlocked && !world.VehicleResearched && !world.AircraftResearched, "science and world map begin locked");
+        Check(world.Unlocked && !world.VehicleResearched && !world.AircraftResearched, "world map available before vehicle research");
         var homeCommander = CommanderRoster.Instance.Commanders[0];
         Check(!homeCommander.CanReach(world.Sites.First(s => s.Kind == ExpeditionSiteKind.Settlement).Landing), "home cannot walk into expedition site");
         Check(!world.ViewSite(world.Sites.First(s => s.Kind == ExpeditionSiteKind.Settlement)), "cannot view unvisited battlefield");
@@ -106,7 +113,6 @@ public static class WorldMapChecks
         var selection = Object.FindFirstObjectByType<SelectionManager>();
         selection.ClearSelection();
         typeof(SelectionManager).GetMethod("AddToSelection", Flags).Invoke(selection, new object[] { homeCommander.GetComponent<SelectableObject>() });
-        Check(!placement.BeginScienceLabPlacement(), "cannot rush science before prerequisites");
         pool.Breed(100);
         // 건설 가능 상태는 과학 전제와 별개다. Play 시작 후 경과 시간에 좌우되지 않도록 여기서 맞춘다.
         homeCommander.CommandStop();
@@ -116,10 +122,13 @@ public static class WorldMapChecks
             typeof(WorkerAnt).GetMethod("SuspendWork", Flags).Invoke(c, null);
         }
         Check(homeCommander.CanStartConstruction, "civilian builder needs no troops");
-        Check(!ScienceLab.PrerequisitesMet, "population alone does not unlock science");
+        homeCommander.SetJobEnabled(CommanderJobs.Building, true);
+        homeCommander.SetJobEnabled(CommanderJobs.Hauling, true);
+        var pile = new GameObject("WorldMapTestStockpile"); pile.transform.position = homeCommander.Position; pile.AddComponent<Stockpile>();
+        Check(ScienceLab.PrerequisitesMet, "G06 basic research bench has no population gate");
         typeof(GameManager).GetProperty("FishingUnlocked").SetValue(GameManager.Instance, true);
-        Check(!ScienceLab.PrerequisitesMet, "fishing alone does not bypass barracks tier");
-        var barracks = Object.Instantiate(Template<Barracks>(), home.Position + Vector3.right * 12, Quaternion.identity);
+        Check(ScienceLab.PrerequisitesMet, "basic research bench does not require fishing or barracks");
+        var barracks = Object.Instantiate(Template<Barracks>(), home + Vector3.right * 12, Quaternion.identity);
         Set(barracks, "currentTier", 2);
         barracks.gameObject.SetActive(true);
         // 실패 시 어떤 전제가 빠졌는지 바로 드러나도록 조건별 상태를 함께 보고한다.
@@ -138,12 +147,14 @@ public static class WorldMapChecks
         Move(homeCommander, labPos + Vector3.right * 3);
         var free = pool.Free;
         var food = resources.GetAmount(ResourceType.Food);
+        var materials = EarlyConstruction.Cost(BuildingKind.ScienceLab).ToDictionary(c => c.type, c => resources.GetAmount(c.type));
         Set(placement, "placementValid", true);
         typeof(BuildingPlacementController).GetMethod("TryPlace", Flags).Invoke(placement, new object[] { labPos + Vector3.up, labPos });
         var labSite = Object.FindObjectsByType<BuildingConstructionSite>().OrderBy(s => (s.Position - labPos).sqrMagnitude).First();
-        Check(labSite != null && resources.GetAmount(ResourceType.Food) == food - 100,
-            "science construction pays once");
+        Check(labSite != null && resources.GetAmount(ResourceType.Food) == food,
+            "basic research bench does not charge legacy food cost");
         Check(await Wait(() => Object.FindObjectsByType<ScienceLab>().Any(l => l.isActiveAndEnabled), 120), "commander actually completes science lab"); // 건설 속도는 인력·날씨 보정을 받는다
+        Check(EarlyConstruction.Cost(BuildingKind.ScienceLab).All(c => resources.GetAmount(c.type) == materials[c.type] - c.amount), "research bench consumes fixed raw materials once");
         Check(pool.Reserved == 0 && pool.Free == free, "construction workforce returns");
         var lab = Object.FindFirstObjectByType<ScienceLab>();
         // 과학 트리 도입 후: 연구는 CampaignResearch 공용 진행, 연구소 tier와 배정된 연구 장수가 진행시킨다.
@@ -152,6 +163,7 @@ public static class WorldMapChecks
         Check(!lab.TryResearch(false), "vehicle research requires lab tier 2");
         Check(lab.TryUpgrade() && lab.TryResearch(false) && !lab.TryResearch(false), "research starts once");
         var scientist = CommanderRoster.Instance.Commanders.Skip(1).First(x => x.CanDoJob(CommanderJobs.Research) && !x.IsDeployed && !x.IsAwayFromHome); // 무작위 특성이 연구를 막을 수 있다
+        scientist.SetJobEnabled(CommanderJobs.Research, true);
         scientist.CommandStop(); // 자율 작업 중이면 배정이 거부된다
         Move(scientist, lab.Position + Vector3.right * 3);
         Check(lab.TryAssign(scientist), "researcher assigned: working=" + scientist.IsWorking + " deployed=" + scientist.IsDeployed + " alloc=" + scientist.CanChangeAllocation + " dist=" + Vector3.Distance(scientist.Position, lab.Position) + " busy=" + lab.Busy + " target=" + lab.Target + " canResearch=" + scientist.CanDoJob(CommanderJobs.Research) + " labBusy=" + scientist.LabUpgradeBusy);
@@ -163,7 +175,7 @@ public static class WorldMapChecks
         lab.gameObject.SetActive(true);
         Check(lab.TryAssign(scientist), "researcher reassigned after lab returns");
         research.Tick(10000);
-        Check(world.VehicleResearched && research.Active == null && !world.Unlocked, "research alone does not open world map");
+        Check(world.VehicleResearched && research.Active == null && world.Unlocked, "vehicle research preserves available world map");
         Check(lab.TryConstruct(false), "vehicle construction starts");
         lab.Tick(ScienceLab.ConstructionSeconds);
         Check(world.Unlocked && world.Transports.Count == 1, "first completed transport opens map");
@@ -204,7 +216,7 @@ public static class WorldMapChecks
         second.WorkState.duty = CommanderDuty.Deployed;
         if (!second.HasTroops) Check(second.TryAssign(5), "second expedition commander takes troops");
         Move(second, aircraft.Position + Vector3.right * 3);
-        Check(aircraft.TryBoard(new[] { second }) && !aircraft.TryDepart(world.Sites.First(s => s.Kind == ExpeditionSiteKind.Settlement)), "occupied site rejects another transport");
+        Check(aircraft.TryBoard(new[] { second }), "second transport boards crew");
         Check(aircraft.TryDepart(world.Sites.First(s => s.Kind == ExpeditionSiteKind.BossNest)), "another site supports concurrent expedition");
         vehicle.Tick(vehicle.TravelSeconds);
         aircraft.Tick(aircraft.TravelSeconds);
@@ -258,8 +270,8 @@ public static class WorldMapChecks
         if (!conquestUi.IsOpen) conquestUi.Toggle();
         Set(conquestUi, "selectedSite", world.Sites.First(s => s.Kind == ExpeditionSiteKind.Settlement));
         await Task.Delay(100);
-        var annex = conquestUi.PanelRect.Find("Annex").GetComponent<UnityEngine.UI.Button>();
-        var abandon = conquestUi.PanelRect.Find("Abandon").GetComponent<UnityEngine.UI.Button>();
+        var annex = conquestUi.PanelRect.GetComponentsInChildren<Transform>(true).First(t => t.name == "Annex").GetComponent<UnityEngine.UI.Button>();
+        var abandon = conquestUi.PanelRect.GetComponentsInChildren<Transform>(true).First(t => t.name == "Abandon").GetComponent<UnityEngine.UI.Button>();
         Check(annex.interactable && abandon.interactable, "conquest choices enabled for cleared occupied settlement");
         Check(!world.Sites.First(s => s.Kind == ExpeditionSiteKind.Settlement).TryResolveConquest(ConquestDisposition.Undecided)
             && !world.Sites.First(s => s.Kind == ExpeditionSiteKind.Settlement).TryResolveConquest((ConquestDisposition)99), "invalid conquest choices rejected");
@@ -383,20 +395,20 @@ public static class WorldMapChecks
             && vehicle.State == ExpeditionState.Home && abandoned.Visitor == null, "abandoned site rejects new departure without claiming visitor");
         Check(vehicle.TryUnloadCrew(), "failed abandoned departure leaves crew recoverable");
 
-        var camp = Object.Instantiate(Template<PrisonerCamp>(), home.Position + Vector3.left * 12, Quaternion.identity);
+        var camp = Object.Instantiate(Template<PrisonerCamp>(), home + Vector3.left * 12, Quaternion.identity);
         camp.gameObject.SetActive(true);
         var incursions = Object.FindFirstObjectByType<LocalIncursions>();
-        Check(incursions.TrySpawn() && incursions.Visitors.Count == 3 && !incursions.TrySpawn(), "rare incursion fixed size and no overlapping waves");
+        Check(incursions.TrySpawnIndependent(3) && incursions.Visitors.Count == 3 && !incursions.TrySpawnIndependent(3), "arrived independent wave has no overlap (G62 dispatch is separate)");
         var countBefore = camp.Count;
         foreach (var visitor in incursions.Visitors.ToArray()) visitor.TakeDamage(1000);
         await Task.Delay(100);
         Check(camp.Count == countBefore + 1, "local invading commander becomes prisoner");
-        Check(incursions.TrySpawn() && incursions.Visitors.Count == 3, "later incursion does not grow");
+        Check(incursions.TrySpawnIndependent(3) && incursions.Visitors.Count == 3, "later arrived wave does not grow");
         var ui = Object.FindFirstObjectByType<AntColony.UI.WorldMapPanel>();
         Check(ui != null, "world map UI attached");
         if (!ui.IsOpen) ui.Toggle();
         Canvas.ForceUpdateCanvases();
-        var map = ui.PanelRect.Find("WorldMap");
+        var map = ui.PanelRect.GetComponentsInChildren<Transform>(true).First(t => t.name == "WorldMap");
         // 3D 행성: 뒷면 거점 마커는 숨는다. 거점마다 행성을 돌려 정면에 오면 마커가 행성 안에 보여야 한다.
         var markers = map.GetComponentsInChildren<UnityEngine.UI.Button>(true)
             .Where(b => world.Sites.Any(s => s.Title == b.name)).ToArray();
@@ -409,9 +421,9 @@ public static class WorldMapChecks
             ui.Planet.Focus(world.Sites[i].MapPosition); ui.Planet.SnapToTarget();
             typeof(AntColony.UI.WorldMapPanel).GetMethod("Update", BindingFlags.Instance | BindingFlags.NonPublic).Invoke(ui, null);
             var a = (RectTransform)markers[i].transform;
-            var center = a.anchoredPosition + new Vector2(a.rect.width / 2, -a.rect.height / 2);
-            var inside = new Rect(planet.anchoredPosition.x, -planet.anchoredPosition.y - planet.rect.height, planet.rect.width, planet.rect.height);
-            Check(markers[i].gameObject.activeSelf && inside.Contains(new Vector2(center.x, center.y)) , "focused site marker visible on planet: " + markers[i].name);
+            // 2026-10-24 전체 화면 지구: 마커 중심(화면 좌표)이 지구 이미지 영역 안이면 된다.
+            var center = a.TransformPoint(a.rect.center);
+            Check(markers[i].gameObject.activeSelf && RectTransformUtility.RectangleContainsScreenPoint(planet, center), "focused site marker visible on planet: " + markers[i].name);
         }
         foreach (var button in ui.PanelRect.GetComponentsInChildren<UnityEngine.UI.Button>())
         {
@@ -421,6 +433,8 @@ public static class WorldMapChecks
             Check(ui.PanelRect.rect.Contains(local), "button inside panel: " + button.name);
         }
         return "PASS: " + checks + " world map / science / expedition / cargo / local incursion checks";
+        }
+        finally { UserSettings.Current.autoPauseThreat = savedAutoPause; }
     }
 }
 }

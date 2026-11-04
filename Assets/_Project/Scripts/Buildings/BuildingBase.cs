@@ -63,7 +63,7 @@ namespace AntColony.Buildings
         // 생산대 잔해는 0을 보존하되 파괴 부작용을 재실행하지 않는다.
         internal void RestoreHealth(float value)
         {
-            currentHealth = Mathf.Clamp(value, this is Workshop || this is Processor ? 0f : 0.01f, MaxHealth);
+            currentHealth = Mathf.Clamp(value, this is Workshop || this is Processor || this is AirshipYard ? 0f : 0.01f, MaxHealth);
         }
 
         public void TakeDamage(float amount)

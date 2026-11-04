@@ -45,13 +45,20 @@ public static class TransportRouteChecks
         checks = 0;
         Check(Application.isPlaying, "Play mode required");
         // 새 Play 세션은 메인 메뉴(일시정지)로 시작하므로 게임을 직접 시작하고 시간을 흐르게 한다.
+        var savedRoot = SaveStorage.RootOverride;
+        var savedAutoPause = UserSettings.Current.autoPauseThreat;
+        UserSettings.Current.autoPauseThreat = false;
         SaveStorage.RootOverride = System.IO.Path.Combine(Application.temporaryCachePath, "TransportRoute-" + Guid.NewGuid().ToString("N"));
+        try
+        {
         Check(await Wait(() => !SaveSystem.Busy), "scene ready");
-        SaveSystem.NewGame(new NewGameOptions { seed = 250926 });
+        var candidate = StartingCandidate.Roll(0); candidate.traits.values.Clear();
+        SaveSystem.NewGame(new NewGameOptions { seed = 250926, startingCount = 1, startingTeam = new[] { candidate } });
         Check(await Wait(() => !SaveSystem.Busy), "new game ready");
         AntColony.UI.GameMenuController.Instance.Resume(); Time.timeScale = 1;
         Object.FindAnyObjectByType<UpkeepManager>().enabled = false;
         var world = WorldMapManager.Instance;
+        typeof(WorldMapManager).GetMethod("RestoreUnlock", BindingFlags.Instance | BindingFlags.NonPublic).Invoke(world, new object[] { true });
         var site = world.Sites.First(s => s.Kind == ExpeditionSiteKind.Settlement);
         var rm = ResourceManager.Instance;
         rm.AddCapacity(ResourceType.Food, 10000); rm.AddCapacity(ResourceType.Soil, 10000);
@@ -79,6 +86,7 @@ public static class TransportRouteChecks
         food.Extract(food.AmountRemaining); soil.Extract(soil.AmountRemaining);
         food.AddStock(12); soil.AddStock(7);
         Check(ship.TryReturn(), "return after annexation"); ship.Tick(ship.TravelSeconds);
+        Check(await Wait(() => ship.PendingCrewOrderCount == 0 && ship.Crew.Count == 0, 30), "G42 home unload completes before empty-route check");
         Check(!ship.Route.TryStart(site), "empty route rejected on annexed site");
         Move(c, ship.Position + Vector3.right * 3);
         Check(c.Transport == ship || ship.TryBoard(new[] { c }), "board auto crew"); // G42: 이미 승무원이면 다시 탑승 지시는 거부된다
@@ -88,8 +96,8 @@ public static class TransportRouteChecks
         var ui = Object.FindAnyObjectByType<AntColony.UI.WorldMapPanel>();
         if (!ui.IsOpen) ui.Toggle();
         Set(ui, "selectedShip", ship); Set(ui, "selectedSite", site);
-        var start = ui.PanelRect.Find("WorldMap/Start Auto").GetComponent<UnityEngine.UI.Button>();
-        var stop = ui.PanelRect.Find("WorldMap/Stop Auto").GetComponent<UnityEngine.UI.Button>();
+        var start = ui.PanelRect.GetComponentsInChildren<Transform>(true).First(t => t.name == "WorldMap").Find("Start Auto").GetComponent<UnityEngine.UI.Button>();
+        var stop = ui.PanelRect.GetComponentsInChildren<Transform>(true).First(t => t.name == "WorldMap").Find("Stop Auto").GetComponent<UnityEngine.UI.Button>();
         start.onClick.Invoke();
         Check(ship.Route.IsRunning && ship.Route.Destination == site, "UI starts chosen route");
         ship.Route.Tick(float.NaN); ship.Route.Tick(float.PositiveInfinity); ship.Route.Tick(-1);
@@ -157,6 +165,8 @@ public static class TransportRouteChecks
             Check(button.GetComponentInChildren<UnityEngine.UI.Text>().preferredWidth <= rect.rect.width, "route button text fits");
         }
         return "PASS: " + checks + " automatic transport / cargo conservation / cancellation / UI checks";
+        }
+        finally { SaveStorage.RootOverride = savedRoot; UserSettings.Current.autoPauseThreat = savedAutoPause; }
     }
 }
 }

@@ -51,14 +51,20 @@ public static class SettlementDefenseChecks
     {
         checks = 0;
         Check(Application.isPlaying, "Play mode required");
+        var savedAutoPause = UserSettings.Current.autoPauseThreat;
+        UserSettings.Current.autoPauseThreat = false;
+        try
+        {
         // 새 Play 세션은 메인 메뉴(일시정지)로 시작하므로 게임을 시작하고, 선전포고를 위해 월드맵을 연다.
         if (!GameSession.Instance.GameStarted)
         {
-            while (AntColony.Save.SaveSystem.Busy) await Task.Delay(50);
-            AntColony.Save.SaveSystem.NewGame(new NewGameOptions());
-            while (AntColony.Save.SaveSystem.Busy) await Task.Delay(50);
-            AntColony.UI.GameMenuController.Instance.Resume(); Time.timeScale = 1;
+            Check(await Wait(() => !AntColony.Save.SaveSystem.Busy, 90), "scene ready");
+            var team = Enumerable.Range(0, 3).Select(StartingCandidate.Roll).ToArray();
+            foreach (var candidate in team) candidate.traits.values.Clear();
+            AntColony.Save.SaveSystem.NewGame(new NewGameOptions { startingCount = 3, startingTeam = team });
+            Check(await Wait(() => !AntColony.Save.SaveSystem.Busy, 90), "new game ready");
         }
+        AntColony.UI.GameMenuController.Instance.Resume(); Time.timeScale = 1;
         typeof(WorldMapManager).GetMethod("RestoreUnlock", BindingFlags.NonPublic | BindingFlags.Instance).Invoke(WorldMapManager.Instance, new object[] { true });
         var world = WorldMapManager.Instance;
         var site = world.Sites.First(s => s.Kind == ExpeditionSiteKind.Settlement);
@@ -70,7 +76,7 @@ public static class SettlementDefenseChecks
         AntPool.Instance.Breed(1000); // G04 동원 상한(성인 × 제도 비율)으로 병력 6명 이상 배정하려면 시민이 넉넉해야 한다
         // 불시착 시작은 장수 1~3명이라 검사용 4명을 채운다.
         for (var i = 0; i < 10 && CommanderRoster.Instance.Commanders.Count < 4; i++)
-            CommanderRoster.Instance.Create(null, AntColony.Data.CommanderRank.Corporal, new[] { UnitRole.Worker }, UnitRole.Worker, AntColony.Units.CommanderTraits.Random(), CommanderRoster.Instance.Commanders[0].Position);
+            CommanderRoster.Instance.Create(null, AntColony.Data.CommanderRank.Corporal, new[] { UnitRole.Worker }, UnitRole.Worker, new AntColony.Units.CommanderTraits(), CommanderRoster.Instance.Commanders[0].Position);
         var roster = CommanderRoster.Instance.Commanders;
         foreach (var x in roster) x.SetJobEnabled(AntColony.Units.CommanderJobs.All, false);
         var captive = roster[0]; var escapee = roster[1]; var crew = roster[2]; var collector = roster[3];
@@ -103,15 +109,27 @@ public static class SettlementDefenseChecks
         Move(escapee, site.Landing + Vector3.right * 20);
         Move(captive, site.Landing + Vector3.forward * 2);
         // 6단계: 편입 거점 침공은 교전 중 문명의 일정으로만 시작된다.
-        var foe = DiplomacyManager.Instance.Data.civilizations[0];
+        // 정복한 문명은 멸망할 수 있다. 살아 있는 다른 거점에 실제로 도착해 G62 접촉을 만든다.
+        var diplomacy = DiplomacyManager.Instance;
+        foreach (var faction in diplomacy.Data.civilizations) faction.war = false;
+        Check(!RocketCampaign.SuppressNewCrises, "fresh session has no rocket crisis suppression (G39)");
         Check(!defense.TryStartRaid(), "no raid while every civilization is at peace");
-        DiplomacyManager.Instance.DeclareWar(foe);
+        var contactSite = world.Sites.First(s => s != site && s.Kind == ExpeditionSiteKind.Settlement
+            && diplomacy.Faction(s) != null && !diplomacy.Faction(s).war);
+        var foe = diplomacy.Faction(contactSite);
+        Check(world.CanCreateTransport(world.HomePosition, out var contactPosition), "contact transport placement");
+        var contactShip = world.CreateTransport(false, contactPosition);
+        Move(collector, contactPosition + Vector3.right * 3);
+        Check(contactShip.TryBoard(new[] { collector }) && contactShip.TryDepart(contactSite), "first contact expedition departs");
+        contactShip.Tick(contactShip.TravelSeconds);
+        Check(foe.contacted && diplomacy.DeclareWar(foe), "first contact permits declaration of war");
+        Check(contactShip.TryReturn(), "contact expedition returns"); contactShip.Tick(contactShip.TravelSeconds);
         var before = defense.Remaining;
         defense.Tick(float.NaN); defense.Tick(float.PositiveInfinity); defense.Tick(-1);
         Check(defense.Remaining == before, "invalid time has no effect");
         defense.Tick(1);
         Check(!defense.UnderAttack, "raid waits for faction schedule");
-        Check(defense.TryStartRaid(site.Difficulty, foe.id) && defense.Attackers.Count == site.Difficulty && !defense.TryStartRaid(), "faction wave and no overlap");
+        Check(defense.TryStartRaid(site.Difficulty, foe.id) && defense.Attackers.Count == site.Difficulty && !defense.TryStartRaid(), $"faction wave and no overlap (suppress {AntColony.Core.RocketCampaign.SuppressNewCrises} war {foe.war} extinct {foe.extinct} template {typeof(ExpeditionSite).GetProperty("GuardTemplate", BindingFlags.Instance | BindingFlags.NonPublic).GetValue(site) != null} nav {UnityEngine.AI.NavMesh.SamplePosition(site.transform.position + Vector3.forward * 28, out _, 4, UnityEngine.AI.NavMesh.AllAreas)} attackers {defense.Attackers.Count}/{site.Difficulty})");
         foreach (var enemy in defense.Attackers)
         {
             Set(enemy, "attackDamage", 1f);
@@ -147,14 +165,15 @@ public static class SettlementDefenseChecks
         var captiveTroops = captive.TroopCount;
         // RNG를 한 번만 고정해 같은 상실 사건에서 포로/탈출 두 갈래를 모두 검증한다.
         var randomState = UnityEngine.Random.state;
-        for (var seed = 0; ; seed++)
+        var foundSeed = false;
+        for (var seed = 0; seed < 10000; seed++)
         {
             UnityEngine.Random.InitState(seed);
             if (UnityEngine.Random.value < .5f && UnityEngine.Random.value >= .5f)
-            { UnityEngine.Random.InitState(seed); break; }
+            { UnityEngine.Random.InitState(seed); foundSeed = true; break; }
         }
-        defense.Tick(30);
-        UnityEngine.Random.state = randomState;
+        try { Check(foundSeed, "bounded capture/escape seed search"); defense.Tick(30); }
+        finally { UnityEngine.Random.state = randomState; }
         Check(site.Disposition == ConquestDisposition.Lost && !defense.UnderAttack, "uncontested occupation loses site");
         Check(defense.Prisoners.Count == 1 && captive.Captor == site && captive.IsCaptive && !captive.gameObject.activeSelf,
             "one commander captured and hidden");
@@ -206,7 +225,7 @@ public static class SettlementDefenseChecks
         Set(ui, "selectedSite", site);
         await Task.Delay(100);
         Canvas.ForceUpdateCanvases();
-        var label = ui.PanelRect.Find("SettlementDefenseStatus").GetComponent<UnityEngine.UI.Text>();
+        var label = ui.PanelRect.GetComponentsInChildren<Transform>(true).First(t => t.name == "SettlementDefenseStatus").GetComponent<UnityEngine.UI.Text>();
         Check(label.text.Contains("Defense ready"), "defense state visible in panel");
         var corners = new Vector3[4]; ((RectTransform)label.transform).GetWorldCorners(corners);
         Check(corners.All(c => ui.PanelRect.rect.Contains(ui.PanelRect.InverseTransformPoint(c))), "defense label within panel");
@@ -241,6 +260,8 @@ public static class SettlementDefenseChecks
         Check(ship.TryReturn(), "rescue party can leave abandoned site");
         ship.Tick(ship.TravelSeconds);
         return "PASS: " + checks + " settlement invasion / capture / escape / evacuation / rescue checks";
+        }
+        finally { UserSettings.Current.autoPauseThreat = savedAutoPause; }
     }
 }
 }
