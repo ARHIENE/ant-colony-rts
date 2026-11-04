@@ -12,7 +12,7 @@ namespace AntColony.UI
         {
             if (p == null) { Resume(); return; }
             var window = V5Window(p.Data.displayName + " / 가공", p.Industrial
-                ? p.Chemical ? "전력 200W(주문 없음·정지·원료 대기에도 고정) · 플라스틱: 배관 원유 / 고무: 수액 배송"
+                ? p.Chemical ? "전력 200W(대기에도 고정) · 플라스틱: 배관 원유 / 고무·전자부품: 고체 원료 배송"
                     : "전력 200W(주문 없음·정지·원료 대기에도 고정) · 묶음 시작 시 가스 1 투입"
                 : "제작 담당의 재료 배송·현장 작업 필요 · 완성품은 바닥에서 운반 · 생산 방식과 수량을 선택하세요.");
             content = V5Section(window, "생산 품목 / 주문 설정", 20, 104, 520, 544);
@@ -21,6 +21,8 @@ namespace AntColony.UI
                 MenuTheme.Button(content, "돌 도구 · 단궁 제작", GroundCrafting);
             MenuTheme.Text(content, p.Current != null ? $"진행 중: {p.Current.name}" + (p.Brewing ? "" : $" {p.Progress:P0}") : "진행 중인 가공 없음", 19, 45);
             MenuTheme.Text(content, WorkDiagnostics.Describe(p), 15, 68);
+            var remaining = MenuTheme.Text(content, p.RemainingWorkText, 12, 30);
+            refreshDutyScreen = () => { if (p != null) remaining.text = p.RemainingWorkText; };
             if (p.Brewing) MenuTheme.Text(content, "원료 투입 후 게임 1일 무인 발효 · 완료 후 장수가 회수합니다.\n시작 후 취소하면 투입 원료는 돌아오지 않습니다.", 14, 58);
             if (p.Chemical) MenuTheme.Text(content, $"내부 원유 {p.BufferedOil} · 플라스틱 취소: 원유 70% 내부 보관 / 고무 취소: 수액 70% 바닥 반환", 14, 58);
             if (p.Current != null) MenuTheme.Button(content, p.Brewing ? fermentationCancelConfirm == p ? "정말 취소 · 투입 원료 소실" : "발효 취소 (원료 소실·확인 필요)" : "미완성품 취소 · 일반 70% / 핵심 100% 반환", () => {
@@ -33,14 +35,15 @@ namespace AntColony.UI
                 var index = i; var r = p.Recipes[i];
                 MenuTheme.Button(content, $"목록 추가: {r.name} {r.amount} ← {(p.Chemical && r.output == AntColony.Data.ResourceType.Plastic ? "배관 원유 " + IndustrialRecipes.PlasticOil : r.Cost)} · 재고 {rm?.GetAmount(r.output) ?? 0}", () => {
                     if (!p.AddOrder(index, orderMode, orderAmount)) ToastManager.Show($"생산 목록은 최대 {Workshop.MaxOrders}개입니다."); ShowProcessor(p);
-                }).interactable = p.isActiveAndEnabled && p.Orders.Count < Workshop.MaxOrders;
+                }, p.RecipePlan(r, orderMode, orderAmount)).interactable = p.isActiveAndEnabled && p.Orders.Count < Workshop.MaxOrders && MedicineResearch.Unlocked(r.output);
             }
             content = V5Section(window, "생산 목록 / 진행 상태", 554, 104, 526, 544);
             foreach (var order in p.Orders.ToArray())
             {
                 var r = p.Recipes[order.recipe];
-                var state = order.mode == Workshop.OrderMode.Count ? $"남은 {order.amount}묶음" : order.mode == Workshop.OrderMode.KeepStock ? $"재고 {Kitchen.Stock(r.output)}/{order.amount}" : "반복";
-                MenuTheme.Button(content, $"{r.name} · {ModeName(order.mode)} · {state} — 삭제", () => { p.RemoveOrder(order); ShowProcessor(p); });
+                var state = order.mode == Workshop.OrderMode.Count ? $"대기 {order.amount}묶음 = {order.amount * r.amount}개" : order.mode == Workshop.OrderMode.KeepStock ? $"재고 {Kitchen.Stock(r.output)}/{order.amount}개" : "반복";
+                MenuTheme.Button(content, $"{r.name} · {ModeName(order.mode)} · {state} — 삭제", () => { p.RemoveOrder(order); ShowProcessor(p); },
+                    p.RecipePlan(r, order.mode, order.amount) + "\n대기 수량에는 현재 제작 중인 묶음이 포함되지 않습니다. 목록 삭제는 현재 묶음을 취소하지 않습니다.");
             }
             MenuTheme.Text(content, (p.IsMedical ? "작업표에서 의료가 켜진 장수가 할 수 있는 치료가 없을 때 와서 만듭니다(의료 능력은 속도만)." : "작업표에서 제작이 켜진 장수가 자율로 와서 가공합니다.")
                 + (p.Chemical ? " 플라스틱 원유는 배관, 고무 수액은 운반으로 공급합니다." : " 재료를 실제 배송받은 뒤 한 묶음 시작 때 소비합니다.")

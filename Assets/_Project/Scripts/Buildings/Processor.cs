@@ -44,7 +44,8 @@ namespace AntColony.Buildings
                 new Recipe("직물(실)", ResourceType.Cloth, 1, 8, null, (ResourceType.Thread, 2)), new Recipe("직물(거미줄)", ResourceType.Cloth, 1, 8, null, (ResourceType.Cobweb, 2)) },
             BuildingKind.Smelter => IndustrialRecipes.SolidFuelAlternatives(new[] { new Recipe("철", ResourceType.Iron, 1, 14, CommanderActivity.Strength, (ResourceType.IronOre, 2), (ResourceType.Coal, 1)),
                 new Recipe("구리", ResourceType.Copper, 1, 14, CommanderActivity.Strength, (ResourceType.CopperOre, 2), (ResourceType.Coal, 1)),
-                new Recipe("강철", ResourceType.Steel, 1, 20, CommanderActivity.Strength, (ResourceType.Iron, 2), (ResourceType.Coal, 1)) }.Concat(SupplyRecipes.For(kind)).ToArray()),
+                new Recipe("강철", ResourceType.Steel, 1, 20, CommanderActivity.Strength, (ResourceType.Iron, 2), (ResourceType.Coal, 1)) }.Concat(SupplyRecipes.For(kind)).ToArray())
+                .Concat(new[] { new Recipe("부품", ResourceType.Component, 1, 16, CommanderActivity.Strength, (ResourceType.Iron, 2), (ResourceType.Copper, 1)) }).ToArray(),
             // 약제대(2026-10-11): 동물용 의약품·동물 수술 키트(장수용 약과 별도 자원, 재료는 잠정). 의료 능력만 사용(보조 기술 없음).
             BuildingKind.MedicineBench => new[] { new Recipe("동물용 의약품", ResourceType.AnimalMedicine, 1, 8, null, (ResourceType.Leaf, 2), (ResourceType.Honeydew, 1)),
                 new Recipe("동물 수술 키트", ResourceType.SurgeryKit, 1, 14, null, (ResourceType.Cloth, 1), (ResourceType.Cobweb, 2), (ResourceType.Chitin, 1)),

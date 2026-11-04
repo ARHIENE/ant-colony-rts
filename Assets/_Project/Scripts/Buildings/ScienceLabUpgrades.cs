@@ -35,6 +35,10 @@ namespace AntColony.Buildings
             return true;
         }
 
+        public static string StockStatus(int tier, Func<ResourceType, int> amount) => tier >= ScienceLab.MaxTier ? "최고 등급"
+            : string.Join(" / ", Cost(tier).Select(c => $"{c.type.DisplayName()} {amount(c.type)}/{c.amount}"
+                + (amount(c.type) < c.amount ? $"(부족 {c.amount - amount(c.type)})" : "")));
+
         public static IEnumerable<int> Steps(int currentTier, int targetTier)
             => Enumerable.Range(currentTier, Math.Max(0, targetTier - currentTier));
     }
