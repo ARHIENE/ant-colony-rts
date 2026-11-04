@@ -1,0 +1,925 @@
+[
+  {
+    "file": "Ammo_Arrow.fbx",
+    "old_offset": [
+      [
+        0.30000001192092896,
+        0.0,
+        -5.5
+      ]
+    ],
+    "mesh_count": 1,
+    "origin": "grip zero",
+    "rigid": true
+  },
+  {
+    "file": "Scabbard_Bronze.fbx",
+    "old_offset": [
+      [
+        0.6000000238418579,
+        0.0,
+        -4.949999809265137
+      ]
+    ],
+    "mesh_count": 1,
+    "origin": "grip zero",
+    "rigid": true
+  },
+  {
+    "file": "Scabbard_Copper.fbx",
+    "old_offset": [
+      [
+        0.30000001192092896,
+        0.0,
+        -4.949999809265137
+      ]
+    ],
+    "mesh_count": 1,
+    "origin": "grip zero",
+    "rigid": true
+  },
+  {
+    "file": "Scabbard_Iron.fbx",
+    "old_offset": [
+      [
+        0.8999999761581421,
+        0.0,
+        -4.949999809265137
+      ]
+    ],
+    "mesh_count": 1,
+    "origin": "grip zero",
+    "rigid": true
+  },
+  {
+    "file": "Scabbard_Starlight.fbx",
+    "old_offset": [
+      [
+        1.7999999523162842,
+        0.0,
+        -4.949999809265137
+      ]
+    ],
+    "mesh_count": 1,
+    "origin": "grip zero",
+    "rigid": true
+  },
+  {
+    "file": "Scabbard_Steel.fbx",
+    "old_offset": [
+      [
+        1.2000000476837158,
+        0.0,
+        -4.949999809265137
+      ]
+    ],
+    "mesh_count": 1,
+    "origin": "grip zero",
+    "rigid": true
+  },
+  {
+    "file": "Scabbard_Titanium.fbx",
+    "old_offset": [
+      [
+        1.5,
+        0.0,
+        -4.949999809265137
+      ]
+    ],
+    "mesh_count": 1,
+    "origin": "grip zero",
+    "rigid": true
+  },
+  {
+    "file": "Tool_Axe_Bronze.fbx",
+    "old_offset": [
+      [
+        0.6000000238418579,
+        0.0,
+        -0.550000011920929
+      ]
+    ],
+    "mesh_count": 1,
+    "origin": "grip zero",
+    "rigid": true
+  },
+  {
+    "file": "Tool_Axe_Copper.fbx",
+    "old_offset": [
+      [
+        0.30000001192092896,
+        0.0,
+        -0.550000011920929
+      ]
+    ],
+    "mesh_count": 1,
+    "origin": "grip zero",
+    "rigid": true
+  },
+  {
+    "file": "Tool_Axe_Iron.fbx",
+    "old_offset": [
+      [
+        0.8999999761581421,
+        0.0,
+        -0.550000011920929
+      ]
+    ],
+    "mesh_count": 1,
+    "origin": "grip zero",
+    "rigid": true
+  },
+  {
+    "file": "Tool_Axe_Starlight.fbx",
+    "old_offset": [
+      [
+        1.7999999523162842,
+        0.0,
+        -0.550000011920929
+      ]
+    ],
+    "mesh_count": 1,
+    "origin": "grip zero",
+    "rigid": true
+  },
+  {
+    "file": "Tool_Axe_Steel.fbx",
+    "old_offset": [
+      [
+        1.2000000476837158,
+        0.0,
+        -0.550000011920929
+      ]
+    ],
+    "mesh_count": 1,
+    "origin": "grip zero",
+    "rigid": true
+  },
+  {
+    "file": "Tool_Axe_Stone.fbx",
+    "old_offset": [
+      [
+        0.0,
+        0.0,
+        -0.550000011920929
+      ]
+    ],
+    "mesh_count": 1,
+    "origin": "grip zero",
+    "rigid": true
+  },
+  {
+    "file": "Tool_Axe_Titanium.fbx",
+    "old_offset": [
+      [
+        1.5,
+        0.0,
+        -0.550000011920929
+      ]
+    ],
+    "mesh_count": 1,
+    "origin": "grip zero",
+    "rigid": true
+  },
+  {
+    "file": "Tool_Hammer_Bronze.fbx",
+    "old_offset": [
+      [
+        0.6000000238418579,
+        0.0,
+        -1.649999976158142
+      ]
+    ],
+    "mesh_count": 1,
+    "origin": "grip zero",
+    "rigid": true
+  },
+  {
+    "file": "Tool_Hammer_Copper.fbx",
+    "old_offset": [
+      [
+        0.30000001192092896,
+        0.0,
+        -1.649999976158142
+      ]
+    ],
+    "mesh_count": 1,
+    "origin": "grip zero",
+    "rigid": true
+  },
+  {
+    "file": "Tool_Hammer_Iron.fbx",
+    "old_offset": [
+      [
+        0.8999999761581421,
+        0.0,
+        -1.649999976158142
+      ]
+    ],
+    "mesh_count": 1,
+    "origin": "grip zero",
+    "rigid": true
+  },
+  {
+    "file": "Tool_Hammer_Starlight.fbx",
+    "old_offset": [
+      [
+        1.7999999523162842,
+        0.0,
+        -1.649999976158142
+      ]
+    ],
+    "mesh_count": 1,
+    "origin": "grip zero",
+    "rigid": true
+  },
+  {
+    "file": "Tool_Hammer_Steel.fbx",
+    "old_offset": [
+      [
+        1.2000000476837158,
+        0.0,
+        -1.649999976158142
+      ]
+    ],
+    "mesh_count": 1,
+    "origin": "grip zero",
+    "rigid": true
+  },
+  {
+    "file": "Tool_Hammer_Stone.fbx",
+    "old_offset": [
+      [
+        0.0,
+        0.0,
+        -1.649999976158142
+      ]
+    ],
+    "mesh_count": 1,
+    "origin": "grip zero",
+    "rigid": true
+  },
+  {
+    "file": "Tool_Hammer_Titanium.fbx",
+    "old_offset": [
+      [
+        1.5,
+        0.0,
+        -1.649999976158142
+      ]
+    ],
+    "mesh_count": 1,
+    "origin": "grip zero",
+    "rigid": true
+  },
+  {
+    "file": "Tool_Hoe_Bronze.fbx",
+    "old_offset": [
+      [
+        0.6000000238418579,
+        0.0,
+        -2.200000047683716
+      ]
+    ],
+    "mesh_count": 1,
+    "origin": "grip zero",
+    "rigid": true
+  },
+  {
+    "file": "Tool_Hoe_Copper.fbx",
+    "old_offset": [
+      [
+        0.30000001192092896,
+        0.0,
+        -2.200000047683716
+      ]
+    ],
+    "mesh_count": 1,
+    "origin": "grip zero",
+    "rigid": true
+  },
+  {
+    "file": "Tool_Hoe_Iron.fbx",
+    "old_offset": [
+      [
+        0.8999999761581421,
+        0.0,
+        -2.200000047683716
+      ]
+    ],
+    "mesh_count": 1,
+    "origin": "grip zero",
+    "rigid": true
+  },
+  {
+    "file": "Tool_Hoe_Starlight.fbx",
+    "old_offset": [
+      [
+        1.7999999523162842,
+        0.0,
+        -2.200000047683716
+      ]
+    ],
+    "mesh_count": 1,
+    "origin": "grip zero",
+    "rigid": true
+  },
+  {
+    "file": "Tool_Hoe_Steel.fbx",
+    "old_offset": [
+      [
+        1.2000000476837158,
+        0.0,
+        -2.200000047683716
+      ]
+    ],
+    "mesh_count": 1,
+    "origin": "grip zero",
+    "rigid": true
+  },
+  {
+    "file": "Tool_Hoe_Stone.fbx",
+    "old_offset": [
+      [
+        0.0,
+        0.0,
+        -2.200000047683716
+      ]
+    ],
+    "mesh_count": 1,
+    "origin": "grip zero",
+    "rigid": true
+  },
+  {
+    "file": "Tool_Hoe_Titanium.fbx",
+    "old_offset": [
+      [
+        1.5,
+        0.0,
+        -2.200000047683716
+      ]
+    ],
+    "mesh_count": 1,
+    "origin": "grip zero",
+    "rigid": true
+  },
+  {
+    "file": "Tool_Pickaxe_Bronze.fbx",
+    "old_offset": [
+      [
+        0.6000000238418579,
+        0.0,
+        0.0
+      ]
+    ],
+    "mesh_count": 1,
+    "origin": "grip zero",
+    "rigid": true
+  },
+  {
+    "file": "Tool_Pickaxe_Copper.fbx",
+    "old_offset": [
+      [
+        0.30000001192092896,
+        0.0,
+        0.0
+      ]
+    ],
+    "mesh_count": 1,
+    "origin": "grip zero",
+    "rigid": true
+  },
+  {
+    "file": "Tool_Pickaxe_Iron.fbx",
+    "old_offset": [
+      [
+        0.8999999761581421,
+        0.0,
+        0.0
+      ]
+    ],
+    "mesh_count": 1,
+    "origin": "grip zero",
+    "rigid": true
+  },
+  {
+    "file": "Tool_Pickaxe_Starlight.fbx",
+    "old_offset": [
+      [
+        1.7999999523162842,
+        0.0,
+        0.0
+      ]
+    ],
+    "mesh_count": 1,
+    "origin": "grip zero",
+    "rigid": true
+  },
+  {
+    "file": "Tool_Pickaxe_Steel.fbx",
+    "old_offset": [
+      [
+        1.2000000476837158,
+        0.0,
+        0.0
+      ]
+    ],
+    "mesh_count": 1,
+    "origin": "grip zero",
+    "rigid": true
+  },
+  {
+    "file": "Tool_Pickaxe_Stone.fbx",
+    "old_offset": [
+      [
+        0.0,
+        0.0,
+        0.0
+      ]
+    ],
+    "mesh_count": 1,
+    "origin": "grip zero",
+    "rigid": true
+  },
+  {
+    "file": "Tool_Pickaxe_Titanium.fbx",
+    "old_offset": [
+      [
+        1.5,
+        0.0,
+        0.0
+      ]
+    ],
+    "mesh_count": 1,
+    "origin": "grip zero",
+    "rigid": true
+  },
+  {
+    "file": "Tool_Shovel_Bronze.fbx",
+    "old_offset": [
+      [
+        0.6000000238418579,
+        0.0,
+        -1.100000023841858
+      ]
+    ],
+    "mesh_count": 1,
+    "origin": "grip zero",
+    "rigid": true
+  },
+  {
+    "file": "Tool_Shovel_Copper.fbx",
+    "old_offset": [
+      [
+        0.30000001192092896,
+        0.0,
+        -1.100000023841858
+      ]
+    ],
+    "mesh_count": 1,
+    "origin": "grip zero",
+    "rigid": true
+  },
+  {
+    "file": "Tool_Shovel_Iron.fbx",
+    "old_offset": [
+      [
+        0.8999999761581421,
+        0.0,
+        -1.100000023841858
+      ]
+    ],
+    "mesh_count": 1,
+    "origin": "grip zero",
+    "rigid": true
+  },
+  {
+    "file": "Tool_Shovel_Starlight.fbx",
+    "old_offset": [
+      [
+        1.7999999523162842,
+        0.0,
+        -1.100000023841858
+      ]
+    ],
+    "mesh_count": 1,
+    "origin": "grip zero",
+    "rigid": true
+  },
+  {
+    "file": "Tool_Shovel_Steel.fbx",
+    "old_offset": [
+      [
+        1.2000000476837158,
+        0.0,
+        -1.100000023841858
+      ]
+    ],
+    "mesh_count": 1,
+    "origin": "grip zero",
+    "rigid": true
+  },
+  {
+    "file": "Tool_Shovel_Stone.fbx",
+    "old_offset": [
+      [
+        0.0,
+        0.0,
+        -1.100000023841858
+      ]
+    ],
+    "mesh_count": 1,
+    "origin": "grip zero",
+    "rigid": true
+  },
+  {
+    "file": "Tool_Shovel_Titanium.fbx",
+    "old_offset": [
+      [
+        1.5,
+        0.0,
+        -1.100000023841858
+      ]
+    ],
+    "mesh_count": 1,
+    "origin": "grip zero",
+    "rigid": true
+  },
+  {
+    "file": "Tool_Sickle_Bronze.fbx",
+    "old_offset": [
+      [
+        0.6000000238418579,
+        0.0,
+        -2.75
+      ]
+    ],
+    "mesh_count": 1,
+    "origin": "grip zero",
+    "rigid": true
+  },
+  {
+    "file": "Tool_Sickle_Copper.fbx",
+    "old_offset": [
+      [
+        0.30000001192092896,
+        0.0,
+        -2.75
+      ]
+    ],
+    "mesh_count": 1,
+    "origin": "grip zero",
+    "rigid": true
+  },
+  {
+    "file": "Tool_Sickle_Iron.fbx",
+    "old_offset": [
+      [
+        0.8999999761581421,
+        0.0,
+        -2.75
+      ]
+    ],
+    "mesh_count": 1,
+    "origin": "grip zero",
+    "rigid": true
+  },
+  {
+    "file": "Tool_Sickle_Starlight.fbx",
+    "old_offset": [
+      [
+        1.7999999523162842,
+        0.0,
+        -2.75
+      ]
+    ],
+    "mesh_count": 1,
+    "origin": "grip zero",
+    "rigid": true
+  },
+  {
+    "file": "Tool_Sickle_Steel.fbx",
+    "old_offset": [
+      [
+        1.2000000476837158,
+        0.0,
+        -2.75
+      ]
+    ],
+    "mesh_count": 1,
+    "origin": "grip zero",
+    "rigid": true
+  },
+  {
+    "file": "Tool_Sickle_Stone.fbx",
+    "old_offset": [
+      [
+        0.0,
+        0.0,
+        -2.75
+      ]
+    ],
+    "mesh_count": 1,
+    "origin": "grip zero",
+    "rigid": true
+  },
+  {
+    "file": "Tool_Sickle_Titanium.fbx",
+    "old_offset": [
+      [
+        1.5,
+        0.0,
+        -2.75
+      ]
+    ],
+    "mesh_count": 1,
+    "origin": "grip zero",
+    "rigid": true
+  },
+  {
+    "file": "Weapon_BossA_Guardblade.fbx",
+    "old_offset": [
+      [
+        0.6000000238418579,
+        0.0,
+        -5.5
+      ]
+    ],
+    "mesh_count": 1,
+    "origin": "grip zero",
+    "rigid": true
+  },
+  {
+    "file": "Weapon_BossB_HeatShield.fbx",
+    "old_offset": [
+      [
+        0.8999999761581421,
+        0.0,
+        -5.5
+      ]
+    ],
+    "mesh_count": 1,
+    "origin": "grip zero",
+    "rigid": true
+  },
+  {
+    "file": "Weapon_BossC_Quakehammer.fbx",
+    "old_offset": [
+      [
+        1.2000000476837158,
+        0.0,
+        -5.5
+      ]
+    ],
+    "mesh_count": 1,
+    "origin": "grip zero",
+    "rigid": true
+  },
+  {
+    "file": "Weapon_Shield_Bronze.fbx",
+    "old_offset": [
+      [
+        0.6000000238418579,
+        0.0,
+        -4.400000095367432
+      ]
+    ],
+    "mesh_count": 1,
+    "origin": "grip zero",
+    "rigid": true
+  },
+  {
+    "file": "Weapon_Shield_Copper.fbx",
+    "old_offset": [
+      [
+        0.30000001192092896,
+        0.0,
+        -4.400000095367432
+      ]
+    ],
+    "mesh_count": 1,
+    "origin": "grip zero",
+    "rigid": true
+  },
+  {
+    "file": "Weapon_Shield_Iron.fbx",
+    "old_offset": [
+      [
+        0.8999999761581421,
+        0.0,
+        -4.400000095367432
+      ]
+    ],
+    "mesh_count": 1,
+    "origin": "grip zero",
+    "rigid": true
+  },
+  {
+    "file": "Weapon_Shield_Starlight.fbx",
+    "old_offset": [
+      [
+        1.7999999523162842,
+        0.0,
+        -4.400000095367432
+      ]
+    ],
+    "mesh_count": 1,
+    "origin": "grip zero",
+    "rigid": true
+  },
+  {
+    "file": "Weapon_Shield_Steel.fbx",
+    "old_offset": [
+      [
+        1.2000000476837158,
+        0.0,
+        -4.400000095367432
+      ]
+    ],
+    "mesh_count": 1,
+    "origin": "grip zero",
+    "rigid": true
+  },
+  {
+    "file": "Weapon_Shield_Titanium.fbx",
+    "old_offset": [
+      [
+        1.5,
+        0.0,
+        -4.400000095367432
+      ]
+    ],
+    "mesh_count": 1,
+    "origin": "grip zero",
+    "rigid": true
+  },
+  {
+    "file": "Weapon_ShortBow.fbx",
+    "old_offset": [
+      [
+        0.0,
+        0.0,
+        -5.5
+      ]
+    ],
+    "mesh_count": 1,
+    "origin": "grip zero",
+    "rigid": true
+  },
+  {
+    "file": "Weapon_Spear_Bronze.fbx",
+    "old_offset": [
+      [
+        0.6000000238418579,
+        0.0,
+        -3.8499999046325684
+      ]
+    ],
+    "mesh_count": 1,
+    "origin": "grip zero",
+    "rigid": true
+  },
+  {
+    "file": "Weapon_Spear_Copper.fbx",
+    "old_offset": [
+      [
+        0.30000001192092896,
+        0.0,
+        -3.8499999046325684
+      ]
+    ],
+    "mesh_count": 1,
+    "origin": "grip zero",
+    "rigid": true
+  },
+  {
+    "file": "Weapon_Spear_Iron.fbx",
+    "old_offset": [
+      [
+        0.8999999761581421,
+        0.0,
+        -3.8499999046325684
+      ]
+    ],
+    "mesh_count": 1,
+    "origin": "grip zero",
+    "rigid": true
+  },
+  {
+    "file": "Weapon_Spear_Starlight.fbx",
+    "old_offset": [
+      [
+        1.7999999523162842,
+        0.0,
+        -3.8499999046325684
+      ]
+    ],
+    "mesh_count": 1,
+    "origin": "grip zero",
+    "rigid": true
+  },
+  {
+    "file": "Weapon_Spear_Steel.fbx",
+    "old_offset": [
+      [
+        1.2000000476837158,
+        0.0,
+        -3.8499999046325684
+      ]
+    ],
+    "mesh_count": 1,
+    "origin": "grip zero",
+    "rigid": true
+  },
+  {
+    "file": "Weapon_Spear_Titanium.fbx",
+    "old_offset": [
+      [
+        1.5,
+        0.0,
+        -3.8499999046325684
+      ]
+    ],
+    "mesh_count": 1,
+    "origin": "grip zero",
+    "rigid": true
+  },
+  {
+    "file": "Weapon_Sword_Bronze.fbx",
+    "old_offset": [
+      [
+        0.6000000238418579,
+        0.0,
+        -3.299999952316284
+      ]
+    ],
+    "mesh_count": 1,
+    "origin": "grip zero",
+    "rigid": true
+  },
+  {
+    "file": "Weapon_Sword_Copper.fbx",
+    "old_offset": [
+      [
+        0.30000001192092896,
+        0.0,
+        -3.299999952316284
+      ]
+    ],
+    "mesh_count": 1,
+    "origin": "grip zero",
+    "rigid": true
+  },
+  {
+    "file": "Weapon_Sword_Iron.fbx",
+    "old_offset": [
+      [
+        0.8999999761581421,
+        0.0,
+        -3.299999952316284
+      ]
+    ],
+    "mesh_count": 1,
+    "origin": "grip zero",
+    "rigid": true
+  },
+  {
+    "file": "Weapon_Sword_Starlight.fbx",
+    "old_offset": [
+      [
+        1.7999999523162842,
+        0.0,
+        -3.299999952316284
+      ]
+    ],
+    "mesh_count": 1,
+    "origin": "grip zero",
+    "rigid": true
+  },
+  {
+    "file": "Weapon_Sword_Steel.fbx",
+    "old_offset": [
+      [
+        1.2000000476837158,
+        0.0,
+        -3.299999952316284
+      ]
+    ],
+    "mesh_count": 1,
+    "origin": "grip zero",
+    "rigid": true
+  },
+  {
+    "file": "Weapon_Sword_Titanium.fbx",
+    "old_offset": [
+      [
+        1.5,
+        0.0,
+        -3.299999952316284
+      ]
+    ],
+    "mesh_count": 1,
+    "origin": "grip zero",
+    "rigid": true
+  }
+]

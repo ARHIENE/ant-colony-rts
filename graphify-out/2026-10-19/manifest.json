@@ -114,15 +114,15 @@
     "semantic_hash": ""
   },
   "changelog.md": {
-    "mtime": 1792308425.6813633,
-    "seen": 1792308498.2802,
-    "ast_hash": "703fe2524194078962cf7afe7acfcc72",
+    "mtime": 1792340541.2908826,
+    "seen": 1792340610.572349,
+    "ast_hash": "536531b58382e5c902e5c16d00e78164",
     "semantic_hash": ""
   },
   "log.md": {
-    "mtime": 1792308469.7367873,
-    "seen": 1792308498.2802,
-    "ast_hash": "a3cff53ca1e17a00a1f1e71c4a6ff6ec",
+    "mtime": 1792340643.191338,
+    "seen": 1792340679.1474397,
+    "ast_hash": "3768f696b768a935b1ca56d70eb736b8",
     "semantic_hash": ""
   },
   ".codex/hooks.json": {
@@ -1026,9 +1026,9 @@
     "semantic_hash": ""
   },
   "Assets/_Project/Scripts/Buildings/BuildingBase.cs": {
-    "mtime": 1791614998.715767,
-    "seen": 1791662660.4868865,
-    "ast_hash": "0fac6aaaf915ee740c657437d7736926",
+    "mtime": 1792339731.849788,
+    "seen": 1792340507.2792685,
+    "ast_hash": "6f9fcffeb7bd8f79487217a1fe01d712",
     "semantic_hash": ""
   },
   "Assets/_Project/Scripts/Buildings/BuildingConstructionSite.cs": {
@@ -2304,9 +2304,9 @@
     "semantic_hash": ""
   },
   "docs/IMPLEMENTATION_BOARD.md": {
-    "mtime": 1792326971.314556,
-    "seen": 1792327056.4503243,
-    "ast_hash": "2419cef21783c7cc0b80f464047304d7",
+    "mtime": 1792340429.7870865,
+    "seen": 1792340507.2803013,
+    "ast_hash": "ce0c361c9a0ec48f9b088715b0ef8538",
     "semantic_hash": ""
   },
   "Assets/Screenshots/ant-2026-10-07-furniture.png": {
@@ -9846,9 +9846,9 @@
     "semantic_hash": ""
   },
   "art/resident-kit/facility-points.json": {
-    "mtime": 1792291797.6825595,
-    "seen": 1792293732.8105383,
-    "ast_hash": "da7c158270f61943d732e51723e06c78",
+    "mtime": 1792339665.2680042,
+    "seen": 1792340507.2801394,
+    "ast_hash": "2e1f1d503e182ecb9369220df3d857a7",
     "semantic_hash": ""
   },
   "art/resident-kit/parts-manifest.json": {
@@ -9858,9 +9858,9 @@
     "semantic_hash": ""
   },
   "art/resident-kit/scripts/extra_spec.py": {
-    "mtime": 1792290019.1809337,
-    "seen": 1792293732.8105383,
-    "ast_hash": "e8188d412ad3ed42899298ddfdef3774",
+    "mtime": 1792339097.2829003,
+    "seen": 1792340507.2801423,
+    "ast_hash": "4f3c425311627f9806267684f71e0295",
     "semantic_hash": ""
   },
   "art/resident-kit/scripts/kit_anim.py": {
@@ -9960,9 +9960,9 @@
     "semantic_hash": ""
   },
   "art/resident-kit/scripts/models_extra.py": {
-    "mtime": 1792291570.457097,
-    "seen": 1792293732.8105383,
-    "ast_hash": "59e5fc3d26fb4b8a90ba8838f59945c1",
+    "mtime": 1792339443.6324956,
+    "seen": 1792340507.280166,
+    "ast_hash": "d2bee7da4605172e1ea2c102dc150af0",
     "semantic_hash": ""
   },
   "art/resident-kit/scripts/render_all.py": {
@@ -37692,21 +37692,21 @@
     "semantic_hash": ""
   },
   "art/kemono-kit/previews/notion/facilities_10.gif": {
-    "mtime": 1792328025.0949452,
-    "seen": 1792328029.0226347,
-    "ast_hash": "d41d8cd98f00b204e9800998ecf8427e",
+    "mtime": 1792328029.3709755,
+    "seen": 1792340507.2891927,
+    "ast_hash": "674171711df710e779a62844f88b5d76",
     "semantic_hash": ""
   },
   "art/kemono-kit/previews/notion/facilities_11.gif": {
-    "mtime": 1792323138.3523529,
-    "seen": 1792326640.174784,
-    "ast_hash": "15f564b5e1ae9072e7f6983559261fca",
+    "mtime": 1792328034.7671368,
+    "seen": 1792340507.2891943,
+    "ast_hash": "6889c76df5d363444f6d033af508d8f9",
     "semantic_hash": ""
   },
   "art/kemono-kit/previews/notion/facilities_12.gif": {
-    "mtime": 1792323142.4273803,
-    "seen": 1792326640.174784,
-    "ast_hash": "7af60344c2cfcdfe7fd8fdfe3efaad27",
+    "mtime": 1792328039.221901,
+    "seen": 1792340507.2891955,
+    "ast_hash": "dbfd53ac7c61ef8f93ff80d2adbe8f7d",
     "semantic_hash": ""
   },
   "art/kemono-kit/previews/notion/kemono-colors.png": {
@@ -37764,26 +37764,26 @@
     "semantic_hash": ""
   },
   "art/kemono-kit/previews/notion/motions_1.gif": {
-    "mtime": 1792323147.5178535,
-    "seen": 1792326640.174784,
-    "ast_hash": "17f1e271635f0a7f35d2886458f4de2b",
+    "mtime": 1792328043.4170203,
+    "seen": 1792340507.2892084,
+    "ast_hash": "34f8d6cb6c8d8e91c55970290e899322",
     "semantic_hash": ""
   },
   "art/kemono-kit/previews/notion/motions_2.gif": {
-    "mtime": 1792323152.3267095,
-    "seen": 1792326640.174784,
+    "mtime": 1792328048.021597,
+    "seen": 1792340507.2892096,
     "ast_hash": "32441ff7d2b28a0cf916cc9bb95397a6",
     "semantic_hash": ""
   },
   "art/kemono-kit/previews/notion/motions_3.gif": {
-    "mtime": 1792323157.0964725,
-    "seen": 1792326640.174784,
+    "mtime": 1792328052.4009728,
+    "seen": 1792340507.2892106,
     "ast_hash": "fb3ba149eeb9b7124e9d28aa438e1b66",
     "semantic_hash": ""
   },
   "art/kemono-kit/previews/notion/motions_4.gif": {
-    "mtime": 1792323160.7516177,
-    "seen": 1792326640.174784,
+    "mtime": 1792328055.548272,
+    "seen": 1792340507.289212,
     "ast_hash": "5c52e1e1a5da778e9e75047c5e446b12",
     "semantic_hash": ""
   },
@@ -55224,39 +55224,39 @@
     "semantic_hash": ""
   },
   "art/kemono-kit/previews/notion/upload/facilities_01.gif": {
-    "mtime": 1792325255.9953916,
-    "seen": 1792326640.174784,
-    "ast_hash": "ea4b57e32809ee3a99a4127b3fb7ac29",
+    "mtime": 1792328084.310447,
+    "seen": 1792340507.2892156,
+    "ast_hash": "9910e5625d514b71beb012751c2bc0d4",
     "semantic_hash": ""
   },
   "art/kemono-kit/previews/notion/upload/facilities_02.gif": {
-    "mtime": 1792325257.869128,
-    "seen": 1792326640.174784,
-    "ast_hash": "427a885b20b2fb213c90483f2e39688c",
+    "mtime": 1792328086.8116536,
+    "seen": 1792340507.2892168,
+    "ast_hash": "6c2e35774f0077d64ad3343312935bbb",
     "semantic_hash": ""
   },
   "art/kemono-kit/previews/notion/upload/facilities_03.gif": {
-    "mtime": 1792325259.7640884,
-    "seen": 1792326640.174784,
-    "ast_hash": "142fc9fdfbaa4a01aab490d362441e2e",
+    "mtime": 1792328089.6213803,
+    "seen": 1792340507.2892177,
+    "ast_hash": "7c8e9b13cbc8f50aee2b78ff49c4466b",
     "semantic_hash": ""
   },
   "art/kemono-kit/previews/notion/upload/facilities_06.gif": {
-    "mtime": 1792325261.6489625,
-    "seen": 1792326640.174784,
-    "ast_hash": "c54c5ec23d8c01930778a46ad1914d00",
+    "mtime": 1792328094.4743958,
+    "seen": 1792340507.289221,
+    "ast_hash": "cdee795a6844abc656afbfc3e9d228f2",
     "semantic_hash": ""
   },
   "art/kemono-kit/previews/notion/upload/facilities_07.gif": {
-    "mtime": 1792325263.4554744,
-    "seen": 1792326640.174784,
-    "ast_hash": "57dbfec12037015ac6097eb7637fd639",
+    "mtime": 1792328097.1346152,
+    "seen": 1792340507.2892225,
+    "ast_hash": "553d391794a252ae87fe4f8d856b7756",
     "semantic_hash": ""
   },
   "art/kemono-kit/previews/notion/upload/facilities_12.gif": {
-    "mtime": 1792325265.3728056,
-    "seen": 1792326640.174784,
-    "ast_hash": "935fbd4874f5fe1f9ac035bbb5bd3e4e",
+    "mtime": 1792328104.5625942,
+    "seen": 1792340507.289226,
+    "ast_hash": "beb6aad0fdabdc4b4016095bf5f9e925",
     "semantic_hash": ""
   },
   "art/kemono-kit/scripts/repair_preview_grips.py": {
@@ -55305,6 +55305,36 @@
     "mtime": 1792327853.5456495,
     "seen": 1792328029.0100296,
     "ast_hash": "2cc35ad1bc5be77632215848e5a5a0da",
+    "semantic_hash": ""
+  },
+  "AgentScripts/FacilityVisualChecks.cs": {
+    "mtime": 1792339920.7268543,
+    "seen": 1792340507.279087,
+    "ast_hash": "162cf92b1dba06c61bf3e34811cb615c",
+    "semantic_hash": ""
+  },
+  "Assets/_Project/Scripts/Buildings/FacilityVisual.cs": {
+    "mtime": 1792339916.6763816,
+    "seen": 1792340507.2792869,
+    "ast_hash": "bfaeccbaecc0e0a6cd9e893ba2314362",
+    "semantic_hash": ""
+  },
+  "art/kemono-kit/previews/notion/upload/facilities_05.gif": {
+    "mtime": 1792328092.0580387,
+    "seen": 1792340507.2892194,
+    "ast_hash": "fb8d7860e032328acea25713f13d3254",
+    "semantic_hash": ""
+  },
+  "art/kemono-kit/previews/notion/upload/facilities_08.gif": {
+    "mtime": 1792328099.413547,
+    "seen": 1792340507.2892237,
+    "ast_hash": "d5bfda9cc9301867b028de4ca1719a21",
+    "semantic_hash": ""
+  },
+  "art/kemono-kit/previews/notion/upload/facilities_10.gif": {
+    "mtime": 1792328102.2613788,
+    "seen": 1792340507.2892249,
+    "ast_hash": "a53e48e79ec70c9129a8a1d98f251fbd",
     "semantic_hash": ""
   }
 }

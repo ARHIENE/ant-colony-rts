@@ -1,0 +1,73 @@
+[
+  {
+    "command": [
+      "git",
+      "apply",
+      "--check",
+      "--whitespace=nowarn",
+      "codex-work~/g27/G27-1025.patch"
+    ],
+    "exit": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "git",
+      "-c",
+      "core.autocrlf=false",
+      "apply",
+      "--whitespace=nowarn",
+      "--directory=codex-work~/g27/verify",
+      "codex-work~/g27/G27-1025.patch"
+    ],
+    "exit": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "file": "AgentScripts/ImplG27Checks.cs",
+    "original_unchanged": true,
+    "applied_bytes_match": true,
+    "endings": {
+      "crlf": 0,
+      "lf": 251
+    }
+  },
+  {
+    "file": "Assets/_Project/Scripts/Save/SaveDtos.cs",
+    "original_unchanged": true,
+    "applied_bytes_match": true,
+    "endings": {
+      "crlf": 374,
+      "lf": 1
+    }
+  },
+  {
+    "file": "Assets/_Project/Scripts/Save/SaveSnapshot.cs",
+    "original_unchanged": true,
+    "applied_bytes_match": true,
+    "endings": {
+      "crlf": 327,
+      "lf": 0
+    }
+  },
+  {
+    "file": "Assets/_Project/Scripts/Save/SaveSystem.cs",
+    "original_unchanged": true,
+    "applied_bytes_match": true,
+    "endings": {
+      "crlf": 85,
+      "lf": 0
+    }
+  },
+  {
+    "file": "Assets/_Project/Scripts/Save/SaveValidator.cs",
+    "original_unchanged": true,
+    "applied_bytes_match": true,
+    "endings": {
+      "crlf": 281,
+      "lf": 0
+    }
+  }
+]

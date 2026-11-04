@@ -1,0 +1,380 @@
+using System;
+using System.Collections.Generic;
+using UnityEngine;
+
+namespace AntColony.Save
+{
+    // 저장 파일 스키마. JsonUtility가 다룰 수 있는 형태(구체 클래스 + List)만 쓴다.
+    // 리플렉션 범용 직렬화를 쓰지 않으므로, 새 상태를 저장하려면 여기에 필드를 명시적으로 늘려야 한다.
+
+    [Serializable]
+    public class Vec3Dto
+    {
+        public float x, y, z;
+        public Vec3Dto() { }
+        public Vec3Dto(Vector3 v) { x = v.x; y = v.y; z = v.z; }
+        public Vector3 ToVector3() => new Vector3(x, y, z);
+        public bool IsFinite() => !(float.IsNaN(x) || float.IsNaN(y) || float.IsNaN(z)
+            || float.IsInfinity(x) || float.IsInfinity(y) || float.IsInfinity(z));
+    }
+
+    [Serializable]
+    public class OptionsDto
+    {
+        public int mapSize;
+        public int difficulty;
+        public int commanderDeath = 1;
+        public int seed;
+        public int biome; // 옛 저장은 0 = None
+        public int climate; // 0 = 온대(구 저장 기본값)
+    }
+
+    [Serializable]
+    public class ColonyDto
+    {
+        public int food, soil, special;
+        public int[] materials; // v16: 흙 외 재료 보유량(ResourceManager.OtherMaterials 순서, 옛 저장은 null = 0)
+        public Core.StoreBin.Dto baseBin; // v17: 비축더미 칸의 실제 재고·허용 품목·우선순위(옛 저장은 null → 총량을 칸들에 다시 나눔)
+        public int foodCapacity, soilCapacity, specialCapacity;
+        public bool storageResearchApplied;
+        public int antsFree, antsAssigned, antsReserved;
+        public bool fishingUnlocked;
+        public int commonDiet = Units.CommanderAnt.AllDiet; // 2026-10-15 공통 식단(날것 1·간단 2·좋은 4). 옛 저장은 전부 허용
+    }
+
+    [Serializable]
+    public class TraitsDto
+    {
+        public int personality;
+        public List<Units.CommanderTrait> values = new List<Units.CommanderTrait>();
+        public List<Units.CommanderPassion> passions = new List<Units.CommanderPassion>();
+    }
+
+    [Serializable]
+    public class CommanderDto
+    {
+        public bool hasOrder;
+        public CommanderOrderDto order; // v19
+        public int id;
+        public string name;
+        public int rank;
+        public List<int> allowedRoles = new List<int>();
+        public int role;
+        public int troopCount;
+        public float pendingDamage;
+        public float carriedAmount;
+        public int carriedType;
+        public Core.FoodLots carriedLots;
+        public float fishingProgress; // v9: 낚시 1회(20초) 진행도
+        public bool strikeArmed;
+        public float strikeCooldown, stanceCooldown, stanceTime;
+        public int level;
+        public int xp;
+        public Units.CommanderTalents talents;
+        public TraitsDto traits = new TraitsDto();
+        public Units.CommanderPersonalState personalState;
+        public int workLevel;
+        public float workProgress;
+        public int labAttackLevel;
+        public int labArmorLevel;
+        public Vec3Dto position = new Vec3Dto();
+        public bool activeInScene = true;
+
+        // 소속. 0 = 본거지, 1 = 수송수단 탑승(transportIndex), 2 = 편입 거점 주둔(siteIndex), 3 = 포로(siteIndex)
+        public int location;
+        public int transportIndex = -1;
+        public int siteIndex = -1;
+    }
+
+    [Serializable]
+    public class PrisonerDto
+    {
+        public Units.CommanderPersonalState personalState = new Units.CommanderPersonalState();
+        public int labAttack, labArmor;
+        public float strikeCooldown, stanceCooldown;
+        public Units.CommanderTalents talents;
+        public string name;
+        public int rank;
+        public List<int> roles = new List<int>();
+        public TraitsDto traits = new TraitsDto();
+        public int persuadeAttempts;
+    }
+
+    [Serializable]
+    public class AffinityDto
+    {
+        public int firstCommanderId;
+        public int secondCommanderId;
+        public float value;
+    }
+
+    [Serializable]
+    public class BuildingDto
+    {
+        public string objectName; // 새 건물 키는 오브젝트 이름순이므로 이름을 보존해야 불러온 뒤에도 같은 순서·키가 된다(없으면 종류 이름).
+        public Core.StoreBin.Dto storeBin; // v17: 창고 칸의 실제 재고·허용 품목·우선순위
+        public bool packed; // v17: 회수·포장된 가구(기능 정지, 다시 설치 대기)
+        public Buildings.WallFire.State fire; // 불타는 중인 건물만(남은 시간·소화 진행). 없으면 null
+        public int serviceCommander = -1, serviceJob; // 이 건물을 서비스 중인 장수 번호·CommanderJobs
+        public int workforce;
+        public float repairCredit;
+        public int decorationQuality = 1;
+        public Buildings.Kitchen.State kitchen = new Buildings.Kitchen.State();
+        public string key;
+        public List<ResourceNodeDto> nodes = new List<ResourceNodeDto>();
+        public string kind;              // BuildingKind 또는 "QueenChamber"/"DigSite"/"Storage" 같은 고정 건물 이름
+        public int role;                 // 병영/연구소만 의미가 있다
+        public bool runtimeBuilt;        // true면 불러올 때 템플릿에서 다시 짓는다
+        public int sceneIndex;           // 씬 원본 건물 식별용(같은 kind+role 안에서의 순번)
+        public Vec3Dto position = new Vec3Dto();
+        public float rotationY;
+        public float health;
+
+        // 종류별 상태. 해당하지 않는 건물에서는 무시된다.
+        public int barracksTier = 1;
+        public float barracksUpgradeRemaining;
+        public float towerCooldown;
+        public float labResearchRemaining;
+        public int labResearchCommanderId = -1;
+        public bool labResearchAttack;
+        public bool gateOpen = true; // Phase 5 성문
+        public float powerCharge; // 2026-10-05 배터리 충전량
+        public float powerFuelSeconds;
+        public Buildings.SupplyFacility.State supply;
+        public Buildings.StarterCropBed.State starterCrop;
+        public float coldness; // 2026-10-15 냉장고·냉동고 냉각 정도(0~1). 옛 저장은 0 = 상온에서 다시 냉각
+        public int materialTier; // 2026-10-05 재료 업그레이드 단계(0 = 처음 재료). 재료 목록 미정
+        public int mainMaterial = (int)Data.ResourceType.Soil; // v16 주재료(옛 저장은 흙)
+        public float queenProductionRemaining; // Phase 4: 여왕방 삭제, 이전 저장 읽기용
+        public float queenFishingRemaining;
+        public float scienceRemaining;
+        public bool scienceAircraft;
+        public bool scienceConstructing;
+        public int scienceTier = 1;
+        public int scientist = -1;
+        public Buildings.AirshipYard.State airship;
+        public Buildings.Workshop.State workshop = new Buildings.Workshop.State();
+        public Buildings.Processor.State processor; // v16 가공대(옛 저장·다른 건물은 null)
+        public Buildings.Ranch.State ranch; // v16 목장 우리
+        public AntColony.Buildings.CompostBin.State compost; // 2026-10-15 퇴비통 숙성·허용·목표
+        public AntColony.Buildings.Tombstone.State tomb; // 2026-10-15 묘비(고인·안치 여부)
+        public string ranchFacility; // 2026-10-11 먹이통·돌봄대·동물 치료대·도축대 상태(JSON)
+        public List<int> patients = new List<int>();
+        public bool trapArmed = true;
+        public float trapBroken, trapRepair;
+        public bool trapRepairPaid;
+        public int trapSpikeHits;
+        public int crop;
+        public bool farmWide;
+        public AntColony.Buildings.FarmPlot.State farm; // 2026-10-15 빈 밭·뿌리뽑기·병충해·비료·다음 작물. 옛 저장은 null = 심어진 밭
+        public Vec3Dto scienceSpawn = new Vec3Dto();
+        public float scoutRemaining;
+        public bool scoutDispatched;
+        public int scoutDispatchedAnts;
+        public int scoutSuccess;
+        public int scoutFailure;
+        public int scoutCompanion = -1; // v13: 정찰 동행 장수(commanders 번호, -1 = 없음)
+        public float prisonEscapeTimer;
+        public int prisonRecruited, prisonExecuted, prisonEscaped;
+        public List<PrisonerDto> prisoners = new List<PrisonerDto>();
+        public int nurseryBirths;
+        public List<AffinityDto> nurseryAffinity = new List<AffinityDto>();
+        public bool digExpanded;
+    }
+
+    [Serializable]
+    public class ResourceNodeDto
+    {
+        public int workforce;
+        public bool looseCargo;
+        public string key;
+        public bool exists = true;
+        public int type;
+        public Vec3Dto position = new Vec3Dto();
+        public int index;
+        public float amount;
+        public float regrowTimer;
+        public float sowRemaining; // 밭 파종 남은 작업량(2026-10-08). 옛 저장은 0 = 이미 심음.
+        public int seedCrop = -1; public string seedKey; // G28 야생 작물 종자 출처(-1 = 없음, 구저장 호환)
+        public bool bountifulHarvest;
+        public bool gatheringForbidden;
+        public AntColony.Core.FoodLots lots; // 바닥 식품 신선도(2026-10-12). 옛 저장은 비어 있음 = 신선
+        public int fishMonth = -1; // v9: 낚시터 월 한도를 마지막으로 채운 달(-1 = 다음 틱에 이번 달로 채움)
+    }
+
+    [Serializable]
+    public class EnemyColonyDto
+    {
+        public Vec3Dto rootPosition = new Vec3Dto();
+        public List<float> buildingHealth = new List<float>();
+        public List<Vec3Dto> extraBuildings = new List<Vec3Dto>();
+        public List<float> extraBuildingHealth = new List<float>();
+        public List<ResourceNodeDto> nodes = new List<ResourceNodeDto>();
+        public float waveTimer;
+        public float economyTimer;
+        public int waveIndex;
+    }
+
+    [Serializable]
+    public class SiteDto
+    {
+        public bool defenseUnderAttack;
+        public string defenseFaction;
+        public bool rewardsClaimed;
+        public float growthTimer;
+        public EnemyColonyDto colony;
+        public int index;
+        public bool cleared;
+        public int disposition;
+        public float bossHp;
+        public List<ResourceNodeDto> nodes = new List<ResourceNodeDto>();
+        public List<float> colonyBuildingHealth = new List<float>();
+        public List<Vec3Dto> colonyExtraBuildings = new List<Vec3Dto>();
+        public List<float> guardHealth = new List<float>();
+        public List<bool> guardActive = new List<bool>();
+        public float settlementElapsed;
+        public float defenseRemaining;
+        public float defenseCaptureProgress;
+    }
+
+    [Serializable]
+    public class RouteDto
+    {
+        public List<string> nodes;
+        public int[] nextNode;
+        public bool rallying;
+        public List<int> crew = new List<int>();
+        public bool running;
+        public int destinationIndex = -1;
+        public List<int> stops; // 2026-10-25 경유지 1~3곳(사이트 순번). null = 구저장(destinationIndex 하나)
+        public int leg;
+        public float waitSeconds;
+        public string status = "Off";
+    }
+
+    [Serializable]
+    public class TransportDto
+    {
+        public List<World.Corpse.State> bodyCargo;
+        public int[] cargoAmounts;
+        public World.TransportDamageState damage;
+        public World.WithdrawState withdrawal;
+        public string bossCarrierId;
+        public bool walking;
+        public float foodDebt, dockingRemaining;
+        public bool blueprintCargo;
+        public List<Units.EquipmentItem> equipmentCargo = new List<Units.EquipmentItem>();
+        public bool aircraft;
+        public int state;
+        public float remaining;
+        public int siteIndex = -1;
+        public Vec3Dto position = new Vec3Dto();
+        public Vec3Dto homePosition = new Vec3Dto();
+        public int cargoFood, cargoSoil, cargoSpecial;
+        public RouteDto route = new RouteDto();
+        public List<World.CrewOrderState> crewOrders = new List<World.CrewOrderState>(); // G42 직접 지시 대기(구저장 빈 목록)
+    }
+
+    [Serializable]
+    public class WorldDto
+    {
+        public UI.SimulationPause.State pause;
+        public World.HomeDefenseReturn defenseReturn = new World.HomeDefenseReturn();
+        public bool legacyLayout;
+        public bool unlocked;
+        public bool vehicleResearched;
+        public bool aircraftResearched;
+        public string notice = "";
+        public List<SiteDto> sites = new List<SiteDto>();
+        public List<TransportDto> transports = new List<TransportDto>();
+        public EnemyColonyDto homeColony = new EnemyColonyDto();
+        public bool hadHomeColony;
+    }
+
+    [Serializable]
+    public class CameraDto
+    {
+        public float yaw;
+        public int viewedSite = -1;
+        public Vec3Dto focus = new Vec3Dto();
+        public float orthoSize = 18f;
+    }
+
+    [Serializable]
+    public class DiscoveryDto
+    {
+        public string category;
+        public string key;
+        public string title;
+        public string body;
+    }
+
+    [Serializable]
+    public class SaveFileV1
+    {
+        public Core.RocketCampaign.State rocket;
+        public List<ResourceNodeDto> nodes = new List<ResourceNodeDto>();
+        public List<MonsterDto> monsters = new List<MonsterDto>();
+        public float upkeepTimer, incursionTimer;
+        public bool loopCompleted, bossDefeated, defeated;
+        public string defeatReason; // G11 패배 사유(구저장 없음)
+        public string randomState;
+        public const int CurrentVersion = 19;
+        public List<World.Corpse.State> corpses = new List<World.Corpse.State>();
+        public List<ConstructionDto> construction; // v17 건설·철거·이동·개보수 예정지(옛 저장은 null = 없음)
+        public List<World.Critter.State> critters; // v16 목장 생물 개체(2026-10-11 개편: 나이·배고픔·길들임·돌봄·결박 등, 옛 필드는 같은 이름으로 읽힘)
+        public World.DiplomacyManager.State diplomacy;
+        public Core.CampaignHistory.State history = new Core.CampaignHistory.State();
+        public World.ColonyEvents.State events = new World.ColonyEvents.State();
+        public World.Memorial.State memorial; // 2026-10-15 사망 기록(이름·날짜·원인). 옛 저장은 null = 없음
+        public Buildings.FarmSeeds.State farmSeeds;
+        public Map.WeatherSystem.State weather; // v13: 날씨(없으면 맑음으로 시작)
+        public Core.ColonyPopulation.State population = new Core.ColonyPopulation.State(); // v12 Phase 4 인구
+        public Units.WorkPriorities.State workPriorities; // 2026-10-09 대상 우선순위·노란/빨간 경보(없으면 기본값)
+
+        public int version = CurrentVersion;
+        public string gameId = "AntColony";
+        public string label = "";
+        public string savedAtUtc = "";
+        public float playSeconds;
+        public float gameSeconds;
+        public List<Units.EquipmentItem> equipmentInventory = new List<Units.EquipmentItem>();
+        public List<EquipmentLootDto> equipmentLoot = new List<EquipmentLootDto>();
+        public int upkeepFailures;
+        public Core.CampaignResearch.State campaign = new Core.CampaignResearch.State();
+        public string unityVersion = "";
+
+        public OptionsDto options = new OptionsDto();
+        public ColonyDto colony = new ColonyDto();
+        public List<CommanderDto> commanders = new List<CommanderDto>();
+        public List<BuildingDto> buildings = new List<BuildingDto>();
+        public WorldDto world = new WorldDto();
+        public CameraDto camera = new CameraDto();
+        public List<DiscoveryDto> discoveries = new List<DiscoveryDto>();
+
+        // 저장 시점에 복원할 수 없다고 미리 밝힌 항목들(진행 중인 침공 부대 등).
+        public List<string> notRestored = new List<string>();
+    }
+
+    [Serializable]
+    public class EquipmentLootDto
+    {
+        public Vec3Dto position = new Vec3Dto();
+        public List<Units.EquipmentItem> items = new List<Units.EquipmentItem>();
+    }
+
+    [Serializable]
+    public class MonsterDto
+    {
+        public bool hasRuntime;
+        public WildMonsterDto runtime; // v19
+        public bool huntDesignated;
+        public World.WildlifeTemperament temperament = World.WildlifeTemperament.Predator;
+        public string diplomaticFactionId;
+        public Units.CommanderTalents talents;
+        public string key;
+        public float health;
+        public Vec3Dto position = new Vec3Dto();
+        public TraitsDto traits;
+    }
+}

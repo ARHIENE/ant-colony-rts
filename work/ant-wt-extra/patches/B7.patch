@@ -1,0 +1,726 @@
+diff --git a/Assets/_Project/Scripts/Buildings/BuildingConstructionSite.cs b/Assets/_Project/Scripts/Buildings/BuildingConstructionSite.cs
+index 80944f9..dc86a3f 100644
+--- a/Assets/_Project/Scripts/Buildings/BuildingConstructionSite.cs
++++ b/Assets/_Project/Scripts/Buildings/BuildingConstructionSite.cs
+@@ -12,7 +12,7 @@ namespace AntColony.Buildings
+     public class BuildingConstructionSite : MonoBehaviour, IMaterialSink
+     {
+         [Serializable] public sealed class Need { public ResourceType type; public int need, reserved, delivered; }
+-        public enum Wait { None, Paused, MaterialShortage, AwaitingHaul, NoWorker, Unreachable, InUse }
++        public enum Wait { None, Paused, MaterialShortage, AwaitingHaul, NoWorker, Unreachable, InUse, Forbidden, Tool }
+ 
+         private static long orderSeq;
+         private GameObject completedBuilding;
+@@ -70,6 +70,7 @@ namespace AntColony.Buildings
+             var rm = ResourceManager.Instance; if (rm == null) return;
+             var sites = FindObjectsByType<BuildingConstructionSite>().Where(s => !s.finished && !s.Started)
+                 .OrderByDescending(s => AntColony.Units.WorkPriorities.Level(s)).ThenBy(s => s.Order).ToList();
++            foreach (var site in sites) site.ReevaluateReservations();
+             foreach (var type in sites.SelectMany(s => s.Needs).Select(n => n.type).Distinct().ToList())
+             {
+                 var stock = rm.GetAmount(type);
+@@ -80,7 +81,7 @@ namespace AntColony.Buildings
+                 foreach (var s in sites)
+                 {
+                     if (free <= 0) break;
+-                    if (s.Paused) continue;
++                    if (!s.HasAvailableCrew) continue;
+                     foreach (var n in s.Needs.Where(n => n.type == type))
+                     {
+                         var want = n.need - n.delivered - n.reserved - s.InTransit(type);
+@@ -89,7 +90,25 @@ namespace AntColony.Buildings
+                 }
+             }
+         }
+-        private void Update() => Allocate();
++        private bool HasAvailableCrew => !Paused && !finished && AntColony.Units.AntUnitBase.Active.OfType<AntColony.Units.CommanderAnt>()
++            .Any(c => c.CivilianWorkReady && !c.IsCaptive && !c.IsEmbarked && (c.AllowsJob(Job) || !Ready && c.AllowsJob(AntColony.Units.CommanderJobs.Hauling))
++                && c.TryWorkApproach(Position, out _));
++        internal void ReevaluateReservations()
++        {
++            if (!HasAvailableCrew) ReleaseUnusedReservations();
++        }
++        internal void ReleaseUnusedReservations()
++        {
++            foreach (var n in Needs) n.reserved = 0;
++            ReturnWorkforce(); allocatedFrame = -1;
++        }
++        private void Update()
++        {
++            if (AntColony.Save.SaveSystem.Busy) return;
++            foreach (var courier in inTransit.Keys.OfType<AntColony.Units.WorkerAnt>().ToArray())
++                if (courier == null || !courier.isActiveAndEnabled || courier.DeliverySite != this) inTransit.Remove(courier);
++            ReevaluateReservations(); Allocate();
++        }
+ 
+         // 장수가 창고에서 실제로 집은 만큼 예약 → 배송 중으로 옮긴다.
+         public bool BeginPickup(object courier, ResourceType type, int amount)
+@@ -126,7 +145,7 @@ namespace AntColony.Buildings
+         {
+             if (finished || Paused == on) return;
+             Paused = on;
+-            if (on) { foreach (var n in Needs) n.reserved = 0; foreach (var b in Builders.ToList()) b.CommandStop(); }
++            if (on) { ReleaseUnusedReservations(); foreach (var b in Builders.Concat(Couriers).Distinct().ToList()) b.CommandStop(); }
+         }
+         // 시공 시작 전 재료 변경: 기존 예약 해제·도착분 바닥 배출 후 새 재료를 요청한다.
+         public bool ChangeMaterial(ResourceType material)
+@@ -165,6 +184,8 @@ namespace AntColony.Buildings
+         {
+             if (finished) return;
+             finished = true;
++            ReleaseUnusedReservations();
++            foreach (var c in Builders.Concat(Couriers).Distinct().ToList()) c.CommandStop();
+             foreach (var n in Needs) DropOnFloor(n.type, n.delivered);
+             if (TryGetComponent<DemolitionSite>(out var marker)) marker.Abort(); // 개보수 취소: 건물 사용 재개
+             ReturnWorkforce();
+@@ -188,7 +209,8 @@ namespace AntColony.Buildings
+                 }
+                 if (HasBuilder) return Wait.None;
+                 var able = crew.Where(c => c.AllowsJob(Job)).ToList();
+-                if (able.Count == 0) return Wait.NoWorker;
++                if (crew.Count == 0) return Wait.NoWorker;
++                if (able.Count == 0) return Wait.Forbidden;
+                 return able.Any(c => c.TryWorkApproach(Position, out _)) ? Wait.None : Wait.Unreachable;
+             }
+         }
+@@ -196,7 +218,7 @@ namespace AntColony.Buildings
+         public static string Describe(Wait w) => w switch
+         {
+             Wait.Paused => "일시정지", Wait.MaterialShortage => "재료 부족", Wait.AwaitingHaul => "운반 대기",
+-            Wait.NoWorker => "담당 장수 없음", Wait.Unreachable => "접근 불가", Wait.InUse => "사용 중(나올 때까지 대기)", _ => "진행 중"
++            Wait.NoWorker => "담당 없음", Wait.Forbidden => "작업 금지", Wait.Tool => "도구 없음", Wait.Unreachable => "경로 없음", Wait.InUse => "사용 중(나올 때까지 대기)", _ => "진행 중"
+         };
+ 
+         private void ReturnWorkforce()
+@@ -208,6 +230,8 @@ namespace AntColony.Buildings
+ 
+         private void OnDestroy()
+         {
++            ReleaseUnusedReservations();
++            foreach (var c in Builders.Concat(Couriers).Distinct().ToList()) c.CommandStop();
+             ReturnWorkforce();
+             if (completedBuilding != null)
+             {
+diff --git a/Assets/_Project/Scripts/Buildings/Processor.cs b/Assets/_Project/Scripts/Buildings/Processor.cs
+index 47280f9..5cd68ce 100644
+--- a/Assets/_Project/Scripts/Buildings/Processor.cs
++++ b/Assets/_Project/Scripts/Buildings/Processor.cs
+@@ -46,12 +46,16 @@ namespace AntColony.Buildings
+         public CommanderActivity Skill => IsMedical ? CommanderActivity.Medicine : CommanderActivity.Crafting;
+ 
+         [Serializable] public class Order { public int recipe; public Workshop.OrderMode mode; public int amount = 1; }
+-        [Serializable] public class State { public List<Order> orders = new List<Order>(); public int current = -1; public float progress; }
++        [Serializable] public class State { public List<Order> orders = new List<Order>(); public int current = -1; public float progress; public string makerId = ""; }
+         private State state = new State();
+         public IReadOnlyList<Recipe> Recipes => RecipesFor(Data != null ? Data.kind : default);
+         public List<Order> Orders => state.orders;
+         public Recipe Current => state.current >= 0 && state.current < Recipes.Count ? Recipes[state.current] : null;
+         public float Progress => Current == null ? 0 : state.progress / Current.work;
++        public string MakerId => state.makerId;
++        public bool CanContinue(CommanderAnt c) => c != null && (Current == null || string.IsNullOrEmpty(state.makerId) || state.makerId == c.PersonalState.id);
++        public string WaitReason => !isActiveAndEnabled || IsDead ? "도구: 제작대 사용 불가"
++            : Current != null ? "원제작자 대기 · 보관 또는 취소 가능" : NeedsWork ? "담당 없음" : "재료 또는 주문 대기";
+ 
+         public bool AddOrder(int recipe, Workshop.OrderMode mode, int amount)
+         {
+@@ -81,21 +85,24 @@ namespace AntColony.Buildings
+ 
+         public bool Work(CommanderAnt c, float seconds)
+         {
+-            if (!NeedsWork || !(seconds > 0) || float.IsInfinity(seconds)) return false;
++            if (!NeedsWork || !(seconds > 0) || float.IsInfinity(seconds) || !CanContinue(c) || !c.CivilianWorkReady || !c.AllowsJob(Job)) return false;
+             if (Current == null && !StartNext()) return false;
+             var r = Current;
++            state.makerId = c.PersonalState.id;
+             state.progress += c.WorkRate(Skill) * seconds; // 능력은 속도만 보정(산출·품질 동일)
+             c.GainExperience(Skill, seconds, IsMedical ? Skill : r.support); // 약제대 생산은 의료만(보조 기술 연결 없음)
+             if (state.progress < r.work) return true;
+-            state.current = -1; state.progress = 0;
++            state.current = -1; state.progress = 0; state.makerId = "";
+             AntColony.World.DiplomacyManager.StoreResource(r.output, r.amount, ResourceReason.Production); // 창고가 차면 바닥 더미
+             return true;
+         }
+ 
+-        // 철거·이동 시작 시 진행 중 생산을 취소한다. 이미 소비한 재료는 돌려주지 않는다(2026-10-12). 주문 목록은 남는다.
++        // 미완성품 취소: 소비 전은 전량, 작업한 일반 재료는 70%를 실물로 반환한다.
+         internal void CancelCurrent()
+         {
+-            state.current = -1; state.progress = 0;
++            if (Current != null) foreach (var input in Current.inputs)
++                AntColony.World.DiplomacyManager.DropFloor(input.type, Mathf.FloorToInt(input.amount * (state.progress > 0 ? .7f : 1)), Position + ResourceManager.Scatter());
++            state.current = -1; state.progress = 0; state.makerId = "";
+         }
+ 
+         internal State CaptureState() => JsonUtility.FromJson<State>(JsonUtility.ToJson(state));
+diff --git a/Assets/_Project/Scripts/Buildings/Workshop.cs b/Assets/_Project/Scripts/Buildings/Workshop.cs
+index c0a00ac..2eeea2c 100644
+--- a/Assets/_Project/Scripts/Buildings/Workshop.cs
++++ b/Assets/_Project/Scripts/Buildings/Workshop.cs
+@@ -9,7 +9,7 @@ namespace AntColony.Buildings
+ {
+     public sealed class Workshop : BuildingBase
+     {
+-        [Serializable] public class Job { public EquipmentRecipe recipe; public float work; }
++        [Serializable] public class Job { public EquipmentRecipe recipe; public float work; public string makerId = ""; public bool materialsPaid; }
+         // 생산 목록(2026-10-08 기획): 지정 수량(amount개 만들고 끝) / 재고 유지(보관함 재고가 amount 미만이면 생산) / 계속 생산.
+         // 대기열이 비면 목록 위에서부터 만들 수 있는 품목 1개를 대기열에 넣는다(비용은 그때 차감, 취소 환급은 기존 대기열 규칙).
+         public enum OrderMode { Count, KeepStock, Forever }
+@@ -20,6 +20,7 @@ namespace AntColony.Buildings
+             public List<Order> orders = new List<Order>();
+             public int crafter = -1;
+             public bool ruined, paused, inactive;
++            public int materialVersion = 1;
+         }
+         private List<Job> jobs = new List<Job>();
+         public IReadOnlyList<Job> Jobs => jobs;
+@@ -54,8 +55,12 @@ namespace AntColony.Buildings
+         }
+         public CommanderAnt Crafter { get; private set; }
+         public bool Ruined { get; private set; }
++        public string WaitReason => Ruined || IsDead || !isActiveAndEnabled ? "도구: 제작대 사용 불가"
++            : jobs.Count == 0 ? "재료 또는 주문 대기" : Crafter != null ? "제작 중"
++            : !string.IsNullOrEmpty(jobs[0].makerId) ? "원제작자 대기 · 보관 또는 취소 가능" : "담당 없음";
+         public bool CanAssign(CommanderAnt c) => !Ruined && isActiveAndEnabled && !IsDead && Crafter == null && jobs.Count > 0
+-            && c != null && c.CanDoJob(CommanderJobs.Crafting) && c.CanChangeAllocation && !c.IsAwayFromHome && !c.IsDeployed && !c.IsWorking && !c.IsInCombat
++            && c != null && c.AllowsJob(CommanderJobs.Crafting) && (string.IsNullOrEmpty(jobs[0].makerId) || jobs[0].makerId == c.PersonalState.id)
++            && c.CanChangeAllocation && !c.IsAwayFromHome && !c.IsDeployed && !c.IsWorking && !c.IsInCombat
+             && (c.Agent == null || !c.Agent.hasPath && !c.Agent.pathPending)
+             && Vector3.Distance(c.Position, Position) <= GameBalance.WorkshopRadius;
+         public bool TryAssign(CommanderAnt c)
+@@ -74,28 +79,42 @@ namespace AntColony.Buildings
+                 || !ScienceEffects.BuildingUnlocked(BuildingKind.Workshop) || !EquipmentRecipes.Unlocked(recipe)
+                 || EquipmentInventory.Instance == null || EquipmentInventory.Instance.Full || ResourceManager.Instance == null) return false;
+             var cost = EquipmentRecipes.Cost(recipe);
+-            if (!ResourceManager.Instance.TrySpend(cost.x, cost.y, cost.z, reason: ResourceReason.Crafting)) return false;
++            var rm = ResourceManager.Instance;
++            if (rm.GetAmount(ResourceType.Food) < cost.x || rm.GetAmount(ResourceType.Soil) < cost.y || rm.GetAmount(ResourceType.Special) < cost.z) return false;
+             jobs.Add(new Job { recipe = recipe }); return true;
+         }
+         public bool Cancel(int index)
+         {
+             if (index < 0 || index >= jobs.Count || ResourceManager.Instance == null) return false;
+-            var job = jobs[index]; var cost = EquipmentRecipes.Cost(job.recipe); var fraction = job.work > 0 ? .5f : 1f;
+-            ResourceManager.Instance.Add(ResourceType.Food, Mathf.FloorToInt(cost.x * fraction), ResourceReason.Refund);
+-            ResourceManager.Instance.Add(ResourceType.Soil, Mathf.FloorToInt(cost.y * fraction), ResourceReason.Refund);
+-            ResourceManager.Instance.Add(ResourceType.Special, Mathf.FloorToInt(cost.z * fraction), ResourceReason.Refund);
+-            jobs.RemoveAt(index); if (jobs.Count == 0) Release(); return true;
++            var job = jobs[index]; var cost = EquipmentRecipes.Cost(job.recipe); var fraction = job.work > 0 ? .7f : 1f;
++            if (job.materialsPaid)
++            {
++                ResourceManager.Instance.Add(ResourceType.Food, Mathf.FloorToInt(cost.x * fraction), ResourceReason.Refund);
++                ResourceManager.Instance.Add(ResourceType.Soil, Mathf.FloorToInt(cost.y * fraction), ResourceReason.Refund);
++                ResourceManager.Instance.Add(ResourceType.Special, Mathf.FloorToInt(cost.z * fraction), ResourceReason.Refund);
++            }
++            jobs.RemoveAt(index); if (index == 0) Release(); return true;
+         }
+         private void Update() { if (Time.deltaTime > 0) Refill(); Tick(Time.deltaTime); } // 정지·협상 중(timeScale 0)에는 생산 목록도 예약하지 않는다.
+         public void Tick(float seconds)
+         {
+-            if (!(seconds > 0) || float.IsInfinity(seconds) || Ruined || IsDead || !isActiveAndEnabled || jobs.Count == 0 || Crafter == null) return;
+-            if (!Crafter.CivilianWorkReady || !Crafter.isActiveAndEnabled || Crafter.IsDead || Crafter.IsAwayFromHome || Crafter.IsEmbarked
++            if (!(seconds > 0) || float.IsInfinity(seconds)) return;
++            if (Ruined || IsDead || !isActiveAndEnabled || jobs.Count == 0) { Release(); return; }
++            if (Crafter == null) return;
++            if (!Crafter.CivilianWorkReady || !Crafter.AllowsJob(CommanderJobs.Crafting) || !Crafter.isActiveAndEnabled || Crafter.IsDead || Crafter.IsAwayFromHome || Crafter.IsEmbarked
+                 || Crafter.PersonalState.mentalBreak != MentalBreak.None || Vector3.Distance(Crafter.Position, Position) > GameBalance.WorkshopRadius)
+             { Release(); return; }
+             var inventory = EquipmentInventory.Instance;
+             if (inventory == null || inventory.Full) return;
+             var job = jobs[0];
++            if (!string.IsNullOrEmpty(job.makerId) && job.makerId != Crafter.PersonalState.id) { Release(); return; }
++            if (!job.materialsPaid)
++            {
++                var cost = EquipmentRecipes.Cost(job.recipe);
++                if (ResourceManager.Instance == null || !ResourceManager.Instance.TrySpend(cost.x, cost.y, cost.z, reason: ResourceReason.Crafting)) { Release(); return; }
++                job.materialsPaid = true;
++            }
++            job.makerId = Crafter.PersonalState.id;
+             float speed = Crafter.WorkRate(CommanderActivity.Crafting);
+             float elapsed = Mathf.Min(seconds, (GameBalance.CraftWork - job.work) / speed);
+             job.work = Mathf.Min(GameBalance.CraftWork, job.work + elapsed * speed);
+@@ -105,7 +124,7 @@ namespace AntColony.Buildings
+             if (!inventory.Add(item)) return;
+             jobs.RemoveAt(0);
+             AntColony.UI.ToastManager.Show("제작 완료: " + item.Label);
+-            if (jobs.Count == 0) Release();
++            Release();
+         }
+         protected override void OnDisable() { Release(); base.OnDisable(); }
+         protected override void Die()
+@@ -115,10 +134,12 @@ namespace AntColony.Buildings
+             var renderer = GetComponent<Renderer>(); if (renderer != null) renderer.material.color = Color.gray;
+         }
+         internal State CaptureState(List<CommanderAnt> commanders) => new State {
+-            jobs = jobs.ConvertAll(j => new Job { recipe = j.recipe, work = j.work }), orders = orders.ConvertAll(o => new Order { recipe = o.recipe, mode = o.mode, amount = o.amount }), crafter = commanders.IndexOf(Crafter), ruined = Ruined, paused = !enabled, inactive = !gameObject.activeSelf };
++            jobs = jobs.ConvertAll(j => new Job { recipe = j.recipe, work = j.work, makerId = j.makerId, materialsPaid = j.materialsPaid }), orders = orders.ConvertAll(o => new Order { recipe = o.recipe, mode = o.mode, amount = o.amount }), crafter = commanders.IndexOf(Crafter), ruined = Ruined, paused = !enabled, inactive = !gameObject.activeSelf };
+         internal void RestoreState(State state, List<CommanderAnt> commanders)
+         {
+-            Release(); jobs = state.jobs.ConvertAll(j => new Job { recipe = j.recipe, work = j.work });
++            Release(); jobs = state.jobs.ConvertAll(j => new Job { recipe = j.recipe, work = j.work, makerId = j.makerId, materialsPaid = state.materialVersion == 0 || j.materialsPaid });
++            if (jobs.Count > 0 && jobs[0].work > 0 && string.IsNullOrEmpty(jobs[0].makerId) && state.crafter >= 0)
++                jobs[0].makerId = commanders[state.crafter].PersonalState.id;
+             orders = (state.orders ?? new List<Order>()).ConvertAll(o => new Order { recipe = o.recipe, mode = o.mode, amount = o.amount });
+             Ruined = state.ruined; enabled = !state.paused && !Ruined;
+             if (Ruined) { var renderer = GetComponent<Renderer>(); if (renderer != null) renderer.material.color = Color.gray; }
+diff --git a/Assets/_Project/Scripts/Units/CommanderAge.cs b/Assets/_Project/Scripts/Units/CommanderAge.cs
+index 9758ccd..eed6b08 100644
+--- a/Assets/_Project/Scripts/Units/CommanderAge.cs
++++ b/Assets/_Project/Scripts/Units/CommanderAge.cs
+@@ -3,26 +3,43 @@ using UnityEngine;
+ 
+ namespace AntColony.Units
+ {
+-    // Phase 4(2026-10-01): 장수 나이(개월, 잠정). 어린 장수는 일·출전 없이 배우기만, 늙으면 몸은 약해지고 지혜는 는다,
+-    // 수명이 다하면 예고 없이 죽는다. ageMonths < 0 = 아직 안 정함(새 장수·이전 저장) → 첫 틱에 성체 나이로 정한다.
++    // 12개월=1세. 어린 장수는 첫 1년 동안 0→18세로 성장한다. 기대수명은 사망 기한이 아니다.
+     public partial class CommanderAnt
+     {
+         public float AgeMonths => personalState.ageMonths;
+-        public bool IsChild => personalState.ageMonths >= 0 && personalState.ageMonths < GameBalance.ChildMonths;
+-        public bool IsElder => personalState.ageMonths >= GameBalance.ElderMonths;
++        public bool IsChild => personalState.ageMonths >= 0 && personalState.ageMonths < AdultAgeMonths;
++        public bool IsElder => personalState.ageMonths >= ElderAgeMonths;
+         public string AgeLabel => personalState.ageMonths < 0 ? "—" : $"{Mathf.FloorToInt(personalState.ageMonths / 12f)}세";
+ 
+-        public void SetBorn() { personalState.ageMonths = 0; personalState.lifespanMonths = Random.Range(GameBalance.MinLifespan, GameBalance.MaxLifespan); }
+-
++        public const float AdultAgeMonths = 18 * 12, ElderAgeMonths = 65 * 12, ExpectedAgeMonths = 80 * 12;
++        public void SetBorn() { personalState.ageMonths = 0; personalState.ageScaleVersion = 1; personalState.lifespanMonths = ExpectedAgeMonths; }
++        internal static void MigrateAge(CommanderPersonalState state)
++        {
++            if (state.ageScaleVersion != 0) return;
++            if (state.ageMonths >= 12 && state.ageMonths <= 96)
++                state.ageMonths = Mathf.Lerp(AdultAgeMonths, ElderAgeMonths, (state.ageMonths - 12) / 84);
++            else if (state.ageMonths >= 0 && state.ageMonths < 12) state.ageMonths *= 18;
++            state.ageScaleVersion = 1; state.lifespanMonths = ExpectedAgeMonths;
++        }
++        public static float AgingChance(float years) => years < 65 ? 0 : Mathf.Clamp01(.02f + (years - 65) * .002f);
+         private void TickAge(float seconds)
+         {
+-            if (personalState.ageMonths < 0)
++            MigrateAge(personalState);
++            if (AgeMonths < 0) personalState.ageMonths = Random.Range(18 * 12f, 30 * 12f);
++            var previous = AgeMonths;
++            var months = seconds * 12 / GameCalendar.SecondsPerYear;
++            if (IsChild)
++            {
++                var childMonths = Mathf.Min(months, (AdultAgeMonths - previous) / 18);
++                personalState.ageMonths += childMonths * 18; months -= childMonths;
++            }
++            personalState.ageMonths += months;
++            for (int year = Mathf.Max(65, Mathf.FloorToInt(previous / 12) + 1); year <= Mathf.FloorToInt(AgeMonths / 12); year++)
+             {
+-                personalState.ageMonths = Random.Range(GameBalance.ChildMonths, 72f);
+-                personalState.lifespanMonths = Random.Range(GameBalance.MinLifespan, GameBalance.MaxLifespan);
++                if (MedicalRules.Roll() < AgingChance(year))
++                    Health.wounds.Add(new Wound { part = BodyPart.Thorax, kind = WoundKind.Scar, damage = MedicalRules.MaxHp(BodyPart.Thorax) * .1f, tended = true });
++                if (MedicalRules.Roll() < AgingChance(year)) traits.TryAdd(CommanderTrait.Senile);
+             }
+-            personalState.ageMonths += seconds / GameCalendar.SecondsPerMonth;
+-            if (personalState.ageMonths >= personalState.lifespanMonths && IsColonyMember && !IsCaptive && !IsEmbarked) { CommandStop(); DropCargo(); OnDowned("노환", true); }
+         }
+ 
+         private float AgeMoveMultiplier => IsElder ? .85f : 1f;
+diff --git a/Assets/_Project/Scripts/Units/CommanderCorpseWork.cs b/Assets/_Project/Scripts/Units/CommanderCorpseWork.cs
+index 0a415af..8c307f8 100644
+--- a/Assets/_Project/Scripts/Units/CommanderCorpseWork.cs
++++ b/Assets/_Project/Scripts/Units/CommanderCorpseWork.cs
+@@ -18,7 +18,7 @@ namespace AntColony.Units
+         public bool StartCorpseWork(Corpse corpse, bool eat = false)
+         {
+             if (!CivilianWorkReady || !CanReceiveOrders || LabUpgradeBusy || IsCarrying || IsConstructing || IsEating || IsPlaying || IsFoodPoisoned
+-                || corpse == null || !corpse.Available || corpse.Handler != null && corpse.Handler != this
++                || corpse == null || corpse.IsCommanderBody || !corpse.Available || corpse.Handler != null && corpse.Handler != this
+                 || eat && (!traits.Has(CommanderTrait.Cannibal) || !corpse.Edible)
+                 || !SameBattlefield(corpse.Position) || !TryWorkApproach(corpse.Position, out var approach)
+                 || (approach - corpse.Position).sqrMagnitude > 4) return false;
+diff --git a/Assets/_Project/Scripts/Units/CommanderHealthCare.cs b/Assets/_Project/Scripts/Units/CommanderHealthCare.cs
+index 72b2448..ec170b9 100644
+--- a/Assets/_Project/Scripts/Units/CommanderHealthCare.cs
++++ b/Assets/_Project/Scripts/Units/CommanderHealthCare.cs
+@@ -187,7 +187,7 @@ namespace AntColony.Units
+             switch (medJob)
+             {
+                 case MedJob.Tend:
+-                    if (medWork < MedicalRules.TendSeconds) return true;
++                    if (medWork < MedicalRules.TendSeconds * (p == this ? 2 : 1)) return true;
+                     var h = p.Health; var rm = ResourceManager.Instance;
+                     var tier = MedicalRules.BestMedicine(h.medicine, FreeMedicine);
+                     var quality = MedicalRules.TendQuality(talents.Level(CommanderActivity.Medicine), tier, p.TreatmentFacility != null, Health.Manipulation, p == this);
+diff --git a/Assets/_Project/Scripts/Units/CommanderPersonal.cs b/Assets/_Project/Scripts/Units/CommanderPersonal.cs
+index 3705836..def667a 100644
+--- a/Assets/_Project/Scripts/Units/CommanderPersonal.cs
++++ b/Assets/_Project/Scripts/Units/CommanderPersonal.cs
+@@ -40,7 +40,11 @@ namespace AntColony.Units
+                 // 장식 효과는 생활 공간 미관(TickSpace)에 포함된다(2026-10-10: 미관은 실제 생활 공간 기준, 지나가기만 해서는 바뀌지 않음).
+                 var value = 60f + traits.BaseMood + (HasNearbyFriend ? 3 : 0) + TrinketBonus(TrinketEffect.Mood);
+                 value += GameBalanceNeeds.ExpectationMood(personalState.expectationTier);
+-                foreach (var f in personalState.moodFactors) value += f.value < 0 ? f.value * traits.NegativeMoodMultiplier : f.value;
++                float deathMood = 0;
++                foreach (var f in personalState.moodFactors)
++                    if (f.reason.StartsWith("DeathEvent:") || f.reason.StartsWith("Death: ")) deathMood += f.value;
++                    else value += f.value < 0 ? f.value * traits.NegativeMoodMultiplier : f.value;
++                value += Mathf.Max(-40, deathMood);
+                 if (IsWorking || LabUpgradeBusy) value += 3 * traits.Flame(CurrentActivity);
+                 if (personalState.treating) value -= 5;
+                 if (HasRivalFaction) value -= 3;
+@@ -59,6 +63,7 @@ namespace AntColony.Units
+             CraftingWorkshop?.Release();
+             personalState = value == null ? new CommanderPersonalState() : JsonUtility.FromJson<CommanderPersonalState>(JsonUtility.ToJson(value));
+             personalState.treating = false; // Building restoration reconnects the patient after commanders load.
++            MigrateAge(personalState);
+             personalState.health ??= new HealthState(); MedicalRules.Migrate(personalState); // 옛 6부위 부상·곰팡이 → 부위별 건강(2026-10-15)
+             RefreshEquipment();
+         }
+@@ -223,7 +228,7 @@ namespace AntColony.Units
+             NotifyDowned(fatal, cause);
+             foreach (var c in CommanderRoster.Instance != null ? CommanderRoster.Instance.Commanders : Active.OfType<CommanderAnt>().ToArray())
+             {
+-                if (c == this || c.IsDead || c.Traits.Has(CommanderTrait.ColdBlooded)) continue;
++                if (fatal || c == this || c.IsDead || c.Traits.Has(CommanderTrait.ColdBlooded)) continue;
+                 var relation = c.PersonalState.relations.Find(r => r.otherId == personalState.id);
+                 var friend = relation != null && relation.value >= 40;
+                 if (fatal || (c.Position - Position).sqrMagnitude <= 144)
+diff --git a/Assets/_Project/Scripts/Units/CommanderPersonalState.cs b/Assets/_Project/Scripts/Units/CommanderPersonalState.cs
+index 84fc069..bdc14e5 100644
+--- a/Assets/_Project/Scripts/Units/CommanderPersonalState.cs
++++ b/Assets/_Project/Scripts/Units/CommanderPersonalState.cs
+@@ -11,7 +11,7 @@ namespace AntColony.Units
+     public enum MentalBreak { None, Idle, Flee, AttackBuilding, AttackCommander, SelfHarm, Binge, Wander }
+     [Serializable] public class CommanderInjury { public InjuryPart part; public InjurySeverity severity; public float remaining; public bool regenerating, prognosisPending; }
+     [Serializable] public class MoodFactor { public string reason; public float value, remaining; }
+-    [Serializable] public class CommanderRelation { public string otherId; public float value, nearbySeconds, quarrelSeconds, duelSeconds, memorialCooldown; public bool spouse, family; }
++    [Serializable] public class CommanderRelation { public string otherId; public float value, nearbySeconds, quarrelSeconds, duelSeconds, memorialCooldown; public bool spouse, family; public int lastComfortDay = -1; }
+     [Serializable]
+     public class CommanderPersonalState
+     {
+@@ -30,6 +30,8 @@ namespace AntColony.Units
+         public float craftProgress, researchProgress;
+         public float beautyExposure; // 생활 공간 미관의 체류 평균(2026-10-10)
+         public float ageMonths = -1, lifespanMonths; // Phase 4 나이(개월)
++        public int ageScaleVersion;
++        public List<string> deathEvents = new List<string>();
+         public int craftLevel, researchLevel;
+         public int expectationTier; // 저재산 0 / 정착지급 1 / 산업급 2
+         public MentalBreak mentalBreak;
+@@ -83,6 +85,9 @@ namespace AntColony.Units
+         public bool Validate(out string error)
+         {
+             error = "Invalid commander personal state";
++            deathEvents ??= new List<string>();
++            if (ageScaleVersion < 0 || ageScaleVersion > 1 || !Finite(ageMonths) || ageMonths < -1
++                || deathEvents.Exists(string.IsNullOrEmpty) || new HashSet<string>(deathEvents).Count != deathEvents.Count) return false;
+             if (expectationTier < 0 || expectationTier > 2 || toolTier < 0 || toolTier > 2 || carriedRations != null && !carriedRations.Valid
+                 || groundCraft != null && !groundCraft.Valid) return false;
+             if (work == null || !work.Valid || string.IsNullOrEmpty(id) || social == null || !social.Validate() || sleep == null || !sleep.Valid || meal == null || !meal.Valid || joy == null || !joy.Valid || hygiene == null || !hygiene.Valid || health == null || health.wounds == null || health.illnesses == null || health.surgeries == null
+diff --git a/Assets/_Project/Scripts/Units/CommanderSocial.cs b/Assets/_Project/Scripts/Units/CommanderSocial.cs
+index 7b9b568..fa83b17 100644
+--- a/Assets/_Project/Scripts/Units/CommanderSocial.cs
++++ b/Assets/_Project/Scripts/Units/CommanderSocial.cs
+@@ -61,25 +61,22 @@ namespace AntColony.Units
+                 c.FriendDied(victimId, victimName, true);
+             }
+         }
+-        private void FriendDied(string id, string victimName, bool preventable)
++        private void FriendDied(string id, string victimName, bool preventable) => RecordDeathMood(id, victimName);
++        internal bool RecordDeathMood(string id, string victimName)
+         {
++            personalState.deathEvents ??= new System.Collections.Generic.List<string>();
++            if (personalState.deathEvents.Contains(id)) return false;
++            personalState.deathEvents.Add(id);
+             var relation = personalState.relations.Find(r => r.otherId == id);
+-            if (relation == null || relation.value < SocialRules.Friend) return;
+-            if (!traits.Has(CommanderTrait.ColdBlooded))
+-            {
+-                var loss = relation.spouse ? 10f : 5f;
+-                if (preventable) loss *= 2;
+-                if (traits.Has(CommanderTrait.Loyal)) loss *= .5f;
+-                MoodEvent("친구 사망: " + victimName, -Mathf.RoundToInt(loss));
+-            }
+-            if (Random.value < .3f) ShiftEventTrait(CommanderTrait.Depressive, false);
++            personalState.AddMood("DeathEvent:" + id, relation?.spouse == true ? -30 : relation?.value >= SocialRules.Friend ? -15 : -10, GameCalendar.SecondsPerDay * 2);
++            return true;
+         }
+         public void NotifyDowned(bool fatal, string cause)
+         {
+             foreach (var c in SocialRoster.Where(c => c != this && c.IsColonyMember))
+             {
+-                if (fatal) c.FriendDied(personalState.id, commanderName, cause == "처형" || cause == "방치");
+-                if (c.IsFriend(this)) c.StartRevenge();
++                if (fatal && !c.RecordDeathMood(personalState.id, commanderName)) continue;
++                if (c.IsFriend(this)) c.StartRevenge(fatal);
+             }
+         }
+         public void OnCaptured()
+@@ -110,11 +107,13 @@ namespace AntColony.Units
+                 ChangeEventTrait(CommanderTrait.ColdBlooded, CommanderTrait.Sociable);
+             personalState.captiveSeconds = personalState.unsupportedSeconds = 0;
+         }
+-        private void StartRevenge()
++        private void StartRevenge(bool additionalDeath = false)
+         {
+             if (!isActiveAndEnabled || IsCaptive || IsEmbarked || IsDeparting || !HasTroops) return;
+             InterruptPersonalWork();
+-            personalState.rageRemaining = traits.Has(CommanderTrait.Reckless) ? 120 : 60;
++            personalState.rageRemaining = personalState.rageRemaining > 0
++                ? Mathf.Min(120, personalState.rageRemaining + (additionalDeath ? 20 : 0))
++                : traits.Has(CommanderTrait.Reckless) ? 120 : 60;
+             ToastManager.Show(commanderName + ": 친구를 위한 복수");
+         }
+         private void TickRevenge(float seconds)
+diff --git a/Assets/_Project/Scripts/Units/CommanderTalents.cs b/Assets/_Project/Scripts/Units/CommanderTalents.cs
+index eb41b4d..686017f 100644
+--- a/Assets/_Project/Scripts/Units/CommanderTalents.cs
++++ b/Assets/_Project/Scripts/Units/CommanderTalents.cs
+@@ -1,4 +1,5 @@
+ using System;
++using System.Collections.Generic;
+ using UnityEngine;
+ 
+ namespace AntColony.Units
+@@ -12,7 +13,9 @@ namespace AntColony.Units
+     {
+         public const int Count = 16, MaxLevel = 20, MaxPotential = 200;
+         // ponytail: 성장·감소 잠정 수치(기획 미정). 최근 이력 길이(작업량 단위)·감소 시작 표본·최소 유지 비중·작업량당 감소 경험치.
+-        public const float UsageWindow = 600f, MinUsageSample = 300f, MinUsageShare = .05f, DecayPerWork = .05f, MainShare = .8f;
++        public const float UsageWindow = 1800f, MinUsageSample = 600f, MinUsageShare = .01f, DecayPerWork = .1f / 600f, MainShare = .8f;
++        [Serializable] public sealed class Use { public int main, support = -1; public float seconds; }
++        public List<Use> recentWork = new List<Use>();
+         public int[] levels = new int[Count];
+         public float[] experience = new float[Count];
+         public float combatSeconds;
+@@ -56,18 +59,13 @@ namespace AntColony.Units
+             EnsurePotential();
+             var support = topic == main ? null : topic ?? Support(main); // topic == main: 보조 없음(약제대 생산 — 의료만, 2026-10-11)
+             float mainShare = support == null ? 1f : MainShare;
+-            float keep = Mathf.Exp(-work / UsageWindow), total = 0;
+-            for (int i = 0; i < Count; i++) { usage[i] *= keep; }
+-            usage[(int)main] += work * mainShare;
+-            if (support != null) usage[(int)support.Value] += work * (1f - mainShare);
+-            foreach (var u in usage) total += u;
++            float total = RecordUse(main, support, work);
+             // 최근 활용이 부족한 기술 전체에 감소를 나눈다(한 기술에 몰지 않음, 0 아래로 안 내려감).
+             if (total >= MinUsageSample)
+             {
+-                int candidates = 0;
+-                for (int i = 0; i < Count; i++) if (usage[i] / total < MinUsageShare && Value(i) > 0) candidates++;
+-                if (candidates > 0)
+-                    for (int i = 0; i < Count; i++) if (usage[i] / total < MinUsageShare && Value(i) > 0) Remove(i, work * DecayPerWork / candidates);
++                for (int i = 0; i < Count; i++)
++                    if (usage[i] / total < MinUsageShare && Value(i) > 10)
++                        SetValue(i, Mathf.Max(10, Value(i) - work * DecayPerWork));
+             }
+             // 주·보조를 함께 성장시킨 뒤 CA가 PA를 넘으면 넘친 만큼 두 성장분에서 비율대로 되돌린다(주 능력이 여유를 독점하지 않음, 내릴 후보가 없으면 정체).
+             int m = (int)main, s = support.HasValue ? (int)support.Value : -1;
+@@ -82,6 +80,31 @@ namespace AntColony.Units
+             SetValue(m, Value(m) - cut * gainMain / gain);
+             if (s >= 0) SetValue(s, Value(s) - cut * gainSupport / gain);
+         }
++        private float RecordUse(CommanderActivity main, CommanderActivity? support, float work)
++        {
++            recentWork ??= new List<Use>();
++            int m = (int)main, s = support.HasValue ? (int)support.Value : -1;
++            var last = recentWork.Count > 0 ? recentWork[recentWork.Count - 1] : null;
++            if (last != null && last.main == m && last.support == s) last.seconds += work;
++            else recentWork.Add(new Use { main = m, support = s, seconds = work });
++            float total = 0; foreach (var use in recentWork) total += use.seconds;
++            float excess = Mathf.Max(0, total - UsageWindow);
++            while (excess > 0 && recentWork.Count > 0)
++            {
++                var use = recentWork[0]; var cut = Mathf.Min(excess, use.seconds);
++                use.seconds -= cut; excess -= cut;
++                if (use.seconds <= 0) recentWork.RemoveAt(0);
++            }
++            Array.Clear(usage, 0, Count);
++            total = 0;
++            foreach (var use in recentWork)
++            {
++                total += use.seconds;
++                usage[use.main] += use.seconds * (use.support < 0 ? 1 : MainShare);
++                if (use.support >= 0) usage[use.support] += use.seconds * (1 - MainShare);
++            }
++            return total;
++        }
+         private void Remove(int i, float xp)
+         {
+             if (levels[i] >= MaxLevel) { levels[i] = MaxLevel - 1; experience[i] = Required(levels[i]); }
+@@ -107,7 +130,7 @@ namespace AntColony.Units
+         public void Generate(CommanderTraits traits, CommanderTalents first = null, CommanderTalents second = null)
+         {
+             // 씬·프리팹에 직렬화된 기술표는 옛 길이(13)일 수 있어 새로 만든다.
+-            levels = new int[Count]; experience = new float[Count]; usage = new float[Count]; combatSeconds = 0; potential = 0;
++            levels = new int[Count]; experience = new float[Count]; usage = new float[Count]; recentWork = new List<Use>(); combatSeconds = 0; potential = 0;
+             if (first != null && second != null)
+             {
+                 for (int i = 0; i < Count; i++) levels[i] = Mathf.Clamp(Mathf.RoundToInt((first.levels[i] + second.levels[i]) * .25f) + UnityEngine.Random.Range(0, 4), 0, MaxLevel);
+@@ -128,6 +151,10 @@ namespace AntColony.Units
+         public CommanderTalents Copy() => JsonUtility.FromJson<CommanderTalents>(JsonUtility.ToJson(this));
+         public bool Validate()
+         {
++            recentWork ??= new List<Use>();
++            foreach (var use in recentWork)
++                if (use == null || use.main < 0 || use.main >= Count || use.support < -1 || use.support >= Count
++                    || !(use.seconds > 0) || float.IsInfinity(use.seconds)) return false;
+             if (levels?.Length == 15 && experience?.Length == 15) { Array.Resize(ref levels, Count); Array.Resize(ref experience, Count); }
+             if (usage?.Length == 15) Array.Resize(ref usage, Count);
+             if (usage == null || usage.Length != Count) usage = new float[Count]; // 이전 저장에는 활용 이력이 없다.
+diff --git a/Assets/_Project/Scripts/Units/CommanderWork.cs b/Assets/_Project/Scripts/Units/CommanderWork.cs
+index 3e5b148..5974f07 100644
+--- a/Assets/_Project/Scripts/Units/CommanderWork.cs
++++ b/Assets/_Project/Scripts/Units/CommanderWork.cs
+@@ -64,7 +64,7 @@ namespace AntColony.Units
+             var firefighting = job == CommanderJobs.Firefighting;
+             if ((!firefighting && !CivilianWorkReady || firefighting && (IsDead || IsAwayFromHome || IsAsleep || IsCaptive || PersonalState.health.Downed)) || !CanReceiveOrders || IsWorking || LabUpgradeBusy || !CanDoJob(job)
+                 || Active.OfType<CommanderAnt>().Any(c => c != this && c.ServiceTarget == target)
+-                || target == null || target.IsDead || !target.isActiveAndEnabled || !target.CountsTowardPlayerDefeat
++                || target == null || target.IsDead || !target.isActiveAndEnabled || !target.CountsTowardPlayerDefeat || target is Processor processor && !processor.CanContinue(this)
+                 || job != CommanderJobs.Nursing && job != CommanderJobs.Repair && job != CommanderJobs.Cooking && !(firefighting && target.GetComponent<WallFire>()?.Burning == true) && !(job == CommanderJobs.Hauling && target is PowerNode) && !(job == CommanderJobs.Administration && target is AdminDesk) && !(job == CommanderJobs.Crafting && target is Processor)
+                 || !TryWorkApproach(target.Position, out var approach)) return false;
+             CommandStop(); ServiceTarget = target; ServiceJob = job;
+diff --git a/Assets/_Project/Scripts/Units/WorkerAnt.cs b/Assets/_Project/Scripts/Units/WorkerAnt.cs
+index ef6d80b..e50f1f1 100644
+--- a/Assets/_Project/Scripts/Units/WorkerAnt.cs
++++ b/Assets/_Project/Scripts/Units/WorkerAnt.cs
+@@ -32,6 +32,7 @@ namespace AntColony.Units
+         private StoreBin targetBin; // 본거지 반납 목적지 칸(2026-10-12). 원정 화물선 반납은 null.
+         private IMaterialSink deliverySite; private StoreBin fetchBin; private ResourceType fetchType; private int fetchAmount;
+         public IMaterialSink DeliverySite => deliverySite;
++        private bool DeliveryExists => deliverySite != null && (!(deliverySite is Object component) || component != null);
+         private float carriedAmount;
+         private FoodLots carriedLots = new FoodLots(); // 들고 있는 식품의 신선도(2026-10-12)
+         private AntColony.Data.ResourceType carriedType;
+@@ -115,7 +116,8 @@ namespace AntColony.Units
+         private void ReleaseDestination()
+         {
+             targetBin = null; ResourceManager.Instance?.Reserve(this, null, default, 0);
+-            if (deliverySite != null) { deliverySite.AbortPickup(this); deliverySite = null; }
++            if (DeliveryExists) deliverySite.AbortPickup(this);
++            deliverySite = null;
+         }
+ 
+         // 건설 재료 배송(2026-10-12): 예약된 재료가 있는 창고에 가서 집고 예정지에 가져다 놓는다. 운반 장수와 건설 장수 모두 한다.
+@@ -142,7 +144,7 @@ namespace AntColony.Units
+         private bool NearDestination => !IsFlying && Agent.enabled && Agent.isOnNavMesh && !Agent.pathPending && Agent.remainingDistance <= .5f;
+         private void TickFetching()
+         {
+-            if (deliverySite == null || deliverySite.Paused) { ReleaseDestination(); StopMoving(); state = State.Idle; return; }
++            if (!DeliveryExists || deliverySite.Paused) { CommandStop(); return; }
+             if (!HasReachedDestination() && !NearDestination) return;
+             FoodLots lots = null; var taken = ResourceManager.Instance != null ? ResourceManager.Instance.TakeFrom(fetchBin, fetchType, fetchAmount, out lots) : 0;
+             if (taken <= 0) { ReleaseDestination(); state = State.Idle; return; } // 그새 다른 소비로 비었다 → 다음 판단에서 다시 예약
+@@ -153,7 +155,7 @@ namespace AntColony.Units
+         }
+         private void TickDelivering()
+         {
+-            if (deliverySite == null) { state = State.Idle; if (IsCarrying) BeginReturnIfNeeded(); return; } // 예정지가 사라지면 짐은 창고로
++            if (!DeliveryExists || deliverySite.Paused) { ReleaseDestination(); state = State.Idle; if (IsCarrying) BeginReturnIfNeeded(); return; } // 예정지가 사라지면 짐은 창고로
+             if (!HasReachedDestination() && !NearDestination) return;
+             var given = deliverySite.Deliver(this, carriedType, Mathf.FloorToInt(carriedAmount + .001f));
+             carriedAmount = Mathf.Max(0, carriedAmount - given); deliverySite = null;
+@@ -252,11 +254,13 @@ namespace AntColony.Units
+         // 병력이 0이 된 장수가 계속 채집·건설 tick을 도는 것을 막는 단일 지점이다.
+         public override void CommandStop()
+         {
++            var previousSite = targetConstruction ?? deliverySite as BuildingConstructionSite;
+             targetConstruction = null; // 예정지·진행도는 남겨 다른 장수(또는 복귀 후 본인)가 이어 짓는다.
+             ReleaseDestination();
+             targetNode = null;
+             state = State.Idle;
+             base.CommandStop();
++            previousSite?.ReleaseUnusedReservations();
+         }
+ 
+         internal void SuspendWork()
+@@ -390,13 +394,7 @@ namespace AntColony.Units
+             // 일시적인 경로 차단으로 이미 지불한 건설현장을 없애지 않는다.
+             if (!IsFlying && !Agent.pathPending && Agent.pathStatus != NavMeshPathStatus.PathComplete)
+             {
+-                buildTimer -= Time.deltaTime;
+-                if (buildTimer <= 0f)
+-                {
+-                    SetMoveDestination(targetConstruction.Position);
+-                    buildTimer = 0.5f;
+-                }
+-                return;
++                CommandStop(); return;
+             }
+ 
+             if (HasReachedDestination()) state = State.Building;
+@@ -426,7 +424,9 @@ namespace AntColony.Units
+ 
+         protected override void OnDisable()
+         {
++            var previousSite = targetConstruction ?? deliverySite as BuildingConstructionSite;
+             targetConstruction = null; ReleaseDestination();
++            previousSite?.ReleaseUnusedReservations();
+             base.OnDisable();
+         }
+ 
+diff --git a/Assets/_Project/Scripts/World/Corpse.cs b/Assets/_Project/Scripts/World/Corpse.cs
+index 3e7d10e..d7645ec 100644
+--- a/Assets/_Project/Scripts/World/Corpse.cs
++++ b/Assets/_Project/Scripts/World/Corpse.cs
+@@ -33,8 +33,8 @@ namespace AntColony.World
+         public Vector3 Position => transform.position;
+         public bool Available => isActiveAndEnabled && Data.count > 0 && (Data.remaining > 0 || IsCommanderBody);
+         // 장수 시신은 식량으로 쓰지 않는다(2026-10-13 기획: 시신의 식량·재료 사용 없음).
+-        public bool Edible => Available && Data.kind != CorpseKind.Wildlife && Data.kind != CorpseKind.ColonyCommander;
+-        public bool IsCommanderBody => Data.kind == CorpseKind.ColonyCommander && !string.IsNullOrEmpty(Data.commanderId);
++        public bool Edible => Available && Data.kind != CorpseKind.Wildlife && !IsCommanderBody;
++        public bool IsCommanderBody => (Data.kind == CorpseKind.ColonyCommander || Data.kind == CorpseKind.EnemyCommander);
+         public bool Remains => IsCommanderBody && Data.remaining <= 0;
+         public bool Priority { get => Data.priority; set => Data.priority = value; }
+         private void OnEnable() => All.Add(this);
+diff --git a/Assets/_Project/Scripts/World/Memorial.cs b/Assets/_Project/Scripts/World/Memorial.cs
+index 3e6e076..8b14255 100644
+--- a/Assets/_Project/Scripts/World/Memorial.cs
++++ b/Assets/_Project/Scripts/World/Memorial.cs
+@@ -25,10 +25,10 @@ namespace AntColony.World
+             state.deaths.Add(new Record { id = c.PersonalState.id, name = c.CommanderName, cause = cause, date = GameCalendar.GameSeconds });
+         }
+ 
+-        // ponytail: 추모 위로·목격 기분·쿨다운 수치는 기획 미정 잠정값.
+-        public const float ComfortSeconds = 180f, ComfortCooldown = 600f, MourningRadius = 4f, SightRadius = 8f;
+-        public static float ComfortValue(CommanderRelation r) => r == null ? 1 : r.spouse ? 6 : r.family || r.value >= 60 ? 5 : r.value >= 40 ? 3 : r.value > 0 ? 1 : 0;
+-        public static float UnburiedMood(CommanderRelation r) => r == null ? -2 : r.spouse ? -10 : r.family || r.value >= 40 ? -6 : -2;
++        // 같은 고인의 위로는 달력상 하루 한 번만 받는다.
++        public const float ComfortSeconds = GameCalendar.SecondsPerDay, ComfortCooldown = GameCalendar.SecondsPerDay, MourningRadius = 4f, SightRadius = 8f;
++        public static float ComfortValue(CommanderRelation r) => 3;
++        public static float UnburiedMood(CommanderRelation r) => -3;
+ 
+         // 장수 1명의 주기 판정(CommanderAnt.TickSocial 등에서 1초마다 부른다): 지나가며 추모, 미안치 시신 목격.
+         public static void Tick(CommanderAnt c, float dt)
+@@ -43,26 +43,27 @@ namespace AntColony.World
+             CommanderRelation worst = null; string seen = null;
+             foreach (var body in Corpse.All)
+             {
+-                if (body.Data.kind != CorpseKind.ColonyCommander || string.IsNullOrEmpty(body.Data.commanderId) || (body.Position - c.Position).sqrMagnitude > SightRadius * SightRadius) continue;
++                if (!body.IsCommanderBody || (body.Position - c.Position).sqrMagnitude > SightRadius * SightRadius) continue;
+                 var r = c.PersonalState.relations.Find(x => x.otherId == body.Data.commanderId);
+                 if (seen == null || UnburiedMood(r) < UnburiedMood(worst)) { worst = r; seen = body.Data.name; }
+             }
+-            if (seen != null && !c.Traits.Has(CommanderTrait.ColdBlooded)) c.PersonalState.AddMood("미안치 시신 목격", UnburiedMood(worst), 60);
++            if (seen != null && !c.PersonalState.moodFactors.Any(f => f.reason == "미안치 시신 목격"))
++                c.PersonalState.AddMood("미안치 시신 목격", -3, GameCalendar.SecondsPerDay);
+         }
+         // 같은 고인에 대한 위로는 쿨다운 동안 다시 받지 않는다(지속시간 갱신으로 영구화 방지).
+         public static bool Comfort(CommanderAnt c, Tombstone tomb)
+         {
+             var r = c.PersonalState.relations.Find(x => x.otherId == tomb.Data2.deceasedId);
+             var value = ComfortValue(r);
+-            if (value <= 0 || r != null && r.memorialCooldown > 0) return false;
++            if (tomb.Empty || r != null && r.lastComfortDay == GameCalendar.Day) return false;
+             if (r == null) { r = c.PersonalState.Relation(tomb.Data2.deceasedId); }
+-            r.memorialCooldown = ComfortCooldown;
+-            c.PersonalState.AddMood("추모: " + tomb.Data2.name, value, ComfortSeconds);
++            r.memorialCooldown = ComfortCooldown; r.lastComfortDay = GameCalendar.Day;
++            c.PersonalState.AddMood("추모: " + tomb.Data2.deceasedId, value, ComfortSeconds);
+             return true;
+         }
+         // 친한 장수의 여가 방문 대상(관계 40 이상, 쿨다운 끝남).
+         public static Tombstone VisitTarget(CommanderAnt c) => Tombstone.All.Where(t => t.Data2.deceasedId != "" && t.isActiveAndEnabled
+-            && c.PersonalState.relations.Any(r => r.otherId == t.Data2.deceasedId && (r.value >= 40 || r.spouse || r.family) && r.memorialCooldown <= 0))
++            && c.PersonalState.relations.Any(r => r.otherId == t.Data2.deceasedId && (r.value >= 40 || r.spouse || r.family) && r.lastComfortDay != GameCalendar.Day))
+             .OrderBy(t => (t.Position - c.Position).sqrMagnitude).FirstOrDefault();
+     }
+ }

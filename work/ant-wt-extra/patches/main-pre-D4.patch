@@ -1,0 +1,114 @@
+diff --git a/AgentScripts/FishingChecks.cs b/AgentScripts/FishingChecks.cs
+index daf5531..8083b87 100644
+--- a/AgentScripts/FishingChecks.cs
++++ b/AgentScripts/FishingChecks.cs
+@@ -93,7 +93,7 @@ namespace AntColony.Regression
+                 worker.CommandGather(spot);
+                 // 낚시는 20초마다 한 번 잡고(Food 6 × 낚시 배율) 창고에 반납한다.
+                 // 한 짐 운반량이 커져(2026-09-28 근력 규칙) 다 찰 때까지 기다리지 않고 첫 어획 뒤 바로 반납시킨다.
+-                await Until(() => spot.AmountRemaining < fishAmount, 120000, $"catch (state {typeof(WorkerAnt).GetField("state", BindingFlags.Instance | BindingFlags.NonPublic).GetValue(worker)}, target {(Get(worker, "targetNode") as ResourceNode)?.name}, dist {Vector3.Distance(worker.Position, spot.transform.position):0.0}, fishing {gm.FishingUnlocked}, canGather {spot.CanGather})");
++                await Until(() => spot.AmountRemaining < fishAmount, 120000, $"catch (state {typeof(WorkerAnt).GetField("state", BindingFlags.Instance | BindingFlags.NonPublic).GetValue(worker)}, target {(Get(worker, "targetNode") as ResourceNode)?.name}, dist {Vector3.Distance(worker.Position, spot.transform.position):0.0}, fishing {gm.FishingUnlocked}, canGather {spot.CanGather}, agent {DescribeAgent(worker)})");
+                 typeof(WorkerAnt).GetMethod("ReturnCargoToStorage", BindingFlags.Instance | BindingFlags.NonPublic).Invoke(worker, null);
+                 await Until(() => rm.GetAmount(ResourceType.Food) > food, 60000, "deposit (stockpile " + (Object.FindAnyObjectByType<Stockpile>() != null) + ")");
+                 Assert(spot.AmountRemaining < fishAmount, "real shoreline harvest and deposit");
+@@ -131,6 +131,12 @@ namespace AntColony.Regression
+         }
+         static object Get(object value, string field) => Field(value, field).GetValue(value);
+         static void Set(object value, string field, object data) => Field(value, field).SetValue(value, data);
++        static string DescribeAgent(Component unit)
++        {
++            var a = unit.GetComponent<UnityEngine.AI.NavMeshAgent>();
++            if (a == null) return "none";
++            return $"on {a.isOnNavMesh} stopped {(a.isOnNavMesh && a.isStopped)} path {a.pathStatus} pending {a.pathPending} rem {(a.isOnNavMesh ? a.remainingDistance : -1):0.0} vel {a.velocity.magnitude:0.00} dest {a.destination} pos {unit.transform.position} ts {Time.timeScale}";
++        }
+         static void Assert(bool ok, string message) { if (!ok) throw new Exception("FAIL: " + message); }
+         static async Task Until(Func<bool> check, int milliseconds, string label = "")
+         {
+diff --git a/AgentScripts/SettlementDefenseChecks.cs b/AgentScripts/SettlementDefenseChecks.cs
+index db491f6..1259980 100644
+--- a/AgentScripts/SettlementDefenseChecks.cs
++++ b/AgentScripts/SettlementDefenseChecks.cs
+@@ -111,7 +111,7 @@ public static class SettlementDefenseChecks
+         Check(defense.Remaining == before, "invalid time has no effect");
+         defense.Tick(1);
+         Check(!defense.UnderAttack, "raid waits for faction schedule");
+-        Check(defense.TryStartRaid(site.Difficulty, foe.id) && defense.Attackers.Count == site.Difficulty && !defense.TryStartRaid(), "faction wave and no overlap");
++        Check(defense.TryStartRaid(site.Difficulty, foe.id) && defense.Attackers.Count == site.Difficulty && !defense.TryStartRaid(), $"faction wave and no overlap (suppress {AntColony.Core.RocketCampaign.SuppressNewCrises} war {foe.war} extinct {foe.extinct} template {site.GuardTemplate != null} nav {UnityEngine.AI.NavMesh.SamplePosition(site.transform.position + Vector3.forward * 28, out _, 4, UnityEngine.AI.NavMesh.AllAreas)} attackers {defense.Attackers.Count}/{site.Difficulty})");
+         foreach (var enemy in defense.Attackers)
+         {
+             Set(enemy, "attackDamage", 1f);
+@@ -206,7 +206,7 @@ public static class SettlementDefenseChecks
+         Set(ui, "selectedSite", site);
+         await Task.Delay(100);
+         Canvas.ForceUpdateCanvases();
+-        var label = ui.PanelRect.Find("SettlementDefenseStatus").GetComponent<UnityEngine.UI.Text>();
++        var label = ui.PanelRect.GetComponentsInChildren<Transform>(true).First(t => t.name == "SettlementDefenseStatus").GetComponent<UnityEngine.UI.Text>();
+         Check(label.text.Contains("Defense ready"), "defense state visible in panel");
+         var corners = new Vector3[4]; ((RectTransform)label.transform).GetWorldCorners(corners);
+         Check(corners.All(c => ui.PanelRect.rect.Contains(ui.PanelRect.InverseTransformPoint(c))), "defense label within panel");
+diff --git a/AgentScripts/TransportRouteChecks.cs b/AgentScripts/TransportRouteChecks.cs
+index 194bbce..bc3f4f3 100644
+--- a/AgentScripts/TransportRouteChecks.cs
++++ b/AgentScripts/TransportRouteChecks.cs
+@@ -88,8 +88,8 @@ public static class TransportRouteChecks
+         var ui = Object.FindAnyObjectByType<AntColony.UI.WorldMapPanel>();
+         if (!ui.IsOpen) ui.Toggle();
+         Set(ui, "selectedShip", ship); Set(ui, "selectedSite", site);
+-        var start = ui.PanelRect.Find("WorldMap/Start Auto").GetComponent<UnityEngine.UI.Button>();
+-        var stop = ui.PanelRect.Find("WorldMap/Stop Auto").GetComponent<UnityEngine.UI.Button>();
++        var start = ui.PanelRect.GetComponentsInChildren<Transform>(true).First(t => t.name == "WorldMap").Find("Start Auto").GetComponent<UnityEngine.UI.Button>();
++        var stop = ui.PanelRect.GetComponentsInChildren<Transform>(true).First(t => t.name == "WorldMap").Find("Stop Auto").GetComponent<UnityEngine.UI.Button>();
+         start.onClick.Invoke();
+         Check(ship.Route.IsRunning && ship.Route.Destination == site, "UI starts chosen route");
+         ship.Route.Tick(float.NaN); ship.Route.Tick(float.PositiveInfinity); ship.Route.Tick(-1);
+diff --git a/AgentScripts/WorldMapChecks.cs b/AgentScripts/WorldMapChecks.cs
+index 8c82465..30f9851 100644
+--- a/AgentScripts/WorldMapChecks.cs
++++ b/AgentScripts/WorldMapChecks.cs
+@@ -258,8 +258,8 @@ public static class WorldMapChecks
+         if (!conquestUi.IsOpen) conquestUi.Toggle();
+         Set(conquestUi, "selectedSite", world.Sites.First(s => s.Kind == ExpeditionSiteKind.Settlement));
+         await Task.Delay(100);
+-        var annex = conquestUi.PanelRect.Find("Annex").GetComponent<UnityEngine.UI.Button>();
+-        var abandon = conquestUi.PanelRect.Find("Abandon").GetComponent<UnityEngine.UI.Button>();
++        var annex = conquestUi.PanelRect.GetComponentsInChildren<Transform>(true).First(t => t.name == "Annex").GetComponent<UnityEngine.UI.Button>();
++        var abandon = conquestUi.PanelRect.GetComponentsInChildren<Transform>(true).First(t => t.name == "Abandon").GetComponent<UnityEngine.UI.Button>();
+         Check(annex.interactable && abandon.interactable, "conquest choices enabled for cleared occupied settlement");
+         Check(!world.Sites.First(s => s.Kind == ExpeditionSiteKind.Settlement).TryResolveConquest(ConquestDisposition.Undecided)
+             && !world.Sites.First(s => s.Kind == ExpeditionSiteKind.Settlement).TryResolveConquest((ConquestDisposition)99), "invalid conquest choices rejected");
+@@ -396,7 +396,7 @@ public static class WorldMapChecks
+         Check(ui != null, "world map UI attached");
+         if (!ui.IsOpen) ui.Toggle();
+         Canvas.ForceUpdateCanvases();
+-        var map = ui.PanelRect.Find("WorldMap");
++        var map = ui.PanelRect.GetComponentsInChildren<Transform>(true).First(t => t.name == "WorldMap");
+         // 3D 행성: 뒷면 거점 마커는 숨는다. 거점마다 행성을 돌려 정면에 오면 마커가 행성 안에 보여야 한다.
+         var markers = map.GetComponentsInChildren<UnityEngine.UI.Button>(true)
+             .Where(b => world.Sites.Any(s => s.Title == b.name)).ToArray();
+@@ -409,9 +409,9 @@ public static class WorldMapChecks
+             ui.Planet.Focus(world.Sites[i].MapPosition); ui.Planet.SnapToTarget();
+             typeof(AntColony.UI.WorldMapPanel).GetMethod("Update", BindingFlags.Instance | BindingFlags.NonPublic).Invoke(ui, null);
+             var a = (RectTransform)markers[i].transform;
+-            var center = a.anchoredPosition + new Vector2(a.rect.width / 2, -a.rect.height / 2);
+-            var inside = new Rect(planet.anchoredPosition.x, -planet.anchoredPosition.y - planet.rect.height, planet.rect.width, planet.rect.height);
+-            Check(markers[i].gameObject.activeSelf && inside.Contains(new Vector2(center.x, center.y)) , "focused site marker visible on planet: " + markers[i].name);
++            // 2026-10-24 전체 화면 지구: 마커 중심(화면 좌표)이 지구 이미지 영역 안이면 된다.
++            var center = a.TransformPoint(a.rect.center);
++            Check(markers[i].gameObject.activeSelf && RectTransformUtility.RectangleContainsScreenPoint(planet, center), "focused site marker visible on planet: " + markers[i].name);
+         }
+         foreach (var button in ui.PanelRect.GetComponentsInChildren<UnityEngine.UI.Button>())
+         {
+diff --git a/Assets/_Project/Scripts/Map/NavRoute.cs b/Assets/_Project/Scripts/Map/NavRoute.cs
+index 2ba5dbf..f79f2ce 100644
+--- a/Assets/_Project/Scripts/Map/NavRoute.cs
++++ b/Assets/_Project/Scripts/Map/NavRoute.cs
+@@ -44,7 +44,8 @@ namespace AntColony.Map
+             if (follower != null) follower.Clear();
+             // 이미 같은 곳(3m 안)으로 가는 중이면 다시 확인하지 않는다(움직이는 대상을 매 프레임 쫓는 경우).
+             var d = to - agent.destination; var same = (agent.hasPath || agent.pathPending) && new Vector2(d.x, d.z).sqrMagnitude < 9f;
+-            if (!same && (to - agent.transform.position).sqrMagnitude > CheckDistance * CheckDistance)
++            if (same && new Vector2(d.x, d.z).sqrMagnitude < .01f) return; // 같은 목적지를 매 프레임 다시 주면 계산 중인 경로가 계속 초기화돼 멈춘다(2026-10-24 낚시 검사)
++            if (!same &&(to - agent.transform.position).sqrMagnitude > CheckDistance * CheckDistance)
+             {
+                 var route = new List<Vector3>();
+                 if (!float.IsPositiveInfinity(Length(agent.nextPosition, to, route)) && route.Count > 1)

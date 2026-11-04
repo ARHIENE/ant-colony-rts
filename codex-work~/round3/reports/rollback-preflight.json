@@ -1,0 +1,7538 @@
+{
+  "changes": {
+    "2": {
+      "Part_Outfit_LINEN_ARMOR": {
+        "moved_vertices": [
+          77,
+          94,
+          341,
+          350,
+          351,
+          353,
+          373,
+          377,
+          383,
+          384,
+          402,
+          403,
+          434,
+          461
+        ],
+        "max_m": 0.002000004314461798
+      },
+      "Part_Body_BASE_ARMOR": {
+        "moved_vertices": [
+          509,
+          510,
+          511,
+          903,
+          904,
+          905,
+          917
+        ],
+        "max_m": 0.0008482585427311451
+      }
+    }
+  },
+  "stats": {
+    "2": {
+      "increases": 0,
+      "improvements": 19,
+      "bad_vertices": {
+        "Part_Outfit_LINEN_ARMOR": [],
+        "Part_Body_BASE_ARMOR": []
+      },
+      "first": [],
+      "summary": {
+        "Armor_Breastplate": {
+          "Part_Outfit_LINEN_ARMOR": {
+            "Attack": 99,
+            "BeatFire": 24,
+            "BenchPickup": 108,
+            "BenchPlace": 108,
+            "BenchWork": 98,
+            "BowShoot": 55,
+            "CanisterConnect": 96,
+            "CanisterDisconnect": 97,
+            "Captive": 60,
+            "Carry": 68,
+            "CarryPerson": 99,
+            "Chop": 59,
+            "CollapseDropWeapon": 54,
+            "ControlPanel": 99,
+            "Crave": 56,
+            "Death": 47,
+            "Downed": 61,
+            "DrawSword": 35,
+            "Drink": 85,
+            "DriveSeated": 77,
+            "Eat": 118,
+            "EquipFromGround": 117,
+            "Grind": 110,
+            "GroundWork": 61,
+            "Hammer": 88,
+            "HangoverIdle": 22,
+            "Hurt": 56,
+            "Idle": 28,
+            "Inspect": 77,
+            "Knead": 161,
+            "Ladle": 19,
+            "LatrineSquat": 48,
+            "Mine": 58,
+            "Mourn": 57,
+            "Muster": 116,
+            "Operate": 95,
+            "OvenLoad": 140,
+            "PassOut": 27,
+            "Pickup": 98,
+            "PlayBoard": 140,
+            "PlayMusic": 78,
+            "PourSack": 35,
+            "PressLever": 6,
+            "PutDown": 94,
+            "Rest": 48,
+            "RockCradle": 82,
+            "Run": 44,
+            "Saw": 82,
+            "SelfTreat": 140,
+            "SewRepair": 100,
+            "SheatheSword": 35,
+            "ShieldBlock": 66,
+            "Sit": 36,
+            "Sleep": 41,
+            "SmithRepair": 49,
+            "SpearThrust": 50,
+            "Spin": 101,
+            "Stagger": 26,
+            "Stamp": 98,
+            "StandEnter": 26,
+            "StandExit": 26,
+            "StandIdle": 28,
+            "Stir": 109,
+            "SwordAttack": 60,
+            "TapFill": 147,
+            "Throw": 60,
+            "ToolAway": 41,
+            "ToolOut": 27,
+            "Tool_Chop": 90,
+            "Tool_Dig": 105,
+            "Tool_Hammer": 82,
+            "Tool_Harvest": 52,
+            "Tool_Mine": 81,
+            "Tool_Till": 120,
+            "Treat": 98,
+            "UnequipToGround": 128,
+            "ValveTurn": 164,
+            "WakeUp": 28,
+            "Walk": 26,
+            "WalkTipsy": 26,
+            "Wash": 98,
+            "WaterPlant": 67,
+            "Wrestle": 67
+          },
+          "Part_Body_BASE_ARMOR": {
+            "CanisterConnect": 12,
+            "Drink": 17,
+            "SmithRepair": 2,
+            "SpearThrust": 21,
+            "Tool_Chop": 7,
+            "Tool_Dig": 76,
+            "Tool_Mine": 26,
+            "Tool_Till": 24,
+            "ValveTurn": 25
+          }
+        },
+        "Armor_Breastplate_Lower": {
+          "Part_Outfit_LINEN_ARMOR": {
+            "Attack": 134,
+            "Bathe": 30,
+            "BeatFire": 22,
+            "BenchPickup": 186,
+            "BenchPlace": 181,
+            "BenchWork": 148,
+            "BowShoot": 144,
+            "CanisterConnect": 177,
+            "CanisterDisconnect": 176,
+            "Captive": 171,
+            "Carry": 130,
+            "CarryPerson": 59,
+            "Chop": 78,
+            "CollapseDropWeapon": 115,
+            "ControlPanel": 138,
+            "Crave": 172,
+            "Death": 139,
+            "Downed": 142,
+            "DrawSword": 122,
+            "Drink": 95,
+            "DriveSeated": 161,
+            "Eat": 139,
+            "EquipFromGround": 184,
+            "Grind": 157,
+            "GroundWork": 157,
+            "Hammer": 145,
+            "HangoverIdle": 46,
+            "Hurt": 135,
+            "Idle": 78,
+            "Inspect": 125,
+            "Knead": 271,
+            "Ladle": 6,
+            "LatrineSquat": 164,
+            "Mine": 82,
+            "Mourn": 138,
+            "Muster": 170,
+            "Operate": 159,
+            "OvenLoad": 179,
+            "PassOut": 98,
+            "Pickup": 200,
+            "PlayBoard": 150,
+            "PlayMusic": 132,
+            "PourSack": 107,
+            "PutDown": 202,
+            "Rest": 174,
+            "RockCradle": 88,
+            "Run": 87,
+            "Saw": 164,
+            "SelfTreat": 165,
+            "SewRepair": 201,
+            "SheatheSword": 137,
+            "ShieldBlock": 125,
+            "Sit": 160,
+            "SkyGaze": 52,
+            "Sleep": 99,
+            "SmithRepair": 81,
+            "SpearThrust": 12,
+            "Spin": 173,
+            "Stagger": 98,
+            "Stamp": 154,
+            "StandEnter": 74,
+            "StandExit": 78,
+            "StandIdle": 78,
+            "Stir": 159,
+            "Swing": 2,
+            "SwordAttack": 95,
+            "TapFill": 187,
+            "Throw": 92,
+            "ToolAway": 116,
+            "ToolOut": 108,
+            "Tool_Chop": 18,
+            "Tool_Dig": 82,
+            "Tool_Hammer": 137,
+            "Tool_Harvest": 11,
+            "Tool_Till": 59,
+            "Treat": 166,
+            "UnequipToGround": 182,
+            "ValveTurn": 157,
+            "WakeUp": 122,
+            "Walk": 77,
+            "WalkTipsy": 79,
+            "Wash": 160,
+            "WaterPlant": 130,
+            "Wrestle": 38
+          },
+          "Part_Body_BASE_ARMOR": {
+            "Attack": 9,
+            "BenchPickup": 85,
+            "BenchPlace": 88,
+            "BowShoot": 4,
+            "CanisterConnect": 91,
+            "CanisterDisconnect": 100,
+            "Captive": 8,
+            "CollapseDropWeapon": 4,
+            "ControlPanel": 8,
+            "Death": 3,
+            "Drink": 54,
+            "DriveSeated": 14,
+            "Eat": 8,
+            "EquipFromGround": 1,
+            "GroundWork": 40,
+            "Inspect": 9,
+            "LatrineSquat": 24,
+            "Mourn": 48,
+            "Muster": 4,
+            "OvenLoad": 122,
+            "Pickup": 28,
+            "PlayBoard": 14,
+            "PourSack": 85,
+            "PutDown": 28,
+            "Rest": 6,
+            "SelfTreat": 24,
+            "SewRepair": 50,
+            "SheatheSword": 3,
+            "Sit": 16,
+            "SmithRepair": 25,
+            "SpearThrust": 51,
+            "Spin": 8,
+            "Swing": 36,
+            "TapFill": 30,
+            "Throw": 5,
+            "Tool_Dig": 21,
+            "Tool_Mine": 10,
+            "Tool_Till": 10,
+            "UnequipToGround": 6,
+            "ValveTurn": 2,
+            "WakeUp": 26,
+            "Walk": 4,
+            "WalkTipsy": 4
+          }
+        },
+        "Armor_Backplate": {
+          "Part_Outfit_LINEN_ARMOR": {
+            "Attack": 22,
+            "BenchPickup": 42,
+            "BenchPlace": 44,
+            "BenchWork": 18,
+            "BowShoot": 28,
+            "CanisterConnect": 40,
+            "CanisterDisconnect": 36,
+            "Captive": 24,
+            "Carry": 20,
+            "CollapseDropWeapon": 42,
+            "ControlPanel": 11,
+            "Crave": 32,
+            "Death": 42,
+            "Downed": 23,
+            "DrawSword": 42,
+            "Drink": 43,
+            "DriveSeated": 26,
+            "Eat": 16,
+            "EquipFromGround": 42,
+            "Fly": 12,
+            "Grind": 14,
+            "GroundWork": 17,
+            "HangoverIdle": 21,
+            "Hurt": 42,
+            "Idle": 44,
+            "Inspect": 42,
+            "Knead": 20,
+            "LatrineSquat": 42,
+            "Mourn": 42,
+            "Muster": 44,
+            "Operate": 17,
+            "OvenLoad": 41,
+            "PassOut": 42,
+            "Pickup": 42,
+            "PlayBoard": 16,
+            "PlayMusic": 18,
+            "PourSack": 46,
+            "PutDown": 42,
+            "Rest": 32,
+            "Run": 43,
+            "Saw": 24,
+            "SewRepair": 28,
+            "SheatheSword": 42,
+            "ShieldBlock": 31,
+            "Sit": 32,
+            "SkyGaze": 40,
+            "Sleep": 32,
+            "SmithRepair": 45,
+            "SpearThrust": 90,
+            "Spin": 7,
+            "Stagger": 34,
+            "Stamp": 18,
+            "StandEnter": 45,
+            "StandExit": 43,
+            "StandIdle": 44,
+            "Stir": 16,
+            "SwordAttack": 19,
+            "TapFill": 42,
+            "Throw": 21,
+            "ToolAway": 30,
+            "ToolOut": 42,
+            "Tool_Dig": 16,
+            "Tool_Hammer": 69,
+            "Tool_Harvest": 7,
+            "Treat": 16,
+            "UnequipToGround": 42,
+            "ValveTurn": 20,
+            "WakeUp": 42,
+            "Walk": 43,
+            "WalkTipsy": 43,
+            "Wash": 16,
+            "WaterPlant": 21
+          },
+          "Part_Body_BASE_ARMOR": {
+            "SpearThrust": 24
+          }
+        },
+        "Armor_Tasset_L": {
+          "Part_Outfit_LINEN_ARMOR": {
+            "Attack": 22,
+            "Bathe": 3,
+            "BeatFire": 3,
+            "BenchPickup": 22,
+            "BenchPlace": 22,
+            "BenchWork": 22,
+            "BowShoot": 22,
+            "CanisterConnect": 27,
+            "CanisterDisconnect": 28,
+            "Captive": 61,
+            "Carry": 28,
+            "CarryPerson": 28,
+            "Chop": 16,
+            "CollapseDropWeapon": 22,
+            "ControlPanel": 22,
+            "Crave": 22,
+            "Death": 22,
+            "Downed": 6,
+            "DrawSword": 22,
+            "Drink": 22,
+            "DriveSeated": 66,
+            "Eat": 66,
+            "EquipFromGround": 22,
+            "Exercise": 22,
+            "Fly": 20,
+            "Grind": 20,
+            "GroundWork": 97,
+            "Hammer": 22,
+            "HangoverIdle": 22,
+            "Hurt": 27,
+            "Idle": 22,
+            "Inspect": 22,
+            "Knead": 22,
+            "Ladle": 22,
+            "LatrineSquat": 83,
+            "Mine": 16,
+            "Mourn": 22,
+            "Muster": 22,
+            "Operate": 22,
+            "OvenLoad": 22,
+            "PassOut": 22,
+            "Pickup": 68,
+            "PlayBoard": 83,
+            "PlayMusic": 22,
+            "PourSack": 22,
+            "PressLever": 22,
+            "PutDown": 76,
+            "Rest": 51,
+            "RockCradle": 22,
+            "Run": 25,
+            "Saw": 15,
+            "SelfTreat": 76,
+            "SewRepair": 22,
+            "SheatheSword": 22,
+            "ShieldBlock": 10,
+            "Sit": 59,
+            "SkyGaze": 22,
+            "Sleep": 11,
+            "SmithRepair": 22,
+            "SpearThrust": 22,
+            "Spin": 74,
+            "Stagger": 19,
+            "Stamp": 22,
+            "StandEnter": 22,
+            "StandExit": 22,
+            "StandIdle": 22,
+            "Stir": 22,
+            "Swing": 3,
+            "SwordAttack": 22,
+            "TapFill": 29,
+            "Throw": 22,
+            "ToolAway": 22,
+            "ToolOut": 22,
+            "Tool_Chop": 16,
+            "Tool_Dig": 22,
+            "Tool_Hammer": 22,
+            "Tool_Harvest": 5,
+            "Tool_Mine": 16,
+            "Tool_Till": 20,
+            "Treat": 17,
+            "UnequipToGround": 22,
+            "ValveTurn": 22,
+            "WakeUp": 22,
+            "Walk": 28,
+            "WalkTipsy": 29,
+            "Wash": 20,
+            "WaterPlant": 22,
+            "Wrestle": 2
+          },
+          "Part_Body_BASE_ARMOR": {
+            "Attack": 54,
+            "CanisterConnect": 92,
+            "CanisterDisconnect": 109,
+            "Captive": 49,
+            "CollapseDropWeapon": 62,
+            "Death": 113,
+            "DrawSword": 10,
+            "DriveSeated": 91,
+            "Eat": 52,
+            "EquipFromGround": 184,
+            "GroundWork": 63,
+            "Hurt": 41,
+            "LatrineSquat": 103,
+            "Mourn": 17,
+            "Muster": 36,
+            "PassOut": 34,
+            "Pickup": 54,
+            "PlayBoard": 67,
+            "PutDown": 64,
+            "Rest": 73,
+            "SelfTreat": 33,
+            "SheatheSword": 39,
+            "Sit": 142,
+            "Spin": 45,
+            "Stagger": 105,
+            "StandExit": 8,
+            "SwordAttack": 72,
+            "TapFill": 92,
+            "Throw": 55,
+            "ToolAway": 8,
+            "UnequipToGround": 200,
+            "Walk": 48,
+            "WalkTipsy": 53
+          }
+        },
+        "Armor_Tasset_R": {
+          "Part_Outfit_LINEN_ARMOR": {
+            "Attack": 38,
+            "Bathe": 7,
+            "BeatFire": 7,
+            "BenchPickup": 18,
+            "BenchPlace": 18,
+            "BenchWork": 18,
+            "BowShoot": 18,
+            "CanisterConnect": 36,
+            "CanisterDisconnect": 33,
+            "Captive": 66,
+            "Carry": 36,
+            "CarryPerson": 32,
+            "Chop": 22,
+            "CollapseDropWeapon": 23,
+            "ControlPanel": 18,
+            "Crave": 18,
+            "Death": 20,
+            "Downed": 8,
+            "DrawSword": 18,
+            "Drink": 18,
+            "DriveSeated": 74,
+            "Eat": 78,
+            "EquipFromGround": 18,
+            "Exercise": 18,
+            "Fly": 26,
+            "Grind": 18,
+            "GroundWork": 103,
+            "Hammer": 18,
+            "HangoverIdle": 18,
+            "Hurt": 23,
+            "Idle": 18,
+            "Inspect": 18,
+            "Knead": 18,
+            "Ladle": 18,
+            "LatrineSquat": 89,
+            "Mine": 22,
+            "Mourn": 18,
+            "Muster": 18,
+            "Operate": 18,
+            "OvenLoad": 18,
+            "PassOut": 18,
+            "Pickup": 74,
+            "PlayBoard": 90,
+            "PlayMusic": 18,
+            "PourSack": 18,
+            "PressLever": 18,
+            "PutDown": 79,
+            "Rest": 56,
+            "RockCradle": 18,
+            "Run": 32,
+            "Saw": 22,
+            "SelfTreat": 94,
+            "SewRepair": 18,
+            "SheatheSword": 18,
+            "ShieldBlock": 18,
+            "Sit": 64,
+            "SkyGaze": 18,
+            "Sleep": 19,
+            "SmithRepair": 18,
+            "SpearThrust": 18,
+            "Spin": 77,
+            "Stagger": 22,
+            "Stamp": 18,
+            "StandEnter": 21,
+            "StandExit": 19,
+            "StandIdle": 18,
+            "Stir": 18,
+            "Swing": 9,
+            "SwordAttack": 18,
+            "TapFill": 32,
+            "Throw": 18,
+            "ToolAway": 18,
+            "ToolOut": 18,
+            "Tool_Chop": 22,
+            "Tool_Dig": 21,
+            "Tool_Hammer": 18,
+            "Tool_Harvest": 7,
+            "Tool_Mine": 22,
+            "Tool_Till": 18,
+            "Treat": 18,
+            "UnequipToGround": 18,
+            "ValveTurn": 18,
+            "WakeUp": 18,
+            "Walk": 36,
+            "WalkTipsy": 36,
+            "Wash": 18,
+            "WaterPlant": 18,
+            "Wrestle": 20
+          },
+          "Part_Body_BASE_ARMOR": {
+            "BowShoot": 81,
+            "CanisterConnect": 190,
+            "CanisterDisconnect": 169,
+            "Captive": 51,
+            "CollapseDropWeapon": 20,
+            "Death": 32,
+            "DriveSeated": 96,
+            "Eat": 74,
+            "EquipFromGround": 190,
+            "GroundWork": 87,
+            "Hurt": 65,
+            "Inspect": 71,
+            "LatrineSquat": 107,
+            "Mourn": 10,
+            "Muster": 27,
+            "PassOut": 82,
+            "Pickup": 54,
+            "PlayBoard": 102,
+            "PutDown": 64,
+            "Rest": 73,
+            "Run": 77,
+            "SelfTreat": 50,
+            "Sit": 153,
+            "Spin": 106,
+            "Stagger": 96,
+            "StandEnter": 10,
+            "TapFill": 106,
+            "Tool_Dig": 12,
+            "UnequipToGround": 209,
+            "Walk": 46,
+            "WalkTipsy": 58
+          }
+        },
+        "Armor_Bracer_L": {
+          "Part_Outfit_LINEN_ARMOR": {
+            "Attack": 15,
+            "Bathe": 10,
+            "BeatFire": 10,
+            "BenchPickup": 12,
+            "BenchPlace": 12,
+            "BenchWork": 10,
+            "BowShoot": 10,
+            "CanisterConnect": 95,
+            "CanisterDisconnect": 75,
+            "Captive": 10,
+            "Carry": 10,
+            "CarryPerson": 10,
+            "Chop": 10,
+            "CollapseDropWeapon": 30,
+            "ControlPanel": 10,
+            "Crave": 10,
+            "Death": 33,
+            "Downed": 10,
+            "DrawSword": 31,
+            "Drink": 33,
+            "DriveSeated": 19,
+            "Eat": 10,
+            "EquipFromGround": 31,
+            "Exercise": 20,
+            "Fly": 10,
+            "Grind": 10,
+            "GroundWork": 25,
+            "Hammer": 10,
+            "HangoverIdle": 35,
+            "Hurt": 31,
+            "Idle": 33,
+            "Inspect": 38,
+            "Knead": 22,
+            "Ladle": 10,
+            "LatrineSquat": 33,
+            "Mine": 10,
+            "Mourn": 34,
+            "Muster": 31,
+            "Operate": 10,
+            "OvenLoad": 34,
+            "PassOut": 36,
+            "Pickup": 31,
+            "PlayBoard": 10,
+            "PlayMusic": 10,
+            "PourSack": 24,
+            "PressLever": 32,
+            "PutDown": 31,
+            "Rest": 10,
+            "RockCradle": 10,
+            "Run": 55,
+            "Saw": 10,
+            "SelfTreat": 10,
+            "SewRepair": 8,
+            "SheatheSword": 31,
+            "ShieldBlock": 32,
+            "Sit": 10,
+            "SkyGaze": 34,
+            "Sleep": 10,
+            "SmithRepair": 10,
+            "SpearThrust": 49,
+            "Spin": 10,
+            "Stagger": 30,
+            "Stamp": 10,
+            "StandEnter": 34,
+            "StandExit": 33,
+            "StandIdle": 33,
+            "Stir": 10,
+            "Swing": 10,
+            "SwordAttack": 16,
+            "TapFill": 21,
+            "Throw": 31,
+            "ToolAway": 31,
+            "ToolOut": 31,
+            "Tool_Chop": 26,
+            "Tool_Dig": 35,
+            "Tool_Hammer": 10,
+            "Tool_Harvest": 10,
+            "Tool_Mine": 34,
+            "Tool_Till": 28,
+            "Treat": 10,
+            "UnequipToGround": 31,
+            "ValveTurn": 30,
+            "WakeUp": 34,
+            "Walk": 59,
+            "WalkTipsy": 31,
+            "Wash": 10,
+            "WaterPlant": 39,
+            "Wrestle": 10
+          },
+          "Part_Body_BASE_ARMOR": {
+            "Attack": 3,
+            "CanisterConnect": 6,
+            "CanisterDisconnect": 6,
+            "Captive": 6,
+            "CollapseDropWeapon": 19,
+            "Death": 20,
+            "DrawSword": 20,
+            "Drink": 20,
+            "EquipFromGround": 22,
+            "GroundWork": 19,
+            "HangoverIdle": 18,
+            "Hurt": 20,
+            "Idle": 20,
+            "Inspect": 24,
+            "LatrineSquat": 25,
+            "Mourn": 24,
+            "Muster": 22,
+            "PassOut": 25,
+            "Pickup": 25,
+            "PutDown": 25,
+            "Rest": 1,
+            "Run": 26,
+            "SheatheSword": 22,
+            "Sit": 10,
+            "SkyGaze": 18,
+            "SpearThrust": 34,
+            "Stagger": 22,
+            "StandEnter": 43,
+            "StandExit": 20,
+            "StandIdle": 20,
+            "SwordAttack": 5,
+            "TapFill": 12,
+            "Throw": 22,
+            "ToolAway": 20,
+            "ToolOut": 20,
+            "UnequipToGround": 20,
+            "WakeUp": 24,
+            "Walk": 29,
+            "WalkTipsy": 19,
+            "WaterPlant": 22
+          }
+        },
+        "Armor_Bracer_R": {
+          "Part_Outfit_LINEN_ARMOR": {
+            "Attack": 10,
+            "Bathe": 10,
+            "BeatFire": 10,
+            "BenchPickup": 12,
+            "BenchPlace": 12,
+            "BenchWork": 10,
+            "BowShoot": 42,
+            "CanisterConnect": 35,
+            "CanisterDisconnect": 38,
+            "Captive": 10,
+            "Carry": 10,
+            "CarryPerson": 10,
+            "Chop": 10,
+            "CollapseDropWeapon": 32,
+            "ControlPanel": 30,
+            "Crave": 10,
+            "Death": 34,
+            "Downed": 10,
+            "DrawSword": 33,
+            "Drink": 18,
+            "DriveSeated": 32,
+            "Eat": 32,
+            "EquipFromGround": 30,
+            "Exercise": 20,
+            "Fly": 10,
+            "Grind": 10,
+            "GroundWork": 43,
+            "Hammer": 10,
+            "HangoverIdle": 10,
+            "Hurt": 28,
+            "Idle": 30,
+            "Inspect": 32,
+            "Knead": 22,
+            "Ladle": 10,
+            "LatrineSquat": 28,
+            "Mine": 10,
+            "Mourn": 32,
+            "Muster": 31,
+            "Operate": 10,
+            "OvenLoad": 32,
+            "PassOut": 32,
+            "Pickup": 31,
+            "PlayBoard": 31,
+            "PlayMusic": 10,
+            "PourSack": 26,
+            "PressLever": 28,
+            "PutDown": 31,
+            "Rest": 10,
+            "RockCradle": 10,
+            "Run": 30,
+            "Saw": 10,
+            "SelfTreat": 19,
+            "SewRepair": 42,
+            "SheatheSword": 26,
+            "ShieldBlock": 30,
+            "Sit": 10,
+            "SkyGaze": 32,
+            "Sleep": 33,
+            "SmithRepair": 43,
+            "SpearThrust": 76,
+            "Spin": 40,
+            "Stagger": 30,
+            "Stamp": 10,
+            "StandEnter": 29,
+            "StandExit": 31,
+            "StandIdle": 30,
+            "Stir": 10,
+            "Swing": 10,
+            "SwordAttack": 10,
+            "TapFill": 22,
+            "Throw": 20,
+            "ToolAway": 15,
+            "ToolOut": 28,
+            "Tool_Chop": 10,
+            "Tool_Dig": 87,
+            "Tool_Hammer": 66,
+            "Tool_Harvest": 20,
+            "Tool_Mine": 10,
+            "Tool_Till": 30,
+            "Treat": 10,
+            "UnequipToGround": 28,
+            "ValveTurn": 43,
+            "WakeUp": 32,
+            "Walk": 60,
+            "WalkTipsy": 50,
+            "Wash": 10,
+            "WaterPlant": 10,
+            "Wrestle": 10
+          },
+          "Part_Body_BASE_ARMOR": {
+            "BowShoot": 17,
+            "CanisterConnect": 2,
+            "CanisterDisconnect": 2,
+            "Captive": 6,
+            "CollapseDropWeapon": 27,
+            "Death": 24,
+            "DrawSword": 30,
+            "EquipFromGround": 22,
+            "GroundWork": 24,
+            "Hurt": 20,
+            "Idle": 20,
+            "Inspect": 26,
+            "LatrineSquat": 25,
+            "Mourn": 24,
+            "Muster": 28,
+            "PassOut": 22,
+            "Pickup": 25,
+            "PlayBoard": 5,
+            "PutDown": 25,
+            "Rest": 1,
+            "Run": 20,
+            "SheatheSword": 20,
+            "ShieldBlock": 18,
+            "Sit": 9,
+            "SkyGaze": 18,
+            "Sleep": 26,
+            "SpearThrust": 6,
+            "Stagger": 20,
+            "StandEnter": 20,
+            "StandExit": 26,
+            "StandIdle": 20,
+            "TapFill": 10,
+            "ToolAway": 5,
+            "ToolOut": 20,
+            "Tool_Chop": 2,
+            "Tool_Dig": 7,
+            "Tool_Till": 23,
+            "UnequipToGround": 20,
+            "WakeUp": 24,
+            "Walk": 29,
+            "WalkTipsy": 33
+          }
+        },
+        "Armor_Backplate_Lower": {
+          "Part_Outfit_LINEN_ARMOR": {
+            "Attack": 10,
+            "BenchPickup": 28,
+            "BenchPlace": 28,
+            "BowShoot": 7,
+            "CanisterConnect": 38,
+            "CanisterDisconnect": 38,
+            "Captive": 18,
+            "Carry": 5,
+            "CollapseDropWeapon": 22,
+            "Crave": 16,
+            "Death": 22,
+            "Downed": 13,
+            "DrawSword": 22,
+            "Drink": 22,
+            "DriveSeated": 12,
+            "EquipFromGround": 24,
+            "Fly": 8,
+            "HangoverIdle": 10,
+            "Hurt": 26,
+            "Idle": 20,
+            "Inspect": 22,
+            "LatrineSquat": 22,
+            "Mourn": 24,
+            "Muster": 20,
+            "OvenLoad": 28,
+            "PassOut": 22,
+            "Pickup": 24,
+            "PlayBoard": 8,
+            "PourSack": 28,
+            "PutDown": 20,
+            "Rest": 16,
+            "Run": 28,
+            "Saw": 12,
+            "SewRepair": 14,
+            "SheatheSword": 22,
+            "ShieldBlock": 10,
+            "Sit": 20,
+            "SkyGaze": 20,
+            "Sleep": 10,
+            "SmithRepair": 26,
+            "SpearThrust": 63,
+            "Stagger": 21,
+            "StandEnter": 27,
+            "StandExit": 26,
+            "StandIdle": 20,
+            "SwordAttack": 13,
+            "TapFill": 24,
+            "Throw": 10,
+            "ToolAway": 21,
+            "ToolOut": 20,
+            "Tool_Dig": 6,
+            "Tool_Hammer": 42,
+            "UnequipToGround": 20,
+            "WakeUp": 24,
+            "Walk": 25,
+            "WalkTipsy": 31,
+            "WaterPlant": 10
+          },
+          "Part_Body_BASE_ARMOR": {
+            "SpearThrust": 12
+          }
+        },
+        "Armor_Fauld": {
+          "Part_Outfit_LINEN_ARMOR": {
+            "Attack": 20,
+            "Bathe": 10,
+            "BenchPickup": 19,
+            "BenchPlace": 20,
+            "BowShoot": 33,
+            "CanisterConnect": 38,
+            "CanisterDisconnect": 39,
+            "Captive": 6,
+            "CollapseDropWeapon": 24,
+            "ControlPanel": 12,
+            "Death": 36,
+            "Downed": 14,
+            "DrawSword": 26,
+            "Drink": 28,
+            "DriveSeated": 6,
+            "Eat": 6,
+            "EquipFromGround": 45,
+            "GroundWork": 48,
+            "HangoverIdle": 10,
+            "Hurt": 32,
+            "Idle": 26,
+            "Inspect": 31,
+            "Knead": 26,
+            "LatrineSquat": 48,
+            "Mourn": 42,
+            "Muster": 37,
+            "Operate": 6,
+            "OvenLoad": 20,
+            "PassOut": 28,
+            "Pickup": 46,
+            "PlayBoard": 22,
+            "PourSack": 14,
+            "PutDown": 44,
+            "Rest": 6,
+            "Run": 25,
+            "SelfTreat": 6,
+            "SewRepair": 20,
+            "SheatheSword": 22,
+            "ShieldBlock": 12,
+            "Sit": 38,
+            "SkyGaze": 12,
+            "Sleep": 15,
+            "Spin": 6,
+            "Stagger": 34,
+            "Stamp": 18,
+            "StandEnter": 31,
+            "StandExit": 28,
+            "StandIdle": 26,
+            "Swing": 29,
+            "SwordAttack": 19,
+            "TapFill": 30,
+            "Throw": 24,
+            "ToolAway": 27,
+            "ToolOut": 26,
+            "UnequipToGround": 34,
+            "WakeUp": 30,
+            "Walk": 20,
+            "WalkTipsy": 27,
+            "WaterPlant": 12
+          },
+          "Part_Body_BASE_ARMOR": {
+            "Attack": 37,
+            "Bathe": 34,
+            "BenchPickup": 200,
+            "BenchPlace": 208,
+            "BowShoot": 47,
+            "CanisterConnect": 199,
+            "CanisterDisconnect": 188,
+            "Captive": 64,
+            "CollapseDropWeapon": 44,
+            "ControlPanel": 7,
+            "Death": 69,
+            "DrawSword": 45,
+            "Drink": 47,
+            "DriveSeated": 64,
+            "Eat": 64,
+            "EquipFromGround": 91,
+            "GroundWork": 129,
+            "HangoverIdle": 14,
+            "Hurt": 110,
+            "Idle": 20,
+            "Inspect": 76,
+            "Knead": 14,
+            "LatrineSquat": 106,
+            "Mourn": 174,
+            "Muster": 91,
+            "OvenLoad": 66,
+            "PassOut": 70,
+            "Pickup": 117,
+            "PlayBoard": 71,
+            "PourSack": 103,
+            "PutDown": 148,
+            "Rest": 64,
+            "Run": 51,
+            "SelfTreat": 64,
+            "SewRepair": 41,
+            "SheatheSword": 44,
+            "ShieldBlock": 18,
+            "Sit": 82,
+            "SkyGaze": 37,
+            "Sleep": 6,
+            "Spin": 64,
+            "Stagger": 82,
+            "StandEnter": 34,
+            "StandExit": 33,
+            "StandIdle": 20,
+            "Swing": 65,
+            "SwordAttack": 38,
+            "TapFill": 222,
+            "Throw": 49,
+            "ToolAway": 37,
+            "ToolOut": 23,
+            "UnequipToGround": 72,
+            "WakeUp": 111,
+            "Walk": 61,
+            "WalkTipsy": 71,
+            "WaterPlant": 15
+          }
+        },
+        "Belt": {
+          "Part_Outfit_LINEN_ARMOR": {
+            "Attack": 15,
+            "BenchPickup": 16,
+            "BenchPlace": 22,
+            "BowShoot": 33,
+            "CanisterConnect": 46,
+            "CanisterDisconnect": 45,
+            "CollapseDropWeapon": 30,
+            "Death": 28,
+            "Downed": 16,
+            "DrawSword": 29,
+            "Drink": 20,
+            "EquipFromGround": 44,
+            "GroundWork": 34,
+            "HangoverIdle": 14,
+            "Hurt": 24,
+            "Idle": 28,
+            "Inspect": 30,
+            "LatrineSquat": 36,
+            "Mourn": 28,
+            "Muster": 26,
+            "OvenLoad": 20,
+            "PassOut": 32,
+            "Pickup": 36,
+            "PlayBoard": 18,
+            "PourSack": 14,
+            "PutDown": 36,
+            "Run": 28,
+            "SewRepair": 19,
+            "SheatheSword": 29,
+            "ShieldBlock": 12,
+            "Sit": 36,
+            "SkyGaze": 32,
+            "Sleep": 14,
+            "SpearThrust": 15,
+            "Stagger": 29,
+            "Stamp": 16,
+            "StandEnter": 29,
+            "StandExit": 30,
+            "StandIdle": 28,
+            "SwordAttack": 24,
+            "TapFill": 25,
+            "Throw": 18,
+            "ToolAway": 30,
+            "ToolOut": 27,
+            "UnequipToGround": 34,
+            "WakeUp": 34,
+            "Walk": 32,
+            "WalkTipsy": 32,
+            "WaterPlant": 16
+          },
+          "Part_Body_BASE_ARMOR": {
+            "Attack": 3,
+            "BenchPickup": 86,
+            "BenchPlace": 86,
+            "BowShoot": 5,
+            "CanisterConnect": 117,
+            "CanisterDisconnect": 96,
+            "Captive": 36,
+            "CollapseDropWeapon": 35,
+            "Death": 29,
+            "DrawSword": 13,
+            "Drink": 34,
+            "DriveSeated": 36,
+            "Eat": 36,
+            "EquipFromGround": 14,
+            "GroundWork": 51,
+            "HangoverIdle": 6,
+            "Hurt": 20,
+            "Inspect": 19,
+            "LatrineSquat": 46,
+            "Mourn": 44,
+            "Muster": 16,
+            "OvenLoad": 62,
+            "PassOut": 27,
+            "Pickup": 46,
+            "PlayBoard": 36,
+            "PourSack": 69,
+            "PutDown": 46,
+            "Rest": 36,
+            "Run": 19,
+            "SelfTreat": 36,
+            "SewRepair": 22,
+            "SheatheSword": 8,
+            "Sit": 36,
+            "SkyGaze": 12,
+            "Sleep": 2,
+            "SpearThrust": 13,
+            "Spin": 36,
+            "Stagger": 31,
+            "StandEnter": 12,
+            "StandExit": 15,
+            "Swing": 44,
+            "SwordAttack": 6,
+            "TapFill": 57,
+            "Throw": 6,
+            "ToolAway": 12,
+            "ToolOut": 5,
+            "UnequipToGround": 18,
+            "WakeUp": 70,
+            "Walk": 18,
+            "WalkTipsy": 23,
+            "WaterPlant": 7
+          }
+        },
+        "Carry_Shield": {
+          "Part_Body_BASE_ARMOR": {
+            "Bathe": 110,
+            "Fly": 85,
+            "PassOut": 39,
+            "Stagger": 37
+          }
+        },
+        "HelmTrim_Bronze": {
+          "Part_Body_BASE_ARMOR": {
+            "Chop": 39,
+            "Exercise": 12,
+            "Mine": 4
+          }
+        },
+        "HelmTrim_Iron": {
+          "Part_Body_BASE_ARMOR": {
+            "Chop": 39,
+            "Exercise": 12,
+            "Mine": 4
+          }
+        },
+        "HelmTrim_Steel": {
+          "Part_Body_BASE_ARMOR": {
+            "Chop": 39,
+            "Exercise": 12,
+            "Mine": 4
+          }
+        },
+        "HelmTrim_Titanium": {
+          "Part_Body_BASE_ARMOR": {
+            "Chop": 39,
+            "Exercise": 12,
+            "Mine": 4
+          }
+        },
+        "HelmTrim_Starlight": {
+          "Part_Body_BASE_ARMOR": {
+            "Chop": 69,
+            "Exercise": 12,
+            "Mine": 4
+          }
+        },
+        "Holder_Sword": {
+          "Part_Body_BASE_ARMOR": {
+            "CollapseDropWeapon": 22,
+            "Death": 22,
+            "Inspect": 16,
+            "PassOut": 20,
+            "Run": 33,
+            "Sleep": 13,
+            "StandExit": 14,
+            "WakeUp": 20,
+            "Walk": 24,
+            "WalkTipsy": 24
+          },
+          "Part_Outfit_LINEN_ARMOR": {
+            "Inspect": 15,
+            "SkyGaze": 22,
+            "Sleep": 22,
+            "StandExit": 12,
+            "Walk": 4
+          }
+        },
+        "Holder_Spear": {
+          "Part_Outfit_LINEN_ARMOR": {
+            "DrawSword": 14,
+            "Fly": 20,
+            "Muster": 14,
+            "SheatheSword": 14,
+            "ToolAway": 14
+          },
+          "Part_Body_BASE_ARMOR": {
+            "Fly": 6
+          }
+        },
+        "Carry_Sword": {
+          "Part_Outfit_LINEN_ARMOR": {
+            "DrawSword": 14,
+            "Muster": 14,
+            "Run": 24,
+            "SheatheSword": 14,
+            "ToolAway": 14
+          },
+          "Part_Body_BASE_ARMOR": {
+            "Run": 44
+          }
+        },
+        "Helm_CAT": {
+          "Part_Outfit_LINEN_ARMOR": {
+            "Exercise": 3
+          },
+          "Part_Body_BASE_ARMOR": {
+            "Exercise": 183,
+            "Ladle": 22,
+            "Mine": 7
+          }
+        },
+        "Helm_RABBIT": {
+          "Part_Outfit_LINEN_ARMOR": {
+            "Exercise": 3
+          },
+          "Part_Body_BASE_ARMOR": {
+            "Exercise": 183,
+            "Ladle": 22,
+            "Mine": 7
+          }
+        },
+        "Helm_ROUND": {
+          "Part_Outfit_LINEN_ARMOR": {
+            "Exercise": 3
+          },
+          "Part_Body_BASE_ARMOR": {
+            "Exercise": 183,
+            "Ladle": 22,
+            "Mine": 7
+          }
+        },
+        "Helm_UPRIGHT": {
+          "Part_Outfit_LINEN_ARMOR": {
+            "Exercise": 3
+          },
+          "Part_Body_BASE_ARMOR": {
+            "Exercise": 183,
+            "Ladle": 22,
+            "Mine": 7
+          }
+        },
+        "Holder_Shield": {
+          "Part_Body_BASE_ARMOR": {
+            "Fly": 71,
+            "Run": 14,
+            "StandEnter": 13,
+            "Walk": 6,
+            "WalkTipsy": 19
+          },
+          "Part_Outfit_LINEN_ARMOR": {
+            "Run": 2,
+            "StandEnter": 9,
+            "Walk": 12
+          }
+        },
+        "Armor_Greave_L": {
+          "Part_Body_BASE_ARMOR": {
+            "GroundWork": 19,
+            "LatrineSquat": 20,
+            "Pickup": 19,
+            "PutDown": 20,
+            "WakeUp": 19
+          }
+        },
+        "Armor_Greave_R": {
+          "Part_Body_BASE_ARMOR": {
+            "GroundWork": 19,
+            "LatrineSquat": 20,
+            "Pickup": 19,
+            "PutDown": 20,
+            "WakeUp": 19
+          }
+        }
+      }
+    }
+  },
+  "baseline": {
+    "Armor_Breastplate": {
+      "Part_Outfit_LINEN_ARMOR": {
+        "Attack": 99,
+        "BeatFire": 24,
+        "BenchPickup": 108,
+        "BenchPlace": 108,
+        "BenchWork": 98,
+        "BowShoot": 55,
+        "CanisterConnect": 96,
+        "CanisterDisconnect": 97,
+        "Captive": 60,
+        "Carry": 68,
+        "CarryPerson": 99,
+        "Chop": 59,
+        "CollapseDropWeapon": 54,
+        "ControlPanel": 99,
+        "Crave": 56,
+        "Death": 47,
+        "Downed": 61,
+        "DrawSword": 35,
+        "Drink": 85,
+        "DriveSeated": 77,
+        "Eat": 118,
+        "EquipFromGround": 117,
+        "Grind": 110,
+        "GroundWork": 61,
+        "Hammer": 88,
+        "HangoverIdle": 22,
+        "Hurt": 56,
+        "Idle": 28,
+        "Inspect": 77,
+        "Knead": 161,
+        "Ladle": 19,
+        "LatrineSquat": 48,
+        "Mine": 58,
+        "Mourn": 57,
+        "Muster": 116,
+        "Operate": 95,
+        "OvenLoad": 140,
+        "PassOut": 27,
+        "Pickup": 98,
+        "PlayBoard": 140,
+        "PlayMusic": 78,
+        "PourSack": 35,
+        "PressLever": 6,
+        "PutDown": 94,
+        "Rest": 48,
+        "RockCradle": 82,
+        "Run": 44,
+        "Saw": 82,
+        "SelfTreat": 140,
+        "SewRepair": 100,
+        "SheatheSword": 35,
+        "ShieldBlock": 66,
+        "Sit": 36,
+        "Sleep": 41,
+        "SmithRepair": 49,
+        "SpearThrust": 50,
+        "Spin": 101,
+        "Stagger": 26,
+        "Stamp": 98,
+        "StandEnter": 26,
+        "StandExit": 26,
+        "StandIdle": 28,
+        "Stir": 109,
+        "SwordAttack": 60,
+        "TapFill": 147,
+        "Throw": 60,
+        "ToolAway": 41,
+        "ToolOut": 27,
+        "Tool_Chop": 90,
+        "Tool_Dig": 105,
+        "Tool_Hammer": 82,
+        "Tool_Harvest": 52,
+        "Tool_Mine": 81,
+        "Tool_Till": 120,
+        "Treat": 98,
+        "UnequipToGround": 128,
+        "ValveTurn": 164,
+        "WakeUp": 28,
+        "Walk": 26,
+        "WalkTipsy": 26,
+        "Wash": 98,
+        "WaterPlant": 67,
+        "Wrestle": 67
+      },
+      "Part_Body_BASE_ARMOR": {
+        "CanisterConnect": 12,
+        "Drink": 17,
+        "SmithRepair": 2,
+        "SpearThrust": 21,
+        "Tool_Chop": 7,
+        "Tool_Dig": 76,
+        "Tool_Mine": 26,
+        "Tool_Till": 24,
+        "ValveTurn": 25
+      }
+    },
+    "Armor_Breastplate_Lower": {
+      "Part_Outfit_LINEN_ARMOR": {
+        "Attack": 134,
+        "Bathe": 30,
+        "BeatFire": 22,
+        "BenchPickup": 186,
+        "BenchPlace": 181,
+        "BenchWork": 148,
+        "BowShoot": 144,
+        "CanisterConnect": 177,
+        "CanisterDisconnect": 176,
+        "Captive": 171,
+        "Carry": 130,
+        "CarryPerson": 59,
+        "Chop": 78,
+        "CollapseDropWeapon": 115,
+        "ControlPanel": 138,
+        "Crave": 172,
+        "Death": 139,
+        "Downed": 142,
+        "DrawSword": 122,
+        "Drink": 95,
+        "DriveSeated": 161,
+        "Eat": 139,
+        "EquipFromGround": 184,
+        "Grind": 157,
+        "GroundWork": 157,
+        "Hammer": 145,
+        "HangoverIdle": 46,
+        "Hurt": 135,
+        "Idle": 78,
+        "Inspect": 125,
+        "Knead": 271,
+        "Ladle": 6,
+        "LatrineSquat": 164,
+        "Mine": 82,
+        "Mourn": 138,
+        "Muster": 170,
+        "Operate": 159,
+        "OvenLoad": 179,
+        "PassOut": 98,
+        "Pickup": 200,
+        "PlayBoard": 150,
+        "PlayMusic": 132,
+        "PourSack": 107,
+        "PutDown": 202,
+        "Rest": 174,
+        "RockCradle": 88,
+        "Run": 87,
+        "Saw": 164,
+        "SelfTreat": 165,
+        "SewRepair": 201,
+        "SheatheSword": 137,
+        "ShieldBlock": 125,
+        "Sit": 160,
+        "SkyGaze": 52,
+        "Sleep": 99,
+        "SmithRepair": 81,
+        "SpearThrust": 12,
+        "Spin": 173,
+        "Stagger": 98,
+        "Stamp": 154,
+        "StandEnter": 74,
+        "StandExit": 78,
+        "StandIdle": 78,
+        "Stir": 159,
+        "Swing": 2,
+        "SwordAttack": 95,
+        "TapFill": 187,
+        "Throw": 92,
+        "ToolAway": 116,
+        "ToolOut": 108,
+        "Tool_Chop": 18,
+        "Tool_Dig": 82,
+        "Tool_Hammer": 137,
+        "Tool_Harvest": 11,
+        "Tool_Till": 59,
+        "Treat": 166,
+        "UnequipToGround": 182,
+        "ValveTurn": 157,
+        "WakeUp": 122,
+        "Walk": 77,
+        "WalkTipsy": 79,
+        "Wash": 160,
+        "WaterPlant": 130,
+        "Wrestle": 38
+      },
+      "Part_Body_BASE_ARMOR": {
+        "Attack": 9,
+        "BenchPickup": 85,
+        "BenchPlace": 88,
+        "BowShoot": 4,
+        "CanisterConnect": 91,
+        "CanisterDisconnect": 100,
+        "Captive": 8,
+        "CollapseDropWeapon": 4,
+        "ControlPanel": 8,
+        "Death": 3,
+        "Drink": 54,
+        "DriveSeated": 14,
+        "Eat": 8,
+        "EquipFromGround": 1,
+        "GroundWork": 40,
+        "Inspect": 9,
+        "LatrineSquat": 24,
+        "Mourn": 48,
+        "Muster": 4,
+        "OvenLoad": 122,
+        "Pickup": 28,
+        "PlayBoard": 14,
+        "PourSack": 85,
+        "PutDown": 28,
+        "Rest": 6,
+        "SelfTreat": 24,
+        "SewRepair": 50,
+        "SheatheSword": 3,
+        "Sit": 16,
+        "SmithRepair": 25,
+        "SpearThrust": 51,
+        "Spin": 8,
+        "Swing": 36,
+        "TapFill": 30,
+        "Throw": 5,
+        "Tool_Dig": 21,
+        "Tool_Mine": 10,
+        "Tool_Till": 10,
+        "UnequipToGround": 6,
+        "ValveTurn": 2,
+        "WakeUp": 26,
+        "Walk": 4,
+        "WalkTipsy": 4
+      }
+    },
+    "Armor_Backplate": {
+      "Part_Outfit_LINEN_ARMOR": {
+        "Attack": 22,
+        "BenchPickup": 42,
+        "BenchPlace": 44,
+        "BenchWork": 18,
+        "BowShoot": 28,
+        "CanisterConnect": 40,
+        "CanisterDisconnect": 36,
+        "Captive": 24,
+        "Carry": 20,
+        "CollapseDropWeapon": 42,
+        "ControlPanel": 11,
+        "Crave": 32,
+        "Death": 42,
+        "Downed": 23,
+        "DrawSword": 42,
+        "Drink": 43,
+        "DriveSeated": 26,
+        "Eat": 16,
+        "EquipFromGround": 42,
+        "Fly": 12,
+        "Grind": 14,
+        "GroundWork": 17,
+        "HangoverIdle": 21,
+        "Hurt": 42,
+        "Idle": 44,
+        "Inspect": 42,
+        "Knead": 20,
+        "LatrineSquat": 42,
+        "Mourn": 42,
+        "Muster": 44,
+        "Operate": 17,
+        "OvenLoad": 41,
+        "PassOut": 42,
+        "Pickup": 42,
+        "PlayBoard": 16,
+        "PlayMusic": 18,
+        "PourSack": 46,
+        "PutDown": 42,
+        "Rest": 32,
+        "Run": 43,
+        "Saw": 24,
+        "SewRepair": 28,
+        "SheatheSword": 42,
+        "ShieldBlock": 31,
+        "Sit": 32,
+        "SkyGaze": 40,
+        "Sleep": 32,
+        "SmithRepair": 45,
+        "SpearThrust": 90,
+        "Spin": 7,
+        "Stagger": 34,
+        "Stamp": 18,
+        "StandEnter": 45,
+        "StandExit": 43,
+        "StandIdle": 44,
+        "Stir": 16,
+        "SwordAttack": 19,
+        "TapFill": 42,
+        "Throw": 21,
+        "ToolAway": 30,
+        "ToolOut": 42,
+        "Tool_Dig": 16,
+        "Tool_Hammer": 69,
+        "Tool_Harvest": 7,
+        "Treat": 16,
+        "UnequipToGround": 42,
+        "ValveTurn": 20,
+        "WakeUp": 42,
+        "Walk": 43,
+        "WalkTipsy": 43,
+        "Wash": 16,
+        "WaterPlant": 21
+      },
+      "Part_Body_BASE_ARMOR": {
+        "SpearThrust": 24
+      }
+    },
+    "Armor_Tasset_L": {
+      "Part_Outfit_LINEN_ARMOR": {
+        "Attack": 22,
+        "Bathe": 3,
+        "BeatFire": 3,
+        "BenchPickup": 22,
+        "BenchPlace": 22,
+        "BenchWork": 22,
+        "BowShoot": 22,
+        "CanisterConnect": 27,
+        "CanisterDisconnect": 28,
+        "Captive": 61,
+        "Carry": 28,
+        "CarryPerson": 28,
+        "Chop": 17,
+        "CollapseDropWeapon": 22,
+        "ControlPanel": 22,
+        "Crave": 22,
+        "Death": 22,
+        "Downed": 6,
+        "DrawSword": 22,
+        "Drink": 22,
+        "DriveSeated": 66,
+        "Eat": 66,
+        "EquipFromGround": 22,
+        "Exercise": 22,
+        "Fly": 20,
+        "Grind": 20,
+        "GroundWork": 97,
+        "Hammer": 22,
+        "HangoverIdle": 22,
+        "Hurt": 27,
+        "Idle": 22,
+        "Inspect": 22,
+        "Knead": 22,
+        "Ladle": 22,
+        "LatrineSquat": 83,
+        "Mine": 17,
+        "Mourn": 22,
+        "Muster": 22,
+        "Operate": 22,
+        "OvenLoad": 22,
+        "PassOut": 22,
+        "Pickup": 68,
+        "PlayBoard": 83,
+        "PlayMusic": 22,
+        "PourSack": 22,
+        "PressLever": 22,
+        "PutDown": 76,
+        "Rest": 51,
+        "RockCradle": 22,
+        "Run": 25,
+        "Saw": 17,
+        "SelfTreat": 76,
+        "SewRepair": 22,
+        "SheatheSword": 22,
+        "ShieldBlock": 10,
+        "Sit": 59,
+        "SkyGaze": 22,
+        "Sleep": 11,
+        "SmithRepair": 22,
+        "SpearThrust": 22,
+        "Spin": 74,
+        "Stagger": 19,
+        "Stamp": 22,
+        "StandEnter": 22,
+        "StandExit": 22,
+        "StandIdle": 22,
+        "Stir": 22,
+        "Swing": 3,
+        "SwordAttack": 22,
+        "TapFill": 29,
+        "Throw": 22,
+        "ToolAway": 22,
+        "ToolOut": 22,
+        "Tool_Chop": 17,
+        "Tool_Dig": 22,
+        "Tool_Hammer": 22,
+        "Tool_Harvest": 5,
+        "Tool_Mine": 16,
+        "Tool_Till": 20,
+        "Treat": 17,
+        "UnequipToGround": 22,
+        "ValveTurn": 22,
+        "WakeUp": 22,
+        "Walk": 28,
+        "WalkTipsy": 29,
+        "Wash": 20,
+        "WaterPlant": 22,
+        "Wrestle": 2
+      },
+      "Part_Body_BASE_ARMOR": {
+        "Attack": 54,
+        "CanisterConnect": 92,
+        "CanisterDisconnect": 109,
+        "Captive": 49,
+        "CollapseDropWeapon": 62,
+        "Death": 113,
+        "DrawSword": 10,
+        "DriveSeated": 91,
+        "Eat": 52,
+        "EquipFromGround": 184,
+        "GroundWork": 63,
+        "Hurt": 41,
+        "LatrineSquat": 103,
+        "Mourn": 17,
+        "Muster": 36,
+        "PassOut": 34,
+        "Pickup": 54,
+        "PlayBoard": 67,
+        "PutDown": 64,
+        "Rest": 73,
+        "SelfTreat": 33,
+        "SheatheSword": 39,
+        "Sit": 142,
+        "Spin": 45,
+        "Stagger": 105,
+        "StandExit": 8,
+        "SwordAttack": 72,
+        "TapFill": 92,
+        "Throw": 55,
+        "ToolAway": 8,
+        "UnequipToGround": 200,
+        "Walk": 48,
+        "WalkTipsy": 53
+      }
+    },
+    "Armor_Tasset_R": {
+      "Part_Outfit_LINEN_ARMOR": {
+        "Attack": 38,
+        "Bathe": 7,
+        "BeatFire": 7,
+        "BenchPickup": 18,
+        "BenchPlace": 18,
+        "BenchWork": 18,
+        "BowShoot": 18,
+        "CanisterConnect": 36,
+        "CanisterDisconnect": 33,
+        "Captive": 66,
+        "Carry": 36,
+        "CarryPerson": 32,
+        "Chop": 22,
+        "CollapseDropWeapon": 23,
+        "ControlPanel": 18,
+        "Crave": 18,
+        "Death": 20,
+        "Downed": 8,
+        "DrawSword": 18,
+        "Drink": 18,
+        "DriveSeated": 74,
+        "Eat": 78,
+        "EquipFromGround": 18,
+        "Exercise": 18,
+        "Fly": 26,
+        "Grind": 18,
+        "GroundWork": 103,
+        "Hammer": 18,
+        "HangoverIdle": 18,
+        "Hurt": 23,
+        "Idle": 18,
+        "Inspect": 18,
+        "Knead": 18,
+        "Ladle": 18,
+        "LatrineSquat": 89,
+        "Mine": 22,
+        "Mourn": 18,
+        "Muster": 18,
+        "Operate": 18,
+        "OvenLoad": 18,
+        "PassOut": 18,
+        "Pickup": 74,
+        "PlayBoard": 90,
+        "PlayMusic": 18,
+        "PourSack": 18,
+        "PressLever": 18,
+        "PutDown": 79,
+        "Rest": 56,
+        "RockCradle": 18,
+        "Run": 32,
+        "Saw": 22,
+        "SelfTreat": 94,
+        "SewRepair": 18,
+        "SheatheSword": 18,
+        "ShieldBlock": 18,
+        "Sit": 64,
+        "SkyGaze": 18,
+        "Sleep": 19,
+        "SmithRepair": 18,
+        "SpearThrust": 18,
+        "Spin": 77,
+        "Stagger": 22,
+        "Stamp": 18,
+        "StandEnter": 21,
+        "StandExit": 19,
+        "StandIdle": 18,
+        "Stir": 18,
+        "Swing": 9,
+        "SwordAttack": 18,
+        "TapFill": 32,
+        "Throw": 18,
+        "ToolAway": 18,
+        "ToolOut": 18,
+        "Tool_Chop": 22,
+        "Tool_Dig": 21,
+        "Tool_Hammer": 18,
+        "Tool_Harvest": 7,
+        "Tool_Mine": 22,
+        "Tool_Till": 18,
+        "Treat": 18,
+        "UnequipToGround": 18,
+        "ValveTurn": 18,
+        "WakeUp": 18,
+        "Walk": 36,
+        "WalkTipsy": 36,
+        "Wash": 18,
+        "WaterPlant": 18,
+        "Wrestle": 20
+      },
+      "Part_Body_BASE_ARMOR": {
+        "BowShoot": 81,
+        "CanisterConnect": 190,
+        "CanisterDisconnect": 169,
+        "Captive": 51,
+        "CollapseDropWeapon": 20,
+        "Death": 32,
+        "DriveSeated": 96,
+        "Eat": 74,
+        "EquipFromGround": 190,
+        "GroundWork": 87,
+        "Hurt": 65,
+        "Inspect": 71,
+        "LatrineSquat": 107,
+        "Mourn": 10,
+        "Muster": 27,
+        "PassOut": 82,
+        "Pickup": 54,
+        "PlayBoard": 102,
+        "PutDown": 64,
+        "Rest": 73,
+        "Run": 77,
+        "SelfTreat": 50,
+        "Sit": 153,
+        "Spin": 106,
+        "Stagger": 96,
+        "StandEnter": 10,
+        "TapFill": 106,
+        "Tool_Dig": 12,
+        "UnequipToGround": 209,
+        "Walk": 46,
+        "WalkTipsy": 58
+      }
+    },
+    "Armor_Bracer_L": {
+      "Part_Outfit_LINEN_ARMOR": {
+        "Attack": 15,
+        "Bathe": 10,
+        "BeatFire": 10,
+        "BenchPickup": 12,
+        "BenchPlace": 12,
+        "BenchWork": 10,
+        "BowShoot": 10,
+        "CanisterConnect": 95,
+        "CanisterDisconnect": 75,
+        "Captive": 10,
+        "Carry": 10,
+        "CarryPerson": 10,
+        "Chop": 10,
+        "CollapseDropWeapon": 30,
+        "ControlPanel": 10,
+        "Crave": 10,
+        "Death": 33,
+        "Downed": 10,
+        "DrawSword": 31,
+        "Drink": 33,
+        "DriveSeated": 19,
+        "Eat": 10,
+        "EquipFromGround": 31,
+        "Exercise": 20,
+        "Fly": 10,
+        "Grind": 10,
+        "GroundWork": 25,
+        "Hammer": 10,
+        "HangoverIdle": 35,
+        "Hurt": 31,
+        "Idle": 33,
+        "Inspect": 38,
+        "Knead": 22,
+        "Ladle": 10,
+        "LatrineSquat": 33,
+        "Mine": 10,
+        "Mourn": 34,
+        "Muster": 31,
+        "Operate": 10,
+        "OvenLoad": 34,
+        "PassOut": 36,
+        "Pickup": 31,
+        "PlayBoard": 10,
+        "PlayMusic": 10,
+        "PourSack": 24,
+        "PressLever": 32,
+        "PutDown": 31,
+        "Rest": 10,
+        "RockCradle": 10,
+        "Run": 55,
+        "Saw": 10,
+        "SelfTreat": 10,
+        "SewRepair": 8,
+        "SheatheSword": 31,
+        "ShieldBlock": 32,
+        "Sit": 10,
+        "SkyGaze": 34,
+        "Sleep": 10,
+        "SmithRepair": 10,
+        "SpearThrust": 49,
+        "Spin": 10,
+        "Stagger": 30,
+        "Stamp": 10,
+        "StandEnter": 34,
+        "StandExit": 33,
+        "StandIdle": 33,
+        "Stir": 10,
+        "Swing": 10,
+        "SwordAttack": 16,
+        "TapFill": 21,
+        "Throw": 31,
+        "ToolAway": 31,
+        "ToolOut": 31,
+        "Tool_Chop": 26,
+        "Tool_Dig": 35,
+        "Tool_Hammer": 10,
+        "Tool_Harvest": 10,
+        "Tool_Mine": 34,
+        "Tool_Till": 28,
+        "Treat": 10,
+        "UnequipToGround": 31,
+        "ValveTurn": 30,
+        "WakeUp": 34,
+        "Walk": 59,
+        "WalkTipsy": 31,
+        "Wash": 10,
+        "WaterPlant": 39,
+        "Wrestle": 10
+      },
+      "Part_Body_BASE_ARMOR": {
+        "Attack": 3,
+        "CanisterConnect": 6,
+        "CanisterDisconnect": 6,
+        "Captive": 6,
+        "CollapseDropWeapon": 19,
+        "Death": 20,
+        "DrawSword": 20,
+        "Drink": 20,
+        "EquipFromGround": 22,
+        "GroundWork": 19,
+        "HangoverIdle": 18,
+        "Hurt": 20,
+        "Idle": 20,
+        "Inspect": 24,
+        "LatrineSquat": 25,
+        "Mourn": 24,
+        "Muster": 22,
+        "PassOut": 25,
+        "Pickup": 25,
+        "PutDown": 25,
+        "Rest": 1,
+        "Run": 26,
+        "SheatheSword": 22,
+        "Sit": 10,
+        "SkyGaze": 18,
+        "SpearThrust": 34,
+        "Stagger": 22,
+        "StandEnter": 43,
+        "StandExit": 20,
+        "StandIdle": 20,
+        "SwordAttack": 5,
+        "TapFill": 12,
+        "Throw": 22,
+        "ToolAway": 20,
+        "ToolOut": 20,
+        "UnequipToGround": 20,
+        "WakeUp": 24,
+        "Walk": 29,
+        "WalkTipsy": 19,
+        "WaterPlant": 22
+      }
+    },
+    "Armor_Bracer_R": {
+      "Part_Outfit_LINEN_ARMOR": {
+        "Attack": 10,
+        "Bathe": 10,
+        "BeatFire": 10,
+        "BenchPickup": 12,
+        "BenchPlace": 12,
+        "BenchWork": 10,
+        "BowShoot": 42,
+        "CanisterConnect": 35,
+        "CanisterDisconnect": 38,
+        "Captive": 10,
+        "Carry": 10,
+        "CarryPerson": 10,
+        "Chop": 10,
+        "CollapseDropWeapon": 32,
+        "ControlPanel": 30,
+        "Crave": 10,
+        "Death": 34,
+        "Downed": 10,
+        "DrawSword": 33,
+        "Drink": 18,
+        "DriveSeated": 32,
+        "Eat": 32,
+        "EquipFromGround": 30,
+        "Exercise": 20,
+        "Fly": 10,
+        "Grind": 10,
+        "GroundWork": 43,
+        "Hammer": 10,
+        "HangoverIdle": 10,
+        "Hurt": 28,
+        "Idle": 30,
+        "Inspect": 32,
+        "Knead": 22,
+        "Ladle": 10,
+        "LatrineSquat": 28,
+        "Mine": 10,
+        "Mourn": 32,
+        "Muster": 31,
+        "Operate": 10,
+        "OvenLoad": 32,
+        "PassOut": 32,
+        "Pickup": 31,
+        "PlayBoard": 31,
+        "PlayMusic": 10,
+        "PourSack": 26,
+        "PressLever": 28,
+        "PutDown": 31,
+        "Rest": 10,
+        "RockCradle": 10,
+        "Run": 30,
+        "Saw": 10,
+        "SelfTreat": 19,
+        "SewRepair": 42,
+        "SheatheSword": 26,
+        "ShieldBlock": 30,
+        "Sit": 10,
+        "SkyGaze": 32,
+        "Sleep": 33,
+        "SmithRepair": 43,
+        "SpearThrust": 76,
+        "Spin": 40,
+        "Stagger": 30,
+        "Stamp": 10,
+        "StandEnter": 29,
+        "StandExit": 31,
+        "StandIdle": 30,
+        "Stir": 10,
+        "Swing": 10,
+        "SwordAttack": 10,
+        "TapFill": 22,
+        "Throw": 20,
+        "ToolAway": 15,
+        "ToolOut": 28,
+        "Tool_Chop": 10,
+        "Tool_Dig": 87,
+        "Tool_Hammer": 66,
+        "Tool_Harvest": 20,
+        "Tool_Mine": 10,
+        "Tool_Till": 30,
+        "Treat": 10,
+        "UnequipToGround": 28,
+        "ValveTurn": 43,
+        "WakeUp": 32,
+        "Walk": 60,
+        "WalkTipsy": 50,
+        "Wash": 10,
+        "WaterPlant": 10,
+        "Wrestle": 10
+      },
+      "Part_Body_BASE_ARMOR": {
+        "BowShoot": 17,
+        "CanisterConnect": 2,
+        "CanisterDisconnect": 2,
+        "Captive": 6,
+        "CollapseDropWeapon": 27,
+        "Death": 24,
+        "DrawSword": 30,
+        "EquipFromGround": 22,
+        "GroundWork": 24,
+        "Hurt": 20,
+        "Idle": 20,
+        "Inspect": 26,
+        "LatrineSquat": 25,
+        "Mourn": 24,
+        "Muster": 28,
+        "PassOut": 22,
+        "Pickup": 25,
+        "PlayBoard": 5,
+        "PutDown": 25,
+        "Rest": 1,
+        "Run": 20,
+        "SheatheSword": 20,
+        "ShieldBlock": 18,
+        "Sit": 9,
+        "SkyGaze": 18,
+        "Sleep": 26,
+        "SpearThrust": 6,
+        "Stagger": 20,
+        "StandEnter": 20,
+        "StandExit": 26,
+        "StandIdle": 20,
+        "TapFill": 10,
+        "ToolAway": 5,
+        "ToolOut": 20,
+        "Tool_Chop": 2,
+        "Tool_Dig": 7,
+        "Tool_Till": 23,
+        "UnequipToGround": 20,
+        "WakeUp": 24,
+        "Walk": 29,
+        "WalkTipsy": 33
+      }
+    },
+    "Armor_Backplate_Lower": {
+      "Part_Outfit_LINEN_ARMOR": {
+        "Attack": 10,
+        "BenchPickup": 28,
+        "BenchPlace": 28,
+        "BowShoot": 7,
+        "CanisterConnect": 38,
+        "CanisterDisconnect": 38,
+        "Captive": 18,
+        "Carry": 5,
+        "CollapseDropWeapon": 22,
+        "Crave": 16,
+        "Death": 22,
+        "Downed": 13,
+        "DrawSword": 22,
+        "Drink": 22,
+        "DriveSeated": 12,
+        "EquipFromGround": 24,
+        "Fly": 8,
+        "HangoverIdle": 10,
+        "Hurt": 26,
+        "Idle": 20,
+        "Inspect": 22,
+        "LatrineSquat": 22,
+        "Mourn": 24,
+        "Muster": 20,
+        "OvenLoad": 28,
+        "PassOut": 22,
+        "Pickup": 24,
+        "PlayBoard": 8,
+        "PourSack": 28,
+        "PutDown": 20,
+        "Rest": 16,
+        "Run": 28,
+        "Saw": 12,
+        "SewRepair": 14,
+        "SheatheSword": 22,
+        "ShieldBlock": 10,
+        "Sit": 20,
+        "SkyGaze": 20,
+        "Sleep": 10,
+        "SmithRepair": 26,
+        "SpearThrust": 63,
+        "Stagger": 21,
+        "StandEnter": 27,
+        "StandExit": 26,
+        "StandIdle": 20,
+        "SwordAttack": 13,
+        "TapFill": 24,
+        "Throw": 10,
+        "ToolAway": 21,
+        "ToolOut": 20,
+        "Tool_Dig": 6,
+        "Tool_Hammer": 42,
+        "UnequipToGround": 20,
+        "WakeUp": 24,
+        "Walk": 25,
+        "WalkTipsy": 31,
+        "WaterPlant": 10
+      },
+      "Part_Body_BASE_ARMOR": {
+        "SpearThrust": 12
+      }
+    },
+    "Armor_Fauld": {
+      "Part_Outfit_LINEN_ARMOR": {
+        "Attack": 20,
+        "Bathe": 10,
+        "BenchPickup": 19,
+        "BenchPlace": 20,
+        "BowShoot": 33,
+        "CanisterConnect": 38,
+        "CanisterDisconnect": 39,
+        "Captive": 6,
+        "CollapseDropWeapon": 24,
+        "ControlPanel": 12,
+        "Death": 36,
+        "Downed": 14,
+        "DrawSword": 26,
+        "Drink": 28,
+        "DriveSeated": 6,
+        "Eat": 6,
+        "EquipFromGround": 45,
+        "GroundWork": 48,
+        "HangoverIdle": 10,
+        "Hurt": 32,
+        "Idle": 26,
+        "Inspect": 31,
+        "Knead": 26,
+        "LatrineSquat": 48,
+        "Mourn": 42,
+        "Muster": 37,
+        "Operate": 6,
+        "OvenLoad": 20,
+        "PassOut": 28,
+        "Pickup": 46,
+        "PlayBoard": 22,
+        "PourSack": 14,
+        "PutDown": 44,
+        "Rest": 6,
+        "Run": 25,
+        "SelfTreat": 6,
+        "SewRepair": 20,
+        "SheatheSword": 22,
+        "ShieldBlock": 12,
+        "Sit": 38,
+        "SkyGaze": 12,
+        "Sleep": 15,
+        "Spin": 6,
+        "Stagger": 34,
+        "Stamp": 18,
+        "StandEnter": 31,
+        "StandExit": 28,
+        "StandIdle": 26,
+        "Swing": 29,
+        "SwordAttack": 19,
+        "TapFill": 30,
+        "Throw": 24,
+        "ToolAway": 27,
+        "ToolOut": 26,
+        "UnequipToGround": 34,
+        "WakeUp": 30,
+        "Walk": 20,
+        "WalkTipsy": 27,
+        "WaterPlant": 12
+      },
+      "Part_Body_BASE_ARMOR": {
+        "Attack": 37,
+        "Bathe": 34,
+        "BenchPickup": 200,
+        "BenchPlace": 208,
+        "BowShoot": 47,
+        "CanisterConnect": 199,
+        "CanisterDisconnect": 188,
+        "Captive": 64,
+        "CollapseDropWeapon": 44,
+        "ControlPanel": 7,
+        "Death": 69,
+        "DrawSword": 45,
+        "Drink": 47,
+        "DriveSeated": 64,
+        "Eat": 64,
+        "EquipFromGround": 91,
+        "GroundWork": 129,
+        "HangoverIdle": 14,
+        "Hurt": 110,
+        "Idle": 20,
+        "Inspect": 76,
+        "Knead": 14,
+        "LatrineSquat": 106,
+        "Mourn": 174,
+        "Muster": 91,
+        "OvenLoad": 66,
+        "PassOut": 70,
+        "Pickup": 117,
+        "PlayBoard": 71,
+        "PourSack": 103,
+        "PutDown": 148,
+        "Rest": 64,
+        "Run": 51,
+        "SelfTreat": 64,
+        "SewRepair": 41,
+        "SheatheSword": 44,
+        "ShieldBlock": 18,
+        "Sit": 82,
+        "SkyGaze": 37,
+        "Sleep": 6,
+        "Spin": 64,
+        "Stagger": 82,
+        "StandEnter": 34,
+        "StandExit": 33,
+        "StandIdle": 20,
+        "Swing": 65,
+        "SwordAttack": 38,
+        "TapFill": 222,
+        "Throw": 49,
+        "ToolAway": 37,
+        "ToolOut": 23,
+        "UnequipToGround": 72,
+        "WakeUp": 111,
+        "Walk": 61,
+        "WalkTipsy": 71,
+        "WaterPlant": 15
+      }
+    },
+    "Belt": {
+      "Part_Outfit_LINEN_ARMOR": {
+        "Attack": 15,
+        "BenchPickup": 16,
+        "BenchPlace": 22,
+        "BowShoot": 33,
+        "CanisterConnect": 46,
+        "CanisterDisconnect": 45,
+        "CollapseDropWeapon": 30,
+        "Death": 28,
+        "Downed": 16,
+        "DrawSword": 29,
+        "Drink": 20,
+        "EquipFromGround": 44,
+        "GroundWork": 34,
+        "HangoverIdle": 14,
+        "Hurt": 24,
+        "Idle": 28,
+        "Inspect": 30,
+        "LatrineSquat": 36,
+        "Mourn": 28,
+        "Muster": 26,
+        "OvenLoad": 20,
+        "PassOut": 32,
+        "Pickup": 36,
+        "PlayBoard": 18,
+        "PourSack": 14,
+        "PutDown": 36,
+        "Run": 28,
+        "SewRepair": 19,
+        "SheatheSword": 29,
+        "ShieldBlock": 12,
+        "Sit": 36,
+        "SkyGaze": 32,
+        "Sleep": 14,
+        "SpearThrust": 15,
+        "Stagger": 29,
+        "Stamp": 16,
+        "StandEnter": 29,
+        "StandExit": 30,
+        "StandIdle": 28,
+        "SwordAttack": 24,
+        "TapFill": 25,
+        "Throw": 18,
+        "ToolAway": 30,
+        "ToolOut": 27,
+        "UnequipToGround": 34,
+        "WakeUp": 34,
+        "Walk": 32,
+        "WalkTipsy": 32,
+        "WaterPlant": 16
+      },
+      "Part_Body_BASE_ARMOR": {
+        "Attack": 3,
+        "BenchPickup": 86,
+        "BenchPlace": 86,
+        "BowShoot": 5,
+        "CanisterConnect": 117,
+        "CanisterDisconnect": 96,
+        "Captive": 36,
+        "CollapseDropWeapon": 35,
+        "Death": 29,
+        "DrawSword": 13,
+        "Drink": 34,
+        "DriveSeated": 36,
+        "Eat": 36,
+        "EquipFromGround": 14,
+        "GroundWork": 51,
+        "HangoverIdle": 6,
+        "Hurt": 20,
+        "Inspect": 19,
+        "LatrineSquat": 46,
+        "Mourn": 44,
+        "Muster": 16,
+        "OvenLoad": 62,
+        "PassOut": 27,
+        "Pickup": 46,
+        "PlayBoard": 36,
+        "PourSack": 69,
+        "PutDown": 46,
+        "Rest": 36,
+        "Run": 19,
+        "SelfTreat": 36,
+        "SewRepair": 22,
+        "SheatheSword": 8,
+        "Sit": 36,
+        "SkyGaze": 12,
+        "Sleep": 2,
+        "SpearThrust": 13,
+        "Spin": 36,
+        "Stagger": 31,
+        "StandEnter": 12,
+        "StandExit": 15,
+        "Swing": 44,
+        "SwordAttack": 6,
+        "TapFill": 57,
+        "Throw": 6,
+        "ToolAway": 12,
+        "ToolOut": 5,
+        "UnequipToGround": 18,
+        "WakeUp": 70,
+        "Walk": 18,
+        "WalkTipsy": 23,
+        "WaterPlant": 7
+      }
+    },
+    "Carry_Shield": {
+      "Part_Body_BASE_ARMOR": {
+        "Bathe": 110,
+        "Fly": 85,
+        "PassOut": 39,
+        "Stagger": 37
+      }
+    },
+    "HelmTrim_Bronze": {
+      "Part_Body_BASE_ARMOR": {
+        "Chop": 39,
+        "Exercise": 12,
+        "Mine": 4
+      }
+    },
+    "HelmTrim_Iron": {
+      "Part_Body_BASE_ARMOR": {
+        "Chop": 39,
+        "Exercise": 12,
+        "Mine": 4
+      }
+    },
+    "HelmTrim_Steel": {
+      "Part_Body_BASE_ARMOR": {
+        "Chop": 39,
+        "Exercise": 12,
+        "Mine": 4
+      }
+    },
+    "HelmTrim_Titanium": {
+      "Part_Body_BASE_ARMOR": {
+        "Chop": 39,
+        "Exercise": 12,
+        "Mine": 4
+      }
+    },
+    "HelmTrim_Starlight": {
+      "Part_Body_BASE_ARMOR": {
+        "Chop": 69,
+        "Exercise": 12,
+        "Mine": 4
+      }
+    },
+    "Holder_Sword": {
+      "Part_Body_BASE_ARMOR": {
+        "CollapseDropWeapon": 22,
+        "Death": 22,
+        "Inspect": 16,
+        "PassOut": 20,
+        "Run": 33,
+        "Sleep": 13,
+        "StandExit": 14,
+        "WakeUp": 20,
+        "Walk": 24,
+        "WalkTipsy": 24
+      },
+      "Part_Outfit_LINEN_ARMOR": {
+        "Inspect": 15,
+        "SkyGaze": 22,
+        "Sleep": 22,
+        "StandExit": 12,
+        "Walk": 4
+      }
+    },
+    "Holder_Spear": {
+      "Part_Outfit_LINEN_ARMOR": {
+        "DrawSword": 14,
+        "Fly": 20,
+        "Muster": 14,
+        "SheatheSword": 14,
+        "ToolAway": 14
+      },
+      "Part_Body_BASE_ARMOR": {
+        "Fly": 6
+      }
+    },
+    "Carry_Sword": {
+      "Part_Outfit_LINEN_ARMOR": {
+        "DrawSword": 14,
+        "Muster": 14,
+        "Run": 24,
+        "SheatheSword": 14,
+        "ToolAway": 14
+      },
+      "Part_Body_BASE_ARMOR": {
+        "Run": 44
+      }
+    },
+    "Helm_CAT": {
+      "Part_Outfit_LINEN_ARMOR": {
+        "Exercise": 3
+      },
+      "Part_Body_BASE_ARMOR": {
+        "Exercise": 183,
+        "Ladle": 22,
+        "Mine": 7
+      }
+    },
+    "Helm_RABBIT": {
+      "Part_Outfit_LINEN_ARMOR": {
+        "Exercise": 3
+      },
+      "Part_Body_BASE_ARMOR": {
+        "Exercise": 183,
+        "Ladle": 22,
+        "Mine": 7
+      }
+    },
+    "Helm_ROUND": {
+      "Part_Outfit_LINEN_ARMOR": {
+        "Exercise": 3
+      },
+      "Part_Body_BASE_ARMOR": {
+        "Exercise": 183,
+        "Ladle": 22,
+        "Mine": 7
+      }
+    },
+    "Helm_UPRIGHT": {
+      "Part_Outfit_LINEN_ARMOR": {
+        "Exercise": 3
+      },
+      "Part_Body_BASE_ARMOR": {
+        "Exercise": 183,
+        "Ladle": 22,
+        "Mine": 7
+      }
+    },
+    "Holder_Shield": {
+      "Part_Body_BASE_ARMOR": {
+        "Fly": 71,
+        "Run": 14,
+        "StandEnter": 13,
+        "Walk": 6,
+        "WalkTipsy": 19
+      },
+      "Part_Outfit_LINEN_ARMOR": {
+        "Run": 2,
+        "StandEnter": 9,
+        "Walk": 12
+      }
+    },
+    "Armor_Greave_L": {
+      "Part_Body_BASE_ARMOR": {
+        "GroundWork": 19,
+        "LatrineSquat": 20,
+        "Pickup": 19,
+        "PutDown": 20,
+        "WakeUp": 19
+      }
+    },
+    "Armor_Greave_R": {
+      "Part_Body_BASE_ARMOR": {
+        "GroundWork": 19,
+        "LatrineSquat": 20,
+        "Pickup": 19,
+        "PutDown": 20,
+        "WakeUp": 19
+      }
+    }
+  },
+  "samples": [
+    [
+      "Attack",
+      1
+    ],
+    [
+      "Attack",
+      4
+    ],
+    [
+      "Attack",
+      7
+    ],
+    [
+      "Attack",
+      10
+    ],
+    [
+      "Attack",
+      13
+    ],
+    [
+      "Attack",
+      16
+    ],
+    [
+      "Attack",
+      19
+    ],
+    [
+      "Attack",
+      22
+    ],
+    [
+      "Attack",
+      25
+    ],
+    [
+      "Bathe",
+      1
+    ],
+    [
+      "Bathe",
+      4
+    ],
+    [
+      "Bathe",
+      7
+    ],
+    [
+      "Bathe",
+      10
+    ],
+    [
+      "Bathe",
+      13
+    ],
+    [
+      "Bathe",
+      16
+    ],
+    [
+      "Bathe",
+      19
+    ],
+    [
+      "Bathe",
+      22
+    ],
+    [
+      "Bathe",
+      25
+    ],
+    [
+      "Bathe",
+      28
+    ],
+    [
+      "Bathe",
+      31
+    ],
+    [
+      "Bathe",
+      34
+    ],
+    [
+      "Bathe",
+      37
+    ],
+    [
+      "Bathe",
+      40
+    ],
+    [
+      "Bathe",
+      43
+    ],
+    [
+      "Bathe",
+      46
+    ],
+    [
+      "Bathe",
+      49
+    ],
+    [
+      "Bathe",
+      52
+    ],
+    [
+      "Bathe",
+      55
+    ],
+    [
+      "Bathe",
+      58
+    ],
+    [
+      "Bathe",
+      61
+    ],
+    [
+      "Bathe",
+      64
+    ],
+    [
+      "Bathe",
+      67
+    ],
+    [
+      "Bathe",
+      70
+    ],
+    [
+      "Bathe",
+      73
+    ],
+    [
+      "Bathe",
+      76
+    ],
+    [
+      "Bathe",
+      79
+    ],
+    [
+      "Bathe",
+      82
+    ],
+    [
+      "Bathe",
+      85
+    ],
+    [
+      "Bathe",
+      88
+    ],
+    [
+      "Bathe",
+      91
+    ],
+    [
+      "Bathe",
+      94
+    ],
+    [
+      "BeatFire",
+      1
+    ],
+    [
+      "BeatFire",
+      4
+    ],
+    [
+      "BeatFire",
+      7
+    ],
+    [
+      "BeatFire",
+      10
+    ],
+    [
+      "BeatFire",
+      13
+    ],
+    [
+      "BeatFire",
+      16
+    ],
+    [
+      "BeatFire",
+      19
+    ],
+    [
+      "BeatFire",
+      22
+    ],
+    [
+      "BenchPickup",
+      1
+    ],
+    [
+      "BenchPickup",
+      4
+    ],
+    [
+      "BenchPickup",
+      7
+    ],
+    [
+      "BenchPickup",
+      10
+    ],
+    [
+      "BenchPickup",
+      13
+    ],
+    [
+      "BenchPickup",
+      16
+    ],
+    [
+      "BenchPickup",
+      19
+    ],
+    [
+      "BenchPickup",
+      22
+    ],
+    [
+      "BenchPickup",
+      25
+    ],
+    [
+      "BenchPickup",
+      28
+    ],
+    [
+      "BenchPlace",
+      1
+    ],
+    [
+      "BenchPlace",
+      4
+    ],
+    [
+      "BenchPlace",
+      7
+    ],
+    [
+      "BenchPlace",
+      10
+    ],
+    [
+      "BenchPlace",
+      13
+    ],
+    [
+      "BenchPlace",
+      16
+    ],
+    [
+      "BenchPlace",
+      19
+    ],
+    [
+      "BenchPlace",
+      22
+    ],
+    [
+      "BenchPlace",
+      25
+    ],
+    [
+      "BenchPlace",
+      28
+    ],
+    [
+      "BenchWork",
+      1
+    ],
+    [
+      "BenchWork",
+      4
+    ],
+    [
+      "BenchWork",
+      7
+    ],
+    [
+      "BenchWork",
+      10
+    ],
+    [
+      "BenchWork",
+      13
+    ],
+    [
+      "BenchWork",
+      16
+    ],
+    [
+      "BenchWork",
+      19
+    ],
+    [
+      "BenchWork",
+      22
+    ],
+    [
+      "BenchWork",
+      25
+    ],
+    [
+      "BenchWork",
+      28
+    ],
+    [
+      "BenchWork",
+      31
+    ],
+    [
+      "BenchWork",
+      34
+    ],
+    [
+      "BenchWork",
+      37
+    ],
+    [
+      "BenchWork",
+      40
+    ],
+    [
+      "BowShoot",
+      1
+    ],
+    [
+      "BowShoot",
+      4
+    ],
+    [
+      "BowShoot",
+      7
+    ],
+    [
+      "BowShoot",
+      10
+    ],
+    [
+      "BowShoot",
+      13
+    ],
+    [
+      "BowShoot",
+      16
+    ],
+    [
+      "BowShoot",
+      19
+    ],
+    [
+      "BowShoot",
+      22
+    ],
+    [
+      "BowShoot",
+      25
+    ],
+    [
+      "BowShoot",
+      28
+    ],
+    [
+      "BowShoot",
+      31
+    ],
+    [
+      "BowShoot",
+      34
+    ],
+    [
+      "CanisterConnect",
+      1
+    ],
+    [
+      "CanisterConnect",
+      4
+    ],
+    [
+      "CanisterConnect",
+      7
+    ],
+    [
+      "CanisterConnect",
+      10
+    ],
+    [
+      "CanisterConnect",
+      13
+    ],
+    [
+      "CanisterConnect",
+      16
+    ],
+    [
+      "CanisterConnect",
+      19
+    ],
+    [
+      "CanisterConnect",
+      22
+    ],
+    [
+      "CanisterConnect",
+      25
+    ],
+    [
+      "CanisterConnect",
+      28
+    ],
+    [
+      "CanisterConnect",
+      31
+    ],
+    [
+      "CanisterConnect",
+      34
+    ],
+    [
+      "CanisterConnect",
+      37
+    ],
+    [
+      "CanisterConnect",
+      40
+    ],
+    [
+      "CanisterDisconnect",
+      1
+    ],
+    [
+      "CanisterDisconnect",
+      4
+    ],
+    [
+      "CanisterDisconnect",
+      7
+    ],
+    [
+      "CanisterDisconnect",
+      10
+    ],
+    [
+      "CanisterDisconnect",
+      13
+    ],
+    [
+      "CanisterDisconnect",
+      16
+    ],
+    [
+      "CanisterDisconnect",
+      19
+    ],
+    [
+      "CanisterDisconnect",
+      22
+    ],
+    [
+      "CanisterDisconnect",
+      25
+    ],
+    [
+      "CanisterDisconnect",
+      28
+    ],
+    [
+      "CanisterDisconnect",
+      31
+    ],
+    [
+      "CanisterDisconnect",
+      34
+    ],
+    [
+      "CanisterDisconnect",
+      37
+    ],
+    [
+      "CanisterDisconnect",
+      40
+    ],
+    [
+      "Captive",
+      1
+    ],
+    [
+      "Captive",
+      4
+    ],
+    [
+      "Captive",
+      7
+    ],
+    [
+      "Captive",
+      10
+    ],
+    [
+      "Captive",
+      13
+    ],
+    [
+      "Captive",
+      16
+    ],
+    [
+      "Captive",
+      19
+    ],
+    [
+      "Captive",
+      22
+    ],
+    [
+      "Captive",
+      25
+    ],
+    [
+      "Captive",
+      28
+    ],
+    [
+      "Captive",
+      31
+    ],
+    [
+      "Captive",
+      34
+    ],
+    [
+      "Captive",
+      37
+    ],
+    [
+      "Captive",
+      40
+    ],
+    [
+      "Captive",
+      43
+    ],
+    [
+      "Captive",
+      46
+    ],
+    [
+      "Captive",
+      49
+    ],
+    [
+      "Captive",
+      52
+    ],
+    [
+      "Captive",
+      55
+    ],
+    [
+      "Captive",
+      58
+    ],
+    [
+      "Captive",
+      61
+    ],
+    [
+      "Captive",
+      64
+    ],
+    [
+      "Captive",
+      67
+    ],
+    [
+      "Captive",
+      70
+    ],
+    [
+      "Carry",
+      1
+    ],
+    [
+      "Carry",
+      4
+    ],
+    [
+      "Carry",
+      7
+    ],
+    [
+      "Carry",
+      10
+    ],
+    [
+      "Carry",
+      13
+    ],
+    [
+      "Carry",
+      16
+    ],
+    [
+      "Carry",
+      19
+    ],
+    [
+      "Carry",
+      22
+    ],
+    [
+      "CarryPerson",
+      1
+    ],
+    [
+      "CarryPerson",
+      4
+    ],
+    [
+      "CarryPerson",
+      7
+    ],
+    [
+      "CarryPerson",
+      10
+    ],
+    [
+      "CarryPerson",
+      13
+    ],
+    [
+      "CarryPerson",
+      16
+    ],
+    [
+      "CarryPerson",
+      19
+    ],
+    [
+      "CarryPerson",
+      22
+    ],
+    [
+      "CarryPerson",
+      25
+    ],
+    [
+      "CarryPerson",
+      28
+    ],
+    [
+      "Chop",
+      1
+    ],
+    [
+      "Chop",
+      4
+    ],
+    [
+      "Chop",
+      7
+    ],
+    [
+      "Chop",
+      10
+    ],
+    [
+      "Chop",
+      13
+    ],
+    [
+      "Chop",
+      16
+    ],
+    [
+      "Chop",
+      19
+    ],
+    [
+      "Chop",
+      22
+    ],
+    [
+      "Chop",
+      25
+    ],
+    [
+      "Chop",
+      28
+    ],
+    [
+      "Chop",
+      31
+    ],
+    [
+      "Chop",
+      34
+    ],
+    [
+      "Chop",
+      37
+    ],
+    [
+      "Chop",
+      40
+    ],
+    [
+      "CollapseDropWeapon",
+      1
+    ],
+    [
+      "CollapseDropWeapon",
+      4
+    ],
+    [
+      "CollapseDropWeapon",
+      7
+    ],
+    [
+      "CollapseDropWeapon",
+      10
+    ],
+    [
+      "CollapseDropWeapon",
+      13
+    ],
+    [
+      "CollapseDropWeapon",
+      16
+    ],
+    [
+      "CollapseDropWeapon",
+      19
+    ],
+    [
+      "CollapseDropWeapon",
+      22
+    ],
+    [
+      "CollapseDropWeapon",
+      25
+    ],
+    [
+      "CollapseDropWeapon",
+      28
+    ],
+    [
+      "CollapseDropWeapon",
+      31
+    ],
+    [
+      "CollapseDropWeapon",
+      34
+    ],
+    [
+      "ControlPanel",
+      1
+    ],
+    [
+      "ControlPanel",
+      4
+    ],
+    [
+      "ControlPanel",
+      7
+    ],
+    [
+      "ControlPanel",
+      10
+    ],
+    [
+      "ControlPanel",
+      13
+    ],
+    [
+      "ControlPanel",
+      16
+    ],
+    [
+      "ControlPanel",
+      19
+    ],
+    [
+      "ControlPanel",
+      22
+    ],
+    [
+      "ControlPanel",
+      25
+    ],
+    [
+      "ControlPanel",
+      28
+    ],
+    [
+      "ControlPanel",
+      31
+    ],
+    [
+      "ControlPanel",
+      34
+    ],
+    [
+      "Crave",
+      1
+    ],
+    [
+      "Crave",
+      4
+    ],
+    [
+      "Crave",
+      7
+    ],
+    [
+      "Crave",
+      10
+    ],
+    [
+      "Crave",
+      13
+    ],
+    [
+      "Crave",
+      16
+    ],
+    [
+      "Crave",
+      19
+    ],
+    [
+      "Crave",
+      22
+    ],
+    [
+      "Crave",
+      25
+    ],
+    [
+      "Crave",
+      28
+    ],
+    [
+      "Crave",
+      31
+    ],
+    [
+      "Crave",
+      34
+    ],
+    [
+      "Crave",
+      37
+    ],
+    [
+      "Crave",
+      40
+    ],
+    [
+      "Crave",
+      43
+    ],
+    [
+      "Crave",
+      46
+    ],
+    [
+      "Death",
+      1
+    ],
+    [
+      "Death",
+      4
+    ],
+    [
+      "Death",
+      7
+    ],
+    [
+      "Death",
+      10
+    ],
+    [
+      "Death",
+      13
+    ],
+    [
+      "Death",
+      16
+    ],
+    [
+      "Death",
+      19
+    ],
+    [
+      "Death",
+      22
+    ],
+    [
+      "Death",
+      25
+    ],
+    [
+      "Death",
+      28
+    ],
+    [
+      "Death",
+      31
+    ],
+    [
+      "Death",
+      34
+    ],
+    [
+      "Death",
+      37
+    ],
+    [
+      "Death",
+      40
+    ],
+    [
+      "Death",
+      43
+    ],
+    [
+      "Death",
+      46
+    ],
+    [
+      "Downed",
+      1
+    ],
+    [
+      "Downed",
+      4
+    ],
+    [
+      "Downed",
+      7
+    ],
+    [
+      "Downed",
+      10
+    ],
+    [
+      "Downed",
+      13
+    ],
+    [
+      "Downed",
+      16
+    ],
+    [
+      "Downed",
+      19
+    ],
+    [
+      "Downed",
+      22
+    ],
+    [
+      "Downed",
+      25
+    ],
+    [
+      "Downed",
+      28
+    ],
+    [
+      "Downed",
+      31
+    ],
+    [
+      "Downed",
+      34
+    ],
+    [
+      "Downed",
+      37
+    ],
+    [
+      "Downed",
+      40
+    ],
+    [
+      "Downed",
+      43
+    ],
+    [
+      "Downed",
+      46
+    ],
+    [
+      "Downed",
+      49
+    ],
+    [
+      "Downed",
+      52
+    ],
+    [
+      "Downed",
+      55
+    ],
+    [
+      "Downed",
+      58
+    ],
+    [
+      "Downed",
+      61
+    ],
+    [
+      "Downed",
+      64
+    ],
+    [
+      "Downed",
+      67
+    ],
+    [
+      "Downed",
+      70
+    ],
+    [
+      "DrawSword",
+      1
+    ],
+    [
+      "DrawSword",
+      4
+    ],
+    [
+      "DrawSword",
+      7
+    ],
+    [
+      "DrawSword",
+      10
+    ],
+    [
+      "DrawSword",
+      13
+    ],
+    [
+      "DrawSword",
+      16
+    ],
+    [
+      "DrawSword",
+      19
+    ],
+    [
+      "Drink",
+      1
+    ],
+    [
+      "Drink",
+      4
+    ],
+    [
+      "Drink",
+      7
+    ],
+    [
+      "Drink",
+      10
+    ],
+    [
+      "Drink",
+      13
+    ],
+    [
+      "Drink",
+      16
+    ],
+    [
+      "Drink",
+      19
+    ],
+    [
+      "Drink",
+      22
+    ],
+    [
+      "Drink",
+      25
+    ],
+    [
+      "Drink",
+      28
+    ],
+    [
+      "Drink",
+      31
+    ],
+    [
+      "Drink",
+      34
+    ],
+    [
+      "Drink",
+      37
+    ],
+    [
+      "Drink",
+      40
+    ],
+    [
+      "Drink",
+      43
+    ],
+    [
+      "Drink",
+      46
+    ],
+    [
+      "DriveSeated",
+      1
+    ],
+    [
+      "DriveSeated",
+      4
+    ],
+    [
+      "DriveSeated",
+      7
+    ],
+    [
+      "DriveSeated",
+      10
+    ],
+    [
+      "DriveSeated",
+      13
+    ],
+    [
+      "DriveSeated",
+      16
+    ],
+    [
+      "DriveSeated",
+      19
+    ],
+    [
+      "DriveSeated",
+      22
+    ],
+    [
+      "DriveSeated",
+      25
+    ],
+    [
+      "DriveSeated",
+      28
+    ],
+    [
+      "DriveSeated",
+      31
+    ],
+    [
+      "DriveSeated",
+      34
+    ],
+    [
+      "DriveSeated",
+      37
+    ],
+    [
+      "DriveSeated",
+      40
+    ],
+    [
+      "DriveSeated",
+      43
+    ],
+    [
+      "DriveSeated",
+      46
+    ],
+    [
+      "Eat",
+      1
+    ],
+    [
+      "Eat",
+      4
+    ],
+    [
+      "Eat",
+      7
+    ],
+    [
+      "Eat",
+      10
+    ],
+    [
+      "Eat",
+      13
+    ],
+    [
+      "Eat",
+      16
+    ],
+    [
+      "Eat",
+      19
+    ],
+    [
+      "Eat",
+      22
+    ],
+    [
+      "Eat",
+      25
+    ],
+    [
+      "Eat",
+      28
+    ],
+    [
+      "Eat",
+      31
+    ],
+    [
+      "Eat",
+      34
+    ],
+    [
+      "Eat",
+      37
+    ],
+    [
+      "Eat",
+      40
+    ],
+    [
+      "Eat",
+      43
+    ],
+    [
+      "Eat",
+      46
+    ],
+    [
+      "Eat",
+      49
+    ],
+    [
+      "Eat",
+      52
+    ],
+    [
+      "Eat",
+      55
+    ],
+    [
+      "Eat",
+      58
+    ],
+    [
+      "Eat",
+      61
+    ],
+    [
+      "Eat",
+      64
+    ],
+    [
+      "Eat",
+      67
+    ],
+    [
+      "Eat",
+      70
+    ],
+    [
+      "EquipFromGround",
+      1
+    ],
+    [
+      "EquipFromGround",
+      4
+    ],
+    [
+      "EquipFromGround",
+      7
+    ],
+    [
+      "EquipFromGround",
+      10
+    ],
+    [
+      "EquipFromGround",
+      13
+    ],
+    [
+      "EquipFromGround",
+      16
+    ],
+    [
+      "EquipFromGround",
+      19
+    ],
+    [
+      "EquipFromGround",
+      22
+    ],
+    [
+      "EquipFromGround",
+      25
+    ],
+    [
+      "EquipFromGround",
+      28
+    ],
+    [
+      "EquipFromGround",
+      31
+    ],
+    [
+      "EquipFromGround",
+      34
+    ],
+    [
+      "EquipFromGround",
+      37
+    ],
+    [
+      "EquipFromGround",
+      40
+    ],
+    [
+      "Exercise",
+      1
+    ],
+    [
+      "Exercise",
+      4
+    ],
+    [
+      "Exercise",
+      7
+    ],
+    [
+      "Exercise",
+      10
+    ],
+    [
+      "Exercise",
+      13
+    ],
+    [
+      "Exercise",
+      16
+    ],
+    [
+      "Exercise",
+      19
+    ],
+    [
+      "Exercise",
+      22
+    ],
+    [
+      "Exercise",
+      25
+    ],
+    [
+      "Exercise",
+      28
+    ],
+    [
+      "Exercise",
+      31
+    ],
+    [
+      "Exercise",
+      34
+    ],
+    [
+      "Exercise",
+      37
+    ],
+    [
+      "Exercise",
+      40
+    ],
+    [
+      "Exercise",
+      43
+    ],
+    [
+      "Exercise",
+      46
+    ],
+    [
+      "Exercise",
+      49
+    ],
+    [
+      "Exercise",
+      52
+    ],
+    [
+      "Exercise",
+      55
+    ],
+    [
+      "Exercise",
+      58
+    ],
+    [
+      "Fly",
+      1
+    ],
+    [
+      "Fly",
+      4
+    ],
+    [
+      "Fly",
+      7
+    ],
+    [
+      "Fly",
+      10
+    ],
+    [
+      "Fly",
+      13
+    ],
+    [
+      "Fly",
+      16
+    ],
+    [
+      "Fly",
+      19
+    ],
+    [
+      "Fly",
+      22
+    ],
+    [
+      "Grind",
+      1
+    ],
+    [
+      "Grind",
+      4
+    ],
+    [
+      "Grind",
+      7
+    ],
+    [
+      "Grind",
+      10
+    ],
+    [
+      "Grind",
+      13
+    ],
+    [
+      "Grind",
+      16
+    ],
+    [
+      "Grind",
+      19
+    ],
+    [
+      "Grind",
+      22
+    ],
+    [
+      "Grind",
+      25
+    ],
+    [
+      "Grind",
+      28
+    ],
+    [
+      "Grind",
+      31
+    ],
+    [
+      "GroundWork",
+      1
+    ],
+    [
+      "GroundWork",
+      4
+    ],
+    [
+      "GroundWork",
+      7
+    ],
+    [
+      "GroundWork",
+      10
+    ],
+    [
+      "GroundWork",
+      13
+    ],
+    [
+      "GroundWork",
+      16
+    ],
+    [
+      "GroundWork",
+      19
+    ],
+    [
+      "GroundWork",
+      22
+    ],
+    [
+      "GroundWork",
+      25
+    ],
+    [
+      "GroundWork",
+      28
+    ],
+    [
+      "GroundWork",
+      31
+    ],
+    [
+      "GroundWork",
+      34
+    ],
+    [
+      "GroundWork",
+      37
+    ],
+    [
+      "GroundWork",
+      40
+    ],
+    [
+      "Hammer",
+      1
+    ],
+    [
+      "Hammer",
+      4
+    ],
+    [
+      "Hammer",
+      7
+    ],
+    [
+      "Hammer",
+      10
+    ],
+    [
+      "Hammer",
+      13
+    ],
+    [
+      "Hammer",
+      16
+    ],
+    [
+      "Hammer",
+      19
+    ],
+    [
+      "Hammer",
+      22
+    ],
+    [
+      "HangoverIdle",
+      1
+    ],
+    [
+      "HangoverIdle",
+      4
+    ],
+    [
+      "HangoverIdle",
+      7
+    ],
+    [
+      "HangoverIdle",
+      10
+    ],
+    [
+      "HangoverIdle",
+      13
+    ],
+    [
+      "HangoverIdle",
+      16
+    ],
+    [
+      "HangoverIdle",
+      19
+    ],
+    [
+      "HangoverIdle",
+      22
+    ],
+    [
+      "HangoverIdle",
+      25
+    ],
+    [
+      "HangoverIdle",
+      28
+    ],
+    [
+      "HangoverIdle",
+      31
+    ],
+    [
+      "HangoverIdle",
+      34
+    ],
+    [
+      "HangoverIdle",
+      37
+    ],
+    [
+      "HangoverIdle",
+      40
+    ],
+    [
+      "HangoverIdle",
+      43
+    ],
+    [
+      "HangoverIdle",
+      46
+    ],
+    [
+      "HangoverIdle",
+      49
+    ],
+    [
+      "HangoverIdle",
+      52
+    ],
+    [
+      "HangoverIdle",
+      55
+    ],
+    [
+      "HangoverIdle",
+      58
+    ],
+    [
+      "HangoverIdle",
+      61
+    ],
+    [
+      "HangoverIdle",
+      64
+    ],
+    [
+      "HangoverIdle",
+      67
+    ],
+    [
+      "HangoverIdle",
+      70
+    ],
+    [
+      "Hurt",
+      1
+    ],
+    [
+      "Hurt",
+      4
+    ],
+    [
+      "Hurt",
+      7
+    ],
+    [
+      "Hurt",
+      10
+    ],
+    [
+      "Hurt",
+      13
+    ],
+    [
+      "Hurt",
+      16
+    ],
+    [
+      "Idle",
+      1
+    ],
+    [
+      "Idle",
+      4
+    ],
+    [
+      "Idle",
+      7
+    ],
+    [
+      "Idle",
+      10
+    ],
+    [
+      "Idle",
+      13
+    ],
+    [
+      "Idle",
+      16
+    ],
+    [
+      "Idle",
+      19
+    ],
+    [
+      "Idle",
+      22
+    ],
+    [
+      "Idle",
+      25
+    ],
+    [
+      "Idle",
+      28
+    ],
+    [
+      "Idle",
+      31
+    ],
+    [
+      "Idle",
+      34
+    ],
+    [
+      "Idle",
+      37
+    ],
+    [
+      "Idle",
+      40
+    ],
+    [
+      "Idle",
+      43
+    ],
+    [
+      "Idle",
+      46
+    ],
+    [
+      "Idle",
+      49
+    ],
+    [
+      "Idle",
+      52
+    ],
+    [
+      "Idle",
+      55
+    ],
+    [
+      "Idle",
+      58
+    ],
+    [
+      "Idle",
+      61
+    ],
+    [
+      "Idle",
+      64
+    ],
+    [
+      "Idle",
+      67
+    ],
+    [
+      "Idle",
+      70
+    ],
+    [
+      "Inspect",
+      1
+    ],
+    [
+      "Inspect",
+      4
+    ],
+    [
+      "Inspect",
+      7
+    ],
+    [
+      "Inspect",
+      10
+    ],
+    [
+      "Inspect",
+      13
+    ],
+    [
+      "Inspect",
+      16
+    ],
+    [
+      "Inspect",
+      19
+    ],
+    [
+      "Inspect",
+      22
+    ],
+    [
+      "Inspect",
+      25
+    ],
+    [
+      "Inspect",
+      28
+    ],
+    [
+      "Inspect",
+      31
+    ],
+    [
+      "Inspect",
+      34
+    ],
+    [
+      "Inspect",
+      37
+    ],
+    [
+      "Inspect",
+      40
+    ],
+    [
+      "Inspect",
+      43
+    ],
+    [
+      "Inspect",
+      46
+    ],
+    [
+      "Inspect",
+      49
+    ],
+    [
+      "Inspect",
+      52
+    ],
+    [
+      "Inspect",
+      55
+    ],
+    [
+      "Inspect",
+      58
+    ],
+    [
+      "Inspect",
+      61
+    ],
+    [
+      "Inspect",
+      64
+    ],
+    [
+      "Inspect",
+      67
+    ],
+    [
+      "Inspect",
+      70
+    ],
+    [
+      "Knead",
+      1
+    ],
+    [
+      "Knead",
+      4
+    ],
+    [
+      "Knead",
+      7
+    ],
+    [
+      "Knead",
+      10
+    ],
+    [
+      "Knead",
+      13
+    ],
+    [
+      "Knead",
+      16
+    ],
+    [
+      "Knead",
+      19
+    ],
+    [
+      "Knead",
+      22
+    ],
+    [
+      "Knead",
+      25
+    ],
+    [
+      "Knead",
+      28
+    ],
+    [
+      "Knead",
+      31
+    ],
+    [
+      "Ladle",
+      1
+    ],
+    [
+      "Ladle",
+      4
+    ],
+    [
+      "Ladle",
+      7
+    ],
+    [
+      "Ladle",
+      10
+    ],
+    [
+      "Ladle",
+      13
+    ],
+    [
+      "Ladle",
+      16
+    ],
+    [
+      "Ladle",
+      19
+    ],
+    [
+      "Ladle",
+      22
+    ],
+    [
+      "Ladle",
+      25
+    ],
+    [
+      "Ladle",
+      28
+    ],
+    [
+      "LatrineSquat",
+      1
+    ],
+    [
+      "LatrineSquat",
+      4
+    ],
+    [
+      "LatrineSquat",
+      7
+    ],
+    [
+      "LatrineSquat",
+      10
+    ],
+    [
+      "LatrineSquat",
+      13
+    ],
+    [
+      "LatrineSquat",
+      16
+    ],
+    [
+      "LatrineSquat",
+      19
+    ],
+    [
+      "LatrineSquat",
+      22
+    ],
+    [
+      "LatrineSquat",
+      25
+    ],
+    [
+      "LatrineSquat",
+      28
+    ],
+    [
+      "LatrineSquat",
+      31
+    ],
+    [
+      "LatrineSquat",
+      34
+    ],
+    [
+      "LatrineSquat",
+      37
+    ],
+    [
+      "LatrineSquat",
+      40
+    ],
+    [
+      "LatrineSquat",
+      43
+    ],
+    [
+      "LatrineSquat",
+      46
+    ],
+    [
+      "LatrineSquat",
+      49
+    ],
+    [
+      "LatrineSquat",
+      52
+    ],
+    [
+      "LatrineSquat",
+      55
+    ],
+    [
+      "LatrineSquat",
+      58
+    ],
+    [
+      "LatrineSquat",
+      61
+    ],
+    [
+      "LatrineSquat",
+      64
+    ],
+    [
+      "LatrineSquat",
+      67
+    ],
+    [
+      "LatrineSquat",
+      70
+    ],
+    [
+      "Mine",
+      1
+    ],
+    [
+      "Mine",
+      4
+    ],
+    [
+      "Mine",
+      7
+    ],
+    [
+      "Mine",
+      10
+    ],
+    [
+      "Mine",
+      13
+    ],
+    [
+      "Mine",
+      16
+    ],
+    [
+      "Mine",
+      19
+    ],
+    [
+      "Mine",
+      22
+    ],
+    [
+      "Mine",
+      25
+    ],
+    [
+      "Mine",
+      28
+    ],
+    [
+      "Mine",
+      31
+    ],
+    [
+      "Mine",
+      34
+    ],
+    [
+      "Mine",
+      37
+    ],
+    [
+      "Mine",
+      40
+    ],
+    [
+      "Mourn",
+      1
+    ],
+    [
+      "Mourn",
+      4
+    ],
+    [
+      "Mourn",
+      7
+    ],
+    [
+      "Mourn",
+      10
+    ],
+    [
+      "Mourn",
+      13
+    ],
+    [
+      "Mourn",
+      16
+    ],
+    [
+      "Mourn",
+      19
+    ],
+    [
+      "Mourn",
+      22
+    ],
+    [
+      "Mourn",
+      25
+    ],
+    [
+      "Mourn",
+      28
+    ],
+    [
+      "Mourn",
+      31
+    ],
+    [
+      "Mourn",
+      34
+    ],
+    [
+      "Mourn",
+      37
+    ],
+    [
+      "Mourn",
+      40
+    ],
+    [
+      "Mourn",
+      43
+    ],
+    [
+      "Mourn",
+      46
+    ],
+    [
+      "Mourn",
+      49
+    ],
+    [
+      "Mourn",
+      52
+    ],
+    [
+      "Mourn",
+      55
+    ],
+    [
+      "Mourn",
+      58
+    ],
+    [
+      "Muster",
+      1
+    ],
+    [
+      "Muster",
+      4
+    ],
+    [
+      "Muster",
+      7
+    ],
+    [
+      "Muster",
+      10
+    ],
+    [
+      "Muster",
+      13
+    ],
+    [
+      "Muster",
+      16
+    ],
+    [
+      "Muster",
+      19
+    ],
+    [
+      "Muster",
+      22
+    ],
+    [
+      "Muster",
+      25
+    ],
+    [
+      "Muster",
+      28
+    ],
+    [
+      "Muster",
+      31
+    ],
+    [
+      "Muster",
+      34
+    ],
+    [
+      "Muster",
+      37
+    ],
+    [
+      "Muster",
+      40
+    ],
+    [
+      "Operate",
+      1
+    ],
+    [
+      "Operate",
+      4
+    ],
+    [
+      "Operate",
+      7
+    ],
+    [
+      "Operate",
+      10
+    ],
+    [
+      "Operate",
+      13
+    ],
+    [
+      "Operate",
+      16
+    ],
+    [
+      "Operate",
+      19
+    ],
+    [
+      "Operate",
+      22
+    ],
+    [
+      "Operate",
+      25
+    ],
+    [
+      "Operate",
+      28
+    ],
+    [
+      "Operate",
+      31
+    ],
+    [
+      "Operate",
+      34
+    ],
+    [
+      "Operate",
+      37
+    ],
+    [
+      "Operate",
+      40
+    ],
+    [
+      "Operate",
+      43
+    ],
+    [
+      "Operate",
+      46
+    ],
+    [
+      "OvenLoad",
+      1
+    ],
+    [
+      "OvenLoad",
+      4
+    ],
+    [
+      "OvenLoad",
+      7
+    ],
+    [
+      "OvenLoad",
+      10
+    ],
+    [
+      "OvenLoad",
+      13
+    ],
+    [
+      "OvenLoad",
+      16
+    ],
+    [
+      "OvenLoad",
+      19
+    ],
+    [
+      "OvenLoad",
+      22
+    ],
+    [
+      "OvenLoad",
+      25
+    ],
+    [
+      "OvenLoad",
+      28
+    ],
+    [
+      "OvenLoad",
+      31
+    ],
+    [
+      "PassOut",
+      1
+    ],
+    [
+      "PassOut",
+      4
+    ],
+    [
+      "PassOut",
+      7
+    ],
+    [
+      "PassOut",
+      10
+    ],
+    [
+      "PassOut",
+      13
+    ],
+    [
+      "PassOut",
+      16
+    ],
+    [
+      "PassOut",
+      19
+    ],
+    [
+      "PassOut",
+      22
+    ],
+    [
+      "PassOut",
+      25
+    ],
+    [
+      "PassOut",
+      28
+    ],
+    [
+      "PassOut",
+      31
+    ],
+    [
+      "PassOut",
+      34
+    ],
+    [
+      "PassOut",
+      37
+    ],
+    [
+      "PassOut",
+      40
+    ],
+    [
+      "Pickup",
+      1
+    ],
+    [
+      "Pickup",
+      4
+    ],
+    [
+      "Pickup",
+      7
+    ],
+    [
+      "Pickup",
+      10
+    ],
+    [
+      "Pickup",
+      13
+    ],
+    [
+      "Pickup",
+      16
+    ],
+    [
+      "Pickup",
+      19
+    ],
+    [
+      "Pickup",
+      22
+    ],
+    [
+      "Pickup",
+      25
+    ],
+    [
+      "Pickup",
+      28
+    ],
+    [
+      "PlayBoard",
+      1
+    ],
+    [
+      "PlayBoard",
+      4
+    ],
+    [
+      "PlayBoard",
+      7
+    ],
+    [
+      "PlayBoard",
+      10
+    ],
+    [
+      "PlayBoard",
+      13
+    ],
+    [
+      "PlayBoard",
+      16
+    ],
+    [
+      "PlayBoard",
+      19
+    ],
+    [
+      "PlayBoard",
+      22
+    ],
+    [
+      "PlayBoard",
+      25
+    ],
+    [
+      "PlayBoard",
+      28
+    ],
+    [
+      "PlayBoard",
+      31
+    ],
+    [
+      "PlayBoard",
+      34
+    ],
+    [
+      "PlayBoard",
+      37
+    ],
+    [
+      "PlayBoard",
+      40
+    ],
+    [
+      "PlayBoard",
+      43
+    ],
+    [
+      "PlayBoard",
+      46
+    ],
+    [
+      "PlayBoard",
+      49
+    ],
+    [
+      "PlayBoard",
+      52
+    ],
+    [
+      "PlayBoard",
+      55
+    ],
+    [
+      "PlayBoard",
+      58
+    ],
+    [
+      "PlayBoard",
+      61
+    ],
+    [
+      "PlayBoard",
+      64
+    ],
+    [
+      "PlayBoard",
+      67
+    ],
+    [
+      "PlayBoard",
+      70
+    ],
+    [
+      "PlayMusic",
+      1
+    ],
+    [
+      "PlayMusic",
+      4
+    ],
+    [
+      "PlayMusic",
+      7
+    ],
+    [
+      "PlayMusic",
+      10
+    ],
+    [
+      "PlayMusic",
+      13
+    ],
+    [
+      "PlayMusic",
+      16
+    ],
+    [
+      "PlayMusic",
+      19
+    ],
+    [
+      "PlayMusic",
+      22
+    ],
+    [
+      "PourSack",
+      1
+    ],
+    [
+      "PourSack",
+      4
+    ],
+    [
+      "PourSack",
+      7
+    ],
+    [
+      "PourSack",
+      10
+    ],
+    [
+      "PourSack",
+      13
+    ],
+    [
+      "PourSack",
+      16
+    ],
+    [
+      "PourSack",
+      19
+    ],
+    [
+      "PourSack",
+      22
+    ],
+    [
+      "PourSack",
+      25
+    ],
+    [
+      "PourSack",
+      28
+    ],
+    [
+      "PourSack",
+      31
+    ],
+    [
+      "PressLever",
+      1
+    ],
+    [
+      "PressLever",
+      4
+    ],
+    [
+      "PressLever",
+      7
+    ],
+    [
+      "PressLever",
+      10
+    ],
+    [
+      "PressLever",
+      13
+    ],
+    [
+      "PressLever",
+      16
+    ],
+    [
+      "PressLever",
+      19
+    ],
+    [
+      "PressLever",
+      22
+    ],
+    [
+      "PressLever",
+      25
+    ],
+    [
+      "PressLever",
+      28
+    ],
+    [
+      "PressLever",
+      31
+    ],
+    [
+      "PutDown",
+      1
+    ],
+    [
+      "PutDown",
+      4
+    ],
+    [
+      "PutDown",
+      7
+    ],
+    [
+      "PutDown",
+      10
+    ],
+    [
+      "PutDown",
+      13
+    ],
+    [
+      "PutDown",
+      16
+    ],
+    [
+      "PutDown",
+      19
+    ],
+    [
+      "PutDown",
+      22
+    ],
+    [
+      "PutDown",
+      25
+    ],
+    [
+      "PutDown",
+      28
+    ],
+    [
+      "Rest",
+      1
+    ],
+    [
+      "Rest",
+      4
+    ],
+    [
+      "Rest",
+      7
+    ],
+    [
+      "Rest",
+      10
+    ],
+    [
+      "Rest",
+      13
+    ],
+    [
+      "Rest",
+      16
+    ],
+    [
+      "Rest",
+      19
+    ],
+    [
+      "Rest",
+      22
+    ],
+    [
+      "Rest",
+      25
+    ],
+    [
+      "Rest",
+      28
+    ],
+    [
+      "Rest",
+      31
+    ],
+    [
+      "Rest",
+      34
+    ],
+    [
+      "Rest",
+      37
+    ],
+    [
+      "Rest",
+      40
+    ],
+    [
+      "Rest",
+      43
+    ],
+    [
+      "Rest",
+      46
+    ],
+    [
+      "Rest",
+      49
+    ],
+    [
+      "Rest",
+      52
+    ],
+    [
+      "Rest",
+      55
+    ],
+    [
+      "Rest",
+      58
+    ],
+    [
+      "Rest",
+      61
+    ],
+    [
+      "Rest",
+      64
+    ],
+    [
+      "Rest",
+      67
+    ],
+    [
+      "Rest",
+      70
+    ],
+    [
+      "Rest",
+      73
+    ],
+    [
+      "Rest",
+      76
+    ],
+    [
+      "Rest",
+      79
+    ],
+    [
+      "Rest",
+      82
+    ],
+    [
+      "Rest",
+      85
+    ],
+    [
+      "Rest",
+      88
+    ],
+    [
+      "Rest",
+      91
+    ],
+    [
+      "Rest",
+      94
+    ],
+    [
+      "RockCradle",
+      1
+    ],
+    [
+      "RockCradle",
+      4
+    ],
+    [
+      "RockCradle",
+      7
+    ],
+    [
+      "RockCradle",
+      10
+    ],
+    [
+      "RockCradle",
+      13
+    ],
+    [
+      "RockCradle",
+      16
+    ],
+    [
+      "RockCradle",
+      19
+    ],
+    [
+      "RockCradle",
+      22
+    ],
+    [
+      "RockCradle",
+      25
+    ],
+    [
+      "RockCradle",
+      28
+    ],
+    [
+      "RockCradle",
+      31
+    ],
+    [
+      "RockCradle",
+      34
+    ],
+    [
+      "RockCradle",
+      37
+    ],
+    [
+      "RockCradle",
+      40
+    ],
+    [
+      "RockCradle",
+      43
+    ],
+    [
+      "RockCradle",
+      46
+    ],
+    [
+      "Run",
+      1
+    ],
+    [
+      "Run",
+      4
+    ],
+    [
+      "Run",
+      7
+    ],
+    [
+      "Run",
+      10
+    ],
+    [
+      "Run",
+      13
+    ],
+    [
+      "Run",
+      16
+    ],
+    [
+      "Saw",
+      1
+    ],
+    [
+      "Saw",
+      4
+    ],
+    [
+      "Saw",
+      7
+    ],
+    [
+      "Saw",
+      10
+    ],
+    [
+      "Saw",
+      13
+    ],
+    [
+      "Saw",
+      16
+    ],
+    [
+      "Saw",
+      19
+    ],
+    [
+      "Saw",
+      22
+    ],
+    [
+      "Saw",
+      25
+    ],
+    [
+      "Saw",
+      28
+    ],
+    [
+      "SelfTreat",
+      1
+    ],
+    [
+      "SelfTreat",
+      4
+    ],
+    [
+      "SelfTreat",
+      7
+    ],
+    [
+      "SelfTreat",
+      10
+    ],
+    [
+      "SelfTreat",
+      13
+    ],
+    [
+      "SelfTreat",
+      16
+    ],
+    [
+      "SelfTreat",
+      19
+    ],
+    [
+      "SelfTreat",
+      22
+    ],
+    [
+      "SelfTreat",
+      25
+    ],
+    [
+      "SelfTreat",
+      28
+    ],
+    [
+      "SelfTreat",
+      31
+    ],
+    [
+      "SelfTreat",
+      34
+    ],
+    [
+      "SelfTreat",
+      37
+    ],
+    [
+      "SelfTreat",
+      40
+    ],
+    [
+      "SelfTreat",
+      43
+    ],
+    [
+      "SelfTreat",
+      46
+    ],
+    [
+      "SewRepair",
+      1
+    ],
+    [
+      "SewRepair",
+      4
+    ],
+    [
+      "SewRepair",
+      7
+    ],
+    [
+      "SewRepair",
+      10
+    ],
+    [
+      "SewRepair",
+      13
+    ],
+    [
+      "SewRepair",
+      16
+    ],
+    [
+      "SewRepair",
+      19
+    ],
+    [
+      "SewRepair",
+      22
+    ],
+    [
+      "SewRepair",
+      25
+    ],
+    [
+      "SewRepair",
+      28
+    ],
+    [
+      "SewRepair",
+      31
+    ],
+    [
+      "SewRepair",
+      34
+    ],
+    [
+      "SewRepair",
+      37
+    ],
+    [
+      "SewRepair",
+      40
+    ],
+    [
+      "SewRepair",
+      43
+    ],
+    [
+      "SewRepair",
+      46
+    ],
+    [
+      "SheatheSword",
+      1
+    ],
+    [
+      "SheatheSword",
+      4
+    ],
+    [
+      "SheatheSword",
+      7
+    ],
+    [
+      "SheatheSword",
+      10
+    ],
+    [
+      "SheatheSword",
+      13
+    ],
+    [
+      "SheatheSword",
+      16
+    ],
+    [
+      "SheatheSword",
+      19
+    ],
+    [
+      "ShieldBlock",
+      1
+    ],
+    [
+      "ShieldBlock",
+      4
+    ],
+    [
+      "ShieldBlock",
+      7
+    ],
+    [
+      "ShieldBlock",
+      10
+    ],
+    [
+      "ShieldBlock",
+      13
+    ],
+    [
+      "ShieldBlock",
+      16
+    ],
+    [
+      "ShieldBlock",
+      19
+    ],
+    [
+      "ShieldBlock",
+      22
+    ],
+    [
+      "Sit",
+      1
+    ],
+    [
+      "Sit",
+      4
+    ],
+    [
+      "Sit",
+      7
+    ],
+    [
+      "Sit",
+      10
+    ],
+    [
+      "Sit",
+      13
+    ],
+    [
+      "Sit",
+      16
+    ],
+    [
+      "Sit",
+      19
+    ],
+    [
+      "Sit",
+      22
+    ],
+    [
+      "Sit",
+      25
+    ],
+    [
+      "Sit",
+      28
+    ],
+    [
+      "Sit",
+      31
+    ],
+    [
+      "Sit",
+      34
+    ],
+    [
+      "Sit",
+      37
+    ],
+    [
+      "Sit",
+      40
+    ],
+    [
+      "Sit",
+      43
+    ],
+    [
+      "Sit",
+      46
+    ],
+    [
+      "Sit",
+      49
+    ],
+    [
+      "Sit",
+      52
+    ],
+    [
+      "Sit",
+      55
+    ],
+    [
+      "Sit",
+      58
+    ],
+    [
+      "Sit",
+      61
+    ],
+    [
+      "Sit",
+      64
+    ],
+    [
+      "Sit",
+      67
+    ],
+    [
+      "Sit",
+      70
+    ],
+    [
+      "SkyGaze",
+      1
+    ],
+    [
+      "SkyGaze",
+      4
+    ],
+    [
+      "SkyGaze",
+      7
+    ],
+    [
+      "SkyGaze",
+      10
+    ],
+    [
+      "SkyGaze",
+      13
+    ],
+    [
+      "SkyGaze",
+      16
+    ],
+    [
+      "SkyGaze",
+      19
+    ],
+    [
+      "SkyGaze",
+      22
+    ],
+    [
+      "SkyGaze",
+      25
+    ],
+    [
+      "SkyGaze",
+      28
+    ],
+    [
+      "SkyGaze",
+      31
+    ],
+    [
+      "SkyGaze",
+      34
+    ],
+    [
+      "SkyGaze",
+      37
+    ],
+    [
+      "SkyGaze",
+      40
+    ],
+    [
+      "SkyGaze",
+      43
+    ],
+    [
+      "SkyGaze",
+      46
+    ],
+    [
+      "SkyGaze",
+      49
+    ],
+    [
+      "SkyGaze",
+      52
+    ],
+    [
+      "SkyGaze",
+      55
+    ],
+    [
+      "SkyGaze",
+      58
+    ],
+    [
+      "SkyGaze",
+      61
+    ],
+    [
+      "SkyGaze",
+      64
+    ],
+    [
+      "SkyGaze",
+      67
+    ],
+    [
+      "SkyGaze",
+      70
+    ],
+    [
+      "SkyGaze",
+      73
+    ],
+    [
+      "SkyGaze",
+      76
+    ],
+    [
+      "SkyGaze",
+      79
+    ],
+    [
+      "SkyGaze",
+      82
+    ],
+    [
+      "SkyGaze",
+      85
+    ],
+    [
+      "SkyGaze",
+      88
+    ],
+    [
+      "SkyGaze",
+      91
+    ],
+    [
+      "SkyGaze",
+      94
+    ],
+    [
+      "Sleep",
+      1
+    ],
+    [
+      "Sleep",
+      4
+    ],
+    [
+      "Sleep",
+      7
+    ],
+    [
+      "Sleep",
+      10
+    ],
+    [
+      "Sleep",
+      13
+    ],
+    [
+      "Sleep",
+      16
+    ],
+    [
+      "Sleep",
+      19
+    ],
+    [
+      "Sleep",
+      22
+    ],
+    [
+      "Sleep",
+      25
+    ],
+    [
+      "Sleep",
+      28
+    ],
+    [
+      "Sleep",
+      31
+    ],
+    [
+      "Sleep",
+      34
+    ],
+    [
+      "Sleep",
+      37
+    ],
+    [
+      "Sleep",
+      40
+    ],
+    [
+      "Sleep",
+      43
+    ],
+    [
+      "Sleep",
+      46
+    ],
+    [
+      "Sleep",
+      49
+    ],
+    [
+      "Sleep",
+      52
+    ],
+    [
+      "Sleep",
+      55
+    ],
+    [
+      "Sleep",
+      58
+    ],
+    [
+      "Sleep",
+      61
+    ],
+    [
+      "Sleep",
+      64
+    ],
+    [
+      "Sleep",
+      67
+    ],
+    [
+      "Sleep",
+      70
+    ],
+    [
+      "Sleep",
+      73
+    ],
+    [
+      "Sleep",
+      76
+    ],
+    [
+      "Sleep",
+      79
+    ],
+    [
+      "Sleep",
+      82
+    ],
+    [
+      "Sleep",
+      85
+    ],
+    [
+      "Sleep",
+      88
+    ],
+    [
+      "Sleep",
+      91
+    ],
+    [
+      "Sleep",
+      94
+    ],
+    [
+      "SmithRepair",
+      1
+    ],
+    [
+      "SmithRepair",
+      4
+    ],
+    [
+      "SmithRepair",
+      7
+    ],
+    [
+      "SmithRepair",
+      10
+    ],
+    [
+      "SmithRepair",
+      13
+    ],
+    [
+      "SmithRepair",
+      16
+    ],
+    [
+      "SmithRepair",
+      19
+    ],
+    [
+      "SmithRepair",
+      22
+    ],
+    [
+      "SpearThrust",
+      1
+    ],
+    [
+      "SpearThrust",
+      4
+    ],
+    [
+      "SpearThrust",
+      7
+    ],
+    [
+      "SpearThrust",
+      10
+    ],
+    [
+      "SpearThrust",
+      13
+    ],
+    [
+      "SpearThrust",
+      16
+    ],
+    [
+      "SpearThrust",
+      19
+    ],
+    [
+      "SpearThrust",
+      22
+    ],
+    [
+      "Spin",
+      1
+    ],
+    [
+      "Spin",
+      4
+    ],
+    [
+      "Spin",
+      7
+    ],
+    [
+      "Spin",
+      10
+    ],
+    [
+      "Spin",
+      13
+    ],
+    [
+      "Spin",
+      16
+    ],
+    [
+      "Spin",
+      19
+    ],
+    [
+      "Spin",
+      22
+    ],
+    [
+      "Spin",
+      25
+    ],
+    [
+      "Spin",
+      28
+    ],
+    [
+      "Spin",
+      31
+    ],
+    [
+      "Stagger",
+      1
+    ],
+    [
+      "Stagger",
+      4
+    ],
+    [
+      "Stagger",
+      7
+    ],
+    [
+      "Stagger",
+      10
+    ],
+    [
+      "Stagger",
+      13
+    ],
+    [
+      "Stagger",
+      16
+    ],
+    [
+      "Stagger",
+      19
+    ],
+    [
+      "Stagger",
+      22
+    ],
+    [
+      "Stagger",
+      25
+    ],
+    [
+      "Stagger",
+      28
+    ],
+    [
+      "Stagger",
+      31
+    ],
+    [
+      "Stagger",
+      34
+    ],
+    [
+      "Stagger",
+      37
+    ],
+    [
+      "Stagger",
+      40
+    ],
+    [
+      "Stamp",
+      1
+    ],
+    [
+      "Stamp",
+      4
+    ],
+    [
+      "Stamp",
+      7
+    ],
+    [
+      "Stamp",
+      10
+    ],
+    [
+      "Stamp",
+      13
+    ],
+    [
+      "Stamp",
+      16
+    ],
+    [
+      "Stamp",
+      19
+    ],
+    [
+      "Stamp",
+      22
+    ],
+    [
+      "Stamp",
+      25
+    ],
+    [
+      "Stamp",
+      28
+    ],
+    [
+      "Stamp",
+      31
+    ],
+    [
+      "Stamp",
+      34
+    ],
+    [
+      "StandEnter",
+      1
+    ],
+    [
+      "StandEnter",
+      4
+    ],
+    [
+      "StandEnter",
+      7
+    ],
+    [
+      "StandEnter",
+      10
+    ],
+    [
+      "StandExit",
+      1
+    ],
+    [
+      "StandExit",
+      4
+    ],
+    [
+      "StandExit",
+      7
+    ],
+    [
+      "StandExit",
+      10
+    ],
+    [
+      "StandIdle",
+      1
+    ],
+    [
+      "StandIdle",
+      4
+    ],
+    [
+      "StandIdle",
+      7
+    ],
+    [
+      "StandIdle",
+      10
+    ],
+    [
+      "StandIdle",
+      13
+    ],
+    [
+      "StandIdle",
+      16
+    ],
+    [
+      "StandIdle",
+      19
+    ],
+    [
+      "StandIdle",
+      22
+    ],
+    [
+      "StandIdle",
+      25
+    ],
+    [
+      "StandIdle",
+      28
+    ],
+    [
+      "StandIdle",
+      31
+    ],
+    [
+      "StandIdle",
+      34
+    ],
+    [
+      "StandIdle",
+      37
+    ],
+    [
+      "StandIdle",
+      40
+    ],
+    [
+      "StandIdle",
+      43
+    ],
+    [
+      "StandIdle",
+      46
+    ],
+    [
+      "StandIdle",
+      49
+    ],
+    [
+      "StandIdle",
+      52
+    ],
+    [
+      "StandIdle",
+      55
+    ],
+    [
+      "StandIdle",
+      58
+    ],
+    [
+      "StandIdle",
+      61
+    ],
+    [
+      "StandIdle",
+      64
+    ],
+    [
+      "StandIdle",
+      67
+    ],
+    [
+      "StandIdle",
+      70
+    ],
+    [
+      "Stir",
+      1
+    ],
+    [
+      "Stir",
+      4
+    ],
+    [
+      "Stir",
+      7
+    ],
+    [
+      "Stir",
+      10
+    ],
+    [
+      "Stir",
+      13
+    ],
+    [
+      "Stir",
+      16
+    ],
+    [
+      "Stir",
+      19
+    ],
+    [
+      "Stir",
+      22
+    ],
+    [
+      "Stir",
+      25
+    ],
+    [
+      "Stir",
+      28
+    ],
+    [
+      "Stir",
+      31
+    ],
+    [
+      "Stir",
+      34
+    ],
+    [
+      "Stir",
+      37
+    ],
+    [
+      "Stir",
+      40
+    ],
+    [
+      "Stir",
+      43
+    ],
+    [
+      "Stir",
+      46
+    ],
+    [
+      "Swing",
+      1
+    ],
+    [
+      "Swing",
+      4
+    ],
+    [
+      "Swing",
+      7
+    ],
+    [
+      "Swing",
+      10
+    ],
+    [
+      "Swing",
+      13
+    ],
+    [
+      "Swing",
+      16
+    ],
+    [
+      "Swing",
+      19
+    ],
+    [
+      "Swing",
+      22
+    ],
+    [
+      "Swing",
+      25
+    ],
+    [
+      "Swing",
+      28
+    ],
+    [
+      "Swing",
+      31
+    ],
+    [
+      "Swing",
+      34
+    ],
+    [
+      "Swing",
+      37
+    ],
+    [
+      "Swing",
+      40
+    ],
+    [
+      "Swing",
+      43
+    ],
+    [
+      "Swing",
+      46
+    ],
+    [
+      "SwordAttack",
+      1
+    ],
+    [
+      "SwordAttack",
+      4
+    ],
+    [
+      "SwordAttack",
+      7
+    ],
+    [
+      "SwordAttack",
+      10
+    ],
+    [
+      "SwordAttack",
+      13
+    ],
+    [
+      "SwordAttack",
+      16
+    ],
+    [
+      "SwordAttack",
+      19
+    ],
+    [
+      "SwordAttack",
+      22
+    ],
+    [
+      "SwordAttack",
+      25
+    ],
+    [
+      "TapFill",
+      1
+    ],
+    [
+      "TapFill",
+      4
+    ],
+    [
+      "TapFill",
+      7
+    ],
+    [
+      "TapFill",
+      10
+    ],
+    [
+      "TapFill",
+      13
+    ],
+    [
+      "TapFill",
+      16
+    ],
+    [
+      "TapFill",
+      19
+    ],
+    [
+      "TapFill",
+      22
+    ],
+    [
+      "TapFill",
+      25
+    ],
+    [
+      "TapFill",
+      28
+    ],
+    [
+      "TapFill",
+      31
+    ],
+    [
+      "TapFill",
+      34
+    ],
+    [
+      "TapFill",
+      37
+    ],
+    [
+      "TapFill",
+      40
+    ],
+    [
+      "Throw",
+      1
+    ],
+    [
+      "Throw",
+      4
+    ],
+    [
+      "Throw",
+      7
+    ],
+    [
+      "Throw",
+      10
+    ],
+    [
+      "Throw",
+      13
+    ],
+    [
+      "Throw",
+      16
+    ],
+    [
+      "Throw",
+      19
+    ],
+    [
+      "Throw",
+      22
+    ],
+    [
+      "Throw",
+      25
+    ],
+    [
+      "Throw",
+      28
+    ],
+    [
+      "ToolAway",
+      1
+    ],
+    [
+      "ToolAway",
+      4
+    ],
+    [
+      "ToolAway",
+      7
+    ],
+    [
+      "ToolAway",
+      10
+    ],
+    [
+      "ToolOut",
+      1
+    ],
+    [
+      "ToolOut",
+      4
+    ],
+    [
+      "ToolOut",
+      7
+    ],
+    [
+      "ToolOut",
+      10
+    ],
+    [
+      "Tool_Chop",
+      1
+    ],
+    [
+      "Tool_Chop",
+      4
+    ],
+    [
+      "Tool_Chop",
+      7
+    ],
+    [
+      "Tool_Chop",
+      10
+    ],
+    [
+      "Tool_Chop",
+      13
+    ],
+    [
+      "Tool_Chop",
+      16
+    ],
+    [
+      "Tool_Chop",
+      19
+    ],
+    [
+      "Tool_Chop",
+      22
+    ],
+    [
+      "Tool_Chop",
+      25
+    ],
+    [
+      "Tool_Chop",
+      28
+    ],
+    [
+      "Tool_Chop",
+      31
+    ],
+    [
+      "Tool_Chop",
+      34
+    ],
+    [
+      "Tool_Chop",
+      37
+    ],
+    [
+      "Tool_Chop",
+      40
+    ],
+    [
+      "Tool_Dig",
+      1
+    ],
+    [
+      "Tool_Dig",
+      4
+    ],
+    [
+      "Tool_Dig",
+      7
+    ],
+    [
+      "Tool_Dig",
+      10
+    ],
+    [
+      "Tool_Dig",
+      13
+    ],
+    [
+      "Tool_Dig",
+      16
+    ],
+    [
+      "Tool_Dig",
+      19
+    ],
+    [
+      "Tool_Dig",
+      22
+    ],
+    [
+      "Tool_Dig",
+      25
+    ],
+    [
+      "Tool_Dig",
+      28
+    ],
+    [
+      "Tool_Dig",
+      31
+    ],
+    [
+      "Tool_Dig",
+      34
+    ],
+    [
+      "Tool_Dig",
+      37
+    ],
+    [
+      "Tool_Dig",
+      40
+    ],
+    [
+      "Tool_Hammer",
+      1
+    ],
+    [
+      "Tool_Hammer",
+      4
+    ],
+    [
+      "Tool_Hammer",
+      7
+    ],
+    [
+      "Tool_Hammer",
+      10
+    ],
+    [
+      "Tool_Hammer",
+      13
+    ],
+    [
+      "Tool_Hammer",
+      16
+    ],
+    [
+      "Tool_Hammer",
+      19
+    ],
+    [
+      "Tool_Hammer",
+      22
+    ],
+    [
+      "Tool_Harvest",
+      1
+    ],
+    [
+      "Tool_Harvest",
+      4
+    ],
+    [
+      "Tool_Harvest",
+      7
+    ],
+    [
+      "Tool_Harvest",
+      10
+    ],
+    [
+      "Tool_Harvest",
+      13
+    ],
+    [
+      "Tool_Harvest",
+      16
+    ],
+    [
+      "Tool_Harvest",
+      19
+    ],
+    [
+      "Tool_Harvest",
+      22
+    ],
+    [
+      "Tool_Harvest",
+      25
+    ],
+    [
+      "Tool_Harvest",
+      28
+    ],
+    [
+      "Tool_Mine",
+      1
+    ],
+    [
+      "Tool_Mine",
+      4
+    ],
+    [
+      "Tool_Mine",
+      7
+    ],
+    [
+      "Tool_Mine",
+      10
+    ],
+    [
+      "Tool_Mine",
+      13
+    ],
+    [
+      "Tool_Mine",
+      16
+    ],
+    [
+      "Tool_Mine",
+      19
+    ],
+    [
+      "Tool_Mine",
+      22
+    ],
+    [
+      "Tool_Mine",
+      25
+    ],
+    [
+      "Tool_Mine",
+      28
+    ],
+    [
+      "Tool_Mine",
+      31
+    ],
+    [
+      "Tool_Mine",
+      34
+    ],
+    [
+      "Tool_Mine",
+      37
+    ],
+    [
+      "Tool_Mine",
+      40
+    ],
+    [
+      "Tool_Till",
+      1
+    ],
+    [
+      "Tool_Till",
+      4
+    ],
+    [
+      "Tool_Till",
+      7
+    ],
+    [
+      "Tool_Till",
+      10
+    ],
+    [
+      "Tool_Till",
+      13
+    ],
+    [
+      "Tool_Till",
+      16
+    ],
+    [
+      "Tool_Till",
+      19
+    ],
+    [
+      "Tool_Till",
+      22
+    ],
+    [
+      "Tool_Till",
+      25
+    ],
+    [
+      "Tool_Till",
+      28
+    ],
+    [
+      "Tool_Till",
+      31
+    ],
+    [
+      "Tool_Till",
+      34
+    ],
+    [
+      "Treat",
+      1
+    ],
+    [
+      "Treat",
+      4
+    ],
+    [
+      "Treat",
+      7
+    ],
+    [
+      "Treat",
+      10
+    ],
+    [
+      "Treat",
+      13
+    ],
+    [
+      "Treat",
+      16
+    ],
+    [
+      "Treat",
+      19
+    ],
+    [
+      "Treat",
+      22
+    ],
+    [
+      "Treat",
+      25
+    ],
+    [
+      "Treat",
+      28
+    ],
+    [
+      "Treat",
+      31
+    ],
+    [
+      "Treat",
+      34
+    ],
+    [
+      "Treat",
+      37
+    ],
+    [
+      "Treat",
+      40
+    ],
+    [
+      "Treat",
+      43
+    ],
+    [
+      "Treat",
+      46
+    ],
+    [
+      "UnequipToGround",
+      1
+    ],
+    [
+      "UnequipToGround",
+      4
+    ],
+    [
+      "UnequipToGround",
+      7
+    ],
+    [
+      "UnequipToGround",
+      10
+    ],
+    [
+      "UnequipToGround",
+      13
+    ],
+    [
+      "UnequipToGround",
+      16
+    ],
+    [
+      "UnequipToGround",
+      19
+    ],
+    [
+      "UnequipToGround",
+      22
+    ],
+    [
+      "UnequipToGround",
+      25
+    ],
+    [
+      "UnequipToGround",
+      28
+    ],
+    [
+      "UnequipToGround",
+      31
+    ],
+    [
+      "UnequipToGround",
+      34
+    ],
+    [
+      "UnequipToGround",
+      37
+    ],
+    [
+      "UnequipToGround",
+      40
+    ],
+    [
+      "ValveTurn",
+      1
+    ],
+    [
+      "ValveTurn",
+      4
+    ],
+    [
+      "ValveTurn",
+      7
+    ],
+    [
+      "ValveTurn",
+      10
+    ],
+    [
+      "ValveTurn",
+      13
+    ],
+    [
+      "ValveTurn",
+      16
+    ],
+    [
+      "ValveTurn",
+      19
+    ],
+    [
+      "ValveTurn",
+      22
+    ],
+    [
+      "WakeUp",
+      1
+    ],
+    [
+      "WakeUp",
+      4
+    ],
+    [
+      "WakeUp",
+      7
+    ],
+    [
+      "WakeUp",
+      10
+    ],
+    [
+      "WakeUp",
+      13
+    ],
+    [
+      "WakeUp",
+      16
+    ],
+    [
+      "WakeUp",
+      19
+    ],
+    [
+      "WakeUp",
+      22
+    ],
+    [
+      "WakeUp",
+      25
+    ],
+    [
+      "WakeUp",
+      28
+    ],
+    [
+      "WakeUp",
+      31
+    ],
+    [
+      "WakeUp",
+      34
+    ],
+    [
+      "WakeUp",
+      37
+    ],
+    [
+      "WakeUp",
+      40
+    ],
+    [
+      "WakeUp",
+      43
+    ],
+    [
+      "WakeUp",
+      46
+    ],
+    [
+      "Walk",
+      1
+    ],
+    [
+      "Walk",
+      4
+    ],
+    [
+      "Walk",
+      7
+    ],
+    [
+      "Walk",
+      10
+    ],
+    [
+      "Walk",
+      13
+    ],
+    [
+      "Walk",
+      16
+    ],
+    [
+      "Walk",
+      19
+    ],
+    [
+      "Walk",
+      22
+    ],
+    [
+      "WalkTipsy",
+      1
+    ],
+    [
+      "WalkTipsy",
+      4
+    ],
+    [
+      "WalkTipsy",
+      7
+    ],
+    [
+      "WalkTipsy",
+      10
+    ],
+    [
+      "WalkTipsy",
+      13
+    ],
+    [
+      "WalkTipsy",
+      16
+    ],
+    [
+      "WalkTipsy",
+      19
+    ],
+    [
+      "WalkTipsy",
+      22
+    ],
+    [
+      "WalkTipsy",
+      25
+    ],
+    [
+      "WalkTipsy",
+      28
+    ],
+    [
+      "WalkTipsy",
+      31
+    ],
+    [
+      "Wash",
+      1
+    ],
+    [
+      "Wash",
+      4
+    ],
+    [
+      "Wash",
+      7
+    ],
+    [
+      "Wash",
+      10
+    ],
+    [
+      "Wash",
+      13
+    ],
+    [
+      "Wash",
+      16
+    ],
+    [
+      "Wash",
+      19
+    ],
+    [
+      "Wash",
+      22
+    ],
+    [
+      "Wash",
+      25
+    ],
+    [
+      "Wash",
+      28
+    ],
+    [
+      "Wash",
+      31
+    ],
+    [
+      "Wash",
+      34
+    ],
+    [
+      "Wash",
+      37
+    ],
+    [
+      "Wash",
+      40
+    ],
+    [
+      "WaterPlant",
+      1
+    ],
+    [
+      "WaterPlant",
+      4
+    ],
+    [
+      "WaterPlant",
+      7
+    ],
+    [
+      "WaterPlant",
+      10
+    ],
+    [
+      "WaterPlant",
+      13
+    ],
+    [
+      "WaterPlant",
+      16
+    ],
+    [
+      "WaterPlant",
+      19
+    ],
+    [
+      "WaterPlant",
+      22
+    ],
+    [
+      "WaterPlant",
+      25
+    ],
+    [
+      "WaterPlant",
+      28
+    ],
+    [
+      "WaterPlant",
+      31
+    ],
+    [
+      "WaterPlant",
+      34
+    ],
+    [
+      "WaterPlant",
+      37
+    ],
+    [
+      "WaterPlant",
+      40
+    ],
+    [
+      "WaterPlant",
+      43
+    ],
+    [
+      "WaterPlant",
+      46
+    ],
+    [
+      "WaterPlant",
+      49
+    ],
+    [
+      "WaterPlant",
+      52
+    ],
+    [
+      "WaterPlant",
+      55
+    ],
+    [
+      "WaterPlant",
+      58
+    ],
+    [
+      "Wrestle",
+      1
+    ],
+    [
+      "Wrestle",
+      4
+    ],
+    [
+      "Wrestle",
+      7
+    ],
+    [
+      "Wrestle",
+      10
+    ],
+    [
+      "Wrestle",
+      13
+    ],
+    [
+      "Wrestle",
+      16
+    ],
+    [
+      "Wrestle",
+      19
+    ],
+    [
+      "Wrestle",
+      22
+    ],
+    [
+      "Wrestle",
+      25
+    ],
+    [
+      "Wrestle",
+      28
+    ],
+    [
+      "Wrestle",
+      31
+    ]
+  ]
+}

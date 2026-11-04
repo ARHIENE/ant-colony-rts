@@ -1,0 +1,117 @@
+using System;
+using System.IO;
+using System.Linq;
+using System.Threading.Tasks;
+using AntColony.Core;
+using AntColony.Data;
+using AntColony.Save;
+using AntColony.UI;
+using AntColony.Units;
+using AntColony.World;
+using UnityEngine;
+using Object = UnityEngine.Object;
+
+public static class BetaChecks
+{
+    private static int checks;
+    private static void Check(bool condition, string message)
+    { if (!condition) throw new Exception("FAIL: " + message); checks++; }
+    private static async Task Ready()
+    {
+        var end = DateTime.UtcNow.AddSeconds(60);
+        while (SaveSystem.Busy && DateTime.UtcNow < end) await Task.Delay(100);
+        Check(!SaveSystem.Busy, "scene ready"); await Task.Delay(200);
+    }
+    // 무기=역할 개편: 예전 보직 변경을 해당 무기(날개) 장착으로 대신한다.
+    static bool Arm(AntColony.Units.CommanderAnt c, AntColony.Data.UnitRole role)
+    {
+        var inv = AntColony.Units.EquipmentInventory.Instance;
+        var item = role == AntColony.Data.UnitRole.Flying
+            ? new AntColony.Units.EquipmentItem { slot = AntColony.Units.EquipmentSlot.Armor, armor = AntColony.Units.ArmorKind.Wings, quality = 1 }
+            : new AntColony.Units.EquipmentItem { slot = AntColony.Units.EquipmentSlot.Weapon, quality = 1,
+                weapon = role == AntColony.Data.UnitRole.Ranged ? AntColony.Units.WeaponKind.AcidSprayer : role == AntColony.Data.UnitRole.Defense ? AntColony.Units.WeaponKind.Shield
+                    : role == AntColony.Data.UnitRole.Support ? AntColony.Units.WeaponKind.Pheromone : AntColony.Units.WeaponKind.Mandible };
+        if (inv.Full) inv.Items.RemoveAt(0);
+        if (!inv.Add(item) || !inv.Equip(c, item)) return false;
+        inv.Items.RemoveAll(e => e.slot == item.slot && e.quality == 1 && e != item);
+        return role == AntColony.Data.UnitRole.Flying ? c.IsFlying : c.Role == (role == AntColony.Data.UnitRole.Worker ? AntColony.Data.UnitRole.Melee : role);
+    }
+    public static async Task<string> Main()
+    {
+        Check(Application.isPlaying, "Play mode"); checks = 0;
+        var oldRoot = SaveStorage.RootOverride;
+        SaveStorage.RootOverride = Path.Combine(Application.temporaryCachePath, "BetaChecks-" + Guid.NewGuid().ToString("N"));
+        Encyclopedia.ResetCache();
+        try
+        {
+            await Ready();
+            SaveSystem.NewGame(new NewGameOptions { mapSize = MapSize.Small, difficulty = DifficultyLevel.Normal, seed = 23456 });
+            await Ready();
+            Check(GameSession.Instance.GameStarted && Time.timeScale > 0, "new game simulation running");
+            var commanders = CommanderRoster.Instance.Commanders;
+            Check(commanders.Count == GameSession.Instance.Options.startingCount && commanders.All(c => c.GetComponent<AntVisual>() != null), "all generated commanders use Quirky");
+            var commander = commanders[0]; var visual = commander.GetComponent<AntVisual>();
+            var animator = commander.GetComponentInChildren<Animator>();
+            Check(animator != null && animator.avatar != null && !animator.applyRootMotion, "avatar and no root motion");
+            foreach (var state in new[] { "Idle_A", "Walk", "Run", "Eat", "Attack", "Hit", "Fly", "Sit", "Death" })
+                Check(animator.HasState(0, Animator.StringToHash("Base Layer." + state)), "animation state " + state);
+            Check(commander.GetComponentsInChildren<SkinnedMeshRenderer>().All(r => r.sharedMesh != null && r.sharedMaterial.shader.isSupported), "meshes and URP shader resolve");
+            Check(!commander.GetComponent<MeshRenderer>().enabled, "capsule hidden");
+            Check(commander.GetComponentsInChildren<Collider>().Length == 1, "model does not add collision or ragdoll");
+            // 새 게임 직후 장수는 자율 작업을 시작하므로 멈춘 뒤 대기 동작을 본다.
+            commander.SetJobEnabled(CommanderJobs.All, false); commander.CommandStop(); await Task.Delay(300);
+            Check(visual.StateName == "Idle_A", "idle animation");
+            commander.CommandMove(commander.Position + Vector3.right * 3);
+            var deadline = DateTime.UtcNow.AddSeconds(8);
+            while (visual.StateName != "Run" && visual.StateName != "Walk" && DateTime.UtcNow < deadline) await Task.Delay(100);
+            Check(visual.StateName == "Run" || visual.StateName == "Walk", "movement drives locomotion");
+            commander.CommandStop();
+            visual.Attack(commander.Position + Vector3.forward);
+            await Task.Delay(180);
+            Check(visual.StateName == "Attack" && animator.GetCurrentAnimatorStateInfo(0).IsName("Base Layer.Attack"), "attack is actually evaluated");
+            commander.TakeDamage(.1f); await Task.Delay(180);
+            Check(visual.StateName == "Hit", "damage drives hit reaction");
+            await Task.Delay(400);
+            commander.ReturnTroops(commander.TroopCount);
+            await Task.Delay(150);
+            // Sit은 포로·쓰러짐 전용. 병력 없는 장수는 살아서 대기한다.
+            Check(commander.PersonalHealth > 0 && visual.StateName != "Sit" && visual.StateName != "Death", "troopless commander remains alive");
+            commander.TryAssign(2);
+            var flying = commanders.First(c => true);
+            Check(Arm(flying, UnitRole.Flying), "change to flying role");
+            await Task.Delay(200);
+            Check(flying.GetComponent<AntVisual>().StateName == "Fly", "flying animation");
+            Check(Arm(flying, UnitRole.Worker), "land again");
+            var enemy = Object.FindObjectsByType<EnemyCommander>(FindObjectsSortMode.None).First();
+            Check(enemy.GetComponent<AntVisual>() != null, "enemy commanders have Quirky visuals");
+            foreach (var c in commanders) c.CommandStop();
+            GameMenuController.Instance.Pause();
+            var time = GameSession.Instance.PlaySeconds; await Task.Delay(200);
+            Check(GameSession.Instance.PlaySeconds == time, "pause does not inflate play time");
+            GameMenuController.Instance.Guide();
+            Check(GameMenuController.Instance.ScreenName == "FIELD GUIDE" && GameMenuController.BlocksInput, "guide opens and blocks commands");
+            Check(Object.FindFirstObjectByType<BetaProgress>() != null, "objectives installed");
+            Check(SaveSystem.TrySave(false, 0, out var error), "save before reload: " + error);
+            Check(SaveSystem.TryLoad(SaveSlots.PathFor(false, 0), out error), "load accepted: " + error);
+            await Ready();
+            Check(CommanderRoster.Instance.Commanders.All(c => c.GetComponentInChildren<Animator>() != null), "loaded commanders keep models/animations");
+            // B6: 정식 캠페인은 보스로 끝나지 않는다. 결과 화면은 베타 시나리오에서만 검사한다.
+            Object.FindFirstObjectByType<BetaProgress>().BetaScenario = true;
+            GameManager.Instance.ReportBossDefeated(); await Task.Delay(100);
+            Check(GameMenuController.Instance.ScreenName == "VICTORY - BETA COMPLETE" && Time.timeScale == 0, "boss victory pauses on results");
+            GameMenuController.Instance.GetComponentsInChildren<UnityEngine.UI.Button>().Single(b => b.name == "Continue Colony").onClick.Invoke();
+            Check(Time.timeScale > 0 && GameMenuController.Instance.ScreenName == "Game", "continue after victory");
+            // 패배 = 살아 있는 장수가 없을 때(건물 파괴는 패배 조건이 아니다).
+            foreach (var c in CommanderRoster.Instance.Commanders) c.PersonalState.dead = true;
+            await Task.Delay(300);
+            Check(GameMenuController.Instance.ScreenName == "COLONY LOST" && Time.timeScale == 0, "defeat results");
+            GameMenuController.Instance.Resume(); Check(Time.timeScale == 0, "cannot escape defeat into simulation");
+            GameMenuController.Instance.GetComponentsInChildren<UnityEngine.UI.Button>().Single(b => b.name == "Restart Same Map").onClick.Invoke();
+            GameMenuController.Instance.GetComponentsInChildren<UnityEngine.UI.Button>().Single(b => b.name == "Restart").onClick.Invoke();
+            await Ready();
+            Check(GameSession.Instance.Options.seed == 23456 && GameMenuController.Instance.ScreenName == "Game", "restart resets outcome and preserves map seed");
+            return "PASS " + checks + " beta checks: Quirky animation, save/load, objectives, victory/defeat/restart.";
+        }
+        finally { Time.timeScale = 0; SaveStorage.RootOverride = oldRoot; Encyclopedia.ResetCache(); }
+    }
+}

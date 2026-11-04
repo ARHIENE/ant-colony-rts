@@ -1,0 +1,16 @@
+{
+  "Assembly-CSharp": {
+    "exit": 0,
+    "errors": 0,
+    "warnings": 293,
+    "sources": 376,
+    "bee_rsp": "E:\\Git\\ant\\Library\\Bee\\artifacts\\1900b0aE.dag\\Assembly-CSharp.rsp"
+  },
+  "ImplG27Checks": {
+    "exit": 0,
+    "errors": 0,
+    "warnings": 3,
+    "sources": 1,
+    "bee_rsp": "E:\\Git\\ant\\Library\\Bee\\artifacts\\1900b0aE.dag\\Assembly-CSharp-Editor.rsp"
+  }
+}

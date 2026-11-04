@@ -1,0 +1,549 @@
+"""Wearable equipment fitted to the current kemono body (BLENDER-1019 §3).
+
+Helmet: open-face shell that encloses every hair style above the brim, so no hair pokes through and the face stays
+visible. Each ear type gets its own shell with holes where that ear really crosses the shell surface (+ a rim ring).
+Tier trims (band/rivets/crest/brow/gem) are shared by all shells. Shell material is swapped per tier.
+Armour plates are cut from the LINEN outfit surface, pushed out along the normals and solidified; each plate is
+rigid (one bone). The leather vest is soft (keeps the outfit's skin weights). The back plate leaves a tail gap.
+All parts are authored at the rig rest pose in rig space; custom props: bone (rigid) or soft=True, slot, ears.
+"""
+import bpy, bmesh, math
+from mathutils import Vector, Matrix
+import pk, rig_adapter as R
+from equip_spec import EARS, METAL_TIERS, LEATHER, GLOW, BRIGHT
+
+HELM_C = Vector((0, .03, .92))
+SHELL_T = .008
+MARGIN = .012
+
+
+def brim_z(p):
+    """Lower edge: open over the face (front ±50°), down to .80 at the sides and back like a kettle helmet."""
+    phi = abs(math.atan2(p.x, -(p.y - HELM_C.y)))
+    t = min(1, max(0, (phi - math.radians(50)) / math.radians(35)))
+    t = t * t * (3 - 2 * t)
+    return 1.0 + (.80 - 1.0) * t
+
+
+class Envelope:
+    """Radial hull of the hair seen from HELM_C, smoothed, + margin. r(d) for any direction."""
+
+    def __init__(self, pts, seg=40, rings=20):
+        from mathutils.kdtree import KDTree
+        bm = bmesh.new(); bmesh.ops.create_uvsphere(bm, u_segments=seg, v_segments=rings, radius=1)
+        bm.verts.ensure_lookup_table()
+        dirs = [v.co.normalized() for v in bm.verts]
+        nb = [[e.other_vert(v).index for e in v.link_edges] for v in bm.verts]
+        bm.free()
+        rel = [(p - HELM_C) for p in pts]
+        rad = [0.0] * len(dirs); cos = math.cos(math.radians(22))  # wide cone = rounder hull over hair strands
+        for i, d in enumerate(dirs):
+            best = 0.0
+            for q in rel:
+                L = q.length
+                if L > best and q.dot(d) > cos * L: best = L
+            rad[i] = best
+        for _ in range(14):  # envelope smoothing: never smaller than the hair, bumps averaged out
+            rad = [max(rad[i], sum(rad[j] for j in nb[i]) / len(nb[i]) * .985) for i in range(len(dirs))]
+        self.dirs, self.rad = dirs, [r + MARGIN for r in rad]
+        self.kd = KDTree(len(dirs))
+        for i, d in enumerate(dirs): self.kd.insert(d, i)
+        self.kd.balance()
+
+    def r(self, d):
+        hits = self.kd.find_n(d.normalized(), 3)
+        w = [1 / (h[2] + 1e-4) for h in hits]
+        return sum(self.rad[h[1]] * wi for h, wi in zip(hits, w)) / sum(w)
+
+    def surface(self, d):
+        d = d.normalized(); return HELM_C + d * self.r(d)
+
+    def ell(self, p):  # >1 outside the shell
+        q = p - HELM_C; return q.length / self.r(q)
+
+
+def surface_samples(objs, n=6):
+    """Barycentric samples over every evaluated triangle (cards with 4 verts still give a dense surface)."""
+    out = []; dg = bpy.context.evaluated_depsgraph_get()
+    for o in objs:
+        ev = o.evaluated_get(dg); me = ev.to_mesh(); me.calc_loop_triangles(); W = ev.matrix_world
+        vs = [W @ v.co for v in me.vertices]
+        for t in me.loop_triangles:
+            a, b, c = (vs[i] for i in t.vertices)
+            for i in range(n + 1):
+                for j in range(n + 1 - i):
+                    out.append(a + (b - a) * (i / n) + (c - a) * (j / n))
+        ev.to_mesh_clear()
+    return out
+
+
+EAR_GAP = .016  # clearance around the ear silhouette on the shell (m)
+
+
+def ear_holes(ears, env):
+    """Every part of this ear that would sit under the shell (inside it, above the brim), projected radially onto
+    the shell. The window is that silhouette + EAR_GAP, so droop ears get a slot, upright ears a root opening."""
+    pts = surface_samples(R.parts(f'Ears_{ears}_'))
+    holes = []
+    for side, sign in (('L', 1), ('R', -1)):
+        inside = [v for v in pts if v.x * sign > 0 and env.ell(v) < 1.02 and v.z > brim_z(v) - .01]
+        if not inside: continue
+        proj = [env.surface(v - HELM_C) for v in inside]
+        P = sum(proj, Vector()) / len(proj)
+        holes.append({'side': side, 'pts': proj, 'centre': P,
+                      'size': [max(p[i] for p in proj) - min(p[i] for p in proj) for i in range(3)]})
+    return holes
+
+
+def shell(name, env, holes, col):
+    bm = bmesh.new()
+    bmesh.ops.create_uvsphere(bm, u_segments=48, v_segments=24, radius=1)
+    for v in bm.verts: v.co = env.surface(v.co)
+    from mathutils.kdtree import KDTree
+    ear_pts = [p for h in holes for p in h['pts']]
+    kd = KDTree(max(1, len(ear_pts)))
+    for i, p in enumerate(ear_pts): kd.insert(p, i)
+    kd.balance()
+    kill = []
+    for f in bm.faces:
+        c = f.calc_center_median(); reach = max((v.co - c).length for v in f.verts)
+        if c.z < brim_z(c) or (ear_pts and kd.find(c)[2] < EAR_GAP + reach): kill.append(f)
+    bmesh.ops.delete(bm, geom=kill, context='FACES')
+    # ear-window rims: tube along hole borders (not the brim) so the opening reads as a made slot
+    rim_edges = [(e.verts[0].co.copy(), e.verts[1].co.copy()) for e in bm.edges if e.is_boundary
+                 and all(v.co.z > brim_z(v.co) + .015 for v in e.verts)]
+    bmesh.ops.recalc_face_normals(bm, faces=bm.faces)
+    for f in bm.faces: f.smooth = True
+    bmesh.ops.solidify(bm, geom=bm.faces[:], thickness=-SHELL_T)  # inward: outer surface stays on the envelope
+    me = bpy.data.meshes.new(name); bm.to_mesh(me); bm.free()
+    o = bpy.data.objects.new(name, me); col.objects.link(o)
+    shell_mat = pk.mat('#c06a3c', metal=.85, rough=.45, name='PK_Equip_Shell')
+    me.materials.append(shell_mat)
+    if rim_edges:
+        rim = pk.Mesh(name + '_rim')
+        for a, b in rim_edges:
+            n = ((a + b) / 2 - HELM_C).normalized() * -SHELL_T / 2
+            rim.cyl(a + n, b + n, .0045, shell_mat, seg=5)
+        join(o, rim.to_object(col, origin='keep'))
+    return o
+
+
+def join(dst, src):
+    bm = bmesh.new(); bm.from_mesh(dst.data)
+    off = len(dst.data.materials)
+    for m in src.data.materials:
+        if m.name not in [x.name for x in dst.data.materials]: dst.data.materials.append(m)
+    names = [x.name for x in dst.data.materials]
+    tmp = src.data.copy(); tmp.transform(dst.matrix_world.inverted() @ src.matrix_world)
+    before = set(bm.faces); bm.from_mesh(tmp)
+    for f in bm.faces:
+        if f not in before: f.material_index = names.index(src.data.materials[f.material_index].name)
+    bm.to_mesh(dst.data); bm.free(); bpy.data.meshes.remove(tmp); bpy.data.objects.remove(src)
+
+
+def brim_ring(env, n=56):
+    """Points just above the brim on the shell surface, front first, going round the head."""
+    ring = []
+    for k in range(n):
+        a = math.tau * k / n; hd = Vector((math.sin(a), -math.cos(a), 0))
+        best = None
+        for e in range(-70, 71, 2):
+            el = math.radians(e); d = hd * math.cos(el) + Vector((0, 0, math.sin(el)))
+            p = env.surface(d); err = abs(p.z - (brim_z(p) + .008))
+            if best is None or err < best[0]: best = (err, p)
+        ring.append(best[1] + (best[1] - HELM_C).normalized() * .003)
+    return ring
+
+
+def helmet_trim(tier, r, col):
+    """Cumulative tier details along the brim/top, shared by every ear-type shell."""
+    tid = tier[0]; i = [t[0] for t in METAL_TIERS].index(tid)
+    metal = pk.mat(tier[2], metal=tier[3], rough=.4)
+    m = pk.Mesh(f'HelmTrim_{tid}'); env = r
+    ring = brim_ring(env)
+    HELM_TOP = [env.surface(Vector((0, math.sin(a), math.cos(a)))) * 1.0 for a in [-1.0 + 2.2 * k / 12 for k in range(13)]]
+    if i >= 1:  # bronze+: band around the brim
+        for a, b in zip(ring, ring[1:] + ring[:1]): m.cyl(a, b, .007, metal, seg=5)
+    if i >= 2:  # iron+: rivets on the band
+        for p in ring[::6]: m.ball(p + (p - HELM_C).normalized() * .006, (.006,) * 3, BRIGHT, seg=6, rings=4)
+    if i >= 3:  # steel+: crest along the top midline
+        pts = [p + (p - HELM_C).normalized() * .004 for p in HELM_TOP if p.z > brim_z(p) + .01]
+        for a, b in zip(pts, pts[1:]): m.cyl(a, b, .007, metal, seg=4)
+        for a, b in zip(pts, pts[1:]): m.cyl(a + Vector((0, 0, .008)), b + Vector((0, 0, .008)), .004, BRIGHT, seg=4)
+    if i >= 4:  # titanium+: brow plate over the forehead
+        front = [p for p in ring[-5:] + ring[:6]]
+        for a, b in zip(front, front[1:]): m.cyl(a + Vector((0, -.004, .014)), b + Vector((0, -.004, .014)), .009, metal, seg=4)
+    if i >= 5:  # starlight: gem on the brow + glowing line
+        m.ico(ring[0] + Vector((0, -.014, .026)), (.014, .008, .016), pk.mat(GLOW, emit=3), sub=1)
+        for a, b in zip(ring, ring[1:] + ring[:1]): m.cyl(a + Vector((0, 0, -.006)), b + Vector((0, 0, -.006)), .0025, pk.mat(GLOW, emit=2.5), seg=4)
+    if not m.bm.faces: return None
+    o = m.to_object(col, origin='keep'); o['slot'] = 'HelmTrim'; o['tier'] = tid; o['bone'] = 'head'; o['rigid'] = True
+    return o
+
+
+# ---------------------------------------------------------------- armour from the outfit surface
+def outfit_region(test, offset, thick, name, col, bone=None, soft=False, cut=None):
+    """Copy outfit faces passing test(centre, bone) → push out along normals → solidify."""
+    src = bpy.data.objects['Part_Outfit_LINEN_00']
+    dg = bpy.context.evaluated_depsgraph_get(); ev = src.evaluated_get(dg); me = ev.to_mesh()
+    gi = {g.index: g.name for g in src.vertex_groups}
+    W = src.matrix_world
+    dom = []
+    for v in src.data.vertices:
+        g = max(v.groups, key=lambda x: x.weight) if v.groups else None
+        dom.append(gi.get(g.group) if g else '')
+    bm = bmesh.new(); vmap = {}
+    keep = [p for p in me.polygons if test(W @ p.center, dom[p.vertices[0]]) and not (cut and cut(W @ p.center))]
+    for p in keep:
+        vs = []
+        for vi in p.vertices:
+            if vi not in vmap:
+                v = me.vertices[vi]; co = W @ v.co; n = (W.to_3x3() @ v.normal).normalized()
+                nv = bm.verts.new(co + n * offset); vmap[vi] = nv
+            vs.append(vmap[vi])
+        try: bm.faces.new(vs)
+        except ValueError: pass
+    ev.to_mesh_clear()
+    bmesh.ops.recalc_face_normals(bm, faces=bm.faces)
+    # make normals face away from the body centre line
+    bm.faces.ensure_lookup_table()
+    if bm.faces:
+        f = bm.faces[0]; c = f.calc_center_median()
+        out = Vector((c.x, c.y + .0, 0))
+        if f.normal.dot(out) < 0: bmesh.ops.reverse_faces(bm, faces=bm.faces)
+    for f in bm.faces: f.smooth = True
+    # flatten the cloth pleats into a plate, then restore the minimum gap above the outfit surface
+    inner = [v for v in bm.verts if not v.is_boundary]
+    for _ in range(12): bmesh.ops.smooth_vert(bm, verts=inner, factor=.5, use_axis_x=True, use_axis_y=True, use_axis_z=True)
+    from mathutils.bvhtree import BVHTree
+    dg = bpy.context.evaluated_depsgraph_get(); ev = src.evaluated_get(dg)
+    tree = BVHTree.FromObject(ev, dg)
+    for v in bm.verts:
+        hit = tree.find_nearest(src.matrix_world.inverted() @ v.co)
+        if hit[0] is None: continue
+        p = src.matrix_world @ hit[0]; n = (src.matrix_world.to_3x3() @ hit[1]).normalized()
+        d = (v.co - p).dot(n)
+        if d < offset: v.co += n * (offset - d)
+    solidify_out = bmesh.ops.solidify(bm, geom=bm.faces[:], thickness=-thick)
+    mesh = bpy.data.meshes.new(name); bm.to_mesh(mesh); bm.free()
+    o = bpy.data.objects.new(name, mesh); col.objects.link(o)
+    if not soft:
+        o['rest_overlap_pairs'] = push_clear(o, rest_tree([src, bpy.data.objects['Part_Body_BASE_00']]), radial_from((0, -.018, 0)))
+    if soft:  # copy skin weights from the nearest outfit vertex
+        o['soft'] = True; o['weights_from'] = 'Part_Outfit_LINEN_00 (nearest vertex)'
+        kd = __import__('mathutils').kdtree.KDTree(len(src.data.vertices))
+        for i, v in enumerate(src.data.vertices): kd.insert(W @ v.co, i)
+        kd.balance()
+        groups = {}
+        for v in mesh.vertices:
+            _, i, _ = kd.find(v.co)
+            for g in src.data.vertices[i].groups:
+                n = gi[g.group]
+                grp = groups.get(n) or o.vertex_groups.new(name=n); groups[n] = grp
+                grp.add([v.index], g.weight, 'REPLACE')
+    else:
+        o['bone'] = bone; o['rigid'] = True
+    return o
+
+
+TORSO_BONES = ('spine', 'spine_01', 'spine_02', 'neck', 'pevis')
+
+
+def armour(col):
+    parts = []
+    tail_gap = lambda c: abs(c.x) < .11 and c.z < .56 and c.y > 0
+    # chest/back plates are split at the spine_01/spine_02 joint: the upper plate rides spine_02, the lower lame spine_01
+    # (sits 4 mm further out and overlaps the upper plate by 1 cm), so a bending torso no longer pushes skin through one rigid shell
+    parts.append(outfit_region(lambda c, b: .575 < c.z < .69 and c.y < -.004 and b in TORSO_BONES, .012, .007, 'Armor_Breastplate', col, 'spine_02'))
+    parts.append(outfit_region(lambda c, b: .47 < c.z < .585 and c.y < -.004 and b in TORSO_BONES, .016, .007, 'Armor_Breastplate_Lower', col, 'spine_01'))
+    parts.append(outfit_region(lambda c, b: .575 < c.z < .69 and c.y > .004 and b in TORSO_BONES, .012, .007, 'Armor_Backplate', col, 'spine_02', cut=tail_gap))
+    parts.append(outfit_region(lambda c, b: .47 < c.z < .585 and c.y > .004 and b in TORSO_BONES, .016, .007, 'Armor_Backplate_Lower', col, 'spine_01', cut=tail_gap))
+    parts.append(outfit_region(lambda c, b: .405 < c.z < .47 and c.y < .02 and b in TORSO_BONES, .014, .007, 'Armor_Fauld', col, 'pevis'))
+    parts.append(outfit_region(lambda c, b: .30 < c.z < .40 and c.y < -.02 and c.x > .015, .016, .006, 'Armor_Tasset_L', col, 'thigh.L'))
+    parts.append(outfit_region(lambda c, b: .30 < c.z < .40 and c.y < -.02 and c.x < -.015, .016, .006, 'Armor_Tasset_R', col, 'thigh.R'))
+    for o in parts: o['slot'] = 'Armor'
+    vest = outfit_region(lambda c, b: .42 < c.z < .69 and b in TORSO_BONES, .009, .005, 'Armor_LeatherVest', col, soft=True, cut=tail_gap)
+    vest['slot'] = 'ArmorSoft'; vest.data.materials.append(pk.mat(LEATHER[2], name='PK_Equip_Leather'))
+    for o in parts: o.data.materials.append(pk.mat('#c06a3c', metal=.85, rough=.45, name='PK_Equip_Plate'))
+    parts += body_guards(col)
+    return parts + [vest]
+
+
+def rest_tree(objs):
+    from mathutils.bvhtree import BVHTree
+    vs, ps = [], []
+    dg = bpy.context.evaluated_depsgraph_get()
+    for o in objs:
+        ev = o.evaluated_get(dg); me = ev.to_mesh(); W = ev.matrix_world; off = len(vs)
+        vs += [W @ v.co for v in me.vertices]; ps += [[i + off for i in p.vertices] for p in me.polygons]; ev.to_mesh_clear()
+    return BVHTree.FromPolygons(vs, ps)
+
+
+def push_clear(obj, tree, direction, step=.003, iters=10):
+    """Move the vertices of obj's faces that intersect tree outward (direction(world co) → unit) until clear.
+    Returns remaining overlapping face pairs (rest pose)."""
+    from mathutils.bvhtree import BVHTree
+    W = obj.matrix_world; inv = W.inverted(); me = obj.data; left = 0
+    for _ in range(iters):
+        t = BVHTree.FromPolygons([W @ v.co for v in me.vertices], [tuple(p.vertices) for p in me.polygons])
+        pairs = t.overlap(tree); left = len(pairs)
+        if not pairs: break
+        vids = {vi for a, _ in pairs for vi in me.polygons[a].vertices}
+        for vi in vids:
+            w = W @ me.vertices[vi].co; me.vertices[vi].co = inv @ (w + direction(w) * step)
+    me.update()
+    return left
+
+
+def radial_from(a, ax=Vector((0, 0, 1))):
+    a = Vector(a); ax = Vector(ax).normalized()
+    def d(w):
+        q = w - a; r = q - ax * q.dot(ax)
+        return r.normalized() if r.length > 1e-6 else Vector((0, -1, 0))
+    return d
+
+
+def weighted_verts(objs, bones):
+    """Rest-pose world verts of objs whose dominant skin bone is in bones."""
+    out = []
+    for o in objs:
+        gi = {g.index: g.name for g in o.vertex_groups}; ev = R.evaluated_verts(o)
+        for v, p in zip(o.data.vertices, ev):
+            if v.groups and gi[max(v.groups, key=lambda x: x.weight).group] in bones: out.append(p)
+    return out
+
+
+def ring_fit(pts, a, b, t0, t1, clearance, bins=24, rings=3):
+    """Radial profile of pts around the axis a→b between fractions t0..t1: per (ring, angle) max radius, smoothed."""
+    a, b = Vector(a), Vector(b); ax = (b - a).normalized(); L = (b - a).length
+    side = ax.cross(Vector((0, 0, 1)) if abs(ax.z) < .9 else Vector((1, 0, 0))).normalized(); up = ax.cross(side)
+    prof = [[0.0] * bins for _ in range(rings)]
+    for p in pts:
+        q = p - a; t = q.dot(ax) / L
+        if not (t0 - .08 <= t <= t1 + .08): continue
+        rq = q - ax * q.dot(ax); ang = math.atan2(rq.dot(up), rq.dot(side)) % math.tau
+        k = int(ang / math.tau * bins) % bins; j = min(rings - 1, max(0, int((t - t0) / max(1e-6, t1 - t0) * rings)))
+        prof[j][k] = max(prof[j][k], rq.length)
+    base = max(max(r) for r in prof) * .6
+    for j in range(rings):
+        row = [r or base for r in prof[j]]
+        prof[j] = [max(row[k], (row[k - 1] + row[(k + 1) % bins]) / 2) + clearance for k in range(bins)]
+    return a, ax, L, side, up, prof
+
+
+def ring_mesh(name, fit, t0, t1, mat, thick, gap=None):
+    """Band from a ring_fit profile; gap=(angle centre, half width) leaves an opening (tail slot)."""
+    a, ax, L, side, up, prof = fit; rings, bins = len(prof), len(prof[0])
+    bm = bmesh.new(); grid = []
+    sag = 1 / math.cos(math.pi / bins)  # chord midpoints must stay outside the surface too
+    for j in range(rings + 1):
+        js = {max(0, j - 1), min(rings - 1, j)}; t = t0 + (t1 - t0) * j / rings; row = []
+        for k in range(bins):
+            ang = math.tau * k / bins
+            r = max(prof[jj][kk] for jj in js for kk in (k - 1, k)) * sag  # vertex sits on a bin/ring boundary
+            row.append(bm.verts.new(a + ax * (L * t) + (side * math.cos(ang) + up * math.sin(ang)) * r))
+        grid.append(row)
+    for j in range(rings):
+        for k in range(bins):
+            mid = math.tau * (k + .5) / bins
+            if gap and abs((mid - gap[0] + math.pi) % math.tau - math.pi) < gap[1]: continue
+            bm.faces.new((grid[j][k], grid[j][(k + 1) % bins], grid[j + 1][(k + 1) % bins], grid[j + 1][k]))
+    bmesh.ops.delete(bm, geom=[v for v in bm.verts if not v.link_faces], context='VERTS')
+    bmesh.ops.recalc_face_normals(bm, faces=bm.faces)
+    f = bm.faces[0]; c = f.calc_center_median(); q = c - a; radial = q - ax * q.dot(ax)
+    if f.normal.dot(radial) < 0: bmesh.ops.reverse_faces(bm, faces=bm.faces)
+    bmesh.ops.solidify(bm, geom=bm.faces[:], thickness=-thick)  # negative = along the outward normal (keeps the fitted inner face)
+    me = bpy.data.meshes.new(name); bm.to_mesh(me); bm.free(); me.materials.append(mat)
+    for p in me.polygons: p.use_smooth = True
+    return me
+
+
+def body_guards(col):
+    """Bracers and greaves: bands fitted to the actual sleeve/boot radius around the forearm/shin bone."""
+    rig = bpy.data.objects['KemonoRig']; out = []
+    skin = [bpy.data.objects['Part_Body_BASE_00'], bpy.data.objects['Part_Outfit_LINEN_00']]
+    plate = pk.mat('#c06a3c', metal=.85, rough=.45, name='PK_Equip_Plate')
+    for bone, slot, near in (('forearm.L', 'Armor_Bracer_L', ('forearm.L', 'hand.L')), ('forearm.R', 'Armor_Bracer_R', ('forearm.R', 'hand.R')),
+                             ('shin.L', 'Armor_Greave_L', ('shin.L', 'foot.L')), ('shin.R', 'Armor_Greave_R', ('shin.R', 'foot.R'))):
+        b = rig.data.bones[bone]; h = rig.matrix_world @ b.head_local; t = rig.matrix_world @ b.tail_local
+        # Greaves: front shin plate over the boot shaft below the wide cuff (a full band around the cuff was so wide
+        # it reached the other leg). For the downward shin axis ring angle 0 = front, so the gap sits at π.
+        greave = bone.startswith('shin')
+        t0, t1 = (.32, .75) if greave else (.3, .8)
+        fit = ring_fit(weighted_verts(skin, near), h, t, t0, t1, .006)
+        o = bpy.data.objects.new(slot, ring_mesh(slot, fit, t0, t1, plate, .006, gap=(math.pi, math.radians(105)) if greave else None))
+        col.objects.link(o)
+        o['bone'] = bone; o['rigid'] = True; o['slot'] = 'Armor'
+        o['rest_overlap_pairs'] = push_clear(o, rest_tree(skin), radial_from(h, t - h))
+        out.append(o)
+    return out
+
+
+def derived_hair(col, armour_objs):
+    """Hair styles whose locks fall where torso armour sits get an '_ARMOR' wearing variant: only the vertices that
+    would end up inside the plates are pushed radially out to 6 mm above the outermost armour surface."""
+    from mathutils.bvhtree import BVHTree
+    vs, ps = [], []
+    for o in armour_objs:
+        off = len(vs); vs += [o.matrix_world @ v.co for v in o.data.vertices]; ps += [[i + off for i in p.vertices] for p in o.data.polygons]
+    tree = BVHTree.FromPolygons(vs, ps)
+    out = []
+    for hair in R.parts('Hair'):
+        hv = [hair.matrix_world @ v.co for v in hair.data.vertices]
+        moved = 0; new = []
+        for v in hv:
+            if not (.36 < v.z < .72): new.append(v); continue
+            d = Vector((v.x, v.y + .018, 0))
+            if d.length < 1e-4: new.append(v); continue
+            d.normalize(); start = Vector((0, -.018, v.z)) + d * .4
+            hit = tree.ray_cast(start, -d, .4)
+            if hit[0] is None: new.append(v); continue
+            r_plate = (hit[0] - Vector((0, -.018, v.z))).length; r_v = (v - Vector((0, -.018, v.z))).length
+            if r_v < r_plate + .006 and r_v > r_plate - .06:
+                new.append(Vector((0, -.018, v.z)) + d * (r_plate + .006)); moved += 1
+            else: new.append(v)
+        if moved:
+            o = hair.copy(); o.data = hair.data.copy(); col.objects.link(o)
+            o.name = hair.name.replace('_00', '') + '_ARMOR'
+            inv = hair.matrix_world.inverted()
+            for v, p in zip(o.data.vertices, new): v.co = inv @ p
+            o['derived_from'] = hair.name; o['moved_vertices'] = moved; o['slot'] = 'HairArmorVariant'
+            o['rest_overlap_pairs'] = push_clear(o, tree, radial_from((0, -.018, 0)), step=.003, iters=12)
+            out.append(o)
+    return out
+
+
+def covered(me, W, armour, reach=.08):
+    """Per vertex: a ray along the (rest) normal hits the armour within reach, i.e. the plate hides it."""
+    N = W.to_3x3().inverted().transposed()
+    return [armour.ray_cast(W @ v.co + (N @ v.normal).normalized() * .0005, (N @ v.normal).normalized(), reach)[0] is not None
+            for v in me.vertices]
+
+
+def drop_covered(me, cov):
+    """Delete the faces whose vertices are all hidden under a plate (they only ever show by poking through it when the
+    torso bends under the rigid plates); weights of the remaining vertices are kept. Returns the number of faces removed."""
+    bm = bmesh.new(); bm.from_mesh(me); bm.verts.ensure_lookup_table()
+    dead = [f for f in bm.faces if all(cov[v.index] for v in f.verts)]
+    bmesh.ops.delete(bm, geom=dead, context='FACES_ONLY')
+    bmesh.ops.delete(bm, geom=[v for v in bm.verts if not v.link_faces], context='VERTS')
+    bm.to_mesh(me); bm.free(); me.update()
+    return len(dead)
+
+
+def derived_outfit(col, armour_objs):
+    """'_ARMOR' wearing variant of each outfit: cloth vertices that lie under a plate (a ray along the cloth normal hits
+    armour within 8 cm) are pulled onto the body skin (+1.5 mm), and faces hidden entirely under the plates are removed
+    (pulled cloth still bent out through the rigid plates with the skin). Skinning/weights are kept. Uncovered cloth is untouched."""
+    from mathutils.bvhtree import BVHTree
+    vs, ps = [], []
+    for o in armour_objs:
+        off = len(vs); vs += [o.matrix_world @ v.co for v in o.data.vertices]; ps += [[i + off for i in p.vertices] for p in o.data.polygons]
+    armour = BVHTree.FromPolygons(vs, ps)
+    body = R.parts('Body')[0]; bw = body.matrix_world
+    skin = BVHTree.FromPolygons([bw @ v.co for v in body.data.vertices], [p.vertices[:] for p in body.data.polygons])
+    out = []
+    for cloth in R.parts('Outfit'):
+        W = cloth.matrix_world; inv = W.inverted(); moved = 0
+        me = cloth.data.copy(); cov = covered(me, W, armour)
+        for v, c in zip(me.vertices, cov):
+            if not c: continue
+            p = W @ v.co; q, qn, _, d = skin.find_nearest(p)
+            if q is None or d > .08: continue
+            target = q + qn.normalized() * .0015
+            if (target - q).length < (p - q).length: v.co = inv @ target; moved += 1
+        if moved:
+            removed = drop_covered(me, cov)
+            o = cloth.copy(); o.data = me; col.objects.link(o); o.name = cloth.name.replace('_00', '') + '_ARMOR'
+            o['derived_from'] = cloth.name; o['moved_vertices'] = moved; o['removed_faces'] = removed; o['slot'] = 'OutfitArmorVariant'
+            out.append(o)
+        else: bpy.data.meshes.remove(me)
+    return out
+
+
+def derived_body(col, armour_objs):
+    """'_ARMOR' wearing variant of the body: skin faces hidden entirely under the torso plates are removed (same rule as
+    the outfit variant), so bending skin cannot show through the rigid plates."""
+    from mathutils.bvhtree import BVHTree
+    vs, ps = [], []
+    for o in armour_objs:
+        off = len(vs); vs += [o.matrix_world @ v.co for v in o.data.vertices]; ps += [[i + off for i in p.vertices] for p in o.data.polygons]
+    armour = BVHTree.FromPolygons(vs, ps)
+    body = R.parts('Body')[0]; me = body.data.copy(); removed = drop_covered(me, covered(me, body.matrix_world, armour))
+    o = body.copy(); o.data = me; col.objects.link(o); o.name = body.name.replace('_00', '') + '_ARMOR'
+    o['derived_from'] = body.name; o['removed_faces'] = removed; o['slot'] = 'BodyArmorVariant'
+    return [o]
+
+
+def plate_trim(plate, tier, col):
+    """Tier details on a rigid plate: bronze+ edge piping, iron+ rivets, steel+ ridge (breastplate), starlight glow."""
+    tid = tier[0]; i = [t[0] for t in METAL_TIERS].index(tid)
+    if i < 1: return None
+    metal = pk.mat(tier[2], metal=tier[3], rough=.4)
+    bm = bmesh.new(); bm.from_mesh(plate.data)
+    edges = [e for e in bm.edges if e.is_boundary]
+    m = pk.Mesh(f'{plate.name}_Trim_{tid}')
+    outer = [e for e in edges if all((v.co - Vector((0, 0, v.co.z))).length > 0 for v in e.verts)]
+    for e in outer[::2]:
+        a, b = e.verts[0].co, e.verts[1].co; m.cyl(a, b, .003, metal, seg=4)
+    if i >= 2:
+        for e in outer[::7]: m.ball(e.verts[0].co, (.0045,) * 3, BRIGHT, seg=6, rings=4)
+    if i >= 3 and plate.name == 'Armor_Breastplate':
+        zs = [v.co.z for v in bm.verts]; ys = [v.co.y for v in bm.verts if abs(v.co.x) < .01]
+        if ys:
+            y = min(ys) - .004; m.cyl((0, y, min(zs) + .02), (0, y, max(zs) - .02), .005, metal, seg=4)
+    if i >= 5:
+        for e in outer[1::4]:
+            a, b = e.verts[0].co, e.verts[1].co; m.cyl(a, b, .0018, pk.mat(GLOW, emit=2.5), seg=4)
+    bm.free()
+    if not m.bm.faces: return None
+    o = m.to_object(col, origin='keep'); o['bone'] = plate.get('bone'); o['rigid'] = True; o['slot'] = 'ArmorTrim'; o['tier'] = tid
+    return o
+
+
+def belt(col):
+    """Leather belt fitted per angle to the torso (arms excluded), open at the back for the tail like the back plate."""
+    skin = [bpy.data.objects['Part_Outfit_LINEN_00'], bpy.data.objects['Part_Body_BASE_00']]
+    fit = ring_fit(weighted_verts(skin, TORSO_BONES), (0, -.018, .40), (0, -.018, .52), (.448 - .40) / .12, (.47 - .40) / .12, .006, bins=32, rings=1)
+    leather = pk.mat(LEATHER[2], name='PK_Equip_Leather')
+    # vertical axis: ring_fit angle 0 = +Y (back), π = front. Gap ±32° at the back clears the BOB/FOX tail root.
+    me = ring_mesh('Belt', fit, (.448 - .40) / .12, (.47 - .40) / .12, leather, .005, gap=(0.0, math.radians(32)))
+    o = bpy.data.objects.new('Belt', me); col.objects.link(o)
+    a0, ax, L, side, up, prof = fit
+    at = lambda ang, extra=0: Vector((0, -.018, .459)) + (side * math.cos(ang) + up * math.sin(ang)) * (prof[0][int(ang / math.tau * 32) % 32] + extra)
+    gold = pk.mat('#c8a050', metal=.8, rough=.4)
+    m = pk.Mesh('Buckle'); m.box(at(math.pi, .004), (.032, .006, .026), gold)
+    for s in (-1, 1): m.ball(at((s * math.radians(32)) % math.tau, .002), (.007,) * 3, gold, seg=8, rings=5)  # end studs at the tail gap
+    join(o, m.to_object(col, origin='keep'))
+    o['bone'] = 'pevis'; o['rigid'] = True; o['slot'] = 'Belt'; o['fit'] = {'tail_gap_deg': 64}
+    o['rest_overlap_pairs'] = push_clear(o, rest_tree(skin), radial_from((0, -.018, 0)))
+    return o
+
+
+def build(col):
+    hair_pts = [v for o in R.parts('Hair') for v in R.evaluated_verts(o)]
+    above = [v for v in hair_pts if v.z > brim_z(v) - .04][::2]
+    r = Envelope(above)
+    shells = {}
+    for ears in EARS:
+        holes = ear_holes(ears, r)
+        o = shell(f'Helm_{ears}', r, holes, col)
+        o['slot'] = 'Helm'; o['bone'] = 'head'; o['rigid'] = True; o['ears'] = ears
+        o['holes'] = [{'side': h['side'], 'centre': [round(x, 3) for x in h['centre']], 'size': [round(x, 3) for x in h['size']]} for h in holes]
+        shells[ears] = o
+    trims = [t for t in (helmet_trim(t, r, col) for t in METAL_TIERS) if t]
+    arm = armour(col)
+    ptrims = []
+    for p in arm:
+        if p.get('rigid') and not p.name.startswith(('Armor_Bracer', 'Armor_Greave')):
+            for t in METAL_TIERS:
+                x = plate_trim(p, t, col)
+                if x: ptrims.append(x)
+    TORSO = ('Armor_Breastplate', 'Armor_Breastplate_Lower', 'Armor_Backplate', 'Armor_Backplate_Lower', 'Armor_Fauld')
+    torso = [o for o in arm if o.name in TORSO + ('Armor_LeatherVest',)]
+    torso += [o for o in ptrims if o.get('tier') == 'Starlight' and o.name.split('_Trim_')[0] in TORSO]
+    hair = derived_hair(col, torso)
+    plates = [o for o in arm if o.name.startswith(('Armor_Breastplate', 'Armor_Backplate', 'Armor_Fauld', 'Armor_Tasset'))]
+    cloth = derived_outfit(col, plates) + derived_body(col, plates)
+    return {'outfit_variants': cloth, 'radii': [round(min(r.rad), 3), round(max(r.rad), 3)], 'shells': shells, 'helm_trims': trims, 'armor': arm,
+            'armor_trims': ptrims, 'belt': belt(col), 'hair_variants': hair}

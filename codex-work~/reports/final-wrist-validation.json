@@ -1,0 +1,49 @@
+{
+  "before": {
+    "frames": 37,
+    "clearance": {
+      "Armor_Breastplate_Lower": {
+        "frames": 1,
+        "of": 37,
+        "first": [
+          15
+        ]
+      },
+      "Armor_Bracer_R": {
+        "frames": 4,
+        "of": 37,
+        "first": [
+          16,
+          17,
+          18,
+          19
+        ]
+      }
+    },
+    "wrist_deg": {
+      "R": 69.78873508998008,
+      "L": 27.163739168768874
+    },
+    "left_grip_error_m": 2.5981062314156735e-07,
+    "length_drift_m": 1.9008673801668152e-07
+  },
+  "after": {
+    "frames": 37,
+    "clearance": {
+      "Armor_Breastplate_Lower": {
+        "frames": 1,
+        "of": 37,
+        "first": [
+          15
+        ]
+      }
+    },
+    "wrist_deg": {
+      "R": 56.150145053406916,
+      "L": 26.67685937906827
+    },
+    "left_grip_error_m": 3.227056239203768e-07,
+    "length_drift_m": 1.1436008573451062e-07
+  },
+  "passed": true
+}

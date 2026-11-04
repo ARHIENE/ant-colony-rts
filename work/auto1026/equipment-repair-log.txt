@@ -1,0 +1,288 @@
+FBX version: 7400
+
+FBX export starting... 'E:\\Git\\ant\\art\\production-kit-20261019\\exports\\handheld\\Ammo_Arrow.fbx'
+export finished in 0.0142 sec.
+FBX version: 7400
+
+FBX export starting... 'E:\\Git\\ant\\art\\production-kit-20261019\\exports\\handheld\\Scabbard_Bronze.fbx'
+export finished in 0.0058 sec.
+FBX version: 7400
+
+FBX export starting... 'E:\\Git\\ant\\art\\production-kit-20261019\\exports\\handheld\\Scabbard_Copper.fbx'
+export finished in 0.0069 sec.
+FBX version: 7400
+
+FBX export starting... 'E:\\Git\\ant\\art\\production-kit-20261019\\exports\\handheld\\Scabbard_Iron.fbx'
+export finished in 0.0056 sec.
+FBX version: 7400
+
+FBX export starting... 'E:\\Git\\ant\\art\\production-kit-20261019\\exports\\handheld\\Scabbard_Starlight.fbx'
+export finished in 0.0069 sec.
+FBX version: 7400
+
+FBX export starting... 'E:\\Git\\ant\\art\\production-kit-20261019\\exports\\handheld\\Scabbard_Steel.fbx'
+export finished in 0.0070 sec.
+FBX version: 7400
+
+FBX export starting... 'E:\\Git\\ant\\art\\production-kit-20261019\\exports\\handheld\\Scabbard_Titanium.fbx'
+export finished in 0.0058 sec.
+FBX version: 7400
+
+FBX export starting... 'E:\\Git\\ant\\art\\production-kit-20261019\\exports\\handheld\\Tool_Axe_Bronze.fbx'
+export finished in 0.0067 sec.
+FBX version: 7400
+
+FBX export starting... 'E:\\Git\\ant\\art\\production-kit-20261019\\exports\\handheld\\Tool_Axe_Copper.fbx'
+export finished in 0.0065 sec.
+FBX version: 7400
+
+FBX export starting... 'E:\\Git\\ant\\art\\production-kit-20261019\\exports\\handheld\\Tool_Axe_Iron.fbx'
+export finished in 0.0075 sec.
+FBX version: 7400
+
+FBX export starting... 'E:\\Git\\ant\\art\\production-kit-20261019\\exports\\handheld\\Tool_Axe_Starlight.fbx'
+export finished in 0.0079 sec.
+FBX version: 7400
+
+FBX export starting... 'E:\\Git\\ant\\art\\production-kit-20261019\\exports\\handheld\\Tool_Axe_Steel.fbx'
+export finished in 0.0069 sec.
+FBX version: 7400
+
+FBX export starting... 'E:\\Git\\ant\\art\\production-kit-20261019\\exports\\handheld\\Tool_Axe_Stone.fbx'
+export finished in 0.0062 sec.
+FBX version: 7400
+
+FBX export starting... 'E:\\Git\\ant\\art\\production-kit-20261019\\exports\\handheld\\Tool_Axe_Titanium.fbx'
+export finished in 0.0064 sec.
+FBX version: 7400
+
+FBX export starting... 'E:\\Git\\ant\\art\\production-kit-20261019\\exports\\handheld\\Tool_Hammer_Bronze.fbx'
+export finished in 0.0049 sec.
+FBX version: 7400
+
+FBX export starting... 'E:\\Git\\ant\\art\\production-kit-20261019\\exports\\handheld\\Tool_Hammer_Copper.fbx'
+export finished in 0.0056 sec.
+FBX version: 7400
+
+FBX export starting... 'E:\\Git\\ant\\art\\production-kit-20261019\\exports\\handheld\\Tool_Hammer_Iron.fbx'
+export finished in 0.0062 sec.
+FBX version: 7400
+
+FBX export starting... 'E:\\Git\\ant\\art\\production-kit-20261019\\exports\\handheld\\Tool_Hammer_Starlight.fbx'
+export finished in 0.0101 sec.
+FBX version: 7400
+
+FBX export starting... 'E:\\Git\\ant\\art\\production-kit-20261019\\exports\\handheld\\Tool_Hammer_Steel.fbx'
+export finished in 0.0062 sec.
+FBX version: 7400
+
+FBX export starting... 'E:\\Git\\ant\\art\\production-kit-20261019\\exports\\handheld\\Tool_Hammer_Stone.fbx'
+export finished in 0.0053 sec.
+FBX version: 7400
+
+FBX export starting... 'E:\\Git\\ant\\art\\production-kit-20261019\\exports\\handheld\\Tool_Hammer_Titanium.fbx'
+export finished in 0.0073 sec.
+FBX version: 7400
+
+FBX export starting... 'E:\\Git\\ant\\art\\production-kit-20261019\\exports\\handheld\\Tool_Hoe_Bronze.fbx'
+export finished in 0.0052 sec.
+FBX version: 7400
+
+FBX export starting... 'E:\\Git\\ant\\art\\production-kit-20261019\\exports\\handheld\\Tool_Hoe_Copper.fbx'
+export finished in 0.0063 sec.
+FBX version: 7400
+
+FBX export starting... 'E:\\Git\\ant\\art\\production-kit-20261019\\exports\\handheld\\Tool_Hoe_Iron.fbx'
+export finished in 0.0100 sec.
+FBX version: 7400
+
+FBX export starting... 'E:\\Git\\ant\\art\\production-kit-20261019\\exports\\handheld\\Tool_Hoe_Starlight.fbx'
+export finished in 0.0115 sec.
+FBX version: 7400
+
+FBX export starting... 'E:\\Git\\ant\\art\\production-kit-20261019\\exports\\handheld\\Tool_Hoe_Steel.fbx'
+export finished in 0.0070 sec.
+FBX version: 7400
+
+FBX export starting... 'E:\\Git\\ant\\art\\production-kit-20261019\\exports\\handheld\\Tool_Hoe_Stone.fbx'
+export finished in 0.0073 sec.
+FBX version: 7400
+
+FBX export starting... 'E:\\Git\\ant\\art\\production-kit-20261019\\exports\\handheld\\Tool_Hoe_Titanium.fbx'
+export finished in 0.0088 sec.
+FBX version: 7400
+
+FBX export starting... 'E:\\Git\\ant\\art\\production-kit-20261019\\exports\\handheld\\Tool_Pickaxe_Bronze.fbx'
+export finished in 0.0054 sec.
+FBX version: 7400
+
+FBX export starting... 'E:\\Git\\ant\\art\\production-kit-20261019\\exports\\handheld\\Tool_Pickaxe_Copper.fbx'
+export finished in 0.0062 sec.
+FBX version: 7400
+
+FBX export starting... 'E:\\Git\\ant\\art\\production-kit-20261019\\exports\\handheld\\Tool_Pickaxe_Iron.fbx'
+export finished in 0.0089 sec.
+FBX version: 7400
+
+FBX export starting... 'E:\\Git\\ant\\art\\production-kit-20261019\\exports\\handheld\\Tool_Pickaxe_Starlight.fbx'
+export finished in 0.0095 sec.
+FBX version: 7400
+
+FBX export starting... 'E:\\Git\\ant\\art\\production-kit-20261019\\exports\\handheld\\Tool_Pickaxe_Steel.fbx'
+export finished in 0.0062 sec.
+FBX version: 7400
+
+FBX export starting... 'E:\\Git\\ant\\art\\production-kit-20261019\\exports\\handheld\\Tool_Pickaxe_Stone.fbx'
+export finished in 0.0059 sec.
+FBX version: 7400
+
+FBX export starting... 'E:\\Git\\ant\\art\\production-kit-20261019\\exports\\handheld\\Tool_Pickaxe_Titanium.fbx'
+export finished in 0.0078 sec.
+FBX version: 7400
+
+FBX export starting... 'E:\\Git\\ant\\art\\production-kit-20261019\\exports\\handheld\\Tool_Shovel_Bronze.fbx'
+export finished in 0.0060 sec.
+FBX version: 7400
+
+FBX export starting... 'E:\\Git\\ant\\art\\production-kit-20261019\\exports\\handheld\\Tool_Shovel_Copper.fbx'
+export finished in 0.0063 sec.
+FBX version: 7400
+
+FBX export starting... 'E:\\Git\\ant\\art\\production-kit-20261019\\exports\\handheld\\Tool_Shovel_Iron.fbx'
+export finished in 0.0068 sec.
+FBX version: 7400
+
+FBX export starting... 'E:\\Git\\ant\\art\\production-kit-20261019\\exports\\handheld\\Tool_Shovel_Starlight.fbx'
+export finished in 0.0077 sec.
+FBX version: 7400
+
+FBX export starting... 'E:\\Git\\ant\\art\\production-kit-20261019\\exports\\handheld\\Tool_Shovel_Steel.fbx'
+export finished in 0.0068 sec.
+FBX version: 7400
+
+FBX export starting... 'E:\\Git\\ant\\art\\production-kit-20261019\\exports\\handheld\\Tool_Shovel_Stone.fbx'
+export finished in 0.0069 sec.
+FBX version: 7400
+
+FBX export starting... 'E:\\Git\\ant\\art\\production-kit-20261019\\exports\\handheld\\Tool_Shovel_Titanium.fbx'
+export finished in 0.0072 sec.
+FBX version: 7400
+
+FBX export starting... 'E:\\Git\\ant\\art\\production-kit-20261019\\exports\\handheld\\Tool_Sickle_Bronze.fbx'
+export finished in 0.0066 sec.
+FBX version: 7400
+
+FBX export starting... 'E:\\Git\\ant\\art\\production-kit-20261019\\exports\\handheld\\Tool_Sickle_Copper.fbx'
+export finished in 0.0050 sec.
+FBX version: 7400
+
+FBX export starting... 'E:\\Git\\ant\\art\\production-kit-20261019\\exports\\handheld\\Tool_Sickle_Iron.fbx'
+export finished in 0.0059 sec.
+FBX version: 7400
+
+FBX export starting... 'E:\\Git\\ant\\art\\production-kit-20261019\\exports\\handheld\\Tool_Sickle_Starlight.fbx'
+export finished in 0.0074 sec.
+FBX version: 7400
+
+FBX export starting... 'E:\\Git\\ant\\art\\production-kit-20261019\\exports\\handheld\\Tool_Sickle_Steel.fbx'
+export finished in 0.0060 sec.
+FBX version: 7400
+
+FBX export starting... 'E:\\Git\\ant\\art\\production-kit-20261019\\exports\\handheld\\Tool_Sickle_Stone.fbx'
+export finished in 0.0051 sec.
+FBX version: 7400
+
+FBX export starting... 'E:\\Git\\ant\\art\\production-kit-20261019\\exports\\handheld\\Tool_Sickle_Titanium.fbx'
+export finished in 0.0099 sec.
+FBX version: 7400
+
+FBX export starting... 'E:\\Git\\ant\\art\\production-kit-20261019\\exports\\handheld\\Weapon_BossA_Guardblade.fbx'
+export finished in 0.0083 sec.
+FBX version: 7400
+
+FBX export starting... 'E:\\Git\\ant\\art\\production-kit-20261019\\exports\\handheld\\Weapon_BossB_HeatShield.fbx'
+export finished in 0.0170 sec.
+FBX version: 7400
+
+FBX export starting... 'E:\\Git\\ant\\art\\production-kit-20261019\\exports\\handheld\\Weapon_BossC_Quakehammer.fbx'
+export finished in 0.0078 sec.
+FBX version: 7400
+
+FBX export starting... 'E:\\Git\\ant\\art\\production-kit-20261019\\exports\\handheld\\Weapon_Shield_Bronze.fbx'
+export finished in 0.0080 sec.
+FBX version: 7400
+
+FBX export starting... 'E:\\Git\\ant\\art\\production-kit-20261019\\exports\\handheld\\Weapon_Shield_Copper.fbx'
+export finished in 0.0120 sec.
+FBX version: 7400
+
+FBX export starting... 'E:\\Git\\ant\\art\\production-kit-20261019\\exports\\handheld\\Weapon_Shield_Iron.fbx'
+export finished in 0.0101 sec.
+FBX version: 7400
+
+FBX export starting... 'E:\\Git\\ant\\art\\production-kit-20261019\\exports\\handheld\\Weapon_Shield_Starlight.fbx'
+export finished in 0.0131 sec.
+FBX version: 7400
+
+FBX export starting... 'E:\\Git\\ant\\art\\production-kit-20261019\\exports\\handheld\\Weapon_Shield_Steel.fbx'
+export finished in 0.0080 sec.
+FBX version: 7400
+
+FBX export starting... 'E:\\Git\\ant\\art\\production-kit-20261019\\exports\\handheld\\Weapon_Shield_Titanium.fbx'
+export finished in 0.0132 sec.
+FBX version: 7400
+
+FBX export starting... 'E:\\Git\\ant\\art\\production-kit-20261019\\exports\\handheld\\Weapon_ShortBow.fbx'
+export finished in 0.0058 sec.
+FBX version: 7400
+
+FBX export starting... 'E:\\Git\\ant\\art\\production-kit-20261019\\exports\\handheld\\Weapon_Spear_Bronze.fbx'
+export finished in 0.0118 sec.
+FBX version: 7400
+
+FBX export starting... 'E:\\Git\\ant\\art\\production-kit-20261019\\exports\\handheld\\Weapon_Spear_Copper.fbx'
+export finished in 0.0084 sec.
+FBX version: 7400
+
+FBX export starting... 'E:\\Git\\ant\\art\\production-kit-20261019\\exports\\handheld\\Weapon_Spear_Iron.fbx'
+export finished in 0.0056 sec.
+FBX version: 7400
+
+FBX export starting... 'E:\\Git\\ant\\art\\production-kit-20261019\\exports\\handheld\\Weapon_Spear_Starlight.fbx'
+export finished in 0.0079 sec.
+FBX version: 7400
+
+FBX export starting... 'E:\\Git\\ant\\art\\production-kit-20261019\\exports\\handheld\\Weapon_Spear_Steel.fbx'
+export finished in 0.0098 sec.
+FBX version: 7400
+
+FBX export starting... 'E:\\Git\\ant\\art\\production-kit-20261019\\exports\\handheld\\Weapon_Spear_Titanium.fbx'
+export finished in 0.0081 sec.
+FBX version: 7400
+
+FBX export starting... 'E:\\Git\\ant\\art\\production-kit-20261019\\exports\\handheld\\Weapon_Sword_Bronze.fbx'
+export finished in 0.0063 sec.
+FBX version: 7400
+
+FBX export starting... 'E:\\Git\\ant\\art\\production-kit-20261019\\exports\\handheld\\Weapon_Sword_Copper.fbx'
+export finished in 0.0060 sec.
+FBX version: 7400
+
+FBX export starting... 'E:\\Git\\ant\\art\\production-kit-20261019\\exports\\handheld\\Weapon_Sword_Iron.fbx'
+export finished in 0.0077 sec.
+FBX version: 7400
+
+FBX export starting... 'E:\\Git\\ant\\art\\production-kit-20261019\\exports\\handheld\\Weapon_Sword_Starlight.fbx'
+export finished in 0.0065 sec.
+FBX version: 7400
+
+FBX export starting... 'E:\\Git\\ant\\art\\production-kit-20261019\\exports\\handheld\\Weapon_Sword_Steel.fbx'
+export finished in 0.0055 sec.
+FBX version: 7400
+
+FBX export starting... 'E:\\Git\\ant\\art\\production-kit-20261019\\exports\\handheld\\Weapon_Sword_Titanium.fbx'
+export finished in 0.0063 sec.
+REPAIRED_HANDHELD 71
+Blender 5.2.2 LTS (hash d13f752e3b9c built 2026-09-15 01:37:04)
+
+Blender quit

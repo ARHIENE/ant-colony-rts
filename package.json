@@ -1,0 +1,25 @@
+{
+  "name": "ant",
+  "version": "1.0.0",
+  "description": "> **장수 중심 1차 프로토타입:** 일반개미 수량을 장수에게 배정해 조작하는 구조입니다. 장수 배정·생산·연구·건설·채집·낚시·약탈·수비와 전투 경험치·레벨 성장 검사를 통과했습니다. 본거지 + 월드맵 원정 구조로 전환해 과학 트리·수송수단·동시 원정·화물 귀환까지 검증했으며 장수 역할은 장비로 정해지고 9종 기술·부상·기분·관계를 가지며, 과학 트리 끝의 비행선 대이주로 캠페인 승리까지 이어집니다. 최종 밸런스는 후속 작업입니다.",
+  "main": "index.js",
+  "directories": {
+    "doc": "docs"
+  },
+  "scripts": {},
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ARHIENE/ant-colony-rts.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/ARHIENE/ant-colony-rts/issues"
+  },
+  "homepage": "https://github.com/ARHIENE/ant-colony-rts#readme",
+  "devDependencies": {
+    "@playwright/test": "^1.63.0",
+    "@types/node": "^26.6.2"
+  }
+}

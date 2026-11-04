@@ -1,0 +1,83 @@
+using System.Collections.Generic;
+using AntColony.Core;
+using UnityEngine;
+using UnityEngine.AI;
+
+namespace AntColony.World
+{
+    // 로컬 소굴 경제와 무관한 소규모 방문자. 시간/인구에 따른 병력 증가는 없다.
+    public class LocalIncursions : MonoBehaviour
+    {
+        [SerializeField] private WildMonster raiderTemplate;
+        [SerializeField] private EnemyCommander commanderTemplate;
+        // ponytail: 빈도 5~8분, 병사 2+장수 1은 새 기획의 임시 밸런스다.
+        [SerializeField] private float minimumDelay = 300f;
+        [SerializeField] private float maximumDelay = 480f;
+        private float remaining;
+        internal float SavedTimer { get => remaining; set => remaining = value; }
+        private readonly List<WildMonster> visitors = new List<WildMonster>();
+        public IReadOnlyList<WildMonster> Visitors => visitors;
+        internal WildMonster RestoreSpawn(bool commander, Vector3 position) =>
+            Instantiate(commander ? commanderTemplate : raiderTemplate, position, Quaternion.identity);
+        internal void RestoreVisitor(WildMonster monster) { if (!visitors.Contains(monster)) visitors.Add(monster); }
+        // 난이도는 방문 간격만 바꾼다. Normal이면 배수 1.0이라 기존과 같다.
+        private float NextDelay() => Random.Range(minimumDelay, maximumDelay) * AntColony.Core.DifficultyRuntime.IntervalScale;
+        private void Start() => remaining = NextDelay();
+        private void Update()
+        {
+            if (RocketCampaign.SuppressNewCrises) return;
+            if (ExpeditionRules.HomeCommanders == 0) return;
+            remaining -= Time.deltaTime;
+            if (remaining > 0) return;
+            if (TrySpawn()) remaining = NextDelay();
+        }
+
+        public bool TrySpawn()
+            => !RocketCampaign.SuppressNewCrises && DiplomacyManager.Instance?.TryDispatchIndependentRaid() == true;
+
+        public bool TrySpawnFaction(Civilization faction, int count) => faction != null && faction.contacted && faction.war && Spawn(faction, Mathf.Clamp(count, 1, 20));
+        public bool TrySpawnIndependent(int count) => Spawn(null, Mathf.Clamp(count, 1, 20));
+
+        // 이미 출발한 적은 G39의 신규 추첨 차단 대상이 아니다. 이동 침공대 도착 경로에서만 호출한다.
+        public bool TryArriveRaid(Civilization faction, int count) => (faction == null || faction.contacted && faction.war)
+            && Spawn(faction, Mathf.Clamp(count, 1, 20), true);
+
+        private bool Spawn(Civilization faction, int count, bool alreadyDispatched = false)
+        {
+            if (!alreadyDispatched && RocketCampaign.SuppressNewCrises) return false;
+            if (faction == null && ExpeditionRules.HomeCommanders == 0) return false;
+            visitors.RemoveAll(v => v == null || v.IsDead);
+            if ((faction == null && visitors.Count > 0) || raiderTemplate == null || commanderTemplate == null) return false;
+            var home = GameManager.Instance?.FindNearestPlayerBuilding(Vector3.zero);
+            if (home == null || !NavMesh.SamplePosition(home.Position, out var homeHit, 10, NavMesh.AllAreas)) return false;
+            for (var i = 0; i < 16; i++)
+            {
+                var direction = Random.insideUnitCircle.normalized;
+                var candidate = homeHit.position + new Vector3(direction.x, 0, direction.y) * 45;
+                if (!NavMesh.SamplePosition(candidate, out var hit, 8, NavMesh.AllAreas)) continue;
+                var path = new NavMeshPath();
+                if (!NavMesh.CalculatePath(hit.position, homeHit.position, NavMesh.AllAreas, path)
+                    || path.status != NavMeshPathStatus.PathComplete) continue;
+                for (var n = 0; n < count; n++)
+                {
+                    var template = n == count - 1 ? commanderTemplate : raiderTemplate;
+                    var visitor = Instantiate(template, hit.position, Quaternion.identity);
+                    visitor.name = n == 2 ? "Visiting Commander" : "Local Intruder";
+                    visitor.MakeRaider();
+                    if (faction == null) visitor.ConfigureWeakIntruder();
+                    else
+                    {
+                        visitor.name = faction.name + " 침공군";
+                        visitor.DiplomaticFactionId = faction.id;
+                        if (visitor is EnemyCommander commander) commander.ConfigureCommander(faction.leader, AntColony.Data.CommanderRank.Sergeant, null, AntColony.Units.CommanderTraits.Random());
+                    }
+                    visitor.gameObject.SetActive(true);
+                    visitors.Add(visitor);
+                }
+                AntColony.UI.ToastManager.Show("침입자가 본거지로 접근합니다!");
+                return true;
+            }
+            return false;
+        }
+    }
+}

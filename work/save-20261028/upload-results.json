@@ -1,0 +1,62 @@
+[
+  {
+    "name": "01-resources",
+    "response": {
+      "file_upload_id": "406c4a0e-cd31-81e5-a8bf-00b2e8e5b9a1",
+      "filename": "01-resources.png",
+      "content_type": "image/png",
+      "content_length": 2191730,
+      "status": "uploaded",
+      "markdown_source": "file-upload://406c4a0e-cd31-81e5-a8bf-00b2e8e5b9a1",
+      "suggested_markdown": "<image source=\"file-upload://406c4a0e-cd31-81e5-a8bf-00b2e8e5b9a1\" />"
+    }
+  },
+  {
+    "name": "02-chemical",
+    "response": {
+      "file_upload_id": "406c4a0e-cd31-81db-a4b5-00b2749226bf",
+      "filename": "02-chemical.png",
+      "content_type": "image/png",
+      "content_length": 757467,
+      "status": "uploaded",
+      "markdown_source": "file-upload://406c4a0e-cd31-81db-a4b5-00b2749226bf",
+      "suggested_markdown": "<image source=\"file-upload://406c4a0e-cd31-81db-a4b5-00b2749226bf\" />"
+    }
+  },
+  {
+    "name": "03-containers",
+    "response": {
+      "file_upload_id": "406c4a0e-cd31-814c-8d9f-00b2a6808228",
+      "filename": "03-containers.png",
+      "content_type": "image/png",
+      "content_length": 674071,
+      "status": "uploaded",
+      "markdown_source": "file-upload://406c4a0e-cd31-814c-8d9f-00b2a6808228",
+      "suggested_markdown": "<image source=\"file-upload://406c4a0e-cd31-814c-8d9f-00b2a6808228\" />"
+    }
+  },
+  {
+    "name": "04-refinery",
+    "response": {
+      "file_upload_id": "406c4a0e-cd31-8186-9c61-00b29969838a",
+      "filename": "04-refinery.png",
+      "content_type": "image/png",
+      "content_length": 1650468,
+      "status": "uploaded",
+      "markdown_source": "file-upload://406c4a0e-cd31-8186-9c61-00b29969838a",
+      "suggested_markdown": "<image source=\"file-upload://406c4a0e-cd31-8186-9c61-00b29969838a\" />"
+    }
+  },
+  {
+    "name": "05-work",
+    "response": {
+      "file_upload_id": "406c4a0e-cd31-8185-9bb6-00b2afaa5261",
+      "filename": "05-work.png",
+      "content_type": "image/png",
+      "content_length": 712691,
+      "status": "uploaded",
+      "markdown_source": "file-upload://406c4a0e-cd31-8185-9bb6-00b2afaa5261",
+      "suggested_markdown": "<image source=\"file-upload://406c4a0e-cd31-8185-9bb6-00b2afaa5261\" />"
+    }
+  }
+]

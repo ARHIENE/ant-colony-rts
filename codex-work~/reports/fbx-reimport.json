@@ -1,0 +1,13 @@
+{
+  "file": "E:\\Git\\ant\\codex-work~\\fbx\\Assets\\_Project\\Art\\Kemono\\Anim\\Kemono@PK_Tool_Till.fbx",
+  "source_frames": [
+    1,
+    36
+  ],
+  "import_frame_range": [
+    2.0,
+    37.0
+  ],
+  "max_hand_and_socket_error_m": 6.473435568882765e-07,
+  "passed": true
+}

@@ -1,0 +1,74 @@
+{
+  "Tool_Till": {
+    "accepted": false,
+    "wrist_before_deg": 69.78876924092593,
+    "wrist_after_deg": 63.2613486964415,
+    "clearance_before": {
+      "Armor_Breastplate_Lower": {
+        "frames": 1,
+        "of": 19,
+        "first": [
+          15
+        ]
+      },
+      "Armor_Bracer_R": {
+        "frames": 2,
+        "of": 19,
+        "first": [
+          17,
+          19
+        ]
+      }
+    },
+    "clearance_after": {
+      "Armor_Breastplate_Lower": {
+        "frames": 1,
+        "of": 19,
+        "first": [
+          15
+        ]
+      }
+    },
+    "left_grip_error_m": 5.747078643797515e-06,
+    "rigid_length_drift_m": 2.1007227996028277e-07,
+    "roll_deg": [
+      -110,
+      -110,
+      -110,
+      -20,
+      -20,
+      -15,
+      5,
+      10,
+      0,
+      25,
+      25,
+      25,
+      0,
+      10,
+      0,
+      -15,
+      -130,
+      -130,
+      -135,
+      -120,
+      -120,
+      -115,
+      -115,
+      -15,
+      -15,
+      -15,
+      -110,
+      -115,
+      -115,
+      -115,
+      -115,
+      -115,
+      -115,
+      -115,
+      -115,
+      -110,
+      -110
+    ]
+  }
+}

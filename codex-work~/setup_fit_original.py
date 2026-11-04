@@ -1,0 +1,2 @@
+﻿from pathlib import Path
+w=Path('E:/Git/ant/codex-work~'); s=(w/'blender/scripts/fit_till.py').read_text(); s=s.replace("bpy.ops.wm.open_mainfile(filepath=str(pk.KIT / ('pk-motions.blend' if MOTIONS else 'pk-equipment.blend')))", "bpy.ops.wm.open_mainfile(filepath='E:/Git/ant/art/production-kit-20261019/pk-motions.blend')"); s=s.replace('final-till-fit.json','original-till-fit.json'); (w/'blender/scripts/fit_original_till.py').write_text(s)

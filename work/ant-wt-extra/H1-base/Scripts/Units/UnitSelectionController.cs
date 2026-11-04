@@ -1,0 +1,189 @@
+using AntColony.Core;
+using AntColony.Buildings;
+using AntColony.World;
+using UnityEngine;
+using UnityEngine.InputSystem;
+using UnityEngine.EventSystems;
+
+namespace AntColony.Units
+{
+    // 선택 자체는 SelectionManager(드래그/클릭/Shift 추가선택)가 담당하고,
+    // 이 스크립트는 선택된 SoldierAnt들에게 우클릭으로 이동/공격 명령만 내린다.
+    public class UnitSelectionController : MonoBehaviour
+    {
+        [SerializeField] private LayerMask groundMask = ~0;
+        [SerializeField] private SelectionManager selectionManager;
+        [SerializeField] private float formationSpacing = 1.5f;
+        [SerializeField] private Color moveMarkerColor = Color.green;
+        [SerializeField] private BuildingPlacementController buildingPlacementController;
+
+        private UnityEngine.Camera cam;
+        private AttackMoveController attackMoveController;
+
+        private void Awake()
+        {
+            cam = UnityEngine.Camera.main;
+            attackMoveController = AntColony.Core.SceneObjects.Any<AttackMoveController>();
+            if (selectionManager == null) selectionManager = AntColony.Core.SceneObjects.Any<SelectionManager>();
+            if (buildingPlacementController == null) buildingPlacementController = AntColony.Core.SceneObjects.Any<BuildingPlacementController>();
+        }
+
+        private void Update()
+        {
+            if (AntColony.UI.GameMenuController.BlocksInput) return;
+            if (AntColony.UI.SkillTargeting.ConsumesPointerInput || AntColony.UI.GatherDesignation.ConsumesPointerInput) return;
+            var mouse = Mouse.current;
+            if (mouse == null || selectionManager == null) return;
+            if (buildingPlacementController != null && buildingPlacementController.ConsumesPointerInput) return;
+            if (attackMoveController != null && attackMoveController.ConsumesPointerInput) return;
+            if (EventSystem.current != null && EventSystem.current.IsPointerOverGameObject()) return;
+
+            if (mouse.rightButton.wasPressedThisFrame)
+            {
+                IssueCommand(mouse.position.ReadValue());
+            }
+        }
+
+        private void IssueCommand(Vector2 screenPos)
+        {
+            if (cam == null) return;
+            Physics.SyncTransforms();
+
+            var selected = selectionManager.GetSelectedObjects();
+            // G42: 새 우클릭 명령은 원정 수송의 대기 지시(탑승·주둔·하차)를 대신한다.
+            foreach (var s in selected) if (s != null && s.GetComponent<CommanderAnt>() is CommanderAnt ordered) ExpeditionTransport.CancelCrewOrdersFor(ordered);
+            if (selected.Count == 0)
+            {
+                if (Physics.Raycast(cam.ScreenPointToRay(screenPos), out var context, 500, ~0))
+                {
+                    Component choice = context.collider.GetComponentInParent<Corpse>();
+                    if (choice == null) choice = context.collider.GetComponentInParent<ResourceNode>();
+                    if (choice == null) choice = context.collider.GetComponentInParent<BuildingConstructionSite>();
+                    if (choice == null && context.collider.GetComponentInParent<BuildingBase>() is BuildingBase b && b.CountsTowardPlayerDefeat) choice = b;
+                    if (choice == null && context.collider.GetComponentInParent<WildMonster>() is WildMonster m && m.Huntable) choice = m;
+                    if (choice != null) AntColony.UI.WorkTargetPanel.Select(choice);
+                }
+                return;
+            }
+
+            var ray = cam.ScreenPointToRay(screenPos);
+            foreach (var bossHit in Physics.RaycastAll(ray, 500f, ~0))
+            {
+                var stronghold = bossHit.collider.GetComponentInParent<BossStronghold>();
+                if (stronghold == null) continue;
+                foreach (var selectable in selected)
+                    if (selectable != null && selectable.GetComponent<CommanderAnt>() is CommanderAnt collector
+                        && collector.CommandCollectBossReward(stronghold)) return;
+            }
+            if (Physics.Raycast(ray, out var fireHit, 500f, ~0) && fireHit.collider.GetComponentInParent<WallFire>() is WallFire fire && fire.Burning)
+            {
+                foreach (var selectable in selected)
+                    if (selectable != null && selectable.GetComponent<CommanderAnt>() is CommanderAnt firefighter && firefighter.CommandExtinguish(fire)) return;
+                AntColony.UI.ToastManager.Show("소화 불가: 접근 가능한 장수가 필요합니다.");
+                return;
+            }
+            if (Physics.Raycast(ray, out var corpseHit, 500f, ~0) && corpseHit.collider.GetComponentInParent<Corpse>() is Corpse corpse)
+            {
+                var eat = Keyboard.current != null && (Keyboard.current.leftAltKey.isPressed || Keyboard.current.rightAltKey.isPressed);
+                foreach (var selectable in selected)
+                    if (selectable != null && selectable.GetComponent<CommanderAnt>() is CommanderAnt cleaner && cleaner.StartCorpseWork(corpse, eat)) return;
+                AntColony.UI.ToastManager.Show(eat ? "포식 가능한 평시 장수가 필요합니다." : "시체를 치울 수 있는 평시 장수가 필요합니다.");
+                return;
+            }
+            if (Physics.Raycast(ray, out var lootHit, 500f, ~0) && lootHit.collider.GetComponentInParent<EquipmentLoot>() is EquipmentLoot loot)
+            {
+                foreach (var selectable in selected)
+                    if (selectable != null && loot.TryCollect(selectable.GetComponent<CommanderAnt>())) return;
+                AntColony.UI.ToastManager.Show("장비 회수 불가: 유휴 장수와 보관함 빈칸이 필요합니다.");
+                return;
+            }
+            // 파손된 함정 우클릭: 선택된 장수 한 명이 수리하러 간다.
+            foreach (var trapHit in Physics.RaycastAll(ray, 500f, ~0, QueryTriggerInteraction.Collide))
+            {
+                var trap = trapHit.collider.GetComponentInParent<AntColony.Buildings.TrapPit>();
+                if (trap == null || trap.Armed) continue;
+                foreach (var selectable in selected)
+                    if (selectable != null && selectable.GetComponent<CommanderAnt>() is CommanderAnt repairer && trap.TryRepair(repairer))
+                    {
+                        MoveMarker.Spawn(trap.Position, moveMarkerColor);
+                        return;
+                    }
+            }
+            if (!Physics.Raycast(ray, out var hit, 500f, groundMask)) return;
+
+            // 적(IDamageable, 야생 몬스터/보스 등)을 직접 클릭하면 전원 그 타겟을 공격.
+            var target = hit.collider.GetComponentInParent<IDamageable>();
+            if (target is BuildingBase building && building.CountsTowardPlayerDefeat)
+            {
+                target = null;
+            }
+            // 자원노드를 클릭하면 일개미는 그 자리로 이동해 채집을 시작한다.
+            var resourceNode = hit.collider.GetComponentInParent<ResourceNode>();
+            var deposit = hit.collider.GetComponentInParent<BuildingBase>();
+
+            var cols = Mathf.CeilToInt(Mathf.Sqrt(selected.Count));
+            var index = 0;
+            var issuedMove = false;
+
+            foreach (var selectable in selected)
+            {
+                if (selectable == null) continue;
+
+                var col = index % cols;
+                var row = index / cols;
+                var offset = new Vector3((col - (cols - 1) / 2f) * formationSpacing, 0f, row * -formationSpacing);
+
+                // 장수/일개미도 SoldierAnt를 상속하므로 채집 지시를 먼저 판정한다.
+                var worker = selectable.GetComponent<WorkerAnt>();
+                if (worker != null && worker.TryReturnCargo(deposit))
+                {
+                    issuedMove = true;
+                    index++;
+                    continue;
+                }
+                // 직접 우선 작업을 지시하면 들고 있던 짐을 그 자리에 내려놓고 바로 전환한다(2026-10-12). 단순 이동은 짐을 유지한다.
+                if (worker is CommanderAnt carrier && carrier.IsCarrying && !carrier.IsAwayFromHome
+                    && (deposit != null && deposit.CountsTowardPlayerDefeat && !(deposit is Storage || deposit is Stockpile) || target is WildMonster || resourceNode != null && resourceNode.CanGather
+                        || hit.collider.GetComponentInParent<BuildingConstructionSite>() != null)) carrier.DropCargo();
+                if (worker is CommanderAnt artisan && deposit != null && deposit.CountsTowardPlayerDefeat)
+                {
+                    var job = deposit is Infirmary ? CommanderJobs.Nursing : deposit is Kitchen ? CommanderJobs.Cooking
+                        : deposit is SupplyFacility well && well.Kind == AntColony.Data.BuildingKind.ManualWell ? CommanderJobs.Hauling : CommanderJobs.Repair;
+                    if ((job != CommanderJobs.Repair || BuildingRepair.Needed(deposit)) && artisan.StartService(deposit, job)) { index++; continue; }
+                }
+                if (worker is CommanderAnt hunter && !hunter.IsDeployed && target is WildMonster animal && animal.Huntable && animal.HuntDesignated && hunter.StartHunt(animal)) { index++; continue; }
+                if (worker is CommanderAnt builder && hit.collider.GetComponentInParent<BuildingConstructionSite>() is BuildingConstructionSite site)
+                { builder.CommandBuild(site); index++; continue; }
+                if (worker != null && resourceNode != null && resourceNode.CanGather)
+                {
+                    worker.CommandGather(resourceNode);
+                    issuedMove = true;
+                    index++;
+                    continue;
+                }
+
+                var soldier = selectable.GetComponent<SoldierAnt>();
+                if (soldier != null)
+                {
+                    // 대공 불가 역할이나 채집 보직이 공격 대상을 클릭하면 공격 대신 그 위치로 이동만 한다.
+                    if (target != null && (soldier.CanAttackTarget(target) || soldier is CommanderAnt commander
+                        && commander.CanReceiveOrders && commander.HasTroops && AntColony.Core.CombatTargeting.CanAttack(commander.Role, target, true)))
+                    {
+                        soldier.CommandAttack(target);
+                    }
+                    else
+                    {
+                        soldier.CommandMove(hit.point + offset);
+                        issuedMove = true;
+                    }
+                    index++;
+                }
+            }
+
+            if (issuedMove)
+            {
+                MoveMarker.Spawn(hit.point, moveMarkerColor);
+            }
+        }
+    }
+}

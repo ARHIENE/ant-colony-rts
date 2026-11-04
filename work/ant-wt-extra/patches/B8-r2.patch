@@ -1,0 +1,1027 @@
+diff --git a/AgentScripts/ImplB8Checks.cs b/AgentScripts/ImplB8Checks.cs
+new file mode 100644
+index 0000000..e443bea
+--- /dev/null
++++ b/AgentScripts/ImplB8Checks.cs
+@@ -0,0 +1,229 @@
++using System;
++using System.Collections.Generic;
++using System.IO;
++using System.Linq;
++using System.Reflection;
++using System.Threading.Tasks;
++using AntColony.Buildings;
++using AntColony.Core;
++using AntColony.Data;
++using AntColony.Save;
++using AntColony.World;
++using UnityEngine;
++using UnityEngine.AI;
++using Object = UnityEngine.Object;
++
++public static class ImplB8Checks
++{
++    static int checks;
++    static readonly List<GameObject> created = new List<GameObject>();
++    const BindingFlags Hidden = BindingFlags.Instance | BindingFlags.NonPublic;
++    static void Check(bool ok, string name) { if (!ok) throw new Exception("B8 FAIL " + checks + ": " + name); checks++; }
++    static bool Near(float a, float b) => Mathf.Abs(a - b) < .001f;
++    static void Pool(int free, int assigned = 0, int reserved = 0) => typeof(AntPool).GetMethod("RestoreCounts", Hidden)
++        .Invoke(AntPool.Instance, new object[] { free, assigned, reserved });
++    static ColonyPopulation Reset(int free = 0, int assigned = 0, int reserved = 0)
++    {
++        Pool(free, assigned, reserved);
++        var p = ColonyPopulation.Instance;
++        p.Restore(new ColonyPopulation.State { immigrationStopped = true }); return p;
++    }
++    static T Building<T>(string name, BuildingKind kind, Vector3 position) where T : BuildingBase
++    {
++        var go = new GameObject(name); created.Add(go); go.SetActive(false); go.transform.position = position;
++        var b = go.AddComponent<T>();
++        var data = ScriptableObject.CreateInstance<BuildingData>(); data.kind = kind; data.constructionAnts = 0;
++        data.foodCapacityBonus = data.soilCapacityBonus = data.specialCapacityBonus = 10000;
++        typeof(BuildingBase).GetField("data", Hidden).SetValue(b, data); go.SetActive(true); return b;
++    }
++    static CivicService Service(CivicServiceKind kind)
++    {
++        var go = new GameObject("B8 " + kind); created.Add(go); go.SetActive(false);
++        var service = go.AddComponent<CivicService>(); service.Kind = kind; go.SetActive(true); return service;
++    }
++    static void CivicBuildingPersistence(BuildingKind kind, CivicServiceKind serviceKind)
++    {
++        const BindingFlags internalStatic = BindingFlags.Static | BindingFlags.NonPublic;
++        var template = (GameObject)typeof(BuildingPlacementController).GetMethod("GetTemplate", internalStatic)
++            .Invoke(null, new object[] { kind, UnitRole.Worker });
++        Check(template != null && !template.activeSelf && BuildingPlacementController.LockReason(kind) == null,
++            "civic construction template " + kind);
++        var go = Object.Instantiate(template, new Vector3(4900, 0, 4900), Quaternion.identity);
++        created.Add(go); go.SetActive(true);
++        var service = go.GetComponent<CivicService>();
++        Check(service != null && service.Kind == serviceKind && service.Data.kind == kind, "civic building identity " + kind);
++        var buildingSaves = typeof(SaveCatalog).Assembly.GetType("AntColony.Save.SaveBuildings", true);
++        var commanders = CommanderRoster.Instance.Commanders.ToList();
++        var dto = (BuildingDto)buildingSaves.GetMethod("Capture", internalStatic)
++            .Invoke(null, new object[] { service, "new:B8-" + kind, true, commanders });
++        dto = JsonUtility.FromJson<BuildingDto>(JsonUtility.ToJson(dto));
++        Check(dto.runtimeBuilt && dto.kind == kind.ToString(), "civic catalog JSON kind " + kind);
++        go.SetActive(false);
++        var restored = (BuildingBase)buildingSaves.GetMethod("Resolve", internalStatic).Invoke(null, new object[] { dto });
++        created.Add(restored.gameObject);
++        buildingSaves.GetMethod("Restore", internalStatic).Invoke(null, new object[] { restored, dto, commanders });
++        Check(restored is CivicService civic && civic.Kind == serviceKind && civic.Data.kind == kind
++            && Near(restored.CurrentHealth, dto.health), "civic building save reconstruction " + kind);
++        restored.gameObject.SetActive(false);
++    }
++    static async Task Ready()
++    {
++        var end = DateTime.UtcNow.AddSeconds(90);
++        while (SaveSystem.Busy && DateTime.UtcNow < end) await Task.Delay(50);
++        Check(!SaveSystem.Busy, "load complete"); Time.timeScale = 0;
++    }
++
++    public static async Task<string> Main()
++    {
++        checks = 0; Check(Application.isPlaying, "Play mode required");
++        var root = SaveStorage.RootOverride; var settings = UserSettings.Current.Clone();
++        var isolated = settings.Clone(); isolated.autoSaveEnabled = false; UserSettings.Apply(isolated, false);
++        SaveStorage.RootOverride = Path.Combine(Application.temporaryCachePath, "ImplB8-" + Guid.NewGuid().ToString("N"));
++        var random = UnityEngine.Random.state;
++        try
++        {
++            await Ready();
++            var options = new NewGameOptions { startingCount = 1, seed = 261024, mapSize = MapSize.Small,
++                biome = MapBiome.Forest, startingTeam = new[] { StartingCandidate.Roll(0) } };
++            options.startingTeam[0].traits.values.Clear(); CrashLandingStart.Begin(options); await Ready();
++            var commander = CommanderRoster.Instance.Commanders.Single();
++            commander.CommandStop(); commander.SetJobEnabled(AntColony.Units.CommanderJobs.All, false);
++            CivicBuildingPersistence(BuildingKind.School, CivicServiceKind.School);
++            CivicBuildingPersistence(BuildingKind.CitizenClinic, CivicServiceKind.Clinic);
++            CivicBuildingPersistence(BuildingKind.CivicPublicService, CivicServiceKind.PublicService);
++            // 불시착 시작의 비축더미/시민/시설을 가정하지 않는다.
++            var pile = Building<Stockpile>("B8 pile", BuildingKind.QueenChamber, commander.Position + Vector3.right * 12);
++            Building<Storage>("B8 store", BuildingKind.Storage, pile.Position + Vector3.right * 6);
++            var rm = ResourceManager.Instance;
++            rm.Add(AntColony.Data.ResourceType.Food, 5000);
++            rm.Add(AntColony.Data.ResourceType.Soil, 5000);
++            rm.Add(AntColony.Data.ResourceType.MedicineBasic, 5000);
++            Check(rm.GetAmount(AntColony.Data.ResourceType.Food) >= 100 && rm.GetAmount(AntColony.Data.ResourceType.MedicineBasic) >= 100, "own operating stock");
++            var p = Reset(); Check(Near(p.S.taxRate, .2f), "G17 default tax twenty percent");
++            Check(p.PublicServiceCoverage == 1 && p.AdminDemandWork == 0 && p.Administration == 0, "empty population boundaries");
++            Pool(500); Check(p.PublicServiceCoverage == 1 && p.AdminDemandWork == 1, "first five hundred baseline");
++            Pool(1000); Check(Near(p.PublicServiceCoverage, .5f) && p.AdminDemandWork == 2, "expansion workload and service shortage");
++            var raw = GameBalancePopulation.Demand(p.FacilityDemand / 100f * .5f + p.MedicalCoverage * .5f, (p.SafetyDemand - 100) / 100f * .5f,
++                (p.S.sentiment - 60) / 100, GameBalance.AdminDemand * p.Administration / 100);
++            Check(Near(p.ImmigrationDemand, raw * .5f), "G17 coverage multiplies immigration");
++            var civic = Service(CivicServiceKind.PublicService);
++            Check(p.PublicServiceCapacity == 1000 && p.PublicServiceCoverage == 1, "one service covers five hundred");
++            civic.gameObject.SetActive(false); Check(p.PublicServiceCapacity == 500, "disabled service excluded");
++            p.AddAdministration(2); p.Tick(GameCalendar.SecondsPerDay);
++            Check(Near(p.S.adminWork, 0), "two work consumed per day at one thousand");
++            p = Reset(80); p.S.young = 20;
++            var school = Service(CivicServiceKind.School); var clinic = Service(CivicServiceKind.Clinic);
++            Check(p.EducationCoverage == 1 && Near(p.MedicalCoverage, .5f), "school twenty and clinic fifty");
++            p.S.ages = new int[65]; p.S.ages[17] = 20; p.S.ages[18] = 80;
++            p.AgeYear(); Check(p.S.young == 0 && ColonyPopulation.Adults == 100, "adulthood preserves old age transition");
++            Check(Near(p.S.educationBonus, .1f) && p.S.educationSeconds == GameCalendar.SecondsPerSeason, "adulthood education one season");
++            Check(Near(p.CivicSentiment, 7.5f), "education and medical sentiment capped independently");
++            var educatedTax = p.MonthlyTax; p.S.educationBonus = 0;
++            Check(Near(educatedTax, p.MonthlyTax * 1.1f), "education boosts taxable production ten percent");
++            p.S.educationBonus = .1f;
++            var save = p.Capture(); p.Restore(save);
++            Check(Near(p.S.educationBonus, .1f) && ColonyPopulation.ValidCivicState(p.S), "education JSON roundtrip");
++            var foodBefore = rm.GetAmount(AntColony.Data.ResourceType.Food); var medicineBefore = rm.GetAmount(AntColony.Data.ResourceType.MedicineBasic);
++            p.S.taxRate = 0; p.Tick(GameCalendar.SecondsPerDay);
++            Check(Near(p.S.schoolFoodDebt, .3f) && Near(p.S.schoolMaterialDebt, .15f)
++                && Near(p.S.clinicFoodDebt, .3f) && Near(p.S.clinicMedicineDebt, .15f), "daily fractional costs");
++            Check(rm.GetAmount(AntColony.Data.ResourceType.Food) == foodBefore, "fractional cost not rounded up daily");
++            p.Tick(GameCalendar.SecondsPerDay * 6);
++            Check(rm.GetAmount(AntColony.Data.ResourceType.Food) == foodBefore - 4
++                && rm.GetAmount(AntColony.Data.ResourceType.MedicineBasic) == medicineBefore - 1, "seven-day aggregate integer upkeep");
++            Check(p.S.educationBonus == 0 && p.S.educationSeconds == 0, "education expires after six days");
++            p.S.clinicMedicineDebt = 2;
++            rm.TrySpend(AntColony.Data.ResourceType.MedicineBasic, rm.GetAmount(AntColony.Data.ResourceType.MedicineBasic));
++            p.PayCivicUpkeep(); Check(!p.ClinicsOperating && p.MedicalCoverage == 0, "unpaid clinic suspends medical service");
++            rm.Add(AntColony.Data.ResourceType.MedicineBasic, 5); p.PayCivicUpkeep();
++            Check(p.ClinicsOperating && p.S.clinicMedicineDebt == 0, "payment resumes service without double charge");
++            school.gameObject.SetActive(false); clinic.gameObject.SetActive(false);
++
++            p = Reset(100, 20, 10); p.S.old = 30; p.S.young = 10;
++            Check(p.Taxpayers == 140, "mobilized excluded and elders included");
++            var expected = p.MonthlyTax / GameCalendar.SecondsPerMonth;
++            p.Tick(40); var actual = p.S.taxFood + p.S.taxSoil;
++            Check(Near(actual, expected * 40), "time integrated production before pool change");
++            Pool(80, 40, 10); expected = p.MonthlyTax / GameCalendar.SecondsPerMonth;
++            p.Tick(40); Check(Near(p.S.taxFood + p.S.taxSoil, actual + expected * 40), "mobilization only affects future tax");
++            Check(FinalBattleEconomy.DefenseSeconds == 2250 && FinalBattleEconomy.DefenseDays == 15
++                && FinalBattleEconomy.RecommendedFood(4) == 80, "fifteen days and twenty-day reserve");
++            Check(FinalBattleEconomy.ReserveLines().Any(l => l.Contains("연료·탄약 필요량") && l.Contains("연결 대기")), "missing rocket demand clearly disclosed");
++            p.S.taxWeek = p.S.taxFood = p.S.taxSoil = 0;
++            var resources = (AntColony.Data.ResourceType[])Enum.GetValues(typeof(AntColony.Data.ResourceType));
++            var beforeTax = resources.Sum(rm.GetAmount);
++            var fifteenDayTax = p.MonthlyTax * FinalBattleEconomy.DefenseSeconds / GameCalendar.SecondsPerMonth;
++            for (var day = 0; day < FinalBattleEconomy.DefenseDays; day++)
++            {
++                p.Tick(GameCalendar.SecondsPerDay);
++                Check(p.S.taxWeek == 0 && p.S.taxFood < 1 && p.S.taxSoil < 1, "daily tax settlement " + day);
++            }
++            Check(Mathf.Abs(resources.Sum(rm.GetAmount) - beforeTax + p.S.taxFood + p.S.taxSoil - fifteenDayTax) < .02f, "fifteen settlements conserve integrated production");
++
++            p = Reset(80); var hut = Building<Housing>("B8 hut", BuildingKind.Hut, pile.Position + Vector3.forward * 10);
++            p.SyncCivilianLocations(); var home = p.CivilianLocations.First(l => l.housing && l.count > 0);
++            var total = p.Total;
++            Check(p.DamageCivilians(home.id, 100) == 0 && p.Total == total, "protected home immune to civilian damage");
++            hut.gameObject.SetActive(false); p.SyncCivilianLocations();
++            Check(p.Total == total && !home.sheltered, "lost housing protection alone causes no death");
++            Check(p.DamageCivilians(home.id, 9) == 0 && home.damage == 9, "sublethal damage retained by location");
++            save = p.Capture(); p.Restore(save); home = p.S.civilianLocations.Find(l => l.id == home.id);
++            Check(p.DamageCivilians(home.id, 1) == 1 && p.Total == total - 1 && home.damage == 0, "damage remainder survives JSON restore");
++            Check(p.DamageCivilians(home.id, 20) == 2, "twenty damage kills two");
++            Check(Corpse.All.Any(c => c.Available && c.Data.name == "시민" && c.Data.count == 3
++                && (c.Position - home.position).sqrMagnitude < 1), "same-location deaths share counted remains");
++            var first = p.S.civilianLocations[0];
++            Check(p.DamageCivilians(first.id, float.NaN) == 0 && p.DamageCivilians(first.id, float.PositiveInfinity) == 0, "nonfinite damage ignored");
++            // 자체 NavMesh 패치로 이동 검사가 맵의 우연한 지형/주거 배치에 의존하지 않게 한다.
++            var settingsNav = NavMesh.GetSettingsByIndex(0);
++            var origin = new Vector3(5000, 0, 5000);
++            var source = new NavMeshBuildSource { shape = NavMeshBuildSourceShape.Box, transform = Matrix4x4.TRS(origin, Quaternion.identity, Vector3.one), size = new Vector3(100, 1, 100), area = 0 };
++            var navData = NavMeshBuilder.BuildNavMeshData(settingsNav, new List<NavMeshBuildSource> { source }, new Bounds(origin, new Vector3(110, 20, 110)), Vector3.zero, Quaternion.identity);
++            Check(navData != null, "own evacuation navigation");
++            var navInstance = NavMesh.AddNavMeshData(navData);
++            try
++            {
++                p = Reset(120); p.SyncCivilianLocations(); var open = p.S.civilianLocations.First(l => l.count > 0);
++                open.position = origin + Vector3.up;
++                var groupId = p.BeginCivilianEvacuation(open.id, origin + Vector3.right * 30 + Vector3.up, 100);
++                var group = p.S.civilianLocations.Find(l => l.id == groupId);
++                Check(group != null && group.count == 50 && group.moving, "evacuation group cap fifty");
++                Check(p.TakeArrivedCivilians(groupId, 50) == 0, "moving group cannot board");
++                var start = group.position; p.S.taxRate = 0; p.Tick(1);
++                Check(Vector3.Distance(start, group.position) > 0 && !group.arrived, "actual path movement before arrival");
++                Check(p.DamageCivilians(groupId, 20) == 2 && group.count == 48, "moving group casualties reduce survivors");
++                save = p.Capture(); p.Restore(save); group = p.S.civilianLocations.Find(l => l.id == groupId);
++                Check(group.count == 48 && group.moving && group.position != start, "movement JSON persists without duplicate departure");
++                p.Tick(20); Check(group.arrived && !group.moving, "path reconstructed to destination");
++                var before = p.Total;
++                Check(p.TakeArrivedCivilians(groupId, 10) == 10 && group.count == 38 && p.Total == before - 10, "only actual survivors consume seats");
++                Check(p.TakeArrivedCivilians(groupId, 100) == 38 && p.TakeArrivedCivilians(groupId, 100) == 0, "no repeated boarding reward");
++                Check(p.CivilianLocations.Sum(l => l.count) == p.LocatedCivilians, "group totals remain conserved");
++                open = p.S.civilianLocations.Find(l => l.id == open.id);
++                p.DamageCivilians(open.id, 9);
++                var remainingDamage = open.damage;
++                var splitId = p.BeginCivilianEvacuation(open.id, origin + Vector3.right * 30 + Vector3.up, 50);
++                var split = p.S.civilianLocations.Find(l => l.id == splitId);
++                Check(split != null && split.damage == 0 && open.damage == remainingDamage, "partial departure retains source damage");
++                var lastId = p.BeginCivilianEvacuation(open.id, origin + Vector3.right * 30 + Vector3.up, 50);
++                var last = p.S.civilianLocations.Find(l => l.id == lastId);
++                Check(last != null && last.damage == 9 && open.damage == 0, "full departure transfers accumulated damage");
++                save = p.Capture(); p.Restore(save);
++                Check(p.DamageCivilians(lastId, 1) == 1, "departure and JSON restore cannot reset sublethal damage");
++                var bad = p.Capture(); bad.civilianLocations[0].position.x = float.NaN;
++                Check(!ColonyPopulation.ValidCivicState(bad), "invalid position rejected");
++                bad = p.Capture(); bad.educationSeconds = float.PositiveInfinity;
++                Check(!ColonyPopulation.ValidCivicState(bad), "invalid civic timer rejected");
++            }
++            finally { navInstance.Remove(); Object.Destroy(navData); }
++            p.Restore(new ColonyPopulation.State { civilianLocations = null });
++            Check(p.CivilianLocations != null && ColonyPopulation.ValidCivicState(p.S), "old v19 field defaults restored");
++            return "PASS " + checks;
++        }
++        finally
++        {
++            foreach (var go in created) if (go != null) Object.DestroyImmediate(go);
++            created.Clear(); SaveStorage.RootOverride = root; UserSettings.Apply(settings, false); UnityEngine.Random.state = random; Time.timeScale = 0;
++        }
++    }
++}
+diff --git a/Assets/_Project/Scripts/Buildings/BuildingPlacementController.cs b/Assets/_Project/Scripts/Buildings/BuildingPlacementController.cs
+index 36ffcf5..7cb50aa 100644
+--- a/Assets/_Project/Scripts/Buildings/BuildingPlacementController.cs
++++ b/Assets/_Project/Scripts/Buildings/BuildingPlacementController.cs
+@@ -392,6 +392,7 @@ namespace AntColony.Buildings
+         {
+             var template = kind switch
+             {
++                BuildingKind.CivicPublicService or BuildingKind.School or BuildingKind.CitizenClinic => FindTemplate<CivicService>(kind) ?? CivicService.CreateTemplate(kind),
+                 BuildingKind.CrashWreck => FindTemplate<CrashWreck>(kind) ?? RuntimeBuildingTemplates.Create(kind), // BuildingBase로 찾으면 Data 없는 연구소 템플릿이 먼저 걸린다
+                 BuildingKind.ResearchLab => FindTemplate<ResearchLab>(role),
+                 BuildingKind.Farm or BuildingKind.MushroomFarm or BuildingKind.AphidPen => FindFarmTemplate(),
+diff --git a/Assets/_Project/Scripts/Buildings/CivicService.cs b/Assets/_Project/Scripts/Buildings/CivicService.cs
+new file mode 100644
+index 0000000..ed79d91
+--- /dev/null
++++ b/Assets/_Project/Scripts/Buildings/CivicService.cs
+@@ -0,0 +1,38 @@
++using System.Collections.Generic;
++using System.Linq;
++using AntColony.Data;
++using UnityEngine;
++
++namespace AntColony.Buildings
++{
++    public enum CivicServiceKind { PublicService, School, Clinic }
++
++    // 시민용 진료소는 장수 치료 침상(Infirmary)과 별개다.
++    public sealed class CivicService : BuildingBase
++    {
++        public CivicServiceKind Kind;
++        public BuildingKind SavedKind => Kind switch { CivicServiceKind.School => BuildingKind.School,
++            CivicServiceKind.Clinic => BuildingKind.CitizenClinic, _ => BuildingKind.CivicPublicService };
++
++        internal static GameObject CreateTemplate(BuildingKind kind)
++        {
++            var go = GameObject.CreatePrimitive(PrimitiveType.Cube);
++            go.SetActive(false); go.name = kind + "Template";
++            go.transform.localScale = new Vector3(3, 2, 3);
++            var definition = ScriptableObject.CreateInstance<BuildingData>();
++            definition.kind = kind;
++            definition.displayName = kind == BuildingKind.School ? "학당" : kind == BuildingKind.CitizenClinic ? "시민 진료소" : "공공서비스";
++            // shortcut: 건설 수치는 BuildingData 기본값 재사용, 전용 밸런스 확정 시 교체.
++            var service = go.AddComponent<CivicService>();
++            service.Kind = kind == BuildingKind.School ? CivicServiceKind.School
++                : kind == BuildingKind.CitizenClinic ? CivicServiceKind.Clinic : CivicServiceKind.PublicService;
++            service.ConfigureRuntime(definition);
++            go.AddComponent<UnityEngine.AI.NavMeshObstacle>().carving = true;
++            return go;
++        }
++        private static readonly List<CivicService> Active = new List<CivicService>();
++        public static int Count(CivicServiceKind kind) => Active.Count(b => b != null && b.isActiveAndEnabled && !b.IsDead && b.Kind == kind);
++        protected override void OnEnable() { base.OnEnable(); Active.Add(this); }
++        protected override void OnDisable() { Active.Remove(this); base.OnDisable(); }
++    }
++}
+diff --git a/Assets/_Project/Scripts/Core/ColonyPopulation.Admin.cs b/Assets/_Project/Scripts/Core/ColonyPopulation.Admin.cs
+index 1ae763e..4c9ae8b 100644
+--- a/Assets/_Project/Scripts/Core/ColonyPopulation.Admin.cs
++++ b/Assets/_Project/Scripts/Core/ColonyPopulation.Admin.cs
+@@ -15,7 +15,7 @@ namespace AntColony.Core
+             {
+                 float seats = GameBalance.BaseHousing, weighted = GameBalance.BaseHousing;
+                 foreach (var h in Housing.All) { seats += h.Capacity; weighted += h.Capacity * Housing.Productivity(h.Data.kind); }
+-                return weighted / seats;
++                return seats > 0 ? weighted / seats : 1f;
+             }
+         }
+         public static float ResearchProductivity => CampaignResearch.Instance == null ? 0f
+@@ -23,8 +23,8 @@ namespace AntColony.Core
+         public static float FacilityProductivity => Mathf.Min(GameBalance.MaxFacilityProductivity, Facilities * GameBalance.FacilityProductivity);
+         public static float Productivity => HousingProductivity * (1f + ResearchProductivity) * (1f + FacilityProductivity);
+ 
+-        // ── 행정: 행정 장수 없이도 세금·이주는 돈다. 성과 0~1이 징수 손실·민심·이주·재개발을 보정한다.
+-        public float AdminDemandWork => Total * GameBalance.AdminWorkPerAnt;
++        // G17: 500명당 하루 1업무. 저장된 완료 업무를 소모하며 성과는 하루 필요량 대비 0~1이다.
++        public float AdminDemandWork => Total / 500f;
+         public float Administration => AdminDemandWork <= 0 ? 0f : Mathf.Clamp01(S.adminWork / AdminDemandWork);
+         public bool NeedsAdministration => Total > 0 && S.adminWork < AdminDemandWork;
+         public float TaxCollection => 1f - GameBalance.AdminTaxLoss * (1f - Administration);
+@@ -32,10 +32,10 @@ namespace AntColony.Core
+         {
+             if (work > 0 && !float.IsInfinity(work)) S.adminWork = Mathf.Min(AdminDemandWork, S.adminWork + work);
+         }
+-        // 업무 성과는 시간 상수만큼 천천히 줄어 식사·수면 중에도 바로 사라지지 않는다.
++        // 처리한 업무는 다음 하루 동안 선형 소모한다.
+         private void TickAdministration(float seconds)
+         {
+-            S.adminWork *= Mathf.Exp(-seconds / GameBalance.AdminMemorySeconds);
++            S.adminWork = Mathf.Max(0, S.adminWork - AdminDemandWork * seconds / GameCalendar.SecondsPerDay);
+             Redevelopment.TickDelays(this, seconds);
+         }
+     }
+diff --git a/Assets/_Project/Scripts/Core/ColonyPopulation.Ages.cs b/Assets/_Project/Scripts/Core/ColonyPopulation.Ages.cs
+index 4c84f85..ab87a4a 100644
+--- a/Assets/_Project/Scripts/Core/ColonyPopulation.Ages.cs
++++ b/Assets/_Project/Scripts/Core/ColonyPopulation.Ages.cs
+@@ -34,6 +34,7 @@ namespace AntColony.Core
+             var pool = AntPool.Instance; if (pool == null) return;
+             EnsureAges();
+             var grown = S.ages[17]; var elders = S.ages[64];
++            if (grown > 0) ApplyEducationAtAdulthood();
+             for (var age = 64; age > 0; age--) S.ages[age] = S.ages[age - 1];
+             S.ages[0] = 0; S.young -= grown;
+             // 현재 대기 인원부터 노년 전환. 동원·예약 몫도 나이는 즉시 전환한다.
+diff --git a/Assets/_Project/Scripts/Core/ColonyPopulation.Civilians.cs b/Assets/_Project/Scripts/Core/ColonyPopulation.Civilians.cs
+new file mode 100644
+index 0000000..5b3505e
+--- /dev/null
++++ b/Assets/_Project/Scripts/Core/ColonyPopulation.Civilians.cs
+@@ -0,0 +1,113 @@
++using System;
++using System.Linq;
++using AntColony.Buildings;
++using AntColony.World;
++using UnityEngine;
++
++namespace AntColony.Core
++{
++    [Serializable] public sealed class CivilianLocation
++    {
++        public int id, count;
++        public Vector3 position, destination;
++        public bool housing, sheltered, moving, arrived;
++        public float damage;
++    }
++
++    public sealed partial class ColonyPopulation
++    {
++        // 동원·건설 예약자는 기존 풀 소유권을 유지한다. 대피 중인 시민도 도착 전에는 시민 수에 포함한다.
++        public int LocatedCivilians => S.young + Mathf.Max(0, S.old - S.agingDue) + (AntPool.Instance?.Free ?? 0);
++        public System.Collections.Generic.IReadOnlyList<CivilianLocation> CivilianLocations => S.civilianLocations;
++
++        public void SyncCivilianLocations()
++        {
++            var homes = Housing.All.Where(h => h.isActiveAndEnabled).ToArray();
++            foreach (var location in S.civilianLocations.Where(l => l.housing))
++                location.sheltered = homes.Any(h => (h.Position - location.position).sqrMagnitude < .01f);
++            var difference = LocatedCivilians - S.civilianLocations.Sum(l => l.count);
++            if (difference > 0)
++            {
++                foreach (var home in homes)
++                {
++                    var location = S.civilianLocations.FirstOrDefault(l => l.housing && (l.position - home.Position).sqrMagnitude < .01f);
++                    if (location == null) location = AddCivilianLocation(home.Position, true, true);
++                    var added = Mathf.Min(difference, Mathf.Max(0, home.Capacity - location.count));
++                    location.count += added; difference -= added;
++                    if (difference == 0) break;
++                }
++                if (difference > 0)
++                {
++                    var open = S.civilianLocations.FirstOrDefault(l => !l.housing && !l.moving && !l.arrived && !l.sheltered);
++                    if (open == null) open = AddCivilianLocation(transform.position, false, false);
++                    open.count += difference;
++                }
++            }
++            else if (difference < 0)
++            {
++                // 외부 동원/탈주/노화와 집계를 맞출 때 이동 중 그룹은 마지막에 줄인다.
++                foreach (var location in S.civilianLocations.OrderBy(l => l.moving ? 1 : 0))
++                {
++                    var removed = Mathf.Min(location.count, -difference);
++                    location.count -= removed; difference += removed;
++                    if (difference == 0) break;
++                }
++            }
++        }
++
++        private CivilianLocation AddCivilianLocation(Vector3 position, bool housing, bool sheltered)
++        {
++            var location = new CivilianLocation { id = S.nextCivilianLocation++, position = position, housing = housing, sheltered = sheltered };
++            S.civilianLocations.Add(location); return location;
++        }
++
++        public bool SetCivilianProtection(int id, bool sheltered)
++        {
++            var location = S.civilianLocations.Find(l => l.id == id);
++            if (location == null || location.moving) return false;
++            location.sheltered = sheltered; return true;
++        }
++
++        public int DamageCivilians(int id, float amount)
++        {
++            if (!(amount > 0) || float.IsInfinity(amount)) return 0;
++            SyncCivilianLocations();
++            var location = S.civilianLocations.Find(l => l.id == id);
++            if (location == null || location.sheltered || location.count == 0) return 0;
++            location.damage = Mathf.Min(location.count * 10f, location.damage + amount);
++            var killed = RemoveLocatedCivilians(Mathf.Min(location.count, Mathf.FloorToInt(location.damage / 10f)), true);
++            location.count -= killed; location.damage = location.count == 0 ? 0 : location.damage - killed * 10f;
++            if (killed > 0)
++            {
++                var remains = Corpse.All.FirstOrDefault(c => c != null && c.Available && c.Data.kind == CorpseKind.Ant
++                    && c.Data.name == "시민" && (c.Position - location.position).sqrMagnitude < 1f);
++                if (remains != null) remains.Data.count += killed;
++                else Corpse.Spawn(new Corpse.State { kind = CorpseKind.Ant, name = "시민", count = killed, position = location.position });
++            }
++            return killed;
++        }
++
++        private int RemoveLocatedCivilians(int count, bool died)
++        {
++            var young = Mathf.Min(count, S.young); S.young -= young; count -= young;
++            var free = AntPool.Instance?.RemoveFree(count, died) ?? 0; count -= free;
++            var old = Mathf.Min(count, Mathf.Max(0, S.old - S.agingDue)); S.old -= old;
++            if (died && young + old > 0) CampaignHistory.Ants(young + old, true);
++            EnsureAges(); return young + free + old;
++        }
++
++        private static bool FinitePosition(Vector3 p) => !float.IsNaN(p.x) && !float.IsInfinity(p.x)
++            && !float.IsNaN(p.y) && !float.IsInfinity(p.y) && !float.IsNaN(p.z) && !float.IsInfinity(p.z);
++
++        private static bool ValidCivilianState(State s)
++        {
++            if (s.civilianLocations == null) return true; // v19 저장의 추가 필드 기본값.
++            var ids = new System.Collections.Generic.HashSet<int>();
++            foreach (var l in s.civilianLocations)
++                if (l == null || l.id <= 0 || !ids.Add(l.id) || l.count < 0 || !FiniteRange(l.damage, 9.999999f)
++                    || !FinitePosition(l.position) || !FinitePosition(l.destination) || l.moving && (l.count > 50 || l.housing || l.sheltered || l.arrived)
++                    || l.arrived && (l.count > 50 || l.housing) || s.nextCivilianLocation <= l.id) return false;
++            return true;
++        }
++    }
++}
+diff --git a/Assets/_Project/Scripts/Core/ColonyPopulation.Economy.cs b/Assets/_Project/Scripts/Core/ColonyPopulation.Economy.cs
+new file mode 100644
+index 0000000..ee93995
+--- /dev/null
++++ b/Assets/_Project/Scripts/Core/ColonyPopulation.Economy.cs
+@@ -0,0 +1,60 @@
++using AntColony.Buildings;
++using UnityEngine;
++
++namespace AntColony.Core
++{
++    public sealed partial class ColonyPopulation
++    {
++        public int SchoolCount => CivicService.Count(CivicServiceKind.School);
++        public int ClinicCount => CivicService.Count(CivicServiceKind.Clinic);
++        public bool SchoolsOperating => !S.schoolsSuspended;
++        public bool ClinicsOperating => !S.clinicsSuspended;
++        public float EducationCoverage => S.young == 0 ? 0f : Mathf.Clamp01((SchoolsOperating ? SchoolCount * 20f : 0f) / S.young);
++        public float MedicalCoverage => Total == 0 ? 0f : Mathf.Clamp01((ClinicsOperating ? ClinicCount * 50f : 0f) / Total);
++        public int PublicServiceCapacity => 500 + 500 * (Facilities + CivicService.Count(CivicServiceKind.PublicService)
++            + (SchoolsOperating ? SchoolCount : 0) + (ClinicsOperating ? ClinicCount : 0));
++        public float PublicServiceCoverage => Total <= 500 ? 1f : Mathf.Clamp01(PublicServiceCapacity / (float)Total);
++        public float CivicSentiment => (S.educationSeconds > 0 ? S.educationBonus * 50f : 0f) + MedicalCoverage * 5f;
++
++        public void ApplyEducationAtAdulthood()
++        {
++            S.educationBonus = EducationCoverage * .1f;
++            S.educationSeconds = S.educationBonus > 0 ? GameCalendar.SecondsPerSeason : 0;
++        }
++
++        private void TickCivicEconomy(float seconds)
++        {
++            var days = seconds / GameCalendar.SecondsPerDay;
++            if (SchoolsOperating) { S.schoolFoodDebt += SchoolCount * .3f * days; S.schoolMaterialDebt += SchoolCount * .15f * days; }
++            if (ClinicsOperating) { S.clinicFoodDebt += ClinicCount * .3f * days; S.clinicMedicineDebt += ClinicCount * .15f * days; }
++            S.educationSeconds = Mathf.Max(0, S.educationSeconds - seconds);
++            if (S.educationSeconds == 0) S.educationBonus = 0;
++        }
++
++        // 소수 비용은 저장하고 정수 몫만 지불한다. 재고 부족분은 다음 납세일에 재시도한다.
++        public void PayCivicUpkeep()
++        {
++            PayCivicDebt(ref S.schoolFoodDebt, AntColony.Data.ResourceType.Food);
++            PayCivicDebt(ref S.schoolMaterialDebt, AntColony.Data.ResourceType.Soil);
++            PayCivicDebt(ref S.clinicFoodDebt, AntColony.Data.ResourceType.Food);
++            PayCivicDebt(ref S.clinicMedicineDebt, AntColony.Data.ResourceType.MedicineBasic);
++            S.schoolsSuspended = S.schoolFoodDebt >= .99999f || S.schoolMaterialDebt >= .99999f;
++            S.clinicsSuspended = S.clinicFoodDebt >= .99999f || S.clinicMedicineDebt >= .99999f;
++        }
++
++        private static void PayCivicDebt(ref float debt, AntColony.Data.ResourceType resource)
++        {
++            var rm = ResourceManager.Instance;
++            if (rm == null) return;
++            var amount = Mathf.Min(Mathf.FloorToInt(debt + .00001f), rm.GetAmount(resource));
++            if (amount > 0 && rm.TrySpend(resource, amount, ResourceReason.Upkeep)) debt = Mathf.Max(0, debt - amount);
++        }
++
++        public static bool ValidCivicState(State s) => s != null
++            && FiniteRange(s.educationBonus, .1f) && FiniteRange(s.educationSeconds, GameCalendar.SecondsPerSeason)
++            && FiniteRange(s.schoolFoodDebt, 1e7f) && FiniteRange(s.schoolMaterialDebt, 1e7f)
++            && FiniteRange(s.clinicFoodDebt, 1e7f) && FiniteRange(s.clinicMedicineDebt, 1e7f)
++            && ValidCivilianState(s);
++        private static bool FiniteRange(float value, float max) => value >= 0 && value <= max;
++    }
++}
+diff --git a/Assets/_Project/Scripts/Core/ColonyPopulation.Evacuation.cs b/Assets/_Project/Scripts/Core/ColonyPopulation.Evacuation.cs
+new file mode 100644
+index 0000000..06dbd2e
+--- /dev/null
++++ b/Assets/_Project/Scripts/Core/ColonyPopulation.Evacuation.cs
+@@ -0,0 +1,92 @@
++using System.Collections.Generic;
++using UnityEngine;
++using UnityEngine.AI;
++
++namespace AntColony.Core
++{
++    public sealed partial class ColonyPopulation
++    {
++        private readonly Dictionary<int, NavMeshPath> civilianPaths = new Dictionary<int, NavMeshPath>();
++        private readonly Dictionary<int, GameObject> civilianViews = new Dictionary<int, GameObject>();
++        public const int CivilianGroupLimit = 50;
++
++        public int BeginCivilianEvacuation(int sourceId, Vector3 destination, int requested = CivilianGroupLimit)
++        {
++            if (requested <= 0 || !FinitePosition(destination)) return 0;
++            SyncCivilianLocations();
++            var source = S.civilianLocations.Find(l => l.id == sourceId);
++            if (source == null || source.count == 0 || source.moving) return 0;
++            var path = new NavMeshPath();
++            if (!NavMesh.SamplePosition(source.position, out var start, 4, NavMesh.AllAreas)
++                || !NavMesh.SamplePosition(destination, out var end, 4, NavMesh.AllAreas)
++                || !NavMesh.CalculatePath(start.position, end.position, NavMesh.AllAreas, path)
++                || path.status != NavMeshPathStatus.PathComplete) return 0;
++            var group = AddCivilianLocation(start.position, false, false);
++            group.count = Mathf.Min(source.count, Mathf.Min(CivilianGroupLimit, requested));
++            source.count -= group.count; group.destination = end.position; group.moving = true;
++            // 지점 전원이 옮겨도 이미 받은 잔여 피해는 없어지지 않는다.
++            if (source.count == 0) { group.damage = source.damage; source.damage = 0; }
++            civilianPaths[group.id] = path;
++            return group.id;
++        }
++
++        // 좌석을 먼저 예약하지 않는다. 호출자는 도착 생존자와 빈 좌석 수를 확인한 뒤 이 반환값만 탑승 처리한다.
++        public int TakeArrivedCivilians(int groupId, int seats)
++        {
++            if (seats <= 0) return 0;
++            SyncCivilianLocations();
++            var group = S.civilianLocations.Find(l => l.id == groupId);
++            if (group == null || !group.arrived || group.moving) return 0;
++            var boarded = RemoveLocatedCivilians(Mathf.Min(group.count, seats), false);
++            group.count -= boarded;
++            if (group.count == 0) group.damage = 0;
++            return boarded;
++        }
++
++        private void TickCivilianLocations(float seconds)
++        {
++            foreach (var group in S.civilianLocations)
++            {
++                if ((!group.moving && !group.arrived) || group.count == 0) continue;
++                if (!civilianViews.TryGetValue(group.id, out var view))
++                {
++                    view = GameObject.CreatePrimitive(PrimitiveType.Capsule);
++                    view.GetComponent<Collider>().enabled = false;
++                    view.transform.localScale = new Vector3(.6f, .6f, .6f);
++                    civilianViews[group.id] = view;
++                }
++                view.name = $"시민 대피 #{group.id} ({group.count}명)";
++                view.transform.position = group.position + Vector3.up * .6f;
++                if (!group.moving) continue;
++                // 경로는 저장하지 않는다. 복원 및 동적 장애물 변경에 대응해 현재 위치에서 다시 계산한다.
++                if (!civilianPaths.TryGetValue(group.id, out var path)) civilianPaths[group.id] = path = new NavMeshPath();
++                if (!NavMesh.CalculatePath(group.position, group.destination, NavMesh.AllAreas, path)
++                    || path.status != NavMeshPathStatus.PathComplete) continue;
++                var distance = seconds * 3f;
++                foreach (var corner in path.corners)
++                {
++                    var leg = Vector3.Distance(group.position, corner);
++                    group.position = Vector3.MoveTowards(group.position, corner, distance);
++                    distance = Mathf.Max(0, distance - leg);
++                    if (distance == 0) break;
++                }
++                if ((group.position - group.destination).sqrMagnitude < .01f)
++                {
++                    group.position = group.destination; group.moving = false; group.arrived = true;
++                    civilianPaths.Remove(group.id);
++                }
++                view.transform.position = group.position + Vector3.up * .6f;
++            }
++            foreach (var id in new List<int>(civilianViews.Keys))
++                if (!S.civilianLocations.Exists(l => l.id == id && l.count > 0 && (l.moving || l.arrived)))
++                { Destroy(civilianViews[id]); civilianViews.Remove(id); civilianPaths.Remove(id); }
++            S.civilianLocations.RemoveAll(l => l.count == 0 && !l.housing);
++        }
++
++        private void ClearCivilianViews()
++        {
++            foreach (var view in civilianViews.Values) if (view != null) Destroy(view);
++            civilianViews.Clear();
++        }
++    }
++}
+diff --git a/Assets/_Project/Scripts/Core/ColonyPopulation.cs b/Assets/_Project/Scripts/Core/ColonyPopulation.cs
+index 7cc491c..ab47510 100644
+--- a/Assets/_Project/Scripts/Core/ColonyPopulation.cs
++++ b/Assets/_Project/Scripts/Core/ColonyPopulation.cs
+@@ -22,6 +22,11 @@ namespace AntColony.Core
+             public int[] ages; // 0~64세 집계. 65세 이상은 old로 집계한다.
+             public float immigrationSeconds, immigrationRemainder, ageSeconds;
+             public bool immigrationStopped;
++            public float educationBonus, educationSeconds;
++            public float schoolFoodDebt, schoolMaterialDebt, clinicFoodDebt, clinicMedicineDebt;
++            public bool schoolsSuspended, clinicsSuspended;
++            public int nextCivilianLocation = 1;
++            public System.Collections.Generic.List<CivilianLocation> civilianLocations = new System.Collections.Generic.List<CivilianLocation>();
+             public float sentiment = 60, taxRate = .2f, monthSeconds, raidSeconds = 9999;
+             public MilitaryPolicy policy;
+             public bool elderlyService;
+@@ -37,7 +42,7 @@ namespace AntColony.Core
+         private void Awake() { if (Instance != null && Instance != this) { Destroy(this); return; } Instance = this; }
+         private void OnEnable() => UI.EnemyAlert.Alarm += OnRaid;
+         private void OnDisable() => UI.EnemyAlert.Alarm -= OnRaid;
+-        private void OnDestroy() { if (Instance == this) Instance = null; }
++        private void OnDestroy() { ClearCivilianViews(); if (Instance == this) Instance = null; }
+         private void OnRaid() { if (S.raidSeconds >= GameCalendar.SecondsPerMonth) S.sentiment = Mathf.Max(0, S.sentiment - GameBalance.RaidSentiment); S.raidSeconds = 0; }
+ 
+         public State Capture() => JsonUtility.FromJson<State>(JsonUtility.ToJson(S));
+@@ -49,6 +54,10 @@ namespace AntColony.Core
+                 // 구 저장의 agingDue는 아직 old에 포함되지 않았던 인원이다.
+                 S.old += S.agingDue; S.ages = new int[65];
+             }
++            S.civilianLocations ??= new System.Collections.Generic.List<CivilianLocation>();
++            S.nextCivilianLocation = Mathf.Max(1, S.nextCivilianLocation);
++            civilianPaths.Clear();
++            ClearCivilianViews();
+         }
+ 
+         public static int Adults => AntPool.Instance != null ? Mathf.Max(0, AntPool.Instance.Total - (Instance != null ? Instance.S.agingDue : 0)) : 0;
+@@ -77,7 +86,7 @@ namespace AntColony.Core
+         public int Taxpayers => Mathf.Max(0, Total - S.young - (AntPool.Instance?.Assigned ?? 0));
+         public static float FoodShare(TaxFocus f) => f switch { TaxFocus.Food => .8f, TaxFocus.Material => .2f, _ => .5f };
+         public static string FocusName(TaxFocus f) => f switch { TaxFocus.Food => "식량 중심", TaxFocus.Material => "재료 중심", _ => "균형" };
+-        public float MonthlyTax => Taxpayers * S.taxRate * GameBalance.TaxPerAntMonth * (S.policy == MilitaryPolicy.Total ? .5f : 1f) * Productivity * TaxCollection;
++        public float MonthlyTax => Taxpayers * S.taxRate * GameBalance.TaxPerAntMonth * (S.policy == MilitaryPolicy.Total ? .5f : 1f) * Productivity * TaxCollection * (1f + S.educationBonus);
+         public int DailyFood => Mathf.RoundToInt(MonthlyTax * FoodShare(S.taxFocus) * TaxSeconds / GameCalendar.SecondsPerMonth);
+         public int DailySoil => Mathf.RoundToInt(MonthlyTax * (1f - FoodShare(S.taxFocus)) * TaxSeconds / GameCalendar.SecondsPerMonth);
+         public float NextTaxSeconds => Mathf.Max(0, TaxSeconds - S.taxWeek);
+@@ -134,7 +143,7 @@ namespace AntColony.Core
+ 
+         // ── 이주 수요 0~100: 주거·공공서비스·안전·민심 평균(2026-10-08: 창고 식량 제외).
+         public float HousingDemand => Mathf.Clamp01((HousingCapacity - Total) / Mathf.Max(1f, HousingCapacity * .1f)) * 100f;
+-        public float FacilityDemand => Mathf.Min(100f, Facilities * 15f);
++        public float FacilityDemand => PublicServiceCoverage * 100f;
+         // 안전: 지난 한 달 침입이 있으면 30. 성벽이 있으면 성벽 밖 주거 비율만큼 최대 -50(Phase 5).
+         public float SafetyDemand
+         {
+@@ -147,9 +156,9 @@ namespace AntColony.Core
+             }
+         }
+         // 기존 HUD는 백분율을 표시하므로 D=1을 100으로 노출한다.
+-        public float ImmigrationDemand => Total == 0 ? 1f : GameBalancePopulation.Demand(
+-            FacilityDemand / 100f * .5f, (SafetyDemand - 100f) / 100f * .5f,
+-            (S.sentiment - 60f) / 100f, GameBalance.AdminDemand * Administration / 100f);
++        public float ImmigrationDemand => (Total == 0 ? 1f : GameBalancePopulation.Demand(
++            FacilityDemand / 100f * .5f + MedicalCoverage * .5f, (SafetyDemand - 100f) / 100f * .5f,
++            (S.sentiment - 60f) / 100f, GameBalance.AdminDemand * Administration / 100f)) * PublicServiceCoverage;
+         public float Demand => ImmigrationDemand * 100f;
+ 
+         public void SetImmigrationStopped(bool stopped) => S.immigrationStopped = stopped;
+@@ -177,13 +186,15 @@ namespace AntColony.Core
+             {
+                 var step = Mathf.Min(seconds, TaxSeconds - S.taxWeek, GameCalendar.SecondsPerMonth - S.monthSeconds,
+                     GameCalendar.SecondsPerYear - S.ageSeconds,
++                    S.educationSeconds > 0 ? S.educationSeconds : float.PositiveInfinity,
+                     S.immigrationStopped ? float.PositiveInfinity : GameBalancePopulation.ImmigrationSeconds - S.immigrationSeconds);
+                 S.raidSeconds += step;
+                 AccrueTax(step); S.taxWeek += step; TickAdministration(step);
++                TickCivicEconomy(step); TickCivilianLocations(step);
+                 S.monthSeconds += step; S.ageSeconds += step;
+                 if (!S.immigrationStopped) S.immigrationSeconds += step;
+                 seconds -= step;
+-                if (S.taxWeek >= TaxSeconds) { S.taxWeek -= TaxSeconds; PayTax(); }
++                if (S.taxWeek >= TaxSeconds) { S.taxWeek -= TaxSeconds; PayTax(); PayCivicUpkeep(); }
+                 if (S.ageSeconds >= GameCalendar.SecondsPerYear) { S.ageSeconds -= GameCalendar.SecondsPerYear; AgeYear(); }
+                 if (S.monthSeconds >= GameCalendar.SecondsPerMonth) { S.monthSeconds -= GameCalendar.SecondsPerMonth; Monthly(); }
+                 if (S.immigrationSeconds >= GameBalancePopulation.ImmigrationSeconds) { S.immigrationSeconds -= GameBalancePopulation.ImmigrationSeconds; Immigrate(); }
+@@ -197,7 +208,7 @@ namespace AntColony.Core
+             // 세율이 높을수록 불이익이 가파르다(30% 초과분 제곱 가산, 잠정). 창고 식량은 시민 민심에 반영하지 않는다.
+             var over = Mathf.Max(0, S.taxRate - .3f);
+             var target = 60f - (S.taxRate - .2f) * 100f - over * over * 500f - PolicySentiment(S.policy)
+-                + (Total > HousingCapacity ? -10 : 0) + Mathf.Min(10, Facilities * 2) + (S.raidSeconds < GameCalendar.SecondsPerMonth ? -10 : 0) + GameBalance.AdminSentiment * Administration + GameBalance.HousingBeautySentiment * HousingBeauty;
++                + (Total > HousingCapacity ? -10 : 0) + Mathf.Min(10, Facilities * 2) + CivicSentiment + (S.raidSeconds < GameCalendar.SecondsPerMonth ? -10 : 0) + GameBalance.AdminSentiment * Administration + GameBalance.HousingBeautySentiment * HousingBeauty;
+             S.sentiment = Mathf.Clamp(S.sentiment + Mathf.Clamp(target - S.sentiment, -10, 10), 0, 100);
+             if (Unrest)
+             {
+diff --git a/Assets/_Project/Scripts/Core/FinalBattleEconomy.cs b/Assets/_Project/Scripts/Core/FinalBattleEconomy.cs
+new file mode 100644
+index 0000000..feb4018
+--- /dev/null
++++ b/Assets/_Project/Scripts/Core/FinalBattleEconomy.cs
+@@ -0,0 +1,71 @@
++using System;
++using System.Collections.Generic;
++using System.Linq;
++using AntColony.Buildings;
++using AntColony.Data;
++using UnityEngine;
++
++namespace AntColony.Core
++{
++    public readonly struct ReserveRequirement
++    {
++        public readonly AntColony.Data.ResourceType Resource;
++        public readonly int Amount;
++        public ReserveRequirement(AntColony.Data.ResourceType resource, int amount)
++        {
++            if (amount < 0) throw new ArgumentOutOfRangeException(nameof(amount));
++            Resource = resource; Amount = amount;
++        }
++    }
++
++    public static class FinalBattleEconomy
++    {
++        public const int DefenseDays = 15, ReserveDays = 20;
++        public static float DefenseSeconds => DefenseDays * GameCalendar.SecondsPerDay;
++        public static int RecommendedFood(float dailyFood) => Mathf.CeilToInt(Mathf.Max(0, dailyFood) * ReserveDays);
++        public static float HomeDailyFood => CommanderRoster.Instance == null ? 0 : CommanderRoster.Instance.Commanders
++            .Where(c => c != null && c.isActiveAndEnabled && c.IsColonyMember && !c.IsDead && !c.IsAwayFromHome)
++            .Sum(AntColony.World.ExpeditionRules.FoodPerDay);
++        public static int FoodOnHand => (ResourceManager.Instance == null ? 0 : new[] {
++                AntColony.Data.ResourceType.Food, AntColony.Data.ResourceType.SimpleMeal, AntColony.Data.ResourceType.FineMeal }
++                .Sum(ResourceManager.Instance.GetAmount))
++            + (CommanderRoster.Instance == null ? 0 : CommanderRoster.Instance.Commanders
++                .Where(c => c != null && c.isActiveAndEnabled && c.IsColonyMember && !c.IsDead && !c.IsAwayFromHome)
++                .Sum(c => c.PersonalState.carriedRations?.Total ?? 0));
++
++        public static bool IsMajorDefense(BuildingKind kind) => kind == BuildingKind.AcidTower || kind == BuildingKind.AreaAcidTower
++            || kind == BuildingKind.SoilWall || kind == BuildingKind.CastleWall || kind == BuildingKind.Gate
++            || kind == BuildingKind.TrapPit || kind == BuildingKind.SpikeTrap || kind == BuildingKind.MineField || kind == BuildingKind.Watchtower;
++
++        // 가동 담당자가 연료·탄약의 실제 필요량을 넘긴다. null은 미연결, 빈 배열은 필요량 0을 확인했다는 뜻이다.
++        public static string[] ReserveLines(IEnumerable<ReserveRequirement> fuelAndAmmo = null)
++        {
++            var lines = new List<string> {
++                $"최종 방어 {DefenseDays}일 · {DefenseSeconds / 60f:0.#}분 · 납세 {DefenseDays}회",
++                $"장수·동원 병력 {ReserveDays}일분 식량: {FoodOnHand} / 권장 {RecommendedFood(HomeDailyFood)}"
++                    + (FoodOnHand < RecommendedFood(HomeDailyFood) ? "  부족" : "  충족"),
++                "세금은 미동원 성인·노년의 시간별 과세 생산 × 세율로 매일 정산합니다. 인원 변동은 이후 시간에만 반영됩니다." };
++            var costs = new Dictionary<AntColony.Data.ResourceType, float>();
++            void Add(AntColony.Data.ResourceType type, float amount) { costs.TryGetValue(type, out var old); costs[type] = old + amount; }
++            foreach (var b in UnityEngine.Object.FindObjectsByType<BuildingBase>(FindObjectsSortMode.None))
++            {
++                if (!b.isActiveAndEnabled || b.IsDead || b.Data == null || !IsMajorDefense(b.Data.kind)) continue;
++                Add(AntColony.Data.ResourceType.Food, b.Data.foodCost * .3f);
++                Add(b.MainMaterial, b.Data.soilCost * .3f);
++                Add(AntColony.Data.ResourceType.Special, b.Data.specialCost * .3f);
++            }
++            lines.Add("주요 방어시설 재건비 30%를 자원별로 비축합니다.");
++            if (fuelAndAmmo == null) lines.Add("연료·탄약 필요량: 가동 화면 연결 대기 (확인 전 비축 충족 판정 불가)");
++            else foreach (var need in fuelAndAmmo) Add(need.Resource, need.Amount);
++            foreach (var cost in costs.Where(c => c.Value > 0))
++            {
++                var required = Mathf.CeilToInt(cost.Value);
++                // 식량 권장은 병력 20일분과 재건 몫을 합산한다.
++                if (cost.Key == AntColony.Data.ResourceType.Food) required += RecommendedFood(HomeDailyFood);
++                var available = cost.Key == AntColony.Data.ResourceType.Food ? FoodOnHand : ResourceManager.Instance?.GetAmount(cost.Key) ?? 0;
++                lines.Add($"{cost.Key.DisplayName()}: {available} / 권장 합계 {required}" + (available < required ? "  부족" : "  충족"));
++            }
++            return lines.ToArray();
++        }
++    }
++}
+diff --git a/Assets/_Project/Scripts/Data/BuildingData.cs b/Assets/_Project/Scripts/Data/BuildingData.cs
+index 53702d2..159ce65 100644
+--- a/Assets/_Project/Scripts/Data/BuildingData.cs
++++ b/Assets/_Project/Scripts/Data/BuildingData.cs
+@@ -63,7 +63,8 @@ namespace AntColony.Data
+         Fridge, Freezer,
+         // 2026-10-15 퇴비통(배설물·썩은 식품 → 비료), 묘비(장수 시신 1구 안치)
+         CompostBin, Tombstone,
+-        CrashWreck // 2026-10-23 불시착 잔해(건설 목록에는 없음)
++        CrashWreck, // 2026-10-23 불시착 잔해(건설 목록에는 없음)
++        CivicPublicService, School, CitizenClinic // B8: 기존 저장 번호 유지
+     }
+ 
+     [CreateAssetMenu(fileName = "BuildingData", menuName = "AntColony/Building Data")]
+diff --git a/Assets/_Project/Scripts/Save/SaveCatalog.cs b/Assets/_Project/Scripts/Save/SaveCatalog.cs
+index 9c3eba4..c691b00 100644
+--- a/Assets/_Project/Scripts/Save/SaveCatalog.cs
++++ b/Assets/_Project/Scripts/Save/SaveCatalog.cs
+@@ -34,6 +34,7 @@ namespace AntColony.Save
+         }
+         internal static string Kind(BuildingBase b)
+         {
++            if (b is CivicService civic) return civic.SavedKind.ToString();
+             if (b.GetComponent<NurseryChamber>() != null) return "Nursery";
+             if (b.GetComponent<ScoutPost>() != null) return "ScoutPost";
+             if (b.GetComponent<PrisonerCamp>() != null) return "PrisonerCamp";
+diff --git a/Assets/_Project/Scripts/Save/SaveValidator.cs b/Assets/_Project/Scripts/Save/SaveValidator.cs
+index 21c82bf..da1dfcf 100644
+--- a/Assets/_Project/Scripts/Save/SaveValidator.cs
++++ b/Assets/_Project/Scripts/Save/SaveValidator.cs
+@@ -240,7 +240,7 @@ namespace AntColony.Save
+             if (!Enum.IsDefined(typeof(Core.CommanderDeathMode), file.options.commanderDeath)) { error = "Unknown commander death mode."; return false; }
+             if (!Enum.IsDefined(typeof(Core.MapBiome), file.options.biome)) { error = "Unknown biome."; return false; }
+             var pop = file.population;
+-            if (pop == null || pop.young < 0 || pop.old < 0 || pop.agingDue < 0 || !Enum.IsDefined(typeof(Core.MilitaryPolicy), pop.policy)
++            if (!Core.ColonyPopulation.ValidCivicState(pop) || pop.young < 0 || pop.old < 0 || pop.agingDue < 0 || !Enum.IsDefined(typeof(Core.MilitaryPolicy), pop.policy)
+                 || !(pop.sentiment >= 0 && pop.sentiment <= 100) || !(pop.taxRate >= 0 && pop.taxRate <= Core.GameBalance.MaxTaxRate)
+                 || float.IsNaN(pop.monthSeconds) || float.IsInfinity(pop.monthSeconds) || pop.monthSeconds < 0 || float.IsNaN(pop.raidSeconds) || pop.raidSeconds < 0
+                 || !Enum.IsDefined(typeof(Core.TaxFocus), pop.taxFocus) || !Enum.IsDefined(typeof(Data.ResourceType), pop.taxMaterial) || !(pop.taxWeek >= 0 && pop.taxWeek <= Core.ColonyPopulation.TaxSeconds)
+diff --git a/Assets/_Project/Scripts/UI/BuildScreen.cs b/Assets/_Project/Scripts/UI/BuildScreen.cs
+index 87ca8df..7ef1e09 100644
+--- a/Assets/_Project/Scripts/UI/BuildScreen.cs
++++ b/Assets/_Project/Scripts/UI/BuildScreen.cs
+@@ -47,7 +47,7 @@ namespace AntColony.UI
+                 new Entry("방어 연구소", BuildingKind.DefenseLab), new Entry("공방", BuildingKind.Workshop),
+                 new Entry("기초 목공대", BuildingKind.Carpentry), new Entry("석공대", BuildingKind.Stonecutter), new Entry("가마", BuildingKind.Kiln),
+                 new Entry("물레", BuildingKind.SpinningWheel), new Entry("용광로", BuildingKind.Smelter) },
+-            new[] { new Entry("의무실", BuildingKind.Infirmary), new Entry("약제대", BuildingKind.MedicineBench), new Entry("묘비", BuildingKind.Tombstone) },
++            new[] { new Entry("의무실", BuildingKind.Infirmary), new Entry("약제대", BuildingKind.MedicineBench), new Entry("묘비", BuildingKind.Tombstone), new Entry("시민 진료소", BuildingKind.CitizenClinic) },
+             new[] { new Entry("성벽", BuildingKind.CastleWall), new Entry("성문", BuildingKind.Gate), new Entry("끈끈이 함정", BuildingKind.TrapPit), new Entry("가시 함정", BuildingKind.SpikeTrap),
+                 new Entry("지뢰밭", BuildingKind.MineField), new Entry("산성탑", BuildingKind.AcidTower), new Entry("광역 산성탑", BuildingKind.AreaAcidTower),
+                 new Entry("감시탑", BuildingKind.Watchtower) },
+@@ -65,7 +65,7 @@ namespace AntColony.UI
+                 new Entry("방패 훈련장", BuildingKind.Barracks, UnitRole.Defense), new Entry("지휘 훈련장", BuildingKind.Barracks, UnitRole.Support),
+                 new Entry("비행 훈련장", BuildingKind.Barracks, UnitRole.Flying), new Entry("징집소", BuildingKind.ConscriptionPost),
+                 new Entry("정찰 초소", BuildingKind.ScoutPost), new Entry("포로 수용소", BuildingKind.PrisonerCamp), new Entry("무기고", BuildingKind.Armory) },
+-            new[] { new Entry("초가집", BuildingKind.Hut), new Entry("흙집", BuildingKind.House), new Entry("큰 아파트", BuildingKind.Apartment), new Entry("행정 책상", BuildingKind.AdminDesk) },
++            new[] { new Entry("초가집", BuildingKind.Hut), new Entry("흙집", BuildingKind.House), new Entry("큰 아파트", BuildingKind.Apartment), new Entry("행정 책상", BuildingKind.AdminDesk), new Entry("학당", BuildingKind.School) },
+             new[] { new Entry("로켓 발사대", BuildingKind.AirshipYard) }
+         };
+         private static int TabOf(string name) => System.Array.IndexOf(TabNames, name);
+diff --git a/Assets/_Project/Scripts/UI/GameMenuCivicServices.cs b/Assets/_Project/Scripts/UI/GameMenuCivicServices.cs
+new file mode 100644
+index 0000000..6e74ec0
+--- /dev/null
++++ b/Assets/_Project/Scripts/UI/GameMenuCivicServices.cs
+@@ -0,0 +1,57 @@
++using System;
++using System.Collections.Generic;
++using AntColony.Core;
++using UnityEngine;
++using L = AntColony.UI.MenuLayout;
++
++namespace AntColony.UI
++{
++    public sealed partial class GameMenuController
++    {
++        public void CivicServices()
++        {
++            var pop = ColonyPopulation.Instance; if (pop == null) return;
++            pop.SyncCivilianLocations();
++            var f = Frame("공공서비스"); var p = L.Plate(f, "CivicServices", 300, 100, 840, 660);
++            L.Label(p, "시민 · 공공서비스", 20, 24, 16, 792, 34);
++            L.Label(p, $"서비스 {pop.PublicServiceCapacity}명 / 시민 {pop.Total}명 · 충족 {pop.PublicServiceCoverage:P0} · 이주 수요에 곱함", 13, 24, 60, 792, 28);
++            L.Label(p, $"기본 500명 · 시설당 500명     행정 하루 {pop.AdminDemandWork:0.###}업무 · 성과 {pop.Administration:P0}", 13, 24, 90, 792, 28);
++            L.Line(p, 24, 128, 792);
++            L.Label(p, $"학당 {pop.SchoolCount}동 · 어린 시민 {pop.S.young}명 · 교육 {pop.EducationCoverage:P0}" + (pop.SchoolsOperating ? "" : " · 운영비 부족"), 15, 24, 140, 792, 28);
++            L.Label(p, "1동당 어린 시민 20명 · 하루 식량 0.3 / 재료(흙) 0.15. 성인 전환 시 교육 효과 적용.", 13, 24, 172, 792, 26, MenuTheme.Muted);
++            L.Label(p, $"교육 과세 생산 +{pop.S.educationBonus:P0} · 남은 {pop.S.educationSeconds / GameCalendar.SecondsPerDay:0.#}일 · 교육 민심 +{pop.S.educationBonus * 50:0.#}", 13, 24, 202, 792, 26);
++            L.Label(p, $"진료소 {pop.ClinicCount}동 · 의료 충족 {pop.MedicalCoverage:P0} · 민심 +{pop.MedicalCoverage * 5:0.#}" + (pop.ClinicsOperating ? "" : " · 운영비 부족"), 15, 24, 244, 792, 28);
++            L.Label(p, "1동당 시민 50명 · 하루 기초약 0.15 / 식량 0.3. 시민 질병은 생성하지 않습니다.", 13, 24, 276, 792, 26, MenuTheme.Muted);
++            L.Label(p, $"운영비 미정산: 학당 식량 {pop.S.schoolFoodDebt:0.##} / 흙 {pop.S.schoolMaterialDebt:0.##} · 진료소 식량 {pop.S.clinicFoodDebt:0.##} / 약 {pop.S.clinicMedicineDebt:0.##}", 12, 24, 308, 792, 26, MenuTheme.Muted);
++            L.Line(p, 24, 350, 792);
++            L.Label(p, "주거 · 대피 지점 (피해 10당 1명 사망, 이동 그룹 최대 50명)", 15, 24, 360, 792, 28);
++            var list = L.List(p, 24, 394, 792, 142);
++            foreach (var location in pop.CivilianLocations)
++            {
++                if (location.count == 0) continue;
++                var row = L.Cell(list, "Civilian " + location.id, 32);
++                var status = location.moving ? "이동 중" : location.arrived ? "도착" : location.sheltered ? "보호" : "노출";
++                L.Label(row, $"#{location.id} · {location.count}명 · {status} · 피해 {location.damage:0.#} · 위치 {location.position.x:0.#}, {location.position.z:0.#}", 13, 8, 0, 760, 30);
++            }
++            L.Button(p, "Civic Refresh", "새로 고침", 24, 548, 130, 34, CivicServices);
++            L.Button(p, "Reserve Warning", "최종전 비축 확인", 170, 548, 180, 34, () => FinalBattleReserveWarning());
++            L.Button(p, "Population Back", "인구로", 24, 600, 140, 36, Population);
++            L.Button(p, "Close", "닫기", 676, 600, 140, 36, Resume);
++        }
++
++        public void FinalBattleReserveWarning(Action activate = null, IEnumerable<ReserveRequirement> fuelAndAmmo = null)
++        {
++            var f = Frame("최종전 비축"); var p = L.Plate(f, "FinalBattleReserves", 300, 100, 840, 660);
++            L.Label(p, "가동 전 · 권장 비축", 20, 24, 16, 792, 34);
++            L.Label(p, "비축 부족은 경고입니다. 가동하면 15일 준비를 중단할 수 없습니다.", 13, 24, 58, 792, 32, MenuTheme.Warning);
++            var list = L.List(p, 24, 104, 792, 470);
++            foreach (var line in FinalBattleEconomy.ReserveLines(fuelAndAmmo))
++            {
++                var row = L.Cell(list, "Reserve", 54);
++                L.Label(row, line, 13, 8, 0, 760, 50);
++            }
++            L.Button(p, "Back", "돌아가기", 24, 600, 140, 36, CivicServices);
++            if (activate != null) L.Button(p, "Activate Confirm", "확인 · 가동", 636, 600, 180, 36, () => activate(), primary: true);
++        }
++    }
++}
+diff --git a/Assets/_Project/Scripts/UI/GameMenuPopulation.cs b/Assets/_Project/Scripts/UI/GameMenuPopulation.cs
+index bf31f71..6677a65 100644
+--- a/Assets/_Project/Scripts/UI/GameMenuPopulation.cs
++++ b/Assets/_Project/Scripts/UI/GameMenuPopulation.cs
+@@ -23,7 +23,7 @@ namespace AntColony.UI
+ 
+             L.Label(p, $"<b>민심</b>  {pop.S.sentiment:0} / 100{(pop.Unrest ? "  <color=#d9534f>바닥: 인구 탈주·병력 동원 불가</color>" : "")}", 14, 24, 132, 792, 24);
+             L.Meter(p, 24, 158, 792, 8, pop.S.sentiment / 100f, pop.Unrest ? MenuTheme.Danger : MenuTheme.Hp);
+-            L.Label(p, $"<b>이주 수요</b>  {pop.Demand:0} / 100  <color=#b1b3a7>({GameBalance.MinImmigrationDemand} 이상이면 매달 이주 · 주거 주변 미관 {pop.HousingBeauty:+0.#;-0.#;0})</color>", 14, 24, 176, 792, 24);
++            L.Label(p, $"<b>이주 수요</b>  {pop.Demand:0} / 200  <color=#b1b3a7>(3일마다 빈 정원 × 10% × 수요/100 · 서비스 {pop.PublicServiceCoverage:P0})</color>", 13, 24, 176, 792, 24);
+             L.Meter(p, 24, 202, 792, 8, pop.Demand / 100f, MenuTheme.Accent);
+             (string name, float value)[] causes = { ("주거", pop.HousingDemand), ("시설", pop.FacilityDemand), ("안전", pop.SafetyDemand), ("민심", pop.S.sentiment) };
+             for (var i = 0; i < causes.Length; i++)
+@@ -86,6 +86,7 @@ namespace AntColony.UI
+             L.Button(p, "Compensation Down", "−10%", 236, 558, 70, 32, () => Compensation(-.1f), "보상이 기본보다 적으면 재개발 때 민심이 내려갑니다.");
+             L.Button(p, "Compensation Up", "+10%", 312, 558, 70, 32, () => Compensation(.1f), "보상을 올리면 비용이 늘고 불만은 줄어듭니다.");
+             L.Button(p, "Close", "닫기", 676, 600, 140, 40, Resume, null, true);
++            L.Button(p, "Civic Services", "공공서비스 · 대피", 24, 600, 200, 40, CivicServices);
+         }
+     }
+ }
+diff --git a/docs/IMPL-B8-HANDOFF.md b/docs/IMPL-B8-HANDOFF.md
+new file mode 100644
+index 0000000..f4d449f
+--- /dev/null
++++ b/docs/IMPL-B8-HANDOFF.md
+@@ -0,0 +1,83 @@
++# IMPL-B8 인계
++
++## 상태
++- 재개 작업(2026-10-24): 기존 diff/인계를 대조하여 미완료였던 학당·진료소 건설/저장 등록과 대피 잔여 피해 보존을 보완. 기존 경제 계산·UI·검사는 재작성하지 않음. **컴파일·Unity·RunChecks·화면·실제 파일 save/load 모두 미실행**. 실행 통과로 해석하지 말 것.
++- 이 worktree에서만 작업. 기존 다른 묶음의 staged 변경 보존. 금지된 Units/Boss/CampaignResearch/Expedition/침공/협상/로켓/AirshipYard/FarmPlot/Workshop/Processor는 수정하지 않음.
++- Unity 실행/MCP/Notion/prefab 수정/git commit·stash·push/SAVE·일지·캡처 없음. 카카오 완료 알림 도구가 이 세션에는 없음.
++
++## G별 결과
++| 항목 | 상태 | 구현 및 남은 부분 |
++|---|---|---|
++| G16 | 부분 | 주거·노출·대피 위치 집계, 보호 상실 자체 사망 없음, 피해 10당 1명/잔여 피해 JSON 보존, 같은 위치 기존 Corpse 수량 묶음 재사용. 최대 50명 NavMesh 실제 이동/그룹 마커, 도착 생존자만 반출. 전투 피해·대피 명령·로켓 좌석 호출 연결 필요. |
++| G17 | 코드 완료·실행 미검증 | 기본 세율 20% 유지, 500명당 하루 1업무 선형 소모, 첫 500명 기본 서비스+유효 시설당 500명, 충족률을 기존 이주 D에 곱함. 빈 주거 생산력 분모 0은 1로 처리. |
++| G65 | 코드 완료·실행 미검증 | CivicService School: 어린 20명/동, 성인 전환 시 교육 충족률×10% 생산·×5 민심, 1계절 후 만료. 하루 식량 .3/흙 .15 소수 비용 보존·정수 정산. 마을 탭 건설/저장 카탈로그 연결 완료. 건설 수치 잠정. |
++| G66 | 코드 완료·실행 미검증 | CivicService Clinic: 시민 50명/동 의료 충족률, 민심 최대5, 기존 이주 D에 의료 충족률×.5 보정, 운영 중 시설은 공공서비스에도 포함. 하루 기초약 .15/식량 .3. 질병 생성 없음. 의료 탭 건설/저장 카탈로그 연결 완료. 건설 수치 잠정. |
++| G68 | 부분 | 기존 시간별 미동원 성인/노년 세금 누적과 일일 납세 재사용. 15일=2250초/37.5분·납세15회 상수, 장수/병력 식량20일분·방어시설 재건비30% 경고 화면 구현. 연료/탄약 실제 요구량과 로켓 가동 버튼은 연결 요청. |
++
++## 수정 파일
++기존:
++- `Assets/_Project/Scripts/Core/ColonyPopulation.cs`: 추가 State 필드/복원, 서비스·의료 이주 보정, 교육 과세, 틱·일일 운영비, 민심 연결.
++- `Assets/_Project/Scripts/Core/ColonyPopulation.Admin.cs`: 하루 행정 수요·소모, 빈 주거 생산력 처리.
++- `Assets/_Project/Scripts/Core/ColonyPopulation.Ages.cs`: `AgeYear()`의 어린→성인 전환 직전에 교육 적용 1줄. 기존 연령 이관/동원 처리 유지.
++- `Assets/_Project/Scripts/Save/SaveValidator.cs`: `ColonyPopulation.ValidCivicState` 추가 검증 1줄.
++- 재개 시 추가 수정: `Data/BuildingData.cs` 끝에 `CivicPublicService/School/CitizenClinic` 추가, `Buildings/BuildingPlacementController.GetTemplate`에서 신규 CivicService 템플릿 연결, `Save/SaveCatalog.Kind`에서 종류별 이름 반환, `UI/BuildScreen`의 마을/의료 탭에 학당/시민 진료소 추가. `RuntimeBuildingTemplates`와 `SaveBuildings/SaveDtos/SaveSnapshot`에는 추가 수정 불필요.
++- `Assets/_Project/Scripts/UI/GameMenuPopulation.cs`: 이주 설명 최신화, 공공서비스·대피 진입 버튼.
++- `README.md`, `docs/IMPLEMENTATION_BOARD.md`, 이 문서.
++
++신규:
++- `Assets/_Project/Scripts/Buildings/CivicService.cs`: 공공서비스/학당/시민 진료소 종류와 활성 시설 집계, 종류별 런타임 템플릿/저장 이름.
++- `Assets/_Project/Scripts/Core/ColonyPopulation.Economy.cs`: 충족률·교육·소수 운영비·상태 검증.
++- `Assets/_Project/Scripts/Core/ColonyPopulation.Civilians.cs`: 시민 위치 집계·피해·수량 시신·상태 검증.
++- `Assets/_Project/Scripts/Core/ColonyPopulation.Evacuation.cs`: 그룹 분리·NavMesh 이동·도착 반출·런타임 그룹 마커. 재개 시 전원 출발의 잔여 피해를 새 그룹에 이관하고 전원 반출 시 빈 그룹 피해 정리.
++- `Assets/_Project/Scripts/Core/FinalBattleEconomy.cs`: 15일 방어/20일 비축/재건비 계산과 경고 문구.
++- `Assets/_Project/Scripts/UI/GameMenuCivicServices.cs`: 서비스·지점 목록·최종전 경고.
++- `AgentScripts/ImplB8Checks.cs`: RunChecks 진입점.
++- graphify update가 만든 `graphify-out/` 갱신·캐시·백업은 소스 패치/커밋에서 제외할 것.
++
++## 저장
++- 버전 올리지 않음. `SaveDtos.SaveFileV1.population`은 이미 `ColonyPopulation.State` 타입이며 `SaveSnapshot.Capture()`가 `Capture()`, 복원이 `Restore()`를 호출하므로 추가 교육·비용·중단·시민 위치·목적지·잔여 피해가 기존 JSON에 포함됨. SaveDtos/SaveSnapshot 중복 필드는 추가하지 않음.
++- 구저장: 교육/비용/중단 기본 0/false, null 시민 목록은 복원에서 생성. 다음 지점 ID 최소1. NavMesh 경로·그룹 마커는 저장하지 않고 틱에서 재생성.
++- 시신은 기존 `SaveSnapshot.corpses`/`Corpse.Capture()` 경로 그대로 사용. 시민 전용 중복 시신 DTO 없음.
++- CivicService 시설도 `SaveCatalog.Kind`가 `School/CitizenClinic/CivicPublicService`를 반환하여 기존 `SaveBuildings.Resolve → GetTemplate → Instantiate` 경로에서 동일 Kind로 재생성한다. 전용 상태가 없으므로 별도 DTO 필드/저장 버전 증가는 없음. `SavePreflight.ForScene`은 기존 Enum 파싱·템플릿 종류/체력 검사를 재사용한다. 실제 파일 왕복은 미검증.
++
++## 연결 요청 (Claude 통합 담당)
++1. 건설/저장 담당(코드 연결 완료, 통합 확인):
++   - 공용 파일 충돌 시 `Data/BuildingData.cs` enum 끝의 신규 3종, `Buildings/BuildingPlacementController.GetTemplate` switch 1항목, `Save/SaveCatalog.Kind` 1줄, `UI/BuildScreen` 탭 항목 2개를 보존. 다른 묶음도 enum 끝에 추가했다면 통합 시 번호 충돌 확인.
++   - 건설 수치는 사양에 없어 **기존 BuildingData 기본값(식량0/흙20/특수0/시민5/3초/체력300), 연구 제한 없음**을 잠정 재사용. 확인 질문에 응답이 없어 적용한 가정이며 확정 기획 아님. 전용 밸런스 확정 시 CivicService.CreateTemplate에서 변경. 별도 일반 공공서비스는 저장/API용 종류만 등록하고 건설 메뉴에는 추가하지 않음.
++   - 새 .cs.meta는 Unity 재개 시 생성 확인. prefab 수정/커밋 금지 유지.
++2. 전투/침공 담당:
++   - 현 소스의 실제 공격 지점은 `Assets/_Project/Scripts/World/WildMonster.cs::Update()`의 대상 재탐색과 `currentTarget.TakeDamage(attackDamage)` 분기. `ColonyInvasion.Spawn/SpawnCommander`, `LocalIncursions.Spawn`은 공격자 생성만 담당한다. 침공 담당은 WildMonster.Update에 시민 위치 선택/접근/공격 분기를 추가하고 `ColonyPopulation.SyncCivilianLocations()` 후 `CivilianLocations`의 노출 지점을 골라 `DamageCivilians(location.id, attackDamage)`를 공격 주기당 한 번 호출할 것. 보호 중 주거에는 건물 피해만 적용하고 파괴 자체 인구 즉사 없이 다음 공격부터 노출 시민을 타격한다.
++   - 주거 파괴 때 기존 인구 즉사/중복 Corpse 생성이 있다면 제거. 집이 비활성/파괴된 다음 Sync에서 보호만 잃음. `SetCivilianProtection(id, bool)`은 비주거 대피 지점 보호 연결용(주거 보호는 실제 Housing 생존 여부가 결정).
++   - 대피 명령 UI 연결 지점은 `Assets/_Project/Scripts/UI/GameMenuCivicServices.cs::CivicServices()`의 지점 목록. 통합 입력 담당은 지점 ID/월드 목적지 선택 후 `BeginCivilianEvacuation(sourceId, destination, requested)`를 반복 호출하여 분리(현재 목록/상태 표시는 있으나 목적지 선택 명령은 미연결). 반환 0은 출발 불가. 각 성공 그룹 최대50명, NavMesh 완전 경로 필요. 이동 중 피해도 해당 group.id로 호출.
++3. 로켓/AirshipYard 담당:
++   - `Buildings/AirshipYard.TryBoard`의 시민 대응 경로/가동 상태 담당 API에서 **도착 전 인구를 미리 탑승시키지 말 것**. `TakeArrivedCivilians(groupId, freeSeats)` 반환값만 로켓 시민 승객에 더함. 호출은 좌석 승인 후 같은 틱에 한 번 수행. 이 API는 반환 인구를 시민 풀에서 제거하며 사망으로 기록하지 않음.
++   - 대피소 도착은 `CivilianLocation.arrived`로 확인. `TakeArrivedCivilians`는 탑승/정착지 반출에만 사용. 일반 안전 대피소에 도착했으면 시민 수를 유지하고 `SetCivilianProtection`으로 보호만 부여.
++   - `Assets/_Project/Scripts/UI/GameMenuCampaign.cs::RocketSection(CampaignResearch)`에 G20/G52 가동 버튼을 추가할 때 그 직전에 `GameMenuController.FinalBattleReserveWarning(activateAction, fuelAndAmmo)` 호출. **현 worktree의 AirshipYard에는 TryActivate가 없고 TryBuild/TryBoard/TryDepart만 있으므로 존재하는 가동 API로 오인하지 말 것**. activateAction에는 로켓 담당이 구현한 15일 가동 API를 전달하며 기존 즉시 발사 TryDepart로 대체하지 않는다. 경고 자체는 비축 부족을 차단하지 않음.
++   - `fuelAndAmmo`에는 실제 자원별 필요한 총량을 `ReserveRequirement`로 전달. null은 ‘연결 대기’, 빈 배열은 필요량0을 확인했다는 뜻. 로켓15일 연료 전량 적재/G52 판정은 로켓 담당에서 수행.
++   - 승객 시민 수의 저장·파괴/하차/발사/엔딩 분류도 로켓 담당 소유. 반출만 연결하고 승객 저장을 빠뜨리면 인구가 유실됨.
++4. B1/통합 회귀 담당:
++   - 기존 Military partial의 `S.old-S.agingDue` 가용 노년 보정 요청(B2 인계)은 여전히 미해결이며 이 묶음에서는 건드리지 않았음.
++   - 행정 수요가 500명당 하루1로 바뀌어 옛 AdminWorkPerAnt=6/지수감소를 가정한 검사는 갱신 필요. 원래 상수는 다른 파일 소유이므로 제거하지 않음.
++
++## 검사 목록·검증 결과
++- `AgentScripts/ImplB8Checks.cs`: `public static async Task<string> Main()`, 실패 시 예외, 성공 `PASS n`.
++- Play 모드에서 `RunChecks`로 실행. 1명 불시착 새 게임으로 초기화하고 검사 안에서 비축더미·창고·주거·공공서비스·학당·진료소·운영 물자·별도 NavMesh 패치를 직접 만듦. 기존 Stockpile 존재를 가정하지 않음. 자동저장 비활성/임시 RootOverride·설정/난수 복원.
++- G17 기본 세율/빈 인구/500·1000명 서비스와 행정/서비스 비활성/이주 곱셈.
++- G65 성인 전환/교육10%·민심5/1계절 만료/JSON. G66 50명당 의료·민심5/운영비 부족 중단·재납부 재개.
++- 일일 .3/.15 소수 비용과 7일 누적 정산. 동원 변경 전후 시간별 과세·15번 일일 납세와 누적 생산량 보존.
++- G16 보호·주거 상실 무사망/9+1 피해/20 피해/위치별 시신 수량/NaN·무한대 차단/최대50 출발/도착 전 탑승 차단/실제 위치 이동/이동 중 사망/이동 상태 JSON 복원/좌석 제한·중복 반출 방지/인구 보존.
++- 재개 시 추가: School/Clinic/PublicService 각각 `GetTemplate`, 건설 잠금 없음, 생성 Kind, 실제 `SaveBuildings.Capture` DTO JSON 왕복, `Resolve/Restore` 종류·체력 복원 검사. 전원 대피 전 9 피해 → 이동 그룹 JSON 왕복 후 1 피해 시 1명 사망, 일부 출발 시 잔여 피해 유지 검사. 실제 파일 저장/로드 검사가 아님.
++- 구저장 null 필드·잘못된 위치/타이머 검증.
++- 프로젝트 참조 심볼을 rg로 확인. `git diff --check` 통과. `graphify update .` AST 갱신 성공(별도 실행 검증 아님).
++- 재개 후에도 diff 공백 검사/추가 참조 심볼 확인 및 graphify AST 갱신 완료(8623 nodes / 19472 edges). 커뮤니티 수 변경으로 일부 라벨이 허브 이름으로 자동 대체되었다는 graphify 안내가 있었으며 LLM 재라벨은 수행하지 않음. graphify 출력은 소스 전달 대상에서 제외.
++- **모든 위 검사는 작성만 했고 실행하지 않았다. PASS 숫자/컴파일 성공/화면 검증/실제 save-load 성공을 보고하지 말 것.**
++
++## 남은 위험·해석
++- 교육 효과는 성인 전환 순간의 학당/어린 인구 충족률을 정착지 공통 보정으로 1계절 적용한다. 교육받은 성인 개별 코호트를 장기 추적하지 않음.
++- 학당·진료소는 기존 기본 Cube 템플릿 표현만 사용하며 전용 모델/아이콘은 없음. 건설 수치는 위 잠정 기본값이며 확정된 밸런스로 해석하지 말 것.
++- 학당의 ‘재료’ 비용은 기존 기본 재료 Soil로 연결. 공공서비스는 기존 Facilities(장수 의무실/휴게/장식/오락/식당) + CivicService를 합산하며, 전문 진료소의 의료50명과 일반 서비스500명을 별도 계산함.
++- 소수 비용은 누적 정수 결제이며 정수 미납 시 해당 종류 시설 전체가 다음 납세 정산까지 중단. 물량 부족에 따른 시설별 부분 가동 정책은 사양에 없어 추가하지 않음.
++- 시민 연령은 지점별로 분해하지 않고 전체 집계에서 어린→대기 성인→미동원 노년 순으로 차감. 동원/예약/탈주로 시민 합계가 바뀌면 Sync가 비이동 지점부터 조정. **대피 중 인구를 기존 동원 시스템에서 잠그는 기능은 없음**. 동원 partial 변경 없이 보존한 한계이므로 실제 플레이 회귀에서 확인 필요.
++- 이동 속도3m/s·그룹 캡슐 마커는 최소 표시. 먼 지형에서 NavMesh 부분 경로는 출발 거부/이동 대기하며 순간이동하지 않음. 기존 NavRoute의 장거리 경유지 처리까지는 연결하지 않았고, 이동 그룹당 매 틱 경로 재계산하므로 대규모 대피 성능 검증 필요.
++- 비축 UI는 현재 본거지 장수/소속 병력의 기존 ExpeditionRules.FoodPerDay와 창고/개인 보존식을 사용. 별도 원정·화물·로켓 내 재고는 해당 소유 담당이 추가 집계해야 함. 주요 방어시설은 분사탑·범위탑·흙벽·성벽·성문·함정·매설지·감시탑의 현재 BuildingData 비용×30%로 계산.
++- UI 목록 스크롤/버튼은 기존 MenuLayout/MenuTheme·DESIGN_RULES 재사용. 실제 1920×1080/1280×720 화면·동작은 미확인이며 SAVE 전용 캡처 규칙으로 캡처하지 않음.

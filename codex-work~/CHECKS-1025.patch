@@ -1,0 +1,188 @@
+--- a/AgentScripts/WorldMapChecks.cs
++++ b/AgentScripts/WorldMapChecks.cs
+@@ -123,7 +123,7 @@
+         }
+         Check(homeCommander.CanStartConstruction, "civilian builder needs no troops");
+         homeCommander.SetJobEnabled(CommanderJobs.Building, true);
+-        homeCommander.SetJobEnabled(CommanderJobs.Hauling, true);
++        // 건설 작업이 자재를 직접 배송한다. 일반 운반을 켜면 G02 바닥 돌 20개도 재고에 합쳐진다.
+         var pile = new GameObject("WorldMapTestStockpile"); pile.transform.position = homeCommander.Position; pile.AddComponent<Stockpile>();
+         Check(ScienceLab.PrerequisitesMet, "G06 basic research bench has no population gate");
+         typeof(GameManager).GetProperty("FishingUnlocked").SetValue(GameManager.Instance, true);
+--- a/AgentScripts/SettlementDefenseChecks.cs
++++ b/AgentScripts/SettlementDefenseChecks.cs
+@@ -150,10 +150,25 @@
+         defense.Tick(30);
+         Check(defense.CaptureProgress == 0 && site.Disposition == ConquestDisposition.Annexed, "combat defender prevents occupation");
+         Move(captive, site.Landing + Vector3.right * 22);
++        // 포획/탈출 난수 사이에 OnDowned의 부상 난수가 끼지 않도록 쓰러진 수비자를 먼저 준비한다.
++        var poolBefore = AntPool.Instance.Total;
++        var captiveTroops = captive.TroopCount;
++        var deathMode = GameSession.Instance.Options.commanderDeath;
++        try
++        {
++            GameSession.Instance.Options.commanderDeath = CommanderDeathMode.Gentle;
++            captive.TakeDamage(float.MaxValue);
++        }
++        finally { GameSession.Instance.Options.commanderDeath = deathMode; }
++        Check(!captive.IsDead && captive.PersonalHealth == 0 && !captive.HasTroops
++            && AntPool.Instance.Total == poolBefore - captiveTroops, "downed fixture loses troops exactly once");
++        // 의료의 무작위 출혈/감염은 별도 검사 범위. 부상 상태는 유지해 CaptureInjury의 추가 난수도 막는다.
++        captive.Health.wounds.Clear(); captive.Health.illnesses.Clear(); captive.Health.bloodLoss = 0;
++        MedicalRules.AddWound(captive.Health, BodyPart.Thorax, WoundKind.Bruise, 1).tended = true;
+         Set(captive, "carriedType", ResourceType.Food); Set(captive, "carriedAmount", 4.5f);
+         Set(escapee, "carriedType", ResourceType.Food); Set(escapee, "carriedAmount", 2.75f);
+         Set(crew, "carriedType", ResourceType.Soil); Set(crew, "carriedAmount", 3f);
+-        ship.DepositResources(ResourceType.Food, 17);
++        ship.DepositResources(ResourceType.Wood, 17); // G05 보급과 화물 보존 검사를 분리한다.
+         Check(world.CanCreateTransport(world.HomePosition, out var routePosition), "second transport placement");
+         var automatic = world.CreateTransport(false, routePosition);
+         Move(collector, routePosition + Vector3.right * 3);
+@@ -161,9 +176,8 @@
+         Check(automatic.TryBoard(new[] { collector }), "home auto route boards: troops=" + collector.TroopCount
+             + " carrying=" + collector.IsCarrying + " away=" + collector.IsAwayFromHome);
+         Check(automatic.Route.TryStart(site), "home auto route ready: " + site.Disposition);
+-        var poolBefore = AntPool.Instance.Total;
+-        var captiveTroops = captive.TroopCount;
+-        // RNG를 한 번만 고정해 같은 상실 사건에서 포로/탈출 두 갈래를 모두 검증한다.
++        Check(site.Settlement.Garrison.SequenceEqual(new[] { captive, escapee }), "capture fixture preserves defender order");
++        // 이미 쓰러지고 부상 중인 첫 장수의 포획은 추가 부상 난수를 소비하지 않는다.
+         var randomState = UnityEngine.Random.state;
+         var foundSeed = false;
+         for (var seed = 0; seed < 10000; seed++)
+@@ -176,7 +190,9 @@
+         finally { UnityEngine.Random.state = randomState; }
+         Check(site.Disposition == ConquestDisposition.Lost && !defense.UnderAttack, "uncontested occupation loses site");
+         Check(defense.Prisoners.Count == 1 && captive.Captor == site && captive.IsCaptive && !captive.gameObject.activeSelf,
+-            "one commander captured and hidden");
++            "one commander captured and hidden: prisoners=" + defense.Prisoners.Count
++            + " captive=" + captive.IsCaptive + " dead=" + captive.IsDead + " health=" + captive.PersonalHealth
++            + " captor=" + (captive.Captor == site) + " active=" + captive.gameObject.activeSelf);
+         Check(!escapee.IsAwayFromHome && escapee.isActiveAndEnabled && Vector3.Distance(escapee.Position, world.HomePosition) < 15,
+             "other commander escapes to home");
+         Check(site.Settlement.Garrison.Count == 0 && AntPool.Instance.Total == poolBefore - captiveTroops,
+@@ -186,7 +202,7 @@
+         Check(!captive.TryAssign(1)
+             && !captive.TryPowerStrike(), "captives cannot be controlled or upgraded");
+         Check(!automatic.Route.IsRunning && automatic.Crew.Count == 0, "lost destination immediately stops home auto route");
+-        Check(ship.State == ExpeditionState.Returning && crew.IsEmbarked && ship.GetCargo(ResourceType.Food) == 17
++        Check(ship.State == ExpeditionState.Returning && crew.IsEmbarked && ship.GetCargo(ResourceType.Wood) == 17
+             && ship.GetCargo(ResourceType.Soil) == 3 && !crew.IsCarrying, "deployed crew and cargo evacuate intact");
+         Check(Mathf.Abs(site.GetComponentsInChildren<ResourceNode>().Where(n => n.name.StartsWith("Dropped ")).Sum(n => n.AmountRemaining) - 7.25f) < .001f,
+             "garrison carried resources remain recoverable without rounding loss");
+@@ -195,12 +211,12 @@
+         Check(site.Colony.GetStock(ResourceType.Food) == stock && !defense.TryStartRaid(), "lost site stops production and future raids");
+         Check(site.Colony.GetComponentsInChildren<ResourceNode>(true).All(n => !n.CanGather), "lost stock locked");
+         Check(!site.TryResolveConquest(ConquestDisposition.Annexed), "living occupiers prevent recapture");
+-        var homeFood = resources.GetAmount(ResourceType.Food);
+-        ship.Tick(ship.TravelSeconds);
+-        Check(resources.GetAmount(ResourceType.Food) == homeFood + 17 && !crew.IsAwayFromHome && site.Visitor == null,
++        var homeWood = resources.GetAmount(ResourceType.Wood);
++        ship.Tick(ship.TravelSeconds);
++        Check(resources.GetAmount(ResourceType.Wood) == homeWood + 17 && !crew.IsAwayFromHome && site.Visitor == null,
+             "evacuation returns cargo once and clears visitor");
+         ship.Tick(ship.TravelSeconds);
+-        Check(resources.GetAmount(ResourceType.Food) == homeFood + 17, "repeated tick cannot duplicate cargo");
++        Check(resources.GetAmount(ResourceType.Wood) == homeWood + 17, "repeated tick cannot duplicate cargo");
+ 
+         Move(crew, ship.Position + Vector3.right * 3);
+         Check(ship.TryBoard(new[] { crew }) && ship.TryDepart(site), "lost site can be invaded again");
+@@ -213,8 +229,9 @@
+             "recapture rescues original commander without troops or duplicate defense component");
+         Check(captive.Talents.Level(CommanderActivity.Melee) == level && captive.LabAttackLevel == 1 && captive.Traits == traits,
+             "rescue preserves progression and traits");
+-        // 쓰러진 채 구출된 장수는 회복(60초)한 뒤에 탑승할 수 있다.
+-        captive.TickDuty(Core.GameBalance.CommanderRecoverySeconds + 1);
++        // G11: 출혈·질병 없는 장수는 하루 후 의식 회복. 60초 회복 전제는 폐기됐다.
++        captive.PersonalState.meal.satiety = 100;
++        captive.TickDuty(GameCalendar.SecondsPerDay + 1);
+         Check(captive.PersonalHealth > 0, "rescued commander recovers");
+         Move(captive, ship.Position + Vector3.right * 3);
+         Check(ship.TryBoard(new[] { captive }) && ship.TryReturn(), "rescued zero-troop commander can return");
+--- a/AgentScripts/TransportRouteChecks.cs
++++ b/AgentScripts/TransportRouteChecks.cs
+@@ -37,7 +37,7 @@
+     }
+ 
+     public static string Diagnose() => string.Join("\n", new[] { $"timeScale={Time.timeScale} screen={AntColony.UI.GameMenuController.Instance?.ScreenName}" }.Concat(WorldMapManager.Instance.Transports.Select(s =>
+-        $"{s.name} {s.State} route={s.Route.Status} running={s.Route.IsRunning} cargo={s.GetCargo(ResourceType.Food)}/{s.GetCargo(ResourceType.Soil)} "
++        $"{s.name} {s.State} route={s.Route.Status} running={s.Route.IsRunning} cargo={s.GetCargo(ResourceType.Wood)}/{s.GetCargo(ResourceType.Soil)} "
+         + string.Join(";", s.Crew.Select(c => $"{c.name} pos={c.Position} distance={Vector3.Distance(c.Position, s.Position)} work={c.IsWorking} carrying={c.IsCarrying} path={c.Agent.pathStatus} pending={c.Agent.pathPending} remaining={c.Agent.remainingDistance} troops={c.TroopCount} vel={c.Agent.velocity.magnitude:0.00} speed={c.Agent.speed:0.00} stopped={c.Agent.isStopped} dest={c.Agent.destination} state={typeof(WorkerAnt).GetField("state", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic).GetValue(c)} node={c.CurrentResourceNode?.name} sleep={c.WorkState.resting} cap={c.LoadCapacity} carried={c.CarriedAmount}")))));
+ 
+     public static async Task<string> Main()
+@@ -61,8 +61,9 @@
+         typeof(WorldMapManager).GetMethod("RestoreUnlock", BindingFlags.Instance | BindingFlags.NonPublic).Invoke(world, new object[] { true });
+         var site = world.Sites.First(s => s.Kind == ExpeditionSiteKind.Settlement);
+         var rm = ResourceManager.Instance;
+-        rm.AddCapacity(ResourceType.Food, 10000); rm.AddCapacity(ResourceType.Soil, 10000);
+-        rm.Add(ResourceType.Food, 8000); rm.Add(ResourceType.Soil, 8000);
++        rm.AddCapacity(ResourceType.Food, 10000); rm.Add(ResourceType.Food, 8000); // 기존 보급 재고는 유지한다.
++        rm.AddCapacity(ResourceType.Soil, 10000); // 목재·흙은 같은 재료 한도를 사용한다.
++        rm.Add(ResourceType.Wood, 8000); rm.Add(ResourceType.Soil, 8000);
+         AntPool.Instance.Breed(100);
+         foreach (var x in CommanderRoster.Instance.Commanders) x.SetJobEnabled(CommanderJobs.All, false); // 홈 자율 채집이 자원 비교를 흔들지 않게 한다.
+         var c = CommanderRoster.Instance.Commanders[0];
+@@ -81,10 +82,11 @@
+         Check(site.TryResolveConquest(ConquestDisposition.Annexed), "annexed route target");
+         Set(site.Settlement, "elapsed", -10000f); // 생산 시간을 분리해 수송 보존량을 정확히 검증한다.
+         var nodes = site.Colony.GetComponentsInChildren<ResourceNode>(true);
+-        var food = nodes.First(n => n.ResourceType == ResourceType.Food);
++        var wood = nodes.First(n => n.ResourceType == ResourceType.Food);
+         var soil = nodes.First(n => n.ResourceType == ResourceType.Soil);
+-        food.Extract(food.AmountRemaining); soil.Extract(soil.AmountRemaining);
+-        food.AddStock(12); soil.AddStock(7);
++        wood.Extract(wood.AmountRemaining); soil.Extract(soil.AmountRemaining);
++        // G05 보급은 식량 화물을 정상 소비한다. 보존량 검사는 소비되지 않는 목재·흙으로 격리한다.
++        wood.ConfigureLoot(ResourceType.Wood, 12); soil.AddStock(7);
+         Check(ship.TryReturn(), "return after annexation"); ship.Tick(ship.TravelSeconds);
+         Check(await Wait(() => ship.PendingCrewOrderCount == 0 && ship.Crew.Count == 0, 30), "G42 home unload completes before empty-route check");
+         Check(!ship.Route.TryStart(site), "empty route rejected on annexed site");
+@@ -113,21 +115,23 @@
+         Check(ship.State == ExpeditionState.Deployed && other.State == ExpeditionState.Deployed, "G15 both parties stay after docking interval");
+         Check(other.TryReturn(), "other transport leaves"); other.Tick(other.TravelSeconds);
+         Check(!ship.TryStation(ship.Crew), "auto crew cannot be stationed");
+-        var beforeFood = rm.GetAmount(ResourceType.Food);
++        var beforeWood = rm.GetAmount(ResourceType.Wood);
+         Check(await Wait(() => ship.State == ExpeditionState.Returning), "real collection automatically returns: " + Diagnose());
+-        Check(ship.GetCargo(ResourceType.Food) == 12 && ship.GetCargo(ResourceType.Soil) == 7
+-            && rm.GetAmount(ResourceType.Food) == beforeFood, "both resources remain cargo until arrival");
+-        rm.Add(ResourceType.Food, 10000); rm.Add(ResourceType.Soil, 10000);
++        Check(ship.GetCargo(ResourceType.Wood) == 12 && ship.GetCargo(ResourceType.Soil) == 7
++            && rm.GetAmount(ResourceType.Wood) == beforeWood, "both resources remain cargo until arrival: wood="
++            + ship.GetCargo(ResourceType.Wood) + "/12 soil=" + ship.GetCargo(ResourceType.Soil) + "/7 homeWood="
++            + rm.GetAmount(ResourceType.Wood) + "/" + beforeWood + " foodDebt=" + ship.FoodDebt);
++        rm.Add(ResourceType.Wood, 10000); rm.Add(ResourceType.Soil, 10000);
+         ship.Tick(ship.TravelSeconds);
+         Check(ship.State == ExpeditionState.Home && !ship.HasCargo && c.IsEmbarked && ship.Crew.Count == 1,
+             "G69 full storage unloads overflow to floor once and preserves auto crew");
+-        Check(rm.GetAmount(ResourceType.Food) == rm.GetCapacity(ResourceType.Food)
++        Check(rm.GetAmount(ResourceType.Wood) == rm.GetCapacity(ResourceType.Wood)
+             && rm.GetAmount(ResourceType.Soil) == rm.GetCapacity(ResourceType.Soil), "cargo delivered exactly once");
+         ship.Route.Tick(1);
+         Check(ship.State == ExpeditionState.Home && ship.Route.WaitSeconds > 0, "repeat waits at home");
+         Check(!ship.TryDepart(site), "manual departure cannot bypass repeat interval");
+-        food.AddStock(11); soil.AddStock(6); rm.TrySpend(100, 100);
+-        beforeFood = rm.GetAmount(ResourceType.Food);
++        wood.AddStock(11); soil.AddStock(6); Check(rm.TrySpend(ResourceType.Wood, 100) && rm.TrySpend(ResourceType.Soil, 100), "free room for second delivery");
++        beforeWood = rm.GetAmount(ResourceType.Wood);
+         var beforeSoil = rm.GetAmount(ResourceType.Soil);
+         ship.Route.Tick(TransportRoute.IntervalSeconds);
+         Check(ship.State == ExpeditionState.Outbound && c.IsEmbarked, "same crew departs for second cycle");
+@@ -137,7 +141,7 @@
+         Check(!ship.Route.IsRunning && c.IsEmbarked && ship.HasCargo, "stop during return preserves passengers and cargo");
+         ship.Tick(ship.TravelSeconds); ship.Route.Tick(1000);
+         Check(ship.State == ExpeditionState.Home && ship.Crew.Count == 0 && c.Transport == null && !c.IsEmbarked
+-            && rm.GetAmount(ResourceType.Food) == beforeFood + 11 && rm.GetAmount(ResourceType.Soil) == beforeSoil + 6,
++            && rm.GetAmount(ResourceType.Wood) == beforeWood + 11 && rm.GetAmount(ResourceType.Soil) == beforeSoil + 6,
+             "stopped return unloads once and never repeats");
+         Move(c, ship.Position + Vector3.right * 3); Check(ship.TryBoard(new[] { c }), "board for cancellation check");
+         Check(ship.Route.TryStart(site), "restart at home"); ship.Route.Tick(1);
+@@ -146,7 +150,7 @@
+             "outbound stop arrives normally without issuing work");
+         Check(ship.TryReturn(), "manual return after stop"); ship.Tick(ship.TravelSeconds);
+         Move(c, ship.Position + Vector3.right * 3); Check(ship.TryBoard(new[] { c }), "board for gathering stop");
+-        food.AddStock(20); soil.AddStock(9);
++        wood.AddStock(20); soil.AddStock(9);
+         Check(ship.Route.TryStart(site), "start gathering cancellation trip"); ship.Route.Tick(1); ship.Tick(ship.TravelSeconds);
+         Check(await Wait(() => c.IsCarrying), "real gather in progress"); ship.Route.Stop();
+         Check(c.IsCarrying && !ship.TryReturn(), "stop keeps carried resources and return remains guarded");

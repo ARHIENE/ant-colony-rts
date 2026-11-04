@@ -1,0 +1,20 @@
+[
+  {
+    "file": "AgentScripts/WorldMapChecks.cs",
+    "newline": "LF",
+    "original_sha256": "2b98e40a6782a49d66366cb73dba9dfadb595a34406fe3622f5b0b72881fbed2",
+    "modified_sha256": "4e8fefb5ab67097b93e5b7a3108e3e44bde6fce0131c03f199f3e9fa52c7cf89"
+  },
+  {
+    "file": "AgentScripts/SettlementDefenseChecks.cs",
+    "newline": "LF",
+    "original_sha256": "e3659212818bf472563b8fe88eb64da874b9da28523b49b733d2b681243fbb15",
+    "modified_sha256": "773f64856f462e5afe9f3cefc35c7651efe26bd696eebfc7c4cee254781ab40e"
+  },
+  {
+    "file": "AgentScripts/TransportRouteChecks.cs",
+    "newline": "LF",
+    "original_sha256": "c8467d7aea4fa2103da5f33b61493018aca011d8da9b786820179114b58d6378",
+    "modified_sha256": "1b9bacd00fea9b1ee8e65286e7ea8de9be7892eee13e02d8579398f8e8a518e2"
+  }
+]

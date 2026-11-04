@@ -1,0 +1,116 @@
+diff --git a/AgentScripts/ImplG27Checks.cs b/AgentScripts/ImplG27Checks.cs
+--- a/AgentScripts/ImplG27Checks.cs
++++ b/AgentScripts/ImplG27Checks.cs
+@@ -56,11 +56,13 @@
+         foreach (var go in fixtures) if (go != null) Object.DestroyImmediate(go);
+         fixtures.Clear();
+     }
+-    static void Reward(BossProgress progress, BossId boss)
+-    {
++    static void Reward(CampaignResearch research, BossId boss)
++    {
++        var progress = research.BossProgress;
+         Check(progress.RecordKill(boss, GameCalendar.GameSeconds), "record simulated kill " + boss);
+         Check(progress.TryAcquire(boss, "g27:fixture", out var parcel), "acquire " + boss);
+-        Check(progress.TryDeliver(parcel.id) && !progress.TryDeliver(parcel.id), "deliver once " + boss);
++        Check(research.DeliverBossReward(parcel.id), "deliver " + boss);
++        Check(!research.DeliverBossReward(parcel.id), "deliver once " + boss);
+     }
+     static void Detector(BossProgress progress, BossId boss)
+     {
+@@ -166,17 +168,17 @@
+                 });
+                 Stage(8, () =>
+                 {
+-                    Reward(research.BossProgress, BossId.A);
++                    Reward(research, BossId.A);
+                     Check(research.BossProgress.Home(BossId.A) == 2 && research.BossProgress.Recipe(BossId.B) && research.BossProgress.Recipe(BossId.C), "simulated A reward imported; both recipes open");
+                 });
+                 Stage(9, () => Detector(research.BossProgress, BossId.B));
+                 Stage(10, () =>
+                 {
+                     Detector(research.BossProgress, BossId.C);
+-                    Reward(research.BossProgress, BossId.B);
++                    Reward(research, BossId.B);
+                     Check(!research.BossProgress.Recipe(BossId.D), "one branch insufficient");
+-                    Reward(research.BossProgress, BossId.C); Detector(research.BossProgress, BossId.D);
+-                    Reward(research.BossProgress, BossId.D);
++                    Reward(research, BossId.C); Detector(research.BossProgress, BossId.D);
++                    Reward(research, BossId.D);
+                     Check(research.HasBlueprint, "both branches converge; D import unlocks rocket blueprint");
+                 });
+                 Stage(11, () =>
+@@ -222,10 +224,22 @@
+                     var ids = CommanderRoster.Instance.Commanders.Select(x => x.PersonalState.id).OrderBy(x => x).ToArray();
+                     var citizens = ColonyPopulation.Instance.Total;
+                     Check(SaveSystem.TrySave(false, 0, out var error), "save: " + error);
++                    Check(SaveStorage.TryReadText(SaveSlots.PathFor(false, 0), out var json, out error), "read saved options: " + error);
++                    Check(SaveValidator.TryParse(json, out var saved, out error), "parse saved options: " + error);
++                    Check(saved.options.startingCount == n, $"saved starting count: expected {n}, got {saved.options.startingCount}");
++                    foreach (var count in new[] { -1, 4 })
++                    {
++                        saved.options.startingCount = count;
++                        Check(!SaveValidator.Validate(saved, out error) && error == "Invalid starting count.", "reject invalid starting count " + count);
++                    }
++                    saved.options.startingCount = JsonUtility.FromJson<OptionsDto>("{}").startingCount;
++                    Check(SaveValidator.Validate(saved, out error) && saved.options.startingCount == 3, "legacy missing starting count defaults to three: " + error);
+                     Check(SaveSystem.TryLoad(SaveSlots.PathFor(false, 0), out error), "load: " + error); await Ready();
+-                    Check(CommanderRoster.Instance.Count == n && CommanderRoster.Instance.Commanders.All(x => !x.IsDead)
+-                        && ids.SequenceEqual(CommanderRoster.Instance.Commanders.Select(x => x.PersonalState.id).OrderBy(x => x))
+-                        && ColonyPopulation.Instance.Total == citizens && GameSession.Instance.Options.startingCount == n, "roundtrip keeps survivor identities, headcount, citizens and starting count");
++                    Check(CommanderRoster.Instance.Count == n, $"roundtrip headcount: expected {n}, got {CommanderRoster.Instance.Count}");
++                    Check(CommanderRoster.Instance.Commanders.All(x => !x.IsDead), "roundtrip survivors alive");
++                    Check(ids.SequenceEqual(CommanderRoster.Instance.Commanders.Select(x => x.PersonalState.id).OrderBy(x => x)), "roundtrip survivor identities");
++                    Check(ColonyPopulation.Instance.Total == citizens, $"roundtrip citizens: expected {citizens}, got {ColonyPopulation.Instance.Total}");
++                    Check(GameSession.Instance.Options.startingCount == n, $"roundtrip starting count: expected {n}, got {GameSession.Instance.Options.startingCount}");
+                     Result(14, null);
+                 }
+                 catch (Exception error) { Result(14, error); }
+diff --git a/Assets/_Project/Scripts/Save/SaveDtos.cs b/Assets/_Project/Scripts/Save/SaveDtos.cs
+--- a/Assets/_Project/Scripts/Save/SaveDtos.cs
++++ b/Assets/_Project/Scripts/Save/SaveDtos.cs
+@@ -29,6 +29,7 @@
+         public int seed;
+         public int biome; // 옛 저장은 0 = None
+         public int climate; // 0 = 온대(구 저장 기본값)
++        public int startingCount; // 0 = 필드가 없는 구 저장, 검증 시 기존 기본값 3으로 이관
+     }
+ 
+     [Serializable]
+diff --git a/Assets/_Project/Scripts/Save/SaveSnapshot.cs b/Assets/_Project/Scripts/Save/SaveSnapshot.cs
+--- a/Assets/_Project/Scripts/Save/SaveSnapshot.cs
++++ b/Assets/_Project/Scripts/Save/SaveSnapshot.cs
+@@ -31,7 +31,7 @@
+             SaveRuntime.RegisterMonsters();
+             var file = new SaveFileV1 { savedAtUtc = DateTime.UtcNow.ToString("O"), unityVersion = Application.unityVersion,
+                 label = options.mapSize + " / " + options.difficulty, playSeconds = GameSession.Instance.PlaySeconds, gameSeconds = GameSession.Instance.GameSeconds,
+-                options = new OptionsDto { mapSize = (int)options.mapSize, difficulty = (int)options.difficulty, commanderDeath = (int)options.commanderDeath, seed = options.seed, biome = (int)options.biome, climate = (int)options.climate },
++                options = new OptionsDto { mapSize = (int)options.mapSize, difficulty = (int)options.difficulty, commanderDeath = (int)options.commanderDeath, seed = options.seed, biome = (int)options.biome, climate = (int)options.climate, startingCount = options.startingCount },
+                 randomState = JsonUtility.ToJson(UnityEngine.Random.state),
+                 upkeepTimer = Object.FindFirstObjectByType<UpkeepManager>()?.SavedTimer ?? 0,
+                 upkeepFailures = Object.FindFirstObjectByType<UpkeepManager>()?.ConsecutiveFailures ?? 0,
+diff --git a/Assets/_Project/Scripts/Save/SaveSystem.cs b/Assets/_Project/Scripts/Save/SaveSystem.cs
+--- a/Assets/_Project/Scripts/Save/SaveSystem.cs
++++ b/Assets/_Project/Scripts/Save/SaveSystem.cs
+@@ -46,7 +46,7 @@
+             {
+                 Rollback = GameSession.Instance.GameStarted ? SaveSnapshot.Capture() : null;
+                 if (Rollback != null) SaveStorage.WriteAtomic(System.IO.Path.Combine(SaveStorage.Root, "load-recovery.json"), SaveOptionalStates.ToJson(Rollback));
+-                Reload(file, new NewGameOptions { mapSize = (MapSize)file.options.mapSize, difficulty = (DifficultyLevel)file.options.difficulty, commanderDeath = (CommanderDeathMode)file.options.commanderDeath, seed = file.options.seed, biome = (MapBiome)file.options.biome, climate = (MapClimate)file.options.climate });
++                Reload(file, new NewGameOptions { mapSize = (MapSize)file.options.mapSize, difficulty = (DifficultyLevel)file.options.difficulty, commanderDeath = (CommanderDeathMode)file.options.commanderDeath, seed = file.options.seed, biome = (MapBiome)file.options.biome, climate = (MapClimate)file.options.climate, startingCount = file.options.startingCount });
+                 return true;
+             }
+             catch (Exception e) { error = e.Message; return false; }
+diff --git a/Assets/_Project/Scripts/Save/SaveValidator.cs b/Assets/_Project/Scripts/Save/SaveValidator.cs
+--- a/Assets/_Project/Scripts/Save/SaveValidator.cs
++++ b/Assets/_Project/Scripts/Save/SaveValidator.cs
+@@ -252,6 +252,9 @@
+             if (!Enum.IsDefined(typeof(Core.CommanderDeathMode), file.options.commanderDeath)) { error = "Unknown commander death mode."; return false; }
+             if (!Enum.IsDefined(typeof(Core.MapBiome), file.options.biome)) { error = "Unknown biome."; return false; }
+             if (!Enum.IsDefined(typeof(Core.MapClimate), file.options.climate)) { error = "Unknown climate."; return false; }
++            // 시작 인원은 현재 생존자 수로 추론할 수 없다. 필드 없는 구 저장은 기존 로드 기본값을 유지한다.
++            if (file.options.startingCount == 0) file.options.startingCount = 3;
++            if (file.options.startingCount < 1 || file.options.startingCount > 3) { error = "Invalid starting count."; return false; }
+             var pop = file.population;
+             if (!Core.ColonyPopulation.ValidCivicState(pop) || pop.young < 0 || pop.old < 0 || pop.agingDue < 0 || !Enum.IsDefined(typeof(Core.MilitaryPolicy), pop.policy)
+                 || !(pop.sentiment >= 0 && pop.sentiment <= 100) || !(pop.taxRate >= 0 && pop.taxRate <= Core.GameBalance.MaxTaxRate)

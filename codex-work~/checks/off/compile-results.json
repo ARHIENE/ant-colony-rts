@@ -1,0 +1,26 @@
+{
+  "Assembly-CSharp": {
+    "exit": 0,
+    "errors": 0,
+    "warnings": 293,
+    "sources": 376
+  },
+  "WorldMapChecks": {
+    "exit": 0,
+    "errors": 0,
+    "warnings": 15,
+    "sources": 1
+  },
+  "SettlementDefenseChecks": {
+    "exit": 0,
+    "errors": 0,
+    "warnings": 0,
+    "sources": 1
+  },
+  "TransportRouteChecks": {
+    "exit": 0,
+    "errors": 0,
+    "warnings": 0,
+    "sources": 1
+  }
+}

@@ -1,0 +1,86 @@
+[
+  {
+    "name": "01-production",
+    "response": {
+      "file_upload_id": "407c4a0e-cd31-8154-8457-00b203213a0b",
+      "filename": "01-production.png",
+      "content_type": "image/png",
+      "content_length": 2151628,
+      "status": "uploaded",
+      "markdown_source": "file-upload://407c4a0e-cd31-8154-8457-00b203213a0b",
+      "suggested_markdown": "<image source=\"file-upload://407c4a0e-cd31-8154-8457-00b203213a0b\" />"
+    }
+  },
+  {
+    "name": "brewing",
+    "response": {
+      "file_upload_id": "407c4a0e-cd31-8112-9f3d-00b200e30ec1",
+      "filename": "brewing.png",
+      "content_type": "image/png",
+      "content_length": 742945,
+      "status": "uploaded",
+      "markdown_source": "file-upload://407c4a0e-cd31-8112-9f3d-00b200e30ec1",
+      "suggested_markdown": "<image source=\"file-upload://407c4a0e-cd31-8112-9f3d-00b200e30ec1\" />"
+    }
+  },
+  {
+    "name": "farm",
+    "response": {
+      "file_upload_id": "407c4a0e-cd31-811f-b402-00b27dbe7d0f",
+      "filename": "farm.png",
+      "content_type": "image/png",
+      "content_length": 708409,
+      "status": "uploaded",
+      "markdown_source": "file-upload://407c4a0e-cd31-811f-b402-00b27dbe7d0f",
+      "suggested_markdown": "<image source=\"file-upload://407c4a0e-cd31-811f-b402-00b27dbe7d0f\" />"
+    }
+  },
+  {
+    "name": "chemical",
+    "response": {
+      "file_upload_id": "407c4a0e-cd31-81fb-95a3-00b2b8e7d09e",
+      "filename": "chemical.png",
+      "content_type": "image/png",
+      "content_length": 726474,
+      "status": "uploaded",
+      "markdown_source": "file-upload://407c4a0e-cd31-81fb-95a3-00b2b8e7d09e",
+      "suggested_markdown": "<image source=\"file-upload://407c4a0e-cd31-81fb-95a3-00b2b8e7d09e\" />"
+    }
+  },
+  {
+    "name": "settings",
+    "response": {
+      "file_upload_id": "407c4a0e-cd31-817a-b639-00b252dbd01d",
+      "filename": "settings.png",
+      "content_type": "image/png",
+      "content_length": 754643,
+      "status": "uploaded",
+      "markdown_source": "file-upload://407c4a0e-cd31-817a-b639-00b252dbd01d",
+      "suggested_markdown": "<image source=\"file-upload://407c4a0e-cd31-817a-b639-00b252dbd01d\" />"
+    }
+  },
+  {
+    "name": "controls",
+    "response": {
+      "file_upload_id": "407c4a0e-cd31-81bd-9d64-00b21ae8e854",
+      "filename": "controls.png",
+      "content_type": "image/png",
+      "content_length": 755223,
+      "status": "uploaded",
+      "markdown_source": "file-upload://407c4a0e-cd31-81bd-9d64-00b21ae8e854",
+      "suggested_markdown": "<image source=\"file-upload://407c4a0e-cd31-81bd-9d64-00b21ae8e854\" />"
+    }
+  },
+  {
+    "name": "distilling",
+    "response": {
+      "file_upload_id": "407c4a0e-cd31-8164-8aa4-00b230aeccf3",
+      "filename": "distilling.png",
+      "content_type": "image/png",
+      "content_length": 735534,
+      "status": "uploaded",
+      "markdown_source": "file-upload://407c4a0e-cd31-8164-8aa4-00b230aeccf3",
+      "suggested_markdown": "<image source=\"file-upload://407c4a0e-cd31-8164-8aa4-00b230aeccf3\" />"
+    }
+  }
+]

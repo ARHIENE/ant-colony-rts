@@ -1,0 +1,149 @@
+namespace AntColony.Regression
+{
+    using System;
+    using System.Linq;
+    using System.Reflection;
+    using System.Threading.Tasks;
+    using AntColony.Buildings;
+    using AntColony.Core;
+    using AntColony.Data;
+    using AntColony.Units;
+    using AntColony.World;
+    using UnityEngine;
+    using Object = UnityEngine.Object;
+
+    public static class FishingChecks
+    {
+        public static async Task<string> Main()
+        {
+            if (!Application.isPlaying) throw new Exception("Run in Play mode.");
+            // 새 Play 세션은 메인 메뉴(일시정지)로 시작하므로 필요하면 게임을 직접 시작한다.
+            if (!GameSession.Instance.GameStarted)
+            {
+                while (Save.SaveSystem.Busy) await Task.Delay(50);
+                Save.SaveSystem.NewGame(new NewGameOptions());
+                while (Save.SaveSystem.Busy) await Task.Delay(50);
+                UI.GameMenuController.Instance.Resume(); Time.timeScale = 1;
+            }
+            var gm = GameManager.Instance;
+            var rm = ResourceManager.Instance;
+            var spot = GameObject.Find("FishingSpot").GetComponent<ResourceNode>();
+            var worker = Object.FindAnyObjectByType<CommanderAnt>();
+            // 다른 장수의 자율 채집이 식량을 늘려 낚시 반납으로 오인하지 않게 한다.
+            foreach (var c in CommanderRoster.Instance.Commanders) { c.SetJobEnabled(CommanderJobs.All, false); c.CommandStop(); }
+            typeof(GameManager).GetProperty("FishingUnlocked").SetValue(gm, false);
+            var originalFood = rm.GetAmount(ResourceType.Food);
+            var originalSoil = rm.GetAmount(ResourceType.Soil);
+            var upkeep = Object.FindAnyObjectByType<UpkeepManager>();
+            var wasEnabled = upkeep.enabled;
+            upkeep.enabled = false;
+            var threats = Object.FindObjectsByType<MonoBehaviour>().Where(m => m.enabled
+                && (m is WildMonster || m is ColonyInvasion)).ToArray();
+            foreach (var threat in threats) threat.enabled = false;
+            var labObject = new GameObject("FishingTestLab");
+            var lab = labObject.AddComponent<ScienceLab>();
+            var research = CampaignResearch.Instance;
+            var savedResearch = research.CaptureState();
+            research.RestoreState(new CampaignResearch.State());
+            var secondObject = new GameObject("FishingSecondLab");
+            var second = secondObject.AddComponent<ScienceLab>();
+            var fishAmount = spot.AmountRemaining;
+            GameObject newWorkerObject = null;
+            try
+            {
+                Assert(!gm.FishingUnlocked && !spot.CanGather && spot.Extract(10) == 0, "locked extraction");
+                var previousTarget = Get(worker, "targetNode");
+                worker.CommandGather(spot);
+                Assert(ReferenceEquals(Get(worker, "targetNode"), previousTarget), "locked worker command preserves previous task");
+                rm.Add(ResourceType.Food, 100);
+                rm.Add(ResourceType.Soil, 100);
+                var definition = CampaignResearch.Technologies[(int)ScienceTechnology.Fishing];
+                var food = rm.GetAmount(ResourceType.Food);
+                var soil = rm.GetAmount(ResourceType.Soil);
+                Assert(research.TryStart(ScienceTechnology.Fishing), "start science fishing");
+                Assert(!research.TryStart(ScienceTechnology.Fishing), "concurrent research rejected");
+                Assert(rm.GetAmount(ResourceType.Food) == food - definition.Food && rm.GetAmount(ResourceType.Soil) == soil - definition.Soil, "single research charge");
+                // 불시착 시작 장수는 연구 금지 특성일 수 있어 연구 가능한 장수를 고른다.
+                foreach (var x in CommanderRoster.Instance.Commanders) x.SetJobEnabled(CommanderJobs.Research, true);
+                var researcher = CommanderRoster.Instance.Commanders.First(c => c.CivilianWorkReady && c.CanReceiveOrders && c.CanDoJob(CommanderJobs.Research));
+                lab.transform.position = researcher.Position;
+                Assert(lab.TryAssign(researcher), "assign scientist");
+                labObject.SetActive(false);
+                research.Tick(definition.Work * 10);
+                Assert(!gm.FishingUnlocked && research.Progress == 0, "no researcher pauses science");
+                labObject.SetActive(true);
+                Assert(lab.TryAssign(researcher), "reassign scientist");
+                research.Tick(definition.Work * 100);
+                Assert(gm.FishingUnlocked && research.Has(ScienceTechnology.Fishing), "science completes global unlock");
+                lab.ReleaseResearcher();
+                researcher.SetJobEnabled(CommanderJobs.All, false);
+                Assert(spot.CanGather && spot.GatherRateMultiplier == 2f, "unlock and fishing rate");
+                newWorkerObject = GameObject.CreatePrimitive(PrimitiveType.Capsule);
+                newWorkerObject.transform.position = worker.transform.position;
+                var newWorker = newWorkerObject.AddComponent<CommanderAnt>();
+                newWorker.Initialize(worker.Data, null, null);
+                newWorker.CommandGather(spot);
+                Assert((ResourceNode)Get(newWorker, "targetNode") == spot, "new worker inherits fishing unlock");
+                Object.Destroy(newWorkerObject);
+                Assert(!research.TryStart(ScienceTechnology.Fishing), "completed research cannot charge again");
+                Object.Destroy(labObject);
+                await Task.Delay(50);
+                Assert(gm.FishingUnlocked && spot.CanGather, "learned fishing survives lab destruction");
+                food = rm.GetAmount(ResourceType.Food);
+                worker.CommandGather(spot);
+                // 낚시는 20초마다 한 번 잡고(Food 6 × 낚시 배율) 창고에 반납한다.
+                // 한 짐 운반량이 커져(2026-09-28 근력 규칙) 다 찰 때까지 기다리지 않고 첫 어획 뒤 바로 반납시킨다.
+                await Until(() => spot.AmountRemaining < fishAmount, 120000, $"catch (state {typeof(WorkerAnt).GetField("state", BindingFlags.Instance | BindingFlags.NonPublic).GetValue(worker)}, target {(Get(worker, "targetNode") as ResourceNode)?.name}, dist {Vector3.Distance(worker.Position, spot.transform.position):0.0}, fishing {gm.FishingUnlocked}, canGather {spot.CanGather}, agent {DescribeAgent(worker)})");
+                typeof(WorkerAnt).GetMethod("ReturnCargoToStorage", BindingFlags.Instance | BindingFlags.NonPublic).Invoke(worker, null);
+                await Until(() => rm.GetAmount(ResourceType.Food) > food, 60000, "deposit (stockpile " + (Object.FindAnyObjectByType<Stockpile>() != null) + ")");
+                Assert(spot.AmountRemaining < fishAmount, "real shoreline harvest and deposit");
+                spot.Extract(1000);
+                Assert(spot.FishedOut && !spot.CanGather && !spot.IsRegrowing, "monthly fishing cap reached");
+                typeof(ResourceNode).GetProperty("FishSeason", BindingFlags.Instance | BindingFlags.NonPublic).SetValue(spot, GameCalendar.TotalSeasons - 1);
+                spot.RefreshFishingSeason();
+                Assert(spot.CanGather && spot.AmountRemaining == GameBalance.FishingSeasonFood, "next month restocks");
+                return "PASS: locked command/extraction, single charge, concurrent research guard, scientist interruption/resume, unlock, lab destruction, real shoreline harvest/deposit, monthly cap and restock.";
+            }
+            finally
+            {
+                if (labObject != null) Object.Destroy(labObject);
+                if (newWorkerObject != null) Object.Destroy(newWorkerObject);
+                Object.Destroy(secondObject);
+                upkeep.enabled = wasEnabled;
+                foreach (var threat in threats) if (threat != null) threat.enabled = true;
+                research.RestoreState(savedResearch);
+                typeof(GameManager).GetProperty("FishingUnlocked").SetValue(gm, false);
+                Set(spot, "amountRemaining", fishAmount);
+                Set(spot, "regrowTimer", 0f);
+                rm.TrySpend(Math.Max(0, rm.GetAmount(ResourceType.Food) - originalFood), Math.Max(0, rm.GetAmount(ResourceType.Soil) - originalSoil));
+                rm.Add(ResourceType.Food, originalFood - rm.GetAmount(ResourceType.Food));
+                rm.Add(ResourceType.Soil, originalSoil - rm.GetAmount(ResourceType.Soil));
+            }
+        }
+        static FieldInfo Field(object value, string name)
+        {
+            for (var type = value.GetType(); type != null; type = type.BaseType)
+            {
+                var field = type.GetField(name, BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.DeclaredOnly);
+                if (field != null) return field;
+            }
+            throw new Exception("Missing field " + name);
+        }
+        static object Get(object value, string field) => Field(value, field).GetValue(value);
+        static void Set(object value, string field, object data) => Field(value, field).SetValue(value, data);
+        static string DescribeAgent(Component unit)
+        {
+            var a = unit.GetComponent<UnityEngine.AI.NavMeshAgent>();
+            if (a == null) return "none";
+            return $"on {a.isOnNavMesh} stopped {(a.isOnNavMesh && a.isStopped)} path {a.pathStatus} pending {a.pathPending} rem {(a.isOnNavMesh ? a.remainingDistance : -1):0.0} vel {a.velocity.magnitude:0.00} dest {a.destination} pos {unit.transform.position} ts {Time.timeScale}";
+        }
+        static void Assert(bool ok, string message) { if (!ok) throw new Exception("FAIL: " + message); }
+        static async Task Until(Func<bool> check, int milliseconds, string label = "")
+        {
+            var start = DateTime.UtcNow;
+            while (!check() && (DateTime.UtcNow - start).TotalMilliseconds < milliseconds) await Task.Delay(20);
+            Assert(check(), "timed out waiting for gameplay result " + label);
+        }
+    }
+}
+

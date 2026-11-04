@@ -1,0 +1,20 @@
+{
+  "game_compile_errors": 0,
+  "separate_check_compile_errors": 0,
+  "patch_check_exit": 0,
+  "modified_copies": 3,
+  "target_originals_unchanged": 3,
+  "external_changes": [
+    {
+      "file": "AgentScripts/ImplG06Checks.cs",
+      "start_sha256": "48f64202a8c5fe2d92731ce3eef3b14b706f7208ab231dc7451cd17bc4329e05",
+      "current_sha256": "7dc13c9a6289d4c12889478feb90ec9ae4a3a9afaf52181b8b2dcaacf961dff3"
+    },
+    {
+      "file": "AgentScripts/FishingChecks.cs",
+      "start_sha256": "17ca4366fe0555be5618d67e7a16396bfcdf6a92add8c5b00c4c1d6b3c130afc",
+      "current_sha256": "2532d5338c9818767a108a4a5e348b5a10e08ca4c5dee1a3cdef7a5489765284"
+    }
+  ],
+  "play_rerun": false
+}

@@ -1,0 +1,27 @@
+{
+  "AgentScripts/ImplG27Checks.cs": {
+    "sha256": "cd346e163538be5f6886562fb2a0a561cd8cd1b3280f49b750b40ab531602f44",
+    "crlf": 0,
+    "lf": 237
+  },
+  "Assets/_Project/Scripts/Save/SaveDtos.cs": {
+    "sha256": "2f2ebea72ac05608957f6b1e0124ee2b99c62897f66f2e15739a0faf959f7537",
+    "crlf": 373,
+    "lf": 1
+  },
+  "Assets/_Project/Scripts/Save/SaveSnapshot.cs": {
+    "sha256": "6314f8c2af623ffdef13b350785d0eb94dd7a08a9974f229bb7710b4a67250f5",
+    "crlf": 327,
+    "lf": 0
+  },
+  "Assets/_Project/Scripts/Save/SaveSystem.cs": {
+    "sha256": "d8309e98bbb6b444e4031c939b27a5d754a5510292b2f8d6dabd9f263b3a4404",
+    "crlf": 85,
+    "lf": 0
+  },
+  "Assets/_Project/Scripts/Save/SaveValidator.cs": {
+    "sha256": "b5e45a941dcb47dea4ff75a4827783222ef0e63158fa104865373d1c6cbba3d2",
+    "crlf": 278,
+    "lf": 0
+  }
+}

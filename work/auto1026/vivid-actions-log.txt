@@ -1,0 +1,357 @@
+FBX version: 7400
+
+FBX export starting... 'E:\\Git\\ant\\art\\production-kit-20261019\\exports\\vivid-1026\\Kemono@Wrestle.fbx'
+export finished in 0.2234 sec.
+VIVID Kemono@Wrestle.fbx action
+
+FBX export starting... 'E:\\Git\\ant\\art\\production-kit-20261019\\exports\\vivid-1026\\Kemono@WaterPlant.fbx'
+export finished in 0.3312 sec.
+VIVID Kemono@WaterPlant.fbx work
+
+FBX export starting... 'E:\\Git\\ant\\art\\production-kit-20261019\\exports\\vivid-1026\\Kemono@Wash.fbx'
+export finished in 0.2502 sec.
+VIVID Kemono@Wash.fbx work
+
+FBX export starting... 'E:\\Git\\ant\\art\\production-kit-20261019\\exports\\vivid-1026\\Kemono@Walk.fbx'
+export finished in 0.1890 sec.
+VIVID Kemono@Walk.fbx locomotion
+
+FBX export starting... 'E:\\Git\\ant\\art\\production-kit-20261019\\exports\\vivid-1026\\Kemono@Treat.fbx'
+export finished in 0.3104 sec.
+VIVID Kemono@Treat.fbx work
+
+FBX export starting... 'E:\\Git\\ant\\art\\production-kit-20261019\\exports\\vivid-1026\\Kemono@Throw.fbx'
+export finished in 0.2198 sec.
+VIVID Kemono@Throw.fbx action
+
+FBX export starting... 'E:\\Git\\ant\\art\\production-kit-20261019\\exports\\vivid-1026\\Kemono@Swing.fbx'
+export finished in 0.2874 sec.
+VIVID Kemono@Swing.fbx action
+
+FBX export starting... 'E:\\Git\\ant\\art\\production-kit-20261019\\exports\\vivid-1026\\Kemono@Stir.fbx'
+export finished in 0.2945 sec.
+VIVID Kemono@Stir.fbx work
+
+FBX export starting... 'E:\\Git\\ant\\art\\production-kit-20261019\\exports\\vivid-1026\\Kemono@StandIdle.fbx'
+export finished in 0.3698 sec.
+VIVID Kemono@StandIdle.fbx quiet
+
+FBX export starting... 'E:\\Git\\ant\\art\\production-kit-20261019\\exports\\vivid-1026\\Kemono@StandExit.fbx'
+export finished in 0.1447 sec.
+VIVID Kemono@StandExit.fbx action
+
+FBX export starting... 'E:\\Git\\ant\\art\\production-kit-20261019\\exports\\vivid-1026\\Kemono@StandEnter.fbx'
+export finished in 0.1549 sec.
+VIVID Kemono@StandEnter.fbx action
+
+FBX export starting... 'E:\\Git\\ant\\art\\production-kit-20261019\\exports\\vivid-1026\\Kemono@Stamp.fbx'
+export finished in 0.2751 sec.
+VIVID Kemono@Stamp.fbx work
+
+FBX export starting... 'E:\\Git\\ant\\art\\production-kit-20261019\\exports\\vivid-1026\\Kemono@Spin.fbx'
+export finished in 0.2602 sec.
+VIVID Kemono@Spin.fbx action
+
+FBX export starting... 'E:\\Git\\ant\\art\\production-kit-20261019\\exports\\vivid-1026\\Kemono@Sleep.fbx'
+export finished in 0.4220 sec.
+VIVID Kemono@Sleep.fbx quiet
+
+FBX export starting... 'E:\\Git\\ant\\art\\production-kit-20261019\\exports\\vivid-1026\\Kemono@Sit.fbx'
+export finished in 0.3849 sec.
+VIVID Kemono@Sit.fbx action
+
+FBX export starting... 'E:\\Git\\ant\\art\\production-kit-20261019\\exports\\vivid-1026\\Kemono@Saw.fbx'
+export finished in 0.2551 sec.
+VIVID Kemono@Saw.fbx work
+
+FBX export starting... 'E:\\Git\\ant\\art\\production-kit-20261019\\exports\\vivid-1026\\Kemono@Run.fbx'
+export finished in 0.1827 sec.
+VIVID Kemono@Run.fbx locomotion
+
+FBX export starting... 'E:\\Git\\ant\\art\\production-kit-20261019\\exports\\vivid-1026\\Kemono@RockCradle.fbx'
+export finished in 0.3151 sec.
+VIVID Kemono@RockCradle.fbx action
+
+FBX export starting... 'E:\\Git\\ant\\art\\production-kit-20261019\\exports\\vivid-1026\\Kemono@Rest.fbx'
+export finished in 0.4410 sec.
+VIVID Kemono@Rest.fbx quiet
+
+FBX export starting... 'E:\\Git\\ant\\art\\production-kit-20261019\\exports\\vivid-1026\\Kemono@PutDown.fbx'
+export finished in 0.2198 sec.
+VIVID Kemono@PutDown.fbx action
+
+FBX export starting... 'E:\\Git\\ant\\art\\production-kit-20261019\\exports\\vivid-1026\\Kemono@PlayMusic.fbx'
+export finished in 0.2275 sec.
+VIVID Kemono@PlayMusic.fbx action
+
+FBX export starting... 'E:\\Git\\ant\\art\\production-kit-20261019\\exports\\vivid-1026\\Kemono@PlayBoard.fbx'
+export finished in 0.3848 sec.
+VIVID Kemono@PlayBoard.fbx action
+
+FBX export starting... 'E:\\Git\\ant\\art\\production-kit-20261019\\exports\\vivid-1026\\Kemono@Pickup.fbx'
+export finished in 0.2214 sec.
+VIVID Kemono@Pickup.fbx action
+
+FBX export starting... 'E:\\Git\\ant\\art\\production-kit-20261019\\exports\\vivid-1026\\Kemono@Operate.fbx'
+export finished in 0.3323 sec.
+VIVID Kemono@Operate.fbx work
+
+FBX export starting... 'E:\\Git\\ant\\art\\production-kit-20261019\\exports\\vivid-1026\\Kemono@Mourn.fbx'
+export finished in 0.3508 sec.
+VIVID Kemono@Mourn.fbx action
+
+FBX export starting... 'E:\\Git\\ant\\art\\production-kit-20261019\\exports\\vivid-1026\\Kemono@Mine.fbx'
+export finished in 0.2596 sec.
+VIVID Kemono@Mine.fbx work
+
+FBX export starting... 'E:\\Git\\ant\\art\\production-kit-20261019\\exports\\vivid-1026\\Kemono@Inspect.fbx'
+export finished in 0.3998 sec.
+VIVID Kemono@Inspect.fbx work
+
+FBX export starting... 'E:\\Git\\ant\\art\\production-kit-20261019\\exports\\vivid-1026\\Kemono@Idle.fbx'
+export finished in 0.3398 sec.
+VIVID Kemono@Idle.fbx quiet
+
+FBX export starting... 'E:\\Git\\ant\\art\\production-kit-20261019\\exports\\vivid-1026\\Kemono@Hurt.fbx'
+export finished in 0.1740 sec.
+VIVID Kemono@Hurt.fbx action
+
+FBX export starting... 'E:\\Git\\ant\\art\\production-kit-20261019\\exports\\vivid-1026\\Kemono@Hammer.fbx'
+export finished in 0.2086 sec.
+VIVID Kemono@Hammer.fbx work
+
+FBX export starting... 'E:\\Git\\ant\\art\\production-kit-20261019\\exports\\vivid-1026\\Kemono@GroundWork.fbx'
+export finished in 0.2523 sec.
+VIVID Kemono@GroundWork.fbx work
+
+FBX export starting... 'E:\\Git\\ant\\art\\production-kit-20261019\\exports\\vivid-1026\\Kemono@Grind.fbx'
+export finished in 0.2362 sec.
+VIVID Kemono@Grind.fbx work
+
+FBX export starting... 'E:\\Git\\ant\\art\\production-kit-20261019\\exports\\vivid-1026\\Kemono@Fly.fbx'
+export finished in 0.2209 sec.
+VIVID Kemono@Fly.fbx action
+
+FBX export starting... 'E:\\Git\\ant\\art\\production-kit-20261019\\exports\\vivid-1026\\Kemono@Exercise.fbx'
+export finished in 0.3379 sec.
+VIVID Kemono@Exercise.fbx action
+
+FBX export starting... 'E:\\Git\\ant\\art\\production-kit-20261019\\exports\\vivid-1026\\Kemono@Eat.fbx'
+export finished in 0.3381 sec.
+VIVID Kemono@Eat.fbx action
+
+FBX export starting... 'E:\\Git\\ant\\art\\production-kit-20261019\\exports\\vivid-1026\\Kemono@Downed.fbx'
+export finished in 0.3682 sec.
+VIVID Kemono@Downed.fbx quiet
+
+FBX export starting... 'E:\\Git\\ant\\art\\production-kit-20261019\\exports\\vivid-1026\\Kemono@Death.fbx'
+export finished in 0.2806 sec.
+VIVID Kemono@Death.fbx action
+
+FBX export starting... 'E:\\Git\\ant\\art\\production-kit-20261019\\exports\\vivid-1026\\Kemono@Chop.fbx'
+export finished in 0.3070 sec.
+VIVID Kemono@Chop.fbx work
+
+FBX export starting... 'E:\\Git\\ant\\art\\production-kit-20261019\\exports\\vivid-1026\\Kemono@CarryPerson.fbx'
+export finished in 0.2282 sec.
+VIVID Kemono@CarryPerson.fbx locomotion
+
+FBX export starting... 'E:\\Git\\ant\\art\\production-kit-20261019\\exports\\vivid-1026\\Kemono@Carry.fbx'
+export finished in 0.1945 sec.
+VIVID Kemono@Carry.fbx locomotion
+
+FBX export starting... 'E:\\Git\\ant\\art\\production-kit-20261019\\exports\\vivid-1026\\Kemono@Captive.fbx'
+export finished in 0.3602 sec.
+VIVID Kemono@Captive.fbx quiet
+
+FBX export starting... 'E:\\Git\\ant\\art\\production-kit-20261019\\exports\\vivid-1026\\Kemono@BenchWork.fbx'
+export finished in 0.2666 sec.
+VIVID Kemono@BenchWork.fbx work
+
+FBX export starting... 'E:\\Git\\ant\\art\\production-kit-20261019\\exports\\vivid-1026\\Kemono@Bathe.fbx'
+export finished in 0.3915 sec.
+VIVID Kemono@Bathe.fbx action
+
+FBX export starting... 'E:\\Git\\ant\\art\\production-kit-20261019\\exports\\vivid-1026\\Kemono@Attack.fbx'
+export finished in 0.2070 sec.
+VIVID Kemono@Attack.fbx action
+
+FBX export starting... 'E:\\Git\\ant\\art\\production-kit-20261019\\exports\\vivid-1026\\Kemono@PK_WalkTipsy.fbx'
+export finished in 0.2221 sec.
+VIVID Kemono@PK_WalkTipsy.fbx locomotion
+
+FBX export starting... 'E:\\Git\\ant\\art\\production-kit-20261019\\exports\\vivid-1026\\Kemono@PK_WakeUp.fbx'
+export finished in 0.2628 sec.
+VIVID Kemono@PK_WakeUp.fbx action
+
+FBX export starting... 'E:\\Git\\ant\\art\\production-kit-20261019\\exports\\vivid-1026\\Kemono@PK_ValveTurn.fbx'
+export finished in 0.2167 sec.
+VIVID Kemono@PK_ValveTurn.fbx work
+
+FBX export starting... 'E:\\Git\\ant\\art\\production-kit-20261019\\exports\\vivid-1026\\Kemono@PK_UnequipToGround.fbx'
+export finished in 0.2658 sec.
+VIVID Kemono@PK_UnequipToGround.fbx action
+
+FBX export starting... 'E:\\Git\\ant\\art\\production-kit-20261019\\exports\\vivid-1026\\Kemono@PK_ToolOut.fbx'
+export finished in 0.1798 sec.
+VIVID Kemono@PK_ToolOut.fbx action
+
+FBX export starting... 'E:\\Git\\ant\\art\\production-kit-20261019\\exports\\vivid-1026\\Kemono@PK_ToolAway.fbx'
+export finished in 0.1370 sec.
+VIVID Kemono@PK_ToolAway.fbx action
+
+FBX export starting... 'E:\\Git\\ant\\art\\production-kit-20261019\\exports\\vivid-1026\\Kemono@PK_Tool_Till.fbx'
+export finished in 0.2563 sec.
+VIVID Kemono@PK_Tool_Till.fbx work
+
+FBX export starting... 'E:\\Git\\ant\\art\\production-kit-20261019\\exports\\vivid-1026\\Kemono@PK_Tool_Mine.fbx'
+export finished in 0.2654 sec.
+VIVID Kemono@PK_Tool_Mine.fbx work
+
+FBX export starting... 'E:\\Git\\ant\\art\\production-kit-20261019\\exports\\vivid-1026\\Kemono@PK_Tool_Harvest.fbx'
+export finished in 0.2186 sec.
+VIVID Kemono@PK_Tool_Harvest.fbx work
+
+FBX export starting... 'E:\\Git\\ant\\art\\production-kit-20261019\\exports\\vivid-1026\\Kemono@PK_Tool_Hammer.fbx'
+export finished in 0.2166 sec.
+VIVID Kemono@PK_Tool_Hammer.fbx work
+
+FBX export starting... 'E:\\Git\\ant\\art\\production-kit-20261019\\exports\\vivid-1026\\Kemono@PK_Tool_Dig.fbx'
+export finished in 0.2982 sec.
+VIVID Kemono@PK_Tool_Dig.fbx work
+
+FBX export starting... 'E:\\Git\\ant\\art\\production-kit-20261019\\exports\\vivid-1026\\Kemono@PK_Tool_Chop.fbx'
+export finished in 0.2800 sec.
+VIVID Kemono@PK_Tool_Chop.fbx work
+
+FBX export starting... 'E:\\Git\\ant\\art\\production-kit-20261019\\exports\\vivid-1026\\Kemono@PK_TapFill.fbx'
+export finished in 0.2661 sec.
+VIVID Kemono@PK_TapFill.fbx action
+
+FBX export starting... 'E:\\Git\\ant\\art\\production-kit-20261019\\exports\\vivid-1026\\Kemono@PK_SwordAttack.fbx'
+export finished in 0.2208 sec.
+VIVID Kemono@PK_SwordAttack.fbx action
+
+FBX export starting... 'E:\\Git\\ant\\art\\production-kit-20261019\\exports\\vivid-1026\\Kemono@PK_Stagger.fbx'
+export finished in 0.2744 sec.
+VIVID Kemono@PK_Stagger.fbx action
+
+FBX export starting... 'E:\\Git\\ant\\art\\production-kit-20261019\\exports\\vivid-1026\\Kemono@PK_SpearThrust.fbx'
+export finished in 0.2133 sec.
+VIVID Kemono@PK_SpearThrust.fbx action
+
+FBX export starting... 'E:\\Git\\ant\\art\\production-kit-20261019\\exports\\vivid-1026\\Kemono@PK_SmithRepair.fbx'
+export finished in 0.2299 sec.
+VIVID Kemono@PK_SmithRepair.fbx work
+
+FBX export starting... 'E:\\Git\\ant\\art\\production-kit-20261019\\exports\\vivid-1026\\Kemono@PK_SkyGaze.fbx'
+export finished in 0.4413 sec.
+VIVID Kemono@PK_SkyGaze.fbx quiet
+
+FBX export starting... 'E:\\Git\\ant\\art\\production-kit-20261019\\exports\\vivid-1026\\Kemono@PK_ShieldBlock.fbx'
+export finished in 0.2134 sec.
+VIVID Kemono@PK_ShieldBlock.fbx action
+
+FBX export starting... 'E:\\Git\\ant\\art\\production-kit-20261019\\exports\\vivid-1026\\Kemono@PK_SheatheSword.fbx'
+export finished in 0.2147 sec.
+VIVID Kemono@PK_SheatheSword.fbx action
+
+FBX export starting... 'E:\\Git\\ant\\art\\production-kit-20261019\\exports\\vivid-1026\\Kemono@PK_SewRepair.fbx'
+export finished in 0.3043 sec.
+VIVID Kemono@PK_SewRepair.fbx work
+
+FBX export starting... 'E:\\Git\\ant\\art\\production-kit-20261019\\exports\\vivid-1026\\Kemono@PK_SelfTreat.fbx'
+export finished in 0.2950 sec.
+VIVID Kemono@PK_SelfTreat.fbx work
+
+FBX export starting... 'E:\\Git\\ant\\art\\production-kit-20261019\\exports\\vivid-1026\\Kemono@PK_PressLever.fbx'
+export finished in 0.2414 sec.
+VIVID Kemono@PK_PressLever.fbx work
+
+FBX export starting... 'E:\\Git\\ant\\art\\production-kit-20261019\\exports\\vivid-1026\\Kemono@PK_PourSack.fbx'
+export finished in 0.2474 sec.
+VIVID Kemono@PK_PourSack.fbx action
+
+FBX export starting... 'E:\\Git\\ant\\art\\production-kit-20261019\\exports\\vivid-1026\\Kemono@PK_PassOut.fbx'
+export finished in 0.2963 sec.
+VIVID Kemono@PK_PassOut.fbx action
+
+FBX export starting... 'E:\\Git\\ant\\art\\production-kit-20261019\\exports\\vivid-1026\\Kemono@PK_OvenLoad.fbx'
+export finished in 0.2633 sec.
+VIVID Kemono@PK_OvenLoad.fbx action
+
+FBX export starting... 'E:\\Git\\ant\\art\\production-kit-20261019\\exports\\vivid-1026\\Kemono@PK_Muster.fbx'
+export finished in 0.2746 sec.
+VIVID Kemono@PK_Muster.fbx action
+
+FBX export starting... 'E:\\Git\\ant\\art\\production-kit-20261019\\exports\\vivid-1026\\Kemono@PK_LatrineSquat.fbx'
+export finished in 0.3777 sec.
+VIVID Kemono@PK_LatrineSquat.fbx action
+
+FBX export starting... 'E:\\Git\\ant\\art\\production-kit-20261019\\exports\\vivid-1026\\Kemono@PK_Ladle.fbx'
+export finished in 0.2130 sec.
+VIVID Kemono@PK_Ladle.fbx work
+
+FBX export starting... 'E:\\Git\\ant\\art\\production-kit-20261019\\exports\\vivid-1026\\Kemono@PK_Knead.fbx'
+export finished in 0.2372 sec.
+VIVID Kemono@PK_Knead.fbx work
+
+FBX export starting... 'E:\\Git\\ant\\art\\production-kit-20261019\\exports\\vivid-1026\\Kemono@PK_HangoverIdle.fbx'
+export finished in 0.3409 sec.
+VIVID Kemono@PK_HangoverIdle.fbx quiet
+
+FBX export starting... 'E:\\Git\\ant\\art\\production-kit-20261019\\exports\\vivid-1026\\Kemono@PK_EquipFromGround.fbx'
+export finished in 0.2665 sec.
+VIVID Kemono@PK_EquipFromGround.fbx action
+
+FBX export starting... 'E:\\Git\\ant\\art\\production-kit-20261019\\exports\\vivid-1026\\Kemono@PK_DriveSeated.fbx'
+export finished in 0.2868 sec.
+VIVID Kemono@PK_DriveSeated.fbx action
+
+FBX export starting... 'E:\\Git\\ant\\art\\production-kit-20261019\\exports\\vivid-1026\\Kemono@PK_Drink.fbx'
+export finished in 0.2641 sec.
+VIVID Kemono@PK_Drink.fbx action
+
+FBX export starting... 'E:\\Git\\ant\\art\\production-kit-20261019\\exports\\vivid-1026\\Kemono@PK_DrawSword.fbx'
+export finished in 0.2015 sec.
+VIVID Kemono@PK_DrawSword.fbx action
+
+FBX export starting... 'E:\\Git\\ant\\art\\production-kit-20261019\\exports\\vivid-1026\\Kemono@PK_Crave.fbx'
+export finished in 0.2851 sec.
+VIVID Kemono@PK_Crave.fbx action
+
+FBX export starting... 'E:\\Git\\ant\\art\\production-kit-20261019\\exports\\vivid-1026\\Kemono@PK_ControlPanel.fbx'
+export finished in 0.2734 sec.
+VIVID Kemono@PK_ControlPanel.fbx work
+
+FBX export starting... 'E:\\Git\\ant\\art\\production-kit-20261019\\exports\\vivid-1026\\Kemono@PK_CollapseDropWeapon.fbx'
+export finished in 0.2592 sec.
+VIVID Kemono@PK_CollapseDropWeapon.fbx action
+
+FBX export starting... 'E:\\Git\\ant\\art\\production-kit-20261019\\exports\\vivid-1026\\Kemono@PK_CanisterDisconnect.fbx'
+export finished in 0.3533 sec.
+VIVID Kemono@PK_CanisterDisconnect.fbx action
+
+FBX export starting... 'E:\\Git\\ant\\art\\production-kit-20261019\\exports\\vivid-1026\\Kemono@PK_CanisterConnect.fbx'
+export finished in 0.3514 sec.
+VIVID Kemono@PK_CanisterConnect.fbx action
+
+FBX export starting... 'E:\\Git\\ant\\art\\production-kit-20261019\\exports\\vivid-1026\\Kemono@PK_BowShoot.fbx'
+export finished in 0.2910 sec.
+VIVID Kemono@PK_BowShoot.fbx action
+
+FBX export starting... 'E:\\Git\\ant\\art\\production-kit-20261019\\exports\\vivid-1026\\Kemono@PK_BenchPlace.fbx'
+export finished in 0.2647 sec.
+VIVID Kemono@PK_BenchPlace.fbx action
+
+FBX export starting... 'E:\\Git\\ant\\art\\production-kit-20261019\\exports\\vivid-1026\\Kemono@PK_BenchPickup.fbx'
+export finished in 0.2779 sec.
+VIVID Kemono@PK_BenchPickup.fbx action
+
+FBX export starting... 'E:\\Git\\ant\\art\\production-kit-20261019\\exports\\vivid-1026\\Kemono@PK_BeatFire.fbx'
+export finished in 0.2447 sec.
+VIVID Kemono@PK_BeatFire.fbx work
+VIVID_TOTAL 88
+Blender 5.2.2 LTS (hash d13f752e3b9c built 2026-09-15 01:37:04)
+
+Blender quit

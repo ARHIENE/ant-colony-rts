@@ -1,0 +1,10 @@
+--- a/Assets/_Project/Scripts/World/ProductionProp.cs
++++ b/Assets/_Project/Scripts/World/ProductionProp.cs
+@@ -6,6 +6,7 @@
+     public static class ProductionProp
+     {
+         public static string ForResource(ResourceType type) => type switch {
++            ResourceType.Food => "Prop_PreservedRation",
+             ResourceType.Stone => "Prop_StoneChunk",
+             ResourceType.Drum or ResourceType.FilledFuelDrum => "Prop_OilDrum",
+             ResourceType.GasCylinder => "Prop_GasCanister", _ => null

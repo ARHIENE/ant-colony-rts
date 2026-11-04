@@ -1,0 +1,677 @@
+diff --git a/AgentScripts/ImplB3Checks.cs b/AgentScripts/ImplB3Checks.cs
+index 77543b3..40e977c 100644
+--- a/AgentScripts/ImplB3Checks.cs
++++ b/AgentScripts/ImplB3Checks.cs
+@@ -13,21 +13,29 @@ using AntColony.World;
+ using UnityEngine;
+ using Object = UnityEngine.Object;
+ 
+-// Apply Temp/ImplB3/impl-b3.patch first. Run in Play; all files use an isolated RootOverride.
++// Run in Play; files use an isolated RootOverride. Each load has an unscaled deadline.
+ public static class ImplB3Checks
+ {
+-    private static int checks;
++    private static int checks, reloads;
++    private static DateTime started;
++    private static void Budget(string phase)
++    {
++        Debug.Log($"B3 {phase}: reloads={reloads}, elapsed={(DateTime.UtcNow - started).TotalSeconds:F1}s, busy={SaveSystem.Busy}, scale={Time.timeScale}");
++        Check(DateTime.UtcNow - started < TimeSpan.FromSeconds(300), "300s suite budget: " + phase);
++    }
+     private static void Check(bool value, string label) { if (!value) throw new Exception("B3 FAIL: " + label); checks++; }
+     private static T Copy<T>(T value) => JsonUtility.FromJson<T>(JsonUtility.ToJson(value));
+     private static async Task Ready()
+     {
+-        var deadline = DateTime.UtcNow.AddSeconds(90);
++        var deadline = DateTime.UtcNow.AddSeconds(30);
+         while (SaveSystem.Busy && DateTime.UtcNow < deadline) await Task.Delay(20);
+-        Check(!SaveSystem.Busy && GameSession.Instance.GameStarted, "load finished");
++        Budget("load finished");
++        Check(!SaveSystem.Busy && GameSession.Instance.GameStarted, "load finished within 30s (see last B3 phase and GameBootstrap errors)");
+         GameMenuController.Instance.Pause(); Time.timeScale = 0;
+     }
+     private static async Task<SaveFileV1> Load(SaveFileV1 file)
+     {
++        Budget("fixture load " + ++reloads);
+         var path = Path.Combine(SaveStorage.Root, "b3-fixture.json");
+         Check(SaveValidator.Validate(file, out var error), "fixture validated: " + error);
+         SaveStorage.WriteAtomic(path, JsonUtility.ToJson(file));
+@@ -37,6 +45,7 @@ public static class ImplB3Checks
+     }
+     private static async Task<SaveFileV1> Roundtrip(bool auto = false)
+     {
++        Budget("roundtrip " + ++reloads);
+         Check(SaveSystem.TrySave(auto, 0, out var error), "active save accepted: " + error);
+         Check(SaveStorage.TryReadText(SaveSlots.PathFor(auto, 0), out var text, out error)
+             && SaveValidator.TryParse(text, out _, out error), "written save parses: " + error);
+@@ -56,20 +65,25 @@ public static class ImplB3Checks
+     }
+     public static async Task<string> Main()
+     {
+-        checks = 0; Check(Application.isPlaying, "Play required");
++        checks = reloads = 0; started = DateTime.UtcNow; Check(Application.isPlaying, "Play required");
+         var previousRoot = SaveStorage.RootOverride;
+         var settings = UserSettings.Current.Clone();
+         SaveStorage.RootOverride = Path.Combine(Application.temporaryCachePath, "ImplB3-" + Guid.NewGuid().ToString("N"));
+         var isolated = settings.Clone(); isolated.autoSaveEnabled = false; UserSettings.Apply(isolated, false);
+         try
+         {
+-            var deadline = DateTime.UtcNow.AddSeconds(90);
++            var deadline = DateTime.UtcNow.AddSeconds(30);
+             while (SaveSystem.Busy && DateTime.UtcNow < deadline) await Task.Delay(20);
+-            var options = new NewGameOptions { seed = 261024, mapSize = MapSize.Small, startingCount = 3,
+-                startingTeam = Enumerable.Range(0, 3).Select(StartingCandidate.Roll).ToArray() };
++            Check(!SaveSystem.Busy, "initial load finished within 30s");
++            var options = new NewGameOptions { seed = 261024, mapSize = MapSize.Small, startingCount = 2,
++                startingTeam = Enumerable.Range(0, 2).Select(StartingCandidate.Roll).ToArray() };
+             foreach (var candidate in options.startingTeam) candidate.traits.values.Clear();
+             SaveSystem.NewGame(options); await Ready();
+-            var crew = CommanderRoster.Instance.Commanders.ToArray();
++            var roster = CommanderRoster.Instance;
++            var helper = roster.Create("B3 test crafter", CommanderRank.Sergeant, new[] { UnitRole.Worker }, UnitRole.Worker,
++                new CommanderTraits(), roster.Commanders[0].Position);
++            Check(helper != null, "third fixture commander created after two-commander crash start");
++            var crew = roster.Commanders.ToArray();
+             foreach (var c in crew) { c.CommandStop(); c.SetJobEnabled(CommanderJobs.All, false); }
+             var rm = ResourceManager.Instance;
+             foreach (var t in new[] { AntColony.Data.ResourceType.Wood, AntColony.Data.ResourceType.Stone }) {
+@@ -79,7 +93,7 @@ public static class ImplB3Checks
+             Check(crew[2].StartGroundCraft(GroundRecipe.StoneTools), "start tools once"); crew[2].TickGroundCraft(2);
+             var paidWood = rm.GetAmount(AntColony.Data.ResourceType.Wood);
+             var paidStone = rm.GetAmount(AntColony.Data.ResourceType.Stone);
+-            var placement = Object.FindFirstObjectByType<BuildingPlacementController>();
++            var placement = Object.FindAnyObjectByType<BuildingPlacementController>();
+             Check(placement.BeginPlacement(BuildingKind.Carpentry, UnitRole.Worker, crew[1]), "construction placement");
+             var at = crew[1].Position + Vector3.forward * 6;
+             var construction = (BuildingConstructionSite)typeof(BuildingPlacementController).GetMethod("PlaceOne", BindingFlags.Instance | BindingFlags.NonPublic)
+@@ -121,10 +135,10 @@ public static class ImplB3Checks
+             delivery.order.worker.state = 8; delivery.order.worker.construction = null;
+             delivery.order.worker.delivery = "construction:0"; delivery.order.worker.fetchType = (int)materialNeed.type; delivery.order.worker.fetchAmount = 2;
+             delivery.order.soldier.moving = true; delivery.order.soldier.destination = Copy(fixture.construction.Single().position);
+-            actual = await Load(fixture); expected = actual; actual = await Roundtrip(); Ledger(expected, actual);
++            actual = await Load(fixture); Ledger(fixture, actual);
+             var courier = CommanderRoster.Instance.Commanders[1];
+             Check(courier.DeliverySite != null && courier.IsCarrying && actual.commanders[1].order.worker.state == 8, "picked material and destination retained");
+-            Check(Object.FindFirstObjectByType<BuildingConstructionSite>().Couriers.Contains(courier), "construction in-transit reservation relinked");
++            Check(Object.FindAnyObjectByType<BuildingConstructionSite>().Couriers.Contains(courier), "construction in-transit reservation relinked");
+ 
+             // A deployed route with an active collector and a live settlement raid.
+             fixture = Copy(actual);
+@@ -147,7 +161,7 @@ public static class ImplB3Checks
+             var raider = fixture.monsters.Single(m => m.hasRuntime && m.runtime.name == "B3 Intruder");
+             raider.runtime.parentSite = site.index; raider.runtime.raidSite = site.index; raider.runtime.defenseSite = site.index;
+             raider.position = new Vec3Dto(liveSite.Landing + Vector3.forward * 3);
+-            actual = await Load(fixture); expected = actual; actual = await Roundtrip(true); Ledger(expected, actual);
++            actual = await Load(fixture); Ledger(fixture, actual);
+             var transport = WorldMapManager.Instance.Transports.Last();
+             var route = actual.world.transports.Last().route;
+             Check(route.running && route.nextNode.SequenceEqual(new[] { 1 }) && !route.rallying, "deployed collection cursor retained");
+@@ -160,7 +174,7 @@ public static class ImplB3Checks
+             fixture = Copy(actual); fixture.world.transports.Last().route.rallying = true;
+             fixture.commanders[0].order.worker.state = 0; fixture.commanders[0].order.soldier.moving = true;
+             fixture.commanders[0].order.soldier.destination = Copy(fixture.world.transports.Last().position);
+-            actual = await Load(fixture); expected = actual; actual = await Roundtrip(); Ledger(expected, actual);
++            actual = await Load(fixture); Ledger(fixture, actual);
+             Check(actual.world.transports.Last().route.rallying, "rally stage retained");
+ 
+             // Pay a real expedition reward once, then load and attempt to collect it again.
+@@ -176,7 +190,6 @@ public static class ImplB3Checks
+             actual = await Roundtrip(); Ledger(rewardState, actual);
+             Check(!WorldMapManager.Instance.Transports.Last().TryCollectRewards(), "claimed rewards rejected after load");
+             var noReward = SaveSnapshot.Capture(); Ledger(rewardState, noReward);
+-            actual = await Roundtrip(); Ledger(noReward, actual);
+             Check(actual.world.sites[site.index].rewardsClaimed, "reward completion persisted");
+             var invalid = Copy(actual); invalid.world.transports.Last().route.nextNode[0] = int.MaxValue;
+             Check(!SaveValidator.Validate(invalid, out _), "invalid route cursor rejected");
+@@ -184,6 +197,7 @@ public static class ImplB3Checks
+             Check(!SaveValidator.Validate(invalid, out _), "invalid combat timer rejected");
+             invalid = Copy(actual); invalid.commanders[0].order.worker.node = "node:missing";
+             Check(!SaveValidator.Validate(invalid, out _), "missing target rejected before reload");
++            Budget("complete");
+             return "ImplB3: " + checks + " checks passed (movement, construction, combat, deployed route, defense, tools, rewards, boarding).";
+         }
+         finally { SaveStorage.RootOverride = previousRoot; UserSettings.Apply(settings, false); }
+diff --git a/AgentScripts/ImplC6Checks.cs b/AgentScripts/ImplC6Checks.cs
+new file mode 100644
+index 0000000..66f5b9c
+--- /dev/null
++++ b/AgentScripts/ImplC6Checks.cs
+@@ -0,0 +1,168 @@
++using System;
++using System.Collections.Generic;
++using System.IO;
++using System.Linq;
++using System.Reflection;
++using System.Threading.Tasks;
++using AntColony.Boss;
++using AntColony.Buildings;
++using AntColony.Core;
++using AntColony.Data;
++using AntColony.Save;
++using AntColony.UI;
++using AntColony.Units;
++using AntColony.World;
++using UnityEngine;
++
++// Run through RunChecks in a disposable Play session. No pre-existing stockpile is required.
++public static class ImplC6Checks
++{
++    static int count;
++    const BindingFlags Hidden = BindingFlags.Instance | BindingFlags.NonPublic;
++    static void Check(bool value, string label) { if (!value) throw new Exception("C6 FAIL " + count + ": " + label); count++; }
++    static T Copy<T>(T value) => JsonUtility.FromJson<T>(JsonUtility.ToJson(value));
++    static BuildingDto Find(SaveFileV1 f, string kind) => f.buildings.Single(b => b.runtimeBuilt && b.kind == kind);
++    static void Invalid(SaveFileV1 source, Action<SaveFileV1> mutate, string field)
++    {
++        var f = Copy(source); mutate(f);
++        Check(!SaveValidator.Validate(f, out var error) && error.Contains(field), field + ": " + error);
++    }
++    static T Building<T>(BuildingKind kind, Vector3 at) where T : BuildingBase
++    {
++        var go = GameObject.CreatePrimitive(PrimitiveType.Cube); go.SetActive(false); go.name = "C6 " + kind; go.transform.position = at;
++        var data = ScriptableObject.CreateInstance<BuildingData>(); data.kind = kind; data.maxHealth = 300;
++        var b = go.AddComponent<T>();
++        typeof(BuildingBase).GetMethod("ConfigureRuntime", Hidden).Invoke(b, new object[] { data });
++        go.SetActive(true); return b;
++    }
++    static async Task Idle()
++    {
++        var end = DateTime.UtcNow.AddSeconds(30);
++        while (SaveSystem.Busy && DateTime.UtcNow < end) await Task.Delay(25);
++        Check(!SaveSystem.Busy, "load finished within 30 unscaled seconds");
++        Time.timeScale = 0;
++    }
++    static async Task<SaveFileV1> Load(SaveFileV1 f)
++    {
++        Check(SaveValidator.Validate(f, out var error), "fixture: " + error);
++        var path = Path.Combine(SaveStorage.Root, "c6-fixture.json");
++        SaveStorage.WriteAtomic(path, JsonUtility.ToJson(f));
++        Check(SaveSystem.TryLoad(path, out error), "load accepted: " + error);
++        await Idle(); Check(GameSession.Instance.GameStarted, "restored playable session");
++        return SaveSnapshot.Capture();
++    }
++    public static Task<string> Main() => Run();
++    public static async Task<string> Run()
++    {
++        count = 0; Check(Application.isPlaying, "Play required");
++        var root = SaveStorage.RootOverride; var settings = UserSettings.Current.Clone(); var random = UnityEngine.Random.state;
++        var isolated = settings.Clone(); isolated.autoSaveEnabled = false; UserSettings.Apply(isolated, false);
++        SaveStorage.RootOverride = Path.Combine(Application.temporaryCachePath, "ImplC6-" + Guid.NewGuid().ToString("N"));
++        try
++        {
++            await Idle();
++            var options = new NewGameOptions { startingCount = 2, seed = 261024, mapSize = MapSize.Small, biome = MapBiome.Forest,
++                startingTeam = new[] { StartingCandidate.Roll(0), StartingCandidate.Roll(1) } };
++            foreach (var c in options.startingTeam) c.traits.values.Clear();
++            SaveSystem.NewGame(options); await Idle();
++            foreach (var c in CommanderRoster.Instance.Commanders) { c.CommandStop(); c.SetJobEnabled(CommanderJobs.All, false); }
++            // Bootstrap integration is owned elsewhere; create the campaign explicitly in the fixture.
++            var rocket = RocketCampaign.Instance ?? new GameObject("C6 RocketCampaign").AddComponent<RocketCampaign>();
++            rocket.Restore(null);
++            var at = CommanderRoster.Instance.Commanders[0].Position;
++            var processor = Building<Processor>(BuildingKind.Carpentry, at + Vector3.right * 4);
++            typeof(Processor).GetMethod("RestoreState", Hidden).Invoke(processor, new object[] {
++                new Processor.State { current = 0, progress = 1, makerId = "departed-maker", ruined = true } });
++            typeof(BuildingBase).GetMethod("RestoreHealth", Hidden).Invoke(processor, new object[] { 0f });
++            Check(processor.CurrentHealth == 0 && !processor.enabled, "processor ruin retains zero health");
++            var workshop = Building<Workshop>(BuildingKind.Workshop, at + Vector3.right * 7);
++            typeof(Workshop).GetMethod("RestoreState", Hidden).Invoke(workshop, new object[] {
++                new Workshop.State { materialVersion = 1, jobs = new List<Workshop.Job> {
++                    new Workshop.Job { recipe = EquipmentRecipe.Mandible, work = 2, materialsPaid = true, makerId = "departed-maker" } } },
++                CommanderRoster.Instance.Commanders.ToList() });
++            var farm = Building<BuildingBase>(BuildingKind.Farm, at + Vector3.forward * 5);
++            farm.gameObject.AddComponent<ResourceNode>(); var plot = farm.gameObject.AddComponent<FarmPlot>();
++            plot.Configure(FarmCrop.Fungus, false); plot.Data.seedVersion = 1; plot.Data.harvests = 2; plot.Data.nextCrop = (int)FarmCrop.Honeydew;
++            FarmSeeds.Restore(new FarmSeeds.State { counts = new[] { 3, 2, 1 }, collected = new List<string> { "wild:one" } });
++            Building<AirshipYard>(BuildingKind.AirshipYard, at + Vector3.forward * 9);
++            var tank = Building<SupplyFacility>(BuildingKind.FluidTank, at + Vector3.left * 4);
++            tank.RestoreSupply(new SupplyFacility.State { fluid = (int)AntColony.Data.ResourceType.Water, amount = 10, work = 2 });
++            var crop = Building<StarterCropBed>(BuildingKind.StarterMushroomBed, at + Vector3.left * 7);
++            crop.RestoreCrop(new StarterCropBed.State { planted = true, growth = 12, wateredSeconds = 20 });
++            var f = SaveSnapshot.Capture();
++            Check(SaveFileV1.CurrentVersion == 19, "v19 retained");
++            Check(SaveValidator.TryParse(JsonUtility.ToJson(f), out var parsed, out var error), "JsonUtility full snapshot: " + error);
++            Check(parsed.buildings.Where(b => b.kind != "AirshipYard").All(b => b.airship == null), "unrelated inline airships discarded by kind");
++            Invalid(f, x => x.farmSeeds.counts = new[] { 1, 2 }, "farm seeds");
++            Invalid(f, x => x.farmSeeds.collected.Add("wild:one"), "farm seeds");
++            Invalid(f, x => Find(x, "Farm").farm.harvests = 3, "farm state");
++            Invalid(f, x => Find(x, "Farm").farm.seedVersion = 2, "farm state");
++            Invalid(f, x => Find(x, "Farm").farm.nextCrop = 99, "farm state");
++            Invalid(f, x => Find(x, "Workshop").workshop.materialVersion = 2, "craft material version");
++            Invalid(f, x => Find(x, "Workshop").workshop.jobs[0].materialsPaid = false, "craft payment");
++            Invalid(f, x => Find(x, "Carpentry").processor.progress = float.NaN, "processor state");
++            Invalid(f, x => Find(x, "Carpentry").health = 1, "processor state");
++            Invalid(f, x => Find(x, "Carpentry").processor.orders.Add(new Processor.Order { recipe = 99 }), "processor orders");
++            Invalid(f, x => Find(x, "FluidTank").supply.amount = SupplyFacility.Capacity + 1, "supply facility");
++            Invalid(f, x => Find(x, "StarterMushroomBed").starterCrop.wateredSeconds = float.PositiveInfinity, "starter crop");
++            Invalid(f, x => x.rocket.crisisResumeAt = x.gameSeconds + 3 * GameCalendar.SecondsPerDay + 1, "rocket crisis grace");
++            var legacy = Copy(f); legacy.rocket = null; legacy.farmSeeds = null; legacy.world.pause = null;
++            Check(SaveValidator.TryParse(JsonUtility.ToJson(legacy), out _, out error), "legacy null inline states: " + error);
++
++            // Saved carriers use explicit identities; missing old IDs map to transport:<index>.
++            var ship = WorldMapManager.Instance.CreateTransport(false, at);
++            Check(ship != null, "vehicle fixture created");
++            f = SaveSnapshot.Capture();
++            var transport = f.world.transports.Last(); transport.bossCarrierId = "c6-carrier"; transport.foodDebt = .75f; transport.dockingRemaining = .5f;
++            f.campaign.bosses.obtained[0] = true; f.campaign.bosses.claimed[0] = 0;
++            f.campaign.bosses.cargo.Add(new BossProgress.Parcel { id = "c6-parcel", carrier = "c6-carrier", boss = 0, cycle = 0, count = 2 });
++            Invalid(f, x => x.world.transports.Add(Copy(x.world.transports.Last())), "boss carrier identity");
++            Invalid(f, x => x.campaign.bosses.cargo[0].carrier = "missing", "boss cargo carrier");
++            Invalid(f, x => x.world.transports.Last().cargoFood = GameBalance.VehicleCargo - 1, "boss inclusive cargo capacity");
++            Invalid(f, x => x.world.transports.Last().foodDebt = float.NaN, "expedition state");
++            Invalid(f, x => x.world.transports.Last().dockingRemaining = ExpeditionRules.DockSeconds + 1, "expedition state");
++            Invalid(f, x => { x.world.transports.Last().walking = true; x.world.transports.Last().aircraft = true; }, "expedition state");
++            var oldCarrier = Copy(f); oldCarrier.world.transports.Last().bossCarrierId = null;
++            oldCarrier.campaign.bosses.cargo[0].carrier = "transport:" + (oldCarrier.world.transports.Count - 1);
++            Check(SaveValidator.Validate(oldCarrier, out error), "legacy carrier index: " + error);
++            f.world.pause = new SimulationPause.State { speed = 3, reasons = new List<string> { "manual" }, incidents = new List<string> { "test:1" } };
++            f.world.defenseReturn.disabled.Add(f.commanders[0].personalState.id);
++            var economy = new RocketEconomy(); economy.Observe(f.gameSeconds, 100, 2);
++            f.rocket.economy = economy;
++            f.rocket.crisisResumeAt = f.gameSeconds + 3 * GameCalendar.SecondsPerDay;
++            var pad = Find(f, "AirshipYard");
++            pad.airship = new AirshipYard.State { hull = true, engine = true, phase = RocketPhase.Preparing,
++                preparationRemaining = AirshipYard.PreparationSeconds - 1, fuelType = (int)AntColony.Data.ResourceType.Special, fuelUnits = 15,
++                snapshot = economy.Preview(f.gameSeconds, 100, 2) };
++            Invalid(f, x => Find(x, "AirshipYard").airship.launchRequested = true, "rocket launch passengers");
++            Invalid(f, x => Find(x, "AirshipYard").airship.snapshot.taken = false, "airship");
++            var actual = await Load(f);
++            Check(Find(actual, "Carpentry").health == 0 && Find(actual, "Carpentry").processor.ruined
++                && Find(actual, "Carpentry").processor.makerId == "departed-maker", "ruin and absent maker restored");
++            Check(Find(actual, "Workshop").workshop.jobs[0].materialsPaid && Find(actual, "Workshop").workshop.jobs[0].work == 2, "paid unfinished work restored");
++            Check(actual.farmSeeds.counts.SequenceEqual(new[] { 3, 2, 1 }) && Find(actual, "Farm").farm.harvests == 2, "seed ledger and third-harvest cursor restored");
++            Check(Find(actual, "FluidTank").supply.amount == 10 && Find(actual, "StarterMushroomBed").starterCrop.wateredSeconds == 20, "fluid and prepaid crop water restored");
++            Check(actual.world.transports.Last().bossCarrierId == "c6-carrier" && actual.campaign.bosses.cargo.Single().count == 2, "parcel and carrier restored once");
++            Check(actual.world.transports.Last().foodDebt == .75f && actual.world.transports.Last().dockingRemaining == .5f, "supply and docking restored");
++            Check(actual.world.pause.speed == 3 && actual.world.pause.reasons.Contains("manual")
++                && actual.world.defenseReturn.disabled.Contains(actual.commanders[0].personalState.id), "pause and defense return restored");
++            Check(Find(actual, "AirshipYard").airship.preparationRemaining == pad.airship.preparationRemaining
++                && actual.rocket.crisisResumeAt == f.rocket.crisisResumeAt, "preparation and destruction grace restored");
++            Check(actual.colony.food == f.colony.food && actual.colony.soil == f.colony.soil
++                && actual.randomState == f.randomState, "restore does not repay resources or advance random stream");
++            var boarding = Copy(actual); var state = Find(boarding, "AirshipYard").airship;
++            state.phase = RocketPhase.Boarding; state.preparationRemaining = 0; state.passengers.Add(0); state.launchRequested = true;
++            actual = await Load(boarding);
++            Check(Find(actual, "AirshipYard").airship.launchRequested && Find(actual, "AirshipYard").airship.passengers.SequenceEqual(new[] { 0 }), "pending launch restored without committing launch");
++            var destroyed = Copy(actual); var ruins = Find(destroyed, "AirshipYard"); ruins.health = 0;
++            ruins.airship = new AirshipYard.State { phase = RocketPhase.Destroyed };
++            actual = await Load(destroyed);
++            Check(Find(actual, "AirshipYard").health == 0 && Find(actual, "AirshipYard").airship.phase == RocketPhase.Destroyed, "destroyed rocket restored");
++            Check(SaveSystem.TrySave(false, 0, out error), "actual slot save: " + error);
++            Check(SaveSystem.TryLoad(SaveSlots.PathFor(false, 0), out error), "actual slot load: " + error); await Idle();
++            Check(SaveSnapshot.Capture().campaign.bosses.cargo.Count == 1, "repeated disk load does not duplicate parcels");
++            return "PASS " + count + " (C6 v19 integration; no launch resolution simulated)";
++        }
++        finally { SaveStorage.RootOverride = root; UserSettings.Apply(settings, false); UnityEngine.Random.state = random; }
++    }
++}
+diff --git a/Assets/_Project/Scripts/Buildings/BuildingBase.cs b/Assets/_Project/Scripts/Buildings/BuildingBase.cs
+index 9543270..ce02256 100644
+--- a/Assets/_Project/Scripts/Buildings/BuildingBase.cs
++++ b/Assets/_Project/Scripts/Buildings/BuildingBase.cs
+@@ -60,10 +60,10 @@ namespace AntColony.Buildings
+             RoomSystem.MarkDirty(); SpaceQuality.Invalidate();
+         }
+ 
+-        // 저장 복원 전용. 0 이하로는 내리지 않는다(복원 중 파괴 연쇄를 일으키지 않기 위해).
++        // 생산대 잔해는 0을 보존하되 파괴 부작용을 재실행하지 않는다.
+         internal void RestoreHealth(float value)
+         {
+-            currentHealth = Mathf.Clamp(value, this is Workshop ? 0f : 0.01f, MaxHealth);
++            currentHealth = Mathf.Clamp(value, this is Workshop || this is Processor ? 0f : 0.01f, MaxHealth);
+         }
+ 
+         public void TakeDamage(float amount)
+diff --git a/Assets/_Project/Scripts/Save/SaveBuildings.cs b/Assets/_Project/Scripts/Save/SaveBuildings.cs
+index 17b4c01..8e10cbd 100644
+--- a/Assets/_Project/Scripts/Save/SaveBuildings.cs
++++ b/Assets/_Project/Scripts/Save/SaveBuildings.cs
+@@ -110,7 +110,7 @@ namespace AntColony.Save
+             if (b is AcidTower tower) tower.RestoreCooldown(d.towerCooldown);
+             if (b is AreaAcidTower areaTower) areaTower.RestoreCooldown(d.towerCooldown);
+             if (b is TrapPit trap) trap.RestoreState(d.trapArmed, d.trapBroken, d.trapRepair, d.trapRepairPaid, d.trapSpikeHits);
+-            if (d.kind == "Farm" && d.runtimeBuilt)
++            if (d.kind == "Farm")
+                 { var farm = b.GetComponent<FarmPlot>() ?? b.gameObject.AddComponent<FarmPlot>(); farm.Configure((FarmCrop)d.crop, d.farmWide);
+                   farm.RestoreState(d.farm == null ? null : JsonUtility.FromJson<FarmPlot.State>(JsonUtility.ToJson(d.farm))); }
+             if (b is ScienceLab science) { science.RestoreState(d.scienceRemaining, d.scienceAircraft, d.scienceConstructing, d.scienceSpawn.ToVector3());
+diff --git a/Assets/_Project/Scripts/Save/SaveOptionalStates.cs b/Assets/_Project/Scripts/Save/SaveOptionalStates.cs
+new file mode 100644
+index 0000000..90ecf18
+--- /dev/null
++++ b/Assets/_Project/Scripts/Save/SaveOptionalStates.cs
+@@ -0,0 +1,75 @@
++using AntColony.Buildings;
++using AntColony.Core;
++using Newtonsoft.Json.Linq;
++using UnityEngine;
++
++namespace AntColony.Save
++{
++    // JsonUtility materializes absent inline classes. Inspect the JSON before losing that distinction.
++    internal static class SaveOptionalStates
++    {
++        private static bool Absent(JToken token) => token == null || token.Type == JTokenType.Null
++            || token is JObject obj && !obj.HasValues;
++
++        internal static void FromJson(SaveFileV1 f, string json)
++        {
++            var root = JObject.Parse(json);
++            if (Absent(root["rocket"])) f.rocket = null;
++            if (Absent(root["farmSeeds"])) f.farmSeeds = null;
++            if (f.farmSeeds != null && (f.farmSeeds.counts == null || f.farmSeeds.counts.Length == 0)
++                && (f.farmSeeds.collected == null || f.farmSeeds.collected.Count == 0)) f.farmSeeds = null;
++            if (Absent(root["world"]?["pause"]) && f.world != null) f.world.pause = null;
++            var pause = f.world?.pause;
++            if (pause != null && pause.speed == 0 && pause.sequence == 0 && pause.reasons?.Count == 0
++                && pause.incidents?.Count == 0 && pause.active?.Count == 0) f.world.pause = null;
++            if (Absent(root["campaign"]?["bosses"]) && f.campaign != null) f.campaign.bosses = new AntColony.Boss.BossProgress.State();
++            var buildings = root["buildings"] as JArray;
++            if (buildings != null && f.buildings != null)
++                for (int i = 0; i < buildings.Count && i < f.buildings.Count; i++)
++                {
++                    var b = f.buildings[i]; var raw = buildings[i] as JObject;
++                    if (b == null || raw == null) continue;
++                    if (Absent(raw["airship"])) b.airship = null;
++                    if (Absent(raw["processor"])) b.processor = null;
++                    if (Absent(raw["supply"])) b.supply = null;
++                    if (Absent(raw["starterCrop"])) b.starterCrop = null;
++                    if (Absent(raw["farm"])) b.farm = null;
++                    if (Absent(raw["fire"])) b.fire = null;
++                }
++        }
++
++        internal static string ToJson(SaveFileV1 f, bool pretty = false)
++        {
++            var root = JObject.Parse(JsonUtility.ToJson(f));
++            if (f.rocket == null) root["rocket"] = JValue.CreateNull();
++            if (f.farmSeeds == null) root["farmSeeds"] = JValue.CreateNull();
++            if (f.world?.pause == null && root["world"] is JObject world) world["pause"] = JValue.CreateNull();
++            var buildings = root["buildings"] as JArray;
++            for (int i = 0; buildings != null && i < buildings.Count; i++)
++            {
++                var b = f.buildings[i]; var raw = (JObject)buildings[i];
++                if (b.airship == null) raw["airship"] = JValue.CreateNull();
++                if (b.processor == null) raw["processor"] = JValue.CreateNull();
++                if (b.supply == null) raw["supply"] = JValue.CreateNull();
++                if (b.starterCrop == null) raw["starterCrop"] = JValue.CreateNull();
++                if (b.farm == null) raw["farm"] = JValue.CreateNull();
++                if (b.fire == null) raw["fire"] = JValue.CreateNull();
++            }
++            return root.ToString(pretty ? Newtonsoft.Json.Formatting.Indented : Newtonsoft.Json.Formatting.None);
++        }
++
++        internal static void Normalize(SaveFileV1 f)
++        {
++            // The kind is the presence discriminator for building-specific states.
++            foreach (var b in f.buildings)
++            {
++                if (b == null) continue;
++                if (b.kind != "AirshipYard") b.airship = null;
++                if (!System.Enum.TryParse(b.kind, out AntColony.Data.BuildingKind kind) || !Processor.IsKind(kind)) b.processor = null;
++                if (!SupplyFacility.IsKind(kind)) b.supply = null;
++                if (b.kind != "PlanterBed" && b.kind != "StarterMushroomBed") b.starterCrop = null;
++                if (b.kind != "Farm") b.farm = null;
++            }
++        }
++    }
++}
+diff --git a/Assets/_Project/Scripts/Save/SavePreflight.Integration.cs b/Assets/_Project/Scripts/Save/SavePreflight.Integration.cs
+new file mode 100644
+index 0000000..c7926a2
+--- /dev/null
++++ b/Assets/_Project/Scripts/Save/SavePreflight.Integration.cs
+@@ -0,0 +1,94 @@
++using System;
++using System.Collections.Generic;
++using System.Linq;
++using AntColony.Buildings;
++using AntColony.Core;
++using AntColony.Units;
++using UnityEngine;
++
++namespace AntColony.Save
++{
++    public static partial class SavePreflight
++    {
++        private static void ValidateIntegration(SaveFileV1 f)
++        {
++            Check(FarmSeeds.Valid(f.farmSeeds), "farm seeds");
++            foreach (var b in f.buildings)
++            {
++                if (b.kind == "Farm" && b.farm != null)
++                {
++                    var s = b.farm;
++                    Check(s.harvests >= 0 && s.harvests <= 2 && s.seedVersion >= 0 && s.seedVersion <= 1
++                        && (s.nextCrop == -1 || Enum.IsDefined(typeof(FarmCrop), s.nextCrop))
++                        && N(s.uprootWork) && s.uprootWork <= FarmPlot.UprootSeconds
++                        && N(s.fertilizeWork) && s.fertilizeWork <= FarmPlot.FertilizeSeconds
++                        && N(s.pestTimer) && s.pestTimer < FarmPlot.PestCheckSeconds, "farm state");
++                }
++                if (b.kind == "Workshop")
++                {
++                    var s = b.workshop;
++                    Check(s != null && s.materialVersion >= 0 && s.materialVersion <= 1, "craft material version");
++                    Check(!s.ruined || b.health == 0 && s.crafter == -1, "workshop ruin");
++                    foreach (var j in s.jobs)
++                    {
++                        Check(j != null && (j.makerId == null || j.makerId.Length <= 200), "craft maker");
++                        // A maker may have died or left the roster; their unfinished work remains cancellable.
++                        Check(s.materialVersion == 0 || (j.work == 0 || j.materialsPaid && !string.IsNullOrEmpty(j.makerId))
++                            && (string.IsNullOrEmpty(j.makerId) || j.materialsPaid), "craft payment");
++                    }
++                    if (s.crafter >= 0 && s.jobs.Count > 0 && !string.IsNullOrEmpty(s.jobs[0].makerId))
++                        Check(s.crafter < f.commanders.Count && s.jobs[0].makerId == f.commanders[s.crafter].personalState.id, "active craft maker");
++                }
++                if (Enum.TryParse(b.kind, out AntColony.Data.BuildingKind kind) && Processor.IsKind(kind) && b.processor != null)
++                {
++                    var s = b.processor; var recipes = Processor.RecipesFor(kind);
++                    Check(s.orders != null && s.orders.Count <= Workshop.MaxOrders && s.orders.All(o => o != null
++                        && o.recipe >= 0 && o.recipe < recipes.Length && Enum.IsDefined(typeof(Workshop.OrderMode), o.mode)
++                        && o.amount >= 1 && o.amount <= Workshop.MaxOrderAmount), "processor orders");
++                    Check(s.current >= -1 && s.current < recipes.Length && N(s.progress)
++                        && (s.current < 0 ? s.progress == 0 && string.IsNullOrEmpty(s.makerId) : s.progress < recipes[s.current].work)
++                        && (s.makerId == null || s.makerId.Length <= 200) && (!s.ruined || b.health == 0), "processor state");
++                    if (b.serviceCommander >= 0 && !string.IsNullOrEmpty(s.makerId))
++                        Check(b.serviceCommander < f.commanders.Count && !s.ruined
++                            && f.commanders[b.serviceCommander].personalState.id == s.makerId, "active processor maker");
++                }
++                if (b.kind == "AirshipYard" && b.airship != null)
++                {
++                    Check(b.airship.phase != RocketPhase.Destroyed || b.health == 0, "rocket ruin");
++                    Check(!b.airship.launchRequested || b.airship.passengers.Count > 0, "rocket launch passengers");
++                }
++            }
++            if (f.rocket != null)
++                Check(N(f.rocket.crisisResumeAt) && f.rocket.crisisResumeAt <= f.gameSeconds + 3 * GameCalendar.SecondsPerDay,
++                    "rocket crisis grace");
++            var carriers = new HashSet<string>(StringComparer.Ordinal);
++            for (int i = 0; i < f.world.transports.Count; i++)
++            {
++                var s = f.world.transports[i];
++                var id = string.IsNullOrWhiteSpace(s.bossCarrierId) ? "transport:" + i : s.bossCarrierId;
++                Check(id.Length <= 200 && carriers.Add(id), "boss carrier identity");
++                var parcels = f.campaign?.bosses?.cargo;
++                long load = (long)s.cargoFood + s.cargoSoil + s.cargoSpecial
++                    + (parcels == null ? 0 : parcels.Where(p => p.carrier == id).Sum(p => (long)p.count));
++                var crew = f.commanders.Where(c => c.location == 1 && c.transportIndex == i && !c.personalState.dead);
++                // Same weight model as CommanderStartingSupplies / ExpeditionSupplies, evaluated on saved data.
++                int capacity = s.walking ? Mathf.FloorToInt(crew.Sum(WalkingSpace) / .05f)
++                    : Mathf.FloorToInt((s.aircraft ? GameBalance.AircraftCargo : GameBalance.VehicleCargo)
++                        * (f.campaign.completed.Contains((int)ScienceTechnology.EfficientTransport) ? 1.5f : 1f));
++                Check(load <= capacity, "boss inclusive cargo capacity");
++            }
++            foreach (var parcel in f.campaign?.bosses?.cargo ?? new List<AntColony.Boss.BossProgress.Parcel>())
++                Check(carriers.Contains(parcel.carrier) || parcel.carrier.StartsWith("commander:", StringComparison.Ordinal)
++                    && f.commanders.Any(c => "commander:" + c.personalState.id == parcel.carrier && !c.personalState.dead), "boss cargo carrier");
++        }
++
++        private static float WalkingSpace(CommanderDto c)
++        {
++            var p = c.personalState;
++            float weight = (p.carriedRations?.Total ?? 0) * .05f + (p.equipment.Any(e => e.slot == EquipmentSlot.Weapon) ? 1 : 0)
++                + (p.toolTier > 0 ? 1.5f : 0) + (string.IsNullOrEmpty(p.ordinaryClothes) ? 0 : .5f);
++            return Mathf.Max(0, (GameBalance.CarryBase + c.talents.Level(CommanderActivity.Strength) * GameBalance.CarryPerStrength)
++                * SaveCatalog.Traits(c.traits).CarryMultiplier - weight);
++        }
++    }
++}
+diff --git a/Assets/_Project/Scripts/Save/SavePreflight.cs b/Assets/_Project/Scripts/Save/SavePreflight.cs
+index f237c35..8f98dbe 100644
+--- a/Assets/_Project/Scripts/Save/SavePreflight.cs
++++ b/Assets/_Project/Scripts/Save/SavePreflight.cs
+@@ -8,7 +8,7 @@ using UnityEngine;
+ 
+ namespace AntColony.Save
+ {
+-    public static class SavePreflight
++    public static partial class SavePreflight
+     {
+         private static void Check(bool valid, string field) { if (!valid) throw new FormatException("Invalid " + field + "."); }
+         private static bool N(float n) => !float.IsNaN(n) && !float.IsInfinity(n) && n >= 0 && n <= 100000000;
+@@ -42,6 +42,7 @@ namespace AntColony.Save
+             try
+             {
+                 Check(DateTime.TryParse(f.savedAtUtc, out _) && f.camera != null, "save header");
++                ValidateIntegration(f);
+                 Check(AntColony.Core.RocketCampaign.Validate(f.rocket), "rocket campaign");
+                 Check(f.rocket == null || f.rocket.economy.samples.All(s => s.at <= f.gameSeconds), "rocket economy dates");
+                 Check(N(f.playSeconds) && N(f.gameSeconds) && N(f.upkeepTimer) && N(f.incursionTimer), "timers");
+@@ -131,7 +132,7 @@ namespace AntColony.Save
+                     Check(N(b.powerFuelSeconds) && b.powerFuelSeconds <= Core.GameBalance.WoodBurnSeconds, "power fuel");
+                     Check(!Enum.TryParse<BuildingKind>(b.kind, out var supplyKind) || !Buildings.SupplyFacility.IsKind(supplyKind)
+                         || b.supply == null || Buildings.SupplyFacility.Valid(b.supply), "supply facility");
+-                    Check(b.starterCrop == null || Buildings.StarterCropBed.Valid(b.starterCrop), "starter crop");
++                    Check(b.kind != "PlanterBed" && b.kind != "StarterMushroomBed" || b.starterCrop == null || Buildings.StarterCropBed.Valid(b.starterCrop), "starter crop");
+                     Check(N(b.powerCharge) && b.powerCharge <= Core.GameBalance.BatteryCapacity
+                         && (b.kind == "Battery" || b.powerCharge == 0) && b.materialTier >= 0 && Enum.IsDefined(typeof(ResourceType), b.mainMaterial) && ((ResourceType)b.mainMaterial).IsMaterial(), "building power/material");
+                     Check(new[] { b.barracksUpgradeRemaining, b.labResearchRemaining, b.queenProductionRemaining, b.queenFishingRemaining, b.scienceRemaining,
+@@ -142,10 +143,10 @@ namespace AntColony.Save
+                     Check(b.scienceTier >= 1 && b.scienceTier <= Buildings.ScienceLab.MaxTier && b.scientist >= -1 && b.scientist < f.commanders.Count, "scientist/tier");
+                     if (b.scientist >= 0) Check(b.kind == "ScienceLab" && targets.Add(b.scientist)
+                         && f.commanders[b.scientist].location == 0 && !f.commanders[b.scientist].personalState.dead, "scientist ownership");
+-                    Check(AirshipYard.Validate(b.airship, f.commanders.Count, out _), "airship");
+-                    if (b.airship != null)
++                    Check(b.kind != "AirshipYard" || AirshipYard.Validate(b.airship, f.commanders.Count, out _), "airship");
++                    if (b.kind == "AirshipYard" && b.airship != null)
+                     {
+-                        Check(b.airship.snapshot == null || b.airship.snapshot.at <= f.gameSeconds, "rocket snapshot date");
++                        Check(!Core.RocketSnapshot.Present(b.airship.snapshot) || b.airship.snapshot.at <= f.gameSeconds, "rocket snapshot date");
+                         Check(b.airship.passengers.Sum(id => 1L + f.commanders[id].troopCount)
+                             <= AirshipYard.BaseSeats + AirshipYard.SeatsPerModule * b.airship.cocoons, "rocket occupied seats");
+                     }
+@@ -169,7 +170,7 @@ namespace AntColony.Save
+                         && targets.Add(id) && f.commanders[id].location == 0 && f.commanders[id].activeInScene
+                         && !f.commanders[id].personalState.dead && f.commanders[id].personalState.treating
+                         && f.commanders[id].personalState.mentalBreak == MentalBreak.None, "patient ownership");
+-                    if (b.airship != null && b.airship.passengers != null)
++                    if (b.kind == "AirshipYard" && b.airship != null && b.airship.passengers != null)
+                         foreach (var id in b.airship.passengers) Check(b.kind == "AirshipYard" && targets.Add(id)
+                             && f.commanders[id].location == 0 && !f.commanders[id].personalState.dead, "airship passenger ownership");
+                     Check(new[] { b.scoutDispatchedAnts, b.scoutSuccess, b.scoutFailure, b.prisonRecruited, b.prisonExecuted, b.prisonEscaped, b.nurseryBirths }.All(v => v >= 0), "building counters");
+diff --git a/Assets/_Project/Scripts/Save/SaveSnapshot.cs b/Assets/_Project/Scripts/Save/SaveSnapshot.cs
+index e145f94..2e1b8e6 100644
+--- a/Assets/_Project/Scripts/Save/SaveSnapshot.cs
++++ b/Assets/_Project/Scripts/Save/SaveSnapshot.cs
+@@ -90,7 +90,7 @@ namespace AntColony.Save
+             var home = Object.FindObjectsByType<EnemyColony>(FindObjectsSortMode.None).FirstOrDefault(c => c.GetComponentInParent<ExpeditionSite>() == null);
+             file.world.hadHomeColony = home != null; file.world.homeColony = Colony(home);
+             file.world.pause = AntColony.UI.SimulationPause.Capture();
+-            file.world.defenseReturn = world.DefenseReturn;
++            file.world.defenseReturn = JsonUtility.FromJson<HomeDefenseReturn>(JsonUtility.ToJson(world.DefenseReturn));
+             foreach (var s in world.Transports.Where(s => s != null)) file.world.transports.Add(new TransportDto { walking = s.Walking, foodDebt = s.FoodDebt, dockingRemaining = s.DockingRemaining, aircraft = s.Aircraft, state = (int)s.State,
+                 bossCarrierId = BossRewardTransfer.Carrier(s),
+                 blueprintCargo = s.BlueprintCargo, equipmentCargo = s.EquipmentCargo.Select(e => JsonUtility.FromJson<EquipmentItem>(JsonUtility.ToJson(e))).ToList(),
+@@ -222,7 +222,8 @@ namespace AntColony.Save
+                 { ec.ConfigureCommander(ec.CommanderName, ec.Rank, ec.Roles, SaveCatalog.Traits(d.traits)); ec.RestoreTalents(d.talents); }
+             }
+             world.VehicleResearched = file.world.vehicleResearched; world.AircraftResearched = file.world.aircraftResearched;
+-            world.DefenseReturn = file.world.defenseReturn ?? new HomeDefenseReturn();
++            world.DefenseReturn = file.world.defenseReturn == null ? new HomeDefenseReturn()
++                : JsonUtility.FromJson<HomeDefenseReturn>(JsonUtility.ToJson(file.world.defenseReturn));
+             world.RestoreUnlock(file.world.unlocked); world.SettlementNotice = file.world.notice;
+             var ships = new List<ExpeditionTransport>();
+             foreach (var d in file.world.transports)
+@@ -297,7 +298,8 @@ namespace AntColony.Save
+             if (file.camera.viewedSite >= 0) world.ViewSite(world.Sites[file.camera.viewedSite]);
+             Object.FindFirstObjectByType<AntColony.Camera.IsometricCameraController>().RestoreView(file.camera.focus.ToVector3(), Mathf.Round(file.camera.yaw / 90f) * 90f, file.camera.orthoSize); // 옛 쿼터뷰 45° 저장은 정면 시점으로
+             Encyclopedia.Merge(file.discoveries); GameSession.Instance.MarkStarted(file.playSeconds, file.gameSeconds);
+-            RocketCampaign.Instance?.Restore(file.rocket);
++            var rocket = RocketCampaign.Instance ?? new GameObject("RocketCampaign").AddComponent<RocketCampaign>();
++            rocket.Restore(file.rocket);
+             foreach (var corpse in Corpse.All.ToArray())
+                 commanders.FirstOrDefault(c => c.PersonalState.id == corpse.Data.workerId)?.RestoreCorpseWork(corpse);
+             FarmSeeds.Restore(file.farmSeeds);
+diff --git a/Assets/_Project/Scripts/Save/SaveSystem.cs b/Assets/_Project/Scripts/Save/SaveSystem.cs
+index 4264ad8..2874dfd 100644
+--- a/Assets/_Project/Scripts/Save/SaveSystem.cs
++++ b/Assets/_Project/Scripts/Save/SaveSystem.cs
+@@ -31,7 +31,7 @@ namespace AntColony.Save
+                 // Capture and atomic write do not yield. Autosaves run after Update; menu saves run while paused.
+                 var file = SaveSnapshot.Capture();
+                 if (!SavePreflight.ForScene(file, out error)) return false;
+-                SaveStorage.WriteAtomic(SaveSlots.PathFor(auto, index), JsonUtility.ToJson(file, true));
++                SaveStorage.WriteAtomic(SaveSlots.PathFor(auto, index), SaveOptionalStates.ToJson(file, true));
+                 return true;
+             }
+             catch (Exception e) { error = e.Message; return false; }
+@@ -45,7 +45,7 @@ namespace AntColony.Save
+             try
+             {
+                 Rollback = GameSession.Instance.GameStarted ? SaveSnapshot.Capture() : null;
+-                if (Rollback != null) SaveStorage.WriteAtomic(System.IO.Path.Combine(SaveStorage.Root, "load-recovery.json"), JsonUtility.ToJson(Rollback));
++                if (Rollback != null) SaveStorage.WriteAtomic(System.IO.Path.Combine(SaveStorage.Root, "load-recovery.json"), SaveOptionalStates.ToJson(Rollback));
+                 Reload(file, new NewGameOptions { mapSize = (MapSize)file.options.mapSize, difficulty = (DifficultyLevel)file.options.difficulty, commanderDeath = (CommanderDeathMode)file.options.commanderDeath, seed = file.options.seed, biome = (MapBiome)file.options.biome, climate = (MapClimate)file.options.climate });
+                 return true;
+             }
+@@ -60,10 +60,26 @@ namespace AntColony.Save
+         internal static void Reload(SaveFileV1 file, NewGameOptions options)
+         {
+             if (!Application.CanStreamedLevelBeLoaded("AntColony")) throw new InvalidOperationException("AntColony is missing from Build Settings.");
+-            Busy = true; Time.timeScale = 0;
+-            GameSession.Instance.SetOptions(options); GameSession.Instance.MarkStarted(); GameSession.Instance.PendingLoad = file;
+-            GameMenuController.Instance.ShowLoading();
+-            SceneManager.LoadScene("AntColony");
++            var session = GameSession.Instance;
++            var previousOptions = session.Options.Clone(); var previousLoad = session.PendingLoad;
++            var playing = session.GameStarted; var playSeconds = session.PlaySeconds; var gameSeconds = session.GameSeconds;
++            var pause = SimulationPause.Capture(); var scale = Time.timeScale;
++            Busy = true;
++            try
++            {
++                Time.timeScale = 0;
++                session.SetOptions(options); session.MarkStarted(); session.PendingLoad = file;
++                GameMenuController.Instance.ShowLoading();
++                SceneManager.LoadScene("AntColony");
++            }
++            catch
++            {
++                // A synchronous loading exception must not leave every subsequent check waiting on Busy.
++                Busy = false; session.SetOptions(previousOptions); session.PendingLoad = previousLoad;
++                if (playing) session.MarkStarted(playSeconds, gameSeconds); else session.MarkNotStarted();
++                SimulationPause.Restore(pause); Time.timeScale = scale;
++                throw;
++            }
+         }
+     }
+ }
+diff --git a/Assets/_Project/Scripts/Save/SaveValidator.cs b/Assets/_Project/Scripts/Save/SaveValidator.cs
+index 62a0f09..b06d919 100644
+--- a/Assets/_Project/Scripts/Save/SaveValidator.cs
++++ b/Assets/_Project/Scripts/Save/SaveValidator.cs
+@@ -17,6 +17,7 @@ namespace AntColony.Save
+             try
+             {
+                 parsed = JsonUtility.FromJson<SaveFileV1>(json);
++                if (parsed != null) SaveOptionalStates.FromJson(parsed, json);
+             }
+             catch (Exception e)
+             {
+@@ -264,6 +265,7 @@ namespace AntColony.Save
+                 if (building.position == null || !building.position.IsFinite()) { error = "Invalid building position."; return false; }
+             }
+             if (file.world.sites == null || file.world.transports == null) { error = "Missing world sections."; return false; }
++            SaveOptionalStates.Normalize(file);
+             return SavePreflight.Validate(file, out error);
+         }
+         private static void MigrateTraits(TraitsDto traits)

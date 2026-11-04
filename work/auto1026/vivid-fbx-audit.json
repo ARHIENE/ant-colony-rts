@@ -1,0 +1,618 @@
+[
+  {
+    "file": "Kemono@Attack.fbx",
+    "bones": 60,
+    "rest_error": 1.223702073097229,
+    "body_motion": 0.2950516336063629,
+    "loop_seam": 0.0
+  },
+  {
+    "file": "Kemono@Bathe.fbx",
+    "bones": 60,
+    "rest_error": 0.062137603759765625,
+    "body_motion": 0.09994855895638466,
+    "loop_seam": 0.0
+  },
+  {
+    "file": "Kemono@BenchWork.fbx",
+    "bones": 60,
+    "rest_error": 0.16811536252498627,
+    "body_motion": 0.2329532504081726,
+    "loop_seam": 5.637851296924623e-18
+  },
+  {
+    "file": "Kemono@Captive.fbx",
+    "bones": 60,
+    "rest_error": 0.06757380068302155,
+    "body_motion": 0.012507990002632141,
+    "loop_seam": 0.0
+  },
+  {
+    "file": "Kemono@Carry.fbx",
+    "bones": 60,
+    "rest_error": 0.2730615362524986,
+    "body_motion": 0.0501017514616251,
+    "loop_seam": 0.0
+  },
+  {
+    "file": "Kemono@CarryPerson.fbx",
+    "bones": 60,
+    "rest_error": 0.3963005840778351,
+    "body_motion": 0.05005340650677681,
+    "loop_seam": 0.0
+  },
+  {
+    "file": "Kemono@Chop.fbx",
+    "bones": 60,
+    "rest_error": 1.924910306930542,
+    "body_motion": 0.5180777832865715,
+    "loop_seam": 5.204170427930421e-18
+  },
+  {
+    "file": "Kemono@Death.fbx",
+    "bones": 60,
+    "rest_error": 0.6776779592037201,
+    "body_motion": 0.7933534383773804,
+    "loop_seam": 1.0000001642778784
+  },
+  {
+    "file": "Kemono@Downed.fbx",
+    "bones": 60,
+    "rest_error": 0.05964246392250061,
+    "body_motion": 0.012509727850556374,
+    "loop_seam": 0.0
+  },
+  {
+    "file": "Kemono@Eat.fbx",
+    "bones": 60,
+    "rest_error": 0.2695421427488327,
+    "body_motion": 0.17300307750701904,
+    "loop_seam": 0.0
+  },
+  {
+    "file": "Kemono@Exercise.fbx",
+    "bones": 60,
+    "rest_error": 0.46095939725637436,
+    "body_motion": 0.11968959867953544,
+    "loop_seam": 0.0
+  },
+  {
+    "file": "Kemono@Fly.fbx",
+    "bones": 60,
+    "rest_error": 0.1246101628985059,
+    "body_motion": 0.09984324499964714,
+    "loop_seam": 0.0
+  },
+  {
+    "file": "Kemono@Grind.fbx",
+    "bones": 60,
+    "rest_error": 0.5600553452968597,
+    "body_motion": 0.23267234861850739,
+    "loop_seam": 5.990217002982412e-18
+  },
+  {
+    "file": "Kemono@GroundWork.fbx",
+    "bones": 60,
+    "rest_error": 0.6697084605693817,
+    "body_motion": 0.22922973334789276,
+    "loop_seam": 5.637851296924623e-18
+  },
+  {
+    "file": "Kemono@Hammer.fbx",
+    "bones": 60,
+    "rest_error": 1.7657886147499084,
+    "body_motion": 0.231594055891037,
+    "loop_seam": 5.637851296924623e-18
+  },
+  {
+    "file": "Kemono@Hurt.fbx",
+    "bones": 60,
+    "rest_error": 0.5884239375591278,
+    "body_motion": 0.38829825073480606,
+    "loop_seam": 0.1197122111916542
+  },
+  {
+    "file": "Kemono@Idle.fbx",
+    "bones": 60,
+    "rest_error": 0.11240201480725887,
+    "body_motion": 0.01252727396786213,
+    "loop_seam": 0.0
+  },
+  {
+    "file": "Kemono@Inspect.fbx",
+    "bones": 60,
+    "rest_error": 1.5597357153892517,
+    "body_motion": 0.1719178557395935,
+    "loop_seam": 6.071532165918825e-18
+  },
+  {
+    "file": "Kemono@Mine.fbx",
+    "bones": 60,
+    "rest_error": 1.8198869228363037,
+    "body_motion": 0.5168490558862686,
+    "loop_seam": 5.204170427930421e-18
+  },
+  {
+    "file": "Kemono@Mourn.fbx",
+    "bones": 60,
+    "rest_error": 0.9015341401100159,
+    "body_motion": 0.4729716405272484,
+    "loop_seam": 0.4968801289796829
+  },
+  {
+    "file": "Kemono@Operate.fbx",
+    "bones": 60,
+    "rest_error": 0.2793056070804596,
+    "body_motion": 0.24721387773752213,
+    "loop_seam": 4.336808689942018e-18
+  },
+  {
+    "file": "Kemono@Pickup.fbx",
+    "bones": 60,
+    "rest_error": 1.0399602353572845,
+    "body_motion": 0.43474434316158295,
+    "loop_seam": 0.0
+  },
+  {
+    "file": "Kemono@PK_BeatFire.fbx",
+    "bones": 60,
+    "rest_error": 0.4081731364130974,
+    "body_motion": 0.23069299012422562,
+    "loop_seam": 6.071532165918825e-18
+  },
+  {
+    "file": "Kemono@PK_BenchPickup.fbx",
+    "bones": 60,
+    "rest_error": 1.3852424621582031,
+    "body_motion": 0.3334653303027153,
+    "loop_seam": 0.0
+  },
+  {
+    "file": "Kemono@PK_BenchPlace.fbx",
+    "bones": 60,
+    "rest_error": 1.2273001968860626,
+    "body_motion": 0.3334653303027153,
+    "loop_seam": 0.0
+  },
+  {
+    "file": "Kemono@PK_BowShoot.fbx",
+    "bones": 60,
+    "rest_error": 1.713399350643158,
+    "body_motion": 0.19720932841300964,
+    "loop_seam": 0.0
+  },
+  {
+    "file": "Kemono@PK_CanisterConnect.fbx",
+    "bones": 60,
+    "rest_error": 1.8029385805130005,
+    "body_motion": 0.4920130521059036,
+    "loop_seam": 0.0
+  },
+  {
+    "file": "Kemono@PK_CanisterDisconnect.fbx",
+    "bones": 60,
+    "rest_error": 1.7993656396865845,
+    "body_motion": 0.4920130521059036,
+    "loop_seam": 0.0
+  },
+  {
+    "file": "Kemono@PK_CollapseDropWeapon.fbx",
+    "bones": 60,
+    "rest_error": 1.5366999506950378,
+    "body_motion": 0.45987632125616074,
+    "loop_seam": 1.0000001701601064
+  },
+  {
+    "file": "Kemono@PK_ControlPanel.fbx",
+    "bones": 60,
+    "rest_error": 0.11673368513584137,
+    "body_motion": 0.2330522984266281,
+    "loop_seam": 5.204170427930421e-18
+  },
+  {
+    "file": "Kemono@PK_Crave.fbx",
+    "bones": 60,
+    "rest_error": 1.1130481362342834,
+    "body_motion": 0.10017691180109978,
+    "loop_seam": 0.0
+  },
+  {
+    "file": "Kemono@PK_DrawSword.fbx",
+    "bones": 60,
+    "rest_error": 1.6051329374313354,
+    "body_motion": 0.3339423250770608,
+    "loop_seam": 0.0
+  },
+  {
+    "file": "Kemono@PK_Drink.fbx",
+    "bones": 60,
+    "rest_error": 1.2170367240905762,
+    "body_motion": 0.4992654398083687,
+    "loop_seam": 0.0
+  },
+  {
+    "file": "Kemono@PK_DriveSeated.fbx",
+    "bones": 60,
+    "rest_error": 0.22394508123397827,
+    "body_motion": 0.10007540136575699,
+    "loop_seam": 0.0
+  },
+  {
+    "file": "Kemono@PK_EquipFromGround.fbx",
+    "bones": 60,
+    "rest_error": 1.7101338505744934,
+    "body_motion": 0.05008716318172901,
+    "loop_seam": 0.0
+  },
+  {
+    "file": "Kemono@PK_HangoverIdle.fbx",
+    "bones": 60,
+    "rest_error": 1.561256468296051,
+    "body_motion": 0.012513297144323587,
+    "loop_seam": 0.0
+  },
+  {
+    "file": "Kemono@PK_Knead.fbx",
+    "bones": 60,
+    "rest_error": 0.11844601482152939,
+    "body_motion": 0.23177006840705872,
+    "loop_seam": 6.938893903907228e-18
+  },
+  {
+    "file": "Kemono@PK_Ladle.fbx",
+    "bones": 60,
+    "rest_error": 0.16313940286636353,
+    "body_motion": 0.23303567618131638,
+    "loop_seam": 6.071532165918825e-18
+  },
+  {
+    "file": "Kemono@PK_LatrineSquat.fbx",
+    "bones": 60,
+    "rest_error": 1.6135616898536682,
+    "body_motion": 0.3420967310667038,
+    "loop_seam": 0.0
+  },
+  {
+    "file": "Kemono@PK_Muster.fbx",
+    "bones": 60,
+    "rest_error": 1.542547583580017,
+    "body_motion": 0.1790113162612954,
+    "loop_seam": 0.0
+  },
+  {
+    "file": "Kemono@PK_OvenLoad.fbx",
+    "bones": 60,
+    "rest_error": 0.10064414143562317,
+    "body_motion": 0.1465928554534912,
+    "loop_seam": 0.0
+  },
+  {
+    "file": "Kemono@PK_PassOut.fbx",
+    "bones": 60,
+    "rest_error": 0.45238132774829865,
+    "body_motion": 0.45399045944213867,
+    "loop_seam": 1.0000001866407047
+  },
+  {
+    "file": "Kemono@PK_PourSack.fbx",
+    "bones": 60,
+    "rest_error": 1.6403518319129944,
+    "body_motion": 0.4793724939227104,
+    "loop_seam": 0.0
+  },
+  {
+    "file": "Kemono@PK_PressLever.fbx",
+    "bones": 60,
+    "rest_error": 0.4215778112411499,
+    "body_motion": 0.4412187784910202,
+    "loop_seam": 5.908901840045999e-18
+  },
+  {
+    "file": "Kemono@PK_SelfTreat.fbx",
+    "bones": 60,
+    "rest_error": 0.22462968528270721,
+    "body_motion": 0.2313048169016838,
+    "loop_seam": 5.204170427930421e-18
+  },
+  {
+    "file": "Kemono@PK_SewRepair.fbx",
+    "bones": 60,
+    "rest_error": 0.21407026797533035,
+    "body_motion": 0.2330295443534851,
+    "loop_seam": 5.637851296924623e-18
+  },
+  {
+    "file": "Kemono@PK_SheatheSword.fbx",
+    "bones": 60,
+    "rest_error": 1.543178915977478,
+    "body_motion": 0.3708836447811166,
+    "loop_seam": 0.0
+  },
+  {
+    "file": "Kemono@PK_ShieldBlock.fbx",
+    "bones": 60,
+    "rest_error": 1.8087214231491089,
+    "body_motion": 0.10015103220939636,
+    "loop_seam": 0.0
+  },
+  {
+    "file": "Kemono@PK_SkyGaze.fbx",
+    "bones": 60,
+    "rest_error": 1.726315677165985,
+    "body_motion": 0.01251846132799983,
+    "loop_seam": 0.0
+  },
+  {
+    "file": "Kemono@PK_SmithRepair.fbx",
+    "bones": 60,
+    "rest_error": 1.521522879600525,
+    "body_motion": 0.6483807563781738,
+    "loop_seam": 0.24533295631408691
+  },
+  {
+    "file": "Kemono@PK_SpearThrust.fbx",
+    "bones": 60,
+    "rest_error": 1.6329819560050964,
+    "body_motion": 0.36676739156246185,
+    "loop_seam": 0.0
+  },
+  {
+    "file": "Kemono@PK_Stagger.fbx",
+    "bones": 60,
+    "rest_error": 0.29182447493076324,
+    "body_motion": 0.10007540881633759,
+    "loop_seam": 0.0
+  },
+  {
+    "file": "Kemono@PK_SwordAttack.fbx",
+    "bones": 60,
+    "rest_error": 1.0266202688217163,
+    "body_motion": 0.5683201290667057,
+    "loop_seam": 0.0
+  },
+  {
+    "file": "Kemono@PK_TapFill.fbx",
+    "bones": 60,
+    "rest_error": 1.8029321432113647,
+    "body_motion": 0.4447176605463028,
+    "loop_seam": 0.0
+  },
+  {
+    "file": "Kemono@PK_Tool_Chop.fbx",
+    "bones": 60,
+    "rest_error": 0.9347437918186188,
+    "body_motion": 0.3172621726989746,
+    "loop_seam": 0.0
+  },
+  {
+    "file": "Kemono@PK_Tool_Dig.fbx",
+    "bones": 60,
+    "rest_error": 0.11598467826843262,
+    "body_motion": 0.5724008679389954,
+    "loop_seam": 6.938893903907228e-18
+  },
+  {
+    "file": "Kemono@PK_Tool_Hammer.fbx",
+    "bones": 60,
+    "rest_error": 1.8859148621559143,
+    "body_motion": 0.5491238236427307,
+    "loop_seam": 0.29947054386138916
+  },
+  {
+    "file": "Kemono@PK_Tool_Harvest.fbx",
+    "bones": 60,
+    "rest_error": 1.0469024777412415,
+    "body_motion": 0.18924185633659363,
+    "loop_seam": 0.1685630977153778
+  },
+  {
+    "file": "Kemono@PK_Tool_Mine.fbx",
+    "bones": 60,
+    "rest_error": 0.5479114353656769,
+    "body_motion": 0.39108192920684814,
+    "loop_seam": 0.07428240776062012
+  },
+  {
+    "file": "Kemono@PK_Tool_Till.fbx",
+    "bones": 60,
+    "rest_error": 0.11537177115678787,
+    "body_motion": 0.2099500298500061,
+    "loop_seam": 3.469446951953614e-18
+  },
+  {
+    "file": "Kemono@PK_ToolAway.fbx",
+    "bones": 60,
+    "rest_error": 1.8084675669670105,
+    "body_motion": 0.3708836447811166,
+    "loop_seam": 0.0
+  },
+  {
+    "file": "Kemono@PK_ToolOut.fbx",
+    "bones": 60,
+    "rest_error": 1.8084675669670105,
+    "body_motion": 0.2822872113800088,
+    "loop_seam": 0.0
+  },
+  {
+    "file": "Kemono@PK_UnequipToGround.fbx",
+    "bones": 60,
+    "rest_error": 1.8181366920471191,
+    "body_motion": 0.050087155731148414,
+    "loop_seam": 0.0
+  },
+  {
+    "file": "Kemono@PK_ValveTurn.fbx",
+    "bones": 60,
+    "rest_error": 0.5364317893981934,
+    "body_motion": 0.2329532504081726,
+    "loop_seam": 5.637851296924623e-18
+  },
+  {
+    "file": "Kemono@PK_WakeUp.fbx",
+    "bones": 60,
+    "rest_error": 1.9707025289535522,
+    "body_motion": 1.003915776964277,
+    "loop_seam": 1.0000002730408255
+  },
+  {
+    "file": "Kemono@PK_WalkTipsy.fbx",
+    "bones": 60,
+    "rest_error": 1.7657971382141113,
+    "body_motion": 0.19193295389413834,
+    "loop_seam": 0.0
+  },
+  {
+    "file": "Kemono@PlayBoard.fbx",
+    "bones": 60,
+    "rest_error": 0.11108884029090405,
+    "body_motion": 0.12160639464855194,
+    "loop_seam": 0.0
+  },
+  {
+    "file": "Kemono@PlayMusic.fbx",
+    "bones": 60,
+    "rest_error": 0.44001299142837524,
+    "body_motion": 0.10007540136575699,
+    "loop_seam": 0.0
+  },
+  {
+    "file": "Kemono@PutDown.fbx",
+    "bones": 60,
+    "rest_error": 1.0470159351825714,
+    "body_motion": 0.4447176605463028,
+    "loop_seam": 0.0
+  },
+  {
+    "file": "Kemono@Rest.fbx",
+    "bones": 60,
+    "rest_error": 0.05705268820747733,
+    "body_motion": 0.1288280002772808,
+    "loop_seam": 0.0
+  },
+  {
+    "file": "Kemono@RockCradle.fbx",
+    "bones": 60,
+    "rest_error": 0.12360643595457077,
+    "body_motion": 0.09893825277686119,
+    "loop_seam": 6.938893903907228e-18
+  },
+  {
+    "file": "Kemono@Run.fbx",
+    "bones": 60,
+    "rest_error": 0.5869198143482208,
+    "body_motion": 0.050027064979076385,
+    "loop_seam": 0.0
+  },
+  {
+    "file": "Kemono@Saw.fbx",
+    "bones": 60,
+    "rest_error": 0.11647663336006531,
+    "body_motion": 0.2329532504081726,
+    "loop_seam": 5.637851296924623e-18
+  },
+  {
+    "file": "Kemono@Sit.fbx",
+    "bones": 60,
+    "rest_error": 0.12224063277244568,
+    "body_motion": 0.10015930980443954,
+    "loop_seam": 0.0
+  },
+  {
+    "file": "Kemono@Sleep.fbx",
+    "bones": 60,
+    "rest_error": 0.02458779513835907,
+    "body_motion": 0.01252727396786213,
+    "loop_seam": 0.0
+  },
+  {
+    "file": "Kemono@Spin.fbx",
+    "bones": 60,
+    "rest_error": 0.5810146629810333,
+    "body_motion": 0.19956209510564804,
+    "loop_seam": 0.0
+  },
+  {
+    "file": "Kemono@Stamp.fbx",
+    "bones": 60,
+    "rest_error": 0.36952678859233856,
+    "body_motion": 0.2323998361825943,
+    "loop_seam": 5.637851296924623e-18
+  },
+  {
+    "file": "Kemono@StandEnter.fbx",
+    "bones": 60,
+    "rest_error": 0.32128459215164185,
+    "body_motion": 0.05008281375486945,
+    "loop_seam": 0.07991472631692176
+  },
+  {
+    "file": "Kemono@StandExit.fbx",
+    "bones": 60,
+    "rest_error": 0.27210692316293716,
+    "body_motion": 0.050082819493241004,
+    "loop_seam": 0.07991471886634827
+  },
+  {
+    "file": "Kemono@StandIdle.fbx",
+    "bones": 60,
+    "rest_error": 0.12172410674432399,
+    "body_motion": 0.012527273036539555,
+    "loop_seam": 0.0
+  },
+  {
+    "file": "Kemono@Stir.fbx",
+    "bones": 60,
+    "rest_error": 0.44139042496681213,
+    "body_motion": 0.4651876986026764,
+    "loop_seam": 3.469446951953614e-18
+  },
+  {
+    "file": "Kemono@Swing.fbx",
+    "bones": 60,
+    "rest_error": 0.601507194340229,
+    "body_motion": 0.10017691180109978,
+    "loop_seam": 0.0
+  },
+  {
+    "file": "Kemono@Throw.fbx",
+    "bones": 60,
+    "rest_error": 1.7245423197746277,
+    "body_motion": 0.24644097313284874,
+    "loop_seam": 0.0
+  },
+  {
+    "file": "Kemono@Treat.fbx",
+    "bones": 60,
+    "rest_error": 0.23278829082846642,
+    "body_motion": 0.2317700758576393,
+    "loop_seam": 6.938893903907228e-18
+  },
+  {
+    "file": "Kemono@Walk.fbx",
+    "bones": 60,
+    "rest_error": 0.2730615362524986,
+    "body_motion": 0.05009448528289795,
+    "loop_seam": 0.0
+  },
+  {
+    "file": "Kemono@Wash.fbx",
+    "bones": 60,
+    "rest_error": 0.28348255157470703,
+    "body_motion": 0.2324032410979271,
+    "loop_seam": 6.071532165918825e-18
+  },
+  {
+    "file": "Kemono@WaterPlant.fbx",
+    "bones": 60,
+    "rest_error": 0.9496213793754578,
+    "body_motion": 0.4033861309289932,
+    "loop_seam": 6.071532165918825e-18
+  },
+  {
+    "file": "Kemono@Wrestle.fbx",
+    "bones": 60,
+    "rest_error": 0.11442165859077136,
+    "body_motion": 0.09967678040266037,
+    "loop_seam": 1.474514954580286e-17
+  }
+]

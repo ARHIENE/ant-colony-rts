@@ -1,0 +1,1433 @@
+{
+  "Tool_Mine": {
+    "accepted": true,
+    "radius_m": 0.03,
+    "frames": 41,
+    "search": [
+      {
+        "frame": 1,
+        "changed": false
+      },
+      {
+        "frame": 2,
+        "changed": false
+      },
+      {
+        "frame": 3,
+        "changed": false
+      },
+      {
+        "frame": 4,
+        "changed": false
+      },
+      {
+        "frame": 5,
+        "changed": false
+      },
+      {
+        "frame": 6,
+        "changed": false
+      },
+      {
+        "frame": 7,
+        "changed": false
+      },
+      {
+        "frame": 8,
+        "changed": false
+      },
+      {
+        "frame": 9,
+        "changed": false
+      },
+      {
+        "frame": 10,
+        "changed": false
+      },
+      {
+        "frame": 11,
+        "changed": false
+      },
+      {
+        "frame": 12,
+        "changed": false
+      },
+      {
+        "frame": 13,
+        "changed": false
+      },
+      {
+        "frame": 14,
+        "changed": false
+      },
+      {
+        "frame": 15,
+        "changed": false
+      },
+      {
+        "frame": 16,
+        "changed": true,
+        "offset_m": [
+          -0.009999999776482582,
+          0.0,
+          0.0
+        ],
+        "roll_deg": 0,
+        "trials": 7,
+        "rejected": {
+          "armour": 6
+        }
+      },
+      {
+        "frame": 17,
+        "changed": true,
+        "offset_m": [
+          -0.009999999776482582,
+          -0.009999999776482582,
+          0.019999999552965164
+        ],
+        "roll_deg": 0,
+        "trials": 3,
+        "rejected": {
+          "armour": 2
+        }
+      },
+      {
+        "frame": 18,
+        "changed": false
+      },
+      {
+        "frame": 19,
+        "changed": false
+      },
+      {
+        "frame": 20,
+        "changed": false
+      },
+      {
+        "frame": 21,
+        "changed": false
+      },
+      {
+        "frame": 22,
+        "changed": false
+      },
+      {
+        "frame": 23,
+        "changed": false
+      },
+      {
+        "frame": 24,
+        "changed": false
+      },
+      {
+        "frame": 25,
+        "changed": false
+      },
+      {
+        "frame": 26,
+        "changed": false
+      },
+      {
+        "frame": 27,
+        "changed": false
+      },
+      {
+        "frame": 28,
+        "changed": false
+      },
+      {
+        "frame": 29,
+        "changed": false
+      },
+      {
+        "frame": 30,
+        "changed": false
+      },
+      {
+        "frame": 31,
+        "changed": false
+      },
+      {
+        "frame": 32,
+        "changed": false
+      },
+      {
+        "frame": 33,
+        "changed": false
+      },
+      {
+        "frame": 34,
+        "changed": false
+      },
+      {
+        "frame": 35,
+        "changed": false
+      },
+      {
+        "frame": 36,
+        "changed": false
+      },
+      {
+        "frame": 37,
+        "changed": false
+      },
+      {
+        "frame": 38,
+        "changed": false
+      },
+      {
+        "frame": 39,
+        "changed": false
+      },
+      {
+        "frame": 40,
+        "changed": false
+      },
+      {
+        "frame": 41,
+        "changed": false
+      }
+    ],
+    "failed_frames": [],
+    "increases": [],
+    "wrist_max_deg": {
+      "R": 56.116892277432704,
+      "L": 44.16004849377301
+    },
+    "left_grip_error_m": 4.4229096411632984e-07,
+    "length_drift_m": 2.145614017567965e-07,
+    "before": {
+      "1": {
+        "tool": {},
+        "wear": {
+          "Armor_Breastplate|Part_Hair_LONG_ARMOR": 38,
+          "Armor_Breastplate|Part_Outfit_LINEN_ARMOR": 72,
+          "Armor_Breastplate_Lower|Part_Hair_LONG_ARMOR": 20,
+          "Armor_Tasset_L|Part_Outfit_LINEN_ARMOR": 6,
+          "Armor_Tasset_R|Part_Outfit_LINEN_ARMOR": 11,
+          "Armor_Bracer_L|Part_Outfit_LINEN_ARMOR": 32,
+          "Armor_Bracer_R|Part_Outfit_LINEN_ARMOR": 10
+        },
+        "wrist": {
+          "R": 10.35483998930613,
+          "L": 9.309621263260958
+        }
+      },
+      "2": {
+        "tool": {},
+        "wear": {
+          "Armor_Breastplate|Part_Hair_LONG_ARMOR": 38,
+          "Armor_Breastplate|Part_Outfit_LINEN_ARMOR": 72,
+          "Armor_Breastplate_Lower|Part_Hair_LONG_ARMOR": 20,
+          "Armor_Tasset_L|Part_Outfit_LINEN_ARMOR": 6,
+          "Armor_Tasset_R|Part_Outfit_LINEN_ARMOR": 11,
+          "Armor_Bracer_L|Part_Outfit_LINEN_ARMOR": 32,
+          "Armor_Bracer_R|Part_Outfit_LINEN_ARMOR": 10
+        },
+        "wrist": {
+          "R": 9.571914187767787,
+          "L": 9.585151948152918
+        }
+      },
+      "3": {
+        "tool": {},
+        "wear": {
+          "Armor_Breastplate|Part_Hair_LONG_ARMOR": 33,
+          "Armor_Breastplate|Part_Outfit_LINEN_ARMOR": 73,
+          "Armor_Breastplate_Lower|Part_Hair_LONG_ARMOR": 22,
+          "Armor_Tasset_L|Part_Outfit_LINEN_ARMOR": 6,
+          "Armor_Tasset_R|Part_Outfit_LINEN_ARMOR": 11,
+          "Armor_Bracer_L|Part_Outfit_LINEN_ARMOR": 32,
+          "Armor_Bracer_R|Part_Outfit_LINEN_ARMOR": 10
+        },
+        "wrist": {
+          "R": 7.6839047596564,
+          "L": 10.381406010082896
+        }
+      },
+      "4": {
+        "tool": {},
+        "wear": {
+          "Armor_Breastplate|Part_Hair_LONG_ARMOR": 29,
+          "Armor_Breastplate|Part_Outfit_LINEN_ARMOR": 69,
+          "Armor_Breastplate_Lower|Part_Hair_LONG_ARMOR": 22,
+          "Armor_Tasset_L|Part_Outfit_LINEN_ARMOR": 6,
+          "Armor_Tasset_R|Part_Outfit_LINEN_ARMOR": 11,
+          "Armor_Bracer_L|Part_Outfit_LINEN_ARMOR": 34,
+          "Armor_Bracer_R|Part_Outfit_LINEN_ARMOR": 10
+        },
+        "wrist": {
+          "R": 4.710479234687021,
+          "L": 10.241769622691155
+        }
+      },
+      "5": {
+        "tool": {},
+        "wear": {
+          "Armor_Breastplate|Part_Hair_LONG_ARMOR": 16,
+          "Armor_Breastplate|Part_Outfit_LINEN_ARMOR": 72,
+          "Armor_Breastplate_Lower|Part_Hair_LONG_ARMOR": 6,
+          "Armor_Tasset_L|Part_Outfit_LINEN_ARMOR": 11,
+          "Armor_Tasset_R|Part_Outfit_LINEN_ARMOR": 11,
+          "Armor_Bracer_L|Part_Outfit_LINEN_ARMOR": 32,
+          "Armor_Bracer_R|Part_Outfit_LINEN_ARMOR": 10
+        },
+        "wrist": {
+          "R": 1.9006337521316863,
+          "L": 10.849975770165988
+        }
+      },
+      "6": {
+        "tool": {},
+        "wear": {
+          "Armor_Breastplate|Part_Hair_LONG_ARMOR": 16,
+          "Armor_Breastplate|Part_Outfit_LINEN_ARMOR": 58,
+          "Armor_Breastplate_Lower|Part_Hair_LONG_ARMOR": 6,
+          "Armor_Tasset_L|Part_Outfit_LINEN_ARMOR": 11,
+          "Armor_Tasset_R|Part_Outfit_LINEN_ARMOR": 18,
+          "Armor_Bracer_L|Part_Outfit_LINEN_ARMOR": 22,
+          "Armor_Bracer_R|Part_Outfit_LINEN_ARMOR": 10
+        },
+        "wrist": {
+          "R": 1.4024900199943793,
+          "L": 12.142376480952985
+        }
+      },
+      "7": {
+        "tool": {},
+        "wear": {
+          "Armor_Breastplate|Part_Hair_LONG_ARMOR": 12,
+          "Armor_Breastplate|Part_Outfit_LINEN_ARMOR": 54,
+          "Armor_Breastplate_Lower|Part_Hair_LONG_ARMOR": 3,
+          "Armor_Tasset_L|Part_Outfit_LINEN_ARMOR": 11,
+          "Armor_Tasset_R|Part_Outfit_LINEN_ARMOR": 18,
+          "Armor_Bracer_L|Part_Outfit_LINEN_ARMOR": 16,
+          "Armor_Bracer_R|Part_Outfit_LINEN_ARMOR": 10
+        },
+        "wrist": {
+          "R": 1.0846226209755063,
+          "L": 14.535856619912105
+        }
+      },
+      "8": {
+        "tool": {},
+        "wear": {
+          "Armor_Breastplate|Part_Hair_LONG_ARMOR": 10,
+          "Armor_Breastplate|Part_Outfit_LINEN_ARMOR": 46,
+          "Armor_Tasset_L|Part_Outfit_LINEN_ARMOR": 11,
+          "Armor_Tasset_R|Part_Outfit_LINEN_ARMOR": 17,
+          "Armor_Bracer_L|Part_Outfit_LINEN_ARMOR": 10,
+          "Armor_Bracer_R|Part_Outfit_LINEN_ARMOR": 8
+        },
+        "wrist": {
+          "R": 2.156493278770599,
+          "L": 16.140544678609483
+        }
+      },
+      "9": {
+        "tool": {},
+        "wear": {
+          "Armor_Breastplate|Part_Hair_LONG_ARMOR": 10,
+          "Armor_Breastplate|Part_Outfit_LINEN_ARMOR": 52,
+          "Armor_Tasset_L|Part_Outfit_LINEN_ARMOR": 12,
+          "Armor_Tasset_R|Part_Outfit_LINEN_ARMOR": 18,
+          "Armor_Bracer_L|Part_Outfit_LINEN_ARMOR": 10,
+          "Armor_Bracer_R|Part_Outfit_LINEN_ARMOR": 8
+        },
+        "wrist": {
+          "R": 2.605717381803276,
+          "L": 16.324290427661168
+        }
+      },
+      "10": {
+        "tool": {},
+        "wear": {
+          "Armor_Breastplate|Part_Hair_LONG_ARMOR": 10,
+          "Armor_Breastplate|Part_Outfit_LINEN_ARMOR": 37,
+          "Armor_Tasset_L|Part_Outfit_LINEN_ARMOR": 16,
+          "Armor_Tasset_R|Part_Outfit_LINEN_ARMOR": 19,
+          "Armor_Bracer_L|Part_Outfit_LINEN_ARMOR": 10,
+          "Armor_Bracer_R|Part_Outfit_LINEN_ARMOR": 8
+        },
+        "wrist": {
+          "R": 1.5007652363717559,
+          "L": 32.48295218304411
+        }
+      },
+      "11": {
+        "tool": {},
+        "wear": {
+          "Armor_Breastplate|Part_Hair_LONG_ARMOR": 13,
+          "Armor_Breastplate|Part_Outfit_LINEN_ARMOR": 33,
+          "Armor_Backplate|Part_Hair_LONG_ARMOR": 5,
+          "Armor_Tasset_L|Part_Outfit_LINEN_ARMOR": 15,
+          "Armor_Tasset_R|Part_Outfit_LINEN_ARMOR": 19,
+          "Armor_Bracer_L|Part_Outfit_LINEN_ARMOR": 10,
+          "Armor_Bracer_R|Part_Outfit_LINEN_ARMOR": 8
+        },
+        "wrist": {
+          "R": 3.5955917253340712,
+          "L": 34.48560121373229
+        }
+      },
+      "12": {
+        "tool": {},
+        "wear": {
+          "Armor_Breastplate|Part_Hair_LONG_ARMOR": 11,
+          "Armor_Breastplate|Part_Outfit_LINEN_ARMOR": 39,
+          "Armor_Backplate|Part_Hair_LONG_ARMOR": 5,
+          "Armor_Tasset_L|Part_Outfit_LINEN_ARMOR": 15,
+          "Armor_Tasset_R|Part_Outfit_LINEN_ARMOR": 21,
+          "Armor_Bracer_L|Part_Outfit_LINEN_ARMOR": 10,
+          "Armor_Bracer_R|Part_Outfit_LINEN_ARMOR": 8
+        },
+        "wrist": {
+          "R": 4.9746478998946655,
+          "L": 36.219803319471445
+        }
+      },
+      "13": {
+        "tool": {},
+        "wear": {
+          "Armor_Breastplate|Part_Hair_LONG_ARMOR": 11,
+          "Armor_Breastplate|Part_Outfit_LINEN_ARMOR": 38,
+          "Armor_Backplate|Part_Hair_LONG_ARMOR": 5,
+          "Armor_Tasset_L|Part_Outfit_LINEN_ARMOR": 15,
+          "Armor_Tasset_R|Part_Outfit_LINEN_ARMOR": 22,
+          "Armor_Bracer_L|Part_Outfit_LINEN_ARMOR": 10,
+          "Armor_Bracer_R|Part_Outfit_LINEN_ARMOR": 8
+        },
+        "wrist": {
+          "R": 5.802788699964848,
+          "L": 38.64118392741642
+        }
+      },
+      "14": {
+        "tool": {},
+        "wear": {
+          "Armor_Breastplate|Part_Hair_LONG_ARMOR": 12,
+          "Armor_Breastplate|Part_Outfit_LINEN_ARMOR": 40,
+          "Armor_Backplate|Part_Hair_LONG_ARMOR": 5,
+          "Armor_Tasset_L|Part_Outfit_LINEN_ARMOR": 17,
+          "Armor_Tasset_R|Part_Outfit_LINEN_ARMOR": 22,
+          "Armor_Bracer_L|Part_Outfit_LINEN_ARMOR": 10,
+          "Armor_Bracer_R|Part_Outfit_LINEN_ARMOR": 8
+        },
+        "wrist": {
+          "R": 6.006943908030175,
+          "L": 39.070556939400106
+        }
+      },
+      "15": {
+        "tool": {},
+        "wear": {
+          "Armor_Breastplate|Part_Hair_LONG_ARMOR": 9,
+          "Armor_Breastplate|Part_Outfit_LINEN_ARMOR": 76,
+          "Armor_Backplate|Part_Hair_LONG_ARMOR": 5,
+          "Armor_Tasset_L|Part_Outfit_LINEN_ARMOR": 15,
+          "Armor_Tasset_R|Part_Outfit_LINEN_ARMOR": 21,
+          "Armor_Bracer_L|Part_Outfit_LINEN_ARMOR": 10,
+          "Armor_Bracer_R|Part_Outfit_LINEN_ARMOR": 8
+        },
+        "wrist": {
+          "R": 7.497084571704565,
+          "L": 44.16004849377301
+        }
+      },
+      "16": {
+        "tool": {
+          "Armor_Breastplate_Lower": 4
+        },
+        "wear": {
+          "Armor_Breastplate|Part_Body_BASE_ARMOR": 6,
+          "Armor_Breastplate|Part_Hair_LONG_ARMOR": 10,
+          "Armor_Breastplate|Part_Outfit_LINEN_ARMOR": 58,
+          "Armor_Tasset_L|Part_Outfit_LINEN_ARMOR": 16,
+          "Armor_Tasset_R|Part_Outfit_LINEN_ARMOR": 19,
+          "Armor_Bracer_L|Part_Outfit_LINEN_ARMOR": 10,
+          "Armor_Bracer_R|Part_Body_BASE_ARMOR": 5,
+          "Armor_Bracer_R|Part_Outfit_LINEN_ARMOR": 18
+        },
+        "wrist": {
+          "R": 11.356554679206555,
+          "L": 23.694580221387262
+        }
+      },
+      "17": {
+        "tool": {
+          "Armor_Breastplate": 18,
+          "Armor_Breastplate_Lower": 21
+        },
+        "wear": {
+          "Armor_Breastplate|Part_Hair_LONG_ARMOR": 16,
+          "Armor_Breastplate|Part_Outfit_LINEN_ARMOR": 51,
+          "Armor_Breastplate_Lower|Part_Hair_LONG_ARMOR": 6,
+          "Armor_Tasset_L|Part_Outfit_LINEN_ARMOR": 11,
+          "Armor_Tasset_R|Part_Outfit_LINEN_ARMOR": 18,
+          "Armor_Bracer_L|Part_Outfit_LINEN_ARMOR": 37,
+          "Armor_Bracer_R|Part_Body_BASE_ARMOR": 5,
+          "Armor_Bracer_R|Part_Outfit_LINEN_ARMOR": 29
+        },
+        "wrist": {
+          "R": 41.10491853840465,
+          "L": 18.010303841258597
+        }
+      },
+      "18": {
+        "tool": {},
+        "wear": {
+          "Armor_Breastplate|Part_Body_BASE_ARMOR": 11,
+          "Armor_Breastplate|Part_Hair_LONG_ARMOR": 33,
+          "Armor_Breastplate|Part_Outfit_LINEN_ARMOR": 60,
+          "Armor_Breastplate_Lower|Part_Hair_LONG_ARMOR": 29,
+          "Armor_Tasset_L|Part_Outfit_LINEN_ARMOR": 6,
+          "Armor_Tasset_R|Part_Outfit_LINEN_ARMOR": 18,
+          "Armor_Bracer_L|Part_Outfit_LINEN_ARMOR": 18,
+          "Armor_Bracer_R|Part_Outfit_LINEN_ARMOR": 10
+        },
+        "wrist": {
+          "R": 48.349952908036464,
+          "L": 16.39267769672592
+        }
+      },
+      "19": {
+        "tool": {},
+        "wear": {
+          "Armor_Breastplate|Part_Body_BASE_ARMOR": 15,
+          "Armor_Breastplate|Part_Hair_LONG_ARMOR": 38,
+          "Armor_Breastplate|Part_Outfit_LINEN_ARMOR": 69,
+          "Armor_Breastplate_Lower|Part_Hair_LONG_ARMOR": 32,
+          "Armor_Tasset_L|Part_Outfit_LINEN_ARMOR": 6,
+          "Armor_Tasset_R|Part_Outfit_LINEN_ARMOR": 11,
+          "Armor_Bracer_L|Part_Outfit_LINEN_ARMOR": 15,
+          "Armor_Bracer_R|Part_Hair_SIDE_00": 3,
+          "Armor_Bracer_R|Part_Outfit_LINEN_ARMOR": 10
+        },
+        "wrist": {
+          "R": 43.97495036726566,
+          "L": 16.0279541327837
+        }
+      },
+      "20": {
+        "tool": {},
+        "wear": {
+          "Armor_Breastplate|Part_Body_BASE_ARMOR": 17,
+          "Armor_Breastplate|Part_Hair_LONG_ARMOR": 38,
+          "Armor_Breastplate|Part_Outfit_LINEN_ARMOR": 72,
+          "Armor_Breastplate_Lower|Part_Hair_LONG_ARMOR": 30,
+          "Armor_Tasset_L|Part_Outfit_LINEN_ARMOR": 6,
+          "Armor_Tasset_R|Part_Outfit_LINEN_ARMOR": 11,
+          "Armor_Bracer_L|Part_Outfit_LINEN_ARMOR": 19,
+          "Armor_Bracer_R|Part_Outfit_LINEN_ARMOR": 10
+        },
+        "wrist": {
+          "R": 46.78334998415107,
+          "L": 19.136047082523636
+        }
+      },
+      "21": {
+        "tool": {},
+        "wear": {
+          "Armor_Breastplate|Part_Body_BASE_ARMOR": 10,
+          "Armor_Breastplate|Part_Hair_LONG_ARMOR": 38,
+          "Armor_Breastplate|Part_Outfit_LINEN_ARMOR": 67,
+          "Armor_Breastplate_Lower|Part_Hair_LONG_ARMOR": 28,
+          "Armor_Tasset_L|Part_Outfit_LINEN_ARMOR": 6,
+          "Armor_Tasset_R|Part_Outfit_LINEN_ARMOR": 11,
+          "Armor_Bracer_L|Part_Outfit_LINEN_ARMOR": 16,
+          "Armor_Bracer_R|Part_Body_BASE_ARMOR": 3,
+          "Armor_Bracer_R|Part_Outfit_LINEN_ARMOR": 8
+        },
+        "wrist": {
+          "R": 46.57085255378822,
+          "L": 18.69669174906798
+        }
+      },
+      "22": {
+        "tool": {},
+        "wear": {
+          "Armor_Breastplate|Part_Body_BASE_ARMOR": 17,
+          "Armor_Breastplate|Part_Hair_LONG_ARMOR": 38,
+          "Armor_Breastplate|Part_Outfit_LINEN_ARMOR": 74,
+          "Armor_Breastplate_Lower|Part_Hair_LONG_ARMOR": 26,
+          "Armor_Tasset_L|Part_Outfit_LINEN_ARMOR": 6,
+          "Armor_Tasset_R|Part_Outfit_LINEN_ARMOR": 11,
+          "Armor_Bracer_L|Part_Outfit_LINEN_ARMOR": 20,
+          "Armor_Bracer_R|Part_Hair_SIDE_00": 3,
+          "Armor_Bracer_R|Part_Outfit_LINEN_ARMOR": 10
+        },
+        "wrist": {
+          "R": 52.74138888395031,
+          "L": 21.66868464185895
+        }
+      },
+      "23": {
+        "tool": {},
+        "wear": {
+          "Armor_Breastplate|Part_Body_BASE_ARMOR": 22,
+          "Armor_Breastplate|Part_Hair_LONG_ARMOR": 38,
+          "Armor_Breastplate|Part_Outfit_LINEN_ARMOR": 70,
+          "Armor_Breastplate_Lower|Part_Hair_LONG_ARMOR": 24,
+          "Armor_Tasset_L|Part_Outfit_LINEN_ARMOR": 6,
+          "Armor_Tasset_R|Part_Outfit_LINEN_ARMOR": 11,
+          "Armor_Bracer_L|Part_Outfit_LINEN_ARMOR": 22,
+          "Armor_Bracer_R|Part_Outfit_LINEN_ARMOR": 10
+        },
+        "wrist": {
+          "R": 55.28981101045752,
+          "L": 23.91569905802996
+        }
+      },
+      "24": {
+        "tool": {
+          "Armor_Bracer_R": 4
+        },
+        "wear": {
+          "Armor_Breastplate|Part_Body_BASE_ARMOR": 12,
+          "Armor_Breastplate|Part_Hair_LONG_ARMOR": 38,
+          "Armor_Breastplate|Part_Outfit_LINEN_ARMOR": 80,
+          "Armor_Breastplate_Lower|Part_Hair_LONG_ARMOR": 18,
+          "Armor_Tasset_L|Part_Outfit_LINEN_ARMOR": 6,
+          "Armor_Tasset_R|Part_Outfit_LINEN_ARMOR": 11,
+          "Armor_Bracer_L|Part_Outfit_LINEN_ARMOR": 20,
+          "Armor_Bracer_R|Part_Outfit_LINEN_ARMOR": 10
+        },
+        "wrist": {
+          "R": 56.11688886233812,
+          "L": 23.629824905413663
+        }
+      },
+      "25": {
+        "tool": {},
+        "wear": {
+          "Armor_Breastplate|Part_Body_BASE_ARMOR": 19,
+          "Armor_Breastplate|Part_Hair_LONG_ARMOR": 38,
+          "Armor_Breastplate|Part_Outfit_LINEN_ARMOR": 80,
+          "Armor_Breastplate_Lower|Part_Hair_LONG_ARMOR": 14,
+          "Armor_Tasset_L|Part_Outfit_LINEN_ARMOR": 6,
+          "Armor_Tasset_R|Part_Outfit_LINEN_ARMOR": 11,
+          "Armor_Bracer_L|Part_Outfit_LINEN_ARMOR": 22,
+          "Armor_Bracer_R|Part_Hair_SIDE_00": 3,
+          "Armor_Bracer_R|Part_Outfit_LINEN_ARMOR": 10
+        },
+        "wrist": {
+          "R": 51.36755438901019,
+          "L": 20.422086325872414
+        }
+      },
+      "26": {
+        "tool": {},
+        "wear": {
+          "Armor_Breastplate|Part_Body_BASE_ARMOR": 16,
+          "Armor_Breastplate|Part_Hair_LONG_ARMOR": 38,
+          "Armor_Breastplate|Part_Outfit_LINEN_ARMOR": 88,
+          "Armor_Breastplate_Lower|Part_Hair_LONG_ARMOR": 14,
+          "Armor_Tasset_L|Part_Outfit_LINEN_ARMOR": 6,
+          "Armor_Tasset_R|Part_Outfit_LINEN_ARMOR": 11,
+          "Armor_Bracer_L|Part_Outfit_LINEN_ARMOR": 22,
+          "Armor_Bracer_R|Part_Hair_SIDE_00": 3,
+          "Armor_Bracer_R|Part_Outfit_LINEN_ARMOR": 10
+        },
+        "wrist": {
+          "R": 46.66269127736821,
+          "L": 17.941972921254496
+        }
+      },
+      "27": {
+        "tool": {},
+        "wear": {
+          "Armor_Breastplate|Part_Body_BASE_ARMOR": 18,
+          "Armor_Breastplate|Part_Hair_LONG_ARMOR": 38,
+          "Armor_Breastplate|Part_Outfit_LINEN_ARMOR": 61,
+          "Armor_Breastplate_Lower|Part_Hair_LONG_ARMOR": 14,
+          "Armor_Tasset_L|Part_Outfit_LINEN_ARMOR": 6,
+          "Armor_Tasset_R|Part_Outfit_LINEN_ARMOR": 11,
+          "Armor_Bracer_L|Part_Outfit_LINEN_ARMOR": 22,
+          "Armor_Bracer_R|Part_Outfit_LINEN_ARMOR": 10
+        },
+        "wrist": {
+          "R": 27.714308764932554,
+          "L": 9.142949279587013
+        }
+      },
+      "28": {
+        "tool": {},
+        "wear": {
+          "Armor_Breastplate|Part_Body_BASE_ARMOR": 26,
+          "Armor_Breastplate|Part_Hair_LONG_ARMOR": 38,
+          "Armor_Breastplate|Part_Outfit_LINEN_ARMOR": 59,
+          "Armor_Breastplate_Lower|Part_Body_BASE_ARMOR": 10,
+          "Armor_Breastplate_Lower|Part_Hair_LONG_ARMOR": 14,
+          "Armor_Tasset_L|Part_Outfit_LINEN_ARMOR": 6,
+          "Armor_Tasset_R|Part_Outfit_LINEN_ARMOR": 11,
+          "Armor_Bracer_L|Part_Outfit_LINEN_ARMOR": 14,
+          "Armor_Bracer_R|Part_Outfit_LINEN_ARMOR": 10
+        },
+        "wrist": {
+          "R": 8.547757203801993,
+          "L": 13.242921446822553
+        }
+      },
+      "29": {
+        "tool": {},
+        "wear": {
+          "Armor_Breastplate|Part_Body_BASE_ARMOR": 20,
+          "Armor_Breastplate|Part_Hair_LONG_ARMOR": 38,
+          "Armor_Breastplate|Part_Outfit_LINEN_ARMOR": 52,
+          "Armor_Breastplate_Lower|Part_Body_BASE_ARMOR": 10,
+          "Armor_Breastplate_Lower|Part_Hair_LONG_ARMOR": 14,
+          "Armor_Tasset_L|Part_Outfit_LINEN_ARMOR": 6,
+          "Armor_Tasset_R|Part_Outfit_LINEN_ARMOR": 11,
+          "Armor_Bracer_L|Part_Outfit_LINEN_ARMOR": 10,
+          "Armor_Bracer_R|Part_Outfit_LINEN_ARMOR": 10
+        },
+        "wrist": {
+          "R": 2.0025205377544126,
+          "L": 18.250494273611267
+        }
+      },
+      "30": {
+        "tool": {},
+        "wear": {
+          "Armor_Breastplate|Part_Body_BASE_ARMOR": 3,
+          "Armor_Breastplate|Part_Hair_LONG_ARMOR": 38,
+          "Armor_Breastplate|Part_Outfit_LINEN_ARMOR": 75,
+          "Armor_Breastplate_Lower|Part_Hair_LONG_ARMOR": 14,
+          "Armor_Tasset_L|Part_Outfit_LINEN_ARMOR": 6,
+          "Armor_Tasset_R|Part_Outfit_LINEN_ARMOR": 11,
+          "Armor_Bracer_L|Part_Outfit_LINEN_ARMOR": 14,
+          "Armor_Bracer_R|Part_Outfit_LINEN_ARMOR": 10
+        },
+        "wrist": {
+          "R": 10.685756678177725,
+          "L": 12.338857117712156
+        }
+      },
+      "31": {
+        "tool": {},
+        "wear": {
+          "Armor_Breastplate|Part_Body_BASE_ARMOR": 4,
+          "Armor_Breastplate|Part_Hair_LONG_ARMOR": 38,
+          "Armor_Breastplate|Part_Outfit_LINEN_ARMOR": 80,
+          "Armor_Breastplate_Lower|Part_Hair_LONG_ARMOR": 14,
+          "Armor_Tasset_L|Part_Outfit_LINEN_ARMOR": 6,
+          "Armor_Tasset_R|Part_Outfit_LINEN_ARMOR": 11,
+          "Armor_Bracer_L|Part_Outfit_LINEN_ARMOR": 14,
+          "Armor_Bracer_R|Part_Outfit_LINEN_ARMOR": 10
+        },
+        "wrist": {
+          "R": 8.500780016464292,
+          "L": 14.403678799094017
+        }
+      },
+      "32": {
+        "tool": {},
+        "wear": {
+          "Armor_Breastplate|Part_Hair_LONG_ARMOR": 38,
+          "Armor_Breastplate|Part_Outfit_LINEN_ARMOR": 81,
+          "Armor_Breastplate_Lower|Part_Hair_LONG_ARMOR": 14,
+          "Armor_Tasset_L|Part_Outfit_LINEN_ARMOR": 6,
+          "Armor_Tasset_R|Part_Outfit_LINEN_ARMOR": 11,
+          "Armor_Bracer_L|Part_Outfit_LINEN_ARMOR": 14,
+          "Armor_Bracer_R|Part_Outfit_LINEN_ARMOR": 8
+        },
+        "wrist": {
+          "R": 7.862721673448272,
+          "L": 15.091173197548944
+        }
+      },
+      "33": {
+        "tool": {},
+        "wear": {
+          "Armor_Breastplate|Part_Hair_LONG_ARMOR": 38,
+          "Armor_Breastplate|Part_Outfit_LINEN_ARMOR": 78,
+          "Armor_Breastplate_Lower|Part_Hair_LONG_ARMOR": 14,
+          "Armor_Tasset_L|Part_Outfit_LINEN_ARMOR": 6,
+          "Armor_Tasset_R|Part_Outfit_LINEN_ARMOR": 11,
+          "Armor_Bracer_L|Part_Outfit_LINEN_ARMOR": 14,
+          "Armor_Bracer_R|Part_Outfit_LINEN_ARMOR": 10
+        },
+        "wrist": {
+          "R": 7.98780207394507,
+          "L": 15.05904228014591
+        }
+      },
+      "34": {
+        "tool": {},
+        "wear": {
+          "Armor_Breastplate|Part_Body_BASE_ARMOR": 5,
+          "Armor_Breastplate|Part_Hair_LONG_ARMOR": 38,
+          "Armor_Breastplate|Part_Outfit_LINEN_ARMOR": 81,
+          "Armor_Breastplate_Lower|Part_Hair_LONG_ARMOR": 14,
+          "Armor_Tasset_L|Part_Outfit_LINEN_ARMOR": 6,
+          "Armor_Tasset_R|Part_Outfit_LINEN_ARMOR": 11,
+          "Armor_Bracer_L|Part_Outfit_LINEN_ARMOR": 16,
+          "Armor_Bracer_R|Part_Outfit_LINEN_ARMOR": 10
+        },
+        "wrist": {
+          "R": 8.424758303454757,
+          "L": 14.635613240287432
+        }
+      },
+      "35": {
+        "tool": {},
+        "wear": {
+          "Armor_Breastplate|Part_Hair_LONG_ARMOR": 38,
+          "Armor_Breastplate|Part_Outfit_LINEN_ARMOR": 73,
+          "Armor_Breastplate_Lower|Part_Hair_LONG_ARMOR": 14,
+          "Armor_Tasset_L|Part_Outfit_LINEN_ARMOR": 6,
+          "Armor_Tasset_R|Part_Outfit_LINEN_ARMOR": 11,
+          "Armor_Bracer_L|Part_Outfit_LINEN_ARMOR": 16,
+          "Armor_Bracer_R|Part_Hair_SIDE_00": 3,
+          "Armor_Bracer_R|Part_Outfit_LINEN_ARMOR": 10
+        },
+        "wrist": {
+          "R": 9.127720519058824,
+          "L": 13.280378204230903
+        }
+      },
+      "36": {
+        "tool": {},
+        "wear": {
+          "Armor_Breastplate|Part_Hair_LONG_ARMOR": 38,
+          "Armor_Breastplate|Part_Outfit_LINEN_ARMOR": 76,
+          "Armor_Breastplate_Lower|Part_Hair_LONG_ARMOR": 14,
+          "Armor_Tasset_L|Part_Outfit_LINEN_ARMOR": 6,
+          "Armor_Tasset_R|Part_Outfit_LINEN_ARMOR": 11,
+          "Armor_Bracer_L|Part_Outfit_LINEN_ARMOR": 18,
+          "Armor_Bracer_R|Part_Hair_SIDE_00": 5,
+          "Armor_Bracer_R|Part_Outfit_LINEN_ARMOR": 10
+        },
+        "wrist": {
+          "R": 10.130577558097933,
+          "L": 10.843297552705009
+        }
+      },
+      "37": {
+        "tool": {},
+        "wear": {
+          "Armor_Breastplate|Part_Hair_LONG_ARMOR": 38,
+          "Armor_Breastplate|Part_Outfit_LINEN_ARMOR": 78,
+          "Armor_Breastplate_Lower|Part_Hair_LONG_ARMOR": 14,
+          "Armor_Tasset_L|Part_Outfit_LINEN_ARMOR": 6,
+          "Armor_Tasset_R|Part_Outfit_LINEN_ARMOR": 11,
+          "Armor_Bracer_L|Part_Outfit_LINEN_ARMOR": 20,
+          "Armor_Bracer_R|Part_Hair_BOB_00": 3,
+          "Armor_Bracer_R|Part_Hair_BUNS_00": 3,
+          "Armor_Bracer_R|Part_Hair_PONY_00": 3,
+          "Armor_Bracer_R|Part_Hair_SIDE_00": 10,
+          "Armor_Bracer_R|Part_Outfit_LINEN_ARMOR": 10
+        },
+        "wrist": {
+          "R": 11.839341478047029,
+          "L": 7.467055645018604
+        }
+      },
+      "38": {
+        "tool": {},
+        "wear": {
+          "Armor_Breastplate|Part_Hair_LONG_ARMOR": 38,
+          "Armor_Breastplate|Part_Outfit_LINEN_ARMOR": 73,
+          "Armor_Breastplate_Lower|Part_Hair_LONG_ARMOR": 14,
+          "Armor_Tasset_L|Part_Outfit_LINEN_ARMOR": 6,
+          "Armor_Tasset_R|Part_Outfit_LINEN_ARMOR": 11,
+          "Armor_Bracer_L|Part_Outfit_LINEN_ARMOR": 20,
+          "Armor_Bracer_R|Part_Hair_BOB_00": 5,
+          "Armor_Bracer_R|Part_Hair_BUNS_00": 5,
+          "Armor_Bracer_R|Part_Hair_PONY_00": 5,
+          "Armor_Bracer_R|Part_Hair_SIDE_00": 6,
+          "Armor_Bracer_R|Part_Outfit_LINEN_ARMOR": 10
+        },
+        "wrist": {
+          "R": 12.915717819538507,
+          "L": 3.545857062562389
+        }
+      },
+      "39": {
+        "tool": {},
+        "wear": {
+          "Armor_Breastplate|Part_Hair_LONG_ARMOR": 38,
+          "Armor_Breastplate|Part_Outfit_LINEN_ARMOR": 71,
+          "Armor_Breastplate_Lower|Part_Hair_LONG_ARMOR": 14,
+          "Armor_Tasset_L|Part_Outfit_LINEN_ARMOR": 6,
+          "Armor_Tasset_R|Part_Outfit_LINEN_ARMOR": 11,
+          "Armor_Bracer_L|Part_Outfit_LINEN_ARMOR": 22,
+          "Armor_Bracer_R|Part_Hair_SIDE_00": 3,
+          "Armor_Bracer_R|Part_Outfit_LINEN_ARMOR": 10
+        },
+        "wrist": {
+          "R": 14.246966085003598,
+          "L": 1.1138178376959027
+        }
+      },
+      "40": {
+        "tool": {},
+        "wear": {
+          "Armor_Breastplate|Part_Hair_LONG_ARMOR": 38,
+          "Armor_Breastplate|Part_Outfit_LINEN_ARMOR": 71,
+          "Armor_Breastplate_Lower|Part_Hair_LONG_ARMOR": 22,
+          "Armor_Tasset_L|Part_Outfit_LINEN_ARMOR": 6,
+          "Armor_Tasset_R|Part_Outfit_LINEN_ARMOR": 11,
+          "Armor_Bracer_L|Part_Outfit_LINEN_ARMOR": 30,
+          "Armor_Bracer_R|Part_Hair_BOB_00": 3,
+          "Armor_Bracer_R|Part_Hair_BUNS_00": 3,
+          "Armor_Bracer_R|Part_Hair_PONY_00": 3,
+          "Armor_Bracer_R|Part_Hair_SIDE_00": 6,
+          "Armor_Bracer_R|Part_Outfit_LINEN_ARMOR": 10
+        },
+        "wrist": {
+          "R": 15.646682728029836,
+          "L": 3.1900959874716963
+        }
+      },
+      "41": {
+        "tool": {},
+        "wear": {
+          "Armor_Breastplate|Part_Hair_LONG_ARMOR": 38,
+          "Armor_Breastplate|Part_Outfit_LINEN_ARMOR": 64,
+          "Armor_Breastplate_Lower|Part_Hair_LONG_ARMOR": 22,
+          "Armor_Tasset_L|Part_Outfit_LINEN_ARMOR": 6,
+          "Armor_Tasset_R|Part_Outfit_LINEN_ARMOR": 11,
+          "Armor_Bracer_L|Part_Outfit_LINEN_ARMOR": 31,
+          "Armor_Bracer_R|Part_Hair_SIDE_00": 3,
+          "Armor_Bracer_R|Part_Outfit_LINEN_ARMOR": 10
+        },
+        "wrist": {
+          "R": 16.23182674177212,
+          "L": 4.174528377781284
+        }
+      }
+    },
+    "after": {
+      "1": {
+        "tool": {},
+        "wear": {
+          "Armor_Breastplate|Part_Hair_LONG_ARMOR": 38,
+          "Armor_Breastplate|Part_Outfit_LINEN_ARMOR": 72,
+          "Armor_Breastplate_Lower|Part_Hair_LONG_ARMOR": 20,
+          "Armor_Tasset_L|Part_Outfit_LINEN_ARMOR": 6,
+          "Armor_Tasset_R|Part_Outfit_LINEN_ARMOR": 11,
+          "Armor_Bracer_L|Part_Outfit_LINEN_ARMOR": 32,
+          "Armor_Bracer_R|Part_Outfit_LINEN_ARMOR": 10
+        }
+      },
+      "2": {
+        "tool": {},
+        "wear": {
+          "Armor_Breastplate|Part_Hair_LONG_ARMOR": 38,
+          "Armor_Breastplate|Part_Outfit_LINEN_ARMOR": 72,
+          "Armor_Breastplate_Lower|Part_Hair_LONG_ARMOR": 20,
+          "Armor_Tasset_L|Part_Outfit_LINEN_ARMOR": 6,
+          "Armor_Tasset_R|Part_Outfit_LINEN_ARMOR": 11,
+          "Armor_Bracer_L|Part_Outfit_LINEN_ARMOR": 32,
+          "Armor_Bracer_R|Part_Outfit_LINEN_ARMOR": 10
+        }
+      },
+      "3": {
+        "tool": {},
+        "wear": {
+          "Armor_Breastplate|Part_Hair_LONG_ARMOR": 33,
+          "Armor_Breastplate|Part_Outfit_LINEN_ARMOR": 73,
+          "Armor_Breastplate_Lower|Part_Hair_LONG_ARMOR": 22,
+          "Armor_Tasset_L|Part_Outfit_LINEN_ARMOR": 6,
+          "Armor_Tasset_R|Part_Outfit_LINEN_ARMOR": 11,
+          "Armor_Bracer_L|Part_Outfit_LINEN_ARMOR": 32,
+          "Armor_Bracer_R|Part_Outfit_LINEN_ARMOR": 10
+        }
+      },
+      "4": {
+        "tool": {},
+        "wear": {
+          "Armor_Breastplate|Part_Hair_LONG_ARMOR": 29,
+          "Armor_Breastplate|Part_Outfit_LINEN_ARMOR": 69,
+          "Armor_Breastplate_Lower|Part_Hair_LONG_ARMOR": 22,
+          "Armor_Tasset_L|Part_Outfit_LINEN_ARMOR": 6,
+          "Armor_Tasset_R|Part_Outfit_LINEN_ARMOR": 11,
+          "Armor_Bracer_L|Part_Outfit_LINEN_ARMOR": 34,
+          "Armor_Bracer_R|Part_Outfit_LINEN_ARMOR": 10
+        }
+      },
+      "5": {
+        "tool": {},
+        "wear": {
+          "Armor_Breastplate|Part_Hair_LONG_ARMOR": 16,
+          "Armor_Breastplate|Part_Outfit_LINEN_ARMOR": 72,
+          "Armor_Breastplate_Lower|Part_Hair_LONG_ARMOR": 6,
+          "Armor_Tasset_L|Part_Outfit_LINEN_ARMOR": 11,
+          "Armor_Tasset_R|Part_Outfit_LINEN_ARMOR": 11,
+          "Armor_Bracer_L|Part_Outfit_LINEN_ARMOR": 32,
+          "Armor_Bracer_R|Part_Outfit_LINEN_ARMOR": 10
+        }
+      },
+      "6": {
+        "tool": {},
+        "wear": {
+          "Armor_Breastplate|Part_Hair_LONG_ARMOR": 16,
+          "Armor_Breastplate|Part_Outfit_LINEN_ARMOR": 58,
+          "Armor_Breastplate_Lower|Part_Hair_LONG_ARMOR": 6,
+          "Armor_Tasset_L|Part_Outfit_LINEN_ARMOR": 11,
+          "Armor_Tasset_R|Part_Outfit_LINEN_ARMOR": 18,
+          "Armor_Bracer_L|Part_Outfit_LINEN_ARMOR": 22,
+          "Armor_Bracer_R|Part_Outfit_LINEN_ARMOR": 10
+        }
+      },
+      "7": {
+        "tool": {},
+        "wear": {
+          "Armor_Breastplate|Part_Hair_LONG_ARMOR": 12,
+          "Armor_Breastplate|Part_Outfit_LINEN_ARMOR": 54,
+          "Armor_Breastplate_Lower|Part_Hair_LONG_ARMOR": 3,
+          "Armor_Tasset_L|Part_Outfit_LINEN_ARMOR": 11,
+          "Armor_Tasset_R|Part_Outfit_LINEN_ARMOR": 18,
+          "Armor_Bracer_L|Part_Outfit_LINEN_ARMOR": 16,
+          "Armor_Bracer_R|Part_Outfit_LINEN_ARMOR": 10
+        }
+      },
+      "8": {
+        "tool": {},
+        "wear": {
+          "Armor_Breastplate|Part_Hair_LONG_ARMOR": 10,
+          "Armor_Breastplate|Part_Outfit_LINEN_ARMOR": 46,
+          "Armor_Tasset_L|Part_Outfit_LINEN_ARMOR": 11,
+          "Armor_Tasset_R|Part_Outfit_LINEN_ARMOR": 17,
+          "Armor_Bracer_L|Part_Outfit_LINEN_ARMOR": 10,
+          "Armor_Bracer_R|Part_Outfit_LINEN_ARMOR": 8
+        }
+      },
+      "9": {
+        "tool": {},
+        "wear": {
+          "Armor_Breastplate|Part_Hair_LONG_ARMOR": 10,
+          "Armor_Breastplate|Part_Outfit_LINEN_ARMOR": 52,
+          "Armor_Tasset_L|Part_Outfit_LINEN_ARMOR": 12,
+          "Armor_Tasset_R|Part_Outfit_LINEN_ARMOR": 18,
+          "Armor_Bracer_L|Part_Outfit_LINEN_ARMOR": 10,
+          "Armor_Bracer_R|Part_Outfit_LINEN_ARMOR": 8
+        }
+      },
+      "10": {
+        "tool": {},
+        "wear": {
+          "Armor_Breastplate|Part_Hair_LONG_ARMOR": 10,
+          "Armor_Breastplate|Part_Outfit_LINEN_ARMOR": 37,
+          "Armor_Tasset_L|Part_Outfit_LINEN_ARMOR": 16,
+          "Armor_Tasset_R|Part_Outfit_LINEN_ARMOR": 19,
+          "Armor_Bracer_L|Part_Outfit_LINEN_ARMOR": 10,
+          "Armor_Bracer_R|Part_Outfit_LINEN_ARMOR": 8
+        }
+      },
+      "11": {
+        "tool": {},
+        "wear": {
+          "Armor_Breastplate|Part_Hair_LONG_ARMOR": 13,
+          "Armor_Breastplate|Part_Outfit_LINEN_ARMOR": 33,
+          "Armor_Backplate|Part_Hair_LONG_ARMOR": 5,
+          "Armor_Tasset_L|Part_Outfit_LINEN_ARMOR": 15,
+          "Armor_Tasset_R|Part_Outfit_LINEN_ARMOR": 19,
+          "Armor_Bracer_L|Part_Outfit_LINEN_ARMOR": 10,
+          "Armor_Bracer_R|Part_Outfit_LINEN_ARMOR": 8
+        }
+      },
+      "12": {
+        "tool": {},
+        "wear": {
+          "Armor_Breastplate|Part_Hair_LONG_ARMOR": 11,
+          "Armor_Breastplate|Part_Outfit_LINEN_ARMOR": 39,
+          "Armor_Backplate|Part_Hair_LONG_ARMOR": 5,
+          "Armor_Tasset_L|Part_Outfit_LINEN_ARMOR": 15,
+          "Armor_Tasset_R|Part_Outfit_LINEN_ARMOR": 21,
+          "Armor_Bracer_L|Part_Outfit_LINEN_ARMOR": 10,
+          "Armor_Bracer_R|Part_Outfit_LINEN_ARMOR": 8
+        }
+      },
+      "13": {
+        "tool": {},
+        "wear": {
+          "Armor_Breastplate|Part_Hair_LONG_ARMOR": 11,
+          "Armor_Breastplate|Part_Outfit_LINEN_ARMOR": 38,
+          "Armor_Backplate|Part_Hair_LONG_ARMOR": 5,
+          "Armor_Tasset_L|Part_Outfit_LINEN_ARMOR": 15,
+          "Armor_Tasset_R|Part_Outfit_LINEN_ARMOR": 22,
+          "Armor_Bracer_L|Part_Outfit_LINEN_ARMOR": 10,
+          "Armor_Bracer_R|Part_Outfit_LINEN_ARMOR": 8
+        }
+      },
+      "14": {
+        "tool": {},
+        "wear": {
+          "Armor_Breastplate|Part_Hair_LONG_ARMOR": 12,
+          "Armor_Breastplate|Part_Outfit_LINEN_ARMOR": 40,
+          "Armor_Backplate|Part_Hair_LONG_ARMOR": 5,
+          "Armor_Tasset_L|Part_Outfit_LINEN_ARMOR": 17,
+          "Armor_Tasset_R|Part_Outfit_LINEN_ARMOR": 22,
+          "Armor_Bracer_L|Part_Outfit_LINEN_ARMOR": 10,
+          "Armor_Bracer_R|Part_Outfit_LINEN_ARMOR": 8
+        }
+      },
+      "15": {
+        "tool": {},
+        "wear": {
+          "Armor_Breastplate|Part_Hair_LONG_ARMOR": 9,
+          "Armor_Breastplate|Part_Outfit_LINEN_ARMOR": 76,
+          "Armor_Backplate|Part_Hair_LONG_ARMOR": 5,
+          "Armor_Tasset_L|Part_Outfit_LINEN_ARMOR": 15,
+          "Armor_Tasset_R|Part_Outfit_LINEN_ARMOR": 21,
+          "Armor_Bracer_L|Part_Outfit_LINEN_ARMOR": 10,
+          "Armor_Bracer_R|Part_Outfit_LINEN_ARMOR": 8
+        }
+      },
+      "16": {
+        "tool": {},
+        "wear": {
+          "Armor_Breastplate|Part_Hair_LONG_ARMOR": 10,
+          "Armor_Breastplate|Part_Outfit_LINEN_ARMOR": 58,
+          "Armor_Tasset_L|Part_Outfit_LINEN_ARMOR": 16,
+          "Armor_Tasset_R|Part_Outfit_LINEN_ARMOR": 19,
+          "Armor_Bracer_L|Part_Outfit_LINEN_ARMOR": 10,
+          "Armor_Bracer_R|Part_Outfit_LINEN_ARMOR": 10
+        }
+      },
+      "17": {
+        "tool": {},
+        "wear": {
+          "Armor_Breastplate|Part_Hair_LONG_ARMOR": 16,
+          "Armor_Breastplate|Part_Outfit_LINEN_ARMOR": 33,
+          "Armor_Breastplate_Lower|Part_Hair_LONG_ARMOR": 6,
+          "Armor_Tasset_L|Part_Outfit_LINEN_ARMOR": 11,
+          "Armor_Tasset_R|Part_Outfit_LINEN_ARMOR": 18,
+          "Armor_Bracer_L|Part_Outfit_LINEN_ARMOR": 32,
+          "Armor_Bracer_R|Part_Outfit_LINEN_ARMOR": 10
+        }
+      },
+      "18": {
+        "tool": {},
+        "wear": {
+          "Armor_Breastplate|Part_Body_BASE_ARMOR": 11,
+          "Armor_Breastplate|Part_Hair_LONG_ARMOR": 33,
+          "Armor_Breastplate|Part_Outfit_LINEN_ARMOR": 60,
+          "Armor_Breastplate_Lower|Part_Hair_LONG_ARMOR": 29,
+          "Armor_Tasset_L|Part_Outfit_LINEN_ARMOR": 6,
+          "Armor_Tasset_R|Part_Outfit_LINEN_ARMOR": 18,
+          "Armor_Bracer_L|Part_Outfit_LINEN_ARMOR": 18,
+          "Armor_Bracer_R|Part_Outfit_LINEN_ARMOR": 10
+        }
+      },
+      "19": {
+        "tool": {},
+        "wear": {
+          "Armor_Breastplate|Part_Body_BASE_ARMOR": 15,
+          "Armor_Breastplate|Part_Hair_LONG_ARMOR": 38,
+          "Armor_Breastplate|Part_Outfit_LINEN_ARMOR": 69,
+          "Armor_Breastplate_Lower|Part_Hair_LONG_ARMOR": 32,
+          "Armor_Tasset_L|Part_Outfit_LINEN_ARMOR": 6,
+          "Armor_Tasset_R|Part_Outfit_LINEN_ARMOR": 11,
+          "Armor_Bracer_L|Part_Outfit_LINEN_ARMOR": 15,
+          "Armor_Bracer_R|Part_Hair_SIDE_00": 3,
+          "Armor_Bracer_R|Part_Outfit_LINEN_ARMOR": 10
+        }
+      },
+      "20": {
+        "tool": {},
+        "wear": {
+          "Armor_Breastplate|Part_Body_BASE_ARMOR": 17,
+          "Armor_Breastplate|Part_Hair_LONG_ARMOR": 38,
+          "Armor_Breastplate|Part_Outfit_LINEN_ARMOR": 72,
+          "Armor_Breastplate_Lower|Part_Hair_LONG_ARMOR": 30,
+          "Armor_Tasset_L|Part_Outfit_LINEN_ARMOR": 6,
+          "Armor_Tasset_R|Part_Outfit_LINEN_ARMOR": 11,
+          "Armor_Bracer_L|Part_Outfit_LINEN_ARMOR": 19,
+          "Armor_Bracer_R|Part_Outfit_LINEN_ARMOR": 10
+        }
+      },
+      "21": {
+        "tool": {},
+        "wear": {
+          "Armor_Breastplate|Part_Body_BASE_ARMOR": 10,
+          "Armor_Breastplate|Part_Hair_LONG_ARMOR": 38,
+          "Armor_Breastplate|Part_Outfit_LINEN_ARMOR": 67,
+          "Armor_Breastplate_Lower|Part_Hair_LONG_ARMOR": 28,
+          "Armor_Tasset_L|Part_Outfit_LINEN_ARMOR": 6,
+          "Armor_Tasset_R|Part_Outfit_LINEN_ARMOR": 11,
+          "Armor_Bracer_L|Part_Outfit_LINEN_ARMOR": 16,
+          "Armor_Bracer_R|Part_Body_BASE_ARMOR": 3,
+          "Armor_Bracer_R|Part_Outfit_LINEN_ARMOR": 8
+        }
+      },
+      "22": {
+        "tool": {},
+        "wear": {
+          "Armor_Breastplate|Part_Body_BASE_ARMOR": 17,
+          "Armor_Breastplate|Part_Hair_LONG_ARMOR": 38,
+          "Armor_Breastplate|Part_Outfit_LINEN_ARMOR": 74,
+          "Armor_Breastplate_Lower|Part_Hair_LONG_ARMOR": 26,
+          "Armor_Tasset_L|Part_Outfit_LINEN_ARMOR": 6,
+          "Armor_Tasset_R|Part_Outfit_LINEN_ARMOR": 11,
+          "Armor_Bracer_L|Part_Outfit_LINEN_ARMOR": 20,
+          "Armor_Bracer_R|Part_Hair_SIDE_00": 3,
+          "Armor_Bracer_R|Part_Outfit_LINEN_ARMOR": 10
+        }
+      },
+      "23": {
+        "tool": {},
+        "wear": {
+          "Armor_Breastplate|Part_Body_BASE_ARMOR": 22,
+          "Armor_Breastplate|Part_Hair_LONG_ARMOR": 38,
+          "Armor_Breastplate|Part_Outfit_LINEN_ARMOR": 70,
+          "Armor_Breastplate_Lower|Part_Hair_LONG_ARMOR": 24,
+          "Armor_Tasset_L|Part_Outfit_LINEN_ARMOR": 6,
+          "Armor_Tasset_R|Part_Outfit_LINEN_ARMOR": 11,
+          "Armor_Bracer_L|Part_Outfit_LINEN_ARMOR": 22,
+          "Armor_Bracer_R|Part_Outfit_LINEN_ARMOR": 10
+        }
+      },
+      "24": {
+        "tool": {
+          "Armor_Bracer_R": 4
+        },
+        "wear": {
+          "Armor_Breastplate|Part_Body_BASE_ARMOR": 12,
+          "Armor_Breastplate|Part_Hair_LONG_ARMOR": 38,
+          "Armor_Breastplate|Part_Outfit_LINEN_ARMOR": 80,
+          "Armor_Breastplate_Lower|Part_Hair_LONG_ARMOR": 18,
+          "Armor_Tasset_L|Part_Outfit_LINEN_ARMOR": 6,
+          "Armor_Tasset_R|Part_Outfit_LINEN_ARMOR": 11,
+          "Armor_Bracer_L|Part_Outfit_LINEN_ARMOR": 20,
+          "Armor_Bracer_R|Part_Outfit_LINEN_ARMOR": 10
+        }
+      },
+      "25": {
+        "tool": {},
+        "wear": {
+          "Armor_Breastplate|Part_Body_BASE_ARMOR": 19,
+          "Armor_Breastplate|Part_Hair_LONG_ARMOR": 38,
+          "Armor_Breastplate|Part_Outfit_LINEN_ARMOR": 80,
+          "Armor_Breastplate_Lower|Part_Hair_LONG_ARMOR": 14,
+          "Armor_Tasset_L|Part_Outfit_LINEN_ARMOR": 6,
+          "Armor_Tasset_R|Part_Outfit_LINEN_ARMOR": 11,
+          "Armor_Bracer_L|Part_Outfit_LINEN_ARMOR": 22,
+          "Armor_Bracer_R|Part_Hair_SIDE_00": 3,
+          "Armor_Bracer_R|Part_Outfit_LINEN_ARMOR": 10
+        }
+      },
+      "26": {
+        "tool": {},
+        "wear": {
+          "Armor_Breastplate|Part_Body_BASE_ARMOR": 16,
+          "Armor_Breastplate|Part_Hair_LONG_ARMOR": 38,
+          "Armor_Breastplate|Part_Outfit_LINEN_ARMOR": 88,
+          "Armor_Breastplate_Lower|Part_Hair_LONG_ARMOR": 14,
+          "Armor_Tasset_L|Part_Outfit_LINEN_ARMOR": 6,
+          "Armor_Tasset_R|Part_Outfit_LINEN_ARMOR": 11,
+          "Armor_Bracer_L|Part_Outfit_LINEN_ARMOR": 22,
+          "Armor_Bracer_R|Part_Hair_SIDE_00": 3,
+          "Armor_Bracer_R|Part_Outfit_LINEN_ARMOR": 10
+        }
+      },
+      "27": {
+        "tool": {},
+        "wear": {
+          "Armor_Breastplate|Part_Body_BASE_ARMOR": 18,
+          "Armor_Breastplate|Part_Hair_LONG_ARMOR": 38,
+          "Armor_Breastplate|Part_Outfit_LINEN_ARMOR": 61,
+          "Armor_Breastplate_Lower|Part_Hair_LONG_ARMOR": 14,
+          "Armor_Tasset_L|Part_Outfit_LINEN_ARMOR": 6,
+          "Armor_Tasset_R|Part_Outfit_LINEN_ARMOR": 11,
+          "Armor_Bracer_L|Part_Outfit_LINEN_ARMOR": 22,
+          "Armor_Bracer_R|Part_Outfit_LINEN_ARMOR": 10
+        }
+      },
+      "28": {
+        "tool": {},
+        "wear": {
+          "Armor_Breastplate|Part_Body_BASE_ARMOR": 26,
+          "Armor_Breastplate|Part_Hair_LONG_ARMOR": 38,
+          "Armor_Breastplate|Part_Outfit_LINEN_ARMOR": 59,
+          "Armor_Breastplate_Lower|Part_Body_BASE_ARMOR": 10,
+          "Armor_Breastplate_Lower|Part_Hair_LONG_ARMOR": 14,
+          "Armor_Tasset_L|Part_Outfit_LINEN_ARMOR": 6,
+          "Armor_Tasset_R|Part_Outfit_LINEN_ARMOR": 11,
+          "Armor_Bracer_L|Part_Outfit_LINEN_ARMOR": 14,
+          "Armor_Bracer_R|Part_Outfit_LINEN_ARMOR": 10
+        }
+      },
+      "29": {
+        "tool": {},
+        "wear": {
+          "Armor_Breastplate|Part_Body_BASE_ARMOR": 20,
+          "Armor_Breastplate|Part_Hair_LONG_ARMOR": 38,
+          "Armor_Breastplate|Part_Outfit_LINEN_ARMOR": 52,
+          "Armor_Breastplate_Lower|Part_Body_BASE_ARMOR": 10,
+          "Armor_Breastplate_Lower|Part_Hair_LONG_ARMOR": 14,
+          "Armor_Tasset_L|Part_Outfit_LINEN_ARMOR": 6,
+          "Armor_Tasset_R|Part_Outfit_LINEN_ARMOR": 11,
+          "Armor_Bracer_L|Part_Outfit_LINEN_ARMOR": 10,
+          "Armor_Bracer_R|Part_Outfit_LINEN_ARMOR": 10
+        }
+      },
+      "30": {
+        "tool": {},
+        "wear": {
+          "Armor_Breastplate|Part_Body_BASE_ARMOR": 3,
+          "Armor_Breastplate|Part_Hair_LONG_ARMOR": 38,
+          "Armor_Breastplate|Part_Outfit_LINEN_ARMOR": 75,
+          "Armor_Breastplate_Lower|Part_Hair_LONG_ARMOR": 14,
+          "Armor_Tasset_L|Part_Outfit_LINEN_ARMOR": 6,
+          "Armor_Tasset_R|Part_Outfit_LINEN_ARMOR": 11,
+          "Armor_Bracer_L|Part_Outfit_LINEN_ARMOR": 14,
+          "Armor_Bracer_R|Part_Outfit_LINEN_ARMOR": 10
+        }
+      },
+      "31": {
+        "tool": {},
+        "wear": {
+          "Armor_Breastplate|Part_Body_BASE_ARMOR": 4,
+          "Armor_Breastplate|Part_Hair_LONG_ARMOR": 38,
+          "Armor_Breastplate|Part_Outfit_LINEN_ARMOR": 80,
+          "Armor_Breastplate_Lower|Part_Hair_LONG_ARMOR": 14,
+          "Armor_Tasset_L|Part_Outfit_LINEN_ARMOR": 6,
+          "Armor_Tasset_R|Part_Outfit_LINEN_ARMOR": 11,
+          "Armor_Bracer_L|Part_Outfit_LINEN_ARMOR": 14,
+          "Armor_Bracer_R|Part_Outfit_LINEN_ARMOR": 10
+        }
+      },
+      "32": {
+        "tool": {},
+        "wear": {
+          "Armor_Breastplate|Part_Hair_LONG_ARMOR": 38,
+          "Armor_Breastplate|Part_Outfit_LINEN_ARMOR": 81,
+          "Armor_Breastplate_Lower|Part_Hair_LONG_ARMOR": 14,
+          "Armor_Tasset_L|Part_Outfit_LINEN_ARMOR": 6,
+          "Armor_Tasset_R|Part_Outfit_LINEN_ARMOR": 11,
+          "Armor_Bracer_L|Part_Outfit_LINEN_ARMOR": 14,
+          "Armor_Bracer_R|Part_Outfit_LINEN_ARMOR": 8
+        }
+      },
+      "33": {
+        "tool": {},
+        "wear": {
+          "Armor_Breastplate|Part_Hair_LONG_ARMOR": 38,
+          "Armor_Breastplate|Part_Outfit_LINEN_ARMOR": 78,
+          "Armor_Breastplate_Lower|Part_Hair_LONG_ARMOR": 14,
+          "Armor_Tasset_L|Part_Outfit_LINEN_ARMOR": 6,
+          "Armor_Tasset_R|Part_Outfit_LINEN_ARMOR": 11,
+          "Armor_Bracer_L|Part_Outfit_LINEN_ARMOR": 14,
+          "Armor_Bracer_R|Part_Outfit_LINEN_ARMOR": 10
+        }
+      },
+      "34": {
+        "tool": {},
+        "wear": {
+          "Armor_Breastplate|Part_Body_BASE_ARMOR": 5,
+          "Armor_Breastplate|Part_Hair_LONG_ARMOR": 38,
+          "Armor_Breastplate|Part_Outfit_LINEN_ARMOR": 81,
+          "Armor_Breastplate_Lower|Part_Hair_LONG_ARMOR": 14,
+          "Armor_Tasset_L|Part_Outfit_LINEN_ARMOR": 6,
+          "Armor_Tasset_R|Part_Outfit_LINEN_ARMOR": 11,
+          "Armor_Bracer_L|Part_Outfit_LINEN_ARMOR": 16,
+          "Armor_Bracer_R|Part_Outfit_LINEN_ARMOR": 10
+        }
+      },
+      "35": {
+        "tool": {},
+        "wear": {
+          "Armor_Breastplate|Part_Hair_LONG_ARMOR": 38,
+          "Armor_Breastplate|Part_Outfit_LINEN_ARMOR": 73,
+          "Armor_Breastplate_Lower|Part_Hair_LONG_ARMOR": 14,
+          "Armor_Tasset_L|Part_Outfit_LINEN_ARMOR": 6,
+          "Armor_Tasset_R|Part_Outfit_LINEN_ARMOR": 11,
+          "Armor_Bracer_L|Part_Outfit_LINEN_ARMOR": 16,
+          "Armor_Bracer_R|Part_Hair_SIDE_00": 3,
+          "Armor_Bracer_R|Part_Outfit_LINEN_ARMOR": 10
+        }
+      },
+      "36": {
+        "tool": {},
+        "wear": {
+          "Armor_Breastplate|Part_Hair_LONG_ARMOR": 38,
+          "Armor_Breastplate|Part_Outfit_LINEN_ARMOR": 76,
+          "Armor_Breastplate_Lower|Part_Hair_LONG_ARMOR": 14,
+          "Armor_Tasset_L|Part_Outfit_LINEN_ARMOR": 6,
+          "Armor_Tasset_R|Part_Outfit_LINEN_ARMOR": 11,
+          "Armor_Bracer_L|Part_Outfit_LINEN_ARMOR": 18,
+          "Armor_Bracer_R|Part_Hair_SIDE_00": 5,
+          "Armor_Bracer_R|Part_Outfit_LINEN_ARMOR": 10
+        }
+      },
+      "37": {
+        "tool": {},
+        "wear": {
+          "Armor_Breastplate|Part_Hair_LONG_ARMOR": 38,
+          "Armor_Breastplate|Part_Outfit_LINEN_ARMOR": 78,
+          "Armor_Breastplate_Lower|Part_Hair_LONG_ARMOR": 14,
+          "Armor_Tasset_L|Part_Outfit_LINEN_ARMOR": 6,
+          "Armor_Tasset_R|Part_Outfit_LINEN_ARMOR": 11,
+          "Armor_Bracer_L|Part_Outfit_LINEN_ARMOR": 20,
+          "Armor_Bracer_R|Part_Hair_BOB_00": 3,
+          "Armor_Bracer_R|Part_Hair_BUNS_00": 3,
+          "Armor_Bracer_R|Part_Hair_PONY_00": 3,
+          "Armor_Bracer_R|Part_Hair_SIDE_00": 10,
+          "Armor_Bracer_R|Part_Outfit_LINEN_ARMOR": 10
+        }
+      },
+      "38": {
+        "tool": {},
+        "wear": {
+          "Armor_Breastplate|Part_Hair_LONG_ARMOR": 38,
+          "Armor_Breastplate|Part_Outfit_LINEN_ARMOR": 73,
+          "Armor_Breastplate_Lower|Part_Hair_LONG_ARMOR": 14,
+          "Armor_Tasset_L|Part_Outfit_LINEN_ARMOR": 6,
+          "Armor_Tasset_R|Part_Outfit_LINEN_ARMOR": 11,
+          "Armor_Bracer_L|Part_Outfit_LINEN_ARMOR": 20,
+          "Armor_Bracer_R|Part_Hair_BOB_00": 5,
+          "Armor_Bracer_R|Part_Hair_BUNS_00": 5,
+          "Armor_Bracer_R|Part_Hair_PONY_00": 5,
+          "Armor_Bracer_R|Part_Hair_SIDE_00": 6,
+          "Armor_Bracer_R|Part_Outfit_LINEN_ARMOR": 10
+        }
+      },
+      "39": {
+        "tool": {},
+        "wear": {
+          "Armor_Breastplate|Part_Hair_LONG_ARMOR": 38,
+          "Armor_Breastplate|Part_Outfit_LINEN_ARMOR": 71,
+          "Armor_Breastplate_Lower|Part_Hair_LONG_ARMOR": 14,
+          "Armor_Tasset_L|Part_Outfit_LINEN_ARMOR": 6,
+          "Armor_Tasset_R|Part_Outfit_LINEN_ARMOR": 11,
+          "Armor_Bracer_L|Part_Outfit_LINEN_ARMOR": 22,
+          "Armor_Bracer_R|Part_Hair_SIDE_00": 3,
+          "Armor_Bracer_R|Part_Outfit_LINEN_ARMOR": 10
+        }
+      },
+      "40": {
+        "tool": {},
+        "wear": {
+          "Armor_Breastplate|Part_Hair_LONG_ARMOR": 38,
+          "Armor_Breastplate|Part_Outfit_LINEN_ARMOR": 71,
+          "Armor_Breastplate_Lower|Part_Hair_LONG_ARMOR": 22,
+          "Armor_Tasset_L|Part_Outfit_LINEN_ARMOR": 6,
+          "Armor_Tasset_R|Part_Outfit_LINEN_ARMOR": 11,
+          "Armor_Bracer_L|Part_Outfit_LINEN_ARMOR": 30,
+          "Armor_Bracer_R|Part_Hair_BOB_00": 3,
+          "Armor_Bracer_R|Part_Hair_BUNS_00": 3,
+          "Armor_Bracer_R|Part_Hair_PONY_00": 3,
+          "Armor_Bracer_R|Part_Hair_SIDE_00": 6,
+          "Armor_Bracer_R|Part_Outfit_LINEN_ARMOR": 10
+        }
+      },
+      "41": {
+        "tool": {},
+        "wear": {
+          "Armor_Breastplate|Part_Hair_LONG_ARMOR": 38,
+          "Armor_Breastplate|Part_Outfit_LINEN_ARMOR": 64,
+          "Armor_Breastplate_Lower|Part_Hair_LONG_ARMOR": 22,
+          "Armor_Tasset_L|Part_Outfit_LINEN_ARMOR": 6,
+          "Armor_Tasset_R|Part_Outfit_LINEN_ARMOR": 11,
+          "Armor_Bracer_L|Part_Outfit_LINEN_ARMOR": 31,
+          "Armor_Bracer_R|Part_Hair_SIDE_00": 3,
+          "Armor_Bracer_R|Part_Outfit_LINEN_ARMOR": 10
+        }
+      }
+    }
+  }
+}

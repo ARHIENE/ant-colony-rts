@@ -1,0 +1,2 @@
+fbx/Assets/_Project/Art/Kemono/Anim/Kemono@PK_Tool_Till.fbx -> Assets/_Project/Art/Kemono/Anim/Kemono@PK_Tool_Till.fbx
+fbx/Assets/_Project/Art/Kemono/Anim/Kemono@PK_Tool_Mine.fbx -> Assets/_Project/Art/Kemono/Anim/Kemono@PK_Tool_Mine.fbx

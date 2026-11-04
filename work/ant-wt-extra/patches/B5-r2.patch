@@ -1,0 +1,1062 @@
+diff --git a/AgentScripts/ImplB5Checks.cs b/AgentScripts/ImplB5Checks.cs
+new file mode 100644
+index 0000000..e121aac
+--- /dev/null
++++ b/AgentScripts/ImplB5Checks.cs
+@@ -0,0 +1,236 @@
++using System;
++using System.Collections.Generic;
++using System.IO;
++using System.Linq;
++using System.Reflection;
++using System.Threading.Tasks;
++using AntColony.Buildings;
++using AntColony.Core;
++using AntColony.Data;
++using AntColony.Save;
++using AntColony.UI;
++using AntColony.Units;
++using AntColony.World;
++using UnityEngine;
++using Object = UnityEngine.Object;
++
++public static class ImplB5Checks
++{
++    static int count;
++    const BindingFlags Hidden = BindingFlags.Instance | BindingFlags.NonPublic;
++    static void Check(bool value, string label) { if (!value) throw new Exception("B5 FAIL " + count + ": " + label); count++; }
++    static bool Near(float a, float b) => Mathf.Abs(a - b) < .02f;
++    static object Call(object target, string method, params object[] args) => target.GetType().GetMethod(method, Hidden).Invoke(target, args);
++    static async Task Ready()
++    {
++        var until = DateTime.UtcNow.AddSeconds(90);
++        while (SaveSystem.Busy && DateTime.UtcNow < until) await Task.Delay(50);
++        Check(!SaveSystem.Busy, "load finished"); Time.timeScale = 0;
++    }
++
++    public static async Task<string> Main()
++    {
++        count = 0; Check(Application.isPlaying, "Play mode required");
++        var settings = UserSettings.Current.Clone(); var root = SaveStorage.RootOverride;
++        var random = UnityEngine.Random.state; var scale = Time.timeScale;
++        var isolated = settings.Clone(); isolated.autoSaveEnabled = false; UserSettings.Apply(isolated, false);
++        SaveStorage.RootOverride = Path.Combine(Application.temporaryCachePath, "ImplB5-" + Guid.NewGuid().ToString("N"));
++        GameObject pileObject = null; BuildingData pileData = null;
++        try
++        {
++            await Ready();
++            var options = new NewGameOptions { startingCount = 2, seed = 261024, mapSize = MapSize.Small,
++                biome = MapBiome.Forest, startingTeam = new[] { StartingCandidate.Roll(0), StartingCandidate.Roll(1) } };
++            foreach (var candidate in options.startingTeam) candidate.traits.values.Clear();
++            CrashLandingStart.Begin(options); await Ready();
++            var world = WorldMapManager.Instance; var diplomacy = DiplomacyManager.Instance;
++            var commanders = CommanderRoster.Instance.Commanders.ToArray();
++            Check(commanders.Length == 2 && commanders.All(c => c.TroopCount == 0), "crash start two commanders, no troops");
++            foreach (var c in commanders) { c.CommandStop(); c.SetJobEnabled(CommanderJobs.All, false); }
++            // 새 시작에 없는 비축더미를 검사에서 직접 만든다.
++            pileObject = GameObject.CreatePrimitive(PrimitiveType.Cube); pileObject.SetActive(false);
++            pileObject.name = "B5 check stockpile"; pileObject.transform.position = world.HomePosition;
++            var pile = pileObject.AddComponent<Stockpile>(); pileData = ScriptableObject.CreateInstance<BuildingData>();
++            pileData.kind = BuildingKind.QueenChamber;
++            typeof(BuildingBase).GetMethod("ConfigureRuntime", Hidden).Invoke(pile, new object[] { pileData });
++            pileObject.SetActive(true);
++            ResourceManager.Instance.Add(AntColony.Data.ResourceType.Food, 200);
++
++            Check(GameCalendar.SecondsPerDay == 150 && DiplomacyRules.OfferSeconds == 900, "G08 calendar reused");
++            var firstBoss = world.Sites.First(s => s.Kind == ExpeditionSiteKind.BossNest);
++            Check(ExpeditionRules.WalkSeconds(firstBoss) <= GameCalendar.SecondsPerDay, "G05 first boss within one day");
++            Check(ExpeditionRules.RecommendedFood(150, 4) == 16, "G05 round trip + local day + spare day");
++            var first = world.CreateWalkingParty(new[] { commanders[0] });
++            var second = world.CreateWalkingParty(new[] { commanders[1] });
++            Check(first != null && second != null && first.Walking && first.CommanderLoad == 1 && first.Load == 0, "G05 walking without vehicle or conscription");
++            Check(first.LeavesHomeUnattended && ExpeditionRules.HomeCommanders == 0, "G21 all away warning");
++            Check(!diplomacy.TryDispatchIndependentRaid(), "G21 generic incursion deferred with no home commander");
++            var incursions = Object.FindAnyObjectByType<LocalIncursions>();
++            Check(incursions != null && !incursions.TrySpawnIndependent(3), "G21 direct generic spawn deferred");
++            Check(!first.TryBoard(new[] { commanders[0] }), "G15 no duplicate passenger");
++            Check(!HomeDefenseReturn.Allows(commanders[0]), "G48 expedition excluded");
++            var oldDaily = first.DailyFood;
++            Call(commanders[0], "RestoreTroops", 3, 0f);
++            Check(Near(first.DailyFood - oldDaily, 6 * GameBalance.MealFood), "G05 soldiers consume two meals per day");
++            Call(commanders[0], "RestoreTroops", 0, 0f);
++            Check(first.TryLoadFood(20), "G05 supply loaded from own fixture");
++            Check(first.ReturnCargoSpace == first.CargoCapacity - first.CargoLoad, "G05 return cargo space");
++            var destination = world.Sites.First(s => s.Kind == ExpeditionSiteKind.ResourceSite);
++            var before = first.AvailableFood;
++            Check(first.TryDepart(destination), "G05 walking departure");
++            var oneWay = first.TravelSeconds;
++            first.Tick(oneWay / 2);
++            Check(first.State == ExpeditionState.Outbound && first.Remaining > 0, "G21 no instant arrival");
++            first.Tick(oneWay / 2);
++            Check(first.State == ExpeditionState.Deployed && first.AvailableFood < before, "G05 actual travel consumes supplies");
++            Check(second.TryDepart(destination), "G15 second party same destination"); second.Tick(second.TravelSeconds);
++            Check(second.State == ExpeditionState.Deployed && destination.Visitor != null, "G15 reinforcements enter occupied battlefield");
++            Check(first.TryBoard(new[] { commanders[1] }) && second.Crew.Count == 0 && commanders[1].Transport == first, "G15 merge crews on site");
++            Check(!HomeDefenseReturn.Allows(commanders[1]), "G48 local expedition excluded");
++            Check(first.TryReturn(), "G21 begin physical return"); first.Tick(oneWay / 2);
++            Check(first.State == ExpeditionState.Returning, "G21 return keeps travel time"); first.Tick(oneWay / 2);
++            Check(first.State == ExpeditionState.Home && commanders.All(c => c.Transport == null), "G05 home unload preserves crew");
++
++            var vehicle = world.CreateTransport(false, world.HomePosition);
++            var aircraft = world.CreateTransport(true, world.HomePosition + Vector3.right * 5);
++            for (var i = 0; i < commanders.Length; i++) Call(commanders[i], "SetEmbarked", false, world.HomePosition + Vector3.right * (2 + i));
++            Check(vehicle.Capacity == Mathf.FloorToInt(GameBalance.VehicleTroops * ScienceEffects.TroopCapacityMultiplier)
++                && aircraft.Capacity == Mathf.FloorToInt(GameBalance.AircraftTroops * ScienceEffects.TroopCapacityMultiplier), "G15 40/100 are per-trip capacities");
++            Check(vehicle.TryBoard(new[] { commanders[0] }) && aircraft.TryBoard(new[] { commanders[1] }), "G15 separate transports board home crew");
++            Check(vehicle.TryDepart(destination) && aircraft.TryDepart(destination), "G15 multiple transports can depart to same site");
++            aircraft.Tick(aircraft.TravelSeconds); vehicle.Tick(vehicle.TravelSeconds);
++            Check(aircraft.State == ExpeditionState.Deployed && vehicle.State == ExpeditionState.Outbound, "G15 only one docking operation at a time");
++            aircraft.Tick(ExpeditionRules.DockSeconds); vehicle.Tick(.01f);
++            Check(vehicle.State == ExpeditionState.Deployed, "G15 dock frees after unloading, deployed unit does not block");
++            Check(vehicle.TryReturn() && aircraft.TryReturn(), "G15 both transports return");
++            vehicle.Tick(vehicle.TravelSeconds); aircraft.Tick(aircraft.TravelSeconds);
++            var disabled = world.DefenseReturn;
++            Check(disabled.Enabled(commanders[0]), "G48 enabled by default"); disabled.Set(commanders[0], false);
++            var defenseCopy = JsonUtility.FromJson<HomeDefenseReturn>(JsonUtility.ToJson(disabled));
++            Check(!defenseCopy.Enabled(commanders[0]) && defenseCopy.Enabled(commanders[1]), "G48 per formation setting serializes"); disabled.Set(commanders[0], true);
++
++            Check(diplomacy.TryDispatchIndependentRaid(), "G62 independent army departs from a real settlement");
++            var independent = diplomacy.Data.travellingRaids.Single();
++            Check(independent.faction == "" && independent.arrive > diplomacy.Data.elapsed && independent.count > 0,
++                "G62 independent army has source, strength and travel time");
++            Check(!diplomacy.TryDispatchIndependentRaid(), "G62 no duplicate independent departure");
++            first = world.CreateWalkingParty(new[] { commanders[0] }); second = world.CreateWalkingParty(new[] { commanders[1] });
++            Check(first != null && second != null, "G21 prepare unattended home during enemy travel");
++            diplomacy.Data.elapsed = independent.arrive;
++            Call(diplomacy, "TickRaidTravel");
++            Check(diplomacy.Data.travellingRaids.Contains(independent), "G21 independent arrival waits with zero home commanders");
++            Check(first.TryUnloadCrew() && second.TryUnloadCrew(), "G21 home defenders become available again");
++            var independentVisitors = incursions.Visitors.Count;
++            Call(diplomacy, "TickRaidTravel");
++            Check(!diplomacy.Data.travellingRaids.Contains(independent) && incursions.Visitors.Count == independentVisitors + independent.count,
++                "G62 deferred independent army arrives once");
++            foreach (var raider in incursions.Visitors.ToArray()) if (raider != null) Object.DestroyImmediate(raider.gameObject);
++
++            var owned = world.Sites.First(s => diplomacy.Faction(s) != null);
++            var civ = diplomacy.Faction(owned); diplomacy.Data.elapsed = 123;
++            Check(!civ.contacted && !diplomacy.DeclareWar(civ), "G62 no first contact from remote declaration");
++            Call(diplomacy, "Monthly", civ); Check(!civ.war && diplomacy.Data.travellingRaids.Count == 0, "G62 uncontacted civilization never initiates invasion");
++            diplomacy.Contact(destination); Check(!civ.contacted, "G62 neutral resource arrival is not civilization contact");
++            diplomacy.Contact(owned);
++            Check(civ.contacted && Near(civ.contactedAt, 123) && Near(civ.nextConquestCheck, 1023), "G62 contact starts six-day grace");
++            diplomacy.Contact(owned); Check(Near(civ.nextConquestCheck, 1023), "G62 repeat contact does not reset grace");
++            Check(!DiplomacyManager.IsWeakAgainst(149.99f, 100) && DiplomacyManager.IsWeakAgainst(150, 100), "G62 1.5 ratio boundary");
++            Check(!DiplomacyManager.IsWeakAgainst(0, 0), "G62 empty army cannot invade");
++            civ.agenda = LeaderAgenda.Conqueror; civ.hiddenAgenda = LeaderAgenda.Warrior;
++            Call(diplomacy, "TickConquerors"); Check(!civ.war, "G62 conqueror cannot attack during grace");
++            Check(diplomacy.DeclareWar(civ) && !(bool)Call(diplomacy, "Raid", civ, true), "G62 even declared war observes conqueror grace");
++            diplomacy.Data.elapsed = civ.nextConquestCheck;
++            civ.war = false;
++            var source = world.Sites.First(s => diplomacy.Faction(s) == civ && s.Colony != null && !s.Colony.IsDefeated);
++            var stockBefore = source.Colony.GetStock(AntColony.Data.ResourceType.Food);
++            Call(diplomacy, "TickConquerors");
++            Check(civ.war && diplomacy.Data.travellingRaids.Count == 1 && Near(civ.nextConquestCheck, diplomacy.Data.elapsed + DiplomacyRules.Season),
++                "G62 conqueror declares and dispatches only at seasonal check");
++            Call(diplomacy, "TickConquerors");
++            Check(diplomacy.Data.travellingRaids.Count == 1, "G62 seasonal check does not repeat within the season");
++            var travelling = diplomacy.Data.travellingRaids.Single();
++            Check(Near(travelling.arrive, diplomacy.Data.elapsed + ExpeditionRules.WalkSeconds(source))
++                && Near(stockBefore - source.Colony.GetStock(AntColony.Data.ResourceType.Food), travelling.count * 10), "G62 travel and actual source payment");
++            Call(diplomacy, "TickRaidTravel"); Check(diplomacy.Data.travellingRaids.Count == 1, "G62 no immediate home invasion");
++            var stateCopy = JsonUtility.FromJson<DiplomacyManager.State>(JsonUtility.ToJson(diplomacy.Capture()));
++            Check(stateCopy.travellingRaids.Count == 1 && Near(stateCopy.travellingRaids[0].arrive, travelling.arrive), "G62 travel survives JSON roundtrip");
++            Check(DiplomacyManager.Validate(stateCopy, world.Sites.Count), "G62 new saved fields validate");
++            diplomacy.Restore(stateCopy); civ = diplomacy.Faction(owned); travelling = diplomacy.Data.travellingRaids.Single();
++            Check(Near(source.Colony.GetStock(AntColony.Data.ResourceType.Food), stockBefore - travelling.count * 10),
++                "G62 restoring travelling army does not pay departure again");
++            stateCopy.travellingRaids[0].arrive = float.NaN;
++            Check(!DiplomacyManager.Validate(stateCopy, world.Sites.Count), "G62 corrupt travel rejected");
++            var arrival = travelling.arrive;
++            diplomacy.Data.elapsed = arrival;
++            var visitorsBefore = incursions.Visitors.Count(v => v != null && !v.IsDead); Call(diplomacy, "TickRaidTravel");
++            Check(diplomacy.Data.travellingRaids.Count == 0 && incursions.Visitors.Count(v => v != null && !v.IsDead) == visitorsBefore + travelling.count, "G62 army enters home only on arrival");
++            Call(diplomacy, "TickRaidTravel");
++            Check(incursions.Visitors.Count(v => v != null && !v.IsDead) == visitorsBefore + travelling.count, "G62 arrival cannot spawn the same army twice");
++            foreach (var raider in incursions.Visitors.ToArray()) if (raider != null && raider.DiplomaticFactionId == civ.id) Object.DestroyImmediate(raider.gameObject);
++            civ.war = false;
++
++            var offer = diplomacy.StartTalk(civ, TalkKind.TreatyOffer); offer.take.treaties.Add(TreatyKind.Trade);
++            Check(Near(offer.expires - diplomacy.Data.elapsed, GameCalendar.SecondsPerSeason), "G67 proposal lasts a season");
++            Check(diplomacy.Respond(offer, true).Contains("담당") && diplomacy.Data.talks.Contains(offer), "G67 no acceptance without assigned negotiator");
++            Check(diplomacy.Respond(offer, false).Contains("거절") && !diplomacy.Data.talks.Contains(offer), "G67 refusal without negotiator");
++            var demand = diplomacy.StartTalk(civ, TalkKind.Demand); demand.negotiator = commanders[0].PersonalState.id;
++            demand.ultimatum = true; demand.take.resources[0] = 200;
++            civ.resources[0] = 1000; civ.threatCred = -100; diplomacy.Data.threat = -100;
++            Check(DiplomacyManager.CanNegotiate(commanders[0]), "G67 active home negotiator eligible");
++            var bloodLoss = commanders[0].PersonalState.health.bloodLoss;
++            var homePower = diplomacy.AvailableHomePower;
++            commanders[0].PersonalState.health.bloodLoss = 1;
++            Check(commanders[0].PersonalState.health.Downed && !DiplomacyManager.CanNegotiate(commanders[0]), "G67 downed negotiator excluded even with personal health remaining");
++            Check(Near(homePower - diplomacy.AvailableHomePower, 20 + commanders[0].TroopCount), "G62 downed commander is not available home power");
++            commanders[0].PersonalState.health.bloodLoss = bloodLoss;
++            diplomacy.Propose(demand);
++            Check(demand.deadline > 0 && Near(demand.deadline - diplomacy.Data.elapsed,
++                diplomacy.EstimatedTravel(civ) + 3 * GameCalendar.SecondsPerDay) && demand.expires == 0, "G67 rejected ultimatum travel plus three days");
++            diplomacy.Data.elapsed = demand.deadline; Call(diplomacy, "TickTalks");
++            Check(!diplomacy.Data.talks.Contains(demand), "G67 ultimatum expires once");
++            var credibility = civ.threatCred; var threat = diplomacy.Data.threat;
++            diplomacy.WithdrawUltimatum(demand); Call(diplomacy, "TickTalks");
++            Check(civ.threatCred == credibility && diplomacy.Data.threat == threat, "G67 ended ultimatum cannot apply withdrawal twice");
++            var expired = diplomacy.StartTalk(civ, TalkKind.TreatyOffer);
++            diplomacy.Data.elapsed = expired.expires; Check(diplomacy.Respond(expired, true).Contains("기한"), "G67 expired acceptance rejected before next tick");
++            Call(diplomacy, "TickTalks"); Check(!diplomacy.Data.talks.Contains(expired), "G67 normal offer expires");
++
++            var legacy = diplomacy.Capture();
++            legacy.travellingRaids = null;
++            var oldContact = legacy.civilizations.First(c => c.contacted);
++            oldContact.contactedAt = oldContact.nextConquestCheck = 0;
++            Check(DiplomacyManager.Validate(legacy, world.Sites.Count), "G62 old save accepts absent travel and contact timers");
++            diplomacy.Restore(legacy);
++            var restored = diplomacy.Data.civilizations.First(c => c.id == oldContact.id);
++            Check(diplomacy.Data.travellingRaids.Count == 0 && Near(restored.contactedAt, diplomacy.Data.elapsed)
++                && Near(restored.nextConquestCheck, diplomacy.Data.elapsed + DiplomacyRules.Season), "G62 old save receives grace without spawning or paying a raid");
++
++            SimulationPause.Restore(null); SimulationPause.UserSpeed(3);
++            Check(SimulationPause.Incident("b5:attack", "위협", true) && Time.timeScale == 0, "G44 new attack auto pause");
++            SimulationPause.Hold("manual"); SimulationPause.Hold("negotiation"); SimulationPause.Release("negotiation");
++            Check(Time.timeScale == 0 && SimulationPause.Reasons.Contains("manual"), "G44 closing talks preserves other reasons");
++            SimulationPause.UserSpeed(3);
++            Check(!SimulationPause.Incident("b5:attack", "후속 타격", true) && Time.timeScale == 3, "G44 same incident does not pause twice");
++            SimulationPause.Hold("negotiation"); SimulationPause.UserSpeed(2);
++            Check(Time.timeScale == 0, "G44 forced negotiation pause survives speed request"); SimulationPause.Release("negotiation");
++            Check(Time.timeScale == 2, "G44 chosen speed after negotiation release");
++            SimulationPause.Incident("b5:notice", "일반 알림", false); Check(Time.timeScale == 2, "G44 ordinary notice does not pause");
++            SimulationPause.Observe(new Dictionary<string, string> { ["threat:b5-home"] = "본거지", ["threat:b5-site"] = "현지" }, true);
++            var incidentCount = SimulationPause.Capture().incidents.Count;
++            SimulationPause.UserSpeed(1);
++            SimulationPause.Observe(new Dictionary<string, string> { ["threat:b5-home"] = "본거지", ["threat:b5-site"] = "현지" }, true);
++            Check(Time.timeScale == 1 && SimulationPause.Capture().incidents.Count == incidentCount, "G21 simultaneous threats coalesce by region");
++            var pauseCopy = JsonUtility.FromJson<SimulationPause.State>(JsonUtility.ToJson(SimulationPause.Capture()));
++            Check(SimulationPause.Valid(pauseCopy) && pauseCopy.active.Count == 2, "G21/G44 incident state serializes");
++            Check(JsonUtility.FromJson<TransportDto>("{}").walking == false, "old transport defaults to vehicle");
++            return "PASS " + count;
++        }
++        finally
++        {
++            if (pileObject != null) Object.Destroy(pileObject);
++            if (pileData != null) Object.Destroy(pileData);
++            SimulationPause.Restore(null); Time.timeScale = scale;
++            UnityEngine.Random.state = random; SaveStorage.RootOverride = root; UserSettings.Apply(settings, false);
++        }
++    }
++}
+diff --git a/Assets/_Project/Scripts/UI/GameMenuNegotiation.cs b/Assets/_Project/Scripts/UI/GameMenuNegotiation.cs
+index 17c0a39..a309d32 100644
+--- a/Assets/_Project/Scripts/UI/GameMenuNegotiation.cs
++++ b/Assets/_Project/Scripts/UI/GameMenuNegotiation.cs
+@@ -37,7 +37,7 @@ namespace AntColony.UI
+             }
+ 
+             // 담당 장수: 클릭할 때마다 다음 가능 장수로 바뀐다.
+-            var eligible = CommanderRoster.Instance.Commanders.Where(DiplomacyManager.CanNegotiate).OrderByDescending(a => a.Talents.Level(CommanderActivity.Politics)).ToList();
++            var eligible = (CommanderRoster.Instance?.Commanders ?? System.Array.Empty<CommanderAnt>()).Where(DiplomacyManager.CanNegotiate).OrderByDescending(a => a.Talents.Level(CommanderActivity.Politics)).ToList();
+             var current = DiplomacyManager.Negotiator(n);
+             L.Button(p, "Talk Negotiator", current == null ? "담당 장수 지정 ▸" : $"담당: {current.CommanderName} (정치 {current.Talents.Level(CommanderActivity.Politics)}) ▸", 760, 12, 300, 36, () =>
+             {
+@@ -55,6 +55,7 @@ namespace AntColony.UI
+                 : $"요청: <b>{DiplomacyManager.Summary(n.give)}</b>" + (n.take.Empty ? "" : " → 받는 것 " + DiplomacyManager.Summary(n.take)) + $"   <color=#b1b3a7>{d.RefusalRisk(n)}</color>";
+             L.Label(p, status, 15, 14, 66, 1316, 26);
+             if (n.last != "") L.Label(p, "최근 응답: " + n.last, 13, 14, 92, 1316, 20, MenuTheme.Accent);
++            else if (current == null) L.Label(p, "담당 없이 열람·거절 가능 · 수락·역제안은 본거지 활동 담당 필요 · 기본 기한 1계절(6일)", 13, 14, 92, 1316, 20, MenuTheme.Muted);
+ 
+             if (n.kind == TalkKind.Trade || n.kind == TalkKind.Demand)
+             {
+@@ -85,7 +86,7 @@ namespace AntColony.UI
+             string Act(string result) { if (!string.IsNullOrEmpty(result)) { n.log.Insert(0, result); ToastManager.Show(result); } return result; }
+             void After() { if (d.Data.talks.Contains(n)) OpenTalk(n); else Diplomacy(c); }
+             if (n.kind == TalkKind.Trade)
+-                L.Button(p, "Talk Propose", "제안", 1130, 696, 200, 34, () => { Act(d.Propose(n)); After(); }, null, true);
++                L.Button(p, "Talk Propose", "제안", 1130, 696, 200, 34, () => { Act(d.Propose(n)); After(); }, null, true).interactable = current != null;
+             else if (n.kind == TalkKind.Demand)
+             {
+                 if (n.deadline > 0)
+@@ -96,13 +97,13 @@ namespace AntColony.UI
+                 else
+                 {
+                     L.Button(p, "Talk Ultimatum", n.ultimatum ? "최후통첩: 켬 (거절 시 공격)" : "최후통첩: 끔 (일반 요구)", 860, 696, 260, 34, () => { n.ultimatum = !n.ultimatum; OpenTalk(n); });
+-                    L.Button(p, "Talk Propose", "요구", 1130, 696, 200, 34, () => { Act(d.Propose(n)); After(); }, null, true);
++                    L.Button(p, "Talk Propose", "요구", 1130, 696, 200, 34, () => { Act(d.Propose(n)); After(); }, null, true).interactable = current != null;
+                 }
+             }
+             else
+             {
+                 L.Button(p, "Talk Refuse", "거절", 860, 696, 130, 34, () => { Act(d.Respond(n, false)); After(); });
+-                L.Button(p, "Talk Accept", n.kind == TalkKind.TreatyOffer || n.give.resources[0] >= n.asked ? "수락" : "역제안", 1000, 696, 330, 34, () => { Act(d.Respond(n, true)); After(); }, null, true);
++                L.Button(p, "Talk Accept", n.kind == TalkKind.TreatyOffer || n.give.resources[0] >= n.asked ? "수락" : "역제안", 1000, 696, 330, 34, () => { Act(d.Respond(n, true)); After(); }, null, true).interactable = current != null;
+             }
+         }
+     }
+diff --git a/Assets/_Project/Scripts/UI/SimulationPause.cs b/Assets/_Project/Scripts/UI/SimulationPause.cs
+index 5c7b6ef..c222946 100644
+--- a/Assets/_Project/Scripts/UI/SimulationPause.cs
++++ b/Assets/_Project/Scripts/UI/SimulationPause.cs
+@@ -40,6 +40,9 @@ namespace AntColony.UI
+         }
+         public static void Observe(Dictionary<string, string> active, bool announce)
+         {
++            foreach (var ended in state.active.Where(key => !active.ContainsKey(key)))
++                foreach (var id in state.incidents.Where(id => id.StartsWith(ended + ":")))
++                    ToastManager.SetCrisis("incident:" + id, null);
+             foreach (var entry in active)
+                 if (!state.active.Contains(entry.Key) && announce)
+                 {
+diff --git a/Assets/_Project/Scripts/World/ColonyInvasion.cs b/Assets/_Project/Scripts/World/ColonyInvasion.cs
+index da2b512..e29bc1b 100644
+--- a/Assets/_Project/Scripts/World/ColonyInvasion.cs
++++ b/Assets/_Project/Scripts/World/ColonyInvasion.cs
+@@ -83,15 +83,17 @@ namespace AntColony.World
+         // 전리품 노드 설정이 빠지면 경제가 조용히 멈추므로 시작할 때 알린다.
+         private void WarnMissingStock()
+         {
+-            if (raiderFoodCost > 0 && !colony.HasResourceNode(ResourceType.Food))
++            if (raiderFoodCost > 0 && !colony.HasResourceNode(AntColony.Data.ResourceType.Food))
+                 Debug.LogWarning($"{name}: Food 전리품 노드가 없어 침공 자원 소비를 건너뛴다.", this);
+-            if (expansionSoilCost > 0 && !colony.HasResourceNode(ResourceType.Soil))
++            if (expansionSoilCost > 0 && !colony.HasResourceNode(AntColony.Data.ResourceType.Soil))
+                 Debug.LogWarning($"{name}: Soil 전리품 노드가 없어 자동 확장을 건너뛴다.", this);
+         }
+ 
+         private void Update()
+         {
+             TickEconomy();
++            // 월드 거점의 출발·이동은 DiplomacyManager가 관리한다. 로컬 소굴만 이 경로를 사용한다.
++            if (GetComponentInParent<ExpeditionSite>() != null) return;
+             if (ExpeditionRules.HomeCommanders == 0) return;
+             // 밤 위협(2026-09-28 확정): 밤에는 침공이 1.5배 잦다.
+             timer -= Time.deltaTime * (GameCalendar.IsNight ? EventRules.NightThreatScale : 1f);
+@@ -163,7 +165,7 @@ namespace AntColony.World
+             var scatter = Random.insideUnitCircle * spawnScatter;
+             var origin = spawnPoint.position + new Vector3(scatter.x, 0f, scatter.y);
+             if (!NavMesh.SamplePosition(origin, out var hit, spawnScatter + 2f, NavMesh.AllAreas)) return;
+-            if (commanderFoodCost > 0 && colony.HasResourceNode(ResourceType.Food)
++            if (commanderFoodCost > 0 && colony.HasResourceNode(AntColony.Data.ResourceType.Food)
+                 && !colony.TrySpendResources(commanderFoodCost, 0)) return;
+ 
+             var commander = Instantiate(commanderTemplate, hit.position, spawnPoint.rotation);
+@@ -177,7 +179,7 @@ namespace AntColony.World
+         // Food 전리품 노드가 없는 소굴은 경제 도입 전처럼 비용 없이 침공한다.
+         private bool TryPayRaiderCost()
+         {
+-            if (raiderFoodCost <= 0 || !colony.HasResourceNode(ResourceType.Food)) return true;
++            if (raiderFoodCost <= 0 || !colony.HasResourceNode(AntColony.Data.ResourceType.Food)) return true;
+             return colony.TrySpendResources(raiderFoodCost, 0);
+         }
+     }
+diff --git a/Assets/_Project/Scripts/World/DiplomacyManager.cs b/Assets/_Project/Scripts/World/DiplomacyManager.cs
+index fa7b230..c2c80a3 100644
+--- a/Assets/_Project/Scripts/World/DiplomacyManager.cs
++++ b/Assets/_Project/Scripts/World/DiplomacyManager.cs
+@@ -26,6 +26,7 @@ namespace AntColony.World
+             public List<Seizure> seizures = new List<Seizure>();
+             public List<string> reputation = new List<string>();
+             public int trust, threat, nextTalk;
++            public List<TravellingRaid> travellingRaids = new List<TravellingRaid>();
+         }
+         public static DiplomacyManager Instance { get; private set; }
+         public State Data { get; private set; } = new State();
+@@ -84,15 +85,15 @@ namespace AntColony.World
+             if (!Available) return;
+             var c = Faction(site);
+             if (c == null || c.contacted) return;
+-            c.contacted = true;
+-            CampaignHistory.Record("접촉", c.name, c.leader, true);
++            MarkContact(c);
+         }
+         public bool DeclareWar(Civilization c, bool surprise = false)
+         {
+-            if (!Available || c == null || !Data.civilizations.Contains(c) || c.extinct || c.war
++            if (!Available || c == null || !Data.civilizations.Contains(c) || c.extinct || c.war || !c.contacted && !surprise
+                 || c.HasTreaty(TreatyKind.NonAggression, Data.elapsed)) return false;
+             var broken = c.HasTreaty(TreatyKind.Trade, Data.elapsed) || c.HasTreaty(TreatyKind.Alliance, Data.elapsed);
+-            c.contacted = c.war = true; c.warStarted = Data.elapsed; c.nextRaid = Data.elapsed + 3 * DiplomacyRules.Month;
++            MarkContact(c);
++            c.war = true; c.warStarted = Data.elapsed; c.nextRaid = Data.elapsed + DiplomacyRules.Season;
+             c.playerScore = c.enemyScore = 0; Array.Clear(c.treaties, 0, c.treaties.Length); c.offerExpires = 0;
+             c.ChangeAffinity(-10, "전쟁");
+             if (surprise) foreach (var other in Data.civilizations.Where(x => !x.extinct)) other.ChangeAffinity(DiplomacyRules.SurprisePenalty, "기습 선전포고");
+@@ -109,9 +110,9 @@ namespace AntColony.World
+             if (!CanNegotiatePeace(c)) return false;
+             var compensation = Reparations(c); var resources = ResourceManager.Instance;
+             if (resources == null || compensation > 0 && (!resources.CanAfford(compensation, 0) || c.resources[0] > int.MaxValue - compensation)
+-                || compensation < 0 && (c.resources[0] < -compensation || resources.GetCapacity(ResourceType.Food) - resources.GetAmount(ResourceType.Food) < -compensation)) return false;
++                || compensation < 0 && (c.resources[0] < -compensation || resources.GetCapacity(AntColony.Data.ResourceType.Food) - resources.GetAmount(AntColony.Data.ResourceType.Food) < -compensation)) return false;
+             if (compensation > 0) { resources.TrySpend(compensation, 0, reason: ResourceReason.Trade); c.resources[0] += compensation; }
+-            if (compensation < 0) { c.resources[0] += compensation; resources.Add(ResourceType.Food, -compensation, ResourceReason.Trade); }
++            if (compensation < 0) { c.resources[0] += compensation; resources.Add(AntColony.Data.ResourceType.Food, -compensation, ResourceReason.Trade); }
+             c.war = false; c.nextOffer = Data.elapsed + DiplomacyRules.Month * 3;
+             foreach (var raider in FindObjectsByType<WildMonster>(FindObjectsSortMode.None))
+                 if (raider.DiplomaticFactionId == c.id && string.IsNullOrEmpty(raider.RebelId)) Destroy(raider.gameObject);
+@@ -128,7 +129,9 @@ namespace AntColony.World
+         }
+         public bool AcceptOffer(Civilization c)
+         {
+-            if (c == null || c.offerExpires <= Data.elapsed || !SignTreaty(c, c.offeredTreaty)) return false;
++            if (c == null) return false;
++            var offer = Data.talks.Find(n => n.civ == c.id && n.kind == TalkKind.TreatyOffer);
++            if (offer == null || Respond(offer, true) != "수락") return false;
+             c.offerExpires = 0; return true;
+         }
+         public static bool Hostile(Component target)
+@@ -164,9 +167,11 @@ namespace AntColony.World
+         {
+             if (Data.airshipStarted) return;
+             Data.airshipStarted = true;
+-            foreach (var c in Data.civilizations.Where(c => !c.extinct && (c.war || c.affinity <= -40 || c.agenda == LeaderAgenda.Scientist)))
++            foreach (var c in Data.civilizations.Where(c => c.contacted && !c.extinct && (c.war || c.affinity <= -40 || c.agenda == LeaderAgenda.Scientist)))
+             {
++                if (c.agenda == LeaderAgenda.Conqueror && Data.elapsed < c.contactedAt + DiplomacyRules.Season) continue;
+                 if (!c.war && !DeclareWar(c)) continue;
++                if (c.agenda == LeaderAgenda.Conqueror) continue;
+                 Raid(c, true);
+             }
+         }
+@@ -177,6 +182,8 @@ namespace AntColony.World
+             TickHomecomings();
+             if (!Available) return;
+             TickTalks();
++            TickRaidTravel();
++            TickConquerors();
+             while (Data.nextMonth <= Data.elapsed)
+             {
+                 Data.nextMonth += DiplomacyRules.Month;
+@@ -186,14 +193,15 @@ namespace AntColony.World
+         }
+         private void Monthly(Civilization c)
+         {
++            if (!c.contacted) return;
+             if (c.contacted && !c.war)
+             {
+                 if (c.HasTreaty(TreatyKind.Trade, Data.elapsed))
+                 {
+                     var r = ResourceManager.Instance; var amount = DiplomacyRules.MonthlyTradeAmount;
+-                    if (r != null && c.resources[1] >= amount && r.GetCapacity(ResourceType.Soil) - r.GetAmount(ResourceType.Soil) >= amount
++                    if (r != null && c.resources[1] >= amount && r.GetCapacity(AntColony.Data.ResourceType.Soil) - r.GetAmount(AntColony.Data.ResourceType.Soil) >= amount
+                         && c.resources[0] <= int.MaxValue - amount && r.TrySpend(amount, 0, reason: ResourceReason.Trade))
+-                    { r.Add(ResourceType.Soil, amount, ResourceReason.Trade); c.resources[0] += amount; c.resources[1] -= amount; c.ChangeAffinity(1, "월별 교역"); }
++                    { r.Add(AntColony.Data.ResourceType.Soil, amount, ResourceReason.Trade); c.resources[0] += amount; c.resources[1] -= amount; c.ChangeAffinity(1, "월별 교역"); }
+                 }
+                 if (Data.elapsed >= c.nextOffer)
+                 {
+@@ -202,12 +210,12 @@ namespace AntColony.World
+                         OfferTreaty(c, (TreatyKind)UnityEngine.Random.Range(0, 3));
+                 }
+                 var chance = c.affinity <= -40 ? DiplomacyRules.HostileWarChance : 0;
+-                if (c.agenda == LeaderAgenda.Conqueror && world.Sites.Count(s => s.Disposition == ConquestDisposition.Annexed) < world.Sites.Count(s => Faction(s) == c && s.Disposition != ConquestDisposition.Annexed)) chance = Mathf.Max(chance, DiplomacyRules.ConquerorWarChance);
++                if (c.agenda == LeaderAgenda.Conqueror) chance = 0; // 정복자는 접촉 후 계절별 실제 공격대 전력으로 판단한다.
+                 if (UnityEngine.Random.value < chance) DeclareWar(c);
+             }
+-            if (c.war && Data.elapsed >= c.nextRaid)
+-            { if (Raid(c, c.rebel && Data.elapsed - c.founded < DiplomacyRules.Year)) c.nextRaid = Data.elapsed + DiplomacyRules.Month * 3; }
+-            if (Data.airshipStarted && c.war && !FindObjectsByType<AirshipYard>(FindObjectsSortMode.None).Any(y => y.Ready)
++            if (c.agenda != LeaderAgenda.Conqueror && c.war && Data.elapsed >= c.nextRaid)
++            { if (Raid(c, c.rebel && Data.elapsed - c.founded < DiplomacyRules.Year)) c.nextRaid = Data.elapsed + DiplomacyRules.Season; }
++            if (Data.airshipStarted && c.agenda != LeaderAgenda.Conqueror && c.war && !FindObjectsByType<AirshipYard>(FindObjectsSortMode.None).Any(y => y.Ready)
+                 && UnityEngine.Random.value < DiplomacyRules.AirshipRaidChance) Raid(c, true);
+             if (c.HasTreaty(TreatyKind.Alliance, Data.elapsed))
+             {
+@@ -218,15 +226,16 @@ namespace AntColony.World
+         }
+         private bool Raid(Civilization c, bool home)
+         {
+-            if (!c.war) return false;
+-            var source = world.Sites.FirstOrDefault(s => Faction(s) == c && s.Disposition != ConquestDisposition.Annexed && s.Colony != null && !s.Colony.IsDefeated);
+-            var food = source?.Colony.GetStock(ResourceType.Food) ?? c.resources[0];
++            if (!c.contacted || !c.war || c.agenda == LeaderAgenda.Conqueror && Data.elapsed < c.contactedAt + DiplomacyRules.Season) return false;
++            var source = RaidSource(c);
++            var food = source?.Colony?.GetStock(AntColony.Data.ResourceType.Food) ?? c.resources[0];
+             var count = Mathf.Clamp((int)food / 20, 1, 20);
+             if (food < count * 10) return false;
++            if (c.agenda == LeaderAgenda.Conqueror && !IsWeakAgainst(count * 20, AvailableHomePower)) return false;
+             var destination = home ? null : world.Sites.FirstOrDefault(s => s.Disposition == ConquestDisposition.Annexed && s.Defense != null && !s.Defense.UnderAttack);
+-            var spawned = destination != null ? destination.Defense.TryStartRaid(count, c.id) : FindFirstObjectByType<LocalIncursions>()?.TrySpawnFaction(c, count) == true;
++            var spawned = destination != null ? destination.Defense.TryStartRaid(count, c.id) : DispatchRaid(source, c, count);
+             if (!spawned) return false;
+-            if (source != null) source.Colony.TrySpendResources(count * 10, 0); else c.resources[0] -= count * 10;
++            if (source?.Colony != null) source.Colony.TrySpendResources(count * 10, 0); else c.resources[0] -= count * 10;
+             CampaignHistory.Record("침공", c.name, destination?.Title ?? "본거지", true); return true;
+         }
+         public float ScheduledRaidSeconds(ExpeditionSite site)
+@@ -236,7 +245,22 @@ namespace AntColony.World
+                 .Select(c => Mathf.Max(0, c.nextRaid - Data.elapsed)).DefaultIfEmpty(3 * DiplomacyRules.Month).Min();
+         }
+         public State Capture() { CaptureRebels(); return JsonUtility.FromJson<State>(JsonUtility.ToJson(Data)); }
+-        public void Restore(State state) { if (state != null) Data = JsonUtility.FromJson<State>(JsonUtility.ToJson(state)); }
++        public void Restore(State state)
++        {
++            if (state == null) return;
++            Data = JsonUtility.FromJson<State>(JsonUtility.ToJson(state));
++            Data.travellingRaids ??= new List<TravellingRaid>();
++            foreach (var c in Data.civilizations.Where(c => c.contacted && c.nextConquestCheck == 0))
++            { c.contactedAt = Data.elapsed; c.nextConquestCheck = Data.elapsed + DiplomacyRules.Season; }
++            foreach (var n in Data.talks.Where(n => n.deadline <= 0 && n.expires <= 0)) n.expires = Data.elapsed + DiplomacyRules.OfferSeconds;
++            // 옛 즉시 수락 버튼도 담당 지정이 있는 협상 경로로 이관한다.
++            foreach (var c in Data.civilizations.Where(c => c.offerExpires > Data.elapsed))
++            {
++                var n = StartTalk(c, TalkKind.TreatyOffer); n.expires = c.offerExpires;
++                if (n.take.treaties.Count == 0) n.take.treaties.Add(c.offeredTreaty);
++                c.offerExpires = 0;
++            }
++        }
+         public static bool Validate(State s, int sites)
+         {
+             bool Finite(float f) => f >= 0 && !float.IsNaN(f) && !float.IsInfinity(f);
+@@ -249,11 +273,12 @@ namespace AntColony.World
+                 if (c == null || string.IsNullOrEmpty(c.id) || !ids.Add(c.id) || !Enum.IsDefined(typeof(LeaderAgenda), c.agenda)
+                     || !Enum.IsDefined(typeof(LeaderAgenda), c.hiddenAgenda) || !s.markets.Contains(c) && c.agenda == c.hiddenAgenda || c.affinity < -100 || c.affinity > 100
+                     || c.treaties == null || c.treaties.Length != 3 || c.treaties.Any(t => !Finite(t)) || !Finite(c.warStarted) || !Finite(c.founded)
+-                    || !Finite(c.nextRaid) || !Finite(c.nextOffer) || !Finite(c.offerExpires) || c.resources == null || c.resources.Length != 3
++                    || !Finite(c.nextRaid) || !Finite(c.nextOffer) || !Finite(c.offerExpires) || !Finite(c.contactedAt) || !Finite(c.nextConquestCheck) || c.resources == null || c.resources.Length != 3
+                     || c.resources.Any(r => r < 0) || c.reasons == null || c.equipment == null || c.equipment.Any(e => e == null || !e.IsValid)
+                     || c.prisoners == null || c.rebels == null || c.playerScore < 0 || c.enemyScore < 0
+                     || !Enum.IsDefined(typeof(TreatyKind), c.offeredTreaty)) return false;
+             if (s.markets.Any(m => !m.id.StartsWith("market:") || !int.TryParse(m.id.Substring(7), out var i) || i < -1 || i >= sites)) return false;
++            if (!ValidRaidTravel(s, sites)) return false;
+             var members = new HashSet<string>();
+             foreach (var m in s.rebelMembers)
+                 if (m?.commander?.PersonalState == null || !members.Add(m.commander.PersonalState.id) || m.site < 0 || m.site >= sites
+diff --git a/Assets/_Project/Scripts/World/DiplomacyNegotiation.cs b/Assets/_Project/Scripts/World/DiplomacyNegotiation.cs
+index 604d79b..3e50015 100644
+--- a/Assets/_Project/Scripts/World/DiplomacyNegotiation.cs
++++ b/Assets/_Project/Scripts/World/DiplomacyNegotiation.cs
+@@ -40,7 +40,7 @@ namespace AntColony.World
+         {
+             var n = Data.talks.Find(x => x.civ == c.id && x.kind == kind);
+             if (n != null) return n;
+-            n = new Negotiation { id = ++Data.nextTalk, civ = c.id, kind = kind };
++            n = new Negotiation { id = ++Data.nextTalk, civ = c.id, kind = kind, expires = Data.elapsed + DiplomacyRules.OfferSeconds };
+             Data.talks.Add(n); return n;
+         }
+         public void EndTalk(Negotiation n, string result)
+@@ -50,8 +50,8 @@ namespace AntColony.World
+         }
+ 
+         // 담당 장수: 본거지에서 활동 가능한 장수만(원정·수송·전투·치료·쓰러짐·귀환 중 제외).
+-        public static bool CanNegotiate(CommanderAnt a) => a != null && !a.IsDead && a.IsColonyMember && !a.IsCaptive && !a.IsAwayFromHome
+-            && !a.IsDeployed && a.CanReceiveOrders && !a.PersonalState.treating && a.PersonalHealth > 0 && !a.IsChild;
++        public static bool CanNegotiate(CommanderAnt a) => a != null && !a.IsDead && a.IsColonyMember && !a.IsCaptive && !a.IsAwayFromHome && !a.IsReturning && !a.IsInCombat
++            && !a.IsDeployed && a.CanReceiveOrders && !a.PersonalState.treating && !a.PersonalState.health.Downed && a.PersonalHealth > 0 && !a.IsChild;
+         public static CommanderAnt Negotiator(Negotiation n) => CommanderRoster.Instance?.Commanders.FirstOrDefault(c => c.PersonalState.id == n.negotiator);
+         public static float Politics(Negotiation n) => Negotiator(n)?.Talents.Level(CommanderActivity.Politics) ?? 0;
+         // 정치력은 애매한 조건의 설득·추가 양보에만 쓴다(좋은 조건은 정치력과 무관하게 성사).
+@@ -83,7 +83,7 @@ namespace AntColony.World
+ 
+         // 군사력 추정(잠정): 우리 = 장수 20 + 인구, 상대 = 거점 수 × 20 + 거점 식량 재고 / 10.
+         public float PlayerPower => (CommanderRoster.Instance?.Commanders.Count(c => c.IsColonyMember && !c.IsDead) ?? 0) * 20 + (AntPool.Instance?.Total ?? 0);
+-        public float PowerOf(Civilization c) => world.Sites.Where(s => Faction(s) == c).Sum(s => 20 + (s.Colony != null ? s.Colony.GetStock(ResourceType.Food) / 10f : 0)) + c.resources[0] / 20f;
++        public float PowerOf(Civilization c) => world.Sites.Where(s => Faction(s) == c).Sum(s => 20 + (s.Colony != null ? s.Colony.GetStock(AntColony.Data.ResourceType.Food) / 10f : 0)) + c.resources[0] / 20f;
+         private double DemandScore(Civilization c, Negotiation n)
+         {
+             var stock = Math.Max(1, c.resources[0] + c.resources[1] + c.resources[2] * 10d);
+@@ -94,6 +94,7 @@ namespace AntColony.World
+         // 제안(거래·요구). 결과 문구를 돌려주고 협상 상태를 갱신한다.
+         public string Propose(Negotiation n)
+         {
++            if (!TalkOpen(n)) return "이미 끝났거나 기한이 지난 협상입니다.";
+             var c = CivOf(n);
+             if (CheckInvalid(n)) return "상황이 바뀌어 이 협상은 무효입니다.";
+             if (!CanNegotiate(Negotiator(n))) return "협상 담당 장수를 지정하세요(본거지에서 활동 가능한 장수).";
+@@ -114,7 +115,7 @@ namespace AntColony.World
+             if (n.kind == TalkKind.Demand)
+             {
+                 c.ChangeAffinity(-3, "무리한 요구");
+-                if (n.ultimatum) { n.deadline = Data.elapsed + DiplomacyRules.Month; n.last = "최후통첩 거절 — 기한 안에 실행 또는 철회"; return n.last; }
++                if (n.ultimatum) { n.expires = 0; n.deadline = Data.elapsed + EstimatedTravel(c) + DiplomacyRules.UltimatumGrace; n.last = "최후통첩 거절 — 예상 이동 시간 + 3일 안에 실행 또는 철회"; return n.last; }
+             }
+             if (n.patience <= 0)
+             {
+@@ -131,7 +132,7 @@ namespace AntColony.World
+             var rm = ResourceManager.Instance; if (rm == null || deficit <= 0) return false;
+             for (var i = 0; i < 3 && deficit > 0; i++)
+             {
+-                var unit = i == 2 ? 10 : 1; var room = rm.GetAmount((ResourceType)i) - n.give.resources[i];
++                var unit = i == 2 ? 10 : 1; var room = rm.GetAmount((AntColony.Data.ResourceType)i) - n.give.resources[i];
+                 var add = Mathf.Min(room, Mathf.CeilToInt((float)(deficit / unit)));
+                 if (add <= 0) continue;
+                 n.give.resources[i] += add; deficit -= add * unit;
+@@ -142,10 +143,11 @@ namespace AntColony.World
+         // 상대 요청 응답. counter = 우리가 줄인 양으로 다시 제시.
+         public string Respond(Negotiation n, bool accept)
+         {
++            if (!TalkOpen(n)) return "이미 끝났거나 기한이 지난 협상입니다.";
+             var c = CivOf(n); if (CheckInvalid(n)) return "상황이 바뀌어 이 협상은 무효입니다.";
+-            if (!CanNegotiate(Negotiator(n))) return "협상 담당 장수를 지정하세요.";
+             if (n.kind == TalkKind.Trade || n.kind == TalkKind.Demand) return "";
+             if (!accept) { Refuse(c, n); return "거절했습니다."; }
++            if (!CanNegotiate(Negotiator(n))) return "협상 담당 장수를 지정하세요.";
+             if (n.kind == TalkKind.TreatyOffer)
+             {
+                 var treaty = n.take.treaties.FirstOrDefault();
+@@ -194,14 +196,15 @@ namespace AntColony.World
+         // 최후통첩 거절 후 선택. 실행 = 선전포고(위협 신뢰 회복), 철회 = 위협 신뢰 하락. 기한 초과는 철회.
+         public void ExecuteUltimatum(Negotiation n)
+         {
+-            var c = CivOf(n); if (c == null || n.deadline <= 0) return;
+-            DeclareWar(c);
++            if (!TalkOpen(n)) return;
++            var c = CivOf(n); if (c == null || n.deadline <= 0 || !c.war && !DeclareWar(c)) return;
+             c.threatCred = Mathf.Clamp(c.threatCred + 15, -100, 100); Data.threat = Mathf.Clamp(Data.threat + 10, -100, 100);
+             Reputation("최후통첩을 실행함 (" + c.name + ")");
+             EndTalk(n, "최후통첩 실행");
+         }
+         public void WithdrawUltimatum(Negotiation n)
+         {
++            if (n == null || !Data.talks.Contains(n) || n.deadline <= 0) return;
+             var c = CivOf(n); if (c == null) return;
+             c.threatCred = Mathf.Clamp(c.threatCred - 20, -100, 100);
+             foreach (var other in Data.civilizations.Where(x => x != c)) other.threatCred = Mathf.Clamp(other.threatCred - 5, -100, 100);
+@@ -262,13 +265,13 @@ namespace AntColony.World
+         private void Request(Civilization c, TalkKind kind, int food)
+         {
+             var n = StartTalk(c, kind); n.give.resources[0] = food; n.asked = food;
+-            n.expires = Data.elapsed + DiplomacyRules.Month; n.patience = 100;
++            n.expires = Data.elapsed + DiplomacyRules.OfferSeconds; n.patience = 100;
+             AntColony.UI.ToastManager.Show($"{c.name} {KindName(kind)}: 식량 {food} — 오른쪽 알림에서 협상", AntColony.UI.ToastKind.Warning);
+         }
+         internal void OfferTreaty(Civilization c, TreatyKind kind)
+         {
+-            var n = StartTalk(c, TalkKind.TreatyOffer); n.take = new TradeOffer(); n.take.treaties.Add(kind); n.expires = Data.elapsed + DiplomacyRules.Month;
+-            AntColony.UI.ToastManager.Show(c.name + " 협정 제안 — 오른쪽 알림에서 확인 (1개월)");
++            var n = StartTalk(c, TalkKind.TreatyOffer); n.take = new TradeOffer(); n.take.treaties.Add(kind); n.expires = Data.elapsed + DiplomacyRules.OfferSeconds;
++            AntColony.UI.ToastManager.Show(c.name + " 협정 제안 — 오른쪽 알림에서 확인 (1계절·6일)");
+         }
+         // 기한: 상대 요청 만료는 거절과 같은 결과(관계 변화 없이 사라지지 않음), 최후통첩 기한 초과는 철회.
+         private void TickTalks()
+@@ -280,5 +283,7 @@ namespace AntColony.World
+             }
+         }
+         public float Remaining(Negotiation n) => n.deadline > 0 ? n.deadline - Data.elapsed : n.expires > 0 ? n.expires - Data.elapsed : -1;
++        private bool TalkOpen(Negotiation n) => n != null && Data.talks.Contains(n)
++            && (n.deadline > 0 ? Data.elapsed < n.deadline : n.expires <= 0 || Data.elapsed < n.expires);
+     }
+ }
+diff --git a/Assets/_Project/Scripts/World/DiplomacyRaids.cs b/Assets/_Project/Scripts/World/DiplomacyRaids.cs
+new file mode 100644
+index 0000000..505d2fe
+--- /dev/null
++++ b/Assets/_Project/Scripts/World/DiplomacyRaids.cs
+@@ -0,0 +1,115 @@
++using System;
++using System.Collections.Generic;
++using System.Linq;
++using AntColony.Core;
++using AntColony.UI;
++using AntColony.Units;
++using UnityEngine;
++
++namespace AntColony.World
++{
++    // 월드 이동은 플레이어 원정과 같이 도착 시각으로 표현한다. 출발 때 병력 비용을 내고 저장한다.
++    [Serializable] public sealed class TravellingRaid
++    {
++        public int source, count;
++        public string faction = "";
++        public float arrive;
++    }
++
++    public sealed partial class DiplomacyManager
++    {
++        private void MarkContact(Civilization c)
++        {
++            if (c.contacted) return;
++            c.contacted = true; c.contactedAt = Data.elapsed;
++            c.nextConquestCheck = Data.elapsed + DiplomacyRules.Season;
++            CampaignHistory.Record("접촉", c.name, c.leader, true);
++        }
++
++        // 기존 외교 전력 추정 단위(장수 20 + 병력)를 본거지 가용 인원에만 적용한다.
++        public float AvailableHomePower
++        {
++            get
++            {
++                var commanders = CommanderRoster.Instance?.Commanders.Where(c => c != null && c.IsColonyMember
++                    && c.CanReceiveOrders && !c.IsAwayFromHome && !c.IsChild && !c.PersonalState.treating && !c.PersonalState.health.Downed).ToArray();
++                return commanders == null || commanders.Length == 0 ? 0 : (AntPool.Instance?.Free ?? 0) + commanders.Sum(c => 20 + c.TroopCount);
++            }
++        }
++        public static bool IsWeakAgainst(float raidPower, float availablePower) => raidPower > 0
++            && raidPower >= Mathf.Max(0, availablePower) * DiplomacyRules.WeaknessRatio;
++        private ExpeditionSite RaidSource(Civilization c) => world.Sites.FirstOrDefault(s => Faction(s) == c
++            && s.Disposition != ConquestDisposition.Annexed && s.Colony != null && !s.Colony.IsDefeated)
++            ?? (c.rebel ? world.Sites.FirstOrDefault(s => Faction(s) == c && s.Disposition != ConquestDisposition.Annexed) : null);
++        private static int RaidCount(float food) => Mathf.Clamp((int)food / 20, 1, 20);
++
++        private void TickConquerors()
++        {
++            foreach (var c in Data.civilizations.Where(c => c.contacted && !c.extinct && c.agenda == LeaderAgenda.Conqueror))
++            {
++                if (Data.elapsed < c.contactedAt + DiplomacyRules.Season || Data.elapsed < c.nextConquestCheck) continue;
++                c.nextConquestCheck = Data.elapsed + DiplomacyRules.Season;
++                if (c.war)
++                {
++                    Raid(c, c.rebel && Data.elapsed - c.founded < DiplomacyRules.Year);
++                    c.nextRaid = c.nextConquestCheck;
++                    continue;
++                }
++                var source = RaidSource(c);
++                var food = source?.Colony?.GetStock(AntColony.Data.ResourceType.Food) ?? c.resources[0];
++                var count = RaidCount(food);
++                if (source == null || food < count * 10 || !IsWeakAgainst(count * 20, AvailableHomePower)) continue;
++                if (DeclareWar(c) && Raid(c, true)) c.nextRaid = Data.elapsed + DiplomacyRules.Season;
++            }
++        }
++
++        public float EstimatedTravel(Civilization c) => world.Sites.Where(s => Faction(s) == c && s.Disposition != ConquestDisposition.Annexed)
++            .Select(ExpeditionRules.WalkSeconds).DefaultIfEmpty(GameCalendar.SecondsPerDay).Min();
++
++        private bool DispatchRaid(ExpeditionSite source, Civilization c, int count)
++        {
++            if (source == null || Data.travellingRaids.Count >= 100 || Data.travellingRaids.Any(r => r.source == world.Sites.ToList().IndexOf(source))) return false;
++            Data.travellingRaids.Add(new TravellingRaid { source = world.Sites.ToList().IndexOf(source),
++                faction = c?.id ?? "", count = count, arrive = Data.elapsed + ExpeditionRules.WalkSeconds(source) });
++            ToastManager.Show($"{c?.name ?? source.Title} 원정대 {count}명 출발 · 본거지 도착까지 {ExpeditionRules.WalkSeconds(source) / GameCalendar.SecondsPerDay:0.0}일", ToastKind.Warning);
++            return true;
++        }
++
++        public bool TryDispatchIndependentRaid()
++        {
++            if (!Available || ExpeditionRules.HomeCommanders == 0 || Data.travellingRaids.Any(r => r.faction == "")) return false;
++            foreach (var source in world.Sites.Where(s => s.Kind == ExpeditionSiteKind.Settlement && Faction(s) == null
++                && s.Disposition != ConquestDisposition.Annexed && s.Colony != null && !s.Colony.IsDefeated))
++            {
++                var count = Mathf.Min(3, RaidCount(source.Colony.GetStock(AntColony.Data.ResourceType.Food)));
++                if (source.Colony.GetStock(AntColony.Data.ResourceType.Food) < count * 10 || !DispatchRaid(source, null, count)) continue;
++                source.Colony.TrySpendResources(count * 10, 0);
++                CampaignHistory.Record("원정대 출발", source.Title, "본거지로 이동 중", true);
++                return true;
++            }
++            return false;
++        }
++
++        private void TickRaidTravel()
++        {
++            foreach (var raid in Data.travellingRaids.ToArray())
++            {
++                var c = Data.civilizations.Find(c => c.id == raid.faction);
++                if (raid.faction != "" && (c == null || c.extinct || !c.war)) { Data.travellingRaids.Remove(raid); continue; }
++                if (Data.elapsed < raid.arrive || c == null && ExpeditionRules.HomeCommanders == 0) continue;
++                var incursions = FindAnyObjectByType<LocalIncursions>();
++                if (incursions == null || !(c == null ? incursions.TrySpawnIndependent(raid.count) : incursions.TrySpawnFaction(c, raid.count))) continue;
++                Data.travellingRaids.Remove(raid);
++            }
++        }
++
++        private static bool ValidRaidTravel(State s, int sites)
++        {
++            s.travellingRaids ??= new List<TravellingRaid>();
++            return s.travellingRaids.Count <= 100 && s.travellingRaids.All(r => r != null && r.source >= 0 && r.source < sites
++                    && r.count >= 1 && r.count <= 20 && r.faction != null && (r.faction == "" || s.civilizations.Any(c => c.id == r.faction))
++                    && !float.IsNaN(r.arrive) && !float.IsInfinity(r.arrive) && r.arrive >= 0)
++                && s.travellingRaids.Select(r => r.source).Distinct().Count() == s.travellingRaids.Count;
++        }
++    }
++}
+diff --git a/Assets/_Project/Scripts/World/DiplomacyRebels.cs b/Assets/_Project/Scripts/World/DiplomacyRebels.cs
+index c1c2cee..dd02f4b 100644
+--- a/Assets/_Project/Scripts/World/DiplomacyRebels.cs
++++ b/Assets/_Project/Scripts/World/DiplomacyRebels.cs
+@@ -28,7 +28,8 @@ namespace AntColony.World
+             {
+                 c = new Civilization { id = "rebel:" + commander.PersonalState.id, name = commander.CommanderName + " 반란군", leader = commander.CommanderName,
+                     rebel = true, contacted = true, war = true, affinity = -60, founded = Data.elapsed, warStarted = Data.elapsed,
+-                    nextRaid = Data.elapsed + 3 * DiplomacyRules.Month, agenda = LeaderAgenda.Conqueror, hiddenAgenda = LeaderAgenda.Warrior,
++                    contactedAt = Data.elapsed, nextConquestCheck = Data.elapsed + DiplomacyRules.Season,
++                    nextRaid = Data.elapsed + DiplomacyRules.Season, agenda = LeaderAgenda.Conqueror, hiddenAgenda = LeaderAgenda.Warrior,
+                     color = Color.HSVToRGB((Data.civilizations.Count * .137f) % 1, .8f, .95f) };
+                 Data.civilizations.Add(c);
+                 var site = world.Sites.FirstOrDefault(s => Faction(s) == null && s.Visitor == null && s.Disposition != ConquestDisposition.Annexed
+diff --git a/Assets/_Project/Scripts/World/DiplomacyRules.cs b/Assets/_Project/Scripts/World/DiplomacyRules.cs
+index 4195127..e058b0c 100644
+--- a/Assets/_Project/Scripts/World/DiplomacyRules.cs
++++ b/Assets/_Project/Scripts/World/DiplomacyRules.cs
+@@ -11,6 +11,9 @@ namespace AntColony.World
+     public static class DiplomacyRules
+     {
+         public const float Month = 300, Year = 12 * Month, PeaceDelay = 600, CaravanSeconds = 90;
++        public const float Season = AntColony.Core.GameCalendar.SecondsPerSeason;
++        public const float OfferSeconds = Season, UltimatumGrace = 3 * AntColony.Core.GameCalendar.SecondsPerDay;
++        public const float WeaknessRatio = 1.5f;
+         public const int BlueprintPrice = 150, SurprisePenalty = -30, MonthlyTradeAmount = 10;
+         public const float OfferChance = .25f, TraderOfferChance = .5f, HostileWarChance = .3f, ConquerorWarChance = .2f, AirshipRaidChance = .2f;
+         public static readonly int[] EquipmentValues = { 40, 80, 160, 320 };
+@@ -31,6 +34,7 @@ namespace AntColony.World
+         public int threatCred; // 이 세력이 보는 우리 위협 신뢰(-100~100). 최후통첩 실행 시 상승, 철회 시 하락, 매달 0으로 서서히 회복.
+         public float talksCooldown; // 협상 결렬 뒤 재협상 가능 시각(조건을 크게 개선하면 더 일찍 가능).
+         public float warStarted, founded, nextRaid, nextOffer, offerExpires;
++        public float contactedAt, nextConquestCheck;
+         public TreatyKind offeredTreaty;
+         public float[] treaties = new float[3];
+         public List<string> reasons = new List<string>();
+diff --git a/Assets/_Project/Scripts/World/ExpeditionSite.cs b/Assets/_Project/Scripts/World/ExpeditionSite.cs
+index 2dc19d9..cb67961 100644
+--- a/Assets/_Project/Scripts/World/ExpeditionSite.cs
++++ b/Assets/_Project/Scripts/World/ExpeditionSite.cs
+@@ -53,7 +53,7 @@ namespace AntColony.World
+                 foreach (var guard in GetComponentsInChildren<WildMonster>(true))
+                     if (!guard.IsDead) return false;
+                 foreach (var commander in Visitor.Crew)
+-                    if (commander != null && commander.isActiveAndEnabled && commander.HasTroops) return true;
++                    if (commander != null && commander.isActiveAndEnabled && commander.CanReceiveOrders && !commander.IsDead) return true;
+                 return false;
+             }
+         }
+@@ -95,7 +95,7 @@ namespace AntColony.World
+                 {
+                     var node = GameObject.CreatePrimitive(PrimitiveType.Cube);
+                     node.SetActive(false);
+-                    var type = i == 0 ? ResourceType.Food : ResourceType.Soil;
++                    var type = i == 0 ? AntColony.Data.ResourceType.Food : AntColony.Data.ResourceType.Soil;
+                     node.name = title + " " + type;
+                     node.transform.SetParent(transform, false);
+                     node.transform.localPosition = new Vector3(i == 0 ? -4 : 4, .6f, 0);
+diff --git a/Assets/_Project/Scripts/World/ExpeditionSupplies.cs b/Assets/_Project/Scripts/World/ExpeditionSupplies.cs
+index 0bddea2..cf364b7 100644
+--- a/Assets/_Project/Scripts/World/ExpeditionSupplies.cs
++++ b/Assets/_Project/Scripts/World/ExpeditionSupplies.cs
+@@ -1,6 +1,5 @@
+ using System.Linq;
+ using AntColony.Core;
+-using AntColony.Data;
+ using AntColony.Units;
+ using UnityEngine;
+ 
+@@ -17,7 +16,7 @@ namespace AntColony.World
+         public float DailyFood => crew.Where(c => c != null && !c.IsDead).Sum(ExpeditionRules.FoodPerDay);
+         public int RecommendedFood(ExpeditionSite destination) => ExpeditionRules.RecommendedFood(
+             Walking ? ExpeditionRules.WalkSeconds(destination) : TravelSeconds, DailyFood);
+-        public int AvailableFood => GetCargo(ResourceType.Food) + crew.Where(c => c != null)
++        public int AvailableFood => GetCargo(AntColony.Data.ResourceType.Food) + crew.Where(c => c != null && !c.IsDead)
+             .Sum(c => c.PersonalState.carriedRations?.Total ?? 0);
+         public bool LeavesHomeUnattended => State == ExpeditionState.Home && CommanderLoad > 0 && ExpeditionRules.HomeCommanders == 0;
+ 
+@@ -25,7 +24,7 @@ namespace AntColony.World
+         {
+             if (State != ExpeditionState.Home || Route?.IsRunning == true || amount <= 0 || amount > ReturnCargoSpace
+                 || ResourceManager.Instance == null || !ResourceManager.Instance.TrySpend(amount, 0, reason: ResourceReason.Expedition)) return false;
+-            cargo[ResourceType.Food] = GetCargo(ResourceType.Food) + amount;
++            cargo[AntColony.Data.ResourceType.Food] = GetCargo(AntColony.Data.ResourceType.Food) + amount;
+             return true;
+         }
+ 
+@@ -34,8 +33,8 @@ namespace AntColony.World
+             FoodDebt += DailyFood * seconds / GameCalendar.SecondsPerDay;
+             var needed = Mathf.FloorToInt(FoodDebt);
+             if (needed == 0) return;
+-            var take = Mathf.Min(needed, GetCargo(ResourceType.Food));
+-            cargo[ResourceType.Food] = GetCargo(ResourceType.Food) - take;
++            var take = Mathf.Min(needed, GetCargo(AntColony.Data.ResourceType.Food));
++            cargo[AntColony.Data.ResourceType.Food] = GetCargo(AntColony.Data.ResourceType.Food) - take;
+             needed -= take; FoodDebt -= take;
+             foreach (var c in crew)
+             {
+diff --git a/Assets/_Project/Scripts/World/ExpeditionTransport.cs b/Assets/_Project/Scripts/World/ExpeditionTransport.cs
+index e934c31..164d4fa 100644
+--- a/Assets/_Project/Scripts/World/ExpeditionTransport.cs
++++ b/Assets/_Project/Scripts/World/ExpeditionTransport.cs
+@@ -15,7 +15,7 @@ namespace AntColony.World
+     public partial class ExpeditionTransport : BuildingBase
+     {
+         private readonly List<CommanderAnt> crew = new List<CommanderAnt>();
+-        private readonly Dictionary<ResourceType, int> cargo = new Dictionary<ResourceType, int>();
++        private readonly Dictionary<AntColony.Data.ResourceType, int> cargo = new Dictionary<AntColony.Data.ResourceType, int>();
+         public List<EquipmentItem> EquipmentCargo { get; internal set; } = new List<EquipmentItem>();
+         public bool BlueprintCargo { get; internal set; }
+         private Vector3 homePosition;
+@@ -60,7 +60,7 @@ namespace AntColony.World
+             GetComponent<Renderer>().material.color = aircraft ? Color.cyan : new Color(.85f, .7f, .3f);
+         }
+ 
+-        public int GetCargo(ResourceType type) => cargo.TryGetValue(type, out var amount) ? amount : 0;
++        public int GetCargo(AntColony.Data.ResourceType type) => cargo.TryGetValue(type, out var amount) ? amount : 0;
+ 
+         internal Vector3 HomePosition => homePosition;
+ 
+@@ -74,9 +74,9 @@ namespace AntColony.World
+             Site = site;
+             if (site != null && (state == ExpeditionState.Outbound || state == ExpeditionState.Deployed)) site.Visitor = this;
+             transform.position = position;
+-            cargo[ResourceType.Food] = Mathf.Max(0, food);
+-            cargo[ResourceType.Soil] = Mathf.Max(0, soil);
+-            cargo[ResourceType.Special] = Mathf.Max(0, special);
++            cargo[AntColony.Data.ResourceType.Food] = Mathf.Max(0, food);
++            cargo[AntColony.Data.ResourceType.Soil] = Mathf.Max(0, soil);
++            cargo[AntColony.Data.ResourceType.Special] = Mathf.Max(0, special);
+         }
+ 
+         // 저장 복원 전용. 이동 중/귀환 중이면 탑승 상태(렌더러 끔)로, 현지 전개 중이면 내려 둔 상태로 되돌린다.
+@@ -98,7 +98,7 @@ namespace AntColony.World
+         {
+             if (Route != null && Route.IsRunning) return false;
+             var settlement = State == ExpeditionState.Deployed && Site != null ? Site.Settlement : null;
+-            if (!isActiveAndEnabled || (State != ExpeditionState.Home && settlement == null)
++            if (!isActiveAndEnabled || (State != ExpeditionState.Home && (State != ExpeditionState.Deployed || Site == null))
+                 || passengers == null || passengers.Count == 0) return false;
+             // Phase 4: 예비군제 병력은 본거지 방어 전용이라 원정에 못 데려간다.
+             if (State == ExpeditionState.Home && ColonyPopulation.Instance?.S.policy == MilitaryPolicy.Reserve
+@@ -108,17 +108,21 @@ namespace AntColony.World
+             var commanders = CommanderLoad;
+             foreach (var c in passengers)
+             {
+-                if (c == null || !c.isActiveAndEnabled || !unique.Add(c) || c.Transport != null
+-                    || c.Garrison != settlement || !c.IsColonyMember || c.IsDead || c.PersonalState.health.Downed
++                if (c == null || !c.isActiveAndEnabled || !unique.Add(c) || c.Transport == this
++                    || (State == ExpeditionState.Home ? c.IsAwayFromHome
++                        : c.Transport != null && (c.Transport.Site != Site || c.Transport.State != ExpeditionState.Deployed)
++                            || c.Garrison != null && c.Garrison != settlement || c.IsCaptive || c.ScoutMission != null)
++                    || !c.IsColonyMember || c.IsDead || c.PersonalState.health.Downed
+                     || !c.CanChangeAllocation || c.LabUpgradeBusy
+-                    || (!Walking && Vector3.Distance(c.Position, Position) > 8)) return false;
++                    || ((State != ExpeditionState.Home || !Walking) && Vector3.Distance(c.Position, Position) > 8)) return false;
+                 load += c.TroopCount;
+                 commanders++;
+             }
+             if (load > Capacity || commanders > CommanderCapacity) return false;
+             foreach (var c in new List<CommanderAnt>(passengers))
+             {
+-                if (settlement != null) settlement.Remove(c);
++                c.Transport?.DetachCommander(c);
++                if (c.Garrison != null) c.Garrison.Remove(c);
+                 crew.Add(c);
+                 c.Transport = this;
+                 // 현장 재탑승은 귀환 명부로 복귀한다. 실제 탑승/숨김은 TryReturn에서 처리한다.
+@@ -172,8 +176,9 @@ namespace AntColony.World
+                 && (site != Route.Destination || HasCargo || Route.WaitSeconds > 0)) return false;
+             var world = WorldMapManager.Instance;
+             if (!isActiveAndEnabled || world == null || !world.Unlocked || State != ExpeditionState.Home
+-                || site == null
++                || site == null || !world.Sites.Contains(site) || !WorldMapManager.SiteRevealed(site)
+                 || (crew.Count == 0 && site.Disposition != ConquestDisposition.Annexed)
++                || Walking && !crew.Any(c => c != null && !c.IsDead)
+                 || site.Disposition == ConquestDisposition.Abandoned || Load > Capacity || CommanderLoad > CommanderCapacity) return false;
+             Site = site;
+             site.Visitor = this;
+@@ -264,7 +269,7 @@ namespace AntColony.World
+             }
+         }
+ 
+-        public override void DepositResources(ResourceType type, int amount)
++        public override void DepositResources(AntColony.Data.ResourceType type, int amount)
+         {
+             // 화물 한도를 넘는 양은 싣지 못한다. 본거지 창고가 가득 차도 실린 화물은 버리지 않고 남긴다.
+             // ponytail: 한도를 넘긴 마지막 운반분의 초과량은 사라진다. 손실이 문제 되면 현장 노드로 떨군다.
+@@ -278,9 +283,9 @@ namespace AntColony.World
+         {
+             var resources = ResourceManager.Instance;
+             if (resources == null) return;
+-            foreach (ResourceType type in System.Enum.GetValues(typeof(ResourceType)))
++            foreach (AntColony.Data.ResourceType type in System.Enum.GetValues(typeof(AntColony.Data.ResourceType)))
+             {
+-                if (type == ResourceType.Food && crew.Count > 0 && Route?.IsRunning != true) continue;
++                if (type == AntColony.Data.ResourceType.Food && crew.Count > 0 && Route?.IsRunning != true) continue;
+                 var before = resources.GetAmount(type);
+                 resources.Add(type, GetCargo(type), ResourceReason.Expedition);
+                 cargo[type] = GetCargo(type) - (resources.GetAmount(type) - before);
+@@ -319,6 +324,7 @@ namespace AntColony.World
+ 
+         protected override void OnDisable()
+         {
++            AntColony.UI.ToastManager.SetPinned("supplies:" + GetEntityId(), null);
+             Route?.Stop();
+             if (Application.isPlaying)
+             {
+diff --git a/Assets/_Project/Scripts/World/HomeDefenseReturn.cs b/Assets/_Project/Scripts/World/HomeDefenseReturn.cs
+index 46dbe6f..2ce954c 100644
+--- a/Assets/_Project/Scripts/World/HomeDefenseReturn.cs
++++ b/Assets/_Project/Scripts/World/HomeDefenseReturn.cs
+@@ -17,6 +17,7 @@ namespace AntColony.World
+         }
+         public static bool Allows(CommanderAnt commander) => commander != null && commander.IsDeployed
+             && !commander.IsReturning && !commander.IsAwayFromHome && !commander.IsCarrying && !commander.IsConstructing
++            && !commander.IsWorking && commander.MedicalJob != MedJob.Rescue && commander.CorpseTarget == null
+             && (WorldMapManager.Instance?.DefenseReturn.Enabled(commander) ?? true);
+     }
+ }
+diff --git a/Assets/_Project/Scripts/World/LocalIncursions.cs b/Assets/_Project/Scripts/World/LocalIncursions.cs
+index ab82fba..369edc5 100644
+--- a/Assets/_Project/Scripts/World/LocalIncursions.cs
++++ b/Assets/_Project/Scripts/World/LocalIncursions.cs
+@@ -32,9 +32,10 @@ namespace AntColony.World
+         }
+ 
+         public bool TrySpawn()
+-            => Spawn(null, 3);
++            => DiplomacyManager.Instance?.TryDispatchIndependentRaid() == true;
+ 
+-        public bool TrySpawnFaction(Civilization faction, int count) => faction != null && faction.war && Spawn(faction, Mathf.Clamp(count, 1, 20));
++        public bool TrySpawnFaction(Civilization faction, int count) => faction != null && faction.contacted && faction.war && Spawn(faction, Mathf.Clamp(count, 1, 20));
++        public bool TrySpawnIndependent(int count) => Spawn(null, Mathf.Clamp(count, 1, 20));
+ 
+         private bool Spawn(Civilization faction, int count)
+         {
+diff --git a/docs/IMPL-B5-HANDOFF.md b/docs/IMPL-B5-HANDOFF.md
+new file mode 100644
+index 0000000..d728bc7
+--- /dev/null
++++ b/docs/IMPL-B5-HANDOFF.md
+@@ -0,0 +1,67 @@
++# IMPL-B5 인계 (2026-10-24 재개 완료)
++
++## 현재 판정
++- `log.md`·`AGENTS.md`·공동 보드·결정 원본과 staged/unstaged diff를 확인했다. 직전 코드가 핸드오프보다 앞서 있었으며, 완료된 기능을 다시 만들지 않았다.
++- 아래의 완료는 **코드 구현 기준**이다. Unity 실행·컴파일·RunChecks·화면·실제 파일 save/load는 수행하지 않았다. G48은 금지 파일 연결이 남아 부분 완료다.
++- 작업 범위는 이 worktree뿐이다. 원본 프로젝트 접근, Unity/MCP/Notion/카카오, prefab 수정, commit/stash/push, SAVE 일지 작성은 하지 않았다.
++- 기존 index에는 B6 등 다른 묶음의 변경도 포함되어 있다. 전체 diff를 B5 소유로 취급하거나 기존 staged 변경을 지우지 말 것. 이번 재개에서도 기존 변경을 보존했다.
++
++| 결정 | 상태 | 구현 내용 |
++| --- | --- | --- |
++| G05 | 구현 완료·실행 미검증 | 월드맵 도보 편성, 차량/징집소 없이 장수 1명·병력 0명 출발. 첫 보스 편도 1일 이내 거리 계산, 왕복+현지 1일+예비 1일 권장 보급, 병력 포함 하루 2끼 소비, 소지 보존식/화물 소비, 귀환 화물 여유 표시. |
++| G48 | 부분 | 편성별 기본 켜짐 설정·저장·기존 징집 UI 토글·`HomeDefenseReturn.Allows` 제외 조건 구현. 실제 20초 자동 귀환 분기는 `CommanderDuty.TickDuty` 연결 필요. |
++| G15 | 구현 완료·실행 미검증 | 차량 40/비행기 100은 1회 수송 한도. 동일 거점 복수 부대 출발·현지 합류/재탑승 허용. 차량/항공기는 접안 작업 1초만 배타, 전개 완료 부대는 후속 부대를 막지 않음. Visitor는 전개 부대를 우선 탐색. |
++| G21 | 구현 완료·실행 미검증 | 지역별 위협/개별 쓰러짐 사건 합침, 로켓 파괴 감시, 전원 편성 시 본거지 무대응 경고와 왕복 시간 표시, 실제 시간 경과 후 귀환. 본거지 장수 0명일 때 일반 침입 출발·도착 보류. |
++| G44 | 구현 완료·실행 미검증 | 일반 알림 비정지, 공격/쓰러짐/로켓 자동 정지 설정, 사건별 중복 정지 방지, 수동/메뉴/협상 이유 분리. 협상 중 배속 요청으로 강제 정지 해제 불가, 종료 시 나머지 이유 유지. |
++| G62 | 구현 완료·실행 미검증 | 문명 거점 도착/공격 접촉, 원격 일반 선전포고로 미접촉 문명 접촉 불가. 미접촉 선제 침공 차단. 접촉 후 900초 유예·계절별 정복자 판단·공격대 전력 1.5배 경계. 독립/문명 본거지 침공대는 출처·병력·도착 시각을 저장하고 출발 알림, 원정 거리만큼 이동 후 등장. |
++| G67 | 구현 완료·실행 미검증 | 담당 없는 열람/거절, 본거지 활동 담당이 있어야 수락/역제안. 쓰러짐도 담당 제외. 기본 제안 900초, 최후통첩 거절 후 예상 이동+450초, 기한 경계 응답 차단, 종료된 최후통첩 중복 철회 부작용 차단. |
++
++## 이번 재개에서 추가한 것
++- `World/DiplomacyNegotiation.cs`: `CanNegotiate`에서 건강 수치는 남아도 쓰러진 담당을 제외. `WithdrawUltimatum`은 아직 보류 중인 최후통첩에만 적용해 평판/위협 신뢰 중복 차감을 막음.
++- `World/DiplomacyRaids.cs`: 쓰러진 장수를 본거지 가용 전력에서 제외.
++- `AgentScripts/ImplB5Checks.cs`: 차량 탑승 위치를 검사 안에서 준비. 독립 원정대 출발·중복 방지·무인 본거지 도착 보류·재개, 정복자 계절 체크, 이동 복원 시 재결제 없음·중복 등장 없음, 쓰러진 담당/전력 제외, 중복 철회 방지, 구저장 기본값 복원 검사를 보강. 파괴된 방문자 참조는 생존 목록으로 집계.
++- 이 핸드오프 및 공동 보드 갱신. 새 구현 파일/의존성 추가 없음.
++
++## B5 수정 파일 (직전 진행분 포함)
++경로 접두사는 `Assets/_Project/Scripts/`이다. 아래 목록은 B5 변경만 가리키며 worktree 전체 변경 목록이 아니다.
++- World: `ExpeditionRules.cs`, `ExpeditionSupplies.cs`, `ExpeditionTransport.cs`, `ExpeditionSite.cs`, `WorldMapExpeditions.cs`, `WorldMapManager.cs`(원정 부분), `HomeDefenseReturn.cs`, `LocalIncursions.cs`, `ColonyInvasion.cs`, `DiplomacyRules.cs`, `DiplomacyManager.cs`, `DiplomacyRaids.cs`, `DiplomacyNegotiation.cs`, `DiplomacyRebels.cs`.
++- UI: `GameMenuWalking.cs`, `WorldMapPanel.cs`(원정 부분), `SimulationPause.cs`, `ThreatIncidents.cs`, `EnemyAlert.cs`, `GameMenuNegotiation.cs`.
++- 이전 세션 연결분도 보존: `UI/GameMenuController.cs`, `UI/GameMenuConscription.cs`, `Core/UserSettings.cs`, `Save/SaveDtos.cs`, `Save/SaveSnapshot.cs`, `Save/SavePreflight.cs`. 이번 재개에서는 이 파일들을 수정하지 않았다.
++- 검사/문서: `AgentScripts/ImplB5Checks.cs`, `README.md`의 B5 통합 대기 문단(이전 진행분), `docs/IMPLEMENTATION_BOARD.md`, `docs/IMPL-B5-HANDOFF.md`.
++- graphify 생성물은 별도 대량 변경으로 분리해서 검토할 것. 기존 신규 파일 `.meta`는 대부분 있으며 `DiplomacyRaids.cs.meta`는 통합 시 Unity에서 생성 확인 필요.
++
++## 연결 요청 (Claude/해당 소유자)
++1. **필수 — `Assets/_Project/Scripts/Units/CommanderDuty.cs::TickDuty`의 `if (IsDeployed)` 분기**
++   - quietSeconds 누적 전 `AntColony.World.HomeDefenseReturn.Allows(this)`를 확인한다.
++   - false일 때 `WorkState.quietSeconds = 0; return;` 처리. true일 때 기존 적 탐색·20초 누적·`ReturnToPost()` 유지.
++   - 기존 수동 귀환 `if (IsReturning)` 분기를 건드리지 말 것. 원정/현지 채집/구조/운반/시공/수동 귀환과 설정 꺼짐을 자동 귀환에서 제외하는 의도다. B5 수정 금지 파일이라 미수정.
++   - 연결 후 실제 `TickDuty` 20초 경계·설정 off·구조/현지 작업 중 귀환 안 됨을 Play 검사에 추가할 것. 현재 B5 검사는 설정/직렬화/원정 제외 API까지만 확인한다.
++2. **기존 연결분 누락 방지 — `UI/GameMenuController.cs`**
++   - `SetSpeed`→`SimulationPause.UserSpeed`, 창 전환/`Resume`→menu/negotiation 이유 해제, `ShowLoading`→저장 pause 복원을 함께 합친다. 원래 Time.timeScale 직접 복원 코드로 되돌리면 G44가 깨진다.
++3. **기존 설정/UI/저장 연결분 누락 방지**
++   - `UI/GameMenuConscription.cs::Conscription`의 `Home Defense Auto Return` 및 출전 시 `DefenseReturn.Set`.
++   - `Core/UserSettings.cs`의 autoPauseThreat/autoPauseDowned/autoPauseRocket 기본값 true.
++   - `Save/SaveDtos.cs`의 walking/foodDebt/dockingRemaining, world.pause/defenseReturn; `SaveSnapshot` 캡처/복원 및 `SavePreflight` 검증. 저장 버전은 v19 유지.
++   - 외교 접촉 시각/계절 체크/이동 침공대는 기존 `SaveFile.diplomacy` 전체 직렬화로 보존한다. DTO 별도 중복 추가 불필요. 구저장은 빈 이동 목록·접촉 유예 부여, 보상/출발 비용 재실행 없음.
++4. **통합 검증**
++   - 신규 .meta 생성 확인 → Unity 전체 컴파일 → `RunChecks`로 `AgentScripts/ImplB5Checks.cs` 실행 → 기존 TransportRoute/SettlementDefense/SaveRoundtrip 회귀 검사.
++   - B6가 동일 worktree 스냅샷에 포함되어 있으므로 `WorldMapManager` 보스 연결과 B5 원정 변경을 함께 보존하며 해당 소유자와 병합할 것.
++
++## 검사 목록·현재 결과
++- `ImplB5Checks`는 기존 B1 형식의 public static class / `public static async Task<string> Main()`이다. 실패는 예외, 성공은 `PASS n`. **현재 실행 결과는 없다.**
++- 불시착 2장수·병력0으로 새 게임을 만들며 비축더미/BuildingData를 검사에서 직접 생성한다. 자동저장을 끄고 임시 `SaveStorage.RootOverride`, 난수/설정을 finally에서 복원한다. 검사는 새 게임으로 현재 실행 상태를 바꾸므로 통합 검사 환경에서 실행할 것.
++- G05: 거리·보급식·무차량/무병력 출발·병력 식량·화물·왕복 시간.
++- G15: 중복 탑승 거부·복수 도보대·현지 합류·차량/비행기 1회 정원·접안 대기/해제.
++- G48: 기본 켜짐·편성별 off JSON·원정 제외(API). 실제 CommanderDuty 귀환 검사는 연결 후 필요.
++- G62/G21: 미접촉 문명 침공 차단·중립 도착 비접촉·접촉 유예·1.5배 경계·정복자 계절 주기·실제 출발 비용·독립/문명 이동·무인 본거지 보류·복원 무재결제·중복 등장 방지·잘못된 도착 시각 거부·구저장 복원.
++- G67: 담당 없는 수락 차단/거절 허용·쓰러짐 제외·900초 기한·거절 최후통첩 이동+3일·기한 경계·철회 1회.
++- G44/G21: 공격 자동정지·협상 종료 시 수동 정지 유지·같은 사건 재정지 없음·협상 강제정지·일반 알림 비정지·동시 지역 사건 합침·JSON 기본 호환.
++- 정적 확인: 참조 심볼 105개를 `rg`로 존재 확인(누락 0), 변경 메서드 호출자 확인, `git diff --check` 공백 오류 없음. 이것은 컴파일/런타임 성공을 뜻하지 않는다.
++- `graphify query` 후 `graphify update .` AST 갱신 완료(최종 8553 nodes / 19362 edges). 커뮤니티 재분류에 따른 기존 라벨 일부 갱신 안내가 있었으며, 의미 라벨 재생성은 하지 않았다.
++
++## 남은 위험
++- G48 실제 연결은 필수 미완료다. 다른 G 항목도 실행 검증 전 최종 완료로 보고하지 말 것.
++- 정복자 전력은 기존 외교 추정 단위(장수20+병력, 공격대1명20)를 재사용한다. 상세 무기/부상별 전투력 시뮬레이션을 새로 만들지 않았다.
++- 이동 침공대는 플레이어 월드 이동과 같은 출처·병력·도착 시각 모델이며, 이동 중 개별 로컬 유닛/지도 마커는 만들지 않는다. 도착 시 기존 LocalIncursions 경로로 생성한다.
++- 실제 save/load에서 동시 접안·복수 승무원·소지식량·보급 부채·침공대·정지 이유가 1회만 복원되는지 통합 검증 필요. JSON 검사는 실제 파일 왕복을 대신하지 않는다.
++- 로켓 파괴 OnDisable 알림, 협상창 실제 개폐, 월드맵 화면·보급 수치·경고 문구의 육안 검증은 미수행. SAVE 전용 캡처는 하지 않았다.

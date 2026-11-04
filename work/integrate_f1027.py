@@ -1,0 +1,43 @@
+from pathlib import Path
+import shutil
+R=Path('E:/Git/ant');S=R/'Assets/_Project/Scripts';B=R/'work/f1027-before';B.mkdir(exist_ok=True)
+def put(p,text):
+ q=R/p
+ if q.exists() and not (B/p).exists():(B/p).parent.mkdir(parents=True,exist_ok=True);shutil.copy2(q,B/p)
+ q.parent.mkdir(parents=True,exist_ok=True);q.write_text(text,encoding='utf-8')
+def copy(w,p):put(p,(Path('E:/Git/ant-wt')/w/p).read_text(encoding='utf-8-sig'))
+def edit(p,a,b):
+ q=R/p;s=q.read_text(encoding='utf-8-sig');assert a in s,(p,a);put(p,s.replace(a,b))
+def e(p,a,b):edit('Assets/_Project/Scripts/'+p,a,b)
+for w,files in [('F1',['Core/TalentAssessment.cs','Core/TalentAssessmentValidation.cs','World/ExpeditionInvestigation.cs','World/InvestigationCaptivity.cs','Core/StartingCandidate.cs','Units/CommanderTraits.cs','World/EnemyCommander.cs','World/ExpeditionSite.cs','Save/SaveRuntime.cs','Save/SaveValidator.cs']),('F2',['Buildings/UndergroundScanner.cs','World/UndergroundSurvey.cs','World/UndergroundLayer.cs','Core/UndergroundResearch.cs','Units/CommanderSurvey.cs','Save/SaveUnderground.cs','Data/BuildingData.cs','Data/ResourceType.cs','Buildings/BuildingPlacementController.cs','Buildings/EarlyConstruction.cs','Core/GameBootstrap.cs','Core/ScienceEffects.cs','Save/SaveCatalog.cs'])]:
+ for p in files:copy(w,'Assets/_Project/Scripts/'+p)
+for w,p in [('F1','AgentScripts/ImplD02D03Checks.cs'),('F2','AgentScripts/ImplD08Checks.cs')]:copy(w,p)
+e('Units/CommanderWork.cs','CommanderJobs.Firefighting => CommanderActivity.Firefighting','CommanderJobs.Firefighting => CommanderActivity.Strength')
+e('Units/CommanderWork.cs','                GainExperience(CommanderActivity.Firefighting, seconds);\n','')
+e('World/ExpeditionTransport.cs','if (State != ExpeditionState.Home) TickSupplies(seconds);','if (State != ExpeditionState.Home) TickSupplies(seconds);\n            if (TickInvestigation(seconds)) return;')
+e('World/ExpeditionTransport.cs','State = ExpeditionState.Home;\n                ReturnTroopPassengers();','State = ExpeditionState.Home;\n                ReportInvestigation();\n                ReturnTroopPassengers();')
+e('World/ExpeditionTransport.cs','crew[i].SetEmbarked(false, candidate);\n            }','crew[i].SetEmbarked(false, candidate);\n            }\n            ConcealInvestigators();')
+e('Save/SaveDtos.cs','public class SaveFileV1\n    {','public class SaveFileV1\n    {\n        public Core.TalentAssessmentState assessment;\n        public World.UndergroundSurvey.State underground;')
+e('Save/SaveDtos.cs','public class MonsterDto\n    {','public class MonsterDto\n    {\n        public string investigationId;')
+e('Save/SaveDtos.cs','public class BuildingDto\n    {','public class BuildingDto\n    {\n        public bool surveyPresent;\n        public int surveyCommander = -1, surveyCandidate = -1;')
+e('Save/SaveSnapshot.cs','randomState = JsonUtility.ToJson(UnityEngine.Random.state),','randomState = JsonUtility.ToJson(UnityEngine.Random.state),\n                assessment = WorldMapManager.Instance.Assessment.Capture(),\n                underground = UndergroundSurvey.Instance.Capture(),')
+e('Save/SaveSnapshot.cs','n.GetComponent<Map.MaterialDeposit>() == null && !SaveCatalog.Nodes.Contains(n)','n.GetComponent<Map.MaterialDeposit>() == null && n.GetComponent<UndergroundLayer>() == null && !SaveCatalog.Nodes.Contains(n)')
+e('Save/SaveSnapshot.cs','            return file;','            SaveUnderground.Capture(file, commanders);\n            return file;')
+e('Save/SaveSnapshot.cs','world.Sites[d.siteIndex].Defense.RestorePrisoner(c)','world.Sites[d.siteIndex].HoldInvestigator(c)')
+e('Save/SaveSnapshot.cs','            CommanderAnt.RefreshDepartureNotice();','            world.Assessment.Restore(file.assessment);\n            UndergroundSurvey.Instance.Restore(file.underground);\n            SaveUnderground.Restore(restoredBuildings, commanders);\n            CommanderAnt.RefreshDepartureNotice();')
+e('Save/SavePreflight.cs','                ValidateIntegration(f);','                ValidateIntegration(f);\n                Check(Core.TalentAssessment.Validate(f.assessment, f.world.transports.Count, f.world.sites.Count), "talent assessment");\n                Check(SaveUnderground.Valid(f), "underground survey");')
+e('Save/SavePreflight.cs','if (c.location == 3) Check(f.world.sites[c.siteIndex]?.disposition == 3 && c.troopCount == 0, "captivity");','if (c.location == 3) Check((f.world.sites[c.siteIndex]?.disposition == 3 || f.diplomacy?.seizures?.Any(s => s.owner == c.personalState.id && s.item == "" && s.holder != "player") == true) && c.troopCount == 0, "captivity");')
+e('Save/SavePreflight.cs','                SaveOrderValidation.Validate(f);','                Check(Core.TalentAssessment.ValidateReferences(f), "assessment references");\n                SaveOrderValidation.Validate(f);')
+e('Core/CampaignResearch.cs','FormationLine, FormationColumn, FormationWedge, FormationDispersed, FormationCover, FormationFocus\n','FormationLine, FormationColumn, FormationWedge, FormationDispersed, FormationCover, FormationFocus,\n        UndergroundSurvey\n')
+e('Core/CampaignResearch.cs','or ScienceTechnology.Engine => CommanderActivity.Crafting','or ScienceTechnology.Engine or ScienceTechnology.UndergroundSurvey => CommanderActivity.Crafting')
+e('Core/CampaignResearch.cs','.Concat(FormationResearch.Definitions()).ToArray()','.Concat(FormationResearch.Definitions()).Concat(UndergroundResearch.Definitions()).ToArray()')
+e('Buildings/FacilityVisual.cs','{ BuildingKind.RestRoom, "CC_RestRoom" },','{ BuildingKind.RestRoom, "CC_RestRoom" },\n            { BuildingKind.UndergroundScanner, "CC_ResearchDesk" },')
+e('World/ResourceNode.cs','public bool GatheringForbidden { get; set; }','public bool GatheringForbidden { get; set; }\n        internal bool IsUndergroundLayer { get; set; }')
+e('World/ResourceNode.cs','public bool CanGather => !GatheringForbidden','public bool CanGather => !IsUndergroundLayer && !GatheringForbidden')
+e('World/ResourceNode.Work.cs','public bool NeedsDesignation => !IsLooseCargo','public bool NeedsDesignation => !IsUndergroundLayer && !IsLooseCargo')
+e('Units/CommanderWork.cs','            workTarget = Workforce.For(target);','            if (SurveyAssignment != null && target != SurveyAssignment) SurveyAssignment.Release();\n            workTarget = Workforce.For(target);')
+e('Units/CommanderDuty.cs','            if (TickBedRest()) return;','            if (TickBedRest()) return;\n            if (TickSurveyAssignment()) return;')
+e('UI/GameMenuRoster.cs','"政治"','"政治"') if False else None
+e('UI/GameMenuRoster.cs','"사육", "소화"','"사육", "조사"')
+e('UI/SelectedUnitPanel.cs','"사육", "소방"','"사육", "조사"')
+print('Integrated F1/F2 backend; previous versions backed up',B)

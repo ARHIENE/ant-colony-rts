@@ -1,0 +1,77 @@
+{
+  "before": {
+    "Tool_Dig": {
+      "range": [
+        1.0,
+        41.0
+      ],
+      "properties": {
+        "loop": true,
+        "duration_frames": 40,
+        "fps": 24,
+        "events": {
+          "hit": 16,
+          "toss": 32
+        },
+        "prop": "Tool_Shovel",
+        "two_hand": true,
+        "target": "sand / clay / soil at the contact point"
+      }
+    },
+    "Tool_Mine": {
+      "range": [
+        1.0,
+        41.0
+      ],
+      "properties": {
+        "loop": true,
+        "duration_frames": 40,
+        "fps": 24,
+        "events": {
+          "hit": 19
+        },
+        "prop": "Tool_Pickaxe",
+        "two_hand": true,
+        "target": "ore vein / rock at the contact point"
+      }
+    }
+  },
+  "after": {
+    "Tool_Dig": {
+      "range": [
+        1.0,
+        41.0
+      ],
+      "properties": {
+        "loop": true,
+        "duration_frames": 40,
+        "fps": 24,
+        "events": {
+          "hit": 16,
+          "toss": 32
+        },
+        "prop": "Tool_Shovel",
+        "two_hand": true,
+        "target": "sand / clay / soil at the contact point"
+      }
+    },
+    "Tool_Mine": {
+      "range": [
+        1.0,
+        41.0
+      ],
+      "properties": {
+        "loop": true,
+        "duration_frames": 40,
+        "fps": 24,
+        "events": {
+          "hit": 19
+        },
+        "prop": "Tool_Pickaxe",
+        "two_hand": true,
+        "target": "ore vein / rock at the contact point"
+      }
+    }
+  },
+  "passed": true
+}

@@ -1,0 +1,7 @@
+{
+  "AgentScripts/WorldMapChecks.cs": "2b98e40a6782a49d66366cb73dba9dfadb595a34406fe3622f5b0b72881fbed2",
+  "AgentScripts/SettlementDefenseChecks.cs": "e3659212818bf472563b8fe88eb64da874b9da28523b49b733d2b681243fbb15",
+  "AgentScripts/TransportRouteChecks.cs": "c8467d7aea4fa2103da5f33b61493018aca011d8da9b786820179114b58d6378",
+  "AgentScripts/ImplG06Checks.cs": "48f64202a8c5fe2d92731ce3eef3b14b706f7208ab231dc7451cd17bc4329e05",
+  "AgentScripts/FishingChecks.cs": "17ca4366fe0555be5618d67e7a16396bfcdf6a92add8c5b00c4c1d6b3c130afc"
+}

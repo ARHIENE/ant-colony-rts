@@ -1,0 +1,733 @@
+diff --git a/AgentScripts/ImplC3Checks.cs b/AgentScripts/ImplC3Checks.cs
+new file mode 100644
+index 0000000..09eff2e
+--- /dev/null
++++ b/AgentScripts/ImplC3Checks.cs
+@@ -0,0 +1,216 @@
++using System;
++using System.Collections.Generic;
++using System.Linq;
++using System.Reflection;
++using System.Threading.Tasks;
++using AntColony.Buildings;
++using AntColony.Core;
++using AntColony.Save;
++using AntColony.UI;
++using AntColony.Units;
++using AntColony.World;
++using UnityEngine;
++using Object = UnityEngine.Object;
++
++public static class ImplC3Checks
++{
++    private const BindingFlags Hidden = BindingFlags.Instance | BindingFlags.NonPublic;
++    private static int checks;
++    private static void Check(bool ok, string message)
++    { if (!ok) throw new Exception("C3 FAIL " + checks + ": " + message); checks++; }
++    private static object Call(object target, string method, params object[] args)
++        => target.GetType().GetMethod(method, Hidden).Invoke(target, args);
++    private static void Set(object target, string field, object value)
++        => target.GetType().GetField(field, Hidden).SetValue(target, value);
++    private static T Get<T>(object target, string field) => (T)target.GetType().GetField(field, Hidden).GetValue(target);
++    private static async Task Ready()
++    {
++        var until = DateTime.UtcNow.AddSeconds(90);
++        while (SaveSystem.Busy && DateTime.UtcNow < until) await Task.Delay(50);
++        if (SaveSystem.Busy) throw new Exception("C3 load timeout");
++        Time.timeScale = 0;
++    }
++    // Claude의 기존 RunChecks 로더용. 검사 전용 새 불시착 게임을 시작한다.
++    public static async Task<string> Main()
++    {
++        var settings = UserSettings.Current.Clone();
++        var isolated = settings.Clone(); isolated.autoSaveEnabled = false;
++        UserSettings.Apply(isolated, false);
++        try
++        {
++            await Ready();
++            var candidate = StartingCandidate.Roll(0); candidate.traits.values.Clear();
++            CrashLandingStart.Begin(new NewGameOptions { startingCount = 1, seed = 261024,
++                mapSize = MapSize.Small, biome = MapBiome.Forest, commanderDeath = CommanderDeathMode.Gentle, startingTeam = new[] { candidate } });
++            await Ready();
++            return Run();
++        }
++        finally { UserSettings.Apply(settings, false); }
++    }
++
++    public static string Run()
++    {
++        checks = 0;
++        Check(Application.isPlaying && !SaveSystem.Busy, "Play mode after crash landing load");
++        var commanders = CommanderRoster.Instance.Commanders.ToArray();
++        Check(commanders.Length >= 1 && commanders.Length <= 2, "one or two crash survivors; no stockpile dependency");
++        var campaign = RocketCampaign.Instance;
++        var existingEvents = ColonyEvents.Instance;
++        var savedEvents = existingEvents?.Capture();
++        var population = ColonyPopulation.Instance;
++        var pool = AntPool.Instance;
++        Check(campaign != null && population != null && pool != null, "crash services ready");
++        var savedCampaign = campaign.Capture(); var savedPopulation = population.Capture();
++        var personals = commanders.Select(c => c.CapturePersonalState()).ToArray();
++        var free = pool.Free; var assigned = pool.Assigned; var reserved = pool.Reserved;
++        var pause = SimulationPause.Capture(); var random = UnityEngine.Random.state;
++        var settings = UserSettings.Current.Clone(); var timeScale = Time.timeScale;
++        var gameSeconds = GameSession.Instance.GameSeconds; var playSeconds = GameSession.Instance.PlaySeconds;
++        var game = GameManager.Instance;
++        var defeated = Get<bool>(game, "defeated");
++        var reason = game.DefeatReason;
++        var made = new List<GameObject>();
++        var sources = Object.FindObjectsByType<ColonyInvasion>(FindObjectsInactive.Include, FindObjectsSortMode.None);
++        var sourceTemplates = sources.Select(s => Get<WildMonster>(s, "raiderTemplate")).ToArray();
++        var visitorsBefore = Object.FindAnyObjectByType<LocalIncursions>()?.Visitors.ToArray() ?? Array.Empty<WildMonster>();
++        var corpsesBefore = Corpse.All.ToArray();
++        Action<AirshipYard, RocketSnapshot, float> listener = null;
++        GameObject New(string name) { var go = new GameObject("C3 " + name); made.Add(go); return go; }
++        try
++        {
++            Time.timeScale = 0;
++            var quiet = settings.Clone(); quiet.autoPauseRocket = false; quiet.autoSaveEnabled = false; UserSettings.Apply(quiet, false);
++            var c = commanders[0];
++            var yard = New("rocket").AddComponent<AirshipYard>(); yard.transform.position = c.Position;
++            var snapshot = new RocketSnapshot { taken = true, at = gameSeconds, currentPopulation = 20, currentWealth = 300 };
++            var rocket = new AirshipYard.State { hull = true, engine = true, phase = RocketPhase.Preparing,
++                preparationRemaining = AirshipYard.PreparationSeconds, snapshot = snapshot };
++            yard.RestoreState(rocket, commanders);
++            Check(RocketCampaign.SuppressNewCrises, "G39 preparing suppresses new crises");
++            var events = existingEvents != null ? existingEvents : New("events").AddComponent<ColonyEvents>();
++            events.Restore(new ColonyEvents.State { cold = 20, flood = 20, drought = 20 });
++            for (int i = 0; i <= (int)ColonyEvent.Wasps; i++)
++                Check(!events.Eligible((ColonyEvent)i) && !events.TryTrigger((ColonyEvent)i), "G39 crisis blocked " + i);
++            Check(events.Eligible(ColonyEvent.Migration), "G39 non hostile migration allowed");
++            events.Tick(7);
++            Check(events.ColdRemaining == 13 && events.FloodRemaining == 13 && events.DroughtRemaining == 13,
++                "G39 existing weather events continue");
++            Check(events.Capture().checkRemaining > 0 && events.Capture().checkRemaining <= EventRules.CheckSeconds,
++                "G39 lottery timer has no backlog");
++            Check(!events.SpawnNightPredators(), "G39 new hostile actors suppressed");
++            Check(events.Capture().lastNight == GameCalendar.Day, "G39 suppressed predator day consumed");
++            var local = Object.FindAnyObjectByType<LocalIncursions>() ?? New("incursions").AddComponent<LocalIncursions>();
++            var remaining = Get<float>(local, "remaining"); Call(local, "Update");
++            Check(Get<float>(local, "remaining") == remaining && !local.TrySpawn() && !local.TrySpawnIndependent(2),
++                "G39 local timer and direct spawns blocked");
++
++            foreach (var source in sources) Set(source, "raiderTemplate", null);
++            var sourceObject = New("invasion source"); sourceObject.SetActive(false);
++            var sourceTest = sourceObject.AddComponent<ColonyInvasion>();
++            var templateObject = New("raider template"); templateObject.SetActive(false);
++            var template = templateObject.AddComponent<WildMonster>();
++            Set(sourceTest, "raiderTemplate", template); Set(sourceTest, "spawnPoint", c.transform);
++            Check(RocketCampaign.AssaultAvailable, "G20 real generator is available without event subscriber");
++            var zero = new RocketSnapshot { taken = true };
++            Check((int)Call(sourceTest, "WaveCount", 0, snapshot) >= (int)Call(sourceTest, "WaveCount", 0, zero),
++                "G45 fixed wealth and population feed existing wave calculation");
++            var observed = 0;
++            listener = (y, s, dt) => { observed++; s.currentWealth = 999999; };
++            RocketCampaign.AssaultTick += listener;
++            RocketCampaign.TickAssault(yard, yard.FixedSnapshot, 1);
++            Check(observed == 1 && yard.FixedSnapshot.Wealth == 300, "G45 callback cannot change frozen inputs");
++            Check(campaign.Capture().assaultStarted && campaign.Capture().assaultRemaining > 0, "G20 first wave countdown started");
++            Check(c.WorkState.holdDeployment, "G61 final assault holds home deployment");
++            var due = campaign.Capture(); due.assaultRemaining = 0; campaign.Restore(due);
++            RocketCampaign.TickAssault(yard, yard.FixedSnapshot, 1);
++            Check(campaign.Capture().assaultWave == 1 && local.Visitors.Any(v => v != null && !visitorsBefore.Contains(v)),
++                "G20 actual final wave uses existing NavMesh spawn and registers saved visitors");
++            var captured = JsonUtility.FromJson<RocketCampaign.State>(JsonUtility.ToJson(campaign.Capture()));
++            campaign.Restore(captured);
++            Check(campaign.Capture().assaultRemaining == captured.assaultRemaining && RocketCampaign.Validate(captured),
++                "G20 assault timer JSON roundtrip without version change");
++            rocket.phase = RocketPhase.Boarding; rocket.preparationRemaining = 0; yard.RestoreState(rocket, commanders);
++            RocketCampaign.TickAssault(yard, yard.FixedSnapshot, 1);
++            Check(observed == 3, "G20 boarding continues assault");
++            var incident = yard.gameObject.AddComponent<RocketIncident>(); Call(incident, "Update"); Call(incident, "Update");
++            Check(SimulationPause.Capture().incidents.Count(x => x.Contains(":ready")) == 1, "G20 ready notification deduplicated");
++            rocket.phase = RocketPhase.Destroyed; yard.RestoreState(rocket, commanders); campaign.RocketDestroyed();
++            Check(!c.WorkState.holdDeployment, "G61 destruction clears deployment hold");
++            Check(campaign.Capture().crisisResumeAt == gameSeconds + 3 * GameCalendar.SecondsPerDay, "G39 450 second grace");
++            GameSession.Instance.MarkStarted(playSeconds, gameSeconds + 449);
++            Check(RocketCampaign.SuppressNewCrises, "G39 grace before boundary");
++            GameSession.Instance.MarkStarted(playSeconds, gameSeconds + 450);
++            Check(!RocketCampaign.SuppressNewCrises, "G39 crises resume at boundary");
++            RocketCampaign.TickAssault(yard, snapshot, 1);
++            Check(observed == 3, "G20 destroyed rocket stops assault callbacks");
++
++            rocket.phase = RocketPhase.Construction; yard.RestoreState(rocket, commanders); Call(incident, "Update");
++            rocket.phase = RocketPhase.Preparing; yard.RestoreState(rocket, commanders); Call(incident, "Update"); Call(incident, "Update");
++            Check(SimulationPause.Capture().incidents.Count(x => x.Contains(":activated")) == 1, "G20 activation notification once");
++            rocket.phase = RocketPhase.Destroyed; yard.RestoreState(rocket, commanders); Call(incident, "Update"); Call(incident, "Update");
++            Check(SimulationPause.Capture().incidents.Count(x => x.Contains(":destroyed")) == 1, "G20 destruction notification once");
++
++            Call(pool, "RestoreCounts", 0, 0, 0);
++            population.Restore(new ColonyPopulation.State { young = 3 });
++            var position = c.Position + Vector3.right;
++            population.S.civilianLocations.Add(new CivilianLocation { id = 1, count = 3, position = position });
++            population.S.nextCivilianLocation = 2;
++            var monster = New("civilian attacker").AddComponent<WildMonster>(); monster.transform.position = c.Position;
++            var target = (IDamageable)Call(monster, "FindCivilianTarget");
++            Check(target != null && target.Position == position, "G16 selects exposed civilian location");
++            target.TakeDamage(9); Check(population.LocatedCivilians == 3, "G16 nine damage accumulates");
++            target.TakeDamage(1); Check(population.LocatedCivilians == 2, "G16 ten damage kills one citizen");
++            population.SetCivilianProtection(1, true);
++            Check(target.IsDead && Call(monster, "FindCivilianTarget") == null, "G16 sheltered civilians not attackable");
++            population.SetCivilianProtection(1, false);
++            Check(Call(monster, "FindCivilianTarget") != null, "G16 losing protection exposes survivors without instant deaths");
++
++            var home = New("housing").AddComponent<Housing>(); home.transform.position = position;
++            population.S.civilianLocations[0].housing = true; population.SyncCivilianLocations();
++            Check(population.S.civilianLocations[0].sheltered, "G16 surviving housing protects location");
++            var before = population.LocatedCivilians;
++            typeof(BuildingBase).GetField("currentHealth", Hidden).SetValue(home, 0f); population.SyncCivilianLocations();
++            Check(!population.S.civilianLocations[0].sheltered && population.LocatedCivilians == before,
++                "G16 destroyed housing only removes shelter");
++
++            foreach (var commander in commanders)
++            {
++                commander.PersonalState.health = new HealthState { migrated = true };
++                commander.WorkState.health = 0; commander.WorkState.unconsciousSeconds = GameCalendar.SecondsPerDay - 1;
++                commander.PersonalState.meal.satiety = 100;
++            }
++            Set(game, "defeated", false); Call(game, "LateUpdate");
++            Check(!Get<bool>(game, "defeated"), "G11 natural recovery route prevents defeat");
++
++            foreach (var commander in commanders)
++            {
++                commander.PersonalState.health = new HealthState { migrated = true };
++                commander.WorkState.health = 0; commander.WorkState.unconsciousSeconds = 0;
++                commander.PersonalState.meal.satiety = 0;
++            }
++            Check(!CommanderAnt.HasRecoveryOrRescueRoute(commanders), "G11 all starving unconscious have no route");
++            Set(game, "defeated", false); Call(game, "LateUpdate");
++            Check(Get<bool>(game, "defeated") && game.DefeatReason == "구조 불가", "G11 LateUpdate passes rescue impossible reason");
++            Check(CampaignOutcome.CaptureWarning.Contains("구출은 남은 아군 필요"), "G50 capture warning shared text");
++            return "PASS " + checks;
++        }
++        finally
++        {
++            if (listener != null) RocketCampaign.AssaultTick -= listener;
++            for (int i = 0; i < sources.Length; i++) if (sources[i] != null) Set(sources[i], "raiderTemplate", sourceTemplates[i]);
++            var local = Object.FindAnyObjectByType<LocalIncursions>();
++            if (local != null) foreach (var visitor in local.Visitors.ToArray())
++                if (visitor != null && !visitorsBefore.Contains(visitor)) Object.DestroyImmediate(visitor.gameObject);
++            foreach (var corpse in Corpse.All.ToArray()) if (corpse != null && !corpsesBefore.Contains(corpse)) Object.DestroyImmediate(corpse.gameObject);
++            foreach (var go in made.AsEnumerable().Reverse()) if (go != null) Object.DestroyImmediate(go);
++            for (int i = 0; i < commanders.Length; i++) commanders[i].RestorePersonalState(personals[i]);
++            Call(pool, "RestoreCounts", free, assigned, reserved); population.Restore(savedPopulation); campaign.Restore(savedCampaign);
++            if (existingEvents != null) existingEvents.Restore(savedEvents);
++            Set(game, "defeated", defeated);
++            typeof(GameManager).GetProperty("DefeatReason").GetSetMethod(true).Invoke(game, new object[] { reason });
++            GameSession.Instance.MarkStarted(playSeconds, gameSeconds);
++            SimulationPause.Restore(pause); UserSettings.Apply(settings, false); UnityEngine.Random.state = random; Time.timeScale = timeScale;
++            ToastManager.SetCrisis("defeat", null);
++        }
++    }
++}
+diff --git a/Assets/_Project/Scripts/Core/GameManager.cs b/Assets/_Project/Scripts/Core/GameManager.cs
+index d4cae21..9ea3bb8 100644
+--- a/Assets/_Project/Scripts/Core/GameManager.cs
++++ b/Assets/_Project/Scripts/Core/GameManager.cs
+@@ -1,6 +1,9 @@
+ using System;
+ using System.Collections.Generic;
+ using AntColony.Buildings;
++using AntColony.Units;
++using AntColony.World;
++using System.Linq;
+ using UnityEngine;
+ 
+ namespace AntColony.Core
+@@ -14,6 +17,7 @@ namespace AntColony.Core
+         public event Action OnLoopComplete;
+         public event Action OnBossDefeated;
+         public event Action OnDefeat;
++        public string DefeatReason { get; private set; }
+ 
+         private readonly List<BuildingBase> buildings = new List<BuildingBase>();
+         private bool loopCompleted;
+@@ -73,8 +77,12 @@ namespace AntColony.Core
+                 || CampaignResearch.Instance != null && CampaignResearch.Instance.Departed) return;
+             // Update의 피해·소유권 변경 후 탑승 갱신→발사→패배 순서로 한 곳에서 확정한다.
+             foreach (var yard in FindObjectsByType<AirshipYard>(FindObjectsSortMode.None)) yard.ResolveLaunch();
+-            if (CampaignResearch.Instance != null && CampaignResearch.Instance.Departed || CampaignOutcome.HasSurvivors) return;
++            if (CampaignResearch.Instance != null && CampaignResearch.Instance.Departed
++                || CommanderAnt.HasRecoveryOrRescueRoute(CommanderRoster.Instance.Commanders)
++                || DiplomacyManager.Instance != null && DiplomacyManager.Instance.Data.homecomings.Any(CampaignOutcome.SafeHomecoming)) return;
++            DefeatReason = CampaignOutcome.HasSurvivors ? "구조 불가" : "활동 가능한 장수가 없습니다.";
+             defeated = true;
++            AntColony.UI.ToastManager.SetCrisis("defeat", DefeatReason);
+             OnDefeat?.Invoke();
+         }
+ 
+diff --git a/Assets/_Project/Scripts/Core/RocketCampaign.cs b/Assets/_Project/Scripts/Core/RocketCampaign.cs
+index f27ea62..84c8423 100644
+--- a/Assets/_Project/Scripts/Core/RocketCampaign.cs
++++ b/Assets/_Project/Scripts/Core/RocketCampaign.cs
+@@ -2,10 +2,13 @@ using System;
+ using System.Linq;
+ using AntColony.Buildings;
+ using UnityEngine;
++using AntColony.Units;
++using AntColony.World;
+ 
+ namespace AntColony.Core
+ {
+     // 씬과 함께 수명이 끝난다. 건물 파괴와 무관한 위기 유예·경제 이력·엔딩·본거지 기준점.
++    [DefaultExecutionOrder(-1000)]
+     public sealed class RocketCampaign : MonoBehaviour
+     {
+         [Serializable] public sealed class State
+@@ -16,6 +19,9 @@ namespace AntColony.Core
+             public bool hasHome;
+             public Vector3 home;
+             public int initialCommanders;
++            public bool assaultStarted;
++            public float assaultAt, assaultRemaining;
++            public int assaultWave;
+         }
+         public static RocketCampaign Instance { get; private set; }
+         private State state = new State();
+@@ -28,8 +34,18 @@ namespace AntColony.Core
+         public static bool SuppressNewCrises => Operating || Instance != null && GameCalendar.GameSeconds < Instance.state.crisisResumeAt;
+         // 생성기는 이 이벤트에 연결한다. 준비 완료 후에도 발사/파괴까지 계속 호출한다.
+         public static event Action<AirshipYard, RocketSnapshot, float> AssaultTick;
+-        public static bool AssaultAvailable => AssaultTick != null;
++        public static bool AssaultAvailable => ColonyInvasion.FinalAssaultAvailable || AssaultTick != null;
++        // 장수 Update보다 먼저 새 소집·복원 장수에도 자동 귀환 억제를 적용한다.
++        private void FixedDeploymentHold(bool operating)
++        {
++            if (CommanderRoster.Instance == null) return;
++            foreach (var commander in CommanderRoster.Instance.Commanders)
++                if (commander != null) commander.WorkState.holdDeployment = operating && CampaignOutcome.Survivor(commander)
++                    && !commander.IsAwayFromHome;
++        }
+         private void Awake() => Instance = this;
++        private void Update() => FixedDeploymentHold(Operating);
++        private void LateUpdate() => FixedDeploymentHold(Operating);
+         private void Start()
+         {
+             if (state.initialCommanders == 0 && GameSession.Exists) state.initialCommanders = GameSession.Instance.Options.startingCount;
+@@ -41,8 +57,33 @@ namespace AntColony.Core
+             if (Instance == this) { Instance = null; AssaultTick = null; }
+         }
+         public void SetHome(Vector3 point) { state.home = point; state.hasHome = true; }
+-        public void RocketDestroyed() => state.crisisResumeAt = GameCalendar.GameSeconds + 3 * GameCalendar.SecondsPerDay;
+-        public static void TickAssault(AirshipYard yard, RocketSnapshot snapshot, float seconds) => AssaultTick?.Invoke(yard, snapshot, seconds);
++        public void RocketDestroyed()
++        {
++            state.crisisResumeAt = GameCalendar.GameSeconds + 3 * GameCalendar.SecondsPerDay;
++            state.assaultStarted = false;
++            FixedDeploymentHold(false);
++        }
++        public static void TickAssault(AirshipYard yard, RocketSnapshot snapshot, float seconds)
++        {
++            if (yard == null || !yard.Operating || yard.IsDead || !RocketSnapshot.Present(snapshot)
++                || !snapshot.Valid || !(seconds > 0) || float.IsInfinity(seconds)) return;
++            Instance?.FixedDeploymentHold(true);
++            Instance?.GenerateAssault(snapshot, seconds);
++            AssaultTick?.Invoke(yard, JsonUtility.FromJson<RocketSnapshot>(JsonUtility.ToJson(snapshot)), seconds);
++        }
++        private void GenerateAssault(RocketSnapshot snapshot, float seconds)
++        {
++            if (!state.assaultStarted || state.assaultAt != snapshot.at)
++            {
++                state.assaultStarted = true; state.assaultAt = snapshot.at;
++                state.assaultWave = 0; state.assaultRemaining = ColonyInvasion.FinalFirstDelay;
++            }
++            state.assaultRemaining -= seconds;
++            if (state.assaultRemaining > 0) return;
++            if (ColonyInvasion.SpawnFinalWave(snapshot, state.assaultWave, out var nextDelay)
++                && state.assaultWave < int.MaxValue) state.assaultWave++;
++            state.assaultRemaining = nextDelay;
++        }
+         public void RecordEnding(AirshipYard yard) => state.ending = CampaignOutcome.Capture(yard.Passengers);
+         public State Capture() => JsonUtility.FromJson<State>(JsonUtility.ToJson(state));
+         public void Restore(State value)
+@@ -54,6 +95,7 @@ namespace AntColony.Core
+         }
+         public static bool Validate(State value) => value == null || RocketSnapshot.Finite(value.crisisResumeAt)
+             && value.initialCommanders >= 0
++            && value.assaultWave >= 0 && RocketSnapshot.Finite(value.assaultAt) && RocketSnapshot.Finite(value.assaultRemaining)
+             && value.economy != null && value.economy.Valid() && CampaignOutcome.Validate(value.ending)
+             && !float.IsNaN(value.home.x) && !float.IsInfinity(value.home.x)
+             && !float.IsNaN(value.home.y) && !float.IsInfinity(value.home.y)
+diff --git a/Assets/_Project/Scripts/UI/ThreatIncidents.cs b/Assets/_Project/Scripts/UI/ThreatIncidents.cs
+index 35ea18d..47b7b86 100644
+--- a/Assets/_Project/Scripts/UI/ThreatIncidents.cs
++++ b/Assets/_Project/Scripts/UI/ThreatIncidents.cs
+@@ -51,12 +51,32 @@ namespace AntColony.UI
+     {
+         private AirshipYard rocket;
+         private string id;
+-        private void Awake() { rocket = GetComponent<AirshipYard>(); id = "rocket:" + rocket.GetEntityId(); }
++        private RocketPhase observedPhase;
++        private string cycle;
++        private void Awake()
++        {
++            rocket = GetComponent<AirshipYard>(); id = "rocket:" + rocket.GetEntityId();
++            observedPhase = Save.SaveSystem.Busy ? rocket.Phase : RocketPhase.Construction;
++        }
++        private void Update()
++        {
++            if (Save.SaveSystem.Busy) { observedPhase = rocket.Phase; return; }
++            if (rocket.Operating) cycle = ":" + rocket.FixedSnapshot?.at.ToString("R", System.Globalization.CultureInfo.InvariantCulture);
++            if (rocket.Phase == observedPhase) return;
++            observedPhase = rocket.Phase;
++            if (observedPhase == RocketPhase.Preparing)
++                SimulationPause.Incident(id + cycle + ":activated", $"로켓 가동 — 준비 {rocket.PreparationRemaining:0}초, 최종 공세 시작.", UserSettings.Current.autoPauseRocket);
++            else if (observedPhase == RocketPhase.Boarding && rocket.PreparationRemaining <= 0)
++                SimulationPause.Incident(id + cycle + ":ready", "로켓 준비 완료 — 탑승 가능. 발사까지 공세가 계속됩니다.", UserSettings.Current.autoPauseRocket);
++            else if (observedPhase == RocketPhase.Destroyed) Destroyed();
++        }
++        private void Destroyed() => SimulationPause.Incident(id + cycle + ":destroyed",
++            "로켓이 파괴되었습니다. 평시 위기는 3일 후 재개됩니다.", UserSettings.Current.autoPauseRocket);
+         private void OnDisable()
+         {
+             if (Application.isPlaying && !Save.SaveSystem.Busy && rocket != null && rocket.IsDead
+                 && CampaignResearch.Instance?.Departed != true)
+-                SimulationPause.Incident(id, "로켓이 파괴되었습니다.", UserSettings.Current.autoPauseRocket);
++                Destroyed();
+         }
+     }
+ }
+diff --git a/Assets/_Project/Scripts/World/ColonyEvents.cs b/Assets/_Project/Scripts/World/ColonyEvents.cs
+index fa07271..68ccda6 100644
+--- a/Assets/_Project/Scripts/World/ColonyEvents.cs
++++ b/Assets/_Project/Scripts/World/ColonyEvents.cs
+@@ -73,6 +73,7 @@ namespace AntColony.World
+                 state.checkRemaining += EventRules.CheckSeconds;
+                 if (state.sinceLast < EventRules.MinimumGap || Random.value >= EventRules.Chance(DifficultyRuntime.Level)) continue;
+                 var crisis = Random.value < EventRules.CrisisChance(DifficultyRuntime.Level);
++                if (crisis && RocketCampaign.SuppressNewCrises) continue;
+                 var choices = Enum.GetValues(typeof(ColonyEvent)).Cast<ColonyEvent>().Where(e => ((int)e <= 5) == crisis && Eligible(e)).ToArray();
+                 if (choices.Length > 0) TryTrigger(choices[Random.Range(0, choices.Length)]);
+             }
+@@ -81,6 +82,7 @@ namespace AntColony.World
+         private static ResourceNode[] Farms() => FindObjectsByType<ResourceNode>(FindObjectsSortMode.None)
+             .Where(n => n.RegrowSeconds > 0 && n.GetComponent<BuildingBase>() != null && Home(n.transform.position)).ToArray();
+         public bool Eligible(ColonyEvent e) => Enum.IsDefined(typeof(ColonyEvent), e) && state.cooldowns[(int)e] == 0
++            && !(RocketCampaign.SuppressNewCrises && (int)e <= (int)ColonyEvent.Wasps)
+             && EventRules.InSeason(e, GameCalendar.CurrentSeason) && (e switch
+             {
+                 ColonyEvent.Wildfire => Farms().Length > 0 && !AntColony.Map.WeatherSystem.Wet, // 비가 오면 산불이 나지 않는다(2026-10-03 날씨).
+@@ -155,6 +157,7 @@ namespace AntColony.World
+         public bool SpawnNightPredators()
+         {
+             state.lastNight = GameCalendar.Day;
++            if (RocketCampaign.SuppressNewCrises) return false;
+             if (!TryEdge(out var point)) return false;
+             for (int i = 0; i < EventRules.NightPredators; i++) EventActor.Spawn(new EventActor.State { kind = EventActorKind.NightPredator,
+                 position = new Vec3Dto(point + Vector3.right * i * 1.5f), amount = EventRules.NightPredatorHealth });
+diff --git a/Assets/_Project/Scripts/World/ColonyInvasion.cs b/Assets/_Project/Scripts/World/ColonyInvasion.cs
+index e29bc1b..0b2057e 100644
+--- a/Assets/_Project/Scripts/World/ColonyInvasion.cs
++++ b/Assets/_Project/Scripts/World/ColonyInvasion.cs
+@@ -45,6 +45,45 @@ namespace AntColony.World
+         private float economyTimer;
+         private int waveIndex;
+ 
++        private static ColonyInvasion FinalSource()
++        {
++            foreach (var source in FindObjectsByType<ColonyInvasion>(FindObjectsInactive.Include, FindObjectsSortMode.InstanceID))
++                if (source.GetComponentInParent<ExpeditionSite>() == null && source.raiderTemplate != null && source.spawnPoint != null) return source;
++            return null;
++        }
++        public static bool FinalAssaultAvailable => FinalSource() != null && FindAnyObjectByType<LocalIncursions>() != null;
++        internal static float FinalFirstDelay => FinalSource()?.firstWaveDelay * DifficultyRuntime.IntervalScale ?? 90f * DifficultyRuntime.IntervalScale;
++        // 잠정(결정 원문에 없음): 인구 10명/재산 100당 파동 병력 +1. 기존 파동 상한·난이도는 유지한다.
++        private const float FinalPopulationPerRaider = 10f, FinalWealthPerRaider = 100f;
++        private int WaveCount(int index, RocketSnapshot snapshot = null)
++        {
++            var strength = snapshot == null ? 0 : snapshot.Population / FinalPopulationPerRaider + snapshot.Wealth / FinalWealthPerRaider;
++            var baseline = firstWaveCount + (double)index * waveCountGrowth + strength;
++            return Mathf.Min(DifficultyRuntime.ScaleCount((int)System.Math.Min(int.MaxValue / 4, baseline)), maxWaveCount);
++        }
++        // 평시 위기 차단과 별도인 최종 공세. 기존 생성 위치·분산·병력 상한·장수 구성을 재사용한다.
++        internal static bool SpawnFinalWave(RocketSnapshot snapshot, int index, out float nextDelay)
++        {
++            var source = FinalSource();
++            var local = FindAnyObjectByType<LocalIncursions>();
++            nextDelay = source != null ? source.waveRetryDelay : 15f;
++            if (source == null || local == null) return false;
++            source.raiders.RemoveAll(r => r == null || r.IsDead);
++            var active = 0;
++            foreach (var visitor in local.Visitors) if (visitor != null && !visitor.IsDead) active++;
++            var count = Mathf.Min(source.WaveCount(index, snapshot), source.maxActiveRaiders - active);
++            var spawned = 0;
++            for (var i = 0; i < count; i++) if (source.Spawn(false)) spawned++;
++            if (spawned == 0) return false;
++            var hasCommander = false;
++            foreach (var visitor in local.Visitors)
++                if (visitor is EnemyCommander && !visitor.IsDead) hasCommander = true;
++            if (!hasCommander) source.SpawnCommander(false);
++            nextDelay = source.ScaledWaveInterval;
++            AntColony.UI.ToastManager.Show("최종 공세 접근 중: " + spawned + "마리");
++            return true;
++        }
++
+         private void Awake()
+         {
+             colony = GetComponent<EnemyColony>();
+@@ -92,6 +131,7 @@ namespace AntColony.World
+         private void Update()
+         {
+             TickEconomy();
++            if (RocketCampaign.SuppressNewCrises) return;
+             // 월드 거점의 출발·이동은 DiplomacyManager가 관리한다. 로컬 소굴만 이 경로를 사용한다.
+             if (GetComponentInParent<ExpeditionSite>() != null) return;
+             if (ExpeditionRules.HomeCommanders == 0) return;
+@@ -108,7 +148,7 @@ namespace AntColony.World
+             }
+ 
+             raiders.RemoveAll(raider => raider == null || raider.IsDead);
+-            var count = Mathf.Min(AntColony.Core.DifficultyRuntime.ScaleCount(firstWaveCount + waveIndex * waveCountGrowth), maxWaveCount);
++            var count = WaveCount(waveIndex);
+             count = Mathf.Min(count, maxActiveRaiders - raiders.Count);
+             if (count <= 0)
+             {
+@@ -141,23 +181,24 @@ namespace AntColony.World
+             colony.TryExpand(expansionFoodCost, expansionSoilCost, maxBuildings, expansionRadius);
+         }
+ 
+-        private bool Spawn()
++        private bool Spawn(bool payCost = true)
+         {
+             var scatter = Random.insideUnitCircle * spawnScatter;
+             var origin = spawnPoint.position + new Vector3(scatter.x, 0f, scatter.y);
+             if (!NavMesh.SamplePosition(origin, out var hit, spawnScatter + 2f, NavMesh.AllAreas)) return false;
+-            if (!TryPayRaiderCost()) return false;
++            if (payCost && !TryPayRaiderCost()) return false;
+ 
+             // 소굴이 파괴돼도 침공 부대는 남도록 소굴 밑에 붙이지 않는다.
+             var raider = Instantiate(raiderTemplate, hit.position, spawnPoint.rotation);
+             raider.MakeRaider();
+             raider.gameObject.SetActive(true);
+             raiders.Add(raider);
++            if (!payCost) FindAnyObjectByType<LocalIncursions>()?.RestoreVisitor(raider);
+             return true;
+         }
+ 
+         // 파동을 이끄는 적 장수. 쓰러지면 플레이어의 포로 수용소로 넘어간다.
+-        private void SpawnCommander()
++        private void SpawnCommander(bool payCost = true)
+         {
+             if (commanderTemplate == null) return;
+             if (raiders.Exists(raider => raider is EnemyCommander)) return;
+@@ -165,7 +206,7 @@ namespace AntColony.World
+             var scatter = Random.insideUnitCircle * spawnScatter;
+             var origin = spawnPoint.position + new Vector3(scatter.x, 0f, scatter.y);
+             if (!NavMesh.SamplePosition(origin, out var hit, spawnScatter + 2f, NavMesh.AllAreas)) return;
+-            if (commanderFoodCost > 0 && colony.HasResourceNode(AntColony.Data.ResourceType.Food)
++            if (payCost && commanderFoodCost > 0 && colony.HasResourceNode(AntColony.Data.ResourceType.Food)
+                 && !colony.TrySpendResources(commanderFoodCost, 0)) return;
+ 
+             var commander = Instantiate(commanderTemplate, hit.position, spawnPoint.rotation);
+@@ -174,6 +215,7 @@ namespace AntColony.World
+             commander.MakeRaider();
+             commander.gameObject.SetActive(true);
+             raiders.Add(commander);
++            if (!payCost) FindAnyObjectByType<LocalIncursions>()?.RestoreVisitor(commander);
+         }
+ 
+         // Food 전리품 노드가 없는 소굴은 경제 도입 전처럼 비용 없이 침공한다.
+diff --git a/Assets/_Project/Scripts/World/LocalIncursions.cs b/Assets/_Project/Scripts/World/LocalIncursions.cs
+index 369edc5..c2783c0 100644
+--- a/Assets/_Project/Scripts/World/LocalIncursions.cs
++++ b/Assets/_Project/Scripts/World/LocalIncursions.cs
+@@ -25,6 +25,7 @@ namespace AntColony.World
+         private void Start() => remaining = NextDelay();
+         private void Update()
+         {
++            if (RocketCampaign.SuppressNewCrises) return;
+             if (ExpeditionRules.HomeCommanders == 0) return;
+             remaining -= Time.deltaTime;
+             if (remaining > 0) return;
+@@ -32,13 +33,18 @@ namespace AntColony.World
+         }
+ 
+         public bool TrySpawn()
+-            => DiplomacyManager.Instance?.TryDispatchIndependentRaid() == true;
++            => !RocketCampaign.SuppressNewCrises && DiplomacyManager.Instance?.TryDispatchIndependentRaid() == true;
+ 
+         public bool TrySpawnFaction(Civilization faction, int count) => faction != null && faction.contacted && faction.war && Spawn(faction, Mathf.Clamp(count, 1, 20));
+         public bool TrySpawnIndependent(int count) => Spawn(null, Mathf.Clamp(count, 1, 20));
+ 
+-        private bool Spawn(Civilization faction, int count)
++        // 이미 출발한 적은 G39의 신규 추첨 차단 대상이 아니다. 이동 침공대 도착 경로에서만 호출한다.
++        public bool TryArriveRaid(Civilization faction, int count) => (faction == null || faction.contacted && faction.war)
++            && Spawn(faction, Mathf.Clamp(count, 1, 20), true);
++
++        private bool Spawn(Civilization faction, int count, bool alreadyDispatched = false)
+         {
++            if (!alreadyDispatched && RocketCampaign.SuppressNewCrises) return false;
+             if (faction == null && ExpeditionRules.HomeCommanders == 0) return false;
+             visitors.RemoveAll(v => v == null || v.IsDead);
+             if ((faction == null && visitors.Count > 0) || raiderTemplate == null || commanderTemplate == null) return false;
+diff --git a/Assets/_Project/Scripts/World/SettlementDefense.cs b/Assets/_Project/Scripts/World/SettlementDefense.cs
+index 1d04a6f..2d162c5 100644
+--- a/Assets/_Project/Scripts/World/SettlementDefense.cs
++++ b/Assets/_Project/Scripts/World/SettlementDefense.cs
+@@ -92,6 +92,7 @@ namespace AntColony.World
+ 
+         public bool TryStartRaid(int requestedCount = 0, string factionId = null)
+         {
++            if (RocketCampaign.SuppressNewCrises) return false;
+             if (!isActiveAndEnabled || site.Disposition != ConquestDisposition.Annexed
+                 || UnderAttack || site.GuardTemplate == null) return false;
+             if (DiplomacyManager.Instance != null && !DiplomacyManager.Instance.Data.civilizations.Exists(c => c.war && !c.extinct)) return false;
+@@ -133,6 +134,7 @@ namespace AntColony.World
+                 || site.Disposition != ConquestDisposition.Annexed) return;
+             if (!UnderAttack)
+             {
++                if (RocketCampaign.SuppressNewCrises) return;
+                 var before = Remaining;
+                 Remaining = DiplomacyManager.Instance != null ? DiplomacyManager.Instance.ScheduledRaidSeconds(site) : Mathf.Max(0, Remaining - seconds);
+                 if (!Warned && before > GameBalance.WatchtowerWarningSeconds && Remaining <= GameBalance.WatchtowerWarningSeconds
+@@ -197,7 +199,8 @@ namespace AntColony.World
+                 if (ship != null && ship.Route?.Destination == site) ship.Route.Stop("Stopped: destination lost");
+             site.Visitor?.EvacuateLostSite();
+             if (world.ViewedSite == site) world.ViewSite(null);
+-            Notify($"LOST — {prisoners.Count} captured, {escaped} escaped. Retake to rescue.");
++            Notify($"LOST — {prisoners.Count} captured, {escaped} escaped. Retake to rescue."
++                + (prisoners.Count > 0 ? " " + CampaignOutcome.CaptureWarning : ""));
+         }
+ 
+         // 몸값·교환으로 석방: 억류 목록에서만 뺀다(오브젝트 정리와 귀환은 DiplomacyManager가 한다).
+diff --git a/Assets/_Project/Scripts/World/WildMonster.cs b/Assets/_Project/Scripts/World/WildMonster.cs
+index 5c9bb68..feca26a 100644
+--- a/Assets/_Project/Scripts/World/WildMonster.cs
++++ b/Assets/_Project/Scripts/World/WildMonster.cs
+@@ -85,7 +85,7 @@ namespace AntColony.World
+ 
+         public bool IsDead => currentHealth <= 0f;
+         public float CurrentHealth => currentHealth;
+-        internal bool InCombat => CombatTargeting.IsAlive(currentTarget);
++        internal bool InCombat => TargetAlive(currentTarget);
+         public void RestoreHealth(float value)
+         {
+             gameObject.SetActive(value > 0);
+@@ -169,7 +169,8 @@ namespace AntColony.World
+                 return;
+             }
+             targetSearchTimer -= Time.deltaTime;
+-            if (!CombatTargeting.IsAlive(currentTarget)) currentTarget = null;
++            if (currentTarget is CivilianTarget) ColonyPopulation.Instance?.SyncCivilianLocations();
++            if (!TargetAlive(currentTarget)) currentTarget = null;
+ 
+             // 침공 개체는 살아 있는 대상이 있어도 주기적으로 재탐색해, 가로막는 방어 유닛을 먼저 노린다.
+             if (currentTarget == null || isRaider && !IsBarrier(currentTarget))
+@@ -187,6 +188,7 @@ namespace AntColony.World
+                     targetSearchTimer = targetSearchInterval;
+                     currentTarget = Allied ? CombatTargeting.FindNearestEnemy(Position, detectionRadius, UnitRole.Melee)
+                         : (eventWasp ? FindFirstObjectByType<Stockpile>() : null) ?? (IDamageable)FindNearestAnt()
++                        ?? FindCivilianTarget()
+                         ?? (isRaider && raidSite == null ? GameManager.Instance?.FindNearestPlayerBuilding(transform.position) : null);
+                     if (currentTarget == null)
+                     {
+@@ -236,6 +238,37 @@ namespace AntColony.World
+             }
+         }
+ 
++        // 시민도 기존 접근·공성·공격 주기를 사용한다. 위치/피해는 인구 집계가 소유한다.
++        private sealed class CivilianTarget : IDamageable
++        {
++            private readonly ColonyPopulation population;
++            private readonly CivilianLocation location;
++            public CivilianTarget(ColonyPopulation population, CivilianLocation location)
++            { this.population = population; this.location = location; }
++            public bool IsDead => population == null || !population.isActiveAndEnabled || location.count == 0 || location.sheltered
++                || !population.CivilianLocations.Contains(location);
++            public Vector3 Position => location.position;
++            public void TakeDamage(float amount) => population.DamageCivilians(location.id, amount);
++        }
++        private static bool TargetAlive(IDamageable target) => target is CivilianTarget civilians
++            ? !civilians.IsDead : CombatTargeting.IsAlive(target);
++        private IDamageable FindCivilianTarget()
++        {
++            if (Allied || raidSite != null || ColonyPopulation.Instance == null) return null;
++            var population = ColonyPopulation.Instance;
++            population.SyncCivilianLocations();
++            CivilianLocation nearest = null;
++            var distance = detectionRadius * detectionRadius;
++            foreach (var location in population.CivilianLocations)
++            {
++                if (location.sheltered || location.count == 0) continue;
++                var candidate = (location.position - Position).sqrMagnitude;
++                if (candidate > distance) continue;
++                nearest = location; distance = candidate;
++            }
++            return nearest == null ? null : new CivilianTarget(population, nearest);
++        }
++
+         public void TakeDamage(float amount)
+         {
+             if (IsDead || !(amount > 0) || float.IsInfinity(amount)) return;
+diff --git a/docs/IMPL-C3-HANDOFF.md b/docs/IMPL-C3-HANDOFF.md
+new file mode 100644
+index 0000000..4194a4b
+--- /dev/null
++++ b/docs/IMPL-C3-HANDOFF.md
+@@ -0,0 +1,66 @@
++# IMPL-C3 인계 — 위기·침공·패배 판정 연결
++
++작성: 2026-10-24 / Codex / 격리 worktree C3. **Unity 실행·컴파일·검사 실행 안 함.** 아래 ‘완료’는 소유 범위 코드 연결을 뜻하며 실행 통과가 아니다.
++
++## G별 상태
++
++| 결정 | 상태 | 연결 내용 |
++| --- | --- | --- |
++| G39 | 소유 범위 완료 / 외교 출발·도착 연결 필요 | ColonyInvasion은 경제 틱 뒤 신규 파동 타이머만 정지. LocalIncursions의 추첨·직접 신규 생성 차단. SettlementDefense는 신규 습격만 차단하고 진행 중 전투·점령은 유지. ColonyEvents는 위기 종류 Cold~Wasps만 제외하고 추첨 체크는 소비, 기존 사건·actor·비적대 사건 진행. 밤 포식자 차단 날짜도 소비. RocketDestroyed의 3×SecondsPerDay=450초 유예 재사용. |
++| G11 | 소유 범위 완료 / 패배 UI 구독자 연결 필요 | GameManager.LateUpdate의 기존 가드·탑승 갱신→발사→패배 순서 보존. HasRecoveryOrRescueRoute 및 안전 귀환 중 석방자 확인. 생존자는 있으나 경로가 없으면 DefeatReason=‘구조 불가’. 사망 설정으로 패배를 막지 않음. 고정 위기 메시지로 사유 표시. |
++| G16 | 소유 범위 완료 | WildMonster의 대상 재탐색에 시민 위치 선택 추가. 기존 방어 장수/유닛 우선, 노출 시민, 침공 건물 순. 시민도 기존 접근·벽 공성·공격 주기 사용. DamageCivilians로 피해10당1명·위치 시신 집계를 재사용. 주거가 파괴되면 다음 Sync에서 보호만 상실. 기존 Housing/BuildingBase/WildMonster에 주거 파괴 즉사 코드는 없으므로 제거할 코드 없음. |
++| G20/G45 | 소유 범위 완료 / 밸런스 잠정 | RocketCampaign.TickAssault에서 내장 생성기를 호출하고 외부 AssaultTick 관측 콜백 유지. Preparing/Boarding 모두 생성, 발사/파괴 뒤 중단. 고정 snapshot의 Wealth/Population만 강도 입력에 사용. 복제본만 외부 콜백에 전달. |
++| G61 | 소유 범위 완료 | RocketCampaign의 이른 Update(-1000)·LateUpdate·공세 틱에서 본거지 우호 장수 holdDeployment 설정. 뒤늦게 소집·복원된 장수도 갱신. 로켓 파괴 즉시 해제, 가동 종료 후 해제. 3일 위기 유예 중에는 자동 귀환 억제 안 함. Units 수정 없음. |
++| G50 | SettlementDefense 완료 / 다른 포획 경로 연결 필요 | Lose의 기존 함락 알림에 포로가 있을 때만 CaptureWarning을 한 번 추가. 외교 CapturedBy는 소유 밖. |
++
++## 최종 공세의 잠정값과 저장
++
++- **잠정(결정 원문에 없음), 사용자 후속 승인:** 기존 ColonyInvasion 설정을 재사용. 기본 첫90초, 이후120초, 기본2마리+파동별1, 최대6마리, 활성 상한12, 실패 재시도15초. 실제 값은 해당 컴포넌트의 기존 serialized 설정과 난이도 배수 우선. 일반 파동과 마찬가지로 실제 병력이 생성된 경우에만 다음 파동 번호로 진행하며 적 장수 템플릿이 있으면 장수 동반.
++- **잠정(결정 원문에 없음):** `floor(Population/10 + Wealth/100)`을 기존 첫 병력+파동 증가량에 더하고 기존 난이도·파동 상한 적용. 숫자10/100은 ColonyInvasion의 상수 옆에도 표시. 스냅샷이 크면 기존6마리 상한에 빨리 도달한다. 가동 전 예상 강도 UI는 소유 밖이므로 아래 연결 요청 참조.
++- 본거지 원본 ColonyInvasion(비활성 템플릿 포함)의 생성 위치·분산·설정을 사용한다. ExpeditionSite 밑 원격 소굴은 선택하지 않는다. 최종 공세는 소굴 자원을 소비하지 않아 적 소굴의 자원 고갈·패배로 중단되지 않는다. 본거지 생성기/LocalIncursions가 없으면 내장 공세 사용 불가이며 가동 가능으로 위장하는 빈 구독자를 추가하지 않았다.
++- 최종 공세 적은 LocalIncursions 방문자 목록에도 등록한다. 기존 visitor 런타임 저장·복원 경로를 재사용한다. 활성 상한은 방문자 생존 수로 계산하므로 로드 후에도 유지된다.
++- RocketCampaign.State에 `assaultStarted/assaultAt/assaultRemaining/assaultWave` 추가. 기존 SaveSnapshot의 rocket Capture/Restore, SavePreflight의 RocketCampaign.Validate에 자동 포함. 버전19 유지. 구저장 기본값 false/0 호환. 구저장에서 진행 중인 로켓은 첫 공세 틱에서 첫 파동 대기 시작. 큰 dt 한 번에 여러 밀린 파동을 몰아서 만들지 않는다.
++- 시민 어댑터는 새 저장 객체를 만들지 않는다. 시민 위치·피해는 기존 인구 상태에 저장되고, 적의 위치·공격 쿨다운은 기존 런타임 상태에 보존된다. 시민 공격 대상은 로드 후 재탐색한다(아래 위험 참조).
++
++## 수정 파일
++
++- `Assets/_Project/Scripts/World/ColonyInvasion.cs`: 신규 위기 차단, 기존 파동 계산 재사용, 내장 최종 공세 생성.
++- `Assets/_Project/Scripts/World/LocalIncursions.cs`: 신규 위기 차단, 기존 이동대 도착 전용 TryArriveRaid API.
++- `Assets/_Project/Scripts/World/ColonyEvents.cs`: 위기 추첨·야행성 적 차단. **TryEdge/AcceptMigration의 ResourceManager.HomePosition 유지.**
++- `Assets/_Project/Scripts/World/WildMonster.cs`: 시민 대상 선택·피해 어댑터.
++- `Assets/_Project/Scripts/World/SettlementDefense.cs`: 신규 습격 차단·포획 경고.
++- `Assets/_Project/Scripts/Core/GameManager.cs`: 구조 가능성 패배 판정·DefeatReason.
++- `Assets/_Project/Scripts/Core/RocketCampaign.cs`: 내장 공세·저장 타이머·소집 유지.
++- `Assets/_Project/Scripts/UI/ThreatIncidents.cs`: RocketIncident의 가동/탑승 가능/파괴 전환 알림·중복 억제.
++- `AgentScripts/ImplC3Checks.cs`, `docs/IMPLEMENTATION_BOARD.md`, 이 문서.
++- graphify 갱신 산출물은 게임 코드 병합 대상에서 제외.
++
++## 연결 요청 — 소유 밖 파일은 수정하지 않음
++
++1. **G39 / World/DiplomacyRaids.cs::CheckRaids, DispatchRaid, TryDispatchIndependentRaid 및 World/DiplomacyManager.cs::Raid**
++   - 신규 전쟁/정복 습격 추첨·출발에 SuppressNewCrises 연결. 외교 전체 Tick을 return하지 말 것. Data.elapsed가 계속 흐르므로 절대시각 nextRaid/nextConquestCheck도 차단 기간을 누적하지 않게 연기/재예약해야 함. 현재 C3의 최종 생성 직전 차단만으로는 외교의 이동대 대기열·출발 비용·연체 추첨까지 막을 수 없음.
++   - **World/DiplomacyRaids.cs::TickRaidTravel**의 기존 `TrySpawnIndependent/TrySpawnFaction` 도착 호출은 `incursions.TryArriveRaid(c, raid.count)`로 교체. 이 API는 이미 출발한 이동대를 신규 위기로 취급하지 않고 계속 도착·전투하게 한다. 아직 호출자가 옛 API라 가동 중 기존 이동대도 도착 대기하며 유예 후 몰릴 위험이 있음. 출발 차단만 하고 이 도착 연결을 빠뜨리지 말 것.
++2. **G50 / World/DiplomacyPrisoners.cs::CapturedBy 및 다른 포획 알림 호출자**
++   - 기존 포획 알림 한 곳에 CampaignOutcome.CaptureWarning 추가. SettlementDefense.Lose는 이미 표시하므로 동일 포획을 두 번 알리지 말 것. 사망한 장수에는 포획 경고를 띄우지 말 것.
++3. **G11 / UI/HUDController.cs::ShowDefeatMessage, UI/GameMenuCampaign 계열 패배 화면**
++   - 기존 고정 ‘활동 가능한 장수가 없습니다’ 대신 GameManager.Instance.DefeatReason 사용. 기존 OnDefeat(Action) 시그니처는 보존했고 이벤트 호출 전에 사유 설정. 현재 C3에서 ToastManager.SetCrisis("defeat", reason)으로도 전달하지만 기존 일반 토스트/결과 화면은 여전히 옛 문구일 수 있음.
++   - 이미 패배한 저장을 로드할 때 사유 표시까지 보존하려면 Save DTO의 GameManager 플래그와 함께 reason 필드를 추가/복원해야 함. 이번 소유 밖이므로 미수정.
++4. **G45 / UI/GameMenuRocket.cs 가동 전 미리보기**
++   - ColonyInvasion의 잠정 환산(인구10/재산100당+1, 기존 설정·난이도·상한 적용)을 예상 강도로 표시. 현재 고정 스냅샷의 재산·인구 입력은 공개되어 있으나 파동 예상 병력 표시 호출자는 소유 밖. 확정 밸런스가 정해지면 코드 상수와 UI를 함께 교체.
++5. **G41 / Save/SaveRuntime·SaveOrders 및 검사 담당**
++   - 새 RocketCampaign 필드 실제 저장 왕복과 최종 공세 visitor 생성/복원·활성 상한을 검증. 시민 어댑터는 SaveReferences.Key가 null이므로 현재 타깃 위치 ID는 저장되지 않으며 로드 후 재탐색. 동일 시민 대상을 정확히 이어야 한다면 WildMonsterDto에 civilianLocation ID를 추가하고 WildMonster.CaptureRuntime/RestoreRuntime에 연결(스키마 파일 소유 밖).
++
++## 검사 목록 / 검증
++
++- `ImplC3Checks.Run()`은 동기 string 반환 진입점. Play의 불시착 장수1~2명 상태에서 호출. `Main()`은 기존 RunChecks 로더용 async 진입이며 검사 전용 불시착1명 게임을 직접 시작한다. 비축더미 검색/가정 없음. 로켓·침공 소스·적 템플릿·주거는 검사 안에서 생성.
++- 검사 항목: 위기 종류 전체 차단/비적대 허용, 기존 냉해·홍수·가뭄 지속, 추첨 타이머·밤 포식자 날짜 소비, local 타이머/직접 생성 차단, 내장 생성기 가용성·실제 NavMesh 최종 파동·방문자 등록, 스냅샷 복제, 준비/탑승 공세 지속, 공세 타이머 JSON 왕복, 가동/완료/파괴 알림 중복 억제, holdDeployment 설정/해제, 파괴 후449/450초 경계, 시민9+1 피해/보호/주거 파괴, 자연 회복 가능 시 패배 방지/구조 불가 사유, 공통 포획 경고.
++- 검사는 전용 새 게임에서 실행할 것. 최종 패배 이벤트가 결과 화면을 열 수 있다. 설정·시각·인구·장수 상태·타이머·난수·생성 객체를 복원하지만 UI 결과 화면·이력 기록까지 되돌리는 범용 트랜잭션 검사는 아니다.
++- **검사 작성만 했으며 PASS 결과 없음. 컴파일 성공을 주장하지 않음.** 정적 diff·참조 심볼 점검 결과는 작업 종료 시 아래에 갱신.
++
++## 남은 위험
++
++- 외교 연결 요청1을 합치기 전 G39 전체 완료 아님. 기존 이동대는 계속 진행해야 하므로 도착 전용 API 연결이 필수.
++- 실제 NavMesh의 원본 소굴 스폰 지점이 도달 가능해야 최종 파동이 생성된다. 실패 시 기존15초 재시도이며 맵 가장자리 대체 스폰을 새로 발명하지 않았다.
++- 로켓 알림 키는 EntityId+가동 snapshot 시각+단계. 같은 세션 반복 스캔/OnDisable 중복은 억제하나 로드로 EntityId가 바뀔 때 중복 방지의 영속성은 실제 왕복 확인 필요.
++- 민간인 전투·최종 공세·패배가 함께 발생하는 프레임, 병력 자동 귀환20초 경계·새 소집·수동 귀환 및 실제 저장 왕복은 Claude의 통합 Play 검증 필요.
++- Units/Buildings/Save 등 금지 파일·prefab·원본 프로젝트 접근·Unity·Notion·git commit/stash/push 수행 없음.

@@ -1,0 +1,220 @@
+"""Tiered work tools and weapons (BLENDER-1019 §3). Origin = grip (fist centre), +Y toward the head, strike side -Z.
+
+Each object carries custom props used by the manifest and contact checks:
+  contact (local xyz of the working point: pick tip, axe edge, hammer face, shovel tip, hoe edge, sickle edge),
+  grip2 (second hand for two-handed tools, local), length, tier, rigid=True (bind to Socket.Tool.* as one bone).
+Shared shapes, tier = material + cumulative reinforcement parts (see equip_spec).
+"""
+import math
+from mathutils import Matrix, Vector
+import pk
+from equip_spec import TIERS, METAL_TIERS, TOOLS, WEAPONS, GLOW, BRIGHT, LASH, STONE_NOTES
+
+ROT_LOCAL_Z_TO_Y = Matrix.Rotation(-math.pi / 2, 4, 'X')  # lathe axis (local Z) → +Y
+# prism(u, v, t): u → -Z (strike direction), v → +Y (along the haft), t → X (thickness)
+BLADE = Matrix(((0, 0, 1, 0), (0, 1, 0, 0), (-1, 0, 0, 0), (0, 0, 0, 1)))
+
+
+def tier_index(tid): return [t[0] for t in TIERS].index(tid)
+
+
+def haft(m, L, g, color, tid, r=.007):  # r fits the closed fist (grip_fit.HANDLE_R)
+    m.cyl((0, -g, 0), (0, L - g, 0), r, color, seg=7)
+    m.cyl((0, -g - .004, 0), (0, -g + .006, 0), r * 1.25, color, seg=7)  # butt knob stops slipping
+    if tid == 'Titanium' or tid == 'Starlight':  # cord-wrapped grip
+        for k in range(4): m.torus((0, -.02 + k * .013, 0), r + .002, .0028, '#3a3f48', seg=8, tseg=4, rot=(math.pi / 2, 0, 0))
+
+
+def reinforce(m, at, tid, head_color, sink=.016, r=.0125, rivet_pts=(), edge=None):
+    """Cumulative tier details. at = haft/head junction (y). edge = (a, b) segment for the bright/glow strip."""
+    i = tier_index(tid)
+    if i >= 2: m.cyl((0, at - sink, 0), (0, at - sink + .012, 0), r * 1.35, head_color, seg=8)  # bronze+: collar
+    if i >= 3:
+        for p in rivet_pts: m.ball(p, (.0035,) * 3, BRIGHT if i < 6 else GLOW, seg=6, rings=4)  # iron+: rivets
+    if i >= 4 and edge: m.cyl(edge[0], edge[1], .0022, BRIGHT, seg=4)  # steel+: bright bevel
+    if i >= 6 and edge:
+        a, b = Vector(edge[0]), Vector(edge[1]); off = Vector((0, -.004, .006))
+        m.cyl(a + off, b + off, .0018, pk.mat(GLOW, emit=2.5), seg=4)  # starlight: glowing inlay
+
+
+def lash(m, y, r=.014, n=3):
+    for k in range(n): m.torus((0, y + k * .006, 0), r, .0025, LASH, seg=8, tseg=4, rot=(math.pi / 2, 0, 0))
+
+
+def tool(kind, tier, col):
+    ko, L, g, use = TOOLS[kind]
+    tid, tko, color, metal, hcol = tier
+    head = pk.mat(color, metal=metal, rough=.45 if metal else .9)
+    stone = tid == 'Stone'; slim = .85 if tid in ('Titanium', 'Starlight') else 1.0
+    m = pk.Mesh(f'Tool_{kind}_{tid}'); top = L - g
+    haft(m, L - (.0 if kind != 'Shovel' else .03), g, hcol, tid)
+    props = {'grip2': None}
+    if kind == 'Pickaxe':
+        y = top - .012
+        if stone:
+            m.lathe([(0, 0), (.016, .02), (.014, .06), (0, .095)], head, c=(0, y, .01), seg=6, rot=(math.pi, 0, 0), smooth=False)
+            lash(m, y - .014, .015); contact = (0, y, -.085)
+        else:
+            m.lathe([(0, 0), (.011 * slim, .02), (.013 * slim, .06), (.014, .095 * slim)], head, c=(0, y, -.105 * slim), seg=6, smooth=False)  # pick toward -Z, reaches the eye
+            m.lathe([(.014, 0), (.012 * slim, .03), (.004, .055)], head, c=(0, y, .0), seg=6, smooth=False)  # flat back toward +Z
+            m.box((0, y, 0), (.026, .028, .03), head)
+            contact = (0, y, -.105 * slim)
+            reinforce(m, y, tid, color, rivet_pts=[(.014, y, .008), (-.014, y, .008)], edge=((0, y, -.09 * slim), (0, y, -.105 * slim)))
+        props['grip2'] = (0, .12, 0)
+    elif kind == 'Axe':
+        y = top - .03
+        if stone:
+            m.prism([(0, -.02), (.06, -.025), (.07, .0), (.06, .025), (0, .018)], -.007, .007, head, M=Matrix.Translation((0, y, 0)) @ BLADE)
+            lash(m, y - .025, .014, 4); contact = (0, y, -.07)
+        else:
+            w = slim
+            m.prism([(0, -.016), (.035, -.02 * w), (.07 * w, -.038 * w), (.075 * w, 0), (.07 * w, .034 * w), (.035, .018 * w), (0, .016)],
+                    -.006, .006, head, M=Matrix.Translation((0, y, 0)) @ BLADE)
+            m.box((0, y, .006), (.024, .034, .03), head)  # eye around the haft
+            contact = (0, y, -.075 * w)
+            reinforce(m, y, tid, color, sink=.024, rivet_pts=[(.007, y + .008, -.03), (-.007, y + .008, -.03)],
+                      edge=((0, y - .034 * w, -.07 * w), (0, y + .034 * w, -.07 * w)))
+        props['grip2'] = (0, .11, 0)
+    elif kind == 'Shovel':
+        y0 = top - .03
+        if stone:
+            m.box((0, y0 + .045, -.004), (.06, .09, .008), hcol)  # hardened wood blade
+            m.box((0, y0 + .093, -.004), (.058, .014, .006), head)  # thin stone edge lashed on
+            lash(m, y0 + .005, .013); contact = (0, y0 + .1, -.004)
+        else:
+            m.lathe([(.0, 0), (.036 * slim, .01), (.04 * slim, .06), (.0, .1)], head, c=(0, y0, -.004), seg=10, rot=(-math.pi / 2, 0, 0), sx=1, sy=.12, smooth=False)
+            contact = (0, y0 + .1, -.004)
+            reinforce(m, y0, tid, color, sink=.0, rivet_pts=[(.01, y0 + .012, -.006), (-.01, y0 + .012, -.006)],
+                      edge=((-.02, y0 + .085, -.006), (.02, y0 + .085, -.006)))
+        m.box((0, -g - .012, 0), (.05, .012, .012), hcol)  # T grip
+        props['grip2'] = (0, .14, 0)
+    elif kind == 'Hammer':
+        y = top - .016
+        if stone:
+            m.ico((0, y, -.006), (.024, .02, .03), head, sub=1); lash(m, y - .022, .013); contact = (0, y, -.036)
+        else:
+            m.cyl((0, y, -.04 * slim), (0, y, .0), .017 * slim, head, seg=8)   # striking face −Z
+            m.cyl((0, y, .0), (0, y, .035), .013, head, seg=8, r2=.006)        # peen
+            m.box((0, y, 0), (.022, .03, .022), head)
+            contact = (0, y, -.04 * slim)
+            reinforce(m, y, tid, color, rivet_pts=[(.012, y, .0), (-.012, y, .0)], edge=((0, y - .012, -.04 * slim), (0, y + .012, -.04 * slim)))
+    elif kind == 'Hoe':
+        y = top - .01
+        if stone:
+            m.prism([(0, -.022), (.07, -.026), (.075, 0), (.07, .026), (0, .022)], -.004, .004, head,
+                    M=Matrix.Translation((0, y, 0)) @ Matrix.Rotation(-.25, 4, 'X') @ BLADE)
+            lash(m, y - .02, .014); contact = (0, y + .018, -.073)
+        else:
+            m.prism([(0, -.018), (.068, -.03 * slim), (.074, 0), (.068, .03 * slim), (0, .018)], -.0035, .0035, head,
+                    M=Matrix.Translation((0, y, 0)) @ Matrix.Rotation(-.25, 4, 'X') @ BLADE)
+            m.cyl((0, y, -.006), (0, y, .012), .013, head, seg=8)
+            contact = (0, y + .018, -.073)
+            reinforce(m, y, tid, color, rivet_pts=[(.005, y, -.01), (-.005, y, -.01)], edge=((0, y - .002, -.07), (0, y + .035, -.068)))
+        props['grip2'] = (0, .13, 0)
+    elif kind == 'Sickle':
+        y = top
+        blade = pk.Mesh('b')
+        bcol = hcol if stone else head
+        blade.torus((0, 0, 0), .055, .008, bcol, seg=10, tseg=4, arc=.42)
+        bm_M = Matrix.Translation((0, y + .0, -.055)) @ Matrix.Rotation(math.pi / 2, 4, 'Y') @ Matrix.Diagonal((1, 1, .35, 1))
+        m.merge(blade, bm_M)
+        if stone:
+            for k in range(4):  # flint microblades on the inner edge
+                a = .4 + k * .45; m.ico((0, y + .047 * math.sin(a), -.055 + .047 * math.cos(a)), (.004, .008, .006), head, sub=0)
+        contact = (0, y + .05, -.03)
+        if not stone:
+            reinforce(m, y, tid, color, sink=.004, r=.011, rivet_pts=[(.006, y - .006, 0), (-.006, y - .006, 0)],
+                      edge=((0, y + .04, -.012), (0, y + .052, -.045)))
+    o = m.to_object(col, origin='keep')
+    o['kind'], o['tier'], o['length'], o['grip_from_butt'] = kind, tid, L, g
+    o['contact'] = list(contact); o['rigid'] = True; o['socket'] = 'Socket.Tool.R (L valid)'
+    if props['grip2']: o['grip2'] = list(props['grip2'])
+    if stone: o['stone_note'] = STONE_NOTES[kind]
+    return o
+
+
+def sword(tier, col):
+    tid, tko, color, metal, hcol = tier
+    head = pk.mat(color, metal=metal, rough=.4); i = tier_index(tid); slim = .88 if i >= 5 else 1.0
+    m = pk.Mesh(f'Weapon_Sword_{tid}')
+    m.lathe([(.011 * slim, 0), (.011 * slim, .23), (.0, .30)], head, seg=4, sx=1, sy=.3, rot=(-math.pi / 2, 0, 0), c=(0, .03, 0), smooth=False)
+    m.box((0, .025, 0), (.07 if i < 4 else .085, .012, .016), head if i >= 2 else hcol)  # guard (bronze+ metal)
+    m.cyl((0, -.03, 0), (0, .02, 0), .007, hcol, seg=7)
+    m.ball((0, -.036, 0), (.014,) * 3, pk.mat(GLOW, emit=2.5) if i >= 5 else head, seg=8, rings=5)
+    if i >= 3:
+        for s in (-1, 1): m.ball((.028 * s, .025, 0), (.004,) * 3, BRIGHT, seg=6, rings=4)
+    if i >= 3: m.cyl((0, .05, .0), (0, .24, .0), .0018, BRIGHT, seg=4)  # fuller line
+    if i >= 5: m.cyl((0, .06, .001), (0, .22, .001), .0016, pk.mat(GLOW, emit=2.5), seg=4)
+    o = m.to_object(col, origin='keep')
+    o['kind'], o['tier'], o['length'], o['contact'], o['rigid'] = 'Sword', tid, .37, [0, .3, 0], True
+    o['socket'] = 'Socket.Tool.R; sheathed on Socket.Hip.R (grip origin at the scabbard mouth)'
+    return o
+
+
+def spear(tier, col):
+    tid, tko, color, metal, hcol = tier
+    head = pk.mat(color, metal=metal, rough=.4); i = tier_index(tid)
+    ko, L, g, use = WEAPONS['Spear']
+    m = pk.Mesh(f'Weapon_Spear_{tid}')
+    m.cyl((0, -g, 0), (0, L - g - .08, 0), .007, hcol, seg=7)  # grip radius = grip_fit.HANDLE_R
+    m.lathe([(.009, 0), (.019 * (.9 if i >= 5 else 1), .025), (.0, .085)], head, seg=4, sx=1, sy=.28, rot=(-math.pi / 2, 0, 0), c=(0, L - g - .085, 0), smooth=False)
+    m.cyl((0, L - g - .1, 0), (0, L - g - .082, 0), .012, head, seg=8)
+    if i >= 2: m.cyl((0, -g, 0), (0, -g + .015, 0), .009, head, seg=8)  # butt cap
+    if i >= 3: lash(m, L - g - .115, .011, 2)
+    if i >= 5: m.cyl((0, L - g - .07, .002), (0, L - g - .02, .002), .0015, pk.mat(GLOW, emit=2.5), seg=4)
+    o = m.to_object(col, origin='keep')
+    o['kind'], o['tier'], o['length'], o['contact'], o['rigid'] = 'Spear', tid, L, [0, L - g, 0], True
+    o['socket'] = 'Socket.Tool.R (two-handed: grip2)'; o['grip2'] = [0, -.12, 0]
+    return o
+
+
+SHIELD_ROT = Matrix(((0, 0, 1, 0), (1, 0, 0, 0), (0, 1, 0, 0), (0, 0, 0, 1)))  # modelled bar X → Y, face −Y → −Z
+
+
+def shield(tier, col):
+    tid, tko, color, metal, hcol = tier
+    head = pk.mat(color, metal=metal, rough=.45); i = tier_index(tid)
+    m = pk.Mesh(f'Weapon_Shield_{tid}'); R = .11
+    m.lathe([(0, -.012), (R, -.006), (R, .006), (0, .014)], '#8a5a30', seg=16, rot=(math.pi / 2, 0, 0), c=(0, -.03, 0), smooth=False)  # wood disc, front −Y
+    for k in (-1, 0, 1): m.box((k * .036, -.044, 0), (.002, .002, .2), '#6a4426')
+    m.torus((0, -.03, 0), R, .007, head, seg=20, tseg=5, rot=(math.pi / 2, 0, 0))  # rim
+    m.ball((0, -.046, 0), (.03, .014, .03), head, seg=10, rings=5)  # boss
+    if i >= 3:
+        for k in range(8): a = k * math.tau / 8; m.ball((.085 * math.cos(a), -.042, .085 * math.sin(a)), (.005,) * 3, BRIGHT, seg=6, rings=4)
+    if i >= 4:
+        for s in (-1, 1): m.box((0, -.043, .05 * s), (.16, .004, .012), head)  # bands
+    if i >= 6: m.torus((0, -.046, 0), .05, .0025, pk.mat(GLOW, emit=2.5), seg=16, tseg=4, rot=(math.pi / 2, 0, 0))
+    m.cyl((-.025, 0, 0), (.025, 0, 0), .007, '#5a3a22', seg=6)  # grip bar behind the boss (origin)
+    for s in (-1, 1): m.box((.03 * s, -.012, 0), (.008, .024, .02), '#5a3a22')
+    o = m.to_object(col, origin='keep')
+    # centre grip: the bar runs through the fist (socket +Y) and the face looks along the knuckles (−Z, the striking side);
+    # the disc sits 1 cm further out so the curled fingers fit between bar and board
+    for v in o.data.vertices:
+        if v.co.y < -.014: v.co.y -= .01
+    o.data.transform(SHIELD_ROT)
+    o['kind'], o['tier'], o['diameter'], o['rigid'] = 'Shield', tid, R * 2, True
+    o['socket'] = 'Socket.Tool.L (grip bar at origin along +Y, face −Z)'
+    return o
+
+
+def scabbard(tier, col):
+    tid, tko, color, metal, hcol = tier
+    head = pk.mat(color, metal=metal, rough=.45)
+    m = pk.Mesh(f'Scabbard_{tid}')
+    m.lathe([(.0, 0), (.013, .02), (.016, .26), (.018, .28)], '#5a3a22', seg=6, sx=1, sy=.45, rot=(-math.pi / 2, 0, 0), c=(0, .02, 0), smooth=False)
+    m.cyl((0, .262, 0), (0, .3, 0), .02, head, seg=8, r2=.019)  # throat at the mouth
+    m.lathe([(.0, 0), (.014, .03)], head, seg=6, sx=1, sy=.45, rot=(-math.pi / 2, 0, 0), c=(0, .018, 0), smooth=False)  # chape
+    for y in (.2, .24): m.torus((0, y, 0), .019, .003, '#3a2414', seg=8, tseg=4, rot=(math.pi / 2, 0, 0))  # frog loops
+    o = m.to_object(col, origin='keep')
+    # Origin = tip; mouth at +Y .30. Sword grip origin sits .035 above the mouth when sheathed.
+    o['kind'], o['tier'], o['rigid'], o['mouth'] = 'Scabbard', tid, True, [0, .30, 0]
+    return o
+
+
+def build(col):
+    out = []
+    for kind in TOOLS:
+        for t in TIERS: out.append(tool(kind, t, col))
+    for t in METAL_TIERS:
+        out += [sword(t, col), spear(t, col), shield(t, col), scabbard(t, col)]
+    return out

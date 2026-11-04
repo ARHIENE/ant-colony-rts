@@ -1,16 +1,16 @@
-# Graph Report - ant  (2026-10-18)
+# Graph Report - ant  (2026-10-19)
 
 ## Corpus Check
-- 879 files · ~56,871,995 words
+- 881 files · ~57,164,568 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 8709 nodes · 18738 edges · 439 communities (376 shown, 54 thin omitted)
-- Extraction: 94% EXTRACTED · 6% INFERRED · 0% AMBIGUOUS · INFERRED: 1179 edges (avg confidence: 0.83)
+- 8746 nodes · 18790 edges · 466 communities (396 shown, 58 thin omitted)
+- Extraction: 94% EXTRACTED · 6% INFERRED · 0% AMBIGUOUS · INFERRED: 1183 edges (avg confidence: 0.83)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `ccf4f3e1`
+- Built from commit: `3ab7d553`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -21,7 +21,7 @@
 - dependencies
 - CommanderAnt
 - geometry.py
-- IDamageable
+- .Text
 - packages-lock.json
 - CommanderAcquisitionPanel
 - CommanderTrait
@@ -29,11 +29,11 @@
 - com.unity.modules.audio
 - com.unity.dt.app-ui
 - WildMonster
+- .AutoCandidates
 - Negotiation
-- Civilization
 - com.unity.render-pipelines.core
 - .Run
-- .CommandStop
+- .GainExperience
 - com.unity.addressables
 - dependencies
 - ExpeditionTransport
@@ -46,18 +46,18 @@
 - Expo Animation Recipes
 - .GetTemplate
 - ResourceNode
-- RoomSystem
-- .Main
+- .RoomAt
+- GameAction
 - com.unity.collections
 - com.unity.modules.physics
 - ColonyEvents
 - NurseryChamber
 - BuildingKind
 - Animation Recipes
-- CombatRolePrototypeBootstrapper
-- .TickPersonal
-- .DamageArea
-- AntColony.Units
+- BuildingData
+- .DropCargo
+- Civilization
+- AntColony.Core
 - 2026-09-02 ~ 2026-09-03 (세션 1)
 - .PlaceOne
 - ScienceTechnology
@@ -72,20 +72,20 @@
 - com.unity.ai.navigation
 - AttackMoveController
 - com.unity.modules.unitywebrequest
-- .Ignite
+- Gate
 - StoreBin
 - generator.py
 - WorldMapManager
-- .Record
+- PrisonerCamp
 - .Main
-- AntColony.Core
+- AntColony.UI
 - changelog.md
-- BossCircleAoE
+- MonoBehaviour
 - Builder
 - ColonyPopulation
 - Critter
 - com.unity.modules.ui
-- CritterCarcass
+- .PathFor
 - .Restore
 - .Button
 - hud-v5.js
@@ -106,7 +106,7 @@
 - 2026-09-08 (세션 9 — 건물 내구도·전멸 패배 / Flying 역할 프로토타입)
 - 2026-09-09 (세션 11 — Flying 완성 / 농사 최소 프로토타입)
 - com.unity.modules.physics2d
-- .AutoCandidates
+- .Main
 - Kitchen
 - ResourceReason
 - .Main
@@ -120,9 +120,9 @@
 - GameCalendar
 - Workshop
 - WorkerAnt
-- BodyMigration
+- BodyPart
 - BuildCategory
-- .Medical
+- Spec1015Checks
 - com.unity.modules.uielements
 - Infirmary
 - ResearchLab
@@ -132,7 +132,7 @@
 - AntPool
 - HomeMapBuilder
 - RoomRoofs
-- .RoomAt
+- SpaceQuality
 - HUDController
 - CampaignResearch
 - .Main
@@ -151,7 +151,7 @@
 - .Main
 - NewGameOptions
 - GatherDesignation
-- .TrySave
+- .Removal
 - BossHealth
 - preview.py
 - .Main
@@ -160,7 +160,7 @@
 - FarmPlot
 - EnemyCommander
 - .Main
-- MenuTooltip
+- GameManager
 - Animation Audit Playbook
 - .Main
 - IsometricCameraController
@@ -171,12 +171,12 @@
 - .Main
 - ResourceManager
 - RanchFacility
-- .Prepare
+- .Main
 - RoomKind
 - .Main
 - DifficultyLevel
 - facilities.py
-- AbstractTargetFollower
+- FreeLookCam
 - Apple Design
 - The Fixes
 - BuildingConstructionSite
@@ -190,22 +190,22 @@
 - .Main
 - common.py
 - hud-v5-care.js
-- CommanderInjury
+- .Main
 - hud-v5-anatomy.js
 - EnemyAlert
 - .Main
-- AntColony.World
+- AntColony.Units
 - 4. 구현 범위
 - PowerNode
-- SelectedUnitPanel
+- MenuTooltip
 - Barracks
 - AntVisual
 - MapBiome
 - render_equipment.py
 - Finding Animation Opportunities
-- BodyPart
+- .Medical
 - ColonyInvasion
-- EquipmentInventory
+- EquipmentItem
 - CommanderJobs
 - Corpse
 - .SnapAll
@@ -213,21 +213,21 @@
 - Product
 - .Main
 - .Main
-- .TickSlaughter
+- .TickBehaviour
 - The list
 - AcidTower
 - AutoBlink
 - Design Engineering
 - .Main
 - Component Building Principles
-- MedicineLevel
-- CommandCard
+- .Main
+- .Show
 - The Animation Decision Framework
 - clip-path for Animation
 - Performance Rules
 - Gesture and Drag Interactions
 - EnemyCommander
-- .DeclareWar
+- AbstractTargetFollower
 - CSS Transform Mastery
 - The Sonner Principles (Building Loved Components)
 - Spring Animations
@@ -240,7 +240,7 @@
 - .Main
 - CA/PA와 가중 능력합은 무엇인가?
 - Storage
-- .Handle
+- EquipmentRecipe
 - .Create
 - Processor
 - DiplomacyManager
@@ -254,13 +254,13 @@
 - AUTONOMOUS_DUTY_API.md
 - DefenseLine
 - TrapPit
-- AnnexedSettlement
+- CritterCarcass
 - Claude Code 요청 — 조합형 캐릭터와 가구 작업 애니메이션 분리
 - forms.py
 - MapGenerator
 - toto-deform-v1/build.py
 - State
-- .Main
+- Stockpile
 - AnimalDiseaseState
 - CommanderSkills
 - .Main
@@ -268,9 +268,9 @@
 - .Run
 - .Main
 - hud-v5-returns.js
-- GroundTelegraphLine
+- BossLineAoE
 - CommanderProgression
-- .Main
+- CommanderTalents
 - .Main
 - .Main
 - .Main
@@ -278,7 +278,7 @@
 - .Main
 - BuildingPlacementController
 - hud-v5-expedition.js
-- .GainExperience
+- .StartAnimalTask
 - 주민 키트(resident-kit) — 시설·캐릭터 부품·공통 동작·도구·미리보기 분리
 - renderWin
 - .Main
@@ -294,10 +294,10 @@
 - .Main
 - 인수인계 (2026-10-04, Claude Code → Codex)
 - kit_tools.py
-- .Slot
+- .ShowFeeder
+- HudOverview
+- UpkeepManager
 - .Main
-- .Prepare
-- Dormitory
 - .Main
 - 개미는 맡은 일에 맞춰 능력을 재분배한다
 - kemono-kiki-v1/README.md
@@ -305,7 +305,7 @@
 - com.unity.modules.accessibility
 - .Main
 - root
-- GameManager
+- BuildingBase
 - .Main
 - BuildScreen
 - CompostBin
@@ -315,19 +315,19 @@
 - .Main
 - hud-v5-logistics.js
 - 프로젝트 로그
-- HygieneFixture
+- .Spawn
 - PowerGrid
-- BossConeAoE
+- GroundTelegraphSector
 - 프로젝트 로그
 - .Main
 - hud-v5-research.js
 - Const.cs
-- .Main
+- RosterBar
 - .TryLoad
 - kit_preview.py
 - ColonyEvent
 - .Main
-- BuildingBase
+- DemolitionSite
 - hud-v5-utilities.js
 - FoodKind
 - EventActor
@@ -341,19 +341,19 @@
 - tick
 - .Run
 - MoodWatch
-- GroundTelegraphCircle
-- .Row
+- BossCircleAoE
+- .Main
 - hud-v5.check.cjs
 - LocalIncursions
 - build_clips.py
-- WeaponKind
-- .RestoreState
+- Stage2Checks
+- .AllowsSpecies
 - validate_exports.py
 - hud-v5-equipment.js
-- DigSite
+- SetupRaid.cs
 - .Run
 - hud-v5-gaps.check.cjs
-- EquipmentItem
+- .Main
 - 개미 소굴 RTS
 - .Main
 - Wait
@@ -361,7 +361,7 @@
 - .LateUpdate
 - build_interaction.py
 - toto-v4/build.py
-- .Run
+- .Main
 - hud-v5-logistics.check.cjs
 - render_category.py
 - hud-v5-colony.check.cjs
@@ -369,24 +369,23 @@
 - .Main
 - RestRoom
 - hud-v5-health.js
-- FirstHints
+- .CreateButton
 - .Prepare
 - export.py
-- FarmCrop
+- .Main
 - .Main
 - hud-v5-health.check.cjs
-- MonoBehaviour
-- UpkeepManager
+- GameSession
+- .Spawn
 - 시설별 구체 연출
 - .Create
 - 커밋 리뷰 및 다음 세션 인계 — 2026-10-06
 - 개미 작업 애니메이션 (ART-ANIM-01)
-- .Main
+- TaxFocus
 - render_interaction.py
 - kit_extra_clips.py
-- .LateUpdate
 - 캐릭터 전환 기획 — 2026-10-17
-- .Main
+- MilitaryPolicy
 - IUser
 - kit_character.py
 - tune.py
@@ -398,28 +397,26 @@
 - make_gifs.py
 - validate.py
 - parts-board/README.md
-- ExpeditionState
+- .Main
 - kit_validate.py
 - gifs.py
 - overlap.py
 - kemono-kit/scripts/render_all.py
 - LeaderAgenda
-- SaveSlots
+- .DropFloor
 - variants.py
 - parts.py
-- .AllowsSpecies
 - .Validate
 - .Main
-- BuildingData
+- .Main
 - PointerRelay
-- com.unity.profiling.core
-- TrinketEffect
+- CommanderDuty.cs
+- .Row
 - 생물 키트(critter-kit) — 목장 4종 + 습격 적 2종
-- .TradeSide
-- com.unity.modules.wind
+- .Main
 - simple-resident-v1/README.md
-- hud-v5-farm.js
-- .CreateSelectionBoxImage
+- ActivityIcons
+- .Run
 - states.py
 - kit_export_character.py
 - cast-v5/build.py
@@ -430,41 +427,68 @@
 - .Main
 - kemono-con-face/build.py
 - 조합 부품 렌더 시안
-- State
+- .Main
 - kemono-con-face/README.md
 - kemono-rabbit-v1/README.md
 - .SetupFarm
 - kemono-kiki-v2/README.md
-- TalkKind
-- .EnsureSlots
+- .Main
+- .RestoreState
 - OrderMode
-- EquipmentSlot
+- Heating
 - exports/manifest.json
-- ToastKind
+- FirstHints
 - scripts/export.py
-- GameBalance.cs
+- .Main
 - run.py
 - save_openable.py
+- DataAssetBootstrapper
+- .TradeSide
+- TrinketEffect
+- .Main
+- .Main
+- .Main
+- BodyMigration
+- MedicineLevel
+- com.unity.profiling.core
+- .Main
+- .Main
+- DigSite
+- EquipmentSlot
+- SurgeryStage
+- ExpeditionState
+- com.unity.modules.wind
+- Queue
+- ToastKind
+- hud-v5-farm.js
+- CommanderSleepState
+- Task
+- List
+- Vector3
+- BuildingKind
+- Collider
+- Dictionary
+- Transform
 
 ## God Nodes (most connected - your core abstractions)
 1. `CommanderAnt` - 644 edges
-2. `AntColony.Core` - 276 edges
+2. `AntColony.Core` - 275 edges
 3. `AntColony.Units` - 216 edges
-4. `AntColony.Buildings` - 212 edges
+4. `AntColony.Buildings` - 214 edges
 5. `Critter` - 209 edges
-6. `AntColony.Data` - 196 edges
-7. `BuildingBase` - 187 edges
+6. `AntColony.Data` - 195 edges
+7. `BuildingBase` - 190 edges
 8. `GameMenuController` - 185 edges
-9. `ResourceType` - 172 edges
+9. `ResourceType` - 170 edges
 10. `AntColony.World` - 159 edges
 
 ## Surprising Connections (you probably didn't know these)
 - `GameMenuController` --references--> `name`  [EXTRACTED]
   Assets/_Project/Scripts/UI/GameMenuCampaign.cs → package.json
+- `ResourceManager` --references--> `type`  [EXTRACTED]
+  Assets/_Project/Scripts/Core/ResourceManager.cs → package.json
 - `SaveFeatureCapture` --references--> `CommanderAnt`  [EXTRACTED]
   AgentScripts/SaveFeatureCapture.cs → Assets/_Project/Scripts/Units/CommanderAdvancedSkills.cs
-- `StorageResearchChecks` --references--> `ResourceType`  [EXTRACTED]
-  AgentScripts/StorageResearchChecks.cs → Assets/_Project/Scripts/Data/ResourceType.cs
 - `BuildingConstructionSite` --references--> `type`  [EXTRACTED]
   Assets/_Project/Scripts/Buildings/BuildingConstructionSite.cs → package.json
 - `Recipe` --references--> `type`  [EXTRACTED]
@@ -473,7 +497,7 @@
 ## Import Cycles
 - None detected.
 
-## Communities (439 total, 54 thin omitted)
+## Communities (466 total, 58 thin omitted)
 
 ### Community 0 - "manifest.json"
 Cohesion: 0.04
@@ -485,7 +509,7 @@ Nodes (10): WorldMapChecks, Barracks, BindingFlags, Button, Func, NavMeshObstacl
 
 ### Community 2 - "AntColony.Buildings"
 Cohesion: 0.04
-Nodes (5): GameBalanceRooms, AntColony.Data, AntColony.EditorTools, AntColony.Buildings, AntColony.Regression
+Nodes (6): GameBalanceRooms, IAirborne, IsAirborne, AntColony.Data, AntColony.Buildings, AntColony.Regression
 
 ### Community 3 - "dependencies"
 Cohesion: 0.04
@@ -493,23 +517,23 @@ Nodes (50): dependencies, com.akiojin.unity-cli-bridge, com.unity.ai.assistant, 
 
 ### Community 4 - "CommanderAnt"
 Cohesion: 0.01
-Nodes (140): CommanderAnt, CanAcidRain, CanDive, CanRally, SkillCooldownMultiplier, GameObject, AgeLabel, AgeLearningMultiplier (+132 more)
+Nodes (143): Dormitory, CommanderAnt, CanAcidRain, CanDive, CanRally, SkillCooldownMultiplier, GameObject, AgeLabel (+135 more)
 
 ### Community 5 - "geometry.py"
 Cohesion: 0.07
-Nodes (67): 개미 손(leg.01) 부착용 도구 소품 → ant-tools.blend / exports/Ant_Tools.fbx. colony-…, Execute with MODULES set to recipe module names; append only new assets., Run in Blender: exec(compile(open(PATH).read(), PATH, 'exec'))., asset(), bench(), bottle(), bowl(), box() (+59 more)
+Nodes (68): 개미 손(leg.01) 부착용 도구 소품 → ant-tools.blend / exports/Ant_Tools.fbx. colony-…, Execute with MODULES set to recipe module names; append only new assets., Run in Blender: exec(compile(open(PATH).read(), PATH, 'exec'))., asset(), bench(), bottle(), bowl(), box() (+60 more)
 
-### Community 6 - "IDamageable"
-Cohesion: 0.12
-Nodes (13): AreaAcidTower, Cooldown, Damage, Range, UsesDefenseDurability, MineField, Count, CombatTargeting (+5 more)
+### Community 6 - ".Text"
+Cohesion: 0.11
+Nodes (14): CompostBin, Species, Text, Workshop, Action, Button, LayoutElement, RectTransform (+6 more)
 
 ### Community 7 - "packages-lock.json"
 Cohesion: 0.04
 Nodes (44): com.unity.inputsystem, com.unity.modules.ai, com.unity.modules.androidjni, com.unity.modules.animation, com.unity.modules.assetbundle, com.unity.modules.audio, com.unity.modules.director, com.unity.modules.imageconversion (+36 more)
 
 ### Community 8 - "CommanderAcquisitionPanel"
-Cohesion: 0.13
-Nodes (15): CommanderAcquisitionPanel, Camp, Feedback, PanelRect, Scout, SelectedPrisoner, Button, Color (+7 more)
+Cohesion: 0.14
+Nodes (9): CommanderAcquisitionPanel, Camp, Feedback, PanelRect, Scout, SelectedPrisoner, IReadOnlyList, List (+1 more)
 
 ### Community 9 - "CommanderTrait"
 Cohesion: 0.03
@@ -528,16 +552,16 @@ Cohesion: 0.12
 Nodes (16): dependencies, depth, source, url, version, dependencies, depth, source (+8 more)
 
 ### Community 13 - "WildMonster"
-Cohesion: 0.04
-Nodes (31): SetupInvasion, WildlifeTemperament, Defensive, Predator, Timid, WildMonster, Agent, All (+23 more)
+Cohesion: 0.03
+Nodes (44): AreaAcidTower, Cooldown, Damage, Range, UsesDefenseDurability, MineField, Count, CombatTargeting (+36 more)
 
-### Community 14 - "Negotiation"
-Cohesion: 0.19
-Nodes (7): Negotiation, TalkReaction, Cold, Hesitant, Warm, IEnumerable, List
+### Community 14 - ".AutoCandidates"
+Cohesion: 0.07
+Nodes (11): Component, Func, IEnumerable, start, target, IEnumerable, Component, Func (+3 more)
 
-### Community 15 - "Civilization"
+### Community 15 - "Negotiation"
 Cohesion: 0.12
-Nodes (11): IEnumerable, Civilization, DiplomacyRules, TreatyKind, Alliance, NonAggression, Trade, List (+3 more)
+Nodes (7): Negotiation, TalkReaction, Cold, Hesitant, Warm, IEnumerable, DiplomacyRules
 
 ### Community 16 - "com.unity.render-pipelines.core"
 Cohesion: 0.09
@@ -547,9 +571,9 @@ Nodes (25): depth, source, version, dependencies, depth, source, version, depend
 Cohesion: 0.13
 Nodes (14): WorkProficiencyLootChecks, Action, BindingFlags, BoxCollider, Collider, FieldInfo, Func, List (+6 more)
 
-### Community 18 - ".CommandStop"
-Cohesion: 0.11
-Nodes (11): BuildingRepair, Credit, Component, UnitSelectionController, Camera, LayerMask, Vector2, EquipmentLoot (+3 more)
+### Community 18 - ".GainExperience"
+Cohesion: 0.14
+Nodes (4): AdminDesk, NeedsWork, BuildingRepair, Credit
 
 ### Community 19 - "com.unity.addressables"
 Cohesion: 0.13
@@ -568,12 +592,12 @@ Cohesion: 0.12
 Nodes (17): dependencies, depth, source, url, version, dependencies, depth, source (+9 more)
 
 ### Community 23 - "ExpeditionSite"
-Cohesion: 0.05
-Nodes (38): SetupFishing, Collider, GameObject, Material, NavMeshObstacle, Renderer, ExpeditionSite, Biome (+30 more)
+Cohesion: 0.04
+Nodes (48): SettlementRewardChecks, GameObject, Material, Renderer, AnnexedSettlement, DockedTransport, Elapsed, Garrison (+40 more)
 
 ### Community 24 - ".Rect"
-Cohesion: 0.09
-Nodes (29): HorizontalLayoutGroup, HudConsole, Center, Left, Right, Button, Color, Image (+21 more)
+Cohesion: 0.08
+Nodes (30): Image, HorizontalLayoutGroup, HudConsole, Center, Left, Right, Button, Color (+22 more)
 
 ### Community 25 - "com.unity.nuget.newtonsoft-json"
 Cohesion: 0.07
@@ -593,19 +617,19 @@ Nodes (33): Bottom sheet you can drag to dismiss, Collapsing header on scroll, E
 
 ### Community 29 - ".GetTemplate"
 Cohesion: 0.10
-Nodes (22): AcidTower, AirshipYard, AreaAcidTower, Barracks, BuildingKind, DefenseLab, Dormitory, GameObject (+14 more)
+Nodes (20): AcidTower, AirshipYard, AreaAcidTower, Barracks, DefenseLab, Dormitory, GameObject, Kitchen (+12 more)
 
 ### Community 30 - "ResourceNode"
 Cohesion: 0.05
-Nodes (31): ResourceNode, AmountRemaining, Available, BountifulHarvest, CanGather, CropEdible, FishedOut, FishMonth (+23 more)
+Nodes (33): Collider, NavMeshObstacle, ResourceNode, AmountRemaining, Available, BountifulHarvest, CanGather, CropEdible (+25 more)
 
-### Community 31 - "RoomSystem"
-Cohesion: 0.11
-Nodes (21): Room, Grade, GradeName, KindName, Score, Title, RoomSystem, HasCastleWalls (+13 more)
+### Community 31 - ".RoomAt"
+Cohesion: 0.10
+Nodes (23): Vector3, Room, Room, Grade, GradeName, KindName, Score, Title (+15 more)
 
-### Community 32 - ".Main"
-Cohesion: 0.27
-Nodes (7): Button, RectTransform, ScoutPost, Task, Text, Toggle, ScoutChecks
+### Community 32 - "GameAction"
+Cohesion: 0.10
+Nodes (23): Button, RectTransform, Task, Text, HudV2Checks, GameAction, AddTroop, Build (+15 more)
 
 ### Community 33 - "com.unity.collections"
 Cohesion: 0.10
@@ -616,8 +640,8 @@ Cohesion: 0.08
 Nodes (26): dependencies, depth, source, version, dependencies, depth, source, version (+18 more)
 
 ### Community 35 - "ColonyEvents"
-Cohesion: 0.07
-Nodes (21): Stockpile, IsDepositPoint, ColonyEvents, ColdRemaining, DroughtRemaining, FloodRemaining, Instance, MigrationOfferRemaining (+13 more)
+Cohesion: 0.08
+Nodes (19): ColonyEvents, ColdRemaining, DroughtRemaining, FloodRemaining, Instance, MigrationOfferRemaining, MigrationPending, ProductionBlocked (+11 more)
 
 ### Community 36 - "NurseryChamber"
 Cohesion: 0.12
@@ -631,29 +655,33 @@ Nodes (106): BuildingKind, AcidTower, AdminDesk, AirshipYard, AnimalClinic, Apar
 Cohesion: 0.06
 Nodes (31): Accordion / collapse, Animation Recipes, Button press, Drag to dismiss, Drawer / sheet, Dropdown, popover, menu, select, Hold to confirm, Masking a crossfade that won't settle (+23 more)
 
-### Community 39 - "CombatRolePrototypeBootstrapper"
-Cohesion: 0.22
-Nodes (7): CombatRolePrototypeBootstrapper, Barracks, GameObject, MenuItem, MonoScript, ResearchLab, Transform
+### Community 39 - "BuildingData"
+Cohesion: 0.16
+Nodes (10): CombatRolePrototypeBootstrapper, Barracks, GameObject, MenuItem, MonoScript, ResearchLab, Transform, MenuItem (+2 more)
 
-### Community 40 - ".TickPersonal"
+### Community 40 - ".DropCargo"
 Cohesion: 0.10
-Nodes (3): Renderer, Vector3, MoodFactor
+Nodes (5): Vector3, IllnessKind, Mold, WoundInfection, MoodFactor
 
-### Community 41 - ".DamageArea"
-Cohesion: 0.17
-Nodes (4): Collider, MonoBehaviour, Renderer, Vector3
+### Community 41 - "Civilization"
+Cohesion: 0.09
+Nodes (16): AirshipYard, TalkKind, AidRequest, Demand, Trade, TreatyOffer, Tribute, Civilization (+8 more)
+
+### Community 42 - "AntColony.Core"
+Cohesion: 0.06
+Nodes (4): GameBalance, AntColony.Core, AntColony.Map, AntColony.Save
 
 ### Community 43 - "2026-09-02 ~ 2026-09-03 (세션 1)"
 Cohesion: 0.15
 Nodes (13): 2026-09-02 ~ 2026-09-03 (세션 1), MVP 수직 슬라이스 — 이번 세션 구현 완료, SIMUL-TeaamProject에서 추가 이식(보스 레이드 / 선택 시스템) — 2026-09-02, 개요, 기획서 시스템 요약, 랜덤맵 생성(MapGenerator) — 이전 팀 프로젝트에서 포팅, 보스 AoE/텔레그래프 시스템 — `Assets/Scripts/Boss/`, 설계 메모 (+5 more)
 
 ### Community 44 - ".PlaceOne"
-Cohesion: 0.15
-Nodes (6): Collider, ConscriptionPost, List, Renderer, Vector3, Mouse
+Cohesion: 0.14
+Nodes (6): Collider, Infirmary, List, Renderer, Vector3, Mouse
 
 ### Community 45 - "ScienceTechnology"
-Cohesion: 0.05
-Nodes (36): ScienceDefinition, ScienceTechnology, AcidRefining, AdvancedCrops, AdvancedWeapons, Aircraft, ArmorPlates, Blades (+28 more)
+Cohesion: 0.06
+Nodes (35): ScienceTechnology, AcidRefining, AdvancedCrops, AdvancedWeapons, Aircraft, ArmorPlates, Blades, Cocoons (+27 more)
 
 ### Community 46 - "com.unity.modules.imgui"
 Cohesion: 0.09
@@ -664,15 +692,15 @@ Cohesion: 0.19
 Nodes (10): BindingFlags, BuildingKind, Decoration, Infirmary, Kitchen, Storage, Task, Toggle (+2 more)
 
 ### Community 48 - "AntUnitBase"
-Cohesion: 0.07
-Nodes (25): MenuItem, DataAssetBootstrapper, Queue, ObjectPool, Dictionary, GameObject, Quaternion, Vector3 (+17 more)
+Cohesion: 0.08
+Nodes (21): ObjectPool, Dictionary, GameObject, UnitData, AntUnitBase, Agent, Armor, AttackDamage (+13 more)
 
 ### Community 49 - ".Main"
 Cohesion: 0.33
 Nodes (4): EnemyColonyEconomyChecks, FieldInfo, Func, Task
 
 ### Community 50 - "CommanderTraits"
-Cohesion: 0.09
+Cohesion: 0.08
 Nodes (18): PrisonerCamp, Task, Phase3Checks, CommanderTraits, ArmorBonus, AttackBonus, BaseMood, CarryMultiplier (+10 more)
 
 ### Community 51 - "Housing"
@@ -680,8 +708,8 @@ Cohesion: 0.12
 Nodes (17): Housing, All, Capacity, TotalCapacity, BuildingKind, IEnumerable, List, Quote (+9 more)
 
 ### Community 52 - "WorldMapPanel"
-Cohesion: 0.12
-Nodes (15): WorldMapPanel, AnyOpen, ExpandedExpedition, IsOpen, PanelRect, Planet, Action, Button (+7 more)
+Cohesion: 0.11
+Nodes (16): WorldMapPanel, AnyOpen, ExpandedExpedition, IsOpen, PanelRect, Planet, Action, Button (+8 more)
 
 ### Community 53 - ".Capture"
 Cohesion: 0.06
@@ -692,20 +720,20 @@ Cohesion: 0.18
 Nodes (11): dependencies, depth, source, url, version, dependencies, depth, source (+3 more)
 
 ### Community 55 - "AttackMoveController"
-Cohesion: 0.10
-Nodes (14): HudOverview, AvailableDraft, Beds, BedShortage, HomeCommanders, RectTransform, Text, AttackMoveController (+6 more)
+Cohesion: 0.11
+Nodes (13): AttackMoveController, ConsumesPointerInput, IsAttackMode, Camera, LayerMask, Canvas, CanvasScaler, GraphicRaycaster (+5 more)
 
 ### Community 56 - "com.unity.modules.unitywebrequest"
 Cohesion: 0.06
 Nodes (42): dependencies, dependencies, depth, source, version, dependencies, depth, source (+34 more)
 
-### Community 57 - ".Ignite"
-Cohesion: 0.11
-Nodes (13): Door, IsPrisonDoor, Locked, OpenNow, Gate, Armor, Open, UsesDefenseDurability (+5 more)
+### Community 57 - "Gate"
+Cohesion: 0.16
+Nodes (11): Door, IsPrisonDoor, Locked, OpenNow, Gate, Armor, Open, UsesDefenseDurability (+3 more)
 
 ### Community 58 - "StoreBin"
-Cohesion: 0.10
-Nodes (15): Dto, StoreBin, DecayRate, DefaultAllowed, Host, IsBase, Name, Position (+7 more)
+Cohesion: 0.08
+Nodes (18): Dto, Dto, StoreBin, DecayRate, DefaultAllowed, Host, IsBase, Name (+10 more)
 
 ### Community 59 - "generator.py"
 Cohesion: 0.14
@@ -715,53 +743,53 @@ Nodes (13): build(), load_json(), material(), Run this file in Blender to regist
 Cohesion: 0.10
 Nodes (17): WorldMapManager, Diplomacy, LegacyLayout, AircraftResearched, HomePosition, Instance, Researcher, SettlementNotice (+9 more)
 
-### Community 61 - ".Record"
-Cohesion: 0.08
+### Community 61 - "PrisonerCamp"
+Cohesion: 0.09
 Nodes (18): Prisoner, PrisonerCamp, Capacity, Count, EscapedCount, EscapeTimer, ExecutedCount, Guarded (+10 more)
 
 ### Community 62 - ".Main"
-Cohesion: 0.12
-Nodes (19): AcidTower, AreaAcidTower, Barracks, BindingFlags, BuildingKind, DefenseLab, HashSet, Infirmary (+11 more)
+Cohesion: 0.14
+Nodes (13): AcidTower, AreaAcidTower, Barracks, DefenseLab, Infirmary, MineField, NavMeshObstacle, RestRoom (+5 more)
 
-### Community 63 - "AntColony.Core"
+### Community 63 - "AntColony.UI"
 Cohesion: 0.04
-Nodes (4): AntColony.Core, AntColony.Map, AntColony.Save, AntColony.UI
+Nodes (3): MenuLayout, AntColony.Camera, AntColony.UI
 
 ### Community 64 - "changelog.md"
 Cohesion: 0.04
-Nodes (49): 2026-09-03~04 (세션 2), 2026-09-10 SAVE — 이전 로그 이관 (2026-09-09 상태), 2026-09-11 — SAVE 연결 복구, 2026-09-11 — 이전 로그 요약 및 중단 지점, 2026-09-13 SAVE — 이전 로그(2026-09-11) 이관, 2026-09-14 SAVE — 이전 로그(2026-09-13) 이관, 2026-09-14 SAVE — 이전 로그(Support 전용 버프) 이관, 2026-09-14 SAVE — 이전 로그(적 소굴 랜덤 배치) 이관 (+41 more)
+Nodes (50): 2026-09-03~04 (세션 2), 2026-09-10 SAVE — 이전 로그 이관 (2026-09-09 상태), 2026-09-11 — SAVE 연결 복구, 2026-09-11 — 이전 로그 요약 및 중단 지점, 2026-09-13 SAVE — 이전 로그(2026-09-11) 이관, 2026-09-14 SAVE — 이전 로그(2026-09-13) 이관, 2026-09-14 SAVE — 이전 로그(Support 전용 버프) 이관, 2026-09-14 SAVE — 이전 로그(적 소굴 랜덤 배치) 이관 (+42 more)
 
-### Community 65 - "BossCircleAoE"
-Cohesion: 0.15
-Nodes (9): BossCircleAoE, IsCasting, IEnumerator, LayerMask, Vector3, BossBasicPatternLoop, LayerMask, Transform (+1 more)
+### Community 65 - "MonoBehaviour"
+Cohesion: 0.18
+Nodes (8): BossBasicPatternLoop, LayerMask, Transform, Vector3, GameNotifications, Dictionary, Workforce, MonoBehaviour
 
 ### Community 66 - "Builder"
 Cohesion: 0.11
 Nodes (18): aphid(), bee(), build_actions(), Builder, legs(), mat(), night_beetle(), pose() (+10 more)
 
 ### Community 67 - "ColonyPopulation"
-Cohesion: 0.04
-Nodes (36): ColonyPopulation, AdminDemandWork, Administration, FacilityProductivity, HousingProductivity, NeedsAdministration, Productivity, ResearchProductivity (+28 more)
+Cohesion: 0.06
+Nodes (27): ColonyPopulation, AdminDemandWork, Administration, FacilityProductivity, HousingProductivity, NeedsAdministration, Productivity, ResearchProductivity (+19 more)
 
 ### Community 68 - "Critter"
 Cohesion: 0.02
-Nodes (73): Critter, Age, Agitated, AlertKey, All, ApprovedId, Bound, CalledTo (+65 more)
+Nodes (72): Critter, Age, Agitated, AlertKey, All, ApprovedId, Bound, CalledTo (+64 more)
 
 ### Community 69 - "com.unity.modules.ui"
 Cohesion: 0.12
 Nodes (16): dependencies, depth, source, version, dependencies, depth, source, version (+8 more)
 
-### Community 70 - "CritterCarcass"
-Cohesion: 0.11
-Nodes (12): Action, CritterCarcass, Announced, Carrier, Chitin, Corpse, Meat, Species (+4 more)
+### Community 70 - ".PathFor"
+Cohesion: 0.12
+Nodes (12): BindingFlags, Button, Task, GatheringUIChecks, AdminDesk, BuildingKind, Task, Vector3 (+4 more)
 
 ### Community 71 - ".Restore"
-Cohesion: 0.11
-Nodes (16): PrisonerCamp, ScoutPost, ConstructionDto, SaveConstruction, BuildingKind, Collider, Color, List (+8 more)
+Cohesion: 0.12
+Nodes (15): PrisonerCamp, ScoutPost, ConstructionDto, SaveConstruction, BuildingKind, Collider, Color, List (+7 more)
 
 ### Community 72 - ".Button"
-Cohesion: 0.07
-Nodes (33): ConscriptionPost, IReadOnlyList, List, Image, Slider, Outline, Image, Text (+25 more)
+Cohesion: 0.08
+Nodes (31): List, Image, Slider, Outline, Image, Text, Toggle, Transform (+23 more)
 
 ### Community 73 - "hud-v5.js"
 Cohesion: 0.07
@@ -780,8 +808,8 @@ Cohesion: 0.40
 Nodes (4): Answer, Outcome, Q: read log.md and continue task, Source Nodes
 
 ### Community 77 - "AntColony.Boss"
-Cohesion: 0.12
-Nodes (3): AntColony.Boss.AoE, AntColony.Boss.Telegraph, AntColony.Boss
+Cohesion: 0.10
+Nodes (5): StorageBootstrapper, AntColony.Boss.AoE, AntColony.Boss.Telegraph, AntColony.EditorTools, AntColony.Boss
 
 ### Community 78 - "2026-09-04~05 (세션 3)"
 Cohesion: 0.33
@@ -812,7 +840,7 @@ Cohesion: 0.40
 Nodes (3): MenuItem, NavMeshBakeMenu, NavMeshSurface
 
 ### Community 85 - "ResourceType"
-Cohesion: 0.03
+Cohesion: 0.05
 Nodes (42): MaterialInfo, Structural, ResourceLabels, ResourceType, AnimalMedicine, Brick, Chitin, Clay (+34 more)
 
 ### Community 86 - ".Main"
@@ -835,9 +863,9 @@ Nodes (5): 2026-09-09 (세션 11 — Flying 완성 / 농사 최소 프로토타�
 Cohesion: 0.08
 Nodes (26): dependencies, depth, source, version, dependencies, depth, source, version (+18 more)
 
-### Community 91 - ".AutoCandidates"
-Cohesion: 0.07
-Nodes (7): Dormitory, Component, Func, IEnumerable, start, target, Vector3
+### Community 91 - ".Main"
+Cohesion: 0.30
+Nodes (7): Button, Dormitory, RectTransform, Task, Text, HudV4Checks, Rect
 
 ### Community 92 - "Kitchen"
 Cohesion: 0.07
@@ -852,16 +880,16 @@ Cohesion: 0.17
 Nodes (10): AnnexedSettlementChecks, BindingFlags, Button, Canvas, EventSystem, Func, GraphicRaycaster, ResearchLab (+2 more)
 
 ### Community 95 - "EnemyColony"
-Cohesion: 0.12
-Nodes (8): SetupRaid, EnemyColony, Buildings, IsDefeated, RemainingBuildings, List, ResourceType, Vector3
+Cohesion: 0.14
+Nodes (7): SetupRaid, EnemyColony, Buildings, IsDefeated, RemainingBuildings, List, Vector3
 
 ### Community 96 - "SettlementDefense"
-Cohesion: 0.08
-Nodes (19): ConquestDisposition, Abandoned, Annexed, Lost, Undecided, SettlementDefense, Attackers, CaptureProgress (+11 more)
+Cohesion: 0.11
+Nodes (14): SettlementDefense, Attackers, CaptureProgress, CurrentRaidInterval, Prisoners, Remaining, Status, UnderAttack (+6 more)
 
 ### Community 101 - "GameMenuController"
-Cohesion: 0.05
-Nodes (42): GameMenuController, BlocksInput, Instance, ScreenName, GameObject, Image, InputField, Key (+34 more)
+Cohesion: 0.04
+Nodes (32): GameMenuController, BlocksInput, Instance, ScreenName, Action, Button, GameObject, Image (+24 more)
 
 ### Community 102 - "WorldPlanet"
 Cohesion: 0.11
@@ -876,24 +904,24 @@ Cohesion: 0.11
 Nodes (17): GameCalendar, CurrentSeason, Day, GameSeconds, IsNight, Label, Month, MonthProgress (+9 more)
 
 ### Community 105 - "Workshop"
-Cohesion: 0.08
-Nodes (26): Job, Order, Job, Order, State, Workshop, Crafter, Jobs (+18 more)
+Cohesion: 0.15
+Nodes (13): Job, Order, Job, Order, State, Workshop, Crafter, Jobs (+5 more)
 
 ### Community 106 - "WorkerAnt"
 Cohesion: 0.04
-Nodes (34): Vector3, IAirborne, IsAirborne, IMaterialSink, Paused, Position, Vector3, SoldierAnt (+26 more)
+Nodes (38): IMaterialSink, Paused, Position, Vector3, Vector2, SoldierAnt, IsAirborne, IsFlying (+30 more)
 
-### Community 107 - "BodyMigration"
-Cohesion: 0.47
-Nodes (3): BodyMigration, part, oldMax
+### Community 107 - "BodyPart"
+Cohesion: 0.12
+Nodes (14): BodyPart, Abdomen, ArmL, ArmR, EyeL, EyeR, FootL, FootR (+6 more)
 
 ### Community 108 - "BuildCategory"
-Cohesion: 0.06
-Nodes (35): BuildCategoryChecks, Button, RectTransform, Task, Transform, Task, FurnitureCatalogChecks, BuildCategory (+27 more)
+Cohesion: 0.08
+Nodes (30): Task, FurnitureCatalogChecks, BuildCategory, Automation, Decoration, Defense, Environment, Food (+22 more)
 
-### Community 109 - ".Medical"
+### Community 109 - "Spec1015Checks"
 Cohesion: 0.14
-Nodes (20): BuildingKind, Button, CompostBin, Door, FieldInfo, Func, Infirmary, Kitchen (+12 more)
+Nodes (19): BuildingKind, Button, CompostBin, Door, FieldInfo, Func, Kitchen, List (+11 more)
 
 ### Community 110 - "com.unity.modules.uielements"
 Cohesion: 0.13
@@ -908,40 +936,40 @@ Cohesion: 0.15
 Nodes (7): ResearchLab, IsResearching, MaxLevel, ResearchIsAttack, ResearchRemaining, Role, Target
 
 ### Community 113 - "WeatherSystem"
-Cohesion: 0.09
-Nodes (18): State, WeatherKind, Blizzard, Clear, Fog, Rain, Sandstorm, Snow (+10 more)
+Cohesion: 0.10
+Nodes (17): State, WeatherKind, Blizzard, Clear, Fog, Rain, Sandstorm, Snow (+9 more)
 
 ### Community 114 - "poses.py"
 Cohesion: 0.15
 Nodes (13): ant(), body(), crouch(), legs(), merge(), 작업 클립 포즈 정의(24fps). 축·각도는 아마추어 공간 기준, 레스트 대비. 앞다리 leg.01 = 도구·손, 가운데 leg.02 =…, L 기준 회전 목록을 R로 미러(Y·Z 부호 반전)., stand() (+5 more)
 
 ### Community 115 - "ScienceEffects"
-Cohesion: 0.08
-Nodes (24): ScienceEffects, AcidTowerDamageMultiplier, CanCraftTrinkets, CargoMultiplier, ColdEffectMultiplier, CommanderSlotBonus, DroughtGrowthPenalty, FarmYieldMultiplier (+16 more)
+Cohesion: 0.06
+Nodes (29): ScienceEffects, AcidTowerDamageMultiplier, CanCraftTrinkets, CargoMultiplier, ColdEffectMultiplier, CommanderSlotBonus, DroughtGrowthPenalty, FarmYieldMultiplier (+21 more)
 
 ### Community 116 - "AntPool"
 Cohesion: 0.12
 Nodes (7): SetupCommanders, AntPool, Assigned, Free, Instance, Reserved, Total
 
 ### Community 117 - "HomeMapBuilder"
-Cohesion: 0.17
-Nodes (11): HomeMapBuilder, CurrentWorldBounds, Instance, Rebuilt, Status, WorldBounds, Bounds, NavMeshAgent (+3 more)
+Cohesion: 0.15
+Nodes (12): HomeMapBuilder, CurrentWorldBounds, Instance, Rebuilt, Status, WorldBounds, Bounds, NavMeshAgent (+4 more)
 
 ### Community 118 - "RoomRoofs"
-Cohesion: 0.13
-Nodes (12): MeshFilter, MeshRenderer, Task, RoomTraversalChecks, Room, RoomRoofs, Count, IReadOnlyList (+4 more)
+Cohesion: 0.14
+Nodes (11): MeshFilter, MeshRenderer, Task, RoomTraversalChecks, RoomRoofs, Count, IReadOnlyList, List (+3 more)
 
-### Community 119 - ".RoomAt"
-Cohesion: 0.08
-Nodes (23): BuildingKind, Decoration, Door, GameObject, Kitchen, List, Task, Vector3 (+15 more)
+### Community 119 - "SpaceQuality"
+Cohesion: 0.17
+Nodes (10): SpaceQuality, Outdoor, TemperatureBand, Cold, Comfortable, Hot, Decoration, IEnumerable (+2 more)
 
 ### Community 120 - "HUDController"
 Cohesion: 0.07
 Nodes (21): HUDController, SelectedCommander, SelectedRole, Barracks, Button, Canvas, CanvasScaler, EventSystem (+13 more)
 
 ### Community 121 - "CampaignResearch"
-Cohesion: 0.10
-Nodes (15): CampaignResearch, Active, Departed, EndingGameSeconds, HasBlueprint, Instance, LeftBehind, Passengers (+7 more)
+Cohesion: 0.09
+Nodes (16): CampaignResearch, Active, Departed, EndingGameSeconds, HasBlueprint, Instance, LeftBehind, Passengers (+8 more)
 
 ### Community 122 - ".Main"
 Cohesion: 0.35
@@ -968,28 +996,28 @@ Cohesion: 0.09
 Nodes (22): CommanderActivity, Art, Building, Command, Cooking, Crafting, Farming, Fishing (+14 more)
 
 ### Community 128 - "CommanderPersonalState"
-Cohesion: 0.06
-Nodes (26): CommanderHygieneState, Valid, CommanderPersonalState, HasSeriousInjury, HasTreatableInjury, NeedsTreatment, List, CommanderSleepState (+18 more)
+Cohesion: 0.05
+Nodes (32): CommanderHygieneState, Valid, CommanderPersonalState, HasSeriousInjury, HasTreatableInjury, NeedsTreatment, MentalBreak, AttackBuilding (+24 more)
 
 ### Community 129 - ".CommanderNursingTasks"
-Cohesion: 0.10
-Nodes (15): Func, MedJob, Feed, None, Rescue, Surgery, Tend, Component (+7 more)
+Cohesion: 0.11
+Nodes (15): MedJob, Feed, None, Rescue, Surgery, Tend, amount, Component (+7 more)
 
 ### Community 130 - "ScoutPost"
 Cohesion: 0.14
 Nodes (10): ScoutPost, Companion, CurrentChance, DispatchAnts, DispatchedAnts, DispatchFoodCost, FailureCount, IsDispatched (+2 more)
 
 ### Community 131 - "Ranch"
-Cohesion: 0.07
-Nodes (26): Ranch, Animals, AutoHarvest, AutoTreat, Cells, Crowding, Efficiency, Keepers (+18 more)
+Cohesion: 0.08
+Nodes (24): Ranch, Animals, AutoHarvest, AutoTreat, Cells, Crowding, Efficiency, Keepers (+16 more)
 
 ### Community 132 - "DetailTabs"
-Cohesion: 0.15
+Cohesion: 0.18
 Nodes (11): DetailTabs, Body, Tab, Visible, Action, Button, Func, Image (+3 more)
 
 ### Community 133 - "HealthState"
 Cohesion: 0.06
-Nodes (35): HealthState, Bleeding, BleedRate, Consciousness, Downed, Fatal, Injured, LifeThreatening (+27 more)
+Nodes (33): HealthState, Bleeding, BleedRate, Consciousness, Downed, Fatal, Injured, LifeThreatening (+25 more)
 
 ### Community 134 - "AirshipYard"
 Cohesion: 0.10
@@ -1001,19 +1029,19 @@ Nodes (6): BuildingKind, GameObject, List, Task, Vector3, HygienePowerChecks
 
 ### Community 136 - "NewGameOptions"
 Cohesion: 0.05
-Nodes (35): ScienceLab, Task, EraChecks, Camera, Task, FloorShot, Task, HudFrameShot (+27 more)
+Nodes (31): ScienceLab, Task, EraChecks, Camera, Task, FloorShot, Task, HudFrameShot (+23 more)
 
 ### Community 137 - "GatherDesignation"
-Cohesion: 0.06
-Nodes (27): EnemyColonyPlacementChecks, Func, Task, Button, Task, GatherDesignationChecks, Button, Dormitory (+19 more)
+Cohesion: 0.16
+Nodes (8): GatherDesignation, ConsumesPointerInput, Forbidding, IsActive, PriorityLabel, Component, GUIStyle, Vector2
 
-### Community 138 - ".TrySave"
+### Community 138 - ".Removal"
 Cohesion: 0.10
 Nodes (24): BuildingKind, Button, Func, Kitchen, List, Storage, Task, Text (+16 more)
 
 ### Community 139 - "BossHealth"
-Cohesion: 0.11
-Nodes (11): BossHealth, CurrentHp, DeathProcessed, IsDead, MaxHp, Position, RootRemaining, Collider (+3 more)
+Cohesion: 0.12
+Nodes (10): BossHealth, CurrentHp, DeathProcessed, IsDead, MaxHp, Position, RootRemaining, NavMeshAgent (+2 more)
 
 ### Community 140 - "preview.py"
 Cohesion: 0.11
@@ -1032,8 +1060,8 @@ Cohesion: 0.20
 Nodes (6): BindingFlags, PrisonerCamp, Task, Text, Vector3, Stage5Checks
 
 ### Community 144 - "FarmPlot"
-Cohesion: 0.08
-Nodes (15): FarmPlot, Crop, Data, DroughtPenalty, Growing, GrowthMultiplier, HasHandWork, NeedsFertilizer (+7 more)
+Cohesion: 0.07
+Nodes (19): FarmCrop, AdvancedFungus, Fungus, Honeydew, FarmPlot, Crop, Data, DroughtPenalty (+11 more)
 
 ### Community 145 - "EnemyCommander"
 Cohesion: 0.21
@@ -1043,29 +1071,29 @@ Nodes (10): CommanderAcquisitionBootstrapper, BuildingKind, GameObject, MenuItem
 Cohesion: 0.24
 Nodes (8): PlayableLoopChecks, Barracks, BindingFlags, Button, Func, Storage, Task, Vector3
 
-### Community 147 - "MenuTooltip"
-Cohesion: 0.09
-Nodes (26): Button, RectTransform, Task, Text, TooltipChecks, MenuTooltip, PointerEventData, RosterBar (+18 more)
+### Community 147 - "GameManager"
+Cohesion: 0.11
+Nodes (8): GameManager, FishingUnlocked, Instance, SavedBoss, SavedDefeat, SavedLoop, List, Vector3
 
 ### Community 148 - "Animation Audit Playbook"
 Cohesion: 0.08
 Nodes (22): 1. Purpose & frequency, 2. Easing & duration, 3. Physicality & origin, 4. Interruptibility, 5. Performance, 6. Accessibility, 7. Cohesion & tokens, 8. Missed opportunities (+14 more)
 
 ### Community 149 - ".Main"
-Cohesion: 0.12
-Nodes (15): BuildingKind, Component, Door, Dormitory, GameObject, Kitchen, List, PrisonerCamp (+7 more)
+Cohesion: 0.21
+Nodes (11): BuildingKind, Component, Door, Dormitory, GameObject, Kitchen, List, PrisonerCamp (+3 more)
 
 ### Community 150 - "IsometricCameraController"
-Cohesion: 0.06
-Nodes (30): BuildingKind, Camera, GameObject, ParticleSystem, ScoutPost, Task, Vector3, SaveMapCapture (+22 more)
+Cohesion: 0.05
+Nodes (35): BuildingKind, Camera, GameObject, ParticleSystem, ScoutPost, Task, Vector3, SaveMapCapture (+27 more)
 
 ### Community 151 - ".Main"
 Cohesion: 0.16
 Nodes (13): RegressionChecks, BoxCollider, FieldInfo, Func, GameObject, List, MeshFilter, NavMeshAgent (+5 more)
 
 ### Community 152 - "FoodLots"
-Cohesion: 0.09
-Nodes (18): FoodLots, Freshest, Stalest, Total, Valid, Lot, SpoilNotice, Dictionary (+10 more)
+Cohesion: 0.11
+Nodes (14): FoodLots, Freshest, Stalest, Total, Valid, Lot, SpoilNotice, Dictionary (+6 more)
 
 ### Community 153 - "package.json"
 Cohesion: 0.10
@@ -1081,15 +1109,15 @@ Nodes (25): BindingFlags, BuildingKind, Dormitory, RestRoom, Task, Vector3, DayN
 
 ### Community 156 - "ResourceManager"
 Cohesion: 0.10
-Nodes (12): ResourceManager, BaseBin, Bins, HomePosition, Instance, amount, Dictionary, IEnumerable (+4 more)
+Nodes (13): ResourceManager, BaseBin, Bins, HomePosition, Instance, amount, Dictionary, IEnumerable (+5 more)
 
 ### Community 157 - "RanchFacility"
 Cohesion: 0.09
 Nodes (18): RanchFacility, ButcherProgress, Carcasses, NeedsButcher, Paused, IReadOnlyList, FeedTypes, IsButcher (+10 more)
 
-### Community 158 - ".Prepare"
-Cohesion: 0.39
-Nodes (4): Infirmary, ScrollRect, Task, SaveFeatureCapture
+### Community 158 - ".Main"
+Cohesion: 0.09
+Nodes (20): Button, Infirmary, Task, InfirmaryChecks, Infirmary, ScrollRect, Task, SaveFeatureCapture (+12 more)
 
 ### Community 159 - "RoomKind"
 Cohesion: 0.06
@@ -1107,9 +1135,9 @@ Nodes (20): CommanderDeathMode, Gentle, Harsh, Normal, CommanderDeathRuntime, Mo
 Cohesion: 0.13
 Nodes (5): build(), pose(), Authored biped pose curves. Root motion belongs to gameplay, not these clips., Replace ant previews with resident rigs in independent facility scenes., Shared short-limbed Generic rig. Mesh copies preserve original concept boards.
 
-### Community 163 - "AbstractTargetFollower"
-Cohesion: 0.09
-Nodes (17): Rigidbody, Transform, AbstractTargetFollower, Target, UpdateType, FixedUpdate, LateUpdate, ManualUpdate (+9 more)
+### Community 163 - "FreeLookCam"
+Cohesion: 0.14
+Nodes (8): Quaternion, Vector3, FreeLookCam, Camera, Transform, Vector3, PivotBasedCameraRig, UnityStandardAssets.Cameras
 
 ### Community 164 - "Apple Design"
 Cohesion: 0.09
@@ -1121,18 +1149,18 @@ Nodes (21): 10. Status bar color doesn't match, 11. Right in Chrome, wrong on ph
 
 ### Community 166 - "BuildingConstructionSite"
 Cohesion: 0.06
-Nodes (27): BuildingConstructionSite, Builders, Building, BuildingKind, BuildTimeSeconds, CanWork, Couriers, HasBuilder (+19 more)
+Nodes (28): BuildingConstructionSite, Builders, Building, BuildingKind, BuildTimeSeconds, CanWork, Couriers, HasBuilder (+20 more)
 
 ### Community 167 - ".Spawn"
-Cohesion: 0.21
-Nodes (5): CritterSpawner, Renderer, Species, Vector3, Random
+Cohesion: 0.17
+Nodes (6): CritterSpawner, List, Renderer, Species, Vector3, Random
 
 ### Community 168 - "SelectionManager"
-Cohesion: 0.13
+Cohesion: 0.12
 Nodes (13): Workshop, SelectableObject, IsSelected, Color, Renderer, Transform, Vector3, SelectionManager (+5 more)
 
 ### Community 169 - "Precipitation"
-Cohesion: 0.09
+Cohesion: 0.08
 Nodes (18): Color, Precipitation, Rate, Color, Material, ParticleSystem, ParticleSystemRenderer, Texture2D (+10 more)
 
 ### Community 170 - "Prototyping Variants"
@@ -1144,12 +1172,12 @@ Cohesion: 0.11
 Nodes (18): Animation Vocabulary, Easing — how speed changes over an animation, Entrances & Exits — how elements appear and disappear, Examples, Feedback & Interaction — responding to the user's actions, Glossary, Initial Response, Instructions (+10 more)
 
 ### Community 172 - "State"
-Cohesion: 0.11
-Nodes (13): State, State, CampaignHistory, Data, Instance, Recording, Entry, State (+5 more)
+Cohesion: 0.13
+Nodes (11): State, State, CampaignHistory, Data, Instance, Recording, Entry, State (+3 more)
 
 ### Community 173 - ".Main"
-Cohesion: 0.13
-Nodes (16): CorpseChecks, Animator, Button, PrisonerCamp, Task, Text, Vector3, Barracks (+8 more)
+Cohesion: 0.25
+Nodes (8): CorpseChecks, Animator, Button, PrisonerCamp, Task, Text, Vector3, Keyboard
 
 ### Community 174 - ".Main"
 Cohesion: 0.27
@@ -1163,9 +1191,9 @@ Nodes (44): create(), Shared actions for the kemono rig. Motions are authored as
 Cohesion: 0.16
 Nodes (20): CARE, CARE_POLICY, careBleed(), careBody(), careDeath(), careGrade(), careMedic(), careMobile() (+12 more)
 
-### Community 177 - "CommanderInjury"
-Cohesion: 0.10
-Nodes (20): CommanderInjury, InjuryPart, Arms, Head, LegacyAntenna, Legs, Thorax, Wings (+12 more)
+### Community 177 - ".Main"
+Cohesion: 0.16
+Nodes (5): BuildTabShot, Task, Button, Task, GatherDesignationChecks
 
 ### Community 178 - "hud-v5-anatomy.js"
 Cohesion: 0.24
@@ -1187,20 +1215,20 @@ Nodes (25): 10. 완료 보고 형식, 1. 작업 요청, 2. 기준과 참조 자�
 Cohesion: 0.12
 Nodes (16): PowerNode, All, Charge, Demand, IsBattery, IsConsumer, IsGenerator, Kind (+8 more)
 
-### Community 184 - "SelectedUnitPanel"
-Cohesion: 0.25
-Nodes (11): SelectedUnitPanel, Button, Color, GameObject, Image, Outline, RawImage, RectTransform (+3 more)
+### Community 184 - "MenuTooltip"
+Cohesion: 0.12
+Nodes (19): Button, RectTransform, Task, Text, TooltipChecks, MenuTooltip, PointerEventData, SelectedUnitPanel (+11 more)
 
 ### Community 185 - "Barracks"
 Cohesion: 0.14
 Nodes (9): Barracks, CurrentTier, IsUpgrading, MaxTier, Role, UpgradeFoodCost, UpgradeRemaining, UpgradeSoilCost (+1 more)
 
 ### Community 186 - "AntVisual"
-Cohesion: 0.16
-Nodes (13): AntWorkVisualChecks, Animator, Func, Task, AntVisual, StateName, Animator, GameObject (+5 more)
+Cohesion: 0.12
+Nodes (14): AntVisual, StateName, Animator, GameObject, LineRenderer, Material, MeshRenderer, Vector3 (+6 more)
 
 ### Community 187 - "MapBiome"
-Cohesion: 0.11
+Cohesion: 0.10
 Nodes (18): Task, Phase6Checks, BiomeRules, Current, FarmAllowed, FarmGrowth, FishingYield, MoldSpread (+10 more)
 
 ### Community 188 - "render_equipment.py"
@@ -1211,25 +1239,25 @@ Nodes (7): engine(), Render preview scenes to PNG frames (and a contact sheet li
 Cohesion: 0.12
 Nodes (16): 1. Frequency — how often will a user see this?, 2. Purpose — why does this animate?, 3. Speed — can it stay inside budget?, 4. Function — does motion help or hinder here?, Finding Animation Opportunities, Hard Rules, Initial Response, Operating Posture (+8 more)
 
-### Community 190 - "BodyPart"
-Cohesion: 0.07
-Nodes (25): BodyPart, Abdomen, ArmL, ArmR, EyeL, EyeR, FootL, FootR (+17 more)
+### Community 190 - ".Medical"
+Cohesion: 0.19
+Nodes (6): Infirmary, SurgeryKind, Amputate, Regenerate, SurgeryOrder, Active
 
 ### Community 191 - "ColonyInvasion"
-Cohesion: 0.15
-Nodes (8): ColonyInvasion, ActiveRaiderCount, EconomyTimer, ScaledWaveInterval, WaveIndex, WaveTimer, List, Transform
+Cohesion: 0.12
+Nodes (9): ColonyInvasion, ActiveRaiderCount, EconomyTimer, ScaledWaveInterval, WaveIndex, WaveTimer, List, Transform (+1 more)
 
-### Community 192 - "EquipmentInventory"
-Cohesion: 0.13
-Nodes (6): IEnumerable, EquipmentInventory, Capacity, Full, Instance, List
+### Community 192 - "EquipmentItem"
+Cohesion: 0.10
+Nodes (14): EquipmentInventory, Capacity, Full, Instance, EquipmentItem, IsValid, Label, List (+6 more)
 
 ### Community 193 - "CommanderJobs"
-Cohesion: 0.07
-Nodes (27): CommanderDuty, Civilian, Deployed, Returning, CommanderJobs, Added, Administration, All (+19 more)
+Cohesion: 0.05
+Nodes (28): CommanderJobs, Added, Administration, All, Art, Building, Cleaning, Cooking (+20 more)
 
 ### Community 194 - "Corpse"
-Cohesion: 0.06
-Nodes (24): Component, Func, IEnumerable, start, target, IEnumerable, Corpse, Available (+16 more)
+Cohesion: 0.12
+Nodes (11): Corpse, Available, Data, Edible, Handler, IsCommanderBody, Position, Priority (+3 more)
 
 ### Community 195 - ".SnapAll"
 Cohesion: 0.19
@@ -1248,11 +1276,11 @@ Cohesion: 0.26
 Nodes (6): SettlementDefenseChecks, Func, NavMeshAgent, Task, Text, Vector3
 
 ### Community 199 - ".Main"
-Cohesion: 0.21
-Nodes (11): BuildingKind, Component, Decoration, Door, GameObject, Kitchen, Light, List (+3 more)
+Cohesion: 0.18
+Nodes (12): BuildingKind, Component, Decoration, Door, GameObject, Kitchen, Light, List (+4 more)
 
-### Community 200 - ".TickSlaughter"
-Cohesion: 0.14
+### Community 200 - ".TickBehaviour"
+Cohesion: 0.18
 Nodes (5): CritterVectorExtensions, Component, NavMeshPath, Vector3, FoodKind
 
 ### Community 201 - "The list"
@@ -1279,13 +1307,13 @@ Nodes (9): Barracks, BindingFlags, BuildingKind, Button, Task, Text, Vector3, Wo
 Cohesion: 0.25
 Nodes (8): Animate enter states with @starting-style, Buttons must feel responsive, Component Building Principles, Make popovers origin-aware, Never animate from scale(0), Tooltips: skip delay on subsequent hovers, Use blur to mask imperfect transitions, Use CSS transitions over keyframes for interruptible UI
 
-### Community 207 - "MedicineLevel"
-Cohesion: 0.33
-Nodes (6): MedicineLevel, Advanced, Basic, NoCare, NoMedicine, Normal
+### Community 207 - ".Main"
+Cohesion: 0.12
+Nodes (16): GameObject, MeshFilter, Renderer, FacilityVisualChecks, FacilityVisual, Model, GameObject, MeshFilter (+8 more)
 
-### Community 208 - "CommandCard"
-Cohesion: 0.10
-Nodes (16): CommandCard, Commander, Slot, Button, Color, Dictionary, Func, GridLayoutGroup (+8 more)
+### Community 208 - ".Show"
+Cohesion: 0.06
+Nodes (22): ConscriptionPost, IReadOnlyList, Canvas, GraphicRaycaster, LayoutElement, CommandCard, Commander, Slot (+14 more)
 
 ### Community 209 - "The Animation Decision Framework"
 Cohesion: 0.33
@@ -1306,6 +1334,10 @@ Nodes (6): Damping at boundaries, Friction instead of hard stops, Gesture and Dr
 ### Community 213 - "EnemyCommander"
 Cohesion: 0.13
 Nodes (14): CommanderRank, Captain, Corporal, General, Lieutenant, Sergeant, CommanderRanks, EnemyCommander (+6 more)
+
+### Community 214 - "AbstractTargetFollower"
+Cohesion: 0.21
+Nodes (9): Rigidbody, Transform, AbstractTargetFollower, Target, UpdateType, FixedUpdate, LateUpdate, ManualUpdate (+1 more)
 
 ### Community 215 - "CSS Transform Mastery"
 Cohesion: 0.40
@@ -1344,12 +1376,12 @@ Cohesion: 0.17
 Nodes (11): CA/PA와 가중 능력합은 무엇인가?, Cited Findings, Cited Findings, FM 능력·포텐·재분배 근거 조사, Gaps, Gaps, Inferences, Inferences (+3 more)
 
 ### Community 226 - "Storage"
-Cohesion: 0.14
-Nodes (6): Storage, Bin, IsDepositPoint, ResearchBonus, Vector3Int, Storage
+Cohesion: 0.17
+Nodes (5): Storage, Bin, IsDepositPoint, ResearchBonus, Vector3Int
 
-### Community 227 - ".Handle"
-Cohesion: 0.19
-Nodes (6): GameHotkeys, Action, Button, LayoutElement, Text, Transform
+### Community 227 - "EquipmentRecipe"
+Cohesion: 0.14
+Nodes (13): EquipmentRecipe, AcidSprayer, Anklet, Antenna, Coating, Insignia, Mandible, Pheromone (+5 more)
 
 ### Community 228 - ".Create"
 Cohesion: 0.27
@@ -1361,7 +1393,7 @@ Nodes (20): SaveV5Capture, Order, Processor, Current, IsMedical, Job, NeedsWork,
 
 ### Community 230 - "DiplomacyManager"
 Cohesion: 0.07
-Nodes (17): DiplomacyManager, Available, Data, Instance, State, List, State, PlayerPower (+9 more)
+Nodes (20): DiplomacyManager, Available, Data, Instance, State, List, State, PlayerPower (+12 more)
 
 ### Community 231 - "TransportRoute"
 Cohesion: 0.15
@@ -1372,15 +1404,15 @@ Cohesion: 0.21
 Nodes (9): BindingFlags, Button, ConscriptionPost, RectTransform, Slider, Task, Text, Toggle (+1 more)
 
 ### Community 233 - "RecreationSpot"
-Cohesion: 0.13
-Nodes (11): RecreationSpot, All, HasSeat, IsGambling, KindIndex, NearDecoration, Seats, Users (+3 more)
+Cohesion: 0.12
+Nodes (12): RecreationSpot, All, HasSeat, IsGambling, KindIndex, NearDecoration, Seats, Users (+4 more)
 
 ### Community 234 - ".Main"
 Cohesion: 0.19
 Nodes (11): BuildingKind, Component, Decoration, Door, Dormitory, GameObject, Kitchen, List (+3 more)
 
 ### Community 235 - "CommanderRoster"
-Cohesion: 0.16
+Cohesion: 0.15
 Nodes (9): CommanderRoster, Commanders, Count, Instance, IEnumerable, IReadOnlyList, List, Transform (+1 more)
 
 ### Community 236 - "ResourceNodeStatus"
@@ -1388,7 +1420,7 @@ Cohesion: 0.20
 Nodes (8): BossLoot, MeshRenderer, ResourceType, Vector3, ResourceNodeStatus, StatusText, Camera, GUIStyle
 
 ### Community 237 - "Wall"
-Cohesion: 0.15
+Cohesion: 0.14
 Nodes (11): SoilWall, Armor, UsesDefenseDurability, Wall, Armor, CastleWalls, Flammable, IsCastle (+3 more)
 
 ### Community 239 - "DefenseLine"
@@ -1399,9 +1431,9 @@ Nodes (10): DefenseLine, Durability, Firepower, Range, Traps, DefenseUpgrades, D
 Cohesion: 0.18
 Nodes (8): TrapPit, Armed, BrokenSeconds, IsSpike, Repairer, RepairPaid, RepairProgress, SpikeHits
 
-### Community 241 - "AnnexedSettlement"
-Cohesion: 0.15
-Nodes (8): SettlementRewardChecks, AnnexedSettlement, DockedTransport, Elapsed, Garrison, Site, IReadOnlyList, List
+### Community 241 - "CritterCarcass"
+Cohesion: 0.14
+Nodes (11): CritterCarcass, Announced, Carrier, Chitin, Corpse, Meat, Species, State (+3 more)
 
 ### Community 242 - "Claude Code 요청 — 조합형 캐릭터와 가구 작업 애니메이션 분리"
 Cohesion: 0.18
@@ -1423,17 +1455,17 @@ Nodes (5): ball(), decal(), on_face(), stroke(), tag()
 Cohesion: 0.20
 Nodes (10): State, Building, DeliveringMaterial, Depositing, FetchingMaterial, Gathering, Idle, MovingToBuildSite (+2 more)
 
-### Community 247 - ".Main"
-Cohesion: 0.25
-Nodes (9): BuildingKind, Component, Door, Dormitory, GameObject, List, Task, Vector3 (+1 more)
+### Community 247 - "Stockpile"
+Cohesion: 0.18
+Nodes (11): BuildingKind, Component, Door, Dormitory, GameObject, List, Task, Vector3 (+3 more)
 
 ### Community 248 - "AnimalDiseaseState"
-Cohesion: 0.10
-Nodes (12): Spec1013AnimalHealthChecks, State, AnimalDisease, Contagious, FoodPoisoning, None, WoundInfection, AnimalDiseaseState (+4 more)
+Cohesion: 0.08
+Nodes (13): Spec1013AnimalHealthChecks, State, Action, AnimalDisease, Contagious, FoodPoisoning, None, WoundInfection (+5 more)
 
 ### Community 249 - "CommanderSkills"
-Cohesion: 0.15
-Nodes (6): CommanderSkills, DefensiveStanceActive, DefensiveStanceCooldownLeft, DefensiveStanceTimeLeft, PowerStrikeArmed, PowerStrikeCooldownLeft
+Cohesion: 0.09
+Nodes (10): SkillTargeting, ConsumesPointerInput, IEnumerable, List, CommanderSkills, DefensiveStanceActive, DefensiveStanceCooldownLeft, DefensiveStanceTimeLeft (+2 more)
 
 ### Community 250 - ".Main"
 Cohesion: 0.27
@@ -1455,24 +1487,24 @@ Nodes (6): TransportRouteChecks, Button, Func, Task, Text, Vector3
 Cohesion: 0.25
 Nodes (8): MEMORIAL, memorialExpire(), RETURN, returnAdvance(), returnDate(), returnDeposit(), returnDuration(), returnPanel()
 
-### Community 255 - "GroundTelegraphLine"
-Cohesion: 0.27
-Nodes (6): GroundTelegraphLine, LayerMask, Mesh, MeshFilter, Quaternion, Vector3
+### Community 255 - "BossLineAoE"
+Cohesion: 0.16
+Nodes (11): BossLineAoE, IsCasting, IEnumerator, LayerMask, Vector3, GroundTelegraphLine, LayerMask, Mesh (+3 more)
 
 ### Community 256 - "CommanderProgression"
 Cohesion: 0.28
 Nodes (6): CommanderProgression, ArmorBonus, AttackBonus, Level, Xp, XpToNext
 
-### Community 257 - ".Main"
-Cohesion: 0.14
-Nodes (8): AdminDesk, BuildingKind, Task, Vector3, Spec1008FIChecks, CommanderTalents, Current, Func
+### Community 257 - "CommanderTalents"
+Cohesion: 0.19
+Nodes (3): CommanderTalents, Current, Func
 
 ### Community 258 - ".Main"
-Cohesion: 0.33
-Nodes (4): ParticleSystem, Renderer, Task, SeasonWeatherChecks
+Cohesion: 0.22
+Nodes (9): BuildingKind, Decoration, Door, GameObject, Kitchen, List, Task, Vector3 (+1 more)
 
 ### Community 259 - ".Main"
-Cohesion: 0.18
+Cohesion: 0.17
 Nodes (10): BuildingKind, Button, Func, GameObject, Task, Text, Transform, Vector3 (+2 more)
 
 ### Community 260 - ".Main"
@@ -1488,16 +1520,16 @@ Cohesion: 0.30
 Nodes (6): BuildingKind, Func, Kitchen, Task, Vector3, Spec1010MaterialChecks
 
 ### Community 263 - "BuildingPlacementController"
-Cohesion: 0.08
-Nodes (19): BuildingPlacementController, Builder, ConsumesPointerInput, IsMoving, IsPlacing, PendingKind, PendingMaterial, PendingRole (+11 more)
+Cohesion: 0.07
+Nodes (21): BuildingPlacementController, Builder, ConsumesPointerInput, IsMoving, IsPlacing, PendingKind, PendingMaterial, PendingRole (+13 more)
 
 ### Community 264 - "hud-v5-expedition.js"
 Cohesion: 0.33
 Nodes (14): EXP, expBlock(), expDepart(), expDocked(), expeditionPanel(), expLoad(), expPilot(), expReady() (+6 more)
 
-### Community 265 - ".GainExperience"
-Cohesion: 0.05
-Nodes (20): AdminDesk, NeedsWork, AnimalMedicalStock, Dictionary, AnimalTask, Butcher, Capture, Care (+12 more)
+### Community 265 - ".StartAnimalTask"
+Cohesion: 0.07
+Nodes (19): Vector3, AnimalMedicalStock, Dictionary, AnimalTask, Butcher, Capture, Care, Carry (+11 more)
 
 ### Community 266 - "주민 키트(resident-kit) — 시설·캐릭터 부품·공통 동작·도구·미리보기 분리"
 Cohesion: 0.17
@@ -1520,8 +1552,8 @@ Cohesion: 0.29
 Nodes (6): 2026-10-15 누락 항목 보완, HUD V5 최신 관리 화면 검토, 기능 검증 범위, 디자인 결정, 시안의 한계, 인터랙션·모션 검토
 
 ### Community 271 - "BossPatternSequenceSimple"
-Cohesion: 0.15
-Nodes (9): BossLineAoE, IsCasting, IEnumerator, LayerMask, Vector3, BossPatternSequenceSimple, LayerMask, Transform (+1 more)
+Cohesion: 0.13
+Nodes (10): BossConeAoE, IsCasting, IEnumerator, LayerMask, Vector3, Collider, BossPatternSequenceSimple, LayerMask (+2 more)
 
 ### Community 272 - "ColdStorage"
 Cohesion: 0.12
@@ -1540,16 +1572,12 @@ Cohesion: 0.24
 Nodes (9): MaterialDeposit, MaterialDeposits, Spec, Collider, List, Renderer, ResourceType, Vector3 (+1 more)
 
 ### Community 276 - "Decoration"
-Cohesion: 0.17
-Nodes (7): Decoration, MoodBonus, Quality, BuildingKind, Light, List, Vector3
+Cohesion: 0.20
+Nodes (6): Decoration, MoodBonus, Quality, Light, List, Vector3
 
 ### Community 277 - ".Main"
 Cohesion: 0.29
 Nodes (6): BindingFlags, Func, ScienceLab, Task, Vector3, ExpeditionGatherChecks
-
-### Community 278 - ".Main"
-Cohesion: 0.18
-Nodes (6): BiomeEventChecks, Task, Task, NightThreatChecks, Task, Phase4Checks
 
 ### Community 279 - "인수인계 (2026-10-04, Claude Code → Codex)"
 Cohesion: 0.29
@@ -1559,13 +1587,17 @@ Nodes (6): 남은 작업 (사용자 승인됨), 이번 세션에서 끝낸 것 (
 Cohesion: 0.18
 Nodes (8): place(), Build resident-tools.blend: hand tools + hand props, each one mesh in its…, Join meshes, bake world_of(piece) into the socket-local frame, origin = socket…, fit_can(), Compact can with an actual grip at the shared hand socket., Repair only four tool meshes in the saved library; preserve all other assets., Socket-local tools: grip at zero, shaft along +Y; preserve object identities., repair_tools()
 
-### Community 283 - ".Prepare"
-Cohesion: 0.40
-Nodes (3): Task, Vector3, SaveDifficultyCapture
-
-### Community 284 - "Dormitory"
+### Community 282 - "HudOverview"
 Cohesion: 0.18
-Nodes (10): Dormitory, All, Beds, HasRoom, IsHammock, IsMat, Residents, RoomBedCount (+2 more)
+Nodes (8): HudOverview, AvailableDraft, Beds, BedShortage, HomeCommanders, RectTransform, Text, IReadOnlyList
+
+### Community 283 - "UpkeepManager"
+Cohesion: 0.16
+Nodes (9): Task, Vector3, SaveDifficultyCapture, MonoBehaviour, Task, SaveProgressionCapture, UpkeepManager, ConsecutiveFailures (+1 more)
+
+### Community 284 - ".Main"
+Cohesion: 0.27
+Nodes (7): Button, RectTransform, ScoutPost, Task, Text, Toggle, ScoutChecks
 
 ### Community 285 - ".Main"
 Cohesion: 0.29
@@ -1587,20 +1619,20 @@ Nodes (10): dependencies, depth, source, version, dependencies, depth, source, v
 Cohesion: 0.09
 Nodes (22): head(), line(), patch(), Human SD concept. Separate scene, no edits to older character assets., ball(), ribbon(), ball(), between() (+14 more)
 
-### Community 292 - "GameManager"
-Cohesion: 0.11
-Nodes (8): GameManager, FishingUnlocked, Instance, SavedBoss, SavedDefeat, SavedLoop, List, Vector3
+### Community 292 - "BuildingBase"
+Cohesion: 0.08
+Nodes (21): BuildingBase, Armor, BaseMaxHealth, CountsTowardPlayerDefeat, CurrentHealth, Data, IsDead, IsDepositPoint (+13 more)
 
 ### Community 293 - ".Main"
 Cohesion: 0.24
 Nodes (8): Collider, Component, MeshRenderer, NavMeshAgent, ParticleSystem, ParticleSystemRenderer, Task, MapVisualChecks
 
 ### Community 294 - "BuildScreen"
-Cohesion: 0.06
-Nodes (33): BuildTabShot, Task, BuildingKind, Button, Canvas, GraphicRaycaster, InputField, ScrollRect (+25 more)
+Cohesion: 0.12
+Nodes (17): Key, BuildScreen, IsOpen, Picking, Entry, BuildingKind, Button, GameObject (+9 more)
 
 ### Community 295 - "CompostBin"
-Cohesion: 0.18
+Cohesion: 0.17
 Nodes (9): CompostBin, Data2, FertilizerStock, RawCount, Status, TargetReached, State, ResourceType (+1 more)
 
 ### Community 296 - ".Setup"
@@ -1623,17 +1655,17 @@ Nodes (8): RegressionTriageChecks, BindingFlags, Button, Infirmary, ResearchLab,
 Cohesion: 0.38
 Nodes (8): LG, lgButton(), lgCompost(), lgFood(), lgJobs(), lgPrio(), lgStorage(), winLogistics()
 
-### Community 302 - "HygieneFixture"
-Cohesion: 0.20
-Nodes (7): HygieneFixture, All, Free, KindIndex, User, IReadOnlyList, List
+### Community 302 - ".Spawn"
+Cohesion: 0.17
+Nodes (11): CorpseKind, Ant, ColonyCommander, Wildlife, State, Animator, BoxCollider, Collider (+3 more)
 
 ### Community 303 - "PowerGrid"
 Cohesion: 0.33
 Nodes (4): PowerGrid, Dictionary, IReadOnlyList, List
 
-### Community 304 - "BossConeAoE"
-Cohesion: 0.16
-Nodes (11): BossConeAoE, IsCasting, IEnumerator, LayerMask, Vector3, GroundTelegraphSector, LayerMask, Mesh (+3 more)
+### Community 304 - "GroundTelegraphSector"
+Cohesion: 0.27
+Nodes (6): GroundTelegraphSector, LayerMask, Mesh, MeshFilter, Quaternion, Vector3
 
 ### Community 306 - ".Main"
 Cohesion: 0.23
@@ -1643,13 +1675,13 @@ Nodes (9): BuildingKind, Func, GameObject, Gate, List, NavMeshAgent, Task, Vecto
 Cohesion: 0.39
 Nodes (8): SCI, SCI_ERAS, SCI_WORK, sciBlock(), sciDone(), sciTopic(), sciWorker(), winScience()
 
-### Community 309 - ".Main"
-Cohesion: 0.13
-Nodes (14): CommanderStatusChecks, BindingFlags, Button, Task, ActivityIcons, Names, Color, Dictionary (+6 more)
+### Community 309 - "RosterBar"
+Cohesion: 0.11
+Nodes (21): CommanderOverhead, Color, GUIStyle, RosterBar, AntFace, Commanders, Offset, Slot (+13 more)
 
 ### Community 310 - ".TryLoad"
-Cohesion: 0.14
-Nodes (10): BiomeChecks, Task, ScienceLab, Storage, Task, StorageResearchChecks, SaveStorage, Root (+2 more)
+Cohesion: 0.12
+Nodes (11): BiomeChecks, Task, Task, WeaponTalentChecks, SaveStorage, Root, RootOverride, SavesFolder (+3 more)
 
 ### Community 311 - "kit_preview.py"
 Cohesion: 0.14
@@ -1660,12 +1692,12 @@ Cohesion: 0.17
 Nodes (12): ColonyEvent, Caravan, Cold, Driftwood, Drought, Flood, Harvest, Migration (+4 more)
 
 ### Community 313 - ".Main"
-Cohesion: 0.12
-Nodes (17): BuildingKind, GameObject, Task, Vector3, FurnitureShot, BuildingKind, Decoration, Door (+9 more)
+Cohesion: 0.18
+Nodes (12): BuildingKind, Decoration, Door, Dormitory, GameObject, Gate, Kitchen, List (+4 more)
 
-### Community 314 - "BuildingBase"
-Cohesion: 0.06
-Nodes (37): BuildingKind, Func, PrisonerCamp, Task, Vector3, Workshop, Spec1010Checks, BuildingBase (+29 more)
+### Community 314 - "DemolitionSite"
+Cohesion: 0.09
+Nodes (16): Demolition, DemolitionSite, Move, MoveTo, NewMaterial, Packed, Renovate, Target (+8 more)
 
 ### Community 315 - "hud-v5-utilities.js"
 Cohesion: 0.57
@@ -1688,16 +1720,16 @@ Cohesion: 0.24
 Nodes (8): Animator, Quaternion, Rigidbody, Transform, Vector3, PlayerController, moving, SD
 
 ### Community 320 - ".OnDisable"
-Cohesion: 0.07
-Nodes (9): Armory, Count, List, DefenseLab, AnyActive, List, Light, Watchtower (+1 more)
+Cohesion: 0.04
+Nodes (28): Armory, Count, List, DefenseLab, AnyActive, List, Dormitory, All (+20 more)
 
 ### Community 322 - "medical"
 Cohesion: 0.36
 Nodes (9): bestChance(), chanceFor(), deathFor(), highRisk(), medical(), renderPop(), reserved(), stock() (+1 more)
 
 ### Community 323 - ".Apply"
-Cohesion: 0.06
-Nodes (35): Button, RectTransform, Task, Text, HudV2Checks, Task, SaveCorpseCapture, AirshipYard (+27 more)
+Cohesion: 0.14
+Nodes (12): Task, SaveCorpseCapture, AirshipYard, ScienceLab, Task, Vector3, Stage1Checks, UserSettings (+4 more)
 
 ### Community 325 - "tick"
 Cohesion: 0.27
@@ -1711,13 +1743,13 @@ Nodes (5): CommanderChecks, Barracks, MonoBehaviour, ScienceLab, Task
 Cohesion: 0.27
 Nodes (6): Material, MoodWatch, Color, Dictionary, HashSet, LineRenderer
 
-### Community 329 - "GroundTelegraphCircle"
-Cohesion: 0.32
-Nodes (5): GroundTelegraphCircle, LayerMask, Mesh, MeshFilter, Vector3
+### Community 329 - "BossCircleAoE"
+Cohesion: 0.16
+Nodes (10): BossCircleAoE, IsCasting, IEnumerator, LayerMask, Vector3, GroundTelegraphCircle, LayerMask, Mesh (+2 more)
 
-### Community 330 - ".Row"
+### Community 330 - ".Main"
 Cohesion: 0.20
-Nodes (8): Color, ContentSizeFitter, HorizontalLayoutGroup, Image, LayoutElement, Text, VerticalLayoutGroup, PointerRelay
+Nodes (10): BuildingKind, Button, Canvas, GraphicRaycaster, InputField, ScrollRect, Task, Text (+2 more)
 
 ### Community 331 - "hud-v5.check.cjs"
 Cohesion: 0.33
@@ -1731,21 +1763,21 @@ Nodes (5): LocalIncursions, SavedTimer, Visitors, IReadOnlyList, List
 Cohesion: 0.36
 Nodes (7): apply(), channelbags(), from_base(), local_q(), QuirkyAnt 리그에 작업 클립을 추가해 ant-work-clips.blend / exports/Ant_WorkClips.fbx 생성.…, 아마추어 공간 회전 목록 → 본 로컬 쿼터니언(레스트 기준)., 기존 클립(base)을 복제하고 override에 있는 본만 고정 포즈로 덮어쓴다(예: Walk + 운반 앞다리).
 
-### Community 334 - "WeaponKind"
-Cohesion: 0.40
-Nodes (5): WeaponKind, AcidSprayer, Mandible, Pheromone, Shield
+### Community 334 - "Stage2Checks"
+Cohesion: 0.29
+Nodes (6): BindingFlags, BuildingKind, HashSet, NavMeshAgent, Vector3, Stage2Checks
 
-### Community 335 - ".RestoreState"
-Cohesion: 0.28
-Nodes (5): CarcassEntry, State, List, State, CarcassEntry
+### Community 335 - ".AllowsSpecies"
+Cohesion: 0.31
+Nodes (3): CarcassEntry, Species, CarcassEntry
 
 ### Community 337 - "hud-v5-equipment.js"
 Cohesion: 0.47
 Nodes (4): equipmentBody(), GEAR, gearBlock(), winEquipment()
 
-### Community 338 - "DigSite"
-Cohesion: 0.40
-Nodes (3): DigSite, IsExpanded, GameObject
+### Community 338 - "SetupRaid.cs"
+Cohesion: 0.29
+Nodes (3): SetupFishing, SetupInvasion, AntColony.Setup
 
 ### Community 339 - ".Run"
 Cohesion: 0.36
@@ -1755,17 +1787,17 @@ Nodes (5): AcquisitionBuildingChecks, Canvas, PrisonerCamp, ScoutPost, Task
 Cohesion: 0.40
 Nodes (4): assert, {chromium}, path, {pathToFileURL}
 
-### Community 341 - "EquipmentItem"
-Cohesion: 0.10
-Nodes (15): BuildingKind, Button, PrisonerCamp, Task, Vector3, Spec1009Checks, EquipmentItem, IsValid (+7 more)
+### Community 341 - ".Main"
+Cohesion: 0.19
+Nodes (6): BuildingKind, Button, PrisonerCamp, Task, Vector3, Spec1009Checks
 
 ### Community 342 - "개미 소굴 RTS"
 Cohesion: 0.18
 Nodes (11): 개미 소굴 RTS, 게임 설명, 공방과 장비 보관함, 과학 기술 효과 적용 범위, 기분·사회관계·이탈, 기술 정보, 랜덤 이벤트와 기록, 브랜치 (+3 more)
 
 ### Community 343 - ".Main"
-Cohesion: 0.46
-Nodes (4): BindingFlags, Button, Task, Stage7UIChecks
+Cohesion: 0.27
+Nodes (7): BuildingKind, Func, PrisonerCamp, Task, Vector3, Workshop, Spec1010Checks
 
 ### Community 344 - "Wait"
 Cohesion: 0.25
@@ -1773,19 +1805,19 @@ Nodes (8): Wait, AwaitingHaul, InUse, MaterialShortage, None, NoWorker, Paused, 
 
 ### Community 345 - "BetaProgress"
 Cohesion: 0.18
-Nodes (7): BetaProgress, CurrentObjective, Barracks, GameObject, Image, ScienceLab, Text
+Nodes (6): BetaProgress, CurrentObjective, Barracks, GameObject, ScienceLab, Text
 
 ### Community 346 - ".LateUpdate"
-Cohesion: 0.12
-Nodes (10): WorkTargetPanel, Scout, Target, Button, Component, Dormitory, PrisonerCamp, RectTransform (+2 more)
+Cohesion: 0.13
+Nodes (11): WorkTargetPanel, Scout, Target, Button, Component, Dormitory, PrisonerCamp, RectTransform (+3 more)
 
 ### Community 347 - "build_interaction.py"
 Cohesion: 0.28
 Nodes (5): add_point(), build_points(), local_bounds(), colony-core.blend을 열어 둔 상태에서 실행: 작업 지점 Empty + 경첩 클립 생성 → colony-…, 시설·물품별 작업 지점과 개미 동작(요청서 docs/COLONY_INTERACTION_ANIMATION_REQUEST.md 기준 제안값).…
 
-### Community 349 - ".Run"
-Cohesion: 0.50
-Nodes (3): CommanderEdgeChecks, Button, Task
+### Community 349 - ".Main"
+Cohesion: 0.44
+Nodes (4): ScienceLab, Storage, Task, StorageResearchChecks
 
 ### Community 350 - "hud-v5-logistics.check.cjs"
 Cohesion: 0.40
@@ -1804,24 +1836,24 @@ Cohesion: 0.29
 Nodes (6): AcquisitionSetupChecks, PrisonerCamp, Renderer, ScoutPost, Transform, T
 
 ### Community 355 - "RestRoom"
-Cohesion: 0.29
+Cohesion: 0.25
 Nodes (4): RestRoom, Seats, IReadOnlyList, List
 
 ### Community 356 - "hud-v5-health.js"
 Cohesion: 0.48
 Nodes (6): diseaseNames, diseaseSevere(), infectAnimal(), infectious(), symptomatic(), tickAnimalDisease()
 
-### Community 357 - "FirstHints"
-Cohesion: 0.32
-Nodes (4): FirstHints, key, body, title
+### Community 357 - ".CreateButton"
+Cohesion: 0.31
+Nodes (7): Button, Color, GameObject, Image, Text, Transform, UnityAction
 
 ### Community 358 - ".Prepare"
 Cohesion: 0.24
 Nodes (6): BuildingKind, Kitchen, Task, Vector3, SaveLifeCapture, Meal
 
-### Community 360 - "FarmCrop"
-Cohesion: 0.29
-Nodes (4): FarmCrop, AdvancedFungus, Fungus, Honeydew
+### Community 360 - ".Main"
+Cohesion: 0.36
+Nodes (5): BuildCategoryChecks, Button, RectTransform, Task, Transform
 
 ### Community 361 - ".Main"
 Cohesion: 0.42
@@ -1831,13 +1863,13 @@ Nodes (4): MultiStopRouteChecks, BindingFlags, Button, Task
 Cohesion: 0.50
 Nodes (3): assert, { chromium }, path
 
-### Community 363 - "MonoBehaviour"
-Cohesion: 0.05
-Nodes (22): GameSession, Exists, GameSeconds, GameStarted, Instance, Options, PendingLoad, PlaySeconds (+14 more)
+### Community 363 - "GameSession"
+Cohesion: 0.13
+Nodes (9): GameSession, Exists, GameSeconds, GameStarted, Instance, Options, PendingLoad, PlaySeconds (+1 more)
 
-### Community 364 - "UpkeepManager"
-Cohesion: 0.14
-Nodes (7): MonoBehaviour, Task, SaveProgressionCapture, UpkeepManager, ConsecutiveFailures, SavedTimer, List
+### Community 364 - ".Spawn"
+Cohesion: 0.24
+Nodes (6): MoveMarker, Collider, Color, Material, MeshRenderer, Vector3
 
 ### Community 365 - "시설별 구체 연출"
 Cohesion: 0.29
@@ -1855,6 +1887,10 @@ Nodes (7): 검증 실적과 중단 지점, 규칙·작업 트리, 기존 검사 
 Cohesion: 0.33
 Nodes (5): 개미 작업 애니메이션 (ART-ANIM-01), 도구 부착(Blender 기준 값), 산출물, 시설 작업 지점·경첩 (2026-10-17, `art/colony-core/`), 한계·미완
 
+### Community 369 - "TaxFocus"
+Cohesion: 0.22
+Nodes (4): State, TaxFocus, Balanced, Food
+
 ### Community 371 - "kit_extra_clips.py"
 Cohesion: 0.32
 Nodes (5): build(), keys(), pose(), Add spec-required resident clips missing from the original 30 (in resident-…, Piecewise-linear value through (t, v) points over one cycle.
@@ -1863,9 +1899,9 @@ Nodes (5): build(), keys(), pose(), Add spec-required resident clips missing fro
 Cohesion: 0.33
 Nodes (6): 근거 문서, 기존 자산과 후속 구현, 기준, 유지하는 시스템, 충돌과 수정, 캐릭터 전환 기획 — 2026-10-17
 
-### Community 374 - ".Main"
-Cohesion: 0.43
-Nodes (4): BindingFlags, Button, Task, GatheringUIChecks
+### Community 374 - "MilitaryPolicy"
+Cohesion: 0.32
+Nodes (5): MilitaryPolicy, Conscription, Reserve, Total, Volunteer
 
 ### Community 375 - "IUser"
 Cohesion: 0.33
@@ -1880,124 +1916,192 @@ Cohesion: 0.50
 Nodes (4): CritterStage, Adult, Baby, Old
 
 ### Community 380 - ".FillNeed"
-Cohesion: 0.29
+Cohesion: 0.40
 Nodes (4): amount, repository, type, url
 
 ### Community 381 - "kit_equipment.py"
 Cohesion: 0.33
 Nodes (3): hand_item(), merged(), Spec equipment that had no model (장수·유닛 '장비 목록'): hand: 산 분사기…
 
-### Community 388 - "ExpeditionState"
-Cohesion: 0.40
-Nodes (5): ExpeditionState, Deployed, Home, Outbound, Returning
+### Community 388 - ".Main"
+Cohesion: 0.29
+Nodes (4): ParticleSystem, Renderer, Task, SeasonWeatherChecks
 
 ### Community 393 - "LeaderAgenda"
 Cohesion: 0.29
 Nodes (7): LeaderAgenda, Conqueror, Pacifist, Recluse, Scientist, Trader, Warrior
-
-### Community 394 - "SaveSlots"
-Cohesion: 0.29
-Nodes (3): SaveSlots, SlotInfo, DisplayName
 
 ### Community 396 - "parts.py"
 Cohesion: 0.22
 Nodes (8): 24 modular static residents. Run in the Blender file containing cast-v5., cape(), ears(), leaf(), lock(), prop(), soft(), tuft()
 
 ### Community 398 - ".Validate"
-Cohesion: 0.10
-Nodes (15): Task, FoundationChecks, Button, InputField, ScrollRect, Task, FullUIChecks, Button (+7 more)
+Cohesion: 0.14
+Nodes (11): Task, FoundationChecks, Button, InputField, ScrollRect, Task, FullUIChecks, Task (+3 more)
 
 ### Community 399 - ".Main"
 Cohesion: 0.33
 Nodes (4): CommanderAcquisitionChecks, PrisonerCamp, ScoutPost, Task
 
-### Community 400 - "BuildingData"
-Cohesion: 0.13
-Nodes (11): AcidTower, Collider, LineRenderer, NavMeshObstacle, Renderer, SetupAcidTower, StorageBootstrapper, MenuItem (+3 more)
+### Community 400 - ".Main"
+Cohesion: 0.47
+Nodes (4): AntWorkVisualChecks, Animator, Func, Task
 
 ### Community 401 - "PointerRelay"
 Cohesion: 0.40
 Nodes (4): PointerRelay, PointerEventData, IPointerEnterHandler, IPointerExitHandler
 
-### Community 402 - "com.unity.profiling.core"
-Cohesion: 0.33
-Nodes (6): dependencies, depth, source, url, version, com.unity.profiling.core
+### Community 402 - "CommanderDuty.cs"
+Cohesion: 0.40
+Nodes (4): CommanderDuty, Civilian, Deployed, Returning
 
-### Community 403 - "TrinketEffect"
-Cohesion: 0.29
-Nodes (5): TrinketEffect, Command, Gather, Mood, Move
+### Community 403 - ".Row"
+Cohesion: 0.20
+Nodes (8): Color, ContentSizeFitter, HorizontalLayoutGroup, Image, LayoutElement, Text, VerticalLayoutGroup, PointerRelay
 
 ### Community 404 - "생물 키트(critter-kit) — 목장 4종 + 습격 적 2종"
 Cohesion: 0.40
 Nodes (4): 검증·한계, 규격, 생물 키트(critter-kit) — 목장 4종 + 습격 적 2종, 파일
 
-### Community 405 - ".TradeSide"
-Cohesion: 0.29
-Nodes (6): Action, Image, LayoutElement, RectTransform, Slider, Text
+### Community 407 - ".Main"
+Cohesion: 0.33
+Nodes (5): BuildingKind, GameObject, Task, Vector3, FurnitureShot
 
-### Community 407 - "com.unity.modules.wind"
-Cohesion: 0.40
-Nodes (5): dependencies, depth, source, version, com.unity.modules.wind
+### Community 409 - "ActivityIcons"
+Cohesion: 0.25
+Nodes (7): ActivityIcons, Names, Color, Dictionary, IEnumerable, Texture2D, rows
 
-### Community 409 - "hud-v5-farm.js"
-Cohesion: 0.67
-Nodes (3): FARM, farmReason(), winFarm()
+### Community 410 - ".Run"
+Cohesion: 0.50
+Nodes (3): CommanderEdgeChecks, Button, Task
 
-### Community 410 - ".CreateSelectionBoxImage"
-Cohesion: 0.29
-Nodes (5): Canvas, CanvasScaler, GraphicRaycaster, Image, RectTransform
+### Community 419 - ".Main"
+Cohesion: 0.43
+Nodes (4): CommanderStatusChecks, BindingFlags, Button, Task
 
 ### Community 421 - "조합 부품 렌더 시안"
 Cohesion: 0.29
 Nodes (6): 리그·동작·상호작용 (2026-10-18 Claude 인수, 사용자 지적 '리그가 캐릭터랑 안맞음' 수정), 보는 파일, 제작·검증, 조합 규칙, 조합 부품 렌더 시안, 현재 범위
 
-### Community 422 - "State"
-Cohesion: 0.40
-Nodes (5): State, Attacking, AttackMoving, Idle, MovingToTarget
+### Community 422 - ".Main"
+Cohesion: 0.25
+Nodes (7): AcidTower, Collider, LineRenderer, NavMeshObstacle, Renderer, SetupAcidTower, Material
 
 ### Community 425 - ".SetupFarm"
 Cohesion: 0.40
 Nodes (4): GameObject, MenuItem, Transform, FarmPrototypeBootstrapper
 
-### Community 428 - "TalkKind"
-Cohesion: 0.24
-Nodes (6): TalkKind, AidRequest, Demand, Trade, TreatyOffer, Tribute
+### Community 428 - ".Main"
+Cohesion: 0.46
+Nodes (4): BindingFlags, Button, Task, Stage7UIChecks
+
+### Community 429 - ".RestoreState"
+Cohesion: 0.29
+Nodes (4): FeedSlot, State, List, State
 
 ### Community 430 - "OrderMode"
 Cohesion: 0.50
 Nodes (4): OrderMode, Count, Forever, KeepStock
 
-### Community 431 - "EquipmentSlot"
-Cohesion: 0.40
-Nodes (4): EquipmentSlot, Armor, Trinket, Weapon
+### Community 431 - "Heating"
+Cohesion: 0.43
+Nodes (4): Heating, Dictionary, HashSet, Vector2Int
 
 ### Community 432 - "exports/manifest.json"
 Cohesion: 0.50
 Nodes (3): animations, parts, unity_validated
 
-### Community 433 - "ToastKind"
+### Community 433 - "FirstHints"
+Cohesion: 0.32
+Nodes (4): FirstHints, key, body, title
+
+### Community 436 - ".Main"
+Cohesion: 0.48
+Nodes (3): BiomeEventChecks, Task, Entries
+
+### Community 440 - ".TradeSide"
+Cohesion: 0.29
+Nodes (6): Action, Image, LayoutElement, RectTransform, Slider, Text
+
+### Community 441 - "TrinketEffect"
+Cohesion: 0.29
+Nodes (5): TrinketEffect, Command, Gather, Mood, Move
+
+### Community 442 - ".Main"
+Cohesion: 0.47
+Nodes (3): EnemyColonyPlacementChecks, Func, Task
+
+### Community 443 - ".Main"
+Cohesion: 0.40
+Nodes (4): Barracks, Task, Phase2Checks, Lost
+
+### Community 445 - "BodyMigration"
+Cohesion: 0.47
+Nodes (3): BodyMigration, part, oldMax
+
+### Community 446 - "MedicineLevel"
+Cohesion: 0.33
+Nodes (6): MedicineLevel, Advanced, Basic, NoCare, NoMedicine, Normal
+
+### Community 447 - "com.unity.profiling.core"
+Cohesion: 0.33
+Nodes (6): dependencies, depth, source, url, version, com.unity.profiling.core
+
+### Community 448 - ".Main"
+Cohesion: 0.60
+Nodes (3): Dormitory, Task, HudV4Shot
+
+### Community 450 - "DigSite"
+Cohesion: 0.40
+Nodes (3): DigSite, IsExpanded, GameObject
+
+### Community 451 - "EquipmentSlot"
+Cohesion: 0.40
+Nodes (4): EquipmentSlot, Armor, Trinket, Weapon
+
+### Community 452 - "SurgeryStage"
+Cohesion: 0.40
+Nodes (5): SurgeryStage, Done, Failed, Started, Waiting
+
+### Community 453 - "ExpeditionState"
+Cohesion: 0.40
+Nodes (5): ExpeditionState, Deployed, Home, Outbound, Returning
+
+### Community 454 - "com.unity.modules.wind"
+Cohesion: 0.40
+Nodes (5): dependencies, depth, source, version, com.unity.modules.wind
+
+### Community 455 - "Queue"
+Cohesion: 0.50
+Nodes (3): Queue, Quaternion, Vector3
+
+### Community 456 - "ToastKind"
 Cohesion: 0.50
 Nodes (4): ToastKind, Hint, Info, Warning
 
+### Community 457 - "hud-v5-farm.js"
+Cohesion: 0.67
+Nodes (3): FARM, farmReason(), winFarm()
+
 ## Knowledge Gaps
-- **2629 isolated node(s):** `Month`, `UnityChan`, `Close`, `HalfClose`, `Open` (+2624 more)
-  These have ≤1 connection - possible missing edges or undocumented components. (Counts symbols only; 4048 node(s) total have ≤1 connection when file, concept and rationale nodes are included.)
-- **54 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
+- **2631 isolated node(s):** `Data`, `CountsTowardPlayerDefeat`, `MaterialTier`, `MainMaterial`, `MaxHealth` (+2626 more)
+  These have ≤1 connection - possible missing edges or undocumented components. (Counts symbols only; 4068 node(s) total have ≤1 connection when file, concept and rationale nodes are included.)
+- **58 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
-- **Why does `CommanderAnt` connect `CommanderAnt` to `.Main`, `AntColony.Buildings`, `IDamageable`, `WildMonster`, `Negotiation`, `Civilization`, `.Run`, `.CommandStop`, `ExpeditionTransport`, `ExpeditionSite`, `ColonyEvents`, `NurseryChamber`, `.TickPersonal`, `.DamageArea`, `AntColony.Units`, `.Main`, `AntUnitBase`, `CommanderTraits`, `.Capture`, `AttackMoveController`, `StoreBin`, `.Record`, `.Main`, `AntColony.Core`, `Critter`, `CritterCarcass`, `.Button`, `ResourceType`, `.AutoCandidates`, `.Main`, `SettlementDefense`, `GameMenuController`, `Workshop`, `WorkerAnt`, `.Medical`, `Infirmary`, `ResearchLab`, `.RoomAt`, `HUDController`, `CampaignResearch`, `.Main`, `Tombstone`, `ScienceLab`, `CommanderActivity`, `CommanderPersonalState`, `.CommanderNursingTasks`, `ScoutPost`, `Ranch`, `DetailTabs`, `HealthState`, `AirshipYard`, `.Main`, `.Main`, `MenuTooltip`, `.Main`, `.Main`, `RanchFacility`, `.Prepare`, `BuildingConstructionSite`, `.Main`, `.Main`, `AntColony.World`, `PowerNode`, `SelectedUnitPanel`, `AntVisual`, `BodyPart`, `EquipmentInventory`, `CommanderJobs`, `Corpse`, `.Main`, `.TickSlaughter`, `.Main`, `CommandCard`, `SpeciesInfo`, `.Main`, `.Handle`, `DiplomacyManager`, `.Main`, `RecreationSpot`, `.Main`, `CommanderRoster`, `TrapPit`, `AnnexedSettlement`, `AnimalDiseaseState`, `CommanderSkills`, `.Main`, `.Run`, `.Main`, `.Main`, `.Main`, `.Main`, `.Main`, `BuildingPlacementController`, `.GainExperience`, `.Main`, `Decoration`, `.Main`, `.Main`, `Dormitory`, `BuildScreen`, `HygieneFixture`, `.Main`, `BuildingBase`, `.Apply`, `.Run`, `MoodWatch`, `EquipmentItem`, `.LateUpdate`, `.Run`, `RestRoom`, `MonoBehaviour`, `UpkeepManager`, `.Main`, `.LateUpdate`, `.Validate`, `.Main`, `TrinketEffect`, `EquipmentSlot`?**
-  _High betweenness centrality (0.148) - this node is a cross-community bridge._
-- **Why does `BuildingBase` connect `BuildingBase` to `.Main`, `AntColony.Buildings`, `CommanderAnt`, `IDamageable`, `WildMonster`, `.CommandStop`, `ExpeditionTransport`, `ExpeditionSite`, `.Rect`, `.GetTemplate`, `ResourceNode`, `RoomSystem`, `.Main`, `ColonyEvents`, `.PlaceOne`, `.Main`, `Housing`, `.Capture`, `.Ignite`, `StoreBin`, `.Main`, `.Restore`, `.Button`, `ResourceType`, `.Main`, `.AutoCandidates`, `Kitchen`, `.Main`, `EnemyColony`, `GameMenuController`, `Workshop`, `WorkerAnt`, `.Medical`, `Infirmary`, `ResearchLab`, `HomeMapBuilder`, `.RoomAt`, `Tombstone`, `ScienceLab`, `Ranch`, `AirshipYard`, `GatherDesignation`, `.TrySave`, `.Main`, `FarmPlot`, `EnemyCommander`, `.Main`, `IsometricCameraController`, `.Main`, `RanchFacility`, `BuildingConstructionSite`, `SelectionManager`, `.Main`, `.Main`, `PowerNode`, `Barracks`, `.Main`, `.TickSlaughter`, `AcidTower`, `Storage`, `Processor`, `RecreationSpot`, `.Main`, `Wall`, `TrapPit`, `.Main`, `.Main`, `.Main`, `BuildingPlacementController`, `.GainExperience`, `.Main`, `Decoration`, `.Main`, `.Prepare`, `Dormitory`, `GameManager`, `HygieneFixture`, `.Main`, `.OnDisable`, `DigSite`, `.Run`, `EquipmentItem`, `.LateUpdate`, `.Main`, `RestRoom`, `MonoBehaviour`, `BuildingData`, `.Main`, `.SetupFarm`?**
-  _High betweenness centrality (0.093) - this node is a cross-community bridge._
-- **Why does `ResourceNode` connect `ResourceNode` to `.Main`, `AntColony.Buildings`, `.Main`, `GatherDesignation`, `.Main`, `FarmPlot`, `.Run`, `.Main`, `MaterialDeposits`, `.CommandStop`, `.Main`, `.Main`, `.Main`, `IsometricCameraController`, `ExpeditionSite`, `.Rect`, `.Prepare`, `FoodLots`, `.GetTemplate`, `RoomSystem`, `ColonyEvents`, `SelectionManager`, `.SetupFarm`, `.Main`, `.Main`, `.Main`, `.Main`, `.Main`, `.Main`, `.Capture`, `.TryLoad`, `AntVisual`, `MapBiome`, `EventActor`, `.Main`, `ColonyInvasion`, `Corpse`, `.Main`, `.Restore`, `EquipmentItem`, `.LateUpdate`, `.AutoCandidates`, `.Run`, `.Main`, `.Main`, `EnemyColony`, `GameMenuController`, `TransportRoute`, `.Main`, `WorkerAnt`, `MonoBehaviour`, `ResourceNodeStatus`, `AnnexedSettlement`, `.Main`, `HomeMapBuilder`, `.Main`, `.RoomAt`, `.Main`, `.Main`?**
-  _High betweenness centrality (0.045) - this node is a cross-community bridge._
-- **What connects `Month`, `UnityChan`, `Close` to the rest of the system?**
-  _2629 weakly-connected nodes found - possible documentation gaps or missing edges._
+- **Why does `CommanderAnt` connect `CommanderAnt` to `.Main`, `AntColony.Buildings`, `.Text`, `WildMonster`, `.AutoCandidates`, `Negotiation`, `.Run`, `.GainExperience`, `ExpeditionTransport`, `ExpeditionSite`, `ColonyEvents`, `NurseryChamber`, `.DropCargo`, `AntColony.Core`, `.Main`, `AntUnitBase`, `CommanderTraits`, `.Capture`, `StoreBin`, `PrisonerCamp`, `AntColony.UI`, `MonoBehaviour`, `Critter`, `.Button`, `.Main`, `SettlementDefense`, `GameMenuController`, `Workshop`, `WorkerAnt`, `Spec1015Checks`, `Infirmary`, `ResearchLab`, `HUDController`, `CampaignResearch`, `.Main`, `Tombstone`, `ScienceLab`, `CommanderActivity`, `CommanderPersonalState`, `.CommanderNursingTasks`, `ScoutPost`, `Ranch`, `DetailTabs`, `HealthState`, `AirshipYard`, `.Main`, `.Main`, `.Main`, `.Main`, `RanchFacility`, `.Main`, `BuildingConstructionSite`, `.Main`, `.Main`, `AntColony.Units`, `PowerNode`, `MenuTooltip`, `AntVisual`, `.Medical`, `EquipmentItem`, `CommanderJobs`, `Corpse`, `.Main`, `.Main`, `.Show`, `SpeciesInfo`, `.Main`, `DiplomacyManager`, `.Main`, `RecreationSpot`, `.Main`, `CommanderRoster`, `TrapPit`, `CritterCarcass`, `AnimalDiseaseState`, `CommanderSkills`, `.Main`, `.Run`, `.Main`, `CommanderTalents`, `.Main`, `.Main`, `.Main`, `BuildingPlacementController`, `.StartAnimalTask`, `.Main`, `Decoration`, `.Main`, `HudOverview`, `UpkeepManager`, `BuildingBase`, `BuildScreen`, `RosterBar`, `.TryLoad`, `DemolitionSite`, `.OnDisable`, `.Apply`, `.Run`, `MoodWatch`, `Stage2Checks`, `.Main`, `.LateUpdate`, `RestRoom`, `.LateUpdate`, `.Main`, `.Main`, `CommanderDuty.cs`, `.Run`, `TrinketEffect`, `.Main`, `EquipmentSlot`, `CommanderSleepState`?**
+  _High betweenness centrality (0.177) - this node is a cross-community bridge._
+- **Why does `BuildingBase` connect `BuildingBase` to `.Main`, `CommanderAnt`, `.Text`, `WildMonster`, `.AutoCandidates`, `.GainExperience`, `ExpeditionTransport`, `ExpeditionSite`, `.Rect`, `.GetTemplate`, `ResourceNode`, `.RoomAt`, `ColonyEvents`, `.DropCargo`, `.PlaceOne`, `.Main`, `Housing`, `.Capture`, `Gate`, `StoreBin`, `.Main`, `MonoBehaviour`, `.Restore`, `.Main`, `Kitchen`, `.Main`, `EnemyColony`, `Workshop`, `WorkerAnt`, `Spec1015Checks`, `Infirmary`, `ResearchLab`, `HomeMapBuilder`, `SpaceQuality`, `Tombstone`, `ScienceLab`, `Ranch`, `AirshipYard`, `.Removal`, `.Main`, `FarmPlot`, `EnemyCommander`, `GameManager`, `.Main`, `IsometricCameraController`, `.Main`, `RanchFacility`, `BuildingConstructionSite`, `SelectionManager`, `.Main`, `PowerNode`, `Barracks`, `CommanderJobs`, `.Main`, `.TickBehaviour`, `AcidTower`, `.Main`, `.Show`, `Storage`, `Processor`, `RecreationSpot`, `.Main`, `Wall`, `TrapPit`, `Stockpile`, `.Main`, `.Main`, `BuildingPlacementController`, `.StartAnimalTask`, `.Main`, `Decoration`, `UpkeepManager`, `.Main`, `.Main`, `DemolitionSite`, `.OnDisable`, `.Run`, `.Main`, `.Main`, `.LateUpdate`, `.Main`, `RestRoom`, `.Main`, `.SetupFarm`, `.Main`, `.Main`, `.Main`, `.Main`, `DigSite`?**
+  _High betweenness centrality (0.078) - this node is a cross-community bridge._
+- **Why does `GameMenuController` connect `GameMenuController` to `CommanderAnt`, `.Text`, `NewGameOptions`, `.Validate`, `FarmPlot`, `.Rect`, `.ShowFeeder`, `package.json`, `GameAction`, `Civilization`, `ScienceTechnology`, `AntColony.Units`, `.TradeSide`, `PrisonerCamp`, `.Medical`, `AntColony.UI`, `CommanderJobs`, `MonoBehaviour`, `Critter`, `.Button`, `.Show`, `BodyPart`, `CampaignResearch`, `CritterStage`?**
+  _High betweenness centrality (0.069) - this node is a cross-community bridge._
+- **What connects `Data`, `CountsTowardPlayerDefeat`, `MaterialTier` to the rest of the system?**
+  _2631 weakly-connected nodes found - possible documentation gaps or missing edges._
 - **Should `manifest.json` be split into smaller, more focused modules?**
   _Cohesion score 0.04 - nodes in this community are weakly interconnected._
 - **Should `AntColony.Buildings` be split into smaller, more focused modules?**
-  _Cohesion score 0.04216867469879518 - nodes in this community are weakly interconnected._
+  _Cohesion score 0.037625979843225084 - nodes in this community are weakly interconnected._
 - **Should `dependencies` be split into smaller, more focused modules?**
   _Cohesion score 0.04 - nodes in this community are weakly interconnected._

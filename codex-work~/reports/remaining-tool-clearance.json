@@ -1,0 +1,66 @@
+{
+  "SmithRepair": {
+    "frames": 25,
+    "clearance": {}
+  },
+  "Tool_Chop": {
+    "frames": 41,
+    "clearance": {}
+  },
+  "Tool_Mine": {
+    "frames": 41,
+    "clearance": {
+      "Armor_Breastplate": {
+        "frames": 1,
+        "of": 21,
+        "first": [
+          17
+        ]
+      },
+      "Armor_Breastplate_Lower": {
+        "frames": 1,
+        "of": 21,
+        "first": [
+          17
+        ]
+      }
+    }
+  },
+  "Tool_Hammer": {
+    "frames": 23,
+    "clearance": {}
+  },
+  "Tool_Dig": {
+    "frames": 41,
+    "clearance": {
+      "Part_Hair_BOB_00": {
+        "frames": 6,
+        "of": 21,
+        "first": [
+          9,
+          11,
+          19,
+          21,
+          23,
+          25
+        ]
+      }
+    }
+  },
+  "Tool_Till": {
+    "frames": 37,
+    "clearance": {
+      "Armor_Breastplate_Lower": {
+        "frames": 1,
+        "of": 19,
+        "first": [
+          15
+        ]
+      }
+    }
+  },
+  "Tool_Harvest": {
+    "frames": 29,
+    "clearance": {}
+  }
+}

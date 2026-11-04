@@ -1,0 +1,154 @@
+{
+ "frames_checked": 12,
+ "step": 3,
+ "seconds": 3,
+ "items": [
+  "Helm_CAT",
+  "Helm_DROOP",
+  "Helm_RABBIT",
+  "Helm_ROUND",
+  "Helm_UPRIGHT",
+  "HelmTrim_Bronze",
+  "HelmTrim_Iron",
+  "HelmTrim_Steel",
+  "HelmTrim_Titanium",
+  "HelmTrim_Starlight",
+  "Armor_Breastplate",
+  "Armor_Breastplate_Lower",
+  "Armor_Backplate",
+  "Armor_Backplate_Lower",
+  "Armor_Fauld",
+  "Armor_Tasset_L",
+  "Armor_Tasset_R",
+  "Armor_Bracer_L",
+  "Armor_Bracer_R",
+  "Armor_Greave_L",
+  "Armor_Greave_R",
+  "Belt",
+  "Holder_Sword",
+  "Holder_Shield",
+  "Holder_Spear",
+  "Carry_Sword",
+  "Carry_Spear",
+  "Carry_Shield"
+ ],
+ "overlaps": {
+  "Armor_Breastplate": {
+   "Part_Outfit_LINEN_ARMOR": {
+    "clips": 1,
+    "worst_pairs": 120,
+    "list": {
+     "Tool_Till": 120
+    }
+   },
+   "Part_Body_BASE_ARMOR": {
+    "clips": 1,
+    "worst_pairs": 24,
+    "list": {
+     "Tool_Till": 24
+    }
+   }
+  },
+  "Armor_Tasset_L": {
+   "Part_Outfit_LINEN_ARMOR": {
+    "clips": 1,
+    "worst_pairs": 20,
+    "list": {
+     "Tool_Till": 20
+    }
+   }
+  },
+  "Armor_Tasset_R": {
+   "Part_Outfit_LINEN_ARMOR": {
+    "clips": 1,
+    "worst_pairs": 18,
+    "list": {
+     "Tool_Till": 18
+    }
+   }
+  },
+  "Armor_Bracer_L": {
+   "Part_Outfit_LINEN_ARMOR": {
+    "clips": 1,
+    "worst_pairs": 31,
+    "list": {
+     "Tool_Till": 31
+    }
+   },
+   "Part_Hair_LONG_ARMOR": {
+    "clips": 1,
+    "worst_pairs": 5,
+    "list": {
+     "Tool_Till": 5
+    }
+   }
+  },
+  "Armor_Bracer_R": {
+   "Part_Body_BASE_ARMOR": {
+    "clips": 1,
+    "worst_pairs": 23,
+    "list": {
+     "Tool_Till": 23
+    }
+   },
+   "Part_Outfit_LINEN_ARMOR": {
+    "clips": 1,
+    "worst_pairs": 30,
+    "list": {
+     "Tool_Till": 30
+    }
+   },
+   "Part_Hair_BOB_00": {
+    "clips": 1,
+    "worst_pairs": 8,
+    "list": {
+     "Tool_Till": 8
+    }
+   },
+   "Part_Hair_BUNS_00": {
+    "clips": 1,
+    "worst_pairs": 8,
+    "list": {
+     "Tool_Till": 8
+    }
+   },
+   "Part_Hair_PONY_00": {
+    "clips": 1,
+    "worst_pairs": 8,
+    "list": {
+     "Tool_Till": 8
+    }
+   },
+   "Part_Hair_SIDE_00": {
+    "clips": 1,
+    "worst_pairs": 10,
+    "list": {
+     "Tool_Till": 10
+    }
+   },
+   "Part_Hair_LONG_ARMOR": {
+    "clips": 1,
+    "worst_pairs": 14,
+    "list": {
+     "Tool_Till": 14
+    }
+   }
+  },
+  "Armor_Breastplate_Lower": {
+   "Part_Body_BASE_ARMOR": {
+    "clips": 1,
+    "worst_pairs": 10,
+    "list": {
+     "Tool_Till": 10
+    }
+   },
+   "Part_Outfit_LINEN_ARMOR": {
+    "clips": 1,
+    "worst_pairs": 59,
+    "list": {
+     "Tool_Till": 59
+    }
+   }
+  }
+ }
+}

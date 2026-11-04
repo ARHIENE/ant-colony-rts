@@ -1,0 +1,65 @@
+[
+  {
+    "file": "E:\\Git\\ant\\codex-work~\\round3\\renders\\baseline-Rest-front.png",
+    "pose": "Rest",
+    "clip": null,
+    "frame": 1,
+    "view": "front"
+  },
+  {
+    "file": "E:\\Git\\ant\\codex-work~\\round3\\renders\\baseline-Rest-side.png",
+    "pose": "Rest",
+    "clip": null,
+    "frame": 1,
+    "view": "side"
+  },
+  {
+    "file": "E:\\Git\\ant\\codex-work~\\round3\\renders\\baseline-Rest-back.png",
+    "pose": "Rest",
+    "clip": null,
+    "frame": 1,
+    "view": "back"
+  },
+  {
+    "file": "E:\\Git\\ant\\codex-work~\\round3\\renders\\baseline-Armor_Breastplate_Lower-front.png",
+    "pose": "Armor_Breastplate_Lower",
+    "clip": "Knead",
+    "frame": 13,
+    "view": "front"
+  },
+  {
+    "file": "E:\\Git\\ant\\codex-work~\\round3\\renders\\baseline-Armor_Breastplate_Lower-side.png",
+    "pose": "Armor_Breastplate_Lower",
+    "clip": "Knead",
+    "frame": 13,
+    "view": "side"
+  },
+  {
+    "file": "E:\\Git\\ant\\codex-work~\\round3\\renders\\baseline-Armor_Breastplate_Lower-back.png",
+    "pose": "Armor_Breastplate_Lower",
+    "clip": "Knead",
+    "frame": 13,
+    "view": "back"
+  },
+  {
+    "file": "E:\\Git\\ant\\codex-work~\\round3\\renders\\baseline-Armor_Fauld-front.png",
+    "pose": "Armor_Fauld",
+    "clip": "TapFill",
+    "frame": 40,
+    "view": "front"
+  },
+  {
+    "file": "E:\\Git\\ant\\codex-work~\\round3\\renders\\baseline-Armor_Fauld-side.png",
+    "pose": "Armor_Fauld",
+    "clip": "TapFill",
+    "frame": 40,
+    "view": "side"
+  },
+  {
+    "file": "E:\\Git\\ant\\codex-work~\\round3\\renders\\baseline-Armor_Fauld-back.png",
+    "pose": "Armor_Fauld",
+    "clip": "TapFill",
+    "frame": 40,
+    "view": "back"
+  }
+]

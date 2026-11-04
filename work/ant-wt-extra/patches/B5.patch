@@ -1,0 +1,815 @@
+diff --git a/Assets/_Project/Scripts/Core/UserSettings.cs b/Assets/_Project/Scripts/Core/UserSettings.cs
+index 3070209..12c7dcd 100644
+--- a/Assets/_Project/Scripts/Core/UserSettings.cs
++++ b/Assets/_Project/Scripts/Core/UserSettings.cs
+@@ -17,6 +17,7 @@ namespace AntColony.Core
+         public float toastSeconds = 6f;          // 알림 토스트 표시 시간
+         public bool pauseSimulationOnMenu = true; // 명시적 일시정지에서 시뮬레이션도 멈출지
+         public System.Collections.Generic.List<string> keyBindings = new System.Collections.Generic.List<string>(); // GameAction 순서, 비면 기본값
++        public bool autoPauseThreat = true, autoPauseDowned = true, autoPauseRocket = true;
+         public bool firstHints = true;           // 첫 등장 힌트 토스트
+         public System.Collections.Generic.List<string> shownHints = new System.Collections.Generic.List<string>(); // 이미 본 힌트(1회)
+ 
+diff --git a/Assets/_Project/Scripts/Save/SaveDtos.cs b/Assets/_Project/Scripts/Save/SaveDtos.cs
+index 187e66d..13f81a6 100644
+--- a/Assets/_Project/Scripts/Save/SaveDtos.cs
++++ b/Assets/_Project/Scripts/Save/SaveDtos.cs
+@@ -247,6 +247,8 @@ namespace AntColony.Save
+     [Serializable]
+     public class TransportDto
+     {
++        public bool walking;
++        public float foodDebt, dockingRemaining;
+         public bool blueprintCargo;
+         public List<Units.EquipmentItem> equipmentCargo = new List<Units.EquipmentItem>();
+         public bool aircraft;
+@@ -262,6 +264,8 @@ namespace AntColony.Save
+     [Serializable]
+     public class WorldDto
+     {
++        public UI.SimulationPause.State pause;
++        public World.HomeDefenseReturn defenseReturn = new World.HomeDefenseReturn();
+         public bool legacyLayout;
+         public bool unlocked;
+         public bool vehicleResearched;
+diff --git a/Assets/_Project/Scripts/Save/SavePreflight.cs b/Assets/_Project/Scripts/Save/SavePreflight.cs
+index 8f70a88..885d884 100644
+--- a/Assets/_Project/Scripts/Save/SavePreflight.cs
++++ b/Assets/_Project/Scripts/Save/SavePreflight.cs
+@@ -179,7 +179,8 @@ namespace AntColony.Save
+                 for (var i = 0; i < f.world.sites.Count; i++) { var s = f.world.sites[i]; Check(s != null && s.index == i && s.disposition >= 0 && s.disposition <= 3
+                     && N(s.growthTimer) && N(s.settlementElapsed) && N(s.defenseRemaining) && N(s.defenseCaptureProgress), "site state"); Colony(s.colony); }
+                 Colony(f.world.homeColony);
+-                var occupied = new HashSet<int>();
++                Check(UI.SimulationPause.Valid(f.world.pause), "pause state");
++                Check(f.world.defenseReturn == null || f.world.defenseReturn.disabled != null && f.world.defenseReturn.disabled.Count <= 10000 && f.world.defenseReturn.disabled.All(id => !string.IsNullOrEmpty(id)), "defense return");
+                 for (var i = 0; i < f.world.transports.Count; i++)
+                 {
+                     var s = f.world.transports[i]; Check(s != null && s.state >= 0 && s.state <= 3 && N(s.remaining) && s.siteIndex >= -1 && s.siteIndex < f.world.sites.Count
+@@ -187,12 +188,12 @@ namespace AntColony.Save
+                     Check(s.state == 0 || s.siteIndex >= 0, "transport destination");
+                     L(s.equipmentCargo, 10000, "equipment cargo");
+                     foreach (var item in s.equipmentCargo) Check(item != null && item.IsValid && equipmentIds.Add(item.id), "equipment cargo ownership");
+-                    if (s.state == 1 || s.state == 2) Check(occupied.Add(s.siteIndex), "duplicate visitor");
++                    Check(N(s.foodDebt) && s.foodDebt <= 100000000 && N(s.dockingRemaining) && s.dockingRemaining <= World.ExpeditionRules.DockSeconds && !(s.walking && s.aircraft), "expedition state");
+                     Check(s.route != null && N(s.route.waitSeconds) && s.route.destinationIndex >= -1 && s.route.destinationIndex < f.world.sites.Count
+                         && (!s.route.running || s.route.destinationIndex >= 0 && f.world.sites[s.route.destinationIndex].disposition == 1 ), "route");
+                     var crew = f.commanders.Where(c => c.location == 1 && c.transportIndex == i).ToArray();
+                     var heavy = f.campaign.completed.Contains((int)Core.ScienceTechnology.HeavyTransport);
+-                    Check(crew.Sum(c => (long)c.troopCount) <= (s.aircraft ? Core.GameBalance.AircraftTroops : Core.GameBalance.VehicleTroops) * (heavy ? 1.5f : 1f)
++                    Check(s.walking || crew.Sum(c => (long)c.troopCount) <= (s.aircraft ? Core.GameBalance.AircraftTroops : Core.GameBalance.VehicleTroops) * (heavy ? 1.5f : 1f)
+                         && crew.Length <= (s.aircraft ? Core.GameBalance.AircraftCommanders : Core.GameBalance.VehicleCommanders) + (heavy ? 2 : 0), "transport capacity");
+                 }
+                 Check(f.nodes.All(n => n != null && n.key != null && N(n.amount) && N(n.regrowTimer) && N(n.sowRemaining) && n.fishMonth >= -1 && V(n.position) && Enum.IsDefined(typeof(ResourceType), n.type))
+diff --git a/Assets/_Project/Scripts/Save/SaveSnapshot.cs b/Assets/_Project/Scripts/Save/SaveSnapshot.cs
+index b8c16a8..f2fa414 100644
+--- a/Assets/_Project/Scripts/Save/SaveSnapshot.cs
++++ b/Assets/_Project/Scripts/Save/SaveSnapshot.cs
+@@ -87,7 +87,9 @@ namespace AntColony.Save
+                 defenseCaptureProgress = site.Defense?.CaptureProgress ?? 0 });
+             var home = Object.FindObjectsByType<EnemyColony>(FindObjectsSortMode.None).FirstOrDefault(c => c.GetComponentInParent<ExpeditionSite>() == null);
+             file.world.hadHomeColony = home != null; file.world.homeColony = Colony(home);
+-            foreach (var s in world.Transports.Where(s => s != null)) file.world.transports.Add(new TransportDto { aircraft = s.Aircraft, state = (int)s.State,
++            file.world.pause = AntColony.UI.SimulationPause.Capture();
++            file.world.defenseReturn = world.DefenseReturn;
++            foreach (var s in world.Transports.Where(s => s != null)) file.world.transports.Add(new TransportDto { walking = s.Walking, foodDebt = s.FoodDebt, dockingRemaining = s.DockingRemaining, aircraft = s.Aircraft, state = (int)s.State,
+                 blueprintCargo = s.BlueprintCargo, equipmentCargo = s.EquipmentCargo.Select(e => JsonUtility.FromJson<EquipmentItem>(JsonUtility.ToJson(e))).ToList(),
+                 remaining = s.Remaining, siteIndex = SaveCatalog.SiteIndex(s.Site), position = new Vec3Dto(s.Position), homePosition = new Vec3Dto(s.HomePosition),
+                 cargoFood = s.GetCargo(ResourceType.Food), cargoSoil = s.GetCargo(ResourceType.Soil), cargoSpecial = s.GetCargo(ResourceType.Special),
+@@ -212,11 +214,13 @@ namespace AntColony.Save
+                 { ec.ConfigureCommander(ec.CommanderName, ec.Rank, ec.Roles, SaveCatalog.Traits(d.traits)); ec.RestoreTalents(d.talents); }
+             }
+             world.VehicleResearched = file.world.vehicleResearched; world.AircraftResearched = file.world.aircraftResearched;
++            world.DefenseReturn = file.world.defenseReturn ?? new HomeDefenseReturn();
+             world.RestoreUnlock(file.world.unlocked); world.SettlementNotice = file.world.notice;
+             var ships = new List<ExpeditionTransport>();
+             foreach (var d in file.world.transports)
+             {
+-                var ship = world.CreateTransport(d.aircraft, d.homePosition.ToVector3()); SaveReferences.Register("ship:" + ships.Count, ship); ships.Add(ship);
++                var ship = world.CreateTransport(d.aircraft, d.homePosition.ToVector3(), d.walking); SaveReferences.Register("ship:" + ships.Count, ship); ships.Add(ship);
++                ship.FoodDebt = d.foodDebt; ship.DockingRemaining = d.dockingRemaining;
+                 ship.BlueprintCargo = d.blueprintCargo; ship.EquipmentCargo = d.equipmentCargo.Select(e => JsonUtility.FromJson<EquipmentItem>(JsonUtility.ToJson(e))).ToList();
+                 ship.RestoreState((ExpeditionState)d.state, d.remaining, d.siteIndex < 0 ? null : world.Sites[d.siteIndex],
+                     d.position.ToVector3(), d.homePosition.ToVector3(), d.cargoFood, d.cargoSoil, d.cargoSpecial);
+diff --git a/Assets/_Project/Scripts/UI/EnemyAlert.cs b/Assets/_Project/Scripts/UI/EnemyAlert.cs
+index 499b2d6..33304bc 100644
+--- a/Assets/_Project/Scripts/UI/EnemyAlert.cs
++++ b/Assets/_Project/Scripts/UI/EnemyAlert.cs
+@@ -40,12 +40,13 @@ namespace AntColony.UI
+         // 검사용으로도 쓴다. 시작·불러오기 직후 첫 스캔은 이미 있던 적을 경보 없이 기억만 한다.
+         public void Scan()
+         {
++            ThreatIncidents.Scan(seeded);
+             var threats = Threats().ToList();
+             var raised = false;
+             foreach (var t in threats)
+             {
+                 var inCombat = t is WildMonster m ? m.InCombat : t is CommanderAnt c && c.IsInCombat;
+-                if (seeded && (!known.Contains(t) || inCombat && !fighting.Contains(t))) { alerted.Add(t); raised = true; }
++                if (seeded && !known.Contains(t)) { alerted.Add(t); raised = true; }
+                 if (inCombat) fighting.Add(t); else fighting.Remove(t);
+             }
+             known.Clear(); known.UnionWith(threats);
+diff --git a/Assets/_Project/Scripts/UI/GameMenuConscription.cs b/Assets/_Project/Scripts/UI/GameMenuConscription.cs
+index ee36714..c176012 100644
+--- a/Assets/_Project/Scripts/UI/GameMenuConscription.cs
++++ b/Assets/_Project/Scripts/UI/GameMenuConscription.cs
+@@ -29,6 +29,8 @@ namespace AntColony.UI
+             L.Label(p, "선택   장수 / 무기 / 개인 체력 / 기분 / 현재 상태", 14, 24, 104, 700, 32);
+             L.Label(p, "병력 / 지휘한도", 14, 756, 104, 270, 32);
+             var list = L.List(p, 24, 144, 1032, 420);
++            var autoReturn = DutyToggle(p, "Home Defense Auto Return", 620, 608, true);
++            L.Label(p, "방어 자동 귀환 20초", 13, 650, 602, 200, 34);
+             var choices = new List<(CommanderAnt commander, Toggle toggle, Slider slider)>();
+             foreach (var c in SortedCommanders().Where(c => !c.Traits.Has(CommanderTrait.Pacifist)))
+             {
+@@ -59,6 +61,7 @@ namespace AntColony.UI
+                 var selected = choices.Where(x => x.toggle.isOn).ToArray();
+                 if (post == null || !post.TryDeploy(selected.Select(x => x.commander).ToArray(), selected.Select(x => (int)x.slider.value).ToArray()))
+                 { ToastManager.Show("출전할 수 없습니다. 장수 상태·지휘한도·대기 시민과 징집소 접근 경로를 확인하세요."); refreshDutyScreen?.Invoke(); return; }
++                foreach (var choice in selected) AntColony.World.WorldMapManager.Instance.DefenseReturn.Set(choice.commander, autoReturn.isOn);
+                 Resume();
+             }, primary: true);
+             refreshDutyScreen += () => {
+diff --git a/Assets/_Project/Scripts/UI/GameMenuController.cs b/Assets/_Project/Scripts/UI/GameMenuController.cs
+index 254f61e..edfbb7e 100644
+--- a/Assets/_Project/Scripts/UI/GameMenuController.cs
++++ b/Assets/_Project/Scripts/UI/GameMenuController.cs
+@@ -100,7 +100,7 @@ namespace AntColony.UI
+         public void SetSpeed(float value)
+         {
+             if (SaveSystem.Busy || open || !GameSession.Instance.GameStarted) return;
+-            Time.timeScale = value <= 0 ? 0 : Speeds.OrderBy(s => Mathf.Abs(s - value)).First();
++            SimulationPause.UserSpeed(value <= 0 ? 0 : Speeds.OrderBy(s => Mathf.Abs(s - value)).First());
+             if (Time.timeScale > 0) resumeScale = Time.timeScale;
+         }
+         public void ToggleSimulation() => SetSpeed(Time.timeScale > 0 ? 0 : Mathf.Max(1, resumeScale));
+@@ -108,9 +108,11 @@ namespace AntColony.UI
+         private void BeginScreen(string title, float scrim)
+         {
+             refreshDutyScreen = null;
+-            if (!open) resumeScale = Time.timeScale;
++            if (!open) resumeScale = SimulationPause.Speed;
++            SimulationPause.Release("negotiation");
+             open = true; ScreenName = title; panel.gameObject.SetActive(true); toolbar.SetActive(false); Tooltip("");
+-            if (!GameSession.Instance.GameStarted || UserSettings.Current.pauseSimulationOnMenu) Time.timeScale = 0;
++            if (!GameSession.Instance.GameStarted || UserSettings.Current.pauseSimulationOnMenu) SimulationPause.Hold("menu");
++            else SimulationPause.Release("menu");
+             content = legacyContent;
+             foreach (Transform child in content) { child.gameObject.SetActive(false); Destroy(child.gameObject); }
+             if (frame != null) { frame.gameObject.SetActive(false); Destroy(frame.gameObject); frame = null; }
+@@ -142,15 +144,15 @@ namespace AntColony.UI
+             tooltipPanel.gameObject.SetActive(!string.IsNullOrEmpty(value));
+             if (!string.IsNullOrEmpty(value) && tooltipPanel.gameObject.activeInHierarchy) tooltipPanel.SetAsLastSibling();
+         }
+-        public void ShowLoading() { Screen("Loading...", "불러오는 중…"); Time.timeScale = 0; }
+-        public void SceneReady(bool playing) { resumeScale = 1; if (playing) Resume(); else Main(); }
++        public void ShowLoading() { SimulationPause.Restore(GameSession.Instance.PendingLoad?.world.pause); Screen("Loading...", "불러오는 중…"); Time.timeScale = 0; }
++        public void SceneReady(bool playing) { resumeScale = SimulationPause.Speed; if (playing) Resume(); else Main(); }
+         public void Resume()
+         {
+             if (SaveSystem.Busy || !GameSession.Instance.GameStarted) return;
+             if (CampaignResearch.Instance != null && CampaignResearch.Instance.Departed) { ShowDeparture(); return; }
+             if (GameManager.Instance != null && GameManager.Instance.SavedDefeat) { ShowOutcome(false); return; }
+             Tooltip("");
+-            open = false; closedFrame = Time.frameCount; ScreenName = "Game"; panel.gameObject.SetActive(false); toolbar.SetActive(true); Time.timeScale = resumeScale;
++            open = false; closedFrame = Time.frameCount; ScreenName = "Game"; panel.gameObject.SetActive(false); toolbar.SetActive(true); SimulationPause.Release("negotiation"); SimulationPause.Release("menu");
+         }
+         public void Guide()
+         {
+@@ -199,6 +201,9 @@ namespace AntColony.UI
+             MenuTheme.Button(content, "Autosave: " + (s.autoSaveEnabled ? "On" : "Off"), () => Apply(v => v.autoSaveEnabled = !v.autoSaveEnabled));
+             MenuTheme.Button(content, "Autosave interval: " + s.autoSaveMinutes + " minutes", () => Apply(v => v.autoSaveMinutes = v.autoSaveMinutes >= 15 ? 1 : v.autoSaveMinutes + 1));
+             MenuTheme.Button(content, "Toast duration: " + s.toastSeconds + " seconds", () => Apply(v => v.toastSeconds = v.toastSeconds >= 10 ? 2 : v.toastSeconds + 1));
++            MenuTheme.Button(content, "새 위협 자동정지: " + s.autoPauseThreat, () => Apply(v => v.autoPauseThreat = !v.autoPauseThreat));
++            MenuTheme.Button(content, "장수 쓰러짐 자동정지: " + s.autoPauseDowned, () => Apply(v => v.autoPauseDowned = !v.autoPauseDowned));
++            MenuTheme.Button(content, "로켓 파괴 자동정지: " + s.autoPauseRocket, () => Apply(v => v.autoPauseRocket = !v.autoPauseRocket));
+             MenuTheme.Button(content, "Pause simulation in menus: " + s.pauseSimulationOnMenu, () => Apply(v => v.pauseSimulationOnMenu = !v.pauseSimulationOnMenu));
+             MenuTheme.Button(content, "First-time hints: " + (s.firstHints ? "On" : "Off"), () => Apply(v => v.firstHints = !v.firstHints));
+             MenuTheme.Button(content, "Reset seen hints (" + s.shownHints.Count + ")", () => Apply(v => v.shownHints.Clear()));
+diff --git a/Assets/_Project/Scripts/UI/GameMenuNegotiation.cs b/Assets/_Project/Scripts/UI/GameMenuNegotiation.cs
+index a2be013..17c0a39 100644
+--- a/Assets/_Project/Scripts/UI/GameMenuNegotiation.cs
++++ b/Assets/_Project/Scripts/UI/GameMenuNegotiation.cs
+@@ -20,7 +20,7 @@ namespace AntColony.UI
+             if (!DiplomacyManager.CanNegotiate(DiplomacyManager.Negotiator(n))) n.negotiator = "";
+             tradeGive = n.give; tradeTake = n.take; rebuildTrade = () => OpenTalk(n);
+             var f = Frame("협상 · " + c.name);
+-            Time.timeScale = 0; // 메뉴 일시정지 설정과 무관하게 협상 중에는 항상 정지(기한·타이머 포함)
++            SimulationPause.Hold("negotiation"); // 메뉴 일시정지 설정과 무관하게 협상 중에는 항상 정지(기한·타이머 포함)
+             var p = L.Plate(f, "TalkPanel", 48, 48, 1344, 740);
+             var badge = L.Box(p, "Badge", 14, 12, 36, 36, c.color);
+             L.Label(badge, c.name.Substring(0, 1), 16, 0, 0, 36, 36, MenuTheme.AccentInk, TextAnchor.MiddleCenter, true);
+diff --git a/Assets/_Project/Scripts/UI/GameMenuWalking.cs b/Assets/_Project/Scripts/UI/GameMenuWalking.cs
+new file mode 100644
+index 0000000..c3399a0
+--- /dev/null
++++ b/Assets/_Project/Scripts/UI/GameMenuWalking.cs
+@@ -0,0 +1,33 @@
++using System;
++using System.Collections.Generic;
++using System.Linq;
++using AntColony.Units;
++using AntColony.World;
++using UnityEngine.UI;
++
++namespace AntColony.UI
++{
++    public sealed partial class GameMenuController
++    {
++        public void WalkingFormation(Action<ExpeditionTransport> done)
++        {
++            Screen("도보 원정 편성");
++            MenuTheme.Text(content, "장수 1명·병력 0명부터 출발할 수 있습니다. 병력 추가는 징집소에서 편성하세요. 보급과 왕복 시간은 월드맵에서 확인합니다.", 18, 72);
++            var choices = new List<(CommanderAnt commander, Toggle toggle)>();
++            foreach (var c in SortedCommanders().Where(c => c.IsColonyMember && !c.IsAwayFromHome && !c.IsDead && !c.PersonalState.health.Downed && c.CanChangeAllocation))
++            {
++                var row = MenuTheme.Rect("Walking " + c.CommanderName, content);
++                row.gameObject.AddComponent<LayoutElement>().preferredHeight = 44;
++                var toggle = DutyToggle(row, "Walking Select " + c.CommanderName, 0, 8, false);
++                MenuLayout.Label(row, $"{c.CommanderName} · 병력 {c.TroopCount} · 소지 식량 {c.PersonalState.carriedRations?.Total ?? 0}", 16, 42, 0, 620, 44);
++                choices.Add((c, toggle));
++            }
++            MenuTheme.Button(content, "편성", () => {
++                var party = WorldMapManager.Instance?.CreateWalkingParty(choices.Where(c => c.toggle.isOn).Select(c => c.commander).ToArray());
++                if (party == null) { ToastManager.Show("장수를 선택하고 상태·병역 제도를 확인하세요."); return; }
++                Resume(); done(party);
++            });
++            MenuTheme.Button(content, "취소", () => { Resume(); done(null); });
++        }
++    }
++}
+diff --git a/Assets/_Project/Scripts/UI/SimulationPause.cs b/Assets/_Project/Scripts/UI/SimulationPause.cs
+new file mode 100644
+index 0000000..5c7b6ef
+--- /dev/null
++++ b/Assets/_Project/Scripts/UI/SimulationPause.cs
+@@ -0,0 +1,67 @@
++using System;
++using System.Collections.Generic;
++using System.Linq;
++using UnityEngine;
++
++namespace AntColony.UI
++{
++    public static class SimulationPause
++    {
++        [Serializable] public class State
++        {
++            public float speed = 1;
++            public List<string> reasons = new List<string>();
++            public List<string> incidents = new List<string>();
++            public List<string> active = new List<string>();
++            public int sequence;
++        }
++        private static State state = new State();
++        public static IReadOnlyList<string> Reasons => state.reasons;
++        public static float Speed => state.speed;
++        public static void Hold(string reason)
++        {
++            if (!state.reasons.Contains(reason)) state.reasons.Add(reason);
++            Apply();
++        }
++        public static void Release(string reason) { state.reasons.Remove(reason); Apply(); }
++        public static void UserSpeed(float speed)
++        {
++            state.reasons.RemoveAll(r => r == "manual" || r.StartsWith("incident:"));
++            if (speed <= 0) Hold("manual");
++            else { state.speed = speed; Apply(); }
++        }
++        public static bool Incident(string id, string message, bool autoPause)
++        {
++            ToastManager.SetCrisis("incident:" + id, message);
++            if (state.incidents.Contains(id)) return false;
++            state.incidents.Add(id);
++            if (autoPause) Hold("incident:" + id);
++            return true;
++        }
++        public static void Observe(Dictionary<string, string> active, bool announce)
++        {
++            foreach (var entry in active)
++                if (!state.active.Contains(entry.Key) && announce)
++                {
++                    var pause = entry.Key.StartsWith("down:") ? AntColony.Core.UserSettings.Current.autoPauseDowned
++                        : AntColony.Core.UserSettings.Current.autoPauseThreat;
++                    Incident(entry.Key + ":" + ++state.sequence, entry.Value, pause);
++                }
++            state.active = active.Keys.ToList();
++        }
++        public static State Capture() => JsonUtility.FromJson<State>(JsonUtility.ToJson(state));
++        public static void Restore(State value)
++        {
++            state = value == null ? new State() : JsonUtility.FromJson<State>(JsonUtility.ToJson(value));
++            // 메뉴·협상창은 저장 파일이 아니라 현재 화면이 소유한다.
++            state.reasons.RemoveAll(r => r == "menu" || r == "negotiation");
++            Apply();
++        }
++        private static void Apply() => Time.timeScale = state.reasons.Count > 0 ? 0 : state.speed;
++        public static bool Valid(State value) => value == null || value.reasons != null && value.incidents != null
++            && new[] { 1f, 2f, 3f, 5f }.Contains(value.speed)
++            && value.active != null && value.sequence >= 0 && value.active.Count <= 10000
++            && value.reasons.Count <= 10000 && value.incidents.Count <= 100000
++            && value.reasons.All(r => !string.IsNullOrEmpty(r)) && value.incidents.All(r => !string.IsNullOrEmpty(r));
++    }
++}
+diff --git a/Assets/_Project/Scripts/UI/ThreatIncidents.cs b/Assets/_Project/Scripts/UI/ThreatIncidents.cs
+new file mode 100644
+index 0000000..35ea18d
+--- /dev/null
++++ b/Assets/_Project/Scripts/UI/ThreatIncidents.cs
+@@ -0,0 +1,62 @@
++using System.Collections.Generic;
++using System.Linq;
++using AntColony.Buildings;
++using AntColony.Core;
++using AntColony.Map;
++using AntColony.Units;
++using AntColony.World;
++using UnityEngine;
++
++namespace AntColony.UI
++{
++    public static class ThreatIncidents
++    {
++        public static void Scan(bool announce)
++        {
++            var world = WorldMapManager.Instance;
++            if (world == null) return;
++            var active = new Dictionary<string, string>();
++            string Region(Vector3 position)
++            {
++                foreach (var site in world.Sites)
++                    if ((site.transform.position - position).sqrMagnitude < 70 * 70) return site.Title;
++                return "본거지";
++            }
++            bool VisibleThreat(Vector3 position, bool combat)
++            {
++                if (HomeMapBuilder.CurrentWorldBounds.Contains(new Vector3(position.x, 0, position.z)) || combat) return true;
++                return world.Sites.Any(s => s.Visitor != null && s.Visitor.State == ExpeditionState.Deployed
++                    && (s.transform.position - position).sqrMagnitude < 70 * 70);
++            }
++            foreach (var m in WildMonster.All)
++                if (m != null && CombatTargeting.CanAttack(AntColony.Data.UnitRole.Ranged, m) && VisibleThreat(m.Position, m.InCombat))
++                { var region = Region(m.Position); active["threat:" + region] = region + ": 새 위협"; }
++            foreach (var c in AntUnitBase.Active.OfType<CommanderAnt>())
++                if (c.IsHostile && CombatTargeting.CanAttack(AntColony.Data.UnitRole.Ranged, c) && VisibleThreat(c.Position, c.IsInCombat))
++                { var region = Region(c.Position); active["threat:" + region] = region + ": 새 위협"; }
++            foreach (var site in world.Sites)
++                if (site.Boss != null && !site.Boss.IsDead && site.Visitor != null && site.Visitor.State == ExpeditionState.Deployed)
++                    active["threat:" + site.Title] = site.Title + ": 보스 위협";
++            if (CommanderRoster.Instance != null)
++                foreach (var c in CommanderRoster.Instance.Commanders)
++                    if (c != null && c.IsColonyMember && (c.PersonalState.health.Downed || c.PersonalHealth <= 0))
++                        active["down:" + c.PersonalState.id] = c.CommanderName + ": 쓰러짐";
++            SimulationPause.Observe(active, announce);
++            foreach (var rocket in Object.FindObjectsByType<AirshipYard>(FindObjectsSortMode.None))
++                if (rocket.GetComponent<RocketIncident>() == null) rocket.gameObject.AddComponent<RocketIncident>();
++        }
++    }
++
++    public sealed class RocketIncident : MonoBehaviour
++    {
++        private AirshipYard rocket;
++        private string id;
++        private void Awake() { rocket = GetComponent<AirshipYard>(); id = "rocket:" + rocket.GetEntityId(); }
++        private void OnDisable()
++        {
++            if (Application.isPlaying && !Save.SaveSystem.Busy && rocket != null && rocket.IsDead
++                && CampaignResearch.Instance?.Departed != true)
++                SimulationPause.Incident(id, "로켓이 파괴되었습니다.", UserSettings.Current.autoPauseRocket);
++        }
++    }
++}
+diff --git a/Assets/_Project/Scripts/UI/WorldMapPanel.cs b/Assets/_Project/Scripts/UI/WorldMapPanel.cs
+index 562042e..5219fc2 100644
+--- a/Assets/_Project/Scripts/UI/WorldMapPanel.cs
++++ b/Assets/_Project/Scripts/UI/WorldMapPanel.cs
+@@ -19,7 +19,10 @@ namespace AntColony.UI
+         private RectTransform mapRoot, selectionRing;
+         private ExpeditionSite selectedSite;
+         private ExpeditionTransport selectedShip;
+-        private bool seenUnlock, cameraWasEnabled;
++        private bool seenUnlock = true, cameraWasEnabled;
++        private UnityEngine.UI.Text departurePlan;
++        private ExpeditionTransport warnedShip;
++        private ExpeditionSite warnedSite;
+         private const float PlanetX = (MapW - 390) / 2, PlanetY = 38, PlanetSize = 390;
+         private WorldPlanet planetView;
+         private RectTransform expeditionList;
+@@ -55,6 +58,12 @@ namespace AntColony.UI
+             Btn(rect, "Return Home", "귀환", 24, 294, () => Result(selectedShip != null && selectedShip.TryReturn(), "장수와 화물을 싣고 귀환합니다."));
+             Btn(rect, "Collect Equipment / Blueprint", "전리품·설계도 싣기", 196, 294,
+                 () => Result(selectedShip != null && selectedShip.TryCollectRewards(), "전리품을 실었습니다. 귀환하면 사용할 수 있습니다."));
++            Btn(rect, "Walking Formation", "도보 편성", 24, 540, () => {
++                Toggle(); GameMenuController.Instance.WalkingFormation(party => { selectedShip = party; Toggle(); });
++            });
++            Btn(rect, "Load Expedition Food", "권장 보급 싣기", 196, 540, () => Result(selectedShip != null && selectedShip.TryLoadFood(
++                Mathf.Min(selectedShip.ReturnCargoSpace, selectedShip.RecommendedFood(selectedSite) - selectedShip.AvailableFood)), "보급을 실었습니다."));
++            departurePlan = L.Label(rect, "", 12, 24, 582, 336, 90, MenuTheme.Warning, TextAnchor.UpperLeft);
+             L.Line(rect, 24, 340, 336);
+             routeStatus = L.Label(rect, "", 12, 24, 348, 336, 80, MenuTheme.Muted, TextAnchor.UpperLeft);
+             L.Label(rect, "탑승·주둔·귀환: 8m 이내, 운반 중인 자원은 먼저 내려놓기.\n주둔: 수송 수단이 돌아와도 거점에 남음. 탑승: 선택한 주둔 장수를 다시 태움.\n편입 거점 생산: 60초마다 (식량 10 / 재료 5) × 난이도, 수송으로 집에 옮김.",
+@@ -83,7 +92,7 @@ namespace AntColony.UI
+             // 가운데 아래: 선택 거점 정보와 행동.
+             L.Plate(rect, "SiteInfo", 384, 504, MapW, 254);
+             siteInfo = L.Label(rect, "", 13, 398, 514, 644, 100, align: TextAnchor.UpperLeft);
+-            Btn(rect, "Depart", "원정 보내기", 398, 622, () => Result(selectedShip != null && selectedShip.TryDepart(selectedSite), "원정대가 출발했습니다."), 156);
++            Btn(rect, "Depart", "원정 보내기", 398, 622, Depart, 156);
+             Btn(rect, "View Battlefield", "전장 보기", 560, 622, () => {
+                 var world = WorldMapManager.Instance;
+                 if (world != null && selectedSite != null && world.ViewSite(selectedSite)) Toggle();
+@@ -132,6 +141,10 @@ namespace AntColony.UI
+             if (!IsOpen) return;
+             defenseStatus.text = selectedSite != null && selectedSite.Defense != null ? selectedSite.Defense.Status : "";
+             if (selectedShip == null) NextShip();
++            departurePlan.text = selectedShip == null ? "도보 편성: 장수 1명·병력 0명부터 가능합니다." :
++                $"왕복 {(selectedShip.Walking ? ExpeditionRules.WalkSeconds(selectedSite) : selectedShip.TravelSeconds) * 2 / AntColony.Core.GameCalendar.SecondsPerDay:0.0}일 · 권장 식량 {selectedShip.RecommendedFood(selectedSite)} / 보유 {selectedShip.AvailableFood}\n"
++                + $"왕복 + 현지 1일 + 예비 1일 · 병력 포함\n귀환 화물 여유 {selectedShip.ReturnCargoSpace}"
++                + (selectedShip.LeavesHomeUnattended ? "\n경고: 본거지 대응 장수 없음" : "");
+             var route = selectedShip != null ? selectedShip.Route : null;
+             startRoute.interactable = route != null && !route.IsRunning && selectedShip.State == ExpeditionState.Home
+                 && selectedSite != null && selectedSite.Disposition == ConquestDisposition.Annexed;
+@@ -231,7 +244,7 @@ namespace AntColony.UI
+             var injured = 0; var mood = 0f;
+             foreach (var c in crew) { mood += c.Mood; if (c.Health.Injured) injured++; }
+             var names = crew.Count == 0 ? "없음" : string.Join(", ", System.Linq.Enumerable.Select(crew, c => c.CommanderName));
+-            var text = $"<b>{ship.name}</b> · {(ship.Aircraft ? "비행기" : "차량")} · {StateName(ship.State)}{(ship.Remaining > 0 ? $" {ship.Remaining:0}초" : "")} → {(ship.Site != null ? ship.Site.Title : "정착지")}\n"
++            var text = $"<b>{ship.name}</b> · {(ship.Walking ? "도보" : ship.Aircraft ? "비행기" : "차량")} · {StateName(ship.State)}{(ship.Remaining > 0 ? $" {ship.Remaining:0}초" : "")} → {(ship.Site != null ? ship.Site.Title : "정착지")}\n"
+                 + $"장수 {names} ({ship.CommanderLoad}/{ship.CommanderCapacity}) · 병력 {ship.Load}/{ship.Capacity}\n"
+                 + $"<color=#b1b3a7>화물 {ship.CargoLoad}/{ship.CargoCapacity} · 전리품 장비 {ship.EquipmentCargo.Count}{(ship.BlueprintCargo ? "·설계도" : "")}"
+                 + $" · 기분 {(crew.Count > 0 ? mood / crew.Count : 0):0} · 부상 {injured}</color>";
+@@ -312,6 +325,17 @@ namespace AntColony.UI
+                 disposition == ConquestDisposition.Annexed ? "거점을 편입했습니다. 현지 생산 시작 · 방어할 장수는 '선택 장수 주둔'으로 남기세요."
+                     : "거점을 포기했습니다. 약탈을 마치고 귀환하세요. 다시 방문할 수 없습니다.");
+         }
++        private void Depart()
++        {
++            if (selectedShip != null && selectedShip.LeavesHomeUnattended && (warnedShip != selectedShip || warnedSite != selectedSite))
++            {
++                warnedShip = selectedShip; warnedSite = selectedSite;
++                feedback.text = "본거지에 대응할 장수가 없습니다. 위 왕복 시간을 확인하고 원정 보내기를 다시 누르세요.";
++                return;
++            }
++            Result(selectedShip != null && selectedShip.TryDepart(selectedSite), "원정대가 출발했습니다.");
++            warnedShip = null; warnedSite = null;
++        }
+         private void NextShip()
+         {
+             var ships = WorldMapManager.Instance.Transports;
+diff --git a/Assets/_Project/Scripts/World/ColonyInvasion.cs b/Assets/_Project/Scripts/World/ColonyInvasion.cs
+index 7640180..da2b512 100644
+--- a/Assets/_Project/Scripts/World/ColonyInvasion.cs
++++ b/Assets/_Project/Scripts/World/ColonyInvasion.cs
+@@ -92,6 +92,7 @@ namespace AntColony.World
+         private void Update()
+         {
+             TickEconomy();
++            if (ExpeditionRules.HomeCommanders == 0) return;
+             // 밤 위협(2026-09-28 확정): 밤에는 침공이 1.5배 잦다.
+             timer -= Time.deltaTime * (GameCalendar.IsNight ? EventRules.NightThreatScale : 1f);
+             if (timer > 0f) return;
+diff --git a/Assets/_Project/Scripts/World/ExpeditionRules.cs b/Assets/_Project/Scripts/World/ExpeditionRules.cs
+new file mode 100644
+index 0000000..da2cfba
+--- /dev/null
++++ b/Assets/_Project/Scripts/World/ExpeditionRules.cs
+@@ -0,0 +1,20 @@
++using System.Linq;
++using AntColony.Core;
++using AntColony.Units;
++using UnityEngine;
++
++namespace AntColony.World
++{
++    public static class ExpeditionRules
++    {
++        // 잠정: 가장 가까운 띠(.16)는 편도 하루, 이후 거리는 비례한다.
++        public const float DockSeconds = 1;
++        public static float WalkSeconds(ExpeditionSite site) => GameCalendar.SecondsPerDay
++            * Mathf.Max(.25f, site == null ? 1 : Mathf.Round(Vector2.Distance(site.MapPosition, new Vector2(.5f, .5f)) / .16f * 1000) / 1000);
++        public static int HomeCommanders => CommanderRoster.Instance == null ? 0 : CommanderRoster.Instance.Commanders
++            .Count(c => c != null && c.isActiveAndEnabled && c.IsColonyMember && !c.IsDead && !c.IsAwayFromHome);
++        public static float FoodPerDay(CommanderAnt c) => 2 * (c.RationPortion + c.TroopCount * GameBalance.MealFood);
++        public static int RecommendedFood(float oneWay, float dailyFood) => Mathf.CeilToInt(
++            (2 * oneWay / GameCalendar.SecondsPerDay + 2) * dailyFood);
++    }
++}
+diff --git a/Assets/_Project/Scripts/World/ExpeditionSite.cs b/Assets/_Project/Scripts/World/ExpeditionSite.cs
+index 5ab599a..2dc19d9 100644
+--- a/Assets/_Project/Scripts/World/ExpeditionSite.cs
++++ b/Assets/_Project/Scripts/World/ExpeditionSite.cs
+@@ -24,7 +24,19 @@ namespace AntColony.World
+         public Vector3 Landing => transform.position + new Vector3(0, 0, -22);
+         public EnemyColony Colony { get; private set; }
+         public BossHealth Boss { get; private set; }
+-        public ExpeditionTransport Visitor { get; internal set; }
++        private ExpeditionTransport visitor;
++        public ExpeditionTransport Visitor
++        {
++            get
++            {
++                if (visitor != null && visitor.Site == this && visitor.State == ExpeditionState.Deployed) return visitor;
++                var world = WorldMapManager.Instance;
++                if (world != null) foreach (var ship in world.Transports)
++                    if (ship != null && ship.Site == this && ship.State == ExpeditionState.Deployed) return ship;
++                return visitor != null && visitor.Site == this && visitor.State == ExpeditionState.Outbound ? visitor : null;
++            }
++            internal set => visitor = value;
++        }
+         public bool Cleared { get; private set; }
+         public bool RewardsClaimed { get; internal set; }
+         public ConquestDisposition Disposition { get; private set; }
+diff --git a/Assets/_Project/Scripts/World/ExpeditionSupplies.cs b/Assets/_Project/Scripts/World/ExpeditionSupplies.cs
+new file mode 100644
+index 0000000..93be611
+--- /dev/null
++++ b/Assets/_Project/Scripts/World/ExpeditionSupplies.cs
+@@ -0,0 +1,58 @@
++using System.Linq;
++using AntColony.Core;
++using AntColony.Data;
++using AntColony.Units;
++using UnityEngine;
++
++namespace AntColony.World
++{
++    public partial class ExpeditionTransport
++    {
++        public bool Walking { get; private set; }
++        public float FoodDebt { get; internal set; }
++        public float DockingRemaining { get; internal set; }
++        public int ReturnCargoSpace => Mathf.Max(0, CargoCapacity - CargoLoad);
++        private int WalkingCargoCapacity => Mathf.FloorToInt(crew.Where(c => c != null && !c.IsDead)
++            .Sum(c => Mathf.Max(0, c.TotalLoadCapacity - c.StartingLoadWeight)) / .05f);
++        public float DailyFood => crew.Where(c => c != null && !c.IsDead).Sum(ExpeditionRules.FoodPerDay);
++        public int RecommendedFood(ExpeditionSite destination) => ExpeditionRules.RecommendedFood(
++            Walking ? ExpeditionRules.WalkSeconds(destination) : TravelSeconds, DailyFood);
++        public int AvailableFood => GetCargo(ResourceType.Food) + crew.Where(c => c != null)
++            .Sum(c => c.PersonalState.carriedRations?.Total ?? 0);
++        public bool LeavesHomeUnattended => State == ExpeditionState.Home && CommanderLoad > 0 && ExpeditionRules.HomeCommanders == 0;
++
++        public bool TryLoadFood(int amount)
++        {
++            if (State != ExpeditionState.Home || Route?.IsRunning == true || amount <= 0 || amount > ReturnCargoSpace
++                || ResourceManager.Instance == null || !ResourceManager.Instance.TrySpend(amount, 0, reason: ResourceReason.Expedition)) return false;
++            cargo[ResourceType.Food] = GetCargo(ResourceType.Food) + amount;
++            return true;
++        }
++
++        private void TickSupplies(float seconds)
++        {
++            FoodDebt += DailyFood * seconds / GameCalendar.SecondsPerDay;
++            var needed = Mathf.FloorToInt(FoodDebt);
++            if (needed == 0) return;
++            var take = Mathf.Min(needed, GetCargo(ResourceType.Food));
++            cargo[ResourceType.Food] = GetCargo(ResourceType.Food) - take;
++            needed -= take; FoodDebt -= take;
++            foreach (var c in crew)
++            {
++                if (c == null || c.IsDead || needed == 0) continue;
++                var rations = c.PersonalState.carriedRations;
++                take = Mathf.Min(needed, rations?.Total ?? 0);
++                if (take > 0) rations.Take(take);
++                needed -= take; FoodDebt -= take;
++            }
++            if (needed > 0) AntColony.UI.ToastManager.SetPinned("supplies:" + GetInstanceID(), "원정 보급 부족: " + name);
++            else
++            {
++                AntColony.UI.ToastManager.SetPinned("supplies:" + GetInstanceID(), null);
++                foreach (var c in crew)
++                    if (c != null && !c.IsDead && c.PersonalState.meal.satiety <= GameBalance.EatBelowSatiety)
++                        c.PersonalState.meal.satiety = 100;
++            }
++        }
++    }
++}
+diff --git a/Assets/_Project/Scripts/World/ExpeditionTransport.cs b/Assets/_Project/Scripts/World/ExpeditionTransport.cs
+index 3ba8c9b..e934c31 100644
+--- a/Assets/_Project/Scripts/World/ExpeditionTransport.cs
++++ b/Assets/_Project/Scripts/World/ExpeditionTransport.cs
+@@ -12,7 +12,7 @@ namespace AntColony.World
+     public enum ExpeditionState { Home, Outbound, Deployed, Returning }
+ 
+     // 전투용 건물이 아닌 수송/화물 보관소. 장수 GameObject를 끄지 않아 병력과 성장이 보존된다.
+-    public class ExpeditionTransport : BuildingBase
++    public partial class ExpeditionTransport : BuildingBase
+     {
+         private readonly List<CommanderAnt> crew = new List<CommanderAnt>();
+         private readonly Dictionary<ResourceType, int> cargo = new Dictionary<ResourceType, int>();
+@@ -30,10 +30,10 @@ namespace AntColony.World
+         }
+         // 장수 슬롯과 일반개미 정원은 따로 센다.
+         // 대형 수송: 일반개미 +50%·장수 +2 / 수송 효율: 화물 +50%
+-        public int Capacity => Mathf.FloorToInt((Aircraft ? GameBalance.AircraftTroops : GameBalance.VehicleTroops) * ScienceEffects.TroopCapacityMultiplier);
+-        public int CommanderCapacity => (Aircraft ? GameBalance.AircraftCommanders : GameBalance.VehicleCommanders) + ScienceEffects.CommanderSlotBonus;
+-        public int CargoCapacity => Mathf.FloorToInt((Aircraft ? GameBalance.AircraftCargo : GameBalance.VehicleCargo) * ScienceEffects.CargoMultiplier);
+-        public float TravelSeconds => Aircraft ? 10 : 20;
++        public int Capacity => Walking ? int.MaxValue : Mathf.FloorToInt((Aircraft ? GameBalance.AircraftTroops : GameBalance.VehicleTroops) * ScienceEffects.TroopCapacityMultiplier);
++        public int CommanderCapacity => Walking ? int.MaxValue : (Aircraft ? GameBalance.AircraftCommanders : GameBalance.VehicleCommanders) + ScienceEffects.CommanderSlotBonus;
++        public int CargoCapacity => Walking ? WalkingCargoCapacity : Mathf.FloorToInt((Aircraft ? GameBalance.AircraftCargo : GameBalance.VehicleCargo) * ScienceEffects.CargoMultiplier);
++        public float TravelSeconds => Walking ? ExpeditionRules.WalkSeconds(Site) : Aircraft ? 10 : 20;
+         public float Remaining { get; private set; }
+         public int Load
+         {
+@@ -50,12 +50,13 @@ namespace AntColony.World
+         public bool CargoFull => CargoLoad >= CargoCapacity;
+         protected override bool IsDepositPoint => true;
+ 
+-        public void Initialize(bool aircraft)
++        public void Initialize(bool aircraft, bool walking = false)
+         {
+             Route = new TransportRoute(this);
+             Aircraft = aircraft;
++            Walking = walking;
+             homePosition = transform.position;
+-            name = aircraft ? "Aircraft" : "Vehicle";
++            name = walking ? "도보 원정대" : aircraft ? "Aircraft" : "Vehicle";
+             GetComponent<Renderer>().material.color = aircraft ? Color.cyan : new Color(.85f, .7f, .3f);
+         }
+ 
+@@ -108,9 +109,9 @@ namespace AntColony.World
+             foreach (var c in passengers)
+             {
+                 if (c == null || !c.isActiveAndEnabled || !unique.Add(c) || c.Transport != null
+-                    || c.Garrison != settlement || (settlement == null && !c.HasTroops)
++                    || c.Garrison != settlement || !c.IsColonyMember || c.IsDead || c.PersonalState.health.Downed
+                     || !c.CanChangeAllocation || c.LabUpgradeBusy
+-                    || Vector3.Distance(c.Position, Position) > 8) return false;
++                    || (!Walking && Vector3.Distance(c.Position, Position) > 8)) return false;
+                 load += c.TroopCount;
+                 commanders++;
+             }
+@@ -171,7 +172,7 @@ namespace AntColony.World
+                 && (site != Route.Destination || HasCargo || Route.WaitSeconds > 0)) return false;
+             var world = WorldMapManager.Instance;
+             if (!isActiveAndEnabled || world == null || !world.Unlocked || State != ExpeditionState.Home
+-                || site == null || site.Visitor != null
++                || site == null
+                 || (crew.Count == 0 && site.Disposition != ConquestDisposition.Annexed)
+                 || site.Disposition == ConquestDisposition.Abandoned || Load > Capacity || CommanderLoad > CommanderCapacity) return false;
+             Site = site;
+@@ -225,12 +226,16 @@ namespace AntColony.World
+ 
+         public void Tick(float seconds)
+         {
+-            if (!isActiveAndEnabled || !(seconds > 0) || float.IsInfinity(seconds)
+-                || (State != ExpeditionState.Outbound && State != ExpeditionState.Returning)) return;
++            if (!isActiveAndEnabled || !(seconds > 0) || float.IsInfinity(seconds)) return;
++            DockingRemaining = Mathf.Max(0, DockingRemaining - seconds);
++            if (State != ExpeditionState.Home) TickSupplies(seconds);
++            if (State != ExpeditionState.Outbound && State != ExpeditionState.Returning) return;
+             Remaining = Mathf.Max(0, Remaining - seconds);
+             if (Remaining > 0) return;
+             if (State == ExpeditionState.Outbound)
+             {
++                if (!Walking && WorldMapManager.Instance.Transports.Any(t => t != null && t != this && t.Site == Site && t.DockingRemaining > 0)) return;
++                DockingRemaining = Walking ? 0 : ExpeditionRules.DockSeconds;
+                 transform.position = Site.Landing;
+                 State = ExpeditionState.Deployed;
+                 LandCrew();
+@@ -241,7 +246,7 @@ namespace AntColony.World
+             {
+                 transform.position = homePosition;
+                 State = ExpeditionState.Home;
+-                if (Site != null) Site.Visitor = null;
++                if (Site != null && Site.Visitor == this) Site.Visitor = null;
+                 Site = null;
+                 TryUnloadCrew();
+                 UnloadCargo();
+@@ -275,6 +280,7 @@ namespace AntColony.World
+             if (resources == null) return;
+             foreach (ResourceType type in System.Enum.GetValues(typeof(ResourceType)))
+             {
++                if (type == ResourceType.Food && crew.Count > 0 && Route?.IsRunning != true) continue;
+                 var before = resources.GetAmount(type);
+                 resources.Add(type, GetCargo(type), ResourceReason.Expedition);
+                 cargo[type] = GetCargo(type) - (resources.GetAmount(type) - before);
+@@ -295,7 +301,7 @@ namespace AntColony.World
+                 || Site.Kind == ExpeditionSiteKind.ResourceSite || Site.Kind == ExpeditionSiteKind.TradePost
+                 || !DiplomacyManager.Hostile(Site)) return false;
+             var ready = false;
+-            foreach (var c in crew) if (c != null && c.CanReceiveOrders && c.HasTroops && (c.Position - Position).sqrMagnitude <= 64) ready = true;
++            foreach (var c in crew) if (c != null && c.CanReceiveOrders && (c.Position - Position).sqrMagnitude <= 64) ready = true;
+             if (!ready) return false;
+             Site.RewardsClaimed = true;
+             if (Site.Kind == ExpeditionSiteKind.BossNest) BlueprintCargo = true;
+@@ -319,7 +325,7 @@ namespace AntColony.World
+                 LandCrew();
+                 foreach (var c in crew) if (c != null) c.Transport = null;
+                 crew.Clear();
+-                if (Site != null) Site.Visitor = null;
++                if (Site != null && Site.Visitor == this) Site.Visitor = null;
+             }
+             base.OnDisable();
+         }
+diff --git a/Assets/_Project/Scripts/World/HomeDefenseReturn.cs b/Assets/_Project/Scripts/World/HomeDefenseReturn.cs
+new file mode 100644
+index 0000000..46dbe6f
+--- /dev/null
++++ b/Assets/_Project/Scripts/World/HomeDefenseReturn.cs
+@@ -0,0 +1,22 @@
++using System;
++using System.Collections.Generic;
++using AntColony.Units;
++
++namespace AntColony.World
++{
++    // CommanderDuty의 자동 귀환 분기에서 Allows를 확인한다. 금지 파일 연결은 Claude 인계.
++    [Serializable] public class HomeDefenseReturn
++    {
++        public List<string> disabled = new List<string>();
++        public bool Enabled(CommanderAnt commander) => commander != null && !disabled.Contains(commander.PersonalState.id);
++        public void Set(CommanderAnt commander, bool enabled)
++        {
++            if (commander == null) return;
++            disabled.Remove(commander.PersonalState.id);
++            if (!enabled) disabled.Add(commander.PersonalState.id);
++        }
++        public static bool Allows(CommanderAnt commander) => commander != null && commander.IsDeployed
++            && !commander.IsReturning && !commander.IsAwayFromHome && !commander.IsCarrying && !commander.IsConstructing
++            && (WorldMapManager.Instance?.DefenseReturn.Enabled(commander) ?? true);
++    }
++}
+diff --git a/Assets/_Project/Scripts/World/LocalIncursions.cs b/Assets/_Project/Scripts/World/LocalIncursions.cs
+index 0b7c09a..ab82fba 100644
+--- a/Assets/_Project/Scripts/World/LocalIncursions.cs
++++ b/Assets/_Project/Scripts/World/LocalIncursions.cs
+@@ -25,10 +25,10 @@ namespace AntColony.World
+         private void Start() => remaining = NextDelay();
+         private void Update()
+         {
++            if (ExpeditionRules.HomeCommanders == 0) return;
+             remaining -= Time.deltaTime;
+             if (remaining > 0) return;
+-            TrySpawn();
+-            remaining = NextDelay();
++            if (TrySpawn()) remaining = NextDelay();
+         }
+ 
+         public bool TrySpawn()
+@@ -38,6 +38,7 @@ namespace AntColony.World
+ 
+         private bool Spawn(Civilization faction, int count)
+         {
++            if (faction == null && ExpeditionRules.HomeCommanders == 0) return false;
+             visitors.RemoveAll(v => v == null || v.IsDead);
+             if ((faction == null && visitors.Count > 0) || raiderTemplate == null || commanderTemplate == null) return false;
+             var home = GameManager.Instance?.FindNearestPlayerBuilding(Vector3.zero);
+diff --git a/Assets/_Project/Scripts/World/WorldMapExpeditions.cs b/Assets/_Project/Scripts/World/WorldMapExpeditions.cs
+new file mode 100644
+index 0000000..e1566dc
+--- /dev/null
++++ b/Assets/_Project/Scripts/World/WorldMapExpeditions.cs
+@@ -0,0 +1,19 @@
++using System.Collections.Generic;
++using AntColony.Units;
++using UnityEngine;
++
++namespace AntColony.World
++{
++    public partial class WorldMapManager
++    {
++        public ExpeditionTransport CreateWalkingParty(IReadOnlyList<CommanderAnt> commanders)
++        {
++            if (transportTemplate == null || commanders == null || commanders.Count == 0 || commanders[0] == null) return null;
++            var party = CreateTransport(false, commanders[0].Position, true);
++            if (party.TryBoard(commanders)) return party;
++            transports.Remove(party);
++            Destroy(party.gameObject);
++            return null;
++        }
++    }
++}
+diff --git a/Assets/_Project/Scripts/World/WorldMapManager.cs b/Assets/_Project/Scripts/World/WorldMapManager.cs
+index 31b1043..cbd9ec2 100644
+--- a/Assets/_Project/Scripts/World/WorldMapManager.cs
++++ b/Assets/_Project/Scripts/World/WorldMapManager.cs
+@@ -20,12 +20,13 @@ namespace AntColony.World
+         public IReadOnlyList<ExpeditionTransport> Transports => transports;
+         public bool VehicleResearched { get; internal set; }
+         public bool AircraftResearched { get; internal set; }
+-        public bool Unlocked { get; private set; }
+-        internal void RestoreUnlock(bool value) => Unlocked = value;
++        public bool Unlocked { get; private set; } = true;
++        internal void RestoreUnlock(bool value) => Unlocked = true;
+         public ScienceLab Researcher { get; internal set; }
+         public ExpeditionSite ViewedSite { get; private set; }
+         public Vector3 HomePosition { get; private set; }
+         public string SettlementNotice { get; internal set; } = "";
++        public HomeDefenseReturn DefenseReturn { get; internal set; } = new HomeDefenseReturn();
+         private Vector3 homeFocus;
+ 
+         private void Awake() => Instance = this;
+@@ -82,10 +83,10 @@ namespace AntColony.World
+             return false;
+         }
+ 
+-        public ExpeditionTransport CreateTransport(bool aircraft, Vector3 position)
++        public ExpeditionTransport CreateTransport(bool aircraft, Vector3 position, bool walking = false)
+         {
+             var ship = Instantiate(transportTemplate, position, Quaternion.identity);
+-            ship.Initialize(aircraft);
++            ship.Initialize(aircraft, walking);
+             ship.gameObject.SetActive(true);
+             transports.Add(ship);
+             Unlocked = true;

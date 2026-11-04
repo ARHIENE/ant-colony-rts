@@ -1,0 +1,681 @@
+diff --git a/AgentScripts/ImplB6Checks.cs b/AgentScripts/ImplB6Checks.cs
+index 9982fa8..034f7a3 100644
+--- a/AgentScripts/ImplB6Checks.cs
++++ b/AgentScripts/ImplB6Checks.cs
+@@ -1,14 +1,19 @@
+ using System;
+ using System.IO;
++using System.Linq;
++using System.Reflection;
+ using System.Threading.Tasks;
+ using AntColony.Boss;
+ using AntColony.Core;
+ using AntColony.Save;
++using AntColony.UI;
++using AntColony.World;
+ using UnityEngine;
+ 
+ public static class ImplB6Checks
+ {
+     static int count;
++    const BindingFlags Hidden = BindingFlags.Instance | BindingFlags.NonPublic;
+     static void Check(bool value, string label)
+     { if (!value) throw new Exception("B6 FAIL " + count + ": " + label); count++; }
+ 
+@@ -92,7 +97,11 @@ public static class ImplB6Checks
+             research.RestoreState(JsonUtility.FromJson<CampaignResearch.State>(JsonUtility.ToJson(rs)));
+             Check(research.HasSample(AntColony.Data.ResourceType.IronOre) && research.BossProgress.Cargo.Count == 1, "campaign JSON roundtrip");
+             Check(BossProgress.Hazard(BossId.B).Contains("열") && BossProgress.Reward(BossId.D).Contains("로켓"), "hazard/reward guide");
+-            return "IMPL-B6 " + count + " checks passed (state/API only; physical delivery, equipment and scene integration require separate checks).";
++            CheckConsumption(research);
++            CheckCrafting();
++            CheckCarriers(research);
++            CheckDeathAndBeta(research);
++            return "PASS " + count;
+         }
+         finally
+         {
+@@ -100,4 +109,205 @@ public static class ImplB6Checks
+             SaveStorage.RootOverride = root; UserSettings.Apply(settings, false); Time.timeScale = scale;
+         }
+     }
++
++    static void CheckConsumption(CampaignResearch research)
++    {
++        research.RestoreState(new CampaignResearch.State());
++        Check(!research.TryCompleteResourceResearch(AntColony.Data.ResourceType.Coal), "no research before sample delivery");
++        Check(!research.CanMine(AntColony.Data.ResourceType.Coal, 6, 2), "high tool alone cannot unlock bulk mining");
++        Check(!research.CanRecoverSample((AntColony.Data.ResourceType)(-1), 1, 2)
++            && !research.CanMine((AntColony.Data.ResourceType)(-1), 6, 2), "undefined resource rejected");
++        Check(research.CanConsumeProgressionItem(null, ProgressionItemRole.Ordinary), "ordinary items remain consumable");
++        foreach (var role in new[] { ProgressionItemRole.UnimportedProgress, ProgressionItemRole.EssentialReward,
++            ProgressionItemRole.SowingSeed, ProgressionItemRole.EssentialReward | ProgressionItemRole.SowingSeed })
++        {
++            Check(!research.CanConsumeProgressionItem("protected", role), "protected by default " + role);
++            Check(!research.SetConsumptionOverride("protected", true, false), "warning confirmation required " + role);
++            Check(research.SetConsumptionOverride("protected", true, true)
++                && research.CanConsumeProgressionItem("protected", role), "explicit opt-out " + role);
++            research.RestoreState(JsonUtility.FromJson<CampaignResearch.State>(JsonUtility.ToJson(research.CaptureState())));
++            Check(research.CanConsumeProgressionItem("protected", role), "override survives JSON " + role);
++            Check(research.SetConsumptionOverride("protected", false, false)
++                && !research.CanConsumeProgressionItem("protected", role), "protection restored " + role);
++        }
++        Check(!research.SetConsumptionOverride("", true, true), "stable item ID required");
++        research.RecordSampleDelivery(AntColony.Data.ResourceType.Coal, 1);
++        research.RecordSampleDelivery(AntColony.Data.ResourceType.Coal, 1);
++        Check(research.CaptureState().samples.Count == 1 && !research.CanRecoverSample(AntColony.Data.ResourceType.Coal, 1, 2), "sample recorded once permanently");
++        Check(research.TryCompleteResourceResearch(AntColony.Data.ResourceType.Coal)
++            && !research.TryCompleteResourceResearch(AntColony.Data.ResourceType.Coal), "research completes once");
++        var invalid = research.CaptureState(); invalid.samples.Clear();
++        Check(!CampaignResearch.Validate(invalid, out _), "research without sample rejected on load");
++        invalid = research.CaptureState(); invalid.samples.Add((int)AntColony.Data.ResourceType.Coal);
++        Check(!CampaignResearch.Validate(invalid, out _), "duplicate samples rejected on load");
++        var legacy = JsonUtility.FromJson<CampaignResearch.State>("{}");
++        research.RestoreState(legacy);
++        Check(research.BossProgress.Revealed(BossId.A) && !research.HasSample(AntColony.Data.ResourceType.Coal), "missing new fields default safely");
++    }
++
++    static void CheckCrafting()
++    {
++        var resources = ResourceManager.Instance;
++        GameObject created = null;
++        if (resources == null) { created = new GameObject("B6 resources fixture"); resources = created.AddComponent<ResourceManager>(); }
++        var bins = resources.Bins.Select(b => (bin: b, state: b.Capture())).ToArray();
++        var history = CampaignHistory.Instance?.Capture();
++        var amounts = typeof(StoreBin).GetField("amounts", Hidden);
++        void Fund(AntColony.Data.ResourceType type, int value)
++        {
++            foreach (var bin in resources.Bins) ((int[])amounts.GetValue(bin))[(int)type] = 0;
++            ((int[])amounts.GetValue(resources.BaseBin))[(int)type] = value;
++        }
++        try
++        {
++            // 직접 만든 칸 재고를 사용한다. 불시착 시작에는 Stockpile이 없다.
++            var s = new BossProgress.State(); var p = new BossProgress(s);
++            Check(!p.TryStartCraft(BossId.A, true, resources), "no recovery before first acquisition");
++            p.RecordKill(BossId.A, 0); p.TryAcquire(BossId.A, "fixture", out var a);
++            Fund(AntColony.Data.ResourceType.Plank, 100); Fund(AntColony.Data.ResourceType.Component, 9);
++            Check(!p.TryStartCraft(BossId.A, true, resources) && resources.GetAmount(AntColony.Data.ResourceType.Plank) == 100,
++                "missing component does not spend processing material");
++            Fund(AntColony.Data.ResourceType.Component, 10);
++            Check(p.TryStartCraft(BossId.A, true, resources), "acquisition permits recovery before delivery");
++            Check(resources.GetAmount(AntColony.Data.ResourceType.Plank) == 0
++                && resources.GetAmount(AntColony.Data.ResourceType.Component) == 0, "recovery charges both exact costs");
++            Check(!p.TryStartCraft(BossId.A, true, resources), "one craft at a time");
++            var resumed = JsonUtility.FromJson<BossProgress.State>(JsonUtility.ToJson(s));
++            Check(BossProgress.Validate(resumed), "in-progress craft JSON valid");
++            p = new BossProgress(resumed); s = resumed;
++            p.TickCraft(59); Check(p.Home(BossId.A) == 0, "recovery not paid out early");
++            p.TickCraft(1); p.TickCraft(60);
++            Check(p.Home(BossId.A) == 1 && !p.Delivered(BossId.A) && !p.Recipe(BossId.B), "recovery one core only, not false import");
++            p.TryDeliver(a.id);
++            Fund(AntColony.Data.ResourceType.Wood, 5); Fund(AntColony.Data.ResourceType.Stone, 4);
++            Check(!p.TryStartCraft(BossId.B, false, resources) && p.Home(BossId.A) == 3
++                && resources.GetAmount(AntColony.Data.ResourceType.Wood) == 5, "insufficient detector resources spend nothing");
++            Fund(AntColony.Data.ResourceType.Stone, 5);
++            var reentered = false;
++            Action nested = () => reentered |= p.TryStartCraft(BossId.B, false, resources);
++            resources.OnResourcesChanged += nested;
++            try { Check(p.TryStartCraft(BossId.B, false, resources), "B detector craft starts"); }
++            finally { resources.OnResourcesChanged -= nested; }
++            Check(!reentered && p.Home(BossId.A) == 2 && resources.GetAmount(AntColony.Data.ResourceType.Wood) == 0
++                && resources.GetAmount(AntColony.Data.ResourceType.Stone) == 0, "detector exact core/resource cost and reentrancy guard");
++            p.TickCraft(60);
++            Check(p.Tools(BossId.B) == 1 && !p.TryStartCraft(BossId.B, false, resources), "no duplicate detector stock");
++            Check(p.UseDetector(BossId.B) && !p.TryStartCraft(BossId.B, false, resources), "revealed target cannot craft detector");
++            Fund(AntColony.Data.ResourceType.Wood, 5); Fund(AntColony.Data.ResourceType.Stone, 5);
++            Check(p.TryStartCraft(BossId.C, false, resources), "C consumes second branch core");
++            p.TickCraft(60); Check(p.UseDetector(BossId.C), "C revealed through crafted tool");
++            foreach (var branch in new[] { BossId.B, BossId.C })
++            {
++                p.RecordKill(branch, 0); p.TryAcquire(branch, "fixture", out var core); p.TryDeliver(core.id);
++            }
++            Check(p.TryStartCraft(BossId.D, false, resources) && p.Home(BossId.B) == 0 && p.Home(BossId.C) == 0,
++                "D detector consumes both imported unique cores");
++            p.TickCraft(60); Check(p.UseDetector(BossId.D), "full crafted A-B/C-D chain");
++            p.RecordKill(BossId.D, 0); p.TryAcquire(BossId.D, "fixture", out var d); p.TryDeliver(d.id);
++            foreach (BossId id in Enum.GetValues(typeof(BossId)))
++            {
++                Fund(BossProgress.EraMaterial(id), 100); Fund(AntColony.Data.ResourceType.Component, 10);
++                var before = p.Home(id);
++                Check(p.TryStartCraft(id, true, resources), "repeat core recovery starts " + id);
++                p.TickCraft(60);
++                Check(p.Home(id) == before + 1 && resources.GetAmount(BossProgress.EraMaterial(id)) == 0
++                    && resources.GetAmount(AntColony.Data.ResourceType.Component) == 0, "exact one paid recovery " + id);
++            }
++            Check(BossProgress.Validate(s), "completed crafting state valid");
++            var invalid = JsonUtility.FromJson<BossProgress.State>(JsonUtility.ToJson(s)); invalid.tools[1] = 1;
++            Check(!BossProgress.Validate(invalid), "revealed target tool rejected on load");
++        }
++        finally
++        {
++            foreach (var bin in bins) typeof(StoreBin).GetMethod("Apply", Hidden).Invoke(bin.bin, new object[] { bin.state });
++            if (history != null) CampaignHistory.Instance?.Restore(history);
++            if (created != null) UnityEngine.Object.DestroyImmediate(created);
++        }
++    }
++
++    static void CheckCarriers(CampaignResearch research)
++    {
++        var first = new GameObject("B6 carrier fixture"); first.SetActive(false);
++        var second = new GameObject("B6 other carrier fixture"); second.SetActive(false);
++        try
++        {
++            var ship = first.AddComponent<ExpeditionTransport>();
++            var other = second.AddComponent<ExpeditionTransport>();
++            var key = BossRewardTransfer.Carrier(ship);
++            Check(key == BossRewardTransfer.Carrier(ship) && key != BossRewardTransfer.Carrier(other), "stable distinct carrier IDs without world-list assumption");
++            var dto = JsonUtility.FromJson<TransportDto>(JsonUtility.ToJson(new TransportDto { bossCarrierId = key }));
++            BossRewardTransfer.RestoreCarrier(other, dto.bossCarrierId, 99);
++            Check(BossRewardTransfer.Carrier(other) == key, "carrier ID survives JSON and index changes");
++            BossRewardTransfer.RestoreCarrier(other, null, 3);
++            Check(BossRewardTransfer.Carrier(other) == "transport:3", "previous B6 cargo index restored compatibly");
++            research.RestoreState(new CampaignResearch.State());
++            var p = research.BossProgress;
++            p.RecordKill(BossId.A, 0); p.TryAcquire(BossId.A, key, out _);
++            Check(BossRewardTransfer.CargoLoad(ship) == 2 && BossRewardTransfer.CargoLoad(other) == 0, "core load belongs to one carrier");
++            BossRewardTransfer.Deliver(other);
++            Check(!p.Delivered(BossId.A), "unrelated carrier cannot deliver reward");
++            BossRewardTransfer.Deliver(ship); BossRewardTransfer.Deliver(ship);
++            Check(p.Delivered(BossId.A) && p.Home(BossId.A) == 2 && BossRewardTransfer.CargoLoad(ship) == 0, "home transfer records import once");
++            p.TryRespawn(BossId.A, BossProgress.RespawnSeconds, false, false, false);
++            p.RecordKill(BossId.A, BossProgress.RespawnSeconds); p.TryAcquire(BossId.A, key, out _);
++            BossRewardTransfer.Lose(ship);
++            Check(p.Cargo.Count == 0 && p.Obtained(BossId.A) && p.Home(BossId.A) == 2, "carrier loss preserves prior imports and recovery qualification");
++            var s = research.CaptureState(); s.bosses.revealed[3] = true; research.RestoreState(s);
++            p = research.BossProgress; p.RecordKill(BossId.D, 0); p.TryAcquire(BossId.D, key, out _);
++            Check(!research.HasBlueprint, "D acquisition does not unlock rocket");
++            BossRewardTransfer.Deliver(ship);
++            Check(research.HasBlueprint && p.Delivered(BossId.D), "D home delivery unlocks rocket");
++        }
++        finally { UnityEngine.Object.DestroyImmediate(first); UnityEngine.Object.DestroyImmediate(second); }
++    }
++
++    static void CheckDeathAndBeta(CampaignResearch research)
++    {
++        var go = new GameObject("B6 boss fixture");
++        var betaObject = new GameObject("B6 beta fixture"); betaObject.SetActive(false);
++        var game = GameManager.Instance;
++        var history = CampaignHistory.Instance?.Capture();
++        var flags = game == null ? null : new[] { "loopCompleted", "bossDefeated", "defeated" }
++            .Select(n => (bool)typeof(GameManager).GetField(n, Hidden).GetValue(game)).ToArray();
++        try
++        {
++            research.RestoreState(new CampaignResearch.State());
++            var beta = betaObject.AddComponent<BetaProgress>();
++            var screen = GameMenuController.Instance?.ScreenName;
++            Check(!beta.BetaScenario, "official campaign is default");
++            beta.BetaScenario = true;
++            research.RestoreState(JsonUtility.FromJson<CampaignResearch.State>(JsonUtility.ToJson(research.CaptureState())));
++            Check(beta.BetaScenario, "beta scenario selection survives campaign JSON");
++            beta.BetaScenario = false;
++            typeof(BetaProgress).GetMethod("Victory", Hidden).Invoke(beta, null);
++            Check(GameMenuController.Instance?.ScreenName == screen, "official first boss does not open beta victory");
++            // 활성 씬의 베타 구독자·튜토리얼까지 실행하지 않고 이 검사에서 만든 보스만 검증한다.
++            if (game != null) typeof(GameManager).GetField("bossDefeated", Hidden).SetValue(game, true);
++            var boss = go.AddComponent<BossHealth>();
++            var loop = go.AddComponent<BossBasicPatternLoop>();
++            var sequence = go.AddComponent<BossPatternSequenceSimple>();
++            typeof(BossHealth).GetProperty("CampaignId").SetValue(boss, (BossId?)BossId.A);
++            typeof(BossHealth).GetField("foodReward", Hidden).SetValue(boss, 0);
++            typeof(BossHealth).GetField("specialReward", Hidden).SetValue(boss, 0);
++            typeof(BossHealth).GetMethod("RestoreDefeated", Hidden).Invoke(boss, null);
++            Check(!research.BossProgress.Defeated(BossId.A) && research.CaptureState().bosses.unclaimed.Count == 0,
++                "restoring dead boss does not create kill/reward");
++            typeof(BossHealth).GetMethod("Respawn", Hidden).Invoke(boss, null);
++            Check(loop.enabled && sequence.enabled
++                && (float)typeof(BossBasicPatternLoop).GetField("castTimer", Hidden).GetValue(loop)
++                    == (float)typeof(BossBasicPatternLoop).GetField("firstCastDelay", Hidden).GetValue(loop)
++                && (int)typeof(BossPatternSequenceSimple).GetField("nextPatternIndex", Hidden).GetValue(sequence) == 0,
++                "respawn reenables and resets boss patterns");
++            boss.TakeDamage(boss.MaxHp); boss.TakeDamage(boss.MaxHp);
++            Check(research.BossProgress.Defeated(BossId.A) && research.CaptureState().bosses.unclaimed.Count == 1,
++                "actual boss death records exactly one reward");
++            Check(!research.BossProgress.Obtained(BossId.A), "actual death still requires pickup");
++        }
++        finally
++        {
++            if (flags != null) typeof(GameManager).GetMethod("RestoreFlags", Hidden).Invoke(game, new object[] { flags[0], flags[1], flags[2] });
++            if (history != null) CampaignHistory.Instance?.Restore(history);
++            UnityEngine.Object.DestroyImmediate(go); UnityEngine.Object.DestroyImmediate(betaObject);
++        }
++    }
+ }
+diff --git a/Assets/_Project/Scripts/Boss/BossBasicPatternLoop.cs b/Assets/_Project/Scripts/Boss/BossBasicPatternLoop.cs
+index c990861..d84df9a 100644
+--- a/Assets/_Project/Scripts/Boss/BossBasicPatternLoop.cs
++++ b/Assets/_Project/Scripts/Boss/BossBasicPatternLoop.cs
+@@ -28,10 +28,12 @@ namespace AntColony.Boss
+         private float searchTimer;
+         private Transform currentTarget;
+ 
+-        private void Start()
++        private void OnEnable()
+         {
++            if (circleAttack == null) circleAttack = GetComponent<BossCircleAoE>();
+             castTimer = firstCastDelay;
+             searchTimer = 0f;
++            currentTarget = null;
+         }
+ 
+         private void Update()
+diff --git a/Assets/_Project/Scripts/Boss/BossCargoCarrier.cs b/Assets/_Project/Scripts/Boss/BossCargoCarrier.cs
+new file mode 100644
+index 0000000..62bc86f
+--- /dev/null
++++ b/Assets/_Project/Scripts/Boss/BossCargoCarrier.cs
+@@ -0,0 +1,11 @@
++using System;
++using UnityEngine;
++
++namespace AntColony.Boss
++{
++    // 목록 인덱스는 도보 원정대 해산 시 바뀐다. 저장되는 ID로 보상 소유자를 고정한다.
++    public sealed class BossCargoCarrier : MonoBehaviour
++    {
++        public string Id = "transport:" + Guid.NewGuid().ToString("N");
++    }
++}
+diff --git a/Assets/_Project/Scripts/Boss/BossCargoCarrier.cs.meta b/Assets/_Project/Scripts/Boss/BossCargoCarrier.cs.meta
+new file mode 100644
+index 0000000..6be41cd
+--- /dev/null
++++ b/Assets/_Project/Scripts/Boss/BossCargoCarrier.cs.meta
+@@ -0,0 +1,2 @@
++fileFormatVersion: 2
++guid: a4c60d23d19b4b9cbda16ac4a8c1613c
+diff --git a/Assets/_Project/Scripts/Boss/BossHealth.cs b/Assets/_Project/Scripts/Boss/BossHealth.cs
+index e64ffc9..8304b23 100644
+--- a/Assets/_Project/Scripts/Boss/BossHealth.cs
++++ b/Assets/_Project/Scripts/Boss/BossHealth.cs
+@@ -68,6 +68,7 @@ namespace AntColony.Boss
+         // 저장 복원 전용. 죽은 상태로는 복원하지 않는다(사망 처리는 전리품/이벤트를 동반하므로 되돌릴 수 없다).
+         internal void RestoreHp(float value)
+         {
++            deathProcessed = false;
+             currentHp = Mathf.Clamp(value, 0f, maxHp);
+             onHPChanged?.Invoke(currentHp, maxHp);
+         }
+@@ -91,8 +92,6 @@ namespace AntColony.Boss
+         {
+             currentHp = 0f;
+             deathProcessed = true;
+-            if (CampaignId.HasValue)
+-                CampaignResearch.Instance?.BossProgress.RecordKill(CampaignId.Value, GameCalendar.GameSeconds);
+             onHPChanged?.Invoke(0f, maxHp);
+             gameObject.SetActive(false);
+         }
+@@ -120,6 +119,8 @@ namespace AntColony.Boss
+             // onHPChanged 구독자가 비치명 피격 중 치명타를 넣으면 안쪽/바깥쪽 TakeDamage가 모두 여기로 온다.
+             if (deathProcessed) return;
+             deathProcessed = true;
++            if (CampaignId.HasValue)
++                CampaignResearch.Instance?.BossProgress.RecordKill(CampaignId.Value, GameCalendar.GameSeconds);
+ 
+             var circle = GetComponent<BossCircleAoE>();
+             if (circle != null) circle.enabled = false;
+diff --git a/Assets/_Project/Scripts/Boss/BossPatternSequenceSimple.cs b/Assets/_Project/Scripts/Boss/BossPatternSequenceSimple.cs
+index 82a186b..48b3e5c 100644
+--- a/Assets/_Project/Scripts/Boss/BossPatternSequenceSimple.cs
++++ b/Assets/_Project/Scripts/Boss/BossPatternSequenceSimple.cs
+@@ -30,7 +30,7 @@ namespace AntColony.Boss
+         private int nextPatternIndex;
+         private Transform currentTarget;
+ 
+-        private void Start()
++        private void OnEnable()
+         {
+             if (circleAttack == null) circleAttack = GetComponent<BossCircleAoE>();
+             if (coneAttack == null) coneAttack = GetComponent<BossConeAoE>();
+@@ -38,6 +38,8 @@ namespace AntColony.Boss
+ 
+             castTimer = firstCastDelay;
+             searchTimer = 0f;
++            nextPatternIndex = 0;
++            currentTarget = null;
+         }
+ 
+         private void Update()
+diff --git a/Assets/_Project/Scripts/Boss/BossProgress.cs b/Assets/_Project/Scripts/Boss/BossProgress.cs
+index 3f55054..b843201 100644
+--- a/Assets/_Project/Scripts/Boss/BossProgress.cs
++++ b/Assets/_Project/Scripts/Boss/BossProgress.cs
+@@ -1,7 +1,6 @@
+ using System;
+ using System.Collections.Generic;
+ using AntColony.Core;
+-using AntColony.Data;
+ 
+ namespace AntColony.Boss
+ {
+@@ -110,23 +109,33 @@ namespace AntColony.Boss
+             if (recovery ? !Obtained(id) : DetectionBlock(id) != "" || Tools(id) > 0) return false;
+             var costs = CraftCost(id, recovery);
+             foreach (var cost in costs) if (resources.GetAmount(cost.Key) < cost.Value) return false;
++            // 자원 변경 이벤트가 제작을 다시 요청해도 중복 결제하지 않는다.
++            state.craftBoss = (int)id; state.craftRecovery = recovery; state.craftRemaining = RecoverySeconds;
++            var paid = new Dictionary<AntColony.Data.ResourceType, int>();
+             foreach (var cost in costs)
+-                resources.TrySpend(0, cost.Value, cost.Key, 0, ResourceReason.Crafting);
++            {
++                if (!resources.TrySpend(cost.Key, cost.Value, ResourceReason.Crafting))
++                {
++                    foreach (var refund in paid) resources.Add(refund.Key, refund.Value, ResourceReason.Crafting);
++                    state.craftBoss = -1; state.craftRemaining = 0;
++                    return false;
++                }
++                paid.Add(cost.Key, cost.Value);
++            }
+             if (!recovery)
+             {
+                 if (id == BossId.D) { state.home[1]--; state.home[2]--; }
+                 else state.home[0]--;
+             }
+-            state.craftBoss = (int)id; state.craftRecovery = recovery; state.craftRemaining = RecoverySeconds;
+             return true;
+         }
+-        public static ResourceType EraMaterial(BossId id) => id switch {
+-            BossId.A => ResourceType.Plank, BossId.B => ResourceType.Iron,
+-            BossId.C => ResourceType.Steel, _ => ResourceType.Steel };
+-        public static Dictionary<ResourceType, int> CraftCost(BossId id, bool recovery) => recovery
+-            ? new Dictionary<ResourceType, int> { [EraMaterial(id)] = RecoveryMaterial, [ResourceType.Component] = RecoveryComponents }
+-            : id == BossId.D ? new Dictionary<ResourceType, int>()
+-            : new Dictionary<ResourceType, int> { [ResourceType.Wood] = 5, [ResourceType.Stone] = 5 };
++        public static AntColony.Data.ResourceType EraMaterial(BossId id) => id switch {
++            BossId.A => AntColony.Data.ResourceType.Plank, BossId.B => AntColony.Data.ResourceType.Iron,
++            BossId.C => AntColony.Data.ResourceType.Steel, _ => AntColony.Data.ResourceType.Steel };
++        public static Dictionary<AntColony.Data.ResourceType, int> CraftCost(BossId id, bool recovery) => recovery
++            ? new Dictionary<AntColony.Data.ResourceType, int> { [EraMaterial(id)] = RecoveryMaterial, [AntColony.Data.ResourceType.Component] = RecoveryComponents }
++            : id == BossId.D ? new Dictionary<AntColony.Data.ResourceType, int>()
++            : new Dictionary<AntColony.Data.ResourceType, int> { [AntColony.Data.ResourceType.Wood] = 5, [AntColony.Data.ResourceType.Stone] = 5 };
+         public void TickCraft(float seconds)
+         {
+             if (!Finite(seconds) || seconds <= 0 || state.craftBoss < 0) return;
+@@ -153,13 +162,15 @@ namespace AntColony.Boss
+                 || s.craftBoss < -1 || s.craftBoss > 3 || !Finite(s.craftRemaining) || s.craftRemaining < 0
+                 || s.craftRemaining > RecoverySeconds || (s.craftBoss < 0) != (s.craftRemaining == 0)) return false;
+             for (var i = 0; i < 4; i++)
+-                if (s.home[i] < 0 || s.tools[i] < 0 || s.cycle[i] < 0 || s.claimed[i] < -1 || s.claimed[i] > s.cycle[i]
+-                    || !Finite(s.killedAt[i]) || s.killedAt[i] < 0 || s.delivered[i] && !s.obtained[i]) return false;
++                if (s.home[i] < 0 || s.tools[i] < 0 || s.tools[i] > 1 || s.revealed[i] && s.tools[i] > 0
++                    || s.cycle[i] < 0 || s.claimed[i] < -1 || s.claimed[i] > s.cycle[i]
++                    || !Finite(s.killedAt[i]) || s.killedAt[i] < 0 || s.delivered[i] && !s.obtained[i]
++                    || s.obtained[i] != (s.claimed[i] >= 0)) return false;
+             var ids = new HashSet<string>();
+             foreach (var p in s.cargo)
+                 if (p == null || string.IsNullOrWhiteSpace(p.id) || !ids.Add(p.id) || string.IsNullOrWhiteSpace(p.carrier)
+                     || p.boss < 0 || p.boss > 3 || p.cycle < 0 || p.cycle > s.cycle[p.boss]
+-                    || p.count != (p.boss == 0 ? 2 : 1) || !s.obtained[p.boss]) return false;
++                    || p.count != (p.boss == 0 ? 2 : 1) || !s.obtained[p.boss] || p.cycle > s.claimed[p.boss]) return false;
+             var runs = new HashSet<string>();
+             foreach (var p in s.cargo) if (!runs.Add(p.boss + ":" + p.cycle)) return false;
+             foreach (var p in s.unclaimed)
+diff --git a/Assets/_Project/Scripts/Core/CampaignResearch.Progression.cs b/Assets/_Project/Scripts/Core/CampaignResearch.Progression.cs
+index 25c0798..f300ffe 100644
+--- a/Assets/_Project/Scripts/Core/CampaignResearch.Progression.cs
++++ b/Assets/_Project/Scripts/Core/CampaignResearch.Progression.cs
+@@ -1,7 +1,6 @@
+ using System;
+ using System.Collections.Generic;
+ using AntColony.Boss;
+-using AntColony.Data;
+ 
+ namespace AntColony.Core
+ {
+@@ -10,8 +9,8 @@ namespace AntColony.Core
+     public sealed partial class CampaignResearch
+     {
+         public BossProgress BossProgress => new BossProgress(state.bosses);
+-        public bool HasSample(ResourceType type) => state.samples.Contains((int)type);
+-        public bool ResourceResearched(ResourceType type) => state.resourceResearch.Contains((int)type);
++        public bool HasSample(AntColony.Data.ResourceType type) => state.samples.Contains((int)type);
++        public bool ResourceResearched(AntColony.Data.ResourceType type) => state.resourceResearch.Contains((int)type);
+         public bool CanConsumeProgressionItem(string itemId, ProgressionItemRole role)
+             => role == ProgressionItemRole.Ordinary || !string.IsNullOrWhiteSpace(itemId) && state.consumptionOverrides.Contains(itemId);
+         public bool SetConsumptionOverride(string itemId, bool allow, bool warningConfirmed)
+@@ -22,27 +21,28 @@ namespace AntColony.Core
+             return true;
+         }
+         // 본거지 하역/전달 호출부는 실제로 들어온 수량만 전달한다. 연구·식사 소비 이벤트보다 먼저 호출한다.
+-        public void RecordSampleDelivery(ResourceType type, int amount)
++        public void RecordSampleDelivery(AntColony.Data.ResourceType type, int amount)
+         {
+-            if (amount < 1 || !Enum.IsDefined(typeof(ResourceType), type) || HasSample(type)) return;
++            if (amount < 1 || !Enum.IsDefined(typeof(AntColony.Data.ResourceType), type) || HasSample(type)) return;
+             state.samples.Add((int)type);
+         }
+-        public bool TryCompleteResourceResearch(ResourceType type)
++        public bool TryCompleteResourceResearch(AntColony.Data.ResourceType type)
+         {
+             if (!HasSample(type) || ResourceResearched(type)) return false;
+             state.resourceResearch.Add((int)type);
+             return true;
+         }
+-        public bool CanRecoverSample(ResourceType type, int toolTier, int requiredTier)
+-            => requiredTier > 0 && toolTier >= Math.Max(0, requiredTier - 1) && !HasSample(type);
+-        public bool CanMine(ResourceType type, int toolTier, int requiredTier)
+-            => toolTier >= requiredTier && ResourceResearched(type);
++        public bool CanRecoverSample(AntColony.Data.ResourceType type, int toolTier, int requiredTier)
++            => Enum.IsDefined(typeof(AntColony.Data.ResourceType), type) && requiredTier > 0
++                && toolTier >= Math.Max(0, requiredTier - 1) && !HasSample(type);
++        public bool CanMine(AntColony.Data.ResourceType type, int toolTier, int requiredTier)
++            => Enum.IsDefined(typeof(AntColony.Data.ResourceType), type) && requiredTier >= 0 && toolTier >= requiredTier && ResourceResearched(type);
+         // 낚시·돌 도구·보온 기존 연구에는 표본 조건을 추가하지 않는다.
+         private static bool ValidResourceRecords(List<int> records)
+         {
+             if (records == null) return true;
+             var unique = new HashSet<int>();
+-            foreach (var i in records) if (!Enum.IsDefined(typeof(ResourceType), i) || !unique.Add(i)) return false;
++            foreach (var i in records) if (!Enum.IsDefined(typeof(AntColony.Data.ResourceType), i) || !unique.Add(i)) return false;
+             return true;
+         }
+         public bool DeliverBossReward(string parcelId)
+diff --git a/Assets/_Project/Scripts/Core/CampaignResearch.cs b/Assets/_Project/Scripts/Core/CampaignResearch.cs
+index fadf9f6..34a8fb8 100644
+--- a/Assets/_Project/Scripts/Core/CampaignResearch.cs
++++ b/Assets/_Project/Scripts/Core/CampaignResearch.cs
+@@ -101,6 +101,7 @@ namespace AntColony.Core
+             public int active = -1;
+             public float progress;
+             public bool blueprint;
++            public bool betaScenario;
+             public bool departed;
+             public List<string> passengers = new List<string>();
+             public List<string> leftBehind = new List<string>();
+@@ -124,6 +125,7 @@ namespace AntColony.Core
+             return i < 0 ? -1 : state.partialProgress[i];
+         }
+         public bool HasBlueprint => state.blueprint;
++        public bool BetaScenario { get => state.betaScenario; set => state.betaScenario = value; }
+         public bool Departed => state.departed;
+         public IReadOnlyList<string> Passengers => state.passengers;
+         public IReadOnlyList<string> LeftBehind => state.leftBehind;
+diff --git a/Assets/_Project/Scripts/Save/SaveDtos.cs b/Assets/_Project/Scripts/Save/SaveDtos.cs
+index 13f81a6..7a7ef71 100644
+--- a/Assets/_Project/Scripts/Save/SaveDtos.cs
++++ b/Assets/_Project/Scripts/Save/SaveDtos.cs
+@@ -247,6 +247,7 @@ namespace AntColony.Save
+     [Serializable]
+     public class TransportDto
+     {
++        public string bossCarrierId;
+         public bool walking;
+         public float foodDebt, dockingRemaining;
+         public bool blueprintCargo;
+diff --git a/Assets/_Project/Scripts/Save/SaveSnapshot.cs b/Assets/_Project/Scripts/Save/SaveSnapshot.cs
+index f2fa414..73bc4ff 100644
+--- a/Assets/_Project/Scripts/Save/SaveSnapshot.cs
++++ b/Assets/_Project/Scripts/Save/SaveSnapshot.cs
+@@ -90,6 +90,7 @@ namespace AntColony.Save
+             file.world.pause = AntColony.UI.SimulationPause.Capture();
+             file.world.defenseReturn = world.DefenseReturn;
+             foreach (var s in world.Transports.Where(s => s != null)) file.world.transports.Add(new TransportDto { walking = s.Walking, foodDebt = s.FoodDebt, dockingRemaining = s.DockingRemaining, aircraft = s.Aircraft, state = (int)s.State,
++                bossCarrierId = BossRewardTransfer.Carrier(s),
+                 blueprintCargo = s.BlueprintCargo, equipmentCargo = s.EquipmentCargo.Select(e => JsonUtility.FromJson<EquipmentItem>(JsonUtility.ToJson(e))).ToList(),
+                 remaining = s.Remaining, siteIndex = SaveCatalog.SiteIndex(s.Site), position = new Vec3Dto(s.Position), homePosition = new Vec3Dto(s.HomePosition),
+                 cargoFood = s.GetCargo(ResourceType.Food), cargoSoil = s.GetCargo(ResourceType.Soil), cargoSpecial = s.GetCargo(ResourceType.Special),
+@@ -219,7 +220,9 @@ namespace AntColony.Save
+             var ships = new List<ExpeditionTransport>();
+             foreach (var d in file.world.transports)
+             {
+-                var ship = world.CreateTransport(d.aircraft, d.homePosition.ToVector3(), d.walking); SaveReferences.Register("ship:" + ships.Count, ship); ships.Add(ship);
++                var ship = world.CreateTransport(d.aircraft, d.homePosition.ToVector3(), d.walking);
++                BossRewardTransfer.RestoreCarrier(ship, d.bossCarrierId, ships.Count);
++                SaveReferences.Register("ship:" + ships.Count, ship); ships.Add(ship);
+                 ship.FoodDebt = d.foodDebt; ship.DockingRemaining = d.dockingRemaining;
+                 ship.BlueprintCargo = d.blueprintCargo; ship.EquipmentCargo = d.equipmentCargo.Select(e => JsonUtility.FromJson<EquipmentItem>(JsonUtility.ToJson(e))).ToList();
+                 ship.RestoreState((ExpeditionState)d.state, d.remaining, d.siteIndex < 0 ? null : world.Sites[d.siteIndex],
+diff --git a/Assets/_Project/Scripts/UI/BetaProgress.cs b/Assets/_Project/Scripts/UI/BetaProgress.cs
+index 43e2be8..d0c0587 100644
+--- a/Assets/_Project/Scripts/UI/BetaProgress.cs
++++ b/Assets/_Project/Scripts/UI/BetaProgress.cs
+@@ -10,7 +10,11 @@ namespace AntColony.UI
+     public sealed class BetaProgress : MonoBehaviour
+     {
+         // 정식 캠페인은 첫 보스로 종료하지 않는다. 전용 베타 시나리오 진입부에서만 설정한다.
+-        public bool BetaScenario;
++        public bool BetaScenario
++        {
++            get => CampaignResearch.Instance != null && CampaignResearch.Instance.BetaScenario;
++            set { if (CampaignResearch.Instance != null) CampaignResearch.Instance.BetaScenario = value; }
++        }
+         private UnityEngine.UI.Text objective;
+         private GameObject objectivePanel;
+         private GameManager game;
+@@ -98,8 +102,8 @@ namespace AntColony.UI
+             foreach (var candidate in FindObjectsByType<Barracks>())
+                 if (candidate.IsUpgrading) return "병영 강화 중\n과학연구소에 필요한 자원을 모으세요";
+             var resources = ResourceManager.Instance;
+-            if (resources != null && (resources.GetAmount(ResourceType.Food) >= resources.GetCapacity(ResourceType.Food)
+-                || resources.GetAmount(ResourceType.Soil) >= resources.GetCapacity(ResourceType.Soil)))
++            if (resources != null && (resources.GetAmount(AntColony.Data.ResourceType.Food) >= resources.GetCapacity(AntColony.Data.ResourceType.Food)
++                || resources.GetAmount(AntColony.Data.ResourceType.Soil) >= resources.GetCapacity(AntColony.Data.ResourceType.Soil)))
+                 return "창고 가득 참 · 자원 사용 또는 창고 건설\n다음 목표 · 병영 2티어 강화";
+             return "병영 강화 · 2티어 달성\n병영을 선택해 티어를 강화하세요";
+         }
+diff --git a/Assets/_Project/Scripts/World/BossRewardTransfer.cs b/Assets/_Project/Scripts/World/BossRewardTransfer.cs
+index 762e4a3..7cf748d 100644
+--- a/Assets/_Project/Scripts/World/BossRewardTransfer.cs
++++ b/Assets/_Project/Scripts/World/BossRewardTransfer.cs
+@@ -1,4 +1,5 @@
+ using System.Linq;
++using AntColony.Boss;
+ using AntColony.Core;
+ 
+ namespace AntColony.World
+@@ -8,11 +9,14 @@ namespace AntColony.World
+     {
+         public static string Carrier(ExpeditionTransport ship)
+         {
+-            var world = WorldMapManager.Instance;
+-            if (ship == null || world == null) return null;
+-            for (var i = 0; i < world.Transports.Count; i++)
+-                if (world.Transports[i] == ship) return "transport:" + i;
+-            return null;
++            if (ship == null) return null;
++            var identity = ship.GetComponent<BossCargoCarrier>() ?? ship.gameObject.AddComponent<BossCargoCarrier>();
++            return identity.Id;
++        }
++        public static void RestoreCarrier(ExpeditionTransport ship, string savedId, int legacyIndex)
++        {
++            Carrier(ship);
++            ship.GetComponent<BossCargoCarrier>().Id = string.IsNullOrWhiteSpace(savedId) ? "transport:" + legacyIndex : savedId;
+         }
+         public static int CargoLoad(ExpeditionTransport ship)
+         {
+@@ -26,7 +30,7 @@ namespace AntColony.World
+             var stronghold = ship.Site.GetComponent<BossStronghold>();
+             if (stronghold == null) return ship.TryCollectRewards();
+             var progress = CampaignResearch.Instance?.BossProgress;
+-            if (progress == null || !stronghold.Revealed || !ship.Site.Cleared || ship.State != ExpeditionState.Deployed
++            if (progress == null || !stronghold.Revealed || ship.State != ExpeditionState.Deployed
+                 || ship.CargoCapacity - ship.CargoLoad - CargoLoad(ship) < (stronghold.Id == AntColony.Boss.BossId.A ? 2 : 1)) return false;
+             if (!ship.Crew.Any(c => c != null && c.CanReceiveOrders && (c.Position - ship.Position).sqrMagnitude <= 64)) return false;
+             if (!progress.TryAcquire(stronghold.Id, Carrier(ship), out _)) return false;
+diff --git a/Assets/_Project/Scripts/World/BossStronghold.cs b/Assets/_Project/Scripts/World/BossStronghold.cs
+index a1f1571..5fb3a10 100644
+--- a/Assets/_Project/Scripts/World/BossStronghold.cs
++++ b/Assets/_Project/Scripts/World/BossStronghold.cs
+@@ -21,10 +21,10 @@ namespace AntColony.World
+             var progress = CampaignResearch.Instance?.BossProgress;
+             if (progress == null || site == null || AntColony.Save.SaveSystem.Busy || !progress.Defeated(Id)) return;
+             var allies = false; var combat = false; var transport = false;
+-            if (CommanderRoster.Instance != null)
+-                foreach (var c in CommanderRoster.Instance.Commanders)
+-                    if (c != null && !c.IsDead && !c.IsCaptive && (c.Position - transform.position).sqrMagnitude < 80 * 80)
+-                    { allies = true; combat |= c.IsInCombat; }
++            foreach (var unit in AntUnitBase.Active)
++                if (unit != null && !unit.IsDead && !(unit is CommanderAnt captive && captive.IsCaptive)
++                    && (unit.Position - transform.position).sqrMagnitude < 80 * 80)
++                { allies = true; combat |= unit is SoldierAnt soldier && soldier.IsInCombat; }
+             if (WorldMapManager.Instance != null)
+                 foreach (var ship in WorldMapManager.Instance.Transports)
+                     if (ship != null && ship.isActiveAndEnabled && (ship.Position - transform.position).sqrMagnitude < 80 * 80)
+diff --git a/docs/IMPL-B6-HANDOFF.md b/docs/IMPL-B6-HANDOFF.md
+new file mode 100644
+index 0000000..8113536
+--- /dev/null
++++ b/docs/IMPL-B6-HANDOFF.md
+@@ -0,0 +1,62 @@
++# IMPL-B6 인계 (2026-10-24, 정적 점검 완료·통합 연결 대기)
++
++- 범위: 현재 B6 worktree만 사용. Unity·MCP·Notion·커밋·stash·push·prefab 작업 없음.
++- 이전 세션 변경과 다른 묶음 변경이 이미 index에 혼재한다. 전체 diff를 B6 패치로 취급하지 말 것.
++- 초기 판정: G07/G19/G23/G47은 상태/API 구현, 실제 경로 연결 일부 누락. G22 장비 효과 미구현. G06/G51 상태/API만 존재. G40 베타 분기 구현, 실행 미검증.
++- 발견: BossHealth.Die는 RecordKill을 호출하지 않고 RestoreDefeated가 호출함. 실제 처치 보상 누락·로드 부수 효과 위험. BossRewardTransfer.Deliver/Lose 호출자 없음.
++
++## G별 최종 판정
++
++여기서 ‘완료’는 소유 범위의 코드 구현 완료이며 실행 통과를 뜻하지 않는다. 실제 플레이 전체 완료로 표시할 수 있는 상태는 아니다.
++
++| G | 판정 | 구현 / 남음 |
++|---|---|---|
++| G07 | 부분 | A→B/C→D 제조법, A 핵심물 2개, B/C 제작 각각 A1+목재5+돌5, D 제작 B1+C1, 도구 사용 영구 공개, D 반입 로켓 설계도 해금 구현. 실제 원정 하역 연결 남음. |
++| G19 | 부분 | 사망/획득/반입 분리, 최초 획득부터 복구 가능·반입 전 다음 제조법 불가, 화물 소실 뒤 자격 유지. 수송 하역·소실 및 장수 직접 운반 연결 남음. |
++| G22 | 부분 | 위험·권장 장비·선행 부족 안내 구현. **A 고유 내구 장비/B 방열 장비/C 범위 공격 장비의 지급·효과는 미구현**. 기존 장비 타입에는 해당 속성이 없어 가짜 대체품을 지급하지 않음. D 핵심물 반입 API 구현. |
++| G23 | 부분 | 복구 개당 가공재100+부품10·60초, 동시 제작/중복 결제/공개 대상 탐지기 제작 차단. 핵심물·도구는 별도 진행 상태여서 일반 자원 거래·재활용 경로에 들어가지 않음. 고유 장비·희귀 추가 보상은 G22 연결 필요. |
++| G47 | 완료(코드) | 처치 후 12×GameCalendar.SecondsPerDay=1800초. 아군 장수·병력·일꾼/수송수단/교전 시 보류. 거점 재생성 없이 보스만 재활성화, 이전 미회수 보상 보존·회차별 1회 획득. 재활성화 시 패턴 타이머·타깃 초기화. 실제 전장 보존/재등장 실행 미검증. |
++| G51 | 부분 | 반입 API의 영구 기록, 표본 중복 기록 차단, 기본 소비 보호/경고 확인 후 해제/재보호/저장 API 구현. 실제 식사·제조·이동 소비 경로의 적용과 씨앗 식별은 미연결. |
++| G06 | 부분 | 기초 연구대 PrerequisitesMet=true 기존 구현 확인. 표본1개 반입 기록/이전 등급 회수 가능 여부/연구 완료/본격 채굴 조건 API 구현. **표본 실제 1개 채집·연구 작업/UI·채굴 차단·석유 설비·증기 석탄 발전은 미구현/미연결**. 기존 낚시·돌 도구·보온 연구에 새 관문을 넣지 않음. |
++| G40 | 완료(코드) | BetaScenario 기본 false, 정식 첫 보스는 처치 결과·보상·다음 탐지 안내, 베타 승리는 전용 플래그에서만 표시. 로켓 엔딩은 기존 분기 유지. 베타 선택은 CampaignResearch.State.betaScenario로 저장(구저장 기본 false). 전용 진입부는 CampaignResearch 생성 후 BetaScenario=true로 설정해야 함. |
++
++## 수정 파일과 이번 세션 보완
++
++- 이전 B6 구현 포함 이관 대상: `Boss/BossProgress.cs(.meta)`, `Boss/BossHealth.cs`, `Core/CampaignResearch.cs`, `Core/CampaignResearch.Progression.cs(.meta)`, `World/BossRewardTransfer.cs(.meta)`, `World/BossStronghold.cs(.meta)`, `World/WorldMapManager.cs`의 보스 등록·공개 검사 부분, `UI/GameMenuBossProgression.cs(.meta)`, `UI/GameMenuCampaign.cs`, `UI/BetaProgress.cs`, `AgentScripts/ImplB6Checks.cs`.
++- 이번 추가: `Boss/BossCargoCarrier.cs(.meta)` — 수송 목록 인덱스 대신 저장되는 고유 ID. 도보 원정대 해산으로 앞 인덱스가 없어져도 다른 원정대에 보상이 넘어가지 않음.
++- `Save/SaveDtos.cs`: **TransportDto.bossCarrierId 필드 1개 추가**. `Save/SaveSnapshot.cs`: Capture에 ID 저장, Restore에서 수송 생성 직후 복원. null/누락은 이전 B6의 `transport:<index>` 키로 호환. `CurrentVersion=19` 유지. 두 파일의 기존 staged 변경은 다른 묶음 것이므로 이번 B6 변경만 추출할 것.
++- `BossHealth`: RecordKill을 RestoreDefeated에서 제거하고 실제 Die로 이동. RestoreHp는 deathProcessed 초기화. 로드가 새로운 처치/보상을 만들지 않음.
++- `BossProgress`: 제작 시작을 결제 전에 예약해 자원 변경 이벤트 재진입 차단. 종류별 TrySpend 성공을 확인하고 부분 결제 실패 시 환불. 저장 상태의 공개된 도구/중복 도구/획득 기록/회차 유효성 보강.
++- `BossBasicPatternLoop.cs`, `BossPatternSequenceSimple.cs`: OnEnable에서 타이머·타깃(순환 패턴은 순번도) 초기화하여 재등장 후 이전 공격 대기 상태를 재사용하지 않음.
++- `BossStronghold`: 장수만 검사하던 현지 아군 판정을 AntUnitBase.Active로 넓힘. `BossRewardTransfer`: 보스가 다시 살아도 남아 있는 이전 회차 보상을 회수할 수 있게 함.
++- `CampaignResearch.cs`·`BetaProgress.cs`: 베타 시나리오 선택을 캠페인 상태에 저장하고 정식 기본값 false 유지.
++- `CampaignResearch.Progression`: 정의되지 않은 ResourceType 및 음수 채굴 등급 거부. ResourceType 전체 이름 사용.
++- 수정 금지 Units/Buildings/원정·수송/침공·협상/로켓/인구/바이옴 소스는 이번 세션에 수정하지 않음. 이미 staged된 타 묶음 변경은 유지.
++
++## 연결 요청 (수정 금지 범위)
++
++- `World/ExpeditionTransport.cs::UnloadCargo`: 일반 화물·장비 소비보다 먼저 `BossRewardTransfer.Deliver(this)` 호출. 소실·파괴 시 등록 목록에서 제거하기 전에 `BossRewardTransfer.Lose(this)` 호출.
++- `World/ExpeditionTransport.cs::TryCollectRewards`: **BossStronghold가 있는 경우에만** `BossRewardTransfer.TryCollect(this)`로 분기하고 기존 무조건 BlueprintCargo/무작위 장비 지급 경로 우회. BossRewardTransfer의 비보스 fallback은 기존 TryCollectRewards를 호출하므로 무조건 위임하면 재귀함. UI/WorldMapPanel의 회수 버튼은 이미 BossRewardTransfer.TryCollect에 연결되어 있음(이전 staged 변경, 이번에는 수정 안 함).
++- `World/ExpeditionTransport.cs::CargoLoad/HasCargo/AddCargo` 및 `World/TransportRoute.cs::Tick`: 핵심물 적재량 `BossRewardTransfer.CargoLoad(this)`를 용량과 화물 보유 여부에 포함. **CargoLoad에 포함한 뒤에는 BossRewardTransfer.TryCollect의 `- CargoLoad(ship)` 별도 차감을 제거해 이중 계산을 막을 것.** 현재 일반 적재는 진행 핵심물의 무게를 모르므로 후속 일반 화물 적재로 한도를 넘길 수 있음.
++- `World/ExpeditionTransport.cs::OnDisable`의 확정 상실 경로에 Lose를 연결하되 저장 복원/씬 재구성과 정상 귀환 해산을 상실로 처리하지 말 것. `World/WorldMapExpeditions.cs::CreateWalkingParty`의 현재 transports.Remove는 편성 실패 시이며, 아직 화물이 없는 경로다. SaveSnapshot은 null 수송을 제외하므로 목록 인덱스는 저장 왕복에서도 바뀔 수 있어 고유 ID가 필요하다.
++- `Units/CommanderWork.cs`의 직접 줍기/본거지 전달/소실 경로: 보스 회차 보상을 장수 소지로 회수할 때 `BossProgress.TryAcquire(id, "commander:" + commander.PersonalState.id, out parcel)`, 본거지 전달 직전에 `CampaignResearch.DeliverBossReward(parcel.id)`, 확정 소실 때 `LoseCargo(parcel.id)` 연결. 일반 식량 화물로 대체하지 말 것.
++- `Units/CommanderEquipment.cs`: A 고유 내구 장비, B 방열 장비, C 범위 공격 장비의 고유 필드·효과 및 라벨 추가 필요. 현재 장비 모델에는 내구·방열·범위 공격 속성이 없다. 임의의 기존 장비로 대체 지급하지 않음.
++- `World/ResourceNode.cs`, `Units/CommanderWork.cs`: `CampaignResearch.CanRecoverSample/CanMine`을 실제 채집에 적용. 이전 등급으로 표본 1개 회수하고 연구 전 본격 채굴 차단.
++- `Core/ResourceManager.cs::Add/AddTo`는 이전 staged 구현에서 RecordSampleDelivery를 자원 이벤트 전에 호출하지만 **Add는 실입고 이전 요청 수량으로 기록**하고 있음. 본거지 바닥 전달도 반입으로 볼지 구분하고, 저장소 실입고는 실제 n 기준으로 호출해야 함. 원격 거점 생산/환불/복원까지 반입으로 오인하지 않도록 호출 원인을 분리할 것. 이 파일은 소유 범위 밖이라 수정 안 함.
++- 자원 연구 담당: `CampaignResearch.TryCompleteResourceResearch(type)`는 완료 시 기록하는 API일 뿐 연구 작업/시간/UI가 아님. 실제 연구 완료 경로에서 호출하고 자원별 연구·도구 등급을 연결할 것. 정의되지 않은 석유 자원/가공재를 임의로 추가하지 않음.
++- 식사·제조·이동 소비 호출자: `CampaignResearch.CanConsumeProgressionItem` 및 경고 확인을 거친 `SetConsumptionOverride` 적용. 미반입 진행물·필수 보상·씨앗의 안정 ID 전달 필요.
++- `Buildings/PowerNode.cs`, 자원/설비 데이터: 석유 설비와 증기 석탄 발전기가 현재 없음. 해당 담당자가 자원·건물 정의와 전원 경로 구현해야 G06 전체 완료 가능.
++- B3 `Save/SavePreflight.cs`의 수송/캠페인 교차 검증: bossCarrierId 중복과 boss cargo.carrier의 존재 여부, 핵심물 포함 적재 한도 검증 추가. 실제 save/load 시 화물 전달·손실·재등장·제작을 재실행하지 않는지 확인. 새 필드는 null 구저장 호환 허용.
++
++## 검사·남은 위험
++
++- `AgentScripts/ImplB6Checks.cs`: `public static class`, `public static async Task<string> Main()`, 실패 예외·성공 `PASS n`. 자동저장 비활성/임시 RootOverride, 기존 연구·자원 칸·자원 이력·게임 플래그·시간 배율 복원. Stockpile 탐색 없이 필요한 보스/패턴/수송 fixture를 직접 만들며 자원 fixture는 BaseBin 사용(없으면 ResourceManager도 생성).
++- 작성된 검사: 최초 획득/반입 분리, A2개·분기/D 제조법, 실제 제작비·60초 경계·동시/재진입 결제 차단·중복 도구 금지, A→B/C→D 실제 제작, 전 보스 복구비, 1800초 경계·아군/수송/전투 보류, 이전 회차 보상 보존/중복 회수 금지, D 전달 로켓 해금, 화물/제작/표본/보호 설정 JSON 왕복, 잘못된 상태 거부, 운반자 고유 ID/옛 인덱스 키 복원, 다른 수송의 반입 차단/소실 처리, 로드 사망의 무보상·실제 사망 1회, 패턴 재활성 초기화, 정식 기본 베타 승리 미표시·베타 선택 JSON 보존.
++- **검사 실행 안 함.** 전체 회수→귀환→실제 UnloadCargo, 실제 스냅샷 파일 왕복, 실장비 지급/효과, 최초 표본 1개 채굴, 씨앗 소비 차단, 베타 true 승리 화면은 이 검사로 검증되지 않음. JSON 왕복은 SaveSystem roundtrip과 다름.
++- 컴파일·Play·실제 save/load 검증 미수행. Claude가 RunChecks로 실행해야 함.
++- 보스/연구 상태는 `CampaignResearch.State` 안에 직렬화되어 기존 `SaveDtos.SaveFile.campaign` → `SaveSnapshot` 경로 재사용, 저장 버전 변경 불필요.
++- 참조 심볼은 소스 rg로 존재 확인(상태/제작/반입 API, TrySpend(ResourceType,int,reason), StoreBin.amounts/Capture/Apply, GameManager.RestoreFlags, 패턴 필드, 수송 상태/용량, BetaProgress.Victory, ScreenName, DTO 필드). 컴파일을 대신하는 검증은 아님. `git diff --check` 통과.
++- `graphify query`와 `graphify update .` 수행. graphify-out의 그래프·캐시·백업 변경은 코드 이관 대상에서 제외. 최종 갱신은 8537 nodes/19324 edges, 커뮤니티 이름 일부 자동 변경 안내가 있었음.
++- 이전 세션 `BossProgress.EraMaterial`의 A=Plank/B=Iron/C·D=Steel 매핑은 보스별 시대/석유·원자 가공재 정의가 없는 현재 데이터에 의존함. 특히 C/D 시대 가공재의 정식 연결은 확인 필요. 숫자 100/10/60과 12일은 결정 원본 그대로.
++- G22 고유 장비/희귀 보상 상태가 없으므로 지금 회수 API는 핵심물만 싣는다. 장비 지급을 임의로 구현 완료로 보고하지 말 것. 베타 시나리오 플래그는 이번 세션에 CampaignResearch.State.betaScenario 필드로 영속화함. BetaProgress 프로퍼티는 CampaignResearch가 생성된 후 설정해야 함.
++- 카카오 MemoChat 도구가 세션에 없어 완료 알림 미전송.

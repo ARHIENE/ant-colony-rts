@@ -1,0 +1,1394 @@
+diff --git a/AgentScripts/ImplB10Checks.cs b/AgentScripts/ImplB10Checks.cs
+new file mode 100644
+index 0000000..5ef2ae8
+--- /dev/null
++++ b/AgentScripts/ImplB10Checks.cs
+@@ -0,0 +1,226 @@
++using System;
++using System.Collections.Generic;
++using System.IO;
++using System.Linq;
++using System.Reflection;
++using System.Threading.Tasks;
++using AntColony.Buildings;
++using AntColony.Core;
++using AntColony.Data;
++using AntColony.Map;
++using AntColony.Save;
++using AntColony.Units;
++using AntColony.World;
++using UnityEngine;
++using Object = UnityEngine.Object;
++
++public static class ImplB10Checks
++{
++    static int count;
++    static readonly List<GameObject> made = new List<GameObject>();
++    static void Check(bool value, string label) { if (!value) throw new Exception("B10 FAIL " + count + ": " + label); count++; }
++    static bool Near(float a, float b) => Mathf.Abs(a - b) < .01f;
++    static float FloorAmount(AntColony.Data.ResourceType type) => ResourceNode.Available.Where(n => n != null && n.IsLooseCargo && n.ResourceType == type).Sum(n => n.AmountRemaining);
++    static GameObject Template(BuildingKind kind) => (GameObject)typeof(BuildingPlacementController)
++        .GetMethod("GetTemplate", BindingFlags.Static | BindingFlags.NonPublic).Invoke(null, new object[] { kind, UnitRole.Worker });
++    static T Put<T>(BuildingKind kind, Vector3 position) where T : Component
++    {
++        var template = Template(kind); Check(template != null, "template " + kind);
++        var go = Object.Instantiate(template); made.Add(go); go.name = "B10 " + kind;
++        go.transform.position = position; go.transform.localScale = Vector3.one; go.SetActive(true);
++        return go.GetComponent<T>();
++    }
++    static async Task Ready()
++    {
++        var end = DateTime.UtcNow.AddSeconds(90);
++        while (SaveSystem.Busy && DateTime.UtcNow < end) await Task.Delay(50);
++        Check(!SaveSystem.Busy, "load complete"); Time.timeScale = 0;
++        foreach (var c in CommanderRoster.Instance.Commanders) { c.CommandStop(); c.SetJobEnabled(CommanderJobs.All, false); }
++    }
++    static async Task Start(int commanders, MapBiome biome)
++    {
++        var team = Enumerable.Range(0, commanders).Select(StartingCandidate.Roll).ToArray();
++        foreach (var candidate in team) candidate.traits.values.Clear();
++        CrashLandingStart.Begin(new NewGameOptions { seed = 261024, mapSize = MapSize.Small, biome = biome, climate = MapClimate.Cold,
++            startingCount = commanders, startingTeam = team });
++        await Ready();
++        Check(CommanderRoster.Instance.Count == commanders, "one/two commander crash start");
++        Check(Object.FindAnyObjectByType<Stockpile>() == null, "no stockpile assumed");
++    }
++
++    public static async Task<string> Main()
++    {
++        count = 0; made.Clear(); Check(Application.isPlaying, "Play mode required");
++        var root = SaveStorage.RootOverride; var settings = UserSettings.Current.Clone(); var scale = Time.timeScale;
++        var isolated = settings.Clone(); isolated.autoSaveEnabled = false; UserSettings.Apply(isolated, false);
++        SaveStorage.RootOverride = Path.Combine(Application.temporaryCachePath, "ImplB10-" + Guid.NewGuid().ToString("N"));
++        var random = UnityEngine.Random.state;
++        try
++        {
++            await Ready(); await Start(1, MapBiome.Forest);
++            var home = WorldMapManager.Instance.HomePosition;
++            foreach (var biome in BiomeRules.All)
++            foreach (var commanders in new[] { 1, 2 })
++            {
++                var before = new HashSet<ResourceNode>(ResourceNode.Available);
++                var sources = new HashSet<SupplyFacility>(SupplyFacility.All);
++                var seeds = FloorAmount(AntColony.Data.ResourceType.PlantingMaterial);
++                StartingEnvironment.Create(home, biome, commanders);
++                var nodes = ResourceNode.Available.Where(n => !before.Contains(n)).ToArray();
++                foreach (var type in new[] { AntColony.Data.ResourceType.Food, AntColony.Data.ResourceType.Wood,
++                    AntColony.Data.ResourceType.Stone, AntColony.Data.ResourceType.CopperOre, AntColony.Data.ResourceType.TinOre,
++                    AntColony.Data.ResourceType.Coal, AntColony.Data.ResourceType.IronOre })
++                    Check(nodes.Any(n => n.ResourceType == type && n.AmountRemaining > 0 && Vector3.Distance(home, n.transform.position) <= StartSupplyRules.Radius), "G35 guaranteed " + biome + "/" + type);
++                Check(Near(nodes.Where(n => n.ResourceType == AntColony.Data.ResourceType.Food).Sum(n => n.AmountRemaining), StartSupplyRules.StartFood(commanders)), "G58 seven days food " + biome);
++                Check(nodes.All(n => NavRoute.Reachable(home, n.transform.position)), "G35 start resources reachable " + biome);
++                Check(Near(FloorAmount(AntColony.Data.ResourceType.PlantingMaterial) - seeds, commanders * 3), "G35/G58 planting material " + biome);
++                var water = SupplyFacility.All.Single(n => !sources.Contains(n) && n.Kind == BuildingKind.WaterSource);
++                Check(water.name == StartSupplyRules.WaterName(biome) && Vector3.Distance(home, water.Position) <= 40, "G59 reachable water " + biome);
++                Check(NavRoute.Reachable(home, water.Position), "G59 water has a walking route " + biome);
++            }
++            Check(BiomeRules.Name(MapBiome.City) == "온대 숲 폐허" && BiomeRules.Name(MapBiome.Garden) == "초원", "G35 biome mapping");
++            for (var i = 0; i < 100; i++)
++            {
++                var cold = WeatherSystem.Roll(Season.Summer, MapBiome.Forest, i / 100f, MapClimate.Cold);
++                var wet = WeatherSystem.Roll(Season.Winter, MapBiome.Forest, i / 100f, MapClimate.TropicalWet);
++                Check(cold != WeatherKind.Rain && cold != WeatherKind.Storm && wet != WeatherKind.Snow && wet != WeatherKind.Blizzard, "G35 climate variants");
++            }
++
++            await Start(2, MapBiome.City); home = WorldMapManager.Instance.HomePosition;
++            Check(BiomeRules.FarmAllowed && ScienceEffects.BuildingUnlocked(BuildingKind.Farm), "G58 city not globally forbidden");
++            foreach (var kind in new[] { BuildingKind.PlanterBed, BuildingKind.StarterMushroomBed, BuildingKind.ManualWell,
++                BuildingKind.WaterPump, BuildingKind.FluidPipe, BuildingKind.FluidTank, BuildingKind.Treadmill })
++                Check(BuildingPlacementController.LockReason(kind) == null && Template(kind).GetComponent<BuildingBase>().Data.constructionAnts == 0, "G58/G59 no research or citizen gate " + kind);
++            var origin = new Vector3(Mathf.Floor(home.x) + 1000.5f, home.y, Mathf.Floor(home.z) + 1000.5f);
++            var floor = Put<FloorTile>(BuildingKind.Floor, origin + new Vector3(20, 0, 20));
++            Check(!StartGroundRules.OpenFieldAllowed(floor.Position) && StartGroundRules.OpenFieldAllowed(floor.Position + Vector3.right * 3), "G58 pavement only");
++            var wide = Put<StarterCropBed>(BuildingKind.PlanterBed, floor.Position + Vector3.right * 3);
++            wide.transform.localScale = Vector3.one * 7;
++            Check(StartGroundRules.OpenFieldAllowed(wide.Position) && !StartGroundRules.OpenFieldAllowed(wide), "G58 pavement under edge of wide field is blocked");
++
++            var waterSource = Put<SupplyFacility>(BuildingKind.WaterSource, origin + new Vector3(0, 0, 5));
++            Check(!Demolition.CanDemolish(waterSource), "G59 natural water source cannot be demolished");
++            var well = Put<SupplyFacility>(BuildingKind.ManualWell, origin + new Vector3(1, 0, 5));
++            var tank = Put<SupplyFacility>(BuildingKind.FluidTank, origin + new Vector3(2, 0, 5));
++            Check(well.WorkManual(2) && tank.Supply.amount == 0, "G59 manual work incomplete");
++            var manualJson = JsonUtility.ToJson(well.Supply); well.RestoreSupply(JsonUtility.FromJson<SupplyFacility.State>(manualJson));
++            Check(well.WorkManual(3) && tank.Supply.amount == 10, "G59 five seconds ten water across JSON restore");
++            Check(!tank.Fill(AntColony.Data.ResourceType.CrudeOil, 1), "G59 tank prevents mixed fluid");
++            Check(!well.WorkManual(float.NaN) && !well.WorkManual(float.PositiveInfinity), "G59 invalid time no work");
++            waterSource.gameObject.SetActive(false); Check(!well.WorkManual(5), "G59 missing source blocks manual water"); waterSource.gameObject.SetActive(true);
++
++            var rm = ResourceManager.Instance;
++            rm.Add(AntColony.Data.ResourceType.PlantingMaterial, 3);
++            var beds = new[] { Put<StarterCropBed>(BuildingKind.StarterMushroomBed, origin + new Vector3(3, 0, 5)),
++                Put<StarterCropBed>(BuildingKind.StarterMushroomBed, origin + new Vector3(2, 0, 6)),
++                Put<StarterCropBed>(BuildingKind.PlanterBed, origin + new Vector3(2, 0, 4)) };
++            var food = FloorAmount(AntColony.Data.ResourceType.Food);
++            foreach (var bed in beds) { Check(bed.Plant() && !bed.Plant(), "G58 one seed once"); bed.Tick(StartSupplyRules.CropSeconds); }
++            Check(tank.Supply.amount == 1, "G59 one water per cell per day");
++            Check(Near(FloorAmount(AntColony.Data.ResourceType.Food) - food, StartSupplyRules.DailyFood * 3), "G58 three beds sustain one commander");
++            tank.gameObject.SetActive(false);
++            var dry = beds[0].Crop.growth; beds[0].Tick(100);
++            Check(Near(beds[0].Crop.growth, dry), "G59 dry bed pauses without free growth"); tank.gameObject.SetActive(true);
++            Check(tank.Fill(AntColony.Data.ResourceType.Water, 1), "G59 replenish crop water");
++            beds[0].Tick(GameCalendar.SecondsPerDay / 2);
++            var paidWater = beds[0].Crop.wateredSeconds;
++            beds[0].RestoreCrop(JsonUtility.FromJson<StarterCropBed.State>(JsonUtility.ToJson(beds[0].Crop)));
++            beds[0].Tick(GameCalendar.SecondsPerDay / 2);
++            Check(tank.Supply.amount == 1 && Near(paidWater, GameCalendar.SecondsPerDay / 2)
++                && Near(beds[0].Crop.wateredSeconds, 0), "G59 restored prepaid day does not consume water twice");
++            Check(!SupplyFacility.Valid(new SupplyFacility.State { work = float.NaN }) && !StarterCropBed.Valid(new StarterCropBed.State { growth = -1 }), "save rejects invalid supply/crop state");
++
++            var steam = Put<PowerNode>(BuildingKind.SteamGenerator, origin);
++            var wire1 = Put<PowerNode>(BuildingKind.PowerWire, origin + Vector3.right);
++            var wire2 = Put<PowerNode>(BuildingKind.PowerWire, origin + Vector3.right * 2);
++            var wire3 = Put<PowerNode>(BuildingKind.PowerWire, origin + Vector3.right * 3);
++            var oilSource = Put<SupplyFacility>(BuildingKind.OilDeposit, origin + new Vector3(1, 0, 2));
++            var drill = Put<SupplyFacility>(BuildingKind.OilDrill, origin + new Vector3(1, 0, 1));
++            var pipe = Put<SupplyFacility>(BuildingKind.FluidPipe, origin + new Vector3(2, 0, 1));
++            var refinery = Put<SupplyFacility>(BuildingKind.OilRefinery, origin + new Vector3(3, 0, 1));
++            var oilTank = Put<SupplyFacility>(BuildingKind.FluidTank, origin + new Vector3(4, 0, 1));
++            Check(GameBalance.TreadmillWatts == 100 && drill.Demand == 100 && refinery.Demand == 200, "G46 fixed watts");
++            Check(PowerGrid.WantsPower(steam), "G46 external consumers request generation without lamp or battery");
++            PowerGrid.Tick(.5f); drill.Tick(5); Check(drill.Supply.amount == 0, "G46 unpowered drill stops");
++            steam.RestoreFuel(7); PowerGrid.Tick(.5f);
++            Check(drill.Powered && refinery.Powered, "G46 solid fuel powers drill and refinery");
++            drill.Tick(5); Check(oilTank.Supply.amount == 10, "G46 drill sends crude through pipe without drum");
++            refinery.Tick(5); Check(oilTank.Supply.amount == 9 && refinery.Supply.amount == 1, "G46 direct pipeline refining without container");
++            pipe.gameObject.SetActive(false); var crude = oilTank.Supply.amount; drill.Tick(5);
++            Check(oilTank.Supply.amount == crude && drill.Supply.amount == 10, "G46 broken pipe isolates drill output");
++            var depositPosition = oilSource.Position; oilSource.transform.position = pipe.Position;
++            drill.Tick(5);
++            Check(oilTank.Supply.amount == crude && drill.Supply.amount == 20, "G46 natural deposit cannot bridge broken pipe");
++            oilSource.transform.position = depositPosition;
++            refinery.Tick(5); Check(oilTank.Supply.amount == crude - 1, "G46 refinery can finish buffered crude after disconnection");
++            pipe.gameObject.SetActive(true);
++            crude = oilTank.Supply.amount;
++            oilSource.gameObject.SetActive(false); drill.Tick(5); Check(oilTank.Supply.amount == crude && drill.Supply.amount == 20, "G46 no deposit no oil"); oilSource.gameObject.SetActive(true);
++            steam.RestoreFuel(0); PowerGrid.Tick(.5f); Check(!drill.Powered && !refinery.Powered, "G46 power loss stops facilities");
++            rm.Add(AntColony.Data.ResourceType.Coal, 2); var coal = rm.GetAmount(AntColony.Data.ResourceType.Coal);
++            typeof(PowerNode).GetMethod("Update", BindingFlags.Instance | BindingFlags.NonPublic).Invoke(steam, null);
++            Check(steam.FuelSeconds == 0 && rm.GetAmount(AntColony.Data.ResourceType.Coal) == coal, "G46 paused generator cannot consume fuel");
++            Check(SupplyRecipes.For(BuildingKind.Smelter).Single(r => r.output == AntColony.Data.ResourceType.Drum).inputs.Single().amount == 5
++                && SupplyRecipes.For(BuildingKind.Smelter).Single(r => r.output == AntColony.Data.ResourceType.GasCylinder).inputs.Single().amount == 10, "G46 steel container recipes");
++            var charger = Put<SupplyFacility>(BuildingKind.FuelCharger, origin + new Vector3(5, 0, 1));
++            oilTank.RestoreSupply(new SupplyFacility.State { fluid = (int)AntColony.Data.ResourceType.Petroleum, amount = 10 });
++            var drums = FloorAmount(AntColony.Data.ResourceType.FilledFuelDrum);
++            Check(!charger.FillFuelDrum() && oilTank.Supply.amount == 10, "G46 missing drum preserves petroleum");
++            rm.Add(AntColony.Data.ResourceType.Drum, 1);
++            Check(charger.FillFuelDrum() && oilTank.Supply.amount == 0
++                && FloorAmount(AntColony.Data.ResourceType.FilledFuelDrum) == drums + 1, "G46 charger consumes one drum and ten petroleum");
++            Check(!charger.FillFuelDrum(), "G46 no duplicate charged drum");
++
++            var wood = FloorAmount(AntColony.Data.ResourceType.Wood);
++            var demolition = Demolition.OrderDemolish(well); Check(demolition != null, "G14 demolition order");
++            var mark = demolition.GetComponent<DemolitionSite>();
++            typeof(DemolitionSite).GetMethod("OnWorkStarted", BindingFlags.Instance | BindingFlags.NonPublic).Invoke(mark, null);
++            typeof(DemolitionSite).GetMethod("Finish", BindingFlags.Instance | BindingFlags.NonPublic).Invoke(mark, null);
++            Check(Near(FloorAmount(AntColony.Data.ResourceType.Wood) - wood, 7), "G14 seventy percent fixed material refund");
++            typeof(DemolitionSite).GetMethod("Finish", BindingFlags.Instance | BindingFlags.NonPublic).Invoke(mark, null);
++            Check(Near(FloorAmount(AntColony.Data.ResourceType.Wood) - wood, 7), "G14 refund once"); Object.DestroyImmediate(demolition.gameObject);
++
++            var events = ColonyEvents.Instance;
++            events.Restore(new ColonyEvents.State());
++            Check(events.EnsureSeasonCaravan(0) && !events.EnsureSeasonCaravan(0), "G14 one guaranteed visit per season");
++            var eventState = JsonUtility.FromJson<ColonyEvents.State>(JsonUtility.ToJson(events.Capture())); events.Restore(eventState);
++            Check(!events.EnsureSeasonCaravan(0) && events.CaravanPresent, "G14 visit survives JSON restore without duplicate");
++            rm.Add(AntColony.Data.ResourceType.Food, 100);
++            var bought = FloorAmount(AntColony.Data.ResourceType.Steel); var balance = rm.GetAmount(AntColony.Data.ResourceType.Food);
++            Check(events.TryBuySupply(AntColony.Data.ResourceType.Steel, 1) && Near(FloorAmount(AntColony.Data.ResourceType.Steel), bought + 1)
++                && rm.GetAmount(AntColony.Data.ResourceType.Food) == balance - ColonyEvents.SupplyPrice(AntColony.Data.ResourceType.Steel), "G14 advanced material trade before diplomacy unlock");
++            Check(!events.TryBuySupply(AntColony.Data.ResourceType.Steel, -1) && !events.TryBuySupply(AntColony.Data.ResourceType.Food, 1), "G14 invalid trade rejected");
++            foreach (var type in new[] { AntColony.Data.ResourceType.Special, AntColony.Data.ResourceType.Component, AntColony.Data.ResourceType.Sulfur })
++            {
++                bought = FloorAmount(type);
++                Check(events.TryBuySupply(type, 1) && FloorAmount(type) == bought + 1, "G14 recurring essential supply " + type);
++            }
++            eventState = events.Capture(); eventState.caravanRemaining = 0; events.Restore(eventState);
++            Check(!events.TryBuySupply(AntColony.Data.ResourceType.Steel, 1), "G14 expired caravan cannot sell");
++            Check(events.EnsureSeasonCaravan(1), "G14 next season repeat supply");
++
++            rm.Add(AntColony.Data.ResourceType.Water, 11); steam.RestoreFuel(6);
++            drill.RestoreSupply(new SupplyFacility.State { work = 2, fluid = (int)AntColony.Data.ResourceType.CrudeOil, amount = 4 });
++            beds[0].RestoreCrop(new StarterCropBed.State { planted = true, growth = 123, wateredSeconds = 45 });
++            var savedWater = rm.GetAmount(AntColony.Data.ResourceType.Water);
++            await Task.Delay(100); // 철거의 지연 Destroy가 끝난 뒤 저장.
++            Check(SaveSystem.TrySave(false, 0, out var saveError), "save: " + saveError);
++            Check(SaveSystem.TryLoad(SaveSlots.PathFor(false, 0), out var loadError), "load: " + loadError);
++            await Ready();
++            var loadedDrill = SupplyFacility.All.Single(n => n.Kind == BuildingKind.OilDrill);
++            var loadedSteam = Object.FindObjectsByType<PowerNode>(FindObjectsSortMode.None).Single(n => n.Kind == BuildingKind.SteamGenerator);
++            Check(loadedDrill.Supply.amount == 4 && Near(loadedDrill.Supply.work, 2) && Near(loadedSteam.FuelSeconds, 6), "save/load oil and fuel progress");
++            Check(ResourceManager.Instance.GetAmount(AntColony.Data.ResourceType.Water) == savedWater && GameSession.Instance.Options.climate == MapClimate.Cold, "save/load water totals and climate");
++            Check(Object.FindObjectsByType<StarterCropBed>(FindObjectsSortMode.None).Any(b => Near(b.Crop.growth, 123) && Near(b.Crop.wateredSeconds, 45)), "save/load paid crop water and growth");
++            Check(!ColonyEvents.Instance.EnsureSeasonCaravan(1), "save/load caravan guarantee once");
++            Check(ResourceNode.Available.Any(n => n.ResourceType == AntColony.Data.ResourceType.Food && !n.IsLooseCargo && n.AmountRemaining > 0), "save/load natural start food active");
++            return "PASS " + count;
++        }
++        finally
++        {
++            foreach (var go in made) if (go != null) Object.DestroyImmediate(go);
++            made.Clear(); UnityEngine.Random.state = random; Time.timeScale = scale;
++            SaveStorage.RootOverride = root; UserSettings.Apply(settings, false);
++        }
++    }
++}
+diff --git a/Assets/_Project/Scripts/Buildings/BuildingPlacementController.cs b/Assets/_Project/Scripts/Buildings/BuildingPlacementController.cs
+index 36ffcf5..ce1e8f9 100644
+--- a/Assets/_Project/Scripts/Buildings/BuildingPlacementController.cs
++++ b/Assets/_Project/Scripts/Buildings/BuildingPlacementController.cs
+@@ -176,7 +176,7 @@ namespace AntColony.Buildings
+         public static string LockReason(BuildingKind kind)
+         {
+             if (kind == BuildingKind.ConscriptionPost && (FindFirstObjectByType<ConscriptionPost>() != null || System.Array.Exists(FindObjectsByType<BuildingConstructionSite>(FindObjectsSortMode.None), s => s.BuildingKind == kind))) return "본거지 징집소는 한 곳만 건설할 수 있습니다.";
+-            if ((kind == BuildingKind.Farm || kind == BuildingKind.MushroomFarm || kind == BuildingKind.AphidPen) && !BiomeRules.FarmAllowed) return "도시 구석에는 밭을 지을 수 없습니다.";
++            if (kind == BuildingKind.WaterSource || kind == BuildingKind.OilDeposit) return "자연 지점은 건설할 수 없습니다.";
+             if (kind == BuildingKind.AphidPen && !ScienceEffects.CropUnlocked(FarmCrop.Honeydew)) return "감로 목장 연구가 필요합니다.";
+             if (!ScienceEffects.BuildingUnlocked(kind)) return "관련 과학 기술을 먼저 연구하세요.";
+             if (kind == BuildingKind.MineField && MineField.Count >= GameBalance.MaxMines) return $"Up to {GameBalance.MaxMines} mine fields at once.";
+@@ -218,7 +218,7 @@ namespace AntColony.Buildings
+             // 재개발 보상비만 배치 순간 지급하고 취소해도 돌려주지 않는다.
+             var quote = redevelop != null ? Redevelopment.Price(cost, redevelop) : default;
+             int food = redevelop != null ? quote.food : cost.foodCost, soil = redevelop != null ? quote.soil : cost.soilCost, special = redevelop != null ? quote.special : cost.specialCost;
+-            var material = redevelop != null ? ResourceType.Soil : EarlyConstruction.HasFixedCost(pendingKind) ? ResourceType.Wood : PendingMaterial;
++            var material = redevelop != null ? ResourceType.Soil : EarlyConstruction.HasFixedCost(pendingKind) ? EarlyConstruction.Cost(pendingKind).FirstOrDefault().type : PendingMaterial;
+             if (ResourceManager.Instance == null) return null;
+             if (pendingKind != BuildingKind.SleepingMat && builder is CommanderAnt commander && !commander.CanDoJob(Decoration.IsKind(pendingKind) ? CommanderJobs.Art : CommanderJobs.Building))
+             { PlacementFailed("이 장수는 해당 작업을 할 수 없습니다."); return null; }
+@@ -239,6 +239,12 @@ namespace AntColony.Buildings
+             completedBuilding.GetComponent<BuildingBase>().MainMaterial = material;
+             if (pendingKind == BuildingKind.Farm)
+                 completedBuilding.AddComponent<FarmPlot>().Configure(pendingCrop ?? SelectedCrop, ScienceEffects.WideFarms);
++            if ((pendingKind == BuildingKind.Farm || pendingKind == BuildingKind.AphidPen)
++                && !StartGroundRules.OpenFieldAllowed(completedBuilding.GetComponent<BuildingBase>()))
++            {
++                Destroy(completedBuilding);
++                PlacementFailed("포장 지면에는 노지 밭 대신 화분형 밭·기본 버섯밭을 놓으세요."); return null;
++            }
+ 
+             var siteObject = GameObject.CreatePrimitive(PrimitiveType.Cube);
+             siteObject.name = completedBuilding.name + "ConstructionSite";
+@@ -392,6 +398,7 @@ namespace AntColony.Buildings
+         {
+             var template = kind switch
+             {
++                _ when SupplyBuildingTemplates.IsKind(kind) => SupplyBuildingTemplates.Create(kind),
+                 BuildingKind.CrashWreck => FindTemplate<CrashWreck>(kind) ?? RuntimeBuildingTemplates.Create(kind), // BuildingBase로 찾으면 Data 없는 연구소 템플릿이 먼저 걸린다
+                 BuildingKind.ResearchLab => FindTemplate<ResearchLab>(role),
+                 BuildingKind.Farm or BuildingKind.MushroomFarm or BuildingKind.AphidPen => FindFarmTemplate(),
+diff --git a/Assets/_Project/Scripts/Buildings/Demolition.cs b/Assets/_Project/Scripts/Buildings/Demolition.cs
+index e158231..38edca9 100644
+--- a/Assets/_Project/Scripts/Buildings/Demolition.cs
++++ b/Assets/_Project/Scripts/Buildings/Demolition.cs
+@@ -12,7 +12,8 @@ namespace AntColony.Buildings
+     public static class Demolition
+     {
+         public static bool Pending(BuildingBase b) => Object.FindObjectsByType<DemolitionSite>().Any(s => s.Target == b);
+-        private static bool Orderable(BuildingBase b) => b != null && !b.IsDead && b.Data != null && b.CountsTowardPlayerDefeat && !(b is Stockpile) && !Pending(b);
++        private static bool Orderable(BuildingBase b) => b != null && !b.IsDead && b.Data != null && b.CountsTowardPlayerDefeat && !(b is Stockpile)
++            && !(b is SupplyFacility source && source.IsNaturalSource) && !Pending(b);
+         // 환자·포로·치료 중인 동물이 들어 있는 시설은 비우기 전 철거·이동·개보수를 할 수 없다(2026-10-12).
+         public static bool HoldsPrisoners(BuildingBase b) => b != null && (b.TryGetComponent<PrisonerCamp>(out var camp) && camp.Count > 0
+             || b is Infirmary ward && ward.Patients.Count > 0
+@@ -77,6 +78,7 @@ namespace AntColony.Buildings
+         // 창고·냉장고·먹이통 등 내용물을 원래 자리 바닥에 내놓고, 진행 중 생산을 취소한다(이미 소비한 재료는 반환하지 않는다).
+         internal static void EmptyForRemoval(BuildingBase b)
+         {
++            (b as SupplyFacility)?.EjectStored();
+             if (b is Storage store) ResourceManager.Instance?.EjectAll(store.Bin);
+             (b as RanchFacility)?.OnRemoved(); // 먹이통·도축대 내용물은 바닥에, 치료대 환자는 그 자리에
+             (b as Processor)?.CancelCurrent(); (b as Kitchen)?.CancelCurrent(); (b as Kitchen)?.EjectStaged();
+diff --git a/Assets/_Project/Scripts/Buildings/EarlyConstruction.cs b/Assets/_Project/Scripts/Buildings/EarlyConstruction.cs
+index b802e14..14e19a3 100644
+--- a/Assets/_Project/Scripts/Buildings/EarlyConstruction.cs
++++ b/Assets/_Project/Scripts/Buildings/EarlyConstruction.cs
+@@ -8,9 +8,14 @@ namespace AntColony.Buildings
+     public static class EarlyConstruction
+     {
+         public static bool HasFixedCost(BuildingKind kind) => kind is BuildingKind.Carpentry or BuildingKind.ScienceLab
+-            or BuildingKind.ConscriptionPost or BuildingKind.ScoutPost;
++            or BuildingKind.ConscriptionPost or BuildingKind.ScoutPost or BuildingKind.Treadmill or BuildingKind.PowerWire or BuildingKind.Battery
++            || SupplyBuildingTemplates.IsKind(kind);
+         public static (ResourceType type, int amount)[] Cost(BuildingKind kind) => kind switch
+         {
++            _ when SupplyBuildingTemplates.IsKind(kind) => SupplyBuildingTemplates.Cost(kind),
++            BuildingKind.Treadmill => new[] { (AntColony.Data.ResourceType.Wood, 20) },
++            BuildingKind.PowerWire => new[] { (AntColony.Data.ResourceType.Copper, 1) },
++            BuildingKind.Battery => new[] { (AntColony.Data.ResourceType.Iron, 5), (AntColony.Data.ResourceType.Copper, 5) },
+             BuildingKind.Carpentry => new[] { (ResourceType.Wood, 10) },
+             BuildingKind.ConscriptionPost or BuildingKind.ScoutPost => new[] { (ResourceType.Wood, 20) },
+             _ => new[] { (ResourceType.Wood, 20), (ResourceType.Stone, 10) }
+@@ -19,9 +24,10 @@ namespace AntColony.Buildings
+         internal static GameObject Prepare(GameObject template, BuildingKind kind)
+         {
+             if (template == null || !HasFixedCost(kind)) return template;
++            if (SupplyBuildingTemplates.IsKind(kind)) return template;
+             var building = template.GetComponent<BuildingBase>();
+             var name = kind switch { BuildingKind.Carpentry => "기초 목공대", BuildingKind.ConscriptionPost => "징집소",
+-                BuildingKind.ScoutPost => "정찰 초소", _ => "정착지 연구대" };
++                BuildingKind.ScoutPost => "정찰 초소", BuildingKind.Treadmill => "쳇바퀴", BuildingKind.PowerWire => "전선", BuildingKind.Battery => "배터리", _ => "정착지 연구대" };
+             var cost = Cost(kind).Sum(c => c.amount);
+             if (building.Data.displayName == name && building.Data.constructionAnts == 0 && building.Data.foodCost == 0
+                 && building.Data.soilCost == cost && building.Data.specialCost == 0) return template;
+diff --git a/Assets/_Project/Scripts/Buildings/FluidNetwork.cs b/Assets/_Project/Scripts/Buildings/FluidNetwork.cs
+new file mode 100644
+index 0000000..de65ca6
+--- /dev/null
++++ b/Assets/_Project/Scripts/Buildings/FluidNetwork.cs
+@@ -0,0 +1,42 @@
++using System.Collections.Generic;
++using System.Linq;
++using AntColony.Data;
++using UnityEngine;
++
++namespace AntColony.Buildings
++{
++    public static class FluidNetwork
++    {
++        // 재배치·철거·저장 복원 직후에도 낡은 연결을 쓰지 않도록 필요할 때 작은 배관망을 순회한다.
++        private static List<SupplyFacility> Connected(BuildingBase from)
++        {
++            var active = SupplyFacility.All.Where(n => n != null && n.Operational && !n.IsNaturalSource).ToList();
++            var reached = new List<SupplyFacility>(); var queue = new Queue<BuildingBase>(); queue.Enqueue(from);
++            while (queue.Count > 0)
++            {
++                var current = queue.Dequeue(); var cells = RoomSystem.Footprint(current);
++                foreach (var node in active)
++                {
++                    if (reached.Contains(node) || !RoomSystem.Footprint(node).Any(c => cells.Any(a => Mathf.Abs(a.x - c.x) + Mathf.Abs(a.y - c.y) <= 1))) continue;
++                    reached.Add(node); queue.Enqueue(node);
++                }
++            }
++            return reached;
++        }
++        private static IEnumerable<SupplyFacility> Outputs(SupplyFacility from, AntColony.Data.ResourceType fluid, int amount)
++            => Connected(from).Where(n => n.Kind == BuildingKind.FluidTank && n.CanHold(fluid, amount))
++                .Concat(from.CanHold(fluid, amount) ? new[] { from } : System.Array.Empty<SupplyFacility>());
++        public static bool CanDeliver(SupplyFacility from, AntColony.Data.ResourceType fluid, int amount) => Outputs(from, fluid, amount).Any();
++        public static bool Deliver(SupplyFacility from, AntColony.Data.ResourceType fluid, int amount)
++            => Outputs(from, fluid, amount).FirstOrDefault()?.Fill(fluid, amount) == true;
++        public static bool Has(BuildingBase from, AntColony.Data.ResourceType fluid, int amount)
++            => amount > 0 && Connected(from).Where(n => n.Supply.fluid == (int)fluid).Sum(n => n.Supply.amount) >= amount;
++        public static bool Take(BuildingBase from, AntColony.Data.ResourceType fluid, int amount)
++        {
++            var sources = Connected(from).Where(n => n.Supply.fluid == (int)fluid).ToList();
++            if (amount <= 0 || sources.Sum(n => n.Supply.amount) < amount) return false;
++            foreach (var n in sources) { var take = Mathf.Min(amount, n.Supply.amount); n.Drain(take); amount -= take; if (amount == 0) break; }
++            return true;
++        }
++    }
++}
+diff --git a/Assets/_Project/Scripts/Buildings/FluidNetwork.cs.meta b/Assets/_Project/Scripts/Buildings/FluidNetwork.cs.meta
+new file mode 100644
+index 0000000..d2a1041
+--- /dev/null
++++ b/Assets/_Project/Scripts/Buildings/FluidNetwork.cs.meta
+@@ -0,0 +1,2 @@
++fileFormatVersion: 2
++guid: 817ec1e99e064d97aa59e52202cc4ff6
+diff --git a/Assets/_Project/Scripts/Buildings/PowerGrid.cs b/Assets/_Project/Scripts/Buildings/PowerGrid.cs
+index d27396c..3b8728b 100644
+--- a/Assets/_Project/Scripts/Buildings/PowerGrid.cs
++++ b/Assets/_Project/Scripts/Buildings/PowerGrid.cs
+@@ -34,7 +34,9 @@ namespace AntColony.Buildings
+         public static bool WantsPower(PowerNode node)
+         {
+             var net = NetworkOf(node);
+-            return net.Any(n => n.IsBattery) ? net.Any(n => n.IsBattery && n.Charge < Core.GameBalance.BatteryCapacity - .01f) : net.Any(n => n.IsConsumer);
++            var index = networkOf.TryGetValue(node, out var i) ? i : -1;
++            return net.Any(n => n.IsConsumer || n.IsBattery && n.Charge < Core.GameBalance.BatteryCapacity - .01f)
++                || users.Any(u => userNet.TryGetValue(u, out var j) && j == index && u.Demand > 0);
+         }
+ 
+         private void Update()
+diff --git a/Assets/_Project/Scripts/Buildings/PowerNode.cs b/Assets/_Project/Scripts/Buildings/PowerNode.cs
+index 12e1698..f208bac 100644
+--- a/Assets/_Project/Scripts/Buildings/PowerNode.cs
++++ b/Assets/_Project/Scripts/Buildings/PowerNode.cs
+@@ -13,18 +13,22 @@ namespace AntColony.Buildings
+         private static readonly List<PowerNode> Active = new List<PowerNode>();
+         public static IReadOnlyList<PowerNode> All => Active;
+         public BuildingKind Kind => Data.kind;
+-        public bool IsGenerator => Kind == BuildingKind.Treadmill || Kind == BuildingKind.WoodGenerator;
++        public bool IsGenerator => Kind == BuildingKind.Treadmill || Kind == BuildingKind.WoodGenerator || Kind == BuildingKind.SteamGenerator;
+         public bool IsConsumer => Kind == BuildingKind.ElectricLamp;
+         public bool IsBattery => Kind == BuildingKind.Battery;
+         public float Charge { get; internal set; }
+         public bool Powered { get; internal set; }
+         public CommanderAnt Runner { get; private set; }
+         private float runnerSeconds, burnSeconds;
++        public const float SteamWatts = 400; // 잠정: 시추 100W + 정유 200W를 고체연료만으로 가동.
++        public float FuelSeconds => burnSeconds;
++        public void RestoreFuel(float value) => burnSeconds = Mathf.Clamp(value, 0, GameBalance.WoodBurnSeconds);
+         private Light lamp;
+ 
+         // 지금 내는 전력(W). 쳇바퀴는 최근 0.5초 안에 장수가 뛰었을 때만, 장작 발전기는 태울 재료가 있을 때만.
+         public float Output => Kind == BuildingKind.Treadmill ? (runnerSeconds > 0 ? GameBalance.TreadmillWatts : 0)
+-            : Kind == BuildingKind.WoodGenerator ? (burnSeconds > 0 ? GameBalance.WoodGeneratorWatts : 0) : 0;
++            : Kind == BuildingKind.WoodGenerator ? (burnSeconds > 0 ? GameBalance.WoodGeneratorWatts : 0)
++            : Kind == BuildingKind.SteamGenerator && burnSeconds > 0 ? SteamWatts : 0;
+         public float Demand => IsConsumer ? GameBalance.LampWatts : 0;
+         // 쳇바퀴를 돌릴 필요(PowerGrid.WantsPower).
+         public bool NeedsRunner => Kind == BuildingKind.Treadmill && isActiveAndEnabled && !IsDead && PowerGrid.WantsPower(this);
+@@ -54,13 +58,15 @@ namespace AntColony.Buildings
+         private void Update()
+         {
+             var dt = Time.deltaTime;
++            if (Time.timeScale <= 0 || !(dt > 0) || AntColony.Save.SaveSystem.Busy || !GameSession.Exists || !GameSession.Instance.GameStarted) return;
+             runnerSeconds = Mathf.Max(0, runnerSeconds - dt);
+-            if (Kind == BuildingKind.WoodGenerator)
++            if (Kind == BuildingKind.WoodGenerator || Kind == BuildingKind.SteamGenerator)
+             {
+                 burnSeconds = Mathf.Max(0, burnSeconds - dt);
+                 // 전력이 필요할 때만 장작(재료 1)을 새로 넣는다.
+                 if (burnSeconds == 0 && PowerGrid.WantsPower(this) && ResourceManager.Instance != null
+-                    && ResourceManager.Instance.TrySpend(0, 1, reason: ResourceReason.Production)) burnSeconds = GameBalance.WoodBurnSeconds;
++                    && ResourceManager.Instance.TrySpend(Kind == BuildingKind.SteamGenerator ? AntColony.Data.ResourceType.Coal : AntColony.Data.ResourceType.Wood,
++                        1, ResourceReason.Production)) burnSeconds = GameBalance.WoodBurnSeconds;
+             }
+             if (lamp != null) lamp.enabled = Powered && GameCalendar.IsNight;
+         }
+diff --git a/Assets/_Project/Scripts/Buildings/StartGroundRules.cs b/Assets/_Project/Scripts/Buildings/StartGroundRules.cs
+new file mode 100644
+index 0000000..d7c0b4e
+--- /dev/null
++++ b/Assets/_Project/Scripts/Buildings/StartGroundRules.cs
+@@ -0,0 +1,20 @@
++using System.Linq;
++using UnityEngine;
++
++namespace AntColony.Buildings
++{
++    public static class StartGroundRules
++    {
++        public static bool OpenFieldAllowed(Vector3 position)
++        {
++            var cell = new Vector2Int(Mathf.FloorToInt(position.x), Mathf.FloorToInt(position.z));
++            return OpenFieldAllowed(new[] { cell });
++        }
++        public static bool OpenFieldAllowed(BuildingBase building) => OpenFieldAllowed(RoomSystem.Footprint(building));
++        private static bool OpenFieldAllowed(System.Collections.Generic.IEnumerable<Vector2Int> cells)
++        {
++            return !Object.FindObjectsByType<FloorTile>(FindObjectsSortMode.None)
++                .Any(f => !f.IsDead && RoomSystem.Footprint(f).Any(cells.Contains));
++        }
++    }
++}
+diff --git a/Assets/_Project/Scripts/Buildings/StartGroundRules.cs.meta b/Assets/_Project/Scripts/Buildings/StartGroundRules.cs.meta
+new file mode 100644
+index 0000000..9af6d56
+--- /dev/null
++++ b/Assets/_Project/Scripts/Buildings/StartGroundRules.cs.meta
+@@ -0,0 +1,2 @@
++fileFormatVersion: 2
++guid: 85aee7e54fc84a54b750cb337258d18e
+diff --git a/Assets/_Project/Scripts/Buildings/StarterCropBed.cs b/Assets/_Project/Scripts/Buildings/StarterCropBed.cs
+new file mode 100644
+index 0000000..4d5e59a
+--- /dev/null
++++ b/Assets/_Project/Scripts/Buildings/StarterCropBed.cs
+@@ -0,0 +1,48 @@
++using System;
++using AntColony.Core;
++using AntColony.World;
++using UnityEngine;
++
++namespace AntColony.Buildings
++{
++    // 독립적인 1칸 작물. 도시 포장 위에도 화분·버섯 배지를 놓을 수 있다.
++    public sealed class StarterCropBed : BuildingBase
++    {
++        [Serializable] public sealed class State { public bool planted; public float growth, wateredSeconds; }
++        public State Crop { get; private set; } = new State();
++        public void RestoreCrop(State value) => Crop = value ?? new State();
++        public static bool Valid(State s) => s != null && Finite(s.growth, StartSupplyRules.CropSeconds)
++            && Finite(s.wateredSeconds, GameCalendar.SecondsPerDay) && (s.planted || s.growth == 0 && s.wateredSeconds == 0);
++        private static bool Finite(float v, float max) => !float.IsNaN(v) && !float.IsInfinity(v) && v >= 0 && v < max;
++        public bool Plant()
++        {
++            if (!isActiveAndEnabled || IsDead || Crop.planted || ResourceManager.Instance == null
++                || !ResourceManager.Instance.TrySpend(AntColony.Data.ResourceType.PlantingMaterial, 1, ResourceReason.Production)) return false;
++            Crop.planted = true; return true;
++        }
++        private void Update()
++        {
++            if (!AntColony.Save.SaveSystem.Busy && GameSession.Exists && GameSession.Instance.GameStarted) Tick(Time.deltaTime);
++        }
++        public void Tick(float seconds)
++        {
++            if (!isActiveAndEnabled || IsDead || !Crop.planted || !(seconds > 0) || float.IsInfinity(seconds)) return;
++            while (seconds > 0)
++            {
++                if (Crop.wateredSeconds <= 0)
++                {
++                    if (!FluidNetwork.Take(this, AntColony.Data.ResourceType.Water, StartSupplyRules.MushroomWaterPerDay)
++                        && (ResourceManager.Instance == null || !ResourceManager.Instance.TrySpend(AntColony.Data.ResourceType.Water,
++                            StartSupplyRules.MushroomWaterPerDay, ResourceReason.Production))) return;
++                    Crop.wateredSeconds = GameCalendar.SecondsPerDay;
++                }
++                var dt = Mathf.Min(seconds, Mathf.Min(Crop.wateredSeconds, StartSupplyRules.CropSeconds - Crop.growth));
++                Crop.wateredSeconds -= dt; Crop.growth += dt; seconds -= dt;
++                if (Crop.growth < StartSupplyRules.CropSeconds) continue;
++                Crop.growth = 0;
++                var lots = new FoodLots(); lots.Add(StartSupplyRules.DailyFood, FoodLots.ShelfLife(FoodPreservation.Mushroom));
++                DiplomacyManager.DropFloor(AntColony.Data.ResourceType.Food, StartSupplyRules.DailyFood, Position + Vector3.right, lots);
++            }
++        }
++    }
++}
+diff --git a/Assets/_Project/Scripts/Buildings/StarterCropBed.cs.meta b/Assets/_Project/Scripts/Buildings/StarterCropBed.cs.meta
+new file mode 100644
+index 0000000..662f85f
+--- /dev/null
++++ b/Assets/_Project/Scripts/Buildings/StarterCropBed.cs.meta
+@@ -0,0 +1,2 @@
++fileFormatVersion: 2
++guid: 83c87935b5504a86ac8abd1b08ec148d
+diff --git a/Assets/_Project/Scripts/Buildings/Storage.cs b/Assets/_Project/Scripts/Buildings/Storage.cs
+index 0041985..45bea6f 100644
+--- a/Assets/_Project/Scripts/Buildings/Storage.cs
++++ b/Assets/_Project/Scripts/Buildings/Storage.cs
+@@ -14,7 +14,7 @@ namespace AntColony.Buildings
+             && CampaignResearch.Instance.Has(ScienceTechnology.Fermentation)
+             ? new Vector3Int(data.foodCapacityBonus / 2, data.soilCapacityBonus / 2, data.specialCapacityBonus / 2) : Vector3Int.zero;
+         protected override bool IsDepositPoint => true;
+-        internal int RegisteredCapacity(ResourceType t) => t.IsFood() ? registeredCapacity.x : t.IsMaterial() ? registeredCapacity.y : registeredCapacity.z;
++        internal int RegisteredCapacity(ResourceType t) => t.IsFood() ? registeredCapacity.x : t == ResourceType.Special ? registeredCapacity.z : registeredCapacity.y;
+ 
+         private void Start()
+         {
+diff --git a/Assets/_Project/Scripts/Buildings/SupplyBuildingTemplates.cs b/Assets/_Project/Scripts/Buildings/SupplyBuildingTemplates.cs
+new file mode 100644
+index 0000000..c5e46d3
+--- /dev/null
++++ b/Assets/_Project/Scripts/Buildings/SupplyBuildingTemplates.cs
+@@ -0,0 +1,48 @@
++using AntColony.Data;
++using UnityEngine;
++
++namespace AntColony.Buildings
++{
++    public static class SupplyBuildingTemplates
++    {
++        public static bool IsKind(BuildingKind kind) => kind >= BuildingKind.PlanterBed && kind <= BuildingKind.FuelCharger;
++        public static (AntColony.Data.ResourceType type, int amount)[] Cost(BuildingKind kind) => kind switch
++        {
++            BuildingKind.WaterSource or BuildingKind.OilDeposit => System.Array.Empty<(AntColony.Data.ResourceType, int)>(),
++            BuildingKind.FluidPipe => new[] { (AntColony.Data.ResourceType.Copper, 1) },
++            BuildingKind.FluidTank or BuildingKind.FuelCharger => new[] { (AntColony.Data.ResourceType.Steel, 5) },
++            BuildingKind.ManualWell or BuildingKind.PlanterBed or BuildingKind.StarterMushroomBed => new[] { (AntColony.Data.ResourceType.Wood, 10) },
++            _ => new[] { (AntColony.Data.ResourceType.Iron, 10), (AntColony.Data.ResourceType.Copper, 5) }
++        };
++
++        public static GameObject Create(BuildingKind kind)
++        {
++            if (!IsKind(kind)) return null;
++            // 기존 템플릿 탐색과 동일하게 비활성 템플릿을 재사용한다.
++            foreach (var b in Object.FindObjectsByType<BuildingBase>(FindObjectsInactive.Include, FindObjectsSortMode.None))
++                if (b.Data != null && b.Data.kind == kind && b.name.EndsWith("Template")) return b.gameObject;
++            var go = GameObject.CreatePrimitive(PrimitiveType.Cube); go.SetActive(false);
++            go.name = kind + "Template"; go.transform.localScale = Vector3.one;
++            go.GetComponent<Collider>().isTrigger = true;
++            var data = ScriptableObject.CreateInstance<BuildingData>(); data.name = kind + "Data";
++            data.kind = kind; data.displayName = Name(kind); data.foodCost = data.soilCost = data.specialCost = data.constructionAnts = 0;
++            foreach (var cost in Cost(kind)) data.soilCost += cost.amount;
++            data.buildTimeSeconds = 5;
++            BuildingBase building;
++            if (kind == BuildingKind.PlanterBed || kind == BuildingKind.StarterMushroomBed) building = go.AddComponent<StarterCropBed>();
++            else if (kind == BuildingKind.SteamGenerator) building = go.AddComponent<PowerNode>();
++            else building = go.AddComponent<SupplyFacility>();
++            building.ConfigureRuntime(data);
++            return go;
++        }
++
++        private static string Name(BuildingKind kind) => kind switch
++        {
++            BuildingKind.PlanterBed => "화분형 밭", BuildingKind.StarterMushroomBed => "기본 버섯밭",
++            BuildingKind.WaterSource => "수원", BuildingKind.OilDeposit => "석유 매장 지점", BuildingKind.ManualWell => "수동 우물",
++            BuildingKind.WaterPump => "취수 펌프", BuildingKind.FluidPipe => "기초 배관", BuildingKind.FluidTank => "유체 탱크",
++            BuildingKind.SteamGenerator => "증기 고체연료 발전기", BuildingKind.OilDrill => "석유 시추기",
++            BuildingKind.OilRefinery => "정유기", BuildingKind.FuelCharger => "연료 충전기", _ => kind.ToString()
++        };
++    }
++}
+diff --git a/Assets/_Project/Scripts/Buildings/SupplyBuildingTemplates.cs.meta b/Assets/_Project/Scripts/Buildings/SupplyBuildingTemplates.cs.meta
+new file mode 100644
+index 0000000..0157305
+--- /dev/null
++++ b/Assets/_Project/Scripts/Buildings/SupplyBuildingTemplates.cs.meta
+@@ -0,0 +1,2 @@
++fileFormatVersion: 2
++guid: e31ac8dcf77d43baa6da9e2a0ac8f9e1
+diff --git a/Assets/_Project/Scripts/Buildings/SupplyFacility.cs b/Assets/_Project/Scripts/Buildings/SupplyFacility.cs
+new file mode 100644
+index 0000000..db6f499
+--- /dev/null
++++ b/Assets/_Project/Scripts/Buildings/SupplyFacility.cs
+@@ -0,0 +1,109 @@
++using System;
++using System.Collections.Generic;
++using System.Linq;
++using AntColony.Core;
++using AntColony.Data;
++using AntColony.World;
++using UnityEngine;
++
++namespace AntColony.Buildings
++{
++    public sealed class SupplyFacility : BuildingBase, PowerGrid.IUser
++    {
++        [Serializable] public sealed class State
++        {
++            public float work;
++            public int fluid = -1, amount;
++        }
++        public const int Capacity = 100;
++        // 펌프·시추·정유의 처리량과 펌프 전력은 G46 미정이므로 잠정값.
++        public const float DrillWatts = 100, RefineryWatts = 200, PumpWatts = 100, ProcessSeconds = 5;
++        public static readonly List<SupplyFacility> All = new List<SupplyFacility>();
++        public State Supply { get; private set; } = new State();
++        public BuildingKind Kind => Data.kind;
++        public bool IsNaturalSource => Kind == BuildingKind.WaterSource || Kind == BuildingKind.OilDeposit;
++        public static bool IsKind(BuildingKind kind) => SupplyBuildingTemplates.IsKind(kind)
++            && kind != BuildingKind.PlanterBed && kind != BuildingKind.StarterMushroomBed && kind != BuildingKind.SteamGenerator;
++        public bool Powered { get; set; }
++        public IEnumerable<Vector2Int> Cells => RoomSystem.Footprint(this);
++        public float Demand => Kind == BuildingKind.OilDrill ? DrillWatts : Kind == BuildingKind.OilRefinery ? RefineryWatts
++            : Kind == BuildingKind.WaterPump ? PumpWatts : 0;
++        public bool Operational => isActiveAndEnabled && !IsDead;
++        protected override void OnEnable() { base.OnEnable(); All.Add(this); if (Demand > 0) PowerGrid.Register(this); }
++        protected override void OnDisable() { All.Remove(this); PowerGrid.Unregister(this); Powered = false; base.OnDisable(); }
++        private void Update()
++        {
++            if (!AntColony.Save.SaveSystem.Busy && GameSession.Exists && GameSession.Instance.GameStarted) Tick(Time.deltaTime);
++        }
++        public void RestoreSupply(State value) => Supply = value ?? new State();
++        public static bool Valid(State s) => s != null && !float.IsNaN(s.work) && !float.IsInfinity(s.work)
++            && s.work >= 0 && s.work < ProcessSeconds && s.amount >= 0 && s.amount <= Capacity
++            && (s.fluid == -1 && s.amount == 0 || IsFluid(s.fluid));
++        public static bool IsFluid(int value) => value == (int)AntColony.Data.ResourceType.Water
++            || value == (int)AntColony.Data.ResourceType.CrudeOil || value == (int)AntColony.Data.ResourceType.Petroleum;
++        public bool NearSource(BuildingKind source) => All.Any(n => n != this && n.Operational && n.Kind == source && (n.Position - Position).sqrMagnitude <= 16);
++        public bool CanHold(AntColony.Data.ResourceType fluid, int amount) => amount > 0 && Supply.amount <= Capacity - amount
++            && (Supply.amount == 0 || Supply.fluid == (int)fluid);
++        public bool Fill(AntColony.Data.ResourceType fluid, int amount)
++        {
++            if (!Operational || !IsFluid((int)fluid) || !CanHold(fluid, amount)) return false;
++            Supply.fluid = (int)fluid; Supply.amount += amount; return true;
++        }
++        internal void Drain(int amount) { Supply.amount -= amount; if (Supply.amount == 0) Supply.fluid = -1; }
++
++        // 현장 장수의 작업 틱에서만 호출한다. 금지된 CommanderWork 연결은 인계 문서에 명시.
++        public bool WorkManual(float seconds)
++        {
++            if (!Operational || Kind != BuildingKind.ManualWell || !NearSource(BuildingKind.WaterSource)
++                || !(seconds > 0) || float.IsInfinity(seconds)) return false;
++            Supply.work += seconds;
++            while (Supply.work >= StartSupplyRules.ManualWaterSeconds)
++            {
++                Supply.work -= StartSupplyRules.ManualWaterSeconds;
++                if (!FluidNetwork.Deliver(this, AntColony.Data.ResourceType.Water, StartSupplyRules.ManualWaterAmount))
++                    DiplomacyManager.DropFloor(AntColony.Data.ResourceType.Water, StartSupplyRules.ManualWaterAmount, Position + Vector3.right);
++            }
++            return true;
++        }
++        public void Tick(float seconds)
++        {
++            if (!Operational || !Powered || !(seconds > 0) || float.IsInfinity(seconds)) return;
++            if (Kind != BuildingKind.WaterPump && Kind != BuildingKind.OilDrill && Kind != BuildingKind.OilRefinery) return;
++            if (Kind == BuildingKind.WaterPump && !NearSource(BuildingKind.WaterSource)
++                || Kind == BuildingKind.OilDrill && !NearSource(BuildingKind.OilDeposit)) return;
++            var output = Kind == BuildingKind.WaterPump ? AntColony.Data.ResourceType.Water
++                : Kind == BuildingKind.OilDrill ? AntColony.Data.ResourceType.CrudeOil : AntColony.Data.ResourceType.Petroleum;
++            var batch = Kind == BuildingKind.OilRefinery ? 1 : 10;
++            while (seconds > 0)
++            {
++                if (!FluidNetwork.CanDeliver(this, output, batch)) return;
++                if (Kind == BuildingKind.OilRefinery && !FluidNetwork.Has(this, AntColony.Data.ResourceType.CrudeOil, 1)) return;
++                var dt = Mathf.Min(seconds, ProcessSeconds - Supply.work); Supply.work += dt; seconds -= dt;
++                if (Supply.work < ProcessSeconds) break;
++                Supply.work = 0;
++                if (Kind == BuildingKind.OilRefinery) FluidNetwork.Take(this, AntColony.Data.ResourceType.CrudeOil, 1);
++                FluidNetwork.Deliver(this, output, batch);
++            }
++        }
++        public bool Unload(AntColony.Data.ResourceType fluid, int amount)
++        {
++            if (!Operational || fluid != AntColony.Data.ResourceType.Water || amount <= 0 || Supply.fluid != (int)fluid || Supply.amount < amount) return false;
++            Drain(amount); DiplomacyManager.DropFloor(fluid, amount, Position + Vector3.right); return true;
++        }
++        // 용기는 첫 시추·정유에 필요 없으며 망 밖으로 연료를 반출할 때만 소비한다.
++        public bool FillFuelDrum()
++        {
++            if (!Operational || Kind != BuildingKind.FuelCharger || ResourceManager.Instance == null
++                || !FluidNetwork.Has(this, AntColony.Data.ResourceType.Petroleum, 10)
++                || !ResourceManager.Instance.TrySpend(AntColony.Data.ResourceType.Drum, 1, ResourceReason.Production)) return false;
++            FluidNetwork.Take(this, AntColony.Data.ResourceType.Petroleum, 10);
++            DiplomacyManager.DropFloor(AntColony.Data.ResourceType.FilledFuelDrum, 1, Position + Vector3.right); return true;
++        }
++        public void EjectStored()
++        {
++            if (Supply.amount <= 0 || !IsFluid(Supply.fluid)) return;
++            var fluid = (AntColony.Data.ResourceType)Supply.fluid; var amount = Supply.amount;
++            Drain(amount); DiplomacyManager.DropFloor(fluid, amount, Position + Vector3.right);
++        }
++    }
++}
+diff --git a/Assets/_Project/Scripts/Buildings/SupplyFacility.cs.meta b/Assets/_Project/Scripts/Buildings/SupplyFacility.cs.meta
+new file mode 100644
+index 0000000..ea379e9
+--- /dev/null
++++ b/Assets/_Project/Scripts/Buildings/SupplyFacility.cs.meta
+@@ -0,0 +1,2 @@
++fileFormatVersion: 2
++guid: 2a2edfdbdfcd4f2db4dc0fe8541cea24
+diff --git a/Assets/_Project/Scripts/Core/Biome.cs b/Assets/_Project/Scripts/Core/Biome.cs
+index 268c61f..20f0ecc 100644
+--- a/Assets/_Project/Scripts/Core/Biome.cs
++++ b/Assets/_Project/Scripts/Core/Biome.cs
+@@ -5,6 +5,7 @@ namespace AntColony.Core
+ {
+     // 로컬 맵 바이옴: 6종(Phase 6, 2026-10-01 확정). 시작할 때 고른다(= 난이도), 월드맵 거점마다도 다르다. None은 옛 저장·검사용(보정 없음).
+     public enum MapBiome { None, Forest, Garden, Waterside, City, Desert, Cave }
++    public enum MapClimate { Temperate, Cold, TropicalWet }
+ 
+     // 바이옴 차이는 강하게(±60%, 확정). 숲 바닥은 확정, 나머지 3종은 잠정안.
+     // ponytail: 바이옴 전용 이벤트(발자국·물뿌리개·배수구 역류·쓰레기 더미)·물가 형태·숲 그늘은 다음 단계.
+@@ -28,7 +29,7 @@ namespace AntColony.Core
+ 
+         public static string Name(MapBiome b) => b switch
+         {
+-            MapBiome.Forest => "숲 바닥", MapBiome.Garden => "뒷마당 정원", MapBiome.Waterside => "물가 모래밭", MapBiome.City => "도시 구석", MapBiome.Desert => "사막", MapBiome.Cave => "동굴", _ => "기본"
++            MapBiome.Forest => "온대 숲", MapBiome.Garden => "초원", MapBiome.Waterside => "해안", MapBiome.City => "온대 숲 폐허", MapBiome.Desert => "건조 지대", MapBiome.Cave => "고산·지상 동굴", _ => "기본"
+         };
+ 
+         // 맵 생성 때 로컬 자원 노드 양에 곱한다.
+@@ -51,7 +52,7 @@ namespace AntColony.Core
+         public static float MoveAt(bool indoors) => Current == MapBiome.Desert && !indoors ? .9f : 1f;
+         // 동굴 어둠: 방 밖 작업 -15%(방 = 불 밝힌 공간).
+         public static float WorkAt(bool indoors) => Current == MapBiome.Cave && !indoors ? .85f : 1f;
+-        public static bool FarmAllowed => Current != MapBiome.City;
++        public static bool FarmAllowed => true; // 포장 여부는 건설 위치에서 판정한다.
+         public static float FishingYield => Current == MapBiome.Waterside ? 1 + Strong : 1f;
+         public static float MoldSpread => Current == MapBiome.Forest ? 2f : 1f;
+         public static float WildfireDamage => Current == MapBiome.Forest ? 2f : 1f;
+diff --git a/Assets/_Project/Scripts/Core/CrashLandingStart.cs b/Assets/_Project/Scripts/Core/CrashLandingStart.cs
+index c892508..24f861b 100644
+--- a/Assets/_Project/Scripts/Core/CrashLandingStart.cs
++++ b/Assets/_Project/Scripts/Core/CrashLandingStart.cs
+@@ -39,6 +39,7 @@ namespace AntColony.Core
+                 rm.RestoreMaterials(null);
+             }
+             DiplomacyManager.DropFloor(ResourceType.Stone, 20, FindFree(origin, new Vector3(4, 0, 2)));
++            StartingEnvironment.Create(origin, BiomeRules.Current, GameSession.Instance.Options.startingCount);
+             var go = GameObject.CreatePrimitive(PrimitiveType.Cube); go.name = "불시착 잔해"; go.SetActive(false);
+             go.transform.position = FindFree(origin, new Vector3(-5, 0, 3)) + Vector3.up * .5f;
+             go.transform.localScale = new Vector3(3, 1, 2);
+diff --git a/Assets/_Project/Scripts/Core/GameBalance.cs b/Assets/_Project/Scripts/Core/GameBalance.cs
+index af9a697..647a5f9 100644
+--- a/Assets/_Project/Scripts/Core/GameBalance.cs
++++ b/Assets/_Project/Scripts/Core/GameBalance.cs
+@@ -152,7 +152,7 @@ namespace AntColony.Core
+         public const float HotSpringFatigue = 40, BanquetMealMultiplier = 1.5f;
+         public const int BanquetDecorations = 3;
+         public const float FloorMoveMultiplier = 1.15f, FloorPoisonMultiplier = .5f, MatSleepMood = -3, PrisonRoomEscapeMultiplier = .5f;
+-        public const float TreadmillWatts = 40, WoodGeneratorWatts = 100, LampWatts = 10, BatteryCapacity = 1000, WoodBurnSeconds = 10, TreadmillExtraFatigue = .5f;
++        public const float TreadmillWatts = 100, WoodGeneratorWatts = 100, LampWatts = 10, BatteryCapacity = 1000, WoodBurnSeconds = 10, TreadmillExtraFatigue = .5f;
+         public const int CampfireSoil = 15, GamblingDenSoil = 25, CampfireSeats = 6, GamblingDenSeats = 4;
+         // 도박장(2026-09-29 초안 승인): 함께 한 판 끝나면 승자 +5·패자 -3(3분), 10% 말다툼 관계 -5.
+         public const float GambleWinMood = 5, GambleLoseMood = -3, GambleQuarrelChance = .1f, GambleQuarrel = -5;
+diff --git a/Assets/_Project/Scripts/Core/GameBootstrap.cs b/Assets/_Project/Scripts/Core/GameBootstrap.cs
+index 31262a7..1313f3b 100644
+--- a/Assets/_Project/Scripts/Core/GameBootstrap.cs
++++ b/Assets/_Project/Scripts/Core/GameBootstrap.cs
+@@ -70,7 +70,7 @@ namespace AntColony.Core
+                 if (rollback != null)
+                 {
+                     SaveSystem.Reload(rollback, new NewGameOptions { mapSize = (MapSize)rollback.options.mapSize,
+-                        difficulty = (DifficultyLevel)rollback.options.difficulty, commanderDeath = (CommanderDeathMode)rollback.options.commanderDeath, seed = rollback.options.seed, biome = (MapBiome)rollback.options.biome });
++                        difficulty = (DifficultyLevel)rollback.options.difficulty, commanderDeath = (CommanderDeathMode)rollback.options.commanderDeath, seed = rollback.options.seed, biome = (MapBiome)rollback.options.biome, climate = (MapClimate)rollback.options.climate });
+                     yield break;
+                 }
+                 GameSession.Instance.MarkNotStarted();
+diff --git a/Assets/_Project/Scripts/Core/GameOptions.cs b/Assets/_Project/Scripts/Core/GameOptions.cs
+index 8170d13..bae2643 100644
+--- a/Assets/_Project/Scripts/Core/GameOptions.cs
++++ b/Assets/_Project/Scripts/Core/GameOptions.cs
+@@ -17,6 +17,7 @@ namespace AntColony.Core
+         public CommanderDeathMode commanderDeath = CommanderDeathMode.Normal;
+         public int seed = 12345;
+         public MapBiome biome; // 새 게임 화면이 게임 시작 때 무작위로 정한다. None = 보정 없음(옛 저장·검사)
++        public MapClimate climate; // 한랭·열대/습지는 독립 바이옴 대신 기후 변형.
+         public int startingCount = 3;
+         public StartingCandidate[] startingTeam;
+ 
+diff --git a/Assets/_Project/Scripts/Core/ResourceManager.cs b/Assets/_Project/Scripts/Core/ResourceManager.cs
+index cf1eea2..e0d5f32 100644
+--- a/Assets/_Project/Scripts/Core/ResourceManager.cs
++++ b/Assets/_Project/Scripts/Core/ResourceManager.cs
+@@ -53,7 +53,7 @@ namespace AntColony.Core
+                 return pile != null ? pile.Position : AntColony.World.WorldMapManager.Instance?.HomePosition ?? Vector3.zero;
+             }
+         }
+-        private static ResourceType Key(ResourceType t) => t.IsFood() ? ResourceType.Food : t.IsMaterial() ? ResourceType.Soil : ResourceType.Special;
++        private static ResourceType Key(ResourceType t) => t.IsFood() ? ResourceType.Food : t == ResourceType.Special ? ResourceType.Special : ResourceType.Soil;
+         // 비축더미 칸 한도 = 전체 한도 − 창고 건물이 늘린 한도.
+         private int BaseCapacity(ResourceType t) => GetCapacity(t) - bins.Where(b => !b.IsBase && b.Host is Storage).Sum(b => ((Storage)b.Host).RegisteredCapacity(t));
+ 
+@@ -94,7 +94,8 @@ namespace AntColony.Core
+             }
+             OnResourcesChanged?.Invoke();
+         }
+-        internal static readonly ResourceType[] OtherMaterials = Array.FindAll(ResourceLabels.Materials, t => t != ResourceType.Soil);
++        internal static readonly ResourceType[] OtherMaterials = Array.FindAll((ResourceType[])Enum.GetValues(typeof(ResourceType)),
++            t => !t.IsFood() && t != ResourceType.Special && t != ResourceType.Soil); // 물도 저장 총량에 포함. 기존 재료 순서 보존.
+         // 칸별 저장값(v17)을 그대로 되돌린다. 이전 저장(null)은 RestoreState가 나눠 담은 그대로 둔다.
+         internal void RestoreBins(StoreBin.Dto baseBin, IEnumerable<(Storage storage, StoreBin.Dto dto)> storages)
+         {
+diff --git a/Assets/_Project/Scripts/Core/StartSupplyRules.cs b/Assets/_Project/Scripts/Core/StartSupplyRules.cs
+new file mode 100644
+index 0000000..c156ba1
+--- /dev/null
++++ b/Assets/_Project/Scripts/Core/StartSupplyRules.cs
+@@ -0,0 +1,15 @@
++using AntColony.Data;
++
++namespace AntColony.Core
++{
++    public static class StartSupplyRules
++    {
++        public const float Radius = 40, ManualWaterSeconds = 5;
++        public const int ManualWaterAmount = 10, MushroomWaterPerDay = 1;
++        public const float CropSeconds = GameCalendar.SecondsPerDay * 3;
++        public static int DailyFood => UnityEngine.Mathf.CeilToInt(GameBalance.MealFood * 2);
++        public static int StartFood(int commanders) => DailyFood * 7 * commanders;
++        public static string WaterName(MapBiome biome) => biome == MapBiome.Desert ? "지하수 지점"
++            : biome == MapBiome.Cave ? "용출수" : "얕은 수원";
++    }
++}
+diff --git a/Assets/_Project/Scripts/Core/StartSupplyRules.cs.meta b/Assets/_Project/Scripts/Core/StartSupplyRules.cs.meta
+new file mode 100644
+index 0000000..15735b9
+--- /dev/null
++++ b/Assets/_Project/Scripts/Core/StartSupplyRules.cs.meta
+@@ -0,0 +1,2 @@
++fileFormatVersion: 2
++guid: b940990e4e5f458089d6fefff883fefa
+diff --git a/Assets/_Project/Scripts/Core/StartingEnvironment.cs b/Assets/_Project/Scripts/Core/StartingEnvironment.cs
+new file mode 100644
+index 0000000..9f09d2e
+--- /dev/null
++++ b/Assets/_Project/Scripts/Core/StartingEnvironment.cs
+@@ -0,0 +1,51 @@
++using System;
++using AntColony.Buildings;
++using AntColony.Data;
++using AntColony.World;
++using UnityEngine;
++using UnityEngine.AI;
++
++namespace AntColony.Core
++{
++    public static class StartingEnvironment
++    {
++        public static void Create(Vector3 origin, MapBiome biome, int commanders)
++        {
++            // 확정 식용 자원은 쓰레기·무작위 지형 자원과 별도로 둔다.
++            Place(AntColony.Data.ResourceType.Food, StartSupplyRules.StartFood(commanders), 0, "시작 식용 자원");
++            Place(AntColony.Data.ResourceType.Wood, 80, 1, "시작 목재");
++            Place(AntColony.Data.ResourceType.Stone, 40, 2, "시작 석재");
++            Place(AntColony.Data.ResourceType.CopperOre, 24, 3, "시작 구리광맥");
++            Place(AntColony.Data.ResourceType.TinOre, 12, 4, "시작 주석광맥");
++            Place(AntColony.Data.ResourceType.Coal, 30, 5, "시작 석탄광맥");
++            Place(AntColony.Data.ResourceType.IronOre, 30, 6, "시작 철광맥");
++            DiplomacyManager.DropFloor(AntColony.Data.ResourceType.PlantingMaterial, commanders * 3, Ground(origin, 7));
++            Source(BuildingKind.WaterSource, 8, StartSupplyRules.WaterName(biome));
++            Source(BuildingKind.OilDeposit, 9, "석유 매장 지점");
++
++            void Place(AntColony.Data.ResourceType type, int amount, int slot, string name)
++            {
++                var go = GameObject.CreatePrimitive(PrimitiveType.Sphere); go.SetActive(false);
++                go.name = name; go.transform.position = Ground(origin, slot) + Vector3.up * .3f;
++                go.transform.localScale = Vector3.one * .6f; go.GetComponent<Collider>().isTrigger = true;
++                go.AddComponent<ResourceNode>().ConfigureNatural(type, amount, 0); go.SetActive(true);
++            }
++            void Source(BuildingKind kind, int slot, string name)
++            {
++                var go = UnityEngine.Object.Instantiate(SupplyBuildingTemplates.Create(kind));
++                go.name = name; go.transform.position = Ground(origin, slot); go.SetActive(true);
++            }
++        }
++
++        private static Vector3 Ground(Vector3 origin, int slot)
++        {
++            var angle = slot * Mathf.PI * 2 / 10;
++            var desired = origin + new Vector3(Mathf.Cos(angle), 0, Mathf.Sin(angle)) * 14;
++            if (NavMesh.SamplePosition(desired, out var hit, 8, NavMesh.AllAreas)
++                && Vector3.Distance(origin, hit.position) <= StartSupplyRules.Radius
++                && AntColony.Map.NavRoute.Reachable(origin, hit.position)) return hit.position;
++            if (NavMesh.SamplePosition(origin, out hit, 8, NavMesh.AllAreas)) return hit.position;
++            throw new InvalidOperationException("시작 자원·수원을 배치할 수 있는 땅이 없습니다.");
++        }
++    }
++}
+diff --git a/Assets/_Project/Scripts/Core/StartingEnvironment.cs.meta b/Assets/_Project/Scripts/Core/StartingEnvironment.cs.meta
+new file mode 100644
+index 0000000..6db40c8
+--- /dev/null
++++ b/Assets/_Project/Scripts/Core/StartingEnvironment.cs.meta
+@@ -0,0 +1,2 @@
++fileFormatVersion: 2
++guid: 2ab4961f8f2e4748b80a2ddc4a686c24
+diff --git a/Assets/_Project/Scripts/Data/BuildingData.cs b/Assets/_Project/Scripts/Data/BuildingData.cs
+index 53702d2..a27d151 100644
+--- a/Assets/_Project/Scripts/Data/BuildingData.cs
++++ b/Assets/_Project/Scripts/Data/BuildingData.cs
+@@ -63,7 +63,9 @@ namespace AntColony.Data
+         Fridge, Freezer,
+         // 2026-10-15 퇴비통(배설물·썩은 식품 → 비료), 묘비(장수 시신 1구 안치)
+         CompostBin, Tombstone,
+-        CrashWreck // 2026-10-23 불시착 잔해(건설 목록에는 없음)
++        CrashWreck, // 2026-10-23 불시착 잔해(건설 목록에는 없음)
++        PlanterBed, StarterMushroomBed, WaterSource, OilDeposit,
++        ManualWell, WaterPump, FluidPipe, FluidTank, SteamGenerator, OilDrill, OilRefinery, FuelCharger
+     }
+ 
+     [CreateAssetMenu(fileName = "BuildingData", menuName = "AntColony/Building Data")]
+diff --git a/Assets/_Project/Scripts/Data/ResourceType.cs b/Assets/_Project/Scripts/Data/ResourceType.cs
+index 8da6c23..009f9d2 100644
+--- a/Assets/_Project/Scripts/Data/ResourceType.cs
++++ b/Assets/_Project/Scripts/Data/ResourceType.cs
+@@ -15,6 +15,9 @@ namespace AntColony.Data
+             ResourceType.Manure => "배설물", ResourceType.Fertilizer => "비료",
+             ResourceType.MedicineBasic => "기초 약품", ResourceType.MedicineNormal => "일반 약품", ResourceType.MedicineAdvanced => "고급 약품", ResourceType.Component => "부품",
+             ResourceType.Water => "물",
++            ResourceType.PlantingMaterial => "기본 파종재", ResourceType.TinOre => "주석광석", ResourceType.Bronze => "청동",
++            ResourceType.CrudeOil => "원유", ResourceType.Petroleum => "정제유", ResourceType.Drum => "드럼통", ResourceType.GasCylinder => "가스 용기",
++            ResourceType.FilledFuelDrum => "정제유 드럼통",
+             _ => type.ToString()
+         };
+         // 물은 건설 주재료로 고를 수 없다. 재료 종류마다 저장 한도는 기존 재료(흙) 한도를 같이 쓴다.
+@@ -53,7 +56,8 @@ namespace AntColony.Data
+         // 2026-10-15 장수용 약품 3등급(이름·재료 미정, 잠정 표기). 동물용 의약품과 별개
+         MedicineBasic, MedicineNormal, MedicineAdvanced,
+         Component, // 일반 부품. 고장 부품·수리 변환 자원은 추가하지 않는다.
+-        Water // 위생 시설 소비용. 기존 자원 저장 번호 보존.
++        Water, // 위생 시설 소비용. 기존 자원 저장 번호 보존.
++        PlantingMaterial, TinOre, Bronze, CrudeOil, Petroleum, Drum, GasCylinder, FilledFuelDrum
+     }
+ 
+     // 재료 특성(내구·무게·가연성·미관·단열). 후반 재료가 모든 면에서 우월하지 않게 용도를 나눈다.
+diff --git a/Assets/_Project/Scripts/Data/SupplyRecipes.cs b/Assets/_Project/Scripts/Data/SupplyRecipes.cs
+new file mode 100644
+index 0000000..7e03fc4
+--- /dev/null
++++ b/Assets/_Project/Scripts/Data/SupplyRecipes.cs
+@@ -0,0 +1,16 @@
++using AntColony.Buildings;
++
++namespace AntColony.Data
++{
++    public static class SupplyRecipes
++    {
++        // 청동 비율·작업량은 기존 제련 레시피에 맞춘 잠정값. 용기 강철 비용은 G46 확정값.
++        public static Processor.Recipe[] For(BuildingKind kind) => kind == BuildingKind.Smelter ? new[]
++        {
++            new Processor.Recipe("청동", AntColony.Data.ResourceType.Bronze, 2, 14, null,
++                (AntColony.Data.ResourceType.CopperOre, 2), (AntColony.Data.ResourceType.TinOre, 1), (AntColony.Data.ResourceType.Coal, 1)),
++            new Processor.Recipe("드럼통", AntColony.Data.ResourceType.Drum, 1, 14, null, (AntColony.Data.ResourceType.Steel, 5)),
++            new Processor.Recipe("가스 용기", AntColony.Data.ResourceType.GasCylinder, 1, 14, null, (AntColony.Data.ResourceType.Steel, 10))
++        } : System.Array.Empty<Processor.Recipe>();
++    }
++}
+diff --git a/Assets/_Project/Scripts/Data/SupplyRecipes.cs.meta b/Assets/_Project/Scripts/Data/SupplyRecipes.cs.meta
+new file mode 100644
+index 0000000..f934cc2
+--- /dev/null
++++ b/Assets/_Project/Scripts/Data/SupplyRecipes.cs.meta
+@@ -0,0 +1,2 @@
++fileFormatVersion: 2
++guid: c1ea90fea7c24d2ea0cddb8bf8319431
+diff --git a/Assets/_Project/Scripts/Map/WeatherSystem.cs b/Assets/_Project/Scripts/Map/WeatherSystem.cs
+index 938f6cc..61f5478 100644
+--- a/Assets/_Project/Scripts/Map/WeatherSystem.cs
++++ b/Assets/_Project/Scripts/Map/WeatherSystem.cs
+@@ -48,6 +48,8 @@ namespace AntColony.Map
+         };
+ 
+         public static WeatherKind Roll(Season season, MapBiome biome, float value)
++            => Roll(season, biome, value, GameSession.Exists ? GameSession.Instance.Options.climate : MapClimate.Temperate);
++        public static WeatherKind Roll(Season season, MapBiome biome, float value, MapClimate climate)
+         {
+             // 맑음·비·폭풍·안개·눈·눈보라 가중치(계절), 그다음 바이옴 보정.
+             float[] w = season switch
+@@ -56,6 +58,9 @@ namespace AntColony.Map
+                 Season.Autumn => new float[] { 40, 25, 10, 25, 0, 0 }, _ => new float[] { 40, 0, 0, 10, 35, 15 }
+             };
+             float sand = 0;
++            // 기존 강수 가중치를 재사용한다. 기후별 별도 난수나 생존 배율은 추가하지 않는다.
++            if (climate == MapClimate.Cold) { w[4] += w[1]; w[5] += w[2]; w[1] = w[2] = 0; }
++            if (climate == MapClimate.TropicalWet) { w[1] += w[4]; w[2] += w[5]; w[4] = w[5] = 0; }
+             if (biome == MapBiome.Waterside) { w[1] *= 1.5f; w[3] *= 1.5f; }
+             if (biome == MapBiome.Desert) { w[0] += w[1] + w[4]; sand = w[2] + w[5]; w[1] = w[2] = w[4] = w[5] = 0; }
+             if (biome == MapBiome.Cave) { w[0] += w[1] + w[2] + w[4] + w[5]; w[1] = w[2] = w[4] = w[5] = 0; } // 땅속: 비·눈 없음
+diff --git a/Assets/_Project/Scripts/Save/SaveBuildings.cs b/Assets/_Project/Scripts/Save/SaveBuildings.cs
+index 5a9c614..17b4c01 100644
+--- a/Assets/_Project/Scripts/Save/SaveBuildings.cs
++++ b/Assets/_Project/Scripts/Save/SaveBuildings.cs
+@@ -31,7 +31,9 @@ namespace AntColony.Save
+                 d.labResearchCommanderId = commanders.IndexOf(lab.Target); d.labResearchAttack = lab.ResearchIsAttack; }
+             if (b is DigSite dig) d.digExpanded = dig.IsExpanded;
+             if (b is Gate gate) d.gateOpen = gate.Open;
+-            if (b is PowerNode power) d.powerCharge = power.Charge;
++            if (b is PowerNode power) { d.powerCharge = power.Charge; d.powerFuelSeconds = power.FuelSeconds; }
++            if (b is SupplyFacility supply) d.supply = JsonUtility.FromJson<SupplyFacility.State>(JsonUtility.ToJson(supply.Supply));
++            if (b is StarterCropBed crop) d.starterCrop = JsonUtility.FromJson<StarterCropBed.State>(JsonUtility.ToJson(crop.Crop));
+             if (b is ColdStorage cold) d.coldness = cold.Coldness;
+             d.materialTier = b.MaterialTier; d.mainMaterial = (int)b.MainMaterial;
+             if (b is AcidTower tower) d.towerCooldown = tower.Cooldown;
+@@ -99,7 +101,9 @@ namespace AntColony.Save
+             if (b is Stockpile && d.queenFishingRemaining > 0 && GameManager.Instance != null) GameManager.Instance.FishingUnlocked = true;
+             if (b is DigSite dig) dig.RestoreExpanded(d.digExpanded);
+             if (b is Gate gate) gate.SetOpen(d.gateOpen);
+-            if (b is PowerNode power) power.Charge = Mathf.Clamp(d.powerCharge, 0, GameBalance.BatteryCapacity);
++            if (b is PowerNode power) { power.Charge = Mathf.Clamp(d.powerCharge, 0, GameBalance.BatteryCapacity); power.RestoreFuel(d.powerFuelSeconds); }
++            if (b is SupplyFacility supply) supply.RestoreSupply(d.supply);
++            if (b is StarterCropBed crop) crop.RestoreCrop(d.starterCrop);
+             if (b is ColdStorage cold) cold.Coldness = float.IsNaN(d.coldness) ? 0 : Mathf.Clamp01(d.coldness);
+             b.MaterialTier = Mathf.Max(0, d.materialTier);
+             b.MainMaterial = (ResourceType)d.mainMaterial;
+diff --git a/Assets/_Project/Scripts/Save/SaveCatalog.cs b/Assets/_Project/Scripts/Save/SaveCatalog.cs
+index 9c3eba4..6dd4c0e 100644
+--- a/Assets/_Project/Scripts/Save/SaveCatalog.cs
++++ b/Assets/_Project/Scripts/Save/SaveCatalog.cs
+@@ -34,6 +34,7 @@ namespace AntColony.Save
+         }
+         internal static string Kind(BuildingBase b)
+         {
++            if (b is SupplyFacility || b is StarterCropBed) return b.Data.kind.ToString();
+             if (b.GetComponent<NurseryChamber>() != null) return "Nursery";
+             if (b.GetComponent<ScoutPost>() != null) return "ScoutPost";
+             if (b.GetComponent<PrisonerCamp>() != null) return "PrisonerCamp";
+diff --git a/Assets/_Project/Scripts/Save/SaveDtos.cs b/Assets/_Project/Scripts/Save/SaveDtos.cs
+index 13f81a6..68859b6 100644
+--- a/Assets/_Project/Scripts/Save/SaveDtos.cs
++++ b/Assets/_Project/Scripts/Save/SaveDtos.cs
+@@ -26,6 +26,7 @@ namespace AntColony.Save
+         public int commanderDeath = 1;
+         public int seed;
+         public int biome; // 옛 저장은 0 = None
++        public int climate; // 0 = 온대(구 저장 기본값)
+     }
+ 
+     [Serializable]
+@@ -137,6 +138,9 @@ namespace AntColony.Save
+         public bool labResearchAttack;
+         public bool gateOpen = true; // Phase 5 성문
+         public float powerCharge; // 2026-10-05 배터리 충전량
++        public float powerFuelSeconds;
++        public Buildings.SupplyFacility.State supply;
++        public Buildings.StarterCropBed.State starterCrop;
+         public float coldness; // 2026-10-15 냉장고·냉동고 냉각 정도(0~1). 옛 저장은 0 = 상온에서 다시 냉각
+         public int materialTier; // 2026-10-05 재료 업그레이드 단계(0 = 처음 재료). 재료 목록 미정
+         public int mainMaterial = (int)Data.ResourceType.Soil; // v16 주재료(옛 저장은 흙)
+diff --git a/Assets/_Project/Scripts/Save/SavePreflight.cs b/Assets/_Project/Scripts/Save/SavePreflight.cs
+index 885d884..8c3ef8a 100644
+--- a/Assets/_Project/Scripts/Save/SavePreflight.cs
++++ b/Assets/_Project/Scripts/Save/SavePreflight.cs
+@@ -126,6 +126,10 @@ namespace AntColony.Save
+                     Check(b.workforce >= 0 && N(b.repairCredit) && b.repairCredit <= 100000000
+                         && b.decorationQuality >= 0 && b.decorationQuality <= 3 && Kitchen.Valid(b.kitchen), "workforce/repair/kitchen/decoration");
+                     Check(b.key != null && V(b.position) && N(b.health) && !float.IsNaN(b.rotationY) && !float.IsInfinity(b.rotationY), "building");
++                    Check(N(b.powerFuelSeconds) && b.powerFuelSeconds <= Core.GameBalance.WoodBurnSeconds, "power fuel");
++                    Check(!Enum.TryParse<BuildingKind>(b.kind, out var supplyKind) || !Buildings.SupplyFacility.IsKind(supplyKind)
++                        || b.supply == null || Buildings.SupplyFacility.Valid(b.supply), "supply facility");
++                    Check(b.starterCrop == null || Buildings.StarterCropBed.Valid(b.starterCrop), "starter crop");
+                     Check(N(b.powerCharge) && b.powerCharge <= Core.GameBalance.BatteryCapacity
+                         && (b.kind == "Battery" || b.powerCharge == 0) && b.materialTier >= 0 && Enum.IsDefined(typeof(ResourceType), b.mainMaterial) && ((ResourceType)b.mainMaterial).IsMaterial(), "building power/material");
+                     Check(new[] { b.barracksUpgradeRemaining, b.labResearchRemaining, b.queenProductionRemaining, b.queenFishingRemaining, b.scienceRemaining,
+diff --git a/Assets/_Project/Scripts/Save/SaveSnapshot.cs b/Assets/_Project/Scripts/Save/SaveSnapshot.cs
+index f2fa414..0e7b9aa 100644
+--- a/Assets/_Project/Scripts/Save/SaveSnapshot.cs
++++ b/Assets/_Project/Scripts/Save/SaveSnapshot.cs
+@@ -31,7 +31,7 @@ namespace AntColony.Save
+             SaveRuntime.RegisterMonsters();
+             var file = new SaveFileV1 { savedAtUtc = DateTime.UtcNow.ToString("O"), unityVersion = Application.unityVersion,
+                 label = options.mapSize + " / " + options.difficulty, playSeconds = GameSession.Instance.PlaySeconds, gameSeconds = GameSession.Instance.GameSeconds,
+-                options = new OptionsDto { mapSize = (int)options.mapSize, difficulty = (int)options.difficulty, commanderDeath = (int)options.commanderDeath, seed = options.seed, biome = (int)options.biome },
++                options = new OptionsDto { mapSize = (int)options.mapSize, difficulty = (int)options.difficulty, commanderDeath = (int)options.commanderDeath, seed = options.seed, biome = (int)options.biome, climate = (int)options.climate },
+                 randomState = JsonUtility.ToJson(UnityEngine.Random.state),
+                 upkeepTimer = Object.FindFirstObjectByType<UpkeepManager>()?.SavedTimer ?? 0,
+                 upkeepFailures = Object.FindFirstObjectByType<UpkeepManager>()?.ConsecutiveFailures ?? 0,
+@@ -175,7 +175,10 @@ namespace AntColony.Save
+                 if (d.key.StartsWith("new:"))
+                 {
+                     var go = GameObject.CreatePrimitive(PrimitiveType.Cube); go.name = "Saved Loot"; go.SetActive(false);
+-                    node = go.AddComponent<ResourceNode>(); node.ConfigureLoot((ResourceType)d.type, d.amount);
++                    go.transform.localScale = Vector3.one * .6f; go.GetComponent<Collider>().isTrigger = true;
++                    node = go.AddComponent<ResourceNode>();
++                    if (d.looseCargo) node.ConfigureLoot((ResourceType)d.type, d.amount);
++                    else node.ConfigureNatural((ResourceType)d.type, d.amount, 0);
+                 }
+                 else if (d.key.StartsWith("mat:"))
+                 {
+@@ -190,6 +193,7 @@ namespace AntColony.Save
+                 node.IsLooseCargo = d.looseCargo;
+                 node.BountifulHarvest = d.bountifulHarvest; node.GatheringForbidden = d.gatheringForbidden; node.FishSeason = d.fishMonth;
+                 if (d.lots != null && d.lots.lots.Count > 0 && d.lots.Valid && node.TryGetComponent<FloorFood>(out var food)) food.Lots = d.lots;
++                if (d.key.StartsWith("new:")) node.gameObject.SetActive(d.amount > 0 || d.regrowTimer > 0);
+             }
+             foreach (var d in file.monsters)
+             {
+diff --git a/Assets/_Project/Scripts/Save/SaveSystem.cs b/Assets/_Project/Scripts/Save/SaveSystem.cs
+index ecea7c1..4264ad8 100644
+--- a/Assets/_Project/Scripts/Save/SaveSystem.cs
++++ b/Assets/_Project/Scripts/Save/SaveSystem.cs
+@@ -46,7 +46,7 @@ namespace AntColony.Save
+             {
+                 Rollback = GameSession.Instance.GameStarted ? SaveSnapshot.Capture() : null;
+                 if (Rollback != null) SaveStorage.WriteAtomic(System.IO.Path.Combine(SaveStorage.Root, "load-recovery.json"), JsonUtility.ToJson(Rollback));
+-                Reload(file, new NewGameOptions { mapSize = (MapSize)file.options.mapSize, difficulty = (DifficultyLevel)file.options.difficulty, commanderDeath = (CommanderDeathMode)file.options.commanderDeath, seed = file.options.seed, biome = (MapBiome)file.options.biome });
++                Reload(file, new NewGameOptions { mapSize = (MapSize)file.options.mapSize, difficulty = (DifficultyLevel)file.options.difficulty, commanderDeath = (CommanderDeathMode)file.options.commanderDeath, seed = file.options.seed, biome = (MapBiome)file.options.biome, climate = (MapClimate)file.options.climate });
+                 return true;
+             }
+             catch (Exception e) { error = e.Message; return false; }
+diff --git a/Assets/_Project/Scripts/Save/SaveValidator.cs b/Assets/_Project/Scripts/Save/SaveValidator.cs
+index 21c82bf..2e4aacf 100644
+--- a/Assets/_Project/Scripts/Save/SaveValidator.cs
++++ b/Assets/_Project/Scripts/Save/SaveValidator.cs
+@@ -239,6 +239,7 @@ namespace AntColony.Save
+             if (!Enum.IsDefined(typeof(Core.DifficultyLevel), file.options.difficulty)) { error = "Unknown difficulty."; return false; }
+             if (!Enum.IsDefined(typeof(Core.CommanderDeathMode), file.options.commanderDeath)) { error = "Unknown commander death mode."; return false; }
+             if (!Enum.IsDefined(typeof(Core.MapBiome), file.options.biome)) { error = "Unknown biome."; return false; }
++            if (!Enum.IsDefined(typeof(Core.MapClimate), file.options.climate)) { error = "Unknown climate."; return false; }
+             var pop = file.population;
+             if (pop == null || pop.young < 0 || pop.old < 0 || pop.agingDue < 0 || !Enum.IsDefined(typeof(Core.MilitaryPolicy), pop.policy)
+                 || !(pop.sentiment >= 0 && pop.sentiment <= 100) || !(pop.taxRate >= 0 && pop.taxRate <= Core.GameBalance.MaxTaxRate)
+diff --git a/Assets/_Project/Scripts/World/CaravanSupplies.cs b/Assets/_Project/Scripts/World/CaravanSupplies.cs
+new file mode 100644
+index 0000000..c245b8b
+--- /dev/null
++++ b/Assets/_Project/Scripts/World/CaravanSupplies.cs
+@@ -0,0 +1,28 @@
++using AntColony.Core;
++using UnityEngine;
++
++namespace AntColony.World
++{
++    public sealed partial class ColonyEvents
++    {
++        public bool CaravanPresent => state.caravanRemaining > 0;
++        // 고급 필수 재료의 반복 공급처. 교환가는 별도 확정 전 잠정값이며 협상·외교 해금과 무관하다.
++        public static int SupplyPrice(AntColony.Data.ResourceType type) => type switch
++        {
++            AntColony.Data.ResourceType.Wood or AntColony.Data.ResourceType.Stone or AntColony.Data.ResourceType.PlantingMaterial => 1,
++            AntColony.Data.ResourceType.IronOre or AntColony.Data.ResourceType.CopperOre or AntColony.Data.ResourceType.Coal or AntColony.Data.ResourceType.Sulfur => 2,
++            AntColony.Data.ResourceType.TinOre or AntColony.Data.ResourceType.Iron or AntColony.Data.ResourceType.Copper => 3,
++            AntColony.Data.ResourceType.Steel or AntColony.Data.ResourceType.Bronze or AntColony.Data.ResourceType.Special => 6,
++            AntColony.Data.ResourceType.Component => 8,
++            _ => 0
++        };
++        public bool TryBuySupply(AntColony.Data.ResourceType type, int amount)
++        {
++            var price = SupplyPrice(type);
++            if (!CaravanPresent || price == 0 || amount < 1 || amount > 100 || ResourceManager.Instance == null
++                || !ResourceManager.Instance.TrySpend(AntColony.Data.ResourceType.Food, amount * price, ResourceReason.Trade)) return false;
++            DiplomacyManager.DropFloor(type, amount, ResourceManager.HomePosition + Vector3.right * 3);
++            return true;
++        }
++    }
++}
+diff --git a/Assets/_Project/Scripts/World/CaravanSupplies.cs.meta b/Assets/_Project/Scripts/World/CaravanSupplies.cs.meta
+new file mode 100644
+index 0000000..6ea7376
+--- /dev/null
++++ b/Assets/_Project/Scripts/World/CaravanSupplies.cs.meta
+@@ -0,0 +1,2 @@
++fileFormatVersion: 2
++guid: 6baefe23e447422e8d30dc9b3991e156
+diff --git a/Assets/_Project/Scripts/World/ColonyEvents.cs b/Assets/_Project/Scripts/World/ColonyEvents.cs
+index 584965a..809a6c3 100644
+--- a/Assets/_Project/Scripts/World/ColonyEvents.cs
++++ b/Assets/_Project/Scripts/World/ColonyEvents.cs
+@@ -13,7 +13,7 @@ using Random = UnityEngine.Random;
+ 
+ namespace AntColony.World
+ {
+-    public sealed class ColonyEvents : MonoBehaviour
++    public sealed partial class ColonyEvents : MonoBehaviour
+     {
+         [Serializable] public class State
+         {
+@@ -21,6 +21,8 @@ namespace AntColony.World
+             public float cold, flood, drought;
+             public float[] cooldowns = new float[11];
+             public int lastNight = -1; // 야행성 포식자가 나온 마지막 날
++            public int caravanSeason = -1; // 계절당 방문 보장. 옛 저장은 첫 틱부터 현재 계절 대상으로 계산.
++            public float caravanRemaining;
+             public float migrationOffer; // 이주 개미떼 합류 제안 남은 시간(0 = 없음). 수락·거절하거나 만료되면 0
+             public List<EventActor.State> actors = new List<EventActor.State>();
+         }
+@@ -59,9 +61,11 @@ namespace AntColony.World
+                 var dt = Mathf.Min(seconds, 1); seconds -= dt;
+                 if (state.migrationOffer > 0) { if (state.migrationOffer <= dt) DeclineMigration("기한 만료"); else state.migrationOffer -= dt; }
+                 state.cold = Mathf.Max(0, state.cold - dt); state.flood = Mathf.Max(0, state.flood - dt); state.drought = Mathf.Max(0, state.drought - dt);
++                state.caravanRemaining = Mathf.Max(0, state.caravanRemaining - dt);
+                 state.sinceLast = Mathf.Min(EventRules.Cooldown, state.sinceLast + dt);
+                 for (int i = 0; i < state.cooldowns.Length; i++) state.cooldowns[i] = Mathf.Max(0, state.cooldowns[i] - dt);
+                 foreach (var actor in FindObjectsByType<EventActor>(FindObjectsSortMode.None)) actor.Tick(dt);
++                if (GameCalendar.DayOfSeason == GameCalendar.DaysPerSeason) EnsureSeasonCaravan(GameCalendar.TotalSeasons);
+                 // G08 하루 150초: 밤이 계절당 6번이라 첫날 밤에만 출현시켜 옛 빈도(계절당 1회)를 유지한다.
+                 if (GameCalendar.IsNight && GameCalendar.DayOfSeason == 1 && state.lastNight != GameCalendar.Day) SpawnNightPredators();
+                 state.checkRemaining -= dt;
+@@ -84,6 +88,7 @@ namespace AntColony.World
+                 ColonyEvent.Mold => HomeCommanders().Any(c => !c.HasMold),
+                 ColonyEvent.Wasps => false, // Phase 4: 기생 말벌 이벤트 삭제(여왕방 삭제). 이전 저장의 말벌은 그대로 처리된다.
+                 ColonyEvent.Wanderer => CommanderRoster.Instance != null && CommanderRoster.Instance.Count < ScoutPost.DefaultMaxCommanders,
++                ColonyEvent.Caravan => state.caravanSeason != GameCalendar.TotalSeasons,
+                 _ => true
+             });
+         public bool TryTrigger(ColonyEvent e)
+@@ -123,6 +128,8 @@ namespace AntColony.World
+                     result = $"이주민 무리(장수 1 + 시민 {EventRules.Migrants})가 합류를 청합니다. {EventRules.MigrationOfferSeconds:0}초 안에 수락·거절하세요."; break;
+                 case ColonyEvent.Caravan:
+                     DiplomacyManager.Instance.Data.caravanUntil = DiplomacyManager.Instance.Data.elapsed + DiplomacyRules.CaravanSeconds;
++                    state.caravanSeason = GameCalendar.TotalSeasons;
++                    state.caravanRemaining = DiplomacyRules.CaravanSeconds;
+                     result = "교역 캐러밴 도착 — J 외교에서 거래 (90초)"; break;
+                 default: return false;
+             }
+@@ -132,6 +139,19 @@ namespace AntColony.World
+             return true;
+         }
+         // 밤마다 맵 가장자리에서 야행성 포식자가 나온다. 새벽이 되면 남은 개체는 물러간다(EventActor).
++        public bool EnsureSeasonCaravan(int season)
++        {
++            if (season < 0 || state.caravanSeason >= season || DiplomacyManager.Instance == null) return false;
++            var diplomacy = DiplomacyManager.Instance;
++            diplomacy.Data.caravanUntil = diplomacy.Data.elapsed + DiplomacyRules.CaravanSeconds;
++            state.caravanSeason = season;
++            state.caravanRemaining = DiplomacyRules.CaravanSeconds;
++            state.cooldowns[(int)ColonyEvent.Caravan] = EventRules.Cooldown;
++            if (CampaignHistory.Recording) CampaignHistory.Instance.Data.events[(int)ColonyEvent.Caravan]++;
++            CampaignHistory.Record("이벤트", "교역 캐러밴", "계절 방문 보장 — 교역 가능 시간 90초", true);
++            return true;
++        }
++
+         public bool SpawnNightPredators()
+         {
+             state.lastNight = GameCalendar.Day;
+@@ -224,7 +244,8 @@ namespace AntColony.World
+             bool N(float v, float max) => !float.IsNaN(v) && !float.IsInfinity(v) && v >= 0 && v <= max;
+             return s != null && N(s.checkRemaining, EventRules.CheckSeconds) && s.checkRemaining > 0 && N(s.sinceLast, EventRules.Cooldown)
+                 && N(s.cold, EventRules.ColdSeconds) && N(s.flood, EventRules.FloodSeconds) && N(s.drought, EventRules.DroughtSeconds)
+-                && N(s.migrationOffer, EventRules.MigrationOfferSeconds) && s.cooldowns != null && s.cooldowns.Length == 11 && s.cooldowns.All(v => N(v, EventRules.Cooldown)) && s.lastNight >= -1
++                && N(s.migrationOffer, EventRules.MigrationOfferSeconds) && N(s.caravanRemaining, DiplomacyRules.CaravanSeconds)
++                && s.cooldowns != null && s.cooldowns.Length == 11 && s.cooldowns.All(v => N(v, EventRules.Cooldown)) && s.lastNight >= -1 && s.caravanSeason >= -1
+                 && s.actors != null && s.actors.Count <= 6 + EventRules.NightPredators && s.actors.All(a => a != null && Enum.IsDefined(typeof(EventActorKind), a.kind)
+                     && a.position != null && a.position.IsFinite() && Mathf.Abs(a.position.x) < 100000 && Mathf.Abs(a.position.y) < 100000 && Mathf.Abs(a.position.z) < 100000
+                     && N(a.attackCooldown, EventRules.WaspInterval) && N(a.remaining, a.kind == EventActorKind.Wanderer ? EventRules.WandererSeconds : EventRules.DriftSeconds)
+diff --git a/Assets/_Project/Scripts/World/ResourceNode.cs b/Assets/_Project/Scripts/World/ResourceNode.cs
+index 5aa9d67..eab9c58 100644
+--- a/Assets/_Project/Scripts/World/ResourceNode.cs
++++ b/Assets/_Project/Scripts/World/ResourceNode.cs
+@@ -43,7 +43,7 @@ namespace AntColony.World
+             && (!requiresFishing || (GameManager.Instance != null && GameManager.Instance.FishingUnlocked));
+         public bool CanGather => !GatheringForbidden && isActiveAndEnabled && (!IsDepleted || IsFarm && NeedsSowing || HoldsHandWork) && IsUnlocked && !ColonyEvents.Flooded(this);
+         public bool RequiresMiningTool => !IsLooseCargo && (resourceType == ResourceType.Stone || resourceType == ResourceType.IronOre
+-            || resourceType == ResourceType.CopperOre || resourceType == ResourceType.Coal || resourceType == ResourceType.Sulfur);
++            || resourceType == ResourceType.CopperOre || resourceType == AntColony.Data.ResourceType.TinOre || resourceType == ResourceType.Coal || resourceType == ResourceType.Sulfur);
+         public bool CanGatherWith(AntColony.Units.WorkerAnt worker) => CanGather && (!RequiresMiningTool
+             || worker is AntColony.Units.CommanderAnt commander && commander.PersonalState.toolTier >= 2);
+         // 밭 손일(뿌리뽑기·비료) 중에는 수확하지 않고 FarmPlot이 작업량을 받는다(2026-10-15).
+diff --git a/docs/IMPL-B10-HANDOFF.md b/docs/IMPL-B10-HANDOFF.md
+new file mode 100644
+index 0000000..ab3c8e9
+--- /dev/null
++++ b/docs/IMPL-B10-HANDOFF.md
+@@ -0,0 +1,89 @@
++# IMPL-B10 인계
++
++2026-10-24 재개 작업 반영. **소유 범위 구현·검사 작성 완료, 통합 연결 대기. G 전체 완료 판정은 아직 아님.**
++원본 프로젝트 접근, Unity 실행·MCP·캡처, Notion, commit/stash/push, prefab 수정은 하지 않았다.
++이번 worktree의 기존 staged 변경(B6 및 다른 묶음)은 보존했다. B10 패치는 `git diff`의 unstaged 변경과 신규 `.cs.meta`이며, 기존 staged 변경을 B10 변경으로 함께 가져가지 말 것.
++
++## G별 상태
++
++| 항목 | 상태 | 구현 내용 / 남은 부분 |
++| --- | --- | --- |
++| G35 | 부분 — 시작 공급·기후 데이터 구현 | 기존 6종 바이옴 이름을 결정문에 대응. `StartingEnvironment.Create`를 불시착 자원 배치에 연결. 식량·목재·돌·구리/주석/철광석·석탄·파종재 및 수원·유전을 40m 안 보행 가능 지점에 배치. 한랭/열대습윤 기후의 날씨 변형·저장 추가. 기후 선택 UI와 기후별 복장 표시는 미연결. 지형 메시/아트 재제작은 하지 않음. |
++| G58 | 부분 — 독립 재배 구현 | 도시 전체 밭 금지 제거, 바닥 타일이 있는 칸의 노지만 금지. 신규 `PlanterBed`/`StarterMushroomBed`는 처음부터 해금·시민 배정 0. 파종재 1 소비 후 3일(450초)마다 장수 1일분 식량 4 생산, 1인당 3칸. 시작 식용 자원 7일분(장수당 28)·파종재 3 보장. FarmPlot 수정 없음. 건설 목록·파종 명령 UI 미연결. |
++| G59 | 부분 — 수원·취수·배관 구현 | 얕은 수원/사막 지하수/동굴 용출수 보장. 우물 수동 작업 누적 5초당 물 10, 펌프·배관·탱크 초기 해금. 버섯 1칸 하루 물 1, 급수 없으면 성장 정지, 이미 지불한 급수 시간 저장. 물을 바닥으로 반출 가능. 수동 우물 장수 작업·선택 UI 연결 필요. 기존 B4 세면 물 1 소비는 유지. |
++| G46 | 부분 — 발전·시추·정유·충전 구현 | 손발전 100W, 시추 100W, 정유 200W. 석탄 증기 발전→전선→시추/정유 전원, 유전 필요, 배관 직결로 용기 없이 가동. 전선 구리, 배관 구리, 탱크/충전기 강철의 고정 비용. 드럼통 강철 5·가스 용기 강철 10 레시피 데이터 제공. 정제유 10+빈 드럼통 1→충전 드럼통 1 API. Processor 레시피 병합·건설/선택 UI·반출 연료 사용처 미연결. |
++| G14 | 부분 — 철거·계절 방문·구매 API 구현 | 기존 70% 고정 재료 반환 재사용, 유체 시설 철거 시 내용물 전량 바닥 반환. 자연 수원·유전 철거 차단. 매 계절 마지막 날까지 무작위 방문이 없으면 90초 캐러밴 보장, 계절 키·잔여 시간 저장. 목재/석재/광석/금속/석탄/유황/특수/부품/파종재 반복 구매 API. 기초 목재·석재 세금과 도보 원정은 타 담당 연결 요청, 캐러밴 구매 UI 미연결. |
++
++수원·유전은 근처 4m 취수/시추 조건이며, 배관을 연결하는 노드로 취급하지 않는다. 배관망은 맞닿은 유체 설비/배관을 순회하며 탱크와 설비 자체 버퍼를 쓴다. 탱크 혼합 금지, 단절·철거/비활성화를 즉시 반영한다.
++
++## 이번 재개에서 보완한 부분
++
++- 기존 구현을 재작성하지 않고 검사 시작 후보의 특성만 고정하여 무작위 작업 불가로 시작 검사가 실패하는 것을 방지.
++- 수원/유전이 끊어진 배관을 대신 연결하던 경로 제거 및 자연 지점 철거 차단.
++- 발전기 Update에서 일시정지·로딩·게임 시작 전 연료 소비 방지.
++- 노지 포장 판정을 중심점에서 전체 점유 칸으로 보완(넓은 밭 가장자리의 포장도 차단).
++- 캐러밴에 유황·특수·부품 공급 추가(용광로 등의 특수 비용과 후반 부품 고갈 복구 경로).
++- 보행 경로, 급수 선지불 저장, 자연 지점 배관 우회, 충전 용기 소비/중복 방지, 정지 중 연료, 반복 필수 자원 공급 검사 추가. 신규 스크립트 9개의 `.meta` 작성.
++
++## 수정 파일 — B10 전용 목록
++
++아래 경로는 모두 `Assets/_Project/Scripts/` 기준(검사·문서 제외).
++
++- 신규 Buildings: `SupplyFacility.cs`, `FluidNetwork.cs`, `StarterCropBed.cs`, `SupplyBuildingTemplates.cs`, `StartGroundRules.cs` 및 각 `.meta`.
++- 신규 Core: `StartingEnvironment.cs`, `StartSupplyRules.cs` 및 각 `.meta`.
++- 신규 Data/World: `Data/SupplyRecipes.cs`, `World/CaravanSupplies.cs` 및 각 `.meta`.
++- Buildings 수정: `BuildingPlacementController.cs`, `EarlyConstruction.cs`, `PowerNode.cs`, `PowerGrid.cs`, `Storage.cs`, `Demolition.cs`.
++- Core 수정: `Biome.cs`, `CrashLandingStart.cs`(자원 배치 호출 1줄), `GameBalance.cs`(손발전 수치), `GameBootstrap.cs`(로드 실패 복구 시 기후), `GameOptions.cs`, `ResourceManager.cs`(물/신규 자원 보유량·용량 저장).
++- Data/Map/World 수정: `Data/BuildingData.cs`, `Data/ResourceType.cs`, `Map/WeatherSystem.cs`, `World/ResourceNode.cs`(주석광석 도구 조건), `World/ColonyEvents.cs`.
++- Save 수정: `SaveDtos.cs`, `SaveBuildings.cs`, `SaveCatalog.cs`, `SaveSnapshot.cs`, `SaveSystem.cs`, `SavePreflight.cs`, `SaveValidator.cs`. **버전 v19 유지**, enum은 뒤에 추가, 기존 저장은 기후 온대/빈 공급·재배 상태/연료 0 기본값.
++- 검사/문서: `AgentScripts/ImplB10Checks.cs`, 이 문서, `docs/IMPLEMENTATION_BOARD.md`.
++- graphify 갱신 산출물은 별도 자동 생성 변경이며 게임 구현 패치와 구분.
++
++## 연결 요청 — Claude/해당 담당자가 병합 시 처리
++
++1. **수동 우물 장수 작업(Units 금지 범위)**
++   - `Units/CommanderWork.cs`의 `StartService(BuildingBase, CommanderJobs)` 허용 조건과 `TickService(float)`의 운반 작업 분기: `SupplyFacility.Kind == ManualWell`을 허용하고 도착 후 `WorkManual(seconds)` 호출. 벽 너머 원격 작업이나 별도 무료 자동 틱을 추가하지 말 것.
++   - `Units/CommanderDuty.cs`의 `AutoCandidates(CommanderJobs)` 운반 작업 목록(기존 쳇바퀴 열거 옆)에 수동 우물 작업을 추가. 수원 부재·탱크 용량/필요 수량을 고려해 끝없이 물을 생산하지 않게 작업 요구 정책을 연결.
++   - 저장의 service 대상은 이미 BuildingBase 키를 보존한다. 작업 연결 후 수동 작업 중 실제 save/load 검사 추가 필요.
++2. **기초 제련 레시피(Processor 금지 범위)**
++   - `Buildings/Processor.cs::RecipesFor(BuildingKind)`의 Smelter 배열 **기존 항목 뒤**에 `Data/SupplyRecipes.For(kind)`를 합칠 것. 기존 주문은 정수 인덱스로 저장되므로 철/구리/강철 순서를 변경하지 말 것.
++   - 청동·드럼통·가스 용기는 이 연결 전 게임에서 제작 불가. `Workshop.cs` 수정은 현재 필요 없음. FilledFuelDrum 사용처가 생기면 컨테이너 회수 규칙과 함께 별도 연결.
++   - B6 연구/도구 담당: 시작 석재→돌 도구→구리/주석 채굴→청동 연구/제련 경로 및 용광로 최초 건설 비용(현재 기존 soil80+special5) 접근성을 통합 검증. B10은 CampaignResearch/Workshop/Processor를 수정하지 않았음.
++3. **건설·선택 UI(이번 소유 범위 밖)**
++   - `UI/BuildScreen.cs`의 `Tabs`에 PlanterBed/StarterMushroomBed, ManualWell/WaterPump/FluidPipe/FluidTank, SteamGenerator/OilDrill/OilRefinery/FuelCharger를 해당 식량/배관/전력 탭에 추가. WaterSource/OilDeposit는 자연 지점이므로 목록에 넣지 말 것.
++   - `UI/WorkTargetPanel.cs::LateUpdate/Act`: `StarterCropBed.Plant()`, 수동 우물 작업 지시, `SupplyFacility.Unload(Water, amount)`, `FillFuelDrum()`에 접근 제공. 물 취수→바닥 물 운반→기존 HygieneFixture 소비가 실제 사용자 입력으로 연결되어야 함.
++   - 화분/버섯은 초기 무연구이며 시민 0에서도 건설 가능. FarmPlot 연결은 필요하지 않음.
++4. **교역 UI(침공·협상 시스템 수정 없음)**
++   - `UI/GameMenuDiplomacy.cs::Diplomacy(Civilization)`는 `Available`(월드맵 해금) 검사로 조기 반환한다. 초기 캐러밴 구매는 이 제한과 무관하게 `ColonyEvents.CaravanPresent` 확인 후 `SupplyPrice(type)` 표시·`TryBuySupply(type, amount)` 호출 경로 제공.
++   - 기존 `OpenTrade/TradeScreen`은 문명 TradeOffer용이며 B10 확장 재료 구매를 자동으로 처리하지 않는다. 기존 J 화면만 안내하면 초반 구매가 막힘.
++5. **기후 선택 및 G14 다른 소유 범위**
++   - `UI/GameMenuCrashStart.cs::DrawCrashStart`에 `NewGameOptions.climate` 선택 연결. `Core/StartingCandidate.cs::Clothes(MapBiome)`는 아직 바이옴만 보므로 기후 표시/적응 복장을 담당자와 연결.
++   - `Core/ColonyPopulation*` 납세 담당: 기본 목재·석재 세금 공급 연결. `World/WorldMapExpeditions.cs`/`Expedition*` 담당: 도보 자원 원정과 반복 공급 검증. 이번 작업은 해당 파일을 건드리지 않았음.
++
++## 검사 목록 및 실행 상태
++
++`AgentScripts/ImplB10Checks.cs`는 기존 B1 형식의 `public static async Task<string> Main()`, 실패 예외/성공 `PASS n`. **작성만 했으며 실행 결과 없음.** Claude가 Unity Play에서 RunChecks로 실행해야 한다.
++
++- 1명 숲/2명 도시 불시착 새 게임, Stockpile 없는 시작. 검사 객체(우물·탱크·밭·전선·발전기·시추·정유·충전기)는 검사 안에서 직접 생성. 임시 SaveStorage.RootOverride·자동저장 끄기·난수/설정 복구 사용.
++- 모든 바이옴 × 장수 1/2 공급량, 시작 7일 식량·3칸 파종재, 40m 및 NavRoute.Reachable, 수원 종류, 도시 포장 칸만 밭 금지, 초기 해금·시민 배정 0.
++- 한랭 강우/폭풍 제거, 열대습윤 눈/눈보라 제거(날씨 가중치 100개 표본).
++- 수동 취수 2+3초/중간 JSON 복원, 수원 부재·NaN/Infinity·혼합 유체 거부.
++- 3칸 3일 수확·물 9 소비·건조 정지, 하루 선지불 급수 JSON 복원 후 중복 지불 없음.
++- 100W/100W/200W, 외부 소비자만 있는 망의 발전 요구, 정전·석탄 증기 전력, 용기 없는 시추/정유, 배관 단절·유전 우회 차단·매장지 부재, 정지 중 연료 미소비.
++- 드럼통 강철 5·가스 용기 강철 10, 빈 용기 없을 때 정제유 손실 없음, 정제유 10+드럼통 1 충전·재실행 중복 방지.
++- 철거 목재 10→7 반환 및 완료 중복 호출 시 추가 반환 없음, 자연 수원 철거 차단.
++- 계절 보장 중복/JSON 복원/다음 계절 재방문, 강철·유황·특수·부품 구매, 만료·잘못된 거래 거부.
++- 실제 TrySave/TryLoad로 물·기후·발전 연료·시추 진행/버퍼·재배 성장/선지불 급수·캐러밴 키·시작 자연 식량 보존(아직 미실행).
++
++정적 확인: `git diff --check` 통과(줄바꿈 LF/CRLF 안내만 있음). 변경 C# 34개에서 enum 참조 138개와 관련 메서드 이름 28개의 소스 존재 확인, 중괄호 수·신규 스크립트 meta·금지 경로의 unstaged 변경 없음 확인. 이는 오버로드/접근성/Unity 생명주기 검증이나 컴파일 통과를 뜻하지 않는다.
++`graphify query` 후 `graphify update .` 실행. 전체 그래프 자동 갱신 및 community 이름 재배정 안내가 있었으며, LLM 재라벨링은 하지 않았다.
++
++## 남은 위험·확인 필요
++
++- **컴파일·Play·RunChecks·실제 save/load 미검증.** 검사 성공 숫자를 기록하지 말 것. 검사는 현재 게임을 새 게임/로드로 교체하므로 전용 검사용 세션에서 실행.
++- 현재 UI/Units/Processor 연결 없이는 전체 플레이 공급 루프가 완성되지 않는다. 이 문서의 '부분'을 완료로 바꾸기 전에 위 연결과 런타임 검증 필요.
++- 증기 400W, 석탄 1/10초, 펌프 100W, 펌프/시추 10·정유 1/5초, 탱크 100, 확정값 외 건설 비용/청동 비율/교환가는 잠정값. G46 확정 전력과 용기 비용만 확정 수치로 취급.
++- 포장은 현재 `FloorTile`의 점유 칸으로 판정한다. 향후 도시 지형이 독립 포장 마스크를 제공하면 `StartGroundRules.OpenFieldAllowed`에 그 판정을 함께 연결해야 함.
++- 수원·유전은 런타임 `SupplyFacility` 건물 형태로 저장한다. 자연 지점에 별도 고갈량·지하수 재충전·컨테이너 압력 시스템은 없음. 기존 건물 대상 판정이 자연 지점을 어떻게 취급하는지도 통합 플레이에서 확인 필요.
++- 추가 자원 enum은 기존 뒤에 붙였고 Water를 보유량 배열에 포함했다. 다른 worktree의 ResourceType/BuildingKind 추가와 병합할 때 기존 번호를 보존하고 배열 확장 저장 회귀 검사를 실행할 것.
++- 카카오톡 완료 알림 도구가 이 세션에 없어 전송하지 못함.

@@ -1,0 +1,199 @@
+{
+  "frames_checked": 80,
+  "step": 1,
+  "seconds": 18,
+  "items": [
+    "Helm_CAT",
+    "Helm_DROOP",
+    "Helm_RABBIT",
+    "Helm_ROUND",
+    "Helm_UPRIGHT",
+    "HelmTrim_Bronze",
+    "HelmTrim_Iron",
+    "HelmTrim_Steel",
+    "HelmTrim_Titanium",
+    "HelmTrim_Starlight",
+    "Armor_Breastplate",
+    "Armor_Breastplate_Lower",
+    "Armor_Backplate",
+    "Armor_Backplate_Lower",
+    "Armor_Fauld",
+    "Armor_Tasset_L",
+    "Armor_Tasset_R",
+    "Armor_Bracer_L",
+    "Armor_Bracer_R",
+    "Armor_Greave_L",
+    "Armor_Greave_R",
+    "Belt",
+    "Holder_Sword",
+    "Holder_Shield",
+    "Holder_Spear",
+    "Carry_Sword",
+    "Carry_Spear",
+    "Carry_Shield"
+  ],
+  "overlaps": {
+    "Armor_Breastplate": {
+      "Part_Hair_LONG_ARMOR": {
+        "clips": 2,
+        "worst_pairs": 38,
+        "list": {
+          "Tool_Dig": 18,
+          "Tool_Mine": 38
+        }
+      },
+      "Part_Outfit_LINEN_ARMOR": {
+        "clips": 2,
+        "worst_pairs": 127,
+        "list": {
+          "Tool_Dig": 127,
+          "Tool_Mine": 88
+        }
+      },
+      "Part_Body_BASE_ARMOR": {
+        "clips": 2,
+        "worst_pairs": 76,
+        "list": {
+          "Tool_Dig": 76,
+          "Tool_Mine": 26
+        }
+      }
+    },
+    "Armor_Tasset_L": {
+      "Part_Outfit_LINEN_ARMOR": {
+        "clips": 2,
+        "worst_pairs": 22,
+        "list": {
+          "Tool_Dig": 22,
+          "Tool_Mine": 17
+        }
+      }
+    },
+    "Armor_Tasset_R": {
+      "Part_Outfit_LINEN_ARMOR": {
+        "clips": 2,
+        "worst_pairs": 22,
+        "list": {
+          "Tool_Dig": 21,
+          "Tool_Mine": 22
+        }
+      },
+      "Part_Body_BASE_ARMOR": {
+        "clips": 1,
+        "worst_pairs": 12,
+        "list": {
+          "Tool_Dig": 12
+        }
+      }
+    },
+    "Armor_Bracer_L": {
+      "Part_Outfit_LINEN_ARMOR": {
+        "clips": 2,
+        "worst_pairs": 38,
+        "list": {
+          "Tool_Dig": 38,
+          "Tool_Mine": 37
+        }
+      }
+    },
+    "Armor_Bracer_R": {
+      "Part_Outfit_LINEN_ARMOR": {
+        "clips": 2,
+        "worst_pairs": 87,
+        "list": {
+          "Tool_Dig": 87,
+          "Tool_Mine": 29
+        }
+      },
+      "Part_Hair_BOB_00": {
+        "clips": 2,
+        "worst_pairs": 5,
+        "list": {
+          "Tool_Dig": 4,
+          "Tool_Mine": 5
+        }
+      },
+      "Part_Hair_BUNS_00": {
+        "clips": 2,
+        "worst_pairs": 5,
+        "list": {
+          "Tool_Dig": 4,
+          "Tool_Mine": 5
+        }
+      },
+      "Part_Hair_PONY_00": {
+        "clips": 2,
+        "worst_pairs": 5,
+        "list": {
+          "Tool_Dig": 4,
+          "Tool_Mine": 5
+        }
+      },
+      "Part_Hair_SIDE_00": {
+        "clips": 2,
+        "worst_pairs": 10,
+        "list": {
+          "Tool_Dig": 8,
+          "Tool_Mine": 10
+        }
+      },
+      "Part_Body_BASE_ARMOR": {
+        "clips": 2,
+        "worst_pairs": 8,
+        "list": {
+          "Tool_Dig": 8,
+          "Tool_Mine": 5
+        }
+      }
+    },
+    "Armor_Breastplate_Lower": {
+      "Part_Body_BASE_ARMOR": {
+        "clips": 2,
+        "worst_pairs": 22,
+        "list": {
+          "Tool_Dig": 22,
+          "Tool_Mine": 10
+        }
+      },
+      "Part_Outfit_LINEN_ARMOR": {
+        "clips": 1,
+        "worst_pairs": 97,
+        "list": {
+          "Tool_Dig": 97
+        }
+      },
+      "Part_Hair_LONG_ARMOR": {
+        "clips": 1,
+        "worst_pairs": 32,
+        "list": {
+          "Tool_Mine": 32
+        }
+      }
+    },
+    "Armor_Backplate_Lower": {
+      "Part_Outfit_LINEN_ARMOR": {
+        "clips": 1,
+        "worst_pairs": 6,
+        "list": {
+          "Tool_Dig": 6
+        }
+      }
+    },
+    "Armor_Backplate": {
+      "Part_Outfit_LINEN_ARMOR": {
+        "clips": 1,
+        "worst_pairs": 16,
+        "list": {
+          "Tool_Dig": 16
+        }
+      },
+      "Part_Hair_LONG_ARMOR": {
+        "clips": 1,
+        "worst_pairs": 5,
+        "list": {
+          "Tool_Mine": 5
+        }
+      }
+    }
+  }
+}

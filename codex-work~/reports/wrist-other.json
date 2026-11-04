@@ -1,0 +1,162 @@
+{
+  "Tool_Mine": {
+    "accepted": false,
+    "wrist_before_deg": 56.11690593781105,
+    "wrist_after_deg": 56.116892277432704,
+    "clearance_before": {
+      "Armor_Breastplate": {
+        "frames": 1,
+        "of": 21,
+        "first": [
+          17
+        ]
+      },
+      "Armor_Breastplate_Lower": {
+        "frames": 1,
+        "of": 21,
+        "first": [
+          17
+        ]
+      }
+    },
+    "clearance_after": {
+      "Armor_Breastplate": {
+        "frames": 1,
+        "of": 21,
+        "first": [
+          17
+        ]
+      },
+      "Armor_Breastplate_Lower": {
+        "frames": 1,
+        "of": 21,
+        "first": [
+          17
+        ]
+      }
+    },
+    "left_grip_error_m": 4.418131865082257e-07,
+    "rigid_length_drift_m": 2.354287466088678e-07,
+    "roll_deg": [
+      0,
+      0,
+      0,
+      0,
+      5,
+      0,
+      0,
+      0,
+      5,
+      5,
+      5,
+      10,
+      10,
+      10,
+      0,
+      0,
+      0,
+      0,
+      -5,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      5,
+      0,
+      0,
+      0
+    ]
+  },
+  "Tool_Dig": {
+    "accepted": false,
+    "wrist_before_deg": 53.69761878284668,
+    "wrist_after_deg": 53.69764268850878,
+    "clearance_before": {
+      "Part_Hair_BOB_00": {
+        "frames": 6,
+        "of": 21,
+        "first": [
+          9,
+          11,
+          19,
+          21,
+          23,
+          25
+        ]
+      }
+    },
+    "clearance_after": {
+      "Part_Hair_BOB_00": {
+        "frames": 6,
+        "of": 21,
+        "first": [
+          9,
+          11,
+          19,
+          21,
+          23,
+          25
+        ]
+      }
+    },
+    "left_grip_error_m": 8.748088983669109e-07,
+    "rigid_length_drift_m": 1.9383983912435454e-07,
+    "roll_deg": [
+      0,
+      0,
+      0,
+      0,
+      -5,
+      40,
+      20,
+      10,
+      10,
+      10,
+      5,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      5,
+      5,
+      5,
+      10,
+      15,
+      25,
+      0,
+      0,
+      0,
+      5,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ]
+  }
+}

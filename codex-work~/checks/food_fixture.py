@@ -1,0 +1,3 @@
+﻿from pathlib import Path
+p=Path('codex-work~/src/AgentScripts/TransportRouteChecks.cs'); raw=p.read_bytes(); s=raw.decode('utf-8-sig'); nl='\r\n' if '\r\n' in s else '\n'; s=s.replace('\r\n','\n'); s=s.replace('''        rm.AddCapacity(ResourceType.Wood, 10000); rm.AddCapacity(ResourceType.Soil, 10000);''','''        rm.AddCapacity(ResourceType.Food, 10000); rm.Add(ResourceType.Food, 8000); // 기존 보급 재고는 유지한다.
+        rm.AddCapacity(ResourceType.Wood, 10000); rm.AddCapacity(ResourceType.Soil, 10000);'''); p.write_bytes((b'\xef\xbb\xbf' if raw.startswith(b'\xef\xbb\xbf') else b'')+s.replace('\n',nl).encode('utf-8'))

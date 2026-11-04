@@ -1,0 +1,17 @@
+[
+  {
+    "source": "fbx/Assets/_Project/Art/Kemono/Anim/Kemono@PK_Tool_Till.fbx",
+    "target": "Assets/_Project/Art/Kemono/Anim/Kemono@PK_Tool_Till.fbx",
+    "bytes": 515692,
+    "sha256": "07abc5cbdf902227816b38aeb8dfd19ea9fcbea848abc08afa3702cc27cb4a8a",
+    "meta": "Keep existing target .meta; no new .meta supplied."
+  },
+  {
+    "source": "fbx/Assets/_Project/Art/Kemono/Anim/Kemono@PK_Tool_Mine.fbx",
+    "target": "Assets/_Project/Art/Kemono/Anim/Kemono@PK_Tool_Mine.fbx",
+    "bytes": 534348,
+    "sha256": "49bc9a17ffdbf2ec9729350fe009b38eb9913f484a4eff2ab6b62692955f138d",
+    "meta": "Keep existing target .meta; no new .meta supplied.",
+    "round": 2
+  }
+]

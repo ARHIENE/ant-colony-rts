@@ -1,0 +1,64 @@
+{
+  "Tool_Dig": {
+    "frames": 41,
+    "hits": {
+      "Part_Hair_BOB_00": {
+        "frames": 14,
+        "of": 41,
+        "first": [
+          8,
+          9,
+          10,
+          11,
+          12,
+          18,
+          19,
+          20,
+          21,
+          22,
+          23,
+          24,
+          25,
+          26
+        ]
+      }
+    },
+    "wrist_max_deg": {
+      "R": 53.697622197941264,
+      "L": 47.42777491724719
+    },
+    "left_grip_error_m": 3.075565016351684e-07
+  },
+  "Tool_Mine": {
+    "frames": 41,
+    "hits": {
+      "Armor_Breastplate_Lower": {
+        "frames": 2,
+        "of": 41,
+        "first": [
+          16,
+          17
+        ]
+      },
+      "Armor_Breastplate": {
+        "frames": 1,
+        "of": 41,
+        "first": [
+          17
+        ]
+      },
+      "Armor_Bracer_R": {
+        "frames": 1,
+        "of": 41,
+        "first": [
+          24
+        ]
+      }
+    },
+    "wrist_max_deg": {
+      "R": 56.11690935290563,
+      "L": 44.16004849377301
+    },
+    "left_grip_error_m": 4.2929829033875267e-07
+  }
+}

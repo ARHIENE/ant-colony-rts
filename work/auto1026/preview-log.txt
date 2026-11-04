@@ -1,0 +1,9 @@
+00:20.547  render           | Saved: 'E:\Git\ant\work\auto1026\work-preview-1.png'
+00:25.125  render           | Saved: 'E:\Git\ant\work\auto1026\work-preview-9.png'
+00:29.672  render           | Saved: 'E:\Git\ant\work\auto1026\work-preview-17.png'
+FBX version: 7400
+FBX version: 7400
+PREVIEW_DONE ['Root', 'pevis', 'spine', 'spine_01', 'spine_02', 'neck', 'head', 'Ear.L', 'Ear.R', 'Socket.Hat', 'shoulder.L', 'upper_arm.L', 'forearm.L', 'hand.L', 'f_index.01.L', 'f_index.02.L', 'f_index.03.L', 'thumb.01.L', 'thumb.02.L', 'thumb.03.L', 'f_middle.01.L', 'f_middle.02.L', 'f_middle.03.L', 'f_ring.01.L', 'f_ring.02.L', 'f_ring.03.L', 'f_pinky.01.L', 'f_pinky.02.L', 'f_pinky.03.L', 'Socket.Tool.L', 'shoulder.R', 'upper_arm.R', 'forearm.R', 'hand.R', 'f_index.01.R', 'f_index.02.R', 'f_index.03.R', 'thumb.01.R', 'thumb.02.R', 'thumb.03.R', 'f_middle.01.R', 'f_middle.02.R', 'f_middle.03.R', 'f_ring.01.R', 'f_ring.02.R', 'f_ring.03.R', 'f_pinky.01.R', 'f_pinky.02.R', 'f_pinky.03.R', 'Socket.Tool.R', 'Socket.Back', 'Socket.Carry', 'thigh.L', 'shin.L', 'foot.L', 'thigh.R', 'shin.R', 'foot.R', 'Tail', 'Socket.Hip.R']
+Blender 5.2.2 LTS (hash d13f752e3b9c built 2026-09-15 01:37:04)
+
+Blender quit

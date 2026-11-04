@@ -1,0 +1,978 @@
+diff --git a/AgentScripts/ImplB9Checks.cs b/AgentScripts/ImplB9Checks.cs
+new file mode 100644
+index 0000000..333a78f
+--- /dev/null
++++ b/AgentScripts/ImplB9Checks.cs
+@@ -0,0 +1,189 @@
++using System;
++using System.IO;
++using System.Linq;
++using System.Reflection;
++using System.Threading.Tasks;
++using AntColony.Buildings;
++using AntColony.Core;
++using AntColony.Data;
++using AntColony.Save;
++using AntColony.Units;
++using AntColony.World;
++using UnityEngine;
++using Object = UnityEngine.Object;
++
++public static class ImplB9Checks
++{
++    private const BindingFlags Hidden = BindingFlags.Instance | BindingFlags.NonPublic;
++    private static int count;
++    private static void Check(bool ok, string message) { if (!ok) throw new Exception("B9 FAIL " + count + ": " + message); count++; }
++    private static async Task Ready()
++    {
++        var until = DateTime.UtcNow.AddSeconds(90);
++        while (SaveSystem.Busy && DateTime.UtcNow < until) await Task.Delay(50);
++        Check(!SaveSystem.Busy, "load complete"); Time.timeScale = 0;
++    }
++    private static void Resolve(AirshipYard yard) => typeof(AirshipYard).GetMethod("ResolveLaunch", Hidden).Invoke(yard, null);
++    private static AirshipYard NewYard(CommanderAnt near, BuildingData definition)
++    {
++        var go = new GameObject("B9 test rocket"); go.transform.position = near.Position;
++        var yard = go.AddComponent<AirshipYard>();
++        typeof(BuildingBase).GetMethod("ConfigureRuntime", Hidden).Invoke(yard, new object[] { definition });
++        yard.RestoreState(new AirshipYard.State { hull = true, engine = true }, CommanderRoster.Instance.Commanders);
++        return yard;
++    }
++    public static async Task<string> Main()
++    {
++        count = 0; Check(Application.isPlaying, "Play mode required");
++        var root = SaveStorage.RootOverride; var settings = UserSettings.Current.Clone();
++        var isolated = settings.Clone(); isolated.autoSaveEnabled = false; UserSettings.Apply(isolated, false);
++        SaveStorage.RootOverride = Path.Combine(Application.temporaryCachePath, "ImplB9-" + Guid.NewGuid().ToString("N"));
++        var random = UnityEngine.Random.state;
++        AirshipYard yard = null, rebuilt = null; GameObject captiveSite = null; BuildingData definition = null;
++        Action<AirshipYard, RocketSnapshot, float> assault = null;
++        try
++        {
++            await Ready();
++            var options = new NewGameOptions { startingCount = 2, commanderDeath = CommanderDeathMode.Harsh,
++                seed = 261024, mapSize = MapSize.Small, biome = MapBiome.Forest,
++                startingTeam = new[] { StartingCandidate.Roll(0), StartingCandidate.Roll(1) } };
++            foreach (var candidate in options.startingTeam) candidate.traits.values.Clear();
++            CrashLandingStart.Begin(options); await Ready();
++            var commanders = CommanderRoster.Instance.Commanders.ToArray();
++            Check(commanders.Length == 2, "two crash survivors");
++            foreach (var c in commanders) { c.CommandStop(); c.SetJobEnabled(CommanderJobs.All, false); }
++            var campaign = RocketCampaign.Instance;
++            Check(campaign != null, "campaign installed without stockpile");
++            Check(AirshipYard.PreparationSeconds == 2250 && GameCalendar.SecondsPerSeason == 900, "G08 calendar reuse");
++            var history = new RocketEconomy();
++            history.Observe(0, 100, 10); history.Observe(300, 0, 0);
++            var preview = history.Preview(900, 0, 0);
++            Check(Mathf.Abs(preview.averageWealth - 100f / 3) < .001f && preview.Wealth == preview.averageWealth, "time weighted average, not sample mean");
++            Check(history.Preview(900, 200, 40).Wealth == 200, "max current and average");
++            history.Observe(1200, 0, 0);
++            Check(history.Preview(1200, 0, 0).Wealth == 0, "expired season trimmed");
++            Check(new RocketEconomy().Preview(0, 1, 1) == null, "missing observations block activation");
++            bool rejected = false;
++            try { history.Observe(float.NaN, 1, 1); } catch (ArgumentOutOfRangeException) { rejected = true; }
++            Check(rejected, "invalid observation rejected");
++            Check(!AirshipYard.Validate(new AirshipYard.State { preparationRemaining = float.NaN }, 2, out _), "invalid preparation rejected");
++            Check(!AirshipYard.Validate(new AirshipYard.State { phase = RocketPhase.Boarding, hull = true, engine = true }, 2, out _), "active state needs fuel and snapshot");
++            Check(AirshipYard.Validate(new AirshipYard.State(), 2, out _), "old construction state compatible");
++            Check(!AirshipYard.Validate(new AirshipYard.State { fuelType = 2 }, 2, out _), "empty fuel manifest has no resource type");
++            Check(!AirshipYard.Validate(new AirshipYard.State { phase = RocketPhase.Preparing, hull = true, engine = true,
++                fuelType = (int)AntColony.Data.ResourceType.Special, fuelUnits = 15, snapshot = new RocketSnapshot() }, 2, out _), "zero preparation cannot remain preparing");
++            Check(!AirshipYard.Validate(new AirshipYard.State { phase = RocketPhase.Destroyed,
++                passengers = new System.Collections.Generic.List<int> { 0 } }, 2, out _), "destroyed rocket cannot own passengers");
++
++            definition = ScriptableObject.CreateInstance<BuildingData>(); definition.kind = BuildingKind.AirshipYard;
++            definition.maxHealth = 300; definition.soilCost = 150;
++            yard = NewYard(commanders[0], definition);
++            Check(yard.Capacity == 10 && !yard.TryDepart(), "base seats and no premature launch");
++            yard.RestoreState(new AirshipYard.State { hull = true, engine = true, cocoons = GameBalance.MaxCocoons }, commanders);
++            Check(yard.Capacity == 1010, "module seats cap");
++            yard.RestoreState(new AirshipYard.State { hull = true, engine = true }, commanders);
++            Check(!yard.TryBoard(commanders[0]), "no boarding before preparation");
++            campaign.Economy.Observe(GameCalendar.GameSeconds, 200, 2);
++            Check(!yard.TryActivate(200, 2), "fuel required");
++            typeof(ResourceManager).GetMethod("RestoreState", Hidden).Invoke(ResourceManager.Instance, new object[] { 0, 0, 0, 1000, 1000, 1000 });
++            ResourceManager.Instance.Add(AntColony.Data.ResourceType.Special, 14);
++            Check(!yard.TryLoadFuel(AntColony.Data.ResourceType.Special, 1)
++                && ResourceManager.Instance.GetAmount(AntColony.Data.ResourceType.Special) == 14, "fuel shortage consumes nothing");
++            ResourceManager.Instance.Add(AntColony.Data.ResourceType.Special, 1);
++            Check(yard.TryLoadFuel(AntColony.Data.ResourceType.Special, 1)
++                && ResourceManager.Instance.GetAmount(AntColony.Data.ResourceType.Special) == 0, "full fifteen day manifest consumed once");
++            Check(!yard.TryLoadFuel(AntColony.Data.ResourceType.Special, 1), "no duplicate loading");
++            int assaultTicks = 0;
++            assault = (y, s, seconds) => { if (y == yard || y == rebuilt) { assaultTicks++; s.currentWealth = 0; } };
++            RocketCampaign.AssaultTick += assault;
++            Check(yard.TryActivate(200, 2) && yard.Phase == RocketPhase.Preparing, "activate");
++            Check(RocketCampaign.Operating && RocketCampaign.SuppressNewCrises, "new crises suppressed");
++            Check(yard.ModificationsLocked && !Demolition.CanDemolish(yard) && !Demolition.CanMove(yard)
++                && !Demolition.CanRenovate(yard) && !yard.TryBuild(AirshipPart.Cocoon), "active modifications locked");
++            yard.TakeDamage(1); yard.Tick(150);
++            Check(yard.PreparationRemaining == 2100, "damage and no external power do not reset timer");
++            Check(yard.FixedSnapshot.Wealth == 200, "assault callback cannot mutate frozen snapshot");
++            var saved = yard.CaptureState(commanders);
++            yard.RestoreState(JsonUtility.FromJson<AirshipYard.State>(JsonUtility.ToJson(saved)), commanders);
++            Check(yard.PreparationRemaining == 2100 && yard.FixedSnapshot.Wealth == 200, "rocket JSON roundtrip");
++            yard.Tick(2100); Check(yard.Phase == RocketPhase.Boarding, "fifteen days completed");
++            yard.Tick(150); Check(assaultTicks == 3 && RocketCampaign.SuppressNewCrises, "assault continues while ready");
++            Check(CampaignOutcome.Preview(yard.Passengers, commanders[0]).Contains("예상 탈출 장수 1명 / 잔류·외부 장수 1명")
++                && !commanders[0].IsEmbarked && yard.Passengers.Count == 0, "boarding confirmation previews proposed outcome without mutating ownership");
++            Check(yard.TryBoard(commanders[0]), "board survivor");
++            Check(CampaignOutcome.Survivor(commanders[0]), "embarked commander survives");
++            var ending = CampaignOutcome.Capture(yard.Passengers);
++            Check(ending.commanders.Count(e => e.category == EndingCategory.Escaped) == 1
++                && ending.commanders.Count(e => e.category == EndingCategory.Staying) == 1, "exclusive outcome classification");
++            var duplicate = JsonUtility.FromJson<CampaignOutcome.State>(JsonUtility.ToJson(ending)); duplicate.commanders.Add(duplicate.commanders[0]);
++            Check(!CampaignOutcome.Validate(duplicate), "duplicate ending identity rejected");
++            Check(ending.citizensEscaped + ending.citizensStaying == ColonyPopulation.Instance.Total, "citizen total counted once");
++            yard.Unload(); Check(CampaignOutcome.Survivor(commanders[0]), "disembarked commander survives");
++            commanders[0].PersonalState.treating = true;
++            Check(CampaignOutcome.Survivor(commanders[0]), "treatment survives"); commanders[0].PersonalState.treating = false;
++
++            captiveSite = new GameObject("B9 captive site"); var site = captiveSite.AddComponent<ExpeditionSite>();
++            var captor = typeof(CommanderAnt).GetProperty("Captor");
++            foreach (var c in commanders) captor.SetValue(c, site);
++            Check(!CampaignOutcome.HasSurvivors, "last captive is defeat");
++            Check(CampaignOutcome.Classify(commanders[0], true) == EndingCategory.Captive, "captivity overrides stale boarding");
++            Check(!CampaignOutcome.Preview(yard.Passengers, commanders[0]).Contains("예상 탈출 장수 1명"), "captive candidate cannot appear escaped");
++            var prisoner = new Prisoner("B9 released", CommanderRank.Sergeant, new[] { UnitRole.Worker }, new CommanderTraits());
++            prisoner.PersonalState.id = Guid.NewGuid().ToString();
++            var homecoming = new Homecoming { commander = prisoner };
++            DiplomacyManager.Instance.Data.homecomings.Add(homecoming);
++            Check(CampaignOutcome.HasSurvivors, "safe homecoming prevents defeat");
++            Check(CampaignOutcome.Capture(yard.Passengers).commanders.Count(e => e.id == prisoner.PersonalState.id
++                && e.category == EndingCategory.Outside) == 1, "released homecoming recorded once as outside");
++            prisoner.PersonalState.dead = true;
++            Check(!CampaignOutcome.HasSurvivors, "dead homecoming is not a survivor");
++            prisoner.PersonalState.dead = false;
++            homecoming.to = "foreign"; Check(!CampaignOutcome.HasSurvivors, "foreign homecoming is not our survivor");
++            DiplomacyManager.Instance.Data.homecomings.Remove(homecoming);
++            foreach (var c in commanders) captor.SetValue(c, null);
++            Check(CampaignOutcome.CaptureWarning.Contains("구출은 남은 아군 필요"), "capture warning contract");
++            var one = options.Clone(); one.startingCount = 1; GameSession.Instance.SetOptions(one);
++            var campaignSave = campaign.Capture(); campaignSave.initialCommanders = 1; campaign.Restore(campaignSave);
++            Check(CampaignOutcome.SingleHarshWarning.Contains("30%") && CampaignOutcome.SingleHarshWarning.Contains("첫 쓰러짐"), "single harsh explicit warning");
++            one.commanderDeath = CommanderDeathMode.Gentle; GameSession.Instance.SetOptions(one);
++            Check(CampaignOutcome.SingleHarshWarning == null, "independent death mode");
++            GameSession.Instance.SetOptions(options);
++            campaign.SetHome(new Vector3(7, 0, 9));
++            var dto = new SaveFileV1 { rocket = campaign.Capture() };
++            var copy = JsonUtility.FromJson<SaveFileV1>(JsonUtility.ToJson(dto)); campaign.Restore(copy.rocket);
++            Check(HomeReturnPoint.Anchor == new Vector3(7, 0, 9), "home anchor JSON independent of buildings");
++            Check(SaveFileV1.CurrentVersion == 19 && RocketCampaign.Validate(null), "version unchanged and old campaign compatible");
++
++            Check(yard.TryBoard(commanders[0]) && yard.TryDepart() && !CampaignResearch.Instance.Departed, "launch queued until end of tick");
++            Check(yard.CaptureState(commanders).launchRequested && !yard.TryDepart(), "pending launch saved and duplicate request rejected");
++            yard.TakeDamage(100000); Resolve(yard);
++            Check(yard.Phase == RocketPhase.Destroyed && !CampaignResearch.Instance.Departed, "same tick destruction beats launch");
++            Check(!commanders[0].IsEmbarked && RocketCampaign.SuppressNewCrises, "destroyed rocket unloads, starts grace");
++            float destroyedAt = GameCalendar.GameSeconds;
++            GameSession.Instance.MarkStarted(0, destroyedAt + 449);
++            Check(RocketCampaign.SuppressNewCrises, "three day grace before boundary");
++            GameSession.Instance.MarkStarted(0, destroyedAt + 450);
++            Check(!RocketCampaign.SuppressNewCrises, "three day grace exact boundary");
++            rebuilt = NewYard(commanders[0], definition);
++            Check(rebuilt.Phase == RocketPhase.Construction && !rebuilt.FuelLoaded, "rebuild begins fresh");
++            ResourceManager.Instance.Add(AntColony.Data.ResourceType.Special, 15);
++            campaign.Economy.Observe(GameCalendar.GameSeconds, 100, 2);
++            Check(rebuilt.TryLoadFuel(AntColony.Data.ResourceType.Special, 1) && rebuilt.TryActivate(100, 2), "rebuilt rocket can activate");
++            rebuilt.Tick(AirshipYard.PreparationSeconds);
++            Check(rebuilt.TryBoard(commanders[0]) && rebuilt.TryDepart(), "rebuilt launch ready");
++            Resolve(rebuilt);
++            Check(rebuilt.Phase == RocketPhase.Launched && CampaignResearch.Instance.Departed && campaign.Ending != null, "launch resolves before defeat");
++            return "PASS " + count;
++        }
++        finally
++        {
++            if (assault != null) RocketCampaign.AssaultTick -= assault;
++            if (yard != null) Object.Destroy(yard.gameObject);
++            if (rebuilt != null) Object.Destroy(rebuilt.gameObject);
++            if (captiveSite != null) Object.Destroy(captiveSite);
++            if (definition != null) Object.Destroy(definition);
++            UnityEngine.Random.state = random;
++            SaveStorage.RootOverride = root; UserSettings.Apply(settings, false); Time.timeScale = 0;
++        }
++    }
++}
+diff --git a/Assets/_Project/Scripts/Buildings/AirshipYard.Rocket.cs b/Assets/_Project/Scripts/Buildings/AirshipYard.Rocket.cs
+new file mode 100644
+index 0000000..66653db
+--- /dev/null
++++ b/Assets/_Project/Scripts/Buildings/AirshipYard.Rocket.cs
+@@ -0,0 +1,86 @@
++using System;
++using System.Linq;
++using AntColony.Core;
++using UnityEngine;
++
++namespace AntColony.Buildings
++{
++    public enum RocketPhase { Construction, Preparing, Boarding, Launched, Destroyed }
++
++    public sealed partial class AirshipYard
++    {
++        public const int BaseSeats = 10, SeatsPerModule = 50, MaximumSeats = 1010;
++        public const float PreparationSeconds = 15 * GameCalendar.SecondsPerDay;
++        public RocketPhase Phase => state.phase;
++        public bool Operating => Phase == RocketPhase.Preparing || Phase == RocketPhase.Boarding;
++        public bool ModificationsLocked => Operating || Phase == RocketPhase.Launched;
++        public int Capacity => BaseSeats + SeatsPerModule * Cocoons;
++        public int OccupiedSeats => passengers.Where(c => c != null && !c.IsDead).Sum(c => 1 + c.TroopCount);
++        public float PreparationRemaining => state.preparationRemaining;
++        public bool FuelLoaded => state.fuelUnits > 0;
++        public RocketSnapshot FixedSnapshot => state.snapshot == null ? null : JsonUtility.FromJson<RocketSnapshot>(JsonUtility.ToJson(state.snapshot));
++        public RocketSnapshot ActivationPreview
++        {
++            get
++            {
++                var economy = RocketCampaign.Instance?.Economy;
++                if (economy == null || economy.samples.Count == 0) return null;
++                var current = economy.samples[economy.samples.Count - 1];
++                return economy.Preview(GameCalendar.GameSeconds, current.wealth, current.population);
++            }
++        }
++
++        // 연료 종류·일 소비량은 확정된 연료 규격을 가진 호출자가 전달한다. 15일분을 원자적으로 소비한다.
++        public bool TryLoadFuel(AntColony.Data.ResourceType type, int unitsPerDay)
++        {
++            if (!isActiveAndEnabled || IsDead || ModificationsLocked || FuelLoaded || unitsPerDay <= 0
++                || unitsPerDay > int.MaxValue / 15 || !Enum.IsDefined(typeof(AntColony.Data.ResourceType), type)
++                || ResourceManager.Instance == null) return false;
++            int amount = unitsPerDay * 15;
++            if (!ResourceManager.Instance.TrySpend(type, amount, ResourceReason.Construction)) return false;
++            state.fuelType = (int)type; state.fuelUnits = amount;
++            return true;
++        }
++        public bool TryActivate(float currentWealth, float currentPopulation)
++        {
++            var campaign = RocketCampaign.Instance;
++            if (!isActiveAndEnabled || IsDead || !Ready || Phase != RocketPhase.Construction || !FuelLoaded
++                || Demolition.Pending(this) || campaign == null || CampaignResearch.Instance == null
++                || CampaignResearch.Instance.Departed || RocketCampaign.Operating || !RocketCampaign.AssaultAvailable) return false;
++            var snapshot = campaign.Economy.Preview(GameCalendar.GameSeconds, currentWealth, currentPopulation);
++            if (snapshot == null) return false;
++            state.snapshot = snapshot;
++            state.preparationRemaining = PreparationSeconds;
++            state.phase = RocketPhase.Preparing;
++            return true;
++        }
++        private void TickRocket(float seconds)
++        {
++            if (!Operating || IsDead) return;
++            // 내장 전원이므로 외부 전력·부분 손상·수리와 독립적이다.
++            state.preparationRemaining = Mathf.Max(0, state.preparationRemaining - seconds);
++            if (state.preparationRemaining == 0) state.phase = RocketPhase.Boarding;
++            RocketCampaign.TickAssault(this, FixedSnapshot, seconds);
++        }
++        internal void ResolveLaunch()
++        {
++            passengers.RemoveAll(c => c == null || c.IsDead || c.IsCaptive || c.IsDeparting || c.IsHostile || !c.IsEmbarked);
++            if (!state.launchRequested) return;
++            state.launchRequested = false;
++            var research = CampaignResearch.Instance;
++            if (!isActiveAndEnabled || IsDead || Phase != RocketPhase.Boarding || passengers.Count == 0
++                || research == null || research.Departed) return;
++            RocketCampaign.Instance?.RecordEnding(this);
++            state.phase = RocketPhase.Launched;
++            research.CompleteDeparture(passengers);
++        }
++        protected override void Die()
++        {
++            if (Operating) RocketCampaign.Instance?.RocketDestroyed();
++            state.phase = RocketPhase.Destroyed;
++            state.launchRequested = false;
++            Unload();
++            base.Die();
++        }
++    }
++}
+diff --git a/Assets/_Project/Scripts/Buildings/AirshipYard.cs b/Assets/_Project/Scripts/Buildings/AirshipYard.cs
+index 799a974..bdfcb50 100644
+--- a/Assets/_Project/Scripts/Buildings/AirshipYard.cs
++++ b/Assets/_Project/Scripts/Buildings/AirshipYard.cs
+@@ -9,7 +9,7 @@ namespace AntColony.Buildings
+     public enum AirshipPart { Hull, Engine, Cocoon }
+ 
+     // 로켓 발사대(2026-10-05, 구 비행선 조선소). 저장·프리팹 호환을 위해 코드 이름은 AirshipYard 유지.
+-    public sealed class AirshipYard : BuildingBase
++    public sealed partial class AirshipYard : BuildingBase
+     {
+         [Serializable] public sealed class State
+         {
+@@ -17,6 +17,11 @@ namespace AntColony.Buildings
+             public int cocoons;
+             public int building = -1;
+             public float remaining;
++            public RocketPhase phase;
++            public float preparationRemaining;
++            public int fuelType = -1, fuelUnits;
++            public RocketSnapshot snapshot;
++            public bool launchRequested;
+             public List<int> passengers = new List<int>();
+         }
+         private State state = new State();
+@@ -34,7 +39,7 @@ namespace AntColony.Buildings
+         {
+             var research = CampaignResearch.Instance;
+             if (!Enum.IsDefined(typeof(AirshipPart), part) || !isActiveAndEnabled || IsDead || state.building >= 0
+-                || research == null || research.Departed || !research.Has(Technology(part))
++                || ModificationsLocked || research == null || research.Departed || !research.Has(Technology(part))
+                 || (part == AirshipPart.Hull && Hull) || (part == AirshipPart.Engine && Engine)
+                 || (part == AirshipPart.Cocoon && Cocoons >= GameBalance.MaxCocoons)) return false;
+             var cocoon = part == AirshipPart.Cocoon;
+@@ -49,7 +54,9 @@ namespace AntColony.Buildings
+         private void Update() => Tick(Time.deltaTime);
+         public void Tick(float seconds)
+         {
+-            if (!isActiveAndEnabled || state.building < 0 || !(seconds > 0) || float.IsInfinity(seconds)) return;
++            if (!isActiveAndEnabled || IsDead || !(seconds > 0) || float.IsInfinity(seconds) || AntColony.Save.SaveSystem.Busy) return;
++            TickRocket(seconds);
++            if (state.building < 0) return;
+             state.remaining = Mathf.Max(0, state.remaining - seconds);
+             if (state.remaining > 0) return;
+             if (state.building == (int)AirshipPart.Hull) state.hull = true;
+@@ -61,10 +68,11 @@ namespace AntColony.Buildings
+ 
+         public bool TryBoard(CommanderAnt commander)
+         {
+-            if (!isActiveAndEnabled || !Ready || CampaignResearch.Instance == null || CampaignResearch.Instance.Departed
++            if (!isActiveAndEnabled || IsDead || Phase != RocketPhase.Boarding || !Ready || CampaignResearch.Instance == null || CampaignResearch.Instance.Departed
+                 || commander == null || !commander.isActiveAndEnabled || commander.IsDead || commander.IsAwayFromHome
+                 || commander.IsEmbarked || commander.LabUpgradeBusy || !commander.CanChangeAllocation
+-                || passengers.Count >= Cocoons || passengers.Contains(commander) || Vector3.Distance(commander.Position, Position) > 8) return false;
++                || commander.IsCaptive || commander.IsDeparting || commander.IsHostile
++                || OccupiedSeats + 1 + commander.TroopCount > Capacity || passengers.Contains(commander) || Vector3.Distance(commander.Position, Position) > 8) return false;
+             passengers.Add(commander);
+             commander.SetEmbarked(true, Position);
+             return true;
+@@ -80,8 +88,8 @@ namespace AntColony.Buildings
+         public bool TryDepart()
+         {
+             var research = CampaignResearch.Instance;
+-            if (!isActiveAndEnabled || !Ready || research == null || research.Departed) return false;
+-            research.CompleteDeparture(passengers);
++            if (!isActiveAndEnabled || IsDead || Phase != RocketPhase.Boarding || !Ready || state.launchRequested || passengers.Count == 0 || research == null || research.Departed) return false;
++            state.launchRequested = true;
+             return true;
+         }
+ 
+@@ -107,7 +115,20 @@ namespace AntColony.Buildings
+             if (value == null) { error = ""; return true; }
+             if (value.cocoons < 0 || value.building < -1 || value.building > 2 || value.remaining < 0
+                 || float.IsInfinity(value.remaining) || float.IsNaN(value.remaining) || value.passengers == null
+-                || value.passengers.Count > value.cocoons || (value.building == -1 && value.remaining != 0)) return false;
++                || value.cocoons > GameBalance.MaxCocoons || value.passengers.Count > BaseSeats + SeatsPerModule * value.cocoons
++                || (value.building == -1 && value.remaining != 0)
++                || !Enum.IsDefined(typeof(RocketPhase), value.phase) || !RocketSnapshot.Finite(value.preparationRemaining)
++                || value.preparationRemaining > PreparationSeconds || value.fuelUnits < 0 || value.fuelUnits % 15 != 0
++                || value.fuelUnits == 0 && value.fuelType != -1
++                || value.fuelUnits > 0 && !Enum.IsDefined(typeof(AntColony.Data.ResourceType), value.fuelType)
++                || value.snapshot != null && !value.snapshot.Valid
++                || (value.phase == RocketPhase.Preparing || value.phase == RocketPhase.Boarding || value.phase == RocketPhase.Launched)
++                    && (!value.hull || !value.engine || value.building >= 0 || value.fuelUnits <= 0 || value.snapshot == null)
++                || (value.phase == RocketPhase.Boarding || value.phase == RocketPhase.Launched) && value.preparationRemaining != 0
++                || value.phase == RocketPhase.Preparing && value.preparationRemaining <= 0
++                || value.phase == RocketPhase.Destroyed && (value.passengers.Count > 0 || value.launchRequested)
++                || value.phase == RocketPhase.Construction && (value.preparationRemaining != 0 || value.snapshot != null)
++                || value.launchRequested && value.phase != RocketPhase.Boarding) return false;
+             var unique = new HashSet<int>();
+             foreach (var id in value.passengers) if (id < 0 || id >= commanderCount || !unique.Add(id)) return false;
+             error = ""; return true;
+diff --git a/Assets/_Project/Scripts/Buildings/Demolition.cs b/Assets/_Project/Scripts/Buildings/Demolition.cs
+index e158231..c27c431 100644
+--- a/Assets/_Project/Scripts/Buildings/Demolition.cs
++++ b/Assets/_Project/Scripts/Buildings/Demolition.cs
+@@ -12,7 +12,8 @@ namespace AntColony.Buildings
+     public static class Demolition
+     {
+         public static bool Pending(BuildingBase b) => Object.FindObjectsByType<DemolitionSite>().Any(s => s.Target == b);
+-        private static bool Orderable(BuildingBase b) => b != null && !b.IsDead && b.Data != null && b.CountsTowardPlayerDefeat && !(b is Stockpile) && !Pending(b);
++        private static bool Orderable(BuildingBase b) => b != null && !b.IsDead && b.Data != null && b.CountsTowardPlayerDefeat && !(b is Stockpile)
++            && !(b is AirshipYard yard && yard.ModificationsLocked) && !Pending(b);
+         // 환자·포로·치료 중인 동물이 들어 있는 시설은 비우기 전 철거·이동·개보수를 할 수 없다(2026-10-12).
+         public static bool HoldsPrisoners(BuildingBase b) => b != null && (b.TryGetComponent<PrisonerCamp>(out var camp) && camp.Count > 0
+             || b is Infirmary ward && ward.Patients.Count > 0
+diff --git a/Assets/_Project/Scripts/Core/CampaignOutcome.cs b/Assets/_Project/Scripts/Core/CampaignOutcome.cs
+new file mode 100644
+index 0000000..3648136
+--- /dev/null
++++ b/Assets/_Project/Scripts/Core/CampaignOutcome.cs
+@@ -0,0 +1,71 @@
++using System;
++using System.Collections.Generic;
++using System.Linq;
++using AntColony.Units;
++using AntColony.World;
++using UnityEngine;
++
++namespace AntColony.Core
++{
++    public enum EndingCategory { Escaped, Staying, Outside, Captive, Dead, Left }
++    public static class CampaignOutcome
++    {
++        public const string CaptureWarning = "마지막 아군이 포로가 되면 즉시 패배합니다. 구출은 남은 아군 필요.";
++        public const string HarshWarning = "가혹: 쓰러짐 즉사 30%(잠정). 첫 쓰러짐에서 즉사하면 즉시 패배";
++        [Serializable] public sealed class Entry { public string id, name; public EndingCategory category; }
++        [Serializable] public sealed class State
++        {
++            public List<Entry> commanders = new List<Entry>();
++            public int citizensEscaped, citizensStaying;
++        }
++        public static bool Survivor(CommanderAnt c) => c != null && !c.IsDead && !c.IsCaptive && !c.IsDeparting && !c.IsHostile;
++        public static bool SafeHomecoming(Homecoming h) => h?.commander?.PersonalState != null
++            && string.IsNullOrEmpty(h.to) && !h.commander.PersonalState.dead;
++        public static bool HasSurvivors => CommanderRoster.Instance != null && CommanderRoster.Instance.Commanders.Any(Survivor)
++            || DiplomacyManager.Instance != null && DiplomacyManager.Instance.Data.homecomings.Any(SafeHomecoming);
++        public static string SingleHarshWarning => CommanderDeathRuntime.Mode == CommanderDeathMode.Harsh
++            && (RocketCampaign.Instance != null ? RocketCampaign.Instance.InitialCommanders : GameSession.Exists ? GameSession.Instance.Options.startingCount : 0) == 1 ? HarshWarning : null;
++        public static EndingCategory Classify(CommanderAnt c, bool boarded)
++        {
++            if (c.IsDead) return EndingCategory.Dead;
++            if (c.IsCaptive) return EndingCategory.Captive;
++            if (c.IsDeparting || c.IsHostile) return EndingCategory.Left;
++            if (boarded && c.IsEmbarked) return EndingCategory.Escaped;
++            return c.IsAwayFromHome ? EndingCategory.Outside : EndingCategory.Staying;
++        }
++        public static State Capture(IReadOnlyList<CommanderAnt> boarded) => Capture(boarded, null);
++        private static State Capture(IReadOnlyList<CommanderAnt> boarded, CommanderAnt boardingCandidate)
++        {
++            var result = new State(); var ids = new HashSet<string>();
++            void Add(string id, string name, EndingCategory category)
++            {
++                if (!string.IsNullOrEmpty(id) && ids.Add(id)) result.commanders.Add(new Entry { id = id, name = name, category = category });
++            }
++            // 석방 후 안전 귀환자는 과거 포로 기록과 중복 없이 외부 이동으로 분류한다.
++            if (DiplomacyManager.Instance != null)
++                foreach (var h in DiplomacyManager.Instance.Data.homecomings.Where(SafeHomecoming))
++                    Add(h.commander.PersonalState.id, h.commander.Name, EndingCategory.Outside);
++            if (CommanderRoster.Instance != null)
++                foreach (var c in CommanderRoster.Instance.Commanders)
++                {
++                    var kind = Classify(c, boarded.Contains(c));
++                    if (c == boardingCandidate && Survivor(c) && !c.IsAwayFromHome) kind = EndingCategory.Escaped;
++                    Add(c.PersonalState.id, c.CommanderName, kind);
++                    if (kind == EndingCategory.Escaped) result.citizensEscaped += c.TroopCount;
++                }
++            foreach (var death in Memorial.Deaths) Add(death.id, death.name, EndingCategory.Dead);
++            // 동원 병력은 인구 총계에 이미 포함된다. 시민 이송(G16) 연결 전에는 동반 병력만 탈출한다.
++            int total = ColonyPopulation.Instance?.Total ?? AntPool.Instance?.Total ?? 0;
++            result.citizensStaying = Mathf.Max(0, total - result.citizensEscaped);
++            return result;
++        }
++        public static bool Validate(State s) => s == null || s.commanders != null && s.citizensEscaped >= 0 && s.citizensStaying >= 0
++            && s.commanders.All(c => c != null && !string.IsNullOrEmpty(c.id) && c.name != null && Enum.IsDefined(typeof(EndingCategory), c.category))
++            && s.commanders.Select(c => c.id).Distinct().Count() == s.commanders.Count;
++        public static string Preview(IReadOnlyList<CommanderAnt> boarded, CommanderAnt boardingCandidate = null)
++        {
++            var s = Capture(boarded, boardingCandidate);
++            return $"예상 탈출 장수 {s.commanders.Count(c => c.category == EndingCategory.Escaped)}명 / 잔류·외부 장수 {s.commanders.Count(c => c.category == EndingCategory.Staying || c.category == EndingCategory.Outside)}명 · 시민 탈출 {s.citizensEscaped}명 / 잔류 {s.citizensStaying}명";
++        }
++    }
++}
+diff --git a/Assets/_Project/Scripts/Core/GameManager.cs b/Assets/_Project/Scripts/Core/GameManager.cs
+index e361243..d4cae21 100644
+--- a/Assets/_Project/Scripts/Core/GameManager.cs
++++ b/Assets/_Project/Scripts/Core/GameManager.cs
+@@ -5,6 +5,7 @@ using UnityEngine;
+ 
+ namespace AntColony.Core
+ {
++    [DefaultExecutionOrder(10000)]
+     public class GameManager : MonoBehaviour
+     {
+         public static GameManager Instance { get; private set; }
+@@ -33,6 +34,8 @@ namespace AntColony.Core
+                 return;
+             }
+             Instance = this;
++            if (GetComponent<RocketCampaign>() == null) gameObject.AddComponent<RocketCampaign>();
++            if (GetComponent<AntColony.UI.RocketSafetyHud>() == null) gameObject.AddComponent<AntColony.UI.RocketSafetyHud>();
+         }
+ 
+         private void Start()
+@@ -68,9 +71,9 @@ namespace AntColony.Core
+             if (quitting || defeated || Save.SaveSystem.Busy || !GameSession.Exists
+                 || !GameSession.Instance.GameStarted || CommanderRoster.Instance == null
+                 || CampaignResearch.Instance != null && CampaignResearch.Instance.Departed) return;
+-            // 회복 가능한 쓰러짐·수면·치료·원정·수송은 생존 전력에 포함한다.
+-            foreach (var commander in CommanderRoster.Instance.Commanders)
+-                if (!commander.IsDead && !commander.IsCaptive && !commander.IsDeparting && !commander.IsHostile) return;
++            // Update의 피해·소유권 변경 후 탑승 갱신→발사→패배 순서로 한 곳에서 확정한다.
++            foreach (var yard in FindObjectsByType<AirshipYard>(FindObjectsSortMode.None)) yard.ResolveLaunch();
++            if (CampaignResearch.Instance != null && CampaignResearch.Instance.Departed || CampaignOutcome.HasSurvivors) return;
+             defeated = true;
+             OnDefeat?.Invoke();
+         }
+diff --git a/Assets/_Project/Scripts/Core/HomeReturnPoint.cs b/Assets/_Project/Scripts/Core/HomeReturnPoint.cs
+new file mode 100644
+index 0000000..8079d6b
+--- /dev/null
++++ b/Assets/_Project/Scripts/Core/HomeReturnPoint.cs
+@@ -0,0 +1,61 @@
++using System.Collections.Generic;
++using System.Linq;
++using AntColony.Buildings;
++using AntColony.Map;
++using UnityEngine;
++using UnityEngine.AI;
++
++namespace AntColony.Core
++{
++    public static class HomeReturnPoint
++    {
++        public static Vector3 Anchor => RocketCampaign.Instance != null && RocketCampaign.Instance.HasHome
++            ? RocketCampaign.Instance.Home : AntColony.World.WorldMapManager.Instance?.HomePosition ?? Vector3.zero;
++
++        // 본거지 지도 안의 NavMesh 경계 중 귀환 위치에 가장 가까운 통행 가능 점.
++        public static bool TryGround(Vector3 from, out Vector3 point)
++        {
++            point = Anchor;
++            var bounds = HomeMapBuilder.CurrentWorldBounds;
++            if (bounds.size.x <= 0 || bounds.size.z <= 0) return false;
++            var mesh = NavMesh.CalculateTriangulation();
++            var edges = new Dictionary<(int, int), int>();
++            void Edge(int a, int b) { var key = a < b ? (a, b) : (b, a); edges.TryGetValue(key, out int count); edges[key] = count + 1; }
++            for (int i = 0; i < mesh.indices.Length; i += 3)
++            { Edge(mesh.indices[i], mesh.indices[i + 1]); Edge(mesh.indices[i + 1], mesh.indices[i + 2]); Edge(mesh.indices[i + 2], mesh.indices[i]); }
++            float best = float.MaxValue;
++            foreach (var edge in edges.Where(e => e.Value == 1))
++            {
++                var a = mesh.vertices[edge.Key.Item1]; var b = mesh.vertices[edge.Key.Item2];
++                var delta = b - a;
++                var near = a + delta * Mathf.Clamp01(Vector3.Dot(from - a, delta) / Mathf.Max(.0001f, delta.sqrMagnitude));
++                if (near.x < bounds.min.x || near.z < bounds.min.z || near.x > bounds.max.x || near.z > bounds.max.z
++                    || near.x > bounds.min.x + 2 && near.z > bounds.min.z + 2 && near.x < bounds.max.x - 2 && near.z < bounds.max.z - 2
++                    || !NavMesh.SamplePosition(near, out var hit, 1, NavMesh.AllAreas)) continue;
++                float distance = (from - hit.position).sqrMagnitude;
++                if (distance >= best) continue;
++                best = distance; point = hit.position;
++            }
++            return best < float.MaxValue;
++        }
++        public static bool TryAir(out Vector3 point)
++        {
++            point = Anchor;
++            var bounds = HomeMapBuilder.CurrentWorldBounds;
++            if (bounds.size.x <= 0 || bounds.size.z <= 0) return false;
++            // 가장 가까운 빈 착륙 지점부터 탐색한다. 창고·징집소 존재와 무관하다.
++            for (int radius = 0; radius <= 20; radius += 2)
++                for (int i = 0; i < (radius == 0 ? 1 : 16); i++)
++                {
++                    float angle = i * Mathf.PI / 8;
++                    var candidate = Anchor + new Vector3(Mathf.Cos(angle), 0, Mathf.Sin(angle)) * radius;
++                    if (!NavMesh.SamplePosition(candidate, out var hit, 1, NavMesh.AllAreas)) continue;
++                    if (hit.position.x < bounds.min.x || hit.position.x > bounds.max.x
++                        || hit.position.z < bounds.min.z || hit.position.z > bounds.max.z) continue;
++                    if (Physics.OverlapSphere(hit.position + Vector3.up, 1).Any(c => c.GetComponentInParent<BuildingBase>() != null)) continue;
++                    point = hit.position; return true;
++                }
++            return false;
++        }
++    }
++}
+diff --git a/Assets/_Project/Scripts/Core/RocketCampaign.cs b/Assets/_Project/Scripts/Core/RocketCampaign.cs
+new file mode 100644
+index 0000000..f27ea62
+--- /dev/null
++++ b/Assets/_Project/Scripts/Core/RocketCampaign.cs
+@@ -0,0 +1,62 @@
++using System;
++using System.Linq;
++using AntColony.Buildings;
++using UnityEngine;
++
++namespace AntColony.Core
++{
++    // 씬과 함께 수명이 끝난다. 건물 파괴와 무관한 위기 유예·경제 이력·엔딩·본거지 기준점.
++    public sealed class RocketCampaign : MonoBehaviour
++    {
++        [Serializable] public sealed class State
++        {
++            public float crisisResumeAt;
++            public RocketEconomy economy = new RocketEconomy();
++            public CampaignOutcome.State ending;
++            public bool hasHome;
++            public Vector3 home;
++            public int initialCommanders;
++        }
++        public static RocketCampaign Instance { get; private set; }
++        private State state = new State();
++        public RocketEconomy Economy => state.economy;
++        public CampaignOutcome.State Ending => state.ending;
++        public Vector3 Home => state.home;
++        public bool HasHome => state.hasHome;
++        public int InitialCommanders => state.initialCommanders;
++        public static bool Operating => FindObjectsByType<AirshipYard>(FindObjectsSortMode.None).Any(y => y.Operating && !y.IsDead);
++        public static bool SuppressNewCrises => Operating || Instance != null && GameCalendar.GameSeconds < Instance.state.crisisResumeAt;
++        // 생성기는 이 이벤트에 연결한다. 준비 완료 후에도 발사/파괴까지 계속 호출한다.
++        public static event Action<AirshipYard, RocketSnapshot, float> AssaultTick;
++        public static bool AssaultAvailable => AssaultTick != null;
++        private void Awake() => Instance = this;
++        private void Start()
++        {
++            if (state.initialCommanders == 0 && GameSession.Exists) state.initialCommanders = GameSession.Instance.Options.startingCount;
++            if (!state.hasHome) SetHome(AntColony.World.WorldMapManager.Instance != null
++                ? AntColony.World.WorldMapManager.Instance.HomePosition : transform.position);
++        }
++        private void OnDestroy()
++        {
++            if (Instance == this) { Instance = null; AssaultTick = null; }
++        }
++        public void SetHome(Vector3 point) { state.home = point; state.hasHome = true; }
++        public void RocketDestroyed() => state.crisisResumeAt = GameCalendar.GameSeconds + 3 * GameCalendar.SecondsPerDay;
++        public static void TickAssault(AirshipYard yard, RocketSnapshot snapshot, float seconds) => AssaultTick?.Invoke(yard, snapshot, seconds);
++        public void RecordEnding(AirshipYard yard) => state.ending = CampaignOutcome.Capture(yard.Passengers);
++        public State Capture() => JsonUtility.FromJson<State>(JsonUtility.ToJson(state));
++        public void Restore(State value)
++        {
++            if (!Validate(value)) throw new FormatException("Invalid rocket campaign state.");
++            state = value == null ? new State() : JsonUtility.FromJson<State>(JsonUtility.ToJson(value));
++            if (!state.hasHome) SetHome(AntColony.World.WorldMapManager.Instance?.HomePosition ?? transform.position);
++            if (state.initialCommanders == 0 && GameSession.Exists) state.initialCommanders = GameSession.Instance.Options.startingCount;
++        }
++        public static bool Validate(State value) => value == null || RocketSnapshot.Finite(value.crisisResumeAt)
++            && value.initialCommanders >= 0
++            && value.economy != null && value.economy.Valid() && CampaignOutcome.Validate(value.ending)
++            && !float.IsNaN(value.home.x) && !float.IsInfinity(value.home.x)
++            && !float.IsNaN(value.home.y) && !float.IsInfinity(value.home.y)
++            && !float.IsNaN(value.home.z) && !float.IsInfinity(value.home.z);
++    }
++}
+diff --git a/Assets/_Project/Scripts/Core/RocketEconomy.cs b/Assets/_Project/Scripts/Core/RocketEconomy.cs
+new file mode 100644
+index 0000000..6b50aed
+--- /dev/null
++++ b/Assets/_Project/Scripts/Core/RocketEconomy.cs
+@@ -0,0 +1,61 @@
++using System;
++using System.Collections.Generic;
++using UnityEngine;
++
++namespace AntColony.Core
++{
++    [Serializable] public sealed class RocketSnapshot
++    {
++        public float at, currentWealth, currentPopulation, averageWealth, averagePopulation;
++        public float Wealth => Mathf.Max(currentWealth, averageWealth);
++        public float Population => Mathf.Max(currentPopulation, averagePopulation);
++        public static bool Finite(float n) => !float.IsNaN(n) && !float.IsInfinity(n) && n >= 0;
++        public bool Valid => Finite(at) && Finite(currentWealth) && Finite(currentPopulation)
++            && Finite(averageWealth) && Finite(averagePopulation);
++    }
++
++    // 소유권 집계자는 예약을 더하지 않은 전 지역 실물 평가를 전달한다. 공세는 가동 시 복사본만 사용한다.
++    [Serializable] public sealed class RocketEconomy
++    {
++        [Serializable] public sealed class Sample { public float at, wealth, population; }
++        public List<Sample> samples = new List<Sample>();
++        public void Observe(float at, float wealth, float population)
++        {
++            if (!RocketSnapshot.Finite(at) || !RocketSnapshot.Finite(wealth) || !RocketSnapshot.Finite(population)
++                || samples.Count > 0 && at < samples[samples.Count - 1].at) throw new ArgumentOutOfRangeException();
++            if (samples.Count > 0 && samples[samples.Count - 1].at == at) samples.RemoveAt(samples.Count - 1);
++            if (samples.Count == 0 || samples[samples.Count - 1].wealth != wealth || samples[samples.Count - 1].population != population)
++                samples.Add(new Sample { at = at, wealth = wealth, population = population });
++            while (samples.Count > 1 && samples[1].at <= at - GameCalendar.SecondsPerSeason) samples.RemoveAt(0);
++        }
++        public RocketSnapshot Preview(float at, float currentWealth, float currentPopulation)
++        {
++            if (!RocketSnapshot.Finite(at) || !RocketSnapshot.Finite(currentWealth) || !RocketSnapshot.Finite(currentPopulation)
++                || samples.Count == 0 || at < samples[samples.Count - 1].at) return null;
++            float start = Mathf.Max(samples[0].at, at - GameCalendar.SecondsPerSeason);
++            double wealth = 0, population = 0;
++            for (int i = 0; i < samples.Count; i++)
++            {
++                float end = i + 1 < samples.Count ? samples[i + 1].at : at;
++                float duration = Mathf.Max(0, end - Mathf.Max(start, samples[i].at));
++                wealth += samples[i].wealth * (double)duration;
++                population += samples[i].population * (double)duration;
++            }
++            return new RocketSnapshot { at = at, currentWealth = currentWealth, currentPopulation = currentPopulation,
++                averageWealth = at > start ? (float)(wealth / (at - start)) : currentWealth,
++                averagePopulation = at > start ? (float)(population / (at - start)) : currentPopulation };
++        }
++        public bool Valid()
++        {
++            if (samples == null) return false;
++            float previous = -1;
++            foreach (var s in samples)
++            {
++                if (s == null || !RocketSnapshot.Finite(s.at) || !RocketSnapshot.Finite(s.wealth)
++                    || !RocketSnapshot.Finite(s.population) || s.at <= previous) return false;
++                previous = s.at;
++            }
++            return true;
++        }
++    }
++}
+diff --git a/Assets/_Project/Scripts/Save/SaveDtos.cs b/Assets/_Project/Scripts/Save/SaveDtos.cs
+index 13f81a6..666a44b 100644
+--- a/Assets/_Project/Scripts/Save/SaveDtos.cs
++++ b/Assets/_Project/Scripts/Save/SaveDtos.cs
+@@ -298,6 +298,7 @@ namespace AntColony.Save
+     [Serializable]
+     public class SaveFileV1
+     {
++        public Core.RocketCampaign.State rocket;
+         public List<ResourceNodeDto> nodes = new List<ResourceNodeDto>();
+         public List<MonsterDto> monsters = new List<MonsterDto>();
+         public float upkeepTimer, incursionTimer;
+diff --git a/Assets/_Project/Scripts/Save/SavePreflight.cs b/Assets/_Project/Scripts/Save/SavePreflight.cs
+index 885d884..90a1d25 100644
+--- a/Assets/_Project/Scripts/Save/SavePreflight.cs
++++ b/Assets/_Project/Scripts/Save/SavePreflight.cs
+@@ -42,6 +42,8 @@ namespace AntColony.Save
+             try
+             {
+                 Check(DateTime.TryParse(f.savedAtUtc, out _) && f.camera != null, "save header");
++                Check(AntColony.Core.RocketCampaign.Validate(f.rocket), "rocket campaign");
++                Check(f.rocket == null || f.rocket.economy.samples.All(s => s.at <= f.gameSeconds), "rocket economy dates");
+                 Check(N(f.playSeconds) && N(f.gameSeconds) && N(f.upkeepTimer) && N(f.incursionTimer), "timers");
+                 Check(f.upkeepFailures >= 0, "upkeep failures");
+                 Check(Core.CampaignResearch.Validate(f.campaign, out _), "campaign research");
+@@ -137,6 +139,12 @@ namespace AntColony.Save
+                     if (b.scientist >= 0) Check(b.kind == "ScienceLab" && targets.Add(b.scientist)
+                         && f.commanders[b.scientist].location == 0 && !f.commanders[b.scientist].personalState.dead, "scientist ownership");
+                     Check(AirshipYard.Validate(b.airship, f.commanders.Count, out _), "airship");
++                    if (b.airship != null)
++                    {
++                        Check(b.airship.snapshot == null || b.airship.snapshot.at <= f.gameSeconds, "rocket snapshot date");
++                        Check(b.airship.passengers.Sum(id => 1L + f.commanders[id].troopCount)
++                            <= AirshipYard.BaseSeats + AirshipYard.SeatsPerModule * b.airship.cocoons, "rocket occupied seats");
++                    }
+                     var w = b.workshop;
+                     Check(w != null, "workshop state"); L(w.jobs, Core.GameBalance.CraftQueueCapacity, "craft queue");
+                     if (w.orders != null)
+diff --git a/Assets/_Project/Scripts/Save/SaveSnapshot.cs b/Assets/_Project/Scripts/Save/SaveSnapshot.cs
+index f2fa414..c040cf4 100644
+--- a/Assets/_Project/Scripts/Save/SaveSnapshot.cs
++++ b/Assets/_Project/Scripts/Save/SaveSnapshot.cs
+@@ -37,6 +37,7 @@ namespace AntColony.Save
+                 upkeepFailures = Object.FindFirstObjectByType<UpkeepManager>()?.ConsecutiveFailures ?? 0,
+                 campaign = CampaignResearch.Instance?.CaptureState() ?? new CampaignResearch.State(),
+                 history = CampaignHistory.Instance?.Capture() ?? new CampaignHistory.State(),
++                rocket = RocketCampaign.Instance?.Capture(),
+                 events = ColonyEvents.Instance?.Capture() ?? new ColonyEvents.State(),
+                 memorial = Memorial.Capture(),
+                 weather = AntColony.Map.WeatherSystem.Instance?.CaptureState(),
+@@ -287,6 +288,7 @@ namespace AntColony.Save
+             if (file.camera.viewedSite >= 0) world.ViewSite(world.Sites[file.camera.viewedSite]);
+             Object.FindFirstObjectByType<AntColony.Camera.IsometricCameraController>().RestoreView(file.camera.focus.ToVector3(), Mathf.Round(file.camera.yaw / 90f) * 90f, file.camera.orthoSize); // 옛 쿼터뷰 45° 저장은 정면 시점으로
+             Encyclopedia.Merge(file.discoveries); GameSession.Instance.MarkStarted(file.playSeconds, file.gameSeconds);
++            RocketCampaign.Instance?.Restore(file.rocket);
+             foreach (var corpse in Corpse.All.ToArray())
+                 commanders.FirstOrDefault(c => c.PersonalState.id == corpse.Data.workerId)?.RestoreCorpseWork(corpse);
+             Memorial.Restore(file.memorial); CampaignHistory.Instance.Restore(file.history); ColonyEvents.Instance.Restore(file.events); ColonyPopulation.Instance?.Restore(file.population); AntColony.Map.WeatherSystem.Instance?.RestoreState(file.weather); DiplomacyManager.Instance.RestoreRebels(); WorkPriorities.Restore(file.workPriorities);
+diff --git a/Assets/_Project/Scripts/UI/GameMenuCampaign.cs b/Assets/_Project/Scripts/UI/GameMenuCampaign.cs
+index 0258696..bf61296 100644
+--- a/Assets/_Project/Scripts/UI/GameMenuCampaign.cs
++++ b/Assets/_Project/Scripts/UI/GameMenuCampaign.cs
+@@ -23,15 +23,17 @@ namespace AntColony.UI
+             });
+             foreach (var yard in FindObjectsByType<AirshipYard>(FindObjectsSortMode.None))
+             {
+-                MenuTheme.Text(content, $"로켓 발사대 | 선체 {(yard.Hull ? "완성" : "미완성")} | 엔진 {(yard.Engine ? "완성" : "미완성")} | 동면 캡슐 {yard.Cocoons}개 | {yard.Remaining:0}초", 18, 55);
++                MenuTheme.Text(content, $"로켓 {yard.Phase} · 선체 {(yard.Hull ? "완성" : "미완성")} / 엔진 {(yard.Engine ? "완성" : "미완성")} · 좌석 {yard.OccupiedSeats}/{yard.Capacity} · 준비 잔여 {yard.PreparationRemaining / GameCalendar.SecondsPerDay:0.00}일", 13, 55);
+                 foreach (AirshipPart part in Enum.GetValues(typeof(AirshipPart)))
+-                    MenuTheme.Button(content, part + " 건조" + (part == AirshipPart.Cocoon ? $" (식량 {GameBalance.CocoonFood}/재료 {GameBalance.CocoonSoil}/특수 자원 {GameBalance.CocoonSpecial}, {yard.Cocoons}/{GameBalance.MaxCocoons})" : " (식량 100/재료 150/특수 자원 150)"),
+-                        () => { if (!yard.TryBuild(part)) ToastManager.Show("관련 연구·자원과 작업 중이 아닌 발사대가 필요합니다."); ScienceFacilities(); });
++                    MenuTheme.Button(content, (part == AirshipPart.Cocoon ? "50석 확장 모듈" : part.ToString()) + " 건조" + (part == AirshipPart.Cocoon ? $" (식량 {GameBalance.CocoonFood}/재료 {GameBalance.CocoonSoil}/특수 자원 {GameBalance.CocoonSpecial}, {yard.Cocoons}/{GameBalance.MaxCocoons})" : " (식량 100/재료 150/특수 자원 150)"),
++                        () => { if (!yard.TryBuild(part)) ToastManager.Show("관련 연구·자원과 작업 중이 아닌 발사대가 필요합니다."); ScienceFacilities(); }).interactable = !yard.ModificationsLocked;
++                RocketActivation(yard);
+                 foreach (var c in SortedCommanders().Where(c => c.CanChangeAllocation && !c.IsAwayFromHome && Vector3.Distance(c.Position, yard.Position) <= 8))
+-                    MenuTheme.Button(content, "탑승: " + c.CommanderName, () => { if (!yard.TryBoard(c)) ToastManager.Show("선체·엔진을 완성하고 탑승 장수마다 동면 캡슐 1개를 준비하세요."); ScienceFacilities(); });
+-                MenuTheme.Text(content, "탑승 장수: " + string.Join(", ", yard.Passengers.Select(c => c.CommanderName)), 18, 50);
++                    MenuTheme.Button(content, "탑승: " + c.CommanderName, () => ConfirmRocketBoarding(yard, c)).interactable = yard.Phase == RocketPhase.Boarding;
++                MenuTheme.Text(content, "탑승 장수: " + string.Join(", ", yard.Passengers.Where(c => c != null).Select(c => c.CommanderName)), 13, 50);
++                MenuTheme.Text(content, CampaignOutcome.Preview(yard.Passengers), 13, 50);
+                 MenuTheme.Button(content, "탑승 장수 하선", () => { yard.Unload(); ScienceFacilities(); });
+-                MenuTheme.Button(content, "로켓 발사 — 이번 게임 종료", () => { if (!yard.TryDepart()) ToastManager.Show("선체와 엔진을 먼저 완성하세요."); }).interactable = yard.Ready;
++                MenuTheme.Button(content, "로켓 발사 — 이번 게임 종료", () => ConfirmRocketLaunch(yard)).interactable = yard.Phase == RocketPhase.Boarding && yard.Passengers.Count > 0;
+             }
+         }
+         // 장수 상세 아래쪽 행동 버튼: 치료·재생·포상·장비.
+diff --git a/Assets/_Project/Scripts/UI/GameMenuEnding.cs b/Assets/_Project/Scripts/UI/GameMenuEnding.cs
+index 94d3b2f..7038d63 100644
+--- a/Assets/_Project/Scripts/UI/GameMenuEnding.cs
++++ b/Assets/_Project/Scripts/UI/GameMenuEnding.cs
+@@ -43,12 +43,23 @@ namespace AntColony.UI
+                 lines.Add($"<b>{ResourceNames[r]}</b>  획득 {d.acquired[r]} · 사용 {d.spent[r]}" + (uses.Length > 0 ? $"  ({uses})" : ""));
+             }
+             lines.Add($"<b>시민</b>  유입 {d.antsProduced} · 손실 {d.antsLost}");
+-            lines.Add("<b>탑승</b>  " + (research.Passengers.Count == 0 ? "없음" : string.Join(", ", research.Passengers)));
+-            lines.Add("<b>남겨진 장수</b>  " + (research.LeftBehind.Count == 0 ? "없음" : string.Join(", ", research.LeftBehind)));
+-            lines.Add("<b>사망</b>  " + Names("사망"));
+-            lines.Add("<b>포로</b>  " + Names("포로"));
++            var ending = RocketCampaign.Instance?.Ending;
++            if (ending != null)
++            {
++                var labels = new[] { "탈출", "생존 잔류", "외부 원정/이동", "포로", "사망", "이탈" };
++                foreach (EndingCategory category in Enum.GetValues(typeof(EndingCategory)))
++                {
++                    var names = ending.commanders.Where(c => c.category == category).Select(c => c.name).ToArray();
++                    lines.Add($"<b>{labels[(int)category]}</b>  " + (names.Length == 0 ? "없음" : string.Join(", ", names)));
++                }
++                lines.Add($"<b>시민 최종 합계</b>  탈출 {ending.citizensEscaped} · 잔류 {ending.citizensStaying} · 전체 {ending.citizensEscaped + ending.citizensStaying}");
++            }
++            else
++            {
++                lines.Add("<b>탑승</b>  " + (research.Passengers.Count == 0 ? "없음" : string.Join(", ", research.Passengers)));
++                lines.Add("<b>남겨진 장수(이전 저장)</b>  " + (research.LeftBehind.Count == 0 ? "없음" : string.Join(", ", research.LeftBehind)));
++            }
+             lines.Add("<b>합류</b>  " + Names("합류"));
+-            lines.Add("<b>떠난 장수</b>  " + Names("떠난 장수"));
+             lines.Add("<b>처치한 보스</b>  " + Names("보스 처치"));
+             lines.Add($"<b>거점</b>  편입 {Count("편입")} · 유기 {Count("유기")}");
+             lines.Add($"<b>전쟁·동맹</b>  선전포고 {Count("선전포고")} · 협정 {Count("협정")} · 평화 {Count("평화")}");
+diff --git a/Assets/_Project/Scripts/UI/GameMenuRocket.cs b/Assets/_Project/Scripts/UI/GameMenuRocket.cs
+new file mode 100644
+index 0000000..1305268
+--- /dev/null
++++ b/Assets/_Project/Scripts/UI/GameMenuRocket.cs
+@@ -0,0 +1,43 @@
++using AntColony.Buildings;
++using AntColony.Core;
++using AntColony.Units;
++
++namespace AntColony.UI
++{
++    public sealed partial class GameMenuController
++    {
++        private void RocketActivation(AirshipYard yard)
++        {
++            if (yard.ModificationsLocked) { MenuTheme.Text(content, "내장 전원 가동 · 확장/이동/철거 잠금 · 준비 완료 후에도 공세 지속", 13, 40); return; }
++            var preview = yard.ActivationPreview;
++            MenuTheme.Text(content, yard.FuelLoaded ? "15일분 연료 전량 적재 완료" : "가동 불가: 15일분 연료 전량 적재 필요 (연료 규격 연결 대기)", 13, 40);
++            MenuTheme.Text(content, preview == null ? "가동 불가: 전 지역 소유물·이동 화물 재산/인구 집계 연결 대기"
++                : $"재산 현재 {preview.currentWealth:0.##} / 직전 6일 평균 {preview.averageWealth:0.##} → 고정 입력 {preview.Wealth:0.##}\n인구 현재 {preview.currentPopulation:0.##} / 평균 {preview.averagePopulation:0.##} → 고정 입력 {preview.Population:0.##}", 13, 55);
++            if (!RocketCampaign.AssaultAvailable) MenuTheme.Text(content, "가동 불가: 예상 강도·최종 공세 생성기 연결 대기", 13, 35);
++            MenuTheme.Button(content, "로켓 가동 — 15일 준비 시작", () => {
++                Screen("로켓 가동", "가동 후 중단할 수 없습니다");
++                MenuTheme.Text(content, "가동 시 재산·인구 입력 고정, 모듈 확장·철거·이동 잠금. 기존 적·질병·날씨·화재는 계속됩니다.", 13, 65);
++                MenuTheme.Button(content, "가동 확정", () => {
++                    var current = yard.ActivationPreview;
++                    if (current == null || !yard.TryActivate(current.currentWealth, current.currentPopulation)) ToastManager.Show("연료·부품·경제 집계·공세 연결 상태를 확인하세요.");
++                    ScienceFacilities();
++                });
++                MenuTheme.Button(content, "돌아가기", ScienceFacilities);
++            }).interactable = yard.Ready && yard.FuelLoaded && preview != null && RocketCampaign.AssaultAvailable;
++        }
++        private void ConfirmRocketBoarding(AirshipYard yard, CommanderAnt commander)
++        {
++            Screen("로켓 탑승", commander.CommanderName);
++            MenuTheme.Text(content, CampaignOutcome.Preview(yard.Passengers, commander) + $"\n추가 탑승 예정: 장수 1명 + 병력 {commander.TroopCount}명 · 빈 좌석 {yard.Capacity - yard.OccupiedSeats}", 13, 70);
++            MenuTheme.Button(content, "탑승 확정", () => { if (!yard.TryBoard(commander)) ToastManager.Show("15일 준비 완료·좌석·거리·장수 상태를 확인하세요."); ScienceFacilities(); });
++            MenuTheme.Button(content, "돌아가기", ScienceFacilities);
++        }
++        private void ConfirmRocketLaunch(AirshipYard yard)
++        {
++            Screen("로켓 발사", "이번 게임을 종료합니다");
++            MenuTheme.Text(content, CampaignOutcome.Preview(yard.Passengers), 13, 70);
++            MenuTheme.Button(content, "발사 확정", () => { if (!yard.TryDepart()) ToastManager.Show("탑승자와 로켓 상태를 확인하세요."); Resume(); });
++            MenuTheme.Button(content, "돌아가기", ScienceFacilities);
++        }
++    }
++}
+diff --git a/Assets/_Project/Scripts/UI/RocketSafetyHud.cs b/Assets/_Project/Scripts/UI/RocketSafetyHud.cs
+new file mode 100644
+index 0000000..65d7465
+--- /dev/null
++++ b/Assets/_Project/Scripts/UI/RocketSafetyHud.cs
+@@ -0,0 +1,34 @@
++using AntColony.Core;
++using UnityEngine;
++using UnityEngine.UI;
++
++namespace AntColony.UI
++{
++    // 상시 경고는 닫기 가능한 위기 알림과 별도로 표시한다.
++    public sealed class RocketSafetyHud : MonoBehaviour
++    {
++        private RectTransform strip;
++        private Text label;
++        private void Update()
++        {
++            var warning = GameSession.Exists && GameSession.Instance.GameStarted ? CampaignOutcome.SingleHarshWarning : null;
++            if (strip == null && warning != null)
++            {
++                var canvas = new GameObject("SurvivalWarning", typeof(RectTransform), typeof(Canvas), typeof(CanvasScaler));
++                canvas.transform.SetParent(transform, false);
++                var surface = canvas.GetComponent<Canvas>(); surface.renderMode = RenderMode.ScreenSpaceOverlay; surface.sortingOrder = 90;
++                var scale = canvas.GetComponent<CanvasScaler>(); scale.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
++                scale.referenceResolution = new Vector2(1920, 1080); scale.matchWidthOrHeight = .5f;
++                strip = MenuTheme.Rect("SingleHarshWarning", canvas.transform);
++                strip.anchorMin = new Vector2(.15f, 1); strip.anchorMax = new Vector2(.85f, 1); strip.pivot = new Vector2(.5f, 1);
++                strip.sizeDelta = new Vector2(0, 32); strip.anchoredPosition = new Vector2(0, -70);
++                MenuTheme.InsetScreen(strip.gameObject).raycastTarget = false;
++                label = MenuTheme.Text(strip, "", 13); MenuTheme.Stretch(label.rectTransform);
++                label.color = MenuTheme.Warning; label.alignment = TextAnchor.MiddleCenter; label.raycastTarget = false;
++            }
++            if (strip == null) return;
++            strip.gameObject.SetActive(warning != null);
++            if (warning != null) label.text = warning;
++        }
++    }
++}
+diff --git a/docs/IMPL-B9-HANDOFF.md b/docs/IMPL-B9-HANDOFF.md
+new file mode 100644
+index 0000000..d40d285
+--- /dev/null
++++ b/docs/IMPL-B9-HANDOFF.md
+@@ -0,0 +1,58 @@
++# IMPL-B9 인계 — 2026-10-24 재개 작업
++
++- 상태: 기존 diff 보완·검사 작성·인계 정리. **전체 완료 아님. 일반 플레이 로켓 가동은 연료·경제 집계·최종 공세 연결 전까지 차단됨.**
++- 원본: `docs/PLAY_CHECK_DECISIONS_1023.md`. 달력 상수 재사용: 1일150초·1계절900초·준비15일2,250초·파괴 후 유예3일450초.
++- Unity 실행·MCP·컴파일·RunChecks·실제 저장 왕복·화면 검증 미수행. 원본 프로젝트 접근, 금지 파일/prefab 수정, Notion, commit/stash/push 없음.
++- 기존 구현을 유지하고 이번 재개에서 탑승 후보를 반영한 확인 미리보기, 저장 검증 경계, 항공 귀환 위치의 지도 범위, 검사·인계를 보완함.
++
++## G별 상태
++
++| 항목 | 상태 | 구현 / 남은 부분 |
++|---|---|---|
++| G20 | 부분 | 건조→가동/15일 준비→탑승→발사·파괴 후 새 건물 재건. 기본10석+50석×20=1,010석, 장수와 병력 각각1석. 가동 후 개조 잠금·중단 불가·준비 완료 뒤에도 공세 콜백 유지. 실제 공세 생성·예상 강도 미연결. |
++| G39 | B9 조회 API 완료 / 통합 부분 | Operating·SuppressNewCrises 제공. 파괴 후450초 유예 저장. 신규 위기 생성기 연결·밀린 추첨 폐기는 다른 소유 파일이라 미수정. |
++| G43 | 부분 | ID 기준 탈출/잔류/외부/포로/사망/이탈 분류·안전 귀환/사망 중복 제거·엔딩 표시. 탑승 확인에서 후보와 병력 포함 예상 결과 표시. 일반 시민 탑승·지역 인구 총계·명부에서 제거된 과거 이탈자 ID 기록 미연결. |
++| G45 | 부분 | 시간가중 직전900초 평균과 현재값의 max·가동 시 복제 고정·이력 저장·현재/평균/고정 입력 미리보기. 전 지역 실물/이동 화물 평가기와 예상 강도 공식 미연결. 임의 공식 없음. |
++| G49 | 코드 구현 / 실행 미검증 | GameManager.LateUpdate에서 탑승 갱신→발사→패배. TryDepart는 요청만 저장, Die가 같은 틱 요청 취소. 수면·치료·이동·탑승도 생존에 포함. 전체 프레임 순서 통합 검증 필요. |
++| G50 | 부분 | 억류 포로 제외·안전 귀환자 포함·마지막 포로 패배 유지. CaptureWarning 문구 제공, 실제 포획 알림 연결 미완료. |
++| G52 | 부분 | TryLoadFuel이15일분 전량1회 소비·적재 상태 저장. 내장 전원 타이머·부분 손상 때 유지·이동/철거/개보수 잠금. 연료 종류/일 소비량·적재 UI 미확정/미연결. |
++| G53 | 코드 구현 / 화면 미검증 | 기존 독립 사망 모드 재사용. 시작1명+Harsh면30% 잠정 수치와 첫 쓰러짐 즉사 시 패배 상시 HUD. 시작 인원 저장, 실제 확률은 기존 CommanderDeathRuntime 사용. |
++| G69 | 부분 | 건물과 독립된 본거지 기준점 저장, Anchor/TryGround/TryAir 제공. 육상 지도 가장자리 NavMesh, 항공 기준점 인근 본거지 범위 빈터 탐색. 실제 귀환·잔류 적 대기·병력 시민 반환·창고 없는 화물 바닥 보존 미연결. |
++
++## 수정 파일 — 전체 B9 diff
++
++- `Assets/_Project/Scripts/Buildings/AirshipYard.cs`, `AirshipYard.Rocket.cs`: 상태·연료·좌석·준비·탑승·발사·파괴·저장 검증.
++- `Assets/_Project/Scripts/Buildings/Demolition.cs`: 가동 로켓 철거/이동/개보수 차단.
++- `Assets/_Project/Scripts/Core/RocketCampaign.cs`, `RocketEconomy.cs`: 위기 유예·경제 이력·고정 입력·엔딩·본거지 상태.
++- `Assets/_Project/Scripts/Core/CampaignOutcome.cs`, `HomeReturnPoint.cs`, `GameManager.cs`: 분류/생존·귀환 위치 API·틱 말미 발사/패배.
++- `Assets/_Project/Scripts/UI/GameMenuCampaign.cs`, `GameMenuRocket.cs`, `GameMenuEnding.cs`, `RocketSafetyHud.cs`: 기존 MenuTheme 재사용·확인/결과/상시 경고.
++- `Assets/_Project/Scripts/Save/SaveDtos.cs`, `SaveSnapshot.cs`, `SavePreflight.cs`: B9 상태 필드·캡처/복원·검증. CurrentVersion=19 유지. 타 묶음 필드 보존. 장수+병력 좌석 상한·미래 스냅샷 시각도 검증.
++- `AgentScripts/ImplB9Checks.cs`, `README.md`, `docs/IMPLEMENTATION_BOARD.md`, 이 문서.
++- `graphify-out/` 대량 diff는 직전 세션부터 존재하는 재생성 산출물이며 게임 코드 패치/커밋에서 제외할 것.
++- `git status`의 staged 변경에는 다른 묶음에서 복제된 Boss/Commander/Expedition 등의 기준 변경이 포함됨. B9 인계 대상은 위 파일의 **unstaged `git diff`**이며 staged 변경 전체를 B9 작업으로 취급하지 말 것.
++
++## 연결 요청 — 파일·메서드·의도
++
++1. **최종 공세 담당 (G20/G45):** `Core/RocketCampaign.cs.AssaultTick(AirshipYard,RocketSnapshot,float)`에 생성기 연결. snapshot.Wealth/Population은 고정 입력이고 콜백에는 복제본 전달. Preparing/Boarding 동안 계속 호출되며 발사/파괴 뒤 중단. 구독만으로 AssaultAvailable=true가 되므로 빈 핸들러로 차단을 우회하지 말 것. 결정 문서에 적 구성·주기·강도 환산 공식이 없어 생성기와 가동 전 예상 강도 미리보기는 미구현.
++2. **경제 담당 (G45):** `RocketCampaign.Instance.Economy.Observe(GameCalendar.GameSeconds,wealth,population)`에 새 게임 시작부터 변화 시점별 평가 전달. 전 지역 소유 실물·바닥 물자·이동 화물 포함, 예약 중복 제외. `Buildings/AirshipYard.Rocket.cs.ActivationPreview`는 마지막 관측을 현재값으로 사용하므로 가동 확인 직전까지 갱신할 것. `TryActivate(currentWealth,currentPopulation)`도 같은 평가기를 사용. 창고 잔액만 넣으면 사양 충족 아님.
++3. **연료/로켓 UI 담당 (G52):** 규격 확정 후 `AirshipYard.TryLoadFuel(AntColony.Data.ResourceType,unitsPerDay)` 호출 UI 연결. 현재 일반 플레이 호출자 없음. 검사에서 Special/일1은 경계 확인용 가짜 규격이며 실제 사양으로 채택한 수치 아님.
++4. **침공/사건 담당 (G39):** `World/ColonyInvasion.cs.Update`는 TickEconomy 유지, 새 파동 타이머/생성만 SuppressNewCrises로 차단. `World/LocalIncursions.cs.Update/Spawn` 신규 적대 무리 차단. `World/ColonyEvents.cs.Tick/Eligible/TryTrigger` 신규 질병/재해/적대 사건만 차단. 기존 actor·질병·날씨·화재 진행, 외교/비적대 사건 유지. 전체 Tick 조기 return 금지. 차단 중 추첨 누적·재개 직후 밀린 위기 연속 실행 금지. SuppressNewCrises는 이미 파괴 후3일 유예 포함.
++5. **B5 알림 담당:** `UI/ThreatIncidents.cs.RocketIncident`는 B5 소유라 미수정. 가동/준비 완료/파괴 알림을 AirshipYard.Phase/PreparationRemaining에 연결. `World/SettlementDefense.cs.Lose`, `World/DiplomacyPrisoners.cs.CapturedBy` 계열 포획 알림에 `CampaignOutcome.CaptureWarning` 표시(중복 방지).
++6. **G16 시민 이송/인구 담당 (G43):** `CampaignOutcome.Capture`는 ColonyPopulation.Total(없으면 AntPool.Total)에서 탑승 병력을 빼 시민 잔류 계산. 이 총계가 편입 지역·수송/배속 병력까지 포함하는지 확인하고 일반 시민 탑승과 지역별 인구를 한 번만 합산하도록 연결. 명부 제거 시 이탈자 고유ID·이름·분류 저장 경로 필요. CampaignHistory의 이름만으로 ID를 만들어 합치지 말 것.
++7. **귀환/장수 담당 (G69):** `World/ExpeditionTransport.cs.Tick` Returning→Home, `TryUnloadCrew`, `UnloadCargo`에서 `HomeReturnPoint.TryGround(from,out point)`/`TryAir(out point)` 사용. false면 안전 지점을 찾을 때까지 귀환/선상 상태 보존. `World/DiplomacyPrisoners.cs.Arrive(Homecoming)` 위치도 Anchor 기준으로 연결. `Units/CommanderAnt.cs` 병력 반납은 징집소 없이 기존 인구/풀 반환 경로 사용. 잔류 적이 있으면 해산·하역 보류, 창고 없으면 DiplomacyManager.DropFloor로 실물 보존·중복 지급 방지. 해당 파일들은 수정 금지여서 API만 제공.
++8. **B3 저장 담당:** SaveDtos/SaveSnapshot/SavePreflight의 B9 hunk만 B3 v19 최종본에 병합(통째 덮어쓰기 금지). 준비/탑승/발사 요청/파괴 유예·이력·본거지 실제 왕복 검증. rocket=null 구저장 호환. 옛 즉시 발사 저장의 발사대는 Construction으로 복원되므로 탑승자를 하선 후 새 가동 절차 필요. 구저장 startingCount 부재에 따른1명+가혹 경고 복원과 옛 좌석 초과 저장 이관 방침도 확인.
++
++## 검사 목록 / 검증
++
++- Claude가 Play에서 `AgentScripts/RunChecks.cs` 경유 `ImplB9Checks` 실행. `public static async Task<string> Main()`, 실패 예외·성공 PASS n. **작성만 했고 실행하지 않아 PASS 결과 없음.**
++- 검사 전제: 불시착2명 새 게임 직접 시작·비축더미 검색 없음. 로켓/BuildingData/포로 대상 객체 직접 생성. 기존 ResourceManager 복원/추가 API로 자원 준비. 임시 저장 루트·자동저장 비활성·설정/난수 복구.
++- 검사: 달력·시간가중 평균/max/계절 만료/NaN, 저장 단계/연료 모순·파괴 탑승자,10~1,010석, 준비 전 탑승 차단, 연료 부족 무소비/전량1회 소비, 가동/개조 잠금, 손상/외부 무전력 타이머, 스냅샷 복제, 로켓 JSON 왕복, 준비 완료 뒤 공세 지속, 후보 포함 미리보기·무부작용, 탑승/하차/치료 생존, 분류 중복/시민 합계, 마지막 포로·포획 분류 우선, 안전/외국/사망 귀환자,1명+가혹, 본거지 JSON, v19/구저장 null, 발사 요청 중복/저장, 같은 틱 파괴 우선,450초 유예 경계, 재건 후 발사.
++- JSON 복제 검사는 실제 디스크 왕복을 대체하지 않음. 마지막 검사가 발사로 게임을 끝내므로 검사 전용 새 게임에서 실행할 것.
++- 정적 확인: 참조 심볼을 rg로 검색해 존재 확인(외부 프로젝트 주요 심볼46개 및 추가 참조), `git diff --check` exit0. 검사61개 assertion 지점 작성(실행 횟수/PASS 수 아님). `graphify update .` 수행 후 graph.json JSON 파싱·8,634노드 확인. 컴파일 성공을 의미하지 않음.
++
++## 남은 위험 / 다음 순서
++
++1. 병합 후 Unity 컴파일·신규 .cs.meta 생성 → ImplB9Checks → ImplA2Checks/SaveRoundtripChecks/TransportRouteChecks/SettlementDefenseChecks 회귀.
++2. GameManager 실행 순서10000의 LateUpdate는 Update 피해 후 판정하나 다른 LateUpdate 피해 및 SaveSystem 자동 저장과 순서 통합 확인 필요. ResolveLaunch 직접 호출 검사는 전체 프레임 검증을 대체하지 않음.
++3. NavMesh 귀환 탐색은 실제 전소 지형에서 미검증. 육상은 지도 바깥2m 이내 경계, 항공은 반경20m·2m 간격/16방향 후보. 길이 없으면 false, 좁은 빈터를 놓칠 수 있음.
++4. 이탈자·지역 인구/일반 시민 탑승·위기 차단·귀환·공세/연료/경제 연결 전 G20/G39/G43/G45/G50/G52/G69 전체 완료로 보고하지 말 것. UI 육안과 실제 저장 검증도 남음.

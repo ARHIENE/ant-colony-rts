@@ -1,0 +1,280 @@
+using System.Collections.Generic;
+using UnityEngine;
+using UnityEngine.InputSystem;
+using UnityEngine.EventSystems;
+using UnityEngine.UI;
+using AntColony.Buildings;
+
+namespace AntColony.Units
+{
+    // SIMUL-TeaamProject(hyeonyeop 브랜치) SelectionManager.cs 참고 포팅.
+    // 원본은 레거시 Input Manager를 썼지만, 이 프로젝트는 전부 새 Input System을 쓰므로 Mouse/Keyboard.current로 교체함.
+    // selectionBoxImage를 비워두면 런타임에 자동 생성함(HUDController와 동일한 컨벤션 — 수작업 UI 없이 동작).
+    public class SelectionManager : MonoBehaviour
+    {
+        [Header("References")]
+        [SerializeField] private UnityEngine.Camera cam;
+        [SerializeField] private Image selectionBoxImage;
+
+        [Header("Raycast")]
+        [SerializeField] private LayerMask selectableLayerMask = ~0;
+
+        [Header("Drag")]
+        [SerializeField] private float dragStartThreshold = 8f;
+
+        [SerializeField] private AttackMoveController attackMoveController;
+        [SerializeField] private BuildingPlacementController buildingPlacementController;
+
+        private readonly List<SelectableObject> selectedObjects = new List<SelectableObject>();
+
+        private bool isMouseDown;
+        private bool isDragging;
+        private bool additiveSelectionThisDrag;
+
+        private Vector2 dragStartScreen;
+        private Vector2 dragEndScreen;
+        private Vector3 dragStartWorld; private bool dragAnchored; // 가장자리 스크롤로 카메라가 움직여도 박스 시작점이 땅에 붙어 있게(c10, 2026-10-25)
+
+        private void Awake()
+        {
+            if (cam == null) cam = UnityEngine.Camera.main;
+            if (selectionBoxImage == null) selectionBoxImage = CreateSelectionBoxImage();
+            if (attackMoveController == null) attackMoveController = AntColony.Core.SceneObjects.Any<AttackMoveController>();
+            if (buildingPlacementController == null) buildingPlacementController = AntColony.Core.SceneObjects.Any<BuildingPlacementController>();
+
+            selectionBoxImage.gameObject.SetActive(false);
+        }
+
+        private Image CreateSelectionBoxImage()
+        {
+            var canvasGO = new GameObject("SelectionBoxCanvas");
+            var canvas = canvasGO.AddComponent<Canvas>();
+            canvas.renderMode = RenderMode.ScreenSpaceOverlay;
+            canvasGO.AddComponent<CanvasScaler>();
+            canvasGO.AddComponent<GraphicRaycaster>();
+
+            var boxGO = new GameObject("SelectionBox");
+            boxGO.transform.SetParent(canvasGO.transform, false);
+            var rect = boxGO.AddComponent<RectTransform>();
+            rect.anchorMin = Vector2.zero;
+            rect.anchorMax = Vector2.zero;
+            rect.pivot = Vector2.zero;
+
+            var image = boxGO.AddComponent<Image>();
+            image.color = new Color(0.4f, 0.9f, 0.4f, 0.25f);
+            image.raycastTarget = false;
+            return image;
+        }
+
+        private void Update()
+        {
+            if (AntColony.UI.SkillTargeting.ConsumesPointerInput || AntColony.UI.GatherDesignation.ConsumesPointerInput) { isMouseDown = isDragging = false; ShowSelectionBox(false); return; }
+            if (AntColony.UI.GameMenuController.BlocksInput) { isMouseDown = isDragging = false; ShowSelectionBox(false); return; }
+            selectedObjects.RemoveAll(item => item == null || !item.isActiveAndEnabled || !item.IsSelected);
+            var mouse = Mouse.current;
+            if (mouse == null) return;
+
+            // 어택무브 모드 중 좌클릭은 공격 명령 전용 — 여기서 선택이 바뀌지 않도록 건너뛴다.
+            if ((attackMoveController != null && attackMoveController.ConsumesPointerInput)
+                || (buildingPlacementController != null && buildingPlacementController.ConsumesPointerInput)
+                || (!isMouseDown && EventSystem.current != null && EventSystem.current.IsPointerOverGameObject()))
+            {
+                isMouseDown = false;
+                isDragging = false;
+                ShowSelectionBox(false);
+                return;
+            }
+
+            if (mouse.leftButton.wasPressedThisFrame)
+            {
+                isMouseDown = true;
+                isDragging = false;
+                additiveSelectionThisDrag = IsShiftHeld();
+
+                dragStartScreen = mouse.position.ReadValue();
+                dragEndScreen = dragStartScreen;
+                dragAnchored = TryGroundPoint(dragStartScreen, out dragStartWorld);
+            }
+
+            // 창 포커스를 잃는 등으로 놓은 프레임을 놓치면 박스가 멈춘 채 남았다 → 놓은 것으로 처리.
+            var released = mouse.leftButton.wasReleasedThisFrame || isMouseDown && !mouse.leftButton.isPressed;
+
+            if (isMouseDown && mouse.leftButton.isPressed)
+            {
+                dragEndScreen = mouse.position.ReadValue();
+                if (cam != null && dragAnchored) dragStartScreen = cam.WorldToScreenPoint(dragStartWorld);
+
+                if (!isDragging && Vector2.Distance(dragStartScreen, dragEndScreen) >= dragStartThreshold)
+                {
+                    isDragging = true;
+                    ShowSelectionBox(true);
+                }
+
+                if (isDragging)
+                    UpdateSelectionBox(dragStartScreen, dragEndScreen);
+            }
+
+            if (isMouseDown && released)
+            {
+                isMouseDown = false;
+
+                if (isDragging)
+                {
+                    var rect = GetScreenRect(dragStartScreen, dragEndScreen);
+                    SelectObjectsInRect(rect, additiveSelectionThisDrag);
+                }
+                else
+                {
+                    ClickSelectOrClear(mouse.position.ReadValue(), IsShiftHeld());
+                }
+
+                isDragging = false;
+                ShowSelectionBox(false);
+            }
+        }
+
+        private void ClickSelectOrClear(Vector2 mouseScreen, bool additive)
+        {
+            if (cam == null) return;
+
+            var ray = cam.ScreenPointToRay(mouseScreen);
+            Physics.SyncTransforms();
+
+            if (Physics.Raycast(ray, out var hit, 1000f, selectableLayerMask))
+            {
+                if (hit.collider.GetComponentInParent<ConscriptionPost>() is ConscriptionPost post)
+                {
+                    AntColony.UI.GameMenuController.Instance?.ShowConscription(post);
+                    return;
+                }
+                if (hit.collider.GetComponentInParent<Workshop>() is Workshop workshop)
+                {
+                    AntColony.UI.WorkTargetPanel.Select(workshop);
+                    return;
+                }
+                if (hit.collider.GetComponentInParent<AntColony.World.Corpse>() is AntColony.World.Corpse corpse)
+                { AntColony.UI.WorkTargetPanel.Select(corpse); return; }
+                if (hit.collider.GetComponentInParent<AntColony.World.ResourceNode>() is AntColony.World.ResourceNode node)
+                {
+                    AntColony.UI.WorkTargetPanel.Select(node);
+                    return;
+                }
+                if (hit.collider.GetComponentInParent<BuildingConstructionSite>() is BuildingConstructionSite site)
+                { AntColony.UI.WorkTargetPanel.Select(site); return; }
+                if (hit.collider.GetComponentInParent<BuildingBase>() is BuildingBase building && building.CountsTowardPlayerDefeat)
+                { AntColony.UI.WorkTargetPanel.Select(building); return; }
+                if (hit.collider.GetComponentInParent<AntColony.World.WildMonster>() is AntColony.World.WildMonster animal && animal.Huntable)
+                { AntColony.UI.WorkTargetPanel.Select(animal); return; }
+                var selectable = hit.collider.GetComponentInParent<SelectableObject>();
+                if (selectable != null && selectable.isActiveAndEnabled)
+                {
+                    if (!additive) ClearSelection();
+                    AddToSelection(selectable);
+                    return;
+                }
+            }
+
+            if (!additive) ClearSelection();
+        }
+
+        private void SelectObjectsInRect(Rect screenRect, bool additive)
+        {
+            if (cam == null) return;
+            if (!additive) ClearSelection();
+
+            var allSelectables = AntColony.Core.SceneObjects.All<SelectableObject>();
+            var inside = new List<SelectableObject>();
+
+            foreach (var selectable in allSelectables)
+            {
+                if (selectable == null || !selectable.isActiveAndEnabled) continue;
+
+                var screenPos = cam.WorldToScreenPoint(selectable.GetSelectionWorldPosition());
+                if (screenPos.z < 0f) continue;
+
+                if (screenRect.Contains(new Vector2(screenPos.x, screenPos.y)))
+                    inside.Add(selectable);
+            }
+            // 박스 선택은 자는 장수를 빼고 고른다(이어서 내린 이동 명령에 자던 장수까지 깨어 움직이던 문제, c10). 자는 장수만 있으면 그대로 고른다.
+            var awake = inside.FindAll(x => !(x.GetComponent<CommanderAnt>() is CommanderAnt c && c.IsAsleep));
+            foreach (var selectable in awake.Count > 0 ? awake : inside) AddToSelection(selectable);
+        }
+
+        private bool TryGroundPoint(Vector2 screen, out Vector3 point)
+        {
+            point = Vector3.zero;
+            if (cam == null) return false;
+            var ray = cam.ScreenPointToRay(screen);
+            if (Physics.Raycast(ray, out var hit, 1000f, selectableLayerMask, QueryTriggerInteraction.Ignore)) { point = hit.point; return true; }
+            if (!new Plane(Vector3.up, Vector3.zero).Raycast(ray, out var d)) return false;
+            point = ray.GetPoint(d); return true;
+        }
+
+        // 일반개미는 GameObject가 아니라 AntPool의 숫자이고, 기존 WorkerAnt/SoldierAnt 프로토타입도
+        // 더 이상 직접 조작 대상이 아니다. 유닛 중에서는 장수만 선택된다(건물 등 비유닛 선택은 그대로).
+        private static bool IsPlayerControllable(SelectableObject selectable)
+        {
+            var unit = selectable.GetComponent<AntUnitBase>();
+            return unit == null || unit is CommanderAnt commander && commander.IsColonyMember;
+        }
+
+        private void AddToSelection(SelectableObject selectable)
+        {
+            if (selectable == null || selectedObjects.Contains(selectable)) return;
+            if (!IsPlayerControllable(selectable)) return;
+
+            selectedObjects.Add(selectable);
+            selectable.SetSelected(true);
+        }
+
+        public void ClearSelection()
+        {
+            AntColony.UI.WorkTargetPanel.Clear();
+            foreach (var selectable in selectedObjects)
+            {
+                if (selectable != null) selectable.SetSelected(false);
+            }
+            selectedObjects.Clear();
+        }
+
+        public IReadOnlyList<SelectableObject> GetSelectedObjects() => selectedObjects;
+
+        // 장수 바·다중 선택 그리드용: 한 명만 선택 / 선택에서 빼기.
+        public void SelectOnly(SelectableObject selectable) { ClearSelection(); AddToSelection(selectable); }
+        public void Deselect(SelectableObject selectable)
+        {
+            if (selectable == null || !selectedObjects.Remove(selectable)) return;
+            selectable.SetSelected(false);
+        }
+
+        private bool IsShiftHeld()
+        {
+            var kb = Keyboard.current;
+            return kb != null && (kb.leftShiftKey.isPressed || kb.rightShiftKey.isPressed);
+        }
+
+        private void ShowSelectionBox(bool show)
+        {
+            if (selectionBoxImage != null) selectionBoxImage.gameObject.SetActive(show);
+        }
+
+        private void UpdateSelectionBox(Vector2 start, Vector2 end)
+        {
+            if (selectionBoxImage == null) return;
+
+            var rect = GetScreenRect(start, end);
+            var rt = selectionBoxImage.rectTransform;
+            rt.anchoredPosition = rect.position;
+            rt.sizeDelta = rect.size;
+        }
+
+        private Rect GetScreenRect(Vector2 a, Vector2 b)
+        {
+            var xMin = Mathf.Min(a.x, b.x);
+            var yMin = Mathf.Min(a.y, b.y);
+            var xMax = Mathf.Max(a.x, b.x);
+            var yMax = Mathf.Max(a.y, b.y);
+            return Rect.MinMaxRect(xMin, yMin, xMax, yMax);
+        }
+    }
+}

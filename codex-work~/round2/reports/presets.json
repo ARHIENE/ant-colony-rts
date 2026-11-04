@@ -1,0 +1,75 @@
+{
+  "Tool_Dig": {
+    "8": {
+      "frame": 8,
+      "changed": true,
+      "offset_m": [
+        -0.009999999776482582,
+        -0.009999999776482582,
+        0.019999999552965164
+      ],
+      "roll_deg": 15,
+      "trials": 116,
+      "rejected": {
+        "armour": 115
+      }
+    },
+    "9": {
+      "frame": 9,
+      "changed": true,
+      "offset_m": [
+        -0.019999999552965164,
+        0.0,
+        0.009999999776482582
+      ],
+      "roll_deg": 15,
+      "trials": 72,
+      "rejected": {
+        "armour": 71
+      }
+    },
+    "10": {
+      "frame": 10,
+      "changed": true,
+      "offset_m": [
+        -0.019999999552965164,
+        -0.009999999776482582,
+        0.0
+      ],
+      "roll_deg": 15,
+      "trials": 110,
+      "rejected": {
+        "armour": 109
+      }
+    },
+    "11": {
+      "frame": 11,
+      "changed": true,
+      "offset_m": [
+        -0.019999999552965164,
+        0.0,
+        0.0
+      ],
+      "roll_deg": 15,
+      "trials": 73,
+      "rejected": {
+        "armour": 72
+      }
+    },
+    "12": {
+      "frame": 12,
+      "changed": true,
+      "offset_m": [
+        -0.029999999329447746,
+        0.0,
+        0.0
+      ],
+      "roll_deg": 30,
+      "trials": 27,
+      "rejected": {
+        "armour": 22,
+        "tool": 4
+      }
+    }
+  }
+}

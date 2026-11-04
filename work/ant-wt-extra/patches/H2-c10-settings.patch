@@ -1,0 +1,268 @@
+diff -ruN --strip-trailing-cr H2-base/Scripts/Core/UserSettings.cs H2/Scripts/Core/UserSettings.cs
+--- H2-base/Scripts/Core/UserSettings.cs	2026-10-25 23:28:01.564118000 +0900
++++ H2/Scripts/Core/UserSettings.cs	2026-10-25 23:30:37.962037000 +0900
+@@ -43,11 +43,14 @@
+         }
+ 
+         // 화면·소리 설정을 엔진에 반영한다. 에디터에서는 창 모드·해상도 변경을 건너뛴다(게임 뷰 크기 유지).
++        private static int defaultQuality = -1; // 프로젝트 기본 품질(처음 적용 때 기억). '기본'을 고르면 이 값으로 되돌린다.
+         public void ApplyRuntime()
+         {
++            if (defaultQuality < 0) defaultQuality = QualitySettings.GetQualityLevel();
+             QualitySettings.vSyncCount = vSync ? 1 : 0;
+             Application.targetFrameRate = vSync || frameLimit == 0 ? -1 : frameLimit;
+-            if (quality >= 0) QualitySettings.SetQualityLevel(quality, true);
++            var level = quality >= 0 ? quality : defaultQuality;
++            if (QualitySettings.GetQualityLevel() != level) QualitySettings.SetQualityLevel(level, true);
+             AudioListener.volume = masterVolume;
+ #if !UNITY_EDITOR
+             var mode = screenMode == 1 ? FullScreenMode.Windowed : screenMode == 2 ? FullScreenMode.ExclusiveFullScreen : FullScreenMode.FullScreenWindow;
+diff -ruN --strip-trailing-cr H2-base/Scripts/UI/GameMenuKeys.cs H2/Scripts/UI/GameMenuKeys.cs
+--- H2-base/Scripts/UI/GameMenuKeys.cs	2026-10-25 23:28:00.856627700 +0900
++++ H2/Scripts/UI/GameMenuKeys.cs	2026-10-25 23:30:37.961516000 +0900
+@@ -10,7 +10,7 @@
+ 
+         private bool PollRebind()
+         {
+-            if (rebinding == null) return false;
++            if (rebinding == null || Keyboard.current == null) return false;
+             if (!open || ScreenName != "Settings") { rebinding = null; return false; }
+             if (Keyboard.current.escapeKey.wasPressedThisFrame) { rebinding = null; Settings(); return true; }
+             foreach (var control in Keyboard.current.allKeys)
+diff -ruN --strip-trailing-cr H2-base/Scripts/UI/GameMenuSettings.cs H2/Scripts/UI/GameMenuSettings.cs
+--- H2-base/Scripts/UI/GameMenuSettings.cs	2026-10-25 23:28:00.715531800 +0900
++++ H2/Scripts/UI/GameMenuSettings.cs	2026-10-25 23:30:37.960979500 +0900
+@@ -11,6 +11,7 @@
+     public sealed partial class GameMenuController
+     {
+         private int settingsTab;
++        private float settingsScroll = 1; // 값을 바꿔 다시 그려도 목록 위치 유지(맨 위로 튀어 누른 게 안 된 것처럼 보이던 문제)
+         private static readonly string[] SettingsTabs = { "화면", "소리", "조작", "게임", "정보" };
+ 
+         private void Settings()
+@@ -21,14 +22,15 @@
+             for (var i = 0; i < SettingsTabs.Length; i++)
+             {
+                 var tab = i;
+-                var b = L.Button(p, "Settings Tab " + i, SettingsTabs[i], 24 + i * 116, 60, 110, 36, () => { settingsTab = tab; rebinding = null; Settings(); });
++                var b = L.Button(p, "Settings Tab " + i, SettingsTabs[i], 24 + i * 116, 60, 110, 36, () => { settingsTab = tab; rebinding = null; settingsScroll = 1; Settings(); });
+                 if (i == settingsTab) MarkSelected(b);
+             }
+             L.Line(p, 0, 106, 1000);
+             var list = L.List(p, 24, 118, 952, 560);
+             var s = UserSettings.Current;
+-            void Apply(Action<UserSettingsData> change) { var v = s.Clone(); change(v); UserSettings.Apply(v);
++            void Commit(UserSettingsData v) { UserSettings.Apply(v); v = UserSettings.Current;
+                 SceneObjects.Any<AntColony.Camera.IsometricCameraController>()?.ApplySettings(v.cameraPanSpeed, v.edgeScrollThickness); Settings(); }
++            void Apply(Action<UserSettingsData> change) { var v = s.Clone(); change(v); Commit(v); }
+             RectTransform Row(string title, string note = null)
+             {
+                 var row = L.Cell(list, "Setting " + title, 48);
+@@ -63,7 +65,10 @@
+                         "전체 화면(창) = 테두리 없는 창");
+                     var res = UnityEngine.Screen.resolutions.Select(r => (r.width, r.height)).Distinct().OrderBy(r => r.width * 10000 + r.height).ToList();
+                     var cur = res.FindIndex(r => r.width == s.resolutionWidth && r.height == s.resolutionHeight);
+-                    void Res(int d) => Apply(v => { var i = Mathf.Clamp((cur < 0 ? res.Count : cur) + d, 0, res.Count - 1); if (res.Count > 0) { v.resolutionWidth = res[i].width; v.resolutionHeight = res[i].height; } });
++                    // '모니터 기본'이면 지금 모니터 해상도에서 한 칸 움직인다(전엔 양쪽 다 최대 해상도로 갔다).
++                    var from = cur >= 0 ? cur : res.FindIndex(r => r.width == UnityEngine.Screen.currentResolution.width && r.height == UnityEngine.Screen.currentResolution.height);
++                    if (from < 0) from = res.Count - 1;
++                    void Res(int d) => Apply(v => { var i = Mathf.Clamp(from + d, 0, res.Count - 1); if (res.Count > 0) { v.resolutionWidth = res[i].width; v.resolutionHeight = res[i].height; } });
+                     Stepper("해상도", s.resolutionWidth > 0 ? $"{s.resolutionWidth} × {s.resolutionHeight}" : "모니터 기본", () => Res(-1), () => Res(1),
+                         Application.isEditor ? "에디터에서는 게임 창 크기를 따릅니다" : null);
+                     Options("수직 동기화", new[] { true, false }, b => b ? "켜기" : "끄기", s.vSync, (v, b) => v.vSync = b, "화면 찢어짐 방지");
+@@ -109,9 +114,12 @@
+                     L.Label(Row("버전"), "프로토타입 빌드 · Unity " + Application.unityVersion, 13, 340, 0, 600, 48, MenuTheme.Muted);
+                     var folder = Row("저장 폴더", AntColony.Save.SaveStorage.Root);
+                     L.Button(folder, "Open Save Folder", "폴더 열기", 340, 7, 140, 34, () => Application.OpenURL("file:///" + AntColony.Save.SaveStorage.Root.Replace('\\', '/')));
+-                    L.Button(Row("설정 초기화", "모든 설정을 처음 값으로 되돌립니다"), "Reset Settings", "초기화", 340, 7, 140, 34, () => { UserSettings.Apply(new UserSettingsData()); Settings(); });
++                    L.Button(Row("설정 초기화", "모든 설정을 처음 값으로 되돌립니다"), "Reset Settings", "초기화", 340, 7, 140, 34, () => { settingsScroll = 1; Commit(new UserSettingsData()); });
+                     break;
+             }
++            var scroll = list.GetComponentInParent<ScrollRect>();
++            Canvas.ForceUpdateCanvases(); scroll.verticalNormalizedPosition = settingsScroll;
++            scroll.onValueChanged.AddListener(v => settingsScroll = v.y);
+             L.Line(p, 0, 690, 1000);
+             L.Button(p, "Back", "뒤로", 24, 706, 120, 38, () => { rebinding = null; Back(); });
+         }
+@@ -119,7 +127,7 @@
+         private static string ActionName(GameAction a) => a switch
+         {
+             GameAction.RotateLeft => "카메라 왼쪽 회전", GameAction.RotateRight => "카메라 오른쪽 회전", GameAction.WeaponSkill => "무기 기술",
+-            GameAction.WingSkill => "날개 기술", GameAction.AddTroop => "징집소", GameAction.RemoveTroop => "귀환", GameAction.CycleWeapon => "무기 바꾸기",
++            GameAction.WingSkill => "날개 기술", GameAction.AddTroop => "징집소", GameAction.RemoveTroop => "귀환 (평시: 휴식·치료)", GameAction.CycleWeapon => "무기 바꾸기",
+             GameAction.Roster => "장수 목록", GameAction.Pause => "일시정지", GameAction.SciencePanel => "과학", GameAction.EventLog => "사건 기록",
+             GameAction.WorldMap => "월드맵", GameAction.Diplomacy => "외교", GameAction.Build => "건설", GameAction.WorkSchedule => "작업 일정", _ => a.ToString()
+         };
+diff -ruN --strip-trailing-cr H2-base/Scripts/Units/SelectionManager.cs H2/Scripts/Units/SelectionManager.cs
+--- H2-base/Scripts/Units/SelectionManager.cs	2026-10-25 23:28:01.631725100 +0900
++++ H2/Scripts/Units/SelectionManager.cs	2026-10-25 23:29:34.806825100 +0900
+@@ -33,6 +33,7 @@
+ 
+         private Vector2 dragStartScreen;
+         private Vector2 dragEndScreen;
++        private Vector3 dragStartWorld; private bool dragAnchored; // 가장자리 스크롤로 카메라가 움직여도 박스 시작점이 땅에 붙어 있게(c10, 2026-10-25)
+ 
+         private void Awake()
+         {
+@@ -92,11 +93,16 @@
+ 
+                 dragStartScreen = mouse.position.ReadValue();
+                 dragEndScreen = dragStartScreen;
++                dragAnchored = TryGroundPoint(dragStartScreen, out dragStartWorld);
+             }
+ 
++            // 창 포커스를 잃는 등으로 놓은 프레임을 놓치면 박스가 멈춘 채 남았다 → 놓은 것으로 처리.
++            var released = mouse.leftButton.wasReleasedThisFrame || isMouseDown && !mouse.leftButton.isPressed;
++
+             if (isMouseDown && mouse.leftButton.isPressed)
+             {
+                 dragEndScreen = mouse.position.ReadValue();
++                if (cam != null && dragAnchored) dragStartScreen = cam.WorldToScreenPoint(dragStartWorld);
+ 
+                 if (!isDragging && Vector2.Distance(dragStartScreen, dragEndScreen) >= dragStartThreshold)
+                 {
+@@ -108,7 +114,7 @@
+                     UpdateSelectionBox(dragStartScreen, dragEndScreen);
+             }
+ 
+-            if (isMouseDown && mouse.leftButton.wasReleasedThisFrame)
++            if (isMouseDown && released)
+             {
+                 isMouseDown = false;
+ 
+@@ -177,6 +183,7 @@
+             if (!additive) ClearSelection();
+ 
+             var allSelectables = AntColony.Core.SceneObjects.All<SelectableObject>();
++            var inside = new List<SelectableObject>();
+ 
+             foreach (var selectable in allSelectables)
+             {
+@@ -186,8 +193,21 @@
+                 if (screenPos.z < 0f) continue;
+ 
+                 if (screenRect.Contains(new Vector2(screenPos.x, screenPos.y)))
+-                    AddToSelection(selectable);
++                    inside.Add(selectable);
+             }
++            // 박스 선택은 자는 장수를 빼고 고른다(이어서 내린 이동 명령에 자던 장수까지 깨어 움직이던 문제, c10). 자는 장수만 있으면 그대로 고른다.
++            var awake = inside.FindAll(x => !(x.GetComponent<CommanderAnt>() is CommanderAnt c && c.IsAsleep));
++            foreach (var selectable in awake.Count > 0 ? awake : inside) AddToSelection(selectable);
++        }
++
++        private bool TryGroundPoint(Vector2 screen, out Vector3 point)
++        {
++            point = Vector3.zero;
++            if (cam == null) return false;
++            var ray = cam.ScreenPointToRay(screen);
++            if (Physics.Raycast(ray, out var hit, 1000f, selectableLayerMask, QueryTriggerInteraction.Ignore)) { point = hit.point; return true; }
++            if (!new Plane(Vector3.up, Vector3.zero).Raycast(ray, out var d)) return false;
++            point = ray.GetPoint(d); return true;
+         }
+ 
+         // 일반개미는 GameObject가 아니라 AntPool의 숫자이고, 기존 WorkerAnt/SoldierAnt 프로토타입도
+--- /dev/null	2026-10-25 23:32:32.000000000 +0900
++++ H2/AgentScripts/ClaudeH2Checks.cs	2026-10-25 23:32:19.992181900 +0900
+@@ -0,0 +1,102 @@
++using System;
++using System.Linq;
++using System.Reflection;
++using System.Threading.Tasks;
++using AntColony.Core;
++using AntColony.Save;
++using UnityEngine;
++
++// Claude H2 패치(c10 드래그 선택·설정창) 검사. Play 모드에서 RecoveryUnitChecks와 같은 방식으로 실행.
++public static class ClaudeH2Checks
++{
++    static int checks;
++    static void Check(bool value, string label) { if (!value) throw new Exception("FAIL " + label); checks++; }
++    const BindingFlags Private = BindingFlags.NonPublic | BindingFlags.Instance;
++
++    public static async Task<string> Main()
++    {
++        checks = 0;
++        Check(Application.isPlaying, "play mode");
++        var root = SaveStorage.RootOverride; var settings = UserSettings.Current.Clone();
++        SaveStorage.RootOverride = System.IO.Path.Combine(Application.temporaryCachePath, "ClaudeH2-" + Guid.NewGuid().ToString("N"));
++        try
++        {
++            var isolated = settings.Clone(); isolated.autoSaveEnabled = false; UserSettings.Apply(isolated, false);
++            var wait = Time.realtimeSinceStartup + 50;
++            while (SaveSystem.Busy && Time.realtimeSinceStartup < wait) await Task.Delay(50);
++            StartingCandidate[] team;
++            do { team = Enumerable.Range(0, 2).Select(StartingCandidate.Roll).ToArray(); } while (StartingCandidate.Missing(team).Length > 0);
++            SaveSystem.NewGame(new NewGameOptions { seed = 261025, mapSize = MapSize.Small, startingCount = 2, startingTeam = team });
++            wait = Time.realtimeSinceStartup + 50;
++            while (SaveSystem.Busy && Time.realtimeSinceStartup < wait) await Task.Delay(50);
++            Check(!SaveSystem.Busy, "new game ready");
++            var menu = AntColony.UI.GameMenuController.Instance;
++            menu.Resume(); Time.timeScale = 0;
++            await Task.Yield(); await Task.Yield();
++
++            // c10: 박스 선택은 자는 장수를 뺀다. 자는 장수만 있으면 고른다.
++            var selection = UnityEngine.Object.FindAnyObjectByType<AntColony.Units.SelectionManager>();
++            var box = typeof(AntColony.Units.SelectionManager).GetMethod("SelectObjectsInRect", Private);
++            var cs = CommanderRoster.Instance.Commanders.Where(c => c.IsColonyMember).ToArray();
++            Check(cs.Length == 2, "two survivors");
++            var cam = UnityEngine.Camera.main;
++            foreach (var c in cs) c.transform.position = cs[0].transform.position + (c == cs[0] ? Vector3.zero : Vector3.right); // 둘 다 화면 안
++            var whole = new Rect(-10000, -10000, 20000, 20000);
++            cs[0].PersonalState.sleep.asleep = true; cs[1].PersonalState.sleep.asleep = false;
++            box.Invoke(selection, new object[] { whole, false });
++            var sel = selection.GetSelectedObjects();
++            Check(!sel.Contains(cs[0].GetComponent<AntColony.Units.SelectableObject>()), "box skips sleeper");
++            Check(sel.Contains(cs[1].GetComponent<AntColony.Units.SelectableObject>()), "box selects awake survivor");
++            Check(cs[0].IsAsleep, "sleeper stays asleep");
++            cs[1].PersonalState.sleep.asleep = true;
++            box.Invoke(selection, new object[] { whole, false });
++            Check(selection.GetSelectedObjects().Count == 2, "box of only sleepers selects them");
++            foreach (var c in cs) c.PersonalState.sleep.asleep = false;
++            selection.ClearSelection();
++
++            // c10: 드래그 시작점을 땅에 고정 → 카메라가 움직이면 화면 위치도 따라간다.
++            var center = new Vector2(Screen.width / 2f, Screen.height / 2f);
++            var args = new object[] { center, null };
++            Check((bool)typeof(AntColony.Units.SelectionManager).GetMethod("TryGroundPoint", Private).Invoke(selection, args), "ground point under screen center");
++            var anchor = (Vector3)args[1];
++            var before = (Vector2)cam.WorldToScreenPoint(anchor);
++            Check((before - center).magnitude < 2f, "anchor reprojects to start " + before);
++            cam.transform.position += cam.transform.right * 3f;
++            var after = (Vector2)cam.WorldToScreenPoint(anchor);
++            Check((after - before).magnitude > 5f, "anchored start follows camera pan");
++            cam.transform.position -= cam.transform.right * 3f;
++
++            // 설정: 화면을 열고 품질 '기본' 복귀·초기화 시 카메라 반영·목록 위치 유지.
++            var mc = typeof(AntColony.UI.GameMenuController);
++            var defaultQuality = (int)typeof(UserSettingsData).GetField("defaultQuality", BindingFlags.NonPublic | BindingFlags.Static).GetValue(null);
++            Check(defaultQuality >= 0, "default quality remembered");
++            var q = UserSettings.Current.Clone(); q.quality = QualitySettings.names.Length - 1 == defaultQuality ? 0 : QualitySettings.names.Length - 1;
++            UserSettings.Apply(q, false); Check(QualitySettings.GetQualityLevel() == q.quality, "quality applied");
++            q.quality = -1; UserSettings.Apply(q, false); Check(QualitySettings.GetQualityLevel() == defaultQuality, "'기본' restores project quality");
++
++            var camCtrl = UnityEngine.Object.FindAnyObjectByType<AntColony.Camera.IsometricCameraController>();
++            var pan = typeof(AntColony.Camera.IsometricCameraController).GetField("panSpeed", Private);
++            var slow = UserSettings.Current.Clone(); slow.cameraPanSpeed = 10; UserSettings.Apply(slow, false); camCtrl.ApplySettings(10, slow.edgeScrollThickness);
++            mc.GetField("settingsTab", Private).SetValue(menu, 4);
++            mc.GetMethod("Settings", Private).Invoke(menu, null);
++            await Task.Yield();
++            menu.GetComponentsInChildren<UnityEngine.UI.Button>().Single(b => b.name == "Reset Settings").onClick.Invoke();
++            Check(Mathf.Approximately((float)pan.GetValue(camCtrl), new UserSettingsData().cameraPanSpeed), "reset settings reaches camera");
++
++            mc.GetField("settingsTab", Private).SetValue(menu, 2);
++            mc.GetField("settingsScroll", Private).SetValue(menu, .4f);
++            mc.GetMethod("Settings", Private).Invoke(menu, null);
++            await Task.Yield();
++            var scroll = menu.GetComponentsInChildren<UnityEngine.UI.ScrollRect>().First(s => s.GetComponentsInChildren<UnityEngine.UI.Button>().Any(b => b.name.StartsWith("Key ")));
++            Check(Mathf.Abs(scroll.verticalNormalizedPosition - .4f) < .05f, "settings list keeps scroll " + scroll.verticalNormalizedPosition);
++            menu.GetComponentsInChildren<UnityEngine.UI.Button>().First(b => b.name == "화면 가장자리 스크롤 1").onClick.Invoke(); // 끄기
++            await Task.Yield();
++            Check(UserSettings.Current.edgeScrollThickness == 0, "edge scroll off saved");
++            scroll = menu.GetComponentsInChildren<UnityEngine.UI.ScrollRect>().First(s => s.GetComponentsInChildren<UnityEngine.UI.Button>().Any(b => b.name.StartsWith("Key ")));
++            Check(Mathf.Abs(scroll.verticalNormalizedPosition - .4f) < .05f, "scroll kept after option click");
++            menu.Resume();
++            return $"ClaudeH2Checks PASS {checks}";
++        }
++        finally { SaveStorage.RootOverride = root; UserSettings.Apply(settings, false); Time.timeScale = 0; }
++    }
++}
