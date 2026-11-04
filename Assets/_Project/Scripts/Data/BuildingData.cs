@@ -66,7 +66,8 @@ namespace AntColony.Data
         CrashWreck, // 2026-10-23 불시착 잔해(건설 목록에는 없음)
         CivicPublicService, School, CitizenClinic, // B8: 기존 저장 번호 유지
         PlanterBed, StarterMushroomBed, WaterSource, OilDeposit, // B10
-        ManualWell, WaterPump, FluidPipe, FluidTank, SteamGenerator, OilDrill, OilRefinery, FuelCharger
+        ManualWell, WaterPump, FluidPipe, FluidTank, SteamGenerator, OilDrill, OilRefinery, FuelCharger,
+        UndergroundScanner
     }
 
     [CreateAssetMenu(fileName = "BuildingData", menuName = "AntColony/Building Data")]

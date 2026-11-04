@@ -26,7 +26,7 @@ namespace AntColony.Units
     public partial class CommanderAnt
     {
         public float HeatResistance => EquippedArmor?.HeatResistance ?? 0;
-        public void TakeHeatDamage(float amount) => TakeDamage(amount * (1 - HeatResistance));
+        public void TakeHeatDamage(float amount) => TakeFormationDamage(amount, null, false, false, HeatResistance);
         private float AbsorbDurableDamage(float amount)
         {
             var armor = EquippedArmor;
@@ -38,7 +38,7 @@ namespace AntColony.Units
         private void StrikeWithEquipment(IDamageable target, float damage)
         {
             var radius = Weapon?.AttackRadius ?? 0;
-            if (radius <= 0) { target.TakeDamage(damage); return; }
+            if (radius <= 0) { FormationDamage.Apply(target, damage, Position, Role == AntColony.Data.UnitRole.Ranged); return; }
             // 기존 범위 스킬의 아군/중립/대공 판정과 처치 경험치를 그대로 쓴다.
             DamageArea(target.Position, radius, damage, Role);
         }

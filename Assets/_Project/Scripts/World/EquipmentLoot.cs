@@ -6,6 +6,8 @@ namespace AntColony.World
 {
     public sealed class EquipmentLoot : MonoBehaviour
     {
+        private void OnEnable() => AntColony.Core.SceneObjects.Register(this);
+        private void OnDisable() => AntColony.Core.SceneObjects.Unregister(this);
         public List<EquipmentItem> Items { get; private set; } = new List<EquipmentItem>();
         private CommanderAnt collector;
         public CommanderAnt Collector => collector;

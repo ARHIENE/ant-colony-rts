@@ -34,6 +34,8 @@
 
 # Codex · Claude Code 공동 구현 보드
 
+- **IMPL-F2 / Codex / 구현·오프라인 컴파일 완료, Claude UI·Unity 검사 및 별도 채굴 생산 연결 대기** — D08 지하 탐사. 소유: 신규 World/Underground*·Buildings/UndergroundScanner·Core/UndergroundResearch·Units/CommanderSurvey·Save/SaveUnderground, AgentScripts/ImplD08Checks, docs/IMPL-F2-HANDOFF. 최소 연결: Data/BuildingData·ResourceType, Core/CampaignResearch·ScienceEffects·GameBootstrap, Buildings/BuildingPlacementController·EarlyConstruction·FacilityVisual, World/ResourceNode, Units/CommanderWork·CommanderDuty, Save/SaveDtos·SaveSnapshot·SaveCatalog·SavePreflight. UI/** 및 D02/D03·D04·D06/D07 수정 금지. Unity 실행·git add/commit 없음.
+
 - **VERIFY-1025 / Claude / 완료(2026-10-25)** — Unity 미실행 검사 C2·C3·C5·C6·Phase4·Fishing·Stage1·SettlementDefense·TransportRoute·G06 실행·실패 수정, 이후 G26. Unity 잠금 `Temp/unity-lock.txt` 사용.
 - **IMPL-1025-CODEX / Codex / 코드·정적 컴파일 완료, Claude 연결·Unity 검증 대기(2026-10-25)** — 결정 `docs/DECISIONS_1025.md`. ① R07/R08 식사 실제 접근 가능 식량·신선도 순·청결 보정 제거 ② D01 장수용 약품 3등급 생산(약제대 레시피·연구) ③ D05 특성 등급 생성 25/60/14/1%·개수 95/4.5/0.5%·비전투 다이아 +30% 보정. 소유: Units/CommanderMeal*·Core/FoodLots·Buildings/Processor*·약제 관련 Data·Units/CommanderTraits*·Core/Trait*·신규 AgentScripts/Impl1025CodexChecks.cs. Unity 실행 없음(Claude가 검사).
   - 추가 소유(사용자 승인): Core/StartingCandidate.cs, Units/CommanderWork.cs·CommanderStartingSupplies.cs·WorkerAnt.cs, World/Critter.cs, Buildings/Kitchen.cs(구저장 식사 식단 선택), Data/ResourceType.cs(약초 끝 추가), Buildings/EarlyConstruction.cs·RuntimeBuildingTemplates.cs(약제대 확정 건설비/시간), 신규 Core/TraitRules.cs·MedicineResearch.cs, 신규 Units/CommanderMealSources.cs. 프로젝트 규칙에 따른 생성 인덱스: graphify-out/(graphify update .). 특성 등급은 enum 조회표로 보존해 SaveDtos 변경 없이 저장. CampaignResearch·CommanderAnt·ResourceNode·SaveDtos는 수정 금지, 필요한 연결은 이 항목에 인계.

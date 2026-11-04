@@ -57,6 +57,7 @@ namespace AntColony.Core
 
         public static bool BuildingUnlocked(BuildingKind kind) => kind switch
         {
+            BuildingKind.UndergroundScanner => Has(ScienceTechnology.UndergroundSurvey),
             BuildingKind.SoilWall or BuildingKind.CapWall or BuildingKind.CastleWall or BuildingKind.Gate => Has(ScienceTechnology.Resin),
             BuildingKind.TrapPit or BuildingKind.SpikeTrap => Has(ScienceTechnology.Traps),
             BuildingKind.AreaAcidTower or BuildingKind.DefenseLab => Has(ScienceTechnology.AcidRefining),

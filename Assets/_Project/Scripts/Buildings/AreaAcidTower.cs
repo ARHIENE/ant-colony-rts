@@ -25,7 +25,7 @@ namespace AntColony.Buildings
             searchTimer = .25f;
             // 근접 역할 기준 탐색은 공중 대상을 제외한다(지상 전용).
             var target = CombatTargeting.FindNearestEnemy(Position, Range, UnitRole.Melee);
-            foreach (var boss in FindObjectsByType<AntColony.Boss.BossHealth>())
+            foreach (var boss in AntColony.Core.SceneObjects.All<AntColony.Boss.BossHealth>())
                 if (CombatTargeting.CanAttack(UnitRole.Melee, boss) && (boss.Position - Position).sqrMagnitude <= Range * Range
                     && (target == null || (boss.Position - Position).sqrMagnitude < (target.Position - Position).sqrMagnitude)) target = boss;
             if (target == null) return;
@@ -34,10 +34,10 @@ namespace AntColony.Buildings
             var radius = GameBalance.AreaTowerRadius * GameBalance.AreaTowerRadius;
             foreach (var m in new System.Collections.Generic.List<WildMonster>(WildMonster.All))
                 if (m != null && !m.IsDead && !m.IsFlying && !m.Docile && (m.Position - center).sqrMagnitude <= radius) m.TakeDamage(Damage);
-            foreach (var boss in FindObjectsByType<AntColony.Boss.BossHealth>())
+            foreach (var boss in AntColony.Core.SceneObjects.All<AntColony.Boss.BossHealth>())
                 if (CombatTargeting.CanAttack(UnitRole.Melee, boss) && (boss.Position - center).sqrMagnitude <= radius) boss.TakeDamage(Damage);
             foreach (var unit in new System.Collections.Generic.List<AntColony.Units.AntUnitBase>(AntColony.Units.AntUnitBase.Active))
-                if (unit is AntColony.Units.CommanderAnt c && CombatTargeting.CanAttack(UnitRole.Melee, c) && (c.Position - center).sqrMagnitude <= radius) c.TakeDamage(Damage);
+                if (unit is AntColony.Units.CommanderAnt c && CombatTargeting.CanAttack(UnitRole.Melee, c) && (c.Position - center).sqrMagnitude <= radius) FormationDamage.Apply(c, Damage, center, ranged: true, area: true);
             if (!(target is WildMonster) && !(target is AntColony.Boss.BossHealth) && !(target is AntColony.Units.CommanderAnt)) target.TakeDamage(Damage);
         }
 

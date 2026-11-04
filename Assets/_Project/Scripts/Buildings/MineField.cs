@@ -17,7 +17,7 @@ namespace AntColony.Buildings
         {
             if (!isActiveAndEnabled || IsDead) return;
             var trigger = GameBalance.MineTriggerRadius * GameBalance.MineTriggerRadius;
-            var bosses = FindObjectsByType<AntColony.Boss.BossHealth>().Where(b => CombatTargeting.IsAlive(b) && !CombatTargeting.IsAirborne(b)).ToArray();
+            var bosses = AntColony.Core.SceneObjects.All<AntColony.Boss.BossHealth>().Where(b => CombatTargeting.IsAlive(b) && !CombatTargeting.IsAirborne(b)).ToArray();
             var rebels = AntColony.Units.AntUnitBase.Active.OfType<AntColony.Units.CommanderAnt>().Where(c => c.IsHostile && CombatTargeting.IsAlive(c) && !c.IsFlying).ToArray();
             if (!WildMonster.All.Any(m => m != null && !m.IsDead && !m.IsFlying && !m.Docile && (m.Position - Position).sqrMagnitude <= trigger)
                 && !bosses.Any(b => (b.Position - Position).sqrMagnitude <= trigger) && !rebels.Any(c => (c.Position - Position).sqrMagnitude <= trigger)) return;
@@ -26,7 +26,7 @@ namespace AntColony.Buildings
             foreach (var m in WildMonster.All.ToArray())
                 if (m != null && !m.IsDead && !m.IsFlying && !m.Docile && (m.Position - Position).sqrMagnitude <= radius) m.TakeDamage(damage);
             foreach (var boss in bosses) if ((boss.Position - Position).sqrMagnitude <= radius) boss.TakeDamage(damage);
-            foreach (var c in rebels) if ((c.Position - Position).sqrMagnitude <= radius) c.TakeDamage(damage);
+            foreach (var c in rebels) if ((c.Position - Position).sqrMagnitude <= radius) FormationDamage.Apply(c, damage, Position, area: true);
             gameObject.SetActive(false);
             Destroy(gameObject);
         }

@@ -9,6 +9,7 @@ namespace AntColony.World
     {
         public static IReadOnlyList<ResourceNode> Available => Active;
         public bool GatheringForbidden { get; set; }
+        internal bool IsUndergroundLayer { get; set; }
         public bool IsLooseCargo { get; internal set; }
         private static readonly List<ResourceNode> Active = new List<ResourceNode>();
 
@@ -44,7 +45,7 @@ namespace AntColony.World
             || ownerColony.GetComponentInParent<ExpeditionSite>()?.Disposition == ConquestDisposition.Lost);
         public bool IsUnlocked => !IsRaidLocked && (GetComponentInParent<ExpeditionSite>()?.Disposition == ConquestDisposition.Annexed || DiplomacyManager.Hostile(this))
             && (!requiresFishing || (GameManager.Instance != null && GameManager.Instance.FishingUnlocked));
-        public bool CanGather => !GatheringForbidden && isActiveAndEnabled && (!IsDepleted || IsFarm && NeedsSowing || HoldsHandWork) && IsUnlocked && !ColonyEvents.Flooded(this);
+        public bool CanGather => !IsUndergroundLayer && !GatheringForbidden && isActiveAndEnabled && (!IsDepleted || IsFarm && NeedsSowing || HoldsHandWork) && IsUnlocked && !ColonyEvents.Flooded(this);
         public bool RequiresMiningTool => !IsLooseCargo && (resourceType == ResourceType.Stone || resourceType == ResourceType.IronOre
             || resourceType == ResourceType.CopperOre || resourceType == AntColony.Data.ResourceType.TinOre || resourceType == ResourceType.Coal || resourceType == ResourceType.Sulfur);
         // 돌 도구 연구의 재료인 석재에는 새 자원 연구 관문을 추가하지 않는다.

@@ -23,9 +23,9 @@ namespace AntColony.Units
         private void Awake()
         {
             cam = UnityEngine.Camera.main;
-            attackMoveController = FindFirstObjectByType<AttackMoveController>();
-            if (selectionManager == null) selectionManager = FindFirstObjectByType<SelectionManager>();
-            if (buildingPlacementController == null) buildingPlacementController = FindFirstObjectByType<BuildingPlacementController>();
+            attackMoveController = AntColony.Core.SceneObjects.Any<AttackMoveController>();
+            if (selectionManager == null) selectionManager = AntColony.Core.SceneObjects.Any<SelectionManager>();
+            if (buildingPlacementController == null) buildingPlacementController = AntColony.Core.SceneObjects.Any<BuildingPlacementController>();
         }
 
         private void Update()

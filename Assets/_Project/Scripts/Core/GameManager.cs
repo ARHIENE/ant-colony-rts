@@ -44,7 +44,7 @@ namespace AntColony.Core
 
         private void Start()
         {
-            foreach (var building in FindObjectsByType<BuildingBase>(FindObjectsSortMode.None))
+            foreach (var building in AntColony.Core.SceneObjects.All<BuildingBase>())
             {
                 RegisterBuilding(building);
             }
@@ -76,7 +76,7 @@ namespace AntColony.Core
                 || !GameSession.Instance.GameStarted || CommanderRoster.Instance == null
                 || CampaignResearch.Instance != null && CampaignResearch.Instance.Departed) return;
             // Update의 피해·소유권 변경 후 탑승 갱신→발사→패배 순서로 한 곳에서 확정한다.
-            foreach (var yard in FindObjectsByType<AirshipYard>(FindObjectsSortMode.None)) yard.ResolveLaunch();
+            foreach (var yard in AntColony.Core.SceneObjects.All<AirshipYard>()) yard.ResolveLaunch();
             if (CampaignResearch.Instance != null && CampaignResearch.Instance.Departed
                 || CommanderAnt.HasRecoveryOrRescueRoute(CommanderRoster.Instance.Commanders)
                 || DiplomacyManager.Instance != null && DiplomacyManager.Instance.Data.homecomings.Any(CampaignOutcome.SafeHomecoming)) return;

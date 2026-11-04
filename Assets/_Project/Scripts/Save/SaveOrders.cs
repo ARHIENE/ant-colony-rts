@@ -84,7 +84,7 @@ namespace AntColony.Save
             var world = WorldMapManager.Instance;
             for (int i = -1; i < world.Sites.Count; i++)
             {
-                var colony = i < 0 ? UnityEngine.Object.FindObjectsByType<EnemyColony>(FindObjectsSortMode.None)
+                var colony = i < 0 ? AntColony.Core.SceneObjects.All<EnemyColony>()
                     .FirstOrDefault(c => c.GetComponentInParent<ExpeditionSite>() == null) : world.Sites[i].Colony;
                 if (colony == null) continue;
                 for (int j = 0; j < colony.Buildings.Length; j++) Building("colony:" + i + ":" + j, colony.Buildings[j]);

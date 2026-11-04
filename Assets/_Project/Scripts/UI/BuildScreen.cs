@@ -114,7 +114,7 @@ namespace AntColony.UI
 
         private void Start()
         {
-            placement = FindFirstObjectByType<BuildingPlacementController>();
+            placement = AntColony.Core.SceneObjects.Any<BuildingPlacementController>();
             buildWindow = MenuLayout.Plate(transform, "BuildWindowV5", 170, 90, 1100, 656);
             buildWindow.gameObject.AddComponent<MenuViewport>().FitSelf = true;
             var windowCanvas = buildWindow.gameObject.AddComponent<Canvas>();

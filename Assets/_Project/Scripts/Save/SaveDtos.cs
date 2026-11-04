@@ -111,6 +111,8 @@ namespace AntColony.Save
     [Serializable]
     public class BuildingDto
     {
+        public bool surveyPresent;
+        public int surveyCommander = -1, surveyCandidate = -1;
         public string objectName; // 새 건물 키는 오브젝트 이름순이므로 이름을 보존해야 불러온 뒤에도 같은 순서·키가 된다(없으면 종류 이름).
         public Core.StoreBin.Dto storeBin; // v17: 창고 칸의 실제 재고·허용 품목·우선순위
         public bool packed; // v17: 회수·포장된 가구(기능 정지, 다시 설치 대기)
@@ -255,6 +257,10 @@ namespace AntColony.Save
     [Serializable]
     public class TransportDto
     {
+        public List<World.Corpse.State> bodyCargo;
+        public int[] cargoAmounts;
+        public World.TransportDamageState damage;
+        public World.WithdrawState withdrawal;
         public string bossCarrierId;
         public bool walking;
         public float foodDebt, dockingRemaining;
@@ -324,6 +330,7 @@ namespace AntColony.Save
         public World.ColonyEvents.State events = new World.ColonyEvents.State();
         public World.Memorial.State memorial; // 2026-10-15 사망 기록(이름·날짜·원인). 옛 저장은 null = 없음
         public Buildings.FarmSeeds.State farmSeeds;
+        public World.UndergroundSurvey.State underground;
         public Map.WeatherSystem.State weather; // v13: 날씨(없으면 맑음으로 시작)
         public Core.ColonyPopulation.State population = new Core.ColonyPopulation.State(); // v12 Phase 4 인구
         public Units.WorkPriorities.State workPriorities; // 2026-10-09 대상 우선순위·노란/빨간 경보(없으면 기본값)

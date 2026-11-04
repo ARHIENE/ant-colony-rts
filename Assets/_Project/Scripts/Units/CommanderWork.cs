@@ -37,6 +37,7 @@ namespace AntColony.Units
         public float LoadCapacity => Mathf.Max(0, TotalLoadCapacity - StartingLoadWeight - BossCargoCount);
         internal void SetWorkTarget(Component target)
         {
+            if (SurveyAssignment != null && target != SurveyAssignment) SurveyAssignment.Release();
             workTarget = Workforce.For(target);
         }
         public override void CommandStop()

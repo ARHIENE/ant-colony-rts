@@ -39,6 +39,7 @@ namespace AntColony.Buildings
             // 2026-10-19 새로 만든 기반 시설 5종(DigSite는 쓰이지 않아 제외)
             { BuildingKind.QueenChamber, "CC_Stockpile" }, { BuildingKind.ResearchLab, "CC_ResearchLab" }, { BuildingKind.DefenseLab, "CC_DefenseLab" },
             { BuildingKind.RestRoom, "CC_RestRoom" },
+            { BuildingKind.UndergroundScanner, "CC_ResearchDesk" },
             { BuildingKind.OilDrill, "CC_OilDerrick" }, { BuildingKind.OilRefinery, "CC_Refinery" }, { BuildingKind.FluidTank, "CC_LiquidTank" },
             { BuildingKind.FluidPipe, "CC_PipeL_Straight" }, { BuildingKind.OilDeposit, "CC_Deposit_Oil_Normal" }, { BuildingKind.FuelCharger, "CC_FillingStation" },
             { BuildingKind.ManualWell, "CC_ManualWell" }, { BuildingKind.CrashWreck, "CC_CrashWreck" }, { BuildingKind.School, "CC_School" },

@@ -46,6 +46,7 @@ namespace AntColony.Core
             new GameObject("CommanderOverhead").AddComponent<CommanderOverhead>();
             new GameObject("FirstHints").AddComponent<FirstHints>();
             new GameObject("MoodWatch").AddComponent<MoodWatch>();
+            new GameObject("UndergroundSurvey").AddComponent<AntColony.World.UndergroundSurvey>().Initialize();
             SaveCatalog.Initialize();
             var file = GameSession.Instance.PendingLoad as SaveFileV1;
             GameSession.Instance.PendingLoad = null;
@@ -78,7 +79,7 @@ namespace AntColony.Core
             SaveSystem.Rollback = null; SaveSystem.Busy = false;
             foreach (var c in CommanderRoster.Instance.Commanders)
                 if (c.GetComponent<AntColony.Units.StartingAppearance>() == null) c.gameObject.AddComponent<AntColony.Units.StartingAppearance>();
-            var camera = FindFirstObjectByType<AntColony.Camera.IsometricCameraController>();
+            var camera = AntColony.Core.SceneObjects.Any<AntColony.Camera.IsometricCameraController>();
             camera?.ApplySettings(UserSettings.Current.cameraPanSpeed, UserSettings.Current.edgeScrollThickness);
             new GameObject("GameNotifications").AddComponent<GameNotifications>();
             GameMenuController.Instance.SceneReady(GameSession.Instance.GameStarted);

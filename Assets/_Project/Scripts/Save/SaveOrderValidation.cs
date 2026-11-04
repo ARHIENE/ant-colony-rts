@@ -41,6 +41,11 @@ namespace AntColony.Save
             void Ref(string key) { Check(string.IsNullOrEmpty(key) || keys.Contains(key), "reference " + key); }
             bool Site(int i) => i >= -1 && i < f.world.sites.Count;
             foreach (var c in f.commanders) {
+                var formation = c.personalState?.formation;
+                if (formation != null && formation.hits > 0) {
+                    Check(formation.hitTarget?.StartsWith("saved:") == true, "formation hit target");
+                    Ref(formation.hitTarget.Substring(6));
+                }
                 if (!c.hasOrder) continue;
                 var d = c.order; Check(d != null, "commander order");
                 var s = d.soldier; var w = d.worker;
@@ -60,7 +65,8 @@ namespace AntColony.Save
                     && d.crew.All(id => id >= 0 && id < f.commanders.Count && f.commanders[id].location == 1 && f.commanders[id].transportIndex == i), "crew ownership");
                 // Empty crew is the legacy format, reconstructed from commander ownership.
                 Check(d.crew.Count == 0 || d.crew.Count == f.commanders.Count(c => c.location == 1 && c.transportIndex == i), "crew completeness");
-                Check(d.nextNode == null || d.nodes != null && d.nodes.Count <= 10000 && d.nextNode.Length == d.crew.Count
+                // JsonUtility는 null 배열을 []로 저장한다: 빈 커서 = 커서 없음.
+                Check(d.nextNode == null || d.nextNode.Length == 0 || d.nodes != null && d.nodes.Count <= 10000 && d.nextNode.Length == d.crew.Count
                     && d.nextNode.All(n => n >= 0 && n <= d.nodes.Count), "route cursor");
                 if (d.nodes != null) foreach (var key in d.nodes) Ref(key);
             }

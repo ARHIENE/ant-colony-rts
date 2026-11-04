@@ -114,7 +114,7 @@ namespace AntColony.World
             if (compensation > 0) { resources.TrySpend(compensation, 0, reason: ResourceReason.Trade); c.resources[0] += compensation; }
             if (compensation < 0) { c.resources[0] += compensation; resources.Add(AntColony.Data.ResourceType.Food, -compensation, ResourceReason.Trade); }
             c.war = false; c.nextOffer = Data.elapsed + DiplomacyRules.Month * 3;
-            foreach (var raider in FindObjectsByType<WildMonster>(FindObjectsSortMode.None))
+            foreach (var raider in AntColony.Core.SceneObjects.All<WildMonster>())
                 if (raider.DiplomaticFactionId == c.id && string.IsNullOrEmpty(raider.RebelId)) Destroy(raider.gameObject);
             CampaignHistory.Record("평화", c.name, "배상 Food " + compensation, true);
             return true;
@@ -156,7 +156,7 @@ namespace AntColony.World
         // ponytail: 피해 출처를 추적하지 않으므로 쓰러진 위치 15m 안의 교전 중 세력에 격파 점수를 준다.
         public void CommanderDowned(Vector3 position)
         {
-            var killer = FindObjectsByType<WildMonster>(FindObjectsSortMode.None)
+            var killer = AntColony.Core.SceneObjects.All<WildMonster>()
                 .Where(m => !m.IsDead && !m.Allied && (m.Position - position).sqrMagnitude < 225)
                 .Select(m => string.IsNullOrEmpty(m.DiplomaticFactionId) ? Faction(m.GetComponentInParent<ExpeditionSite>())
                     : Data.civilizations.Find(c => c.id == m.DiplomaticFactionId))
@@ -215,7 +215,7 @@ namespace AntColony.World
             }
             if (c.agenda != LeaderAgenda.Conqueror && c.war && Data.elapsed >= c.nextRaid)
             { if (Raid(c, c.rebel && Data.elapsed - c.founded < DiplomacyRules.Year) || RocketCampaign.SuppressNewCrises) c.nextRaid = Data.elapsed + DiplomacyRules.Season; }
-            if (Data.airshipStarted && c.agenda != LeaderAgenda.Conqueror && c.war && !FindObjectsByType<AirshipYard>(FindObjectsSortMode.None).Any(y => y.Ready)
+            if (Data.airshipStarted && c.agenda != LeaderAgenda.Conqueror && c.war && !AntColony.Core.SceneObjects.All<AirshipYard>().Any(y => y.Ready)
                 && UnityEngine.Random.value < DiplomacyRules.AirshipRaidChance) Raid(c, true);
             if (c.HasTreaty(TreatyKind.Alliance, Data.elapsed))
             {
