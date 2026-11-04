@@ -117,7 +117,7 @@ namespace AntColony.Boss.AoE
                 }
 
                 alreadyDamaged.Add(damageable);
-                damageable.TakeDamage(damage);
+                FormationDamage.Apply(damageable, damage, origin, area: true);
             }
         }
     }

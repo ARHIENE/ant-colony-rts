@@ -68,7 +68,7 @@ namespace AntColony.Buildings
         {
             if (allocatedFrame == Time.frameCount) return; allocatedFrame = Time.frameCount;
             var rm = ResourceManager.Instance; if (rm == null) return;
-            var sites = FindObjectsByType<BuildingConstructionSite>().Where(s => !s.finished && !s.Started)
+            var sites = AntColony.Core.SceneObjects.All<BuildingConstructionSite>().Where(s => !s.finished && !s.Started)
                 .OrderByDescending(s => AntColony.Units.WorkPriorities.Level(s)).ThenBy(s => s.Order).ToList();
             foreach (var site in sites) site.ReevaluateReservations();
             foreach (var type in sites.SelectMany(s => s.Needs).Select(n => n.type).Distinct().ToList())
@@ -243,8 +243,10 @@ namespace AntColony.Buildings
             }
         }
 
+        private void OnEnable() => AntColony.Core.SceneObjects.Register(this);
         private void OnDisable()
         {
+            AntColony.Core.SceneObjects.Unregister(this);
             ReleaseUnusedReservations();
             foreach (var c in Builders.Concat(Couriers).Distinct().ToList()) c.CommandStop();
         }

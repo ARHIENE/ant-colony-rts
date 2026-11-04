@@ -161,16 +161,17 @@ namespace AntColony.UI
             {
                 if (AntColony.Core.CommanderRoster.Instance != null)
                     foreach (var c in AntColony.Core.CommanderRoster.Instance.Commanders) if (c.isActiveAndEnabled && !c.IsDead) Dot(c.Position, MenuTheme.Hp, 5);
-                foreach (var b in FindObjectsByType<AntColony.Buildings.BuildingBase>(FindObjectsSortMode.None)) if (b.isActiveAndEnabled) Dot(b.transform.position, MenuTheme.Hex(0xa39880), 6);
-                foreach (var e in FindObjectsByType<AntColony.World.EnemyCommander>(FindObjectsSortMode.None)) if (!e.IsDead) Dot(e.transform.position, MenuTheme.Danger, 6);
+                foreach (var b in AntColony.Core.SceneObjects.All<AntColony.Buildings.BuildingBase>()) if (b.isActiveAndEnabled) Dot(b.transform.position, MenuTheme.Hex(0xa39880), 6);
+                foreach (var e in AntColony.Core.SceneObjects.All<AntColony.World.EnemyCommander>()) if (!e.IsDead) Dot(e.transform.position, MenuTheme.Danger, 6);
             }
             if (Filters[(int)Filter.Resources])
-                foreach (var n in FindObjectsByType<AntColony.World.ResourceNode>(FindObjectsSortMode.None))
-                    if (n.isActiveAndEnabled && !n.IsDepleted)
+                // 바닥 묶음은 점으로 찍지 않는다(G26: 1만 개면 점 1만 개를 매 0.25초 갱신).
+                foreach (var n in AntColony.World.ResourceNode.Available)
+                    if (n != null && n.isActiveAndEnabled && !n.IsDepleted && !n.IsLooseCargo)
                         Dot(n.transform.position, n.ResourceType == AntColony.Data.ResourceType.Food ? MenuTheme.Hex(0xe5bd6b)
                             : AntColony.Data.ResourceLabels.IsMaterial(n.ResourceType) ? MenuTheme.Hex(0xc49a74) : MenuTheme.Hex(0xb9a2f2), 4);
             if (Filters[(int)Filter.Wild])
-                foreach (var m in FindObjectsByType<AntColony.World.WildMonster>(FindObjectsSortMode.None))
+                foreach (var m in AntColony.Core.SceneObjects.All<AntColony.World.WildMonster>())
                     if (!m.IsDead && !(m is AntColony.World.EnemyCommander)) Dot(m.transform.position, WildColor(m), 5);
             for (var i = used; i < pool.Count; i++) pool[i].gameObject.SetActive(false);
             DotCount = used;
@@ -181,7 +182,7 @@ namespace AntColony.UI
 
         private void Start()
         {
-            main = FindFirstObjectByType<IsometricCameraController>();
+            main = AntColony.Core.SceneObjects.Any<IsometricCameraController>();
             var go = new GameObject("MinimapCamera");
             mapCamera = go.AddComponent<UnityEngine.Camera>();
             mapCamera.orthographic = true;

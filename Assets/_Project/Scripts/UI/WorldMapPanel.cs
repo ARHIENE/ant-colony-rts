@@ -132,7 +132,7 @@ namespace AntColony.UI
             L.Label(science, "<b>과학 · 수송 수단</b>", 15, 12, 8, 336, 26);
             scienceStatus = L.Label(science, "", 12, 12, 36, 336, 84, MenuTheme.Muted, TextAnchor.UpperLeft);
             Btn(science, "Build Science Lab", "과학 연구소 건설", 12, 120, () => {
-                if (FindFirstObjectByType<BuildingPlacementController>().BeginScienceLabPlacement()) Toggle();
+                if (AntColony.Core.SceneObjects.Any<BuildingPlacementController>().BeginScienceLabPlacement()) Toggle();
                 else feedback.text = "본거지, 시민 60, 낚시, 2단계 병영, 선택한 건설 장수가 필요합니다.";
             });
             Btn(science, "Science / Researchers", "과학 연구 · 연구원", 184, 120, () => { Toggle(); GameMenuController.Instance.Science(); });
@@ -367,7 +367,7 @@ namespace AntColony.UI
         private static ScienceLab FindLab()
         {
             ScienceLab busy = null;
-            foreach (var lab in FindObjectsByType<ScienceLab>(FindObjectsSortMode.None))
+            foreach (var lab in AntColony.Core.SceneObjects.All<ScienceLab>())
             { if (!lab.isActiveAndEnabled) continue; if (!lab.Busy) return lab; busy = lab; }
             return busy;
         }
@@ -408,7 +408,7 @@ namespace AntColony.UI
         private void ChangeCrew(bool station)
         {
             var passengers = new List<CommanderAnt>();
-            foreach (var selectable in FindFirstObjectByType<SelectionManager>().GetSelectedObjects())
+            foreach (var selectable in AntColony.Core.SceneObjects.Any<SelectionManager>().GetSelectedObjects())
             { var commander = selectable != null ? selectable.GetComponent<CommanderAnt>() : null; if (commander != null) passengers.Add(commander); }
             Result(selectedShip != null && (station ? selectedShip.TryStation(passengers) : selectedShip.TryBoard(passengers)),
                 station ? "주둔 지시를 내렸습니다. 도착하면 남아 수송 수단이 돌아가도 머뭅니다." : "탑승 지시를 내렸습니다. 수송 수단에 도착하면 승무원이 됩니다.");

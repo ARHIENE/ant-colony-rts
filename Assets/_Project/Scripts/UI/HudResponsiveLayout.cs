@@ -45,7 +45,7 @@ namespace AntColony.UI
         {
             canvas = (RectTransform)transform;
             console = (RectTransform)transform.Find("CommandConsole");
-            selection = FindAnyObjectByType<SelectionManager>();
+            selection = AntColony.Core.SceneObjects.Any<SelectionManager>();
             var overlays = FindObjectsByType<RectTransform>(FindObjectsInactive.Include, FindObjectsSortMode.None);
             notifications = overlays.FirstOrDefault(r => r.name == "Toasts");
             objective = overlays.FirstOrDefault(r => r.name == "Objective");

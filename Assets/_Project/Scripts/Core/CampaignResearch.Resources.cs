@@ -26,7 +26,7 @@ namespace AntColony.Core
 
         private void TickResourceResearch(float seconds)
         {
-            foreach (var lab in FindObjectsByType<ScienceLab>(FindObjectsSortMode.None))
+            foreach (var lab in AntColony.Core.SceneObjects.All<ScienceLab>())
             {
                 var c = lab.Target;
                 if (!lab.isActiveAndEnabled || lab.Busy || c == null || !c.CivilianWorkReady || !c.CanReceiveOrders

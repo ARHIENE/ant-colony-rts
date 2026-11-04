@@ -55,6 +55,10 @@ namespace AntColony.Units
         public virtual bool IsFlying => Data != null && Data.role == UnitRole.Flying;
         public bool IsInCombat => currentTarget != null && CanAttackTarget(currentTarget);
         private UnitRole TargetingRole => IsFlying ? UnitRole.Flying : Data.role;
+        protected IDamageable CombatTarget => currentTarget;
+        protected bool IsDirectMoving => state == State.MovingToTarget && currentTarget == null && !isOnAttackMove && !HasReachedDestination();
+        protected virtual float AttackRange => Data.attackRange;
+        protected virtual float AttackInterval => Data.attackInterval;
         protected virtual float MovementSpeed => Data != null ? Data.moveSpeed : 0f;
         bool IAirborne.IsAirborne => IsFlying;
 
@@ -283,7 +287,7 @@ namespace AntColony.Units
                     return;
                 }
 
-                if (GetDistanceTo(currentTarget.Position) <= Data.attackRange)
+                if (GetDistanceTo(currentTarget.Position) <= AttackRange)
                 {
                     StopMoving();
                     state = State.Attacking;
@@ -307,7 +311,7 @@ namespace AntColony.Units
                 return;
             }
 
-            if (GetDistanceTo(currentTarget.Position) > Data.attackRange)
+            if (GetDistanceTo(currentTarget.Position) > AttackRange)
             {
                 state = State.MovingToTarget;
                 return;
@@ -316,7 +320,7 @@ namespace AntColony.Units
             attackTimer -= Time.deltaTime;
             if (attackTimer <= 0f)
             {
-                attackTimer = Data.attackInterval;
+                attackTimer = AttackInterval;
                 GetComponent<AntVisual>()?.Attack(currentTarget.Position);
                 DealDamage(currentTarget);
             }
@@ -326,7 +330,7 @@ namespace AntColony.Units
         // 처치 판정 같은 부가 처리는 이 메서드만 오버라이드하면 된다.
         protected virtual void DealDamage(IDamageable target)
         {
-            target.TakeDamage(AttackDamage);
+            FormationDamage.Apply(target, AttackDamage, Position, Data.role == UnitRole.Ranged);
         }
     }
 }

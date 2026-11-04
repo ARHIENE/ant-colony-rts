@@ -41,6 +41,8 @@ public static class FacilityVisualChecks
                 await Task.Yield(); await Task.Delay(30);
                 var visual = go.GetComponent<FacilityVisual>();
                 Check(visual != null && visual.Model != null, "model attached " + kind);
+                var prefab = Resources.Load<GameObject>("Facilities/" + id);
+                Check(Quaternion.Angle(visual.Model.rotation, go.transform.rotation * prefab.transform.localRotation) < .01f, "imported axis preserved " + kind);
                 Check(go.GetComponent<Renderer>().forceRenderingOff && go.GetComponent<Renderer>().enabled, "box hidden but kept " + kind);
                 var box = go.GetComponent<Renderer>().bounds;
                 var model = visual.Model.GetComponentsInChildren<Renderer>().Select(r => r.bounds).Aggregate((a, b) => { a.Encapsulate(b); return a; });

@@ -82,13 +82,13 @@ namespace AntColony.Buildings
 
         private void OnEnable()
         {
-            Active.Add(this);
+            Active.Add(this); AntColony.Core.SceneObjects.Register(this);
             escapeTimer = escapeCheckSeconds;
         }
 
         private void OnDisable()
         {
-            Active.Remove(this);
+            Active.Remove(this); AntColony.Core.SceneObjects.Unregister(this);
         }
 
         internal float EscapeTimer => escapeTimer;

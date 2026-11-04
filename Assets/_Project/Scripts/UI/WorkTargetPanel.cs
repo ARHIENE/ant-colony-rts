@@ -19,7 +19,7 @@ namespace AntColony.UI
         public static void Clear() => Target = null;
         public static void Select(Component target)
         {
-            FindFirstObjectByType<AntColony.Units.SelectionManager>()?.ClearSelection();
+            AntColony.Core.SceneObjects.Any<AntColony.Units.SelectionManager>()?.ClearSelection();
             Target = target;
         }
         private void Start()
@@ -184,7 +184,7 @@ namespace AntColony.UI
             if (Target is Dormitory dorm) ToastManager.Show("숙소 배정: " + ResidentNames(dorm));
             else if (Target != null)
             {
-                var panel = FindFirstObjectByType<WorkTargetPanel>();
+                var panel = AntColony.Core.SceneObjects.Any<WorkTargetPanel>();
                 if (panel != null) ToastManager.Show(panel.status.text + "\n" + panel.instruction.text);
             }
         }

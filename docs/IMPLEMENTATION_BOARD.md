@@ -316,3 +316,4 @@
 - 남음: 동물 위생·배설물·퇴비·질병 발생 경로/진행 중 임신 상세·통합 의료 우선순위·실행 회귀, 장수 의료 전면 개편, 시체/묘비, 원정 장비 압수/실물 수송/철수, 포로 실물 관리. 전체 기획 구현 완료 아님.
 - 추가 담당: `Buildings/RanchFacility.cs` 먹이통 우선순위 기본5/상한9 기획 일치. 급식 실물 창고 인출과 운반 식품 신선도 보존 관련 `Units/WorkerAnt.cs`, `Save/SaveDtos.cs`, `Save/SaveSnapshot.cs`, `Save/SavePreflight.cs`, `AgentScripts/Spec1013ClinicChecks.cs`.
 - SAVE 미수행: log/changelog/개발 일지/캡처/커밋/push 하지 않음.
+- **F3-MODEL-AUDIT-1025 / Codex / 정적 점검·수정 완료, Claude 시각 검증 대기** — 121 BuildingKind·291 FBX·production 시설75개 대조. Hut 키/자산 정상; `Buildings/FacilityVisual.cs`의 임포트 루트 회전 삭제 수정, `AgentScripts/FacilityVisualChecks.cs`에 회귀 assertion 추가. 본체346소스·검사/임포터 Roslyn 오류0. 상세 `docs/MODEL-AUDIT-1025.md`(전수표·폴백·육안 목록). 캐릭터 +90X/손 도구 소켓 방향은 확인 필요로 미수정. 원본 자산 읽기 전용, UI 수정·Unity 실행·git add/commit 없음.
