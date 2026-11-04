@@ -20,14 +20,16 @@ namespace AntColony.Boss.AoE
         [SerializeField] private LayerMask targetMask;
         [SerializeField] private float verticalTolerance = 3f;
 
-        public bool IsCasting { get; private set; }
+        public bool IsCasting => cast != null && !cast.hitResolved;
+        private BossAoEState cast;
+        public BossAoEState Capture() => cast?.Copy();
         private GroundTelegraphCircle telegraph;
 
         private void OnDisable()
         {
             StopAllCoroutines();
             if (telegraph != null) Destroy(telegraph.gameObject);
-            IsCasting = false;
+            cast = null;
         }
 
         private void Awake()
@@ -43,27 +45,46 @@ namespace AntColony.Boss.AoE
         {
             if (!isActiveAndEnabled || IsCasting) return;
             BossTelegraphTiming.Prepare();
+            StopAllCoroutines();
             StartCoroutine(CastRoutine(center));
         }
 
         private IEnumerator CastRoutine(Vector3 center)
         {
-            IsCasting = true;
+            ResetCast();
+            cast = new BossAoEState { captured = true, origin = center, forward = Vector3.forward, remaining = telegraphDuration, afterHit = telegraphRemainAfterHit };
+            yield return ResumeCast();
+        }
 
+        private void ResetCast()
+        {
+            if (telegraph != null) Destroy(telegraph.gameObject);
+            telegraph = null;
+            cast = null;
+        }
+
+        public void Restore(BossAoEState saved)
+        {
+            StopAllCoroutines();
+            ResetCast();
+            if (!BossAoEState.Present(saved) || !isActiveAndEnabled) return;
+            cast = saved.Copy();
+            StartCoroutine(ResumeCast());
+        }
+
+        private IEnumerator ResumeCast()
+        {
             if (telegraphPrefab != null)
             {
-                telegraph = Instantiate(telegraphPrefab, center, Quaternion.identity);
-                telegraph.SetCenterAndRadius(center, radius);
+                telegraph = Instantiate(telegraphPrefab, cast.origin, Quaternion.identity);
+                telegraph.SetCenterAndRadius(cast.origin, radius);
             }
-
-            yield return new WaitForSeconds(telegraphDuration);
-
-            ResolveHit(center);
-
-            if (telegraph != null)
-                Destroy(telegraph.gameObject, telegraphRemainAfterHit);
-
-            IsCasting = false;
+            while (cast != null && (!cast.hitResolved || cast.afterHit > 0))
+            {
+                yield return null;
+                if (cast.Advance(Time.deltaTime)) ResolveHit(cast.origin);
+            }
+            ResetCast();
         }
 
         private void ResolveHit(Vector3 center)

@@ -68,9 +68,10 @@ namespace AntColony.World
         public float ExtractFor(AntColony.Units.WorkerAnt worker, float amount)
         {
             if (!(amount > 0) || float.IsInfinity(amount) || !CanGatherWith(worker)) return 0;
-            if (!RequiresResourceResearch) return ExtractStock(amount);
+            NotePeak();
+            if (!RequiresResourceResearch) { var taken = ExtractStock(amount); TryRebirth(worker); return taken; }
             var c = (AntColony.Units.CommanderAnt)worker;
-            if (CanMine(c)) return ExtractStock(amount);
+            if (CanMine(c)) { var mined = ExtractStock(amount); TryRebirth(worker); return mined; }
             // 표본은 분할 화물이 아닌 완전한 1개로 회수한다.
             return amount >= 1 && CanTakeSample(c) ? ExtractStock(1) : 0;
         }
@@ -99,7 +100,7 @@ namespace AntColony.World
         }
 
         private void Start() => ResourceVisual.Attach(this);
-        private void Update() { if (requiresFishing && !AntColony.Save.SaveSystem.Busy && GameSession.Exists && GameSession.Instance.GameStarted) RefreshFishingSeason(); TickGrowth(Time.deltaTime); }
+        private void Update() { if (requiresFishing && !AntColony.Save.SaveSystem.Busy && GameSession.Exists && GameSession.Instance.GameStarted) RefreshFishingSeason(); TickGrowth(Time.deltaTime); TickRebirth(Time.deltaTime); }
         // 낚시터: 재성장 대신 계절마다 한도만큼 재고를 채운다. FishSeason은 마지막으로 채운 계절(저장 키 fishMonth).
         internal int FishSeason { get; set; } = -1;
         public bool FishedOut => requiresFishing && IsDepleted;

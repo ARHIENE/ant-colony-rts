@@ -129,6 +129,7 @@ namespace AntColony.Buildings
             var a = first.PersonalState.relations.Find(r => r.otherId == second.PersonalState.id);
             var b = second.PersonalState.relations.Find(r => r.otherId == first.PersonalState.id);
             return a != null && b != null && !a.family && !b.family
+                && !first.HasOtherSpouse(second) && !second.HasOtherSpouse(first)
                 && a.value >= GameBalance.LoverRelation && b.value >= GameBalance.LoverRelation;
         }
 

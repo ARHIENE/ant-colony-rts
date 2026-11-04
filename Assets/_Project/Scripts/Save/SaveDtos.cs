@@ -199,6 +199,7 @@ namespace AntColony.Save
         public float amount;
         public float regrowTimer;
         public float sowRemaining; // 밭 파종 남은 작업량(2026-10-08). 옛 저장은 0 = 이미 심음.
+        public bool rebirthUsed; public float rebirthTimer, rebirthPeak; // 다이아 무중생유(구저장 기본 미사용)
         public int seedCrop = -1; public string seedKey; // G28 야생 작물 종자 출처(-1 = 없음, 구저장 호환)
         public bool bountifulHarvest;
         public bool gatheringForbidden;
@@ -374,6 +375,8 @@ namespace AntColony.Save
     [Serializable]
     public class MonsterDto
     {
+        public AntColony.Boss.AoE.BossAoEState circleAoE, coneAoE, lineAoE;
+        public AntColony.Boss.BossEncounter.State bossEncounter; // 구저장 null: 첫 착지 상태
         public string investigationId;
         public bool hasRuntime;
         public WildMonsterDto runtime; // v19

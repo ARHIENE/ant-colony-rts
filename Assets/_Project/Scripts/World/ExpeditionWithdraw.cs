@@ -179,6 +179,9 @@ namespace AntColony.World
         }
         private void StartWithdrawTravel(ExpeditionSite next)
         {
+            float travel = next != null && Site != null
+                ? ExpeditionRules.BetweenSeconds(Site.MapPosition, next.MapPosition, Walking, Aircraft) / (Walking ? FormationWalkMultiplier : 1)
+                : TravelSeconds;
             if (Site?.Settlement != null)
                 foreach (var c in Site.Settlement.Garrison) if (c != null && c.IsWorking && !c.IsCarrying) c.CommandStop();
             if (WorldMapManager.Instance?.ViewedSite == Site) WorldMapManager.Instance.ViewSite(null);
@@ -189,7 +192,7 @@ namespace AntColony.World
                 State = ExpeditionState.Outbound;
             }
             else State = ExpeditionState.Returning;
-            Remaining = TravelSeconds;
+            Remaining = travel;
         }
         private bool Approach(CommanderAnt c, Vector3 target)
         {

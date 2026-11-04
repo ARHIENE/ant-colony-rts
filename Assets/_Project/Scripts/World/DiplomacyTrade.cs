@@ -63,8 +63,16 @@ namespace AntColony.World
                 && o.treaties.Distinct().Count() == o.treaties.Count && o.treaties.All(t => Enum.IsDefined(typeof(TreatyKind), t));
             if (!Shape(give) || !Shape(take)) return "잘못된 거래 항목입니다.";
             var market = Data.markets.Contains(c);
+            // 설계도 해금은 보스 D 보상 반입이 조건이다(CampaignResearch.AcquireBlueprint). 그 전에 팔면 Special 150만 사라졌다.
+            if (take.blueprint && CampaignResearch.Instance?.BossProgress.Delivered(AntColony.Boss.BossId.D) != true) return "설계도는 보스 D 보상을 본거지에 반입하면 얻습니다(교역소 구매 불가).";
             if (give.blueprint || take.blueprint && (c.id != "market:" + Data.blueprintSite || CampaignResearch.Instance?.HasBlueprint != false || give.resources[2] < DiplomacyRules.BlueprintPrice)) return "설계도는 지정 교역소에서 Special 150에 판매합니다.";
             if (market && (give.sites.Count + take.sites.Count + give.prisoners.Count + take.prisoners.Count + give.treaties.Count + take.treaties.Count > 0)) return "교역소는 자원·장비만 거래합니다.";
+            var transport = MarketTransport(c);
+            if (transport != null)
+            {
+                var cargoReason = MarketCargoReason(take, transport.ReturnCargoSpace, transport.BlueprintCargo);
+                if (cargoReason != "") return cargoReason;
+            }
             if (give.treaties.Concat(take.treaties).Any(t => c.treaties[(int)t] - Data.elapsed > DiplomacyRules.Month)) return "협정 갱신은 만료 1개월 전부터 가능합니다.";
             var rm = ResourceManager.Instance;
             // 받는 자원·장비가 창고를 넘치면 주변 바닥에 둔다(2026-10-09). 보유량만 확인한다.
@@ -87,8 +95,14 @@ namespace AntColony.World
         public bool TryTrade(Civilization c, TradeOffer give, TradeOffer take, bool checkValue, out string error)
         {
             error = TradeReason(c, give, take, checkValue); if (error != "") return false;
+            var transport = MarketTransport(c);
             ResourceManager.Instance.TrySpend(give.resources[0], give.resources[1], give.resources[2], ResourceReason.Trade);
-            for (var i = 0; i < 3; i++) { StoreResource((ResourceType)i, take.resources[i], ResourceReason.Trade); c.resources[i] += give.resources[i] - take.resources[i]; }
+            for (var i = 0; i < 3; i++)
+            {
+                if (transport != null) transport.AddCargo((ResourceType)i, take.resources[i]);
+                else StoreResource((ResourceType)i, take.resources[i], ResourceReason.Trade);
+                c.resources[i] += give.resources[i] - take.resources[i];
+            }
             var inventory = EquipmentInventory.Instance.Items;
             var outgoing = inventory.Where(e => give.equipment.Contains(e.id)).ToArray();
             var incoming = c.equipment.Where(e => take.equipment.Contains(e.id)).ToArray();
@@ -98,7 +112,8 @@ namespace AntColony.World
             c.equipment.AddRange(outgoing.Except(withReleased));
             // 석방과 함께 반환하기로 한 압수 장비는 그 장수와 함께 귀환 시 도착한다. 나머지는 즉시 교환(넘치면 바닥).
             var withCaptive = incoming.Where(e => take.prisoners.Any(id => IsSeizedFrom(e.id, id))).ToList();
-            StoreEquipment(incoming.Except(withCaptive), world.HomePosition);
+            if (transport != null) transport.EquipmentCargo.AddRange(incoming.Except(withCaptive));
+            else StoreEquipment(incoming.Except(withCaptive), world.HomePosition);
             foreach (var id in take.prisoners) BeginHomecoming(id, c, withCaptive.Where(e => IsSeizedFrom(e.id, id)).ToList());
             foreach (var camp in Camps) foreach (var p in camp.Prisoners.Where(p => give.prisoners.Contains(p.PersonalState.id)).ToArray())
                 if (camp.ReleaseForTrade(p)) BeginEnemyHomecoming(p, c, withReleased.Where(e => IsSeizedFrom(e.id, p.PersonalState.id)).ToList());
@@ -109,7 +124,11 @@ namespace AntColony.World
             foreach (var i in give.sites) { Data.owners[i] = c.id; world.Sites[i].RestoreState(true, ConquestDisposition.Undecided); }
             foreach (var i in take.sites) world.Sites[i].TransferToPlayer();
             foreach (var treaty in give.treaties.Concat(take.treaties).Distinct()) SignTreaty(c, treaty);
-            if (take.blueprint) CampaignResearch.Instance.AcquireBlueprint();
+            if (take.blueprint)
+            {
+                if (transport != null) transport.BlueprintCargo = true;
+                else CampaignResearch.Instance.AcquireBlueprint();
+            }
             c.ChangeAffinity(c.agenda == LeaderAgenda.Trader ? 3 : 1, "거래 성사");
             CampaignHistory.Record("거래", c.name, "자원·장비·거점·장수 교환", true); return true;
         }

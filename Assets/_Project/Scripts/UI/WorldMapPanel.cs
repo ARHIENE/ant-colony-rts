@@ -191,7 +191,7 @@ namespace AntColony.UI
             defenseStatus.text = selectedSite != null && selectedSite.Defense != null ? selectedSite.Defense.Status : "";
             if (selectedShip == null) NextShip();
             departurePlan.text = selectedShip == null ? "도보 편성: 장수 1명·병력 0명부터 가능합니다." :
-                $"왕복 {(selectedShip.Walking ? ExpeditionRules.WalkSeconds(selectedSite) : selectedShip.TravelSeconds) * 2 / AntColony.Core.GameCalendar.SecondsPerDay:0.0}일 · 권장 식량 {selectedShip.RecommendedFood(selectedSite)} / 보유 {selectedShip.AvailableFood}\n"
+                $"왕복 {selectedShip.TravelSecondsTo(selectedSite) * 2 / AntColony.Core.GameCalendar.SecondsPerDay:0.0}일 · 권장 식량 {selectedShip.RecommendedFood(selectedSite)} / 보유 {selectedShip.AvailableFood}\n"
                 + $"왕복 + 현지 1일 + 예비 1일 · 병력 포함\n귀환 화물 여유 {selectedShip.ReturnCargoSpace}"
                 + (selectedShip.LeavesHomeUnattended ? "\n경고: 본거지 대응 장수 없음" : "");
             var route = selectedShip != null ? selectedShip.Route : null;

@@ -23,6 +23,13 @@ namespace AntColony.UI
             });
             foreach (var yard in AntColony.Core.SceneObjects.All<AirshipYard>())
             {
+                if (yard.IsDead)
+                {
+                    if (yard.HasFoundation) MenuTheme.Button(content, "바벨 로켓 기초 재건 (발사대 자재75%·작업50%)", () => {
+                        yard.TryRebuildFoundation(); ScienceFacilities();
+                    }, "부품·좌석·연료·핵심물은 다시 준비하고 15일 방어도 처음부터 시작합니다.");
+                    continue;
+                }
                 MenuTheme.Text(content, $"로켓 {yard.Phase} · 선체 {(yard.Hull ? "완성" : "미완성")} / 엔진 {(yard.Engine ? "완성" : "미완성")} · 좌석 {yard.OccupiedSeats}/{yard.Capacity} · 준비 잔여 {yard.PreparationRemaining / GameCalendar.SecondsPerDay:0.00}일", 13, 55);
                 MenuTheme.Text(content, yard.Operating ? FinalAssaultPlan.Description(Mathf.Max(0, FinalBattleEconomy.DefenseSeconds - yard.PreparationRemaining))
                     : "가동 후15일 방어: 첫5일 단일 방향 → 다음5일 양방향 → 마지막5일 다방향. 외곽 접근 경로가 없으면 기존 진입점을 사용합니다.", 12, 52);
@@ -44,12 +51,20 @@ namespace AntColony.UI
                     }
                 }
                 MenuTheme.Text(content, $"일반 시민 승객: {yard.CivilianPassengers}명", 13, 30);
+                MenuTheme.Text(content, "시민1명도 좌석1개를 사용합니다. 시민 탈출·잔류는 엔딩에 남습니다. 장수 탑승 전 마지막1석은 장수를 위해 남깁니다. 탑승한 병력은 방어에 참여하지 않습니다.", 12, 65);
+                if (yard.Phase == RocketPhase.Boarding)
+                    foreach (var c in SortedCommanders().Where(c => c.CanReceiveOrders && !c.IsAwayFromHome && !c.IsEmbarked && Vector3.Distance(c.Position, yard.Position) > 8))
+                        MenuTheme.Button(content, "로켓으로 이동: " + c.CommanderName, () => { c.CommandMove(yard.Position + Vector3.right * 3); Resume(); }, "일반 이동 지시입니다. 도착 후 탑승을 직접 확정하세요. 이동 중에도 적에게 공격받습니다.");
                 foreach (var c in SortedCommanders().Where(c => c.CanChangeAllocation && !c.IsAwayFromHome && Vector3.Distance(c.Position, yard.Position) <= 8))
                     MenuTheme.Button(content, "탑승: " + c.CommanderName, () => ConfirmRocketBoarding(yard, c)).interactable = yard.Phase == RocketPhase.Boarding;
                 MenuTheme.Text(content, "탑승 장수: " + string.Join(", ", yard.Passengers.Where(c => c != null).Select(c => c.CommanderName)), 13, 50);
+                foreach (var passenger in yard.Passengers.Where(c => c != null).ToArray())
+                    MenuTheme.Button(content, "하선·방어 재투입: " + passenger.CommanderName, () => {
+                        yard.TryDisembark(passenger); ScienceFacilities();
+                    }).interactable = yard.Phase == RocketPhase.Boarding;
                 MenuTheme.Text(content, CampaignOutcome.Preview(yard.Passengers), 13, 50);
                 MenuTheme.Button(content, "탑승자 전원 하선", () => { yard.Unload(); ScienceFacilities(); }).interactable = yard.Phase != RocketPhase.Launched;
-                MenuTheme.Button(content, "로켓 발사 — 이번 게임 종료", () => ConfirmRocketLaunch(yard)).interactable = yard.Phase == RocketPhase.Boarding && yard.OccupiedSeats > 0;
+                MenuTheme.Button(content, "로켓 발사 — 이번 게임 종료", () => ConfirmRocketLaunch(yard)).interactable = yard.Phase == RocketPhase.Boarding && yard.HasLaunchCommander;
             }
         }
         // 장수 상세 아래쪽 행동 버튼: 치료·재생·포상·장비.

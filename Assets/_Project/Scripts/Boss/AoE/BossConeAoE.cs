@@ -26,14 +26,16 @@ namespace AntColony.Boss.AoE
         [SerializeField] private float groundCastHeight = 50f;
         [SerializeField] private float groundOffset = 0.05f;
 
-        public bool IsCasting { get; private set; }
+        public bool IsCasting => cast != null && !cast.hitResolved;
+        private BossAoEState cast;
+        public BossAoEState Capture() => cast?.Copy();
         private GroundTelegraphSector telegraph;
 
         private void OnDisable()
         {
             StopAllCoroutines();
             if (telegraph != null) Destroy(telegraph.gameObject);
-            IsCasting = false;
+            cast = null;
         }
 
         private void Awake()
@@ -52,30 +54,47 @@ namespace AntColony.Boss.AoE
             var flatForward = Vector3.ProjectOnPlane(forward, Vector3.up);
             if (flatForward.sqrMagnitude < 0.0001f) flatForward = transform.forward;
 
+            StopAllCoroutines();
             StartCoroutine(CastRoutine(origin, flatForward.normalized));
         }
 
         private IEnumerator CastRoutine(Vector3 origin, Vector3 flatForward)
         {
-            IsCasting = true;
+            ResetCast();
+            cast = new BossAoEState { captured = true, origin = SnapToGround(origin), forward = flatForward, remaining = telegraphDuration, afterHit = telegraphRemainAfterHit };
+            yield return ResumeCast();
+        }
 
-            var groundOrigin = SnapToGround(origin);
-            var telegraphRotation = Quaternion.LookRotation(flatForward, Vector3.up);
+        private void ResetCast()
+        {
+            if (telegraph != null) Destroy(telegraph.gameObject);
+            telegraph = null;
+            cast = null;
+        }
 
+        public void Restore(BossAoEState saved)
+        {
+            StopAllCoroutines();
+            ResetCast();
+            if (!BossAoEState.Present(saved) || !isActiveAndEnabled) return;
+            cast = saved.Copy();
+            StartCoroutine(ResumeCast());
+        }
+
+        private IEnumerator ResumeCast()
+        {
             if (telegraphPrefab != null)
             {
-                telegraph = Instantiate(telegraphPrefab, groundOrigin, telegraphRotation);
-                telegraph.SetData(groundOrigin, telegraphRotation, range, angleDeg);
+                var rotation = Quaternion.LookRotation(cast.forward, Vector3.up);
+                telegraph = Instantiate(telegraphPrefab, cast.origin, rotation);
+                telegraph.SetData(cast.origin, rotation, range, angleDeg);
             }
-
-            yield return new WaitForSeconds(telegraphDuration);
-
-            ResolveHit(groundOrigin, flatForward);
-
-            if (telegraph != null)
-                Destroy(telegraph.gameObject, telegraphRemainAfterHit);
-
-            IsCasting = false;
+            while (cast != null && (!cast.hitResolved || cast.afterHit > 0))
+            {
+                yield return null;
+                if (cast.Advance(Time.deltaTime)) ResolveHit(cast.origin, cast.forward);
+            }
+            ResetCast();
         }
 
         private Vector3 SnapToGround(Vector3 position)

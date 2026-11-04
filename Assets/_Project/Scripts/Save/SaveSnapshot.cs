@@ -79,7 +79,10 @@ namespace AntColony.Save
             SaveRuntime.CaptureMonsters(file);
             for (var i = 0; i < SaveCatalog.Bosses.Length; i++)
             { var b = SaveCatalog.Bosses[i]; file.monsters.Add(new MonsterDto { key = "boss:" + i, health = b != null ? b.CurrentHp : 0,
-                position = new Vec3Dto(b != null ? b.Position : Vector3.zero) }); }
+                circleAoE = b != null ? b.GetComponent<AntColony.Boss.AoE.BossCircleAoE>()?.Capture() : null,
+                coneAoE = b != null ? b.GetComponent<AntColony.Boss.AoE.BossConeAoE>()?.Capture() : null,
+                lineAoE = b != null ? b.GetComponent<AntColony.Boss.AoE.BossLineAoE>()?.Capture() : null,
+                position = new Vec3Dto(b != null ? b.Position : Vector3.zero), bossEncounter = b != null ? b.GetComponent<BossEncounter>()?.Capture() : null }); }
             file.world.unlocked = world.Unlocked; file.world.vehicleResearched = world.VehicleResearched; file.world.aircraftResearched = world.AircraftResearched;
             file.world.notice = world.SettlementNotice;
             file.world.legacyLayout = world.LegacyLayout;
@@ -124,6 +127,7 @@ namespace AntColony.Save
             looseCargo = n != null && n.IsLooseCargo,
             amount = n != null ? n.AmountRemaining : 0, regrowTimer = n != null ? n.RegrowTimeRemaining : 0, sowRemaining = n != null ? n.SowRemaining : 0, bountifulHarvest = n != null && n.BountifulHarvest, gatheringForbidden = n != null && n.GatheringForbidden, workRequested = n != null && n.WorkRequested, workPaused = n != null && n.WorkPaused, workRequestOrder = n != null ? n.WorkRequestOrder : 0, fishMonth = n != null ? n.FishSeason : -1, lots = n != null && n.TryGetComponent<FloorFood>(out var food) ? food.Sync() : null,
             position = new Vec3Dto(n != null ? n.transform.position : Vector3.zero), type = n != null ? (int)n.ResourceType : 0,
+            rebirthUsed = n != null && n.RebirthUsed, rebirthTimer = n != null ? n.RebirthTimer : 0, rebirthPeak = n != null ? n.PeakAmount : 0,
             seedCrop = n != null && n.TryGetComponent<FarmSeedSource>(out var seed) ? (int)seed.Crop : -1, seedKey = n != null && n.TryGetComponent<FarmSeedSource>(out var seedKey) ? seedKey.FixedKey : null };
         }
 
@@ -203,6 +207,7 @@ namespace AntColony.Save
                 if (!d.exists) { Object.Destroy(node.gameObject); continue; }
                 node.transform.position = d.position.ToVector3(); node.RestoreState(d.amount, d.regrowTimer, d.sowRemaining);
                 node.IsLooseCargo = d.looseCargo;
+                node.RestoreRebirth(d.rebirthUsed, d.rebirthTimer, d.rebirthPeak);
                 if (d.seedCrop >= 0) // G28: 저장된 종자 출처(시작 야생 작물 등 새 노드 포함)를 같은 키로 되살린다.
                 { if (!node.TryGetComponent<FarmSeedSource>(out var seed)) seed = node.gameObject.AddComponent<FarmSeedSource>(); seed.Configure((FarmCrop)d.seedCrop, d.seedKey); }
                 node.BountifulHarvest = d.bountifulHarvest; node.GatheringForbidden = d.gatheringForbidden; node.WorkRequested = d.workRequested; node.WorkPaused = d.workPaused; node.WorkRequestOrder = d.workRequestOrder; node.FishSeason = d.fishMonth;
@@ -217,6 +222,10 @@ namespace AntColony.Save
                 {
                     var b = SaveCatalog.Bosses[index]; SaveReferences.Register(d.key, b); if (b == null) continue;
                     if (d.health <= 0) b.RestoreDefeated(); else { b.transform.position = d.position.ToVector3(); b.RestoreHp(d.health); }
+                    b.GetComponent<BossEncounter>()?.Restore(d.bossEncounter);
+                    b.GetComponent<AntColony.Boss.AoE.BossCircleAoE>()?.Restore(d.health > 0 ? d.circleAoE : null);
+                    b.GetComponent<AntColony.Boss.AoE.BossConeAoE>()?.Restore(d.health > 0 ? d.coneAoE : null);
+                    b.GetComponent<AntColony.Boss.AoE.BossLineAoE>()?.Restore(d.health > 0 ? d.lineAoE : null);
                     continue;
                 }
                 var m = parts[0] == "monster" ? SaveCatalog.Monsters[index]

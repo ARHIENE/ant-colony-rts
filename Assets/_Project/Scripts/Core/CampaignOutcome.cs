@@ -18,6 +18,7 @@ namespace AntColony.Core
         {
             public List<Entry> commanders = new List<Entry>();
             public int citizensEscaped, citizensStaying;
+            public List<string> legacy = new List<string>(); // 구저장 null/빈 목록: 당시 서사 스냅샷 없음
         }
         public static bool Survivor(CommanderAnt c) => c != null && !c.IsDead && !c.IsCaptive && !c.IsDeparting && !c.IsHostile;
         public static bool SafeHomecoming(Homecoming h) => h?.commander?.PersonalState != null
@@ -34,7 +35,12 @@ namespace AntColony.Core
             if (boarded && c.IsEmbarked) return EndingCategory.Escaped;
             return c.IsAwayFromHome ? EndingCategory.Outside : EndingCategory.Staying;
         }
-        public static State Capture(IReadOnlyList<CommanderAnt> boarded) => Capture(boarded, null);
+        public static State Capture(IReadOnlyList<CommanderAnt> boarded)
+        {
+            var result = Capture(boarded, null);
+            result.legacy = CampaignLegacy.Capture(result);
+            return result;
+        }
         private static State Capture(IReadOnlyList<CommanderAnt> boarded, CommanderAnt boardingCandidate)
         {
             var result = new State(); var ids = new HashSet<string>();
@@ -67,6 +73,7 @@ namespace AntColony.Core
             return result;
         }
         public static bool Validate(State s) => s == null || s.commanders != null && s.citizensEscaped >= 0 && s.citizensStaying >= 0
+            && (s.legacy == null || s.legacy.Count <= 10000 && s.legacy.All(line => line != null && line.Length <= 1000))
             && s.commanders.All(c => c != null && !string.IsNullOrEmpty(c.id) && c.name != null && Enum.IsDefined(typeof(EndingCategory), c.category))
             && s.commanders.Select(c => c.id).Distinct().Count() == s.commanders.Count;
         public static string Preview(IReadOnlyList<CommanderAnt> boarded, CommanderAnt boardingCandidate = null)

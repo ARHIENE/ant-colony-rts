@@ -21,6 +21,8 @@ namespace AntColony.Save
         public int mark; public string targetKind; public Vec3Dto targetPosition, moveTo; public int newMaterial; public bool wasEnabled = true, workStarted, packed;
         // 재개발 표식
         public bool redevelop; public Vec3Dto redevelopTarget; public float redevelopAge;
+        public AirshipYard.State rocket; // 구저장 null: 바벨 기여 이력 없는 신규 발사대
+        public bool hasRocketState;
     }
 
     internal static class SaveConstruction
@@ -40,6 +42,7 @@ namespace AntColony.Save
                 d.kind = b.Data.kind.ToString(); d.material = (int)b.MainMaterial; d.buildingName = b.name;
                 d.role = b is Barracks barracks ? (int)barracks.Role : b is ResearchLab lab ? (int)lab.Role : 0;
                 d.buildingPosition = new Vec3Dto(b.transform.position); d.buildingRotY = b.transform.eulerAngles.y;
+                if (b is AirshipYard rocket) { d.rocket = rocket.CaptureState(Array.Empty<CommanderAnt>()); d.hasRocketState = true; }
                 if (b.TryGetComponent<FarmPlot>(out var plot)) { d.crop = (int)plot.Crop; d.wide = plot.Wide; }
             }
             if (s.TryGetComponent<DemolitionSite>(out var m) && m.Target != null)
@@ -71,6 +74,7 @@ namespace AntColony.Save
                     building = UnityEngine.Object.Instantiate(template, d.buildingPosition.ToVector3(), Quaternion.Euler(0, d.buildingRotY, 0));
                     building.SetActive(false); building.name = d.buildingName;
                     building.GetComponent<BuildingBase>().MainMaterial = (ResourceType)d.material;
+                    if (building.TryGetComponent<AirshipYard>(out var rocket)) rocket.RestoreState(d.hasRocketState ? d.rocket : null, Array.Empty<CommanderAnt>());
                     if (d.crop >= 0) building.AddComponent<FarmPlot>().Configure((FarmCrop)d.crop, d.wide);
                 }
                 var site = go.AddComponent<BuildingConstructionSite>();
@@ -93,6 +97,7 @@ namespace AntColony.Save
         internal static bool Valid(List<ConstructionDto> list) => list == null || list.Count <= 10000 && list.All(d => d != null && d.position != null && d.position.IsFinite() && d.scale != null
             && !float.IsNaN(d.buildTime) && d.buildTime >= 0 && !float.IsNaN(d.remaining) && d.remaining >= 0 && d.priority >= WorkPriorities.Min && d.priority <= WorkPriorities.Max
             && d.needs != null && d.needs.All(n => n != null && Enum.IsDefined(typeof(ResourceType), n.type) && n.need >= 0 && n.delivered >= 0 && n.delivered <= n.need)
+            && (!d.hasRocketState || d.rocket != null && d.kind == "AirshipYard" && d.rocket.phase == RocketPhase.Construction && AirshipYard.Validate(d.rocket, 0, out _))
             && (string.IsNullOrEmpty(d.kind) ? d.mark > 0 : Enum.TryParse<BuildingKind>(d.kind, out _) && d.buildingPosition != null && d.buildingPosition.IsFinite())
             && d.mark >= 0 && d.mark <= 3 && (d.mark == 0 || d.targetPosition != null && d.moveTo != null));
     }

@@ -11,7 +11,7 @@ namespace AntColony.Units
     public enum MentalBreak { None, Idle, Flee, AttackBuilding, AttackCommander, SelfHarm, Binge, Wander }
     [Serializable] public class CommanderInjury { public InjuryPart part; public InjurySeverity severity; public float remaining; public bool regenerating, prognosisPending; }
     [Serializable] public class MoodFactor { public string reason; public float value, remaining; }
-    [Serializable] public class CommanderRelation { public string otherId; public float value, nearbySeconds, quarrelSeconds, duelSeconds, memorialCooldown; public bool spouse, family; public int lastComfortDay = -1; }
+    [Serializable] public class CommanderRelation { public string otherId; public float value, nearbySeconds, quarrelSeconds, duelSeconds, memorialCooldown; public bool spouse, family; public int lastComfortDay = -1; public float widowedAt = -1; }
     [Serializable]
     public class CommanderPersonalState
     {

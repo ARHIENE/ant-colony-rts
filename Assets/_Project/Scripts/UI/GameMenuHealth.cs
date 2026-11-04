@@ -55,6 +55,14 @@ namespace AntColony.UI
                 var pick = m;
                 L.Button(meds, "Medicine " + m, MedicalRules.MedicineName(m), i++ * 100, 0, 96, 40, () => { h.medicine = pick; ShowHealth(c); }, primary: h.medicine == m);
             }
+            // 검토60: 약 등급 선택의 대가(품질·감염·흉터 차이와 재고)를 같은 기준으로 보여 준다. 최고 의료 장수·침상 기준.
+            var doctor = SortedCommanders().Where(d => d != c && d.IsColonyMember).Select(d => d.Talents.Level(CommanderActivity.Medicine)).DefaultIfEmpty(0).Max();
+            MenuTheme.Text(content, $"처치 품질(의료 {doctor} 장수·침상): " + string.Join(" / ", new[] { -1, 0, 1, 2 }.Select(t =>
+            {
+                var q = MedicalRules.TendQuality(doctor, t, true, 1, false);
+                var stock = t < 0 ? "" : $" 재고 {AntColony.Core.ResourceManager.Instance?.GetAmount(MedicalRules.Medicines[t]) ?? 0}";
+                return $"{(t < 0 ? "약 없음" : MedicalRules.Medicines[t].DisplayName())} {q:P0}·감염 {MedicalRules.InfectionChance * (1 - q):P0}{stock}";
+            })), 12, 40);
             MenuTheme.Button(content, (h.selfTend ? "☑" : "☐") + " 자가 처치 허용(의식·조작이 있을 때, 품질 불리)", () => { h.selfTend = !h.selfTend; ShowHealth(c); });
             var rest = L.Cell(content, "BedRest", 44);
             L.Label(rest, h.bedRest == 0 ? "병상 휴식: 쉬지 않음" : $"병상 휴식 우선순위 {h.bedRest}(작업 우선순위 이상이면 휴식)", 14, 0, 6, 380, 30, MenuTheme.Muted);
