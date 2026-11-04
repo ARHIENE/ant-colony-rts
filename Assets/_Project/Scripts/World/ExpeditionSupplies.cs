@@ -10,10 +10,10 @@ namespace AntColony.World
         public bool Walking { get; private set; }
         public float FoodDebt { get; internal set; }
         public float DockingRemaining { get; internal set; }
-        public int ReturnCargoSpace => Mathf.Max(0, CargoCapacity - CargoLoad);
+        public int ReturnCargoSpace => Mathf.Max(0, CargoCapacity - CargoLoad - ReservedCargo);
         private int WalkingCargoCapacity => Mathf.FloorToInt(crew.Where(c => c != null && !c.IsDead)
             .Sum(c => Mathf.Max(0, c.TotalLoadCapacity - c.StartingLoadWeight)) / .05f);
-        public float DailyFood => crew.Where(c => c != null && !c.IsDead).Sum(ExpeditionRules.FoodPerDay);
+        public float DailyFood => crew.Where(c => c != null && !c.IsDead).Sum(ExpeditionRules.FoodPerDay) + withdraw.troops * 2 * GameBalance.MealFood;
         public int RecommendedFood(ExpeditionSite destination) => ExpeditionRules.RecommendedFood(
             Walking ? ExpeditionRules.WalkSeconds(destination) : TravelSeconds, DailyFood);
         public int AvailableFood => GetCargo(AntColony.Data.ResourceType.Food) + crew.Where(c => c != null && !c.IsDead)

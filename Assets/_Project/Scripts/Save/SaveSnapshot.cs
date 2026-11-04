@@ -46,7 +46,7 @@ namespace AntColony.Save
                 workPriorities = WorkPriorities.Capture(),
                 diplomacy = DiplomacyManager.Instance?.Capture(),
                 equipmentInventory = EquipmentInventory.Instance == null ? new List<EquipmentItem>() : EquipmentInventory.Instance.Items.Select(e => JsonUtility.FromJson<EquipmentItem>(JsonUtility.ToJson(e))).ToList(),
-                corpses = Corpse.All.Where(c => c.Available).Select(c => c.Capture()).ToList(),
+                corpses = Corpse.All.Where(c => c.Available).Select(ExpeditionTransport.CaptureFloorBody).ToList(),
                 construction = SaveConstruction.Capture(),
                 critters = Critter.CaptureAll(),
                 equipmentLoot = SaveCatalog.Ordered<EquipmentLoot>().Select(l => new EquipmentLootDto { position = new Vec3Dto(l.transform.position),
@@ -92,6 +92,8 @@ namespace AntColony.Save
             file.world.pause = AntColony.UI.SimulationPause.Capture();
             file.world.defenseReturn = JsonUtility.FromJson<HomeDefenseReturn>(JsonUtility.ToJson(world.DefenseReturn));
             foreach (var s in world.Transports.Where(s => s != null)) file.world.transports.Add(new TransportDto { walking = s.Walking, foodDebt = s.FoodDebt, dockingRemaining = s.DockingRemaining, aircraft = s.Aircraft, state = (int)s.State,
+                bodyCargo = s.bodyCargo.Select(b => JsonUtility.FromJson<Corpse.State>(JsonUtility.ToJson(b))).ToList(),
+                cargoAmounts = Enum.GetValues(typeof(ResourceType)).Cast<ResourceType>().Select(s.GetCargo).ToArray(), damage = s.CaptureDamage(), withdrawal = s.CaptureWithdrawal(),
                 bossCarrierId = BossRewardTransfer.Carrier(s),
                 blueprintCargo = s.BlueprintCargo, equipmentCargo = s.EquipmentCargo.Select(e => JsonUtility.FromJson<EquipmentItem>(JsonUtility.ToJson(e))).ToList(),
                 remaining = s.Remaining, siteIndex = SaveCatalog.SiteIndex(s.Site), position = new Vec3Dto(s.Position), homePosition = new Vec3Dto(s.HomePosition),
@@ -235,10 +237,13 @@ namespace AntColony.Save
                 var ship = world.CreateTransport(d.aircraft, d.homePosition.ToVector3(), d.walking);
                 BossRewardTransfer.RestoreCarrier(ship, d.bossCarrierId, ships.Count);
                 SaveReferences.Register("ship:" + ships.Count, ship); ships.Add(ship);
+                ship.RestoreDamage(d.damage);
+                ship.bodyCargo = d.bodyCargo ?? new List<Corpse.State>();
                 ship.FoodDebt = d.foodDebt; ship.DockingRemaining = d.dockingRemaining;
                 ship.BlueprintCargo = d.blueprintCargo; ship.EquipmentCargo = d.equipmentCargo.Select(e => JsonUtility.FromJson<EquipmentItem>(JsonUtility.ToJson(e))).ToList();
                 ship.RestoreState((ExpeditionState)d.state, d.remaining, d.siteIndex < 0 ? null : world.Sites[d.siteIndex],
                     d.position.ToVector3(), d.homePosition.ToVector3(), d.cargoFood, d.cargoSoil, d.cargoSpecial);
+                if (d.cargoAmounts != null && d.cargoAmounts.Length > 0) ship.RestoreCargoAmounts(d.cargoAmounts);
                 ship.Route.RestoreState(d.route.running, d.route.destinationIndex < 0 ? null : world.Sites[d.route.destinationIndex], d.route.waitSeconds, d.route.status);
             }
             var commanders = new List<CommanderAnt>();
@@ -319,6 +324,7 @@ namespace AntColony.Save
                 if (site != null) for (int i = 0; i < d.needs.Count; i++) site.Needs[i].reserved = d.needs[i].reserved;
             }
             for (int i = 0; i < ships.Count; i++) ships[i].Route.RestoreProgress(file.world.transports[i].route);
+            for (int i = 0; i < ships.Count; i++) { ships[i].RestoreWithdrawal(file.world.transports[i].withdrawal); ships[i].RestoreDamageWorkers(file.world.transports[i].damage); }
             CommanderAnt.RefreshDepartureNotice();
             UnityEngine.Random.state = JsonUtility.FromJson<UnityEngine.Random.State>(file.randomState);
         }

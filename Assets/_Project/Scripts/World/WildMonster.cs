@@ -192,6 +192,7 @@ namespace AntColony.World
                     targetSearchTimer = targetSearchInterval;
                     currentTarget = Allied ? CombatTargeting.FindNearestEnemy(Position, detectionRadius, UnitRole.Melee)
                         : (eventWasp ? FindFirstObjectByType<Stockpile>() : null) ?? (IDamageable)FindNearestAnt()
+                        ?? TransportDamage.FindTarget(Position, detectionRadius)
                         ?? FindCivilianTarget()
                         ?? (isRaider && raidSite == null ? GameManager.Instance?.FindNearestPlayerBuilding(transform.position) : null);
                     if (currentTarget == null)

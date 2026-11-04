@@ -592,7 +592,8 @@ namespace AntColony.Units
             }
             if (carriedAmount > 0f && ResourceManager.Instance != null)
             {
-                if (targetDeposit != null) { targetDeposit.DepositResources(carriedType, Mathf.RoundToInt(carriedAmount)); OnDelivered(carriedAmount); }
+                if (targetDeposit is ExpeditionTransport ship && !ship.TryLoadFromWorker(this, carriedType, Mathf.RoundToInt(carriedAmount))) return;
+                if (targetDeposit != null) { if (!(targetDeposit is ExpeditionTransport)) targetDeposit.DepositResources(carriedType, Mathf.RoundToInt(carriedAmount)); OnDelivered(carriedAmount); }
             }
             carriedAmount = 0f;
             state = State.Idle;
