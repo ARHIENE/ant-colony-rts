@@ -31,7 +31,7 @@ namespace AntColony.Core
                 or CommanderTrait.KitchenMenace or CommanderTrait.SlowEater or CommanderTrait.Senile => TraitGrade.Red,
                 _ => TraitGrade.Silver };
         }
-        public static string Name(CommanderTrait t) => Specialty(t) < 0 ? t.ToString()
+        public static string Name(CommanderTrait t) => Specialty(t) < 0 ? t == CommanderTrait.Legion ? "레기온" : t.ToString()
             : Grade(t) == TraitGrade.Diamond ? diamonds[Specialty(t)] : "전문성: " + (Specialty(t) < activities.Length ? StartingCandidate.SkillName(activities[Specialty(t)]) : "조사");
         public static int Count(float roll) => roll < .95f ? 1 : roll < .995f ? 2 : 3;
         public static TraitGrade RollGrade(float roll, bool starting)

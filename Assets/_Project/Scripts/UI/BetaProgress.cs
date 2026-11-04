@@ -85,21 +85,21 @@ namespace AntColony.UI
                         ? $"출정 준비 · 장수 {ship.CommanderLoad}/{ship.CommanderCapacity} · 병력 {ship.Load}/{ship.Capacity}\n월드맵에서 목적지 선택 후 출정"
                         : $"탑승 · 장수 {ship.CommanderCapacity}명 · 병력 {ship.Capacity}마리\n장수를 8m 안에 모은 뒤 선택 부대 탑승";
                 }
-                foreach (var lab in FindObjectsByType<ScienceLab>())
+                foreach (var lab in AntColony.Core.SceneObjects.All<ScienceLab>())
                     if (lab.Busy)
                         return $"{(lab.Constructing ? "건조" : "연구")} - {Mathf.CeilToInt(lab.Remaining)}초\n{(lab.Aircraft ? "비행기" : "차량")} 진행 중";
                 if (world.VehicleResearched) return "차량 건조 · 식량 50 / 재료 60\n과학연구소 선택 후 차량 건조";
             }
-            if (FindAnyObjectByType<ScienceLab>() != null)
+            if (AntColony.Core.SceneObjects.Any<ScienceLab>() != null)
                 return "차량 연구 · 증기 시대 연구소 필요\n과학 화면에서 연구소 강화·장수 배정";
             if (ScienceLab.PrerequisitesMet)
                 return "과학연구소 건설\n건설 메뉴에서 과학연구소 배치";
             var population = AntPool.Instance != null ? AntPool.Instance.Total : 0;
             if (population < ScienceLab.RequiredPopulation)
                 return $"인구 증가 · {population}/{ScienceLab.RequiredPopulation}마리\n주거·공공서비스·민심을 확보해 이주 유도";
-            var barracks = FindAnyObjectByType<Barracks>();
+            var barracks = AntColony.Core.SceneObjects.Any<Barracks>();
             if (barracks == null) return "병영 건설 · 장수 선택\n건설 메뉴에서 병영을 배치하세요";
-            foreach (var candidate in FindObjectsByType<Barracks>())
+            foreach (var candidate in AntColony.Core.SceneObjects.All<Barracks>())
                 if (candidate.IsUpgrading) return "병영 강화 중\n과학연구소에 필요한 자원을 모으세요";
             var resources = ResourceManager.Instance;
             if (resources != null && (resources.GetAmount(AntColony.Data.ResourceType.Food) >= resources.GetCapacity(AntColony.Data.ResourceType.Food)

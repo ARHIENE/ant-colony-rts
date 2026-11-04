@@ -61,13 +61,13 @@ public static class ImplB7Checks
 
             var skills = new CommanderTalents { potential = 200 };
             skills.levels[(int)CommanderActivity.Melee] = 12;
-            skills.Train(CommanderActivity.Firefighting, 599, _ => 0);
+            skills.Train(CommanderActivity.Investigation, 599, _ => 0);
             Near(skills.Value((int)CommanderActivity.Melee), 12, "G25 no decay before sample");
-            skills.Train(CommanderActivity.Firefighting, 1, _ => 0);
+            skills.Train(CommanderActivity.Investigation, 1, _ => 0);
             Near(skills.Value((int)CommanderActivity.Melee), 12, "G25 sample threshold does not retroactively decay");
-            skills.Train(CommanderActivity.Firefighting, 600, _ => 0);
+            skills.Train(CommanderActivity.Investigation, 600, _ => 0);
             Near(skills.Value((int)CommanderActivity.Melee), 11.9f, "G25 max .1 per 600 effective seconds");
-            skills.Train(CommanderActivity.Firefighting, 20000, _ => 0);
+            skills.Train(CommanderActivity.Investigation, 20000, _ => 0);
             Near(skills.Value((int)CommanderActivity.Melee), 10, "G25 floor ten");
             Near(skills.recentWork.Sum(u => u.seconds), 1800, "G25 bounded work window");
             skills.levels[(int)CommanderActivity.Strength] = 12;

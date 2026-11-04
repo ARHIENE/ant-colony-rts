@@ -58,7 +58,7 @@ namespace AntColony.Units
             CommanderJobs.Crafting => CommanderActivity.Crafting, CommanderJobs.Research => CommanderActivity.Research,
             CommanderJobs.Farming => CommanderActivity.Farming, CommanderJobs.Fishing => CommanderActivity.Fishing,
             CommanderJobs.Nursing => CommanderActivity.Medicine, CommanderJobs.Cooking => CommanderActivity.Cooking,
-            CommanderJobs.Firefighting => CommanderActivity.Firefighting,
+            CommanderJobs.Firefighting => CommanderActivity.Strength,
             CommanderJobs.Art => CommanderActivity.Art, CommanderJobs.Hunting => CommanderActivity.Melee, CommanderJobs.Administration => CommanderActivity.Politics, CommanderJobs.Husbandry => CommanderActivity.Husbandry,
             _ => CommanderActivity.Gathering
         };
@@ -100,7 +100,6 @@ namespace AntColony.Units
             if (firefighting)
             {
                 var fire = ServiceTarget.GetComponent<WallFire>();
-                GainExperience(CommanderActivity.Firefighting, seconds);
                 if (!fire.Extinguish(seconds)) CommandStop();
             }
             else if (ServiceTarget is Processor bench) // 가공대(제작)·약제대(간호=의료, 2026-10-11)

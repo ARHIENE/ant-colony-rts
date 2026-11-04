@@ -36,7 +36,7 @@ namespace AntColony.UI
                 if (location.moving) continue;
                 // G16 대피: 실제 경로로 최대 50명씩 이동한다(도착 전 탑승·보호 없음). 로켓은 탑승 대기 지점, 주거는 가장 가까운 다른 집.
                 var id = location.id; var from = location.position;
-                var rocket = UnityEngine.Object.FindAnyObjectByType<AntColony.Buildings.AirshipYard>();
+                var rocket = AntColony.Core.SceneObjects.Any<AntColony.Buildings.AirshipYard>();
                 var home = AntColony.Buildings.Housing.All.Where(h => h != null && h.isActiveAndEnabled && !h.IsDead && (h.Position - from).sqrMagnitude > 4)
                     .OrderBy(h => (h.Position - from).sqrMagnitude).FirstOrDefault();
                 void Evacuate(Vector3 to, string where) { ToastManager.Show(pop.BeginCivilianEvacuation(id, to) > 0 ? where + "(으)로 대피를 시작했습니다." : "대피 경로가 없습니다."); CivicServices(); }

@@ -63,7 +63,7 @@ namespace AntColony.World
             }
             foreach (var f in RanchFacility.All.Where(f => f.IsFeeder)) Consider(f, FoodKind.Feeder);
             foreach (var n in ResourceNode.Available.Where(n => n != null && n.IsLooseCargo)) Consider(n, FoodKind.Floor);
-            foreach (var b in Object.FindObjectsByType<BuildingBase>(FindObjectsSortMode.None).Where(b => b is Storage || b is Stockpile)) Consider(b, FoodKind.Storage);
+            foreach (var b in AntColony.Core.SceneObjects.All<BuildingBase>().Where(b => b is Storage || b is Stockpile)) Consider(b, FoodKind.Storage);
             if (Info.plantDiet) foreach (var n in ResourceNode.Available.Where(n => n != null && n.GetComponent<FarmPlot>() != null)) Consider(n, FoodKind.Crop);
             else foreach (var k in CritterCarcass.All) Consider(k, FoodKind.Carcass);
             foodTarget = best; foodKind = bestKind; eatTimer = 0;

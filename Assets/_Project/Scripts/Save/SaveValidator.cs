@@ -266,6 +266,7 @@ namespace AntColony.Save
             }
             if (file.world.sites == null || file.world.transports == null) { error = "Missing world sections."; return false; }
             SaveOptionalStates.Normalize(file);
+            if (!Core.TalentAssessment.Validate(file.assessment, file.world.transports.Count, file.world.sites.Count)) { error = "Invalid talent assessment."; return false; }
             return SavePreflight.Validate(file, out error);
         }
         private static void MigrateTraits(TraitsDto traits)

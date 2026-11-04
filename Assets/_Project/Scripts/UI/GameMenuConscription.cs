@@ -13,7 +13,7 @@ namespace AntColony.UI
     {
         public void OpenConscription()
         {
-            var post = FindObjectsByType<ConscriptionPost>(FindObjectsSortMode.None)
+            var post = AntColony.Core.SceneObjects.All<ConscriptionPost>()
                 .FirstOrDefault(p => !p.IsDead && p.CountsTowardPlayerDefeat);
             if (post == null) { ToastManager.Show("건설(B) → 특수에서 징집소를 지으세요. 본거지에 1개만 지을 수 있습니다."); return; }
             ShowConscription(post);

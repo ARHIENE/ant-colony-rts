@@ -84,7 +84,7 @@ namespace AntColony.Units
                 if (op != null && p != this && SurgeryBlock(p, op, this) == "" && !Taken(p, MedJob.Surgery))
                     list.Add((Urgency(h), p, () => StartMed(MedJob.Surgery, patient)));
             }
-            foreach (var camp in FindObjectsByType<PrisonerCamp>(FindObjectsSortMode.None).Where(c => c.isActiveAndEnabled))
+            foreach (var camp in AntColony.Core.SceneObjects.All<PrisonerCamp>().Where(c => c.isActiveAndEnabled))
                 foreach (var pr in camp.Prisoners)
                 {
                     var h = pr.PersonalState.health; if (h == null) continue;
@@ -117,7 +117,7 @@ namespace AntColony.Units
         private IEnumerable<(Component target, Func<bool> start)> PrisonerFeedTasks()
         {
             if (!HasFood()) yield break;
-            foreach (var camp in FindObjectsByType<PrisonerCamp>(FindObjectsSortMode.None).Where(c => c.isActiveAndEnabled))
+            foreach (var camp in AntColony.Core.SceneObjects.All<PrisonerCamp>().Where(c => c.isActiveAndEnabled))
                 foreach (var pr in camp.Prisoners.Where(p => p.PersonalState.meal.satiety < GameBalance.EatBelowSatiety))
                 {
                     if (Active.OfType<CommanderAnt>().Any(c => c != this && c.medPrisoner == pr)) continue;
@@ -151,7 +151,7 @@ namespace AntColony.Units
             }
             EndMed(); return true;
         }
-        internal static Infirmary FreeBed(Vector3 near) => FindObjectsByType<Infirmary>(FindObjectsSortMode.None)
+        internal static Infirmary FreeBed(Vector3 near) => AntColony.Core.SceneObjects.All<Infirmary>()
             .Where(i => i.isActiveAndEnabled && !i.IsDead && i.HasFreeBed).OrderBy(i => (i.Position - near).sqrMagnitude).FirstOrDefault();
 
         private bool StartMed(MedJob job, CommanderAnt patient)

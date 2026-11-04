@@ -316,3 +316,5 @@
 - 남음: 동물 위생·배설물·퇴비·질병 발생 경로/진행 중 임신 상세·통합 의료 우선순위·실행 회귀, 장수 의료 전면 개편, 시체/묘비, 원정 장비 압수/실물 수송/철수, 포로 실물 관리. 전체 기획 구현 완료 아님.
 - 추가 담당: `Buildings/RanchFacility.cs` 먹이통 우선순위 기본5/상한9 기획 일치. 급식 실물 창고 인출과 운반 식품 신선도 보존 관련 `Units/WorkerAnt.cs`, `Save/SaveDtos.cs`, `Save/SaveSnapshot.cs`, `Save/SavePreflight.cs`, `AgentScripts/Spec1013ClinicChecks.cs`.
 - SAVE 미수행: log/changelog/개발 일지/캡처/커밋/push 하지 않음.
+
+- **IMPL-F1 / Codex / 구현·본체/검사 오프라인 컴파일 완료, UI·Unity 검증 대기(2026-10-25)** — D02/D03. 소유: 신규 Core/TalentAssessment.cs·TalentAssessmentValidation.cs, World/ExpeditionInvestigation.cs·InvestigationCaptivity.cs; 최소 연결 Units/CommanderTraits.cs·CommanderWork.cs, Core/StartingCandidate.cs, World/EnemyCommander.cs·ExpeditionTransport.cs·ExpeditionSite.cs, Save/SaveDtos.cs·SaveSnapshot.cs·SaveRuntime.cs·SaveValidator.cs·SavePreflight.cs; AgentScripts/ImplD02D03Checks.cs·ImplB7Checks.cs(삭제된 소화 기술 참조 4곳만 교체), docs/IMPL-F1-HANDOFF.md. UI/**·진형·철수 파일 수정 없음. Unity 실행·git add/commit 없음.

@@ -11,7 +11,7 @@ namespace AntColony.World
     public enum ConquestDisposition { Undecided, Annexed, Abandoned, Lost }
 
     // ponytail: 원정 전장은 서로 끊어진 70m NavMesh 섬이다. 아트가 준비되면 전용 씬으로 교체한다.
-    public class ExpeditionSite : MonoBehaviour
+    public partial class ExpeditionSite : MonoBehaviour
     {
         public string Title { get; private set; }
         public AntColony.Core.MapBiome Biome => AntColony.Core.BiomeRules.ForSite(Title);
@@ -29,11 +29,11 @@ namespace AntColony.World
         {
             get
             {
-                if (visitor != null && visitor.Site == this && visitor.State == ExpeditionState.Deployed) return visitor;
+                if (visitor != null && !visitor.IsDead && visitor.Site == this && visitor.State == ExpeditionState.Deployed) return visitor;
                 var world = WorldMapManager.Instance;
                 if (world != null) foreach (var ship in world.Transports)
-                    if (ship != null && ship.Site == this && ship.State == ExpeditionState.Deployed) return ship;
-                return visitor != null && visitor.Site == this && visitor.State == ExpeditionState.Outbound ? visitor : null;
+                    if (ship != null && !ship.IsDead && ship.Site == this && ship.State == ExpeditionState.Deployed) return ship;
+                return visitor != null && !visitor.IsDead && visitor.Site == this && visitor.State == ExpeditionState.Outbound ? visitor : null;
             }
             internal set => visitor = value;
         }

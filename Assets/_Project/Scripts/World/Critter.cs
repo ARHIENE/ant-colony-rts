@@ -221,7 +221,7 @@ namespace AntColony.World
             Handler?.CommandStop();
             Destroy(gameObject);
         }
-        internal static Action FocusAction(Vector3 at) => () => FindFirstObjectByType<AntColony.Camera.IsometricCameraController>()?.FocusOn(at);
+        internal static Action FocusAction(Vector3 at) => () => AntColony.Core.SceneObjects.Any<AntColony.Camera.IsometricCameraController>()?.FocusOn(at);
 
         // ---------- 결박·운반·치료 시설 ----------
         internal void Bind() { s.bind = GameBalance.CritterBindSeconds; s.designated = false; Halt(); }
@@ -279,7 +279,7 @@ namespace AntColony.World
         internal void RaiseEscape(string text)
         {
             AlertKey = "escape:" + GetHashCode();
-            ToastManager.SetCrisis(AlertKey, text, () => FindFirstObjectByType<AntColony.Camera.IsometricCameraController>()?.FocusOn(transform.position), "위치로 이동");
+            ToastManager.SetCrisis(AlertKey, text, () => AntColony.Core.SceneObjects.Any<AntColony.Camera.IsometricCameraController>()?.FocusOn(transform.position), "위치로 이동");
         }
 
         // ---------- 저장 ----------

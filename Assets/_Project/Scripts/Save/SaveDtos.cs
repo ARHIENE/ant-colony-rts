@@ -255,6 +255,10 @@ namespace AntColony.Save
     [Serializable]
     public class TransportDto
     {
+        public List<World.Corpse.State> bodyCargo;
+        public int[] cargoAmounts;
+        public World.TransportDamageState damage;
+        public World.WithdrawState withdrawal;
         public string bossCarrierId;
         public bool walking;
         public float foodDebt, dockingRemaining;
@@ -308,6 +312,7 @@ namespace AntColony.Save
     [Serializable]
     public class SaveFileV1
     {
+        public Core.TalentAssessmentState assessment;
         public Core.RocketCampaign.State rocket;
         public List<ResourceNodeDto> nodes = new List<ResourceNodeDto>();
         public List<MonsterDto> monsters = new List<MonsterDto>();
@@ -362,6 +367,7 @@ namespace AntColony.Save
     [Serializable]
     public class MonsterDto
     {
+        public string investigationId;
         public bool hasRuntime;
         public WildMonsterDto runtime; // v19
         public bool huntDesignated;

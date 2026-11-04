@@ -12,6 +12,7 @@ namespace AntColony.Save
     {
         private static void ValidateIntegration(SaveFileV1 f)
         {
+            SaveTransportValidation.Validate(f);
             Check(FarmSeeds.Valid(f.farmSeeds), "farm seeds");
             Check(f.nodes.All(n => n.seedCrop == -1 || Enum.IsDefined(typeof(FarmCrop), n.seedCrop)), "seed source");
             Check(f.buildings.All(b => b.objectName == null || b.objectName.Length <= 128), "building name");
@@ -79,7 +80,10 @@ namespace AntColony.Save
                 var id = string.IsNullOrWhiteSpace(s.bossCarrierId) ? "transport:" + i : s.bossCarrierId;
                 Check(id.Length <= 200 && carriers.Add(id), "boss carrier identity");
                 var parcels = f.campaign?.bosses?.cargo;
-                long load = (long)s.cargoFood + s.cargoSoil + s.cargoSpecial
+                long load = (s.cargoAmounts != null && s.cargoAmounts.Length > 0 ? s.cargoAmounts.Sum(n => (long)n) : (long)s.cargoFood + s.cargoSoil + s.cargoSpecial)
+                    + s.equipmentCargo.Count + (s.bodyCargo?.Sum(b => (long)AntColony.World.ExpeditionTransport.BodyWeight(b)) ?? 0)
+                    + (s.withdrawal?.loads?.Sum(l => (long)l.amount) ?? 0)
+                    + (s.withdrawal?.bodies?.Sum(j => { var b = f.corpses.FirstOrDefault(c => c.commanderId == j.bodyId); return b == null ? 0L : AntColony.World.ExpeditionTransport.BodyWeight(b); }) ?? 0)
                     + (parcels == null ? 0 : parcels.Where(p => p.carrier == id).Sum(p => (long)p.count));
                 var crew = f.commanders.Where(c => c.location == 1 && c.transportIndex == i && !c.personalState.dead);
                 // Same weight model as CommanderStartingSupplies / ExpeditionSupplies, evaluated on saved data.

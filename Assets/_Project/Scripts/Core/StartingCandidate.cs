@@ -40,7 +40,7 @@ namespace AntColony.Core
             CommanderActivity.Gathering => "채집", CommanderActivity.Building => "건설", CommanderActivity.Farming => "농사", CommanderActivity.Fishing => "낚시",
             CommanderActivity.Crafting => "제작", CommanderActivity.Research => "연구", CommanderActivity.Melee => "근접", CommanderActivity.Ranged => "원거리",
             CommanderActivity.Command => "지휘", CommanderActivity.Medicine => "의료", CommanderActivity.Cooking => "요리", CommanderActivity.Strength => "근력",
-            CommanderActivity.Art => "예술", CommanderActivity.Politics => "정치", CommanderActivity.Husbandry => "사육", _ => "소화"
+            CommanderActivity.Art => "예술", CommanderActivity.Politics => "정치", CommanderActivity.Husbandry => "사육", _ => "조사"
         };
         public string Blocked => string.Join(" · ", Required.Select((job, i) => traits.Blocks(job) ? RequiredNames[i] : null).Where(n => n != null));
         public static string Clothes(MapBiome biome) => Clothes(biome, GameSession.Exists ? GameSession.Instance.Options.climate : MapClimate.Temperate);

@@ -13,6 +13,8 @@ namespace AntColony.Units
     {
         public int level = WorkPriorities.Default;
         public bool yellow;
+        private void OnEnable() => AntColony.Core.SceneObjects.Register(this);
+        private void OnDisable() => AntColony.Core.SceneObjects.Unregister(this);
     }
 
     // 장수 작업 선택 순서: 노란 경보 대상 → 장수별 작업 종류 우선순위 → 대상 우선순위 → 실제 이동 거리 → 오래 기다린 요청.
@@ -54,8 +56,8 @@ namespace AntColony.Units
         // 우선순위를 지정할 수 있는 대상: 자원 노드·건물(건설 예정지 포함)·시체·야생 개체.
         public static IEnumerable<Component> Candidates()
             => ResourceNode.Available.Cast<Component>()
-                .Concat(UnityEngine.Object.FindObjectsByType<BuildingBase>(FindObjectsSortMode.None))
-                .Concat(UnityEngine.Object.FindObjectsByType<BuildingConstructionSite>(FindObjectsSortMode.None))
+                .Concat(AntColony.Core.SceneObjects.All<BuildingBase>())
+                .Concat(AntColony.Core.SceneObjects.All<BuildingConstructionSite>())
                 .Concat(Corpse.All).Concat(WildMonster.All.Where(m => m.Huntable)).Where(c => c != null);
 
         [Serializable] public sealed class Entry { public Vector3 position; public int level; public bool yellow; }
@@ -64,7 +66,7 @@ namespace AntColony.Units
         public static State Capture() => new State
         {
             red = Red,
-            targets = UnityEngine.Object.FindObjectsByType<TargetPriority>(FindObjectsSortMode.None)
+            targets = AntColony.Core.SceneObjects.All<TargetPriority>()
                 .Where(p => p.GetComponent<BuildingConstructionSite>() == null)
                 .Select(p => new Entry { position = p.transform.position, level = p.level, yellow = p.yellow }).ToList()
         };
