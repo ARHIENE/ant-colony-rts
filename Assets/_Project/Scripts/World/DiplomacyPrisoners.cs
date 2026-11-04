@@ -207,7 +207,7 @@ namespace AntColony.World
         }
         private static Vector3 StoragePosition(Vector3? fallback = null)
         {
-            var storage = FindObjectsByType<Storage>(FindObjectsSortMode.None).FirstOrDefault(s => s.isActiveAndEnabled && !s.IsDead);
+            var storage = AntColony.Core.SceneObjects.All<Storage>().FirstOrDefault(s => s.isActiveAndEnabled && !s.IsDead);
             if (storage != null) return storage.Position + Vector3.right * 3;
             var deposit = BuildingBase.FindNearestDepositPoint(fallback ?? WorldMapManager.Instance?.HomePosition ?? Vector3.zero);
             return (deposit != null ? deposit.Position : fallback ?? Vector3.zero) + Vector3.right * 3;

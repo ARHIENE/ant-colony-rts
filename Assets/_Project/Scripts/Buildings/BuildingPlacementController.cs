@@ -46,7 +46,7 @@ namespace AntColony.Buildings
         private void Awake()
         {
             cam = UnityEngine.Camera.main;
-            selectionManager = FindFirstObjectByType<SelectionManager>();
+            selectionManager = AntColony.Core.SceneObjects.Any<SelectionManager>();
         }
 
         private void Update()
@@ -175,7 +175,7 @@ namespace AntColony.Buildings
         // 연구·수량 조건으로 지금 지을 수 없으면 이유를, 가능하면 null을 돌려준다.
         public static string LockReason(BuildingKind kind)
         {
-            if (kind == BuildingKind.ConscriptionPost && (FindFirstObjectByType<ConscriptionPost>() != null || System.Array.Exists(FindObjectsByType<BuildingConstructionSite>(FindObjectsSortMode.None), s => s.BuildingKind == kind))) return "본거지 징집소는 한 곳만 건설할 수 있습니다.";
+            if (kind == BuildingKind.ConscriptionPost && (AntColony.Core.SceneObjects.Any<ConscriptionPost>() != null || System.Array.Exists(AntColony.Core.SceneObjects.All<BuildingConstructionSite>(), s => s.BuildingKind == kind))) return "본거지 징집소는 한 곳만 건설할 수 있습니다.";
             if (kind == BuildingKind.WaterSource || kind == BuildingKind.OilDeposit) return "자연 지점은 건설할 수 없습니다.";
             if (kind == BuildingKind.AphidPen && !ScienceEffects.CropUnlocked(FarmCrop.Honeydew)) return "감로 목장 연구가 필요합니다.";
             if (!ScienceEffects.BuildingUnlocked(kind)) return "관련 과학 기술을 먼저 연구하세요.";

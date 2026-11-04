@@ -32,9 +32,9 @@ namespace AntColony.UI
 
         private void Start()
         {
-            if (barracks == null) barracks = FindFirstObjectByType<Barracks>();
-            if (digSite == null) digSite = FindFirstObjectByType<DigSite>();
-            if (boss == null) boss = FindFirstObjectByType<BossHealth>();
+            if (barracks == null) barracks = AntColony.Core.SceneObjects.Any<Barracks>();
+            if (digSite == null) digSite = AntColony.Core.SceneObjects.Any<DigSite>();
+            if (boss == null) boss = AntColony.Core.SceneObjects.Any<BossHealth>();
 
             BuildCanvas();
             gameObject.AddComponent<AntColony.Map.DayNightLighting>();
@@ -99,7 +99,7 @@ namespace AntColony.UI
             canvasGO.AddComponent<WorldMapPanel>();
             canvasGO.AddComponent<MigrationOfferPanel>();
 
-            if (FindFirstObjectByType<EventSystem>() == null)
+            if (AntColony.Core.SceneObjects.Any<EventSystem>() == null)
             {
                 var eventSystemGO = new GameObject("EventSystem");
                 eventSystemGO.AddComponent<EventSystem>();
@@ -148,7 +148,7 @@ namespace AntColony.UI
         {
             get
             {
-                if (selectionManager == null) selectionManager = FindFirstObjectByType<SelectionManager>();
+                if (selectionManager == null) selectionManager = AntColony.Core.SceneObjects.Any<SelectionManager>();
                 return SelectedUnitPanel.FindSingleSelectedCommander(selectionManager);
             }
         }
@@ -176,7 +176,7 @@ namespace AntColony.UI
 
         private static Barracks FindBarracks(UnitRole role)
         {
-            foreach (var candidate in FindObjectsByType<Barracks>(FindObjectsSortMode.None))
+            foreach (var candidate in AntColony.Core.SceneObjects.All<Barracks>())
                 if (candidate.isActiveAndEnabled && candidate.Role == role) return candidate;
             return null;
         }
@@ -185,7 +185,7 @@ namespace AntColony.UI
         private static ResearchLab FindResearchLab(UnitRole role)
         {
             ResearchLab busy = null;
-            foreach (var candidate in FindObjectsByType<ResearchLab>(FindObjectsSortMode.None))
+            foreach (var candidate in AntColony.Core.SceneObjects.All<ResearchLab>())
             {
                 if (!candidate.isActiveAndEnabled || candidate.Role != role) continue;
                 if (!candidate.IsResearching) return candidate;

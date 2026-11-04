@@ -38,8 +38,8 @@ namespace AntColony.Units
         {
             if (cam == null) cam = UnityEngine.Camera.main;
             if (selectionBoxImage == null) selectionBoxImage = CreateSelectionBoxImage();
-            if (attackMoveController == null) attackMoveController = FindFirstObjectByType<AttackMoveController>();
-            if (buildingPlacementController == null) buildingPlacementController = FindFirstObjectByType<BuildingPlacementController>();
+            if (attackMoveController == null) attackMoveController = AntColony.Core.SceneObjects.Any<AttackMoveController>();
+            if (buildingPlacementController == null) buildingPlacementController = AntColony.Core.SceneObjects.Any<BuildingPlacementController>();
 
             selectionBoxImage.gameObject.SetActive(false);
         }
@@ -175,7 +175,7 @@ namespace AntColony.Units
             if (cam == null) return;
             if (!additive) ClearSelection();
 
-            var allSelectables = FindObjectsByType<SelectableObject>(FindObjectsSortMode.None);
+            var allSelectables = AntColony.Core.SceneObjects.All<SelectableObject>();
 
             foreach (var selectable in allSelectables)
             {

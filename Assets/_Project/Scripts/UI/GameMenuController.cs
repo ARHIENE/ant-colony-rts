@@ -50,7 +50,7 @@ namespace AntColony.UI
             ToolbarButton(bar, "Menu [Esc]", "≡", Pause, "메뉴: 설정 · 저장 · 불러오기");
             ToolbarButton(bar, "Work Schedule [T]", "작업표", WorkSchedule, "장수 × 작업 체크박스");
             ToolbarButton(bar, "Science [K]", "과학", Science, "과학 연구");
-            ToolbarButton(bar, "WorldMapToggle", "월드맵", () => FindFirstObjectByType<WorldMapPanel>()?.Toggle(), "월드맵 · 원정 · 외교");
+            ToolbarButton(bar, "WorldMapToggle", "월드맵", () => AntColony.Core.SceneObjects.Any<WorldMapPanel>()?.Toggle(), "월드맵 · 원정 · 외교");
             ToolbarButton(bar, "V6 Logistics", "물류·식품", () => Management("물류·식품"), "창고 · 식단 · 건설·작업 · 퇴비·비료");
             ToolbarButton(bar, "V6 Colony", "의료·관리", () => Management("의료·관리"), "의료 · 동물 위생 · 묘비·추모 · 포로 · 기록");
             ToolbarButton(bar, "V6 Production", "생산·자원", () => Management("생산·자원"), "자원 · 생산 · 장비·도구 · 수리 · 매장지·배관 · 음주");
@@ -84,8 +84,8 @@ namespace AntColony.UI
             if (Keyboard.current.escapeKey.wasPressedThisFrame)
             {
                 if (SkillTargeting.ConsumesPointerInput || GatherDesignation.ConsumesPointerInput) return;
-                if (!open && (FindFirstObjectByType<AntColony.Buildings.BuildingPlacementController>()?.IsPlacing == true
-                    || FindFirstObjectByType<AttackMoveController>()?.IsAttackMode == true)) return;
+                if (!open && (AntColony.Core.SceneObjects.Any<AntColony.Buildings.BuildingPlacementController>()?.IsPlacing == true
+                    || AntColony.Core.SceneObjects.Any<AttackMoveController>()?.IsAttackMode == true)) return;
                 if (!open && BuildScreen.Back()) return;
                 if (!open) Pause(); else if (GameSession.Instance.GameStarted) Resume(); else Main();
             }
@@ -125,7 +125,7 @@ namespace AntColony.UI
             scrollArea.gameObject.SetActive(false);
             frame = MenuTheme.Rect("ScreenFrame", panel); MenuTheme.Stretch(frame);
             frame.gameObject.AddComponent<MenuViewport>();
-            FindFirstObjectByType<AntColony.Buildings.BuildingPlacementController>()?.CancelPlacement();
+            AntColony.Core.SceneObjects.Any<AntColony.Buildings.BuildingPlacementController>()?.CancelPlacement();
             return frame;
         }
         private void Screen(string title, string displayTitle = null)
@@ -134,7 +134,7 @@ namespace AntColony.UI
             scrollArea.gameObject.SetActive(true);
             var heading = MenuTheme.Text(content, displayTitle ?? title, 32, 70);
             heading.color = MenuTheme.Accent; heading.fontStyle = FontStyle.Bold;
-            FindFirstObjectByType<AntColony.Buildings.BuildingPlacementController>()?.CancelPlacement();
+            AntColony.Core.SceneObjects.Any<AntColony.Buildings.BuildingPlacementController>()?.CancelPlacement();
         }
         private void Back() { if (GameSession.Instance.GameStarted) Pause(); else Main(); }
         public void Tooltip(string value)
@@ -195,7 +195,7 @@ namespace AntColony.UI
             Screen("Settings", "설정");
             var s = UserSettings.Current;
             void Apply(Action<UserSettingsData> change) { var value = s.Clone(); change(value); UserSettings.Apply(value);
-                FindFirstObjectByType<AntColony.Camera.IsometricCameraController>()?.ApplySettings(value.cameraPanSpeed, value.edgeScrollThickness); Settings(); }
+                AntColony.Core.SceneObjects.Any<AntColony.Camera.IsometricCameraController>()?.ApplySettings(value.cameraPanSpeed, value.edgeScrollThickness); Settings(); }
             MenuTheme.Button(content, "Camera speed: " + s.cameraPanSpeed + " (cycle)", () => Apply(v => v.cameraPanSpeed = v.cameraPanSpeed >= 60 ? 10 : v.cameraPanSpeed + 10));
             MenuTheme.Button(content, "Edge scrolling: " + (s.edgeScrollThickness > 0 ? "On" : "Off"), () => Apply(v => v.edgeScrollThickness = v.edgeScrollThickness > 0 ? 0 : 18));
             MenuTheme.Button(content, "Autosave: " + (s.autoSaveEnabled ? "On" : "Off"), () => Apply(v => v.autoSaveEnabled = !v.autoSaveEnabled));

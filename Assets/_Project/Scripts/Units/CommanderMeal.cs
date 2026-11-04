@@ -65,7 +65,7 @@ namespace AntColony.Units
             if (!m.served && !FetchMeal()) return true;
             if (!m.served) return true;
             // 음식을 집은 뒤 접근 가능한 식탁으로 이동한다. 식탁이 없으면 그 자리에서 먹는다.
-            var table = FindObjectsByType<Kitchen>(FindObjectsSortMode.None)
+            var table = AntColony.Core.SceneObjects.All<Kitchen>()
                 .Where(k => !k.IsDead && k.isActiveAndEnabled && (k.IsTable || k.Data != null && k.Data.kind == AntColony.Data.BuildingKind.Kitchen)
                     && TryWorkApproach(k.Position, out _)).OrderBy(k => (k.Position - Position).sqrMagnitude).FirstOrDefault();
             if (table != null && MoveForMeal(table.Position)) return true;
@@ -85,7 +85,7 @@ namespace AntColony.Units
             if (mood != 0) personalState.AddMood("식사: " + MealNames[felt], mood, GameCalendar.SecondsPerDay / 2f);
             personalState.AddMood("배부름", traits.Has(CommanderTrait.Glutton) ? 10 : 5, GameCalendar.SecondsPerDay / 2f);
             // 식탁 없이 먹으면 기분 불이익(2026-10-12). ponytail: 식탁·식당 4m 안이면 식탁에서 먹은 것으로 본다.
-            if (!FindObjectsByType<Kitchen>(FindObjectsSortMode.None).Any(k => !k.IsDead && k.isActiveAndEnabled && (k.IsTable || k.Data != null && k.Data.kind == AntColony.Data.BuildingKind.Kitchen) && (k.Position - Position).sqrMagnitude < 16))
+            if (!AntColony.Core.SceneObjects.All<Kitchen>().Any(k => !k.IsDead && k.isActiveAndEnabled && (k.IsTable || k.Data != null && k.Data.kind == AntColony.Data.BuildingKind.Kitchen) && (k.Position - Position).sqrMagnitude < 16))
                 personalState.AddMood("식탁 없이 식사", GameBalance.NoTableMood, GameCalendar.SecondsPerDay / 2f);
             // Phase 5: 식당 방에서 먹으면 등급만큼 기분 +(식당·부엌 겸용은 절반).
             // 가구 6차: 연회장은 ×1.5.

@@ -28,7 +28,7 @@ namespace AntColony.Buildings
                 .FirstOrDefault(h => h != null && !h.IsDead && h.Capacity < Housing.CapacityOf(kind) && !UnderConstruction(h));
         }
 
-        public static bool UnderConstruction(Housing h) => Object.FindObjectsByType<RedevelopmentSite>(FindObjectsSortMode.None).Any(s => s.Target == h);
+        public static bool UnderConstruction(Housing h) => AntColony.Core.SceneObjects.All<RedevelopmentSite>().Any(s => s.Target == h);
 
         public static int Residents(Housing h)
         {
@@ -65,7 +65,7 @@ namespace AntColony.Buildings
         // 공사 지연: 기준 시간을 넘긴 재개발 현장마다 민심이 서서히 내려간다(행정이 완화). 취소하면 즉시 멈춘다.
         internal static void TickDelays(ColonyPopulation pop, float seconds)
         {
-            foreach (var site in Object.FindObjectsByType<RedevelopmentSite>(FindObjectsSortMode.None))
+            foreach (var site in AntColony.Core.SceneObjects.All<RedevelopmentSite>())
             {
                 site.Age += seconds;
                 if (site.Age <= GameBalance.RedevelopDelaySeconds) continue;
@@ -78,6 +78,8 @@ namespace AntColony.Buildings
     // 재개발 건설 예정지 표식. 완공 시 기존 집을 허문다(건설 현장은 저장 전에 끝내야 하므로 저장하지 않는다).
     public sealed class RedevelopmentSite : MonoBehaviour
     {
+        private void OnEnable() => AntColony.Core.SceneObjects.Register(this);
+        private void OnDisable() => AntColony.Core.SceneObjects.Unregister(this);
         public Housing Target { get; internal set; }
         public float Age { get; internal set; }
         internal void Finish() { if (Target != null) Destroy(Target.gameObject); Target = null; }

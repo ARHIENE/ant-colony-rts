@@ -314,7 +314,7 @@ namespace AntColony.Units
         }
         private static Vector3 StorageNear(Vector3 from)
         {
-            var best = FindObjectsByType<BuildingBase>(FindObjectsSortMode.None).Where(b => (b is Storage || b is Stockpile) && b.isActiveAndEnabled && !b.IsDead)
+            var best = AntColony.Core.SceneObjects.All<BuildingBase>().Where(b => (b is Storage || b is Stockpile) && b.isActiveAndEnabled && !b.IsDead)
                 .OrderBy(b => (b.Position - from).sqrMagnitude).FirstOrDefault();
             return best != null ? best.Position : from;
         }
@@ -359,7 +359,7 @@ namespace AntColony.Units
             foreach (var a in Critter.All.Where(x => x != null && x.SlaughterOrdered && !x.SlaughterStarted && x.Handler == null && x.Carrier == null && x.Clinic == null && !x.Agitated
                 && Ranch.MayHandle(x, this)).ToList())
                 yield return (a, () => StartAnimalTask(AnimalTask.Slaughter, a));
-            foreach (var pen in FindObjectsByType<Ranch>(FindObjectsSortMode.None))
+            foreach (var pen in AntColony.Core.SceneObjects.All<Ranch>())
                 foreach (var t in pen.HusbandryTasks(this)) yield return t;
         }
         private System.Collections.Generic.IEnumerable<(Component target, System.Func<bool> start)> AnimalNursingTasks()
@@ -377,7 +377,7 @@ namespace AntColony.Units
             // 회복 중 시설이 부서져 밖에 있는 개체: 빈 치료대에 재입원(키트 불필요).
             foreach (var a in Critter.All.Where(x => x != null && x.Recovering && !x.HeavyInjury && x.Clinic == null && x.Handler == null && x.Carrier == null && Ranch.MayHandle(x, this, CommanderActivity.Medicine)).ToList())
                 if (RanchFacility.FreeClinic() is RanchFacility free) yield return (a, () => StartAnimalTask(AnimalTask.Surgery, a, free));
-            foreach (var pen in FindObjectsByType<Ranch>(FindObjectsSortMode.None))
+            foreach (var pen in AntColony.Core.SceneObjects.All<Ranch>())
                 foreach (var t in pen.NursingTasks(this)) yield return t;
         }
         private System.Collections.Generic.IEnumerable<(Component target, System.Func<bool> start)> ButcherTasks()

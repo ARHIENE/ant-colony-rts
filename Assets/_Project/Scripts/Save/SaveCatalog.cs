@@ -20,7 +20,7 @@ namespace AntColony.Save
         internal static BossHealth[] Bosses;
         internal static int[] ColonySizes;
         public static bool Ready => Buildings != null;
-        internal static T[] Ordered<T>() where T : Component => Object.FindObjectsByType<T>(FindObjectsSortMode.None)
+        internal static T[] Ordered<T>() where T : Component => AntColony.Core.SceneObjects.All<T>()
             .OrderBy(x => Path(x.transform), StringComparer.Ordinal).ToArray();
         private static string Path(Transform t) => t.parent == null ? t.name : Path(t.parent) + "/" + t.name + ":" + t.GetSiblingIndex();
         public static void Initialize()

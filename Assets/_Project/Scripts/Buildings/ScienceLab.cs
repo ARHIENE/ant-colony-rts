@@ -91,7 +91,7 @@ namespace AntColony.Buildings
             var world = WorldMapManager.Instance;
             if (!isActiveAndEnabled || Busy || world == null || !(air ? world.AircraftResearched : world.VehicleResearched)
                 || !world.CanCreateTransport(Position, out spawnPosition)) return false;
-            if (ResourceManager.Instance == null || !ResourceManager.Instance.TrySpend(air ? 80 : 50, air ? 100 : 60, reason: ResourceReason.Expedition)) return false;
+            if (ResourceManager.Instance == null || !ResourceManager.Instance.TrySpend(TransportDamage.FoodCost(air), TransportDamage.MaterialCost(air), reason: ResourceReason.Expedition)) return false;
             aircraft = air;
             constructing = true;
             remaining = ConstructionSeconds;

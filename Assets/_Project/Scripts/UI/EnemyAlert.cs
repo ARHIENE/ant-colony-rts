@@ -63,7 +63,7 @@ namespace AntColony.UI
         {
             var threat = instance != null ? instance.alerted.FirstOrDefault(t => t != null) : null;
             if (threat == null) return;
-            FindFirstObjectByType<AntColony.Camera.IsometricCameraController>()?.FocusOn(threat.transform.position);
+            AntColony.Core.SceneObjects.Any<AntColony.Camera.IsometricCameraController>()?.FocusOn(threat.transform.position);
         }
 
         private static IEnumerable<Component> Threats()

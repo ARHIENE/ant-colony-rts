@@ -10,12 +10,14 @@ namespace AntColony.World
         public bool Walking { get; private set; }
         public float FoodDebt { get; internal set; }
         public float DockingRemaining { get; internal set; }
-        public int ReturnCargoSpace => Mathf.Max(0, CargoCapacity - CargoLoad);
+        public int ReturnCargoSpace => Mathf.Max(0, CargoCapacity - CargoLoad - ReservedCargo);
         private int WalkingCargoCapacity => Mathf.FloorToInt(crew.Where(c => c != null && !c.IsDead)
             .Sum(c => Mathf.Max(0, c.TotalLoadCapacity - c.StartingLoadWeight)) / .05f);
-        public float DailyFood => crew.Where(c => c != null && !c.IsDead).Sum(ExpeditionRules.FoodPerDay);
+        public float FormationWalkMultiplier => crew.Where(c => c != null && !c.IsDead)
+            .Select(c => c.FormationWorldMoveMultiplier).DefaultIfEmpty(1).Min();
+        public float DailyFood => crew.Where(c => c != null && !c.IsDead).Sum(ExpeditionRules.FoodPerDay) + withdraw.troops * 2 * GameBalance.MealFood;
         public int RecommendedFood(ExpeditionSite destination) => ExpeditionRules.RecommendedFood(
-            Walking ? ExpeditionRules.WalkSeconds(destination) : TravelSeconds, DailyFood);
+            Walking ? ExpeditionRules.WalkSeconds(destination) / FormationWalkMultiplier : TravelSeconds, DailyFood);
         public int AvailableFood => GetCargo(AntColony.Data.ResourceType.Food) + crew.Where(c => c != null && !c.IsDead)
             .Sum(c => c.PersonalState.carriedRations?.Total ?? 0);
         public bool LeavesHomeUnattended => State == ExpeditionState.Home && CommanderLoad > 0 && ExpeditionRules.HomeCommanders == 0;

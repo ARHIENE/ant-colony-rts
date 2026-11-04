@@ -41,14 +41,14 @@ namespace AntColony.Core
             if (ResourceManager.Instance != null)
                 foreach (var bin in ResourceManager.Instance.Bins.Where(b => b.Usable))
                     foreach (var t in bin.Stocked) wealth += ResourceValue(t, bin.Amount(t));
-            foreach (var node in UnityEngine.Object.FindObjectsByType<ResourceNode>(FindObjectsSortMode.None))
+            foreach (var node in AntColony.Core.SceneObjects.All<ResourceNode>())
             {
                 var site = node.GetComponentInParent<ExpeditionSite>();
                 // 자연 매장량은 소유 재산이 아니다. 편입 거점 재고와 바닥 실물만 센다.
                 if (!node.IsRaidLocked && (node.IsLooseCargo || node.IsRaidLoot && site != null && site.Disposition == ConquestDisposition.Annexed))
                     wealth += ResourceValue(node.ResourceType, node.AmountRemaining);
             }
-            foreach (var worker in UnityEngine.Object.FindObjectsByType<WorkerAnt>(FindObjectsSortMode.None))
+            foreach (var worker in AntColony.Core.SceneObjects.All<WorkerAnt>())
                 if (!worker.IsDead && (!(worker is CommanderAnt c) || c.IsColonyMember && !c.IsCaptive && !c.IsDeparting && !c.IsHostile))
                     wealth += ResourceValue(worker.CarriedType, worker.CarriedAmount);
             var commanders = CommanderRoster.Instance?.Commanders;
@@ -64,15 +64,15 @@ namespace AntColony.Core
                     wealth += h.commander.PersonalState.carriedRations?.Total ?? 0;
                 }
             Gear(EquipmentInventory.Instance?.Items);
-            foreach (var loot in UnityEngine.Object.FindObjectsByType<EquipmentLoot>(FindObjectsSortMode.None)) Gear(loot.Items);
-            foreach (var ship in UnityEngine.Object.FindObjectsByType<ExpeditionTransport>(FindObjectsSortMode.None).Where(s => !s.IsDead))
+            foreach (var loot in AntColony.Core.SceneObjects.All<EquipmentLoot>()) Gear(loot.Items);
+            foreach (var ship in AntColony.Core.SceneObjects.All<ExpeditionTransport>().Where(s => !s.IsDead))
             {
                 foreach (var t in types) wealth += ResourceValue(t, ship.GetCargo(t));
                 Gear(ship.EquipmentCargo);
                 if (ship.BlueprintCargo) wealth += DiplomacyRules.BlueprintPrice * 10;
             }
             if (CampaignResearch.Instance?.HasBlueprint == true) wealth += DiplomacyRules.BlueprintPrice * 10;
-            foreach (var b in UnityEngine.Object.FindObjectsByType<BuildingBase>(FindObjectsSortMode.None))
+            foreach (var b in AntColony.Core.SceneObjects.All<BuildingBase>())
             {
                 var site = b.GetComponentInParent<ExpeditionSite>();
                 if (b.IsDead || b.Data == null || !(site != null ? site.Disposition == ConquestDisposition.Annexed : b.CountsTowardPlayerDefeat)) continue;
@@ -102,11 +102,11 @@ namespace AntColony.Core
                         ? GameBalance.CocoonFood + GameBalance.CocoonSoil + GameBalance.CocoonSpecial * 10 : coreCost;
                 }
             }
-            foreach (var site in UnityEngine.Object.FindObjectsByType<BuildingConstructionSite>(FindObjectsSortMode.None))
+            foreach (var site in AntColony.Core.SceneObjects.All<BuildingConstructionSite>())
                 foreach (var need in site.Needs) wealth += ResourceValue(need.type, need.delivered);
             // 수송/배속/건설 예약 병력은 이미 전역 풀에 있다. 일반 시민 로켓 승객만 풀 밖이다.
             int population = ColonyPopulation.Instance?.Total ?? AntPool.Instance?.Total ?? 0;
-            population += UnityEngine.Object.FindObjectsByType<AirshipYard>(FindObjectsSortMode.None)
+            population += AntColony.Core.SceneObjects.All<AirshipYard>()
                 .Where(y => !y.IsDead && y.Phase != RocketPhase.Launched).Sum(y => y.CivilianPassengers);
             population += commanders?.Count(CampaignOutcome.Survivor) ?? 0;
             if (DiplomacyManager.Instance != null)

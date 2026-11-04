@@ -9,12 +9,13 @@ namespace AntColony.Buildings
     {
         public float Credit { get; internal set; }
         public static BuildingRepair For(BuildingBase b) => b.GetComponent<BuildingRepair>() ?? b.gameObject.AddComponent<BuildingRepair>();
-        public static bool Needed(BuildingBase b) => b != null && b.isActiveAndEnabled && !b.IsDead && b.CountsTowardPlayerDefeat
-            && b.Data != null && (b.CurrentHealth < b.MaxHealth || b is TrapPit trap && !trap.Armed);
+        public static bool Needed(BuildingBase b) => b != null && b.isActiveAndEnabled && !b.IsDead && (b.CountsTowardPlayerDefeat || b is AntColony.World.ExpeditionTransport)
+            && (b.Data != null || b is AntColony.World.ExpeditionTransport) && (b.CurrentHealth < b.MaxHealth || b is TrapPit trap && !trap.Armed);
         public bool Work(CommanderAnt c, float seconds)
         {
             var b = GetComponent<BuildingBase>();
             if (!Needed(b) || !(seconds > 0) || float.IsInfinity(seconds)) return false;
+            if (b is AntColony.World.ExpeditionTransport transport) return transport.WorkRepair(c, seconds);
             if (b is TrapPit trap && !trap.Armed) return trap.Repairer == c || trap.TryRepair(c);
             if (Credit <= 0)
             {
