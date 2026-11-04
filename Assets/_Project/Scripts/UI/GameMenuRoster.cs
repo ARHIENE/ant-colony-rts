@@ -112,7 +112,7 @@ namespace AntColony.UI
             L.Meter(mood, 0, 30, 496, 8, c.Mood / 100f, MoodColor(c.Mood));
             L.Label(mood, $"기본 60 · 기대 수준 +{AntColony.Core.GameBalanceNeeds.ExpectationMood(c.PersonalState.expectationTier)}", 12, 0, 46, 496, 18, MenuTheme.Muted);
             for (var i = 0; i < factors.Count; i++)
-                L.Label(mood, $"{factors[i].reason}  <b>{factors[i].value:+0;-0;0}</b>  <color=#b1b3a7>{factors[i].remaining:0}초</color>", 12, 0, 64 + i * 18, 496, 18, MenuTheme.Muted);
+                L.Label(mood, $"{PersonalDisplayNames.Mood(factors[i].reason)}  <b>{factors[i].value:+0;-0;0}</b>  <color=#b1b3a7>{factors[i].remaining:0}초</color>", 12, 0, 64 + i * 18, 496, 18, MenuTheme.Muted);
 
             // Phase 3: 충성심 대신 탈주 위험 — 기분이 기준 이하로 한 달 이어지면 떠난다.
             var leave = L.Cell(content, "Departure", 48);

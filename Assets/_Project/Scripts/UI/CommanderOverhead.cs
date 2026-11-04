@@ -54,7 +54,11 @@ namespace AntColony.UI
                 var p = camera.WorldToScreenPoint(c.Position + Vector3.up * 2.2f);
                 if (p.z <= 0 || p.x < 0 || p.x > Screen.width || p.y < 0 || p.y > Screen.height) continue;
                 float x = p.x - 40, y = Screen.height - p.y - 34;
-                if (!HudResponsiveLayout.ReserveWorldLabel(new Rect(x - 20, y, 124, 36))) continue;
+                // 겹치면 건너뛰지 않고 위로 쌓는다(2026-11-01: 붙어 있는 장수 이름표 누락).
+                int stack = 0;
+                while (stack < 4 && !HudResponsiveLayout.ReserveWorldLabel(new Rect(x - 20, y - stack * 38, 124, 36))) stack++;
+                if (stack == 4) continue;
+                y -= stack * 38;
                 nameStyle.normal.textColor = Color.white;
                 GUI.Label(new Rect(x - 20, y, 120, 16), c.CommanderName, nameStyle);
                 Bar(new Rect(x, y + 16, 80, 5), c.PersonalHealth / GameBalance.CommanderHealth, new Color(.35f, .85f, .4f));

@@ -1,0 +1,140 @@
+diff --git a/Assets/_Project/Scripts/Boss/BossProgress.cs b/Assets/_Project/Scripts/Boss/BossProgress.cs
+index e88ff73..e98b73f 100644
+--- a/Assets/_Project/Scripts/Boss/BossProgress.cs
++++ b/Assets/_Project/Scripts/Boss/BossProgress.cs
+@@ -62,7 +62,7 @@ namespace AntColony.Boss
+             BossId.A => "핵심물 2개 · 내구도 높은 고유 장비", BossId.B => "B 핵심물 · 방열 장비",
+             BossId.C => "C 핵심물 · 범위 공격 장비", _ => "로켓 핵심물" };
+         public static string Hazard(BossId id) => id switch {
+-            BossId.A => "강한 직접 공격 / 내구도 높은 장비 권장", BossId.B => "호위 최대2 / 범위 공격 장비 권장",
++            BossId.A => "강한 직접 공격 / 내구도 높은 장비 권장", BossId.B => $"열 피해{BossEncounterRules.Heat(id):0}·호위 최대2 / 방열·범위 공격 장비 권장",
+             BossId.C => "열 피해6·호위 최대4 / 방열 장비 권장", _ => "열 피해12·호위 최대4 / 방열·범위 공격 장비 권장" };
+         public bool Recipe(BossId id) => id switch {
+             BossId.A => false, BossId.B or BossId.C => Delivered(BossId.A),
+diff --git a/Assets/_Project/Scripts/Units/CommanderSleep.cs b/Assets/_Project/Scripts/Units/CommanderSleep.cs
+index 73b008b..a9871ca 100644
+--- a/Assets/_Project/Scripts/Units/CommanderSleep.cs
++++ b/Assets/_Project/Scripts/Units/CommanderSleep.cs
+@@ -58,7 +58,8 @@ namespace AntColony.Units
+             if (!s.asleep)
+             {
+                 // 이동 지시로 깨운 장수는 도착한 뒤에 눕는다(RimWorld: 지시받은 개척민은 이동을 마치고 잠자리로). 걷다가 픽 쓰러지지 않게.
+-                if (s.interrupted && !IsFlying && Agent != null && (Agent.pathPending || Agent.hasPath)) return true;
++                if (s.interrupted && (IsFlying ? !HasReachedDestination()
++                    : Agent != null && (Agent.pathPending || Agent.hasPath) && !HasReachedDestination())) return true;
+                 s.asleep = true;
+                 SuspendForNeeds("sleep"); DropCargo(); CraftingWorkshop?.Release();
+                 automaticFacility = null; WorkState.resting = false;
+diff --git a/Assets/_Project/Scripts/Units/CommanderHealthCare.cs b/Assets/_Project/Scripts/Units/CommanderHealthCare.cs
+index 8a4ec9d..da97b83 100644
+--- a/Assets/_Project/Scripts/Units/CommanderHealthCare.cs
++++ b/Assets/_Project/Scripts/Units/CommanderHealthCare.cs
+@@ -358,7 +358,7 @@ namespace AntColony.Units
+         {
+             var h = p.Health; var s = h.surgeries.FirstOrDefault(x => x.Active);
+             if (s == null) { EndMed(); return false; }
+-            if (SurgeryBlock(p, s, this) != "" && s.stage == SurgeryStage.Waiting) { EndMed(); return false; }
++            if (s.stage == SurgeryStage.Waiting && SurgeryBlock(p, s, this) != "") { EndMed(); return false; }
+             if (s.stage == SurgeryStage.Waiting)
+             {
+                 // 시작 순간 물자 소비(그 전에는 예약만). 시작 후에는 취소 불가.
+diff --git a/Assets/_Project/Scripts/UI/ControlGroups.cs b/Assets/_Project/Scripts/UI/ControlGroups.cs
+index 480f1b5..3724b50 100644
+--- a/Assets/_Project/Scripts/UI/ControlGroups.cs
++++ b/Assets/_Project/Scripts/UI/ControlGroups.cs
+@@ -13,11 +13,17 @@ namespace AntColony.UI
+         private static readonly Dictionary<int, List<SelectableObject>> groups = new Dictionary<int, List<SelectableObject>>();
+         private static int lastGroup = -1, idleIndex;
+         private static float lastTime;
++        private static SelectionManager owner;
+ 
+         public static void Handle(SelectionManager selection)
+         {
+             var keyboard = Keyboard.current;
+             if (keyboard == null || selection == null) return;
++            if (!ReferenceEquals(owner, selection))
++            {
++                groups.Clear(); owner = selection;
++                lastGroup = -1; idleIndex = 0; lastTime = 0;
++            }
+             var ctrl = keyboard.ctrlKey.isPressed;
+             for (var n = 1; n <= 9; n++)
+             {
+@@ -35,20 +41,23 @@ namespace AntColony.UI
+ 
+         private static void Recall(SelectionManager selection, int n)
+         {
+-            if (!groups.TryGetValue(n, out var list) || (list = list.Where(s => s != null && s.isActiveAndEnabled).ToList()).Count == 0)
++            if (!groups.TryGetValue(n, out var list))
+             { ToastManager.Show($"부대 {n}이(가) 비어 있습니다. Ctrl+{n}로 지정하세요."); return; }
+-            groups[n] = list;
++            list.RemoveAll(s => s == null);
++            var available = list.Where(s => s.isActiveAndEnabled).ToList();
++            if (available.Count == 0)
++            { ToastManager.Show($"부대 {n}에 현재 선택 가능한 대상이 없습니다."); return; }
+             var twice = lastGroup == n && UnityEngine.Time.unscaledTime - lastTime < .4f;
+             lastGroup = n; lastTime = UnityEngine.Time.unscaledTime;
+-            selection.SelectOnly(list[0]);
+-            foreach (var s in list.Skip(1)) selection.Add(s);
+-            if (twice) Focus(list[0].transform.position);
++            selection.SelectOnly(available[0]);
++            foreach (var s in available.Skip(1)) selection.Add(s);
++            if (twice) Focus(available[0].transform.position);
+         }
+ 
+         private static void NextIdle(SelectionManager selection)
+         {
+             var idle = CommanderRoster.Instance == null ? new List<CommanderAnt>() : CommanderRoster.Instance.Commanders
+-                .Where(c => c != null && c.isActiveAndEnabled && !c.IsDead && !c.IsAsleep && !c.IsEmbarked && !c.IsAwayFromHome && CommanderOverhead.Activity(c).Length == 0).ToList();
++                .Where(c => c != null && c.isActiveAndEnabled && c.CanReceiveOrders && !c.IsAsleep && !c.IsEmbarked && !c.IsAwayFromHome && CommanderOverhead.Activity(c).Length == 0).ToList();
+             if (idle.Count == 0) { ToastManager.Show("할 일 없는 장수가 없습니다."); return; }
+             var c = idle[idleIndex++ % idle.Count];
+             selection.SelectOnly(c.GetComponent<SelectableObject>());
+diff --git a/Assets/_Project/Scripts/UI/WorldMapPanel.cs b/Assets/_Project/Scripts/UI/WorldMapPanel.cs
+index b45a2d4..59fc7c5 100644
+--- a/Assets/_Project/Scripts/UI/WorldMapPanel.cs
++++ b/Assets/_Project/Scripts/UI/WorldMapPanel.cs
+@@ -388,15 +388,18 @@ namespace AntColony.UI
+         private void HideOverlappingLabels(WorldMapManager world)
+         {
+             labelRects.Clear();
+-            var order = Enumerable.Range(0, markers.Count).Where(i => markers[i].gameObject.activeSelf)
+-                .OrderBy(i => world.Sites[i] == selectedSite ? 0 : 1).ToList();
+-            foreach (var i in order)
++            for (var pass = 0; pass < 2; pass++)
++            for (var i = 0; i < markers.Count; i++)
+             {
++                if (!markers[i].gameObject.activeSelf || (world.Sites[i] == selectedSite) != (pass == 0)) continue;
+                 var label = markers[i].GetComponent<WorldMapMarker>().Label;
+                 if (label == null) continue;
+                 var pos = ((RectTransform)markers[i].transform).anchoredPosition;
+                 var rect = new Rect(pos.x, pos.y - MarkerSize, MarkerSize + 4 + label.preferredWidth, MarkerSize);
+-                label.enabled = !labelRects.Any(r => r.Overlaps(rect));
++                var overlaps = false;
++                for (var j = 0; j < labelRects.Count; j++)
++                    if (labelRects[j].Overlaps(rect)) { overlaps = true; break; }
++                label.enabled = !overlaps;
+                 if (label.enabled) labelRects.Add(rect);
+             }
+         }
+diff --git a/Assets/_Project/Scripts/UI/CampaignNextSteps.cs b/Assets/_Project/Scripts/UI/CampaignNextSteps.cs
+index a157b2a..195c928 100644
+--- a/Assets/_Project/Scripts/UI/CampaignNextSteps.cs
++++ b/Assets/_Project/Scripts/UI/CampaignNextSteps.cs
+@@ -40,8 +40,14 @@ namespace AntColony.UI
+             foreach (var ship in world.Transports)
+             {
+                 if (ship == null || ship.State == AntColony.World.ExpeditionState.Home) continue;
+-                if (ship.State == AntColony.World.ExpeditionState.Outbound) return $"이동 중 · {ship.Remaining:0}초\n{SiteNames.Name(ship.Site)} · 도착 후 전장 보기";
+-                if (ship.State == AntColony.World.ExpeditionState.Returning) return $"귀환 중 · {ship.Remaining:0}초\n도착 후 본거지에 화물 하역";
++                if (ship.State == AntColony.World.ExpeditionState.Outbound || ship.State == AntColony.World.ExpeditionState.Returning)
++                {
++                    var wait = ship.TravelWaitReason;
++                    if (wait != "") return wait;
++                    return ship.State == AntColony.World.ExpeditionState.Outbound
++                        ? $"이동 중 · {ship.TravelRemainingSeconds:0}초\n{SiteNames.Name(ship.Site)} · 도착 후 전장 보기"
++                        : $"귀환 중 · {ship.TravelRemainingSeconds:0}초\n도착 후 본거지에 화물 하역";
++                }
+                 return $"현장 · {SiteNames.Name(ship.Site)}\n전투·회수 후 장수를 모아 귀환을 직접 지시";
+             }
+             return "";

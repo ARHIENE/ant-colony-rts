@@ -95,7 +95,7 @@ public static class Review1101P2Checks
             catch (TargetInvocationException e) when (e.InnerException is FormatException) { return false; }
         }
         Check(Valid(new AntColony.Save.MonsterDto()), "구저장 군사 기본값 허용");
-        var saved = new AntColony.Save.MonsterDto { militaryVersion = 1, militaryEra = 4, militaryMember = 0, hasRuntime = true, health = 37,
+        var saved = new AntColony.Save.MonsterDto { militaryVersion = 1, militaryEra = 4, militaryMember = 0, hasRuntime = true, health = 37, militaryEquipped = true,
             militaryEquipment = new AntColony.Units.EquipmentItem { slot = AntColony.Units.EquipmentSlot.Weapon, weapon = AntColony.Units.WeaponKind.Mandible } };
         Check(Valid(saved), "현재 군사 장비 유효성");
         Check(!Valid(saved, saved.militaryEquipment.id), "인벤토리·전리품과 군사 장비 중복 소유 거부");

@@ -17,7 +17,8 @@ namespace AntColony.Core
             { Key.Z, Key.C, Key.Q, Key.W, Key.E, Key.D, Key.R, Key.G, Key.P, Key.K, Key.L, Key.M, Key.J, Key.B, Key.T };
         // 이 키들은 고정 기능이 쓰므로 재지정할 수 없다.
         public static readonly Key[] Reserved =
-            { Key.Escape, Key.F1, Key.F2, Key.A, Key.S, Key.F, Key.X, Key.V, Key.Space, Key.F5, Key.F6, Key.F7, Key.F8 };
+            { Key.Escape, Key.F1, Key.F2, Key.A, Key.S, Key.F, Key.X, Key.V, Key.Space, Key.F5, Key.F6, Key.F7, Key.F8,
+              Key.Period, Key.Digit1, Key.Digit2, Key.Digit3, Key.Digit4, Key.Digit5, Key.Digit6, Key.Digit7, Key.Digit8, Key.Digit9 }; // 숫자·마침표: 부대 지정(ControlGroups)
 
         public static Key Get(GameAction action) => Get(UserSettings.Current, action);
         public static Key Get(UserSettingsData settings, GameAction action)

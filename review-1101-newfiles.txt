@@ -1,0 +1,15 @@
+AgentScripts/Review1101Claude2Checks.cs
+AgentScripts/Review1101Q1Checks.cs
+AgentScripts/Review1101Q2Checks.cs
+AgentScripts/Review1101UndergroundReach.cs
+AgentScripts/Shot1101b.cs
+Assets/_Project/Scripts/UI/CampaignNextSteps.cs
+Assets/_Project/Scripts/UI/ControlGroups.cs
+Assets/_Project/Scripts/UI/DiplomacyPlanning.cs
+Assets/_Project/Scripts/UI/ExpeditionPlanning.cs
+Assets/_Project/Scripts/UI/PersonalDisplayNames.cs
+Assets/_Project/Scripts/Units/CommanderCareFeedback.cs
+Assets/_Project/Scripts/Units/CommanderDevelopment.cs
+Assets/_Project/Scripts/Units/MedicalOutlook.cs
+Assets/_Project/Scripts/World/BossStronghold.Planning.cs
+Assets/_Project/Scripts/World/ExpeditionTransport.Planning.cs

@@ -8,6 +8,7 @@ namespace AntColony.UI
     {
         private Image shape;
         private Text label;
+        public Text Label => label;
         public void Initialize(Text label)
         {
             this.label = label;

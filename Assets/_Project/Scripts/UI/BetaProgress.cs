@@ -49,72 +49,22 @@ namespace AntColony.UI
         private void Update()
         {
             if (objective == null) return;
-            // V6 HUD에는 목표 패널이 없다(설명서 F2로 안내). 목표 문구는 계속 갱신해 둔다.
-            // 예외: 불시착 초반엔 같은 패널을 시작 안내 체크리스트로 쓴다(2026-11-01).
+            // 같은 패널에서 초반 체크리스트 이후에도 현재 상태에 맞는 다음 준비를 안내한다.
             if (Time.unscaledTime < nextRefresh) return;
             nextRefresh = Time.unscaledTime + .5f;
             var guide = StartGuide.Active && !GameMenuController.MenuOpen;
-            objectivePanel.SetActive(guide);
+            objectivePanel.SetActive(!GameMenuController.MenuOpen && GameSession.Exists && GameSession.Instance.GameStarted && UserSettings.Current.firstHints);
             if (guide)
             {
                 ((RectTransform)objectivePanel.transform).sizeDelta = new Vector2(360, 128);
                 objective.text = StartGuide.Text();
                 return;
             }
-            objective.text = "<color=#f2a93b><b>목표</b></color>\n" + CurrentObjective + "\n<color=#b1b3a7>F2 설명서</color>";
+            ((RectTransform)objectivePanel.transform).sizeDelta = new Vector2(360, 92);
+            objective.text = "<b>다음 준비</b>\n" + CurrentObjective;
         }
 
-        private string BuildObjective()
-        {
-            if (game == null) return "정착지 준비 중…";
-            var campaign = CampaignResearch.Instance;
-            if (campaign != null && campaign.Departed) return "로켓 발사 완료";
-            if (campaign != null && campaign.Active != null)
-                return $"연구 · {campaign.Active.Name}\n{campaign.Progress:0}/{campaign.Active.Work:0} · 과학 화면에서 연구 장수 지시";
-            if (game.SavedBoss) return "보스 보상 회수 · 본거지 반입\n과학 시설에서 다음 탐지기 확인 (A→B/C→D)";
-            var world = WorldMapManager.Instance;
-            if (world != null)
-            {
-                foreach (var ship in world.Transports)
-                {
-                    if (ship == null || ship.State == ExpeditionState.Home) continue;
-                    if (ship.State == ExpeditionState.Outbound)
-                        return $"이동 중 · {Mathf.CeilToInt(ship.Remaining)}초\n{SiteNames.Name(ship.Site)} · 도착 후 전장 보기";
-                    if (ship.State == ExpeditionState.Returning)
-                        return $"귀환 중 · {Mathf.CeilToInt(ship.Remaining)}초\n도착하면 화물을 본거지에 반납합니다";
-                    return ship.Site.Cleared || ship.Site.Kind == ExpeditionSiteKind.ResourceSite
-                        ? "전리품 · 수송수단에 자원 반납\n탑승 장수를 8m 안에 모은 뒤 귀환"
-                        : $"전투 · {SiteNames.Name(ship.Site)}\n전장 보기에서 부대를 지휘하세요";
-                }
-                foreach (var ship in world.Transports)
-                {
-                    if (ship == null) continue;
-                    return ship.Crew.Count > 0
-                        ? $"출정 준비 · 장수 {ship.CommanderLoad}/{ship.CommanderCapacity} · 병력 {ship.Load}/{ship.Capacity}\n월드맵에서 목적지 선택 후 출정"
-                        : $"탑승 · 장수 {ship.CommanderCapacity}명 · 병력 {ship.Capacity}마리\n장수를 8m 안에 모은 뒤 선택 부대 탑승";
-                }
-                foreach (var lab in AntColony.Core.SceneObjects.All<ScienceLab>())
-                    if (lab.Busy)
-                        return $"{(lab.Constructing ? "건조" : "연구")} - {Mathf.CeilToInt(lab.Remaining)}초\n{(lab.Aircraft ? "비행기" : "차량")} 진행 중";
-                if (world.VehicleResearched) return "차량 건조 · 식량 50 / 재료 60\n과학연구소 선택 후 차량 건조";
-            }
-            if (AntColony.Core.SceneObjects.Any<ScienceLab>() != null)
-                return "차량 연구 · 증기 시대 연구소 필요\n과학 화면에서 연구소 강화·장수 배정";
-            if (ScienceLab.PrerequisitesMet)
-                return "과학연구소 건설\n건설 메뉴에서 과학연구소 배치";
-            var population = AntPool.Instance != null ? AntPool.Instance.Total : 0;
-            if (population < ScienceLab.RequiredPopulation)
-                return $"인구 증가 · {population}/{ScienceLab.RequiredPopulation}마리\n주거·공공서비스·민심을 확보해 이주 유도";
-            var barracks = AntColony.Core.SceneObjects.Any<Barracks>();
-            if (barracks == null) return "병영 건설 · 장수 선택\n건설 메뉴에서 병영을 배치하세요";
-            foreach (var candidate in AntColony.Core.SceneObjects.All<Barracks>())
-                if (candidate.IsUpgrading) return "병영 강화 중\n과학연구소에 필요한 자원을 모으세요";
-            var resources = ResourceManager.Instance;
-            if (resources != null && (resources.GetAmount(AntColony.Data.ResourceType.Food) >= resources.GetCapacity(AntColony.Data.ResourceType.Food)
-                || resources.GetAmount(AntColony.Data.ResourceType.Soil) >= resources.GetCapacity(AntColony.Data.ResourceType.Soil)))
-                return "창고 가득 참 · 자원 사용 또는 창고 건설\n다음 목표 · 병영 2티어 강화";
-            return "병영 강화 · 2티어 달성\n병영을 선택해 티어를 강화하세요";
-        }
+        private string BuildObjective() => CampaignNextSteps.Text();
 
         private void Victory()
         {
