@@ -47,6 +47,8 @@ namespace AntColony.UI
             Choices("침공 난이도", (DifficultyLevel[])Enum.GetValues(typeof(DifficultyLevel)), s => new[] { "온화", "보통", "가혹" }[(int)s], options.difficulty, s => options.difficulty = s);
             Choices("기후", (MapClimate[])Enum.GetValues(typeof(MapClimate)), s => new[] { "온대", "한랭", "열대습윤" }[(int)s], options.climate, s => options.climate = s, true);
             Choices("장수 사망", (CommanderDeathMode[])Enum.GetValues(typeof(CommanderDeathMode)), s => new[] { "관대", "보통", "가혹" }[(int)s], options.commanderDeath, s => options.commanderDeath = s);
+            var rocketWarning = L.Cell(settings, "Rocket Civilian Warning", 52);
+            L.Label(rocketWarning, "장수 즉사 없음이어도 로켓 파괴 시\n탑승 시민·병력은 사망합니다.", 12, 0, 0, 260, 48, MenuTheme.Warning);
             var biome = L.Cell(settings, "Starting Climate", 130);
             L.Label(biome, "시작 지역", 15, 0, 0, 260, 26, bold: true);
             var allBiomes = new[] { MapBiome.None }.Concat(BiomeRules.All).ToArray();

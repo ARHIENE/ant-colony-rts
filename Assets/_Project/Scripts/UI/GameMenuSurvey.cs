@@ -36,6 +36,7 @@ namespace AntColony.UI
             }
             var right = V5Section(window, "발견된 매장층", 554, 112, 534, 536);
             var survey = UndergroundSurvey.Instance;
+            if (survey != null && StellarSupply.Notice(survey.Layers) is string notice) MenuTheme.Text(right, notice, 13, 100);
             var discovered = survey?.Layers.Where(l => l.discovered).ToArray();
             if (discovered == null || discovered.Length == 0) MenuTheme.Text(right, "아직 발견한 매장층이 없습니다. 미조사 후보의 자원·좌표는 공개하지 않습니다.", 13, 64);
             else foreach (var layer in discovered)

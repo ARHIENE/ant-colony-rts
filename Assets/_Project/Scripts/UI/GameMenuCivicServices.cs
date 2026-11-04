@@ -20,13 +20,21 @@ namespace AntColony.UI
                 .gameObject.AddComponent<MenuTooltip>().Message = "시민의 공공서비스·교육·의료는 본거지 전체의 정원 비율입니다. 장수의 식탁·휴식·오락 이용과 주거 주변 미관은 실제 위치에 영향을 받습니다.";
             L.Line(p, 24, 128, 792);
             L.Label(p, $"학당 {pop.SchoolCount}동 · 어린 시민 {pop.S.young}명 · 교육 {pop.EducationCoverage:P0}" + (pop.SchoolsOperating ? "" : " · 운영비 부족"), 15, 24, 140, 792, 28);
-            L.Label(p, "1동당 어린 시민 20명 · 하루 식량 0.3 / 재료(흙) 0.15. 성인 전환 시 교육 효과 적용.", 13, 24, 172, 792, 26, MenuTheme.Muted);
-            L.Label(p, $"교육 과세 생산 +{pop.S.educationBonus:P0} · 남은 {pop.S.educationSeconds / GameCalendar.SecondsPerDay:0.#}일 · 교육 민심 +{pop.S.educationBonus * 50:0.#}", 13, 24, 202, 792, 26);
+            L.Label(p, "1동당 어린 시민 20명 · 하루 식량 0.3 / 흙 0.15 · 사막은 흙 수입 필요", 13, 24, 172, 792, 26, MenuTheme.Muted)
+                .gameObject.AddComponent<MenuTooltip>().Message = "학당은 실물 흙만 소비합니다. 사막 세금의 모래·석재·점토는 대체하지 않습니다. 타지역 채집·수송 또는 외교 흙 거래로 확보하세요. 기초 자원 상점에서는 흙을 팔지 않습니다.";
+            L.Label(p, $"정착지 전체 납세자 교육 +{pop.S.educationBonus:P0} · 남은 {pop.S.educationSeconds / GameCalendar.SecondsPerDay:0.#}일 · 민심 +{pop.S.educationBonus * 50:0.#}", 13, 24, 202, 792, 26)
+                .gameObject.AddComponent<MenuTooltip>().Message = "졸업자 개인 효과가 아닌 정착지 전체 계절 보너스입니다. 성년 전환이 있을 때 당시 어린 시민 교육 충족률로 보너스·기간을 교체합니다. 중첩하지 않으며 다음 전환이 없으면 한 계절 후 종료됩니다.";
             L.Label(p, $"진료소 {pop.ClinicCount}동 · 의료 충족 {pop.MedicalCoverage:P0} · 민심 +{pop.MedicalCoverage * 5:0.#}" + (pop.ClinicsOperating ? "" : " · 운영비 부족"), 15, 24, 244, 792, 28);
             L.Label(p, "1동당 시민 50명 · 하루 기초약 0.15 / 식량 0.3. 시민 질병은 생성하지 않습니다.", 13, 24, 276, 792, 26, MenuTheme.Muted);
-            L.Label(p, $"운영비 미정산: 학당 식량 {pop.S.schoolFoodDebt:0.##} / 흙 {pop.S.schoolMaterialDebt:0.##} · 진료소 식량 {pop.S.clinicFoodDebt:0.##} / 약 {pop.S.clinicMedicineDebt:0.##}", 12, 24, 308, 792, 26, MenuTheme.Muted);
+            var rm = ResourceManager.Instance;
+            var recovery = ColonyPopulation.CivicRecoveryText(pop.S,
+                    rm?.GetAmount(AntColony.Data.ResourceType.Food) ?? 0, rm?.GetAmount(AntColony.Data.ResourceType.Soil) ?? 0,
+                    rm?.GetAmount(AntColony.Data.ResourceType.MedicineBasic) ?? 0);
+            L.Label(p, recovery.Split('\n')[0], 12, 24, 308, 792, 26, MenuTheme.Muted)
+                .gameObject.AddComponent<MenuTooltip>().Message = recovery
+                    + $"\n미정산: 학당 식량 {pop.S.schoolFoodDebt:0.##} / 흙 {pop.S.schoolMaterialDebt:0.##} · 진료소 식량 {pop.S.clinicFoodDebt:0.##} / 약 {pop.S.clinicMedicineDebt:0.##}";
             L.Line(p, 24, 350, 792);
-            L.Label(p, "주거 · 대피 지점 (피해 10당 1명 사망, 이동 그룹 최대 50명)", 15, 24, 360, 792, 28);
+            L.Label(p, $"주거 · 임시 {pop.TemporaryResidents}명 / 노출 {pop.ExposedResidents}명 (민심 {pop.DisplacementPenalty:0.#})", 15, 24, 360, 792, 28);
             var list = L.List(p, 24, 394, 792, 142);
             foreach (var location in pop.CivilianLocations)
             {
@@ -35,14 +43,8 @@ namespace AntColony.UI
                 var status = location.moving ? "이동 중" : location.arrived ? "도착" : location.sheltered ? "보호" : "노출";
                 L.Label(row, $"#{location.id} · {location.count}명 · {status} · 피해 {location.damage:0.#} · 위치 {location.position.x:0.#}, {location.position.z:0.#}", 13, 8, 0, 500, 30);
                 if (location.moving) continue;
-                // G16 대피: 실제 경로로 최대 50명씩 이동한다(도착 전 탑승·보호 없음). 로켓은 탑승 대기 지점, 주거는 가장 가까운 다른 집.
-                var id = location.id; var from = location.position;
-                var rocket = AntColony.Core.SceneObjects.Any<AntColony.Buildings.AirshipYard>();
-                var home = AntColony.Buildings.Housing.All.Where(h => h != null && h.isActiveAndEnabled && !h.IsDead && (h.Position - from).sqrMagnitude > 4)
-                    .OrderBy(h => (h.Position - from).sqrMagnitude).FirstOrDefault();
-                void Evacuate(Vector3 to, string where) { ToastManager.Show(pop.BeginCivilianEvacuation(id, to) > 0 ? where + "(으)로 대피를 시작했습니다." : "대피 경로가 없습니다."); CivicServices(); }
-                if (rocket != null) L.Button(row, "Evacuate Rocket", "로켓으로", 516, 1, 120, 28, () => Evacuate(rocket.Position, "로켓"));
-                if (home != null) L.Button(row, "Evacuate Home", "가까운 주거로", 644, 1, 140, 28, () => Evacuate(home.Position, "주거"));
+                var id = location.id;
+                L.Button(row, "Civilian Management", "거처·로켓 지정", 516, 1, 260, 28, () => CivilianDestination(id));
             }
             L.Button(p, "Civic Refresh", "새로 고침", 24, 548, 130, 34, CivicServices);
             L.Button(p, "Reserve Warning", "최종전 비축 확인", 170, 548, 180, 34, () => FinalBattleReserveWarning());

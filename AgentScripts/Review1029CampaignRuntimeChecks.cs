@@ -85,8 +85,13 @@ public static class Review1029CampaignRuntimeChecks
             var frozen = JsonUtility.FromJson<AntColony.Core.CampaignOutcome.State>(JsonUtility.ToJson(ending));
             c.PersonalState.relations.Clear(); Check(frozen.legacy.SequenceEqual(ending.legacy), "ending narrative frozen on save");
             if (!c.Traits.Has(AntColony.Units.CommanderTrait.DiamondBuilding)) c.Traits.values.Add(AntColony.Units.CommanderTrait.DiamondBuilding);
-            Call(yard, "RecordBuilder", c, 7.49f, 10f); Check(!yard.CaptureState(roster).babelEligible, "74.9 percent insufficient");
-            Call(yard, "RecordBuilder", c, .02f, 10f); Check(yard.CaptureState(roster).babelEligible, "individual75percent qualifies");
+            var contributions = new AntColony.Core.WorkContribution();
+            contributions.Add(c.PersonalState.id, 7.49f, true);
+            Call(yard, "AcceptBabelFoundation", new AntColony.Buildings.BabelState { work = 10, eligible = contributions.Majority(10) != null }, contributions);
+            Check(!yard.CaptureState(roster).babelEligible, "74.9 percent insufficient");
+            contributions.Add(c.PersonalState.id, .02f, true);
+            Call(yard, "AcceptBabelFoundation", new AntColony.Buildings.BabelState { work = 10, eligible = contributions.Majority(10) != null }, contributions);
+            Check(yard.CaptureState(roster).babelEligible, "common individual75percent qualifies");
             Check(yard.TryDepart(), "launch queued with commander");
             yard.TakeDamage(100000);
             Call(yard, "ResolveLaunch");

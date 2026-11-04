@@ -97,6 +97,14 @@ public static class Review1031ClaudeChecks
             barracks.BeginTraining();
             Check(barracks.Train(a, 10) && a.Talents.Xp(CommanderActivity.Melee) > 0, "training grants melee experience");
             Check(barracks.Train(a, 20) && !barracks.Train(a, 1), "session ends after 30s");
+            // 배우자 이혼: 관계 -40 이하면 양쪽 배우자 해제.
+            a.PersonalState.Relation(b.PersonalState.id).spouse = b.PersonalState.Relation(a.PersonalState.id).spouse = true;
+            a.PersonalState.Relation(b.PersonalState.id).value = b.PersonalState.Relation(a.PersonalState.id).value = -30;
+            Call(a, "TickRelations", 0f); Call(b, "TickRelations", 0f);
+            Check(a.PersonalState.Relation(b.PersonalState.id).spouse, "spouse kept above rival line");
+            a.PersonalState.Relation(b.PersonalState.id).value = b.PersonalState.Relation(a.PersonalState.id).value = -40;
+            Call(a, "TickRelations", 0f); Call(b, "TickRelations", 0f);
+            Check(!a.PersonalState.Relation(b.PersonalState.id).spouse && !b.PersonalState.Relation(a.PersonalState.id).spouse, "divorce at -40 clears both");
             return "Review1031Claude passed " + count;
         }
         finally

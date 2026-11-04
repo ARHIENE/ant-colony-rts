@@ -181,7 +181,7 @@ namespace AntColony.UI
                 if (UndergroundProduction.IsExtractor(supply.Kind))
                 { status.text = UndergroundProduction.Status(supply); instruction.text = UndergroundProduction.Preview(supply.Kind, supply.Position); }
                 else if (supply.Kind == BuildingKind.OilRefinery)
-                { status.text = supply.RefineryStatus; instruction.text = "제작 담당 + 전력 200W · 원유 1 → 정제유 1 · 기본 작업 5초 · 배관/탱크 출력"; }
+                { status.text = supply.RefineryStatus; instruction.text = "제작 담당 + 전력 200W(원료 대기에도 고정) · 원유 1 → 정제유 1 · 기본 작업 5초 · 배관/탱크 출력"; }
                 else if (supply.Kind == BuildingKind.FuelCharger)
                 { status.text = supply.ContainerStatus; instruction.text = "원유·정제유 드럼통 / 압축 가스 용기 · 용기 배송 후 제작 담당 작업 · 배출하면 빈 용기 반환"; }
                 else if (supply.GasNetwork) instruction.text = "기체 전용 배관/탱크 · 액체와 연결되지 않음";
@@ -216,7 +216,16 @@ namespace AntColony.UI
                     instruction.text = critter.TransportTo != null ? $"운반 요청: {critter.TransportTo.Data.displayName}" : "포획하면 현장에 결박됩니다. 개체 관리에서 운반할 우리를 고르세요.";
                     label.text = "개체 관리"; action.interactable = true;
                 }
+                // 기획 공백(2026-10-31): 전장에서 적 장수를 고를 때 평가 별점·관심 여부를 바로 보여 포획 대상을 판단한다.
+                if (animal is EnemyCommander enemy)
+                {
+                    var report = WorldMapManager.Instance?.Assessment.Reports.FirstOrDefault(r => r.target == enemy.InvestigationId);
+                    title.text = (report?.interested == true ? "관심 · " : "") + enemy.CommanderName;
+                    instruction.text = "평가 " + (string.IsNullOrEmpty(enemy.InvestigationId) ? "미평가" : GameMenuController.TalentSummary(enemy.InvestigationId))
+                        + " · 쓰러뜨리면 수용소 여유가 있을 때 확률로 포로가 됩니다.";
+                }
             }
+            if (FixedTraitWork.Describe(Target) is string protection) instruction.text = protection;
             title.text += $"  <size=14><color=#b1b3a7>우선 {WorkPriorities.Level(Target)}</color>{(WorkPriorities.Yellow(Target) ? "  <color=#f2c94c>노란 경보</color>" : "")}</size>";
         }
         private void ChangePowerPriority(int delta)

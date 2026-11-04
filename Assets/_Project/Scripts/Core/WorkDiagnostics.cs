@@ -15,6 +15,11 @@ namespace AntColony.Core
         private static readonly CommanderJobs[] Jobs = Enum.GetValues(typeof(CommanderJobs)).Cast<CommanderJobs>().Where(j => CommanderWorkState.Index(j) >= 0).ToArray();
         public static string Describe(Component target)
         {
+            var protection = FixedTraitWork.Describe(target);
+            return DescribeState(target) + (protection == null ? "" : "\n" + protection);
+        }
+        private static string DescribeState(Component target)
+        {
             if (target == null) return "대상 없음";
             if (target is Kitchen k)
             {

@@ -21,6 +21,7 @@ namespace AntColony.Boss
             public int[] home = new int[4], tools = new int[4], cycle = new int[4];
             public int[] claimed = { -1, -1, -1, -1 };
             public float[] killedAt = new float[4];
+            public int[] guardRewards = new int[4];
             public List<Parcel> cargo = new List<Parcel>();
             public List<Parcel> unclaimed = new List<Parcel>();
             public int craftBoss = -1;
@@ -81,7 +82,20 @@ namespace AntColony.Boss
             if (!Finite(now) || !state.defeated[i] || now - state.killedAt[i] < RespawnSeconds
                 || alliesPresent || transportPresent || inCombat) return false;
             state.defeated[i] = false; state.cycle[i]++;
+            EnsureGuardRewards(); state.guardRewards[i] = 0;
             return true;
+        }
+        public const int GuardRewardsPerCycle = 8;
+        private void EnsureGuardRewards() { if (state.guardRewards == null || state.guardRewards.Length == 0) state.guardRewards = new int[4]; }
+        public int ClaimGuardXp(BossId id, int cycle)
+            => ClaimGuardExperience(id, cycle, AntColony.Units.CommanderProgression.MonsterKillXp);
+        public int ClaimGuardExperience(BossId id, int cycle, int requested)
+        {
+            EnsureGuardRewards();
+            int i = (int)id;
+            if (requested <= 0 || cycle != state.cycle[i]) return 0;
+            int awarded = Math.Min(requested, GuardRewardsPerCycle * AntColony.Units.CommanderProgression.MonsterKillXp - state.guardRewards[i]);
+            state.guardRewards[i] += awarded; return awarded;
         }
         public bool TryAcquire(BossId id, string carrier, out Parcel parcel)
         {
@@ -113,27 +127,35 @@ namespace AntColony.Boss
         {
             if (resources == null || state.craftBoss >= 0) return false;
             if (recovery ? !Obtained(id) : DetectionBlock(id) != "" || Tools(id) > 0) return false;
-            var costs = CraftCost(id, recovery);
-            foreach (var cost in costs) if (resources.GetAmount(cost.Key) < cost.Value) return false;
-            // 자원 변경 이벤트가 제작을 다시 요청해도 중복 결제하지 않는다.
-            state.craftBoss = (int)id; state.craftRecovery = recovery; state.craftRemaining = RecoverySeconds;
-            var paid = new Dictionary<AntColony.Data.ResourceType, int>();
-            foreach (var cost in costs)
+            var workshop = AntColony.Core.SceneObjects.All<AntColony.Buildings.Workshop>();
+            foreach (var bench in workshop)
             {
-                if (!resources.TrySpend(cost.Key, cost.Value, ResourceReason.Crafting))
-                {
-                    foreach (var refund in paid) resources.Add(refund.Key, refund.Value, ResourceReason.Crafting);
-                    state.craftBoss = -1; state.craftRemaining = 0;
-                    return false;
-                }
-                paid.Add(cost.Key, cost.Value);
+                if (!bench.EnqueueBoss(id, recovery)) continue;
+                state.craftBoss = (int)id; state.craftRecovery = recovery; state.craftRemaining = RecoverySeconds;
+                break;
             }
+            if (state.craftBoss < 0) return false;
             if (!recovery)
             {
                 if (id == BossId.D) { state.home[1]--; state.home[2]--; }
                 else state.home[0]--;
             }
             return true;
+        }
+        public bool ResumeLegacyCraft(AntColony.Buildings.Workshop bench)
+        {
+            return state.craftBoss >= 0 && !AntColony.Buildings.Workshop.HasBossJob && bench != null
+                && bench.EnqueueBoss((BossId)state.craftBoss, state.craftRecovery, state.craftRemaining, true);
+        }
+        public void CancelCraft()
+        {
+            if (state.craftBoss < 0) return;
+            if (!state.craftRecovery)
+            {
+                if (state.craftBoss == 3) { state.home[1]++; state.home[2]++; }
+                else state.home[0]++;
+            }
+            state.craftBoss = -1; state.craftRemaining = 0;
         }
         public static AntColony.Data.ResourceType EraMaterial(BossId id) => id switch {
             BossId.A => AntColony.Data.ResourceType.Plank, BossId.B => AntColony.Data.ResourceType.Iron,
@@ -145,7 +167,12 @@ namespace AntColony.Boss
         public void TickCraft(float seconds)
         {
             if (!Finite(seconds) || seconds <= 0 || state.craftBoss < 0) return;
-            state.craftRemaining = Math.Max(0, state.craftRemaining - seconds);
+            SetCraftWork(RecoverySeconds - state.craftRemaining + seconds);
+        }
+        internal void SetCraftWork(float work)
+        {
+            if (!Finite(work) || work < 0 || state.craftBoss < 0) return;
+            state.craftRemaining = Math.Max(0, RecoverySeconds - work);
             if (state.craftRemaining > 0) return;
             if (state.craftRecovery) state.home[state.craftBoss]++;
             else if (!state.revealed[state.craftBoss]) state.tools[state.craftBoss]++;
@@ -162,6 +189,7 @@ namespace AntColony.Boss
         public static bool Validate(State s)
         {
             if (s == null) return true; // 구 저장
+            if (s.guardRewards != null && s.guardRewards.Length != 0 && (s.guardRewards.Length != 4 || Array.Exists(s.guardRewards, n => n < 0 || n > GuardRewardsPerCycle * AntColony.Units.CommanderProgression.MonsterKillXp))) return false;
             if (s.obtained?.Length != 4 || s.delivered?.Length != 4 || s.revealed?.Length != 4 || s.defeated?.Length != 4
                 || s.home?.Length != 4 || s.tools?.Length != 4 || s.cycle?.Length != 4 || s.claimed?.Length != 4
                 || s.killedAt?.Length != 4 || s.cargo == null || s.unclaimed == null || !s.revealed[0]

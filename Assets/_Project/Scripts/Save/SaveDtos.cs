@@ -331,7 +331,7 @@ namespace AntColony.Save
         public bool loopCompleted, bossDefeated, defeated;
         public string defeatReason; // G11 패배 사유(구저장 없음)
         public string randomState;
-        public const int CurrentVersion = 22;
+        public const int CurrentVersion = 24; // 전자부품·성휘 자원 배열 확장. 승급 연구는 기존 completed ID 목록 재사용.
         public List<World.Corpse.State> corpses = new List<World.Corpse.State>();
         public List<ConstructionAttributionDto> constructionAttribution;
         public List<ConstructionDto> construction; // v17 건설·철거·이동·개보수 예정지(옛 저장은 null = 없음)
@@ -379,6 +379,9 @@ namespace AntColony.Save
     [Serializable]
     public class MonsterDto
     {
+        public int guardVersion;
+        public int guardBoss = -1, guardCycle;
+        public bool guardXpClaimed;
         public AntColony.Boss.AoE.BossAoEState circleAoE, coneAoE, lineAoE;
         public AntColony.Boss.BossEncounter.State bossEncounter; // 구저장 null: 첫 착지 상태
         public string investigationId;
