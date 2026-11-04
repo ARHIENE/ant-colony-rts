@@ -13,7 +13,7 @@ namespace AntColony.Buildings
         public const float ConstructionSeconds = 10;
         public bool Busy => remaining > 0;
         public float Remaining => remaining;
-        public const int MaxTier = CampaignResearch.EraCount; // 시대마다 1등급(2026-10-05: 4 → 6, 업그레이드 비용 공식은 그대로·잠정)
+        public const int MaxTier = CampaignResearch.EraCount; // 시대마다 1등급, 실물 승급 비용은 ScienceLabUpgrades에서 관리.
         public int Tier { get; private set; } = 1;
         public CommanderAnt Target { get; private set; }
         private float remaining;
@@ -44,8 +44,8 @@ namespace AntColony.Buildings
 
         public bool TryUpgrade()
         {
-            if (!isActiveAndEnabled || Busy || Tier >= MaxTier || ResourceManager.Instance == null
-                || !ResourceManager.Instance.TrySpend(Tier * 60, Tier * 80, reason: ResourceReason.Research)) return false;
+            if (!isActiveAndEnabled || IsDead || Busy || Tier >= MaxTier
+                || !ScienceLabUpgrades.TryPay(Tier, CampaignResearch.Instance, ResourceManager.Instance)) return false;
             Tier++;
             return true;
         }

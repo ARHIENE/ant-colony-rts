@@ -6,6 +6,7 @@ namespace AntColony.World
     public sealed partial class ColonyEvents
     {
         public bool CaravanPresent => state.caravanRemaining > 0;
+        public float SupplyCaravanRemaining => state.caravanRemaining;
         // 고급 필수 재료의 반복 공급처. 교환가는 별도 확정 전 잠정값이며 협상·외교 해금과 무관하다.
         public static int SupplyPrice(AntColony.Data.ResourceType type) => type switch
         {

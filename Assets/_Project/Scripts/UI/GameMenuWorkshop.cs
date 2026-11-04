@@ -39,7 +39,7 @@ namespace AntColony.UI
             for (int i = 0; i < workshop.Jobs.Count; i++)
             {
                 int index = i; var job = workshop.Jobs[i];
-                MenuTheme.Button(content, $"{i + 1}. {EquipmentRecipes.Name(job.recipe)} {job.work / GameBalance.CraftWork:P0} · {(!string.IsNullOrEmpty(job.makerId) ? "원제작자 전용 · 보관 중" : "미착수")} · 취소 (일반 {(job.work > 0 ? 70 : 100)}% · 핵심 100%)",
+                MenuTheme.Button(content, $"{i + 1}. {job.Label} {job.work / job.WorkRequired:P0} · {(!string.IsNullOrEmpty(job.makerId) ? "원제작자 전용 · 보관 중" : "미착수")} · 취소 (일반 {(job.work > 0 ? 70 : 100)}% · 핵심 100%)",
                     () => { workshop.Cancel(index); ShowWorkshop(workshop); });
             }
             if (workshop.Crafter != null) MenuTheme.Button(content, "장수 배정 해제 (진행도 유지)", () => { workshop.Release(); ShowWorkshop(workshop); });

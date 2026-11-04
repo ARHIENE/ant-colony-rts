@@ -24,6 +24,7 @@ namespace AntColony.Buildings
             if (building == null || TryGetComponent<DemolitionSite>(out _)) return;
             building.Babel = new BabelState { used = BabelUsed, eligible = Contributions.Majority(BuildTimeSeconds) != null,
                 work = BuildTimeSeconds, costs = Needs.ConvertAll(n => new BabelState.Cost { type = n.type, amount = n.need }) };
+            if (building is AirshipYard yard) yard.AcceptBabelFoundation(building.Babel, Contributions);
             if (building is Decoration decor)
             {
                 decor.ArtistId = Artist.id;

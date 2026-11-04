@@ -14,7 +14,9 @@ namespace AntColony.Buildings
             new Processor.Recipe("코크스", ResourceType.Coke, 1, 14, null, (ResourceType.Coal, 2)) };
         public static Processor.Recipe[] Chemistry() => new[] {
             new Processor.Recipe("플라스틱", ResourceType.Plastic, 1, 14, null),
-            new Processor.Recipe("고무", ResourceType.Rubber, 1, 12, null, (ResourceType.RubberSap, 2)) };
+            new Processor.Recipe("고무", ResourceType.Rubber, 1, 12, null, (ResourceType.RubberSap, 2)),
+            new Processor.Recipe("전자부품", ResourceType.ElectronicComponent, 1, 20, null,
+                (ResourceType.Copper, 2), (ResourceType.Glass, 1), (ResourceType.Plastic, 1), (ResourceType.Component, 1)) };
         public static Processor.Recipe[] SolidFuelAlternatives(Processor.Recipe[] recipes) => recipes.Concat(
             recipes.Where(r => r.inputs.Any(i => i.type == ResourceType.Coal)).SelectMany(r => new[] { ResourceType.Charcoal, ResourceType.Coke }
                 .Select(fuel => new Processor.Recipe(r.name + " (" + fuel.DisplayName() + ")", r.output, r.amount, r.work, r.support,
@@ -23,6 +25,9 @@ namespace AntColony.Buildings
         public static Processor.Recipe[] GasSmelting() => new[] {
             new Processor.Recipe("티타늄", ResourceType.Titanium, 1, 14, CommanderActivity.Strength, (ResourceType.TitaniumOre, 2)),
             new Processor.Recipe("티타늄 합금", ResourceType.TitaniumAlloy, 2, 20, CommanderActivity.Strength,
-                (ResourceType.Titanium, 2), (ResourceType.Steel, 1)) };
+                (ResourceType.Titanium, 2), (ResourceType.Steel, 1)),
+            new Processor.Recipe("성휘금속", ResourceType.StellarMetal, 1, 20, CommanderActivity.Strength, (ResourceType.StellarOre, 2)),
+            new Processor.Recipe("성휘합금", ResourceType.StellarAlloy, 2, 28, CommanderActivity.Strength,
+                (ResourceType.StellarMetal, 2), (ResourceType.TitaniumAlloy, 1)) };
     }
 }

@@ -10,7 +10,7 @@ namespace AntColony.UI
         public void ShowKitchen(Kitchen k)
         {
             if (k == null || k.IsTable) { Resume(); return; }
-            var window = V5Window(k.Data.displayName + " / 요리", "생산 방식과 수량을 선택한 뒤 요리를 추가하세요.");
+            var window = V5Window(k.Data.displayName + " / 요리", "식량 원료는 육류·어류·열매·버섯 통합 · 훈연식도 범용 가공식이며 원산지 제한 없음");
             content = V5Section(window, "요리 / 주문 설정", 20, 104, 520, 544);
             MenuTheme.Text(content, k.Current != null ? $"조리 중: {k.Current.name} {k.Progress:P0}" : "조리 중인 요리 없음" + (k.WaitReason != null ? $" · {k.WaitReason}" : ""), 19, 45);
             MenuTheme.Text(content, WorkDiagnostics.Describe(k), 15, 68);
