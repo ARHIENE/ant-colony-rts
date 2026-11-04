@@ -1,0 +1,1113 @@
+diff --git a/Assets/_Project/Scripts/Boss/AoE/BossCircleAoE.cs b/Assets/_Project/Scripts/Boss/AoE/BossCircleAoE.cs
+index ed0ada2..2db291d 100644
+--- a/Assets/_Project/Scripts/Boss/AoE/BossCircleAoE.cs
++++ b/Assets/_Project/Scripts/Boss/AoE/BossCircleAoE.cs
+@@ -84,7 +84,7 @@ namespace AntColony.Boss.AoE
+                 if (flatDistance <= radius && heightDifference <= verticalTolerance)
+                 {
+                     alreadyDamaged.Add(damageable);
+-                    damageable.TakeDamage(damage);
++                    FormationDamage.Apply(damageable, damage, center, area: true);
+                 }
+             }
+         }
+diff --git a/Assets/_Project/Scripts/Boss/AoE/BossConeAoE.cs b/Assets/_Project/Scripts/Boss/AoE/BossConeAoE.cs
+index 0c26164..4d9fdae 100644
+--- a/Assets/_Project/Scripts/Boss/AoE/BossConeAoE.cs
++++ b/Assets/_Project/Scripts/Boss/AoE/BossConeAoE.cs
+@@ -117,7 +117,7 @@ namespace AntColony.Boss.AoE
+                 }
+ 
+                 alreadyDamaged.Add(damageable);
+-                damageable.TakeDamage(damage);
++                FormationDamage.Apply(damageable, damage, origin, area: true);
+             }
+         }
+     }
+diff --git a/Assets/_Project/Scripts/Boss/AoE/BossLineAoE.cs b/Assets/_Project/Scripts/Boss/AoE/BossLineAoE.cs
+index 82218e8..87bce8b 100644
+--- a/Assets/_Project/Scripts/Boss/AoE/BossLineAoE.cs
++++ b/Assets/_Project/Scripts/Boss/AoE/BossLineAoE.cs
+@@ -119,7 +119,7 @@ namespace AntColony.Boss.AoE
+                 if (heightDifference > verticalTolerance) continue;
+ 
+                 alreadyDamaged.Add(damageable);
+-                damageable.TakeDamage(damage);
++                FormationDamage.Apply(damageable, damage, origin, area: true);
+             }
+         }
+     }
+diff --git a/Assets/_Project/Scripts/Buildings/AcidTower.cs b/Assets/_Project/Scripts/Buildings/AcidTower.cs
+index 42d41e2..3dc4d84 100644
+--- a/Assets/_Project/Scripts/Buildings/AcidTower.cs
++++ b/Assets/_Project/Scripts/Buildings/AcidTower.cs
+@@ -39,7 +39,7 @@ namespace AntColony.Buildings
+                 spray.SetPosition(1, target.Position);
+                 spray.enabled = true; sprayTime = .15f;
+             }
+-            target.TakeDamage(Damage);
++            FormationDamage.Apply(target, Damage, Position, ranged: true);
+         }
+ 
+         internal void RestoreCooldown(float value) => cooldown = Mathf.Clamp(value, 0, attackInterval);
+diff --git a/Assets/_Project/Scripts/Buildings/AreaAcidTower.cs b/Assets/_Project/Scripts/Buildings/AreaAcidTower.cs
+index 8b62108..923e893 100644
+--- a/Assets/_Project/Scripts/Buildings/AreaAcidTower.cs
++++ b/Assets/_Project/Scripts/Buildings/AreaAcidTower.cs
+@@ -37,7 +37,7 @@ namespace AntColony.Buildings
+             foreach (var boss in FindObjectsByType<AntColony.Boss.BossHealth>())
+                 if (CombatTargeting.CanAttack(UnitRole.Melee, boss) && (boss.Position - center).sqrMagnitude <= radius) boss.TakeDamage(Damage);
+             foreach (var unit in new System.Collections.Generic.List<AntColony.Units.AntUnitBase>(AntColony.Units.AntUnitBase.Active))
+-                if (unit is AntColony.Units.CommanderAnt c && CombatTargeting.CanAttack(UnitRole.Melee, c) && (c.Position - center).sqrMagnitude <= radius) c.TakeDamage(Damage);
++                if (unit is AntColony.Units.CommanderAnt c && CombatTargeting.CanAttack(UnitRole.Melee, c) && (c.Position - center).sqrMagnitude <= radius) FormationDamage.Apply(c, Damage, center, ranged: true, area: true);
+             if (!(target is WildMonster) && !(target is AntColony.Boss.BossHealth) && !(target is AntColony.Units.CommanderAnt)) target.TakeDamage(Damage);
+         }
+ 
+diff --git a/Assets/_Project/Scripts/Buildings/ConscriptionPost.cs b/Assets/_Project/Scripts/Buildings/ConscriptionPost.cs
+index b96b038..b3db473 100644
+--- a/Assets/_Project/Scripts/Buildings/ConscriptionPost.cs
++++ b/Assets/_Project/Scripts/Buildings/ConscriptionPost.cs
+@@ -21,7 +21,7 @@ namespace AntColony.Buildings
+             for (var i = 0; i < commanders.Count; i++)
+             {
+                 var c = commanders[i];
+-                if (c == null || !seen.Add(c) || troops[i] <= 0 || troops[i] > AvailableTroops(c) || !c.CanReach(rally.position)) return false;
++                if (c == null || !seen.Add(c) || c.FormationBlockReason(c.SelectedFormation) != "" || troops[i] <= 0 || troops[i] > AvailableTroops(c) || !c.CanReach(rally.position)) return false;
+                 total += troops[i];
+             }
+             // Phase 4: 병역 제도 상한·민심 바닥 확인(병역 나이 확대 시 늙은 개미로 보충).
+diff --git a/Assets/_Project/Scripts/Buildings/MineField.cs b/Assets/_Project/Scripts/Buildings/MineField.cs
+index 089f205..9fc9695 100644
+--- a/Assets/_Project/Scripts/Buildings/MineField.cs
++++ b/Assets/_Project/Scripts/Buildings/MineField.cs
+@@ -26,7 +26,7 @@ namespace AntColony.Buildings
+             foreach (var m in WildMonster.All.ToArray())
+                 if (m != null && !m.IsDead && !m.IsFlying && !m.Docile && (m.Position - Position).sqrMagnitude <= radius) m.TakeDamage(damage);
+             foreach (var boss in bosses) if ((boss.Position - Position).sqrMagnitude <= radius) boss.TakeDamage(damage);
+-            foreach (var c in rebels) if ((c.Position - Position).sqrMagnitude <= radius) c.TakeDamage(damage);
++            foreach (var c in rebels) if ((c.Position - Position).sqrMagnitude <= radius) FormationDamage.Apply(c, damage, Position, area: true);
+             gameObject.SetActive(false);
+             Destroy(gameObject);
+         }
+diff --git a/Assets/_Project/Scripts/Buildings/TrapPit.cs b/Assets/_Project/Scripts/Buildings/TrapPit.cs
+index 5b6b649..dc77ad8 100644
+--- a/Assets/_Project/Scripts/Buildings/TrapPit.cs
++++ b/Assets/_Project/Scripts/Buildings/TrapPit.cs
+@@ -65,7 +65,7 @@ namespace AntColony.Buildings
+                 if (CombatTargeting.IsAlive(boss) && !CombatTargeting.IsAirborne(boss) && boss.GetComponent<WildMonster>() == null
+                     && (boss.Position - Position).sqrMagnitude <= r) { boss.TakeDamage(GameBalance.SpikeTrapDamage); hit = true; }
+             foreach (var unit in new System.Collections.Generic.List<AntUnitBase>(AntUnitBase.Active))
+-                if (unit is CommanderAnt c && c.IsHostile && !c.IsDead && !c.IsFlying && (c.Position - Position).sqrMagnitude <= r) { c.TakeDamage(GameBalance.SpikeTrapDamage); hit = true; }
++                if (unit is CommanderAnt c && c.IsHostile && !c.IsDead && !c.IsFlying && (c.Position - Position).sqrMagnitude <= r) { FormationDamage.Apply(c, GameBalance.SpikeTrapDamage, Position, area: true); hit = true; }
+             if (!hit) return;
+             spikeCooldown = GameBalance.SpikeTrapInterval;
+             if (++SpikeHits >= GameBalance.SpikeTrapHits) Spring();
+diff --git a/Assets/_Project/Scripts/Core/CampaignResearch.cs b/Assets/_Project/Scripts/Core/CampaignResearch.cs
+index 7d5e82d..3920abf 100644
+--- a/Assets/_Project/Scripts/Core/CampaignResearch.cs
++++ b/Assets/_Project/Scripts/Core/CampaignResearch.cs
+@@ -16,7 +16,8 @@ namespace AntColony.Core
+         EfficientTransport, Mines, Regeneration, Trinkets, AdvancedWeapons, Gliding,
+         Aircraft, HeavyTransport, Insulation, MigrationTheory, Hull, Cocoons, Engine, Fishing,
+         ConscriptionLaw, ReserveForces, TotalMobilization, // Phase 4 병역 제도
+-        Pharmacy, PrecisionPharmacy // 2026-10-25 D01 장수용 약품
++        Pharmacy, PrecisionPharmacy, // 2026-10-25 D01 장수용 약품
++        FormationLine, FormationColumn, FormationWedge, FormationDispersed, FormationCover, FormationFocus
+     }
+ 
+     public sealed class ScienceDefinition
+@@ -49,7 +50,9 @@ namespace AntColony.Core
+             ScienceTechnology.ArmorPlates or ScienceTechnology.Trinkets or ScienceTechnology.Gliding or ScienceTechnology.Traps or ScienceTechnology.Mines
+                 or ScienceTechnology.Vehicle or ScienceTechnology.Aircraft or ScienceTechnology.HeavyTransport or ScienceTechnology.EfficientTransport
+                 or ScienceTechnology.MigrationTheory or ScienceTechnology.Hull or ScienceTechnology.Cocoons or ScienceTechnology.Engine => CommanderActivity.Crafting,
+-            ScienceTechnology.Watchtowers or ScienceTechnology.ConscriptionLaw or ScienceTechnology.ReserveForces or ScienceTechnology.TotalMobilization => CommanderActivity.Command,
++            ScienceTechnology.FormationLine or ScienceTechnology.FormationColumn or ScienceTechnology.FormationWedge
++                or ScienceTechnology.FormationDispersed or ScienceTechnology.FormationCover or ScienceTechnology.FormationFocus
++                or ScienceTechnology.Watchtowers or ScienceTechnology.ConscriptionLaw or ScienceTechnology.ReserveForces or ScienceTechnology.TotalMobilization => CommanderActivity.Command,
+             _ => null
+         };
+         public static CampaignResearch Instance { get; private set; }
+@@ -92,7 +95,7 @@ namespace AntColony.Core
+             new ScienceDefinition(ScienceTechnology.ConscriptionLaw, "징병제", 1),
+             new ScienceDefinition(ScienceTechnology.ReserveForces, "예비군제", 2, ScienceTechnology.ConscriptionLaw),
+             new ScienceDefinition(ScienceTechnology.TotalMobilization, "국민개병", 4, ScienceTechnology.ReserveForces)
+-        }.Concat(MedicineResearch.Definitions(ScienceTechnology.Pharmacy, ScienceTechnology.PrecisionPharmacy)).ToArray();
++        }.Concat(MedicineResearch.Definitions(ScienceTechnology.Pharmacy, ScienceTechnology.PrecisionPharmacy)).Concat(FormationResearch.Definitions()).ToArray();
+ 
+         [Serializable] public sealed class State
+         {
+diff --git a/Assets/_Project/Scripts/Core/TraitRules.cs b/Assets/_Project/Scripts/Core/TraitRules.cs
+index b1959ef..d4cb3ad 100644
+--- a/Assets/_Project/Scripts/Core/TraitRules.cs
++++ b/Assets/_Project/Scripts/Core/TraitRules.cs
+@@ -31,7 +31,7 @@ namespace AntColony.Core
+                 or CommanderTrait.KitchenMenace or CommanderTrait.SlowEater or CommanderTrait.Senile => TraitGrade.Red,
+                 _ => TraitGrade.Silver };
+         }
+-        public static string Name(CommanderTrait t) => Specialty(t) < 0 ? t.ToString()
++        public static string Name(CommanderTrait t) => Specialty(t) < 0 ? t == CommanderTrait.Legion ? "레기온" : t.ToString()
+             : Grade(t) == TraitGrade.Diamond ? diamonds[Specialty(t)] : "전문성: " + (Specialty(t) < activities.Length ? StartingCandidate.SkillName(activities[Specialty(t)]) : "조사");
+         public static int Count(float roll) => roll < .95f ? 1 : roll < .995f ? 2 : 3;
+         public static TraitGrade RollGrade(float roll, bool starting)
+diff --git a/Assets/_Project/Scripts/Save/SaveOrderValidation.cs b/Assets/_Project/Scripts/Save/SaveOrderValidation.cs
+index 3f3562c..a1d575b 100644
+--- a/Assets/_Project/Scripts/Save/SaveOrderValidation.cs
++++ b/Assets/_Project/Scripts/Save/SaveOrderValidation.cs
+@@ -41,6 +41,11 @@ namespace AntColony.Save
+             void Ref(string key) { Check(string.IsNullOrEmpty(key) || keys.Contains(key), "reference " + key); }
+             bool Site(int i) => i >= -1 && i < f.world.sites.Count;
+             foreach (var c in f.commanders) {
++                var formation = c.personalState?.formation;
++                if (formation != null && formation.hits > 0) {
++                    Check(formation.hitTarget?.StartsWith("saved:") == true, "formation hit target");
++                    Ref(formation.hitTarget.Substring(6));
++                }
+                 if (!c.hasOrder) continue;
+                 var d = c.order; Check(d != null, "commander order");
+                 var s = d.soldier; var w = d.worker;
+diff --git a/Assets/_Project/Scripts/Save/SaveSnapshot.cs b/Assets/_Project/Scripts/Save/SaveSnapshot.cs
+index 2276ebf..b0d639a 100644
+--- a/Assets/_Project/Scripts/Save/SaveSnapshot.cs
++++ b/Assets/_Project/Scripts/Save/SaveSnapshot.cs
+@@ -108,6 +108,7 @@ namespace AntColony.Save
+                 file.world.transports[i].crewOrders = ship.CaptureCrewOrders();
+             }
+             file.discoveries = Encyclopedia.Entries.ToList();
++            for (int i = 0; i < commanders.Count; i++) file.commanders[i].personalState.formation = commanders[i].CaptureFormationForSave();
+             return file;
+         }
+ 
+@@ -319,6 +320,7 @@ namespace AntColony.Save
+                 if (site != null) for (int i = 0; i < d.needs.Count; i++) site.Needs[i].reserved = d.needs[i].reserved;
+             }
+             for (int i = 0; i < ships.Count; i++) ships[i].Route.RestoreProgress(file.world.transports[i].route);
++            foreach (var c in commanders) c.RestoreFormationHit();
+             CommanderAnt.RefreshDepartureNotice();
+             UnityEngine.Random.state = JsonUtility.FromJson<UnityEngine.Random.State>(file.randomState);
+         }
+diff --git a/Assets/_Project/Scripts/Units/CommanderAdvancedSkills.cs b/Assets/_Project/Scripts/Units/CommanderAdvancedSkills.cs
+index d9f86e9..8056d7c 100644
+--- a/Assets/_Project/Scripts/Units/CommanderAdvancedSkills.cs
++++ b/Assets/_Project/Scripts/Units/CommanderAdvancedSkills.cs
+@@ -77,7 +77,7 @@ namespace AntColony.Units
+             {
+                 if (!CombatTargeting.CanAttack(role, target) || (target.Position - point).sqrMagnitude > radius * radius) continue;
+                 bool wasAlive = CombatTargeting.IsAlive(target);
+-                target.TakeDamage(damage);
++                FormationDamage.Apply(target, damage, point, role == UnitRole.Ranged, true);
+                 Social.combatSeen = true;
+                 personalState.lastCombatSeconds = 0;
+                 if (wasAlive && !CombatTargeting.IsAlive(target))
+diff --git a/Assets/_Project/Scripts/Units/CommanderAnt.cs b/Assets/_Project/Scripts/Units/CommanderAnt.cs
+index 0d07f19..25af7d6 100644
+--- a/Assets/_Project/Scripts/Units/CommanderAnt.cs
++++ b/Assets/_Project/Scripts/Units/CommanderAnt.cs
+@@ -80,6 +80,7 @@ namespace AntColony.Units
+ 
+         protected override void Update()
+         {
++            TickFormation(Time.deltaTime);
+             TickDuty(Time.deltaTime);
+             TickAdvancedSkills(Time.deltaTime);
+             if (IsHostile) { TickDeparture(Time.deltaTime); return; }
+@@ -101,6 +102,8 @@ namespace AntColony.Units
+                 if (!IsConstructing) { ServiceTarget = null; ServiceJob = CommanderJobs.None; HuntTarget = null; SetWorkTarget(null); }
+                 automaticFacility = null; ScienceAssignment?.ReleaseResearcher(); WorkState.resting = false;
+                 if (IsReturning) WorkState.duty = CommanderDuty.Deployed;
++                FormationState.ResetHits();
++                FaceFormation(destination - Position);
+                 base.CommandMove(destination);
+             }
+         }
+@@ -112,8 +115,8 @@ namespace AntColony.Units
+         public override bool IsFlying => EquippedArmor?.armor == ArmorKind.Wings && Social.groundedRemaining <= 0;
+ 
+         public int TroopCount => troopCount;
+-        public int CommandLimit => Mathf.Max(1, Mathf.FloorToInt((10 + 2 * talents.Level(CommanderActivity.Command))
+-            * (1f - .2f * PersonalState.Severity(InjuryPart.Thorax))) + (int)TrinketBonus(TrinketEffect.Command));
++        public int CommandLimit => FormationRules.CommandLimit(talents.Level(CommanderActivity.Command),
++            (int)TrinketBonus(TrinketEffect.Command), 1f - .2f * PersonalState.Severity(InjuryPart.Thorax), HasLegion);
+         public int FreeRanks => Mathf.Max(0, CommandLimit - troopCount);
+         public bool HasTroops => troopCount > 0;
+ 
+@@ -150,14 +153,18 @@ namespace AntColony.Units
+         // 병력 수만큼 부대 전체의 전투력/채집량이 늘어난다.
+         // 레벨 공격 보너스는 기존 공격력과 같이 1마리분에 더해진 뒤 병력 수(병력 0이면 장수 본인 1인분)만큼 곱해진다.
+         // 신중형 성격은 1마리분 공격력을 깎으므로 0 밑으로 내려가지 않게 막는다(병력 수를 곱하면 부호가 증폭된다).
+-        public override float AttackDamage => Mathf.Max(1f, base.AttackDamage + (Role == UnitRole.Support ? 0 : talents.Level(CombatActivity))
+-            + traits.AttackBonus + labAttackLevel * LabAttackBonusPerLevel
+-            + EquipmentBonus(EquipmentSlot.Weapon) + (HasNearbyFriend ? 1 : 0)
+-            + (HasSupportAura ? SupportAttackBonus : 0f)) * Mathf.Max(1, troopCount) * (1f - .25f * PersonalState.Severity(InjuryPart.Arms)) * (PersonalState.rageRemaining > 0 ? 1.3f : 1f);
+-        public override float Armor => base.Armor + (AntColony.Buildings.RoomSystem.NearCastleWall(Position) ? AntColony.Buildings.GameBalanceRooms.CastleWallArmor : 0) + (Role == UnitRole.Melee ? .5f * talents.Level(CommanderActivity.Melee) : Role == UnitRole.Defense ? talents.Level(CommanderActivity.Melee) : 0) + traits.ArmorBonus
+-            + labArmorLevel * LabArmorBonusPerLevel + (HasSupportAura ? SupportArmorBonus : 0f)
+-            + EquipmentBonus(EquipmentSlot.Armor) - 2f * PersonalState.Severity(InjuryPart.Thorax)
+-            + (skills.DefensiveStanceActive ? CommanderSkills.DefensiveStanceArmor : 0f);
++        private float FormationAttackBasis => base.AttackDamage + (Role == UnitRole.Support ? 0 : talents.Level(CombatActivity))
++            + labAttackLevel * LabAttackBonusPerLevel + EquipmentBonus(EquipmentSlot.Weapon);
++        private float AttackAgainst(IDamageable target) => Mathf.Max(1f, FormationRules.Stat(FormationAttackBasis,
++            traits.AttackBonus + (HasNearbyFriend ? 1 : 0) + (HasSupportAura ? SupportAttackBonus : 0), FormationEffect(target).Attack))
++            * Mathf.Max(1, troopCount) * (1f - .25f * PersonalState.Severity(InjuryPart.Arms)) * (PersonalState.rageRemaining > 0 ? 1.3f : 1f);
++        public override float AttackDamage => AttackAgainst(CombatTarget);
++        private float FormationArmorBasis => base.Armor + labArmorLevel * LabArmorBonusPerLevel + EquipmentBonus(EquipmentSlot.Armor)
++            + (Role == UnitRole.Melee ? .5f * talents.Level(CommanderActivity.Melee) : Role == UnitRole.Defense ? talents.Level(CommanderActivity.Melee) : 0);
++        public override float Armor => FormationRules.Stat(FormationArmorBasis, traits.ArmorBonus
++            + (AntColony.Buildings.RoomSystem.NearCastleWall(Position) ? AntColony.Buildings.GameBalanceRooms.CastleWallArmor : 0)
++            + (HasSupportAura ? SupportArmorBonus : 0) + (skills.DefensiveStanceActive ? CommanderSkills.DefensiveStanceArmor : 0), FormationEffect().Armor)
++            - 2f * PersonalState.Severity(InjuryPart.Thorax);
+         protected override float GatherRate => base.GatherRate * Mathf.Max(1, troopCount) * WorkRate(CurrentActivity) * (1f - .3f * PersonalState.Severity(InjuryPart.Arms)) * (1f + TrinketBonus(TrinketEffect.Gather)) * ColonyEvents.GatherMultiplier(this);
+         protected override float FishingCatchMultiplier => talents.Multiplier(CommanderActivity.Fishing) * ColonyEvents.GatherMultiplier(this);
+         protected override void OnGathered(float amount)
+@@ -169,8 +176,11 @@ namespace AntColony.Units
+             if (CurrentActivity != CommanderActivity.Gathering) GainExperience(CurrentActivity, seconds);
+         }
+         // 포텐 성장(2026-10-07): 작업량은 그대로 활용 이력에, 학습 배율(열정·학습 특성·나이·머리 부상)은 성장 속도에만 쓴다.
+-        public void GainExperience(CommanderActivity activity, float amount, CommanderActivity? topic = null) => talents.Train(activity, amount,
+-            skill => traits.GrowthMultiplier(skill) * AgeLearningMultiplier * (1f - .5f * PersonalState.Severity(InjuryPart.Head)), topic);
++        public void GainExperience(CommanderActivity activity, float amount, CommanderActivity? topic = null)
++        {
++            talents.Train(activity, amount, skill => traits.GrowthMultiplier(skill) * AgeLearningMultiplier * (1f - .5f * PersonalState.Severity(InjuryPart.Head)), topic);
++            EnsureFormationAffinities();
++        }
+         // 창고는 정수만 받으므로 한 번에 나르는 양도 정수로 내린다(17.25면 매 왕복 자투리가 바닥 더미로 떨어졌다).
+         protected override float CarryCapacity => Mathf.Max(1f, Mathf.Floor(LoadCapacity));
+         protected override float FishingWorkSpeed => WorkFactor;
+@@ -276,12 +286,13 @@ namespace AntColony.Units
+         }
+ 
+         // 피해는 부대 전체가 나눠 받고, HP 1이 쌓일 때마다 병력이 실제로 줄어든다(환급 없음).
+-        public override void TakeDamage(float amount)
++        public override void TakeDamage(float amount) => TakeFormationDamage(amount, null, false, false);
++        private void TakeTroopDamage(float amount, float receivedMultiplier)
+         {
+             if (IsDead || IsEmbarked || PersonalHealth <= 0 || float.IsNaN(amount) || amount <= 0) return;
+             Social.combatSeen = true; PersonalState.lastCombatSeconds = 0; WorkState.quietSeconds = 0;
+             GetComponent<AntVisual>()?.Action("Hit");
+-            var damage = Mathf.Max(Mathf.Min(1, amount), amount - Armor);
++            var damage = Mathf.Max(Mathf.Min(1, amount), amount - Armor) * receivedMultiplier;
+             damage = AbsorbDurableDamage(damage);
+             var troopDamage = Mathf.Min(damage, TroopHealth);
+             damage -= troopDamage; pendingDamage += troopDamage;
+@@ -300,11 +311,13 @@ namespace AntColony.Units
+ 
+         public override void CommandAttack(IDamageable target)
+         {
+-            if (!CanReceiveOrders || LabUpgradeBusy) return;
++            if (!CanReceiveOrders || LabUpgradeBusy || target == null || !CanAttackTarget(target)) return;
+             if (target is Component component && !AntColony.World.DiplomacyManager.TryAttack(component)) return;
+             WorkState.deploymentMealSeconds = 0;
+             WorkState.bossPickup = -1;
+             ReleaseCorpse();
++            FormationState.Target(FormationTargetKey(target));
++            FaceFormation(target.Position - Position);
+             base.CommandAttack(target);
+         }
+ 
+@@ -314,6 +327,7 @@ namespace AntColony.Units
+             WorkState.deploymentMealSeconds = 0;
+             WorkState.bossPickup = -1;
+             ReleaseCorpse();
++            FaceFormation(destination - Position);
+             base.CommandAttackMove(destination);
+         }
+ 
+@@ -346,7 +360,12 @@ namespace AntColony.Units
+             var wasAlive = !target.IsDead;
+             // 강타는 살아 있는 대상에 대한 다음 실제 타격 한 번에만 소모된다.
+             var multiplier = wasAlive && skills.ConsumePowerStrike() ? CommanderSkills.PowerStrikeMultiplier : 1f;
+-            StrikeWithEquipment(target, AttackDamage * multiplier);
++            FaceFormation(target.Position - Position);
++            FormationState.Target(FormationTargetKey(target));
++            StrikeWithEquipment(target, AttackAgainst(target) * multiplier);
++            if (SelectedFormation == Formation.Focus && wasAlive && multiplier == 1 && !string.IsNullOrEmpty(FormationTargetKey(target))
++                && (!(target is CommanderAnt defender) || !defender.IsEmbarked && defender.PersonalHealth > 0))
++                { formationHitTarget = target; FormationState.Hit(FormationTargetKey(target)); }
+             if ((Weapon?.AttackRadius ?? 0) <= 0 && wasAlive && reward > 0 && IsKilled(target))
+             {
+                 GainExperience(CombatActivity, reward);
+diff --git a/Assets/_Project/Scripts/Units/CommanderBossEquipment.cs b/Assets/_Project/Scripts/Units/CommanderBossEquipment.cs
+index 2fb923a..54adabd 100644
+--- a/Assets/_Project/Scripts/Units/CommanderBossEquipment.cs
++++ b/Assets/_Project/Scripts/Units/CommanderBossEquipment.cs
+@@ -26,7 +26,7 @@ namespace AntColony.Units
+     public partial class CommanderAnt
+     {
+         public float HeatResistance => EquippedArmor?.HeatResistance ?? 0;
+-        public void TakeHeatDamage(float amount) => TakeDamage(amount * (1 - HeatResistance));
++        public void TakeHeatDamage(float amount) => TakeFormationDamage(amount, null, false, false, HeatResistance);
+         private float AbsorbDurableDamage(float amount)
+         {
+             var armor = EquippedArmor;
+@@ -38,7 +38,7 @@ namespace AntColony.Units
+         private void StrikeWithEquipment(IDamageable target, float damage)
+         {
+             var radius = Weapon?.AttackRadius ?? 0;
+-            if (radius <= 0) { target.TakeDamage(damage); return; }
++            if (radius <= 0) { FormationDamage.Apply(target, damage, Position, Role == AntColony.Data.UnitRole.Ranged); return; }
+             // 기존 범위 스킬의 아군/중립/대공 판정과 처치 경험치를 그대로 쓴다.
+             DamageArea(target.Position, radius, damage, Role);
+         }
+diff --git a/Assets/_Project/Scripts/Units/CommanderDeparture.cs b/Assets/_Project/Scripts/Units/CommanderDeparture.cs
+index 8d8c143..4ad103f 100644
+--- a/Assets/_Project/Scripts/Units/CommanderDeparture.cs
++++ b/Assets/_Project/Scripts/Units/CommanderDeparture.cs
+@@ -91,14 +91,14 @@ namespace AntColony.Units
+         private void TickForcedAttack(IDamageable target, float seconds)
+         {
+             if (target == null || !HasTroops || Data == null) { StopMoving(); return; }
+-            if (GetDistanceTo(target.Position) > Data.attackRange)
++            if (GetDistanceTo(target.Position) > AttackRange)
+             {
+                 if (Social.rootRemaining > 0) { StopMoving(); return; }
+                 SetMoveDestination(target.Position); TickFlightMovement(); return;
+             }
+             StopMoving(); Social.attackSeconds = Mathf.Max(0, Social.attackSeconds - seconds);
+             if (Social.attackSeconds > 0) return;
+-            Social.attackSeconds = Data.attackInterval;
++            Social.attackSeconds = AttackInterval;
+             GetComponent<AntVisual>()?.Attack(target.Position);
+             DealDamage(target);
+         }
+diff --git a/Assets/_Project/Scripts/Units/CommanderPersonal.cs b/Assets/_Project/Scripts/Units/CommanderPersonal.cs
+index ba51422..8356d50 100644
+--- a/Assets/_Project/Scripts/Units/CommanderPersonal.cs
++++ b/Assets/_Project/Scripts/Units/CommanderPersonal.cs
+@@ -23,8 +23,8 @@ namespace AntColony.Units
+             : (EquippedArmor?.armor == ArmorKind.Coating ? EquippedArmor.quality + 1 : 0)
+                 + (Weapon?.weapon == WeaponKind.Shield ? 2 * (Weapon.quality + 1) : 0);
+         protected override float WorkSpeed => WorkRate(ConstructionTarget != null && ConstructionTarget.IsArt ? CommanderActivity.Art : CommanderActivity.Building);
+-        protected override float MovementSpeed => base.MovementSpeed * traits.MoveMultiplier * AgeMoveMultiplier * BiomeRules.MoveAt(AntColony.Buildings.RoomSystem.IsIndoors(Position)) * AntColony.Map.WeatherSystem.MoveAt(AntColony.Buildings.RoomSystem.IsIndoors(Position)) * (AntColony.Map.MapGenerator.InWater(Position) ? AntColony.Map.MapGenerator.WaterMoveMultiplier : 1f)
+-            * (1f - .3f * personalState.Severity(InjuryPart.Legs)) * (1f + TrinketBonus(TrinketEffect.Move))
++        protected override float MovementSpeed => base.MovementSpeed * (traits.MoveMultiplier + TrinketBonus(TrinketEffect.Move) + FormationEffect().Move) * AgeMoveMultiplier * BiomeRules.MoveAt(AntColony.Buildings.RoomSystem.IsIndoors(Position)) * AntColony.Map.WeatherSystem.MoveAt(AntColony.Buildings.RoomSystem.IsIndoors(Position)) * (AntColony.Map.MapGenerator.InWater(Position) ? AntColony.Map.MapGenerator.WaterMoveMultiplier : 1f)
++            * (1f - .3f * personalState.Severity(InjuryPart.Legs))
+             * (Weapon?.weapon == WeaponKind.Shield ? .9f : 1f) * (IsFlying ? 1f + .05f * EquippedArmor.quality : 1f)
+             * AntColony.World.ColonyEvents.MoveMultiplier(this) * (Social.rallyRemaining > 0 ? 1.3f : 1f) * (AntColony.Buildings.FloorTile.At(Position) ? GameBalance.FloorMoveMultiplier : 1f) * AnimalCarryMultiplier;
+         public CommanderActivity CurrentActivity => ServiceTarget != null ? SkillFor(ServiceJob) : HuntTarget != null ? CombatActivity : CraftingWorkshop != null ? CommanderActivity.Crafting : LabUpgradeBusy ? CommanderActivity.Research : IsConstructing ? ConstructionTarget.IsArt ? CommanderActivity.Art : CommanderActivity.Building
+@@ -62,6 +62,9 @@ namespace AntColony.Units
+             TreatmentFacility?.Release(this);
+             CraftingWorkshop?.Release();
+             personalState = value == null ? new CommanderPersonalState() : JsonUtility.FromJson<CommanderPersonalState>(JsonUtility.ToJson(value));
++            personalState.formation ??= new FormationState();
++            restoreFormationHit = personalState.formation.hits > 0 && personalState.formation.hitTarget?.StartsWith("saved:") == true;
++            if (!restoreFormationHit && (formationHitTarget == null || FormationTargetKey(formationHitTarget) != personalState.formation.hitTarget)) personalState.formation.ResetHits();
+             personalState.treating = false; // Building restoration reconnects the patient after commanders load.
+             MigrateAge(personalState);
+             personalState.health ??= new HealthState(); MedicalRules.Migrate(personalState); // 옛 6부위 부상·곰팡이 → 부위별 건강(2026-10-15)
+diff --git a/Assets/_Project/Scripts/Units/CommanderPersonalState.cs b/Assets/_Project/Scripts/Units/CommanderPersonalState.cs
+index bdc14e5..1f3dfe0 100644
+--- a/Assets/_Project/Scripts/Units/CommanderPersonalState.cs
++++ b/Assets/_Project/Scripts/Units/CommanderPersonalState.cs
+@@ -15,6 +15,7 @@ namespace AntColony.Units
+     [Serializable]
+     public class CommanderPersonalState
+     {
++        public FormationState formation = new FormationState();
+         public CommanderWorkState work = new CommanderWorkState();
+         public string id = Guid.NewGuid().ToString("N");
+         public List<CommanderInjury> injuries = new List<CommanderInjury>();
+@@ -90,6 +91,7 @@ namespace AntColony.Units
+                 || deathEvents.Exists(string.IsNullOrEmpty) || new HashSet<string>(deathEvents).Count != deathEvents.Count) return false;
+             if (expectationTier < 0 || expectationTier > 2 || toolTier < 0 || toolTier > 2 || carriedRations != null && !carriedRations.Valid
+                 || groundCraft != null && !groundCraft.Valid) return false;
++            if (formation != null && !formation.Valid) return false;
+             if (work == null || !work.Valid || string.IsNullOrEmpty(id) || social == null || !social.Validate() || sleep == null || !sleep.Valid || meal == null || !meal.Valid || joy == null || !joy.Valid || hygiene == null || !hygiene.Valid || health == null || health.wounds == null || health.illnesses == null || health.surgeries == null
+                 || health.wounds.Count > 64 || health.illnesses.Count > 16 || health.surgeries.Count > 8 || !Finite(health.bloodLoss) || health.bloodLoss < 0 || health.bloodLoss > 1
+                 || health.wounds.Exists(w => w == null || !Enum.IsDefined(typeof(BodyPart), w.part) || !Enum.IsDefined(typeof(WoundKind), w.kind) || !Finite(w.damage) || w.damage < 0 || !Finite(w.age) || !Finite(w.quality))
+diff --git a/Assets/_Project/Scripts/Units/CommanderTraits.cs b/Assets/_Project/Scripts/Units/CommanderTraits.cs
+index c020e79..f107bc7 100644
+--- a/Assets/_Project/Scripts/Units/CommanderTraits.cs
++++ b/Assets/_Project/Scripts/Units/CommanderTraits.cs
+@@ -22,7 +22,8 @@ namespace AntColony.Units
+         GoldGathering, GoldBuilding, GoldFarming, GoldFishing, GoldCrafting, GoldResearch, GoldMedicine,
+         GoldCooking, GoldStrength, GoldArt, GoldPolitics, GoldHusbandry, GoldInvestigation,
+         DiamondGathering, DiamondBuilding, DiamondFarming, DiamondFishing, DiamondCrafting, DiamondResearch, DiamondMedicine,
+-        DiamondCooking, DiamondStrength, DiamondArt, DiamondPolitics, DiamondHusbandry, DiamondInvestigation
++        DiamondCooking, DiamondStrength, DiamondArt, DiamondPolitics, DiamondHusbandry, DiamondInvestigation,
++        Legion // D04 지휘·진형 강화(군세 계승은 별도)
+     }
+     // 기술 15종: 기존 9종 뒤에 의료·요리·근력·예술(2026-09-28), 정치(2026-10-08), 사육(2026-10-10). 저장 번호가 밀리지 않게 끝에 붙인다.
+     public enum CommanderActivity { Gathering, Building, Farming, Fishing, Crafting, Research, Melee, Ranged, Command, Medicine, Cooking, Strength, Art, Politics, Husbandry, Firefighting }
+diff --git a/Assets/_Project/Scripts/Units/SoldierAnt.cs b/Assets/_Project/Scripts/Units/SoldierAnt.cs
+index eaf269a..998c20a 100644
+--- a/Assets/_Project/Scripts/Units/SoldierAnt.cs
++++ b/Assets/_Project/Scripts/Units/SoldierAnt.cs
+@@ -1,4 +1,4 @@
+-using AntColony.Core;
++﻿using AntColony.Core;
+ using AntColony.Data;
+ using UnityEngine;
+ 
+@@ -55,6 +55,10 @@ namespace AntColony.Units
+         public virtual bool IsFlying => Data != null && Data.role == UnitRole.Flying;
+         public bool IsInCombat => currentTarget != null && CanAttackTarget(currentTarget);
+         private UnitRole TargetingRole => IsFlying ? UnitRole.Flying : Data.role;
++        protected IDamageable CombatTarget => currentTarget;
++        protected bool IsDirectMoving => state == State.MovingToTarget && currentTarget == null && !isOnAttackMove && !HasReachedDestination();
++        protected virtual float AttackRange => Data.attackRange;
++        protected virtual float AttackInterval => Data.attackInterval;
+         protected virtual float MovementSpeed => Data != null ? Data.moveSpeed : 0f;
+         bool IAirborne.IsAirborne => IsFlying;
+ 
+@@ -283,7 +287,7 @@ namespace AntColony.Units
+                     return;
+                 }
+ 
+-                if (GetDistanceTo(currentTarget.Position) <= Data.attackRange)
++                if (GetDistanceTo(currentTarget.Position) <= AttackRange)
+                 {
+                     StopMoving();
+                     state = State.Attacking;
+@@ -307,7 +311,7 @@ namespace AntColony.Units
+                 return;
+             }
+ 
+-            if (GetDistanceTo(currentTarget.Position) > Data.attackRange)
++            if (GetDistanceTo(currentTarget.Position) > AttackRange)
+             {
+                 state = State.MovingToTarget;
+                 return;
+@@ -316,7 +320,7 @@ namespace AntColony.Units
+             attackTimer -= Time.deltaTime;
+             if (attackTimer <= 0f)
+             {
+-                attackTimer = Data.attackInterval;
++                attackTimer = AttackInterval;
+                 GetComponent<AntVisual>()?.Attack(currentTarget.Position);
+                 DealDamage(currentTarget);
+             }
+@@ -326,7 +330,7 @@ namespace AntColony.Units
+         // 처치 판정 같은 부가 처리는 이 메서드만 오버라이드하면 된다.
+         protected virtual void DealDamage(IDamageable target)
+         {
+-            target.TakeDamage(AttackDamage);
++            FormationDamage.Apply(target, AttackDamage, Position, Data.role == UnitRole.Ranged);
+         }
+     }
+ }
+diff --git a/Assets/_Project/Scripts/World/ExpeditionSupplies.cs b/Assets/_Project/Scripts/World/ExpeditionSupplies.cs
+index cf364b7..0890ad2 100644
+--- a/Assets/_Project/Scripts/World/ExpeditionSupplies.cs
++++ b/Assets/_Project/Scripts/World/ExpeditionSupplies.cs
+@@ -13,9 +13,11 @@ namespace AntColony.World
+         public int ReturnCargoSpace => Mathf.Max(0, CargoCapacity - CargoLoad);
+         private int WalkingCargoCapacity => Mathf.FloorToInt(crew.Where(c => c != null && !c.IsDead)
+             .Sum(c => Mathf.Max(0, c.TotalLoadCapacity - c.StartingLoadWeight)) / .05f);
++        public float FormationWalkMultiplier => crew.Where(c => c != null && !c.IsDead)
++            .Select(c => c.FormationWorldMoveMultiplier).DefaultIfEmpty(1).Min();
+         public float DailyFood => crew.Where(c => c != null && !c.IsDead).Sum(ExpeditionRules.FoodPerDay);
+         public int RecommendedFood(ExpeditionSite destination) => ExpeditionRules.RecommendedFood(
+-            Walking ? ExpeditionRules.WalkSeconds(destination) : TravelSeconds, DailyFood);
++            Walking ? ExpeditionRules.WalkSeconds(destination) / FormationWalkMultiplier : TravelSeconds, DailyFood);
+         public int AvailableFood => GetCargo(AntColony.Data.ResourceType.Food) + crew.Where(c => c != null && !c.IsDead)
+             .Sum(c => c.PersonalState.carriedRations?.Total ?? 0);
+         public bool LeavesHomeUnattended => State == ExpeditionState.Home && CommanderLoad > 0 && ExpeditionRules.HomeCommanders == 0;
+diff --git a/Assets/_Project/Scripts/World/ExpeditionTransport.cs b/Assets/_Project/Scripts/World/ExpeditionTransport.cs
+index 1f1b316..1f22a02 100644
+--- a/Assets/_Project/Scripts/World/ExpeditionTransport.cs
++++ b/Assets/_Project/Scripts/World/ExpeditionTransport.cs
+@@ -33,7 +33,7 @@ namespace AntColony.World
+         public int Capacity => Walking ? int.MaxValue : Mathf.FloorToInt((Aircraft ? GameBalance.AircraftTroops : GameBalance.VehicleTroops) * ScienceEffects.TroopCapacityMultiplier);
+         public int CommanderCapacity => Walking ? int.MaxValue : (Aircraft ? GameBalance.AircraftCommanders : GameBalance.VehicleCommanders) + ScienceEffects.CommanderSlotBonus;
+         public int CargoCapacity => Walking ? WalkingCargoCapacity : Mathf.FloorToInt((Aircraft ? GameBalance.AircraftCargo : GameBalance.VehicleCargo) * ScienceEffects.CargoMultiplier);
+-        public float TravelSeconds => Walking ? ExpeditionRules.WalkSeconds(Site) : Aircraft ? 10 : 20;
++        public float TravelSeconds => Walking ? ExpeditionRules.WalkSeconds(Site) / FormationWalkMultiplier : Aircraft ? 10 : 20;
+         public float Remaining { get; private set; }
+         public int Load
+         {
+diff --git a/Assets/_Project/Scripts/World/WildMonster.cs b/Assets/_Project/Scripts/World/WildMonster.cs
+index 5ce5995..ca23bcb 100644
+--- a/Assets/_Project/Scripts/World/WildMonster.cs
++++ b/Assets/_Project/Scripts/World/WildMonster.cs
+@@ -238,7 +238,7 @@ namespace AntColony.World
+                 attackTimer = attackInterval;
+                 GetComponent<AntVisual>()?.Attack(currentTarget.Position);
+                 if (currentTarget is BuildingBase flammable && WallFire.Flammable(flammable)) WallFire.Ignite(flammable); // 가연성 재료(나뭇잎 벽·목재 등)엔 불을 지른다.
+-                currentTarget.TakeDamage(attackDamage);
++                FormationDamage.Apply(currentTarget, attackDamage, Position);
+             }
+         }
+ 
+diff --git a/README.md b/README.md
+index f1368d0..fe70a20 100644
+--- a/README.md
++++ b/README.md
+@@ -6,6 +6,8 @@
+ 현재 외형은 사람형 SD kemono 캐릭터로 전환 중입니다. 캐릭터·애니메이터·작업 도구와 시설 모델이 연결되어 있으며, 2026-10-24 팔레트 6색·천옷 재색칠·상태별 표정·단궁·판갑 11부품·일부 소품의 연결 코드를 추가했습니다. C# 정적 컴파일과 Blender 재가져오기 검사는 통과했지만, 이번 변경의 Unity 임포터 실행·Play·화면 검증은 접근 제한으로 대기 중입니다. 괭이 손목·일부 도구 및 판갑 관통은 남아 있습니다. 상세: [그래픽 인계](docs/HANDOFF-CODEX-1024.md).
+ 
+ 아래 날짜별 항목은 당시의 구현·검증 기록입니다. 뒤쪽 설명에도 이전 단계의 수치와 용어가 남아 있으므로 최신 항목과 충돌할 때는 최신 기록을 우선합니다. 현재 작업 상태와 남은 검증은 `log.md`에서 확인할 수 있습니다.
++> **2026-10-25 D04 진형(E1):** 평진·삼국지풍 7종·현대식 6종의 규칙, 장수별 적성, 현대식 독립 연구 6종, 편성 진형 선택 API와 전투/도보 원정 보정, 저장 버전 유지·구저장 기본 평진을 연결했습니다. UI 선택 화면 연결과 Unity 실행 검증은 대기입니다. 게임 소스·`ImplD04Checks`는 오프라인 Roslyn 컴파일 오류 0이며 런타임 검사 통과를 뜻하지 않습니다. [연결 API·검증 인계](docs/IMPL-E1-HANDOFF.md).
++
+ 
+ > **Unity V6 화면 적용:** 최신 시안의 중성색·평면 버튼·본문/보조 글씨 기준을 기존 HUD와 관리 화면에 반영했습니다. 하단 52px 메뉴, 선택 요약·명령 카드, 접이식 미니맵, 244px 달력·알림을 사용하며 긴 알림은 280px 안에서 스크롤합니다. HUD·메뉴는 같은 픽셀 기준이고, 큰 관리 창은 화면 안에 맞추면서 일반 글씨를 최소 12px로 유지합니다. 기본 조작 17개·기존 관리 기능 90개 통과, 960/1280/1440 뷰포트 모의 검사에서 5개 관리 화면과 건설 창의 배치·폰트 하한을 확인했습니다. 건설 담당자 0명에서 발생하던 목록 범위 오류도 재현 후 수정했습니다. HTML 전용 평가·외부 조사 등 새 게임 시스템은 포함하지 않으며, SAVE에서 실제 HUD·과학·작업표 화면을 확인했습니다. 후속 수정으로 월드 이름표가 HUD 영역을 가리지 않게 하고, 셰이더 재임포트 때 지형 층 정보가 유실되는 회색 지면 문제의 복구를 추가했습니다. 이 후속 변경의 화면 검수는 아직 하지 않았습니다. Player 빌드는 미수행입니다.
+ 
+diff --git a/docs/IMPLEMENTATION_BOARD.md b/docs/IMPLEMENTATION_BOARD.md
+index 1f2f078..a104ee6 100644
+--- a/docs/IMPLEMENTATION_BOARD.md
++++ b/docs/IMPLEMENTATION_BOARD.md
+@@ -316,3 +316,13 @@
+ - 남음: 동물 위생·배설물·퇴비·질병 발생 경로/진행 중 임신 상세·통합 의료 우선순위·실행 회귀, 장수 의료 전면 개편, 시체/묘비, 원정 장비 압수/실물 수송/철수, 포로 실물 관리. 전체 기획 구현 완료 아님.
+ - 추가 담당: `Buildings/RanchFacility.cs` 먹이통 우선순위 기본5/상한9 기획 일치. 급식 실물 창고 인출과 운반 식품 신선도 보존 관련 `Units/WorkerAnt.cs`, `Save/SaveDtos.cs`, `Save/SaveSnapshot.cs`, `Save/SavePreflight.cs`, `AgentScripts/Spec1013ClinicChecks.cs`.
+ - SAVE 미수행: log/changelog/개발 일지/캡처/커밋/push 하지 않음.
++
++- **IMPL-E1 / Codex / 구현·오프라인 컴파일 완료, Claude UI 연결·Unity 검사 대기(2026-10-25)** — D04 진형. 소유: 신규 Units/FormationRules.cs·CommanderFormation.cs·Core/FormationDamage.cs·FormationResearch.cs, Units/CommanderAnt.cs·CommanderPersonal.cs·CommanderPersonalState.cs·SoldierAnt.cs·CommanderBossEquipment.cs·CommanderAdvancedSkills.cs(진형 연결), Core/CampaignResearch.cs, 전투 피해 호출부(Boss/AoE 3종·Buildings/AcidTower·AreaAcidTower·MineField·TrapPit·World/WildMonster), World/ExpeditionTransport.cs(TravelSeconds 편성 보정만), AgentScripts/ImplD04Checks.cs, docs/IMPL-E1-HANDOFF.md. UI/**·철수/파손 로직 수정 금지. Unity 실행 금지, Roslyn만. codex/e1-formation 커밋·push 없음.
++
++  - 추가 연결 소유: Core/TraitRules.cs·Units/CommanderTraits.cs(레기온 enum/이름), Units/CommanderDeparture.cs(유효 사거리/공격 주기), World/ExpeditionSupplies.cs(도보 편성 최저 속도·권장 식량).
++
++  - 추가 소유: Save/SaveSnapshot.cs·SaveOrderValidation.cs(연속 적중 대상의 저장 참조·복원 순서·검증), Buildings/ConscriptionPost.cs(출전 확정 시 해금 재검증).
++
++  - 결과: 14종·연구6종·적성·편성 선택 API·전투 효과·도보 속도·저장 버전 유지/구저장 평진 구현. 게임/ImplD04Checks Roslyn 오류0, 런타임 미실행. 상세 `docs/IMPL-E1-HANDOFF.md`. README 현재 상태 반영.
++
++  - 커밋 차단: git add가 원본 `.git/worktrees/E1/index.lock` Permission denied(exit128). 소스/신규 파일은 worktree 보존, `docs/patches/IMPL-E1.patch`로 이관 가능. 커밋·push 없음.
+diff --git a/AgentScripts/ImplD04Checks.cs b/AgentScripts/ImplD04Checks.cs
+new file mode 100644
+--- /dev/null
++++ b/AgentScripts/ImplD04Checks.cs
+@@ -0,0 +1,184 @@
++using System;
++using System.IO;
++using System.Linq;
++using System.Reflection;
++using System.Threading.Tasks;
++using UnityEngine;
++
++public static class ImplD04Checks
++{
++    static int checks;
++    const BindingFlags Hidden = BindingFlags.Instance | BindingFlags.NonPublic;
++    static void Check(bool value, string label) { if (!value) throw new Exception("D04 FAIL: " + label); checks++; }
++    static void Same(float a, float b, string label) => Check(Mathf.Abs(a - b) < .0001f, label + " " + a + "/" + b);
++    static void Set(object target, string field, object value) => target.GetType().GetField(field, Hidden).SetValue(target, value);
++    static void Call(AntColony.Units.CommanderAnt c, string method, params object[] args) =>
++        typeof(AntColony.Units.CommanderAnt).GetMethod(method, Hidden).Invoke(c, args);
++    static float[] Values(AntColony.Units.FormationModifiers m) => new[] {
++        m.Attack, m.Armor, m.Move, m.Range, m.AttackSpeed, m.WorldMove, m.RangedReduction, m.AreaReduction, m.RearIncrease };
++
++    static void Rules()
++    {
++        // Notion 전투 표 + D04 A. 유리한 조건(원거리·산/숲·전방·철수·4적중)에서 14종 전체를 대조한다.
++        float[][] expected = {
++            new float[9], new[] {.15f,.15f,-.1f,0,0,0,0,0,0}, new[] {.2f,-.1f,.15f,0,0,0,0,0,0},
++            new[] {0,.2f,-.1f,0,0,0,0,0,0}, new[] {-.1f,-.1f,.2f,0,0,0,0,0,0},
++            new[] {.15f,-.1f,0,.15f,0,0,0,0,0}, new[] {-.1f,.15f,0,0,0,0,.15f,0,0},
++            new[] {.2f,.2f,0,0,0,0,0,0,0}, new[] {.15f,0,0,0,0,0,0,0,.15f},
++            new[] {-.1f,0,.2f,0,0,.2f,0,0,0}, new[] {.2f,-.1f,0,0,0,0,0,0,0},
++            new[] {-.1f,0,0,0,0,0,0,.2f,0}, new[] {-.15f,.15f,0,0,0,0,.15f,0,0},
++            new[] {.2f,0,0,0,-.1f,0,0,0,0} };
++        Check(AntColony.Units.FormationRules.All.Length == 14, "14 formations");
++        foreach (var f in AntColony.Units.FormationRules.All)
++        foreach (var legion in new[] { false, true })
++        {
++            var actual = Values(AntColony.Units.FormationRules.Modifiers(f, legion, true, true, true, true, 4));
++            for (int i = 0; i < actual.Length; i++)
++            {
++                var value = expected[(int)f][i];
++                Same(actual[i], value > 0 && i != 8 && legion ? value * 1.5f : value, "table " + f + "/" + i + "/" + legion);
++            }
++        }
++        Same(AntColony.Units.FormationRules.Modifiers(AntColony.Units.Formation.Geese).Attack, 0, "geese melee no attack bonus");
++        Same(AntColony.Units.FormationRules.Modifiers(AntColony.Units.Formation.Geese).Range, 0, "geese melee no range bonus");
++        Same(AntColony.Units.FormationRules.Modifiers(AntColony.Units.Formation.Snake).Attack, -.1f, "snake outside terrain");
++        Same(AntColony.Units.FormationRules.Modifiers(AntColony.Units.Formation.Snake, true).Armor, -.1f, "legion keeps terrain penalty");
++        Same(AntColony.Units.FormationRules.Modifiers(AntColony.Units.Formation.Wedge).Attack, 0, "wedge outside front");
++        Same(AntColony.Units.FormationRules.Modifiers(AntColony.Units.Formation.Cover).RangedReduction, 0, "cover while attacking");
++        Check(AntColony.Units.FormationRules.Front(Vector3.forward, new Vector3(1,0,1)), "45 degree inclusive");
++        Check(!AntColony.Units.FormationRules.Front(Vector3.forward, new Vector3(1,0,.99f)), "outside 45 degrees");
++        Check(!AntColony.Units.FormationRules.Rear(Vector3.forward, Vector3.right), "90 degrees not rear");
++        Check(AntColony.Units.FormationRules.Rear(Vector3.forward, new Vector3(1,0,-.001f)), "over 90 degrees rear");
++        Check(!AntColony.Units.FormationRules.Rear(Vector3.zero, Vector3.back), "missing direction not rear");
++        Same(AntColony.Units.FormationRules.ReceivedMultiplier(.15f, .9f), .4f, "reductions cap at 75 then increases");
++        Same(AntColony.Units.FormationRules.ReceivedMultiplier(.1f + .15f, .15f + .2f), .9f, "same damage sums once");
++        Same(AntColony.Units.FormationRules.Stat(100, 10, .2f, .8f, 3), 312, "add then health then rage");
++        Same(AntColony.Units.FormationRules.Stat(100, 10, .2f, .8f, .5f), 52, "add then health then exhaustion");
++        Check(AntColony.Units.FormationRules.CommandLimit(7, 3, .8f, true) == 32, "D04 command example");
++        Check(AntColony.Units.FormationRules.CommandLimit(0, -100, 0, false) == 1, "command minimum");
++        Check(!AntColony.Units.FormationRules.CanAllocate(33, 32), "new excess allocation rejected");
++        var state = new AntColony.Units.FormationState();
++        for (int i = 0; i < 8; i++) state.Hit("first");
++        Check(state.hits == 4, "focus capped four hits"); state.Tick(2.99f); Check(state.hits == 4, "focus before timeout");
++        state.Tick(.01f); Check(state.hits == 0, "focus expires at three seconds");
++        state.Hit("first"); state.Target("second"); Check(state.hits == 0, "focus new target resets before hit");
++        var copy = JsonUtility.FromJson<AntColony.Units.CommanderPersonalState>("{}");
++        Check(copy.formation == null || copy.formation.selected == AntColony.Units.Formation.Plain, "old JSON default plain");
++        state.selected = (AntColony.Units.Formation)99; Check(!state.Valid, "invalid formation rejected");
++        foreach (var d in AntColony.Core.FormationResearch.Definitions())
++        {
++            bool steam = d.Technology <= AntColony.Core.ScienceTechnology.FormationWedge;
++            Check(d.Tier == (steam ? 2 : 3) && d.Work == (steam ? 400 : 800)
++                && d.Food == (steam ? 100 : 150) && d.Soil == (steam ? 100 : 150) && d.Special == (steam ? 10 : 20)
++                && d.Prerequisites.Length == 0, "independent research cost " + d.Technology);
++            Check(AntColony.Core.CampaignResearch.Technologies[(int)d.Technology].Technology == d.Technology, "research index append " + d.Technology);
++            Check(AntColony.Core.CampaignResearch.Topic(d.Technology) == AntColony.Units.CommanderActivity.Command, "military topic");
++        }
++    }
++    static async Task Ready()
++    {
++        var end = DateTime.UtcNow.AddSeconds(60);
++        while (AntColony.Save.SaveSystem.Busy && DateTime.UtcNow < end) await Task.Delay(20);
++        Check(!AntColony.Save.SaveSystem.Busy && AntColony.Core.GameSession.Instance.GameStarted, "session ready");
++        Time.timeScale = 0;
++    }
++    public static async Task<string> Main()
++    {
++        checks = 0; Rules(); Check(Application.isPlaying, "Play mode required for integration checks");
++        var root = AntColony.Save.SaveStorage.RootOverride;
++        var settings = AntColony.Core.UserSettings.Current.Clone(); var random = UnityEngine.Random.state;
++        var isolated = settings.Clone(); isolated.autoSaveEnabled = false; AntColony.Core.UserSettings.Apply(isolated, false);
++        AntColony.Save.SaveStorage.RootOverride = Path.Combine(Application.temporaryCachePath, "ImplD04-" + Guid.NewGuid().ToString("N"));
++        GameObject targetObject = null;
++        try
++        {
++            var candidate = AntColony.Core.StartingCandidate.Roll(0); candidate.traits.values.Clear();
++            candidate.talents.levels[(int)AntColony.Units.CommanderActivity.Command] = 0;
++            candidate.talents.experience[(int)AntColony.Units.CommanderActivity.Command] = 0;
++            AntColony.Core.CrashLandingStart.Begin(new AntColony.Core.NewGameOptions { startingCount = 1, seed = 261025,
++                mapSize = AntColony.Core.MapSize.Small, biome = AntColony.Core.MapBiome.Forest, startingTeam = new[] { candidate } });
++            await Ready();
++            var c = AntColony.Core.CommanderRoster.Instance.Commanders.Single(); c.CommandStop();
++            Same(c.EffectiveAttackRange, c.Data.attackRange, "plain uses base attack range without recursion");
++            Same(c.EffectiveAttackInterval, c.Data.attackInterval, "plain uses base attack interval");
++            c.Talents.levels[(int)AntColony.Units.CommanderActivity.Command] = 0;
++            Check(c.FormationAffinities.Count == 1, "command zero one affinity");
++            c.Talents.levels[(int)AntColony.Units.CommanderActivity.Command] = 10;
++            Check(c.FormationAffinities.Count == 2, "command ten second affinity");
++            c.Talents.levels[(int)AntColony.Units.CommanderActivity.Command] = 20;
++            Check(c.FormationAffinities.Count == 3, "command twenty third affinity");
++            c.Talents.levels[(int)AntColony.Units.CommanderActivity.Command] = 0;
++            Check(c.FormationAffinities.Count == 3, "affinities permanent after decline");
++            c.Talents.levels[(int)AntColony.Units.CommanderActivity.Command] = 20;
++            Check(c.FormationAffinities.Distinct().Count() == 3, "threshold never grants duplicates");
++            var missing = AntColony.Units.FormationRules.All.First(f => AntColony.Units.FormationRules.Traditional(f) && !c.FormationAffinities.Contains(f));
++            Check(!c.TrySelectFormation(missing), "no traditional affinity denied");
++            Check(c.Traits.TryAdd(AntColony.Units.CommanderTrait.Legion), "legion trait added");
++            foreach (var f in AntColony.Units.FormationRules.All.Where(AntColony.Units.FormationRules.Traditional))
++                Check(c.TrySelectFormation(f), "legion traditional " + f);
++            foreach (var f in AntColony.Units.FormationRules.All.Where(f => f >= AntColony.Units.Formation.Line))
++                Check(!c.TrySelectFormation(f), "legion still needs research " + f);
++            var research = AntColony.Core.CampaignResearch.Instance;
++            var researchState = research.CaptureState();
++            foreach (var d in AntColony.Core.FormationResearch.Definitions()) researchState.completed.Add((int)d.Technology);
++            research.RestoreState(researchState);
++            foreach (var f in AntColony.Units.FormationRules.All) Check(c.TrySelectFormation(f), "all unlocked selection " + f);
++            Check(c.TrySelectFormation(AntColony.Units.Formation.Column), "column selected");
++            Same(c.FormationWorldMoveMultiplier, 1.3f, "legion walking column speed");
++            Check(c.TrySelectFormation(AntColony.Units.Formation.Focus), "focus selected before mobilize");
++            AntColony.Core.AntPool.Instance.Breed(50);
++            Check(AntColony.Core.AntPool.Instance.TryAssign(5), "allocate five existing citizens");
++            Call(c, "Mobilize", 5, c.Position);
++            Check(!c.TrySelectFormation(AntColony.Units.Formation.Plain), "cannot change while deployed");
++            targetObject = new GameObject("D04 focus target"); targetObject.transform.position = c.Position + Vector3.forward;
++            var target = targetObject.AddComponent<AntColony.World.WildMonster>();
++            Set(target, "maxHealth", 10000f); Set(target, "currentHealth", 10000f);
++            c.CommandAttack(target);
++            for (int i = 0; i < 4; i++) Call(c, "DealDamage", target);
++            Check(c.FormationState.hits == 4, "actual general attacks accumulate focus");
++            c.FormationState.Tick(.5f);
++            var before = AntColony.Save.SaveSnapshot.Capture();
++            Check(before.commanders[0].personalState.formation.hitTarget.StartsWith("saved:"), "focus stable save target reference");
++            Check(AntColony.Save.SaveValidator.Validate(before, out var error), "snapshot valid: " + error);
++            Check(AntColony.Save.SaveSystem.TrySave(false, 0, out error), "disk save accepted: " + error);
++            Check(AntColony.Save.SaveSystem.TryLoad(AntColony.Save.SaveSlots.PathFor(false, 0), out error), "disk load accepted: " + error);
++            await Ready();
++            c = AntColony.Core.CommanderRoster.Instance.Commanders.Single();
++            var after = AntColony.Save.SaveSnapshot.Capture();
++            Check(before.version == after.version, "save version unchanged");
++            Check(c.SelectedFormation == AntColony.Units.Formation.Focus && c.FormationState.hits == 4, "selected formation and focus roundtrip");
++            Same(c.FormationState.sinceHit, .5f, "focus timeout remainder roundtrip");
++            Check(c.FormationAffinities.Count == 3, "affinities roundtrip");
++            Check((c.FormationState.forward - before.commanders[0].personalState.formation.forward).sqrMagnitude < .0001f, "facing roundtrip");
++            Check(after.commanders[0].personalState.formation.hitTarget.StartsWith("saved:"), "focus reconnected after load");
++            foreach (var d in AntColony.Core.FormationResearch.Definitions()) Check(AntColony.Core.CampaignResearch.Instance.Has(d.Technology), "research roundtrip " + d.Name);
++            c.FormationState.selected = AntColony.Units.Formation.Dispersed;
++            var health = c.CurrentHealth; AntColony.Core.FormationDamage.Apply(c, .5f, c.Position, area: true);
++            Same(health - c.CurrentHealth, .35f, "legion area reduction after armor");
++            c.FormationState.selected = AntColony.Units.Formation.Line; c.FormationState.forward = Vector3.forward;
++            health = c.CurrentHealth; AntColony.Core.FormationDamage.Apply(c, .5f, c.Position + Vector3.back);
++            Same(health - c.CurrentHealth, .575f, "rear penalty not enhanced by legion");
++            var troops = c.TroopCount;
++            c.Talents.levels[(int)AntColony.Units.CommanderActivity.Command] = 0;
++            Call(c, "RestoreTroops", c.CommandLimit + 1, 0f);
++            var excess = c.TroopCount;
++            Call(c, "TickFormation", 0f);
++            Check(c.TroopCount == excess && !c.TryAssign(1), "over limit retained and new reinforcement blocked");
++            Call(c, "RestoreTroops", troops, 0f);
++            // 구저장의 formation 필드가 없던 상황을 실제 로더에 전달한다.
++            var legacy = after; legacy.commanders[0].personalState.formation = null;
++            var path = Path.Combine(AntColony.Save.SaveStorage.Root, "d04-legacy.json");
++            Check(AntColony.Save.SaveValidator.Validate(legacy, out error), "old missing formation validates: " + error);
++            AntColony.Save.SaveStorage.WriteAtomic(path, JsonUtility.ToJson(legacy));
++            Check(AntColony.Save.SaveSystem.TryLoad(path, out error), "old load accepted: " + error); await Ready();
++            Check(AntColony.Core.CommanderRoster.Instance.Commanders.Single().SelectedFormation == AntColony.Units.Formation.Plain, "old save loads plain");
++            return "IMPL-D04 " + checks + " checks passed";
++        }
++        finally
++        {
++            if (targetObject != null) UnityEngine.Object.Destroy(targetObject);
++            UnityEngine.Random.state = random;
++            AntColony.Save.SaveStorage.RootOverride = root; AntColony.Core.UserSettings.Apply(settings, false);
++        }
++    }
++}
+diff --git a/docs/IMPL-E1-HANDOFF.md b/docs/IMPL-E1-HANDOFF.md
+new file mode 100644
+--- /dev/null
++++ b/docs/IMPL-E1-HANDOFF.md
+@@ -0,0 +1,81 @@
++# E1 — D04 진형 시스템
++
++- 기준: `DECISIONS_1025.md` D04 Codex A, `DECISIONS_1025_codex.md` D04 원문, Notion [전투·보스](https://app.notion.com/p/3d0c4a0ecd31818a90e5d1ffac4ca4ec)의 진형 표(2026-10-25 읽기 확인).
++- 작업 브랜치: `codex/e1-formation`. UI·철수/파손 로직·prefab 수정 없음. Unity 실행·캡처·SAVE·push 없음.
++
++## 구현
++
++- 저장 번호 고정: 평진 0, 어린·봉시·방원·추행·안행·학익·장사 1~7, 횡대·종대·쐐기·산개·엄호·화력집중 8~13.
++- 삼국지풍 수치는 Notion 표 그대로. 현대식 수치는 Codex A 그대로. 진형 수치·조건·레기온의 유리한 폭 ×1.5·방향 경계·최대 75% 피해 감소·지휘한도 공식은 `FormationRules`에 모았다.
++- 횡대·종대·쐐기 각각 증기 400/식량100/기본재료100/Special10, 산개·엄호·화력집중 각각 석유 800/150/150/20. 독립 연구이며 추가 선행 연구 없음. `ScienceTechnology` 끝에만 추가하고 `CampaignResearch.Technologies`의 enum 인덱스 대응 유지.
++- 장수별 영구 적성: 지휘 0/10/20에서 미보유 삼국지풍 중 하나씩 획득. 지휘 감소·재도달로 중복 지급하지 않는다. 레기온은 삼국지풍 전부 사용하며 현대식은 연구 필요. 기존 특성 enum 끝에 `Legion`을 추가했다(군세 계승은 이 작업 범위 밖).
++- 기술·장비 기초 능력에 일반 가산과 기초×진형 보정을 더한 뒤 기존 건강 등 상태 배율 적용. 공격/방어/이동/사거리/공격 주기 연결. 받는 피해는 방어 이후 진형 보정 1회 적용. 유한 내구 갑옷의 실제 내구 소모는 기존 처리 유지.
++- 횡대: 마지막 유효 이동/공격 방향 기준 측후방 >90°. 쐐기: 지정 공격 대상과 전방 ≤45°. 엄호: 공격 대상 없는 직접 이동 중에만 원거리 감소. 산개: 범위 피해 감소. 출처 없는 피해는 방향 보정 없음.
++- 화력집중: 일반 공격 실제 적중 뒤 1회 누적, 다음 타격부터 +5%씩 최대 +20%. 강타 시전 타격은 누적에서 제외. 대상 변경·3초 무적중 시 해제. 범위 무기의 일반 공격도 지정 대상 기준 한 번만 누적.
++- 종대의 월드 속도는 도보 편성에만 적용. 차량/항공 시간은 기존 값. 이동 중 남은 시간 저장 유지.
++- 지휘한도: `max(1,floor((10+2×지휘+장비 정수)×건강×레기온 배율))`. 문서 예시 지휘7/장비3/건강0.8/레기온은 32. **문서에 별도 초과 감쇠식은 없다. 초과 병력은 보존하고 신규 편성·증원을 막는다.**
++
++## 저장
++
++- 기존 저장 버전 유지. `CommanderPersonalState.formation`에 선택·적성·지급 횟수·전방·연속 적중 횟수/남은 경과 시간을 저장한다. 필드 없음/null이면 평진.
++- 화력집중 대상은 실행 중 EntityId로 비교하고 저장 시 기존 `SaveReferences` 키로 바꾼다. 모든 건물/몬스터 등록 뒤 캡처하고, 모든 대상/명령 복원 뒤 다시 연결한다. 손상된 대상 참조는 기존 사전 검증에서 거부한다.
++- 개인 상태 복사 경로(포로·외교 등)는 기존 JSON을 사용하며 선택/적성을 보존한다. 새 개체로 전환돼 이전 적중 대상이 없으면 연속 적중만 초기화한다.
++
++## 자동 선택
++
++- **진형 수치 자동 선택 없음:** 삼국지풍 7종의 확정 수치를 Notion에서 확인했고 현대식은 확정 Codex A를 사용했다.
++- 장사진의 산·숲 판정은 기존 로컬 바이옴 `Forest`와 고산·지상 동굴 `Cave`를 사용했다. 수송 중 현지 판정은 `Transport.Site` 또는 주둔 거점의 기존 바이옴 매핑을 따른다. 별도 산/숲 지형 셀 분류를 새로 만들지 않았다.
++- 도보 편성 속도는 동행 장수 중 가장 느린 진형 보정으로 맞췄다. 종대와 평진이 섞이면 전체 편성은 기본 속도, 전원 종대면 +20%(레기온 +30%). 새 수치는 추가하지 않았다.
++- 기존 `rageRemaining`은 친구 복수의 +30% 상태이며 역린 전용 상태가 아니다. 이 기존 기능은 보존했다. 역린 분노/탈진 구현 시 가산 계산 뒤 ×3/×0.5를 넣어야 한다. `FormationRules.Stat(..., health, state)`의 순서를 검사에 포함했으며 역린 발동·탈진 시스템 자체를 구현한 것으로 보지 않는다.
++
++## 연결 요청 — Claude UI
++
++UI 파일은 수정하지 않았다. 징집소 출전 편성의 장수별 드롭다운에 다음 API를 연결한다.
++
++1. 후보: `AntColony.Units.FormationRules.All`, 표시: `FormationRules.Name(f)`.
++2. 선택값: `commander.SelectedFormation`. 변경 가능 여부: `commander.CanSelectFormation`.
++3. 해금/적성 사유: `commander.FormationBlockReason(f)` — 빈 문자열이면 사용 가능. 선택 불가 항목은 비활성/사유 표시.
++4. 선택 확정: `commander.TrySelectFormation(f)`의 반환값 확인. **기존 `ConscriptionPost.TryDeploy(commanders, troops)` 호출 전에 적용**한다. 출전 후에는 변경 거부. 출전 확정 시 연구/적성을 다시 검증한다.
++5. 적성 목록: `commander.FormationAffinities`(읽을 때 미지급 구간을 반영). 레기온 여부: `commander.HasLegion`.
++6. 현재 상황의 수치: `commander.CurrentFormationModifiers`, `EffectiveAttackRange`, `EffectiveAttackInterval`, `FormationWorldMoveMultiplier`, `CommandLimit`.
++7. 선택 전 정보: `FormationRules.Modifiers(f, legion, ranged, forestOrMountain, front, withdrawing, hits)`의 값은 증감 비율이다. 공격·방어·이동·사거리·공속·도보 이동·원거리 감소·범위 감소·측후방 증가를 역할에 맞게 표시한다. 조건부 수치는 조건(산/숲·전방·철수·적중 횟수)을 함께 적는다.
++
++연구 화면은 기존 `CampaignResearch.Technologies` 등록 목록을 사용한다. UI에서 여섯 연구를 별도 하드코딩할 필요는 없다.
++
++## 변경 파일
++
++경로 접두사: `Assets/_Project/Scripts/`.
++
++- 신규: `Units/FormationRules.cs`, `Units/CommanderFormation.cs`, `Core/FormationResearch.cs`, `Core/FormationDamage.cs` 및 각각의 `.meta`.
++- 능력/명령 연결: `Units/CommanderAnt.cs`, `CommanderPersonal.cs`, `CommanderPersonalState.cs`, `SoldierAnt.cs`, `CommanderDeparture.cs`.
++- 일반/범위 피해 연결: `Units/CommanderBossEquipment.cs`, `CommanderAdvancedSkills.cs`, `Boss/AoE/BossCircleAoE.cs`, `BossConeAoE.cs`, `BossLineAoE.cs`, `Buildings/AcidTower.cs`, `AreaAcidTower.cs`, `MineField.cs`, `TrapPit.cs`, `World/WildMonster.cs`.
++- 등록/편성/저장: `Core/CampaignResearch.cs`, `Core/TraitRules.cs`, `Units/CommanderTraits.cs`, `Buildings/ConscriptionPost.cs`, `Save/SaveSnapshot.cs`, `Save/SaveOrderValidation.cs`.
++- 도보 연결만: `World/ExpeditionTransport.cs`의 `TravelSeconds` 한 줄, `World/ExpeditionSupplies.cs`의 편성 최저 보정/권장 식량. E2 철수/파손 부분은 수정하지 않음.
++- 검사·문서: `AgentScripts/ImplD04Checks.cs`, `docs/IMPLEMENTATION_BOARD.md`, `README.md`, 이 문서.
++
++## 컴파일 결과·남은 검증
++
++- Unity 6000.5.8f1 내장 .NET SDK 8.0.318 Roslyn + 원본 `1900b0aE.dag/Assembly-CSharp.rsp` 참조로 worktree 전체 게임 소스 컴파일: **exit 0, 오류 0**. 기존 obsolete 경고는 존재.
++- 검사: `Assembly-CSharp-Editor.rsp`에서 원본 `Assembly-CSharp.ref.dll` 참조를 제거하고 위 출력 DLL로 교체, `ImplD04Checks.cs` 별도 컴파일: **exit 0, 오류 0**. top-level `RunChecks.cs` 미포함, internal 호출은 리플렉션, 게임 타입은 전체 이름 사용.
++- worktree에서 빠진 기존 무시 자산 `Assets/Planet Earth Free/SpinFree.cs`는 원본 `E:/Git/ant/Assets/Planet Earth Free/SpinFree.cs`를 컴파일 입력으로만 추가했다. UI/외부 자산 소스 수정 없음.
++- 재현 파일은 무시 경로 `Temp/d04-game.rsp`, `Temp/d04-checks.rsp`, `Temp/d04-game.log`, `Temp/d04-checks.log`. 일반 명령은 사용자 지정 `dotnet.exe exec .../csc.dll -nologo @Temp/d04-game.rsp` 및 `@Temp/d04-checks.rsp`.
++- `git diff --check` 통과. Graphify AST 갱신 수행. 자동 생성 graphify 결과/캐시는 기존 커밋 제외 방침에 따라 구현 패치에서 제외한다. 마지막 AST 결과는 9820 nodes/22432 edges. 커뮤니티 라벨 수 변경 경고로 CLI exit 1이었으나 graph.json/보고서 갱신 완료 메시지를 확인했다. LLM 라벨 갱신은 하지 않았다.
++- **Unity 실행·`ImplD04Checks.Main()` 실행·실제 저장 왕복·화면 확인은 미수행.** Claude에서 Play 진입 후 검사 실행 필요. 검사는 전체 14종 수치/레기온/방향 경계/3초/연구 비용·해금/적성 영구 유지/실제 적중/디스크 저장·로드/구저장 평진/초과 병력 보존을 포함한다.
++- 카카오톡 MemoChat 도구는 이 세션에 제공되지 않아 완료 알림을 전송할 수 없다.
++
++## 커밋 차단·대체 산출물
++
++- `git add` 실행 결과 exit 128: `Unable to create 'E:/Git/ant/.git/worktrees/E1/index.lock': Permission denied`.
++- 소스 작업 경로는 쓰기 가능하지만 실제 worktree Git 메타데이터는 허용된 쓰기 루트 밖이다. 승인 정책도 `never`여서 이 세션에서 staging/커밋할 수 없다. **커밋 없음, push 없음.**
++- 변경사항은 현재 worktree에 그대로 있고, 신규 파일을 포함한 검토/이관용 패치 `docs/patches/IMPL-E1.patch`도 제공한다. Graphify 자동 생성물·Temp·prefab은 패치에 넣지 않는다.
++- 예정 커밋 메시지:
++
++```text
++feat: implement D04 formation rules, research and persistence
++
++Co-Authored-By: Codex
++```
++
++- Git 메타데이터 쓰기가 가능한 환경에서 이 문서의 변경 파일과 패치를 staging한 뒤 위 메시지로 커밋한다. 이미 구현된 이 worktree에 패치를 재적용하지 않는다. 다른 깨끗한 동일 기준 checkout으로 옮길 때만 `git apply docs/patches/IMPL-E1.patch`를 사용한다.
++
++- 패치 검증: 신규 10개를 포함한 구현/문서 35개 파일. git apply --reverse --check docs/patches/IMPL-E1.patch exit 0으로 현재 변경사항과 일치함을 확인했다.
+diff --git a/Assets/_Project/Scripts/Core/FormationDamage.cs b/Assets/_Project/Scripts/Core/FormationDamage.cs
+new file mode 100644
+--- /dev/null
++++ b/Assets/_Project/Scripts/Core/FormationDamage.cs
+@@ -0,0 +1,15 @@
++using AntColony.Units;
++using UnityEngine;
++
++namespace AntColony.Core
++{
++    public static class FormationDamage
++    {
++        // 출발점 없는 지속 피해는 기존 TakeDamage 경로를 사용한다.
++        public static void Apply(IDamageable target, float amount, Vector3 source, bool ranged = false, bool area = false)
++        {
++            if (target is CommanderAnt commander) commander.TakeFormationDamage(amount, source, ranged, area);
++            else target.TakeDamage(amount);
++        }
++    }
++}
+diff --git a/Assets/_Project/Scripts/Core/FormationDamage.cs.meta b/Assets/_Project/Scripts/Core/FormationDamage.cs.meta
+new file mode 100644
+--- /dev/null
++++ b/Assets/_Project/Scripts/Core/FormationDamage.cs.meta
+@@ -0,0 +1,2 @@
++fileFormatVersion: 2
++guid: 6725b93d7a0540e2ba1859629966cc92
+diff --git a/Assets/_Project/Scripts/Core/FormationResearch.cs b/Assets/_Project/Scripts/Core/FormationResearch.cs
+new file mode 100644
+--- /dev/null
++++ b/Assets/_Project/Scripts/Core/FormationResearch.cs
+@@ -0,0 +1,17 @@
++using System.Collections.Generic;
++using AntColony.Units;
++
++namespace AntColony.Core
++{
++    public static class FormationResearch
++    {
++        public static ScienceTechnology Technology(Formation f) => (ScienceTechnology)((int)ScienceTechnology.FormationLine + (int)f - (int)Formation.Line);
++        public static IEnumerable<ScienceDefinition> Definitions()
++        {
++            for (var f = Formation.Line; f <= Formation.Focus; f++)
++                yield return new ScienceDefinition(Technology(f), FormationRules.Name(f) + " 전술", f <= Formation.Wedge ? 2 : 3);
++        }
++        public static bool Unlocked(Formation f) => f >= Formation.Line && f <= Formation.Focus
++            && CampaignResearch.Instance?.Has(Technology(f)) == true;
++    }
++}
+diff --git a/Assets/_Project/Scripts/Core/FormationResearch.cs.meta b/Assets/_Project/Scripts/Core/FormationResearch.cs.meta
+new file mode 100644
+--- /dev/null
++++ b/Assets/_Project/Scripts/Core/FormationResearch.cs.meta
+@@ -0,0 +1,2 @@
++fileFormatVersion: 2
++guid: de7136246c3e4b14b7eb27c216bde757
+diff --git a/Assets/_Project/Scripts/Units/FormationRules.cs b/Assets/_Project/Scripts/Units/FormationRules.cs
+new file mode 100644
+--- /dev/null
++++ b/Assets/_Project/Scripts/Units/FormationRules.cs
+@@ -0,0 +1,102 @@
++using System;
++using System.Collections.Generic;
++using AntColony.Core;
++using UnityEngine;
++
++namespace AntColony.Units
++{
++    // 저장 번호: 평진=0, 삼국지풍=1~7, 현대식=8~13. 끝에만 추가한다.
++    public enum Formation { Plain, FishScale, Arrow, Circle, Swift, Geese, Crane, Snake, Line, Column, Wedge, Dispersed, Cover, Focus }
++
++    [Serializable]
++    public sealed class FormationState
++    {
++        public Formation selected;
++        public List<Formation> affinities = new List<Formation>();
++        public int awarded;
++        public Vector3 forward;
++        public string hitTarget;
++        public int hits;
++        public float sinceHit;
++        public bool Valid => FormationRules.Defined(selected) && affinities != null && affinities.Count <= 3
++            && new HashSet<Formation>(affinities).Count == affinities.Count
++            && affinities.TrueForAll(FormationRules.Traditional) && awarded == affinities.Count && awarded <= 3
++            && (hits == 0 || !string.IsNullOrEmpty(hitTarget)) && hits >= 0 && hits <= 4 && Finite(sinceHit) && sinceHit >= 0 && (hits == 0 || sinceHit < FormationRules.FocusTimeout)
++            && Finite(forward.x) && Finite(forward.y) && Finite(forward.z);
++        private static bool Finite(float n) => !float.IsNaN(n) && !float.IsInfinity(n);
++        public void ResetHits() { hits = 0; hitTarget = null; sinceHit = 0; }
++        public void Tick(float seconds)
++        {
++            if (hits == 0) return;
++            sinceHit += seconds;
++            if (sinceHit >= FormationRules.FocusTimeout) ResetHits();
++        }
++        public void Target(string key) { if (hitTarget != key) ResetHits(); }
++        public void Hit(string key)
++        {
++            Target(key); hitTarget = key; sinceHit = 0; hits = Mathf.Min(4, hits + 1);
++        }
++    }
++
++    public readonly struct FormationModifiers
++    {
++        public readonly float Attack, Armor, Move, Range, AttackSpeed, WorldMove, RangedReduction, AreaReduction, RearIncrease;
++        public FormationModifiers(float attack = 0, float armor = 0, float move = 0, float range = 0,
++            float attackSpeed = 0, float worldMove = 0, float rangedReduction = 0, float areaReduction = 0, float rearIncrease = 0)
++        {
++            Attack = attack; Armor = armor; Move = move; Range = range; AttackSpeed = attackSpeed;
++            WorldMove = worldMove; RangedReduction = rangedReduction; AreaReduction = areaReduction; RearIncrease = rearIncrease;
++        }
++    }
++
++    public static class FormationRules
++    {
++        public const float FocusTimeout = 3;
++        public static readonly Formation[] All = (Formation[])Enum.GetValues(typeof(Formation));
++        public static bool Defined(Formation f) => f >= Formation.Plain && f <= Formation.Focus;
++        public static bool Traditional(Formation f) => f >= Formation.FishScale && f <= Formation.Snake;
++        public static string Name(Formation f) => f switch {
++            Formation.Plain => "평진", Formation.FishScale => "어린진", Formation.Arrow => "봉시진", Formation.Circle => "방원진",
++            Formation.Swift => "추행진", Formation.Geese => "안행진", Formation.Crane => "학익진", Formation.Snake => "장사진",
++            Formation.Line => "횡대", Formation.Column => "종대", Formation.Wedge => "쐐기", Formation.Dispersed => "산개",
++            Formation.Cover => "엄호", Formation.Focus => "화력집중", _ => "알 수 없는 진형" };
++        public static float Favorable(float value, bool legion) => value > 0 && legion ? value * 1.5f : value;
++        public static int CommandLimit(int command, int equipment, float health, bool legion) =>
++            Mathf.Max(1, Mathf.FloorToInt((10 + 2 * command + equipment) * health * (legion ? 1.5f : 1)));
++        // D04는 초과 병력을 감쇠/삭제하지 않는다. 신규 편성/증원만 한도로 제한한다.
++        public static bool CanAllocate(int troops, int limit) => troops >= 0 && troops <= limit;
++        public static bool Front(Vector3 forward, Vector3 delta) => Angle(forward, delta) <= 45f;
++        public static bool Rear(Vector3 forward, Vector3 delta) => Angle(forward, delta) > 90f;
++        private static float Angle(Vector3 forward, Vector3 delta)
++        {
++            forward.y = delta.y = 0;
++            return forward.sqrMagnitude < .000001f || delta.sqrMagnitude < .000001f ? 90 : Vector3.Angle(forward, delta);
++        }
++        public static FormationModifiers Modifiers(Formation f, bool legion = false, bool ranged = false,
++            bool forestOrMountain = false, bool front = false, bool withdrawing = false, int hits = 0)
++        {
++            var m = f switch {
++                Formation.FishScale => new FormationModifiers(.15f, .15f, -.1f),
++                Formation.Arrow => new FormationModifiers(.2f, -.1f, .15f),
++                Formation.Circle => new FormationModifiers(armor: .2f, move: -.1f),
++                Formation.Swift => new FormationModifiers(-.1f, -.1f, .2f),
++                Formation.Geese => new FormationModifiers(ranged ? .15f : 0, -.1f, range: ranged ? .15f : 0),
++                Formation.Crane => new FormationModifiers(-.1f, .15f, rangedReduction: .15f),
++                Formation.Snake => new FormationModifiers(forestOrMountain ? .2f : -.1f, forestOrMountain ? .2f : -.1f),
++                Formation.Line => new FormationModifiers(.15f, rearIncrease: .15f),
++                Formation.Column => new FormationModifiers(-.1f, move: .2f, worldMove: .2f),
++                Formation.Wedge => new FormationModifiers(front ? .2f : 0, -.1f),
++                Formation.Dispersed => new FormationModifiers(-.1f, areaReduction: .2f),
++                Formation.Cover => new FormationModifiers(-.15f, .15f, rangedReduction: withdrawing ? .15f : 0),
++                Formation.Focus => new FormationModifiers(Mathf.Clamp(hits, 0, 4) * .05f, attackSpeed: -.1f),
++                _ => new FormationModifiers() };
++            return new FormationModifiers(Favorable(m.Attack, legion), Favorable(m.Armor, legion), Favorable(m.Move, legion),
++                Favorable(m.Range, legion), Favorable(m.AttackSpeed, legion), Favorable(m.WorldMove, legion),
++                Favorable(m.RangedReduction, legion), Favorable(m.AreaReduction, legion), m.RearIncrease);
++        }
++        public static float ReceivedMultiplier(float increase, float reduction) => 1 + increase - Mathf.Min(.75f, reduction);
++        // 분노/탈진 제공자는 서로 배타적인 상태 배율을 전달한다(역린 구현과 공유).
++        public static float Stat(float basis, float flatBonus, float formationBonus, float health = 1, float state = 1) =>
++            (basis + flatBonus + basis * formationBonus) * health * state;
++    }
++}
+diff --git a/Assets/_Project/Scripts/Units/FormationRules.cs.meta b/Assets/_Project/Scripts/Units/FormationRules.cs.meta
+new file mode 100644
+--- /dev/null
++++ b/Assets/_Project/Scripts/Units/FormationRules.cs.meta
+@@ -0,0 +1,2 @@
++fileFormatVersion: 2
++guid: 7a6eca72bcd3451aab53c6228dd32595
+diff --git a/Assets/_Project/Scripts/Units/CommanderFormation.cs b/Assets/_Project/Scripts/Units/CommanderFormation.cs
+new file mode 100644
+--- /dev/null
++++ b/Assets/_Project/Scripts/Units/CommanderFormation.cs
+@@ -0,0 +1,97 @@
++using System.Collections.Generic;
++using AntColony.Core;
++using UnityEngine;
++
++namespace AntColony.Units
++{
++    public partial class CommanderAnt
++    {
++        public bool HasLegion => traits.Has(CommanderTrait.Legion);
++        public FormationState FormationState => personalState.formation ??= new FormationState();
++        public Formation SelectedFormation => FormationState.selected;
++        public IReadOnlyList<Formation> FormationAffinities { get { EnsureFormationAffinities(); return FormationState.affinities; } }
++        public bool CanSelectFormation => CanMobilize && !IsDeployed && !IsAwayFromHome && !IsInCombat;
++        public string FormationBlockReason(Formation f)
++        {
++            if (!FormationRules.Defined(f)) return "알 수 없는 진형입니다.";
++            if (f == Formation.Plain) return "";
++            if (FormationRules.Traditional(f))
++            {
++                EnsureFormationAffinities();
++                return HasLegion || FormationState.affinities.Contains(f) ? "" : "진형 적성이 없습니다.";
++            }
++            return FormationResearch.Unlocked(f) ? "" : "진형 전술 연구가 필요합니다.";
++        }
++        public bool TrySelectFormation(Formation f)
++        {
++            if (!CanSelectFormation || FormationBlockReason(f) != "") return false;
++            FormationState.selected = f; FormationState.ResetHits(); return true;
++        }
++        private void EnsureFormationAffinities()
++        {
++            var state = FormationState;
++            var due = 1 + talents.Level(CommanderActivity.Command) / 10;
++            while (state.awarded < due && state.affinities.Count < 3)
++            {
++                var candidates = new List<Formation>();
++                for (var f = Formation.FishScale; f <= Formation.Snake; f++) if (!state.affinities.Contains(f)) candidates.Add(f);
++                state.affinities.Add(candidates[Random.Range(0, candidates.Count)]); state.awarded++;
++            }
++        }
++        private void TickFormation(float seconds)
++        {
++            if (Save.SaveSystem.Busy) return;
++            RestoreFormationHit(); EnsureFormationAffinities(); FormationState.Tick(seconds);
++            if (CombatTarget != null) FormationState.Target(FormationTargetKey(CombatTarget));
++            var delta = CombatTarget != null ? CombatTarget.Position - Position
++                : Agent != null && Agent.enabled ? Agent.velocity : Vector3.zero;
++            FaceFormation(delta);
++        }
++        private void FaceFormation(Vector3 delta)
++        {
++            delta.y = 0;
++            if (delta.sqrMagnitude > .000001f) FormationState.forward = delta.normalized;
++        }
++        private IDamageable formationHitTarget;
++        private bool restoreFormationHit;
++        private static string FormationTargetKey(IDamageable target) => target is Object obj && obj != null ? obj.GetEntityId().ToString() : null;
++        internal void RestoreFormationHit()
++        {
++            if (!restoreFormationHit) return;
++            restoreFormationHit = false;
++            formationHitTarget = Save.SaveReferences.Get<IDamageable>(FormationState.hitTarget.Substring(6));
++            if (formationHitTarget == null || !CombatTargeting.IsAlive(formationHitTarget)) FormationState.ResetHits();
++            else FormationState.hitTarget = FormationTargetKey(formationHitTarget);
++        }
++        internal FormationState CaptureFormationForSave()
++        {
++            var copy = JsonUtility.FromJson<FormationState>(JsonUtility.ToJson(FormationState));
++            if (restoreFormationHit) return copy;
++            if (copy.hits > 0 && formationHitTarget != null && CombatTargeting.IsAlive(formationHitTarget))
++                copy.hitTarget = "saved:" + Save.SaveReferences.Key(formationHitTarget);
++            else copy.ResetHits();
++            return copy;
++        }
++        private FormationModifiers FormationEffect(IDamageable target = null)
++        {
++            bool front = target != null && FormationRules.Front(FormationState.forward, target.Position - Position);
++            var site = Transport?.Site ?? Garrison?.Site;
++            var biome = site != null ? BiomeRules.ForSite(site.Title) : BiomeRules.Current;
++            return FormationRules.Modifiers(IsDeployed || Transport != null || Garrison != null || IsHostile ? SelectedFormation : Formation.Plain,
++                HasLegion, Role == AntColony.Data.UnitRole.Ranged, biome == MapBiome.Forest || biome == MapBiome.Cave,
++                front, IsDirectMoving, target == null || FormationState.hitTarget == FormationTargetKey(target) ? FormationState.hits : 0);
++        }
++        public FormationModifiers CurrentFormationModifiers => FormationEffect(CombatTarget);
++        public float EffectiveAttackRange => AttackRange;
++        public float EffectiveAttackInterval => AttackInterval;
++        public float FormationWorldMoveMultiplier => 1 + FormationRules.Modifiers(SelectedFormation, HasLegion).WorldMove;
++        protected override float AttackRange => base.AttackRange * (1 + FormationEffect().Range);
++        protected override float AttackInterval => base.AttackInterval / (1 + FormationEffect().AttackSpeed);
++        public void TakeFormationDamage(float amount, Vector3? source, bool ranged, bool area, float reduction = 0)
++        {
++            var m = FormationEffect();
++            float increase = source.HasValue && FormationRules.Rear(FormationState.forward, source.Value - Position) ? m.RearIncrease : 0;
++            TakeTroopDamage(amount, FormationRules.ReceivedMultiplier(increase, reduction + (ranged ? m.RangedReduction : 0) + (area ? m.AreaReduction : 0)));
++        }
++    }
++}
+diff --git a/Assets/_Project/Scripts/Units/CommanderFormation.cs.meta b/Assets/_Project/Scripts/Units/CommanderFormation.cs.meta
+new file mode 100644
+--- /dev/null
++++ b/Assets/_Project/Scripts/Units/CommanderFormation.cs.meta
+@@ -0,0 +1,2 @@
++fileFormatVersion: 2
++guid: 59409211746c425e99720971bb3197c3

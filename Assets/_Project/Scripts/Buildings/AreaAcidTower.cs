@@ -37,7 +37,7 @@ namespace AntColony.Buildings
             foreach (var boss in FindObjectsByType<AntColony.Boss.BossHealth>())
                 if (CombatTargeting.CanAttack(UnitRole.Melee, boss) && (boss.Position - center).sqrMagnitude <= radius) boss.TakeDamage(Damage);
             foreach (var unit in new System.Collections.Generic.List<AntColony.Units.AntUnitBase>(AntColony.Units.AntUnitBase.Active))
-                if (unit is AntColony.Units.CommanderAnt c && CombatTargeting.CanAttack(UnitRole.Melee, c) && (c.Position - center).sqrMagnitude <= radius) c.TakeDamage(Damage);
+                if (unit is AntColony.Units.CommanderAnt c && CombatTargeting.CanAttack(UnitRole.Melee, c) && (c.Position - center).sqrMagnitude <= radius) FormationDamage.Apply(c, Damage, center, ranged: true, area: true);
             if (!(target is WildMonster) && !(target is AntColony.Boss.BossHealth) && !(target is AntColony.Units.CommanderAnt)) target.TakeDamage(Damage);
         }
 

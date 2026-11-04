@@ -108,6 +108,7 @@ namespace AntColony.Save
                 file.world.transports[i].crewOrders = ship.CaptureCrewOrders();
             }
             file.discoveries = Encyclopedia.Entries.ToList();
+            for (int i = 0; i < commanders.Count; i++) file.commanders[i].personalState.formation = commanders[i].CaptureFormationForSave();
             return file;
         }
 
@@ -319,6 +320,7 @@ namespace AntColony.Save
                 if (site != null) for (int i = 0; i < d.needs.Count; i++) site.Needs[i].reserved = d.needs[i].reserved;
             }
             for (int i = 0; i < ships.Count; i++) ships[i].Route.RestoreProgress(file.world.transports[i].route);
+            foreach (var c in commanders) c.RestoreFormationHit();
             CommanderAnt.RefreshDepartureNotice();
             UnityEngine.Random.state = JsonUtility.FromJson<UnityEngine.Random.State>(file.randomState);
         }

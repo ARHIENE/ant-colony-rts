@@ -316,3 +316,13 @@
 - 남음: 동물 위생·배설물·퇴비·질병 발생 경로/진행 중 임신 상세·통합 의료 우선순위·실행 회귀, 장수 의료 전면 개편, 시체/묘비, 원정 장비 압수/실물 수송/철수, 포로 실물 관리. 전체 기획 구현 완료 아님.
 - 추가 담당: `Buildings/RanchFacility.cs` 먹이통 우선순위 기본5/상한9 기획 일치. 급식 실물 창고 인출과 운반 식품 신선도 보존 관련 `Units/WorkerAnt.cs`, `Save/SaveDtos.cs`, `Save/SaveSnapshot.cs`, `Save/SavePreflight.cs`, `AgentScripts/Spec1013ClinicChecks.cs`.
 - SAVE 미수행: log/changelog/개발 일지/캡처/커밋/push 하지 않음.
+
+- **IMPL-E1 / Codex / 구현·오프라인 컴파일 완료, Claude UI 연결·Unity 검사 대기(2026-10-25)** — D04 진형. 소유: 신규 Units/FormationRules.cs·CommanderFormation.cs·Core/FormationDamage.cs·FormationResearch.cs, Units/CommanderAnt.cs·CommanderPersonal.cs·CommanderPersonalState.cs·SoldierAnt.cs·CommanderBossEquipment.cs·CommanderAdvancedSkills.cs(진형 연결), Core/CampaignResearch.cs, 전투 피해 호출부(Boss/AoE 3종·Buildings/AcidTower·AreaAcidTower·MineField·TrapPit·World/WildMonster), World/ExpeditionTransport.cs(TravelSeconds 편성 보정만), AgentScripts/ImplD04Checks.cs, docs/IMPL-E1-HANDOFF.md. UI/**·철수/파손 로직 수정 금지. Unity 실행 금지, Roslyn만. codex/e1-formation 커밋·push 없음.
+
+  - 추가 연결 소유: Core/TraitRules.cs·Units/CommanderTraits.cs(레기온 enum/이름), Units/CommanderDeparture.cs(유효 사거리/공격 주기), World/ExpeditionSupplies.cs(도보 편성 최저 속도·권장 식량).
+
+  - 추가 소유: Save/SaveSnapshot.cs·SaveOrderValidation.cs(연속 적중 대상의 저장 참조·복원 순서·검증), Buildings/ConscriptionPost.cs(출전 확정 시 해금 재검증).
+
+  - 결과: 14종·연구6종·적성·편성 선택 API·전투 효과·도보 속도·저장 버전 유지/구저장 평진 구현. 게임/ImplD04Checks Roslyn 오류0, 런타임 미실행. 상세 `docs/IMPL-E1-HANDOFF.md`. README 현재 상태 반영.
+
+  - 커밋 차단: git add가 원본 `.git/worktrees/E1/index.lock` Permission denied(exit128). 소스/신규 파일은 worktree 보존, `docs/patches/IMPL-E1.patch`로 이관 가능. 커밋·push 없음.

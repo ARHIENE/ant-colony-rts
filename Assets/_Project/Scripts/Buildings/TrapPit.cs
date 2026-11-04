@@ -65,7 +65,7 @@ namespace AntColony.Buildings
                 if (CombatTargeting.IsAlive(boss) && !CombatTargeting.IsAirborne(boss) && boss.GetComponent<WildMonster>() == null
                     && (boss.Position - Position).sqrMagnitude <= r) { boss.TakeDamage(GameBalance.SpikeTrapDamage); hit = true; }
             foreach (var unit in new System.Collections.Generic.List<AntUnitBase>(AntUnitBase.Active))
-                if (unit is CommanderAnt c && c.IsHostile && !c.IsDead && !c.IsFlying && (c.Position - Position).sqrMagnitude <= r) { c.TakeDamage(GameBalance.SpikeTrapDamage); hit = true; }
+                if (unit is CommanderAnt c && c.IsHostile && !c.IsDead && !c.IsFlying && (c.Position - Position).sqrMagnitude <= r) { FormationDamage.Apply(c, GameBalance.SpikeTrapDamage, Position, area: true); hit = true; }
             if (!hit) return;
             spikeCooldown = GameBalance.SpikeTrapInterval;
             if (++SpikeHits >= GameBalance.SpikeTrapHits) Spring();

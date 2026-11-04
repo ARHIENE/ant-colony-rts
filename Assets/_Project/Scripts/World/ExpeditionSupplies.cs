@@ -13,9 +13,11 @@ namespace AntColony.World
         public int ReturnCargoSpace => Mathf.Max(0, CargoCapacity - CargoLoad);
         private int WalkingCargoCapacity => Mathf.FloorToInt(crew.Where(c => c != null && !c.IsDead)
             .Sum(c => Mathf.Max(0, c.TotalLoadCapacity - c.StartingLoadWeight)) / .05f);
+        public float FormationWalkMultiplier => crew.Where(c => c != null && !c.IsDead)
+            .Select(c => c.FormationWorldMoveMultiplier).DefaultIfEmpty(1).Min();
         public float DailyFood => crew.Where(c => c != null && !c.IsDead).Sum(ExpeditionRules.FoodPerDay);
         public int RecommendedFood(ExpeditionSite destination) => ExpeditionRules.RecommendedFood(
-            Walking ? ExpeditionRules.WalkSeconds(destination) : TravelSeconds, DailyFood);
+            Walking ? ExpeditionRules.WalkSeconds(destination) / FormationWalkMultiplier : TravelSeconds, DailyFood);
         public int AvailableFood => GetCargo(AntColony.Data.ResourceType.Food) + crew.Where(c => c != null && !c.IsDead)
             .Sum(c => c.PersonalState.carriedRations?.Total ?? 0);
         public bool LeavesHomeUnattended => State == ExpeditionState.Home && CommanderLoad > 0 && ExpeditionRules.HomeCommanders == 0;

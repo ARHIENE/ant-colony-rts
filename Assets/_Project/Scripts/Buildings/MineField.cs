@@ -26,7 +26,7 @@ namespace AntColony.Buildings
             foreach (var m in WildMonster.All.ToArray())
                 if (m != null && !m.IsDead && !m.IsFlying && !m.Docile && (m.Position - Position).sqrMagnitude <= radius) m.TakeDamage(damage);
             foreach (var boss in bosses) if ((boss.Position - Position).sqrMagnitude <= radius) boss.TakeDamage(damage);
-            foreach (var c in rebels) if ((c.Position - Position).sqrMagnitude <= radius) c.TakeDamage(damage);
+            foreach (var c in rebels) if ((c.Position - Position).sqrMagnitude <= radius) FormationDamage.Apply(c, damage, Position, area: true);
             gameObject.SetActive(false);
             Destroy(gameObject);
         }

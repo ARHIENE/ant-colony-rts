@@ -33,7 +33,7 @@ namespace AntColony.World
         public int Capacity => Walking ? int.MaxValue : Mathf.FloorToInt((Aircraft ? GameBalance.AircraftTroops : GameBalance.VehicleTroops) * ScienceEffects.TroopCapacityMultiplier);
         public int CommanderCapacity => Walking ? int.MaxValue : (Aircraft ? GameBalance.AircraftCommanders : GameBalance.VehicleCommanders) + ScienceEffects.CommanderSlotBonus;
         public int CargoCapacity => Walking ? WalkingCargoCapacity : Mathf.FloorToInt((Aircraft ? GameBalance.AircraftCargo : GameBalance.VehicleCargo) * ScienceEffects.CargoMultiplier);
-        public float TravelSeconds => Walking ? ExpeditionRules.WalkSeconds(Site) : Aircraft ? 10 : 20;
+        public float TravelSeconds => Walking ? ExpeditionRules.WalkSeconds(Site) / FormationWalkMultiplier : Aircraft ? 10 : 20;
         public float Remaining { get; private set; }
         public int Load
         {

@@ -22,7 +22,8 @@ namespace AntColony.Units
         GoldGathering, GoldBuilding, GoldFarming, GoldFishing, GoldCrafting, GoldResearch, GoldMedicine,
         GoldCooking, GoldStrength, GoldArt, GoldPolitics, GoldHusbandry, GoldInvestigation,
         DiamondGathering, DiamondBuilding, DiamondFarming, DiamondFishing, DiamondCrafting, DiamondResearch, DiamondMedicine,
-        DiamondCooking, DiamondStrength, DiamondArt, DiamondPolitics, DiamondHusbandry, DiamondInvestigation
+        DiamondCooking, DiamondStrength, DiamondArt, DiamondPolitics, DiamondHusbandry, DiamondInvestigation,
+        Legion // D04 지휘·진형 강화(군세 계승은 별도)
     }
     // 기술 15종: 기존 9종 뒤에 의료·요리·근력·예술(2026-09-28), 정치(2026-10-08), 사육(2026-10-10). 저장 번호가 밀리지 않게 끝에 붙인다.
     public enum CommanderActivity { Gathering, Building, Farming, Fishing, Crafting, Research, Melee, Ranged, Command, Medicine, Cooking, Strength, Art, Politics, Husbandry, Firefighting }

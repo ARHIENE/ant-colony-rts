@@ -16,7 +16,8 @@ namespace AntColony.Core
         EfficientTransport, Mines, Regeneration, Trinkets, AdvancedWeapons, Gliding,
         Aircraft, HeavyTransport, Insulation, MigrationTheory, Hull, Cocoons, Engine, Fishing,
         ConscriptionLaw, ReserveForces, TotalMobilization, // Phase 4 병역 제도
-        Pharmacy, PrecisionPharmacy // 2026-10-25 D01 장수용 약품
+        Pharmacy, PrecisionPharmacy, // 2026-10-25 D01 장수용 약품
+        FormationLine, FormationColumn, FormationWedge, FormationDispersed, FormationCover, FormationFocus
     }
 
     public sealed class ScienceDefinition
@@ -49,7 +50,9 @@ namespace AntColony.Core
             ScienceTechnology.ArmorPlates or ScienceTechnology.Trinkets or ScienceTechnology.Gliding or ScienceTechnology.Traps or ScienceTechnology.Mines
                 or ScienceTechnology.Vehicle or ScienceTechnology.Aircraft or ScienceTechnology.HeavyTransport or ScienceTechnology.EfficientTransport
                 or ScienceTechnology.MigrationTheory or ScienceTechnology.Hull or ScienceTechnology.Cocoons or ScienceTechnology.Engine => CommanderActivity.Crafting,
-            ScienceTechnology.Watchtowers or ScienceTechnology.ConscriptionLaw or ScienceTechnology.ReserveForces or ScienceTechnology.TotalMobilization => CommanderActivity.Command,
+            ScienceTechnology.FormationLine or ScienceTechnology.FormationColumn or ScienceTechnology.FormationWedge
+                or ScienceTechnology.FormationDispersed or ScienceTechnology.FormationCover or ScienceTechnology.FormationFocus
+                or ScienceTechnology.Watchtowers or ScienceTechnology.ConscriptionLaw or ScienceTechnology.ReserveForces or ScienceTechnology.TotalMobilization => CommanderActivity.Command,
             _ => null
         };
         public static CampaignResearch Instance { get; private set; }
@@ -92,7 +95,7 @@ namespace AntColony.Core
             new ScienceDefinition(ScienceTechnology.ConscriptionLaw, "징병제", 1),
             new ScienceDefinition(ScienceTechnology.ReserveForces, "예비군제", 2, ScienceTechnology.ConscriptionLaw),
             new ScienceDefinition(ScienceTechnology.TotalMobilization, "국민개병", 4, ScienceTechnology.ReserveForces)
-        }.Concat(MedicineResearch.Definitions(ScienceTechnology.Pharmacy, ScienceTechnology.PrecisionPharmacy)).ToArray();
+        }.Concat(MedicineResearch.Definitions(ScienceTechnology.Pharmacy, ScienceTechnology.PrecisionPharmacy)).Concat(FormationResearch.Definitions()).ToArray();
 
         [Serializable] public sealed class State
         {

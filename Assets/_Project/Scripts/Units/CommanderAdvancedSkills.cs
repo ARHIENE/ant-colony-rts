@@ -77,7 +77,7 @@ namespace AntColony.Units
             {
                 if (!CombatTargeting.CanAttack(role, target) || (target.Position - point).sqrMagnitude > radius * radius) continue;
                 bool wasAlive = CombatTargeting.IsAlive(target);
-                target.TakeDamage(damage);
+                FormationDamage.Apply(target, damage, point, role == UnitRole.Ranged, true);
                 Social.combatSeen = true;
                 personalState.lastCombatSeconds = 0;
                 if (wasAlive && !CombatTargeting.IsAlive(target))

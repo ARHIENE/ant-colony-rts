@@ -238,7 +238,7 @@ namespace AntColony.World
                 attackTimer = attackInterval;
                 GetComponent<AntVisual>()?.Attack(currentTarget.Position);
                 if (currentTarget is BuildingBase flammable && WallFire.Flammable(flammable)) WallFire.Ignite(flammable); // 가연성 재료(나뭇잎 벽·목재 등)엔 불을 지른다.
-                currentTarget.TakeDamage(attackDamage);
+                FormationDamage.Apply(currentTarget, attackDamage, Position);
             }
         }
 

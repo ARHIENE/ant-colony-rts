@@ -41,6 +41,11 @@ namespace AntColony.Save
             void Ref(string key) { Check(string.IsNullOrEmpty(key) || keys.Contains(key), "reference " + key); }
             bool Site(int i) => i >= -1 && i < f.world.sites.Count;
             foreach (var c in f.commanders) {
+                var formation = c.personalState?.formation;
+                if (formation != null && formation.hits > 0) {
+                    Check(formation.hitTarget?.StartsWith("saved:") == true, "formation hit target");
+                    Ref(formation.hitTarget.Substring(6));
+                }
                 if (!c.hasOrder) continue;
                 var d = c.order; Check(d != null, "commander order");
                 var s = d.soldier; var w = d.worker;

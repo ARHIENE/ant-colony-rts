@@ -91,14 +91,14 @@ namespace AntColony.Units
         private void TickForcedAttack(IDamageable target, float seconds)
         {
             if (target == null || !HasTroops || Data == null) { StopMoving(); return; }
-            if (GetDistanceTo(target.Position) > Data.attackRange)
+            if (GetDistanceTo(target.Position) > AttackRange)
             {
                 if (Social.rootRemaining > 0) { StopMoving(); return; }
                 SetMoveDestination(target.Position); TickFlightMovement(); return;
             }
             StopMoving(); Social.attackSeconds = Mathf.Max(0, Social.attackSeconds - seconds);
             if (Social.attackSeconds > 0) return;
-            Social.attackSeconds = Data.attackInterval;
+            Social.attackSeconds = AttackInterval;
             GetComponent<AntVisual>()?.Attack(target.Position);
             DealDamage(target);
         }
