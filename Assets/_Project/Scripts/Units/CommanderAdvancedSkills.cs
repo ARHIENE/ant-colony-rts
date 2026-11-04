@@ -82,7 +82,7 @@ namespace AntColony.Units
                 personalState.lastCombatSeconds = 0;
                 if (wasAlive && !CombatTargeting.IsAlive(target))
                 {
-                    GainExperience(CombatActivity, CommanderProgression.KillXp(target));
+                    GainExperience(CombatActivity, CommanderProgression.ClaimKillXp(target));
                     if (target is AntColony.Boss.BossHealth && Random.value < .2f) ShiftEventTrait(CommanderTrait.Coward, true);
                 }
             }

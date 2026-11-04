@@ -39,13 +39,13 @@ namespace AntColony.UI
             for (int i = 0; i < workshop.Jobs.Count; i++)
             {
                 int index = i; var job = workshop.Jobs[i];
-                MenuTheme.Button(content, $"{i + 1}. {EquipmentRecipes.Name(job.recipe)} {job.work / GameBalance.CraftWork:P0} · {(!string.IsNullOrEmpty(job.makerId) ? "원제작자 전용 · 보관 중" : "미착수")} · 취소 (일반 {(job.work > 0 ? 70 : 100)}% · 핵심 100%)",
+                MenuTheme.Button(content, $"{i + 1}. {job.Label} {job.work / job.WorkRequired:P0} · {(!string.IsNullOrEmpty(job.makerId) ? "원제작자 전용 · 보관 중" : "미착수")} · 취소 (일반 {(job.work > 0 ? 70 : 100)}% · 핵심 100%)",
                     () => { workshop.Cancel(index); ShowWorkshop(workshop); });
             }
             if (workshop.Crafter != null) MenuTheme.Button(content, "장수 배정 해제 (진행도 유지)", () => { workshop.Release(); ShowWorkshop(workshop); });
             else foreach (var c in SortedCommanders())
                 if (workshop.CanAssign(c)) MenuTheme.Button(content, "제작 배정: " + c.CommanderName, () => { workshop.TryAssign(c); ShowWorkshop(workshop); });
-            MenuTheme.Text(content, "재료는 제작 착수 시 소비합니다. 미완성품은 원제작자만 이어 만들며, 이탈 시 보관하거나 취소할 수 있습니다. 회수한 핵심물로 다른 장수가 새로 제작할 수 있습니다.", 17, 70);
+            MenuTheme.Text(content, "재료는 제작 착수 시 소비합니다. 보스 미완성품도 원제작자만 이어 만듭니다. 사망·영구 이탈 시 자동 인계·취소 없이 보관하며 직접 취소하세요. 취소 시 일반재료 미착수100%/착수70%, 핵심물100%를 환급받아 다른 장수가 새 주문을 만들 수 있습니다.", 17, 110);
             MenuTheme.Button(content, "새로고침", () => ShowWorkshop(workshop));
             V5Fit(window);
         }

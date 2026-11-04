@@ -14,6 +14,8 @@ namespace AntColony.Buildings
     {
         [Serializable] public sealed class State
         {
+            public List<string> reservedCommanders = new List<string>();
+            public List<int> reservedGroups = new List<int>();
             public bool hull, engine;
             public int cocoons;
             public int building = -1;
@@ -61,6 +63,7 @@ namespace AntColony.Buildings
         {
             if (!isActiveAndEnabled || IsDead || !(seconds > 0) || float.IsInfinity(seconds) || AntColony.Save.SaveSystem.Busy) return;
             TickRocket(seconds);
+            PruneReservations();
             if (state.building < 0) return;
             state.remaining = Mathf.Max(0, state.remaining - seconds);
             if (state.remaining > 0) return;
@@ -77,7 +80,9 @@ namespace AntColony.Buildings
                 || commander == null || !commander.isActiveAndEnabled || commander.IsDead || commander.IsAwayFromHome
                 || commander.IsEmbarked || commander.LabUpgradeBusy || !commander.CanChangeAllocation
                 || commander.IsCaptive || commander.IsDeparting || commander.IsHostile
-                || OccupiedSeats + 1 + commander.TroopCount > Capacity || passengers.Contains(commander) || Vector3.Distance(commander.Position, Position) > 8) return false;
+                || IsReserved(commander.PersonalState.id) && !state.reservedCommanders.Contains(commander.PersonalState.id)
+                || OccupiedSeats + OtherReservedSeats(commander) + 1 + commander.TroopCount > Capacity || passengers.Contains(commander) || Vector3.Distance(commander.Position, Position) > 8) return false;
+            CancelReservation(commander.PersonalState.id);
             passengers.Add(commander);
             commander.SetEmbarked(true, Position);
             return true;
@@ -85,6 +90,7 @@ namespace AntColony.Buildings
 
         public void Unload()
         {
+            ClearReservations();
             state.launchRequested = false;
             UnloadCivilians();
             for (var i = 0; i < passengers.Count; i++)
@@ -110,6 +116,7 @@ namespace AntColony.Buildings
 
         public State CaptureState(IReadOnlyList<CommanderAnt> commanders)
         {
+            PruneReservations();
             var copy = JsonUtility.FromJson<State>(JsonUtility.ToJson(state));
             copy.passengers.Clear();
             foreach (var c in passengers)
@@ -125,6 +132,7 @@ namespace AntColony.Buildings
             state.civilianPassengers = state.civilianYoung = state.civilianOld = 0;
             Unload();
             state = value == null ? new State() : JsonUtility.FromJson<State>(JsonUtility.ToJson(value));
+            state.reservedCommanders ??= new List<string>(); state.reservedGroups ??= new List<int>();
             // 한도 도입 전 저장은 초과분만 잘라낸다(이미 탑승한 장수의 자리는 유지).
             state.cocoons = Mathf.Min(state.cocoons, Mathf.Max(GameBalance.MaxCocoons, state.passengers.Count));
             foreach (var id in state.passengers) { passengers.Add(commanders[id]); commanders[id].SetEmbarked(true, Position); }
@@ -133,6 +141,10 @@ namespace AntColony.Buildings
         {
             error = "Invalid rocket launch pad state.";
             if (value == null) { error = ""; return true; }
+            if (value.reservedCommanders != null && (value.reservedCommanders.Count > 10000
+                || value.reservedCommanders.Any(string.IsNullOrWhiteSpace) || value.reservedCommanders.Distinct().Count() != value.reservedCommanders.Count)
+                || value.reservedGroups != null && (value.reservedGroups.Count > 10000 || value.reservedGroups.Any(id => id <= 0)
+                    || value.reservedGroups.Distinct().Count() != value.reservedGroups.Count)) return false;
             if (!ValidFoundation(value)) return false;
             if (value.cocoons < 0 || value.building < -1 || value.building > 2 || value.remaining < 0
                 || value.civilianPassengers < 0 || value.civilianYoung < 0 || value.civilianOld < 0

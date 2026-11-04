@@ -13,8 +13,11 @@ namespace AntColony.Buildings
             pop.SyncCivilianLocations();
             var group = pop.S.civilianLocations.Find(l => l.id == groupId);
             if (group == null || group.moving || !group.arrived || Vector3.Distance(group.position, Position) > 8) return 0;
+            if (IsGroupReserved(groupId) && !state.reservedGroups.Contains(groupId)) return 0;
+            int reservedOthers = ReservedSeats - (state.reservedGroups.Contains(groupId) ? group.count : 0);
             int young = pop.S.young, old = pop.S.old;
-            int boarded = pop.TakeArrivedCivilians(groupId, Mathf.Max(0, Capacity - OccupiedSeats - (HasLaunchCommander ? 0 : 1)));
+            int boarded = pop.TakeArrivedCivilians(groupId, Mathf.Max(0, Capacity - OccupiedSeats - reservedOthers - (HasLaunchCommander || state.reservedCommanders.Count > 0 ? 0 : 1)));
+            if (group.count == 0) CancelGroupReservation(groupId);
             state.civilianPassengers += boarded;
             state.civilianYoung += young - pop.S.young;
             state.civilianOld += old - pop.S.old;

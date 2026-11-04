@@ -175,9 +175,6 @@ namespace AntColony.Units
         protected override void OnWorked(float seconds)
         {
             if (CurrentActivity != CommanderActivity.Gathering) GainExperience(CurrentActivity, seconds);
-            if (ConstructionTarget != null && ConstructionTarget.Building != null
-                && ConstructionTarget.Building.GetComponent<AntColony.Buildings.AirshipYard>() is AntColony.Buildings.AirshipYard rocket)
-                rocket.RecordBuilder(this, Mathf.Min(ConstructionTarget.RemainingWork, seconds * WorkSpeed), ConstructionTarget.BuildTimeSeconds);
         }
         // 포텐 성장(2026-10-07): 작업량은 그대로 활용 이력에, 학습 배율(열정·학습 특성·나이·머리 부상)은 성장 속도에만 쓴다.
         public void GainExperience(CommanderActivity activity, float amount, CommanderActivity? topic = null)
@@ -377,7 +374,7 @@ namespace AntColony.Units
                 { formationHitTarget = target; FormationState.Hit(FormationTargetKey(target)); }
             if ((Weapon?.AttackRadius ?? 0) <= 0 && wasAlive && reward > 0 && IsKilled(target))
             {
-                GainExperience(CombatActivity, reward);
+                GainExperience(CombatActivity, CommanderProgression.ClaimKillXp(target));
                 if (target is AntColony.Boss.BossHealth && Random.value < .2f) ShiftEventTrait(CommanderTrait.Coward, true);
             }
         }

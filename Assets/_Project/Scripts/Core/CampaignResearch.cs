@@ -216,7 +216,7 @@ namespace AntColony.Core
         private void Update() => Tick(Time.deltaTime);
         public void Tick(float seconds)
         {
-            if (seconds > 0 && !float.IsInfinity(seconds)) { BossProgress.TickCraft(seconds); TickPoliticalPresence(seconds); }
+            if (seconds > 0 && !float.IsInfinity(seconds)) { TickPoliticalPresence(seconds); }
             if (Active == null && state.resourceActive >= 0 && seconds > 0 && !float.IsInfinity(seconds) && !Departed) { TickResourceResearch(seconds); return; }
             if (!(seconds > 0) || float.IsInfinity(seconds) || Active == null || Departed || state.paused) return;
             foreach (var lab in AntColony.Core.SceneObjects.All<ScienceLab>())

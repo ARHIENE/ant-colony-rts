@@ -41,7 +41,32 @@ namespace AntColony.World
         public bool Allied { get; internal set; }
         public string RebelId { get; internal set; }
         internal void ConfigureForce(float health) { maxHealth = health; }
-        internal void ConfigureBossGuard() { maxHealth = 12; attackDamage = 2; detectionRadius = 35; }
+        internal void ConfigureAIMilitary(int era, int member)
+        {
+            var weapon = AIEraMilitary.Weapon(era, member);
+            maxHealth = AIEraMilitary.Health(weapon);
+            currentHealth = System.Math.Min(currentHealth, maxHealth); // 승급으로 부상 회복 없음.
+            attackRange = AIEraMilitary.Range(weapon); attackInterval = AIEraMilitary.Interval(weapon);
+            detectionRadius = System.Math.Max(8, attackRange);
+            attackDamage = weapon == WeaponKind.Shield ? 6 : 8;
+            if (this is EnemyCommander commander)
+                commander.SetMilitaryRole(AIEraMilitary.Role(weapon));
+        }
+        public int GuardBoss { get; internal set; } = -1;
+        internal void RestoreAIMilitary(int era, int member, float health)
+        {
+            ConfigureAIMilitary(era, member);
+            currentHealth = health; // 편성 상한보다 큰 저장 체력도 그대로 보존한다.
+        }
+        public int GuardCycle { get; internal set; }
+        public bool GuardXpClaimed { get; internal set; }
+        internal void ConfigureBossGuard(int boss, int cycle) { GuardBoss = boss; GuardCycle = cycle; maxHealth = 12; attackDamage = 2; detectionRadius = 35; }
+        public int ClaimGuardXp()
+        {
+            if (GuardBoss < 0 || GuardXpClaimed) return 0;
+            GuardXpClaimed = true;
+            return CampaignResearch.Instance?.BossProgress.ClaimGuardXp((AntColony.Boss.BossId)GuardBoss, GuardCycle) ?? 0;
+        }
         // 목장 생물(2026-10-11): 평소엔 온순(Critter가 이동·먹기를 맡음, 함정·방어시설·경보 대상 아님), 취급 실패·공격받으면 잠시 성향대로 행동.
         internal void ConfigureCritter(float health, float damage) { maxHealth = health; attackDamage = damage; Docile = true; }
         public bool Docile { get; internal set; }
@@ -79,7 +104,7 @@ namespace AntColony.World
         // 귀환·하역 보류(G69) 판정용: 순한 동물·아군·사육 생물은 위협이 아니다. 습격대·포식자·자극받은 개체만.
         public bool IsRaider => isRaider;
         public bool Threatening => isActiveAndEnabled && !IsDead && !Allied && GetComponent<Critter>() == null && (isRaider || !Docile || provoked);
-        public bool Huntable => isActiveAndEnabled && !IsDead && !isRaider && !(this is EnemyCommander) && !Allied
+        public bool Huntable => GuardBoss < 0 && isActiveAndEnabled && !IsDead && !isRaider && !(this is EnemyCommander) && !Allied
             && string.IsNullOrEmpty(DiplomaticFactionId) && string.IsNullOrEmpty(RebelId) && GetComponentInParent<ExpeditionSite>() == null;
         private bool provoked;
         // 함정에 걸리면 이동만 멈춘다(사거리 안이면 공격은 계속한다).
@@ -248,7 +273,7 @@ namespace AntColony.World
                 GetComponent<AntVisual>()?.Attack(currentTarget.Position);
                 GetComponent<CritterVisual>()?.Attack();
                 if (currentTarget is BuildingBase flammable && WallFire.Flammable(flammable)) WallFire.Ignite(flammable); // 가연성 재료(나뭇잎 벽·목재 등)엔 불을 지른다.
-                FormationDamage.Apply(currentTarget, attackDamage, Position);
+                FormationDamage.Apply(currentTarget, attackDamage + AIEraProgress.AttackBonus(AIEraProgress.CombatEra(this)), Position, ranged: attackRange > 2);
             }
         }
 
@@ -289,7 +314,7 @@ namespace AntColony.World
             provoked = true;
             if (!Allied && !DiplomacyManager.TryAttack(this)) return;
             if (critter != null) critter.OnHurtByUnit(); // 사냥·전투로 공격받은 목장 생물은 성향대로 반응
-            currentHealth -= amount;
+            currentHealth -= Mathf.Min(amount, Mathf.Max(1, amount - AIEraProgress.ArmorBonus(AIEraProgress.CombatEra(this))));
             GetComponent<AntVisual>()?.Action("Hit");
             GetComponent<CritterVisual>()?.Hurt();
             if (currentHealth <= 0f)
@@ -302,6 +327,11 @@ namespace AntColony.World
         // 적 장수(EnemyCommander)가 포로 전환을 끼워 넣을 수 있도록 분리했다.
         protected virtual void Die()
         {
+            if (GuardBoss >= 0)
+            {
+                Corpse.Drop(this, CorpseKind.Wildlife, "보스 호위 야생종 · 식용 불가", food: 0);
+                gameObject.SetActive(false); Destroy(gameObject); return;
+            }
             if (critter != null) { HuntDesignated = false; critter.OnKilled(); return; } // 목장 생물: 사체(해체 가능)·관리 알림은 Critter가
             if (!(this is EnemyCommander captured) || !captured.WasCaptured)
                 Corpse.Drop(this, this is EnemyCommander ? CorpseKind.EnemyCommander : isRaider && !eventWasp && !nightPredator || GetComponent<AntUnitBase>() != null ? CorpseKind.Ant : CorpseKind.Wildlife,
