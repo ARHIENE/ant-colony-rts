@@ -1,0 +1,35 @@
+{
+  "claude-plugins-official": {
+    "source": {
+      "source": "github",
+      "repo": "anthropics/claude-plugins-official"
+    },
+    "installLocation": "C:\\Users\\Shim Hyeonyeop\\.claude\\plugins\\marketplaces\\claude-plugins-official",
+    "lastUpdated": "2026-11-04T11:50:52.468Z"
+  },
+  "ponytail": {
+    "source": {
+      "source": "github",
+      "repo": "DietrichGebert/ponytail"
+    },
+    "installLocation": "C:\\Users\\Shim Hyeonyeop\\.claude\\plugins\\marketplaces\\ponytail",
+    "lastUpdated": "2026-09-09T11:19:14.893Z"
+  },
+  "thedotmack": {
+    "source": {
+      "source": "github",
+      "repo": "thedotmack/claude-mem"
+    },
+    "installLocation": "C:\\Users\\Shim Hyeonyeop\\.claude\\plugins\\marketplaces\\thedotmack",
+    "lastUpdated": "2026-11-04T11:50:53.936Z",
+    "autoUpdate": true
+  },
+  "openai-codex": {
+    "source": {
+      "source": "github",
+      "repo": "openai/codex-plugin-cc"
+    },
+    "installLocation": "C:\\Users\\Shim Hyeonyeop\\.claude\\plugins\\marketplaces\\openai-codex",
+    "lastUpdated": "2026-10-23T11:19:24.885Z"
+  }
+}

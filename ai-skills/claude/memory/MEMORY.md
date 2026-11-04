@@ -1,0 +1,23 @@
+- [Notion replace_content 위험](feedback_notion_replace_content_위험.md) — 하위 페이지 있는 페이지엔 replace_content+allow_deleting_content 쓰지 말 것
+- [unity-cli-bridge 로컬 패치](unity_cli_bridge_local_patch.md) — MCP 아닌 로컬 CLI 바이너리(Bash로 실행, `--port` 필수: ant=16401/FPS=16400), 마우스 클릭 시뮬레이션 신뢰 불가
+- [FPS Manager NavMesh 베이크 비용](fps_manager_navmesh_bake_cost.md) — 맵 면적 키우기 전 베이크 시간부터 확인할 것(4배 면적에서 15분+ 응답없음 실측)
+- [커밋은 SAVE 시에만](feedback_git_commit_only_on_save.md) — 작업 끝났다고 바로 git commit 하지 말 것, SAVE 또는 명시적 승인 시에만
+- [ant 프로젝트 프리팹 커밋 금지](feedback_ant_no_prefab_commit.md) — E:\Git\ant에서 .prefab 파일은 git에 안 올림(gitignore 처리됨)
+- [Notion 스펙 변경 시 관련 페이지 전부 수정](feedback_notion_spec_change_propagation.md) — 기획 문서 하나만 고치지 말고 참조하는 다른 페이지도 같이 교체
+- [확인받은 뒤엔 재보류 금지](feedback_dont_unilaterally_defer_after_confirm.md) — 리스크 설명 후 사용자가 명시적으로 승인했으면 판단으로 다시 보류하지 말 것
+- [ant 팀프로젝트 반입/브릿지 데드락](project_ant_teamimport_and_bridge_deadlock.md) — _TeamImport 구조, Play모드 데드락은 맵크기 무관 브릿지 자체 버그
+- [ant 목표: 기획서 전체 구현](project_ant_goal_full_spec.md) — MVP 아니라 기획서 전체가 목표, FPS Manager는 당분간 후순위
+- [Notion replace_content 2차 사고](feedback_notion_replace_content_위험.md) — FPS Manager 기획서가 ant 기획서 생성 때 덮어써져 유실(복구 안 함), 새 프로젝트 기획문서는 반드시 새 페이지로
+- [unity-cli 브릿지 데드락 시 자동 재시작 허용](feedback_unity_bridge_auto_restart.md) — 물어보지 말고 바로 taskkill 후 재시작할 것(2026-09-04 사용자 승인)
+- [Unity 검사 중 에디터 재시작 금지](feedback_unity_no_editor_restart_in_tests.md) — 백업 대화상자 반복·사용자 불만, TaskStop은 안쪽 bash 못 죽임
+- [ant 저장 검사 병렬 금지](feedback_ant_no_parallel_save_checks.md) — RootOverride 정적 공유라 병렬 실행 시 실제 슬롯 덮어쓸 위험, 순차+md5 대조
+- [ant Unity 검사 포커스 금지](project_ant_editor_focus_for_realtime_checks.md) — editor_focus 쓰지 말 것, runInBackground+EnterPlaymode 폴링으로 포커스 없이 검사
+- [추천안 자동 선택](feedback_auto_pick_recommended.md) — 선택 필요 시 추천안으로 진행, Notion 기획·개발 일지에 자동 선택 목록 기록
+- [Unity Pipeline 포트 파일 누락](unity_pipeline_port_file.md) — 공식 CLI 연결 불가 시 .unity-pipeline-port 확인, Stop→Start Server로 복구
+- [Blender MCP 직접 실행](blender_mcp_launch.md) — 꺼져 있으면 F:\Blender\blender.exe + blender_mcp enable로 직접 켜기(9876)
+- [Codex 끊기면 Claude가 진행](feedback_codex_down_claude_takes_over.md) — 한도/로그인 만료로 멈추면 broker 재시작 시도 후 안 되면 핸드오프 기준 직접 구현
+- [ant 오프라인 Roslyn 컴파일](ant_offline_roslyn_compile.md) — Unity 안 쓰고 worktree 컴파일 확인(내장 csc + Bee rsp), 검사는 internal 접근 불가
+- [SAVE·종료 필수 규칙](feedback_save_kakao_done_and_todo.md) — 사용량 부족하면 SAVE+컴퓨터 종료 필수, Codex 한/못한 일 포함, 카톡=완료+남은 일
+- [GitHub 별순 레포 참고](feedback_reference_github_repos.md) — 기능·UI 구현 전 비슷한 구현 레포(별 많은 순) 찾아 기준으로 반영
+- [python 스토어 별칭·ResourceType 충돌](env_python_store_alias.md) — Bash python 미실행(node 사용), 에디터 run_script는 ResourceType 완전수식
+- [ant TC 시트 수행 규칙](feedback_ant_tc_sheet.md) — 판정 7종 의미, 파일로 받지 말고 시트에서 직접 읽고 H·I열에 직접 기록, P0·P1 우선

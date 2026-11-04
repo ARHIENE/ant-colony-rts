@@ -1,0 +1,4 @@
+interface:
+  display_name: "Ant Workflow"
+  short_description: "Guide ant Unity work with project memory and skills"
+  default_prompt: "Use $ant-workflow to continue work in the ant Unity project."

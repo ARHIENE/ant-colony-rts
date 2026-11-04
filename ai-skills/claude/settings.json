@@ -1,0 +1,65 @@
+{
+  "model": "opus",
+  "statusLine": {
+    "type": "command",
+    "command": "node \"C:/Users/Shim Hyeonyeop/.claude/statusline.js\""
+  },
+  "enabledPlugins": {
+    "ponytail@ponytail": true,
+    "claude-mem@thedotmack": true,
+    "codex@openai-codex": true,
+    "unity@claude-plugins-official": true
+  },
+  "extraKnownMarketplaces": {
+    "ponytail": {
+      "source": {
+        "source": "github",
+        "repo": "DietrichGebert/ponytail"
+      }
+    },
+    "openai-codex": {
+      "source": {
+        "source": "github",
+        "repo": "openai/codex-plugin-cc"
+      }
+    }
+  },
+  "modelSettings": {
+    "claude-opus-5": {
+      "effortLevel": "low"
+    }
+  },
+  "autoUpdatesChannel": "latest",
+  "tui": "fullscreen",
+  "theme": "dark",
+  "agentPushNotifEnabled": true,
+  "autoMode": {
+    "environment": [
+      "### Org-wide",
+      "**Organization**: None configured",
+      "**Cloud provider(s)**: None configured",
+      "**Repository visibility**: assume private unless the remote host and repo name indicate otherwise, or a visibility check in the transcript shows public",
+      "**Internal sharing / snippet hosting**: None configured — treat public paste/gist services as outside the trust boundary",
+      "**Secrets management**: None configured",
+      "**Default / protected branches**: unknown — no git remotes configured, repo has 0 tracked files, origin/HEAD unset",
+      "**CI/CD deploy targets**: None configured",
+      "**Network posture**: None configured",
+      "**Host containment**: None configured — assume Claude Code runs on an ordinary developer machine or CI runner with open internet",
+      "**Source control**: The trusted repo and its remote(s) only (no additional orgs configured) — no remotes are currently configured for E:\\Git",
+      "**Trusted internal domains**: None configured",
+      "**Trusted cloud buckets**: None configured",
+      "**Key internal services**: Notion (api.notion.com) and Kakaotalk (playmcp.kakao.com) are contacted routinely via configured MCP tools for project logging workflows described in user CLAUDE.md",
+      "**Internal package registry**: None configured",
+      "**Sensitive data locations & audiences**: any file or store holding personal data, confidential business data, credentials, regulated data, or similarly sensitive material; preserve exact handles when known and share only with audiences cleared at the [named+specifics] bar",
+      "**Data retention / declassification**: None configured",
+      "**Sensitive remote targets**: any namespace, host, or container whose name carries `prod` or `production` as a whole word or name segment (hyphen/underscore/dot-delimited — e.g. matches `prod-db`, not `producer`)",
+      "**Protected deployment namespaces / environments**: None configured — fall back to the Sensitive remote targets heuristic",
+      "**Protected IaC scopes**: IAM, RBAC, networking, quota, and node-pool resources; anything whose name or tag carries `prod` or `production` as a whole word or name segment",
+      "### User-specific",
+      "**Primary use of Claude Code**: software development (Unity game projects — FPS Manager, 1VS1 Game, ant-colony-rts — plus Notion/Kakaotalk logging workflow automation)",
+      "**Trusted repo**: The git repository the agent started in (its working directory) and its configured remote(s) — currently E:\\Git has no remotes configured and 0 tracked files, so no remote scope can be established yet",
+      "**Org-specific CLIs**: None configured — user commonly runs powershell, tasklist, taskkill, netstat, py, winget, and unity-cli (capture_screenshot/capture_video_start/capture_video_stop) as routine local tooling",
+      "routine under E:\\Git\\ant/ prefix: .prefab and .prefab.meta files are gitignored and should not be committed for the ant-colony-rts project"
+    ]
+  }
+}

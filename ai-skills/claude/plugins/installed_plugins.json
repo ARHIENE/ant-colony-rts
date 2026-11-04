@@ -1,0 +1,45 @@
+{
+  "version": 2,
+  "plugins": {
+    "ponytail@ponytail": [
+      {
+        "scope": "user",
+        "installPath": "C:\\Users\\Shim Hyeonyeop\\.claude\\plugins\\cache\\ponytail\\ponytail\\4.9.0",
+        "version": "4.9.0",
+        "installedAt": "2026-09-09T11:19:30.586Z",
+        "lastUpdated": "2026-09-09T11:19:30.586Z",
+        "gitCommitSha": "356918eba965ee1eac64bd3a7f0dd02108350de5"
+      }
+    ],
+    "claude-mem@thedotmack": [
+      {
+        "scope": "user",
+        "installPath": "C:\\Users\\Shim Hyeonyeop\\.claude\\plugins\\cache\\thedotmack\\claude-mem\\15.9.0",
+        "version": "15.9.0",
+        "installedAt": "2026-09-14T12:19:51.650Z",
+        "lastUpdated": "2026-11-03T13:00:39.321Z",
+        "gitCommitSha": "02584c4ac9d92fea45adf5c61e22c546b5738621"
+      }
+    ],
+    "codex@openai-codex": [
+      {
+        "scope": "user",
+        "installPath": "C:\\Users\\Shim Hyeonyeop\\.claude\\plugins\\cache\\openai-codex\\codex\\1.0.6",
+        "version": "1.0.6",
+        "installedAt": "2026-10-23T11:19:59.919Z",
+        "lastUpdated": "2026-10-23T11:19:59.919Z",
+        "gitCommitSha": "db52e28f4d9ded852ab3942cea316258ae4ef346"
+      }
+    ],
+    "unity@claude-plugins-official": [
+      {
+        "scope": "user",
+        "installPath": "C:\\Users\\Shim Hyeonyeop\\.claude\\plugins\\cache\\claude-plugins-official\\unity\\0.1.6-beta",
+        "version": "0.1.6-beta",
+        "installedAt": "2026-10-24T08:49:09.832Z",
+        "lastUpdated": "2026-10-24T08:49:09.832Z",
+        "gitCommitSha": "ba48956ae8bee4ef8a3ef3d75dec03c16aa5cc89"
+      }
+    ]
+  }
+}
