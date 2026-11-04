@@ -13,8 +13,8 @@ namespace AntColony.UI
     {
         private List<Component> taskPick = new List<Component>();
         private Component confirmTask; private bool confirmAllTasks;
-        public static IEnumerable<Component> TaskCandidates() => FindObjectsByType<BuildingConstructionSite>(FindObjectsSortMode.None).Cast<Component>()
-            .Concat(FindObjectsByType<Kitchen>(FindObjectsSortMode.None).Where(k => !k.IsTable && !k.IsDead));
+        public static IEnumerable<Component> TaskCandidates() => AntColony.Core.SceneObjects.All<BuildingConstructionSite>().Cast<Component>()
+            .Concat(AntColony.Core.SceneObjects.All<Kitchen>().Where(k => !k.IsTable && !k.IsDead));
 
         private static string TaskName(Component c) => c is BuildingConstructionSite s ? s.name.Replace("ConstructionSite", " 건설 예정지") : c is Kitchen k ? k.Data.displayName + " 요리" : c.name;
         private static string TaskWait(Component c) => c is BuildingConstructionSite s ? BuildingConstructionSite.Describe(s.WaitReason) : c is Kitchen k ? k.WaitReason ?? "진행 중" : "";
@@ -62,7 +62,7 @@ namespace AntColony.UI
                 foreach (var crew in TaskCrew(row).ToList())
                 {
                     var who = crew;
-                    MenuTheme.Button(content, "담당 → " + who.CommanderName, () => { Resume(); FindFirstObjectByType<AntColony.Camera.IsometricCameraController>()?.FocusOn(who.Position); });
+                    MenuTheme.Button(content, "담당 → " + who.CommanderName, () => { Resume(); AntColony.Core.SceneObjects.Any<AntColony.Camera.IsometricCameraController>()?.FocusOn(who.Position); });
                 }
                 MenuTheme.Button(content, TaskPaused(row) ? "재개" : "일시정지", () => { TaskPause(row, !TaskPaused(row)); ShowTasks(taskPick); });
                 MenuTheme.Button(content, confirmTask == row ? "한 번 더 누르면 취소(소비한 재료 손실)" : "취소", () => {

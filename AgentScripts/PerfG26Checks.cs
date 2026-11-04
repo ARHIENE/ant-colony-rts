@@ -69,7 +69,7 @@ public static class PerfG26Checks
             for (var i = 0; i < Enemies; i++)
             {
                 var a = i * Mathf.PI * 2 / Enemies;
-                spawn.Invoke(incursions, new object[] { false, Ground(bounds.center + new Vector3(Mathf.Cos(a), 0, Mathf.Sin(a)) * size) });
+                ((WildMonster)spawn.Invoke(incursions, new object[] { false, Ground(bounds.center + new Vector3(Mathf.Cos(a), 0, Mathf.Sin(a)) * size) })).gameObject.SetActive(true); // 템플릿이 비활성이라 켜 준다
             }
 
             // 바닥 묶음 1만: 2m 안 같은 종류는 합쳐지므로 2.2m 격자에 둔다.
@@ -78,9 +78,12 @@ public static class PerfG26Checks
             for (var i = 0; i < Stacks; i++)
                 drop.Invoke(null, new object[] { AntColony.Data.ResourceType.Wood, 1, bounds.center + new Vector3((i % grid - grid / 2) * 2.2f, 0, (i / grid - grid / 2) * 2.2f) });
 
+            // 식량 0이면 측정 중 굶주림 탈주로 장수가 모두 떠난다(이전 측정의 장수 0/30).
+            ResourceManager.Instance.AddCapacity(AntColony.Data.ResourceType.Food, 5000); ResourceManager.Instance.Add(AntColony.Data.ResourceType.Food, 5000);
             var regions = WorldMapManager.Instance != null ? WorldMapManager.Instance.Sites.Count : 0;
             var stacks = ResourceNode.Available.Count(n => n != null && n.IsLooseCargo);
             var enemies = Object.FindObjectsByType<WildMonster>(FindObjectsSortMode.None).Count(m => m.isActiveAndEnabled);
+            var commanders = roster.Commanders.Count(c => !c.IsDead && c.IsColonyMember);
 
             // 1배속 프레임 측정: 안정화 60프레임 뒤 300프레임.
             AntColony.UI.GameMenuController.Instance.Resume(); Time.timeScale = 1;
@@ -100,7 +103,7 @@ public static class PerfG26Checks
             var loadSeconds = watch.Elapsed.TotalSeconds;
 
             string Mark(bool ok) => ok ? "OK" : "미달";
-            return $"G26 citizens {pop.Total} homes {Homes} commanders {roster.Commanders.Count} enemies {enemies} stacks {stacks} regions {regions} | "
+            return $"G26 citizens {pop.Total} homes {Homes} commanders {commanders} (측정 후 {roster.Commanders.Count}) enemies {enemies} stacks {stacks} regions {regions} | "
                 + $"fps avg {avgFps:0.0} low1% {low:0.0} {Mark(avgFps >= TargetFps)} | save {saveSeconds:0.00}s {Mark(saveSeconds <= SaveLimit)} | load {loadSeconds:0.00}s {Mark(loadSeconds <= LoadLimit)}";
         }
         finally { UserSettings.Apply(settings, false); SaveStorage.RootOverride = root; Time.timeScale = 0; }

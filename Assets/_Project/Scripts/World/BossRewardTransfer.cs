@@ -31,7 +31,7 @@ namespace AntColony.World
             if (stronghold == null) return ship.TryCollectRewards();
             var progress = CampaignResearch.Instance?.BossProgress;
             if (progress == null || !stronghold.Revealed || ship.State != ExpeditionState.Deployed
-                || ship.CargoCapacity - ship.CargoLoad < (stronghold.Id == AntColony.Boss.BossId.A ? 2 : 1)) return false;
+                || ship.ReturnCargoSpace < (stronghold.Id == AntColony.Boss.BossId.A ? 2 : 1)) return false;
             if (!ship.Crew.Any(c => c != null && c.CanReceiveOrders && (c.Position - ship.Position).sqrMagnitude <= 64)) return false;
             if (!progress.TryAcquire(stronghold.Id, Carrier(ship), out _)) return false;
             ship.Site.RewardsClaimed = true;

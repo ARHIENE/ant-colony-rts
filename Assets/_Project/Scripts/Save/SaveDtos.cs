@@ -255,6 +255,10 @@ namespace AntColony.Save
     [Serializable]
     public class TransportDto
     {
+        public List<World.Corpse.State> bodyCargo;
+        public int[] cargoAmounts;
+        public World.TransportDamageState damage;
+        public World.WithdrawState withdrawal;
         public string bossCarrierId;
         public bool walking;
         public float foodDebt, dockingRemaining;

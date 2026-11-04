@@ -42,7 +42,7 @@ namespace AntColony.UI
                     if (c != null && c.IsColonyMember && (c.PersonalState.health.Downed || c.PersonalHealth <= 0))
                         active["down:" + c.PersonalState.id] = c.CommanderName + ": 쓰러짐";
             SimulationPause.Observe(active, announce);
-            foreach (var rocket in Object.FindObjectsByType<AirshipYard>(FindObjectsSortMode.None))
+            foreach (var rocket in AntColony.Core.SceneObjects.All<AirshipYard>())
                 if (rocket.GetComponent<RocketIncident>() == null) rocket.gameObject.AddComponent<RocketIncident>();
         }
     }

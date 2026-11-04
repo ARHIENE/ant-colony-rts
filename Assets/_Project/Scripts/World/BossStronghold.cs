@@ -28,7 +28,7 @@ namespace AntColony.World
                 { allies = true; combat |= unit is SoldierAnt soldier && soldier.IsInCombat; }
             if (WorldMapManager.Instance != null)
                 foreach (var ship in WorldMapManager.Instance.Transports)
-                    if (ship != null && ship.isActiveAndEnabled && (ship.Position - transform.position).sqrMagnitude < 80 * 80)
+                    if (ship != null && !ship.IsDead && ship.isActiveAndEnabled && (ship.Position - transform.position).sqrMagnitude < 80 * 80)
                         transport = true;
             if (site.Boss == null || !progress.TryRespawn(Id, GameCalendar.GameSeconds, allies, transport, combat)) return;
             site.RestoreState(false, site.Disposition);

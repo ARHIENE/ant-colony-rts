@@ -23,10 +23,10 @@ namespace AntColony.Units
             : (EquippedArmor?.armor == ArmorKind.Coating ? EquippedArmor.quality + 1 : 0)
                 + (Weapon?.weapon == WeaponKind.Shield ? 2 * (Weapon.quality + 1) : 0);
         protected override float WorkSpeed => WorkRate(ConstructionTarget != null && ConstructionTarget.IsArt ? CommanderActivity.Art : CommanderActivity.Building);
-        protected override float MovementSpeed => base.MovementSpeed * traits.MoveMultiplier * AgeMoveMultiplier * BiomeRules.MoveAt(AntColony.Buildings.RoomSystem.IsIndoors(Position)) * AntColony.Map.WeatherSystem.MoveAt(AntColony.Buildings.RoomSystem.IsIndoors(Position)) * (AntColony.Map.MapGenerator.InWater(Position) ? AntColony.Map.MapGenerator.WaterMoveMultiplier : 1f)
-            * (1f - .3f * personalState.Severity(InjuryPart.Legs)) * (1f + TrinketBonus(TrinketEffect.Move))
+        protected override float MovementSpeed => base.MovementSpeed * (traits.MoveMultiplier + TrinketBonus(TrinketEffect.Move) + FormationEffect().Move) * AgeMoveMultiplier * BiomeRules.MoveAt(AntColony.Buildings.RoomSystem.IsIndoors(Position)) * AntColony.Map.WeatherSystem.MoveAt(AntColony.Buildings.RoomSystem.IsIndoors(Position)) * (AntColony.Map.MapGenerator.InWater(Position) ? AntColony.Map.MapGenerator.WaterMoveMultiplier : 1f)
+            * (1f - .3f * personalState.Severity(InjuryPart.Legs))
             * (Weapon?.weapon == WeaponKind.Shield ? .9f : 1f) * (IsFlying ? 1f + .05f * EquippedArmor.quality : 1f)
-            * AntColony.World.ColonyEvents.MoveMultiplier(this) * (Social.rallyRemaining > 0 ? 1.3f : 1f) * (AntColony.Buildings.FloorTile.At(Position) ? GameBalance.FloorMoveMultiplier : 1f) * AnimalCarryMultiplier;
+            * AntColony.World.ColonyEvents.MoveMultiplier(this) * (Social.rallyRemaining > 0 ? 1.3f : 1f) * (AntColony.Buildings.FloorTile.At(Position) ? GameBalance.FloorMoveMultiplier : 1f) * AnimalCarryMultiplier * AntColony.World.ExpeditionWithdraw.CarryMultiplier(this);
         public CommanderActivity CurrentActivity => ServiceTarget != null ? SkillFor(ServiceJob) : HuntTarget != null ? CombatActivity : CraftingWorkshop != null ? CommanderActivity.Crafting : LabUpgradeBusy ? CommanderActivity.Research : IsConstructing ? ConstructionTarget.IsArt ? CommanderActivity.Art : CommanderActivity.Building
             : CurrentResourceNode != null ? CurrentResourceNode.RequiresFishing ? CommanderActivity.Fishing
                 : CurrentResourceNode.GetComponent<BuildingBase>() != null ? CommanderActivity.Farming : CommanderActivity.Gathering
@@ -62,6 +62,9 @@ namespace AntColony.Units
             TreatmentFacility?.Release(this);
             CraftingWorkshop?.Release();
             personalState = value == null ? new CommanderPersonalState() : JsonUtility.FromJson<CommanderPersonalState>(JsonUtility.ToJson(value));
+            personalState.formation ??= new FormationState();
+            restoreFormationHit = personalState.formation.hits > 0 && personalState.formation.hitTarget?.StartsWith("saved:") == true;
+            if (!restoreFormationHit && (formationHitTarget == null || FormationTargetKey(formationHitTarget) != personalState.formation.hitTarget)) personalState.formation.ResetHits();
             personalState.treating = false; // Building restoration reconnects the patient after commanders load.
             MigrateAge(personalState);
             personalState.health ??= new HealthState(); MedicalRules.Migrate(personalState); // 옛 6부위 부상·곰팡이 → 부위별 건강(2026-10-15)
@@ -189,7 +192,7 @@ namespace AntColony.Units
             }
             IDamageable target = null;
             if (personalState.mentalBreak == MentalBreak.AttackBuilding)
-                target = FindObjectsByType<BuildingBase>(FindObjectsSortMode.None).Where(b => b.CountsTowardPlayerDefeat && !b.IsDead && !(b is AntColony.World.ExpeditionTransport))
+                target = AntColony.Core.SceneObjects.All<BuildingBase>().Where(b => b.CountsTowardPlayerDefeat && !b.IsDead && !(b is AntColony.World.ExpeditionTransport))
                     .OrderBy(b => (b.Position - Position).sqrMagnitude).FirstOrDefault();
             if (personalState.mentalBreak == MentalBreak.AttackCommander)
                 target = Active.OfType<CommanderAnt>().Where(c => c != this && !c.IsDead && !c.IsEmbarked && c.HasTroops)

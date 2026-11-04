@@ -38,7 +38,7 @@ namespace AntColony.Core
         private static State Capture(IReadOnlyList<CommanderAnt> boarded, CommanderAnt boardingCandidate)
         {
             var result = new State(); var ids = new HashSet<string>();
-            var yard = UnityEngine.Object.FindObjectsByType<AirshipYard>(FindObjectsSortMode.None)
+            var yard = AntColony.Core.SceneObjects.All<AirshipYard>()
                 .FirstOrDefault(y => ReferenceEquals(y.Passengers, boarded));
             int civilianPassengers = yard?.CivilianPassengers ?? 0;
             result.citizensEscaped = civilianPassengers;

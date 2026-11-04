@@ -93,7 +93,7 @@ namespace AntColony.UI
             Btn(e, "Board Selected", "선택 장수 탑승", 184, 178, () => ChangeCrew(false));
             Btn(e, "Unload Crew", "승무원 내리기", 12, 216, () => Result(selectedShip != null && selectedShip.TryUnloadCrew(), "하차 지시를 내렸습니다."));
             Btn(e, "Station Selected", "선택 장수 주둔", 184, 216, () => ChangeCrew(true));
-            Btn(e, "Return Home", "귀환", 12, 254, () => Result(selectedShip != null && selectedShip.TryReturn(), "장수와 화물을 싣고 귀환합니다."));
+            Btn(e, "Return Home", "귀환", 12, 254, () => Result(selectedShip != null && selectedShip.TryReturn(), "철수를 시작합니다. 탑승·적재가 끝나면 출발합니다."));
             Btn(e, "Collect Equipment / Blueprint", "전리품·설계도 싣기", 184, 254,
                 () => Result(selectedShip != null && BossRewardTransfer.TryCollect(selectedShip), "전리품을 실었습니다. 귀환하면 사용할 수 있습니다."));
             Btn(e, "Walking Formation", "도보 편성", 12, 292, () => {
@@ -132,7 +132,7 @@ namespace AntColony.UI
             L.Label(science, "<b>과학 · 수송 수단</b>", 15, 12, 8, 336, 26);
             scienceStatus = L.Label(science, "", 12, 12, 36, 336, 84, MenuTheme.Muted, TextAnchor.UpperLeft);
             Btn(science, "Build Science Lab", "과학 연구소 건설", 12, 120, () => {
-                if (FindFirstObjectByType<BuildingPlacementController>().BeginScienceLabPlacement()) Toggle();
+                if (AntColony.Core.SceneObjects.Any<BuildingPlacementController>().BeginScienceLabPlacement()) Toggle();
                 else feedback.text = "본거지, 시민 60, 낚시, 2단계 병영, 선택한 건설 장수가 필요합니다.";
             });
             Btn(science, "Science / Researchers", "과학 연구 · 연구원", 184, 120, () => { Toggle(); GameMenuController.Instance.Science(); });
@@ -241,7 +241,7 @@ namespace AntColony.UI
                 var open = ship == expanded;
                 text.text = BoxText(ship, open);
                 var box = (RectTransform)text.transform.parent;
-                var height = 58 + (open ? 18 * ship.Crew.Count + 44 : 0);
+                var height = 58 + 18 * (text.text.Split('\n').Length - 3) + (open ? 44 : 0); // 내구·철수 줄 포함
                 box.GetComponent<UnityEngine.UI.LayoutElement>().preferredHeight = height;
                 text.rectTransform.sizeDelta = new Vector2(-16, height - 8);
                 var actions = (RectTransform)box.Find("Box Actions");
@@ -264,13 +264,28 @@ namespace AntColony.UI
             text.alignment = TextAnchor.UpperLeft;
             text.rectTransform.anchorMin = new Vector2(0, 1); text.rectTransform.anchorMax = Vector2.one; text.rectTransform.pivot = new Vector2(.5f, 1);
             text.rectTransform.anchoredPosition = new Vector2(0, -4);
-            var actions = L.Place(MenuTheme.Rect("Box Actions", rect), 8, 0, 300, 32);
-            L.Button(actions, "Box Return", "귀환", 0, 0, 96, 30, () => Result(ship != null && ship.TryReturn(), "장수와 화물을 싣고 귀환합니다."), null, false, 12);
+            var actions = L.Place(MenuTheme.Rect("Box Actions", rect), 8, 0, 560, 32);
+            // D06: 귀환은 철수 작업 접수(탑승·적재가 끝나야 출발). 철수 중 다시 누르면 철수 취소.
+            L.Button(actions, "Box Return", "귀환", 0, 0, 96, 30, () => {
+                if (ship != null && ship.IsWithdrawing) { ship.CancelWithdrawal(); feedback.text = "철수를 취소했습니다."; }
+                else Result(ship != null && ship.TryReturn(), "철수를 시작합니다. 탑승·적재가 끝나면 출발합니다.");
+            }, null, false, 12);
             L.Button(actions, "Box Battlefield", "전장 보기", 104, 0, 110, 30, () => {
                 var world = WorldMapManager.Instance;
                 if (world != null && ship != null && ship.Site != null && world.ViewSite(ship.Site)) Toggle();
                 else feedback.text = "수송 수단이 도착해야 전장에 들어갈 수 있습니다.";
             }, null, false, 12);
+            L.Button(actions, "Box Emergency", "긴급 출발", 222, 0, 104, 30, () => {
+                var w = ship != null ? ship.WithdrawalProgress : default;
+                Result(ship != null && ship.IsWithdrawing && ship.TryEmergencyReturn(), $"남은 인원 {w.People}·짐 {w.Loads}을 두고 출발합니다.");
+            }, "철수 중 남은 인원·짐을 두고 탑승한 장수만으로 바로 출발", false, 12);
+            // D07: 근처(3m) 장수가 현장 수리(실린 흙 사용) 또는 잔해 해체.
+            L.Button(actions, "Box Repair", "수리/해체", 334, 0, 104, 30, () => {
+                if (ship == null) return;
+                var ok = false;
+                foreach (var c in ship.Crew) if (ship.IsWreck ? ship.TrySalvage(c) : ship.TryRepair(c)) { ok = true; break; }
+                Result(ok, ship.IsWreck ? "잔해 해체를 시작합니다." : "현장 수리를 시작합니다.");
+            }, "수송수단 3m 안 장수가 수리(실린 흙 사용) 또는 잔해 해체", false, 12);
             actions.gameObject.SetActive(false);
             return text;
         }
@@ -295,6 +310,16 @@ namespace AntColony.UI
                 + $"장수 {names} ({ship.CommanderLoad}/{ship.CommanderCapacity}) · 병력 {ship.Load}/{ship.Capacity}\n"
                 + $"<color=#b1b3a7>화물 {ship.CargoLoad}/{ship.CargoCapacity} · 전리품 장비 {ship.EquipmentCargo.Count}{(ship.BlueprintCargo ? "·설계도" : "")}"
                 + $" · 기분 {(crew.Count > 0 ? mood / crew.Count : 0):0} · 부상 {injured}</color>";
+            // D07 내구도·D06 철수 진행.
+            if (!ship.Walking)
+                text += ship.IsWreck ? $"\n<color=#e06c5a>잔해{(ship.Salvaged ? " · 해체 완료" : $" · 해체 {ship.SalvageRemaining:0}초 남음")}</color>"
+                    : $"\n내구 {ship.CurrentHealth:0}/{ship.MaxHealth:0}{(!ship.CanOperate ? " · <color=#e06c5a>운행 불가</color>" : ship.TravelSpeedMultiplier < 1 ? $" · 속도 ×{ship.TravelSpeedMultiplier:0.##}" : "")}"
+                        + (ship.FieldWorkActive ? " · 현장 작업 중" : "") + (!ship.HasPilot ? " · <color=#e06c5a>조종 장수 없음</color>" : "");
+            if (ship.IsWithdrawing)
+            {
+                var w = ship.WithdrawalProgress;
+                text += $"\n철수 중 · 남은 인원 {w.People} · 짐 {w.Loads} · {(float.IsNaN(w.EstimatedSeconds) ? "이동/구조 대기" : $"약 {w.EstimatedSeconds:0}초")}";
+            }
             if (!open) return text;
             foreach (var c in crew)
                 text += $"\n  {c.CommanderName}  병력 {c.TroopCount}/{c.CommandLimit} · 체력 {c.PersonalHealth:0} · 기분 {c.Mood:0}"
@@ -367,7 +392,7 @@ namespace AntColony.UI
         private static ScienceLab FindLab()
         {
             ScienceLab busy = null;
-            foreach (var lab in FindObjectsByType<ScienceLab>(FindObjectsSortMode.None))
+            foreach (var lab in AntColony.Core.SceneObjects.All<ScienceLab>())
             { if (!lab.isActiveAndEnabled) continue; if (!lab.Busy) return lab; busy = lab; }
             return busy;
         }
@@ -408,7 +433,7 @@ namespace AntColony.UI
         private void ChangeCrew(bool station)
         {
             var passengers = new List<CommanderAnt>();
-            foreach (var selectable in FindFirstObjectByType<SelectionManager>().GetSelectedObjects())
+            foreach (var selectable in AntColony.Core.SceneObjects.Any<SelectionManager>().GetSelectedObjects())
             { var commander = selectable != null ? selectable.GetComponent<CommanderAnt>() : null; if (commander != null) passengers.Add(commander); }
             Result(selectedShip != null && (station ? selectedShip.TryStation(passengers) : selectedShip.TryBoard(passengers)),
                 station ? "주둔 지시를 내렸습니다. 도착하면 남아 수송 수단이 돌아가도 머뭅니다." : "탑승 지시를 내렸습니다. 수송 수단에 도착하면 승무원이 됩니다.");

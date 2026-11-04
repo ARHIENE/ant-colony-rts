@@ -69,11 +69,11 @@ namespace AntColony.UI
             var list = Commanders;
             if (index + offset >= list.Length) return;
             var c = list[index + offset];
-            var selection = FindFirstObjectByType<SelectionManager>();
+            var selection = AntColony.Core.SceneObjects.Any<SelectionManager>();
             var selectable = c.GetComponent<SelectableObject>();
             if (selection != null && selectable != null) selection.SelectOnly(selectable);
             if (c == lastClicked && Time.unscaledTime - lastClickTime <= DoubleClick)
-                FindFirstObjectByType<IsometricCameraController>()?.FocusOn(c.Position);
+                AntColony.Core.SceneObjects.Any<IsometricCameraController>()?.FocusOn(c.Position);
             lastClicked = c; lastClickTime = Time.unscaledTime;
         }
 
@@ -85,7 +85,7 @@ namespace AntColony.UI
             if (!visible) return;
             var list = Commanders;
             offset = Mathf.Clamp(offset, 0, Mathf.Max(0, list.Length - Visible));
-            var selected = HudOverview.Selected(FindFirstObjectByType<SelectionManager>());
+            var selected = HudOverview.Selected(AntColony.Core.SceneObjects.Any<SelectionManager>());
             for (var i = 0; i < Visible; i++)
             {
                 var s = slots[i];

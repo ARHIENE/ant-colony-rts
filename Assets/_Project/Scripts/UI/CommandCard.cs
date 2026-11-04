@@ -34,7 +34,7 @@ namespace AntColony.UI
         public void Build(HUDController owner)
         {
             hud = owner;
-            selection = FindFirstObjectByType<SelectionManager>();
+            selection = AntColony.Core.SceneObjects.Any<SelectionManager>();
             civilianGrid = Grid("CivilianCommands", 3);
             deployedGrid = Grid("DeployedCommands", 3);
             colonyGrid = Grid("ColonyCommands", 3);
@@ -60,7 +60,7 @@ namespace AntColony.UI
             Add(deployedGrid, 1, "Dive", () => "급강하" + Cooldown(Commander != null ? Commander.Social.diveCooldown : 0f),
                 () => SkillTargeting.Begin(new[] { Commander }, true), () => "비행 스킬: 비행 장비 + 근접/원거리 5. 지면 클릭 후 급강하, 3초 착지. 재사용 30초.",
                 () => Commander != null && Commander.CanDive, () => Commander?.EquippedArmor?.armor == ArmorKind.Wings);
-            Add(deployedGrid, 3, "Attack Move", () => "공격 이동", () => FindFirstObjectByType<AttackMoveController>()?.BeginAttackMode(),
+            Add(deployedGrid, 3, "Attack Move", () => "공격 이동", () => AntColony.Core.SceneObjects.Any<AttackMoveController>()?.BeginAttackMode(),
                 () => "지면을 클릭하면 이동하면서 만나는 적을 공격합니다.");
             Add(deployedGrid, 2, "Deployment Meal", () => Commander != null && Commander.DeploymentEating ? "식사 중" : "식사", () => Commander?.OrderDeploymentMeal(),
                 () => Commander?.DeploymentFoodStatus ?? "소집 유지 · 공격 정지 · 3초 식사", () => Commander != null && Commander.CanReceiveOrders && Commander.IsDeployed && !Commander.IsReturning);
@@ -90,7 +90,7 @@ namespace AntColony.UI
                 () => "정착지 전체: 식사·수면·치료받기·의료 작업을 멈추고 작업합니다. 작업 금지는 유지되며, 해제하면 평소 생활로 돌아갑니다.");
 
             Add(multiGrid, 0, "Multi Priority", () => AllDeployed() ? "공격 이동" : "우선", () => {
-                if (AllDeployed()) FindFirstObjectByType<AttackMoveController>()?.BeginAttackMode(); else PriorityHint();
+                if (AllDeployed()) AntColony.Core.SceneObjects.Any<AttackMoveController>()?.BeginAttackMode(); else PriorityHint();
             }, () => "선택한 장수 모두에게 가능한 명령만 사용할 수 있습니다.", () => AllDeployed() || AllCivilian());
             Add(multiGrid, 1, "Multi Stop", () => AllDeployed() ? "정지" : "개별 선택 필요", () => {
                 foreach (var c in HudOverview.Selected(selection)) if (c.IsDeployed) c.CommandStop();
@@ -113,7 +113,7 @@ namespace AntColony.UI
             // 철거·이동(2026-10-08): 예정지만 만들고 건설 작업이 켜진 장수가 현장에서 처리한다.
             Add(targetGrid, 4, "Target Demolish", () => "철거", () => { if (Demolition.OrderDemolish(WorkTargetPanel.Target as BuildingBase) != null) ToastManager.Show("철거 예정지를 지정했습니다."); },
                 () => Demolition.HoldsPrisoners(WorkTargetPanel.Target as BuildingBase) ? "포로가 있는 수용소·동물이 있는 치료대는 철거·이동할 수 없습니다. 먼저 비우세요." : $"장수가 현장에서 철거하면 건설비의 {AntColony.Core.GameBalance.DemolishRefundShare:P0}를 돌려받습니다.", () => Demolition.CanDemolish(WorkTargetPanel.Target as BuildingBase), () => WorkTargetPanel.Target is BuildingBase);
-            Add(targetGrid, 5, "Target Move", () => "이동", () => FindFirstObjectByType<BuildingPlacementController>()?.BeginMove(WorkTargetPanel.Target as BuildingBase),
+            Add(targetGrid, 5, "Target Move", () => "이동", () => AntColony.Core.SceneObjects.Any<BuildingPlacementController>()?.BeginMove(WorkTargetPanel.Target as BuildingBase),
                 () => "새 위치를 고르면 장수가 비용 없이 옮깁니다. 방 가구·장식만 옮길 수 있고 주거·벽·문·바닥·방어 시설은 철거 후 다시 지으세요.", () => Demolition.CanMove(WorkTargetPanel.Target as BuildingBase), () => WorkTargetPanel.Target is BuildingBase);
             // 재료 개보수(2026-10-10): 새 재료를 고르면 장수가 현장에서 교체한다.
             Add(targetGrid, 6, "Target Renovate", () => "재료", () => GameMenuController.Instance?.ShowRenovate(WorkTargetPanel.Target as BuildingBase),

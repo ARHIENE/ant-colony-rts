@@ -13,7 +13,7 @@ namespace AntColony.UI
     {
         public void OpenConscription()
         {
-            var post = FindObjectsByType<ConscriptionPost>(FindObjectsSortMode.None)
+            var post = AntColony.Core.SceneObjects.All<ConscriptionPost>()
                 .FirstOrDefault(p => !p.IsDead && p.CountsTowardPlayerDefeat);
             if (post == null) { ToastManager.Show("건설(B) → 특수에서 징집소를 지으세요. 본거지에 1개만 지을 수 있습니다."); return; }
             ShowConscription(post);
@@ -36,7 +36,18 @@ namespace AntColony.UI
             {
                 var row = L.Cell(list, "Recruit " + c.CommanderName, 64, MenuTheme.Plate2);
                 var toggle = DutyToggle(row, "Deploy " + c.CommanderName, 8, 18, false);
-                var label = L.Label(row, "", 14, 48, 0, 640, 64);
+                var label = L.Label(row, "", 14, 48, 0, 500, 64);
+                // D04 진형: 누를 때마다 쓸 수 있는 다음 진형으로 바꾼다(연구·적성 없는 진형은 건너뜀). 출전 전에 장수에게 확정한다.
+                Button formation = null;
+                formation = L.Button(row, "Formation " + c.CommanderName, "", 556, 14, 164, 36, () => {
+                    var all = FormationRules.All; var at = System.Array.IndexOf(all, c.SelectedFormation);
+                    for (var i = 1; i <= all.Length; i++)
+                    {
+                        var next = all[(at + i) % all.Length];
+                        if (c.FormationBlockReason(next) == "" && c.TrySelectFormation(next)) break;
+                    }
+                    refreshDutyScreen?.Invoke();
+                }, size: 12);
                 var track = L.Box(row, "Troops " + c.CommanderName, 732, 34, 264, 18, MenuTheme.Well);
                 var handle = L.Box(track, "Handle", 0, 0, 16, 18, MenuTheme.Accent);
                 var slider = track.gameObject.AddComponent<Slider>();
@@ -54,6 +65,8 @@ namespace AntColony.UI
                     slider.maxValue = Mathf.Max(1, cap);
                     label.text = $"{c.CommanderName} · {c.WeaponLabel}\n체력 {c.PersonalHealth:0}/{GameBalance.CommanderHealth:0} · 기분 {c.Mood:0} · {Status(c)}";
                     amount.text = $"{slider.value:0} / 가능 {cap} (지휘 {c.CommandLimit})";
+                    formation.interactable = c.CanSelectFormation;
+                    formation.GetComponentInChildren<Text>().text = "진형 " + FormationRules.Name(c.SelectedFormation) + "\n" + FormationSummary(c.SelectedFormation, c.HasLegion);
                 };
             }
             var summary = L.Label(p, "", 15, 24, 570, 690, 32);
@@ -73,6 +86,18 @@ namespace AntColony.UI
             };
             L.Button(p, "Close Conscription", "닫기", 24, 604, 160, 34, Resume);
             refreshDutyScreen.Invoke();
+        }
+
+        // 진형 증감(%)을 짧게. 조건부 수치는 조건을 붙인다(산·숲, 전방, 철수, 연속 적중).
+        private static string FormationSummary(Formation f, bool legion)
+        {
+            var m = FormationRules.Modifiers(f, legion, ranged: true, forestOrMountain: true, front: true, withdrawing: true, hits: 4);
+            var parts = new List<string>();
+            void Add(string name, float v) { if (Mathf.Abs(v) > .001f) parts.Add($"{name}{(v > 0 ? "+" : "")}{v * 100:0}%"); }
+            Add(f == Formation.Focus ? "공격(연속)" : f == Formation.Wedge ? "공격(전방)" : f == Formation.Geese ? "공격(원거리)" : "공격", m.Attack);
+            Add("방어", m.Armor); Add("이동", m.Move); Add("사거리", m.Range); Add("공속", m.AttackSpeed); Add("도보", m.WorldMove);
+            Add(f == Formation.Cover ? "원거리피해(철수)" : "원거리피해", -m.RangedReduction); Add("범위피해", -m.AreaReduction); Add("측후방피해", m.RearIncrease);
+            return (f == Formation.Snake ? "산·숲 " : "") + (parts.Count == 0 ? "보정 없음" : string.Join(" ", parts));
         }
     }
 }

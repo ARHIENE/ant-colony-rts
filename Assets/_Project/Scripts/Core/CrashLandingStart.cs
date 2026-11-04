@@ -27,7 +27,7 @@ namespace AntColony.Core
         {
             var origin = ResourceManager.HomePosition;
             // 씬 기본 시설은 저장 카탈로그에 빈 자리로 남겨 옛 저장의 키를 유지한다.
-            foreach (var b in Object.FindObjectsByType<BuildingBase>(FindObjectsSortMode.None)
+            foreach (var b in AntColony.Core.SceneObjects.All<BuildingBase>()
                 .Where(b => b.CountsTowardPlayerDefeat && b.GetComponentInParent<ExpeditionSite>() == null).ToArray())
             { b.gameObject.SetActive(false); Object.Destroy(b.gameObject); }
             AntPool.Instance?.RestoreCounts(0, 0, 0);

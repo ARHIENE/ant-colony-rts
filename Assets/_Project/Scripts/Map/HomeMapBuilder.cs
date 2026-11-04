@@ -63,11 +63,11 @@ namespace AntColony.Map
         // 본거지 중심. 비축더미(구 여왕방)가 있으면 그 자리를, 없으면 플레이어 건물 평균을 쓴다.
         private static bool TryFindHome(out Vector3 center)
         {
-            var queen = FindFirstObjectByType<Stockpile>();
+            var queen = AntColony.Core.SceneObjects.Any<Stockpile>();
             if (queen != null) { center = queen.Position; return true; }
             var sum = Vector3.zero;
             var count = 0;
-            foreach (var building in FindObjectsByType<BuildingBase>(FindObjectsSortMode.None))
+            foreach (var building in AntColony.Core.SceneObjects.All<BuildingBase>())
             {
                 if (!building.CountsTowardPlayerDefeat) continue;
                 sum += building.Position;
@@ -134,7 +134,7 @@ namespace AntColony.Map
         private void ApplyBiomeNodes(MapBiome biome)
         {
             if (biome == MapBiome.None) return;
-            foreach (var node in FindObjectsByType<AntColony.World.ResourceNode>(FindObjectsSortMode.None))
+            foreach (var node in AntColony.Core.SceneObjects.All<AntColony.World.ResourceNode>())
                 if (WorldBounds.Contains(new Vector3(node.transform.position.x, 0, node.transform.position.z)) && node.RegrowSeconds == 0 && !node.RequiresFishing
                     && !node.IsRaidLoot && !node.IsLooseCargo && node.GetComponentInParent<AntColony.World.ExpeditionSite>() == null)
                     node.ScaleAmount(BiomeRules.NodeMultiplier(node.ResourceType));
@@ -144,7 +144,7 @@ namespace AntColony.Map
         private void MoveFishingToShore(MapGenerator terrain, Vector3 home)
         {
             if (!terrain.TryFindShore(home, HomeFlatRadius, out var shore)) return;
-            foreach (var node in FindObjectsByType<AntColony.World.ResourceNode>(FindObjectsSortMode.None))
+            foreach (var node in AntColony.Core.SceneObjects.All<AntColony.World.ResourceNode>())
                 if (node.RequiresFishing && node.GetComponentInParent<AntColony.World.ExpeditionSite>() == null
                     && WorldBounds.Contains(new Vector3(node.transform.position.x, 0, node.transform.position.z)))
                 { node.transform.position = shore; return; }
@@ -156,7 +156,7 @@ namespace AntColony.Map
         private static void PlaceHomeThreats(Vector3 home)
         {
             // Keep the prototype's nearby monster out of the starting worker formation.
-            foreach (var monster in FindObjectsByType<AntColony.World.WildMonster>())
+            foreach (var monster in AntColony.Core.SceneObjects.All<AntColony.World.WildMonster>())
             {
                 if (Vector3.Distance(monster.Position, home) >= HomeFlatRadius) continue;
                 var agent = monster.GetComponent<NavMeshAgent>();

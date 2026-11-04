@@ -20,9 +20,13 @@ namespace AntColony.Core
         public int LocatedCivilians => S.young + Mathf.Max(0, S.old - S.agingDue) + (AntPool.Instance?.Free ?? 0);
         public System.Collections.Generic.IReadOnlyList<CivilianLocation> CivilianLocations => S.civilianLocations;
 
+        // G26: 적 개체마다 매 프레임 부르면 주거 300동에서 10ms. 같은 프레임에 집·인원·위치 묶음이 그대로면 다시 맞추지 않는다.
+        private (int frame, int homes, int groups, int counted, int located) lastSync = (-1, 0, 0, 0, 0);
         public void SyncCivilianLocations()
         {
             var homes = Housing.All.Where(h => h.isActiveAndEnabled).ToArray();
+            var key = (Time.frameCount, homes.Length, S.civilianLocations.Count, S.civilianLocations.Sum(l => l.count), LocatedCivilians);
+            if (key == lastSync) return;
             foreach (var location in S.civilianLocations.Where(l => l.housing))
                 location.sheltered = homes.Any(h => (h.Position - location.position).sqrMagnitude < .01f);
             var difference = LocatedCivilians - S.civilianLocations.Sum(l => l.count);
@@ -53,6 +57,7 @@ namespace AntColony.Core
                     if (difference == 0) break;
                 }
             }
+            lastSync = (Time.frameCount, homes.Length, S.civilianLocations.Count, S.civilianLocations.Sum(l => l.count), LocatedCivilians);
         }
 
         private CivilianLocation AddCivilianLocation(Vector3 position, bool housing, bool sheltered)

@@ -32,7 +32,7 @@ namespace AntColony.World
         public float ColdRemaining => state.cold;
         public float FloodRemaining => state.flood;
         public float DroughtRemaining => state.drought;
-        public static bool ProductionBlocked => FindObjectsByType<EventActor>(FindObjectsSortMode.None).Any(a => a.Kind == EventActorKind.Wasp && a.Alive);
+        public static bool ProductionBlocked => AntColony.Core.SceneObjects.All<EventActor>().Any(a => a.Kind == EventActorKind.Wasp && a.Alive);
         public static float MoveMultiplier(CommanderAnt c) => Instance != null && Instance.state.cold > 0 && !c.IsAwayFromHome
             ? 1 - EventRules.ColdMovePenalty * ScienceEffects.ColdEffectMultiplier : 1;
         public static float GatherMultiplier(CommanderAnt c) => Instance != null && Instance.state.cold > 0 && !c.IsAwayFromHome
@@ -64,7 +64,7 @@ namespace AntColony.World
                 state.caravanRemaining = Mathf.Max(0, state.caravanRemaining - dt);
                 state.sinceLast = Mathf.Min(EventRules.Cooldown, state.sinceLast + dt);
                 for (int i = 0; i < state.cooldowns.Length; i++) state.cooldowns[i] = Mathf.Max(0, state.cooldowns[i] - dt);
-                foreach (var actor in FindObjectsByType<EventActor>(FindObjectsSortMode.None)) actor.Tick(dt);
+                foreach (var actor in AntColony.Core.SceneObjects.All<EventActor>()) actor.Tick(dt);
                 if (GameCalendar.DayOfSeason == GameCalendar.DaysPerSeason) EnsureSeasonCaravan(GameCalendar.TotalSeasons);
                 // G08 하루 150초: 밤이 계절당 6번이라 첫날 밤에만 출현시켜 옛 빈도(계절당 1회)를 유지한다.
                 if (GameCalendar.IsNight && GameCalendar.DayOfSeason == 1 && state.lastNight != GameCalendar.Day) SpawnNightPredators();
@@ -79,7 +79,7 @@ namespace AntColony.World
             }
         }
         private static bool Home(Vector3 p) => HomeMapBuilder.CurrentWorldBounds.Contains(new Vector3(p.x, 0, p.z));
-        private static ResourceNode[] Farms() => FindObjectsByType<ResourceNode>(FindObjectsSortMode.None)
+        private static ResourceNode[] Farms() => AntColony.Core.SceneObjects.All<ResourceNode>()
             .Where(n => n.RegrowSeconds > 0 && n.GetComponent<BuildingBase>() != null && Home(n.transform.position)).ToArray();
         public bool Eligible(ColonyEvent e) => Enum.IsDefined(typeof(ColonyEvent), e) && state.cooldowns[(int)e] == 0
             && !(RocketCampaign.SuppressNewCrises && (int)e <= (int)ColonyEvent.Wasps)
@@ -179,8 +179,8 @@ namespace AntColony.World
         {
             if (node == null || !Home(node.transform.position)) return false;
             if (floodNodes.TryGetValue(node, out var result)) return result;
-            var terrain = FindFirstObjectByType<MapGenerator>();
-            result = node.RequiresFishing || FindObjectsByType<ResourceNode>(FindObjectsSortMode.None).Any(f => f.RequiresFishing
+            var terrain = AntColony.Core.SceneObjects.Any<MapGenerator>();
+            result = node.RequiresFishing || AntColony.Core.SceneObjects.All<ResourceNode>().Any(f => f.RequiresFishing
                 && Vector2.Distance(new Vector2(f.transform.position.x, f.transform.position.z), new Vector2(node.transform.position.x, node.transform.position.z)) <= EventRules.WaterRadius)
                 || terrain != null && terrain.NearWater(node.transform.position, EventRules.WaterRadius);
             floodNodes[node] = result; return result;
@@ -207,11 +207,11 @@ namespace AntColony.World
         public State Capture()
         {
             var copy = JsonUtility.FromJson<State>(JsonUtility.ToJson(state));
-            copy.actors = FindObjectsByType<EventActor>(FindObjectsSortMode.None).Where(a => a.Alive).Select(a => a.Capture()).ToList(); return copy;
+            copy.actors = AntColony.Core.SceneObjects.All<EventActor>().Where(a => a.Alive).Select(a => a.Capture()).ToList(); return copy;
         }
         public void Restore(State value)
         {
-            foreach (var a in FindObjectsByType<EventActor>(FindObjectsSortMode.None)) { a.gameObject.SetActive(false); Destroy(a.gameObject); }
+            foreach (var a in AntColony.Core.SceneObjects.All<EventActor>()) { a.gameObject.SetActive(false); Destroy(a.gameObject); }
             state = JsonUtility.FromJson<State>(JsonUtility.ToJson(value));
             foreach (var a in state.actors) EventActor.Spawn(a);
             RefreshMigrationNotice();

@@ -30,7 +30,7 @@ namespace AntColony.Units
             if (!CanReceiveOrders) return false;
             if (WorkState.bossPickup >= 0)
             {
-                var target = FindObjectsByType<BossStronghold>(FindObjectsSortMode.None)
+                var target = AntColony.Core.SceneObjects.All<BossStronghold>()
                     .FirstOrDefault(s => (int)s.Id == WorkState.bossPickup);
                 if (target == null || !target.Revealed) { WorkState.bossPickup = -1; return false; }
                 var site = target.GetComponent<ExpeditionSite>();

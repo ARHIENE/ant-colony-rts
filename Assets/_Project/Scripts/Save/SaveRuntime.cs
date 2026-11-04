@@ -50,10 +50,10 @@ namespace AntColony.Save
                 {
                     var parent = state.parentSite < 0 ? null : world.Sites[state.parentSite].transform;
                     var invasion = state.invasionSite < -1 ? null : state.invasionSite < 0
-                        ? Object.FindObjectsByType<ColonyInvasion>(FindObjectsSortMode.None).FirstOrDefault(c => c.GetComponentInParent<ExpeditionSite>() == null)
+                        ? AntColony.Core.SceneObjects.All<ColonyInvasion>().FirstOrDefault(c => c.GetComponentInParent<ExpeditionSite>() == null)
                         : world.Sites[state.invasionSite].Colony?.GetComponent<ColonyInvasion>();
                     if (invasion != null) m = invasion.RestoreSpawn(state.commander, d.position.ToVector3());
-                    else if (state.visitor && Object.FindFirstObjectByType<LocalIncursions>() is LocalIncursions local)
+                    else if (state.visitor && AntColony.Core.SceneObjects.Any<LocalIncursions>() is LocalIncursions local)
                         m = local.RestoreSpawn(state.commander, d.position.ToVector3());
                     else if (state.commander)
                     {
@@ -83,9 +83,9 @@ namespace AntColony.Save
                 // OnEnable initializes health. Apply saved health and combat timers after activation; never Die/TakeDamage.
                 m.RestoreHealth(d.health); m.RestoreRuntime(state);
                 SaveReferences.Register(d.key, m); restored[d.key] = m;
-                if (state.visitor) Object.FindFirstObjectByType<LocalIncursions>()?.RestoreVisitor(m);
+                if (state.visitor) AntColony.Core.SceneObjects.Any<LocalIncursions>()?.RestoreVisitor(m);
                 if (state.invasionSite >= -1) {
-                    var colony = state.invasionSite < 0 ? Object.FindObjectsByType<EnemyColony>(FindObjectsSortMode.None)
+                    var colony = state.invasionSite < 0 ? AntColony.Core.SceneObjects.All<EnemyColony>()
                         .FirstOrDefault(cn => cn.GetComponentInParent<ExpeditionSite>() == null) : world.Sites[state.invasionSite].Colony;
                     colony?.GetComponent<ColonyInvasion>()?.RestoreRaider(m);
                 }

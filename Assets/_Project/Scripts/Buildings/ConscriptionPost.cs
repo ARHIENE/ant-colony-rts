@@ -21,7 +21,7 @@ namespace AntColony.Buildings
             for (var i = 0; i < commanders.Count; i++)
             {
                 var c = commanders[i];
-                if (c == null || !seen.Add(c) || troops[i] <= 0 || troops[i] > AvailableTroops(c) || !c.CanReach(rally.position)) return false;
+                if (c == null || !seen.Add(c) || c.FormationBlockReason(c.SelectedFormation) != "" || troops[i] <= 0 || troops[i] > AvailableTroops(c) || !c.CanReach(rally.position)) return false;
                 total += troops[i];
             }
             // Phase 4: 병역 제도 상한·민심 바닥 확인(병역 나이 확대 시 늙은 개미로 보충).
