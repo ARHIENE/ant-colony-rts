@@ -142,7 +142,7 @@ namespace AntColony.Units
                 SetMoveDestination(approach); state = State.FetchingMaterial;
                 return true;
             }
-            return false;
+            return FetchFloorFor(site, needType, needAmount);
         }
         // 시설 장애물 가장자리에서 몇 cm 못 미쳐 멈추는 경우도 도착으로 본다(2026-10-15 조리대 배송에서 발견).
         private bool NearDestination => !IsFlying && Agent.enabled && Agent.isOnNavMesh && !Agent.pathPending && Agent.remainingDistance <= .5f;
@@ -151,7 +151,8 @@ namespace AntColony.Units
             if (!DeliveryExists || deliverySite.Paused) { CommandStop(); return; }
             if (DeliveryRouteLost) { CommandStop(); return; }
             if (!HasReachedDestination() && !NearDestination) return;
-            FoodLots lots = null; var taken = ResourceManager.Instance != null ? ResourceManager.Instance.TakeFrom(fetchBin, fetchType, fetchAmount, out lots) : 0;
+            FoodLots lots = null; var taken = fetchBin == null ? TakeFloorMaterial(out lots)
+                : ResourceManager.Instance != null ? ResourceManager.Instance.TakeFrom(fetchBin, fetchType, fetchAmount, out lots) : 0;
             if (taken <= 0) { ReleaseDestination(); state = State.Idle; return; } // 그새 다른 소비로 비었다 → 다음 판단에서 다시 예약
             deliverySite.BeginPickup(this, fetchType, taken); // 실제 집은 양으로 맞춘다(모자란 몫은 예약 분배가 다시 채운다)
             carriedAmount = taken; carriedType = fetchType; carriedLots = lots ?? new FoodLots();

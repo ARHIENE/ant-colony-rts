@@ -62,6 +62,66 @@ ModelImporter:
   - first:
       type: UnityEngine:Material
       assembly: UnityEngine.CoreModule
+      name: Meadow_ApronLinen
+    second: {fileID: 2100000, guid: a169db4a29140cb46869a9392b12b09f, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Meadow_ApronLinen.001
+    second: {fileID: 2100000, guid: aed731e3d68141448909e7f1b6a48f92, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Meadow_ArtisanLeather
+    second: {fileID: 2100000, guid: 4ce702f506a879240ba81e2dbd33f9c3, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Meadow_ArtisanLeather.001
+    second: {fileID: 2100000, guid: 9a50f9f4d79d7f2459bf8f51eb264289, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Meadow_BrassTrim
+    second: {fileID: 2100000, guid: f1f675c3169666b43a9de963cace75dc, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Meadow_BrassTrim.001
+    second: {fileID: 2100000, guid: 79d67bf465201e941b4a9d55c14f9030, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Meadow_Character
+    second: {fileID: 2100000, guid: 782b25d9e8a106c42aeb058ac89d880a, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Meadow_Character.001
+    second: {fileID: 2100000, guid: f8162b0b1b2795b48ad0e6388e64c435, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Meadow_GuardLeather
+    second: {fileID: 2100000, guid: 9d1bbe6854380984883b1bb20cf88d39, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Meadow_GuardLeather.001
+    second: {fileID: 2100000, guid: 1b013c62680d6bc42938add20b5193af, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Meadow_TexturedHair
+    second: {fileID: 2100000, guid: e80138096af3dd94886b41f06bf864a2, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Meadow_TexturedHair.001
+    second: {fileID: 2100000, guid: eeb1b7d2692b96f4b8687b17f61c7f42, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
       name: PK_Equip_Plate
     second: {fileID: 2100000, guid: 506cde2efc26131458bfb90c4217f822, type: 2}
   - first:
@@ -94,6 +154,96 @@ ModelImporter:
       assembly: UnityEngine.CoreModule
       name: Settler_RecoloredSourceCloth.001
     second: {fileID: 2100000, guid: c889e6f58a66e2e4893a50d425c71b56, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Story_Chestnut.003
+    second: {fileID: 2100000, guid: 1930f71b5c6e69746a5e4fab50d6cb43, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Story_Cocoa.003
+    second: {fileID: 2100000, guid: e084f26808657244195ac9352381f5e8, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Story_Cocoa.005
+    second: {fileID: 2100000, guid: 3d0109fc08243c0429cc795006b1c8bb, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Story_InnerTerracotta.003
+    second: {fileID: 2100000, guid: 276974eea41a46346bb71dbb1bc12a61, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Story_InnerTerracotta.005
+    second: {fileID: 2100000, guid: 37c8fc99c61f9b74fbad8a15123e1abc, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Story_Leather.003
+    second: {fileID: 2100000, guid: 465518b31e4d36a4ba9696bbca77ccc6, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Story_Leather.005
+    second: {fileID: 2100000, guid: 7554499c8717283419160c14b9446835, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Story_Milk.003
+    second: {fileID: 2100000, guid: 67e1426d561f79349b596bb5bcb8c98c, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Story_Milk.005
+    second: {fileID: 2100000, guid: 271cf09512d80404aab2ae21fb54a480, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Story_OatLinen.003
+    second: {fileID: 2100000, guid: 48da08c8b7fdbef45a85cc23da7a4452, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Story_OatLinen.005
+    second: {fileID: 2100000, guid: 685172a0afcae3d49871c1861ef24723, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Story_Pewter.003
+    second: {fileID: 2100000, guid: eca27627dd2880a4b8c30b587608a227, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Story_Pewter.005
+    second: {fileID: 2100000, guid: cd4342bdf857eaf49be87e749bef2300, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Story_Sage.003
+    second: {fileID: 2100000, guid: 0534a12ccb815d74d9a394c46ee6de1c, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Story_Sage.005
+    second: {fileID: 2100000, guid: 360d10b9efbfc47498033e09514959a8, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Story_SilverHair.001
+    second: {fileID: 2100000, guid: 3c36720deffb5cd42a63e8f07f72620e, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Story_WarmClay.003
+    second: {fileID: 2100000, guid: 680492dd6159b1e408aa43aeb4ab6e4e, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Story_WarmClay.005
+    second: {fileID: 2100000, guid: 6cc1f39c56f4c6647b7add7c61a8bbbc, type: 2}
   - first:
       type: UnityEngine:Material
       assembly: UnityEngine.CoreModule

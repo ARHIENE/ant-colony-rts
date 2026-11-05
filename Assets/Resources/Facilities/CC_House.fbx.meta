@@ -3,9 +3,69 @@ guid: eaea2894e75563346baed47994db0674
 ModelImporter:
   serializedVersion: 24501
   internalIDToNameTable: []
-  externalObjects: {}
+  externalObjects:
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Story_CreamPlaster.001
+    second: {fileID: 2100000, guid: 391a94f06f0c7b84fab84f6aede1b182, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Story_CutWood.001
+    second: {fileID: 2100000, guid: 29e12fde9911fd146b383b1719042b36, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Story_Fieldstone.001
+    second: {fileID: 2100000, guid: b81b119f490dd06429b87e1f4f75b2b4, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Story_Leaf0.001
+    second: {fileID: 2100000, guid: 64aa3eda76986b149bff3277f0dac486, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Story_Leaf1.001
+    second: {fileID: 2100000, guid: 5085b77b27c5dcc499e356401e1e1858, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Story_Leaf2.001
+    second: {fileID: 2100000, guid: 5622eb7102b2c3841a0ffabb7d64f5e0, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Story_Leaf3.001
+    second: {fileID: 2100000, guid: 6972c20284aeca14dadca385cf459eaa, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Story_Leaf4.001
+    second: {fileID: 2100000, guid: 5d0f452232a745b4cbaa1f0153a3c638, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Story_LeafShutter.001
+    second: {fileID: 2100000, guid: 2be9c2a19d977364a8177d9d87601caa, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Story_Oak.001
+    second: {fileID: 2100000, guid: efee164e95642dd46999ab4dc875143c, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Story_OchrePlaster.001
+    second: {fileID: 2100000, guid: 41414983218ac264ea0ac9041142c4e1, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Story_Recess.001
+    second: {fileID: 2100000, guid: 4455ed20ff36c894092807e900926961, type: 2}
   materials:
-    materialImportMode: 2
+    materialImportMode: 1
     materialName: 0
     materialSearch: 1
     materialLocation: 1

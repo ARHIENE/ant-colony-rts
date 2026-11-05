@@ -14,6 +14,29 @@ namespace AntColony.Core
     // 표준 RTS형 비행 규칙: 공중 대상 여부와 역할별 공격 가능 여부를 여기 한 곳에서만 판정한다.
     public static class CombatTargeting
     {
+        // 지상 범위 공격은 구형 탐색 범위 안에서 수평 거리가 가장 가까운 대상을 고른다.
+        internal static Transform FindNearestGroundTarget(Vector3 from, float radius, LayerMask mask)
+        {
+            Transform nearest = null;
+            var nearestSqrDist = float.MaxValue;
+            foreach (var hit in Physics.OverlapSphere(from, radius, mask, QueryTriggerInteraction.Ignore))
+            {
+                if (hit == null) continue;
+                var damageable = hit.GetComponentInParent<IDamageable>();
+                if (!IsAlive(damageable) || IsAirborne(damageable)) continue;
+                var target = ((Component)damageable).transform;
+                var diff = target.position - from;
+                diff.y = 0f;
+                var sqrDist = diff.sqrMagnitude;
+                if (sqrDist < nearestSqrDist)
+                {
+                    nearestSqrDist = sqrDist;
+                    nearest = target;
+                }
+            }
+            return nearest;
+        }
+
         public static IDamageable FindNearestEnemy(Vector3 from, float radius, UnitRole role)
         {
             var monster = World.WildMonster.FindNearest(from, radius, role);

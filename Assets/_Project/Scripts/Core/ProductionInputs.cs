@@ -11,6 +11,13 @@ namespace AntColony.Core
     {
         [Serializable] public sealed class Stock { public ResourceType type; public int amount; public FoodLots lots; }
         public List<Stock> staged = new List<Stock>();
+        // 구저장 생산 재료는 0개를 허용하지만 조리 재료는 양수만 허용한다.
+        internal static bool ValidStock(List<Stock> stock, int minimumAmount) => stock == null
+            || stock.Count <= StoreBin.TypeCount
+                && stock.All(s => s != null && Enum.IsDefined(typeof(ResourceType), s.type)
+                    && s.amount >= minimumAmount && s.amount <= 100000000
+                    && (s.lots == null || s.lots.Valid && s.lots.Total <= s.amount))
+                && stock.Select(s => s.type).Distinct().Count() == stock.Count;
         private readonly Dictionary<object, (ResourceType type, int amount)> incoming = new Dictionary<object, (ResourceType, int)>();
         public int Amount(ResourceType type) => staged.Where(s => s.type == type).Sum(s => s.amount);
         private int Missing(ResourceType type, int need, object except = null) => Mathf.Max(0, need - Amount(type)

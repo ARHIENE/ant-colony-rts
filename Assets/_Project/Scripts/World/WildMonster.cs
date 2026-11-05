@@ -441,6 +441,7 @@ namespace AntColony.World
         private void ApproachSettlement()
         {
             if (raidSite != null && CanMove()) RequestDestination(raidSite.Landing);
+            else if (isRaider && CanMove()) RequestDestination(HomeReturnPoint.Anchor);
             else StopMoving();
         }
 

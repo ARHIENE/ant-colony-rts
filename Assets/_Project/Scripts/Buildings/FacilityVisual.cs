@@ -56,6 +56,10 @@ namespace AntColony.Buildings
 
         public static string ModelFor(BuildingKind kind) => Models.TryGetValue(kind, out var id) ? id : null;
         public Transform Model { get; private set; }
+        public void RefreshMainMaterial()
+        {
+            if (Model != null) FacilityMaterialVisual.Apply(Model, GetComponent<BuildingBase>().MainMaterial);
+        }
 
         // 씬에 놓인 시작 비축더미는 BuildingData 없이 Stockpile 컴포넌트만 있다.
         private static BuildingKind? KindOf(BuildingBase b) => b.Data != null ? b.Data.kind : b is Stockpile ? BuildingKind.QueenChamber : (BuildingKind?)null;
@@ -98,6 +102,7 @@ namespace AntColony.Buildings
                 if (r.name == "Thatch roof") { var block = new MaterialPropertyBlock(); r.GetPropertyBlock(block); block.SetColor("_BaseColor", new Color(.58f, .45f, .25f)); r.SetPropertyBlock(block); }
             box.forceRenderingOff = true;
             Model = model;
+            RefreshMainMaterial();
         }
     }
 }

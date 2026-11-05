@@ -405,11 +405,12 @@ namespace AntColony.Map
             mesh = new Mesh();
             mesh.indexFormat = UnityEngine.Rendering.IndexFormat.UInt32; // 65535 버텍스 제한 해제
             meshFilter.mesh = mesh;
-            if (terrainMaterial == null || materialSource != mat)
+            var source = mat != null ? mat : Resources.Load<Material>("RuntimeShaders/Terrain");
+            if (terrainMaterial == null || materialSource != source)
             {
                 ReleaseObject(terrainMaterial);
-                materialSource = mat;
-                terrainMaterial = mat != null ? new Material(mat) : null;
+                materialSource = source;
+                terrainMaterial = source != null ? new Material(source) : null;
                 if (terrainMaterial != null && terrainMaterial.shader.name != "AntColony/TerrainBlend")
                 {
                     terrainMaterial.shader = Shader.Find("AntColony/TerrainBlend");

@@ -25,6 +25,7 @@ namespace AntColony.Units
         private string playedClip, heldTool;
         private KemonoAppearance appearance;
         private GameObject heldArrow;
+        private MeshyEquipmentWearables equipmentWearables;
         public string StateName => state;
 
         public static void Attach(GameObject owner)
@@ -43,6 +44,7 @@ namespace AntColony.Units
             model = kemono ? KemonoModel.Create(transform, Seed(name)) : Instantiate(prefab, transform, false);
             animator = RigAnimator.Find(model);
             appearance = model.GetComponent<KemonoAppearance>();
+            if(kemono)equipmentWearables=model.AddComponent<MeshyEquipmentWearables>();
             animator.applyRootMotion = false;
             selection = GetComponent<SelectableObject>(); soldier = GetComponent<SoldierAnt>();
             worker = GetComponent<WorkerAnt>(); commander = GetComponent<CommanderAnt>(); enemy = GetComponent<WildMonster>();
@@ -71,7 +73,9 @@ namespace AntColony.Units
         public void Attack(Vector3 target)
         {
             Face(target - transform.position);
-            Action("Attack", kemono && commander != null && commander.Weapon?.weapon == WeaponKind.ShortBow ? 1.5f : .45f);
+            float duration=kemono && commander != null && commander.Weapon != null && MeshyEquipmentRules.IsBow(commander.Weapon.weapon) ? 1.5f : .45f;
+            Action("Attack", duration);
+            if(model!=null)model.GetComponent<MeshyEquipmentGrip>()?.BeginAttack(duration);
         }
 
         private void Face(Vector3 direction)
@@ -85,7 +89,7 @@ namespace AntColony.Units
         {
             if (animator == null) return;
             var (clip, tool) = kemono ? Clip(name) : (name, null);
-            if (!restart && state == name && playedClip == clip) return;
+            if (!restart && state == name && playedClip == clip && heldTool == tool) return;
             var hash = Animator.StringToHash("Base Layer." + clip);
             if (!animator.HasState(0, hash)) return;
             // 눕는 동작은 0.1초면 픽 쓰러지는 것처럼 보여 천천히 섞는다(2026-11-01 '캐릭터가 넘어진다').
@@ -94,7 +98,7 @@ namespace AntColony.Units
             if (kemono && heldTool != tool)
             {
                 KemonoModel.Hold(model, tool); heldTool = tool; heldArrow = null;
-                if (tool == "Weapon_ShortBow")
+                if (tool == "Weapon_ShortBow" || tool == "Weapon_GrandBow")
                     foreach (var t in model.GetComponentsInChildren<Transform>(true))
                         if (t.name.StartsWith("Ammo_Arrow") && t.gameObject.activeSelf) { heldArrow = t.gameObject; heldArrow.SetActive(false); break; }
             }
@@ -114,9 +118,11 @@ namespace AntColony.Units
                 "Idle_A" => ("Idle_A", null), "Hit" => ("Hit", null),
                 "Sit" => (commander != null && commander.IsCaptive ? "Captive" : "Downed", null),
                 "Attack" when worker != null && worker.IsBuildingAnimation => (worker.ConstructionClip, worker.ConstructionStep == 1 ? "Tool_Saw" : "Tool_Hammer_Stone"),
-                "Attack" when commander != null && commander.Weapon?.weapon == WeaponKind.ShortBow => ("BowShoot", "Weapon_ShortBow"),
+                "Attack" when commander != null && commander.Weapon != null && MeshyEquipmentRules.IsBow(commander.Weapon.weapon) => ("BowShoot", MeshyEquipmentRules.HeldModel(commander.Weapon)),
                 "Attack" when commander != null && commander.Weapon?.weapon == WeaponKind.Shield => ("ShieldBlock", "Weapon_Shield_Copper"),
                 "Attack" when commander != null && commander.Weapon == null => ("Attack_Unarmed", null),
+                "Attack" when commander != null && commander.Weapon != null && MeshyEquipmentRules.IsFirearm(commander.Weapon.weapon) => ("Idle_A", MeshyEquipmentRules.HeldModel(commander.Weapon)),
+                "Attack" when commander != null => ("Attack", MeshyEquipmentRules.HeldModel(commander.Weapon)),
                 "Attack" => ("Attack", "Weapon_Sword_Copper"),
                 _ => (name, null)
             };
@@ -130,6 +136,8 @@ namespace AntColony.Units
             AlignToGround();
             if (Time.deltaTime <= 0) return;
             appearance?.SetArmor(commander != null && commander.EquippedArmor?.armor == ArmorKind.Coating);
+            if(commander!=null&&equipmentWearables!=null)equipmentWearables.Apply(commander.EquippedArmor,
+                commander.PersonalState.equipment.Find(e=>e.slot==EquipmentSlot.Trinket),commander.Weapon,heldTool,commander.PersonalHealth<=0);
             if (enemy == null && soldier == null) enemy = GetComponent<WildMonster>();
             if (commander != null && commander.IsEmbarked) { previousPosition = transform.position; return; }
             var delta = transform.position - previousPosition; previousPosition = transform.position;

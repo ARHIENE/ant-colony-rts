@@ -15,7 +15,7 @@ namespace AntColony.UI
     {
         public const int MaxVisible = 5;
         public const float WarningSeconds = 10f, HintSeconds = 10f;
-        public static readonly Color Mint = MenuTheme.Hex(0x6fd6b8);
+        public static readonly Color Mint = MenuTheme.Hex(0xc3b88f);
         private sealed class Toast { public string key, message, actionLabel; public System.Action action; public ToastKind kind; public int count = 1; public float remaining; public bool crisis, pinned, seen; }
 
         private static ToastManager instance;
@@ -27,7 +27,7 @@ namespace AntColony.UI
         private readonly Dictionary<string, (string message, System.Action action, string label)> pins = new Dictionary<string, (string, System.Action, string)>();
         private RectTransform panel, list;
         private bool hovered, dirty = true;
-        private bool expanded;
+        private bool expanded = true;
 
         public static int Count => instance != null ? instance.toasts.Count : 0;
         public static bool Paused => instance != null && instance.hovered;
@@ -138,7 +138,7 @@ namespace AntColony.UI
         private void Update()
         {
             // 전체 메뉴 화면(인재·설정·새 게임 등)이 열려 있으면 알림이 창을 덮지 않게 숨긴다(2026-11-01).
-            if (notificationCanvas != null) notificationCanvas.enabled = !GameMenuController.MenuOpen;
+            if (notificationCanvas != null) notificationCanvas.enabled = !GameMenuController.MenuOpen && !BuildScreen.IsOpen;
             if (!hovered)
                 for (var i = toasts.Count - 1; i >= 0; i--)
                     if (toasts[i].kind != ToastKind.Warning && toasts[i].kind != ToastKind.Achievement || toasts[i].seen)
@@ -148,7 +148,7 @@ namespace AntColony.UI
 
         private void LateUpdate()
         {
-            if (panel.gameObject.activeSelf) panel.sizeDelta = new Vector2(244, Mathf.Min(280, LayoutUtility.GetPreferredHeight(list)));
+            if (panel.gameObject.activeSelf) panel.sizeDelta = new Vector2(244, Mathf.Min(Screen.height / MenuTheme.UiScale - 180, LayoutUtility.GetPreferredHeight(list)));
         }
 
         private void Rebuild()
@@ -165,7 +165,7 @@ namespace AntColony.UI
                     t.pinned ? null : (System.Action)(() => Dismiss(index)), t.action, t.actionLabel, t.kind == ToastKind.Achievement);
             }
             if (!expanded && all.Count > MaxVisible) Row("Toast More", $"+{all.Count - MaxVisible}건", MenuTheme.Dim, () => Expand(true), () => Expand(true), "전체 알림 보기");
-            if (expanded) Row("Toast Collapse", "알림 목록", MenuTheme.Dim, () => Expand(false), () => Expand(false), "접기");
+
             panel.gameObject.SetActive(all.Count > 0);
             if (all.Count == 0) hovered = false;
         }
@@ -173,26 +173,13 @@ namespace AntColony.UI
         private void Row(string name, string text, Color color, System.Action onClick, System.Action action = null, string actionLabel = null, bool achievement = false)
         {
             var rect = MenuTheme.Rect(name, list);
-            rect.gameObject.AddComponent<Image>().color = MenuTheme.Plate2;
-            var rows = rect.gameObject.AddComponent<VerticalLayoutGroup>(); rows.padding = new RectOffset(6, 6, 3, 3);
-            rows.childControlHeight = rows.childControlWidth = true; rows.childForceExpandHeight = false;
-            var heading = MenuTheme.Rect("Heading", rect);
-            var horizontal = heading.gameObject.AddComponent<HorizontalLayoutGroup>();
-            horizontal.childControlHeight = horizontal.childControlWidth = true; horizontal.childForceExpandWidth = false;
-            var label = MenuTheme.Text(heading, text, achievement ? 15 : 13, 20); label.color = achievement ? MenuTheme.Accent : color; label.alignment = TextAnchor.UpperLeft;
-            if (achievement) label.fontStyle = FontStyle.Bold;
-            DestroyImmediate(label.GetComponent<LayoutElement>());
-            if (onClick != null)
-            {
-                var close = MenuTheme.Button(heading, "×", onClick);
-                var size = close.GetComponent<LayoutElement>(); size.minWidth = size.preferredWidth = 26; size.preferredHeight = 26;
-            }
-            if (action != null)
-            {
-                var jump = MenuTheme.Button(rect, actionLabel, action);
-                jump.name = "Location"; jump.GetComponent<LayoutElement>().preferredHeight = 30;
-                jump.GetComponentInChildren<Text>().fontSize = 12;
-            }
+            rect.gameObject.AddComponent<Image>().color = MenuTheme.Background;
+            rect.gameObject.AddComponent<LayoutElement>().preferredHeight=28;
+            var label = MenuLayout.Label(rect,text,13,6,0,204,28,color);
+            label.horizontalOverflow=HorizontalWrapMode.Wrap;label.verticalOverflow=VerticalWrapMode.Truncate;
+            rect.gameObject.AddComponent<MenuTooltip>().Message=text;
+            if(action!=null){var button=rect.gameObject.AddComponent<Button>();MenuTheme.StyleButton(button);button.onClick.AddListener(()=>action());}
+            if(onClick!=null)MenuLayout.Button(rect,"Dismiss","×",208,2,20,24,()=>onClick());
         }
 
         // 판넬 위 마우스 진입/이탈을 매니저로 넘긴다.

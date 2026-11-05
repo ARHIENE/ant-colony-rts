@@ -118,34 +118,7 @@ namespace AntColony.Boss
         }
 
         private Transform FindNearestAntTarget()
-        {
-            var hits = Physics.OverlapSphere(transform.position, searchRadius, antLayerMask, QueryTriggerInteraction.Ignore);
-
-            Transform nearest = null;
-            var nearestSqrDist = float.MaxValue;
-
-            foreach (var hit in hits)
-            {
-                if (hit == null) continue;
-                var damageable = hit.GetComponentInParent<IDamageable>();
-                if (!CombatTargeting.IsAlive(damageable)) continue;
-                // 지상 범위 공격 패턴이므로 공중 유닛은 타겟으로 삼지 않는다.
-                if (CombatTargeting.IsAirborne(damageable)) continue;
-
-                var target = ((Component)damageable).transform;
-                var diff = target.position - transform.position;
-                diff.y = 0f;
-
-                var sqrDist = diff.sqrMagnitude;
-                if (sqrDist < nearestSqrDist)
-                {
-                    nearestSqrDist = sqrDist;
-                    nearest = target;
-                }
-            }
-
-            return nearest;
-        }
+            => CombatTargeting.FindNearestGroundTarget(transform.position, searchRadius, antLayerMask);
 
         private void FaceTargetFlat(Vector3 targetPosition)
         {

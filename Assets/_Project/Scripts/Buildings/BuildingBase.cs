@@ -24,7 +24,17 @@ namespace AntColony.Buildings
         // 0은 구 저장/기본값. 식품 보존을 먼저 살리되 플레이어가 1~9로 바꿀 수 있다.
         public int PowerPriority => powerPriority > 0 ? powerPriority : this is ColdStorage ? 8 : this is PowerNode ? 3 : 5;
         // 주재료(2026-10-10): 건설비의 재료 몫(soilCost)을 이 재료로 낸다. 내구도 배율·미관·단열·가연성이 재료를 따른다.
-        public ResourceType MainMaterial { get; set; } = ResourceType.Soil;
+        private ResourceType mainMaterial = ResourceType.Soil;
+        public ResourceType MainMaterial
+        {
+            get => mainMaterial;
+            set
+            {
+                if (mainMaterial == value) return;
+                mainMaterial = value;
+                GetComponent<FacilityVisual>()?.RefreshMainMaterial();
+            }
+        }
         public MaterialInfo Material => MaterialInfo.For(MainMaterial);
         public virtual float MaxHealth => BaseMaxHealth * Material.durability * (UsesDefenseDurability ? DefenseUpgrades.DurabilityMultiplier : 1f);
         // 저장 검증용: 연구소 내구 라인이 최고 단계·가장 단단한 재료일 때의 체력 상한.

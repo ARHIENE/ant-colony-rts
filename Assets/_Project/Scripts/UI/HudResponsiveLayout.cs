@@ -117,29 +117,35 @@ namespace AntColony.UI
         private void LateUpdate()
         {
             if (canvas == null) return;
+            // These overlays can be created after the HUD's Start during scene loading.
+            if (objective == null) objective = GameObject.Find("Objective")?.GetComponent<RectTransform>();
+            if (notifications == null) notifications = GameObject.Find("Toasts")?.GetComponent<RectTransform>();
             var scaler = GetComponent<CanvasScaler>();
             scaler.uiScaleMode = CanvasScaler.ScaleMode.ConstantPixelSize; scaler.scaleFactor = MenuTheme.UiScale;
             float width = canvas.rect.width;
             var top = (RectTransform)transform.Find("ResourceBar");
-            TopHeight = width < 960 ? 116 : 66; top.sizeDelta = new Vector2(0, TopHeight);
+            TopHeight = 44; top.gameObject.SetActive(false);
             var roster = (RectTransform)transform.Find("RosterBar");
             // V6: 넓은 화면은 장수 바를 상단 가운데, 좁으면 왼쪽(브랜드 뒤)·둘째 줄.
             bool centered = width >= 1280;
             roster.anchorMin = roster.anchorMax = roster.pivot = centered ? new Vector2(.5f, 1) : new Vector2(0, 1);
             roster.anchoredPosition = centered ? new Vector2(-40, -4) : new Vector2(width >= 1100 ? 140 : 16, width < 960 ? -56 : -4);
-            brand.gameObject.SetActive(width >= 1100);
-            if (notifications != null) notifications.anchoredPosition = new Vector2(-10, -TopHeight - 170); // 시계(94) 아래 웨이브 패널(52) 다음
-            if (objective != null) objective.anchoredPosition = new Vector2(10, -TopHeight - 10);
-            var clock = (RectTransform)transform.Find("HudClock"); clock.anchoredPosition = new Vector2(-10, -TopHeight - 10);
-            if (transform.Find("HudWave") is RectTransform wave) wave.anchoredPosition = new Vector2(-10, -TopHeight - 110);
+            brand.gameObject.SetActive(false); roster.gameObject.SetActive(false);
+            transform.Find("V6Dock")?.gameObject.SetActive(false);
+            if (notifications != null) notifications.anchoredPosition = new Vector2(-12, -116); // 시계(94) 아래 웨이브 패널(52) 다음
+            if (objective != null) objective.gameObject.SetActive(false);
+            var clock = (RectTransform)transform.Find("HudClock"); clock.anchoredPosition = new Vector2(-54, -12); clock.gameObject.SetActive(!BuildScreen.IsOpen);
+            if (transform.Find("HudWave") is RectTransform wave) { wave.anchoredPosition = new Vector2(-12, -54); wave.gameObject.SetActive(!BuildScreen.IsOpen); }
             var materials = (RectTransform)transform.Find("MaterialsList"); materials.anchoredPosition = new Vector2(-266, -TopHeight - 10);
             var target = WorkTargetPanel.Target;
             if (target != lastTarget) { targetDetail = false; lastTarget = target; }
             bool hasTarget = target != null && target.gameObject.activeInHierarchy;
+            var groups = transform.Find("ControlGroups"); if (groups != null) groups.gameObject.SetActive(false);
             var units = selection == null ? new SelectableObject[0] : selection.GetSelectedObjects().Where(s => s != null && s.IsSelected && s.isActiveAndEnabled).ToArray();
-            bool visible = !BuildScreen.IsOpen && (hasTarget || units.Length > 0);
+            bool visible = !GameMenuController.MenuOpen && !BuildScreen.IsOpen && (hasTarget || units.Length > 0);
             console.gameObject.SetActive(visible);
-            float mapWidth = width < 1100 ? 224 : 272, mapSide = mapWidth - 12;
+            float mapWidth = width < 1100 ? 192 : 212;
+            float mapSide = mapWidth - 12;
             float left = mapWidth + 32, cardWidth = Mathf.Min(790, width - left - 16);
             Place(console, left, 66, cardWidth, 132);
             Place(summary, 0, 76, cardWidth, 56);
@@ -150,7 +156,8 @@ namespace AntColony.UI
             identity.text = $"<b>{title}</b>\n<size=12>{status}</size>";
             Place(HudConsole.Center, left, 220, Mathf.Min(808, width - left - 16), 224);
             HudConsole.Center.gameObject.SetActive(visible && targetDetail);
-            Place(HudConsole.Left, 16, 66, mapWidth, mapOpen ? mapSide + 80 : 28);
+            HudConsole.Left.gameObject.SetActive(!GameMenuController.MenuOpen && !BuildScreen.IsOpen);
+            Place(HudConsole.Left, 12, 60, mapWidth, mapOpen ? mapSide + 80 : 28);
             Place(mapToggle, 0, mapOpen ? mapSide + 52 : 0, mapWidth, 28); mapLabel.text = mapOpen ? "지도 접기" : "지도 펼치기";
             var map = (RectTransform)HudConsole.Left.Find("MinimapScreen");
             map.gameObject.SetActive(mapOpen); Place(map, 6, 48, mapSide, mapSide);
@@ -163,7 +170,7 @@ namespace AntColony.UI
             }
             var tabs = (RectTransform)transform.Find("DetailTabs"); if (tabs != null) tabs.anchoredPosition = new Vector2(left, 210);
             occupied.Clear();
-            foreach (var rect in new[] { top, roster, clock, materials, notifications, objective, console, HudConsole.Left, HudConsole.Center, tabs, (RectTransform)transform.Find("V6Dock") }) Reserve(rect);
+            foreach (var rect in new[] { top, roster, clock, materials, notifications, objective, console, HudConsole.Left, HudConsole.Center, tabs, (RectTransform)transform.Find("HudWave"), (RectTransform)transform.Find("V6Dock") }) Reserve(rect);
         }
     }
 }

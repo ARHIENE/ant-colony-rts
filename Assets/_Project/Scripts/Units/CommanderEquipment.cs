@@ -7,7 +7,8 @@ namespace AntColony.Units
 {
     public enum EquipmentSlot { Weapon, Armor, Trinket }
     public enum TrinketEffect { Move, Gather, Mood, Command }
-    public enum WeaponKind { Mandible, AcidSprayer, Shield, Pheromone, WoodenSword, ShortBow }
+    // Append only: numeric IDs are stored in existing saves.
+    public enum WeaponKind { Mandible, AcidSprayer, Shield, Pheromone, WoodenSword, ShortBow, Sword, SingleRifle, BurstCarbine, Scattergun, Katana, GrandBow, SniperRifle, QuakeMaul }
     public enum ArmorKind { Coating, Wings }
     public enum BossEquipmentKind { None, Durable, HeatShield, AreaWeapon }
     [Serializable]
@@ -21,18 +22,20 @@ namespace AntColony.Units
         public ArmorKind armor;
         public BossEquipmentKind bossEquipment;
         public float durability;
-        public bool unique; // 다이아 무라마사 유일작: 효과 단계 +1(장신구 ×1.5), 이름 앞 "유일작"
-        public int Power => quality + 1 + (unique ? 1 : 0);
+        public bool unique;
+        public UniqueEquipmentEffect uniqueEffect; // None retains legacy unique equipment behavior.
+        public int Power => quality + 1 + (unique && (uniqueEffect == UniqueEquipmentEffect.None || uniqueEffect == UniqueEquipmentEffect.Keen || uniqueEffect == UniqueEquipmentEffect.Reinforced) ? 1 : 0);
         public bool IsValid => !string.IsNullOrEmpty(id) && Enum.IsDefined(typeof(EquipmentSlot), slot) && quality >= 0 && quality <= 3
             && Enum.IsDefined(typeof(TrinketEffect), effect) && Enum.IsDefined(typeof(WeaponKind), weapon) && Enum.IsDefined(typeof(ArmorKind), armor)
             && Enum.IsDefined(typeof(BossEquipmentKind), bossEquipment) && !float.IsNaN(durability) && !float.IsInfinity(durability)
-            && durability >= 0 && durability <= DurableCapacity
+            && durability >= 0 && durability <= DurableCapacity && UniqueEffectValid
             && (bossEquipment == BossEquipmentKind.None || bossEquipment == BossEquipmentKind.AreaWeapon && slot == EquipmentSlot.Weapon
                 || (bossEquipment == BossEquipmentKind.Durable || bossEquipment == BossEquipmentKind.HeatShield) && slot == EquipmentSlot.Armor);
-        public string Label => (unique ? "유일작 " : "") + new[] { "조잡", "보통", "정교", "걸작" }[Mathf.Clamp(quality,0,3)] + " "
+        public string Label => (unique ? "유일작 " + UniqueEffectLabel : "") + new[] { "조잡", "보통", "정교", "걸작" }[Mathf.Clamp(quality,0,3)] + " "
             + (bossEquipment != BossEquipmentKind.None ? BossLabel : slot == EquipmentSlot.Weapon && weapon == WeaponKind.WoodenSword ? "나무칼"
                 : slot == EquipmentSlot.Weapon && weapon == WeaponKind.ShortBow ? "단궁"
-                : EquipmentRecipes.Name((EquipmentRecipe)(slot == EquipmentSlot.Weapon ? (int)weapon : slot == EquipmentSlot.Armor ? 4 + (int)armor : 6 + (int)effect)));
+                : slot == EquipmentSlot.Weapon ? CommanderAnt.WeaponDisplayName(weapon)
+                : EquipmentRecipes.Name((EquipmentRecipe)(slot == EquipmentSlot.Armor ? 4 + (int)armor : 6 + (int)effect)));
         public static EquipmentItem Random(int quality) => new EquipmentItem { slot = (EquipmentSlot)UnityEngine.Random.Range(0,3), quality = Mathf.Clamp(quality,0,3),
             effect = (TrinketEffect)UnityEngine.Random.Range(0,4), weapon = (WeaponKind)UnityEngine.Random.Range(0,4), armor = (ArmorKind)UnityEngine.Random.Range(0,2) };
     }
@@ -94,8 +97,11 @@ namespace AntColony.Units
         public string WeaponName => Weapon == null ? "맨손" : WeaponDisplayName(Weapon.weapon);
         public static string WeaponDisplayName(WeaponKind weapon) => weapon switch
         {
-            WeaponKind.Mandible => "큰턱", WeaponKind.AcidSprayer => "산 분사기", WeaponKind.Shield => "방패",
-            WeaponKind.Pheromone => "지휘 신호기", WeaponKind.WoodenSword => "나무칼", WeaponKind.ShortBow => "단궁", _ => weapon.ToString()
+            WeaponKind.Mandible => "창", WeaponKind.AcidSprayer => "산 분사기", WeaponKind.Shield => "방패",
+            WeaponKind.Pheromone => "지휘 신호기", WeaponKind.WoodenSword => "나무칼", WeaponKind.ShortBow => "단궁",
+            WeaponKind.Sword => "잎날검", WeaponKind.SingleRifle => "사냥 소총", WeaponKind.BurstCarbine => "연발 카빈",
+            WeaponKind.Scattergun => "산탄총", WeaponKind.Katana => "월엽 카타나", WeaponKind.GrandBow => "숲의 대궁",
+            WeaponKind.SniperRifle => "별지기 저격총", WeaponKind.QuakeMaul => "지진 망치", _ => weapon.ToString()
         };
         public bool CanChangeEquipment => CanReceiveOrders && !IsConstructing && !LabUpgradeBusy;
         public float AuraRadius => SupportAuraRadius + (Weapon?.quality ?? 0);
@@ -105,7 +111,7 @@ namespace AntColony.Units
         {
             var item = personalState.equipment.Find(e => e.slot == EquipmentSlot.Trinket && e.effect == effect);
             if (item == null) return 0;
-            var unique = item.unique ? 1.5f : 1f;
+            var unique = item.unique && (item.uniqueEffect == UniqueEquipmentEffect.None || item.uniqueEffect == UniqueEquipmentEffect.Resonant) ? 1.5f : 1f;
             switch (effect)
             {
                 case TrinketEffect.Move: return .05f * (item.quality + 1) * unique;

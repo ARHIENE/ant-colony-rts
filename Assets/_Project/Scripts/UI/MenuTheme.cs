@@ -16,7 +16,7 @@ namespace AntColony.UI
         public static readonly Color Accent = Hex(0xc3b88f);
         public static readonly Color Muted = Hex(0xbfc0b5);
         public static readonly Color Soft = Hex(0xd6d7cb);
-        public static readonly Color Selection = Hex(0x8bc8ba), Warning = Hex(0xef955f);
+        public static readonly Color Selection = Hex(0xd4c39a), Warning = Hex(0xef955f);
         // HUD v4.1 하단 프레임(2026-10-04 시안): 청동 띠·판 재질·움푹한 화면.
         public static readonly Color FrameHi = Hex(0x65675d), Frame = Hex(0x484a43), FrameLo = Hex(0x30312e), FrameInk = Hex(0x1f201e),
             FrameMat = Hex(0x262725), ScreenColor = Hex(0x1f201e), ScreenRim = Hex(0x484a43), FrameButton = Hex(0x30312e);
@@ -103,7 +103,7 @@ namespace AntColony.UI
             colors.fadeDuration = .12f; button.colors = colors;
         }
         // 2026-10-24: UI는 1440×900 기준 고정 배치라 큰 화면에서 왼쪽 위에 작게 몰렸다. 화면 높이 900 기준으로 키운다(1배 미만으로는 안 줄임).
-        public static float UiScale => Mathf.Max(1f, Screen.height / 900f);
+        public static float UiScale => Mathf.Max(1f, Mathf.Min(Screen.width / 1440f, Screen.height / 900f));
         public static Canvas Canvas(string name, Transform parent, int order)
         {
             var rect = Rect(name, parent); var canvas = rect.gameObject.AddComponent<Canvas>(); canvas.renderMode = RenderMode.ScreenSpaceOverlay; canvas.sortingOrder = order;

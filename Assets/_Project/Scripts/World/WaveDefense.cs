@@ -119,8 +119,14 @@ namespace AntColony.World
             var count = individuals > 0 ? Mathf.Min(GroupSize, individuals) : Mathf.Min(HordeSize, s.pending);
             var ok = local != null && (individuals > 0 ? local.TrySpawnWaveGroup(count, spawned == 0) : local.TrySpawnHorde(count));
             if (ok) { s.pending -= count; s.failures = 0; return; }
-            // 진입 경로를 끝내 못 찾으면 남은 병력을 포기한다(전멸 판정이 영원히 막히지 않게).
-            if (++s.failures >= MaxSpawnFailures) { s.pending = 0; Debug.LogWarning("웨이브 진입 경로를 찾지 못해 남은 적 생성을 포기했습니다."); }
+            // 생성 실패는 처치가 아니다. 남은 병력을 보존하고 느리게 재시도한다.
+            // 성공 시 failures를 초기화하므로 경로가 복구되면 기존 묶음 생성으로 돌아간다.
+            if (s.failures < MaxSpawnFailures && ++s.failures == MaxSpawnFailures)
+            {
+                Debug.LogWarning("웨이브 진입 경로를 찾지 못했습니다. 남은 적을 보존하고 재시도합니다.");
+                ToastManager.Show("적의 진입 경로를 다시 찾고 있습니다. 방어 성공으로 처리하지 않습니다.", ToastKind.Warning);
+            }
+            if (s.failures >= MaxSpawnFailures) groupTimer = 5f;
         }
 
         private void End()

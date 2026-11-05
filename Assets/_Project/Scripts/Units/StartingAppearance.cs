@@ -12,7 +12,9 @@ namespace AntColony.Units
             var seed = c.PersonalState.appearanceSeed;
             var tint = new MaterialPropertyBlock(); var color = StartingCandidate.AppearanceColor(seed);
             tint.SetColor("_BaseColor", color); tint.SetColor("_Color", color);
-            foreach (var r in GetComponentsInChildren<Renderer>()) if (!(r is LineRenderer)) r.SetPropertyBlock(tint);
+            var appearance = GetComponentInChildren<KemonoAppearance>();
+            if (appearance != null) appearance.SetPaletteColor(color);
+            else foreach (var r in GetComponentsInChildren<Renderer>()) if (!(r is LineRenderer)) r.SetPropertyBlock(tint);
             var model = RigAnimator.Find(gameObject);
             if (model != null) { model.transform.localScale *= .9f + seed % 3 * .1f; KemonoModel.FitCollider(transform); }
         }

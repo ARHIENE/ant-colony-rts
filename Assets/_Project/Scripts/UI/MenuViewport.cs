@@ -1,6 +1,4 @@
-using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.UI;
 
 namespace AntColony.UI
 {
@@ -11,13 +9,13 @@ namespace AntColony.UI
         public bool FitSelf;
         private RectTransform root;
         private Vector2 viewport;
-        private readonly Dictionary<Text, int> sizes = new Dictionary<Text, int>();
+        private bool fitted;
 
         private void LateUpdate()
         {
             if (root == null) root = (RectTransform)transform;
             var parent = (RectTransform)root.parent;
-            if (viewport == parent.rect.size && sizes.Count > 0) return;
+            if (viewport == parent.rect.size && fitted) return;
             viewport = parent.rect.size;
             root.localScale = Vector3.one;
             root.anchorMin = root.anchorMax = root.pivot = new Vector2(.5f, .5f);
@@ -42,13 +40,7 @@ namespace AntColony.UI
             var scale = Mathf.Min(1, (viewport.x - 32) / Mathf.Max(1, bounds.width), (viewport.y - 32) / Mathf.Max(1, bounds.height));
             root.localScale = Vector3.one * scale;
             root.anchoredPosition = -bounds.center * scale;
-            foreach (var text in root.GetComponentsInChildren<Text>(true))
-            {
-                if (!sizes.TryGetValue(text, out var original)) sizes[text] = original = text.fontSize;
-                // 화면이 작아져도 본문을 12px 아래로 축소하지 않는다.
-                text.fontSize = Mathf.Max(original, Mathf.CeilToInt(12 / scale));
-                text.resizeTextForBestFit = false;
-            }
+            fitted = true;
         }
     }
 }

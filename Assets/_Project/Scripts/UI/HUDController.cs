@@ -136,6 +136,7 @@ namespace AntColony.UI
             canvasGO.AddComponent<BuildScreen>();
             canvasGO.AddComponent<HudOverview>();
             canvasGO.AddComponent<HudResponsiveLayout>();
+            canvasGO.AddComponent<PrototypeResourceHud>();
         }
 
         public void CycleCombatRole()

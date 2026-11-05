@@ -7,6 +7,11 @@ ModelImporter:
   - first:
       type: UnityEngine:Material
       assembly: UnityEngine.CoreModule
+      name: MeadowEQ_21_0
+    second: {fileID: 2100000, guid: 02170406775a1fd46813945b48bb1fd5, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
       name: PK_7a5a34_0010
     second: {fileID: 2100000, guid: 1038fd4973265a54db675b988e6af538, type: 2}
   - first:

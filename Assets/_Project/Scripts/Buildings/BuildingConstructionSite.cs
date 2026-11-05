@@ -84,7 +84,7 @@ namespace AntColony.Buildings
             foreach (var site in sites) site.ReevaluateReservations();
             foreach (var type in sites.SelectMany(s => s.Needs).Select(n => n.type).Distinct().ToList())
             {
-                var stock = rm.GetAmount(type);
+                var stock = rm.GetAmount(type) + ConstructionFloorMaterials.Amount(type);
                 var reserved = sites.SelectMany(s => s.Needs).Where(n => n.type == type).Sum(n => n.reserved);
                 for (int i = sites.Count - 1; i >= 0 && reserved > stock; i--)
                     foreach (var n in sites[i].Needs.Where(n => n.type == type)) { var cut = Mathf.Min(n.reserved, reserved - stock); n.reserved -= cut; reserved -= cut; }

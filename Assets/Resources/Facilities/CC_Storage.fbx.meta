@@ -3,9 +3,64 @@ guid: 6fa47b3ec8ee44940b659a59dc772015
 ModelImporter:
   serializedVersion: 24501
   internalIDToNameTable: []
-  externalObjects: {}
+  externalObjects:
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Story_CutWood.001
+    second: {fileID: 2100000, guid: 29e12fde9911fd146b383b1719042b36, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Story_Fieldstone.001
+    second: {fileID: 2100000, guid: b81b119f490dd06429b87e1f4f75b2b4, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Story_GrainSack.001
+    second: {fileID: 2100000, guid: f78d23a79e1f0d344b89b29c899664df, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Story_LeafShutter.001
+    second: {fileID: 2100000, guid: 2be9c2a19d977364a8177d9d87601caa, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Story_Oak.001
+    second: {fileID: 2100000, guid: efee164e95642dd46999ab4dc875143c, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Story_Straw0.001
+    second: {fileID: 2100000, guid: 76ba333ff07541b4aa675466ae680ac0, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Story_Straw1.001
+    second: {fileID: 2100000, guid: ffae1080f05840c49b31442747c53e56, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Story_Straw2.001
+    second: {fileID: 2100000, guid: d63128295291eea4883c49ab8e9ffdeb, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Story_Straw3.001
+    second: {fileID: 2100000, guid: fa14a43820173344cadb4c5f97ed743f, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Story_Straw4.001
+    second: {fileID: 2100000, guid: c031bb460d0bc344fa8ba8428c866fbd, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Story_Straw5.001
+    second: {fileID: 2100000, guid: 7933e2ba033c8ed42b5297470a3377ae, type: 2}
   materials:
-    materialImportMode: 2
+    materialImportMode: 1
     materialName: 0
     materialSearch: 1
     materialLocation: 1

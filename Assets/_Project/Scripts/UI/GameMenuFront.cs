@@ -17,20 +17,20 @@ namespace AntColony.UI
         {
             var f = Frame("ANT COLONY", .35f);
             TitleBackdrop.Ensure(panel); // 시작 메뉴는 게임 장면 대신 전용 배경을 보여준다.
-            var side = L.Plate(f, "MainSide", 0, 0, 440, 900);
-            side.anchorMin = Vector2.zero; side.anchorMax = new Vector2(0, 1); side.sizeDelta = new Vector2(440, 0); side.anchoredPosition = Vector2.zero;
-            var logo = L.Well(side, "Logo", 48, 88, 344, 132);
+            bool compact = UnityEngine.Screen.height / MenuTheme.UiScale < 700;
+            var side = L.Plate(f, "MainSide", 0, 0, 440, compact ? 460 : 900);
+            var logo = L.Well(side, "Logo", 48, compact ? 8 : 88, 344, compact ? 100 : 132);
             L.Label(logo, "소굴 RTS", 28, 18, 30, 320, 44, bold: true);
             L.Label(logo, "가제 · 정착지 경영과 장수 부대 전투", 12, 18, 78, 320, 20, MenuTheme.Dim);
-            L.Line(side, 48, 252, 344);
+            L.Line(side, 48, compact ? 112 : 252, 344);
 
             var latest = LatestSave();
             var go = L.Button(side, "Continue", latest != null
                     ? $"이어하기\n<size=12>{SlotName(latest)} · {SlotTime(latest)}</size>" : "이어하기\n<size=12>저장 없음</size>",
-                48, 280, 344, 72, () => LoadSlot(latest), "가장 최근 저장을 불러옵니다.", true, 17, TextAnchor.MiddleLeft);
+                48, compact ? 120 : 280, 344, compact ? 48 : 72, () => LoadSlot(latest), "가장 최근 저장을 불러옵니다.", true, 17, TextAnchor.MiddleLeft);
             go.interactable = latest != null;
-            var y = 356f;
-            void Item(string name, string label, Action action, string tip = null) { L.Button(side, name, label, 48, y, 344, 44, action, tip, false, 14, TextAnchor.MiddleLeft); y += 48; }
+            var y = compact ? 172f : 356f;
+            void Item(string name, string label, Action action, string tip = null) { L.Button(side, name, label, 48, y, 344, compact ? 32 : 44, action, tip, false, 14, TextAnchor.MiddleLeft); y += compact ? 36 : 48; }
             Item("New Game", "새 게임", NewGameScreen, "맵 크기·침공 난이도·장수 사망·시드를 고릅니다.");
             Item("Continue / Load", "불러오기", () => Slots(false));
             y += 8;
@@ -39,9 +39,9 @@ namespace AntColony.UI
             Item("How to Play [F2]", "설명서  F2", Guide);
             y += 8;
             Item("Quit", "종료", Application.Quit);
-            L.Label(side, "Enter 이어하기    Esc 뒤로", 12, 48, 726, 344, 20, MenuTheme.Muted);
-            L.Line(side, 48, 754, 344);
-            L.Label(side, "프로토타입 빌드", 11, 48, 762, 344, 20, MenuTheme.Dim);
+            L.Label(side, "Enter 이어하기    Esc 뒤로", 12, 48, compact ? 414 : 726, 344, 20, MenuTheme.Muted);
+            L.Line(side, 48, compact ? 438 : 754, 344);
+            L.Label(side, "프로토타입 빌드", 11, 48, compact ? 440 : 762, 344, 20, MenuTheme.Dim);
         }
 
         private static SaveSlots.SlotInfo LatestSave() => SaveSlots.List().Where(s => s.Valid && (!s.Auto || s.PlaySeconds >= 60))

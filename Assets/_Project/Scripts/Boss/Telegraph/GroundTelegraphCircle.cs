@@ -66,7 +66,7 @@ namespace AntColony.Boss.Telegraph
 
             var vertices = new Vector3[vertexCount];
             var uvs = new Vector2[vertexCount];
-            var triangles = new int[ringCount * segmentCount * 6];
+            var triangles = GroundTelegraphMesh.GridTriangles(ringCount, segmentCount);
 
             var v = 0;
 
@@ -89,29 +89,6 @@ namespace AntColony.Boss.Telegraph
                 }
             }
 
-            var t = 0;
-            for (var r = 0; r < ringCount; r++)
-            {
-                var ringStart = r * vertsPerRing;
-                var nextRingStart = (r + 1) * vertsPerRing;
-
-                for (var s = 0; s < segmentCount; s++)
-                {
-                    var a = ringStart + s;
-                    var b = nextRingStart + s;
-                    var c = ringStart + s + 1;
-                    var d = nextRingStart + s + 1;
-
-                    triangles[t++] = a;
-                    triangles[t++] = b;
-                    triangles[t++] = c;
-
-                    triangles[t++] = c;
-                    triangles[t++] = b;
-                    triangles[t++] = d;
-                }
-            }
-
             mesh.Clear();
             mesh.vertices = vertices;
             mesh.uv = uvs;
@@ -121,14 +98,6 @@ namespace AntColony.Boss.Telegraph
         }
 
         private Vector3 SampleGround(Vector3 sampleWorldPos)
-        {
-            var rayOrigin = sampleWorldPos + Vector3.up * castHeight;
-            var rayDistance = castHeight * 2f;
-
-            if (Physics.Raycast(rayOrigin, Vector3.down, out var hit, rayDistance, groundMask, QueryTriggerInteraction.Ignore))
-                return hit.point + hit.normal * surfaceOffset;
-
-            return sampleWorldPos + Vector3.up * surfaceOffset;
-        }
+            => GroundTelegraphMesh.SampleGround(sampleWorldPos, castHeight, groundMask, surfaceOffset);
     }
 }

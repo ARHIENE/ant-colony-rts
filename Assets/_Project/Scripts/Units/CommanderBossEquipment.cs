@@ -14,11 +14,11 @@ namespace AntColony.Units
         public float AttackRadius => bossEquipment == BossEquipmentKind.AreaWeapon ? AreaRadius : 0;
         public string BossLabel => bossEquipment switch {
             BossEquipmentKind.Durable => "A 고유 내구 갑옷 (내구 " + Mathf.CeilToInt(durability) + "/" + DurableCapacity + ")",
-            BossEquipmentKind.HeatShield => "B 방열 갑옷", BossEquipmentKind.AreaWeapon => "C 범위 분사기", _ => "" };
+            BossEquipmentKind.HeatShield => "B 방열 갑옷", BossEquipmentKind.AreaWeapon => "C 지진 망치", _ => "" };
         public static EquipmentItem BossReward(BossId boss, string parcelId) => boss == BossId.D ? null : new EquipmentItem {
             id = "boss-equipment:" + parcelId, quality = 3,
             slot = boss == BossId.C ? EquipmentSlot.Weapon : EquipmentSlot.Armor,
-            weapon = boss == BossId.C ? WeaponKind.AcidSprayer : WeaponKind.Mandible,
+            weapon = boss == BossId.C ? WeaponKind.QuakeMaul : WeaponKind.Mandible,
             bossEquipment = boss == BossId.A ? BossEquipmentKind.Durable : boss == BossId.B ? BossEquipmentKind.HeatShield : BossEquipmentKind.AreaWeapon,
             durability = boss == BossId.A ? DurableCapacity : 0 };
     }

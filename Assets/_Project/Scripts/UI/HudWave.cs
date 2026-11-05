@@ -73,8 +73,11 @@ namespace AntColony.UI
         {
             var text = MenuTheme.Text(parent, "", size);
             var rect = text.rectTransform; rect.anchorMin = rect.anchorMax = rect.pivot = new Vector2(0, 1);
-            rect.anchoredPosition = position; rect.sizeDelta = new Vector2(150, 20); text.color = color;
-            text.horizontalOverflow = HorizontalWrapMode.Overflow;
+            rect.anchoredPosition = position; rect.sizeDelta = new Vector2(142, 20); text.color = color;
+            text.horizontalOverflow = HorizontalWrapMode.Wrap;
+            text.resizeTextForBestFit = true;
+            text.resizeTextMinSize = 10;
+            text.resizeTextMaxSize = size;
             return text;
         }
     }

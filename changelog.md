@@ -1,3 +1,9 @@
+## 2026-11-06 — 현재 작업 통합 SAVE
+- UI: HUD 간소화·자원 고정·연구 트리·설정 적용/취소, 23검사 및 주요6화면 검증.
+- 리팩토링: 770검사·예고 메시6종 동일성 확인, 순감소70줄.
+- 캐릭터/장비 작업 사본 보존. 파지·전용 동작 미완료, 전체 완성 아님.
+- 이전 로그 보존: work/save-20261106/log-before-save.md.
+
 # 2026-11-04 SAVE(새벽, 11/03 밤 작업) — 2026-11-05 SAVE 이관
 - 웨이브 수성 방향 확정 및 WAVE-BAL-1103/EXPED-PAUSE-1103/WAVE-RETREAT-1103 구현. Wave1102 27·WaveRetreat1103 21·ExpeditionPause1103 43·SaveRoundtrip 65 Unity 검사 통과 기록을 보존한다.
 - 미해결: 원정 중단으로 새 게임 로켓 승리 불가, 적 일부 벽 밖 13~15m 정지(41마리·240초 초과)로 웨이브 미종료, 공성형 적·초반 준비 실플레이·노후 검사 잔여. 기존 일지 https://app.notion.com/p/40dc4a0ecd318118bd9fdf0ba698f559. 원문 `work/save-20261105/log-before-save.md`.

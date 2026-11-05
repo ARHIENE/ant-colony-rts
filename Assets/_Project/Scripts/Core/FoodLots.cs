@@ -38,8 +38,22 @@ namespace AntColony.Core
         public int Total => lots.Sum(l => l.amount);
         public float Freshest => lots.Count == 0 ? 0 : lots.Max(l => l.shelf);
         public float Stalest => lots.Count == 0 ? 0 : lots.Min(l => l.shelf);
-        public int StalestAmount => lots.Where(l => l.shelf == Stalest).Sum(l => l.amount);
-        public int CookingSkill => Total == 0 ? 5 : (int)Math.Round(lots.Sum(l => (double)l.amount * (l.cookSkillPlusOne == 0 ? 5 : l.cookSkillPlusOne - 1)) / Total);
+        public int StalestAmount
+        {
+            get
+            {
+                var stalest = Stalest;
+                return lots.Where(l => l.shelf == stalest).Sum(l => l.amount);
+            }
+        }
+        public int CookingSkill
+        {
+            get
+            {
+                var total = Total;
+                return total == 0 ? 5 : (int)Math.Round(lots.Sum(l => (double)l.amount * (l.cookSkillPlusOne == 0 ? 5 : l.cookSkillPlusOne - 1)) / total);
+            }
+        }
         public bool Inspired => Total > 0 && lots.All(l => l.inspired);
         public static IEnumerable<StoreBin> MealSources(IEnumerable<StoreBin> bins, ResourceType type) => bins
             .Where(b => b.Spendable && b.Amount(type) > 0).OrderBy(b => b.Lots(type)?.Stalest ?? 0);

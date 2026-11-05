@@ -30,6 +30,9 @@ namespace AntColony.Units
             // 리그에 연결된 클립이 축 변환까지 담당하므로 부모에서 추가 회전하지 않는다.
             var upright = new GameObject("Upright").transform; upright.SetParent(pivot, false);
             var model = Object.Instantiate(source, upright, false);
+            // Capture the fitted finger rest rotations before legacy animation clips write
+            // their previous character's finger transforms onto this rig.
+            pivot.gameObject.AddComponent<MeshyEquipmentGrip>().CaptureRestPose();
             var animator = RigAnimator.Bind(model, "KemonoRig", controller);
             animator.cullingMode = AnimatorCullingMode.AlwaysAnimate;
             var parts = model.GetComponentsInChildren<Renderer>(true);
@@ -39,7 +42,7 @@ namespace AntColony.Units
                     .Select(n => n.Split('_')[2]).Distinct().OrderBy(n => n).ToArray();
                 return options.Length == 0 ? null : options[(int)(unchecked((uint)(seed * 7919 + slot.Length * 31)) % (uint)options.Length)];
             }
-            var keep = new[] { "Hair_" + Pick("Hair") + "_", "Ears_" + Pick("Ears") + "_", "Tail_" + Pick("Tail") + "_", "Face_NEUTRAL_", "Body_", "Outfit_" };
+            var keep = new[] { "Hair_" + Pick("Hair") + "_", "Ears_" + Pick("Ears") + "_", "Tail_" + Pick("Tail") + "_", "Face_NEUTRAL_", "Body_", "Outfit_" + Pick("Outfit") + "_" };
             foreach (var r in parts) r.enabled = !r.name.Contains("_ARMOR") && keep.Any(k => r.name.StartsWith("Part_" + k));
             // 초기 FBX 자세와 첫 애니메이션 자세의 축이 달라 먼저 포즈를 평가해야 실제 키를 잰다.
             animator.Rebind(); animator.Play("Base Layer.Idle_A", 0, 0); animator.Update(.01f);
@@ -67,17 +70,22 @@ namespace AntColony.Units
         // 손 소켓(Socket.Tool.R)에 도구·무기를 붙인다. name=null이면 치운다.
         public static void Hold(GameObject model, string name)
         {
+            var grip = model.GetComponent<MeshyEquipmentGrip>();
+            if (grip == null) grip = model.AddComponent<MeshyEquipmentGrip>();
+            grip.Held = name;
             var sockets = model.GetComponentsInChildren<Transform>(true);
             foreach (var socket in sockets.Where(t => t.name == "Socket.Tool.R" || t.name == "Socket.Tool.L"))
             {
                 foreach (Transform child in socket) { child.gameObject.SetActive(false); Object.Destroy(child.gameObject); }
-                var item = name == "Weapon_ShortBow" ? (socket.name.EndsWith(".L") ? name : "Ammo_Arrow")
+                var item = name == "Weapon_ShortBow" || name == "Weapon_GrandBow" ? (socket.name.EndsWith(".L") ? name : "Ammo_Arrow")
                     : name != null && name.StartsWith("Weapon_Shield_") ? socket.name.EndsWith(".L") ? name : null
                     : socket.name.EndsWith(".R") ? name : null;
                 if (item == null) continue;
                 if (!tools.TryGetValue(item, out var prefab)) tools[item] = prefab = Resources.Load<GameObject>("Kemono/Handheld/" + item);
                 if (prefab == null) continue;
                 var tool = Object.Instantiate(prefab, socket, false); tool.transform.localPosition = Vector3.zero; tool.transform.localRotation = Quaternion.identity;
+                if(item.Contains("Rifle")||item.Contains("Carbine")||item.Contains("Scattergun"))
+                    tool.transform.localScale*=.7f;
                 foreach (var c in tool.GetComponentsInChildren<Collider>()) Object.Destroy(c);
             }
         }

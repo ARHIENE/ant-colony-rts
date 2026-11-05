@@ -12,12 +12,7 @@ namespace AntColony.Save
     {
         private static bool ValidNaturalWork(ResourceNodeDto n) => n.workRequestOrder >= 0 && n.workRequestOrder < long.MaxValue / 2 && (!n.workPaused || n.workRequested);
         private static void ValidateStaged(List<ProductionInputs.Stock> staged)
-        {
-            Check(staged == null || staged.Count <= Enum.GetValues(typeof(AntColony.Data.ResourceType)).Length
-                  && staged.All(s => s != null && Enum.IsDefined(typeof(AntColony.Data.ResourceType), s.type) && s.amount >= 0 && s.amount <= 100000000
-                      && (s.lots == null || s.lots.Valid && s.lots.Total <= s.amount))
-                && staged.Select(s => s.type).Distinct().Count() == staged.Count, "도착한 생산 재료");
-        }
+            => Check(ProductionInputs.ValidStock(staged, 0), "도착한 생산 재료");
         private static void ValidateIntegration(SaveFileV1 f)
         {
             void Filter(StoreBin.Dto bin) => Check(bin?.extraForbidden == null || bin.extraForbidden.Count <= StoreBin.TypeCount

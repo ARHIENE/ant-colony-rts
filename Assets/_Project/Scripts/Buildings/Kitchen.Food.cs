@@ -36,9 +36,6 @@ namespace AntColony.Buildings
         }
         private static bool ValidIngredients(State s) => s.pending >= -1 && s.pending < Recipes.Length
             && (s.pending < 0 || s.current < 0 && s.orders != null && s.orders.Any(o => o != null && o.recipe == s.pending))
-            && (s.ingredients == null || s.ingredients.Count <= StoreBin.TypeCount
-                && s.ingredients.All(i => i != null && Enum.IsDefined(typeof(ResourceType), i.type) && i.amount > 0 && i.amount <= 100000000
-                    && (i.lots == null || i.lots.Valid && i.lots.Total <= i.amount))
-                && s.ingredients.Select(i => i.type).Distinct().Count() == s.ingredients.Count);
+            && ProductionInputs.ValidStock(s.ingredients, 1);
     }
 }

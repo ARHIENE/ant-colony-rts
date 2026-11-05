@@ -112,7 +112,7 @@ namespace AntColony.Units
 
         public string CommanderName => commanderName;
         // 기존 프로필·훈련장 에셋의 키만 재사용한다. 장수 보직은 장비로 대체한다.
-        public UnitRole Role => Weapon == null ? UnitRole.Melee : Weapon.weapon == WeaponKind.AcidSprayer || Weapon.weapon == WeaponKind.ShortBow ? UnitRole.Ranged
+        public UnitRole Role => Weapon == null ? UnitRole.Melee : MeshyEquipmentRules.IsRanged(Weapon.weapon) ? UnitRole.Ranged
             : Weapon.weapon == WeaponKind.Shield ? UnitRole.Defense : Weapon.weapon == WeaponKind.Pheromone ? UnitRole.Support : UnitRole.Melee;
         public override bool IsFlying => EquippedArmor?.armor == ArmorKind.Wings && Social.groundedRemaining <= 0;
 
@@ -368,12 +368,20 @@ namespace AntColony.Units
             var multiplier = wasAlive && skills.ConsumePowerStrike() ? CommanderSkills.PowerStrikeMultiplier : 1f;
             FaceFormation(target.Position - Position);
             FormationState.Target(FormationTargetKey(target));
-            StrikeWithEquipment(target, AttackAgainst(target) * multiplier + ArmorBreakBonus(target));
-            DiamondFollowUp(target, AttackAgainst(target) + ArmorBreakBonus(target));
+            var firearm = Weapon != null && MeshyEquipmentRules.IsFirearm(Weapon.weapon);
+            if (firearm)
+            {
+                FireEquipment(target, AttackAgainst(target) * multiplier);
+            }
+            else
+            {
+                StrikeWithEquipment(target, AttackAgainst(target) * multiplier + ArmorBreakBonus(target));
+                DiamondFollowUp(target, AttackAgainst(target) + ArmorBreakBonus(target));
+            }
             if (SelectedFormation == Formation.Focus && wasAlive && multiplier == 1 && !string.IsNullOrEmpty(FormationTargetKey(target))
                 && (!(target is CommanderAnt defender) || !defender.IsEmbarked && defender.PersonalHealth > 0))
                 { formationHitTarget = target; FormationState.Hit(FormationTargetKey(target)); }
-            if ((Weapon?.AttackRadius ?? 0) <= 0 && wasAlive && reward > 0 && IsKilled(target))
+            if (!firearm && (Weapon?.AttackRadius ?? 0) <= 0 && wasAlive && reward > 0 && IsKilled(target))
             {
                 GainExperience(CombatActivity, CommanderProgression.ClaimKillXp(target));
                 if (target is AntColony.Boss.BossHealth && Random.value < .2f) ShiftEventTrait(CommanderTrait.Coward, true);
@@ -448,6 +456,12 @@ namespace AntColony.Units
             Data.role = Role;
             if (Role == UnitRole.Ranged) Data.attackRange = 6f;
             if (Weapon?.weapon == WeaponKind.ShortBow) { Data.attackRange = 12f; Data.attackInterval = 2f; }
+            if (Weapon?.weapon == WeaponKind.GrandBow) { Data.attackRange = 16f; Data.attackInterval = 2.5f; }
+            if (Weapon != null && MeshyEquipmentRules.IsFirearm(Weapon.weapon))
+            {
+                Data.attackRange = MeshyEquipmentRules.Range(Weapon.weapon);
+                Data.attackInterval = MeshyEquipmentRules.Interval(Weapon.weapon);
+            }
             if (Agent != null) Agent.speed = Data.moveSpeed;
         }
     }

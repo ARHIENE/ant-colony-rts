@@ -60,6 +60,7 @@ namespace AntColony.UI
             ToolbarButton(bar, "V6 Roster", "인재·편성", () => Management("인재·편성"), "장수 · 평가 · 외부 조사 · 특성 · 진형");
             ToolbarButton(bar, "V6 Build", "＋ 건설", BuildScreen.Toggle, "건설");
             bar.gameObject.AddComponent<GameMenuDock>();
+            InstallPrototypeNavigation(bar, canvas.transform);
             ShowLoading();
         }
         // 오브젝트 이름은 검사·툴팁이 찾는 기존 키를 유지하고, 표시 문구만 디자인의 한글 라벨을 쓴다.
@@ -110,6 +111,7 @@ namespace AntColony.UI
         // 화면 공통 상태 전환: 열기·일시정지·이전 화면 정리.
         private void BeginScreen(string title, float scrim)
         {
+            if (title != "Settings") settingsDraft = null;
             refreshDutyScreen = null;
             if (!open) { resumeScale = SimulationPause.Speed; pauseChain = false; }
             // 일시정지 메뉴(Esc)와 거기서 연 화면만 게임을 멈춘다. 하단 과학·창고 같은 패널은 게임을 멈추지 않는다(2026-10-25).
@@ -137,6 +139,7 @@ namespace AntColony.UI
         {
             BeginScreen(title, .62f);
             scrollArea.gameObject.SetActive(true);
+            scrollArea.anchorMin = new Vector2(.12f, .12f); scrollArea.anchorMax = new Vector2(.88f, .88f);
             var heading = MenuTheme.Text(content, displayTitle ?? title, 32, 70);
             heading.color = MenuTheme.Accent; heading.fontStyle = FontStyle.Bold;
             AntColony.Core.SceneObjects.Any<AntColony.Buildings.BuildingPlacementController>()?.CancelPlacement();

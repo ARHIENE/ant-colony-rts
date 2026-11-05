@@ -16,9 +16,9 @@ namespace AntColony.UI
             foreach (var control in Keyboard.current.allKeys)
             {
                 if (control == null || !control.wasPressedThisFrame || !KeyBindings.CanBind(control.keyCode)) continue;
-                var value = UserSettings.Current.Clone();
+                var value = (settingsDraft ?? UserSettings.Current).Clone();
                 KeyBindings.Bind(value, rebinding.Value, control.keyCode);
-                UserSettings.Apply(value);
+                settingsDraft = value;
                 rebinding = null;
                 Settings();
                 break;

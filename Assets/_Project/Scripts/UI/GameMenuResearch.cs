@@ -102,7 +102,7 @@ namespace AntColony.UI
             return r.BlockReason(d.Technology) == "" ? "선택 가능" : "잠김";
         }
 
-        public void Science()
+        public void ScienceDetails()
         {
             var r = CampaignResearch.Instance;
             if (r == null) { Screen("Science", "과학"); MenuTheme.Text(content, "과학 화면 준비 중입니다."); MenuTheme.Button(content, "Back", Back).GetComponentInChildren<UnityEngine.UI.Text>().text = "뒤로"; return; }

@@ -19,12 +19,12 @@ namespace AntColony.Units
             && CraftingWorkshop == null && !personalState.treating && personalState.mentalBreak == MentalBreak.None;
         public bool HasTrinket(TrinketEffect effect) => personalState.equipment.Exists(e => e.slot == EquipmentSlot.Trinket && e.effect == effect);
         public float EquipmentBonus(EquipmentSlot slot) => slot == EquipmentSlot.Weapon
-            ? (Weapon != null && (Weapon.weapon == WeaponKind.Mandible || Weapon.weapon == WeaponKind.AcidSprayer) ? Weapon.Power : 0)
-            : (EquippedArmor?.armor == ArmorKind.Coating ? EquippedArmor.Power : 0)
+            ? (Weapon != null && MeshyEquipmentRules.HasAttackBonus(Weapon.weapon) ? Weapon.Power : 0)
+            : (EquippedArmor?.armor == ArmorKind.Coating ? EquippedArmor.Power : EquippedArmor?.uniqueEffect == UniqueEquipmentEffect.Reinforced ? 1 : 0)
                 + (Weapon?.weapon == WeaponKind.Shield ? 2 * Weapon.Power : 0);
         protected override float WorkSpeed => WorkRate(ConstructionTarget != null && ConstructionTarget.IsArt ? CommanderActivity.Art : CommanderActivity.Building);
         protected override float MovementSpeed => WrathFactor * base.MovementSpeed * (traits.MoveMultiplier + TrinketBonus(TrinketEffect.Move) + FormationEffect().Move) * AgeMoveMultiplier * BiomeRules.MoveAt(AntColony.Buildings.RoomSystem.IsIndoors(Position)) * AntColony.Map.WeatherSystem.MoveAt(AntColony.Buildings.RoomSystem.IsIndoors(Position)) * (AntColony.Map.MapGenerator.InWater(Position) ? AntColony.Map.MapGenerator.WaterMoveMultiplier : 1f)
-            * (1f - .3f * personalState.Severity(InjuryPart.Legs))
+            * (1f - .3f * personalState.Severity(InjuryPart.Legs)) * (1f + personalState.equipment.Sum(e => e.UniqueMoveBonus))
             * (Weapon?.weapon == WeaponKind.Shield ? .9f : 1f) * (IsFlying ? 1f + .05f * EquippedArmor.quality : 1f)
             * AntColony.World.ColonyEvents.MoveMultiplier(this) * (Social.rallyRemaining > 0 ? 1.3f : 1f) * (AntColony.Buildings.FloorTile.At(Position) ? GameBalance.FloorMoveMultiplier : 1f) * AnimalCarryMultiplier * AntColony.World.ExpeditionWithdraw.CarryMultiplier(this);
         public CommanderActivity CurrentActivity => ServiceTarget != null ? SkillFor(ServiceJob) : HuntTarget != null ? CombatActivity : CraftingWorkshop != null ? CommanderActivity.Crafting : LabUpgradeBusy ? CommanderActivity.Research : IsConstructing ? ConstructionTarget.IsArt ? CommanderActivity.Art : CommanderActivity.Building

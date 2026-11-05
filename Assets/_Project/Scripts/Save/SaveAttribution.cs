@@ -23,9 +23,11 @@ namespace AntColony.Save
             .Select(d => JsonUtility.FromJson<ConstructionAttributionDto>(JsonUtility.ToJson(d))).ToList();
         internal static void Restore(List<ConstructionAttributionDto> list)
         {
-            foreach (var d in list ?? new List<ConstructionAttributionDto>())
+            if (list == null || list.Count == 0) return;
+            var sites = SceneObjects.All<BuildingConstructionSite>().ToLookup(s => s.Order);
+            foreach (var d in list)
             {
-                var s = SceneObjects.All<BuildingConstructionSite>().FirstOrDefault(s => s.Order == d.order);
+                var s = sites[d.order].FirstOrDefault();
                 if (s == null) continue;
                 var copy = JsonUtility.FromJson<ConstructionAttributionDto>(JsonUtility.ToJson(d));
                 s.Contributions = copy.contributions ?? new WorkContribution(); s.Artist = copy.artist ?? new SoleWorker(); s.BabelUsed = copy.babelUsed;

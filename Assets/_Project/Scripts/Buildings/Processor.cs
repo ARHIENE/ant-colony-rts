@@ -168,8 +168,7 @@ namespace AntColony.Buildings
         {
             var r = Current;
             if (r.output == ResourceType.Plastic) state.bufferedOil = 0;
-            state.current = -1; state.progress = 0; state.makerId = ""; state.gasPaid = false;
-            state.fermenting = state.fermented = false; state.fermentation = 0;
+            ResetBatch();
             AntColony.World.DiplomacyManager.DropFloor(r.output, r.amount, Position + ResourceManager.Scatter());
         }
 
@@ -180,9 +179,14 @@ namespace AntColony.Buildings
             inputs.Drop(Position); state.pending = -1;
             if (Current != null && !Brewing) foreach (var input in Current.inputs)
                 AntColony.World.DiplomacyManager.DropFloor(input.type, input.type == AntColony.Data.ResourceType.Special || input.type == AntColony.Data.ResourceType.Component ? input.amount : Mathf.FloorToInt(input.amount * (state.progress > 0 ? .7f : 1)), Position + ResourceManager.Scatter());
+            ResetBatch();
+            ReleaseWorkers();
+        }
+
+        private void ResetBatch()
+        {
             state.current = -1; state.progress = 0; state.makerId = ""; state.gasPaid = false;
             state.fermenting = state.fermented = false; state.fermentation = 0;
-            ReleaseWorkers();
         }
 
         private void ReleaseWorkers()

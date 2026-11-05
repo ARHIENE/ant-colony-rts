@@ -11,25 +11,26 @@ namespace AntColony.UI
     public sealed partial class GameMenuController
     {
         private int settingsTab;
+        private UserSettingsData settingsDraft;
         private float settingsScroll = 1; // 값을 바꿔 다시 그려도 목록 위치 유지(맨 위로 튀어 누른 게 안 된 것처럼 보이던 문제)
-        private static readonly string[] SettingsTabs = { "화면", "소리", "조작", "게임", "정보" };
+        private static readonly string[] SettingsTabs = { "화면", "소리", "조작", "게임", "인터페이스", "정보" };
 
         private void Settings()
         {
+            settingsDraft ??= UserSettings.Current.Clone();
             var f = Frame("Settings");
-            var p = L.Plate(f, "SettingsPanel", 220, 70, 1000, 760);
+            var p = L.Plate(f, "SettingsPanel", 140, 90, 1160, 680);
             L.Label(p, "설정", 20, 24, 10, 300, 38, bold: true);
             for (var i = 0; i < SettingsTabs.Length; i++)
             {
                 var tab = i;
-                var b = L.Button(p, "Settings Tab " + i, SettingsTabs[i], 24 + i * 116, 60, 110, 36, () => { settingsTab = tab; rebinding = null; settingsScroll = 1; Settings(); });
+                var b = L.Button(p, "Settings Tab " + i, SettingsTabs[i], 16, 68 + i * 46, 136, 38, () => { settingsTab = tab; rebinding = null; settingsScroll = 1; Settings(); });
                 if (i == settingsTab) MarkSelected(b);
             }
-            L.Line(p, 0, 106, 1000);
-            var list = L.List(p, 24, 118, 952, 560);
-            var s = UserSettings.Current;
-            void Commit(UserSettingsData v) { UserSettings.Apply(v); v = UserSettings.Current;
-                SceneObjects.Any<AntColony.Camera.IsometricCameraController>()?.ApplySettings(v.cameraPanSpeed, v.edgeScrollThickness); Settings(); }
+            L.Line(p, 0, 54, 1160);
+            var list = L.List(p, 174, 68, 962, 540);
+            var s = settingsDraft;
+            void Commit(UserSettingsData v) { settingsDraft = v.Clone(); Settings(); }
             void Apply(Action<UserSettingsData> change) { var v = s.Clone(); change(v); Commit(v); }
             RectTransform Row(string title, string note = null)
             {
@@ -94,7 +95,7 @@ namespace AntColony.UI
                     foreach (GameAction action in Enum.GetValues(typeof(GameAction)))
                     {
                         var a = action; var row = Row(ActionName(a));
-                        var b = L.Button(row, "Key " + a, rebinding == a ? "키를 누르세요 (Esc 취소)" : KeyBindings.Get(a).ToString(), 340, 7, 240, 34,
+                        var b = L.Button(row, "Key " + a, rebinding == a ? "키를 누르세요 (Esc 취소)" : KeyBindings.Get(s, a).ToString(), 340, 7, 240, 34,
                             () => { rebinding = a; Settings(); });
                         if (rebinding == a) MarkSelected(b);
                     }
@@ -117,6 +118,12 @@ namespace AntColony.UI
                     L.Button(Row("본 도움말 다시 보기", $"지금까지 본 도움말 {s.shownHints.Count}개"), "Reset Hints", "초기화", 340, 7, 140, 34,
                         () => Apply(v => v.shownHints.Clear()));
                     break;
+                case 4:
+                    Options("처음 보는 기능 도움말", new[] { true, false }, b => b ? "켜기" : "끄기", s.firstHints, (v, b) => v.firstHints = b);
+                    Options("알림 표시 시간", new[] { 3f, 6f, 10f, 15f }, t => t + "초", s.toastSeconds, (v, t) => v.toastSeconds = t);
+                    L.Label(Row("HUD 자원"), "자원 화면에서 항목별 고정 · 좌측 상단 아이콘과 수치", 13, 340, 0, 580, 48, MenuTheme.Muted);
+                    L.Label(Row("지도"), "좌측 하단 지도 접기 / 펼치기 · 클릭과 드래그로 이동", 13, 340, 0, 580, 48, MenuTheme.Muted);
+                    break;
                 default:
                     L.Label(Row("버전"), "프로토타입 빌드 · Unity " + Application.unityVersion, 13, 340, 0, 600, 48, MenuTheme.Muted);
                     var folder = Row("저장 폴더", AntColony.Save.SaveStorage.Root);
@@ -127,8 +134,14 @@ namespace AntColony.UI
             var scroll = list.GetComponentInParent<ScrollRect>();
             Canvas.ForceUpdateCanvases(); scroll.verticalNormalizedPosition = settingsScroll;
             scroll.onValueChanged.AddListener(v => settingsScroll = v.y);
-            L.Line(p, 0, 690, 1000);
-            L.Button(p, "Back", "뒤로", 24, 706, 120, 38, () => { rebinding = null; Back(); });
+            L.Line(p, 174, 622, 962);
+            L.Button(p, "Back", "닫기", 16, 634, 136, 32, () => { settingsDraft=null; rebinding=null; Back(); });
+            L.Button(p, "Cancel Settings", "변경 취소", 174, 634, 120, 32, () => { settingsDraft=UserSettings.Current.Clone();rebinding=null;Settings(); });
+            L.Button(p, "Apply Settings", "적용", 1016, 634, 120, 32, () => {
+                UserSettings.Apply(settingsDraft); settingsDraft=UserSettings.Current.Clone();
+                SceneObjects.Any<AntColony.Camera.IsometricCameraController>()?.ApplySettings(settingsDraft.cameraPanSpeed,settingsDraft.edgeScrollThickness);
+                Settings();ToastManager.Show("설정을 적용했습니다.");
+            },primary:true);
         }
 
         private static string ActionName(GameAction a) => a switch
