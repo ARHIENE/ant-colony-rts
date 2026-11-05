@@ -23,8 +23,8 @@ L2 추가 공백: XP 배율 적용 후 절대 상한은 미구현(배율 전200 
 
 ## 검사
 
-- 게임: 사용자 제공 `offc.sh /e/Git/ant-wt/P2`, **exit0·오류0**.
-- 검사 컴파일: `offcheck.sh /e/Git/ant-wt/P2 Review1101P2Checks.cs Review1031M2Checks.cs Review1031ClaudeMilitaryChecks.cs`(각 검사 실제 절대 경로 전달), **exit0·오류0**.
+- 게임: 사용자 제공 `offc.sh /e/Git/ant-wt/P2`, **exit0·오류 0**.
+- 검사 컴파일: `offcheck.sh /e/Git/ant-wt/P2 Review1101P2Checks.cs Review1031M2Checks.cs Review1031ClaudeMilitaryChecks.cs`(각 검사 실제 절대 경로 전달), **exit0·오류 0**.
 - Unity 내장 dotnet/Roslyn으로 만든 `Temp/off/A.dll`에 대해 .NET8 오프라인 실행: P2 **181**, M2 **298**, L2 **97**, N2 **77**, Boss **38**, Finale **31**, K1 **87**, K2 **107** 통과. 범위가 겹치므로 개별 기능 수와 동일하지 않다. 기존 사용 중단 API/FormatterServices 경고는 유지했다.
 - P2 Main: 프레임 삭제 전 카탈로그 tombstone·키 보존,6시대 장갑/프로필/장비/고체력 재저장 상한/재능 보존, 산업 역할별 소득·연구소 상실,6시간 연구 계산, 잘못된 군사 버전·시대·순번·프로필·중복ID 거부.
 - M2의 두 기대값은 바뀐 정책에 맞춰 갱신했다(장갑=시대-1, 복원 상한=max(프로필,저장 체력)). 종전 기능 검사를 지우거나 우회하지 않았다.

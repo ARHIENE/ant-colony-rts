@@ -49,7 +49,7 @@
 
 ## 검사 목록·현재 결과
 - `ImplB5Checks`는 기존 B1 형식의 public static class / `public static async Task<string> Main()`이다. 실패는 예외, 성공은 `PASS n`. **현재 실행 결과는 없다.**
-- 불시착 2장수·병력0으로 새 게임을 만들며 비축더미/BuildingData를 검사에서 직접 생성한다. 자동저장을 끄고 임시 `SaveStorage.RootOverride`, 난수/설정을 finally에서 복원한다. 검사는 새 게임으로 현재 실행 상태를 바꾸므로 통합 검사 환경에서 실행할 것.
+- 불시착 2장수·병력 0으로 새 게임을 만들며 비축 더미/BuildingData를 검사에서 직접 생성한다. 자동저장을 끄고 임시 `SaveStorage.RootOverride`, 난수/설정을 finally에서 복원한다. 검사는 새 게임으로 현재 실행 상태를 바꾸므로 통합 검사 환경에서 실행할 것.
 - G05: 거리·보급식·무차량/무병력 출발·병력 식량·화물·왕복 시간.
 - G15: 중복 탑승 거부·복수 도보대·현지 합류·차량/비행기 1회 정원·접안 대기/해제.
 - G48: 기본 켜짐·편성별 off JSON·원정 제외(API). 실제 CommanderDuty 귀환 검사는 연결 후 필요.

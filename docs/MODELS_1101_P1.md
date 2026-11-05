@@ -18,7 +18,7 @@
 | DeepDrill/AdvancedDeepDrill/GasExtractor/OilDrill→OilDerrick | 파일 오류가 아닌 의도적 공용 모델 | 광물/합금/가스 채굴기의 구별 필요성 |
 | GasSmelter→Smelter, GasGenerator→SteamGenerator | 공용 외형 | 가스 설비 식별력·배관 위치 |
 | GasPipe→PipeL_Straight, GasTank→LiquidTank | 기존 유체 모델 재사용 | 기체/액체 구별 및 방향 |
-| QueenChamber→Stockpile | 시작 비축더미의 기존 표시 재사용 | 불시착 시작에는 비축더미가 없으므로 실물 존재 조건으로 확인 |
+| QueenChamber→Stockpile | 시작 비축 더미의 기존 표시 재사용 | 불시착 시작에는 비축 더미가 없으므로 실물 존재 조건으로 확인 |
 
 현재 사용자 지적은 **미해결/미재현**이다. '초가집 모델 수정 완료' 또는 '뒤집힘 해결'로 보고하지 않는다. Claude는 격리 Play에서 Hut/House를 실제로 완공하여 Data.kind·Resources.Load 대상·FacilityVisual.Model 계층의 회전/손실 스케일·렌더러 bounds를 확인하고 원본 FBX 프리뷰와 비교해야 한다. 가져오기 캐시와 기존 씬 인스턴스 차이도 확인한다. 필요하면 FBX/임포터를 고치되, 이번 정적 검사는 `.fbx.meta`의 `bakeAxisConversion:0`을 오류로 단정하지 않는다.
 

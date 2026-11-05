@@ -30,10 +30,10 @@
 - 무라마사 구현: 보유 장수가 공방에서 만든 걸작이 10% 확률로 "유일작"(EquipmentItem.unique, 저장은 기존 장비 직렬화). 유일작 효과는 미정이던 목록 대신 공통 규칙으로: 무기·갑옷·방패 효과 단계 +1, 장신구 효과 ×1.5 — 추천안 자동 선택(사용자 미확인).
 
 ## J1 병합 검증(2026-10-29)
-- J1 패치 원본 적용(README·보드 제외, 보드는 J1 완료 행만 추가). 오프라인 컴파일 0오류. Unity Play: Review1029DeliverySceneChecks 19, TradeGrowth1028 23, EconomyGrowth1028 21 통과.
+- J1 패치 원본 적용(README·보드 제외, 보드는 J1 완료 행만 추가). 오프라인 컴파일 0 오류. Unity Play: Review1029DeliverySceneChecks 19, TradeGrowth1028 23, EconomyGrowth1028 21 통과.
 - 버그 수정(기존 문제, J1 검사로 발견): 교역소가 설계도를 Special 150에 팔지만 해금 조건이 보스 D 반입이라 보스 D 전엔 돈만 사라지고, 보스 D 뒤엔 이미 자동 해금돼 살 수 없었다. 설계도는 보스 D 보상으로만 얻는 현재 기획(G 시리즈)에 맞춰 교역소 설계도 구매를 거부하고 이유를 표시(World/DiplomacyTrade.cs). 옛 기획의 '교역소 1곳 설계도 판매'는 폐기된 것으로 본다 — 추천안 자동 선택(사용자 미확인).
 
 ## J2 병합 검증(2026-10-29)
-- J2 패치를 원본에 반영(겹친 SaveDtos·SavePreflight·SaveSnapshot·GameMenuDiplomacy는 3-way 무충돌, OPERATIONS_100_STATUS는 행 소유권대로 해결). 오프라인 컴파일 0오류.
+- J2 패치를 원본에 반영(겹친 SaveDtos·SavePreflight·SaveSnapshot·GameMenuDiplomacy는 3-way 무충돌, OPERATIONS_100_STATUS는 행 소유권대로 해결). 오프라인 컴파일 0 오류.
 - J2 UI 연결 요청 처리: 월드맵 출정 계획 왕복 시간을 TravelSecondsTo(목적지)로(도보 진형·3띠 반영), 인재·편성 '진형' 탭을 기존 출전 편성(징집) 화면으로 연결.
 - Unity Play: Review1029CampaignRuntimeChecks 35(장수2명 격리 새 게임 래퍼 Temp/J2RuntimeAll.cs), Review1029ClaudeChecks 19, Review1029DeliverySceneChecks 19, SaveRoundtripChecks 57 통과.

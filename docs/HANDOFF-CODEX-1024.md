@@ -33,7 +33,7 @@
 - 커밋 제외: prefab, 씬, Water.mat, TimeManager, art, graphify-out, Planet Earth Free, Assets/Resources/WorldMap, Assets/Kiki.
 
 ## 그래픽 검사 결과 (Claude 실행, 2026-10-24 20:3x, kemono 적용 후)
-- FacilityVisualChecks: FAIL `start stockpile shows model` (53행) — 시작 비축더미 모델 표시 전제. 불시착 시작(G02·B10) 이후 비축더미 없음 → 검사 전제 확인 필요.
+- FacilityVisualChecks: FAIL `start stockpile shows model` (53행) — 시작 비축 더미 모델 표시 전제. 불시착 시작(G02·B10) 이후 비축 더미 없음 → 검사 전제 확인 필요.
 - BetaChecks: FAIL `all generated commanders use Quirky` (52행) — 개미 모델 전제. kemono 기준으로 검사 갱신 필요(사용자: 개미 관련 전부 제거).
 - AntWorkVisualChecks: NullReferenceException 23행 — 시작 상태 전제 확인 필요.
 - 사용자 지시(2026-10-24): **개미 관련 전부 제거**. 그래픽 쪽 담당: AntVisual·Corpse의 QuirkyAnt 대체 경로, Resources/QuirkyAnt.prefab·ThirdParty/Quirky Series 미사용 확인 후 제거 후보. UI 초상화는 Claude가 캐릭터 얼굴 렌더로 교체 중.

@@ -1,3 +1,5 @@
+> 작업 전에 [GAME_DIRECTION.md](GAME_DIRECTION.md)를 먼저 읽고, [구현 작업 현황](docs/IMPLEMENTATION_BOARD.md)에서 담당 범위를 확인한다.
+
 ## 작업 규칙
 
 - 새 세션 시작 시 `log.md`를 먼저 읽고, 거기서 연결한 인계 문서와 미완료 검사·미커밋 변경을 확인한 뒤 이어서 작업한다.

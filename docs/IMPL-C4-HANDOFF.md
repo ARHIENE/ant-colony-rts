@@ -26,7 +26,7 @@
 - docs/IMPLEMENTATION_BOARD.md, 이 인계 문서. graphify 생성물은 게임 변경 전달에서 제외.
 
 ## 저장
-- 버전 v19 유지. AirshipYard.State에 civilianPassengers/civilianYoung/civilianOld 추가. 기존 SaveBuildings.airship → CaptureState/RestoreState JSON 경로 재사용. 구저장 기본값0.
+- 버전 v19 유지. AirshipYard.State에 civilianPassengers/civilianYoung/civilianOld 추가. 기존 SaveBuildings.airship → CaptureState/RestoreState JSON 경로 재사용. 구저장 기본값 0.
 - Validate에서 시민 수·연령 부분합·단계·좌석 검사. RestoreState에서 장수 병력까지 더한 좌석을 재검사. 복원 때 이전 시민 승객을 다시 시민 풀에 지급하지 않음.
 - 승객의 연령 그룹(어린/성인/노년)은 보존하지만 개별 나이는 기존 시민 집계 방식으로 재배분. 장기간 탑승 중 노화는 미구현.
 
@@ -34,13 +34,13 @@
 1. **Save/SavePreflight.cs::ForFile의 rocket occupied seats 검사(기존 149행 인근)**: `b.airship.passengers.Sum(id => 1L + f.commanders[id].troopCount) + b.airship.civilianPassengers <= ...`로 시민 좌석도 포함할 것. 소유 밖 Save는 수정하지 않음. 현재 AirshipYard.RestoreState에서 차단하므로 초과 저장을 조기에 검증하는 연결이 필요.
 2. **전투/최종 공세 담당**: Core/RocketCampaign.AssaultTick의 실제 공세 생성기/강도 미리보기 연결은 B9 요청 그대로 남음. 빈 이벤트 구독으로 가동 제한을 우회하지 말 것. 실제 구독이 없으면 UI 가동 버튼은 계속 비활성이다.
 3. **UI/GameMenuCivicServices::CivicServices 및 목적지 입력 담당**: 대피 경로 목적지 선택→BeginCivilianEvacuation 연결은 B8 요청 그대로 남음. C4는 로켓 근처에 이미 도착한 그룹 탑승 버튼까지 연결. 로켓으로 순간이동/도착 전 반출 없음.
-4. **기획/연료 담당**: 잠정 정제유1/일과 G45 평가 단위를 확정할 것. 재산은 새 가중치를 발명하지 않고 기존 외교의 일반 자원1/특수10·장비 품질가격, 건물은 현재 건설비를 재사용. 결정문에 별도 재산 가격표가 없으므로 확정 가격표로 오인하지 말 것.
+4. **기획/연료 담당**: 잠정 정제유1/일과 G45 평가 단위를 확정할 것. 재산은 새 가중치를 발명하지 않고 기존 외교의 일반 자원 1/특수10·장비 품질가격, 건물은 현재 건설비를 재사용. 결정문에 별도 재산 가격표가 없으므로 확정 가격표로 오인하지 말 것.
 5. **엔딩/명부 담당**: 과거 명부에서 제거한 이탈자 ID 저장은 B9 요청 그대로 남음. 편입 지역 별도 시민 인구 필드는 현재 AnnexedSettlement에 없음. 향후 지역 시민 풀 도입 시 Total/CaptureOwned/CampaignOutcome 집계에 연결 필요(현재 주둔 명부는 전역 Assigned 참조이므로 더하지 않음).
 6. **Unity 통합 담당**: 신규 .cs.meta 생성, 컴파일 및 아래 검사/기존 B8·B9·SaveRoundtrip 회귀 실행. SAVE 요청 전 캡처/일지 작성 금지 유지.
 
 ## 검사 목록
 - ImplC4Checks.Main(): 임시 저장 루트/자동저장 끄기·복구, 1명 불시착 새 게임 시작 후 Run() 호출.
-- ImplC4Checks.Run(): 정적 진입점·문자열 반환, 검사 전용 1~2명 Play 세션용. 기존 비축더미를 찾지 않고 로켓/바닥 물자/자연 자원/수송 객체 직접 생성.
+- ImplC4Checks.Run(): 정적 진입점·문자열 반환, 검사 전용 1~2명 Play 세션용. 기존 비축 더미를 찾지 않고 로켓/바닥 물자/자연 자원/수송 객체 직접 생성.
 - 노년 정산 대기 중복 동원 차단·실제 추가 차출, 행정 반일 선형 소모, 목재/돌 실제 납세.
 - 바닥 실물/자연 매장량 구분, 목적지 예약 중복 제외, 수송 화물, 전역 Assigned/Reserved 인구, 관측 공급·시간가중 평균.
 - 연료 전량1회 결제/중복 차단, 실제 비축 요구량, 15일 준비.

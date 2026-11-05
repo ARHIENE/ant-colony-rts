@@ -6,9 +6,9 @@
 ## 구현 내용
 
 - `ScienceTechnology.UndergroundSurvey`를 enum/연구 배열 끝에 추가했다. 전기 4등급, 연구량 1500, 비용 200/200/30은 기존 ScienceDefinition/GameBalance 사용. 기존 번호 유지.
-- `BuildingKind.UndergroundScanner`: 강철60·구리20·부품6, 건설45초, PowerGrid.IUser 200W. BuildingData/기존 배치·예정지·확정 재료 배송 경로 재사용. 담당 장수 1명(식사·위생·오락·이동·전투 중 진행 중단), 연구 기술 배율 `0.6+0.04×연구`만 적용.
-- 본거지 및 각 원정 로컬 맵당 후보12(빈4·자원8). seed/map ID로 생성하고 후보 ID를 고정한다. 가까운 미조사 후보→동거리 ID 순, 여러 활성 탐사기의 예약 중복 제외. 후보별300 작업을 보존하므로 정전·담당 교체·해체·이동 뒤 재생성하지 않는다. 이동 시 전력망을 갱신하고 전력을 재확인한다.
-- 층은 3×3, 층당 자연 ResourceNode 하나로 잔량 공유. 철광석/구리광석/석탄400, 원유/가스600, 티타늄160, 성휘80. ConfigureNatural(..., regrow:0), 일반 손채집/지정으로 꺼낼 수 없다. 발견 시 창고 자원을 지급하지 않는다.
+- `BuildingKind.UndergroundScanner`: 강철 60·구리20·부품 6, 건설45초, PowerGrid.IUser 200W. BuildingData/기존 배치·예정지·확정 재료 배송 경로 재사용. 담당 장수 1명(식사·위생·오락·이동·전투 중 진행 중단), 연구 기술 배율 `0.6+0.04×연구`만 적용.
+- 본거지 및 각 원정 로컬 맵당 후보12(빈4·자원 8). seed/map ID로 생성하고 후보 ID를 고정한다. 가까운 미조사 후보→동거리 ID 순, 여러 활성 탐사기의 예약 중복 제외. 후보별300 작업을 보존하므로 정전·담당 교체·해체·이동 뒤 재생성하지 않는다. 이동 시 전력망을 갱신하고 전력을 재확인한다.
+- 층은 3×3, 층당 자연 ResourceNode 하나로 잔량 공유. 철광석/구리광석/석탄400, 원유/가스 600, 티타늄 160, 성휘80. ConfigureNatural(..., regrow:0), 일반 손채집/지정으로 꺼낼 수 없다. 발견 시 창고 자원을 지급하지 않는다.
 - 후보 완료 시 그 후보만 발견, 빈 후보도 영구 기록. 자원·좌표·잔량·필요 시설·표본 연구 필요를 알림에 표시. 게임시간1초 내 발견을 묶어 ToastManager.ShowAt 한 번, 버튼은 3×3 범위 강조 및 해당 로컬 맵/카메라 이동. 고갈은 층당1회.
 - SaveFileV1 **v19 유지**. `underground.present`로 누락/null→빈 객체와 새 데이터를 구분. 후보/발견/누적 작업/층 잔량/고갈 통지/대기 중 발견 알림·1초 타이머를 저장한다. 구저장은 원 시드로 최초 후보 생성. `surveyPresent`로 새 탐사기의 담당 장수/예약 후보를 저장하며 기존 CommanderOrder 복원 후 재연결한다. NaN/Infinity·범위 밖·후보 중복·중복 담당/예약 등은 preflight에서 거부한다.
 - 지하 노드는 일반 SaveCatalog/SaveSnapshot 노드 저장에서 제외하여 중복 생성하지 않는다. 일반 노드의 CanGather에는 캐시 bool만 추가해 반복 GetComponent 비용을 피했다.
@@ -67,8 +67,8 @@ Claude — UI 소유:
 - `ImplD08Checks.Main()`은 public static async Task<string>. SaveStorage.RootOverride를 임시 경로로 격리하고 자동저장 설정·Unity Random·Time.timeScale을 finally에서 복원한다. internal API는 reflection, 게임 타입은 AntColony 전체 이름 사용.
 - 검사 작성: 시드 동일성/후보12·4·8/자원총량/연구·건설비/연구0·10·20 배율/실제 전력망200W 소비·정전/동거리ID순/중복 배정·후보 예약/정전·일시정지·이동/진행·담당·예약 실제 save/load/발견 무지급/일반 채집 금지/표본 연구·3×3/공유 잔량/알림 묶음·대기 중 save/load/고갈 재통지 방지·왕복/누락 필드·빈 객체 구저장/잘못된 값 거부.
 - 오프라인 Roslyn: `E:/unity/6000.5.8f1/Editor/Data/NetCoreRuntime/dotnet.exe` + `DotNetSdk/sdk/8.0.318/Roslyn/bincore/csc.dll`. `E:/Git/ant/Library/Bee/artifacts/1900b0aE.dag`의 본체/Editor rsp 기반. 원본 소스/out/refout/analyzer/generatedfilesout 제외, 참조 절대경로화, worktree runtime 소스 재열거. worktree에 없는 기존 외부 소스는 Temp/f2/dependencies로 수정 없이 복사. 가짜 타입/스텁 없음.
-- `Temp/f2/a.rsp` → `Temp/f2/Assembly-CSharp.dll`: **exit0, 오류0**. 기존 BuildingConstructionSite.cs:33/109 CS0252 경고2건. 기존 obsolete CS0618 경고는 숨김.
-- `Temp/f2/check.rsp` → `Temp/f2/Checks.dll`: **exit0, 오류0**. 본체 출력 dll 참조, ImplD08Checks만 검사 소스로 포함. 재생성 방법은 `Temp/f2/compile.py`.
+- `Temp/f2/a.rsp` → `Temp/f2/Assembly-CSharp.dll`: **exit0, 오류 0**. 기존 BuildingConstructionSite.cs:33/109 CS0252 경고 2건. 기존 obsolete CS0618 경고는 숨김.
+- `Temp/f2/check.rsp` → `Temp/f2/Checks.dll`: **exit0, 오류 0**. 본체 출력 dll 참조, ImplD08Checks만 검사 소스로 포함. 재생성 방법은 `Temp/f2/compile.py`.
 - Unity 에디터/CLI 실행, 검사의 PASS, 실제 저장 왕복 성공, 모델/화면 검증은 **미수행**. 새 .cs.meta는 Unity 재개 시 생성 확인 필요.
 - 카카오 MemoChat 도구가 세션에 없어 완료 알림은 전송할 수 없었다.
 

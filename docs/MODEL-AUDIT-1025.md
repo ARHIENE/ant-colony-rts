@@ -30,7 +30,7 @@ Hut SHA-256: `7bd921cfc46085c7a4668ef15693b670f95546a70ec42ca861fd11bfc6a03317`.
 
 | 키 | FBX | 존재·출처 | 축 | 코드 보정 | 판정 | 수정 |
 |---|---|---|---|---|---|---|
-| QueenChamber | CC_Stockpile | F3 / resident | G; R=-90,0,0 | F | 정상: 삭제된 여왕방 enum을 비축더미로 재사용 | 공통 코드 |
+| QueenChamber | CC_Stockpile | F3 / resident | G; R=-90,0,0 | F | 정상: 삭제된 여왕방 enum을 비축 더미로 재사용 | 공통 코드 |
 | Barracks | CC_Barracks | F3 / resident | G; R=-90,0,0 | F | 연결 정상 | 공통 코드 |
 | Storage | CC_Storage | F3 / resident | G; R=-90,0,0 | F | 연결 정상 | 공통 코드 |
 | DigSite | — | 없음 | — | — | 의도적 제외: 미사용 DigSite, 기본 표시 유지 | 없음 |
@@ -574,6 +574,6 @@ Animator 정적 연결도 대조했다. 원본 KemonoAnimator의 90개 상태에
 - Unity 6000.5.8f1 내장 SDK 8.0.318 Roslyn, 원본 Bee `1900b0aE.dag/Assembly-CSharp.rsp`를 기반으로 소스/out/refout/analyzer/generatedfilesout 제거, 참조 절대경로화, worktree Assets runtime 소스 재열거. 무시 자산 `SpinFree.cs`만 원본에서 읽기 입력. **본체 346개 소스 컴파일 exit 0·오류 0**, 기존 BuildingConstructionSite.cs:33/109의 CS0252 경고 2개(관련 없는 코드, 미수정). obsolete CS0618 경고는 숨김.
 - Editor rsp의 기존 본체 참조를 새 DLL로 교체해 `FacilityVisualChecks.cs` + `Assets/_Project/Editor/KemonoImport.cs` **컴파일 exit 0·오류 0**. 재현용 입력/로그: `Temp/f3/compile.py`, `Assembly-CSharp.rsp/.log`, `Checks.rsp/.log` (무시 경로, 커밋 대상 아님).
 - 감사 재현 중간 파일: `Temp/f3/audit.py`, `assets.json`, `report.py`. **정적 컴파일 성공은 Unity 재생/시각 검사 성공이 아니다.** 캐릭터/도구 축, 현재 씬의 실제 fallback 사용 여부, 모델의 앞면 의미는 확인 필요.
-- production manifest의 자원311·작물82·장비18개 목록도 분류/이름 대조 자료로 읽었지만 Assets에 반입되지 않은 전체 제작 자산을 게임 연결 완료로 계산하지 않았다. 신규 자산 반입·기능 구현·FBX 변경은 이번 수정 범위 밖이다.
+- production manifest의 자원 311·작물82·장비18개 목록도 분류/이름 대조 자료로 읽었지만 Assets에 반입되지 않은 전체 제작 자산을 게임 연결 완료로 계산하지 않았다. 신규 자산 반입·기능 구현·FBX 변경은 이번 수정 범위 밖이다.
 - `git diff --check` 통과. 기존 수정 파일의 UTF-8(BOM 없음)·CRLF 유지. Graphify AST 갱신 exit 0: 9981 nodes/22783 edges/453 communities. 기존 431개 커뮤니티 라벨과 구조가 달라 허브 이름으로 대체했다는 경고가 있으며 LLM 라벨 재생성은 하지 않았다. graphify 출력/캐시는 자동 생성 변경으로 별도 유지한다.
 - 완료 알림용 카카오톡 MemoChat 도구가 이 세션에 없어 전송하지 못했다.

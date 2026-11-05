@@ -40,9 +40,9 @@
 | 30 | 중 | GameMenuSupplies: 분수 숫자의 분모 의미 불명확 | 소지 무게/한도 표기 | 구현 |
 | 31 | 중 | GameMenuTasks: 필요/예약/도착 중 예약이 별도 재고로 오인 | 예약+운반 중 합계는 배송 예정이라고 표기 | 구현 |
 | 32 | 중 | BuildScreen.MaterialLine: 자원 분수의 보유/필요 방향 불명확 | 보유 수/필요 수 명시 | 구현 |
-| 33 | 중 | DetailTabs.cs: 포상 비용 Food 30, 한 달 단위 혼용 | 식량30·정확한 냉각 시간/회복량 안내 | 미구현: 금지 파일 |
+| 33 | 중 | DetailTabs.cs: 포상 비용 Food 30, 한 달 단위 혼용 | 식량 30·정확한 냉각 시간/회복량 안내 | 미구현: 금지 파일 |
 | 34 | 중 | GameNotifications.cs: 도감 설명·범주·보스 이름이 영어 | 제목·설명·범주 화면 이름 번역, 키 유지 | 미구현: 금지 파일 |
-| 35 | 중 | WorldMapPanel.cs: 식50·식80 약어 | 식량50·식량80과 실제 건조비 대조 | 미구현: 금지 파일 |
+| 35 | 중 | WorldMapPanel.cs: 식50·식80 약어 | 식량 50·식량 80과 실제 건조비 대조 | 미구현: 금지 파일 |
 | 36 | 중 | CommanderEquipment.cs: 무기명 enum과 Bare mandibles 노출 | 장비 라벨의 한국어 함수 사용, 도감 키는 별도 유지 | 미구현: 금지 파일 |
 | 37 | 중 | GameMenuController.cs: 결과·뒤로·새 게임 버튼이 영어 | 표시 텍스트만 번역, ScreenName/버튼 이름 유지 | 미구현: 금지 파일 |
 | 38 | 상 | WorldMapMarker/WorldMapPanel: 거점 이름·세력·종류가 영어 | SiteNames.Name(site)와 표시용 세력/종류 이름 사용 | 미구현: 원본에만 SiteNames 존재·금지 파일 |

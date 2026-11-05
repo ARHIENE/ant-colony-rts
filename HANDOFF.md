@@ -1,4 +1,6 @@
-## 최신 중단 지점 — 2026-10-04 12:32 KST SAVE
+> 이전 작업의 인계 기록입니다(2026-10-04). 현재 진행 상황은 [log.md](log.md), 담당 범위는 [작업 현황](docs/IMPLEMENTATION_BOARD.md)을 확인하세요.
+
+## 당시 중단 지점 — 2026-10-04 12:32 KST SAVE
 - 이 문서 아래의 '26번째에서 중단'은 이전 기록이다. 기존 프로세스가 69개 모두 실행 완료했다(.unity/checks-2026-10-04/results.tsv의 DONE).
 - 최초 판정 42 통과 / 27 실패. LabUpgradeChecks는 TSV PASS와 달리 결과 문자열에 FAIL 2개. TransportRouteChecks 재실행 56 통과(transport-recheck.json), RegressionTriageChecks 23 통과(triage.json).
 - 이번 세션 게임 코드 수정 없음. 추가 검사 ResourceType 충돌을 namespace로 수정했고 TransportRouteChecks 실패 메시지에 Diagnose를 추가했다.

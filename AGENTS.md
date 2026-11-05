@@ -1,3 +1,5 @@
+> 작업 전에 [GAME_DIRECTION.md](GAME_DIRECTION.md)를 먼저 읽고, [구현 작업 현황](docs/IMPLEMENTATION_BOARD.md)에서 담당 범위를 확인한다.
+
 ## 복원 환경 (2026-11-05)
 
 - 프로젝트: F:\UnityProjects\ant-colony-rts, develop 브랜치.

@@ -1,7 +1,7 @@
 # 회귀 검사 정리 인계 — 2026-11-02
 
 - **지정한 8개 실패는 코드 대조상 낡은 픽스처·문구·기대값이다. 검사 8개를 수정했고 게임 코드는 수정하지 않았다.**
-- 전체 게임 소스515개+변경 검사8개 오프라인 Roslyn 컴파일 오류0. Unity 내 검사 실행은 하지 않아 통과/해결로 확정하지 않는다.
+- 전체 게임 소스515개+변경 검사 8개 오프라인 Roslyn 컴파일 오류 0. Unity 내 검사 실행은 하지 않아 통과/해결로 확정하지 않는다.
 - 별도 실제 문제: 웨이브 생성30회 실패 후 남은 예정 적을 삭제하고 정상 성공·원래 전체 마릿수로 기록한다. 아래 근거와 결정 필요 사항 참조.
 
 ## 작업 범위·보존
@@ -15,7 +15,7 @@
 | 검사 / 보고된 실패 | 판정·원인 / 현행 근거 | 변경·유지한 검증 |
 |---|---|---|
 | ImplB5Checks / G21 return keeps travel time | 낡음. TryReturn은 즉시 Returning이 아니라 현장 집결·탑승을 요청한다. ExpeditionTransport.cs:161,202~206; ExpeditionWithdraw.cs:107~115,277~297. docs/DECISIONS_1025_codex.md:122~129,188의 D06 A. | 승무원을 집결 지점으로 Warp하는 픽스처 추가. 반 승차시간 동안 Deployed+IsWithdrawing, 승차 완료 후 Returning+남은시간 양수, 귀환 시간 절반 후에도 Returning, 남은 절반 후 Home을 검사. 출발/귀환 구간의 소비 시간을 분리하고 현재 TravelRemainingSeconds를 사용. |
-| CampaignChecks / fill expanded command limit | 낡은 병역 인원 픽스처. Breed(100)은 모병5%=5명만 동원 가능하므로 지휘한도+장신구 한도를 다 채울 수 없다. CommanderAnt.cs:252~257, ColonyPopulation.cs의 PolicyRate, ColonyPopulation.Military.cs:10~25. docs/PLAY_CHECK_DECISIONS_1023.md:41; docs/NOTION_APPLY_1023_codex.md:855. | 지휘한도×20 이상의 성인을 마련하고 AvailableMilitary가 잔여 한도 이상인지 먼저 검사. 장신구 제거 후 초과 병력 보존·추가 편성 거부·장비 반환 검사는 그대로. 동원 제한을 우회하거나 끄지 않았다. |
+| CampaignChecks / fill expanded command limit | 낡은 병역 인원 픽스처. Breed(100)은 모병5%=5명만 동원 가능하므로 지휘 한도+장신구 한도를 다 채울 수 없다. CommanderAnt.cs:252~257, ColonyPopulation.cs의 PolicyRate, ColonyPopulation.Military.cs:10~25. docs/PLAY_CHECK_DECISIONS_1023.md:41; docs/NOTION_APPLY_1023_codex.md:855. | 지휘 한도×20 이상의 성인을 마련하고 AvailableMilitary가 잔여 한도 이상인지 먼저 검사. 장신구 제거 후 초과 병력 보존·추가 편성 거부·장비 반환 검사는 그대로. 동원 제한을 우회하거나 끄지 않았다. |
 | Spec1015Checks / start button for resin | 낡은 UI 문구. GameMenuResearch.cs:170~185는 내부 이름 Start Research, 표시 연구 지시/연구 재개. 이전 표시 이 연구 시작은 없다. 관련 파일 변경 이력 7113d6c(2026-11-01). | 내부 이름과 현행 한국어 문구로 버튼 선택. interactable·onClick·Resin 활성화·지불한 진행0 재개 검증은 그대로. |
 | SaveRoundtripChecks / QueenChamber 없음 | 낡은 시작 전제. CrashLandingStart.cs:29~35가 시작 시설을 제거하고 카탈로그 빈 자리를 보존한다. Stockpile.cs는 구 여왕방 GUID/종류 이름 호환용. SaveCatalog.cs:53, SaveBuildings.cs:103~104. docs/IMPL-B10-HANDOFF.md:67, CrashLandingStart 이력7113d6c. | 여왕방 존재 시 종전 왕복 경로 유지. 부재 시 여왕방이 재생성되지 않음을 검사. 파괴된 창고가 없으면 시작 시설의 Destroyed 빈 자리를 사용해 tombstone 보존 검사. 구 낚시 변환은 비활성 Stockpile 픽스처로 실제 SaveBuildings.Restore를 호출하고 구 종류 이름도 검사한 뒤, 변환 결과의 저장/로드 보존을 확인. 병력·연구·스킬·신규 병영·가시함정·적/자원·운송 검증은 삭제하지 않았다. |
 | PlayableLoopChecks / storage charges once | 낡음. 2026-10-12 예정지 배치→예약→실물 배송→시공 시작 규칙. BuildingPlacementController.cs:224~270, BuildingConstructionSite.cs:BeginPickup/Deliver/BeginWork. WorkerAnt.cs:125~158. | 시작 창고가 없으므로 검사 전용 Storage와 비용 재고를 준비하고 건설/운반 작업을 켬. 배송 재료는 Soil로 고정. 배치 직후 무차감→배송 후 시공 시작 때1회 차감→완공 때 추가 차감 없음 검사. 미완공 상한 불변·완공 상한 증가·시민 차출 없음·저장 후 상한 중복 없음은 유지. 창고 픽스처가 추가된 수/상한을 기준값에 포함. |
@@ -42,8 +42,8 @@
 - 게임 코드/기존 주석은 수정하지 않았다. Unity에서 Count 직접 호출로 값을 기록한 뒤 설명과 표기를 맞출 것.
 
 ## 검증·재실행 인계
-- 최종 오프라인 컴파일: 게임 소스515개+변경 검사8개, Unity6000.5.8f1 내장 Roslyn, Bee define/Unity DLL+Library/ScriptAssemblies 참조 사용.
-- 결과: exit0 / 오류0 / 경고54(기존 obsolete API·미사용 변수 등 포함). 출력은 프로젝트 밖 임시 폴더에만 작성.
+- 최종 오프라인 컴파일: 게임 소스515개+변경 검사 8개, Unity6000.5.8f1 내장 Roslyn, Bee define/Unity DLL+Library/ScriptAssemblies 참조 사용.
+- 결과: exit0 / 오류 0 / 경고 54(기존 obsolete API·미사용 변수 등 포함). 출력은 프로젝트 밖 임시 폴더에만 작성.
 - 로그: C:\TESTTEMP\ant-checks1102-6e7020f97da8457389ba685e1af58d1a\compile.log.
 - 변경8개 공백 검사 통과. 실행 검사는 미수행. 컴파일 성공을 Unity 회귀 통과로 해석하지 않는다.
 - Claude: 현재 플레이어 빌드/플레이 검증을 마친 뒤 최신 스크립트 리컴파일 → 각 검사 별도 실행. 새 게임/로드로 상태를 바꾸는 검사이므로 플레이 중인 판을 보존한 실행 환경에서만 할 것.
@@ -119,7 +119,7 @@
 
 - **보고된 실패는 낡은 귀환 픽스처다.** 접촉용 `contactShip.TryReturn()` 뒤 `Tick(TravelSeconds)` 한 번만 호출했다. 현행 `ExpeditionTransport.Tick`은 철수 작업 중이면 탑승 작업 뒤 return하므로 같은 호출로 이동까지 끝내지 않는다. collector는 `Transport != null`인 채 남고 `CommanderAnt.IsAwayFromHome`은 true다. 본거지의 새 차량은 원정 소유권이 남은 장수를 태울 수 없다.
 - 집결·실제 탑승·이동·본거지 하차를 완료하고 collector의 Transport null/본거지 복귀를 확인한 뒤 새 차량에 태운다. 새 탑승도 접수뿐 아니라 대기 지시 0과 실제 소유권 연결을 확인한다. 나머지 귀환 구간도 같은 완료 경로로 갱신했다. 인공 Tick은 보급 부채를 0으로 두고 한 번에 1초씩 진행한다(보급 규칙은 별도 G05 검사).
-- D06/D07 승인 근거: `docs/DECISIONS_1025_codex.md:122~134`, `docs/IMPL-E2-HANDOFF.md:46~53`. 현장에서는 승차/적재 완료 시점에만 탑승·화물로 확정하고 조종 장수가 있어야 출발한다. 따라서 함락 즉시 손의 화물이 실리고 승무원이 순간 귀환한다는 옛 전제를 물리 보존→직접 철수→실제 적재/귀환으로 바꿨다. 목재17·손의 흙3·수비자의 소수점 식량7.25 보존, 귀환 중복 지급 거부는 유지했다.
+- D06/D07 승인 근거: `docs/DECISIONS_1025_codex.md:122~134`, `docs/IMPL-E2-HANDOFF.md:46~53`. 현장에서는 승차/적재 완료 시점에만 탑승·화물로 확정하고 조종 장수가 있어야 출발한다. 따라서 함락 즉시 손의 화물이 실리고 승무원이 순간 귀환한다는 옛 전제를 물리 보존→직접 철수→실제 적재/귀환으로 바꿨다. 목재 17·손의 흙3·수비자의 소수점 식량 7.25 보존, 귀환 중복 지급 거부는 유지했다.
 - 현장 `DepositResources(Wood,17)`도 즉시 적재가 아니라 예약이다(`ExpeditionTransport.cs:248~264`). 예약과 실제 LoadSeconds 완료 후 17개 적재를 먼저 확인한다.
 - 재편성 전에 출전 보직을 명시한다. 현재 UI의 방어 대기/구출 문구로 고쳤고 방어 문구는 실제 `defense.Status`와도 같아야 한다. 네 번째 검사 장수 생성 성공을 명시적으로 검사한다.
 - 무인 차량 출발은 D07의 조종자 조건으로 폐기된 전제다(`TransportDamage.HasPilot`, `DepartureBlock`). 빈 차가 출발하지 않는 음성 검사를 남기고, 후속 목적지 함락 검사는 실제 조종자를 태운 차량으로 수행한다. 두 번째 포획 시에는 포획 확률1뿐 아니라 피해로 사망하지 않는 Gentle 상태를 해당 호출 동안만 설정하고 복구한다. 포획/탈출/구출/성장 보존/재탈환/포기 후 구조 검증은 유지했다.
@@ -143,12 +143,12 @@
 
 ### 별도 게임 UI 오류: 월드맵 과학 안내가 실제 규칙과 다름
 
-- `UI/WorldMapPanel.cs:146`의 건설 실패 문구는 시민60·낚시·2단계 병영을 요구한다. `:206`의 상태 문구도 식량100/재료100/시민8 및 항공 연구소3단계를 안내한다.
+- `UI/WorldMapPanel.cs:146`의 건설 실패 문구는 시민60·낚시·2단계 병영을 요구한다. `:206`의 상태 문구도 식량 100/재료100/시민8 및 항공 연구소3단계를 안내한다.
 - 현재 `ScienceLab.PrerequisitesMet`는 true이고 실제 기본 연구소 건설은 `EarlyConstruction.Cost`를 사용한다. Aircraft 연구는 CampaignResearch 정의에서 4등급/Gliding이 필요하다. 실행 조건과 화면 안내가 서로 달라 실제 플레이어에게 잘못된 준비 목표를 줄 수 있다.
 - 이 UI 불일치는 이번 `research starts once` assertion의 원인은 아니다. 검사 기대값으로 옛 문구를 승인하지 않고, 게임/UI 코드도 수정하지 않았다.
 
 ### 검증·남은 실행
 
-- 현재 전체 게임 소스515개 + 지정 검사2개 = 총517개, Unity6000.5.8f1 내장 Roslyn/Bee 참조·define: **exit0 / 오류0 / 경고49**. 로그: `C:\TESTTEMP\ant-checks1102-world-defense-e2j3xbcm\compile.log`.
+- 현재 전체 게임 소스515개 + 지정 검사 2개 = 총517개, Unity6000.5.8f1 내장 Roslyn/Bee 참조·define: **exit0 / 오류 0 / 경고 49**. 로그: `C:\TESTTEMP\ant-checks1102-world-defense-e2j3xbcm\compile.log`.
 - 두 검사 공백 검사 통과. 인계 문서의 기존 바이트 전체를 보존하고 이 절만 덧붙였다. 보호한 앞의 5개 검사의 내용 해시도 동일하다.
 - **Unity 실행은 하지 않았다.** WorldMap 전체 PASS는 미확인이고, SettlementDefense는 위 실제 회항 경로 회귀를 탐지하는 후반 실패가 남는다. 미검증/예상 실패를 해결 완료로 기록하지 않는다. 카카오톡 알림 도구는 이 세션에 없어 전송하지 못했다.

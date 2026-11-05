@@ -55,7 +55,7 @@ AgentScripts/ImplC5Checks.cs: `public static async Task<string> Run()` → 결�
 - 임시 SaveStorage.RootOverride, 자동저장 끄기, 설정·난수·배속 복원. Stockpile 가정 없음. 필요한 Storage/재배 화분/탱크/충전기는 검사에서 직접 생성.
 - 제련 기존 3개 인덱스 및 뒤 SupplyRecipes 순서 보존.
 - 13종 건설 항목 각 1개, 자연 수원/유전 메뉴 제외.
-- 전 바이옴 한랭/열대 복장, 1명 숲/2명 사막 불시착 실제 보온복·비축더미 없음.
+- 전 바이옴 한랭/열대 복장, 1명 숲/2명 사막 불시착 실제 보온복·비축 더미 없음.
 - 시작 야생 3개 접근 가능·작물 출처·개체별 종자 1회.
 - WorkTargetPanel 실제 명령 분기: 파종 1회 소비, 물 7 전량 바닥 반출, 정제유 10+드럼통 1 충전 1회(중복 호출 방지).
 - 월드맵 해금 전 Diplomacy에서 구매 버튼 접근, 방문 중 실제 UI 구매 2회 비용·바닥 공급 확인.

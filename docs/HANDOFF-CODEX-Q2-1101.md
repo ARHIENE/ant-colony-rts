@@ -26,7 +26,7 @@
 ## 검증
 
 - 제공 `offc.sh` 첫 실행은 기존 외부 `SpinFree` 타입 누락으로 실패했다. 같은 기준선의 P1 검증 방식 재사용: 원본 Bee rsp가 참조하지만 worktree에 없는 타사 소스43개를 **읽기 전용으로 로컬 rsp에만 추가**, 원본 파일은 수정하지 않고 전체 게임 재컴파일.
-- `powershell -NoProfile -ExecutionPolicy Bypass -File AgentScripts/Review1101Q2Compile.ps1 -OfflineChecks`로 재현. 게임 오류0, 검사 오류0. Q2 **135검사**, 기존 M1 **103**, L1 **76**, K1 **87**, N1 **25742** 통과. 원시 출력 `Temp/Q2-validation.txt`.
+- `powershell -NoProfile -ExecutionPolicy Bypass -File AgentScripts/Review1101Q2Compile.ps1 -OfflineChecks`로 재현. 게임 오류 0, 검사 오류 0. Q2 **135검사**, 기존 M1 **103**, L1 **76**, K1 **87**, N1 **25742** 통과. 원시 출력 `Temp/Q2-validation.txt`.
 - `Review1101Q2Checks.Main()`은 Unity 엔진 없이 가능한 모델·문구 검사를 실제 게임 DLL로 실행했다. 의료 작업/경로/창 동작을 실행 통과로 세지 않았다.
 - 최종 `graphify update .` 완료: **12527노드·29181간선·607커뮤니티**, AST만 갱신(LLM 비용0). 577개 이전 라벨에서 커뮤니티가 바뀌어231개 이름을 허브 기준으로 재명명했다는 경고가 있다. 문서 의미 그래프의 최신성까지 보장하지 않는다. 로그 `Temp/Q2-graphify-final.txt`.
 - `git diff --check` 및 권장 패치의 현재 사본 대상 `git apply --reverse --check` 통과. 원본의 Claude 동시 변경에 대한 무충돌 적용을 뜻하지 않는다.

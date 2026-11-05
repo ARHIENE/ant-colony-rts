@@ -30,7 +30,7 @@
 - 플레이 점검 결정 G01~G69 중 G26·G27 외 코드 연결(Codex B5~B10·C1~C6, 한도 중단분 Claude가 I1에서 통합). Claude 직접: G33·G06·G31·G39·G11·G42·G28·G30·G45·G16·G43·G69·G04·G26 측정 검사. 버그: 로켓 snapshot 로드 실패, 수송 커서 저장 거부, 최종 공세 장수 null, 건물 저장 키 순서, PowerGrid 재생성 등. 월드맵 행성 Planet Earth Free. 검사 20종 통과, C2~C6·Phase4 등은 메모리 부족으로 미실행 상태로 보고(→ 10-25 전부 통과). 커밋 eec134c.
 
 # 2026-10-24 SAVE 1(Claude+Codex) — 2026-10-24 SAVE 2 이관
-- 1단계 A2 시작 생존 완료, 2단계 Notion 14페이지 결정 반영, 3단계 G08 달력·G01·Codex B1~B4 코드 통합(B3 패치 git apply). 검사 Foundation 17·G01 7·B1 72 통과, B2 NullReference(비축더미 전제)·나머지 미실행 상태로 보고. Codex B5~B7 worktree 작업 시작. 커밋 1691729 develop push, 개발 일지 https://app.notion.com/p/402c4a0ecd3181949012de8382fb4747.
+- 1단계 A2 시작 생존 완료, 2단계 Notion 14페이지 결정 반영, 3단계 G08 달력·G01·Codex B1~B4 코드 통합(B3 패치 git apply). 검사 Foundation 17·G01 7·B1 72 통과, B2 NullReference(비축 더미 전제)·나머지 미실행 상태로 보고. Codex B5~B7 worktree 작업 시작. 커밋 1691729 develop push, 개발 일지 https://app.notion.com/p/402c4a0ecd3181949012de8382fb4747.
 
 # 2026-10-23 SAVE 2(Codex)·통합 SAVE — 2026-10-24 SAVE 이관
 - 지도·카메라·지형·날씨·HUD: 미니맵 높이 지도·클릭/드래그·수평 시야 테두리, 가장자리 이동 2배, 절벽 암반 텍스처, 셰이더 재임포트 회색 지면 SetTint 복구, 월드 이름표 HUD 겹침 숨김, 비/눈 입자 뷰포트 덮기. HudV6 17·MapHud 128·SeasonWeather 323·V6Layout 2070 통과. 날씨 실제 화면 검수(비·눈)는 미완.
@@ -159,7 +159,7 @@
 # 2026-10-03 SAVE — 이전 로그(2026-10-01 SAVE 미완료 + 2026-10-02 Phase 3~6) 이관
 - 10-01: Phase 2(Soil 표시 → 단일 자원 '재료', Soil enum·직렬화 유지), 낚시를 과학 1티어로 이전(식량 50·재료 50·연구량 300, Fishing=30), 패배 = 활동 가능한 장수 0명. HUD v3(상단 메뉴 ≡/작업표/과학/월드맵/기록, 인원수→장수 관리, 월드맵 내부 외교, 평시 2×2 명령, 초상 클릭 상세). 검증 Phase2 15·Commander 34·SaveRoundtrip 50·HUD 39·Tooltip 151 등. Notion 기획 8개·일지 5개 반영. 일지·커밋·push는 미완료였음.
 - 10-02 Phase 3: 충성심 삭제 → 한 달짜리 기분 요인, 기분 기준 이하 한 달 → 탈주·반란. 포로 회유는 기분·피로 기반.
-- 10-02 Phase 4: ColonyPopulation(어린·성체·늙은 개미), 세금(유지비 대신 30초마다 Food), 민심, 이주 수요, 병역 제도 4종, 주거 Hut/House/Apartment, 장수 나이, 여왕방 → 비축더미(GUID·저장 kind 유지), 기생 말벌 비활성, 이주 개미떼 합류 제안. 저장 v12. 인구 창.
+- 10-02 Phase 4: ColonyPopulation(어린·성체·늙은 개미), 세금(유지비 대신 30초마다 Food), 민심, 이주 수요, 병역 제도 4종, 주거 Hut/House/Apartment, 장수 나이, 여왕방 → 비축 더미(GUID·저장 kind 유지), 기생 말벌 비활성, 이주 개미떼 합류 제안. 저장 v12. 인구 창.
 - 10-02 Phase 5: RoomSystem(1m 격자 방 판정·등급), 자동 지붕, 벽·문·성문, 같은 종류 방 작업 +15%, 성벽 방어 +2. Phase 6: 사막·동굴 바이옴, 새 게임 바이옴 선택, 월드맵 거점 바이옴.
 - 10-02 검증: Phase2 13·Phase3 17·Phase4 36·Phase5 21·Phase6 213·HUD 39·Stage5 122·Corpse 86·DayNight 37·Stage4 123·CommanderStatus 37·SaveRoundtrip 48·Commander 33·Meal 347·Stage1 130·Tooltip 151·CommanderEdge 24·PlayableLoop 46·Joy 45·NightThreat 16·Biome 22 통과. 기존 실패(변경 무관 판단): Stage2(실시간 대기 수확량), Infirmary(간호 절반 속도 이전 기대값), CommanderAcquisition(성격 유전 확률), Campaign(CommandStop 후 연구자 해제), WorldMap(배치 시 개미 예약).
 - 10-02 Notion: 장수·유닛, 자원, 건물, 맵·진행, 미정, 상위 콘셉트, 메인 게임 화면 구체화 'Phase 3·4 구현'·'Phase 5·6 구현' 반영.
@@ -835,7 +835,7 @@
 
 ## 2026-10-26 — 이전 SAVE 요약(2026-10-27 이관)
 - Claude H1/H2·E1/E2와 Codex E/F/G 변경을 대조해 진형/출전·실물 수송/철수/수리·설정/선택·날씨·모델/공통 애니메이션/초상·특성 칩을 통합했다. 자세한 근거는 `docs/SAVE_AUDIT_20261026.md`.
-- 애니메이션 전체 정지의 리그/회전/컬링 원인과 도착거리0 고착, 운반 반복, 바이옴·기후·계절 연출을 수정·검사했다. 실제 잎 채집/후보 특성/원정 화면3장 확인·Notion 두 일지 작성.
+- 애니메이션 전체 정지의 리그/회전/컬링 원인과 도착거리0 고착, 운반 반복, 바이옴·기후·계절 연출을 수정·검사했다. 실제 잎 채집/후보 특성/원정 화면 3장 확인·Notion 두 일지 작성.
 - F1 평가·외부 조사/F2 지하 탐사는 당시 사본으로 미통합 보존했고, 10월27일 후속 작업에서 통합했다. 성능/추가 채취 방식·Player 빌드·전 화면 검수는 보류/미완이었다.
 - 코드 커밋 `36fc08a903de853cec294f1cf0efad957e5ff02a` 및 후속 기록 커밋 `8648bef2`가 origin/develop에 반영됐다. 기존 Codex 내부 bad object 참조 때문에 자동 repack 오류가 있었으나 커밋/push 자체는 성공했다.
 - 이전 로그 원문은 `work/save-20261027/log-before-save.md`에 보존했다. 당시 종료 요청은 만료·후속 작업으로 취소됐다.
@@ -846,10 +846,10 @@
 
 # 2026-10-28 SAVE 1 — 2026-10-28 후속 SAVE 이관
 - 7812eab 구현129파일 및 후속 기록 a38a105까지 develop 원격 보존. 정유 담당/고갈 채굴기 이전·용기 충전/배출6모드·화학 플라스틱·자원 모델6개/57종 검증. Food96 이전 단계의 검사/잠정 배합/남은 항목은 당시 SAVE 감사 참조.
-- 실제 자원·화학·용기·정유·작업 관리 화면5장 검수/Notion 첨부. Graphify16164/34979, 당시 Player/성능 미검증. 일지406c4a0ecd31811a9dd2c269e43fc098 / Trouble406c4a0ecd3181fb9a72e5211e09bd53.
+- 실제 자원·화학·용기·정유·작업 관리 화면 5장 검수/Notion 첨부. Graphify16164/34979, 당시 Player/성능 미검증. 일지406c4a0ecd31811a9dd2c269e43fc098 / Trouble406c4a0ecd3181fb9a72e5211e09bd53.
 - 당시 종료 요청은00:41~01:41 KST만 유효했으며 후속 작업으로 취소됐다. 이전 원문은 work/save-20261028-followup/log-before-save.md, 기존 docs/SAVE_AUDIT_20261028.md 유지.
 
 # 2026-10-28 후속 SAVE — 2026-10-29 이관
-- f12e6ba 구현498개·a69f9a3 기록 origin/develop 보존. 자원75/저장20·제분/착유/양조/증류/고무와 숯/코크스/도자기, 낚시터/원정 지형·공통 애니메이션88개 단위/지면·설정/이동표시·1차 최적화. 화면7장 및 당일 Notion 기록 완료.
-- FoodIndustry96·구19호환6·화학48/상위산업52/자동저장20 등 통과, 일반 빌드 build_39682295663e 오류0/경고33. 동일 조건 개발 Player88→99FPS는 이후 확장/대규모 성능이 아님.
+- f12e6ba 구현498개·a69f9a3 기록 origin/develop 보존. 자원 75/저장20·제분/착유/양조/증류/고무와 숯/코크스/도자기, 낚시터/원정 지형·공통 애니메이션88개 단위/지면·설정/이동표시·1차 최적화. 화면 7장 및 당일 Notion 기록 완료.
+- FoodIndustry96·구19호환6·화학48/상위산업52/자동저장20 등 통과, 일반 빌드 build_39682295663e 오류 0/경고 33. 동일 조건 개발 Player88→99FPS는 이후 확장/대규모 성능이 아님.
 - 전체식품/음주/전용소품·유출/전면육안/장기성능 미완·보류 유지. 이전 로그 원문 work/save-20261029/log-before-save.md. 다음 구현은 최신 log와100행 상태표 참조.

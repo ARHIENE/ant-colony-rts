@@ -6,9 +6,9 @@
 
 | P3 번호 | 판정 | 수정·확인 |
 | --- | --- | --- |
-| 33 포상 | 구현 | DetailTabs: 식량30, 실제 기분8/15/3, 효과·재사용 각300초=2일. 실패 시 명령/본거지 조건 표시 |
+| 33 포상 | 구현 | DetailTabs: 식량 30, 실제 기분8/15/3, 효과·재사용 각300초=2일. 실패 시 명령/본거지 조건 표시 |
 | 34 도감 | 기준선 확인+보완 | GameNotifications는 이미 한국어 제목/본문이며 키 유지 확인. GameMenuController 범주 화면 변환, 이미 저장된 알려진 영어 도감만 읽을 때 번역(PersonalDisplayNames). 구원문·키·범주 저장값 불변 |
-| 35 건조 비용 | 구현 | WorldMapPanel: 식량50/재료60, 식량80/재료100. TransportDamage/ScienceLab 실제 비용 대조. 버튼 ID 유지 |
+| 35 건조 비용 | 구현 | WorldMapPanel: 식량 50/재료60, 식량 80/재료100. TransportDamage/ScienceLab 실제 비용 대조. 버튼 ID 유지 |
 | 36 무기 | 기준선 확인+공유 보완 | 기존 WeaponName은 한국어, WeaponLabel은 도감 키에서만 사용. WeaponDisplayName으로 기존 switch를 공유하여 구도감도 같은 함수 사용. Bare mandibles 키 유지 |
 | 37 결과 버튼 | 구현 | Continue Colony/Load Game/New Game/Back 등 GameObject 이름 그대로, 자식 Text만 한국어. 이미 한국어인 Restart/Restart Same Map 표시 유지 |
 | 38 거점 | 기준선 확인+보완 | 기존 SiteNames.Name/Faction 재사용. 원정 박스·마커 생성 라벨/툴팁·외교 산업 툴팁 연결. 단독 Independent도 독립 표시. site.Title 키·마커 ID 유지. 수송수단 기본 이름 Vehicle/Aircraft도 표시만 차량/비행기로 변환 |
@@ -39,12 +39,12 @@
 
 ## 검증
 
-- 사용자 지정 offc.sh: 전체 게임 Roslyn **오류0**. offcheck.sh: Q1/P3/ImplB6 검사 DLL **오류0**.
+- 사용자 지정 offc.sh: 전체 게임 Roslyn **오류 0**. offcheck.sh: Q1/P3/ImplB6 검사 DLL **오류 0**.
 - Unity6000.5.8f1 내장 .NET8 호스트에서 Q1 **86** / 기존 P3 **285** 통과. 현재 필드만 읽는 수송 계획 검사(정상41초·손상54.333초·감속 남은40초·운행 불가), 구도감 읽기 변환/원문 보존, 부분 보급 경계, 정전600초 경계·배상 방향,4보스 미회수→운송→반입·재등장 대기 검사 포함.
 - `Review1101Q1Checks.Main()` / `RunQ1Scene()`은 public static async Task<string>. internal 경로는 리플렉션, 게임 타입은 AntColony 전체 이름. Main의 가짜 Unity 객체는 엔진 객체를 만들지 않고 필드 기반 계산만 검사한다.
 - `RunQ1Scene()` **컴파일만 완료, 미실행**. 시작 완료 격리 Play에서 실제 수송 컴포넌트의 출정 불가 판정/실속도 예산·화물/화면 버튼을 읽는다. 성공 출정을 강제로 실행하거나 게임을 초기화하지 않으므로 실제 출정→전투→귀환은 아래 수동 확인 필요.
 - 원시 로그: `Temp/off/out.txt`, `cout.txt`. 요약: `docs/validation/Q1-1101-offline.txt`. 오프라인 호스트 `Temp/off/RunQ1.ps1`는 임시 산출물이며 패치에서 제외.
-- 처음 offc는 worktree에 없는 외부 `Assets/Planet Earth Free/SpinFree.cs` 및 새 코드 GetInstanceID 금지 API 때문에 실패했다. 원본 외부 소스를 Q1에 임시 읽기 복사하고 GetEntityId로 수정한 최종 결과가 오류0이다. 임시 외부 소스는 패치에서 제외·제거했다. 기존 obsolete 경고는 유지.
+- 처음 offc는 worktree에 없는 외부 `Assets/Planet Earth Free/SpinFree.cs` 및 새 코드 GetInstanceID 금지 API 때문에 실패했다. 원본 외부 소스를 Q1에 임시 읽기 복사하고 GetEntityId로 수정한 최종 결과가 오류 0이다. 임시 외부 소스는 패치에서 제외·제거했다. 기존 obsolete 경고는 유지.
 
 재현(Git Bash, 원본은 읽기만):
 

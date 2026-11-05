@@ -31,8 +31,8 @@
 
 ## 검증
 
-- 사용자 지정 `offc.sh E:/Git/ant-wt/R1`: **exit0, 오류0**. 첫 실행은 worktree에 없는 타사 `SpinFree` 때문에 실패. 원본 `Assets/Planet Earth Free/SpinFree.cs`를 R1 동일 경로에 검증용으로 읽기 복사한 뒤 같은 명령으로 통과.
-- 후속 로컬 응답 파일에는 나머지 누락 타사 소스42개를 원본 읽기 참조로 추가해 전체 게임 재컴파일 **오류0**. 검사 DLL/오프라인 실행 호스트도 **오류0**.
+- 사용자 지정 `offc.sh E:/Git/ant-wt/R1`: **exit0, 오류 0**. 첫 실행은 worktree에 없는 타사 `SpinFree` 때문에 실패. 원본 `Assets/Planet Earth Free/SpinFree.cs`를 R1 동일 경로에 검증용으로 읽기 복사한 뒤 같은 명령으로 통과.
+- 후속 로컬 응답 파일에는 나머지 누락 타사 소스42개를 원본 읽기 참조로 추가해 전체 게임 재컴파일 **오류 0**. 검사 DLL/오프라인 실행 호스트도 **오류 0**.
 - 실제 오프라인 실행: **Q1 86 / Q2 135 / R1 3 통과**. R1 검사는 B/C/D 위험 안내의 열 피해를 실제 규칙과 비교한다. UI 입력·수면·수술·경로의 Unity 실행 통과를 뜻하지 않는다.
 - 로그: `Temp/R1-validation.txt`, `Temp/off/out.txt`, `Temp/off/cout.txt`. 재현: `powershell -NoProfile -ExecutionPolicy Bypass -File Temp/Review1101R1Compile.ps1 -OfflineChecks`.
 - `git diff --check`, 수정 전용 패치의 `git apply --reverse --check` 통과. Graphify AST 갱신 완료: 12,576노드 / 29,348간선 / 564커뮤니티. 커뮤니티 변경으로 335개 라벨을 허브 이름으로 자동 변경했다는 경고가 있으며 LLM 재라벨링은 하지 않았다. 로그 `Temp/R1-graphify.txt`.

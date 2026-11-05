@@ -38,7 +38,7 @@
 명령: `powershell -NoProfile -ExecutionPolicy Bypass -File AgentScripts/Review1031M2Compile.ps1 -OfflineChecks`
 
 - L2 컴파일 스크립트 방식 재사용. M2 경로 가드, 원본 Bee 참조 옵션 읽기, 게임 소스 전체 재나열. 외부 demo43소스는 원본을 읽어 M2 Temp로 복사했다. Unity Editor/CLI는 호출하지 않았다.
-- 게임 DLL·Editor 검사 DLL·오프라인 실행 호스트 **컴파일 오류0**. 기존 사용 중단 API/비교 경고 및 검사 FormatterServices 경고는 남는다.
+- 게임 DLL·Editor 검사 DLL·오프라인 실행 호스트 **컴파일 오류 0**. 기존 사용 중단 API/비교 경고 및 검사 FormatterServices 경고는 남는다.
 - **M2 99, L1 70, L2 97 검사 통과**. 수정하지 않은 기존 L1/L2 검사 소스를 같은 M2 게임 DLL로 실행했다. 별도 Temp 사본의 경로 검사 교체는 필요하지 않았다.
 - 추가 회귀: K1 87, K2 107, 보스/원정38, 최종/포로31 통과. 수를 합산한 단일 기능 커버리지로 해석하지 않는다.
 - 증거: `docs/validation/M2-1031-offline.txt`. rsp·DLL·호스트는 `Temp/Review1031M2/`. 오프라인 검사는 Unity Play 또는 Player 빌드 성공 증거가 아니다.
@@ -64,6 +64,6 @@
 - 순번: 수비 장수의 기존 `Commander N`, 편입지 침공대의 `Invader N`을 0부터 시작하는 생성 순번으로 사용한다. `LocalIncursions`의 세력 방문대도 기존 이름 필드에 `침공군 N`을 기록해 앞 멤버 사망 뒤에도 순번을 유지한다. 저장 필드는 늘리지 않는다. 번호 없는 구저장 방문대는 저장 키의 숫자 순서로 세력별 집계하고 마지막 장수에서 파동을 구분한다. 이미 사라진 번호 없는 멤버의 원래 순번은 구저장에 남아 있지 않다.
 - 현장 생성: `ExpeditionSite.MilitaryEra`에서 해당 현장의 현재 `Faction.era`를 조회해 수비대를 생성한다. 외교 관리자나 현장 세력이 없으면 1시대를 사용한다.
 - 회귀 검사: `Review1031M2Checks.cs`에 1~6시대 편성 복구·0/70/175/220 체력 보존·공격 수치/역할/재능·두 자리 생성 번호·방문대 파동/생존자·제외 대상·현장 시대/승급/세력 없음 검사를 추가했다. `RunScene`에는 격리된 수비대·침공대·방문대를 실제 `RestoreMonsters`로 복원해 체력·역할·타이머를 대조하고 참조/싱글턴/방문 목록을 되돌리는 검사를 추가했다.
-- 검증: `Review1031M2Compile.ps1 -OfflineChecks` 통과. 게임·Editor 검사·오프라인 호스트 컴파일 오류0. M2 **298**, L1 **70**, L2 **97**, K1 **87**, K2 **107**, 보스 **38**, 최종 **31** 통과. 기존 obsolete/FormatterServices 경고 유지. 로그: `Temp/Review1031M2/review-fixes-offline.txt`.
+- 검증: `Review1031M2Compile.ps1 -OfflineChecks` 통과. 게임·Editor 검사·오프라인 호스트 컴파일 오류 0. M2 **298**, L1 **70**, L2 **97**, K1 **87**, K2 **107**, 보스 **38**, 최종 **31** 통과. 기존 obsolete/FormatterServices 경고 유지. 로그: `Temp/Review1031M2/review-fixes-offline.txt`.
 - `git diff --check` 통과. Graphify AST 갱신 완료(LLM0): 12139노드/28298간선/540커뮤니티. 기존 라벨과 커뮤니티가 달라 237개 라벨을 허브 이름으로 대체했다는 경고가 남는다.
 - 실행 잔여: 새 `RunScene` 검사는 컴파일만 확인했고 실행하지 않았다. 실제 Unity 저장 왕복·NavMesh·화면 검증 완료를 의미하지 않는다.

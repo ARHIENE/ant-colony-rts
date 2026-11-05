@@ -31,10 +31,10 @@ Q1 후속: 아래 금지 파일 잔여 번역 제안 및 GAMEFEEL 33~40은 Q1에
 ## 검사와 남은 검증
 
 - 공식 Editor/CLI를 호출하지 않고 사용자 제공 offc.sh·offcheck.sh의 Roslyn만 사용했다.
-- 전체 게임 컴파일: **오류0**. 원본의 `Assets/Planet Earth Free/SpinFree.cs`가 worktree에 빠져 최초 컴파일이 실패했다. 검사 중 동일 파일을 worktree에 임시 복사했으며 패치에서는 제외한다. 원본에는 해당 파일이 있으므로 통합 시 추가하지 않는다.
-- 신규 진입점: `public static async Task<string> Main()` / `RunP3Scene()`. enum·자원·특성·버튼·구저장 수송/슬롯·저장 오류·단축키 표시 285검사. 내부 ActionName은 리플렉션, AntColony 타입은 완전수식명.
+- 전체 게임 컴파일: **오류 0**. 원본의 `Assets/Planet Earth Free/SpinFree.cs`가 worktree에 빠져 최초 컴파일이 실패했다. 검사 중 동일 파일을 worktree에 임시 복사했으며 패치에서는 제외한다. 원본에는 해당 파일이 있으므로 통합 시 추가하지 않는다.
+- 신규 진입점: `public static async Task<string> Main()` / `RunP3Scene()`. enum·자원·특성·버튼·구저장 수송/슬롯·저장 오류·단축키 표시 285 검사. 내부 ActionName은 리플렉션, AntColony 타입은 완전수식명.
 - 실제 오프라인 실행: **P3 285 / L1 76 / M1 103 / N2 77 통과**. 새 표시 helper와 구저장 표시 값을 검사하며 Unity 네이티브 기능·전체 save/load 성공으로 해석하지 않는다. 원시 컴파일 출력은 `Temp/off/out.txt`, 검사 컴파일 `Temp/off/cout.txt`, 검사 재현 명령은 아래에 기록.
-- 신규 검사 및 Review1031L1/M1/N2·AcquisitionBuilding·ImplC6 검사 DLL 컴파일 오류0.
+- 신규 검사 및 Review1031L1/M1/N2·AcquisitionBuilding·ImplC6 검사 DLL 컴파일 오류 0.
 - Stage2Checks는 표시 기대값을 갱신했으나 **기존 Infirmary.CanRegenerate/TryRegenerate API 제거에 따른 CS1061 두 건** 때문에 파일 전체 컴파일 불가. 이 unrelated 의료 로직은 수정하지 않았다. Stage2 성공으로 보고하지 않음.
 - Unity/실제 저장 복원/새 게임·기존 게임 전체 화면/Player 빌드는 미실행. OS·Unity가 생성하는 예외 원문, 사용자 이름·과거 기록 원문은 임의 변환하지 않으므로 영어가 포함될 수 있다.
 

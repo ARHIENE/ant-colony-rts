@@ -20,8 +20,8 @@
 ## 검증·제한
 
 - Unity 실행·캡처·커밋·SAVE·원본 수정 없음. 금지 파일·prefab 변경 없음.
-- offc.sh 단독 최초 실행: worktree에 없는 외부 `SpinFree` 때문에 실패. 기존 Q2 검증 방식처럼 로컬 Temp 응답 파일에 원본 외부 소스43개를 읽기 전용 참조한 전체 게임 컴파일 및 검사 스크립트 컴파일은 오류0. 기존 경고 유지.
-- 실제 .NET 오프라인 `Review1101S3Checks.Main()` 17검사 통과: 빈 구저장·구기록·동명이인·개명·최신5 역순·압축 보존/집계/재압축·관계 문턱·배우자·겁쟁이·표시 제한·기존 개요 보존.
+- offc.sh 단독 최초 실행: worktree에 없는 외부 `SpinFree` 때문에 실패. 기존 Q2 검증 방식처럼 로컬 Temp 응답 파일에 원본 외부 소스43개를 읽기 전용 참조한 전체 게임 컴파일 및 검사 스크립트 컴파일은 오류 0. 기존 경고 유지.
+- 실제 .NET 오프라인 `Review1101S3Checks.Main()` 17 검사 통과: 빈 구저장·구기록·동명이인·개명·최신5 역순·압축 보존/집계/재압축·관계 문턱·배우자·겁쟁이·표시 제한·기존 개요 보존.
 - 저장 필드 추가 없음. 기존 SaveDtos.history→SaveSnapshot.Capture/Restore→SavePreflight CampaignHistory.Validate 경로 확인. Unity JsonUtility 실제 save/load 왕복은 미실행.
 - 카카오톡 도구 검색 결과 사용 가능한 MemoChat 도구 없음. 완료 알림 전송 못함.
 

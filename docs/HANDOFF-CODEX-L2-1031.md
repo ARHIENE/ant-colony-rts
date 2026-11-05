@@ -36,7 +36,7 @@
 명령: `powershell -NoProfile -ExecutionPolicy Bypass -File AgentScripts/Review1031L2Compile.ps1 -OfflineChecks`
 
 - 원본 Bee rsp의 참조 옵션을 읽어 L2 게임 소스를 전부 재나열해 Unity6000.5.8f1 Roslyn으로 컴파일. 원본에만 있는 외부 아트/demo43소스는 L2 Temp로 복사해 사용(원본 쓰기 없음).
-- 게임 DLL·별도 Editor 검사 DLL·오프라인 실행 호스트 **컴파일 오류0**. 기존 API/참조비교 경고32, 오프라인 FormatterServices 경고3은 남는다.
+- 게임 DLL·별도 Editor 검사 DLL·오프라인 실행 호스트 **컴파일 오류 0**. 기존 API/참조비교 경고 32, 오프라인 FormatterServices 경고 3은 남는다.
 - 실제 L2 게임 DLL로 L2 **97**, K1 **87**, K2 **107**, 보스/원정 **38**, 최종/포로 **31** 검사 통과. 합계360이지만 기능별 검증 범위는 서로 중첩된다.
 - 로그: `docs/validation/L2-1031-offline.txt`. rsp·DLL·실행호스트: `Temp/Review1031L2/`. Unity 플레이·Player 빌드 성공 증거가 아니다.
 - `Review1031L2Checks.RunScene()` 진입점: 격리된 새 게임 Play에서 실제 Capture→JSON→TryParse→Restore→Preflight 및 AI/보스/집계 비교, finally로 이전 스냅샷 복원. **미실행·실행 잔여**. 실행 시 현재 씬을 재구성하므로 통합 담당자의 격리 장면에서만 호출한다. 위 표의 실제 기능 시나리오는 별도 수동 확인해야 한다.

@@ -8,7 +8,7 @@
 | --- | --- | --- | --- |
 | L1 실물/전용 시대 승급 | M1 통합본에 이미 구현. 차량/비행기 반복 관문 없음 확인 | Core/EraPromotionResearch, Buildings/ScienceLabUpgrades | 현재등급에서 선행 전부 완료 가능·기존49연구 순환 검사. M1 103·L1 76 재통과 |
 | M1 성휘 공급 | N1 최소161→80×3층 재사용. 치환 후 필수 산업 입력까지 보완 | World/StellarSupply | 신규 본거지 성휘≥240·티타늄≥320·원유/가스≥600. 7바이옴×3반경×128시드, ID·12층/빈4·저장 유효성·멱등 검사. 기존 저장 충전 없음 |
-| 생산 밸런스 | 실제 하위 제조법까지 계산. 고급 배합/승급 비용 유지, 일반 부품 직접 생산 추가 | Buildings/Processor, Processor.Planning(신규) | 부품12번 추가로 기존0~11 보존. 전체 승급 작업21540=359분. 희귀 원료·시설 수지는 결정 문서. 장기 플레이는 미실행 |
+| 생산 밸런스 | 실제 하위 제조법까지 계산. 고급 배합/승급 비용 유지, 일반 부품 직접 생산 추가 | Buildings/Processor, Processor.Planning(신규) | 부품 12번 추가로 기존0~11 보존. 전체 승급 작업21540=359분. 희귀 원료·시설 수지는 결정 문서. 장기 플레이는 미실행 |
 | 빈3·5시대 | 경제/생활 연구4종 재배치 | Core/CampaignResearch | 고급 작물/치수3, 보온/부위 재생5. ID/완료/기존 지불액 유지. 진행·보류는 새 작업 목표까지 계속. 군사/AI 전체 재배치는 P2 요청 |
 | 노년 병역 | 집계 모델 유지·화면 이중 집계 수정·실동원 진입점 준비 | UI/GameMenuPopulation, Review1101P1Checks.RunP1Scene | Main 순수 군역·자연사 검사. RunP1Scene 편입5→귀환3→전사2 검사 **미실행**. 과거 성체화된 노년 소급 추정 불가 |
 | 비전투 다이아8종 | 기존 실제 호출 경로 확인. 효과 누락 없음 | 아래 연결표·Review1101P1Checks | 컴파일된 실제 DLL의 IL 호출 간선+75%/단독 담당/확률/운반 묶음 경계 검사. K1 87·N1 25742 재통과. 실장면 효과·저장 복원은 별도 |
@@ -32,9 +32,9 @@
 
 `powershell -NoProfile -ExecutionPolicy Bypass -File AgentScripts/Review1101P1Compile.ps1 -OfflineChecks`
 
-- 게임 Roslyn 오류0, 검사 Roslyn 오류0, 오프라인 실행 호스트 오류0.
+- 게임 Roslyn 오류 0, 검사 Roslyn 오류 0, 오프라인 실행 호스트 오류 0.
 - P1 **21584**, M1 **103**, L1 **76**, K1 **87**, N1 **25742** 통과. 같은 동작을 중첩 검사하므로 단일 기능 커버리지 합계로 해석하지 않는다.
-- 지정 offc.sh는 worktree에 없는 외부 art/demo43소스를 생략하여 SpinFree 참조 오류가 났다. P1Compile은 **P1 Temp/off/a.rsp만** 보완하여 해당 외부 원본 소스를 읽기 참조한 뒤 같은6000.5.8f1 Roslyn으로 오류0을 확인한다. 원본 게임 코드/파일 수정 없음. offcheck.sh로 검사도 오류0.
+- 지정 offc.sh는 worktree에 없는 외부 art/demo43소스를 생략하여 SpinFree 참조 오류가 났다. P1Compile은 **P1 Temp/off/a.rsp만** 보완하여 해당 외부 원본 소스를 읽기 참조한 뒤 같은6000.5.8f1 Roslyn으로 오류 0을 확인한다. 원본 게임 코드/파일 수정 없음. offcheck.sh로 검사도 오류 0.
 - 오프라인 IL 추적에서 처음에는 UnityEngine.UIModule 의존성과 컴파일러 생성 UI 콜백을 빠뜨려 실패했다. 실행 폴더에 설치된 managed 모듈을 복사하고 중첩 메서드까지 추적한 최종 검사에서8종 모두 통과했다. Unity 엔진 네이티브 실행으로 해석하지 않는다.
 - 검증 요약 `docs/validation/P1-1101-offline.txt`. 재실행 산출물은 P1 `Temp/off/`에만 생성. 기존 CS0618/CS0252 및 테스트 FormatterServices obsolete 경고 유지.
 - `public static async Task<string> Main()` / `RunP1Scene()` 제공. internal API는 리플렉션 사용, 게임 타입은 AntColony 전체 이름으로 지정.

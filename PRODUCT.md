@@ -1,5 +1,7 @@
 # Product
 
+> Historical HUD mockup brief. Calendar, resource, equipment and campaign details below describe the earlier prototype; they are not the current game specification. Use [GAME_DIRECTION.md](GAME_DIRECTION.md) for the current wave-defense direction and [DESIGN.md](DESIGN.md) for visual guidance.
+
 <!-- impeccable:product-schema 1 -->
 
 ## Platform
