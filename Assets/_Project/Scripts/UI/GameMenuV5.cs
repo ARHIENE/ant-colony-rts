@@ -31,6 +31,24 @@ namespace AntColony.UI
 
         private static void V5Fit(RectTransform window)
         {
+            if (window.GetComponent<ManagementResponsiveLayout>() == null)
+                window.gameObject.AddComponent<ManagementResponsiveLayout>();
+            foreach (var row in window.GetComponentsInChildren<LayoutElement>(true))
+            {
+                if (row.transform.childCount < 2 || row.GetComponent<HorizontalLayoutGroup>() != null) continue;
+                bool buttonsOnly = true;
+                foreach (Transform child in row.transform) if (child.GetComponent<Button>() == null) buttonsOnly = false;
+                if (!buttonsOnly) continue;
+                var layout = row.gameObject.AddComponent<HorizontalLayoutGroup>();
+                layout.spacing = 6; layout.childControlWidth = layout.childControlHeight = true;
+                layout.childForceExpandWidth = layout.childForceExpandHeight = true;
+                foreach (Transform child in row.transform)
+                {
+                    var element = child.GetComponent<LayoutElement>() ?? child.gameObject.AddComponent<LayoutElement>();
+                    element.minWidth = 0; element.preferredWidth = -1; element.flexibleWidth = 1;
+                    var label = child.GetComponentInChildren<Text>(); MenuTheme.Stretch(label.rectTransform);
+                }
+            }
             foreach (var text in window.GetComponentsInChildren<Text>(true))
             {
                 if (text.transform.parent.GetComponent<Button>() != null)

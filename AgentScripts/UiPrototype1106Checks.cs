@@ -46,7 +46,7 @@ public static class UiPrototype1106Checks
   var tree=GameObject.Find("ResearchTree").GetComponent<ScrollRect>();var startX=tree.horizontalNormalizedPosition;
   Button("Research Right").onClick.Invoke();Check(tree.horizontalNormalizedPosition>startX,"later research columns reachable");
   Button("Research Left").onClick.Invoke();Check(Math.Abs(tree.horizontalNormalizedPosition-startX)<.001f,"research navigation returns to starting column");
-  Button("Prototype Settings").onClick.Invoke();await Task.Delay(100);
+  Menu.Resume();await Task.Delay(100);Button("Prototype Settings").onClick.Invoke();await Task.Delay(100);
   var draftField=typeof(GameMenuController).GetField("settingsDraft",flags);var original=UserSettings.Current.masterVolume;
   var draft=(UserSettingsData)draftField.GetValue(Menu);draft.masterVolume=.2f;
   Check(UserSettings.Current.masterVolume==original,"draft does not apply immediately");

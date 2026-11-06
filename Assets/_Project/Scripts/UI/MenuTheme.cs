@@ -7,19 +7,16 @@ namespace AntColony.UI
 {
     public static class MenuTheme
     {
-        // V6 시안: 중성 표면, 상태 색과 선택 강조를 분리한다.
-        public static readonly Color World = Hex(0x4b4436), Plate = Hex(0x262725), Plate2 = Hex(0x30312e), PlateHover = Hex(0x3c3d38),
-            Well = Hex(0x1f201e), EdgeLo = Hex(0x1f201e), Line = Hex(0x484a43), Line2 = Hex(0x484a43), Rim = Hex(0x65675d),
-            TextColor = Hex(0xeeeee5), Dim = Hex(0xb1b3a7), AccentInk = Hex(0x25251f),
-            Hp = Hex(0x6cc46a), HpMid = Hex(0xe0b43a), Danger = Hex(0xe8574a), DangerInk = Hex(0xffb3aa), Loyal = Hex(0x86a9e6);
+        // Approved settlement HUD: quiet olive slate, warm text, restrained grain accents.
+        public static readonly Color World = Hex(0x293124), Plate = Hex(0x383a32), Plate2 = Hex(0x2d302a), PlateHover = Hex(0x46483c),
+            Well = Hex(0x242e21), EdgeLo = Hex(0x626451), Line = Hex(0x626451), Line2 = Hex(0x626451), Rim = Hex(0x8a7959),
+            TextColor = Hex(0xf1e9d6), Dim = Hex(0xb9baa6), AccentInk = Hex(0x292d23),
+            Hp = Hex(0xafc782), HpMid = Hex(0xc6b581), Danger = Hex(0xdc9b76), DangerInk = Hex(0xf2bd85), Loyal = Hex(0x9cb5c5);
         public static readonly Color Background = Plate;
-        public static readonly Color Accent = Hex(0xc3b88f);
-        public static readonly Color Muted = Hex(0xbfc0b5);
-        public static readonly Color Soft = Hex(0xd6d7cb);
-        public static readonly Color Selection = Hex(0xd4c39a), Warning = Hex(0xef955f);
-        // HUD v4.1 하단 프레임(2026-10-04 시안): 청동 띠·판 재질·움푹한 화면.
-        public static readonly Color FrameHi = Hex(0x65675d), Frame = Hex(0x484a43), FrameLo = Hex(0x30312e), FrameInk = Hex(0x1f201e),
-            FrameMat = Hex(0x262725), ScreenColor = Hex(0x1f201e), ScreenRim = Hex(0x484a43), FrameButton = Hex(0x30312e);
+        public static readonly Color Accent = Hex(0xc5ac75), Muted = Hex(0xc9c6b3), Soft = Hex(0xb9baa6);
+        public static readonly Color Selection = Hex(0xd1b47b), Warning = Hex(0xdc9b76);
+        public static readonly Color FrameHi = Rim, Frame = Line, FrameLo = Plate2, FrameInk = EdgeLo,
+            FrameMat = Plate, ScreenColor = Well, ScreenRim = Line, FrameButton = Plate2;
 
         // 청동 띠 7px(밝은 1 · 본색 4 · 어두운 1 · 먹선 1). vertical이면 inkFirst 쪽(왼쪽)부터 같은 순서를 뒤집어 쌓는다.
         public static RectTransform Bronze(Transform parent, string name, bool vertical = false, bool inkFirst = false)
@@ -69,8 +66,8 @@ namespace AntColony.UI
             return image;
         }
         private static Font font, numberFont;
-        public static Font Font => font != null ? font : font = Resources.Load<Font>("Fonts/NotoSansKR") ?? Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
-        public static Font NumberFont => numberFont != null ? numberFont : numberFont = Resources.Load<Font>("Fonts/BarlowSemiCondensed-SemiBold") ?? Font;
+        public static Font Font => font != null ? font : font = Resources.Load<Font>("Fonts/ColonySansKR-Regular") ?? Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
+        public static Font NumberFont => numberFont != null ? numberFont : numberFont = Resources.Load<Font>("Fonts/ColonySansKR-Medium") ?? Font;
         public static Color Hex(int rgb) => new Color((rgb >> 16 & 255) / 255f, (rgb >> 8 & 255) / 255f, (rgb & 255) / 255f);
         public static RectTransform Rect(string name, Transform parent)
         { var go = new GameObject(name, typeof(RectTransform)); go.transform.SetParent(parent, false); return (RectTransform)go.transform; }
@@ -113,7 +110,7 @@ namespace AntColony.UI
         public static Text Text(Transform parent, string value, int size = 13, float height = 40)
         {
             var rect = Rect("Text", parent); var text = rect.gameObject.AddComponent<Text>(); text.font = Font; text.text = value;
-            text.fontSize = size <= 12 ? 12 : size <= 14 ? 13 : size <= 18 ? 15 : 20; text.color = TextColor; text.alignment = TextAnchor.MiddleLeft; text.raycastTarget = false;
+            text.fontSize = size; text.color = TextColor; text.alignment = TextAnchor.MiddleLeft; text.raycastTarget = false;
             text.horizontalOverflow = HorizontalWrapMode.Wrap; text.verticalOverflow = VerticalWrapMode.Overflow;
             rect.gameObject.AddComponent<LayoutElement>().preferredHeight = height; return text;
         }

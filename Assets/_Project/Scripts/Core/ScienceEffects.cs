@@ -1,4 +1,4 @@
-﻿using AntColony.Buildings;
+using AntColony.Buildings;
 using AntColony.Data;
 using AntColony.Units;
 
@@ -56,26 +56,28 @@ namespace AntColony.Core
         // 방어
         public static float AcidTowerDamageMultiplier => (Has(ScienceTechnology.AcidRefining) ? 1.25f : 1f) * DefenseUpgrades.FirepowerMultiplier;
 
-        public static bool BuildingUnlocked(BuildingKind kind) => kind switch
+        public static ScienceTechnology[] BuildingResearch(BuildingKind kind) => kind switch
         {
-            BuildingKind.BrewingBarrel or BuildingKind.Still => Has(ScienceTechnology.Fermentation),
-            BuildingKind.ChemistryBench or BuildingKind.AdvancedDeepDrill or BuildingKind.GasSmelter or BuildingKind.GasGenerator or BuildingKind.DeepDrill or BuildingKind.GasExtractor or BuildingKind.GasPipe or BuildingKind.GasTank => Has(ScienceTechnology.UndergroundSurvey),
-            BuildingKind.UndergroundScanner => Has(ScienceTechnology.UndergroundSurvey),
-            BuildingKind.SoilWall or BuildingKind.CapWall or BuildingKind.CastleWall or BuildingKind.Gate => Has(ScienceTechnology.Resin),
-            BuildingKind.TrapPit or BuildingKind.SpikeTrap => Has(ScienceTechnology.Traps),
-            BuildingKind.AreaAcidTower or BuildingKind.DefenseLab => Has(ScienceTechnology.AcidRefining),
-            BuildingKind.Watchtower => Has(ScienceTechnology.Watchtowers),
-            BuildingKind.MineField => Has(ScienceTechnology.Mines),
-            BuildingKind.RestRoom or BuildingKind.Bookshelf or BuildingKind.Bathtub or (>= BuildingKind.BoardGame and <= BuildingKind.WebSwing) or BuildingKind.HotSpring => Has(ScienceTechnology.Recreation), // 처음 오락 2종 외에는 Recreation 연구로 해금
-            BuildingKind.Workshop => Has(ScienceTechnology.Blades),
+            BuildingKind.BrewingBarrel or BuildingKind.Still => new[] { ScienceTechnology.Fermentation },
+            BuildingKind.ChemistryBench or BuildingKind.AdvancedDeepDrill or BuildingKind.GasSmelter or BuildingKind.GasGenerator or BuildingKind.DeepDrill or BuildingKind.GasExtractor or BuildingKind.GasPipe or BuildingKind.GasTank => new[] { ScienceTechnology.UndergroundSurvey },
+            BuildingKind.UndergroundScanner => new[] { ScienceTechnology.UndergroundSurvey },
+            BuildingKind.SoilWall or BuildingKind.CapWall or BuildingKind.CastleWall or BuildingKind.Gate => new[] { ScienceTechnology.Resin },
+            BuildingKind.TrapPit or BuildingKind.SpikeTrap => new[] { ScienceTechnology.Traps },
+            BuildingKind.AreaAcidTower or BuildingKind.DefenseLab => new[] { ScienceTechnology.AcidRefining },
+            BuildingKind.Watchtower => new[] { ScienceTechnology.Watchtowers },
+            BuildingKind.MineField => new[] { ScienceTechnology.Mines },
+            BuildingKind.RestRoom or BuildingKind.Bookshelf or BuildingKind.Bathtub or (>= BuildingKind.BoardGame and <= BuildingKind.WebSwing) or BuildingKind.HotSpring => new[] { ScienceTechnology.Recreation }, // 처음 오락 2종 외에는 Recreation 연구로 해금
+            BuildingKind.Workshop => new[] { ScienceTechnology.Blades },
             // ponytail: 냉장고 = 압축 저장(2티어), 냉동고 = 압축 저장 + 보온 설비(3티어) 연구. 전용 연구 항목이 생기면 교체한다.
-            BuildingKind.Fridge => Has(ScienceTechnology.Fermentation),
-            BuildingKind.Freezer => Has(ScienceTechnology.Fermentation) && Has(ScienceTechnology.Insulation),
-            BuildingKind.Infirmary => Has(ScienceTechnology.Infirmary),
-            BuildingKind.AirshipYard => Has(ScienceTechnology.MigrationTheory),
-            BuildingKind.Farm => BiomeRules.FarmAllowed, // 도시 구석은 밭 건설 불가
-            _ => true
+            BuildingKind.Fridge => new[] { ScienceTechnology.Fermentation },
+            BuildingKind.Freezer => new[] { ScienceTechnology.Fermentation, ScienceTechnology.Insulation },
+            BuildingKind.Infirmary => new[] { ScienceTechnology.Infirmary },
+            BuildingKind.AirshipYard => new[] { ScienceTechnology.MigrationTheory },
+            _ => System.Array.Empty<ScienceTechnology>()
         };
+
+        public static bool BuildingUnlocked(BuildingKind kind) => (kind != BuildingKind.Farm || BiomeRules.FarmAllowed)
+            && System.Array.TrueForAll(BuildingResearch(kind), Has);
     }
 
     // 방어시설 연구소 4라인 × 3단계. 단계 비용 = 단계 × F30·S40, 3단계는 Special 5 추가.

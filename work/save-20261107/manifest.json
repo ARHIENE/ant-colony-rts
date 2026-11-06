@@ -1,0 +1,767 @@
+[
+  {
+    "path": "AgentScripts/HandGrip1106Diagnostic.cs",
+    "bytes": 2410,
+    "sha256": "31de19e8463829bebc01e8290204decb0cc99e01d13c88ac6d08c137db926ee1"
+  },
+  {
+    "path": "AgentScripts/HandGrip1106Import.cs",
+    "bytes": 280,
+    "sha256": "c6359a5c83464eb9316be136ab862a143fe88ef74720079d8577119b71be51ba"
+  },
+  {
+    "path": "AgentScripts/HandGrip1106Invariant.cs",
+    "bytes": 2308,
+    "sha256": "1d4882ba8d70d61a34a5b238c44c6ce3e8d9bbed6ddbd43ce76f0dcc2734ea08"
+  },
+  {
+    "path": "AgentScripts/HandGrip1106Live.cs",
+    "bytes": 4578,
+    "sha256": "a9fc4007f11d0dffe5ee700b7bff76dca2415ab5bb6ab6f3405c256a84a8e941"
+  },
+  {
+    "path": "AgentScripts/HandGrip1106Preview.cs",
+    "bytes": 6151,
+    "sha256": "72281c7783ff86844433ee1845ffe1d13050cdf6cef7e5ce9c97fd168e67a790"
+  },
+  {
+    "path": "AgentScripts/MeshyAnimation1106ArcheryFrames.cs",
+    "bytes": 2466,
+    "sha256": "0f2abed9e742a315562d1d39207beee4b7ec99c96487f30427b3cb3b3f739ed5"
+  },
+  {
+    "path": "AgentScripts/MeshyAnimation1106Inspect.cs",
+    "bytes": 1402,
+    "sha256": "4bc59aae05cb8500ce84e0c792dd725a5907424f3cd1badac44ccc4b1d760e02"
+  },
+  {
+    "path": "AgentScripts/MeshyAnimation1106Live.cs",
+    "bytes": 7501,
+    "sha256": "496c6375dd597ef66944526e431aad5486bf8ff13c68d8f6926b9a40df13478b"
+  },
+  {
+    "path": "AgentScripts/MeshyAnimation1106MotionAudit.cs",
+    "bytes": 1690,
+    "sha256": "86a02615b74622a0bf1048a332c4893114a9f75f805c5b870cc77c2cb05e6bd2"
+  },
+  {
+    "path": "AgentScripts/MeshyAnimation1106PlaybackAudit.cs",
+    "bytes": 1456,
+    "sha256": "22d68dd7079e04a4af6fed39553979bae88d057157d1a07cbf4ce79e6e955e98"
+  },
+  {
+    "path": "AgentScripts/MeshyAnimation1106RerigFrames.cs",
+    "bytes": 2447,
+    "sha256": "577363bdbb12dcbfd2c9a269e28cf32ab32ded74f1217d77055f90eb61900754"
+  },
+  {
+    "path": "AgentScripts/MeshyAnimation1106RootAudit.cs",
+    "bytes": 1329,
+    "sha256": "87738a0a15d8358a412c40e630f40db084b575db8315e13124220b69b6ce41ad"
+  },
+  {
+    "path": "AgentScripts/MeshyAnimation1106Select.cs",
+    "bytes": 688,
+    "sha256": "929a26c4fd99b88d4b633e45d43b62160f10cd567534794076c58b24521e09b4"
+  },
+  {
+    "path": "AgentScripts/MeshyLife1106Audit.cs",
+    "bytes": 3214,
+    "sha256": "3f180dec965dd3b2c96042387a5a19380135207f18cb5332f00fcba75300f4a9"
+  },
+  {
+    "path": "AgentScripts/UiApproved1106Checks.cs",
+    "bytes": 5681,
+    "sha256": "006c731e4e0e31953864cfeae04398cfabb95c0a74f90e6cab7f1a25490e4e04"
+  },
+  {
+    "path": "AgentScripts/UiHudRedesign1106.cs",
+    "bytes": 2613,
+    "sha256": "de482ad679d1cd8565d1442042ff42d76b2261b4d54e912567543c318327deec"
+  },
+  {
+    "path": "AgentScripts/UiParity1106Checks.cs",
+    "bytes": 7456,
+    "sha256": "0399fde258e91ef74cce52eacb51d48254e9dbf53324609c3741d2d1ba020beb"
+  },
+  {
+    "path": "AgentScripts/UiPrototype1106Checks.cs",
+    "bytes": 5371,
+    "sha256": "69c9b3e78a25424043f357ebc54bca40e47a22213ae8a3126043e930111b9f3c"
+  },
+  {
+    "path": "AgentScripts/UiRoster1106Checks.cs",
+    "bytes": 6987,
+    "sha256": "e24e9170c95f6cd9ddf7f07377e17125c0062952d1fff2f3e9516744609f5eeb"
+  },
+  {
+    "path": "Assets/Resources/Kemono/Handheld/Tool_Axe_Stone.fbx",
+    "bytes": 237244,
+    "sha256": "291d9ddb4d8c4d1cd08ecb070a86ce2609f0cb24f72259354f5fe9d89f0c8335"
+  },
+  {
+    "path": "Assets/Resources/Kemono/Handheld/Tool_Hammer_Stone.fbx",
+    "bytes": 244060,
+    "sha256": "fa395492f9fe0457ee6af299bb2f8cad9f52d620e404965c665c89a04f22fb4a"
+  },
+  {
+    "path": "Assets/Resources/Kemono/Handheld/Tool_Hoe_Stone.fbx",
+    "bytes": 240908,
+    "sha256": "f0985222ae8ed3842795432fefd0c36819d22ff0626dd92b01d3241415189552"
+  },
+  {
+    "path": "Assets/Resources/Kemono/Handheld/Tool_Pickaxe_Stone.fbx",
+    "bytes": 237996,
+    "sha256": "70256690fb6f8c8b2d13cc5cbbddd648da7f849a79a6756d654527ff8ff204dc"
+  },
+  {
+    "path": "Assets/Resources/Kemono/Handheld/Tool_Shovel_Stone.fbx",
+    "bytes": 241628,
+    "sha256": "6b8fcbd06a22436e8cdc3bb6914e469dc85de317a18cd97239d4477da19518a1"
+  },
+  {
+    "path": "Assets/Resources/Kemono/Handheld/Tool_Sickle_Stone.fbx",
+    "bytes": 240412,
+    "sha256": "b53770ca0d3a585ba421c9b3a7bc986f3260fa1e9ec3f602e07087213aeb4720"
+  },
+  {
+    "path": "Assets/_Project/Art/MeshyAnimation1106.meta",
+    "bytes": 172,
+    "sha256": "17d118a8ff1e87808e0cddb2ffeb69393c0e027313fee2cb08fc391c4a837758"
+  },
+  {
+    "path": "Assets/_Project/Art/MeshyAnimation1106/Archery_Shot_3.fbx",
+    "bytes": 18446060,
+    "sha256": "92534c60710c633abf83199c6dfe9e1fbe562696fb3931045165d860fc482717"
+  },
+  {
+    "path": "Assets/_Project/Art/MeshyAnimation1106/Archery_Shot_3.fbx.meta",
+    "bytes": 2993,
+    "sha256": "6f28c79c6789eba63cb10e68eb5e6326b8b4c2f68076176dc38693738eeb6abc"
+  },
+  {
+    "path": "Assets/_Project/Art/MeshyAnimation1106/Heavy_Hammer_Swing.fbx",
+    "bytes": 18527148,
+    "sha256": "d6fdc8af726fc6c9a8b72086165b55cf5b5504ae1604c5a06c1b27837de434f6"
+  },
+  {
+    "path": "Assets/_Project/Art/MeshyAnimation1106/Heavy_Hammer_Swing.fbx.meta",
+    "bytes": 2993,
+    "sha256": "e74442970c1c902f228a6fbd21d9227452ae9040823e76b0bb23bbb264ca02ae"
+  },
+  {
+    "path": "Assets/_Project/Art/MeshyAnimation1106/Life.meta",
+    "bytes": 172,
+    "sha256": "dc8f6ca05634aae49b4a1226837377bbdadd1324659db61df879e6d6966ea75f"
+  },
+  {
+    "path": "Assets/_Project/Art/MeshyAnimation1106/Life/Agree_Gesture.fbx",
+    "bytes": 19409836,
+    "sha256": "417dcaba24b40ef3820081e69cdb69cb3a9a118f95f467ca3b98dbb8de4f837b"
+  },
+  {
+    "path": "Assets/_Project/Art/MeshyAnimation1106/Life/Agree_Gesture.fbx.meta",
+    "bytes": 2993,
+    "sha256": "0e4bbf14184a5532bcdfaec17997db82cc9ddd8bc4ba79c379422262ee8a76b4"
+  },
+  {
+    "path": "Assets/_Project/Art/MeshyAnimation1106/Life/Arise.fbx",
+    "bytes": 18534204,
+    "sha256": "e087d2c13d356b4dddd49a35ceb48acf8b4163ecd9cf3e5665af96720d718e1b"
+  },
+  {
+    "path": "Assets/_Project/Art/MeshyAnimation1106/Life/Arise.fbx.meta",
+    "bytes": 2993,
+    "sha256": "5d57c681da28893b4dcbcd415eea213815efcc012ee66af2bed23596ad9e8f32"
+  },
+  {
+    "path": "Assets/_Project/Art/MeshyAnimation1106/Life/Casual_Walk.fbx",
+    "bytes": 18719356,
+    "sha256": "847560999a566606a8247a9aed47215c7c74a8cdd4e566073049a88406fb34cc"
+  },
+  {
+    "path": "Assets/_Project/Art/MeshyAnimation1106/Life/Casual_Walk.fbx.meta",
+    "bytes": 2993,
+    "sha256": "b257e593aa986bfe353f0f969f9d5f6e7a2f6d1308a17ac9aed8726988ce4205"
+  },
+  {
+    "path": "Assets/_Project/Art/MeshyAnimation1106/Life/Collect_Object.fbx",
+    "bytes": 18853324,
+    "sha256": "56108a1d7c1fe37aee329517f745f9cd8db4129ffe4aa4e90dcee90b41f32214"
+  },
+  {
+    "path": "Assets/_Project/Art/MeshyAnimation1106/Life/Collect_Object.fbx.meta",
+    "bytes": 2993,
+    "sha256": "ab27c72d985a75f4737819c302d8c7089a003ac5fd14008a94ef124b830dbc4f"
+  },
+  {
+    "path": "Assets/_Project/Art/MeshyAnimation1106/Life/Cough_While_Sleeping.fbx",
+    "bytes": 18519324,
+    "sha256": "74506d118b28098258c2bd02c3acae194677a8eae2b0a93b4547280961bb9544"
+  },
+  {
+    "path": "Assets/_Project/Art/MeshyAnimation1106/Life/Cough_While_Sleeping.fbx.meta",
+    "bytes": 2993,
+    "sha256": "60749ae0b526bf5e221f9f26829e30afa8738bb32eab00dfd83972fd5d0e18ef"
+  },
+  {
+    "path": "Assets/_Project/Art/MeshyAnimation1106/Life/Dead.fbx",
+    "bytes": 18628764,
+    "sha256": "7d86b0a8d49a360cd08151ffa5e817dc280348c9f0978a8e36a49e5b78c355c5"
+  },
+  {
+    "path": "Assets/_Project/Art/MeshyAnimation1106/Life/Dead.fbx.meta",
+    "bytes": 2993,
+    "sha256": "aca5c645de890abb1a3a080504a9adf78bea42aa1d8c5c29944638291db81de4"
+  },
+  {
+    "path": "Assets/_Project/Art/MeshyAnimation1106/Life/Female_Bend_Over_Pick_Up_Inspect.fbx",
+    "bytes": 18695660,
+    "sha256": "276b5ded74e67c29ddcef1d73e46829f9954e4785d7ee962fa11405495d5108c"
+  },
+  {
+    "path": "Assets/_Project/Art/MeshyAnimation1106/Life/Female_Bend_Over_Pick_Up_Inspect.fbx.meta",
+    "bytes": 2993,
+    "sha256": "4a299703b34999c92213c609a05e89cff39bbad2dc34d80969b7e25717eef5b4"
+  },
+  {
+    "path": "Assets/_Project/Art/MeshyAnimation1106/Life/Limping_Walk_2.fbx",
+    "bytes": 18585660,
+    "sha256": "5c97e71634084bc766617a0cbbbb0f6b9b23a051b22ca75f8847e1b4f94aedbc"
+  },
+  {
+    "path": "Assets/_Project/Art/MeshyAnimation1106/Life/Limping_Walk_2.fbx.meta",
+    "bytes": 2993,
+    "sha256": "f4c713c26f1d1e3ff41b0778e07633f9c3bf7c43f92c27d5f97835bbd9bcbadc"
+  },
+  {
+    "path": "Assets/_Project/Art/MeshyAnimation1106/Life/Limping_Walk_3.fbx",
+    "bytes": 18618028,
+    "sha256": "42498c7ba29f8051968d0232b9c022c88da76160f765bdeff661ffe160fefb6e"
+  },
+  {
+    "path": "Assets/_Project/Art/MeshyAnimation1106/Life/Limping_Walk_3.fbx.meta",
+    "bytes": 2993,
+    "sha256": "4791eff3583de8be2299546fe67b9ba2e0bcca6fcd932bf74d2a52819dc57a15"
+  },
+  {
+    "path": "Assets/_Project/Art/MeshyAnimation1106/Life/Male_Bend_Over_Pick_Up.fbx",
+    "bytes": 18956188,
+    "sha256": "b3db30700bed4b5faa4805ff4f8004ed4a82d3f6a3397c23260ba65acf378b70"
+  },
+  {
+    "path": "Assets/_Project/Art/MeshyAnimation1106/Life/Male_Bend_Over_Pick_Up.fbx.meta",
+    "bytes": 2993,
+    "sha256": "517c4de80463b6d3d88d0f3b071b7aaabca7641d1ba6bc4677910682d8be20aa"
+  },
+  {
+    "path": "Assets/_Project/Art/MeshyAnimation1106/Life/Sit_and_Doze_Off.fbx",
+    "bytes": 19702044,
+    "sha256": "51968f8d1de81b9a89d19c30904f4e1b786590565fc32f26af634febbb5a8210"
+  },
+  {
+    "path": "Assets/_Project/Art/MeshyAnimation1106/Life/Sit_and_Doze_Off.fbx.meta",
+    "bytes": 2993,
+    "sha256": "c098f3e8893cd6db403bed7b44ff9e49d4947baea5ac93c19d86dd46406ce88d"
+  },
+  {
+    "path": "Assets/_Project/Art/MeshyAnimation1106/Life/Sit_and_Drink.fbx",
+    "bytes": 19259916,
+    "sha256": "9903235bd51a7916d2f75493f390bd43d60d14c4cad2d4c21dd1330ce1e2b373"
+  },
+  {
+    "path": "Assets/_Project/Art/MeshyAnimation1106/Life/Sit_and_Drink.fbx.meta",
+    "bytes": 2993,
+    "sha256": "f6b7d977ce8949d5daa751161267b39a32dac6f757f707bb0d13972ed5728b7b"
+  },
+  {
+    "path": "Assets/_Project/Art/MeshyAnimation1106/Life/Sit_to_Stand_Transition_M.fbx",
+    "bytes": 18878316,
+    "sha256": "7c9c8b9d47ee0a130d07c1003d4269942a52edd26114ab42292c16164fc84234"
+  },
+  {
+    "path": "Assets/_Project/Art/MeshyAnimation1106/Life/Sit_to_Stand_Transition_M.fbx.meta",
+    "bytes": 2993,
+    "sha256": "d2b60ce58294c9fd5a10246b18837203897333c48817f7e01c80a6b3c16e8ebd"
+  },
+  {
+    "path": "Assets/_Project/Art/MeshyAnimation1106/Life/Victory_Cheer.fbx",
+    "bytes": 19125340,
+    "sha256": "861cb31f0ecfca1ed92ae01382d7593d64c55507484bfae3e9b806a21525fbb9"
+  },
+  {
+    "path": "Assets/_Project/Art/MeshyAnimation1106/Life/Victory_Cheer.fbx.meta",
+    "bytes": 2993,
+    "sha256": "eb546da4bf1cfe09dad8259f3c1dd13e487e427281646032782ad95c8eb2edb2"
+  },
+  {
+    "path": "Assets/_Project/Art/MeshyAnimation1106/Life/Wave_for_Help_1.fbx",
+    "bytes": 18423468,
+    "sha256": "b231e79394d96346c1c3deb6bd8c80fa122fbf6c80e70e9d18bb0393b2f49fe1"
+  },
+  {
+    "path": "Assets/_Project/Art/MeshyAnimation1106/Life/Wave_for_Help_1.fbx.meta",
+    "bytes": 2993,
+    "sha256": "24b1fc9566e8f951b1cfa71444f8326230a0eb7e55f09b54bdd9747e8f1bab6d"
+  },
+  {
+    "path": "Assets/_Project/Art/MeshyAnimation1106/Life/falling_down.fbx",
+    "bytes": 18575852,
+    "sha256": "f9cce629d1bca1886ba3bc2e253fc7adafa2556d794c80c6973bec4ee752436a"
+  },
+  {
+    "path": "Assets/_Project/Art/MeshyAnimation1106/Life/falling_down.fbx.meta",
+    "bytes": 2993,
+    "sha256": "74b841b72d6cf7f66c87465e96d854bc1d417be5b1c3a384996b6cec9ac8a86a"
+  },
+  {
+    "path": "Assets/_Project/Art/MeshyAnimation1106/Life/sleep.fbx",
+    "bytes": 18846348,
+    "sha256": "3701b62033a85debf3502311c9a9c95a5fa260ea9e5e176019dcde73f4629de2"
+  },
+  {
+    "path": "Assets/_Project/Art/MeshyAnimation1106/Life/sleep.fbx.meta",
+    "bytes": 2993,
+    "sha256": "4442b71c2bd5d96d674e0e624ff1bbfd5ff297f9369b0e1a068ed18b002ee306"
+  },
+  {
+    "path": "Assets/_Project/Art/MeshyAnimation1106/Life/victory.fbx",
+    "bytes": 19055788,
+    "sha256": "9c5118ad987f26819fc4e0d3b8b8b20152eb232296f664ef16f5d30f0ca060ee"
+  },
+  {
+    "path": "Assets/_Project/Art/MeshyAnimation1106/Life/victory.fbx.meta",
+    "bytes": 2993,
+    "sha256": "9df36c42a68209a20bae182c4aff8a9b31355506426489aadd6decebcf9d5008"
+  },
+  {
+    "path": "Assets/_Project/Art/MeshyAnimation1106/Meshy_AI_Meadow_Sprout_20261106_animated_mixamo_All_animation.fbx",
+    "bytes": 18766460,
+    "sha256": "ea2661e250c455f8f920894b3414d062c5ca11f4347bc936fcbe1030c03cd30c"
+  },
+  {
+    "path": "Assets/_Project/Art/MeshyAnimation1106/Meshy_AI_Meadow_Sprout_20261106_animated_mixamo_All_animation.fbx.meta",
+    "bytes": 2993,
+    "sha256": "abb1eb5595c0878cdf4075a1614eda27c525ee122d43e35612da87e8e8340be2"
+  },
+  {
+    "path": "Assets/_Project/Art/MeshyAnimation1106/Meshy_AI_Meadow_Sprout_20261106_animated_mixamo_All_animation.png",
+    "bytes": 4880830,
+    "sha256": "44db19cedb4324f8dbf2b4e8115cab858d6e9e5c7e84ae347d5f2fdbbb5ed2d9"
+  },
+  {
+    "path": "Assets/_Project/Art/MeshyAnimation1106/Meshy_AI_Meadow_Sprout_20261106_animated_mixamo_All_animation.png.meta",
+    "bytes": 3009,
+    "sha256": "56932d8a87f43670b0a859bb314f511ab3425a869c1c02c347a4fd373ca47c3d"
+  },
+  {
+    "path": "Assets/_Project/Art/MeshyAnimation1106/Meshy_AI_Meadow_Sprout_20261106_animated_mixamo_All_animation_metallic.png",
+    "bytes": 668622,
+    "sha256": "9a7b51bff5b38893440c59a273b693686913eaeeb6d410e09fdf1bd47ad06d56"
+  },
+  {
+    "path": "Assets/_Project/Art/MeshyAnimation1106/Meshy_AI_Meadow_Sprout_20261106_animated_mixamo_All_animation_metallic.png.meta",
+    "bytes": 3009,
+    "sha256": "32b60290dfd8368744236d14d0840116de4f729592df7e37b5f49c02a791803d"
+  },
+  {
+    "path": "Assets/_Project/Art/MeshyAnimation1106/Meshy_AI_Meadow_Sprout_20261106_animated_mixamo_All_animation_normal.png",
+    "bytes": 5168177,
+    "sha256": "5c216d189e07cffbc9fddae689c20503b9142ec1f4f2efa3e8a76643365e4104"
+  },
+  {
+    "path": "Assets/_Project/Art/MeshyAnimation1106/Meshy_AI_Meadow_Sprout_20261106_animated_mixamo_All_animation_normal.png.meta",
+    "bytes": 3009,
+    "sha256": "a712d25b1f3862af87af2b73e0891acebe93c69bb293f958f314e5e5f44c6ffa"
+  },
+  {
+    "path": "Assets/_Project/Art/MeshyAnimation1106/Meshy_AI_Meadow_Sprout_20261106_animated_mixamo_All_animation_roughness.png",
+    "bytes": 1097329,
+    "sha256": "d42b81fce35f841a67601ccba8aadb65e6ea37a0089bf7f81e67e059f01de7ef"
+  },
+  {
+    "path": "Assets/_Project/Art/MeshyAnimation1106/Meshy_AI_Meadow_Sprout_20261106_animated_mixamo_All_animation_roughness.png.meta",
+    "bytes": 3009,
+    "sha256": "0144da6a4fc32c0148f82e654cbbb38a1d6b3a316b1e8aa84588b4dc579dd524"
+  },
+  {
+    "path": "Assets/_Project/Art/MeshyAnimation1106/Meshy_AI_Meadow_Sprout_20261106_character_mixamo.fbx",
+    "bytes": 18438588,
+    "sha256": "68d76689f7ec217f9b208f21b6ee681771b40566e7e6dfd3c1aad4117d38fce3"
+  },
+  {
+    "path": "Assets/_Project/Art/MeshyAnimation1106/Meshy_AI_Meadow_Sprout_20261106_character_mixamo.fbx.meta",
+    "bytes": 2993,
+    "sha256": "422cf3c771746e5728d5f28772b2d09c8ed0b59b9f6b19d17cf5add065e6fb00"
+  },
+  {
+    "path": "Assets/_Project/Art/MeshyAnimation1106/Rerig_All.fbx",
+    "bytes": 18759628,
+    "sha256": "53d1f544416b5e4576c74bd01518282b762904c836774af60030196ffd69fd2a"
+  },
+  {
+    "path": "Assets/_Project/Art/MeshyAnimation1106/Rerig_All.fbx.meta",
+    "bytes": 2993,
+    "sha256": "85e90924c658eb35773caf6c9656228c55d0e3f32b75dd842d4b6ccd965691ca"
+  },
+  {
+    "path": "Assets/_Project/Art/MeshyAnimation1106/Run_02.fbx",
+    "bytes": 18449884,
+    "sha256": "f119bfbbb45f398fe692a9be95c610694536090afec43b3bfdbcee78644680be"
+  },
+  {
+    "path": "Assets/_Project/Art/MeshyAnimation1106/Run_02.fbx.meta",
+    "bytes": 2993,
+    "sha256": "1010afdb1e0ea8bef8cffdb9feb9da54d27f8f41abf354181a3f8aa2f9d36937"
+  },
+  {
+    "path": "Assets/_Project/Art/MeshyAnimation1106/Run_03.fbx",
+    "bytes": 18461788,
+    "sha256": "919e7162a1041fc73f46dc7529f3599b5d2a85b4c40256ce868963050a480114"
+  },
+  {
+    "path": "Assets/_Project/Art/MeshyAnimation1106/Run_03.fbx.meta",
+    "bytes": 2993,
+    "sha256": "c6dd16a5fd77da1a51dc95f8e03e620107e111a431cdad31019363c4ed8f76c0"
+  },
+  {
+    "path": "Assets/_Project/Art/MeshyAnimation1106/Tool_Chop_SharedRig.fbx",
+    "bytes": 19539644,
+    "sha256": "9086e4e7e9c05574b452aa29c904efaaecd4170915247535abe6a0b8c2a37c02"
+  },
+  {
+    "path": "Assets/_Project/Art/MeshyAnimation1106/Tool_Chop_SharedRig.fbx.meta",
+    "bytes": 2993,
+    "sha256": "3508996bb8b0fb1d7195491cf5577c776f59526831aecdc772d14e28f1db36ff"
+  },
+  {
+    "path": "Assets/_Project/Resources/Fonts/ColonySansKR-Medium.ttf",
+    "bytes": 6222424,
+    "sha256": "a0d1219f93517dfd11617be78f14c8e95ab5bb9b37fb52799267c7b7452901a4"
+  },
+  {
+    "path": "Assets/_Project/Resources/Fonts/ColonySansKR-Medium.ttf.meta",
+    "bytes": 477,
+    "sha256": "7383d4efe0f5a0f3b88e496ac9535ccefd59b6bbca019d20adeda3adfed4aa8b"
+  },
+  {
+    "path": "Assets/_Project/Resources/Fonts/ColonySansKR-Regular.ttf",
+    "bytes": 6224880,
+    "sha256": "cd955ba73841495b3d3f9113b2d6a835686570ceb5ab5a6a6a8e2d24ffbcb684"
+  },
+  {
+    "path": "Assets/_Project/Resources/Fonts/ColonySansKR-Regular.ttf.meta",
+    "bytes": 477,
+    "sha256": "11abe81f3a9e8e943de4e42165cf8b4da6e334deac9ef851b4c4e6b98369e4e4"
+  },
+  {
+    "path": "Assets/_Project/Scenes/AntColony.unity",
+    "bytes": 23189712,
+    "sha256": "332297a792f8427dbba6546146a4bde21f525db62adb830a15935c96711f1558"
+  },
+  {
+    "path": "Assets/_Project/Scripts/Core/ScienceEffects.cs",
+    "bytes": 7315,
+    "sha256": "6db3ecfcf27b99f77b1236ccf01cdbc78881fdeef630a0f78cac81d314bd3fed"
+  },
+  {
+    "path": "Assets/_Project/Scripts/UI/CharacterPortraits.cs",
+    "bytes": 6137,
+    "sha256": "49f3b6f464d17be44c8cc663034c8283f9612d3bc6ab43f861f18b9c2212689d"
+  },
+  {
+    "path": "Assets/_Project/Scripts/UI/CommandCard.cs",
+    "bytes": 23572,
+    "sha256": "5a7c99985043feec92a82fc3ad56fb0a0d5617a252f2d7cd32f0e935bfc8eb92"
+  },
+  {
+    "path": "Assets/_Project/Scripts/UI/GameMenuController.cs",
+    "bytes": 18064,
+    "sha256": "839fd9d35d14d17298996079f956abacf3ccb6ac464f8c90ecf62c378ffbcc8a"
+  },
+  {
+    "path": "Assets/_Project/Scripts/UI/GameMenuDock.cs",
+    "bytes": 3098,
+    "sha256": "7aa6e9c7693e673c4a3230124e3a124d6e4aa98e6fb73466021a3a52bac1d560"
+  },
+  {
+    "path": "Assets/_Project/Scripts/UI/GameMenuDuty.cs",
+    "bytes": 6294,
+    "sha256": "8d5312a286cc4fe919b1c22ab1a2dbef32b1e86700299326ed4523e90bd09eda"
+  },
+  {
+    "path": "Assets/_Project/Scripts/UI/GameMenuManagement.cs",
+    "bytes": 10256,
+    "sha256": "6f53b507995bdfb8eee5c546913442dbb4d94e49bb7e421826805cca2760c86d"
+  },
+  {
+    "path": "Assets/_Project/Scripts/UI/GameMenuPopulation.cs",
+    "bytes": 5510,
+    "sha256": "a22c7fdb345b80b2f5e43535519d9f9c14a837f095acddec6ff9b4f53707831e"
+  },
+  {
+    "path": "Assets/_Project/Scripts/UI/GameMenuPrototype.cs",
+    "bytes": 5053,
+    "sha256": "9b83690fd0a75388163f1c7c65a80025f367949ac3e6d9b9d606d55dd507679e"
+  },
+  {
+    "path": "Assets/_Project/Scripts/UI/GameMenuRepair.cs",
+    "bytes": 3071,
+    "sha256": "3d676cec56bfe9d935facb4206f779828af5d73e9fd8ebd3cb091904d7942a0e"
+  },
+  {
+    "path": "Assets/_Project/Scripts/UI/GameMenuRepair.cs.meta",
+    "bytes": 59,
+    "sha256": "2dfac59ea048fff463f5f4872e525eed85931d0f9386d4c771c915bf0f1d3ea1"
+  },
+  {
+    "path": "Assets/_Project/Scripts/UI/GameMenuResearchTree.cs",
+    "bytes": 8199,
+    "sha256": "eb1ea1bd2b3efd2ded6adda1fe3246df89f1f589269045a4ab8f66d65cc9c4b2"
+  },
+  {
+    "path": "Assets/_Project/Scripts/UI/GameMenuResponsive.cs",
+    "bytes": 1255,
+    "sha256": "84c48049d504670f2c24f201f55fab4d8e440927ec3e805e7a48a80693d0c72b"
+  },
+  {
+    "path": "Assets/_Project/Scripts/UI/GameMenuResponsive.cs.meta",
+    "bytes": 59,
+    "sha256": "c562c14e762a067d88001440350fe78e0b952c81fde7493c5fa40e83729a361e"
+  },
+  {
+    "path": "Assets/_Project/Scripts/UI/GameMenuRoster.cs",
+    "bytes": 14342,
+    "sha256": "b07f5723c34db5ffcd1dde054c1763be3e3f7db2d60f7a8539663bd59485f245"
+  },
+  {
+    "path": "Assets/_Project/Scripts/UI/GameMenuStorage.cs",
+    "bytes": 4648,
+    "sha256": "4473148f82706f7333e868ba731c9bff7413af82ad5aa33ada95b982b451769e"
+  },
+  {
+    "path": "Assets/_Project/Scripts/UI/GameMenuV5.cs",
+    "bytes": 6038,
+    "sha256": "639d99f0108312691886746b504610229bccd9815d90aecc7512f224ab140333"
+  },
+  {
+    "path": "Assets/_Project/Scripts/UI/HudClock.cs",
+    "bytes": 7133,
+    "sha256": "852cbf4f640a6af462e571fc702a48ca9c47817d0a6f4ceae38a779309cef991"
+  },
+  {
+    "path": "Assets/_Project/Scripts/UI/HudNavigationIcon.cs",
+    "bytes": 2297,
+    "sha256": "d2286b975ff73681b593176e3199bb2d99292c05d75bd1bb5367b042f22b7acd"
+  },
+  {
+    "path": "Assets/_Project/Scripts/UI/HudNavigationIcon.cs.meta",
+    "bytes": 59,
+    "sha256": "20b12360dfb7854be2dc542e7b017591f06477a65a8a40adb63bdb82fc025f99"
+  },
+  {
+    "path": "Assets/_Project/Scripts/UI/HudResponsiveLayout.cs",
+    "bytes": 19647,
+    "sha256": "14f593ed5212fbe41476755ec26dae747a77a2013d81c9535e60e1034896806f"
+  },
+  {
+    "path": "Assets/_Project/Scripts/UI/HudWave.cs",
+    "bytes": 6398,
+    "sha256": "4f01a5c0f92d0ef6434ce92da6853aece0ff07a52dabaf614441736edbaca52d"
+  },
+  {
+    "path": "Assets/_Project/Scripts/UI/ManagementResponsiveLayout.cs",
+    "bytes": 4581,
+    "sha256": "2b588eb9dd62929db81125ee590f449ca596a2098d22ea89434be743d7d6eca6"
+  },
+  {
+    "path": "Assets/_Project/Scripts/UI/ManagementResponsiveLayout.cs.meta",
+    "bytes": 59,
+    "sha256": "42bc01e803eb32ca4a8acde12754a87aff7dd920f35a1b20016478f2b2d0fb0c"
+  },
+  {
+    "path": "Assets/_Project/Scripts/UI/MenuTheme.cs",
+    "bytes": 10971,
+    "sha256": "ccb1b3214ae532b810a8e53927d8ebe764b3bbe9747dc3c1ac0ce68afd070dbd"
+  },
+  {
+    "path": "Assets/_Project/Scripts/UI/PrototypeResourceHud.cs",
+    "bytes": 3720,
+    "sha256": "8a3d4cfb2186f0ad29b9a5e2457b50b88a1bd0e1fbcba64f7725502bac5d5cb9"
+  },
+  {
+    "path": "Assets/_Project/Scripts/UI/PrototypeResourceIcon.cs",
+    "bytes": 4737,
+    "sha256": "9182f321389395ab563ab9dcd92d50aed8d78a2761626c085e17a238ec9434f9"
+  },
+  {
+    "path": "Assets/_Project/Scripts/UI/PrototypeWindowLayout.cs",
+    "bytes": 677,
+    "sha256": "e39f904c6867a6a5270075258e3da923b9a67493fbc84a981a108e9b5ac628ec"
+  },
+  {
+    "path": "Assets/_Project/Scripts/UI/PrototypeWindowLayout.cs.meta",
+    "bytes": 59,
+    "sha256": "69172e2fa4b9e282a23b4c40e8003553fd7a341d788540beffd6967425291bcd"
+  },
+  {
+    "path": "Assets/_Project/Scripts/UI/SelectionPortraitStrip.cs",
+    "bytes": 3065,
+    "sha256": "17940b1447008e60477bc070313d7394206498dec205b35fcce9cb894cd430e1"
+  },
+  {
+    "path": "Assets/_Project/Scripts/UI/SelectionPortraitStrip.cs.meta",
+    "bytes": 59,
+    "sha256": "87957ce079d06403beb9b90e5474558cf7e222e933bfaa9c2576e0ceb61c8dc4"
+  },
+  {
+    "path": "Assets/_Project/Scripts/UI/ToastManager.cs",
+    "bytes": 13372,
+    "sha256": "d69239b9b6dba23abcce06bad93f61624f4ec741fb8736c78d23bc9d0ef5ce6e"
+  },
+  {
+    "path": "Assets/work.meta",
+    "bytes": 172,
+    "sha256": "bf1d2344e8ec4bef278b3bb5a697b191a5013306cc5a9041e0d1ddb4995c5421"
+  },
+  {
+    "path": "Assets/work/ui-complete-1106.meta",
+    "bytes": 172,
+    "sha256": "0287b93c08184558cd3e7a4d53e3abc016746c0545248d62a43bac736a7eecfb"
+  },
+  {
+    "path": "Assets/work/ui-complete-1106/base-current.png",
+    "bytes": 184389,
+    "sha256": "946ccfb22005345645bf5be9074d0cbb18b12631b1318333810c492591b91155"
+  },
+  {
+    "path": "Assets/work/ui-complete-1106/base-current.png.meta",
+    "bytes": 3009,
+    "sha256": "aa6a1ce09359e83ef9c9f25056ee4c8f4756f91843ead50c69e454f3e90b69c5"
+  },
+  {
+    "path": "Assets/work/ui-complete-1106/housing.png",
+    "bytes": 79645,
+    "sha256": "9868649c706375b72cd0ca48195e39a41c108bb71e85aca89bf805012041b673"
+  },
+  {
+    "path": "Assets/work/ui-complete-1106/housing.png.meta",
+    "bytes": 3009,
+    "sha256": "52453a56b6dcb6fe3cda78ec7241cf23f906c9d4bcc5e3853603ab0cf6f81b62"
+  },
+  {
+    "path": "Assets/work/ui-complete-1106/hud-before.png",
+    "bytes": 211038,
+    "sha256": "78f172edaabe26bfcf0fe7baca7bc96dc3c8c8098235fcddff4dbb10d0c73354"
+  },
+  {
+    "path": "Assets/work/ui-complete-1106/hud-before.png.meta",
+    "bytes": 3009,
+    "sha256": "b868e4440d3cc5f25de6e1d2b7ccc1b966d70d33fc713fd8c90924f9ec609cc8"
+  },
+  {
+    "path": "Assets/work/ui-complete-1106/redesign-selected.png",
+    "bytes": 182920,
+    "sha256": "26a4e6b0bf0531f4824cddd39cbc2da95173f24c527c18990f2e795aabe33c91"
+  },
+  {
+    "path": "Assets/work/ui-complete-1106/redesign-selected.png.meta",
+    "bytes": 3009,
+    "sha256": "38a6b0acce7a91010c4be30347557c28373fcf206ac3de04a0d7435622ec5962"
+  },
+  {
+    "path": "README.md",
+    "bytes": 11303,
+    "sha256": "15b5879d52aa237cb07739be4304e3d059aed504eab54d8d9f60cfb06c341944"
+  },
+  {
+    "path": "art/meshy-animation-1106/Heavy_Hammer_Swing.fbx-audit.txt",
+    "bytes": 3176,
+    "sha256": "8d21f3fad5ad5ee19519a9d1426113e51a6a3ba99e2a6d312ee471c077d97d3f"
+  },
+  {
+    "path": "art/meshy-animation-1106/PRESET_REVIEW.md",
+    "bytes": 3513,
+    "sha256": "24afa6bf360aed9d9ddc4cdbb42db48286c5d2ffb97081874dbab83bb5508e55"
+  },
+  {
+    "path": "art/meshy-animation-1106/life-bundle/REVIEW.md",
+    "bytes": 2805,
+    "sha256": "b51bdfe06dec37f01c1b8cb51a4c364c95c6b1ee689193dab167d687bce62190"
+  },
+  {
+    "path": "art/meshy-animation-1106/life-bundle/unity-clips.txt",
+    "bytes": 1197,
+    "sha256": "dc8f6914b323c1baab62819c5cb52e971d8c81f04df754a1fc0df6ec77deb822"
+  },
+  {
+    "path": "art/meshy-animation-1106/life-bundle/unity-doze-live.png",
+    "bytes": 88122,
+    "sha256": "d9f4947ae4af6079c87e9911b0a01b5df91d2c6988d0d43feab390cdac4c4797"
+  },
+  {
+    "path": "art/meshy-animation-1106/motion-audit.txt",
+    "bytes": 168305,
+    "sha256": "93c9dd15c2425e213553d126ab996987071c95c97f7ad92a63e6ba8a22c9e131"
+  },
+  {
+    "path": "art/meshy-animation-1106/preset-bundle/INVENTORY.md",
+    "bytes": 1604,
+    "sha256": "d261de6cf76f6650aceb8b578c8449866d9156d04dea56204b5b8cf8caf5dd05"
+  },
+  {
+    "path": "art/meshy-animation-1106/preset-library-snapshot.txt",
+    "bytes": 51345,
+    "sha256": "f724b60c98288eaf26bd7245352ee34e7dc0062f33127d02f3b069ea045363f0"
+  },
+  {
+    "path": "art/meshy-animation-1106/unity-import-inspection.txt",
+    "bytes": 4803,
+    "sha256": "29522e74568f12248932b3cbedd4ad7a1f24f12002650d8997c57f429ead17dc"
+  },
+  {
+    "path": "docs/IMPLEMENTATION_BOARD.md",
+    "bytes": 29729,
+    "sha256": "a03a5653752a814b6c0d83b7940a403d79b50a01545bd4dab8b29fedecb76dce"
+  },
+  {
+    "path": "docs/UI_APPROVED_HUD_1106.md",
+    "bytes": 4681,
+    "sha256": "e7d1e15fa818d3371b6535e55238d489abd9c4b745c013c79dc02bdf5474488f"
+  },
+  {
+    "path": "graphify-out/GRAPH_REPORT.md",
+    "bytes": 219656,
+    "sha256": "789c539e259f6f6c8bfd478de2a90eb38fde53ededb1757a960ff374392ec05a"
+  },
+  {
+    "path": "graphify-out/graph.json",
+    "bytes": 65004097,
+    "sha256": "8c5f36e015a27e84fc49bb79eac73c7ed2caeabb9b807554f4bbef0822444c76"
+  },
+  {
+    "path": "log.md",
+    "bytes": 6829,
+    "sha256": "ce2160f2f70377259fb97ff71930f0c9ccf49afba84ae8fdfb834c9d63073c84"
+  },
+  {
+    "path": "work/ui-compare-1107/html-1440.png",
+    "bytes": 963997,
+    "sha256": "9183fa0d51ce6e9ac5ceccce0ee6cf215062dc168ada33f95f36563bea0f7ab3"
+  },
+  {
+    "path": "work/ui-compare-1107/html-760.png",
+    "bytes": 349046,
+    "sha256": "2af6e4632a98e99e09d33e6dc2b47b6800dfd994740a6c3eabba6d65e1f65c7a"
+  },
+  {
+    "path": "work/ui-parity-1106/hud-1440.png",
+    "bytes": 264302,
+    "sha256": "ccc4632a0342b7ada6fcff7272744b7fbeba983f8e73206092ad382e2ed438ed"
+  },
+  {
+    "path": "work/ui-parity-1106/hud-760.png",
+    "bytes": 128395,
+    "sha256": "237c5c3160969e4f66495fe72f42f93d1ed2c58dbb65c6f2b565d8b0d592d37a"
+  }
+]

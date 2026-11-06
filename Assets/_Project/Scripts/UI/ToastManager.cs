@@ -48,14 +48,15 @@ namespace AntColony.UI
             instance = this;
             var canvas = MenuTheme.Canvas("Notifications", transform, 200); notificationCanvas = canvas;
             // HUD v2: 달력·속도 판(HudClock) 아래 오른쪽 318px 판넬, 위에서 아래로 쌓인다. 비면 숨긴다.
-            panel = MenuTheme.Panel(canvas.transform, "Toasts", new Vector2(1, 1), new Vector2(244, 0), new Vector2(-8, -100));
+            panel = MenuTheme.Panel(canvas.transform, "Toasts", new Vector2(1, 1), new Vector2(220, 0), new Vector2(-14, -92));
+            panel.GetComponent<Image>().color = Color.clear; panel.Find("Accent").gameObject.SetActive(false);
             var scroll = panel.gameObject.AddComponent<ScrollRect>(); scroll.horizontal = false; scroll.scrollSensitivity = 24;
             var viewport = MenuTheme.Rect("Viewport", panel); MenuTheme.Stretch(viewport);
             viewport.gameObject.AddComponent<RectMask2D>();
             list = MenuTheme.Rect("ToastItems", viewport);
             list.anchorMin = new Vector2(0, 1); list.anchorMax = Vector2.one; list.pivot = new Vector2(.5f, 1); list.sizeDelta = Vector2.zero;
             scroll.viewport = viewport; scroll.content = list;
-            var stack = list.gameObject.AddComponent<VerticalLayoutGroup>(); stack.padding = new RectOffset(8, 8, 8, 8); stack.spacing = 4;
+            var stack = list.gameObject.AddComponent<VerticalLayoutGroup>(); stack.padding = new RectOffset(0, 0, 0, 0); stack.spacing = 6;
             stack.childControlHeight = stack.childControlWidth = true; stack.childForceExpandHeight = false;
             list.gameObject.AddComponent<ContentSizeFitter>().verticalFit = ContentSizeFitter.FitMode.PreferredSize;
             panel.gameObject.AddComponent<PointerRelay>().owner = this;
@@ -148,7 +149,7 @@ namespace AntColony.UI
 
         private void LateUpdate()
         {
-            if (panel.gameObject.activeSelf) panel.sizeDelta = new Vector2(244, Mathf.Min(Screen.height / MenuTheme.UiScale - 180, LayoutUtility.GetPreferredHeight(list)));
+            if (panel.gameObject.activeSelf) panel.sizeDelta = new Vector2(220, Mathf.Min(Screen.height / MenuTheme.UiScale - 180, LayoutUtility.GetPreferredHeight(list)));
         }
 
         private void Rebuild()
@@ -173,13 +174,20 @@ namespace AntColony.UI
         private void Row(string name, string text, Color color, System.Action onClick, System.Action action = null, string actionLabel = null, bool achievement = false)
         {
             var rect = MenuTheme.Rect(name, list);
-            rect.gameObject.AddComponent<Image>().color = MenuTheme.Background;
-            rect.gameObject.AddComponent<LayoutElement>().preferredHeight=28;
-            var label = MenuLayout.Label(rect,text,13,6,0,204,28,color);
-            label.horizontalOverflow=HorizontalWrapMode.Wrap;label.verticalOverflow=VerticalWrapMode.Truncate;
+            rect.gameObject.AddComponent<Image>().color = MenuTheme.Hex(0x343b2e);
+            var stripe = MenuLayout.Place(MenuTheme.Rect("Severity", rect), 0, 0, 3, 34);
+            stripe.gameObject.AddComponent<Image>().color = color;
+            // Put the issue on the rail; explanations after an em dash remain in the tooltip.
+            var divider = text.IndexOf(" — ", System.StringComparison.Ordinal);
+            var headline = divider > 0 ? text.Substring(0, divider) : text;
+            var label = MenuLayout.Label(rect,headline,12,9,5,178,24,MenuTheme.TextColor);
+            label.horizontalOverflow=HorizontalWrapMode.Wrap;label.verticalOverflow=VerticalWrapMode.Overflow;
+            float height = Mathf.Max(34, label.preferredHeight + 10);
+            label.rectTransform.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, height - 10);
+            rect.gameObject.AddComponent<LayoutElement>().preferredHeight=height;
             rect.gameObject.AddComponent<MenuTooltip>().Message=text;
             if(action!=null){var button=rect.gameObject.AddComponent<Button>();MenuTheme.StyleButton(button);button.onClick.AddListener(()=>action());}
-            if(onClick!=null)MenuLayout.Button(rect,"Dismiss","×",208,2,20,24,()=>onClick());
+            if(onClick!=null)MenuLayout.Button(rect,"Dismiss","×",196,4,20,26,()=>onClick());
         }
 
         // 판넬 위 마우스 진입/이탈을 매니저로 넘긴다.

@@ -9,26 +9,37 @@ namespace AntColony.UI
     public sealed class HudWave : MonoBehaviour
     {
         private RectTransform root;
-        private Text title, detail;
+        private Text title, detail, countdown;
+        private Image timerBackground;
         private Button action;
         private Text actionText;
         private int focusIndex;
 
         public static HudWave Create(Transform canvas)
         {
-            var root = MenuTheme.Panel(canvas, "HudWave", new Vector2(1, 1), new Vector2(244, 52), new Vector2(-8, -146));
+            var root = MenuTheme.Panel(canvas, "HudWave", new Vector2(1, 1), new Vector2(220, 60), new Vector2(-14, -20));
+            root.gameObject.AddComponent<MenuTooltip>();
             var hud = root.gameObject.AddComponent<HudWave>(); hud.root = root;
             root.gameObject.AddComponent<CanvasGroup>();
-            hud.title = Label(root, 12, new Vector2(8, -5), MenuTheme.TextColor); hud.title.fontStyle = FontStyle.Bold;
-            hud.detail = Label(root, 12, new Vector2(8, -27), MenuTheme.Dim);
+            hud.title = Label(root, 12, new Vector2(12, -6), MenuTheme.TextColor); hud.title.fontStyle = FontStyle.Normal; hud.title.font = MenuTheme.NumberFont;
+            hud.detail = Label(root, 12, new Vector2(12, -27), MenuTheme.Dim);
+            hud.detail.gameObject.SetActive(true);
+            hud.title.rectTransform.sizeDelta = new Vector2(114,24);
             var rect = MenuTheme.Rect("WaveAction", root);
             rect.anchorMin = rect.anchorMax = rect.pivot = new Vector2(1, 1);
-            rect.anchoredPosition = new Vector2(-6, -6); rect.sizeDelta = new Vector2(84, 40);
+            rect.anchoredPosition = new Vector2(-8, -8); rect.sizeDelta = new Vector2(80, 44);
             rect.gameObject.AddComponent<Image>().color = Color.white;
             hud.action = rect.gameObject.AddComponent<Button>(); MenuTheme.StyleButton(hud.action);
             hud.action.onClick.AddListener(hud.OnAction);
-            hud.actionText = MenuTheme.Text(rect, "", 12); MenuTheme.Stretch(hud.actionText.rectTransform);
-            hud.actionText.alignment = TextAnchor.MiddleCenter;
+            hud.timerBackground = rect.GetComponent<Image>();
+            hud.action.transition = Selectable.Transition.None;
+            hud.timerBackground.canvasRenderer.SetColor(Color.white);
+            hud.countdown = Label(rect, 24, new Vector2(0, 0), MenuTheme.Accent);
+            hud.countdown.font = MenuTheme.NumberFont; hud.countdown.fontSize = 24;
+            hud.countdown.rectTransform.sizeDelta = new Vector2(80, 42); hud.countdown.alignment = TextAnchor.MiddleCenter;
+            hud.actionText = Label(rect, 11, new Vector2(0, -27), MenuTheme.Dim);
+            hud.actionText.fontSize = 11; hud.actionText.rectTransform.sizeDelta = new Vector2(80, 16);
+            hud.actionText.alignment = TextAnchor.MiddleCenter; hud.actionText.gameObject.SetActive(false);
             return hud;
         }
 
@@ -52,20 +63,30 @@ namespace AntColony.UI
             var group = root.GetComponent<CanvasGroup>();
             group.alpha = visible ? 1 : 0; group.blocksRaycasts = group.interactable = visible;
             if (!visible) return;
+            float duration = wave.Wave == 0 ? WaveDefense.FirstPeace : WaveDefense.Peace;
+            float urgency = wave.InWave ? 1 : 1 - Mathf.Clamp01(wave.PeaceLeft / duration);
+            root.GetComponent<Image>().color = Color.Lerp(MenuTheme.Hex(0x353e30), MenuTheme.Hex(0x632820), urgency);
+            timerBackground.color = Color.Lerp(MenuTheme.Hex(0x242e21), MenuTheme.Hex(0x3e1816), urgency);
+            countdown.color = Color.Lerp(MenuTheme.Hex(0xe6ce96), MenuTheme.Hex(0xffb19a), urgency);
+            root.Find("Accent").GetComponent<Image>().color = Color.Lerp(MenuTheme.Hex(0x727b5b), MenuTheme.Hex(0xcc674e), urgency);
             if (wave.InWave)
             {
-                title.text = $"웨이브 {wave.Wave} 방어 중";
-                detail.text = $"남은 적 {wave.RemainingEnemies}";
-                actionText.text = "남은 적 보기";
+                title.text = $"{wave.Wave}차 습격 진행";
+                countdown.text = wave.RemainingEnemies.ToString();
+                detail.text = "남은 적";
+                actionText.text = "적 위치";
+                root.GetComponent<MenuTooltip>().Message = title.text + " · 버튼을 눌러 남은 적 위치를 차례로 확인합니다.";
                 action.interactable = wave.AliveEnemies > 0;
                 return;
             }
             var seconds = Mathf.CeilToInt(wave.PeaceLeft);
-            title.text = $"평화 · 웨이브 {wave.Wave + 1}까지";
+            title.text = wave.Wave == 0 ? "첫 습격까지" : $"{wave.Wave + 1}차 습격까지";
+            countdown.text = $"{seconds / 60:00}:{seconds % 60:00}";
             detail.text = !WaveDefense.CanStart && seconds <= 0
                 ? (RocketCampaign.SuppressNewCrises ? "로켓 가동 중 보류" : "본거지 장수 부재로 대기")
-                : $"{seconds / 60}:{seconds % 60:00} · 적 {WaveDefense.Count(wave.Wave + 1)}마리 예상";
-            actionText.text = "지금 시작";
+                : seconds <= 60 ? "습격 임박" : "평화 시간";
+            actionText.text = "앞당기기";
+            root.GetComponent<MenuTooltip>().Message = detail.text + $" · 적 {WaveDefense.Count(wave.Wave + 1)}마리 예상 · 버튼: 지금 시작. 평화 시간이 끝나면 자동으로 시작합니다.";
             action.interactable = WaveDefense.CanStart;
         }
 
@@ -75,7 +96,7 @@ namespace AntColony.UI
             var rect = text.rectTransform; rect.anchorMin = rect.anchorMax = rect.pivot = new Vector2(0, 1);
             rect.anchoredPosition = position; rect.sizeDelta = new Vector2(142, 20); text.color = color;
             text.horizontalOverflow = HorizontalWrapMode.Wrap;
-            text.resizeTextForBestFit = true;
+            text.resizeTextForBestFit = false;
             text.resizeTextMinSize = 10;
             text.resizeTextMaxSize = size;
             return text;

@@ -27,62 +27,72 @@ namespace AntColony.UI
         private static bool InFilter(CommanderAnt c, int filter) => filter == 0 || (filter == 4 ? CommanderOverhead.MoodAlert(c) : Category(c) == filter);
         private static Color MoodColor(float mood) => mood < 35 ? MenuTheme.Danger : mood < 50 ? MenuTheme.HpMid : MenuTheme.Hp;
 
+        private bool rosterDetail;
         private void RosterScreen(CommanderAnt selected)
         {
             var all = SortedCommanders();
-            var window = V5Window("인재·편성", $"장수 {all.Length}명 · 상태·장비·작업·출전 편성");
-            ManagementTabs(window, "인재·편성", "장수");
-            var p = L.Place(MenuTheme.Rect("RosterPanel", window), 12, 104, 1076, 544);
-
-            for (var i = 0; i < FilterNames.Length; i++)
+            var selection = AntColony.Core.SceneObjects.Any<SelectionManager>();
+            var window = PrototypeWindow("장수", $"{all.Length}명 · 현재 선택 {HudOverview.Selected(selection).Length}명", () => RosterScreen(selected));
+            float width = window.sizeDelta.x, height = window.sizeDelta.y;
+            bool compact = width < 1000;
+            var shown = all.Where(c => InFilter(c, rosterFilter) && (rosterSearch.Length == 0 || c.CommanderName.IndexOf(rosterSearch, StringComparison.OrdinalIgnoreCase) >= 0)).ToArray();
+            selected ??= shown.FirstOrDefault();
+            for (int i = 0; i < FilterNames.Length; i++)
             {
-                var index = i;
-                var count = all.Count(c => InFilter(c, index));
-                var button = L.Button(p, "Filter " + FilterNames[i], $"{FilterNames[i]}  <color=#b1b3a7>{count}</color>", i * 92, 0, 88, 30,
-                    () => { rosterFilter = index; RosterScreen(selected); }, null, false, 13);
-                if (i == rosterFilter) button.GetComponent<Outline>().effectColor = MenuTheme.Accent;
+                var filter = i;
+                L.Button(window, "Filter " + FilterNames[i], $"{FilterNames[i]} {all.Count(c => InFilter(c, filter))}", 20 + i * 94, 82, 90, 30,
+                    () => { rosterFilter = filter; rosterDetail = false; RosterScreen(selected); }, primary: filter == rosterFilter);
             }
-            var search = MenuTheme.Input(p, rosterSearch);
-            L.Place((RectTransform)search.transform, 824, 0, 240, 30);
-            search.contentType = InputField.ContentType.Standard; search.characterLimit = 20; search.textComponent.fontSize = 13;
-            search.onEndEdit.AddListener(v => { rosterSearch = v; RosterScreen(selected); });
-            search.gameObject.AddComponent<MenuTooltip>().Message = "이름 검색: 입력 후 Enter";
-            L.Line(p, 0, 40, 1076);
-            L.Button(p, "Work Schedule", "작업표", 540, 0, 110, 30, WorkSchedule);
-            L.Button(p, "Conscription", "징집소", 660, 0, 110, 30, OpenConscription);
-            L.Button(p, "Carried Supplies", "소지품", 456, 0, 76, 30, CarriedSupplies);
-
-            var shown = all.Where(c => InFilter(c, rosterFilter)
-                && (rosterSearch.Length == 0 || c.CommanderName.IndexOf(rosterSearch, StringComparison.OrdinalIgnoreCase) >= 0)).ToArray();
-            if (selected == null) selected = shown.FirstOrDefault();
-            string[] heads = { "이름", "무기 (역할)", "병력", "기분", "이탈까지", "상태" };
-            float[] cols = { 8, 108, 218, 318, 378, 438 };
-            for (var i = 0; i < heads.Length; i++) L.Label(p, heads[i], 12, cols[i], 48, 100, 22, MenuTheme.Dim);
-            var list = L.List(p, 0, 74, 530, 430, 4);
-            foreach (var c in shown)
+            var search = MenuTheme.Input(window, rosterSearch); search.name = "Commander Search";
+            L.Place((RectTransform)search.transform, 20, 122, Mathf.Min(250, width - 380), 32);
+            search.contentType = InputField.ContentType.Standard; search.characterLimit = 20;
+            search.onEndEdit.AddListener(v => { rosterSearch = v; rosterDetail = false; RosterScreen(selected); });
+            L.Button(window, "Work Schedule", "작업표", width - 320, 122, 90, 32, WorkSchedule);
+            L.Button(window, "Conscription", "출전 편성", width - 220, 122, 90, 32, OpenConscription);
+            L.Button(window, "Carried Supplies", "소지품", width - 120, 122, 100, 32, CarriedSupplies);
+            float top = compact ? 204 : 170, listWidth = compact ? width - 40 : width - 576;
+            if (compact)
             {
-                var captured = c;
-                var row = L.Button(list, "Commander " + c.CommanderName, "", 0, 0, 0, 0, () => RosterScreen(captured));
-                row.gameObject.AddComponent<LayoutElement>().preferredHeight = 40;
-                if (c == selected) row.GetComponent<Outline>().effectColor = MenuTheme.Accent;
-                L.Label(row.transform, c.CommanderName, 14, cols[0] - 6, 0, 96, 40, MoodColor(c.Mood), bold: true);
-                L.Label(row.transform, $"{c.WeaponName} <color=#b1b3a7>· {CommandCard.RoleName(c.Role)}{(c.IsFlying ? " · 비행" : "")}</color>", 12, cols[1] - 6, 0, 106, 40, MenuTheme.Muted);
-                L.Label(row.transform, $"<b>{c.TroopCount}</b><color=#b1b3a7>/{c.CommandLimit}</color>", 13, cols[2] - 6, 0, 60, 40);
-                L.Meter(row.transform, cols[2] - 6, 34, 80, 4, c.CommandLimit > 0 ? (float)c.TroopCount / c.CommandLimit : 0, MenuTheme.Hp);
-                L.Label(row.transform, $"{c.Mood:0}", 14, cols[3] - 6, 0, 54, 40, MoodColor(c.Mood));
-                L.Label(row.transform, c.PersonalState.lowMoodSeconds > 0 ? $"{Mathf.Max(0, SocialRules.Month - c.PersonalState.lowMoodSeconds):0}초" : "—", 14, cols[4] - 6, 0, 54, 40, c.PersonalState.lowMoodSeconds > 0 ? MenuTheme.DangerInk : MenuTheme.Muted);
-                L.Label(row.transform, Status(c), 12, cols[5] - 6, 0, 76, 40, MenuTheme.Muted);
+                L.Button(window, "Roster List Tab", $"목록 {shown.Length}", 20, 164, 130, 30, () => { rosterDetail = false; RosterScreen(selected); }, primary: !rosterDetail);
+                L.Button(window, "Roster Detail Tab", selected == null ? "상세" : selected.CommanderName + " 상세", 160, 164, 200, 30,
+                    () => { rosterDetail = true; RosterScreen(selected); }, primary: rosterDetail);
             }
-            L.Line(p, 0, 510, 530);
-            if (all.Length > 0)
-                L.Label(p, $"총 병력 <b>{all.Sum(c => c.TroopCount)}</b> / {all.Sum(c => c.CommandLimit)}     평균 기분 <b>{all.Average(c => c.Mood):0}</b>",
-                    12, 8, 516, 520, 22, MenuTheme.Muted);
-            L.Box(p, "Divider", 540, 40, 1, 504, MenuTheme.Line);
-
-            content = L.List(p, 554, 48, 522, 496, 10);
-            if (selected == null) MenuTheme.Text(content, "조건에 맞는 장수가 없습니다.", 14, 40).color = MenuTheme.Dim;
-            else CommanderDetail(selected);
-            V5Fit(window);
+            if (!compact || !rosterDetail)
+            {
+                var list = L.List(window, 20, top, listWidth, height - top - 48, 5);
+                foreach (var c in shown)
+                {
+                    var captured = c;
+                    var row = L.Button(list, "Commander " + c.CommanderName, "", 0, 0, 0, 0,
+                        () => { rosterDetail = true; RosterScreen(captured); }, primary: c == selected);
+                    row.gameObject.AddComponent<LayoutElement>().preferredHeight = 64;
+                    var face = CharacterPortraits.Get(c);
+                    if (face != null)
+                    {
+                        var portrait = L.Place(MenuTheme.Rect("Portrait", row.transform), 8, 8, 44, 44);
+                        var image = portrait.gameObject.AddComponent<RawImage>(); image.texture = face; image.raycastTarget = false;
+                    }
+                    L.Label(row.transform, c.CommanderName, 15, 64, 4, listWidth - 180, 28, bold: true);
+                    L.Label(row.transform, Status(c) + " · " + c.WeaponName, 12, 64, 32, listWidth - 190, 24, MenuTheme.Muted);
+                    L.Label(row.transform, $"기분 {c.Mood:0}\n병력 {c.TroopCount}/{c.CommandLimit}", 12, listWidth - 120, 8, 94, 48, MoodColor(c.Mood), TextAnchor.MiddleRight);
+                }
+                L.Label(window, $"{shown.Length}명 표시 · 총 병력 {all.Sum(c => c.TroopCount)} / {all.Sum(c => c.CommandLimit)}", 12, 20, height - 38, listWidth, 24, MenuTheme.Muted);
+            }
+            if (!compact || rosterDetail)
+            {
+                float x = compact ? 20 : width - 540;
+                content = L.List(window, x, top, compact ? width - 40 : 520, height - top - 58, 10);
+                if (selected == null) MenuTheme.Text(content, "조건에 맞는 장수가 없습니다.", 14, 40);
+                else CommanderDetail(selected);
+                if (selected != null)
+                {
+                    var target = selected;
+                    L.Button(window, "Roster Select", "게임에서 선택", x, height - 46, 142, 32, () => { selection?.SelectOnly(target.GetComponent<SelectableObject>()); Resume(); });
+                    L.Button(window, "Roster Add Selection", "선택에 추가", x + 152, height - 46, 142, 32, () => { selection?.Add(target.GetComponent<SelectableObject>()); RosterScreen(target); });
+                    L.Button(window, "Roster Equipment", "장비", x + 304, height - 46, 88, 32, () => ShowEquipment(target));
+                    L.Button(window, "Roster Health", "건강", x + 402, height - 46, 88, 32, () => ShowHealth(target));
+                }
+            }
         }
 
         private static string BreakName(AntColony.Units.MentalBreak b) => b switch

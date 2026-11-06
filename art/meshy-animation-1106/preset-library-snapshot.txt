@@ -1,0 +1,1395 @@
+- main:
+  - button "홈으로 돌아가기":
+  - button "내 작업 공간":
+  - separator
+  - button "Agent":
+    - generic: Agent
+  - button "이미지":
+    - generic: 이미지
+  - button "모델":
+    - generic: 모델
+  - button "인쇄":
+    - generic: 인쇄
+  - button "애니메이트":
+    - generic: 애니메이트
+  - separator
+  - button "에셋":
+    - generic: 에셋
+  - button "보상 받기":
+  - button "알림":
+  - separator
+  - button "내 크레딧":
+  - button "605"
+  - button "충전":
+    - generic: 충전
+  - button "shim001220":
+    - img "shim001220"
+  - textbox
+  - generic: 검색 애니메이션
+  - generic: 도서관
+  - generic: 추가됨
+  - button:
+  - button "텍스트 → 모션":
+    - text: 텍스트 → 모션
+  - text: 비디오 → 모션
+  - generic: AI 모션
+  - img "Tool_Mine_TwoHand_v2"
+  - generic: Tool_Mine_TwoHand_v2
+  - img "Tool_Chop_SharedRig"
+  - generic: Tool_Chop_SharedRig
+  - generic: 프리셋 모션
+  - generic "14 아이들"
+  - generic: 14 아이들
+  - generic "15분 동안 아무것도 안 하다."
+  - generic: 15분 동안 아무것도 안 하다.
+  - generic "360 파워 스핀 점프"
+  - generic: 360 파워 스핀 점프
+  - generic "Mage Spell Cast"
+  - generic: Mage Spell Cast
+  - generic "Mage Spell Cast 1"
+  - generic: Mage Spell Cast 1
+  - generic "Mage Spell Cast 2"
+  - generic: Mage Spell Cast 2
+  - generic "Mage Spell Cast 3"
+  - generic: Mage Spell Cast 3
+  - generic "Mage Spell Cast 4"
+  - generic: Mage Spell Cast 4
+  - generic "Mage Spell Cast 5"
+  - generic: Mage Spell Cast 5
+  - generic "Mage Spell Cast 6"
+  - generic: Mage Spell Cast 6
+  - generic "Mage Spell Cast 7"
+  - generic: Mage Spell Cast 7
+  - generic "Mage Spell Cast 8"
+  - generic: Mage Spell Cast 8
+  - generic "YMCA 댄스"
+  - generic: YMCA 댄스
+  - generic "가드로부터 왼쪽 숏 후크"
+  - generic: 가드로부터 왼쪽 숏 후크
+  - generic "가드로부터의 오른쪽 상단 후크"
+  - generic: 가드로부터의 오른쪽 상단 후크
+  - generic "가드로부터의 오른쪽 업퍼컷"
+  - generic: 가드로부터의 오른쪽 업퍼컷
+  - generic "가드로부터의 오른쪽 짬집"
+  - generic: 가드로부터의 오른쪽 짬집
+  - generic "가드로부터의 왼쪽 업퍼컷"
+  - generic: 가드로부터의 왼쪽 업퍼컷
+  - generic "가드로부터의 왼쪽 잽"
+  - generic: 가드로부터의 왼쪽 잽
+  - generic "가드로부터의 왼펀치"
+  - generic: 가드로부터의 왼펀치
+  - generic "가슴 치기 도발"
+  - generic: 가슴 치기 도발
+  - generic "가을 1"
+  - generic: 가을 1
+  - generic "가을 2"
+  - generic: 가을 2
+  - generic "가을 3"
+  - generic: 가을 3
+  - generic "가을 4"
+  - button "추가하다":
+    - generic: 추가하다
+  - generic "가장자리로 수영하기"
+  - generic: 가장자리로 수영하기
+  - generic "간단한 발차기"
+  - generic: 간단한 발차기
+  - generic "감전 반응"
+  - generic: 감전 반응
+  - generic "감전된 추락"
+  - generic: 감전된 추락
+  - generic "감히 하지 마"
+  - generic: 감히 하지 마
+  - generic "갑작스럽게 뒤돌아보며 걷기 스캔"
+  - generic: 갑작스럽게 뒤돌아보며 걷기 스캔
+  - generic "강남 그루브"
+  - generic: 강남 그루브
+  - generic "개인화된 제스처"
+  - generic: 개인화된 제스처
+  - generic "객체 수집"
+  - generic: 객체 수집
+  - generic "거꾸로 매달린 로프 2"
+  - generic: 거꾸로 매달린 로프 2
+  - generic "거꾸로 매달린 로프 행위"
+  - generic: 거꾸로 매달린 로프 행위
+  - generic "거꾸로 매달린 로프 행위 1"
+  - generic: 거꾸로 매달린 로프 행위 1
+  - generic "거울 보기"
+  - generic: 거울 보기
+  - generic "걷기"
+  - generic: 걷기
+  - generic "걷기 2"
+  - generic: 걷기 2
+  - generic "걷기 2"
+  - generic: 걷기 2
+  - generic "걷기 오른쪽으로 돌기 (아이들 스타일)"
+  - generic: 걷기 오른쪽으로 돌기 (아이들 스타일)
+  - generic "걷기 오른쪽으로 돌다"
+  - generic: 걷기 오른쪽으로 돌다
+  - generic "걷기 오른쪽으로 돌아가세요 (여성)"
+  - generic: 걷기 오른쪽으로 돌아가세요 (여성)
+  - generic "걷기 왼쪽으로 돌기"
+  - generic: 걷기 왼쪽으로 돌기
+  - generic "걷어서 앉기"
+  - generic: 걷어서 앉기
+  - generic "걸어서 앉는 전환"
+  - generic: 걸어서 앉는 전환
+  - generic "걸음 걸음 돌리고 차기"
+  - generic: 걸음 걸음 돌리고 차기
+  - generic "검과 방패 경보 오른쪽으로 돌기"
+  - generic: 검과 방패 경보 오른쪽으로 돌기
+  - generic "검을 통해 뒤로 네 번 튕기다"
+  - generic: 검을 통해 뒤로 네 번 튕기다
+  - generic "검을 퇴각 방어 1"
+  - generic: 검을 퇴각 방어 1
+  - generic "검을 퇴각 방어 2"
+  - generic: 검을 퇴각 방어 2
+  - generic "검을 퇴각시키다"
+  - generic: 검을 퇴각시키다
+  - generic "검을 흔들어 뒤로 5번 방어하기"
+  - generic: 검을 흔들어 뒤로 5번 방어하기
+  - generic "검의 심판"
+  - generic: 검의 심판
+  - generic "검의 외침"
+  - generic: 검의 외침
+  - generic "경계"
+  - generic: 경계
+  - generic "경고 빠른 우회전"
+  - generic: 경고 빠른 우회전
+  - generic "계단 오르기"
+  - generic: 계단 오르기
+  - generic "고령자 흔들거리는 걷기"
+  - generic: 고령자 흔들거리는 걷기
+  - generic "고령자 흔들거리는 걷기"
+  - generic: 고령자 흔들거리는 걷기
+  - generic "골프 드라이브"
+  - generic: 골프 드라이브
+  - generic "공격"
+  - generic: 공격
+  - generic "공중 스쿼트"
+  - generic: 공중 스쿼트
+  - generic "그랩 바 및 스윙 앞으로"
+  - generic: 그랩 바 및 스윙 앞으로
+  - generic "그루비 워크"
+  - generic: 그루비 워크
+  - generic "그리고 왼쪽으로 쏘세요."
+  - generic: 그리고 왼쪽으로 쏘세요.
+  - generic "금고와 땅"
+  - generic: 금고와 땅
+  - generic "기둥 위에 서서 균형을 잡다."
+  - generic: 기둥 위에 서서 균형을 잡다.
+  - generic "기어가고 돌아보다"
+  - generic: 기어가고 돌아보다
+  - generic "깊게 숨을 들이쉬고 주변을 둘러봐세요."
+  - generic: 깊게 숨을 들이쉬고 주변을 둘러봐세요.
+  - generic "꾸미뻐걷기"
+  - generic: 꾸미뻐걷기
+  - generic "꾸미뻐걷기"
+  - generic: 꾸미뻐걷기
+  - generic "날아차기"
+  - generic: 날아차기
+  - generic "날카로운 커브를 오른쪽으로 달리세요."
+  - generic: 날카로운 커브를 오른쪽으로 달리세요.
+  - generic "남성 머리를 숙이고 돌진"
+  - generic: 남성 머리를 숙이고 돌진
+  - generic "남성의 벤디션"
+  - generic: 남성의 벤디션
+  - generic "남성이 앞으로 뛰어가서 왼쪽을 집어들다."
+  - generic: 남성이 앞으로 뛰어가서 왼쪽을 집어들다.
+  - generic "남성이 앞으로 숙여 물건을 주웁니다."
+  - generic: 남성이 앞으로 숙여 물건을 주웁니다.
+  - generic "넉 다운"
+  - generic: 넉 다운
+  - generic "넉 다운 1"
+  - generic: 넉 다운 1
+  - generic "넘어지다"
+  - generic: 넘어지다
+  - generic "노인의 졸음"
+  - generic: 노인의 졸음
+  - generic "놀라운 춤 1"
+  - generic: 놀라운 춤 1
+  - generic "놀라운 춤 2"
+  - generic: 놀라운 춤 2
+  - generic "놀라운 춤 3"
+  - generic: 놀라운 춤 3
+  - generic "누워 다리 흔들기"
+  - generic: 누워 다리 흔들기
+  - generic "누워, 손 펼쳐라"
+  - generic: 누워, 손 펼쳐라
+  - generic "느린 걸음 다시 불러오기"
+  - generic: 느린 걸음 다시 불러오기
+  - generic "느린 걸음 다시 불러오기"
+  - generic: 느린 걸음 다시 불러오기
+  - generic "느린 바 행 오른쪽"
+  - generic: 느린 바 행 오른쪽
+  - generic "느린 바 행위 왼쪽"
+  - generic: 느린 바 행위 왼쪽
+  - generic "느린 사다리 오르기"
+  - generic: 느린 사다리 오르기
+  - generic "느린 오크 걷기"
+  - generic: 느린 오크 걷기
+  - generic "다리 스윕"
+  - generic: 다리 스윕
+  - generic "다리를 꼬고 앉으세요."
+  - generic: 다리를 꼬고 앉으세요.
+  - generic "다이브 다운하고 1번 착륙하세요."
+  - generic: 다이브 다운하고 1번 착륙하세요.
+  - generic "다이브 다운하고 2번 착륙하세요."
+  - generic: 다이브 다운하고 2번 착륙하세요.
+  - generic "다이빙하고 착륙하세요."
+  - generic: 다이빙하고 착륙하세요.
+  - generic "다친 걷기"
+  - generic: 다친 걷기
+  - generic "달리고 뛰어라"
+  - generic: 달리고 뛰어라
+  - generic "달리고 뛰어라"
+  - generic: 달리고 뛰어라
+  - generic "달리기"
+  - generic: 달리기
+  - generic "달리기 2"
+  - generic: 달리기 2
+  - generic "달리기 3"
+  - generic: 달리기 3
+  - generic "달리기, 구르기, 뒤집기"
+  - generic: 달리기, 구르기, 뒤집기
+  - generic "달리기, 뛰기, 그리고 구르기"
+  - generic: 달리기, 뛰기, 그리고 구르기
+  - generic "달리기에서 걷기로의 전환"
+  - generic: 달리기에서 걷기로의 전환
+  - generic "달리다가 등을 때렸습니다."
+  - generic: 달리다가 등을 때렸습니다.
+  - generic "달리며 사격"
+  - generic: 달리며 사격
+  - generic "당신은 그루브해요"
+  - generic: 당신은 그루브해요
+  - generic "대각선 벽 뛰기"
+  - generic: 대각선 벽 뛰기
+  - generic "대기"
+  - generic: 대기
+  - generic "대기 1"
+  - generic: 대기 1
+  - generic "대기 2"
+  - generic: 대기 2
+  - generic "대기 중 왼쪽으로 돌기"
+  - generic: 대기 중 왼쪽으로 돌기
+  - generic "대기 중인 스텝을 왼쪽으로 돌리세요."
+  - generic: 대기 중인 스텝을 왼쪽으로 돌리세요.
+  - generic "더블 킥 포워드."
+  - generic: 더블 킥 포워드.
+  - generic "더운 산책"
+  - generic: 더운 산책
+  - generic "데님 팝 댄스"
+  - generic: 데님 팝 댄스
+  - generic "도끼 숨을 쉬고 주변을 둘러보다"
+  - generic: 도끼 숨을 쉬고 주변을 둘러보다
+  - generic "도끼 자세"
+  - generic: 도끼 자세
+  - generic "도끼 회전 공격"
+  - generic: 도끼 회전 공격
+  - generic "도움 요청 1"
+  - generic: 도움 요청 1
+  - generic "도움 요청을 위한 손짓 3"
+  - generic: 도움 요청을 위한 손짓 3
+  - generic "도움 요청을 위한 신호 4"
+  - generic: 도움 요청을 위한 신호 4
+  - generic "도움을 요청하는 손짓"
+  - generic: 도움을 요청하는 손짓
+  - generic "도움을 요청하는 손짓 2"
+  - generic: 도움을 요청하는 손짓 2
+  - generic "돌아보고 앉다"
+  - generic: 돌아보고 앉다
+  - generic "동기 응원"
+  - generic: 동기 응원
+  - generic "동의 제스처"
+  - generic: 동의 제스처
+  - generic "두통 완화"
+  - generic: 두통 완화
+  - generic "뒤로 걷다"
+  - generic: 뒤로 걷다
+  - generic "뒤로 걷다"
+  - generic: 뒤로 걷다
+  - generic "뒤로 걸으며 전투"
+  - generic: 뒤로 걸으며 전투
+  - generic "뒤로 검을 튕기다 3"
+  - generic: 뒤로 검을 튕기다 3
+  - generic "뒤로 기어가다"
+  - generic: 뒤로 기어가다
+  - generic "뒤로 기어가다"
+  - generic: 뒤로 기어가다
+  - generic "뒤엎어 뛰고 일어나세요"
+  - generic: 뒤엎어 뛰고 일어나세요
+  - generic "뒤엎어 점프"
+  - generic: 뒤엎어 점프
+  - generic "뒤에서 그리고 발사 1"
+  - generic: 뒤에서 그리고 발사 1
+  - generic "뒤에서 그리고 발사하세요."
+  - generic: 뒤에서 그리고 발사하세요.
+  - generic "뒤에서 그리고 발사하세요."
+  - generic: 뒤에서 그리고 발사하세요.
+  - generic "뒷손 뛰기"
+  - generic: 뒷손 뛰기
+  - generic "뒷점프"
+  - generic: 뒷점프
+  - generic "듣기 제스처"
+  - generic: 듣기 제스처
+  - generic "등반 시도 및 추락 1"
+  - generic: 등반 시도 및 추락 1
+  - generic "등반 시도 및 추락 2"
+  - generic: 등반 시도 및 추락 2
+  - generic "등반 시도 및 추락 3"
+  - generic: 등반 시도 및 추락 3
+  - generic "등반 시도 및 추락 4"
+  - generic: 등반 시도 및 추락 4
+  - generic "등반 시도 및 추락 5"
+  - generic: 등반 시도 및 추락 5
+  - generic "등반 시도와 추락"
+  - generic: 등반 시도와 추락
+  - generic "등을 쏴서 넘어지다"
+  - generic: 등을 쏴서 넘어지다
+  - generic "땅을 뒤집고 쓸어 올리기"
+  - generic: 땅을 뒤집고 쓸어 올리기
+  - generic "뛰어서 받고 떨어지기"
+  - generic: 뛰어서 받고 떨어지기
+  - generic "라운드하우스 킥"
+  - generic: 라운드하우스 킥
+  - generic "러브 유 팝 댄스"
+  - generic: 러브 유 팝 댄스
+  - generic "런지 라운드하우스 킥"
+  - generic: 런지 라운드하우스 킥
+  - generic "런지 스핀 킥"
+  - generic: 런지 스핀 킥
+  - generic "레드 카펫 워크"
+  - generic: 레드 카펫 워크
+  - generic "로프 매달리기 아이들"
+  - generic: 로프 매달리기 아이들
+  - generic "로프를 올라가다"
+  - generic: 로프를 올라가다
+  - generic "로프를 이용한 백플립에서 앉은 자세로 넘어가기"
+  - generic: 로프를 이용한 백플립에서 앉은 자세로 넘어가기
+  - generic "로프에서 땅으로 흔들리다"
+  - generic: 로프에서 땅으로 흔들리다
+  - generic "롤 도지"
+  - generic: 롤 도지
+  - generic "롤 도지 1"
+  - generic: 롤 도지 1
+  - generic "롤 도지 2"
+  - generic: 롤 도지 2
+  - generic "롤 도지 3"
+  - generic: 롤 도지 3
+  - generic "롤 도지 4"
+  - generic: 롤 도지 4
+  - generic "롤을 하는 파크 코어 볼트"
+  - generic: 롤을 하는 파크 코어 볼트
+  - generic "리듬 댄스"
+  - generic: 리듬 댄스
+  - generic "막대기에 뛰어 올라가서 매달리다."
+  - generic: 막대기에 뛰어 올라가서 매달리다.
+  - generic "만지고 도망가다"
+  - generic: 만지고 도망가다
+  - generic "말타기 자세에서의 사이드 점프."
+  - generic: 말타기 자세에서의 사이드 점프.
+  - generic "매직 지니"
+  - generic: 매직 지니
+  - generic "머리를 아프게 하는 것을 참다"
+  - generic: 머리를 아프게 하는 것을 참다
+  - generic "머리에 손을 얹고 뒤로 기대세요."
+  - generic: 머리에 손을 얹고 뒤로 기대세요.
+  - generic "목 베기 제스처"
+  - generic: 목 베기 제스처
+  - generic "목졸라 넘어지다"
+  - generic: 목졸라 넘어지다
+  - generic "몰래 걷기"
+  - generic: 몰래 걷기
+  - generic "몰래 걷기"
+  - generic: 몰래 걷기
+  - generic "무거운 대포를 앞으로 나르세요."
+  - generic: 무거운 대포를 앞으로 나르세요.
+  - generic "무거운 망치 휘두르기"
+  - generic: 무거운 망치 휘두르기
+  - generic "무거운 물건을 들고 걷기"
+  - generic: 무거운 물건을 들고 걷기
+  - generic "무거운 물건을 들고 걷기"
+  - generic: 무거운 물건을 들고 걷기
+  - generic "무기 콤보"
+  - generic: 무기 콤보
+  - generic "무기 콤보 1"
+  - generic: 무기 콤보 1
+  - generic "무기 콤보 2"
+  - generic: 무기 콤보 2
+  - generic "무기를 낮추고, 보세요, 올려주세요"
+  - generic: 무기를 낮추고, 보세요, 올려주세요
+  - generic "무기를 들고 왼쪽으로 걷다"
+  - generic: 무기를 들고 왼쪽으로 걷다
+  - generic "무를 뽑다"
+  - generic: 무를 뽑다
+  - generic "무릎을 꿇고 재장전하기"
+  - generic: 무릎을 꿇고 재장전하기
+  - generic "무장된 보금자리"
+  - generic: 무장된 보금자리
+  - generic "문 1 열기"
+  - generic: 문 1 열기
+  - generic "문 3을 열다"
+  - generic: 문 3을 열다
+  - generic "문 4 열기"
+  - generic: 문 4 열기
+  - generic "문을 열다 2"
+  - generic: 문을 열다 2
+  - generic "물 양동이를 들고 걷다"
+  - generic: 물 양동이를 들고 걷다
+  - generic "미끄러지는 비틀거림"
+  - generic: 미끄러지는 비틀거림
+  - generic "미이라 비틀거리기"
+  - generic: 미이라 비틀거리기
+  - generic "믿음의 도약"
+  - generic: 믿음의 도약
+  - generic "바 행 아이들"
+  - generic: 바 행 아이들
+  - generic "바닥에 다리를 꼬고 앉으세요."
+  - generic: 바닥에 다리를 꼬고 앉으세요.
+  - generic "바에서 떨어지다"
+  - generic: 바에서 떨어지다
+  - generic "박수 치며 달리기"
+  - generic: 박수 치며 달리기
+  - generic "반격"
+  - generic: 반격
+  - generic "발로 매달리고 밀기"
+  - generic: 발로 매달리고 밀기
+  - generic "밤새 춤추기"
+  - generic: 밤새 춤추기
+  - generic "방패 밀기 왼쪽"
+  - generic: 방패 밀기 왼쪽
+  - generic "백플립 스윕 킥"
+  - generic: 백플립 스윕 킥
+  - generic "버블 댄스"
+  - generic: 버블 댄스
+  - generic "버피 운동"
+  - generic: 버피 운동
+  - generic "베이스 비트"
+  - generic: 베이스 비트
+  - generic "벽 밀어내기 점프와 플립"
+  - generic: 벽 밀어내기 점프와 플립
+  - generic "벽 지지대, 땅으로 점프"
+  - generic: 벽 지지대, 땅으로 점프
+  - generic "벽 지지대를 내려주세요."
+  - generic: 벽 지지대를 내려주세요.
+  - generic "벽 플립"
+  - generic: 벽 플립
+  - generic "벽에서 내려가세요."
+  - generic: 벽에서 내려가세요.
+  - generic "벽을 내려가기"
+  - generic: 벽을 내려가기
+  - generic "벽을 붙잡고 공중에 머무르기"
+  - generic: 벽을 붙잡고 공중에 머무르기
+  - generic "벽을 오르는 것"
+  - generic: 벽을 오르는 것
+  - generic "복부 손상으로 사망하다"
+  - generic: 복부 손상으로 사망하다
+  - generic "복싱 가드, 스텝 무릎 차기"
+  - generic: 복싱 가드, 스텝 무릎 차기
+  - generic "복싱 가드, 오른쪽 직접 킥"
+  - generic: 복싱 가드, 오른쪽 직접 킥
+  - generic "복싱 가드, 준비 스트레이트 펀치"
+  - generic: 복싱 가드, 준비 스트레이트 펀치
+  - generic "복싱 연습"
+  - generic: 복싱 연습
+  - generic "복싱 워밍업"
+  - generic: 복싱 워밍업
+  - generic "부상당한 사람이 뒤로 걷다"
+  - generic: 부상당한 사람이 뒤로 걷다
+  - generic "부상당한 사람이 뒤로 걷다"
+  - generic: 부상당한 사람이 뒤로 걷다
+  - generic "불안정한 걷기"
+  - generic: 불안정한 걷기
+  - generic "붐 댄스"
+  - generic: 붐 댄스
+  - generic "브레이크댄스 1990"
+  - generic: 브레이크댄스 1990
+  - generic "블록1"
+  - generic: 블록1
+  - generic "블록10"
+  - generic: 블록10
+  - generic "블록2"
+  - generic: 블록2
+  - generic "블록3"
+  - generic: 블록3
+  - generic "블록4"
+  - generic: 블록4
+  - generic "블록5"
+  - generic: 블록5
+  - generic "블록6"
+  - generic: 블록6
+  - generic "블록8"
+  - generic: 블록8
+  - generic "블록9"
+  - generic: 블록9
+  - generic "비틀거리며 걷다"
+  - generic: 비틀거리며 걷다
+  - generic "빠르게 달리기"
+  - generic: 빠르게 달리기
+  - generic "빠르게 달리기 10"
+  - generic: 빠르게 달리기 10
+  - generic "빠르게 달리기 10"
+  - generic: 빠르게 달리기 10
+  - generic "빠르게 달리기 9"
+  - generic: 빠르게 달리기 9
+  - generic "빠르게 뛰어라 4"
+  - generic: 빠르게 뛰어라 4
+  - generic "빠른 걷기"
+  - generic: 빠른 걷기
+  - generic "빠른 걸음 및 회전 피하기"
+  - generic: 빠른 걸음 및 회전 피하기
+  - generic "빠른 계단 오르기"
+  - generic: 빠른 계단 오르기
+  - generic "빠른 번개"
+  - generic: 빠른 번개
+  - generic "빠른 사다리 오르기"
+  - generic: 빠른 사다리 오르기
+  - generic "빨리 달리기 3"
+  - generic: 빨리 달리기 3
+  - generic "빨리 달리기 3"
+  - generic: 빨리 달리기 3
+  - generic "빨리 달리기 5"
+  - generic: 빨리 달리기 5
+  - generic "빨리 뛰어라 2"
+  - generic: 빨리 뛰어라 2
+  - generic "빨리 뛰어라 6"
+  - generic: 빨리 뛰어라 6
+  - generic "빨리 뛰어라 6"
+  - generic: 빨리 뛰어라 6
+  - generic "빨리 뛰어라 7"
+  - generic: 빨리 뛰어라 7
+  - generic "빨리 뛰어라 7"
+  - generic: 빨리 뛰어라 7
+  - generic "빨리 뛰어라 8"
+  - generic: 빨리 뛰어라 8
+  - generic "빨리 뛰어라 8"
+  - generic: 빨리 뛰어라 8
+  - generic "사각형 점프 업"
+  - generic: 사각형 점프 업
+  - generic "사격 및 반동"
+  - generic: 사격 및 반동
+  - generic "사다리 오르기 루프"
+  - generic: 사다리 오르기 루프
+  - generic "사다리 오르기 완료"
+  - generic: 사다리 오르기 완료
+  - generic "사다리 장착 시작"
+  - generic: 사다리 장착 시작
+  - generic "사망"
+  - generic: 사망
+  - generic "삼중 콤보 공격"
+  - generic: 삼중 콤보 공격
+  - generic "상승하는 날아차기"
+  - generic: 상승하는 날아차기
+  - generic "서 있고 마시다"
+  - generic: 서 있고 마시다
+  - generic "서 있어서 화를 내며 말하기"
+  - generic: 서 있어서 화를 내며 말하기
+  - generic "서있는 리로드"
+  - generic: 서있는 리로드
+  - generic "서클 크런치"
+  - generic: 서클 크런치
+  - generic "세련된 걷기"
+  - generic: 세련된 걷기
+  - generic "세련된 걷기"
+  - generic: 세련된 걷기
+  - generic "셰이크 잇 오프 댄스"
+  - generic: 셰이크 잇 오프 댄스
+  - generic "소총 왼쪽으로 돌리세요"
+  - generic: 소총 왼쪽으로 돌리세요
+  - generic "소총 조준 오른쪽으로 돌리세요."
+  - generic: 소총 조준 오른쪽으로 돌리세요.
+  - generic "소총 충전"
+  - generic: 소총 충전
+  - generic "소총 충전"
+  - generic: 소총 충전
+  - generic "소총이 있는 금고"
+  - generic: 소총이 있는 금고
+  - generic "손가락 흔들기 아니요"
+  - generic: 손가락 흔들기 아니요
+  - generic "손을 벌려 이야기하다"
+  - generic: 손을 벌려 이야기하다
+  - generic "손을 흔들며 즐거운 춤"
+  - generic: 손을 흔들며 즐거운 춤
+  - generic "수류탄을 들고 뒤로 걸어라"
+  - generic: 수류탄을 들고 뒤로 걸어라
+  - generic "수류탄을 들고 뒤로 걸어라"
+  - generic: 수류탄을 들고 뒤로 걸어라
+  - generic "수영 휴식"
+  - generic: 수영 휴식
+  - generic "수확 스윙"
+  - generic: 수확 스윙
+  - generic "숙이고 물러서세요"
+  - generic: 숙이고 물러서세요
+  - generic "숙이고 앞으로 밀어주세요"
+  - generic: 숙이고 앞으로 밀어주세요
+  - generic "숙이기, 끌어당기고 던지기"
+  - generic: 숙이기, 끌어당기고 던지기
+  - generic "숙이기, 돌진 및 던지기"
+  - generic: 숙이기, 돌진 및 던지기
+  - generic "숙이기, 주변을 둘러보기, 절하하기"
+  - generic: 숙이기, 주변을 둘러보기, 절하하기
+  - generic "숨을 쉬고 주변을 둘러봐요"
+  - generic: 숨을 쉬고 주변을 둘러봐요
+  - generic "숨을 쉬는 중"
+  - generic: 숨을 쉬는 중
+  - generic "슈퍼러브 팝 댄스"
+  - generic: 슈퍼러브 팝 댄스
+  - generic "스모 하이 풀"
+  - generic: 스모 하이 풀
+  - generic "스윕 킥"
+  - generic: 스윕 킥
+  - generic "스윕 킥"
+  - generic: 스윕 킥
+  - generic "스키너 스탠스"
+  - generic: 스키너 스탠스
+  - generic "스킬 1"
+  - generic: 스킬 1
+  - generic "스킬 2"
+  - generic: 스킬 2
+  - generic "스킬 3"
+  - generic: 스킬 3
+  - generic "스탠드 도지"
+  - generic: 스탠드 도지
+  - generic "스탠드 도지 1"
+  - generic: 스탠드 도지 1
+  - generic "스탠드 도지 2"
+  - generic: 스탠드 도지 2
+  - generic "스탠드 도지 3"
+  - generic: 스탠드 도지 3
+  - generic "스탠드 웨이브와 앉아라"
+  - generic: 스탠드 웨이브와 앉아라
+  - generic "스테이지 걷기"
+  - generic: 스테이지 걷기
+  - generic "스텝 힙합 댄스"
+  - generic: 스텝 힙합 댄스
+  - generic "스텝인 하이 킥"
+  - generic: 스텝인 하이 킥
+  - generic "스파르타 차기"
+  - generic: 스파르타 차기
+  - generic "스핀 다운하고 일어나세요"
+  - generic: 스핀 다운하고 일어나세요
+  - generic "슬라이드 라이트"
+  - generic: 슬라이드 라이트
+  - generic "슬라이딩 룰"
+  - generic: 슬라이딩 룰
+  - generic "슬랩 반응"
+  - generic: 슬랩 반응
+  - generic "승리"
+  - generic: 승리
+  - generic "승리 응원"
+  - generic: 승리 응원
+  - generic "승리 주먹 펌프"
+  - generic: 승리 주먹 펌프
+  - generic "실내 놀이"
+  - generic: 실내 놀이
+  - generic "실내 스윙"
+  - generic: 실내 스윙
+  - generic "심사숙고하는 산책"
+  - generic: 심사숙고하는 산책
+  - generic "쓰러지다"
+  - generic: 쓰러지다
+  - generic "안녕하세요 런"
+  - generic: 안녕하세요 런
+  - generic "앉다 눕다 침대"
+  - generic: 앉다 눕다 침대
+  - generic "앉아 손가락 흔들지 마세요"
+  - generic: 앉아 손가락 흔들지 마세요
+  - generic "앉아서 마시다"
+  - generic: 앉아서 마시다
+  - generic "앉아서 박수치기"
+  - generic: 앉아서 박수치기
+  - generic "앉아서 서는 전환 여성 2"
+  - generic: 앉아서 서는 전환 여성 2
+  - generic "앉아서 손으로 입을 막고 소리질러요"
+  - generic: 앉아서 손으로 입을 막고 소리질러요
+  - generic "앉아서 일어나는 전환 남성"
+  - generic: 앉아서 일어나는 전환 남성
+  - generic "앉아서 일어나는 전환 여성"
+  - generic: 앉아서 일어나는 전환 여성
+  - generic "앉아서 졸다"
+  - generic: 앉아서 졸다
+  - generic "앉아서 주먹을 쥐어들다"
+  - generic: 앉아서 주먹을 쥐어들다
+  - generic "앉아서 피하기"
+  - generic: 앉아서 피하기
+  - generic "앞으로 건너뛰기"
+  - generic: 앞으로 건너뛰기
+  - generic "앞으로 걸으며 전투"
+  - generic: 앞으로 걸으며 전투
+  - generic "앞으로 나아가고 멈추세요."
+  - generic: 앞으로 나아가고 멈추세요.
+  - generic "앞으로 밀고 걷기"
+  - generic: 앞으로 밀고 걷기
+  - generic "앞으로 숙이고 전진하기"
+  - generic: 앞으로 숙이고 전진하기
+  - generic "앞으로 숙이고 전진하기"
+  - generic: 앞으로 숙이고 전진하기
+  - generic "앞으로 헤엄치다"
+  - generic: 앞으로 헤엄치다
+  - generic "야구 투수"
+  - generic: 야구 투수
+  - generic "양 팔 다리로 왼쪽으로 올라가세요."
+  - generic: 양 팔 다리로 왼쪽으로 올라가세요.
+  - generic "양 팔 다리로 왼쪽으로 올라가세요."
+  - generic: 양 팔 다리로 왼쪽으로 올라가세요.
+  - generic "양궁 사격"
+  - generic: 양궁 사격
+  - generic "양궁 사격 1"
+  - generic: 양궁 사격 1
+  - generic "양궁 사격 2"
+  - generic: 양궁 사격 2
+  - generic "양궁 사격 3"
+  - generic: 양궁 사격 3
+  - generic "양손으로 막기"
+  - generic: 양손으로 막기
+  - generic "양손으로 환호 1"
+  - generic: 양손으로 환호 1
+  - generic "양손으로 환호하세요"
+  - generic: 양손으로 환호하세요
+  - generic "양손을 들고 환호하세요."
+  - generic: 양손을 들고 환호하세요.
+  - generic "양주먹으로 앞으로 펀치하세요."
+  - generic: 양주먹으로 앞으로 펀치하세요.
+  - generic "양쪽 팔다리로 올라가세요."
+  - generic: 양쪽 팔다리로 올라가세요.
+  - generic "양쪽 팔다리로 올라가세요."
+  - generic: 양쪽 팔다리로 올라가세요.
+  - generic "양팔 근육을 보여주세요."
+  - generic: 양팔 근육을 보여주세요.
+  - generic "어깨 넘기기"
+  - generic: 어깨 넘기기
+  - generic "얼굴 펀치 반응"
+  - generic: 얼굴 펀치 반응
+  - generic "얼굴 펀치 반응 1"
+  - generic: 얼굴 펀치 반응 1
+  - generic "얼굴 펀치 반응 2"
+  - generic: 얼굴 펀치 반응 2
+  - generic "엄지 손가락을 올리고 반 스쿼트"
+  - generic: 엄지 손가락을 올리고 반 스쿼트
+  - generic "엎드려 도움을 요청하세요"
+  - generic: 엎드려 도움을 요청하세요
+  - generic "엎드려서 재장전"
+  - generic: 엎드려서 재장전
+  - generic "여성 머리를 숙이고 돌진"
+  - generic: 여성 머리를 숙이고 돌진
+  - generic "여성 앉아서 줍는 곳 측면"
+  - generic: 여성 앉아서 줍는 곳 측면
+  - generic "여성 활 충전 왼손"
+  - generic: 여성 활 충전 왼손
+  - generic "여성 활 충전 왼손"
+  - generic: 여성 활 충전 왼손
+  - generic "여성의 걷기"
+  - generic: 여성의 걷기
+  - generic "여성이 걷고 집어서 주머니에 넣습니다."
+  - generic: 여성이 걷고 집어서 주머니에 넣습니다.
+  - generic "여성이 던지는 자세 충전"
+  - generic: 여성이 던지는 자세 충전
+  - generic "여성이 던지는 자세 충전"
+  - generic: 여성이 던지는 자세 충전
+  - generic "여성이 서서 과일 바구니를 집는다."
+  - generic: 여성이 서서 과일 바구니를 집는다.
+  - generic "여성이 앉아 과일 바구니를 집는다."
+  - generic: 여성이 앉아 과일 바구니를 집는다.
+  - generic "여성이 앉아서 집어들고 앞으로 던지기"
+  - generic: 여성이 앉아서 집어들고 앞으로 던지기
+  - generic "여성이 앉아서 총을 들고 정면으로 조준합니다."
+  - generic: 여성이 앉아서 총을 들고 정면으로 조준합니다.
+  - generic "여성이 앞으로 뛰어가서 오른쪽을 집어 듭니다."
+  - generic: 여성이 앞으로 뛰어가서 오른쪽을 집어 듭니다.
+  - generic "여성이 앞으로 숙여 물건을 주워 살펴봅니다."
+  - generic: 여성이 앞으로 숙여 물건을 주워 살펴봅니다.
+  - generic "역풍과 후크"
+  - generic: 역풍과 후크
+  - generic "역행으로 죽는 것"
+  - generic: 역행으로 죽는 것
+  - generic "열린 문"
+  - generic: 열린 문
+  - generic "열정적으로 이야기하다"
+  - generic: 열정적으로 이야기하다
+  - generic "오른손 검베기"
+  - generic: 오른손 검베기
+  - generic "오른손으로 엄지 손가락을 올리세요."
+  - generic: 오른손으로 엄지 손가락을 올리세요.
+  - generic "오른손을 열고 이야기하세요."
+  - generic: 오른손을 열고 이야기하세요.
+  - generic "오른쪽으로 달리기"
+  - generic: 오른쪽으로 달리기
+  - generic "오른쪽으로 뛰어서 잡아라"
+  - generic: 오른쪽으로 뛰어서 잡아라
+  - generic "오른쪽으로 매달리고 올라가세요"
+  - generic: 오른쪽으로 매달리고 올라가세요
+  - generic "오른쪽으로 사각형 올라가기"
+  - generic: 오른쪽으로 사각형 올라가기
+  - generic "오른쪽으로 이동"
+  - generic: 오른쪽으로 이동
+  - generic "오마이갓 그루브"
+  - generic: 오마이갓 그루브
+  - generic "왼손으로 앉아요."
+  - generic: 왼손으로 앉아요.
+  - generic "왼손을 들고 이야기하다"
+  - generic: 왼손을 들고 이야기하다
+  - generic "왼손을 물렸다. 뒤로 한 걸음 물러나세요."
+  - generic: 왼손을 물렸다. 뒤로 한 걸음 물러나세요.
+  - generic "왼손을 힙에 얹고 이야기하다"
+  - generic: 왼손을 힙에 얹고 이야기하다
+  - generic "왼쪽 베기"
+  - generic: 왼쪽 베기
+  - generic "왼쪽으로 달리기"
+  - generic: 왼쪽으로 달리기
+  - generic "왼쪽으로 매달리고 올라가세요."
+  - generic: 왼쪽으로 매달리고 올라가세요.
+  - generic "왼쪽으로 쿼드 점프"
+  - generic: 왼쪽으로 쿼드 점프
+  - generic "우산을 들고 걷다"
+  - generic: 우산을 들고 걷다
+  - generic "우산을 들고 걷다"
+  - generic: 우산을 들고 걷다
+  - generic "우울한 완전 회전 좌측"
+  - generic: 우울한 완전 회전 좌측
+  - generic "운동을 위해 오른쪽 발을 내딛으세요."
+  - generic: 운동을 위해 오른쪽 발을 내딛으세요.
+  - generic "워커 지지대로 걷기"
+  - generic: 워커 지지대로 걷기
+  - generic "워커 지지대로 걷기"
+  - generic: 워커 지지대로 걷기
+  - generic "윗몸 일으키기"
+  - generic: 윗몸 일으키기
+  - generic "유휴 10"
+  - generic: 유휴 10
+  - generic "유휴 11"
+  - generic: 유휴 11
+  - generic "유휴 12"
+  - generic: 유휴 12
+  - generic "유휴 13"
+  - generic: 유휴 13
+  - generic "유휴 3"
+  - generic: 유휴 3
+  - generic "유휴 4"
+  - generic: 유휴 4
+  - generic "유휴 5"
+  - generic: 유휴 5
+  - generic "유휴 6"
+  - generic: 유휴 6
+  - generic "유휴 7"
+  - generic: 유휴 7
+  - generic "유휴 8"
+  - generic: 유휴 8
+  - generic "유휴 9"
+  - generic: 유휴 9
+  - generic "유휴에서 푸시 업으로"
+  - generic: 유휴에서 푸시 업으로
+  - generic "으쓱"
+  - generic: 으쓱
+  - generic "음모를 꾸미는 손 문지르기"
+  - generic: 음모를 꾸미는 손 문지르기
+  - generic "의자에 누워서 태양을 쬐고 자다"
+  - generic: 의자에 누워서 태양을 쬐고 자다
+  - generic "의자에 앉아 대기 남성"
+  - generic: 의자에 앉아 대기 남성
+  - generic "의자에 앉아 대기 여성"
+  - generic: 의자에 앉아 대기 여성
+  - generic "의자에 앉아 팔을 꼬고 있습니다."
+  - generic: 의자에 앉아 팔을 꼬고 있습니다.
+  - generic "이동하며 논의하기"
+  - generic: 이동하며 논의하기
+  - generic "이두 컬"
+  - generic: 이두 컬
+  - generic "이중 검 회전"
+  - generic: 이중 검 회전
+  - generic "이중 콤보 공격"
+  - generic: 이중 콤보 공격
+  - generic "일륜 자전거 점프 디스마운트"
+  - generic: 일륜 자전거 점프 디스마운트
+  - generic "일어나기"
+  - generic: 일어나기
+  - generic "일어나서 올려다봐요"
+  - generic: 일어나서 올려다봐요
+  - generic "일어서 3"
+  - generic: 일어서 3
+  - generic "일어서 5"
+  - generic: 일어서 5
+  - generic "일어서 6"
+  - generic: 일어서 6
+  - generic "일어서 7"
+  - generic: 일어서 7
+  - generic "일어서 9"
+  - generic: 일어서 9
+  - generic "일어서서 박수를 치고 앉으세요."
+  - generic: 일어서서 박수를 치고 앉으세요.
+  - generic "일어서서 앉는 전환 남성"
+  - generic: 일어서서 앉는 전환 남성
+  - generic "일어서서 이야기하기"
+  - generic: 일어서서 이야기하기
+  - generic "일어서서 환호하고 앉으세요."
+  - generic: 일어서서 환호하고 앉으세요.
+  - generic "일어서세요 1"
+  - generic: 일어서세요 1
+  - generic "일어서세요 10"
+  - generic: 일어서세요 10
+  - generic "일어서세요 2"
+  - generic: 일어서세요 2
+  - generic "일어서세요 4"
+  - generic: 일어서세요 4
+  - generic "일어서세요 8"
+  - generic: 일어서세요 8
+  - generic "자랑스러운 걸음걸이"
+  - generic: 자랑스러운 걸음걸이
+  - generic "자신감 넘치는 걸음걸이"
+  - generic: 자신감 넘치는 걸음걸이
+  - generic "자연스러운 걷기"
+  - generic: 자연스러운 걷기
+  - generic "자전거 크런치"
+  - generic: 자전거 크런치
+  - generic "잠"
+  - generic: 잠
+  - generic "잠에서 배를 껴안고 신음하기"
+  - generic: 잠에서 배를 껴안고 신음하기
+  - generic "잠을 자면 기침"
+  - generic: 잠을 자면 기침
+  - generic "잠을 청하다"
+  - generic: 잠을 청하다
+  - generic "잡고 던지기"
+  - generic: 잡고 던지기
+  - generic "장애물 1을 뛰어넘다"
+  - generic: 장애물 1을 뛰어넘다
+  - generic "장애물을 넘다"
+  - generic: 장애물을 넘다
+  - generic "장애물을 넘어라 2"
+  - generic: 장애물을 넘어라 2
+  - generic "재실행하기"
+  - generic: 재실행하기
+  - generic "재실행하기"
+  - generic: 재실행하기
+  - generic "재즈 댄스"
+  - generic: 재즈 댄스
+  - generic "재즈 핸즈"
+  - generic: 재즈 핸즈
+  - generic "재즈 핸즈"
+  - generic: 재즈 핸즈
+  - generic "전진 롤과 불을 일으키다"
+  - generic: 전진 롤과 불을 일으키다
+  - generic "전진 리로드 (미묘한)"
+  - generic: 전진 리로드 (미묘한)
+  - generic "전투 대기 상태에서 왼쪽으로 돌기"
+  - generic: 전투 대기 상태에서 왼쪽으로 돌기
+  - generic "전투 아이들"
+  - generic: 전투 아이들
+  - generic "전화 대화"
+  - generic: 전화 대화
+  - generic "전화 제스처"
+  - generic: 전화 제스처
+  - generic "전화 제스처"
+  - generic: 전화 제스처
+  - generic "절뚝거리는 걷기"
+  - generic: 절뚝거리는 걷기
+  - generic "절뚝거리는 걷기"
+  - generic: 절뚝거리는 걷기
+  - generic "절뚝거리는 걷기 1"
+  - generic: 절뚝거리는 걷기 1
+  - generic "절뚝거리는 걷기 2"
+  - generic: 절뚝거리는 걷기 2
+  - generic "절뚝거리는 걷기 2"
+  - generic: 절뚝거리는 걷기 2
+  - generic "절뚝거리는 걷기 3"
+  - generic: 절뚝거리는 걷기 3
+  - generic "절뚝거리는 걷기 3"
+  - generic: 절뚝거리는 걷기 3
+  - generic "점프 공격"
+  - generic: 점프 공격
+  - generic "점프 로프"
+  - generic: 점프 로프
+  - generic "점프 푸시업"
+  - generic: 점프 푸시업
+  - generic "점프하고 내려찍기"
+  - generic: 점프하고 내려찍기
+  - generic "점프하고 벽을 붙잡다"
+  - generic: 점프하고 벽을 붙잡다
+  - generic "점프하며 달리기"
+  - generic: 점프하며 달리기
+  - generic "점핑 다운"
+  - generic: 점핑 다운
+  - generic "점핑 펀치"
+  - generic: 점핑 펀치
+  - generic "점핑 헤드 시저 테이크다운"
+  - generic: 점핑 헤드 시저 테이크다운
+  - generic "점핑잭."
+  - generic: 점핑잭.
+  - generic "정규 점프"
+  - generic: 정규 점프
+  - generic "정지 상태에서 오른쪽으로 돌기"
+  - generic: 정지 상태에서 오른쪽으로 돌기
+  - generic "정형식 벤디션"
+  - generic: 정형식 벤디션
+  - generic "조심스럽게 앉아 뒤로 걷기"
+  - generic: 조심스럽게 앉아 뒤로 걷기
+  - generic "조심스럽게 앉아 뒤로 걷기"
+  - generic: 조심스럽게 앉아 뒤로 걷기
+  - generic "조심스럽게 앉아서 앞으로 걷기"
+  - generic: 조심스럽게 앉아서 앞으로 걷기
+  - generic "조심스럽게 앉아서 앞으로 걷기"
+  - generic: 조심스럽게 앉아서 앞으로 걷기
+  - generic "조심스럽게 앉아서 오른쪽으로 걷기"
+  - generic: 조심스럽게 앉아서 오른쪽으로 걷기
+  - generic "조심스럽게 앉아서 왼쪽으로 걷기"
+  - generic: 조심스럽게 앉아서 왼쪽으로 걷기
+  - generic "조심스럽게 앉아서 왼쪽으로 걷기"
+  - generic: 조심스럽게 앉아서 왼쪽으로 걷기
+  - generic "좀비 비명"
+  - generic: 좀비 비명
+  - generic "좌절한 오른쪽으로 돌아가세요"
+  - generic: 좌절한 오른쪽으로 돌아가세요
+  - generic "주변을 멍하니 쳐다보다"
+  - generic: 주변을 멍하니 쳐다보다
+  - generic "질문에 답하는 중입니다"
+  - generic: 질문에 답하는 중입니다
+  - generic "짧은 달리기와 갑작스러운 정지"
+  - generic: 짧은 달리기와 갑작스러운 정지
+  - generic "찌르기 베기"
+  - generic: 찌르기 베기
+  - generic "창 걷기"
+  - generic: 창 걷기
+  - generic "책상 위에서 자다"
+  - generic: 책상 위에서 자다
+  - generic "천천히 걸어 다니며 주변을 둘러보세요."
+  - generic: 천천히 걸어 다니며 주변을 둘러보세요.
+  - generic "체리시 팝 댄스"
+  - generic: 체리시 팝 댄스
+  - generic "체크아웃 제스처"
+  - generic: 체크아웃 제스처
+  - generic "총 들고 왼쪽 회전"
+  - generic: 총 들고 왼쪽 회전
+  - generic "총성 반응"
+  - generic: 총성 반응
+  - generic "총에 맞아 뒤로 천천히 넘어지다"
+  - generic: 총에 맞아 뒤로 천천히 넘어지다
+  - generic "총을 든 손동작"
+  - generic: 총을 든 손동작
+  - generic "총을 들고 뒤로 걷기 1"
+  - generic: 총을 들고 뒤로 걷기 1
+  - generic "총을 들고 뒤로 걷기 1"
+  - generic: 총을 들고 뒤로 걷기 1
+  - generic "총을 들고 뒤로 걷다"
+  - generic: 총을 들고 뒤로 걷다
+  - generic "총을 들고 뒤로 걷다"
+  - generic: 총을 들고 뒤로 걷다
+  - generic "총을 들고 왼쪽으로 걷다"
+  - generic: 총을 들고 왼쪽으로 걷다
+  - generic "총을 들고 왼쪽으로 걷다"
+  - generic: 총을 들고 왼쪽으로 걷다
+  - generic "총을 들고 왼쪽으로 기어가기"
+  - generic: 총을 들고 왼쪽으로 기어가기
+  - generic "총을 들고 왼쪽으로 기어가기"
+  - generic: 총을 들고 왼쪽으로 기어가기
+  - generic "총을 쏘고 뒤로 넘어지다"
+  - generic: 총을 쏘고 뒤로 넘어지다
+  - generic "총을 쏘고 앞으로 넘어지다"
+  - generic: 총을 쏘고 앞으로 넘어지다
+  - generic "총을 쏘면서 뒤로 걸어가세요."
+  - generic: 총을 쏘면서 뒤로 걸어가세요.
+  - generic "총을 쏘면서 뒤로 걸어가세요."
+  - generic: 총을 쏘면서 뒤로 걸어가세요.
+  - generic "총을 쏘면서 앞으로 걸어 가세요."
+  - generic: 총을 쏘면서 앞으로 걸어 가세요.
+  - generic "축구공을 차다"
+  - generic: 축구공을 차다
+  - generic "충전된 그라운드 슬램"
+  - generic: 충전된 그라운드 슬램
+  - generic "충전된 도끼 베기"
+  - generic: 충전된 도끼 베기
+  - generic "충전된 베기"
+  - generic: 충전된 베기
+  - generic "충전된 상승 베기"
+  - generic: 충전된 상승 베기
+  - generic "충전된 주문 시전"
+  - generic: 충전된 주문 시전
+  - generic "충전된 주문 시전 1"
+  - generic: 충전된 주문 시전 1
+  - generic "측면 누워 서다"
+  - generic: 측면 누워 서다
+  - generic "측면 누워서 스트레칭하기"
+  - generic: 측면 누워서 스트레칭하기
+  - generic "측면 사격"
+  - generic: 측면 사격
+  - generic "측면 스캔으로 양궁 조준"
+  - generic: 측면 스캔으로 양궁 조준
+  - generic "카디오 댄스"
+  - generic: 카디오 댄스
+  - generic "카우보이 빠른 사격"
+  - generic: 카우보이 빠른 사격
+  - generic "칼 막기"
+  - generic: 칼 막기
+  - generic "칼과 방패 경보 왼쪽으로 돌기"
+  - generic: 칼과 방패 경보 왼쪽으로 돌기
+  - generic "칼과 방패를 가지고 뒤로 걷기"
+  - generic: 칼과 방패를 가지고 뒤로 걷기
+  - generic "칼을 들고 뒤로 걷기"
+  - generic: 칼을 들고 뒤로 걷기
+  - generic "칼을 들고 뒤로 걷기"
+  - generic: 칼을 들고 뒤로 걷기
+  - generic "커버 뒤로 구르기"
+  - generic: 커버 뒤로 구르기
+  - generic "케틀벨 스윙"
+  - generic: 케틀벨 스윙
+  - generic "쿵푸 펀치"
+  - generic: 쿵푸 펀치
+  - generic "크리스탈 비즈"
+  - generic: 크리스탈 비즈
+  - generic "큰 걸음, 그리고 높은 발차기"
+  - generic: 큰 걸음, 그리고 높은 발차기
+  - generic "큰 마음 제스처"
+  - generic: 큰 마음 제스처
+  - generic "큰 파도 인사"
+  - generic: 큰 파도 인사
+  - generic "타격받아 날아가기"
+  - generic: 타격받아 날아가기
+  - generic "타이트로프 걷기"
+  - generic: 타이트로프 걷기
+  - generic "타이트로프 걷기"
+  - generic: 타이트로프 걷기
+  - generic "텍스팅 걷기"
+  - generic: 텍스팅 걷기
+  - generic "토마스 플레어가 점프 업으로 변신합니다."
+  - generic: 토마스 플레어가 점프 업으로 변신합니다.
+  - generic "파크 코어 볼트"
+  - generic: 파크 코어 볼트
+  - generic "파크 코어 볼트 1"
+  - generic: 파크 코어 볼트 1
+  - generic "파크 코어 볼트 2"
+  - generic: 파크 코어 볼트 2
+  - generic "파크 코어 볼트 3"
+  - generic: 파크 코어 볼트 3
+  - generic "팔 원형 셔플"
+  - generic: 팔 원형 셔플
+  - generic "팔과 다리를 벌려 뛰어라."
+  - generic: 팔과 다리를 벌려 뛰어라.
+  - generic "팔꿈치 공격"
+  - generic: 팔꿈치 공격
+  - generic "팔을 들고 뛰다"
+  - generic: 팔을 들고 뛰다
+  - generic "팔을 벌려 뛰어라"
+  - generic: 팔을 벌려 뛰어라
+  - generic "팔을 편안하게 하고 전투 자세를 취하세요."
+  - generic: 팔을 편안하게 하고 전투 자세를 취하세요.
+  - generic "팝 댄스 LSA2"
+  - generic: 팝 댄스 LSA2
+  - generic "팟 베이비 그루브"
+  - generic: 팟 베이비 그루브
+  - generic "펀치 콤보"
+  - generic: 펀치 콤보
+  - generic "펀치 콤보 1"
+  - generic: 펀치 콤보 1
+  - generic "펀치 콤보 2"
+  - generic: 펀치 콤보 2
+  - generic "펀치 콤보 3"
+  - generic: 펀치 콤보 3
+  - generic "펀치 콤보 4"
+  - generic: 펀치 콤보 4
+  - generic "펀치 콤보 5"
+  - generic: 펀치 콤보 5
+  - generic "펀치 포즈"
+  - generic: 펀치 포즈
+  - generic "펑키 워크"
+  - generic: 펑키 워크
+  - generic "펭귄 걷기"
+  - generic: 펭귄 걷기
+  - generic "평소처럼 자다"
+  - generic: 평소처럼 자다
+  - generic "폰을 가지고 걷기"
+  - generic: 폰을 가지고 걷기
+  - generic "표준 전방 충전"
+  - generic: 표준 전방 충전
+  - generic "표준 전방 충전"
+  - generic: 표준 전방 충전
+  - generic "푸시 업"
+  - generic: 푸시 업
+  - generic "푸시 업을 아이들로 변경"
+  - generic: 푸시 업을 아이들로 변경
+  - generic "프랑켄슈타인 걷기"
+  - generic: 프랑켄슈타인 걷기
+  - generic "하이킥"
+  - generic: 하이킥
+  - generic "한 무릎으로 꿇어 서다"
+  - generic: 한 무릎으로 꿇어 서다
+  - generic "한 손을 흔들어주세요."
+  - generic: 한 손을 흔들어주세요.
+  - generic "한 팔 서서히 서기"
+  - generic: 한 팔 서서히 서기
+  - generic "한걸음 앞으로 나아가고 밀어주세요."
+  - generic: 한걸음 앞으로 나아가고 밀어주세요.
+  - generic "핸드백 걷기"
+  - generic: 핸드백 걷기
+  - generic "핸드스탠드 플립"
+  - generic: 핸드스탠드 플립
+  - generic "행복한 점프 남성"
+  - generic: 행복한 점프 남성
+  - generic "행복한 점프 여성"
+  - generic: 행복한 점프 여성
+  - generic "행복한 흔들림 서 있기"
+  - generic: 행복한 흔들림 서 있기
+  - generic "허리에 맞은 반응"
+  - generic: 허리에 맞은 반응
+  - generic "혼란스러워하며 긁기"
+  - generic: 혼란스러워하며 긁기
+  - generic "화가 나서 발작을 일으키다"
+  - generic: 화가 나서 발작을 일으키다
+  - generic "화가 난 땅 발구르기"
+  - generic: 화가 난 땅 발구르기
+  - generic "화가 난 발걸음"
+  - generic: 화가 난 발걸음
+  - generic "화가 난 소리치기"
+  - generic: 화가 난 소리치기
+  - generic "화가난 땅 발구르기 1"
+  - generic: 화가난 땅 발구르기 1
+  - generic "화가난 땅 발구르기 2"
+  - generic: 화가난 땅 발구르기 2
+  - generic "활 조준하고 앞으로 걸어가세요."
+  - generic: 활 조준하고 앞으로 걸어가세요.
+  - generic "활 조준하며 뒤로 걸어가세요."
+  - generic: 활 조준하며 뒤로 걸어가세요.
+  - generic "활로 공격 반응"
+  - generic: 활로 공격 반응
+  - generic "활을 들고 뒤로 걷기 1"
+  - generic: 활을 들고 뒤로 걷기 1
+  - generic "활을 들고 뒤로 걷기 1"
+  - generic: 활을 들고 뒤로 걷기 1
+  - generic "활을 들고 뒤로 걷다"
+  - generic: 활을 들고 뒤로 걷다
+  - generic "활을 들고 뒤로 걷다"
+  - generic: 활을 들고 뒤로 걷다
+  - generic "횃불 주변을 둘러보다"
+  - generic: 횃불 주변을 둘러보다
+  - generic "횃불을 들고 기어가기"
+  - generic: 횃불을 들고 기어가기
+  - generic "횃불을 들고 오른쪽으로 기어가기"
+  - generic: 횃불을 들고 오른쪽으로 기어가기
+  - generic "횃불을 들고 오른쪽으로 기어가기"
+  - generic: 횃불을 들고 오른쪽으로 기어가기
+  - generic "횃불을 들고 왼쪽으로 기어가기"
+  - generic: 횃불을 들고 왼쪽으로 기어가기
+  - generic "횃불을 들고 왼쪽으로 기어가기"
+  - generic: 횃불을 들고 왼쪽으로 기어가기
+  - generic "회피와 반격"
+  - generic: 회피와 반격
+  - generic "후퇴하다"
+  - generic: 후퇴하다
+  - generic "휴식 중인 횃불을 왼쪽으로 돌리세요."
+  - generic: 휴식 중인 횃불을 왼쪽으로 돌리세요.
+  - generic "흥분한 걷기 남성"
+  - generic: 흥분한 걷기 남성
+  - generic "흥분한 걷기 여성"
+  - generic: 흥분한 걷기 여성
+  - generic "히트 반응"
+  - generic: 히트 반응
+  - generic "히트 반응 1"
+  - generic: 히트 반응 1
+  - generic "힙에 손을 올린 제스처"
+  - generic: 힙에 손을 올린 제스처
+  - generic "힙합 댄스"
+  - generic: 힙합 댄스
+  - generic "힙합 댄스 1"
+  - generic: 힙합 댄스 1
+  - generic "힙합 댄스 2"
+  - generic: 힙합 댄스 2
+  - generic "힙합 댄스 3"
+  - generic: 힙합 댄스 3
+  - generic "힙합 댄스 4"
+  - generic: 힙합 댄스 4
+  - button:
+  - separator
+  - button "솔리드 모드":
+  - button "무조명 모드" [pressed]:
+  - separator
+  - button:
+  - button:
+  - button "기본 색상":
+    - img "기본 색상"
+  - button "거칠기":
+    - img "거칠기"
+  - button "금속성":
+    - img "금속성"
+  - button "노말":
+    - img "노말"
+  - separator
+  - button:
+  - status
+  - generic: 면
+  - generic: 103,261
+  - generic: 정점 수
+  - generic: 51,536
+  - button:
+  - button "AR 미리보기":
+  - button:
+  - button:
+  - generic: "+800"
+  - button:
+  - button "편집하려면 에이전트로 보내기":
+  - button "프롬프트 재사용":
+    - generic: 프롬프트 재사용
+  - button:
+  - separator
+  - textbox
+  - generic: 내 생성 검색
+  - button "업로드":
+    - generic: 업로드
+  - radiogroup:
+    - radio [checked]:
+    - radio:
+    - radio:
+    - radio:
+  - button:
+  - button:
+  - generic: 선택된 자산이 없습니다.
+  - button "다운로드" [disabled]:
+    - generic: 다운로드
+  - button [disabled]:
+  - button "삭제" [disabled]:
+  - generic: 11/06/2026
+  - button:
+  - generic: 11/06/2026
+  - button:
+  - generic: 11/06/2026
+  - button "x4":
+    - generic: x4
+  - button:
+  - generic: 11/06/2026
+  - button:
+  - generic: 11/06/2026
+  - button:
+  - generic: 11/06/2026
+  - button:
+  - generic: 11/06/2026
+  - button:
+  - generic: 11/06/2026
+  - button:
+  - generic: 11/06/2026
+  - button:
+  - generic: 11/06/2026
+  - button:
+  - generic: 11/06/2026
+  - button:
+  - generic: 11/06/2026
+  - button:
+  - generic: 11/06/2026
+  - button:
+  - generic: 11/06/2026
+  - button:
+  - generic: 11/06/2026
+  - button:
+  - generic: 11/06/2026
+  - button:
+  - generic: 11/06/2026
+  - button:
+  - generic: 11/06/2026
+  - button:
+  - generic: 11/06/2026
+  - button:
+  - generic: 11/05/2026
+  - button:
+  - radio:
+  - radio [checked]:
+  - button [disabled]:
+  - generic: 1/4
+  - button:
+  - combobox:
+    - generic: "20"
+- alert
+- iframe [id="intercom-frame"]

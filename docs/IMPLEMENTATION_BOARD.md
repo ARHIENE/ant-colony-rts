@@ -90,3 +90,58 @@
 `n- **MESHY-POSE-DETAIL-1106 사용자 재확인 / 진행 유지** — 1) 손가락 파지·무기별 동작을 최우선, 2) 기획 참고 다른 행동의 실제 게임 애니메이션 연결 모두 범위. 파지 육안/동작 검증 전 완료 처리 금지. 신규 소유 AgentScripts/MeshyRigDiagnostic.cs·MeshySkinDiagnostic.cs·art/anime-settler-1105/repair_arm_seams.py. 현재 시험 FBX 적용 중이며 품질 미합격.
 - **UI-1106 검증·점유 해제** — 공식 컴파일0오류, 격리 Play UI 23검사 통과. 자원 아이콘 렌더러 누락·건설 HUD 겹침 수정, 연구 좌우 이동 보완. 주요6화면 native 캡처 확인. 세 채팅 중 애니메이션 미완료로 통합 SAVE·PlayMCP 카카오톡 결과 전송·컴퓨터 종료 대기. 상세 docs/UI_PROTOTYPE_1106.md.
 - **SAVE-1106 / 현재 상태 저장** — 사용자 최신 SAVE·종료 요청에 따라 애니메이션 미완료를 명시해 저장. 원격 문서 정리 보존 병합. UI23·리팩토링770 검증, 큰 씬/그래프는 복원 가능한 분할 백업, Blender 작업 저장. 카카오톡 전송 후 종료.
+
+- **UI-COMPLETE-1106 / Codex / 진행** — 운영 상세·장수·다중 선택·작은 창 시안 반영. 소유: UI/GameMenuRoster.cs·GameMenuManagement.cs·GameMenuV5.cs·GameMenuPrototype.cs 및 신규 반응형 UI/검사 파일. 운영 상세 UI 파일은 수정 전 추가 표시. 캐릭터·파지·전투 파일 보존. 오늘 Notion 기획 변경 별도 대조, 로켓 충돌 확인 중. SAVE 없음.
+- UI-COMPLETE-1106 추가 소유: HudResponsiveLayout.cs·SelectionPortraitStrip.cs·GameMenuResponsive.cs·PrototypeWindowLayout.cs·ManagementResponsiveLayout.cs. 실제 선택 장수 초상 최대8개와 추가 인원 수 표시.
+
+- **HAND-GRIP-RESUME-1106 / Codex / 진행** — 오류 중단 채팅 인계. 소유 MeshyEquipmentGrip.cs·KemonoModel.cs, 손 리그 수정 FBX·art/anime-settler-1105 손 보정 스크립트, 신규 AgentScripts/HandGrip1106*.cs. 손가락 파지 우선 및 실제 Unity 근접 검증. UI 담당 파일 보존. 원본/시험본 백업 유지, SAVE 없음.
+- UI-COMPLETE-1106 추가 소유: GameMenuController.cs·GameMenuStorage.cs·GameMenuDuty.cs·GameMenuPopulation.cs·PrototypeResourceHud.cs·GameMenuResearchTree.cs. 기존 설정/생산/저장 기능 유지, UI 재배치와 표시 선호만 변경.
+- UI-COMPLETE-1106 추가 소유: Core/ScienceEffects.cs 연구-건물 대응표를 기존 판정과 UI가 공동 사용하도록 분리(해금 조건 불변). 새 세계관은 승인 답변에 따라 기존 로켓 기능 유지.
+- HAND-GRIP-RESUME-1106 범위 추가: 실제 손잡이 중심 이탈 확인. 해당 Handheld 도구 FBX·손잡이 보정 스크립트 소유, 원본 백업 후 파지 지점/굵기 보정.
+- UI-COMPLETE-1106 사용자 디자인 재검토: 전체 HUD 부피·지도 부유·물류생산 메뉴 폭·장수 글자 잘림 지적. 상세/세계관 후속보다 메인 HUD 재설계 우선. 추가 소유 UI/CommandCard.cs·GameMenuDock.cs·HudWave.cs·HudClock.cs.
+- UI-COMPLETE-1106 추가 소유: ToastManager.cs. 알림은 문제 요약과 설명을 분리하고 필요한 높이를 계산해 글자 잘림 제거.
+- HAND-GRIP-RESUME-1106 중간 검증: 도구6종 손잡이 중심·굵기 보정. 손 리그/파지 코드 시험본은 양손 손목 변형 육안 불합격으로 work/hand-grip-1106에 격리하고 이 채팅 시작 전 캐릭터FBX·Grip 코드를 복원. 완료 아님. Meshy 재리깅/적합한 외부 에셋 경로 대조 중.
+- ASSET-AUDIT-1106 / Codex / 진행: 사용자 범위 확대—도구/무기·건물·자연·오늘 추가 기획 전체에 필요한 에셋. 무료·보유 우선, 유료 후보 목록 검토 후 결정. 신규 조사·반입 문서/격리 폴더 소유, 기존 UI 코드 보존.
+- UI-COMPLETE-1106 메인 HUD 구현 재개: 사용자 에셋 작업은 별도 채팅 담당. UI/MenuTheme.cs 추가 소유, 흙·목재 배경에 맞는 온색 중성 팔레트와 소형 선택 카드/자원 초기화 수정. 기본·1명 선택 실화면 우선 검증.
+- UI-COMPLETE-1106 새 디자인: 기존 검정 패널 대신 밝은 종이/갈색 잉크 공통 테마, 하단 아이콘 메뉴·우하단 장수 카드. 신규 UI/HudNavigationIcon.cs 소유. 에셋 담당 파일 수정 없음.
+- UI-COMPLETE-1106 사용자 정정: Unity 구현 중단, HTML 새 디자인 우선. 별도 redesign.html 작성·브라우저 기본/선택/건설/연구/지도 접기 확인, 760x600 경계 검사. Unity 변경은 미완료·미검증 상태로 보존, Play 종료. SAVE 없음.
+`n- HAND-GRIP-RESUME-1106 사용자 전환: 직접 손 리그 보정 중단, Meshy 애니메이션 제작으로 전환. Kiki 손 시험본은 rejected-owned-hands로 보존하고 채팅 시작 캐릭터/Grip 복원. Meshy 작업/다운로드/Unity 검증 미완료.
+
+- HAND-GRIP-RESUME-1106 외형 요구 추가: 사용자 요청으로 공통 몸체·리그·애니메이션 재사용, 교체형 머리·얼굴·흉터와 머리색·눈색 등 주민별 외형 조합 및 표정 지원을 범위에 포함. Meshy 기준 캐릭터 리메시 진행 중이며 모듈 외형 호환·Unity 적용은 아직 미검증.
+
+- HAND-GRIP-RESUME-1106 Meshy 시험: 100K 리메시 완료. 첫 수동 골반 마커 리그는 사용자 무릎/다리 흐물거림 지적으로 불합격. 기본 마커 재리깅은 사용자가 화면상 괜찮음을 확인. 기준 Mixamo FBX·걷기/달리기 ZIP 보존, Assets/_Project/Art/MeshyAnimation1106 격리 반입. 신규 AgentScripts/MeshyAnimation1106*.cs 소유. 10크레딧 벌목 Text-to-Motion 1개 생성, 파지 품질 아직 미검증.
+
+- HAND-GRIP-RESUME-1106 작업 모션 불합격 확정: 사용자 손 몸 관통·Unity 몸만 까딱임 지적. 첫 Meshy 벌목은 팔 바인딩 누락이 아닌 생성 동작/캐릭터 적용 품질 문제, 손 간격 0.1335~0.3770m. 승인된 달리기 리그 유지, 곡괭이 전용 v2 생성(10크레딧), 생산 적용 금지 상태로 검증 중.
+
+- HAND-GRIP-RESUME-1106 후속: v2도 사용자 불합격. 캐릭터 추가/다운로드/생산 적용 안 함. 무료 Heavy Hammer 프리셋 비교만 진행, 채택 안 함. Unity 검증 기본값을 승인된 Running으로 변경, 벌목 선택 항목에 REJECTED 명시. 파지·곡괭이 미해결.
+
+- HAND-GRIP-RESUME-1106 프리셋 검증: 사용자가 Meshy는 괜찮으나 Unity에서는 움직이지 않고 회전만 한다고 정정. Heavy_Hammer_Swing 다운로드·격리 반입. 자체 EditorWindow의 Animator/Playable 재생과 프레임별 BakeMesh 표시로 변경. 팔 올림(phase .55)·내려찍기(.984) native Unity 화면 확인 및 PNG 보존, 연속 재생 활성. 오른손 곡괭이 방향 보정, 왼손 접촉·생산 적용·모듈 외형은 미완료. 손가락/달리기 생산 파일 변경 없음.
+
+- HAND-GRIP-RESUME-1106 달리기 재검증: 동일 미리보기 표시 문제 영향 가능성을 사용자 지적. Running 원본 무변경, 수정된 CPU 스킨 갱신 미리보기에서 phase .15/.65 반대 보폭 native 화면 확인·캡처 후 연속 재생 활성. 실제 게임 Animator 적용 검증과는 구분.
+
+- HAND-GRIP-RESUME-1106 프리셋 조사: art/meshy-animation-1106/PRESET_REVIEW.md에 작업/운반/전투/생활 후보와 검증 수준 기록. 양궁 사용자 머리 관통 지적, 대체 Shot3 FBX 격리 반입 및 12프레임 검증에서도 당김 구간 얼굴 간섭 확인. 양궁 채택 없음, 실제 게임 적용 없음.
+
+- **UI-APPROVED-1106 / Codex UI / 진행** — 사용자 승인 HTML hud-v2 최신 시안 Unity 반영. 소유 UI/MenuTheme.cs·HudResponsiveLayout.cs·HudClock.cs·HudWave.cs·GameMenuDock.cs·CommandCard.cs·PrototypeResourceHud.cs·ToastManager.cs·GameMenuPrototype.cs, 신규 AgentScripts/UiApproved1106Checks.cs. 기존 이 채팅 UI 변경 위에 적용, 리깅·애니메이션·에셋 파일 수정 금지. 공식 CLI로 격리 Play 및 실제 화면 검증. SAVE 없음.
+`n- HAND-GRIP-RESUME-1106 달리기 프리셋: Run02/03 격리 반입 및 기존 소유 MeshyAnimation1106Live.cs 선택 목록 확장. 실제 Unity 미리보기 검증 진행, 생산 Animator 변경 없음.
+- HAND-GRIP-RESUME-1106 달리기2/3 완료: 각 FBX 격리 반입·프리뷰 선택 연결·Unity native 화면 확인(0.700s/0.800s). Meshy 프리셋 묶음20 FBX 로컬 확보,16 검수 후보/4 보류. 잔액705 유지. 생산 캐릭터 Animator 적용 아님. 상세 art/meshy-animation-1106/preset-bundle/INVENTORY.md.
+
+- **UI-APPROVED-1106 검증** — 승인 HTML HUD 반영, 공식 컴파일0오류, 격리 Play 1440×900/760×600 HUD43검사 및 기존 UI23검사 통과. 실제 Game 캡처 직접 확인. 원본 work/ui-approved-1106/before 보관. 손 리깅·애니메이션 파일 미변경. 상세 docs/UI_APPROVED_HUD_1106.md. Graphify 갱신 및 Play 점유 해제 마무리 중, SAVE 없음.
+
+- **UI-APPROVED-1106 완료** — Graphify AST update 종료0(36,047노드·95,585간선), 실제 게임 화면 확인 완료. Play 종료·Temp/unity-lock.txt 점유 해제. 커뮤니티 재분류에 따른 라벨 갱신 안내는 남음(코드 그래프 갱신 성공). SAVE 없음.
+
+- **UI-PARITY-1106 / Codex UI / 진행** — 사용자 HTML 최대 일치 요청. 기존 UI 소유 파일과 CharacterPortraits.cs·신규 정적 Noto Sans KR 폰트만 수정. 폰트/숫자·선택창 미터/배치·하단 간격을 HTML 측정치로 교정, 초상 전용 렌더 밝기 수정. 모델/리그/애니메이션 원본 불변. 다른 채팅은 Meshy 다운로드 작업 확인. SAVE 없음.
+
+- **MESHY-RERIG-1106 / Codex(애니메이션) / 진행** — 원본에서 별도 재리깅 및 새 FBX 다운로드 완료(표시 705 유지). 소유 AgentScripts/MeshyAnimation1106Live.cs, Assets/_Project/Art/MeshyAnimation1106/Rerig_All.fbx, art/meshy-animation-1106/rerig. 기존 리깅 보존, 새 결과 Unity 무릎 비교 중.
+
+- **MESHY-RERIG-1106 검증** — 새 Rerig_All.fbx를 격리 Unity validation에 연결(선택 7). Running 0.633초 재생 및 12구간 이미지 검사에서 이전의 심한 무릎 꺾임은 관찰하지 못함. 실제 화면 art/meshy-animation-1106/unity-rerig-running.png, 연속 자세 rerig-running-cycle.png. 프로덕션 캐릭터 교체 없음. 추가 소유 AgentScripts/MeshyAnimation1106RerigFrames.cs. 신규 프리셋 19개는 Meshy 추가만 완료, 파일 다운로드는 아직 남음.
+
+- **UI-PARITY-1106 검증 완료** — HTML 글꼴·선택창·메뉴 실측 반영, 전용 초상 조명/메시 스냅샷·좌표 정밀도 수정. 컴파일0오류, HUD57검사·기존UI23검사 통과 및 1440×900/760×600 실제 Game 캡처 확인. 다른 담당 모델·리그·애니메이션 원본 미변경. Graphify 갱신 진행. SAVE 없음.
+`n- **UI-PARITY-1106 완료** — Graphify update 종료0(44,641노드·115,427간선), Play 종료·본인 Unity 점유 해제. 실제 화면 검증 완료, SAVE 없음.
+
+- **MESHY-LIFE-1106 / Codex(애니메이션) / 진행** — 새 리깅 기준 생활·부상·감정 프리셋18개 추가 다운로드(기본 걷기·달리기 포함 ZIP20개). 소유 Assets/_Project/Art/MeshyAnimation1106/Life, AgentScripts/MeshyLife1106Audit.cs, art/meshy-animation-1106/life-bundle. Unity 클립/시각 검수 및 활용 조건 기록 중.
+
+- **MESHY-LIFE-1106 결과** — 신규18개 FBX·72본·448커브 검증, 각3시점 렌더54개 확인, 졸기 native Unity 재생 확인. Live 선택 목록에18개 연결. 다운로드/검수 완료, 실제 게임 연결은 미완료. 적용 조건 art/meshy-animation-1106/life-bundle/REVIEW.md. Live.cs와 README도 담당 범위에 추가. 표시 잔액705 유지.
+
+- **UI-COMPARE-SAVE-1107 / Codex UI / 진행** — HTML/Unity 동일 해상도 비교, 잔여 HUD 모서리·아이콘·지도/자원/습격 배치 보정. 기존 UI 소유 파일과 신규 HudPlate.cs 수정. 다른 채팅 완료 상태 확인 후 전체 SAVE·PlayMCP 결과·종료 요청 수행.
+
+- **UI-COMPARE-SAVE-1107 저장 단계** — 최신 SAVE 지시로 추가 디자인 변경 없이 검증된 상태 저장. HTML/Unity 양쪽760×600 비교PNG 및 Notion 작업 일지 첨부. 잔여 모서리/아이콘/지도 크기 차이 명시. 타 세션 신규18종/리팩토링 결과 합산, 미완료 행동/파지 구분.

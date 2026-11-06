@@ -1,0 +1,22 @@
+clip=Heavy_Hammer_Swing bindings=448
+SmartRigArmature/mixamorig:Hips/mixamorig:Spine/mixamorig:Spine1/mixamorig:Spine2/mixamorig:RightShoulder/mixamorig:RightArm/mixamorig:RightForeArm/mixamorig:RightHand m_LocalRotation.x resolved=True
+SmartRigArmature/mixamorig:Hips/mixamorig:Spine/mixamorig:Spine1/mixamorig:Spine2/mixamorig:RightShoulder/mixamorig:RightArm/mixamorig:RightForeArm/mixamorig:RightHand m_LocalRotation.y resolved=True
+SmartRigArmature/mixamorig:Hips/mixamorig:Spine/mixamorig:Spine1/mixamorig:Spine2/mixamorig:RightShoulder/mixamorig:RightArm/mixamorig:RightForeArm/mixamorig:RightHand m_LocalRotation.z resolved=True
+SmartRigArmature/mixamorig:Hips/mixamorig:Spine/mixamorig:Spine1/mixamorig:Spine2/mixamorig:RightShoulder/mixamorig:RightArm/mixamorig:RightForeArm/mixamorig:RightHand m_LocalRotation.w resolved=True
+SmartRigArmature/mixamorig:Hips/mixamorig:Spine/mixamorig:Spine1/mixamorig:Spine2/mixamorig:RightShoulder/mixamorig:RightArm/mixamorig:RightForeArm/mixamorig:RightHand m_LocalPosition.x resolved=True
+SmartRigArmature/mixamorig:Hips/mixamorig:Spine/mixamorig:Spine1/mixamorig:Spine2/mixamorig:RightShoulder/mixamorig:RightArm/mixamorig:RightForeArm/mixamorig:RightHand m_LocalPosition.y resolved=True
+SmartRigArmature/mixamorig:Hips/mixamorig:Spine/mixamorig:Spine1/mixamorig:Spine2/mixamorig:RightShoulder/mixamorig:RightArm/mixamorig:RightForeArm/mixamorig:RightHand m_LocalPosition.z resolved=True
+phase=0.00 left=(0.2943, 0.8721, -0.0434) right=(0.3419, 0.7279, -0.4217) handDistance=0.4077 torso=(0.1917, 1.0327, -0.2763)
+phase=0.08 left=(0.2912, 0.8182, -0.0837) right=(0.3428, 0.6771, -0.4474) handDistance=0.3935 torso=(0.2115, 0.9907, -0.3042)
+phase=0.17 left=(0.2928, 0.7676, -0.1215) right=(0.3402, 0.6208, -0.4716) handDistance=0.3826 torso=(0.2259, 0.9441, -0.3445)
+phase=0.25 left=(0.3436, 0.7047, -0.1639) right=(0.3209, 0.5592, -0.5164) handDistance=0.3820 torso=(0.2335, 0.9059, -0.3954)
+phase=0.33 left=(0.4669, 0.8467, -0.3317) right=(0.3277, 0.6276, -0.6093) handDistance=0.3801 torso=(0.2250, 0.9201, -0.4156)
+phase=0.42 left=(0.3820, 1.1629, -0.4899) right=(0.3769, 0.8422, -0.6944) handDistance=0.3804 torso=(0.2151, 0.9872, -0.3667)
+phase=0.50 left=(0.3358, 1.3418, -0.3568) right=(0.3918, 1.1033, -0.6366) handDistance=0.3719 torso=(0.1997, 1.0466, -0.3202)
+phase=0.58 left=(0.3056, 1.3772, -0.1698) right=(0.3737, 1.2948, -0.5114) handDistance=0.3579 torso=(0.2078, 1.0673, -0.3009)
+phase=0.67 left=(0.2796, 1.2326, 0.0502) right=(0.3394, 1.3383, -0.2830) handDistance=0.3546 torso=(0.2225, 1.0452, -0.2515)
+phase=0.75 left=(0.2501, 0.8849, 0.1930) right=(0.3009, 1.1530, 0.0183) handDistance=0.3240 torso=(0.2026, 0.9712, -0.1856)
+phase=0.83 left=(0.1764, 0.5095, -0.0186) right=(0.2445, 0.7488, 0.1815) handDistance=0.3193 torso=(0.1663, 0.8633, -0.1268)
+phase=0.92 left=(0.1210, 0.4699, -0.2347) right=(0.2029, 0.4728, 0.0667) handDistance=0.3123 torso=(0.1579, 0.7892, -0.0881)
+phase=1.00 left=(0.1059, 0.5475, -0.2293) right=(0.2076, 0.4948, 0.0469) handDistance=0.2990 torso=(0.1863, 0.8233, -0.0692)
+ROOT (0.00000, 0.00000, 0.00000, 1.00000) child=(0.00000, 0.00000, 0.00000, 1.00000)

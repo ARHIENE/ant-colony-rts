@@ -17,16 +17,16 @@ namespace AntColony.UI
 
         public static HudClock Create(Transform canvas)
         {
-            var root = MenuTheme.Panel(canvas, "HudClock", new Vector2(1, 1), new Vector2(304, 32), new Vector2(-8, -48));
-            var clock = root.gameObject.AddComponent<HudClock>(); clock.root = root;
+            var root = MenuTheme.Panel(canvas, "HudClock", Vector2.zero, new Vector2(240, 36), new Vector2(12, 0));
+            var clock = root.gameObject.AddComponent<HudClock>(); clock.root = root; root.GetComponent<Image>().color = Color.clear; root.Find("Accent").gameObject.SetActive(false);
             root.gameObject.AddComponent<CanvasGroup>();
             clock.day = Label(root, "", 12, new Vector2(8, -5), new Vector2(220, 20), MenuTheme.TextColor);
-            clock.day.fontStyle = FontStyle.Bold;
+            clock.day.fontStyle = FontStyle.Normal; clock.day.fontSize = 11;
             clock.day.raycastTarget = true;
             clock.day.gameObject.AddComponent<MenuTooltip>();
             clock.left = Label(root, "", 12, new Vector2(8, -26), new Vector2(120, 20), MenuTheme.Dim);
             clock.left.alignment = TextAnchor.MiddleLeft; clock.left.gameObject.SetActive(false);
-            clock.day.rectTransform.sizeDelta = new Vector2(122, 22);
+            clock.day.rectTransform.sizeDelta = new Vector2(116, 26);
             // 낮 10 : 밤 5 비율의 막대와 현재 시각 표시.
             var bar = Box(root, "DayNightBar", new Vector2(8, -46), new Vector2(160, 4), MenuTheme.Well);
             bar.gameObject.SetActive(false);
@@ -35,24 +35,25 @@ namespace AntColony.UI
             d.GetComponent<Image>().raycastTarget = n.GetComponent<Image>().raycastTarget = false;
             clock.marker = Box(bar, "Now", new Vector2(0, 2), new Vector2(2, 8), MenuTheme.TextColor);
 
-            var group = Box(root, "Speed", new Vector2(126, 0), new Vector2(174, 32), MenuTheme.Well);
+            var group = Box(root, "Speed", new Vector2(116, -2), new Vector2(136, 32), Color.clear);
             string[] labels = { "Ⅱ", "1×", "2×", "3×", "5×" };
             string[] names = { "Pause / Play", "1x", "2x", "3x", "5x" };
             string[] tips = { "일시정지 (Space)", "1배속 (F5)", "2배속 (F6)", "3배속 (F7)", "5배속 (F8)" };
             for (var i = 0; i < 5; i++)
             {
                 var index = i;
-                var rect = Box(group, names[i], new Vector2(2 + i * 34, -2), new Vector2(32, 30), Color.white);
+                var rect = Box(group, names[i], new Vector2(i * 27, -2), new Vector2(26, 30), Color.white);
                 var button = rect.gameObject.AddComponent<Button>(); MenuTheme.StyleButton(button);
                 button.onClick.AddListener(() =>
                 {
                     var menu = GameMenuController.Instance; if (menu == null) return;
                     if (index == 0) menu.ToggleSimulation(); else menu.SetSpeed(GameMenuController.Speeds[index - 1]);
                 });
-                var text = Label(rect, labels[i], 12, Vector2.zero, new Vector2(32, 30), MenuTheme.Muted);
-                text.font = MenuTheme.NumberFont; text.alignment = TextAnchor.MiddleCenter;
+                var text = Label(rect, labels[i], 12, Vector2.zero, new Vector2(26, 30), MenuTheme.Muted);
+                text.font = MenuTheme.Font; text.fontSize = 11; text.alignment = TextAnchor.MiddleCenter;
                 rect.gameObject.AddComponent<MenuTooltip>().Message = tips[i];
                 clock.speeds[i] = button;
+                if (i == 4) rect.gameObject.SetActive(false); // 5x remains available through its existing shortcut.
             }
             return clock;
         }
@@ -63,6 +64,11 @@ namespace AntColony.UI
             var group = root.GetComponent<CanvasGroup>();
             group.alpha = visible ? 1 : 0; group.blocksRaycasts = group.interactable = visible;
             if (!visible) return;
+            bool small = ((RectTransform)root.parent).rect.width <= 760;
+            root.anchoredPosition = new Vector2(small ? 6 : 12, 0); root.sizeDelta = new Vector2(small ? 181 : 219, 36);
+            day.rectTransform.anchoredPosition = new Vector2(0, -7); day.rectTransform.sizeDelta = new Vector2(small ? 80 : 94, 22);
+            var speedGroup = (RectTransform)root.Find("Speed"); speedGroup.anchoredPosition = new Vector2(small ? 83 : 101, -4);
+            for (int i = 0; i < 4; i++) { var r = (RectTransform)speeds[i].transform; r.anchoredPosition = new Vector2(i * (small ? 25 : 30), 0); r.sizeDelta = new Vector2(small ? 23 : 28, 29); MenuTheme.Stretch(speeds[i].GetComponentInChildren<Text>().rectTransform); }
             day.text = CalendarLabel;
             day.GetComponent<MenuTooltip>().Message = DayLabel;
             var seconds = Mathf.CeilToInt(GameCalendar.SecondsUntilPhaseChange);
@@ -71,9 +77,9 @@ namespace AntColony.UI
             for (var i = 0; i < speeds.Length; i++)
             {
                 var on = i == 0 ? Time.timeScale == 0 : Time.timeScale == GameMenuController.Speeds[i - 1];
-                var colors = speeds[i].colors; var want = on ? MenuTheme.Accent : MenuTheme.Plate2;
+                var colors = speeds[i].colors; var want = on ? MenuTheme.Hex(0x5d6149) : Color.clear;
                 if (colors.normalColor != want) { colors.normalColor = want; MenuTheme.SetColorsInstant(speeds[i], colors); }
-                speeds[i].GetComponentInChildren<Text>().color = on ? MenuTheme.AccentInk : MenuTheme.Muted;
+                speeds[i].GetComponentInChildren<Text>().color = on ? MenuTheme.Hex(0xf5e9ca) : MenuTheme.Muted;
             }
         }
 

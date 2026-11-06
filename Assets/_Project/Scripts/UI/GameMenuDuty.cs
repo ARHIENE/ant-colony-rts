@@ -14,23 +14,26 @@ namespace AntColony.UI
             CommanderJobs.Research, CommanderJobs.Administration, CommanderJobs.Cooking, CommanderJobs.Hunting, CommanderJobs.Hauling, CommanderJobs.Husbandry, CommanderJobs.Farming, CommanderJobs.Fishing, CommanderJobs.Gathering };
         private static readonly string[] DutyNames = { "소화", "의료", "수리", "치우기", "건설", "예술", "제작", "연구", "행정", "요리", "사냥", "운반", "사육", "농사", "낚시", "채집" };
 
+        private int dutyPage;
         public void WorkSchedule()
         {
-            var f = Frame("작업표");
-            var p = L.Plate(f, "WorkSchedule", 180, 100, 1080, 650);
-            L.Label(p, "작업표", 20, 12, 10, 88, 34, MenuTheme.TextColor, bold: true);
-            L.Label(p, "좌클릭 +1 · 우클릭 −1 · — = 금지 · 1~9는 우선순위 · 아래 숫자=기술, ♥=열정", 12, 112, 10, 900, 34, MenuTheme.Muted);
-            L.Line(p, 0, 54, 1080);
-            L.Label(p, "높은 숫자 우선 · 동률은 대상 우선순위→거리→대기 순. 진행 작업은 마친 뒤 적용. 자연물은 별도 지정 필요.", 12, 24, 64, 1032, 32, MenuTheme.Muted);
-            L.Label(p, "장수 / 현재 상태", 14, 24, 110, 210, 32);
-            for (var i = 0; i < DutyJobs.Length; i++) L.Label(p, DutyNames[i], 13, 244 + i * 49, 110, 49, 32);
-            var list = L.List(p, 24, 148, 1032, 426);
+            var p = PrototypeWindow("작업표", "좌클릭 +1 · 우클릭 −1 · 0 금지 · 높은 숫자 우선 · 아래 숫자 기술 / ♥ 열정", WorkSchedule);
+            float width = p.sizeDelta.x, height = p.sizeDelta.y;
+            int count = Mathf.Clamp(Mathf.FloorToInt((width - 240) / 49), 1, DutyJobs.Length);
+            dutyPage = Mathf.Clamp(dutyPage, 0, (DutyJobs.Length - 1) / count);
+            int first = dutyPage * count, last = Mathf.Min(DutyJobs.Length, first + count);
+            L.Label(p, "장수 / 현재 상태", 14, 20, 108, 170, 28);
+            L.Button(p, "Previous Duties", "◀", width - 106, 78, 38, 28, () => { dutyPage--; WorkSchedule(); }).interactable = dutyPage > 0;
+            L.Button(p, "Next Duties", "▶", width - 60, 78, 38, 28, () => { dutyPage++; WorkSchedule(); }).interactable = last < DutyJobs.Length;
+            L.Label(p, $"작업 {first + 1}–{last} / {DutyJobs.Length}", 12, 20, 78, 250, 24, MenuTheme.Muted);
+            for (var i = first; i < last; i++) L.Label(p, DutyNames[i], 13, 200 + (i-first) * 49, 108, 49, 28);
+            var list = L.List(p, 20, 142, width-40, height-204);
             foreach (var c in SortedCommanders())
             {
                 var row = L.Cell(list, "Duty " + c.CommanderName, 62, MenuTheme.Plate2);
-                var label = L.Label(row, "", 14, 8, 0, 204, 62);
+                var label = L.Label(row, "", 14, 8, 0, 164, 62);
                 refreshDutyScreen += () => label.text = c != null ? c.CommanderName + " · " + Status(c) : "이탈한 장수";
-                for (var i = 0; i < DutyJobs.Length; i++)
+                for (var i = first; i < last; i++)
                 {
                     var job = DutyJobs[i];
                     void Cycle(int direction)
@@ -42,14 +45,14 @@ namespace AntColony.UI
                         if (next != 0) c.SetJobPriority(job, next);
                         refreshDutyScreen?.Invoke();
                     }
-                    var level = L.Button(row, "Priority " + job, "", 220 + i * 49, 4, 45, 30, () => Cycle(1));
+                    var level = L.Button(row, "Priority " + job, "", 180 + (i-first) * 49, 4, 45, 30, () => Cycle(1));
                     var clicks = level.gameObject.AddComponent<UnityEngine.EventSystems.EventTrigger>();
                     var right = new UnityEngine.EventSystems.EventTrigger.Entry { eventID = UnityEngine.EventSystems.EventTriggerType.PointerClick };
                     right.callback.AddListener(e => { if (((UnityEngine.EventSystems.PointerEventData)e).button == UnityEngine.EventSystems.PointerEventData.InputButton.Right) Cycle(-1); });
                     clicks.triggers.Add(right);
                     var levelText = level.GetComponentInChildren<Text>();
                     var skill = job == CommanderJobs.Hunting ? (c.Role == AntColony.Data.UnitRole.Ranged ? CommanderActivity.Ranged : CommanderActivity.Melee) : CommanderAnt.SkillFor(job);
-                    var skillText = L.Label(row, "", 12, 220 + i * 49, 35, 45, 24, MenuTheme.Muted);
+                    var skillText = L.Label(row, "", 12, 180 + (i-first) * 49, 35, 45, 24, MenuTheme.Muted);
                     var trainingTip = skillText.gameObject.AddComponent<MenuTooltip>();
                     refreshDutyScreen += () => {
                         level.interactable = c != null && !c.IsDead && c.CanDoJob(job);
@@ -61,12 +64,12 @@ namespace AntColony.UI
                     };
                 }
             }
-            L.Button(p, "Forbid Gathering", "채집 금지", 24, 592, 150, 36, () => { Resume(); GatherDesignation.Begin(true); });
-            L.Button(p, "Clear Designation", "작업 지정·취소", 186, 592, 150, 36, WorkDesignations);
-            L.Button(p, "Select Tasks", "작업 선택", 348, 592, 150, 36, () => { Resume(); GatherDesignation.BeginTaskSelect(); }); // 드래그로 일괄 관리(2026-10-12)
-            L.Button(p, "All Tasks", "전체 작업", 510, 592, 150, 36, () => ShowTasks(System.Linq.Enumerable.ToList(TaskCandidates())));
-            L.Line(p, 0, 580, 1080);
-            L.Button(p, "Close Duty", "닫기", 1008, 592, 48, 36, Resume);
+            L.Button(p, "Forbid Gathering", "채집 금지", 20, height-46, 140, 32, () => { Resume(); GatherDesignation.Begin(true); });
+            L.Button(p, "Clear Designation", "작업 지정·취소", 170, height-46, 140, 32, WorkDesignations);
+            L.Button(p, "Select Tasks", "작업 선택", 320, height-46, 140, 32, () => { Resume(); GatherDesignation.BeginTaskSelect(); }); // 드래그로 일괄 관리(2026-10-12)
+            L.Button(p, "All Tasks", "전체 작업", 470, height-46, 140, 32, () => ShowTasks(System.Linq.Enumerable.ToList(TaskCandidates())));
+
+
             refreshDutyScreen?.Invoke();
         }
 

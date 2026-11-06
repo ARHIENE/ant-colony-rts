@@ -2,6 +2,9 @@ using System.Linq;
 using AntColony.Buildings;
 using AntColony.Core;
 using AntColony.Data;
+using UnityEngine;
+using UnityEngine.UI;
+using L = AntColony.UI.MenuLayout;
 
 namespace AntColony.UI
 {
@@ -43,8 +46,16 @@ namespace AntColony.UI
             foreach (var t in System.Enum.GetValues(typeof(ResourceType)).Cast<ResourceType>())
             {
                 var type = t;
-                MenuTheme.Button(content, $"{t.DisplayName()}: {(bin.Allows(t) ? "허용" : "금지")} · 재고 {bin.Amount(t)} / {bin.Capacity(t)}", () => { rm.SetAllowed(bin, type, !bin.Allows(type)); ShowStorage(bin); });
-                if (bin.Amount(t) > 0) MenuTheme.Button(content, $"  {t.DisplayName()} 꺼내기(바닥에)", () => { rm.Eject(bin, type); ShowStorage(bin); });
+                var row = L.Cell(content, "Storage Row " + type, 46, MenuTheme.Plate2);
+                PrototypeResourceIcon.Create(row, type, 8, 12);
+                L.Label(row, type.DisplayName(), 13, 38, 2, 150, 24);
+                L.Label(row, $"{bin.Amount(type):N0} / {bin.Capacity(type):N0}", 12, 38, 24, 150, 20, MenuTheme.Muted);
+                var allow = L.Button(row, "Allow " + type, bin.Allows(type) ? "✓ 허용" : "금지", 0, 5, 76, 36,
+                    () => { rm.SetAllowed(bin, type, !bin.Allows(type)); ShowStorage(bin); }, primary: bin.Allows(type));
+                var ar = (RectTransform)allow.transform; ar.anchorMin = ar.anchorMax = ar.pivot = Vector2.one; ar.anchoredPosition = new Vector2(-88, -5);
+                var eject = L.Button(row, "Eject " + type, "반출", 0, 5, 72, 36, () => { rm.Eject(bin, type); ShowStorage(bin); }, "바닥으로 꺼냅니다. 물자는 삭제되지 않습니다.");
+                var er = (RectTransform)eject.transform; er.anchorMin = er.anchorMax = er.pivot = Vector2.one; er.anchoredPosition = new Vector2(-8, -5);
+                eject.interactable = bin.Amount(type) > 0;
             }
             V5Fit(window);
         }

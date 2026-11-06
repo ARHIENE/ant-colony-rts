@@ -2,6 +2,8 @@ using System.Collections.Generic;
 using System.Linq;
 using AntColony.Units;
 using UnityEngine;
+using UnityEngine.Rendering;
+using UnityEngine.Rendering.Universal;
 
 namespace AntColony.UI
 {
@@ -10,10 +12,11 @@ namespace AntColony.UI
     public static class CharacterPortraits
     {
         public const int Layer = 30;
-        const int Size = 128;
-        static readonly Vector3 Studio = new Vector3(0, -9000, 0);
+        const int Size = 256;
+        static readonly Vector3 Studio = new Vector3(0, -100, 0);
         static readonly Dictionary<CommanderAnt, RenderTexture> cache = new Dictionary<CommanderAnt, RenderTexture>();
         static UnityEngine.Camera camera;
+        static Light portraitLight;
 
         // 모델이 아직 없으면 null(호출 쪽은 다음 갱신에서 다시 묻는다).
         public static Texture Get(CommanderAnt c)
@@ -34,8 +37,9 @@ namespace AntColony.UI
                 camera = new GameObject("PortraitCamera").AddComponent<UnityEngine.Camera>();
                 camera.orthographic = true; camera.clearFlags = CameraClearFlags.SolidColor; camera.backgroundColor = new Color(0, 0, 0, 0);
                 camera.cullingMask = 1 << Layer; camera.enabled = false; camera.nearClipPlane = .01f; camera.farClipPlane = 20;
-                var light = new GameObject("PortraitLight").AddComponent<Light>(); light.type = LightType.Directional; light.cullingMask = 1 << Layer;
-                light.intensity = 1.2f; light.transform.rotation = Quaternion.Euler(20, 160, 0); light.transform.SetParent(camera.transform, true);
+                var light = new GameObject("PortraitLight").AddComponent<Light>(); portraitLight = light; light.type = LightType.Directional; light.cullingMask = 1 << Layer;
+                light.intensity = 1.0f; light.color = Color.white; light.shadows = LightShadows.None; light.transform.rotation = Quaternion.Euler(20, 160, 0); light.transform.SetParent(camera.transform, true); light.enabled = false;
+                var data = camera.GetUniversalAdditionalCameraData(); data.renderPostProcessing = false; data.renderShadows = false;
                 Object.DontDestroyOnLoad(camera.gameObject);
                 if (UnityEngine.Camera.main != null) UnityEngine.Camera.main.cullingMask &= ~(1 << Layer);
             }
@@ -45,8 +49,22 @@ namespace AntColony.UI
                 t.gameObject.layer = Layer;
                 if (t.name.StartsWith("Socket.")) foreach (var r in t.GetComponentsInChildren<Renderer>()) r.enabled = false; // 손에 든 도구는 빼고 찍는다
             }
-            var animator = RigAnimator.Find(clone);
-            if (animator != null) { animator.cullingMode = AnimatorCullingMode.AlwaysAnimate; animator.Rebind(); animator.Play("Base Layer.Idle_A", 0, 0); animator.Update(.01f); }
+            // Snapshot the live pose: a newly cloned skinned renderer has not been updated
+            // by Unity yet, so rendering it immediately can cache an empty portrait.
+            var bakedMeshes = new List<Mesh>();
+            var originals = source.GetComponentsInChildren<SkinnedMeshRenderer>(true);
+            var copies = clone.GetComponentsInChildren<SkinnedMeshRenderer>(true);
+            for (int i = 0; i < copies.Length; i++)
+            {
+                var copy = copies[i];
+                if (!copy.enabled || !copy.gameObject.activeInHierarchy) continue;
+                var mesh = new Mesh(); originals[i].BakeMesh(mesh); bakedMeshes.Add(mesh);
+                var snapshot = new GameObject("Portrait mesh"); snapshot.layer = Layer;
+                snapshot.transform.SetParent(copy.transform, false);
+                snapshot.AddComponent<MeshFilter>().sharedMesh = mesh;
+                var still = snapshot.AddComponent<MeshRenderer>();
+                still.sharedMaterials = copy.sharedMaterials; copy.enabled = false;
+            }
             var renderers = clone.GetComponentsInChildren<Renderer>().Where(r => r.enabled).ToArray();
             if (renderers.Length == 0) { Object.Destroy(clone); return null; }
             var b = renderers[0].bounds; foreach (var r in renderers) b.Encapsulate(r.bounds);
@@ -55,9 +73,23 @@ namespace AntColony.UI
             camera.orthographicSize = b.size.y * .26f;
             camera.transform.SetPositionAndRotation(head + Vector3.forward * 5, Quaternion.LookRotation(Vector3.back));
             var rt = new RenderTexture(Size, Size, 16) { name = "Portrait " + source.transform.parent?.name };
-            camera.targetTexture = rt; camera.Render(); camera.targetTexture = null;
+            // URP chooses one main directional light. Use the isolated studio key while rendering,
+            // then restore world lighting immediately; gameplay models/materials are never modified.
+            var sun = RenderSettings.sun; var ambient = RenderSettings.ambientProbe;
+            bool wasEnabled = portraitLight.enabled;
+            try
+            {
+                portraitLight.transform.rotation = Quaternion.Euler(20, 160, 0);
+                portraitLight.enabled = true; RenderSettings.sun = portraitLight;
+                var fill = new SphericalHarmonicsL2(); fill.AddAmbientLight(new Color(.3f, .3f, .3f)); RenderSettings.ambientProbe = fill;
+                foreach (var r in renderers) { r.shadowCastingMode = ShadowCastingMode.Off; r.receiveShadows = false; r.lightProbeUsage = LightProbeUsage.Off; }
+                camera.targetTexture = rt; camera.Render();
+            }
+            finally { camera.targetTexture = null; RenderSettings.sun = sun; RenderSettings.ambientProbe = ambient; portraitLight.enabled = wasEnabled; }
             clone.SetActive(false); Object.Destroy(clone);
+            foreach (var mesh in bakedMeshes) Object.Destroy(mesh);
             return rt;
         }
     }
 }
+

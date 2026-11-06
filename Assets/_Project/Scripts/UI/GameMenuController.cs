@@ -118,6 +118,7 @@ namespace AntColony.UI
             if (title == "Paused") pauseChain = true;
             SimulationPause.Release("negotiation");
             open = true; ScreenName = title; panel.gameObject.SetActive(true); toolbar.SetActive(false); Tooltip("");
+            panel.parent.Find("Prototype Settings")?.gameObject.SetActive(false);
             if (!GameSession.Instance.GameStarted || pauseChain) SimulationPause.Hold("menu");
             else SimulationPause.Release("menu");
             content = legacyContent;
@@ -162,6 +163,7 @@ namespace AntColony.UI
             if (GameManager.Instance != null && GameManager.Instance.SavedDefeat) { ShowOutcome(false); return; }
             Tooltip("");
             open = false; closedFrame = Time.frameCount; ScreenName = "Game"; panel.gameObject.SetActive(false); toolbar.SetActive(true); SimulationPause.Release("negotiation"); SimulationPause.Release("menu");
+            panel.parent.Find("Prototype Settings")?.gameObject.SetActive(true);
         }
         public void Guide()
         {

@@ -12,7 +12,10 @@ namespace AntColony.UI
     {
         private RectTransform canvas, console, toolbar, summary, mapToggle;
         private SelectionManager selection;
-        private Text identity, mapLabel, brand;
+        private Text identity, mapLabel, brand, activityLabel, healthLabel, moodLabel;
+        private RectTransform healthMeter, moodMeter;
+        private RawImage selectedPortrait;
+        private CommanderAnt portraitCommander;
         private bool mapOpen = true, targetDetail;
         private Component lastTarget;
         private RectTransform notifications, objective;
@@ -54,6 +57,9 @@ namespace AntColony.UI
         {
             canvas = (RectTransform)transform;
             console = (RectTransform)transform.Find("CommandConsole");
+            console.gameObject.AddComponent<SelectionPortraitStrip>();
+            console.GetComponent<Image>().color = Color.clear;
+            HudConsole.Right.GetComponent<Image>().color = Color.clear;
             selection = AntColony.Core.SceneObjects.Any<SelectionManager>();
             var overlays = FindObjectsByType<RectTransform>(FindObjectsInactive.Include, FindObjectsSortMode.None);
             notifications = overlays.FirstOrDefault(r => r.name == "Toasts");
@@ -61,7 +67,8 @@ namespace AntColony.UI
             toolbar = FindObjectsByType<RectTransform>(FindObjectsInactive.Include, FindObjectsSortMode.None).FirstOrDefault(r => r.name == "MenuToolbar");
             var dock = MenuTheme.Rect("V6Dock", transform);
             dock.anchorMin = Vector2.zero; dock.anchorMax = new Vector2(1, 0); dock.pivot = new Vector2(.5f, 0);
-            dock.sizeDelta = new Vector2(0, 52); dock.gameObject.AddComponent<Image>().color = MenuTheme.Plate;
+            dock.SetAsFirstSibling();
+            dock.sizeDelta = new Vector2(0, 36); dock.gameObject.AddComponent<Image>().color = MenuTheme.Hex(0x343630);
             brand = MenuTheme.Text(transform.Find("ResourceBar"), "작은 정착지", 15);
             MenuLayout.Place(brand.rectTransform, 16, 16, 120, 30);
             brand.fontStyle = FontStyle.Bold;
@@ -84,17 +91,32 @@ namespace AntColony.UI
                 }
             }
             summary = MenuTheme.Rect("V6SelectionSummary", console);
-            identity = MenuTheme.Text(summary, "", 16); MenuTheme.Stretch(identity.rectTransform);
-            identity.rectTransform.offsetMin = new Vector2(12, 0); identity.rectTransform.offsetMax = new Vector2(-130, 0);
+            summary.gameObject.AddComponent<Image>().color = MenuTheme.Hex(0x464b40);
+            var portraitBacking = MenuLayout.Place(MenuTheme.Rect("Portrait Backing", summary), 8, 8, 64, 72);
+            portraitBacking.gameObject.AddComponent<Image>().color = MenuTheme.Hex(0xbbc4a8);
+            var portraitRect = MenuLayout.Place(MenuTheme.Rect("Selected Commander Portrait", summary), 8, 8, 64, 72);
+            selectedPortrait = portraitRect.gameObject.AddComponent<RawImage>();
+            selectedPortrait.raycastTarget = false;
+            identity = MenuTheme.Text(summary, "", 13); MenuTheme.Stretch(identity.rectTransform);
+            identity.rectTransform.offsetMin = new Vector2(8, 0); identity.rectTransform.offsetMax = new Vector2(-28, 0);
+            identity.horizontalOverflow = HorizontalWrapMode.Overflow; identity.verticalOverflow = VerticalWrapMode.Overflow;
             identity.alignment = TextAnchor.MiddleLeft;
+            activityLabel = MenuLayout.Label(summary, "", 11, 84, 34, 250, 14, MenuTheme.Hex(0xcbd0bb));
+            healthLabel = MenuLayout.Label(summary, "", 11, 84, 55, 51, 18, MenuTheme.Hex(0xcbd0bb));
+            moodLabel = MenuLayout.Label(summary, "", 11, 209, 55, 46, 18, MenuTheme.Hex(0xcbd0bb));
+            healthMeter = MenuLayout.Meter(summary, 135, 63, 67, 3, 1, MenuTheme.Hex(0xafc782));
+            moodMeter = MenuLayout.Meter(summary, 255, 63, 72, 3, 1, MenuTheme.Hex(0xc6b581));
             var details = MenuLayout.Button(summary, "V6 Details", "상세 ↗", 0, 0, 80, 32, () => {
                 var commander = SelectedUnitPanel.FindSingleSelectedCommander(selection);
                 if (commander != null) GameMenuController.Instance?.Details(commander);
+                else if (HudOverview.Selected(selection).Length > 1) GameMenuController.Instance?.Roster();
                 else targetDetail = !targetDetail;
             });
-            var dr = (RectTransform)details.transform; dr.anchorMin = dr.anchorMax = dr.pivot = new Vector2(1, 1); dr.anchoredPosition = new Vector2(-46, -10);
+            var dr = (RectTransform)details.transform; dr.anchorMin = dr.anchorMax = dr.pivot = new Vector2(1, 1); dr.anchoredPosition = new Vector2(-28, -2); dr.sizeDelta = new Vector2(42,24);
+            MenuTheme.Stretch(details.GetComponentInChildren<Text>().rectTransform); details.GetComponentInChildren<Text>().text = "상세";
             var clear = MenuLayout.Button(summary, "V6 Clear Selection", "×", 0, 0, 32, 32, () => { selection?.ClearSelection(); WorkTargetPanel.Clear(); targetDetail = false; });
-            var cr = (RectTransform)clear.transform; cr.anchorMin = cr.anchorMax = cr.pivot = Vector2.one; cr.anchoredPosition = new Vector2(-8, -10);
+            var cr = (RectTransform)clear.transform; cr.anchorMin = cr.anchorMax = cr.pivot = Vector2.one; cr.anchoredPosition = new Vector2(-2, -2); cr.sizeDelta = new Vector2(24,24);
+            MenuTheme.Stretch(clear.GetComponentInChildren<Text>().rectTransform);
             mapToggle = MenuTheme.Rect("V6MapToggle", HudConsole.Left);
             mapToggle.gameObject.AddComponent<Image>().color = MenuTheme.Plate2;
             mapToggle.gameObject.AddComponent<Button>().onClick.AddListener(() => mapOpen = !mapOpen);
@@ -129,13 +151,13 @@ namespace AntColony.UI
             // V6: 넓은 화면은 장수 바를 상단 가운데, 좁으면 왼쪽(브랜드 뒤)·둘째 줄.
             bool centered = width >= 1280;
             roster.anchorMin = roster.anchorMax = roster.pivot = centered ? new Vector2(.5f, 1) : new Vector2(0, 1);
-            roster.anchoredPosition = centered ? new Vector2(-40, -4) : new Vector2(width >= 1100 ? 140 : 16, width < 960 ? -56 : -4);
+            roster.anchoredPosition = centered ? new Vector2(-40, -4) : new Vector2(width > 760 ? 140 : 16, width < 960 ? -56 : -4);
             brand.gameObject.SetActive(false); roster.gameObject.SetActive(false);
-            transform.Find("V6Dock")?.gameObject.SetActive(false);
-            if (notifications != null) notifications.anchoredPosition = new Vector2(-12, -116); // 시계(94) 아래 웨이브 패널(52) 다음
+            transform.Find("V6Dock")?.gameObject.SetActive(true);
+            if (notifications != null) notifications.anchoredPosition = new Vector2(-14, -92);
             if (objective != null) objective.gameObject.SetActive(false);
-            var clock = (RectTransform)transform.Find("HudClock"); clock.anchoredPosition = new Vector2(-54, -12); clock.gameObject.SetActive(!BuildScreen.IsOpen);
-            if (transform.Find("HudWave") is RectTransform wave) { wave.anchoredPosition = new Vector2(-12, -54); wave.gameObject.SetActive(!BuildScreen.IsOpen); }
+            var clock = (RectTransform)transform.Find("HudClock"); clock.anchorMin = clock.anchorMax = clock.pivot = Vector2.zero; clock.anchoredPosition = new Vector2(width <= 760 ? 6 : 12, 0); clock.gameObject.SetActive(!BuildScreen.IsOpen);
+            if (transform.Find("HudWave") is RectTransform wave) { wave.anchoredPosition = new Vector2(-14, -20); wave.gameObject.SetActive(!BuildScreen.IsOpen); }
             var materials = (RectTransform)transform.Find("MaterialsList"); materials.anchoredPosition = new Vector2(-266, -TopHeight - 10);
             var target = WorkTargetPanel.Target;
             if (target != lastTarget) { targetDetail = false; lastTarget = target; }
@@ -144,31 +166,74 @@ namespace AntColony.UI
             var units = selection == null ? new SelectableObject[0] : selection.GetSelectedObjects().Where(s => s != null && s.IsSelected && s.isActiveAndEnabled).ToArray();
             bool visible = !GameMenuController.MenuOpen && !BuildScreen.IsOpen && (hasTarget || units.Length > 0);
             console.gameObject.SetActive(visible);
-            float mapWidth = width < 1100 ? 192 : 212;
-            float mapSide = mapWidth - 12;
-            float left = mapWidth + 32, cardWidth = Mathf.Min(790, width - left - 16);
-            Place(console, left, 66, cardWidth, 132);
-            Place(summary, 0, 76, cardWidth, 56);
-            Place(HudConsole.Right, 0, 0, cardWidth, 76);
+            float mapWidth = width < 900 ? 164 : 188;
+            float mapSide = mapWidth - 8;
+            float cardWidth = Mathf.Min(width <= 760 ? 320 : 344, width - mapWidth - 40);
+            float left = width > 760 ? (width - cardWidth) * .5f : width - cardWidth - 16;
+            bool multi = units.Length > 1;
+            bool singlePeace = units.Length == 1 && !hasTarget && SelectedUnitPanel.FindSingleSelectedCommander(selection) is CommanderAnt peaceCommander && !peaceCommander.IsDeployed;
+            float commandHeight = singlePeace ? 36 : 96;
+            float summaryHeight = width <= 760 ? 84 : 88;
+            Place(console, left, 52, cardWidth, multi ? 140 : commandHeight + summaryHeight + 4);
+            Place(summary, 0, multi ? 112 : commandHeight + 4, cardWidth, multi ? 28 : summaryHeight);
+            Place(HudConsole.Right, 0, 0, singlePeace && width <= 760 ? cardWidth - 18 : cardWidth, commandHeight);
             var commander = SelectedUnitPanel.FindSingleSelectedCommander(selection);
+            selectedPortrait.gameObject.SetActive(commander != null && !hasTarget);
+            summary.Find("Portrait Backing").gameObject.SetActive(commander != null && !hasTarget);
+            if (portraitCommander != commander)
+            {
+                portraitCommander = commander;
+                selectedPortrait.texture = commander != null ? CharacterPortraits.Get(commander) : null;
+            }
+            bool showCommander = commander != null && !hasTarget;
+            bool small = width <= 760;
+            float textX = small ? 80 : 84, titleY = small ? 10 : 11;
             var title = hasTarget ? target is AntColony.Buildings.BuildingBase building && building.Data != null ? building.Data.displayName : target.name : commander != null ? commander.CommanderName : $"{units.Length}명 선택";
-            var status = hasTarget ? "대상 관리" : commander != null ? CommanderStatusLine(commander) : "공통으로 가능한 명령";
-            identity.text = $"<b>{title}</b>\n<size=12>{status}</size>";
-            Place(HudConsole.Center, left, 220, Mathf.Min(808, width - left - 16), 224);
+            identity.text = title; identity.font = MenuTheme.NumberFont; identity.fontStyle = FontStyle.Normal;
+            identity.fontSize = showCommander ? (small ? 18 : 19) : 14;
+            identity.color = MenuTheme.Hex(0xf0e5c6);
+            MenuLayout.Place(identity.rectTransform, showCommander ? textX : 10, showCommander ? titleY : 2, cardWidth - (showCommander ? textX + 36 : 80), showCommander ? 22 : 24);
+            foreach (var item in new[] {activityLabel.gameObject, healthLabel.gameObject, moodLabel.gameObject, healthMeter.gameObject, moodMeter.gameObject}) item.SetActive(showCommander);
+            if (showCommander)
+            {
+                MenuLayout.Place((RectTransform)selectedPortrait.transform, 9, 8, small ? 60 : 64, small ? 68 : 72);
+                MenuLayout.Place((RectTransform)summary.Find("Portrait Backing"), 9, 8, small ? 60 : 64, small ? 68 : 72);
+                activityLabel.text = string.IsNullOrEmpty(CommanderOverhead.Activity(commander)) ? "대기" : CommanderOverhead.Activity(commander);
+                MenuLayout.Place(activityLabel.rectTransform, textX, small ? 32 : 34, cardWidth - textX - 9, 14);
+                healthLabel.text = $"체력  {commander.PersonalHealth:0}"; moodLabel.text = $"기분  {commander.Mood:0}";
+                MenuLayout.Place(healthLabel.rectTransform, textX, small ? 54 : 55, 51, 18);
+                MenuLayout.Place(moodLabel.rectTransform, textX + (small ? 115 : 125), small ? 54 : 55, 46, 18);
+                float hpWidth = small ? 57 : 67, moodWidth = small ? 62 : 72;
+                MenuLayout.Place(healthMeter, textX + 51, small ? 61 : 63, hpWidth, 3);
+                MenuLayout.Place(moodMeter, textX + (small ? 161 : 171), small ? 61 : 63, moodWidth, 3);
+                healthMeter.Find("Fill").GetComponent<RectTransform>().sizeDelta = new Vector2(hpWidth * Mathf.Clamp01(commander.PersonalHealth / AntColony.Core.GameBalance.CommanderHealth), 3);
+                moodMeter.Find("Fill").GetComponent<RectTransform>().sizeDelta = new Vector2(moodWidth * Mathf.Clamp01(commander.Mood / 100f), 3);
+            }
+            // Keep details accessible by clicking the name, without adding a button absent from the approved HUD.
+            var detailsRect = (RectTransform)summary.Find("V6 Details");
+            detailsRect.GetComponent<Image>().color = Color.clear;
+            var detailsButton = detailsRect.GetComponent<Button>(); detailsButton.transition = Selectable.Transition.None; detailsRect.GetComponent<Image>().canvasRenderer.SetColor(Color.white);
+            detailsRect.GetComponentInChildren<Text>().text = "";
+            MenuLayout.Place(detailsRect, showCommander ? textX : 10, showCommander ? titleY : 2, cardWidth - (showCommander ? textX + 38 : 80), 22);
+            var clearRect = (RectTransform)summary.Find("V6 Clear Selection");
+            MenuLayout.Place(clearRect, cardWidth - 29, 11, 18, 18);
+            clearRect.GetComponent<Image>().color = Color.clear; clearRect.GetComponent<Button>().transition = Selectable.Transition.None;
+            Place(HudConsole.Center, Mathf.Max(12, width - 620), 260, Mathf.Min(608, width - 24), 224);
             HudConsole.Center.gameObject.SetActive(visible && targetDetail);
             HudConsole.Left.gameObject.SetActive(!GameMenuController.MenuOpen && !BuildScreen.IsOpen);
-            Place(HudConsole.Left, 12, 60, mapWidth, mapOpen ? mapSide + 80 : 28);
-            Place(mapToggle, 0, mapOpen ? mapSide + 52 : 0, mapWidth, 28); mapLabel.text = mapOpen ? "지도 접기" : "지도 펼치기";
+            Place(HudConsole.Left, 12, 48, mapWidth, mapOpen ? mapSide + 26 : 26);
+            HudConsole.Left.GetComponent<Image>().color = MenuTheme.Hex(0x343b2b);
+            Place(mapToggle, 0, 0, mapWidth, 26); mapLabel.text = mapOpen ? "지도  ▾" : "지도  ▴";
             var map = (RectTransform)HudConsole.Left.Find("MinimapScreen");
-            map.gameObject.SetActive(mapOpen); Place(map, 6, 48, mapSide, mapSide);
-            var legend = (RectTransform)HudConsole.Left.Find("MapLegend"); legend.gameObject.SetActive(mapOpen); Place(legend, 4, 27, mapWidth - 8, 18);
+            map.gameObject.SetActive(mapOpen); Place(map, 4, 26, mapSide, mapSide);
+            var legend = (RectTransform)HudConsole.Left.Find("MapLegend"); legend.gameObject.SetActive(false);
             for (int i = 0; i < 3; i++)
             {
                 var filter = (RectTransform)HudConsole.Left.Find("Minimap Filter " + (Minimap.Filter)i);
                 float filterWidth = (mapWidth - 16) / 3;
-                filter.gameObject.SetActive(mapOpen); Place(filter, 4 + i * (filterWidth + 4), 3, filterWidth, 22);
+                filter.gameObject.SetActive(false); Place(filter, 4 + i * (filterWidth + 4), 2, filterWidth, 20);
             }
-            var tabs = (RectTransform)transform.Find("DetailTabs"); if (tabs != null) tabs.anchoredPosition = new Vector2(left, 210);
+            var tabs = (RectTransform)transform.Find("DetailTabs"); if (tabs != null) tabs.anchoredPosition = new Vector2(left, 250);
             occupied.Clear();
             foreach (var rect in new[] { top, roster, clock, materials, notifications, objective, console, HudConsole.Left, HudConsole.Center, tabs, (RectTransform)transform.Find("HudWave"), (RectTransform)transform.Find("V6Dock") }) Reserve(rect);
         }
