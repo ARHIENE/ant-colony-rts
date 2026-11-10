@@ -33,10 +33,11 @@ namespace AntColony.UI
         private readonly HashSet<ResourceType> displayed = new HashSet<ResourceType>();
         public static string Symbol(ResourceType t)=>t.IsFood()?"●":t==ResourceType.Wood?"▰":t==ResourceType.Stone?"◆":t==ResourceType.Water?"◉":"■";
         public static Color Tint(ResourceType t)=>t.IsFood()?MenuTheme.Hex(0xd3bb7b):t==ResourceType.Wood?MenuTheme.Hex(0xb08a5a):t==ResourceType.Stone?MenuTheme.Hex(0xb7b6aa):MenuTheme.Hex(0xb9ac93);
-        void Start(){root=MenuTheme.Rect("PinnedResources",transform);root.anchorMin=root.anchorMax=root.pivot=new Vector2(0,1);root.anchoredPosition=new Vector2(14,-20);root.gameObject.AddComponent<Image>().color=new Color(43/255f,53/255f,37/255f,.72f);Rebuild();}
+        // Linear-space Unity blending needs .93 opacity to match the HTML .83 charcoal backing.
+        void Start(){root=MenuTheme.Rect("PinnedResources",transform);root.anchorMin=root.anchorMax=root.pivot=new Vector2(0,1);root.anchoredPosition=new Vector2(14,-20);root.gameObject.AddComponent<Image>().color=new Color(45/255f,43/255f,40/255f,.93f);Rebuild();}
         void Rebuild()
         {
-            foreach(Transform child in root){child.gameObject.SetActive(false);Destroy(child.gameObject);}labels.Clear();
+            foreach(Transform child in root){if(child.name == "Chrome Border")continue;child.gameObject.SetActive(false);Destroy(child.gameObject);}labels.Clear();
             int i=0; foreach(var type in Pinned.OrderBy(t=>(int)t))
             {
                 var t=type;var b=MenuLayout.Button(root,"Pinned "+t,"",8,6+i*32,80,28,()=>GameMenuController.Instance?.PrototypeResources(),t.DisplayName());
@@ -44,7 +45,14 @@ namespace AntColony.UI
                 PrototypeResourceIcon.Create(b.transform,t,2,2);
                 var n=MenuLayout.Label(b.transform,"—",15,28,0,48,28,align:TextAnchor.MiddleRight);n.font=MenuTheme.NumberFont;n.fontSize=15;labels[t]=n;i++;
             }
-            root.sizeDelta=new Vector2(96,12+i*32);displayed.Clear();displayed.UnionWith(Pinned);
+            HudChrome.Round(root.GetComponent<Image>(),5,new Color(185/255f,175/255f,161/255f,77/255f));displayed.Clear();displayed.UnionWith(Pinned);
+        }
+        void LateUpdate()
+        {
+            if(root==null)return; bool small=Screen.width/MenuTheme.UiScale<=760;
+            root.anchoredPosition=new Vector2(small?14:20,small?-20:-22);
+            root.sizeDelta=new Vector2(small?96:104,(small?14:18)+labels.Count*28+Mathf.Max(0,labels.Count-1)*4);
+            int i=0;foreach(var item in labels){MenuLayout.Place((RectTransform)item.Value.transform.parent,small?9:10,(small?7:9)+i*32,small?78:84,28);item.Value.rectTransform.sizeDelta=new Vector2(small?48:54,28);i++;}
         }
         void Update()
         {

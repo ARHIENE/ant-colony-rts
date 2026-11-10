@@ -17,6 +17,7 @@ namespace AntColony.Units
         private bool CarryingPerson => commander != null && commander.MedicalPatient != null && commander.MedicalPatient.RescueCarrier == commander;
         private string JoyClip() => commander.PersonalState.joy.freeWalk ? "SkyGaze" : commander.PersonalState.joy.kind switch
         {
+            0 => (Seed(name)&1)==0 ? "Talk" : "Listen",
             2 => "Inspect", 3 or 12 => "Bathe", 1 or 4 or 5 or 6 => "PlayBoard", 7 => "Wrestle", 8 => "Throw",
             9 => "Exercise", 10 => "PlayMusic", 11 => "Swing", _ => "Rest"
         };

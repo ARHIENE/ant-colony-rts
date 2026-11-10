@@ -15,7 +15,7 @@ namespace AntColony.UI
     {
         public const int MaxVisible = 5;
         public const float WarningSeconds = 10f, HintSeconds = 10f;
-        public static readonly Color Mint = MenuTheme.Hex(0xc3b88f);
+        public static readonly Color Mint = MenuTheme.Hex(0xc9bfae);
         private sealed class Toast { public string key, message, actionLabel; public System.Action action; public ToastKind kind; public int count = 1; public float remaining; public bool crisis, pinned, seen; }
 
         private static ToastManager instance;
@@ -28,6 +28,7 @@ namespace AntColony.UI
         private RectTransform panel, list;
         private bool hovered, dirty = true;
         private bool expanded = true;
+        private float railWidth = 220;
 
         public static int Count => instance != null ? instance.toasts.Count : 0;
         public static bool Paused => instance != null && instance.hovered;
@@ -144,12 +145,14 @@ namespace AntColony.UI
                 for (var i = toasts.Count - 1; i >= 0; i--)
                     if (toasts[i].kind != ToastKind.Warning && toasts[i].kind != ToastKind.Achievement || toasts[i].seen)
                     if ((toasts[i].remaining -= Time.unscaledDeltaTime) <= 0) { toasts.RemoveAt(i); dirty = true; }
+            float width = Screen.width / MenuTheme.UiScale <= 760 ? 210 : 220;
+            if (railWidth != width) { railWidth = width; dirty = true; }
             if (dirty) Rebuild();
         }
 
         private void LateUpdate()
         {
-            if (panel.gameObject.activeSelf) panel.sizeDelta = new Vector2(220, Mathf.Min(Screen.height / MenuTheme.UiScale - 180, LayoutUtility.GetPreferredHeight(list)));
+            if (panel.gameObject.activeSelf) panel.sizeDelta = new Vector2(railWidth, Mathf.Min(Screen.height / MenuTheme.UiScale - 180, LayoutUtility.GetPreferredHeight(list)));
         }
 
         private void Rebuild()
@@ -174,20 +177,24 @@ namespace AntColony.UI
         private void Row(string name, string text, Color color, System.Action onClick, System.Action action = null, string actionLabel = null, bool achievement = false)
         {
             var rect = MenuTheme.Rect(name, list);
-            rect.gameObject.AddComponent<Image>().color = MenuTheme.Hex(0x343b2e);
+            bool warning = color == MenuTheme.DangerInk || color == MenuTheme.Warning;
+            rect.gameObject.AddComponent<Image>().color = MenuTheme.Hex(warning ? 0x443a2e : 0x35322e);
+            HudChrome.Round(rect.GetComponent<Image>(), 3, MenuTheme.Hex(warning ? 0x8a7050 : 0x686157));
             var stripe = MenuLayout.Place(MenuTheme.Rect("Severity", rect), 0, 0, 3, 34);
             stripe.gameObject.AddComponent<Image>().color = color;
             // Put the issue on the rail; explanations after an em dash remain in the tooltip.
             var divider = text.IndexOf(" — ", System.StringComparison.Ordinal);
             var headline = divider > 0 ? text.Substring(0, divider) : text;
-            var label = MenuLayout.Label(rect,headline,12,9,5,178,24,MenuTheme.TextColor);
+            MenuLayout.Place(HudChrome.Icon(rect,"Notification Icon", text.Contains("침대") || text.Contains("숙소") ? "BedSingle" : text.Contains("연구") ? "FlaskConical" : "ShieldAlert",color).rectTransform,11,10,14,14);
+            if(headline.StartsWith("숙소 부족: ")) headline = headline.Substring("숙소 부족: ".Length);
+            var label = MenuLayout.Label(rect,headline,12,34,5,railWidth-62,24,MenuTheme.TextColor);
             label.horizontalOverflow=HorizontalWrapMode.Wrap;label.verticalOverflow=VerticalWrapMode.Overflow;
             float height = Mathf.Max(34, label.preferredHeight + 10);
             label.rectTransform.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, height - 10);
             rect.gameObject.AddComponent<LayoutElement>().preferredHeight=height;
             rect.gameObject.AddComponent<MenuTooltip>().Message=text;
-            if(action!=null){var button=rect.gameObject.AddComponent<Button>();MenuTheme.StyleButton(button);button.onClick.AddListener(()=>action());}
-            if(onClick!=null)MenuLayout.Button(rect,"Dismiss","×",196,4,20,26,()=>onClick());
+            if(action!=null){var button=rect.gameObject.AddComponent<Button>();button.transition=Selectable.Transition.ColorTint;button.onClick.AddListener(()=>action());}
+            if(onClick!=null){var dismiss=MenuLayout.Button(rect,"Dismiss","",railWidth-24,4,20,26,()=>onClick());dismiss.GetComponent<Image>().color=Color.clear;dismiss.transition=Selectable.Transition.None;HudChrome.CenterIcon(HudChrome.Icon(dismiss.transform,"Close Icon","X",MenuTheme.Dim),0,0,12);}
         }
 
         // 판넬 위 마우스 진입/이탈을 매니저로 넘긴다.

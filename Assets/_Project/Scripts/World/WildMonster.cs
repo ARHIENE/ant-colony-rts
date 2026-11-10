@@ -343,6 +343,7 @@ namespace AntColony.World
             if (!Allied && !DiplomacyManager.TryAttack(this)) return;
             if (critter != null) critter.OnHurtByUnit(); // 사냥·전투로 공격받은 목장 생물은 성향대로 반응
             currentHealth -= Mathf.Min(amount, Mathf.Max(1, amount - AIEraProgress.ArmorBonus(AIEraProgress.CombatEra(this))));
+            AntColony.UI.GameFeel.Hit(this, Mathf.Min(amount, Mathf.Max(1, amount - AIEraProgress.ArmorBonus(AIEraProgress.CombatEra(this)))), Allied);
             GetComponent<AntVisual>()?.Action("Hit");
             GetComponent<CritterVisual>()?.Hurt();
             if (currentHealth <= 0f)

@@ -77,6 +77,7 @@ namespace AntColony.Units
         {
             if (IsDead) return;
             currentHealth -= Mathf.Max(1f, amount - Armor);
+            AntColony.UI.GameFeel.Hit(this, Mathf.Max(1f, amount - Armor), !(this is CommanderAnt hostile && hostile.IsHostile));
             GetComponent<AntVisual>()?.Action("Hit");
             if (currentHealth <= 0f)
             {

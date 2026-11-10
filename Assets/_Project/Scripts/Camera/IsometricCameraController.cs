@@ -36,7 +36,7 @@ namespace AntColony.Camera
         public Vector3 FocusPoint => focusPoint;
         public float Yaw => yaw;
         internal void RestoreView(Vector3 focus, float rotation, float size)
-        { focusPoint = focus; yaw = rotation; rotateTimer = -1; cam.orthographicSize = size; ApplyTransform(); }
+        { focusPoint = focus; yaw = rotation; rotateTimer = -1; cam.orthographicSize = targetOrthoSize = size; ApplyTransform(); }
         public void ApplySettings(float speed, float edge) { panSpeed = speed; edgeScrollThickness = edge; }
         public Rect PanBounds => Rect.MinMaxRect(minX, minZ, maxX, maxZ);
         public float ViewSize => cam != null ? cam.orthographicSize : startOrthoSize;
@@ -61,12 +61,17 @@ namespace AntColony.Camera
         private float yawFrom;
         private float yawTo;
         private float rotateTimer = -1f;
+        // 조작감(2026-11-10): 줌은 목표값으로 부드럽게 따라가고, 가운데 버튼 드래그는 잡은 지면 지점을 끌고 다닌다.
+        private float targetOrthoSize;
+        private bool dragPanning;
+        private Vector3 dragAnchor;
+        private const float ZoomStep = .88f, ZoomSharpness = 14f;
 
         private void Awake()
         {
             cam = GetComponent<UnityEngine.Camera>();
             cam.orthographic = true;
-            cam.orthographicSize = startOrthoSize;
+            cam.orthographicSize = targetOrthoSize = startOrthoSize;
             yaw = startYaw;
             ApplyTransform();
         }
@@ -74,34 +79,74 @@ namespace AntColony.Camera
         private void Update()
         {
             if (!AntColony.Core.GameSession.Exists || !AntColony.Core.GameSession.Instance.GameStarted
-                || AntColony.UI.GameMenuController.BlocksInput) return;
+                || AntColony.UI.GameMenuController.BlocksInput) { dragPanning = false; return; }
             HandleRotateInput();
             if (rotateTimer >= 0f)
             {
                 UpdateRotating();
             }
-            else
+            else if (!HandleDragPan())
             {
-                HandleEdgePan();
+                HandlePan();
             }
             HandleZoom();
             ApplyTransform();
         }
 
-        private void HandleEdgePan()
+        private static bool PointerOverUi => UnityEngine.EventSystems.EventSystem.current != null && UnityEngine.EventSystems.EventSystem.current.IsPointerOverGameObject();
+        private static bool PointerInWindow(Vector2 pos) => Application.isFocused && pos.x >= 0 && pos.y >= 0 && pos.x <= Screen.width && pos.y <= Screen.height;
+
+        // 화면의 한 점이 가리키는 지면(초점 높이의 수평면) 위치.
+        private bool GroundUnder(Vector2 screen, out Vector3 point)
+        {
+            var ray = cam.ScreenPointToRay(screen);
+            if (new Plane(Vector3.up, new Vector3(0, focusPoint.y, 0)).Raycast(ray, out var d)) { point = ray.GetPoint(d); return true; }
+            point = focusPoint; return false;
+        }
+
+        // 가운데 버튼 드래그: 누른 순간의 지면 지점이 커서 밑에 계속 붙어 있도록 초점을 옮긴다.
+        private bool HandleDragPan()
         {
             var mouse = Mouse.current;
-            if (mouse == null || edgeScrollThickness <= 0) return;
-
+            if (mouse == null) { dragPanning = false; return false; }
             var pos = mouse.position.ReadValue();
-            // 창이 포커스를 잃었거나 커서가 창 밖이면 흘러가지 않는다(창 모드·Alt+Tab, 2026-11-01).
-            if (!Application.isFocused || pos.x < 0 || pos.y < 0 || pos.x > Screen.width || pos.y > Screen.height) return;
-            var move = Vector2.zero;
+            if (mouse.middleButton.wasPressedThisFrame && PointerInWindow(pos) && !PointerOverUi)
+                dragPanning = GroundUnder(pos, out dragAnchor);
+            if (!mouse.middleButton.isPressed) dragPanning = false;
+            if (!dragPanning) return false;
+            if (GroundUnder(pos, out var now))
+            {
+                focusPoint.x = Mathf.Clamp(focusPoint.x + dragAnchor.x - now.x, minX, maxX);
+                focusPoint.z = Mathf.Clamp(focusPoint.z + dragAnchor.z - now.z, minZ, maxZ);
+            }
+            return true;
+        }
 
-            if (pos.y >= Screen.height - edgeScrollThickness) move.y += 1f;
-            if (pos.y <= edgeScrollThickness) move.y -= 1f;
-            if (pos.x >= Screen.width - edgeScrollThickness) move.x += 1f;
-            if (pos.x <= edgeScrollThickness) move.x -= 1f;
+        // 화면 가장자리 스크롤 + 방향키. 둘 다 같은 속도 규칙을 쓴다.
+        private void HandlePan()
+        {
+            var move = Vector2.zero;
+            var keyboard = Keyboard.current;
+            if (keyboard != null && Application.isFocused)
+            {
+                if (keyboard.upArrowKey.isPressed) move.y += 1f;
+                if (keyboard.downArrowKey.isPressed) move.y -= 1f;
+                if (keyboard.rightArrowKey.isPressed) move.x += 1f;
+                if (keyboard.leftArrowKey.isPressed) move.x -= 1f;
+            }
+            var mouse = Mouse.current;
+            if (mouse != null && edgeScrollThickness > 0 && move.sqrMagnitude < 0.001f)
+            {
+                var pos = mouse.position.ReadValue();
+                // 창이 포커스를 잃었거나 커서가 창 밖이면 흘러가지 않는다(창 모드·Alt+Tab, 2026-11-01).
+                if (PointerInWindow(pos))
+                {
+                    if (pos.y >= Screen.height - edgeScrollThickness) move.y += 1f;
+                    if (pos.y <= edgeScrollThickness) move.y -= 1f;
+                    if (pos.x >= Screen.width - edgeScrollThickness) move.x += 1f;
+                    if (pos.x <= edgeScrollThickness) move.x -= 1f;
+                }
+            }
 
             if (move.sqrMagnitude < 0.001f) return;
 
@@ -136,7 +181,7 @@ namespace AntColony.Camera
 
         private void UpdateRotating()
         {
-            rotateTimer += Time.deltaTime;
+            rotateTimer += Time.unscaledDeltaTime; // 일시정지(timeScale 0) 중에도 회전한다.
             var t = rotateDuration <= 0f ? 1f : Mathf.Clamp01(rotateTimer / rotateDuration);
             t = Mathf.SmoothStep(0f, 1f, t);
             yaw = Mathf.LerpAngle(yawFrom, yawTo, t);
@@ -153,13 +198,23 @@ namespace AntColony.Camera
             var mouse = Mouse.current;
             if (mouse == null) return;
 
+            // 휠 한 칸 = 일정 비율. 프레임 속도·일시정지와 무관하고, 메뉴·목록 위에서는 화면이 줌되지 않는다.
+            var pos = mouse.position.ReadValue();
             var scroll = mouse.scroll.ReadValue().y;
-            if (Mathf.Approximately(scroll, 0f)) return;
+            if (!Mathf.Approximately(scroll, 0f) && PointerInWindow(pos) && !PointerOverUi)
+                targetOrthoSize = Mathf.Clamp(targetOrthoSize * (scroll > 0 ? ZoomStep : 1f / ZoomStep), minOrthoSize, maxOrthoSize);
+            if (Mathf.Approximately(cam.orthographicSize, targetOrthoSize)) return;
 
-            cam.orthographicSize = Mathf.Clamp(
-                cam.orthographicSize - scroll * zoomSpeed * Time.deltaTime,
-                minOrthoSize,
-                maxOrthoSize);
+            // 커서가 가리키는 지면을 기준으로 줌한다(커서 밑 지점이 화면에서 움직이지 않는다).
+            var before = focusPoint;
+            var anchored = PointerInWindow(pos) && !dragPanning && GroundUnder(pos, out before);
+            var next = Mathf.Lerp(cam.orthographicSize, targetOrthoSize, 1f - Mathf.Exp(-ZoomSharpness * Time.unscaledDeltaTime));
+            cam.orthographicSize = Mathf.Abs(next - targetOrthoSize) < .01f ? targetOrthoSize : next;
+            if (!anchored) return;
+            ApplyTransform();
+            GroundUnder(pos, out var after);
+            focusPoint.x = Mathf.Clamp(focusPoint.x + before.x - after.x, minX, maxX);
+            focusPoint.z = Mathf.Clamp(focusPoint.z + before.z - after.z, minZ, maxZ);
         }
 
         private void ApplyTransform()

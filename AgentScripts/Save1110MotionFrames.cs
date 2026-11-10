@@ -1,0 +1,17 @@
+using System;using System.IO;using System.Linq;using UnityEditor;using UnityEngine;using AntColony.Units;using AntColony.EditorTools;using Object=UnityEngine.Object;
+public static class Save1110MotionFrames {
+ public static string Main(int group=0){var names=MeshyMotionImport.Actions.Values.Distinct().Skip(group*6).Take(6).ToArray();foreach(var name in names)Render(name);return string.Join(", ",names);}
+ static void Render(string name){
+ var dir="work/save-20261110/media/frames/"+name;Directory.CreateDirectory(dir);
+ var owner=new GameObject("SAVE motion render");owner.transform.position=new Vector3(500,500,500);var model=KemonoModel.Create(owner.transform,42);var animator=RigAnimator.Find(model);animator.enabled=false;var clip=Resources.Load<AnimationClip>("Kemono/MeshyMotions/"+name);var g=model.GetComponent<MeshyEquipmentGrip>();g.enabled=false;
+ g.Motion=name=="Heavy_Hammer_Swing"?"Tool_Mine":name=="Charged_Axe_Chop"?"Tool_Chop":name;
+ string tool=name=="Heavy_Hammer_Swing"?"Tool_Pickaxe_Stone":name=="Charged_Axe_Chop"?"Tool_Axe_Stone":name=="Archery_Shot_2"?"Weapon_ShortBow":name=="Right_Hand_Sword_Slash"?"Weapon_Sword_Copper":name=="Shield_Push_Left"?"Weapon_Shield_Copper":null;KemonoModel.Hold(model,tool);
+ var skins=model.GetComponentsInChildren<SkinnedMeshRenderer>().Where(s=>s.enabled).ToArray();var meshes=skins.Select(s=>new Mesh()).ToArray();var rs=skins.Select((s,i)=>{var go=new GameObject("Baked");go.transform.SetParent(s.transform,false);go.transform.localScale=new Vector3(1/s.transform.lossyScale.x,1/s.transform.lossyScale.y,1/s.transform.lossyScale.z);go.AddComponent<MeshFilter>().sharedMesh=meshes[i];var r=go.AddComponent<MeshRenderer>();r.sharedMaterials=s.sharedMaterials;s.updateWhenOffscreen=true;s.forceMatrixRecalculationPerRender=true;s.enabled=false;return r;}).ToArray();
+ var cg=new GameObject("SAVE Camera");cg.transform.SetParent(owner.transform,false);var cam=cg.AddComponent<Camera>();cam.enabled=false;cam.orthographic=true;cam.orthographicSize=1.05f;cam.nearClipPlane=.01f;cam.farClipPlane=10;cam.clearFlags=CameraClearFlags.SolidColor;cam.backgroundColor=new Color(.18f,.22f,.24f);cam.cullingMask=1<<30;
+ var lamp=new GameObject("SAVE Light");lamp.transform.SetParent(owner.transform,false);lamp.transform.rotation=Quaternion.Euler(35,-25,0);var light=lamp.AddComponent<Light>();light.type=LightType.Directional;light.intensity=1.4f;light.cullingMask=1<<30;
+ foreach(var t in owner.GetComponentsInChildren<Transform>())t.gameObject.layer=30;
+ var rt=new RenderTexture(320,320,24);cam.targetTexture=rt;var frame=new Texture2D(320,320,TextureFormat.RGB24,false);var prev=RenderTexture.active;
+ try{for(int f=0;f<30;f++){clip.SampleAnimation(animator.gameObject,clip.length*f/30);g.Pose(false,f/30f);for(int i=0;i<skins.Length;i++){skins[i].BakeMesh(meshes[i]);meshes[i].RecalculateBounds();}var bounds=rs.Select(r=>r.bounds).Aggregate((a,b)=>{a.Encapsulate(b);return a;});var centre=bounds.center;cam.transform.position=centre+new Vector3(-1,.2f,3);cam.transform.LookAt(centre);cam.Render();RenderTexture.active=rt;frame.ReadPixels(new Rect(0,0,320,320),0,0);frame.Apply();File.WriteAllBytes(dir+"/"+f.ToString("D3")+".png",frame.EncodeToPNG());}File.WriteAllText(dir+"/duration.txt",clip.length.ToString(System.Globalization.CultureInfo.InvariantCulture));}
+ finally{RenderTexture.active=prev;Object.DestroyImmediate(owner);rt.Release();Object.DestroyImmediate(rt);Object.DestroyImmediate(frame);foreach(var m in meshes)Object.DestroyImmediate(m);}
+ }
+}

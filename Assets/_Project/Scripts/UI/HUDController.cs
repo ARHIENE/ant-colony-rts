@@ -90,9 +90,7 @@ namespace AntColony.UI
             var canvas = canvasGO.AddComponent<Canvas>();
             canvas.renderMode = RenderMode.ScreenSpaceOverlay;
             var scaler = canvasGO.AddComponent<CanvasScaler>();
-            scaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
-            scaler.referenceResolution = new Vector2(1440f, 900f);
-            scaler.matchWidthOrHeight = 0f;
+            MenuTheme.ConfigureScale(scaler); canvas.pixelPerfect = true;
             canvasGO.AddComponent<GraphicRaycaster>();
             canvasGO.AddComponent<CommanderAcquisitionPanel>();
             canvasGO.AddComponent<WorkTargetPanel>();

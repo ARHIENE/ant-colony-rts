@@ -1,0 +1,14 @@
+Stone actualGather=True state=Eat animator=Heavy_Hammer_Swing time=0.1594817 -> 0.5723048 handDelta=0.1791944
+Stone actualGather=True state=Eat animator=Heavy_Hammer_Swing time=0.1930261 -> 0.5762963 handDelta=0.1881659
+Stone actualGather=True state=Eat animator=Heavy_Hammer_Swing time=0.1837014 -> 0.5719528 handDelta=0.1864434
+Stone actualGather=True state=Eat animator=Heavy_Hammer_Swing time=0.181478 -> 0.5637085 handDelta=0.1899512
+Stone actualGather=True state=Eat animator=Heavy_Hammer_Swing time=0.1898138 -> 0.5748938 handDelta=0.1878779
+Stone actualGather=True state=Eat animator=Heavy_Hammer_Swing time=0.1969592 -> 0.5867754 handDelta=0.1854655
+Stone actualGather=True state=Eat animator=Heavy_Hammer_Swing time=0.2009307 -> 0.5841057 handDelta=0.1845538
+Wood actualGather=True state=Eat animator=Heavy_Hammer_Swing time=0.1630401 -> 0.5416549 handDelta=0.196076
+Wood target=Wood actualGather=True state=Eat animator=Charged_Axe_Chop time=0.0417958 -> 0.13402 handDelta=0.09699382
+Leaf target=Leaf actualGather=True state=Eat animator=Pull_Radish time=0.06745216 -> 0.2160394 handDelta=0.3226395
+move distance=0.0005493164 clip=Idle_4
+agent=(0.00, 0.00, 3.00) scale=1 move distance=5.432266 clip=Running
+night=True asleep=True visual=Sleep clip=Sleep_Normally
+Stone target=Stone actualGather=True state=Eat animator=Heavy_Hammer_Swing time=0.1701162 -> 0.5521207 handDelta=0.1925578

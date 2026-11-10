@@ -92,9 +92,12 @@ namespace AntColony.Units
             if (!restart && state == name && playedClip == clip && heldTool == tool) return;
             var hash = Animator.StringToHash("Base Layer." + clip);
             if (!animator.HasState(0, hash)) return;
+            animator.speed=kemono&&name=="Attack"&&(worker==null||!worker.IsBuildingAnimation)
+                ?KemonoModel.AttackPlaybackSpeed(clip,clip=="BowShoot"?1.5f:.45f):1f;
             // 눕는 동작은 0.1초면 픽 쓰러지는 것처럼 보여 천천히 섞는다(2026-11-01 '캐릭터가 넘어진다').
             animator.CrossFadeInFixedTime(hash, name == "Sleep" || name == "Sit" ? .6f : .1f, 0); state = name; playedClip = clip;
             appearance?.FollowClip(clip);
+            if(kemono)model.GetComponent<MeshyEquipmentGrip>().Motion=clip;
             if (kemono && heldTool != tool)
             {
                 KemonoModel.Hold(model, tool); heldTool = tool; heldArrow = null;
@@ -115,7 +118,7 @@ namespace AntColony.Units
             }
             return name switch
             {
-                "Idle_A" => ("Idle_A", null), "Hit" => ("Hit", null),
+                "Idle_A" => ("IdleVariant"+(unchecked((uint)Seed(this.name))%3), null), "Hit" => ("Hit", null),
                 "Sit" => (commander != null && commander.IsCaptive ? "Captive" : "Downed", null),
                 "Attack" when worker != null && worker.IsBuildingAnimation => (worker.ConstructionClip, worker.ConstructionStep == 1 ? "Tool_Saw" : "Tool_Hammer_Stone"),
                 "Attack" when commander != null && commander.Weapon != null && MeshyEquipmentRules.IsBow(commander.Weapon.weapon) => ("BowShoot", MeshyEquipmentRules.HeldModel(commander.Weapon)),
@@ -171,7 +174,7 @@ namespace AntColony.Units
                 if (worker.CurrentResourceNode != null) Face(worker.CurrentResourceNode.transform.position - transform.position);
                 Play("Eat");
             }
-            else if (moving) Play(CarryingPerson ? "CarryPerson" : worker != null && worker.IsCarrying ? "Carry" : delta.magnitude / Time.deltaTime > 2f ? "Run" : "Walk");
+            else if (moving) Play(CarryingPerson ? "CarryPerson" : worker != null && worker.IsCarrying ? "Carry" : commander!=null&&commander.PersonalHealth<35?"WalkInjured":delta.magnitude / Time.deltaTime > 2f ? "Run" : "Walk");
             else if (commander != null && commander.IsPlaying) Play(JoyClip());
             else if (HasStationaryWork) Play("Work");
             else Play("Idle_A");

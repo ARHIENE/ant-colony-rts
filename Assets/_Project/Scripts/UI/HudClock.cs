@@ -66,9 +66,16 @@ namespace AntColony.UI
             if (!visible) return;
             bool small = ((RectTransform)root.parent).rect.width <= 760;
             root.anchoredPosition = new Vector2(small ? 6 : 12, 0); root.sizeDelta = new Vector2(small ? 181 : 219, 36);
-            day.rectTransform.anchoredPosition = new Vector2(0, -7); day.rectTransform.sizeDelta = new Vector2(small ? 80 : 94, 22);
+            day.rectTransform.anchoredPosition = new Vector2(small ? 0 : 25, -7); day.rectTransform.sizeDelta = new Vector2(small ? 80 : 69, 22);
+            var sun = HudChrome.Icon(root, "Calendar Sun", "Sun", MenuTheme.Hex(0xbfb19a)); sun.gameObject.SetActive(!small); MenuLayout.Place(sun.rectTransform, 0, 10, 16, 16);
             var speedGroup = (RectTransform)root.Find("Speed"); speedGroup.anchoredPosition = new Vector2(small ? 83 : 101, -4);
             for (int i = 0; i < 4; i++) { var r = (RectTransform)speeds[i].transform; r.anchoredPosition = new Vector2(i * (small ? 25 : 30), 0); r.sizeDelta = new Vector2(small ? 23 : 28, 29); MenuTheme.Stretch(speeds[i].GetComponentInChildren<Text>().rectTransform); }
+            for (int i = 0; i < 4; i++)
+            {
+                var icon = HudChrome.Icon(speeds[i].transform, "Speed Icon", i == 0 ? "Pause" : i == 1 ? "Play" : "ChevronsRight", MenuTheme.Hex(0xcbc3b4));
+                HudChrome.CenterIcon(icon, i == 0 ? 0 : -4, 0, 13);
+                var label = speeds[i].GetComponentInChildren<Text>(); label.text = i == 0 ? "" : i.ToString(); label.rectTransform.offsetMin = new Vector2(14, 0);
+            }
             day.text = CalendarLabel;
             day.GetComponent<MenuTooltip>().Message = DayLabel;
             var seconds = Mathf.CeilToInt(GameCalendar.SecondsUntilPhaseChange);
@@ -77,9 +84,9 @@ namespace AntColony.UI
             for (var i = 0; i < speeds.Length; i++)
             {
                 var on = i == 0 ? Time.timeScale == 0 : Time.timeScale == GameMenuController.Speeds[i - 1];
-                var colors = speeds[i].colors; var want = on ? MenuTheme.Hex(0x5d6149) : Color.clear;
+                var colors = speeds[i].colors; var want = on ? MenuTheme.Hex(0x625c4f) : Color.clear;
                 if (colors.normalColor != want) { colors.normalColor = want; MenuTheme.SetColorsInstant(speeds[i], colors); }
-                speeds[i].GetComponentInChildren<Text>().color = on ? MenuTheme.Hex(0xf5e9ca) : MenuTheme.Muted;
+                speeds[i].GetComponentInChildren<Text>().color = on ? MenuTheme.Hex(0xfff4df) : MenuTheme.Muted;
             }
         }
 

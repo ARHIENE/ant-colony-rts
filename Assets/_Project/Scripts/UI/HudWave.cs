@@ -21,17 +21,22 @@ namespace AntColony.UI
             root.gameObject.AddComponent<MenuTooltip>();
             var hud = root.gameObject.AddComponent<HudWave>(); hud.root = root;
             root.gameObject.AddComponent<CanvasGroup>();
-            hud.title = Label(root, 12, new Vector2(12, -6), MenuTheme.TextColor); hud.title.fontStyle = FontStyle.Normal; hud.title.font = MenuTheme.NumberFont;
-            hud.detail = Label(root, 12, new Vector2(12, -27), MenuTheme.Dim);
+            hud.title = Label(root, 12, new Vector2(42, -11), MenuTheme.TextColor); hud.title.fontStyle = FontStyle.Normal; hud.title.font = MenuTheme.NumberFont;
+            hud.detail = Label(root, 11, new Vector2(42, -31), MenuTheme.Dim);
             hud.detail.gameObject.SetActive(true);
-            hud.title.rectTransform.sizeDelta = new Vector2(114,24);
+            hud.title.rectTransform.sizeDelta = new Vector2(88,20);
+            hud.detail.rectTransform.sizeDelta = new Vector2(88,20);
+            HudChrome.Round(root.GetComponent<Image>(), 6, MenuTheme.Hex(0x797166));
+            root.Find("Accent").gameObject.SetActive(false);
+            MenuLayout.Place(HudChrome.Icon(root, "Wave Shield", "ShieldAlert", MenuTheme.Hex(0xeee0bf)).rectTransform, 13, 20, 20, 20);
             var rect = MenuTheme.Rect("WaveAction", root);
             rect.anchorMin = rect.anchorMax = rect.pivot = new Vector2(1, 1);
-            rect.anchoredPosition = new Vector2(-8, -8); rect.sizeDelta = new Vector2(80, 44);
+            rect.anchoredPosition = new Vector2(-10, -9); rect.sizeDelta = new Vector2(80, 42);
             rect.gameObject.AddComponent<Image>().color = Color.white;
             hud.action = rect.gameObject.AddComponent<Button>(); MenuTheme.StyleButton(hud.action);
             hud.action.onClick.AddListener(hud.OnAction);
             hud.timerBackground = rect.GetComponent<Image>();
+            HudChrome.Round(hud.timerBackground, 3, MenuTheme.Hex(0x797166));
             hud.action.transition = Selectable.Transition.None;
             hud.timerBackground.canvasRenderer.SetColor(Color.white);
             hud.countdown = Label(rect, 24, new Vector2(0, 0), MenuTheme.Accent);
@@ -65,10 +70,12 @@ namespace AntColony.UI
             if (!visible) return;
             float duration = wave.Wave == 0 ? WaveDefense.FirstPeace : WaveDefense.Peace;
             float urgency = wave.InWave ? 1 : 1 - Mathf.Clamp01(wave.PeaceLeft / duration);
-            root.GetComponent<Image>().color = Color.Lerp(MenuTheme.Hex(0x353e30), MenuTheme.Hex(0x632820), urgency);
-            timerBackground.color = Color.Lerp(MenuTheme.Hex(0x242e21), MenuTheme.Hex(0x3e1816), urgency);
-            countdown.color = Color.Lerp(MenuTheme.Hex(0xe6ce96), MenuTheme.Hex(0xffb19a), urgency);
-            root.Find("Accent").GetComponent<Image>().color = Color.Lerp(MenuTheme.Hex(0x727b5b), MenuTheme.Hex(0xcc674e), urgency);
+            root.GetComponent<Image>().color = Color.Lerp(MenuTheme.Hex(0x34312d), MenuTheme.Hex(0x632820), urgency);
+            timerBackground.color = Color.Lerp(MenuTheme.Hex(0x24221f), MenuTheme.Hex(0x3e1816), urgency);
+            countdown.color = Color.Lerp(MenuTheme.Hex(0xeee0bf), MenuTheme.Hex(0xffb19a), urgency);
+            root.Find("Wave Shield").GetComponent<RawImage>().color = countdown.color;
+            root.Find("Chrome Border").GetComponent<Image>().color = Color.Lerp(MenuTheme.Hex(0x797166), MenuTheme.Hex(0xcc674e), urgency);
+            timerBackground.transform.Find("Chrome Border").GetComponent<Image>().color = root.Find("Chrome Border").GetComponent<Image>().color;
             if (wave.InWave)
             {
                 title.text = $"{wave.Wave}차 습격 진행";

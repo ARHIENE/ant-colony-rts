@@ -123,8 +123,10 @@ namespace AntColony.Units
             var deposit = hit.collider.GetComponentInParent<BuildingBase>();
 
             var cols = Mathf.CeilToInt(Mathf.Sqrt(selected.Count));
+            var facing = AttackMoveController.GroupFacing(selected, hit.point);
             var index = 0;
             var issuedMove = false;
+            var issuedAttack = false;
             var gatherers = 0;
             var rejectedAttacks = 0;
 
@@ -134,7 +136,7 @@ namespace AntColony.Units
 
                 var col = index % cols;
                 var row = index / cols;
-                var offset = new Vector3((col - (cols - 1) / 2f) * formationSpacing, 0f, row * -formationSpacing);
+                var offset = facing * new Vector3((col - (cols - 1) / 2f) * formationSpacing, 0f, row * -formationSpacing);
 
                 // 장수/일개미도 SoldierAnt를 상속하므로 채집 지시를 먼저 판정한다.
                 var worker = selectable.GetComponent<WorkerAnt>();
@@ -179,6 +181,7 @@ namespace AntColony.Units
                         && commander.CanReceiveOrders && commander.HasTroops && AntColony.Core.CombatTargeting.CanAttack(commander.Role, target, true)))
                     {
                         soldier.CommandAttack(target);
+                        issuedAttack = true;
                     }
                     else
                     {
@@ -200,6 +203,11 @@ namespace AntColony.Units
             {
                 MoveMarker.Spawn(hit.point, moveMarkerColor);
             }
+            // 지시 확인음. 공격 지시는 대상 위치에 붉은 마커도 남긴다.
+            if (issuedAttack) MoveMarker.Spawn(hit.point, new Color(1f, .3f, .25f), .5f, 1.8f, .4f);
+            if (issuedAttack) AntColony.UI.GameFeel.Play(AntColony.UI.GameFeel.Sound.Attack);
+            else if (issuedMove || gatherers > 0) AntColony.UI.GameFeel.Play(AntColony.UI.GameFeel.Sound.Move);
+            else if (resourceNode != null) AntColony.UI.GameFeel.Play(AntColony.UI.GameFeel.Sound.Deny);
             if (rejectedAttacks > 0)
                 AntColony.UI.ToastManager.Show($"{rejectedAttacks}명 공격 불가 · " + (CombatTargeting.IsAirborne(target)
                     ? "공중 대상: 원거리·비행 장비가 필요합니다. 이동 지시만 적용했습니다."

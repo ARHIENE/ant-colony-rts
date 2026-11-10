@@ -62,7 +62,16 @@ namespace AntColony.World
             var bounds = box.bounds;
             var floor = new Vector3(bounds.center.x, bounds.min.y, bounds.center.z);
             if (!node.IsLooseCargo && UnityEngine.AI.NavMesh.SamplePosition(node.transform.position, out var hit, 3, UnityEngine.AI.NavMesh.AllAreas)) floor = hit.position;
-            var model = ProductionProp.Attach(node.transform, Folder + id, width, floor);
+            var improved = !node.IsLooseCargo && !node.RequiresFishing ? node.ResourceType switch
+            {
+                ResourceType.Food => "Mushrooms", ResourceType.Wood => "Oak",
+                ResourceType.Resin => "Pine", ResourceType.Leaf => "Bush",
+                ResourceType.Stone => "Rock", ResourceType.CopperOre => "CopperDeposit",
+                ResourceType.IronOre => "IronDeposit", _ => null
+            } : null;
+            var path = improved != null ? "Environment1110/Models/" + improved + "/" + improved : null;
+            if (path == null || Resources.Load<GameObject>(path) == null) path = Folder + id;
+            var model = ProductionProp.Attach(node.transform, path, width, floor);
             if (model == null) return;
             model.name = "ResourceModel"; box.forceRenderingOff = true;
             FitHitbox(node, model);

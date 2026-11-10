@@ -25,7 +25,7 @@ namespace AntColony.UI
             var units = HudOverview.Selected(selection);
             strip.gameObject.SetActive(units.Length > 1);
             if (units.Length <= 1) return;
-            float width = ((RectTransform)transform).rect.width;
+            float width = ((RectTransform)transform).rect.width - 18;
             int slots = Mathf.Max(2, Mathf.Min(8, Mathf.FloorToInt(width / 50) - (units.Length > 8 ? 1 : 0)));
             var shown = units.Take(slots).ToArray();
             if (!displayed.SequenceEqual(shown) || strip.childCount != shown.Length + (units.Length > slots ? 1 : 0))
@@ -49,7 +49,7 @@ namespace AntColony.UI
                         () => GameMenuController.Instance.Roster());
             }
             strip.sizeDelta = new Vector2(width, 46);
-            strip.anchoredPosition = new Vector2(0, 66);
+            strip.anchoredPosition = new Vector2(9, 48);
             foreach (var item in health)
                 if (item.Key != null && item.Value != null) item.Value.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, 40 * Mathf.Clamp01(item.Key.PersonalHealth / GameBalance.CommanderHealth));
         }

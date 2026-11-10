@@ -146,11 +146,30 @@ namespace AntColony.UI
             AntColony.Core.SceneObjects.Any<AntColony.Buildings.BuildingPlacementController>()?.CancelPlacement();
         }
         private void Back() { if (GameSession.Instance.GameStarted) Pause(); else Main(); }
-        public void Tooltip(string value)
+        public void Tooltip(string value, RectTransform source = null)
         {
             if (tip == null) return;
             tip.text = value;
-            if (!string.IsNullOrEmpty(value)) tooltipPanel.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, Mathf.Max(76, tip.preferredHeight + 16));
+            if (!string.IsNullOrEmpty(value))
+            {
+                var area = (RectTransform)tooltipPanel.parent;
+                float width = Mathf.Min(320, area.rect.width - 24);
+                tooltipPanel.anchorMin = tooltipPanel.anchorMax = tooltipPanel.pivot = Vector2.zero;
+                tooltipPanel.sizeDelta = new Vector2(width, 40);
+                tip.fontSize = 12; tip.alignment = TextAnchor.MiddleLeft;
+                float height = Mathf.Min(area.rect.height - 24, Mathf.Max(36, tip.preferredHeight + 16));
+                tooltipPanel.sizeDelta = new Vector2(width, height);
+                var point = new Vector2(area.rect.width * .5f, 48);
+                if (source != null)
+                {
+                    var corners = new Vector3[4]; source.GetWorldCorners(corners);
+                    var bottom = area.InverseTransformPoint(corners[0]); var top = area.InverseTransformPoint(corners[1]);
+                    point = new Vector2(bottom.x - area.rect.xMin, top.y - area.rect.yMin + 8);
+                    if (point.y + height > area.rect.height - 12) point.y = bottom.y - area.rect.yMin - height - 8;
+                }
+                tooltipPanel.anchoredPosition = new Vector2(Mathf.Clamp(point.x, 12, area.rect.width - width - 12), Mathf.Clamp(point.y, 12, area.rect.height - height - 12));
+                HudChrome.Round(tooltipPanel.GetComponent<Image>(), 4, MenuTheme.Line);
+            }
             tooltipPanel.gameObject.SetActive(!string.IsNullOrEmpty(value));
             if (!string.IsNullOrEmpty(value) && tooltipPanel.gameObject.activeInHierarchy) tooltipPanel.SetAsLastSibling();
         }

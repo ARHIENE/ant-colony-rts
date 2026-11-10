@@ -1,0 +1,10 @@
+Bush: 2918 triangles, 5 textures, 1 materials
+CopperDeposit: 3090 triangles, 5 textures, 1 materials
+Hut: 9224 triangles, 5 textures, 1 materials
+IronDeposit: 3065 triangles, 5 textures, 1 materials
+Mushrooms: 3053 triangles, 5 textures, 1 materials
+Oak: 9297 triangles, 5 textures, 1 materials
+Pine: 10400 triangles, 5 textures, 1 materials
+Rock: 3102 triangles, 5 textures, 1 materials
+Storage: 9822 triangles, 5 textures, 1 materials
+Watchtower: 9797 triangles, 5 textures, 1 materials

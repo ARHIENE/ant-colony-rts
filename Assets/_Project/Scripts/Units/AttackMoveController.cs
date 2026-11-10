@@ -43,7 +43,8 @@ namespace AntColony.Units
                 return;
             }
 
-            if (keyboard.aKey.wasPressedThisFrame && HasSoldierSelected())
+            // Ctrl+A는 전원 선택(GameFeel)이므로 공격 이동을 켜지 않는다.
+            if (keyboard.aKey.wasPressedThisFrame && !keyboard.ctrlKey.isPressed && HasSoldierSelected())
             {
                 IsAttackMode = true;
             }
@@ -66,6 +67,17 @@ namespace AntColony.Units
 
         // 커맨드 카드의 어택무브 버튼. A 키와 같은 조건으로 공격 지점 선택을 시작한다.
         public void BeginAttackMode() { if (selectionManager != null && HasSoldierSelected()) IsAttackMode = true; }
+
+        // 도착 대형의 방향(2026-11-10): 무리 중심에서 목적지를 바라보는 쪽이 앞줄이다.
+        // 이전에는 항상 지도 북쪽이 앞이라, 남쪽·옆으로 보내면 뒷줄이 먼저 적과 닿았다.
+        public static Quaternion GroupFacing(System.Collections.Generic.IReadOnlyList<SelectableObject> selected, Vector3 destination)
+        {
+            var sum = Vector3.zero; var count = 0;
+            foreach (var s in selected) if (s != null) { sum += s.transform.position; count++; }
+            if (count == 0) return Quaternion.identity;
+            var direction = destination - sum / count; direction.y = 0;
+            return direction.sqrMagnitude < .25f ? Quaternion.identity : Quaternion.LookRotation(direction.normalized, Vector3.up);
+        }
 
         private bool HasSoldierSelected()
         {
@@ -91,7 +103,11 @@ namespace AntColony.Units
             var selected = selectionManager.GetSelectedObjects();
 
             var cols = Mathf.CeilToInt(Mathf.Sqrt(selected.Count));
+            var facing = GroupFacing(selected, hit.point);
             var index = 0;
+            // 지시 확인: 공격 지점에 붉은 마커와 효과음(이전에는 아무 반응이 없었다).
+            MoveMarker.Spawn(hit.point, new Color(1f, .3f, .25f), .5f, 1.8f, .4f);
+            AntColony.UI.GameFeel.Play(AntColony.UI.GameFeel.Sound.Attack);
 
             foreach (var selectable in selected)
             {
@@ -108,7 +124,7 @@ namespace AntColony.Units
                 {
                     var col = index % cols;
                     var row = index / cols;
-                    var offset = new Vector3((col - (cols - 1) / 2f) * formationSpacing, 0f, row * -formationSpacing);
+                    var offset = facing * new Vector3((col - (cols - 1) / 2f) * formationSpacing, 0f, row * -formationSpacing);
                     soldier.CommandAttackMove(hit.point + offset);
                 }
                 index++;

@@ -75,7 +75,10 @@ namespace AntColony.World
                     : new Vector3(offset, -.6f, side == 2 ? -36.5f : 36.5f);
                 var id = ids[i % ids.Length];
                 var width = id.Contains("Tree") ? 4f : id == "CC_GrassTuft" ? 1.6f : 2.8f;
-                ProductionProp.Attach(decor.transform, ResourceVisual.Folder + id, width, transform.TransformPoint(at));
+                var improved = id switch { "CC_TreeTall" => "Pine", "CC_TreeBroadleaf" => "Oak", "CC_Bush" => "Bush", "CC_RockOutcrop" => "Rock", _ => null };
+                var path = improved != null ? "Environment1110/Models/" + improved + "/" + improved : null;
+                if (path == null || Resources.Load<GameObject>(path) == null) path = ResourceVisual.Folder + id;
+                ProductionProp.Attach(decor.transform, path, width, transform.TransformPoint(at));
             }
             LateUpdate();
         }

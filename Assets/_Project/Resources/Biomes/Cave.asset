@@ -13,15 +13,15 @@ MonoBehaviour:
   m_Name: Cave
   m_EditorClassIdentifier: Assembly-CSharp::AntColony.Map.BiomeMapStyle
   layers:
-  - texture: {fileID: 2800000, guid: 2e55762741509f84fa0a2cc8b48beabc, type: 3}
+  - texture: {fileID: 2800000, guid: fbd2b28c2738eb44380adcb5a7724b23, type: 3}
     startHeight: 0
-  - texture: {fileID: 2800000, guid: 8b1d20f6985bdee43b8ac257fdfaf324, type: 3}
+  - texture: {fileID: 2800000, guid: fbd2b28c2738eb44380adcb5a7724b23, type: 3}
     startHeight: 0.25
-  - texture: {fileID: 2800000, guid: 352385915077e3440b4a81260e422fab, type: 3}
+  - texture: {fileID: 2800000, guid: 85fe1348e02db544aa8846a069ff6433, type: 3}
     startHeight: 0.5
-  - texture: {fileID: 2800000, guid: 8b1d20f6985bdee43b8ac257fdfaf324, type: 3}
+  - texture: {fileID: 2800000, guid: fbd2b28c2738eb44380adcb5a7724b23, type: 3}
     startHeight: 0.7
-  - texture: {fileID: 2800000, guid: 4112b3d89a4e7f947806ad2785aae975, type: 3}
+  - texture: {fileID: 2800000, guid: fbd2b28c2738eb44380adcb5a7724b23, type: 3}
     startHeight: 0.88
   spawns:
   - prefab: {fileID: 1816565156058472, guid: f7968a2e493ab01448ea52078fa8a896, type: 3}
@@ -225,5 +225,5 @@ MonoBehaviour:
   water: 1
   waterHeight: 0.22
   waterMaterial: {fileID: 2100000, guid: 79c9bbe4636443e4d87c8afc85a7ced9, type: 2}
-  snowGround: {fileID: 2800000, guid: e30bb4af423b8b147a8e9e7833ac6a5e, type: 3}
-  leafGround: {fileID: 2800000, guid: 846a26185a354b64abcb7fb6d85af414, type: 3}
+  snowGround: {fileID: 2800000, guid: 5163cd916bbf9a2489d752dde0047283, type: 3}
+  leafGround: {fileID: 2800000, guid: 45aeb7ae662b7f746bf8afa02bd3a33c, type: 3}

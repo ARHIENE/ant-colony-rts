@@ -10,6 +10,25 @@ namespace AntColony.UI
     {
         public const float MoodWarning = 35f; // 정신 붕괴 확률이 생기는 기분 구간(CommanderPersonal)과 같다.
         private GUIStyle nameStyle, tagStyle;
+        private readonly System.Collections.Generic.Dictionary<CommanderAnt, SkinnedMeshRenderer[]> bodies = new();
+        private Vector3 LabelAnchor(CommanderAnt c, UnityEngine.Camera camera)
+        {
+            if (!bodies.TryGetValue(c, out var renderers)) bodies[c] = renderers = c.GetComponentsInChildren<SkinnedMeshRenderer>();
+            var point = camera.WorldToScreenPoint(c.Position + Vector3.up * .8f);
+            bool found = false;
+            foreach (var renderer in renderers)
+            {
+                if (renderer == null || !renderer.enabled || !renderer.gameObject.activeInHierarchy) continue;
+                var bounds = renderer.bounds;
+                for (int i = 0; i < 8; i++)
+                {
+                    var corner = bounds.center + Vector3.Scale(bounds.extents, new Vector3((i & 1) == 0 ? -1 : 1, (i & 2) == 0 ? -1 : 1, (i & 4) == 0 ? -1 : 1));
+                    var projected = camera.WorldToScreenPoint(corner);
+                    if (projected.z > 0 && (!found || projected.y > point.y)) { point.y = projected.y; found = true; }
+                }
+            }
+            return point;
+        }
 
         public static bool MoodAlert(CommanderAnt c) => c.PersonalState.mentalBreak != MentalBreak.None || c.Mood <= MoodWarning;
 
@@ -51,22 +70,26 @@ namespace AntColony.UI
             foreach (var c in CommanderRoster.Instance.Commanders)
             {
                 if (c == null || !c.isActiveAndEnabled || c.IsDead || c.IsEmbarked || c.IsAwayFromHome) continue;
-                var p = camera.WorldToScreenPoint(c.Position + Vector3.up * 2.2f);
+                bool selected = c.GetComponent<SelectableObject>()?.IsSelected == true;
+                bool hurt = c.PersonalHealth < GameBalance.CommanderHealth;
+                if (!selected && !hurt && !MoodAlert(c) && !c.IsDeployed) continue;
+                var p = LabelAnchor(c, camera);
                 if (p.z <= 0 || p.x < 0 || p.x > Screen.width || p.y < 0 || p.y > Screen.height) continue;
-                float x = p.x - 40, y = Screen.height - p.y - 34;
-                // 겹치면 건너뛰지 않고 위로 쌓는다(2026-11-01: 붙어 있는 장수 이름표 누락).
-                int stack = 0;
-                while (stack < 4 && !HudResponsiveLayout.ReserveWorldLabel(new Rect(x - 20, y - stack * 38, 124, 36))) stack++;
-                if (stack == 4) continue;
-                y -= stack * 38;
-                nameStyle.normal.textColor = Color.white;
-                GUI.Label(new Rect(x - 20, y, 120, 16), c.CommanderName, nameStyle);
-                Bar(new Rect(x, y + 16, 80, 5), c.PersonalHealth / GameBalance.CommanderHealth, new Color(.35f, .85f, .4f));
-                if (c.IsDeployed) Bar(new Rect(x, y + 22, 80, 5), c.CommandLimit > 0 ? c.TroopHealth / c.CommandLimit : 0, new Color(.95f, .7f, .25f));
-                var activity = Activity(c);
-                var icon = ActivityIcons.Get(activity);
-                if (icon != null) { GUI.Box(new Rect(x + 82, y + 10, 20, 20), GUIContent.none, tagStyle); GUI.DrawTexture(new Rect(x + 84, y + 12, 16, 16), icon); }
-                if (MoodAlert(c)) { tagStyle.normal.textColor = new Color(1f, .3f, .25f); GUI.Box(new Rect(x - 20, y + 12, 18, 16), "!", tagStyle); }
+                float scale = MenuTheme.UiScale, line = 16 * scale;
+                nameStyle.font = MenuTheme.Font; nameStyle.fontStyle = FontStyle.Normal;
+                nameStyle.fontSize = Mathf.Max(8, Mathf.RoundToInt(12 * scale));
+                float width = Mathf.Max(64 * scale, nameStyle.CalcSize(new GUIContent(c.CommanderName)).x + 12 * scale);
+                float height = line + (hurt || c.IsDeployed ? 9 * scale : 0);
+                float x = p.x - width * .5f, y = Screen.height - p.y - height - 4 * scale;
+                // Do not push labels far above their owner; details remain in the bottom selection dock.
+                if (!HudResponsiveLayout.ReserveWorldLabel(new Rect(x, y, width, height))) continue;
+                var old = GUI.color; GUI.color = new Color(.16f, .15f, .14f, .92f);
+                GUI.DrawTexture(new Rect(x, y, width, line), Texture2D.whiteTexture); GUI.color = old;
+                nameStyle.normal.textColor = MoodAlert(c) ? new Color(1f, .7f, .5f) : MenuTheme.TextColor;
+                GUI.Label(new Rect(x, y, width, line), c.CommanderName, nameStyle);
+                if (hurt) Bar(new Rect(x + 2 * scale, y + line + scale, width - 4 * scale, 3 * scale), c.PersonalHealth / GameBalance.CommanderHealth, MenuTheme.Hp);
+                if (c.IsDeployed) Bar(new Rect(x + 2 * scale, y + line + 5 * scale, width - 4 * scale, 3 * scale), c.CommandLimit > 0 ? c.TroopHealth / c.CommandLimit : 0, MenuTheme.Accent);
+
             }
         }
 

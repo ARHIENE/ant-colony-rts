@@ -34,6 +34,9 @@ namespace AntColony.Units
         private Vector2 dragStartScreen;
         private Vector2 dragEndScreen;
         private Vector3 dragStartWorld; private bool dragAnchored; // 가장자리 스크롤로 카메라가 움직여도 박스 시작점이 땅에 붙어 있게(c10, 2026-10-25)
+        // 더블클릭(2026-11-10, 스타크래프트): 같은 장수를 빠르게 두 번 누르면 화면 안의 같은 상태(출전/평시) 장수를 모두 선택한다.
+        private SelectableObject lastClicked; private float lastClickTime = -9f;
+        private const float DoubleClickSeconds = .35f;
 
         private void Awake()
         {
@@ -168,8 +171,12 @@ namespace AntColony.Units
                 var selectable = hit.collider.GetComponentInParent<SelectableObject>();
                 if (selectable != null && selectable.isActiveAndEnabled)
                 {
+                    var twice = selectable == lastClicked && Time.unscaledTime - lastClickTime <= DoubleClickSeconds;
+                    lastClicked = selectable; lastClickTime = twice ? -9f : Time.unscaledTime;
                     if (!additive) ClearSelection();
                     AddToSelection(selectable);
+                    if (twice) SelectSameOnScreen(selectable);
+                    if (selectedObjects.Contains(selectable)) AntColony.UI.GameFeel.Play(AntColony.UI.GameFeel.Sound.Select);
                     return;
                 }
             }
@@ -177,10 +184,25 @@ namespace AntColony.Units
             if (!additive) ClearSelection();
         }
 
+        // 더블클릭한 장수와 같은 상태(출전 중/평시)인 화면 안 장수를 선택에 더한다.
+        private void SelectSameOnScreen(SelectableObject origin)
+        {
+            var commander = origin.GetComponent<CommanderAnt>();
+            if (cam == null || commander == null || !commander.IsColonyMember) return;
+            foreach (var other in AntColony.Core.SceneObjects.All<SelectableObject>())
+            {
+                if (other == null || other == origin || !other.isActiveAndEnabled) continue;
+                if (!(other.GetComponent<CommanderAnt>() is CommanderAnt c) || !c.IsColonyMember || c.IsDeployed != commander.IsDeployed) continue;
+                var view = cam.WorldToViewportPoint(other.GetSelectionWorldPosition());
+                if (view.z > 0 && view.x >= 0 && view.x <= 1 && view.y >= 0 && view.y <= 1) AddToSelection(other);
+            }
+        }
+
         private void SelectObjectsInRect(Rect screenRect, bool additive)
         {
             if (cam == null) return;
             if (!additive) ClearSelection();
+            var before = selectedObjects.Count;
 
             var allSelectables = AntColony.Core.SceneObjects.All<SelectableObject>();
 
@@ -194,6 +216,7 @@ namespace AntColony.Units
                 if (screenRect.Contains(new Vector2(screenPos.x, screenPos.y)))
                     AddToSelection(selectable);
             }
+            if (selectedObjects.Count > before || !additive && selectedObjects.Count > 0) AntColony.UI.GameFeel.Play(AntColony.UI.GameFeel.Sound.Select);
         }
 
         private bool TryGroundPoint(Vector2 screen, out Vector3 point)

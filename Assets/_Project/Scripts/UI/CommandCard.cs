@@ -36,6 +36,8 @@ namespace AntColony.UI
             hud = owner;
             selection = AntColony.Core.SceneObjects.Any<SelectionManager>();
             civilianGrid = Grid("CivilianCommands", 3);
+            var commandMask = civilianGrid.gameObject.AddComponent<Image>(); commandMask.color = Color.white; commandMask.raycastTarget = false;
+            HudChrome.Clip(commandMask, 5); civilianGrid.GetComponent<Mask>().showMaskGraphic = false;
             deployedGrid = Grid("DeployedCommands", 3);
             colonyGrid = Grid("ColonyCommands", 3);
             multiGrid = Grid("MultiCommands", 3);
@@ -140,7 +142,10 @@ namespace AntColony.UI
                 if (slot.button.transform.parent == civilianGrid)
                 {
                     slot.label.font = MenuTheme.Font; slot.label.fontSize = 12; slot.label.fontStyle = FontStyle.Normal;
-                    var palette = slot.button.colors; palette.normalColor = slot.button.name == "Priority Work" ? MenuTheme.Hex(0x596c40) : new Color(53/255f,64/255f,45/255f,.95f);
+                    var icon = HudChrome.Icon(slot.button.transform, "Command Icon", slot.button.name == "Priority Work" ? "MousePointer2" : slot.button.name == "Send To Rest" ? "BedSingle" : "Sword", MenuTheme.Hex(0xe7e1d7));
+                    HudChrome.CenterIcon(icon, -(slot.label.preferredWidth + 5) / 2, 0, 14);
+                    slot.label.rectTransform.offsetMin = new Vector2(19, 0); slot.label.rectTransform.offsetMax = Vector2.zero;
+                    var palette = slot.button.colors; palette.normalColor = slot.button.name == "Priority Work" ? MenuTheme.Hex(0x665f52) : new Color(52/255f,49/255f,45/255f,.98f);
                     MenuTheme.SetColorsInstant(slot.button, palette);
                     var border = slot.button.GetComponent<Outline>(); if (border != null) border.enabled = false;
                 }
@@ -159,7 +164,7 @@ namespace AntColony.UI
                 int rows = compact ? Mathf.CeilToInt((float)count / columns) : 3;
                 layout.constraintCount = columns;
                 layout.spacing = compact ? new Vector2(grid == civilianGrid ? 1 : 4, 4) : new Vector2(Gap, Gap);
-                layout.cellSize = compact ? new Vector2((grid.rect.width - (grid == civilianGrid ? 1 : 4) * (columns - 1)) / columns, grid == civilianGrid ? 36 : 28)
+                layout.cellSize = compact ? new Vector2((grid.rect.width - (grid == civilianGrid ? 1 : 4) * (columns - 1)) / columns, grid.rect.height <= 40 ? 36 : 28)
                     : new Vector2((grid.rect.width - Gap * (columns - 1)) / columns, (grid.rect.height - Gap * (rows - 1)) / rows);
                 if (transform.Find("CommandScreen") is Transform screen) screen.gameObject.SetActive(!compact);
             }

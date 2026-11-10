@@ -7,14 +7,14 @@ namespace AntColony.UI
 {
     public static class MenuTheme
     {
-        // Approved settlement HUD: quiet olive slate, warm text, restrained grain accents.
-        public static readonly Color World = Hex(0x293124), Plate = Hex(0x383a32), Plate2 = Hex(0x2d302a), PlateHover = Hex(0x46483c),
-            Well = Hex(0x242e21), EdgeLo = Hex(0x626451), Line = Hex(0x626451), Line2 = Hex(0x626451), Rim = Hex(0x8a7959),
-            TextColor = Hex(0xf1e9d6), Dim = Hex(0xb9baa6), AccentInk = Hex(0x292d23),
-            Hp = Hex(0xafc782), HpMid = Hex(0xc6b581), Danger = Hex(0xdc9b76), DangerInk = Hex(0xf2bd85), Loyal = Hex(0x9cb5c5);
+        // Approved settlement HUD: charcoal and stone grey; green is reserved for health, not panel chrome.
+        public static readonly Color World = Hex(0x292622), Plate = Hex(0x302e2b), Plate2 = Hex(0x3c3935), PlateHover = Hex(0x48443e),
+            Well = Hex(0x24221f), EdgeLo = Hex(0x696359), Line = Hex(0x696359), Line2 = Hex(0x696359), Rim = Hex(0x797267),
+            TextColor = Hex(0xf1ece3), Dim = Hex(0xaaa398), AccentInk = Hex(0x292622),
+            Hp = Hex(0xa9ba8d), HpMid = Hex(0xc1ad83), Danger = Hex(0xd4a36a), DangerInk = Hex(0xf2bd85), Loyal = Hex(0x9cb5c5);
         public static readonly Color Background = Plate;
-        public static readonly Color Accent = Hex(0xc5ac75), Muted = Hex(0xc9c6b3), Soft = Hex(0xb9baa6);
-        public static readonly Color Selection = Hex(0xd1b47b), Warning = Hex(0xdc9b76);
+        public static readonly Color Accent = Hex(0xc6baa5), Muted = Hex(0xccc5ba), Soft = Hex(0xaaa398);
+        public static readonly Color Selection = Hex(0xd1b47b), Warning = Hex(0xd4a36a);
         public static readonly Color FrameHi = Rim, Frame = Line, FrameLo = Plate2, FrameInk = EdgeLo,
             FrameMat = Plate, ScreenColor = Well, ScreenRim = Line, FrameButton = Plate2;
 
@@ -99,12 +99,18 @@ namespace AntColony.UI
             colors.fadeDuration = 0; button.colors = colors;
             colors.fadeDuration = .12f; button.colors = colors;
         }
-        // 2026-10-24: UI는 1440×900 기준 고정 배치라 큰 화면에서 왼쪽 위에 작게 몰렸다. 화면 높이 900 기준으로 키운다(1배 미만으로는 안 줄임).
-        public static float UiScale => Mathf.Max(1f, Mathf.Min(Screen.width / 1440f, Screen.height / 900f));
+        // All HUD/menu canvases follow the same 1440×900 reference, including live window resizing.
+        public static float UiScale => Mathf.Max(.1f, Mathf.Min(Screen.width / 1440f, Screen.height / 900f));
+        public static void ConfigureScale(CanvasScaler scaler)
+        {
+            scaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
+            scaler.referenceResolution = new Vector2(1440, 900);
+            scaler.screenMatchMode = CanvasScaler.ScreenMatchMode.Expand;
+        }
         public static Canvas Canvas(string name, Transform parent, int order)
         {
             var rect = Rect(name, parent); var canvas = rect.gameObject.AddComponent<Canvas>(); canvas.renderMode = RenderMode.ScreenSpaceOverlay; canvas.sortingOrder = order;
-            var scale = rect.gameObject.AddComponent<CanvasScaler>(); scale.uiScaleMode = CanvasScaler.ScaleMode.ConstantPixelSize; scale.scaleFactor = UiScale;
+            var scale = rect.gameObject.AddComponent<CanvasScaler>(); ConfigureScale(scale); canvas.pixelPerfect = true;
             rect.gameObject.AddComponent<GraphicRaycaster>(); return canvas;
         }
         public static Text Text(Transform parent, string value, int size = 13, float height = 40)
@@ -148,7 +154,7 @@ namespace AntColony.UI
     public sealed class MenuTooltip : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
     {
         public string Message;
-        public void OnPointerEnter(PointerEventData data) => GameMenuController.Instance?.Tooltip(Message);
+        public void OnPointerEnter(PointerEventData data) => GameMenuController.Instance?.Tooltip(Message, transform as RectTransform);
         public void OnPointerExit(PointerEventData data) => GameMenuController.Instance?.Tooltip("");
         private void OnDisable() => GameMenuController.Instance?.Tooltip("");
     }

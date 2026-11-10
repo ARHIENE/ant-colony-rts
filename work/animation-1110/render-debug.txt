@@ -1,0 +1,7 @@
+Part_Body_Meadow_00 scale=(0.01, 0.01, 0.01) meshBounds=Center: (0.06, -0.11, 0.26), Extents: (0.22, 0.25, 0.34) world=Center: (500.06, 500.40, 500.11), Extents: (0.22, 0.34, 0.25)
+Part_Ears_ANTENNA_00 scale=(0.01, 0.01, 0.01) meshBounds=Center: (0.01, -0.26, 1.23), Extents: (0.24, 0.21, 0.08) world=Center: (500.01, 501.38, 500.26), Extents: (0.24, 0.08, 0.21)
+Part_Face_NEUTRAL_00 scale=(0.01, 0.01, 0.01) meshBounds=Center: (0.02, -0.12, 0.88), Extents: (0.18, 0.21, 0.16) world=Center: (500.02, 501.03, 500.12), Extents: (0.18, 0.16, 0.21)
+Part_Hair_TWIN_00 scale=(0.01, 0.01, 0.01) meshBounds=Center: (0.02, -0.05, 0.78), Extents: (0.31, 0.29, 0.50) world=Center: (500.02, 500.92, 500.05), Extents: (0.31, 0.50, 0.29)
+Part_Outfit_ARTISAN_00 scale=(0.01, 0.01, 0.01) meshBounds=Center: (0.02, -0.04, 0.54), Extents: (0.22, 0.19, 0.27) world=Center: (500.02, 500.69, 500.04), Extents: (0.22, 0.27, 0.19)
+Part_Outfit_ARTISAN_Pocket_00 scale=(0.01, 0.01, 0.01) meshBounds=Center: (0.14, -0.10, 0.45), Extents: (0.04, 0.08, 0.04) world=Center: (500.14, 500.59, 500.10), Extents: (0.04, 0.04, 0.08)
+Part_Outfit_ARTISAN_WorkApron_00 scale=(0.01, 0.01, 0.01) meshBounds=Center: (0.12, -0.09, 0.52), Extents: (0.08, 0.13, 0.17) world=Center: (500.12, 500.67, 500.09), Extents: (0.08, 0.17, 0.13)

@@ -1,0 +1,11 @@
+Hut: 9224 triangles
+Storage: 9822 triangles
+Watchtower: 9797 triangles
+Oak: 9297 triangles
+Pine: 10400 triangles
+Bush: 2918 triangles
+Rock: 3102 triangles
+CopperDeposit: 3090 triangles
+IronDeposit: 3065 triangles
+Mushrooms: 3053 triangles
+PASS 69 checks: models, URP textures, node attachment/stock/hitboxes, building loaders, six biome data preservation.

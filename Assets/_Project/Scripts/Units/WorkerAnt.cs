@@ -298,7 +298,7 @@ namespace AntColony.Units
             if (IsConstructing) return;
             if (node == null || !node.CanGatherWith(this)) return;
             if (node.IsLooseCargo && !(this is CommanderAnt away && away.IsAwayFromHome) && !HasCargoDestination(node.ResourceType)) return;
-            if (!TryWorkApproach(node.transform.position, out var approach)) return;
+            if (!TryGatherApproach(node, out var approach)) return;
             if (carriedAmount > 0f && (carriedType != node.ResourceType || carriedAmount >= CarryCapacity))
             {
                 BeginReturnIfNeeded();
@@ -544,7 +544,7 @@ namespace AntColony.Units
 
             // 같은 물자는 운반량 한도까지 묶어 나른다: 바닥 더미를 다 집었는데 자리가 남으면 가까운 같은 종류 더미를 더 집는다(2026-10-12).
             if (targetNode.IsDepleted && targetNode.IsLooseCargo && carriedAmount < CarryCapacity && NextLoosePile() is ResourceNode next
-                && TryWorkApproach(next.transform.position, out var nextApproach))
+                && TryGatherApproach(next, out var nextApproach))
             {
                 targetNode = next; SetMoveDestination(nextApproach); state = State.MovingToNode;
                 if (this is CommanderAnt self) self.SetWorkTarget(next);

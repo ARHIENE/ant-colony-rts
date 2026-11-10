@@ -1,0 +1,217 @@
+using System;
+using System.Linq;
+using AntColony.Core;
+using AntColony.Data;
+using UnityEngine;
+
+namespace AntColony.Units
+{
+    // 음주(2026-11-10, 기획 '장수 › 음주 특성·취기'): 술 재고를 실제로 마시는 여가 행동.
+    // 수치는 전부 잠정이다(도수·간격·금단·의존 확률은 기획 미정). 바꿀 때는 이 표만 고친다.
+    public static class DrinkRules
+    {
+        public const float DrinkSeconds = 8f;            // 한 잔 마시는 시간
+        public const float DecayPerDay = 40f;            // 취기 자연 감소(하루)
+        public const float Tipsy = 25f, Drunk = 50f, Heavy = 60f, Blackout = 90f, WakeBelow = 70f;
+        public const float HangoverBelow = 15f;          // 과음 뒤 취기가 여기까지 빠지면 숙취 시작
+        public const float HangoverDays = .5f;
+        public const float DrinkJoy = 15f, DrinkBelowJoy = 70f;
+        public const float BuzzMood = 5f, DrunkMood = 3f, HangoverMood = -6f, CravingMood = -4f, WithdrawalMood = -12f;
+        public const float CravingDays = 2f, WithdrawalDays = 3f; // 의존: 마지막 음주 후 충동·금단까지
+        public const float CravingTarget = 45f;          // 충동 음주는 이 취기까지 이어 마신다
+        public const int CravingMaxDrinks = 3;
+        public const int AcquireAfterBinges = 3;         // 과음 누적 이 횟수부터 의존 판정
+        public const float AcquireChance = .2f;
+        public const float LowTolerance = 1.6f, HighTolerance = .6f;
+        public const float RetrySeconds = 20f;
+        public static readonly float[] IntervalDays = { .5f, 1f, 2f, 4f };
+        public const int DefaultInterval = 1;
+        // 약한 술부터. 일반 음주는 앞에서, 의존 충동은 뒤에서 고른다.
+        public static readonly ResourceType[] Kinds = { ResourceType.Beer, ResourceType.RiceWine, ResourceType.FruitWine, ResourceType.Mead, ResourceType.HoneydewWine, ResourceType.Spirits };
+        public static float Strength(ResourceType type) => type switch
+        {
+            ResourceType.Beer => 12f, ResourceType.RiceWine => 18f, ResourceType.FruitWine => 18f,
+            ResourceType.Mead => 20f, ResourceType.HoneydewWine => 22f, ResourceType.Spirits => 40f, _ => 0f
+        };
+        // 취기에 따른 이동·작업·전투 배율.
+        public static float Ability(float intoxication) => intoxication >= Blackout ? .5f : intoxication >= Drunk ? .8f : intoxication >= Tipsy ? .95f : 1f;
+        public const float HangoverWork = .85f, WithdrawalWork = .8f;
+    }
+
+    [Serializable] public class CommanderDrinkState
+    {
+        public int allow = -1;          // -1 공통 정책 / 0 금지 / 1 허용
+        public int interval = -1;       // -1 공통 정책 / DrinkRules.IntervalDays 색인
+        public float intoxication, peak, hangoverSeconds, sinceDrink, drinkSeconds, retrySeconds;
+        public int pickedType = -1;     // 손에 든 술(마시는 중). 저장을 넘어 보존한다.
+        public int sessionDrinks, binges;
+        public bool passedOut, announced, hangoverPending;
+        public bool Valid => allow >= -1 && allow <= 1 && interval >= -1 && interval < DrinkRules.IntervalDays.Length
+            && Finite(intoxication) && intoxication >= 0 && intoxication <= 200 && Finite(peak) && peak >= 0 && peak <= 200
+            && Finite(hangoverSeconds) && hangoverSeconds >= 0 && Finite(sinceDrink) && sinceDrink >= 0
+            && Finite(drinkSeconds) && drinkSeconds >= 0 && drinkSeconds <= DrinkRules.DrinkSeconds && Finite(retrySeconds) && retrySeconds >= 0
+            && pickedType >= -1 && pickedType < StoreBin.TypeCount && (pickedType < 0 || ProcessingResources.Alcohol((ResourceType)pickedType))
+            && sessionDrinks >= 0 && sessionDrinks <= DrinkRules.CravingMaxDrinks && binges >= 0;
+        private static bool Finite(float v) => !float.IsNaN(v) && !float.IsInfinity(v);
+    }
+
+    public partial class CommanderAnt
+    {
+        // 공통 음주 정책(저장: PlayerState.commonDrinkAllowed / commonDrinkInterval).
+        public static bool CommonDrinkAllowed = true;
+        public static int CommonDrinkInterval = DrinkRules.DefaultInterval;
+        public static void ResetDrinkPolicy() { CommonDrinkAllowed = true; CommonDrinkInterval = DrinkRules.DefaultInterval; }
+
+        private CommanderDrinkState DrinkState => personalState.drink ??= new CommanderDrinkState();
+        public float Intoxication => DrinkState.intoxication;
+        public bool IsDrinking => DrinkState.drinkSeconds > 0;
+        public bool IsPassedOut => DrinkState.passedOut;
+        public bool IsHungover => DrinkState.hangoverSeconds > 0;
+        public bool IsAlcoholDependent => traits.Has(CommanderTrait.AlcoholDependent);
+        public bool DrinkAllowed => !IsChild && (DrinkState.allow < 0 ? CommonDrinkAllowed : DrinkState.allow == 1);
+        public int DrinkInterval => DrinkState.interval < 0 ? CommonDrinkInterval : DrinkState.interval;
+        public float DrinkIntervalSeconds => DrinkRules.IntervalDays[Mathf.Clamp(DrinkInterval, 0, DrinkRules.IntervalDays.Length - 1)] * GameCalendar.SecondsPerDay;
+        // 의존 충동: 오래 못 마시면 금지·소집·작업을 무시하고 술을 찾는다. 어린 장수에게는 생기지 않는다.
+        public bool HasDrinkCraving => IsAlcoholDependent && !IsChild && DrinkState.sinceDrink >= DrinkRules.CravingDays * GameCalendar.SecondsPerDay;
+        public bool InWithdrawal => IsAlcoholDependent && !IsChild && DrinkState.sinceDrink >= DrinkRules.WithdrawalDays * GameCalendar.SecondsPerDay;
+        public float DrinkTolerance => traits.Has(CommanderTrait.LowTolerance) ? DrinkRules.LowTolerance : traits.Has(CommanderTrait.HighTolerance) ? DrinkRules.HighTolerance : 1f;
+        private float DrinkMoveMultiplier => DrinkRules.Ability(Intoxication);
+        private float DrinkCombatMultiplier => DrinkRules.Ability(Intoxication);
+        private float DrinkWorkMultiplier => DrinkRules.Ability(Intoxication) * (IsHungover ? DrinkRules.HangoverWork : 1f) * (InWithdrawal ? DrinkRules.WithdrawalWork : 1f);
+
+        // 상태창용: 취기·숙취·금단을 구분해서 보여 준다. 해당 없으면 빈 문자열.
+        public string DrinkStatus
+        {
+            get
+            {
+                var d = DrinkState;
+                var parts = new System.Collections.Generic.List<string>();
+                if (d.passedOut) parts.Add("만취(행동 불가)");
+                else if (d.intoxication >= DrinkRules.Drunk) parts.Add($"취함 {d.intoxication:0}");
+                else if (d.intoxication >= DrinkRules.Tipsy) parts.Add($"얼큰함 {d.intoxication:0}");
+                else if (d.intoxication >= 1) parts.Add($"취기 {d.intoxication:0}");
+                if (d.hangoverSeconds > 0) parts.Add($"숙취 {d.hangoverSeconds:0}초");
+                if (InWithdrawal) parts.Add("금단");
+                else if (HasDrinkCraving) parts.Add("음주 충동");
+                return string.Join(" · ", parts);
+            }
+        }
+        public string DrinkPolicyLabel => IsChild ? "어린 장수 · 음주 불가"
+            : (DrinkState.allow < 0 ? "공통" : "개별") + " · " + (DrinkAllowed ? $"허용 · {DrinkRules.IntervalDays[DrinkInterval]:0.#}일 간격" : "금지");
+
+        // TickDuty에서 수면 다음에 부른다. true면 이번 틱은 음주(또는 만취)로 끝낸다.
+        private bool TickDrink(float seconds)
+        {
+            var d = DrinkState;
+            d.sinceDrink = Mathf.Min(d.sinceDrink + seconds, GameCalendar.SecondsPerYear);
+            if (d.intoxication > 0) d.intoxication = Mathf.Max(0, d.intoxication - DrinkRules.DecayPerDay / GameCalendar.SecondsPerDay * seconds);
+            if (d.hangoverPending && d.intoxication < DrinkRules.HangoverBelow)
+            { d.hangoverPending = false; d.peak = 0; d.hangoverSeconds = DrinkRules.HangoverDays * GameCalendar.SecondsPerDay; }
+            else if (d.hangoverSeconds > 0) d.hangoverSeconds = Mathf.Max(0, d.hangoverSeconds - seconds);
+            if (d.intoxication <= 0) d.peak = 0;
+            RefreshDrinkMood();
+            if (d.passedOut)
+            {
+                if (d.intoxication < DrinkRules.WakeBelow) d.passedOut = false;
+                else { d.drinkSeconds = 0; return true; } // 쓰러져 아무것도 하지 못한다.
+            }
+            if (IsAwayFromHome || IsEmbarked || IsCaptive) { CancelDrink(); return false; }
+            if (d.drinkSeconds > 0)
+            {
+                d.drinkSeconds = Mathf.Max(0, d.drinkSeconds - seconds);
+                if (d.drinkSeconds == 0) FinishDrink();
+                return true;
+            }
+            var craving = HasDrinkCraving || d.sessionDrinks > 0 && IsAlcoholDependent && d.intoxication < DrinkRules.CravingTarget;
+            if (!craving)
+            {
+                d.announced = false; d.sessionDrinks = 0;
+                // 일반 음주: 정책·간격을 따르고, 소집·경보·수면·다른 생활 행동 중에는 가지 않는다.
+                if (!DrinkAllowed || IsDeployed || WorkPriorities.Red || d.sinceDrink < DrinkIntervalSeconds || Joy > DrinkRules.DrinkBelowJoy
+                    || IsSleepTime || IsAsleep || IsCarrying || IsPlaying || IsEating || LabUpgradeLab != null || IsInCombat || d.hangoverSeconds > 0) return false;
+            }
+            else if (IsChild || IsAsleep) return false;
+            if (d.retrySeconds > 0) { d.retrySeconds = Mathf.Max(0, d.retrySeconds - seconds); return false; }
+            if (!CanReceiveOrders) return false;
+
+            var rm = ResourceManager.Instance;
+            StoreBin source = null; var kind = ResourceType.Beer;
+            if (rm != null)
+                foreach (var type in craving ? DrinkRules.Kinds.Reverse() : DrinkRules.Kinds)
+                {
+                    source = rm.Bins.Where(b => b.Spendable && b.Amount(type) > 0 && TryWorkApproach(b.Position, out _))
+                        .OrderBy(b => (b.Position - Position).sqrMagnitude).FirstOrDefault();
+                    if (source != null) { kind = type; break; }
+                }
+            if (source == null) { d.retrySeconds = DrinkRules.RetrySeconds; return false; } // 술 없음: 충동·금단은 그대로 남는다.
+
+            if (craving && !d.announced)
+            {
+                d.announced = true;
+                if (IsDeployed || IsWorking || ServiceTarget != null || ScienceAssignment != null)
+                    AntColony.UI.ToastManager.Show($"{CommanderName}: 술을 찾아 자리를 이탈했습니다 (알코올 의존)", AntColony.UI.ToastKind.Warning);
+            }
+            if (IsCarrying) { DropCargo(); CommandStop(); }
+            if (IsWorking || ServiceTarget != null || HuntTarget != null || CorpseTarget != null || ScienceAssignment != null || CraftingWorkshop != null) SuspendForNeeds("drink");
+            if (!CanReceiveOrders) return false;
+            if (TryWorkApproach(source.Position, out var approach) && (Position - approach).sqrMagnitude > 2.25f)
+            {
+                // 충동 중에는 다른 이동 명령이 내려와도 다시 술 쪽으로 향한다.
+                var idle = IsFlying ? HasReachedDestination() : Agent != null && !Agent.pathPending && !Agent.hasPath;
+                var astray = craving && !IsFlying && Agent != null && Agent.hasPath && (Agent.destination - approach).sqrMagnitude > 4f;
+                if (idle || astray) base.CommandMove(approach);
+                return true;
+            }
+            if (!source.Spendable || rm.TakeFrom(source, kind, 1) < 1) { d.retrySeconds = DrinkRules.RetrySeconds; return false; }
+            StopMoving();
+            d.pickedType = (int)kind; d.drinkSeconds = DrinkRules.DrinkSeconds;
+            return true;
+        }
+
+        private void FinishDrink()
+        {
+            var d = DrinkState;
+            var kind = d.pickedType >= 0 ? (ResourceType)d.pickedType : ResourceType.Beer;
+            var wasCraving = HasDrinkCraving || d.sessionDrinks > 0;
+            var before = d.intoxication;
+            d.pickedType = -1;
+            d.intoxication = Mathf.Min(200, d.intoxication + DrinkRules.Strength(kind) * DrinkTolerance);
+            d.peak = Mathf.Max(d.peak, d.intoxication);
+            d.sinceDrink = 0; d.retrySeconds = 0; // 실제로 마셔야 충동·금단이 가라앉는다.
+            JoyState.joy = Mathf.Min(100, JoyState.joy + DrinkRules.DrinkJoy);
+            d.sessionDrinks = wasCraving && IsAlcoholDependent && d.intoxication < DrinkRules.CravingTarget && d.sessionDrinks + 1 < DrinkRules.CravingMaxDrinks ? d.sessionDrinks + 1 : 0;
+            if (before < DrinkRules.Heavy && d.intoxication >= DrinkRules.Heavy)
+            {
+                // 과음: 숙취 예약, 반복되면 의존이 생길 수 있다(특성 슬롯 규칙은 그대로).
+                d.hangoverPending = true; d.binges++;
+                if (!IsAlcoholDependent && d.binges >= DrinkRules.AcquireAfterBinges && UnityEngine.Random.value < DrinkRules.AcquireChance && traits.TryAdd(CommanderTrait.AlcoholDependent))
+                    AntColony.UI.ToastManager.Show($"{CommanderName}: 반복된 과음으로 알코올 의존이 생겼습니다", AntColony.UI.ToastKind.Warning);
+            }
+            if (d.intoxication >= DrinkRules.Blackout)
+            {
+                d.passedOut = true; d.sessionDrinks = 0;
+                if (IsCarrying) DropCargo();
+                CommandStop();
+                AntColony.UI.ToastManager.Show($"{CommanderName}: 만취해 쓰러졌습니다", AntColony.UI.ToastKind.Warning);
+            }
+            RefreshDrinkMood();
+        }
+
+        // 마시던 술은 끝까지 마신 것으로 치지 않는다(원정·포로 전환 등). 이미 꺼낸 한 잔은 사라진다.
+        private void CancelDrink() { var d = DrinkState; d.drinkSeconds = 0; d.pickedType = -1; d.sessionDrinks = 0; }
+
+        private void RefreshDrinkMood()
+        {
+            var d = DrinkState;
+            SetDrinkMood("한잔의 여유", d.intoxication >= 5 && !d.passedOut ? DrinkRules.BuzzMood + (d.intoxication >= DrinkRules.Drunk ? DrinkRules.DrunkMood : 0) : 0);
+            SetDrinkMood("숙취", d.hangoverSeconds > 0 ? DrinkRules.HangoverMood : 0);
+            SetDrinkMood("금단", InWithdrawal ? DrinkRules.WithdrawalMood : 0);
+            SetDrinkMood("음주 충동", !InWithdrawal && HasDrinkCraving ? DrinkRules.CravingMood : 0);
+        }
+        private void SetDrinkMood(string reason, float value)
+        {
+            if (value != 0) personalState.AddMood(reason, value, 5);
+            else personalState.moodFactors.RemoveAll(f => f.reason == reason);
+        }
+    }
+}

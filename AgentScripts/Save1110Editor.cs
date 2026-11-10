@@ -1,0 +1,2 @@
+using UnityEditor;using UnityEditor.SceneManagement;using UnityEngine.SceneManagement;using System.Linq;
+public static class Save1110Editor {public static string Main(){if(EditorApplication.isPlaying)throw new System.Exception("Stop Play first");var s=SceneManager.GetActiveScene();var report=s.path+" dirty="+s.isDirty+" roots="+string.Join(",",s.GetRootGameObjects().Select(x=>x.name));AssetDatabase.SaveAssets();if(s.isDirty)EditorSceneManager.SaveScene(s);return report+" savedDirty="+s.isDirty;}}

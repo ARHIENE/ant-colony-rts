@@ -25,6 +25,7 @@ namespace AntColony.UI
                 lastGroup = -1; idleIndex = 0; lastTime = 0;
             }
             var ctrl = keyboard.ctrlKey.isPressed;
+            var shift = keyboard.shiftKey.isPressed;
             for (var n = 1; n <= 9; n++)
             {
                 if (!keyboard[Key.Digit1 + n - 1].wasPressedThisFrame) continue;
@@ -32,6 +33,14 @@ namespace AntColony.UI
                 {
                     groups[n] = selection.GetSelectedObjects().Where(s => s != null).ToList();
                     ToastManager.Show(groups[n].Count > 0 ? $"부대 {n} 지정: {groups[n].Count}명" : $"부대 {n} 비움");
+                }
+                else if (shift)
+                {
+                    // Shift+숫자: 현재 선택을 기존 부대에 더한다(스타크래프트).
+                    if (!groups.TryGetValue(n, out var group)) groups[n] = group = new List<SelectableObject>();
+                    group.RemoveAll(s => s == null);
+                    foreach (var s in selection.GetSelectedObjects()) if (s != null && !group.Contains(s)) group.Add(s);
+                    ToastManager.Show($"부대 {n}에 추가: 총 {group.Count}명");
                 }
                 else Recall(selection, n);
                 return;

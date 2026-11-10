@@ -1,0 +1,1 @@
+Live biome=None; new resource models: Food=24, IronOre=3, CopperOre=2, Stone=4, Resin=2, Wood=5, Leaf=3. Captured without changing game camera, time, saves or Play state.

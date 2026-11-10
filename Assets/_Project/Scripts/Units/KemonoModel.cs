@@ -15,6 +15,14 @@ namespace AntColony.Units
 
         public static bool Available { get { Load(); return source != null && controller != null; } }
 
+        public static float AttackPlaybackSpeed(string state, float duration)
+        {
+            Load();
+            string motion=state=="Attack"?"Right_Hand_Sword_Slash":state=="BowShoot"?"Archery_Shot_2":state=="ShieldBlock"?"Shield_Push_Left":null;
+            var clip=motion==null?null:controller.animationClips.FirstOrDefault(c=>c.name==motion);
+            return clip!=null?clip.length/Mathf.Max(.1f,duration):1f;
+        }
+
         static void Load()
         {
             if (loaded) return; loaded = true;
@@ -84,6 +92,8 @@ namespace AntColony.Units
                 if (!tools.TryGetValue(item, out var prefab)) tools[item] = prefab = Resources.Load<GameObject>("Kemono/Handheld/" + item);
                 if (prefab == null) continue;
                 var tool = Object.Instantiate(prefab, socket, false); tool.transform.localPosition = Vector3.zero; tool.transform.localRotation = Quaternion.identity;
+                // Work-tool grip profiles use the imported FBX axis conversion, not its raw mesh axes.
+                if(item.StartsWith("Tool_"))tool.transform.localRotation=prefab.transform.localRotation;
                 if(item.Contains("Rifle")||item.Contains("Carbine")||item.Contains("Scattergun"))
                     tool.transform.localScale*=.7f;
                 foreach (var c in tool.GetComponentsInChildren<Collider>()) Object.Destroy(c);
@@ -96,7 +106,7 @@ namespace AntColony.Units
             ResourceType.Wood or ResourceType.Resin => ("Tool_Chop", "Tool_Axe_Stone"),
             ResourceType.Stone or ResourceType.IronOre or ResourceType.CopperOre or ResourceType.TinOre or ResourceType.Coal or ResourceType.Sulfur => ("Tool_Mine", "Tool_Pickaxe_Stone"),
             ResourceType.Sand or ResourceType.Clay or ResourceType.Soil => ("Tool_Dig", "Tool_Shovel_Stone"),
-            ResourceType.Food or ResourceType.Leaf or ResourceType.Fiber or ResourceType.Herb => ("Tool_Harvest", "Tool_Sickle_Stone"),
+            ResourceType.Food or ResourceType.Leaf or ResourceType.Fiber or ResourceType.Herb => ("Tool_Harvest", null),
             _ => ("GroundWork", null)
         };
     }

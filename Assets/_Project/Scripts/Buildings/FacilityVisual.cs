@@ -55,10 +55,32 @@ namespace AntColony.Buildings
         };
 
         public static string ModelFor(BuildingKind kind) => Models.TryGetValue(kind, out var id) ? id : null;
+        private static GameObject LoadModel(BuildingKind kind, ResourceType material = ResourceType.Soil)
+        {
+            var improved = kind switch { BuildingKind.Hut => "Hut", BuildingKind.Storage => "Storage", BuildingKind.Watchtower => "Watchtower", _ => null };
+            // Atlas models have no separate roof/wall slots. Preserve the existing material-specific
+            // appearance for renovated buildings instead of tinting roofs, cargo and windows together.
+            if (improved != null && material == ResourceType.Soil)
+            {
+                var model = Resources.Load<GameObject>("Environment1110/Models/" + improved + "/" + improved);
+                if (model != null) return model;
+            }
+            var id = ModelFor(kind);
+            return id != null ? Resources.Load<GameObject>("Facilities/" + id) : null;
+        }
         public Transform Model { get; private set; }
+        private GameObject loadedPrefab;
         public void RefreshMainMaterial()
         {
-            if (Model != null) FacilityMaterialVisual.Apply(Model, GetComponent<BuildingBase>().MainMaterial);
+            if (Model == null) return;
+            var building = GetComponent<BuildingBase>();
+            if (KindOf(building) is BuildingKind kind && loadedPrefab != LoadModel(kind, building.MainMaterial))
+            {
+                Model.gameObject.SetActive(false); Destroy(Model.gameObject); Model = null;
+                Start();
+                return;
+            }
+            FacilityMaterialVisual.Apply(Model, building.MainMaterial);
         }
 
         // 씬에 놓인 시작 비축더미는 BuildingData 없이 Stockpile 컴포넌트만 있다.
@@ -68,12 +90,13 @@ namespace AntColony.Buildings
         {
             if (building.GetComponent<FacilityVisual>() != null || KindOf(building) is not BuildingKind kind) return;
             var id = ModelFor(kind);
-            if (id != null && Resources.Load<GameObject>("Facilities/" + id) != null) building.gameObject.AddComponent<FacilityVisual>();
+            if (id != null && LoadModel(kind, building.MainMaterial) != null) building.gameObject.AddComponent<FacilityVisual>();
         }
 
         private void Start()
         {
-            var prefab = Resources.Load<GameObject>("Facilities/" + ModelFor(KindOf(GetComponent<BuildingBase>()).Value));
+            var building = GetComponent<BuildingBase>();
+            var prefab = LoadModel(KindOf(building).Value, building.MainMaterial);
             var box = GetComponent<Renderer>();
             var mesh = GetComponent<MeshFilter>();
             if (prefab == null || box == null || mesh == null) { Destroy(this); return; } // 씬 프리팹처럼 상자가 없는 건물은 그대로 둔다
@@ -102,6 +125,7 @@ namespace AntColony.Buildings
                 if (r.name == "Thatch roof") { var block = new MaterialPropertyBlock(); r.GetPropertyBlock(block); block.SetColor("_BaseColor", new Color(.58f, .45f, .25f)); r.SetPropertyBlock(block); }
             box.forceRenderingOff = true;
             Model = model;
+            loadedPrefab = prefab;
             RefreshMainMaterial();
         }
     }

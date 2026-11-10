@@ -1,0 +1,3 @@
+using System.Linq;using UnityEngine;using AntColony.Units;
+public static class Animation1110Fingers {public static string Main(){var c=Object.FindObjectsByType<CommanderAnt>(FindObjectsInactive.Exclude).Where(x=>x.IsColonyMember).OrderBy(x=>Vector3.Distance(x.Position,Camera.main.transform.position)).First();return string.Join("\n",c.GetComponentsInChildren<Transform>().Where(t=>t.name.StartsWith("f_")||t.name.StartsWith("thumb.")||t.name=="hand.R"||t.name=="Socket.Tool.R").Select(t=>t.name+" local="+t.localPosition.ToString("F5")+" rotation="+t.localEulerAngles+" world="+t.position.ToString("F5")));}}
+

@@ -91,7 +91,9 @@ namespace AntColony.Units
         {
             var m = FormationEffect();
             float increase = source.HasValue && FormationRules.Rear(FormationState.forward, source.Value - Position) ? m.RearIncrease : 0;
+            var before = TroopHealth + PersonalHealth;
             TakeTroopDamage(amount, FormationRules.ReceivedMultiplier(increase, reduction + (ranged ? m.RangedReduction : 0) + (area ? m.AreaReduction : 0)));
+            AntColony.UI.GameFeel.Hit(this, before - (TroopHealth + PersonalHealth), !IsHostile); // 실제로 줄어든 부대·본인 체력만 보여 준다.
         }
     }
 }
