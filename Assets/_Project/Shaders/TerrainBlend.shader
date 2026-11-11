@@ -24,7 +24,10 @@ Shader "AntColony/TerrainBlend"
             HLSLPROGRAM
             #pragma vertex vert
             #pragma fragment frag
+            #pragma multi_compile _ _MAIN_LIGHT_SHADOWS _MAIN_LIGHT_SHADOWS_CASCADE _MAIN_LIGHT_SHADOWS_SCREEN
+            #pragma multi_compile_fragment _ _SHADOWS_SOFT _SHADOWS_SOFT_LOW _SHADOWS_SOFT_MEDIUM _SHADOWS_SOFT_HIGH
             #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
+            #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Lighting.hlsl"
 
             #define MAX_TEXTURES 32
 
@@ -187,6 +190,16 @@ Shader "AntColony/TerrainBlend"
                     float lip = IN.rim * (1 - cliff);
                     color = lerp(color, color * 1.55 + half3(.09, .08, .06), lip);
                 }
+                // Keep the authored ground palette; receive soft contact/cast shadows
+                // so resources and characters sit on the ground instead of floating.
+                #if defined(_MAIN_LIGHT_SHADOWS_SCREEN)
+                float4 shadowCoord = ComputeScreenPos(TransformWorldToHClip(IN.worldPos));
+                #else
+                float4 shadowCoord = TransformWorldToShadowCoord(IN.worldPos);
+                #endif
+                half shadow = MainLightRealtimeShadow(shadowCoord);
+                shadow = lerp(shadow, 1, GetMainLightShadowFade(IN.worldPos));
+                color *= lerp(0.65h, 1.0h, shadow);
                 return half4(color, 1);
             }
             ENDHLSL

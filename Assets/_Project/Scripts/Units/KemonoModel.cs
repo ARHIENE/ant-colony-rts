@@ -18,7 +18,7 @@ namespace AntColony.Units
         public static float AttackPlaybackSpeed(string state, float duration)
         {
             Load();
-            string motion=state=="Attack"?"Right_Hand_Sword_Slash":state=="BowShoot"?"Archery_Shot_2":state=="ShieldBlock"?"Shield_Push_Left":null;
+            string motion=state=="Attack"?"Right_Hand_Sword_Slash":state=="BowShoot"?"Archery_Shot_2":state=="ShieldBlock"?"Shield_Push_Left":state=="Tool_Hammer"?"Heavy_Hammer_Swing":state=="SpearThrust"?"SpearThrust":null;
             var clip=motion==null?null:controller.animationClips.FirstOrDefault(c=>c.name==motion);
             return clip!=null?clip.length/Mathf.Max(.1f,duration):1f;
         }
@@ -89,9 +89,9 @@ namespace AntColony.Units
                     : name != null && name.StartsWith("Weapon_Shield_") ? socket.name.EndsWith(".L") ? name : null
                     : socket.name.EndsWith(".R") ? name : null;
                 if (item == null) continue;
-                if (!tools.TryGetValue(item, out var prefab)) tools[item] = prefab = Resources.Load<GameObject>("Kemono/Handheld/" + item);
+                if (!tools.TryGetValue(item, out var prefab)) tools[item] = prefab = MeshyEquipmentModel.Load(item);
                 if (prefab == null) continue;
-                var tool = Object.Instantiate(prefab, socket, false); tool.transform.localPosition = Vector3.zero; tool.transform.localRotation = Quaternion.identity;
+                var tool = Object.Instantiate(prefab, socket, false); MeshyEquipmentModel.ApplyFinish(tool, item); tool.transform.localPosition = Vector3.zero; tool.transform.localRotation = Quaternion.identity;
                 // Work-tool grip profiles use the imported FBX axis conversion, not its raw mesh axes.
                 if(item.StartsWith("Tool_"))tool.transform.localRotation=prefab.transform.localRotation;
                 if(item.Contains("Rifle")||item.Contains("Carbine")||item.Contains("Scattergun"))
@@ -111,4 +111,3 @@ namespace AntColony.Units
         };
     }
 }
-

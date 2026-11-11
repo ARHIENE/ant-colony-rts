@@ -44,7 +44,8 @@ namespace AntColony.World
             var box = node.GetComponent<Renderer>();
             if (box == null) return;
             var b = box.bounds;
-            var model = Attach(node.transform, id, Mathf.Max(1.2f, Mathf.Max(b.size.x, b.size.z)), new Vector3(b.center.x, b.min.y, b.center.z));
+            float width=node.IsLooseCargo?Mathf.Clamp(Mathf.Max(b.size.x,b.size.z),.35f,.65f):Mathf.Max(1.2f,Mathf.Max(b.size.x,b.size.z));
+            var model = Attach(node.transform, id, width, new Vector3(b.center.x, b.min.y, b.center.z));
             if (model != null)
             {
                 box.forceRenderingOff = true;

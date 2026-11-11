@@ -30,6 +30,14 @@ namespace AntColony.UI
             return tex;
         }
 
+        static void CopyProperties(Renderer source, Renderer target)
+        {
+            var block = new MaterialPropertyBlock();
+            source.GetPropertyBlock(block); target.SetPropertyBlock(block);
+            for (int i = 0; i < source.sharedMaterials.Length; i++)
+            { source.GetPropertyBlock(block, i); target.SetPropertyBlock(block, i); }
+        }
+
         static RenderTexture Render(GameObject source)
         {
             if (camera == null)
@@ -44,26 +52,50 @@ namespace AntColony.UI
                 if (UnityEngine.Camera.main != null) UnityEngine.Camera.main.cullingMask &= ~(1 << Layer);
             }
             var clone = Object.Instantiate(source); clone.transform.SetPositionAndRotation(Studio, Quaternion.identity);
+            var sourceRenderers = source.GetComponentsInChildren<Renderer>(true);
+            var cloneRenderers = clone.GetComponentsInChildren<Renderer>(true);
+            for (int i = 0; i < sourceRenderers.Length; i++) CopyProperties(sourceRenderers[i], cloneRenderers[i]);
+            // Native world animation suppresses the legacy body with forceRenderingOff.
+            // A portrait is an isolated snapshot: restore this only on its clone.
+            foreach (var renderer in clone.GetComponentsInChildren<Renderer>(true)) renderer.forceRenderingOff = false;
+            foreach (var behaviour in clone.GetComponentsInChildren<MonoBehaviour>(true)) behaviour.enabled = false;
+            // Portrait framing must not depend on the moment Get was first called
+            // (sleeping, mining, falling). Pose only the studio clone in its idle state.
+            foreach (var animator in clone.GetComponentsInChildren<Animator>(true))
+            {
+                animator.enabled = true; animator.cullingMode = AnimatorCullingMode.AlwaysAnimate;
+                animator.Rebind(); animator.Play("Base Layer.Idle_A", 0, 0); animator.Update(.01f);
+                animator.enabled = false;
+            }
+            for (int i = 0; i < sourceRenderers.Length; i++) cloneRenderers[i].enabled = sourceRenderers[i].enabled;
+            clone.GetComponent<KemonoAppearance>()?.SetExpression("NEUTRAL");
+            foreach (var skin in clone.GetComponentsInChildren<SkinnedMeshRenderer>(true))
+                if (skin.name.StartsWith("Part_Face_") && skin.sharedMesh != null)
+                    for (int i = 0; i < skin.sharedMesh.blendShapeCount; i++)
+                    {
+                        var name = skin.sharedMesh.GetBlendShapeName(i);
+                        name = name.Substring(name.LastIndexOf('.') + 1).ToUpperInvariant();
+                        skin.SetBlendShapeWeight(i, name == "NEUTRAL" ? 100 : 0);
+                    }
             foreach (var t in clone.GetComponentsInChildren<Transform>(true))
             {
                 t.gameObject.layer = Layer;
-                if (t.name.StartsWith("Socket.")) foreach (var r in t.GetComponentsInChildren<Renderer>()) r.enabled = false; // 손에 든 도구는 빼고 찍는다
+                if (t.name.StartsWith("Socket.") || t.name.StartsWith("Holstered_") || t.name == "Native equipment grip")
+                    foreach (var r in t.GetComponentsInChildren<Renderer>()) r.enabled = false; // 손·등의 무기는 초상 구도에서 제외
             }
-            // Snapshot the live pose: a newly cloned skinned renderer has not been updated
-            // by Unity yet, so rendering it immediately can cache an empty portrait.
+            // Bake the evaluated studio pose; the live source may currently be lying down.
             var bakedMeshes = new List<Mesh>();
-            var originals = source.GetComponentsInChildren<SkinnedMeshRenderer>(true);
             var copies = clone.GetComponentsInChildren<SkinnedMeshRenderer>(true);
             for (int i = 0; i < copies.Length; i++)
             {
                 var copy = copies[i];
                 if (!copy.enabled || !copy.gameObject.activeInHierarchy) continue;
-                var mesh = new Mesh(); originals[i].BakeMesh(mesh); bakedMeshes.Add(mesh);
+                var mesh = new Mesh(); copy.BakeMesh(mesh); bakedMeshes.Add(mesh);
                 var snapshot = new GameObject("Portrait mesh"); snapshot.layer = Layer;
                 snapshot.transform.SetParent(copy.transform, false);
                 snapshot.AddComponent<MeshFilter>().sharedMesh = mesh;
                 var still = snapshot.AddComponent<MeshRenderer>();
-                still.sharedMaterials = copy.sharedMaterials; copy.enabled = false;
+                still.sharedMaterials = copy.sharedMaterials; CopyProperties(copy, still); copy.enabled = false;
             }
             var renderers = clone.GetComponentsInChildren<Renderer>().Where(r => r.enabled).ToArray();
             if (renderers.Length == 0) { Object.Destroy(clone); return null; }
@@ -92,4 +124,3 @@ namespace AntColony.UI
         }
     }
 }
-

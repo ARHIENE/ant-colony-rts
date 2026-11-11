@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.Linq;
 using AntColony.Buildings;
 using AntColony.Core;
@@ -95,6 +95,15 @@ namespace AntColony.UI
 
         public static bool Picking => IsOpen && instance.picking != null;
 
+        // Building help belongs in the free right column, never over the building grid.
+        public static bool TooltipArea(RectTransform source, out RectTransform area)
+        {
+            area = null;
+            if (!IsOpen || source == null || !source.IsChildOf(instance.buildPanel)) return false;
+            if (!Picking) area = instance.picker;
+            return true;
+        }
+
         public static void Open() { if (instance != null) instance.SetOpen(true); }
         public static void OpenDormitory()
         {
@@ -119,12 +128,13 @@ namespace AntColony.UI
         {
             placement = AntColony.Core.SceneObjects.Any<BuildingPlacementController>();
             buildWindow = MenuLayout.Plate(transform, "BuildWindowV5", 170, 90, 1100, 656);
-            buildWindow.gameObject.AddComponent<MenuViewport>().FitSelf = true;
+            var viewport = buildWindow.gameObject.AddComponent<MenuViewport>();
+            viewport.FitSelf = true; viewport.MaxScale = 1.24f;
             var windowCanvas = buildWindow.gameObject.AddComponent<Canvas>();
             windowCanvas.overrideSorting = true; windowCanvas.sortingOrder = 100;
             buildWindow.gameObject.AddComponent<GraphicRaycaster>();
             MenuLayout.Label(buildWindow, "건설", 20, 12, 10, 72, 34, MenuTheme.TextColor, bold: true);
-            MenuLayout.Label(buildWindow, "건물 선택 → 재료 비교 → 담당 장수 선택 → 배치", 12, 92, 10, 920, 34, MenuTheme.Muted);
+            MenuLayout.Label(buildWindow, "건물 선택 → 담당 장수 → 배치   ·   휠로 목록 이동", 16, 92, 10, 920, 34, MenuTheme.Muted);
             MenuLayout.Line(buildWindow, 0, 54, 1100);
             MenuLayout.Line(buildWindow, 0, 604, 1100);
             MenuLayout.Button(buildWindow, "Resume Build", "닫기", 1032, 613, 48, 30, () => SetOpen(false));
@@ -137,10 +147,11 @@ namespace AntColony.UI
                 tabButtons[t].gameObject.AddComponent<MenuTooltip>().Message = $"{(TabNames[t] == "이동" ? "이동수단" : TabNames[t])} 건물 보기{(t < 10 ? $" ({(t + 1) % 10})" : "")}";
                 var page = MenuTheme.Rect("Page " + TabNames[t], buildPanel);
                 MenuTheme.Stretch(page); page.offsetMax = new Vector2(0, -(Tabs.Length + TabsPerRow - 1) / TabsPerRow * 28 - 4);
+                var content = CreateBuildScroll(page);
                 for (var i = 0; i < Tabs[t].Length; i++)
                 {
                     var entry = Tabs[t][i];
-                    var button = Cell(page, ButtonName(entry), new Vector2(i % 4 * 70, -(i / 4) * 48), new Vector2(66, 44),
+                    var button = Cell(content, ButtonName(entry), new Vector2(i % 4 * 70, -(i / 4) * 48), new Vector2(66, 44),
                         i < SlotKeys.Length ? SlotKeys[i].ToString() : "", entry.name, () => Choose(entry)); // 단축키는 앞 10칸만
                     button.gameObject.AddComponent<MenuTooltip>();
                 }
@@ -181,12 +192,19 @@ namespace AntColony.UI
 
         private void SetOpen(bool open)
         {
+            GameMenuController.Instance?.Tooltip("");
             picking = null;
             buildWindow.gameObject.SetActive(open);
             buildPanel.gameObject.SetActive(open);
-            if (open) placement?.CancelPlacement();
+            if (open)
+            {
+                placement?.CancelPlacement();
+                foreach (var page in tabPages) page.GetComponent<ScrollRect>().verticalNormalizedPosition = 1;
+            }
         }
 
+        private int layoutScreenWidth;
+        private float layoutPixelScale;
         private void Update()
         {
             var open = IsOpen;
@@ -195,28 +213,36 @@ namespace AntColony.UI
             baseline = PlayerPerformanceProbe.Baseline;
 #endif
             // Hidden construction controls still receive Update; lay them out only on opening or resize.
-            if (baseline || open && (!layoutVisible || layoutSize != buildPanel.rect.size))
+            if (baseline || open && (!layoutVisible || layoutSize != buildPanel.rect.size || layoutScreenWidth != Screen.width || Mathf.Abs(layoutPixelScale - buildWindow.lossyScale.x) > .001f))
             {
-                layoutSize = buildPanel.rect.size;
+                layoutSize = buildPanel.rect.size; layoutScreenWidth = Screen.width;
+                float pixels = Mathf.Max(.1f, buildWindow.lossyScale.x); layoutPixelScale = pixels;
                 var width = layoutSize.x;
                 for (var i = 0; i < tabButtons.Count; i++)
                 {
                     MenuLayout.Place((RectTransform)tabButtons[i].transform, i % TabsPerRow * width / TabsPerRow, i / TabsPerRow * 28, width / TabsPerRow - 2, 26);
-                    MenuTheme.Stretch(tabButtons[i].GetComponentsInChildren<Text>(true)[1].rectTransform); // 단축키 글자가 숨겨져 있어 이름이 칸 전체를 쓴다
+                    var tabLabel = tabButtons[i].GetComponentsInChildren<Text>(true)[1];
+                    tabLabel.fontSize = Mathf.Max(14, Mathf.CeilToInt(11 / pixels));
+                    MenuTheme.Stretch(tabLabel.rectTransform); // 단축키 글자가 숨겨져 있어 이름이 칸 전체를 쓴다
                 }
                 foreach (var page in tabPages)
                 {
                     var buttons = page.GetComponentsInChildren<Button>(true);
-                    // 줄이 많으면 칸 높이를 줄여 콘솔 안에 맞춘다(최대 52).
-                    // 12칸을 넘으면 4열(가구 5차로 휴게 13칸, 2026-10-06) — 5줄이면 이름과 상태 글자가 겹친다.
-                    var cols = buttons.Length > 12 ? 4 : 3;
-                    var rowHeight = Mathf.Min(96f, ((RectTransform)page.transform).rect.height / Mathf.Max(1, (buttons.Length + cols - 1) / cols));
+                    // Preserve readable cards; additional rows scroll instead of shrinking.
+                    const int cols = 3;
+                    float rowHeight = Mathf.Max(92f, 66f / pixels);
+                    var scroll = page.GetComponent<ScrollRect>();
+                    float gridWidth = width - 18;
+                    scroll.content.sizeDelta = new Vector2(0, Mathf.CeilToInt(buttons.Length / (float)cols) * rowHeight);
+                    scroll.verticalScrollbar.gameObject.SetActive(scroll.content.sizeDelta.y > scroll.viewport.rect.height);
                     for (var i = 0; i < buttons.Length; i++)
                     {
-                        MenuLayout.Place((RectTransform)buttons[i].transform, i % cols * width / cols, i / cols * rowHeight, width / cols - 4, rowHeight - 4);
+                        MenuLayout.Place((RectTransform)buttons[i].transform, i % cols * gridWidth / cols, i / cols * rowHeight, gridWidth / cols - 6, rowHeight - 4);
                         var label = buttons[i].GetComponentsInChildren<Text>(true)[1];
                         MenuTheme.Stretch(label.rectTransform);
-                        label.verticalOverflow = VerticalWrapMode.Truncate; label.resizeTextForBestFit = true; label.resizeTextMinSize = 11; label.resizeTextMaxSize = 16;
+                        label.alignment = TextAnchor.MiddleCenter;
+                        label.verticalOverflow = VerticalWrapMode.Truncate; label.resizeTextForBestFit = false;
+                        label.fontSize = Mathf.Max(17, Mathf.CeilToInt(13 / pixels));
                     }
                 }
                 pickTitle.rectTransform.sizeDelta = new Vector2(picker.rect.width, 58);
@@ -281,6 +307,7 @@ namespace AntColony.UI
         {
             var locked = BuildingPlacementController.LockReason(entry.kind);
             if (locked != null) { ToastManager.Show(locked); return; }
+            GameMenuController.Instance?.Tooltip("");
             picking = entry;
         }
 
@@ -308,8 +335,10 @@ namespace AntColony.UI
                 var locked = BuildingPlacementController.LockReason(entries[i].kind);
                 var label = buttons[i].GetComponentsInChildren<Text>()[1];
                 label.text = entries[i].name + (locked != null ? "\n<color=#b1b3a7>잠김</color>" : data != null ? $"\n<color=#b1b3a7>{Cost(data)}</color>" : "");
-                buttons[i].GetComponent<Image>().color = locked != null ? MenuTheme.Well : Color.white;
-                buttons[i].GetComponent<MenuTooltip>().Message = locked ?? (data != null
+                buttons[i].GetComponent<Image>().color = locked != null ? new Color(.72f, .72f, .72f, 1f) : Color.white;
+                // 초반 건물은 용도·시점·운영 조건·부족 조건을 보여 준다. 대상이 아니면 기존 툴팁 그대로.
+                buttons[i].GetComponent<MenuTooltip>().Message = BuildTooltips.For(entries[i].name, entries[i].kind, data, data != null ? Cost(data) : null, locked, selectedMaterial)
+                    ?? locked ?? (data != null
                     ? $"{entries[i].name}: {Cost(data)}"
                     : "건물 틀을 찾을 수 없습니다.");
             }
@@ -361,6 +390,31 @@ namespace AntColony.UI
         {
             foreach (var page in Tabs) foreach (var entry in page) if (entry.kind == kind && (entry.role == role || entry.role == UnitRole.Worker)) return entry.name;
             return "건물";
+        }
+
+        private static RectTransform CreateBuildScroll(RectTransform page)
+        {
+            var scroll = page.gameObject.AddComponent<ScrollRect>();
+            scroll.horizontal = false; scroll.movementType = ScrollRect.MovementType.Clamped;
+            scroll.scrollSensitivity = 45; scroll.inertia = false;
+            var view = MenuTheme.Rect("Viewport", page); MenuTheme.Stretch(view);
+            view.offsetMax = new Vector2(-18, 0);
+            view.gameObject.AddComponent<Image>().color = Color.white;
+            view.gameObject.AddComponent<Mask>().showMaskGraphic = false;
+            var content = MenuTheme.Rect("Content", view);
+            content.anchorMin = new Vector2(0, 1); content.anchorMax = Vector2.one;
+            content.pivot = new Vector2(.5f, 1); content.sizeDelta = Vector2.zero;
+            scroll.content = content; scroll.viewport = view;
+            var track = MenuTheme.Rect("Scrollbar", page); MenuTheme.Stretch(track);
+            track.anchorMin = new Vector2(1, 0); track.offsetMin = new Vector2(-10, 0); track.offsetMax = Vector2.zero;
+            track.gameObject.AddComponent<Image>().color = MenuTheme.Well;
+            var handle = MenuTheme.Rect("Handle", track); MenuTheme.Stretch(handle);
+            var thumb = handle.gameObject.AddComponent<Image>(); thumb.color = MenuTheme.Muted;
+            var bar = track.gameObject.AddComponent<Scrollbar>(); bar.handleRect = handle;
+            bar.targetGraphic = thumb; bar.direction = Scrollbar.Direction.BottomToTop;
+            scroll.verticalScrollbar = bar;
+            scroll.onValueChanged.AddListener(_ => GameMenuController.Instance?.Tooltip(""));
+            return content;
         }
 
         private static Button Cell(Transform parent, string name, Vector2 position, Vector2 size, string key, string label, UnityEngine.Events.UnityAction action)

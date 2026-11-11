@@ -1,0 +1,7 @@
+Tool_Axe_Bronze | Tool_Chop | PASS palm=0.000000 support=-0.093..0.084 endHeadForward=0.197
+Tool_Axe_Copper | Tool_Chop | PASS palm=0.000000 support=-0.093..0.084 endHeadForward=0.197
+Tool_Axe_Iron | Tool_Chop | PASS palm=0.000000 support=-0.093..0.084 endHeadForward=0.197
+Tool_Axe_Starlight | Tool_Chop | PASS palm=0.000000 support=-0.093..0.084 endHeadForward=0.197
+Tool_Axe_Steel | Tool_Chop | PASS palm=0.000000 support=-0.093..0.084 endHeadForward=0.197
+Tool_Axe_Stone | Tool_Chop | PASS palm=0.000000 support=-0.093..0.084 endHeadForward=0.197
+Tool_Axe_Titanium | Tool_Chop | PASS palm=0.000000 support=-0.093..0.084 endHeadForward=0.197

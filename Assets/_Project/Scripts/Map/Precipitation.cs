@@ -76,7 +76,8 @@ namespace AntColony.Map
             velocity.x = new ParticleSystem.MinMaxCurve(drift - .5f, drift + .5f); velocity.y = new ParticleSystem.MinMaxCurve(-fallSpeed, -fallSpeed); velocity.z = new ParticleSystem.MinMaxCurve(-.5f, .5f);
             var renderer = GetComponent<ParticleSystemRenderer>();
             renderer.renderMode = stretch > 0 ? ParticleSystemRenderMode.Stretch : ParticleSystemRenderMode.Billboard;
-            renderer.velocityScale = stretch; renderer.lengthScale = 1;
+            // Keep fast rain short enough to read units beneath it.
+            renderer.velocityScale = 0; renderer.lengthScale = stretch > 0 ? 4 : 1;
         }
 
         public float Rate => emission.rateOverTime.constant;

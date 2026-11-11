@@ -1,0 +1,23 @@
+Loose cargo count=19 subunit=4
+Neutral ResourceSite 1 Soil: 160 at (5004.00, 0.60, 5000.00)
+Neutral ResourceSite 2 Soil: 300 at (5204.00, 0.60, 5000.00)
+Neutral ResourceSite 3 Soil: 300 at (5404.00, 0.60, 5000.00)
+Neutral ResourceSite 4 Soil: 300 at (5604.00, 0.60, 5000.00)
+Neutral ResourceSite 22 Soil: 100 at (9204.00, 0.60, 5000.00)
+Neutral ResourceSite 23 Soil: 320 at (9404.00, 0.60, 5000.00)
+Received RottenFood: 40 at (4996.80, 0.90, 5000.00)
+Received RottenFood: 120 at (5196.80, 0.90, 5000.00)
+Received RottenFood: 480 at (5396.80, 0.90, 5000.00)
+Received RottenFood: 300 at (5596.80, 0.90, 5000.00)
+Received RottenFood: 100 at (9196.80, 0.90, 5000.00)
+Received RottenFood: 80 at (9396.80, 0.90, 5000.00)
+Received RottenFood: 7 at (204.27, 10.65, 203.76)
+Received RottenFood: 4 at (201.92, 10.65, 203.19)
+Dropped Wood: 0.248741776 at (201.54, 10.07, 202.43)
+Dropped Soil: 0.6060927 at (204.10, 10.07, 202.77)
+Dropped Food: 0.7079277 at (201.94, 10.07, 203.89)
+Received RottenFood: 2 at (200.96, 10.65, 200.99)
+Dropped Wood: 0.5924366 at (199.11, 10.07, 191.45)
+생존자 1 carried=0 node=
+생존자 2 carried=0 node=
+생존자 3 carried=0 node=

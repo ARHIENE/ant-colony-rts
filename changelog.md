@@ -460,7 +460,8 @@
 - 동작 방식: `xSize`×`zSize` 그리드 메시 생성 → 옥타브 Perlin 노이즈로 정점 높이 결정 → `terrainLayers`(텍스처+시작 높이 목록)를 `TerrainBlend.shader`에 전달해 높이 구간별 텍스처 블렌딩 → `spawnObjects` 목록(프리팹+높이범위+스폰확률+최소간격)에 따라 좌표별 시드 고정 랜덤으로 오브젝트 배치(같은 좌표는 항상 같은 결과 = 재현 가능한 랜덤맵)
 - `ResourceNode`/`WildMonster`는 이미 일반 프리팹이라 별도 연동 코드 없이 `spawnObjects`에 그대로 등록해서 쓰면 됨(자동으로 `ResourceNode.Active`/`WildMonster` 정적 레지스트리에 등록되어 기존 채집/전투 로직이 그대로 작동)
 - **원본과 다르게 단순화한 부분**: 물(Water)은 원본이 쓰던 전용 노멀맵 워터 셰이더/텍스처 에셋(외부 리소스 팩) 대신, `waterMat`에 아무 반투명 Material이나 연결하는 방식으로 단순화함 — 개미 소굴 RTS 기획서에 물 요소가 없어 시각적 디테일까지는 포팅하지 않음(필요해지면 그때 추가)
-- 인스펙터 값을 바꾸면 자동으로 재생성됨(Editor 스크립트가 변경 감지) — 씬에 배치 후 `xSize`/`zSize`/`noiseScale`/`heightMultiplier` 등을 만져보면서 맵 형태 튜닝
+- 인스펙터 값을 바꾸면 자동으로 재생성됨(Editor 스크립트가 변경 감지) — 씬에 배치 후 `xSize`/`zSize`/
+oiseScale`/`heightMultiplier` 등을 만져보면서 맵 형태 튜닝
 
 ### 설계 메모
 - 확장(흙 소모)은 실제 지형 파괴 대신 `DigSite`가 흙을 소모해 미리 배치된 `expansionZone` 오브젝트를 활성화하는 방식으로 단순화(지형 메시 변형은 범위 밖)
@@ -832,7 +833,8 @@
 - **목장 기획 불일치 수정(SPEC-K):** 자동 도축·도축 금지 제거 → 수동 도축 요청(두 번 눌러 이름·마릿수 확인, 시작 후 취소 불가, 강제 중단 시 최대 체력 10% 피해·생존), 치료 시설 안 도축·방생 금지. 도축대 = 사체별 대기열(등록 순서·사체별 산출·새끼 50%·허용 종·일시정지, 사체별 남은 부패 시간 보존·진행). 약제대 = 간호(의료) 작업·의료 능력만(보조 기술 없음), 치료가 생산보다 먼저, 의약품·키트 예약(`Units/AnimalMedicalStock.cs`). 수술 = 기여도 가중 성공률·실패(사망/악화/유지)·후유증·회복 기간·수동 재수술·고위험 집도의 지정·재입원(`World/CritterSurgery.cs`). 투약은 투약 당시 경상만, 회복 중 시설 안 새 경상은 자연 회복·투약.
 - **최신 기획 추가 구현:** 포획·운반·도축·방생 일괄 요청/취소(제외 사유·마릿수), 여러 종 운반 공통 목적지, 개체 이름 변경('이름(종)'), 개체 목록 필터·정렬(`UI/GameMenuRanchBulk.cs`), 운반은 결박·쓰러짐만(길들인 개체도 저항 없이 포획). 작업표 표기 '간호(의료)'.
 - **사용자 확정 잠정 수치(Notion 반영):** 수술 성공률 = 50% + 의료×2.5%p − 부상 보정(체력 40%→0, 0%→20%p) − 후유증×10%p(5~95%), 실패 시 사망 10%+후유증×5%p·악화 30%(최대 체력 10%), 고위험 = 최고 예상 50% 미만, 회복 = 1개월×(1−수술 전 체력), 최소 0.25개월, 새끼 산출 50%, 중단 피해 10%, 허용 해제 사체 바닥, 간호 = 의료 작업, 길들인 개체도 포획 후 운반.
-- **HUD V5:** `design/hud/hud-v5.html/.css/.js`(V4 보존) 인터랙티브 시안(예시 데이터, Unity 미연동). 검사 `node design/hud/hud-v5.check.cjs`(Playwright 72), 스크린샷 `reports/hud-v5/`(미커밋). Unity 이식은 아직 안 함.
+- **HUD V5:** `design/hud/hud-v5.html/.css/.js`(V4 보존) 인터랙티브 시안(예시 데이터, Unity 미연동). 검사
+ode design/hud/hud-v5.check.cjs`(Playwright 72), 스크린샷 `reports/hud-v5/`(미커밋). Unity 이식은 아직 안 함.
 - **검사(Play 순차):** Spec1011Ranch 165(최종), Spec1010Material 44, Spec1010 53, AutonomousDuty 56, Spec1008FI 29, SaveRoundtrip 57(일괄 요청·이름 추가 전 실행). InfirmaryChecks는 기존 문제로 실패(`Treat at` 버튼이 f0f0fa0에서 제거됨).
 - **Unity 연결:** 공식 CLI가 안 붙으면 `Library/Pipeline/.unity-pipeline-port` 누락 확인 → Window → Pipeline → Stop Server → Start Server.
 - **다음 할 일:** 1) Codex 2차 리뷰(SPEC-K·HUD-V5). 2) 미실행 회귀 묶음(Workforce·DutyUI·WorkAlert·Spec1009·Spec1008FI 외 Stage3·5·6·AcidTower·NightThreat·CommanderStatus·Regression·SettlementDefense)과 일괄 요청 이후 SaveRoundtrip 재실행. 3) InfirmaryChecks 버튼 이름 갱신. 4) 목장 화면이 버튼 세로 나열이라 개체가 많으면 길어짐 — V5 디자인 Unity 이식 때 정리. 5) 이전 할 일: 추천안 자동 선택 항목 사용자 확인, Notion '구현 대기' 문구·화면 피드백 4건.
@@ -873,3 +875,20 @@
 - 개발 일지: https://app.notion.com/p/414c4a0ecd3181e8b625dff8183a2df1 (모션GIF4개+실제채굴2프레임GIF, 에셋·UI 사진6개)
 - 문제 해결: https://app.notion.com/p/414c4a0ecd318156b06fe5e29a770738
 - 이전11/05~11/07 log 원문은 work/save-20261110/local-backups/log-before-rollover.md에 보존. 기존 날짜별 changelog와 함께 참조.
+
+## 2026-11-10 로그 이관
+# 프로젝트 로그
+
+## 현재 상태 — 2026-11-10 통합 SAVE
+- 프로젝트 F:/UnityProjects/ant-colony-rts, develop. Unity6000.5.8f1/Hub 공식 CLI. 작업 전 GAME_DIRECTION.md·docs/IMPLEMENTATION_BOARD.md 읽기.
+- Codex 애니메이션: 수집119종 중24클립을 공통50본 리그로 변환·27상태 배치. 실제 채굴/벌목/잎채집/달리기5.43m/야간수면 검증. 양손 자루 접점·손가락/엄지 보정과 바위 외곽 접근 수정. 상세 docs/ANIMATION_GAME_1110.md.
+- Codex 환경: 모델10종·지면8종, 기존6지형 연결.69검사 재실행 통과.530/600크레딧 사용(마지막 표시325). 상세 docs/ENVIRONMENT_ASSETS_1110.md.
+- Codex UI: 숯빛 HTML 반영, 316+23검사 통과. 실제 자원 이미지 아이콘은 미완료. docs/UI_CHARCOAL_1110.md.
+- Claude: 카메라·선택·명령 표시·합성 효과음·피해 숫자·대형 개선,24검사. 음색 청취·일부 입력은 미검증. 음주 등13항목은 지시서 단계. docs/GAME_FEEL_1110.md 및 docs/CLAUDE_FEATURE_IMPLEMENTATION_1110.md.
+- 미완료: 전 무기/외형 조합의 교차 검수, Celebrate 실제 이벤트, Dropped Stone 가림, 기존 missing prefab,6지형 새게임 전수 검사, 웨이브/로켓 후속. 미구현을 완료로 취급하지 않는다.
+- 공식 컴파일 오류0. Graphify45370노드/117996간선 갱신 후 SAVE 보조 스크립트 추가. 사용자 저장 슬롯 미사용. 임시 Play 종료 상태.
+- 개발 일지 https://app.notion.com/p/414c4a0ecd3181e8b625dff8183a2df1 / 문제 해결 https://app.notion.com/p/414c4a0ecd318156b06fe5e29a770738. 모션GIF4개·실제채굴2프레임GIF와 에셋/UI 사진6개 업로드 완료.
+- 통합 저장 묶음: work/save-20261110/README.md와 manifest.json 참조. 대용량 원본은 gzip/base64 조각으로 보관하며 복원 시 SHA256을 검증한다. 최종 원격 커밋 결과는 위 개발 일지에 기록한다. master와 prefab은 커밋 제외. 컴퓨터 종료는 저장 성공 후 실행하며 이 기록에서 성공을 선행 선언하지 않는다.
+
+## 2026-11-12 통합 SAVE
+- 두 채팅의 원본모션·파지·외형, Meshy시설8종, 첫 방어/운반/명령공격/UI 작업 통합. 검증과 한계는 docs/ANIMATION_NATIVE_1112.md, FIRST_DEFENSE_1112.md, RELEASE_VISUAL_1112.md, PLAYABILITY_1111.md 참조. 원격 및 Notion 결과는 log.md에 후속 기록.

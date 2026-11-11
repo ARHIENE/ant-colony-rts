@@ -1,0 +1,27 @@
+{
+  "success": true,
+  "command": "command",
+  "data": {
+    "command": "run_script",
+    "parameters": {
+      "file": "AgentScripts/ReleaseSceneRepair.cs",
+      "entry": "ReleaseSceneRepair.Run",
+      "timeout_ms": "60000"
+    },
+    "result": {
+      "diagnostics": [],
+      "compileMs": 82,
+      "executeMs": 2916,
+      "assemblyName": "PipelineRunScript_ReleaseSceneRepair_8a30b4b6b84743fba7b111f96eeb78ba",
+      "success": true,
+      "result": "Removed 15390 empty broken landscape instances; preserved boss component identities and serialized gameplay values; scene saved"
+    },
+    "target": {
+      "host": "127.0.0.1",
+      "port": 7800,
+      "projectPath": "F:\\UnityProjects\\ant-colony-rts"
+    }
+  },
+  "errors": [],
+  "warnings": []
+}

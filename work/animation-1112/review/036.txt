@@ -1,0 +1,6 @@
+Head_Hold_in_Pain
+Headache_Relief
+Heavy_Hammer_Swing
+Hit_Reaction
+Idle_10
+Idle_11

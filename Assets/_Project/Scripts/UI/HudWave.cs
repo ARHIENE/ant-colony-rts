@@ -41,10 +41,10 @@ namespace AntColony.UI
             hud.timerBackground.canvasRenderer.SetColor(Color.white);
             hud.countdown = Label(rect, 24, new Vector2(0, 0), MenuTheme.Accent);
             hud.countdown.font = MenuTheme.NumberFont; hud.countdown.fontSize = 24;
-            hud.countdown.rectTransform.sizeDelta = new Vector2(80, 42); hud.countdown.alignment = TextAnchor.MiddleCenter;
+            hud.countdown.rectTransform.sizeDelta = new Vector2(80, 26); hud.countdown.alignment = TextAnchor.MiddleCenter;
             hud.actionText = Label(rect, 11, new Vector2(0, -27), MenuTheme.Dim);
             hud.actionText.fontSize = 11; hud.actionText.rectTransform.sizeDelta = new Vector2(80, 16);
-            hud.actionText.alignment = TextAnchor.MiddleCenter; hud.actionText.gameObject.SetActive(false);
+            hud.actionText.alignment = TextAnchor.MiddleCenter;
             return hud;
         }
 
@@ -91,7 +91,7 @@ namespace AntColony.UI
             countdown.text = $"{seconds / 60:00}:{seconds % 60:00}";
             detail.text = !WaveDefense.CanStart && seconds <= 0
                 ? (RocketCampaign.SuppressNewCrises ? "로켓 가동 중 보류" : "본거지 장수 부재로 대기")
-                : seconds <= 60 ? "습격 임박" : "평화 시간";
+                : $"예상 {WaveDefense.Count(wave.Wave + 1)}마리";
             actionText.text = "앞당기기";
             root.GetComponent<MenuTooltip>().Message = detail.text + $" · 적 {WaveDefense.Count(wave.Wave + 1)}마리 예상 · 버튼: 지금 시작. 평화 시간이 끝나면 자동으로 시작합니다.";
             action.interactable = WaveDefense.CanStart;

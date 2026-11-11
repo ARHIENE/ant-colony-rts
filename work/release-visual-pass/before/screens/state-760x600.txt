@@ -1,0 +1,2 @@
+Dressing objects: 0
+ScienceLab physical font: 5.805556 preferred=43.57895 height=67.66666

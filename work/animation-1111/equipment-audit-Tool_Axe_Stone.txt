@@ -1,0 +1,1 @@
+Tool_Axe_Stone scale=2 | Tool_Chop | PASS palm=0.000000 support=0.009..0.088 endHeadForward=0.921 fingerTargetError=0.0196 armChanged=0.000

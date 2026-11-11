@@ -14,6 +14,7 @@ namespace AntColony.UI
         private static Juice instance;
         private readonly List<Floater> floaters = new List<Floater>();
         private GUIStyle style;
+        private readonly Dictionary<Transform, Vector3> scaling = new Dictionary<Transform, Vector3>();
 
         private static Juice Instance
         {
@@ -24,8 +25,8 @@ namespace AntColony.UI
             }
         }
 
-        public static void Pop(Transform target, float overshoot = .12f) { if (target != null) Instance.StartCoroutine(Scale(target, overshoot, .32f)); }
-        public static void Punch(Transform target) { if (target != null) Instance.StartCoroutine(Scale(target, .14f, .16f)); }
+        public static void Pop(Transform target, float overshoot = .12f) { if (target != null) Instance.BeginScale(target, overshoot, .32f); }
+        public static void Punch(Transform target) { if (target != null) Instance.BeginScale(target, .14f, .16f); }
 
         public static void Float(Vector3 world, string text, Color color)
         {
@@ -74,16 +75,38 @@ namespace AntColony.UI
             }
         }
 
-        private static IEnumerator Scale(Transform target, float overshoot, float seconds)
+        private void BeginScale(Transform target, float overshoot, float seconds)
         {
-            var baseScale = target.localScale;
-            for (float t = 0; t < seconds && target != null; t += Time.unscaledDeltaTime)
+            // Repeated hits share one pulse; never adopt an inflated scale as the rest size.
+            if (scaling.ContainsKey(target)) return;
+            scaling.Add(target, target.localScale);
+            StartCoroutine(Scale(target, overshoot, seconds));
+        }
+
+        private IEnumerator Scale(Transform target, float overshoot, float seconds)
+        {
+            var baseScale = scaling[target];
+            try
             {
-                var k = t / seconds; // 0→1: 커졌다가 원래대로(감쇠 사인)
-                target.localScale = baseScale * (1 + overshoot * Mathf.Sin(k * Mathf.PI) * (1 - k * .5f));
-                yield return null;
+                for (float t = 0; t < seconds && target != null; t += Time.unscaledDeltaTime)
+                {
+                    var k = t / seconds;
+                    target.localScale = baseScale * (1 + overshoot * Mathf.Sin(k * Mathf.PI) * (1 - k * .5f));
+                    yield return null;
+                }
             }
-            if (target != null) target.localScale = baseScale;
+            finally
+            {
+                if (target != null) target.localScale = baseScale;
+                scaling.Remove(target);
+            }
+        }
+
+        private void OnDisable()
+        {
+            StopAllCoroutines();
+            foreach (var pair in scaling) if (pair.Key) pair.Key.localScale = pair.Value;
+            scaling.Clear();
         }
 
         private void OnGUI()

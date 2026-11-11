@@ -1,0 +1,9 @@
+{
+  "file_upload_id": "415c4a0e-cd31-81a8-af70-00b2364ed56e",
+  "filename": "hair-review.jpg",
+  "content_type": "image/jpeg",
+  "content_length": 100645,
+  "status": "uploaded",
+  "markdown_source": "file-upload://415c4a0e-cd31-81a8-af70-00b2364ed56e",
+  "suggested_markdown": "<image source=\"file-upload://415c4a0e-cd31-81a8-af70-00b2364ed56e\" />"
+}

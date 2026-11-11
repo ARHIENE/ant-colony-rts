@@ -93,7 +93,8 @@
 
 - **FUN-PRIORITY-1106 범위 확대** — 첫 창고 이전 바닥 재료→건설 배송 교착 재현. 소유 Units/WorkerAnt.cs·신규 WorkerAnt.FloorDelivery.cs, Buildings/BuildingConstructionSite.cs·신규 ConstructionFloorMaterials.cs, 신규 AgentScripts/FunFloor1106Checks.cs. 기존 물리 배송·예약·저장 node 필드 재사용. CommanderDuty/장비 파일 수정 없음.
 
-`n- **MESHY-EQUIPMENT-1106 파지·동작 / Codex / 진행** — 사용자 손 위치 최우선 요청. 기존 소유 MeshyEquipmentGrip·AntVisual·KemonoModel 및 전용 검사/참고 문서에 무기별 손 앵커·파지·동작 연결. 궁술/총기/검도 자료 검색 후 캐릭터 비율에 맞춰 적용. 다른 담당 Play 검증과 충돌하지 않도록 격리 프리뷰 사용.
+
+- **MESHY-EQUIPMENT-1106 파지·동작 / Codex / 진행** — 사용자 손 위치 최우선 요청. 기존 소유 MeshyEquipmentGrip·AntVisual·KemonoModel 및 전용 검사/참고 문서에 무기별 손 앵커·파지·동작 연결. 궁술/총기/검도 자료 검색 후 캐릭터 비율에 맞춰 적용. 다른 담당 Play 검증과 충돌하지 않도록 격리 프리뷰 사용.
 
 
 
@@ -145,7 +146,8 @@
 
 - **REFACTOR-1106 최종** — Graphify AST update 종료0(35,340노드/93,447간선), Unity 점유 해제. 런타임 순감소70줄·공개 API/저장 필드/기획 불변. 리뷰 문서·README 반영, SAVE 없음.
 
-`n- **MESHY-POSE-DETAIL-1106 사용자 재확인 / 진행 유지** — 1) 손가락 파지·무기별 동작을 최우선, 2) 기획 참고 다른 행동의 실제 게임 애니메이션 연결 모두 범위. 파지 육안/동작 검증 전 완료 처리 금지. 신규 소유 AgentScripts/MeshyRigDiagnostic.cs·MeshySkinDiagnostic.cs·art/anime-settler-1105/repair_arm_seams.py. 현재 시험 FBX 적용 중이며 품질 미합격.
+
+- **MESHY-POSE-DETAIL-1106 사용자 재확인 / 진행 유지** — 1) 손가락 파지·무기별 동작을 최우선, 2) 기획 참고 다른 행동의 실제 게임 애니메이션 연결 모두 범위. 파지 육안/동작 검증 전 완료 처리 금지. 신규 소유 AgentScripts/MeshyRigDiagnostic.cs·MeshySkinDiagnostic.cs·art/anime-settler-1105/repair_arm_seams.py. 현재 시험 FBX 적용 중이며 품질 미합격.
 
 - **UI-1106 검증·점유 해제** — 공식 컴파일0오류, 격리 Play UI 23검사 통과. 자원 아이콘 렌더러 누락·건설 HUD 겹침 수정, 연구 좌우 이동 보완. 주요6화면 native 캡처 확인. 세 채팅 중 애니메이션 미완료로 통합 SAVE·PlayMCP 카카오톡 결과 전송·컴퓨터 종료 대기. 상세 docs/UI_PROTOTYPE_1106.md.
 - **SAVE-1106 / 현재 상태 저장** — 사용자 최신 SAVE·종료 요청에 따라 애니메이션 미완료를 명시해 저장. 원격 문서 정리 보존 병합. UI23·리팩토링770 검증, 큰 씬/그래프는 복원 가능한 분할 백업, Blender 작업 저장. 카카오톡 전송 후 종료.
@@ -164,7 +166,8 @@
 - UI-COMPLETE-1106 메인 HUD 구현 재개: 사용자 에셋 작업은 별도 채팅 담당. UI/MenuTheme.cs 추가 소유, 흙·목재 배경에 맞는 온색 중성 팔레트와 소형 선택 카드/자원 초기화 수정. 기본·1명 선택 실화면 우선 검증.
 - UI-COMPLETE-1106 새 디자인: 기존 검정 패널 대신 밝은 종이/갈색 잉크 공통 테마, 하단 아이콘 메뉴·우하단 장수 카드. 신규 UI/HudNavigationIcon.cs 소유. 에셋 담당 파일 수정 없음.
 - UI-COMPLETE-1106 사용자 정정: Unity 구현 중단, HTML 새 디자인 우선. 별도 redesign.html 작성·브라우저 기본/선택/건설/연구/지도 접기 확인, 760x600 경계 검사. Unity 변경은 미완료·미검증 상태로 보존, Play 종료. SAVE 없음.
-`n- HAND-GRIP-RESUME-1106 사용자 전환: 직접 손 리그 보정 중단, Meshy 애니메이션 제작으로 전환. Kiki 손 시험본은 rejected-owned-hands로 보존하고 채팅 시작 캐릭터/Grip 복원. Meshy 작업/다운로드/Unity 검증 미완료.
+
+- HAND-GRIP-RESUME-1106 사용자 전환: 직접 손 리그 보정 중단, Meshy 애니메이션 제작으로 전환. Kiki 손 시험본은 rejected-owned-hands로 보존하고 채팅 시작 캐릭터/Grip 복원. Meshy 작업/다운로드/Unity 검증 미완료.
 
 - HAND-GRIP-RESUME-1106 외형 요구 추가: 사용자 요청으로 공통 몸체·리그·애니메이션 재사용, 교체형 머리·얼굴·흉터와 머리색·눈색 등 주민별 외형 조합 및 표정 지원을 범위에 포함. Meshy 기준 캐릭터 리메시 진행 중이며 모듈 외형 호환·Unity 적용은 아직 미검증.
 
@@ -181,7 +184,8 @@
 - HAND-GRIP-RESUME-1106 프리셋 조사: art/meshy-animation-1106/PRESET_REVIEW.md에 작업/운반/전투/생활 후보와 검증 수준 기록. 양궁 사용자 머리 관통 지적, 대체 Shot3 FBX 격리 반입 및 12프레임 검증에서도 당김 구간 얼굴 간섭 확인. 양궁 채택 없음, 실제 게임 적용 없음.
 
 - **UI-APPROVED-1106 / Codex UI / 진행** — 사용자 승인 HTML hud-v2 최신 시안 Unity 반영. 소유 UI/MenuTheme.cs·HudResponsiveLayout.cs·HudClock.cs·HudWave.cs·GameMenuDock.cs·CommandCard.cs·PrototypeResourceHud.cs·ToastManager.cs·GameMenuPrototype.cs, 신규 AgentScripts/UiApproved1106Checks.cs. 기존 이 채팅 UI 변경 위에 적용, 리깅·애니메이션·에셋 파일 수정 금지. 공식 CLI로 격리 Play 및 실제 화면 검증. SAVE 없음.
-`n- HAND-GRIP-RESUME-1106 달리기 프리셋: Run02/03 격리 반입 및 기존 소유 MeshyAnimation1106Live.cs 선택 목록 확장. 실제 Unity 미리보기 검증 진행, 생산 Animator 변경 없음.
+
+- HAND-GRIP-RESUME-1106 달리기 프리셋: Run02/03 격리 반입 및 기존 소유 MeshyAnimation1106Live.cs 선택 목록 확장. 실제 Unity 미리보기 검증 진행, 생산 Animator 변경 없음.
 - HAND-GRIP-RESUME-1106 달리기2/3 완료: 각 FBX 격리 반입·프리뷰 선택 연결·Unity native 화면 확인(0.700s/0.800s). Meshy 프리셋 묶음20 FBX 로컬 확보,16 검수 후보/4 보류. 잔액705 유지. 생산 캐릭터 Animator 적용 아님. 상세 art/meshy-animation-1106/preset-bundle/INVENTORY.md.
 
 - **UI-APPROVED-1106 검증** — 승인 HTML HUD 반영, 공식 컴파일0오류, 격리 Play 1440×900/760×600 HUD43검사 및 기존 UI23검사 통과. 실제 Game 캡처 직접 확인. 원본 work/ui-approved-1106/before 보관. 손 리깅·애니메이션 파일 미변경. 상세 docs/UI_APPROVED_HUD_1106.md. Graphify 갱신 및 Play 점유 해제 마무리 중, SAVE 없음.
@@ -195,7 +199,8 @@
 - **MESHY-RERIG-1106 검증** — 새 Rerig_All.fbx를 격리 Unity validation에 연결(선택 7). Running 0.633초 재생 및 12구간 이미지 검사에서 이전의 심한 무릎 꺾임은 관찰하지 못함. 실제 화면 art/meshy-animation-1106/unity-rerig-running.png, 연속 자세 rerig-running-cycle.png. 프로덕션 캐릭터 교체 없음. 추가 소유 AgentScripts/MeshyAnimation1106RerigFrames.cs. 신규 프리셋 19개는 Meshy 추가만 완료, 파일 다운로드는 아직 남음.
 
 - **UI-PARITY-1106 검증 완료** — HTML 글꼴·선택창·메뉴 실측 반영, 전용 초상 조명/메시 스냅샷·좌표 정밀도 수정. 컴파일0오류, HUD57검사·기존UI23검사 통과 및 1440×900/760×600 실제 Game 캡처 확인. 다른 담당 모델·리그·애니메이션 원본 미변경. Graphify 갱신 진행. SAVE 없음.
-`n- **UI-PARITY-1106 완료** — Graphify update 종료0(44,641노드·115,427간선), Play 종료·본인 Unity 점유 해제. 실제 화면 검증 완료, SAVE 없음.
+
+- **UI-PARITY-1106 완료** — Graphify update 종료0(44,641노드·115,427간선), Play 종료·본인 Unity 점유 해제. 실제 화면 검증 완료, SAVE 없음.
 
 - **MESHY-LIFE-1106 / Codex(애니메이션) / 진행** — 새 리깅 기준 생활·부상·감정 프리셋18개 추가 다운로드(기본 걷기·달리기 포함 ZIP20개). 소유 Assets/_Project/Art/MeshyAnimation1106/Life, AgentScripts/MeshyLife1106Audit.cs, art/meshy-animation-1106/life-bundle. Unity 클립/시각 검수 및 활용 조건 기록 중.
 
@@ -227,10 +232,12 @@
 - **UI-CHARCOAL-1110 / 완료** — 최종 실제 Play316검사·기존UI23검사 통과, HTML/Unity 동일1440 비교와 4해상도 화면 확인. 공통 색상·반투명 밝기 보정 완료. docs/UI_CHARCOAL_1110.md. Graphify 갱신 종료0, Play 중지·본인 잠금 해제. 실제 자원 이미지 교체는 미적용(기준 유지), SAVE 없음.
 
 - **CLAUDE-FEEL-1110 검증** — 대형 방향(무리 중심→목적지) 추가. 공식 CLI 컴파일 오류0, Play 격리 새 게임에서 AgentScripts/GameFeel1110Checks.cs 24 PASS(일시정지 중 휠 줌·방향키·회전 실제 입력, 더블클릭, 피해 숫자 합산, 합성음). Play 중지·Temp/unity-lock.txt 해제, 사용자 저장 슬롯 미사용. Graphify update 종료0(45,192노드/117,413간선, 대형·경보음 수정 전 시점). 소리 청취·드래그 이동·공격 커서는 미확인. 상세 docs/GAME_FEEL_1110.md. README 기본 조작 표 갱신. UI 담당 인계: CommanderOverhead 체력 막대, 설정의 효과음 음량, F2 가이드 조작 추가, ToastManager 경고음 한 줄. 음주(A)는 미착수 상태로 대기. SAVE 없음.
-`n- **ENVIRONMENT-ASSETS-1110 / Codex 환경 에셋 / 진행** — 사용자 Meshy 제작·무료/보유 에셋 활용 및 자연·건물 고품질 교체 요청. Meshy 최대600 사용(755 시작,155 유지로 해석). 소유 신규 art/environment-1110, Assets/Resources/Environment1110, AgentScripts/Environment1110*.cs, docs/ENVIRONMENT_ASSETS_1110.md; 연결 시 World/ResourceVisual.cs·Buildings/FacilityVisual.cs 담당. 캐릭터·손·애니메이션·UI·게임 규칙 제외. 기존 변경 보존, Play 잠금 준수, SAVE 없음.
+
+- **ENVIRONMENT-ASSETS-1110 / Codex 환경 에셋 / 진행** — 사용자 Meshy 제작·무료/보유 에셋 활용 및 자연·건물 고품질 교체 요청. Meshy 최대600 사용(755 시작,155 유지로 해석). 소유 신규 art/environment-1110, Assets/Resources/Environment1110, AgentScripts/Environment1110*.cs, docs/ENVIRONMENT_ASSETS_1110.md; 연결 시 World/ResourceVisual.cs·Buildings/FacilityVisual.cs 담당. 캐릭터·손·애니메이션·UI·게임 규칙 제외. 기존 변경 보존, Play 잠금 준수, SAVE 없음.
 
 - **MESHY-COLLECT-1110 / Codex / 수집 완료** — 사용자 다운로드 우선 정정 반영. 신규 81종(기존 합계 119종), FBX82개 CRC·애니메이션 데이터 검사 통과. 소유 art/meshy-animation-1110 및 README 수집 상태. Assets 밖 보관, 게임 연결·파지 미완료. 잔액755→737은 내역상 텍스트 이미지 -9 두 건이며 프리셋 차감 기록 없음. 상세 INVENTORY.md.
-`n- **ANIMATION-GAME-1110 연결 재개 / Codex** — 사용자 실제 행동 연결·파지·Unity 실행 검증 요청. 기존 소유 유지, Assets/_Project/Editor/MeshyMotionImport.cs·Assets/_Project/Art/MeshyAnimation1110·KemonoAnimator.controller 추가 소유. 도구 Z축과 기존 보조 손 Y축 불일치 확인. 다른 환경/UI 파일 제외.
+
+- **ANIMATION-GAME-1110 연결 재개 / Codex** — 사용자 실제 행동 연결·파지·Unity 실행 검증 요청. 기존 소유 유지, Assets/_Project/Editor/MeshyMotionImport.cs·Assets/_Project/Art/MeshyAnimation1110·KemonoAnimator.controller 추가 소유. 도구 Z축과 기존 보조 손 Y축 불일치 확인. 다른 환경/UI 파일 제외.
 - ENVIRONMENT-ASSETS-1110 추가 범위: 기존 Biomes 6종 asset의 지면 텍스처 연결(공식 CLI 사용), 신규 Environment1110 이미지·모델·재질. 사용자 정정: 귀여운 애니메이션풍 캐릭터에 맞춤. 지면만 제작하지 않고 건물·자원 병행.
 - ANIMATION-GAME-1110 추가 소유: WorkerAnt.cs의 채집 접근 호출 2곳 및 신규 WorkerAnt.GatherApproach.cs. 실제 Play에서 바위 중심 진입 재현, 자원 외곽 접근으로 수정. 그 외 작업/건설 로직 보존.
 
@@ -240,3 +247,149 @@
 
 - **ANIMATION-GAME-1110 / 현 시점 구현·검증 종료** —24클립/27상태, 실제 채굴·벌목·잎채집·달리기·야간수면 확인. 손 접점/엄지/자루축 및 바위 접근 수정. 전무기·전외형 교차 검수와 Celebrate 이벤트 미완료. docs/ANIMATION_GAME_1110.md. 사용자 통합 SAVE·GIF/사진 업로드·종료 요청으로 저장 단계 전환.
 - **SAVE-1110 / Codex 통합 저장 묶음** — 타 Codex2세션 idle 완료보고 및 Claude GAME_FEEL 문서·파일 확인. 모든 당일 변경·검증/미검증 구분, prefab/master 제외. Notion 일지·Trouble Shooting 작성 및GIF5개/사진6개 업로드 완료. 대용량 복원 안내 work/save-20261110/README.md, 최종 원격 커밋 검증 결과는 개발 일지에 기록.
+
+- **ANIMATION-REGRESSION-1111 / Codex / 진단 진행** — 사용자 전체 모델 뼈 모션 미재생·몸 전체 이동 재발 보고. 우선 RigAnimator·KemonoModel·AntVisual·MeshyMotionImport 및 controller/clip 연결 읽기, 신규 AgentScripts/Animation1111Diagnostic.cs 소유. 확인된 원인만 수정, 다른 담당 파일·사용자 저장 슬롯 보존. SAVE 없음.
+- ANIMATION-REGRESSION-1111 범위 정정: 사용자가 미재생이 아니라 팔·전신의 뻣뻣함과 채굴 타격감 부족으로 명확히 설명. MeshyEquipmentGrip.cs 작업 팔 궤적 보정 소유. 원본 팔 동작을 보존하는 수정과 실제 채굴 비교 진행.
+- ANIMATION-REGRESSION-1111 추가 소유: MeshyMotionImport.cs 및 Heavy_Hammer_Swing/Charged_Axe_Chop.anim. 반복 경계에서 팔/골반 96~132도 불연속을 측정해 회수 구간 보강. 다른 모션은 재생성하지 않음.
+- ANIMATION-REGRESSION-1111 사용자 정정: 추가 절차적 보정 중단. 이미 받은 Meshy 스킨+원본 리그 Heavy_Hammer_Swing FBX를 직접 재생해 비교. 신규 AgentScripts/Meshy1111DirectCompare.cs 및 기존 검증 창 사용. 앞선 보정은 승인된 최종 해결로 취급하지 않음.
+- MESHY-NATIVE-1111 / Codex / 실제 게임 시험 연결: 신규 Units/MeshyNativePilot.cs와 AgentScripts/Meshy1111NativeGame.cs 소유. 선택 장수 한 명만 Meshy 원본 메시/리그로 표시하고 기존 실제 행동 상태를 구독. 전체 외형 교체·저장 형식 변경 없음.
+
+- MESHY-NATIVE-1111 전체 확대 / Codex: AntVisual.cs 읽기 전용 상태 노출, MeshyNativePilot/Trial.cs, 신규 MeshyNativeLibrary.cs·Editor/MeshyNativeLibraryBuild.cs·AgentScripts/Meshy1111* 및 Resources/MeshyNative 소유. 전체 보유 모션 임포트·원본 리그별 분류·실제 행동 연결·장비 접점 검증 진행. 기존 외형/미대응 행동 보존, SAVE 없음.
+- MESHY-NATIVE-1111 추가 소유: MeshyNativeMotionPlayer.cs·MeshyNativeEquipment.cs·MeshyNativeSources/·Resources/MeshyNative/. 119 원본 임포트 중. 원본 리그 2종 차이 확인(팔 길이 약0.157/0.167m, 손가락/무릎 bind 각도 차이). 전체 적용 완료 아님: 공통 외형·기존 전용 생활 모션·전 장비 화면 검증 남음.
+- MESHY-NATIVE-1111 사용자 추가 버그: 캐릭터와 겹치는 돌. Dropped Stone 5개가 장수 위치에 겹침 확인. WorkerAnt.cs DropCargo/EvacuateCargo 위치 및 World/ProductionProp.cs loose cargo 표시 크기 한정 소유. 자원량 보존, 기존 자연 자원 모델 제외.
+
+- **PLAYABILITY-1111 / Codex / 진행** — 사용자: 다음 행동 불명확·긴 대기 개선 및 출시 수준 목표. 소유 UI/GoalChain.Progress.cs·CampaignNextSteps.cs, docs/PLAYABILITY_1111.md, README/보드 추가 기록. 기존 목표 안내와 건설 대기 이유 연결. 애니메이션 담당 Play 잠금 유지, 강제 재컴파일/Play 종료 없음. SAVE 없음.
+
+- **PLAYABILITY-1111 / 1차 코드 수정 완료·Play 검증 대기** — 원정 중지 목표의 행동 안내 공백 보완, 연구 병행 안내에 기존 건설 대기·잠자리 상태 연결. 별도 Roslyn 게임 컴파일 종료0, diff 검사 통과. 애니메이션 점유로 실제 HUD/연속 플레이 미검증. docs/PLAYABILITY_1111.md에 다음 측정·출시 검수 범위 기록. 생산 시간 변경 없음.
+- MESHY-NATIVE-1111 조율: PLAYABILITY-1111의 WorkerAnt.TickGathering 병목 조사/수정 범위는 비점유. 이쪽 WorkerAnt 수정은 CargoDropPosition/DropCargo/EvacuateCargo만. 현재 CLI 장비 전수 검사 중이며 Play 종료 상태, 사용자 저장 슬롯은 미사용(격리 임시 새게임만 사용). 검사 종료 후 Unity 잠금 양도 시점 별도 기록.
+
+- **PLAYABILITY-1111 대기 개선 / Codex / 진행** — 애니메이션 담당이 TickGathering 비점유 확인. 소유 WorkerAnt.cs의 채집 한 짐 종료 분기만(타 담당 DropCargo/EvacuateCargo/CargoDropPosition 보존), 신규 AgentScripts/Preparation1111Checks.cs·Preparation1111Probe.cs. 기존 작업표 재판단 누락을 먼저 재현 후 수정. 새 게임 격리 Play는 잠금 양도 후 실행.
+- MESHY-NATIVE-1111 Unity 양도 가능(2026-11-11 21:36 KST): 장비 CLI 전수 검사 종료, Play 중지, 컴파일 오류0. 현재 사용자 저장/실행 상태 없음; 앞선 새게임은 임시 SaveStorage.RootOverride 경로로만 실행. PLAYABILITY-1111의 8~10분 baseline/후속 검증 동안 잠금 양도. 이쪽은 AgentScripts 밖 production 변경·재컴파일·Play·카메라 조작 중지하고 결과 분석만 진행. 완료 후 잠금 반납 기록 요청.
+
+- **PLAYABILITY-1111 재현·범위 추가** — 자연 450초에서 시설0 완성(잠자리 제외), SoilNode1/2 중심 접근 true·외곽 접근 false 확인. 소유 CommanderDuty.cs AutoCandidates 자원 착수 반환, WorkerAnt.GatherApproach.cs 지면 기준 접근 탐색. 기존 시각 외곽 거리·타 담당 화물 표시 보존.
+
+- **PLAYABILITY-1111 대기 개선 / 1차 실측 완료** — 흙 시각 중심 높이로 외곽 접근 실패·자동 채집 허위 성공 수정, 한짐 뒤 기존 작업표 재판단. 숲261106/1명/같은 지시450초 비교: 이전 변소·창고·밭 미완성 → 이후 변소395초 완성, 창고 운반 단계(완성 미확인). Unity 컴파일0오류·격리6검사·배송 저장회귀12검사 통과. 사용자 슬롯 미사용·설정/저장루트 복원·Play 종료, Unity 반납. docs/PLAYABILITY_1111.md 참조. 3명·첫 웨이브·타지형은 잔여. SAVE 없음.
+
+- **PLAYABILITY-REVIEW-1111 / Claude / 평가·인계 문서 완료** — 사용자 요청으로 첫 평화~첫 방어 이후의 안내 공백·대기 구간·선택 지점을 평가하고 기존 기능만 쓰는 개선안 3가지를 정리. 소유: 신규 docs/HANDOFF-CODEX-PLAYABILITY-1111.md, 보드의 본 항목. 게임 코드 수정·Play·컴파일 없음(직접 플레이 미실시, 코드 읽기와 FUN_PRIORITY_1105 실측 기반). 대상 파일(GoalChain.Progress.cs·CampaignNextSteps.cs)은 PLAYABILITY-1111 소유라 Codex에 인계. WaveDefense.cs 알림 문구는 소유 미등록. SAVE 없음.
+- MESHY-NATIVE-1111 Unity 재인수: PLAYABILITY-1111 반납 확인. 해당 채팅의 WorkerAnt/CommanderDuty/GatherApproach 수정 보존. 신규 착용 장비 리그 호환(MeshyEquipmentWearables.cs), 원본 FBX 직접 연결·모션별 최대 손 간격·사망 모션 연결 소유 추가.
+- PLAYABILITY-REVIEW-1111 사용자 결정(2026-11-11): 웨이브 예고(남은 시간·마릿수)를 평화 시작부터 표시. 유형·방향 예고는 미정 유지. 인계 문서 '사용자 결정' 절에 기록, 코드 수정 없음.
+
+- **BUILD-TOOLTIP-1111 / Claude / 진행** — 사용자 요청: 건설 메뉴 초반 건물(창고·잠자리·변소·밭·정착지 연구대·산성탑·벽·문·함정·공방) 툴팁에 용도·지을 시점·필요 인력/재료/선행 연구와 현재 부족 조건 표시. 소유: UI/BuildScreen.cs(툴팁 문자열 연결부만), 신규 UI/BuildTooltips.cs, 신규 AgentScripts/BuildTooltip1111Checks.cs. 비용·생산량·해금 조건·건물 목록/순서 변경 없음. GoalChain*·CampaignNextSteps.cs·WaveDefense.cs 수정 없음. Unity는 Temp/unity-lock.txt 소유자(현재 ANIMATION-REGRESSION-1111/MESHY-NATIVE-1111) 해제 후에만 Play 사용, 그 전에는 별도 Roslyn 컴파일만. SAVE 없음.
+
+- **PLAYABILITY-HANDOFF-1111 / Codex / 진행** — 페이블 인계 실제 반영. 소유 UI/GoalChain.cs·GoalChain.Progress.cs·CampaignNextSteps.cs·HudWave.cs·BetaProgress.cs·HudResponsiveLayout.cs(목표 패널 표시/위치만)·ControlGroups.cs(대기 판정 공유만), World/WaveDefense.cs(End 안내만), 신규 AgentScripts/PlayabilityHud1111Checks.cs. 목표 패널 매프레임 숨김 확인. 건설 메뉴/툴팁은 페이블 별도 범위로 제외. README·GAME_DIRECTION·보드에 확정 예고 시점 반영.
+- MESHY-NATIVE-1111 후속 Unity 조율: 원본 FBX 직접 연결 및 기존 검사본과의 수치 동등성 검증 진행 중. 이 배치와 도끼/착용 장비 검증 종료 시 안전한 양도 지점 기록 예정. PLAYABILITY UI 파일 비점유, 모션/장비/런타임 자산 수정 범위 유지.
+- BUILD-TOOLTIP-1111 Unity 양도 요청(Claude, 2026-11-11): 코드 반영·별도 Roslyn 컴파일 종료0(Temp/build-tooltip-1111/compile.log). 실제 툴팁 표시 확인에 격리 새 게임 Play 약 3분 필요(AgentScripts/BuildTooltip1111Checks.cs, 사용자 슬롯 미사용). 현재 Temp/unity-lock.txt 소유자(ANIMATION-REGRESSION-1111/MESHY-NATIVE-1111) 작업이 안전한 지점에 오면 잠금 해제 또는 보드에 양도 기록 부탁. 그 전에는 Play·재컴파일 강제·에디터 조작을 하지 않음.
+
+- **PLAYABILITY-HANDOFF-1111 / 코드 반영·화면 검증 대기** — Objective 매프레임 비활성화 제거(메뉴/건설 중 숨김 유지), 초기 창고/작업지정/연구대 명칭, 평화 전구간 예고/앞당기기 표시, 부상·파손 복구 안내·원정 중지 알림 반영. 게임코드와 PlayabilityHud1111Checks 별도 Roslyn 컴파일0오류, Graphify 종료0. UI 검증 스크립트는 1440/760 캡처·실제 패널 활성·문자열/복구 알림을 검사하도록 준비됐으나 ANIMATION-REGRESSION-1111 점유로 아직 미실행. 다른 담당 Play·프리팹·저장슬롯 미변경. SAVE 없음.
+
+- **ANIMATION-REGRESSION-1111 Unity 잠금 양도** — 2026-11-11 22:09 KST: CLI 장비 접점 재검사 완료, Edit/ready 상태. PLAYABILITY-1111의 HUD 화면 검사에 Unity 사용을 양도한다. 반환 기록 전에는 애니메이션 쪽 Assets 수정·컴파일·Play 호출을 하지 않는다. AgentScripts 및 work 초안만 준비한다.
+
+- **PLAYABILITY-1111 후속 실제 검증 / 진행** — Unity 양도 인수. 신규 AgentScripts/Pacing1111Probe.cs 소유: 1명/3명 첫 평화900초, 작업/이동/수면/생활/대기 인원초와 시설완료 시각 기록. 자원주입·즉시건설 없이 기존 작업표/지정 우선순위 조작만 사용. 기존 타담당 Assets 변경 보존.
+
+- **MESHY-NATIVE-1111 잔여 장비 수정 / Codex / 진행** — 추가 소유: Units/MeshyEquipmentModel.cs(나무칼 누락 모델 처리), KemonoModel.cs(무기별 재생 속도·공유 모델 로더), AntVisual.cs(창/지진망치/산성 분사기 모션 분리), 기존 NativeEquipment/Wearables. 현재 work/animation-1111에 초안만 작성, Unity 양도 중 Assets 미변경. 활 모션 간 머리 거리·손가락·22종 착용/수납·사망 재생 검사 AgentScripts 준비.
+
+- **ANIMATION-REGRESSION-1111 Unity 반환 대기** — 후속 장비 수정 초안과 5종 CLI 검사가 준비됨. PLAYABILITY의 진행 중 호출 완료 후 Edit 상태에서 반환 필요. 장시간 추가 자연 플레이는 애니메이션 최종 검수 이후 다시 조율. 현재 사용 중인 호출 강제 중단은 하지 않음.
+
+- **PLAYABILITY-1111 운반 재시도 추적** — CommanderDuty.cs 기존 소유 범위에서 욕구 retry 중 DropCargo 반복 의심 확인. 신규 AgentScripts/NeedsCargo1111Checks.cs 소유, 재현 후 식사/위생 재시도 시간과 화물 중단 조건 정합성 수정 예정. 비용·욕구량·주기 변경 없음.
+
+- **PLAYABILITY-1111 실제 화면·초반 비교 / Unity 반환** — 2026-11-11 22:27 KST. HUD1440/760·복구24검사 통과/캡처 직접 확인. 욕구 retry 중 DropCargo 반복 수정, 공식 컴파일0·격리5검사 통과. 같은1명 지시900초: 수정 전 변소/창고 미완성 → 후 변소395·창고547초 완성/식량비축22; 밭/탑은 미완성. 별도3명 흙 우선 시나리오 창고75·밭·탑368초 완성, 연구대는 목재 부족. 실제 전투완주 미검증. MeshyNativeEquipment.Pose:53 예외 전달. 임시저장루트/설정 복원, Play종료·Edit/ready 확인, 잠금을 ANIMATION-REGRESSION-1111 Codex로 반환. 추가 Unity 호출·Assets 수정은 다음 양도 전 하지 않음. SAVE 없음.
+
+- **BUILD-TOOLTIP-1111 / Claude → Codex 인계(사용자 지시, 2026-11-11)** — 코드 반영 완료: 신규 UI/BuildTooltips.cs, UI/BuildScreen.cs RefreshPage의 툴팁 연결 1곳, 신규 AgentScripts/BuildTooltip1111Checks.cs. 대상 16칸(창고·자리·침대·숙소·화장실·밭·정착지 연구대·산성탑·흙벽·나뭇잎 벽·병뚜껑 벽·성벽·문·끈끈이 함정·가시 함정·공방), 그 밖의 건물은 기존 툴팁 유지. 비용·해금·건물 목록 변경 없음. 별도 Roslyn 게임 컴파일 종료0(Temp/build-tooltip-1111/compile.log), Graphify update 종료0. **미완료: Unity 에디터 컴파일 확인, 실제 툴팁 표시·줄바꿈 확인, 검사 스크립트 실행(작성만 했고 한 번도 실행하지 않음 — 스크립트 자체 컴파일도 미확인).** 실행: run_script --file AgentScripts/BuildTooltip1111Checks.cs --entry BuildTooltip1111Checks.Prepare → .Main → .Finish (격리 새 게임, 사용자 슬롯 미사용, 캡처·문자열은 Temp/build-tooltip-1111). 앞의 Unity 양도 요청은 철회하며 Claude는 Unity를 사용하지 않음. 문구의 '2웨이브 전'·'정착 3일째 전' 권고와 공방의 '장수 장비 제작' 설명은 코드 수치에 근거한 Claude 작성 문구로 화면 검수 때 함께 확인 필요. SAVE 없음.
+
+- **BUILD-TOOLTIP-1111 / Codex 실제 화면 검증 인수** — 사용자 요청 및 Claude 인계 확인. 소유: AgentScripts/BuildTooltip1111Checks.cs 실행·격리복원 보완, 필요 시 BuildTooltips.cs 문구 검수. 기존 기능 코드/비용 변경 없이 실제 표시·캡처 확인 담당. 현재 ANIMATION-REGRESSION-1111 잠금 유지하며 다음 안전한 양도 요청 전달. Claude의 별도 Unity 대기는 철회된 상태.
+
+- **BUILD-TOOLTIP-1111 검수 준비** — Prepare/Main/Finish를 개별 run_script로 호출하면 서로 다른 동적 어셈블리의 static 복원 상태가 공유되지 않으므로 단일 Run/finally 복원 진입점으로 보완. 16칸·1440/760·실제 포인터 도달/표시/글자높이/뷰포트·운반 허용 변경 반영 검사 준비, 스크립트 별도 컴파일0. 화장실은 현행 GameBalanceNeeds의 +50/최대70·기분-3~-6·하루25 감소와 대조, 옛 GameBalance값 사용 오류 교정 초안 준비. 연구 메뉴 이름과 시점 권고 교정 초안은 Temp에만 있으며 애니메이션 Unity 잠금 반환 전 Assets 미수정.
+
+- **PICKAXE-CONTACT-1111 / Fable 인계 대기** — 사용자가 곡괭이 수정을 Fable에 맡기고 Codex는 다른 모션을 진행하도록 지시. Codex 곡괭이 추가 수정 중단. 인계: docs/HANDOFF-FABLE-PICKAXE-1111.md. NativeEquipment.cs 곡괭이 처리·신규 타격 접점 코드 Fable 담당 예정. 공유 파일 수정/Unity Play는 착수 시 조율. Codex는 나머지 모션·무기 검수 진행.
+
+- **MESHY-NATIVE-1111 후속 검수 중간 상태** — 사용자 지시로 곡괭이 Fable 인계, 인계문 작성 완료. Codex는 다른 장비14종 연결/표시, 두 리그 착용22조합, 사망 재생 회귀 통과. 장비 해제 예외·나무칼 누락·공통 수평 root 오프셋 수정. 활 후보는 화면 부적합으로 기존 Archery_Shot_2 복원, 화살 크기와 도끼 손가락 접점 미완료. 상세 docs/MESHY_NATIVE_1111.md. 설정/저장루트 복원, Play 종료·컴파일0오류. PLAYABILITY의 준비된 툴팁 단일 검사만 Unity 양도 후 반환 요청.
+
+- **PICKAXE-CONTACT-1111 / Fable(Claude) / 착수** — 사용자 지시와 docs/HANDOFF-FABLE-PICKAXE-1111.md 확인. 목표: 곡괭이의 뾰족한 날 끝이 실제 바위 표면에 닿도록 도구 방향·오프셋·접근 거리 점검(들어 올림→내려침→날 끝 접촉→회수, 접촉 시 양손 파지 유지, 원본 Meshy 모션 유지). 소유: Units/MeshyNativeEquipment.cs의 곡괭이(작업 도구 타격점) 처리만, 신규 AgentScripts/Pickaxe1111*.cs. 활/화살·다른 도구·빈손 전환(rebuild 플래그)·장비 월드 크기 분리·길이축만 늘리는 처리는 보존. MeshyNativeMotionPlayer.cs·WorkerAnt.GatherApproach.cs는 지금은 읽기만 하며, 수정이 필요해지면 여기에 먼저 기록하고 담당과 조율. 현재 Unity 잠금은 PLAYABILITY-1111(툴팁 단일 검사) → ANIMATION-REGRESSION-1111 반환 예정이므로, 코드 분석과 별도 Roslyn 컴파일만 진행하고 Play는 양도 기록 후 사용. SAVE 없음.
+
+- **BUILD-TOOLTIP-1111 실제 표시 결함 발견** — 1440/760 활성·문자열 검사는 통과했으나 캡처에서 툴팁이 건설창 뒤에 가려져 보이지 않음 확인. 소유 범위 추가: UI/GameMenuController.cs tooltipPanel Canvas 정렬만. 툴팁 자체 Canvas를 메뉴보다 위에 두는 최소 수정 및 정렬 검사 추가, 사용자 요청한 실제 표시 검수 범위. 애니메이션 담당에게 연장 사유 전달, 다른 게임 기능 수정 없음.
+- PICKAXE-CONTACT-1111 Unity 양도 요청(Fable): 측정 스크립트 AgentScripts/Pickaxe1111Contact.cs 준비·별도 컴파일0. 툴팁 검사 종료 후 ANIMATION-REGRESSION-1111로 반환되면, 안전한 지점에서 Temp/unity-lock.txt에 'PICKAXE-CONTACT-1111 Fable'을 적거나 여기에 양도를 기록해 주면 격리 새 게임 Play로 돌·광석 채굴 측정(1회 약 5분)을 시작함. 그 전에는 Play·재컴파일·에디터 조작 없음. 사용 후 잠금을 ANIMATION-REGRESSION-1111로 반환 기록.
+
+- **BUILD-TOOLTIP-1111 화면 검증 완료 / Unity 반환** — 22:56 KST. 원본 검사 활성 여부만으로는 건설창 뒤 가림을 잡지 못해 캡처에서 발견. GameMenuController의 tooltipPanel에 상위 정렬 Canvas 추가 후1440×900/760×600 각176, 총352검사 통과. 대표14장 캡처, 연구대 두 해상도 실제 표시 직접 확인(나머지 캡처 검토는 Editor 반환 뒤 로컬 파일로 계속). 교정 문구·에디터 컴파일0오류. 설정/저장루트/해상도 finally복원, Play종료·Edit/ready 확인하고 ANIMATION-REGRESSION-1111 Codex에 반환. 작은 창의 전체 UI 글씨 축소는 기존 한계. SAVE 없음.
+
+- **BUILD-TOOLTIP-1111 최종 캡처 검토 완료** — 대표7칸×2해상도14장 모두 로컬 파일로 직접 확인. 실제 표시·줄바꿈·부족 조건 잘림 없음,760 해상도 작은 글씨 한계 기록. docs/BUILD_TOOLTIPS_1111.md·README 갱신. Unity 반환 후 추가 에디터 호출 없음.
+
+- **ANIMATION-REGRESSION-1111 → PICKAXE-CONTACT-1111 양도** — 22:59 KST. Unity Edit/ready, 최근 장비 크기 조회 완료. Fable 준비된 돌·광석 접점 측정/수정용으로 Unity 잠금을 양도한다. Codex는 NativeEquipment.cs 동시 수정하지 않는다. 화살 표시 후속 원인: Ammo_Arrow prefab.localScale=(100,100,100)인데 NativeEquipment의 arrow.localScale 재설정이 이 배율을 버려100배 작아짐. 곡괭이 수정 반환 후 Codex가 화살 분기만 수정 예정. Fable은 해당 원인/현재 분기 보존 부탁. 사용 후 Edit/ready로 ANIMATION-REGRESSION-1111에 반환.
+
+- **PRESENTATION-1111 / Codex / 진행** — 사용자 실제 화면 지적: 좌상단 안내 과밀·건설 툴팁 가림·흰 지면·무기 초상. 소유 UI/BuildScreen.cs·GameMenuController.cs·CharacterPortraits.cs·BetaProgress.cs·GoalChain.cs, Map/MapGenerator.cs(텍스처 없는 지면 fallback만). 기존 모션/장비·바이옴 자원/지형 규칙 보존. Fable Unity 점유 중 work/presentation-1111 초안만 준비, Assets 반영/실행은 안전한 양도 이후. 이전 툴팁352검사는 메뉴 컨트롤 가림을 검증하지 못했으며 출시 품질 판정으로 간주하지 않음.
+
+- **PICKAXE-CONTACT-1111 실측·범위 추가(Fable)** — 격리 새 게임 실제 돌 채굴 측정(Temp/pickaxe-1111/measure-Stone.txt, explore-Stone.txt): ①앞손이 머리 중앙에서 0.11m 지점을 잡아 날 끝이 바위에 닿지 못함(시상면 기준 최소 간격 0.31m) ②자루가 정면과 나란해지는 구간에서 굴림 기준(전방 투영)이 퇴화해 도구가 자루 축으로 한 단계(위상 2%) 최대 47° 회전 ③Heavy_Hammer_Swing은 지면 타격 모션이라 높이 0.5m 바위에서는 접촉 뒤에도 머리가 0.2~0.3m 더 내려감. 수정 방향: NativeEquipment의 곡괭이 분기만 자루 끝 파지·시상면 굴림으로 변경, 날 끝이 실제 표면에 닿는 위상을 구해 그 위상에서 멈추고 원본 포즈를 되감아 들어 올리는 시간 재배치(관절 회전·팔 궤적은 원본 프레임 그대로, IK·임의 곡선 없음). **공유 파일 추가 소유(최소 연결): Units/MeshyNativeMotionPlayer.cs의 선택 모션 SetTime 직전 재배치 호출과 풀이 호출 몇 줄만** — 수평 root 기준(bindHip)·Preview·가중치 혼합·사망 처리 보존. 신규 Units/MeshyNativeStrike.cs. 표면 계산에 메시 읽기가 필요해 채굴 자원 모델(Environment1110 Rock/CopperDeposit/IronDeposit, ResourceModels/CC_OreOutcrop)의 FBX Read/Write 설정만 켬(모양·재질 변경 없음). WorkerAnt.GatherApproach.cs는 수정하지 않음. Codex 화살 분기·다른 도구 분기는 그대로 둠.
+
+- **ANIMATION-REGRESSION-1111 짧은 재검증 차례 요청** — Fable의 현재 접점 측정 호출 종료 후 안전한 분석 구간이 생기면 Unity 및 NativeEquipment.cs를 약3분 반환 요청. Codex는 화살 원본100배율 보존(화살 분기만)과 준비된 생활/119재생 검사만 실행 후 다시 양도 가능. 진행 중 곡괭이 호출/수정 강제 중단 없음. 파일 수정 중이면 완료/중간 저장 후 독점 반환 여부를 기록해 주세요.
+
+- PRESENTATION-1111 지면 원인 추가: TerrainBlend는 그림자를 받지 않아 물체가 떠 보이는 현상 확인. 소유 Assets/_Project/Shaders/TerrainBlend.shader의 주광 그림자 수신만 추가, 기존 색조·절벽·계절 처리 보존. Unity 양도 전 work 초안으로만 준비.
+
+- **PICKAXE-CONTACT-1111 사용자 원복 지시 / Codex** — 사용자가 'Codex 수정 전'을 'Claude 수정 전'으로 정정. Fable의 이번 곡괭이 방향·자루 연장·접촉 시간 재배치 변경만 원복한다. Fable 추가 편집/Unity 조작 중단 요청. 기존 Codex 원본 리그·bindHip·다른 장비·화살 분기 보존. 원복을 위해 공유 파일과 Unity 소유를 Codex로 회수.
+
+- **PICKAXE-CONTACT-1111 원복 완료 / Codex** — 사용자 정정('Claude 수정 전')에 따라 Fable의 자루 연장/시상면 굴림/날끝 표면 풀이/재생 되감기 변경 제거. NativeEquipment.cs·NativeMotionPlayer.cs에서 Fable 추가 부분만 제거하고 MeshyNativeStrike.cs/.meta는 work/animation-1111/fable-pickaxe-rollback에 보관. 채굴 모델4개 Read/Write 원래false 복원. 기존 Codex bindHip·빈손rebuild·다른 장비/화살 보존. 공식 컴파일0오류, 장비 교체/해제 Lifecycle 통과, 설정/저장루트 복원·Play 종료. Fable은 이 곡괭이 패치를 다시 적용하지 않음. 방향 뒤집기 추가 작업도 이번 원복에 포함하지 않음.
+
+- **ANIMATION-REGRESSION-1111 재개** — 사용자 장비 사용 수정 및 나머지 애니메이션 계속 요청. NativeEquipment/NativeMotionPlayer/NativeFingers 및 AgentScripts/Meshy1111* 소유. PRESENTATION 준비된 두 검사에 Unity 양도, 반환 전 Assets 수정 없이 초안 준비. 곡괭이 Claude 원복 유지 상태에서 방향/접점을 새로 검증하고 화살 배율·생활 모션/전체119재생 검수 진행.
+
+- **PRESENTATION-1111 1차 화면 검증/Unity 반환** —23:29 Edit/ready, 설정·저장루트·해상도 복원. 7파일 반영·공식컴파일0. None 지면5텍스처/실제 초상 얼굴/우측 설명 표시 확인. 툴팁1440/760 각680검사 완료(호출120초 초과 detached였으나 종료파일·finally 완료 후에만 Play 종료). 캡처에서 잔여2건 발견: 목표패널이 PinnedResources 하단을 가림, 초상 MaterialPropertyBlock 색 미복사. 두 보정은 work/presentation-1111/draft에만 준비, 애니메이션 다음 사용 요청으로 즉시 반환하고 다음짧은슬롯에서 반영·검증 예정. 화면 품질 완료/출시 준비 완료 아님.
+
+- PRESENTATION-1111 잔여2파일 반영: 애니메이션 담당의 안전한 Edit/다음 컴파일 배치 허용에 따라 BetaProgress를 자원칸 오른쪽 x140으로 이동, CharacterPortraits에서 원본 MaterialPropertyBlock 색을 복제체/베이크 메시로 복사. Unity 호출 없음, 공식 컴파일은 애니메이션 담당 배치에서 진행. 후속 화면 검증 대기.
+
+- **ANIMATION-REGRESSION-1111 23:40 후속** — 화살 원본100배율 보존 및3캐릭터배율 접점/길이/해제 통과. 실제 달리기/수확/수면 연결·119개 라이브 선택/root 검사 통과. 수면 지면 보정 -0.1547m→-0.003m 및 화면 확인. 사용자 정정 '곡괭이 위 아래'에 따라 축방향 회전안을 제거하고 곡괭이만 좌우 선행 손을 바꿔 머리/자루 끝을 end-for-end 반전. 실제 화면5시점·live27frame/팔77.73도·전체스윙 양손파지 통과. 날끝 바위접촉 해결 판정 아님. 사용자 확인용 격리 Play에서 시뮬레이션0/모션만 반복 중, autosave off/격리저장루트. 설정 복원용 Meshy1111NativeActions.RestoreSettings 후 editor_stop 필요. UI 다음 슬롯은 이 확인 이후. Graphify 갱신 진행 중. SAVE 없음.
+
+- **ANIMATION-REGRESSION-1111 계속** — 사용자 '곡괭이 그나마 나아짐, 다른 작업 계속' 피드백. 현재 곡괭이 위아래 방향 유지. 활 실제 발사/머리 간섭과 다른 장비 파지·생활 모션 후속 검수 진행. NativeEquipment/NativeMotionPlayer/NativeFingers 및 AgentScripts/Meshy1111* 소유 유지.
+
+- ANIMATION-REGRESSION-1111 활 수정 소유 추가: 신규 Units/MeshyNativeBow.cs(머리 여유 공간 양손 IK, 뼈 길이 보존), Editor/MeshyMotionImport.cs BowShoot 바인딩과 Native Library/Runtime 바인딩. Archery_Shot_3 실제 release 모션 및 발사시 화살 숨김 검증 예정.
+
+- PRESENTATION-1111 초상 자세 보정 반영: 애니메이션 담당 Edit/컴파일배치 허용으로 CharacterPortraits.cs1파일 반영. studio clone만 Idle_A 평가·중립얼굴블렌드셰이프 즉시평가 후 bake. 원본 장수/모션 미변경. 첫 스튜디오검증에서 수면자세 정면화 확인, 얼굴 Sleep셰이프잔류 발견으로 중립화추가. 공식컴파일/후속스튜디오캡처대기.
+
+- **PRESENTATION-1111 화면 결함 수정 검증 완료** — 공식컴파일0, 실제 PC_RPAsset 확인. None 지면5텍스처/주광그림자, 건설우측설명1440/760각680(버튼비겹침포함), 목표·자원4칸비겹침, 실제production초상3장정면·중립얼굴·개별색직접확인. 수면초상잔류를 추가발견해clone Idle/얼굴셰이프즉시평가로수정. 최종Current636ms 읽기전용검사이며 장비검수사용자화면/선택/카메라/속도/저장설정 미변경. Unity는ANIMATION-REGRESSION-1111유지, 추가호출없음. 전체출시품질완료아님; docs/PRESENTATION_1111.md에잔여명시. SAVE없음. Graphify1차완료/최신코드후속갱신진행중.
+
+- PRESENTATION-1111 Graphify후속갱신 종료0(23:54):46,189노드/120,999관계. 화면수정검증기록·README갱신완료. Unity잠금은애니메이션유지, 사용자검수상태미변경.
+
+- **ANIMATION-REGRESSION-1111 후속 적용** — 활 Archery_Shot_3/초기발사 화살숨김/머리여유공간 길이보존IK, Native 벌목 Heavy_Hammer_Swing 연결.122활자세/14무기실제연결/벌목팔108.93도 통과. 사용자 '장비 위아래' 재정정으로 도끼·망치도 곡괭이와같은 end-for-end 반전(오른손lead). 돌도끼/망치 파지·팔길이 보존 검사통과, 방향투영 -0.921→+0.921. 손가락2cm·타격접촉 남음. 컴파일0. 사용자 단일도끼 확인화면 준비, 다른장비 순환검사 중단. docs/MESHY_NATIVE_1111.md. 마지막 Graphify session90882진행. SAVE없음.
+
+- 도끼 방향 반전 후 실제 단일도끼 화면5시점 확인 및40frame/팔88.04도 반복재생 확인. 사용자 확인용 격리Play(시뮬레이션0/자동저장off/격리root) 유지. 복원은 NativeActions.RestoreSettings→editor_stop. 장비순환 없음.
+
+- **RELEASE-VISUAL-PASS Codex 작업 중** — MapGenerator.cs(환경 장식 누락 복구/중앙 건설 공간 보존), CommanderOverhead.cs(비선택 장수 식별/실제 표시 바운드), MenuViewport.cs·BuildScreen.cs(건설창 화면 활용/글자 크기) 담당. 장비·모션 소유파일 미수정. Unity 애니메이션 검수 후 안전한 슬롯 조율 중; Assets 반영 전 work 초안 작성. 실제 일반 플레이/밀집 UI 캡처 검증 예정.
+
+- **ANIMATION → RELEASE-VISUAL-PASS 양도 2026-11-12** — 사용자 현재도구방향 유지 승인, 나머지 파지/모션 계속 및 환경UI Unity양도 지시. 설정/저장루트복원·Play종료·Edit/ready 확인 후 잠금양도. 장비방향 변경금지. 애니메이션은 Assets밖 후보분석/초안 진행. 사용자는 벌목의 수직내려치기를 지적했으므로 도끼전용/수평베기 후보 재검토. 검증 끝나면 반환 요청.
+
+- RELEASE-VISUAL-PASS 추가 담당: SeasonVisuals.cs. 실제 캡처에서 봄 꽃잎이 장수보다 크게 화면을 덮는 문제 확인, 장식 입자 밀도/크기/불투명도 축소(기상·계절 게임 규칙 미변경).
+
+- RELEASE-ASSETS-1112 / Codex: 사용자 출시빈도·필요성 기준 에셋제작 지시, Meshy 현재375크레딧 사용 승인(추가결제없음). 기초목공대부터 생성, art/release-assets-1112 및 work/release-assets-1112 담당. Unity는 RELEASE-VISUAL-PASS 계속 사용. 벌목 신규모션 생성금지, 적합한 기존후보 없으면 현행유지. 현재 장비방향 유지.
+
+- RELEASE-VISUAL-PASS 후속: 지면 텍스처 1m 반복 오류→8m 수정. 건설 목록3열 스크롤/최소13px 카드, 작은 창 우측설명 최소12px로 GameMenuController.cs 추가 담당. 실제 휠→끝카드 접근 검증 수행.
+
+- RELEASE-VISUAL-PASS 씬 참조 정리 담당: AntColony.unity(기존 dirty 상태 그대로 백업). 실제 오류 원인인 Transform-only 누락 장식15,390개 정리, MiniBirdBoss 누락 프리팹은 행동컴포넌트 보존하여 연결해제. 다른 씬 구성/장비 미변경, 재로드·Play 검증 후 기록.
+- RELEASE-ASSETS-1112 소유 추가: AgentScripts/Release1112Models.cs(기존 환경 임포터 재사용). Assets 반영은 Unity 반환 이후. 현재 생성8종352사용/잔액23, 무료경량화8종 진행.
+
+- **RELEASE-VISUAL-PASS 최종 화면/재로드 검증 완료(11-12)** —6코드파일+AntColony씬.1440/760 카드13px·설명12px·3열스크롤 끝카드/16종포인터 검사 통과. 실제 일반플레이/근접/주변/건설 화면 확인. 빈누락장식15390개 정리, 보스5행동컴포넌트 보존unpack; 씬재로드/Play 오류0·경고5·MissingAsset0. 설정/저장root/화면크기복원 후 Edit/ready. docs/RELEASE_VISUAL_1112.md. Graphify갱신 중. Unity ANIMATION에 반환. SAVE없음.
+- ANIMATION-REGRESSION-1112: Unity 반환 확인. 전체119모션 점검/수정/현재게임행동연결 범위 유지(장비파지만으로 종료하지 않음). NativeEquipment 한손도구 finger wrap 누락·진단값 잔류 수정 소유, 전체모션 검증표 준비. Chrome 종료로 에셋다운로드 일시중단, 생성/무료경량화 서버작업은 접수완료.
+
+- RELEASE-VISUAL-PASS Graphify 완료(종료0):46,493노드/122,128관계. 화면·컴파일·씬재로드 검증 및 README/검증문서 갱신 완료. Unity반환 완료, 진행중 검증스크립트없음.
+- RELEASE-ASSETS-1112 추가 소유: Assets/Resources/Release1112/Models 신규7종 임포트. 용광로 중복경량화 발견하여 제외, 생성원본은 Meshy에 보존. 전체모션표 work/animation-1112/all-motion-coverage.csv 작성,119관절검사통과·전체시각검수미완료 명시.
+
+- **FIRST-DEFENSE-1112 Codex 작업 중** — 시설 외형통일/첫 평화→첫 방어→복구 실제 진행 측정. FacilityVisual.cs 신규7종 연결/크기 검수 담당 요청, 전투 관련 파일은 원인 조사 후 정확한 범위 추가. Release1112 에셋·장비·모션 파일은 제작담당 소유 유지. Unity 양도 대기 중 AgentScripts/work 초안 작성. 저장 슬롯 미사용.
+
+- FIRST-DEFENSE-1112 추가 소유: Map/Precipitation.cs·WeatherSystem.cs(실제 폭우 전투를 가리는 입자 길이/밀도), UI/GatherDesignation.cs(전투 중 지정 도구 밖 작업표시 숨김), BetaProgress.cs(전투 지휘 안내). 자연 900초 준비→28초 전투→60초 복구 측정 완료.
+
+- FIRST-DEFENSE-1112 CommandCard.cs 추가 담당: 습격 중 비소집 단일/다중 장수의 공격 이동 버튼 연결(기존 A 명령 재사용).
+
+- ANIMATION/ASSETS-1112 대기 작업: 용광로 무료경량화/FBX다운로드/CRC 완료, art/release-assets-1112/models/Smelter 준비(Assets 미변경). 전체119개5시점 시각검수 기록 work/animation-1112/visual-review-notes.md 및 CSV 업데이트. 실제게임 연속재생/모듈외형/전체파지 완료 아님. Unity FIRST-DEFENSE 사용 유지.
+
+- FIRST-DEFENSE-1112 원인 확인/추가 담당: CommanderDuty.cs(0.25~0.71 바닥 잔량 반복 운반 방지, 직접 방어 명령 자율 욕구 덮어쓰기 방지), SoldierAnt.cs(활성 공격 명령 조회), CommanderAnt.cs(직접 공격 시 수면/기존 자가치료 중단), ResourceNodeStatus.cs(전투 중 배경 작업 라벨은 호버/Alt만). 공격이동 1회 재생에서 69초 패배 및 공격 중 자가치료의 CommandStop 경로 확인. 장비/모션 파일 미수정.
+
+- ANIMATION-1112 추가 소유: UI/Juice.cs 반복피격 확대 회귀 수정(현재 work 초안), Native1112Inspect.cs 원본/모듈 rest 점검. 사용자 모든장수 원본모션 적용 및 양세션 통합SAVE/Notion GIF사진 검증 후 종료 지시. FIRST-DEFENSE 종료 전 Assets 변경 보류 유지.
+
+- FIRST-DEFENSE-1112 Unity 반환: 11-12 00:55 KST Edit/ready, Play 종료·설정/저장root/해상도 복원, 실행 중 Unity 명령 없음. 컴파일0 및 마지막 첫웨이브 연속처치 회귀 콘솔오류0(경고6). 시설7종 footprint/floor/collider/material fallback 및 화면 검수 완료. CommanderDuty 잔량 운반 수정 후 창고72/밭216/산성탑375초, HUD 앞당기기로525초 절약; 자연 준비→첫방어60초→복구60초 완료. 이후 발견한 파괴된 적 인터페이스 참조를 SoldierAnt getter에서 막고, 별도 준비생략 전투 회귀54초 승리/공격이동 버튼 동작 확인. Juice 반복 피격 확대는 애니메이션 담당이 수정. 통합 SAVE/종료는 해당 담당 세션, 이쪽 중복 실행 없음. 마지막 문서/Graphify 정리만 진행.
+
+- ANIMATION-1112 소유 추가: MeshyNativeAppearanceSet.cs/MeshyNativeAppearance.cs, AgentScripts/Native1112AppearanceBuild.cs 및 MeshyNative/Appearance 생성 후보. 애니메이션 변환 없이 외형 메시를 원본 뼈에 장착하는 후보 구현. 시각검증 전 전체장수 활성화 금지. MeshyNativeBounds.cs 실제 메시에 기반한 키 정규화 수정, Juice100피격 회귀 통과.
+
+- FIRST-DEFENSE-1112 정리 완료: docs/FIRST_DEFENSE_1112.md·README 반영, 마지막 Graphify 종료0(46,910노드/123,410관계). 이 세션 실행 중 작업 없음. Unity는 ANIMATION 소유 유지. 통합 SAVE는 해당 세션에서 진행.
+
+- ANIMATION-1112 Unity 반환 후: 용광로10250삼각형 임포트 및 FacilityVisual Smelter 연결 인계받아 수정. MeshyNativeTrial 전체장수 적용/NativeMotionPlayer/NativeCorpse 외형파트장착 통합 검증 중. 다른세션 FIRST-DEFENSE 완료, 통합SAVE는 애니메이션 최종검증 이후.
+
+- ANIMATION-1112 추가: 원본 피부 가중치 보존 SourceParts 후보로 외형 파트 경계 벌어짐 수정 검증. MeshyNativeActionBindings.cs/LibraryBuild 재생 정책·생활행동 연결 담당. 부적합한 사다리/의자 등은 실제 맥락 구현 전 라이브러리에 보관.
+
+- ANIMATION-1112 후속 소유: ResourceVisual.cs 바닥 화물 폭 .6m 통일. 기존 석재 .65m 제한과 함께 목재·점토 대형 화물이 작업자를 가리는 문제 검증. 다른 담당 FIRST-DEFENSE 완료 후 수정.
+
+- ANIMATION-1112 최종: 모든장수 native,119클립검수,35클립/51행동, 파지/외형/반복피격/시설8종 검증. legacy 행동·정밀접촉 잔여 명시. docs/ANIMATION_NATIVE_1112.md. Unity 설정복원 후 Edit반환, 두채팅 통합SAVE 진행.

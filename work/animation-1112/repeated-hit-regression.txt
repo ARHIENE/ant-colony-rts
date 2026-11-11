@@ -1,0 +1,1 @@
+Repeated100hits+34pops maxScale=1.1072 finalError=0.000000

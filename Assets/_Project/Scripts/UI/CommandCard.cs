@@ -29,6 +29,9 @@ namespace AntColony.UI
             UnitRole.Support => "지휘", UnitRole.Flying => "비행", _ => "맨손"
         };
 
+        private static bool Defending => AntColony.World.WaveDefense.Instance?.InWave == true;
+        private bool CombatSelection() => AllDeployed() || Defending;
+
         public CommanderAnt Commander => SelectedUnitPanel.FindSingleSelectedCommander(selection);
 
         public void Build(HUDController owner)
@@ -44,8 +47,9 @@ namespace AntColony.UI
             targetGrid = Grid("TargetCommands", 3);
             BuildAnimalCommands();
 
-            Add(civilianGrid, 0, "Priority Work", () => "우선 작업", PriorityHint,
-                () => "장수를 고른 채 대상을 우클릭하면 해당 작업을 먼저 수행합니다.");
+            Add(civilianGrid, 0, "Priority Work", () => Defending ? "공격 이동" : "우선 작업", () => {
+                if (Defending) AntColony.Core.SceneObjects.Any<AttackMoveController>()?.BeginAttackMode(); else PriorityHint();
+            }, () => Defending ? "A 키와 같은 명령: 지면을 클릭하면 이동하며 적을 공격합니다. 우클릭 이동으로 물러날 수 있습니다." : "장수를 고른 채 대상을 우클릭하면 해당 작업을 먼저 수행합니다.");
             Add(civilianGrid, 1, "Send To Rest", () => Commander != null && Commander.WorkState.resting ? "휴식 중" : Commander != null && Commander.PersonalState.treating ? "치료 중" : "휴식",
                 RestOrTreat, () => "숙소에서 휴식합니다. 부상 시 빈 의무실 침상으로 보냅니다.",
                 () => Commander != null && (Commander.CanSendToTreatment || Commander.CanRest));
@@ -87,9 +91,9 @@ namespace AntColony.UI
                 () => AntColony.Units.WorkPriorities.SetRed(!AntColony.Units.WorkPriorities.Red),
                 () => "정착지 전체: 식사·수면·치료받기·의료 작업을 멈추고 작업합니다. 작업 금지는 유지되며, 해제하면 평소 생활로 돌아갑니다.");
 
-            Add(multiGrid, 0, "Multi Priority", () => AllDeployed() ? "공격 이동" : "우선 작업", () => {
-                if (AllDeployed()) AntColony.Core.SceneObjects.Any<AttackMoveController>()?.BeginAttackMode(); else PriorityHint();
-            }, () => "선택한 장수 모두에게 가능한 명령만 사용할 수 있습니다.", () => AllDeployed() || AllCivilian());
+            Add(multiGrid, 0, "Multi Priority", () => CombatSelection() ? "공격 이동" : "우선 작업", () => {
+                if (CombatSelection()) AntColony.Core.SceneObjects.Any<AttackMoveController>()?.BeginAttackMode(); else PriorityHint();
+            }, () => "선택한 장수 모두에게 가능한 명령만 사용할 수 있습니다.", () => CombatSelection() || AllCivilian());
             Add(multiGrid, 1, "Multi Stop", () => AllDeployed() ? "정지" : "개별 선택 필요", () => {
                 foreach (var c in HudOverview.Selected(selection)) if (c.IsDeployed) c.CommandStop();
             }, () => "평시 휴식·치료는 개별 장수를 선택하세요.", AllDeployed, AllDeployed);

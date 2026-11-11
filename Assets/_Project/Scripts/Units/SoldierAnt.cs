@@ -53,9 +53,10 @@ namespace AntColony.Units
 
         // 비행은 별도 클래스가 아니라 현재 역할로 결정된다. 지휘관이 Flying으로 역할을 바꾸면 즉시 비행한다.
         public virtual bool IsFlying => Data != null && Data.role == UnitRole.Flying;
+        protected bool HasCombatOrder => isOnAttackMove || IsInCombat;
         public bool IsInCombat => currentTarget != null && CanAttackTarget(currentTarget);
         private UnitRole TargetingRole => IsFlying ? UnitRole.Flying : Data.role;
-        protected IDamageable CombatTarget => currentTarget;
+        protected IDamageable CombatTarget => currentTarget is UnityEngine.Object obj && obj == null ? null : currentTarget;
         protected bool IsDirectMoving => state == State.MovingToTarget && currentTarget == null && !isOnAttackMove && !HasReachedDestination();
         protected virtual float AttackRange => Data.attackRange;
         protected virtual float AttackInterval => Data.attackInterval;

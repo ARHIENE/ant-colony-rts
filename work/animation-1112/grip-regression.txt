@@ -1,0 +1,3 @@
+rig=0 one-hand fingers=85.00deg; arm unchanged; unequip diagnostics clear PASS
+rig=1 one-hand fingers=70.26deg; arm unchanged; unequip diagnostics clear PASS
+Coverage=119 clips; runtime=23 clips / 27 bindings. Unbound clips and full visual reviews remain explicit in CSV.

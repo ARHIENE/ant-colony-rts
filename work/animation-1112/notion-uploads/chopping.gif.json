@@ -1,0 +1,9 @@
+{
+  "file_upload_id": "415c4a0e-cd31-81c5-bf97-00b2704fd4ac",
+  "filename": "chopping.gif",
+  "content_type": "image/gif",
+  "content_length": 4721976,
+  "status": "uploaded",
+  "markdown_source": "file-upload://415c4a0e-cd31-81c5-bf97-00b2704fd4ac",
+  "suggested_markdown": "<image source=\"file-upload://415c4a0e-cd31-81c5-bf97-00b2704fd4ac\" />"
+}

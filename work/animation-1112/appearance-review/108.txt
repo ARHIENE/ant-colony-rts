@@ -1,0 +1,6 @@
+Talk_with_Hands_Open
+Talk_with_Left_Hand_Raised
+Talk_with_Right_Hand_Open
+Two_Handed_Parry
+victory
+Victory_Cheer

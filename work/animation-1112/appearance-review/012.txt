@@ -1,0 +1,6 @@
+Casual_Walk
+Chair_Sit_Idle_F
+Chair_Sit_Idle_M
+Charged_Axe_Chop
+Cheer_with_Both_Hands
+Climb_Stairs

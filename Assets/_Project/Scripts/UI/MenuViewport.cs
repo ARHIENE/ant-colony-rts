@@ -7,6 +7,7 @@ namespace AntColony.UI
     public sealed class MenuViewport : MonoBehaviour
     {
         public bool FitSelf;
+        public float MaxScale = 1f;
         private RectTransform root;
         private Vector2 viewport;
         private bool fitted;
@@ -37,7 +38,7 @@ namespace AntColony.UI
                     }
                 }
             }
-            var scale = Mathf.Min(1, (viewport.x - 32) / Mathf.Max(1, bounds.width), (viewport.y - 32) / Mathf.Max(1, bounds.height));
+            var scale = Mathf.Min(MaxScale, (viewport.x - 32) / Mathf.Max(1, bounds.width), (viewport.y - 32) / Mathf.Max(1, bounds.height));
             root.localScale = Vector3.one * scale;
             root.anchoredPosition = -bounds.center * scale;
             fitted = true;

@@ -1,0 +1,152 @@
+Assets/_Project/Art/MeshyAnimation1106/Archery_Shot_3.fbx | Archery_Shot_3 length=0.6666667 skins=1 forearm=0.1573231 root=SmartRigArmature/mixamorig:Hips
+Assets/_Project/Art/MeshyAnimation1106/Heavy_Hammer_Swing.fbx | Heavy_Hammer_Swing length=1.833333 skins=1 forearm=0.1573231 root=SmartRigArmature/mixamorig:Hips
+Assets/_Project/Art/MeshyAnimation1106/Life/Agree_Gesture.fbx | Agree_Gesture length=13 skins=1 forearm=0.1671559 root=SmartRigArmature/mixamorig:Hips
+Assets/_Project/Art/MeshyAnimation1106/Life/Arise.fbx | Arise length=1.833333 skins=1 forearm=0.1671559 root=SmartRigArmature/mixamorig:Hips
+Assets/_Project/Art/MeshyAnimation1106/Life/Casual_Walk.fbx | Casual_Walk length=4.166667 skins=1 forearm=0.1671558 root=SmartRigArmature/mixamorig:Hips
+Assets/_Project/Art/MeshyAnimation1106/Life/Collect_Object.fbx | Collect_Object length=6 skins=1 forearm=0.1671559 root=SmartRigArmature/mixamorig:Hips
+Assets/_Project/Art/MeshyAnimation1106/Life/Cough_While_Sleeping.fbx | Cough_While_Sleeping length=1.666667 skins=1 forearm=0.1671559 root=SmartRigArmature/mixamorig:Hips
+Assets/_Project/Art/MeshyAnimation1106/Life/Dead.fbx | Dead length=2.966667 skins=1 forearm=0.1671559 root=SmartRigArmature/mixamorig:Hips
+Assets/_Project/Art/MeshyAnimation1106/Life/falling_down.fbx | falling_down length=2.266667 skins=1 forearm=0.1671559 root=SmartRigArmature/mixamorig:Hips
+Assets/_Project/Art/MeshyAnimation1106/Life/Female_Bend_Over_Pick_Up_Inspect.fbx | Female_Bend_Over_Pick_Up_Inspect length=3.833333 skins=1 forearm=0.1671558 root=SmartRigArmature/mixamorig:Hips
+Assets/_Project/Art/MeshyAnimation1106/Life/Limping_Walk_2.fbx | Limping_Walk_2 length=2.433333 skins=1 forearm=0.167156 root=SmartRigArmature/mixamorig:Hips
+Assets/_Project/Art/MeshyAnimation1106/Life/Limping_Walk_3.fbx | Limping_Walk_3 length=2.866667 skins=1 forearm=0.1671558 root=SmartRigArmature/mixamorig:Hips
+Assets/_Project/Art/MeshyAnimation1106/Life/Male_Bend_Over_Pick_Up.fbx | Male_Bend_Over_Pick_Up length=7.166667 skins=1 forearm=0.1671558 root=SmartRigArmature/mixamorig:Hips
+Assets/_Project/Art/MeshyAnimation1106/Life/Sit_and_Doze_Off.fbx | Sit_and_Doze_Off length=17.3 skins=1 forearm=0.1671558 root=SmartRigArmature/mixamorig:Hips
+Assets/_Project/Art/MeshyAnimation1106/Life/Sit_and_Drink.fbx | Sit_and_Drink length=11.16667 skins=1 forearm=0.1671559 root=SmartRigArmature/mixamorig:Hips
+Assets/_Project/Art/MeshyAnimation1106/Life/Sit_to_Stand_Transition_M.fbx | Sit_to_Stand_Transition_M length=6.166667 skins=1 forearm=0.1671559 root=SmartRigArmature/mixamorig:Hips
+Assets/_Project/Art/MeshyAnimation1106/Life/sleep.fbx | sleep length=5.7 skins=1 forearm=0.1671559 root=SmartRigArmature/mixamorig:Hips
+Assets/_Project/Art/MeshyAnimation1106/Life/victory.fbx | victory length=8.533334 skins=1 forearm=0.1671559 root=SmartRigArmature/mixamorig:Hips
+Assets/_Project/Art/MeshyAnimation1106/Life/Victory_Cheer.fbx | Victory_Cheer length=9.333334 skins=1 forearm=0.1671558 root=SmartRigArmature/mixamorig:Hips
+Assets/_Project/Art/MeshyAnimation1106/Life/Wave_for_Help_1.fbx | Wave_for_Help_1 length=0.5333334 skins=1 forearm=0.1671559 root=SmartRigArmature/mixamorig:Hips
+Assets/_Project/Art/MeshyAnimation1106/Meshy_AI_Meadow_Sprout_20261106_animated_mixamo_All_animation.fbx | Running length=0.6333334 skins=1 forearm=0.1573231 root=SmartRigArmature/mixamorig:Hips
+Assets/_Project/Art/MeshyAnimation1106/Meshy_AI_Meadow_Sprout_20261106_animated_mixamo_All_animation.fbx | Walking length=1.033333 skins=1 forearm=0.1573231 root=SmartRigArmature/mixamorig:Hips
+Assets/_Project/Art/MeshyAnimation1106/Meshy_AI_Meadow_Sprout_20261106_character_mixamo.fbx | rest length=0.03333334 skins=1 forearm=0.157323 root=SmartRigArmature
+Assets/_Project/Art/MeshyAnimation1106/Rerig_All.fbx | Running length=0.6333334 skins=1 forearm=0.1671559 root=SmartRigArmature/mixamorig:Hips
+Assets/_Project/Art/MeshyAnimation1106/Rerig_All.fbx | Walking length=1.033333 skins=1 forearm=0.1671559 root=SmartRigArmature/mixamorig:Hips
+Assets/_Project/Art/MeshyAnimation1106/Run_02.fbx | Run_02 length=0.7 skins=1 forearm=0.1573231 root=SmartRigArmature/mixamorig:Hips
+Assets/_Project/Art/MeshyAnimation1106/Run_03.fbx | Run_03 length=0.8000001 skins=1 forearm=0.1573231 root=SmartRigArmature/mixamorig:Hips
+Assets/_Project/Art/MeshyAnimation1106/Tool_Chop_SharedRig.fbx | SmartRigArmature|SmartRigArmature|retarget_clip|BaseLayer length=2.966667 skins=1 forearm=0.157323 root=SmartRigArmature
+Assets/_Project/Art/MeshyAnimation1110/Archery_Shot_2.fbx | Archery_Shot_2 length=3.733334 skins=0 forearm=0.167156 root=mixamorig:Hips
+Assets/_Project/Art/MeshyAnimation1110/Carry_Heavy_Object_Walk.fbx | Carry_Heavy_Object_Walk length=6.5 skins=1 forearm=0.157323 root=SmartRigArmature/mixamorig:Hips
+Assets/_Project/Art/MeshyAnimation1110/Charged_Axe_Chop.fbx | Charged_Axe_Chop length=7.666667 skins=1 forearm=0.1573231 root=SmartRigArmature/mixamorig:Hips
+Assets/_Project/Art/MeshyAnimation1110/Collect_Object.fbx | Collect_Object length=6 skins=1 forearm=0.1671559 root=SmartRigArmature/mixamorig:Hips
+Assets/_Project/Art/MeshyAnimation1110/Dead.fbx | Dead length=2.966667 skins=1 forearm=0.1671559 root=SmartRigArmature/mixamorig:Hips
+Assets/_Project/Art/MeshyAnimation1110/Female_Bend_Over_Pick_Up_Inspect.fbx | Female_Bend_Over_Pick_Up_Inspect length=3.833333 skins=1 forearm=0.1671558 root=SmartRigArmature/mixamorig:Hips
+Assets/_Project/Art/MeshyAnimation1110/Heavy_Hammer_Swing.fbx | Heavy_Hammer_Swing length=1.833333 skins=1 forearm=0.1573231 root=SmartRigArmature/mixamorig:Hips
+Assets/_Project/Art/MeshyAnimation1110/Hit_Reaction.fbx | Hit_Reaction length=1.633333 skins=1 forearm=0.157323 root=SmartRigArmature/mixamorig:Hips
+Assets/_Project/Art/MeshyAnimation1110/Idle_3.fbx | Idle_3 length=9.966667 skins=0 forearm=0.1671559 root=mixamorig:Hips
+Assets/_Project/Art/MeshyAnimation1110/Idle_4.fbx | Idle_4 length=13.96667 skins=0 forearm=0.1671559 root=mixamorig:Hips
+Assets/_Project/Art/MeshyAnimation1110/Idle_5.fbx | Idle_5 length=1.833333 skins=0 forearm=0.1671559 root=mixamorig:Hips
+Assets/_Project/Art/MeshyAnimation1110/Injured_Walk.fbx | Injured_Walk length=8.666667 skins=0 forearm=0.1671559 root=mixamorig:Hips
+Assets/_Project/Art/MeshyAnimation1110/Listening_Gesture.fbx | Listening_Gesture length=9.333334 skins=0 forearm=0.1671558 root=mixamorig:Hips
+Assets/_Project/Art/MeshyAnimation1110/Long_Breathe_and_Look_Around.fbx | Long_Breathe_and_Look_Around length=11.26667 skins=0 forearm=0.1671559 root=mixamorig:Hips
+Assets/_Project/Art/MeshyAnimation1110/Prone_Reach_Help.fbx | Prone_Reach_Help length=18.4 skins=0 forearm=0.1671558 root=mixamorig:Hips
+Assets/_Project/Art/MeshyAnimation1110/Pull_Radish.fbx | Pull_Radish length=4.7 skins=1 forearm=0.157323 root=SmartRigArmature/mixamorig:Hips
+Assets/_Project/Art/MeshyAnimation1110/Right_Hand_Sword_Slash.fbx | Right_Hand_Sword_Slash length=1.5 skins=1 forearm=0.157323 root=SmartRigArmature/mixamorig:Hips
+Assets/_Project/Art/MeshyAnimation1110/Running.fbx | Running length=0.6333334 skins=1 forearm=0.1573231 root=SmartRigArmature/mixamorig:Hips
+Assets/_Project/Art/MeshyAnimation1110/Shield_Push_Left.fbx | Shield_Push_Left length=2.366667 skins=0 forearm=0.1671559 root=mixamorig:Hips
+Assets/_Project/Art/MeshyAnimation1110/Sit_Cross_Legged_on_Floor.fbx | Sit_Cross_Legged_on_Floor length=2.5 skins=0 forearm=0.1671559 root=mixamorig:Hips
+Assets/_Project/Art/MeshyAnimation1110/Sleep_Normally.fbx | Sleep_Normally length=1.7 skins=1 forearm=0.1573231 root=SmartRigArmature/mixamorig:Hips
+Assets/_Project/Art/MeshyAnimation1110/Talk_with_Hands_Open.fbx | Talk_with_Hands_Open length=3.966667 skins=0 forearm=0.1671558 root=mixamorig:Hips
+Assets/_Project/Art/MeshyAnimation1110/Victory_Fist_Pump.fbx | Victory_Fist_Pump length=1.5 skins=0 forearm=0.1671559 root=mixamorig:Hips
+Assets/_Project/Art/MeshyAnimation1110/Walking.fbx | Walking length=1.033333 skins=1 forearm=0.157323 root=SmartRigArmature/mixamorig:Hips
+
+CONTROLLER
+Attack => Assets/Resources/Kemono/MeshyMotions/Right_Hand_Sword_Slash.anim
+Bathe => Assets/_Project/Art/Kemono/Anim/Kemono@Bathe.fbx
+BenchWork => Assets/_Project/Art/Kemono/Anim/Kemono@BenchWork.fbx
+Captive => Assets/_Project/Art/Kemono/Anim/Kemono@Captive.fbx
+Carry => Assets/Resources/Kemono/MeshyMotions/Carry_Heavy_Object_Walk.anim
+CarryPerson => Assets/Resources/Kemono/MeshyMotions/Carry_Heavy_Object_Walk.anim
+Chop => Assets/_Project/Art/Kemono/Anim/Kemono@Chop.fbx
+Death => Assets/Resources/Kemono/MeshyMotions/Dead.anim
+Downed => Assets/Resources/Kemono/MeshyMotions/Prone_Reach_Help.anim
+Eat => Assets/_Project/Art/Kemono/Anim/Kemono@Eat.fbx
+Exercise => Assets/_Project/Art/Kemono/Anim/Kemono@Exercise.fbx
+Fly => Assets/_Project/Art/Kemono/Anim/Kemono@Fly.fbx
+Grind => Assets/_Project/Art/Kemono/Anim/Kemono@Grind.fbx
+GroundWork => Assets/Resources/Kemono/MeshyMotions/Collect_Object.anim
+Hammer => Assets/_Project/Art/Kemono/Anim/Kemono@Hammer.fbx
+Hurt => Assets/_Project/Art/Kemono/Anim/Kemono@Hurt.fbx
+Hit => Assets/Resources/Kemono/MeshyMotions/Hit_Reaction.anim
+Idle => Assets/_Project/Art/Kemono/Anim/Kemono@Idle.fbx
+Idle_A => Assets/_Project/Art/Kemono/Anim/Kemono@Idle.fbx
+Inspect => Assets/Resources/Kemono/MeshyMotions/Female_Bend_Over_Pick_Up_Inspect.anim
+Mine => Assets/_Project/Art/Kemono/Anim/Kemono@Mine.fbx
+Mourn => Assets/_Project/Art/Kemono/Anim/Kemono@Mourn.fbx
+Operate => Assets/_Project/Art/Kemono/Anim/Kemono@Operate.fbx
+Pickup => Assets/_Project/Art/Kemono/Anim/Kemono@Pickup.fbx
+BeatFire => Assets/_Project/Art/Kemono/Anim/Kemono@PK_BeatFire.fbx
+BenchPickup => Assets/_Project/Art/Kemono/Anim/Kemono@PK_BenchPickup.fbx
+BenchPlace => Assets/_Project/Art/Kemono/Anim/Kemono@PK_BenchPlace.fbx
+BowShoot => Assets/Resources/Kemono/MeshyMotions/Archery_Shot_2.anim
+CanisterConnect => Assets/_Project/Art/Kemono/Anim/Kemono@PK_CanisterConnect.fbx
+CanisterDisconnect => Assets/_Project/Art/Kemono/Anim/Kemono@PK_CanisterDisconnect.fbx
+CollapseDropWeapon => Assets/_Project/Art/Kemono/Anim/Kemono@PK_CollapseDropWeapon.fbx
+ControlPanel => Assets/_Project/Art/Kemono/Anim/Kemono@PK_ControlPanel.fbx
+Crave => Assets/_Project/Art/Kemono/Anim/Kemono@PK_Crave.fbx
+DrawSword => Assets/_Project/Art/Kemono/Anim/Kemono@PK_DrawSword.fbx
+Drink => Assets/_Project/Art/Kemono/Anim/Kemono@PK_Drink.fbx
+DriveSeated => Assets/_Project/Art/Kemono/Anim/Kemono@PK_DriveSeated.fbx
+EquipFromGround => Assets/_Project/Art/Kemono/Anim/Kemono@PK_EquipFromGround.fbx
+HangoverIdle => Assets/_Project/Art/Kemono/Anim/Kemono@PK_HangoverIdle.fbx
+Knead => Assets/_Project/Art/Kemono/Anim/Kemono@PK_Knead.fbx
+Ladle => Assets/_Project/Art/Kemono/Anim/Kemono@PK_Ladle.fbx
+LatrineSquat => Assets/_Project/Art/Kemono/Anim/Kemono@PK_LatrineSquat.fbx
+Muster => Assets/_Project/Art/Kemono/Anim/Kemono@PK_Muster.fbx
+OvenLoad => Assets/_Project/Art/Kemono/Anim/Kemono@PK_OvenLoad.fbx
+PassOut => Assets/_Project/Art/Kemono/Anim/Kemono@PK_PassOut.fbx
+PourSack => Assets/_Project/Art/Kemono/Anim/Kemono@PK_PourSack.fbx
+PressLever => Assets/_Project/Art/Kemono/Anim/Kemono@PK_PressLever.fbx
+SelfTreat => Assets/_Project/Art/Kemono/Anim/Kemono@PK_SelfTreat.fbx
+SewRepair => Assets/_Project/Art/Kemono/Anim/Kemono@PK_SewRepair.fbx
+SheatheSword => Assets/_Project/Art/Kemono/Anim/Kemono@PK_SheatheSword.fbx
+ShieldBlock => Assets/Resources/Kemono/MeshyMotions/Shield_Push_Left.anim
+SkyGaze => Assets/Resources/Kemono/MeshyMotions/Long_Breathe_and_Look_Around.anim
+SmithRepair => Assets/Resources/Kemono/MeshyMotions/Heavy_Hammer_Swing.anim
+SpearThrust => Assets/_Project/Art/Kemono/Anim/Kemono@PK_SpearThrust.fbx
+Stagger => Assets/_Project/Art/Kemono/Anim/Kemono@PK_Stagger.fbx
+SwordAttack => Assets/_Project/Art/Kemono/Anim/Kemono@PK_SwordAttack.fbx
+TapFill => Assets/_Project/Art/Kemono/Anim/Kemono@PK_TapFill.fbx
+Tool_Chop => Assets/Resources/Kemono/MeshyMotions/Charged_Axe_Chop.anim
+Tool_Dig => Assets/_Project/Art/Kemono/Anim/Kemono@PK_Tool_Dig.fbx
+Tool_Hammer => Assets/Resources/Kemono/MeshyMotions/Heavy_Hammer_Swing.anim
+Tool_Harvest => Assets/Resources/Kemono/MeshyMotions/Pull_Radish.anim
+Tool_Mine => Assets/Resources/Kemono/MeshyMotions/Heavy_Hammer_Swing.anim
+Tool_Till => Assets/_Project/Art/Kemono/Anim/Kemono@PK_Tool_Till.fbx
+ToolAway => Assets/_Project/Art/Kemono/Anim/Kemono@PK_ToolAway.fbx
+ToolOut => Assets/_Project/Art/Kemono/Anim/Kemono@PK_ToolOut.fbx
+UnequipToGround => Assets/_Project/Art/Kemono/Anim/Kemono@PK_UnequipToGround.fbx
+ValveTurn => Assets/_Project/Art/Kemono/Anim/Kemono@PK_ValveTurn.fbx
+WakeUp => Assets/_Project/Art/Kemono/Anim/Kemono@PK_WakeUp.fbx
+WalkTipsy => Assets/_Project/Art/Kemono/Anim/Kemono@PK_WalkTipsy.fbx
+PlayBoard => Assets/_Project/Art/Kemono/Anim/Kemono@PlayBoard.fbx
+PlayMusic => Assets/_Project/Art/Kemono/Anim/Kemono@PlayMusic.fbx
+PutDown => Assets/_Project/Art/Kemono/Anim/Kemono@PutDown.fbx
+Rest => Assets/Resources/Kemono/MeshyMotions/Sit_Cross_Legged_on_Floor.anim
+RockCradle => Assets/_Project/Art/Kemono/Anim/Kemono@RockCradle.fbx
+Run => Assets/Resources/Kemono/MeshyMotions/Running.anim
+Saw => Assets/_Project/Art/Kemono/Anim/Kemono@Saw.fbx
+Sit => Assets/_Project/Art/Kemono/Anim/Kemono@Sit.fbx
+Sleep => Assets/Resources/Kemono/MeshyMotions/Sleep_Normally.anim
+Spin => Assets/_Project/Art/Kemono/Anim/Kemono@Spin.fbx
+Stamp => Assets/_Project/Art/Kemono/Anim/Kemono@Stamp.fbx
+StandEnter => Assets/_Project/Art/Kemono/Anim/Kemono@StandEnter.fbx
+StandExit => Assets/_Project/Art/Kemono/Anim/Kemono@StandExit.fbx
+StandIdle => Assets/_Project/Art/Kemono/Anim/Kemono@StandIdle.fbx
+Stir => Assets/_Project/Art/Kemono/Anim/Kemono@Stir.fbx
+Swing => Assets/_Project/Art/Kemono/Anim/Kemono@Swing.fbx
+Throw => Assets/_Project/Art/Kemono/Anim/Kemono@Throw.fbx
+Treat => Assets/_Project/Art/Kemono/Anim/Kemono@Treat.fbx
+Walk => Assets/Resources/Kemono/MeshyMotions/Walking.anim
+Wash => Assets/_Project/Art/Kemono/Anim/Kemono@Wash.fbx
+WaterPlant => Assets/_Project/Art/Kemono/Anim/Kemono@WaterPlant.fbx
+Wrestle => Assets/_Project/Art/Kemono/Anim/Kemono@Wrestle.fbx
+Attack_Unarmed => Assets/_Project/Art/Kemono/Anim/Kemono@Attack.fbx
+WalkInjured => Assets/Resources/Kemono/MeshyMotions/Injured_Walk.anim
+Celebrate => Assets/Resources/Kemono/MeshyMotions/Victory_Fist_Pump.anim
+IdleVariant0 => Assets/Resources/Kemono/MeshyMotions/Idle_3.anim
+IdleVariant1 => Assets/Resources/Kemono/MeshyMotions/Idle_4.anim
+IdleVariant2 => Assets/Resources/Kemono/MeshyMotions/Idle_5.anim
+Talk => Assets/Resources/Kemono/MeshyMotions/Talk_with_Hands_Open.anim
+Listen => Assets/Resources/Kemono/MeshyMotions/Listening_Gesture.anim

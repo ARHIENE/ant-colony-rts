@@ -1,0 +1,36 @@
+{
+  "success": true,
+  "command": "command",
+  "data": {
+    "command": "run_script",
+    "parameters": {
+      "file": "AgentScripts/ReleaseVisualChecks.cs",
+      "entry": "ReleaseVisualChecks.Run",
+      "timeout_ms": "120000"
+    },
+    "result": {
+      "diagnostics": [
+        {
+          "severity": "warning",
+          "message": "The field 'ReleaseVisualChecks.Flags' is assigned but its value is never used",
+          "line": 51,
+          "column": 33,
+          "id": "CS0414",
+          "source": "static readonly BindingFlags Flags = BindingFlags.NonPublic | BindingFlags.Instance;"
+        }
+      ],
+      "compileMs": 544,
+      "executeMs": 17009,
+      "assemblyName": "PipelineRunScript_ReleaseVisualChecks_cb78b7ddcaac45c8a2bb768c2a77c690",
+      "success": true,
+      "result": "1440x900: Dressing objects: 0\nScienceLab physical font: 11 preferred=47 height=67.66666\r\n\r\n760x600: Dressing objects: 0\nScienceLab physical font: 5.805556 preferred=43.57895 height=67.66666\r\n\r\n"
+    },
+    "target": {
+      "host": "127.0.0.1",
+      "port": 7801,
+      "projectPath": "F:\\UnityProjects\\ant-colony-rts"
+    }
+  },
+  "errors": [],
+  "warnings": []
+}

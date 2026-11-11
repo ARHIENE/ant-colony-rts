@@ -70,8 +70,8 @@ namespace AntColony.Map
             var quiet = WeatherSystem.Current != WeatherKind.Clear && WeatherSystem.Current != WeatherKind.Fog || BiomeRules.Current == MapBiome.Cave;
             var season = (Season)p.season;
             if (quiet) fall.Set(0, Color.clear, .1f, 5);
-            else if (season == Season.Spring && HasSpringPetals(biome, climate)) fall.Set(25, new Color(1f, .9f, .95f, .9f), .4f, 1.5f, 0, 1, petals: true);
-            else if (season == Season.Autumn && leaves) fall.Set(35, new Color(.95f, .5f, .15f, .95f), .3f, 1.8f, 0, 1.5f);
+            else if (season == Season.Spring && HasSpringPetals(biome, climate)) fall.Set(5, new Color(1f, .9f, .95f, .5f), .16f, 1.5f, 0, 1, petals: true);
+            else if (season == Season.Autumn && leaves) fall.Set(8, new Color(.95f, .5f, .15f, .65f), .18f, 1.8f, 0, 1.5f);
             else fall.Set(0, Color.clear, .1f, 5);
         }
     }

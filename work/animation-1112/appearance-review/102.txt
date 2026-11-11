@@ -1,0 +1,6 @@
+Stumble_Walk
+Swim_Forward
+Swim_Idle
+Sword_Parry_Backward_1
+Sword_Parry_Backward_2
+Talk_Passionately

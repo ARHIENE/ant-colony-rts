@@ -132,7 +132,9 @@ namespace AntColony.World
         private void End()
         {
             s.inWave = false; s.peaceLeft = Peace;
-            ToastManager.Show($"웨이브 {s.wave} 방어 성공 · 평화 {Peace / GameCalendar.SecondsPerDay:0}일\n복구·발전과 원정으로 다음 웨이브 대비", ToastKind.Achievement);
+            ToastManager.Show($"웨이브 {s.wave} 방어 성공 · 평화 {Peace / GameCalendar.SecondsPerDay:0}일\n"
+                + CampaignNextSteps.RecoverySummary(true) + "\n"
+                + (ExpeditionRules.Paused ? "복구·연구·방어시설로 다음 웨이브 대비" : "복구·발전과 원정으로 다음 웨이브 대비"), ToastKind.Achievement);
             CampaignHistory.Record("웨이브 방어", $"웨이브 {s.wave}", $"성공 · 적 {s.total}마리");
             Shout("막아냈다… 다친 사람부터 챙기자.");
         }

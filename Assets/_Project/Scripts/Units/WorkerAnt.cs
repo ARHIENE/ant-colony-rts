@@ -95,7 +95,7 @@ namespace AntColony.Units
                 drop.name = "Dropped " + carriedType;
                 drop.SetActive(false);
                 drop.transform.SetParent(site.transform);
-                drop.transform.position = new Vector3(Position.x, .3f, Position.z);
+                drop.transform.position = CargoDropPosition();
                 drop.transform.localScale = Vector3.one * .6f;
                 drop.AddComponent<ResourceNode>().ConfigureLoot(carriedType, carriedAmount);
                 if (drop.TryGetComponent<FloorFood>(out var food)) food.Lots.Add(carriedLots); // 들고 있던 식품 신선도 그대로
@@ -111,11 +111,28 @@ namespace AntColony.Units
             if (!IsCarrying) return;
             var drop = GameObject.CreatePrimitive(PrimitiveType.Cube);
             drop.name = "Dropped " + carriedType; drop.SetActive(false);
-            drop.transform.position = Position; drop.transform.localScale = Vector3.one * .6f;
+            drop.transform.position = CargoDropPosition(); drop.transform.localScale = Vector3.one * .6f;
             drop.AddComponent<ResourceNode>().ConfigureLoot(carriedType, carriedAmount);
             if (drop.TryGetComponent<FloorFood>(out var food)) food.Lots.Add(carriedLots); // 들고 있던 식품 신선도 그대로
             drop.AddComponent<ResourceNodeStatus>(); drop.SetActive(true);
             carriedAmount = 0; CommandStop();
+        }
+        private Vector3 CargoDropPosition()
+        {
+            // Put the pile beside the worker, on the floor, rather than inside their torso.
+            float radius=TryGetComponent<CapsuleCollider>(out var capsule)?capsule.radius*Mathf.Max(transform.lossyScale.x,transform.lossyScale.z):.5f;
+            var position=Position+transform.right*(radius+.75f);
+            for(int i=0;i<8;i++)
+            {
+                var direction=Quaternion.Euler(0,i*45,0)*transform.right;
+                var candidate=Position+direction*(radius+.75f);
+                if(!NavMesh.SamplePosition(candidate,out var nav,.4f,NavMesh.AllAreas))continue;
+                var offset=nav.position-Position;offset.y=0;
+                if(offset.magnitude<radius+.4f)continue;
+                position=nav.position;break;
+            }
+            if(Physics.Raycast(position+Vector3.up*4,Vector3.down,out var ground,12,1<<8,QueryTriggerInteraction.Ignore))position.y=ground.point.y;
+            return position+Vector3.up*.3f; // Half-height of the initial .6m loot cube.
         }
         private void ReleaseDestination()
         {
@@ -554,6 +571,9 @@ namespace AntColony.Units
             if ((targetNode.NeedsDesignation || targetNode.TryGetComponent<AntColony.Buildings.FarmPlot>(out _)) && (carriedAmount >= CarryCapacity || targetNode.IsDepleted))
             {
                 var node = targetNode; DropCargo();
+                // A completed load is a safe boundary to reconsider the player's work priorities.
+                // Away/deployed units keep their explicit harvesting order.
+                if (this is CommanderAnt homeWorker && !homeWorker.IsAwayFromHome && !homeWorker.IsDeployed) return;
                 if (!node.IsDepleted && node.CanGather) { targetNode = node; state = State.Gathering; if (this is CommanderAnt me) me.SetWorkTarget(node); }
                 return;
             }

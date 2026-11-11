@@ -27,6 +27,12 @@ namespace AntColony.Units
         private GameObject heldArrow;
         private MeshyEquipmentWearables equipmentWearables;
         public string StateName => state;
+        public string MotionName => playedClip;
+        public string HeldTool => heldTool;
+        public int MotionRevision { get; private set; }
+        public float MotionSpeed => animator ? animator.speed : 1f;
+        public float MotionSpeedFor(float clipLength) => state == "Attack" && (worker == null || !worker.IsBuildingAnimation)
+            ? clipLength / CombatMotionDuration : 1f;
 
         public static void Attach(GameObject owner)
         {
@@ -70,10 +76,14 @@ namespace AntColony.Units
             if (name == "Hit" && model != null) AntColony.UI.Juice.Punch(model.transform); // 피격 움찔(손맛)
         }
 
+        float CombatMotionDuration => commander?.Weapon != null && MeshyEquipmentRules.IsBow(commander.Weapon.weapon) ? 1.5f
+            : commander?.Weapon != null && (commander.Weapon.weapon == WeaponKind.QuakeMaul || commander.Weapon.bossEquipment == BossEquipmentKind.AreaWeapon)
+                ? Mathf.Clamp(commander.EffectiveAttackInterval * .85f, .45f, 1.5f) : .45f;
+
         public void Attack(Vector3 target)
         {
             Face(target - transform.position);
-            float duration=kemono && commander != null && commander.Weapon != null && MeshyEquipmentRules.IsBow(commander.Weapon.weapon) ? 1.5f : .45f;
+            float duration=kemono ? CombatMotionDuration : .45f;
             Action("Attack", duration);
             if(model!=null)model.GetComponent<MeshyEquipmentGrip>()?.BeginAttack(duration);
         }
@@ -93,9 +103,10 @@ namespace AntColony.Units
             var hash = Animator.StringToHash("Base Layer." + clip);
             if (!animator.HasState(0, hash)) return;
             animator.speed=kemono&&name=="Attack"&&(worker==null||!worker.IsBuildingAnimation)
-                ?KemonoModel.AttackPlaybackSpeed(clip,clip=="BowShoot"?1.5f:.45f):1f;
+                ?KemonoModel.AttackPlaybackSpeed(clip,CombatMotionDuration):1f;
             // 눕는 동작은 0.1초면 픽 쓰러지는 것처럼 보여 천천히 섞는다(2026-11-01 '캐릭터가 넘어진다').
             animator.CrossFadeInFixedTime(hash, name == "Sleep" || name == "Sit" ? .6f : .1f, 0); state = name; playedClip = clip;
+            MotionRevision++;
             appearance?.FollowClip(clip);
             if(kemono)model.GetComponent<MeshyEquipmentGrip>().Motion=clip;
             if (kemono && heldTool != tool)
@@ -124,7 +135,9 @@ namespace AntColony.Units
                 "Attack" when commander != null && commander.Weapon != null && MeshyEquipmentRules.IsBow(commander.Weapon.weapon) => ("BowShoot", MeshyEquipmentRules.HeldModel(commander.Weapon)),
                 "Attack" when commander != null && commander.Weapon?.weapon == WeaponKind.Shield => ("ShieldBlock", "Weapon_Shield_Copper"),
                 "Attack" when commander != null && commander.Weapon == null => ("Attack_Unarmed", null),
-                "Attack" when commander != null && commander.Weapon != null && MeshyEquipmentRules.IsFirearm(commander.Weapon.weapon) => ("Idle_A", MeshyEquipmentRules.HeldModel(commander.Weapon)),
+                "Attack" when commander != null && commander.Weapon != null && (MeshyEquipmentRules.IsFirearm(commander.Weapon.weapon) || commander.Weapon.weapon == WeaponKind.AcidSprayer || commander.Weapon.weapon == WeaponKind.Pheromone) => ("Idle_A", MeshyEquipmentRules.HeldModel(commander.Weapon)),
+                "Attack" when commander?.Weapon?.weapon == WeaponKind.Mandible => ("SpearThrust", MeshyEquipmentRules.HeldModel(commander.Weapon)),
+                "Attack" when commander?.Weapon != null && (commander.Weapon.weapon == WeaponKind.QuakeMaul || commander.Weapon.bossEquipment == BossEquipmentKind.AreaWeapon) => ("Tool_Hammer", MeshyEquipmentRules.HeldModel(commander.Weapon)),
                 "Attack" when commander != null => ("Attack", MeshyEquipmentRules.HeldModel(commander.Weapon)),
                 "Attack" => ("Attack", "Weapon_Sword_Copper"),
                 _ => (name, null)
@@ -183,7 +196,10 @@ namespace AntColony.Units
         public GameObject Death(bool persistent = false)
         {
             if (model == null) return null;
+            var native=GetComponent<MeshyNativeMotionPlayer>();
+            if(native){var nativeBody=native.CreateDeath(persistent);if(nativeBody)return nativeBody;}
             var body = Instantiate(model, model.transform.position, model.transform.rotation);
+            foreach(var renderer in body.GetComponentsInChildren<Renderer>(true))renderer.forceRenderingOff=false;
             body.transform.localScale = model.transform.lossyScale;
             RigAnimator.Find(body).Play("Base Layer.Death", 0, 0);
             if (kemono) KemonoModel.Hold(body, null);

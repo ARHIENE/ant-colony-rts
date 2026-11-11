@@ -1,0 +1,36 @@
+{
+  "success": true,
+  "command": "command",
+  "data": {
+    "command": "run_script",
+    "parameters": {
+      "file": "AgentScripts/FirstDefense1112Inspect.cs",
+      "entry": "FirstDefense1112Inspect.Run"
+    },
+    "result": {
+      "diagnostics": [
+        {
+          "severity": "error",
+          "message": "The name 'ResourceNode' does not exist in the current context",
+          "line": 7,
+          "column": 11,
+          "id": "CS0103",
+          "source": "var nodes=ResourceNode.Available.Where(n=>n!=null&&n.IsLooseCargo&&!n.IsDepleted).ToArray();"
+        }
+      ],
+      "compileMs": 118,
+      "executeMs": 0,
+      "assemblyName": "PipelineRunScript_FirstDefense1112Inspect_8b6f8588ce194584ad743a44b49f10b3",
+      "success": false,
+      "error": "Compilation Failed",
+      "errorDetails": "The script failed to compile. See diagnostics for line/column details."
+    },
+    "target": {
+      "host": "127.0.0.1",
+      "port": 7801,
+      "projectPath": "F:\\UnityProjects\\ant-colony-rts"
+    }
+  },
+  "errors": [],
+  "warnings": []
+}

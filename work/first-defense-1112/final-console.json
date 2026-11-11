@@ -1,0 +1,38 @@
+{
+  "success": true,
+  "command": "command",
+  "data": {
+    "command": "console_status",
+    "parameters": {},
+    "result": {
+      "entries": [],
+      "cursor": 117360,
+      "session": "be6cc36e99314a438d80a0d4b8a38cb1",
+      "returned": 0,
+      "dropped": false,
+      "reset": false,
+      "counts": {
+        "error": 0,
+        "warn": 6,
+        "log": 5
+      },
+      "groundTruth": {
+        "sampledUtc": "2026-11-11T15:55:52.8115781Z",
+        "ageMs": 112,
+        "compilationFailed": false,
+        "compiling": false,
+        "consoleErrors": 0,
+        "consoleWarnings": 6,
+        "consoleLogs": 5,
+        "seeded": true
+      }
+    },
+    "target": {
+      "host": "127.0.0.1",
+      "port": 7801,
+      "projectPath": "F:\\UnityProjects\\ant-colony-rts"
+    }
+  },
+  "errors": [],
+  "warnings": []
+}

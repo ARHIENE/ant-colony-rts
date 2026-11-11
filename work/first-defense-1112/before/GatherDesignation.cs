@@ -1,0 +1,190 @@
+using System.Linq;
+using AntColony.World;
+using UnityEngine;
+using UnityEngine.EventSystems;
+using UnityEngine.InputSystem;
+
+namespace AntColony.UI
+{
+    // 기본 커맨드 카드의 '채집 금지 지정'/'지정 취소' 모드. 클릭 또는 드래그 범위의 노드에 적용하고,
+    // 우클릭·Esc·다른 입력 모드(건설·어택무브·스킬·메뉴)가 시작되면 끝난다. 금지된 노드는 월드에 표시한다.
+    [DefaultExecutionOrder(-100)]
+    public sealed class GatherDesignation : MonoBehaviour
+    {
+        private static GatherDesignation instance;
+        private bool active, forbid, dragging, priority, tasks;
+        private bool work, cancelWork;
+        private NaturalWorkKind workKind;
+        public static int PriorityLevel = AntColony.Units.WorkPriorities.Default; // 1~9, 10 = 노란 경보
+        private Vector2 start;
+        private int consumedFrame = -1;
+        private GUIStyle markStyle;
+
+        public static bool IsActive => instance != null && instance.active;
+        public static bool Forbidding => IsActive && instance.forbid;
+        public static bool ConsumesPointerInput => instance != null && (instance.active || instance.consumedFrame == Time.frameCount);
+        private void Awake() => instance = this;
+        private void OnDestroy() { if (instance == this) instance = null; }
+
+        public static void Begin(bool forbidNodes)
+        {
+            if (instance == null) return;
+            instance.active = true; instance.forbid = forbidNodes; instance.dragging = false; instance.priority = instance.tasks = instance.work = false;
+            ToastManager.Show(forbidNodes ? "채집 금지 지정: 노드 클릭 또는 드래그, 우클릭 종료" : "채집 금지 해제: 작업 지정은 유지, 우클릭 종료");
+        }
+        public static void BeginWork(NaturalWorkKind kind, bool cancel = false)
+        {
+            if (instance == null) return;
+            instance.active = instance.work = true; instance.cancelWork = cancel; instance.workKind = kind;
+            instance.dragging = instance.priority = instance.tasks = false;
+            ToastManager.Show((cancel ? "자연 작업 취소" : kind == NaturalWorkKind.Logging ? "벌목 지정" : kind == NaturalWorkKind.Mining ? "채굴 지정" : "야생 채집 지정") + ": 대상 클릭·드래그, 우클릭 종료");
+        }
+        public static int ApplyWork(Rect rect, NaturalWorkKind kind, bool cancel = false)
+        {
+            var camera = UnityEngine.Camera.main; var count = 0;
+            if (camera == null) return 0;
+            foreach (var n in ResourceNode.Available.ToArray())
+            {
+                if (n == null || !n.NeedsDesignation || !cancel && n.WorkKind != kind) continue;
+                var p = camera.WorldToScreenPoint(n.transform.position);
+                if (p.z <= 0 || !rect.Contains(new Vector2(p.x, p.y))) continue;
+                if (cancel) { if (n.WorkRequested) { n.CancelWork(); count++; } }
+                else if (n.RequestWork()) count++;
+            }
+            return count;
+        }
+        // 대상 우선순위 지정(1~9) 또는 노란 경보(10). 클릭·드래그로 노드·건물·예정지·시체·야생 개체에 적용.
+        public static void BeginPriority()
+        {
+            if (instance == null) return;
+            instance.active = instance.priority = true; instance.dragging = instance.tasks = instance.work = false;
+            ToastManager.Show((PriorityLevel > AntColony.Units.WorkPriorities.Max ? "노란 경보 지정" : "대상 우선순위 " + PriorityLevel + " 지정") + ": 대상 클릭 또는 드래그, 우클릭 종료");
+        }
+        // 작업 선택(2026-10-12): 드래그한 범위의 건설·철거·이동·개보수 예정지와 요리 시설을 작업 관리 창에서 한꺼번에 다룬다.
+        public static void BeginTaskSelect()
+        {
+            if (instance == null) return;
+            instance.active = instance.tasks = true; instance.priority = instance.dragging = instance.work = false;
+            ToastManager.Show("작업 선택: 예정지·요리 시설을 클릭 또는 드래그(일괄 우선순위·일시정지·재개·취소), 우클릭 종료");
+        }
+        public static string PriorityLabel => PriorityLevel > AntColony.Units.WorkPriorities.Max ? "노란 경보" : "단계 " + PriorityLevel;
+        public static void CyclePriority() => PriorityLevel = PriorityLevel % (AntColony.Units.WorkPriorities.Max + 1) + 1;
+        private static void ApplyPriority(Component c)
+        {
+            if (PriorityLevel > AntColony.Units.WorkPriorities.Max) AntColony.Units.WorkPriorities.Set(c, AntColony.Units.WorkPriorities.Level(c), true);
+            else AntColony.Units.WorkPriorities.Set(c, PriorityLevel, false);
+        }
+        public static void End() { if (instance != null) instance.active = instance.dragging = false; }
+
+        // 화면 사각형 안의 노드에 적용한다. 반환값은 바뀐 노드 수.
+        public static int Apply(Rect screenRect, bool forbidNodes)
+        {
+            var camera = UnityEngine.Camera.main; var changed = 0;
+            if (camera == null) return 0;
+            foreach (var node in ResourceNode.Available)
+            {
+                if (node == null || node.GatheringForbidden == forbidNodes) continue;
+                var p = camera.WorldToScreenPoint(node.transform.position);
+                if (p.z > 0 && screenRect.Contains(new Vector2(p.x, p.y))) { node.GatheringForbidden = forbidNodes; changed++; }
+            }
+            return changed;
+        }
+        public static bool ApplyClick(Vector2 screen, bool forbidNodes)
+        {
+            var camera = UnityEngine.Camera.main;
+            if (camera == null || !Physics.Raycast(camera.ScreenPointToRay(screen), out var hit, 2000)
+                || !(hit.collider.GetComponentInParent<ResourceNode>() is ResourceNode node)) return false;
+            node.GatheringForbidden = forbidNodes;
+            return true;
+        }
+
+        private void Update()
+        {
+            if (!active) return;
+            if (GameMenuController.BlocksInput || BuildScreen.IsOpen || SkillTargeting.ConsumesPointerInput
+                || AntColony.Core.SceneObjects.Any<AntColony.Buildings.BuildingPlacementController>()?.IsPlacing == true
+                || AntColony.Core.SceneObjects.Any<AntColony.Units.AttackMoveController>()?.IsAttackMode == true) { End(); return; }
+            var mouse = Mouse.current;
+            if (mouse == null) return;
+            if (mouse.rightButton.wasPressedThisFrame || Keyboard.current?.escapeKey.wasPressedThisFrame == true)
+            { End(); consumedFrame = Time.frameCount; return; }
+            var position = mouse.position.ReadValue();
+            if (mouse.leftButton.wasPressedThisFrame && !(EventSystem.current != null && EventSystem.current.IsPointerOverGameObject()))
+            { dragging = true; start = position; }
+            if (!dragging || !mouse.leftButton.wasReleasedThisFrame) return;
+            dragging = false; consumedFrame = Time.frameCount;
+            if (work)
+            {
+                var rect = Vector2.Distance(start, position) < 8 ? new Rect(position - Vector2.one * 16, Vector2.one * 32)
+                    : Rect.MinMaxRect(Mathf.Min(start.x, position.x), Mathf.Min(start.y, position.y), Mathf.Max(start.x, position.x), Mathf.Max(start.y, position.y));
+                var changed = ApplyWork(rect, workKind, cancelWork);
+                ToastManager.Show(changed > 0 ? $"{changed}개 {(cancelWork ? "작업 취소" : "작업 지정")}" : "대상 없음: 작업 종류·채집 금지·수확 상태를 확인하세요.");
+                return;
+            }
+            if (tasks)
+            {
+                var area = Vector2.Distance(start, position) < 8 ? new Rect(position - Vector2.one * 16, Vector2.one * 32)
+                    : Rect.MinMaxRect(Mathf.Min(start.x, position.x), Mathf.Min(start.y, position.y), Mathf.Max(start.x, position.x), Mathf.Max(start.y, position.y));
+                var view = UnityEngine.Camera.main; End();
+                GameMenuController.Instance?.ShowTasks(GameMenuController.TaskCandidates().Where(c => { var p = view.WorldToScreenPoint(c.transform.position); return p.z > 0 && area.Contains(new Vector2(p.x, p.y)); }).ToList());
+                return;
+            }
+            if (priority)
+            {
+                var rect = Vector2.Distance(start, position) < 8 ? new Rect(position - Vector2.one * 12, Vector2.one * 24)
+                    : Rect.MinMaxRect(Mathf.Min(start.x, position.x), Mathf.Min(start.y, position.y), Mathf.Max(start.x, position.x), Mathf.Max(start.y, position.y));
+                var camera = UnityEngine.Camera.main;
+                foreach (var c in AntColony.Units.WorkPriorities.Candidates().ToArray())
+                {
+                    var p = camera.WorldToScreenPoint(c.transform.position);
+                    if (p.z > 0 && rect.Contains(new Vector2(p.x, p.y))) ApplyPriority(c);
+                }
+                return;
+            }
+            if (Vector2.Distance(start, position) < 8) ApplyClick(position, forbid);
+            else Apply(Rect.MinMaxRect(Mathf.Min(start.x, position.x), Mathf.Min(start.y, position.y),
+                Mathf.Max(start.x, position.x), Mathf.Max(start.y, position.y)), forbid);
+        }
+
+        private void OnGUI()
+        {
+            if (Event.current.type != EventType.Repaint || WorldMapPanel.AnyOpen || GameMenuController.BlocksInput || BuildScreen.IsOpen) return;
+            var camera = UnityEngine.Camera.main;
+            if (camera == null) return;
+            if (markStyle == null) markStyle = new GUIStyle(GUI.skin.box) { alignment = TextAnchor.MiddleCenter, fontSize = 12, fontStyle = FontStyle.Bold };
+            markStyle.normal.textColor = new Color(1f, .45f, .35f);
+            foreach (var node in ResourceNode.Available)
+            {
+                if (node == null || !node.GatheringForbidden && !(node.NeedsDesignation && node.WorkRequested)) continue;
+                var p = camera.WorldToScreenPoint(node.transform.position + Vector3.up * 2f);
+                if (p.z <= 0 || p.x < 0 || p.x > Screen.width || p.y < 0 || p.y > Screen.height) continue;
+                var label = new Rect(p.x - 40, Screen.height - p.y - 22, 80, 20);
+                markStyle.normal.textColor = node.GatheringForbidden ? new Color(1f,.45f,.35f) : node.WorkPaused ? Color.gray : new Color(.95f,.85f,.3f);
+                if (HudResponsiveLayout.ReserveWorldLabel(label)) GUI.Box(label, node.GatheringForbidden ? "채집 금지" : node.WorkPaused ? "작업 정지" : node.WorkName + " 지정", markStyle);
+            }
+            // 노란 경보는 항상, 대상 우선순위 숫자는 지정 도구를 쓰는 동안 표시한다.
+            foreach (var tp in AntColony.Core.SceneObjects.All<AntColony.Units.TargetPriority>())
+            {
+                if (!tp.yellow && !(active && priority)) continue;
+                var p = camera.WorldToScreenPoint(tp.transform.position + Vector3.up * 2.4f);
+                if (p.z <= 0 || p.x < 0 || p.x > Screen.width || p.y < 0 || p.y > Screen.height) continue;
+                markStyle.normal.textColor = tp.yellow ? new Color(1f, .85f, .2f) : Color.white;
+                var label = new Rect(p.x - 40, Screen.height - p.y - 22, 80, 20);
+                if (HudResponsiveLayout.ReserveWorldLabel(label)) GUI.Box(label, tp.yellow ? "노란 경보" : "우선 " + tp.level, markStyle);
+            }
+            if (!active || !dragging || Mouse.current == null) return;
+            var now = Mouse.current.position.ReadValue();
+            var rect = Rect.MinMaxRect(Mathf.Min(start.x, now.x), Screen.height - Mathf.Max(start.y, now.y), Mathf.Max(start.x, now.x), Screen.height - Mathf.Min(start.y, now.y));
+            var old = GUI.color; GUI.color = forbid ? new Color(1, .4f, .3f, .35f) : new Color(.4f, 1, .5f, .35f);
+            GUI.DrawTexture(rect, Texture2D.whiteTexture); GUI.color = old;
+            if (work)
+            {
+                var area = Rect.MinMaxRect(Mathf.Min(start.x, now.x), Mathf.Min(start.y, now.y), Mathf.Max(start.x, now.x), Mathf.Max(start.y, now.y));
+                var selected = ResourceNode.Available.Where(n => n != null && n.NeedsDesignation && (cancelWork || n.WorkKind == workKind))
+                    .Where(n => { var p = camera.WorldToScreenPoint(n.transform.position); return p.z > 0 && area.Contains(new Vector2(p.x,p.y)); }).ToArray();
+                var valid = selected.Count(n => cancelWork ? n.WorkRequested : !n.GatheringForbidden && (!n.IsDepleted || n.IsRegrowing));
+                GUI.Box(new Rect(rect.x, Mathf.Max(0,rect.y-28),240,24), $"대상 {valid}개 · 제외 {selected.Length-valid}개");
+            }
+        }
+    }
+}

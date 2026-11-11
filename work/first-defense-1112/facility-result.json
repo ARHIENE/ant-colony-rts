@@ -1,0 +1,27 @@
+{
+  "success": true,
+  "command": "command",
+  "data": {
+    "command": "run_script",
+    "parameters": {
+      "file": "AgentScripts/Facility1112Review.cs",
+      "entry": "Facility1112Review.Run",
+      "timeout_ms": "120000"
+    },
+    "result": {
+      "diagnostics": [],
+      "compileMs": 77,
+      "executeMs": 5762,
+      "assemblyName": "PipelineRunScript_Facility1112Review_a7f351db754340689c7bed6861ae24f0",
+      "success": true,
+      "result": "Campfire runtime bounds=(1.60, 0.50, 1.60) floor/collider/material fallback PASS\nCarpentry runtime bounds=(2.00, 1.07, 0.95) floor/collider/material fallback PASS\nKitchen runtime bounds=(3.00, 1.35, 1.37) floor/collider/material fallback PASS\nResearchDesk runtime bounds=(3.00, 1.85, 2.99) floor/collider/material fallback PASS\nSpikeTrap runtime bounds=(1.58, 0.68, 1.60) floor/collider/material fallback PASS\nStockpile runtime bounds=(2.35, 1.24, 3.00) floor/collider/material fallback PASS\nWorkshop runtime bounds=(3.00, 1.89, 1.79) floor/collider/material fallback PASS\nStorm live particles=420; inspect actual capture. Visual fixture, not pacing evidence.\n"
+    },
+    "target": {
+      "host": "127.0.0.1",
+      "port": 7801,
+      "projectPath": "F:\\UnityProjects\\ant-colony-rts"
+    }
+  },
+  "errors": [],
+  "warnings": []
+}

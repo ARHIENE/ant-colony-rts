@@ -62,7 +62,7 @@ namespace AntColony.World
                     if (!node.isActiveAndEnabled) continue;
                     var point = cam.WorldToScreenPoint(status.transform.position + Vector3.up);
                     if (point.z <= 0f || point.x < 0f || point.x > Screen.width || point.y < 0f || point.y > Screen.height) continue;
-                    if (!showAll && !status.Notable && (new Vector2(point.x, point.y) - mouse).sqrMagnitude > 70f * 70f) continue;
+                    if (!showAll && (WaveDefense.Instance?.InWave == true || !status.Notable) && (new Vector2(point.x, point.y) - mouse).sqrMagnitude > 70f * 70f) continue;
                     style.normal.textColor = node.IsRegrowing ? AntColony.UI.MenuTheme.Warning : AntColony.UI.MenuTheme.TextColor;
                     var content = new GUIContent(status.StatusText);
                     var width = Mathf.Min(Screen.width - 16, style.CalcSize(content).x);

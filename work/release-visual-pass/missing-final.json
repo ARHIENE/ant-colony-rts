@@ -1,0 +1,26 @@
+{
+  "success": true,
+  "command": "command",
+  "data": {
+    "command": "run_script",
+    "parameters": {
+      "file": "AgentScripts/ReleaseVisualExtraChecks.cs",
+      "entry": "ReleaseVisualExtraChecks.InspectMissing"
+    },
+    "result": {
+      "diagnostics": [],
+      "compileMs": 208,
+      "executeMs": 3,
+      "assemblyName": "PipelineRunScript_ReleaseVisualExtraChecks_f27cea5768ba4681b5db4eec37520719",
+      "success": true,
+      "result": ""
+    },
+    "target": {
+      "host": "127.0.0.1",
+      "port": 7800,
+      "projectPath": "F:\\UnityProjects\\ant-colony-rts"
+    }
+  },
+  "errors": [],
+  "warnings": []
+}

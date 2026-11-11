@@ -1,0 +1,26 @@
+{
+  "success": true,
+  "command": "command",
+  "data": {
+    "command": "run_script",
+    "parameters": {
+      "file": "AgentScripts/HaulFraction1112Checks.cs",
+      "entry": "HaulFraction1112Checks.Run"
+    },
+    "result": {
+      "diagnostics": [],
+      "compileMs": 154,
+      "executeMs": 3,
+      "assemblyName": "PipelineRunScript_HaulFraction1112Checks_8352325d97dd45f4a66cea71840784b4",
+      "success": true,
+      "result": "PASS: automatic fraction rejected, whole load accepted, manual fraction retained, resource amount unchanged"
+    },
+    "target": {
+      "host": "127.0.0.1",
+      "port": 7801,
+      "projectPath": "F:\\UnityProjects\\ant-colony-rts"
+    }
+  },
+  "errors": [],
+  "warnings": []
+}

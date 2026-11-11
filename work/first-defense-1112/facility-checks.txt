@@ -1,0 +1,8 @@
+Campfire runtime bounds=(1.60, 0.50, 1.60) floor/collider/material fallback PASS
+Carpentry runtime bounds=(2.00, 1.07, 0.95) floor/collider/material fallback PASS
+Kitchen runtime bounds=(3.00, 1.35, 1.37) floor/collider/material fallback PASS
+ResearchDesk runtime bounds=(3.00, 1.85, 2.99) floor/collider/material fallback PASS
+SpikeTrap runtime bounds=(1.58, 0.68, 1.60) floor/collider/material fallback PASS
+Stockpile runtime bounds=(2.35, 1.24, 3.00) floor/collider/material fallback PASS
+Workshop runtime bounds=(3.00, 1.89, 1.79) floor/collider/material fallback PASS
+Storm live particles=420; inspect actual capture. Visual fixture, not pacing evidence.

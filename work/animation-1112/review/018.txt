@@ -1,0 +1,6 @@
+Climb_Up_Rope
+Collect_Object
+Combat_Stance
+Cough_While_Sleeping
+Counterstrike
+Crawl_and_Look_Back

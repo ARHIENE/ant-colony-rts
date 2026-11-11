@@ -36,6 +36,9 @@ namespace AntColony.UI
             scrollArea.gameObject.AddComponent<Image>().color = MenuTheme.Background;
             content = legacyContent = MenuTheme.Scroll(scrollArea);
             tooltipPanel = MenuTheme.Rect("Tooltip", canvas.transform);
+            // Build windows have their own sorting canvas; sibling order alone cannot overlay them.
+            var tooltipCanvas = tooltipPanel.gameObject.AddComponent<Canvas>();
+            tooltipCanvas.overrideSorting = true; tooltipCanvas.sortingOrder = canvas.sortingOrder + 1;
             tooltipPanel.anchorMin = new Vector2(.2f, 1); tooltipPanel.anchorMax = new Vector2(.8f, 1);
             tooltipPanel.pivot = new Vector2(.5f, 1); tooltipPanel.anchoredPosition = new Vector2(0, -65);
             tooltipPanel.sizeDelta = new Vector2(0, 76);
@@ -149,6 +152,24 @@ namespace AntColony.UI
         public void Tooltip(string value, RectTransform source = null)
         {
             if (tip == null) return;
+            if (BuildScreen.TooltipArea(source, out var descriptionArea))
+            {
+                if (descriptionArea == null || string.IsNullOrEmpty(value))
+                { tooltipPanel.gameObject.SetActive(false); return; }
+                var parent = (RectTransform)tooltipPanel.parent;
+                var corners = new Vector3[4]; descriptionArea.GetWorldCorners(corners);
+                var bottom = parent.InverseTransformPoint(corners[0]);
+                var top = parent.InverseTransformPoint(corners[2]);
+                tip.text = value;
+                float scale = Mathf.Max(.1f, parent.GetComponentInParent<Canvas>().rootCanvas.scaleFactor);
+                tip.fontSize = Mathf.Max(14, Mathf.CeilToInt(12 / scale));
+                tip.alignment = TextAnchor.UpperLeft;
+                tooltipPanel.anchorMin = tooltipPanel.anchorMax = tooltipPanel.pivot = Vector2.zero;
+                tooltipPanel.sizeDelta = new Vector2(top.x - bottom.x, top.y - bottom.y);
+                tooltipPanel.anchoredPosition = new Vector2(bottom.x - parent.rect.xMin, bottom.y - parent.rect.yMin);
+                tooltipPanel.gameObject.SetActive(true); tooltipPanel.SetAsLastSibling();
+                return;
+            }
             tip.text = value;
             if (!string.IsNullOrEmpty(value))
             {

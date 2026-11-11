@@ -1,0 +1,1 @@
+Removed 15390 empty broken landscape instances; preserved boss component identities and serialized gameplay values; scene saved

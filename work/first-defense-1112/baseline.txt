@@ -1,0 +1,108 @@
+[0s] START 3 commanders rolls=1; buildings=얕은 수원,석유 매장 지점,불시착 잔해
+[0s] designated Food=3
+[0s] designated Wood=3
+[0s] designated Soil=2
+[0s] PLACE SleepingMat: 1 at (198.50, 9.90, 204.00)
+[0s] PLACE SleepingMat: 1 at (196.50, 9.98, 200.00)
+[0s] PLACE SleepingMat: 1 at (197.50, 9.90, 197.00)
+[0s] PLACE Toilet: 1 at (204.50, 10.37, 200.50)
+[0s] PLACE Storage: 1 at (202.50, 10.35, 202.50)
+[0s] PLACE MushroomFarm: 1 at (200.50, 10.05, 196.50)
+[0s] COMPLETED WaterSource
+[0s] COMPLETED OilDeposit
+[0s] COMPLETED CrashWreck
+[0s] COMPLETED SleepingMat
+[0s] COMPLETED SleepingMat
+[0s] COMPLETED SleepingMat
+[0s] team=3 food=0 soil=0 wood=0 buildings=WaterSource,OilDeposit,CrashWreck,SleepingMat,SleepingMat,SleepingMat
+[0s] 생존자 1 hp=100 mood=75 down=False sleep=False activity=Melee node= left= delivery=False build=
+[0s] 생존자 2 hp=100 mood=75 down=False sleep=False activity=Melee node= left= delivery=False build=
+[0s] 생존자 3 hp=100 mood=75 down=False sleep=False activity=Melee node= left= delivery=False build=
+[0s] site= wait=None work=10
+[0s] site=Toilet wait=MaterialShortage work=4
+[0s] site=Storage wait=MaterialShortage work=3
+[0s] site=Farm wait=MaterialShortage work=4
+[30s] PLAYER raises building=8 hauling=7 after initial gathering
+[30s] PLAYER prioritizes designated soil for queued construction
+[32s] COMPLETED Toilet
+[61s] team=3 food=0 soil=0 wood=0 buildings=WaterSource,OilDeposit,CrashWreck,SleepingMat,SleepingMat,SleepingMat,Toilet
+[61s] 생존자 1 hp=100 mood=62 down=False sleep=False activity=Melee node= left= delivery=False build=
+[61s] 생존자 2 hp=100 mood=62 down=False sleep=False activity=Melee node= left= delivery=False build=
+[61s] 생존자 3 hp=100 mood=62 down=False sleep=False activity=Melee node= left= delivery=False build=
+[61s] site= wait=None work=10
+[61s] site=Storage wait=MaterialShortage work=3
+[61s] site=Farm wait=AwaitingHaul work=4
+[98s] COMPLETED Storage
+[121s] team=3 food=0 soil=0 wood=0 buildings=WaterSource,OilDeposit,CrashWreck,SleepingMat,SleepingMat,SleepingMat,Toilet,Storage
+[121s] 생존자 1 hp=100 mood=58 down=False sleep=True activity=Melee node= left= delivery=False build=
+[121s] 생존자 2 hp=100 mood=61 down=False sleep=True activity=Melee node= left= delivery=False build=
+[121s] 생존자 3 hp=100 mood=61 down=False sleep=True activity=Melee node= left= delivery=False build=
+[121s] site= wait=None work=10
+[121s] site=Farm wait=Unreachable work=4
+[180s] team=3 food=0 soil=0 wood=0 buildings=WaterSource,OilDeposit,SleepingMat,SleepingMat,SleepingMat,Toilet,Storage
+[180s] 생존자 1 hp=100 mood=37 down=False sleep=False activity=Gathering node=Received Stone left=1 delivery=False build=
+[180s] 생존자 2 hp=100 mood=38 down=False sleep=False activity=Gathering node=Received Component left=0 delivery=False build=
+[180s] 생존자 3 hp=100 mood=43 down=False sleep=False activity=Gathering node=Received Wood left=1 delivery=False build=
+[180s] site=Farm wait=MaterialShortage work=4
+[228s] COMPLETED Farm
+[241s] team=3 food=43 soil=27 wood=8 buildings=WaterSource,OilDeposit,SleepingMat,SleepingMat,SleepingMat,Toilet,Storage,Farm
+[241s] 생존자 1 hp=100 mood=53 down=False sleep=False activity=Gathering node=Dropped Soil left=23 delivery=False build=
+[241s] 생존자 2 hp=100 mood=53 down=False sleep=False activity=Gathering node=SoilNode1 left=137 delivery=False build=
+[241s] 생존자 3 hp=100 mood=57 down=False sleep=False activity=Gathering node=Dropped Soil left=0 delivery=False build=
+[300s] PLACE AcidTower: 1 at (207.00, 10.85, 200.00)
+[300s] team=3 food=43 soil=39 wood=8 buildings=WaterSource,OilDeposit,SleepingMat,SleepingMat,SleepingMat,Toilet,Storage,Farm
+[300s] 생존자 1 hp=100 mood=50 down=False sleep=False activity=Melee node= left= delivery=False build=
+[300s] 생존자 2 hp=100 mood=51 down=False sleep=False activity=Melee node= left= delivery=False build=
+[300s] 생존자 3 hp=100 mood=51 down=False sleep=False activity=Melee node= left= delivery=False build=
+[300s] site=AcidTower wait=MaterialShortage work=8
+[310s] PLAYER switches designated gathering to food for research
+[361s] team=3 food=13 soil=31 wood=8 buildings=WaterSource,OilDeposit,SleepingMat,SleepingMat,SleepingMat,Toilet,Storage,Farm
+[361s] 생존자 1 hp=100 mood=49 down=False sleep=False activity=Melee node= left= delivery=False build=
+[361s] 생존자 2 hp=100 mood=50 down=False sleep=False activity=Melee node= left= delivery=False build=
+[361s] 생존자 3 hp=100 mood=50 down=False sleep=False activity=Melee node= left= delivery=False build=
+[361s] site=AcidTower wait=AwaitingHaul work=8
+[421s] team=3 food=10 soil=24 wood=8 buildings=WaterSource,OilDeposit,SleepingMat,SleepingMat,SleepingMat,Toilet,Storage,Farm
+[421s] 생존자 1 hp=100 mood=44 down=False sleep=True activity=Melee node= left= delivery=False build=
+[421s] 생존자 2 hp=100 mood=46 down=False sleep=True activity=Melee node= left= delivery=False build=
+[421s] 생존자 3 hp=100 mood=45 down=False sleep=True activity=Melee node= left= delivery=False build=
+[421s] site=AcidTower wait=Unreachable work=8
+[469s] COMPLETED AcidTower
+[480s] team=3 food=10 soil=26 wood=8 buildings=WaterSource,OilDeposit,SleepingMat,SleepingMat,SleepingMat,Toilet,Storage,Farm,AcidTower
+[480s] 생존자 1 hp=100 mood=51 down=False sleep=False activity=Gathering node=Dropped Soil left=0 delivery=False build=
+[480s] 생존자 2 hp=100 mood=47 down=False sleep=False activity=Gathering node=FoodNode1 left=248 delivery=False build=
+[480s] 생존자 3 hp=100 mood=47 down=False sleep=False activity=Melee node= left= delivery=False build=
+[541s] team=3 food=40 soil=26 wood=8 buildings=WaterSource,OilDeposit,SleepingMat,SleepingMat,SleepingMat,Toilet,Storage,Farm,AcidTower
+[541s] 생존자 1 hp=100 mood=42 down=False sleep=False activity=Gathering node=Dropped Soil left=1 delivery=False build=
+[541s] 생존자 2 hp=100 mood=48 down=False sleep=False activity=Gathering node=FoodNode1 left=217 delivery=False build=
+[541s] 생존자 3 hp=100 mood=51 down=False sleep=False activity=Gathering node=Dropped Food left=0 delivery=False build=
+[601s] team=3 food=35 soil=26 wood=8 buildings=WaterSource,OilDeposit,SleepingMat,SleepingMat,SleepingMat,Toilet,Storage,Farm,AcidTower
+[601s] 생존자 1 hp=100 mood=41 down=False sleep=False activity=Melee node= left= delivery=False build=
+[601s] 생존자 2 hp=100 mood=50 down=False sleep=False activity=Melee node= left= delivery=False build=
+[601s] 생존자 3 hp=100 mood=50 down=False sleep=False activity=Melee node= left= delivery=False build=
+[660s] team=3 food=89 soil=26 wood=8 buildings=WaterSource,OilDeposit,SleepingMat,SleepingMat,SleepingMat,Toilet,Storage,Farm,AcidTower
+[660s] 생존자 1 hp=100 mood=41 down=False sleep=False activity=Melee node= left= delivery=False build=
+[660s] 생존자 2 hp=100 mood=51 down=False sleep=False activity=Melee node= left= delivery=False build=
+[660s] 생존자 3 hp=100 mood=54 down=False sleep=False activity=Gathering node=Dropped Soil left=0 delivery=False build=
+[721s] team=3 food=94 soil=26 wood=8 buildings=WaterSource,OilDeposit,SleepingMat,SleepingMat,SleepingMat,Toilet,Storage,Farm,AcidTower
+[721s] 생존자 1 hp=100 mood=49 down=False sleep=True activity=Melee node= left= delivery=False build=
+[721s] 생존자 2 hp=100 mood=51 down=False sleep=True activity=Melee node= left= delivery=False build=
+[721s] 생존자 3 hp=100 mood=42 down=False sleep=True activity=Melee node= left= delivery=False build=
+[781s] team=3 food=94 soil=26 wood=8 buildings=WaterSource,OilDeposit,SleepingMat,SleepingMat,SleepingMat,Toilet,Storage,Farm,AcidTower
+[781s] 생존자 1 hp=100 mood=44 down=False sleep=False activity=Melee node= left= delivery=False build=
+[781s] 생존자 2 hp=100 mood=47 down=False sleep=False activity=Melee node= left= delivery=False build=
+[781s] 생존자 3 hp=100 mood=46 down=False sleep=False activity=Melee node= left= delivery=False build=
+[829s] PLACE ScienceLab: 1 at (203.50, 10.85, 206.50)
+[829s] PLAYER invests surplus in research building
+[829s] PLAYER prioritizes wood missing from research construction
+[841s] team=3 food=100 soil=72 wood=2 buildings=WaterSource,OilDeposit,SleepingMat,SleepingMat,SleepingMat,Toilet,Storage,Farm,AcidTower
+[841s] 생존자 1 hp=100 mood=46 down=False sleep=False activity=Melee node= left= delivery=False build=
+[841s] 생존자 2 hp=100 mood=48 down=False sleep=False activity=Melee node= left= delivery=False build=
+[841s] 생존자 3 hp=100 mood=47 down=False sleep=False activity=Melee node= left= delivery=False build=
+[841s] site=ScienceLab wait=AwaitingHaul work=10
+[900s] COMMANDER_SECONDS idle=241, work=881, move=304, needs=382, sleep=888
+[900s] PREPARATION END team=3 wave=1 remaining=15 screen=Game
+[900s] FIGHT elapsed=0 remaining=15 orders=0 hp=생존자 1:100/down=False/sleep=False/work=False,생존자 2:100/down=False/sleep=False/work=False,생존자 3:100/down=False/sleep=False/work=False enemyDistances=33,33,33,33,33,33,33,33,33,33,33,33,33,33,33
+[911s] FIGHT elapsed=10 remaining=13 orders=27 hp=생존자 1:95/down=False/sleep=False/work=False,생존자 2:94/down=False/sleep=False/work=False,생존자 3:100/down=False/sleep=False/work=False enemyDistances=13,13,13,13,12,14,14,13,12,14,14,13,14
+[921s] FIGHT elapsed=21 remaining=7 orders=57 hp=생존자 1:72/down=False/sleep=False/work=False,생존자 2:74/down=False/sleep=False/work=False,생존자 3:99/down=False/sleep=False/work=False enemyDistances=14,14,13,12,13,13,14
+[928s] BATTLE RESULT cleared=True firstContact=2 duration=28 remaining=0 screen=Game
+[988s] RECOVERY 부상 3명 · 파손 0곳 · 치료·수리 작업표 확인

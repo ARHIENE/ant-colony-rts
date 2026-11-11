@@ -1,0 +1,6 @@
+Tool_Axe_Stone scale=2 | Tool_Chop | PASS palm=0.000001 support=-0.091..0.090 endHeadForward=0.197 fingerTargetError=0.0518 armChanged=0.000
+Tool_Hammer_Stone scale=2 | Tool_Hammer | PASS palm=0.000000 support=0.012..0.062 endHeadForward=-0.921 fingerTargetError=0.0196 armChanged=0.000
+Tool_Hoe_Stone | LEGACY / source motion review required
+Tool_Pickaxe_Stone scale=2 | Tool_Mine | PASS palm=0.000000 support=0.009..0.088 endHeadForward=-0.921 fingerTargetError=0.0196 armChanged=0.000
+Tool_Shovel_Stone | LEGACY / source motion review required
+Tool_Sickle_Stone | LEGACY / source motion review required

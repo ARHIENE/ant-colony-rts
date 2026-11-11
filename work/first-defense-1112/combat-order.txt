@@ -1,0 +1,7 @@
+Destroyed target formation update: PASS
+0s remaining=15 hp=100,100,100
+15s remaining=15 hp=100,100,100
+Civilian attack button: PASS; one attack-move order each
+30s remaining=15 hp=100,100,100
+45s remaining=6 hp=70,84,97
+Result cleared=True elapsed=54s

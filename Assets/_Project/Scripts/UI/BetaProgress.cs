@@ -27,10 +27,11 @@ namespace AntColony.UI
             if (game == null) return;
             game.OnBossDefeated += Victory; game.OnDefeat += Defeat;
             var canvas = MenuTheme.Canvas("BetaObjectives", transform, 1);
-            var panel = MenuTheme.Panel(canvas.transform, "Objective", new Vector2(0, 1), new Vector2(300, 92), new Vector2(8, -48));
+            var panel = MenuTheme.Panel(canvas.transform, "Objective", new Vector2(0, 1), new Vector2(360, 84), new Vector2(140, -22));
             panel.GetComponent<UnityEngine.UI.Image>().raycastTarget = false;
             objectivePanel = panel.gameObject;
-            objective = MenuTheme.Text(panel, "", 13, 80);
+            objective = MenuTheme.Text(panel, "", 14, 80);
+            HudChrome.Round(panel.GetComponent<UnityEngine.UI.Image>(), 5, MenuTheme.Line);
             MenuTheme.Stretch(objective.rectTransform);
             objective.rectTransform.offsetMin = new Vector2(12, 8); objective.rectTransform.offsetMax = new Vector2(-12, -8);
             if (GameSession.Instance.GameStarted)
@@ -52,12 +53,19 @@ namespace AntColony.UI
             if (Time.unscaledTime < nextRefresh) return;
             nextRefresh = Time.unscaledTime + .5f;
             var playing = GameSession.Exists && GameSession.Instance.GameStarted && !SaveSystem.Busy;
-            objectivePanel.SetActive(playing && !GameMenuController.MenuOpen);
+            objectivePanel.SetActive(playing && !GameMenuController.MenuOpen && !BuildScreen.IsOpen);
             if (!playing) return;
             GoalChain.Refresh(Time.unscaledTime);
-            var emphasized = Time.unscaledTime < GoalChain.EmphasisUntil;
-            objective.text = emphasized ? "<color=#c3b88f><b>" + GoalChain.RecentAchievement + "</b></color>\n" + CurrentObjective : CurrentObjective;
-            ((RectTransform)objectivePanel.transform).sizeDelta = new Vector2(360, Mathf.Max(112, objective.preferredHeight + 16));
+            var fighting = WaveDefense.Instance?.InWave == true;
+            var emphasized = !fighting && Time.unscaledTime < GoalChain.EmphasisUntil;
+            objective.fontSize = Mathf.Max(14, Mathf.CeilToInt(10 / Mathf.Max(.1f, objective.canvas.rootCanvas.scaleFactor)));
+            var brief = fighting
+                ? "<b>본거지 방어</b> · 장수 선택 후 A + 지점 클릭\n산성탑 사거리에서 교전 · 부상자는 뒤로 이동\n남은 적은 우상단 ‘적 위치’로 찾기"
+                : GoalChain.HudText;
+            int rewardLine = brief.IndexOf("\n<color=#d6d7cb>이후");
+            if (rewardLine >= 0) brief = brief.Substring(0, rewardLine);
+            objective.text = emphasized ? "<color=#c3b88f><b>" + GoalChain.RecentAchievement + "</b></color>\n" + brief : brief;
+            ((RectTransform)objectivePanel.transform).sizeDelta = new Vector2(360, Mathf.Max(76, objective.preferredHeight + 20));
         }
 
         private string BuildObjective() => CampaignNextSteps.Text();

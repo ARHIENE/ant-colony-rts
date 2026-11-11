@@ -1,0 +1,2 @@
+48 combinations: 6 hair x 4 outfit material variants x 2 source rigs; one active hair/outfit PASS
+8 named facial shape channels sync PASS

@@ -63,10 +63,13 @@ namespace AntColony.UI
             if (twice) Focus(available[0].transform.position);
         }
 
+        public static bool IsIdle(CommanderAnt c) => c != null && c.isActiveAndEnabled && c.CanReceiveOrders
+            && !c.IsAsleep && !c.IsEmbarked && !c.IsAwayFromHome && CommanderOverhead.Activity(c).Length == 0;
+
         private static void NextIdle(SelectionManager selection)
         {
             var idle = CommanderRoster.Instance == null ? new List<CommanderAnt>() : CommanderRoster.Instance.Commanders
-                .Where(c => c != null && c.isActiveAndEnabled && c.CanReceiveOrders && !c.IsAsleep && !c.IsEmbarked && !c.IsAwayFromHome && CommanderOverhead.Activity(c).Length == 0).ToList();
+                .Where(IsIdle).ToList();
             if (idle.Count == 0) { ToastManager.Show("할 일 없는 장수가 없습니다."); return; }
             var c = idle[idleIndex++ % idle.Count];
             selection.SelectOnly(c.GetComponent<SelectableObject>());

@@ -13,12 +13,13 @@ namespace AntColony.UI
         private readonly System.Collections.Generic.Dictionary<CommanderAnt, SkinnedMeshRenderer[]> bodies = new();
         private Vector3 LabelAnchor(CommanderAnt c, UnityEngine.Camera camera)
         {
-            if (!bodies.TryGetValue(c, out var renderers)) bodies[c] = renderers = c.GetComponentsInChildren<SkinnedMeshRenderer>();
+            if (!bodies.TryGetValue(c, out var renderers) || Time.frameCount % 120 == 0)
+                bodies[c] = renderers = c.GetComponentsInChildren<SkinnedMeshRenderer>();
             var point = camera.WorldToScreenPoint(c.Position + Vector3.up * .8f);
             bool found = false;
             foreach (var renderer in renderers)
             {
-                if (renderer == null || !renderer.enabled || !renderer.gameObject.activeInHierarchy) continue;
+                if (renderer == null || !renderer.enabled || renderer.forceRenderingOff || !renderer.gameObject.activeInHierarchy) continue;
                 var bounds = renderer.bounds;
                 for (int i = 0; i < 8; i++)
                 {
@@ -72,23 +73,49 @@ namespace AntColony.UI
                 if (c == null || !c.isActiveAndEnabled || c.IsDead || c.IsEmbarked || c.IsAwayFromHome) continue;
                 bool selected = c.GetComponent<SelectableObject>()?.IsSelected == true;
                 bool hurt = c.PersonalHealth < GameBalance.CommanderHealth;
-                if (!selected && !hurt && !MoodAlert(c) && !c.IsDeployed) continue;
+                // A healthy, unselected commander still needs a readable identity in the world.
                 var p = LabelAnchor(c, camera);
                 if (p.z <= 0 || p.x < 0 || p.x > Screen.width || p.y < 0 || p.y > Screen.height) continue;
-                float scale = MenuTheme.UiScale, line = 16 * scale;
+                float scale = Mathf.Max(.85f, MenuTheme.UiScale), line = 20 * scale;
                 nameStyle.font = MenuTheme.Font; nameStyle.fontStyle = FontStyle.Normal;
-                nameStyle.fontSize = Mathf.Max(8, Mathf.RoundToInt(12 * scale));
+                nameStyle.fontSize = Mathf.Max(12, Mathf.RoundToInt(13 * scale));
                 float width = Mathf.Max(64 * scale, nameStyle.CalcSize(new GUIContent(c.CommanderName)).x + 12 * scale);
-                float height = line + (hurt || c.IsDeployed ? 9 * scale : 0);
+                string activity = Activity(c);
+                if (activity.Length == 0) activity = "대기";
+                float detail = selected ? 17 * scale : 0;
+                float height = line + detail + (hurt || c.IsDeployed ? 9 * scale : 0);
                 float x = p.x - width * .5f, y = Screen.height - p.y - height - 4 * scale;
                 // Do not push labels far above their owner; details remain in the bottom selection dock.
-                if (!HudResponsiveLayout.ReserveWorldLabel(new Rect(x, y, width, height))) continue;
+                bool reserved = false;
+                float originalY = y;
+                for (int lane = 0; lane < 3; lane++)
+                {
+                    y = originalY - lane * (height + 3 * scale);
+                    if (y < 4) break;
+                    if (HudResponsiveLayout.ReserveWorldLabel(new Rect(x, y, width, height))) { reserved = true; break; }
+                }
+                if (!reserved) continue;
+                if (y != originalY)
+                {
+                    var tint = GUI.color; GUI.color = MenuTheme.Muted;
+                    GUI.DrawTexture(new Rect(p.x, y + height, 1, originalY - y), Texture2D.whiteTexture);
+                    GUI.color = tint;
+                }
                 var old = GUI.color; GUI.color = new Color(.16f, .15f, .14f, .92f);
-                GUI.DrawTexture(new Rect(x, y, width, line), Texture2D.whiteTexture); GUI.color = old;
+                GUI.DrawTexture(new Rect(x, y, width, line + detail), Texture2D.whiteTexture); GUI.color = old;
                 nameStyle.normal.textColor = MoodAlert(c) ? new Color(1f, .7f, .5f) : MenuTheme.TextColor;
                 GUI.Label(new Rect(x, y, width, line), c.CommanderName, nameStyle);
-                if (hurt) Bar(new Rect(x + 2 * scale, y + line + scale, width - 4 * scale, 3 * scale), c.PersonalHealth / GameBalance.CommanderHealth, MenuTheme.Hp);
-                if (c.IsDeployed) Bar(new Rect(x + 2 * scale, y + line + 5 * scale, width - 4 * scale, 3 * scale), c.CommandLimit > 0 ? c.TroopHealth / c.CommandLimit : 0, MenuTheme.Accent);
+                GUI.color = selected ? MenuTheme.Accent : MenuTheme.Muted;
+                GUI.DrawTexture(new Rect(x, y + line + detail - 2 * scale, width, 2 * scale), Texture2D.whiteTexture);
+                GUI.color = old;
+                if (selected)
+                {
+                    tagStyle.font = MenuTheme.Font; tagStyle.fontSize = Mathf.RoundToInt(11 * scale);
+                    tagStyle.normal.background = null; tagStyle.normal.textColor = MenuTheme.Muted;
+                    GUI.Label(new Rect(x, y + line - 2 * scale, width, detail), activity, tagStyle);
+                }
+                if (hurt) Bar(new Rect(x + 2 * scale, y + line + detail + scale, width - 4 * scale, 3 * scale), c.PersonalHealth / GameBalance.CommanderHealth, MenuTheme.Hp);
+                if (c.IsDeployed) Bar(new Rect(x + 2 * scale, y + line + detail + 5 * scale, width - 4 * scale, 3 * scale), c.CommandLimit > 0 ? c.TroopHealth / c.CommandLimit : 0, MenuTheme.Accent);
 
             }
         }

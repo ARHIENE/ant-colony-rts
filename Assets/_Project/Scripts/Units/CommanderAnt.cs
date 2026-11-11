@@ -318,6 +318,7 @@ namespace AntColony.Units
         {
             if (!CanReceiveOrders || LabUpgradeBusy || target == null || !CanAttackTarget(target)) return;
             if (target is Component component && !AntColony.World.DiplomacyManager.TryAttack(component)) return;
+            WakeForDuty(); CommandStop();
             WorkState.deploymentMealSeconds = 0;
             WorkState.bossPickup = -1;
             ReleaseCorpse();
@@ -329,6 +330,7 @@ namespace AntColony.Units
         public override void CommandAttackMove(Vector3 destination)
         {
             if (!CanReceiveOrders || LabUpgradeBusy) return;
+            WakeForDuty(); CommandStop();
             WorkState.deploymentMealSeconds = 0;
             WorkState.bossPickup = -1;
             ReleaseCorpse();

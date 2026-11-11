@@ -1,0 +1,9 @@
+{
+  "file_upload_id": "415c4a0e-cd31-8117-9e2d-00b25c72c0cb",
+  "filename": "face-review.jpg",
+  "content_type": "image/jpeg",
+  "content_length": 127775,
+  "status": "uploaded",
+  "markdown_source": "file-upload://415c4a0e-cd31-8117-9e2d-00b25c72c0cb",
+  "suggested_markdown": "<image source=\"file-upload://415c4a0e-cd31-8117-9e2d-00b25c72c0cb\" />"
+}

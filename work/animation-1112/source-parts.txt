@@ -1,0 +1,10 @@
+Rig0 Body triangles=21811
+Rig0 Hair triangles=34186
+Rig0 Outfit triangles=35614
+Rig0 Face triangles=9658
+Rig0 Ears triangles=1973
+Rig1 Body triangles=21811
+Rig1 Hair triangles=34186
+Rig1 Outfit triangles=35614
+Rig1 Face triangles=9658
+Rig1 Ears triangles=1973

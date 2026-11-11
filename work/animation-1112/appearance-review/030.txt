@@ -1,0 +1,6 @@
+Female_Bow_Charge_Left_Hand
+Female_Crouch_Pick_Fruit_Basket_Stand
+Female_Stand_Pick_Fruit_Basket
+Female_Walk_Pick_Put_In_Pocket
+Finger_Wag_No
+Groan_Holding_Stomach_in_Sleep

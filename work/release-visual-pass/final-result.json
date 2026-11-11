@@ -1,0 +1,27 @@
+{
+  "success": true,
+  "command": "command",
+  "data": {
+    "command": "run_script",
+    "parameters": {
+      "file": "AgentScripts/ReleaseVisualChecks.cs",
+      "entry": "ReleaseVisualChecks.Run",
+      "timeout_ms": "120000"
+    },
+    "result": {
+      "diagnostics": [],
+      "compileMs": 3063,
+      "executeMs": 16473,
+      "assemblyName": "PipelineRunScript_ReleaseVisualChecks_430701caecdf411b8e21726f581990ee",
+      "success": true,
+      "result": "1440x900: Dressing objects: 118\nDressing: no enabled colliders, no resource components, central core clear\r\nScienceLab physical font: 19.84 preferred=47 height=67.66666\r\n\r\n760x600: Dressing objects: 118\nDressing: no enabled colliders, no resource components, central core clear\r\nScienceLab physical font: 11.12556 preferred=43.57895 height=67.66666\r\n\r\n"
+    },
+    "target": {
+      "host": "127.0.0.1",
+      "port": 7802,
+      "projectPath": "F:\\UnityProjects\\ant-colony-rts"
+    }
+  },
+  "errors": [],
+  "warnings": []
+}

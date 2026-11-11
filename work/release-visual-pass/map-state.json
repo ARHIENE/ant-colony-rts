@@ -1,0 +1,23 @@
+{
+  "success": true,
+  "command": "command",
+  "data": {
+    "command": "eval",
+    "parameters": {
+      "code": "var m=AntColony.Map.MapGenerator.Active; var f=typeof(AntColony.Map.MapGenerator).GetField(\"spawnObjects\",System.Reflection.BindingFlags.NonPublic|System.Reflection.BindingFlags.Instance); return UnityEngine.JsonUtility.ToJson(m);"
+    },
+    "result": {
+      "output": null,
+      "diagnostics": [],
+      "success": true,
+      "result": "{\"xSize\":240,\"zSize\":240,\"xOffset\":1813,\"zOffset\":8619,\"noiseScale\":0.029999999329447748,\"heightMultiplier\":14.390000343322754,\"octavesCount\":1,\"lacunarity\":2.0,\"persistance\":0.5,\"terrainLayers\":[{\"texture\":{\"instanceID\":568105584918928670},\"startHeight\":0.0},{\"texture\":{\"instanceID\":568105584918930382},\"startHeight\":0.25},{\"texture\":{\"instanceID\":568105584918932518},\"startHeight\":0.44999998807907107},{\"texture\":{\"instanceID\":568105584918926080},\"startHeight\":0.6499999761581421},{\"texture\":{\"instanceID\":568105584918931762},\"startHeight\":0.8199999928474426}],\"mat\":{\"instanceID\":568105584918924312},\"generateWater\":true,\"waterMat\":{\"instanceID\":568105584918861454},\"waterHeight\":0.18000000715255738,\"spawnObjects\":[{\"prefab\":{\"instanceID\":568105584918924296},\"minHeight\":0.35100001096725466,\"maxHeight\":0.6510000228881836,\"spawnChance\":0.05000000074505806,\"minScale\":0.10000000149011612,\"maxScale\":1.0,\"minDistanceBetween\":1.5,\"foliage\":false,\"solid\":false},{\"prefab\":{\"instanceID\":568105584918924300},\"minHeight\":0.35100001096725466,\"maxHeight\":0.6510000228881836,\"spawnChance\":0.05000000074505806,\"minScale\":0.10000000149011612,\"maxScale\":1.0,\"minDistanceBetween\":1.5,\"foliage\":false,\"solid\":false},{\"prefab\":{\"instanceID\":568105584918924306},\"minHeight\":0.35100001096725466,\"maxHeight\":0.6510000228881836,\"spawnChance\":0.009999999776482582,\"minScale\":0.10000000149011612,\"maxScale\":1.0,\"minDistanceBetween\":1.5,\"foliage\":false,\"solid\":false}],\"mesh\":{\"instanceID\":568105589207029052},\"waterObject\":{\"instanceID\":568105589207029042},\"spawnedObjects\":[],\"terrainMaterial\":{\"instanceID\":568105589207029050},\"materialSource\":{\"instanceID\":568105584918860278},\"terrainTextures\":{\"instanceID\":568105589207029048}}"
+    },
+    "target": {
+      "host": "127.0.0.1",
+      "port": 7801,
+      "projectPath": "F:\\UnityProjects\\ant-colony-rts"
+    }
+  },
+  "errors": [],
+  "warnings": []
+}

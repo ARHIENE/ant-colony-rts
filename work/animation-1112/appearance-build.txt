@@ -1,0 +1,2 @@
+Rig0: 18 original cosmetic parts; radial=1.1971; original clip curves untouched
+Rig1: 18 original cosmetic parts; radial=1.2719; original clip curves untouched

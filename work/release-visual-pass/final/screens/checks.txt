@@ -1,0 +1,12 @@
+1440x900: Dressing objects: 118
+Dressing: no enabled colliders, no resource components, central core clear
+ScienceLab physical font: 21.08 preferred=50 height=88
+Wheel scroll reached final building; viewport contains last card
+16 building help panels: reachable pointer targets, content intact, no clipping, >=12px, right of grid
+
+760x600: Dressing objects: 118
+Dressing: no enabled colliders, no resource components, central core clear
+ScienceLab physical font: 13.08889 preferred=54.94737 height=96.84889
+Wheel scroll reached final building; viewport contains last card
+16 building help panels: reachable pointer targets, content intact, no clipping, >=12px, right of grid
+

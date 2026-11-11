@@ -155,6 +155,8 @@ namespace AntColony.UI
             markStyle.normal.textColor = new Color(1f, .45f, .35f);
             foreach (var node in ResourceNode.Available)
             {
+                // Explicit designation mode retains marks during combat.
+                if (!active && AntColony.World.WaveDefense.Instance?.InWave == true) continue;
                 if (node == null || !node.GatheringForbidden && !(node.NeedsDesignation && node.WorkRequested)) continue;
                 var p = camera.WorldToScreenPoint(node.transform.position + Vector3.up * 2f);
                 if (p.z <= 0 || p.x < 0 || p.x > Screen.width || p.y < 0 || p.y > Screen.height) continue;

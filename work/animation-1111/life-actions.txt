@@ -1,0 +1,4 @@
+Actual navigation PASS Run / Running distance=0.7241211
+Actual harvesting PASS FoodNode2 / Tool_Harvest / Pull_Radish
+Actual night sleep PASS IsAsleep=true / Sleep_Normally
+Sleep ground clearance=-0.0070m PASS

@@ -1,0 +1,332 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d17be847ac59bcf4196d6b76726f4056, type: 3}
+  m_Name: Runtime
+  m_EditorClassIdentifier: Assembly-CSharp::AntColony.Units.MeshyNativeLibrary
+  characters:
+  - {fileID: 919132149155446097, guid: 336750c8e3b07a64a933541f08ba1814, type: 3}
+  - {fileID: 919132149155446097, guid: 59e5aa0091e3fd84998d0dce7b014eed, type: 3}
+  texture: {fileID: 2800000, guid: d47cd63a47b2ed449a5fe8757aaf09b9, type: 3}
+  motions:
+  - id: Archery_Shot_3
+    clip: {fileID: 3333622190250040868, guid: d239c946a981f3c4fbaa1b58fd5a2e0c, type: 3}
+    rig: 0
+    armatureRoot: 0
+    maxHandSpan: 0
+    loop: 1
+  - id: Arise
+    clip: {fileID: -5175492307695106804, guid: c3f4569268792064b85451e25b7cf650, type: 3}
+    rig: 1
+    armatureRoot: 0
+    maxHandSpan: 0
+    loop: 0
+  - id: Carry_Heavy_Object_Walk
+    clip: {fileID: -3264528302288352614, guid: 48937f07c8c4dc44093423133c05b769, type: 3}
+    rig: 0
+    armatureRoot: 0
+    maxHandSpan: 0
+    loop: 1
+  - id: Collect_Object
+    clip: {fileID: -6757020630807413255, guid: 3459f5657f1979449b1236a2f4a4b107, type: 3}
+    rig: 1
+    armatureRoot: 0
+    maxHandSpan: 0
+    loop: 1
+  - id: Combat_Stance
+    clip: {fileID: -3964022487478357608, guid: 785bb6bca0eef854b8793ccb0f6859d6, type: 3}
+    rig: 1
+    armatureRoot: 1
+    maxHandSpan: 0
+    loop: 1
+  - id: Counterstrike
+    clip: {fileID: -4822866287984867211, guid: 6035c00c4bb418340bbc85342ba0fbc9, type: 3}
+    rig: 1
+    armatureRoot: 1
+    maxHandSpan: 0
+    loop: 1
+  - id: Dead
+    clip: {fileID: 8273325049105940540, guid: ae426fdd396eab2458dc636a5b279a60, type: 3}
+    rig: 1
+    armatureRoot: 0
+    maxHandSpan: 0
+    loop: 0
+  - id: falling_down
+    clip: {fileID: -5649151934099435369, guid: 6eca988c23613964eadb68b448be98e5, type: 3}
+    rig: 1
+    armatureRoot: 0
+    maxHandSpan: 0
+    loop: 0
+  - id: Female_Bend_Over_Pick_Up_Inspect
+    clip: {fileID: 4727725557492882056, guid: f31ad42f218d88b4db3a55b08e0246c5, type: 3}
+    rig: 1
+    armatureRoot: 0
+    maxHandSpan: 0
+    loop: 1
+  - id: Head_Hold_in_Pain
+    clip: {fileID: -1666183272746191385, guid: a7add6c087be2fe489788abc28607bd6, type: 3}
+    rig: 1
+    armatureRoot: 1
+    maxHandSpan: 0
+    loop: 1
+  - id: Headache_Relief
+    clip: {fileID: -7740969604924858918, guid: e508017694dd2c24c808749d1c948199, type: 3}
+    rig: 1
+    armatureRoot: 1
+    maxHandSpan: 0
+    loop: 1
+  - id: Heavy_Hammer_Swing
+    clip: {fileID: -1080172517415322108, guid: 9bdb4a392fcbc6140aab472872977a22, type: 3}
+    rig: 0
+    armatureRoot: 0
+    maxHandSpan: 0.4148716
+    loop: 1
+  - id: Hit_Reaction
+    clip: {fileID: 8970099879989002870, guid: 9903b243a67ec4249b59232c010504ee, type: 3}
+    rig: 0
+    armatureRoot: 0
+    maxHandSpan: 0
+    loop: 0
+  - id: Idle_11
+    clip: {fileID: 2052686777651669518, guid: 838d6c36637c38746b22b1e12a8a1bd8, type: 3}
+    rig: 1
+    armatureRoot: 1
+    maxHandSpan: 0
+    loop: 1
+  - id: Idle_3
+    clip: {fileID: -3548273549459496330, guid: 35f64bb200f2f264889961e89034c0ee, type: 3}
+    rig: 1
+    armatureRoot: 1
+    maxHandSpan: 0
+    loop: 1
+  - id: Idle_4
+    clip: {fileID: -7095233583796928237, guid: 43f8c62ddcea2d340a286c54ed4717aa, type: 3}
+    rig: 1
+    armatureRoot: 1
+    maxHandSpan: 0
+    loop: 1
+  - id: Idle_5
+    clip: {fileID: -479822015694463090, guid: ef20d1466f446014798677d56cefae37, type: 3}
+    rig: 1
+    armatureRoot: 1
+    maxHandSpan: 0
+    loop: 1
+  - id: Injured_Walk
+    clip: {fileID: -6712877583686036819, guid: 47ec87bc03e63f0479446f0862d7a0ae, type: 3}
+    rig: 1
+    armatureRoot: 1
+    maxHandSpan: 0
+    loop: 1
+  - id: Listening_Gesture
+    clip: {fileID: -6818285914164538284, guid: 84535c53f3992e1469a4c59a7336abfb, type: 3}
+    rig: 1
+    armatureRoot: 1
+    maxHandSpan: 0
+    loop: 1
+  - id: Long_Breathe_and_Look_Around
+    clip: {fileID: 902492996928096439, guid: 29f630f27353c0c47af8d3fbc014a289, type: 3}
+    rig: 1
+    armatureRoot: 1
+    maxHandSpan: 0
+    loop: 1
+  - id: Male_Bend_Over_Pick_Up
+    clip: {fileID: -6827329897430172337, guid: 3cb1fd29661f2894586c1a19f5c7f1ef, type: 3}
+    rig: 1
+    armatureRoot: 0
+    maxHandSpan: 0
+    loop: 1
+  - id: Prone_Reach_Help
+    clip: {fileID: 8714898405226845434, guid: 084683a11535a874f8fc7a35f82133ed, type: 3}
+    rig: 1
+    armatureRoot: 1
+    maxHandSpan: 0
+    loop: 1
+  - id: Pull_Radish
+    clip: {fileID: -7722784193945378572, guid: 169893749e3326640ac01657497626ef, type: 3}
+    rig: 0
+    armatureRoot: 0
+    maxHandSpan: 0
+    loop: 1
+  - id: Right_Hand_Sword_Slash
+    clip: {fileID: 5392990168159487488, guid: a27597ea6b5d5e2499043a3eff2ed946, type: 3}
+    rig: 0
+    armatureRoot: 0
+    maxHandSpan: 0
+    loop: 1
+  - id: Running
+    clip: {fileID: -9121621101649706817, guid: 5e7a81d28091dc64a9f32831fb8368ca, type: 3}
+    rig: 1
+    armatureRoot: 0
+    maxHandSpan: 0
+    loop: 1
+  - id: Shield_Push_Left
+    clip: {fileID: -4717088336826507329, guid: 7d1c74632f7904541bf5189185a0e732, type: 3}
+    rig: 1
+    armatureRoot: 1
+    maxHandSpan: 0
+    loop: 1
+  - id: Sit_Cross_Legged_on_Floor
+    clip: {fileID: -4078403354106436441, guid: 78b23096e57238e4089f8dc9e4892d54, type: 3}
+    rig: 1
+    armatureRoot: 1
+    maxHandSpan: 0
+    loop: 1
+  - id: Sit_to_Stand_Transition_M
+    clip: {fileID: 113282911701545003, guid: ef3115cf23ee29344a33531b8bbdce90, type: 3}
+    rig: 1
+    armatureRoot: 0
+    maxHandSpan: 0
+    loop: 0
+  - id: Sleep_Normally
+    clip: {fileID: 8421961732766157539, guid: 9235407895e889f4f81a27505067402c, type: 3}
+    rig: 0
+    armatureRoot: 0
+    maxHandSpan: 0
+    loop: 1
+  - id: Stand_and_Drink
+    clip: {fileID: -6240113235714367947, guid: 08396573b5595954283118c186454cb1, type: 3}
+    rig: 0
+    armatureRoot: 0
+    maxHandSpan: 0
+    loop: 1
+  - id: Stand_to_Sit_Transition_M
+    clip: {fileID: 150913869861682212, guid: 8bb85fb4636af8349a1a7981c81fff49, type: 3}
+    rig: 1
+    armatureRoot: 1
+    maxHandSpan: 0
+    loop: 0
+  - id: Stumble_Walk
+    clip: {fileID: -1070683531111296097, guid: 34c15146cceaee34b93d9ba4d2e6f486, type: 3}
+    rig: 1
+    armatureRoot: 1
+    maxHandSpan: 0
+    loop: 1
+  - id: Talk_with_Hands_Open
+    clip: {fileID: 4827447717839450956, guid: 79aebac46d97071469f038d7443dca03, type: 3}
+    rig: 1
+    armatureRoot: 1
+    maxHandSpan: 0
+    loop: 1
+  - id: Victory_Fist_Pump
+    clip: {fileID: 3850420269171149356, guid: 3009347129330df48b1839fbeea9c6f4, type: 3}
+    rig: 1
+    armatureRoot: 1
+    maxHandSpan: 0
+    loop: 1
+  - id: Walking
+    clip: {fileID: -1610863427237328480, guid: 3100f726380232f43bbbbcf8f167ca13, type: 3}
+    rig: 1
+    armatureRoot: 0
+    maxHandSpan: 0
+    loop: 1
+  actions:
+  - action: Tool_Mine
+    motion: Heavy_Hammer_Swing
+  - action: Tool_Chop
+    motion: Heavy_Hammer_Swing
+  - action: Tool_Hammer
+    motion: Heavy_Hammer_Swing
+  - action: SmithRepair
+    motion: Heavy_Hammer_Swing
+  - action: Tool_Harvest
+    motion: Pull_Radish
+  - action: GroundWork
+    motion: Collect_Object
+  - action: Carry
+    motion: Carry_Heavy_Object_Walk
+  - action: CarryPerson
+    motion: Carry_Heavy_Object_Walk
+  - action: Walk
+    motion: Walking
+  - action: Run
+    motion: Running
+  - action: WalkInjured
+    motion: Injured_Walk
+  - action: Sleep
+    motion: Sleep_Normally
+  - action: Downed
+    motion: Prone_Reach_Help
+  - action: Rest
+    motion: Sit_Cross_Legged_on_Floor
+  - action: SkyGaze
+    motion: Long_Breathe_and_Look_Around
+  - action: Inspect
+    motion: Female_Bend_Over_Pick_Up_Inspect
+  - action: Hit
+    motion: Hit_Reaction
+  - action: Death
+    motion: Dead
+  - action: Attack
+    motion: Right_Hand_Sword_Slash
+  - action: ShieldBlock
+    motion: Shield_Push_Left
+  - action: BowShoot
+    motion: Archery_Shot_3
+  - action: Celebrate
+    motion: Victory_Fist_Pump
+  - action: IdleVariant0
+    motion: Idle_3
+  - action: IdleVariant1
+    motion: Idle_4
+  - action: IdleVariant2
+    motion: Idle_5
+  - action: Talk
+    motion: Talk_with_Hands_Open
+  - action: Listen
+    motion: Listening_Gesture
+  - action: Tool_Dig
+    motion: Heavy_Hammer_Swing
+  - action: Tool_Till
+    motion: Heavy_Hammer_Swing
+  - action: Attack_Unarmed
+    motion: Counterstrike
+  - action: Drink
+    motion: Stand_and_Drink
+  - action: WakeUp
+    motion: Arise
+  - action: WalkTipsy
+    motion: Stumble_Walk
+  - action: Stagger
+    motion: Stumble_Walk
+  - action: PassOut
+    motion: falling_down
+  - action: CollapseDropWeapon
+    motion: falling_down
+  - action: HangoverIdle
+    motion: Headache_Relief
+  - action: Mourn
+    motion: Head_Hold_in_Pain
+  - action: Hurt
+    motion: Hit_Reaction
+  - action: Pickup
+    motion: Male_Bend_Over_Pick_Up
+  - action: EquipFromGround
+    motion: Male_Bend_Over_Pick_Up
+  - action: BenchPickup
+    motion: Collect_Object
+  - action: PutDown
+    motion: Collect_Object
+  - action: BenchPlace
+    motion: Collect_Object
+  - action: UnequipToGround
+    motion: Collect_Object
+  - action: Captive
+    motion: Sit_Cross_Legged_on_Floor
+  - action: StandIdle
+    motion: Idle_11
+  - action: Idle_A
+    motion: Combat_Stance
+  - action: Idle
+    motion: Idle_3
+  - action: StandEnter
+    motion: Sit_to_Stand_Transition_M
+  - action: StandExit
+    motion: Stand_to_Sit_Transition_M

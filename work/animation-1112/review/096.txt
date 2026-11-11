@@ -1,0 +1,6 @@
+Stand_and_Drink
+Stand_Clap_and_Sit_Down
+Stand_Dodge
+Stand_Talking_Angry
+Stand_to_Sit_Transition_M
+Standing_Reload

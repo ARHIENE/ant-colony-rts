@@ -1,0 +1,1 @@
+Tool_Axe_Stone | Tool_Chop | PASS palm=0.000000 support=-0.093..0.084 endHeadForward=0.197

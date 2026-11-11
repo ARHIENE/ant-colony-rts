@@ -65,11 +65,11 @@ namespace AntColony.UI
 
         private static string Describe(int stage)
         {
+            var context = CampaignNextSteps.Context();
             if (ExpeditionRules.Paused && stage >= 4 && stage < StageCount)
                 return "<b>정착지 운영 · 웨이브 방어</b>\n" + ExpeditionRules.PauseReason
-                    + "\n" + CampaignNextSteps.Context();
+                    + "\n" + (context == "" ? Action(2) : context);
             if (stage == StageCount) return "<b>탈출 완료</b>\n결과 화면에서 구출·잔류 기록 확인";
-            var context = CampaignNextSteps.Context();
             return "<b>현재 목표 · " + Title(stage) + "</b>\n" + Progress(stage)
                 + "\n" + (context == "" ? Action(stage) : context) + "\n<color=#d6d7cb>이후 · " + Reward(stage) + "</color>";
         }
@@ -77,7 +77,7 @@ namespace AntColony.UI
         {
             var r = CampaignResearch.Instance;
             if (stage == 0) return wreck ? "잔해 회수 0/1" : "잔해 회수 1/1";
-            if (stage == 1) return $"식량 {food}/20 · 침대 {bedShortage}개 부족";
+            if (stage == 1) return $"창고 식량 {food}/20 · 잠자리 {bedShortage}개 부족";
             if (stage == 2) return ResearchProgress();
             var target = TargetTier(stage);
             if (target > 0)
@@ -106,8 +106,7 @@ namespace AntColony.UI
         }
         private static string Action(int stage)
         {
-            if (stage == 0) return "잔해 선택 → 철거 지정으로 건설 재료 회수";
-            if (stage == 1) return bedShortage > 0 ? "잠자리 부족 · 건설에서 침대 지정" : "식량 부족 · 작업 지정에서 채집 대상을 직접 선택";
+            if (stage <= 1) return CampaignNextSteps.EarlyGoal(stage);
             if (stage == 4) return "세계 지도에서 목적지 선택 → 보급 후 직접 출발";
             if (IsBossStage(stage))
             {
@@ -128,7 +127,7 @@ namespace AntColony.UI
                 return "로켓 화면에서 시민·장수 탑승 후 직접 발사";
             }
             var r = CampaignResearch.Instance;
-            if (tier == 0) return "연구소 없음 · 건설에서 과학연구소 지정";
+            if (tier == 0) return "B 건설 → 작업 → 정착지 연구대 건설";
             if (r.Paused) return "연구 정지 · 과학에서 재개";
             if (r.Active != null || r.ActiveResource.HasValue)
             {
@@ -145,7 +144,7 @@ namespace AntColony.UI
                 if (block == "") block = r.ResearchCostShortage(promotion);
                 return (block == "" ? CampaignResearch.Technologies[(int)promotion].Name + " 선택 필요" : block) + " · 과학에서 직접 선택";
             }
-            return "과학에서 연구를 직접 선택 · " + CampaignNextSteps.ParallelGoal(tier);
+            return "다음 선택 · " + CampaignNextSteps.ParallelGoal(tier);
         }
         private static int Stock(ResourceType type) => ResourceManager.Instance?.GetAmount(type) ?? 0;
     }

@@ -1,0 +1,27 @@
+{
+  "success": true,
+  "command": "command",
+  "data": {
+    "command": "run_script",
+    "parameters": {
+      "file": "AgentScripts/ReleaseVisualExtraChecks.cs",
+      "entry": "ReleaseVisualExtraChecks.InspectMissing",
+      "timeout_ms": "30000"
+    },
+    "result": {
+      "diagnostics": [],
+      "compileMs": 201,
+      "executeMs": 194,
+      "assemblyName": "PipelineRunScript_ReleaseVisualExtraChecks_0264119ef7244920b6118e63e01e4d4c",
+      "success": true,
+      "result": "Tree_01 (Missing Prefab with guid: 88f2fd29f58b9734683512546acec310) count=7010 parent=TerrainGenerator (1) components=Transform\nTree_02 (Missing Prefab with guid: e289bf5debb17f6459818c207d781953) count=7018 parent=TerrainGenerator components=Transform\nRock_05 (Missing Prefab with guid: a778b631c6253a04899cb31bad047c81) count=1362 parent=TerrainGenerator components=Transform\nMiniBirdBoss (Missing Prefab with guid: ad4137f595ec8e2449cacca9df7d3735) count=1 parent= components=Transform,BossHealth,BossPatternSequenceSimple,BossCircleAoE,BossConeAoE,BossLineAoE"
+    },
+    "target": {
+      "host": "127.0.0.1",
+      "port": 7800,
+      "projectPath": "F:\\UnityProjects\\ant-colony-rts"
+    }
+  },
+  "errors": [],
+  "warnings": []
+}

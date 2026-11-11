@@ -1,0 +1,14 @@
+Mandible PASS SpearThrust / Weapon_Spear_Copper native=
+AcidSprayer PASS Idle_A / Weapon_AcidSprayer native=Combat_Stance
+Shield PASS ShieldBlock / Weapon_Shield_Copper native=Shield_Push_Left
+Pheromone PASS Idle_A / Weapon_CommandStaff native=Combat_Stance
+WoodenSword PASS Attack / Weapon_Sword_Wood native=Right_Hand_Sword_Slash
+ShortBow PASS BowShoot / Weapon_ShortBow native=Archery_Shot_3
+Sword PASS Attack / Weapon_Sword_Copper native=Right_Hand_Sword_Slash
+SingleRifle PASS Idle_A / Weapon_SingleRifle native=Combat_Stance
+BurstCarbine PASS Idle_A / Weapon_BurstCarbine native=Combat_Stance
+Scattergun PASS Idle_A / Weapon_Scattergun native=Combat_Stance
+Katana PASS Attack / Weapon_Katana native=Right_Hand_Sword_Slash
+GrandBow PASS BowShoot / Weapon_GrandBow native=Archery_Shot_3
+SniperRifle PASS Idle_A / Weapon_SniperRifle native=Combat_Stance
+QuakeMaul PASS Tool_Hammer / Weapon_BossC_Quakehammer native=Heavy_Hammer_Swing

@@ -29,6 +29,10 @@ namespace AntColony.Units
                 int step=(i+1)/2*(i%2==0?1:-1);
                 var candidate=centre+Quaternion.Euler(0,step*30,0)*direction*radius;
                 if(IsFlying){destination=candidate;return true;}
+                // Resource transforms can sit above the terrain (e.g. soil piles).
+                // Sample the walking surface, not the elevated visual pivot.
+                if(Physics.Raycast(candidate+Vector3.up*8,Vector3.down,out var ground,24,1<<8,QueryTriggerInteraction.Ignore))
+                    candidate.y=ground.point.y;
                 if(!NavMesh.SamplePosition(candidate,out var hit,.65f,NavMesh.AllAreas))continue;
                 if(Vector3.ProjectOnPlane(hit.position-centre,Vector3.up).magnitude<radius-.2f)continue;
                 if(!CanReach(hit.position))continue;

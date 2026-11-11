@@ -159,7 +159,7 @@ namespace AntColony.UI
             brand.gameObject.SetActive(false); roster.gameObject.SetActive(false);
             transform.Find("V6Dock")?.gameObject.SetActive(true);
             if (notifications != null) notifications.anchoredPosition = new Vector2(width <= 760 ? -12 : -18, -92);
-            if (objective != null) objective.gameObject.SetActive(false);
+            if (objective != null && (BuildScreen.IsOpen || GameMenuController.MenuOpen)) objective.gameObject.SetActive(false);
             var clock = (RectTransform)transform.Find("HudClock"); clock.anchorMin = clock.anchorMax = clock.pivot = Vector2.zero; clock.anchoredPosition = new Vector2(width <= 760 ? 6 : 12, 0); clock.gameObject.SetActive(!BuildScreen.IsOpen);
             if (transform.Find("HudWave") is RectTransform wave) { wave.anchoredPosition = new Vector2(width <= 760 ? -12 : -18, -20); wave.sizeDelta = new Vector2(width <= 760 ? 210 : 220, 60); wave.gameObject.SetActive(!BuildScreen.IsOpen); }
             var materials = (RectTransform)transform.Find("MaterialsList"); materials.anchoredPosition = new Vector2(-266, -TopHeight - 10);

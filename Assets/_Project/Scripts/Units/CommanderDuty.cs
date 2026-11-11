@@ -129,11 +129,18 @@ namespace AntColony.Units
             if (!(seconds > 0) || float.IsInfinity(seconds) || IsDead || IsHostile || AntColony.Save.SaveSystem.Busy) return;
             TickCarriedSupplies(seconds);
             if (TickRecovery(seconds)) return;
+            // A player's defence/retreat order must not be cancelled by automatic self-tending,
+            // meals or hauling. Downed recovery above and health damage still run normally.
+            if (!IsDeployed && AntColony.World.WaveDefense.Instance?.InWave == true
+                && CanReceiveOrders && (HasCombatOrder || IsDirectMoving)) return;
             WorkState.rations ??= new FoodLots();
             if (IsDeployed) TickDeploymentMeal(seconds);
             if (!IsDeployed && !IsAwayFromHome && !IsEmbarked && !IsCaptive && !WorkPriorities.Red
-                && (Satiety <= GameBalance.EatBelowSatiety || IsSleepTime || Hygiene < GameBalanceNeeds.TemporaryCap))
+                && (Satiety <= GameBalance.EatBelowSatiety && MealState.retrySeconds <= 0
+                    || IsSleepTime || Hygiene < GameBalanceNeeds.TemporaryCap && HygieneState.retrySeconds <= 0))
             {
+                // Failed meals and temporary washing already schedule a retry. Keep hauling
+                // during that interval instead of dropping the same material every frame.
                 if (IsCarrying) { DropCargo(); CommandStop(); }
                 if (IsPlaying) LeavePlay();
             }
@@ -336,13 +343,16 @@ namespace AntColony.Units
                 && (!n.NeedsDesignation || n.WorkRequested && !n.WorkPaused)))
                 yield return (node, () =>
                 {
+                    // Storage accepts whole units. Do not repeatedly haul and redrop a lone fraction.
+                    // Fractions remain available for manual orders and NextLoosePile batching.
+                    if (node.IsLooseCargo && node.AmountRemaining + (CarriedType == node.ResourceType ? CarriedAmount : 0) < .999f) return false;
                     if (!node.CanGatherWith(this) || CarriedAmount != 0 && CarriedType != node.ResourceType
                         || !node.NeedsDesignation && (ResourceManager.Instance == null || ResourceManager.Instance.Room(node.ResourceType, this) <= 0)
                         || node.NeedsDesignation && Active.OfType<WorkerAnt>().Any(w => w != this && w.CurrentResourceNode == node && w.IsWorking)
                         || node.IsLooseCargo && !HasCargoDestination(node.ResourceType)
                         || node.IsLooseCargo && Active.OfType<WorkerAnt>().Any(w => w != this && w.CurrentResourceNode == node) // 바닥 더미는 한 장수만 맡는다
-                        || node.GetComponentInParent<ExpeditionSite>() != null || node.IsRaidLoot || !TryWorkApproach(node.transform.position, out _)) return false;
-                    CommandGather(node); return true;
+                        || node.GetComponentInParent<ExpeditionSite>() != null || node.IsRaidLoot || !TryGatherApproach(node, out _)) return false;
+                    CommandGather(node); return CurrentResourceNode == node && IsWorking;
                 });
         }
         public bool IsFatigued => Fatigue >= GameBalance.TiredFatigue;

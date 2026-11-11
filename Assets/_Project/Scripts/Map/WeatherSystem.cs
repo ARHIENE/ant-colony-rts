@@ -118,8 +118,8 @@ namespace AntColony.Map
             var k = Current;
             switch (k)
             {
-                case WeatherKind.Rain: fall.Set(1800, new Color(.8f, .88f, 1f, .85f), .16f, 22, .12f); break;
-                case WeatherKind.Storm: fall.Set(3500, new Color(.8f, .88f, 1f, .9f), .18f, 30, .12f, 6); break;
+                case WeatherKind.Rain: fall.Set(220, new Color(.72f, .8f, .88f, .28f), .055f, 22, .12f); break;
+                case WeatherKind.Storm: fall.Set(420, new Color(.72f, .8f, .88f, .38f), .065f, 30, .12f, 6); break;
                 case WeatherKind.Snow: fall.Set(900, new Color(1, 1, 1, .95f), .35f, 3, 0, .5f); break;
                 case WeatherKind.Blizzard: fall.Set(3000, new Color(1, 1, 1, .95f), .4f, 6, 0, 9); break;
                 case WeatherKind.Sandstorm: fall.Set(3000, new Color(.85f, .7f, .45f, .7f), .4f, 3, 0, 14); break;

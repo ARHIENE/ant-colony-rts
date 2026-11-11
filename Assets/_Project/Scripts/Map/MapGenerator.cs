@@ -95,11 +95,13 @@ namespace AntColony.Map
 
         // 바이옴 스타일(2026-10-03): 바닥·장식·물 설정을 갈아끼운다. 에셋이 빠진 칸은 버리고, 다 비면 씬 기본값을 유지한다.
         private bool styled;
+        private string dressingBiome = "Forest";
         // 계절 색: 잎·풀 재질은 원본 대신 복제본을 쓰고(원본 에셋은 그대로), 복제본 색만 바꾼다. 재질 수가 적어 매 프레임 바꿔도 싸다.
         private readonly Dictionary<Material, Material> foliageClones = new Dictionary<Material, Material>();
         public void ApplyStyle(BiomeMapStyle style)
         {
             if (style == null) return;
+            dressingBiome = style.name;
             var layers = style.layers.FindAll(l => l.texture != null);
             var spawns = style.spawns.FindAll(s => s.prefab != null);
             if (layers.Count > 0) terrainLayers = layers;
@@ -193,7 +195,7 @@ namespace AntColony.Map
             GenerateMesh();
             GenerateTexture();
             var randomState = Random.state;
-            try { SpawnObjects(); }
+            try { SpawnObjects(); if (!styled) SpawnMissingDressing(); }
             finally { Random.state = randomState; }
 
             if (generateWater)
@@ -287,6 +289,44 @@ namespace AntColony.Map
                     }
                 }
             }
+        }
+
+        // Restore visual dressing only when the old biome prefab references are missing.
+        // No resource stock, navigation obstacles or random stream changes; the settlement core
+        // and four approach corridors remain clear. Existing authored spawns take precedence.
+        private void SpawnMissingDressing()
+        {
+            if (!Application.isPlaying || !hasFlatZone || mesh == null) return;
+            var vertices = mesh.vertices;
+            var rng = new System.Random(spawnSeedBase ^ 0x4c31);
+            bool wooded = dressingBiome == "Forest" || dressingBiome == "Garden" || dressingBiome == "Waterside";
+            int count = 0;
+            for (int z = 2; z < zSize - 2 && count < 180; z += 4)
+                for (int x = 2; x < xSize - 2 && count < 180; x += 4)
+                {
+                    int i = z * (xSize + 1) + x;
+                    if (terrace.clear[i] || !terrace.open[i]) continue;
+                    var floor = transform.TransformPoint(vertices[i]);
+                    var delta = floor - flatCenter;
+                    float distance = new Vector2(delta.x, delta.z).magnitude;
+                    if (distance < flatRadius * .5f || distance > flatRadius + 28f) continue;
+                    if (Mathf.Abs(delta.x) < 4f || Mathf.Abs(delta.z) < 4f) continue;
+                    // Broad clumps, not an even checkerboard of props.
+                    float patch = Mathf.PerlinNoise((x + xOffset) * .075f, (z + zOffset) * .075f);
+                    if (patch < .46f || rng.NextDouble() > .78) continue;
+                    bool tree = wooded && distance > flatRadius * .8f && rng.NextDouble() < .34;
+                    string id = tree ? (rng.NextDouble() < .7 ? "Oak" : "Pine") : wooded && rng.NextDouble() < .68 ? "Bush" : "Rock";
+                    float width = (tree ? 4.2f : id == "Bush" ? 2.2f : 1.05f) * (.8f + (float)rng.NextDouble() * .5f);
+                    var model = AntColony.World.ProductionProp.Attach(transform, $"Environment1110/Models/{id}/{id}", width, floor);
+                    if (model == null) continue;
+                    model.name = "Landscape " + id;
+                    model.transform.RotateAround(floor, Vector3.up, (float)rng.NextDouble() * 360f);
+                    // Decorative objects never consume clicks or enter the navigation bake.
+                    model.layer = 2;
+                    foreach (var child in model.GetComponentsInChildren<Transform>()) child.gameObject.layer = 2;
+                    foreach (var collider in model.GetComponentsInChildren<Collider>()) collider.enabled = false;
+                    spawnedObjects.Add(model); count++;
+                }
         }
 
         private Material FoliageClone(Material original)
@@ -567,6 +607,17 @@ namespace AntColony.Map
         private void GenerateTexture()
         {
             if (terrainMaterial == null) return;
+            // Old saves and direct scene Play may have no biome style. Repair only the
+            // visual layers; do not apply a biome's water, terrain, spawns or resource rules.
+            if (!terrainLayers.Exists(layer => layer.texture != null))
+            {
+                var fallback = BiomeMapStyle.For(AntColony.Core.MapBiome.Forest);
+                if (fallback != null) terrainLayers = fallback.layers.FindAll(layer => layer.texture != null);
+            }
+            // Imported ground paintings cover several metres, not a one-metre checkerboard.
+            // Older materials still carry the shader default of 1; keep authored larger scales.
+            if (terrainMaterial.GetFloat("_textureScale") <= 1.01f)
+                terrainMaterial.SetFloat("_textureScale", 8f);
             var layersCount = Mathf.Min(terrainLayers.Count, 32);
             ReleaseObject(terrainTextures);
             terrainTextures = null;

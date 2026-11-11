@@ -1,0 +1,2 @@
+from pathlib import Path
+p=Path('work/release-visual-pass/draft/BuildScreen.cs');s=p.read_text(encoding='utf-8-sig').replace('private int layoutScreenWidth;','private int layoutScreenWidth;\n        private float layoutPixelScale;').replace('layoutScreenWidth != Screen.width))','layoutScreenWidth != Screen.width || Mathf.Abs(layoutPixelScale - buildWindow.lossyScale.x) > .001f))').replace('float pixels = Mathf.Max(.1f, buildWindow.lossyScale.x);','float pixels = Mathf.Max(.1f, buildWindow.lossyScale.x); layoutPixelScale = pixels;');p.write_text(s,encoding='utf-8')

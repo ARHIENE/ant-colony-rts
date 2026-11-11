@@ -1,4 +1,4 @@
-﻿using AntColony.Buildings;
+using AntColony.Buildings;
 using AntColony.Data;
 using UnityEngine;
 
@@ -55,7 +55,7 @@ namespace AntColony.World
             if (node.IsLooseCargo && ProductionProp.ForResource(node.ResourceType) != null) return;
             var id = node.RequiresFishing ? "Fishing_Bank" : ModelFor(node.ResourceType, node.IsLooseCargo);
             if (id == null) return;
-            var width = node.RequiresFishing ? 2.2f : !node.IsLooseCargo && node.ResourceType is ResourceType.Wood or ResourceType.Resin ? 2.8f
+            var width = node.IsLooseCargo ? .6f : node.RequiresFishing ? 2.2f : node.ResourceType is ResourceType.Wood or ResourceType.Resin ? 2.8f
                 : !node.IsLooseCargo && ModelFor(node.ResourceType, false) is "CC_RockOutcrop" or "CC_OreOutcrop" or "Deposit_Chitin" ? 1.8f
                 : node.ResourceType == ResourceType.Water ? .45f : node.ResourceType == ResourceType.Wax ? .6f
                 : node.ResourceType == ResourceType.Component ? .65f : node.ResourceType == ResourceType.Chitin ? .8f : 1.2f;

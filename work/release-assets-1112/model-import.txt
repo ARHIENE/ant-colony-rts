@@ -1,0 +1,7 @@
+Campfire: 3073 triangles, 5 textures, 1 materials
+Carpentry: 9613 triangles, 5 textures, 1 materials
+Kitchen: 9879 triangles, 5 textures, 1 materials
+ResearchDesk: 9708 triangles, 5 textures, 1 materials
+SpikeTrap: 3046 triangles, 5 textures, 1 materials
+Stockpile: 9503 triangles, 5 textures, 1 materials
+Workshop: 9884 triangles, 5 textures, 1 materials

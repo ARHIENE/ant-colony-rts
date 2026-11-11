@@ -14,6 +14,7 @@ namespace AntColony.UI
         private static CampaignResearch owner;
         private static string firstResearchReward = "과학에서 선택 연구의 해금 항목 확인";
         public static string CurrentText { get; private set; } = "";
+        public static string HudText => Describe(CurrentStage);
         public static string RecentAchievement { get; private set; } = "";
         public static float EmphasisUntil { get; private set; }
         public static int CurrentStage => FirstIncomplete(state.completed);
@@ -81,16 +82,18 @@ namespace AntColony.UI
         }
         private static void Complete(int stage, bool done) { if (done) state.completed |= 1 << stage; }
 
-        // 웨이브 수성(2026-11-02 사용자 승인): 목표 사슬 단계는 바꾸지 않고(저장 비트 유지), 웨이브 중·직전에만 맨 위에 안내를 얹는다.
+        // 평화 시작부터 남은 시간·규모를 표시한다. 목표 저장 비트는 유지한다.
         private static string WaveLine()
         {
             var wave = AntColony.World.WaveDefense.Instance;
             if (wave == null) return "";
             if (wave.InWave)
                 return $"<b>웨이브 {wave.Wave} 방어 · 남은 적 {wave.RemainingEnemies}</b>\n방패 장수를 앞에, 한 대상에 집중, 불리하면 후퇴\n\n";
-            if (wave.PeaceLeft > GameCalendar.SecondsPerDay) return "";
             var s = UnityEngine.Mathf.CeilToInt(wave.PeaceLeft);
-            return $"<color=#e0a060><b>웨이브 {wave.Wave + 1}까지 {s / 60}:{s % 60:00}</b> · 적 {AntColony.World.WaveDefense.Count(wave.Wave + 1)}마리\n벽·탑·함정과 무기·약품 점검</color>\n\n";
+            var preview = $"<b>웨이브 {wave.Wave + 1}까지 {s / 60}:{s % 60:00}</b> · 예상 {AntColony.World.WaveDefense.Count(wave.Wave + 1)}마리";
+            if (wave.PeaceLeft <= GameCalendar.SecondsPerDay) preview = "<color=#e0a060>" + preview + "</color>";
+            return preview + "\n" + (wave.Wave == 0 ? "첫 방어는 장수로 · 여유 자원은 다음 방어에"
+                : "방어시설 없으면 큰 피해 · 산성탑 / 흙벽 공법·함정 공학 연구") + "\n\n";
         }
         public static string Title(int stage) => stage switch
         {

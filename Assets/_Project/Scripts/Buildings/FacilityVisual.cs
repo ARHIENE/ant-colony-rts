@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using AntColony.Data;
 using UnityEngine;
 
@@ -57,6 +57,16 @@ namespace AntColony.Buildings
         public static string ModelFor(BuildingKind kind) => Models.TryGetValue(kind, out var id) ? id : null;
         private static GameObject LoadModel(BuildingKind kind, ResourceType material = ResourceType.Soil)
         {
+            var release = kind switch {
+                BuildingKind.Campfire => "Campfire", BuildingKind.Carpentry => "Carpentry",
+                BuildingKind.Kitchen => "Kitchen", BuildingKind.ScienceLab => "ResearchDesk",
+                BuildingKind.SpikeTrap => "SpikeTrap", BuildingKind.QueenChamber => "Stockpile",
+                BuildingKind.Workshop => "Workshop", BuildingKind.Smelter => "Smelter", _ => null };
+            if (release != null && material == ResourceType.Soil)
+            {
+                var ready = Resources.Load<GameObject>($"Release1112/Models/{release}/{release}");
+                if (ready != null) return ready;
+            }
             var improved = kind switch { BuildingKind.Hut => "Hut", BuildingKind.Storage => "Storage", BuildingKind.Watchtower => "Watchtower", _ => null };
             // Atlas models have no separate roof/wall slots. Preserve the existing material-specific
             // appearance for renovated buildings instead of tinting roofs, cargo and windows together.

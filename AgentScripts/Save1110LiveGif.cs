@@ -1,0 +1,2 @@
+using System.IO;using System.Threading.Tasks;using UnityEditor;using UnityEngine;
+public static class Save1110LiveGif {public static async Task<string> Main(){var dir="work/save-20261110/media/live-mining";Directory.CreateDirectory(dir);EditorApplication.isPaused=false;try{for(int i=0;i<24;i++){await Task.Delay(120);ScreenCapture.CaptureScreenshot(Path.GetFullPath(dir+"/"+i.ToString("D3")+".png"));}}finally{EditorApplication.isPaused=true;}return "24 actual Game frames";}}

@@ -1,0 +1,150 @@
+{
+  "success": true,
+  "command": "command",
+  "data": {
+    "command": "console",
+    "parameters": {
+      "level": "Error",
+      "tail": "12"
+    },
+    "result": {
+      "entries": [
+        {
+          "seq": 98324,
+          "timestampUtc": "2026-11-11T15:14:24.3329445Z",
+          "level": "error",
+          "logType": "Error",
+          "message": "Prefab instance problem. Missing Prefab Asset: 'MiniBirdBoss (Missing Prefab with guid: ad4137f595ec8e2449cacca9df7d3735)'",
+          "stackTrace": "",
+          "seeded": false
+        },
+        {
+          "seq": 98325,
+          "timestampUtc": "2026-11-11T15:14:24.3329445Z",
+          "level": "error",
+          "logType": "Error",
+          "message": "Prefab instance problem: 'Tree_02 (Missing Prefab with guid: e289bf5debb17f6459818c207d781953)'. 7018 instances are missing the same Prefab Asset with guid e289bf5debb17f6459818c207d781953.",
+          "stackTrace": "",
+          "seeded": false
+        },
+        {
+          "seq": 98367,
+          "timestampUtc": "2026-11-11T15:15:21.2779037Z",
+          "level": "error",
+          "logType": "Error",
+          "message": "Problem detected while opening the Scene file: 'Assets/_Project/Scenes/AntColony.unity'.\nCheck the following logs for more details.",
+          "stackTrace": "",
+          "seeded": false
+        },
+        {
+          "seq": 98368,
+          "timestampUtc": "2026-11-11T15:15:21.2779037Z",
+          "level": "error",
+          "logType": "Error",
+          "message": "Prefab instance problem: 'Tree_01 (Missing Prefab with guid: 88f2fd29f58b9734683512546acec310)'. 7010 instances are missing the same Prefab Asset with guid 88f2fd29f58b9734683512546acec310.",
+          "stackTrace": "",
+          "seeded": false
+        },
+        {
+          "seq": 98369,
+          "timestampUtc": "2026-11-11T15:15:21.2779037Z",
+          "level": "error",
+          "logType": "Error",
+          "message": "Prefab instance problem: 'Rock_05 (Missing Prefab with guid: a778b631c6253a04899cb31bad047c81)'. 1362 instances are missing the same Prefab Asset with guid a778b631c6253a04899cb31bad047c81.",
+          "stackTrace": "",
+          "seeded": false
+        },
+        {
+          "seq": 98370,
+          "timestampUtc": "2026-11-11T15:15:21.2779037Z",
+          "level": "error",
+          "logType": "Error",
+          "message": "Prefab instance problem. Missing Prefab Asset: 'MiniBirdBoss (Missing Prefab with guid: ad4137f595ec8e2449cacca9df7d3735)'",
+          "stackTrace": "",
+          "seeded": false
+        },
+        {
+          "seq": 98371,
+          "timestampUtc": "2026-11-11T15:15:21.2779037Z",
+          "level": "error",
+          "logType": "Error",
+          "message": "Prefab instance problem: 'Tree_02 (Missing Prefab with guid: e289bf5debb17f6459818c207d781953)'. 7018 instances are missing the same Prefab Asset with guid e289bf5debb17f6459818c207d781953.",
+          "stackTrace": "",
+          "seeded": false
+        },
+        {
+          "seq": 98374,
+          "timestampUtc": "2026-11-11T15:15:32.2678502Z",
+          "level": "error",
+          "logType": "Error",
+          "message": "Problem detected while opening the Scene file: 'Assets/_Project/Scenes/AntColony.unity'.\nCheck the following logs for more details.",
+          "stackTrace": "",
+          "seeded": false
+        },
+        {
+          "seq": 98375,
+          "timestampUtc": "2026-11-11T15:15:32.2683453Z",
+          "level": "error",
+          "logType": "Error",
+          "message": "Prefab instance problem: 'Tree_01 (Missing Prefab with guid: 88f2fd29f58b9734683512546acec310)'. 7010 instances are missing the same Prefab Asset with guid 88f2fd29f58b9734683512546acec310.",
+          "stackTrace": "",
+          "seeded": false
+        },
+        {
+          "seq": 98376,
+          "timestampUtc": "2026-11-11T15:15:32.2683453Z",
+          "level": "error",
+          "logType": "Error",
+          "message": "Prefab instance problem: 'Rock_05 (Missing Prefab with guid: a778b631c6253a04899cb31bad047c81)'. 1362 instances are missing the same Prefab Asset with guid a778b631c6253a04899cb31bad047c81.",
+          "stackTrace": "",
+          "seeded": false
+        },
+        {
+          "seq": 98377,
+          "timestampUtc": "2026-11-11T15:15:32.2683453Z",
+          "level": "error",
+          "logType": "Error",
+          "message": "Prefab instance problem. Missing Prefab Asset: 'MiniBirdBoss (Missing Prefab with guid: ad4137f595ec8e2449cacca9df7d3735)'",
+          "stackTrace": "",
+          "seeded": false
+        },
+        {
+          "seq": 98378,
+          "timestampUtc": "2026-11-11T15:15:32.2683453Z",
+          "level": "error",
+          "logType": "Error",
+          "message": "Prefab instance problem: 'Tree_02 (Missing Prefab with guid: e289bf5debb17f6459818c207d781953)'. 7018 instances are missing the same Prefab Asset with guid e289bf5debb17f6459818c207d781953.",
+          "stackTrace": "",
+          "seeded": false
+        }
+      ],
+      "cursor": 98379,
+      "session": "be6cc36e99314a438d80a0d4b8a38cb1",
+      "returned": 12,
+      "dropped": false,
+      "reset": false,
+      "counts": {
+        "error": 1188,
+        "warn": 729,
+        "log": 83
+      },
+      "groundTruth": {
+        "sampledUtc": "2026-11-11T15:16:40.1244075Z",
+        "ageMs": 12,
+        "compilationFailed": false,
+        "compiling": false,
+        "consoleErrors": 10,
+        "consoleWarnings": 5,
+        "consoleLogs": 0,
+        "seeded": true
+      }
+    },
+    "target": {
+      "host": "127.0.0.1",
+      "port": 7800,
+      "projectPath": "F:\\UnityProjects\\ant-colony-rts"
+    }
+  },
+  "errors": [],
+  "warnings": []
+}

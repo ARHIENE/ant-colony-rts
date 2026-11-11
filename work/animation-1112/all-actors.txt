@@ -1,0 +1,15 @@
+생존자 1 | Walking | native skin parts=5 | restHeight=1.6000
+생존자 1 | Running | native skin parts=5 | restHeight=1.6000
+생존자 1 | Heavy_Hammer_Swing | native skin parts=5 | restHeight=1.6000
+생존자 1 | Archery_Shot_3 | native skin parts=5 | restHeight=1.6000
+생존자 1 | Sleep_Normally | native skin parts=5 | restHeight=1.6000
+생존자 2 | Walking | native skin parts=5 | restHeight=1.6000
+생존자 2 | Running | native skin parts=5 | restHeight=1.6000
+생존자 2 | Heavy_Hammer_Swing | native skin parts=5 | restHeight=1.6000
+생존자 2 | Archery_Shot_3 | native skin parts=5 | restHeight=1.6000
+생존자 2 | Sleep_Normally | native skin parts=5 | restHeight=1.6000
+생존자 3 | Walking | native skin parts=5 | restHeight=1.6000
+생존자 3 | Running | native skin parts=5 | restHeight=1.6000
+생존자 3 | Heavy_Hammer_Swing | native skin parts=5 | restHeight=1.6000
+생존자 3 | Archery_Shot_3 | native skin parts=5 | restHeight=1.6000
+생존자 3 | Sleep_Normally | native skin parts=5 | restHeight=1.6000

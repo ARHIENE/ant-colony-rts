@@ -1,0 +1,6 @@
+Axe_Breathe_and_Look_Around
+Axe_Spin_Attack
+Axe_Stance
+Carry_Heavy_Cannon_Forward
+Carry_Heavy_Object_Walk
+Carry_Water_Bucket_Walk

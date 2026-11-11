@@ -28,7 +28,7 @@ namespace AntColony.EditorTools
             return map;
         }
         public static readonly Dictionary<string,string> Actions = new Dictionary<string,string> {
-            {"Tool_Mine","Heavy_Hammer_Swing"},{"Tool_Chop","Charged_Axe_Chop"},
+            {"Tool_Mine","Heavy_Hammer_Swing"},{"Tool_Chop","Heavy_Hammer_Swing"},
             {"Tool_Hammer","Heavy_Hammer_Swing"},{"SmithRepair","Heavy_Hammer_Swing"},
             {"Tool_Harvest","Pull_Radish"},{"GroundWork","Collect_Object"},
             {"Carry","Carry_Heavy_Object_Walk"},{"CarryPerson","Carry_Heavy_Object_Walk"},
@@ -38,7 +38,7 @@ namespace AntColony.EditorTools
             {"Inspect","Female_Bend_Over_Pick_Up_Inspect"},
             {"Hit","Hit_Reaction"},{"Death","Dead"},
             {"Attack","Right_Hand_Sword_Slash"},{"ShieldBlock","Shield_Push_Left"},
-            {"BowShoot","Archery_Shot_2"},{"Celebrate","Victory_Fist_Pump"},
+            {"BowShoot","Archery_Shot_3"},{"Celebrate","Victory_Fist_Pump"},
             {"IdleVariant0","Idle_3"},{"IdleVariant1","Idle_4"},{"IdleVariant2","Idle_5"},
             {"Talk","Talk_with_Hands_Open"},{"Listen","Listening_Gesture"}
         };

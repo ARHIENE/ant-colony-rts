@@ -8,7 +8,13 @@ namespace AntColony.Units
     {
         readonly List<GameObject> armorParts=new List<GameObject>(),trinketParts=new List<GameObject>();
         string armorKey,trinketKey,weaponKey;GameObject holster;
-        Transform Bone(string name)=>GetComponentsInChildren<Transform>(true).FirstOrDefault(t=>t.name==name);
+        Transform Bone(string name)
+        {
+            var bones=GetComponentsInChildren<Transform>(true);
+            var exact=bones.FirstOrDefault(t=>t.name==name);if(exact)return exact;
+            string native=name switch{"spine_02"=>"mixamorig:Spine2","spine"=>"mixamorig:Spine","head"=>"mixamorig:Head","foot.L"=>"mixamorig:LeftFoot",_=>null};
+            return native==null?null:bones.FirstOrDefault(t=>t.name==native);
+        }
         public void Apply(EquipmentItem armor,EquipmentItem trinket,EquipmentItem weapon,string held,bool downed)
         {
             string key=armor==null?"":armor.id+":"+armor.armor+":"+armor.bossEquipment;
@@ -32,9 +38,10 @@ namespace AntColony.Units
             }
             key=weapon==null?"":weapon.id+":"+MeshyEquipmentRules.HeldModel(weapon);
             if(weaponKey!=key){weaponKey=key;if(holster!=null){holster.SetActive(false);Destroy(holster);}holster=null;
-                if(weapon!=null){var src=Resources.Load<GameObject>("Kemono/Handheld/"+MeshyEquipmentRules.HeldModel(weapon));var bone=Bone("spine_02");
-                    if(src!=null&&bone!=null){holster=Instantiate(src,transform,false);holster.name="Holstered_"+src.name;
-                        holster.transform.localRotation=Quaternion.Euler(MeshyEquipmentRules.IsFirearm(weapon.weapon)?-70:0,0,30);
+                if(weapon!=null){var src=MeshyEquipmentModel.Load(MeshyEquipmentRules.HeldModel(weapon));var bone=Bone("spine_02");
+                    if(src!=null&&bone!=null){holster=Instantiate(src,transform,false);MeshyEquipmentModel.ApplyFinish(holster,MeshyEquipmentRules.HeldModel(weapon));holster.name="Holstered_"+src.name;
+                        holster.transform.localRotation=Quaternion.Euler(MeshyEquipmentRules.IsFirearm(weapon.weapon)?-70:-90,0,30)*src.transform.localRotation;
+                        if(bone.name.StartsWith("mixamorig:"))holster.transform.localScale/=Mathf.Max(.001f,transform.lossyScale.x);
                         holster.transform.position=bone.position-transform.forward*.18f-transform.up*.16f;
                         holster.transform.SetParent(bone,true);
                     }
@@ -50,6 +57,7 @@ namespace AntColony.Units
             var mesh=item.GetComponentInChildren<MeshFilter>().sharedMesh;var b=mesh.bounds;
             item.transform.localRotation=Quaternion.Euler(-90,0,0);
             item.transform.localScale=new Vector3(size.x/Mathf.Max(.001f,b.size.x),size.z/Mathf.Max(.001f,b.size.y),size.y/Mathf.Max(.001f,b.size.z));
+            if(bone.name.StartsWith("mixamorig:"))item.transform.localScale/=Mathf.Max(.001f,transform.lossyScale.x);
             var center=bone.position+transform.TransformDirection(offset);
             item.transform.position+=center-item.transform.TransformPoint(b.center);
             item.transform.SetParent(bone,true);return item;

@@ -1,0 +1,6 @@
+Idle_7
+Idle_8
+Idle_9
+Injured_Walk
+Injured_Walk_Backward
+Jump_Over_Obstacle_1

@@ -1,0 +1,27 @@
+{
+  "success": true,
+  "command": "command",
+  "data": {
+    "command": "run_script",
+    "parameters": {
+      "file": "AgentScripts/CombatOrder1112Checks.cs",
+      "entry": "CombatOrder1112Checks.Run",
+      "timeout_ms": "180000"
+    },
+    "result": {
+      "diagnostics": [],
+      "compileMs": 2157,
+      "executeMs": 57614,
+      "assemblyName": "PipelineRunScript_CombatOrder1112Checks_9ac20241a5c44b4cb19bb3c8824a1a68",
+      "success": true,
+      "result": "Destroyed target formation update: PASS\n0s remaining=15 hp=100,100,100\n15s remaining=15 hp=100,100,100\nCivilian attack button: PASS; one attack-move order each\n30s remaining=15 hp=100,100,100\n45s remaining=6 hp=70,84,97\nResult cleared=True elapsed=54s\n"
+    },
+    "target": {
+      "host": "127.0.0.1",
+      "port": 7801,
+      "projectPath": "F:\\UnityProjects\\ant-colony-rts"
+    }
+  },
+  "errors": [],
+  "warnings": []
+}

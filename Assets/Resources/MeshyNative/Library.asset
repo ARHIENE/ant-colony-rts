@@ -1,0 +1,836 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d17be847ac59bcf4196d6b76726f4056, type: 3}
+  m_Name: Library
+  m_EditorClassIdentifier: Assembly-CSharp::AntColony.Units.MeshyNativeLibrary
+  characters:
+  - {fileID: 919132149155446097, guid: 336750c8e3b07a64a933541f08ba1814, type: 3}
+  - {fileID: 919132149155446097, guid: 59e5aa0091e3fd84998d0dce7b014eed, type: 3}
+  texture: {fileID: 2800000, guid: d47cd63a47b2ed449a5fe8757aaf09b9, type: 3}
+  motions:
+  - id: Agree_Gesture
+    clip: {fileID: -1097069501823219401, guid: e71d79b269e98464a97081d861ac6a33, type: 3}
+    rig: 1
+    armatureRoot: 0
+    maxHandSpan: 0
+    loop: 1
+  - id: Archery_Shot
+    clip: {fileID: -2180485618334209921, guid: 46d59d7de976df945a1b84829d0e3bf3, type: 3}
+    rig: 1
+    armatureRoot: 1
+    maxHandSpan: 0
+    loop: 1
+  - id: Archery_Shot_1
+    clip: {fileID: -1158340128250850695, guid: 895615caf3564e1408775d4a9f0c64f6, type: 3}
+    rig: 1
+    armatureRoot: 1
+    maxHandSpan: 0
+    loop: 1
+  - id: Archery_Shot_2
+    clip: {fileID: 5563255153769041097, guid: ec62c8bea5f2145439135d5b1c2ca8a0, type: 3}
+    rig: 1
+    armatureRoot: 1
+    maxHandSpan: 0
+    loop: 1
+  - id: Archery_Shot_3
+    clip: {fileID: 3333622190250040868, guid: d239c946a981f3c4fbaa1b58fd5a2e0c, type: 3}
+    rig: 0
+    armatureRoot: 0
+    maxHandSpan: 0
+    loop: 1
+  - id: Arise
+    clip: {fileID: -5175492307695106804, guid: c3f4569268792064b85451e25b7cf650, type: 3}
+    rig: 1
+    armatureRoot: 0
+    maxHandSpan: 0
+    loop: 0
+  - id: Axe_Breathe_and_Look_Around
+    clip: {fileID: 6521528126349315530, guid: 0470bdd16dfd5ca4fa714d20a45e67ee, type: 3}
+    rig: 1
+    armatureRoot: 1
+    maxHandSpan: 0
+    loop: 1
+  - id: Axe_Spin_Attack
+    clip: {fileID: -3759535885183849003, guid: 88be0efd9a904ab4ca1c218d39d06c46, type: 3}
+    rig: 1
+    armatureRoot: 1
+    maxHandSpan: 0
+    loop: 1
+  - id: Axe_Stance
+    clip: {fileID: -1112737020707245278, guid: 68d6a3919e6dcfa408eee4b2a1a97b0d, type: 3}
+    rig: 1
+    armatureRoot: 0
+    maxHandSpan: 0
+    loop: 1
+  - id: Carry_Heavy_Cannon_Forward
+    clip: {fileID: 5730953907613404347, guid: 21efb2a24d6cd2e4f8b6fb752b08aa9d, type: 3}
+    rig: 1
+    armatureRoot: 1
+    maxHandSpan: 0
+    loop: 1
+  - id: Carry_Heavy_Object_Walk
+    clip: {fileID: -3264528302288352614, guid: 48937f07c8c4dc44093423133c05b769, type: 3}
+    rig: 0
+    armatureRoot: 0
+    maxHandSpan: 0
+    loop: 1
+  - id: Carry_Water_Bucket_Walk
+    clip: {fileID: 7503470948859048050, guid: 133115f5a22930d479624951807a44ea, type: 3}
+    rig: 0
+    armatureRoot: 0
+    maxHandSpan: 0
+    loop: 1
+  - id: Casual_Walk
+    clip: {fileID: 7006548375941132000, guid: 552bf7a1a276ebd439a0cdfa6031b16e, type: 3}
+    rig: 1
+    armatureRoot: 0
+    maxHandSpan: 0
+    loop: 1
+  - id: Chair_Sit_Idle_F
+    clip: {fileID: 7651936615911065482, guid: cd9c30c5b5414c642a465589f28734e2, type: 3}
+    rig: 1
+    armatureRoot: 1
+    maxHandSpan: 0
+    loop: 1
+  - id: Chair_Sit_Idle_M
+    clip: {fileID: -1042977557785583349, guid: b769f775bb233de44a5d1b2d85ccd982, type: 3}
+    rig: 1
+    armatureRoot: 1
+    maxHandSpan: 0
+    loop: 1
+  - id: Charged_Axe_Chop
+    clip: {fileID: 516944917423385621, guid: 15967e546c3579c40aca86bddfa75081, type: 3}
+    rig: 0
+    armatureRoot: 0
+    maxHandSpan: 0.83002245
+    loop: 1
+  - id: Cheer_with_Both_Hands
+    clip: {fileID: -2467883753447271925, guid: a20c4486bcbe42a4697b766076179e26, type: 3}
+    rig: 1
+    armatureRoot: 1
+    maxHandSpan: 0
+    loop: 1
+  - id: Climb_Stairs
+    clip: {fileID: -970058475865642835, guid: b2a683873d0cd9848bca36be621500d3, type: 3}
+    rig: 1
+    armatureRoot: 1
+    maxHandSpan: 0
+    loop: 1
+  - id: Climb_Up_Rope
+    clip: {fileID: -7852077791746035984, guid: f3979d1cc3d022448ad34b4ac004cb84, type: 3}
+    rig: 1
+    armatureRoot: 1
+    maxHandSpan: 0
+    loop: 1
+  - id: Collect_Object
+    clip: {fileID: -6757020630807413255, guid: 3459f5657f1979449b1236a2f4a4b107, type: 3}
+    rig: 1
+    armatureRoot: 0
+    maxHandSpan: 0
+    loop: 1
+  - id: Combat_Stance
+    clip: {fileID: -3964022487478357608, guid: 785bb6bca0eef854b8793ccb0f6859d6, type: 3}
+    rig: 1
+    armatureRoot: 1
+    maxHandSpan: 0
+    loop: 1
+  - id: Cough_While_Sleeping
+    clip: {fileID: 3144615889381560328, guid: a36df35c4b584554990b92d105921fef, type: 3}
+    rig: 1
+    armatureRoot: 0
+    maxHandSpan: 0
+    loop: 1
+  - id: Counterstrike
+    clip: {fileID: -4822866287984867211, guid: 6035c00c4bb418340bbc85342ba0fbc9, type: 3}
+    rig: 1
+    armatureRoot: 1
+    maxHandSpan: 0
+    loop: 1
+  - id: Crawl_and_Look_Back
+    clip: {fileID: 4460265562440563718, guid: abcde5c3dc21519418170eb40573ed44, type: 3}
+    rig: 0
+    armatureRoot: 0
+    maxHandSpan: 0
+    loop: 1
+  - id: Crawl_Backward
+    clip: {fileID: 3099028024775180873, guid: 55b9b064ff5cf2143b00d94d44812552, type: 3}
+    rig: 1
+    armatureRoot: 1
+    maxHandSpan: 0
+    loop: 1
+  - id: Dead
+    clip: {fileID: 8273325049105940540, guid: ae426fdd396eab2458dc636a5b279a60, type: 3}
+    rig: 1
+    armatureRoot: 0
+    maxHandSpan: 0
+    loop: 0
+  - id: Discuss_While_Moving
+    clip: {fileID: -2750811371200724024, guid: cfcf2f538b242f64991a15fd16f9d197, type: 3}
+    rig: 1
+    armatureRoot: 1
+    maxHandSpan: 0
+    loop: 1
+  - id: falling_down
+    clip: {fileID: -5649151934099435369, guid: 6eca988c23613964eadb68b448be98e5, type: 3}
+    rig: 1
+    armatureRoot: 0
+    maxHandSpan: 0
+    loop: 0
+  - id: Fast_Stair_Climb
+    clip: {fileID: 5756499766358927181, guid: 38b3d059f04d38c4db8ad7828957dec3, type: 3}
+    rig: 1
+    armatureRoot: 1
+    maxHandSpan: 0
+    loop: 1
+  - id: Female_Bend_Over_Pick_Up_Inspect
+    clip: {fileID: 4727725557492882056, guid: f31ad42f218d88b4db3a55b08e0246c5, type: 3}
+    rig: 1
+    armatureRoot: 0
+    maxHandSpan: 0
+    loop: 1
+  - id: Female_Bow_Charge_Left_Hand
+    clip: {fileID: -7459658085397453730, guid: 0ad4d65f6681f12478e0062761b6516f, type: 3}
+    rig: 0
+    armatureRoot: 0
+    maxHandSpan: 0
+    loop: 1
+  - id: Female_Crouch_Pick_Fruit_Basket_Stand
+    clip: {fileID: 557125665718592470, guid: 62bad470061b15140aba125eb8152a65, type: 3}
+    rig: 1
+    armatureRoot: 1
+    maxHandSpan: 0
+    loop: 1
+  - id: Female_Stand_Pick_Fruit_Basket
+    clip: {fileID: 2703744666440227680, guid: 56e55db6c2f5231418caf78afce370a8, type: 3}
+    rig: 1
+    armatureRoot: 1
+    maxHandSpan: 0
+    loop: 1
+  - id: Female_Walk_Pick_Put_In_Pocket
+    clip: {fileID: -1109063618894526817, guid: 9f677bed95277aa4b9524541f4449745, type: 3}
+    rig: 1
+    armatureRoot: 1
+    maxHandSpan: 0
+    loop: 1
+  - id: Finger_Wag_No
+    clip: {fileID: -1257645976922372712, guid: 00ebe3dfe366b1f4bba57d1c11f2c9d4, type: 3}
+    rig: 1
+    armatureRoot: 1
+    maxHandSpan: 0
+    loop: 1
+  - id: Groan_Holding_Stomach_in_Sleep
+    clip: {fileID: 4873048222756773513, guid: f8ba29ca9d56eac41ab17db53c2617df, type: 3}
+    rig: 1
+    armatureRoot: 1
+    maxHandSpan: 0
+    loop: 1
+  - id: Head_Hold_in_Pain
+    clip: {fileID: -1666183272746191385, guid: a7add6c087be2fe489788abc28607bd6, type: 3}
+    rig: 1
+    armatureRoot: 1
+    maxHandSpan: 0
+    loop: 1
+  - id: Headache_Relief
+    clip: {fileID: -7740969604924858918, guid: e508017694dd2c24c808749d1c948199, type: 3}
+    rig: 1
+    armatureRoot: 1
+    maxHandSpan: 0
+    loop: 1
+  - id: Heavy_Hammer_Swing
+    clip: {fileID: -1080172517415322108, guid: 9bdb4a392fcbc6140aab472872977a22, type: 3}
+    rig: 0
+    armatureRoot: 0
+    maxHandSpan: 0.4148716
+    loop: 1
+  - id: Hit_Reaction
+    clip: {fileID: 8970099879989002870, guid: 9903b243a67ec4249b59232c010504ee, type: 3}
+    rig: 0
+    armatureRoot: 0
+    maxHandSpan: 0
+    loop: 0
+  - id: Idle_10
+    clip: {fileID: -4600070489483178407, guid: 5197103c6c8a3204daee03afaea990a3, type: 3}
+    rig: 1
+    armatureRoot: 1
+    maxHandSpan: 0
+    loop: 1
+  - id: Idle_11
+    clip: {fileID: 2052686777651669518, guid: 838d6c36637c38746b22b1e12a8a1bd8, type: 3}
+    rig: 1
+    armatureRoot: 1
+    maxHandSpan: 0
+    loop: 1
+  - id: Idle_12
+    clip: {fileID: 9100177260916811552, guid: d39a50a2b28a69c4e8b1d4c85572653d, type: 3}
+    rig: 1
+    armatureRoot: 1
+    maxHandSpan: 0
+    loop: 1
+  - id: Idle_13
+    clip: {fileID: -2443227186219321048, guid: 118dc136f6fe79b469739c1760d9d28d, type: 3}
+    rig: 1
+    armatureRoot: 1
+    maxHandSpan: 0
+    loop: 1
+  - id: Idle_3
+    clip: {fileID: -3548273549459496330, guid: 35f64bb200f2f264889961e89034c0ee, type: 3}
+    rig: 1
+    armatureRoot: 1
+    maxHandSpan: 0
+    loop: 1
+  - id: Idle_4
+    clip: {fileID: -7095233583796928237, guid: 43f8c62ddcea2d340a286c54ed4717aa, type: 3}
+    rig: 1
+    armatureRoot: 1
+    maxHandSpan: 0
+    loop: 1
+  - id: Idle_5
+    clip: {fileID: -479822015694463090, guid: ef20d1466f446014798677d56cefae37, type: 3}
+    rig: 1
+    armatureRoot: 1
+    maxHandSpan: 0
+    loop: 1
+  - id: Idle_6
+    clip: {fileID: 5569840603627603982, guid: 92a288a2b0489564e8ac5cbdbf675392, type: 3}
+    rig: 1
+    armatureRoot: 1
+    maxHandSpan: 0
+    loop: 1
+  - id: Idle_7
+    clip: {fileID: -72531448213821192, guid: 8a41d8b822b687b42980beed56a34dba, type: 3}
+    rig: 1
+    armatureRoot: 1
+    maxHandSpan: 0
+    loop: 1
+  - id: Idle_8
+    clip: {fileID: -7122401906668273499, guid: ebe2cbd8bfb6c834cb1df9f1ce2c43dd, type: 3}
+    rig: 1
+    armatureRoot: 1
+    maxHandSpan: 0
+    loop: 1
+  - id: Idle_9
+    clip: {fileID: -7219721596107569645, guid: 1c5afc06dd11c064d9a9380fa84d1ae9, type: 3}
+    rig: 1
+    armatureRoot: 1
+    maxHandSpan: 0
+    loop: 1
+  - id: Injured_Walk
+    clip: {fileID: -6712877583686036819, guid: 47ec87bc03e63f0479446f0862d7a0ae, type: 3}
+    rig: 1
+    armatureRoot: 1
+    maxHandSpan: 0
+    loop: 1
+  - id: Injured_Walk_Backward
+    clip: {fileID: -1189060077092344189, guid: ed80814c51e2c6a45b66493d4c2fa2f9, type: 3}
+    rig: 1
+    armatureRoot: 1
+    maxHandSpan: 0
+    loop: 1
+  - id: Jump_Over_Obstacle_1
+    clip: {fileID: 8353843762174651695, guid: c08ae028a2c99994986c62a49d769ffd, type: 3}
+    rig: 1
+    armatureRoot: 1
+    maxHandSpan: 0
+    loop: 0
+  - id: Kneeling_Reload
+    clip: {fileID: 5931561998217737557, guid: 97e4689525d231249a7b03eeee23f295, type: 3}
+    rig: 1
+    armatureRoot: 1
+    maxHandSpan: 0
+    loop: 1
+  - id: Ladder_Climb_Finish
+    clip: {fileID: 5155441088181931974, guid: 9cf4497b7915bb34e980cd13a26a2885, type: 3}
+    rig: 1
+    armatureRoot: 1
+    maxHandSpan: 0
+    loop: 0
+  - id: Ladder_Climb_Loop
+    clip: {fileID: 8928810980227623733, guid: 1f0dbfc58a5d89447b064e09b577147f, type: 3}
+    rig: 1
+    armatureRoot: 1
+    maxHandSpan: 0
+    loop: 1
+  - id: Ladder_Mount_Start
+    clip: {fileID: -2985143566083087667, guid: b284322d1487e39419cf6e2ec24fb206, type: 3}
+    rig: 1
+    armatureRoot: 1
+    maxHandSpan: 0
+    loop: 0
+  - id: Left_Slash
+    clip: {fileID: 277525627537474026, guid: 3da53d2c041179b49818b8299fb58c3e, type: 3}
+    rig: 1
+    armatureRoot: 1
+    maxHandSpan: 0
+    loop: 1
+  - id: Lie_on_Chair_Sunbathe_and_Sleep
+    clip: {fileID: 8855122803368858200, guid: 11f461398ec554348822b78c0077ebc6, type: 3}
+    rig: 1
+    armatureRoot: 1
+    maxHandSpan: 0
+    loop: 1
+  - id: Limping_Walk_1
+    clip: {fileID: -4277490129206898155, guid: 317512d2ab8c7274fbc758e0e56ec931, type: 3}
+    rig: 0
+    armatureRoot: 0
+    maxHandSpan: 0
+    loop: 1
+  - id: Limping_Walk_2
+    clip: {fileID: 1961382758312387463, guid: 4ac741e70a7fd1b4dbdfbf02abe22442, type: 3}
+    rig: 1
+    armatureRoot: 0
+    maxHandSpan: 0
+    loop: 1
+  - id: Limping_Walk_3
+    clip: {fileID: -3341026994730162323, guid: 67af109b996438f4696c004ce7c373dd, type: 3}
+    rig: 1
+    armatureRoot: 0
+    maxHandSpan: 0
+    loop: 1
+  - id: Listening_Gesture
+    clip: {fileID: -6818285914164538284, guid: 84535c53f3992e1469a4c59a7336abfb, type: 3}
+    rig: 1
+    armatureRoot: 1
+    maxHandSpan: 0
+    loop: 1
+  - id: Long_Breathe_and_Look_Around
+    clip: {fileID: 902492996928096439, guid: 29f630f27353c0c47af8d3fbc014a289, type: 3}
+    rig: 1
+    armatureRoot: 1
+    maxHandSpan: 0
+    loop: 1
+  - id: Male_Bend_Over_Pick_Up
+    clip: {fileID: -6827329897430172337, guid: 3cb1fd29661f2894586c1a19f5c7f1ef, type: 3}
+    rig: 1
+    armatureRoot: 0
+    maxHandSpan: 0
+    loop: 1
+  - id: open_door_1
+    clip: {fileID: -4942744077163742338, guid: 30025635f1a5f4f43b703bc8c960da89, type: 3}
+    rig: 1
+    armatureRoot: 1
+    maxHandSpan: 0
+    loop: 1
+  - id: open_door_2
+    clip: {fileID: 2215534919482656963, guid: 5fd118cf00b61e54b92295e4c94296dd, type: 3}
+    rig: 1
+    armatureRoot: 1
+    maxHandSpan: 0
+    loop: 1
+  - id: open_door_3
+    clip: {fileID: -7890236924615875023, guid: 28eac59b33ff40c4fa3357a6ce83e539, type: 3}
+    rig: 1
+    armatureRoot: 1
+    maxHandSpan: 0
+    loop: 1
+  - id: open_door_4
+    clip: {fileID: -7484219190793329150, guid: ce613b6d8a4c21840a7245aa837d27d0, type: 3}
+    rig: 1
+    armatureRoot: 1
+    maxHandSpan: 0
+    loop: 1
+  - id: Prone_Reach_Help
+    clip: {fileID: 8714898405226845434, guid: 084683a11535a874f8fc7a35f82133ed, type: 3}
+    rig: 1
+    armatureRoot: 1
+    maxHandSpan: 0
+    loop: 1
+  - id: Prone_Reload
+    clip: {fileID: -4791407048331691948, guid: 1df77818d25ebeb4eb114baa5ffce9db, type: 3}
+    rig: 1
+    armatureRoot: 1
+    maxHandSpan: 0
+    loop: 1
+  - id: Pull_Radish
+    clip: {fileID: -7722784193945378572, guid: 169893749e3326640ac01657497626ef, type: 3}
+    rig: 0
+    armatureRoot: 0
+    maxHandSpan: 0
+    loop: 1
+  - id: Push_and_Walk_Forward
+    clip: {fileID: 6371448065483194895, guid: ce6b80d4dd52c1a4b92603d82acdb78c, type: 3}
+    rig: 0
+    armatureRoot: 0
+    maxHandSpan: 0
+    loop: 1
+  - id: Regular_Jump
+    clip: {fileID: -8082796253407017998, guid: e450cb4d1797e5946842d2fa58868074, type: 3}
+    rig: 1
+    armatureRoot: 1
+    maxHandSpan: 0
+    loop: 0
+  - id: Right_Hand_Sword_Slash
+    clip: {fileID: 5392990168159487488, guid: a27597ea6b5d5e2499043a3eff2ed946, type: 3}
+    rig: 0
+    armatureRoot: 0
+    maxHandSpan: 0
+    loop: 1
+  - id: Roll_Dodge
+    clip: {fileID: -6713292760394893215, guid: dccc3f132333d5845b5af46d160191dd, type: 3}
+    rig: 1
+    armatureRoot: 1
+    maxHandSpan: 0
+    loop: 0
+  - id: Run_02
+    clip: {fileID: -4884077960889254588, guid: 44b8fb18fb5b9ae4e87e1a92782ee491, type: 3}
+    rig: 0
+    armatureRoot: 0
+    maxHandSpan: 0
+    loop: 1
+  - id: Run_03
+    clip: {fileID: 953830296706369949, guid: 37ae7ac64d9fc214c90ee54e19ae3675, type: 3}
+    rig: 0
+    armatureRoot: 0
+    maxHandSpan: 0
+    loop: 1
+  - id: Run_and_Shoot
+    clip: {fileID: -7969436398230561672, guid: b86cf1e2c73c6204982642c2de28f13c, type: 3}
+    rig: 1
+    armatureRoot: 1
+    maxHandSpan: 0
+    loop: 1
+  - id: Running
+    clip: {fileID: -9121621101649706817, guid: 5e7a81d28091dc64a9f32831fb8368ca, type: 3}
+    rig: 1
+    armatureRoot: 0
+    maxHandSpan: 0
+    loop: 1
+  - id: Shield_Push_Left
+    clip: {fileID: -4717088336826507329, guid: 7d1c74632f7904541bf5189185a0e732, type: 3}
+    rig: 1
+    armatureRoot: 1
+    maxHandSpan: 0
+    loop: 1
+  - id: Short_Breathe_and_Look_Around
+    clip: {fileID: -7768360847525253346, guid: e2b453d4accd27e4a9d8d613692e548b, type: 3}
+    rig: 1
+    armatureRoot: 1
+    maxHandSpan: 0
+    loop: 1
+  - id: Shot_and_Blown_Back
+    clip: {fileID: 3154957720046507549, guid: 35888edcf144660499e0a629f2efa421, type: 3}
+    rig: 1
+    armatureRoot: 1
+    maxHandSpan: 0
+    loop: 0
+  - id: Shrug
+    clip: {fileID: 1310068045985447020, guid: cdf3c1f0bbb7cc847925b98c6ca85c84, type: 3}
+    rig: 1
+    armatureRoot: 1
+    maxHandSpan: 0
+    loop: 1
+  - id: Sit_and_Doze_Off
+    clip: {fileID: 1068064665421373068, guid: db7689f5542a91940a7d309968578e6a, type: 3}
+    rig: 1
+    armatureRoot: 0
+    maxHandSpan: 0
+    loop: 1
+  - id: Sit_and_Drink
+    clip: {fileID: -5393495665725486463, guid: 6f3b3fa74dd27a24197db97a98320238, type: 3}
+    rig: 1
+    armatureRoot: 0
+    maxHandSpan: 0
+    loop: 1
+  - id: Sit_Cross_Legged_on_Floor
+    clip: {fileID: -4078403354106436441, guid: 78b23096e57238e4089f8dc9e4892d54, type: 3}
+    rig: 1
+    armatureRoot: 1
+    maxHandSpan: 0
+    loop: 1
+  - id: Sit_Lie_Bed
+    clip: {fileID: -8788679336818400921, guid: 22538951858a64c4d8ca6c40d46307ae, type: 3}
+    rig: 1
+    armatureRoot: 1
+    maxHandSpan: 0
+    loop: 0
+  - id: Sit_on_Chair_Arms_Crossed
+    clip: {fileID: 1800162249367505363, guid: aa2dbeb47cd8eec4d85ea4ade9452f9f, type: 3}
+    rig: 1
+    armatureRoot: 1
+    maxHandSpan: 0
+    loop: 1
+  - id: Sit_Thumbs_Up_Right
+    clip: {fileID: -1770126993867138056, guid: f2e97bb28354d5b47b22c333a762a0b2, type: 3}
+    rig: 1
+    armatureRoot: 1
+    maxHandSpan: 0
+    loop: 1
+  - id: Sit_to_Stand_Transition_M
+    clip: {fileID: 113282911701545003, guid: ef3115cf23ee29344a33531b8bbdce90, type: 3}
+    rig: 1
+    armatureRoot: 0
+    maxHandSpan: 0
+    loop: 0
+  - id: Sitting_Clap
+    clip: {fileID: 147047788820610927, guid: 02033a327ab5d91429883126195eb3e7, type: 3}
+    rig: 1
+    armatureRoot: 1
+    maxHandSpan: 0
+    loop: 1
+  - id: sleep
+    clip: {fileID: 4427739168464255716, guid: 68ddb8fe8503bc94f90ed44b9cb6de43, type: 3}
+    rig: 1
+    armatureRoot: 0
+    maxHandSpan: 0
+    loop: 0
+  - id: Sleep_Normally
+    clip: {fileID: 8421961732766157539, guid: 9235407895e889f4f81a27505067402c, type: 3}
+    rig: 0
+    armatureRoot: 0
+    maxHandSpan: 0
+    loop: 1
+  - id: Sneaky_Walk
+    clip: {fileID: 7614449065076326321, guid: cb1f76f33b79fce41b68081ac1a7d966, type: 3}
+    rig: 1
+    armatureRoot: 1
+    maxHandSpan: 0
+    loop: 1
+  - id: Stand_and_Drink
+    clip: {fileID: -6240113235714367947, guid: 08396573b5595954283118c186454cb1, type: 3}
+    rig: 0
+    armatureRoot: 0
+    maxHandSpan: 0
+    loop: 1
+  - id: Stand_Clap_and_Sit_Down
+    clip: {fileID: -8186090557395116801, guid: 6e30ba6d2db292d46a8ae0894ef7a83b, type: 3}
+    rig: 1
+    armatureRoot: 1
+    maxHandSpan: 0
+    loop: 0
+  - id: Stand_Dodge
+    clip: {fileID: -5095510531611425593, guid: 122f3250fb3d11f439ecc3e24ebc0a49, type: 3}
+    rig: 1
+    armatureRoot: 1
+    maxHandSpan: 0
+    loop: 1
+  - id: Stand_Talking_Angry
+    clip: {fileID: -5318543160145079953, guid: 3ce7938e7367c784e85f4b3ef6ad2683, type: 3}
+    rig: 1
+    armatureRoot: 1
+    maxHandSpan: 0
+    loop: 1
+  - id: Stand_to_Sit_Transition_M
+    clip: {fileID: 150913869861682212, guid: 8bb85fb4636af8349a1a7981c81fff49, type: 3}
+    rig: 1
+    armatureRoot: 1
+    maxHandSpan: 0
+    loop: 0
+  - id: Standing_Reload
+    clip: {fileID: -699405544287369182, guid: 78cd0856afabff34cb3452704cd1ffbc, type: 3}
+    rig: 1
+    armatureRoot: 1
+    maxHandSpan: 0
+    loop: 1
+  - id: Stumble_Walk
+    clip: {fileID: -1070683531111296097, guid: 34c15146cceaee34b93d9ba4d2e6f486, type: 3}
+    rig: 1
+    armatureRoot: 1
+    maxHandSpan: 0
+    loop: 1
+  - id: Swim_Forward
+    clip: {fileID: 8166542675417592435, guid: 1b6a1ad5906bc80489f07095afd805eb, type: 3}
+    rig: 1
+    armatureRoot: 1
+    maxHandSpan: 0
+    loop: 1
+  - id: Swim_Idle
+    clip: {fileID: -7833822941507725128, guid: 4fa78ce089204934bb43f2148e05b466, type: 3}
+    rig: 1
+    armatureRoot: 1
+    maxHandSpan: 0
+    loop: 1
+  - id: Sword_Parry_Backward_1
+    clip: {fileID: 5404350454832198255, guid: 0d6aec8f8b0524c4da230ebac0cf4574, type: 3}
+    rig: 1
+    armatureRoot: 1
+    maxHandSpan: 0
+    loop: 1
+  - id: Sword_Parry_Backward_2
+    clip: {fileID: -8240277429897946303, guid: 6def62fba246c7747af7198a47e31ab2, type: 3}
+    rig: 1
+    armatureRoot: 1
+    maxHandSpan: 0
+    loop: 1
+  - id: Talk_Passionately
+    clip: {fileID: -6555622759242442129, guid: c5cc4c6a2e6f4e34f9c03ae2443789e9, type: 3}
+    rig: 1
+    armatureRoot: 1
+    maxHandSpan: 0
+    loop: 1
+  - id: Talk_with_Hands_Open
+    clip: {fileID: 4827447717839450956, guid: 79aebac46d97071469f038d7443dca03, type: 3}
+    rig: 1
+    armatureRoot: 1
+    maxHandSpan: 0
+    loop: 1
+  - id: Talk_with_Left_Hand_Raised
+    clip: {fileID: -5714794178067446360, guid: 4cda1e0af248fc94f9e4a0dab1ff9588, type: 3}
+    rig: 1
+    armatureRoot: 1
+    maxHandSpan: 0
+    loop: 1
+  - id: Talk_with_Right_Hand_Open
+    clip: {fileID: 7087597867044141560, guid: a30c48523b78efd489a92cfe56d8910a, type: 3}
+    rig: 1
+    armatureRoot: 1
+    maxHandSpan: 0
+    loop: 1
+  - id: Two_Handed_Parry
+    clip: {fileID: 7428648147494587325, guid: d4dd5f72ba06d3543b38ac9d3747a0c8, type: 3}
+    rig: 1
+    armatureRoot: 1
+    maxHandSpan: 0
+    loop: 1
+  - id: victory
+    clip: {fileID: 5029710099000895372, guid: d2df014bfab7d4348b77a1e8dc99afc0, type: 3}
+    rig: 1
+    armatureRoot: 0
+    maxHandSpan: 0
+    loop: 1
+  - id: Victory_Cheer
+    clip: {fileID: 8879829393226559027, guid: f7a281b30b132f34c858a5691a47ce90, type: 3}
+    rig: 1
+    armatureRoot: 0
+    maxHandSpan: 0
+    loop: 1
+  - id: Victory_Fist_Pump
+    clip: {fileID: 3850420269171149356, guid: 3009347129330df48b1839fbeea9c6f4, type: 3}
+    rig: 1
+    armatureRoot: 1
+    maxHandSpan: 0
+    loop: 1
+  - id: Walk_Forward_with_Bow_Aimed
+    clip: {fileID: -4622532027815987907, guid: fae2ad3c7e733774a8fca4dd38b25652, type: 3}
+    rig: 0
+    armatureRoot: 0
+    maxHandSpan: 0
+    loop: 1
+  - id: Walk_to_Sit
+    clip: {fileID: -8919666310822114528, guid: 94d825a64d9f80b459f277919c8032c3, type: 3}
+    rig: 1
+    armatureRoot: 1
+    maxHandSpan: 0
+    loop: 0
+  - id: Walking
+    clip: {fileID: -1610863427237328480, guid: 3100f726380232f43bbbbcf8f167ca13, type: 3}
+    rig: 1
+    armatureRoot: 0
+    maxHandSpan: 0
+    loop: 1
+  - id: Wave_for_Help_1
+    clip: {fileID: -8087897888312554500, guid: 7a84b93138d22bf42a8714b596f18a72, type: 3}
+    rig: 1
+    armatureRoot: 0
+    maxHandSpan: 0
+    loop: 1
+  actions:
+  - action: Tool_Mine
+    motion: Heavy_Hammer_Swing
+  - action: Tool_Chop
+    motion: Heavy_Hammer_Swing
+  - action: Tool_Hammer
+    motion: Heavy_Hammer_Swing
+  - action: SmithRepair
+    motion: Heavy_Hammer_Swing
+  - action: Tool_Harvest
+    motion: Pull_Radish
+  - action: GroundWork
+    motion: Collect_Object
+  - action: Carry
+    motion: Carry_Heavy_Object_Walk
+  - action: CarryPerson
+    motion: Carry_Heavy_Object_Walk
+  - action: Walk
+    motion: Walking
+  - action: Run
+    motion: Running
+  - action: WalkInjured
+    motion: Injured_Walk
+  - action: Sleep
+    motion: Sleep_Normally
+  - action: Downed
+    motion: Prone_Reach_Help
+  - action: Rest
+    motion: Sit_Cross_Legged_on_Floor
+  - action: SkyGaze
+    motion: Long_Breathe_and_Look_Around
+  - action: Inspect
+    motion: Female_Bend_Over_Pick_Up_Inspect
+  - action: Hit
+    motion: Hit_Reaction
+  - action: Death
+    motion: Dead
+  - action: Attack
+    motion: Right_Hand_Sword_Slash
+  - action: ShieldBlock
+    motion: Shield_Push_Left
+  - action: BowShoot
+    motion: Archery_Shot_3
+  - action: Celebrate
+    motion: Victory_Fist_Pump
+  - action: IdleVariant0
+    motion: Idle_3
+  - action: IdleVariant1
+    motion: Idle_4
+  - action: IdleVariant2
+    motion: Idle_5
+  - action: Talk
+    motion: Talk_with_Hands_Open
+  - action: Listen
+    motion: Listening_Gesture
+  - action: Tool_Dig
+    motion: Heavy_Hammer_Swing
+  - action: Tool_Till
+    motion: Heavy_Hammer_Swing
+  - action: Attack_Unarmed
+    motion: Counterstrike
+  - action: Drink
+    motion: Stand_and_Drink
+  - action: WakeUp
+    motion: Arise
+  - action: WalkTipsy
+    motion: Stumble_Walk
+  - action: Stagger
+    motion: Stumble_Walk
+  - action: PassOut
+    motion: falling_down
+  - action: CollapseDropWeapon
+    motion: falling_down
+  - action: HangoverIdle
+    motion: Headache_Relief
+  - action: Mourn
+    motion: Head_Hold_in_Pain
+  - action: Hurt
+    motion: Hit_Reaction
+  - action: Pickup
+    motion: Male_Bend_Over_Pick_Up
+  - action: EquipFromGround
+    motion: Male_Bend_Over_Pick_Up
+  - action: BenchPickup
+    motion: Collect_Object
+  - action: PutDown
+    motion: Collect_Object
+  - action: BenchPlace
+    motion: Collect_Object
+  - action: UnequipToGround
+    motion: Collect_Object
+  - action: Captive
+    motion: Sit_Cross_Legged_on_Floor
+  - action: StandIdle
+    motion: Idle_11
+  - action: Idle_A
+    motion: Combat_Stance
+  - action: Idle
+    motion: Idle_3
+  - action: StandEnter
+    motion: Sit_to_Stand_Transition_M
+  - action: StandExit
+    motion: Stand_to_Sit_Transition_M
