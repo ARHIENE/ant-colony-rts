@@ -1,0 +1,18 @@
+{
+  "integrated_commit": "1de825686996a6e8b8f5f2eba212c2b0e6f8a9b7",
+  "verified_tree": "f39b7926c60817a8a4e456e2da330cbe6dde9dbb",
+  "archive_subtrees_verified": 132,
+  "archived_originals_verified": 386,
+  "current_original_hashes_verified": 1029,
+  "notion_media": {
+    "gif": 13,
+    "photos": 7,
+    "stable_references": 20
+  },
+  "journal": "https://app.notion.com/p/415c4a0ecd3181d39ec6e4778a426c0e",
+  "troubleshooting": "https://app.notion.com/p/415c4a0ecd3181168942e05f007b617b",
+  "unity": "stopped, scene clean, settings restored",
+  "other_chat": "completed/idle",
+  "shutdown": "not yet requested at receipt creation",
+  "verified_at": "2026-11-12T02:20:58.958952+09:00"
+}
