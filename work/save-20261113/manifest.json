@@ -1530,8 +1530,8 @@
   },
   {
     "path": "changelog.md",
-    "bytes": 114559,
-    "sha256": "74d0dd3c54904c2d23c913a6e348620f5e90d9cb03ce348e66307f188cc8b667"
+    "bytes": 114973,
+    "sha256": "df9d3cfdbdaf4e9d1edcf828fc08565a2ab8520eca48503e3565b5029de7ad63"
   },
   {
     "path": "docs/COMMANDER_ONLY_1112.md",
@@ -1585,8 +1585,8 @@
   },
   {
     "path": "log.md",
-    "bytes": 5489,
-    "sha256": "3c18b0cf31bc167ed2cdd3d8431695e5cdf02318d64c173e27b4e5bd86032a1b"
+    "bytes": 6025,
+    "sha256": "f1cdc8f6833985d69853872582e71932e69340fcf16c99ebfb8597d7cc440add"
   },
   {
     "path": "work/appearance-overlap-1112/Part_Face_NEUTRAL_00-live.json",

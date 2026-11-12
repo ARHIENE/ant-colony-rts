@@ -1,4 +1,4 @@
-# 현재 상태 — 2026-11-13 통합 SAVE 진행
+# 현재 상태 — 2026-11-13 통합 SAVE 완료
 
 최종 사용자 지시: 여기까지 저장하고 컴퓨터 종료는 하지 않는다.
 
@@ -36,9 +36,14 @@ work/final-motion-1113/media의 blinking, treatment-bed, mining, chopping, diggi
 
 SAVE는 develop만 대상으로 하며 prefab/prefab.meta는 제외한다. 이번 최종 요청에 따라 컴퓨터 종료는 하지 않는다.
 
-원격 커밋/Notion 첨부 검증은 완료 후 아래에 기록한다.
+원격 커밋/Notion 첨부 검증을 완료했다.
 
 ## SAVE 후속 확인
 - Graphify51849노드/136603관계/3872커뮤니티 갱신 종료0.
 - Notion 오늘 GIF5+사진6, 총11개 안정파일 참조 재조회 확인. 개발일지 https://app.notion.com/p/416c4a0ecd3181109c7ec641cd92eda2 / 문제해결 https://app.notion.com/p/416c4a0ecd318187b96ad2b950493aa5. 날짜제목 및 단일 페이지아이콘 확인.
-- Unity 사용자 설정·저장경로 복원, Play종료, 컴파일오류0/경고0. 컴퓨터 종료는 사용자 최종 요청에 따라 하지 않는다. 원격커밋 검증은 진행 중.
+- Unity 사용자 설정·저장경로 복원, Play종료, 컴파일오류0/경고0. 컴퓨터 종료는 사용자 최종 요청에 따라 하지 않는다. 원격커밋 검증 완료.
+
+## 최종 저장 검증
+- develop 통합 커밋 de2574dd1d2384b0219aca83d7062452e6d9b2cf. 원격/로컬 트리 fc3267edb61ac3e29db0175bbc4f71789578f3a5 일치.51하위트리/441압축원본 및1,134현재원본 해시 검사 통과.
+- Unity Play=False, AntColony scene dirty=False. 두채팅 completed/idle. GIF5+사진6 노션 확인. 컴퓨터 종료하지 않음.
+- 큰 원본은 SHA256 복원묶음에 저장되어 일부 원본 경로 Git dirty가 남으며 Graphify 캐시삭제는 커밋하지 않음. prefab/prefab.meta 제외, master 변경 없음.

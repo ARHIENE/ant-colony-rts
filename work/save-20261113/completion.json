@@ -1,0 +1,18 @@
+{
+  "integrated_commit": "de2574dd1d2384b0219aca83d7062452e6d9b2cf",
+  "verified_tree": "fc3267edb61ac3e29db0175bbc4f71789578f3a5",
+  "archive_subtrees_verified": 51,
+  "archived_originals_verified": 441,
+  "current_original_hashes_verified": 1134,
+  "notion_media": {
+    "gif": 5,
+    "photos": 6,
+    "stable_references": 11
+  },
+  "journal": "https://app.notion.com/p/416c4a0ecd3181109c7ec641cd92eda2",
+  "troubleshooting": "https://app.notion.com/p/416c4a0ecd318187b96ad2b950493aa5",
+  "unity": "Play=False; AntColony scene dirty=False; settings/root restored",
+  "other_chats": "both completed/idle",
+  "shutdown": "Not performed: user cancelled shutdown",
+  "verified_at": "2026-11-13T01:40:49.316373+09:00"
+}
