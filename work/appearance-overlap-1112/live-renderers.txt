@@ -1,0 +1,8 @@
+motion=Sleep_Normally
+FactionRing type=LineRenderer parent=생존자 3 material=AntSelection
+Holstered_Weapon_Sword_Copper type=MeshRenderer parent=mixamorig:Spine2 material=MeadowEQ_01_0
+Part_Body_Meadow_00 type=SkinnedMeshRenderer parent=Heavy_Hammer_Swing(Clone) material=Body
+Part_Hair_CROP_00 type=SkinnedMeshRenderer parent=Heavy_Hammer_Swing(Clone) material=Hair
+Part_Outfit_GUARD_00 type=SkinnedMeshRenderer parent=Heavy_Hammer_Swing(Clone) material=Outfit_GUARD
+Part_Ears_ANTENNA_00 type=SkinnedMeshRenderer parent=Heavy_Hammer_Swing(Clone) material=Ears
+Part_Face_NEUTRAL_00 type=SkinnedMeshRenderer parent=Heavy_Hammer_Swing(Clone) material=Face

@@ -100,6 +100,25 @@ namespace AntColony.Core
             }
             return nearest;
         }
+        // 순위가 낮은 건물을 먼저, 같은 순위에서는 가까운 건물을 고른다. int.MaxValue를 돌려준 건물은 후보에서 뺀다.
+        public BuildingBase FindPlayerBuildingByRank(Vector3 from, System.Func<BuildingBase, int> rank, out int bestRank)
+        {
+            BuildingBase nearest = null;
+            bestRank = int.MaxValue;
+            var distance = float.MaxValue;
+            foreach (var building in buildings)
+            {
+                if (!CombatTargeting.IsAlive(building)) continue;
+                var r = rank(building);
+                if (r == int.MaxValue || r > bestRank) continue;
+                var candidate = (building.Position - from).sqrMagnitude;
+                if (r == bestRank && candidate >= distance) continue;
+                bestRank = r;
+                distance = candidate;
+                nearest = building;
+            }
+            return nearest;
+        }
         public void ReportWildMonsterDefeated()
         {
             if (loopCompleted) return;

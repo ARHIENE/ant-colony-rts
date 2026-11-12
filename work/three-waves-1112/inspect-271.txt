@@ -1,0 +1,29 @@
+생존자 1 cargo=0 type=Soil gather=5 build=8 haul=7 sleep=True
+생존자 2 cargo=0 type=Soil gather=5 build=8 haul=7 sleep=True
+생존자 3 cargo=0 type=Soil gather=5 build=8 haul=7 sleep=True
+SITE Storage pos=(202.50, 9.95, 202.50) ready=False Soil need=20 delivered=16 reserved=0 transit=0
+SITE Farm pos=(200.50, 9.95, 196.50) ready=False Soil need=30 delivered=11 reserved=0 transit=0
+NODE Dropped Food type=Food amount=5 loose=True designated=False dist=3 pos=(202.36, 10.07, 202.45)
+NODE Dropped Food type=Food amount=8 loose=True designated=False dist=3 pos=(202.36, 10.07, 202.45)
+NODE Dropped Food type=Food amount=8 loose=True designated=False dist=3 pos=(202.36, 10.07, 202.45)
+NODE FoodNode1 type=Food amount=296.0001 loose=False designated=True dist=6 pos=(204.00, 11.33, 204.00)
+NODE SoilNode1 type=Soil amount=153.0001 loose=False designated=True dist=6 pos=(206.00, 11.06, 199.00)
+NODE 시작 야생 작물 2 type=Food amount=1 loose=False designated=False dist=7 pos=(204.89, 9.85, 204.31)
+NODE FoodNode2 type=Food amount=320 loose=False designated=False dist=7 pos=(199.00, 13.93, 206.00)
+NODE SoilNode2 type=Soil amount=200 loose=False designated=True dist=10 pos=(207.00, 11.33, 207.00)
+NODE 시작 식용 자원 type=Food amount=84 loose=False designated=False dist=14 pos=(214.00, 10.15, 200.00)
+NODE Dropped Soil type=Soil amount=8 loose=True designated=False dist=31 pos=(174.45, 10.07, 183.07)
+NODE Dropped Soil type=Soil amount=4 loose=True designated=False dist=31 pos=(173.05, 10.07, 184.03)
+NODE Dropped Soil type=Soil amount=11 loose=True designated=False dist=35 pos=(170.46, 10.07, 181.58)
+NODE FishingSpot type=Food amount=300 loose=False designated=False dist=37 pos=(193.00, 9.77, 164.00)
+NODE Event Soil type=Soil amount=17 loose=True designated=False dist=129 pos=(94.00, 9.85, 126.47)
+NODE Event Food type=Food amount=80 loose=True designated=False dist=131 pos=(92.00, 9.85, 126.47)
+NODE Neutral ResourceSite 1 Food type=Food amount=40 loose=True designated=False dist=6785 pos=(4996.00, 0.60, 5000.00)
+NODE Neutral ResourceSite 1 Soil type=Soil amount=160 loose=True designated=False dist=6791 pos=(5004.00, 0.60, 5000.00)
+NODE Neutral ResourceSite 2 Food type=Food amount=120 loose=True designated=False dist=6928 pos=(5196.00, 0.60, 5000.00)
+NODE Neutral ResourceSite 2 Soil type=Soil amount=300 loose=True designated=False dist=6934 pos=(5204.00, 0.60, 5000.00)
+NODE Neutral ResourceSite 3 Food type=Food amount=480 loose=True designated=False dist=7074 pos=(5396.00, 0.60, 5000.00)
+NODE Neutral ResourceSite 3 Soil type=Soil amount=300 loose=True designated=False dist=7080 pos=(5404.00, 0.60, 5000.00)
+NODE Neutral ResourceSite 4 Food type=Food amount=300 loose=True designated=False dist=7222 pos=(5596.00, 0.60, 5000.00)
+NODE Neutral ResourceSite 4 Soil type=Soil amount=300 loose=True designated=False dist=7228 pos=(5604.00, 0.60, 5000.00)
+NODE Nest Stock Food type=Food amount=62 loose=False designated=False dist=7536 pos=(5998.50, 0.30, 5013.00)

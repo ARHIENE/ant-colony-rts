@@ -860,10 +860,10 @@ MonoBehaviour:
     - Bone_028
     - Bone_003
     - Bone_002
-  - name: Part_Face_NEUTRAL_00
-    mesh: {fileID: 4300000, guid: 4477f2518e1b9354ba62ac3ed8139356, type: 2}
+  - name: Part_Ears_ANTENNA_00
+    mesh: {fileID: 4300000, guid: b17b72ebf3188154eadacfbcdd287930, type: 2}
     materials:
-    - {fileID: 2100000, guid: a4b3a7f684a0bbd4389693bd6da59cf5, type: 2}
+    - {fileID: 2100000, guid: 111929dbe1db19642bdd99020f082123, type: 2}
     bones:
     - mixamorig:Hips
     - mixamorig:Spine
@@ -937,10 +937,10 @@ MonoBehaviour:
     - Bone_028
     - Bone_003
     - Bone_002
-  - name: Part_Ears_ANTENNA_00
-    mesh: {fileID: 4300000, guid: b17b72ebf3188154eadacfbcdd287930, type: 2}
+  - name: Part_Face_NEUTRAL_00
+    mesh: {fileID: 4300000, guid: 4477f2518e1b9354ba62ac3ed8139356, type: 2}
     materials:
-    - {fileID: 2100000, guid: 111929dbe1db19642bdd99020f082123, type: 2}
+    - {fileID: 2100000, guid: a4b3a7f684a0bbd4389693bd6da59cf5, type: 2}
     bones:
     - mixamorig:Hips
     - mixamorig:Spine

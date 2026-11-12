@@ -27,6 +27,7 @@ namespace AntColony.Units
             public MeshyEquipmentWearables wearables;
             public MeshyNativeAppearance appearance;
             public float? sleepLift;
+            public Vector3 sleepSupport, sleepHeadDirection;
         }
         [SerializeField] MeshyNativeLibrary library;
         Rig[] rigs;
@@ -35,6 +36,8 @@ namespace AntColony.Units
         Transform original;
         readonly Dictionary<string,int> actions=new Dictionary<string,int>();
         Renderer[] oldRenderers;
+        MeshyEquipmentWearables originalWearables;
+        int equipmentRevision = -1;
         Material material;
         int selected=-1,revision=-1;
         Vector3 rootOrigin;
@@ -48,7 +51,7 @@ namespace AntColony.Units
             if(original&&library==value)return;
             Release();
             library=value;visual=GetComponent<AntVisual>();original=transform.Find("Kemono");
-            commander=GetComponent<CommanderAnt>();
+            commander=GetComponent<CommanderAnt>(); originalWearables=original ? original.GetComponent<MeshyEquipmentWearables>() : null;
             if(!visual||!original)throw new InvalidOperationException("Game visual required");
             foreach(Transform child in transform)if(child.name.StartsWith("Meshy native rig ")){child.gameObject.SetActive(false);Destroy(child.gameObject);}
             oldRenderers=original.GetComponentsInChildren<Renderer>(true);
@@ -101,8 +104,9 @@ namespace AntColony.Units
             if(!library)return;
             int next;
             if(!string.IsNullOrEmpty(PreviewMotion))next=Array.FindIndex(library.motions,m=>m.id==PreviewMotion);
-            else if(!actions.TryGetValue(visual.MotionName??"",out next))next=-1;
-            if(revision!=visual.MotionRevision)oldRenderers=original.GetComponentsInChildren<Renderer>(true);
+            else if(!actions.TryGetValue(MeshyNativeContextMotion.Resolve(visual.MotionName??"", commander ? commander.IdleLeisureMotion : null, commander ? commander.Health.Moving : 1f, commander && commander.IsLeisureWalking),out next))next=-1;
+            int currentEquipmentRevision=originalWearables ? originalWearables.Revision : -1;
+            if(revision!=visual.MotionRevision || equipmentRevision!=currentEquipmentRevision){oldRenderers=original.GetComponentsInChildren<Renderer>(true);equipmentRevision=currentEquipmentRevision;}
             foreach(var renderer in oldRenderers)if(renderer)renderer.forceRenderingOff=next>=0;
             for(int i=0;i<rigs.Length;i++)if(rigs[i]!=null)rigs[i].pivot.SetActive(next>=0&&RigIndex(next)==i);
             if(next<0){selected=-1;return;}
@@ -119,14 +123,28 @@ namespace AntColony.Units
                 {
                     // Measure the original resting mesh once; retain all authored joint rotations.
                     entry.clip.SampleAnimation(rig.animationRoot,entry.clip.length*.5f);
+                    var sleepHip = rig.hips.localPosition; sleepHip.x = rig.bindHip.x; sleepHip.z = rig.bindHip.z; rig.hips.localPosition = sleepHip;
                     float bottom=float.PositiveInfinity;var baked=new Mesh();
+                    var restingBounds = new Bounds(); bool firstRestVertex = true;
                     foreach(var skin in rig.model.GetComponentsInChildren<SkinnedMeshRenderer>().Where(s=>s.enabled&&s.gameObject.activeInHierarchy))
                     {
                         skin.BakeMesh(baked);
-                        foreach(var vertex in baked.vertices)bottom=Mathf.Min(bottom,skin.transform.TransformPoint(vertex).y);
+                        foreach(var vertex in baked.vertices)
+                        {
+                            var world = skin.transform.TransformPoint(vertex);
+                            bottom=Mathf.Min(bottom,world.y);
+                            var local = rig.pivot.transform.InverseTransformPoint(world);
+                            if(firstRestVertex) { restingBounds = new Bounds(local, Vector3.zero); firstRestVertex = false; }
+                            else restingBounds.Encapsulate(local);
+                        }
                     }
                     Destroy(baked);
                     rig.sleepLift=(rig.pivot.transform.position.y-bottom)/Mathf.Max(.001f,transform.lossyScale.y);
+                    rig.sleepSupport = new Vector3(restingBounds.center.x, restingBounds.min.y, restingBounds.center.z);
+                    var bones = rig.model.GetComponentsInChildren<Transform>();
+                    var head = bones.First(t => t.name == "mixamorig:Head").position;
+                    var foot = (bones.First(t => t.name == "mixamorig:LeftFoot").position + bones.First(t => t.name == "mixamorig:RightFoot").position) * .5f;
+                    rig.sleepHeadDirection = Vector3.ProjectOnPlane(rig.pivot.transform.InverseTransformDirection(head-foot),Vector3.up).normalized;
                     entry.clip.SampleAnimation(rig.animationRoot,0);
                 }
                 rig.equipment.SetHandSpan(entry.maxHandSpan*rig.pivot.transform.lossyScale.x);
@@ -151,8 +169,20 @@ namespace AntColony.Units
             }
             rig.graph.Evaluate(0);
             if(rig.appearance)rig.appearance.Sync();
+            if(entry.id=="Sleep_Normally" && string.IsNullOrEmpty(PreviewMotion))
+                foreach(var face in rig.model.GetComponentsInChildren<SkinnedMeshRenderer>())
+                    if(face.name.StartsWith("Part_Face_"))
+                        for(int shape=0;shape<face.sharedMesh.blendShapeCount;shape++)
+                            face.SetBlendShapeWeight(shape,face.sharedMesh.GetBlendShapeName(shape)=="Sleep"?100:0);
             // Game navigation owns travel; preserve authored vertical motion and joint animation.
             var pos=rig.hips.localPosition;pos.x=rootOrigin.x;pos.z=rootOrigin.z;rig.hips.localPosition=pos;
+            if(entry.id=="Sleep_Normally" && string.IsNullOrEmpty(PreviewMotion) && commander && commander.TreatmentFacility
+                && commander.TreatmentFacility.TryRestPose(commander,out var bedPosition,out var bedHead))
+            {
+                // Only place the whole original rig; never retarget or rotate individual joints.
+                rig.pivot.transform.rotation = Quaternion.FromToRotation(rig.sleepHeadDirection,bedHead);
+                rig.pivot.transform.position = bedPosition-rig.pivot.transform.TransformVector(rig.sleepSupport);
+            }
             rig.equipment.Pose(visual.HeldTool,visual.MotionName,Mathf.Repeat(rig.times[next]/entry.clip.length,1));
             if(commander)rig.wearables.Apply(commander.EquippedArmor,commander.PersonalState.equipment.Find(e=>e.slot==EquipmentSlot.Trinket),commander.Weapon,visual.HeldTool,commander.PersonalHealth<=0);
         }
@@ -170,7 +200,7 @@ namespace AntColony.Units
             if(rigs!=null)foreach(var rig in rigs)if(rig!=null){if(rig.graph.IsValid())rig.graph.Destroy();if(rig.pivot)Destroy(rig.pivot);}
             if(oldRenderers!=null)foreach(var renderer in oldRenderers)if(renderer)renderer.forceRenderingOff=false;
             if(material)Destroy(material);
-            rigs=null;oldRenderers=null;original=null;material=null;selected=-1;revision=-1;actions.Clear();
+            rigs=null;oldRenderers=null;originalWearables=null;equipmentRevision=-1;original=null;material=null;selected=-1;revision=-1;actions.Clear();
         }
     }
 }

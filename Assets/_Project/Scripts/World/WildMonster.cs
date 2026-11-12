@@ -148,7 +148,7 @@ namespace AntColony.World
                 night = nightPredator, flying = IsFlying, allied = Allied, docile = Docile, provoked = provoked, rebel = RebelId,
                 rotationY = transform.eulerAngles.y, scale = new Save.Vec3Dto(transform.localScale),
                 target = Save.SaveReferences.Key(currentTarget), maxHealth = maxHealth, detection = detectionRadius, damage = attackDamage,
-                range = attackRange, interval = attackInterval, hordeBody = hordeBodyHealth, searchInterval = targetSearchInterval, speed = moveSpeed,
+                range = attackRange, interval = attackInterval, hordeBody = hordeBodyHealth, aim = (int)Aim, searchInterval = targetSearchInterval, speed = moveSpeed,
                 attackTimer = attackTimer, searchTimer = targetSearchTimer, siegeCheck = siegeCheck, root = RootRemaining,
                 parentSite = Save.SaveCatalog.SiteIndex(GetComponentInParent<ExpeditionSite>()), raidSite = Save.SaveCatalog.SiteIndex(raidSite),
                 invasionSite = invasion == null ? -2 : Save.SaveCatalog.SiteIndex(invasion.GetComponentInParent<ExpeditionSite>()),
@@ -162,6 +162,7 @@ namespace AntColony.World
             if (targets) { currentTarget = Save.SaveReferences.Get<IDamageable>(d.target); return; }
             maxHealth = d.maxHealth; detectionRadius = d.detection; attackDamage = d.damage; attackRange = d.range;
             attackInterval = d.interval; targetSearchInterval = d.searchInterval; moveSpeed = d.speed; hordeBodyHealth = d.hordeBody;
+            Aim = (EnemyAim)Mathf.Clamp(d.aim, 0, (int)EnemyAim.Wall);
             if (IsHorde) AntColony.Units.HordeVisual.Attach(gameObject, () => HordeCount);
             isRaider = d.raider; eventWasp = d.wasp; nightPredator = d.night; IsFlying = d.flying; Allied = d.allied;
             Docile = d.docile; provoked = d.provoked; RebelId = d.rebel; attackTimer = d.attackTimer;
@@ -234,7 +235,8 @@ namespace AntColony.World
             if (!TargetAlive(currentTarget)) currentTarget = null;
 
             // 침공 개체는 살아 있는 대상이 있어도 주기적으로 재탐색해, 가로막는 방어 유닛을 먼저 노린다.
-            if (currentTarget == null || isRaider && !IsBarrier(currentTarget))
+            // 일반 공격형은 벽을 치는 중에도 재탐색해, 닿을 수 있는 장수가 들어오면 장수로 돌아간다(2026-11-12).
+            if (currentTarget == null || isRaider && (!IsBarrier(currentTarget) || Aim == EnemyAim.General))
             {
                 if (targetSearchTimer > 0f)
                 {
@@ -248,6 +250,8 @@ namespace AntColony.World
                 {
                     targetSearchTimer = targetSearchInterval * (.8f + .2f * (float)PerfPhases.NextDouble());
                     currentTarget = Allied ? CombatTargeting.FindNearestEnemy(Position, detectionRadius, UnitRole.Melee)
+                        : IsBarrier(currentTarget) ? BarrierOrCommander()
+                        : Aim != EnemyAim.General && isRaider && !eventWasp && raidSite == null ? FindAimTarget()
                         : (eventWasp ? AntColony.Core.SceneObjects.Any<Stockpile>() : null) ?? (IDamageable)FindNearestAnt()
                         ?? TransportDamage.FindTarget(Position, detectionRadius)
                         ?? FindCivilianTarget()
@@ -420,12 +424,13 @@ namespace AntColony.World
         }
 
         public static bool IsBarrier(IDamageable target) => target is Wall || target is SoilWall || target is Door || target is Gate gate && !gate.Open;
-        private BuildingBase FindBarrier()
+        private BuildingBase FindBarrier(Vector3? around = null)
         {
             BuildingBase best = null; var bestSqr = float.MaxValue;
             int count;
+            var center = around ?? Position;
             // 가득 차면 늘려 다시 검색한다. 밀집 전투에서도 후보를 잘라 버리지 않는다.
-            while ((count = Physics.OverlapSphereNonAlloc(Position, GameBalance.SiegeSearchRadius, siegeHits, ~0, QueryTriggerInteraction.Ignore)) == siegeHits.Length)
+            while ((count = Physics.OverlapSphereNonAlloc(center, GameBalance.SiegeSearchRadius, siegeHits, ~0, QueryTriggerInteraction.Ignore)) == siegeHits.Length)
                 System.Array.Resize(ref siegeHits, siegeHits.Length * 2);
             for (var i = 0; i < count; i++)
             {
@@ -433,7 +438,7 @@ namespace AntColony.World
                 siegeHits[i] = null;
                 var b = hit.GetComponentInParent<BuildingBase>();
                 if (b == null || b.IsDead || !IsBarrier(b)) continue;
-                var d = (hit.ClosestPoint(Position) - Position).sqrMagnitude;
+                var d = (hit.ClosestPoint(center) - center).sqrMagnitude;
                 if (d < bestSqr) { bestSqr = d; best = b; }
             }
             return best;
@@ -481,10 +486,12 @@ namespace AntColony.World
         {
             if (!ReferenceEquals(requestedTarget, currentTarget)) pathRequested = false;
             if (pathRequested && Time.time < nextPathRequest) return;
-            if (pathRequested && (agent.hasPath || agent.pathPending)
-                && (destination - requestedDestination).sqrMagnitude < .0625f && Time.time < pathRefreshAt) return;
+            // 같은 목적지는 계산 중이면 기다리고, 경로가 있으면 2초마다만 새로 구한다(벽이 뚫려 길이 바뀐 경우용).
+            // 벽 안쪽처럼 닿을 수 없는 목적지는 부분 경로 계산이 여러 프레임 걸려, 0.4초마다 다시 요청하면 적이 거의 제자리에 멈춘다(2026-11-12).
+            if (pathRequested && (destination - requestedDestination).sqrMagnitude < .0625f
+                && (agent.pathPending || agent.hasPath && Time.time < pathRefreshAt)) return;
             nextPathRequest = Time.time + .15f + perfPhase * .05f;
-            pathRefreshAt = Time.time + .4f + perfPhase * .05f;
+            pathRefreshAt = Time.time + 2f + perfPhase * .05f;
             requestedDestination = destination;
             requestedTarget = currentTarget;
             pathRequested = true;

@@ -69,7 +69,7 @@ namespace AntColony.Units
             MigrateAge(personalState);
             personalState.health ??= new HealthState(); MedicalRules.Migrate(personalState); // 옛 6부위 부상·곰팡이 → 부위별 건강(2026-10-15)
             RefreshEquipment();
-            storyInjuryActive = personalState.HasSeriousInjury || Health.Downed || PersonalHealth <= 0;
+            storyInjuryActive = StoryInjuryNeedsHelp;
         }
         // 미관·온도(2026-10-10): 잠·식사·작업 중인 실제 생활 공간만 본다. 미관은 체류 평균이라 잠깐 지나가도 급변하지 않고 상하한이 있다.
         private float spaceTimer;
@@ -98,7 +98,7 @@ namespace AntColony.Units
         {
             if (!(seconds > 0) || float.IsInfinity(seconds) || IsDead) return;
             TickAge(seconds); if (IsDead) return;
-            if (HasTroops && IsInCombat && !IsWorking && CanReceiveOrders && !LabUpgradeBusy)
+            if (IsInCombat && !IsWorking && CanReceiveOrders && !LabUpgradeBusy)
             {
                 talents.combatSeconds += seconds;
                 while (talents.combatSeconds >= 10)
@@ -108,7 +108,7 @@ namespace AntColony.Units
                         ? CampaignResearch.Instance?.BossProgress.ClaimGuardExperience((AntColony.Boss.BossId)guard.GuardBoss, guard.GuardCycle, CommanderProgression.CombatXpPer10Seconds) ?? 0
                         : CommanderProgression.CombatXpPer10Seconds;
                     if (CombatActivity != CommanderActivity.Command) GainExperience(CombatActivity, Budget());
-                    GainExperience(CommanderActivity.Command, Budget());
+                    // Retired command/cooperation skill does not gain experience.
                 }
             }
             if (TreatmentFacility != null && (!TreatmentFacility.IsTreating(this) || WorkPriorities.Red && !personalState.health.Downed)) TreatmentFacility.Release(this); // 빨간 경보: 움직일 수 있으면 병상에서 나온다
@@ -162,12 +162,14 @@ namespace AntColony.Units
                 return mood <= 5 ? .4f : mood <= 20 ? .15f : mood <= 35 ? .05f : 0;
             }
         }
+        public bool IsViolentBreak => personalState.mentalBreak == MentalBreak.AttackCommander
+            || personalState.mentalBreak == MentalBreak.AttackBuilding;
         public void StartMentalBreak(MentalBreak kind)
         {
-            if (!System.Enum.IsDefined(typeof(MentalBreak), kind) || kind == MentalBreak.None || IsDead || IsEmbarked || IsCaptive) return;
+            if (!System.Enum.IsDefined(typeof(MentalBreak), kind) || kind == MentalBreak.None || IsDead || PersonalHealth <= 0 || Health.Downed || IsEmbarked || IsCaptive) return;
             if (kind == MentalBreak.Flee && IsColonyMember && !Active.OfType<CommanderAnt>().Any(c => c != this
                 && !c.IsDead && c.IsColonyMember && !c.IsHostile && !c.IsCaptive)) kind = MentalBreak.Wander;
-            CommandStop(); ScienceAssignment?.ReleaseResearcher(); LabUpgradeLab?.CancelResearch();
+            LeavePlay(); WakeForDuty(); CommandStop(); ScienceAssignment?.ReleaseResearcher(); LabUpgradeLab?.CancelResearch();
             TreatmentFacility?.Release(this);
             CraftingWorkshop?.Release();
             personalState.mentalBreak = kind;
@@ -186,10 +188,16 @@ namespace AntColony.Units
                 if (rm != null) rm.TrySpend(Mathf.Min(30, rm.GetAmount(ResourceType.Food)), 0, reason: ResourceReason.Upkeep);
                 EndMentalBreak();
             }
-            AntColony.UI.ToastManager.Show(commanderName + ": " + kind);
+            if (IsViolentBreak) ThreatIncidents.Scan(true);
+            else AntColony.UI.ToastManager.Show(commanderName + ": " + PersonalDisplayNames.Break(kind));
         }
         private void TickBreak(float seconds)
         {
+            if (PersonalHealth <= 0 || Health.Downed)
+            {
+                personalState.mentalBreak = MentalBreak.None; personalState.breakRemaining = 0;
+                CommandStop(); return; // 행동 불능으로 멈춘 것은 감정 해소 보상이 아니다.
+            }
             personalState.breakRemaining = Mathf.Max(0, personalState.breakRemaining - seconds);
             if (personalState.breakRemaining <= 0) { EndMentalBreak(); return; }
             if (personalState.mentalBreak == MentalBreak.Wander)
@@ -207,13 +215,13 @@ namespace AntColony.Units
                 target = AntColony.Core.SceneObjects.All<BuildingBase>().Where(b => b.CountsTowardPlayerDefeat && !b.IsDead && !(b is AntColony.World.ExpeditionTransport))
                     .OrderBy(b => (b.Position - Position).sqrMagnitude).FirstOrDefault();
             if (personalState.mentalBreak == MentalBreak.AttackCommander)
-                target = Active.OfType<CommanderAnt>().Where(c => c != this && !c.IsDead && !c.IsEmbarked && c.HasTroops)
+                target = Active.OfType<CommanderAnt>().Where(c => c != this && !c.IsDead && !c.IsEmbarked && c.CanFight)
                     .OrderBy(c => (c.Position - Position).sqrMagnitude).FirstOrDefault();
-            if (target == null || !HasTroops || Data == null) return;
+            if (target == null || !CanFight || Data == null) return;
             if (GetDistanceTo(target.Position) > Data.attackRange) { SetMoveDestination(target.Position); TickFlightMovement(); return; }
             StopMoving(); breakAttackTimer -= seconds;
             if (breakAttackTimer > 0) return;
-            breakAttackTimer = Data.attackInterval; target.TakeDamage(AttackDamage);
+            breakAttackTimer = Data.attackInterval; personalState.lastCombatSeconds = 0; target.TakeDamage(AttackDamage);
         }
         private void EndMentalBreak()
         {
@@ -305,7 +313,7 @@ namespace AntColony.Units
                     }
                 }
                 relation.duelSeconds = distance <= 100 && relation.value <= -60 && other.personalState.Relation(personalState.id).value <= -60
-                    && HasTroops && other.HasTroops ? relation.duelSeconds + seconds : 0;
+                    && CanFight && other.CanFight ? relation.duelSeconds + seconds : 0;
                 while (relation.duelSeconds >= 60)
                 {
                     relation.duelSeconds -= 60;
@@ -330,7 +338,7 @@ namespace AntColony.Units
         }
         private void Duel(CommanderAnt other)
         {
-            if (!HasTroops || !other.HasTroops) return;
+            if (!CanFight || !other.CanFight) return;
             var loser = AttackDamage == other.AttackDamage ? (Random.value < .5f ? this : other) : AttackDamage < other.AttackDamage ? this : other;
             // 결투는 일반 전투 사망 판정을 쓰지 않는다. 진 쪽 경상만 발생한다.
             foreach (var c in new[] { this, other })
@@ -338,7 +346,7 @@ namespace AntColony.Units
                 int lost = Mathf.CeilToInt(c.troopCount * .2f);
                 c.troopCount -= lost; AntPool.Instance?.LoseAssigned(lost);
                 AntColony.World.Corpse.Drop(c, AntColony.World.CorpseKind.Ant, "시민", lost);
-                if (!c.HasTroops) { c.pendingDamage = 0; c.CommandStop(); }
+                c.pendingDamage = 0; c.CommandStop();
             }
             loser.personalState.AddInjury(loser.traits, true);
             CampaignHistory.Record("결투", commanderName + " / " + other.commanderName, loser.commanderName + " 패배", true);

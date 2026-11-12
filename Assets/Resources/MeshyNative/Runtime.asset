@@ -35,6 +35,12 @@ MonoBehaviour:
     armatureRoot: 0
     maxHandSpan: 0
     loop: 1
+  - id: Casual_Walk
+    clip: {fileID: 7006548375941132000, guid: 552bf7a1a276ebd439a0cdfa6031b16e, type: 3}
+    rig: 1
+    armatureRoot: 0
+    maxHandSpan: 0
+    loop: 1
   - id: Collect_Object
     clip: {fileID: -6757020630807413255, guid: 3459f5657f1979449b1236a2f4a4b107, type: 3}
     rig: 1
@@ -125,6 +131,18 @@ MonoBehaviour:
     armatureRoot: 1
     maxHandSpan: 0
     loop: 1
+  - id: Limping_Walk_1
+    clip: {fileID: -4277490129206898155, guid: 317512d2ab8c7274fbc758e0e56ec931, type: 3}
+    rig: 0
+    armatureRoot: 0
+    maxHandSpan: 0
+    loop: 1
+  - id: Limping_Walk_3
+    clip: {fileID: -3341026994730162323, guid: 67af109b996438f4696c004ce7c373dd, type: 3}
+    rig: 1
+    armatureRoot: 0
+    maxHandSpan: 0
+    loop: 1
   - id: Listening_Gesture
     clip: {fileID: -6818285914164538284, guid: 84535c53f3992e1469a4c59a7336abfb, type: 3}
     rig: 1
@@ -173,6 +191,12 @@ MonoBehaviour:
     armatureRoot: 1
     maxHandSpan: 0
     loop: 1
+  - id: Short_Breathe_and_Look_Around
+    clip: {fileID: -7768360847525253346, guid: e2b453d4accd27e4a9d8d613692e548b, type: 3}
+    rig: 1
+    armatureRoot: 1
+    maxHandSpan: 0
+    loop: 1
   - id: Sit_Cross_Legged_on_Floor
     clip: {fileID: -4078403354106436441, guid: 78b23096e57238e4089f8dc9e4892d54, type: 3}
     rig: 1
@@ -205,6 +229,12 @@ MonoBehaviour:
     loop: 0
   - id: Stumble_Walk
     clip: {fileID: -1070683531111296097, guid: 34c15146cceaee34b93d9ba4d2e6f486, type: 3}
+    rig: 1
+    armatureRoot: 1
+    maxHandSpan: 0
+    loop: 1
+  - id: Talk_Passionately
+    clip: {fileID: -6555622759242442129, guid: c5cc4c6a2e6f4e34f9c03ae2443789e9, type: 3}
     rig: 1
     armatureRoot: 1
     maxHandSpan: 0
@@ -288,6 +318,18 @@ MonoBehaviour:
     motion: Heavy_Hammer_Swing
   - action: Attack_Unarmed
     motion: Counterstrike
+  - action: WalkLimp
+    motion: Limping_Walk_1
+  - action: WalkLimpSevere
+    motion: Limping_Walk_3
+  - action: LeisureWalk
+    motion: Casual_Walk
+  - action: IdleTalk
+    motion: Talk_Passionately
+  - action: IdleRest
+    motion: Sit_Cross_Legged_on_Floor
+  - action: IdleLook
+    motion: Short_Breathe_and_Look_Around
   - action: Drink
     motion: Stand_and_Drink
   - action: WakeUp

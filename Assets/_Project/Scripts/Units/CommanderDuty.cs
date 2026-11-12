@@ -105,7 +105,7 @@ namespace AntColony.Units
             CraftingWorkshop?.Release();
             SuspendWork(); automaticFacility = null;
             WorkState.resting = false; WakeForDuty();
-            troopCount = troops; troopsReleased = false;
+            troopCount = 0; troopsReleased = false; // 2026-11-12: 병력 없이 장수만 소집한다
             WorkState.duty = CommanderDuty.Deployed; WorkState.returnPosition = home; WorkState.quietSeconds = 0;
             WorkState.rations ??= new FoodLots(); AllocateDeploymentFood();
         }
@@ -132,7 +132,13 @@ namespace AntColony.Units
             // A player's defence/retreat order must not be cancelled by automatic self-tending,
             // meals or hauling. Downed recovery above and health damage still run normally.
             if (!IsDeployed && AntColony.World.WaveDefense.Instance?.InWave == true
-                && CanReceiveOrders && (HasCombatOrder || IsDirectMoving)) return;
+                && CanReceiveOrders && (HasCombatOrder || IsDirectMoving
+                    || CombatTargeting.FindNearestEnemy(Position, GameBalance.ReturnEnemyRadius, Role) != null))
+            {
+                if (!HasCombatOrder && !IsDirectMoving && (IsWorking || ServiceTarget != null || ScienceAssignment != null)) SuspendWork();
+                WakeForDuty(); LeavePlay();
+                return;
+            }
             WorkState.rations ??= new FoodLots();
             if (IsDeployed) TickDeploymentMeal(seconds);
             if (!IsDeployed && !IsAwayFromHome && !IsEmbarked && !IsCaptive && !WorkPriorities.Red
@@ -186,7 +192,7 @@ namespace AntColony.Units
             if (automaticFacility != null)
             {
                 if (!automaticFacility.isActiveAndEnabled || automaticFacility.IsDead) automaticFacility = null;
-                else if ((automaticFacility.Position - Position).sqrMagnitude <= 49)
+                else if (automaticFacility is Infirmary ? HasReachedDestination() : (automaticFacility.Position - Position).sqrMagnitude <= 49)
                 {
                     base.CommandStop();
                     if (automaticFacility is Workshop workshop && AllowsJob(CommanderJobs.Crafting)) workshop.TryAssign(this);
@@ -221,19 +227,31 @@ namespace AntColony.Units
             if (AllowsJob(CommanderJobs.Hunting))
                 foreach (var (_, start) in ByTravel(Barracks.Training.Where(b => b.FreeForTraining).Select(b => ((Component)b, (Func<bool>)(() => StartService(b, CommanderJobs.Hunting) && b.BeginTraining())))))
                     if (start()) return;
+            TryIdleLeisure();
         }
         // 같은 대상 우선순위 안에서 실제 경로 길이 → 오래 기다린 요청 순. 경로 계산은 직선거리로 가까운 몇 개만 한다.
         // ponytail: 직선 상위 8개만 경로를 잰다. 후보가 많아 먼 곳이 실제로 더 가까운 경우가 잦으면 늘린다.
         private IEnumerable<(Component target, Func<bool> start)> ByTravel(IEnumerable<(Component target, Func<bool> start)> group)
         {
             // G26: 후보 1만 개를 다 정렬하지 않는다. 가까운 8개를 먼저 뽑고, 그 8개가 모두 실패할 때만 나머지를 정렬한다.
-            var all = group.Select(c => (c, d2: (c.target.transform.position - Position).sqrMagnitude)).ToList();
+            var all = group.Select(c => (c, d2: WorkTravelDistance(c.target, false))).ToList();
             var near = all.Count <= 8 ? all.OrderBy(x => x.d2).ToList() : all.OrderBy(x => x.d2).Take(8).ToList();
-            var head = near.Select(x => (x.c, d: Mathf.Round(TravelDistance(x.c.target.transform.position) * 2) / 2))
+            var head = near.Select(x => (x.c, d: Mathf.Round(WorkTravelDistance(x.c.target, true) * 2) / 2))
                 .OrderBy(x => x.d).ThenBy(x => WorkPriorities.RequestedAt(x.c.target)).Select(x => x.c);
             foreach (var c in head) yield return c;
             if (all.Count <= 8) yield break;
             foreach (var x in all.OrderBy(x => x.d2).Skip(8)) yield return x.c;
+        }
+        private float WorkTravelDistance(Component target, bool usePath)
+        {
+            // A nearby blueprint may need material from the far side of the map.
+            // Compare the pickup trip as well, instead of treating that delivery as local work.
+            if (target is BuildingConstructionSite site && !site.CanWork && site.PendingPickup is BuildingConstructionSite.Need need)
+            {
+                if (!TryMaterialSource(site, need.type, need.reserved, out _, out _, out var pickup, out _)) return float.PositiveInfinity;
+                return (usePath ? TravelDistance(pickup) : Vector3.Distance(Position, pickup)) + Vector3.Distance(pickup, site.Position);
+            }
+            return usePath ? TravelDistance(target.transform.position) : Vector3.Distance(Position, target.transform.position);
         }
         private static readonly CommanderJobs[] AutoJobs = { CommanderJobs.Firefighting, CommanderJobs.Nursing, CommanderJobs.Repair, CommanderJobs.Cleaning, CommanderJobs.Building, CommanderJobs.Art,
             CommanderJobs.Crafting, CommanderJobs.Administration, CommanderJobs.Cooking, CommanderJobs.Hunting, CommanderJobs.Hauling, CommanderJobs.Husbandry, CommanderJobs.Farming, CommanderJobs.Fishing, CommanderJobs.Gathering };
@@ -376,9 +394,9 @@ namespace AntColony.Units
         {
             if (!CanSendToTreatment) return false;
             var infirmary = TreatmentTarget; CommandStop(); ScienceAssignment?.ReleaseResearcher(); WorkState.resting = false;
-            if ((infirmary.Position - Position).sqrMagnitude <= 49) return infirmary.TryAdmit(this);
-            if (!UnityEngine.AI.NavMesh.SamplePosition(infirmary.Position, out var hit, 7, UnityEngine.AI.NavMesh.AllAreas) || !CanReach(hit.position)) return false;
-            automaticFacility = infirmary; base.CommandMove(hit.position); return true;
+            if (!TryWorkApproach(infirmary.Position, out var approach)) return false;
+            if ((approach - Position).sqrMagnitude <= .25f) return infirmary.TryAdmit(this);
+            automaticFacility = infirmary; base.CommandMove(approach); return true;
         }
         // 연구(2026-10-08): 자율로 맡지 않는다. 플레이어가 연구 항목을 고른 뒤 장수를 지정하면 연구소로 가서 맡는다. 완료되면 배정이 풀린다(자동 반복 없음).
         public bool SendToResearch(ScienceLab lab)

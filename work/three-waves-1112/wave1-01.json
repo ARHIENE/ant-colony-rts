@@ -1,0 +1,27 @@
+{
+  "success": true,
+  "command": "command",
+  "data": {
+    "command": "run_script",
+    "parameters": {
+      "file": "AgentScripts/ThreeWaves1112Probe.cs",
+      "entry": "ThreeWaves1112Probe.Step",
+      "timeout_ms": "180000"
+    },
+    "result": {
+      "diagnostics": [],
+      "compileMs": 563,
+      "executeMs": 15397,
+      "assemblyName": "PipelineRunScript_ThreeWaves1112Probe_4864d3627c5346719151fcc18b49a8d5",
+      "success": true,
+      "result": "wave=1 inWave=False left=600 enemies=0 food=71 soil=28 wood=0 screen=Game"
+    },
+    "target": {
+      "host": "127.0.0.1",
+      "port": 7801,
+      "projectPath": "F:\\UnityProjects\\ant-colony-rts"
+    }
+  },
+  "errors": [],
+  "warnings": []
+}

@@ -1,0 +1,1 @@
+Clay cutting point nearest surface=0.0472m phase=0.8750 point=(190.337, 10.316, 215.969) surface=(190.336, 10.296, 215.926) actor=(190.345, 10.381, 216.557)

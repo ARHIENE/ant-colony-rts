@@ -1,0 +1,2 @@
+patient0 motion=Sleep_Normally visual=Sleep rest=(199.790, 10.617, 187.250) headDirection=(-1.000, 0.000, 0.000) preview=
+patient1 motion=Sleep_Normally visual=Sleep rest=(199.790, 10.617, 188.750) headDirection=(-1.000, 0.000, 0.000) preview=

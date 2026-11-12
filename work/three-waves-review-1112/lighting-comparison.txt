@@ -1,0 +1,5 @@
+night-Clear-current light=0.45 color=RGBA(0.650, 0.675, 0.733, 1.000) ambient=0.65 mode=Skybox
+night-Clear-previous-formula light=0.25 color=RGBA(0.350, 0.422, 0.618, 1.000) ambient=0.4 mode=Skybox
+night-Storm-current light=0.2475 color=RGBA(0.650, 0.675, 0.733, 1.000) ambient=0.50375 mode=Skybox
+night-Storm-previous-formula light=0.1375 color=RGBA(0.350, 0.422, 0.618, 1.000) ambient=0.31 mode=Skybox
+day-current light=1 color=RGBA(1.000, 0.938, 0.772, 1.000) ambient=1 mode=Skybox

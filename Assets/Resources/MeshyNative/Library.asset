@@ -792,6 +792,18 @@ MonoBehaviour:
     motion: Heavy_Hammer_Swing
   - action: Attack_Unarmed
     motion: Counterstrike
+  - action: WalkLimp
+    motion: Limping_Walk_1
+  - action: WalkLimpSevere
+    motion: Limping_Walk_3
+  - action: LeisureWalk
+    motion: Casual_Walk
+  - action: IdleTalk
+    motion: Talk_Passionately
+  - action: IdleRest
+    motion: Sit_Cross_Legged_on_Floor
+  - action: IdleLook
+    motion: Short_Breathe_and_Look_Around
   - action: Drink
     motion: Stand_and_Drink
   - action: WakeUp

@@ -46,12 +46,12 @@ namespace AntColony.UI
                 new Entry("동물 치료대", BuildingKind.AnimalClinic), new Entry("도축대", BuildingKind.ButcherTable),
                 new Entry("재배 화분", BuildingKind.PlanterBed), new Entry("초기 버섯 배지", BuildingKind.StarterMushroomBed) },
             new[] { new Entry("근접 연구소", BuildingKind.ResearchLab, UnitRole.Melee), new Entry("원거리 연구소", BuildingKind.ResearchLab, UnitRole.Ranged),
-                new Entry("방패 연구소", BuildingKind.ResearchLab, UnitRole.Defense), new Entry("지휘 연구소", BuildingKind.ResearchLab, UnitRole.Support),
+                new Entry("방패 연구소", BuildingKind.ResearchLab, UnitRole.Defense), new Entry("지원 연구소", BuildingKind.ResearchLab, UnitRole.Support),
                 new Entry("비행 연구소", BuildingKind.ResearchLab, UnitRole.Flying), new Entry("정착지 연구대", BuildingKind.ScienceLab),
                 new Entry("방어 연구소", BuildingKind.DefenseLab), new Entry("공방", BuildingKind.Workshop),
                 new Entry("기초 목공대", BuildingKind.Carpentry), new Entry("석공대", BuildingKind.Stonecutter), new Entry("가마", BuildingKind.Kiln), new Entry("숯가마", BuildingKind.CharcoalKiln), new Entry("코크스로", BuildingKind.CokeOven),
                 new Entry("물레", BuildingKind.SpinningWheel), new Entry("용광로", BuildingKind.Smelter), new Entry("제분기", BuildingKind.Mill), new Entry("착유기", BuildingKind.OilPress), new Entry("양조통", BuildingKind.BrewingBarrel), new Entry("증류기", BuildingKind.Still), new Entry("지하 탐사기", BuildingKind.UndergroundScanner), new Entry("심층 채굴기", BuildingKind.DeepDrill), new Entry("합금 심층 채굴기", BuildingKind.AdvancedDeepDrill), new Entry("가스 제련로", BuildingKind.GasSmelter), new Entry("화학 작업대", BuildingKind.ChemistryBench) },
-            new[] { new Entry("의무실", BuildingKind.Infirmary), new Entry("약제대", BuildingKind.MedicineBench), new Entry("묘비", BuildingKind.Tombstone), new Entry("시민 진료소", BuildingKind.CitizenClinic) },
+            new[] { new Entry("의무실", BuildingKind.Infirmary), new Entry("약제대", BuildingKind.MedicineBench), new Entry("묘비", BuildingKind.Tombstone) },
             new[] { new Entry("성벽", BuildingKind.CastleWall), new Entry("성문", BuildingKind.Gate), new Entry("끈끈이 함정", BuildingKind.TrapPit), new Entry("가시 함정", BuildingKind.SpikeTrap),
                 new Entry("지뢰밭", BuildingKind.MineField), new Entry("산성탑", BuildingKind.AcidTower), new Entry("광역 산성탑", BuildingKind.AreaAcidTower),
                 new Entry("감시탑", BuildingKind.Watchtower) },
@@ -66,10 +66,10 @@ namespace AntColony.UI
                 new Entry("카펫", BuildingKind.Carpet), new Entry("태피스트리", BuildingKind.Tapestry), new Entry("기념비", BuildingKind.Monument),
                 new Entry("동상", BuildingKind.BronzeStatue), new Entry("전리품 진열대", BuildingKind.TrophyCase), new Entry("물건 전시대", BuildingKind.CuriosDisplay) },
             new[] { new Entry("근접 훈련장", BuildingKind.Barracks, UnitRole.Melee), new Entry("원거리 훈련장", BuildingKind.Barracks, UnitRole.Ranged),
-                new Entry("방패 훈련장", BuildingKind.Barracks, UnitRole.Defense), new Entry("지휘 훈련장", BuildingKind.Barracks, UnitRole.Support),
-                new Entry("비행 훈련장", BuildingKind.Barracks, UnitRole.Flying), new Entry("징집소", BuildingKind.ConscriptionPost),
+                new Entry("방패 훈련장", BuildingKind.Barracks, UnitRole.Defense),
+                new Entry("비행 훈련장", BuildingKind.Barracks, UnitRole.Flying), new Entry("소집소", BuildingKind.ConscriptionPost),
                 new Entry("정찰 초소", BuildingKind.ScoutPost), new Entry("포로 수용소", BuildingKind.PrisonerCamp), new Entry("무기고", BuildingKind.Armory) },
-            new[] { new Entry("초가집", BuildingKind.Hut), new Entry("흙집", BuildingKind.House), new Entry("큰 아파트", BuildingKind.Apartment), new Entry("행정 책상", BuildingKind.AdminDesk), new Entry("학당", BuildingKind.School), new Entry("공공서비스", BuildingKind.CivicPublicService) },
+            new Entry[0] /* Legacy village category retained for saved UI indices. */,
             new[] { new Entry("로켓 발사대", BuildingKind.AirshipYard) }
         };
         private static int TabOf(string name) => System.Array.IndexOf(TabNames, name);
@@ -372,7 +372,7 @@ namespace AntColony.UI
                     continue;
                 }
                 var c = builders[i];
-                label.text = $"<b>{c.CommanderName}</b>  <color=#b1b3a7>{CommandCard.RoleName(c.Role)}</color>    건설 <b>{c.Talents.Level(CommanderActivity.Building)}</b>    병력 {c.TroopCount}/{c.CommandLimit}    기분 {c.Mood:0}";
+                label.text = $"<b>{c.CommanderName}</b>  <color=#b1b3a7>{CommandCard.RoleName(c.Role)}</color>    건설 <b>{c.Talents.Level(CommanderActivity.Building)}</b>    체력 {c.PersonalHealth:0}    기분 {c.Mood:0}";
             }
         }
 

@@ -1,0 +1,25 @@
+PASS stable living commander recovers 20 HP per day
+PASS sleep doubles personal recovery
+PASS rest order doubles personal recovery
+PASS recovery clamps at maximum health
+PASS recent damage prevents recovery
+PASS starvation prevents recovery
+PASS illness prevents recovery
+PASS bleeding or untreated wound prevents recovery
+PASS tended minor wound permits stable recovery
+PASS deployed commander cannot heal through mobilize loop
+PASS existing stable unconscious recovery remains 20 HP
+PASS ill unconscious commander is not revived by new recovery
+PASS direct movement leaves old free-walk state
+PASS attack-move leaves recreation without cancelling combat order
+PASS attack-move label overrides idle/needs labels
+PASS combat order prevents recovery even in peace
+PASS joy tick cannot replace an attack-move order
+PASS normal wave action creates active defense
+PASS active wave prevents recovery
+PASS direct attack clears recreation and displays combat
+PASS fixture moves commander beside an actual wave enemy
+PASS nearby wave threat interrupts sleep and recreation without a repeated order
+PASS fixture begins an actual gathering order beside the threat
+PASS nearby threat releases worker state so automatic combat can run
+PASS defense guard preserves an existing attack and its cooldown

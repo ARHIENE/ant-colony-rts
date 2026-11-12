@@ -1,0 +1,19 @@
+{
+  "stop": false,
+  "prioritize": "Herb",
+  "research": "",
+  "seconds": 120,
+  "designate": false,
+  "defendLine": false,
+  "evadeBreaks": false,
+  "recoveryRoles": false,
+  "watchBreaks": true,
+  "pauseGathering": "Soil",
+  "startWave": false,
+  "label": "final-recovery-03",
+  "speed": 3,
+  "makeMedicine": true,
+  "cookedDiet": false,
+  "combat": false,
+  "build": []
+}

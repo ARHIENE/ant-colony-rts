@@ -42,7 +42,6 @@ namespace AntColony.UI
                     .Select(i => $"{(i < ReasonNames.Length ? ReasonNames[i] : "기타")} {d.spentByReason[r * reasons + i]}"));
                 lines.Add($"<b>{ResourceNames[r]}</b>  획득 {d.acquired[r]} · 사용 {d.spent[r]}" + (uses.Length > 0 ? $"  ({uses})" : ""));
             }
-            lines.Add($"<b>시민</b>  유입 {d.antsProduced} · 손실 {d.antsLost}");
             var ending = RocketCampaign.Instance?.Ending;
             if (ending != null)
             {
@@ -52,7 +51,6 @@ namespace AntColony.UI
                     var names = ending.commanders.Where(c => c.category == category).Select(c => c.name).ToArray();
                     lines.Add($"<b>{labels[(int)category]}</b>  " + (names.Length == 0 ? "없음" : string.Join(", ", names)));
                 }
-                lines.Add($"<b>시민 최종 합계</b>  탈출 {ending.citizensEscaped} · 잔류 {ending.citizensStaying} · 전체 {ending.citizensEscaped + ending.citizensStaying}");
                 if (ending.legacy != null) lines.AddRange(ending.legacy);
             }
             else

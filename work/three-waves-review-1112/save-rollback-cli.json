@@ -1,0 +1,27 @@
+{
+  "success": true,
+  "command": "command",
+  "data": {
+    "command": "run_script",
+    "parameters": {
+      "file": "AgentScripts/SaveRollback1112.cs",
+      "entry": "SaveRollback1112.Run",
+      "timeout_ms": "120000"
+    },
+    "result": {
+      "diagnostics": [],
+      "compileMs": 304,
+      "executeMs": 7880,
+      "assemblyName": "PipelineRunScript_SaveRollback1112_3a8f9fa2d0b84161aafe3b5fdfddbfe4",
+      "success": true,
+      "result": "PASS baseline validates\r\nPASS wrong scene index remains structurally valid: \r\nPASS wrong scene index fails scene validation\r\nPASS load queues target-scene validation: \r\nPASS failed target load rolls back to playable game\r\nPASS rollback preserves seed\r\nPASS rollback preserves wave state\r\nPASS invalid scene data never applied\r\nPASS rollback game remains saveable: \r\n"
+    },
+    "target": {
+      "host": "127.0.0.1",
+      "port": 7801,
+      "projectPath": "F:\\UnityProjects\\ant-colony-rts"
+    }
+  },
+  "errors": [],
+  "warnings": []
+}

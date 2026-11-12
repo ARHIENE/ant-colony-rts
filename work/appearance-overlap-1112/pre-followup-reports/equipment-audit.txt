@@ -1,0 +1,89 @@
+Ammo_Arrow | LEGACY / source motion review required
+Scabbard_Bronze | LEGACY / source motion review required
+Scabbard_Copper | LEGACY / source motion review required
+Scabbard_Iron | LEGACY / source motion review required
+Scabbard_Starlight | LEGACY / source motion review required
+Scabbard_Steel | LEGACY / source motion review required
+Scabbard_Titanium | LEGACY / source motion review required
+Tool_Axe_Bronze scale=1 | Tool_Chop | PASS palm=0.000000 support=0.000..0.077 endHeadForward=0.921 fingerTargetError=0.0151 armChanged=0.000
+Tool_Axe_Copper scale=1 | Tool_Chop | PASS palm=0.000000 support=0.000..0.077 endHeadForward=0.921 fingerTargetError=0.0151 armChanged=0.000
+Tool_Axe_Iron scale=1 | Tool_Chop | PASS palm=0.000000 support=0.000..0.077 endHeadForward=0.921 fingerTargetError=0.0151 armChanged=0.000
+Tool_Axe_Starlight scale=1 | Tool_Chop | PASS palm=0.000000 support=0.000..0.077 endHeadForward=0.921 fingerTargetError=0.0151 armChanged=0.000
+Tool_Axe_Steel scale=1 | Tool_Chop | PASS palm=0.000000 support=0.000..0.077 endHeadForward=0.921 fingerTargetError=0.0151 armChanged=0.000
+Tool_Axe_Stone scale=1 | Tool_Chop | PASS palm=0.000000 support=0.000..0.077 endHeadForward=0.921 fingerTargetError=0.0151 armChanged=0.000
+Tool_Axe_Titanium scale=1 | Tool_Chop | PASS palm=0.000000 support=0.000..0.077 endHeadForward=0.921 fingerTargetError=0.0151 armChanged=0.000
+Tool_Hammer_Bronze scale=1 | Tool_Hammer | PASS palm=0.000000 support=0.007..0.055 endHeadForward=0.921 fingerTargetError=0.0151 armChanged=0.000
+Tool_Hammer_Copper scale=1 | Tool_Hammer | PASS palm=0.000000 support=0.007..0.055 endHeadForward=0.921 fingerTargetError=0.0151 armChanged=0.000
+Tool_Hammer_Iron scale=1 | Tool_Hammer | PASS palm=0.000000 support=0.007..0.055 endHeadForward=0.921 fingerTargetError=0.0151 armChanged=0.000
+Tool_Hammer_Starlight scale=1 | Tool_Hammer | PASS palm=0.000000 support=0.007..0.055 endHeadForward=0.921 fingerTargetError=0.0151 armChanged=0.000
+Tool_Hammer_Steel scale=1 | Tool_Hammer | PASS palm=0.000000 support=0.007..0.055 endHeadForward=0.921 fingerTargetError=0.0151 armChanged=0.000
+Tool_Hammer_Stone scale=1 | Tool_Hammer | PASS palm=0.000000 support=0.007..0.055 endHeadForward=0.921 fingerTargetError=0.0151 armChanged=0.000
+Tool_Hammer_Titanium scale=1 | Tool_Hammer | PASS palm=0.000000 support=0.007..0.055 endHeadForward=0.921 fingerTargetError=0.0151 armChanged=0.000
+Tool_Hoe_Bronze scale=1 | Tool_Till | PASS palm=0.000000 support=0.000..0.077 endHeadForward=0.921 fingerTargetError=0.0151 armChanged=0.000
+Tool_Hoe_Copper scale=1 | Tool_Till | PASS palm=0.000000 support=0.000..0.077 endHeadForward=0.921 fingerTargetError=0.0151 armChanged=0.000
+Tool_Hoe_Iron scale=1 | Tool_Till | PASS palm=0.000000 support=0.000..0.077 endHeadForward=0.921 fingerTargetError=0.0151 armChanged=0.000
+Tool_Hoe_Starlight scale=1 | Tool_Till | PASS palm=0.000000 support=0.000..0.077 endHeadForward=0.921 fingerTargetError=0.0151 armChanged=0.000
+Tool_Hoe_Steel scale=1 | Tool_Till | PASS palm=0.000000 support=0.000..0.077 endHeadForward=0.921 fingerTargetError=0.0151 armChanged=0.000
+Tool_Hoe_Stone scale=1 | Tool_Till | PASS palm=0.000000 support=0.000..0.077 endHeadForward=0.921 fingerTargetError=0.0151 armChanged=0.000
+Tool_Hoe_Titanium scale=1 | Tool_Till | PASS palm=0.000000 support=0.000..0.077 endHeadForward=0.921 fingerTargetError=0.0151 armChanged=0.000
+Tool_Pickaxe_Bronze scale=1 | Tool_Mine | PASS palm=0.000000 support=0.000..0.077 endHeadForward=0.921 fingerTargetError=0.0151 armChanged=0.000
+Tool_Pickaxe_Copper scale=1 | Tool_Mine | PASS palm=0.000000 support=0.000..0.077 endHeadForward=0.921 fingerTargetError=0.0151 armChanged=0.000
+Tool_Pickaxe_Iron scale=1 | Tool_Mine | PASS palm=0.000000 support=0.000..0.077 endHeadForward=0.921 fingerTargetError=0.0151 armChanged=0.000
+Tool_Pickaxe_Starlight scale=1 | Tool_Mine | PASS palm=0.000000 support=0.000..0.077 endHeadForward=0.921 fingerTargetError=0.0151 armChanged=0.000
+Tool_Pickaxe_Steel scale=1 | Tool_Mine | PASS palm=0.000000 support=0.000..0.077 endHeadForward=0.921 fingerTargetError=0.0151 armChanged=0.000
+Tool_Pickaxe_Stone scale=1 | Tool_Mine | PASS palm=0.000000 support=0.000..0.077 endHeadForward=0.921 fingerTargetError=0.0151 armChanged=0.000
+Tool_Pickaxe_Titanium scale=1 | Tool_Mine | PASS palm=0.000000 support=0.000..0.077 endHeadForward=0.921 fingerTargetError=0.0151 armChanged=0.000
+Tool_Saw | LEGACY / source motion review required
+Tool_Shovel_Bronze scale=1 | Tool_Dig | PASS palm=0.000000 support=0.000..0.077 endHeadForward=0.921 fingerTargetError=0.0151 armChanged=0.000
+Tool_Shovel_Copper scale=1 | Tool_Dig | PASS palm=0.000000 support=0.000..0.077 endHeadForward=0.921 fingerTargetError=0.0151 armChanged=0.000
+Tool_Shovel_Iron scale=1 | Tool_Dig | PASS palm=0.000000 support=0.000..0.077 endHeadForward=0.921 fingerTargetError=0.0151 armChanged=0.000
+Tool_Shovel_Starlight scale=1 | Tool_Dig | PASS palm=0.000000 support=0.000..0.077 endHeadForward=0.921 fingerTargetError=0.0151 armChanged=0.000
+Tool_Shovel_Steel scale=1 | Tool_Dig | PASS palm=0.000000 support=0.000..0.077 endHeadForward=0.921 fingerTargetError=0.0151 armChanged=0.000
+Tool_Shovel_Stone scale=1 | Tool_Dig | PASS palm=0.000000 support=0.000..0.077 endHeadForward=0.921 fingerTargetError=0.0151 armChanged=0.000
+Tool_Shovel_Titanium scale=1 | Tool_Dig | PASS palm=0.000000 support=0.000..0.077 endHeadForward=0.921 fingerTargetError=0.0151 armChanged=0.000
+Tool_Sickle_Bronze | LEGACY / source motion review required
+Tool_Sickle_Copper | LEGACY / source motion review required
+Tool_Sickle_Iron | LEGACY / source motion review required
+Tool_Sickle_Starlight | LEGACY / source motion review required
+Tool_Sickle_Steel | LEGACY / source motion review required
+Tool_Sickle_Stone | LEGACY / source motion review required
+Tool_Sickle_Titanium | LEGACY / source motion review required
+Weapon_AcidSprayer | LEGACY / source motion review required
+Weapon_BossA_Guardblade | LEGACY / source motion review required
+Weapon_BossB_HeatShield scale=1 | ShieldBlock | PASS palm=0.000000 support=100.000..-100.000 endHeadForward=0.732 fingerTargetError=0.0086 armChanged=0.000
+Weapon_BossC_Quakehammer scale=1 | Tool_Hammer | PASS palm=0.000000 support=0.007..0.124 endHeadForward=0.921 fingerTargetError=0.0151 armChanged=0.000
+Weapon_BurstCarbine | LEGACY / source motion review required
+Weapon_CommandStaff | LEGACY / source motion review required
+Weapon_GrandBow scale=1 | BowShoot | PASS palm=0.000000 support=100.000..-100.000 endHeadForward=0.231 fingerTargetError=0.0034 armChanged=35.506
+Weapon_Katana scale=1 | Attack | PASS palm=0.000000 support=100.000..-100.000 endHeadForward=0.366 fingerTargetError=0.0059 armChanged=0.000
+Weapon_Scattergun | LEGACY / source motion review required
+Weapon_Shield_Bronze scale=1 | ShieldBlock | PASS palm=0.000000 support=100.000..-100.000 endHeadForward=0.732 fingerTargetError=0.0086 armChanged=0.000
+Weapon_Shield_Copper scale=1 | ShieldBlock | PASS palm=0.000000 support=100.000..-100.000 endHeadForward=0.732 fingerTargetError=0.0086 armChanged=0.000
+Weapon_Shield_Iron scale=1 | ShieldBlock | PASS palm=0.000000 support=100.000..-100.000 endHeadForward=0.732 fingerTargetError=0.0086 armChanged=0.000
+Weapon_Shield_Starlight scale=1 | ShieldBlock | PASS palm=0.000000 support=100.000..-100.000 endHeadForward=0.732 fingerTargetError=0.0086 armChanged=0.000
+Weapon_Shield_Steel scale=1 | ShieldBlock | PASS palm=0.000000 support=100.000..-100.000 endHeadForward=0.732 fingerTargetError=0.0086 armChanged=0.000
+Weapon_Shield_Titanium scale=1 | ShieldBlock | PASS palm=0.000000 support=100.000..-100.000 endHeadForward=0.732 fingerTargetError=0.0086 armChanged=0.000
+Weapon_ShortBow scale=1 | BowShoot | PASS palm=0.000000 support=100.000..-100.000 endHeadForward=0.231 fingerTargetError=0.0034 armChanged=35.506
+Weapon_SingleRifle | LEGACY / source motion review required
+Weapon_SniperRifle | LEGACY / source motion review required
+Weapon_Spear_Bronze | LEGACY / source motion review required
+Weapon_Spear_Copper | LEGACY / source motion review required
+Weapon_Spear_Iron | LEGACY / source motion review required
+Weapon_Spear_Starlight | LEGACY / source motion review required
+Weapon_Spear_Steel | LEGACY / source motion review required
+Weapon_Spear_Titanium | LEGACY / source motion review required
+Weapon_Sword_Bronze scale=1 | Attack | PASS palm=0.000000 support=100.000..-100.000 endHeadForward=0.366 fingerTargetError=0.0059 armChanged=0.000
+Weapon_Sword_Copper scale=1 | Attack | PASS palm=0.000000 support=100.000..-100.000 endHeadForward=0.366 fingerTargetError=0.0059 armChanged=0.000
+Weapon_Sword_Iron scale=1 | Attack | PASS palm=0.000000 support=100.000..-100.000 endHeadForward=0.366 fingerTargetError=0.0059 armChanged=0.000
+Weapon_Sword_Starlight scale=1 | Attack | PASS palm=0.000000 support=100.000..-100.000 endHeadForward=0.366 fingerTargetError=0.0059 armChanged=0.000
+Weapon_Sword_Steel scale=1 | Attack | PASS palm=0.000000 support=100.000..-100.000 endHeadForward=0.366 fingerTargetError=0.0059 armChanged=0.000
+Weapon_Sword_Titanium scale=1 | Attack | PASS palm=0.000000 support=100.000..-100.000 endHeadForward=0.366 fingerTargetError=0.0059 armChanged=0.000
+Wear_Anklet | LEGACY / source motion review required
+Wear_BossA | LEGACY / source motion review required
+Wear_BossB | LEGACY / source motion review required
+Wear_FlightPack | LEGACY / source motion review required
+Wear_Goggles | LEGACY / source motion review required
+Wear_Insignia | LEGACY / source motion review required
+Wear_LeafHelmet | LEGACY / source motion review required
+Wear_PlateArmor | LEGACY / source motion review required
+Wear_ScentPouch | LEGACY / source motion review required

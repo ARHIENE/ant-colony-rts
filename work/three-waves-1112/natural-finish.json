@@ -1,0 +1,26 @@
+{
+  "success": true,
+  "command": "command",
+  "data": {
+    "command": "run_script",
+    "parameters": {
+      "file": "AgentScripts/ThreeWaves1112Probe.cs",
+      "entry": "ThreeWaves1112Probe.Finish"
+    },
+    "result": {
+      "diagnostics": [],
+      "compileMs": 407,
+      "executeMs": 12,
+      "assemblyName": "PipelineRunScript_ThreeWaves1112Probe_369fa7e6f2f944afbbb9edc4eadbe5ab",
+      "success": true,
+      "result": "Settings, save root and Game View restored; Play paused"
+    },
+    "target": {
+      "host": "127.0.0.1",
+      "port": 7801,
+      "projectPath": "F:\\UnityProjects\\ant-colony-rts"
+    }
+  },
+  "errors": [],
+  "warnings": []
+}

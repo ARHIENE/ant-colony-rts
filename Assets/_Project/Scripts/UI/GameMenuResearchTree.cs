@@ -27,13 +27,13 @@ namespace AntColony.UI
             L.Button(window,"Rocket Facilities","로켓 · 과학 시설",210,height-76,160,30,ScienceFacilities);
             var estimate=L.Label(window,research.TimeEstimate,12,20,height-38,width-40,26,MenuTheme.Muted);
             refreshDutyScreen=()=>estimate.text=research.TimeEstimate;
-            var defs=CampaignResearch.Technologies;
-            if(!researchPick.HasValue)researchPick=defs[0].Technology;
+            var defs=CampaignResearch.Technologies.Where(d => !CampaignResearch.Retired(d.Technology)).ToArray();
+            if(!researchPick.HasValue || CampaignResearch.Retired(researchPick.Value))researchPick=defs[0].Technology;
             var levels=new Dictionary<ScienceTechnology,int>();
             int Level(ScienceTechnology t,HashSet<ScienceTechnology> visiting)
             {
                 if(levels.TryGetValue(t,out var old))return old;if(!visiting.Add(t))return 0;
-                var d=defs[(int)t];int level=d.Prerequisites.Length==0?0:1+d.Prerequisites.Max(p=>Level(p,visiting));
+                var d=CampaignResearch.Technologies[(int)t];int level=d.Prerequisites.Length==0?0:1+d.Prerequisites.Max(p=>Level(p,visiting));
                 visiting.Remove(t);levels[t]=level;return level;
             }
             foreach(var d in defs)Level(d.Technology,new HashSet<ScienceTechnology>());
@@ -63,7 +63,7 @@ namespace AntColony.UI
                 refreshDutyScreen+=()=>{state.text=ResearchState(research,def)+" · "+CampaignResearch.EraNames[def.Tier-1];title.color=research.Has(def.Technology)?MenuTheme.Accent:MenuTheme.TextColor;};
             }
             Canvas.ForceUpdateCanvases();scroll.normalizedPosition=treeScroll;
-            var selected=defs[(int)researchPick.Value];content=V5Section(window,selected.Name,compact?20:width-340,124,compact?width-40:320,height-210);
+            var selected=CampaignResearch.Technologies[(int)researchPick.Value];content=V5Section(window,selected.Name,compact?20:width-340,124,compact?width-40:320,height-210);
             area.gameObject.SetActive(!compact||!researchDetail);
             window.Find(selected.Name).gameObject.SetActive(!compact||researchDetail);
             MenuTheme.Text(content,"해금 효과",15,28);MenuTheme.Text(content,ResearchEffect(selected.Technology),14,70);
@@ -77,7 +77,7 @@ namespace AntColony.UI
                 L.Label(card,$"건설 · 식량 {data.foodCost} / 재료 {data.soilCost} / 특수 {data.specialCost}",12,10,32,280,28,MenuTheme.Muted);
             }
             MenuTheme.Text(content,"선행 연구",15,28);
-            foreach(var pre in selected.Prerequisites){var t=pre;MenuTheme.Button(content,(research.Has(t)?"✓ ":"· ")+defs[(int)t].Name,()=>{researchPick=t;Science();});}
+            foreach(var pre in selected.Prerequisites){var t=pre;MenuTheme.Button(content,(research.Has(t)?"✓ ":"· ")+CampaignResearch.Technologies[(int)t].Name,()=>{researchPick=t;Science();});}
             var details=MenuTheme.Text(content,"",13,100);
             var start=MenuTheme.Button(content,"연구 지시",()=>{if(research.Active==selected)research.SetPaused(false);else if(!research.TryStart(selected.Technology))ToastManager.Show("선행 조건과 비용을 확인하세요.");Science();});
             var stop=MenuTheme.Button(content,"일시정지",()=>{research.SetPaused(true);Science();});

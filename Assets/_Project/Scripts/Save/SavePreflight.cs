@@ -17,10 +17,10 @@ namespace AntColony.Save
         private static void Traits(TraitsDto t)
         {
             Check(t != null && Enum.IsDefined(typeof(CommanderPersonality), t.personality), "특성");
-            L(t.values, CommanderTraits.MaxTraits, "특성 목록"); L(t.passions, 4, "열정 목록");
+            L(t.values, CommanderTraits.MaxTraits + 1, "특성 목록"); L(t.passions, 4, "열정 목록");
             Check(SpecialtyProgress.Valid(t.specialties), "전문성 진행");
             var traits = new CommanderTraits();
-            foreach (var value in t.values) Check(Enum.IsDefined(typeof(CommanderTrait), value) && traits.TryAdd(value), "상충 특성");
+            foreach (var value in t.values) Check(Enum.IsDefined(typeof(CommanderTrait), value) && traits.TryAdd(value, legacySave: true), "상충 특성");
             var activities = new HashSet<CommanderActivity>();
             foreach (var passion in t.passions) Check(passion != null && Enum.IsDefined(typeof(CommanderActivity), passion.activity)
                 && passion.flame >= 1 && passion.flame <= 2 && activities.Add(passion.activity), "열정");
@@ -80,7 +80,7 @@ namespace AntColony.Save
                 {
                     Check(corpse != null && !string.IsNullOrEmpty(corpse.name) && corpse.name.Length < 1000 && V(new Vec3Dto(corpse.position))
                         && Enum.IsDefined(typeof(World.CorpseKind), corpse.kind) && corpse.count > 0 && corpse.count <= 100000
-                        && N(corpse.remaining) && (corpse.remaining > 0 || corpse.kind == World.CorpseKind.ColonyCommander && !string.IsNullOrEmpty(corpse.commanderId)) && corpse.remaining >= 0 && corpse.remaining <= World.Corpse.Lifetime // 장수 유해는 0
+                        && N(corpse.remaining) && (corpse.remaining > 0 || (corpse.kind == World.CorpseKind.ColonyCommander || corpse.kind == World.CorpseKind.EnemyCommander) && !string.IsNullOrEmpty(corpse.commanderId)) && corpse.remaining >= 0 && corpse.remaining <= World.Corpse.Lifetime // 장수 유해는 0
                         && N(corpse.food) && corpse.food <= 20 && (corpse.food == 0 || corpse.kind == World.CorpseKind.Wildlife)
                         && corpse.workforce >= 0
                         && N(corpse.progress) && corpse.progress < World.Corpse.WorkSeconds, "시체 상태");
@@ -124,7 +124,7 @@ namespace AntColony.Save
                 var p = f.colony;
                 Check(new[] { p.food, p.soil, p.special, p.foodCapacity, p.soilCapacity, p.specialCapacity, p.antsFree, p.antsAssigned, p.antsReserved }.All(v => v >= 0 && v <= 100000000), "정착지 보유량");
                 Check(p.materials == null || p.materials.Length <= AntColony.Core.ResourceManager.OtherMaterials.Length && p.materials.All(v => v >= 0 && v <= p.soilCapacity), "재료");
-                Check(p.food <= p.foodCapacity && p.soil <= p.soilCapacity && p.special <= p.specialCapacity && p.antsReserved == 0, "보관 한도·건설");
+                Check(p.food <= p.foodCapacity && p.soil <= p.soilCapacity && p.special <= p.specialCapacity, "보관 한도·건설");
                 Check(V(f.camera.focus) && N(f.camera.orthoSize) && f.camera.orthoSize >= 8 && f.camera.orthoSize <= 35
                     && !float.IsNaN(f.camera.yaw) && !float.IsInfinity(f.camera.yaw) && f.camera.viewedSite >= -1 && f.camera.viewedSite < f.world.sites.Count, "카메라");
                 for (var i = 0; i < f.commanders.Count; i++)
@@ -213,7 +213,6 @@ namespace AntColony.Save
                     foreach (var a in b.nurseryAffinity) Check(a != null && a.firstCommanderId >= 0 && a.firstCommanderId < f.commanders.Count && a.secondCommanderId >= 0 && a.secondCommanderId < f.commanders.Count && a.firstCommanderId != a.secondCommanderId && N(a.value), "관계 수치");
                     for (var i = 0; i < b.nodes.Count; i++) Check(b.nodes[i] != null && b.nodes[i].index == i && N(b.nodes[i].amount) && N(b.nodes[i].regrowTimer) && N(b.nodes[i].sowRemaining) && ValidNaturalWork(b.nodes[i]), "건물 자원");
                 }
-                Check((long)p.antsAssigned == f.commanders.Where(c => c.personalState.social.departure == DepartureState.None).Sum(c => (long)c.troopCount) + f.buildings.Sum(b => (long)b.scoutDispatchedAnts) + f.world.transports.Sum(t => (long)(t.withdrawal?.troops ?? 0)), "배정 시민");
                 Check(f.weather == null || f.weather.kind >= 0 && f.weather.kind <= 6 && N(f.weather.remaining), "날씨");
                 for (var i = 0; i < f.world.sites.Count; i++) { var s = f.world.sites[i]; Check(s != null && s.index == i && s.disposition >= 0 && s.disposition <= 3
                     && N(s.growthTimer) && N(s.settlementElapsed) && N(s.defenseRemaining) && N(s.defenseCaptureProgress), "거점 상태"); Colony(s.colony); }

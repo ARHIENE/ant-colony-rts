@@ -1,0 +1,24 @@
+Unity Input System pointer replay at 1x; no direct combat/move method calls; native Windows activation failed.
+click Left screen=(345.17, 321.88) t=0.051
+PASS left click selects bow commander
+click Right screen=(554.83, 321.88) t=0.604
+PASS cycle 1: right-click enemy causes damage
+click Right screen=(199.26, 308.86) t=1.057
+PASS cycle 1: ground right click retreats 1.51m
+PASS cycle 1: move keeps priority over automatic attack
+cycle 1: hp=100.0 enemy=26.0 cooldown=1.60->0.84
+click Right screen=(493.77, 368.04) t=1.812
+PASS cycle 2: right-click enemy causes damage
+click Right screen=(174.88, 241.26) t=3.004
+PASS cycle 2: ground right click retreats 1.52m
+PASS cycle 2: move keeps priority over automatic attack
+cycle 2: hp=100.0 enemy=22.0 cooldown=1.60->0.85
+click Right screen=(450.25, 398.19) t=3.749
+PASS cycle 3: right-click enemy causes damage
+click Right screen=(131.11, 221.23) t=5.168
+FAIL cycle 3: ground right click retreats 0.00m
+FAIL cycle 3: move keeps priority over automatic attack
+cycle 3: hp=100.0 enemy=14.0 cooldown=1.60->0.33
+PASS at least two attack/retreat cycles through actual input controllers
+PASS unselected commander keeps fighting automatically
+PASS controlled commander survives 100.0->100.0

@@ -1,4 +1,4 @@
-﻿using AntColony.Core;
+using AntColony.Core;
 using AntColony.Buildings;
 using AntColony.World;
 using AntColony.Data;
@@ -159,9 +159,10 @@ namespace AntColony.Units
                     if ((job != CommanderJobs.Repair || BuildingRepair.Needed(deposit)) && artisan.StartService(deposit, job)) { index++; continue; }
                 }
                 if (worker is CommanderAnt hunter && !hunter.IsDeployed && target is WildMonster animal && animal.Huntable && animal.HuntDesignated && hunter.StartHunt(animal)) { index++; continue; }
-                if (worker is CommanderAnt builder && hit.collider.GetComponentInParent<BuildingConstructionSite>() is BuildingConstructionSite site)
+                if (worker is CommanderAnt builder && !builder.IsDeployed && hit.collider.GetComponentInParent<BuildingConstructionSite>() is BuildingConstructionSite site)
                 { builder.CommandBuild(site); index++; continue; }
-                if (worker != null && resourceNode != null)
+                // A deployed commander treats resources as movement destinations; forbidden work must not swallow a retreat click.
+                if (worker != null && resourceNode != null && !(worker is CommanderAnt deployedWorker && deployedWorker.IsDeployed))
                 {
                     worker.CommandGather(resourceNode);
                     if (worker.CurrentResourceNode == resourceNode && worker.IsWorking)
@@ -178,7 +179,7 @@ namespace AntColony.Units
                 {
                     // 대공 불가 역할이나 채집 보직이 공격 대상을 클릭하면 공격 대신 그 위치로 이동만 한다.
                     if (target != null && (soldier.CanAttackTarget(target) || soldier is CommanderAnt commander
-                        && commander.CanReceiveOrders && commander.HasTroops && AntColony.Core.CombatTargeting.CanAttack(commander.Role, target, true)))
+                        && commander.CanReceiveOrders && commander.CanFight && AntColony.Core.CombatTargeting.CanAttack(commander.Role, target, true)))
                     {
                         soldier.CommandAttack(target);
                         issuedAttack = true;
@@ -193,7 +194,7 @@ namespace AntColony.Units
                 }
             }
 
-            if (resourceNode != null)
+            if (resourceNode != null && (gatherers > 0 || !issuedMove && !issuedAttack))
             {
                 AntColony.UI.ToastManager.Show(gatherers > 0 ? $"{resourceNode.ResourceType.DisplayName()} 채집 지시 · {gatherers}명"
                     : resourceNode.IsLooseCargo ? "운반 불가: 보관 가능한 창고·비축더미, 이동 경로와 장수 상태를 확인하세요."

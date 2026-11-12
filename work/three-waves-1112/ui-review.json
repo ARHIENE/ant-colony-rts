@@ -1,0 +1,27 @@
+{
+  "success": true,
+  "command": "command",
+  "data": {
+    "command": "run_script",
+    "parameters": {
+      "file": "AgentScripts/ThreeWaves1112Probe.cs",
+      "entry": "ThreeWaves1112Probe.ReviewUI",
+      "timeout_ms": "30000"
+    },
+    "result": {
+      "diagnostics": [],
+      "compileMs": 212,
+      "executeMs": 5515,
+      "assemblyName": "PipelineRunScript_ThreeWaves1112Probe_fe00f04b3d9640f89b7d9efb5a611308",
+      "success": true,
+      "result": "Four live build tooltips visible, unclipped, no active button overlap"
+    },
+    "target": {
+      "host": "127.0.0.1",
+      "port": 7801,
+      "projectPath": "F:\\UnityProjects\\ant-colony-rts"
+    }
+  },
+  "errors": [],
+  "warnings": []
+}

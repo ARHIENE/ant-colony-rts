@@ -147,19 +147,13 @@ namespace AntColony.Units
         {
             var rm = ResourceManager.Instance;
             if (site == null || !site.NextPickup(out var needType, out var needAmount) || rm == null || IsCarrying || !isActiveAndEnabled || IsDead || !TryWorkApproach(site.Position, out _)) return false;
-            foreach (var bin in rm.Bins.Where(b => b.Spendable && b.Amount(needType) > 0).OrderBy(b => (b.Position - Position).sqrMagnitude))
-            {
-                var host = DepositHost(bin);
-                if (host == null || !TryWorkApproach(host.Position, out var approach)) continue;
-                var amount = Mathf.Min(needAmount, Mathf.FloorToInt(CarryCapacity), bin.Amount(needType));
-                if (amount <= 0) return false;
-                CommandStop();
-                if (!site.BeginPickup(this, needType, amount)) return false;
-                deliverySite = site; fetchBin = bin; fetchType = needType; fetchAmount = amount;
-                SetMoveDestination(approach); state = State.FetchingMaterial;
-                return true;
-            }
-            return FetchFloorFor(site, needType, needAmount);
+            if (!TryMaterialSource(site, needType, needAmount, out var bin, out var node, out var approach, out var amount)) return false;
+            CommandStop();
+            if (!site.BeginPickup(this, needType, amount)) return false;
+            // The same source selection is used for automatic work distance estimates.
+            deliverySite = site; targetNode = node; fetchBin = bin; fetchType = needType; fetchAmount = amount;
+            SetMoveDestination(approach); state = State.FetchingMaterial;
+            return true;
         }
         // 시설 장애물 가장자리에서 몇 cm 못 미쳐 멈추는 경우도 도착으로 본다(2026-10-15 조리대 배송에서 발견).
         private bool NearDestination => !IsFlying && Agent.enabled && Agent.isOnNavMesh && !Agent.pathPending && Agent.remainingDistance <= .5f;
@@ -293,6 +287,7 @@ namespace AntColony.Units
         // 병력이 0이 된 장수가 계속 채집·건설 tick을 도는 것을 막는 단일 지점이다.
         public override void CommandStop()
         {
+            RestoreGatherArrival();
             var previousSite = targetConstruction ?? deliverySite as BuildingConstructionSite;
             targetConstruction = null; // 예정지·진행도는 남겨 다른 장수(또는 복귀 후 본인)가 이어 짓는다.
             ReleaseDestination();
@@ -315,7 +310,7 @@ namespace AntColony.Units
             if (IsConstructing) return;
             if (node == null || !node.CanGatherWith(this)) return;
             if (node.IsLooseCargo && !(this is CommanderAnt away && away.IsAwayFromHome) && !HasCargoDestination(node.ResourceType)) return;
-            if (!TryGatherApproach(node, out var approach)) return;
+            if (!TryGatherApproach(node, out var approach, true)) return;
             if (carriedAmount > 0f && (carriedType != node.ResourceType || carriedAmount >= CarryCapacity))
             {
                 BeginReturnIfNeeded();
@@ -487,6 +482,7 @@ namespace AntColony.Units
 
         protected override void OnDisable()
         {
+            RestoreGatherArrival();
             var previousSite = targetConstruction ?? deliverySite as BuildingConstructionSite;
             targetConstruction = null; ReleaseDestination();
             previousSite?.ReleaseUnusedReservations();
@@ -498,14 +494,18 @@ namespace AntColony.Units
             if (targetNode == null || !targetNode.CanGatherWith(this))
             {
                 StopMoving();
+                RestoreGatherArrival();
                 state = State.Idle;
                 if (carriedAmount > 0f) BeginReturnIfNeeded();
                 return;
             }
 
-            if (HasReachedDestination() || NearDestination)
+            PreciseGatherArrival();
+            if (HasReachedDestination() || !gatherStoppingDistance.HasValue && NearDestination)
             {
                 StopMoving();
+                if (gatherStoppingDistance.HasValue && Agent.enabled && Agent.isOnNavMesh) Agent.velocity = Vector3.zero;
+                RestoreGatherArrival();
                 state = State.Gathering;
             }
         }

@@ -1,0 +1,27 @@
+{
+  "success": true,
+  "command": "command",
+  "data": {
+    "command": "run_script",
+    "parameters": {
+      "file": "AgentScripts/ThreeWaves1112BreakChecks.cs",
+      "entry": "ThreeWaves1112BreakChecks.Run",
+      "timeout_ms": "180000"
+    },
+    "result": {
+      "diagnostics": [],
+      "compileMs": 159,
+      "executeMs": 1490,
+      "assemblyName": "PipelineRunScript_ThreeWaves1112BreakChecks_fe44b733a6b54dabbf3fcfbef9f20593",
+      "success": true,
+      "result": "PASS unconscious commander cannot start binge or gain catharsis\nPASS clinically downed commander cannot start violence\nPASS violent breakdown prevents personal recovery\nPASS revenge rage prevents personal recovery\nPASS nonviolent idle breakdown does not disable physical healing\nPASS incapacitation cancels ongoing violence without catharsis reward\nPASS violent breakdown immediately obeys enabled threat auto-pause\nPASS violent breakdown leaves sleeping and recreation states\nPASS overhead and selection state identify friendly attack in Korean\nPASS visible threat gives a concrete response\nPASS violent breakdown has one alert instead of duplicate toast and incident\nPASS repeated scan of same breakdown does not pause again after resume\nPASS ended breakdown clears active threat tracking\nPASS disabled threat auto-pause setting remains respected\nPASS building attack has its own readable state\nPASS actual violent hit records combat time and applies ordinary damage\nPASS recent combat still delays healing after violence ends\nDiscard fixture before natural continuation."
+    },
+    "target": {
+      "host": "127.0.0.1",
+      "port": 7801,
+      "projectPath": "F:\\UnityProjects\\ant-colony-rts"
+    }
+  },
+  "errors": [],
+  "warnings": []
+}

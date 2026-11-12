@@ -1,3 +1,4 @@
+using System.Linq;
 using AntColony.Boss;
 using AntColony.Buildings;
 using AntColony.Core;
@@ -253,16 +254,11 @@ namespace AntColony.UI
             resourceTexts[1].transform.parent.GetComponent<MenuTooltip>().Message = $"재료 종류별 저장 한도 {rm.GetCapacity(ResourceType.Soil):N0}\n" + list;
             materialsList.GetComponentInChildren<Text>().text = $"<b>재료</b> <color=#b1b3a7>(종류별 한도 {rm.GetCapacity(ResourceType.Soil):N0})</color>\n" + list;
             materialsList.sizeDelta = new Vector2(200, 34 + 16 * list.ToString().Split('\n').Length);
-            var pool = AntPool.Instance;
-            if (pool == null) return;
-            // Phase 4: 인구 = 어린·성체·늙은 개미 합. 숫자 색 = 민심, 막대 = 이주 수요. 내역은 도움말로.
-            var pop = ColonyPopulation.Instance;
-            if (pop == null) { resourceTexts[2].text = $"<color=#b1b3a7>인구</color> <b>{pool.Total}</b>"; return; }
-            var color = pop.Unrest ? "#d9534f" : pop.S.sentiment < 40 ? "#e5bd6b" : "#efe7da";
-            resourceTexts[2].text = $"<color=#b1b3a7>인구</color> <b><color={color}>{pop.Total}</color></b> <color=#b1b3a7>· 납세 {pop.NextTaxSeconds:0}초</color>";
-            demandFill.rectTransform.sizeDelta = new Vector2(118 * Mathf.Clamp01(pop.Demand / 100f), 3);
-            resourceTexts[2].transform.parent.GetComponent<MenuTooltip>().Message = $"인구 {pop.Total} / 살 자리 {pop.HousingCapacity} · 어린 {pop.S.young} · 성체 {pool.Total} · 늙은 {pop.S.old}"
-                + $"\n민심 {pop.S.sentiment:0} · 이주 수요 {pop.Demand:0} · 세금 {pop.S.taxRate:P0} (현재 조건 유지 시 다음 납세 {pop.NextTaxSeconds:0}초: 식량 +{pop.NextFoodTax} · 재료 +{pop.NextMaterialTax}) · {ColonyPopulation.PolicyName(pop.S.policy)}\n누르면 인구 창";
+            var count = CommanderRoster.Instance?.Commanders.Count(c => c != null && c.IsColonyMember && !c.IsDead) ?? 0;
+            resourceTexts[2].text = $"<color=#b1b3a7>장수</color> <b>{count}</b>";
+            demandFill.gameObject.SetActive(false);
+            resourceTexts[2].transform.parent.GetComponent<MenuTooltip>().Message = "장수 명부 열기";
+
         }
 
         private void ShowVictoryMessage()

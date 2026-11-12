@@ -8,6 +8,7 @@ namespace AntColony.Units
     {
         readonly List<GameObject> armorParts=new List<GameObject>(),trinketParts=new List<GameObject>();
         string armorKey,trinketKey,weaponKey;GameObject holster;
+        public int Revision { get; private set; }
         Transform Bone(string name)
         {
             var bones=GetComponentsInChildren<Transform>(true);
@@ -18,7 +19,7 @@ namespace AntColony.Units
         public void Apply(EquipmentItem armor,EquipmentItem trinket,EquipmentItem weapon,string held,bool downed)
         {
             string key=armor==null?"":armor.id+":"+armor.armor+":"+armor.bossEquipment;
-            if(armorKey!=key){armorKey=key;Clear(armorParts);
+            if(armorKey!=key){Revision++;armorKey=key;Clear(armorParts);
                 if(armor!=null){
                     string model=armor.bossEquipment==BossEquipmentKind.Durable?"Wear_BossA":armor.bossEquipment==BossEquipmentKind.HeatShield?"Wear_BossB":armor.armor==ArmorKind.Wings?"Wear_FlightPack":"Wear_PlateArmor";
                     bool wings=armor.armor==ArmorKind.Wings;
@@ -27,7 +28,7 @@ namespace AntColony.Units
                 }
             }
             key=trinket==null?"":trinket.id+":"+trinket.effect;
-            if(trinketKey!=key){trinketKey=key;Clear(trinketParts);
+            if(trinketKey!=key){Revision++;trinketKey=key;Clear(trinketParts);
                 if(trinket!=null){GameObject part=trinket.effect switch{
                     TrinketEffect.Move=>Wear("Wear_Anklet","foot.L",new Vector3(0,.06f,0),new Vector3(.12f,.05f,.13f)),
                     TrinketEffect.Gather=>Wear("Wear_Goggles","head",new Vector3(0,.32f,.06f),new Vector3(.37f,.13f,.28f)),
@@ -37,7 +38,7 @@ namespace AntColony.Units
                 }
             }
             key=weapon==null?"":weapon.id+":"+MeshyEquipmentRules.HeldModel(weapon);
-            if(weaponKey!=key){weaponKey=key;if(holster!=null){holster.SetActive(false);Destroy(holster);}holster=null;
+            if(weaponKey!=key){Revision++;weaponKey=key;if(holster!=null){holster.SetActive(false);Destroy(holster);}holster=null;
                 if(weapon!=null){var src=MeshyEquipmentModel.Load(MeshyEquipmentRules.HeldModel(weapon));var bone=Bone("spine_02");
                     if(src!=null&&bone!=null){holster=Instantiate(src,transform,false);MeshyEquipmentModel.ApplyFinish(holster,MeshyEquipmentRules.HeldModel(weapon));holster.name="Holstered_"+src.name;
                         holster.transform.localRotation=Quaternion.Euler(MeshyEquipmentRules.IsFirearm(weapon.weapon)?-70:-90,0,30)*src.transform.localRotation;

@@ -1,0 +1,26 @@
+{
+  "success": true,
+  "command": "command",
+  "data": {
+    "command": "run_script",
+    "parameters": {
+      "file": "work/appearance-overlap-1112/pending/Appearance1112WeaponActions.cs",
+      "entry": "Appearance1112WeaponActions.Run"
+    },
+    "result": {
+      "diagnostics": [],
+      "compileMs": 63,
+      "executeMs": 2614,
+      "assemblyName": "PipelineRunScript_Appearance1112WeaponActions_415101df68524829b6b6f6d7bd687684",
+      "success": true,
+      "result": "Mandible PASS SpearThrust / Weapon_Spear_Copper native=\nAcidSprayer PASS Idle_A / Weapon_AcidSprayer native=Combat_Stance\nShield PASS ShieldBlock / Weapon_Shield_Copper native=Shield_Push_Left\nPheromone PASS Idle_A / Weapon_CommandStaff native=Combat_Stance\nWoodenSword PASS Attack / Weapon_Sword_Wood native=Right_Hand_Sword_Slash\nShortBow PASS BowShoot / Weapon_ShortBow native=Archery_Shot_3\nSword PASS Attack / Weapon_Sword_Copper native=Right_Hand_Sword_Slash\nSingleRifle PASS Idle_A / Weapon_SingleRifle native=Combat_Stance\nBurstCarbine PASS Idle_A / Weapon_BurstCarbine native=Combat_Stance\nScattergun PASS Idle_A / Weapon_Scattergun native=Combat_Stance\nKatana PASS Attack / Weapon_Katana native=Right_Hand_Sword_Slash\nGrandBow PASS BowShoot / Weapon_GrandBow native=Archery_Shot_3\nSniperRifle PASS Idle_A / Weapon_SniperRifle native=Combat_Stance\nQuakeMaul PASS Tool_Hammer / Weapon_BossC_Quakehammer native=Heavy_Hammer_Swing"
+    },
+    "target": {
+      "host": "127.0.0.1",
+      "port": 7801,
+      "projectPath": "F:\\UnityProjects\\ant-colony-rts"
+    }
+  },
+  "errors": [],
+  "warnings": []
+}

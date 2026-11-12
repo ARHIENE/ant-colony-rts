@@ -62,7 +62,7 @@ namespace AntColony.Save
                 colony = new ColonyDto { food = rm.GetAmount(ResourceType.Food), soil = rm.GetAmount(ResourceType.Soil), special = rm.GetAmount(ResourceType.Special), materials = rm.CaptureMaterials(), baseBin = rm.BaseBin.Capture(),
                     foodCapacity = rm.GetCapacity(ResourceType.Food), soilCapacity = rm.GetCapacity(ResourceType.Soil), specialCapacity = rm.GetCapacity(ResourceType.Special),
                     storageResearchApplied = true,
-                    antsFree = pool.Free, antsAssigned = pool.Assigned, antsReserved = pool.Reserved, fishingUnlocked = GameManager.Instance.FishingUnlocked, commonDiet = CommanderAnt.CommonDiet } };
+                    antsFree = pool.LegacyFree, antsAssigned = pool.LegacyAssigned, antsReserved = pool.LegacyReserved, fishingUnlocked = GameManager.Instance.FishingUnlocked, commonDiet = CommanderAnt.CommonDiet } };
             foreach (var c in commanders) file.commanders.Add(new CommanderDto { id = file.commanders.Count, name = c.CommanderName,
                 troopCount = c.TroopCount, pendingDamage = c.PendingTroopDamage, carriedAmount = c.CarriedAmount, carriedType = (int)c.CarriedType, carriedLots = c.CaptureCargoLots(), fishingProgress = c.FishingProgress, talents = c.Talents.Copy(),
                 traits = SaveCatalog.Traits(c.Traits), personalState = c.CapturePersonalState(),
@@ -176,6 +176,9 @@ namespace AntColony.Save
 
         internal static IEnumerator Restore(SaveFileV1 file)
         {
+            // The target map and its catalog now exist. Reject incompatible scene
+            // references before mutation; GameBootstrap retains the rollback path.
+            if (!SavePreflight.ForScene(file, out var sceneError)) throw new InvalidOperationException(sceneError);
             if (!FarmSeeds.Valid(file.farmSeeds)) throw new InvalidOperationException("작물 종자 저장 정보가 올바르지 않습니다.");
             // 직접 복원 진입점도 첫 yield/장수 제거 전에 누락된 시작 시설을 거부한다.
             foreach (var d in file.buildings.Where(d => !d.runtimeBuilt && d.kind != "Destroyed"))
@@ -316,6 +319,7 @@ namespace AntColony.Save
                 p.foodCapacity + storageBonus.x, p.soilCapacity + storageBonus.y, p.specialCapacity + storageBonus.z);
             ResourceManager.Instance.RestoreMaterials(p.materials);
             ResourceManager.Instance.RestoreBins(p.baseBin, restoredBuildings.Where(x => x.building is Storage).Select(x => ((Storage)x.building, x.dto.storeBin)));
+            // Retired numeric workforce is archived independently of live commander orders.
             AntPool.Instance.RestoreCounts(p.antsFree, p.antsAssigned, p.antsReserved);
             CommanderAnt.CommonDiet = p.commonDiet & CommanderAnt.AllDiet;
             GameManager.Instance.FishingUnlocked = p.fishingUnlocked

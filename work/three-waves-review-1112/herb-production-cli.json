@@ -1,0 +1,27 @@
+{
+  "success": true,
+  "command": "command",
+  "data": {
+    "command": "run_script",
+    "parameters": {
+      "file": "AgentScripts/HerbProduction1112.cs",
+      "entry": "HerbProduction1112.Run",
+      "timeout_ms": "240000"
+    },
+    "result": {
+      "diagnostics": [],
+      "compileMs": 209,
+      "executeMs": 26804,
+      "assemblyName": "PipelineRunScript_HerbProduction1112_87e55998f41343d99068e086d0de620e",
+      "success": true,
+      "result": "PASS normal designated wild herb gathering -> hauling -> medicine-bench crafting; medicine=1 herb=38.4->0 gameSeconds=65.74837\r\n"
+    },
+    "target": {
+      "host": "127.0.0.1",
+      "port": 7801,
+      "projectPath": "F:\\UnityProjects\\ant-colony-rts"
+    }
+  },
+  "errors": [],
+  "warnings": []
+}

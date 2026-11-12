@@ -160,7 +160,7 @@ namespace AntColony.World
             foreach (var enemy in attackers)
                 if (enemy.isActiveAndEnabled && (enemy.Position - site.Landing).sqrMagnitude <= 36) occupied = true;
             foreach (var unit in AntUnitBase.Active)
-                if (unit is CommanderAnt c && c.HasTroops && !c.IsEmbarked
+                if (unit is CommanderAnt c && c.CanFight && !c.IsEmbarked
                     && (c.Position - site.Landing).sqrMagnitude <= 64) occupied = false;
             CaptureProgress = occupied ? CaptureProgress + seconds : 0;
             if (CaptureProgress >= CaptureSeconds) Lose();

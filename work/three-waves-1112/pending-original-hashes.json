@@ -1,0 +1,26 @@
+[
+  {
+    "path": "Assets/_Project/Scripts/Units/CommanderRecovery.cs",
+    "sha256": "2E04A41FABF373A9294924A0C7C47002CED1FE70CC02593F545DD47BE787BAD8"
+  },
+  {
+    "path": "Assets/_Project/Scripts/Units/CommanderAnt.cs",
+    "sha256": "C377234D59FEE21405BD613624743EAFC9FDCDB61DE65C0BF413C9431454E8E0"
+  },
+  {
+    "path": "Assets/_Project/Scripts/Units/CommanderJoy.cs",
+    "sha256": "29E50D938AC6211851B303C66842AE98BDD11B5B9091ABDB6EA1692538D72B59"
+  },
+  {
+    "path": "Assets/_Project/Scripts/Units/CommanderDuty.cs",
+    "sha256": "EFD528D12CEB4D9AE1425E2376F640D6980E8BB2D5DFE66DE8D79EC364233640"
+  },
+  {
+    "path": "Assets/_Project/Scripts/UI/CommanderOverhead.cs",
+    "sha256": "8A67597AAF4A8201A9FEFC7305AA1E8DEDB069F21954CBE270E8F3C51B6CAC37"
+  },
+  {
+    "path": "Assets/_Project/Scripts/Core/GameBalance.cs",
+    "sha256": "24BD420E25EAD0E8F0FE1655DE762B18FA972D8F19B0B128662DD26747DD4D59"
+  }
+]

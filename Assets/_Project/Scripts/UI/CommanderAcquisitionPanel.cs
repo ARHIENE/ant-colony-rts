@@ -206,11 +206,6 @@ namespace AntColony.UI
                 feedback = $"식량 부족: 파견에 식량 {activeScout.DispatchFoodCost}이 필요합니다.";
                 return;
             }
-            if (AntPool.Instance != null && AntPool.Instance.Free < activeScout.DispatchAnts)
-            {
-                feedback = $"대기 시민 부족: 파견에 {activeScout.DispatchAnts}명이 필요합니다.";
-                return;
-            }
             GameMenuController.Instance?.ShowScout(activeScout); // 동행 장수는 정찰 파견 창에서 고른다.
         }
 

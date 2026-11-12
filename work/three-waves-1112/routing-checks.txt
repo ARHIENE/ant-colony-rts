@@ -1,0 +1,10 @@
+PASS fixture remote stocked warehouse
+PASS unreachable warehouse falls back to nearby loose material
+PASS fallback pickup has finite work distance
+PASS issued order uses the same floor source
+PASS reachable warehouse remains preferred over floor
+PASS issued order uses the same warehouse
+PASS all sleeping builders report busy, not unreachable
+PASS awake builder still eligible for work
+PASS sleeping builder has a physical route
+PASS sleeping reachable builder does not hide awake builder's blocked route

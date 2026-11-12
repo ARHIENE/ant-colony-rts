@@ -100,7 +100,7 @@ namespace AntColony.Units
             var primary=Palm(side);mount.position=primary;
             if(twoHand)
             {
-                // Work tools share the approved end-for-end orientation: right hand nearest the head.
+                // Keep the head and handle ends in the approved grip positions.
                 var support=Palm("Left");var shaft=support-primary;
                 if(shaft.sqrMagnitude>.00001f)
                 {
@@ -108,6 +108,8 @@ namespace AntColony.Units
                     if(facing.sqrMagnitude<.00001f)facing=Vector3.ProjectOnPlane(transform.right,shaft.normalized);
                     // The pick head extends along X: keep its cutting plane in the swing plane.
                     mount.rotation=Quaternion.LookRotation(shaft.normalized,Vector3.Cross(shaft.normalized,facing.normalized));
+                    // Turn only the axe blade front-to-back around its shaft.
+                    if(held.StartsWith("Tool_Axe_"))mount.rotation*=Quaternion.AngleAxis(180f,Vector3.forward);
                     SupportShaftError=Vector3.Cross(support-primary,mount.forward).magnitude;
                     FingerContactError=Mathf.Max(fingers.Wrap(left,primary,mount.forward,.012f),fingers.Wrap(!left,support,mount.forward,.012f));
                 }
@@ -117,8 +119,9 @@ namespace AntColony.Units
                 var across=bones["mixamorig:"+side+"HandIndex1"].position-bones["mixamorig:"+side+"HandPinky1"].position;
                 var alongFingers=bones["mixamorig:"+side+"HandMiddle1"].position-wrist.position;
                 mount.rotation=held.Contains("Bow")
-                    ?Quaternion.LookRotation(across.normalized,Vector3.ProjectOnPlane(transform.forward,across.normalized).normalized)
+                    ?Quaternion.LookRotation(across.normalized,-Vector3.ProjectOnPlane(transform.forward,across.normalized).normalized)
                     :Quaternion.LookRotation(-across.normalized,Vector3.Cross(across,alongFingers).normalized);
+                if(held.Contains("Shield"))mount.rotation*=Quaternion.AngleAxis(180f,Vector3.forward);
                 SupportShaftError=0;
                 if(held.Contains("Bow"))FingerContactError=fingers.Wrap(true,primary,mount.forward,.009f);
                 else if(held.StartsWith("Weapon_")||held.StartsWith("Tool_"))

@@ -1,0 +1,1 @@
+Wood cutting point nearest surface=0.0143m phase=0.8542 point=(206.646, 10.559, 210.109) surface=(206.649, 10.556, 210.095) actor=(206.721, 10.381, 210.650)

@@ -1,0 +1,10 @@
+{
+  "cursor": 10033,
+  "returned": 0,
+  "counts": {
+    "error": 177,
+    "warn": 517,
+    "log": 50
+  },
+  "entryCount": 0
+}

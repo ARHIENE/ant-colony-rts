@@ -17,10 +17,7 @@ namespace AntColony.Core
         public float CivicSentiment => (S.educationSeconds > 0 ? S.educationBonus * 50f : 0f) + MedicalCoverage * 5f;
 
         public void ApplyEducationAtAdulthood()
-        {
-            S.educationBonus = EducationCoverage * .1f;
-            S.educationSeconds = S.educationBonus > 0 ? GameCalendar.SecondsPerSeason : 0;
-        }
+        {  }
 
         private void TickCivicEconomy(float seconds)
         {
@@ -33,14 +30,7 @@ namespace AntColony.Core
 
         // 소수 비용은 저장하고 정수 몫만 지불한다. 재고 부족분은 다음 납세일에 재시도한다.
         public void PayCivicUpkeep()
-        {
-            PayCivicDebt(ref S.schoolFoodDebt, AntColony.Data.ResourceType.Food);
-            PayCivicDebt(ref S.schoolMaterialDebt, AntColony.Data.ResourceType.Soil);
-            PayCivicDebt(ref S.clinicFoodDebt, AntColony.Data.ResourceType.Food);
-            PayCivicDebt(ref S.clinicMedicineDebt, AntColony.Data.ResourceType.MedicineBasic);
-            S.schoolsSuspended = S.schoolFoodDebt >= .99999f || S.schoolMaterialDebt >= .99999f;
-            S.clinicsSuspended = S.clinicFoodDebt >= .99999f || S.clinicMedicineDebt >= .99999f;
-        }
+        {  }
 
         private static void PayCivicDebt(ref float debt, AntColony.Data.ResourceType resource)
         {

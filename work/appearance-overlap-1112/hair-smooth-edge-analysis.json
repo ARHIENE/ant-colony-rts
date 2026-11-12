@@ -1,0 +1,38 @@
+[
+  {
+    "hair": "PONY",
+    "version": "old",
+    "maxEdgeStretch": 88.72357177734375,
+    "p99": 6.137610130310047
+  },
+  {
+    "hair": "PONY",
+    "version": "smooth",
+    "maxEdgeStretch": 8.338927268981934,
+    "p99": 4.778534736633297
+  },
+  {
+    "hair": "TWIN",
+    "version": "old",
+    "maxEdgeStretch": 259.712890625,
+    "p99": 5.732016353607165
+  },
+  {
+    "hair": "TWIN",
+    "version": "smooth",
+    "maxEdgeStretch": 6.311988830566406,
+    "p99": 3.7961425876617425
+  },
+  {
+    "hair": "UPDO",
+    "version": "old",
+    "maxEdgeStretch": 36.1241455078125,
+    "p99": 2.926265287399292
+  },
+  {
+    "hair": "UPDO",
+    "version": "smooth",
+    "maxEdgeStretch": 3.8726563453674316,
+    "p99": 2.462733688354491
+  }
+]

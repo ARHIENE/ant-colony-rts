@@ -8,20 +8,9 @@ namespace AntColony.Core
     {
         // 파괴 순간 주소를 끊는다. 같은 좌표에 새 집을 지어도 기존 주민/입주 예약을 승계하지 않는다.
         public void InvalidateHousing(Vector3 position)
-        {
-            InvalidateHousing(S, position);
-            lastSync = (-1, 0, 0, 0, 0);
-        }
+        {  }
         public static void InvalidateHousing(State state, Vector3 position)
-        {
-            foreach (var group in state.civilianLocations)
-            {
-                if (group.housing && (group.position - position).sqrMagnitude < .01f)
-                { group.housing = false; group.sheltered = false; }
-                if (group.rehousing && (group.housingDestination - position).sqrMagnitude < .01f)
-                { group.rehousing = false; group.sheltered = false; }
-            }
-        }
+        {  }
         public int TemporaryResidents => S.civilianLocations.Where(g => g.temporary && !g.moving && g.sheltered).Sum(g => g.count);
         public int ExposedResidents => S.civilianLocations.Where(g => !g.sheltered).Sum(g => g.count);
         public float DisplacementPenalty => LocatedCivilians == 0 ? 0 : -(10f * ExposedResidents + 5f * TemporaryResidents) / LocatedCivilians;

@@ -47,7 +47,7 @@ namespace AntColony.Core
                 var old = oldIndex >= 0 ? c.Traits.values[oldIndex] : (CommanderTrait?)null;
                 int result;
                 if (old.HasValue && TraitRules.Grade(old.Value) >= TraitRules.Grade(trait)) result = 5;
-                else if (!old.HasValue && c.Traits.values.Count >= CommanderTraits.MaxTraits) result = 3;
+                else if (!old.HasValue && c.Traits.ActiveTraitCount >= CommanderTraits.MaxTraits) result = 3;
                 else if (Roll() >= (diamond ? DiamondChance : GoldChance)) result = 2;
                 else
                 {
@@ -61,12 +61,12 @@ namespace AntColony.Core
             }
         }
         // 전투 다이아(D21~D24·D04): 근접20 → 무간/참경/역린 중 하나, 사격20 → 엑스텐, 지휘20 → 레기온. 확률·평생1회·만석 규칙은 비전투와 같다.
-        public static readonly CommanderActivity[] CombatActivities = { CommanderActivity.Melee, CommanderActivity.Ranged, CommanderActivity.Command };
+        public static readonly CommanderActivity[] CombatActivities = { CommanderActivity.Melee, CommanderActivity.Ranged };
         private static readonly CommanderTrait[] Melee = { CommanderTrait.DiamondDoubleStrike, CommanderTrait.DiamondArmorBreak, CommanderTrait.DiamondWrath };
         private static void ObserveCombat(CommanderAnt c, SpecialtyProgress s)
         {
-            if (s.combat == null || s.combat.Length != CombatActivities.Length)
-                s.combat = CombatActivities.Select(a => c.Talents.Level(a) >= DiamondLevel ? 1 : 0).ToArray();
+            if (s.combat == null || s.combat.Length < CombatActivities.Length)
+                s.combat = CombatActivities.Select(a => c.Talents.Level(a) >= DiamondLevel ? 1 : 0).Concat(new[] { 0 }).ToArray();
             for (var i = 0; i < CombatActivities.Length; i++)
             {
                 if (s.combat[i] != 0 || c.Talents.Level(CombatActivities[i]) < DiamondLevel) continue;
@@ -74,7 +74,7 @@ namespace AntColony.Core
                 var trait = i == 1 ? CommanderTrait.DiamondPierce : i == 2 ? CommanderTrait.Legion : CommanderTrait.DiamondDoubleStrike;
                 if (i == 0 && Melee.Any(c.Traits.Has)) result = 5;
                 else if (c.Traits.Has(trait)) result = 5;
-                else if (c.Traits.values.Count >= CommanderTraits.MaxTraits) result = 3;
+                else if (c.Traits.ActiveTraitCount >= CommanderTraits.MaxTraits) result = 3;
                 else if (Roll() >= DiamondChance) result = 2;
                 else
                 {
@@ -97,7 +97,7 @@ namespace AntColony.Core
             var combat = Array.IndexOf(CombatActivities, activity);
             if (combat >= 0)
             {
-                var r = c.Traits.specialties?.combat?.Length == CombatActivities.Length ? c.Traits.specialties.combat[combat] : 0;
+                var r = c.Traits.specialties?.combat?.Length >= CombatActivities.Length ? c.Traits.specialties.combat[combat] : 0;
                 return $"전투 다이아 · 평생 1회(잠정)\n기술20 최초 다이아5% ({(combat == 0 ? "무간·참경·역린 중 하나" : combat == 1 ? "엑스텐" : "레기온")}): {ResultName(r)}\n4칸 만석이면 기회도 소모합니다. 저장/불러오기로 재추첨하지 않습니다.";
             }
             if (family < 0) return "이 기술의 후천 전문성 계열은 아직 연결되지 않았습니다.";

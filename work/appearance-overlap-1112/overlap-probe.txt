@@ -1,0 +1,2 @@
+Idle_3 original enabled after attach=False after graph=False visible skins=Part_Body_Meadow_00,Part_Hair_TWIN_00,Part_Outfit_ARTISAN_00,Part_Face_NEUTRAL_00,Part_Ears_ANTENNA_00
+Heavy_Hammer_Swing original enabled after attach=False after graph=False visible skins=Part_Body_Meadow_00,Part_Hair_TWIN_00,Part_Outfit_ARTISAN_00,Part_Face_NEUTRAL_00,Part_Ears_ANTENNA_00

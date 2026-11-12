@@ -1,0 +1,26 @@
+{
+  "success": true,
+  "command": "command",
+  "data": {
+    "command": "run_script",
+    "parameters": {
+      "file": "AgentScripts/Meshy1111WearableChecks.cs",
+      "entry": "Meshy1111WearableChecks.Run"
+    },
+    "result": {
+      "diagnostics": [],
+      "compileMs": 51,
+      "executeMs": 188,
+      "assemblyName": "PipelineRunScript_Meshy1111WearableChecks_1e826d6cebd2443bb0f614b4b22fe648",
+      "success": true,
+      "result": "rig=0 Coating PASS bound=mixamorig:Spine2 worldSize=(0.36, 0.37, 0.27)\nrig=0 Wings PASS bound=mixamorig:Spine2 worldSize=(0.48, 0.52, 0.15)\nrig=0 Durable PASS bound=mixamorig:Spine2 worldSize=(0.36, 0.37, 0.27)\nrig=0 HeatShield PASS bound=mixamorig:Spine2 worldSize=(0.36, 0.37, 0.27)\nrig=0 Move PASS bound=mixamorig:LeftFoot worldSize=(0.12, 0.05, 0.13)\nrig=0 Gather PASS bound=mixamorig:Head worldSize=(0.37, 0.13, 0.28)\nrig=0 Mood PASS bound=mixamorig:Spine worldSize=(0.12, 0.15, 0.07)\nrig=0 Command PASS bound=mixamorig:Spine2 worldSize=(0.07, 0.08, 0.03)\nrig=0 Sword PASS bound=mixamorig:Spine2 worldSize=(0.13, 0.54, 0.10)\nrig=0 GrandBow PASS bound=mixamorig:Spine2 worldSize=(0.09, 0.82, 0.12)\nrig=0 SingleRifle PASS bound=mixamorig:Spine2 worldSize=(0.43, 0.40, 0.70)\nrig=1 Coating PASS bound=mixamorig:Spine2 worldSize=(0.36, 0.37, 0.27)\nrig=1 Wings PASS bound=mixamorig:Spine2 worldSize=(0.48, 0.52, 0.15)\nrig=1 Durable PASS bound=mixamorig:Spine2 worldSize=(0.36, 0.37, 0.27)\nrig=1 HeatShield PASS bound=mixamorig:Spine2 worldSize=(0.36, 0.37, 0.27)\nrig=1 Move PASS bound=mixamorig:LeftFoot worldSize=(0.12, 0.05, 0.13)\nrig=1 Gather PASS bound=mixamorig:Head worldSize=(0.37, 0.13, 0.28)\nrig=1 Mood PASS bound=mixamorig:Spine worldSize=(0.12, 0.15, 0.07)\nrig=1 Command PASS bound=mixamorig:Spine2 worldSize=(0.07, 0.08, 0.03)\nrig=1 Sword PASS bound=mixamorig:Spine2 worldSize=(0.13, 0.54, 0.10)\nrig=1 GrandBow PASS bound=mixamorig:Spine2 worldSize=(0.09, 0.82, 0.12)\nrig=1 SingleRifle PASS bound=mixamorig:Spine2 worldSize=(0.43, 0.40, 0.70)"
+    },
+    "target": {
+      "host": "127.0.0.1",
+      "port": 7801,
+      "projectPath": "F:\\UnityProjects\\ant-colony-rts"
+    }
+  },
+  "errors": [],
+  "warnings": []
+}

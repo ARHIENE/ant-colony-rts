@@ -102,6 +102,7 @@ namespace AntColony.Units
             if (formation != null && !formation.Valid) return false;
             if (work == null || !work.Valid || string.IsNullOrEmpty(id) || social == null || !social.Validate() || sleep == null || !sleep.Valid || meal == null || !meal.Valid || joy == null || !joy.Valid || hygiene == null || !hygiene.Valid || health == null || health.wounds == null || health.illnesses == null || health.surgeries == null
                 || health.wounds.Count > 64 || health.illnesses.Count > 16 || health.surgeries.Count > 8 || !Finite(health.bloodLoss) || health.bloodLoss < 0 || health.bloodLoss > 1
+                || !Finite(health.moldImmunityRemaining) || health.moldImmunityRemaining < 0 || health.moldImmunityRemaining > MedicalRules.MoldImmunitySeconds
                 || health.wounds.Exists(w => w == null || !Enum.IsDefined(typeof(BodyPart), w.part) || !Enum.IsDefined(typeof(WoundKind), w.kind) || !Finite(w.damage) || w.damage < 0 || !Finite(w.age) || !Finite(w.quality))
                 || health.illnesses.Exists(i => i == null || !Enum.IsDefined(typeof(IllnessKind), i.kind) || !Finite(i.severity) || !Finite(i.immunity) || !Finite(i.tendLeft))
                 || health.bedRest < 0 || health.bedRest > 9 || !Enum.IsDefined(typeof(MedicineLevel), health.medicine)

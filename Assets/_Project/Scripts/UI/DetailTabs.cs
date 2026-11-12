@@ -108,12 +108,12 @@ namespace AntColony.UI
                 case 0:
                     return $"<b>{c.CommanderName}</b>  {c.WeaponName}\n하는 일: {(CommanderOverhead.Activity(c) is var a && a.Length > 0 ? a : "대기")}\n"
                         + $"체력 {Mathf.CeilToInt(c.PersonalHealth)}/{GameBalance.CommanderHealth:0} · 포만 {c.Satiety:0} · 피로 {c.Fatigue:0} · 오락 {c.Joy:0} · 위생 {c.Hygiene:0}\n"
-                        + (c.IsDeployed ? $"병력 {Mathf.CeilToInt(c.TroopHealth)}/{c.CommandLimit}" : "평시 병력 0 (출전 시 징집소에서 편성)");
+                        + (c.IsDeployed ? "소집 중 · 장수 개인 전투" : "평시 · 자동 작업");
                 case 1:
                     var rows = p.moodFactors.OrderBy(f => f.value).Take(6).Select(f => Row(SpeechBubbles.MoodReason(c, f.reason), f.value));
                     return string.Join("\n", rows) + $"\n<b>기분 {c.Mood:0}</b>  <color=#b1b3a7>/ 붕괴 위험 {CommanderOverhead.MoodWarning:0} 이하</color>";
                 case 2:
-                    return c.Traits.values.Count == 0 ? "특성 없음" : string.Join("\n", c.Traits.values.Select(CommanderTraits.DisplayName));
+                    return c.Traits.values.Count == 0 ? "특성 없음" : string.Join("\n", c.Traits.values.Where(t => t != CommanderTrait.Legion).Select(CommanderTraits.DisplayName));
                 case 3:
                     var names = CommanderRoster.Instance != null ? CommanderRoster.Instance.Commanders.ToDictionary(x => x.PersonalState.id, x => x.CommanderName) : null;
                     var rel = p.relations.Where(r => r.spouse || r.family || Mathf.Abs(r.value) >= 20).OrderByDescending(r => Mathf.Abs(r.value)).Take(6)

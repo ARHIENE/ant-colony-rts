@@ -1,4 +1,4 @@
-﻿using System.Linq;
+using System.Linq;
 using AntColony.Core;
 using AntColony.Data;
 using AntColony.Units;
@@ -178,6 +178,7 @@ namespace AntColony.Buildings
         // 연구·수량 조건으로 지금 지을 수 없으면 이유를, 가능하면 null을 돌려준다.
         public static string LockReason(BuildingKind kind)
         {
+            if (ScienceEffects.RetiredBuilding(kind)) return "현재 규칙에서 사용하지 않는 시민 시설입니다.";
             if (kind == BuildingKind.ConscriptionPost && (AntColony.Core.SceneObjects.Any<ConscriptionPost>() != null || System.Array.Exists(AntColony.Core.SceneObjects.All<BuildingConstructionSite>(), s => s.BuildingKind == kind))) return "본거지 징집소는 한 곳만 건설할 수 있습니다.";
             if (kind == BuildingKind.WaterSource || kind == BuildingKind.OilDeposit) return "자연 지점은 건설할 수 없습니다.";
             if (kind == BuildingKind.AphidPen && !ScienceEffects.CropUnlocked(FarmCrop.Honeydew)) return "감로 목장 연구가 필요합니다.";

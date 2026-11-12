@@ -54,7 +54,7 @@ namespace AntColony.Core
                 or ScienceTechnology.MigrationTheory or ScienceTechnology.Hull or ScienceTechnology.Cocoons or ScienceTechnology.Engine or ScienceTechnology.UndergroundSurvey => CommanderActivity.Crafting,
             ScienceTechnology.FormationLine or ScienceTechnology.FormationColumn or ScienceTechnology.FormationWedge
                 or ScienceTechnology.FormationDispersed or ScienceTechnology.FormationCover or ScienceTechnology.FormationFocus
-                or ScienceTechnology.Watchtowers or ScienceTechnology.ConscriptionLaw or ScienceTechnology.ReserveForces or ScienceTechnology.TotalMobilization => CommanderActivity.Command,
+                or ScienceTechnology.Watchtowers or ScienceTechnology.ConscriptionLaw or ScienceTechnology.ReserveForces or ScienceTechnology.TotalMobilization => null,
             _ => null
         };
         public static CampaignResearch Instance { get; private set; }
@@ -126,7 +126,9 @@ namespace AntColony.Core
             public List<float> partialProgress = new List<float>();
         }
         private State state = new State();
-        public ScienceDefinition Active => state.active >= 0 ? Technologies[state.active] : null;
+        public static bool Retired(ScienceTechnology t) => t is ScienceTechnology.ConscriptionLaw or ScienceTechnology.ReserveForces or ScienceTechnology.TotalMobilization
+            or ScienceTechnology.FormationLine or ScienceTechnology.FormationColumn or ScienceTechnology.FormationWedge or ScienceTechnology.FormationDispersed or ScienceTechnology.FormationCover or ScienceTechnology.FormationFocus;
+        public ScienceDefinition Active => state.active >= 0 && !Retired((ScienceTechnology)state.active) ? Technologies[state.active] : null;
         public float Progress => state.progress;
         public bool Paused => state.paused;
         public void SetPaused(bool value) { if (Active != null || ActiveResource != null) state.paused = value; }
@@ -149,9 +151,9 @@ namespace AntColony.Core
             if (GetComponent<AntColony.World.BossRewardVisual>() == null) gameObject.AddComponent<AntColony.World.BossRewardVisual>();
         }
         private void OnDestroy() { if (Instance == this) Instance = null; }
-        public int CompletedCount => state.completed.Count; // 시작 안내 체크리스트(2026-11-01)
-        public bool Has(ScienceTechnology technology) => state.completed.Contains((int)technology)
-            || technology == ScienceTechnology.Fishing && GameManager.Instance != null && GameManager.Instance.FishingUnlocked;
+        public int CompletedCount => state.completed.Count(i => !Retired((ScienceTechnology)i)); // 시작 안내 체크리스트(2026-11-01)
+        public bool Has(ScienceTechnology technology) => !Retired(technology) && (state.completed.Contains((int)technology)
+            || technology == ScienceTechnology.Fishing && GameManager.Instance != null && GameManager.Instance.FishingUnlocked);
         public int DefenseLevel(DefenseLine line) => (int)line < state.defense.Count ? state.defense[(int)line] : 0;
         internal void SetDefenseLevel(DefenseLine line, int level)
         {
@@ -166,6 +168,7 @@ namespace AntColony.Core
 
         public string BlockReason(ScienceTechnology technology)
         {
+            if (Retired(technology)) return "현재 규칙에서 사용하지 않는 연구입니다.";
             var i = (int)technology;
             if (i < 0 || i >= Technologies.Length) return "알 수 없는 기술입니다.";
             if (Departed) return "로켓이 이미 발사되었습니다.";
@@ -247,7 +250,9 @@ namespace AntColony.Core
             if (completed.Technology == ScienceTechnology.Fishing && GameManager.Instance != null)
                 GameManager.Instance.FishingUnlocked = true;
             if (completed.Technology == ScienceTechnology.Fermentation)
-                foreach (var storage in AntColony.Core.SceneObjects.All<Storage>()) storage.RefreshCapacity();
+                if (state.active >= 0 && Retired((ScienceTechnology)state.active))
+            { if (!state.partialIds.Contains(state.active)) { state.partialIds.Add(state.active); state.partialProgress.Add(state.progress); } state.active = -1; state.progress = 0; }
+            foreach (var storage in AntColony.Core.SceneObjects.All<Storage>()) storage.RefreshCapacity();
             if (world != null)
             {
                 if (completed.Technology == ScienceTechnology.Vehicle) world.VehicleResearched = true;
@@ -284,6 +289,8 @@ namespace AntColony.Core
             if (state.defense == null) state.defense = new List<int>();
             if (state.partialIds == null || state.partialProgress == null || state.partialIds.Count != state.partialProgress.Count)
             { state.partialIds = new List<int>(); state.partialProgress = new List<float>(); }
+            if (state.active >= 0 && Retired((ScienceTechnology)state.active))
+            { if (!state.partialIds.Contains(state.active)) { state.partialIds.Add(state.active); state.partialProgress.Add(state.progress); } state.active = -1; state.progress = 0; }
             foreach (var storage in AntColony.Core.SceneObjects.All<Storage>()) storage.RefreshCapacity();
         }
         public static bool Validate(State value, out string error)

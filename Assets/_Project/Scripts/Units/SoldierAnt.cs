@@ -28,6 +28,14 @@ namespace AntColony.Units
         private State state = State.Idle;
         private IDamageable currentTarget;
         private float attackTimer;
+        // 카이팅(2026-11-12 사용자 확정 방향): 공격은 준비(선딜) 뒤에 타격한다. 준비 중 이동·정지·표적 변경은 피해 없이 취소한다.
+        // 타격 뒤에는 바로 움직일 수 있지만 다음 공격까지의 대기(attackTimer)는 이동 중에도 그대로 흐른다(앞당겨지지 않는다).
+        private float windupLeft = -1f; // 0 미만 = 준비 중 아님. 저장하지 않는다(불러오면 준비 중이던 공격은 취소).
+        public bool IsWindingUp => windupLeft >= 0f;
+        public float AttackCooldownLeft => Mathf.Max(0f, attackTimer);
+        // ponytail: 준비 시간 = 공격 간격의 25%(0.1~0.4초), 준비 중 사거리 여유 20%+0.25m는 잠정. 무기별 값은 플레이테스트로 정한다.
+        protected virtual float AttackWindup => Mathf.Clamp(AttackInterval * .25f, .1f, .4f);
+        public bool IsAttacking(IDamageable target) => state == State.Attacking && target != null && ReferenceEquals(currentTarget, target);
         private float autoEngageTimer;
         private Vector3 flightDestination;
         private Vector3 savedMoveDestination;
@@ -69,6 +77,7 @@ namespace AntColony.Units
             state = State.Idle;
             currentTarget = null;
             attackTimer = 0f;
+            windupLeft = -1f;
             autoEngageTimer = 0f;
             isOnAttackMove = false;
             attackMoveDestination = transform.position;
@@ -208,6 +217,8 @@ namespace AntColony.Units
 
         protected void TickCombat()
         {
+            if (attackTimer > 0f) attackTimer -= Time.deltaTime;
+            if (state != State.Attacking) windupLeft = -1f;
             switch (state)
             {
                 case State.Idle:
@@ -312,19 +323,25 @@ namespace AntColony.Units
                 return;
             }
 
-            if (GetDistanceTo(currentTarget.Position) > AttackRange)
+            // 준비를 시작한 공격은 대상이 살짝 물러나도 맞는다. 그보다 멀어지면 취소하고 쫓아간다.
+            if (GetDistanceTo(currentTarget.Position) > (IsWindingUp ? AttackRange * 1.2f + .25f : AttackRange))
             {
+                windupLeft = -1f;
                 state = State.MovingToTarget;
                 return;
             }
 
-            attackTimer -= Time.deltaTime;
-            if (attackTimer <= 0f)
+            if (!IsWindingUp)
             {
-                attackTimer = AttackInterval;
+                if (attackTimer > 0f) return;
+                windupLeft = AttackWindup;
                 GetComponent<AntVisual>()?.Attack(currentTarget.Position);
-                DealDamage(currentTarget);
             }
+            windupLeft -= Time.deltaTime;
+            if (windupLeft > 0f) return;
+            windupLeft = -1f;
+            attackTimer = Mathf.Max(0f, AttackInterval - AttackWindup); // 준비 + 대기 = 기존 공격 간격
+            DealDamage(currentTarget);
         }
 
         // 실제 타격이 일어나는 유일한 지점. 비행/어택무브를 포함한 모든 공격이 여기를 지나므로

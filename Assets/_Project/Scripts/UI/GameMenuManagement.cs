@@ -15,9 +15,9 @@ namespace AntColony.UI
         private static string[] ManagementTabNames(string group) => group switch
         {
             "물류·식품" => new[] { "창고", "식단", "건설·작업", "퇴비·비료" },
-            "의료·관리" => new[] { "의료", "동물 위생", "묘비·추모", "포로", "인구", "기록" },
+            "의료·관리" => new[] { "의료", "동물 위생", "묘비·추모", "포로", "기록" },
             "생산·자원" => new[] { "자원", "생산", "장비·도구", "수리", "매장지·배관", "음주" },
-            _ => new[] { "장수", "평가", "외부 조사", "특성 도감", "진형" }
+            _ => new[] { "장수", "평가", "외부 조사", "특성 도감", "소집" }
         };
 
         private void ManagementTabs(RectTransform window, string group, string selected)
@@ -148,10 +148,10 @@ namespace AntColony.UI
                     break;
                 case "특성 도감":
                     foreach (var c in SortedCommanders())
-                        MenuTheme.Text(left, c.CommanderName + "\n" + string.Join(" · ", c.Traits.values.Select(CommanderTraits.DisplayName)), 13, 64);
+                        MenuTheme.Text(left, c.CommanderName + "\n" + string.Join(" · ", c.Traits.values.Where(t => t != CommanderTrait.Legion).Select(CommanderTraits.DisplayName)), 13, 64);
                     Info("현재 장수가 실제로 보유한 특성입니다. 시안의 전체 특성 도감·등급 표시는 미구현입니다.");
                     break;
-                case "진형": OpenConscription(); return; // 진형은 출전 편성(징집) 화면에서 고른다
+                case "소집": OpenConscription(); return; // 진형은 출전 편성(징집) 화면에서 고른다
             }
             V5Fit(window);
         }

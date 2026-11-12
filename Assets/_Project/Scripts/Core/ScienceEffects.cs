@@ -76,7 +76,8 @@ namespace AntColony.Core
             _ => System.Array.Empty<ScienceTechnology>()
         };
 
-        public static bool BuildingUnlocked(BuildingKind kind) => (kind != BuildingKind.Farm || BiomeRules.FarmAllowed)
+        public static bool RetiredBuilding(BuildingKind kind) => kind is BuildingKind.Hut or BuildingKind.House or BuildingKind.Apartment or BuildingKind.AdminDesk or BuildingKind.School or BuildingKind.CitizenClinic or BuildingKind.CivicPublicService;
+        public static bool BuildingUnlocked(BuildingKind kind) => !RetiredBuilding(kind) && (kind != BuildingKind.Farm || BiomeRules.FarmAllowed)
             && System.Array.TrueForAll(BuildingResearch(kind), Has);
     }
 

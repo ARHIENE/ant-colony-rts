@@ -8,6 +8,7 @@ namespace AntColony.World
         bool shown;
         float born;
         void Awake() { corpse = GetComponent<Corpse>(); born = Time.time; }
+        internal void ShowRestored() { born = Time.time - .5f; LateUpdate(); }
         void LateUpdate()
         {
             if (shown || corpse.Data == null || corpse.Data.kind != CorpseKind.Wildlife && Time.time - born < .5f) return;

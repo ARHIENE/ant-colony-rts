@@ -11,7 +11,8 @@ namespace AntColony.Units
     [Serializable]
     public class CommanderTalents
     {
-        public const int Count = 16, MaxLevel = 20, MaxPotential = 200;
+        public const int Count = 16, ActiveCount = 15, MaxLevel = 20, MaxPotential = 200;
+        public static bool IsActive(CommanderActivity skill) => skill != CommanderActivity.Command && (int)skill >= 0 && (int)skill < Count;
         // ponytail: 성장·감소 잠정 수치(기획 미정). 최근 이력 길이(작업량 단위)·감소 시작 표본·최소 유지 비중·작업량당 감소 경험치.
         public const float UsageWindow = 1800f, MinUsageSample = 600f, MinUsageShare = .01f, DecayPerWork = .1f / 600f, MainShare = .8f;
         [Serializable] public sealed class Use { public int main, support = -1; public float seconds; }
@@ -32,7 +33,7 @@ namespace AntColony.Units
         // 원시 경험치 추가(PA·활용 이력 무시). 저장 이관·검사용. 실제 작업 성장은 Train.
         public void Add(CommanderActivity skill, float amount)
         {
-            if (!(amount > 0) || float.IsInfinity(amount) || !Enum.IsDefined(typeof(CommanderActivity), skill)) return;
+            if (!(amount > 0) || float.IsInfinity(amount) || !IsActive(skill)) return;
             int i = (int)skill;
             if (levels[i] >= MaxLevel) return;
             double pool = experience[i] + (double)amount;
@@ -55,17 +56,17 @@ namespace AntColony.Units
         // topic = 연구 주제·제작 분류로 정해지는 보조 능력(있으면 활동 기본 보조 대신 사용).
         public void Train(CommanderActivity main, float work, Func<CommanderActivity, float> rate, CommanderActivity? topic = null)
         {
-            if (!(work > 0) || float.IsInfinity(work) || !Enum.IsDefined(typeof(CommanderActivity), main)) return;
+            if (!(work > 0) || float.IsInfinity(work) || !IsActive(main)) return;
             EnsurePotential();
             float previousSample = 0; if (recentWork != null) foreach (var use in recentWork) previousSample += use.seconds;
-            var support = topic == main ? null : topic ?? Support(main); // topic == main: 보조 없음(약제대 생산 — 의료만, 2026-10-11)
+            var support = topic == main || topic.HasValue && !IsActive(topic.Value) ? null : topic ?? Support(main); // topic == main: 보조 없음(약제대 생산 — 의료만, 2026-10-11)
             float mainShare = support == null ? 1f : MainShare;
             float total = RecordUse(main, support, work);
             // 최근 활용이 부족한 기술 전체에 감소를 나눈다(한 기술에 몰지 않음, 0 아래로 안 내려감).
             if (total >= MinUsageSample)
             {
                 for (int i = 0; i < Count; i++)
-                    if (usage[i] / total < MinUsageShare && Value(i) > 10)
+                    if (IsActive((CommanderActivity)i) && usage[i] / total < MinUsageShare && Value(i) > 10)
                         SetValue(i, Mathf.Max(10, Value(i) - Mathf.Min(work, Mathf.Max(0, previousSample + work - MinUsageSample)) * DecayPerWork));
             }
             // 주·보조를 함께 성장시킨 뒤 CA가 PA를 넘으면 넘친 만큼 두 성장분에서 비율대로 되돌린다(주 능력이 여유를 독점하지 않음, 내릴 후보가 없으면 정체).
@@ -134,7 +135,7 @@ namespace AntColony.Units
             levels = new int[Count]; experience = new float[Count]; usage = new float[Count]; recentWork = new List<Use>(); combatSeconds = 0; potential = 0;
             if (first != null && second != null)
             {
-                for (int i = 0; i < Count; i++) levels[i] = Mathf.Clamp(Mathf.RoundToInt((first.levels[i] + second.levels[i]) * .25f) + UnityEngine.Random.Range(0, 4), 0, MaxLevel);
+                for (int i = 0; i < Count; i++) if (IsActive((CommanderActivity)i)) levels[i] = Mathf.Clamp(Mathf.RoundToInt((first.levels[i] + second.levels[i]) * .25f) + UnityEngine.Random.Range(0, 4), 0, MaxLevel);
                 first.EnsurePotential(); second.EnsurePotential();
                 potential = Mathf.Clamp((first.potential + second.potential) / 2 + UnityEngine.Random.Range(-20, 21), 1, MaxPotential);
                 EnsurePotential();
@@ -144,7 +145,7 @@ namespace AntColony.Units
             for (int point = 0; point < 40;)
             {
                 int i = UnityEngine.Random.Range(0, Count);
-                if (levels[i] >= MaxLevel || UnityEngine.Random.value > (1 + traits.Flame((CommanderActivity)i) * 2) / 5f) continue;
+                if (!IsActive((CommanderActivity)i) || levels[i] >= MaxLevel || UnityEngine.Random.value > (1 + traits.Flame((CommanderActivity)i) * 2) / 5f) continue;
                 levels[i]++; point++;
             }
             EnsurePotential();

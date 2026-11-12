@@ -1,0 +1,27 @@
+{
+  "success": true,
+  "command": "command",
+  "data": {
+    "command": "run_script",
+    "parameters": {
+      "file": "AgentScripts/ThreeWaves1112MedicalChecks.cs",
+      "entry": "ThreeWaves1112MedicalChecks.Run",
+      "timeout_ms": "180000"
+    },
+    "result": {
+      "diagnostics": [],
+      "compileMs": 80,
+      "executeMs": 3049,
+      "assemblyName": "PipelineRunScript_ThreeWaves1112MedicalChecks_685906354f174c0cb6d809c021413864",
+      "success": true,
+      "result": "PASS three fixture commanders available\nPASS serious illness keeps medical priority without false downed mood\nPASS actual major wound creates concern\nPASS same wound does not renew concern every tick\nPASS loaded major wound does not duplicate concern\nPASS new actual downing still creates concern\nPASS old permanent loss does not repeatedly create concern\nPASS fresh loss creates concern even while patient remains conscious\nPASS mold cure grants full one-day protection after tick\nPASS protection counts down with game time\nPASS old save missing field defaults to zero\nPASS wound infection recovery grants no mold protection\nPASS post-cure protection is not an active illness and permits recovery\nPASS direct event infection rejects protected patient\nPASS repeated nearby exposure does not bypass protection\nPASS all protected commanders suppress mold event without empty target\nPASS same event state becomes eligible when one protection expires\nPASS event selects the only susceptible commander\nPASS expired protection permits normal infection\nPASS personal state clone validates protected health\nPASS save validator rejects protection=-1\nPASS save validator rejects protection=NaN\nPASS save validator rejects protection=Infinity\nPASS save validator rejects protection=151\nPASS normal save accepts protection: \nPASS normal load starts: \nPASS normal scene save/load preserves remaining protection\nDiscard fixture before natural continuation."
+    },
+    "target": {
+      "host": "127.0.0.1",
+      "port": 7801,
+      "projectPath": "F:\\UnityProjects\\ant-colony-rts"
+    }
+  },
+  "errors": [],
+  "warnings": []
+}

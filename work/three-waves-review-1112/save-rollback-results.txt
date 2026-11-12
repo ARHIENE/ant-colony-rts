@@ -1,0 +1,9 @@
+PASS baseline validates
+PASS wrong scene index remains structurally valid: 
+PASS wrong scene index fails scene validation
+PASS load queues target-scene validation: 
+PASS failed target load rolls back to playable game
+PASS rollback preserves seed
+PASS rollback preserves wave state
+PASS invalid scene data never applied
+PASS rollback game remains saveable: 

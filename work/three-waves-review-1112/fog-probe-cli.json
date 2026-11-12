@@ -1,0 +1,44 @@
+{
+  "success": true,
+  "command": "command",
+  "data": {
+    "command": "run_script",
+    "parameters": {
+      "file": "AgentScripts/FogProbe1112.cs",
+      "entry": "FogProbe1112.Run",
+      "timeout_ms": "45000"
+    },
+    "result": {
+      "diagnostics": [
+        {
+          "severity": "warning",
+          "message": "'FindObjectsSortMode' is obsolete: 'FindObjectsSortMode has been deprecated. Use the FindObjectsByType overloads that do not take a FindObjectsSortMode parameter.'",
+          "line": 15,
+          "column": 75,
+          "id": "CS0618",
+          "source": "foreach (var c in UnityEngine.Object.FindObjectsByType<Camera>(FindObjectsSortMode.None))"
+        },
+        {
+          "severity": "warning",
+          "message": "'Object.FindObjectsByType<T>(FindObjectsSortMode)' is obsolete: 'FindObjectsByType with FindObjectsSortMode parameter has been deprecated. Use FindObjectsByType<T>() or FindObjectsByType<T>(FindObjectsInactive) instead. InstanceID will be replaced in the future with EntityId and previous sort order cannot be maintained.'",
+          "line": 15,
+          "column": 30,
+          "id": "CS0618",
+          "source": "foreach (var c in UnityEngine.Object.FindObjectsByType<Camera>(FindObjectsSortMode.None))"
+        }
+      ],
+      "compileMs": 75,
+      "executeMs": 17805,
+      "assemblyName": "PipelineRunScript_FogProbe1112_079e73f61f5643b1a2a6e06658e88c10",
+      "success": true,
+      "result": "MinimapCamera pos=(200.00, 200.00, 200.00) ortho=True size=120 clip=0.3/400\r\nMain Camera pos=(202.23, 34.57, 176.76) ortho=True size=13 clip=0.3/1000\r\nPlanet Camera pos=(0.00, -5000.00, -46.00) ortho=False size=5 clip=1/80\r\nfog=Exponential density=0.008 range=15/180 params=(0.01, 0.01, 0.00, 0.00)\r\n"
+    },
+    "target": {
+      "host": "127.0.0.1",
+      "port": 7801,
+      "projectPath": "F:\\UnityProjects\\ant-colony-rts"
+    }
+  },
+  "errors": [],
+  "warnings": []
+}

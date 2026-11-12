@@ -8,19 +8,27 @@ namespace AntColony.Units
 {
     public partial class WorkerAnt
     {
-        private bool FetchFloorFor(IMaterialSink site, AntColony.Data.ResourceType type, int needed)
+        protected bool TryMaterialSource(IMaterialSink site, AntColony.Data.ResourceType type, int needed,
+            out StoreBin bin, out ResourceNode node, out Vector3 approach, out int amount)
         {
-            if (!(site is BuildingConstructionSite)) return false;
-            foreach (var node in ConstructionFloorMaterials.Available(type).OrderBy(n => (n.transform.position - Position).sqrMagnitude))
+            bin = null; node = null; approach = default; amount = 0;
+            var rm = ResourceManager.Instance;
+            if (rm == null) return false;
+            foreach (var candidate in rm.Bins.Where(b => b.Spendable && b.Amount(type) > 0).OrderBy(b => (b.Position - Position).sqrMagnitude))
             {
-                if (!node.CanGatherWith(this) || !TryWorkApproach(node.transform.position, out var approach)) continue;
-                var amount = Mathf.Min(needed, Mathf.FloorToInt(CarryCapacity), Mathf.FloorToInt(node.AmountRemaining));
+                var host = DepositHost(candidate);
+                if (host == null || !TryWorkApproach(host.Position, out approach)) continue;
+                amount = Mathf.Min(needed, Mathf.FloorToInt(CarryCapacity), candidate.Amount(type));
+                if (amount <= 0) return false;
+                bin = candidate; return true;
+            }
+            if (!(site is BuildingConstructionSite)) return false;
+            foreach (var candidate in ConstructionFloorMaterials.Available(type).OrderBy(n => (n.transform.position - Position).sqrMagnitude))
+            {
+                if (!candidate.CanGatherWith(this) || !TryWorkApproach(candidate.transform.position, out approach)) continue;
+                amount = Mathf.Min(needed, Mathf.FloorToInt(CarryCapacity), Mathf.FloorToInt(candidate.AmountRemaining));
                 if (amount <= 0) continue;
-                CommandStop();
-                if (!site.BeginPickup(this, type, amount)) return false;
-                // targetNode는 기존 WorkerOrderDto.node로 저장·복원한다. fetchBin이 없는 배송만 바닥에서 집는다.
-                deliverySite = site; targetNode = node; fetchBin = null; fetchType = type; fetchAmount = amount;
-                SetMoveDestination(approach); state = State.FetchingMaterial; return true;
+                node = candidate; return true;
             }
             return false;
         }

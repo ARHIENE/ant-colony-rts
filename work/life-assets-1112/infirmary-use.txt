@@ -1,0 +1,1 @@
+Meshy Infirmary: actual admission and automatic real-frame nursing passed; doctor motion=Treat; patient motion=IdleVariant2; bed alignment is a separate visual check

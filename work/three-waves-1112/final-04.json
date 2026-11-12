@@ -1,0 +1,28 @@
+{
+  "success": true,
+  "command": "command",
+  "data": {
+    "command": "run_script",
+    "parameters": {
+      "file": "AgentScripts/ThreeWaves1112Probe.cs",
+      "entry": "ThreeWaves1112Probe.Step",
+      "timeout_ms": "180000"
+    },
+    "result": {
+      "diagnostics": [],
+      "compileMs": 285,
+      "executeMs": 341,
+      "assemblyName": "PipelineRunScript_ThreeWaves1112Probe_ce7e6f76c27c49808750b301a4403fd2",
+      "success": false,
+      "error": "Runtime Error",
+      "errorDetails": "InvalidOperationException: Collection was modified; enumeration operation may not execute.\n  at System.Collections.Generic.List`1+Enumerator[T].MoveNextRare () [0x00013] in <816f70bc2a9c4332b0bd119906a8d40e>:0 \r\n  at System.Collections.Generic.List`1+Enumerator[T].MoveNext () [0x0004a] in <816f70bc2a9c4332b0bd119906a8d40e>:0 \r\n  at System.Linq.Enumerable+WhereListIterator`1[TSource].MoveNext () [0x0004e] in <fe644d7ad1cf499ebe4e7ad937bc03bf>:0 \r\n  at ThreeWaves1112Probe.Step () [0x00310] in F:\\UnityProjects\\ant-colony-rts\\AgentScripts\\ThreeWaves1112Probe.cs:154 \r\n  at ThreeWaves1112Probe.Step () [0x011a5] in F:\\UnityProjects\\ant-colony-rts\\AgentScripts\\ThreeWaves1112Probe.cs:229 \r\n  at Unity.Pipeline.Editor.Commands.Scripts.RunScriptCommand.RunEphemeral (System.String file, System.String entry, Newtonsoft.Json.Linq.JArray args, System.String[] references, System.String[] defines, System.Boolean pdb, System.Boolean dryRun, System.Int32 timeoutMs, System.Diagnostics.Stopwatch total) [0x00492] in .\\Library\\PackageCache\\com.unity.pipeline@ab05e9cd7f74\\Editor\\Commands\\Scripts\\RunScriptCommand.cs:252 "
+    },
+    "target": {
+      "host": "127.0.0.1",
+      "port": 7801,
+      "projectPath": "F:\\UnityProjects\\ant-colony-rts"
+    }
+  },
+  "errors": [],
+  "warnings": []
+}

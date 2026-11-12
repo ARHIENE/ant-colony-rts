@@ -1,0 +1,27 @@
+{
+  "success": true,
+  "command": "command",
+  "data": {
+    "command": "run_script",
+    "parameters": {
+      "file": "AgentScripts/ThreeWaves1112Probe.cs",
+      "entry": "ThreeWaves1112Probe.ReviewHealth",
+      "timeout_ms": "180000"
+    },
+    "result": {
+      "diagnostics": [],
+      "compileMs": 336,
+      "executeMs": 2540,
+      "assemblyName": "PipelineRunScript_ThreeWaves1112Probe_5e15cfff3039492899229be82370a2b7",
+      "success": true,
+      "result": "생존자 2 HP=28.66746 / 체력 회복 중 · 하루 20 · 수면/휴식·치료로 촉진 / text fits"
+    },
+    "target": {
+      "host": "127.0.0.1",
+      "port": 7801,
+      "projectPath": "F:\\UnityProjects\\ant-colony-rts"
+    }
+  },
+  "errors": [],
+  "warnings": []
+}

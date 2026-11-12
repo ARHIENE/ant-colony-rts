@@ -1,0 +1,27 @@
+{
+  "success": true,
+  "command": "command",
+  "data": {
+    "command": "run_script",
+    "parameters": {
+      "file": "AgentScripts/ThreeWaves1112MigrationDisplay.cs",
+      "entry": "ThreeWaves1112MigrationDisplay.Run",
+      "timeout_ms": "180000"
+    },
+    "result": {
+      "diagnostics": [],
+      "compileMs": 96,
+      "executeMs": 1434,
+      "assemblyName": "PipelineRunScript_ThreeWaves1112MigrationDisplay_463ddb54b7db4ffdb28eac9eaed78a29",
+      "success": true,
+      "result": "PASS live offer, accept tooltip and event history say one commander; normal accept recruits exactly one. Disposable event fixture, not natural run."
+    },
+    "target": {
+      "host": "127.0.0.1",
+      "port": 7801,
+      "projectPath": "F:\\UnityProjects\\ant-colony-rts"
+    }
+  },
+  "errors": [],
+  "warnings": []
+}

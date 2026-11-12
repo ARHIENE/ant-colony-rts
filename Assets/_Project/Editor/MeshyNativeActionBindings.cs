@@ -10,6 +10,8 @@ namespace AntColony.EditorTools
             var map=new Dictionary<string,string>(MeshyMotionImport.Actions);
             foreach(var p in new[]{
                 ("Tool_Dig","Heavy_Hammer_Swing"),("Tool_Till","Heavy_Hammer_Swing"),("Attack_Unarmed","Counterstrike"),
+                ("WalkLimp","Limping_Walk_1"),("WalkLimpSevere","Limping_Walk_3"),("LeisureWalk","Casual_Walk"),
+                ("IdleTalk","Talk_Passionately"),("IdleRest","Sit_Cross_Legged_on_Floor"),("IdleLook","Short_Breathe_and_Look_Around"),
                 ("Drink","Stand_and_Drink"),("WakeUp","Arise"),
                 ("WalkTipsy","Stumble_Walk"),("Stagger","Stumble_Walk"),
                 ("PassOut","falling_down"),("CollapseDropWeapon","falling_down"),

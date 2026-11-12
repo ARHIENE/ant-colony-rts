@@ -1,0 +1,1 @@
+Idle choices=IdleLook,IdleRest,IdleTalk; 40 choices created no unrequested work; attack-move/deployment blocked; three native actions played on actual commander

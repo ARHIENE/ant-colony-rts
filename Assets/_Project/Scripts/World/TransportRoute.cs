@@ -93,7 +93,7 @@ namespace AntColony.World
             var found = false;
             foreach (var c in ship.Crew)
             {
-                if (c == null || !c.isActiveAndEnabled || c.Transport != ship || !c.HasTroops && !ship.HasBoardedTroopsFor(c)) return false;
+                if (c == null || !c.isActiveAndEnabled || c.Transport != ship || !c.CanFight && !ship.HasBoardedTroopsFor(c)) return false;
                 if (c.Data.gatherRate > 0 && c.Data.carryCapacity > 0) found = true;
             }
             return found;

@@ -7,8 +7,8 @@ namespace AntColony.Units
     public partial class CommanderAnt
     {
         public bool DeploymentEating => IsDeployed && WorkState.deploymentMealSeconds > 0;
-        public int DeploymentPortion => RationPortion * (troopCount + 1);
-        public string DeploymentFoodStatus => $"부대 식량 {WorkState.rations?.Total ?? 0}/{DeploymentPortion} · 포만 {Satiety:0}%"
+        public int DeploymentPortion => RationPortion;
+        public string DeploymentFoodStatus => $"소집 식량 {WorkState.rations?.Total ?? 0}/{DeploymentPortion} · 포만 {Satiety:0}%"
             + (Satiety <= 30 ? " · 허기 경고" : "");
         private void AllocateDeploymentFood()
         {

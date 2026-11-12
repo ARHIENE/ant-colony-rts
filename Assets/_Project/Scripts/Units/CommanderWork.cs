@@ -93,7 +93,7 @@ namespace AntColony.Units
                 : ServiceJob == CommanderJobs.Crafting ? SupplyCraftNeedsWork(manual) : ServiceJob == CommanderJobs.Hauling && ManualWellNeedsWork(manual))) { CommandStop(); return false; }
             if (ServiceTarget is SupplyFacility && !CanReach(ServiceTarget.Position)) { CommandStop(); return false; }
             if ((Position - ServiceTarget.Position).sqrMagnitude > (firefighting ? 20.25f : 49)
-                || (ServiceTarget is SupplyFacility || ServiceTarget is Processor chemical && chemical.Chemical) && !HasReachedDestination())
+                || (ServiceTarget is SupplyFacility || ServiceTarget is Processor || ServiceTarget is Kitchen) && !HasReachedDestination())
             {
                 if (!TryWorkApproach(ServiceTarget.Position, out var approach)) { CommandStop(); return false; }
                 if (IsFlying || Agent != null && !Agent.pathPending && !Agent.hasPath) SetMoveDestination(approach);

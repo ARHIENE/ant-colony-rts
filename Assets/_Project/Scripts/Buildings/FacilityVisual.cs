@@ -57,6 +57,12 @@ namespace AntColony.Buildings
         public static string ModelFor(BuildingKind kind) => Models.TryGetValue(kind, out var id) ? id : null;
         private static GameObject LoadModel(BuildingKind kind, ResourceType material = ResourceType.Soil)
         {
+            var life = kind switch { BuildingKind.MedicineBench => "MedicineBench", BuildingKind.Infirmary => "Infirmary", _ => null };
+            if (life != null && material == ResourceType.Soil)
+            {
+                var ready = Resources.Load<GameObject>($"Life1112/Models/{life}/{life}");
+                if (ready != null) return ready;
+            }
             var release = kind switch {
                 BuildingKind.Campfire => "Campfire", BuildingKind.Carpentry => "Carpentry",
                 BuildingKind.Kitchen => "Kitchen", BuildingKind.ScienceLab => "ResearchDesk",
@@ -134,9 +140,39 @@ namespace AntColony.Buildings
             foreach (var r in renderers)
                 if (r.name == "Thatch roof") { var block = new MaterialPropertyBlock(); r.GetPropertyBlock(block); block.SetColor("_BaseColor", new Color(.58f, .45f, .25f)); r.SetPropertyBlock(block); }
             box.forceRenderingOff = true;
+            // The imported tower already has a reservoir. Hide the old unlit prototype cylinder, not its attack spray.
+            if (KindOf(building) == BuildingKind.AcidTower && transform.Find("AcidReservoir") is Transform reservoir
+                && reservoir.TryGetComponent<Renderer>(out var prototype)) prototype.forceRenderingOff = true;
             Model = model;
+            if (KindOf(building) == BuildingKind.Infirmary && prefab.name == "Infirmary")
+                Model = ArrangeTreatmentBeds(model, center, bottom, size);
             loadedPrefab = prefab;
             RefreshMainMaterial();
+        }
+
+        private Transform ArrangeTreatmentBeds(Transform source, Vector3 center, float bottom, Vector3 size)
+        {
+            // The generated model is one bed; the existing infirmary admits two patients.
+            // Fit two instances inside the unchanged 3 x 3 construction footprint.
+            var root = new GameObject("Infirmary beds").transform;
+            root.SetPositionAndRotation(new Vector3(center.x, bottom, center.z), transform.rotation);
+            root.SetParent(transform, true);
+            var localOffset = Quaternion.Inverse(transform.rotation) * (source.position - root.position);
+            var beds = new[] { source, Instantiate(source, source.parent, true) };
+            const float fit = .82f;
+            for (int i = 0; i < beds.Length; i++)
+            {
+                float lane = (i == 0 ? -.25f : .25f) * size.z;
+                beds[i].localScale *= fit;
+                beds[i].position = root.position + root.rotation * (localOffset * fit + Vector3.forward * lane);
+                beds[i].SetParent(root, true);
+                var rest = new GameObject("Rest" + i).transform;
+                rest.SetParent(root, false);
+                // Measured mattress .967m / 3m bed length; blanket surface 1.03m.
+                rest.localPosition = new Vector3(-size.x * .07f, size.x * fit * .345f, lane);
+                rest.localRotation = Quaternion.LookRotation(Vector3.left, Vector3.up);
+            }
+            return root;
         }
     }
 }

@@ -1,0 +1,27 @@
+{
+  "success": true,
+  "command": "command",
+  "data": {
+    "command": "run_script",
+    "parameters": {
+      "file": "AgentScripts/ThreeWaves1112Probe.cs",
+      "entry": "ThreeWaves1112Probe.Preserve",
+      "timeout_ms": "30000"
+    },
+    "result": {
+      "diagnostics": [],
+      "compileMs": 421,
+      "executeMs": 280,
+      "assemblyName": "PipelineRunScript_ThreeWaves1112Probe_95dcd8d25fbe4311899fce6d72d7ac6b",
+      "success": true,
+      "result": "Captured unmodified snapshot (not a validated save) and expired corpses: {\"name\":\"Enemy Commander\",\"position\":{\"x\":188.74343872070313,\"y\":9.851234436035157,\"z\":210.26156616210938},\"kind\":2,\"count\":1,\"remaining\":0.0,\"food\":0.0,\"priority\":false,\"gatheringForbidden\":false,\"workforce\":0,\"workerId\":\"\",\"eating\":false,\"progress\":0.0,\"carcass\":\"\",\"commanderId\":\"f7cd460801ea4813a445d9ee30d7a5b4\"}\n{\"name\":\"Enemy Commander\",\"position\":{\"x\":200.25,\"y\":9.851234436035157,\"z\":207.7764129638672},\"kind\":2,\"count\":1,\"remaining\":0.0,\"food\":0.0,\"priority\":false,\"gatheringForbidden\":false,\"workforce\":0,\"workerId\":\"\",\"eating\":false,\"progress\":0.0,\"carcass\":\"\",\"commanderId\":\"b5e3c924e7c845d88dd52ad34c2818d3\"}"
+    },
+    "target": {
+      "host": "127.0.0.1",
+      "port": 7801,
+      "projectPath": "F:\\UnityProjects\\ant-colony-rts"
+    }
+  },
+  "errors": [],
+  "warnings": []
+}

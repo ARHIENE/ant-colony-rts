@@ -126,7 +126,13 @@ namespace AntColony.Map
                 default: fall.Set(0, Color.clear, .1f, 5); break;
             }
             RenderSettings.fog = k == WeatherKind.Fog || k == WeatherKind.Blizzard || k == WeatherKind.Sandstorm || k == WeatherKind.Storm;
-            RenderSettings.fogMode = FogMode.Exponential;
+            // Explicit depth range keeps the orthographic battle view readable.
+            // Exponential fog can flatten lit objects to the fog color in this pipeline.
+            RenderSettings.fogMode = FogMode.Linear;
+            RenderSettings.fogStartDistance = 15f;
+            // The current orthographic shader path spans the camera's 1000-unit
+            // clip range; short fog ranges erase model color even near the focus.
+            RenderSettings.fogEndDistance = k == WeatherKind.Fog ? 1800f : k == WeatherKind.Storm ? 3000f : 2200f;
             RenderSettings.fogColor = k == WeatherKind.Sandstorm ? new Color(.78f, .62f, .4f) : new Color(.72f, .75f, .8f);
             RenderSettings.fogDensity = k == WeatherKind.Fog ? .018f : k == WeatherKind.Storm ? .008f : .014f;
         }

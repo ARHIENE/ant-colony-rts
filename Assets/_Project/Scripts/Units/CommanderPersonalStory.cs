@@ -1,3 +1,4 @@
+using System.Linq;
 using AntColony.Core;
 using AntColony.UI;
 using UnityEngine;
@@ -7,6 +8,10 @@ namespace AntColony.Units
     public partial class CommanderAnt
     {
         private bool storyInjuryActive;
+        // 질병의 의료 우선순위와 실제 큰 부상/쓰러짐 목격은 구분한다.
+        private bool StoryInjuryNeedsHelp => Health.Downed || PersonalHealth <= 0
+            || Health.wounds.Any(w => (!w.Permanent || w.kind == WoundKind.Missing && w.age < MedicalRules.FreshMissingSeconds)
+                && w.damage >= MedicalRules.MaxHp(w.part) * .5f);
         private float storyScanAt;
         private float storySpeechAt = -100;
         private int storySpeechPriority;
@@ -22,7 +27,7 @@ namespace AntColony.Units
         {
             if (!CampaignHistory.Recording || !downed && Time.unscaledTime < storyScanAt) return;
             storyScanAt = Time.unscaledTime + .5f;
-            bool serious = downed || personalState.HasSeriousInjury || Health.Downed || PersonalHealth <= 0;
+            bool serious = downed || StoryInjuryNeedsHelp;
             if (!serious) { storyInjuryActive = false; return; }
             if (storyInjuryActive || !CampaignHistory.Recording || !IsColonyMember || IsCaptive) return;
             storyInjuryActive = true;

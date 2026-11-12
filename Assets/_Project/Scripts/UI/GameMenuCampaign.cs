@@ -14,11 +14,11 @@ namespace AntColony.UI
             if (research == null) return;
             MenuTheme.Text(content, "로켓 핵심물: " + (research.HasBlueprint ? "반입 완료" : "D 보스 보상 본거지 반입 필요"), 18, 55);
             BossProgressionSection(research);
-            MenuTheme.Button(content, "의무실 건설 (식량 40 / 재료 40 / 인력 4마리)", () => {
+            MenuTheme.Button(content, "의무실 건설 (식량 40 / 재료 40)", () => {
                 Resume(); AntColony.Core.SceneObjects.Any<BuildingPlacementController>()?.BeginInfirmaryPlacement();
             }, "중상 장수를 최대 2명 치료합니다. 장수 상세에서 근처 환자를 배정하세요.").interactable = Infirmary.Unlocked;
             ScienceBuildings();
-            MenuTheme.Button(content, "로켓 발사대 건설 (식량 100 / 재료 150 / 인력 10마리)", () => {
+            MenuTheme.Button(content, "로켓 발사대 건설 (식량 100 / 재료 150)", () => {
                 Resume(); AntColony.Core.SceneObjects.Any<BuildingPlacementController>()?.BeginAirshipYardPlacement();
             });
             foreach (var yard in AntColony.Core.SceneObjects.All<AirshipYard>())
@@ -38,21 +38,6 @@ namespace AntColony.UI
                         () => { if (!yard.TryBuild(part)) ToastManager.Show("관련 연구·자원과 작업 중이 아닌 발사대가 필요합니다."); ScienceFacilities(); }).interactable = !yard.ModificationsLocked;
                 RocketActivation(yard);
                 RocketReservations(yard);
-                var population = ColonyPopulation.Instance;
-                if (population != null)
-                {
-                    population.SyncCivilianLocations();
-                    foreach (var group in population.CivilianLocations.Where(g => g.count > 0 && g.arrived && !g.moving && Vector3.Distance(g.position, yard.Position) <= 8))
-                    {
-                        int groupId = group.id;
-                        MenuTheme.Button(content, $"도착 시민 #{groupId} 탑승 ({group.count}명)", () => {
-                            if (yard.TryBoard(groupId) == 0) ToastManager.Show("도착·거리·빈 좌석을 확인하세요.");
-                            ScienceFacilities();
-                        }).interactable = yard.Phase == RocketPhase.Boarding && yard.OccupiedSeats < yard.Capacity;
-                    }
-                }
-                MenuTheme.Text(content, $"일반 시민 승객: {yard.CivilianPassengers}명", 13, 30);
-                MenuTheme.Text(content, "시민1명도 좌석1개를 사용합니다. 시민 탈출·잔류는 엔딩에 남습니다. 장수 탑승 전 마지막1석은 장수를 위해 남깁니다. 탑승한 병력은 방어에 참여하지 않습니다.", 12, 65);
                 if (yard.Phase == RocketPhase.Boarding)
                     foreach (var c in SortedCommanders().Where(c => c.CanReceiveOrders && !c.IsAwayFromHome && !c.IsEmbarked && Vector3.Distance(c.Position, yard.Position) > 8))
                         MenuTheme.Button(content, "로켓으로 이동: " + c.CommanderName, () => { if (yard.Reserve(c) || yard.ReservedCommanders.Contains(c.PersonalState.id)) { c.CommandMove(yard.Position + Vector3.right * 3); Resume(); } else ToastManager.Show("다른 로켓 예약 또는 좌석 부족입니다."); }, "일반 이동 지시입니다. 도착 후 탑승을 직접 확정하세요. 이동 중에도 적에게 공격받습니다.");

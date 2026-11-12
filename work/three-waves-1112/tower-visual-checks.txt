@@ -1,0 +1,4 @@
+PASS 3 imported towers visible, prototype cylinders hidden, attack lines preserved
+(202.00, 10.85, 207.00) range=14 damage=18 interval=1.5 hp=250
+(198.00, 10.85, 207.00) range=14 damage=18 interval=1.5 hp=250
+(195.00, 10.90, 205.00) range=14 damage=18 interval=1.5 hp=250

@@ -99,7 +99,7 @@ namespace AntColony.World
             {
                 ColonyEvent.Wildfire => Farms().Length > 0 && !AntColony.Map.WeatherSystem.Wet, // 비가 오면 산불이 나지 않는다(2026-10-03 날씨).
                 ColonyEvent.Harvest => Farms().Length > 0,
-                ColonyEvent.Mold => HomeCommanders().Any(c => !c.HasMold),
+                ColonyEvent.Mold => HomeCommanders().Any(c => c.CanCatchMold),
                 ColonyEvent.Wasps => false, // Phase 4: 기생 말벌 이벤트 삭제(여왕방 삭제). 이전 저장의 말벌은 그대로 처리된다.
                 ColonyEvent.Wanderer => CommanderRoster.Instance != null && CommanderRoster.Instance.Count < ScoutPost.DefaultMaxCommanders,
                 ColonyEvent.Caravan => state.caravanSeason != GameCalendar.TotalSeasons,
@@ -118,7 +118,7 @@ namespace AntColony.World
                     var farms = Farms(); Burn(farms[Random.Range(0, farms.Length)]);
                     result = "밭에 산불 발생. 소화 작업으로 끄세요. 작은 불은 5초, 물·도구는 필요 없습니다."; break;
                 case ColonyEvent.Mold:
-                    var healthy = HomeCommanders().Where(c => !c.HasMold).ToArray();
+                    var healthy = HomeCommanders().Where(c => c.CanCatchMold).ToArray();
                     var patient = healthy[Random.Range(0, healthy.Length)]; Infect(patient); result = patient.CommanderName + " 곰팡이 감염. 의료 장수가 약품으로 투약해 악화를 늦추고 면역으로 회복합니다."; break;
                 case ColonyEvent.Wasps:
                     if (!TryEdge(out var waspPoint)) return false;
@@ -137,9 +137,9 @@ namespace AntColony.World
                 case ColonyEvent.Harvest:
                     foreach (var farm in Farms()) farm.GrantBountifulHarvest(); result = "각 밭의 다음 수확 1회 +50%"; break;
                 case ColonyEvent.Migration:
-                    // Phase 4: 합류 제안. 수락하면 장수 1명 + 일반개미 소수, 거절하거나 기한이 지나면 떠난다.
+                    // 합류 제안: 수락하면 장수 1명, 거절하거나 기한이 지나면 떠난다.
                     state.migrationOffer = EventRules.MigrationOfferSeconds; RefreshMigrationNotice();
-                    result = $"이주민 무리(장수 1 + 시민 {EventRules.Migrants})가 합류를 청합니다. {EventRules.MigrationOfferSeconds:0}초 안에 수락·거절하세요."; break;
+                    result = $"장수 1명이 합류를 청합니다. {EventRules.MigrationOfferSeconds:0}초 안에 수락·거절하세요."; break;
                 case ColonyEvent.Caravan:
                     DiplomacyManager.Instance.Data.caravanUntil = DiplomacyManager.Instance.Data.elapsed + DiplomacyRules.CaravanSeconds;
                     state.caravanSeason = GameCalendar.TotalSeasons;
@@ -181,7 +181,7 @@ namespace AntColony.World
             : CommanderRoster.Instance.Commanders.Where(c => c.isActiveAndEnabled && !c.IsDead && !c.IsAwayFromHome && !c.IsEmbarked);
         public static void Infect(CommanderAnt c)
         {
-            if (c == null || c.IsDead || c.HasMold) return;
+            if (c == null || !c.CanCatchMold) return;
             c.PersonalState.health.illnesses.Add(new Illness { kind = IllnessKind.Mold, part = BodyPart.Thorax });
         }
         private void CacheFloodNodes()
@@ -236,12 +236,11 @@ namespace AntColony.World
         {
             if (!MigrationPending) return false;
             state.migrationOffer = 0; RefreshMigrationNotice();
-            AntPool.Instance?.Breed(EventRules.Migrants);
             var arrival = ResourceManager.HomePosition;
             var migrant = CommanderRoster.Instance != null && CommanderRoster.Instance.Count < ScoutPost.DefaultMaxCommanders
                 ? CommanderRoster.Instance.Create(null, CommanderRank.Corporal, new[] { UnitRole.Worker }, UnitRole.Worker, CommanderTraits.Random(), arrival) : null;
             if (migrant != null) CampaignHistory.Record("합류", migrant.CommanderName, "이주민 무리");
-            var result = (migrant != null ? migrant.CommanderName + " + " : "") + $"시민 {EventRules.Migrants}명 합류";
+            var result = migrant != null ? migrant.CommanderName + " 합류" : "합류할 장수 없음";
             CampaignHistory.Record("이벤트 결과", "이주민 무리", "수락: " + result, true); AntColony.UI.ToastManager.Show("이주민 무리 수락: " + result);
             return true;
         }

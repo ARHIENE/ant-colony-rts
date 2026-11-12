@@ -46,7 +46,7 @@ namespace AntColony.Units
             var kind = rebellion ? "무장 반란" : "탈주";
             CampaignHistory.Record("떠난 장수", commanderName, kind, true);
             RefreshDepartureNotice();
-            if (!HasTroops) CaptureDeparting();
+            if (!CanFight) CaptureDeparting();
         }
         private bool TryFindEscape(out Vector3 point)
         {
@@ -69,7 +69,7 @@ namespace AntColony.Units
         public void TickDeparture(float seconds)
         {
             if (!IsHostile || IsDead || !(seconds > 0) || float.IsInfinity(seconds)) return;
-            if (!HasTroops) { CaptureDeparting(); return; }
+            if (!CanFight) { CaptureDeparting(); return; }
             Social.rootRemaining = Mathf.Max(0, Social.rootRemaining - seconds);
             if (Social.departure == DepartureState.Rebellion)
             {
@@ -90,7 +90,7 @@ namespace AntColony.Units
         }
         private void TickForcedAttack(IDamageable target, float seconds)
         {
-            if (target == null || !HasTroops || Data == null) { StopMoving(); return; }
+            if (target == null || !CanFight || Data == null) { StopMoving(); return; }
             if (GetDistanceTo(target.Position) > AttackRange)
             {
                 if (Social.rootRemaining > 0) { StopMoving(); return; }

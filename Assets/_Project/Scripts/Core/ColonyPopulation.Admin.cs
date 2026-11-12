@@ -38,9 +38,7 @@ namespace AntColony.Core
             return 1f - GameBalance.AdminTaxLoss + GameBalance.AdminTaxLoss * (start + end) * .5f * active / seconds;
         }
         public void AddAdministration(float work)
-        {
-            if (work > 0 && !float.IsInfinity(work)) S.adminWork = Mathf.Min(AdminDemandWork, S.adminWork + work);
-        }
+        {  }
         // 처리한 업무는 다음 하루 동안 선형 소모한다.
         private void TickAdministration(float seconds)
         {

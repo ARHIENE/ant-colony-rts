@@ -1,0 +1,5 @@
+Part_Body_Meadow_00 quality=Auto shadow=1
+Part_Hair_PONY_00 quality=Auto shadow=0
+Part_Outfit_CITIZEN_00 quality=Auto shadow=1
+Part_Ears_ANTENNA_00 quality=Auto shadow=0
+Part_Face_NEUTRAL_00 quality=Auto shadow=0

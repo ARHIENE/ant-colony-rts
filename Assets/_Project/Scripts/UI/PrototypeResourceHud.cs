@@ -10,7 +10,7 @@ namespace AntColony.UI
     // Presentation preferences only: inventory always comes from ResourceManager.
     public sealed class PrototypeResourceHud : MonoBehaviour
     {
-        public static readonly HashSet<ResourceType> Pinned = new HashSet<ResourceType>{ResourceType.Food,ResourceType.SimpleMeal,ResourceType.Wood,ResourceType.Stone};
+        public static readonly HashSet<ResourceType> Pinned = new HashSet<ResourceType>{ResourceType.Food,ResourceType.Soil,ResourceType.SimpleMeal,ResourceType.Wood,ResourceType.Stone};
         private const string PreferenceKey = "UI.PinnedResources.v1";
         private static bool preferencesLoaded;
         private void Awake()

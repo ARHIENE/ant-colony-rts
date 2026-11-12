@@ -1,0 +1,58 @@
+PASS original three-wave snapshot parses: 
+PASS original expired enemy remains validate: 
+PASS expired enemy without identity remains rejected
+PASS expired ordinary corpse remains rejected
+PASS negative decay time remains rejected
+PASS actual original snapshot load: 
+PASS old material key preserved mat:0
+PASS old material key preserved mat:1
+PASS old material key preserved mat:2
+PASS old material key preserved mat:3
+PASS old material key preserved mat:4
+PASS old material key preserved mat:5
+PASS old material key preserved mat:6
+PASS old material key preserved mat:7
+PASS old material key preserved mat:8
+PASS old material key preserved mat:9
+PASS old material key preserved mat:10
+PASS old material key preserved mat:11
+PASS old material key preserved mat:12
+PASS old material key preserved mat:13
+PASS old material key preserved mat:14
+PASS old material key preserved mat:15
+PASS old material key preserved mat:16
+PASS old material key preserved mat:17
+PASS old material key preserved mat:18
+PASS old material key preserved mat:19
+PASS old material key preserved mat:20
+PASS old material key preserved mat:21
+PASS old material key preserved mat:22
+PASS old material key preserved mat:23
+PASS old material key preserved mat:24
+PASS old material key preserved mat:25
+PASS old material key preserved mat:26
+PASS old material key preserved mat:27
+PASS old material key preserved mat:28
+PASS old material key preserved mat:29
+PASS old material key preserved mat:30
+PASS old material key preserved mat:31
+PASS old material key preserved mat:32
+PASS old material key preserved mat:33
+PASS old material key preserved mat:34
+PASS old material key preserved mat:35
+PASS old material key preserved mat:36
+PASS old material key preserved mat:37
+PASS old material key preserved mat:38
+PASS two naturally spawned regrowing herb nodes
+PASS herbs reachable from surviving colony
+PASS herbs use normal designated harvesting
+PASS actual expired enemy remains restored
+PASS actual post-combat save: 
+PASS actual saved slot load: 
+PASS completed third wave preserved
+PASS expired enemy remains survive roundtrip
+PASS new herb nodes survive roundtrip
+PASS different map created before loading
+PASS different map accepts original snapshot: 
+PASS different map loads saved map and wave
+TOTAL PASS 57

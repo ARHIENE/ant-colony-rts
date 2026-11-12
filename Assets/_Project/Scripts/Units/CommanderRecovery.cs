@@ -17,11 +17,25 @@ namespace AntColony.Units
             && Health.Consciousness > .3f && Health.Manipulation > .3f;
         public bool StableForRecovery => !Health.Bleeding && Health.illnesses.Count == 0 && Satiety > 0;
         public float RecoveryRemaining => PersonalHealth > 0 ? 0 : Mathf.Max(0, GameCalendar.SecondsPerDay - WorkState.unconsciousSeconds);
-        public string RecoveryStatus => PersonalHealth > 0 ? "의식 있음" : !StableForRecovery ? "회복 대기 · 출혈/질병/기아 해소 필요"
+        private bool CanRecoverPersonalHealth => !IsDead && !IsHostile && !IsCaptive && !IsEmbarked && !IsAwayFromHome && !IsDeployed
+            && StableForRecovery && !Health.NeedsTend && !Health.Serious && !IsInCombat && !HasCombatOrder
+            && !IsViolentBreak && PersonalState.rageRemaining <= 0
+            && AntColony.World.WaveDefense.Instance?.InWave != true && PersonalState.lastCombatSeconds >= GameBalance.AutoReturnSeconds;
+        private float PersonalRecoveryPerDay => GameBalance.CommanderHealthRecoveryPerDay * ScienceEffects.MinorHealRate
+            * (TreatmentFacility != null ? GameBalance.CommanderTreatmentRecoveryMultiplier : IsAsleep || WorkState.resting ? GameBalance.CommanderRestRecoveryMultiplier : 1);
+        public string RecoveryStatus => PersonalHealth > 0 ? PersonalHealth >= GameBalance.CommanderHealth ? "체력 회복 완료"
+            : CanRecoverPersonalHealth ? $"체력 회복 중 · 하루 {PersonalRecoveryPerDay:0.#} · 수면/휴식·치료로 촉진"
+            : "체력 회복 대기 · 전투 종료, 출혈·질병·기아 해소와 상처 처치 필요" : !StableForRecovery ? "회복 대기 · 출혈/질병/기아 해소 필요"
             : Health.Downed ? $"예상 의식 회복 {RecoveryRemaining:0}초 · 부위 회복 필요" : $"예상 의식 회복 {RecoveryRemaining:0}초";
         private bool TickRecovery(float seconds)
         {
-            if (PersonalHealth > 0 && !Health.Downed) { WorkState.unconsciousSeconds = 0; return false; }
+            if (PersonalHealth > 0 && !Health.Downed)
+            {
+                WorkState.unconsciousSeconds = 0;
+                if (CanRecoverPersonalHealth)
+                    WorkState.health = Mathf.Min(GameBalance.CommanderHealth, PersonalHealth + PersonalRecoveryPerDay / GameCalendar.SecondsPerDay * seconds);
+                return false;
+            }
             if (PersonalHealth > 0) { CommandStop(); DropCargo(); WorkState.health = 0; }
             MealState.satiety = Mathf.Max(0, Satiety - GameBalance.SatietyPerSecond * GameBalance.UnconsciousSatietyFactor * seconds);
             WorkState.unconsciousSeconds = Mathf.Min(GameCalendar.SecondsPerDay, WorkState.unconsciousSeconds + seconds);

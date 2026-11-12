@@ -37,7 +37,7 @@ namespace AntColony.Units
                 : slot == EquipmentSlot.Weapon ? CommanderAnt.WeaponDisplayName(weapon)
                 : EquipmentRecipes.Name((EquipmentRecipe)(slot == EquipmentSlot.Armor ? 4 + (int)armor : 6 + (int)effect)));
         public static EquipmentItem Random(int quality) => new EquipmentItem { slot = (EquipmentSlot)UnityEngine.Random.Range(0,3), quality = Mathf.Clamp(quality,0,3),
-            effect = (TrinketEffect)UnityEngine.Random.Range(0,4), weapon = (WeaponKind)UnityEngine.Random.Range(0,4), armor = (ArmorKind)UnityEngine.Random.Range(0,2) };
+            effect = (TrinketEffect)UnityEngine.Random.Range(0,3), weapon = (WeaponKind)UnityEngine.Random.Range(0,4), armor = (ArmorKind)UnityEngine.Random.Range(0,2) };
     }
     public class EquipmentInventory : MonoBehaviour
     {
@@ -98,7 +98,7 @@ namespace AntColony.Units
         public static string WeaponDisplayName(WeaponKind weapon) => weapon switch
         {
             WeaponKind.Mandible => "창", WeaponKind.AcidSprayer => "산 분사기", WeaponKind.Shield => "방패",
-            WeaponKind.Pheromone => "지휘 신호기", WeaponKind.WoodenSword => "나무칼", WeaponKind.ShortBow => "단궁",
+            WeaponKind.Pheromone => "지원 신호기", WeaponKind.WoodenSword => "나무칼", WeaponKind.ShortBow => "단궁",
             WeaponKind.Sword => "잎날검", WeaponKind.SingleRifle => "사냥 소총", WeaponKind.BurstCarbine => "연발 카빈",
             WeaponKind.Scattergun => "산탄총", WeaponKind.Katana => "월엽 카타나", WeaponKind.GrandBow => "숲의 대궁",
             WeaponKind.SniperRifle => "별지기 저격총", WeaponKind.QuakeMaul => "지진 망치", _ => weapon.ToString()
@@ -117,7 +117,7 @@ namespace AntColony.Units
                 case TrinketEffect.Move: return .05f * (item.quality + 1) * unique;
                 case TrinketEffect.Gather: return new[] { .08f, .15f, .22f, .30f }[item.quality] * unique;
                 case TrinketEffect.Mood: return new[] { 3f, 5f, 7f, 10f }[item.quality] * unique;
-                default: return new[] { 3f, 5f, 7f, 10f }[item.quality] * unique;
+                default: return 0; // Retired command insignia remains loadable.
             }
         }
         public bool CanReplaceEquipment(EquipmentItem old, EquipmentItem next)

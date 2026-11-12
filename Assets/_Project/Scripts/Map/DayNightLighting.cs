@@ -8,7 +8,7 @@ namespace AntColony.Map
     public sealed class DayNightLighting : MonoBehaviour
     {
         public const float Blend = 20f;
-        private static readonly Color NightTint = new Color(.35f, .45f, .8f);
+        private static readonly Color NightTint = new Color(.65f, .72f, .95f);
         // 계절 햇빛 색과 날씨 밝기(2026-10-03, SeasonVisuals가 매 프레임 넣는다).
         public static Color SeasonTint = Color.white;
         public static float SeasonIntensity = 1;
@@ -41,8 +41,8 @@ namespace AntColony.Map
         private void LateUpdate()
         {
             var n = NightAmount;
-            if (sun != null) { var day = dayColor * SeasonTint; sun.color = Color.Lerp(day, day * NightTint, n); sun.intensity = Mathf.Lerp(dayIntensity, dayIntensity * .25f, n) * SeasonIntensity; }
-            RenderSettings.ambientIntensity = Mathf.Lerp(dayAmbient, dayAmbient * .4f, n) * Mathf.Lerp(1, SeasonIntensity, .5f);
+            if (sun != null) { var day = dayColor * SeasonTint; sun.color = Color.Lerp(day, day * NightTint, n); sun.intensity = Mathf.Lerp(dayIntensity, dayIntensity * .45f, n) * SeasonIntensity; }
+            RenderSettings.ambientIntensity = Mathf.Lerp(dayAmbient, dayAmbient * .65f, n) * Mathf.Lerp(1, SeasonIntensity, .5f);
         }
 
         private void OnDestroy()

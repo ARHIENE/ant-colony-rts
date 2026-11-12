@@ -1,0 +1,274 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using AntColony.Buildings;
+using AntColony.Core;
+using AntColony.Data;
+using AntColony.Map;
+using AntColony.Save;
+using AntColony.Units;
+using UnityEngine;
+using UnityEngine.AI;
+using Random = UnityEngine.Random;
+
+namespace AntColony.World
+{
+    public sealed partial class ColonyEvents : MonoBehaviour
+    {
+        [Serializable] public class State
+        {
+            public float checkRemaining = EventRules.CheckSeconds, sinceLast = EventRules.MinimumGap;
+            public float cold, flood, drought;
+            public float[] cooldowns = new float[11];
+            public int lastNight = -1; // 야행성 포식자가 나온 마지막 날
+            public int caravanSeason = -1; // 계절당 방문 보장. 옛 저장은 첫 틱부터 현재 계절 대상으로 계산.
+            public float caravanRemaining;
+            public float migrationOffer; // 이주 개미떼 합류 제안 남은 시간(0 = 없음). 수락·거절하거나 만료되면 0
+            public List<EventActor.State> actors = new List<EventActor.State>();
+        }
+        public static ColonyEvents Instance { get; private set; }
+        private State state = new State();
+        private readonly Dictionary<ResourceNode, bool> floodNodes = new Dictionary<ResourceNode, bool>();
+        public float ColdRemaining => state.cold;
+        public float FloodRemaining => state.flood;
+        public float DroughtRemaining => state.drought;
+        // 본거지 전원이 행동 불능이면 새 위기를 보류한다. 이미 발생한 피해·적·기후는 계속 진행한다.
+        public static bool RecoveryGrace
+        {
+            get
+            {
+                var home = HomeCommanders().Where(c => !c.IsCaptive && c.IsColonyMember).ToArray();
+                return EventRules.RecoveryNeeded(home.Length, home.Count(c => c.PersonalHealth <= 0 || c.Health.Downed));
+            }
+        }
+        public static bool ProductionBlocked => AntColony.Core.SceneObjects.All<EventActor>().Any(a => a.Kind == EventActorKind.Wasp && a.Alive);
+        public static float MoveMultiplier(CommanderAnt c) => Instance != null && Instance.state.cold > 0 && !c.IsAwayFromHome
+            ? 1 - EventRules.ColdMovePenalty * ScienceEffects.ColdEffectMultiplier : 1;
+        public static float GatherMultiplier(CommanderAnt c) => Instance != null && Instance.state.cold > 0 && !c.IsAwayFromHome
+            ? 1 - EventRules.ColdGatherPenalty * ScienceEffects.ColdEffectMultiplier : 1;
+        public static bool Flooded(ResourceNode node) => Instance != null && Instance.state.flood > 0 && !ScienceEffects.FloodImmune && Instance.NearWater(node);
+        public static float GrowthMultiplier(ResourceNode node)
+        {
+            if (Flooded(node)) return 0;
+            if (node.GetComponent<FarmPlot>()?.Blessed == true) return 1;
+            if (GameCalendar.CurrentSeason == Season.Winter && node.GetComponent<BuildingBase>() != null) return 0; // 겨울: 밭 성장 정지
+            if (Instance == null || Instance.state.drought <= 0 || !Home(node.transform.position) || node.GetComponent<BuildingBase>() == null) return 1;
+            return 1 - (node.GetComponent<FarmPlot>()?.DroughtPenalty ?? ScienceEffects.DroughtGrowthPenalty);
+        }
+        private void Awake() => Instance = this;
+        private void OnDestroy() { if (Instance == this) Instance = null; }
+        private void Update()
+        {
+            if (!GameSession.Exists || !GameSession.Instance.GameStarted || SaveSystem.Busy) return;
+            Tick(Time.deltaTime);
+        }
+        public void Tick(float seconds)
+        {
+            if (!(seconds > 0) || float.IsInfinity(seconds)) return;
+            // 일정한 작은 스텝으로 이벤트 간격과 만료를 보존한다(검사의 큰 시간 점프도 동일).
+            while (seconds > 0)
+            {
+                var dt = Mathf.Min(seconds, 1); seconds -= dt;
+                if (state.migrationOffer > 0) { if (state.migrationOffer <= dt) DeclineMigration("기한 만료"); else state.migrationOffer -= dt; }
+                state.cold = Mathf.Max(0, state.cold - dt); state.flood = Mathf.Max(0, state.flood - dt); state.drought = Mathf.Max(0, state.drought - dt);
+                state.caravanRemaining = Mathf.Max(0, state.caravanRemaining - dt);
+                state.sinceLast = Mathf.Min(EventRules.Cooldown, state.sinceLast + dt);
+                for (int i = 0; i < state.cooldowns.Length; i++) state.cooldowns[i] = Mathf.Max(0, state.cooldowns[i] - dt);
+                foreach (var actor in AntColony.Core.SceneObjects.All<EventActor>()) actor.Tick(dt);
+                if (GameCalendar.DayOfSeason == GameCalendar.DaysPerSeason) EnsureSeasonCaravan(GameCalendar.TotalSeasons);
+                // G08 하루 150초: 밤이 계절당 6번이라 첫날 밤에만 출현시켜 옛 빈도(계절당 1회)를 유지한다.
+                // 사건 감독 유예(2026-11-01): 게임 첫날 밤은 침대·식량이 없을 때라 포식자를 보내지 않는다(RimWorld 초반 유예).
+                if (GameCalendar.IsNight && GameCalendar.DayOfSeason == 1 && GameCalendar.Day >= Storyteller.GraceDays && state.lastNight != GameCalendar.Day) SpawnNightPredators();
+                state.checkRemaining -= dt;
+                if (state.checkRemaining > 0) continue;
+                state.checkRemaining += EventRules.CheckSeconds;
+                if (state.sinceLast < EventRules.MinimumGap || Random.value >= EventRules.Chance(DifficultyRuntime.Level)) continue;
+                var crisis = Random.value < Storyteller.CrisisChance(EventRules.CrisisChance(DifficultyRuntime.Level), Storyteller.Current);
+                if (crisis && (RocketCampaign.SuppressNewCrises || Storyteller.Resting)) continue;
+                var choices = Enum.GetValues(typeof(ColonyEvent)).Cast<ColonyEvent>().Where(e => ((int)e <= 5) == crisis && Eligible(e)).ToArray();
+                if (choices.Length > 0) TryTrigger(choices[Random.Range(0, choices.Length)]);
+            }
+        }
+        private static bool Home(Vector3 p) => HomeMapBuilder.CurrentWorldBounds.Contains(new Vector3(p.x, 0, p.z));
+        private static ResourceNode[] Farms() => AntColony.Core.SceneObjects.All<ResourceNode>()
+            .Where(n => n.RegrowSeconds > 0 && n.GetComponent<BuildingBase>() != null && Home(n.transform.position)).ToArray();
+        public bool Eligible(ColonyEvent e) => Enum.IsDefined(typeof(ColonyEvent), e) && state.cooldowns[(int)e] == 0
+            && ((int)e > (int)ColonyEvent.Wasps || !RecoveryGrace)
+            && !(RocketCampaign.SuppressNewCrises && (int)e <= (int)ColonyEvent.Wasps)
+            && EventRules.InSeason(e, GameCalendar.CurrentSeason) && (e switch
+            {
+                ColonyEvent.Wildfire => Farms().Length > 0 && !AntColony.Map.WeatherSystem.Wet, // 비가 오면 산불이 나지 않는다(2026-10-03 날씨).
+                ColonyEvent.Harvest => Farms().Length > 0,
+                ColonyEvent.Mold => HomeCommanders().Any(c => c.CanCatchMold),
+                ColonyEvent.Wasps => false, // Phase 4: 기생 말벌 이벤트 삭제(여왕방 삭제). 이전 저장의 말벌은 그대로 처리된다.
+                ColonyEvent.Wanderer => CommanderRoster.Instance != null && CommanderRoster.Instance.Count < ScoutPost.DefaultMaxCommanders,
+                ColonyEvent.Caravan => state.caravanSeason != GameCalendar.TotalSeasons,
+                _ => true
+            });
+        public bool TryTrigger(ColonyEvent e)
+        {
+            if (state.sinceLast < EventRules.MinimumGap || !Eligible(e)) return false;
+            string result;
+            switch (e)
+            {
+                case ColonyEvent.Cold: state.cold = EventRules.ColdSeconds; result = "90초간 이동 -25%·채집 -20% (보온 설비로 감소)"; break;
+                case ColonyEvent.Flood: state.flood = EventRules.FloodSeconds; CacheFloodNodes(); result = "물가 20m 내 자원·밭·낚시터 60초 중단 (치수 공사로 면제)"; break;
+                case ColonyEvent.Drought: state.drought = EventRules.DroughtSeconds; result = "120초간 밭 성장 감소 (감로·치수 공사는 -20%)"; break;
+                case ColonyEvent.Wildfire:
+                    var farms = Farms(); Burn(farms[Random.Range(0, farms.Length)]);
+                    result = "밭에 산불 발생. 소화 작업으로 끄세요. 작은 불은 5초, 물·도구는 필요 없습니다."; break;
+                case ColonyEvent.Mold:
+                    var healthy = HomeCommanders().Where(c => c.CanCatchMold).ToArray();
+                    var patient = healthy[Random.Range(0, healthy.Length)]; Infect(patient); result = patient.CommanderName + " 곰팡이 감염. 의료 장수가 약품으로 투약해 악화를 늦추고 면역으로 회복합니다."; break;
+                case ColonyEvent.Wasps:
+                    if (!TryEdge(out var waspPoint)) return false;
+                    for (int i = 0; i < EventRules.Wasps; i++) EventActor.Spawn(new EventActor.State { kind = EventActorKind.Wasp,
+                        position = new Vec3Dto(waspPoint + Vector3.up * 2 + Vector3.right * i), amount = EventRules.WaspHealth });
+                    result = "말벌 3마리 습격. 모두 처치할 때까지 시민 유입이 멈춥니다."; break;
+                case ColonyEvent.Wanderer:
+                    if (!TryEdge(out var wandererPoint)) return false;
+                    EventActor.Spawn(new EventActor.State { kind = EventActorKind.Wanderer, position = new Vec3Dto(wandererPoint), remaining = EventRules.WandererSeconds });
+                    result = $"맵 가장자리 ({wandererPoint.x:0}, {wandererPoint.z:0})에 후보 발견. 60초 안에 장수를 3m 이내로 보내세요."; break;
+                case ColonyEvent.Driftwood:
+                    if (!TryEdge(out var driftPoint)) return false;
+                    EventActor.Spawn(new EventActor.State { kind = EventActorKind.Food, position = new Vec3Dto(driftPoint), remaining = EventRules.DriftSeconds, amount = EventRules.DriftFood });
+                    EventActor.Spawn(new EventActor.State { kind = EventActorKind.Soil, position = new Vec3Dto(driftPoint + Vector3.right * 2), remaining = EventRules.DriftSeconds, amount = EventRules.DriftSoil });
+                    result = $"({driftPoint.x:0}, {driftPoint.z:0})에 식량 80·재료 40. 5분 안에 운반하세요."; break;
+                case ColonyEvent.Harvest:
+                    foreach (var farm in Farms()) farm.GrantBountifulHarvest(); result = "각 밭의 다음 수확 1회 +50%"; break;
+                case ColonyEvent.Migration:
+                    // Phase 4: 합류 제안. 수락하면 장수 1명 + 일반개미 소수, 거절하거나 기한이 지나면 떠난다.
+                    state.migrationOffer = EventRules.MigrationOfferSeconds; RefreshMigrationNotice();
+                    result = $"이주민 무리(장수 1 + 시민 {EventRules.Migrants})가 합류를 청합니다. {EventRules.MigrationOfferSeconds:0}초 안에 수락·거절하세요."; break;
+                case ColonyEvent.Caravan:
+                    DiplomacyManager.Instance.Data.caravanUntil = DiplomacyManager.Instance.Data.elapsed + DiplomacyRules.CaravanSeconds;
+                    state.caravanSeason = GameCalendar.TotalSeasons;
+                    state.caravanRemaining = DiplomacyRules.CaravanSeconds;
+                    result = "교역 캐러밴 도착 — J 외교에서 거래 (90초)"; break;
+                default: return false;
+            }
+            state.cooldowns[(int)e] = EventRules.Cooldown; state.sinceLast = 0;
+            if ((int)e <= (int)ColonyEvent.Wasps) Storyteller.MarkCrisis();
+            if (CampaignHistory.Recording) CampaignHistory.Instance.Data.events[(int)e]++;
+            CampaignHistory.Record("이벤트", EventRules.Names[(int)e], result, true);
+            return true;
+        }
+        // 밤마다 맵 가장자리에서 야행성 포식자가 나온다. 새벽이 되면 남은 개체는 물러간다(EventActor).
+        public bool EnsureSeasonCaravan(int season)
+        {
+            if (season < 0 || state.caravanSeason >= season || DiplomacyManager.Instance == null) return false;
+            var diplomacy = DiplomacyManager.Instance;
+            diplomacy.Data.caravanUntil = diplomacy.Data.elapsed + DiplomacyRules.CaravanSeconds;
+            state.caravanSeason = season;
+            state.caravanRemaining = DiplomacyRules.CaravanSeconds;
+            state.cooldowns[(int)ColonyEvent.Caravan] = EventRules.Cooldown;
+            if (CampaignHistory.Recording) CampaignHistory.Instance.Data.events[(int)ColonyEvent.Caravan]++;
+            CampaignHistory.Record("이벤트", "교역 캐러밴", "계절 방문 보장 — 교역 가능 시간 90초", true);
+            return true;
+        }
+
+        public bool SpawnNightPredators()
+        {
+            state.lastNight = GameCalendar.Day;
+            if (RocketCampaign.SuppressNewCrises || RecoveryGrace) return false;
+            if (!TryEdge(out var point)) return false;
+            for (int i = 0; i < EventRules.NightPredators; i++) EventActor.Spawn(new EventActor.State { kind = EventActorKind.NightPredator,
+                position = new Vec3Dto(point + Vector3.right * i * 1.5f), amount = EventRules.NightPredatorHealth });
+            CampaignHistory.Record("이벤트", "야행성 포식자", $"밤의 포식자 {EventRules.NightPredators}마리 출현 ({point.x:0}, {point.z:0})", true);
+            return true;
+        }
+        public static IEnumerable<CommanderAnt> HomeCommanders() => CommanderRoster.Instance == null ? Enumerable.Empty<CommanderAnt>()
+            : CommanderRoster.Instance.Commanders.Where(c => c.isActiveAndEnabled && !c.IsDead && !c.IsAwayFromHome && !c.IsEmbarked);
+        public static void Infect(CommanderAnt c)
+        {
+            if (c == null || !c.CanCatchMold) return;
+            c.PersonalState.health.illnesses.Add(new Illness { kind = IllnessKind.Mold, part = BodyPart.Thorax });
+        }
+        private void CacheFloodNodes()
+        {
+            floodNodes.Clear();
+        }
+        private bool NearWater(ResourceNode node)
+        {
+            if (node == null || !Home(node.transform.position)) return false;
+            if (floodNodes.TryGetValue(node, out var result)) return result;
+            var terrain = AntColony.Core.SceneObjects.Any<MapGenerator>();
+            result = node.RequiresFishing || AntColony.Core.SceneObjects.All<ResourceNode>().Any(f => f.RequiresFishing
+                && Vector2.Distance(new Vector2(f.transform.position.x, f.transform.position.z), new Vector2(node.transform.position.x, node.transform.position.z)) <= EventRules.WaterRadius)
+                || terrain != null && terrain.NearWater(node.transform.position, EventRules.WaterRadius);
+            floodNodes[node] = result; return result;
+        }
+        public static void Burn(ResourceNode source)
+        {
+            if (source != null && source.GetComponent<BuildingBase>() is BuildingBase farm) WallFire.Ignite(farm);
+        }
+        private static bool TryEdge(out Vector3 point)
+        {
+            var bounds = HomeMapBuilder.CurrentWorldBounds; var home = ResourceManager.HomePosition; point = bounds.center; // 불시착 시작엔 비축더미가 없다.
+            // 가장자리 후보만 사용한다. 본거지 근처로 순간 이동시키지 않는다.
+            for (int i = 0; i < 64; i++)
+            {
+                float t = Random.Range(-.9f, .9f); int side = i % 4;
+                var p = bounds.center + new Vector3(side < 2 ? (side == 0 ? -.9f : .9f) * bounds.extents.x : t * bounds.extents.x, home.y,
+                    side >= 2 ? (side == 2 ? -.9f : .9f) * bounds.extents.z : t * bounds.extents.z);
+                if (!NavMesh.SamplePosition(p, out var hit, 10, NavMesh.AllAreas)) continue;
+                if (!AntColony.Map.NavRoute.Reachable(hit.position, home)) continue; // 맵 끝→본거지 먼 길(2026-10-22)
+                point = hit.position; return true;
+            }
+            return false;
+        }
+        public State Capture()
+        {
+            var copy = JsonUtility.FromJson<State>(JsonUtility.ToJson(state));
+            copy.actors = AntColony.Core.SceneObjects.All<EventActor>().Where(a => a.Alive).Select(a => a.Capture()).ToList(); return copy;
+        }
+        public void Restore(State value)
+        {
+            foreach (var a in AntColony.Core.SceneObjects.All<EventActor>()) { a.gameObject.SetActive(false); Destroy(a.gameObject); }
+            state = JsonUtility.FromJson<State>(JsonUtility.ToJson(value));
+            foreach (var a in state.actors) EventActor.Spawn(a);
+            RefreshMigrationNotice();
+            if (state.flood > 0) CacheFloodNodes();
+        }
+        public bool MigrationPending => state.migrationOffer > 0;
+        public float MigrationOfferRemaining => state.migrationOffer;
+        public bool AcceptMigration()
+        {
+            if (!MigrationPending) return false;
+            state.migrationOffer = 0; RefreshMigrationNotice();
+            var arrival = ResourceManager.HomePosition;
+            var migrant = CommanderRoster.Instance != null && CommanderRoster.Instance.Count < ScoutPost.DefaultMaxCommanders
+                ? CommanderRoster.Instance.Create(null, CommanderRank.Corporal, new[] { UnitRole.Worker }, UnitRole.Worker, CommanderTraits.Random(), arrival) : null;
+            if (migrant != null) CampaignHistory.Record("합류", migrant.CommanderName, "이주민 무리");
+            var result = migrant != null ? migrant.CommanderName + " 합류" : "합류할 장수 없음";
+            CampaignHistory.Record("이벤트 결과", "이주민 무리", "수락: " + result, true); AntColony.UI.ToastManager.Show("이주민 무리 수락: " + result);
+            return true;
+        }
+        public bool DeclineMigration(string reason = "거절")
+        {
+            if (!MigrationPending) return false;
+            state.migrationOffer = 0; RefreshMigrationNotice();
+            CampaignHistory.Record("이벤트 결과", "이주민 무리", reason + ": 떠났습니다", true); AntColony.UI.ToastManager.Show("이주민 무리가 떠났습니다 (" + reason + ")");
+            return true;
+        }
+        private void RefreshMigrationNotice() => AntColony.UI.ToastManager.SetCrisis("migration", MigrationPending ? "이주민 무리 합류 제안 — 화면의 수락/거절" : null);
+
+        public static bool Validate(State s)
+        {
+            bool N(float v, float max) => !float.IsNaN(v) && !float.IsInfinity(v) && v >= 0 && v <= max;
+            return s != null && N(s.checkRemaining, EventRules.CheckSeconds) && s.checkRemaining > 0 && N(s.sinceLast, EventRules.Cooldown)
+                && N(s.cold, EventRules.ColdSeconds) && N(s.flood, EventRules.FloodSeconds) && N(s.drought, EventRules.DroughtSeconds)
+                && N(s.migrationOffer, EventRules.MigrationOfferSeconds) && N(s.caravanRemaining, DiplomacyRules.CaravanSeconds)
+                && s.cooldowns != null && s.cooldowns.Length == 11 && s.cooldowns.All(v => N(v, EventRules.Cooldown)) && s.lastNight >= -1 && s.caravanSeason >= -1
+                && s.actors != null && s.actors.Count <= 6 + EventRules.NightPredators && s.actors.All(a => a != null && Enum.IsDefined(typeof(EventActorKind), a.kind)
+                    && a.position != null && a.position.IsFinite() && Mathf.Abs(a.position.x) < 100000 && Mathf.Abs(a.position.y) < 100000 && Mathf.Abs(a.position.z) < 100000
+                    && N(a.attackCooldown, EventRules.WaspInterval) && N(a.remaining, a.kind == EventActorKind.Wanderer ? EventRules.WandererSeconds : EventRules.DriftSeconds)
+                    && N(a.amount, a.kind == EventActorKind.Wasp ? EventRules.WaspHealth : a.kind == EventActorKind.NightPredator ? EventRules.NightPredatorHealth
+                        : a.kind == EventActorKind.Food ? EventRules.DriftFood : EventRules.DriftSoil))
+                && s.actors.Count(a => a.kind == EventActorKind.Wasp) <= EventRules.Wasps
+                && s.actors.Count(a => a.kind == EventActorKind.NightPredator) <= EventRules.NightPredators
+                && s.actors.Where(a => a.kind != EventActorKind.Wasp && a.kind != EventActorKind.NightPredator).Select(a => a.kind).Distinct().Count()
+                    == s.actors.Count(a => a.kind != EventActorKind.Wasp && a.kind != EventActorKind.NightPredator);
+        }
+    }
+}

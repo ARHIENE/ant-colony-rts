@@ -33,6 +33,7 @@ namespace AntColony.Units
     public class CommanderTraits
     {
         [SerializeField] private CommanderPersonality personality;
+        public int ActiveTraitCount => values.Count - (values.Contains(CommanderTrait.Legion) ? 1 : 0);
         public const int MaxTraits = 4; // 등급 무관 합계 최대 4개.
         public List<CommanderTrait> values = new List<CommanderTrait>();
         public List<CommanderPassion> passions = new List<CommanderPassion>();
@@ -41,7 +42,7 @@ namespace AntColony.Units
         public CommanderPersonality Personality => Has(CommanderTrait.Brave) ? CommanderPersonality.Brave : Has(CommanderTrait.Cautious) ? CommanderPersonality.Cautious : Has(CommanderTrait.Loyal) ? CommanderPersonality.Devoted : CommanderPersonality.Balanced;
         // Phase 3(2026-10-01): 충성심 삭제. 기분이 이 값 이하로 한 달 이어지면 탈주·반란 판정. 충직은 더 버티고 교활은 쉽게 떠난다(잠정).
         public int DepartureMood => Has(CommanderTrait.Loyal) ? 10 : Has(CommanderTrait.Cunning) ? 30 : 20;
-        public bool Has(CommanderTrait trait) => values.Contains(trait) || (values.Count == 0 && ((trait == CommanderTrait.Brave && personality == CommanderPersonality.Brave) || (trait == CommanderTrait.Cautious && personality == CommanderPersonality.Cautious) || (trait == CommanderTrait.Loyal && personality == CommanderPersonality.Devoted)));
+        public bool Has(CommanderTrait trait) => trait != CommanderTrait.Legion && (values.Contains(trait) || (values.Count == 0 && ((trait == CommanderTrait.Brave && personality == CommanderPersonality.Brave) || (trait == CommanderTrait.Cautious && personality == CommanderPersonality.Cautious) || (trait == CommanderTrait.Loyal && personality == CommanderPersonality.Devoted))));
         public int AttackBonus => Has(CommanderTrait.Coward) ? -2 : Has(CommanderTrait.Cautious) ? -1 : Has(CommanderTrait.Brave) ? 2 : Has(CommanderTrait.Reckless) ? 3 : 0;
         public int ArmorBonus => Has(CommanderTrait.Coward) ? 1 : Has(CommanderTrait.Cautious) ? 2 : Has(CommanderTrait.Brave) ? -1 : Has(CommanderTrait.Reckless) ? -3 : 0;
         public float WorkMultiplier => Has(CommanderTrait.Lazy) ? .7f : Has(CommanderTrait.Relaxed) ? .85f : Has(CommanderTrait.Industrious) ? 1.15f : Has(CommanderTrait.Workaholic) ? 1.3f : 1f;
@@ -70,9 +71,9 @@ namespace AntColony.Units
             : (int)t < 20 ? (int)t / 4 : (int)t < 24 ? 5 + ((int)t - 20) / 2 : -1;
         public Core.TraitGrade Grade(CommanderTrait t) => Core.TraitRules.Grade(t);
         public float MetricBonus(CommanderActivity activity) => Core.TraitRules.Bonus(this, activity);
-        public bool TryAdd(CommanderTrait t)
+        public bool TryAdd(CommanderTrait t, bool legacySave = false)
         {
-            if (values.Count >= MaxTraits || values.Contains(t)) return false;
+            if (t == CommanderTrait.Legion && !legacySave || t != CommanderTrait.Legion && ActiveTraitCount >= MaxTraits || values.Contains(t)) return false;
             foreach (var existing in values)
                 if (Group(t) >= 0 && Group(t) == Group(existing) || Conflicts(t, existing)) return false;
             values.Add(t); return true;
@@ -109,13 +110,13 @@ namespace AntColony.Units
             int passionCount = UnityEngine.Random.Range(1,5), major = 0;
             if (first != null && second != null && UnityEngine.Random.value < .5f)
             {
-                var pool = new List<CommanderPassion>(first.passions); pool.AddRange(second.passions);
+                var pool = new List<CommanderPassion>(first.passions); pool.AddRange(second.passions); pool.RemoveAll(p => !CommanderTalents.IsActive(p.activity));
                 if (pool.Count > 0) { var p = pool[UnityEngine.Random.Range(0,pool.Count)]; if (p.flame > 1) result.passions.Add(new CommanderPassion { activity = p.activity, flame = p.flame - 1 }); }
             }
             while (result.passions.Count < passionCount)
             {
                 var activity = (CommanderActivity)UnityEngine.Random.Range(0,CommanderTalents.Count);
-                if (result.Flame(activity) > 0) continue;
+                if (!CommanderTalents.IsActive(activity) || result.Flame(activity) > 0) continue;
                 var flame = major < 2 && UnityEngine.Random.value < .35f ? 2 : 1;
                 if (flame == 2) major++;
                 result.passions.Add(new CommanderPassion { activity = activity, flame = flame });

@@ -1,0 +1,24 @@
+Unity Input System pointer replay at 1x; no direct combat/move method calls; visible CLI-driven input trial.
+click Left screen=(292.75, 325.56) t=179.344 hit=생존자 1 current=KitePointerTest ui=False
+PASS left click selects bow commander
+click Right screen=(607.25, 325.56) t=180.064 hit=TerrainGenerator current=KitePointerTest ui=False
+PASS cycle 1: right-click enemy causes damage
+click Right screen=(73.48, 309.45) t=180.672 hit=Material Wood 07 current=KitePointerTest ui=False
+PASS cycle 1: ground right click retreats 1.53m
+PASS cycle 1: move keeps priority over automatic attack
+cycle 1: hp=100.0 enemy=145.0 cooldown=1.48->0.51
+click Right screen=(506.72, 401.09) t=181.479 hit=TerrainGenerator current=KitePointerTest ui=False
+PASS cycle 2: right-click enemy causes damage
+click Right screen=(705.44, 489.78) t=186.427 hit=TerrainGenerator current=KitePointerTest ui=False
+PASS cycle 2: ground right click retreats 1.54m
+PASS cycle 2: move keeps priority over automatic attack
+cycle 2: hp=96.0 enemy=140.0 cooldown=1.60->0.71
+click Right screen=(487.52, 411.35) t=187.398 hit=TerrainGenerator current=KitePointerTest ui=False
+PASS cycle 3: right-click enemy causes damage
+click Right screen=(292.12, 339.34) t=190.481 hit=TerrainGenerator current=KitePointerTest ui=False
+PASS cycle 3: ground right click retreats 1.59m
+PASS cycle 3: move keeps priority over automatic attack
+cycle 3: hp=88.0 enemy=135.0 cooldown=1.60->0.66
+PASS at least two attack/retreat cycles through actual input controllers
+PASS unselected commander keeps fighting automatically
+PASS controlled commander survives 100.0->88.0

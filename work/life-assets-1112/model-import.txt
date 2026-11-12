@@ -1,0 +1,2 @@
+Infirmary: 9303 triangles, 5 textures, 1 materials
+MedicineBench: 9939 triangles, 5 textures, 1 materials

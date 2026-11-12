@@ -39,7 +39,7 @@ namespace AntColony.Buildings
                         && (boss.Position - Position).sqrMagnitude <= GameBalance.TrapTriggerRadius * GameBalance.TrapTriggerRadius)
                     { boss.Root(GameBalance.TrapBossRootSeconds); Spring(); return; }
                 foreach (var unit in AntUnitBase.Active)
-                    if (unit is CommanderAnt c && c.IsHostile && !c.IsFlying && c.HasTroops && (c.Position - Position).sqrMagnitude <= GameBalance.TrapTriggerRadius * GameBalance.TrapTriggerRadius)
+                    if (unit is CommanderAnt c && c.IsHostile && !c.IsFlying && c.CanFight && (c.Position - Position).sqrMagnitude <= GameBalance.TrapTriggerRadius * GameBalance.TrapTriggerRadius)
                     { c.Root(GameBalance.TrapRootSeconds); Spring(); return; }
                 return;
             }

@@ -1,0 +1,6 @@
+from pathlib import Path
+root=Path('Assets/_Project/Scripts');dest=Path('work/commander-only-1112/pending')
+p=root/'UI/SelectedUnitPanel.cs';s=p.read_text(encoding='utf-8-sig');s=s.replace('            float troops = 0f, troopMaximum = 0f;\n            bool deployed = false;\n','');s=s.replace('                        if (commander.IsDeployed) { deployed = true; troops += commander.TroopHealth; troopMaximum += commander.CommandLimit; }\n','');a=s.index('            troopFill.parent.gameObject.SetActive(deployed);');b=s.index('\n\n            var c =',a);s=s[:a]+'''            troopFill.parent.gameObject.SetActive(false);
+            healthText.text = $"체력 <b>{Mathf.CeilToInt(current)}</b> <color=#b1b3a7>/ {Mathf.CeilToInt(maximum)}</color>";'''+s[b:];(dest/'UI/SelectedUnitPanel.cs').write_text(s,encoding='utf-8')
+p=root/'UI/DetailTabs.cs';s=p.read_text(encoding='utf-8-sig').replace('(c.IsDeployed ? $"병력 {Mathf.CeilToInt(c.TroopHealth)}/{c.CommandLimit}" : "평시 병력 0 (출전 시 징집소에서 편성)")','(c.IsDeployed ? "소집 중 · 장수 개인 전투" : "평시 · 자동 작업")');(dest/'UI/DetailTabs.cs').write_text(s,encoding='utf-8')
+p=dest/'UI/GameMenuRoster.cs';s=p.read_text(encoding='utf-8').replace('c.PersonalHealth / GameBalance.CommanderHealth','c.PersonalHealth / AntColony.Core.GameBalance.CommanderHealth');p.write_text(s,encoding='utf-8')

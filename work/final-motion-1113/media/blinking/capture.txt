@@ -1,0 +1,1 @@
+90 actual Game frames, automatic blink, no Preview; sampled maxBlink=93.13583

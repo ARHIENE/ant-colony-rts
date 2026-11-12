@@ -99,6 +99,8 @@ namespace AntColony.World
             var corpse = root.AddComponent<Corpse>(); corpse.Data = JsonUtility.FromJson<State>(JsonUtility.ToJson(state));
             var collider = root.AddComponent<BoxCollider>(); collider.center = Vector3.up * .25f; collider.size = new Vector3(1.4f, .5f, 1.4f);
             bool freshDeath = body != null;
+            if (body == null && (state.kind == CorpseKind.ColonyCommander || state.kind == CorpseKind.EnemyCommander))
+                body = MeshyNativeCorpse.Restore(state.position);
             if (body == null)
             {
                 if (state.kind != CorpseKind.Wildlife && KemonoModel.Available)
@@ -123,6 +125,7 @@ namespace AntColony.World
             body.GetComponent<KemonoAppearance>()?.SetExpression("DEAD");
             var animator = RigAnimator.Find(body);
             if (animator != null) { animator.applyRootMotion = false; animator.Play("Base Layer.Death", 0, freshDeath ? 0 : 1); animator.Update(0); animator.speed = freshDeath ? 1 : 0; }
+            if (!freshDeath) root.GetComponent<CorpseProp>().ShowRestored();
             return corpse;
         }
     }

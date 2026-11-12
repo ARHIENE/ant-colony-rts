@@ -31,6 +31,7 @@ namespace AntColony.Units
         public List<Wound> wounds = new List<Wound>();
         public List<Illness> illnesses = new List<Illness>();
         public float bloodLoss;
+        public float moldImmunityRemaining; // 완치 뒤 일시적인 재감염 유예. 구 저장은 0.
         public MedicineLevel medicine = MedicineLevel.Normal;
         public bool selfTend = true;
         public int bedRest = 5; // 병상 휴식 우선순위 1~9(높을수록 일보다 휴식), 0 = 쉬지 않음
@@ -80,6 +81,7 @@ namespace AntColony.Units
         public const float PainScale = 40f, BleedScale = 900f, BloodRegen = .0015f, LifeThreatSeconds = 90f, FreshMissingSeconds = 60f;
         public const float HealTended = .02f, HealUntended = .005f, ScarChance = .25f, InfectionChance = .3f, InfectionAfter = 45f;
         public const float TendSeconds = 6f, IllnessTendInterval = 90f, SelfTendFactor = .7f;
+        public const float MoldImmunitySeconds = AntColony.Core.GameCalendar.SecondsPerDay;
         public static Func<float> Roll = () => UnityEngine.Random.value; // 검사에서 결과를 결정적으로 재현하려고 바꿀 수 있다
         public static float MaxHp(BodyPart p) => p switch
         {
@@ -131,6 +133,7 @@ namespace AntColony.Units
         // 시간 경과: 출혈·회복·흉터·감염·질병. dt 초. gentle = 관대 사망 모드(죽지 않게 상한).
         public static void Tick(HealthState h, float dt, bool resting, bool gentle)
         {
+            h.moldImmunityRemaining = Mathf.Max(0, h.moldImmunityRemaining - dt);
             h.bloodLoss = Mathf.Clamp01(h.bloodLoss + h.BleedRate * dt);
             if (!h.Bleeding) h.bloodLoss = Mathf.Max(0, h.bloodLoss - BloodRegen * dt * (resting ? 1.5f : 1f));
             foreach (var w in h.wounds.ToArray())
@@ -159,7 +162,11 @@ namespace AntColony.Units
                 i.severity = Mathf.Clamp01(i.severity + rate * (1 - (i.tendLeft > 0 ? i.quality * .8f : 0)) * dt - (i.immunity >= 1 ? .02f * dt : 0));
                 i.immunity = Mathf.Min(1, i.immunity + (i.kind == IllnessKind.Mold ? .0045f : .005f) * (resting ? 1.3f : 1f) * dt);
                 i.tendLeft = Mathf.Max(0, i.tendLeft - dt);
-                if (i.immunity >= 1 && i.severity <= 0) h.illnesses.Remove(i);
+                if (i.immunity >= 1 && i.severity <= 0)
+                {
+                    h.illnesses.Remove(i);
+                    if (i.kind == IllnessKind.Mold) h.moldImmunityRemaining = MoldImmunitySeconds;
+                }
             }
             if (gentle)
             {

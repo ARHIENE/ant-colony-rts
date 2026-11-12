@@ -32,7 +32,8 @@ namespace AntColony.Units
             j.joy = Mathf.Max(0, j.joy - GameBalance.JoyPerSecond * seconds);
             for (var i = 0; i < j.boredom.Length; i++) j.boredom[i] = Mathf.Max(0, j.boredom[i] - GameBalance.BoredomRecoverPerSecond * seconds);
             RefreshJoyMood();
-            if (IsDeployed || IsAwayFromHome || IsEmbarked || IsCaptive || WorkPriorities.Red) { LeavePlay(); return false; }
+            if (IsDeployed || IsAwayFromHome || IsEmbarked || IsCaptive || WorkPriorities.Red || IsInCombat || HasCombatOrder
+                || AntColony.World.WaveDefense.Instance?.InWave == true) { LeavePlay(); return false; }
             if (j.playSeconds > 0)
             {
                 if (!j.freeWalk && PlaySpot == null)
@@ -111,7 +112,6 @@ namespace AntColony.Units
             j.boredom[j.kind] = Mathf.Min(1, j.boredom[j.kind] + GameBalance.BoredomPerPlay);
             if (j.kind == 2) GainExperience(CommanderActivity.Research, GameBalance.BookshelfResearchXp); // 책장: 연구 경험치 조금
             if (j.kind == 3) PersonalState.hygiene.hygiene = Mathf.Min(100, PersonalState.hygiene.hygiene + GameBalance.BathtubHygiene); // 목욕통: 위생
-            if (j.kind == 5 || j.kind == 6) GainExperience(CommanderActivity.Command, GameBalance.PlayXp); // 장기판·바둑판
             if (j.kind == 7 || j.kind == 9) GainExperience(CommanderActivity.Strength, GameBalance.PlayXp); // 씨름판·운동기구
             if (j.kind == 8) GainExperience(CommanderActivity.Ranged, GameBalance.PlayXp); // 가시 다트
             if (j.kind == 12) AddFatigue(-GameBalance.HotSpringFatigue); // 온천: 피로 빠른 회복

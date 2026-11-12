@@ -1,0 +1,6 @@
+Assets/Resources/MeshyNative/SourceParts/Rig0/Hair.mat keeps Lit lighting and shadow casting; disables head self-shadow reception
+Assets/Resources/MeshyNative/SourceParts/Rig0/Face.mat keeps Lit lighting and shadow casting; disables head self-shadow reception
+Assets/Resources/MeshyNative/SourceParts/Rig0/Ears.mat keeps Lit lighting and shadow casting; disables head self-shadow reception
+Assets/Resources/MeshyNative/SourceParts/Rig1/Hair.mat keeps Lit lighting and shadow casting; disables head self-shadow reception
+Assets/Resources/MeshyNative/SourceParts/Rig1/Face.mat keeps Lit lighting and shadow casting; disables head self-shadow reception
+Assets/Resources/MeshyNative/SourceParts/Rig1/Ears.mat keeps Lit lighting and shadow casting; disables head self-shadow reception

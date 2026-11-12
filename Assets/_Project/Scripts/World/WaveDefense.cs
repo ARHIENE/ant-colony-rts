@@ -7,7 +7,7 @@ namespace AntColony.World
 {
     // 웨이브 수성: 첫 평화 6일 → 웨이브(전멸 또는 대규모 잔당 퇴각) → 평화 4일 반복.
     // 평화가 끝나면 자동 시작, 플레이어가 '지금 시작'으로 앞당길 수 있다. 기존 침입자 생성(LocalIncursions)을 재사용한다.
-    // 본거지 장수 0명(G21)·로켓 가동 중에는 웨이브를 시작하지 않는다(원정 중 웨이브·최종 방어 연결은 미정).
+    // 본거지 장수 수와 무관하게 웨이브를 진행한다. 기존 로켓 공세 억제는 별도 설계 결정까지 유지한다.
     public sealed class WaveDefense : MonoBehaviour
     {
         public const float FirstPeace = 6 * GameCalendar.SecondsPerDay, Peace = 4 * GameCalendar.SecondsPerDay;
@@ -34,7 +34,7 @@ namespace AntColony.World
         public float PeaceLeft => s.peaceLeft;
         // 이동 중인 문명·반란 공격대는 평화 중 도착해도 다음 웨이브 시작까지 대기한다.
         public static bool AcceptsArrivals => Instance == null || Instance.s.inWave;
-        public static bool CanStart => !RocketCampaign.SuppressNewCrises && ExpeditionRules.HomeCommanders > 0;
+        public static bool CanStart => !RocketCampaign.SuppressNewCrises;
 
         // 2026-11-03 '웨이브 준비 기대치'(사용자 확정, GAME_DIRECTION 6.1)로 맞춘 잠정값. 장수 3·병력 0 실측(WaveBalance1103Checks):
         // 1웨이브 15=장수만으로 막음(체력 19%↓) / 3웨이브 120=방어 없으면 붕괴·탑 2개면 막음 / 5·8웨이브=탑만이면 큰 피해·벽+탑이면 경미.
@@ -44,6 +44,15 @@ namespace AntColony.World
             : EarlyCounts[2] * Mathf.Pow(1.15f, Mathf.Min(wave, 60) - 3))))));
         // 위 실측은 장수 3명 기준. 장수 1명 시작은 1웨이브 15마리에 체력 100→7로 겨우 버텼다(2026-11-03) → 초반은 시작 인원 비례, 6웨이브부터 같은 규모.
         static float StartFactor(int wave) => Mathf.Lerp(Mathf.Clamp(GameSession.Exists ? GameSession.Instance.Options.startingCount : 3, 1, 3) / 3f, 1f, Mathf.Clamp01((wave - 1) / 5f));
+
+        // 목표 우선순위 유형 배분(2026-11-12, 잠정): 무리 10개 중 벽 파괴 1(3웨이브~)·건물 공격 1(4웨이브~)·방어시설 파괴 1(5웨이브~), 나머지는 일반 공격형.
+        // 앞의 개별 유닛과 장수는 일반 공격형이다. 초반 방어선을 무의미하게 만들지 않도록 낮게 잡았고 난수를 쓰지 않아 저장·재현에 영향이 없다.
+        public static EnemyAim HordeAim(int wave, int hordeIndex)
+        {
+            var slot = hordeIndex % 10;
+            return slot == 2 && wave >= 3 ? EnemyAim.Wall : slot == 5 && wave >= 4 ? EnemyAim.Building
+                : slot == 8 && wave >= 5 ? EnemyAim.Defense : EnemyAim.General;
+        }
 
         public int AliveEnemies
         {
@@ -117,7 +126,8 @@ namespace AntColony.World
             var spawned = s.total - s.pending;
             var individuals = Mathf.Min(s.total, IndividualCap) - spawned;
             var count = individuals > 0 ? Mathf.Min(GroupSize, individuals) : Mathf.Min(HordeSize, s.pending);
-            var ok = local != null && (individuals > 0 ? local.TrySpawnWaveGroup(count, spawned == 0) : local.TrySpawnHorde(count));
+            var ok = local != null && (individuals > 0 ? local.TrySpawnWaveGroup(count, spawned == 0)
+                : local.TrySpawnHorde(count, HordeAim(s.wave, (spawned - Mathf.Min(s.total, IndividualCap)) / HordeSize)));
             if (ok) { s.pending -= count; s.failures = 0; return; }
             // 생성 실패는 처치가 아니다. 남은 병력을 보존하고 느리게 재시도한다.
             // 성공 시 failures를 초기화하므로 경로가 복구되면 기존 묶음 생성으로 돌아간다.

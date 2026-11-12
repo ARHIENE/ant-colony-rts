@@ -345,7 +345,7 @@ namespace AntColony.UI
             if (!open) return text;
             text += "\n" + ship.FoodComparison + "\n" + ship.CargoSummary;
             foreach (var c in crew)
-                text += $"\n  {c.CommanderName}  병력 {c.TroopCount}/{c.CommandLimit} · 체력 {c.PersonalHealth:0} · 기분 {c.Mood:0}"
+                text += $"\n  {c.CommanderName}  장수 · 체력 {c.PersonalHealth:0} · 기분 {c.Mood:0}"
                     + (c.Health.Injured ? $" · {c.Health.Summary}" : "");
             return text;
         }

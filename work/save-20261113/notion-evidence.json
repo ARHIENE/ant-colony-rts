@@ -1,0 +1,111 @@
+{
+  "journal": "https://app.notion.com/p/416c4a0ecd3181109c7ec641cd92eda2",
+  "troubleshooting": "https://app.notion.com/p/416c4a0ecd318187b96ad2b950493aa5",
+  "gif": 5,
+  "photos": 6,
+  "stable_references": 11,
+  "icon": "😅",
+  "title": "2026-11-13",
+  "shutdown": "User explicitly cancelled shutdown",
+  "uploads": [
+    {
+      "file_upload_id": "416c4a0e-cd31-81c9-96b3-00b2991dd4bd",
+      "filename": "blinking.gif",
+      "content_type": "image/gif",
+      "content_length": 4962180,
+      "status": "uploaded",
+      "markdown_source": "file-upload://416c4a0e-cd31-81c9-96b3-00b2991dd4bd",
+      "suggested_markdown": "<image source=\"file-upload://416c4a0e-cd31-81c9-96b3-00b2991dd4bd\" />"
+    },
+    {
+      "file_upload_id": "416c4a0e-cd31-81a3-9a50-00b257e38ced",
+      "filename": "chopping.gif",
+      "content_type": "image/gif",
+      "content_length": 1802389,
+      "status": "uploaded",
+      "markdown_source": "file-upload://416c4a0e-cd31-81a3-9a50-00b257e38ced",
+      "suggested_markdown": "<image source=\"file-upload://416c4a0e-cd31-81a3-9a50-00b257e38ced\" />"
+    },
+    {
+      "file_upload_id": "416c4a0e-cd31-8101-8ade-00b2c1fafa93",
+      "filename": "digging.gif",
+      "content_type": "image/gif",
+      "content_length": 1059953,
+      "status": "uploaded",
+      "markdown_source": "file-upload://416c4a0e-cd31-8101-8ade-00b2c1fafa93",
+      "suggested_markdown": "<image source=\"file-upload://416c4a0e-cd31-8101-8ade-00b2c1fafa93\" />"
+    },
+    {
+      "file_upload_id": "416c4a0e-cd31-81a1-9d3c-00b25371868d",
+      "filename": "mining.gif",
+      "content_type": "image/gif",
+      "content_length": 1079404,
+      "status": "uploaded",
+      "markdown_source": "file-upload://416c4a0e-cd31-81a1-9d3c-00b25371868d",
+      "suggested_markdown": "<image source=\"file-upload://416c4a0e-cd31-81a1-9d3c-00b25371868d\" />"
+    },
+    {
+      "file_upload_id": "416c4a0e-cd31-811c-ae9e-00b268dcd7b2",
+      "filename": "treatment-bed.gif",
+      "content_type": "image/gif",
+      "content_length": 440241,
+      "status": "uploaded",
+      "markdown_source": "file-upload://416c4a0e-cd31-811c-ae9e-00b268dcd7b2",
+      "suggested_markdown": "<image source=\"file-upload://416c4a0e-cd31-811c-ae9e-00b268dcd7b2\" />"
+    },
+    {
+      "file_upload_id": "416c4a0e-cd31-8155-b46d-00b24e40d1c7",
+      "filename": "bed-use.png",
+      "content_type": "image/png",
+      "content_length": 475738,
+      "status": "uploaded",
+      "markdown_source": "file-upload://416c4a0e-cd31-8155-b46d-00b24e40d1c7",
+      "suggested_markdown": "<image source=\"file-upload://416c4a0e-cd31-8155-b46d-00b24e40d1c7\" />"
+    },
+    {
+      "file_upload_id": "416c4a0e-cd31-811c-9f51-00b2fcb5ea71",
+      "filename": "Idle_3-expression-Sleep.png",
+      "content_type": "image/png",
+      "content_length": 407482,
+      "status": "uploaded",
+      "markdown_source": "file-upload://416c4a0e-cd31-811c-9f51-00b2fcb5ea71",
+      "suggested_markdown": "<image source=\"file-upload://416c4a0e-cd31-811c-9f51-00b2fcb5ea71\" />"
+    },
+    {
+      "file_upload_id": "416c4a0e-cd31-8156-add4-00b2621347de",
+      "filename": "contact-Stone.png",
+      "content_type": "image/png",
+      "content_length": 444182,
+      "status": "uploaded",
+      "markdown_source": "file-upload://416c4a0e-cd31-8156-add4-00b2621347de",
+      "suggested_markdown": "<image source=\"file-upload://416c4a0e-cd31-8156-add4-00b2621347de\" />"
+    },
+    {
+      "file_upload_id": "416c4a0e-cd31-8155-95fd-00b25f315afb",
+      "filename": "postfix-health.png",
+      "content_type": "image/png",
+      "content_length": 467586,
+      "status": "uploaded",
+      "markdown_source": "file-upload://416c4a0e-cd31-8155-95fd-00b25f315afb",
+      "suggested_markdown": "<image source=\"file-upload://416c4a0e-cd31-8155-95fd-00b25f315afb\" />"
+    },
+    {
+      "file_upload_id": "416c4a0e-cd31-8178-bf8c-00b2973bba0f",
+      "filename": "ui-AcidTower.png",
+      "content_type": "image/png",
+      "content_length": 247929,
+      "status": "uploaded",
+      "markdown_source": "file-upload://416c4a0e-cd31-8178-bf8c-00b2973bba0f",
+      "suggested_markdown": "<image source=\"file-upload://416c4a0e-cd31-8178-bf8c-00b2973bba0f\" />"
+    },
+    {
+      "file_upload_id": "416c4a0e-cd31-8144-adf7-00b28c5818a6",
+      "filename": "night-Storm-current.png",
+      "content_type": "image/png",
+      "content_length": 545306,
+      "status": "uploaded",
+      "markdown_source": "file-upload://416c4a0e-cd31-8144-adf7-00b28c5818a6",
+      "suggested_markdown": "<image source=\"file-upload://416c4a0e-cd31-8144-adf7-00b28c5818a6\" />"
+    }
+  ]
+}

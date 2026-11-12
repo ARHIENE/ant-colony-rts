@@ -9,11 +9,11 @@ namespace AntColony.Units
     public partial class CommanderAnt
     {
         private GameObject acidVisual;
-        public bool CanAcidRain => CanReceiveOrders && !LabUpgradeBusy && HasTroops && Role == UnitRole.Ranged
+        public bool CanAcidRain => CanReceiveOrders && !LabUpgradeBusy && Role == UnitRole.Ranged
             && talents.Level(CommanderActivity.Ranged) >= SocialRules.SkillLevel && Social.acidCooldown <= 0;
-        public bool CanRally => CanReceiveOrders && !LabUpgradeBusy && HasTroops && Role == UnitRole.Support
-            && talents.Level(CommanderActivity.Command) >= SocialRules.SkillLevel && Social.rallyCooldown <= 0;
-        public bool CanDive => CanReceiveOrders && !LabUpgradeBusy && HasTroops && IsFlying
+        public bool CanRally => CanReceiveOrders && !LabUpgradeBusy && Role == UnitRole.Support
+            && Social.rallyCooldown <= 0;
+        public bool CanDive => CanReceiveOrders && !LabUpgradeBusy && IsFlying
             && Mathf.Max(talents.Level(CommanderActivity.Melee), talents.Level(CommanderActivity.Ranged)) >= SocialRules.SkillLevel && Social.diveCooldown <= 0;
         private float SkillCooldownMultiplier => 1f + .5f * personalState.Severity(InjuryPart.Head);
         private static bool FinitePoint(Vector3 p) => !float.IsNaN(p.sqrMagnitude) && !float.IsInfinity(p.sqrMagnitude);

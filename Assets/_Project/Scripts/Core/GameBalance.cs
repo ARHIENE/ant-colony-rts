@@ -5,6 +5,8 @@ namespace AntColony.Core
     {
         // 새 기획의 미확정 수치는 잠정값.
         public const float CommanderHealth = 100, CommanderRecoverySeconds = 60;
+        // 잠정: 안정된 장수의 개인 체력은 하루 20, 수면/휴식 중 40, 병상 치료 중 60 회복한다.
+        public const float CommanderHealthRecoveryPerDay = 20, CommanderRestRecoveryMultiplier = 2, CommanderTreatmentRecoveryMultiplier = 3;
         public const float AutoReturnSeconds = 20, ReturnEnemyRadius = 12, WorkScanSeconds = 1;
         public const int ConscriptionFood = 30, ConscriptionSoil = 50, ConscriptionAnts = 4;
         public const float ConscriptionBuildSeconds = 8;

@@ -1,0 +1,25 @@
+PASS three fixture commanders available
+PASS serious illness keeps medical priority without false downed mood
+PASS actual major wound creates concern
+PASS same wound does not renew concern every tick
+PASS loaded major wound does not duplicate concern
+PASS new actual downing still creates concern
+PASS old permanent loss does not repeatedly create concern
+PASS fresh loss creates concern even while patient remains conscious
+PASS mold cure grants full one-day protection after tick
+PASS protection counts down with game time
+PASS old save missing field defaults to zero
+PASS wound infection recovery grants no mold protection
+PASS post-cure protection is not an active illness and permits recovery
+PASS direct event infection rejects protected patient
+PASS repeated nearby exposure does not bypass protection
+PASS all protected commanders suppress mold event without empty target
+PASS same event state becomes eligible when one protection expires
+PASS event selects the only susceptible commander
+PASS expired protection permits normal infection
+PASS personal state clone validates protected health
+PASS save validator rejects protection=-1
+PASS save validator rejects protection=NaN
+PASS save validator rejects protection=Infinity
+PASS save validator rejects protection=151
+FAIL normal save accepts protection: 저장 정보 오류: 카메라.

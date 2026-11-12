@@ -60,7 +60,7 @@ namespace AntColony.UI
             ToolbarButton(bar, "V6 Logistics", "물류·식품", () => Management("물류·식품"), "창고 · 식단 · 건설·작업 · 퇴비·비료");
             ToolbarButton(bar, "V6 Colony", "의료·관리", () => Management("의료·관리"), "의료 · 동물 위생 · 묘비·추모 · 포로 · 기록");
             ToolbarButton(bar, "V6 Production", "생산·자원", () => Management("생산·자원"), "자원 · 생산 · 장비·도구 · 수리 · 매장지·배관 · 음주");
-            ToolbarButton(bar, "V6 Roster", "인재·편성", () => Management("인재·편성"), "장수 · 평가 · 외부 조사 · 특성 · 진형");
+            ToolbarButton(bar, "V6 Roster", "인재·편성", () => Management("인재·편성"), "장수 · 평가 · 외부 조사 · 특성 · 소집");
             ToolbarButton(bar, "V6 Build", "＋ 건설", BuildScreen.Toggle, "건설");
             bar.gameObject.AddComponent<GameMenuDock>();
             InstallPrototypeNavigation(bar, canvas.transform);
@@ -212,7 +212,7 @@ namespace AntColony.UI
             MenuTheme.Text(content, "1. 장수는 병력 없이 작업표에 켜진 일을 수행합니다. 하단 커맨드 카드 또는 장수 관리(G)의 작업표에서 작업을 켜고 끄세요. 자원 우클릭은 우선 작업 지시입니다.", 18, 95);
             MenuTheme.Text(content, "2. 건설(B)에서 건물과 대기 장수를 골라 배치하세요. 군사 탭에서 징집소를 건설한 뒤 클릭하면 출전 장수와 병력을 편성할 수 있습니다. 귀환(D)하면 생존 병력을 반납하고 자율 작업을 재개합니다.", 18, 95);
             MenuTheme.Text(content, "3. 장수 상세에서 무기를 장착하면 전투 역할이 바뀝니다. 비행 장비는 갑옷 칸에 낍니다. 적 우클릭은 공격, A를 누른 뒤 클릭은 공격 이동입니다. 13종 기술은 활동에 따라 성장하며 지휘 기술은 병력 한도를 높입니다.", 18, 115);
-            MenuTheme.Text(content, "4. 시민 60명과 2티어 병영을 확보하면 과학연구소를 지을 수 있습니다. 과학 화면에서 차량을 연구한 뒤 과학연구소를 선택해 수송수단을 건조하세요.", 18, 95);
+            MenuTheme.Text(content, "4. 정착지 연구대에 장수를 배정해 연구합니다. 과학 화면에서 차량을 연구한 뒤 과학연구소를 선택해 수송수단을 건조하세요.", 18, 95);
             MenuTheme.Text(content, "5. 출전 장수를 수송수단에 태우고 월드맵에서 미니새 둥지로 출정하세요. 전장으로 전환해 표시된 보스 공격을 피하며 싸우세요. 귀환하면 장수·병력·화물이 본거지로 돌아옵니다.", 18, 100);
             MenuTheme.Text(content, "창고를 지으면 저장 한도와 반납 지점이 늘어납니다. 운반이 중단되면 저장고나 창고를 우클릭하세요. 원정지에서는 아군 수송수단을 우클릭해 자원을 반납합니다.", 18, 100);
             MenuTheme.Text(content, "기본 조작: 화면 가장자리·방향키로 카메라 이동, 휠로 확대·축소, Z/C로 회전합니다. Esc 메뉴, P 일시 정지, G/F1 장수 관리, Q 무기 기술, E 징집소, D 귀환, R 무기 교체, K 과학, M 월드맵입니다. 설정에서 단축키를 바꿀 수 있습니다.", 18, 95);

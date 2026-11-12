@@ -1,0 +1,28 @@
+{
+  "success": true,
+  "command": "command",
+  "data": {
+    "command": "run_script",
+    "parameters": {
+      "file": "AgentScripts/ThreeWaves1112MedicalChecks.cs",
+      "entry": "ThreeWaves1112MedicalChecks.Run",
+      "timeout_ms": "180000"
+    },
+    "result": {
+      "diagnostics": [],
+      "compileMs": 285,
+      "executeMs": 67,
+      "assemblyName": "PipelineRunScript_ThreeWaves1112MedicalChecks_fab885f754454b55af6dd2dc4bbe904e",
+      "success": false,
+      "error": "Runtime Error",
+      "errorDetails": "Exception: new actual downing still creates concern\n  at ThreeWaves1112MedicalChecks.Check (System.Boolean ok, System.String message) [0x00044] in F:\\UnityProjects\\ant-colony-rts\\AgentScripts\\ThreeWaves1112MedicalChecks.cs:25 \r\n  at ThreeWaves1112MedicalChecks.Run () [0x00450] in F:\\UnityProjects\\ant-colony-rts\\AgentScripts\\ThreeWaves1112MedicalChecks.cs:60 \r\n  at Unity.Pipeline.Editor.Commands.Scripts.RunScriptCommand.RunEphemeral (System.String file, System.String entry, Newtonsoft.Json.Linq.JArray args, System.String[] references, System.String[] defines, System.Boolean pdb, System.Boolean dryRun, System.Int32 timeoutMs, System.Diagnostics.Stopwatch total) [0x00492] in .\\Library\\PackageCache\\com.unity.pipeline@ab05e9cd7f74\\Editor\\Commands\\Scripts\\RunScriptCommand.cs:252 "
+    },
+    "target": {
+      "host": "127.0.0.1",
+      "port": 7801,
+      "projectPath": "F:\\UnityProjects\\ant-colony-rts"
+    }
+  },
+  "errors": [],
+  "warnings": []
+}

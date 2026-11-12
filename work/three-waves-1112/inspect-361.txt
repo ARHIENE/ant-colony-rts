@@ -1,0 +1,39 @@
+생존자 1 cargo=9.177981 type=Soil gather=5 build=5 haul=5 sleep=False
+생존자 2 cargo=9 type=Soil gather=5 build=5 haul=5 sleep=False
+생존자 3 cargo=8.749949 type=Food gather=5 build=5 haul=5 sleep=False
+SITE Farm pos=(200.50, 9.95, 196.50) ready=False wait=AwaitingHaul Soil need=30 delivered=18 reserved=12 transit=0
+ROUTE 생존자 1 directSite=12.7 includingPickup=13.54388
+ROUTE 생존자 2 directSite=9.9 includingPickup=10.17905
+ROUTE 생존자 3 directSite=7.1 includingPickup=7.133079
+SITE ScienceLab pos=(207.50, 9.95, 200.50) ready=False wait=AwaitingHaul Wood need=20 delivered=0 reserved=20 transit=0,Stone need=10 delivered=0 reserved=10 transit=0
+ROUTE 생존자 1 directSite=8.1 includingPickup=30.1058
+ROUTE 생존자 2 directSite=8.6 includingPickup=25.9812
+ROUTE 생존자 3 directSite=5.2 includingPickup=27.08634
+SITE AcidTower pos=(202.00, 9.95, 207.00) ready=False wait=None Food need=30 delivered=30 reserved=0 transit=0,Soil need=60 delivered=0 reserved=51 transit=9
+ROUTE 생존자 1 directSite=3.9 includingPickup=11.74733
+ROUTE 생존자 2 directSite=0.8 includingPickup=8.382499
+ROUTE 생존자 3 directSite=4.4 includingPickup=5.336529
+NODE Dropped Soil type=Soil amount=8 loose=True designated=False dist=2 pos=(202.05, 10.07, 200.66)
+NODE Dropped Soil type=Soil amount=6.000002 loose=True designated=False dist=4 pos=(203.82, 10.07, 200.18)
+NODE Dropped Soil type=Soil amount=18 loose=True designated=False dist=4 pos=(203.82, 10.07, 200.18)
+NODE Dropped Soil type=Soil amount=1.999882 loose=True designated=False dist=4 pos=(203.82, 10.07, 200.18)
+NODE Dropped Soil type=Soil amount=18 loose=True designated=False dist=4 pos=(203.91, 10.07, 198.71)
+NODE Dropped Food type=Food amount=16 loose=True designated=False dist=4 pos=(202.34, 10.07, 203.75)
+NODE Dropped Soil type=Soil amount=1 loose=True designated=False dist=5 pos=(202.44, 10.07, 204.26)
+NODE Dropped Food type=Food amount=5.646811 loose=True designated=False dist=6 pos=(205.22, 10.07, 202.29)
+NODE Dropped Food type=Food amount=8 loose=True designated=False dist=6 pos=(205.22, 10.07, 202.29)
+NODE Dropped Food type=Food amount=8 loose=True designated=False dist=6 pos=(205.22, 10.07, 202.29)
+NODE Dropped Food type=Food amount=8 loose=True designated=False dist=6 pos=(205.22, 10.07, 202.29)
+NODE Dropped Food type=Food amount=8 loose=True designated=False dist=6 pos=(205.22, 10.07, 202.29)
+NODE Dropped Food type=Food amount=8 loose=True designated=False dist=6 pos=(205.22, 10.07, 202.29)
+NODE Dropped Food type=Food amount=8 loose=True designated=False dist=6 pos=(205.22, 10.07, 202.29)
+NODE Dropped Food type=Food amount=8 loose=True designated=False dist=6 pos=(205.22, 10.07, 202.29)
+NODE Dropped Food type=Food amount=4.57862 loose=True designated=False dist=6 pos=(205.22, 10.07, 202.29)
+NODE Dropped Food type=Food amount=8 loose=True designated=False dist=6 pos=(205.22, 10.07, 202.29)
+NODE Dropped Food type=Food amount=8 loose=True designated=False dist=6 pos=(205.22, 10.07, 202.29)
+NODE Dropped Food type=Food amount=8 loose=True designated=False dist=6 pos=(205.22, 10.07, 202.29)
+NODE Dropped Food type=Food amount=8 loose=True designated=False dist=6 pos=(205.22, 10.07, 202.29)
+NODE Dropped Food type=Food amount=3.185224 loose=True designated=False dist=6 pos=(204.35, 10.07, 203.86)
+NODE Dropped Food type=Food amount=8 loose=True designated=False dist=6 pos=(205.62, 10.07, 201.54)
+NODE Dropped Food type=Food amount=8 loose=True designated=False dist=6 pos=(205.62, 10.07, 201.54)
+NODE Dropped Food type=Food amount=8 loose=True designated=False dist=6 pos=(205.65, 10.07, 201.44)

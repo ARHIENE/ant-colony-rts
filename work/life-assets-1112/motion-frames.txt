@@ -1,0 +1,3 @@
+IdleTalk clip=Talk_Passionately frames=31 maxJointDegrees=32.0223
+IdleRest clip=Sit_Cross_Legged_on_Floor frames=21 maxJointDegrees=5.995353
+IdleLook clip=Short_Breathe_and_Look_Around frames=28 maxJointDegrees=14.31932

@@ -1,0 +1,1 @@
+digging 32 actual Game frames, no Preview, simulation .5x, frame wait100ms plus rendering; full cycle not guaranteed

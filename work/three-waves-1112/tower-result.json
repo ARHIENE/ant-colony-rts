@@ -1,0 +1,27 @@
+{
+  "success": true,
+  "command": "command",
+  "data": {
+    "command": "run_script",
+    "parameters": {
+      "file": "AgentScripts/ThreeWaves1112TowerVisual.cs",
+      "entry": "ThreeWaves1112TowerVisual.Compare",
+      "timeout_ms": "180000"
+    },
+    "result": {
+      "diagnostics": [],
+      "compileMs": 147,
+      "executeMs": 2853,
+      "assemblyName": "PipelineRunScript_ThreeWaves1112TowerVisual_fb5e70c87e1542dfab7e5ff3e26ba31b",
+      "success": true,
+      "result": "(202.00, 10.85, 207.00) range=14 damage=18 interval=1.5 hp=250\n(198.00, 10.85, 207.00) range=14 damage=18 interval=1.5 hp=250\n(195.00, 10.90, 205.00) range=14 damage=18 interval=1.5 hp=250"
+    },
+    "target": {
+      "host": "127.0.0.1",
+      "port": 7801,
+      "projectPath": "F:\\UnityProjects\\ant-colony-rts"
+    }
+  },
+  "errors": [],
+  "warnings": []
+}

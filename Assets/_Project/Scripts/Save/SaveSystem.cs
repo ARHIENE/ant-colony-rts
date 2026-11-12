@@ -40,8 +40,9 @@ namespace AntColony.Save
         {
             error = null;
             if (Busy) { error = "게임을 이미 불러오는 중입니다."; return false; }
-            if (!SaveStorage.TryReadText(path, out var text, out error) || !SaveValidator.TryParse(text, out var file, out error)
-                || !SavePreflight.ForScene(file, out error)) return false;
+            // Validate the file before leaving the current game. Scene-dependent IDs
+            // are checked by Restore after generating the saved map, not this map.
+            if (!SaveStorage.TryReadText(path, out var text, out error) || !SaveValidator.TryParse(text, out var file, out error)) return false;
             try
             {
                 Rollback = GameSession.Instance.GameStarted ? SaveSnapshot.Capture() : null;

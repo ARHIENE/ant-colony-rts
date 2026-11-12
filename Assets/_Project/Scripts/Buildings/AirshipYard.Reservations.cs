@@ -11,8 +11,7 @@ namespace AntColony.Buildings
         public IReadOnlyList<string> ReservedCommanders => state.reservedCommanders;
         public IReadOnlyList<int> ReservedGroups => state.reservedGroups;
         private IEnumerable<CommanderAnt> ReservationCrew => CommanderRoster.Instance?.Commanders ?? Enumerable.Empty<CommanderAnt>();
-        public int ReservedSeats => state.reservedGroups.Sum(id => ColonyPopulation.Instance?.S.civilianLocations.Find(g => g.id == id)?.count ?? 0)
-            + state.reservedCommanders.Sum(id => ReservationCrew.FirstOrDefault(c => c != null && c.PersonalState.id == id) is CommanderAnt c ? 1 + c.TroopCount : 0);
+        public int ReservedSeats => state.reservedCommanders.Sum(id => ReservationCrew.FirstOrDefault(c => c != null && c.PersonalState.id == id) is CommanderAnt c ? 1 + c.TroopCount : 0);
         public int UnreservedSeats => Math.Max(0, Capacity - OccupiedSeats - ReservedSeats);
         public static int SeatOverflow(int capacity, int occupied, int reserved) => Math.Max(0, occupied + reserved - capacity);
         public int ReservationOverflow => SeatOverflow(Capacity, OccupiedSeats, ReservedSeats);
@@ -30,15 +29,7 @@ namespace AntColony.Buildings
         public bool CancelGroupReservation(int group) => state.reservedGroups.Remove(group);
         private bool ReservationOpen => isActiveAndEnabled && !IsDead && Phase != RocketPhase.Destroyed && Phase != RocketPhase.Launched;
         public int EvacuateAndReserve(int sourceId)
-        {
-            var pop = ColonyPopulation.Instance;
-            if (!ReservationOpen || pop == null || IsGroupReserved(sourceId)) return 0;
-            int seats = UnreservedSeats - (HasLaunchCommander || state.reservedCommanders.Count > 0 ? 0 : 1);
-            if (seats <= 0) return 0;
-            int id = pop.BeginCivilianEvacuation(sourceId, Position, seats);
-            if (id > 0) state.reservedGroups.Add(id);
-            return id;
-        }
+        { return 0; }
         private void ClearReservations() { state.reservedCommanders.Clear(); state.reservedGroups.Clear(); }
         private void PruneReservations()
         {

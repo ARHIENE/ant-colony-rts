@@ -1,0 +1,241 @@
+POST-FIX continuation of unmodified first-three-wave snapshot
+[1379.4s / 15:16:46] wave=3 inWave=False left=600 enemies=0 food=15 soil=40 wood=0 screen=Game frame=2056 speed=0
+[1379.4s / 15:16:46] HERO 생존자 1 hp=30.0 down=False satiety=30 mood=36 sleep=False work=False activity=Melee node= delivery=False build= care=약품 부족(투약 불가) pos=(201.64, 9.89, 198.91)
+[1379.4s / 15:16:46] HERO 생존자 2 hp=10.5 down=False satiety=90 mood=35 sleep=False work=True activity=Gathering node=FoodNode2 delivery=False build= care=약품 부족(투약 불가) pos=(199.17, 9.87, 205.10)
+[1379.4s / 15:16:46] HERO 생존자 3 hp=26.0 down=False satiety=88 mood=58 sleep=False work=False activity=Melee node= delivery=False build= care=약품 부족(투약 불가) pos=(201.25, 9.85, 193.74)
+[1379.4s / 15:16:46] BUILDINGS AcidTower@(202.00, 10.85, 207.00) hp=250/250, AcidTower@(198.00, 10.85, 207.00) hp=250/250, AcidTower@(195.00, 10.90, 205.00) hp=250/250, Farm@(200.50, 10.05, 196.50) hp=150/150, Hearth@(197.00, 10.46, 202.50) hp=200/200, MedicineBench@(201.00, 10.35, 203.50) hp=135/135, SleepingMat@(198.50, 9.90, 204.00) hp=50/50, SleepingMat@(196.50, 9.98, 200.00) hp=10/50, SleepingMat@(197.50, 9.90, 197.00) hp=50/50, Storage@(202.50, 10.35, 202.50) hp=300/300, Toilet@(204.50, 10.37, 200.50) hp=97/100, OilDeposit@(211.33, 9.85, 191.77) hp=123/300
+[1379.4s / 15:16:46] STOCK Food=15, Soil=40, Stone=6, Component=1
+[1379.4s / 15:16:46] RECOVERY 생존자 1 체력 회복 대기 · 전투 종료, 출혈·질병·기아 해소와 상처 처치 필요 moldProtection=0.0 break=None illness=Mold:severity=0.11,immunity=0.17,tend=0
+[1379.4s / 15:16:46] RECOVERY 생존자 2 체력 회복 대기 · 전투 종료, 출혈·질병·기아 해소와 상처 처치 필요 moldProtection=0.0 break=None illness=Mold:severity=0.10,immunity=0.15,tend=0
+[1379.4s / 15:16:46] RECOVERY 생존자 3 체력 회복 대기 · 전투 종료, 출혈·질병·기아 해소와 상처 처치 필요 moldProtection=0.0 break=None illness=Mold:severity=0.40,immunity=0.60,tend=0
+[1379.4s / 15:16:46] ALERTS 
+[1379.4s / 15:16:46] PROCESSOR MedicineBench wait=재료 또는 주문 대기 progress=0.00
+[1379.4s / 15:16:46] RESEARCH  연구를 직접 선택하세요
+[1379.4s / 15:17:14] STEP {"label":"final-recovery-01","seconds":120.0,"speed":3.0,"build":[],"research":"","prioritize":"Food","startWave":false,"stop":true,"designate":true,"combat":false,"defendLine":false,"retreatHealth":35.0,"makeMedicine":true,"prioritizeConstruction":false,"recoveryRoles":true,"cookedDiet":false,"watchBreaks":true,"evadeBreaks":false,"pauseGathering":"Soil"}
+[1379.4s / 15:17:14] PLAYER assigns nursing / gathering / cooking priorities and orders first herb collection
+[1379.4s / 15:17:14] DESIGNATE Food x2
+[1379.4s / 15:17:14] DESIGNATE Wood x3
+[1379.4s / 15:17:14] DESIGNATE Soil x0
+[1379.4s / 15:17:14] PLAYER sets resource priority Food; job priorities unchanged
+[1379.4s / 15:17:14] MEDICINE bench unavailable or already ordered; herbs=2
+[1379.4s / 15:17:14] wave=3 inWave=False left=600 enemies=0 food=15 soil=40 wood=0 screen=Game frame=4235 speed=3
+[1379.4s / 15:17:14] HERO 생존자 1 hp=30.0 down=False satiety=30 mood=36 sleep=False work=True activity=Gathering node=Material Herb 39 delivery=False build= care=약품 부족(투약 불가) pos=(201.64, 9.89, 198.91)
+[1379.4s / 15:17:14] HERO 생존자 2 hp=10.5 down=False satiety=90 mood=35 sleep=False work=False activity=Melee node= delivery=False build= care=약품 부족(투약 불가) pos=(199.17, 9.87, 205.10)
+[1379.4s / 15:17:14] HERO 생존자 3 hp=26.0 down=False satiety=88 mood=58 sleep=False work=False activity=Melee node= delivery=False build= care=약품 부족(투약 불가) pos=(201.25, 9.85, 193.74)
+[1379.4s / 15:17:14] BUILDINGS AcidTower@(202.00, 10.85, 207.00) hp=250/250, AcidTower@(198.00, 10.85, 207.00) hp=250/250, AcidTower@(195.00, 10.90, 205.00) hp=250/250, Farm@(200.50, 10.05, 196.50) hp=150/150, Hearth@(197.00, 10.46, 202.50) hp=200/200, MedicineBench@(201.00, 10.35, 203.50) hp=135/135, SleepingMat@(198.50, 9.90, 204.00) hp=50/50, SleepingMat@(196.50, 9.98, 200.00) hp=10/50, SleepingMat@(197.50, 9.90, 197.00) hp=50/50, Storage@(202.50, 10.35, 202.50) hp=300/300, Toilet@(204.50, 10.37, 200.50) hp=97/100, OilDeposit@(211.33, 9.85, 191.77) hp=123/300
+[1379.4s / 15:17:14] STOCK Food=15, Soil=40, Stone=6, Component=1
+[1379.4s / 15:17:14] RECOVERY 생존자 1 체력 회복 대기 · 전투 종료, 출혈·질병·기아 해소와 상처 처치 필요 moldProtection=0.0 break=None illness=Mold:severity=0.11,immunity=0.17,tend=0
+[1379.4s / 15:17:14] RECOVERY 생존자 2 체력 회복 대기 · 전투 종료, 출혈·질병·기아 해소와 상처 처치 필요 moldProtection=0.0 break=None illness=Mold:severity=0.10,immunity=0.15,tend=0
+[1379.4s / 15:17:14] RECOVERY 생존자 3 체력 회복 대기 · 전투 종료, 출혈·질병·기아 해소와 상처 처치 필요 moldProtection=0.0 break=None illness=Mold:severity=0.40,immunity=0.60,tend=0
+[1379.4s / 15:17:14] ALERTS 
+[1379.4s / 15:17:14] PROCESSOR MedicineBench wait=재료 또는 주문 대기 progress=0.00
+[1379.4s / 15:17:14] RESEARCH  연구를 직접 선택하세요
+[1409.9s / 15:17:24] wave=3 inWave=False left=569 enemies=0 food=12 soil=40 wood=0 screen=Game frame=4944 speed=3
+[1409.9s / 15:17:24] HERO 생존자 1 hp=30.0 down=False satiety=84 mood=26 sleep=False work=True activity=Gathering node=Material Herb 39 delivery=False build= care=약품 부족(투약 불가) pos=(222.59, 10.45, 190.43)
+[1409.9s / 15:17:24] HERO 생존자 2 hp=10.5 down=False satiety=62 mood=31 sleep=False work=True activity=Gathering node=Saved Loot delivery=False build= care=약품 부족(투약 불가) pos=(213.11, 10.45, 200.20)
+[1409.9s / 15:17:24] HERO 생존자 3 hp=26.0 down=False satiety=59 mood=59 sleep=False work=False activity=Cooking node= delivery=False build= care=약품 부족(투약 불가) pos=(197.00, 10.47, 201.50)
+[1409.9s / 15:17:24] BUILDINGS AcidTower@(202.00, 10.85, 207.00) hp=250/250, AcidTower@(198.00, 10.85, 207.00) hp=250/250, AcidTower@(195.00, 10.90, 205.00) hp=250/250, Farm@(200.50, 10.05, 196.50) hp=150/150, Hearth@(197.00, 10.46, 202.50) hp=200/200, MedicineBench@(201.00, 10.35, 203.50) hp=135/135, SleepingMat@(198.50, 9.90, 204.00) hp=50/50, SleepingMat@(196.50, 9.98, 200.00) hp=10/50, SleepingMat@(197.50, 9.90, 197.00) hp=50/50, Storage@(202.50, 10.35, 202.50) hp=300/300, Toilet@(204.50, 10.37, 200.50) hp=97/100, OilDeposit@(211.33, 9.85, 191.77) hp=123/300
+[1409.9s / 15:17:24] STOCK Food=12, Soil=40, Stone=6, Component=1
+[1409.9s / 15:17:24] RECOVERY 생존자 1 체력 회복 대기 · 전투 종료, 출혈·질병·기아 해소와 상처 처치 필요 moldProtection=0.0 break=None illness=Mold:severity=0.21,immunity=0.31,tend=0
+[1409.9s / 15:17:24] RECOVERY 생존자 2 체력 회복 대기 · 전투 종료, 출혈·질병·기아 해소와 상처 처치 필요 moldProtection=0.0 break=None illness=Mold:severity=0.19,immunity=0.29,tend=0
+[1409.9s / 15:17:24] RECOVERY 생존자 3 체력 회복 대기 · 전투 종료, 출혈·질병·기아 해소와 상처 처치 필요 moldProtection=0.0 break=None illness=Mold:severity=0.49,immunity=0.73,tend=0
+[1409.9s / 15:17:24] ALERTS 생존자 1: 약품 부족(투약 불가) | 생존자 2: 약품 부족(투약 불가) | 생존자 3: 약품 부족(투약 불가) | 기분 주의: 생존자 1 (32) — 공간 미관 · 붕괴 분당 5 % · 이탈까지 300초 · 장수 상세에서 포상(식량 30) 가능
+[1409.9s / 15:17:24] PROCESSOR MedicineBench wait=재료 또는 주문 대기 progress=0.00
+[1409.9s / 15:17:24] RESEARCH  연구를 직접 선택하세요
+[1439.5s / 15:17:34] wave=3 inWave=False left=540 enemies=0 food=10 soil=40 wood=0 screen=Game frame=5665 speed=3
+[1439.5s / 15:17:34] HERO 생존자 1 hp=30.0 down=False satiety=56 mood=27 sleep=False work=False activity=Melee node= delivery=False build= care=약품 부족(투약 불가) pos=(191.16, 10.45, 226.06)
+[1439.5s / 15:17:34] HERO 생존자 2 hp=10.5 down=False satiety=34 mood=31 sleep=False work=True activity=Gathering node=FoodNode2 delivery=False build= care=약품 부족(투약 불가) pos=(200.06, 10.47, 205.72)
+[1439.5s / 15:17:34] HERO 생존자 3 hp=26.0 down=False satiety=32 mood=57 sleep=False work=False activity=Cooking node= delivery=False build= care=약품 부족(투약 불가) pos=(197.00, 10.47, 201.50)
+[1439.5s / 15:17:34] BUILDINGS AcidTower@(202.00, 10.85, 207.00) hp=250/250, AcidTower@(198.00, 10.85, 207.00) hp=250/250, AcidTower@(195.00, 10.90, 205.00) hp=250/250, Farm@(200.50, 10.05, 196.50) hp=150/150, Hearth@(197.00, 10.46, 202.50) hp=200/200, MedicineBench@(201.00, 10.35, 203.50) hp=135/135, SleepingMat@(198.50, 9.90, 204.00) hp=50/50, SleepingMat@(196.50, 9.98, 200.00) hp=10/50, SleepingMat@(197.50, 9.90, 197.00) hp=50/50, Storage@(202.50, 10.35, 202.50) hp=300/300, Toilet@(204.50, 10.37, 200.50) hp=97/100, OilDeposit@(211.33, 9.85, 191.77) hp=123/300
+[1439.5s / 15:17:34] STOCK Food=10, Soil=40, Stone=6, Component=1
+[1439.5s / 15:17:34] RECOVERY 생존자 1 체력 회복 대기 · 전투 종료, 출혈·질병·기아 해소와 상처 처치 필요 moldProtection=0.0 break=None illness=Mold:severity=0.30,immunity=0.44,tend=0
+[1439.5s / 15:17:34] RECOVERY 생존자 2 체력 회복 대기 · 전투 종료, 출혈·질병·기아 해소와 상처 처치 필요 moldProtection=0.0 break=None illness=Mold:severity=0.28,immunity=0.42,tend=0
+[1439.5s / 15:17:34] RECOVERY 생존자 3 체력 회복 대기 · 전투 종료, 출혈·질병·기아 해소와 상처 처치 필요 moldProtection=0.0 break=None illness=Mold:severity=0.58,immunity=0.87,tend=0
+[1439.5s / 15:17:34] ALERTS 생존자 1: 약품 부족(투약 불가) | 생존자 2: 약품 부족(투약 불가) | 생존자 3: 약품 부족(투약 불가) | 식품 부패: 간단한 요리 1 → 썩은 식품
+[1439.5s / 15:17:34] PROCESSOR MedicineBench wait=재료 또는 주문 대기 progress=0.00
+[1439.5s / 15:17:34] RESEARCH  연구를 직접 선택하세요
+[1469.8s / 15:17:44] wave=3 inWave=False left=510 enemies=0 food=4 soil=40 wood=0 screen=Game frame=6423 speed=3
+[1469.8s / 15:17:44] HERO 생존자 1 hp=30.0 down=False satiety=28 mood=35 sleep=True work=False activity=Melee node= delivery=False build= care=치료할 장수 없음(의료 허용·활동 가능·접근 경로 확인) pos=(201.95, 10.45, 202.24)
+[1469.8s / 15:17:44] HERO 생존자 2 hp=10.5 down=False satiety=88 mood=31 sleep=True work=False activity=Melee node= delivery=False build= care=치료할 장수 없음(의료 허용·활동 가능·접근 경로 확인) pos=(197.50, 10.45, 197.00)
+[1469.8s / 15:17:44] HERO 생존자 3 hp=26.0 down=False satiety=85 mood=51 sleep=True work=False activity=Melee node= delivery=False build= care=치료할 장수 없음(의료 허용·활동 가능·접근 경로 확인) pos=(196.50, 10.53, 200.00)
+[1469.8s / 15:17:44] BUILDINGS AcidTower@(202.00, 10.85, 207.00) hp=250/250, AcidTower@(198.00, 10.85, 207.00) hp=250/250, AcidTower@(195.00, 10.90, 205.00) hp=250/250, Farm@(200.50, 10.05, 196.50) hp=150/150, Hearth@(197.00, 10.46, 202.50) hp=200/200, MedicineBench@(201.00, 10.35, 203.50) hp=135/135, SleepingMat@(198.50, 9.90, 204.00) hp=50/50, SleepingMat@(196.50, 9.98, 200.00) hp=10/50, SleepingMat@(197.50, 9.90, 197.00) hp=50/50, Storage@(202.50, 10.35, 202.50) hp=300/300, Toilet@(204.50, 10.37, 200.50) hp=97/100, OilDeposit@(211.33, 9.85, 191.77) hp=123/300
+[1469.8s / 15:17:44] STOCK Food=4, Soil=40, Stone=6, Component=1
+[1469.8s / 15:17:44] RECOVERY 생존자 1 체력 회복 대기 · 전투 종료, 출혈·질병·기아 해소와 상처 처치 필요 moldProtection=0.0 break=None illness=Mold:severity=0.39,immunity=0.58,tend=0
+[1469.8s / 15:17:44] RECOVERY 생존자 2 체력 회복 대기 · 전투 종료, 출혈·질병·기아 해소와 상처 처치 필요 moldProtection=0.0 break=None illness=Mold:severity=0.37,immunity=0.56,tend=0
+[1469.8s / 15:17:44] RECOVERY 생존자 3 체력 회복 대기 · 전투 종료, 출혈·질병·기아 해소와 상처 처치 필요 moldProtection=0.0 break=None illness=Mold:severity=0.65,immunity=1.00,tend=0
+[1469.8s / 15:17:44] ALERTS 생존자 1: 치료할 장수 없음(의료 허용·활동 가능·접근 경로 확인) | 생존자 2: 치료할 장수 없음(의료 허용·활동 가능·접근 경로 확인) | 생존자 3: 치료할 장수 없음(의료 허용·활동 가능·접근 경로 확인) | 기분 주의: 생존자 2 (31) — 식사: 날것 · 붕괴 분당 5 % · 이탈까지 300초 · 장수 상세에서 포상(식량 30) 가능
+[1469.8s / 15:17:44] PROCESSOR MedicineBench wait=재료 또는 주문 대기 progress=0.00
+[1469.8s / 15:17:44] RESEARCH  연구를 직접 선택하세요
+[1500.0s / 15:17:54] COMMANDER_SECONDS work=145.2, idle_or_combat=20.0, needs=41.3, move=14.4, sleep=138.8
+[1500.0s / 15:17:54] wave=3 inWave=False left=479 enemies=0 food=4 soil=40 wood=0 screen=Game frame=7199 speed=0
+[1500.0s / 15:17:54] HERO 생존자 1 hp=30.0 down=False satiety=81 mood=28 sleep=False work=False activity=Melee node= delivery=False build= care=약품 부족(투약 불가) pos=(201.95, 10.45, 202.24)
+[1500.0s / 15:17:54] HERO 생존자 2 hp=10.5 down=False satiety=60 mood=31 sleep=False work=False activity=Melee node= delivery=False build= care=약품 부족(투약 불가) pos=(197.50, 10.45, 197.00)
+[1500.0s / 15:17:54] HERO 생존자 3 hp=26.0 down=False satiety=56 mood=56 sleep=False work=False activity=Melee node= delivery=False build= care=약품 부족(투약 불가) pos=(196.50, 10.53, 200.00)
+[1500.0s / 15:17:54] BUILDINGS AcidTower@(202.00, 10.85, 207.00) hp=250/250, AcidTower@(198.00, 10.85, 207.00) hp=250/250, AcidTower@(195.00, 10.90, 205.00) hp=250/250, Farm@(200.50, 10.05, 196.50) hp=150/150, Hearth@(197.00, 10.46, 202.50) hp=200/200, MedicineBench@(201.00, 10.35, 203.50) hp=135/135, SleepingMat@(198.50, 9.90, 204.00) hp=50/50, SleepingMat@(196.50, 9.98, 200.00) hp=10/50, SleepingMat@(197.50, 9.90, 197.00) hp=50/50, Storage@(202.50, 10.35, 202.50) hp=300/300, Toilet@(204.50, 10.37, 200.50) hp=97/100, OilDeposit@(211.33, 9.85, 191.77) hp=123/300
+[1500.0s / 15:17:54] STOCK Food=4, Soil=40, Stone=6, Component=1
+[1500.0s / 15:17:54] RECOVERY 생존자 1 체력 회복 대기 · 전투 종료, 출혈·질병·기아 해소와 상처 처치 필요 moldProtection=0.0 break=None illness=Mold:severity=0.48,immunity=0.72,tend=0
+[1500.0s / 15:17:54] RECOVERY 생존자 2 체력 회복 대기 · 전투 종료, 출혈·질병·기아 해소와 상처 처치 필요 moldProtection=0.0 break=None illness=Mold:severity=0.46,immunity=0.70,tend=0
+[1500.0s / 15:17:54] RECOVERY 생존자 3 체력 회복 대기 · 전투 종료, 출혈·질병·기아 해소와 상처 처치 필요 moldProtection=0.0 break=None illness=Mold:severity=0.14,immunity=1.00,tend=0
+[1500.0s / 15:17:54] ALERTS 이주민 무리 합류 제안 — 화면의 수락/거절 | 생존자 1: 치료할 장수 없음(의료 허용·활동 가능·접근 경로 확인) | 생존자 2: 치료할 장수 없음(의료 허용·활동 가능·접근 경로 확인) | 생존자 3: 치료할 장수 없음(의료 허용·활동 가능·접근 경로 확인) | 이주민 무리: 이주민 무리(장수 1 + 시민 5)가 합류를 청합니다. 90초 안에 수락·거절하세요.
+[1500.0s / 15:17:54] PROCESSOR MedicineBench wait=재료 또는 주문 대기 progress=0.00
+[1500.0s / 15:17:54] RESEARCH  연구를 직접 선택하세요
+[1500.0s / 15:18:36] STEP {"label":"final-recovery-02","seconds":120.0,"speed":3.0,"build":[],"research":"","prioritize":"Food","startWave":false,"stop":false,"designate":false,"combat":false,"defendLine":false,"retreatHealth":35.0,"makeMedicine":true,"prioritizeConstruction":false,"recoveryRoles":false,"cookedDiet":false,"watchBreaks":true,"evadeBreaks":false,"pauseGathering":"Soil"}
+[1500.0s / 15:18:36] PLAYER sets resource priority Food; job priorities unchanged
+[1500.0s / 15:18:36] MEDICINE bench unavailable or already ordered; herbs=1
+[1500.0s / 15:18:36] wave=3 inWave=False left=479 enemies=0 food=4 soil=40 wood=0 screen=Game frame=10741 speed=3
+[1500.0s / 15:18:36] HERO 생존자 1 hp=30.0 down=False satiety=81 mood=28 sleep=False work=False activity=Melee node= delivery=False build= care=약품 부족(투약 불가) pos=(201.95, 10.45, 202.24)
+[1500.0s / 15:18:36] HERO 생존자 2 hp=10.5 down=False satiety=60 mood=31 sleep=False work=False activity=Melee node= delivery=False build= care=약품 부족(투약 불가) pos=(197.50, 10.45, 197.00)
+[1500.0s / 15:18:36] HERO 생존자 3 hp=26.0 down=False satiety=56 mood=56 sleep=False work=False activity=Melee node= delivery=False build= care=약품 부족(투약 불가) pos=(196.50, 10.53, 200.00)
+[1500.0s / 15:18:36] BUILDINGS AcidTower@(202.00, 10.85, 207.00) hp=250/250, AcidTower@(198.00, 10.85, 207.00) hp=250/250, AcidTower@(195.00, 10.90, 205.00) hp=250/250, Farm@(200.50, 10.05, 196.50) hp=150/150, Hearth@(197.00, 10.46, 202.50) hp=200/200, MedicineBench@(201.00, 10.35, 203.50) hp=135/135, SleepingMat@(198.50, 9.90, 204.00) hp=50/50, SleepingMat@(196.50, 9.98, 200.00) hp=10/50, SleepingMat@(197.50, 9.90, 197.00) hp=50/50, Storage@(202.50, 10.35, 202.50) hp=300/300, Toilet@(204.50, 10.37, 200.50) hp=97/100, OilDeposit@(211.33, 9.85, 191.77) hp=123/300
+[1500.0s / 15:18:36] STOCK Food=4, Soil=40, Stone=6, Component=1
+[1500.0s / 15:18:36] RECOVERY 생존자 1 체력 회복 대기 · 전투 종료, 출혈·질병·기아 해소와 상처 처치 필요 moldProtection=0.0 break=None illness=Mold:severity=0.48,immunity=0.72,tend=0
+[1500.0s / 15:18:36] RECOVERY 생존자 2 체력 회복 대기 · 전투 종료, 출혈·질병·기아 해소와 상처 처치 필요 moldProtection=0.0 break=None illness=Mold:severity=0.46,immunity=0.70,tend=0
+[1500.0s / 15:18:36] RECOVERY 생존자 3 체력 회복 대기 · 전투 종료, 출혈·질병·기아 해소와 상처 처치 필요 moldProtection=0.0 break=None illness=Mold:severity=0.14,immunity=1.00,tend=0
+[1500.0s / 15:18:36] ALERTS 이주민 무리 합류 제안 — 화면의 수락/거절 | 생존자 1: 치료할 장수 없음(의료 허용·활동 가능·접근 경로 확인) | 생존자 2: 치료할 장수 없음(의료 허용·활동 가능·접근 경로 확인) | 생존자 3: 치료할 장수 없음(의료 허용·활동 가능·접근 경로 확인)
+[1500.0s / 15:18:36] PROCESSOR MedicineBench wait=재료 또는 주문 대기 progress=0.00
+[1500.0s / 15:18:36] RESEARCH  연구를 직접 선택하세요
+[1530.6s / 15:18:46] wave=3 inWave=False left=449 enemies=0 food=0 soil=53 wood=0 screen=Game frame=11456 speed=3
+[1530.6s / 15:18:46] HERO 생존자 1 hp=30.0 down=False satiety=52 mood=25 sleep=False work=True activity=Gathering node=FoodNode2 delivery=False build= care=약품 부족(투약 불가) pos=(199.62, 10.46, 205.17)
+[1530.6s / 15:18:46] HERO 생존자 2 hp=10.5 down=False satiety=31 mood=29 sleep=False work=False activity=Melee node= delivery=False build= care=약품 부족(투약 불가) pos=(202.06, 10.45, 201.43)
+[1530.6s / 15:18:46] HERO 생존자 3 hp=29.0 down=False satiety=28 mood=40 sleep=False work=False activity=Melee node= delivery=False build= care= pos=(201.82, 10.45, 202.24)
+[1530.6s / 15:18:46] BUILDINGS AcidTower@(202.00, 10.85, 207.00) hp=250/250, AcidTower@(198.00, 10.85, 207.00) hp=250/250, AcidTower@(195.00, 10.90, 205.00) hp=250/250, Farm@(200.50, 10.05, 196.50) hp=150/150, Hearth@(197.00, 10.46, 202.50) hp=200/200, MedicineBench@(201.00, 10.35, 203.50) hp=135/135, SleepingMat@(198.50, 9.90, 204.00) hp=50/50, SleepingMat@(196.50, 9.98, 200.00) hp=10/50, SleepingMat@(197.50, 9.90, 197.00) hp=50/50, Storage@(202.50, 10.35, 202.50) hp=300/300, Toilet@(204.50, 10.37, 200.50) hp=97/100, OilDeposit@(211.33, 9.85, 191.77) hp=123/300
+[1530.6s / 15:18:46] STOCK Soil=53, Stone=6, Component=1
+[1530.6s / 15:18:46] RECOVERY 생존자 1 체력 회복 대기 · 전투 종료, 출혈·질병·기아 해소와 상처 처치 필요 moldProtection=0.0 break=None illness=Mold:severity=0.57,immunity=0.85,tend=0
+[1530.6s / 15:18:46] RECOVERY 생존자 2 체력 회복 대기 · 전투 종료, 출혈·질병·기아 해소와 상처 처치 필요 moldProtection=0.0 break=None illness=Mold:severity=0.56,immunity=0.83,tend=0
+[1530.6s / 15:18:46] RECOVERY 생존자 3 체력 회복 중 · 하루 20 · 수면/휴식·치료로 촉진 moldProtection=127.5 break=None illness=
+[1530.6s / 15:18:46] ALERTS 이주민 무리 합류 제안 — 화면의 수락/거절 | 생존자 1: 약품 부족(투약 불가) | 생존자 2: 약품 부족(투약 불가) | 기분 주의: 생존자 3 (30) — 식사: 날것 · 붕괴 분당 5 % · 이탈까지 300초 · 장수 상세에서 포상(식량 30) 가능
+[1530.6s / 15:18:46] PROCESSOR MedicineBench wait=재료 또는 주문 대기 progress=0.00
+[1530.6s / 15:18:46] RESEARCH  연구를 직접 선택하세요
+[1560.2s / 15:18:56] wave=3 inWave=False left=419 enemies=0 food=0 soil=53 wood=0 screen=Game frame=12204 speed=3
+[1560.2s / 15:18:56] HERO 생존자 1 hp=30.0 down=False satiety=24 mood=14 sleep=False work=True activity=Gathering node=Saved Loot delivery=False build= care=약품 부족(투약 불가) pos=(199.62, 10.46, 205.21)
+[1560.2s / 15:18:56] HERO 생존자 2 hp=10.5 down=False satiety=3 mood=23 sleep=False work=False activity=Melee node= delivery=False build= care=약품 부족(투약 불가) pos=(201.00, 10.45, 202.50)
+[1560.2s / 15:18:56] HERO 생존자 3 hp=33.0 down=False satiety=81 mood=29 sleep=False work=False activity=Melee node= delivery=False build= care= pos=(199.75, 10.45, 204.00)
+[1560.2s / 15:18:56] BUILDINGS AcidTower@(202.00, 10.85, 207.00) hp=250/250, AcidTower@(198.00, 10.85, 207.00) hp=250/250, AcidTower@(195.00, 10.90, 205.00) hp=250/250, Farm@(200.50, 10.05, 196.50) hp=150/150, Hearth@(197.00, 10.46, 202.50) hp=200/200, MedicineBench@(201.00, 10.35, 203.50) hp=135/135, SleepingMat@(198.50, 9.90, 204.00) hp=50/50, SleepingMat@(196.50, 9.98, 200.00) hp=10/50, SleepingMat@(197.50, 9.90, 197.00) hp=50/50, Storage@(202.50, 10.35, 202.50) hp=300/300, Toilet@(204.50, 10.37, 200.50) hp=97/100, OilDeposit@(211.33, 9.85, 191.77) hp=123/300
+[1560.2s / 15:18:56] STOCK Soil=53, Stone=6, Component=1
+[1560.2s / 15:18:56] RECOVERY 생존자 1 체력 회복 대기 · 전투 종료, 출혈·질병·기아 해소와 상처 처치 필요 moldProtection=0.0 break=None illness=Mold:severity=0.66,immunity=0.99,tend=0
+[1560.2s / 15:18:56] RECOVERY 생존자 2 체력 회복 대기 · 전투 종료, 출혈·질병·기아 해소와 상처 처치 필요 moldProtection=0.0 break=None illness=Mold:severity=0.64,immunity=0.97,tend=0
+[1560.2s / 15:18:56] RECOVERY 생존자 3 체력 회복 중 · 하루 20 · 수면/휴식·치료로 촉진 moldProtection=97.9 break=None illness=
+[1560.2s / 15:18:56] ALERTS 이주민 무리 합류 제안 — 화면의 수락/거절 | 생존자 1: 약품 부족(투약 불가) | 생존자 2: 약품 부족(투약 불가) | 기분 위험: 생존자 2 (18) — 허기 · 붕괴 분당 15 % · 이탈까지 299초 · 장수 상세에서 포상(식량 30) 가능 | 기분 주의: 생존자 3 (30) — 공간 미관 · 붕괴 분당 5 % · 이탈까지 300초 · 장수 상세에서 포상(식량 30) 가능 | 기분 위험: 생존자 1 (14) — 허기 · 붕괴 분당 15 % · 이탈까지 299초 · 장수 상세에서 포상(식량 30) 가능
+[1560.2s / 15:18:56] PROCESSOR MedicineBench wait=재료 또는 주문 대기 progress=0.00
+[1560.2s / 15:18:56] RESEARCH  연구를 직접 선택하세요
+[1590.4s / 15:19:06] wave=3 inWave=False left=389 enemies=0 food=11 soil=53 wood=0 screen=Game frame=12915 speed=3
+[1590.4s / 15:19:06] HERO 생존자 1 hp=30.0 down=False satiety=0 mood=24 sleep=False work=True activity=Gathering node=Saved Loot delivery=False build= care=약품 부족(투약 불가) pos=(201.06, 10.45, 204.64)
+[1590.4s / 15:19:06] HERO 생존자 2 hp=10.5 down=False satiety=0 mood=34 sleep=False work=True activity=Gathering node=Saved Loot delivery=False build= care=약품 부족(투약 불가) pos=(210.42, 10.45, 207.72)
+[1590.4s / 15:19:06] HERO 생존자 3 hp=37.0 down=False satiety=53 mood=30 sleep=False work=False activity=Cooking node= delivery=False build= care= pos=(197.00, 10.47, 201.50)
+[1590.4s / 15:19:06] BUILDINGS AcidTower@(202.00, 10.85, 207.00) hp=250/250, AcidTower@(198.00, 10.85, 207.00) hp=250/250, AcidTower@(195.00, 10.90, 205.00) hp=250/250, Farm@(200.50, 10.05, 196.50) hp=150/150, Hearth@(197.00, 10.46, 202.50) hp=200/200, MedicineBench@(201.00, 10.35, 203.50) hp=135/135, SleepingMat@(198.50, 9.90, 204.00) hp=50/50, SleepingMat@(196.50, 9.98, 200.00) hp=10/50, SleepingMat@(197.50, 9.90, 197.00) hp=50/50, Storage@(202.50, 10.35, 202.50) hp=300/300, Toilet@(204.50, 10.37, 200.50) hp=97/100, OilDeposit@(211.33, 9.85, 191.77) hp=123/300
+[1590.4s / 15:19:06] STOCK Food=11, Soil=53, Stone=6, Component=1
+[1590.4s / 15:19:06] RECOVERY 생존자 1 체력 회복 대기 · 전투 종료, 출혈·질병·기아 해소와 상처 처치 필요 moldProtection=0.0 break=None illness=Mold:severity=0.21,immunity=1.00,tend=0
+[1590.4s / 15:19:06] RECOVERY 생존자 2 체력 회복 대기 · 전투 종료, 출혈·질병·기아 해소와 상처 처치 필요 moldProtection=0.0 break=None illness=Mold:severity=0.28,immunity=1.00,tend=0
+[1590.4s / 15:19:06] RECOVERY 생존자 3 체력 회복 중 · 하루 20 · 수면/휴식·치료로 촉진 moldProtection=67.6 break=None illness=
+[1590.4s / 15:19:06] ALERTS 생존자 1: 약품 부족(투약 불가) | 생존자 2: 약품 부족(투약 불가) | 기분 주의: 생존자 2 (23) — 허기 · 붕괴 분당 5 % · 이탈까지 300초 · 장수 상세에서 포상(식량 30) 가능 | 기분 위험: 생존자 2 (19) — 허기 · 붕괴 분당 15 % · 이탈까지 300초 · 장수 상세에서 포상(식량 30) 가능 | 기분 주의: 생존자 2 (34) — 공간 미관 · 붕괴 분당 5 % · 이탈까지 300초 · 장수 상세에서 포상(식량 30) 가능 ×3 | 기분 주의: 생존자 1 (24) — 공간 미관 · 붕괴 분당 5 % · 이탈까지 300초 · 장수 상세에서 포상(식량 30) 가능 | 이주민 무리: 기한 만료: 떠났습니다 | 이주민 무리가 떠났습니다 (기한 만료)
+[1590.4s / 15:19:06] PROCESSOR MedicineBench wait=재료 또는 주문 대기 progress=0.00
+[1590.4s / 15:19:06] RESEARCH  연구를 직접 선택하세요
+[1620.8s / 15:19:16] COMMANDER_SECONDS needs=79.8, idle_or_combat=38.0, work=177.8, move=3.9, sleep=60.3
+[1620.8s / 15:19:16] wave=3 inWave=False left=359 enemies=0 food=12 soil=53 wood=0 screen=Game frame=13674 speed=0
+[1620.8s / 15:19:16] HERO 생존자 1 hp=30.0 down=False satiety=0 mood=29 sleep=True work=False activity=Melee node= delivery=False build= care= pos=(201.60, 10.45, 202.33)
+[1620.8s / 15:19:16] HERO 생존자 2 hp=10.5 down=False satiety=0 mood=34 sleep=True work=False activity=Melee node= delivery=False build= care= pos=(202.09, 10.45, 201.93)
+[1620.8s / 15:19:16] HERO 생존자 3 hp=43.8 down=False satiety=25 mood=36 sleep=True work=False activity=Melee node= delivery=False build= care= pos=(201.59, 10.45, 201.60)
+[1620.8s / 15:19:16] BUILDINGS AcidTower@(202.00, 10.85, 207.00) hp=250/250, AcidTower@(198.00, 10.85, 207.00) hp=250/250, AcidTower@(195.00, 10.90, 205.00) hp=250/250, Farm@(200.50, 10.05, 196.50) hp=150/150, Hearth@(197.00, 10.46, 202.50) hp=200/200, MedicineBench@(201.00, 10.35, 203.50) hp=135/135, SleepingMat@(198.50, 9.90, 204.00) hp=50/50, SleepingMat@(196.50, 9.98, 200.00) hp=10/50, SleepingMat@(197.50, 9.90, 197.00) hp=50/50, Storage@(202.50, 10.35, 202.50) hp=300/300, Toilet@(204.50, 10.37, 200.50) hp=97/100, OilDeposit@(211.33, 9.85, 191.77) hp=123/300
+[1620.8s / 15:19:16] STOCK Food=12, Soil=53, Stone=6, Component=1
+[1620.8s / 15:19:16] RECOVERY 생존자 1 체력 회복 대기 · 전투 종료, 출혈·질병·기아 해소와 상처 처치 필요 moldProtection=131.8 break=None illness=
+[1620.8s / 15:19:16] RECOVERY 생존자 2 체력 회복 대기 · 전투 종료, 출혈·질병·기아 해소와 상처 처치 필요 moldProtection=135.9 break=None illness=
+[1620.8s / 15:19:16] RECOVERY 생존자 3 체력 회복 중 · 하루 40 · 수면/휴식·치료로 촉진 moldProtection=37.3 break=None illness=
+[1620.8s / 15:19:16] ALERTS 기분 주의: 생존자 2 (34) — 공간 미관 · 붕괴 분당 5 % · 이탈까지 300초 · 장수 상세에서 포상(식량 30) 가능 ×5
+[1620.8s / 15:19:16] PROCESSOR MedicineBench wait=재료 또는 주문 대기 progress=0.00
+[1620.8s / 15:19:16] RESEARCH  연구를 직접 선택하세요
+[1620.8s / 15:19:39] STEP {"label":"final-recovery-03","seconds":120.0,"speed":3.0,"build":[],"research":"","prioritize":"Herb","startWave":false,"stop":false,"designate":false,"combat":false,"defendLine":false,"retreatHealth":35.0,"makeMedicine":true,"prioritizeConstruction":false,"recoveryRoles":false,"cookedDiet":false,"watchBreaks":true,"evadeBreaks":false,"pauseGathering":"Soil"}
+[1620.8s / 15:19:39] PLAYER sets resource priority Herb; job priorities unchanged
+[1620.8s / 15:19:39] MEDICINE bench unavailable or already ordered; herbs=1
+[1620.8s / 15:19:39] wave=3 inWave=False left=359 enemies=0 food=12 soil=53 wood=0 screen=Game frame=15729 speed=3
+[1620.8s / 15:19:39] HERO 생존자 1 hp=30.0 down=False satiety=0 mood=29 sleep=True work=False activity=Melee node= delivery=False build= care= pos=(201.60, 10.45, 202.33)
+[1620.8s / 15:19:39] HERO 생존자 2 hp=10.5 down=False satiety=0 mood=34 sleep=True work=False activity=Melee node= delivery=False build= care= pos=(202.09, 10.45, 201.93)
+[1620.8s / 15:19:39] HERO 생존자 3 hp=43.8 down=False satiety=25 mood=36 sleep=True work=False activity=Melee node= delivery=False build= care= pos=(201.59, 10.45, 201.60)
+[1620.8s / 15:19:39] BUILDINGS AcidTower@(202.00, 10.85, 207.00) hp=250/250, AcidTower@(198.00, 10.85, 207.00) hp=250/250, AcidTower@(195.00, 10.90, 205.00) hp=250/250, Farm@(200.50, 10.05, 196.50) hp=150/150, Hearth@(197.00, 10.46, 202.50) hp=200/200, MedicineBench@(201.00, 10.35, 203.50) hp=135/135, SleepingMat@(198.50, 9.90, 204.00) hp=50/50, SleepingMat@(196.50, 9.98, 200.00) hp=10/50, SleepingMat@(197.50, 9.90, 197.00) hp=50/50, Storage@(202.50, 10.35, 202.50) hp=300/300, Toilet@(204.50, 10.37, 200.50) hp=97/100, OilDeposit@(211.33, 9.85, 191.77) hp=123/300
+[1620.8s / 15:19:39] STOCK Food=12, Soil=53, Stone=6, Component=1
+[1620.8s / 15:19:39] RECOVERY 생존자 1 체력 회복 대기 · 전투 종료, 출혈·질병·기아 해소와 상처 처치 필요 moldProtection=131.8 break=None illness=
+[1620.8s / 15:19:39] RECOVERY 생존자 2 체력 회복 대기 · 전투 종료, 출혈·질병·기아 해소와 상처 처치 필요 moldProtection=135.9 break=None illness=
+[1620.8s / 15:19:39] RECOVERY 생존자 3 체력 회복 중 · 하루 40 · 수면/휴식·치료로 촉진 moldProtection=37.3 break=None illness=
+[1620.8s / 15:19:39] ALERTS 
+[1620.8s / 15:19:39] PROCESSOR MedicineBench wait=재료 또는 주문 대기 progress=0.00
+[1620.8s / 15:19:39] RESEARCH  연구를 직접 선택하세요
+[1651.1s / 15:19:49] wave=3 inWave=False left=328 enemies=0 food=12 soil=53 wood=0 screen=Game frame=16499 speed=3
+[1651.1s / 15:19:49] HERO 생존자 1 hp=36.1 down=False satiety=78 mood=22 sleep=False work=False activity=Melee node= delivery=False build= care= pos=(200.49, 10.45, 201.74)
+[1651.1s / 15:19:49] HERO 생존자 2 hp=16.7 down=False satiety=78 mood=32 sleep=False work=True activity=Gathering node=Material Herb 40 delivery=False build= care= pos=(197.48, 10.45, 197.03)
+[1651.1s / 15:19:49] HERO 생존자 3 hp=51.7 down=False satiety=78 mood=30 sleep=False work=False activity=Cooking node= delivery=False build= care= pos=(199.96, 10.47, 201.43)
+[1651.1s / 15:19:49] BUILDINGS AcidTower@(202.00, 10.85, 207.00) hp=250/250, AcidTower@(198.00, 10.85, 207.00) hp=250/250, AcidTower@(195.00, 10.90, 205.00) hp=250/250, Farm@(200.50, 10.05, 196.50) hp=150/150, Hearth@(197.00, 10.46, 202.50) hp=200/200, MedicineBench@(201.00, 10.35, 203.50) hp=135/135, SleepingMat@(198.50, 9.90, 204.00) hp=50/50, SleepingMat@(196.50, 9.98, 200.00) hp=10/50, SleepingMat@(197.50, 9.90, 197.00) hp=50/50, Storage@(202.50, 10.35, 202.50) hp=300/300, Toilet@(204.50, 10.37, 200.50) hp=97/100, OilDeposit@(211.33, 9.85, 191.77) hp=123/300
+[1651.1s / 15:19:49] STOCK Food=12, Soil=53, Stone=6, Component=1
+[1651.1s / 15:19:49] RECOVERY 생존자 1 체력 회복 중 · 하루 20 · 수면/휴식·치료로 촉진 moldProtection=101.5 break=None illness=
+[1651.1s / 15:19:49] RECOVERY 생존자 2 체력 회복 중 · 하루 20 · 수면/휴식·치료로 촉진 moldProtection=105.6 break=None illness=
+[1651.1s / 15:19:49] RECOVERY 생존자 3 체력 회복 중 · 하루 20 · 수면/휴식·치료로 촉진 moldProtection=7.0 break=None illness=
+[1651.1s / 15:19:49] ALERTS 기분 주의: 생존자 3 (30) — 식사: 날것 · 붕괴 분당 5 % · 이탈까지 300초 · 장수 상세에서 포상(식량 30) 가능 | 교역 캐러밴: 계절 방문 보장 — 교역 가능 시간 90초
+[1651.1s / 15:19:49] PROCESSOR MedicineBench wait=재료 또는 주문 대기 progress=0.00
+[1651.1s / 15:19:49] RESEARCH  연구를 직접 선택하세요
+[1681.4s / 15:19:59] wave=3 inWave=False left=298 enemies=0 food=23 soil=52 wood=0 screen=Game frame=17320 speed=3
+[1681.4s / 15:19:59] HERO 생존자 1 hp=40.1 down=False satiety=50 mood=23 sleep=False work=False activity=Building node= delivery=False build= care= pos=(202.42, 10.45, 202.44)
+[1681.4s / 15:19:59] HERO 생존자 2 hp=20.7 down=False satiety=50 mood=29 sleep=False work=True activity=Gathering node=Material Wood 09 delivery=False build= care= pos=(210.43, 10.45, 218.47)
+[1681.4s / 15:19:59] HERO 생존자 3 hp=55.8 down=False satiety=50 mood=30 sleep=False work=False activity=Cooking node= delivery=False build= care= pos=(197.00, 10.47, 201.50)
+[1681.4s / 15:19:59] BUILDINGS AcidTower@(202.00, 10.85, 207.00) hp=250/250, AcidTower@(198.00, 10.85, 207.00) hp=250/250, AcidTower@(195.00, 10.90, 205.00) hp=250/250, Farm@(200.50, 10.05, 196.50) hp=150/150, Hearth@(197.00, 10.46, 202.50) hp=200/200, MedicineBench@(201.00, 10.35, 203.50) hp=135/135, SleepingMat@(198.50, 9.90, 204.00) hp=50/50, SleepingMat@(196.50, 9.98, 200.00) hp=10/50, SleepingMat@(197.50, 9.90, 197.00) hp=50/50, Storage@(202.50, 10.35, 202.50) hp=300/300, Toilet@(204.50, 10.37, 200.50) hp=98/100, OilDeposit@(211.33, 9.85, 191.77) hp=123/300
+[1681.4s / 15:19:59] STOCK Food=23, Soil=52, Stone=6, Component=1
+[1681.4s / 15:19:59] RECOVERY 생존자 1 체력 회복 중 · 하루 20 · 수면/휴식·치료로 촉진 moldProtection=71.2 break=None illness=
+[1681.4s / 15:19:59] RECOVERY 생존자 2 체력 회복 중 · 하루 20 · 수면/휴식·치료로 촉진 moldProtection=75.3 break=None illness=
+[1681.4s / 15:19:59] RECOVERY 생존자 3 체력 회복 중 · 하루 20 · 수면/휴식·치료로 촉진 moldProtection=0.0 break=None illness=
+[1681.4s / 15:19:59] ALERTS 생존자 1: 기술이 올랐습니다.
+[1681.4s / 15:19:59] PROCESSOR MedicineBench wait=재료 또는 주문 대기 progress=0.00
+[1681.4s / 15:19:59] RESEARCH  연구를 직접 선택하세요
+[1710.9s / 15:20:09] wave=3 inWave=False left=268 enemies=0 food=22 soil=52 wood=0 screen=Game frame=18090 speed=3
+[1710.9s / 15:20:09] HERO 생존자 1 hp=44.0 down=False satiety=23 mood=29 sleep=False work=False activity=Melee node= delivery=False build= care= pos=(201.38, 10.45, 201.81)
+[1710.9s / 15:20:09] HERO 생존자 2 hp=24.6 down=False satiety=22 mood=36 sleep=False work=False activity=Melee node= delivery=False build= care= pos=(203.39, 10.45, 202.76)
+[1710.9s / 15:20:09] HERO 생존자 3 hp=59.7 down=False satiety=23 mood=36 sleep=False work=False activity=Melee node= delivery=False build= care= pos=(201.79, 10.45, 202.25)
+[1710.9s / 15:20:09] BUILDINGS AcidTower@(202.00, 10.85, 207.00) hp=250/250, AcidTower@(198.00, 10.85, 207.00) hp=250/250, AcidTower@(195.00, 10.90, 205.00) hp=250/250, Farm@(200.50, 10.05, 196.50) hp=150/150, Hearth@(197.00, 10.46, 202.50) hp=200/200, MedicineBench@(201.00, 10.35, 203.50) hp=135/135, SleepingMat@(198.50, 9.90, 204.00) hp=50/50, SleepingMat@(196.50, 9.98, 200.00) hp=10/50, SleepingMat@(197.50, 9.90, 197.00) hp=50/50, Storage@(202.50, 10.35, 202.50) hp=300/300, Toilet@(204.50, 10.37, 200.50) hp=100/100, OilDeposit@(211.33, 9.85, 191.77) hp=123/300
+[1710.9s / 15:20:09] STOCK Food=22, Soil=52, Stone=6, Component=1
+[1710.9s / 15:20:09] RECOVERY 생존자 1 체력 회복 중 · 하루 20 · 수면/휴식·치료로 촉진 moldProtection=41.7 break=None illness=
+[1710.9s / 15:20:09] RECOVERY 생존자 2 체력 회복 중 · 하루 20 · 수면/휴식·치료로 촉진 moldProtection=45.8 break=None illness=
+[1710.9s / 15:20:09] RECOVERY 생존자 3 체력 회복 중 · 하루 20 · 수면/휴식·치료로 촉진 moldProtection=0.0 break=None illness=
+[1710.9s / 15:20:09] ALERTS 식품 부패: 식량 3 → 썩은 식품
+[1710.9s / 15:20:09] PROCESSOR MedicineBench wait=재료 또는 주문 대기 progress=0.00
+[1710.9s / 15:20:09] RESEARCH  연구를 직접 선택하세요
+[1741.2s / 15:20:19] COMMANDER_SECONDS sleep=86.3, needs=50.8, idle_or_combat=20.9, work=187.8, move=13.2
+[1741.2s / 15:20:19] wave=3 inWave=False left=238 enemies=0 food=33 soil=52 wood=0 screen=Game frame=18837 speed=0
+[1741.2s / 15:20:19] HERO 생존자 1 hp=48.1 down=False satiety=77 mood=23 sleep=False work=True activity=Gathering node=Dropped Food delivery=False build= care= pos=(198.58, 10.45, 202.94)
+[1741.2s / 15:20:19] HERO 생존자 2 hp=28.7 down=False satiety=80 mood=24 sleep=False work=True activity=Gathering node=Material Wood 09 delivery=False build= care= pos=(213.07, 10.45, 216.35)
+[1741.2s / 15:20:19] HERO 생존자 3 hp=63.7 down=False satiety=75 mood=30 sleep=False work=True activity=Melee node= delivery=True build= care= pos=(200.90, 10.45, 201.91)
+[1741.2s / 15:20:19] BUILDINGS AcidTower@(202.00, 10.85, 207.00) hp=250/250, AcidTower@(198.00, 10.85, 207.00) hp=250/250, AcidTower@(195.00, 10.90, 205.00) hp=250/250, Farm@(200.50, 10.05, 196.50) hp=150/150, Hearth@(197.00, 10.46, 202.50) hp=200/200, MedicineBench@(201.00, 10.35, 203.50) hp=135/135, SleepingMat@(198.50, 9.90, 204.00) hp=50/50, SleepingMat@(196.50, 9.98, 200.00) hp=10/50, SleepingMat@(197.50, 9.90, 197.00) hp=50/50, Storage@(202.50, 10.35, 202.50) hp=300/300, Toilet@(204.50, 10.37, 200.50) hp=100/100, OilDeposit@(211.33, 9.85, 191.77) hp=123/300
+[1741.2s / 15:20:19] STOCK Food=33, Soil=52, Stone=6, Component=1
+[1741.2s / 15:20:19] RECOVERY 생존자 1 체력 회복 중 · 하루 20 · 수면/휴식·치료로 촉진 moldProtection=11.4 break=None illness=
+[1741.2s / 15:20:19] RECOVERY 생존자 2 체력 회복 중 · 하루 20 · 수면/휴식·치료로 촉진 moldProtection=15.5 break=None illness=
+[1741.2s / 15:20:19] RECOVERY 생존자 3 체력 회복 중 · 하루 20 · 수면/휴식·치료로 촉진 moldProtection=0.0 break=None illness=
+[1741.2s / 15:20:19] ALERTS 기분 주의: 생존자 3 (34) — 식사: 날것 · 붕괴 분당 5 % · 이탈까지 300초 · 장수 상세에서 포상(식량 30) 가능 | 기분 주의: 생존자 2 (34) — 식사: 날것 · 붕괴 분당 5 % · 이탈까지 300초 · 장수 상세에서 포상(식량 30) 가능 | 식품 부패: 식량 28 → 썩은 식품
+[1741.2s / 15:20:19] PROCESSOR MedicineBench wait=재료 또는 주문 대기 progress=0.00
+[1741.2s / 15:20:19] RESEARCH  연구를 직접 선택하세요
+[1741.2s / 15:21:35] UI tooltip PASS Storage (x:938.24, y:120.16, width:438.96, height:607.60) text=<b>창고</b> <color=#b1b3a7>식량 0 · 재료 20</color>
+식량·재료 기본 보관 한도 +100/+100. 창고에 들어간 재고만 연구비와 식량 목표에 집계됩니다.
+<color=#b1b3a7>언제</color> 채집물이 바닥에 쌓이거나 연구에 쓸 재고가 필요할 때.
+<color=#b1b3a7>운영</color> 운반 작업을 켠 장수가 바닥 물자를 입고합니다. 선행 연구 없음.
+<color=#a9ba8d>지금 부족한 조건 없음</color>
+[1741.2s / 15:21:37] UI tooltip PASS ScienceLab (x:938.24, y:120.16, width:438.96, height:607.60) text=<b>정착지 연구대</b> <color=#b1b3a7>목재 20 · 돌 10</color>
+과학 연구를 진행합니다. 흙벽·함정·밭 수확 증가 등이 연구로 열립니다.
+<color=#b1b3a7>언제</color> 창고 재고와 연구에 배정할 장수 여유가 생기면.
+<color=#b1b3a7>운영</color> 연구 작업을 켠 장수 1명을 연구 메뉴에서 담당으로 배정(연구대 곁에 있어야 진행). 정착 시대 연구비 식량 50·흙 50은 창고 재고에서 냅니다.
+<color=#e0a060>부족 · 창고 재고 목재 0/20 · 돌 6/10(예정지는 둘 수 있고 바닥 물자도 사용) / 첫 연구비 식량 33/50</color>
+[1741.2s / 15:21:40] UI tooltip PASS AcidTower (x:938.24, y:120.16, width:438.96, height:607.60) text=<b>산성탑</b> <color=#b1b3a7>식량 30 · 재료 60</color>
+사거리 14 안의 적을 1.5초마다 18 피해로 자동 공격합니다.
+<color=#b1b3a7>언제</color> 첫 방어 뒤 2웨이브(80마리)를 대비할 때. 적 진입로를 사거리 안에 두세요.
+<color=#b1b3a7>운영</color> 인력·탄약·선행 연구 없음.
+<color=#e0a060>부족 · 창고 재고 흙 52/60(예정지는 둘 수 있고 바닥 물자도 사용)</color>
+[1741.2s / 15:21:42] UI tooltip PASS SoilWall (x:938.24, y:120.16, width:438.96, height:607.60) text=<b>흙벽</b> <color=#b1b3a7>식량 0 · 재료 25</color>
+적의 통행을 막습니다. 내구 400.
+<color=#b1b3a7>언제</color> 2~3웨이브 전에 진입로를 좁혀 적을 탑과 장수 앞으로 모을 때.
+<color=#b1b3a7>운영</color> 인력 없음. 출입구는 문으로 남깁니다. 선행 연구: 흙벽 공법.
+<color=#e0a060>부족 · 연구 미완료: 흙벽 공법</color>
+[1741.2s / 15:21:52] wave=3 inWave=False left=238 enemies=0 food=33 soil=52 wood=0 screen=Game frame=27207 speed=0
+[1741.2s / 15:21:52] HERO 생존자 1 hp=48.1 down=False satiety=77 mood=23 sleep=False work=True activity=Gathering node=Dropped Food delivery=False build= care= pos=(198.58, 10.45, 202.94)
+[1741.2s / 15:21:52] HERO 생존자 2 hp=28.7 down=False satiety=80 mood=24 sleep=False work=True activity=Gathering node=Material Wood 09 delivery=False build= care= pos=(213.07, 10.45, 216.35)
+[1741.2s / 15:21:52] HERO 생존자 3 hp=63.7 down=False satiety=75 mood=30 sleep=False work=True activity=Melee node= delivery=True build= care= pos=(200.90, 10.45, 201.91)
+[1741.2s / 15:21:52] BUILDINGS AcidTower@(202.00, 10.85, 207.00) hp=250/250, AcidTower@(198.00, 10.85, 207.00) hp=250/250, AcidTower@(195.00, 10.90, 205.00) hp=250/250, Farm@(200.50, 10.05, 196.50) hp=150/150, Hearth@(197.00, 10.46, 202.50) hp=200/200, MedicineBench@(201.00, 10.35, 203.50) hp=135/135, SleepingMat@(198.50, 9.90, 204.00) hp=50/50, SleepingMat@(196.50, 9.98, 200.00) hp=10/50, SleepingMat@(197.50, 9.90, 197.00) hp=50/50, Storage@(202.50, 10.35, 202.50) hp=300/300, Toilet@(204.50, 10.37, 200.50) hp=100/100, OilDeposit@(211.33, 9.85, 191.77) hp=123/300
+[1741.2s / 15:21:52] STOCK Food=33, Soil=52, Stone=6, Component=1
+[1741.2s / 15:21:52] RECOVERY 생존자 1 체력 회복 중 · 하루 20 · 수면/휴식·치료로 촉진 moldProtection=11.4 break=None illness=
+[1741.2s / 15:21:52] RECOVERY 생존자 2 체력 회복 중 · 하루 20 · 수면/휴식·치료로 촉진 moldProtection=15.5 break=None illness=
+[1741.2s / 15:21:52] RECOVERY 생존자 3 체력 회복 중 · 하루 20 · 수면/휴식·치료로 촉진 moldProtection=0.0 break=None illness=
+[1741.2s / 15:21:52] ALERTS 
+[1741.2s / 15:21:52] PROCESSOR MedicineBench wait=재료 또는 주문 대기 progress=0.00
+[1741.2s / 15:21:52] RESEARCH  연구를 직접 선택하세요

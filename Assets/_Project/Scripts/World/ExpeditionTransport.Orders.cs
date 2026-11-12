@@ -80,7 +80,7 @@ namespace AntColony.World
                     || c.IsCaptive || c.IsDeparting || c.ScoutMission != null) return false;
                 if (kind != CrewOrderKind.Board)
                 {
-                    if (c.Transport != this || !crew.Contains(c) || kind == CrewOrderKind.Station && !c.HasTroops) return false;
+                    if (c.Transport != this || !crew.Contains(c) || kind == CrewOrderKind.Station && !c.CanFight) return false;
                 }
                 else if (c.Transport == this || (State == ExpeditionState.Home ? c.IsAwayFromHome
                     : c.Transport != null && (c.Transport.Site != Site || c.Transport.State != ExpeditionState.Deployed)

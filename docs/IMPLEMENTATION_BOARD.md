@@ -3,6 +3,24 @@
 작업 전에 [게임 방향](../GAME_DIRECTION.md)과 [최근 로그](../log.md)를 읽고 담당 파일을 확인합니다. 다른 담당자가 수정 중인 파일은 동시에 변경하지 않습니다.
 
 ## 최근 작업
+- **FINAL-MOTION-1113 / 통합 SAVE** — 사용자 요청으로 구현 중단·현재까지 저장. 눈/침대/자원 접점 및 세 세션 완료 변경을 통합. Unity Edit 반환, 다른 두 채팅 idle. 컴퓨터 종료 안 함. 상세 docs/FINAL_MOTION_1113.md. 아래 오래된 진행 중 항목보다 이 최종 인계를 우선한다.
+- COMMANDER-ONLY-1112 추가 소유: Units/UnitSelectionController.cs. 실제 입력 시스템 좌클릭/우클릭 시험에서 나무 위 후퇴 클릭이 채집 거부로 소실되는 문제 재현(3회 이동0m/HP100→72). 소집 중 자원·건설 현장 우클릭을 이동으로 처리, 재검증 진행.
+- **APPEARANCE-OVERLAP-1112 / Codex 후속 수정 대기** — 사용자: 기본 흰머리 위에 선택 머리가 모자처럼 덮이는 현상 보고. 표정/얼굴 및 장비도 겹치는지 점검 요청. 오프라인 메시 진단으로 Face 내부 흰 앞머리/옆머리 잔류 확인. 재분리·장비 렌더러 갱신 초안 준비(work/appearance-overlap-1112), Unity 적용/검증 전. 기존 48조합 검사는 이 겹침 결함의 해결 근거가 아님. 조사 범위: MeshyNativeAppearance, SourceParts 생성/분리, KemonoAppearance. COMMANDER-ONLY 카이팅 검사 종료·설정복원 후 Unity 인계받아 적용/검증 중. 추가 소유 MeshyEquipmentWearables.cs의 Revision, MeshyNativeMotionPlayer 숨김 갱신, SourceParts 재분리.
+
+- **COMMANDER-ONLY-1112 인계 / Codex 진행** — 사용자 요청으로 사용량 제한에 멈춘 Claude 작업 인수. 기존 적 AI·카이팅 변경 보존, 병력 제거부터 진행. 소유: Claude 전투·병력·진형·시민 제거 범위. LIFE-ASSETS 파일 제외, CommanderDuty 여가 호출 보존. Unity Edit/ready·컴파일 오류0 확인. 구 저장 필드 호환 유지. SAVE 없음.
+
+- **LIFE-ASSETS-1112 / Codex 진행** — Meshy123크레딧 한도, 약품제작대·치료침대 우선. 소유: art/life-assets-1112, FacilityVisual.cs, 신규 CommanderIdleLeisure.cs, CommanderDuty.TickDuty 끝의 여가 시작 호출 1곳, AntVisual.Work.cs, MeshyNativeMotionPlayer.cs, Editor/MeshyNativeActionBindings.cs, AgentScripts/Life1112*. Claude 전투·시민/병력 제거 보존. CommanderDuty는 마지막 호출만 추가. 두 모델 임포트·실제 시설 검증 완료. Runtime57행동/40원본클립, 여가40선택·공격명령 우선·3모션 프레임진행 PASS. 신규 MeshyNativeContextMotion.cs 포함 부상/산책 선택 적용(C#12검사, 자연부상 장기플레이는 미검증). 사용자설정/저장경로 복원·Edit/ready 확인 후 COMMANDER-ONLY Codex에 Unity 반환. 세부 work/life-assets-1112/progress.md.
+
+
+- **COMMANDER-ONLY-1112 / Claude / 방향 문서 갱신 완료, 구현 미착수** — 사용자 승인으로 `GAME_DIRECTION.md`를 2026-11-12 Notion 재설계(장수 단일 유닛·카이팅·적 목표 우선순위·무인 본거지 웨이브) 기준으로 갱신. 소유: `GAME_DIRECTION.md`, 보드의 본 항목. 게임 코드·저장 데이터·Notion 변경 없음. 예정 순서: 적 목표 우선순위(`Core/CombatTargeting.cs`, `World/WildMonster*.cs`, `World/WaveDefense.cs`) → 카이팅(`Units/CommanderAnt.cs`, `CommanderFirearms.cs`, `SoldierAnt.cs`) → 병력 삭제 → 진형·지휘 삭제 → 시민 경제 삭제. 착수 시 단계별 수정 파일을 다시 등록한다. 구 저장 호환 여부는 사용자 결정 대기.
+
+- **COMMANDER-ONLY-1112 1단계 적 목표 우선순위 / Claude / 구현·Play 검사 통과, 웨이브 밸런스 재측정 중** — 사용자 지시(2026-11-12 "허락 없이 쭉 구현")로 단계별 확인 없이 진행. 소유: 신규 `World/WildMonster.Aim.cs`, `World/WildMonster.cs`(표적 재탐색·경로 재요청·저장 필드), `World/WaveDefense.cs`(무리 유형 배분), `World/LocalIncursions.cs`(무리 생성 인자), `Core/GameManager.cs`(순위별 건물 탐색 추가), `Save/SaveOrders.cs`(WildMonsterDto.aim), 신규 `AgentScripts/EnemyAim1112Checks.cs`.
+  - 유형: 일반 공격(기본)·건물 공격·방어시설 파괴·벽 파괴. 1순위가 없으면 차순위로 내려간다. 일반형은 벽을 치다가도 닿을 수 있는 장수가 오면 장수로 전환한다. 벽 파괴형은 본거지 길을 실제로 막는 벽만 1순위다.
+  - 잠정 배분: 무리 10개 중 벽 파괴 1(3웨이브~)·건물 공격 1(4웨이브~)·방어시설 파괴 1(5웨이브~). 앞의 개별 유닛 30과 장수는 일반형. 난수 미사용.
+  - 버그 수정: 벽 안쪽처럼 닿을 수 없는 표적으로 갈 때 0.4초마다 경로를 다시 요청해 적이 거의 멈추던 문제(보드의 '벽 밖 적 정지'와 같은 증상). 같은 목적지는 계산 중이면 기다리고 2초마다만 갱신.
+  - 검증: EnemyAim1112Checks 32/32 두 번 연속 통과(벽 없음·흙벽 고리 2판), FunWaveSave1106Checks 통과, 컴파일 오류 0. 구 저장은 aim 0(일반형)으로 읽힌다.
+  - 미완: 유형을 화면에서 구분하는 표시(이름만 다름), 약탈형 신규 유형(기존 말벌 창고 표적은 그대로), 무리 경로 공유 캐시(무리 1개=에이전트 1개라 보류), 4000마리 성능 재측정.
+  - 관찰(타 담당 파일, 수정 안 함): Play 진입 직후부터 `UI/HudResponsiveLayout.cs:139`와 `Map/Precipitation.cs:69`에서 매 프레임 NullReferenceException이 난다. 이번 변경 전부터 있었는지는 확인하지 못했다.
 
 - **CLAUDE-FEATURES-BRIEF-1110 / Codex / 지시서 작성 완료** — 사용자 요청으로 확정 기획의 미구현 기능을 Claude 인계용으로 정리. 소유: `docs/CLAUDE_FEATURE_IMPLEMENTATION_1110.md`, 보드의 본 항목. 음주·식품·단서 발견·수송 단계·길목 호위의 범위/완료 기준과 기획 충돌을 명시. 게임 코드 변경·Claude 구현 착수·SAVE 없음. Claude는 착수 시 실제 수정 파일과 상태를 별도 등록.
 
@@ -393,3 +411,78 @@
 - ANIMATION-1112 후속 소유: ResourceVisual.cs 바닥 화물 폭 .6m 통일. 기존 석재 .65m 제한과 함께 목재·점토 대형 화물이 작업자를 가리는 문제 검증. 다른 담당 FIRST-DEFENSE 완료 후 수정.
 
 - ANIMATION-1112 최종: 모든장수 native,119클립검수,35클립/51행동, 파지/외형/반복피격/시설8종 검증. legacy 행동·정밀접촉 잔여 명시. docs/ANIMATION_NATIVE_1112.md. Unity 설정복원 후 Edit반환, 두채팅 통합SAVE 진행.
+
+- EQUIPMENT-FLIP-1112 / Codex 진행: 사용자 정정 반영: 도끼 머리/자루 위치는 원복하고 자루축 180도 앞뒤 반전. 활·방패도 위아래 유지, 앞뒤 반전. 소유 MeshyNativeEquipment.cs, AgentScripts/EquipmentFlip1112.cs. 곡괭이 방향 유지. Unity CLI 검증 및 최종 화면 확인 담당.
+
+- EQUIPMENT-FLIP-1112 검증: 컴파일 오류0. 도끼7/활2/곡괭이7 각31포즈 파지 PASS, 실제 벌목205프레임 및 활2/방패 각30프레임 재생 확인. work/equipment-flip-1112. 타격점 정합은 이번 방향 수정과 별개로 미완료. 사용자 설정 복원, Unity Edit 반환.
+
+- COMMANDER-ONLY-1112 검증 후속: 자원 위 후퇴 클릭 수정 완료. 공식 CLI Input System 1배속 3회 공격/후퇴 19/19 통과, HP100 유지. Windows 직접 마우스는 실패로 별도 기록. 설정/저장 경로 복원 및 Edit/ready 후 외형 담당에게 Unity 반환. 상세 docs/COMMANDER_ONLY_1112.md.
+
+- THREE-WAVES-1112 / Codex 시작: 사용자 새 기획 첫3웨이브 연속Play·대기/전투/가독성 개선 요청. 우선 AgentScripts/ThreeWaves1112*·work/three-waves-1112 담당, 게임 코드는 관찰 원인별 소유 조율 후 등록. COMMANDER-ONLY 재설계/외형 담당과 파일·Unity 슬롯 조율 중. Assets·Unity 변경 없이 조사/검사 준비.
+
+- COMMANDER-ONLY-1112 제거 후속 / Codex: 사용자 계속 진행 승인. 외형→시스템 전환→THREE-WAVES 순서 합의. Assets 적용 전 후보51파일 준비, 저장 ID/필드 보존 및 미정 CA 재배분 보류. 소유 파일: Buildings/AirshipYard.Civilians.cs, Buildings/AirshipYard.Reservations.cs, Buildings/AirshipYard.Rocket.cs, Buildings/Housing.cs, Buildings/Redevelopment.cs, Buildings/ScoutPost.cs, Core/AntPool.cs, Core/CampaignResearch.cs, Core/ColonyPopulation.Ages.cs, Core/ColonyPopulation.Civilians.cs, Core/ColonyPopulation.cs, Core/ColonyPopulation.Economy.cs, Core/ColonyPopulation.Evacuation.cs, Core/ColonyPopulation.Military.cs, Core/ColonyPopulation.Shelter.cs, Core/ScienceEffects.cs, Core/SpecialtyAcquisition.cs, Save/SaveSnapshot.cs, UI/BuildScreen.cs, UI/CommandCard.cs, UI/CommanderAcquisitionPanel.cs, UI/DetailTabs.cs, UI/GameMenuCampaign.cs, UI/GameMenuCivicServices.cs, UI/GameMenuConscription.cs, UI/GameMenuController.cs, UI/GameMenuCrashStart.cs, UI/GameMenuDock.cs, UI/GameMenuEnding.cs, UI/GameMenuEvents.cs, UI/GameMenuManagement.cs, UI/GameMenuPassengerReservations.cs, UI/GameMenuPopulation.cs, UI/GameMenuResearch.cs, UI/GameMenuResearchTree.cs, UI/GameMenuRocket.cs, UI/GameMenuRoster.cs, UI/GameMenuScout.cs, UI/HUDController.cs, UI/HudOverview.cs, UI/SelectedUnitPanel.cs, UI/TraitChip.cs, Units/CommanderAdvancedSkills.cs, Units/CommanderAnt.cs, Units/CommanderEquipment.cs, Units/CommanderFormation.cs, Units/CommanderJoy.cs, Units/CommanderPersonal.cs, Units/CommanderTalents.cs, Units/CommanderTraits.cs, World/ColonyEvents.cs. 외형/여가 파일 제외.
+
+- COMMANDER-ONLY-1112 제거 후속 후보 범위 갱신: 총59파일, 전체목록 work/commander-only-1112/removal-files.txt. 추가 SavePreflight/SpecialtyProgress 저장호환, EquipmentRecipes/GameMenuEquipment 지휘장비, BuildingPlacementController 구시설 차단, GameMenuWalking/GameMenuDock 잔여 진형·시민 진입점 포함. Assets 적용 전 외형 종료 대기.
+
+- COMMANDER-ONLY-1112 제거 완료: 총60파일 적용(최종추가 Barracks.Training.cs/Core.ColonyPopulation.Admin.cs 등은 removal-files.txt 참조). 진형/지휘/시민경제 런타임·UI 제거, 저장호환필드 보존, CA재배분 미정 유지. 컴파일0/회귀119/카이팅19/실제 구저장·웨이브15적 save-load PASS. docs/COMMANDER_ONLY_1112.md. 설정/root 복원, Edit ready 후22:35 KST THREE-WAVES에 Unity 인계. 외형파일 미수정. 이 세션 Assets 수정 종료, Graphify/문서만 정리.
+
+- APPEARANCE-OVERLAP-1112 후속 / Codex: 사용자 외형 파손 지적에 따라 수정 후보 SourceParts94파일 복원, 현재 외형 미해결. 거부된 후보 두 리그×6머리 모두 vertexCount보다 큰 삼각형 인덱스 확인(현재 복원본26메시 범위 정상). work/appearance-overlap-1112/pending에서 명시적 Mesh 스트림 복사·기존 blendshape 초기화·생성/복사/실행 시 인덱스 검사 준비. SourceParts/Native1112SourceParts 생성기, NativeAppearance, NativeMotionPlayer/Wearables 외형 담당 유지. COMMANDER-ONLY→THREE-WAVES 검증 동안 Assets/Unity 변경 중지. 표정/장비/전체 모션/생성 에셋 실사용 연결·최종 화면 검증까지 범위 유지.
+`n- THREE-WAVES-1112 추가 소유(재설계 담당 동의): Units/CommanderDuty.cs ByTravel의 건설 배송 거리 평가, Buildings/BuildingConstructionSite.cs WaitReason. 자연271초: 근처 흙6m 대신129m 이벤트 바닥짐 운반 반복, 수면을 경로없음으로 표시. 여가호출·전투 규칙 변경 없음.
+
+- COMMANDER-ONLY-1112 최종: Graphify update 종료0, 그래프/보고서 갱신 완료. 이 세션 실행 중 작업 없음. THREE-WAVES가 Unity·후속 자동작업 진단 담당.
+
+- THREE-WAVES-REVIEW-1112 / COMMANDER-ONLY 세션: 사용자 첫3웨이브 결과교차확인/중복없는수정 요청. THREE-WAVES의 Unity·게임파일 소유 유지, 이쪽 work/three-waves-review-1112 읽기전용 검토. WaitReason 준비분기 CivilianWorkReady 누락 및 배송거리 추정과 실제 창고접근/바닥fallback 불일치 전달. Assets 동시수정 없음.
+THREE-WAVES-1112 추가 소유: WorkerAnt.cs CommandFetchFor 및 WorkerAnt.FloorDelivery.cs. 독립검토 반영하여 실제 픽업선택과 거리평가를 동일 함수로 공유. 기본 건설/저장/수동명령 의미 보존.
+
+- APPEARANCE-OVERLAP-1112 짧은 재검증 성공/반환(22:46 KST): 명시적 Mesh복사로26메시 메모리/디스크 인덱스 정상, 실제Game 기본머리 파손/흰앞머리겹침 해소.12리그/머리 조합·장신구3교체PASS. SourceParts 개선본 유지, 생성기와UV분리목록을 AgentScripts/art에 보존. PONY/UPDO 경계각짐 및전체표정/장비검수는 잔여. 설정/root복원·Edit ready 후 THREE-WAVES에반환, Assets동결.
+
+- APPEARANCE/LIFE-1112 후속 후보 담당: Units/CommanderWork.cs 일반Processor/Kitchen 목적지 도착조건, Units/AntVisual.Work.cs 같은 작업모션 도착조건. 실제 에셋에서 일하도록 연결하는 범위이며 생산수치/레시피 변경없음. work/life-assets-1112/station-drafts에서만 준비, THREE-WAVES 진행중 Assets 적용안함. 외형 후보 PONY/TWIN/UPDO 연속변형 및 표정 공유경계 보존도 work에만 준비.
+
+- THREE-WAVES-REVIEW-1112 추가 소유 합의: Map/DayNightLighting.cs 야간검은실루엣 보정. work/three-waves-review-1112에후보만 준비; THREE-WAVES 연속회차 종료 전 Assets/Unity 변경 금지. 이후 동일화면야간A/B·낮유지·날씨·복원 확인.
+
+- THREE-WAVES-REVIEW-1112 추가: 약초 레시피는있으나 일반채집/농업/교역공급 누락확인. Map/MaterialDeposits.cs 끝에재성장약초2노드후보 준비(기존mat저장ID/난수순서유지), 회차후 적용조율. ResourceVisual 기존Crop_Herb사용하므로외형파일미수정. 개인HP자연회복누락도교차확인하여 THREE-WAVES CommanderRecovery/HealthCare 수정담당동의.
+
+- THREE-WAVES-REVIEW-1112 추가 소유: Save/SavePreflight.cs 시체remaining0허용조건. 런타임은적장수도유해유지하지만검증은아군장수만허용하여300초뒤저장실패 가능. 실제시체상태 THREE-WAVES확인요청; 후보만준비, 회차후적용. 다른SavePreflight기존수정보존.
+
+- THREE-WAVES-1112 회차완료/수정중: 동일새게임 1~3 방어완료(481.4/978.3/1300.7초 시작, 15.4/51.3/78.7초 전투), 마지막HP30/10.5/26·연구대/수원파괴. 출시완료판정 아님. 회복HP누락·적장수유해저장거절·전투중여가표시 발견. 추가소유 Units/CommanderRecovery.cs, CommanderAnt.cs, CommanderJoy.cs, UI/CommanderOverhead.cs 및 기존 CommanderDuty.cs. 원본 work/three-waves-1112/after-wave3-raw.json(미검증스냅샷) 보존. 외형담당에23:17KST Editready/설정root복원 후10분슬롯, 이쪽후보만준비.
+
+- THREE-WAVES-1112 후속통합: 추가 Core/GameBalance.cs 개인HP회복 잠정수치 담당. 외형23:27반환후6파일원본해시일치확인·후보적용. 리뷰세션 MaterialDeposits/DayNightLighting/SavePreflight3파일 별도소유. 통합컴파일/실제회귀대기.
+
+- THREE-WAVES-1112 통합검증: 9파일 통합Unity컴파일 오류0. ThreeWaves1112RecoveryChecks 25/25통과(개인HP/수면·휴식/상한/질병·기아·출혈·전투차단/기존0→20/여가해제/교전표시/작업→자동방어/공격cooldown유지). 폐기용fixture이며자연회차결과아님. 실제교전표시캡처확인. 설정/root복원·Editready23:31 후리뷰세션에저장/약초/야간검증슬롯양도.
+
+## APPEARANCE-LIFE 후속 검증 2026-11-12 23:27 KST
+- 담당 Codex APPEARANCE/LIFE: 원본파츠 builder·MeshyNativeMotionPlayer/Wearables·CommanderIdleLeisure·CommanderWork(Processor/Kitchen 도착조건)·AntVisual.Work. THREE-WAVES 소유 CommanderDuty/Recovery/Joy 등 변경하지 않음.
+- 적용 및 검증: 두 리그26메시/12머리조합·장신구3교체, 직접행동51연결, 실제 부상이동2/산책, 입원·자동치료 통과. Game52장 검토. 기존 메시파손/흰앞머리 중복/하드변형 개선.
+- 미완: CROP/UPDO 뒤목 색판, Blink/Sleep 완전감기, 침대 눕기/정렬, 약품생산 최종결과 확인, 전체119클립 및 전장비 접점 재검증, 생성모델20종 실제상호작용 최종검사. 세부 work/appearance-overlap-1112/progress.md 및 work/life-assets-1112/progress.md.
+- 사용자설정/root복원·Edit ready 후 THREE-WAVES 반환, Assets 동결. 다음 Unity 슬롯 대기 중 외부 후보/기록만 진행.
+
+- THREE-WAVES-REVIEW-1112 소유추가동의: SaveSystem.TryLoad/SaveSnapshot.Restore 현재씬과저장씬의적개수불일치로메뉴로드실패 수정. TryParse전환전검증유지, ForScene은목표씬생성후복원첫단계로이동하여기존롤백유지. 현재약초생산검사종료후Edit에서적용·컴파일·다른지도/손상회귀.
+- 추가 소유 후보(THREE-WAVES 요청/조율): World/Corpse.cs·CorpseProp.cs·Units/MeshyNativeCorpse.cs. paused 저장복원 시 장수유해가 legacy Death로 서있는 경로를 native Dead 끝포즈 즉시평가로 통일, 일반시체/유골은 복원시에만 즉시 prop 표시. work/appearance-overlap-1112/corpse-drafts 준비/전체 독립컴파일0, Assets 미적용. 새 사망 재생 시작0 보존. Unity검증 대기.
+- 목뒤 후보: nape-body-uv-candidate.txt1143면, 두 리그UV1143/1143일치. Native1112NapeCandidate.cs 독립컴파일0, Assets미적용. 현재머리색을 받는 낮은후면띠를 Body로 재분류하는 시각검증용 후보.
+
+- THREE-WAVES-REVIEW-1112 검증: 소유5파일 DayNightLighting/MaterialDeposits/SavePreflight/SaveSystem/SaveSnapshot 적용·컴파일0. 메뉴/다른맵로드 포함57검사, 손상장면 롤백9검사, 자연약초→약품실물1 생산65.75게임초 PASS. 폭풍 회색 화면은 Editor 첫 fog shader 컴파일 도중으로 대기후 정상확인, WeatherSystem/SeasonVisuals 수정없음. docs/THREE_WAVES_REVIEW_1112.md. 최종 야간 재촬영 후 Unity 반환 예정.
+
+- THREE-WAVES-REVIEW 정정/추가소유(THREE-WAVES 동의): Map/WeatherSystem.cs. 8초 대기 후에도 폭풍 단색 재현되어 셰이더 컴파일만 원인이라는 추정 철회. 명시적 Linear15~180 범위 후보 적용/검증 중, 아직 가독성 완료 아님.
+
+- THREE-WAVES-REVIEW-1112 완료/반환: 최종 WeatherSystem Linear 범위(폭풍3000/안개1800/기타2200)에서 밤 색/윤곽 확인, 낮·맑음 광량 유지. 소유6파일 컴파일0,57+9저장검사/약품생산PASS. 설정/root복원·Edit ready 후 THREE-WAVES에 Unity반환,이쪽Assets동결. 최종통합Graphify대기.
+
+- THREE-WAVES 23:49 KST: REVIEW에서 Edit/ready 반환. Buildings/FacilityVisual.cs 소유 추가, 성공한 시설 모델 로드 뒤 이전 AcidReservoir 원통만 숨김. 외형 담당 corpse3파일 적용 후 단일 컴파일·paused복원·원본3웨이브 후 자연회복 검수. 다른 Assets/Unity 작업은 대기 조율.
+- THREE-WAVES 승인 신호 후 시체 후보3파일만 Assets 적용 완료. 다른 세션의 FacilityVisual 수정과 통합컴파일/paused복원/원본3유해 화면 검증 예정. 이 세션 CLI 미실행, 목뒤 후보는 Assets 미반영.
+
+- THREE-WAVES 추가진단 23:57 KST: 자연후속240초에서 개인HP회복후2명다운. 원본/실패상태정상저장별도보존. 질병중증의 Downed목격기분과완치즉시재감염 조사. 후보소유 Units/CommanderHealth.cs·CommanderInfection.cs·CommanderPersonalStory.cs·CommanderPersonal.cs(스토리초기화)·CommanderPersonalState.cs(상태검증)·World/ColonyEvents.cs(감염진입점). Assets미변경, 외형세션에10분Unity반환하고외부후보준비.
+
+- THREE-WAVES-REVIEW Graphify 1회 종료0:51094노드/134440엣지,현재적용6파일+산성탑/시체통합반영. 이후 발견된질병/목격반응 의료후보6파일은 THREE-WAVES소유로미적용검증중이며해당적용뒤추가갱신필요. 이쪽후보읽기검토완료,신선한절단목격경계전달.
+- THREE-WAVES 추가화면진단: 기본 고정자원이 Food/SimpleMeal/Wood/Stone이라 초반 건설 핵심 Soil 재고가 HUD에 빠짐. UI/PrototypeResourceHud.cs 기본목록에 Soil 추가후보 소유(사용자 저장된핀설정은그대로). Assets동결중, 의료후보와반환후통합검수.
+- THREE-WAVES 2026-11-13 00:06 KST: APPEARANCE에서설정/root복원·Edit ready반환, 후보7파일원본SHA일치확인후적용. 곰팡이완치1일재감염유예/실제부상스토리조건/흙기본HUD. 의료회귀·원본후속실행검수시작.
+- APPEARANCE-LIFE 2026-11-13 00:05 반환: 목뒤1143면 Body분류 적용(원본가중치보존), 26메시/12조합/119클립3위상원본비교/장비52·장신구22·무기14·활122·실재생10무기 PASS. SourceParts 외 Assets 변경없음. 사용자설정/root복원·Edit ready 후 THREE-WAVES 반환. 눈완전감기/치료침대눕기/정밀타격접점 미완, 전체출시완료 판정아님. 상세 work/appearance-overlap-1112/progress.md.
+- THREE-WAVES 추가확정 2026-11-13 00:13 KST: 360초후 AttackCommander 피해로2명다운로그확정. 감염재발0이나복구성공아님. 붕괴중HP회복·쓰러진장수폭식결함과공격붕괴위협알림누락 수정. 추가소유UI/PersonalDisplayNames.cs·ThreatIncidents.cs, 기존소유CommanderPersonal/Recovery/Overhead. 실패정상저장보존·설정복원·Edit후수정.
+
+- THREE-WAVES-REVIEW-1112 잔여시민표시후보소유(THREE-WAVES 요청): World/ColonyEvents.cs 이주이벤트결과문구,UI/MigrationOfferPanel.cs 안내/수락툴팁. 실제장수1명합류와일치하게텍스트만수정,의료CanCatchMold보존. work/three-waves-review-1112/migration-display 외부후보만, Assets적용/Unity는THREE-WAVES가Edit에서일괄담당.
+- THREE-WAVES 00:23 KST: REVIEW가외부준비한이주표시2파일(ColonyEvents/MigrationOfferPanel)원본SHA확인후적용. 실제장수1명합류로직에맞게시민합류문구제거. 자연후속360초3명생존HP48.1/28.7/63.7·식량33·질병0 정상저장, 건강/툴팁4종화면검수통과. 일반toast/위협incident중복제거후마지막컴파일/표시검사.
+- FINAL-MOTION-1113 / Codex: 사용자 요청 눈완전감기·침대눕기·장비타격접점 마무리 및 3세션 통합 SAVE/Notion GIF사진 검증/종료 담당. 소유 SourceParts 생성기/얼굴asset, MeshyNativeMotionPlayer·신규 침상/접점 시각보정, 필요 Infirmary/WorkerAnt 접근부 최소수정(담당조율 후). 다른채팅 최종 Unity 반환 전 work 외부후보만. SAVE 시작시 log.md 먼저 기록.
+
+- THREE-WAVES-REVIEW 최종완료(2026-11-13 00:27): 3웨이브결과교차검토/소유6파일수정·검증/잔여시민이주표시2파일후보인계완료. 저장약초57·롤백9·의료27·붕괴17 및실제이주+1검증확인. 최종원본후속360초3명생존HP48.1/28.7/63.7·식량33,정상저장재로드/신규콘솔오류0. 자연공격붕괴미발생으로자동정지·피신은fixture검사로만기록. THREE-WAVES의설정/root/GameView복원·Editready확인. 현재Graphify실행없음,최종갱신/SAVE/Notion/종료는외형채팅에인계. 이쪽코드·Unity동결,docs/THREE_WAVES_REVIEW_1112.md최종.
+
+- THREE-WAVES 최종인계 2026-11-13 00:27 KST: 실제첫3웨이브연속방어+원본후속약362초3명생존/질병0/HP48.1·28.7·63.7/식량33. 컴파일0·신규콘솔오류0, 회귀10/25/27/17 및저장약초57/롤백9, 시체/탑/툴팁4종/건강/이주실검사완료. docs/THREE_WAVES_1112.md 확정, README갱신. 모든게임코드동결, 설정/root/GameView복원·Play중지·ready, Unity/최종Graphify/통합SAVE를APPEARANCE채팅에인계. 이번채팅별도SAVE/Notion/종료없음. 식량·연구경제/다른시작조건/전투재미출시판정미완.
+
+- FINAL-MOTION-1113 추가 소유(다른 두 세션 완료/반환 후): Infirmary·FacilityVisual·AntVisual·MeshyNativeMotionPlayer, CommanderDuty 치료 접근, WorkerAnt/WorkerAnt.GatherApproach 및 신규 MeshyWorkContact. 눈감기 원본 파츠 보정 실화면 확인, 치료 두 침상/14수명주기 검사 통과. 실제 도구 궤적 기반 접근거리 및 조기정지 수정 검증 중. 노션 최근 기록의 아이콘+날짜 제목 표시 형식 복구도 사용자 추가 요청에 포함. 아직 통합 SAVE 시작 전.

@@ -41,13 +41,13 @@ namespace AntColony.UI
             var summary = L.Label(p, "", 14, 24, 512, 600, 50);
             var dispatch = L.Button(p, "Scout Dispatch", "파견", 656, 560, 200, 34, () => {
                 if (!post.TryDispatch(chosen))
-                { ToastManager.Show("파견할 수 없습니다. 장수 상태·식량·대기 시민을 확인하세요."); refreshDutyScreen?.Invoke(); return; }
+                { ToastManager.Show("파견할 수 없습니다. 장수 상태·식량을 확인하세요."); refreshDutyScreen?.Invoke(); return; }
                 ToastManager.Show($"{chosen.CommanderName} 정찰 출발");
                 Resume();
             }, primary: true);
             refreshDutyScreen += () => {
-                var rm = ResourceManager.Instance; var free = AntPool.Instance != null ? AntPool.Instance.Free : 0;
-                var affordable = (rm == null || rm.CanAfford(post.DispatchFoodCost, 0)) && free >= post.DispatchAnts;
+                var rm = ResourceManager.Instance;
+                var affordable = (rm == null || rm.CanAfford(post.DispatchFoodCost, 0));
                 summary.text = post.GetStatusLabel() + (chosen != null ? $"\n동행: {chosen.CommanderName}" : "\n동행 장수를 고르세요.");
                 dispatch.interactable = post.isActiveAndEnabled && !post.IsDispatched && chosen != null && affordable;
             };

@@ -1,0 +1,4 @@
+Heavy_Hammer_Swing bindings=
+Idle_3 bindings=
+Rig0 renderers=output_unwrapped:SkinnedMeshRenderer:True
+Rig1 renderers=output_unwrapped:SkinnedMeshRenderer:True

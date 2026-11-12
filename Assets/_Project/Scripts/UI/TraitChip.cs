@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using AntColony.Core;
 using AntColony.Units;
 using UnityEngine;
@@ -30,6 +31,7 @@ namespace AntColony.UI
         // 특성 목록을 columns열 칸으로 배치한다. 없으면 '특성 없음'.
         public static void Grid(Transform parent, IReadOnlyList<CommanderTrait> traits, float x, float y, float w, float rowH, int columns, float gap = 4)
         {
+            traits = traits.Where(t => t != CommanderTrait.Legion).ToArray();
             if (traits.Count == 0) { MenuLayout.Label(parent, "특성 없음", 12, x, y, w, rowH, MenuTheme.Muted); return; }
             var cw = (w - gap * (columns - 1)) / columns;
             for (var i = 0; i < traits.Count; i++)

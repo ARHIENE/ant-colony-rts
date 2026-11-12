@@ -1,0 +1,37 @@
+[
+  {
+    "Algorithm": "SHA256",
+    "Hash": "F9EDBE1FC2E413D7254BAAACEBED65657CC49D3B18F6582862DF50FDCA73E194",
+    "Path": "F:\\UnityProjects\\ant-colony-rts\\Assets\\_Project\\Scripts\\Units\\CommanderHealth.cs"
+  },
+  {
+    "Algorithm": "SHA256",
+    "Hash": "3909366A71DCEDB7193CC431533DFF0C63B52899CB55B0AD41E3748A569AB801",
+    "Path": "F:\\UnityProjects\\ant-colony-rts\\Assets\\_Project\\Scripts\\Units\\CommanderInfection.cs"
+  },
+  {
+    "Algorithm": "SHA256",
+    "Hash": "36A4E86F2BD1BBD7F5F791360402EFB529CDBBA9F83D31DCEF4059E364BCE647",
+    "Path": "F:\\UnityProjects\\ant-colony-rts\\Assets\\_Project\\Scripts\\Units\\CommanderPersonalStory.cs"
+  },
+  {
+    "Algorithm": "SHA256",
+    "Hash": "9E78C75807032BF400B2E9CA960F6191DD9156FAD80413BF0EDB5BE67719725E",
+    "Path": "F:\\UnityProjects\\ant-colony-rts\\Assets\\_Project\\Scripts\\Units\\CommanderPersonal.cs"
+  },
+  {
+    "Algorithm": "SHA256",
+    "Hash": "3BFE1253F0AB6E555B5B1FA001C14963CFD5B355E5948E582A83195E413DDB56",
+    "Path": "F:\\UnityProjects\\ant-colony-rts\\Assets\\_Project\\Scripts\\Units\\CommanderPersonalState.cs"
+  },
+  {
+    "Algorithm": "SHA256",
+    "Hash": "133708CFCE8BB4B1E282200DB3E23472B14CB191CB2328CDDB058E294E40EE96",
+    "Path": "F:\\UnityProjects\\ant-colony-rts\\Assets\\_Project\\Scripts\\World\\ColonyEvents.cs"
+  },
+  {
+    "Algorithm": "SHA256",
+    "Hash": "01A9371EFCBD4CABFF6B0C3D206C83662750D2435357DD1817859395BDCA7F75",
+    "Path": "F:\\UnityProjects\\ant-colony-rts\\Assets\\_Project\\Scripts\\UI\\PrototypeResourceHud.cs"
+  }
+]

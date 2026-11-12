@@ -1,0 +1,27 @@
+{
+  "success": true,
+  "command": "command",
+  "data": {
+    "command": "run_script",
+    "parameters": {
+      "file": "AgentScripts/ThreeWaves1112RoutingChecks.cs",
+      "entry": "ThreeWaves1112RoutingChecks.Run",
+      "timeout_ms": "30000"
+    },
+    "result": {
+      "diagnostics": [],
+      "compileMs": 166,
+      "executeMs": 487,
+      "assemblyName": "PipelineRunScript_ThreeWaves1112RoutingChecks_d5af7578546d419f998c047fdfe03fd5",
+      "success": true,
+      "result": "PASS fixture remote stocked warehouse\nPASS unreachable warehouse falls back to nearby loose material\nPASS fallback pickup has finite work distance\nPASS issued order uses the same floor source\nPASS reachable warehouse remains preferred over floor\nPASS issued order uses the same warehouse\nPASS all sleeping builders report busy, not unreachable\nPASS awake builder still eligible for work\nPASS sleeping builder has a physical route\nPASS sleeping reachable builder does not hide awake builder's blocked route\nDisposable fixture must be discarded before natural play."
+    },
+    "target": {
+      "host": "127.0.0.1",
+      "port": 7801,
+      "projectPath": "F:\\UnityProjects\\ant-colony-rts"
+    }
+  },
+  "errors": [],
+  "warnings": []
+}

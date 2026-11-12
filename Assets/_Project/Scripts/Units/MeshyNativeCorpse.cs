@@ -15,7 +15,7 @@ namespace AntColony.Units
         AnimationClipPlayable player;
 
         public static GameObject Create(MeshyNativeLibrary library, MeshyNativeLibrary.Motion motion,
-            Vector3 position, Quaternion rotation, bool persistent, Transform original = null)
+            Vector3 position, Quaternion rotation, bool persistent, Transform original = null, bool settled = false)
         {
             var body=new GameObject("Native fallen character");body.transform.SetPositionAndRotation(position,rotation);
             var model=Instantiate(library.characters[motion.rig],body.transform,false);
@@ -39,9 +39,19 @@ namespace AntColony.Units
             Destroy(baked);model.transform.position+=Vector3.up*(position.y-bottom);
             motion.clip.SampleAnimation(root,0);
             foreach(var skin in model.GetComponentsInChildren<SkinnedMeshRenderer>())for(int i=0;i<skin.sharedMesh.blendShapeCount;i++)if(skin.sharedMesh.GetBlendShapeName(i).ToUpperInvariant().EndsWith("SLEEP"))skin.SetBlendShapeWeight(i,100);
-            var playback=body.AddComponent<MeshyNativeCorpse>();playback.clip=motion.clip;playback.animator=animator;playback.material=material;playback.StartGraph();
+            var playback=body.AddComponent<MeshyNativeCorpse>();playback.clip=motion.clip;playback.animator=animator;playback.material=material;playback.elapsed=settled?motion.clip.length:0;playback.StartGraph();
             if(!persistent)Destroy(body,Mathf.Max(2.5f,motion.clip.length+.25f));
             return body;
+        }
+        public static GameObject Restore(Vector3 position)
+        {
+            var library=Resources.Load<MeshyNativeLibrary>("MeshyNative/Runtime");
+            var motion=library?library.motions.FirstOrDefault(m=>m.id=="Dead"):null;
+            if(motion==null||!KemonoModel.Available)return null;
+            // The save format does not retain corpse cosmetics; preserve the existing default appearance.
+            var source=KemonoModel.Create(null,0);
+            try{return Create(library,motion,position,Quaternion.identity,true,source.transform,true);}
+            finally{source.SetActive(false);Destroy(source);}
         }
         void StartGraph()
         {
@@ -49,6 +59,8 @@ namespace AntColony.Units
             graph=PlayableGraph.Create("Native death");graph.SetTimeUpdateMode(DirectorUpdateMode.Manual);
             player=AnimationClipPlayable.Create(graph,clip);
             AnimationPlayableOutput.Create(graph,"Native death",animator).SetSourcePlayable(player);graph.Play();
+            // A paused load must display the final pose before the first simulation tick.
+            player.SetTime(Mathf.Min(elapsed,clip.length));graph.Evaluate(0);
         }
         void OnEnable(){if(clip&&animator)StartGraph();}
         void Update(){if(!graph.IsValid())return;elapsed+=Time.deltaTime;player.SetTime(Mathf.Min(elapsed,clip.length));graph.Evaluate(0);}

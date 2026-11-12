@@ -1,0 +1,27 @@
+{
+  "success": true,
+  "command": "command",
+  "data": {
+    "command": "run_script",
+    "parameters": {
+      "file": "AgentScripts/ThreeWaves1112RecoveryChecks.cs",
+      "entry": "ThreeWaves1112RecoveryChecks.Run",
+      "timeout_ms": "60000"
+    },
+    "result": {
+      "diagnostics": [],
+      "compileMs": 201,
+      "executeMs": 1944,
+      "assemblyName": "PipelineRunScript_ThreeWaves1112RecoveryChecks_22db7e5a7d5f4bcab58ba72082cc7d1e",
+      "success": true,
+      "result": "PASS stable living commander recovers 20 HP per day\nPASS sleep doubles personal recovery\nPASS rest order doubles personal recovery\nPASS recovery clamps at maximum health\nPASS recent damage prevents recovery\nPASS starvation prevents recovery\nPASS illness prevents recovery\nPASS bleeding or untreated wound prevents recovery\nPASS tended minor wound permits stable recovery\nPASS deployed commander cannot heal through mobilize loop\nPASS existing stable unconscious recovery remains 20 HP\nPASS ill unconscious commander is not revived by new recovery\nPASS direct movement leaves old free-walk state\nPASS attack-move leaves recreation without cancelling combat order\nPASS attack-move label overrides idle/needs labels\nPASS combat order prevents recovery even in peace\nPASS joy tick cannot replace an attack-move order\nPASS normal wave action creates active defense\nPASS active wave prevents recovery\nPASS direct attack clears recreation and displays combat\nPASS fixture moves commander beside an actual wave enemy\nPASS nearby wave threat interrupts sleep and recreation without a repeated order\nPASS fixture begins an actual gathering order beside the threat\nPASS nearby threat releases worker state so automatic combat can run\nPASS defense guard preserves an existing attack and its cooldown\nDiscard this fixture before resuming actual play."
+    },
+    "target": {
+      "host": "127.0.0.1",
+      "port": 7801,
+      "projectPath": "F:\\UnityProjects\\ant-colony-rts"
+    }
+  },
+  "errors": [],
+  "warnings": []
+}

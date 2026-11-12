@@ -25,7 +25,7 @@ namespace AntColony.Buildings
         private int dispatchedAnts;
 
         public int DispatchFoodCost => dispatchFoodCost;
-        public int DispatchAnts => dispatchAnts;
+        public int DispatchAnts => 0;
         public bool IsDispatched { get; private set; }
         public float Remaining => remaining;
         public int SuccessCount { get; private set; }
@@ -99,7 +99,7 @@ namespace AntColony.Buildings
         {
             var status = IsDispatched
                 ? $"정찰 중 · {(Companion != null ? Companion.CommanderName : "장수 없음")} · 남은 {remaining:0}초"
-                : $"대기 · 비용 식량 {dispatchFoodCost} · 시민 {dispatchAnts} · 장수 1명 동행";
+                : $"대기 · 비용 식량 {dispatchFoodCost} · 장수 1명 동행";
             return $"{status}\n영입 확률 {CurrentChance:P0} · 영입 {SuccessCount} · 실패 {FailureCount}";
         }
 
@@ -124,11 +124,8 @@ namespace AntColony.Buildings
             _ = RecruitmentState;
             if (dispatchFoodCost > 0 && ResourceManager.Instance != null
                 && !ResourceManager.Instance.CanAfford(dispatchFoodCost, 0)) return false;
-            if (dispatchAnts > 0)
-            {
-                if (AntPool.Instance == null || !AntPool.Instance.TryAssign(dispatchAnts)) return false;
-                dispatchedAnts = dispatchAnts;
-            }
+            dispatchedAnts = 0; // Commander-only expedition.
+
 
             if (dispatchFoodCost > 0 && ResourceManager.Instance != null
                 && !ResourceManager.Instance.TrySpend(dispatchFoodCost, 0, reason: ResourceReason.Expedition))

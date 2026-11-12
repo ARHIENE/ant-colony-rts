@@ -1,0 +1,1 @@
+bed (205.20, 11.38, 203.61) model Infirmary(Clone) sleep bounds=Center: (201.32, 10.02, 203.43), Extents: (0.48, 0.29, 0.84) pivot=(201.20, 9.95, 203.61) head=(201.13, 10.01, 203.83) feet=(201.49, 10.08, 202.86) originalRotation=(0.00, 159.01, 0.00)

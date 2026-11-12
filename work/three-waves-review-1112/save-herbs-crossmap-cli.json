@@ -1,0 +1,27 @@
+{
+  "success": true,
+  "command": "command",
+  "data": {
+    "command": "run_script",
+    "parameters": {
+      "file": "AgentScripts/WaveSaveHerbs1112.cs",
+      "entry": "WaveSaveHerbs1112.Run",
+      "timeout_ms": "180000"
+    },
+    "result": {
+      "diagnostics": [],
+      "compileMs": 2793,
+      "executeMs": 17072,
+      "assemblyName": "PipelineRunScript_WaveSaveHerbs1112_257a72afe9594f6f8efbcc06c22f4597",
+      "success": true,
+      "result": "PASS original three-wave snapshot parses: \r\nPASS original expired enemy remains validate: \r\nPASS expired enemy without identity remains rejected\r\nPASS expired ordinary corpse remains rejected\r\nPASS negative decay time remains rejected\r\nPASS actual original snapshot load: \r\nPASS old material key preserved mat:0\r\nPASS old material key preserved mat:1\r\nPASS old material key preserved mat:2\r\nPASS old material key preserved mat:3\r\nPASS old material key preserved mat:4\r\nPASS old material key preserved mat:5\r\nPASS old material key preserved mat:6\r\nPASS old material key preserved mat:7\r\nPASS old material key preserved mat:8\r\nPASS old material key preserved mat:9\r\nPASS old material key preserved mat:10\r\nPASS old material key preserved mat:11\r\nPASS old material key preserved mat:12\r\nPASS old material key preserved mat:13\r\nPASS old material key preserved mat:14\r\nPASS old material key preserved mat:15\r\nPASS old material key preserved mat:16\r\nPASS old material key preserved mat:17\r\nPASS old material key preserved mat:18\r\nPASS old material key preserved mat:19\r\nPASS old material key preserved mat:20\r\nPASS old material key preserved mat:21\r\nPASS old material key preserved mat:22\r\nPASS old material key preserved mat:23\r\nPASS old material key preserved mat:24\r\nPASS old material key preserved mat:25\r\nPASS old material key preserved mat:26\r\nPASS old material key preserved mat:27\r\nPASS old material key preserved mat:28\r\nPASS old material key preserved mat:29\r\nPASS old material key preserved mat:30\r\nPASS old material key preserved mat:31\r\nPASS old material key preserved mat:32\r\nPASS old material key preserved mat:33\r\nPASS old material key preserved mat:34\r\nPASS old material key preserved mat:35\r\nPASS old material key preserved mat:36\r\nPASS old material key preserved mat:37\r\nPASS old material key preserved mat:38\r\nPASS two naturally spawned regrowing herb nodes\r\nPASS herbs reachable from surviving colony\r\nPASS herbs use normal designated harvesting\r\nPASS actual expired enemy remains restored\r\nPASS actual post-combat save: \r\nPASS actual saved slot load: \r\nPASS completed third wave preserved\r\nPASS expired enemy remains survive roundtrip\r\nPASS new herb nodes survive roundtrip\r\nPASS different map created before loading\r\nPASS different map accepts original snapshot: \r\nPASS different map loads saved map and wave\r\nTOTAL PASS 57\r\n"
+    },
+    "target": {
+      "host": "127.0.0.1",
+      "port": 7801,
+      "projectPath": "F:\\UnityProjects\\ant-colony-rts"
+    }
+  },
+  "errors": [],
+  "warnings": []
+}

@@ -1,0 +1,1 @@
+PASS 12 context decisions; injury priority, leisure walk, combat/carry/work/sleep unchanged

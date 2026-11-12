@@ -12,7 +12,7 @@ namespace AntColony.Buildings
     public partial class BuildingConstructionSite : MonoBehaviour, IMaterialSink
     {
         [Serializable] public sealed class Need { public ResourceType type; public int need, reserved, delivered; }
-        public enum Wait { None, Paused, MaterialShortage, AwaitingHaul, NoWorker, Unreachable, InUse, Forbidden, Tool }
+        public enum Wait { None, Paused, MaterialShortage, AwaitingHaul, NoWorker, Unreachable, InUse, Forbidden, Tool, WorkerBusy }
 
         private static long orderSeq;
         private GameObject completedBuilding;
@@ -222,6 +222,7 @@ namespace AntColony.Buildings
                     if (crew.Count == 0) return Wait.NoWorker;
                     var haulers = crew.Where(c => c.AllowsJob(AntColony.Units.CommanderJobs.Hauling) || c.AllowsJob(Job)).ToArray();
                     if (haulers.Length == 0) return Wait.Forbidden;
+                    if (!haulers.Any(c => c.CivilianWorkReady)) return Wait.WorkerBusy;
                     if (!haulers.Any(c => c.CivilianWorkReady && c.TryWorkApproach(Position, out _))) return Wait.Unreachable;
                     if (Needs.Any(n => n.reserved > 0)) return crew.Any(c => c.AllowsJob(AntColony.Units.CommanderJobs.Hauling) || c.AllowsJob(Job)) ? Wait.AwaitingHaul : Wait.NoWorker;
                     return Wait.MaterialShortage;
@@ -230,14 +231,15 @@ namespace AntColony.Buildings
                 var able = crew.Where(c => c.AllowsJob(Job)).ToList();
                 if (crew.Count == 0) return Wait.NoWorker;
                 if (able.Count == 0) return Wait.Forbidden;
-                return able.Any(c => c.TryWorkApproach(Position, out _)) ? Wait.None : Wait.Unreachable;
+                if (!able.Any(c => c.CivilianWorkReady)) return Wait.WorkerBusy;
+                return able.Any(c => c.CivilianWorkReady && c.TryWorkApproach(Position, out _)) ? Wait.None : Wait.Unreachable;
             }
         }
         public AntColony.Units.CommanderJobs Job => IsArt ? AntColony.Units.CommanderJobs.Art : AntColony.Units.CommanderJobs.Building;
         public static string Describe(Wait w) => w switch
         {
             Wait.Paused => "일시정지", Wait.MaterialShortage => "재료 부족", Wait.AwaitingHaul => "운반 대기",
-            Wait.NoWorker => "담당 없음", Wait.Forbidden => "작업 금지", Wait.Tool => "도구 없음", Wait.Unreachable => "경로 없음", Wait.InUse => "사용 중(나올 때까지 대기)", _ => "진행 중"
+            Wait.NoWorker => "담당 없음", Wait.WorkerBusy => "담당 장수 수면·생활·다른 작업 중", Wait.Forbidden => "작업 금지", Wait.Tool => "도구 없음", Wait.Unreachable => "경로 없음", Wait.InUse => "사용 중(나올 때까지 대기)", _ => "진행 중"
         };
 
         private void ReturnWorkforce()

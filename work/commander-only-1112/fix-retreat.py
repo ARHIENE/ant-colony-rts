@@ -1,0 +1,8 @@
+from pathlib import Path
+import os,shutil
+p=Path('Assets/_Project/Scripts/Units/UnitSelectionController.cs');b=Path('work/commander-only-1112/before/Units/UnitSelectionController.cs');shutil.copy2(p,b);s=p.read_text(encoding='utf-8-sig')
+s=s.replace('if (worker is CommanderAnt builder && hit.collider.GetComponentInParent<BuildingConstructionSite>() is BuildingConstructionSite site)','if (worker is CommanderAnt builder && !builder.IsDeployed && hit.collider.GetComponentInParent<BuildingConstructionSite>() is BuildingConstructionSite site)')
+s=s.replace('                if (worker != null && resourceNode != null)\n', '                // A deployed commander treats resources as movement destinations; forbidden work must not swallow a retreat click.\n                if (worker != null && resourceNode != null && !(worker is CommanderAnt deployedWorker && deployedWorker.IsDeployed))\n')
+s=s.replace('            if (resourceNode != null)\n            {\n                AntColony.UI.ToastManager.Show(gatherers', '            if (resourceNode != null && (gatherers > 0 || !issuedMove && !issuedAttack))\n            {\n                AntColony.UI.ToastManager.Show(gatherers')
+t=p.with_suffix('.cs.takeover');t.write_text(s,encoding='utf-8');os.replace(t,p)
+p=Path('docs/IMPLEMENTATION_BOARD.md');s=p.read_text(encoding='utf-8-sig');s=s.replace('## 최근 작업','## 최근 작업\n- COMMANDER-ONLY-1112 추가 소유: Units/UnitSelectionController.cs. 실제 입력 시스템 좌클릭/우클릭 시험에서 나무 위 후퇴 클릭이 채집 거부로 소실되는 문제 재현(3회 이동0m/HP100→72). 소집 중 자원·건설 현장 우클릭을 이동으로 처리, 재검증 진행.');t=p.with_suffix('.md.takeover');t.write_text(s,encoding='utf-8');os.replace(t,p)

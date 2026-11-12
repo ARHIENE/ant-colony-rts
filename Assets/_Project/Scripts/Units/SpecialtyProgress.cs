@@ -24,7 +24,7 @@ namespace AntColony.Units
                 || value.combat != null && value.combat.Length != 0 && (value.combat.Length != 3 || value.combat.Any(r => r < 0 || r > 5)) || value.innate == null || value.innate.Count > CommanderTraits.MaxTraits) return false;
             if (value.version == 0 && (value.results.Any(r => r != 0) || value.innate.Count > 0)) return false;
             var traits = new CommanderTraits();
-            return value.innate.All(t => Enum.IsDefined(typeof(CommanderTrait), t) && traits.TryAdd(t));
+            return value.innate.All(t => Enum.IsDefined(typeof(CommanderTrait), t) && traits.TryAdd(t, legacySave: true));
         }
     }
 }

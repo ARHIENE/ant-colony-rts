@@ -1,0 +1,10 @@
+SingleRifle / Combat_Stance support=3.417296E-05 boneLengthChange=1.980364E-05
+BurstCarbine / Combat_Stance support=3.051758E-05 boneLengthChange=1.896918E-05
+Scattergun / Combat_Stance support=4.32005E-05 boneLengthChange=1.230836E-05
+SniperRifle / Combat_Stance support=3.496228E-05 boneLengthChange=2.105534E-05
+AcidSprayer / Combat_Stance support=0 boneLengthChange=2.010167E-05
+ShortBow / Archery_Shot_3 support=0 boneLengthChange=1.764297E-05
+GrandBow / Archery_Shot_3 support=0 boneLengthChange=2.18749E-05
+Sword / Right_Hand_Sword_Slash support=0 boneLengthChange=2.101064E-05
+Shield / Shield_Push_Left support=0 boneLengthChange=1.66893E-05
+QuakeMaul / Heavy_Hammer_Swing support=7.676293E-08 boneLengthChange=2.250075E-05

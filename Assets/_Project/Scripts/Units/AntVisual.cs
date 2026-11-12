@@ -150,6 +150,9 @@ namespace AntColony.Units
         {
             if (model == null) return;
             AlignToGround();
+            // Restored patients must already be lying down when a save is opened paused.
+            if (commander != null && commander.TreatmentFacility != null && commander.TreatmentFacility.IsTreating(commander))
+            { Play("Sleep"); previousPosition = transform.position; return; }
             if (Time.deltaTime <= 0) return;
             appearance?.SetArmor(commander != null && commander.EquippedArmor?.armor == ArmorKind.Coating);
             if(commander!=null&&equipmentWearables!=null)equipmentWearables.Apply(commander.EquippedArmor,

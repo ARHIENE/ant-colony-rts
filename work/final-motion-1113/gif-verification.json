@@ -1,0 +1,47 @@
+[
+  {
+    "name": "blinking.gif",
+    "frames": 90,
+    "size": [
+      600,
+      420
+    ],
+    "bytes": 4962180
+  },
+  {
+    "name": "chopping.gif",
+    "frames": 46,
+    "size": [
+      600,
+      420
+    ],
+    "bytes": 1802389
+  },
+  {
+    "name": "digging.gif",
+    "frames": 32,
+    "size": [
+      600,
+      420
+    ],
+    "bytes": 1059953
+  },
+  {
+    "name": "mining.gif",
+    "frames": 23,
+    "size": [
+      600,
+      420
+    ],
+    "bytes": 1079404
+  },
+  {
+    "name": "treatment-bed.gif",
+    "frames": 48,
+    "size": [
+      600,
+      420
+    ],
+    "bytes": 440241
+  }
+]

@@ -36,7 +36,7 @@ namespace AntColony.World
         // 웨이브 병력 한 무리(최대 20). 첫 무리만 장수가 이끈다.
         public bool TrySpawnWaveGroup(int count, bool withCommander) => Spawn(null, Mathf.Clamp(count, 1, 20), false, true, withCommander);
         // 무리 유닛 하나(체력 = 마릿수 × 한 마리 체력).
-        public bool TrySpawnHorde(int bodies) => Spawn(null, 1, false, true, false, Mathf.Max(1, bodies));
+        public bool TrySpawnHorde(int bodies, EnemyAim aim = EnemyAim.General) => Spawn(null, 1, false, true, false, Mathf.Max(1, bodies), aim);
 
         private static bool HasEntryBarrier(Vector3 endpoint)
         {
@@ -49,10 +49,10 @@ namespace AntColony.World
             return false;
         }
 
-        private bool Spawn(Civilization faction, int count, bool alreadyDispatched = false, bool wave = false, bool withCommander = true, int hordeBodies = 0)
+        private bool Spawn(Civilization faction, int count, bool alreadyDispatched = false, bool wave = false, bool withCommander = true, int hordeBodies = 0, EnemyAim aim = EnemyAim.General)
         {
             if (!alreadyDispatched && RocketCampaign.SuppressNewCrises) return false;
-            if (faction == null && ExpeditionRules.HomeCommanders == 0) return false;
+            if (!wave && faction == null && ExpeditionRules.HomeCommanders == 0) return false;
             visitors.RemoveAll(v => v == null || v.IsDead);
             if ((faction == null && !wave && visitors.Count > 0) || raiderTemplate == null || commanderTemplate == null) return false;
             var home = GameManager.Instance?.FindNearestPlayerBuilding(Vector3.zero);
@@ -74,7 +74,7 @@ namespace AntColony.World
                     var visitor = Instantiate(template, hit.position, Quaternion.identity);
                     visitor.name = n == 2 ? "Visiting Commander" : "Local Intruder";
                     visitor.MakeRaider();
-                    if (hordeBodies > 0) { visitor.ConfigureHorde(hordeBodies); visitor.name = $"침입 무리 {hordeBodies}"; }
+                    if (hordeBodies > 0) { visitor.ConfigureHorde(hordeBodies); visitor.ConfigureAim(aim); visitor.name = $"{WildMonster.AimLabel(aim)} 무리 {hordeBodies}"; }
                     else if (faction == null)
                     {
                         // 독립 웨이브 장수도 초기화해야 옛 템플릿의 짧은 기술 배열이 저장에 섞이지 않는다.

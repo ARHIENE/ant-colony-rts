@@ -1,0 +1,14 @@
+PASS navigation held at bed 생존자 1
+PASS native sleep
+PASS identity at bed
+PASS navigation held at bed 생존자 2
+PASS native sleep
+PASS identity at bed
+PASS rotated bed head direction
+PASS rotated bed head direction
+PASS release restores navigation
+PASS release clears treatment
+PASS restore duplicate protected
+PASS paused restored patient lies
+PASS destroy releases patient
+PASS destroy releases patient

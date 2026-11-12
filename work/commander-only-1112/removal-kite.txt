@@ -1,0 +1,30 @@
+Unity Input System pointer replay at 1x; no direct combat/move method calls; visible CLI-driven input trial.
+click Left screen=(516.25, 421.83) t=0.038 hit=생존자 1 current=KitePointerTest ui=False
+PASS left click selects bow commander
+click Right screen=(920.79, 432.10) t=0.719 hit=TerrainGenerator current=KitePointerTest ui=False
+PASS cycle 1: explicit enemy attack target retained
+PASS cycle 1: right-click enemy causes damage
+PASS cycle 1: retreat click inside visible Game view
+click Right screen=(353.73, 411.61) t=1.143 hit=TerrainGenerator current=KitePointerTest ui=False
+PASS cycle 1: ground right click retreats 1.52m
+PASS cycle 1: move keeps priority over automatic attack
+cycle 1: hp=100.0 enemy=146.0 cooldown=1.51->0.67
+click Right screen=(794.97, 518.24) t=1.977 hit=TerrainGenerator current=KitePointerTest ui=False
+PASS cycle 2: explicit enemy attack target retained
+PASS cycle 2: right-click enemy causes damage
+PASS cycle 2: retreat click inside visible Game view
+click Right screen=(261.57, 361.69) t=3.061 hit=Material Wood 07 current=KitePointerTest ui=False
+PASS cycle 2: ground right click retreats 1.52m
+PASS cycle 2: move keeps priority over automatic attack
+cycle 2: hp=100.0 enemy=142.0 cooldown=1.60->0.75
+click Right screen=(718.12, 571.71) t=3.903 hit=RaiderTemplate(Clone) current=KitePointerTest ui=False
+PASS cycle 3: explicit enemy attack target retained
+PASS cycle 3: right-click enemy causes damage
+PASS cycle 3: retreat click inside visible Game view
+click Right screen=(171.65, 307.05) t=5.039 hit=TerrainGenerator current=KitePointerTest ui=False
+PASS cycle 3: ground right click retreats 1.52m
+PASS cycle 3: move keeps priority over automatic attack
+cycle 3: hp=100.0 enemy=138.0 cooldown=1.60->0.76
+PASS at least two attack/retreat cycles through actual input controllers
+PASS unselected commander keeps fighting automatically
+PASS controlled commander survives 100.0->100.0

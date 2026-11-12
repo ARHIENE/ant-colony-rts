@@ -124,8 +124,6 @@ namespace AntColony.UI
             if (panel == null) return;
             int count = 0;
             float current = 0f, maximum = 0f;
-            float troops = 0f, troopMaximum = 0f;
-            bool deployed = false;
             AntUnitBase first = null;
             if (selection != null)
             {
@@ -139,7 +137,6 @@ namespace AntColony.UI
                     if (unit is CommanderAnt commander)
                     {
                         current += commander.PersonalHealth; maximum += GameBalance.CommanderHealth;
-                        if (commander.IsDeployed) { deployed = true; troops += commander.TroopHealth; troopMaximum += commander.CommandLimit; }
                     }
                     else { current += unit.CurrentHealth; maximum += unit.Data.maxHealth; }
                 }
@@ -148,10 +145,8 @@ namespace AntColony.UI
             panel.SetActive(visible);
             if (!visible) return;
             healthFill.anchorMax = new Vector2(maximum > 0f ? Mathf.Clamp01(current / maximum) : 0f, 1f);
-            troopFill.parent.gameObject.SetActive(deployed);
-            troopFill.anchorMax = new Vector2(troopMaximum > 0f ? Mathf.Clamp01(troops / troopMaximum) : 0f, 1f);
-            healthText.text = $"체력 <b>{Mathf.CeilToInt(current)}</b> <color=#b1b3a7>/ {Mathf.CeilToInt(maximum)}</color>"
-                + (deployed ? $"    병력 <b>{Mathf.CeilToInt(troops)}</b> <color=#b1b3a7>/ {Mathf.CeilToInt(troopMaximum)}</color>" : "");
+            troopFill.parent.gameObject.SetActive(false);
+            healthText.text = $"체력 <b>{Mathf.CeilToInt(current)}</b> <color=#b1b3a7>/ {Mathf.CeilToInt(maximum)}</color>";
 
             var c = count == 1 ? first as CommanderAnt : null;
             if (c == null)
@@ -188,7 +183,7 @@ namespace AntColony.UI
                 needFills[i].anchorMax = new Vector2(Mathf.Clamp01(needs[i] / 100f), 1f);
             }
 
-            var best = Enumerable.Range(0, CommanderTalents.Count).OrderByDescending(i => c.Talents.Level((CommanderActivity)i)).Take(3)
+            var best = Enumerable.Range(0, CommanderTalents.Count).Where(i => CommanderTalents.IsActive((CommanderActivity)i)).OrderByDescending(i => c.Talents.Level((CommanderActivity)i)).Take(3)
                 .Select(i => {
                     var passion = c.Traits.passions.Exists(p => p.activity == (CommanderActivity)i && p.flame > 0);
                     return $"<color=#{(passion ? "f2a93b" : "efe7da")}>{ActivityNames[i]} <b>{c.Talents.Level((CommanderActivity)i)}</b></color>";

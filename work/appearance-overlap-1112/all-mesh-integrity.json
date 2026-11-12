@@ -1,0 +1,418 @@
+[
+  {
+    "group": "current-restored",
+    "name": "Assets\\Resources\\MeshyNative\\SourceParts\\Rig0\\Part_Body_Meadow_00.asset",
+    "vertices": 20298,
+    "indices": 65433,
+    "maxIndex": 20297,
+    "invalid": 0
+  },
+  {
+    "group": "current-restored",
+    "name": "Assets\\Resources\\MeshyNative\\SourceParts\\Rig0\\Part_Ears_ANTENNA_00.asset",
+    "vertices": 1652,
+    "indices": 5919,
+    "maxIndex": 1651,
+    "invalid": 0
+  },
+  {
+    "group": "current-restored",
+    "name": "Assets\\Resources\\MeshyNative\\SourceParts\\Rig0\\Part_Face_NEUTRAL_00.asset",
+    "vertices": 11296,
+    "indices": 28974,
+    "maxIndex": 11295,
+    "invalid": 0
+  },
+  {
+    "group": "current-restored",
+    "name": "Assets\\Resources\\MeshyNative\\SourceParts\\Rig0\\Part_Hair_BOB_00.asset",
+    "vertices": 37719,
+    "indices": 102558,
+    "maxIndex": 37718,
+    "invalid": 0
+  },
+  {
+    "group": "current-restored",
+    "name": "Assets\\Resources\\MeshyNative\\SourceParts\\Rig0\\Part_Hair_CROP_00.asset",
+    "vertices": 37719,
+    "indices": 102558,
+    "maxIndex": 37718,
+    "invalid": 0
+  },
+  {
+    "group": "current-restored",
+    "name": "Assets\\Resources\\MeshyNative\\SourceParts\\Rig0\\Part_Hair_LONG_00.asset",
+    "vertices": 37719,
+    "indices": 102558,
+    "maxIndex": 37718,
+    "invalid": 0
+  },
+  {
+    "group": "current-restored",
+    "name": "Assets\\Resources\\MeshyNative\\SourceParts\\Rig0\\Part_Hair_PONY_00.asset",
+    "vertices": 37719,
+    "indices": 102558,
+    "maxIndex": 37718,
+    "invalid": 0
+  },
+  {
+    "group": "current-restored",
+    "name": "Assets\\Resources\\MeshyNative\\SourceParts\\Rig0\\Part_Hair_TWIN_00.asset",
+    "vertices": 37719,
+    "indices": 102558,
+    "maxIndex": 37718,
+    "invalid": 0
+  },
+  {
+    "group": "current-restored",
+    "name": "Assets\\Resources\\MeshyNative\\SourceParts\\Rig0\\Part_Hair_UPDO_00.asset",
+    "vertices": 37719,
+    "indices": 102558,
+    "maxIndex": 37718,
+    "invalid": 0
+  },
+  {
+    "group": "current-restored",
+    "name": "Assets\\Resources\\MeshyNative\\SourceParts\\Rig0\\Part_Outfit_ARTISAN_00.asset",
+    "vertices": 34479,
+    "indices": 106842,
+    "maxIndex": 34478,
+    "invalid": 0
+  },
+  {
+    "group": "current-restored",
+    "name": "Assets\\Resources\\MeshyNative\\SourceParts\\Rig0\\Part_Outfit_CITIZEN_00.asset",
+    "vertices": 34479,
+    "indices": 106842,
+    "maxIndex": 34478,
+    "invalid": 0
+  },
+  {
+    "group": "current-restored",
+    "name": "Assets\\Resources\\MeshyNative\\SourceParts\\Rig0\\Part_Outfit_FARMER_00.asset",
+    "vertices": 34479,
+    "indices": 106842,
+    "maxIndex": 34478,
+    "invalid": 0
+  },
+  {
+    "group": "current-restored",
+    "name": "Assets\\Resources\\MeshyNative\\SourceParts\\Rig0\\Part_Outfit_GUARD_00.asset",
+    "vertices": 34479,
+    "indices": 106842,
+    "maxIndex": 34478,
+    "invalid": 0
+  },
+  {
+    "group": "current-restored",
+    "name": "Assets\\Resources\\MeshyNative\\SourceParts\\Rig1\\Part_Body_Meadow_00.asset",
+    "vertices": 20298,
+    "indices": 65433,
+    "maxIndex": 20297,
+    "invalid": 0
+  },
+  {
+    "group": "current-restored",
+    "name": "Assets\\Resources\\MeshyNative\\SourceParts\\Rig1\\Part_Ears_ANTENNA_00.asset",
+    "vertices": 1652,
+    "indices": 5919,
+    "maxIndex": 1651,
+    "invalid": 0
+  },
+  {
+    "group": "current-restored",
+    "name": "Assets\\Resources\\MeshyNative\\SourceParts\\Rig1\\Part_Face_NEUTRAL_00.asset",
+    "vertices": 11302,
+    "indices": 28974,
+    "maxIndex": 11301,
+    "invalid": 0
+  },
+  {
+    "group": "current-restored",
+    "name": "Assets\\Resources\\MeshyNative\\SourceParts\\Rig1\\Part_Hair_BOB_00.asset",
+    "vertices": 37715,
+    "indices": 102558,
+    "maxIndex": 37714,
+    "invalid": 0
+  },
+  {
+    "group": "current-restored",
+    "name": "Assets\\Resources\\MeshyNative\\SourceParts\\Rig1\\Part_Hair_CROP_00.asset",
+    "vertices": 37715,
+    "indices": 102558,
+    "maxIndex": 37714,
+    "invalid": 0
+  },
+  {
+    "group": "current-restored",
+    "name": "Assets\\Resources\\MeshyNative\\SourceParts\\Rig1\\Part_Hair_LONG_00.asset",
+    "vertices": 37715,
+    "indices": 102558,
+    "maxIndex": 37714,
+    "invalid": 0
+  },
+  {
+    "group": "current-restored",
+    "name": "Assets\\Resources\\MeshyNative\\SourceParts\\Rig1\\Part_Hair_PONY_00.asset",
+    "vertices": 37715,
+    "indices": 102558,
+    "maxIndex": 37714,
+    "invalid": 0
+  },
+  {
+    "group": "current-restored",
+    "name": "Assets\\Resources\\MeshyNative\\SourceParts\\Rig1\\Part_Hair_TWIN_00.asset",
+    "vertices": 37715,
+    "indices": 102558,
+    "maxIndex": 37714,
+    "invalid": 0
+  },
+  {
+    "group": "current-restored",
+    "name": "Assets\\Resources\\MeshyNative\\SourceParts\\Rig1\\Part_Hair_UPDO_00.asset",
+    "vertices": 37715,
+    "indices": 102558,
+    "maxIndex": 37714,
+    "invalid": 0
+  },
+  {
+    "group": "current-restored",
+    "name": "Assets\\Resources\\MeshyNative\\SourceParts\\Rig1\\Part_Outfit_ARTISAN_00.asset",
+    "vertices": 34476,
+    "indices": 106842,
+    "maxIndex": 34475,
+    "invalid": 0
+  },
+  {
+    "group": "current-restored",
+    "name": "Assets\\Resources\\MeshyNative\\SourceParts\\Rig1\\Part_Outfit_CITIZEN_00.asset",
+    "vertices": 34476,
+    "indices": 106842,
+    "maxIndex": 34475,
+    "invalid": 0
+  },
+  {
+    "group": "current-restored",
+    "name": "Assets\\Resources\\MeshyNative\\SourceParts\\Rig1\\Part_Outfit_FARMER_00.asset",
+    "vertices": 34476,
+    "indices": 106842,
+    "maxIndex": 34475,
+    "invalid": 0
+  },
+  {
+    "group": "current-restored",
+    "name": "Assets\\Resources\\MeshyNative\\SourceParts\\Rig1\\Part_Outfit_GUARD_00.asset",
+    "vertices": 34476,
+    "indices": 106842,
+    "maxIndex": 34475,
+    "invalid": 0
+  },
+  {
+    "group": "rejected",
+    "name": "Rig0/Part_Body_Meadow_00.asset",
+    "vertices": 20298,
+    "indices": 65433,
+    "maxIndex": 20297,
+    "invalid": 0
+  },
+  {
+    "group": "rejected",
+    "name": "Rig0/Part_Ears_ANTENNA_00.asset",
+    "vertices": 1652,
+    "indices": 5919,
+    "maxIndex": 1651,
+    "invalid": 0
+  },
+  {
+    "group": "rejected",
+    "name": "Rig0/Part_Face_NEUTRAL_00.asset",
+    "vertices": 5524,
+    "indices": 14223,
+    "maxIndex": 5523,
+    "invalid": 0
+  },
+  {
+    "group": "rejected",
+    "name": "Rig0/Part_Hair_BOB_00.asset",
+    "vertices": 37719,
+    "indices": 117309,
+    "maxIndex": 43526,
+    "invalid": 17714
+  },
+  {
+    "group": "rejected",
+    "name": "Rig0/Part_Hair_CROP_00.asset",
+    "vertices": 37719,
+    "indices": 117309,
+    "maxIndex": 43526,
+    "invalid": 17714
+  },
+  {
+    "group": "rejected",
+    "name": "Rig0/Part_Hair_LONG_00.asset",
+    "vertices": 37719,
+    "indices": 117309,
+    "maxIndex": 43526,
+    "invalid": 17714
+  },
+  {
+    "group": "rejected",
+    "name": "Rig0/Part_Hair_PONY_00.asset",
+    "vertices": 37719,
+    "indices": 117309,
+    "maxIndex": 43526,
+    "invalid": 17714
+  },
+  {
+    "group": "rejected",
+    "name": "Rig0/Part_Hair_TWIN_00.asset",
+    "vertices": 37719,
+    "indices": 117309,
+    "maxIndex": 43526,
+    "invalid": 17714
+  },
+  {
+    "group": "rejected",
+    "name": "Rig0/Part_Hair_UPDO_00.asset",
+    "vertices": 37719,
+    "indices": 117309,
+    "maxIndex": 43526,
+    "invalid": 17714
+  },
+  {
+    "group": "rejected",
+    "name": "Rig0/Part_Outfit_ARTISAN_00.asset",
+    "vertices": 34479,
+    "indices": 106842,
+    "maxIndex": 34478,
+    "invalid": 0
+  },
+  {
+    "group": "rejected",
+    "name": "Rig0/Part_Outfit_CITIZEN_00.asset",
+    "vertices": 34479,
+    "indices": 106842,
+    "maxIndex": 34478,
+    "invalid": 0
+  },
+  {
+    "group": "rejected",
+    "name": "Rig0/Part_Outfit_FARMER_00.asset",
+    "vertices": 34479,
+    "indices": 106842,
+    "maxIndex": 34478,
+    "invalid": 0
+  },
+  {
+    "group": "rejected",
+    "name": "Rig0/Part_Outfit_GUARD_00.asset",
+    "vertices": 34479,
+    "indices": 106842,
+    "maxIndex": 34478,
+    "invalid": 0
+  },
+  {
+    "group": "rejected",
+    "name": "Rig1/Part_Body_Meadow_00.asset",
+    "vertices": 20298,
+    "indices": 65433,
+    "maxIndex": 20297,
+    "invalid": 0
+  },
+  {
+    "group": "rejected",
+    "name": "Rig1/Part_Ears_ANTENNA_00.asset",
+    "vertices": 1652,
+    "indices": 5919,
+    "maxIndex": 1651,
+    "invalid": 0
+  },
+  {
+    "group": "rejected",
+    "name": "Rig1/Part_Face_NEUTRAL_00.asset",
+    "vertices": 5528,
+    "indices": 14223,
+    "maxIndex": 5527,
+    "invalid": 0
+  },
+  {
+    "group": "rejected",
+    "name": "Rig1/Part_Hair_BOB_00.asset",
+    "vertices": 37715,
+    "indices": 117309,
+    "maxIndex": 43524,
+    "invalid": 17708
+  },
+  {
+    "group": "rejected",
+    "name": "Rig1/Part_Hair_CROP_00.asset",
+    "vertices": 37715,
+    "indices": 117309,
+    "maxIndex": 43524,
+    "invalid": 17708
+  },
+  {
+    "group": "rejected",
+    "name": "Rig1/Part_Hair_LONG_00.asset",
+    "vertices": 37715,
+    "indices": 117309,
+    "maxIndex": 43524,
+    "invalid": 17708
+  },
+  {
+    "group": "rejected",
+    "name": "Rig1/Part_Hair_PONY_00.asset",
+    "vertices": 37715,
+    "indices": 117309,
+    "maxIndex": 43524,
+    "invalid": 17708
+  },
+  {
+    "group": "rejected",
+    "name": "Rig1/Part_Hair_TWIN_00.asset",
+    "vertices": 37715,
+    "indices": 117309,
+    "maxIndex": 43524,
+    "invalid": 17708
+  },
+  {
+    "group": "rejected",
+    "name": "Rig1/Part_Hair_UPDO_00.asset",
+    "vertices": 37715,
+    "indices": 117309,
+    "maxIndex": 43524,
+    "invalid": 17708
+  },
+  {
+    "group": "rejected",
+    "name": "Rig1/Part_Outfit_ARTISAN_00.asset",
+    "vertices": 34476,
+    "indices": 106842,
+    "maxIndex": 34475,
+    "invalid": 0
+  },
+  {
+    "group": "rejected",
+    "name": "Rig1/Part_Outfit_CITIZEN_00.asset",
+    "vertices": 34476,
+    "indices": 106842,
+    "maxIndex": 34475,
+    "invalid": 0
+  },
+  {
+    "group": "rejected",
+    "name": "Rig1/Part_Outfit_FARMER_00.asset",
+    "vertices": 34476,
+    "indices": 106842,
+    "maxIndex": 34475,
+    "invalid": 0
+  },
+  {
+    "group": "rejected",
+    "name": "Rig1/Part_Outfit_GUARD_00.asset",
+    "vertices": 34476,
+    "indices": 106842,
+    "maxIndex": 34475,
+    "invalid": 0
+  }
+]

@@ -1,0 +1,158 @@
+[
+  {
+    "path": "Assets\\Resources\\MeshyNative\\SourceParts\\Rig0\\Part_Body_Meadow_00.asset",
+    "vertices": 20298,
+    "indices": 65433,
+    "invalid": 0
+  },
+  {
+    "path": "Assets\\Resources\\MeshyNative\\SourceParts\\Rig0\\Part_Ears_ANTENNA_00.asset",
+    "vertices": 1652,
+    "indices": 5919,
+    "invalid": 0
+  },
+  {
+    "path": "Assets\\Resources\\MeshyNative\\SourceParts\\Rig0\\Part_Face_NEUTRAL_00.asset",
+    "vertices": 5524,
+    "indices": 14223,
+    "invalid": 0
+  },
+  {
+    "path": "Assets\\Resources\\MeshyNative\\SourceParts\\Rig0\\Part_Hair_BOB_00.asset",
+    "vertices": 43527,
+    "indices": 117309,
+    "invalid": 0
+  },
+  {
+    "path": "Assets\\Resources\\MeshyNative\\SourceParts\\Rig0\\Part_Hair_CROP_00.asset",
+    "vertices": 43527,
+    "indices": 117309,
+    "invalid": 0
+  },
+  {
+    "path": "Assets\\Resources\\MeshyNative\\SourceParts\\Rig0\\Part_Hair_LONG_00.asset",
+    "vertices": 43527,
+    "indices": 117309,
+    "invalid": 0
+  },
+  {
+    "path": "Assets\\Resources\\MeshyNative\\SourceParts\\Rig0\\Part_Hair_PONY_00.asset",
+    "vertices": 43527,
+    "indices": 117309,
+    "invalid": 0
+  },
+  {
+    "path": "Assets\\Resources\\MeshyNative\\SourceParts\\Rig0\\Part_Hair_TWIN_00.asset",
+    "vertices": 43527,
+    "indices": 117309,
+    "invalid": 0
+  },
+  {
+    "path": "Assets\\Resources\\MeshyNative\\SourceParts\\Rig0\\Part_Hair_UPDO_00.asset",
+    "vertices": 43527,
+    "indices": 117309,
+    "invalid": 0
+  },
+  {
+    "path": "Assets\\Resources\\MeshyNative\\SourceParts\\Rig0\\Part_Outfit_ARTISAN_00.asset",
+    "vertices": 34479,
+    "indices": 106842,
+    "invalid": 0
+  },
+  {
+    "path": "Assets\\Resources\\MeshyNative\\SourceParts\\Rig0\\Part_Outfit_CITIZEN_00.asset",
+    "vertices": 34479,
+    "indices": 106842,
+    "invalid": 0
+  },
+  {
+    "path": "Assets\\Resources\\MeshyNative\\SourceParts\\Rig0\\Part_Outfit_FARMER_00.asset",
+    "vertices": 34479,
+    "indices": 106842,
+    "invalid": 0
+  },
+  {
+    "path": "Assets\\Resources\\MeshyNative\\SourceParts\\Rig0\\Part_Outfit_GUARD_00.asset",
+    "vertices": 34479,
+    "indices": 106842,
+    "invalid": 0
+  },
+  {
+    "path": "Assets\\Resources\\MeshyNative\\SourceParts\\Rig1\\Part_Body_Meadow_00.asset",
+    "vertices": 20298,
+    "indices": 65433,
+    "invalid": 0
+  },
+  {
+    "path": "Assets\\Resources\\MeshyNative\\SourceParts\\Rig1\\Part_Ears_ANTENNA_00.asset",
+    "vertices": 1652,
+    "indices": 5919,
+    "invalid": 0
+  },
+  {
+    "path": "Assets\\Resources\\MeshyNative\\SourceParts\\Rig1\\Part_Face_NEUTRAL_00.asset",
+    "vertices": 5528,
+    "indices": 14223,
+    "invalid": 0
+  },
+  {
+    "path": "Assets\\Resources\\MeshyNative\\SourceParts\\Rig1\\Part_Hair_BOB_00.asset",
+    "vertices": 43525,
+    "indices": 117309,
+    "invalid": 0
+  },
+  {
+    "path": "Assets\\Resources\\MeshyNative\\SourceParts\\Rig1\\Part_Hair_CROP_00.asset",
+    "vertices": 43525,
+    "indices": 117309,
+    "invalid": 0
+  },
+  {
+    "path": "Assets\\Resources\\MeshyNative\\SourceParts\\Rig1\\Part_Hair_LONG_00.asset",
+    "vertices": 43525,
+    "indices": 117309,
+    "invalid": 0
+  },
+  {
+    "path": "Assets\\Resources\\MeshyNative\\SourceParts\\Rig1\\Part_Hair_PONY_00.asset",
+    "vertices": 43525,
+    "indices": 117309,
+    "invalid": 0
+  },
+  {
+    "path": "Assets\\Resources\\MeshyNative\\SourceParts\\Rig1\\Part_Hair_TWIN_00.asset",
+    "vertices": 43525,
+    "indices": 117309,
+    "invalid": 0
+  },
+  {
+    "path": "Assets\\Resources\\MeshyNative\\SourceParts\\Rig1\\Part_Hair_UPDO_00.asset",
+    "vertices": 43525,
+    "indices": 117309,
+    "invalid": 0
+  },
+  {
+    "path": "Assets\\Resources\\MeshyNative\\SourceParts\\Rig1\\Part_Outfit_ARTISAN_00.asset",
+    "vertices": 34476,
+    "indices": 106842,
+    "invalid": 0
+  },
+  {
+    "path": "Assets\\Resources\\MeshyNative\\SourceParts\\Rig1\\Part_Outfit_CITIZEN_00.asset",
+    "vertices": 34476,
+    "indices": 106842,
+    "invalid": 0
+  },
+  {
+    "path": "Assets\\Resources\\MeshyNative\\SourceParts\\Rig1\\Part_Outfit_FARMER_00.asset",
+    "vertices": 34476,
+    "indices": 106842,
+    "invalid": 0
+  },
+  {
+    "path": "Assets\\Resources\\MeshyNative\\SourceParts\\Rig1\\Part_Outfit_GUARD_00.asset",
+    "vertices": 34476,
+    "indices": 106842,
+    "invalid": 0
+  }
+]

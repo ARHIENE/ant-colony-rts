@@ -26,7 +26,7 @@ namespace AntColony.UI
         public static string RoleName(UnitRole role) => role switch
         {
             UnitRole.Melee => "근접", UnitRole.Ranged => "원거리", UnitRole.Defense => "방패",
-            UnitRole.Support => "지휘", UnitRole.Flying => "비행", _ => "맨손"
+            UnitRole.Support => "지원", UnitRole.Flying => "비행", _ => "맨손"
         };
 
         private static bool Defending => AntColony.World.WaveDefense.Instance?.InWave == true;
@@ -58,7 +58,7 @@ namespace AntColony.UI
 
             // 출전 중 카드는 기획 미정(2026-10-01) — 기존 전투 명령을 유지한다.
             Add(deployedGrid, 0, "Skill", () => SkillLabel(Commander), () => UseWeaponSkill(Commander),
-                () => "무기 스킬: 강타(근접 Lv2), 방패 방어 태세(근접 Lv3), 산성비(원거리 5, 지면 클릭), 집결(지휘 5).", () => SkillReady(Commander));
+                () => "무기 스킬: 강타(근접 Lv2), 방패 방어 태세(근접 Lv3), 산성비(원거리 5, 지면 클릭), 집결(지원 장비).", () => SkillReady(Commander));
             Add(deployedGrid, 1, "Dive", () => "급강하" + Cooldown(Commander != null ? Commander.Social.diveCooldown : 0f),
                 () => SkillTargeting.Begin(new[] { Commander }, true), () => "비행 스킬: 비행 장비 + 근접/원거리 5. 지면 클릭 후 급강하, 3초 착지. 재사용 30초.",
                 () => Commander != null && Commander.CanDive, () => Commander?.EquippedArmor?.armor == ArmorKind.Wings);
@@ -66,12 +66,11 @@ namespace AntColony.UI
                 () => "지면을 클릭하면 이동하면서 만나는 적을 공격합니다.");
             Add(deployedGrid, 2, "Deployment Meal", () => Commander != null && Commander.DeploymentEating ? "식사 중" : "식사", () => Commander?.OrderDeploymentMeal(),
                 () => Commander?.DeploymentFoodStatus ?? "소집 유지 · 공격 정지 · 3초 식사", () => Commander != null && Commander.CanReceiveOrders && Commander.IsDeployed && !Commander.IsReturning);
-            Add(deployedGrid, 8, "Partial Recall", () => "절반 해산", () => { if (Commander != null) Commander.RecallTroops((Commander.TroopCount + 1) / 2); },
-                () => "현재 병력 절반을 반납하고 나머지는 소집을 유지합니다.", () => Commander != null && Commander.CanReceiveOrders && !Commander.IsAwayFromHome && Commander.TroopCount > 0);
-            Add(deployedGrid, 4, "Stop", () => "정지", () => Commander?.CommandStop(), () => "현재 이동·공격 지시를 멈춥니다. 소집 상태와 배정 병력은 유지합니다. 병력을 돌려보내려면 귀환하세요.");
+
+            Add(deployedGrid, 4, "Stop", () => "정지", () => Commander?.CommandStop(), () => "현재 이동·공격 지시를 멈춥니다. 소집 상태는 유지합니다. 작업에 복귀하려면 귀환하세요.");
             Add(deployedGrid, 5, "Return To Post", () => Commander != null && Commander.IsReturning ? "귀환 중" : "귀환", () => {
-                if (Commander != null && !Commander.ReturnToPost()) ToastManager.Show("지금은 징집소로 귀환할 수 없습니다.");
-            }, () => "징집소로 돌아가 생존 병력을 반납하고 자율 작업을 재개합니다.",
+                if (Commander != null && !Commander.ReturnToPost()) ToastManager.Show("지금은 소집 지점으로 귀환할 수 없습니다.");
+            }, () => "소집 지점으로 돌아가 자율 작업을 재개합니다.",
                 () => Commander != null && !Commander.IsReturning && !Commander.IsAwayFromHome);
             Add(deployedGrid, 6, "Deployed Details", () => "상세", ShowDetails, () => "기분의 원인·부상·장비·기술을 확인합니다. 능력이 낮거나 부상한 장수는 작업이 느려질 수 있습니다.");
             Add(deployedGrid, 7, "Deployed Cycle Weapon", () => "무기", CycleWeapon, () => "소지한 다음 무기로 바꿉니다. 새 무기를 지급하지는 않습니다. 장비 화면에서 소지 무기를 확인하세요.");
@@ -252,7 +251,7 @@ namespace AntColony.UI
                 case UnitRole.Ranged:
                     return (talents.Level(CommanderActivity.Ranged) < 5 ? "산성비\n사격 5 필요" : "산성비" + Cooldown(c.Social.acidCooldown));
                 case UnitRole.Support:
-                    return (talents.Level(CommanderActivity.Command) < 5 ? "집결\n지휘 5 필요" : "집결" + Cooldown(c.Social.rallyCooldown));
+                    return ("집결" + Cooldown(c.Social.rallyCooldown));
                 default:
                     return "스킬 없음";
             }

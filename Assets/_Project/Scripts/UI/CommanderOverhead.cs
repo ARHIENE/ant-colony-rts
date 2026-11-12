@@ -35,6 +35,11 @@ namespace AntColony.UI
 
         public static string Activity(CommanderAnt c)
         {
+            if (c.PersonalHealth <= 0 || c.Health.Downed) return "쓰러짐";
+            if (c.PersonalState.mentalBreak != MentalBreak.None) return PersonalDisplayNames.Break(c.PersonalState.mentalBreak);
+            if (c.IsInCombat) return "교전";
+            if (c.IsFollowingCombatOrder) return "공격 이동";
+            if (c.IsFollowingMoveOrder && AntColony.World.WaveDefense.Instance?.InWave == true) return "전투 이동";
             if (c.IsReturning) return "귀환";
             if (c.IsDeployed) return "출전";
             if (c.PersonalState.treating) return "치료";
@@ -44,7 +49,6 @@ namespace AntColony.UI
             if (c.IsEating) return "식사";
             if (c.IsPlaying) return c.PersonalState.joy.freeWalk ? "산책" : c.PlaySpot != null && !c.PersonalState.joy.groupStarted && !c.PlaySpot.HasMinimumUsers ? "오락 인원 대기" : "오락";
             if (c.CorpseTarget != null) return c.EatingCorpse ? "동족 포식" : "치우기";
-            if (c.PersonalState.mentalBreak != MentalBreak.None) return "붕괴";
             if (c.ServiceTarget != null) return c.ServiceJob == CommanderJobs.Firefighting ? "소화" : c.ServiceJob == CommanderJobs.Nursing ? "의료" : c.ServiceJob == CommanderJobs.Repair ? "수리" : c.ServiceJob == CommanderJobs.Administration ? "정치" : c.ServiceJob == CommanderJobs.Crafting ? "제작" : c.ServiceJob == CommanderJobs.Husbandry ? "사육" : c.ServiceJob == CommanderJobs.Hunting ? "훈련" : "요리";
             if (c.HuntTarget != null) return "사냥";
             if (c.CurrentResourceNode != null && c.CurrentResourceNode.IsLooseCargo) return "운반";
@@ -83,7 +87,7 @@ namespace AntColony.UI
                 string activity = Activity(c);
                 if (activity.Length == 0) activity = "대기";
                 float detail = selected ? 17 * scale : 0;
-                float height = line + detail + (hurt || c.IsDeployed ? 9 * scale : 0);
+                float height = line + detail + (hurt ? 5 * scale : 0);
                 float x = p.x - width * .5f, y = Screen.height - p.y - height - 4 * scale;
                 // Do not push labels far above their owner; details remain in the bottom selection dock.
                 bool reserved = false;
@@ -115,7 +119,7 @@ namespace AntColony.UI
                     GUI.Label(new Rect(x, y + line - 2 * scale, width, detail), activity, tagStyle);
                 }
                 if (hurt) Bar(new Rect(x + 2 * scale, y + line + detail + scale, width - 4 * scale, 3 * scale), c.PersonalHealth / GameBalance.CommanderHealth, MenuTheme.Hp);
-                if (c.IsDeployed) Bar(new Rect(x + 2 * scale, y + line + detail + 5 * scale, width - 4 * scale, 3 * scale), c.CommandLimit > 0 ? c.TroopHealth / c.CommandLimit : 0, MenuTheme.Accent);
+
 
             }
         }

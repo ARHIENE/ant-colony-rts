@@ -125,7 +125,7 @@ namespace AntColony.World
         {
             var settlement = Site != null ? Site.Settlement : null;
             if (settlement == null || !settlement.isActiveAndEnabled || Site.Disposition != ConquestDisposition.Annexed
-                || !c.HasTroops || !c.CanChangeAllocation) return false;
+                || !c.CanFight || !c.CanChangeAllocation) return false;
             c.CommandStop();
             crew.Remove(c);
             c.Transport = null;

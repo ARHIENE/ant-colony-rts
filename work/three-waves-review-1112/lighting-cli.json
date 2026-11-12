@@ -1,0 +1,27 @@
+{
+  "success": true,
+  "command": "command",
+  "data": {
+    "command": "run_script",
+    "parameters": {
+      "file": "AgentScripts/NightReadability1112.cs",
+      "entry": "NightReadability1112.Compare",
+      "timeout_ms": "90000"
+    },
+    "result": {
+      "diagnostics": [],
+      "compileMs": 437,
+      "executeMs": 42278,
+      "assemblyName": "PipelineRunScript_NightReadability1112_73f8362f0dc9443ebc78777a368ac6b0",
+      "success": true,
+      "result": "night-Clear-current light=0.45 color=RGBA(0.650, 0.675, 0.733, 1.000) ambient=0.65 mode=Skybox\r\nnight-Clear-previous-formula light=0.25 color=RGBA(0.350, 0.422, 0.618, 1.000) ambient=0.4 mode=Skybox\r\nnight-Storm-current light=0.2475 color=RGBA(0.650, 0.675, 0.733, 1.000) ambient=0.50375 mode=Skybox\r\nnight-Storm-previous-formula light=0.1375 color=RGBA(0.350, 0.422, 0.618, 1.000) ambient=0.31 mode=Skybox\r\nday-current light=1 color=RGBA(1.000, 0.938, 0.772, 1.000) ambient=1 mode=Skybox\r\n"
+    },
+    "target": {
+      "host": "127.0.0.1",
+      "port": 7801,
+      "projectPath": "F:\\UnityProjects\\ant-colony-rts"
+    }
+  },
+  "errors": [],
+  "warnings": []
+}

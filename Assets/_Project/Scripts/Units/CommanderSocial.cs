@@ -119,7 +119,7 @@ namespace AntColony.Units
         // 검토59: 쓰러진/잡힌 친구와 같은 전장에 있을 때만 분노한다(본거지에서 일하던 친구가 멈추지 않게).
         private void StartRevenge(Vector3 place, bool additionalDeath = false)
         {
-            if (!isActiveAndEnabled || IsCaptive || IsEmbarked || IsDeparting || !HasTroops || !SameBattlefield(place)) return;
+            if (!isActiveAndEnabled || IsCaptive || IsEmbarked || IsDeparting || !CanFight || !SameBattlefield(place)) return;
             InterruptPersonalWork();
             personalState.rageRemaining = personalState.rageRemaining > 0
                 ? Mathf.Min(120, personalState.rageRemaining + (additionalDeath ? 20 : 0))

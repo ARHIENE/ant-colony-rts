@@ -1,0 +1,17 @@
+{
+  "Buildings/ConscriptionPost.cs": "1039d26607f3a2f63bce408766ea9564f73f94b3144891f4053a6fda55b4be4a",
+  "UI/BuildScreen.cs": "a2bad01ea0b672f64c4c1a545800cc39e6bf187a4faeb7fae27616153f098136",
+  "UI/CommandCard.cs": "441357820752d5437b55e897c67fedc7b46f3315fd6074865e02c46fff9ebbd1",
+  "UI/CommanderOverhead.cs": "a28d83faf09b043cae484c7f0ac9d7a674000b00658408756dccf68e59fc64cc",
+  "UI/DetailTabs.cs": "0cf80abac8a3ca8199bcbac1880191781acde6726cef04e5a3ada7de1f3ce04e",
+  "UI/GameMenuConscription.cs": "c1202c318018380408cb62c66502f73590ab6d5a2b7c254602c9f9e9ca159eba",
+  "UI/GameMenuRocket.cs": "e9ad5f56aa0866d9068193ac7080fa1e39764b156b36205a4a2af3f8cc0e9759",
+  "UI/GameMenuRoster.cs": "b07f5723c34db5ffcd1dde054c1763be3e3f7db2d60f7a8539663bd59485f245",
+  "UI/GameMenuWalking.cs": "3db4ac878c445a842be2ff21c1b88b8cf383a89a87693566a1b909dc831a1ba1",
+  "UI/SelectedUnitPanel.cs": "0c17c21a8f3e96458fbaf113da382fae204b15348b1b024e41f7bb5271b6fa27",
+  "UI/WorldMapPanel.cs": "e88ebaec7ed69245df01da0427b4986ac95331c45451601536421410698ed7b3",
+  "Units/CommanderAnt.cs": "1064038d79c680308f73290d20c7485e0456c37b38a9a81cb0fba329198fc94b",
+  "Units/CommanderDeploymentMeal.cs": "8dfc80fcc6eda2f09f1b82b3a6eddae2f578b25f44bcea8199f742ab6c40925e",
+  "World/LocalIncursions.cs": "44bc930264748a939da0d42f2d9fb954d50b7cdac56f0cfe3696f2e26e73c3c7",
+  "World/WaveDefense.cs": "35eb5afbb21a21bc265b8594e0bdf3caf791fb2f10fd840ba28d6ec746df62bb"
+}

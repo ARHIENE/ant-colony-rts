@@ -1,0 +1,17 @@
+PASS unconscious commander cannot start binge or gain catharsis
+PASS clinically downed commander cannot start violence
+PASS violent breakdown prevents personal recovery
+PASS revenge rage prevents personal recovery
+PASS nonviolent idle breakdown does not disable physical healing
+PASS incapacitation cancels ongoing violence without catharsis reward
+PASS violent breakdown immediately obeys enabled threat auto-pause
+PASS violent breakdown leaves sleeping and recreation states
+PASS overhead and selection state identify friendly attack in Korean
+PASS visible threat gives a concrete response
+PASS violent breakdown has one alert instead of duplicate toast and incident
+PASS repeated scan of same breakdown does not pause again after resume
+PASS ended breakdown clears active threat tracking
+PASS disabled threat auto-pause setting remains respected
+PASS building attack has its own readable state
+PASS actual violent hit records combat time and applies ordinary damage
+PASS recent combat still delays healing after violence ends

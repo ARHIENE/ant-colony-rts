@@ -120,7 +120,7 @@ namespace AntColony.UI
             }
             L.Line(window, 12, 97, 1076);
             content = V5Section(window, CampaignResearch.EraNames[researchEra - 1] + " 시대", 12, 112, 530, 298);
-            var defs = CampaignResearch.Technologies.Where(d => d.Tier == researchEra).ToArray();
+            var defs = CampaignResearch.Technologies.Where(d => !CampaignResearch.Retired(d.Technology) && d.Tier == researchEra).ToArray();
             if (!researchPick.HasValue || !defs.Any(d => d.Technology == researchPick)) researchPick = defs.FirstOrDefault()?.Technology;
             foreach (var d in defs)
             {

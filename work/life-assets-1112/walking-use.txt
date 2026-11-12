@@ -1,0 +1,3 @@
+Limping_Walk_1 mobility=0.625 moved=1.983017 frames=28 jointDegrees=78.81973; no preview
+Limping_Walk_3 mobility=0.375 moved=1.80127 frames=24 jointDegrees=68.8074; no preview
+Casual_Walk mobility=1 moved=2.080154 frames=27 jointDegrees=37.10211; no preview

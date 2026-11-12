@@ -74,9 +74,9 @@ namespace AntColony.UI
                     }
                     L.Label(row.transform, c.CommanderName, 15, 64, 4, listWidth - 180, 28, bold: true);
                     L.Label(row.transform, Status(c) + " · " + c.WeaponName, 12, 64, 32, listWidth - 190, 24, MenuTheme.Muted);
-                    L.Label(row.transform, $"기분 {c.Mood:0}\n병력 {c.TroopCount}/{c.CommandLimit}", 12, listWidth - 120, 8, 94, 48, MoodColor(c.Mood), TextAnchor.MiddleRight);
+                    L.Label(row.transform, $"기분 {c.Mood:0}\n체력 {c.PersonalHealth:0}", 12, listWidth - 120, 8, 94, 48, MoodColor(c.Mood), TextAnchor.MiddleRight);
                 }
-                L.Label(window, $"{shown.Length}명 표시 · 총 병력 {all.Sum(c => c.TroopCount)} / {all.Sum(c => c.CommandLimit)}", 12, 20, height - 38, listWidth, 24, MenuTheme.Muted);
+                L.Label(window, $"{shown.Length}명 표시 · 전체 장수 {all.Length}명", 12, 20, height - 38, listWidth, 24, MenuTheme.Muted);
             }
             if (!compact || rosterDetail)
             {
@@ -113,8 +113,8 @@ namespace AntColony.UI
             L.Label(head, c.CommanderName, 20, 108, 0, 388, 30, MenuTheme.Accent, bold: true);
             L.Label(head, $"{c.WeaponName} · {CommandCard.RoleName(c.Role)} · {Status(c)}", 13, 108, 30, 388, 20, MenuTheme.Muted);
             TraitChip.Grid(head, c.Traits.values, 108, 50, 388, 18, 4, 3);
-            L.Label(head, $"병력 <b>{c.TroopCount}</b> / {c.CommandLimit} 지휘한도    공격 <b>{c.AttackDamage:0.#}</b>    방어 <b>{c.Armor:0.#}</b>    연구 공격 {c.LabAttackLevel} · 방어 {c.LabArmorLevel}", 12, 108, 70, 388, 20);
-            L.Meter(head, 108, 94, 388, 8, c.CommandLimit > 0 ? (float)c.TroopCount / c.CommandLimit : 0, MenuTheme.Hp);
+            L.Label(head, $"개인 전투    공격 <b>{c.AttackDamage:0.#}</b>    방어 <b>{c.Armor:0.#}</b>    연구 공격 {c.LabAttackLevel} · 방어 {c.LabArmorLevel}", 12, 108, 70, 388, 20);
+            L.Meter(head, 108, 94, 388, 8, c.PersonalHealth / AntColony.Core.GameBalance.CommanderHealth, MenuTheme.Hp);
 
             var factors = c.PersonalState.moodFactors;
             var mood = L.Cell(content, "Mood", 70 + factors.Count * 18);
@@ -129,7 +129,7 @@ namespace AntColony.UI
             L.Label(leave, $"<b>탈주 위험</b>   기분 {c.Traits.DepartureMood} 이하 지속 시 이탈까지 <b>{Mathf.Max(0, SocialRules.Month - c.PersonalState.lowMoodSeconds):0}초</b>", 13, 0, 0, 496, 26);
             L.Meter(leave, 0, 30, 496, 8, c.PersonalState.lowMoodSeconds / SocialRules.Month, MenuTheme.DangerInk);
 
-            var skills = L.Cell(content, "Skills", 26 + ((CommanderTalents.Count + 2) / 3) * 46);
+            var skills = L.Cell(content, "Skills", 26 + ((CommanderTalents.ActiveCount + 2) / 3) * 46);
             c.Talents.EnsurePotential();
             var evaluation = L.Cell(content, "TalentAssessment", 78);
             L.Label(evaluation, TalentSummary(c.PersonalState.id), 13, 0, 0, 496, 36);
@@ -137,8 +137,9 @@ namespace AntColony.UI
             L.Label(skills, "<b>기술</b>  <color=#b1b3a7>0~20 · ★ 열정 · 최근 활용 비중</color>", 13, 0, 0, 496, 22);
             foreach (CommanderActivity skill in Enum.GetValues(typeof(CommanderActivity)))
             {
-                var i = (int)skill; var level = c.Talents.Level(skill);
-                var x = i % 3 * 166f; var y = 26 + i / 3 * 46f;
+                if (!CommanderTalents.IsActive(skill)) continue;
+                var i = (int)skill; var visualIndex = i > (int)CommanderActivity.Command ? i - 1 : i; var level = c.Talents.Level(skill);
+                var x = visualIndex % 3 * 166f; var y = 26 + visualIndex / 3 * 46f;
                 var cell = L.Box(skills, "Skill " + skill, x, y, 160, 42, MenuTheme.Plate2);
                 cell.gameObject.AddComponent<MenuTooltip>().Message = AntColony.Core.SpecialtyAcquisition.Description(c, skill);
                 L.Label(cell, $"{SkillNames[i]} <color=#f2a93b>{new string('★', c.Traits.Flame(skill))}</color> <color=#b1b3a7>{c.Talents.UsageShare(skill):P0}</color>", 12, 8, 2, 100, 20, MenuTheme.Muted);

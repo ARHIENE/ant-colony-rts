@@ -1,0 +1,2 @@
+command	success	result	parameters
+run_script	true	{"diagnostics":[],"compileMs":129,"executeMs":9267,"assemblyName":"PipelineRunScript_CommanderRemovalSave1112Checks_6e2286a153f142a7ab1a1ae64039118f","success":true,"result":"PASS legacy command/legion/formation/citizen counts/tax/research actual save-load; first wave leader initialization, actual save, actual load, valid restored leader, active wave with 15 enemies"}	{"file":"AgentScripts/CommanderRemovalSave1112Checks.cs","entry":"CommanderRemovalSave1112Checks.Main","timeout_ms":"120000"}

@@ -10,6 +10,7 @@ namespace AntColony.Units
         // 곰팡이 감염(2026-10-15 의료 개편): 질병(심각도·면역)으로 진행하고, 가까운 장수에게 옮는다. 장수·동물 사이 전염은 없다.
         private float moldSpreadTimer;
         public bool HasMold => personalState.health.illnesses.Any(i => i.kind == IllnessKind.Mold);
+        public bool CanCatchMold => !IsDead && !HasMold && Health.moldImmunityRemaining <= 0;
         private void TickInfection(float seconds)
         {
             if (!HasMold || IsDead || IsEmbarked || IsCaptive) return;
@@ -18,7 +19,7 @@ namespace AntColony.Units
             {
                 moldSpreadTimer -= EventRules.InfectionSpreadSeconds;
                 foreach (var other in Active.OfType<CommanderAnt>().ToArray())
-                    if (other != this && !other.IsDead && !other.IsEmbarked && !other.IsCaptive && !other.HasMold
+                    if (other != this && !other.IsEmbarked && !other.IsCaptive && other.CanCatchMold
                         && Vector3.Distance(Position, other.Position) <= EventRules.InfectionRadius
                         && Random.value < EventRules.InfectionChance * ScienceEffects.MoldSpreadMultiplier * BiomeRules.MoldSpread)
                     {

@@ -49,12 +49,14 @@ namespace AntColony.Map
             new Spec(ResourceType.Rice, 1, 30, 0, new Color(.7f, .8f, .5f)),
             new Spec(ResourceType.Grapes, 1, 30, 0, new Color(.5f, .3f, .6f)),
             new Spec(ResourceType.SunflowerSeed, 1, 30, 0, new Color(.7f, .6f, .2f)),
+            // Medicine recipes already consume herbs; append to preserve existing mat: save keys.
+            new Spec(ResourceType.Herb, 2, 24, 300, new Color(.35f, .65f, .4f)),
         };
 
         // 지역별 편차(±60%): 기초 생활 재료는 어디에나 있고 산업 자원은 바이옴마다 많고 적다.
         public static float Multiplier(MapBiome biome, ResourceType type)
         {
-            bool plant = type == ResourceType.Wood || type == ResourceType.Leaf || type == ResourceType.Fiber || type == ResourceType.Resin;
+            bool plant = type == ResourceType.Wood || type == ResourceType.Leaf || type == ResourceType.Fiber || type == ResourceType.Resin || type == ResourceType.Herb;
             bool ore = type == ResourceType.IronOre || type == ResourceType.CopperOre || type == ResourceType.Coal || type == ResourceType.Sulfur;
             float s = BiomeRules.Strong;
             return biome switch

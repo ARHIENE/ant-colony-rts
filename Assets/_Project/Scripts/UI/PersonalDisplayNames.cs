@@ -5,6 +5,12 @@ namespace AntColony.UI
     // 저장된 원인·도감 범주는 바꾸지 않고 표시할 때만 변환한다.
     public static class PersonalDisplayNames
     {
+        public static string Break(MentalBreak kind) => kind switch
+        {
+            MentalBreak.Idle => "멍하니 있음", MentalBreak.Flee => "정착지 이탈",
+            MentalBreak.AttackBuilding => "시설 공격", MentalBreak.AttackCommander => "동료 공격",
+            MentalBreak.SelfHarm => "자해", MentalBreak.Binge => "폭식", MentalBreak.Wander => "배회", _ => ""
+        };
         public static string Slot(EquipmentSlot slot) => slot switch
         {
             EquipmentSlot.Weapon => "무기", EquipmentSlot.Armor => "방어구", EquipmentSlot.Trinket => "장신구", _ => "장비"

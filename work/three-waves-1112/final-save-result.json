@@ -1,0 +1,27 @@
+{
+  "success": true,
+  "command": "command",
+  "data": {
+    "command": "run_script",
+    "parameters": {
+      "file": "AgentScripts/ThreeWaves1112Probe.cs",
+      "entry": "ThreeWaves1112Probe.SaveFinal",
+      "timeout_ms": "180000"
+    },
+    "result": {
+      "diagnostics": [],
+      "compileMs": 449,
+      "executeMs": 1591,
+      "assemblyName": "PipelineRunScript_ThreeWaves1112Probe_4fbc64d6305e45fe92de6aa345edc4dc",
+      "success": true,
+      "result": "Normal isolated save succeeded; wave=3 inWave=False left=238 enemies=0 food=33 soil=52 wood=0 screen=Game"
+    },
+    "target": {
+      "host": "127.0.0.1",
+      "port": 7801,
+      "projectPath": "F:\\UnityProjects\\ant-colony-rts"
+    }
+  },
+  "errors": [],
+  "warnings": []
+}

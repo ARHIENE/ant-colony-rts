@@ -1,0 +1,2 @@
+Part_Hair_BOB_00 materialTex=Meshy_AI_Meadow_Sprout_20261106_animated_mixamo_All_animation blockTex= verts=37715 bones=72
+Part_Face_NEUTRAL_00 materialTex=Meshy_AI_Meadow_Sprout_20261106_animated_mixamo_All_animation blockTex= verts=5528 bones=72

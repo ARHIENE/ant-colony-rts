@@ -8,7 +8,7 @@ using UnityEngine;
 namespace AntColony.Units
 {
     // 장수(지휘관). 플레이어가 직접 조작하는 유일한 유닛이다.
-    // 평시에는 자동 작업하며, 출전 시 배정된 일반개미가 개인 체력보다 먼저 피해를 받는다.
+    // 평시에는 자동 작업하며, 전투는 장수 개인의 체력으로 판정한다.
     public partial class CommanderAnt : WorkerAnt
     {
         // 기획 고정값: 일반개미 1마리가 HP 1이다. UnitData.maxHealth는 장수 부대 체력에 쓰지 않는다.
@@ -97,6 +97,7 @@ namespace AntColony.Units
         {
             if (CanReceiveOrders && !LabUpgradeBusy)
             {
+                LeavePlay();
                 WorkState.deploymentMealSeconds = 0;
                 WorkState.bossPickup = -1;
                 WakeForDuty(); // 자던 장수에게 이동 지시: 깨워서 걷게 한다(도착 후 다시 잔다, CommanderSleep).
@@ -111,19 +112,22 @@ namespace AntColony.Units
         }
 
         public string CommanderName => commanderName;
+        public bool IsFollowingCombatOrder => HasCombatOrder;
+        public bool IsFollowingMoveOrder => IsDirectMoving;
         // 기존 프로필·훈련장 에셋의 키만 재사용한다. 장수 보직은 장비로 대체한다.
         public UnitRole Role => Weapon == null ? UnitRole.Melee : MeshyEquipmentRules.IsRanged(Weapon.weapon) ? UnitRole.Ranged
             : Weapon.weapon == WeaponKind.Shield ? UnitRole.Defense : Weapon.weapon == WeaponKind.Pheromone ? UnitRole.Support : UnitRole.Melee;
         public override bool IsFlying => EquippedArmor?.armor == ArmorKind.Wings && Social.groundedRemaining <= 0;
 
-        public int TroopCount => troopCount;
-        public int CommandLimit => FormationRules.CommandLimit(talents.Level(CommanderActivity.Command),
-            (int)TrinketBonus(TrinketEffect.Command), 1f - .2f * PersonalState.Severity(InjuryPart.Thorax), HasLegion);
+        public int TroopCount => 0; // Legacy save/UI accessor; commanders have no troops.
+        public int CommandLimit => 0;
         public int FreeRanks => Mathf.Max(0, CommandLimit - troopCount);
-        public bool HasTroops => troopCount > 0;
+        public bool HasTroops => false;
+        // 2026-11-12 장수 단일 유닛: 병력이 없어도 장수 본인이 싸운다. 예전에 '병력 있음'으로 막던 전투 조건은 이 값으로 판정한다.
+        public bool CanFight => !IsDead && PersonalHealth > 0;
 
-        public float MaxHealth => GameBalance.CommanderHealth + troopCount * HealthPerTroop;
-        public override float CurrentHealth => PersonalHealth + TroopHealth;
+        public float MaxHealth => GameBalance.CommanderHealth;
+        public override float CurrentHealth => PersonalHealth;
 
         // 개인 체력 소진 시 OnDowned에서 새 게임 사망 옵션을 따른다.
         public override bool IsDead => PersonalState.dead;
@@ -141,8 +145,8 @@ namespace AntColony.Units
         public CommanderSkills Skills => skills;
 
         // 수동 시전. 비활성·병력 0이면 거부하고, 레벨·중복·재사용 대기는 CommanderSkills가 판정한다.
-        public bool CanPowerStrike => CanReceiveOrders && HasTroops && Role == UnitRole.Melee && skills.CanArmPowerStrike(talents.Level(CommanderActivity.Melee));
-        public bool CanDefensiveStance => CanReceiveOrders && HasTroops && Role == UnitRole.Defense && skills.CanStartDefensiveStance(talents.Level(CommanderActivity.Melee));
+        public bool CanPowerStrike => CanReceiveOrders && Role == UnitRole.Melee && skills.CanArmPowerStrike(talents.Level(CommanderActivity.Melee));
+        public bool CanDefensiveStance => CanReceiveOrders && Role == UnitRole.Defense && skills.CanStartDefensiveStance(talents.Level(CommanderActivity.Melee));
         public bool TryPowerStrike() => CanPowerStrike && skills.TryArmPowerStrike(talents.Level(CommanderActivity.Melee), 1f + .5f * PersonalState.Severity(InjuryPart.Head));
         public bool TryDefensiveStance() => CanDefensiveStance && skills.TryStartDefensiveStance(talents.Level(CommanderActivity.Melee), 1f + .5f * PersonalState.Severity(InjuryPart.Head));
 
@@ -152,22 +156,20 @@ namespace AntColony.Units
             else labArmorLevel = Mathf.Min(maxLevel, labArmorLevel + 1);
         }
 
-        // 병력 수만큼 부대 전체의 전투력/채집량이 늘어난다.
-        // 레벨 공격 보너스는 기존 공격력과 같이 1마리분에 더해진 뒤 병력 수(병력 0이면 장수 본인 1인분)만큼 곱해진다.
-        // 신중형 성격은 1마리분 공격력을 깎으므로 0 밑으로 내려가지 않게 막는다(병력 수를 곱하면 부호가 증폭된다).
+        // 장수 자신의 무기·기술·특성과 부상으로 전투력을 계산한다.
         private float FormationAttackBasis => base.AttackDamage + (Role == UnitRole.Support ? 0 : talents.Level(CombatActivity))
             + labAttackLevel * LabAttackBonusPerLevel + EquipmentBonus(EquipmentSlot.Weapon);
         private float AttackAgainst(IDamageable target) => Mathf.Max(1f, FormationRules.Stat(FormationAttackBasis,
-            traits.AttackBonus + (HasNearbyFriend ? 1 : 0) + (HasSupportAura ? SupportAttackBonus : 0), FormationEffect(target).Attack))
-            * Mathf.Max(1, troopCount) * (1f - .25f * PersonalState.Severity(InjuryPart.Arms)) * (PersonalState.rageRemaining > 0 ? 1.3f : 1f) * WrathFactor;
+            traits.AttackBonus, FormationEffect(target).Attack))
+            * (1f - .25f * PersonalState.Severity(InjuryPart.Arms)) * (PersonalState.rageRemaining > 0 ? 1.3f : 1f) * WrathFactor;
         public override float AttackDamage => AttackAgainst(CombatTarget);
         private float FormationArmorBasis => base.Armor + labArmorLevel * LabArmorBonusPerLevel + EquipmentBonus(EquipmentSlot.Armor)
             + (Role == UnitRole.Melee ? .5f * talents.Level(CommanderActivity.Melee) : Role == UnitRole.Defense ? talents.Level(CommanderActivity.Melee) : 0);
         public override float Armor => (FormationRules.Stat(FormationArmorBasis, traits.ArmorBonus
             + (AntColony.Buildings.RoomSystem.NearCastleWall(Position) ? AntColony.Buildings.GameBalanceRooms.CastleWallArmor : 0)
-            + (HasSupportAura ? SupportArmorBonus : 0) + (skills.DefensiveStanceActive ? CommanderSkills.DefensiveStanceArmor : 0), FormationEffect().Armor)
+            + (skills.DefensiveStanceActive ? CommanderSkills.DefensiveStanceArmor : 0), FormationEffect().Armor)
             - 2f * PersonalState.Severity(InjuryPart.Thorax)) * WrathFactor;
-        protected override float GatherRate => base.GatherRate * Mathf.Max(1, troopCount) * WorkRate(CurrentActivity) * (1f - .3f * PersonalState.Severity(InjuryPart.Arms)) * (1f + TrinketBonus(TrinketEffect.Gather)) * ColonyEvents.GatherMultiplier(this);
+        protected override float GatherRate => base.GatherRate * WorkRate(CurrentActivity) * (1f - .3f * PersonalState.Severity(InjuryPart.Arms)) * (1f + TrinketBonus(TrinketEffect.Gather)) * ColonyEvents.GatherMultiplier(this);
         protected override float FishingCatchMultiplier => talents.Multiplier(CommanderActivity.Fishing) * ColonyEvents.GatherMultiplier(this);
         protected override void OnGathered(float amount)
         {
@@ -197,7 +199,7 @@ namespace AntColony.Units
             get
             {
                 foreach (var unit in Active)
-                    if (unit is CommanderAnt support && support != this && support.HasTroops
+                    if (unit is CommanderAnt support && support != this && support.CanFight
                         && support.Role == UnitRole.Support && support.IsHostile == IsHostile
                         && !support.IsEmbarked && !support.IsDead && (support.Position - Position).sqrMagnitude <= support.AuraRadius * support.AuraRadius)
                         return true;
@@ -212,6 +214,7 @@ namespace AntColony.Units
 
         public override void Initialize(UnitData data, ObjectPool sourcePool, GameObject prefab)
         {
+            troopCount = 0; pendingDamage = 0; // Ignore obsolete serialized troop allocations.
             // 보직에 따라 role을 바꿔야 하므로 공유 에셋을 그대로 쓰지 않고 장수 전용 사본을 만든다.
             if (data != null && data != runtimeData)
             {
@@ -248,18 +251,8 @@ namespace AntColony.Units
             if (value != null) traits = value;
         }
 
-        // 대기 중인 일반개미를 이 장수에게 배정한다. 지휘 한도와 대기 인원을 모두 넘지 못한다.
-        public bool TryAssign(int count)
-        {
-            if (!IsDeployed || IsReturning || count <= 0 || IsAwayFromHome || !isActiveAndEnabled || !CanChangeAllocation || AntPool.Instance == null) return false;
-            if (count > CommandLimit - troopCount) return false;
-            if (ColonyPopulation.Instance == null || !ColonyPopulation.Instance.TryMilitaryDraft(count, AntColony.UI.EnemyAlert.CrisisActive)) return false;
-            if (!AntPool.Instance.TryAssign(count)) return false;
-            troopsReleased = false;
-            troopCount += count;
-            AllocateDeploymentFood();
-            return true;
-        }
+        // 구 UI·저장 도구의 호출 호환용. 시민 병력을 새로 배정하지 않는다.
+        public bool TryAssign(int count) => false;
 
         // 배정된 병력을 대기 풀로 돌려보낸다. 실제로 돌려보낸 수를 반환한다.
         // pendingDamage는 유지되므로 회수 후 재배정으로 피해를 씻어낼 수 없다.
@@ -279,8 +272,7 @@ namespace AntColony.Units
         // 저장 복원 전용. 병력 총량은 AntPool.RestoreCounts가 따로 맞추므로 여기서 풀을 건드리지 않는다.
         internal void RestoreTroops(int count, float savedPendingDamage)
         {
-            troopCount = Mathf.Max(0, count);
-            pendingDamage = Mathf.Max(0f, savedPendingDamage);
+            troopCount = 0; pendingDamage = 0f; // 2026-11-12: 구저장의 병력은 불러올 때 해산한다(풀 숫자는 SaveSnapshot이 맞춘다).
             troopsReleased = false;
         }
 
@@ -290,7 +282,7 @@ namespace AntColony.Units
             labArmorLevel = Mathf.Max(0, armor);
         }
 
-        // 피해는 부대 전체가 나눠 받고, HP 1이 쌓일 때마다 병력이 실제로 줄어든다(환급 없음).
+        // 방어와 장비 보정 후 장수 개인 체력에 피해를 적용한다.
         public override void TakeDamage(float amount) => TakeFormationDamage(amount, null, false, false);
         private void TakeTroopDamage(float amount, float receivedMultiplier)
         {
@@ -299,26 +291,23 @@ namespace AntColony.Units
             GetComponent<AntVisual>()?.Action("Hit");
             var damage = FormationDamage.AfterArmor(amount, Armor, receivedMultiplier);
             damage = AbsorbDurableDamage(damage);
-            var troopDamage = Mathf.Min(damage, TroopHealth);
-            damage -= troopDamage; pendingDamage += troopDamage;
-            var casualties = Mathf.Min(troopCount, Mathf.FloorToInt(pendingDamage));
-            pendingDamage -= casualties; troopCount -= casualties;
-            if (!IsDeparting) AntPool.Instance?.LoseAssigned(casualties);
-            Corpse.Drop(this, CorpseKind.Ant, "시민", casualties);
-            if (troopCount == 0 && IsHostile) { pendingDamage = 0; CaptureDeparting(); return; }
+            // 떠난(적대) 장수는 개인 체력이 바닥나면 붙잡힌다. 병력이 없다고 첫 타격에 잡히지 않는다.
+            if (IsHostile && WorkState.health - damage <= 0) { WorkState.health = Mathf.Max(1, WorkState.health); pendingDamage = 0; CaptureDeparting(); return; }
             WorkState.health = Mathf.Max(0, WorkState.health - damage);
             if (WorkState.health <= 0) { CommandStop(); DropCargo(); OnDowned(); }
         }
 
         // G01(2026-10-23): 병력 0은 부대 소진일 뿐이고 장수는 혼자(1인분) 계속 교전한다.
-        protected override bool AutoEngages => HasTroops || IsDeployed; // 병력 없는 민간 장수는 일하다 적에게 달려들지 않는다
+        // 소집된 장수와, 웨이브 중의 싸울 수 있는 장수는 가까운 적과 스스로 교전한다. 평화 중 일하던 장수는 달려들지 않는다.
+        protected override bool AutoEngages => IsDeployed || AntColony.World.WaveDefense.Instance?.InWave == true && !traits.Has(CommanderTrait.Pacifist) && !IsChild;
         public override bool CanAttackTarget(IDamageable target) => CanReceiveOrders && !DeploymentEating && !IsReturning && !LabUpgradeBusy && base.CanAttackTarget(target);
 
         public override void CommandAttack(IDamageable target)
         {
             if (!CanReceiveOrders || LabUpgradeBusy || target == null || !CanAttackTarget(target)) return;
             if (target is Component component && !AntColony.World.DiplomacyManager.TryAttack(component)) return;
-            WakeForDuty(); CommandStop();
+            if (IsAttacking(target)) return; // 이미 치고 있는 대상을 다시 지시해도 준비 중인 공격을 끊지 않는다
+            LeavePlay(); WakeForDuty(); CommandStop();
             WorkState.deploymentMealSeconds = 0;
             WorkState.bossPickup = -1;
             ReleaseCorpse();
@@ -330,7 +319,7 @@ namespace AntColony.Units
         public override void CommandAttackMove(Vector3 destination)
         {
             if (!CanReceiveOrders || LabUpgradeBusy) return;
-            WakeForDuty(); CommandStop();
+            LeavePlay(); WakeForDuty(); CommandStop();
             WorkState.deploymentMealSeconds = 0;
             WorkState.bossPickup = -1;
             ReleaseCorpse();

@@ -21,21 +21,12 @@ namespace AntColony.Buildings
 
         // 겹친 주거 중 새 종류보다 정원이 작고, 이미 공사 중이 아닌 것 하나.
         public static Housing FindTarget(BuildingKind kind, Vector3 position, Vector3 extents, int mask)
-        {
-            if (!Housing.IsKind(kind)) return null;
-            return Physics.OverlapBox(position, extents, Quaternion.identity, mask, QueryTriggerInteraction.Collide)
-                .Select(hit => hit.GetComponentInParent<Housing>())
-                .FirstOrDefault(h => h != null && !h.IsDead && h.Capacity < Housing.CapacityOf(kind) && !UnderConstruction(h));
-        }
+        { return null; }
 
         public static bool UnderConstruction(Housing h) => AntColony.Core.SceneObjects.All<RedevelopmentSite>().Any(s => s.Target == h);
 
         public static int Residents(Housing h)
-        {
-            var pop = ColonyPopulation.Instance;
-            if (h == null || pop == null || pop.HousingCapacity <= 0) return 0;
-            return Mathf.RoundToInt(h.Capacity * Mathf.Clamp01((float)pop.Total / pop.HousingCapacity));
-        }
+        { return 0; }
 
         public static Quote Price(BuildingData data, Housing target)
         {

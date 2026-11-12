@@ -1,0 +1,11 @@
+Assets/Resources/Environment1110/Models/Rock/Rock.fbx CPU surface access enabled
+Assets/Resources/Environment1110/Models/Oak/Oak.fbx CPU surface access enabled
+Assets/Resources/Environment1110/Models/Pine/Pine.fbx CPU surface access enabled
+Assets/Resources/Environment1110/Models/IronDeposit/IronDeposit.fbx CPU surface access enabled
+Assets/Resources/Environment1110/Models/CopperDeposit/CopperDeposit.fbx CPU surface access enabled
+Assets/Resources/ResourceModels/CC_RockOutcrop.fbx CPU surface access enabled
+Assets/Resources/ResourceModels/CC_OreOutcrop.fbx CPU surface access enabled
+Assets/Resources/ResourceModels/CC_TreeTall.fbx CPU surface access enabled
+Assets/Resources/ResourceModels/CC_TreeBroadleaf.fbx CPU surface access enabled
+Assets/Resources/ResourceModels/Mineral_Sand.fbx CPU surface access enabled
+Assets/Resources/ResourceModels/Mineral_Clay.fbx CPU surface access enabled

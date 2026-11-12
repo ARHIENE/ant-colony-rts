@@ -1,0 +1,1 @@
+PASS live offer, accept tooltip and event history say one commander; normal accept recruits exactly one. Disposable event fixture, not natural run.

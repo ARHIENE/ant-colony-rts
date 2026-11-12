@@ -18,7 +18,7 @@ namespace AntColony.Buildings
         public bool Operating => Phase == RocketPhase.Preparing || Phase == RocketPhase.Boarding;
         public bool ModificationsLocked => Operating || Phase == RocketPhase.Launched;
         public int Capacity => BaseSeats + SeatsPerModule * Cocoons;
-        public int CivilianPassengers => state.civilianPassengers;
+        public int CivilianPassengers => 0;
         public int OccupiedSeats => CivilianPassengers + passengers.Where(c => c != null && !c.IsDead).Sum(c => 1 + c.TroopCount);
         public bool HasLaunchCommander => passengers.Any(c => CampaignOutcome.Survivor(c) && c.IsEmbarked);
         public ReserveRequirement[] ActivationReserves => new[] { new ReserveRequirement(FuelResource, FuelUnitsPerDay * FinalBattleEconomy.DefenseDays) };

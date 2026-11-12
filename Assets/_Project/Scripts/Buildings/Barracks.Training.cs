@@ -10,7 +10,7 @@ namespace AntColony.Buildings
         public const float TrainingRate = .5f, TrainingSessionSeconds = 30f; // 잠정. 한 번 훈련 후 다시 작업을 고른다.
         private float trainingRemaining; // 저장하지 않는다: 불러오면 0이라 다음 판정에서 다시 작업을 고른다.
         public static IEnumerable<Barracks> Training => Active;
-        public bool FreeForTraining => !IsDead && isActiveAndEnabled && !IsUpgrading;
+        public bool FreeForTraining => role != UnitRole.Support && !IsDead && isActiveAndEnabled && !IsUpgrading;
         public CommanderActivity TrainedSkill => role == UnitRole.Ranged || role == UnitRole.Flying ? CommanderActivity.Ranged
             : role == UnitRole.Support ? CommanderActivity.Command : CommanderActivity.Melee;
         public bool BeginTraining() { trainingRemaining = TrainingSessionSeconds; return true; }

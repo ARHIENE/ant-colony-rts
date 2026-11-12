@@ -1,0 +1,27 @@
+{
+  "success": true,
+  "command": "command",
+  "data": {
+    "command": "run_script",
+    "parameters": {
+      "file": "work/appearance-overlap-1112/corpse-drafts/Corpse1112PausedChecks.cs",
+      "entry": "Corpse1112PausedChecks.Run",
+      "timeout_ms": "180000"
+    },
+    "result": {
+      "diagnostics": [],
+      "compileMs": 185,
+      "executeMs": 154,
+      "assemblyName": "PipelineRunScript_Corpse1112PausedChecks_cacfe2999e2b4d21944165ff3c753cfb",
+      "success": true,
+      "result": "PASS 3 paused restore types: commander native end pose/floor, ordinary bundle immediately shown; fresh death starts at frame zero"
+    },
+    "target": {
+      "host": "127.0.0.1",
+      "port": 7801,
+      "projectPath": "F:\\UnityProjects\\ant-colony-rts"
+    }
+  },
+  "errors": [],
+  "warnings": []
+}

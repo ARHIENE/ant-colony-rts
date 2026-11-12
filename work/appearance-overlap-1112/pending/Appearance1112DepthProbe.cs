@@ -1,0 +1,2 @@
+using System;using System.Threading.Tasks;using UnityEngine;
+public static class Appearance1112DepthProbe { public static async Task<string> Run(){var cam=Camera.main;float near=cam.nearClipPlane,far=cam.farClipPlane;cam.nearClipPlane=.1f;cam.farClipPlane=20;await Task.Delay(250);ScreenCapture.CaptureScreenshot("work/appearance-overlap-1112/depth-range.png");await Task.Delay(200);cam.nearClipPlane=near;cam.farClipPlane=far;return "Depth range diagnostic, restored "+near+".."+far;} }

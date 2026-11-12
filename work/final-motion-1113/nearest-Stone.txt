@@ -1,0 +1,1 @@
+Stone cutting point nearest surface=0.0221m phase=0.8646 point=(204.434, 10.204, 214.025) surface=(204.426, 10.205, 214.004) actor=(204.326, 10.381, 214.708)

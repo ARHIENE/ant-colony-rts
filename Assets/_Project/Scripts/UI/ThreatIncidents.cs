@@ -39,8 +39,14 @@ namespace AntColony.UI
                     active["threat:" + site.Title] = SiteNames.Name(site) + ": 보스 위협";
             if (CommanderRoster.Instance != null)
                 foreach (var c in CommanderRoster.Instance.Commanders)
+                {
                     if (c != null && c.IsColonyMember && (c.PersonalState.health.Downed || c.PersonalHealth <= 0))
                         active["down:" + c.PersonalState.id] = c.CommanderName + ": 쓰러짐";
+                    else if (c != null && c.IsColonyMember && !c.IsDead && c.IsViolentBreak)
+                        active["break:" + c.PersonalState.id] = c.CommanderName + ": " + PersonalDisplayNames.Break(c.PersonalState.mentalBreak)
+                            + (c.PersonalState.mentalBreak == MentalBreak.AttackCommander
+                                ? " — 다른 장수를 떨어뜨려 피해를 피하세요" : " — 주변 시설이 공격받고 있습니다");
+                }
             SimulationPause.Observe(active, announce);
             foreach (var rocket in AntColony.Core.SceneObjects.All<AirshipYard>())
                 if (rocket.GetComponent<RocketIncident>() == null) rocket.gameObject.AddComponent<RocketIncident>();

@@ -1,0 +1,70 @@
+using System.Linq;
+using UnityEngine;
+using UnityEngine.Animations;
+using UnityEngine.Playables;
+
+namespace AntColony.Units
+{
+    public sealed class MeshyNativeCorpse : MonoBehaviour
+    {
+        [SerializeField] AnimationClip clip;
+        [SerializeField] Animator animator;
+        [SerializeField] Material material;
+        [SerializeField] float elapsed;
+        PlayableGraph graph;
+        AnimationClipPlayable player;
+
+        public static GameObject Create(MeshyNativeLibrary library, MeshyNativeLibrary.Motion motion,
+            Vector3 position, Quaternion rotation, bool persistent, Transform original = null, bool settled = false)
+        {
+            var body=new GameObject("Native fallen character");body.transform.SetPositionAndRotation(position,rotation);
+            var model=Instantiate(library.characters[motion.rig],body.transform,false);
+            foreach(var a in model.GetComponentsInChildren<Animator>())a.enabled=false;
+            var root=motion.armatureRoot?model.transform.Find("SmartRigArmature").gameObject:model;
+            var animator=root.GetComponent<Animator>();if(!animator)animator=root.AddComponent<Animator>();
+            animator.enabled=true;animator.runtimeAnimatorController=null;animator.applyRootMotion=false;animator.cullingMode=AnimatorCullingMode.AlwaysAnimate;
+            var material=new Material(Shader.Find("Universal Render Pipeline/Lit"));material.SetTexture("_BaseMap",library.texture);material.SetFloat("_Smoothness",.3f);
+            var skins=model.GetComponentsInChildren<SkinnedMeshRenderer>();
+            foreach(var skin in skins){skin.updateWhenOffscreen=true;skin.sharedMaterials=Enumerable.Repeat(material,skin.sharedMaterials.Length).ToArray();skin.forceRenderingOff=false;}
+            motion.clip.SampleAnimation(root,0);
+            var bounds=MeshyNativeBounds.Rest(skins);
+            body.transform.localScale=Vector3.one*(1.6f/Mathf.Max(.01f,bounds.size.y));
+            if(original)MeshyNativeAppearance.Attach(model.transform,original,motion.rig);
+            // Swept renderer bounds include the entire animation, not the resting body.
+            motion.clip.SampleAnimation(root,motion.clip.length);
+            float bottom=float.PositiveInfinity;var baked=new Mesh();
+            foreach(var skin in model.GetComponentsInChildren<SkinnedMeshRenderer>().Where(s=>s.enabled)){
+                skin.BakeMesh(baked);foreach(var vertex in baked.vertices)bottom=Mathf.Min(bottom,skin.transform.TransformPoint(vertex).y);
+            }
+            Destroy(baked);model.transform.position+=Vector3.up*(position.y-bottom);
+            motion.clip.SampleAnimation(root,0);
+            foreach(var skin in model.GetComponentsInChildren<SkinnedMeshRenderer>())for(int i=0;i<skin.sharedMesh.blendShapeCount;i++)if(skin.sharedMesh.GetBlendShapeName(i).ToUpperInvariant().EndsWith("SLEEP"))skin.SetBlendShapeWeight(i,100);
+            var playback=body.AddComponent<MeshyNativeCorpse>();playback.clip=motion.clip;playback.animator=animator;playback.material=material;playback.elapsed=settled?motion.clip.length:0;playback.StartGraph();
+            if(!persistent)Destroy(body,Mathf.Max(2.5f,motion.clip.length+.25f));
+            return body;
+        }
+        public static GameObject Restore(Vector3 position)
+        {
+            var library=Resources.Load<MeshyNativeLibrary>("MeshyNative/Runtime");
+            var motion=library?library.motions.FirstOrDefault(m=>m.id=="Dead"):null;
+            if(motion==null||!KemonoModel.Available)return null;
+            // The save format does not retain corpse cosmetics; preserve the existing default appearance.
+            var source=KemonoModel.Create(null,0);
+            try{return Create(library,motion,position,Quaternion.identity,true,source.transform,true);}
+            finally{source.SetActive(false);Destroy(source);}
+        }
+        void StartGraph()
+        {
+            if(graph.IsValid())graph.Destroy();
+            graph=PlayableGraph.Create("Native death");graph.SetTimeUpdateMode(DirectorUpdateMode.Manual);
+            player=AnimationClipPlayable.Create(graph,clip);
+            AnimationPlayableOutput.Create(graph,"Native death",animator).SetSourcePlayable(player);graph.Play();
+            // A paused load must display the final pose before the first simulation tick.
+            player.SetTime(Mathf.Min(elapsed,clip.length));graph.Evaluate(0);
+        }
+        void OnEnable(){if(clip&&animator)StartGraph();}
+        void Update(){if(!graph.IsValid())return;elapsed+=Time.deltaTime;player.SetTime(Mathf.Min(elapsed,clip.length));graph.Evaluate(0);}
+        void OnDisable(){if(graph.IsValid())graph.Destroy();}
+        void OnDestroy(){if(graph.IsValid())graph.Destroy();if(material)Destroy(material);}
+    }
+}
