@@ -1,0 +1,245 @@
+category	name	kind	status
+Tile	높은 목책	Palisade	menu
+Tile	흙벽	SoilWall	menu
+Tile	나뭇잎 벽	LeafWall	menu
+Tile	돌벽		plan_only
+Tile	병뚜껑 벽	CapWall	menu
+Tile	문	Door	menu
+Tile	잠금문	LockedDoor	menu
+Tile	창살문	BarredDoor	menu
+Tile	자동문		plan_only
+Tile	유리벽		plan_only
+Tile	바닥	Floor	menu
+Tile	기둥	Pillar	menu
+Tile	울타리		plan_only
+Tile	방화벽		plan_only
+Tile	다리		plan_only
+Living	자리	SleepingMat	menu
+Living	침대	SingleBed	menu
+Living	숙소(4인, 구 건물)	Dormitory	menu
+Living	큰침대	DoubleBed	menu
+Living	2층침대	BunkBed	menu
+Living	해먹	Hammock	menu
+Living	요람	Nursery	menu
+Living	작은 식탁	Kitchen	menu
+Living	큰 식탁	BigTable	menu
+Living	연회용 긴 식탁	BanquetTable	menu
+Living	구덩이 변소		plan_only
+Living	화장실	Toilet	menu
+Living	수세식 변기		plan_only
+Living	분해 변기		plan_only
+Living	세면대	Washbasin	menu
+Living	샤워기	Shower	menu
+Storage	수납장	Storage	menu
+Storage	항아리	Jar	menu
+Storage	저장고	FoodStore	menu
+Storage	퇴비통	CompostBin	menu
+Storage	냉장고	Fridge	menu
+Storage	냉동고	Freezer	menu
+Storage	운반 레일		plan_only
+Storage	순간이동 보관함		plan_only
+Environment	화롯불	Brazier	menu
+Environment	등불	Lantern	menu
+Environment	횃불	Torch	menu
+Environment	반딧불 등	FireflyLamp	menu
+Environment	난로		plan_only
+Environment	환풍구		plan_only
+Environment	전등	ElectricLamp	menu
+Environment	가로등		plan_only
+Environment	에어컨		plan_only
+Environment	전기난로		plan_only
+Environment	가습기		plan_only
+Environment	제습기		plan_only
+Environment	온도 조절기		plan_only
+Environment	공기청정기		plan_only
+Environment	인공 태양		plan_only
+Power	쳇바퀴	Treadmill	menu
+Power	장작 발전기	WoodGenerator	menu
+Power	반딧불 발전기		plan_only
+Power	물레방아		plan_only
+Power	풍차		plan_only
+Power	석탄 발전기		plan_only
+Power	시추선		plan_only
+Power	석유 발전기		plan_only
+Power	태양광판		plan_only
+Power	핵융합로		plan_only
+Power	반물질로		plan_only
+Power	우주 태양광		plan_only
+Power	전선	PowerWire	menu
+Power	배터리	Battery	menu
+Power	스위치		plan_only
+Power	전력 변압기		plan_only
+Automation	온도계		plan_only
+Automation	습도계		plan_only
+Automation	무게 감압판		plan_only
+Automation	시계 센서		plan_only
+Automation	낮밤 센서		plan_only
+Automation	저장량 센서		plan_only
+Automation	전력량 센서		plan_only
+Automation	AND 게이트		plan_only
+Automation	OR 게이트		plan_only
+Automation	NOT 게이트		plan_only
+Automation	NOR 게이트		plan_only
+Automation	XOR 게이트		plan_only
+Automation	버퍼 게이트		plan_only
+Automation	필터 게이트		plan_only
+Automation	기억 장치		plan_only
+Automation	카운터		plan_only
+Automation	신호선		plan_only
+Plumbing	배관		plan_only
+Plumbing	펌프		plan_only
+Plumbing	밸브		plan_only
+Plumbing	액체 탱크		plan_only
+Plumbing	빗물 받이		plan_only
+Plumbing	이슬 수집기		plan_only
+Plumbing	정수기		plan_only
+Food	밭	Farm	menu
+Food	버섯밭	MushroomFarm	menu
+Food	축사	AphidPen	menu
+Food	먹이통	Feeder	menu
+Food	수경 농장		plan_only
+Food	화덕	Hearth	menu
+Food	가스레인지		plan_only
+Food	전기조리대		plan_only
+Food	미래 조리기구		plan_only
+Food	도축대	ButcherTable	menu
+Food	물고기 양식장		plan_only
+Food	목장	Pen	menu
+Food	돌봄대	CareStation	menu
+Food	동물 치료대	AnimalClinic	menu
+Food	벌레덫		plan_only
+Food	양갱기		plan_only
+Food	감로 단지 보관실		plan_only
+Food	발효통		plan_only
+Food	영양죽 기계		plan_only
+Food	제분기		plan_only
+Food	사료통		plan_only
+Food	비료 제조기		plan_only
+Food	훈제실·건조대		plan_only
+Food	꿀벌통		plan_only
+Food	씨앗 보관고		plan_only
+Food	단물 짜는 기계		plan_only
+Food	음료 바		plan_only
+Food	연회 요리대		plan_only
+Food	식량 프린터		plan_only
+Food	합성육 배양기		plan_only
+Work	목공대	Carpentry	menu
+Work	석공대	Stonecutter	menu
+Work	물레	SpinningWheel	menu
+Work	무두장이대		plan_only
+Work	분해대		plan_only
+Work	무기 공방	Workshop	menu
+Work	갑옷 공방		plan_only
+Work	장신구 공방		plan_only
+Work	수리대		plan_only
+Work	연구대	ScienceLab	menu
+Work	예술대		plan_only
+Work	용광로·제련소	Smelter	menu
+Work	유리 가마	Kiln	menu
+Work	화학 실험대		plan_only
+Work	정유기		plan_only
+Work	재봉틀		plan_only
+Work	부품 조립대		plan_only
+Work	로봇 공장		plan_only
+Medical	병상	Infirmary	menu
+Medical	약제대	MedicineBench	menu
+Medical	수술대		plan_only
+Medical	격리 병상		plan_only
+Medical	의족 제작대		plan_only
+Medical	기계 다리 제작대		plan_only
+Medical	재생 탱크		plan_only
+Medical	관		plan_only
+Medical	묘비	Tombstone	menu
+Medical	약초밭		plan_only
+Medical	화장터		plan_only
+Defense	성벽	CastleWall	menu
+Defense	성문	Gate	menu
+Defense	망루	Watchtower	menu
+Defense	가시 함정	SpikeTrap	menu
+Defense	끈끈이 함정	TrapPit	menu
+Defense	폭발 함정	MineField	menu
+Defense	산성탑	AcidTower	menu
+Defense	투석기		plan_only
+Defense	화염탑		plan_only
+Defense	레이저탑		plan_only
+Defense	모래주머니 엄폐물		plan_only
+Defense	해자		plan_only
+Defense	경보종		plan_only
+Defense	탐지등		plan_only
+Defense	방어막 발생기		plan_only
+Recreation	놀이판	BoardGame	menu
+Recreation	장기판	Janggi	menu
+Recreation	바둑판	Baduk	menu
+Recreation	씨름판	WrestlingRing	menu
+Recreation	가시 다트	DartBoard	menu
+Recreation	도토리 볼링		plan_only
+Recreation	악기	Instrument	menu
+Recreation	운동기구	ExerciseRig	menu
+Recreation	진딧물 꿀술바		plan_only
+Recreation	거미줄 그네	WebSwing	menu
+Recreation	민들레 홀씨 활강		plan_only
+Recreation	이야기 모닥불	Campfire	menu
+Recreation	주사위 도박판	GamblingDen	menu
+Recreation	무대		plan_only
+Recreation	목욕통	Bathtub	menu
+Recreation	온천	HotSpring	menu
+Recreation	안마의자		plan_only
+Recreation	책장	Bookshelf	menu
+Recreation	홀로그램 극장		plan_only
+Recreation	게임기·VR		plan_only
+Decoration	조각상	Statue	menu
+Decoration	화분	FlowerPot	menu
+Decoration	깃발	Flag	menu
+Decoration	그림	Painting	menu
+Decoration	조개껍데기	ShellDecoration	menu
+Decoration	구슬 모자이크	MarbleMosaic	menu
+Decoration	병뚜껑 모빌	BottleMobile	menu
+Decoration	카펫	Carpet	menu
+Decoration	태피스트리	Tapestry	menu
+Decoration	사람 물건 전시대	CuriosDisplay	menu
+Decoration	분수대		plan_only
+Decoration	기념비	Monument	menu
+Decoration	동상	BronzeStatue	menu
+Decoration	전리품 진열대	TrophyCase	menu
+Decoration	홀로그램 장식		plan_only
+Military	허수아비(근접 훈련대)	Barracks	menu
+Military	과녁(원거리 훈련대)		plan_only
+Military	작전판(지휘 훈련대)		plan_only
+Military	징집소	ConscriptionPost	menu
+Military	무기고	Armory	menu
+Military	막사		plan_only
+Military	작전실 지도대		plan_only
+Military	신호탑		plan_only
+Military	포로 수용소	PrisonerCamp	menu
+Military	군기·북		plan_only
+Military	정찰 초소	ScoutPost	menu
+Village	초가집	Hut	not_in_menu
+Village	흙집	House	not_in_menu
+Village	큰 아파트	Apartment	not_in_menu
+Village	진료소		plan_only
+Village	소방서		plan_only
+Village	경비초소		plan_only
+Village	학당		plan_only
+Village	시장		plan_only
+Village	공원·광장		plan_only
+Village	쓰레기장		plan_only
+Village	물탱크		plan_only
+Village	우물		plan_only
+Village	도로		plan_only
+Village	제단		plan_only
+Village	여관		plan_only
+Transport	로켓 발사대	AirshipYard	menu
+Transport	로켓 선체		plan_only
+Transport	로켓 추진기관		plan_only
+Transport	동면 캡슐		plan_only
+Transport	차량		plan_only
+Transport	비행기		plan_only
+Transport	비행선		plan_only
+Transport	배·뗏목		plan_only
+Transport	잠수함		plan_only
+Transport	터널 기차		plan_only
+Transport	타는 벌레 마구간		plan_only
+Transport	민들레 열기구		plan_only
+Transport	정류장·역		plan_only
+Transport	활주로		plan_only
+Transport	항구		plan_only

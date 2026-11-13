@@ -9,18 +9,22 @@ namespace AntColony.Units
             && (commander.ServiceTarget == null || (commander.ServiceTarget.Position - transform.position).sqrMagnitude <= 49)
             && (!(commander.ServiceTarget is SupplyFacility station) || commander.AtDrill(station))
             && (!(commander.ServiceTarget is Processor || commander.ServiceTarget is Kitchen) || commander.AtDrill(commander.ServiceTarget))
-            && (commander.ScienceAssignment == null || (commander.ScienceAssignment.Position - transform.position).sqrMagnitude <= 64)
+            && (commander.ScienceAssignment == null || commander.AtResearchDesk)
             && (commander.ServiceTarget != null || commander.ScienceAssignment != null || commander.CraftingWorkshop != null
                 || commander.SurveyAssignment != null && commander.SurveyAssignment.Powered && commander.SurveyAssignment.CandidateId >= 0
                     && commander.SurveyWorkReady && (commander.SurveyAssignment.Position - transform.position).sqrMagnitude <= 64
                 || commander.MedicalJob != MedJob.None || commander.AnimalJob != AnimalTask.None || commander.CorpseTarget != null);
         private bool CarryingPerson => commander != null && commander.MedicalPatient != null && commander.MedicalPatient.RescueCarrier == commander;
-        private string JoyClip() => commander.PersonalState.joy.freeWalk ? "SkyGaze" : commander.PersonalState.joy.kind switch
+        private string JoyClip()
+        {
+            if (commander.AtPlaySpot && commander.PlaySpot) Face(commander.PlaySpot.Position - transform.position);
+            return !commander.PersonalState.joy.freeWalk && !commander.AtPlaySpot ? "StandIdle" : commander.PersonalState.joy.freeWalk ? "SkyGaze" : commander.PersonalState.joy.kind switch
         {
             0 => (Seed(name)&1)==0 ? "Talk" : "Listen",
-            2 => "Inspect", 3 or 12 => "Bathe", 1 or 4 or 5 or 6 => "PlayBoard", 7 => "Wrestle", 8 => "Throw",
+            2 => "ReadBook", 3 or 12 => "Bathe", 1 or 4 or 5 or 6 => "PlayBoard", 7 => "Wrestle", 8 => "Throw",
             9 => "Exercise", 10 => "PlayMusic", 11 => "Swing", _ => "Rest"
-        };
+            };
+        }
         private (string clip, string tool) WorkClip()
         {
             if (commander.ScienceAssignment != null) Face(commander.ScienceAssignment.Position - transform.position);

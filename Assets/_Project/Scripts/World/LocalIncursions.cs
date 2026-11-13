@@ -80,7 +80,7 @@ namespace AntColony.World
                         // 독립 웨이브 장수도 초기화해야 옛 템플릿의 짧은 기술 배열이 저장에 섞이지 않는다.
                         if (visitor is EnemyCommander leader)
                             leader.ConfigureCommander(leader.CommanderName, leader.Rank, leader.Roles, leader.Traits);
-                        visitor.ConfigureWeakIntruder();
+                        visitor.ConfigureWeakIntruder(wave && visitor is EnemyCommander);
                     }
                     else
                     {

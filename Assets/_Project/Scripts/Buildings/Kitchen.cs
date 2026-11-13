@@ -34,10 +34,10 @@ namespace AntColony.Buildings
             { this.name = name; this.output = output; this.seconds = seconds; this.inputs = inputs; food = inputs.Sum(i => i.Item2); }
             public string Cost => string.Join(" + ", inputs.Select(i => $"{i.type.DisplayName()} {i.amount}"));
         }
-        // ponytail: 레시피·재료·시간은 잠정(기획 미정). 좋은 요리는 재료·시간을 두 배로 쓴다. 썩은 식품은 쓰지 않는다.
+        // ponytail: 레시피·재료·시간은 잠정(기획 미정). 좋은 요리는 재료를 두 배로 쓰고 더 오래 조리한다. 썩은 식품은 쓰지 않는다.
         public static readonly Recipe[] Recipes =
         {
-            new Recipe("간단한 요리", ResourceType.SimpleMeal, (int)GameBalance.MealFood, 10),
+            new Recipe("간단한 요리", ResourceType.SimpleMeal, (int)GameBalance.MealFood, 7.5f),
             new Recipe("좋은 요리", ResourceType.FineMeal, (int)GameBalance.MealFood * 2, 20),
             new Recipe("밥", ResourceType.CookedRice, 10f, (ResourceType.Rice, 2)),
             new Recipe("납작빵", ResourceType.Flatbread, 12f, (ResourceType.WheatFlour, 1)),
@@ -128,7 +128,7 @@ namespace AntColony.Buildings
             meals.cook ??= new SoleWorker { mixed = meals.progress > 0 };
             meals.cook.Note(c.PersonalState.id, c.Traits.Has(CommanderTrait.DiamondCooking));
             var r = Current; var rate = c.WorkRate(CommanderActivity.Cooking); // 요리 기술은 속도만(등급은 레시피)
-            var elapsed = Mathf.Min(seconds, (r.seconds - meals.progress) / rate);
+            var elapsed = Mathf.Min(seconds, Mathf.Max(0, r.seconds - meals.progress) / rate);
             meals.progress += elapsed * rate; c.GainExperience(CommanderActivity.Cooking, elapsed);
             if (meals.progress < r.seconds) return true;
             int skill = Mathf.Clamp(c.Talents.Level(CommanderActivity.Cooking) + c.Traits.CookingBonus, 0, CommanderTalents.MaxLevel);

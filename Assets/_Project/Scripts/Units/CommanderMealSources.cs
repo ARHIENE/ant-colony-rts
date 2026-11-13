@@ -8,6 +8,69 @@ namespace AntColony.Units
 {
     public partial class CommanderAnt
     {
+        public Kitchen MealTable { get; private set; }
+        public int MealSeatSlot { get; internal set; } = -1;
+        internal void RestoreMealSeat(Save.CommanderOrderDto order)
+        {
+            if(!IsEating) return;
+            MealTable=Save.SaveReferences.Get<Kitchen>(order.mealTable);
+            MealSeatSlot=order.mealSeat;
+            if(MealTable && order.mealExit != null && Agent && Agent.enabled && Agent.isOnNavMesh)
+                Agent.Warp(order.mealExit.ToVector3());
+        }
+        bool? mealNavigationUpdates;
+        internal void UpdateMealSeat()
+        {
+            if(!MealTable || MealTable.IsDead || !MealTable.isActiveAndEnabled) { ResetMealSeat(); return; }
+            if(!MealTable || !Agent || !Agent.enabled || !Agent.isOnNavMesh) return;
+            var visual=MealTable.GetComponent<FacilityVisual>();
+            if(!visual || !visual.TryDiningSeat(this,out var seat,out _)) return;
+            if(!mealNavigationUpdates.HasValue) { mealNavigationUpdates=Agent.updatePosition; Agent.updatePosition=false; }
+            transform.position=new Vector3(seat.x,Agent.nextPosition.y,seat.z);
+        }
+        void ResetMealSeat()
+        {
+            if(mealNavigationUpdates.HasValue && Agent)
+            {
+                if(Agent.enabled && Agent.isOnNavMesh) Agent.Warp(Agent.nextPosition);
+                Agent.updatePosition=mealNavigationUpdates.Value;
+            }
+            mealNavigationUpdates=null;
+            MealTable=null;
+            MealSeatSlot=-1;
+        }
+
+        private bool TryMealTableApproach(Kitchen table, out Vector3 point)
+        {
+            point = Position;
+            var collider = table.GetComponent<Collider>();
+            if (!collider) return false;
+            var bounds = collider.bounds;
+            var outward = Vector3.ProjectOnPlane(Position-bounds.center, Vector3.up).normalized;
+            if (outward.sqrMagnitude < .01f) outward = table.transform.forward;
+            for (int i=0; i<12; i++)
+            {
+                var direction = Quaternion.Euler(0,i*30,0)*outward;
+                float edge = Mathf.Min(bounds.extents.x/Mathf.Max(.001f,Mathf.Abs(direction.x)),
+                    bounds.extents.z/Mathf.Max(.001f,Mathf.Abs(direction.z)));
+                var desired = bounds.center + direction*(edge+.45f);
+                desired.y = bounds.min.y;
+                if (!UnityEngine.AI.NavMesh.SamplePosition(desired,out var hit,.35f,UnityEngine.AI.NavMesh.AllAreas)
+                    || !CanReach(hit.position)) continue;
+                point = hit.position; return true;
+            }
+            return false;
+        }
+
+        private bool MoveToMealTable(Kitchen table)
+        {
+            if (!TryMealTableApproach(table,out var point)) return false;
+            MealTable = table;
+            if (Vector3.ProjectOnPlane(Position-point,Vector3.up).sqrMagnitude <= .04f) return false;
+            if (IsFlying || Agent != null && !Agent.pathPending && !Agent.hasPath) base.CommandMove(point);
+            return true;
+        }
+
         // 작업과 같은 완전 경로를 확인하고 실제 접근 지점에 도착한 뒤에만 꺼낸다.
         private bool MoveForMeal(Vector3 source)
         {

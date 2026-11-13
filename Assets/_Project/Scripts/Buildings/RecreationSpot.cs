@@ -35,7 +35,7 @@ namespace AntColony.Buildings
         };
         public bool HasSeat => isActiveAndEnabled && !IsDead && users.Count < Seats;
         public int MinimumUsers => IsGambling ? 2 : 1;
-        public bool HasMinimumUsers => users.Count(u => u != null && !u.IsDead && u.PlaySpot == this) >= MinimumUsers;
+        public bool HasMinimumUsers => users.Count(u => u != null && !u.IsDead && u.PlaySpot == this && u.AtPlaySpot) >= MinimumUsers;
         public bool NearDecoration => Decoration.CountNear(Position) > 0;
         public static string KindName(int kind) => kind >= 0 && kind < Names.Length ? Names[kind] : Names[0];
 

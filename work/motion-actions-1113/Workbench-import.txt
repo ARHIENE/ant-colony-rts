@@ -1,0 +1,1 @@
+Workbench: 8560 triangles, 2 textures, 1 materials

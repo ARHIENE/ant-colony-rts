@@ -39,12 +39,18 @@ namespace AntColony.Units
         private BuildingConstructionSite targetConstruction;
         private float buildTimer;
 
-        internal Save.WorkerOrderDto CaptureWorkerOrder() => new Save.WorkerOrderDto {
-            state = (int)state, node = Save.SaveReferences.Key(targetNode), deposit = Save.SaveReferences.Key(targetDeposit),
-            construction = Save.SaveReferences.Key(targetConstruction), delivery = Save.SaveReferences.Key(deliverySite), constructionStep = constructionStep,
-            fetchHost = Save.SaveReferences.Key(fetchBin?.Host), fetchBase = fetchBin != null && fetchBin.IsBase,
-            depositBin = targetBin != null, fetchType = (int)fetchType, fetchAmount = fetchAmount,
-            fishingNode = Save.SaveReferences.Key(fishingNode), buildTimer = buildTimer };
+        internal Save.WorkerOrderDto CaptureWorkerOrder()
+        {
+            // 소진된 바닥 더미는 저장 대상에서 빠진다. 화물과 배송 목적지는 유지한다.
+            bool expired = targetNode != null && targetNode.IsLooseCargo && targetNode.IsDepleted && !targetNode.gameObject.activeInHierarchy;
+            var savedState = expired && (state == State.MovingToNode || state == State.Gathering) ? State.Idle : state;
+            return new Save.WorkerOrderDto {
+                state = (int)savedState, node = Save.SaveReferences.Key(expired ? null : targetNode), deposit = Save.SaveReferences.Key(targetDeposit),
+                construction = Save.SaveReferences.Key(targetConstruction), delivery = Save.SaveReferences.Key(deliverySite), constructionStep = constructionStep,
+                fetchHost = Save.SaveReferences.Key(fetchBin?.Host), fetchBase = fetchBin != null && fetchBin.IsBase,
+                depositBin = targetBin != null, fetchType = (int)fetchType, fetchAmount = fetchAmount,
+                fishingNode = Save.SaveReferences.Key(fishingNode), buildTimer = buildTimer };
+        }
         internal void RestoreWorkerOrder(Save.WorkerOrderDto d)
         {
             if (d == null) return;
@@ -112,7 +118,9 @@ namespace AntColony.Units
             var drop = GameObject.CreatePrimitive(PrimitiveType.Cube);
             drop.name = "Dropped " + carriedType; drop.SetActive(false);
             drop.transform.position = CargoDropPosition(); drop.transform.localScale = Vector3.one * .6f;
-            drop.AddComponent<ResourceNode>().ConfigureLoot(carriedType, carriedAmount);
+            var node = drop.AddComponent<ResourceNode>(); node.ConfigureLoot(carriedType, carriedAmount);
+            if (targetNode != null && targetNode.TryGetComponent<TargetPriority>(out var priority))
+                WorkPriorities.Set(node, priority.level, priority.yellow);
             if (drop.TryGetComponent<FloorFood>(out var food)) food.Lots.Add(carriedLots); // 들고 있던 식품 신선도 그대로
             drop.AddComponent<ResourceNodeStatus>(); drop.SetActive(true);
             carriedAmount = 0; CommandStop();
@@ -214,13 +222,12 @@ namespace AntColony.Units
         public float TravelDistance(Vector3 destination)
         {
             if (IsFlying) return Vector3.Distance(Position, destination);
-            if (!Agent.enabled || !Agent.isOnNavMesh || !NavMesh.SamplePosition(destination, out var hit, 4, NavMesh.AllAreas)) return float.PositiveInfinity;
-            if (unreachableUntil.TryGetValue(hit.position, out var until) && Time.unscaledTime < until) return float.PositiveInfinity; // G26: TryWorkApproach와 같은 10초 기억
+            if (!Agent.enabled || !Agent.isOnNavMesh || !TryWorkApproach(destination, out var approach)) return float.PositiveInfinity;
             var path = new NavMeshPath();
-            if (!Agent.CalculatePath(hit.position, path)) return float.PositiveInfinity;
-            var length = path.status == NavMeshPathStatus.PathPartial ? AntColony.Map.NavRoute.Length(Agent.nextPosition, hit.position) // 먼 길(2026-10-22)
+            if (!Agent.CalculatePath(approach, path)) return float.PositiveInfinity;
+            var length = path.status == NavMeshPathStatus.PathPartial ? AntColony.Map.NavRoute.Length(Agent.nextPosition, approach) // 먼 길(2026-10-22)
                 : path.status == NavMeshPathStatus.PathComplete ? 0f : float.PositiveInfinity;
-            if (float.IsPositiveInfinity(length)) { if (unreachableUntil.Count > 512) unreachableUntil.Clear(); unreachableUntil[hit.position] = Time.unscaledTime + 10f; }
+            if (float.IsPositiveInfinity(length)) return length;
             if (path.status != NavMeshPathStatus.PathComplete) return length;
             for (int i = 1; i < path.corners.Length; i++) length += Vector3.Distance(path.corners[i - 1], path.corners[i]);
             return length;
@@ -236,6 +243,25 @@ namespace AntColony.Units
             // ponytail: 10초 동안 같은 지점은 못 간다고 본다. 다리·문이 생긴 직후 최대 10초 늦게 반응; 지형 변경 이벤트로 비우게 할 수 있다.
             if (unreachableUntil.TryGetValue(destination, out var until) && Time.unscaledTime < until) return false;
             if (CanReach(destination)) return true;
+            // 건물 사이의 작은 NavMesh 섬이 가장 가까운 표본일 수 있다. 손이 닿는 주변의 완전 경로도 확인한다.
+            // 경로를 순간 이동시키거나 먼 대상에 닿게 하지는 않는다.
+            if (Agent.enabled && Agent.isOnNavMesh)
+            {
+                var toward = Vector3.ProjectOnPlane(Position - target, Vector3.up).normalized;
+                if (toward.sqrMagnitude < .01f) toward = Vector3.forward;
+                var path = new NavMeshPath();
+                for (int radius = 1; radius <= 2; radius++)
+                    for (int i = 0; i < 8; i++)
+                    {
+                        var candidate = target + Quaternion.Euler(0, i * 45, 0) * toward * radius;
+                        if (!NavMesh.SamplePosition(candidate, out var nearby, .75f, NavMesh.AllAreas)
+                            || Vector3.Distance(nearby.position, target) > 2.25f
+                            || !Agent.CalculatePath(nearby.position, path) || path.status != NavMeshPathStatus.PathComplete
+                            || path.corners.Length == 0 || Vector3.Distance(path.corners[path.corners.Length - 1], nearby.position) > 1f) continue;
+                        destination = nearby.position;
+                        return true;
+                    }
+            }
             if (unreachableUntil.Count > 512) unreachableUntil.Clear();
             unreachableUntil[destination] = Time.unscaledTime + 10f;
             return false;
@@ -288,6 +314,7 @@ namespace AntColony.Units
         public override void CommandStop()
         {
             RestoreGatherArrival();
+            RestoreConstructionArrival();
             var previousSite = targetConstruction ?? deliverySite as BuildingConstructionSite;
             targetConstruction = null; // 예정지·진행도는 남겨 다른 장수(또는 복귀 후 본인)가 이어 짓는다.
             ReleaseDestination();
@@ -347,7 +374,9 @@ namespace AntColony.Units
             targetNode = null;
             targetConstruction = site;
             constructionStep = 0; buildTimer = 0;
-            SetMoveDestination(ConstructionPoint(0, out var point) ? point : site.Position);
+            if (!ConstructionPoint(0, out var point)) { CommandStop(); return; }
+            PreciseConstructionArrival();
+            SetMoveDestination(point);
             state = State.MovingToBuildSite;
         }
 
@@ -437,6 +466,7 @@ namespace AntColony.Units
         {
             if (targetConstruction == null)
             {
+                RestoreConstructionArrival();
                 StopMoving();
                 state = State.Idle;
                 return;
@@ -448,7 +478,8 @@ namespace AntColony.Units
                 CommandStop(); return;
             }
 
-            if (HasReachedDestination() || NearDestination) { StopMoving(); state = State.Building; }
+            PreciseConstructionArrival();
+            if (HasReachedDestination()) { StopMoving(); RestoreConstructionArrival(); state = State.Building; }
         }
 
         private void TickBuilding()
@@ -465,8 +496,8 @@ namespace AntColony.Units
             if (buildTimer >= 3.4f && targetConstruction.RemainingWork > 2f)
             {
                 buildTimer = 0; constructionStep = (constructionStep + 1) % 3;
-                if (ConstructionPoint(constructionStep, out var point) && (point - Position).sqrMagnitude > .36f)
-                { SetMoveDestination(point); state = State.MovingToBuildSite; return; }
+                if (ConstructionPoint(constructionStep, out var point, true) && (point - Position).sqrMagnitude > .36f)
+                { PreciseConstructionArrival(); SetMoveDestination(point); state = State.MovingToBuildSite; return; }
             }
             targetConstruction.BeginWork(); // 재료가 모두 도착한 뒤 첫 시공 순간 소비
             // 공동 건설: 참여한 장수마다 자기 작업 효율만큼 현장의 남은 작업량을 줄인다.
@@ -483,6 +514,7 @@ namespace AntColony.Units
         protected override void OnDisable()
         {
             RestoreGatherArrival();
+            RestoreConstructionArrival();
             var previousSite = targetConstruction ?? deliverySite as BuildingConstructionSite;
             targetConstruction = null; ReleaseDestination();
             previousSite?.ReleaseUnusedReservations();

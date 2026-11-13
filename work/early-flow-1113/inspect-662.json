@@ -1,0 +1,26 @@
+{
+  "success": true,
+  "command": "command",
+  "data": {
+    "command": "run_script",
+    "parameters": {
+      "file": "AgentScripts/EarlyFlow1113Probe.cs",
+      "entry": "EarlyFlow1113Probe.Inspect"
+    },
+    "result": {
+      "diagnostics": [],
+      "compileMs": 865,
+      "executeMs": 33,
+      "assemblyName": "PipelineRunScript_EarlyFlow1113Probe_97aab64728934922a01d12a77e11523e",
+      "success": true,
+      "result": "BIN  usable=True pos=(200.00, 9.77, 200.00) food=0 cap=200 free=200 allowed=True\nBIN Storage usable=True pos=(204.50, 10.37, 200.50) food=5 cap=100 free=95 allowed=True\nFLOOR Soil:nodes=9:amount=1492.154,PlantingMaterial:nodes=1:amount=9,Wood:nodes=3:amount=24,RottenFood:nodes=6:amount=1120,Food:nodes=7:amount=66,SimpleMeal:nodes=1:amount=1\nBIN ROUTE 생존자 1 host= reach=True approach=(200.00, 10.06, 200.00)\nBIN ROUTE 생존자 1 host=Storage reach=True approach=(204.50, 9.85, 200.50)\nBIN ROUTE 생존자 2 host= reach=True approach=(200.00, 10.06, 200.00)\nBIN ROUTE 생존자 2 host=Storage reach=True approach=(204.50, 9.85, 200.50)\nBIN ROUTE 생존자 3 host= reach=True approach=(200.00, 10.06, 200.00)\nBIN ROUTE 생존자 3 host=Storage reach=True approach=(204.50, 9.85, 200.50)\nFOOD ROUTE 생존자 1 canGather=True reach=False jobs=True\nFOOD ROUTE 생존자 2 canGather=True reach=False jobs=True\nFOOD ROUTE 생존자 3 canGather=True reach=False jobs=True\n생존자 1 cargo=0 type=Food gather=5 build=5 haul=5 sleep=False\n생존자 2 cargo=0.747085 type=Food gather=5 build=5 haul=5 sleep=False\n생존자 3 cargo=0 type=Soil gather=5 build=5 haul=5 sleep=False\nSITE AcidTower pos=(208.00, 9.95, 194.00) ready=False wait=AwaitingHaul Food need=30 delivered=21 reserved=9 transit=0,Soil need=60 delivered=0 reserved=60 transit=0\nROUTE 생존자 1 directSite=7.1 includingPickup=9.462933\nROUTE 생존자 2 directSite=11.1 includingPickup=11.4655\nROUTE 생존자 3 directSite=7.9 includingPickup=7.994933\nSITE AcidTower pos=(194.00, 9.95, 207.00) ready=False wait=AwaitingHaul Food need=30 delivered=0 reserved=30 transit=0,Soil need=60 delivered=0 reserved=52 transit=0\nROUTE 생존자 1 directSite=15.6 includingPickup=14.42934\nROUTE 생존자 2 directSite=11.7 includingPickup=16.4319\nROUTE 생존자 3 directSite=13.4 includingPickup=12.96134\nSITE MedicineBench pos=(200.00, 9.95, 204.50) ready=False wait=AwaitingHaul Wood need=20 delivered=0 reserved=20 transit=0,Stone need=10 delivered=0 reserved=10 transit=0\nROUTE 생존자 1 directSite=10.0 includingPickup=17.33075\nROUTE 생존자 2 directSite=6.1 includingPickup=16.55307\nROUTE 생존자 3 directSite=9.5 includingPickup=18.865\nNODE Dropped Soil type=Soil amount=0.1540685 loose=True designated=False dist=3 pos=(202.97, 10.07, 199.88)\nNODE Dropped Soil type=Soil amount=3 loose=True designated=False dist=4 pos=(203.42, 10.07, 201.60)\nNODE Dropped Food type=Food amount=9 loose=True designated=False dist=5 pos=(202.62, 10.07, 204.35)\nNODE Dropped Food type=Food amount=9 loose=True designated=False dist=5 pos=(202.62, 10.07, 204.35)\nNODE Dropped Food type=Food amount=9 loose=True designated=False dist=5 pos=(202.62, 10.07, 204.35)\nNODE Dropped Food type=Food amount=9 loose=True designated=False dist=5 pos=(202.62, 10.07, 204.35)\nNODE Dropped Food type=Food amount=9 loose=True designated=False dist=5 pos=(202.62, 10.07, 204.35)\nNODE Dropped Food type=Food amount=9 loose=True designated=False dist=5 pos=(202.62, 10.07, 204.35)\nNODE FoodNode1 type=Food amount=160.2528 loose=False designated=True dist=6 pos=(204.00, 11.33, 204.00)\nNODE Dropped Food type=Food amount=12 loose=True designated=False dist=7 pos=(205.07, 10.07, 204.28)\nNODE FoodNode2 type=Food amount=320 loose=False designated=True dist=7 pos=(199.00, 13.93, 206.00)\nNODE SoilNode2 type=Soil amount=127.8459 loose=False designated=True dist=10 pos=(207.00, 11.33, 207.00)\nNODE Dropped Soil type=Soil amount=9 loose=True designated=False dist=11 pos=(208.45, 10.07, 206.48)\nNODE 시작 식용 자원 type=Food amount=84 loose=False designated=False dist=14 pos=(214.00, 10.15, 200.00)\nNODE FishingSpot type=Food amount=300 loose=False designated=False dist=37 pos=(193.00, 9.77, 164.00)\nNODE Neutral ResourceSite 1 Soil type=Soil amount=160 loose=True designated=False dist=6791 pos=(5004.00, 0.60, 5000.00)\nNODE Neutral ResourceSite 2 Soil type=Soil amount=300 loose=True designated=False dist=6934 pos=(5204.00, 0.60, 5000.00)\nNODE Neutral ResourceSite 3 Soil type=Soil amount=300 loose=True designated=False dist=7080 pos=(5404.00, 0.60, 5000.00)\nNODE Neutral ResourceSite 4 Soil type=Soil amount=300 loose=True designated=False dist=7228 pos=(5604.00, 0.60, 5000.00)\nNODE Nest Stock Food type=Food amount=112 loose=False designated=False dist=7536 pos=(5998.50, 0.30, 5013.00)\nNODE Nest Stock Soil type=Soil amount=16 loose=False designated=False dist=7537 pos=(6000.50, 0.30, 5013.00)\nNODE Nest Stock Food type=Food amount=112 loose=False designated=False dist=7691 pos=(6198.50, 0.30, 5013.00)\nNODE Nest Stock Soil type=Soil amount=16 loose=False designated=False dist=7692 pos=(6200.50, 0.30, 5013.00)\nNODE Nest Stock Food type=Food amount=112 loose=False designated=False dist=7848 pos=(6398.50, 0.30, 5013.00)"
+    },
+    "target": {
+      "host": "127.0.0.1",
+      "port": 7801,
+      "projectPath": "F:\\UnityProjects\\ant-colony-rts"
+    }
+  },
+  "errors": [],
+  "warnings": []
+}

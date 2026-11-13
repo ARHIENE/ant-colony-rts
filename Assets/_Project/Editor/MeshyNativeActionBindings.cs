@@ -24,6 +24,16 @@ namespace AntColony.EditorTools
                 ("Idle","Idle_3"),("StandEnter","Sit_to_Stand_Transition_M"),
                 ("StandExit","Stand_to_Sit_Transition_M")
             })map[p.Item1]=p.Item2;
+            map["WalkLimpAlternate"] = "Limping_Walk_2";
+            var runs = new[] { "Running", "Run_02", "Run_03" };
+            var talks = new[] { "Talk_Passionately", "Talk_with_Hands_Open", "Talk_with_Left_Hand_Raised", "Talk_with_Right_Hand_Open" };
+            var cheers = new[] { "Victory_Fist_Pump", "Cheer_with_Both_Hands", "Victory_Cheer", "victory" };
+            for (int i = 0; i < runs.Length; i++) map["RunVariant" + i] = runs[i];
+            for (int i = 0; i < talks.Length; i++) map["TalkVariant" + i] = talks[i];
+            for (int i = 0; i < cheers.Length; i++) map["CelebrateVariant" + i] = cheers[i];
+            for (int i = 0; i < 11; i++) map["StandVariant" + i] = "Idle_" + (i + 3);
+            map["ListenAgree"] = "Agree_Gesture";
+            map["MealSeated"] = "Chair_Sit_Idle_M";
             return map;
         }
     }

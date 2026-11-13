@@ -27,6 +27,7 @@ namespace AntColony.Units
             public MeshyEquipmentWearables wearables;
             public MeshyNativeAppearance appearance;
             public float? sleepLift;
+            public float? seatHipLift;
             public Vector3 sleepSupport, sleepHeadDirection;
         }
         [SerializeField] MeshyNativeLibrary library;
@@ -43,6 +44,11 @@ namespace AntColony.Units
         Vector3 rootOrigin;
         public string PreviewMotion;
         public float PreviewPhase=-1;
+        int StableVariant()
+        {
+            var id = commander ? commander.PersonalState.id : name;
+            unchecked { int hash = 17; foreach (char c in id ?? "") hash = hash * 31 + c; return hash; }
+        }
         int RigIndex(int motion)=>library.motions[motion].rig*2+(library.motions[motion].armatureRoot?1:0);
         public string PlayingMotion=>selected<0?null:library.motions[selected].id;
         public Transform NativeModel=>selected<0||rigs==null||!library?null:rigs[RigIndex(selected)].model.transform;
@@ -104,7 +110,7 @@ namespace AntColony.Units
             if(!library)return;
             int next;
             if(!string.IsNullOrEmpty(PreviewMotion))next=Array.FindIndex(library.motions,m=>m.id==PreviewMotion);
-            else if(!actions.TryGetValue(MeshyNativeContextMotion.Resolve(visual.MotionName??"", commander ? commander.IdleLeisureMotion : null, commander ? commander.Health.Moving : 1f, commander && commander.IsLeisureWalking),out next))next=-1;
+            else if(!actions.TryGetValue(MeshyNativeContextMotion.Resolve(visual.MotionName??"", commander ? commander.IdleLeisureMotion : null, commander ? commander.Health.Moving : 1f, commander && commander.IsLeisureWalking, StableVariant()),out next))next=-1;
             int currentEquipmentRevision=originalWearables ? originalWearables.Revision : -1;
             if(revision!=visual.MotionRevision || equipmentRevision!=currentEquipmentRevision){oldRenderers=original.GetComponentsInChildren<Renderer>(true);equipmentRevision=currentEquipmentRevision;}
             foreach(var renderer in oldRenderers)if(renderer)renderer.forceRenderingOff=next>=0;
@@ -126,7 +132,10 @@ namespace AntColony.Units
                     var sleepHip = rig.hips.localPosition; sleepHip.x = rig.bindHip.x; sleepHip.z = rig.bindHip.z; rig.hips.localPosition = sleepHip;
                     float bottom=float.PositiveInfinity;var baked=new Mesh();
                     var restingBounds = new Bounds(); bool firstRestVertex = true;
-                    foreach(var skin in rig.model.GetComponentsInChildren<SkinnedMeshRenderer>().Where(s=>s.enabled&&s.gameObject.activeInHierarchy))
+                    var restingSkins=rig.model.GetComponentsInChildren<SkinnedMeshRenderer>().Where(s=>s.enabled&&s.gameObject.activeInHierarchy).ToArray();
+                    var bodySkins=restingSkins.Where(s=>s.name.StartsWith("Part_Body_")||s.name.StartsWith("Part_Outfit_")).ToArray();
+                    // Hair and antennae must not lift the entire body off the mattress.
+                    foreach(var skin in bodySkins.Length>0 ? bodySkins : restingSkins)
                     {
                         skin.BakeMesh(baked);
                         foreach(var vertex in baked.vertices)
@@ -176,14 +185,43 @@ namespace AntColony.Units
                             face.SetBlendShapeWeight(shape,face.sharedMesh.GetBlendShapeName(shape)=="Sleep"?100:0);
             // Game navigation owns travel; preserve authored vertical motion and joint animation.
             var pos=rig.hips.localPosition;pos.x=rootOrigin.x;pos.z=rootOrigin.z;rig.hips.localPosition=pos;
-            if(entry.id=="Sleep_Normally" && string.IsNullOrEmpty(PreviewMotion) && commander && commander.TreatmentFacility
-                && commander.TreatmentFacility.TryRestPose(commander,out var bedPosition,out var bedHead))
+            Vector3 bedPosition=default, bedHead=default;
+            if(entry.id=="Sleep_Normally" && string.IsNullOrEmpty(PreviewMotion) && commander
+                && (commander.TreatmentFacility && commander.TreatmentFacility.TryRestPose(commander,out bedPosition,out bedHead)
+                    || commander.TrySleepingPose(out bedPosition,out bedHead)))
             {
                 // Only place the whole original rig; never retarget or rotate individual joints.
                 rig.pivot.transform.rotation = Quaternion.FromToRotation(rig.sleepHeadDirection,bedHead);
                 rig.pivot.transform.position = bedPosition-rig.pivot.transform.TransformVector(rig.sleepSupport);
             }
             rig.equipment.Pose(visual.HeldTool,visual.MotionName,Mathf.Repeat(rig.times[next]/entry.clip.length,1));
+            if(visual.MotionName=="ReadBook")rig.equipment.PoseBook(rig.times[next]);
+            if(visual.MotionName=="Saw" && commander && commander.ServiceTarget
+                && AntColony.Buildings.FurnitureUseSurface.TryPoint(commander.ServiceTarget,out _,out var workSurface))
+                rig.equipment.PoseSaw(workSurface,rig.times[next]);
+            if (visual.MotionName=="MealSeated" && commander && commander.MealTable)
+            {
+                var dining=commander.MealTable.GetComponent<AntColony.Buildings.FacilityVisual>();
+                if(dining && dining.TryDiningSeat(commander,out var seat,out var facing))
+                {
+                    if(!rig.seatHipLift.HasValue && rig.weights[next]>.99f)
+                    {
+                        float bottom=float.PositiveInfinity; var mesh=new Mesh(); var hip=rig.hips.position;
+                        foreach(var skin in rig.model.GetComponentsInChildren<SkinnedMeshRenderer>().Where(s=>s.enabled && (s.name.StartsWith("Part_Body_")||s.name.StartsWith("Part_Outfit_"))))
+                        {
+                            skin.BakeMesh(mesh);
+                            foreach(var vertex in mesh.vertices)
+                            { var v=skin.transform.TransformPoint(vertex); if(Vector3.ProjectOnPlane(v-hip,Vector3.up).sqrMagnitude<.0625f) bottom=Mathf.Min(bottom,v.y); }
+                        }
+                        Destroy(mesh);
+                        if(!float.IsPositiveInfinity(bottom))rig.seatHipLift=Mathf.Clamp(hip.y-bottom+.015f,.08f,.35f);
+                    }
+                    rig.pivot.transform.rotation=Quaternion.LookRotation(facing,Vector3.up);
+                    // Keep the source joint pose, placing the pelvis above the measured bench top.
+                    rig.pivot.transform.position += seat + Vector3.up*(rig.seatHipLift??.18f)-rig.hips.position;
+                    rig.equipment.PoseMeal(rig.times[next]);
+                }
+            }
             if(commander)rig.wearables.Apply(commander.EquippedArmor,commander.PersonalState.equipment.Find(e=>e.slot==EquipmentSlot.Trinket),commander.Weapon,visual.HeldTool,commander.PersonalHealth<=0);
         }
         public GameObject CreateDeath(bool persistent)

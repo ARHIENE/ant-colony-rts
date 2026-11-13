@@ -846,3 +846,57 @@ MonoBehaviour:
     motion: Sit_to_Stand_Transition_M
   - action: StandExit
     motion: Stand_to_Sit_Transition_M
+  - action: WalkLimpAlternate
+    motion: Limping_Walk_2
+  - action: RunVariant0
+    motion: Running
+  - action: RunVariant1
+    motion: Run_02
+  - action: RunVariant2
+    motion: Run_03
+  - action: TalkVariant0
+    motion: Talk_Passionately
+  - action: TalkVariant1
+    motion: Talk_with_Hands_Open
+  - action: TalkVariant2
+    motion: Talk_with_Left_Hand_Raised
+  - action: TalkVariant3
+    motion: Talk_with_Right_Hand_Open
+  - action: CelebrateVariant0
+    motion: Victory_Fist_Pump
+  - action: CelebrateVariant1
+    motion: Cheer_with_Both_Hands
+  - action: CelebrateVariant2
+    motion: Victory_Cheer
+  - action: CelebrateVariant3
+    motion: victory
+  - action: StandVariant0
+    motion: Idle_3
+  - action: StandVariant1
+    motion: Idle_4
+  - action: StandVariant2
+    motion: Idle_5
+  - action: StandVariant3
+    motion: Idle_6
+  - action: StandVariant4
+    motion: Idle_7
+  - action: StandVariant5
+    motion: Idle_8
+  - action: StandVariant6
+    motion: Idle_9
+  - action: StandVariant7
+    motion: Idle_10
+  - action: StandVariant8
+    motion: Idle_11
+  - action: StandVariant9
+    motion: Idle_12
+  - action: StandVariant10
+    motion: Idle_13
+  - action: ListenAgree
+    motion: Agree_Gesture
+  - action: MealSeated
+    motion: Chair_Sit_Idle_M
+  - action: ReadBook
+    motion: Idle_3
+  - action: Saw
+    motion: Idle_3

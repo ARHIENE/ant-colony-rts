@@ -52,6 +52,7 @@ namespace AntColony.Units
             var canSleep = !IsDeployed && !IsAwayFromHome && !IsEmbarked && !IsCaptive && CanReceiveOrders && LabUpgradeLab == null && !IsCarrying;
             if (!canSleep)
             {
+                ResetBedApproach();
                 if (s.asleep) { s.asleep = false; s.interrupted = true; }
                 return personalState.treating; // 입원 중인 장수는 병상에서 쉰다.
             }
@@ -66,12 +67,9 @@ namespace AntColony.Units
             }
             var dorm = Dormitory.Assign(this);
             s.rough = dorm == null;
-            if (dorm != null && (dorm.Position - Position).sqrMagnitude > 36)
+            if (dorm != null && !ReachBed(dorm, out bool reachable))
             {
-                if ((IsFlying ? HasReachedDestination() : !Agent.pathPending && !Agent.hasPath)
-                    && UnityEngine.AI.NavMesh.SamplePosition(dorm.Position, out var hit, 6, UnityEngine.AI.NavMesh.AllAreas) && CanReach(hit.position))
-                    base.CommandMove(hit.position);
-                if ((IsFlying ? !HasReachedDestination() : Agent.pathPending || Agent.hasPath)) return true;
+                if (reachable) return true;
                 s.rough = true;
             }
             // 숙소 한 밤 = 완전 회복(90% 이상 자면). 노숙은 절반 속도.
@@ -82,6 +80,7 @@ namespace AntColony.Units
 
         private void WakeUp()
         {
+            ResetBedApproach();
             var s = Sleep;
             var slept = s.asleep || s.bedSeconds > 0;
             var full = !s.rough && !s.interrupted && s.bedSeconds >= GameBalance.FullSleepShare * SleepLength;
@@ -110,6 +109,8 @@ namespace AntColony.Units
         // 잠든 장수를 징집소에서 고르면 바로 깨어 출전한다. 대신 잠을 설친다.
         private void WakeForDuty()
         {
+            ResetMealSeat();
+            ResetBedApproach();
             if (!Sleep.asleep) return;
             Sleep.asleep = false; Sleep.interrupted = true;
             personalState.AddMood("잠 설침", GameBalance.BadSleepMood, GameCalendar.SecondsPerDay);

@@ -25,7 +25,7 @@ namespace AntColony.Buildings
         }
         protected override void OnDisable() { Castle.Remove(this); base.OnDisable(); }
         public bool IsCastle => Data != null && Data.kind == BuildingKind.CastleWall;
-        public bool Flammable => Data != null && Data.kind == BuildingKind.LeafWall;
+        public bool Flammable => Data != null && (Data.kind == BuildingKind.LeafWall || Data.kind == BuildingKind.Palisade);
         public override float Armor => Data == null ? 0 : Data.kind switch
         {
             BuildingKind.LeafWall => 0, BuildingKind.CapWall => GameBalance.WallArmor + 2, BuildingKind.CastleWall => GameBalance.WallArmor + 4, _ => GameBalance.WallArmor

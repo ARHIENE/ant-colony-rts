@@ -1,0 +1,125 @@
+category	name	kind	role	asset
+타일	높은 목책	Palisade	Worker	Assets/Resources/Furniture1113/Models/Palisade/Palisade.fbx
+타일	흙벽	SoilWall	Worker	Assets/Resources/Facilities/CC_SoilWall.fbx
+타일	나뭇잎 벽	LeafWall	Worker	Assets/Resources/Facilities/CC_LeafWall.fbx
+타일	병뚜껑 벽	CapWall	Worker	Assets/Resources/Facilities/CC_CapWall.fbx
+타일	문	Door	Worker	Assets/Resources/Facilities/CC_DoorFrame.fbx
+타일	잠금문	LockedDoor	Worker	Assets/Resources/Facilities/CC_LockedDoor.fbx
+타일	창살문	BarredDoor	Worker	Assets/Resources/Facilities/CC_BarredDoor.fbx
+타일	바닥	Floor	Worker	Assets/Resources/Facilities/CC_Floor.fbx
+타일	기둥	Pillar	Worker	Assets/Resources/Facilities/CC_Pillar.fbx
+생활	숙소	Dormitory	Worker	Assets/Resources/Facilities/CC_Dormitory.fbx
+생활	자리	SleepingMat	Worker	Assets/Resources/Facilities/CC_SleepingMat.fbx
+생활	침대	SingleBed	Worker	Assets/Resources/Furniture1113/Models/SingleBed/SingleBed.fbx
+생활	큰침대	DoubleBed	Worker	Assets/Resources/Facilities/CC_DoubleBed.fbx
+생활	2층침대	BunkBed	Worker	Assets/Resources/Facilities/CC_BunkBed.fbx
+생활	해먹	Hammock	Worker	Assets/Resources/Facilities/CC_Hammock.fbx
+생활	식당	Kitchen	Worker	Assets/Resources/Release1112/Models/Kitchen/Kitchen.fbx
+생활	큰 식탁	BigTable	Worker	Assets/Resources/Furniture1113/Models/DiningTable/DiningTable.fbx
+생활	긴 식탁	BanquetTable	Worker	Assets/Resources/Facilities/CC_BanquetTable.fbx
+생활	양육실	Nursery	Worker	Assets/Resources/Facilities/CC_Nursery.fbx
+생활	화장실	Toilet	Worker	Assets/Resources/Facilities/CC_Toilet.fbx
+생활	세면대	Washbasin	Worker	Assets/Resources/Facilities/CC_Washbasin.fbx
+생활	샤워기	Shower	Worker	Assets/Resources/Facilities/CC_Shower.fbx
+저장	창고	Storage	Worker	Assets/Resources/Environment1110/Models/Storage/Storage.fbx
+저장	저장고	FoodStore	Worker	Assets/Resources/Facilities/CC_FoodStore.fbx
+저장	항아리	Jar	Worker	Assets/Resources/Facilities/CC_Jar.fbx
+저장	냉장고	Fridge	Worker	Assets/Resources/Facilities/CC_Refrigerator.fbx
+저장	냉동고	Freezer	Worker	Assets/Resources/Facilities/CC_Freezer.fbx
+저장	퇴비통	CompostBin	Worker	Assets/Resources/Facilities/CC_CompostBin.fbx
+환경	전등	ElectricLamp	Worker	Assets/Resources/Facilities/CC_Lamp.fbx
+환경	화롯불	Brazier	Worker	Assets/Resources/Facilities/CC_Brazier.fbx
+환경	등불	Lantern	Worker	Assets/Resources/Facilities/CC_Lantern.fbx
+환경	횃불	Torch	Worker	Assets/Resources/Facilities/CC_Torch.fbx
+전력	쳇바퀴	Treadmill	Worker	Assets/Resources/Facilities/CC_Treadmill.fbx
+전력	장작 발전기	WoodGenerator	Worker	Assets/Resources/Facilities/CC_WoodGenerator.fbx
+전력	전선	PowerWire	Worker	Assets/Resources/Facilities/CC_PowerWire.fbx
+전력	배터리	Battery	Worker	Assets/Resources/Facilities/CC_Battery.fbx
+전력	증기 발전기	SteamGenerator	Worker	Assets/Resources/Facilities/CC_SteamGenerator.fbx
+전력	가스 발전기	GasGenerator	Worker	Assets/Resources/Facilities/CC_SteamGenerator.fbx
+전력	석유 시추기	OilDrill	Worker	Assets/Resources/Facilities/CC_OilDerrick.fbx
+전력	정유기	OilRefinery	Worker	Assets/Resources/Facilities/CC_Refinery.fbx
+전력	연료 충전기	FuelCharger	Worker	Assets/Resources/Facilities/CC_FillingStation.fbx
+배관	수동 우물	ManualWell	Worker	Assets/Resources/Facilities/CC_ManualWell.fbx
+배관	급수 펌프	WaterPump	Worker	Assets/Resources/Facilities/CC_WaterPump.fbx
+배관	배관	FluidPipe	Worker	Assets/Resources/Facilities/CC_PipeL_Straight.fbx
+배관	유체 탱크	FluidTank	Worker	Assets/Resources/Facilities/CC_LiquidTank.fbx
+배관	기체 배관	GasPipe	Worker	Assets/Resources/Facilities/CC_PipeL_Straight.fbx
+배관	기체 탱크	GasTank	Worker	Assets/Resources/Facilities/CC_LiquidTank.fbx
+배관	가스 추출기	GasExtractor	Worker	Assets/Resources/Facilities/CC_OilDerrick.fbx
+식량	밭	Farm	Worker	Assets/Resources/Facilities/CC_FarmTile.fbx
+식량	버섯밭	MushroomFarm	Worker	Assets/Resources/Facilities/CC_MushroomFarm.fbx
+식량	축사	AphidPen	Worker	Assets/Resources/Facilities/CC_AphidPen.fbx
+식량	화덕	Hearth	Worker	Assets/Resources/Facilities/CC_Hearth.fbx
+식량	우리 표지	Pen	Worker	Assets/Resources/Facilities/CC_RanchFence.fbx
+식량	먹이통	Feeder	Worker	Assets/Resources/Facilities/CC_Feeder.fbx
+식량	돌봄대	CareStation	Worker	Assets/Resources/Facilities/CC_CareStation.fbx
+식량	동물 치료대	AnimalClinic	Worker	Assets/Resources/Facilities/CC_AnimalTreatment.fbx
+식량	도축대	ButcherTable	Worker	Assets/Resources/Facilities/CC_ButcherTable.fbx
+식량	재배 화분	PlanterBed	Worker	Assets/Resources/Facilities/CC_PlanterBed.fbx
+식량	초기 버섯 배지	StarterMushroomBed	Worker	Assets/Resources/Facilities/CC_MushroomFarm.fbx
+작업	근접 연구소	ResearchLab	Melee	Assets/Resources/Facilities/CC_ResearchLab.fbx
+작업	정착지 연구대	ScienceLab	Worker	Assets/Resources/Release1112/Models/ResearchDesk/ResearchDesk.fbx
+작업	방어 연구소	DefenseLab	Worker	Assets/Resources/Facilities/CC_DefenseLab.fbx
+작업	공방	Workshop	Worker	Assets/Resources/Release1112/Models/Workshop/Workshop.fbx
+작업	기초 목공대	Carpentry	Worker	Assets/Resources/Furniture1113/Models/Workbench/Workbench.fbx
+작업	석공대	Stonecutter	Worker	Assets/Resources/Facilities/CC_Stonecutter.fbx
+작업	가마	Kiln	Worker	Assets/Resources/Facilities/CC_Kiln.fbx
+작업	숯가마	CharcoalKiln	Worker	Assets/Resources/Facilities/CharcoalKiln.fbx
+작업	코크스로	CokeOven	Worker	Assets/Resources/Facilities/CokeOven.fbx
+작업	물레	SpinningWheel	Worker	Assets/Resources/Facilities/CC_SpinningWheel.fbx
+작업	용광로	Smelter	Worker	Assets/Resources/Release1112/Models/Smelter/Smelter.fbx
+작업	제분기	Mill	Worker	Assets/Resources/Facilities/Mill.fbx
+작업	착유기	OilPress	Worker	Assets/Resources/Facilities/OilPress.fbx
+작업	양조통	BrewingBarrel	Worker	Assets/Resources/Facilities/BrewingBarrel.fbx
+작업	증류기	Still	Worker	Assets/Resources/Facilities/Still.fbx
+작업	지하 탐사기	UndergroundScanner	Worker	Assets/Resources/Facilities/CC_ResearchDesk.fbx
+작업	심층 채굴기	DeepDrill	Worker	Assets/Resources/Facilities/CC_OilDerrick.fbx
+작업	합금 심층 채굴기	AdvancedDeepDrill	Worker	Assets/Resources/Facilities/CC_OilDerrick.fbx
+작업	가스 제련로	GasSmelter	Worker	Assets/Resources/Facilities/CC_Smelter.fbx
+작업	화학 작업대	ChemistryBench	Worker	Assets/Resources/Facilities/CC_ChemistryBench.fbx
+의료	의무실	Infirmary	Worker	Assets/Resources/Life1112/Models/Infirmary/Infirmary.fbx
+의료	약제대	MedicineBench	Worker	Assets/Resources/Life1112/Models/MedicineBench/MedicineBench.fbx
+의료	묘비	Tombstone	Worker	Assets/Resources/Facilities/CC_Tombstone.fbx
+방어	성벽	CastleWall	Worker	Assets/Resources/Facilities/CC_CastleWall.fbx
+방어	성문	Gate	Worker	Assets/Resources/Facilities/CC_CastleGate.fbx
+방어	끈끈이 함정	TrapPit	Worker	Assets/Resources/Facilities/CC_StickyTrap.fbx
+방어	가시 함정	SpikeTrap	Worker	Assets/Resources/Release1112/Models/SpikeTrap/SpikeTrap.fbx
+방어	지뢰밭	MineField	Worker	Assets/Resources/Facilities/CC_MineField.fbx
+방어	산성탑	AcidTower	Worker	Assets/Resources/Facilities/CC_AcidTower.fbx
+방어	광역 산성탑	AreaAcidTower	Worker	Assets/Resources/Facilities/CC_AreaAcidTower.fbx
+방어	감시탑	Watchtower	Worker	Assets/Resources/Environment1110/Models/Watchtower/Watchtower.fbx
+휴게	휴게실	RestRoom	Worker	Assets/Resources/Facilities/CC_RestRoom.fbx
+휴게	이야기 모닥불	Campfire	Worker	Assets/Resources/Release1112/Models/Campfire/Campfire.fbx
+휴게	도박장	GamblingDen	Worker	Assets/Resources/Facilities/CC_GamblingDen.fbx
+휴게	책장	Bookshelf	Worker	Assets/Resources/Furniture1113/Models/Bookshelf/Bookshelf.fbx
+휴게	목욕통	Bathtub	Worker	Assets/Resources/Facilities/CC_Bathtub.fbx
+휴게	놀이판	BoardGame	Worker	Assets/Resources/Facilities/CC_BoardGame.fbx
+휴게	장기판	Janggi	Worker	Assets/Resources/Facilities/CC_Janggi.fbx
+휴게	바둑판	Baduk	Worker	Assets/Resources/Facilities/CC_Baduk.fbx
+휴게	씨름판	WrestlingRing	Worker	Assets/Resources/Facilities/CC_WrestlingRing.fbx
+휴게	가시 다트	DartBoard	Worker	Assets/Resources/Facilities/CC_DartBoard.fbx
+휴게	운동기구	ExerciseRig	Worker	Assets/Resources/Facilities/CC_ExerciseRig.fbx
+휴게	악기	Instrument	Worker	Assets/Resources/Facilities/CC_Instrument.fbx
+휴게	거미줄 그네	WebSwing	Worker	Assets/Resources/Facilities/CC_WebSwing.fbx
+휴게	온천	HotSpring	Worker	Assets/Resources/Facilities/CC_HotSpring.fbx
+장식	꽃 화분	FlowerPot	Worker	Assets/Resources/Facilities/CC_FlowerPot.fbx
+장식	조개껍데기	ShellDecoration	Worker	Assets/Resources/Facilities/CC_ShellDecoration.fbx
+장식	구슬 모자이크	MarbleMosaic	Worker	Assets/Resources/Facilities/CC_MarbleMosaic.fbx
+장식	병뚜껑 모빌	BottleMobile	Worker	Assets/Resources/Facilities/CC_BottleMobile.fbx
+장식	반딧불 램프	FireflyLamp	Worker	Assets/Resources/Facilities/CC_FireflyLamp.fbx
+장식	조각상	Statue	Worker	Assets/Resources/Facilities/CC_Statue.fbx
+장식	깃발	Flag	Worker	Assets/Resources/Facilities/CC_Flag.fbx
+장식	그림	Painting	Worker	Assets/Resources/Facilities/CC_Painting.fbx
+장식	카펫	Carpet	Worker	Assets/Resources/Facilities/CC_Carpet.fbx
+장식	태피스트리	Tapestry	Worker	Assets/Resources/Facilities/CC_Tapestry.fbx
+장식	기념비	Monument	Worker	Assets/Resources/Facilities/CC_Monument.fbx
+장식	동상	BronzeStatue	Worker	Assets/Resources/Facilities/CC_BronzeStatue.fbx
+장식	전리품 진열대	TrophyCase	Worker	Assets/Resources/Facilities/CC_TrophyCase.fbx
+장식	물건 전시대	CuriosDisplay	Worker	Assets/Resources/Facilities/CC_CuriosDisplay.fbx
+군사	근접 훈련장	Barracks	Melee	Assets/Resources/Facilities/CC_Barracks.fbx
+군사	소집소	ConscriptionPost	Worker	Assets/Resources/Facilities/CC_ConscriptionPost.fbx
+군사	정찰 초소	ScoutPost	Worker	Assets/Resources/Facilities/CC_ScoutPost.fbx
+군사	포로 수용소	PrisonerCamp	Worker	Assets/Resources/Facilities/CC_PrisonerCamp.fbx
+군사	무기고	Armory	Worker	Assets/Resources/Facilities/CC_Armory.fbx
+이동	로켓 발사대	AirshipYard	Worker	Assets/Resources/Facilities/CC_AirshipYard.fbx

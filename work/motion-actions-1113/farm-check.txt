@@ -1,0 +1,1 @@
+gather=True sow=True visual=Tool_Till tool=Tool_Hoe_Stone native=Heavy_Hammer_Swing fitted=True radius=1.648914 actual=1.602216

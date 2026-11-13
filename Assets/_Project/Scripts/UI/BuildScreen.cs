@@ -25,7 +25,7 @@ namespace AntColony.UI
         private static readonly Key[] SlotKeys = { Key.Q, Key.W, Key.E, Key.R, Key.T, Key.A, Key.S, Key.D, Key.F, Key.G };
         private static readonly Entry[][] Tabs =
         {
-            new[] { new Entry("흙벽", BuildingKind.SoilWall), new Entry("나뭇잎 벽", BuildingKind.LeafWall), new Entry("병뚜껑 벽", BuildingKind.CapWall),
+            new[] { new Entry("높은 목책", BuildingKind.Palisade), new Entry("흙벽", BuildingKind.SoilWall), new Entry("나뭇잎 벽", BuildingKind.LeafWall), new Entry("병뚜껑 벽", BuildingKind.CapWall),
                 new Entry("문", BuildingKind.Door), new Entry("잠금문", BuildingKind.LockedDoor), new Entry("창살문", BuildingKind.BarredDoor), new Entry("바닥", BuildingKind.Floor),
                 new Entry("기둥", BuildingKind.Pillar) },
             new[] { new Entry("숙소", BuildingKind.Dormitory), new Entry("자리", BuildingKind.SleepingMat), new Entry("침대", BuildingKind.SingleBed), new Entry("큰침대", BuildingKind.DoubleBed),

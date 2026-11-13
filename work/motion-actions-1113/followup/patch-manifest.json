@@ -1,0 +1,37 @@
+[
+  {
+    "target": "F:\\UnityProjects\\ant-colony-rts\\Assets\\_Project\\Scripts\\Units\\AntVisual.Work.cs",
+    "before_sha256": "ed197b4496f496e5d6dc912a193d0c3f56dbc531ce09c6dfa892533516785b9f",
+    "candidate": "F:\\UnityProjects\\ant-colony-rts\\work\\motion-actions-1113\\followup\\AntVisual.Work.cs"
+  },
+  {
+    "target": "F:\\UnityProjects\\ant-colony-rts\\Assets\\_Project\\Scripts\\Units\\CommanderJoy.cs",
+    "before_sha256": "61a7aab09233415d99238b5f0df70d373332cdcc6dacd3e870af56255be7e932",
+    "candidate": "F:\\UnityProjects\\ant-colony-rts\\work\\motion-actions-1113\\followup\\CommanderJoy.cs"
+  },
+  {
+    "target": "F:\\UnityProjects\\ant-colony-rts\\Assets\\_Project\\Scripts\\Units\\CommanderWork.Needs.cs",
+    "before_sha256": "86dbac710d0984b05e28efdad2add009d2ef9a6e8802c49fcffa2577e4ddd7d9",
+    "candidate": "F:\\UnityProjects\\ant-colony-rts\\work\\motion-actions-1113\\followup\\CommanderWork.Needs.cs"
+  },
+  {
+    "target": "F:\\UnityProjects\\ant-colony-rts\\Assets\\_Project\\Scripts\\Units\\CommanderWork.cs",
+    "before_sha256": "c039738cf826ebb9cc9ab7ce6d36b7258bf596d10b42114cb69919f881f4d687",
+    "candidate": "F:\\UnityProjects\\ant-colony-rts\\work\\motion-actions-1113\\followup\\CommanderWork.cs"
+  },
+  {
+    "target": "F:\\UnityProjects\\ant-colony-rts\\Assets\\_Project\\Scripts\\Units\\CommanderAnt.cs",
+    "before_sha256": "a96e26a8601d1541597f121c1ae7f929ca2965a021a4e8d09a8a0c0f73e1af20",
+    "candidate": "F:\\UnityProjects\\ant-colony-rts\\work\\motion-actions-1113\\followup\\CommanderAnt.cs"
+  },
+  {
+    "target": "F:\\UnityProjects\\ant-colony-rts\\Assets\\_Project\\Scripts\\Buildings\\FacilityVisual.cs",
+    "before_sha256": "b2fd94cbf5e009aa871fae05c2266c6b447b5e62aa212cd4b210c8dad73596cd",
+    "candidate": "F:\\UnityProjects\\ant-colony-rts\\work\\motion-actions-1113\\followup\\FacilityVisual.cs"
+  },
+  {
+    "target": "F:\\UnityProjects\\ant-colony-rts\\Assets\\_Project\\Scripts\\Units\\CommanderBedApproach.cs",
+    "before_sha256": "4a5e47dea4a4c33eca829b8e71ee0dfc9590cd1d01d135f9f0c08cde80006e22",
+    "candidate": "F:\\UnityProjects\\ant-colony-rts\\work\\motion-actions-1113\\followup\\CommanderBedApproach.cs"
+  }
+]

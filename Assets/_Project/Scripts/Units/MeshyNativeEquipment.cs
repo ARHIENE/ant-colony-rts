@@ -19,6 +19,69 @@ namespace AntColony.Units
         public float FingerContactError {get;private set;}
         public float BowHeadClearance {get;private set;}
         bool rebuild;
+        Transform mealBowl;
+        Transform readingBook;
+        public void PoseBook(float seconds)
+        {
+            var centre=bones["mixamorig:Hips"].position+transform.up*.29f+transform.forward*.34f;
+            if(!readingBook)
+            {
+                var source=Resources.Load<GameObject>("Furniture1113/Models/OpenBook/OpenBook");
+                if(!source) return;
+                readingBook=new GameObject("Reading book grip").transform;readingBook.SetParent(transform,false);
+                readingBook.localScale=Vector3.one/Mathf.Max(.001f,transform.lossyScale.x);
+                var model=Instantiate(source,readingBook,false).transform;
+                var renders=model.GetComponentsInChildren<Renderer>();var bounds=renders[0].bounds;
+                foreach(var r in renders)bounds.Encapsulate(r.bounds);
+                model.localScale*=.36f/Mathf.Max(bounds.size.x,bounds.size.z);
+                bounds=renders[0].bounds;foreach(var r in renders)bounds.Encapsulate(r.bounds);
+                model.position+=readingBook.position-bounds.center;
+                foreach(var collider in model.GetComponentsInChildren<Collider>())Destroy(collider);
+            }
+            readingBook.gameObject.SetActive(true);
+            readingBook.SetPositionAndRotation(centre,transform.rotation*Quaternion.Euler(-18,0,0));
+            PlacePalm("Left",centre-transform.right*.14f-transform.up*.025f,transform.forward,-transform.up);
+            // Briefly move over the right page, then return to supporting its edge.
+            float turn=Mathf.Pow(Mathf.Max(0,Mathf.Sin(seconds*1.3f)),8);
+            PlacePalm("Right",centre+transform.right*(.14f-.09f*turn)+transform.up*(-.025f+.07f*turn),transform.forward,-transform.up);
+        }
+        public void PoseSaw(Vector3 surface,float seconds)
+        {
+            if(!mount || held!="Tool_Saw")return;
+            var handle=surface-transform.forward*(.16f+.075f*Mathf.Sin(seconds*6))+transform.up*.065f;
+            PlacePalm("Right",handle,transform.up,-transform.right);
+            PlacePalm("Left",surface-transform.right*.22f+transform.up*.04f,transform.right,transform.up);
+            mount.SetPositionAndRotation(Palm("Right"),Quaternion.LookRotation(transform.forward,transform.up));
+            fingers.Wrap(false,Palm("Right"),transform.up,.017f);
+        }
+        public void PoseMeal(float seconds)
+        {
+            if(!bones.ContainsKey("mixamorig:Head")) return;
+            var hip=bones["mixamorig:Hips"].position;
+            var bowl=hip-transform.right*.14f+transform.forward*.22f+transform.up*.18f;
+            var mouth=bones["mixamorig:Head"].position+transform.forward*.16f-transform.up*.07f;
+            float lift=Mathf.SmoothStep(0,1,.5f-.5f*Mathf.Cos(seconds*Mathf.PI*2/3f));
+            var right=Vector3.Lerp(bowl+transform.up*.10f+transform.right*.08f,mouth,lift);
+            PlacePalm("Left",bowl,transform.forward,transform.up);
+            PlacePalm("Right",right,transform.right,transform.up);
+            fingers.Wrap(false,right,transform.right,.012f);
+            if(!mealBowl)
+            {
+                var source=Resources.Load<GameObject>("Furniture1113/Models/Bowl/Bowl");
+                if(!source) return;
+                mealBowl=new GameObject("Meal bowl grip").transform;mealBowl.SetParent(transform,false);
+                mealBowl.localScale=Vector3.one/Mathf.Max(.001f,transform.lossyScale.x);
+                var model=Instantiate(source,mealBowl,false).transform;
+                var renders=model.GetComponentsInChildren<Renderer>();
+                var bounds=renders[0].bounds;foreach(var r in renders)bounds.Encapsulate(r.bounds);
+                model.localScale*=.24f/Mathf.Max(bounds.size.x,bounds.size.z);
+                bounds=renders[0].bounds;foreach(var r in renders)bounds.Encapsulate(r.bounds);
+                model.position-=new Vector3(bounds.center.x,bounds.min.y,bounds.center.z)-mealBowl.position;
+                foreach(var c in model.GetComponentsInChildren<Collider>())Destroy(c);
+            }
+            mealBowl.gameObject.SetActive(true);
+            mealBowl.SetPositionAndRotation(Palm("Left")+transform.up*.015f,Quaternion.LookRotation(transform.forward,Vector3.up));
+        }
         public void SetHandSpan(float span)
         {
             if(Mathf.Abs(span-handSpan)<.0001f)return;
@@ -46,6 +109,8 @@ namespace AntColony.Units
         }
         public void Pose(string name,string motion,float phase=-1)
         {
+            if(mealBowl)mealBowl.gameObject.SetActive(motion=="MealSeated");
+            if(readingBook)readingBook.gameObject.SetActive(motion=="ReadBook");
             FingerContactError=0; SupportShaftError=0; BowHeadClearance=0;
             if(rebuild||held!=name)
             {

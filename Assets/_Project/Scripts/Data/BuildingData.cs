@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 
 namespace AntColony.Data
 {
@@ -70,7 +70,8 @@ namespace AntColony.Data
         UndergroundScanner, DeepDrill, GasExtractor, GasPipe, GasTank, AdvancedDeepDrill, GasSmelter, GasGenerator,
         ChemistryBench,
         CharcoalKiln, CokeOven,
-        Mill, OilPress, BrewingBarrel, Still
+        Mill, OilPress, BrewingBarrel, Still,
+        Palisade // 높은 목책. 기존 저장 번호를 유지하도록 끝에 추가.
     }
 
     [CreateAssetMenu(fileName = "BuildingData", menuName = "AntColony/Building Data")]

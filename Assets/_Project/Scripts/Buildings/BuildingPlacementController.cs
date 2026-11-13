@@ -300,7 +300,7 @@ namespace AntColony.Buildings
 
         // 재개발도 Shift 배치 가능: 칸마다 겹친 더 작은 집을 찾아 교체 대상으로 삼는다.
         private Housing RedevelopAt(Vector3 cell) => Redevelopment.FindTarget(pendingKind, cell, PlacementExtents(), obstructionMask);
-        private bool CellValid(Vector3 cell) => AntColony.Map.MapGenerator.FlatAt(cell, PlacementExtents()) && !HasObstruction(cell, RedevelopAt(cell)) && !(Housing.IsKind(pendingKind) && RoomSystem.IsIndoors(cell)) && Reachable(cell) && UndergroundProduction.PlacementReason(pendingKind, cell) == null;
+        private bool CellValid(Vector3 cell) => AntColony.Map.MapGenerator.FlatAt(cell, PlacementExtents()) && !HasObstruction(cell, RedevelopAt(cell)) && !(Housing.IsKind(pendingKind) && RoomSystem.IsIndoors(cell)) && Reachable(cell - Vector3.up * PlacementExtents().y) && UndergroundProduction.PlacementReason(pendingKind, cell) == null;
 
         // 장수 미지정 배치(2026-10-08): 고른 장수가 없으면 본거지의 아무 장수 기준으로 도달 가능 여부를 본다.
         private bool Reachable(Vector3 point)
@@ -444,7 +444,7 @@ namespace AntColony.Buildings
                 BuildingKind.FlowerPot or BuildingKind.ShellDecoration or BuildingKind.MarbleMosaic or BuildingKind.BottleMobile or BuildingKind.FireflyLamp
                     or BuildingKind.Campfire or BuildingKind.GamblingDen
                     or BuildingKind.Hut or BuildingKind.House or BuildingKind.Apartment
-                    or BuildingKind.LeafWall or BuildingKind.CapWall or BuildingKind.Door or BuildingKind.CastleWall or BuildingKind.Gate
+                    or BuildingKind.Palisade or BuildingKind.LeafWall or BuildingKind.CapWall or BuildingKind.Door or BuildingKind.CastleWall or BuildingKind.Gate
                     or BuildingKind.Toilet or BuildingKind.Washbasin or BuildingKind.Shower
                     or BuildingKind.Treadmill or BuildingKind.WoodGenerator or BuildingKind.PowerWire or BuildingKind.Battery or BuildingKind.ElectricLamp
                     or BuildingKind.Hearth or BuildingKind.SleepingMat or BuildingKind.DoubleBed or BuildingKind.Floor or BuildingKind.LockedDoor or BuildingKind.BarredDoor

@@ -1,0 +1,22 @@
+CONTINUOUS NATURAL RUN: 3 commanders, seed 261106; game orders via official CLI, not manual mouse gameplay.
+[0.0s / 14:38:41] START candidate rolls=1 isolatedRoot=C:/Users/gusdu/AppData/Local/Temp/DefaultCompany/ant\EarlyFlow1113-5c1fd42f48b74e9e91c5689489e0b284
+[0.0s / 14:38:41] DESIGNATE Food x3
+[0.0s / 14:38:41] DESIGNATE Wood x3
+[0.0s / 14:38:41] DESIGNATE Soil x2
+[0.0s / 14:38:41] BUILD Storage accepted=1 at (204.50, 10.37, 200.50)
+[0.0s / 14:38:41] BUILD SleepingMat accepted=1 at (198.50, 9.90, 204.00)
+[0.0s / 14:38:41] BUILD SleepingMat accepted=1 at (196.50, 9.91, 202.00)
+[0.0s / 14:38:41] BUILD SleepingMat accepted=1 at (196.50, 9.95, 199.00)
+[0.0s / 14:38:41] wave=0 inWave=False left=900 enemies=0 food=0 soil=0 wood=0 screen=Game frame=7 speed=0
+[0.0s / 14:38:41] HERO 생존자 1 hp=100.0 down=False satiety=100 mood=75 sleep=False work=False activity=Melee node= delivery=False build= care= pos=(200.00, 10.45, 204.00)
+[0.0s / 14:38:41] HERO 생존자 2 hp=100.0 down=False satiety=100 mood=75 sleep=False work=False activity=Melee node= delivery=False build= care= pos=(202.00, 10.45, 204.00)
+[0.0s / 14:38:41] HERO 생존자 3 hp=100.0 down=False satiety=100 mood=75 sleep=False work=False activity=Melee node= delivery=False build= care= pos=(204.91, 10.45, 204.10)
+[0.0s / 14:38:41] BUILDINGS WaterSource@(204.33, 9.85, 186.69) hp=300/300, OilDeposit@(211.33, 9.85, 191.77) hp=300/300, SleepingMat@(198.50, 9.90, 204.00) hp=50/50, SleepingMat@(196.50, 9.91, 202.00) hp=50/50, SleepingMat@(196.50, 9.95, 199.00) hp=50/50
+[0.0s / 14:38:41] STOCK 
+[0.0s / 14:38:41] RECOVERY 생존자 1 체력 회복 완료 moldProtection=0.0 break=None illness=
+[0.0s / 14:38:41] RECOVERY 생존자 2 체력 회복 완료 moldProtection=0.0 break=None illness=
+[0.0s / 14:38:41] RECOVERY 생존자 3 체력 회복 완료 moldProtection=0.0 break=None illness=
+[0.0s / 14:38:41] ALERTS 숙소 부족: 침대 3개 부족 — 장수가 노숙할 수 있습니다. | 1개 배치 ×4 | 자리 건설 완료. ×3
+[0.0s / 14:38:41] SITE Storage wait=MaterialShortage work=3
+[0.0s / 14:38:41] RESEARCH  연구를 직접 선택하세요 progress=0 completed=
+[0.0s / 14:38:41] MEALS total=0 stocked=0

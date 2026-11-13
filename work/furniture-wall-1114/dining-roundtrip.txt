@@ -1,0 +1,1 @@
+PASS three seats=0,1,3,2 minimum actor spacing=1.100006; TrySave/TryLoad preserved table, seats and eating while paused; sources=Chair_Sit_Idle_M,Chair_Sit_Idle_M,Chair_Sit_Idle_M,Chair_Sit_Idle_M

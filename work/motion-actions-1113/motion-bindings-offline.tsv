@@ -1,0 +1,119 @@
+Agree_Gesture	ListenAgree	bound
+Archery_Shot		unbound
+Archery_Shot_1		unbound
+Archery_Shot_2		unbound
+Archery_Shot_3	BowShoot	bound
+Arise	WakeUp	bound
+Axe_Breathe_and_Look_Around		unbound
+Axe_Spin_Attack		unbound
+Axe_Stance		unbound
+Carry_Heavy_Cannon_Forward		unbound
+Carry_Heavy_Object_Walk	Carry,CarryPerson	bound
+Carry_Water_Bucket_Walk		unbound
+Casual_Walk	LeisureWalk	bound
+Chair_Sit_Idle_F		unbound
+Chair_Sit_Idle_M		unbound
+Charged_Axe_Chop		unbound
+Cheer_with_Both_Hands	CelebrateVariant1	bound
+Climb_Stairs		unbound
+Climb_Up_Rope		unbound
+Collect_Object	GroundWork,BenchPickup,PutDown,BenchPlace,UnequipToGround	bound
+Combat_Stance	Idle_A	bound
+Cough_While_Sleeping		unbound
+Counterstrike	Attack_Unarmed	bound
+Crawl_and_Look_Back		unbound
+Crawl_Backward		unbound
+Dead	Death	bound
+Discuss_While_Moving		unbound
+falling_down	PassOut,CollapseDropWeapon	bound
+Fast_Stair_Climb		unbound
+Female_Bend_Over_Pick_Up_Inspect	Inspect	bound
+Female_Bow_Charge_Left_Hand		unbound
+Female_Crouch_Pick_Fruit_Basket_Stand		unbound
+Female_Stand_Pick_Fruit_Basket		unbound
+Female_Walk_Pick_Put_In_Pocket		unbound
+Finger_Wag_No		unbound
+Groan_Holding_Stomach_in_Sleep		unbound
+Head_Hold_in_Pain	Mourn	bound
+Headache_Relief	HangoverIdle	bound
+Heavy_Hammer_Swing	Tool_Mine,Tool_Chop,Tool_Hammer,SmithRepair,Tool_Dig,Tool_Till	bound
+Hit_Reaction	Hit,Hurt	bound
+Idle_10	StandVariant7	bound
+Idle_11	StandIdle,StandVariant8	bound
+Idle_12	StandVariant9	bound
+Idle_13	StandVariant10	bound
+Idle_3	IdleVariant0,Idle,StandVariant0	bound
+Idle_4	IdleVariant1,StandVariant1	bound
+Idle_5	IdleVariant2,StandVariant2	bound
+Idle_6	StandVariant3	bound
+Idle_7	StandVariant4	bound
+Idle_8	StandVariant5	bound
+Idle_9	StandVariant6	bound
+Injured_Walk	WalkInjured	bound
+Injured_Walk_Backward		unbound
+Jump_Over_Obstacle_1		unbound
+Kneeling_Reload		unbound
+Ladder_Climb_Finish		unbound
+Ladder_Climb_Loop		unbound
+Ladder_Mount_Start		unbound
+Left_Slash		unbound
+Lie_on_Chair_Sunbathe_and_Sleep		unbound
+Limping_Walk_1	WalkLimp	bound
+Limping_Walk_2	WalkLimpAlternate	bound
+Limping_Walk_3	WalkLimpSevere	bound
+Listening_Gesture	Listen	bound
+Long_Breathe_and_Look_Around	SkyGaze	bound
+Male_Bend_Over_Pick_Up	Pickup,EquipFromGround	bound
+open_door_1		unbound
+open_door_2		unbound
+open_door_3		unbound
+open_door_4		unbound
+Prone_Reach_Help	Downed	bound
+Prone_Reload		unbound
+Pull_Radish	Tool_Harvest	bound
+Push_and_Walk_Forward		unbound
+Regular_Jump		unbound
+Right_Hand_Sword_Slash	Attack	bound
+Roll_Dodge		unbound
+Run_02	RunVariant1	bound
+Run_03	RunVariant2	bound
+Run_and_Shoot		unbound
+Running	Run,RunVariant0	bound
+Shield_Push_Left	ShieldBlock	bound
+Short_Breathe_and_Look_Around	IdleLook	bound
+Shot_and_Blown_Back		unbound
+Shrug		unbound
+Sit_and_Doze_Off		unbound
+Sit_and_Drink		unbound
+Sit_Cross_Legged_on_Floor	Rest,IdleRest,Captive	bound
+Sit_Lie_Bed		unbound
+Sit_on_Chair_Arms_Crossed		unbound
+Sit_Thumbs_Up_Right		unbound
+Sit_to_Stand_Transition_M	StandEnter	bound
+Sitting_Clap		unbound
+sleep		unbound
+Sleep_Normally	Sleep	bound
+Sneaky_Walk		unbound
+Stand_and_Drink	Drink	bound
+Stand_Clap_and_Sit_Down		unbound
+Stand_Dodge		unbound
+Stand_Talking_Angry		unbound
+Stand_to_Sit_Transition_M	StandExit	bound
+Standing_Reload		unbound
+Stumble_Walk	WalkTipsy,Stagger	bound
+Swim_Forward		unbound
+Swim_Idle		unbound
+Sword_Parry_Backward_1		unbound
+Sword_Parry_Backward_2		unbound
+Talk_Passionately	IdleTalk,TalkVariant0	bound
+Talk_with_Hands_Open	Talk,TalkVariant1	bound
+Talk_with_Left_Hand_Raised	TalkVariant2	bound
+Talk_with_Right_Hand_Open	TalkVariant3	bound
+Two_Handed_Parry		unbound
+victory	CelebrateVariant3	bound
+Victory_Cheer	CelebrateVariant2	bound
+Victory_Fist_Pump	Celebrate,CelebrateVariant0	bound
+Walk_Forward_with_Bow_Aimed		unbound
+Walk_to_Sit		unbound
+Walking	Walk	bound
+Wave_for_Help_1		unbound

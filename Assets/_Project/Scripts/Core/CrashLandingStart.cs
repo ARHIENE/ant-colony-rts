@@ -41,13 +41,6 @@ namespace AntColony.Core
             DiplomacyManager.DropFloor(ResourceType.Stone, 20, FindFree(origin, new Vector3(4, 0, 2)));
             StartingEnvironment.Create(origin, BiomeRules.Current, GameSession.Instance.Options.startingCount);
             CreateWildCrops(origin, BiomeRules.Current);
-            var go = GameObject.CreatePrimitive(PrimitiveType.Cube); go.name = "불시착 잔해"; go.SetActive(false);
-            go.transform.position = FindFree(origin, new Vector3(-7, 0, 4)) + Vector3.up * .5f;
-            go.transform.localScale = new Vector3(6, 1, 4); // 3×2에선 잔해 모델이 장수(1.6m)보다 작아 보였다(2026-10-25). FacilityVisual이 x·z에 맞춰 키운다.
-            var data = ScriptableObject.CreateInstance<BuildingData>();
-            data.name = "CrashWreck"; data.displayName = "불시착 잔해"; data.kind = BuildingKind.CrashWreck;
-            data.foodCost = data.soilCost = data.specialCost = data.constructionAnts = 0; data.buildTimeSeconds = 20;
-            go.AddComponent<CrashWreck>().ConfigureRuntime(data); go.SetActive(true);
             // 새 게임 첫 화면은 불시착 지점을 비춘다(2026-11-01: 맵 중앙 기본값이 정착지 밖을 보여 장수가 화면에 없었음).
             var view = AntColony.Core.SceneObjects.Any<AntColony.Camera.IsometricCameraController>();
             // 첫 화면은 장수가 또렷이 보이게 조금 당겨 본다(기본 18 → 13, 림월드 시작 시점 참고).

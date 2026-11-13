@@ -206,21 +206,22 @@ namespace AntColony.Units
             if (AntColony.World.ExpeditionTransport.HasPendingCrewOrder(this)) return; // G42 직접 지시가 자율 작업보다 우선
             workScan -= seconds; if (workScan > 0) return; workScan = GameBalance.WorkScanSeconds;
             // ponytail: one scan per second for the small commander roster; index jobs if profiling shows contention.
-            // 노란 경보 대상 → 작업 종류 우선순위 → 대상 우선순위 1~9 → 실제 이동 거리 → 거리까지 같으면 오래 기다린 요청(2026-10-12).
+            // 노란 경보 대상 → 작업 종류 우선순위 → 대상 우선순위 1~9 → 급식·간호·완성 대기 → 실제 이동 거리 → 거리까지 같으면 오래 기다린 요청(2026-10-12).
             // 같은 작업 우선순위 단계의 후보는 작업 종류와 무관하게 함께 비교한다. 연구는 플레이어 지시 전용이라 자율 목록에 없다.
             // G26: 바닥 묶음 1만 개면 후보 수집·우선순위 조회가 수백 ms라 두 번(노란 경보/일반) 하지 않고 한 번 모은다.
             var marked = AntColony.Core.SceneObjects.All<TargetPriority>().Length > 0; // 대상 우선순위를 붙인 곳이 없으면 조회하지 않는다
+            var foodNeeds = ProvisioningNeeds();
             var tiers = AutoJobs.Where(AllowsJob).GroupBy(j => WorkState.Priority(j)).OrderByDescending(g => g.Key)
-                .Select(tier => tier.SelectMany(job => AutoCandidates(job).Where(c => c.target != null && FixedTraitWork.Allows(c.target, this, job))).Select(c =>
+                .Select(tier => tier.SelectMany(job => AutoCandidates(job).Where(c => c.target != null && FixedTraitWork.Allows(c.target, this, job)).Select(c => (c.target, c.start, job))).Select(c =>
                 {
                     TargetPriority p = null; if (marked) c.target.TryGetComponent(out p);
-                    return (c.target, c.start, level: p != null ? p.level : WorkPriorities.Default, yellow: p != null && p.yellow, corpse: c.target is Corpse k && k.Priority);
+                    return (c.target, c.start, level: p != null ? p.level : WorkPriorities.Default, yellow: p != null && p.yellow, need: WorkNeedPriority(c.target, c.job, foodNeeds.raw, foodNeeds.cooked, foodNeeds.herbs), corpse: c.target is Corpse k && k.Priority);
                 }).ToList()).ToList();
             var anyYellow = tiers.Any(t => t.Any(c => c.yellow));
             foreach (var yellow in anyYellow ? new[] { true, false } : new[] { false })
                 foreach (var tier in tiers)
                     foreach (var level in tier.Where(c => !yellow || c.yellow)
-                        .GroupBy(c => (c.level, c.corpse)).OrderByDescending(g => g.Key.Item1).ThenByDescending(g => g.Key.Item2))
+                        .GroupBy(c => (c.level, c.need, c.corpse)).OrderByDescending(g => g.Key.Item1).ThenByDescending(g => g.Key.Item2).ThenByDescending(g => g.Key.Item3))
                         foreach (var (_, start) in ByTravel(level.Select(c => (c.target, c.start))))
                             if (start()) return;
             // 할 일이 하나도 없을 때만 병영에서 훈련한다(사냥 칸 허용 장수, 검토45 공백).

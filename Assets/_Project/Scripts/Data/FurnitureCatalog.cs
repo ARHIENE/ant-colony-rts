@@ -43,7 +43,7 @@ namespace AntColony.Data
         private static IReadOnlyList<FurnitureDef> Build()
         {
             In(BuildCategory.Tile); // 벽은 재료별로 따로(실제 목록은 재료 확정 후)
-            F("흙벽", 1, existing: BuildingKind.SoilWall); F("나뭇잎 벽", 1, existing: BuildingKind.LeafWall); F("돌벽", 1); F("병뚜껑 벽", 2, existing: BuildingKind.CapWall);
+            F("높은 목책", 1, existing: BuildingKind.Palisade); F("흙벽", 1, existing: BuildingKind.SoilWall); F("나뭇잎 벽", 1, existing: BuildingKind.LeafWall); F("돌벽", 1); F("병뚜껑 벽", 2, existing: BuildingKind.CapWall);
             F("문", 1, existing: BuildingKind.Door); F("잠금문", 1, existing: BuildingKind.LockedDoor); F("창살문", 1, existing: BuildingKind.BarredDoor); F("자동문", 6); F("유리벽", 6);
             F("바닥", 1, existing: BuildingKind.Floor); F("기둥", 1, existing: BuildingKind.Pillar); F("울타리", 1); F("방화벽", 2); F("다리", 1);
 

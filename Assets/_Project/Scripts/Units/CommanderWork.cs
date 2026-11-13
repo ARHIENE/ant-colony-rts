@@ -11,7 +11,9 @@ namespace AntColony.Units
         internal Save.CommanderOrderDto CaptureOrder() => new Save.CommanderOrderDto {
             soldier = CaptureSoldierOrder(), worker = CaptureWorkerOrder(), service = Save.SaveReferences.Key(ServiceTarget),
             serviceJob = (int)ServiceJob, hunt = Save.SaveReferences.Key(HuntTarget), huntCooldown = huntCooldown,
-            automaticFacility = Save.SaveReferences.Key(automaticFacility), workScan = workScan };
+            automaticFacility = Save.SaveReferences.Key(automaticFacility), workScan = workScan,
+            mealTable = Save.SaveReferences.Key(MealTable), mealSeat = MealSeatSlot,
+            mealExit = MealTable && Agent ? new Save.Vec3Dto(Agent.nextPosition) : null };
         internal void RestoreOrder(Save.CommanderOrderDto d)
         {
             if (d == null) return;
@@ -21,6 +23,7 @@ namespace AntColony.Units
             automaticFacility = Save.SaveReferences.Get<BuildingBase>(d.automaticFacility); workScan = d.workScan;
             if (ServiceTarget != null) SetWorkTarget(ServiceTarget);
             RestoreSoldierOrder(d.soldier);
+            RestoreMealSeat(d);
         }
 
         public BuildingBase ServiceTarget { get; private set; }
@@ -52,6 +55,7 @@ namespace AntColony.Units
             SetWorkTarget(null);
             ScienceAssignment?.ReleaseResearcher(); CraftingWorkshop?.Release();
             automaticFacility = null;
+            ResetResearchApproach();
             base.CommandStop();
         }
         public static CommanderActivity SkillFor(CommanderJobs job) => job switch
@@ -72,7 +76,7 @@ namespace AntColony.Units
                 || Active.OfType<CommanderAnt>().Any(c => c != this && c.ServiceTarget == target)
                 || target == null || target.IsDead || !target.isActiveAndEnabled || !target.CountsTowardPlayerDefeat || target is Processor processor && !processor.CanContinue(this)
                 || job != CommanderJobs.Nursing && job != CommanderJobs.Repair && job != CommanderJobs.Cooking && !(firefighting && target.GetComponent<WallFire>()?.Burning == true) && !(job == CommanderJobs.Hauling && (target is PowerNode || target is SupplyFacility well && ManualWellNeedsWork(well))) && !(job == CommanderJobs.Administration && target is AdminDesk) && !(job == CommanderJobs.Hunting && target is Barracks) && !(job == CommanderJobs.Crafting && (target is Processor || target is SupplyFacility supply && SupplyCraftNeedsWork(supply))) && !(job == CommanderJobs.Gathering && target is SupplyFacility drill && DeepDrillNeedsWork(drill))
-                || !TryWorkApproach(target.Position, out var approach)) return false;
+                || !TryServiceApproach(target, out var approach)) return false;
             CommandStop(); ServiceTarget = target; ServiceJob = job;
             SetMoveDestination(approach); SetWorkTarget(target); return true;
         }
@@ -95,7 +99,7 @@ namespace AntColony.Units
             if ((Position - ServiceTarget.Position).sqrMagnitude > (firefighting ? 20.25f : 49)
                 || (ServiceTarget is SupplyFacility || ServiceTarget is Processor || ServiceTarget is Kitchen) && !HasReachedDestination())
             {
-                if (!TryWorkApproach(ServiceTarget.Position, out var approach)) { CommandStop(); return false; }
+                if (!TryServiceApproach(ServiceTarget, out var approach)) { CommandStop(); return false; }
                 if (IsFlying || Agent != null && !Agent.pathPending && !Agent.hasPath) SetMoveDestination(approach);
                 return true;
             }

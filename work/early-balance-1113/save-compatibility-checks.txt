@@ -1,0 +1,1 @@
+PASS previous 9/10 cooking progress accepted; completes once; no duplicate output; normal fixture save succeeds. Discard this fixture.

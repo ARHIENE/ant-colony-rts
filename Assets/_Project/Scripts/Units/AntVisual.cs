@@ -100,7 +100,7 @@ namespace AntColony.Units
             if (animator == null) return;
             var (clip, tool) = kemono ? Clip(name) : (name, null);
             if (!restart && state == name && playedClip == clip && heldTool == tool) return;
-            var hash = Animator.StringToHash("Base Layer." + clip);
+            var hash = Animator.StringToHash("Base Layer." + (clip == "MealSeated" ? "Eat" : clip == "ReadBook" ? "Inspect" : clip));
             if (!animator.HasState(0, hash)) return;
             animator.speed=kemono&&name=="Attack"&&(worker==null||!worker.IsBuildingAnimation)
                 ?KemonoModel.AttackPlaybackSpeed(clip,CombatMotionDuration):1f;
@@ -122,6 +122,9 @@ namespace AntColony.Units
         private (string clip, string tool) Clip(string name)
         {
             if (name == "Work") return WorkClip();
+            if (name == "Eat" && commander && commander.IsEating && commander.MealTable
+                && commander.MealTable.GetComponent<AntColony.Buildings.FacilityVisual>() is var dining && dining
+                && dining.TryDiningSeat(commander,out _,out _)) return ("MealSeated", null);
             if (name == "Eat" && worker != null && worker.IsGatheringAnimation && worker.CurrentResourceNode != null)
             {
                 if (worker.CurrentResourceNode.NeedsSowing) return ("Tool_Till", "Tool_Hoe_Stone");
@@ -131,7 +134,7 @@ namespace AntColony.Units
             {
                 "Idle_A" => ("IdleVariant"+(unchecked((uint)Seed(this.name))%3), null), "Hit" => ("Hit", null),
                 "Sit" => (commander != null && commander.IsCaptive ? "Captive" : "Downed", null),
-                "Attack" when worker != null && worker.IsBuildingAnimation => (worker.ConstructionClip, worker.ConstructionStep == 1 ? "Tool_Saw" : "Tool_Hammer_Stone"),
+                "Attack" when worker != null && worker.IsBuildingAnimation => (worker.ConstructionClip, "Tool_Hammer_Stone"),
                 "Attack" when commander != null && commander.Weapon != null && MeshyEquipmentRules.IsBow(commander.Weapon.weapon) => ("BowShoot", MeshyEquipmentRules.HeldModel(commander.Weapon)),
                 "Attack" when commander != null && commander.Weapon?.weapon == WeaponKind.Shield => ("ShieldBlock", "Weapon_Shield_Copper"),
                 "Attack" when commander != null && commander.Weapon == null => ("Attack_Unarmed", null),
@@ -153,6 +156,8 @@ namespace AntColony.Units
             // Restored patients must already be lying down when a save is opened paused.
             if (commander != null && commander.TreatmentFacility != null && commander.TreatmentFacility.IsTreating(commander))
             { Play("Sleep"); previousPosition = transform.position; return; }
+            if (commander && commander.IsEating && commander.MealTable)
+            { commander.UpdateMealSeat(); if(commander.MealTable) { Face(commander.MealTable.Position-transform.position); Play("Eat"); previousPosition=transform.position; return; } }
             if (Time.deltaTime <= 0) return;
             appearance?.SetArmor(commander != null && commander.EquippedArmor?.armor == ArmorKind.Coating);
             if(commander!=null&&equipmentWearables!=null)equipmentWearables.Apply(commander.EquippedArmor,
@@ -180,8 +185,9 @@ namespace AntColony.Units
             if (Time.time < actionUntil) return;
             if (moving) Face(delta);
             if (commander != null && (commander.IsCaptive || commander.PersonalHealth <= 0)) Play("Sit");
-            else if (commander != null && commander.IsAsleep && !moving) Play("Sleep");
-            else if (commander != null && commander.IsEating) Play("Eat");
+            else if (commander != null && commander.AtSleepingPlace && !moving) Play("Sleep");
+            else if (commander != null && commander.IsEating && !moving)
+            { if (commander.MealTable) Face(commander.MealTable.Position-transform.position); Play("Eat"); }
             else if (commander != null && commander.IsWashing) Play("Wash");
             else if (soldier != null && soldier.IsFlying || enemy != null && enemy.IsFlying) Play("Fly");
             else if (worker != null && worker.IsBuildingAnimation) { if (worker.ConstructionTarget != null) Face(worker.ConstructionTarget.Position - transform.position); Play("Attack"); }

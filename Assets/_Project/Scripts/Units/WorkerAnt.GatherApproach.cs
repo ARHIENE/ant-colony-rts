@@ -27,7 +27,7 @@ namespace AntColony.Units
         {
             destination=Position;
             if(node==null)return false;
-            if(node.IsLooseCargo||node.GetComponent<AntColony.Buildings.BuildingBase>()!=null)
+            if(node.IsLooseCargo||!node.GetComponent<AntColony.Buildings.FarmPlot>() && node.GetComponent<AntColony.Buildings.BuildingBase>()!=null)
                 return TryWorkApproach(node.transform.position,out destination);
             var bounds=new Bounds(node.transform.position,Vector3.zero);bool found=false;
             foreach(var r in node.GetComponentsInChildren<MeshRenderer>())
@@ -49,8 +49,11 @@ namespace AntColony.Units
                 if(Physics.Raycast(candidate+Vector3.up*8,Vector3.down,out var ground,24,1<<8,QueryTriggerInteraction.Ignore))
                     candidate.y=ground.point.y;
                 float contactRadius = radius;
-                if (fitContact && GetComponent<MeshyNativeMotionPlayer>() && MeshyWorkContact.TryRadius(node,KemonoModel.Gather(node.ResourceType).clip,outward,candidate.y,out var fitted))
+                if (fitContact && GetComponent<MeshyNativeMotionPlayer>() && MeshyWorkContact.TryRadius(node,node.NeedsSowing ? "Tool_Till" : KemonoModel.Gather(node.ResourceType).clip,outward,candidate.y,out var fitted))
                 {
+                    // The raised furrows need a closer approach than vertical rock/tree surfaces.
+                    // Compensate the sampled-profile clearance, without changing the authored swing.
+                    if (node.NeedsSowing && node.GetComponent<AntColony.Buildings.FarmPlot>()) fitted = Mathf.Max(.4f, fitted - .025f);
                     contactRadius = fitted;
                     candidate = new Vector3(centre.x + outward.x * fitted,candidate.y,centre.z + outward.z * fitted);
                 }

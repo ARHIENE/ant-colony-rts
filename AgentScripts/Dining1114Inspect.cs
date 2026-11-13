@@ -1,0 +1,2 @@
+using System.Linq;using AntColony.Core;using UnityEngine;
+public static class Dining1114Inspect {public static string Run()=>string.Join("\n",CommanderRoster.Instance.Commanders.Select(c=>$"{c.name} eating={c.IsEating} served={c.PersonalState.meal.served} seat={c.MealSeatSlot} table={c.MealTable} position={c.Position} path={c.Agent.hasPath}/{c.Agent.pathStatus} canOrders={c.CanReceiveOrders} sleeping={c.AtSleepingPlace} hp={c.PersonalHealth}"));}

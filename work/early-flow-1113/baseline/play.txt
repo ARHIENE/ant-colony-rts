@@ -1,0 +1,591 @@
+CONTINUOUS NATURAL RUN: 3 commanders, seed 261106; game orders via official CLI, not manual mouse gameplay.
+[0.1s / 13:27:57] START candidate rolls=1 isolatedRoot=C:/Users/gusdu/AppData/Local/Temp/DefaultCompany/ant\EarlyFlow1113-282c432a50734e60922d489831d902d1
+[0.1s / 13:27:57] DESIGNATE Food x3
+[0.1s / 13:27:57] DESIGNATE Wood x3
+[0.1s / 13:27:57] DESIGNATE Soil x2
+[0.1s / 13:27:57] BUILD Storage accepted=1 at (204.50, 10.37, 200.50)
+[0.1s / 13:27:57] BUILD SleepingMat accepted=1 at (198.50, 9.90, 204.00)
+[0.1s / 13:27:58] BUILD SleepingMat accepted=1 at (196.50, 9.91, 202.00)
+[0.1s / 13:27:58] BUILD SleepingMat accepted=1 at (196.50, 9.95, 199.00)
+[0.1s / 13:27:58] wave=0 inWave=False left=900 enemies=0 food=0 soil=0 wood=0 screen=Game frame=13 speed=0
+[0.1s / 13:27:58] HERO 생존자 1 hp=100.0 down=False satiety=100 mood=75 sleep=False work=False activity=Melee node= delivery=False build= care= pos=(200.00, 10.45, 204.00)
+[0.1s / 13:27:58] HERO 생존자 2 hp=100.0 down=False satiety=100 mood=75 sleep=False work=False activity=Melee node= delivery=False build= care= pos=(202.00, 10.45, 204.00)
+[0.1s / 13:27:58] HERO 생존자 3 hp=100.0 down=False satiety=100 mood=75 sleep=False work=False activity=Melee node= delivery=False build= care= pos=(204.91, 10.45, 204.10)
+[0.1s / 13:27:58] BUILDINGS WaterSource@(204.33, 9.85, 186.69) hp=300/300, OilDeposit@(211.33, 9.85, 191.77) hp=300/300, SleepingMat@(198.50, 9.90, 204.00) hp=50/50, SleepingMat@(196.50, 9.91, 202.00) hp=50/50, SleepingMat@(196.50, 9.95, 199.00) hp=50/50
+[0.1s / 13:27:58] STOCK 
+[0.1s / 13:27:58] RECOVERY 생존자 1 체력 회복 완료 moldProtection=0.0 break=None illness=
+[0.1s / 13:27:58] RECOVERY 생존자 2 체력 회복 완료 moldProtection=0.0 break=None illness=
+[0.1s / 13:27:58] RECOVERY 생존자 3 체력 회복 완료 moldProtection=0.0 break=None illness=
+[0.1s / 13:27:58] ALERTS 숙소 부족: 침대 3개 부족 — 장수가 노숙할 수 있습니다. | 1개 배치 ×4 | 자리 건설 완료. ×3
+[0.1s / 13:27:58] SITE Storage wait=MaterialShortage work=3
+[0.1s / 13:27:58] RESEARCH  연구를 직접 선택하세요 completed=
+[0.1s / 13:27:58] MEALS total=0 stocked=0
+[0.1s / 13:28:25] STEP {"label":"baseline-start","seconds":120.0,"speed":3.0,"build":[],"buildAt":[],"research":"","prioritize":"","startWave":false,"stop":false,"designate":false,"combat":false,"defendLine":false,"focusLeader":false,"retreatHealth":35.0,"makeMedicine":false,"prioritizeConstruction":false,"recoveryRoles":false,"cookedDiet":false,"watchBreaks":false,"evadeBreaks":false,"pauseGathering":"","priorities":[],"haul":""}
+[0.1s / 13:28:25] wave=0 inWave=False left=900 enemies=0 food=0 soil=0 wood=0 screen=Game frame=1019 speed=3
+[0.1s / 13:28:25] HERO 생존자 1 hp=100.0 down=False satiety=100 mood=75 sleep=False work=False activity=Melee node= delivery=False build= care= pos=(200.00, 10.45, 204.00)
+[0.1s / 13:28:25] HERO 생존자 2 hp=100.0 down=False satiety=100 mood=75 sleep=False work=False activity=Melee node= delivery=False build= care= pos=(202.00, 10.45, 204.00)
+[0.1s / 13:28:25] HERO 생존자 3 hp=100.0 down=False satiety=100 mood=75 sleep=False work=False activity=Melee node= delivery=False build= care= pos=(204.91, 10.45, 204.10)
+[0.1s / 13:28:25] BUILDINGS WaterSource@(204.33, 9.85, 186.69) hp=300/300, OilDeposit@(211.33, 9.85, 191.77) hp=300/300, SleepingMat@(198.50, 9.90, 204.00) hp=50/50, SleepingMat@(196.50, 9.91, 202.00) hp=50/50, SleepingMat@(196.50, 9.95, 199.00) hp=50/50
+[0.1s / 13:28:25] STOCK 
+[0.1s / 13:28:25] RECOVERY 생존자 1 체력 회복 완료 moldProtection=0.0 break=None illness=
+[0.1s / 13:28:25] RECOVERY 생존자 2 체력 회복 완료 moldProtection=0.0 break=None illness=
+[0.1s / 13:28:25] RECOVERY 생존자 3 체력 회복 완료 moldProtection=0.0 break=None illness=
+[0.1s / 13:28:25] ALERTS 
+[0.1s / 13:28:25] SITE Storage wait=MaterialShortage work=3
+[0.1s / 13:28:25] RESEARCH  연구를 직접 선택하세요 completed=
+[0.1s / 13:28:25] MEALS total=0 stocked=0
+[30.6s / 13:28:39] wave=0 inWave=False left=869 enemies=0 food=0 soil=0 wood=0 screen=Game frame=1323 speed=3
+[30.6s / 13:28:39] HERO 생존자 1 hp=100.0 down=False satiety=71 mood=63 sleep=False work=False activity=Melee node= delivery=False build= care= pos=(205.00, 10.45, 199.28)
+[30.6s / 13:28:39] HERO 생존자 2 hp=100.0 down=False satiety=71 mood=63 sleep=False work=True activity=Gathering node=FoodNode1 delivery=False build= care= pos=(203.00, 10.45, 203.83)
+[30.6s / 13:28:39] HERO 생존자 3 hp=100.0 down=False satiety=71 mood=66 sleep=False work=True activity=Gathering node=SoilNode2 delivery=False build= care= pos=(207.00, 10.45, 206.00)
+[30.6s / 13:28:39] BUILDINGS WaterSource@(204.33, 9.85, 186.69) hp=300/300, OilDeposit@(211.33, 9.85, 191.77) hp=300/300, SleepingMat@(198.50, 9.90, 204.00) hp=50/50, SleepingMat@(196.50, 9.91, 202.00) hp=50/50, SleepingMat@(196.50, 9.95, 199.00) hp=50/50
+[30.6s / 13:28:39] STOCK 
+[30.6s / 13:28:39] RECOVERY 생존자 1 체력 회복 완료 moldProtection=0.0 break=None illness=
+[30.6s / 13:28:39] RECOVERY 생존자 2 체력 회복 완료 moldProtection=0.0 break=None illness=
+[30.6s / 13:28:39] RECOVERY 생존자 3 체력 회복 완료 moldProtection=0.0 break=None illness=
+[30.6s / 13:28:39] ALERTS 
+[30.6s / 13:28:39] SITE Storage wait=AwaitingHaul work=3
+[30.6s / 13:28:39] RESEARCH  연구를 직접 선택하세요 completed=
+[30.6s / 13:28:39] MEALS total=0 stocked=0
+[60.7s / 13:28:49] wave=0 inWave=False left=839 enemies=0 food=0 soil=0 wood=0 screen=Game frame=1609 speed=3
+[60.7s / 13:28:49] HERO 생존자 1 hp=100.0 down=False satiety=43 mood=60 sleep=False work=True activity=Gathering node=SoilNode1 delivery=False build= care= pos=(205.00, 10.45, 199.28)
+[60.7s / 13:28:49] HERO 생존자 2 hp=100.0 down=False satiety=43 mood=60 sleep=False work=False activity=Melee node= delivery=False build= care= pos=(203.00, 10.45, 203.83)
+[60.7s / 13:28:49] HERO 생존자 3 hp=100.0 down=False satiety=43 mood=63 sleep=False work=True activity=Gathering node=SoilNode2 delivery=False build= care= pos=(207.00, 10.45, 206.00)
+[60.7s / 13:28:49] BUILDINGS WaterSource@(204.33, 9.85, 186.69) hp=300/300, OilDeposit@(211.33, 9.85, 191.77) hp=300/300, SleepingMat@(198.50, 9.90, 204.00) hp=50/50, SleepingMat@(196.50, 9.91, 202.00) hp=50/50, SleepingMat@(196.50, 9.95, 199.00) hp=50/50
+[60.7s / 13:28:49] STOCK 
+[60.7s / 13:28:49] RECOVERY 생존자 1 체력 회복 완료 moldProtection=0.0 break=None illness=
+[60.7s / 13:28:49] RECOVERY 생존자 2 체력 회복 완료 moldProtection=0.0 break=None illness=
+[60.7s / 13:28:49] RECOVERY 생존자 3 체력 회복 완료 moldProtection=0.0 break=None illness=
+[60.7s / 13:28:49] ALERTS 
+[60.7s / 13:28:49] SITE Storage wait=AwaitingHaul work=3
+[60.7s / 13:28:49] RESEARCH  연구를 직접 선택하세요 completed=
+[60.7s / 13:28:49] MEALS total=0 stocked=0
+[90.4s / 13:28:59] wave=0 inWave=False left=810 enemies=0 food=0 soil=0 wood=0 screen=Game frame=1947 speed=3
+[90.4s / 13:28:59] HERO 생존자 1 hp=100.0 down=False satiety=95 mood=60 sleep=False work=False activity=Melee node= delivery=False build= care= pos=(205.00, 10.45, 199.28)
+[90.4s / 13:28:59] HERO 생존자 2 hp=100.0 down=False satiety=95 mood=43 sleep=False work=True activity=Gathering node=FoodNode1 delivery=False build= care= pos=(203.00, 10.45, 203.83)
+[90.4s / 13:28:59] HERO 생존자 3 hp=100.0 down=False satiety=95 mood=46 sleep=False work=True activity=Gathering node=시작 목재 delivery=False build= care= pos=(210.62, 10.45, 207.87)
+[90.4s / 13:28:59] BUILDINGS WaterSource@(204.33, 9.85, 186.69) hp=300/300, OilDeposit@(211.33, 9.85, 191.77) hp=300/300, SleepingMat@(198.50, 9.90, 204.00) hp=50/50, SleepingMat@(196.50, 9.91, 202.00) hp=50/50, SleepingMat@(196.50, 9.95, 199.00) hp=50/50
+[90.4s / 13:28:59] STOCK 
+[90.4s / 13:28:59] RECOVERY 생존자 1 체력 회복 완료 moldProtection=0.0 break=None illness=
+[90.4s / 13:28:59] RECOVERY 생존자 2 체력 회복 완료 moldProtection=0.0 break=None illness=
+[90.4s / 13:28:59] RECOVERY 생존자 3 체력 회복 완료 moldProtection=0.0 break=None illness=
+[90.4s / 13:28:59] ALERTS 
+[90.4s / 13:28:59] SITE Storage wait=AwaitingHaul work=3
+[90.4s / 13:28:59] RESEARCH  연구를 직접 선택하세요 completed=
+[90.4s / 13:28:59] MEALS total=0 stocked=0
+[120.8s / 13:29:10] COMMANDER_SECONDS move=3.7, idle_or_combat=60.8, work=201.0, needs=31.6, sleep=62.7
+[120.8s / 13:29:10] wave=0 inWave=False left=779 enemies=0 food=0 soil=0 wood=0 screen=Game frame=2121 speed=0
+[120.8s / 13:29:10] HERO 생존자 1 hp=100.0 down=False satiety=67 mood=59 sleep=True work=False activity=Melee node= delivery=False build= care= pos=(198.50, 9.85, 204.00)
+[120.8s / 13:29:10] HERO 생존자 2 hp=100.0 down=False satiety=67 mood=59 sleep=True work=False activity=Melee node= delivery=False build= care= pos=(196.50, 9.86, 202.00)
+[120.8s / 13:29:10] HERO 생존자 3 hp=100.0 down=False satiety=67 mood=59 sleep=True work=False activity=Melee node= delivery=False build= care= pos=(196.50, 9.90, 199.00)
+[120.8s / 13:29:10] BUILDINGS WaterSource@(204.33, 9.85, 186.69) hp=300/300, OilDeposit@(211.33, 9.85, 191.77) hp=300/300, SleepingMat@(198.50, 9.90, 204.00) hp=50/50, SleepingMat@(196.50, 9.91, 202.00) hp=50/50, SleepingMat@(196.50, 9.95, 199.00) hp=50/50
+[120.8s / 13:29:10] STOCK 
+[120.8s / 13:29:10] RECOVERY 생존자 1 체력 회복 완료 moldProtection=0.0 break=None illness=
+[120.8s / 13:29:10] RECOVERY 생존자 2 체력 회복 완료 moldProtection=0.0 break=None illness=
+[120.8s / 13:29:10] RECOVERY 생존자 3 체력 회복 완료 moldProtection=0.0 break=None illness=
+[120.8s / 13:29:10] ALERTS 
+[120.8s / 13:29:10] SITE Storage wait=WorkerBusy work=3
+[120.8s / 13:29:10] RESEARCH  연구를 직접 선택하세요 completed=
+[120.8s / 13:29:10] MEALS total=0 stocked=0
+[120.8s / 13:29:19] STEP {"label":"baseline-facilities","seconds":120.0,"speed":3.0,"build":["Hearth","ScienceLab"],"buildAt":[],"research":"","prioritize":"","startWave":false,"stop":false,"designate":false,"combat":false,"defendLine":false,"focusLeader":false,"retreatHealth":35.0,"makeMedicine":false,"prioritizeConstruction":false,"recoveryRoles":false,"cookedDiet":false,"watchBreaks":false,"evadeBreaks":false,"pauseGathering":"","priorities":[],"haul":""}
+[120.8s / 13:29:19] BUILD Hearth accepted=1 at (202.00, 10.45, 203.50)
+[120.8s / 13:29:20] BUILD ScienceLab accepted=1 at (200.50, 10.85, 196.50)
+[120.8s / 13:29:20] wave=0 inWave=False left=779 enemies=0 food=0 soil=0 wood=0 screen=Game frame=2267 speed=3
+[120.8s / 13:29:20] HERO 생존자 1 hp=100.0 down=False satiety=67 mood=59 sleep=True work=False activity=Melee node= delivery=False build= care= pos=(198.50, 9.85, 204.00)
+[120.8s / 13:29:20] HERO 생존자 2 hp=100.0 down=False satiety=67 mood=59 sleep=True work=False activity=Melee node= delivery=False build= care= pos=(196.50, 9.86, 202.00)
+[120.8s / 13:29:20] HERO 생존자 3 hp=100.0 down=False satiety=67 mood=59 sleep=True work=False activity=Melee node= delivery=False build= care= pos=(196.50, 9.90, 199.00)
+[120.8s / 13:29:20] BUILDINGS WaterSource@(204.33, 9.85, 186.69) hp=300/300, OilDeposit@(211.33, 9.85, 191.77) hp=300/300, SleepingMat@(198.50, 9.90, 204.00) hp=50/50, SleepingMat@(196.50, 9.91, 202.00) hp=50/50, SleepingMat@(196.50, 9.95, 199.00) hp=50/50
+[120.8s / 13:29:20] STOCK 
+[120.8s / 13:29:20] RECOVERY 생존자 1 체력 회복 완료 moldProtection=0.0 break=None illness=
+[120.8s / 13:29:20] RECOVERY 생존자 2 체력 회복 완료 moldProtection=0.0 break=None illness=
+[120.8s / 13:29:20] RECOVERY 생존자 3 체력 회복 완료 moldProtection=0.0 break=None illness=
+[120.8s / 13:29:20] ALERTS 1개 배치 ×2
+[120.8s / 13:29:20] SITE Storage wait=WorkerBusy work=3
+[120.8s / 13:29:20] SITE Hearth wait=WorkerBusy work=6
+[120.8s / 13:29:20] SITE ScienceLab wait=WorkerBusy work=10
+[120.8s / 13:29:20] RESEARCH  연구를 직접 선택하세요 completed=
+[120.8s / 13:29:20] MEALS total=0 stocked=0
+[151.7s / 13:29:30] wave=0 inWave=False left=748 enemies=0 food=0 soil=0 wood=0 screen=Game frame=2392 speed=3
+[151.7s / 13:29:30] HERO 생존자 1 hp=100.0 down=False satiety=38 mood=51 sleep=False work=True activity=Gathering node=FoodNode1 delivery=False build= care= pos=(198.83, 10.47, 204.93)
+[151.7s / 13:29:30] HERO 생존자 2 hp=100.0 down=False satiety=38 mood=53 sleep=False work=True activity=Gathering node=Dropped Soil delivery=True build= care= pos=(199.63, 10.49, 201.21)
+[151.7s / 13:29:30] HERO 생존자 3 hp=100.0 down=False satiety=38 mood=56 sleep=False work=True activity=Gathering node=Dropped Soil delivery=True build= care= pos=(198.73, 10.56, 199.54)
+[151.7s / 13:29:30] BUILDINGS WaterSource@(204.33, 9.85, 186.69) hp=300/300, OilDeposit@(211.33, 9.85, 191.77) hp=300/300, SleepingMat@(198.50, 9.90, 204.00) hp=50/50, SleepingMat@(196.50, 9.91, 202.00) hp=50/50, SleepingMat@(196.50, 9.95, 199.00) hp=50/50
+[151.7s / 13:29:30] STOCK 
+[151.7s / 13:29:30] RECOVERY 생존자 1 체력 회복 완료 moldProtection=0.0 break=None illness=
+[151.7s / 13:29:30] RECOVERY 생존자 2 체력 회복 완료 moldProtection=0.0 break=None illness=
+[151.7s / 13:29:30] RECOVERY 생존자 3 체력 회복 완료 moldProtection=0.0 break=None illness=
+[151.7s / 13:29:30] ALERTS 
+[151.7s / 13:29:30] SITE Storage wait=None work=3
+[151.7s / 13:29:30] SITE Hearth wait=AwaitingHaul work=6
+[151.7s / 13:29:30] SITE ScienceLab wait=AwaitingHaul work=10
+[151.7s / 13:29:30] RESEARCH  연구를 직접 선택하세요 completed=
+[151.7s / 13:29:30] MEALS total=0 stocked=0
+[181.2s / 13:29:40] wave=0 inWave=False left=719 enemies=0 food=19 soil=0 wood=0 screen=Game frame=2660 speed=3
+[181.2s / 13:29:40] HERO 생존자 1 hp=100.0 down=False satiety=90 mood=34 sleep=False work=False activity=Gathering node=Dropped Food delivery=False build= care= pos=(204.19, 10.45, 200.43)
+[181.2s / 13:29:40] HERO 생존자 2 hp=100.0 down=False satiety=90 mood=36 sleep=False work=False activity=Gathering node=Dropped Food delivery=False build= care= pos=(204.77, 10.45, 200.31)
+[181.2s / 13:29:40] HERO 생존자 3 hp=100.0 down=False satiety=90 mood=39 sleep=False work=True activity=Gathering node=Received Stone delivery=False build= care= pos=(203.49, 10.45, 202.78)
+[181.2s / 13:29:40] BUILDINGS WaterSource@(204.33, 9.85, 186.69) hp=300/300, OilDeposit@(211.33, 9.85, 191.77) hp=300/300, SleepingMat@(198.50, 9.90, 204.00) hp=50/50, SleepingMat@(196.50, 9.91, 202.00) hp=50/50, SleepingMat@(196.50, 9.95, 199.00) hp=50/50, Storage@(204.50, 10.37, 200.50) hp=300/300
+[181.2s / 13:29:40] STOCK Food=19
+[181.2s / 13:29:40] RECOVERY 생존자 1 체력 회복 완료 moldProtection=0.0 break=None illness=
+[181.2s / 13:29:40] RECOVERY 생존자 2 체력 회복 완료 moldProtection=0.0 break=None illness=
+[181.2s / 13:29:40] RECOVERY 생존자 3 체력 회복 완료 moldProtection=0.0 break=None illness=
+[181.2s / 13:29:40] ALERTS 기분 주의: 생존자 1 (32) — 허기 · 붕괴 분당 5 % · 이탈까지 300초 · 장수 상세에서 포상(식량 30) 가능 | 기분 주의: 생존자 2 (35) — 허기 · 붕괴 분당 5 % · 이탈까지 300초 · 장수 상세에서 포상(식량 30) 가능 | 기분 주의: 생존자 3 (35) — 허기 · 붕괴 분당 5 % · 이탈까지 300초 · 장수 상세에서 포상(식량 30) 가능 | Storage 건설 완료.
+[181.2s / 13:29:40] SITE Hearth wait=AwaitingHaul work=6
+[181.2s / 13:29:40] SITE ScienceLab wait=AwaitingHaul work=10
+[181.2s / 13:29:40] RESEARCH  연구를 직접 선택하세요 completed=
+[181.2s / 13:29:40] MEALS total=0 stocked=0
+[211.0s / 13:29:50] wave=0 inWave=False left=689 enemies=0 food=38 soil=93 wood=0 screen=Game frame=2935 speed=3
+[211.0s / 13:29:50] HERO 생존자 1 hp=100.0 down=False satiety=62 mood=49 sleep=False work=True activity=Gathering node=Dropped Soil delivery=False build= care= pos=(204.10, 10.47, 198.80)
+[211.0s / 13:29:50] HERO 생존자 2 hp=100.0 down=False satiety=62 mood=50 sleep=False work=True activity=Gathering node=Dropped Soil delivery=False build= care= pos=(203.53, 10.48, 199.02)
+[211.0s / 13:29:50] HERO 생존자 3 hp=100.0 down=False satiety=62 mood=52 sleep=False work=True activity=Gathering node=Dropped Soil delivery=False build= care= pos=(203.41, 10.46, 198.43)
+[211.0s / 13:29:50] BUILDINGS WaterSource@(204.33, 9.85, 186.69) hp=300/300, OilDeposit@(211.33, 9.85, 191.77) hp=300/300, SleepingMat@(198.50, 9.90, 204.00) hp=50/50, SleepingMat@(196.50, 9.91, 202.00) hp=50/50, SleepingMat@(196.50, 9.95, 199.00) hp=50/50, Storage@(204.50, 10.37, 200.50) hp=300/300
+[211.0s / 13:29:50] STOCK Food=38, Soil=93, Stone=20
+[211.0s / 13:29:50] RECOVERY 생존자 1 체력 회복 완료 moldProtection=0.0 break=None illness=
+[211.0s / 13:29:50] RECOVERY 생존자 2 체력 회복 완료 moldProtection=0.0 break=None illness=
+[211.0s / 13:29:50] RECOVERY 생존자 3 체력 회복 완료 moldProtection=0.0 break=None illness=
+[211.0s / 13:29:50] ALERTS 기분 주의: 생존자 2 (35) — 허기 · 붕괴 분당 5 % · 이탈까지 300초 · 장수 상세에서 포상(식량 30) 가능 ×2 | 첫 생활 안정 달성
+잠자리·식량을 갖추고 연구에 인력 배정
+다음: 첫 연구 완료 | 생존자 1: 기술이 올랐습니다.
+[211.0s / 13:29:50] SITE Hearth wait=AwaitingHaul work=6
+[211.0s / 13:29:50] SITE ScienceLab wait=AwaitingHaul work=10
+[211.0s / 13:29:50] RESEARCH  연구를 직접 선택하세요 completed=
+[211.0s / 13:29:50] MEALS total=0 stocked=0
+[241.0s / 13:30:00] COMMANDER_SECONDS sleep=87.1, work=199.3, idle_or_combat=38.3, move=2.9, needs=30.2
+[241.0s / 13:30:00] wave=0 inWave=False left=659 enemies=0 food=100 soil=92 wood=0 screen=Game frame=3189 speed=0
+[241.0s / 13:30:00] HERO 생존자 1 hp=100.0 down=False satiety=34 mood=49 sleep=False work=True activity=Gathering node=FoodNode1 delivery=False build= care= pos=(204.24, 10.45, 203.00)
+[241.0s / 13:30:00] HERO 생존자 2 hp=100.0 down=False satiety=34 mood=49 sleep=False work=True activity=Gathering node=Dropped Soil delivery=False build= care= pos=(203.25, 10.49, 199.94)
+[241.0s / 13:30:00] HERO 생존자 3 hp=100.0 down=False satiety=34 mood=52 sleep=False work=True activity=Gathering node=Dropped Soil delivery=False build= care= pos=(203.50, 10.48, 198.77)
+[241.0s / 13:30:00] BUILDINGS WaterSource@(204.33, 9.85, 186.69) hp=300/300, OilDeposit@(211.33, 9.85, 191.77) hp=300/300, SleepingMat@(198.50, 9.90, 204.00) hp=50/50, SleepingMat@(196.50, 9.91, 202.00) hp=50/50, SleepingMat@(196.50, 9.95, 199.00) hp=50/50, Storage@(204.50, 10.37, 200.50) hp=300/300
+[241.0s / 13:30:00] STOCK Food=100, Soil=92, Stone=20
+[241.0s / 13:30:00] RECOVERY 생존자 1 체력 회복 완료 moldProtection=0.0 break=None illness=
+[241.0s / 13:30:00] RECOVERY 생존자 2 체력 회복 완료 moldProtection=0.0 break=None illness=
+[241.0s / 13:30:00] RECOVERY 생존자 3 체력 회복 완료 moldProtection=0.0 break=None illness=
+[241.0s / 13:30:00] ALERTS 생존자 3: 기술이 올랐습니다.
+[241.0s / 13:30:00] SITE Hearth wait=AwaitingHaul work=6
+[241.0s / 13:30:00] SITE ScienceLab wait=AwaitingHaul work=10
+[241.0s / 13:30:00] RESEARCH  연구를 직접 선택하세요 completed=
+[241.0s / 13:30:00] MEALS total=0 stocked=0
+[241.0s / 13:30:13] STEP {"label":"baseline-research-attempt","seconds":120.0,"speed":3.0,"build":["Toilet","Farm"],"buildAt":[],"research":"Herbs","prioritize":"","startWave":false,"stop":false,"designate":false,"combat":false,"defendLine":false,"focusLeader":false,"retreatHealth":35.0,"makeMedicine":false,"prioritizeConstruction":false,"recoveryRoles":false,"cookedDiet":false,"watchBreaks":false,"evadeBreaks":false,"pauseGathering":"","priorities":[],"haul":""}
+[241.0s / 13:30:13] BUILD Toilet accepted=1 at (200.50, 10.35, 204.50)
+[241.0s / 13:30:14] BUILD Farm accepted=1 at (207.50, 10.05, 200.50)
+[241.0s / 13:30:14] RESEARCH start Herbs accepted=False blocked=과학 연구소 1등급(정착 시대)이 필요합니다. shortage=
+[241.0s / 13:30:14] wave=0 inWave=False left=659 enemies=0 food=100 soil=92 wood=0 screen=Game frame=3586 speed=3
+[241.0s / 13:30:14] HERO 생존자 1 hp=100.0 down=False satiety=34 mood=49 sleep=False work=True activity=Gathering node=FoodNode1 delivery=False build= care= pos=(204.24, 10.45, 203.00)
+[241.0s / 13:30:14] HERO 생존자 2 hp=100.0 down=False satiety=34 mood=49 sleep=False work=True activity=Gathering node=Dropped Soil delivery=False build= care= pos=(203.25, 10.49, 199.94)
+[241.0s / 13:30:14] HERO 생존자 3 hp=100.0 down=False satiety=34 mood=52 sleep=False work=True activity=Gathering node=Dropped Soil delivery=False build= care= pos=(203.50, 10.48, 198.77)
+[241.0s / 13:30:14] BUILDINGS WaterSource@(204.33, 9.85, 186.69) hp=300/300, OilDeposit@(211.33, 9.85, 191.77) hp=300/300, SleepingMat@(198.50, 9.90, 204.00) hp=50/50, SleepingMat@(196.50, 9.91, 202.00) hp=50/50, SleepingMat@(196.50, 9.95, 199.00) hp=50/50, Storage@(204.50, 10.37, 200.50) hp=300/300
+[241.0s / 13:30:14] STOCK Food=100, Soil=92, Stone=20
+[241.0s / 13:30:14] RECOVERY 생존자 1 체력 회복 완료 moldProtection=0.0 break=None illness=
+[241.0s / 13:30:14] RECOVERY 생존자 2 체력 회복 완료 moldProtection=0.0 break=None illness=
+[241.0s / 13:30:14] RECOVERY 생존자 3 체력 회복 완료 moldProtection=0.0 break=None illness=
+[241.0s / 13:30:14] ALERTS 1개 배치 ×2
+[241.0s / 13:30:14] SITE Hearth wait=AwaitingHaul work=6
+[241.0s / 13:30:14] SITE ScienceLab wait=AwaitingHaul work=10
+[241.0s / 13:30:14] SITE Toilet wait=MaterialShortage work=4
+[241.0s / 13:30:14] SITE Farm wait=MaterialShortage work=4
+[241.0s / 13:30:14] RESEARCH  연구를 직접 선택하세요 completed=
+[241.0s / 13:30:14] MEALS total=0 stocked=0
+[271.7s / 13:30:24] wave=0 inWave=False left=628 enemies=0 food=98 soil=100 wood=0 screen=Game frame=3845 speed=3
+[271.7s / 13:30:24] HERO 생존자 1 hp=100.0 down=False satiety=85 mood=49 sleep=True work=False activity=Melee node= delivery=False build= care= pos=(198.50, 9.85, 204.00)
+[271.7s / 13:30:24] HERO 생존자 2 hp=100.0 down=False satiety=85 mood=49 sleep=True work=False activity=Melee node= delivery=False build= care= pos=(196.50, 9.86, 202.00)
+[271.7s / 13:30:24] HERO 생존자 3 hp=100.0 down=False satiety=85 mood=41 sleep=True work=False activity=Melee node= delivery=False build= care= pos=(196.50, 9.90, 199.00)
+[271.7s / 13:30:24] BUILDINGS WaterSource@(204.33, 9.85, 186.69) hp=300/300, OilDeposit@(211.33, 9.85, 191.77) hp=300/300, SleepingMat@(198.50, 9.90, 204.00) hp=50/50, SleepingMat@(196.50, 9.91, 202.00) hp=50/50, SleepingMat@(196.50, 9.95, 199.00) hp=50/50, Storage@(204.50, 10.37, 200.50) hp=300/300
+[271.7s / 13:30:24] STOCK Food=98, Soil=100, Stone=20
+[271.7s / 13:30:24] RECOVERY 생존자 1 체력 회복 완료 moldProtection=0.0 break=None illness=
+[271.7s / 13:30:24] RECOVERY 생존자 2 체력 회복 완료 moldProtection=0.0 break=None illness=
+[271.7s / 13:30:24] RECOVERY 생존자 3 체력 회복 완료 moldProtection=0.0 break=None illness=
+[271.7s / 13:30:24] ALERTS 
+[271.7s / 13:30:24] SITE Hearth wait=WorkerBusy work=6
+[271.7s / 13:30:24] SITE ScienceLab wait=WorkerBusy work=10
+[271.7s / 13:30:24] SITE Toilet wait=WorkerBusy work=4
+[271.7s / 13:30:24] SITE Farm wait=WorkerBusy work=4
+[271.7s / 13:30:24] RESEARCH  연구를 직접 선택하세요 completed=
+[271.7s / 13:30:24] MEALS total=0 stocked=0
+[301.0s / 13:30:33] wave=0 inWave=False left=599 enemies=0 food=98 soil=100 wood=0 screen=Game frame=4074 speed=3
+[301.0s / 13:30:33] HERO 생존자 1 hp=100.0 down=False satiety=58 mood=49 sleep=False work=True activity=Gathering node=Dropped Food delivery=False build= care= pos=(199.83, 10.45, 204.00)
+[301.0s / 13:30:33] HERO 생존자 2 hp=100.0 down=False satiety=58 mood=51 sleep=False work=True activity=Gathering node=Dropped Food delivery=False build= care= pos=(197.84, 10.46, 201.80)
+[301.0s / 13:30:33] HERO 생존자 3 hp=100.0 down=False satiety=58 mood=47 sleep=False work=True activity=Gathering node=Dropped Food delivery=False build= care= pos=(197.83, 10.52, 199.25)
+[301.0s / 13:30:33] BUILDINGS WaterSource@(204.33, 9.85, 186.69) hp=300/300, OilDeposit@(211.33, 9.85, 191.77) hp=300/300, SleepingMat@(198.50, 9.90, 204.00) hp=50/50, SleepingMat@(196.50, 9.91, 202.00) hp=50/50, SleepingMat@(196.50, 9.95, 199.00) hp=50/50, Storage@(204.50, 10.37, 200.50) hp=300/300
+[301.0s / 13:30:33] STOCK Food=98, Soil=100, Stone=20
+[301.0s / 13:30:33] RECOVERY 생존자 1 체력 회복 완료 moldProtection=0.0 break=None illness=
+[301.0s / 13:30:33] RECOVERY 생존자 2 체력 회복 완료 moldProtection=0.0 break=None illness=
+[301.0s / 13:30:33] RECOVERY 생존자 3 체력 회복 완료 moldProtection=0.0 break=None illness=
+[301.0s / 13:30:33] ALERTS 날씨: 안개 | 장수 후보 방랑: 맵 가장자리 (93, 255)에 후보 발견. 60초 안에 장수를 3m 이내로 보내세요.
+[301.0s / 13:30:33] SITE Hearth wait=AwaitingHaul work=6
+[301.0s / 13:30:33] SITE ScienceLab wait=AwaitingHaul work=10
+[301.0s / 13:30:33] SITE Toilet wait=AwaitingHaul work=4
+[301.0s / 13:30:33] SITE Farm wait=AwaitingHaul work=4
+[301.0s / 13:30:33] RESEARCH  연구를 직접 선택하세요 completed=
+[301.0s / 13:30:33] MEALS total=0 stocked=0
+[331.6s / 13:30:44] wave=0 inWave=False left=568 enemies=0 food=100 soil=76 wood=0 screen=Game frame=4295 speed=3
+[331.6s / 13:30:44] HERO 생존자 1 hp=100.0 down=False satiety=29 mood=47 sleep=False work=False activity=Melee node= delivery=False build= care= pos=(203.19, 10.45, 203.35)
+[331.6s / 13:30:44] HERO 생존자 2 hp=100.0 down=False satiety=29 mood=48 sleep=False work=False activity=Melee node= delivery=False build= care= pos=(207.43, 10.45, 202.30)
+[331.6s / 13:30:44] HERO 생존자 3 hp=100.0 down=False satiety=29 mood=48 sleep=False work=False activity=Melee node= delivery=False build= care= pos=(204.34, 10.45, 200.43)
+[331.6s / 13:30:44] BUILDINGS WaterSource@(204.33, 9.85, 186.69) hp=300/300, OilDeposit@(211.33, 9.85, 191.77) hp=300/300, SleepingMat@(198.50, 9.90, 204.00) hp=50/50, SleepingMat@(196.50, 9.91, 202.00) hp=50/50, SleepingMat@(196.50, 9.95, 199.00) hp=50/50, Storage@(204.50, 10.37, 200.50) hp=300/300
+[331.6s / 13:30:44] STOCK Food=100, Soil=76, Stone=20
+[331.6s / 13:30:44] RECOVERY 생존자 1 체력 회복 완료 moldProtection=0.0 break=None illness=
+[331.6s / 13:30:44] RECOVERY 생존자 2 체력 회복 완료 moldProtection=0.0 break=None illness=
+[331.6s / 13:30:44] RECOVERY 생존자 3 체력 회복 완료 moldProtection=0.0 break=None illness=
+[331.6s / 13:30:44] ALERTS Farm 건설 예정지: 재료가 모두 도착했습니다.
+[331.6s / 13:30:44] SITE Hearth wait=AwaitingHaul work=6
+[331.6s / 13:30:44] SITE ScienceLab wait=AwaitingHaul work=10
+[331.6s / 13:30:44] SITE Toilet wait=AwaitingHaul work=4
+[331.6s / 13:30:44] SITE Farm wait=None work=3
+[331.6s / 13:30:44] RESEARCH  연구를 직접 선택하세요 completed=
+[331.6s / 13:30:44] MEALS total=0 stocked=0
+[361.2s / 13:30:54] COMMANDER_SECONDS work=131.9, idle_or_combat=27.9, move=0.7, needs=58.1, sleep=131.3, growth_wait=8.3
+[361.2s / 13:30:54] wave=0 inWave=False left=539 enemies=0 food=100 soil=100 wood=0 screen=Game frame=4504 speed=0
+[361.2s / 13:30:54] HERO 생존자 1 hp=100.0 down=False satiety=81 mood=49 sleep=False work=True activity=Gathering node=Dropped Soil delivery=False build= care= pos=(203.40, 10.47, 198.60)
+[361.2s / 13:30:54] HERO 생존자 2 hp=100.0 down=False satiety=81 mood=49 sleep=False work=True activity=Gathering node=Dropped Soil delivery=False build= care= pos=(208.27, 10.45, 205.85)
+[361.2s / 13:30:54] HERO 생존자 3 hp=100.0 down=False satiety=81 mood=49 sleep=False work=False activity=Melee node= delivery=False build= care= pos=(204.55, 10.45, 200.54)
+[361.2s / 13:30:54] BUILDINGS WaterSource@(204.33, 9.85, 186.69) hp=300/300, OilDeposit@(211.33, 9.85, 191.77) hp=300/300, SleepingMat@(198.50, 9.90, 204.00) hp=50/50, SleepingMat@(196.50, 9.91, 202.00) hp=50/50, SleepingMat@(196.50, 9.95, 199.00) hp=50/50, Storage@(204.50, 10.37, 200.50) hp=300/300, Farm@(207.50, 10.05, 200.50) hp=150/150
+[361.2s / 13:30:54] STOCK Food=100, Soil=100, Stone=20
+[361.2s / 13:30:54] RECOVERY 생존자 1 체력 회복 완료 moldProtection=0.0 break=None illness=
+[361.2s / 13:30:54] RECOVERY 생존자 2 체력 회복 완료 moldProtection=0.0 break=None illness=
+[361.2s / 13:30:54] RECOVERY 생존자 3 체력 회복 완료 moldProtection=0.0 break=None illness=
+[361.2s / 13:30:54] ALERTS Farm 건설 완료. | 장수 후보 방랑: 기한 만료
+[361.2s / 13:30:54] SITE Hearth wait=AwaitingHaul work=6
+[361.2s / 13:30:54] SITE ScienceLab wait=AwaitingHaul work=10
+[361.2s / 13:30:54] SITE Toilet wait=AwaitingHaul work=4
+[361.2s / 13:30:54] RESEARCH  연구를 직접 선택하세요 completed=
+[361.2s / 13:30:54] MEALS total=0 stocked=0
+[361.2s / 13:31:43] STEP {"label":"baseline-360","seconds":120.0,"speed":3.0,"build":[],"buildAt":[],"research":"Herbs","prioritize":"","startWave":false,"stop":false,"designate":false,"combat":false,"defendLine":false,"focusLeader":false,"retreatHealth":35.0,"makeMedicine":false,"prioritizeConstruction":false,"recoveryRoles":false,"cookedDiet":false,"watchBreaks":false,"evadeBreaks":false,"pauseGathering":"","priorities":[],"haul":""}
+[361.2s / 13:31:43] RESEARCH start Herbs accepted=False blocked=과학 연구소 1등급(정착 시대)이 필요합니다. shortage=
+[361.2s / 13:31:43] wave=0 inWave=False left=539 enemies=0 food=100 soil=100 wood=0 screen=Game frame=5510 speed=3
+[361.2s / 13:31:43] HERO 생존자 1 hp=100.0 down=False satiety=81 mood=49 sleep=False work=True activity=Gathering node=Dropped Soil delivery=False build= care= pos=(203.40, 10.47, 198.60)
+[361.2s / 13:31:43] HERO 생존자 2 hp=100.0 down=False satiety=81 mood=49 sleep=False work=True activity=Gathering node=Dropped Soil delivery=False build= care= pos=(208.27, 10.45, 205.85)
+[361.2s / 13:31:43] HERO 생존자 3 hp=100.0 down=False satiety=81 mood=49 sleep=False work=False activity=Melee node= delivery=False build= care= pos=(204.55, 10.45, 200.54)
+[361.2s / 13:31:43] BUILDINGS WaterSource@(204.33, 9.85, 186.69) hp=300/300, OilDeposit@(211.33, 9.85, 191.77) hp=300/300, SleepingMat@(198.50, 9.90, 204.00) hp=50/50, SleepingMat@(196.50, 9.91, 202.00) hp=50/50, SleepingMat@(196.50, 9.95, 199.00) hp=50/50, Storage@(204.50, 10.37, 200.50) hp=300/300, Farm@(207.50, 10.05, 200.50) hp=150/150
+[361.2s / 13:31:43] STOCK Food=100, Soil=100, Stone=20
+[361.2s / 13:31:43] RECOVERY 생존자 1 체력 회복 완료 moldProtection=0.0 break=None illness=
+[361.2s / 13:31:43] RECOVERY 생존자 2 체력 회복 완료 moldProtection=0.0 break=None illness=
+[361.2s / 13:31:43] RECOVERY 생존자 3 체력 회복 완료 moldProtection=0.0 break=None illness=
+[361.2s / 13:31:43] ALERTS 
+[361.2s / 13:31:43] SITE Hearth wait=AwaitingHaul work=6
+[361.2s / 13:31:43] SITE ScienceLab wait=AwaitingHaul work=10
+[361.2s / 13:31:43] SITE Toilet wait=AwaitingHaul work=4
+[361.2s / 13:31:43] RESEARCH  연구를 직접 선택하세요 completed=
+[361.2s / 13:31:43] MEALS total=0 stocked=0
+[391.9s / 13:31:53] wave=0 inWave=False left=508 enemies=0 food=100 soil=88 wood=18 screen=Game frame=5670 speed=3
+[391.9s / 13:31:53] HERO 생존자 1 hp=100.0 down=False satiety=52 mood=49 sleep=False work=True activity=Melee node= delivery=True build= care= pos=(204.02, 10.45, 201.48)
+[391.9s / 13:31:53] HERO 생존자 2 hp=100.0 down=False satiety=52 mood=49 sleep=False work=False activity=Cooking node= delivery=False build= care= pos=(202.00, 10.45, 202.50)
+[391.9s / 13:31:53] HERO 생존자 3 hp=100.0 down=False satiety=52 mood=49 sleep=False work=False activity=Gathering node=Dropped Wood delivery=False build= care= pos=(204.07, 10.45, 200.70)
+[391.9s / 13:31:53] BUILDINGS WaterSource@(204.33, 9.85, 186.69) hp=300/300, OilDeposit@(211.33, 9.85, 191.77) hp=300/300, SleepingMat@(198.50, 9.90, 204.00) hp=50/50, SleepingMat@(196.50, 9.91, 202.00) hp=50/50, SleepingMat@(196.50, 9.95, 199.00) hp=50/50, Storage@(204.50, 10.37, 200.50) hp=300/300, Farm@(207.50, 10.05, 200.50) hp=150/150, Hearth@(202.00, 10.45, 203.50) hp=200/200
+[391.9s / 13:31:53] STOCK Food=100, Soil=88, Stone=20, Wood=18
+[391.9s / 13:31:53] RECOVERY 생존자 1 체력 회복 완료 moldProtection=0.0 break=None illness=
+[391.9s / 13:31:53] RECOVERY 생존자 2 체력 회복 완료 moldProtection=0.0 break=None illness=
+[391.9s / 13:31:53] RECOVERY 생존자 3 체력 회복 완료 moldProtection=0.0 break=None illness=
+[391.9s / 13:31:53] ALERTS 화덕 건설 완료.
+[391.9s / 13:31:53] SITE ScienceLab wait=AwaitingHaul work=10
+[391.9s / 13:31:53] SITE Toilet wait=None work=4
+[391.9s / 13:31:53] RESEARCH  연구를 직접 선택하세요 completed=
+[391.9s / 13:31:53] KITCHEN Hearth wait= progress=0.18 staged=
+[391.9s / 13:31:53] MEALS total=0 stocked=0
+[421.4s / 13:32:03] wave=0 inWave=False left=479 enemies=0 food=100 soil=88 wood=18 screen=Game frame=5831 speed=3
+[421.4s / 13:32:03] HERO 생존자 1 hp=100.0 down=False satiety=25 mood=44 sleep=True work=False activity=Melee node= delivery=False build= care= pos=(198.50, 9.85, 204.00)
+[421.4s / 13:32:03] HERO 생존자 2 hp=100.0 down=False satiety=25 mood=45 sleep=True work=False activity=Melee node= delivery=False build= care= pos=(196.50, 9.86, 202.00)
+[421.4s / 13:32:03] HERO 생존자 3 hp=100.0 down=False satiety=25 mood=45 sleep=True work=False activity=Melee node= delivery=False build= care= pos=(196.50, 9.90, 199.00)
+[421.4s / 13:32:03] BUILDINGS WaterSource@(204.33, 9.85, 186.69) hp=300/300, OilDeposit@(211.33, 9.85, 191.77) hp=300/300, SleepingMat@(198.50, 9.90, 204.00) hp=50/50, SleepingMat@(196.50, 9.91, 202.00) hp=50/50, SleepingMat@(196.50, 9.95, 199.00) hp=50/50, Storage@(204.50, 10.37, 200.50) hp=300/300, Farm@(207.50, 10.05, 200.50) hp=150/150, Hearth@(202.00, 10.45, 203.50) hp=200/200
+[421.4s / 13:32:03] STOCK Food=100, Soil=88, Stone=20, Wood=18
+[421.4s / 13:32:03] RECOVERY 생존자 1 체력 회복 완료 moldProtection=0.0 break=None illness=
+[421.4s / 13:32:03] RECOVERY 생존자 2 체력 회복 완료 moldProtection=0.0 break=None illness=
+[421.4s / 13:32:03] RECOVERY 생존자 3 체력 회복 완료 moldProtection=0.0 break=None illness=
+[421.4s / 13:32:03] ALERTS 
+[421.4s / 13:32:03] SITE ScienceLab wait=WorkerBusy work=10
+[421.4s / 13:32:03] SITE Toilet wait=WorkerBusy work=4
+[421.4s / 13:32:03] RESEARCH  연구를 직접 선택하세요 completed=
+[421.4s / 13:32:03] KITCHEN Hearth wait= progress=0.69 staged=
+[421.4s / 13:32:03] MEALS total=0 stocked=0
+[451.7s / 13:32:13] wave=0 inWave=False left=448 enemies=0 food=100 soil=88 wood=18 screen=Game frame=6073 speed=3
+[451.7s / 13:32:13] HERO 생존자 1 hp=100.0 down=False satiety=76 mood=46 sleep=False work=False activity=Melee node= delivery=False build= care= pos=(198.89, 10.45, 202.11)
+[451.7s / 13:32:13] HERO 생존자 2 hp=100.0 down=False satiety=76 mood=49 sleep=False work=False activity=Melee node= delivery=False build= care= pos=(197.66, 10.46, 202.14)
+[451.7s / 13:32:13] HERO 생존자 3 hp=100.0 down=False satiety=76 mood=49 sleep=False work=False activity=Melee node= delivery=False build= care= pos=(197.80, 10.53, 199.56)
+[451.7s / 13:32:13] BUILDINGS WaterSource@(204.33, 9.85, 186.69) hp=300/300, OilDeposit@(211.33, 9.85, 191.77) hp=300/300, SleepingMat@(198.50, 9.90, 204.00) hp=50/50, SleepingMat@(196.50, 9.91, 202.00) hp=50/50, SleepingMat@(196.50, 9.95, 199.00) hp=50/50, Storage@(204.50, 10.37, 200.50) hp=300/300, Farm@(207.50, 10.05, 200.50) hp=150/150, Hearth@(202.00, 10.45, 203.50) hp=200/200
+[451.7s / 13:32:13] STOCK Food=100, Soil=88, Stone=20, Wood=18
+[451.7s / 13:32:13] RECOVERY 생존자 1 체력 회복 완료 moldProtection=0.0 break=None illness=
+[451.7s / 13:32:13] RECOVERY 생존자 2 체력 회복 완료 moldProtection=0.0 break=None illness=
+[451.7s / 13:32:13] RECOVERY 생존자 3 체력 회복 완료 moldProtection=0.0 break=None illness=
+[451.7s / 13:32:13] ALERTS 표류물: (92, 279)에 식량 80·재료 40. 5분 안에 운반하세요. | 식품 부패: 식량 1120 → 썩은 식품
+[451.7s / 13:32:13] SITE ScienceLab wait=AwaitingHaul work=10
+[451.7s / 13:32:13] SITE Toilet wait=AwaitingHaul work=4
+[451.7s / 13:32:13] RESEARCH  연구를 직접 선택하세요 completed=
+[451.7s / 13:32:13] KITCHEN Hearth wait= progress=0.69 staged=
+[451.7s / 13:32:13] MEALS total=0 stocked=0
+[481.5s / 13:32:23] COMMANDER_SECONDS work=174.3, idle_or_combat=27.7, sleep=149.4, needs=6.9
+[481.5s / 13:32:23] wave=0 inWave=False left=418 enemies=0 food=81 soil=100 wood=18 screen=Game frame=6210 speed=0
+[481.5s / 13:32:23] HERO 생존자 1 hp=100.0 down=False satiety=48 mood=45 sleep=False work=True activity=Melee node= delivery=True build= care= pos=(202.56, 10.45, 202.39)
+[481.5s / 13:32:23] HERO 생존자 2 hp=100.0 down=False satiety=48 mood=46 sleep=False work=False activity=Gathering node=Dropped Food delivery=False build= care= pos=(204.49, 10.46, 200.20)
+[481.5s / 13:32:23] HERO 생존자 3 hp=100.0 down=False satiety=48 mood=49 sleep=False work=True activity=Gathering node=Dropped Food delivery=False build= care= pos=(203.51, 10.45, 201.21)
+[481.5s / 13:32:23] BUILDINGS WaterSource@(204.33, 9.85, 186.69) hp=300/300, OilDeposit@(211.33, 9.85, 191.77) hp=300/300, SleepingMat@(198.50, 9.90, 204.00) hp=50/50, SleepingMat@(196.50, 9.91, 202.00) hp=50/50, SleepingMat@(196.50, 9.95, 199.00) hp=50/50, Storage@(204.50, 10.37, 200.50) hp=300/300, Farm@(207.50, 10.05, 200.50) hp=150/150, Hearth@(202.00, 10.45, 203.50) hp=200/200
+[481.5s / 13:32:23] STOCK Food=81, Soil=100, Stone=20, Wood=18
+[481.5s / 13:32:23] RECOVERY 생존자 1 체력 회복 완료 moldProtection=0.0 break=None illness=
+[481.5s / 13:32:23] RECOVERY 생존자 2 체력 회복 완료 moldProtection=0.0 break=None illness=
+[481.5s / 13:32:23] RECOVERY 생존자 3 체력 회복 완료 moldProtection=0.0 break=None illness=
+[481.5s / 13:32:23] ALERTS 
+[481.5s / 13:32:23] SITE ScienceLab wait=AwaitingHaul work=10
+[481.5s / 13:32:23] SITE Toilet wait=AwaitingHaul work=4
+[481.5s / 13:32:23] RESEARCH  연구를 직접 선택하세요 completed=
+[481.5s / 13:32:23] KITCHEN Hearth wait=재료 부족/배송 대기 progress=0.00 staged=
+[481.5s / 13:32:23] MEALS total=1 stocked=0
+[481.5s / 13:32:38] STEP {"label":"baseline-480","seconds":120.0,"speed":3.0,"build":[],"buildAt":[],"research":"Herbs","prioritize":"","startWave":false,"stop":false,"designate":false,"combat":false,"defendLine":false,"focusLeader":false,"retreatHealth":35.0,"makeMedicine":false,"prioritizeConstruction":false,"recoveryRoles":false,"cookedDiet":false,"watchBreaks":false,"evadeBreaks":false,"pauseGathering":"","priorities":[],"haul":""}
+[481.5s / 13:32:38] RESEARCH start Herbs accepted=False blocked=과학 연구소 1등급(정착 시대)이 필요합니다. shortage=
+[481.5s / 13:32:38] wave=0 inWave=False left=418 enemies=0 food=81 soil=100 wood=18 screen=Game frame=6484 speed=3
+[481.5s / 13:32:38] HERO 생존자 1 hp=100.0 down=False satiety=48 mood=45 sleep=False work=True activity=Melee node= delivery=True build= care= pos=(202.56, 10.45, 202.39)
+[481.5s / 13:32:38] HERO 생존자 2 hp=100.0 down=False satiety=48 mood=46 sleep=False work=False activity=Gathering node=Dropped Food delivery=False build= care= pos=(204.49, 10.46, 200.20)
+[481.5s / 13:32:38] HERO 생존자 3 hp=100.0 down=False satiety=48 mood=49 sleep=False work=True activity=Gathering node=Dropped Food delivery=False build= care= pos=(203.51, 10.45, 201.21)
+[481.5s / 13:32:38] BUILDINGS WaterSource@(204.33, 9.85, 186.69) hp=300/300, OilDeposit@(211.33, 9.85, 191.77) hp=300/300, SleepingMat@(198.50, 9.90, 204.00) hp=50/50, SleepingMat@(196.50, 9.91, 202.00) hp=50/50, SleepingMat@(196.50, 9.95, 199.00) hp=50/50, Storage@(204.50, 10.37, 200.50) hp=300/300, Farm@(207.50, 10.05, 200.50) hp=150/150, Hearth@(202.00, 10.45, 203.50) hp=200/200
+[481.5s / 13:32:38] STOCK Food=81, Soil=100, Stone=20, Wood=18
+[481.5s / 13:32:38] RECOVERY 생존자 1 체력 회복 완료 moldProtection=0.0 break=None illness=
+[481.5s / 13:32:38] RECOVERY 생존자 2 체력 회복 완료 moldProtection=0.0 break=None illness=
+[481.5s / 13:32:38] RECOVERY 생존자 3 체력 회복 완료 moldProtection=0.0 break=None illness=
+[481.5s / 13:32:38] ALERTS 
+[481.5s / 13:32:38] SITE ScienceLab wait=AwaitingHaul work=10
+[481.5s / 13:32:38] SITE Toilet wait=AwaitingHaul work=4
+[481.5s / 13:32:38] RESEARCH  연구를 직접 선택하세요 completed=
+[481.5s / 13:32:38] KITCHEN Hearth wait=재료 부족/배송 대기 progress=0.00 staged=
+[481.5s / 13:32:38] MEALS total=1 stocked=0
+[511.9s / 13:32:48] wave=0 inWave=False left=388 enemies=0 food=88 soil=100 wood=18 screen=Game frame=6665 speed=3
+[511.9s / 13:32:48] HERO 생존자 1 hp=100.0 down=False satiety=99 mood=45 sleep=False work=False activity=Melee node= delivery=False build= care= pos=(200.74, 10.45, 201.71)
+[511.9s / 13:32:48] HERO 생존자 2 hp=100.0 down=False satiety=99 mood=45 sleep=False work=False activity=Melee node= delivery=False build= care= pos=(204.26, 10.45, 202.11)
+[511.9s / 13:32:48] HERO 생존자 3 hp=100.0 down=False satiety=99 mood=45 sleep=False work=False activity=Melee node= delivery=False build= care= pos=(205.82, 10.45, 203.56)
+[511.9s / 13:32:48] BUILDINGS WaterSource@(204.33, 9.85, 186.69) hp=300/300, OilDeposit@(211.33, 9.85, 191.77) hp=300/300, SleepingMat@(198.50, 9.90, 204.00) hp=50/50, SleepingMat@(196.50, 9.91, 202.00) hp=50/50, SleepingMat@(196.50, 9.95, 199.00) hp=50/50, Storage@(204.50, 10.37, 200.50) hp=300/300, Farm@(207.50, 10.05, 200.50) hp=150/150, Hearth@(202.00, 10.45, 203.50) hp=200/200
+[511.9s / 13:32:48] STOCK Food=88, Soil=100, Stone=20, Wood=18, SimpleMeal=1
+[511.9s / 13:32:48] RECOVERY 생존자 1 체력 회복 완료 moldProtection=0.0 break=None illness=
+[511.9s / 13:32:48] RECOVERY 생존자 2 체력 회복 완료 moldProtection=0.0 break=None illness=
+[511.9s / 13:32:48] RECOVERY 생존자 3 체력 회복 완료 moldProtection=0.0 break=None illness=
+[511.9s / 13:32:48] ALERTS 
+[511.9s / 13:32:48] SITE ScienceLab wait=AwaitingHaul work=10
+[511.9s / 13:32:48] SITE Toilet wait=AwaitingHaul work=4
+[511.9s / 13:32:48] RESEARCH  연구를 직접 선택하세요 completed=
+[511.9s / 13:32:48] KITCHEN Hearth wait=재료 부족/배송 대기 progress=0.00 staged=
+[511.9s / 13:32:48] MEALS total=1 stocked=1
+[542.1s / 13:32:58] wave=0 inWave=False left=358 enemies=0 food=100 soil=100 wood=17 screen=Game frame=6824 speed=3
+[542.1s / 13:32:58] HERO 생존자 1 hp=100.0 down=False satiety=71 mood=45 sleep=False work=False activity=Cooking node= delivery=False build= care= pos=(202.00, 10.45, 202.50)
+[542.1s / 13:32:58] HERO 생존자 2 hp=100.0 down=False satiety=71 mood=45 sleep=False work=True activity=Gathering node=Received PlantingMaterial delivery=False build= care= pos=(200.07, 10.45, 195.62)
+[542.1s / 13:32:58] HERO 생존자 3 hp=100.0 down=False satiety=71 mood=45 sleep=False work=True activity=Melee node= delivery=True build= care= pos=(204.05, 10.47, 199.59)
+[542.1s / 13:32:58] BUILDINGS WaterSource@(204.33, 9.85, 186.69) hp=300/300, OilDeposit@(211.33, 9.85, 191.77) hp=300/300, SleepingMat@(198.50, 9.90, 204.00) hp=50/50, SleepingMat@(196.50, 9.91, 202.00) hp=50/50, SleepingMat@(196.50, 9.95, 199.00) hp=50/50, Storage@(204.50, 10.37, 200.50) hp=300/300, Farm@(207.50, 10.05, 200.50) hp=150/150, Hearth@(202.00, 10.45, 203.50) hp=200/200
+[542.1s / 13:32:58] STOCK Food=100, Soil=100, Stone=20, Wood=17, SimpleMeal=1
+[542.1s / 13:32:58] RECOVERY 생존자 1 체력 회복 완료 moldProtection=0.0 break=None illness=
+[542.1s / 13:32:58] RECOVERY 생존자 2 체력 회복 완료 moldProtection=0.0 break=None illness=
+[542.1s / 13:32:58] RECOVERY 생존자 3 체력 회복 완료 moldProtection=0.0 break=None illness=
+[542.1s / 13:32:58] ALERTS 
+[542.1s / 13:32:58] SITE ScienceLab wait=None work=10
+[542.1s / 13:32:58] SITE Toilet wait=AwaitingHaul work=4
+[542.1s / 13:32:58] RESEARCH  연구를 직접 선택하세요 completed=
+[542.1s / 13:32:58] KITCHEN Hearth wait= progress=0.06 staged=
+[542.1s / 13:32:58] MEALS total=1 stocked=1
+[572.0s / 13:33:08] wave=0 inWave=False left=328 enemies=0 food=100 soil=100 wood=17 screen=Game frame=6967 speed=3
+[572.0s / 13:33:08] HERO 생존자 1 hp=100.0 down=False satiety=43 mood=45 sleep=True work=False activity=Melee node= delivery=False build= care= pos=(198.50, 9.85, 204.00)
+[572.0s / 13:33:08] HERO 생존자 2 hp=100.0 down=False satiety=43 mood=47 sleep=True work=False activity=Melee node= delivery=False build= care= pos=(196.50, 9.86, 202.00)
+[572.0s / 13:33:08] HERO 생존자 3 hp=100.0 down=False satiety=43 mood=46 sleep=True work=False activity=Melee node= delivery=False build= care= pos=(196.50, 9.90, 199.00)
+[572.0s / 13:33:08] BUILDINGS WaterSource@(204.33, 9.85, 186.69) hp=300/300, OilDeposit@(211.33, 9.85, 191.77) hp=300/300, SleepingMat@(198.50, 9.90, 204.00) hp=50/50, SleepingMat@(196.50, 9.91, 202.00) hp=50/50, SleepingMat@(196.50, 9.95, 199.00) hp=50/50, Storage@(204.50, 10.37, 200.50) hp=300/300, Farm@(207.50, 10.05, 200.50) hp=150/150, Hearth@(202.00, 10.45, 203.50) hp=200/200
+[572.0s / 13:33:08] STOCK Food=100, Soil=100, Stone=15, Wood=17, SimpleMeal=1
+[572.0s / 13:33:08] RECOVERY 생존자 1 체력 회복 완료 moldProtection=0.0 break=None illness=
+[572.0s / 13:33:08] RECOVERY 생존자 2 체력 회복 완료 moldProtection=0.0 break=None illness=
+[572.0s / 13:33:08] RECOVERY 생존자 3 체력 회복 완료 moldProtection=0.0 break=None illness=
+[572.0s / 13:33:08] ALERTS 
+[572.0s / 13:33:08] SITE ScienceLab wait=WorkerBusy work=9
+[572.0s / 13:33:08] SITE Toilet wait=WorkerBusy work=4
+[572.0s / 13:33:08] RESEARCH  연구를 직접 선택하세요 completed=
+[572.0s / 13:33:08] KITCHEN Hearth wait= progress=0.58 staged=
+[572.0s / 13:33:08] MEALS total=1 stocked=1
+[601.5s / 13:33:18] COMMANDER_SECONDS work=122.1, idle_or_combat=29.0, needs=52.4, move=1.7, sleep=152.2
+[601.5s / 13:33:18] wave=0 inWave=False left=298 enemies=0 food=100 soil=100 wood=17 screen=Game frame=7128 speed=0
+[601.5s / 13:33:18] HERO 생존자 1 hp=100.0 down=False satiety=95 mood=45 sleep=False work=False activity=Cooking node= delivery=False build= care= pos=(199.12, 10.45, 201.82)
+[601.5s / 13:33:18] HERO 생존자 2 hp=100.0 down=False satiety=95 mood=49 sleep=False work=True activity=Building node= delivery=False build=ScienceLab care= pos=(197.32, 10.53, 200.32)
+[601.5s / 13:33:18] HERO 생존자 3 hp=100.0 down=False satiety=95 mood=48 sleep=False work=True activity=Building node= delivery=False build=ScienceLab care= pos=(198.16, 10.48, 198.71)
+[601.5s / 13:33:18] BUILDINGS WaterSource@(204.33, 9.85, 186.69) hp=300/300, OilDeposit@(211.33, 9.85, 191.77) hp=300/300, SleepingMat@(198.50, 9.90, 204.00) hp=50/50, SleepingMat@(196.50, 9.91, 202.00) hp=50/50, SleepingMat@(196.50, 9.95, 199.00) hp=50/50, Storage@(204.50, 10.37, 200.50) hp=300/300, Farm@(207.50, 10.05, 200.50) hp=150/150, Hearth@(202.00, 10.45, 203.50) hp=200/200
+[601.5s / 13:33:18] STOCK Food=100, Soil=100, Stone=15, Wood=17, SimpleMeal=1
+[601.5s / 13:33:18] RECOVERY 생존자 1 체력 회복 완료 moldProtection=0.0 break=None illness=
+[601.5s / 13:33:18] RECOVERY 생존자 2 체력 회복 완료 moldProtection=0.0 break=None illness=
+[601.5s / 13:33:18] RECOVERY 생존자 3 체력 회복 완료 moldProtection=0.0 break=None illness=
+[601.5s / 13:33:18] ALERTS 
+[601.5s / 13:33:18] SITE ScienceLab wait=None work=9
+[601.5s / 13:33:18] SITE Toilet wait=AwaitingHaul work=4
+[601.5s / 13:33:18] RESEARCH  연구를 직접 선택하세요 completed=
+[601.5s / 13:33:18] KITCHEN Hearth wait= progress=0.58 staged=
+[601.5s / 13:33:18] MEALS total=1 stocked=1
+[601.5s / 13:33:37] STEP {"label":"baseline-600","seconds":120.0,"speed":3.0,"build":[],"buildAt":[],"research":"Herbs","prioritize":"","startWave":false,"stop":false,"designate":false,"combat":false,"defendLine":false,"focusLeader":false,"retreatHealth":35.0,"makeMedicine":false,"prioritizeConstruction":false,"recoveryRoles":false,"cookedDiet":false,"watchBreaks":false,"evadeBreaks":false,"pauseGathering":"","priorities":[],"haul":""}
+[601.5s / 13:33:37] RESEARCH start Herbs accepted=False blocked=과학 연구소 1등급(정착 시대)이 필요합니다. shortage=
+[601.5s / 13:33:37] wave=0 inWave=False left=298 enemies=0 food=100 soil=100 wood=17 screen=Game frame=7440 speed=3
+[601.5s / 13:33:37] HERO 생존자 1 hp=100.0 down=False satiety=95 mood=45 sleep=False work=False activity=Cooking node= delivery=False build= care= pos=(199.12, 10.45, 201.82)
+[601.5s / 13:33:37] HERO 생존자 2 hp=100.0 down=False satiety=95 mood=49 sleep=False work=True activity=Building node= delivery=False build=ScienceLab care= pos=(197.32, 10.53, 200.32)
+[601.5s / 13:33:37] HERO 생존자 3 hp=100.0 down=False satiety=95 mood=48 sleep=False work=True activity=Building node= delivery=False build=ScienceLab care= pos=(198.16, 10.48, 198.71)
+[601.5s / 13:33:37] BUILDINGS WaterSource@(204.33, 9.85, 186.69) hp=300/300, OilDeposit@(211.33, 9.85, 191.77) hp=300/300, SleepingMat@(198.50, 9.90, 204.00) hp=50/50, SleepingMat@(196.50, 9.91, 202.00) hp=50/50, SleepingMat@(196.50, 9.95, 199.00) hp=50/50, Storage@(204.50, 10.37, 200.50) hp=300/300, Farm@(207.50, 10.05, 200.50) hp=150/150, Hearth@(202.00, 10.45, 203.50) hp=200/200
+[601.5s / 13:33:37] STOCK Food=100, Soil=100, Stone=15, Wood=17, SimpleMeal=1
+[601.5s / 13:33:37] RECOVERY 생존자 1 체력 회복 완료 moldProtection=0.0 break=None illness=
+[601.5s / 13:33:37] RECOVERY 생존자 2 체력 회복 완료 moldProtection=0.0 break=None illness=
+[601.5s / 13:33:37] RECOVERY 생존자 3 체력 회복 완료 moldProtection=0.0 break=None illness=
+[601.5s / 13:33:37] ALERTS 
+[601.5s / 13:33:37] SITE ScienceLab wait=None work=9
+[601.5s / 13:33:37] SITE Toilet wait=AwaitingHaul work=4
+[601.5s / 13:33:37] RESEARCH  연구를 직접 선택하세요 completed=
+[601.5s / 13:33:37] KITCHEN Hearth wait= progress=0.58 staged=
+[601.5s / 13:33:37] MEALS total=1 stocked=1
+[631.9s / 13:33:47] wave=0 inWave=False left=268 enemies=0 food=100 soil=100 wood=17 screen=Game frame=7663 speed=3
+[631.9s / 13:33:47] HERO 생존자 1 hp=100.0 down=False satiety=67 mood=45 sleep=False work=True activity=Gathering node=Dropped Food delivery=False build= care= pos=(205.33, 10.45, 202.31)
+[631.9s / 13:33:47] HERO 생존자 2 hp=100.0 down=False satiety=67 mood=47 sleep=False work=False activity=Cooking node= delivery=False build= care= pos=(202.00, 10.45, 202.50)
+[631.9s / 13:33:47] HERO 생존자 3 hp=100.0 down=False satiety=67 mood=46 sleep=False work=True activity=Farming node=Farm delivery=False build= care= pos=(204.55, 10.45, 200.52)
+[631.9s / 13:33:47] BUILDINGS WaterSource@(204.33, 9.85, 186.69) hp=300/300, OilDeposit@(211.33, 9.85, 191.77) hp=300/300, SleepingMat@(198.50, 9.90, 204.00) hp=50/50, SleepingMat@(196.50, 9.91, 202.00) hp=50/50, SleepingMat@(196.50, 9.95, 199.00) hp=50/50, Storage@(204.50, 10.37, 200.50) hp=300/300, Farm@(207.50, 10.05, 200.50) hp=150/150, Hearth@(202.00, 10.45, 203.50) hp=200/200, ScienceLab@(200.50, 10.85, 196.50) hp=270/270
+[631.9s / 13:33:47] STOCK Food=100, Soil=100, Stone=15, Wood=17, SimpleMeal=2
+[631.9s / 13:33:47] RECOVERY 생존자 1 체력 회복 완료 moldProtection=0.0 break=None illness=
+[631.9s / 13:33:47] RECOVERY 생존자 2 체력 회복 완료 moldProtection=0.0 break=None illness=
+[631.9s / 13:33:47] RECOVERY 생존자 3 체력 회복 완료 moldProtection=0.0 break=None illness=
+[631.9s / 13:33:47] ALERTS 정착지 연구대 건설 완료. | 식품 부패: 식량 1 → 썩은 식품
+[631.9s / 13:33:47] SITE Toilet wait=AwaitingHaul work=4
+[631.9s / 13:33:47] RESEARCH  연구를 직접 선택하세요 completed=
+[631.9s / 13:33:47] KITCHEN Hearth wait= progress=0.09 staged=
+[631.9s / 13:33:47] MEALS total=2 stocked=2
+[662.1s / 13:33:57] wave=0 inWave=False left=238 enemies=0 food=98 soil=100 wood=23 screen=Game frame=7879 speed=3
+[662.1s / 13:33:57] HERO 생존자 1 hp=100.0 down=False satiety=39 mood=45 sleep=False work=False activity=Melee node= delivery=False build= care= pos=(204.34, 10.45, 200.36)
+[662.1s / 13:33:57] HERO 생존자 2 hp=100.0 down=False satiety=39 mood=46 sleep=False work=True activity=Gathering node=Dropped Food delivery=False build= care= pos=(202.75, 10.45, 202.50)
+[662.1s / 13:33:57] HERO 생존자 3 hp=100.0 down=False satiety=39 mood=45 sleep=False work=False activity=Cooking node= delivery=False build= care= pos=(202.00, 10.45, 202.50)
+[662.1s / 13:33:57] BUILDINGS WaterSource@(204.33, 9.85, 186.69) hp=300/300, OilDeposit@(211.33, 9.85, 191.77) hp=300/300, SleepingMat@(198.50, 9.90, 204.00) hp=50/50, SleepingMat@(196.50, 9.91, 202.00) hp=50/50, SleepingMat@(196.50, 9.95, 199.00) hp=50/50, Storage@(204.50, 10.37, 200.50) hp=300/300, Farm@(207.50, 10.05, 200.50) hp=150/150, Hearth@(202.00, 10.45, 203.50) hp=200/200, ScienceLab@(200.50, 10.85, 196.50) hp=270/270
+[662.1s / 13:33:57] STOCK Food=98, Soil=100, Stone=15, Wood=23, SimpleMeal=3
+[662.1s / 13:33:57] RECOVERY 생존자 1 체력 회복 완료 moldProtection=0.0 break=None illness=
+[662.1s / 13:33:57] RECOVERY 생존자 2 체력 회복 완료 moldProtection=0.0 break=None illness=
+[662.1s / 13:33:57] RECOVERY 생존자 3 체력 회복 완료 moldProtection=0.0 break=None illness=
+[662.1s / 13:33:57] ALERTS 식품 부패: 식량 6 → 썩은 식품
+[662.1s / 13:33:57] SITE Toilet wait=AwaitingHaul work=4
+[662.1s / 13:33:57] RESEARCH  연구를 직접 선택하세요 completed=
+[662.1s / 13:33:57] KITCHEN Hearth wait= progress=0.27 staged=
+[662.1s / 13:33:57] MEALS total=3 stocked=3
+[691.9s / 13:34:07] wave=0 inWave=False left=208 enemies=0 food=94 soil=92 wood=23 screen=Game frame=8140 speed=3
+[691.9s / 13:34:07] HERO 생존자 1 hp=100.0 down=False satiety=90 mood=45 sleep=False work=True activity=Gathering node=Dropped Soil delivery=False build= care= pos=(203.90, 10.45, 202.47)
+[691.9s / 13:34:07] HERO 생존자 2 hp=100.0 down=False satiety=90 mood=45 sleep=False work=False activity=Melee node= delivery=False build= care= pos=(200.59, 10.46, 205.55)
+[691.9s / 13:34:07] HERO 생존자 3 hp=100.0 down=False satiety=90 mood=45 sleep=False work=False activity=Melee node= delivery=False build= care= pos=(203.24, 10.45, 201.30)
+[691.9s / 13:34:07] BUILDINGS WaterSource@(204.33, 9.85, 186.69) hp=300/300, OilDeposit@(211.33, 9.85, 191.77) hp=300/300, SleepingMat@(198.50, 9.90, 204.00) hp=50/50, SleepingMat@(196.50, 9.91, 202.00) hp=50/50, SleepingMat@(196.50, 9.95, 199.00) hp=50/50, Storage@(204.50, 10.37, 200.50) hp=300/300, Farm@(207.50, 10.05, 200.50) hp=150/150, Hearth@(202.00, 10.45, 203.50) hp=200/200, ScienceLab@(200.50, 10.85, 196.50) hp=270/270
+[691.9s / 13:34:07] STOCK Food=94, Soil=92, Stone=15, Wood=23, SimpleMeal=3
+[691.9s / 13:34:07] RECOVERY 생존자 1 체력 회복 완료 moldProtection=0.0 break=None illness=
+[691.9s / 13:34:07] RECOVERY 생존자 2 체력 회복 완료 moldProtection=0.0 break=None illness=
+[691.9s / 13:34:07] RECOVERY 생존자 3 체력 회복 완료 moldProtection=0.0 break=None illness=
+[691.9s / 13:34:07] ALERTS 식품 부패: 식량 4 → 썩은 식품
+[691.9s / 13:34:07] SITE Toilet wait=None work=1
+[691.9s / 13:34:07] RESEARCH  연구를 직접 선택하세요 completed=
+[691.9s / 13:34:07] KITCHEN Hearth wait=재료 부족/배송 대기 progress=0.00 staged=
+[691.9s / 13:34:07] MEALS total=4 stocked=3
+[721.7s / 13:34:17] COMMANDER_SECONDS work=192.6, idle_or_combat=34.6, needs=62.7, move=4.5, sleep=63.7
+[721.7s / 13:34:17] wave=0 inWave=False left=178 enemies=0 food=94 soil=100 wood=23 screen=Game frame=8328 speed=0
+[721.7s / 13:34:17] HERO 생존자 1 hp=100.0 down=False satiety=63 mood=45 sleep=True work=False activity=Melee node= delivery=False build= care= pos=(198.50, 9.85, 204.00)
+[721.7s / 13:34:17] HERO 생존자 2 hp=100.0 down=False satiety=63 mood=47 sleep=True work=False activity=Melee node= delivery=False build= care= pos=(196.50, 9.86, 202.00)
+[721.7s / 13:34:17] HERO 생존자 3 hp=100.0 down=False satiety=63 mood=46 sleep=True work=False activity=Melee node= delivery=False build= care= pos=(196.50, 9.90, 199.00)
+[721.7s / 13:34:17] BUILDINGS WaterSource@(204.33, 9.85, 186.69) hp=300/300, OilDeposit@(211.33, 9.85, 191.77) hp=300/300, SleepingMat@(198.50, 9.90, 204.00) hp=50/50, SleepingMat@(196.50, 9.91, 202.00) hp=50/50, SleepingMat@(196.50, 9.95, 199.00) hp=50/50, Storage@(204.50, 10.37, 200.50) hp=300/300, Farm@(207.50, 10.05, 200.50) hp=150/150, Hearth@(202.00, 10.45, 203.50) hp=200/200, ScienceLab@(200.50, 10.85, 196.50) hp=270/270, Toilet@(200.50, 10.35, 204.50) hp=100/100
+[721.7s / 13:34:17] STOCK Food=94, Soil=100, Stone=15, Wood=23, SimpleMeal=3
+[721.7s / 13:34:17] RECOVERY 생존자 1 체력 회복 완료 moldProtection=0.0 break=None illness=
+[721.7s / 13:34:17] RECOVERY 생존자 2 체력 회복 완료 moldProtection=0.0 break=None illness=
+[721.7s / 13:34:17] RECOVERY 생존자 3 체력 회복 완료 moldProtection=0.0 break=None illness=
+[721.7s / 13:34:17] ALERTS 식품 부패: 식량 3 → 썩은 식품
+[721.7s / 13:34:17] RESEARCH  연구를 직접 선택하세요 completed=
+[721.7s / 13:34:17] KITCHEN Hearth wait=재료 부족/배송 대기 progress=0.00 staged=
+[721.7s / 13:34:17] MEALS total=4 stocked=3
+[721.7s / 13:34:25] STEP {"label":"baseline-720","seconds":120.0,"speed":3.0,"build":[],"buildAt":[],"research":"Herbs","prioritize":"","startWave":false,"stop":false,"designate":false,"combat":false,"defendLine":false,"focusLeader":false,"retreatHealth":35.0,"makeMedicine":false,"prioritizeConstruction":false,"recoveryRoles":false,"cookedDiet":false,"watchBreaks":false,"evadeBreaks":false,"pauseGathering":"","priorities":[],"haul":""}
+[721.7s / 13:34:25] RESEARCH start Herbs accepted=True blocked=이미 진행 중인 연구입니다. shortage=
+[721.7s / 13:34:25] wave=0 inWave=False left=178 enemies=0 food=69 soil=70 wood=23 screen=Game frame=8463 speed=3
+[721.7s / 13:34:25] HERO 생존자 1 hp=100.0 down=False satiety=63 mood=45 sleep=True work=False activity=Melee node= delivery=False build= care= pos=(198.50, 9.85, 204.00)
+[721.7s / 13:34:25] HERO 생존자 2 hp=100.0 down=False satiety=63 mood=47 sleep=True work=False activity=Melee node= delivery=False build= care= pos=(196.50, 9.86, 202.00)
+[721.7s / 13:34:25] HERO 생존자 3 hp=100.0 down=False satiety=63 mood=46 sleep=True work=False activity=Melee node= delivery=False build= care= pos=(196.50, 9.90, 199.00)
+[721.7s / 13:34:25] BUILDINGS WaterSource@(204.33, 9.85, 186.69) hp=300/300, OilDeposit@(211.33, 9.85, 191.77) hp=300/300, SleepingMat@(198.50, 9.90, 204.00) hp=50/50, SleepingMat@(196.50, 9.91, 202.00) hp=50/50, SleepingMat@(196.50, 9.95, 199.00) hp=50/50, Storage@(204.50, 10.37, 200.50) hp=300/300, Farm@(207.50, 10.05, 200.50) hp=150/150, Hearth@(202.00, 10.45, 203.50) hp=200/200, ScienceLab@(200.50, 10.85, 196.50) hp=270/270, Toilet@(200.50, 10.35, 204.50) hp=100/100
+[721.7s / 13:34:25] STOCK Food=69, Soil=70, Stone=15, Wood=23, SimpleMeal=3
+[721.7s / 13:34:25] RECOVERY 생존자 1 체력 회복 완료 moldProtection=0.0 break=None illness=
+[721.7s / 13:34:25] RECOVERY 생존자 2 체력 회복 완료 moldProtection=0.0 break=None illness=
+[721.7s / 13:34:25] RECOVERY 생존자 3 체력 회복 완료 moldProtection=0.0 break=None illness=
+[721.7s / 13:34:25] ALERTS 
+[721.7s / 13:34:25] RESEARCH 약초 처방 기여 0 · 아래 연구소의 담당·작업표·복귀 상태를 확인하세요 completed=
+[721.7s / 13:34:25] KITCHEN Hearth wait=재료 부족/배송 대기 progress=0.00 staged=
+[721.7s / 13:34:25] MEALS total=4 stocked=3
+[752.4s / 13:34:35] wave=0 inWave=False left=148 enemies=0 food=69 soil=70 wood=23 screen=Game frame=8646 speed=3
+[752.4s / 13:34:35] HERO 생존자 1 hp=100.0 down=False satiety=34 mood=40 sleep=False work=False activity=Melee node= delivery=False build= care= pos=(196.22, 10.46, 203.61)
+[752.4s / 13:34:35] HERO 생존자 2 hp=100.0 down=False satiety=34 mood=43 sleep=False work=False activity=Melee node= delivery=False build= care= pos=(200.06, 10.46, 201.51)
+[752.4s / 13:34:35] HERO 생존자 3 hp=100.0 down=False satiety=34 mood=43 sleep=False work=False activity=Melee node= delivery=False build= care= pos=(194.29, 10.53, 200.13)
+[752.4s / 13:34:35] BUILDINGS WaterSource@(204.33, 9.85, 186.69) hp=300/300, OilDeposit@(211.33, 9.85, 191.77) hp=300/300, SleepingMat@(198.50, 9.90, 204.00) hp=50/50, SleepingMat@(196.50, 9.91, 202.00) hp=50/50, SleepingMat@(196.50, 9.95, 199.00) hp=50/50, Storage@(204.50, 10.37, 200.50) hp=300/300, Farm@(207.50, 10.05, 200.50) hp=150/150, Hearth@(202.00, 10.45, 203.50) hp=200/200, ScienceLab@(200.50, 10.85, 196.50) hp=270/270, Toilet@(200.50, 10.35, 204.50) hp=100/100
+[752.4s / 13:34:35] STOCK Food=69, Soil=70, Stone=15, Wood=23, SimpleMeal=3
+[752.4s / 13:34:35] RECOVERY 생존자 1 체력 회복 완료 moldProtection=0.0 break=None illness=
+[752.4s / 13:34:35] RECOVERY 생존자 2 체력 회복 완료 moldProtection=0.0 break=None illness=
+[752.4s / 13:34:35] RECOVERY 생존자 3 체력 회복 완료 moldProtection=0.0 break=None illness=
+[752.4s / 13:34:35] ALERTS 이주민 무리 합류 제안 — 화면의 수락/거절 | 웨이브 1까지 하루 남았습니다. 방어를 준비하세요. | 표류물: 기한 만료 ×2 | 교역 캐러밴: 계절 방문 보장 — 교역 가능 시간 90초 | 이주민 무리: 장수 1명이 합류를 청합니다. 90초 안에 수락·거절하세요.
+[752.4s / 13:34:35] RESEARCH 약초 처방 기여 0 · 아래 연구소의 담당·작업표·복귀 상태를 확인하세요 completed=
+[752.4s / 13:34:35] KITCHEN Hearth wait=재료 부족/배송 대기 progress=0.00 staged=
+[752.4s / 13:34:35] MEALS total=4 stocked=3
+[782.2s / 13:34:45] wave=0 inWave=False left=118 enemies=0 food=69 soil=70 wood=23 screen=Game frame=8772 speed=3
+[782.2s / 13:34:45] HERO 생존자 1 hp=100.0 down=False satiety=86 mood=41 sleep=False work=False activity=Melee node= delivery=False build= care= pos=(197.43, 10.45, 208.09)
+[782.2s / 13:34:45] HERO 생존자 2 hp=100.0 down=False satiety=86 mood=43 sleep=False work=False activity=Melee node= delivery=False build= care= pos=(201.26, 10.45, 202.50)
+[782.2s / 13:34:45] HERO 생존자 3 hp=100.0 down=False satiety=86 mood=44 sleep=False work=False activity=Melee node= delivery=False build= care= pos=(193.76, 10.47, 201.30)
+[782.2s / 13:34:45] BUILDINGS WaterSource@(204.33, 9.85, 186.69) hp=300/300, OilDeposit@(211.33, 9.85, 191.77) hp=300/300, SleepingMat@(198.50, 9.90, 204.00) hp=50/50, SleepingMat@(196.50, 9.91, 202.00) hp=50/50, SleepingMat@(196.50, 9.95, 199.00) hp=50/50, Storage@(204.50, 10.37, 200.50) hp=300/300, Farm@(207.50, 10.05, 200.50) hp=150/150, Hearth@(202.00, 10.45, 203.50) hp=200/200, ScienceLab@(200.50, 10.85, 196.50) hp=270/270, Toilet@(200.50, 10.35, 204.50) hp=100/100
+[782.2s / 13:34:45] STOCK Food=69, Soil=70, Stone=15, Wood=23, SimpleMeal=3
+[782.2s / 13:34:45] RECOVERY 생존자 1 체력 회복 완료 moldProtection=0.0 break=None illness=
+[782.2s / 13:34:45] RECOVERY 생존자 2 체력 회복 완료 moldProtection=0.0 break=None illness=
+[782.2s / 13:34:45] RECOVERY 생존자 3 체력 회복 완료 moldProtection=0.0 break=None illness=
+[782.2s / 13:34:45] ALERTS 이주민 무리 합류 제안 — 화면의 수락/거절
+[782.2s / 13:34:45] RESEARCH 약초 처방 기여 0 · 아래 연구소의 담당·작업표·복귀 상태를 확인하세요 completed=
+[782.2s / 13:34:45] KITCHEN Hearth wait=재료 부족/배송 대기 progress=0.00 staged=
+[782.2s / 13:34:45] MEALS total=4 stocked=3
+[812.1s / 13:34:56] wave=0 inWave=False left=88 enemies=0 food=67 soil=70 wood=23 screen=Game frame=8913 speed=3
+[812.1s / 13:34:56] HERO 생존자 1 hp=100.0 down=False satiety=58 mood=49 sleep=False work=True activity=Melee node= delivery=True build= care= pos=(205.56, 10.45, 200.96)
+[812.1s / 13:34:56] HERO 생존자 2 hp=100.0 down=False satiety=58 mood=47 sleep=False work=True activity=Gathering node=Dropped Food delivery=False build= care= pos=(203.25, 10.45, 203.21)
+[812.1s / 13:34:56] HERO 생존자 3 hp=100.0 down=False satiety=58 mood=51 sleep=False work=True activity=Gathering node=Dropped Soil delivery=False build= care= pos=(204.96, 10.45, 203.72)
+[812.1s / 13:34:56] BUILDINGS WaterSource@(204.33, 9.85, 186.69) hp=300/300, OilDeposit@(211.33, 9.85, 191.77) hp=300/300, SleepingMat@(198.50, 9.90, 204.00) hp=50/50, SleepingMat@(196.50, 9.91, 202.00) hp=50/50, SleepingMat@(196.50, 9.95, 199.00) hp=50/50, Storage@(204.50, 10.37, 200.50) hp=300/300, Farm@(207.50, 10.05, 200.50) hp=150/150, Hearth@(202.00, 10.45, 203.50) hp=200/200, ScienceLab@(200.50, 10.85, 196.50) hp=270/270, Toilet@(200.50, 10.35, 204.50) hp=100/100
+[812.1s / 13:34:56] STOCK Food=67, Soil=70, Stone=15, Wood=23, SimpleMeal=3
+[812.1s / 13:34:56] RECOVERY 생존자 1 체력 회복 완료 moldProtection=0.0 break=None illness=
+[812.1s / 13:34:56] RECOVERY 생존자 2 체력 회복 완료 moldProtection=0.0 break=None illness=
+[812.1s / 13:34:56] RECOVERY 생존자 3 체력 회복 완료 moldProtection=0.0 break=None illness=
+[812.1s / 13:34:56] ALERTS 이주민 무리 합류 제안 — 화면의 수락/거절
+[812.1s / 13:34:56] RESEARCH 약초 처방 기여 0 · 아래 연구소의 담당·작업표·복귀 상태를 확인하세요 completed=
+[812.1s / 13:34:56] KITCHEN Hearth wait=재료 부족/배송 대기 progress=0.00 staged=
+[812.1s / 13:34:56] MEALS total=4 stocked=3
+[841.7s / 13:35:06] COMMANDER_SECONDS sleep=83.4, needs=165.0, idle_or_combat=21.5, work=87.9
+[841.7s / 13:35:06] wave=0 inWave=False left=58 enemies=0 food=100 soil=92 wood=23 screen=Game frame=9107 speed=0
+[841.7s / 13:35:06] HERO 생존자 1 hp=100.0 down=False satiety=31 mood=51 sleep=False work=False activity=Cooking node= delivery=False build= care= pos=(202.00, 10.45, 202.50)
+[841.7s / 13:35:06] HERO 생존자 2 hp=100.0 down=False satiety=31 mood=49 sleep=False work=True activity=Gathering node=Dropped Soil delivery=False build= care= pos=(208.27, 10.45, 205.85)
+[841.7s / 13:35:06] HERO 생존자 3 hp=100.0 down=False satiety=31 mood=47 sleep=False work=False activity=Melee node= delivery=False build= care= pos=(207.29, 10.45, 202.59)
+[841.7s / 13:35:06] BUILDINGS WaterSource@(204.33, 9.85, 186.69) hp=300/300, OilDeposit@(211.33, 9.85, 191.77) hp=300/300, SleepingMat@(198.50, 9.90, 204.00) hp=50/50, SleepingMat@(196.50, 9.91, 202.00) hp=50/50, SleepingMat@(196.50, 9.95, 199.00) hp=50/50, Storage@(204.50, 10.37, 200.50) hp=300/300, Farm@(207.50, 10.05, 200.50) hp=150/150, Hearth@(202.00, 10.45, 203.50) hp=200/200, ScienceLab@(200.50, 10.85, 196.50) hp=270/270, Toilet@(200.50, 10.35, 204.50) hp=100/100
+[841.7s / 13:35:06] STOCK Food=100, Soil=92, Stone=15, Wood=23, SimpleMeal=5
+[841.7s / 13:35:06] RECOVERY 생존자 1 체력 회복 완료 moldProtection=0.0 break=None illness=
+[841.7s / 13:35:06] RECOVERY 생존자 2 체력 회복 완료 moldProtection=0.0 break=None illness=
+[841.7s / 13:35:06] RECOVERY 생존자 3 체력 회복 완료 moldProtection=0.0 break=None illness=
+[841.7s / 13:35:06] ALERTS 이주민 무리: 기한 만료: 떠났습니다 | 이주민 무리가 떠났습니다 (기한 만료)
+[841.7s / 13:35:06] RESEARCH 약초 처방 기여 0 · 아래 연구소의 담당·작업표·복귀 상태를 확인하세요 completed=
+[841.7s / 13:35:06] KITCHEN Hearth wait= progress=0.95 staged=
+[841.7s / 13:35:06] MEALS total=5 stocked=5
+[841.7s / 13:35:23] STEP {"label":"baseline-840","seconds":40.0,"speed":3.0,"build":[],"buildAt":[],"research":"Herbs","prioritize":"","startWave":false,"stop":false,"designate":false,"combat":false,"defendLine":false,"focusLeader":false,"retreatHealth":35.0,"makeMedicine":false,"prioritizeConstruction":false,"recoveryRoles":false,"cookedDiet":false,"watchBreaks":false,"evadeBreaks":false,"pauseGathering":"","priorities":[],"haul":""}
+[841.7s / 13:35:23] RESEARCH start Herbs accepted=False blocked=이미 진행 중인 연구입니다. shortage=
+[841.7s / 13:35:23] ASSIGN researcher 생존자 1
+[841.7s / 13:35:23] wave=0 inWave=False left=58 enemies=0 food=100 soil=92 wood=23 screen=Game frame=9575 speed=3
+[841.7s / 13:35:23] HERO 생존자 1 hp=100.0 down=False satiety=31 mood=51 sleep=False work=False activity=Research node= delivery=False build= care= pos=(202.00, 10.45, 202.50)
+[841.7s / 13:35:23] HERO 생존자 2 hp=100.0 down=False satiety=31 mood=49 sleep=False work=True activity=Gathering node=Dropped Soil delivery=False build= care= pos=(208.27, 10.45, 205.85)
+[841.7s / 13:35:23] HERO 생존자 3 hp=100.0 down=False satiety=31 mood=47 sleep=False work=False activity=Melee node= delivery=False build= care= pos=(207.29, 10.45, 202.59)
+[841.7s / 13:35:23] BUILDINGS WaterSource@(204.33, 9.85, 186.69) hp=300/300, OilDeposit@(211.33, 9.85, 191.77) hp=300/300, SleepingMat@(198.50, 9.90, 204.00) hp=50/50, SleepingMat@(196.50, 9.91, 202.00) hp=50/50, SleepingMat@(196.50, 9.95, 199.00) hp=50/50, Storage@(204.50, 10.37, 200.50) hp=300/300, Farm@(207.50, 10.05, 200.50) hp=150/150, Hearth@(202.00, 10.45, 203.50) hp=200/200, ScienceLab@(200.50, 10.85, 196.50) hp=270/270, Toilet@(200.50, 10.35, 204.50) hp=100/100
+[841.7s / 13:35:23] STOCK Food=100, Soil=92, Stone=15, Wood=23, SimpleMeal=5
+[841.7s / 13:35:23] RECOVERY 생존자 1 체력 회복 완료 moldProtection=0.0 break=None illness=
+[841.7s / 13:35:23] RECOVERY 생존자 2 체력 회복 완료 moldProtection=0.0 break=None illness=
+[841.7s / 13:35:23] RECOVERY 생존자 3 체력 회복 완료 moldProtection=0.0 break=None illness=
+[841.7s / 13:35:23] ALERTS 
+[841.7s / 13:35:23] RESEARCH 약초 처방 현재 0.64 연구량/초 · 연속 작업 313초 남음(게임 시간) completed=
+[841.7s / 13:35:23] KITCHEN Hearth wait= progress=0.95 staged=
+[841.7s / 13:35:23] MEALS total=5 stocked=5
+[872.1s / 13:35:33] wave=0 inWave=False left=28 enemies=0 food=100 soil=92 wood=23 screen=Game frame=9814 speed=3
+[872.1s / 13:35:33] HERO 생존자 1 hp=100.0 down=False satiety=82 mood=51 sleep=True work=False activity=Research node= delivery=False build= care= pos=(198.50, 9.85, 204.00)
+[872.1s / 13:35:33] HERO 생존자 2 hp=100.0 down=False satiety=82 mood=50 sleep=True work=False activity=Melee node= delivery=False build= care= pos=(196.50, 9.86, 202.00)
+[872.1s / 13:35:33] HERO 생존자 3 hp=100.0 down=False satiety=82 mood=47 sleep=True work=False activity=Melee node= delivery=False build= care= pos=(196.50, 9.90, 199.00)
+[872.1s / 13:35:33] BUILDINGS WaterSource@(204.33, 9.85, 186.69) hp=300/300, OilDeposit@(211.33, 9.85, 191.77) hp=300/300, SleepingMat@(198.50, 9.90, 204.00) hp=50/50, SleepingMat@(196.50, 9.91, 202.00) hp=50/50, SleepingMat@(196.50, 9.95, 199.00) hp=50/50, Storage@(204.50, 10.37, 200.50) hp=300/300, Farm@(207.50, 10.05, 200.50) hp=150/150, Hearth@(202.00, 10.45, 203.50) hp=200/200, ScienceLab@(200.50, 10.85, 196.50) hp=270/270, Toilet@(200.50, 10.35, 204.50) hp=100/100
+[872.1s / 13:35:33] STOCK Food=100, Soil=92, Stone=15, Wood=23, SimpleMeal=5
+[872.1s / 13:35:33] RECOVERY 생존자 1 체력 회복 완료 moldProtection=0.0 break=None illness=
+[872.1s / 13:35:33] RECOVERY 생존자 2 체력 회복 완료 moldProtection=0.0 break=None illness=
+[872.1s / 13:35:33] RECOVERY 생존자 3 체력 회복 완료 moldProtection=0.0 break=None illness=
+[872.1s / 13:35:33] ALERTS 
+[872.1s / 13:35:33] RESEARCH 약초 처방 기여 0 · 아래 연구소의 담당·작업표·복귀 상태를 확인하세요 completed=
+[872.1s / 13:35:33] KITCHEN Hearth wait= progress=0.95 staged=
+[872.1s / 13:35:33] MEALS total=5 stocked=5
+[882.2s / 13:35:37] COMMANDER_SECONDS work=0.8, idle_or_combat=1.7, needs=30.7, sleep=85.9
+[882.2s / 13:35:37] wave=0 inWave=False left=18 enemies=0 food=100 soil=92 wood=23 screen=Game frame=9875 speed=0
+[882.2s / 13:35:37] HERO 생존자 1 hp=100.0 down=False satiety=73 mood=52 sleep=True work=False activity=Research node= delivery=False build= care= pos=(198.50, 9.85, 204.00)
+[882.2s / 13:35:37] HERO 생존자 2 hp=100.0 down=False satiety=73 mood=50 sleep=True work=False activity=Melee node= delivery=False build= care= pos=(196.50, 9.86, 202.00)
+[882.2s / 13:35:37] HERO 생존자 3 hp=100.0 down=False satiety=73 mood=48 sleep=True work=False activity=Melee node= delivery=False build= care= pos=(196.50, 9.90, 199.00)
+[882.2s / 13:35:37] BUILDINGS WaterSource@(204.33, 9.85, 186.69) hp=300/300, OilDeposit@(211.33, 9.85, 191.77) hp=300/300, SleepingMat@(198.50, 9.90, 204.00) hp=50/50, SleepingMat@(196.50, 9.91, 202.00) hp=50/50, SleepingMat@(196.50, 9.95, 199.00) hp=50/50, Storage@(204.50, 10.37, 200.50) hp=300/300, Farm@(207.50, 10.05, 200.50) hp=150/150, Hearth@(202.00, 10.45, 203.50) hp=200/200, ScienceLab@(200.50, 10.85, 196.50) hp=270/270, Toilet@(200.50, 10.35, 204.50) hp=100/100
+[882.2s / 13:35:37] STOCK Food=100, Soil=92, Stone=15, Wood=23, SimpleMeal=5
+[882.2s / 13:35:37] RECOVERY 생존자 1 체력 회복 완료 moldProtection=0.0 break=None illness=
+[882.2s / 13:35:37] RECOVERY 생존자 2 체력 회복 완료 moldProtection=0.0 break=None illness=
+[882.2s / 13:35:37] RECOVERY 생존자 3 체력 회복 완료 moldProtection=0.0 break=None illness=
+[882.2s / 13:35:37] ALERTS 
+[882.2s / 13:35:37] RESEARCH 약초 처방 기여 0 · 아래 연구소의 담당·작업표·복귀 상태를 확인하세요 completed=
+[882.2s / 13:35:37] KITCHEN Hearth wait= progress=0.95 staged=
+[882.2s / 13:35:37] MEALS total=5 stocked=5

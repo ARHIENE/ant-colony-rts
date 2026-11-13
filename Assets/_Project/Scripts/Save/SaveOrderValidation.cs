@@ -53,7 +53,8 @@ namespace AntColony.Save
                     && F(s.attackTimer) && F(s.searchTimer), "병사");
                 Check(w.state >= 0 && w.state <= 8 && Enum.IsDefined(typeof(ResourceType), w.fetchType) && w.fetchAmount >= 0 && N(w.buildTimer) && w.constructionStep >= 0 && w.constructionStep <= 2, "일꾼");
                 Check(F(d.huntCooldown) && F(d.workScan) && (d.serviceJob == 0 || Units.CommanderWorkState.Index((Units.CommanderJobs)d.serviceJob) >= 0), "장수 작업");
-                foreach (var key in new[] { s.target, w.node, w.deposit, w.construction, w.delivery, w.fetchHost, w.fishingNode, d.service, d.hunt, d.automaticFacility }) Ref(key);
+                Check(d.mealSeat >= -1 && d.mealSeat < 4 && (d.mealExit == null || V(d.mealExit)), "식탁 좌석");
+                foreach (var key in new[] { s.target, w.node, w.deposit, w.construction, w.delivery, w.fetchHost, w.fishingNode, d.service, d.hunt, d.automaticFacility, d.mealTable }) Ref(key);
                 Check(w.state != 1 && w.state != 2 || !string.IsNullOrEmpty(w.node), "채집 대상");
                 Check(w.state != 3 && w.state != 4 || !string.IsNullOrEmpty(w.deposit), "반납 대상");
                 Check(w.state != 5 && w.state != 6 || !string.IsNullOrEmpty(w.construction), "건설 대상");

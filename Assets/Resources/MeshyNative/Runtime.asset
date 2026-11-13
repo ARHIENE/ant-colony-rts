@@ -17,6 +17,12 @@ MonoBehaviour:
   - {fileID: 919132149155446097, guid: 59e5aa0091e3fd84998d0dce7b014eed, type: 3}
   texture: {fileID: 2800000, guid: d47cd63a47b2ed449a5fe8757aaf09b9, type: 3}
   motions:
+  - id: Agree_Gesture
+    clip: {fileID: -1097069501823219401, guid: e71d79b269e98464a97081d861ac6a33, type: 3}
+    rig: 1
+    armatureRoot: 0
+    maxHandSpan: 0
+    loop: 1
   - id: Archery_Shot_3
     clip: {fileID: 3333622190250040868, guid: d239c946a981f3c4fbaa1b58fd5a2e0c, type: 3}
     rig: 0
@@ -39,6 +45,12 @@ MonoBehaviour:
     clip: {fileID: 7006548375941132000, guid: 552bf7a1a276ebd439a0cdfa6031b16e, type: 3}
     rig: 1
     armatureRoot: 0
+    maxHandSpan: 0
+    loop: 1
+  - id: Cheer_with_Both_Hands
+    clip: {fileID: -2467883753447271925, guid: a20c4486bcbe42a4697b766076179e26, type: 3}
+    rig: 1
+    armatureRoot: 1
     maxHandSpan: 0
     loop: 1
   - id: Collect_Object
@@ -101,8 +113,26 @@ MonoBehaviour:
     armatureRoot: 0
     maxHandSpan: 0
     loop: 0
+  - id: Idle_10
+    clip: {fileID: -4600070489483178407, guid: 5197103c6c8a3204daee03afaea990a3, type: 3}
+    rig: 1
+    armatureRoot: 1
+    maxHandSpan: 0
+    loop: 1
   - id: Idle_11
     clip: {fileID: 2052686777651669518, guid: 838d6c36637c38746b22b1e12a8a1bd8, type: 3}
+    rig: 1
+    armatureRoot: 1
+    maxHandSpan: 0
+    loop: 1
+  - id: Idle_12
+    clip: {fileID: 9100177260916811552, guid: d39a50a2b28a69c4e8b1d4c85572653d, type: 3}
+    rig: 1
+    armatureRoot: 1
+    maxHandSpan: 0
+    loop: 1
+  - id: Idle_13
+    clip: {fileID: -2443227186219321048, guid: 118dc136f6fe79b469739c1760d9d28d, type: 3}
     rig: 1
     armatureRoot: 1
     maxHandSpan: 0
@@ -125,6 +155,30 @@ MonoBehaviour:
     armatureRoot: 1
     maxHandSpan: 0
     loop: 1
+  - id: Idle_6
+    clip: {fileID: 5569840603627603982, guid: 92a288a2b0489564e8ac5cbdbf675392, type: 3}
+    rig: 1
+    armatureRoot: 1
+    maxHandSpan: 0
+    loop: 1
+  - id: Idle_7
+    clip: {fileID: -72531448213821192, guid: 8a41d8b822b687b42980beed56a34dba, type: 3}
+    rig: 1
+    armatureRoot: 1
+    maxHandSpan: 0
+    loop: 1
+  - id: Idle_8
+    clip: {fileID: -7122401906668273499, guid: ebe2cbd8bfb6c834cb1df9f1ce2c43dd, type: 3}
+    rig: 1
+    armatureRoot: 1
+    maxHandSpan: 0
+    loop: 1
+  - id: Idle_9
+    clip: {fileID: -7219721596107569645, guid: 1c5afc06dd11c064d9a9380fa84d1ae9, type: 3}
+    rig: 1
+    armatureRoot: 1
+    maxHandSpan: 0
+    loop: 1
   - id: Injured_Walk
     clip: {fileID: -6712877583686036819, guid: 47ec87bc03e63f0479446f0862d7a0ae, type: 3}
     rig: 1
@@ -134,6 +188,12 @@ MonoBehaviour:
   - id: Limping_Walk_1
     clip: {fileID: -4277490129206898155, guid: 317512d2ab8c7274fbc758e0e56ec931, type: 3}
     rig: 0
+    armatureRoot: 0
+    maxHandSpan: 0
+    loop: 1
+  - id: Limping_Walk_2
+    clip: {fileID: 1961382758312387463, guid: 4ac741e70a7fd1b4dbdfbf02abe22442, type: 3}
+    rig: 1
     armatureRoot: 0
     maxHandSpan: 0
     loop: 1
@@ -175,6 +235,18 @@ MonoBehaviour:
     loop: 1
   - id: Right_Hand_Sword_Slash
     clip: {fileID: 5392990168159487488, guid: a27597ea6b5d5e2499043a3eff2ed946, type: 3}
+    rig: 0
+    armatureRoot: 0
+    maxHandSpan: 0
+    loop: 1
+  - id: Run_02
+    clip: {fileID: -4884077960889254588, guid: 44b8fb18fb5b9ae4e87e1a92782ee491, type: 3}
+    rig: 0
+    armatureRoot: 0
+    maxHandSpan: 0
+    loop: 1
+  - id: Run_03
+    clip: {fileID: 953830296706369949, guid: 37ae7ac64d9fc214c90ee54e19ae3675, type: 3}
     rig: 0
     armatureRoot: 0
     maxHandSpan: 0
@@ -245,6 +317,30 @@ MonoBehaviour:
     armatureRoot: 1
     maxHandSpan: 0
     loop: 1
+  - id: Talk_with_Left_Hand_Raised
+    clip: {fileID: -5714794178067446360, guid: 4cda1e0af248fc94f9e4a0dab1ff9588, type: 3}
+    rig: 1
+    armatureRoot: 1
+    maxHandSpan: 0
+    loop: 1
+  - id: Talk_with_Right_Hand_Open
+    clip: {fileID: 7087597867044141560, guid: a30c48523b78efd489a92cfe56d8910a, type: 3}
+    rig: 1
+    armatureRoot: 1
+    maxHandSpan: 0
+    loop: 1
+  - id: victory
+    clip: {fileID: 5029710099000895372, guid: d2df014bfab7d4348b77a1e8dc99afc0, type: 3}
+    rig: 1
+    armatureRoot: 0
+    maxHandSpan: 0
+    loop: 1
+  - id: Victory_Cheer
+    clip: {fileID: 8879829393226559027, guid: f7a281b30b132f34c858a5691a47ce90, type: 3}
+    rig: 1
+    armatureRoot: 0
+    maxHandSpan: 0
+    loop: 1
   - id: Victory_Fist_Pump
     clip: {fileID: 3850420269171149356, guid: 3009347129330df48b1839fbeea9c6f4, type: 3}
     rig: 1
@@ -255,6 +351,12 @@ MonoBehaviour:
     clip: {fileID: -1610863427237328480, guid: 3100f726380232f43bbbbcf8f167ca13, type: 3}
     rig: 1
     armatureRoot: 0
+    maxHandSpan: 0
+    loop: 1
+  - id: Chair_Sit_Idle_M
+    clip: {fileID: -1042977557785583349, guid: b769f775bb233de44a5d1b2d85ccd982, type: 3}
+    rig: 1
+    armatureRoot: 1
     maxHandSpan: 0
     loop: 1
   actions:
@@ -372,3 +474,57 @@ MonoBehaviour:
     motion: Sit_to_Stand_Transition_M
   - action: StandExit
     motion: Stand_to_Sit_Transition_M
+  - action: WalkLimpAlternate
+    motion: Limping_Walk_2
+  - action: RunVariant0
+    motion: Running
+  - action: RunVariant1
+    motion: Run_02
+  - action: RunVariant2
+    motion: Run_03
+  - action: TalkVariant0
+    motion: Talk_Passionately
+  - action: TalkVariant1
+    motion: Talk_with_Hands_Open
+  - action: TalkVariant2
+    motion: Talk_with_Left_Hand_Raised
+  - action: TalkVariant3
+    motion: Talk_with_Right_Hand_Open
+  - action: CelebrateVariant0
+    motion: Victory_Fist_Pump
+  - action: CelebrateVariant1
+    motion: Cheer_with_Both_Hands
+  - action: CelebrateVariant2
+    motion: Victory_Cheer
+  - action: CelebrateVariant3
+    motion: victory
+  - action: StandVariant0
+    motion: Idle_3
+  - action: StandVariant1
+    motion: Idle_4
+  - action: StandVariant2
+    motion: Idle_5
+  - action: StandVariant3
+    motion: Idle_6
+  - action: StandVariant4
+    motion: Idle_7
+  - action: StandVariant5
+    motion: Idle_8
+  - action: StandVariant6
+    motion: Idle_9
+  - action: StandVariant7
+    motion: Idle_10
+  - action: StandVariant8
+    motion: Idle_11
+  - action: StandVariant9
+    motion: Idle_12
+  - action: StandVariant10
+    motion: Idle_13
+  - action: ListenAgree
+    motion: Agree_Gesture
+  - action: MealSeated
+    motion: Chair_Sit_Idle_M
+  - action: ReadBook
+    motion: Idle_3
+  - action: Saw
+    motion: Idle_3

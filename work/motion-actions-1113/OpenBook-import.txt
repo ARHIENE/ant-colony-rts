@@ -1,0 +1,1 @@
+OpenBook: 1835 triangles, 2 textures, 1 materials

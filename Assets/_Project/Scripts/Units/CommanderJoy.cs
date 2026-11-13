@@ -42,6 +42,12 @@ namespace AntColony.Units
                     if (restored == null || !restored.Join(this)) { LeavePlay(); return BeginFreeWalk(); }
                     PlaySpot = restored;
                 }
+                if (!j.freeWalk && PlaySpot != null && !ReachPlaySpot(PlaySpot))
+                {
+                    j.waitSeconds += seconds;
+                    if (j.waitSeconds >= GameBalance.PlaySeconds) { LeavePlay(); return BeginFreeWalk(); }
+                    return true;
+                }
                 if (!j.freeWalk && PlaySpot != null && !j.groupStarted)
                 {
                     if (!PlaySpot.HasMinimumUsers)
@@ -70,18 +76,14 @@ namespace AntColony.Units
                 else if (AntColony.World.Memorial.Comfort(this, grave)) { j.joy = Mathf.Min(100, j.joy + 20); return true; }
             }
             // ponytail: 매 틱 가장 가까운 빈 시설을 찾는다. 시설이 많아지면 목표를 캐시한다.
-            var spot = RecreationSpot.All.Where(s => s != null && s.HasSeat).OrderBy(s => (s.Position - Position).sqrMagnitude).FirstOrDefault();
+            RecreationSpot spot = null;
+            Vector3 approach = default;
+            foreach (var candidate in RecreationSpot.All.Where(s => s != null && s.HasSeat).OrderBy(s => (s.Position - Position).sqrMagnitude))
+                if (TryPlayApproach(candidate, out approach)) { spot = candidate; break; }
             if (spot == null) return BeginFreeWalk();
             if (IsWorking || ServiceTarget != null || HuntTarget != null || ScienceAssignment != null || CraftingWorkshop != null) SuspendForNeeds("joy");
             if (!CanReceiveOrders) return false;
-            if ((spot.Position - Position).sqrMagnitude > 49)
-            {
-                var moving = IsFlying ? !HasReachedDestination() : Agent.pathPending || Agent.hasPath;
-                if (!moving && UnityEngine.AI.NavMesh.SamplePosition(spot.Position, out var hit, 7, UnityEngine.AI.NavMesh.AllAreas) && CanReach(hit.position))
-                { base.CommandMove(hit.position); return true; }
-                if (moving) return true;
-                j.retrySeconds = GameBalance.StarveRetrySeconds; return false; // 닿지 못하면 잠시 뒤 다시.
-            }
+            approachingPlaySpot = spot; playApproach = approach;
             if (!spot.Join(this)) return false;
             PlaySpot = spot; j.kind = spot.KindIndex; j.playSeconds = GameBalance.PlaySeconds; j.freeWalk = false; j.groupStarted = false; j.waitSeconds = 0;
             return true;
@@ -138,6 +140,7 @@ namespace AntColony.Units
 
         private void LeavePlay()
         {
+            ResetPlayApproach();
             PlaySpot?.Leave(this); PlaySpot = null;
             JoyState.playSeconds = 0;
             JoyState.freeWalk = false; JoyState.groupStarted = false; JoyState.waitSeconds = 0;

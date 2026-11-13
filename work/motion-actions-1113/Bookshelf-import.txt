@@ -1,0 +1,1 @@
+Bookshelf: 8851 triangles, 2 textures, 1 materials

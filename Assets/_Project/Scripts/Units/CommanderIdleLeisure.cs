@@ -43,7 +43,8 @@ namespace AntColony.Units
             choice -= walk;
             if (choice < rest || spots.Length == 0) { idleLeisureMotion = "IdleRest"; return; }
             var spot = spots[Random.Range(0, spots.Length)];
-            if (!spot.Join(this)) return;
+            if (!TryPlayApproach(spot, out var approach) || !spot.Join(this)) return;
+            approachingPlaySpot = spot; playApproach = approach;
             PlaySpot=spot; JoyState.kind=spot.KindIndex; JoyState.playSeconds=GameBalance.PlaySeconds;
             JoyState.freeWalk=false; JoyState.groupStarted=false; JoyState.waitSeconds=0;
             idleLeisureMotion=null;

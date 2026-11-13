@@ -1,0 +1,1 @@
+paused live head-foot height=0.07832998 source-end height=0.07837936 clip=Dead loop=False

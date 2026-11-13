@@ -1,0 +1,26 @@
+{
+  "success": true,
+  "command": "command",
+  "data": {
+    "command": "run_script",
+    "parameters": {
+      "file": "AgentScripts/EarlyFlow1113Routes.cs",
+      "entry": "EarlyFlow1113Routes.Inspect"
+    },
+    "result": {
+      "diagnostics": [],
+      "compileMs": 242,
+      "executeMs": 27,
+      "assemblyName": "PipelineRunScript_EarlyFlow1113Routes_afec43d782904f6c89ce237af70722cd",
+      "success": true,
+      "result": "PILE (202.62, 10.07, 204.35) amount=1\nradius=0 hit=(202.55, 9.85, 203.91) offset=0.492918 path=PathPartial\nradius=1 hit=(202.62, 9.85, 206.00) offset=1.668592 path=PathComplete\nradius=1 hit=(203.92, 9.85, 205.25) offset=1.595523 path=PathComplete\nradius=1 hit=(204.00, 9.85, 205.00) offset=1.542636 path=PathComplete\nradius=1 hit=(203.11, 9.85, 203.55) offset=0.9582356 path=PathPartial\nradius=1 hit=(202.62, 9.85, 203.50) offset=0.8728543 path=PathPartial\nradius=1 hit=(202.50, 9.85, 203.64) offset=0.7492269 path=PathPartial\nradius=1 hit=(201.62, 9.85, 204.50) offset=1.034797 path=PathComplete\nradius=1 hit=(201.89, 9.85, 205.05) offset=1.034468 path=PathComplete\nradius=2 hit=(202.62, 9.85, 206.35) offset=2.011702 path=PathComplete\nradius=2 hit=(204.03, 9.85, 205.76) offset=2.011704 path=PathComplete\nradius=2 hit=(204.88, 9.85, 204.37) offset=2.27483 path=PathComplete\nradius=2 hit=(204.25, 9.85, 202.93) offset=2.168851 path=PathComplete\nradius=2 hit=(202.62, 9.85, 201.50) offset=2.852266 path=PathComplete\nradius=2 hit=(201.21, 9.85, 202.50) offset=2.335155 path=PathComplete\nradius=2 hit=(200.50, 9.85, 204.35) offset=2.131023 path=PathComplete\nradius=2 hit=(201.21, 9.86, 205.76) offset=2.011058 path=PathComplete\nradius=3 hit=(202.62, 9.85, 207.35) offset=3.007814 path=PathComplete\nradius=3 hit=(204.74, 9.85, 206.47) offset=3.007817 path=PathComplete\nradius=3 hit=(205.62, 9.85, 204.35) offset=3.007814 path=PathComplete\nradius=3 hit=(204.74, 9.85, 202.22) offset=3.007817 path=PathComplete\nradius=3 hit=(202.62, 9.85, 201.35) offset=3.007814 path=PathComplete\nradius=3 hit=(200.50, 9.85, 201.83) offset=3.295157 path=PathComplete\nradius=3 hit=(199.62, 9.85, 204.35) offset=3.007752 path=PathComplete\nradius=3 hit=(200.50, 9.85, 206.47) offset=3.007817 path=PathComplete"
+    },
+    "target": {
+      "host": "127.0.0.1",
+      "port": 7801,
+      "projectPath": "F:\\UnityProjects\\ant-colony-rts"
+    }
+  },
+  "errors": [],
+  "warnings": []
+}

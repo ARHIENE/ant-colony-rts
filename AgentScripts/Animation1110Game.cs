@@ -16,6 +16,7 @@ public static class Animation1110Game
  public static Task<string> Chop()=>Gather("Wood");
  public static Task<string> Dig()=>Gather("Clay");
  public static async Task<string> PrepareAndGather(){await Prepare();return await Gather();}
+
  public static async Task<string> Prepare(){
   if(!Application.isPlaying)throw new Exception("Play required"); EditorApplication.isPaused=false; for(int i=0;i<200&&(SaveSystem.Busy||GameMenuController.Instance==null||!GameSession.Exists);i++)await Task.Delay(100);
   SaveStorage.RootOverride=Path.Combine(Application.temporaryCachePath,"ANIMATION1110-"+Guid.NewGuid().ToString("N"));

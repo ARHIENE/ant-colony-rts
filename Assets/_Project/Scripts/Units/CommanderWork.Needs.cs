@@ -5,7 +5,7 @@ namespace AntColony.Units
     public partial class CommanderAnt
     {
         private string suspendedResearchNeed;
-        public bool ResearchWorkReady => CivilianWorkReady && AllowsJob(CommanderJobs.Research)
+        public bool ResearchWorkReady => AtResearchDesk && CivilianWorkReady && AllowsJob(CommanderJobs.Research)
             && (WorkPriorities.Red || !IsEating && !IsWashing && !IsPlaying && !WorkState.resting)
             && (IsFlying ? HasReachedDestination() : Agent != null && !Agent.pathPending && !Agent.hasPath);
         // 생활로 잠깐 떠나도 플레이어가 지정한 연구 담당은 유지한다. 직접 정지/다른 명령은 기존대로 해제한다.
@@ -26,9 +26,7 @@ namespace AntColony.Units
             suspendedResearchNeed = null;
             var lab = ScienceAssignment;
             if (lab == null) return;
-            if ((Position - lab.Position).sqrMagnitude <= 49) { StopMoving(); SetWorkTarget(lab); return; }
-            if ((!IsFlying && Agent.pathPending || !IsFlying && Agent.hasPath)) return;
-            if (TryWorkApproach(lab.Position, out var point)) SetMoveDestination(point);
+            if (ReachResearchDesk(lab)) SetWorkTarget(lab);
         }
     }
 }

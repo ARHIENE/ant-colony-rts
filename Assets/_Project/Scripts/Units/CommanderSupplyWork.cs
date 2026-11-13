@@ -6,6 +6,12 @@ namespace AntColony.Units
     public partial class CommanderAnt
     {
         internal bool AtDrill(BuildingBase drill) => ServiceTarget == drill && HasReachedDestination();
+        bool TryServiceApproach(BuildingBase target, out UnityEngine.Vector3 point)
+        {
+            if(FurnitureUseSurface.Supported(target))
+                return FurnitureUseSurface.TryPoint(target,out point,out _) && CanReach(point);
+            return TryWorkApproach(target.Position,out point);
+        }
         public static bool SupplyCraftNeedsWork(SupplyFacility supply) => supply != null && (supply.NeedsRefiner || supply.NeedsContainerWorker);
         public static bool DeepDrillNeedsWork(SupplyFacility drill) => drill != null && UndergroundProduction.IsSolidDrill(drill.Kind) && UndergroundProduction.Ready(drill);
         public static bool ManualWellNeedsWork(SupplyFacility well) => well != null && well.Operational

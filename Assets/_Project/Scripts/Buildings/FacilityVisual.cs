@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using AntColony.Data;
 using UnityEngine;
 
@@ -54,9 +55,17 @@ namespace AntColony.Buildings
             { BuildingKind.Mill, "Mill" }, { BuildingKind.OilPress, "OilPress" }, { BuildingKind.BrewingBarrel, "BrewingBarrel" }, { BuildingKind.Still, "Still" },
         };
 
-        public static string ModelFor(BuildingKind kind) => Models.TryGetValue(kind, out var id) ? id : null;
+        public static string ModelFor(BuildingKind kind) => kind == BuildingKind.Palisade ? "Palisade" : Models.TryGetValue(kind, out var id) ? id : null;
         private static GameObject LoadModel(BuildingKind kind, ResourceType material = ResourceType.Soil)
         {
+            var furniture = kind switch {
+                BuildingKind.Palisade => "Palisade", BuildingKind.SingleBed => "SingleBed", BuildingKind.Bookshelf => "Bookshelf", BuildingKind.BigTable => "DiningTable",
+                BuildingKind.Carpentry => "Workbench", _ => null };
+            if (furniture != null && (material == ResourceType.Soil || kind == BuildingKind.Palisade))
+            {
+                var ready = Resources.Load<GameObject>($"Furniture1113/Models/{furniture}/{furniture}");
+                if (ready != null) return ready;
+            }
             var life = kind switch { BuildingKind.MedicineBench => "MedicineBench", BuildingKind.Infirmary => "Infirmary", _ => null };
             if (life != null && material == ResourceType.Soil)
             {
@@ -85,6 +94,51 @@ namespace AntColony.Buildings
             return id != null ? Resources.Load<GameObject>("Facilities/" + id) : null;
         }
         public Transform Model { get; private set; }
+        readonly Vector3?[] diningSeats = new Vector3?[2];
+        readonly Dictionary<AntColony.Units.CommanderAnt,int> diningOccupants = new();
+        public bool TryDiningSeat(AntColony.Units.CommanderAnt sitter, out Vector3 seat, out Vector3 facing)
+        {
+            seat=default; facing=default;
+            if(!sitter) return false;
+            foreach(var owner in diningOccupants.Keys.Where(c=>!c || !c.IsEating || c.MealTable!=GetComponent<Kitchen>()).ToArray()) diningOccupants.Remove(owner);
+            if(!diningOccupants.TryGetValue(sitter,out int slot))
+            {
+                int preferred=transform.InverseTransformPoint(sitter.Position).z<0 ? 0 : 2;
+                slot=-1;
+                var candidates=Enumerable.Range(0,4).OrderBy(i=>i==sitter.MealSeatSlot ? -100 : (i/2==preferred/2 ? 0 : 10)+Mathf.Abs((i%2==0 ? -.55f : .55f)-Vector3.Dot(sitter.Position-transform.position,transform.right)));
+                foreach(int candidate in candidates)
+                    if(!diningOccupants.ContainsValue(candidate)) { slot=candidate; break; }
+                if(slot<0) return false;
+                diningOccupants[sitter]=slot;
+            }
+            sitter.MealSeatSlot=slot;
+            var sidePoint=transform.position+transform.forward*(slot<2 ? -1 : 1);
+            if(!TryDiningSeatBase(sidePoint,out seat,out facing)) return false;
+            seat += transform.right*(slot%2==0 ? -.55f : .55f);
+            return true;
+        }
+        bool TryDiningSeatBase(Vector3 visitor, out Vector3 seat, out Vector3 facing)
+        {
+            seat=default; facing=default;
+            if (!Model || KindOf(GetComponent<BuildingBase>()) != BuildingKind.BigTable || loadedPrefab.name != "DiningTable") return false;
+            int index=transform.InverseTransformPoint(visitor).z < 0 ? 0 : 1;
+            facing=(index==0 ? 1 : -1)*transform.forward;
+            if(diningSeats[index].HasValue) { seat=transform.TransformPoint(diningSeats[index].Value); return true; }
+            var vertices = Model.GetComponentsInChildren<MeshFilter>()
+                .Where(f=>f.sharedMesh && f.sharedMesh.isReadable)
+                .SelectMany(f=>f.sharedMesh.vertices.Select(v=>transform.InverseTransformPoint(f.transform.TransformPoint(v)))).ToArray();
+            if (vertices.Length==0) return false;
+            float minZ=vertices.Min(v=>v.z), maxZ=vertices.Max(v=>v.z);
+            float middle=(minZ+maxZ)*.5f;
+            float side=transform.InverseTransformPoint(visitor).z < middle ? -1 : 1;
+            float z=middle+side*(maxZ-minZ)*.38f;
+            var surface=vertices.Where(v=>Mathf.Abs(v.x)<.2f && Mathf.Abs(v.z-z)<(maxZ-minZ)*.1f).ToArray();
+            if(surface.Length==0) return false;
+            seat=transform.TransformPoint(new Vector3(0,surface.Max(v=>v.y),z));
+            diningSeats[index]=transform.InverseTransformPoint(seat);
+            facing=-side*transform.forward;
+            return true;
+        }
         private GameObject loadedPrefab;
         public void RefreshMainMaterial()
         {
@@ -111,6 +165,7 @@ namespace AntColony.Buildings
 
         private void Start()
         {
+            diningSeats[0]=diningSeats[1]=null;
             var building = GetComponent<BuildingBase>();
             var prefab = LoadModel(KindOf(building).Value, building.MainMaterial);
             var box = GetComponent<Renderer>();
@@ -135,6 +190,16 @@ namespace AntColony.Buildings
             model.rotation = transform.rotation * importedRotation;
             model.position = new Vector3(center.x, bottom, center.z) - transform.rotation * offset;
             model.SetParent(transform, true);
+            if(KindOf(building)==BuildingKind.Carpentry && prefab.name=="Workbench")
+            {
+                // Keep the existing floor footprint, but put the working top at waist height.
+                var heightRoot=new GameObject("Workbench height").transform;
+                heightRoot.SetPositionAndRotation(new Vector3(center.x,bottom,center.z),transform.rotation);
+                heightRoot.SetParent(transform,true);model.SetParent(heightRoot,true);
+                var heightScale=heightRoot.localScale;
+                heightScale.y*=1.02f/Mathf.Max(.01f,bounds.size.y*scale);
+                heightRoot.localScale=heightScale;model=heightRoot;
+            }
             foreach (var c in model.GetComponentsInChildren<Collider>()) Destroy(c);
             // 초가집 지붕이 FBX 내장 CC_Cream(거의 흰색)이라 흰 고깔처럼 보임 → 짚 색으로(2026-11-01 사용자 지적 '초가집이 아님').
             foreach (var r in renderers)
@@ -146,8 +211,33 @@ namespace AntColony.Buildings
             Model = model;
             if (KindOf(building) == BuildingKind.Infirmary && prefab.name == "Infirmary")
                 Model = ArrangeTreatmentBeds(model, center, bottom, size);
+            if (KindOf(building) == BuildingKind.SingleBed && prefab.name == "SingleBed") AddSleepingSurface(model);
             loadedPrefab = prefab;
             RefreshMainMaterial();
+        }
+
+        private static void AddSleepingSurface(Transform model)
+        {
+            var renderers = model.GetComponentsInChildren<Renderer>();
+            if (renderers.Length == 0) return;
+            var bounds = renderers[0].bounds;
+            foreach (var r in renderers) bounds.Encapsulate(r.bounds);
+            float top = float.NegativeInfinity;
+            foreach (var filter in model.GetComponentsInChildren<MeshFilter>())
+            {
+                if (!filter.sharedMesh || !filter.sharedMesh.isReadable) continue;
+                foreach (var vertex in filter.sharedMesh.vertices)
+                {
+                    var world = filter.transform.TransformPoint(vertex);
+                    if (Mathf.Abs(world.x-bounds.center.x) < bounds.size.x*.2f
+                        && Mathf.Abs(world.z-bounds.center.z) < bounds.size.z*.2f)
+                        top = Mathf.Max(top, world.y);
+                }
+            }
+            if (float.IsNegativeInfinity(top)) return;
+            var anchor = new GameObject("SleepingSurface").transform;
+            anchor.SetParent(model, true);
+            anchor.position = new Vector3(bounds.center.x, top+.015f, bounds.center.z);
         }
 
         private Transform ArrangeTreatmentBeds(Transform source, Vector3 center, float bottom, Vector3 size)

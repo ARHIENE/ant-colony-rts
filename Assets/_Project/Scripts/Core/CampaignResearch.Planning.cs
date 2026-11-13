@@ -11,7 +11,7 @@ namespace AntColony.Core
         public static float LabMultiplier(int tier) => 1f + .25f * (tier - 1);
         // 실행과 표시가 같은 참여 조건을 사용한다. 담당 연결이 끊긴 장수는 중복 기여하지 않는다.
         public float LabRate(ScienceLab lab) => LabWaitReason(lab) == ""
-            ? lab.Target.WorkRate(CommanderActivity.Research) * LabMultiplier(lab.Tier) : 0;
+            ? lab.Target.WorkRate(CommanderActivity.Research) * LabMultiplier(lab.Tier) * (Active?.Tier == 1 ? GameBalance.SettlementResearchSpeed : 1f) : 0;
         public float ResearchRate => Paused ? 0 : SceneObjects.All<ScienceLab>().Sum(LabRate);
         public string TimeEstimate
         {

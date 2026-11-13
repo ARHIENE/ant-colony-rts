@@ -1,0 +1,1 @@
+dining: 40 actual Game frames; MealSeated/Chair_Sit_Idle_M,MealSeated/Chair_Sit_Idle_M,MealSeated/Chair_Sit_Idle_M,MealSeated/Chair_Sit_Idle_M

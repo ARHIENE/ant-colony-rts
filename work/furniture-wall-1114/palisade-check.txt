@@ -1,0 +1,3 @@
+work point 1 (200.29, 10.38, 206.63) source=Heavy_Hammer_Swing remaining=5.76
+started=True distinctWorkPoints=1 target= state=Idle_A
+PASS completed palisade; material=Wood model=Palisade(Clone) obstacle=True

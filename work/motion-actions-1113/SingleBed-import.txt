@@ -1,0 +1,1 @@
+SingleBed: 9139 triangles, 5 textures, 1 materials

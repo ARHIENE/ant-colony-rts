@@ -1,0 +1,1 @@
+Local Intruder aim=General target=얕은 수원/SupplyFacility pos=(203.73, 10.21, 187.34) targetpos=(204.33, 9.85, 186.69) path=PathComplete remaining=0 range=1.5

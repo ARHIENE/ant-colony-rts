@@ -1,0 +1,4 @@
+using System;using System.Linq;using System.Threading.Tasks;using UnityEngine;using AntColony.Units;using AntColony.Core;using AntColony.UI;
+public static class Dining1114Move {
+ public static async Task<string> Run(){var c=CommanderRoster.Instance.Commanders.First(x=>x&&x.IsEating&&x.MealTable);var start=c.Position;var p=c.Agent.nextPosition+Vector3.back*3;if(!c.CanReach(p))throw new Exception("Unreachable fixture exit");c.CommandMove(p);SimulationPause.UserSpeed(1);await Task.Delay(700);SimulationPause.UserSpeed(0);var motion=c.GetComponent<MeshyNativeMotionPlayer>().PlayingMotion;var text="Move during meal: moved="+Vector3.Distance(start,c.Position)+" table="+(bool)c.MealTable+" navigation="+c.Agent.updatePosition+" motion="+motion;if(c.MealTable||!c.Agent.updatePosition||Vector3.Distance(start,c.Position)<.3f||motion!="Running")throw new Exception(text);return "PASS "+text;}
+}

@@ -1,0 +1,16 @@
+FINAL visual reload of the normally saved natural continuation
+[1361.7s / 12:54:22] wave=2 inWave=False left=600 enemies=0 food=0 soil=0 wood=0 screen=Game frame=582 speed=0
+[1361.7s / 12:54:22] HERO 생존자 1 hp=62.0 down=False satiety=87 mood=40 sleep=False work=True activity=Melee node= delivery=False build= care= pos=(203.56, 9.85, 191.47)
+[1361.7s / 12:54:22] HERO 생존자 2 hp=43.0 down=False satiety=89 mood=49 sleep=False work=False activity=Melee node= delivery=False build= care= pos=(204.24, 9.85, 191.00)
+[1361.7s / 12:54:22] HERO 생존자 3 hp=0.0 down=False satiety=4 mood=46 sleep=False work=False activity=Melee node= delivery=False build= care=구조할 자리 없음(빈 의료 침상 필요) pos=(199.75, 9.85, 192.36)
+[1361.7s / 12:54:22] BUILDINGS Hearth@(201.00, 10.45, 203.50) hp=200/200, SleepingMat@(198.50, 9.90, 204.00) hp=44/50, Storage@(202.50, 10.35, 202.50) hp=300/300, Toilet@(204.50, 10.37, 200.50) hp=100/100, WaterSource@(204.33, 9.85, 186.69) hp=59/300
+[1361.7s / 12:54:22] STOCK Stone=10, Component=1, Herb=19
+[1361.7s / 12:54:22] RECOVERY 생존자 1 체력 회복 대기 · 전투 종료, 출혈·질병·기아 해소와 상처 처치 필요 moldProtection=0.0 break=None illness=
+[1361.7s / 12:54:22] RECOVERY 생존자 2 체력 회복 대기 · 전투 종료, 출혈·질병·기아 해소와 상처 처치 필요 moldProtection=0.0 break=None illness=
+[1361.7s / 12:54:22] RECOVERY 생존자 3 예상 의식 회복 90초 moldProtection=0.0 break=None illness=
+[1361.7s / 12:54:22] ALERTS 
+[1361.7s / 12:54:22] SITE AcidTower wait=AwaitingHaul work=8
+[1361.7s / 12:54:22] SITE AcidTower wait=AwaitingHaul work=8
+[1361.7s / 12:54:22] RESEARCH 약초 처방 기여 0 · 아래 연구소의 담당·작업표·복귀 상태를 확인하세요 completed=
+[1361.7s / 12:54:22] KITCHEN Hearth wait=재료 부족/배송 대기 progress=0.00 staged=
+[1361.7s / 12:54:22] MEALS total=0 stocked=0

@@ -1,0 +1,1 @@
+PASS hand cycle travel=0.2550848 wrist/head minimum=0.1418269 bowl/palm offset=0.01500034; overlapping furniture placement rejected

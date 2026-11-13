@@ -28,7 +28,7 @@ namespace AntColony.Buildings
         // 벽·문은 종류가 곧 재료다. 나머지는 고른 주재료.
         public static ResourceType MaterialOf(BuildingBase b) => b.Data == null ? ResourceType.Soil : b.Data.kind switch
         {
-            BuildingKind.SoilWall => ResourceType.Soil, BuildingKind.LeafWall => ResourceType.Leaf, BuildingKind.CapWall => ResourceType.Iron,
+            BuildingKind.Palisade => ResourceType.Wood, BuildingKind.SoilWall => ResourceType.Soil, BuildingKind.LeafWall => ResourceType.Leaf, BuildingKind.CapWall => ResourceType.Iron,
             BuildingKind.CastleWall => ResourceType.Stone, BuildingKind.Door or BuildingKind.LockedDoor or BuildingKind.Gate => ResourceType.Wood,
             BuildingKind.BarredDoor => ResourceType.Iron, _ => b.MainMaterial
         };

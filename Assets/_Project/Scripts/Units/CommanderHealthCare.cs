@@ -53,7 +53,8 @@ namespace AntColony.Units
         {
             var h = p.Health;
             if (h.medicine == MedicineLevel.NoCare) return "치료 안 함 설정";
-            if (p.PersonalHealth <= 0 && p.TreatmentFacility == null && p.RescueCarrier == null && FreeBed(p.Position) == null) return "구조할 자리 없음(빈 의료 침상 필요)";
+            // 침상이 없어도 현장 처치·급식은 가능하다. 실제로 회복을 막는 조건부터 알린다.
+            if (p.IsMedicalPatient && p.Satiety < GameBalance.EatBelowSatiety && !HasFoodFor(p)) return "환자 급식 대기(식단에 맞는 식량 입고 필요)";
             if (!h.NeedsTend) return "";
             if (!HomePatients().Any(d => d != p && d.CivilianWorkReady && d.AllowsJob(CommanderJobs.Nursing) && d.TryWorkApproach(p.Position, out _)) && !p.CanSelfTend) return "치료할 장수 없음(의료 허용·활동 가능·접근 경로 확인)";
             var meds = MedicalRules.BestMedicine(h.medicine, FreeMedicine) >= 0;
@@ -79,7 +80,7 @@ namespace AntColony.Units
                 if ((MedicalRules.NeedsDoctor(h, MedicineAllowed(h)) || p != this && h.medicine != MedicineLevel.NoCare && traits.Has(CommanderTrait.DiamondMedicine) && h.wounds.Any(w => w.kind == WoundKind.Scar))
                     && !Taken(p, MedJob.Tend) && (p != this || CanSelfTend))
                     list.Add((Urgency(h), p, () => StartMed(MedJob.Tend, patient)));
-                if (p.IsMedicalPatient && p.Satiety < GameBalance.EatBelowSatiety && p != this && !Taken(p, MedJob.Feed) && HasFood())
+                if (p.IsMedicalPatient && p.Satiety < GameBalance.EatBelowSatiety && p != this && !Taken(p, MedJob.Feed) && HasFoodFor(p))
                     list.Add((Urgency(h), p, () => StartMed(MedJob.Feed, patient)));
                 var op = h.surgeries.FirstOrDefault(s => s.Active);
                 if (op != null && p != this && SurgeryBlock(p, op, this) == "" && !Taken(p, MedJob.Surgery))
@@ -231,7 +232,7 @@ namespace AntColony.Units
         // 스스로 먹지 못하는 환자에게 먹인다(식단·썩은 식품 규칙은 그대로).
         internal void FeedInBed()
         {
-            StartMeal(null);
+            if (MealState.eatSeconds <= 0) StartMeal(null);
             if (MealState.eatSeconds > 0) { MealState.eatSeconds = 0; FinishMeal(); }
         }
 

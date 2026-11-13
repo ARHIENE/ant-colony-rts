@@ -1,0 +1,9 @@
+actor=(207.0790, 10.3812, 208.8948) ground=(207.0790, 9.7679, 208.8948) target=(208.7461, 9.9812, 208.8948) radiusFit=True radius=1.649194
+Edge ymin=0.1113424 ymax=0.2809896 readable=True
+Edge.001 ymin=0.1113424 ymax=0.2809896 readable=True
+Edge.002 ymin=0.1113434 ymax=0.2809887 readable=True
+Edge.003 ymin=0.1113434 ymax=0.2809887 readable=True
+Furrow ymin=0.2884254 ymax=0.39254 readable=True
+Furrow.001 ymin=0.2884254 ymax=0.39254 readable=True
+Furrow.002 ymin=0.2884254 ymax=0.39254 readable=True
+Soil ymin=0.01326275 ymax=0.3107347 readable=True

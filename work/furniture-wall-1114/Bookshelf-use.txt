@@ -1,0 +1,1 @@
+Bookshelf PASS actual action=ReadBook native=Idle_3 moved=4.475006 position=(200.00, 10.38, 208.48) standing=(200.00, 9.78, 208.48) surface=(200.00, 12.59, 209.12) distance=1.525879E-05

@@ -451,9 +451,9 @@ namespace AntColony.World
             else StopMoving();
         }
 
-        public void ConfigureWeakIntruder()
+        public void ConfigureWeakIntruder(bool waveLeader = false)
         {
-            maxHealth = 15f;
+            maxHealth = waveLeader ? 45f : 15f; // 웨이브 장수는 집중 공격할 시간을 주고 일반 적의 피해량은 유지한다.
             attackDamage = 1f;
             attackInterval = 2f;
         }

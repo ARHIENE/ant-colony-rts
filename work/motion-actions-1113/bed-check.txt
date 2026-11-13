@@ -1,0 +1,1 @@
+arrived=True traveled=4.93267 support=(201.00, 10.76, 200.50) original=Sleep_Normally bedSeconds=0.7034796

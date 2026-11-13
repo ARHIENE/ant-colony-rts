@@ -13,6 +13,7 @@ namespace AntColony.Units
         public bool TryDeparture()
         {
             if (!IsColonyMember || IsCaptive) return false;
+            if (PersonalHealth <= 0 || Health.Downed) { Social.pendingDeparture = true; return false; }
             if (IsEmbarked) { Social.pendingDeparture = true; return false; }
             var faction = Faction();
             bool rebellion = faction.Any(c => c != this && c.Mood <= SocialRules.RebelMood && c.isActiveAndEnabled && !c.IsEmbarked && !c.IsCaptive);
@@ -23,6 +24,9 @@ namespace AntColony.Units
         }
         private void BeginDeparture(bool rebellion)
         {
+            // 쓰러진 환자를 즉시 적으로 바꾸면 수용소가 없을 때 자동 제압으로 사망한다.
+            // 직접 요청과 파벌 동반 이탈 모두 실제로 움직일 수 있을 때까지 미룬다.
+            if (PersonalHealth <= 0 || Health.Downed) { Social.pendingDeparture = true; return; }
             if (!TryFindEscape(out var point)) { Social.pendingDeparture = true; return; }
             InterruptPersonalWork();
             var site = Transport?.Site ?? Garrison?.GetComponent<AntColony.World.ExpeditionSite>();

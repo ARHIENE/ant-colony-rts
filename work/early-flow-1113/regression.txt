@@ -1,0 +1,1 @@
+PASS 21 disposable field-care/research regression checks; injected fixture, not natural play evidence.

@@ -1,0 +1,26 @@
+{
+  "success": true,
+  "command": "command",
+  "data": {
+    "command": "run_script",
+    "parameters": {
+      "file": "AgentScripts/EarlyBalance1113Probe.cs",
+      "entry": "EarlyBalance1113Probe.Inspect"
+    },
+    "result": {
+      "diagnostics": [],
+      "compileMs": 409,
+      "executeMs": 11,
+      "assemblyName": "PipelineRunScript_EarlyBalance1113Probe_b13f9ec7bc9d4a0791a837bf61018ce3",
+      "success": true,
+      "result": "BIN  usable=True pos=(200.00, 9.77, 200.00) food=0 cap=200 free=200 allowed=True\nBIN Storage usable=True pos=(202.50, 10.35, 202.50) food=0 cap=100 free=100 allowed=True\nFLOOR Food:nodes=33:amount=1392.731,Soil:nodes=14:amount=1620,Stone:nodes=2:amount=26,PlantingMaterial:nodes=1:amount=9,Component:nodes=1:amount=1,Wood:nodes=15:amount=154.2161\nBIN ROUTE 생존자 1 host= reach=True approach=(200.00, 10.06, 200.00)\nBIN ROUTE 생존자 1 host=Storage reach=True approach=(202.50, 9.85, 202.50)\nBIN ROUTE 생존자 2 host= reach=True approach=(200.00, 10.06, 200.00)\nBIN ROUTE 생존자 2 host=Storage reach=True approach=(202.50, 9.85, 202.50)\nBIN ROUTE 생존자 3 host= reach=True approach=(200.00, 10.06, 200.00)\nBIN ROUTE 생존자 3 host=Storage reach=True approach=(202.50, 9.85, 202.50)\nFOOD ROUTE 생존자 1 canGather=True reach=True jobs=True\nFOOD ROUTE 생존자 2 canGather=True reach=True jobs=True\nFOOD ROUTE 생존자 3 canGather=True reach=True jobs=True\n생존자 1 cargo=0 type=Soil gather=5 build=5 haul=5 sleep=False\n생존자 2 cargo=0 type=Soil gather=5 build=5 haul=5 sleep=False\n생존자 3 cargo=0 type=Wood gather=5 build=5 haul=5 sleep=False\nSITE ScienceLab pos=(207.50, 9.95, 200.50) ready=False wait=None Wood need=20 delivered=8 reserved=1 transit=11,Stone need=10 delivered=0 reserved=10 transit=0\nROUTE 생존자 1 directSite=16.0 includingPickup=41.01113\nROUTE 생존자 2 directSite=16.1 includingPickup=41.39495\nROUTE 생존자 3 directSite=10.2 includingPickup=44.94704\nNODE Dropped Food type=Food amount=5 loose=True designated=False dist=4 pos=(202.95, 10.07, 202.33)\nNODE Dropped Food type=Food amount=8 loose=True designated=False dist=4 pos=(202.95, 10.07, 202.33)\nNODE Dropped Food type=Food amount=8 loose=True designated=False dist=4 pos=(202.95, 10.07, 202.33)\nNODE Dropped Food type=Food amount=8 loose=True designated=False dist=4 pos=(202.95, 10.07, 202.33)\nNODE Dropped Food type=Food amount=8 loose=True designated=False dist=4 pos=(202.95, 10.07, 202.33)\nNODE Dropped Food type=Food amount=8 loose=True designated=False dist=4 pos=(202.95, 10.07, 202.33)\nNODE Dropped Food type=Food amount=8 loose=True designated=False dist=4 pos=(202.95, 10.07, 202.33)\nNODE Dropped Food type=Food amount=8 loose=True designated=False dist=4 pos=(202.95, 10.07, 202.33)\nNODE Dropped Food type=Food amount=8 loose=True designated=False dist=4 pos=(202.95, 10.07, 202.33)\nNODE Dropped Food type=Food amount=8 loose=True designated=False dist=4 pos=(202.95, 10.07, 202.33)\nNODE Dropped Food type=Food amount=8 loose=True designated=False dist=4 pos=(202.95, 10.07, 202.33)\nNODE Dropped Food type=Food amount=8 loose=True designated=False dist=4 pos=(202.95, 10.07, 202.33)\nNODE Dropped Food type=Food amount=8 loose=True designated=False dist=4 pos=(202.95, 10.07, 202.33)\nNODE Dropped Food type=Food amount=8 loose=True designated=False dist=4 pos=(202.95, 10.07, 202.33)\nNODE Dropped Food type=Food amount=8 loose=True designated=False dist=4 pos=(202.95, 10.07, 202.33)\nNODE Dropped Food type=Food amount=8 loose=True designated=False dist=4 pos=(202.95, 10.07, 202.33)\nNODE Dropped Food type=Food amount=8 loose=True designated=False dist=4 pos=(202.95, 10.07, 202.33)\nNODE Dropped Food type=Food amount=8 loose=True designated=False dist=4 pos=(202.95, 10.07, 202.33)\nNODE Dropped Food type=Food amount=8 loose=True designated=False dist=4 pos=(202.95, 10.07, 202.33)\nNODE Dropped Food type=Food amount=8 loose=True designated=False dist=4 pos=(202.95, 10.07, 202.33)\nNODE Dropped Food type=Food amount=2.73089 loose=True designated=False dist=4 pos=(202.95, 10.07, 202.33)\nNODE Dropped Food type=Food amount=8 loose=True designated=False dist=4 pos=(202.95, 10.07, 202.33)\nNODE Dropped Food type=Food amount=8 loose=True designated=False dist=4 pos=(202.95, 10.07, 202.33)\nNODE Dropped Food type=Food amount=8 loose=True designated=False dist=4 pos=(202.95, 10.07, 202.33)"
+    },
+    "target": {
+      "host": "127.0.0.1",
+      "port": 7800,
+      "projectPath": "F:\\UnityProjects\\ant-colony-rts"
+    }
+  },
+  "errors": [],
+  "warnings": []
+}

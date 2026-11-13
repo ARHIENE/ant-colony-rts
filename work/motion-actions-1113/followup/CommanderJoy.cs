@@ -1,0 +1,158 @@
+using System;
+using System.Linq;
+using AntColony.Buildings;
+using AntColony.Core;
+using UnityEngine;
+
+namespace AntColony.Units
+{
+    // 오락 욕구(2026-09-28): 낮아지면 기분이 떨어지고, 일 사이에 오락 시설에 가서 채운다.
+    [Serializable] public class CommanderJoyState
+    {
+        public float joy = 100, playSeconds, retrySeconds, waitSeconds;
+        public bool freeWalk, groupStarted;
+        public int kind;
+        public float[] boredom = new float[RecreationSpot.KindCount]; // 종류별 질림 0~1
+        public bool Valid => Finite(joy) && joy >= 0 && joy <= 100 && Finite(playSeconds) && playSeconds >= 0 && Finite(retrySeconds) && retrySeconds >= 0 && Finite(waitSeconds) && waitSeconds >= 0
+            && kind >= 0 && kind < RecreationSpot.KindCount && boredom != null && boredom.Length == RecreationSpot.KindCount && boredom.All(b => Finite(b) && b >= 0 && b <= 1);
+        private static bool Finite(float v) => !float.IsNaN(v) && !float.IsInfinity(v);
+    }
+
+    public partial class CommanderAnt
+    {
+        private CommanderJoyState JoyState => PersonalState.joy;
+        public float Joy => JoyState.joy;
+        public bool IsPlaying => JoyState.playSeconds > 0;
+        public RecreationSpot PlaySpot { get; private set; }
+
+        // TickDuty에서 식사 다음에 부른다. true면 이번 틱은 오락으로 끝낸다.
+        private bool TickJoy(float seconds)
+        {
+            var j = JoyState;
+            j.joy = Mathf.Max(0, j.joy - GameBalance.JoyPerSecond * seconds);
+            for (var i = 0; i < j.boredom.Length; i++) j.boredom[i] = Mathf.Max(0, j.boredom[i] - GameBalance.BoredomRecoverPerSecond * seconds);
+            RefreshJoyMood();
+            if (IsDeployed || IsAwayFromHome || IsEmbarked || IsCaptive || WorkPriorities.Red || IsInCombat || HasCombatOrder
+                || AntColony.World.WaveDefense.Instance?.InWave == true) { LeavePlay(); return false; }
+            if (j.playSeconds > 0)
+            {
+                if (!j.freeWalk && PlaySpot == null)
+                {
+                    var restored = RecreationSpot.All.FirstOrDefault(s => s != null && s.KindIndex == j.kind && s.HasSeat && (s.Position - Position).sqrMagnitude <= 49);
+                    if (restored == null || !restored.Join(this)) { LeavePlay(); return BeginFreeWalk(); }
+                    PlaySpot = restored;
+                }
+                if (!j.freeWalk && PlaySpot != null && !ReachPlaySpot(PlaySpot))
+                {
+                    j.waitSeconds += seconds;
+                    if (j.waitSeconds >= GameBalance.PlaySeconds) { LeavePlay(); return BeginFreeWalk(); }
+                    return true;
+                }
+                if (!j.freeWalk && PlaySpot != null && !j.groupStarted)
+                {
+                    if (!PlaySpot.HasMinimumUsers)
+                    {
+                        j.waitSeconds += seconds;
+                        if (j.waitSeconds >= GameBalance.PlaySeconds) { LeavePlay(); BeginFreeWalk(); }
+                        return true;
+                    }
+                    j.groupStarted = true;
+                }
+                j.playSeconds = Mathf.Max(0, j.playSeconds - seconds);
+                if (j.playSeconds == 0) FinishPlay();
+                return true;
+            }
+            if (j.retrySeconds > 0) { j.retrySeconds = Mathf.Max(0, j.retrySeconds - seconds); return false; }
+            if (j.joy > GameBalance.PlayBelowJoy || IsCarrying || LabUpgradeLab != null) return false;
+            // 친한 고인의 묘비를 여가에 찾아간다(전투·위독 환자 처치보다 우선하지 않는다, 2026-10-13).
+            if (!IsInCombat && !(AllowsJob(CommanderJobs.Nursing) && HasLifeThreateningPatient) && AntColony.World.Memorial.VisitTarget(this) is Tombstone grave)
+            {
+                if ((grave.Position - Position).sqrMagnitude > 9)
+                {
+                    var walking = IsFlying ? !HasReachedDestination() : Agent.pathPending || Agent.hasPath;
+                    if (!walking && UnityEngine.AI.NavMesh.SamplePosition(grave.Position, out var g, 4, UnityEngine.AI.NavMesh.AllAreas) && CanReach(g.position)) { base.CommandMove(g.position); return true; }
+                    if (walking) return true;
+                }
+                else if (AntColony.World.Memorial.Comfort(this, grave)) { j.joy = Mathf.Min(100, j.joy + 20); return true; }
+            }
+            // ponytail: 매 틱 가장 가까운 빈 시설을 찾는다. 시설이 많아지면 목표를 캐시한다.
+            RecreationSpot spot = null;
+            Vector3 approach = default;
+            foreach (var candidate in RecreationSpot.All.Where(s => s != null && s.HasSeat).OrderBy(s => (s.Position - Position).sqrMagnitude))
+                if (TryPlayApproach(candidate, out approach)) { spot = candidate; break; }
+            if (spot == null) return BeginFreeWalk();
+            if (IsWorking || ServiceTarget != null || HuntTarget != null || ScienceAssignment != null || CraftingWorkshop != null) SuspendForNeeds("joy");
+            if (!CanReceiveOrders) return false;
+            approachingPlaySpot = spot; playApproach = approach;
+            if (!spot.Join(this)) return false;
+            PlaySpot = spot; j.kind = spot.KindIndex; j.playSeconds = GameBalance.PlaySeconds; j.freeWalk = false; j.groupStarted = false; j.waitSeconds = 0;
+            return true;
+        }
+
+        private bool BeginFreeWalk()
+        {
+            if (!CanReceiveOrders || IsInCombat || IsDeployed || IsAwayFromHome || LabUpgradeLab != null || HasLifeThreateningPatient) return false;
+            SuspendForNeeds("joy");
+            var offset = UnityEngine.Random.insideUnitCircle * 6;
+            var target = Position + new Vector3(offset.x, 0, offset.y);
+            if (UnityEngine.AI.NavMesh.SamplePosition(target, out var hit, 3, UnityEngine.AI.NavMesh.AllAreas) && CanReach(hit.position)) base.CommandMove(hit.position);
+            var j = JoyState; j.freeWalk = true; j.groupStarted = false; j.waitSeconds = 0; j.kind = 0; j.playSeconds = GameBalance.PlaySeconds;
+            return true; // 길이 없으면 제자리에서 하늘을 본다.
+        }
+
+        private void FinishPlay()
+        {
+            var j = JoyState; var spot = PlaySpot;
+            if (j.freeWalk)
+            {
+                j.joy = Mathf.Min(100, j.joy + GameBalance.PlayJoy * .5f);
+                StopMoving(); LeavePlay(); RefreshJoyMood(); return;
+            }
+            var gain = GameBalance.PlayJoy * (1 - j.boredom[j.kind]) * (spot != null && spot.NearDecoration ? 1 + GameBalance.DecorationPlayBonus : 1)
+                * (j.kind == 10 ? GameBalance.InstrumentJoyMultiplier : 1); // 악기
+            j.joy = Mathf.Min(100, j.joy + gain);
+            j.boredom[j.kind] = Mathf.Min(1, j.boredom[j.kind] + GameBalance.BoredomPerPlay);
+            if (j.kind == 2) GainExperience(CommanderActivity.Research, GameBalance.BookshelfResearchXp); // 책장: 연구 경험치 조금
+            if (j.kind == 3) PersonalState.hygiene.hygiene = Mathf.Min(100, PersonalState.hygiene.hygiene + GameBalance.BathtubHygiene); // 목욕통: 위생
+            if (j.kind == 7 || j.kind == 9) GainExperience(CommanderActivity.Strength, GameBalance.PlayXp); // 씨름판·운동기구
+            if (j.kind == 8) GainExperience(CommanderActivity.Ranged, GameBalance.PlayXp); // 가시 다트
+            if (j.kind == 12) AddFatigue(-GameBalance.HotSpringFatigue); // 온천: 피로 빠른 회복
+            if ((j.kind == 4 || j.kind == 7) && spot != null && spot.Partner(this) is CommanderAnt mate)
+            {
+                // 놀이판은 친해지고, 씨름판은 라이벌끼리면 더 사이가 나빠진다.
+                var rivals = personalState.relations.Exists(r => r.otherId == mate.PersonalState.id && r.value <= SocialRules.Rival);
+                if (j.kind == 4) ChangeRelation(mate, GameBalance.BoardGameRelation);
+                else if (rivals) ChangeRelation(mate, GameBalance.WrestlingRivalRelation);
+            }
+            if (spot != null && spot.IsGambling && spot.Partner(this) is CommanderAnt other)
+            {
+                var won = UnityEngine.Random.value < .5f;
+                (won ? this : other).personalState.AddMood("도박 승리", GameBalance.GambleWinMood, 180);
+                (won ? other : this).personalState.AddMood("도박 패배", GameBalance.GambleLoseMood, 180);
+                if (UnityEngine.Random.value < GameBalance.GambleQuarrelChance) ChangeRelation(other, GameBalance.GambleQuarrel);
+            }
+            if (spot != null && spot.Data.kind == AntColony.Data.BuildingKind.Campfire && spot.Partner(this) is CommanderAnt companion)
+                ChangeRelation(companion, GameBalance.BoardGameRelation);
+            // 질려서 다 못 채웠으면 한동안 일하다 다시 온다(같은 곳에서 계속 놀지 않게).
+            if (j.joy <= GameBalance.PlayBelowJoy) j.retrySeconds = GameBalance.StarveRetrySeconds * 2;
+            LeavePlay(); RefreshJoyMood();
+        }
+
+        private void LeavePlay()
+        {
+            ResetPlayApproach();
+            PlaySpot?.Leave(this); PlaySpot = null;
+            JoyState.playSeconds = 0;
+            JoyState.freeWalk = false; JoyState.groupStarted = false; JoyState.waitSeconds = 0;
+        }
+
+        private void RefreshJoyMood()
+        {
+            var j = JoyState;
+            var low = j.joy <= 10 ? GameBalance.VeryLowJoyMood : j.joy <= GameBalance.PlayBelowJoy ? GameBalance.LowJoyMood : 0;
+            if (low != 0) personalState.AddMood("오락 부족", low, 5); else personalState.moodFactors.RemoveAll(f => f.reason == "오락 부족");
+            var kinds = j.boredom.Count(b => b > 0);
+            if (kinds >= 2) personalState.AddMood("다양한 오락", Mathf.Min(GameBalance.VarietyMoodMax, kinds * GameBalance.VarietyMoodPerKind), 5); else personalState.moodFactors.RemoveAll(f => f.reason == "다양한 오락");
+        }
+    }
+}

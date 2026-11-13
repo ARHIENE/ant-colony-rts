@@ -3,6 +3,15 @@
 작업 전에 [게임 방향](../GAME_DIRECTION.md)과 [최근 로그](../log.md)를 읽고 담당 파일을 확인합니다. 다른 담당자가 수정 중인 파일은 동시에 변경하지 않습니다.
 
 ## 최근 작업
+- **SAVE-1114 / 사용자 요청으로 작업 중단·통합 저장** — 식사4인 저장복원/목책/접점 검증 및 EARLY-FLOW 변경 보존. 책장·목공대 후속 검증 실패와 전체 장비 잔여는 docs/SAVE_20261114.md에 인계. 아래 진행중 표시는 과거 기록. 원격·노션 증거 확인 후 종료 예정.
+
+- **SEAT-CONTACT-1114 / Codex 진행** — 다인 착석/침구·테이블 교차, 전용 먹기 손동작 및 저장복원 검수. 추가 소유 SaveOrders/SaveOrderValidation, CommanderWork의 좌석 직렬화, CommanderMealSources/AntVisual/FacilityVisual/MeshyNativeEquipment. 기존 장비 방향과 타 담당 경제 수정 보존.
+- **FURNITURE-WALL-1114 / Codex 진행** — 사용자 요청: 높은 목책 건설 연결, 캐릭터 비례 가구 확대 및 사용 자세/장비 접점 실검증. Unity 단독 사용 확인. 소유: BuildingData/FurnitureCatalog, RuntimeBuildingTemplates/BasicLivingTemplates/BuildingPlacementController, EarlyConstruction/SpaceQuality/Wall/FacilityVisual, BuildScreen/BuildTooltips, 기존 모션·가구 접근 파일. 타 담당 경제/WorkerAnt/CommanderDeparture 변경 보존.
+- **MOTION-ACTIONS-1113 후속 준비** — 높은 방벽/소품 다운로드 완료. 큰 건물·가구 우선 사용자 정정 반영. 추가 소유 FacilityVisual, CommanderResearchApproach/CommanderWork.Needs/CommanderWork/CommanderAnt 연구 접근 복원 지점. Unity 반환 전에는 work/followup 후보만 준비. 타 담당 WorkerAnt 경로/운반 수정 보존.
+
+- **MOTION-ACTIONS-1113 추가 요청** — 새 게임 시작 우주선 잔해 제거: Core/CrashLandingStart.Apply의 잔해 생성만 제거. 시작 자원·장수·야생작물 유지. Unity 새 게임 검증 예정.
+- **MOTION-ACTIONS-1113 / 21:56 Unity 반환 후 적용** — 밸런스 채팅 Edit 반환 확인. 기존 소유에 CommanderJoy/CommanderPlayApproach/CommanderIdleLeisure, RecreationSpot, CommanderSleep/Dormitory 사용 위치 및 저장 시체 복원 검수 추가. WorkerAnt.CaptureWorkerOrder 타 담당 최종 변경 보존. Meshy 가구3종 117크레딧/경량화 완료, 목공 모션 생성10크레딧 진행. 다운로드 완료는 아직 미확인.
+- **MOTION-ACTIONS-1113 / Codex 진행** — 사용자 요청: 미연결 모션의 기획 기반 행동 연결/미구현 기능, 농사·건설 접점·장비 파지 및 Unity 실검증. 다른 게임성 채팅은 Unity/코드 소유 없음 확인. 소유: MeshyNativeContextMotion/ActionBindings/Player/Equipment, AntVisual*, WorkerAnt.GatherApproach/ConstructionMotion/이동 진입, 필요한 기존 생활행동 연결. 기획 근거와 제외 모션을 별도 목록화하며 원본 몸 관절·승인 방향 유지. SAVE/종료 요청 아님.
 - **SAVE-FORMAT-1113 / Codex 완료** — 사용자 수정본을 읽어 SAVE 표시 규칙 점검. AGENTS.md에 작업 결과별 표정, 일반 날짜 링크, 월 최신순/월 내부 날짜 오름차순 및 기록 후 검증을 명시하고 CLAUDE.md에서 같은 규칙 참조. 현재 Notion 3개월 목록의 오름차순·멘션 없음 및 당일 😌 아이콘 확인. 사용자가 정리한 Notion 페이지는 변경하지 않음. 게임 코드/Unity 작업 없음.
 - **FINAL-MOTION-1113 / 통합 SAVE** — 사용자 요청으로 구현 중단·현재까지 저장. 눈/침대/자원 접점 및 세 세션 완료 변경을 통합. Unity Edit 반환, 다른 두 채팅 idle. 컴퓨터 종료 안 함. 상세 docs/FINAL_MOTION_1113.md. 아래 오래된 진행 중 항목보다 이 최종 인계를 우선한다.
 - COMMANDER-ONLY-1112 추가 소유: Units/UnitSelectionController.cs. 실제 입력 시스템 좌클릭/우클릭 시험에서 나무 위 후퇴 클릭이 채집 거부로 소실되는 문제 재현(3회 이동0m/HP100→72). 소집 중 자원·건설 현장 우클릭을 이동으로 처리, 재검증 진행.
@@ -487,3 +496,32 @@ THREE-WAVES-1112 추가 소유: WorkerAnt.cs CommandFetchFor 및 WorkerAnt.Floor
 - THREE-WAVES 최종인계 2026-11-13 00:27 KST: 실제첫3웨이브연속방어+원본후속약362초3명생존/질병0/HP48.1·28.7·63.7/식량33. 컴파일0·신규콘솔오류0, 회귀10/25/27/17 및저장약초57/롤백9, 시체/탑/툴팁4종/건강/이주실검사완료. docs/THREE_WAVES_1112.md 확정, README갱신. 모든게임코드동결, 설정/root/GameView복원·Play중지·ready, Unity/최종Graphify/통합SAVE를APPEARANCE채팅에인계. 이번채팅별도SAVE/Notion/종료없음. 식량·연구경제/다른시작조건/전투재미출시판정미완.
 
 - FINAL-MOTION-1113 추가 소유(다른 두 세션 완료/반환 후): Infirmary·FacilityVisual·AntVisual·MeshyNativeMotionPlayer, CommanderDuty 치료 접근, WorkerAnt/WorkerAnt.GatherApproach 및 신규 MeshyWorkContact. 눈감기 원본 파츠 보정 실화면 확인, 치료 두 침상/14수명주기 검사 통과. 실제 도구 궤적 기반 접근거리 및 조기정지 수정 검증 중. 노션 최근 기록의 아이콘+날짜 제목 표시 형식 복구도 사용자 추가 요청에 포함. 아직 통합 SAVE 시작 전.
+
+- NOTION-HUMANIZER / Codex (2026-11-13): Notion 문장 정리 완료, AGENTS.md에 이후 Notion 작성 시 Humanizer 적용 규칙 추가. 현재 소유 중인 게임 코드 파일 없음, Unity 미사용. THREE-WAVES 작업은 기존 최종 인계 상태이며 새 구현은 재개하지 않음. 외형 담당의 MeshyNative* / AntVisual 및 농사·건설 접근 위치 점검과 충돌 없음.
+
+- EARLY-BALANCE-1113 / Codex: 사용자 요청 초반 식량·연구·전투 밸런스 및 새 게임 첫3웨이브 재검증. AgentScripts/EarlyBalance1113Probe.cs·work/early-balance-1113 소유. 후보 범위 Core/GameBalance.cs(정착 연구비용), Core/CampaignResearch.Planning.cs(초기 연구 속도), Buildings/Kitchen.cs(조리 작업량). 아직 Assets 수정 없음. MeshyNative*/AntVisual 및 농사·건설 접근 위치는 외형 담당 소유 유지. Unity는 외형 담당 사용 중이며 명시적 반환 전 조작·Assets 적용하지 않음. 평화 길이·적 마릿수·기획 미정 항목 변경 없음.
+
+- EARLY-BALANCE-1113 후보 추가 소유: World/WildMonster.cs·LocalIncursions.cs의 웨이브 적 장수 체력만15→45 시험 후보. 일반 적·독립 습격·무리 체력/피해/마릿수는 유지. 아직 work/pending에만 준비, 실제 Assets 적용 및 채택 여부는 플레이 검증 후 결정. 연구 속도 파일은 변경하지 않고 비용만 조정하는 후보로 축소.
+
+- **MOTION-ACTIONS-1113 Unity 인계 (21:26 KST)** — 격리 검사 UserSettings/SaveStorage.RootOverride 복원, Play 종료 및 Edit/ready 확인. 밸런스 채팅에 약20분 Unity 단독 사용 반환. 이번 모션 작업의 Assets 변경은 아직 없음. 해당 검사 동안 Assets 수정 없이 work 후보·Meshy 준비 진행. 사용자 추가 범위: SCV식 건설 지점 이동, 기획에 있는 미구현 행동 및 장비·가구 사용, Meshy 추가2,000크레딧 한도.
+
+- EARLY-BALANCE-1113 추가 소유: Buildings/EarlyConstruction.cs의 ScienceLab 초기 건설비만. 기존 4개 후보와 함께 Edit 상태에서 적용/검증. 건설 이동·접근은 외형 담당 유지. 기준361초 정상저장 실패(Received Wood 미등록) 별도 조사 중이며 3웨이브 재검증 미완료.
+- EARLY-BALANCE-1113 조율 완료: 외형 담당 동의로 WorkerAnt.CaptureWorkerOrder 한정 소유. 소진 후 비활성화된 바닥 더미 참조는 저장에서 제외하고 운반 화물·배송 목적지는 보존. 접근·이동 메서드는 외형 담당 유지. 회귀 검증 대기.
+
+- EARLY-BALANCE-1113 21:55 반환: Core/GameBalance, Buildings/Kitchen·EarlyConstruction, World/WildMonster·LocalIncursions, WorkerAnt.CaptureWorkerOrder 적용. Unity 컴파일/요리 구저장/소진노드 저장 회귀/자연 상태 저장·재로드 통과. 수정 새게임2웨이브 방어했으나 식량0·HP62/43/0·연구대/약제대 파손으로 운영검증 미달,3웨이브 미실시. docs/EARLY_BALANCE_1113.md. 사용자설정/root/GameView복원·Editready, 외형담당에반환·Assets동결. 재로드 시체서있음/이름겹침 화면인계. Graphify 갱신진행중.
+
+- EARLY-FLOW-1113 / Codex: 사용자 재요청 첫 연구 시간·식량/운반·초반 현장간호/복구 및 새게임3웨이브. 소유 후보 Core/CampaignResearch.Planning.cs·GameBalance.cs, Units/CommanderDuty.cs의 자동 후보 정렬 블록만, CommanderHealthCare.cs의 대기사유/급식후보 판정, 신규 CommanderProvisioning.cs. 외형 담당 WorkerAnt/Sleep/Joy/접근/시각/Infirmary는 수정하지 않음. Unity는 외형 담당22:35까지검증, 명시적반환전 work 후보만 준비. 평화길이/적규모/의료해금변경없음.
+
+- EARLY-FLOW-1113 22:37: 외형 담당22:27명시적양도후 변경전882초 정상저장확보. 담당4파일SHA일치확인후후보적용, 신규CommanderProvisioning 및 합의한 WorkerAnt.DropCargo 3줄만반영. 연구3배/식량·간호·건설배송·가능한수리 우선순위 보조, 사용자작업표/대상우선순위우선유지. Unity컴파일·동일새게임3웨이브검증시작.
+
+- EARLY-FLOW-1113 23:01 추가 소유 합의: WorkerAnt.TryWorkApproach 근거리 대체점 탐색/실패캐시. 첫 웨이브 정상방어 후 식량더미 중심 PathPartial·옆1.03m PathComplete 재현. 자연943초 정상저장보존 후 Edit에서 수정. GatherApproach/ConstructionMotion/시각접점 미수정.
+- EARLY-FLOW-1113 23:02: 외형 담당 TravelDistance 연결도 동의. 실제 접근점과 자동 후보 거리 계산을 일치시킴. 원본 자연943초 저장에서 경로회귀 및 연속플레이 이어서 검증.
+- EARLY-FLOW-1113 23:31 추가 소유: CommanderDeparture.cs의 출발 자격 검사. 자연 3웨이브 후 HP0 환자가 탈주 후 즉시 제압 사망하는 결함 재현. 행동 불능 중 출발 연기만 수정하며 외형 파일은 유지.
+- EARLY-FLOW-1113 23:39 반환: 첫 연구495초, 정상 새게임 첫3웨이브 방어 완료. 3웨이브 후 재정비는 식량0/환자 탈주·제압 사망 등으로 실패, 정상 저장·재로드와 실패 로그 보존. 연구/급식21·경로15·탈주방지6 검사 통과, Unity 컴파일 오류0. 사용자 설정/root/GameView복원 및 Editready 확인. Assets 동결하고 외형 담당에 반환. docs/EARLY_FLOW_1113.md 참조. graphify 첫 갱신 종료0, 마지막 CommanderDeparture 포함 후속 update(session94852) 진행 중.
+- EARLY-FLOW-1113 23:53 후속 graphify 갱신 종료0 확인. graph.json/graph.html/GRAPH_REPORT 갱신 완료(53,144 nodes / 140,424 edges). 외형 담당에 완료 전달. Unity/Assets 추가 수정 없음.
+
+- SEAT-CONTACT-1114 후속: CommanderMeal.cs의 경보 시 좌석 해제 추가 소유. 식탁 4좌석/기존 Bowl 손동작/식탁·좌석 저장 복원 및 이동 중 식사 모션 우선순위 수정 검증 중. 다른 담당 파일은 수정하지 않음.
+
+- SEAT-CONTACT-1114 검증: 4좌석/기존 Bowl 먹기 손동작/4명 실제 저장·재로드 PASS, 식사 중 이동 Running 복귀 및 재착석 좌석번호 동기화 수정. 곡괭이 원본 전스윙 파지 회귀 PASS. 사용자 설정·save root 복원, Edit 반환. 나머지 가구·전장비 검수 미완. 상세 work/furniture-wall-1114/progress.md.
+
+- FURNITURE-USE-1114 / Codex: 책장·목공대 실제 사용 위치/독서·톱질 손 접점. 소유 FacilityVisual, CommanderPlayApproach, CommanderWork의 시설 접근 블록, CommanderSupplyWork, AntVisual.Work/Clip, MeshyNativeMotionPlayer/Equipment, 필요시 MeshyEquipmentWearables. 기존 에셋 OpenBook 활용, 테스트 AgentScripts/FurnitureUse1114*. 다른 세션 idle 확인, Unity 이쪽 사용.

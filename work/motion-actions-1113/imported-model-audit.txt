@@ -1,0 +1,6 @@
+Bookshelf size=(1.3876, 1.8999, 0.6336) center=(0.0004, -0.0013, -0.0006)
+DiningTable size=(1.4473, 0.7242, 1.9028) center=(-0.0015, -0.0004, -0.0003)
+Palisade size=(1.9022, 1.8078, 0.2265) center=(0.0005, -0.0010, -0.0004)
+SingleBed size=(1.2139, 1.0237, 1.9024) center=(0.0000, -0.0007, -0.0005)
+SingleBed centralSupportY=0.1495591 normalized=0.6467306
+Workbench size=(1.9019, 1.1464, 1.4515) center=(0.0007, -0.0004, 0.0029)

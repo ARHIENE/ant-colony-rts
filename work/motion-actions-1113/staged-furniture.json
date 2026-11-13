@@ -1,0 +1,110 @@
+[
+  {
+    "id": "SingleBed",
+    "source": "F:\\UnityProjects\\ant-colony-rts\\art\\meshy-1113\\Meshy_AI_woodland_single_bed_10k_20261113_texture_remesh_tri_fbx\\Meshy_AI_woodland_single_bed_10k_20261113_texture_remesh_tri_fbx\\Meshy_AI_woodland_single_bed_10k_20261113_texture_remesh_tri.fbx",
+    "staged": "F:\\UnityProjects\\ant-colony-rts\\art\\meshy-1113\\staged\\SingleBed",
+    "source_sha256": "70460d5f0b3423d10acc00e355027f140c7655579ccef8ebdd2e02371b3b49f0"
+  },
+  {
+    "id": "DiningTable",
+    "source": "F:\\UnityProjects\\ant-colony-rts\\art\\meshy-1113\\Meshy_AI_woodland_table_benches_10k_20261113_texture_remesh_tri_fbx\\Meshy_AI_woodland_table_benches_10k_20261113_texture_remesh_tri_fbx\\Meshy_AI_woodland_table_benches_10k_20261113_texture_remesh_tri.fbx",
+    "staged": "F:\\UnityProjects\\ant-colony-rts\\art\\meshy-1113\\staged\\DiningTable",
+    "source_sha256": "6c6d469ae6c3c0a7fae71d4d0fec0a2eb98601c1a3ac987796567a6435b741dc"
+  },
+  {
+    "id": "Workbench",
+    "source": "F:\\UnityProjects\\ant-colony-rts\\art\\meshy-1113\\Meshy_AI_woodland_workbench_10k_20261113_texture_remesh_tri_fbx\\Meshy_AI_woodland_workbench_10k_20261113_texture_remesh_tri_fbx\\Meshy_AI_woodland_workbench_10k_20261113_texture_remesh_tri.fbx",
+    "staged": "F:\\UnityProjects\\ant-colony-rts\\art\\meshy-1113\\staged\\Workbench",
+    "source_sha256": "9ba79487ee5886d5f2c8935ef713d1c229a9b6de1f8cd2def200f57e0effce94"
+  },
+  {
+    "id": "Bookshelf",
+    "source": "F:\\UnityProjects\\ant-colony-rts\\art\\meshy-1113\\Meshy_AI_woodland_low_bookshelf_10k_20261113_texture_remesh_tri_fbx\\Meshy_AI_woodland_low_bookshelf_10k_20261113_texture_remesh_tri_fbx\\Meshy_AI_woodland_low_bookshelf_10k_20261113_texture_remesh_tri.fbx",
+    "staged": "F:\\UnityProjects\\ant-colony-rts\\art\\meshy-1113\\staged\\Bookshelf",
+    "source_sha256": "d90efc288f51877b82596399e9b70045f3d71e559fbbb0b506b00f113b9a5c41"
+  },
+  {
+    "id": "OpenBook",
+    "source": "F:\\UnityProjects\\ant-colony-rts\\art\\meshy-1113\\Meshy_AI_open_book_2k_20261113_texture_remesh_tri_fbx\\Meshy_AI_open_book_2k_20261113_texture_remesh_tri_fbx\\Meshy_AI_open_book_2k_20261113_texture_remesh_tri.fbx",
+    "staged": "F:\\UnityProjects\\ant-colony-rts\\art\\meshy-1113\\staged\\OpenBook",
+    "source_sha256": "f38c145d737ed37c532bf4902fb2cfd00963df9858fb40c1caa55eed983ccb2f"
+  },
+  {
+    "id": "Bowl",
+    "source": "F:\\UnityProjects\\ant-colony-rts\\art\\meshy-1113\\Meshy_AI_wooden_bowl_2k_20261113_texture_remesh_tri_fbx\\Meshy_AI_wooden_bowl_2k_20261113_texture_remesh_tri_fbx\\Meshy_AI_wooden_bowl_2k_20261113_texture_remesh_tri.fbx",
+    "staged": "F:\\UnityProjects\\ant-colony-rts\\art\\meshy-1113\\staged\\Bowl",
+    "source_sha256": "f3a084786c0d380454272cdce44b7ef93039044b89a8d2665e31b2369944b073"
+  },
+  {
+    "id": "Cup",
+    "source": "F:\\UnityProjects\\ant-colony-rts\\art\\meshy-1113\\Meshy_AI_wooden_cup_2k_20261113_texture_remesh_tri_fbx\\Meshy_AI_wooden_cup_2k_20261113_texture_remesh_tri_fbx\\Meshy_AI_wooden_cup_2k_20261113_texture_remesh_tri.fbx",
+    "staged": "F:\\UnityProjects\\ant-colony-rts\\art\\meshy-1113\\staged\\Cup",
+    "source_sha256": "9de7a6350c8f7a85f58d5e52dc7d01f3a551062a27b0ff4286d2d622ba9db232"
+  },
+  {
+    "id": "Bench",
+    "source": "F:\\UnityProjects\\ant-colony-rts\\art\\meshy-1113\\Meshy_AI_woodland_bench_5k_20261113_texture_remesh_tri_fbx\\Meshy_AI_woodland_bench_5k_20261113_texture_remesh_tri_fbx\\Meshy_AI_woodland_bench_5k_20261113_texture_remesh_tri.fbx",
+    "staged": "F:\\UnityProjects\\ant-colony-rts\\art\\meshy-1113\\staged\\Bench",
+    "source_sha256": "0210d28dc8023ec1c7df55d766210362ada5cb07681c5fbbf73934d20a5a5f5b"
+  },
+  {
+    "id": "Chair",
+    "source": "F:\\UnityProjects\\ant-colony-rts\\art\\meshy-1113\\Meshy_AI_woodland_chair_5k_20261113_texture_remesh_tri_fbx\\Meshy_AI_woodland_chair_5k_20261113_texture_remesh_tri_fbx\\Meshy_AI_woodland_chair_5k_20261113_texture_remesh_tri.fbx",
+    "staged": "F:\\UnityProjects\\ant-colony-rts\\art\\meshy-1113\\staged\\Chair",
+    "source_sha256": "d061b8158fd957589c6781cd7b64ab2be10391d7a9bc44357cefffce1bab363d"
+  },
+  {
+    "id": "Bandage",
+    "source": "F:\\UnityProjects\\ant-colony-rts\\art\\meshy-1113\\download-a9c424751af6\\Meshy_AI_bandage_roll_remesh_20261113_texture_remesh_tri_fbx\\Meshy_AI_bandage_roll_remesh_20261113_texture_remesh_tri.fbx",
+    "staged": "F:\\UnityProjects\\ant-colony-rts\\art\\meshy-1113\\staged\\Bandage",
+    "source_sha256": "44b6e0c16815610e7abd630337b869f48f14665e683db1ab410037ee4860f3c5"
+  },
+  {
+    "id": "CuttingBoard",
+    "source": "F:\\UnityProjects\\ant-colony-rts\\art\\meshy-1113\\download-5ed4dc38182d\\Meshy_AI_cutting_board_remesh_20261113_texture_remesh_tri_fbx\\Meshy_AI_cutting_board_remesh_20261113_texture_remesh_tri.fbx",
+    "staged": "F:\\UnityProjects\\ant-colony-rts\\art\\meshy-1113\\staged\\CuttingBoard",
+    "source_sha256": "6d87179077b7947970713b0651b1d1fd6387973f30eb7a0fc61666edfd89d1d6"
+  },
+  {
+    "id": "Dough",
+    "source": "F:\\UnityProjects\\ant-colony-rts\\art\\meshy-1113\\download-33c0d13279cb\\Meshy_AI_dough_lump_remesh_20261113_texture_remesh_tri_fbx\\Meshy_AI_dough_lump_remesh_20261113_texture_remesh_tri.fbx",
+    "staged": "F:\\UnityProjects\\ant-colony-rts\\art\\meshy-1113\\staged\\Dough",
+    "source_sha256": "b8f823e5ed24f4e2720ccb2b5b3144dadfc3abdd2665e1eabf2f99fe64bef84e"
+  },
+  {
+    "id": "HarvestBasket",
+    "source": "F:\\UnityProjects\\ant-colony-rts\\art\\meshy-1113\\download-73fa688e1aed\\Meshy_AI_harvest_basket_remesh_20261113_texture_remesh_tri_fbx\\Meshy_AI_harvest_basket_remesh_20261113_texture_remesh_tri.fbx",
+    "staged": "F:\\UnityProjects\\ant-colony-rts\\art\\meshy-1113\\staged\\HarvestBasket",
+    "source_sha256": "79dd1c9e7834b44854ae1cb67917b2ea799f15ea7574bec7e3087445371eda5e"
+  },
+  {
+    "id": "MedicineBottle",
+    "source": "F:\\UnityProjects\\ant-colony-rts\\art\\meshy-1113\\download-55581f587810\\Meshy_AI_medicine_bottle_remesh_20261113_texture_remesh_tri_fbx\\Meshy_AI_medicine_bottle_remesh_20261113_texture_remesh_tri.fbx",
+    "staged": "F:\\UnityProjects\\ant-colony-rts\\art\\meshy-1113\\staged\\MedicineBottle",
+    "source_sha256": "bbb0a73e2307b814348e7d771ebab3c176c9399be413ceefd1f337e8be56087e"
+  },
+  {
+    "id": "SeedPouch",
+    "source": "F:\\UnityProjects\\ant-colony-rts\\art\\meshy-1113\\download-be0f100c7eab\\Meshy_AI_seed_pouch_remesh_20261113_texture_remesh_tri_fbx\\Meshy_AI_seed_pouch_remesh_20261113_texture_remesh_tri.fbx",
+    "staged": "F:\\UnityProjects\\ant-colony-rts\\art\\meshy-1113\\staged\\SeedPouch",
+    "source_sha256": "07baf871824e508af8a227503ea4f1e76ce9e35661028f5b4b48bbd5af0f4ccc"
+  },
+  {
+    "id": "Ladle",
+    "source": "F:\\UnityProjects\\ant-colony-rts\\art\\meshy-1113\\download-60f73aad3445\\Meshy_AI_wooden_ladle_remesh_20261113_texture_remesh_tri_fbx\\Meshy_AI_wooden_ladle_remesh_20261113_texture_remesh_tri.fbx",
+    "staged": "F:\\UnityProjects\\ant-colony-rts\\art\\meshy-1113\\staged\\Ladle",
+    "source_sha256": "32d2effa4cc836f449af1971b1d95c4ade8466f9f1c908b3dd9db34599d0c05c"
+  },
+  {
+    "id": "RanchFence",
+    "source": "F:\\UnityProjects\\ant-colony-rts\\art\\meshy-1113\\download-bcdb85704922\\Meshy_AI_woodland_fence_straight_remesh_20261113_texture_remesh_tri_fbx\\Meshy_AI_woodland_fence_straight_remesh_20261113_texture_remesh_tri.fbx",
+    "staged": "F:\\UnityProjects\\ant-colony-rts\\art\\meshy-1113\\staged\\RanchFence",
+    "source_sha256": "0d853dd638bf01ce8919c1ddc77ba7f2fb778247010f3df170123c12a0d08903"
+  },
+  {
+    "id": "Palisade",
+    "source": "F:\\UnityProjects\\ant-colony-rts\\art\\meshy-1113\\download-78a6e51c5ab1\\Meshy_AI_woodland_tall_spiked_palisade_remesh_20261113_texture_remesh_tri_fbx\\Meshy_AI_woodland_tall_spiked_palisade_remesh_20261113_texture_remesh_tri.fbx",
+    "staged": "F:\\UnityProjects\\ant-colony-rts\\art\\meshy-1113\\staged\\Palisade",
+    "source_sha256": "ca9346a72d9d0e735ad4309a1801c403fce2a663458e93f72e4438532e070a71"
+  }
+]

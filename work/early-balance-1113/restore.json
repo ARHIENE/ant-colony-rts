@@ -1,0 +1,34 @@
+{
+    "settings": {
+        "version": 1,
+        "cameraPanSpeed": 25.0,
+        "edgeScrollThickness": 18.0,
+        "autoSaveEnabled": true,
+        "autoSaveMinutes": 5.0,
+        "toastSeconds": 6.0,
+        "pauseSimulationOnMenu": true,
+        "keyBindings": [],
+        "autoPauseThreat": true,
+        "autoPauseDowned": true,
+        "autoPauseRocket": true,
+        "firstHints": true,
+        "shownHints": [
+            "worldmap",
+            "collapse",
+            "invasion",
+            "injury",
+            "loyalty"
+        ],
+        "screenMode": 0,
+        "resolutionWidth": 0,
+        "resolutionHeight": 0,
+        "vSync": true,
+        "frameLimit": 60,
+        "quality": -1,
+        "masterVolume": 1.0
+    },
+    "root": "",
+    "resolution": 0,
+    "addedResolution": 7,
+    "active": false
+}

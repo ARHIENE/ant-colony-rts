@@ -1,0 +1,2 @@
+new game wrecks=0 commanders=3
+Ant corpse visible skins= children=Kemono,Prop_CorpseBundle(Clone)

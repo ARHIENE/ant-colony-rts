@@ -15,9 +15,10 @@ namespace AntColony.Core
         public const int CraftQueueCapacity = 3;
         // 과학 연구: tier 1~4
         // 6시대(2026-10-05, 잠정): 소굴·증기·석유·전기·원자·미래. 석유·원자 자원 비용은 앞뒤 시대 사이값.
+        public const float SettlementResearchSpeed = 3f; // 정착 연구의 실제 작업 시간만 단축하고 저장 진행량은 유지한다.
         public static readonly float[] ScienceWork = { 200, 400, 800, 1500, 2800, 5000 };
-        public static readonly int[] ScienceFood = { 50, 100, 150, 200, 300, 400 };
-        public static readonly int[] ScienceSoil = { 50, 100, 150, 200, 300, 400 };
+        public static readonly int[] ScienceFood = { 25, 100, 150, 200, 300, 400 };
+        public static readonly int[] ScienceSoil = { 30, 100, 150, 200, 300, 400 };
         public static readonly int[] ScienceSpecial = { 0, 10, 20, 30, 50, 80 };
 
         // 로켓 동면 고치: 고치 1개 = 장수 1명 + 그 장수의 병력 전부

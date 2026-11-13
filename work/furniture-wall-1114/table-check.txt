@@ -1,0 +1,1 @@
+PASS table eating; traveled=4.30871 actor=(199.45, 10.38, 208.30) table=(200.00, 10.38, 209.50) source=Chair_Sit_Idle_M

@@ -1,0 +1,15 @@
+C:\Users\gusdu\Documents\Codex\tools\uv-tools\graphifyy\Lib\site-packages\graphify\cache.py:1112: RuntimeWarning: stat index switched from cache root '\\\\?\\F:\\UnityProjects\\ant-colony-rts' to 'F:\\UnityProjects\\ant-colony-rts' within one process; each root's stat-index.json now only reflects its own files, but library callers crossing project roots in one process should still use a fresh process per root to avoid losing the fastpath (#3989).
+  h = file_hash(path, root, cache_root=cache_root)
+Updating code graph in . (no LLM needed)...
+[graphify watch] 20939 file(s) not classified (no supported extension or shebang), skipped: .bucket-8519f5b5-3c96-4bb7-8ffd-068e2a7e0b71_89302e05-d1db-4bdd-a5bd-a7ecc77a073d, .codex-system-skills.marker, .gitattributes, .gitignore, .graphify_version, .last-complete-round (+20933 more)
+[graphify watch] Incremental: re-extracting 38 of 20883 scanned files that changed since the last build.
+  AST cache: 0/25 files served from cache (0%); 25 to extract
+[graphify watch] community set changed since labeling (210 saved labels, 4050 communities now; renamed 291 community(ies) by their hub). Run `graphify label` to refresh names with the LLM.
+[graphify] backed up curated graph (5 files) -> 2026-11-14/
+Graph has 53348 nodes (above 5000 limit). Building aggregated community view...
+graph.html written (aggregated: 4050 community nodes, 7330 cross-community edges)
+Tip: run with --obsidian for full node-level detail.
+[graphify watch] Rebuilt: 53348 nodes, 140932 edges, 4050 communities
+[graphify watch] graph.json, graph.html and GRAPH_REPORT.md updated in graphify-out
+Code graph updated. For doc/paper/image changes run /graphify --update in your AI assistant.
+Tip: set GEMINI_API_KEY or GOOGLE_API_KEY to use Gemini for semantic extraction.

@@ -1,0 +1,1 @@
+PASS 15 route assertions on the unmodified natural save: local complete path, finite ranking, distant rejection, no teleport.

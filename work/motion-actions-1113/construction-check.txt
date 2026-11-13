@@ -1,0 +1,5 @@
+work point 1 (199.56, 10.38, 209.46) source=Heavy_Hammer_Swing remaining=59.96875
+work point 2 (198.51, 10.38, 210.13) source=Heavy_Hammer_Swing remaining=54.19236
+work point 3 (198.30, 10.38, 210.60) source=Heavy_Hammer_Swing remaining=50.63461
+work point 4 (199.60, 10.38, 211.55) source=Heavy_Hammer_Swing remaining=48.17862
+started=True distinctWorkPoints=4 target= state=Eat

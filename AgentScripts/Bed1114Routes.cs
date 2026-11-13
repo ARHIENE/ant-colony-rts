@@ -1,0 +1,3 @@
+using System.Linq;using AntColony.Core;using UnityEngine;using UnityEngine.AI;using AntColony.Buildings;using AntColony.Units;
+public static class Bed1114Routes { public static string Run(){var c=CommanderRoster.Instance.Commanders.First(x=>x&&x.IsColonyMember);var bed=Dormitory.Of(c);var b=bed.GetComponent<Collider>().bounds;var s="bed="+b+" pos="+bed.Position+" actor="+c.Position+" agent="+c.Agent.isOnNavMesh+"\n";float r=Mathf.Max(b.extents.x,b.extents.z)+.35f;for(int i=0;i<12;i++){var p=bed.Position+Quaternion.Euler(0,i*30,0)*Vector3.forward*r;bool ok=NavMesh.SamplePosition(p,out var h,.4f,NavMesh.AllAreas);s+=p+" sampled="+ok+" hit="+h.position+" reachable="+(ok&&c.CanReach(h.position))+"\n";}return s;}}
+

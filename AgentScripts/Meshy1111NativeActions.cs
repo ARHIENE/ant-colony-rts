@@ -45,6 +45,7 @@ public static class Meshy1111NativeActions
  }
  public static async Task<string> CheckPickaxe()
  {
+   EditorApplication.isPaused=false;
   var p=UnityEngine.Object.FindAnyObjectByType<MeshyNativeMotionPlayer>();
   var bones=p.NativeModel.GetComponentsInChildren<Transform>().ToDictionary(t=>t.name);
   var item=p.GetComponentsInChildren<Transform>().First(t=>t.name=="Tool_Pickaxe_Stone(Clone)"&&t.parent.name=="Native equipment grip");

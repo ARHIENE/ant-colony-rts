@@ -47,6 +47,7 @@ namespace AntColony.Units
             && !IsEmbarked && troopCount == 0 && !LabUpgradeBusy;
         internal void LeaveForScouting(ScoutPost post)
         {
+            ResetMealSeat();
             ScienceAssignment?.ReleaseResearcher(); CraftingWorkshop?.Release(); SuspendWork();
             ScoutMission = post; SetEmbarked(true, post.transform.position);
         }
@@ -139,7 +140,16 @@ namespace AntColony.Units
         public int LabArmorLevel => labArmorLevel;
         // 한 장수는 동시에 한 연구소에서만 강화된다. 연구소가 시작·해제한다.
         public ResearchLab LabUpgradeLab { get; set; }
-        public ScienceLab ScienceAssignment { get; internal set; }
+        ScienceLab scienceAssignment;
+        public ScienceLab ScienceAssignment
+        {
+            get => scienceAssignment;
+            internal set
+            {
+                if (scienceAssignment != value) ResetResearchApproach();
+                scienceAssignment = value;
+            }
+        }
         public bool LabUpgradeBusy => LabUpgradeLab != null || ScienceAssignment != null || SurveyAssignment != null;
 
         public CommanderSkills Skills => skills;
@@ -387,6 +397,7 @@ namespace AntColony.Units
 
         protected override void OnDisable()
         {
+            ResetResearchApproach();
             if (IsDead || Social.departure == DepartureState.Left || Social.departure == DepartureState.Imprisoned) LoseBossCargo();
             ReleaseCorpse();
             SetWorkTarget(null); ServiceTarget = null; HuntTarget = null;

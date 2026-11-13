@@ -8,6 +8,20 @@ namespace AntColony.Buildings
         // B1 소유 런타임 템플릿은 그대로 두고, 기존 생활 가구 정의만 보정한다.
         public static GameObject Prepare(GameObject template, BuildingKind kind)
         {
+            // Use the same full-sized footprint for placement, construction and navigation.
+            // The old 1m-wide bed shrank the imported mattress below the resident's body length.
+            if (template != null)
+            {
+                var size = kind switch
+                {
+                    BuildingKind.SingleBed => new Vector3(1.65f, .85f, 2.8f),
+                    BuildingKind.BigTable => new Vector3(2.4f, 1.2f, 3.2f),
+                    BuildingKind.Bookshelf => new Vector3(2.2f, 2.6f, 1.05f),
+                    BuildingKind.Carpentry => new Vector3(2.5f, 1.5f, 1.95f),
+                    _ => Vector3.zero
+                };
+                if (size != Vector3.zero) template.transform.localScale = size;
+            }
             if (template == null || kind != BuildingKind.SleepingMat && kind != BuildingKind.Toilet
                 && kind != BuildingKind.Washbasin && kind != BuildingKind.SingleBed) return template;
             var building = template.GetComponent<BuildingBase>();

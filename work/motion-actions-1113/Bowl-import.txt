@@ -1,0 +1,1 @@
+Bowl: 2062 triangles, 2 textures, 1 materials

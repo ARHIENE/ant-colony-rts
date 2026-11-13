@@ -20,7 +20,7 @@ namespace AntColony.UI
 
         public static bool Covers(BuildingKind kind) => kind is BuildingKind.Storage or BuildingKind.SleepingMat or BuildingKind.SingleBed
             or BuildingKind.Dormitory or BuildingKind.Toilet or BuildingKind.Farm or BuildingKind.ScienceLab or BuildingKind.AcidTower
-            or BuildingKind.SoilWall or BuildingKind.LeafWall or BuildingKind.CapWall or BuildingKind.CastleWall or BuildingKind.Door
+            or BuildingKind.Palisade or BuildingKind.SoilWall or BuildingKind.LeafWall or BuildingKind.CapWall or BuildingKind.CastleWall or BuildingKind.Door
             or BuildingKind.TrapPit or BuildingKind.SpikeTrap or BuildingKind.Workshop;
 
         // name·cost·locked는 건설 화면이 이미 계산한 값(메뉴 표기, 비용 글자, 잠금 사유)을 그대로 받는다.
@@ -80,9 +80,9 @@ namespace AntColony.UI
                         $"첫 방어 뒤 2웨이브({WaveDefense.Count(2)}마리)를 대비할 때. 적 진입로를 사거리 안에 두세요.",
                         "인력·탄약·선행 연구 없음.");
                 }
-                case BuildingKind.SoilWall: case BuildingKind.LeafWall: case BuildingKind.CapWall: case BuildingKind.CastleWall:
+                case BuildingKind.Palisade: case BuildingKind.SoilWall: case BuildingKind.LeafWall: case BuildingKind.CapWall: case BuildingKind.CastleWall:
                     return ($"적의 통행을 막습니다. 내구 {data.maxHealth:0}"
-                            + (kind == BuildingKind.LeafWall ? " · 불에 탐" : kind == BuildingKind.CastleWall ? $" · 가까운 장수 방어 +{GameBalanceRooms.CastleWallArmor:0}" : "") + ".",
+                            + (kind is BuildingKind.LeafWall or BuildingKind.Palisade ? " · 불에 탐" : kind == BuildingKind.CastleWall ? $" · 가까운 장수 방어 +{GameBalanceRooms.CastleWallArmor:0}" : "") + ".",
                         kind == BuildingKind.LeafWall ? "연구 전에 급히 길을 막을 때. 오래 버티지는 못합니다."
                             : "2~3웨이브 전에 진입로를 좁혀 적을 탑과 장수 앞으로 모을 때.",
                         "인력 없음. 출입구는 문으로 남깁니다. " + Research(kind));

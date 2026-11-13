@@ -49,9 +49,10 @@ namespace AntColony.Units
                 if (IsWorking || ServiceTarget != null || HuntTarget != null || CorpseTarget != null || ScienceAssignment != null || CraftingWorkshop != null) SuspendForNeeds("meal");
                 return true;
             }
-            if (WorkPriorities.Red) { m.eatSeconds = 0; return false; } // 빨간 경보: 먹던 식사도 멈추고 작업한다.
+            if (WorkPriorities.Red) { m.eatSeconds = 0; ResetMealSeat(); return false; } // 빨간 경보: 먹던 식사도 멈추고 작업한다.
             if (m.eatSeconds > 0)
             {
+                UpdateMealSeat();
                 m.eatSeconds = Mathf.Max(0, m.eatSeconds - seconds);
                 if (m.eatSeconds == 0) FinishMeal();
                 return true;
@@ -68,15 +69,18 @@ namespace AntColony.Units
             // 음식을 집은 뒤 접근 가능한 식탁으로 이동한다. 식탁이 없으면 그 자리에서 먹는다.
             var table = AntColony.Core.SceneObjects.All<Kitchen>()
                 .Where(k => !k.IsDead && k.isActiveAndEnabled && (k.IsTable || k.Data != null && k.Data.kind == AntColony.Data.BuildingKind.Kitchen)
-                    && TryWorkApproach(k.Position, out _)).OrderBy(k => (k.Position - Position).sqrMagnitude).FirstOrDefault();
-            if (table != null && MoveForMeal(table.Position)) return true;
+                    && TryMealTableApproach(k, out _)).OrderBy(k => (k.Position - Position).sqrMagnitude).FirstOrDefault();
+            MealTable = table;
+            if (table != null && MoveToMealTable(table)) return true;
             StopMoving(); m.served = false;
             m.eatSeconds = GameBalance.EatSeconds * (traits.Has(CommanderTrait.SlowEater) ? 2 : 1);
+            UpdateMealSeat();
             return true;
         }
 
         private void FinishMeal()
         {
+            ResetMealSeat();
             var m = MealState;
             m.satiety = 100;
             int felt = m.quality == 0 ? 0 : Mathf.Clamp(m.quality + traits.TasteShift, 0, 3);

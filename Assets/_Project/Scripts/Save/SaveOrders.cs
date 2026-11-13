@@ -31,6 +31,9 @@ namespace AntColony.Save
         public WorkerOrderDto worker;
         public string service, hunt, automaticFacility;
         public int serviceJob;
+        public string mealTable;
+        public int mealSeat = -1;
+        public Vec3Dto mealExit;
         public float huntCooldown, workScan;
     }
     [Serializable] public class WildMonsterDto
