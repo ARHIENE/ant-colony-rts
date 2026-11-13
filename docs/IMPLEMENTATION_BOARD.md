@@ -3,6 +3,7 @@
 작업 전에 [게임 방향](../GAME_DIRECTION.md)과 [최근 로그](../log.md)를 읽고 담당 파일을 확인합니다. 다른 담당자가 수정 중인 파일은 동시에 변경하지 않습니다.
 
 ## 최근 작업
+- **SAVE-FORMAT-1113 / Codex 완료** — 사용자 수정본을 읽어 SAVE 표시 규칙 점검. AGENTS.md에 작업 결과별 표정, 일반 날짜 링크, 월 최신순/월 내부 날짜 오름차순 및 기록 후 검증을 명시하고 CLAUDE.md에서 같은 규칙 참조. 현재 Notion 3개월 목록의 오름차순·멘션 없음 및 당일 😌 아이콘 확인. 사용자가 정리한 Notion 페이지는 변경하지 않음. 게임 코드/Unity 작업 없음.
 - **FINAL-MOTION-1113 / 통합 SAVE** — 사용자 요청으로 구현 중단·현재까지 저장. 눈/침대/자원 접점 및 세 세션 완료 변경을 통합. Unity Edit 반환, 다른 두 채팅 idle. 컴퓨터 종료 안 함. 상세 docs/FINAL_MOTION_1113.md. 아래 오래된 진행 중 항목보다 이 최종 인계를 우선한다.
 - COMMANDER-ONLY-1112 추가 소유: Units/UnitSelectionController.cs. 실제 입력 시스템 좌클릭/우클릭 시험에서 나무 위 후퇴 클릭이 채집 거부로 소실되는 문제 재현(3회 이동0m/HP100→72). 소집 중 자원·건설 현장 우클릭을 이동으로 처리, 재검증 진행.
 - **APPEARANCE-OVERLAP-1112 / Codex 후속 수정 대기** — 사용자: 기본 흰머리 위에 선택 머리가 모자처럼 덮이는 현상 보고. 표정/얼굴 및 장비도 겹치는지 점검 요청. 오프라인 메시 진단으로 Face 내부 흰 앞머리/옆머리 잔류 확인. 재분리·장비 렌더러 갱신 초안 준비(work/appearance-overlap-1112), Unity 적용/검증 전. 기존 48조합 검사는 이 겹침 결함의 해결 근거가 아님. 조사 범위: MeshyNativeAppearance, SourceParts 생성/분리, KemonoAppearance. COMMANDER-ONLY 카이팅 검사 종료·설정복원 후 Unity 인계받아 적용/검증 중. 추가 소유 MeshyEquipmentWearables.cs의 Revision, MeshyNativeMotionPlayer 숨김 갱신, SourceParts 재분리.
