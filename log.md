@@ -71,3 +71,9 @@ SAVE는 develop만 대상으로 하며 prefab/prefab.meta는 제외한다. 이�
 
 - 노션 2026-11-14 일지 생성, 😅 아이콘/날짜 제목/13일 다음 일반 링크 확인. GIF1+사진3 stable 파일 참조 확인. Trouble Shooting 별도 당일 기록 완료. Graphify53383노드/141010간선 갱신 완료.
 
+
+## 2026-11-14 통합 SAVE 완료
+- develop 1ed22ff2148e9516db9ea3200bb9df0a85f83269 원격 반영 확인. 97개 에셋 하위 트리와 최종 트리96732689ae2a52cc7287f2ccfd0679eaacdbb728가 로컬과 일치. 압축 원본430개 복구 해시 검사 통과.
+- 노션 https://app.notion.com/p/417c4a0ecd31814a9512debff0cb4e91 : GIF1+사진3, 날짜 제목/😅 아이콘/일반 링크/월 내부 순서 확인. 별도 Trouble Shooting 당일 기록 완료.
+- Unity Edit/ready, 씬 dirty=False, 사용자 설정·저장 경로 복원. 다른 채팅 완료 변경 통합. 책장/목공대와 전체 장비 잔여 및 3웨이브 후 운영 실패는 docs/SAVE_20261114.md에 보존.
+- 사용자 지시대로 저장 완료 후 정상 컴퓨터 종료 예정. 실제 전원 차단을 확인했다는 뜻은 아님.
