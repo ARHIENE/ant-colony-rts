@@ -1,0 +1,17 @@
+Traceback (most recent call last):
+  File "F:\Blender\blender-5.2.3-windows-x64\portable\scripts\addons\blender_mcp.py", line 2387, in execute_code
+    exec(code, namespace)
+    ~~~~^^^^^^^^^^^^^^^^^
+  File "<string>", line 1, in <module>
+NameError: name 'parts' is not defined. Did you mean: 'vars'?
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "F:\Blender\blender-5.2.3-windows-x64\portable\scripts\addons\blender_mcp.py", line 1716, in _execute_command_internal
+    result = handler(**params)
+  File "F:\Blender\blender-5.2.3-windows-x64\portable\scripts\addons\blender_mcp.py", line 2397, in execute_code
+    raise Exception(
+    ...<5 lines>...
+    )
+Exception: {"exception_type": "NameError", "message": "name 'parts' is not defined", "traceback": "Traceback (most recent call last):\n  File \"F:\\Blender\\blender-5.2.3-windows-x64\\portable\\scripts\\addons\\blender_mcp.py\", line 2387, in execute_code\n    exec(code, namespace)\n    ~~~~^^^^^^^^^^^^^^^^^\n  File \"<string>\", line 1, in <module>\nNameError: name 'parts' is not defined. Did you mean: 'vars'?\n"}

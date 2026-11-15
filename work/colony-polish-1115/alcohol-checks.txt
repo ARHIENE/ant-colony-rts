@@ -1,0 +1,32 @@
+Fixture inventory; real walk, pickup, drinking, save/reload.
+PASS Wait completed
+PASS Wait completed
+PASS Old/default state does not automatically drink
+PASS Children cannot drink
+PASS Tolerance traits mutually exclusive
+PASS Physical beer stocked
+PASS Explicit drinking begins
+PASS Distant drink does not consume inventory
+PASS Wait completed
+PASS Walks to stockpile before pickup
+PASS Exactly one portion picked up
+PASS Finding or carrying drink does not relieve withdrawal or cause intoxication
+PASS Save held drink: 
+PASS Reload held drink: 
+PASS Wait completed
+PASS Drink portion and remaining action restored: {"allowed":true,"seeking":false,"forced":false,"returnDraft":false,"intervalDays":2,"portion":69,"binges":0,"intoxication":0.0,"hangover":0.0,"sinceDrink":451.8677062988281,"drinking":4.986968040466309,"retry":0.0,"searchSeconds":1.8678041696548463,"returnPosition":{"x":200.0,"y":10.38116455078125,"z":204.0}} expected seconds 4.986968
+PASS Wait completed
+PASS Loaded drink consumes no duplicate portion
+PASS Actual drinking affects mood and capabilities
+PASS Blackout prevents commands and work
+PASS Dependency bypasses prohibition while ordinary policy remains enforced
+PASS Dependency bypasses draft while ordinary drinking cannot
+PASS Wait completed
+PASS Pickup alone does not relieve withdrawal
+PASS Interrupt returns held portion to real floor cargo
+PASS Wait completed
+PASS Actual forced drinking relieves withdrawal and retains draft
+PASS Half day clears 20 intoxication and 75 seconds hangover
+PASS New personal state validates: 
+PASS Dependency policy save: 
+RESTORED settings and save root

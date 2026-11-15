@@ -62,12 +62,17 @@ namespace AntColony.Buildings
         {
             if (!Operational || Kind != BuildingKind.ManualWell || !NearSource(BuildingKind.WaterSource)
                 || !(seconds > 0) || float.IsInfinity(seconds)) return false;
+            if (StarterCropBed.NeedsWaterSupply && Supply.fluid == (int)AntColony.Data.ResourceType.Water
+                && Supply.amount >= StartSupplyRules.ManualWaterAmount)
+                return Unload(AntColony.Data.ResourceType.Water, StartSupplyRules.ManualWaterAmount);
             Supply.work += seconds;
             while (Supply.work >= StartSupplyRules.ManualWaterSeconds)
             {
                 Supply.work -= StartSupplyRules.ManualWaterSeconds;
                 if (!FluidNetwork.Deliver(this, AntColony.Data.ResourceType.Water, StartSupplyRules.ManualWaterAmount))
                     DiplomacyManager.DropFloor(AntColony.Data.ResourceType.Water, StartSupplyRules.ManualWaterAmount, Position + Vector3.right);
+                else if (StarterCropBed.NeedsWaterSupply && Supply.amount >= StartSupplyRules.ManualWaterAmount)
+                    Unload(AntColony.Data.ResourceType.Water, StartSupplyRules.ManualWaterAmount);
             }
             return true;
         }

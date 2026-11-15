@@ -257,6 +257,14 @@ namespace AntColony.Save
                 // 완료·진행 연구 ID 목록은 번호를 뒤에 추가했으므로 그대로 보존한다.
                 file.version = 24;
             }
+            if (file.version == 24)
+            {
+                if (file.world?.transports != null) foreach (var transport in file.world.transports)
+                    if (transport?.cargoAmounts?.Length == (int)Data.ResourceType.BarleyPorridge)
+                        Array.Resize(ref transport.cargoAmounts, Core.StoreBin.TypeCount);
+                file.version = 25;
+            }
+            if (file.version == 25) file.version = 26; // 구 수송 수단은 handcart=false로 복원한다.
             if (file.version != SaveFileV1.CurrentVersion)
             {
                 error = $"저장 버전 {file.version}은 이 빌드에서 읽을 수 없습니다(지원 버전 {SaveFileV1.CurrentVersion}).";
@@ -275,6 +283,7 @@ namespace AntColony.Save
             if (!Enum.IsDefined(typeof(Core.MapSize), file.options.mapSize)) { error = "지도 크기 정보가 올바르지 않습니다."; return false; }
             if (!Enum.IsDefined(typeof(Core.DifficultyLevel), file.options.difficulty)) { error = "난이도 정보가 올바르지 않습니다."; return false; }
             if (!Enum.IsDefined(typeof(Core.CommanderDeathMode), file.options.commanderDeath)) { error = "장수 사망 설정이 올바르지 않습니다."; return false; }
+            if (file.options.startingCount < 0 || file.options.startingCount > 3) { error = "시작 장수 수가 올바르지 않습니다."; return false; }
             if (!Enum.IsDefined(typeof(Core.MapBiome), file.options.biome)) { error = "지형 정보가 올바르지 않습니다."; return false; }
             if (!Enum.IsDefined(typeof(Core.MapClimate), file.options.climate)) { error = "기후 정보가 올바르지 않습니다."; return false; }
             var pop = file.population;

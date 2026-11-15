@@ -1,0 +1,12 @@
+{
+  "name": "BroodAlien",
+  "changed": [
+    "Move"
+  ],
+  "strideSourceUnitsPerSecond": 0.33333333333333337,
+  "riderBones": [],
+  "clips": [
+    "Move"
+  ],
+  "horizontalExtent": 1.3537487983703613
+}

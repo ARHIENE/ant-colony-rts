@@ -3,6 +3,7 @@ using System.Linq;
 using AntColony.Core;
 using AntColony.World;
 using UnityEngine;
+using UnityEngine.UI;
 
 namespace AntColony.UI
 {
@@ -16,11 +17,30 @@ namespace AntColony.UI
         {
             var research = CampaignResearch.Instance;
             if (research == null || !research.Departed) return;
-            Screen("발사 — ROCKET LAUNCH VICTORY", "로켓 발사 — 탈출 성공"); Time.timeScale = 0;
-            var scene = MenuTheme.Text(content, "~ ~ ~   로켓이 정착지를 떠나 우주로 날아오릅니다   ~ ~ ~", 22, 60);
+            var finalVictory = RocketCampaign.Instance?.MothershipVictory == true;
+            Screen(finalVictory ? "본선 격파 — CAMPAIGN VICTORY" : "발사 — ROCKET LAUNCH VICTORY", finalVictory ? "외계 본선 격파 · 침공을 막았습니다" : "로켓 발사 — 이전 저장의 탈출 기록"); Time.timeScale = 0;
+            var scene = MenuTheme.Text(content, finalVictory ? "본선 지휘체가 쓰러졌습니다. 정착지와 원정대의 기록을 확인하세요." : "로켓이 정착지를 떠나 우주로 날아오릅니다.", 22, 60);
             scene.alignment = TextAnchor.MiddleCenter; scene.color = MenuTheme.Accent;
             foreach (var line in EndingRecord(research)) MenuTheme.Text(content, line, 17, Mathf.Max(30, 24 * (1 + line.Length / 70)));
-            MenuTheme.Button(content, "Main Menu", () => { GameSession.Instance.MarkNotStarted(); Main(); }).GetComponentInChildren<UnityEngine.UI.Text>().text = "메인 메뉴";
+            scrollArea.anchorMin = new Vector2(.12f, .23f);
+            frame = MenuTheme.Rect("EndingFooter", panel);
+            frame.anchorMin = new Vector2(.12f, .10f); frame.anchorMax = new Vector2(.88f, .21f);
+            frame.offsetMin = frame.offsetMax = Vector2.zero;
+            frame.gameObject.AddComponent<Image>().color = MenuTheme.Background;
+            var layout = frame.gameObject.AddComponent<HorizontalLayoutGroup>();
+            layout.padding = new RectOffset(14, 14, 10, 10); layout.spacing = 12;
+            layout.childControlWidth = layout.childControlHeight = true;
+            layout.childForceExpandWidth = false; layout.childForceExpandHeight = true;
+            var hint = MenuTheme.Text(frame, "휠로 기록을 내려 볼 수 있습니다.", 16, 40);
+            hint.alignment = TextAnchor.MiddleLeft; hint.GetComponent<LayoutElement>().flexibleWidth = 1;
+            void Action(string name, string label, Action action)
+            {
+                var button = MenuTheme.Button(frame, name, action);
+                button.GetComponentInChildren<Text>().text = label;
+                var size = button.GetComponent<LayoutElement>(); size.preferredWidth = 190; size.flexibleWidth = 0;
+            }
+            Action("Save Victory", "승리 기록 저장", () => Slots(true));
+            Action("Main Menu", "메인 메뉴", () => { GameSession.Instance.MarkNotStarted(); Main(); });
         }
 
         // 엔딩 기록 줄. 검사도 같은 줄을 읽는다.
@@ -45,7 +65,9 @@ namespace AntColony.UI
             var ending = RocketCampaign.Instance?.Ending;
             if (ending != null)
             {
-                var labels = new[] { "탈출", "생존 잔류", "외부 원정/이동", "포로", "사망", "이탈" };
+                var labels = RocketCampaign.Instance?.MothershipVictory == true
+                    ? new[] { "본선 원정 생존", "본거지 생존", "외부 생존", "포로", "사망", "이탈" }
+                    : new[] { "탈출", "생존 잔류", "외부 원정/이동", "포로", "사망", "이탈" };
                 foreach (EndingCategory category in Enum.GetValues(typeof(EndingCategory)))
                 {
                     var names = ending.commanders.Where(c => c.category == category).Select(c => c.name).ToArray();

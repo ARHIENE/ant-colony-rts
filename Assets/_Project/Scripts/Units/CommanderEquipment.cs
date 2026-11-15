@@ -9,7 +9,7 @@ namespace AntColony.Units
     public enum TrinketEffect { Move, Gather, Mood, Command }
     // Append only: numeric IDs are stored in existing saves.
     public enum WeaponKind { Mandible, AcidSprayer, Shield, Pheromone, WoodenSword, ShortBow, Sword, SingleRifle, BurstCarbine, Scattergun, Katana, GrandBow, SniperRifle, QuakeMaul }
-    public enum ArmorKind { Coating, Wings }
+    public enum ArmorKind { Coating, Wings, ClothClothes }
     public enum BossEquipmentKind { None, Durable, HeatShield, AreaWeapon }
     [Serializable]
     public partial class EquipmentItem
@@ -28,13 +28,14 @@ namespace AntColony.Units
         public bool IsValid => !string.IsNullOrEmpty(id) && Enum.IsDefined(typeof(EquipmentSlot), slot) && quality >= 0 && quality <= 3
             && Enum.IsDefined(typeof(TrinketEffect), effect) && Enum.IsDefined(typeof(WeaponKind), weapon) && Enum.IsDefined(typeof(ArmorKind), armor)
             && Enum.IsDefined(typeof(BossEquipmentKind), bossEquipment) && !float.IsNaN(durability) && !float.IsInfinity(durability)
-            && durability >= 0 && durability <= DurableCapacity && UniqueEffectValid
+            && durability >= 0 && durability <= (IsClothing ? ClothingCapacity : DurableCapacity) && UniqueEffectValid
             && (bossEquipment == BossEquipmentKind.None || bossEquipment == BossEquipmentKind.AreaWeapon && slot == EquipmentSlot.Weapon
                 || (bossEquipment == BossEquipmentKind.Durable || bossEquipment == BossEquipmentKind.HeatShield) && slot == EquipmentSlot.Armor);
         public string Label => (unique ? "유일작 " + UniqueEffectLabel : "") + new[] { "조잡", "보통", "정교", "걸작" }[Mathf.Clamp(quality,0,3)] + " "
             + (bossEquipment != BossEquipmentKind.None ? BossLabel : slot == EquipmentSlot.Weapon && weapon == WeaponKind.WoodenSword ? "나무칼"
                 : slot == EquipmentSlot.Weapon && weapon == WeaponKind.ShortBow ? "단궁"
                 : slot == EquipmentSlot.Weapon ? CommanderAnt.WeaponDisplayName(weapon)
+                : IsClothing ? "천옷 (내구 " + Mathf.CeilToInt(durability) + "/" + ClothingCapacity + ")"
                 : EquipmentRecipes.Name((EquipmentRecipe)(slot == EquipmentSlot.Armor ? 4 + (int)armor : 6 + (int)effect)));
         public static EquipmentItem Random(int quality) => new EquipmentItem { slot = (EquipmentSlot)UnityEngine.Random.Range(0,3), quality = Mathf.Clamp(quality,0,3),
             effect = (TrinketEffect)UnityEngine.Random.Range(0,3), weapon = (WeaponKind)UnityEngine.Random.Range(0,4), armor = (ArmorKind)UnityEngine.Random.Range(0,2) };
@@ -60,6 +61,7 @@ namespace AntColony.Units
             if (commander.IsAwayFromHome) return "본거지 밖 — 보관함에 접근할 수 없음";
             if (!commander.CanReceiveOrders) return "명령을 받을 수 없는 상태";
             if (commander.IsConstructing || commander.LabUpgradeBusy) return "건설·연구 중";
+            if (next != null && AntColony.Buildings.Workshop.RepairReserved(next.id)) return "재봉대 수리 예약 중 — 주문 취소 후 장착";
             if (next != null && !Items.Contains(next)) return "보관함에 없는 장비";
             if (old != null && !commander.PersonalState.equipment.Contains(old)) return "장착하지 않은 장비";
             if (next == null && old != null && Full) return "보관함이 가득 참";

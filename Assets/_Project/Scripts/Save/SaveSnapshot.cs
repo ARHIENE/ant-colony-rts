@@ -32,7 +32,7 @@ namespace AntColony.Save
             SaveRuntime.RegisterMonsters();
             var file = new SaveFileV1 { savedAtUtc = DateTime.UtcNow.ToString("O"), unityVersion = Application.unityVersion,
                 label = options.mapSize + " / " + options.difficulty, playSeconds = GameSession.Instance.PlaySeconds, gameSeconds = GameSession.Instance.GameSeconds,
-                options = new OptionsDto { mapSize = (int)options.mapSize, difficulty = (int)options.difficulty, commanderDeath = (int)options.commanderDeath, seed = options.seed, biome = (int)options.biome, climate = (int)options.climate },
+                options = new OptionsDto { mapSize = (int)options.mapSize, difficulty = (int)options.difficulty, commanderDeath = (int)options.commanderDeath, startingCount = options.startingCount, seed = options.seed, biome = (int)options.biome, climate = (int)options.climate },
                 randomState = JsonUtility.ToJson(UnityEngine.Random.state),
                 assessment = WorldMapManager.Instance.Assessment.Capture(),
                 underground = UndergroundSurvey.Instance.Capture(),
@@ -100,7 +100,7 @@ namespace AntColony.Save
             file.world.hadHomeColony = home != null; file.world.homeColony = Colony(home);
             file.world.pause = AntColony.UI.SimulationPause.Capture();
             file.world.defenseReturn = JsonUtility.FromJson<HomeDefenseReturn>(JsonUtility.ToJson(world.DefenseReturn));
-            foreach (var s in world.Transports.Where(s => s != null)) file.world.transports.Add(new TransportDto { walking = s.Walking, foodDebt = s.FoodDebt, dockingRemaining = s.DockingRemaining, aircraft = s.Aircraft, state = (int)s.State,
+            foreach (var s in world.Transports.Where(s => s != null)) file.world.transports.Add(new TransportDto { walking = s.Walking, handcart = s.Handcart, cartPull = s.CaptureCartPull(), foodDebt = s.FoodDebt, dockingRemaining = s.DockingRemaining, aircraft = s.Aircraft, state = (int)s.State,
                 cargoFreshness = JsonUtility.FromJson<FoodCargoWrapper>(JsonUtility.ToJson(new FoodCargoWrapper { values = s.CaptureFoodCargo() })).values,
                 bodyCargo = s.bodyCargo.Select(b => JsonUtility.FromJson<Corpse.State>(JsonUtility.ToJson(b))).ToList(),
                 cargoAmounts = Enum.GetValues(typeof(ResourceType)).Cast<ResourceType>().Select(s.GetCargo).ToArray(), damage = s.CaptureDamage(), withdrawal = s.CaptureWithdrawal(),
@@ -262,7 +262,8 @@ namespace AntColony.Save
             var ships = new List<ExpeditionTransport>();
             foreach (var d in file.world.transports)
             {
-                var ship = world.CreateTransport(d.aircraft, d.homePosition.ToVector3(), d.walking);
+                var ship = world.CreateTransport(d.aircraft, d.homePosition.ToVector3(), d.walking, d.handcart);
+                ship.RestoreCartPull(d.cartPull);
                 BossRewardTransfer.RestoreCarrier(ship, d.bossCarrierId, ships.Count);
                 SaveReferences.Register("ship:" + ships.Count, ship); ships.Add(ship);
                 ship.RestoreDamage(d.damage);

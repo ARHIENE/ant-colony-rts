@@ -14,6 +14,7 @@ namespace AntColony.UI
         private RectTransform screen;
         private SelectionManager selection;
         private float refresh;
+        private ColonyFoodStatus food = new ColonyFoodStatus();
 
         public static CommanderAnt[] HomeCommanders => RosterBar.Commanders.Where(c => !c.IsAwayFromHome).ToArray();
         public static int Beds => Dormitory.All.Where(d => d != null && d.isActiveAndEnabled && !d.IsDead).Sum(d => d.Beds);
@@ -63,10 +64,13 @@ namespace AntColony.UI
                         + string.Join(" · ", selected.Take(6).Select(c => c.CommanderName + " (" + (c.IsDeployed ? "출전" : CommanderOverhead.Activity(c) is var a && a != "" ? a : "대기") + ")"))
                         + (selected.Length > 6 ? $" 외 {selected.Length - 6}명" : "")
                         + $"\n\n평시 {selected.Count(c => !c.IsDeployed)}명 · 출전 {selected.Count(c => c.IsDeployed)}명"
-                    : $"<size=21><b>군체 현황</b></size>\n장수나 건물을 선택하세요. 평시 장수는 작업표에 따라 일합니다.\n\n본거지 장수 {HomeCommanders.Length}명\n\n숙소 침대 {Beds} / 장수 {HomeCommanders.Length}"
-                        + (BedShortage > 0 ? $"   <color=#ef955f>{BedShortage}명 부족</color>" : "   충분");
+                    : $"<size=21><b>정착지 현황</b></size>\n본거지 장수 {HomeCommanders.Length}명 · 침대 {Beds}개"
+                        + (BedShortage > 0 ? $"   <color=#ef955f>{BedShortage}명 부족</color>" : "")
+                        + $"\n{food.Summary}\n<size=12>하루 2끼 기준 추정 · 식단·접근성은 식량 메뉴에서 확인</size>"
+                        + (food.Bottlenecks.Length > 0 ? $"\n<color=#efbd78>{food.Bottlenecks}</color>" : "\n생산·생활 설정은 시설과 장수를 선택해 조정합니다.");
             if ((refresh -= Time.unscaledDeltaTime) > 0) return;
             refresh = 1;
+            food = ColonyFoodStatus.Read();
             bool shortage = GameSession.Exists && GameSession.Instance.GameStarted && BedShortage > 0;
             ToastManager.SetCrisis("beds", shortage ? $"숙소 부족: 침대 {BedShortage}개 부족 — 장수가 노숙할 수 있습니다." : null, FocusBeds, "숙소로 이동");
         }

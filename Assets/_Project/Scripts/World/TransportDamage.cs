@@ -37,13 +37,15 @@ namespace AntColony.World
 
     public partial class ExpeditionTransport
     {
+        private ResourceType RepairMaterial => Handcart ? ResourceType.Wood : ResourceType.Soil;
+        private int RepairMaterialCost(double fraction) => Handcart ? (int)Math.Ceiling(35 * fraction * GameBalance.RepairCostShare - .00001) : TransportDamage.RepairCost(Aircraft, fraction);
         private double repairedFraction;
         private float salvageProgress;
         private bool salvaged;
-        public override float MaxHealth => Walking ? base.MaxHealth : Aircraft ? TransportDamage.AircraftHealth : TransportDamage.VehicleHealth;
-        public float TravelSpeedMultiplier => Walking ? 1 : TransportDamage.Speed(CurrentHealth, MaxHealth);
+        public override float MaxHealth => Handcart ? 180 : Walking ? base.MaxHealth : Aircraft ? TransportDamage.AircraftHealth : TransportDamage.VehicleHealth;
+        public float TravelSpeedMultiplier => (Handcart || Walking) && !HasPilot ? 0 : Walking ? 1 : TransportDamage.Speed(CurrentHealth, MaxHealth);
         public bool CanOperate => !IsDead && TravelSpeedMultiplier > 0 && !salvaged;
-        public bool HasPilot => Walking || crew.Any(c => c != null && !c.IsDead && c.PersonalHealth > 0 && !c.Health.Downed);
+        public bool HasPilot => crew.Any(c => c != null && !c.IsDead && c.PersonalHealth > 0 && !c.Health.Downed);
         public bool IsWreck => !Walking && IsDead;
         public bool Salvaged => salvaged;
         public float SalvageRemaining => Mathf.Max(0, TransportDamage.SalvageSeconds - salvageProgress);
@@ -92,15 +94,15 @@ namespace AntColony.World
             if (!(rate > 0)) return false;
             var restored = Mathf.Min(MaxHealth, CurrentHealth + rate * seconds) - CurrentHealth;
             var fraction = repairedFraction + (double)restored / MaxHealth;
-            var cost = TransportDamage.RepairCost(Aircraft, fraction) - TransportDamage.RepairCost(Aircraft, repairedFraction);
+            var cost = RepairMaterialCost(fraction) - RepairMaterialCost(repairedFraction);
             if (cost > 0)
             {
                 if (State == ExpeditionState.Deployed)
                 {
-                    if (GetCargo(ResourceType.Soil) < cost) return true; // 현장 보급 대기. 연료·식량 소비 없음.
-                    cargo[ResourceType.Soil] = GetCargo(ResourceType.Soil) - cost;
+                    if (GetCargo(RepairMaterial) < cost) return true; // 현장 보급 대기. 연료·식량 소비 없음.
+                    cargo[RepairMaterial] = GetCargo(RepairMaterial) - cost;
                 }
-                else if (ResourceManager.Instance == null || !ResourceManager.Instance.TrySpend(ResourceType.Soil, cost, ResourceReason.Construction)) return true;
+                else if (ResourceManager.Instance == null || !ResourceManager.Instance.TrySpend(RepairMaterial, cost, ResourceReason.Construction)) return true;
             }
             repairedFraction = fraction;
             RestoreHealth(CurrentHealth + restored);
@@ -115,7 +117,7 @@ namespace AntColony.World
             salvageProgress = Mathf.Min(TransportDamage.SalvageSeconds, salvageProgress + seconds * salvageWorker.WorkRate(CommanderActivity.Building));
             if (salvageProgress < TransportDamage.SalvageSeconds) return;
             salvaged = true; salvageWorker = null;
-            DiplomacyManager.DropFloor(ResourceType.Soil, Mathf.FloorToInt(TransportDamage.MaterialCost(Aircraft) * TransportDamage.SalvageShare), Position);
+            DiplomacyManager.DropFloor(RepairMaterial, Mathf.FloorToInt((Handcart ? 35 : TransportDamage.MaterialCost(Aircraft)) * TransportDamage.SalvageShare), Position);
         }
         private void BecomeWreck()
         {

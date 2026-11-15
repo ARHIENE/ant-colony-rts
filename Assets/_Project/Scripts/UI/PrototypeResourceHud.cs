@@ -30,6 +30,8 @@ namespace AntColony.UI
         }
         private RectTransform root; private readonly Dictionary<ResourceType,Text> labels=new Dictionary<ResourceType,Text>();
         private float next;
+        private float nextFood;
+        private Text foodReserve;
         private readonly HashSet<ResourceType> displayed = new HashSet<ResourceType>();
         public static string Symbol(ResourceType t)=>t.IsFood()?"●":t==ResourceType.Wood?"▰":t==ResourceType.Stone?"◆":t==ResourceType.Water?"◉":"■";
         public static Color Tint(ResourceType t)=>t.IsFood()?MenuTheme.Hex(0xd3bb7b):t==ResourceType.Wood?MenuTheme.Hex(0xb08a5a):t==ResourceType.Stone?MenuTheme.Hex(0xb7b6aa):MenuTheme.Hex(0xb9ac93);
@@ -45,20 +47,31 @@ namespace AntColony.UI
                 PrototypeResourceIcon.Create(b.transform,t,2,2);
                 var n=MenuLayout.Label(b.transform,"—",15,28,0,48,28,align:TextAnchor.MiddleRight);n.font=MenuTheme.NumberFont;n.fontSize=15;labels[t]=n;i++;
             }
+            var foodButton=MenuLayout.Button(root,"FoodReserve","",8,6+i*32,80,30,()=>GameMenuController.Instance?.ShowDiet(),"식량 비축·생산 병목 확인");
+            foodReserve=MenuLayout.Label(foodButton.transform,"식량 확인",13,0,0,80,30,align:TextAnchor.MiddleCenter);
+            nextFood=0;
             HudChrome.Round(root.GetComponent<Image>(),5,new Color(185/255f,175/255f,161/255f,77/255f));displayed.Clear();displayed.UnionWith(Pinned);
         }
         void LateUpdate()
         {
             if(root==null)return; bool small=Screen.width/MenuTheme.UiScale<=760;
             root.anchoredPosition=new Vector2(small?14:20,small?-20:-22);
-            root.sizeDelta=new Vector2(small?96:104,(small?14:18)+labels.Count*28+Mathf.Max(0,labels.Count-1)*4);
+            root.sizeDelta=new Vector2(small?96:104,(small?14:18)+labels.Count*28+Mathf.Max(0,labels.Count-1)*4+36);
             int i=0;foreach(var item in labels){MenuLayout.Place((RectTransform)item.Value.transform.parent,small?9:10,(small?7:9)+i*32,small?78:84,28);item.Value.rectTransform.sizeDelta=new Vector2(small?48:54,28);i++;}
+            if(foodReserve)MenuLayout.Place((RectTransform)foodReserve.transform.parent,small?9:10,(small?7:9)+i*32,small?78:84,30);
         }
         void Update()
         {
             if(root==null)return;root.gameObject.SetActive(GameSession.Exists&&GameSession.Instance.GameStarted&&!GameMenuController.MenuOpen&&!BuildScreen.IsOpen);
             if(Time.unscaledTime<next)return;next=Time.unscaledTime+.3f;
             if(!displayed.SetEquals(Pinned))Rebuild();
+            if(foodReserve&&Time.unscaledTime>=nextFood)
+            {
+                nextFood=Time.unscaledTime+2;var food=ColonyFoodStatus.Read();
+                foodReserve.text=food.residents>0?$"식량 {food.days:0.#}일":"식량 현황";
+                foodReserve.color=food.residents>0&&food.days<1?MenuTheme.Hex(0xee987c):food.days<3?MenuTheme.Hex(0xe4c58e):MenuTheme.TextColor;
+                foodReserve.transform.parent.GetComponent<MenuTooltip>().Message=food.Summary+"\n"+food.Bottlenecks+"\n하루 2끼 기준 추정 · 식단·경로·부패는 별도 확인\n클릭: 식단과 생산 병목";
+            }
             foreach(var item in labels){int n=ResourceManager.Instance?.GetAmount(item.Key)??0;item.Value.text=n>=10000?(n/1000f).ToString("0.#")+"k":n.ToString();item.Value.transform.parent.GetComponent<MenuTooltip>().Message=item.Key.DisplayName()+" · "+n+"\n창고에서 사용 가능한 재고 · 클릭: 자원 관리";}
         }
     }

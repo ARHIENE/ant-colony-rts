@@ -1,0 +1,28 @@
+{
+  "success": true,
+  "command": "command",
+  "data": {
+    "command": "run_script",
+    "parameters": {
+      "file": "AgentScripts/OrganicEnemy1114Import.cs",
+      "entry": "OrganicEnemy1114Import.Main",
+      "args": "[\"HuntRider\"]",
+      "timeout_ms": "300000"
+    },
+    "result": {
+      "diagnostics": [],
+      "compileMs": 133,
+      "executeMs": 15356,
+      "assemblyName": "PipelineRunScript_OrganicEnemy1114Import_1f119a49dd614ab59aa29e46bf722751",
+      "success": true,
+      "result": "Idle: 3s, 680 curves\r\nMove: 1s, 680 curves\r\nAttack: 1.4s, 680 curves\r\nHit: 0.6s, 680 curves\r\nDeath: 2s, 680 curves\r\nMaterial textures: BaseColor,MetallicRoughness,Normal\r\nController Action: 0 Idle / 1 Move / 2 Attack / 3 Hit / 4 Death. Gameplay spawning not connected.\r\n"
+    },
+    "target": {
+      "host": "127.0.0.1",
+      "port": 7800,
+      "projectPath": "F:\\UnityProjects\\ant-colony-rts"
+    }
+  },
+  "errors": [],
+  "warnings": []
+}

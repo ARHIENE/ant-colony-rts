@@ -8,6 +8,8 @@ namespace AntColony.Camera
     [RequireComponent(typeof(UnityEngine.Camera))]
     public class IsometricCameraController : MonoBehaviour
     {
+        // Existing scenes use a 5-unit close zoom; saves must accept that playable view.
+        public const float MinimumSupportedViewSize = 5f, MaximumSupportedViewSize = 35f;
         [SerializeField] private Vector3 focusPoint = new Vector3(5f, 8f, 5f);
         // 스타크래프트식: 정면(남쪽)에서 비스듬히 내려다봐 맵 격자가 화면과 나란하고 위에서 본 지도처럼 보인다(2026-10-23 사용자 요청).
         // 씬에 직렬화된 옛 값(35°·45°)을 쓰지 않도록 상수로 둔다.
@@ -23,6 +25,8 @@ namespace AntColony.Camera
         [SerializeField] private float maxX = 400f;
         [SerializeField] private float minZ = 0f;
         [SerializeField] private float maxZ = 400f;
+        // No hidden border strip: expedition gates lie on the playable map edge.
+        private float regionPadding;
 
         [SerializeField] private float zoomSpeed = 15f;
         [SerializeField] private float minOrthoSize = 8f;
@@ -36,7 +40,7 @@ namespace AntColony.Camera
         public Vector3 FocusPoint => focusPoint;
         public float Yaw => yaw;
         internal void RestoreView(Vector3 focus, float rotation, float size)
-        { focusPoint = focus; yaw = rotation; rotateTimer = -1; cam.orthographicSize = targetOrthoSize = size; ApplyTransform(); }
+        { focusPoint = focus; yaw = rotation; rotateTimer = -1; cam.orthographicSize = targetOrthoSize = Mathf.Clamp(size, MinimumSupportedViewSize, MaximumSupportedViewSize); ApplyTransform(); }
         public void ApplySettings(float speed, float edge) { panSpeed = speed; edgeScrollThickness = edge; }
         public Rect PanBounds => Rect.MinMaxRect(minX, minZ, maxX, maxZ);
         public float ViewSize => cam != null ? cam.orthographicSize : startOrthoSize;
@@ -48,8 +52,9 @@ namespace AntColony.Camera
             ApplyTransform();
         }
 
-        public void SetRegion(Vector3 focus, Bounds bounds)
+        public void SetRegion(Vector3 focus, Bounds bounds, float padding = 0f)
         {
+            regionPadding = Mathf.Max(0, padding);
             focusPoint = focus;
             minX = bounds.min.x;
             maxX = bounds.max.x;
@@ -69,6 +74,8 @@ namespace AntColony.Camera
 
         private void Awake()
         {
+            minOrthoSize = Mathf.Clamp(minOrthoSize, MinimumSupportedViewSize, MaximumSupportedViewSize);
+            maxOrthoSize = Mathf.Clamp(maxOrthoSize, minOrthoSize, MaximumSupportedViewSize);
             cam = GetComponent<UnityEngine.Camera>();
             cam.orthographic = true;
             cam.orthographicSize = targetOrthoSize = startOrthoSize;
@@ -227,8 +234,8 @@ namespace AntColony.Camera
                 var forward = Quaternion.Euler(0, yaw, 0) * Vector3.forward;
                 var halfWidth = cam.orthographicSize * cam.aspect;
                 var halfDepth = cam.orthographicSize / Mathf.Sin(pitch * Mathf.Deg2Rad);
-                var marginX = Mathf.Min((maxX - minX) * .5f, Mathf.Abs(right.x) * halfWidth + Mathf.Abs(forward.x) * halfDepth + 20f);
-                var marginZ = Mathf.Min((maxZ - minZ) * .5f, Mathf.Abs(right.z) * halfWidth + Mathf.Abs(forward.z) * halfDepth + 20f);
+                var marginX = Mathf.Min((maxX - minX) * .5f, Mathf.Abs(right.x) * halfWidth + Mathf.Abs(forward.x) * halfDepth + regionPadding);
+                var marginZ = Mathf.Min((maxZ - minZ) * .5f, Mathf.Abs(right.z) * halfWidth + Mathf.Abs(forward.z) * halfDepth + regionPadding);
                 focusPoint.x = Mathf.Clamp(focusPoint.x, minX + marginX, maxX - marginX);
                 focusPoint.z = Mathf.Clamp(focusPoint.z, minZ + marginZ, maxZ - marginZ);
             }

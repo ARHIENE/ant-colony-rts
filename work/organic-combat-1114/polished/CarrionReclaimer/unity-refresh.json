@@ -1,0 +1,28 @@
+{
+  "success": true,
+  "command": "command",
+  "data": {
+    "command": "run_script",
+    "parameters": {
+      "file": "AgentScripts/OrganicEnemy1114Import.cs",
+      "entry": "OrganicEnemy1114Import.RefreshAnimations",
+      "args": "[\"CarrionReclaimer\"]",
+      "timeout_ms": "120000"
+    },
+    "result": {
+      "diagnostics": [],
+      "compileMs": 91,
+      "executeMs": 5721,
+      "assemblyName": "PipelineRunScript_OrganicEnemy1114Import_a05fbcf827e0469c865a094f4ab25984",
+      "success": true,
+      "result": "CarrionReclaimer: refreshed 5 clips; existing material/controller metadata preserved."
+    },
+    "target": {
+      "host": "127.0.0.1",
+      "port": 7800,
+      "projectPath": "F:\\UnityProjects\\ant-colony-rts"
+    }
+  },
+  "errors": [],
+  "warnings": []
+}

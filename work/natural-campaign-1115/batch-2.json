@@ -1,0 +1,17 @@
+{
+  "label": "04r-soil-and-water",
+  "seconds": 120,
+  "speed": 3,
+  "stop": true,
+  "priorities": [
+    "0,Gathering,9",
+    "1,Building,9",
+    "1,Hauling,6",
+    "2,Cooking,9"
+  ],
+  "designate": true,
+  "prioritize": "Soil",
+  "directGather": "Soil",
+  "haul": "PlantingMaterial",
+  "plantStarterCrops": true
+}

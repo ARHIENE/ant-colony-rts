@@ -9,10 +9,11 @@ namespace AntColony.Core
 {
     // 씬과 함께 수명이 끝난다. 건물 파괴와 무관한 위기 유예·경제 이력·엔딩·본거지 기준점.
     [DefaultExecutionOrder(-1000)]
-    public sealed class RocketCampaign : MonoBehaviour
+    public sealed partial class RocketCampaign : MonoBehaviour
     {
         [Serializable] public sealed class State
         {
+            public MothershipState mothership = new MothershipState();
             public float crisisResumeAt;
             public RocketEconomy economy = new RocketEconomy();
             public CampaignOutcome.State ending;
@@ -40,11 +41,11 @@ namespace AntColony.Core
         {
             if (CommanderRoster.Instance == null) return;
             foreach (var commander in CommanderRoster.Instance.Commanders)
-                if (commander != null) commander.WorkState.holdDeployment = operating && CampaignOutcome.Survivor(commander)
+                if (commander != null) commander.WorkState.holdDeployment = AwayOnMothership(commander) || ExpeditionTransport.IsEscorting(commander) || operating && CampaignOutcome.Survivor(commander)
                     && !commander.IsAwayFromHome;
         }
-        private void Awake() => Instance = this;
-        private void Update() => FixedDeploymentHold(Operating);
+        private void Awake() { Instance = this; EnsureMothershipSurface(); }
+        private void Update() { FixedDeploymentHold(Operating); TickMothership(); }
         private void LateUpdate() => FixedDeploymentHold(Operating);
         private void Start()
         {
@@ -54,6 +55,7 @@ namespace AntColony.Core
         }
         private void OnDestroy()
         {
+            DisposeMothership();
             if (Instance == this) { Instance = null; AssaultTick = null; }
         }
         public void SetHome(Vector3 point) { state.home = point; state.hasHome = true; }
@@ -85,16 +87,17 @@ namespace AntColony.Core
             state.assaultRemaining = nextDelay;
         }
         public void RecordEnding(AirshipYard yard) => state.ending = CampaignOutcome.Capture(yard.Passengers);
-        public State Capture() => JsonUtility.FromJson<State>(JsonUtility.ToJson(state));
+        public State Capture() { CaptureMothershipCombat(); return JsonUtility.FromJson<State>(JsonUtility.ToJson(state)); }
         public void Restore(State value)
         {
             if (!Validate(value)) throw new FormatException("Invalid rocket campaign state.");
             state = value == null ? new State() : JsonUtility.FromJson<State>(JsonUtility.ToJson(value));
+            RestoreMothership();
             if (!state.hasHome) SetHome(AntColony.World.WorldMapManager.Instance?.HomePosition ?? transform.position);
             if (state.initialCommanders == 0 && GameSession.Exists) state.initialCommanders = GameSession.Instance.Options.startingCount;
         }
         public static bool Validate(State value) => value == null || RocketSnapshot.Finite(value.crisisResumeAt)
-            && value.initialCommanders >= 0
+            && ValidMothership(value.mothership) && value.initialCommanders >= 0
             && value.assaultWave >= 0 && RocketSnapshot.Finite(value.assaultAt) && RocketSnapshot.Finite(value.assaultRemaining)
             && value.economy != null && value.economy.Valid() && CampaignOutcome.Validate(value.ending)
             && !float.IsNaN(value.home.x) && !float.IsInfinity(value.home.x)

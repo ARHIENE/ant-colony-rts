@@ -1,0 +1,27 @@
+{
+  "success": true,
+  "command": "command",
+  "data": {
+    "command": "run_script",
+    "parameters": {
+      "file": "work/organic-combat-1114/OrganicCombatView1114.cs",
+      "entry": "OrganicCombatView1114.Main",
+      "timeout_ms": "20000"
+    },
+    "result": {
+      "diagnostics": [],
+      "compileMs": 326,
+      "executeMs": 496,
+      "assemblyName": "PipelineRunScript_OrganicCombatView1114_6d4158d6dfdf42478350696488a0b63f",
+      "success": true,
+      "result": "PASS first-wave 14 organic + original commander; GPU horde 20 bodies (19 instanced); world size=(1.30, 0.85, 1.59); frame prepared"
+    },
+    "target": {
+      "host": "127.0.0.1",
+      "port": 7801,
+      "projectPath": "F:\\UnityProjects\\ant-colony-rts"
+    }
+  },
+  "errors": [],
+  "warnings": []
+}

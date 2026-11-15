@@ -1,0 +1,17 @@
+{
+  "label": "05r-stockpile-materials",
+  "seconds": 60,
+  "speed": 3,
+  "stop": true,
+  "priorities": [
+    "0,Hauling,9",
+    "0,Gathering,5",
+    "1,Hauling,9",
+    "1,Building,5",
+    "2,Cooking,9"
+  ],
+  "directGather": "PlantingMaterial",
+  "haul": "Soil",
+  "plantStarterCrops": true,
+  "research": "FungalFarming"
+}

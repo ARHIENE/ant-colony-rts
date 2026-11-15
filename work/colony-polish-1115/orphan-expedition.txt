@@ -1,0 +1,12 @@
+Natural departure loss retained; DTO variants below are isolated validation checks only.
+PASS Actual orphaned expedition restored with all 12 cargo units and no resurrected crew
+PASS Zero-carrier expedition rejects new cargo
+PASS Abandoned supplies cannot return without a carrier
+PASS Actual failed natural state now saves: 
+PASS Saved orphan passes complete validation: 
+PASS Negative cargo remains invalid
+PASS SavePreflight handcart cargo 80 accepted=True
+PASS SavePreflight handcart cargo 81 accepted=False
+PASS SaveTransportValidation handcart cargo 80 accepted=True
+PASS SaveTransportValidation handcart cargo 81 accepted=False
+PASS Full reload preserves carrier loss and remaining supplies

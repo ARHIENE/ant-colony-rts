@@ -19,7 +19,8 @@ namespace AntColony.Core
         Pharmacy, PrecisionPharmacy, // 2026-10-25 D01 장수용 약품
         FormationLine, FormationColumn, FormationWedge, FormationDispersed, FormationCover, FormationFocus,
         UndergroundSurvey,
-        SettlementPromotion, SteamPromotion, PetroleumPromotion, ElectricPromotion, AtomicPromotion, FuturePromotion
+        SettlementPromotion, SteamPromotion, PetroleumPromotion, ElectricPromotion, AtomicPromotion, FuturePromotion,
+        ManagedResources, ManagedCultivation, MiningIndustry, SignalSurvey, DeepMining, StellarExtraction
     }
 
     public sealed class ScienceDefinition
@@ -34,7 +35,9 @@ namespace AntColony.Core
         {
             Technology = technology; Name = name; Tier = tier; Prerequisites = prerequisites;
             Work = GameBalance.ScienceWork[tier - 1]; Food = GameBalance.ScienceFood[tier - 1];
-            Soil = GameBalance.ScienceSoil[tier - 1]; Special = GameBalance.ScienceSpecial[tier - 1];
+            // 흙의 첫 지속 공급을 여는 기술에는 아직 생산할 수 없는 흙을 선납하지 않는다.
+            Soil = technology == ScienceTechnology.ManagedResources ? 0 : GameBalance.ScienceSoil[tier - 1];
+            Special = GameBalance.ScienceSpecial[tier - 1];
         }
     }
 
@@ -62,6 +65,12 @@ namespace AntColony.Core
         public static readonly string[] EraNames = { "정착", "증기", "석유", "전기", "원자", "미래" };
         public const int EraCount = 6;
         public static readonly ScienceDefinition[] Technologies = new[] {
+            new ScienceDefinition(ScienceTechnology.ManagedResources, "정착지 자원 생산", 1),
+            new ScienceDefinition(ScienceTechnology.ManagedCultivation, "실용 식물 재배", 1, ScienceTechnology.FungalFarming),
+            new ScienceDefinition(ScienceTechnology.MiningIndustry, "갱도 채굴", 2, ScienceTechnology.ManagedResources),
+            new ScienceDefinition(ScienceTechnology.SignalSurvey, "무선 통신", 3, ScienceTechnology.Vehicle),
+            new ScienceDefinition(ScienceTechnology.DeepMining, "심부 자원 개발", 4, ScienceTechnology.MiningIndustry, ScienceTechnology.UndergroundSurvey),
+            new ScienceDefinition(ScienceTechnology.StellarExtraction, "성휘 광맥 추적", 5, ScienceTechnology.DeepMining),
             new ScienceDefinition(ScienceTechnology.FungalFarming, "균류 재배", 1),
             new ScienceDefinition(ScienceTechnology.HoneydewRanch, "감로 목장", 1, ScienceTechnology.FungalFarming),
             new ScienceDefinition(ScienceTechnology.Resin, "흙벽 공법", 1),
@@ -96,10 +105,13 @@ namespace AntColony.Core
             new ScienceDefinition(ScienceTechnology.ConscriptionLaw, "징병제", 1),
             new ScienceDefinition(ScienceTechnology.ReserveForces, "예비군제", 2, ScienceTechnology.ConscriptionLaw),
             new ScienceDefinition(ScienceTechnology.TotalMobilization, "국민개병", 4, ScienceTechnology.ReserveForces)
-        }.Concat(MedicineResearch.Definitions(ScienceTechnology.Pharmacy, ScienceTechnology.PrecisionPharmacy)).Concat(FormationResearch.Definitions()).Concat(UndergroundResearch.Definitions()).Concat(EraPromotionResearch.Definitions()).ToArray();
+        }.Concat(MedicineResearch.Definitions(ScienceTechnology.Pharmacy, ScienceTechnology.PrecisionPharmacy)).Concat(FormationResearch.Definitions()).Concat(UndergroundResearch.Definitions()).Concat(EraPromotionResearch.Definitions()).OrderBy(d => (int)d.Technology).ToArray();
 
         [Serializable] public sealed class State
         {
+            public bool regionalDiscovery, signalSearching;
+            public float trailWork, signalWork;
+            public List<string> knownRegions = new List<string>(), exploredRegions = new List<string>();
             public AntColony.Boss.BossProgress.State bosses = new AntColony.Boss.BossProgress.State();
             public List<int> samples = new List<int>();
             public List<int> resourceResearch = new List<int>();
@@ -148,6 +160,7 @@ namespace AntColony.Core
         private void Awake()
         {
             Instance = this;
+            state.regionalDiscovery = GameSession.Exists && GameSession.Instance.PendingLoad == null;
             if (GetComponent<AntColony.World.BossRewardVisual>() == null) gameObject.AddComponent<AntColony.World.BossRewardVisual>();
         }
         private void OnDestroy() { if (Instance == this) Instance = null; }
@@ -204,7 +217,7 @@ namespace AntColony.Core
         // 연구소 한 곳이 지금 공동 연구에 기여하지 못하는 이유. 빈 문자열이면 기여 중.
         public string LabWaitReason(ScienceLab lab)
         {
-            if (Active == null && state.resourceActive < 0) return "선택한 연구 없음";
+            if (!HasResearchTask) return "선택한 연구 없음";
             if (state.paused) return "연구 정지됨";
             if (!lab.isActiveAndEnabled || lab.IsDead) return "시설 비활성";
             if (lab.Busy) return "연구소가 차량 작업 중";
@@ -222,6 +235,7 @@ namespace AntColony.Core
         private void Update() => Tick(Time.deltaTime);
         public void Tick(float seconds)
         {
+            TickDiscovery(seconds);
             if (seconds > 0 && !float.IsInfinity(seconds)) { TickPoliticalPresence(seconds); }
             if (Active == null && state.resourceActive >= 0 && seconds > 0 && !float.IsInfinity(seconds) && !Departed && !state.paused) { TickResourceResearch(seconds); return; }
             if (!(seconds > 0) || float.IsInfinity(seconds) || Active == null || Departed || state.paused) return;
@@ -285,6 +299,8 @@ namespace AntColony.Core
             state.bosses ??= new AntColony.Boss.BossProgress.State();
             state.samples ??= new List<int>();
             state.resourceResearch ??= new List<int>();
+            state.knownRegions ??= new List<string>();
+            state.exploredRegions ??= new List<string>();
             state.consumptionOverrides ??= new List<string>();
             if (state.defense == null) state.defense = new List<int>();
             if (state.partialIds == null || state.partialProgress == null || state.partialIds.Count != state.partialProgress.Count)
@@ -302,6 +318,7 @@ namespace AntColony.Core
             if (value.resourceResearch != null && value.resourceResearch.Exists(i => value.samples == null || !value.samples.Contains(i))) return false;
             if (!ValidInsight(value) || !ValidPoliticalPresence(value)) return false;
             if (!ValidResourceActive(value)) return false;
+            if (value.regionalDiscovery && !ValidDiscovery(value)) return false;
             if (value.leftCommanders != null && (value.leftCommanders.Exists(e => e == null || string.IsNullOrEmpty(e.id) || e.name == null)
                 || value.leftCommanders.Select(e => e.id).Distinct().Count() != value.leftCommanders.Count)) return false;
             if (value.consumptionOverrides != null && (value.consumptionOverrides.Exists(string.IsNullOrWhiteSpace)

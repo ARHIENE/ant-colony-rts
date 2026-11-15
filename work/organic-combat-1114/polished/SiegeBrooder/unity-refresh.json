@@ -1,0 +1,28 @@
+{
+  "success": true,
+  "command": "command",
+  "data": {
+    "command": "run_script",
+    "parameters": {
+      "file": "AgentScripts/OrganicEnemy1114Import.cs",
+      "entry": "OrganicEnemy1114Import.RefreshAnimations",
+      "args": "[\"SiegeBrooder\"]",
+      "timeout_ms": "120000"
+    },
+    "result": {
+      "diagnostics": [],
+      "compileMs": 119,
+      "executeMs": 6291,
+      "assemblyName": "PipelineRunScript_OrganicEnemy1114Import_67ea693fcf11466384c592abfffc1fe2",
+      "success": true,
+      "result": "SiegeBrooder: refreshed 5 clips; existing material/controller metadata preserved."
+    },
+    "target": {
+      "host": "127.0.0.1",
+      "port": 7800,
+      "projectPath": "F:\\UnityProjects\\ant-colony-rts"
+    }
+  },
+  "errors": [],
+  "warnings": []
+}

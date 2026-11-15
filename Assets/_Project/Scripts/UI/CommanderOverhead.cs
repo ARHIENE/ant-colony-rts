@@ -36,6 +36,8 @@ namespace AntColony.UI
         public static string Activity(CommanderAnt c)
         {
             if (c.PersonalHealth <= 0 || c.Health.Downed) return "쓰러짐";
+            if (c.AlcoholBlackout) return "만취";
+            if (c.SeekingDrink) return c.AlcoholStatus;
             if (c.PersonalState.mentalBreak != MentalBreak.None) return PersonalDisplayNames.Break(c.PersonalState.mentalBreak);
             if (c.IsInCombat) return "교전";
             if (c.IsFollowingCombatOrder) return "공격 이동";
@@ -49,7 +51,7 @@ namespace AntColony.UI
             if (c.IsEating) return "식사";
             if (c.IsPlaying) return c.PersonalState.joy.freeWalk ? "산책" : c.PlaySpot != null && !c.PersonalState.joy.groupStarted && !c.PlaySpot.HasMinimumUsers ? "오락 인원 대기" : "오락";
             if (c.CorpseTarget != null) return c.EatingCorpse ? "동족 포식" : "치우기";
-            if (c.ServiceTarget != null) return c.ServiceJob == CommanderJobs.Firefighting ? "소화" : c.ServiceJob == CommanderJobs.Nursing ? "의료" : c.ServiceJob == CommanderJobs.Repair ? "수리" : c.ServiceJob == CommanderJobs.Administration ? "정치" : c.ServiceJob == CommanderJobs.Crafting ? "제작" : c.ServiceJob == CommanderJobs.Husbandry ? "사육" : c.ServiceJob == CommanderJobs.Hunting ? "훈련" : "요리";
+            if (c.ServiceTarget != null) return c.ServiceJob == CommanderJobs.Firefighting ? "소화" : c.ServiceJob == CommanderJobs.Nursing ? "의료" : c.ServiceJob == CommanderJobs.Repair ? "수리" : c.ServiceJob == CommanderJobs.Administration ? "정치" : c.ServiceJob == CommanderJobs.Crafting ? "제작" : c.ServiceJob == CommanderJobs.Husbandry ? "사육" : c.ServiceJob == CommanderJobs.Hunting ? "훈련" : c.ServiceJob == CommanderJobs.Gathering ? "채집" : c.ServiceJob == CommanderJobs.Farming ? "재배" : "요리";
             if (c.HuntTarget != null) return "사냥";
             if (c.CurrentResourceNode != null && c.CurrentResourceNode.IsLooseCargo) return "운반";
             if (c.ConstructionTarget != null && c.ConstructionTarget.IsArt) return "예술";

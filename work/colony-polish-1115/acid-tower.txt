@@ -1,0 +1,3 @@
+PASS live Meshy tower: textured, four aiming directions, actual nozzle origin, cooldown unchanged at (204.00, 10.85, 194.00)
+PASS live Meshy tower: textured, four aiming directions, actual nozzle origin, cooldown unchanged at (200.00, 10.85, 207.00)
+PASS actual natural combat spray at nozzle, delta=0, target=(191.31, 10.29, 199.49)

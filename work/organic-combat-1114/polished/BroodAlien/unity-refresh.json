@@ -1,0 +1,28 @@
+{
+  "success": true,
+  "command": "command",
+  "data": {
+    "command": "run_script",
+    "parameters": {
+      "file": "AgentScripts/OrganicEnemy1114Import.cs",
+      "entry": "OrganicEnemy1114Import.RefreshAnimations",
+      "args": "[\"BroodAlien\"]",
+      "timeout_ms": "120000"
+    },
+    "result": {
+      "diagnostics": [],
+      "compileMs": 127,
+      "executeMs": 5674,
+      "assemblyName": "PipelineRunScript_OrganicEnemy1114Import_09d193365e754e7aa52fe4672a2e67a7",
+      "success": true,
+      "result": "BroodAlien: refreshed 5 clips; existing material/controller metadata preserved."
+    },
+    "target": {
+      "host": "127.0.0.1",
+      "port": 7800,
+      "projectPath": "F:\\UnityProjects\\ant-colony-rts"
+    }
+  },
+  "errors": [],
+  "warnings": []
+}

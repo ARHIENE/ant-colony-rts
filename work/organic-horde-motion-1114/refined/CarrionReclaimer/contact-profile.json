@@ -1,0 +1,12 @@
+{
+  "name": "CarrionReclaimer",
+  "changed": [
+    "Move"
+  ],
+  "strideSourceUnitsPerSecond": 0.23333333333333336,
+  "riderBones": [],
+  "clips": [
+    "Move"
+  ],
+  "horizontalExtent": 3.1396021842956543
+}

@@ -1,0 +1,5 @@
+PASS Existing save retains unfinished stone batch
+PASS Existing saved stone order retains recipe identity
+PASS Soil is available as manual work without electricity
+PASS Real stone-tool worker eligible; basic-tool worker blocked
+PASS Adding recipe does not add a production order or grant soil

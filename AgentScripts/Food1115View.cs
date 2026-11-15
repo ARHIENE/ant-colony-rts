@@ -1,0 +1,6 @@
+using System.Linq;using System.Reflection;using AntColony.Core;using AntColony.Buildings;using AntColony.Data;using AntColony.World;using AntColony.UI;using UnityEngine;using UnityEngine.UI;
+public static class Food1115View
+{
+ public static string Main(){var k=SceneObjects.All<Kitchen>().First(x=>!x.IsTable);k.Orders.Clear();foreach(int i in new[]{6,7,8})k.AddOrder(i,Workshop.OrderMode.KeepStock,3);GameMenuController.Instance.ShowKitchen(k);Canvas.ForceUpdateCanvases();foreach(var s in GameMenuController.Instance.GetComponentsInChildren<ScrollRect>())s.verticalNormalizedPosition=.45f;return "Three food bills shown";}
+ public static string Models(){GameMenuController.Instance.Resume();SimulationPause.UserSpeed(0);var nodes=ResourceNode.Available.Where(n=>n.IsLooseCargo&&(n.ResourceType==ResourceType.BarleyPorridge||n.ResourceType==ResourceType.Soup||n.ResourceType==ResourceType.HoneyBread)).ToArray();var center=nodes[0].transform.position;for(int i=0;i<nodes.Length;i++)nodes[i].transform.position=center+Vector3.right*(i-1)*1.2f;var camera=SceneObjects.Any<AntColony.Camera.IsometricCameraController>();typeof(AntColony.Camera.IsometricCameraController).GetMethod("RestoreView",BindingFlags.NonPublic|BindingFlags.Instance).Invoke(camera,new object[]{center,0f,5f});return "Fixture food models framed";}
+}

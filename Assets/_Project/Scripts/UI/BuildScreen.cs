@@ -49,8 +49,9 @@ namespace AntColony.UI
                 new Entry("방패 연구소", BuildingKind.ResearchLab, UnitRole.Defense), new Entry("지원 연구소", BuildingKind.ResearchLab, UnitRole.Support),
                 new Entry("비행 연구소", BuildingKind.ResearchLab, UnitRole.Flying), new Entry("정착지 연구대", BuildingKind.ScienceLab),
                 new Entry("방어 연구소", BuildingKind.DefenseLab), new Entry("공방", BuildingKind.Workshop),
+                new Entry("손수레 조립", BuildingKind.Handcart), new Entry("채석장", BuildingKind.Quarry), new Entry("벌목장", BuildingKind.LoggingCamp), new Entry("모래 채취장", BuildingKind.SandPit), new Entry("점토 채취장", BuildingKind.ClayPit), new Entry("자원 재배원", BuildingKind.CultivationGarden), new Entry("갱도 광산", BuildingKind.OreMine), new Entry("심부 광산", BuildingKind.DeepMine),
                 new Entry("기초 목공대", BuildingKind.Carpentry), new Entry("석공대", BuildingKind.Stonecutter), new Entry("가마", BuildingKind.Kiln), new Entry("숯가마", BuildingKind.CharcoalKiln), new Entry("코크스로", BuildingKind.CokeOven),
-                new Entry("물레", BuildingKind.SpinningWheel), new Entry("용광로", BuildingKind.Smelter), new Entry("제분기", BuildingKind.Mill), new Entry("착유기", BuildingKind.OilPress), new Entry("양조통", BuildingKind.BrewingBarrel), new Entry("증류기", BuildingKind.Still), new Entry("지하 탐사기", BuildingKind.UndergroundScanner), new Entry("심층 채굴기", BuildingKind.DeepDrill), new Entry("합금 심층 채굴기", BuildingKind.AdvancedDeepDrill), new Entry("가스 제련로", BuildingKind.GasSmelter), new Entry("화학 작업대", BuildingKind.ChemistryBench) },
+                new Entry("물레", BuildingKind.SpinningWheel), new Entry("재봉대", BuildingKind.SewingTable), new Entry("용광로", BuildingKind.Smelter), new Entry("제분기", BuildingKind.Mill), new Entry("착유기", BuildingKind.OilPress), new Entry("양조통", BuildingKind.BrewingBarrel), new Entry("증류기", BuildingKind.Still), new Entry("지하 탐사기", BuildingKind.UndergroundScanner), new Entry("심층 채굴기", BuildingKind.DeepDrill), new Entry("합금 심층 채굴기", BuildingKind.AdvancedDeepDrill), new Entry("가스 제련로", BuildingKind.GasSmelter), new Entry("화학 작업대", BuildingKind.ChemistryBench) },
             new[] { new Entry("의무실", BuildingKind.Infirmary), new Entry("약제대", BuildingKind.MedicineBench), new Entry("묘비", BuildingKind.Tombstone) },
             new[] { new Entry("성벽", BuildingKind.CastleWall), new Entry("성문", BuildingKind.Gate), new Entry("끈끈이 함정", BuildingKind.TrapPit), new Entry("가시 함정", BuildingKind.SpikeTrap),
                 new Entry("지뢰밭", BuildingKind.MineField), new Entry("산성탑", BuildingKind.AcidTower), new Entry("광역 산성탑", BuildingKind.AreaAcidTower),
@@ -80,7 +81,7 @@ namespace AntColony.UI
         private Text materialSummary;
         private RectTransform materialList;
         private readonly List<Button> materialRows = new List<Button>();
-        private ResourceType selectedMaterial = ResourceType.Soil;
+        private ResourceType selectedMaterial = ResourceType.Wood;
         private readonly List<GameObject> tabPages = new List<GameObject>();
         private readonly List<Button> tabButtons = new List<Button>();
         private readonly List<Button> pickRows = new List<Button>();

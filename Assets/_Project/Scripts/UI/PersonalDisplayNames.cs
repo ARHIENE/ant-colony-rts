@@ -57,6 +57,7 @@ namespace AntColony.UI
             return value switch
             {
                 "Hunger" => "허기", "Rest" => "휴식", "Catharsis" => "감정 해소",
+                "AlcoholRelaxed" => "음주 후 기분 전환", "AlcoholHangover" => "숙취", "AlcoholWithdrawal" => "알코올 금단",
                 "DeathEvent" => "죽음 목격", _ => value
             };
         }

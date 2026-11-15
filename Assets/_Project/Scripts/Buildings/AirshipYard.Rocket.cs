@@ -78,10 +78,15 @@ namespace AntColony.Buildings
             var research = CampaignResearch.Instance;
             if (!isActiveAndEnabled || IsDead || Phase != RocketPhase.Boarding || !HasLaunchCommander
                 || research == null || research.Departed) return;
-            RocketCampaign.Instance?.RecordEnding(this);
+            if (RocketCampaign.Instance == null || !RocketCampaign.Instance.LaunchToMothership(this)) return;
             ClearReservations();
             state.phase = RocketPhase.Launched;
-            research.CompleteDeparture(passengers);
+            passengers.Clear();
+        }
+        internal void ReadyForMothershipReentry()
+        {
+            if (IsDead || Phase != RocketPhase.Launched) return;
+            state.phase = RocketPhase.Boarding; state.preparationRemaining = 0; state.launchRequested = false;
         }
         protected override void Die()
         {

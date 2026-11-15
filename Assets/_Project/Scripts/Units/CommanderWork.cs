@@ -1,4 +1,4 @@
-using System.Linq;
+﻿using System.Linq;
 using AntColony.Buildings;
 using AntColony.Core;
 using AntColony.World;
@@ -32,11 +32,11 @@ namespace AntColony.Units
         private float huntCooldown;
         private Workforce workTarget;
         public bool CivilianWorkReady => isActiveAndEnabled && !IsDead && !IsCaptive && !IsEmbarked && !Health.Downed && PersonalHealth > 0 && !IsDeployed && !IsAwayFromHome
-            && !IsAsleep && (!IsSleepTime || WorkPriorities.Red) && !IsDeparting && !PersonalState.treating && PersonalState.mentalBreak == MentalBreak.None && PersonalState.rageRemaining <= 0;
+            && !IsAsleep && (!IsSleepTime || WorkPriorities.Red) && !IsDeparting && !PersonalState.treating && PersonalState.mentalBreak == MentalBreak.None && PersonalState.rageRemaining <= 0 && !SeekingDrink && !AlcoholBlackout;
         public Workforce WorkTarget => CivilianWorkReady && workTarget != null && workTarget.isActiveAndEnabled ? workTarget : null;
         public float WorkRate(CommanderActivity activity) => talents.Multiplier(activity)
             * (traits.WorkMultiplier + TraitRules.WorkBonus(traits, activity, CraftingWorkshop != null)) * (Sleep.poorly ? GameBalance.PoorSleepWork : 1f)
-            * AgeWorkMultiplier(activity) * AntColony.Buildings.RoomSystem.WorkBonus(WorkTarget) * BiomeRules.WorkAt(AntColony.Buildings.RoomSystem.IsIndoors(Position)) * AntColony.Map.WeatherSystem.WorkAt(AntColony.Buildings.RoomSystem.IsIndoors(Position));
+            * AgeWorkMultiplier(activity) * AntColony.Buildings.RoomSystem.WorkBonus(WorkTarget) * BiomeRules.WorkAt(AntColony.Buildings.RoomSystem.IsIndoors(Position)) * AntColony.Map.WeatherSystem.WorkAt(AntColony.Buildings.RoomSystem.IsIndoors(Position)) * AlcoholFactor;
         public float LoadCapacity => Mathf.Max(0, TotalLoadCapacity - StartingLoadWeight - BossCargoCount);
         internal void SetWorkTarget(Component target)
         {
@@ -45,6 +45,7 @@ namespace AntColony.Units
         }
         public override void CommandStop()
         {
+            if (!AntColony.Save.SaveSystem.Busy) CancelDrink();
             suspendedResearchNeed = null;
             WorkState.deploymentMealSeconds = 0;
             WorkState.bossPickup = -1;
@@ -75,7 +76,7 @@ namespace AntColony.Units
             if ((!firefighting && !CivilianWorkReady || firefighting && (IsDead || IsAwayFromHome || IsAsleep || IsCaptive || PersonalState.health.Downed)) || !CanReceiveOrders || IsWorking || LabUpgradeBusy || !AllowsJob(job)
                 || Active.OfType<CommanderAnt>().Any(c => c != this && c.ServiceTarget == target)
                 || target == null || target.IsDead || !target.isActiveAndEnabled || !target.CountsTowardPlayerDefeat || target is Processor processor && !processor.CanContinue(this)
-                || job != CommanderJobs.Nursing && job != CommanderJobs.Repair && job != CommanderJobs.Cooking && !(firefighting && target.GetComponent<WallFire>()?.Burning == true) && !(job == CommanderJobs.Hauling && (target is PowerNode || target is SupplyFacility well && ManualWellNeedsWork(well))) && !(job == CommanderJobs.Administration && target is AdminDesk) && !(job == CommanderJobs.Hunting && target is Barracks) && !(job == CommanderJobs.Crafting && (target is Processor || target is SupplyFacility supply && SupplyCraftNeedsWork(supply))) && !(job == CommanderJobs.Gathering && target is SupplyFacility drill && DeepDrillNeedsWork(drill))
+                || job != CommanderJobs.Nursing && job != CommanderJobs.Repair && job != CommanderJobs.Cooking && !(firefighting && target.GetComponent<WallFire>()?.Burning == true) && !(job == CommanderJobs.Hauling && (target is PowerNode || target is SupplyFacility well && ManualWellNeedsWork(well))) && !(job == CommanderJobs.Administration && target is AdminDesk) && !(job == CommanderJobs.Hunting && target is Barracks) && !(target is Processor production && job == production.Job) && !(job == CommanderJobs.Crafting && target is SupplyFacility supply && SupplyCraftNeedsWork(supply)) && !(job == CommanderJobs.Gathering && target is SupplyFacility drill && DeepDrillNeedsWork(drill))
                 || !TryServiceApproach(target, out var approach)) return false;
             CommandStop(); ServiceTarget = target; ServiceJob = job;
             SetMoveDestination(approach); SetWorkTarget(target); return true;

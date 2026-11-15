@@ -1,0 +1,23 @@
+{
+  "name": "HuntRider",
+  "changed": [
+    "Idle",
+    "Move",
+    "Attack",
+    "Hit",
+    "Death"
+  ],
+  "strideSourceUnitsPerSecond": 0.5666666666666668,
+  "riderBones": [
+    25,
+    24
+  ],
+  "clips": [
+    "Idle",
+    "Move",
+    "Attack",
+    "Hit",
+    "Death"
+  ],
+  "horizontalExtent": 3.0139195919036865
+}

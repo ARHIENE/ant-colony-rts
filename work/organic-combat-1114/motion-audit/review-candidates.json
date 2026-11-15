@@ -1,0 +1,107 @@
+[
+  {
+    "Creature": "AcidSpitter",
+    "clip": "Move",
+    "peakJointDegrees": 19.82297566229069,
+    "peakEdgeStretch999": 1.8204102516174316,
+    "worstStretchFrame": 17
+  },
+  {
+    "Creature": "AcidSpitter",
+    "clip": "Attack",
+    "peakJointDegrees": 25.084120558220018,
+    "peakEdgeStretch999": 1.333503007888794,
+    "worstStretchFrame": 23
+  },
+  {
+    "Creature": "AcidSpitter",
+    "clip": "Hit",
+    "peakJointDegrees": 21.413366591385508,
+    "peakEdgeStretch999": 1.2717214822769165,
+    "worstStretchFrame": 4
+  },
+  {
+    "Creature": "BloomMender",
+    "clip": "Attack",
+    "peakJointDegrees": 39.74076285956074,
+    "peakEdgeStretch999": 2.131155014038086,
+    "worstStretchFrame": 21
+  },
+  {
+    "Creature": "BreachBeast",
+    "clip": "Attack",
+    "peakJointDegrees": 21.21368504910357,
+    "peakEdgeStretch999": 2.0357255935668945,
+    "worstStretchFrame": 23
+  },
+  {
+    "Creature": "BroodAlien",
+    "clip": "Hit",
+    "peakJointDegrees": 24.03522602351661,
+    "peakEdgeStretch999": 1.1475937366485596,
+    "worstStretchFrame": 4
+  },
+  {
+    "Creature": "Bulwark",
+    "clip": "Attack",
+    "peakJointDegrees": 29.580126663327587,
+    "peakEdgeStretch999": 1.9510424137115479,
+    "worstStretchFrame": 23
+  },
+  {
+    "Creature": "Bulwark",
+    "clip": "Hit",
+    "peakJointDegrees": 29.089648320779713,
+    "peakEdgeStretch999": 1.8234796524047852,
+    "worstStretchFrame": 4
+  },
+  {
+    "Creature": "CarrionReclaimer",
+    "clip": "Attack",
+    "peakJointDegrees": 19.96268554213945,
+    "peakEdgeStretch999": 2.1324069499969482,
+    "worstStretchFrame": 23
+  },
+  {
+    "Creature": "NeedleStalker",
+    "clip": "Death",
+    "peakJointDegrees": 2.6318208574352524,
+    "peakEdgeStretch999": 2.4132776260375977,
+    "worstStretchFrame": 49
+  },
+  {
+    "Creature": "SiegeBrooder",
+    "clip": "Hit",
+    "peakJointDegrees": 33.53535401323586,
+    "peakEdgeStretch999": 1.534407138824463,
+    "worstStretchFrame": 4
+  },
+  {
+    "Creature": "VeilWeaver",
+    "clip": "Hit",
+    "peakJointDegrees": 29.988373415747027,
+    "peakEdgeStretch999": 1.2870724201202393,
+    "worstStretchFrame": 4
+  },
+  {
+    "Creature": "WallRam",
+    "clip": "Move",
+    "peakJointDegrees": 30.385129162076975,
+    "peakEdgeStretch999": 1.370369791984558,
+    "worstStretchFrame": 8
+  },
+  {
+    "Creature": "WallRam",
+    "clip": "Attack",
+    "peakJointDegrees": 24.31868224340437,
+    "peakEdgeStretch999": 1.441673994064331,
+    "worstStretchFrame": 23
+  },
+  {
+    "Creature": "WallRam",
+    "clip": "Hit",
+    "peakJointDegrees": 26.980390114604365,
+    "peakEdgeStretch999": 1.2260456085205078,
+    "worstStretchFrame": 4
+  }
+]

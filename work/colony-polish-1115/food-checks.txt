@@ -1,0 +1,59 @@
+Isolated fixture: physical stock and deliveries, normal Kitchen.Work, meal consumption, save compatibility. Not natural campaign proof.
+PASS Scene ready
+PASS Scene ready
+PASS Existing resource and recipe IDs preserved
+PASS Diet, cold storage and spoilage BarleyPorridge
+PASS Distinct model and URP materials BarleyPorridge
+PASS Queue BarleyPorridge
+PASS Cannot cook before delivery BarleyPorridge
+PASS Reserve Barley
+PASS Consume and deliver exact input Barley
+PASS Reserve Water
+PASS Consume and deliver exact input Water
+PASS Start BarleyPorridge
+PASS Partial cooking validates
+PASS Save active cooking: 
+PASS Reload active cooking: 
+PASS Scene ready
+PASS Active recipe and consumed ingredients survive reload
+PASS Finish exact queued meal BarleyPorridge progress=0 rate=0.6
+PASS Real floor output/model BarleyPorridge
+PASS Diet, cold storage and spoilage Soup
+PASS Distinct model and URP materials Soup
+PASS Queue Soup
+PASS Cannot cook before delivery Soup
+PASS Reserve Food
+PASS Consume and deliver exact input Food
+PASS Reserve Water
+PASS Consume and deliver exact input Water
+PASS Start Soup
+PASS Partial cooking validates
+PASS Finish exact queued meal Soup progress=0 rate=0.6
+PASS Real floor output/model Soup
+PASS Diet, cold storage and spoilage HoneyBread
+PASS Distinct model and URP materials HoneyBread
+PASS Queue HoneyBread
+PASS Cannot cook before delivery HoneyBread
+PASS Reserve WheatFlour
+PASS Consume and deliver exact input WheatFlour
+PASS Reserve Honey
+PASS Consume and deliver exact input Honey
+PASS Start HoneyBread
+PASS Partial cooking validates
+PASS Finish exact queued meal HoneyBread progress=0 rate=0.6
+PASS Real floor output/model HoneyBread
+PASS Save cooked outputs: 
+PASS Reload: 
+PASS Scene ready
+PASS Saved output survives BarleyPorridge
+PASS Saved output survives Soup
+PASS Saved output survives HoneyBread
+PASS Consumes correct meal grade BarleyPorridge
+PASS Satisfies hunger BarleyPorridge
+PASS Consumes correct meal grade Soup
+PASS Satisfies hunger Soup
+PASS Consumes correct meal grade HoneyBread
+PASS Satisfies hunger HoneyBread
+PASS Original v24 campaign checkpoint migration: 
+PASS v24 transport cargo arrays expanded
+RESTORED settings and save root

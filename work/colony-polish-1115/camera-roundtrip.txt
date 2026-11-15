@@ -1,0 +1,2 @@
+Started normal minimum-zoom save/load
+PASS minimum zoom5 saved and fully reloaded; progress=1058.466

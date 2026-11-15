@@ -6,7 +6,8 @@ namespace AntColony.World
 {
     // 사건 감독(2026-11-01, RimWorld 카산드라식 긴장 곡선). 새 사건은 만들지 않고 기존 습격·사건의 시기와 위기/호재 비율만 조절한다.
     // 위태로움(부상자 절반 이상·식량 바닥) → 위기를 미루고 호재 쪽으로. 번성(식량 넉넉·부상 없음·4일 이후) → 위기를 앞당김.
-    // 큰 위기(습격·재해) 직후 RestSeconds 동안은 새 위기를 내지 않는다(숨 쉴 틈). 상태는 저장하지 않는다(불러오면 휴식 없이 시작).
+    // 큰 위기 직후 RestSeconds 동안 새 위기를 미룬다. 웨이브 뒤 유예는 저장된 평화 잔여시간으로 복원한다.
+    // 개별 재해의 마지막 시각은 세션 전용이다.
     // ponytail: 판정은 장수 체력·식량만 본다. 재산 등급·방어 시설까지 반영하려면 PlayerPerformanceProbe를 입력으로 확장.
     public static class Storyteller
     {
@@ -15,7 +16,9 @@ namespace AntColony.World
         private static float lastCrisisAt = -9999;
 
         public static float SinceCrisis => GameCalendar.GameSeconds - lastCrisisAt;
-        public static bool Resting => SinceCrisis < RestSeconds;
+        public static bool Resting => SinceCrisis < RestSeconds
+            || WaveDefense.Instance != null && !WaveDefense.Instance.InWave && WaveDefense.Instance.Wave > 0
+                && WaveDefense.Instance.PeaceLeft > WaveDefense.Peace - RestSeconds;
         public static void MarkCrisis() => lastCrisisAt = GameCalendar.GameSeconds;
         public static void Reset() => lastCrisisAt = -9999;
 

@@ -1,0 +1,171 @@
+PASS Natural campaign placeholder bosses found
+PASS Spawn/restore hides old body before test calls Ensure
+PASS Meshy body exists once: MiniBirdBoss
+PASS Visible textured body
+지휘체 핵 enabled=True hidden=True
+지휘체 하부 enabled=True hidden=True
+방열 기둥 enabled=True hidden=True
+방열 기둥 enabled=True hidden=True
+방열 기둥 enabled=True hidden=True
+방열 기둥 enabled=True hidden=True
+PASS Primitive body renderers hidden; UI and telegraphs retained
+PASS Health, encounter state and colliders unchanged
+PASS Existing boss click hitbox works
+PASS Spawn/restore hides old body before test calls Ensure
+PASS Meshy body exists once: MiniBirdBoss(Clone)
+PASS Visible textured body
+지휘체 핵 enabled=True hidden=True
+지휘체 하부 enabled=True hidden=True
+방열 기둥 enabled=True hidden=True
+방열 기둥 enabled=True hidden=True
+방열 기둥 enabled=True hidden=True
+방열 기둥 enabled=True hidden=True
+PASS Primitive body renderers hidden; UI and telegraphs retained
+PASS Health, encounter state and colliders unchanged
+PASS Existing boss click hitbox works
+PASS Spawn/restore hides old body before test calls Ensure
+PASS Meshy body exists once: MiniBirdBoss(Clone)
+PASS Visible textured body
+지휘체 핵 enabled=True hidden=True
+지휘체 하부 enabled=True hidden=True
+방열 기둥 enabled=True hidden=True
+방열 기둥 enabled=True hidden=True
+방열 기둥 enabled=True hidden=True
+방열 기둥 enabled=True hidden=True
+PASS Primitive body renderers hidden; UI and telegraphs retained
+PASS Health, encounter state and colliders unchanged
+PASS Existing boss click hitbox works
+PASS Spawn/restore hides old body before test calls Ensure
+PASS Meshy body exists once: MiniBirdBoss(Clone)
+PASS Visible textured body
+지휘체 핵 enabled=True hidden=True
+지휘체 하부 enabled=True hidden=True
+방열 기둥 enabled=True hidden=True
+방열 기둥 enabled=True hidden=True
+방열 기둥 enabled=True hidden=True
+방열 기둥 enabled=True hidden=True
+PASS Primitive body renderers hidden; UI and telegraphs retained
+PASS Health, encounter state and colliders unchanged
+PASS Existing boss click hitbox works
+PASS Spawn/restore hides old body before test calls Ensure
+PASS Meshy body exists once: MiniBirdBoss(Clone)
+PASS Visible textured body
+지휘체 핵 enabled=True hidden=True
+지휘체 하부 enabled=True hidden=True
+방열 기둥 enabled=True hidden=True
+방열 기둥 enabled=True hidden=True
+방열 기둥 enabled=True hidden=True
+방열 기둥 enabled=True hidden=True
+PASS Primitive body renderers hidden; UI and telegraphs retained
+PASS Health, encounter state and colliders unchanged
+PASS Existing boss click hitbox works
+PASS Spawn/restore hides old body before test calls Ensure
+PASS Meshy body exists once: MiniBirdBoss(Clone)
+PASS Visible textured body
+지휘체 핵 enabled=True hidden=True
+지휘체 하부 enabled=True hidden=True
+방열 기둥 enabled=True hidden=True
+방열 기둥 enabled=True hidden=True
+방열 기둥 enabled=True hidden=True
+방열 기둥 enabled=True hidden=True
+PASS Primitive body renderers hidden; UI and telegraphs retained
+PASS Health, encounter state and colliders unchanged
+PASS Existing boss click hitbox works
+PASS Spawn/restore hides old body before test calls Ensure
+PASS Meshy body exists once: MiniBirdBoss(Clone)
+PASS Visible textured body
+지휘체 핵 enabled=True hidden=True
+지휘체 하부 enabled=True hidden=True
+방열 기둥 enabled=True hidden=True
+방열 기둥 enabled=True hidden=True
+방열 기둥 enabled=True hidden=True
+방열 기둥 enabled=True hidden=True
+PASS Primitive body renderers hidden; UI and telegraphs retained
+PASS Health, encounter state and colliders unchanged
+PASS Existing boss click hitbox works
+PASS Normal save: 
+PASS Full reload preserves boss health and encounter state
+PASS Spawn/restore hides old body before test calls Ensure
+PASS Meshy body exists once: MiniBirdBoss
+PASS Visible textured body
+지휘체 핵 enabled=True hidden=True
+지휘체 하부 enabled=True hidden=True
+방열 기둥 enabled=True hidden=True
+방열 기둥 enabled=True hidden=True
+방열 기둥 enabled=True hidden=True
+방열 기둥 enabled=True hidden=True
+PASS Primitive body renderers hidden; UI and telegraphs retained
+PASS Health, encounter state and colliders unchanged
+PASS Existing boss click hitbox works
+PASS Spawn/restore hides old body before test calls Ensure
+PASS Meshy body exists once: MiniBirdBoss(Clone)
+PASS Visible textured body
+지휘체 핵 enabled=True hidden=True
+지휘체 하부 enabled=True hidden=True
+방열 기둥 enabled=True hidden=True
+방열 기둥 enabled=True hidden=True
+방열 기둥 enabled=True hidden=True
+방열 기둥 enabled=True hidden=True
+PASS Primitive body renderers hidden; UI and telegraphs retained
+PASS Health, encounter state and colliders unchanged
+PASS Existing boss click hitbox works
+PASS Spawn/restore hides old body before test calls Ensure
+PASS Meshy body exists once: MiniBirdBoss(Clone)
+PASS Visible textured body
+지휘체 핵 enabled=True hidden=True
+지휘체 하부 enabled=True hidden=True
+방열 기둥 enabled=True hidden=True
+방열 기둥 enabled=True hidden=True
+방열 기둥 enabled=True hidden=True
+방열 기둥 enabled=True hidden=True
+PASS Primitive body renderers hidden; UI and telegraphs retained
+PASS Health, encounter state and colliders unchanged
+PASS Existing boss click hitbox works
+PASS Spawn/restore hides old body before test calls Ensure
+PASS Meshy body exists once: MiniBirdBoss(Clone)
+PASS Visible textured body
+지휘체 핵 enabled=True hidden=True
+지휘체 하부 enabled=True hidden=True
+방열 기둥 enabled=True hidden=True
+방열 기둥 enabled=True hidden=True
+방열 기둥 enabled=True hidden=True
+방열 기둥 enabled=True hidden=True
+PASS Primitive body renderers hidden; UI and telegraphs retained
+PASS Health, encounter state and colliders unchanged
+PASS Existing boss click hitbox works
+PASS Spawn/restore hides old body before test calls Ensure
+PASS Meshy body exists once: MiniBirdBoss(Clone)
+PASS Visible textured body
+지휘체 핵 enabled=True hidden=True
+지휘체 하부 enabled=True hidden=True
+방열 기둥 enabled=True hidden=True
+방열 기둥 enabled=True hidden=True
+방열 기둥 enabled=True hidden=True
+방열 기둥 enabled=True hidden=True
+PASS Primitive body renderers hidden; UI and telegraphs retained
+PASS Health, encounter state and colliders unchanged
+PASS Existing boss click hitbox works
+PASS Spawn/restore hides old body before test calls Ensure
+PASS Meshy body exists once: MiniBirdBoss(Clone)
+PASS Visible textured body
+지휘체 핵 enabled=True hidden=True
+지휘체 하부 enabled=True hidden=True
+방열 기둥 enabled=True hidden=True
+방열 기둥 enabled=True hidden=True
+방열 기둥 enabled=True hidden=True
+방열 기둥 enabled=True hidden=True
+PASS Primitive body renderers hidden; UI and telegraphs retained
+PASS Health, encounter state and colliders unchanged
+PASS Existing boss click hitbox works
+PASS Spawn/restore hides old body before test calls Ensure
+PASS Meshy body exists once: MiniBirdBoss(Clone)
+PASS Visible textured body
+지휘체 핵 enabled=True hidden=True
+지휘체 하부 enabled=True hidden=True
+방열 기둥 enabled=True hidden=True
+방열 기둥 enabled=True hidden=True
+방열 기둥 enabled=True hidden=True
+방열 기둥 enabled=True hidden=True
+PASS Primitive body renderers hidden; UI and telegraphs retained
+PASS Health, encounter state and colliders unchanged
+PASS Existing boss click hitbox works

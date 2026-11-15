@@ -43,6 +43,9 @@ namespace AntColony.Buildings
             new Recipe("납작빵", ResourceType.Flatbread, 12f, (ResourceType.WheatFlour, 1)),
             new Recipe("볶음밥", ResourceType.FriedRice, 18f, (ResourceType.Rice, 2), (ResourceType.SunflowerOil, 1)),
             SmokedFood,
+            new Recipe("보리죽", ResourceType.BarleyPorridge, 10f, (ResourceType.Barley, 2), (ResourceType.Water, 1)),
+            new Recipe("수프", ResourceType.Soup, 12f, (ResourceType.Food, 2), (ResourceType.Water, 1)),
+            new Recipe("꿀빵", ResourceType.HoneyBread, 18f, (ResourceType.WheatFlour, 1), (ResourceType.Honey, 1)),
         };
         public const int Capacity = 30;
         public const float CookSeconds = 20; // 가장 긴 레시피(저장 검증용)
@@ -78,7 +81,16 @@ namespace AntColony.Buildings
             + SceneObjects.All<Kitchen>().Count(k => k != this && k.PlannedOutput == Recipes[o.recipe].output) < o.amount : o.amount > 0;
         private bool Usable => !IsTable && !IsDead && isActiveAndEnabled;
         // 다음에 만들 주문(조리 중이 아닐 때). 재료는 조리대에 실제로 놓인 양(staged)으로만 시작한다.
-        private Order NextOrder => meals.orders.FirstOrDefault(o => o.recipe >= 0 && o.recipe < Recipes.Length && (meals.pending >= 0 ? o.recipe == meals.pending : Wants(o)));
+        private Order NextOrder
+        {
+            get
+            {
+                var orders = meals.orders.Where(o => o.recipe >= 0 && o.recipe < Recipes.Length);
+                if (meals.pending >= 0) return orders.FirstOrDefault(o => o.recipe == meals.pending);
+                return orders.FirstOrDefault(o => Wants(o) && inputs.CanSupply(Recipes[o.recipe].inputs))
+                    ?? orders.FirstOrDefault(Wants);
+            }
+        }
         public bool NeedsCook => Usable && !meals.paused && (Current != null || NextOrder is Order o && inputs.Ready(Recipes[o.recipe].inputs));
         // 아직 가져와야 할 재료(운반 중인 몫 제외). 창고에 없으면 0.
         private readonly ProductionInputs inputs = new ProductionInputs();
@@ -106,7 +118,22 @@ namespace AntColony.Buildings
         public void RemoveOrder(Order order) { if (order != null && meals.orders.Remove(order) && order.recipe == meals.pending && !meals.orders.Any(o => o.recipe == meals.pending)) EjectStaged(); }
         // 기다리는 이유(작업 UI): 정지 / 재료 부족 / 재료 운반 대기 / 목표 달성.
         public string WaitReason => !Usable ? null : meals.paused ? "일시정지" : Current != null || NeedsCook ? null
-            : meals.orders.Count == 0 ? "생산 목록 없음" : NextOrder == null ? "목표 달성" : "재료 부족/배송 대기";
+            : meals.orders.Count == 0 ? "생산 목록 없음" : NextOrder == null ? "목표 달성" : OrderStatus(NextOrder);
+        public string OrderStatus(Order order)
+        {
+            if (order == null || order.recipe < 0 || order.recipe >= Recipes.Length) return "잘못된 주문";
+            if (!Wants(order) && meals.pending != order.recipe) return "목표 달성";
+            var missing = Recipes[order.recipe].inputs.Where(n => inputs.Amount(n.type)
+                + (ResourceManager.Instance?.GetAmount(n.type) ?? 0) < n.amount)
+                .Select(n => $"{n.type.DisplayName()} {n.amount - inputs.Amount(n.type) - (ResourceManager.Instance?.GetAmount(n.type) ?? 0)}개 부족").ToArray();
+            return missing.Length > 0 ? string.Join(" · ", missing) : inputs.Ready(Recipes[order.recipe].inputs) ? "조리 담당 대기" : "재료 배송 대기";
+        }
+        public void MoveOrder(Order order, int direction)
+        {
+            int index = meals.orders.IndexOf(order), target = index + Math.Sign(direction);
+            if (index < 0 || target < 0 || target >= meals.orders.Count) return;
+            meals.orders.RemoveAt(index); meals.orders.Insert(target, order);
+        }
 
         private bool StartNext()
         {
@@ -129,7 +156,10 @@ namespace AntColony.Buildings
             meals.cook.Note(c.PersonalState.id, c.Traits.Has(CommanderTrait.DiamondCooking));
             var r = Current; var rate = c.WorkRate(CommanderActivity.Cooking); // 요리 기술은 속도만(등급은 레시피)
             var elapsed = Mathf.Min(seconds, Mathf.Max(0, r.seconds - meals.progress) / rate);
-            meals.progress += elapsed * rate; c.GainExperience(CommanderActivity.Cooking, elapsed);
+            // Clamp by the available work before division/multiplication rounding can leave
+            // a finished recipe one floating-point step below its completion threshold.
+            meals.progress = Mathf.Min(r.seconds, meals.progress + seconds * rate);
+            c.GainExperience(CommanderActivity.Cooking, elapsed);
             if (meals.progress < r.seconds) return true;
             int skill = Mathf.Clamp(c.Talents.Level(CommanderActivity.Cooking) + c.Traits.CookingBonus, 0, CommanderTalents.MaxLevel);
             var lots = new FoodLots(); lots.Add(1, FoodLots.ShelfLife(r.output), skill + 1, meals.cook.Empowered);

@@ -16,6 +16,7 @@ namespace AntColony.World
         [SerializeField] private ExpeditionTransport transportTemplate;
         private readonly List<ExpeditionSite> sites = new List<ExpeditionSite>();
         private readonly List<ExpeditionTransport> transports = new List<ExpeditionTransport>();
+        internal BossHealth CampaignBossTemplate => bossTemplate;
         public IReadOnlyList<ExpeditionSite> Sites => sites;
         public IReadOnlyList<ExpeditionTransport> Transports => transports;
         public bool VehicleResearched { get; internal set; }
@@ -33,6 +34,8 @@ namespace AntColony.World
 
         private void Start()
         {
+            AntColony.Core.RocketCampaign.Instance?.EnsureMothershipNavigation();
+            CampaignBossBody.Ensure(bossTemplate);
             var queen = AntColony.Core.SceneObjects.Any<Stockpile>();
             HomePosition = queen != null ? queen.Position : Vector3.zero;
             var camera = UnityEngine.Camera.main.GetComponent<AntColony.Camera.IsometricCameraController>();
@@ -89,10 +92,10 @@ namespace AntColony.World
             return false;
         }
 
-        public ExpeditionTransport CreateTransport(bool aircraft, Vector3 position, bool walking = false)
+        public ExpeditionTransport CreateTransport(bool aircraft, Vector3 position, bool walking = false, bool handcart = false)
         {
             var ship = Instantiate(transportTemplate, position, Quaternion.identity);
-            ship.Initialize(aircraft, walking);
+            ship.Initialize(aircraft, walking, handcart);
             ship.gameObject.SetActive(true);
             transports.Add(ship);
             Unlocked = true;
@@ -105,7 +108,8 @@ namespace AntColony.World
             if (site != null && (!Unlocked || (site.Disposition != ConquestDisposition.Annexed
                 && (site.Visitor == null || site.Visitor.State != ExpeditionState.Deployed)))) return false;
             var camera = UnityEngine.Camera.main.GetComponent<AntColony.Camera.IsometricCameraController>();
-            if (ViewedSite == null) homeFocus = camera.FocusPoint;
+            if (ViewedSite == null && !AntColony.Core.RocketCampaign.ShipBounds.Contains(camera.FocusPoint)) homeFocus = camera.FocusPoint;
+            AntColony.Core.RocketCampaign.Instance?.LeaveMothershipView();
             ViewedSite = site;
             AntColony.Core.SceneObjects.Any<SelectionManager>()?.ClearSelection();
             AntColony.Core.SceneObjects.Any<BuildingPlacementController>()?.CancelPlacement();
@@ -119,7 +123,7 @@ namespace AntColony.World
         public static bool SiteRevealed(ExpeditionSite site)
         {
             var stronghold = site != null ? site.GetComponent<BossStronghold>() : null;
-            return stronghold == null || stronghold.Revealed;
+            return (stronghold == null || stronghold.Revealed) && (AntColony.Core.CampaignResearch.Instance?.RegionKnown(site) ?? true);
         }
 
         private void OnDestroy()

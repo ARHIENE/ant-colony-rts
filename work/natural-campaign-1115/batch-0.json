@@ -1,0 +1,16 @@
+{
+  "label": "02r-cooking-and-supplies",
+  "seconds": 120,
+  "speed": 3,
+  "priorities": [
+    "0,Gathering,8",
+    "1,Building,8",
+    "2,Cooking,9",
+    "2,Hauling,7"
+  ],
+  "designate": true,
+  "build": [
+    "StarterMushroomBed"
+  ],
+  "prioritize": "Wood"
+}

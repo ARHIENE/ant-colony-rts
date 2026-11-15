@@ -1,0 +1,23 @@
+Temporary isolated building fixtures; no campaign resources or progress changed.
+PASS WaterSource remains in home save catalog
+PASS WaterSource nearest hostile target
+PASS WaterSource ranked hostile target
+PASS WaterSource damage policy
+PASS WaterSource survives lethal area damage
+PASS OilDeposit remains in home save catalog
+PASS OilDeposit nearest hostile target
+PASS OilDeposit ranked hostile target
+PASS OilDeposit damage policy
+PASS OilDeposit survives lethal area damage
+PASS ManualWell remains in home save catalog
+PASS ManualWell nearest hostile target
+PASS ManualWell ranked hostile target
+PASS ManualWell damage policy
+PASS WaterPump remains in home save catalog
+PASS WaterPump nearest hostile target
+PASS WaterPump ranked hostile target
+PASS WaterPump damage policy
+PASS OilDrill remains in home save catalog
+PASS OilDrill nearest hostile target
+PASS OilDrill ranked hostile target
+PASS OilDrill damage policy

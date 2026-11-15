@@ -10,10 +10,12 @@ namespace AntColony.Map
     // 악천후(폭풍·눈보라·모래폭풍)는 작업·이동이 크게 느려지고 기분이 떨어진다.
     public sealed class WeatherSystem : MonoBehaviour
     {
-        [Serializable] public class State { public int kind; public float remaining; }
+        [Serializable] public class State { public int kind; public float remaining; public bool surfaceSaved; public float snowCover, wetness; }
         public const float RollSeconds = 300f;
         public static WeatherSystem Instance { get; private set; }
         public static WeatherKind Current => Instance != null ? (WeatherKind)Instance.state.kind : WeatherKind.Clear;
+        public static float SnowCover => Instance != null ? Instance.state.snowCover : 0;
+        public static float Wetness => Instance != null ? Instance.state.wetness : 0;
         private State state = new State();
         private Precipitation fall;
 
@@ -82,7 +84,7 @@ namespace AntColony.Map
         private void Awake() { Instance = this; state.remaining = RollSeconds; fall = Precipitation.Create("Weather Fall", transform); } // 첫 5분은 맑음
         private void OnDestroy() { if (Instance == this) Instance = null; RenderSettings.fog = false; }
 
-        public State CaptureState() => new State { kind = state.kind, remaining = state.remaining };
+        public State CaptureState() => new State { kind = state.kind, remaining = state.remaining, surfaceSaved = true, snowCover = state.snowCover, wetness = state.wetness };
         public static WeatherKind ForEnvironment(WeatherKind kind, MapBiome biome, MapClimate climate)
         {
             if (biome == MapBiome.Cave) return kind == WeatherKind.Fog ? kind : WeatherKind.Clear;
@@ -94,7 +96,23 @@ namespace AntColony.Map
             if (biome == MapBiome.Desert && kind == WeatherKind.Blizzard) kind = WeatherKind.Sandstorm;
             return kind;
         }
-        public void RestoreState(State s) { state = s != null ? new State { kind = Mathf.Clamp(s.kind, 0, 6), remaining = Mathf.Max(0, s.remaining) } : new State(); Apply(); }
+        public void RestoreState(State s)
+        {
+            state = s != null ? new State { kind = Mathf.Clamp(s.kind, 0, 6), remaining = Mathf.Max(0, s.remaining), surfaceSaved = true,
+                snowCover = s.surfaceSaved ? Mathf.Clamp01(s.snowCover) : 0, wetness = s.surfaceSaved ? Mathf.Clamp01(s.wetness) : 0 } : new State();
+            Apply();
+        }
+        // Visual accumulation only; farming, movement and temperature rules remain separate.
+        public void TickSurface(float seconds)
+        {
+            if (!(seconds > 0) || float.IsInfinity(seconds)) return;
+            var climate = GameSession.Exists ? GameSession.Instance.Options.climate : MapClimate.Temperate;
+            bool outdoors = BiomeRules.Current != MapBiome.Cave;
+            bool snow = outdoors && climate != MapClimate.TropicalWet && (Current == WeatherKind.Snow || Current == WeatherKind.Blizzard);
+            float meltSeconds = Wet ? 90 : GameCalendar.CurrentSeason == Season.Winter || climate == MapClimate.Cold ? 900 : 180;
+            state.snowCover = outdoors ? Mathf.MoveTowards(state.snowCover, snow ? 1 : 0, seconds / (snow ? Current == WeatherKind.Blizzard ? 45 : 90 : meltSeconds)) : 0;
+            state.wetness = outdoors ? Mathf.MoveTowards(state.wetness, Wet ? 1 : 0, seconds / (Wet ? 20 : 90)) : 0;
+        }
         public void Set(WeatherKind kind, float seconds = RollSeconds)
         {
             var was = Current; state.kind = (int)kind; state.remaining = seconds; Apply(); kind = Current;
@@ -106,6 +124,7 @@ namespace AntColony.Map
         private void Update()
         {
             if (!GameSession.Exists || !GameSession.Instance.GameStarted || AntColony.Save.SaveSystem.Busy) return;
+            TickSurface(Time.deltaTime);
             state.remaining -= Time.deltaTime;
             if (state.remaining <= 0) Set(Roll(GameCalendar.CurrentSeason, BiomeRules.Current, UnityEngine.Random.value));
         }
@@ -120,9 +139,9 @@ namespace AntColony.Map
             {
                 case WeatherKind.Rain: fall.Set(220, new Color(.72f, .8f, .88f, .28f), .055f, 22, .12f); break;
                 case WeatherKind.Storm: fall.Set(420, new Color(.72f, .8f, .88f, .38f), .065f, 30, .12f, 6); break;
-                case WeatherKind.Snow: fall.Set(900, new Color(1, 1, 1, .95f), .35f, 3, 0, .5f); break;
-                case WeatherKind.Blizzard: fall.Set(3000, new Color(1, 1, 1, .95f), .4f, 6, 0, 9); break;
-                case WeatherKind.Sandstorm: fall.Set(3000, new Color(.85f, .7f, .45f, .7f), .4f, 3, 0, 14); break;
+                case WeatherKind.Snow: fall.Set(140, new Color(1, 1, 1, .65f), .09f, 3, 0, .5f); break;
+                case WeatherKind.Blizzard: fall.Set(420, new Color(1, 1, 1, .7f), .12f, 6, 0, 9); break;
+                case WeatherKind.Sandstorm: fall.Set(300, new Color(.85f, .7f, .45f, .35f), .16f, 3, 0, 14); break;
                 default: fall.Set(0, Color.clear, .1f, 5); break;
             }
             RenderSettings.fog = k == WeatherKind.Fog || k == WeatherKind.Blizzard || k == WeatherKind.Sandstorm || k == WeatherKind.Storm;

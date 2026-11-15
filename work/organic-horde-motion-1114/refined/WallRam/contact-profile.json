@@ -1,0 +1,12 @@
+{
+  "name": "WallRam",
+  "changed": [
+    "Move"
+  ],
+  "strideSourceUnitsPerSecond": 0.21666666666666667,
+  "riderBones": [],
+  "clips": [
+    "Move"
+  ],
+  "horizontalExtent": 3.172006368637085
+}

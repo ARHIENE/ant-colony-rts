@@ -7,6 +7,7 @@ Shader "AntColony/SeasonFoliage"
         _BaseMap("Base map", 2D) = "white" {}
         _BaseColor("Base color", Color) = (1, 1, 1, 1)
         _Evergreen("Evergreen (no autumn color)", Float) = 0
+        _Foliage("Seasonal foliage tint", Float) = 1
     }
     SubShader
     {
@@ -18,6 +19,7 @@ Shader "AntColony/SeasonFoliage"
             float4 _BaseMap_ST;
             half4 _BaseColor;
             half _Evergreen;
+            half _Foliage;
         CBUFFER_END
         TEXTURE2D(_BaseMap); SAMPLER(sampler_BaseMap);
         ENDHLSL
@@ -34,7 +36,7 @@ Shader "AntColony/SeasonFoliage"
             #pragma multi_compile_fog
             #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Lighting.hlsl"
 
-            half _SeasonSpring, _SeasonAutumn, _SeasonWinter;
+            half _SeasonSpring, _SeasonAutumn, _SeasonWinter, _WeatherSnow, _WeatherWet;
 
             struct Attributes { float4 positionOS : POSITION; float3 normalOS : NORMAL; float2 uv : TEXCOORD0; };
             struct Varyings { float4 positionHCS : SV_POSITION; float3 positionWS : TEXCOORD0; float3 normalWS : TEXCOORD1; float2 uv : TEXCOORD2; float fog : TEXCOORD3; };
@@ -56,8 +58,8 @@ Shader "AntColony/SeasonFoliage"
             {
                 half3 albedo = SAMPLE_TEXTURE2D(_BaseMap, sampler_BaseMap, IN.uv).rgb * _BaseColor.rgb;
                 // 잎 판정: 초록이 빨강·파랑보다 뚜렷하게 큰 픽셀.
-                half green = albedo.g - max(albedo.r, albedo.b);
-                half leaf = smoothstep(0.02, 0.1, green);
+                half green = (albedo.g - max(albedo.r, albedo.b)) / max(.02, max(albedo.r, max(albedo.g, albedo.b)));
+                half leaf = smoothstep(0.025, 0.15, green) * _Foliage;
                 half lum = dot(albedo, half3(0.3, 0.59, 0.11));
                 // 나무마다 조금씩 다른 가을색(주황~빨강). 오브젝트 위치로 고른다.
                 float pick = hash(floor(GetObjectToWorldMatrix()._m03_m23));
@@ -71,7 +73,11 @@ Shader "AntColony/SeasonFoliage"
                 leafColor = lerp(leafColor, _Evergreen > 0.5 ? albedo * 0.85 : winter, _SeasonWinter);
                 albedo = lerp(albedo, leafColor, leaf);
                 // 겨울 눈: 위를 향한 면.
-                half snow = smoothstep(0.35, 0.75, normalize(IN.normalWS).y) * _SeasonWinter;
+                albedo *= lerp(1.0, .7, _WeatherWet);
+                // Snow settles first in patches on upward faces; walls and undersides stay exposed.
+                float grain = hash(floor(IN.positionWS.xz * 9));
+                half cover = smoothstep(grain * .35, .45 + grain * .4, _WeatherSnow);
+                half snow = smoothstep(0.2 + grain * .15, 0.75, normalize(IN.normalWS).y) * cover;
                 albedo = lerp(albedo, half3(0.93, 0.96, 1.0), snow);
 
                 float3 normalWS = normalize(IN.normalWS);

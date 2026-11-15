@@ -16,10 +16,16 @@ namespace AntColony.Units
             if (rm == null) return (false, false, false);
             var people = HomePatients().ToArray();
             var rawTarget = people.Where(c => c.DietAllows(DietRaw)).Sum(c => c.RationPortion * 2);
+            // 날것을 먹지 않아도 주문한 요리의 원료는 필요하다. 조리대에 이미
+            // 도착한 몫은 빼고, 다음 배치에 부족한 양만 확보한다.
+            var cookingRaw = SceneObjects.All<Kitchen>().Where(k => k.isActiveAndEnabled && !k.IsDead && !k.Paused)
+                .Sum(k => Mathf.Max(0, k.IngredientNeeds.Where(i => i.type == ResourceType.Food).Sum(i => i.amount)
+                    - k.IngredientStock.Where(i => i.type == ResourceType.Food).Sum(i => i.amount)));
+            rawTarget += cookingRaw;
             var cookedTarget = people.Count(c => c.DietAllows(DietSimple) || c.DietAllows(DietFine));
             var cooked = CookedFoods.MealTypes.Where(t => CookedFoods.Quality(t) > 0).Sum(rm.GetAmount);
             // 약제대는 입고된 약초로 재료 운반을 시작한다. 바닥 재고가 있어도 먼저 입고해야 한다.
-            var herbs = MedicineShortage() && rm.GetAmount(ResourceType.Herb) < 2
+            var herbs = rm.GetAmount(ResourceType.Herb) < 2
                 && SceneObjects.All<Processor>().Any(p => p.IsMedical && p.isActiveAndEnabled && !p.IsDead && !p.Paused
                     && p.IngredientNeeds.Any(i => i.type == ResourceType.Herb));
             // 창고가 없거나 반입 금지/경로 차단이면 먼저 창고를 지을 수 있어야 한다.
@@ -35,17 +41,24 @@ namespace AntColony.Units
         {
             if (job == CommanderJobs.Nursing && target is CommanderAnt patient)
                 return patient.PersonalHealth <= 0 || patient.Health.LifeThreatening ? 5 : 4;
-            if (job == CommanderJobs.Nursing && target is Processor processor && processor.IsMedical
-                && MedicineShortage()) return 4;
+            if (target is Processor processor && processor.IsMedical && (processor.NeedsIngredients || processor.NeedsWork))
+                return MedicineShortage() ? 4 : 2;
             if (target is ResourceNode node)
             {
-                if (node.ResourceType == ResourceType.Herb && herbsNeeded) return 4;
+                if (node.IsLooseCargo && node.ResourceType == ResourceType.Water
+                    && ResourceManager.Instance.GetAmount(ResourceType.Water) < StarterCropBed.WaterReserveTarget) return 3;
+                if (node.ResourceType == ResourceType.Herb && herbsNeeded) return MedicineShortage() ? 4 : 2;
                 if (node.IsLooseCargo && CookedFoods.Quality(node.ResourceType) > 0 && cookedNeeded) return 4;
                 if (node.ResourceType == ResourceType.Food && rawNeeded) return node.IsLooseCargo ? 3 : 2;
+                if (node.IsLooseCargo && node.ResourceType == ResourceType.MedicineBasic && MedicineShortage()) return 4;
                 if (SceneObjects.All<BuildingConstructionSite>().Any(s => s.isActiveAndEnabled && !s.Paused
                     && s.Needs.Any(n => n.type == node.ResourceType && n.need > n.delivered + n.reserved + s.InTransit(n.type)))) return 1;
+                if (node.IsLooseCargo && SceneObjects.All<Processor>().Any(p => p.isActiveAndEnabled && !p.IsDead && !p.Paused
+                    && p.IngredientNeeds.Any(n => n.type == node.ResourceType
+                        && n.amount > ResourceManager.Instance.GetAmount(n.type) + p.IngredientStock.Where(s => s.type == n.type).Sum(s => s.amount)))) return 1;
             }
             if (job == CommanderJobs.Cooking && target is Kitchen && cookedNeeded) return 3;
+            if (target is SupplyFacility well && well.Kind == BuildingKind.ManualWell && StarterCropBed.NeedsWaterSupply) return 3;
             if (job == CommanderJobs.Repair && target is BuildingBase building && CanFundRepair(building))
                 return building.CurrentHealth < building.MaxHealth * .5f ? 3 : 1;
             // 확보한 재료의 운반과 시공을 끝내 창고·화덕·방어시설을 사용할 수 있게 한다.
@@ -63,19 +76,22 @@ namespace AntColony.Units
                 building.MainMaterial, Mathf.CeilToInt(building.Data.specialCost * fraction));
         }
 
+        internal bool HasAccessibleMeal => HasFoodFor(this);
         private static bool HasFoodFor(CommanderAnt patient)
         {
             if (patient.MealState.served || patient.MealState.eatSeconds > 0) return true;
             var rm = ResourceManager.Instance;
             if (rm == null) return false;
-            var bins = rm.Bins.Where(b => b.Spendable && patient.TryWorkApproach(b.Position, out _)).ToArray();
+            var bins = rm.Bins.Where(b => b.Spendable && CookedFoods.MealTypes.Any(t => b.Amount(t) > 0)
+                && patient.TryWorkApproach(b.Position, out _)).ToArray();
             foreach (var type in CookedFoods.MealTypes)
             {
                 if (patient.MealState.pickedFood > 0 && patient.MealState.pickedType != (int)type) continue;
                 var quality = CookedFoods.Quality(type);
                 if (type != ResourceType.RottenFood && !patient.DietAllows(quality == 2 ? DietFine : quality == 1 ? DietSimple : DietRaw)) continue;
                 var need = quality > 0 ? 1 : patient.RationPortion;
-                if (FoodLots.MealSources(bins, type).Sum(b => b.Amount(type)) >= need - patient.MealState.pickedFood) return true;
+                if (FoodLots.MealSources(bins, type).Sum(b => b.Amount(type))
+                    + patient.FloorMealSources(type).Sum(n => Mathf.FloorToInt(n.AmountRemaining)) >= need - patient.MealState.pickedFood) return true;
             }
             return SceneObjects.All<Kitchen>().Any(k => k.BestMeal(patient.Diet) != null && patient.TryWorkApproach(k.Position, out _));
         }

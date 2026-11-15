@@ -51,7 +51,8 @@ namespace AntColony.World
         // 돌 도구 연구의 재료인 석재에는 새 자원 연구 관문을 추가하지 않는다.
         public bool RequiresResourceResearch => RequiresMiningTool && resourceType != AntColony.Data.ResourceType.Stone;
         public const int MiningToolTier = 2; // 현재 제작 가능한 도구는 나무(1)/돌(2)까지다.
-        public bool CanGatherWith(AntColony.Units.WorkerAnt worker) => CanGather && (!NeedsDesignation || WorkRequested && !WorkPaused) && (!RequiresMiningTool
+        public bool CanGatherWith(AntColony.Units.WorkerAnt worker) => CanGatherWith(worker, true);
+        public bool CanGatherWith(AntColony.Units.WorkerAnt worker, bool requireDesignation) => CanGather && (!requireDesignation || !NeedsDesignation || WorkRequested && !WorkPaused) && (!RequiresMiningTool
             || worker is AntColony.Units.CommanderAnt commander && (RequiresResourceResearch
                 ? CanMine(commander) || CanTakeSample(commander) : commander.PersonalState.toolTier >= MiningToolTier));
         private bool CanMine(AntColony.Units.CommanderAnt c) => CampaignResearch.Instance?.CanMine(resourceType, c.PersonalState.toolTier, MiningToolTier) == true;

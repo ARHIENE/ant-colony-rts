@@ -9,6 +9,7 @@ namespace AntColony.Buildings
     public sealed partial class Processor : PowerGrid.IUser
     {
         public bool Chemical => Data != null && Data.kind == BuildingKind.ChemistryBench;
+        public bool DeepMining => Data != null && Data.kind == BuildingKind.DeepMine;
         public bool Industrial => Data != null && Data.kind is BuildingKind.GasSmelter or BuildingKind.ChemistryBench;
         public int BufferedOil => state.bufferedOil;
         private static int OilRequired(Recipe recipe) => recipe?.output == ResourceType.Plastic ? IndustrialRecipes.PlasticOil : 0;
@@ -18,14 +19,14 @@ namespace AntColony.Buildings
             : state.orders.Where(o => o.recipe >= 0 && o.recipe < Recipes.Count && Wants(o, Recipes[o.recipe])).Select(o => Recipes[o.recipe]).FirstOrDefault());
         private bool HasIndustrialInput => HasIndustrialInputFor(IndustrialRecipe);
         public bool Powered { get; set; }
-        public float Demand => Industrial && isActiveAndEnabled && !IsDead ? SupplyFacility.RefineryWatts : 0;
+        public float Demand => (Industrial || DeepMining) && isActiveAndEnabled && !IsDead ? SupplyFacility.RefineryWatts : 0;
         public IEnumerable<UnityEngine.Vector2Int> Cells => RoomSystem.Footprint(this);
         private bool HasIndustrialSpace(Recipe recipe) => recipe == null || ResourceNode.Available.Where(n => n.IsLooseCargo
             && (n.transform.position - Position).sqrMagnitude <= 16).Sum(n => n.AmountRemaining) + recipe.amount <= SupplyFacility.Capacity;
         private bool IndustrialSpace => HasIndustrialSpace(Current ?? (PendingOrder is Order order ? Recipes[order.recipe] : null));
         // gasPaid는 기존 저장 필드명을 유지하며 화학 작업대에서도 묶음 유체 선투입을 뜻한다.
-        private bool IndustrialReady => !Industrial || Powered && IndustrialSpace && (state.gasPaid || HasIndustrialInput);
-        protected override void OnEnable() { base.OnEnable(); if (Industrial) PowerGrid.Register(this); }
+        private bool IndustrialReady => DeepMining ? Powered : !Industrial || Powered && IndustrialSpace && (state.gasPaid || HasIndustrialInput);
+        protected override void OnEnable() { base.OnEnable(); if (Industrial || DeepMining) PowerGrid.Register(this); }
         private bool PayIndustrialFuel(Recipe recipe)
         {
             if (!Industrial) return true;

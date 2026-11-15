@@ -1,0 +1,7 @@
+PASS Actual combat victory loaded
+PASS Visible fixed footer Save Victory
+PASS Footer independent of records Save Victory
+PASS Visible fixed footer Main Menu
+PASS Footer independent of records Main Menu
+PASS Save action opens slot chooser without overwriting
+PASS Main menu action leaves completed session

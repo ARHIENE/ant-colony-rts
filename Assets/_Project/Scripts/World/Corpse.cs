@@ -19,6 +19,8 @@ namespace AntColony.World
             public Vector3 position;
             public CorpseKind kind;
             public int count = 1;
+            public int organicKind;
+            public float organicYaw;
             public float remaining = Lifetime, food;
             public bool priority, gatheringForbidden;
             public int workforce;
@@ -33,7 +35,7 @@ namespace AntColony.World
         public Vector3 Position => transform.position;
         public bool Available => isActiveAndEnabled && Data.count > 0 && (Data.remaining > 0 || IsCommanderBody);
         // 장수 시신은 식량으로 쓰지 않는다(2026-10-13 기획: 시신의 식량·재료 사용 없음).
-        public bool Edible => Available && Data.kind != CorpseKind.Wildlife && !IsCommanderBody;
+        public bool Edible => Available && Data.organicKind == 0 && Data.kind != CorpseKind.Wildlife && !IsCommanderBody;
         public bool IsCommanderBody => (Data.kind == CorpseKind.ColonyCommander || Data.kind == CorpseKind.EnemyCommander);
         public bool Remains => IsCommanderBody && Data.remaining <= 0;
         public bool Priority { get => Data.priority; set => Data.priority = value; }
@@ -86,11 +88,15 @@ namespace AntColony.World
                 commanderId = source is CommanderAnt commander ? commander.PersonalState.id : Guid.NewGuid().ToString("N");
                 if (kind == CorpseKind.EnemyCommander) Memorial.RecordEnemy(commanderId, name);
             }
-            var body = source.GetComponent<AntVisual>()?.Death(true);
+            var organic = source as WildMonster;
+            bool organicBody = organic != null && organic.IsOrganic;
+            if (organicBody) { kind = CorpseKind.Wildlife; food = 0; }
+            var body = organicBody ? source.GetComponent<OrganicEnemyVisual>()?.DeathBody() : source.GetComponent<AntVisual>()?.Death(true);
             var position = source.transform.position;
             if (UnityEngine.AI.NavMesh.SamplePosition(position, out var ground, 32, UnityEngine.AI.NavMesh.AllAreas)) position = ground.position;
             return Spawn(new State { position = position,
-                kind = kind, name = name, count = count, food = food, commanderId = commanderId }, body);
+                kind = kind, name = name, count = count, food = food, commanderId = commanderId, organicKind = organicBody ? (int)organic.OrganicKind : 0,
+                organicYaw = organicBody ? source.transform.eulerAngles.y : 0 }, body);
         }
         public static Corpse Spawn(State state, GameObject body = null)
         {
@@ -99,6 +105,11 @@ namespace AntColony.World
             var corpse = root.AddComponent<Corpse>(); corpse.Data = JsonUtility.FromJson<State>(JsonUtility.ToJson(state));
             var collider = root.AddComponent<BoxCollider>(); collider.center = Vector3.up * .25f; collider.size = new Vector3(1.4f, .5f, 1.4f);
             bool freshDeath = body != null;
+            if (body == null && state.organicKind > 0)
+            {
+                body = OrganicEnemyVisual.Create((OrganicEnemyKind)state.organicKind);
+                body.transform.rotation = Quaternion.Euler(0, state.organicYaw, 0) * body.transform.rotation;
+            }
             if (body == null && (state.kind == CorpseKind.ColonyCommander || state.kind == CorpseKind.EnemyCommander))
                 body = MeshyNativeCorpse.Restore(state.position);
             if (body == null)
@@ -124,7 +135,8 @@ namespace AntColony.World
             root.SetActive(true);
             body.GetComponent<KemonoAppearance>()?.SetExpression("DEAD");
             var animator = RigAnimator.Find(body);
-            if (animator != null) { animator.applyRootMotion = false; animator.Play("Base Layer.Death", 0, freshDeath ? 0 : 1); animator.Update(0); animator.speed = freshDeath ? 1 : 0; }
+            if (state.organicKind > 0) OrganicDeathPose.Attach(body, (OrganicEnemyKind)state.organicKind, freshDeath ? 0 : Mathf.Max(0, Lifetime - state.remaining));
+            else if (animator != null) { animator.applyRootMotion = false; animator.Play("Base Layer.Death", 0, freshDeath ? 0 : 1); animator.Update(0); animator.speed = freshDeath ? 1 : 0; }
             if (!freshDeath) root.GetComponent<CorpseProp>().ShowRestored();
             return corpse;
         }

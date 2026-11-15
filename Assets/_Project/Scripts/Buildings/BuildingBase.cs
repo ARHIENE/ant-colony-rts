@@ -15,6 +15,8 @@ namespace AntColony.Buildings
         [SerializeField] private float currentHealth;
 
         public BuildingData Data => data;
+        // 자연 지형은 피해를 받지 않는다. 소유/저장 플래그와 적의 표적 판정은 별개다.
+        private bool IsNaturalDeposit => data != null && (data.kind == BuildingKind.WaterSource || data.kind == BuildingKind.OilDeposit);
         public bool CountsTowardPlayerDefeat => countsTowardPlayerDefeat;
         // 재료 업그레이드(2026-10-05 공통 원칙): 같은 가구를 더 좋은 재료로 다시 지어 올린 단계. 재료 목록·효과가 미정이라 저장만 한다.
         // TODO 재료 목록이 정해지면 FurnitureCatalog.MaterialUpgradable 가구에 업그레이드 명령·효과를 붙인다.
@@ -85,7 +87,7 @@ namespace AntColony.Buildings
 
         public void TakeDamage(float amount)
         {
-            if (IsDead || !(amount > 0f)) return;
+            if (IsDead || IsNaturalDeposit || !(amount > 0f)) return;
             if (!AntColony.World.DiplomacyManager.TryAttack(this)) return;
             // 방어력은 피해를 깎되, 약한 공격도 최소 1(원래 피해가 더 작으면 그 값)은 들어간다.
             currentHealth -= Mathf.Max(Mathf.Min(amount, 1f), amount - Armor - AntColony.World.AIEraMilitary.FortificationArmor(this));

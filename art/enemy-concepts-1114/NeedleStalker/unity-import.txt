@@ -1,0 +1,7 @@
+Idle: 3s, 630 curves
+Move: 1s, 630 curves
+Attack: 1.4s, 630 curves
+Hit: 0.6s, 630 curves
+Death: 2s, 630 curves
+Material textures: BaseColor,MetallicRoughness,Normal
+Controller Action: 0 Idle / 1 Move / 2 Attack / 3 Hit / 4 Death. Gameplay spawning not connected.

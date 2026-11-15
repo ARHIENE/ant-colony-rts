@@ -17,7 +17,7 @@ namespace AntColony.UI
                 WeaponKind.WoodenSword => "나무칼 · 근접 공격", WeaponKind.ShortBow => "단궁 · 사거리 12m · 공격 간격 2초 · 탄약 없음",
                 WeaponKind.Shield => "방어 위주 전투", _ => "지원 신호기(지원 범위 +" + e.quality + ")"
             },
-            EquipmentSlot.Armor => e.armor == ArmorKind.Wings ? "비행 가능(비행 장비)" : "피해 감소(보호 갑옷)",
+            EquipmentSlot.Armor => e.IsClothing ? "피해 15% 흡수 · 내구 소진 시 보호 없음 · 재봉대에서 수리" : e.armor == ArmorKind.Wings ? "비행 가능(비행 장비)" : "피해 감소(보호 갑옷)",
             _ => e.effect switch
             {
                 TrinketEffect.Move => "이동 속도", TrinketEffect.Gather => "채집 속도",

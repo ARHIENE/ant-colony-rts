@@ -1,6 +1,7 @@
 using System.Linq;
 using AntColony.Buildings;
 using AntColony.Core;
+using AntColony.World;
 using UnityEngine;
 using ResourceType = AntColony.Data.ResourceType;
 
@@ -80,6 +81,14 @@ namespace AntColony.Units
             return true;
         }
 
+        private ResourceNode[] FloorMealSources(ResourceType type)
+        {
+            return ResourceNode.Available.Where(n => n.IsLooseCargo && n.ResourceType == type && n.CanGather
+                && n.AmountRemaining >= 1 && TryWorkApproach(n.transform.position, out var point)
+                && (!IsMedicalPatient || (Position - point).sqrMagnitude <= 2.25f))
+                .OrderBy(n => (n.transform.position - Position).sqrMagnitude).ToArray();
+        }
+
         private bool FetchMeal(bool walk = true)
         {
             var m = MealState; var rm = ResourceManager.Instance;
@@ -95,12 +104,14 @@ namespace AntColony.Units
                 var allowed = type == ResourceType.RottenFood || DietAllows(quality == 2 ? DietFine : quality == 1 ? DietSimple : DietRaw);
                 var need = quality > 0 ? 1 : RationPortion;
                 var stocked = FoodLots.MealSources(bins, type).ToArray();
-                if (!allowed || stocked.Sum(b => b.Amount(type)) < need - m.pickedFood)
+                var floor = allowed ? FloorMealSources(type) : System.Array.Empty<ResourceNode>();
+                var available = stocked.Sum(b => b.Amount(type)) + floor.Sum(n => Mathf.FloorToInt(n.AmountRemaining));
+                if (!allowed || available < need - m.pickedFood)
                 {
                     if (kitchen == null) continue;
                 }
                 // 옛 부엌 식사는 lot 정보가 없어 같은 등급의 정상 재고보다 뒤에 둔다.
-                if (kitchen != null && (kitchen.BestMeal(Diet).quality > quality || !allowed || stocked.Sum(b => b.Amount(type)) < need - m.pickedFood))
+                if (kitchen != null && (kitchen.BestMeal(Diet).quality > quality || !allowed || available < need - m.pickedFood))
                 {
                     if (walk && MoveForMeal(kitchen.Position)) return false;
                     if (!TryWorkApproach(kitchen.Position, out _)) continue;
@@ -111,11 +122,28 @@ namespace AntColony.Units
                     return true;
                 }
                 var bin = stocked.FirstOrDefault();
-                if (bin == null) continue;
-                if (walk && MoveForMeal(bin.Position)) return false;
-                if (!bin.Spendable || !TryWorkApproach(bin.Position, out _)) continue;
-                m.pickedType = (int)type;
-                m.pickedFood += rm.TakeFrom(bin, type, Mathf.Min(need - m.pickedFood, bin.Lots(type)?.StalestAmount ?? need), out var eatenLots);
+                FoodLots eatenLots;
+                if (bin != null)
+                {
+                    if (walk && MoveForMeal(bin.Position)) return false;
+                    if (!bin.Spendable || !TryWorkApproach(bin.Position, out _)) continue;
+                    m.pickedType = (int)type;
+                    m.pickedFood += rm.TakeFrom(bin, type, Mathf.Min(need - m.pickedFood, bin.Lots(type)?.StalestAmount ?? need), out eatenLots);
+                }
+                else
+                {
+                    var pile = floor.FirstOrDefault();
+                    if (pile == null) continue;
+                    if (walk && MoveForMeal(pile.transform.position)) return false;
+                    // 환자 급식 등 이동하지 않는 호출로 멀리 있는 바닥 음식을 소비하지 않는다.
+                    if (!TryWorkApproach(pile.transform.position, out var point) || (Position - point).sqrMagnitude > 2.25f) continue;
+                    var lots = pile.GetComponent<FloorFood>()?.Sync();
+                    int count = Mathf.Min(need - m.pickedFood, Mathf.FloorToInt(pile.AmountRemaining));
+                    int taken = Mathf.FloorToInt(pile.Extract(count));
+                    if (taken <= 0) continue;
+                    eatenLots = lots?.Take(taken);
+                    m.pickedType = (int)type; m.pickedFood += taken;
+                }
                 if (m.pickedFood < need) return false;
                 m.pickedFood = 0; m.quality = quality; m.cookSkill = quality > 0 ? eatenLots?.CookingSkill ?? 5 : 0;
                 m.inspired = quality > 0 && eatenLots?.Inspired == true;
@@ -123,8 +151,10 @@ namespace AntColony.Units
                 if (quality > 0) TakeMealExtra(bins);
                 return true;
             }
-            personalState.AddMood("Hunger", traits.Has(CommanderTrait.Ascetic) ? 5 : -15, GameBalance.StarveRetrySeconds + 1);
-            OnHunger(); m.retrySeconds = GameBalance.StarveRetrySeconds;
+            // 식사 시간이 됐지만 아직 포만이 남은 대기와 실제 굶주림을 구분한다.
+            personalState.AddMood("Hunger", traits.Has(CommanderTrait.Ascetic) ? 5 : m.satiety <= 0 ? -15 : -5, GameBalance.StarveRetrySeconds + 1);
+            if (m.satiety <= 0) OnHunger();
+            m.retrySeconds = GameBalance.StarveRetrySeconds;
             return false;
         }
 

@@ -38,6 +38,20 @@ namespace AntColony.World
         // 무리 유닛 하나(체력 = 마릿수 × 한 마리 체력).
         public bool TrySpawnHorde(int bodies, EnemyAim aim = EnemyAim.General) => Spawn(null, 1, false, true, false, Mathf.Max(1, bodies), aim);
 
+        internal WildMonster SpawnOrganicYoung(WildMonster parent, int slot)
+        {
+            if (raiderTemplate == null || parent == null || parent.IsDead || !parent.IsOrganic) return null;
+            if (WaveDefense.Instance != null && WaveDefense.Instance.RemainingEnemies >= WaveDefense.MaxEnemies) return null;
+            var position = parent.Position + parent.transform.right * (slot == 0 ? -.7f : .7f);
+            if (!NavMesh.SamplePosition(position, out var hit, .5f, NavMesh.AllAreas)
+                || NavMesh.Raycast(parent.Position, hit.position, out _, NavMesh.AllAreas)) return null;
+            var child = Instantiate(raiderTemplate, hit.position, parent.transform.rotation);
+            child.ConfigureWeakIntruder(); child.ConfigureOrganic(OrganicEnemyKind.ClawHunter, true);
+            child.Allied = parent.Allied; child.MakeRaider(); child.name = "운반체 새끼";
+            child.gameObject.SetActive(true); RestoreVisitor(child);
+            return child;
+        }
+
         private static bool HasEntryBarrier(Vector3 endpoint)
         {
             // 경로 끝은 벽 표면에서 에이전트 여유 폭만큼 떨어진다. 가까운 실제 벽/문만 인정한다.
@@ -73,7 +87,10 @@ namespace AntColony.World
                     var template = withCommander && n == count - 1 ? commanderTemplate : raiderTemplate;
                     var visitor = Instantiate(template, hit.position, Quaternion.identity);
                     visitor.name = n == 2 ? "Visiting Commander" : "Local Intruder";
-                    visitor.MakeRaider();
+                    // 종류를 먼저 지정해 인간형 AntVisual과 중복 생성하지 않는다.
+                    bool organicWave = wave && !(visitor is EnemyCommander);
+                    int waveNumber = WaveDefense.Instance != null ? WaveDefense.Instance.Wave : 1;
+                    if (organicWave) visitor.ConfigureOrganic(OrganicEnemyRules.Select(waveNumber, visitors.Count, aim), waveNumber <= 3);
                     if (hordeBodies > 0) { visitor.ConfigureHorde(hordeBodies); visitor.ConfigureAim(aim); visitor.name = $"{WildMonster.AimLabel(aim)} 무리 {hordeBodies}"; }
                     else if (faction == null)
                     {
@@ -89,6 +106,9 @@ namespace AntColony.World
                         if (visitor is EnemyCommander commander) commander.ConfigureCommander(faction.leader, AntColony.Data.CommanderRank.Sergeant, null, AntColony.Units.CommanderTraits.Random());
                         visitor.ConfigureAIMilitary(faction.era, n);
                     }
+                    if (organicWave) visitor.ConfigureOrganic(visitor.OrganicKind, waveNumber <= 3);
+                    visitor.MakeRaider();
+                    if (organicWave) visitor.name = OrganicEnemyRules.Label(visitor.OrganicKind) + (hordeBodies > 0 ? " 무리 " + hordeBodies : "");
                     visitor.gameObject.SetActive(true);
                     visitors.Add(visitor);
                 }

@@ -1,0 +1,77 @@
+Prepared equipment fixture: standard quality-2 sword and armor. Checkpoint health and boss HP unchanged. Ordinary attacks and movement only after setup.
+START boss=963/1000; crew=생존자 1:100 attack=8
+time=61 boss=963 crew=100
+DODGE 0 from=(-5001.64, 0.63, 4989.72) to=(-5000.22, 0.03, 4995.03) speed=1.8 stop=0 ready=True constructing=False
+DODGE 1 from=(-5000.15, 0.63, 5001.82) to=(-4997.98, 0.03, 5003.07) speed=1.8 stop=0 ready=True constructing=False
+DODGE 0 from=(-4999.01, 0.63, 5009.69) to=(-5000.44, 0.03, 5015.00) speed=1.8 stop=0 ready=True constructing=False
+time=91 boss=931 crew=100
+DODGE 1 from=(-5000.44, 0.63, 5015.00) to=(-4999.69, 0.03, 5016.30) speed=1.8 stop=0 ready=True constructing=False
+DODGE 0 from=(-4999.69, 0.63, 5016.30) to=(-5005.00, 0.03, 5014.88) speed=1.8 stop=0 ready=True constructing=False
+DODGE 1 from=(-5001.04, 0.63, 5015.77) to=(-4999.74, 0.03, 5016.52) speed=1.8 stop=0 ready=True constructing=False
+DODGE 0 from=(-4999.74, 0.63, 5016.52) to=(-5001.16, 0.03, 5011.21) speed=1.8 stop=0 ready=True constructing=False
+time=121 boss=835 crew=100
+DODGE 1 from=(-5000.24, 0.63, 5015.00) to=(-4999.49, 0.03, 5016.30) speed=1.8 stop=0 ready=True constructing=False
+DODGE 0 from=(-4999.49, 0.63, 5016.30) to=(-5004.81, 0.03, 5014.87) speed=1.8 stop=0 ready=True constructing=False
+DODGE 1 from=(-5001.00, 0.63, 5015.77) to=(-4999.70, 0.03, 5016.52) speed=1.8 stop=0 ready=True constructing=False
+DODGE 0 from=(-4999.70, 0.63, 5016.52) to=(-5001.12, 0.03, 5011.20) speed=1.8 stop=0 ready=True constructing=False
+time=151 boss=747 crew=100
+DODGE 1 from=(-5000.24, 0.63, 5014.98) to=(-4999.49, 0.03, 5016.28) speed=1.8 stop=0 ready=True constructing=False
+DODGE 0 from=(-4999.49, 0.63, 5016.28) to=(-5004.80, 0.03, 5014.85) speed=1.8 stop=0 ready=True constructing=False
+DODGE 1 from=(-5001.07, 0.63, 5015.74) to=(-4999.77, 0.03, 5016.49) speed=1.8 stop=0 ready=True constructing=False
+DODGE 0 from=(-4999.77, 0.63, 5016.49) to=(-5001.20, 0.03, 5011.18) speed=1.8 stop=0 ready=True constructing=False
+time=181 boss=651 crew=100
+DODGE 1 from=(-5000.25, 0.63, 5015.01) to=(-4999.50, 0.03, 5016.31) speed=1.8 stop=0 ready=True constructing=False
+DODGE 0 from=(-4999.50, 0.63, 5016.31) to=(-5004.81, 0.03, 5014.88) speed=1.8 stop=0 ready=True constructing=False
+DODGE 1 from=(-5001.08, 0.63, 5015.75) to=(-4999.78, 0.03, 5016.50) speed=1.8 stop=0 ready=True constructing=False
+DODGE 0 from=(-4999.78, 0.63, 5016.50) to=(-5001.20, 0.03, 5011.19) speed=1.8 stop=0 ready=True constructing=False
+time=212 boss=555 crew=100
+DODGE 1 from=(-5000.25, 0.63, 5015.01) to=(-4999.50, 0.03, 5016.31) speed=1.8 stop=0 ready=True constructing=False
+DODGE 0 from=(-4999.50, 0.63, 5016.31) to=(-5004.81, 0.03, 5014.88) speed=1.8 stop=0 ready=True constructing=False
+DODGE 1 from=(-5001.05, 0.63, 5015.76) to=(-4999.75, 0.03, 5016.51) speed=1.8 stop=0 ready=True constructing=False
+DODGE 2 from=(-4999.75, 0.63, 5016.51) to=(-4994.09, 0.03, 5022.16) speed=1.8 stop=0 ready=True constructing=False
+DODGE 0 from=(-4996.93, 0.63, 5019.21) to=(-4998.35, 0.03, 5013.89) speed=1.8 stop=0 ready=True constructing=False
+time=242 boss=475 crew=100
+DODGE 1 from=(-4999.34, 0.63, 5015.16) to=(-5000.09, 0.03, 5016.45) speed=1.8 stop=0 ready=True constructing=False
+DODGE 2 from=(-5000.09, 0.63, 5016.45) to=(-5000.09, 0.03, 5024.45) speed=1.8 stop=0 ready=True constructing=False
+DODGE 0 from=(-5000.04, 0.63, 5020.35) to=(-4998.62, 0.03, 5015.04) speed=1.8 stop=0 ready=True constructing=False
+DODGE 1 from=(-4999.18, 0.63, 5015.43) to=(-5000.48, 0.03, 5016.18) speed=1.8 stop=0 ready=True constructing=False
+DODGE 2 from=(-5000.48, 0.63, 5016.18) to=(-5006.14, 0.03, 5021.83) speed=1.8 stop=0 ready=True constructing=False
+time=272 boss=395 crew=100
+DODGE 0 from=(-5003.27, 0.63, 5019.11) to=(-4997.96, 0.03, 5017.69) speed=1.8 stop=0 ready=True constructing=False
+DODGE 1 from=(-4999.36, 0.63, 5016.53) to=(-5000.33, 0.03, 5016.27) speed=1.8 stop=0 ready=True constructing=False
+DODGE 2 from=(-5000.33, 0.63, 5016.27) to=(-5005.98, 0.03, 5021.93) speed=1.8 stop=0 ready=True constructing=False
+DODGE 0 from=(-5003.09, 0.63, 5019.06) to=(-4997.77, 0.03, 5017.64) speed=1.8 stop=0 ready=True constructing=False
+time=302 boss=355 crew=100
+DODGE 1 from=(-4999.17, 0.63, 5016.61) to=(-5000.47, 0.03, 5015.86) speed=1.8 stop=0 ready=True constructing=False
+DODGE 2 from=(-5000.47, 0.63, 5015.86) to=(-5006.13, 0.03, 5010.20) speed=1.8 stop=0 ready=True constructing=False
+DODGE 0 from=(-5003.09, 0.63, 5013.08) to=(-4997.78, 0.03, 5014.50) speed=1.8 stop=0 ready=True constructing=False
+DODGE 1 from=(-4999.15, 0.63, 5015.43) to=(-5000.45, 0.03, 5016.18) speed=1.8 stop=0 ready=True constructing=False
+DODGE 2 from=(-5000.45, 0.63, 5016.18) to=(-5006.10, 0.03, 5021.83) speed=1.8 stop=0 ready=True constructing=False
+time=332 boss=274 crew=100
+DODGE 0 from=(-5003.05, 0.63, 5018.91) to=(-4997.74, 0.03, 5017.49) speed=1.8 stop=0 ready=True constructing=False
+DODGE 1 from=(-4999.15, 0.63, 5016.56) to=(-5000.44, 0.03, 5015.81) speed=1.8 stop=0 ready=True constructing=False
+DODGE 2 from=(-5000.44, 0.63, 5015.81) to=(-5006.10, 0.03, 5010.16) speed=1.8 stop=0 ready=True constructing=False
+DODGE 0 from=(-5003.20, 0.63, 5012.94) to=(-4997.89, 0.03, 5014.36) speed=1.8 stop=0 ready=True constructing=False
+DODGE 1 from=(-4999.15, 0.63, 5015.34) to=(-5000.45, 0.03, 5016.09) speed=1.8 stop=0 ready=True constructing=False
+time=362 boss=211 crew=100
+DODGE 2 from=(-5000.45, 0.63, 5016.09) to=(-5008.45, 0.03, 5016.09) speed=1.8 stop=0 ready=True constructing=False
+DODGE 0 from=(-5004.14, 0.63, 5016.05) to=(-4998.83, 0.03, 5014.62) speed=1.8 stop=0 ready=True constructing=False
+DODGE 1 from=(-4999.32, 0.63, 5015.20) to=(-5000.07, 0.03, 5016.50) speed=1.8 stop=0 ready=True constructing=False
+DODGE 2 from=(-5000.07, 0.63, 5016.50) to=(-5005.73, 0.03, 5022.16) speed=1.8 stop=0 ready=True constructing=False
+time=393 boss=139 crew=100
+DODGE 0 from=(-5002.94, 0.63, 5019.16) to=(-5001.51, 0.03, 5013.84) speed=1.8 stop=0 ready=True constructing=False
+DODGE 1 from=(-5000.60, 0.63, 5015.15) to=(-4999.85, 0.03, 5016.44) speed=1.8 stop=0 ready=True constructing=False
+DODGE 2 from=(-4999.85, 0.63, 5016.44) to=(-4994.19, 0.03, 5022.10) speed=1.8 stop=0 ready=True constructing=False
+DODGE 0 from=(-4996.93, 0.63, 5019.22) to=(-4998.36, 0.03, 5013.91) speed=1.8 stop=0 ready=True constructing=False
+DODGE 1 from=(-4999.34, 0.63, 5015.16) to=(-5000.09, 0.03, 5016.46) speed=1.8 stop=0 ready=True constructing=False
+time=423 boss=67 crew=82
+DODGE 2 from=(-5000.09, 0.63, 5016.46) to=(-5000.09, 0.03, 5024.46) speed=1.8 stop=0 ready=True constructing=False
+DODGE 0 from=(-5000.04, 0.63, 5020.31) to=(-4998.62, 0.03, 5014.99) speed=1.8 stop=0 ready=True constructing=False
+DODGE 1 from=(-4999.20, 0.63, 5015.42) to=(-5000.07, 0.03, 5015.92) speed=1.8 stop=0 ready=True constructing=False
+DODGE 2 from=(-5000.07, 0.63, 5015.92) to=(-5006.08, 0.03, 5021.93) speed=1.8 stop=0 ready=True constructing=False
+DODGE 0 from=(-5003.28, 0.63, 5019.19) to=(-4997.97, 0.03, 5017.77) speed=1.8 stop=0 ready=True constructing=False
+time=453 boss=4 crew=63
+PASS final boss defeated only through normal attacks and dodge orders; victory saved.
+RESTORED settings and save root
+PASS saved normal-combat victory fully reloaded and ending flag retained.
+PASS saved normal-combat victory fully reloaded and ending flag retained.

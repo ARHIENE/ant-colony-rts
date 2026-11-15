@@ -22,7 +22,7 @@ namespace AntColony.UI
             if (options.startingTeam == null || options.startingTeam.Length != 3)
                 options.startingTeam = Enumerable.Range(0, 3).Select(StartingCandidate.Roll).ToArray();
             var p = L.Plate(f, "NewGamePanel", 120, 90, 1200, 720);
-            L.Label(p, "불시착 생존자", 20, 24, 10, 400, 38, bold: true);
+            L.Label(p, "고립된 부족", 20, 24, 10, 400, 38, bold: true);
             L.Label(p, StartRiskSummary(options), 12, 440, 10, 720, 38,
                 options.startingCount == 1 || options.commanderDeath == CommanderDeathMode.Harsh ? MenuTheme.Warning : MenuTheme.Muted);
             L.Line(p, 0, 56, 1200);

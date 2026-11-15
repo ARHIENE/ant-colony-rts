@@ -28,6 +28,7 @@ namespace AntColony.Save
                 file.monsters.Add(Capture(SaveCatalog.Monsters[i], "monster:" + i));
             foreach (var m in SaveCatalog.Ordered<WildMonster>().Where(m => !SaveCatalog.Monsters.Contains(m)))
                 file.monsters.Add(Capture(m, SaveReferences.Key(m)));
+            file.organicEffects = OrganicCombatEffects.Capture();
         }
         private static MonsterDto Capture(WildMonster m, string key) => new MonsterDto { key = key,
             militaryVersion = m != null && m.MilitaryEra > 0 ? 1 : 0, militaryEra = m != null ? m.MilitaryEra : 0,
@@ -113,6 +114,7 @@ namespace AntColony.Save
                     m.GuardXpClaimed = true; // 구저장 처치 보상 여부 불명: 소급 지급하지 않는다.
                 }
                 m.transform.rotation = Quaternion.Euler(0, state.rotationY, 0); m.transform.localScale = state.scale.ToVector3();
+                m.RestoreOrganic(state.organic);
                 if (state.raider) m.MakeRaider();
                 m.DiplomaticFactionId = d.diplomaticFactionId; m.Temperament = d.temperament; m.HuntDesignated = d.huntDesignated;
                 if (m is EnemyCommander c && d.traits != null) {
@@ -131,6 +133,7 @@ namespace AntColony.Save
             }
             foreach (var d in file.monsters.Where(d => d.hasRuntime))
                 if (restored.TryGetValue(d.key, out var m)) m.RestoreRuntime(d.runtime, true);
+            OrganicCombatEffects.Restore(file.organicEffects);
             foreach (var (d, member) in MilitaryMembers(file.monsters))
             {
                 if (!restored.TryGetValue(d.key, out var m)) continue;

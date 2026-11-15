@@ -20,6 +20,10 @@ namespace AntColony.Core
                 && stock.Select(s => s.type).Distinct().Count() == stock.Count;
         private readonly Dictionary<object, (ResourceType type, int amount)> incoming = new Dictionary<object, (ResourceType, int)>();
         public int Amount(ResourceType type) => staged.Where(s => s.type == type).Sum(s => s.amount);
+        public bool HasIncoming => incoming.Count > 0;
+        public bool CanSupply(IEnumerable<(ResourceType type, int amount)> needs) => needs.All(n =>
+            Amount(n.type) + incoming.Values.Where(v => v.type == n.type).Sum(v => v.amount)
+            + (ResourceManager.Instance?.GetAmount(n.type) ?? 0) >= n.amount);
         private int Missing(ResourceType type, int need, object except = null) => Mathf.Max(0, need - Amount(type)
             - incoming.Where(p => p.Key != except && p.Value.type == type).Sum(p => p.Value.amount));
         public bool Ready(IEnumerable<(ResourceType type, int amount)> needs) => needs.All(n => Amount(n.type) >= n.amount);

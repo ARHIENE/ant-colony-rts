@@ -12,6 +12,7 @@ namespace AntColony.Buildings
         [SerializeField, Min(.1f)] private float attackInterval = 1.5f;
         [SerializeField] private LineRenderer spray;
         private float cooldown, searchTimer, sprayTime;
+        private Transform visualModel, muzzle;
 
         public float Range => attackRange + DefenseUpgrades.RangeBonus;
         public float Damage => attackDamage * ScienceEffects.AcidTowerDamageMultiplier;
@@ -33,9 +34,10 @@ namespace AntColony.Buildings
             var target = CombatTargeting.FindNearestEnemy(Position, Range, UnitRole.Ranged);
             if (target == null) return;
             cooldown = attackInterval;
+            var sprayOrigin = AimVisual(target.Position);
             if (spray != null)
             {
-                spray.SetPosition(0, Position + Vector3.up * 1.2f);
+                spray.SetPosition(0, sprayOrigin);
                 spray.SetPosition(1, target.Position);
                 spray.enabled = true; sprayTime = .15f;
             }
@@ -43,6 +45,23 @@ namespace AntColony.Buildings
         }
 
         internal void RestoreCooldown(float value) => cooldown = Mathf.Clamp(value, 0, attackInterval);
+
+        private Vector3 AimVisual(Vector3 target)
+        {
+            var model = GetComponent<FacilityVisual>()?.Model;
+            if (model != visualModel)
+            {
+                visualModel = model; muzzle = null;
+                if (model) foreach (var child in model.GetComponentsInChildren<Transform>())
+                    if (child.name == "AcidMuzzle") { muzzle = child; break; }
+            }
+            if (!muzzle) return Position + Vector3.up * 1.2f;
+            var facing = muzzle.position - Position; facing.y = 0;
+            var desired = target - Position; desired.y = 0;
+            if (facing.sqrMagnitude > .001f && desired.sqrMagnitude > .001f)
+                visualModel.RotateAround(Position, Vector3.up, Vector3.SignedAngle(facing, desired, Vector3.up));
+            return muzzle.position;
+        }
 
         protected override void OnDisable()
         {

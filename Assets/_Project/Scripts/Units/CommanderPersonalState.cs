@@ -27,6 +27,7 @@ namespace AntColony.Units
         public string ordinaryClothes = "";
         public FoodLots carriedRations = new FoodLots(); // 원식량 단위, 개인 재고는 창고 합계에 포함하지 않는다.
         public GroundCraftState groundCraft = new GroundCraftState();
+        public CommanderAlcoholState alcohol = new CommanderAlcoholState();
         public float workedSeconds, breakCheck, lowMoodSeconds, captiveSeconds, unsupportedSeconds, breakRemaining, rageRemaining, rewardCooldown, lastCombatSeconds, homeSeconds, wrathRemaining, wrathExhaust;
         public float craftProgress, researchProgress;
         public float beautyExposure; // 생활 공간 미관의 체류 평균(2026-10-10)
@@ -94,6 +95,8 @@ namespace AntColony.Units
         public bool Validate(out string error)
         {
             error = "Invalid commander personal state";
+            alcohol ??= new CommanderAlcoholState();
+            if (!alcohol.Valid) return false;
             deathEvents ??= new List<string>();
             if (ageScaleVersion < 0 || ageScaleVersion > 1 || !Finite(ageMonths) || ageMonths < -1
                 || deathEvents.Exists(string.IsNullOrEmpty) || new HashSet<string>(deathEvents).Count != deathEvents.Count) return false;

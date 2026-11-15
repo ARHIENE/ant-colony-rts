@@ -1,0 +1,5 @@
+Reload latest isolated outbound cart for visual review
+손수레 visible=True forcedOff=True bounds=Center: (199.99, 9.78, 316.00), Extents: (0.50, 0.50, 0.50) viewport=(0.50, 0.77, 32.61)
+Handcart(Clone) visible=True forcedOff=False bounds=Center: (199.99, 10.56, 316.00), Extents: (1.05, 0.77, 1.70) viewport=(0.50, 0.80, 31.98)
+CAPTURED
+RESTORED

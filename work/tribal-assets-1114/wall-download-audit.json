@@ -1,0 +1,59 @@
+{
+  "archive": "MESHY\\Meshy_AI_Single_modular_tribal_hut_wall_panel_20261114_texture_remesh_tri_fbx.zip",
+  "bytes": 3937559,
+  "sha256": "ae9bad5dbef008e0da784ecc3af1fa8970b946517e53993c5861f7f2db6ba076",
+  "zip_crc": "passed",
+  "files": [
+    {
+      "path": "art\\tribal-assets-1114\\TribalWall\\Meshy_AI_Single_modular_tribal_hut_wall_panel_20261114_texture_remesh_tri_fbx\\Meshy_AI_Single_modular_tribal_hut_wall_panel_20261114_texture_remesh_tri.fbx",
+      "bytes": 1807084,
+      "sha256": "eaf2f75187afba6d4ce37d979d6c303c6ff9cb0999a33e576882fb4d7594b4f7",
+      "fbx_version": 7400
+    },
+    {
+      "path": "art\\tribal-assets-1114\\TribalWall\\Meshy_AI_Single_modular_tribal_hut_wall_panel_20261114_texture_remesh_tri_fbx\\Meshy_AI_Single_modular_tribal_hut_wall_panel_20261114_texture_remesh_tri.png",
+      "bytes": 645496,
+      "sha256": "c9f1a2b640f1901956e8d75172305dc42e00e5352c3a503fac33c3334324c58b",
+      "dimensions": [
+        2048,
+        2048
+      ]
+    },
+    {
+      "path": "art\\tribal-assets-1114\\TribalWall\\Meshy_AI_Single_modular_tribal_hut_wall_panel_20261114_texture_remesh_tri_fbx\\Meshy_AI_Single_modular_tribal_hut_wall_panel_20261114_texture_remesh_tri_metallic.png",
+      "bytes": 99908,
+      "sha256": "20eb90baa848b1f2b737d77fe6ab449e5925c712f6bc2d3033b916d4fad66a18",
+      "dimensions": [
+        2048,
+        2048
+      ]
+    },
+    {
+      "path": "art\\tribal-assets-1114\\TribalWall\\Meshy_AI_Single_modular_tribal_hut_wall_panel_20261114_texture_remesh_tri_fbx\\Meshy_AI_Single_modular_tribal_hut_wall_panel_20261114_texture_remesh_tri_metallic_roughness.png",
+      "bytes": 485445,
+      "sha256": "2102d54b1d011b592fd891ecd9e1367e7cd49371f1d270666fcb97a083cc9127",
+      "dimensions": [
+        2048,
+        2048
+      ]
+    },
+    {
+      "path": "art\\tribal-assets-1114\\TribalWall\\Meshy_AI_Single_modular_tribal_hut_wall_panel_20261114_texture_remesh_tri_fbx\\Meshy_AI_Single_modular_tribal_hut_wall_panel_20261114_texture_remesh_tri_normal.png",
+      "bytes": 733091,
+      "sha256": "5de6ee96a571aaea76161c3e06e539935b15dcb767cb070c7233b69f93bdd79f",
+      "dimensions": [
+        2048,
+        2048
+      ]
+    },
+    {
+      "path": "art\\tribal-assets-1114\\TribalWall\\Meshy_AI_Single_modular_tribal_hut_wall_panel_20261114_texture_remesh_tri_fbx\\Meshy_AI_Single_modular_tribal_hut_wall_panel_20261114_texture_remesh_tri_roughness.png",
+      "bytes": 164107,
+      "sha256": "54065e12ff4adf313b587b0deaa081ad463d9361875c9b610cdd4bf255910b2b",
+      "dimensions": [
+        2048,
+        2048
+      ]
+    }
+  ]
+}

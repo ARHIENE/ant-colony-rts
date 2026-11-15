@@ -1,0 +1,14 @@
+Isolated supplied floor-food fixture; normal walking, pickup, eating and full save/load.
+PASS Scene ready
+PASS Raw floor food respects cooked-only diet
+PASS Accessible cooked floor food is a meal source
+PASS Empty raw stock does not cause departure while a meal is reachable
+PASS Distant meal is not consumed remotely
+PASS Normal movement reaches and picks one floor meal
+PASS Cooking quality and inspiration survive floor pickup
+PASS Save during eating: 
+PASS Load eating save: 
+PASS Scene ready
+PASS Picked meal survives full reload
+PASS Floor meal completes and restores satiety
+RESTORED

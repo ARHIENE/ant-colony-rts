@@ -1,0 +1,25 @@
+안개 분비체 aim=General target=Commander 5/CommanderAnt pos=(190.86, 10.21, 196.88) targetpos=(189.79, 10.45, 194.82) path=PathComplete remaining=0 range=1.5
+공성 기수 aim=General target=Commander 5/CommanderAnt pos=(187.48, 10.21, 196.91) targetpos=(189.79, 10.45, 194.82) path=PathComplete remaining=0 range=9
+공성 포낭수 aim=General target=Commander 5/CommanderAnt pos=(185.32, 10.21, 195.43) targetpos=(189.79, 10.45, 194.82) path=PathComplete remaining=0 range=9
+갈고리 포식자 aim=General target=Commander 4/CommanderAnt pos=(195.25, 10.22, 198.45) targetpos=(192.57, 10.50, 198.98) path=PathComplete remaining=0 range=5
+갑각 수호체 aim=General target=Commander 5/CommanderAnt pos=(187.95, 10.21, 195.76) targetpos=(189.79, 10.45, 194.82) path=PathComplete remaining=2.059681 range=1.5
+굴착 잠복체 aim=General target=Commander 5/CommanderAnt pos=(190.11, 10.21, 196.27) targetpos=(189.79, 10.45, 194.82) path=PathComplete remaining=1.482988 range=1.5
+회수 생물 aim=General target=Commander 5/CommanderAnt pos=(190.46, 10.21, 196.57) targetpos=(189.79, 10.45, 194.82) path=PathComplete remaining=1.873542 range=1.5
+안개 분비체 aim=General target=Commander 5/CommanderAnt pos=(190.23, 10.21, 194.81) targetpos=(189.79, 10.45, 194.82) path=PathComplete remaining=0 range=1.5
+돌파수 aim=Building target=Toilet/HygieneFixture pos=(201.50, 10.22, 198.50) targetpos=(201.50, 10.35, 197.50) path=PathComplete remaining=0 range=1.5
+공성 기수 aim=General target=StarterMushroomBed/StarterCropBed pos=(212.00, 10.21, 197.82) targetpos=(206.50, 10.35, 196.50) path=PathComplete remaining=0 range=9
+공성 포낭수 aim=General target=StarterMushroomBed/StarterCropBed pos=(212.73, 10.21, 195.80) targetpos=(206.50, 10.35, 196.50) path=PathComplete remaining=0 range=9
+포낭 운반체 aim=General target=StarterMushroomBed/StarterCropBed pos=(206.46, 10.21, 196.48) targetpos=(206.50, 10.35, 196.50) path=PathComplete remaining=0 range=1.5
+갈고리 포식자 무리 50 aim=General target=AcidTower/AcidTower pos=(201.42, 10.21, 194.53) targetpos=(204.00, 10.85, 194.00) path=PathComplete remaining=0 range=5
+갑각 수호체 무리 50 aim=General target=Commander 5/CommanderAnt pos=(189.32, 10.21, 195.77) targetpos=(189.79, 10.45, 194.82) path=PathComplete remaining=0 range=1.5
+충각수 무리 50 aim=Wall target=AcidTower/AcidTower pos=(199.98, 10.22, 205.25) targetpos=(200.00, 10.85, 207.00) path=PathComplete remaining=0.01194808 range=1.5
+회수 생물 무리 50 aim=General target=Commander 5/CommanderAnt pos=(188.77, 10.21, 196.17) targetpos=(189.79, 10.45, 194.82) path=PathComplete remaining=1.688578 range=1.5
+안개 분비체 무리 50 aim=General target=Palisade/Wall pos=(193.11, 10.29, 199.50) targetpos=(191.50, 11.36, 199.50) path=PathComplete remaining=0 range=1.5
+돌파수 무리 50 aim=Building target=AcidTower/AcidTower pos=(204.00, 10.21, 195.75) targetpos=(204.00, 10.85, 194.00) path=PathComplete remaining=0 range=1.5
+침사냥꾼 무리 37 aim=General target=StarterMushroomBed/StarterCropBed pos=(211.20, 10.21, 200.36) targetpos=(206.50, 10.35, 196.50) path=PathComplete remaining=0 range=7
+운반체 새끼 aim=General target=Commander 5/CommanderAnt pos=(190.23, 10.21, 194.81) targetpos=(189.79, 10.45, 194.82) path=PathComplete remaining=0 range=1.5
+운반체 새끼 aim=General target=Commander 5/CommanderAnt pos=(190.66, 10.21, 196.03) targetpos=(189.79, 10.45, 194.82) path=PathComplete remaining=1.491655 range=1.5
+운반체 새끼 aim=General target=Commander 5/CommanderAnt pos=(187.52, 10.21, 196.15) targetpos=(189.79, 10.45, 194.82) path=PathComplete remaining=2.631647 range=1.5
+운반체 새끼 aim=General target=StarterMushroomBed/StarterCropBed pos=(206.46, 10.21, 196.48) targetpos=(206.50, 10.35, 196.50) path=PathComplete remaining=0 range=1.5
+운반체 새끼 aim=General target=StarterMushroomBed/StarterCropBed pos=(206.46, 10.21, 196.48) targetpos=(206.50, 10.35, 196.50) path=PathComplete remaining=0 range=1.5
+운반체 새끼 aim=General target=StarterMushroomBed/StarterCropBed pos=(206.46, 10.21, 196.48) targetpos=(206.50, 10.35, 196.50) path=PathComplete remaining=0 range=1.5

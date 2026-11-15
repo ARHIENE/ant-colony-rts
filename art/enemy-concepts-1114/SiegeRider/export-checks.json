@@ -1,0 +1,47 @@
+[
+  {
+    "clip": "Idle",
+    "frames": 91,
+    "bones": 42,
+    "loopError": 0.0,
+    "motion": 0.017951796548570074,
+    "minZ": -8.000595812518441e-07,
+    "status": "PASS"
+  },
+  {
+    "clip": "Move",
+    "frames": 31,
+    "bones": 42,
+    "loopError": 5.127385417844431e-07,
+    "motion": 0.21173332878111142,
+    "minZ": -9.727752967592096e-07,
+    "status": "PASS"
+  },
+  {
+    "clip": "Attack",
+    "frames": 43,
+    "bones": 42,
+    "loopError": 0.0,
+    "motion": 0.18125512468843388,
+    "minZ": -6.587399070667743e-07,
+    "status": "PASS"
+  },
+  {
+    "clip": "Hit",
+    "frames": 19,
+    "bones": 42,
+    "loopError": 1.7030922003158694e-07,
+    "motion": 0.1556691153933091,
+    "minZ": -6.587399070667743e-07,
+    "status": "PASS"
+  },
+  {
+    "clip": "Death",
+    "frames": 61,
+    "bones": 42,
+    "loopError": 2.921194099517102,
+    "motion": 2.9211947632913375,
+    "minZ": -7.349310067183978e-07,
+    "status": "PASS"
+  }
+]

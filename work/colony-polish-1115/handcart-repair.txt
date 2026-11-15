@@ -1,0 +1,8 @@
+Isolated damaged-cart and supplied-stock repair fixture.
+PASS Ready
+PASS New isolated game
+PASS Soil cannot repair a wooden handcart
+PASS Normal repair command accepted
+PASS Live repair consumes wood only
+PASS Empty intact cart reports missing puller
+RESTORED

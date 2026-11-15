@@ -1,0 +1,22 @@
+[
+  {
+    "Path": "F:\\UnityProjects\\ant-colony-rts\\Assets\\_Project\\Scripts\\Core\\StartSupplyRules.cs",
+    "Hash": "AE4D585D132822222817353EB9FFE8BDD05479F61A417778507751E21A74BF52"
+  },
+  {
+    "Path": "F:\\UnityProjects\\ant-colony-rts\\Assets\\_Project\\Scripts\\Buildings\\StarterCropBed.cs",
+    "Hash": "8CEBD4F5CF78164516703823E857A0C76740C70068D4948E7CD2952CFAE62A1E"
+  },
+  {
+    "Path": "F:\\UnityProjects\\ant-colony-rts\\Assets\\_Project\\Scripts\\Units\\CommanderMeal.cs",
+    "Hash": "BE98AAF6D9C056072C610576E99A5FE666C157DD7B1CD6EF595DF947CDC71EB0"
+  },
+  {
+    "Path": "F:\\UnityProjects\\ant-colony-rts\\Assets\\_Project\\Scripts\\Units\\CommanderMealSources.cs",
+    "Hash": "718FEF8B8C23E94D09B707C295D6997ABB46899EE560E7CBD8253112EB3F11AD"
+  },
+  {
+    "Path": "F:\\UnityProjects\\ant-colony-rts\\Assets\\_Project\\Scripts\\UI\\WorkTargetPanel.cs",
+    "Hash": "F4E79FD5507D5464EC63E3B8A988AAAB2ED30C7907D6A693C15FEB47E92738F4"
+  }
+]

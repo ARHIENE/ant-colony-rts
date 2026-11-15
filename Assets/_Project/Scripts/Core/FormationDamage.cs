@@ -10,7 +10,14 @@ namespace AntColony.Core
         // 출발점 없는 지속 피해는 기존 TakeDamage 경로를 사용한다.
         public static void Apply(IDamageable target, float amount, Vector3 source, bool ranged = false, bool area = false)
         {
+            if (target is AntColony.World.WildMonster organic && organic.IsOrganic) amount *= organic.OrganicDamageMultiplier(source, ranged, area);
             if (target is CommanderAnt commander) commander.TakeFormationDamage(amount, source, ranged, area);
+            else if (target is AntColony.World.WildMonster monster)
+            {
+                var before = monster.CurrentHealth;
+                monster.TakeDamage(amount);
+                if (monster.CurrentHealth < before) monster.NoticeAttack(source);
+            }
             else target.TakeDamage(amount);
         }
     }

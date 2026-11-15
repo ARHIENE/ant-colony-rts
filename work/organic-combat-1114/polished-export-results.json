@@ -1,0 +1,52 @@
+[
+  {
+    "name": "AcidSpitter",
+    "ok": true,
+    "clips": 5
+  },
+  {
+    "name": "BloomMender",
+    "ok": true,
+    "clips": 6
+  },
+  {
+    "name": "BreachBeast",
+    "ok": true,
+    "clips": 5
+  },
+  {
+    "name": "BroodAlien",
+    "ok": true,
+    "clips": 5
+  },
+  {
+    "name": "Bulwark",
+    "ok": true,
+    "clips": 5
+  },
+  {
+    "name": "CarrionReclaimer",
+    "ok": true,
+    "clips": 5
+  },
+  {
+    "name": "NeedleStalker",
+    "ok": true,
+    "clips": 5
+  },
+  {
+    "name": "SiegeBrooder",
+    "ok": true,
+    "clips": 5
+  },
+  {
+    "name": "VeilWeaver",
+    "ok": true,
+    "clips": 5
+  },
+  {
+    "name": "WallRam",
+    "ok": true,
+    "clips": 5
+  }
+]

@@ -1,0 +1,1 @@
+PASS 18 direct-order assertions; disposable injected fixture, not natural play.

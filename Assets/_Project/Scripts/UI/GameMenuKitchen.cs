@@ -1,5 +1,7 @@
 using AntColony.Buildings;
 using AntColony.Core;
+using UnityEngine;
+using L = AntColony.UI.MenuLayout;
 
 namespace AntColony.UI
 {
@@ -34,8 +36,18 @@ namespace AntColony.UI
             {
                 var r = Kitchen.Recipes[order.recipe];
                 var state = order.mode == Workshop.OrderMode.Count ? $"남은 {order.amount}회" : order.mode == Workshop.OrderMode.KeepStock ? $"재고 {Kitchen.Stock(r.output)}/{order.amount}" : "반복";
-                MenuTheme.Button(content, $"{r.name} · {ModeName(order.mode)} · {state} — 삭제", () => { k.RemoveOrder(order); ShowKitchen(k); });
+                var row = L.Cell(content, "CookingOrder", 90);
+                L.Label(row, $"{r.name} · {ModeName(order.mode)} · {state}\n{k.OrderStatus(order)}", 15, 0, 0, 490, 44, MenuTheme.Muted);
+                L.Button(row, "Earlier", "앞으로", 0, 47, 92, 36, () => { k.MoveOrder(order, -1); ShowKitchen(k); });
+                L.Button(row, "Later", "뒤로", 98, 47, 92, 36, () => { k.MoveOrder(order, 1); ShowKitchen(k); });
+                L.Button(row, "Remove", "삭제", 196, 47, 80, 36, () => { k.RemoveOrder(order); ShowKitchen(k); });
+                if (order.mode == Workshop.OrderMode.KeepStock)
+                {
+                    L.Button(row, "Less", "−", 302, 47, 44, 36, () => { order.amount = Mathf.Max(1, order.amount - 1); ShowKitchen(k); });
+                    L.Button(row, "More", "+", 352, 47, 44, 36, () => { order.amount = Mathf.Min(Workshop.MaxOrderAmount, order.amount + 1); ShowKitchen(k); });
+                }
             }
+            MenuTheme.Text(content, "위쪽 주문을 우선하며, 재료가 없는 주문은 건너뛰고 만들 수 있는 다음 요리를 준비합니다. 이미 운반·조리 중인 재료는 그 주문에 유지됩니다. 재고 유지 수량은 식사 인원과 부패 속도에 맞춰 조절하세요.", 15, 76);
             MenuTheme.Text(content, "작업표에서 요리가 켜진 장수가 와서 조리합니다. 요리사가 재료를 창고에서 조리대로 가져오고, 조리를 시작할 때 소비하며, 완성 요리는 주변 바닥에 놓여 운반 장수가 창고로 옮깁니다. 요리사가 떠나도 진행도는 남습니다.", 17, 70);
             MenuTheme.Button(content, "새로고침", () => ShowKitchen(k));
             V5Fit(window);

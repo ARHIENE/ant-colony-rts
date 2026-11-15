@@ -9,6 +9,30 @@ namespace AntColony.UI
 {
     public sealed partial class GameMenuController
     {
+        public void ExpeditionEscort(ExpeditionTransport party)
+        {
+            Screen("출정 호위 · 원군");
+            if (party == null) { MenuTheme.Text(content, "월드맵에서 원정대를 선택하세요.", 14, 40); return; }
+            MenuTheme.Text(content, party.EscortStatus, 14, 60);
+            MenuTheme.Text(content, "호위는 본거지에 남아 길목까지 이동합니다. 원정대 출발 뒤에는 전투하며 복귀합니다. 이동·공격은 직접 지휘할 수 있고, 외부 원정대 귀환에는 맞이 호위가 필요하지 않습니다.", 13, 88);
+            foreach (var commander in SortedCommanders().Where(c => c.IsColonyMember && !c.IsAwayFromHome && !c.IsDead && c.CanReceiveOrders))
+            {
+                var c = commander;
+                MenuTheme.Button(content, (party.Escorts.Contains(c) ? "호위 해제: " : "호위·원군 배정: ") + c.CommanderName, () => {
+                    if (party.Escorts.Contains(c)) { party.CancelCrewOrder(c); c.ReturnToPost(); }
+                    else if (!party.AssignEscorts(new[] { c })) ToastManager.Show("배정 불가 · 장수 상태와 길목까지의 경로를 확인하세요.");
+                    ExpeditionEscort(party);
+                });
+            }
+            MenuTheme.Button(content, "호위대 복귀", () => { party.RecallEscorts(); Resume(); });
+            MenuTheme.Button(content, "길목 보기", () => {
+                WorldMapManager.Instance.ViewSite(null);
+                AntColony.Core.SceneObjects.Any<AntColony.Camera.IsometricCameraController>()?.RestoreView(party.HomePosition, 0, 24);
+                Resume();
+            });
+            MenuTheme.Button(content, "닫기", Resume);
+        }
+
         public void WalkingFormation(Action<ExpeditionTransport> done)
         {
             Screen("도보 원정 편성");
@@ -31,7 +55,7 @@ namespace AntColony.UI
             }
             MenuTheme.Button(content, "편성", () => {
                 var party = WorldMapManager.Instance?.CreateWalkingParty(choices.Where(c => c.toggle.isOn).Select(c => c.commander).ToArray());
-                if (party == null) { ToastManager.Show("장수를 선택하고 상태·병역 제도를 확인하세요."); return; }
+                if (party == null) { ToastManager.Show("장수를 선택하고 상태·출정 길목 경로를 확인하세요."); return; }
                 Resume(); done(party);
             });
             MenuTheme.Button(content, "취소", () => { Resume(); done(null); });

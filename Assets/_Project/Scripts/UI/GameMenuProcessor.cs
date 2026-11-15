@@ -1,4 +1,4 @@
-using AntColony.Buildings;
+﻿using AntColony.Buildings;
 using AntColony.Core;
 using UnityEngine;
 
@@ -14,7 +14,7 @@ namespace AntColony.UI
             var window = V5Window(p.Data.displayName + " / 가공", p.Industrial
                 ? p.Chemical ? "전력 200W(대기에도 고정) · 플라스틱: 배관 원유 / 고무·전자부품: 고체 원료 배송"
                     : "전력 200W(주문 없음·정지·원료 대기에도 고정) · 묶음 시작 시 가스 1 투입"
-                : "제작 담당의 재료 배송·현장 작업 필요 · 완성품은 바닥에서 운반 · 생산 방식과 수량을 선택하세요.");
+                : p.DeepMining ? "전력 200W · 광물 표본 연구 · 현장 채집 담당 필요" : p.IsResourceSite ? "전력·연료 불필요 · 채집/농사 담당이 현장에서 작업 · 생산 목표를 추가하세요." : "제작 담당의 재료 배송·현장 작업 필요 · 완성품은 바닥에서 운반 · 생산 방식과 수량을 선택하세요.");
             content = V5Section(window, "품목 선택 / 생산 목록에 추가", 20, 104, 520, 544);
             var rm = ResourceManager.Instance;
             if (p.Data.kind == AntColony.Data.BuildingKind.Carpentry)
@@ -35,7 +35,7 @@ namespace AntColony.UI
                 var index = i; var r = p.Recipes[i];
                 MenuTheme.Button(content, $"목록 추가: {r.name} {r.amount} ← {(p.Chemical && r.output == AntColony.Data.ResourceType.Plastic ? "배관 원유 " + IndustrialRecipes.PlasticOil : r.Cost)} · 재고 {rm?.GetAmount(r.output) ?? 0}", () => {
                     if (!p.AddOrder(index, orderMode, orderAmount)) ToastManager.Show($"생산 목록은 최대 {Workshop.MaxOrders}개입니다."); ShowProcessor(p);
-                }, p.RecipePlan(r, orderMode, orderAmount)).interactable = p.isActiveAndEnabled && p.Orders.Count < Workshop.MaxOrders && MedicineResearch.Unlocked(r.output);
+                }, p.RecipePlan(r, orderMode, orderAmount)).interactable = p.isActiveAndEnabled && p.Orders.Count < Workshop.MaxOrders && p.RecipeUnlocked(r);
             }
             content = V5Section(window, "생산 목록 / 진행 상태", 554, 104, 526, 544);
             foreach (var order in p.Orders.ToArray())
@@ -45,8 +45,8 @@ namespace AntColony.UI
                 MenuTheme.Button(content, $"{r.name} · {ModeName(order.mode)} · {state} — 삭제", () => { p.RemoveOrder(order); ShowProcessor(p); },
                     p.RecipePlan(r, order.mode, order.amount) + "\n대기 수량에는 현재 제작 중인 묶음이 포함되지 않습니다. 목록 삭제는 현재 묶음을 취소하지 않습니다.");
             }
-            MenuTheme.Text(content, (p.IsMedical ? "작업표에서 의료가 켜진 장수가 할 수 있는 치료가 없을 때 와서 만듭니다(의료 능력은 속도만)." : "작업표에서 제작이 켜진 장수가 자율로 와서 가공합니다.")
-                + (p.Chemical ? " 플라스틱 원유는 배관, 고무 수액은 운반으로 공급합니다." : " 재료를 실제 배송받은 뒤 한 묶음 시작 때 소비합니다.")
+            MenuTheme.Text(content, (p.IsResourceSite ? "작업표의 채집(재배원은 농사)을 켜고 생산 목표를 지정하세요." : p.IsMedical ? "작업표에서 의료가 켜진 장수가 할 수 있는 치료가 없을 때 와서 만듭니다(의료 능력은 속도만)." : "작업표에서 제작이 켜진 장수가 자율로 와서 가공합니다.")
+                + (p.IsResourceSite ? " 생산 지점에서 채집/농사 작업 후 실물 자원이 나옵니다." : p.Chemical ? " 플라스틱 원유는 배관, 고무 수액은 운반으로 공급합니다." : " 재료를 실제 배송받은 뒤 한 묶음 시작 때 소비합니다.")
                 + " 결과물은 제작대 주변 바닥에 나오며 운반 담당이 회수합니다.", 17, 70);
             MenuTheme.Button(content, "새로고침", () => ShowProcessor(p));
             V5Fit(window);

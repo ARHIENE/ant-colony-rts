@@ -37,9 +37,15 @@ namespace AntColony.UI
             foreach (var site in world.Sites)
                 if (site.Boss != null && !site.Boss.IsDead && site.Visitor != null && site.Visitor.State == ExpeditionState.Deployed)
                     active["threat:" + site.Title] = SiteNames.Name(site) + ": 보스 위협";
+            foreach (var fire in SceneObjects.All<WallFire>())
+                if (fire.Burning && fire.Managed)
+                    active["fire:home"] = "본거지 화재 — 소방 작업을 우선 배정하거나 장수 선택 후 불붙은 건물을 우클릭해 소화하세요.";
             if (CommanderRoster.Instance != null)
                 foreach (var c in CommanderRoster.Instance.Commanders)
                 {
+                    if (UpkeepManager.NeedsMealWarning(c))
+                        active["hunger:" + c.PersonalState.id] = c.CommanderName
+                            + ": 먹을 식사 없음 — 식량·조리·운반을 우선하세요. 포만 0이면 장기 불만 시간과 별개로 굶주림 이탈 위험이 있습니다.";
                     if (c != null && c.IsColonyMember && (c.PersonalState.health.Downed || c.PersonalHealth <= 0))
                         active["down:" + c.PersonalState.id] = c.CommanderName + ": 쓰러짐";
                     else if (c != null && c.IsColonyMember && !c.IsDead && c.IsViolentBreak)

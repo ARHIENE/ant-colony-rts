@@ -1,0 +1,71 @@
+PASS fixture NavMesh
+PASS single organic visual WallRam
+PASS world size stable across clips WallRam
+PASS single organic visual NeedleStalker
+PASS world size stable across clips NeedleStalker
+PASS single organic visual BloomMender
+PASS world size stable across clips BloomMender
+PASS single organic visual ClawHunter
+PASS world size stable across clips ClawHunter
+PASS single organic visual BroodAlien
+PASS world size stable across clips BroodAlien
+PASS single organic visual BreachBeast
+PASS world size stable across clips BreachBeast
+PASS single organic visual AcidSpitter
+PASS world size stable across clips AcidSpitter
+PASS single organic visual HuntRider
+PASS world size stable across clips HuntRider
+PASS single organic visual SiegeRider
+PASS world size stable across clips SiegeRider
+PASS single organic visual WallMelter
+PASS world size stable across clips WallMelter
+PASS single organic visual SiegeBrooder
+PASS world size stable across clips SiegeBrooder
+PASS single organic visual BroodCarrier
+PASS world size stable across clips BroodCarrier
+PASS single organic visual HookMaw
+PASS world size stable across clips HookMaw
+PASS single organic visual Bulwark
+PASS world size stable across clips Bulwark
+PASS single organic visual BurrowLurker
+PASS world size stable across clips BurrowLurker
+PASS single organic visual CarrionReclaimer
+PASS world size stable across clips CarrionReclaimer
+PASS single organic visual VeilWeaver
+PASS world size stable across clips VeilWeaver
+PASS all 17 species selectable
+PASS early three waves melee preserved
+PASS windup has no premature damage
+PASS melee impact after windup
+PASS hit interrupts prepared strike
+PASS out of range cancels prepared strike
+PASS projectile travels before impact
+PASS launched projectile survives attacker death
+PASS aimed projectile can be dodged
+PASS wall blocks shot line
+PASS projectile does not damage through wall
+PASS corrosion waits for first tick
+PASS corrosion has bounded repeated ticks
+PASS corrosion expires
+PASS splash excludes friendly aliens
+PASS hook pull is bounded and stays on NavMesh
+PASS frontal carapace protection
+PASS rear and splash bypass shield
+PASS carapace protects ally behind
+PASS mist reduces ranged only without immunity
+PASS healing cannot resurrect lost horde bodies
+PASS healing does not stack during target lock
+PASS healers cannot sustain each other indefinitely
+PASS reclaimer consumes corpse without resurrection
+PASS finite brood tracked as wave visitors
+PASS actual save: 
+PASS new save passes parser: 
+PASS invalid spawn charges rejected before restore
+PASS actual load: 
+PASS saved brood charges preserved
+PASS saved windup preserved
+PASS saved projectile preserved
+PASS saved organic corpse model preserved
+PASS load has no duplicate human visual
+PASS live navigation drives Move animation
+PASS live Update approaches and resolves organic attack

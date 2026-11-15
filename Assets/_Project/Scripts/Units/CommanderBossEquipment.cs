@@ -30,6 +30,12 @@ namespace AntColony.Units
         private float AbsorbDurableDamage(float amount)
         {
             var armor = EquippedArmor;
+            if (armor != null && armor.IsClothing)
+            {
+                var protection = Mathf.Min(armor.durability, amount * .15f);
+                armor.durability -= protection;
+                return amount - protection;
+            }
             if (armor?.bossEquipment != BossEquipmentKind.Durable) return amount;
             var absorbed = Mathf.Min(armor.durability, amount * .5f);
             armor.durability -= absorbed;

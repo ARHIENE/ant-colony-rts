@@ -25,7 +25,8 @@ namespace AntColony.World
         private bool TryHomeLanding(out Vector3 point)
         {
             point = HomeReturnPoint.Anchor;
-            if (HomeHasEnemies()) return false;
+            // 도보 귀환대는 길목으로 돌아와 직접 교전한다. 별도 맞이 호위전을 요구하지 않는다.
+            if (!Walking && HomeHasEnemies()) return false;
             return Aircraft ? HomeReturnPoint.TryAir(out point) : HomeReturnPoint.TryGround(Position, out point);
         }
     }

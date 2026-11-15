@@ -1,0 +1,70 @@
+[
+  {
+    "name": "AcidSpitter",
+    "ok": true
+  },
+  {
+    "name": "BloomMender",
+    "ok": true
+  },
+  {
+    "name": "BreachBeast",
+    "ok": true
+  },
+  {
+    "name": "BroodAlien",
+    "ok": true
+  },
+  {
+    "name": "BroodCarrier",
+    "ok": true
+  },
+  {
+    "name": "Bulwark",
+    "ok": true
+  },
+  {
+    "name": "BurrowLurker",
+    "ok": true
+  },
+  {
+    "name": "CarrionReclaimer",
+    "ok": true
+  },
+  {
+    "name": "ClawHunter",
+    "ok": true
+  },
+  {
+    "name": "HookMaw",
+    "ok": true
+  },
+  {
+    "name": "HuntRider",
+    "ok": true
+  },
+  {
+    "name": "NeedleStalker",
+    "ok": true
+  },
+  {
+    "name": "SiegeBrooder",
+    "ok": true
+  },
+  {
+    "name": "SiegeRider",
+    "ok": true
+  },
+  {
+    "name": "VeilWeaver",
+    "ok": true
+  },
+  {
+    "name": "WallMelter",
+    "ok": true
+  },
+  {
+    "name": "WallRam",
+    "ok": true
+  }
+]

@@ -53,7 +53,7 @@ namespace AntColony.UI
             if (Time.unscaledTime < nextRefresh) return;
             nextRefresh = Time.unscaledTime + .5f;
             var playing = GameSession.Exists && GameSession.Instance.GameStarted && !SaveSystem.Busy;
-            objectivePanel.SetActive(playing && !GameMenuController.MenuOpen && !BuildScreen.IsOpen);
+            objectivePanel.SetActive(playing && !GameMenuController.MenuOpen && !BuildScreen.IsOpen && RocketCampaign.Instance?.Mothership?.viewing != true);
             if (!playing) return;
             GoalChain.Refresh(Time.unscaledTime);
             var fighting = WaveDefense.Instance?.InWave == true;

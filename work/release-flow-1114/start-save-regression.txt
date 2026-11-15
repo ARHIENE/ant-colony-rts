@@ -1,0 +1,1 @@
+PASS 11; normal start=1 save/reload; wave counts=5,37,72; missing/invalid JSON fixture checks separate from natural play.

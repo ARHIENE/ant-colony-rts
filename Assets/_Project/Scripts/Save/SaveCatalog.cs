@@ -36,12 +36,14 @@ namespace AntColony.Save
             Nodes = Ordered<ResourceNode>().Where(n => n.GetComponent<Map.MaterialDeposit>() == null && n.GetComponent<UndergroundLayer>() == null).Where(n => n.GetComponentInParent<BuildingBase>() == null
                 || !n.GetComponentInParent<BuildingBase>().CountsTowardPlayerDefeat).ToArray();
             Monsters = Ordered<WildMonster>().Where(m => m.GetComponent<Critter>() == null).ToArray(); // 사육 생물은 따로 저장(critters)
-            Bosses = Ordered<BossHealth>();
+            Bosses = Ordered<BossHealth>().Where(b => b.GetComponent<AntColony.Core.MothershipBossMarker>() == null).ToArray();
             ColonySizes = WorldMapManager.Instance.Sites.Select(s => s.Colony != null ? s.Colony.Buildings.Length : 0).ToArray();
         }
         internal static string Kind(BuildingBase b)
         {
+            if (b is HandcartAssembly) return "Handcart";
             if (b is CivicService civic) return civic.SavedKind.ToString();
+            if (b is Workshop && b.Data != null && b.Data.kind == BuildingKind.SewingTable) return "SewingTable";
             if (b is SupplyFacility || b is StarterCropBed) return b.Data.kind.ToString();
             if (b.GetComponent<NurseryChamber>() != null) return "Nursery";
             if (b.GetComponent<ScoutPost>() != null) return "ScoutPost";

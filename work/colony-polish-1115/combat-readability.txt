@@ -1,0 +1,7 @@
+Separate notification instance; original notifications and campaign preserved.
+PASS Same commander warning keeps latest state once
+PASS Default shows five priority notifications and overflow
+PASS Expand exposes retained notifications
+PASS Actual collapse button restores compact rail
+PASS Weather particle screen size is bounded
+PASS Weather particle screen size is bounded

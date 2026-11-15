@@ -1,0 +1,28 @@
+{
+  "success": true,
+  "command": "command",
+  "data": {
+    "command": "run_script",
+    "parameters": {
+      "file": "AgentScripts/OrganicEnemy1114Import.cs",
+      "entry": "OrganicEnemy1114Import.Main",
+      "args": "[\"HookMaw\"]",
+      "timeout_ms": "300000"
+    },
+    "result": {
+      "diagnostics": [],
+      "compileMs": 180,
+      "executeMs": 15189,
+      "assemblyName": "PipelineRunScript_OrganicEnemy1114Import_3b5676354a1b4013bb5ce244a87770d9",
+      "success": true,
+      "result": "Idle: 3s, 650 curves\r\nMove: 1s, 650 curves\r\nAttack: 1.4s, 650 curves\r\nHit: 0.6s, 650 curves\r\nDeath: 2s, 650 curves\r\nMaterial textures: BaseColor,MetallicRoughness,Normal\r\nController Action: 0 Idle / 1 Move / 2 Attack / 3 Hit / 4 Death. Gameplay spawning not connected.\r\n"
+    },
+    "target": {
+      "host": "127.0.0.1",
+      "port": 7800,
+      "projectPath": "F:\\UnityProjects\\ant-colony-rts"
+    }
+  },
+  "errors": [],
+  "warnings": []
+}

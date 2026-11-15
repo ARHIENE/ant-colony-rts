@@ -96,9 +96,18 @@ namespace AntColony.Buildings
                 BuildingKind.HotSpring => ("온천", new Vector3(3, .5f, 3), new Color(.55f, .75f, .8f), 0, 60, 0, 0, 10f, 250f, false),
                 BuildingKind.BanquetTable => ("연회용 긴 식탁", new Vector3(1.5f, .8f, 5), new Color(.6f, .4f, .2f), 20, 80, 0, 0, 12f, 300f, false),
                 // 가공대(2026-10-10, 잠정)
+                BuildingKind.Quarry => ("채석장", new Vector3(4, 1.2f, 4), new Color(.52f, .49f, .43f), 0, 0, 0, 0, 16f, 350f, false),
+                BuildingKind.LoggingCamp => ("벌목장", new Vector3(4, 1.2f, 4), new Color(.5f, .36f, .2f), 0, 0, 0, 0, 14f, 300f, false),
+                BuildingKind.SandPit => ("모래 채취장", new Vector3(3, .5f, 3), new Color(.7f, .6f, .4f), 0, 0, 0, 0, 12f, 250f, false),
+                BuildingKind.ClayPit => ("점토 채취장", new Vector3(3, .5f, 3), new Color(.6f, .34f, .23f), 0, 0, 0, 0, 12f, 250f, false),
+                BuildingKind.CultivationGarden => ("실용 작물 재배원", new Vector3(4, .5f, 3), new Color(.3f, .45f, .2f), 0, 0, 0, 0, 16f, 250f, false),
+                BuildingKind.OreMine => ("갱도 광산", new Vector3(4, 2, 4), new Color(.36f, .35f, .32f), 0, 0, 0, 0, 24f, 500f, false),
+                BuildingKind.DeepMine => ("심부 광산", new Vector3(4, 2.4f, 4), new Color(.28f, .38f, .4f), 0, 0, 0, 0, 40f, 700f, false),
+                BuildingKind.Handcart => ("손수레 조립", new Vector3(3.4f, 1, 2), new Color(.6f, .4f, .2f), 0, 35, 0, 0, 30f, 180f, true),
                 BuildingKind.Carpentry => ("기초 목공대", new Vector3(2, 1.2f, 1.5f), new Color(.6f, .45f, .3f), 0, 10, 0, 0, 6f, 200f, false),
                 BuildingKind.Stonecutter => ("석공대", new Vector3(2, 1.2f, 1.5f), new Color(.6f, .6f, .6f), 0, 40, 0, 0, 8f, 250f, false),
                 BuildingKind.Kiln => ("가마", new Vector3(2, 1.6f, 2), new Color(.65f, .4f, .3f), 0, 50, 0, 0, 10f, 300f, false),
+                BuildingKind.SewingTable => ("재봉대", new Vector3(1.6f, 1f, 1.1f), new Color(.7f, .5f, .3f), 0, 25, 0, 0, 6f, 150f, false),
                 BuildingKind.SpinningWheel => ("물레", new Vector3(1.5f, 1.4f, 1.5f), new Color(.75f, .65f, .45f), 0, 25, 0, 0, 6f, 150f, false),
                 BuildingKind.Smelter => ("용광로", new Vector3(2, 2.2f, 2), new Color(.4f, .3f, .3f), 0, 80, 5, 0, 14f, 400f, false),
                 // 목장(2026-10-11 개편, 잠정): 우리 표지를 벽·울타리·문으로 두른 방 안에 두면 그 방이 우리. 튼튼한 우리는 옛 저장 호환(같은 표지).
@@ -129,6 +138,7 @@ namespace AntColony.Buildings
             if (kind == BuildingKind.Fridge || kind == BuildingKind.Freezer) (data.foodCapacityBonus, data.soilCapacityBonus, data.specialCapacityBonus) = (100, 0, 0); // 식품 전용 고정 용량(잠정)
             BuildingBase building = kind switch
             {
+                BuildingKind.Handcart => go.AddComponent<HandcartAssembly>(),
                 BuildingKind.CrashWreck => go.AddComponent<CrashWreck>(),
                 BuildingKind.ScienceLab => go.AddComponent<ScienceLab>(),
                 BuildingKind.ConscriptionPost => go.AddComponent<ConscriptionPost>(),
@@ -138,7 +148,7 @@ namespace AntColony.Buildings
                 BuildingKind.Watchtower => go.AddComponent<Watchtower>(),
                 BuildingKind.MineField => go.AddComponent<MineField>(),
                 BuildingKind.DefenseLab => go.AddComponent<DefenseLab>(),
-                BuildingKind.Workshop => go.AddComponent<Workshop>(),
+                BuildingKind.Workshop or BuildingKind.SewingTable => go.AddComponent<Workshop>(),
                 BuildingKind.Dormitory => go.AddComponent<Dormitory>(),
                 BuildingKind.Kitchen => go.AddComponent<Kitchen>(),
                 BuildingKind.AdminDesk => go.AddComponent<AdminDesk>(),

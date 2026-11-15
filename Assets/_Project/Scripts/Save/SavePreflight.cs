@@ -58,6 +58,7 @@ namespace AntColony.Save
                 Check(Core.ColonyPopulation.ValidNaturalDeaths(f.population), "자연사 소수 이월");
                 Check(AntColony.UI.GoalChain.Validate(f.goalChain), "목표 사슬");
                 ValidateIntegration(f);
+                ValidateOrganic(f);
                 Check(Core.TalentAssessment.Validate(f.assessment, f.world.transports.Count, f.world.sites.Count), "인재 평가");
                 Check(SaveUnderground.Valid(f), "지하 탐사");
                 Check(AntColony.Core.RocketCampaign.Validate(f.rocket), "로켓 진행");
@@ -125,7 +126,9 @@ namespace AntColony.Save
                 Check(new[] { p.food, p.soil, p.special, p.foodCapacity, p.soilCapacity, p.specialCapacity, p.antsFree, p.antsAssigned, p.antsReserved }.All(v => v >= 0 && v <= 100000000), "정착지 보유량");
                 Check(p.materials == null || p.materials.Length <= AntColony.Core.ResourceManager.OtherMaterials.Length && p.materials.All(v => v >= 0 && v <= p.soilCapacity), "재료");
                 Check(p.food <= p.foodCapacity && p.soil <= p.soilCapacity && p.special <= p.specialCapacity, "보관 한도·건설");
-                Check(V(f.camera.focus) && N(f.camera.orthoSize) && f.camera.orthoSize >= 8 && f.camera.orthoSize <= 35
+                Check(V(f.camera.focus) && N(f.camera.orthoSize)
+                    && f.camera.orthoSize >= AntColony.Camera.IsometricCameraController.MinimumSupportedViewSize
+                    && f.camera.orthoSize <= AntColony.Camera.IsometricCameraController.MaximumSupportedViewSize
                     && !float.IsNaN(f.camera.yaw) && !float.IsInfinity(f.camera.yaw) && f.camera.viewedSite >= -1 && f.camera.viewedSite < f.world.sites.Count, "카메라");
                 for (var i = 0; i < f.commanders.Count; i++)
                 {
@@ -148,6 +151,7 @@ namespace AntColony.Save
                 }
                 Check(f.buildings.Select(b => b.key).Distinct().Count() == f.buildings.Count, "건물 식별자");
                 var targets = new HashSet<int>();
+                var repairReservations = new HashSet<string>();
                 foreach (var b in f.buildings)
                 {
                     Check(b.workforce >= 0 && N(b.repairCredit) && b.repairCredit <= 100000000
@@ -177,11 +181,13 @@ namespace AntColony.Save
                     }
                     var w = b.workshop;
                     Check(w != null, "공방 상태"); L(w.jobs, Core.GameBalance.CraftQueueCapacity, "제작 대기열");
+                    foreach (var job in w.jobs)
+                        if (job != null && !string.IsNullOrEmpty(job.repairId)) Check(repairReservations.Add(job.repairId), "중복 수리 예약");
                     if (w.orders != null)
-                        Check(w.orders.Count <= Buildings.Workshop.MaxOrders && (b.kind == "Workshop" || w.orders.Count == 0) && w.orders.All(o => o != null && Enum.IsDefined(typeof(EquipmentRecipe), o.recipe)
+                        Check(w.orders.Count <= Buildings.Workshop.MaxOrders && ((b.kind == "Workshop" || b.kind == "SewingTable") || w.orders.Count == 0) && w.orders.All(o => o != null && Enum.IsDefined(typeof(EquipmentRecipe), o.recipe)
                             && Enum.IsDefined(typeof(Buildings.Workshop.OrderMode), o.mode) && o.amount >= 1 && o.amount <= Buildings.Workshop.MaxOrderAmount), "생산 지시");
                     Check(w.crafter >= -1 && w.crafter < f.commanders.Count
-                        && (b.kind == "Workshop" || w.jobs.Count == 0 && w.crafter == -1 && !w.ruined && !w.paused && !w.inactive), "제작 시설 종류");
+                        && ((b.kind == "Workshop" || b.kind == "SewingTable") || w.jobs.Count == 0 && w.crafter == -1 && !w.ruined && !w.paused && !w.inactive), "제작 시설 종류");
                     for (int j = 0; j < w.jobs.Count; j++)
                         Check(w.jobs[j] != null && Enum.IsDefined(typeof(EquipmentRecipe), w.jobs[j].recipe)
                             && N(w.jobs[j].work) && w.jobs[j].work <= w.jobs[j].WorkRequired && (j == 0 || w.jobs[j].work == 0), "제작 작업");
@@ -213,7 +219,8 @@ namespace AntColony.Save
                     foreach (var a in b.nurseryAffinity) Check(a != null && a.firstCommanderId >= 0 && a.firstCommanderId < f.commanders.Count && a.secondCommanderId >= 0 && a.secondCommanderId < f.commanders.Count && a.firstCommanderId != a.secondCommanderId && N(a.value), "관계 수치");
                     for (var i = 0; i < b.nodes.Count; i++) Check(b.nodes[i] != null && b.nodes[i].index == i && N(b.nodes[i].amount) && N(b.nodes[i].regrowTimer) && N(b.nodes[i].sowRemaining) && ValidNaturalWork(b.nodes[i]), "건물 자원");
                 }
-                Check(f.weather == null || f.weather.kind >= 0 && f.weather.kind <= 6 && N(f.weather.remaining), "날씨");
+                Check(f.weather == null || f.weather.kind >= 0 && f.weather.kind <= 6 && N(f.weather.remaining)
+                    && (!f.weather.surfaceSaved || N(f.weather.snowCover) && f.weather.snowCover <= 1 && N(f.weather.wetness) && f.weather.wetness <= 1), "날씨");
                 for (var i = 0; i < f.world.sites.Count; i++) { var s = f.world.sites[i]; Check(s != null && s.index == i && s.disposition >= 0 && s.disposition <= 3
                     && N(s.growthTimer) && N(s.settlementElapsed) && N(s.defenseRemaining) && N(s.defenseCaptureProgress), "거점 상태"); Colony(s.colony); }
                 Colony(f.world.homeColony);
@@ -224,15 +231,22 @@ namespace AntColony.Save
                     var s = f.world.transports[i]; Check(s != null && World.ExpeditionTransport.ValidFoodAmounts(s), "화물 신선도"); Check(s != null && s.state >= 0 && s.state <= 3 && N(s.remaining) && s.siteIndex >= -1 && s.siteIndex < f.world.sites.Count
                         && V(s.position) && V(s.homePosition) && s.cargoFood >= 0 && s.cargoSoil >= 0 && s.cargoSpecial >= 0, "수송 수단");
                     Check(s.state == 0 || s.siteIndex >= 0, "수송 목적지");
+                    if (s.cartPull != null && s.cartPull.leaving)
+                    {
+                        Check(s.handcart && s.state == 1 && !string.IsNullOrEmpty(s.cartPull.driverId)
+                            && f.commanders.Any(c => c.location == 1 && c.transportIndex == i && c.personalState.id == s.cartPull.driverId)
+                            && !float.IsNaN(s.cartPull.gate.sqrMagnitude) && !float.IsInfinity(s.cartPull.gate.sqrMagnitude)
+                            && !float.IsNaN(s.cartPull.driverPosition.sqrMagnitude) && !float.IsInfinity(s.cartPull.driverPosition.sqrMagnitude), "손수레 견인 장수");
+                    }
                     L(s.equipmentCargo, 10000, "장비 화물");
                     foreach (var item in s.equipmentCargo) Check(item != null && item.IsValid && equipmentIds.Add(item.id), "장비 화물 소유권");
-                    Check(N(s.foodDebt) && s.foodDebt <= 100000000 && N(s.dockingRemaining) && s.dockingRemaining <= World.ExpeditionRules.DockSeconds && !(s.walking && s.aircraft), "원정 상태");
+                    Check(N(s.foodDebt) && s.foodDebt <= 100000000 && N(s.dockingRemaining) && s.dockingRemaining <= World.ExpeditionRules.DockSeconds && !(s.walking && s.aircraft) && !(s.handcart && (s.walking || s.aircraft)), "원정 상태");
                     Check(s.route != null && N(s.route.waitSeconds) && s.route.destinationIndex >= -1 && s.route.destinationIndex < f.world.sites.Count
                         && (!s.route.running || s.route.destinationIndex >= 0 && f.world.sites[s.route.destinationIndex].disposition == 1 ), "수송 경로");
                     var crew = f.commanders.Where(c => c.location == 1 && c.transportIndex == i).ToArray();
                     var heavy = f.campaign.completed.Contains((int)Core.ScienceTechnology.HeavyTransport);
                     Check(s.walking || crew.Sum(c => (long)c.troopCount) + (s.withdrawal?.troops ?? 0) <= (s.aircraft ? Core.GameBalance.AircraftTroops : Core.GameBalance.VehicleTroops) * (heavy ? 1.5f : 1f)
-                        && crew.Length <= (s.aircraft ? Core.GameBalance.AircraftCommanders : Core.GameBalance.VehicleCommanders) + (heavy ? 2 : 0), "수송 적재 한도");
+                        && crew.Length <= (s.handcart ? 4 : (s.aircraft ? Core.GameBalance.AircraftCommanders : Core.GameBalance.VehicleCommanders) + (heavy ? 2 : 0)), "수송 적재 한도");
                 }
                 Check(f.nodes.All(n => n != null && n.key != null && N(n.amount) && N(n.regrowTimer) && N(n.sowRemaining) && ValidNaturalWork(n) && n.fishMonth >= -1 && V(n.position) && Enum.IsDefined(typeof(ResourceType), n.type))
                     && f.nodes.Select(n => n.key).Distinct().Count() == f.nodes.Count, "자원 노드");

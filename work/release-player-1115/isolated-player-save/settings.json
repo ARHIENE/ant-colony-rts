@@ -1,0 +1,24 @@
+{
+    "version": 1,
+    "cameraPanSpeed": 25.0,
+    "edgeScrollThickness": 18.0,
+    "autoSaveEnabled": false,
+    "autoSaveMinutes": 5.0,
+    "toastSeconds": 6.0,
+    "pauseSimulationOnMenu": true,
+    "keyBindings": [],
+    "autoPauseThreat": false,
+    "autoPauseDowned": true,
+    "autoPauseRocket": true,
+    "firstHints": true,
+    "shownHints": [
+        "worldmap"
+    ],
+    "screenMode": 0,
+    "resolutionWidth": 0,
+    "resolutionHeight": 0,
+    "vSync": false,
+    "frameLimit": 0,
+    "quality": -1,
+    "masterVolume": 1.0
+}

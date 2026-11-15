@@ -1,0 +1,42 @@
+[
+  {
+    "name": "BloomMender",
+    "ok": true
+  },
+  {
+    "name": "NeedleStalker",
+    "ok": true
+  },
+  {
+    "name": "AcidSpitter",
+    "ok": true
+  },
+  {
+    "name": "BreachBeast",
+    "ok": true
+  },
+  {
+    "name": "BroodAlien",
+    "ok": true
+  },
+  {
+    "name": "Bulwark",
+    "ok": true
+  },
+  {
+    "name": "CarrionReclaimer",
+    "ok": true
+  },
+  {
+    "name": "SiegeBrooder",
+    "ok": true
+  },
+  {
+    "name": "VeilWeaver",
+    "ok": true
+  },
+  {
+    "name": "WallRam",
+    "ok": true
+  }
+]

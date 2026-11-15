@@ -1,0 +1,8 @@
+Isolated supplied-cargo and research-assignment fixture; not natural progression.
+PASS New isolated game ready
+PASS Rejected command preserves research assignment
+PASS Valid direct hauling replaces ordinary research: 
+PASS Low hygiene preserves cargo until delivery
+PASS Normal movement deposits carried seed instead of dropping it
+PASS Hygiene still runs after delivery
+RESTORED

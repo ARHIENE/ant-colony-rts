@@ -38,12 +38,15 @@ namespace AntColony.Save
     }
     [Serializable] public class WildMonsterDto
     {
+        public AntColony.World.OrganicCombatState organic; // null = 기존 적.
         public bool commander, raider, wasp, night, flying, allied, docile, provoked, visitor;
         public string name, rebel, target, commanderName;
         public int parentSite = -1, raidSite = -1, invasionSite = -2, defenseSite = -1, rank;
         public List<int> roles = new List<int>();
         public float maxHealth, detection, damage, range, interval, searchInterval, speed, attackTimer, searchTimer, siegeCheck, root;
         public float captureChance, rotationY;
+        public Vec3Dto attackNoticePoint = new Vec3Dto();
+        public float attackNoticeRemaining; // 구저장 0: 피격 위치 탐색 없음.
         public float hordeBody; // 2026-11-02 무리 유닛 한 마리 체력(0 = 개별 유닛, 구저장 기본)
         public int aim; // 2026-11-12 목표 우선순위 유형(EnemyAim, 0 = 일반 공격형, 구저장 기본)
         public Vec3Dto scale = new Vec3Dto(Vector3.one);
@@ -98,6 +101,7 @@ namespace AntColony.Save
         }
         internal static void Actors()
         {
+            Register("mothership:boss", AntColony.Core.RocketCampaign.Instance?.MothershipBoss);
             foreach (var actor in SaveCatalog.Ordered<EventActor>())
                 Register("event:" + (int)actor.Kind + ":" + JsonUtility.ToJson(new Vec3Dto(actor.transform.position)), actor);
             foreach (var critter in Critter.All) Register("critter:" + critter.Id, critter.Monster);

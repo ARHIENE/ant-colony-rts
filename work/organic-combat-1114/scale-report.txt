@@ -1,0 +1,24 @@
+RUNNING 2026-11-14T10:07:21.9990076Z
+MEASURE baseline: frames=196 meanMs=30.67 p95Ms=19.61 maxMs=2490.82 bodies=0..0 movedHosts=0 allocatedMB=2059
+PASS wave29 starts through production API
+PASS wave29 target is 4000
+PASS all pending bodies spawned without dropping failures
+PASS production spawner totals 4000 bodies
+PASS one original commander
+PASS all 17 species present in wave29
+SPAWN hosts=110 seconds=50.08 groups=82
+PASS all horde visuals prepared
+PASS visible body accounting reaches 4000
+SPECIES BloomMender:102, ClawHunter:152, BroodAlien:251, BreachBeast:552, AcidSpitter:102, HuntRider:252, SiegeRider:202, WallMelter:72, SiegeBrooder:552, BroodCarrier:202, HookMaw:102, Bulwark:102, BurrowLurker:202, CarrionReclaimer:201, VeilWeaver:101, WallRam:601, NeedleStalker:251
+MEASURE all enabled A: frames=201 meanMs=30.76 p95Ms=42.34 maxMs=189.34 bodies=4000..4000 movedHosts=110 allocatedMB=2379
+PASS all enabled A maintains 4000 logical bodies
+MEASURE horde rendering off: frames=231 meanMs=26.40 p95Ms=37.22 maxMs=104.61 bodies=4000..4000 movedHosts=110 allocatedMB=2379
+PASS horde rendering off maintains 4000 logical bodies
+MEASURE all enabled B: frames=113 meanMs=54.10 p95Ms=121.79 maxMs=252.36 bodies=4000..4000 movedHosts=107 allocatedMB=2380
+PASS all enabled B maintains 4000 logical bodies
+MEASURE enemy AI off; NavMesh on: frames=126 meanMs=47.87 p95Ms=121.20 maxMs=245.80 bodies=4000..4000 movedHosts=62 allocatedMB=2380
+PASS enemy AI off; NavMesh on maintains 4000 logical bodies
+MEASURE enemy AI and NavMesh off: frames=276 meanMs=24.03 p95Ms=29.62 maxMs=642.84 bodies=4000..4000 movedHosts=0 allocatedMB=2380
+PASS enemy AI and NavMesh off maintains 4000 logical bodies
+PASS stress measurements completed; zero damage and no brood births used to hold count fixed
+RESTORED settings/save root; result=PASS; stop Play to discard scene

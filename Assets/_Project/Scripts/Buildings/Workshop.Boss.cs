@@ -26,7 +26,7 @@ namespace AntColony.Buildings
         }
         public bool EnqueueBoss(BossId id, bool recovery, float remaining = BossProgress.RecoverySeconds, bool paid = false)
         {
-            if (Ruined || IsDead || !isActiveAndEnabled || jobs.Count != 0 || Paused) return false;
+            if (IsSewing || Ruined || IsDead || !isActiveAndEnabled || jobs.Count != 0 || Paused) return false;
             jobs.Add(new Job { bossJob = true, boss = (int)id, recovery = recovery, materialsPaid = paid,
                 work = BossProgress.RecoverySeconds - remaining });
             return true;

@@ -1,0 +1,28 @@
+{
+  "success": true,
+  "command": "command",
+  "data": {
+    "command": "run_script",
+    "parameters": {
+      "file": "AgentScripts/OrganicEnemy1114Import.cs",
+      "entry": "OrganicEnemy1114Import.Main",
+      "args": "[\"BreachBeast\"]",
+      "timeout_ms": "120000"
+    },
+    "result": {
+      "diagnostics": [],
+      "compileMs": 195,
+      "executeMs": 14620,
+      "assemblyName": "PipelineRunScript_OrganicEnemy1114Import_04f9d1563d8548ff86ddc82ce3640639",
+      "success": true,
+      "result": "Idle: 3s, 340 curves\r\nMove: 1s, 340 curves\r\nAttack: 1.4s, 340 curves\r\nHit: 0.6s, 340 curves\r\nDeath: 2s, 340 curves\r\nMaterial textures: BaseColor,MetallicRoughness,Normal\r\nController Action: 0 Idle / 1 Move / 2 Attack / 3 Hit / 4 Death. Gameplay spawning not connected.\r\n"
+    },
+    "target": {
+      "host": "127.0.0.1",
+      "port": 7800,
+      "projectPath": "F:\\UnityProjects\\ant-colony-rts"
+    }
+  },
+  "errors": [],
+  "warnings": []
+}

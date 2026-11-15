@@ -1,0 +1,13 @@
+RUNNING isolated prepared expedition; placement and later full-cargo injection are fixture only
+PASS Remote home resource rejected before changing commander work
+PASS Arrived expedition accepts actual local soil gathering: 
+PASS Rejected cross-region command preserves accepted gathering order
+PASS Travel state rejects field gathering
+PASS Actual movement, extraction and deposit into expedition cargo: 14
+PASS Full reload preserves real collected cargo and landed crew
+PASS Full expedition cargo rejects a new gathering order
+RESTORED natural checkpoint; expedition fixture discarded
+PASS Loaded walking party replaces yellow placeholder with Meshy pack
+PASS Pack uses mapped URP texture
+PASS Pack keeps 1.5m footprint and grounded bottom under scaled vehicle parent
+PASS Loaded cargo and transport approach remain available

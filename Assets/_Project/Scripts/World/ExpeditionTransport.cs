@@ -31,10 +31,10 @@ namespace AntColony.World
         // 장수 슬롯과 일반개미 정원은 따로 센다.
         // 대형 수송: 일반개미 +50%·장수 +2 / 수송 효율: 화물 +50%
         public int Capacity => Walking ? int.MaxValue : Mathf.FloorToInt((Aircraft ? GameBalance.AircraftTroops : GameBalance.VehicleTroops) * ScienceEffects.TroopCapacityMultiplier);
-        public int CommanderCapacity => Walking ? int.MaxValue : (Aircraft ? GameBalance.AircraftCommanders : GameBalance.VehicleCommanders) + ScienceEffects.CommanderSlotBonus;
-        public int CargoCapacity => Walking ? WalkingCargoCapacity : Mathf.FloorToInt((Aircraft ? GameBalance.AircraftCargo : GameBalance.VehicleCargo) * ScienceEffects.CargoMultiplier);
+        public int CommanderCapacity => Handcart ? 4 : Walking ? int.MaxValue : (Aircraft ? GameBalance.AircraftCommanders : GameBalance.VehicleCommanders) + ScienceEffects.CommanderSlotBonus;
+        public int CargoCapacity => Handcart ? Mathf.FloorToInt(80 * ScienceEffects.CargoMultiplier) : Walking ? WalkingCargoCapacity : Mathf.FloorToInt((Aircraft ? GameBalance.AircraftCargo : GameBalance.VehicleCargo) * ScienceEffects.CargoMultiplier);
         public float TravelSeconds => TravelSecondsTo(Site);
-        public float TravelSecondsTo(ExpeditionSite destination) => Walking ? ExpeditionRules.WalkSeconds(destination) / FormationWalkMultiplier
+        public float TravelSecondsTo(ExpeditionSite destination) => Handcart ? ExpeditionRules.WalkSeconds(destination) * 1.15f / FormationWalkMultiplier : Walking ? ExpeditionRules.WalkSeconds(destination) / FormationWalkMultiplier
             : ExpeditionRules.TransportSeconds(destination == null ? .16f : Vector2.Distance(destination.MapPosition, new Vector2(.5f, .5f)), Aircraft);
         public float Remaining { get; private set; }
         public int Load
@@ -52,14 +52,17 @@ namespace AntColony.World
         public bool CargoFull => CargoLoad + ReservedCargo >= CargoCapacity;
         protected override bool IsDepositPoint => true;
 
-        public void Initialize(bool aircraft, bool walking = false)
+        public void Initialize(bool aircraft, bool walking = false, bool handcart = false)
         {
             Route = new TransportRoute(this);
             Aircraft = aircraft;
             Walking = walking;
+            Handcart = handcart;
             RestoreHealth(MaxHealth);
             homePosition = transform.position;
-            name = walking ? "도보 원정대" : aircraft ? "Aircraft" : "Vehicle";
+            if (Handcart) AttachHandcartModel();
+            else if (Walking) AttachWalkingPack();
+            name = Handcart ? "손수레" : walking ? "도보 원정대" : aircraft ? "Aircraft" : "Vehicle";
             GetComponent<Renderer>().material.color = aircraft ? Color.cyan : new Color(.85f, .7f, .3f);
         }
 
@@ -95,6 +98,7 @@ namespace AntColony.World
             }
             if (State == ExpeditionState.Deployed) LandCrew();
             else foreach (var c in crew) if (c != null) c.SetEmbarked(true, Position);
+            RestoreCartPuller();
         }
 
         public bool TryBoard(IReadOnlyList<CommanderAnt> passengers)
@@ -151,15 +155,17 @@ namespace AntColony.World
         {
             if (ExpeditionRules.Paused) return false;
             if (DepartureBlock(site) != "") return false;
+            if (Handcart && !BeginCartPull()) return false;
             Site = site;
             if (site.Visitor == null) site.Visitor = this;
             State = ExpeditionState.Outbound;
+            if (!Handcart) RecallEscorts();
             foreach (var c in crew) if (c != null && c.IsColonyMember) c.OnExpeditionStarted();
             Remaining = TravelSeconds;
             return true;
         }
 
-        public bool TryReturn() => RequestWithdrawal(null);
+        public bool TryReturn() => cartPull.leaving ? CancelCartPull() : RequestWithdrawal(null);
 
         internal bool TryContinueTo(ExpeditionSite next)
         {
@@ -200,6 +206,7 @@ namespace AntColony.World
             foreach (var body in bodyCargo) body.remaining = Mathf.Max(0, body.remaining - seconds);
             DockingRemaining = Mathf.Max(0, DockingRemaining - seconds);
             if (State != ExpeditionState.Home) TickSupplies(seconds);
+            if (TickCartPull()) return;
             if (TickInvestigation(seconds)) return;
             var withdrawing = IsWithdrawing;
             TickWithdrawal(seconds);

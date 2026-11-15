@@ -1,0 +1,12 @@
+{
+  "name": "BreachBeast",
+  "changed": [
+    "Move"
+  ],
+  "strideSourceUnitsPerSecond": 0.43333333333333335,
+  "riderBones": [],
+  "clips": [
+    "Move"
+  ],
+  "horizontalExtent": 3.072418212890625
+}

@@ -1,0 +1,112 @@
+DIFFERENCE WallRam Move 0.23 error=0.005143404 quality=Auto global=FourBones
+DIFFERENCE WallRam Attack 0.23 error=0.02965689 quality=Auto global=FourBones
+DIFFERENCE WallRam Hit 0.23 error=0.007966042 quality=Auto global=FourBones
+DIFFERENCE WallRam Death 0.23 error=0.008452415 quality=Auto global=FourBones
+DIFFERENCE WallRam Death 0.61 error=0.03270507 quality=Auto global=FourBones
+PASS WallRam 20 poses
+DIFFERENCE NeedleStalker Idle 0.61 error=0.04096103 quality=Auto global=FourBones
+DIFFERENCE NeedleStalker Idle 0.97 error=0.01669049 quality=Auto global=FourBones
+DIFFERENCE NeedleStalker Move 0.61 error=0.02155352 quality=Auto global=FourBones
+DIFFERENCE NeedleStalker Move 0.97 error=0.007646799 quality=Auto global=FourBones
+DIFFERENCE NeedleStalker Death 0.61 error=0.1972814 quality=Auto global=FourBones
+PASS NeedleStalker 20 poses
+DIFFERENCE BloomMender Move 0.97 error=0.004034042 quality=Auto global=FourBones
+DIFFERENCE BloomMender Hit 0.23 error=0.003246784 quality=Auto global=FourBones
+DIFFERENCE BloomMender Death 0.23 error=0.005933046 quality=Auto global=FourBones
+DIFFERENCE BloomMender Death 0.61 error=0.01728868 quality=Auto global=FourBones
+PASS BloomMender 20 poses
+DIFFERENCE ClawHunter Idle 0.61 error=0.009269714 quality=Auto global=FourBones
+DIFFERENCE ClawHunter Move 0.61 error=0.01442599 quality=Auto global=FourBones
+DIFFERENCE ClawHunter Attack 0.23 error=0.0138309 quality=Auto global=FourBones
+DIFFERENCE ClawHunter Attack 0.61 error=0.01178956 quality=Auto global=FourBones
+DIFFERENCE ClawHunter Hit 0.23 error=0.02360678 quality=Auto global=FourBones
+DIFFERENCE ClawHunter Hit 0.61 error=0.01728249 quality=Auto global=FourBones
+DIFFERENCE ClawHunter Death 0.61 error=0.9299798 quality=Auto global=FourBones
+PASS ClawHunter 20 poses
+DIFFERENCE BroodAlien Move 0.61 error=0.01678491 quality=Auto global=FourBones
+DIFFERENCE BroodAlien Attack 0.61 error=0.004367828 quality=Auto global=FourBones
+DIFFERENCE BroodAlien Hit 0.23 error=0.01031947 quality=Auto global=FourBones
+PASS BroodAlien 20 poses
+DIFFERENCE BreachBeast Idle 0.61 error=0.03385258 quality=Auto global=FourBones
+DIFFERENCE BreachBeast Idle 0.97 error=0.0098629 quality=Auto global=FourBones
+DIFFERENCE BreachBeast Move 0.61 error=0.01318932 quality=Auto global=FourBones
+DIFFERENCE BreachBeast Attack 0.23 error=0.03180337 quality=Auto global=FourBones
+DIFFERENCE BreachBeast Attack 0.61 error=0.4331253 quality=Auto global=FourBones
+DIFFERENCE BreachBeast Hit 0.23 error=0.8226225 quality=Auto global=FourBones
+DIFFERENCE BreachBeast Hit 0.61 error=0.1808701 quality=Auto global=FourBones
+DIFFERENCE BreachBeast Hit 0.97 error=0.02373981 quality=Auto global=FourBones
+DIFFERENCE BreachBeast Death 0.23 error=0.03459239 quality=Auto global=FourBones
+DIFFERENCE BreachBeast Death 0.61 error=0.01526451 quality=Auto global=FourBones
+PASS BreachBeast 20 poses
+DIFFERENCE AcidSpitter Idle 0.23 error=0.01035166 quality=Auto global=FourBones
+DIFFERENCE AcidSpitter Move 0.23 error=0.00549531 quality=Auto global=FourBones
+DIFFERENCE AcidSpitter Move 0.61 error=0.007360458 quality=Auto global=FourBones
+DIFFERENCE AcidSpitter Attack 0.61 error=0.006810904 quality=Auto global=FourBones
+DIFFERENCE AcidSpitter Hit 0.61 error=0.00578928 quality=Auto global=FourBones
+PASS AcidSpitter 20 poses
+DIFFERENCE HuntRider Move 0.61 error=0.01816487 quality=Auto global=FourBones
+DIFFERENCE HuntRider Attack 0.23 error=0.006340027 quality=Auto global=FourBones
+DIFFERENCE HuntRider Hit 0.23 error=0.005903721 quality=Auto global=FourBones
+DIFFERENCE HuntRider Hit 0.97 error=0.005066633 quality=Auto global=FourBones
+PASS HuntRider 20 poses
+DIFFERENCE SiegeRider Move 0.97 error=0.007870436 quality=Auto global=FourBones
+DIFFERENCE SiegeRider Hit 0.23 error=0.01313615 quality=Auto global=FourBones
+DIFFERENCE SiegeRider Death 0.23 error=0.007266045 quality=Auto global=FourBones
+DIFFERENCE SiegeRider Death 0.61 error=0.01795626 quality=Auto global=FourBones
+PASS SiegeRider 20 poses
+DIFFERENCE WallMelter Idle 0.23 error=0.2075069 quality=Auto global=FourBones
+DIFFERENCE WallMelter Move 0.23 error=0.460804 quality=Auto global=FourBones
+DIFFERENCE WallMelter Move 0.61 error=0.522634 quality=Auto global=FourBones
+DIFFERENCE WallMelter Move 0.97 error=0.08983159 quality=Auto global=FourBones
+DIFFERENCE WallMelter Attack 0.23 error=0.5254862 quality=Auto global=FourBones
+DIFFERENCE WallMelter Attack 0.61 error=1.067433 quality=Auto global=FourBones
+DIFFERENCE WallMelter Attack 0.97 error=0.01207519 quality=Auto global=FourBones
+DIFFERENCE WallMelter Hit 0.23 error=0.5614653 quality=Auto global=FourBones
+DIFFERENCE WallMelter Hit 0.61 error=0.1722128 quality=Auto global=FourBones
+DIFFERENCE WallMelter Hit 0.97 error=0.0241878 quality=Auto global=FourBones
+DIFFERENCE WallMelter Death 0.23 error=0.06641364 quality=Auto global=FourBones
+DIFFERENCE WallMelter Death 0.61 error=0.01689482 quality=Auto global=FourBones
+PASS WallMelter 20 poses
+DIFFERENCE SiegeBrooder Move 0.97 error=0.003369808 quality=Auto global=FourBones
+DIFFERENCE SiegeBrooder Attack 0.61 error=0.006755352 quality=Auto global=FourBones
+DIFFERENCE SiegeBrooder Hit 0.97 error=0.003927708 quality=Auto global=FourBones
+DIFFERENCE SiegeBrooder Death 0.23 error=0.02443409 quality=Auto global=FourBones
+DIFFERENCE SiegeBrooder Death 0.61 error=0.04047275 quality=Auto global=FourBones
+PASS SiegeBrooder 20 poses
+DIFFERENCE BroodCarrier Idle 0.61 error=0.006989956 quality=Auto global=FourBones
+DIFFERENCE BroodCarrier Attack 0.23 error=0.01049733 quality=Auto global=FourBones
+DIFFERENCE BroodCarrier Attack 0.61 error=0.03517175 quality=Auto global=FourBones
+DIFFERENCE BroodCarrier Hit 0.23 error=0.0225451 quality=Auto global=FourBones
+DIFFERENCE BroodCarrier Hit 0.61 error=0.005655527 quality=Auto global=FourBones
+DIFFERENCE BroodCarrier Death 0.61 error=0.007078648 quality=Auto global=FourBones
+PASS BroodCarrier 20 poses
+DIFFERENCE HookMaw Move 0.23 error=0.02367187 quality=Auto global=FourBones
+DIFFERENCE HookMaw Move 0.61 error=0.02115536 quality=Auto global=FourBones
+DIFFERENCE HookMaw Hit 0.23 error=0.008012056 quality=Auto global=FourBones
+DIFFERENCE HookMaw Hit 0.61 error=0.0466001 quality=Auto global=FourBones
+DIFFERENCE HookMaw Hit 0.97 error=0.00925827 quality=Auto global=FourBones
+PASS HookMaw 20 poses
+DIFFERENCE Bulwark Move 0.61 error=0.01381588 quality=Auto global=FourBones
+DIFFERENCE Bulwark Move 0.97 error=0.009017467 quality=Auto global=FourBones
+DIFFERENCE Bulwark Attack 0.23 error=0.005531073 quality=Auto global=FourBones
+DIFFERENCE Bulwark Attack 0.61 error=0.01809454 quality=Auto global=FourBones
+DIFFERENCE Bulwark Hit 0.23 error=0.01500273 quality=Auto global=FourBones
+PASS Bulwark 20 poses
+DIFFERENCE BurrowLurker Idle 0.61 error=0.1568379 quality=Auto global=FourBones
+DIFFERENCE BurrowLurker Attack 0.23 error=0.01070285 quality=Auto global=FourBones
+DIFFERENCE BurrowLurker Hit 0.23 error=0.02469826 quality=Auto global=FourBones
+DIFFERENCE BurrowLurker Hit 0.97 error=0.006677151 quality=Auto global=FourBones
+DIFFERENCE BurrowLurker Death 0.23 error=0.006162882 quality=Auto global=FourBones
+DIFFERENCE BurrowLurker Death 0.61 error=0.07474852 quality=Auto global=FourBones
+PASS BurrowLurker 20 poses
+DIFFERENCE CarrionReclaimer Idle 0.61 error=0.3138058 quality=Auto global=FourBones
+DIFFERENCE CarrionReclaimer Attack 0.23 error=0.02014494 quality=Auto global=FourBones
+DIFFERENCE CarrionReclaimer Attack 0.61 error=0.8345041 quality=Auto global=FourBones
+DIFFERENCE CarrionReclaimer Hit 0.23 error=0.01925802 quality=Auto global=FourBones
+DIFFERENCE CarrionReclaimer Death 0.61 error=0.260709 quality=Auto global=FourBones
+PASS CarrionReclaimer 20 poses
+DIFFERENCE VeilWeaver Hit 0.23 error=0.006087065 quality=Auto global=FourBones
+DIFFERENCE VeilWeaver Death 0.23 error=0.004683733 quality=Auto global=FourBones
+DIFFERENCE VeilWeaver Death 0.61 error=0.005818129 quality=Auto global=FourBones
+PASS VeilWeaver 20 poses
+PASS 340 poses; max difference=1.067433 metres

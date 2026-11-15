@@ -1,0 +1,54 @@
+Injected facility regression. Actual worker movement/production; not a natural economy campaign.
+PASS Wait completed
+PASS Wait completed
+PASS Build template Quarry
+PASS Correct manual/deep power requirement Quarry
+PASS Model/material Quarry
+PASS No undesignated production Quarry
+PASS Explicit bill Quarry
+PASS Build template LoggingCamp
+PASS Correct manual/deep power requirement LoggingCamp
+PASS Model/material LoggingCamp
+PASS No undesignated production LoggingCamp
+PASS Explicit bill LoggingCamp
+PASS Build template SandPit
+PASS Correct manual/deep power requirement SandPit
+PASS Model/material SandPit
+PASS No undesignated production SandPit
+PASS Explicit bill SandPit
+PASS Build template ClayPit
+PASS Correct manual/deep power requirement ClayPit
+PASS Model/material ClayPit
+PASS No undesignated production ClayPit
+PASS Explicit bill ClayPit
+PASS Build template CultivationGarden
+PASS Correct manual/deep power requirement CultivationGarden
+PASS Model/material CultivationGarden
+PASS No undesignated production CultivationGarden
+PASS Explicit bill CultivationGarden
+PASS Build template OreMine
+PASS Correct manual/deep power requirement OreMine
+PASS Model/material OreMine
+PASS No undesignated production OreMine
+PASS Ore research gate retained
+PASS Build template DeepMine
+PASS Correct manual/deep power requirement DeepMine
+PASS Model/material DeepMine
+PASS No undesignated production DeepMine
+PASS Ore research gate retained
+PASS Garden waits for physical water delivery
+PASS Remote work cannot generate stone
+PASS New game regions and first boss hidden
+PASS Found clue reveals one destination
+PASS Research IDs preserve existing saves and prerequisites
+PASS Assign quarry through normal service order
+PASS Wait completed
+PASS Quarry batch adds five actual stone
+PASS Worker walks to quarry
+PASS Exactly one batch consumed
+PASS Save facilities: 
+PASS Reload facilities: 
+PASS Wait completed
+PASS Seven new building kinds restored
+PASS Production goal persists
+PASS Region discovery persists through full scene reload

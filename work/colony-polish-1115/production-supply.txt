@@ -1,0 +1,8 @@
+PASS Player order accepted
+PASS Ordered material on floor prioritized without consuming it
+PASS Shows actual missing input and quantity
+PASS Paused order does not request collection
+PASS Does not designate natural resources
+PASS Ready meals retain higher urgency
+PASS Removed order stops procurement
+PASS Campaign inventory unchanged

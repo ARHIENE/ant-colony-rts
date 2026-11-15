@@ -1,0 +1,69 @@
+{
+    "unity": "6000.5.8f1",
+    "gpu": "NVIDIA GeForce RTX 2070",
+    "device": "Intel(R) Core(TM) i7-8700 CPU @ 3.20GHz",
+    "phase": "Medium Forest seed281028, 3 commanders, 1x, five-second warmup, 25-second sample",
+    "baseline": false,
+    "qualityLevels": [
+        "Mobile",
+        "PC"
+    ],
+    "width": 1920,
+    "height": 1080,
+    "frames": 2791,
+    "renderers": 3012,
+    "visible": 94,
+    "animators": 53,
+    "skinned": 959,
+    "meanMs": 8.965749017439118,
+    "p50Ms": 8.129598572850228,
+    "p95Ms": 11.602097190916539,
+    "p99Ms": 14.378996565937996,
+    "counters": [
+        {
+            "name": "Main Thread",
+            "valid": true,
+            "mean": 8942108.34826227
+        },
+        {
+            "name": "Render Thread",
+            "valid": false,
+            "mean": 0.0
+        },
+        {
+            "name": "GC Allocated In Frame",
+            "valid": true,
+            "mean": 399232.64027230386
+        },
+        {
+            "name": "Draw Calls Count",
+            "valid": false,
+            "mean": 0.0
+        },
+        {
+            "name": "Batches Count",
+            "valid": false,
+            "mean": 0.0
+        },
+        {
+            "name": "Triangles Count",
+            "valid": true,
+            "mean": 1305149.6696524544
+        },
+        {
+            "name": "BehaviourUpdate",
+            "valid": true,
+            "mean": 2126537.5492654966
+        },
+        {
+            "name": "UpdateRendererBoundingVolumes",
+            "valid": true,
+            "mean": 812845.5750627016
+        },
+        {
+            "name": "MeshSkinning.Update",
+            "valid": true,
+            "mean": 808817.7714080975
+        }
+    ]
+}

@@ -71,7 +71,8 @@ namespace AntColony.Data
         Wheat, Barley, Rice, Grapes, SunflowerSeed, WheatFlour, SunflowerOil, RubberSap, Rubber,
         Beer, RiceWine, FruitWine, Mead, HoneydewWine, Spirits,
         CookedRice, Flatbread, FriedRice, SmokedFood,
-        ElectronicComponent, StellarMetal, StellarAlloy
+        ElectronicComponent, StellarMetal, StellarAlloy,
+        BarleyPorridge, Soup, HoneyBread
     }
 
     // 재료 특성(내구·무게·가연성·미관·단열). 후반 재료가 모든 면에서 우월하지 않게 용도를 나눈다.

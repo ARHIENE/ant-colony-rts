@@ -1,0 +1,18 @@
+Injected unlocked research/coal supply; actual power grid, worker travel and production.
+PASS Researched titanium production available
+PASS Stellar extraction remains locked
+PASS Unpowered deep mine waits
+PASS Assign actual miner
+PASS Wait completed
+PASS Solid fuel generator supplies real grid
+PASS Power loss preserves unpaid work and prevents output
+PASS Wait completed
+PASS One titanium batch completed after power restoration
+PASS Deep mining model visible in live scene
+PASS Radio search creates assignable research task
+PASS Researcher can take radio assignment without active science topic
+FAIL Wait completed
+PASS Continue interrupted verification with preserved radio work
+PASS Wait completed
+PASS Real researcher receives two distant coordinates
+PASS Late production and discoveries save: 

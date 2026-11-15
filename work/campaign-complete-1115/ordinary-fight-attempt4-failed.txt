@@ -1,0 +1,89 @@
+Loaded existing checkpoint. No health, damage, equipment or position injection. Ordinary attack and dodge movement orders only.
+START boss=963/1000; crew=생존자 1:100 attack=5
+time=61 boss=963 crew=100
+DODGE 0 from=(-5001.66, 0.63, 4989.48) to=(-5000.23, 0.03, 4994.79) speed=1.8 stop=0 ready=True constructing=False
+DODGE 1 from=(-5000.16, 0.63, 5001.80) to=(-4997.99, 0.03, 5003.05) speed=1.8 stop=0 ready=True constructing=False
+DODGE 0 from=(-4999.05, 0.63, 5009.84) to=(-5000.47, 0.03, 5015.16) speed=1.8 stop=0 ready=True constructing=False
+time=91 boss=943 crew=100
+DODGE 1 from=(-5000.47, 0.63, 5015.16) to=(-5000.21, 0.03, 5016.12) speed=1.8 stop=0 ready=True constructing=False
+DODGE 0 from=(-5000.21, 0.63, 5016.12) to=(-4994.90, 0.03, 5014.70) speed=1.8 stop=0 ready=True constructing=False
+DODGE 1 from=(-4998.97, 0.63, 5015.74) to=(-5000.27, 0.03, 5016.49) speed=1.8 stop=0 ready=True constructing=False
+DODGE 0 from=(-5000.27, 0.63, 5016.49) to=(-4998.85, 0.03, 5011.18) speed=1.8 stop=0 ready=True constructing=False
+time=122 boss=883 crew=100
+DODGE 1 from=(-4999.76, 0.63, 5014.99) to=(-5000.51, 0.03, 5016.29) speed=1.8 stop=0 ready=True constructing=False
+DODGE 0 from=(-5000.51, 0.63, 5016.29) to=(-4995.20, 0.03, 5014.87) speed=1.8 stop=0 ready=True constructing=False
+DODGE 1 from=(-4998.97, 0.63, 5015.76) to=(-5000.26, 0.03, 5016.51) speed=1.8 stop=0 ready=True constructing=False
+DODGE 0 from=(-5000.26, 0.63, 5016.51) to=(-4998.84, 0.03, 5011.19) speed=1.8 stop=0 ready=True constructing=False
+time=152 boss=823 crew=100
+DODGE 1 from=(-4999.75, 0.63, 5014.97) to=(-5000.50, 0.03, 5016.27) speed=1.8 stop=0 ready=True constructing=False
+DODGE 0 from=(-5000.50, 0.63, 5016.27) to=(-4995.19, 0.03, 5014.84) speed=1.8 stop=0 ready=True constructing=False
+DODGE 1 from=(-4998.98, 0.63, 5015.75) to=(-5000.28, 0.03, 5016.50) speed=1.8 stop=0 ready=True constructing=False
+DODGE 0 from=(-5000.28, 0.63, 5016.50) to=(-4998.85, 0.03, 5011.19) speed=1.8 stop=0 ready=True constructing=False
+time=182 boss=763 crew=100
+DODGE 1 from=(-4999.76, 0.63, 5015.00) to=(-5000.51, 0.03, 5016.30) speed=1.8 stop=0 ready=True constructing=False
+DODGE 0 from=(-5000.51, 0.63, 5016.30) to=(-4995.20, 0.03, 5014.87) speed=1.8 stop=0 ready=True constructing=False
+DODGE 1 from=(-4998.94, 0.63, 5015.75) to=(-5000.24, 0.03, 5016.50) speed=1.8 stop=0 ready=True constructing=False
+DODGE 0 from=(-5000.24, 0.63, 5016.50) to=(-4998.82, 0.03, 5011.19) speed=1.8 stop=0 ready=True constructing=False
+time=212 boss=708 crew=100
+DODGE 1 from=(-4999.75, 0.63, 5014.99) to=(-5000.50, 0.03, 5016.29) speed=1.8 stop=0 ready=True constructing=False
+DODGE 0 from=(-5000.50, 0.63, 5016.29) to=(-4995.19, 0.03, 5014.87) speed=1.8 stop=0 ready=True constructing=False
+DODGE 1 from=(-4999.05, 0.63, 5015.78) to=(-5000.01, 0.03, 5016.03) speed=1.8 stop=0 ready=True constructing=False
+DODGE 0 from=(-5000.01, 0.63, 5016.03) to=(-4998.59, 0.03, 5010.72) speed=1.8 stop=0 ready=True constructing=False
+time=242 boss=648 crew=100
+DODGE 1 from=(-4999.73, 0.63, 5014.99) to=(-5000.48, 0.03, 5016.29) speed=1.8 stop=0 ready=True constructing=False
+DODGE 0 from=(-5000.48, 0.63, 5016.29) to=(-4995.17, 0.03, 5014.86) speed=1.8 stop=0 ready=True constructing=False
+DODGE 1 from=(-4998.96, 0.63, 5015.76) to=(-5000.26, 0.03, 5016.51) speed=1.8 stop=0 ready=True constructing=False
+DODGE 0 from=(-5000.26, 0.63, 5016.51) to=(-4998.84, 0.03, 5011.19) speed=1.8 stop=0 ready=True constructing=False
+time=272 boss=588 crew=100
+DODGE 1 from=(-4999.77, 0.63, 5015.03) to=(-5000.02, 0.03, 5016.00) speed=1.8 stop=0 ready=True constructing=False
+DODGE 0 from=(-5000.02, 0.63, 5016.00) to=(-4994.71, 0.03, 5017.42) speed=1.8 stop=0 ready=True constructing=False
+DODGE 1 from=(-4999.05, 0.63, 5016.26) to=(-5000.02, 0.03, 5016.00) speed=1.8 stop=0 ready=True constructing=False
+DODGE 0 from=(-5000.02, 0.63, 5016.00) to=(-4994.70, 0.03, 5017.42) speed=1.8 stop=0 ready=True constructing=False
+time=302 boss=527 crew=100
+DODGE 1 from=(-4999.00, 0.63, 5016.27) to=(-5000.30, 0.03, 5015.52) speed=1.8 stop=0 ready=True constructing=False
+DODGE 0 from=(-5000.30, 0.63, 5015.52) to=(-4998.88, 0.03, 5020.83) speed=1.8 stop=0 ready=True constructing=False
+DODGE 1 from=(-4999.75, 0.63, 5017.07) to=(-5000.50, 0.03, 5015.77) speed=1.8 stop=0 ready=True constructing=False
+DODGE 2 from=(-5000.50, 0.63, 5015.77) to=(-5006.16, 0.03, 5010.11) speed=1.8 stop=0 ready=True constructing=False
+DODGE 0 from=(-5003.05, 0.63, 5013.09) to=(-4997.74, 0.03, 5014.51) speed=1.8 stop=0 ready=True constructing=False
+time=333 boss=479 crew=100
+DODGE 1 from=(-4999.08, 0.63, 5015.39) to=(-5000.38, 0.03, 5016.14) speed=1.8 stop=0 ready=True constructing=False
+DODGE 2 from=(-5000.38, 0.63, 5016.14) to=(-5008.10, 0.03, 5018.21) speed=1.8 stop=0 ready=True constructing=False
+DODGE 0 from=(-5004.04, 0.63, 5017.10) to=(-4998.73, 0.03, 5015.68) speed=1.8 stop=0 ready=True constructing=False
+DODGE 1 from=(-4998.73, 0.63, 5015.68) to=(-5000.03, 0.03, 5016.43) speed=1.8 stop=0 ready=True constructing=False
+DODGE 2 from=(-5000.03, 0.63, 5016.43) to=(-5000.03, 0.03, 5024.43) speed=1.8 stop=0 ready=True constructing=False
+time=363 boss=413 crew=100
+DODGE 0 from=(-5000.01, 0.63, 5020.35) to=(-4998.59, 0.03, 5015.03) speed=1.8 stop=0 ready=True constructing=False
+DODGE 1 from=(-4999.12, 0.63, 5015.40) to=(-5000.42, 0.03, 5016.15) speed=1.8 stop=0 ready=True constructing=False
+DODGE 2 from=(-5000.42, 0.63, 5016.15) to=(-5008.42, 0.03, 5016.15) speed=1.8 stop=0 ready=True constructing=False
+DODGE 0 from=(-5004.12, 0.63, 5016.07) to=(-4998.81, 0.03, 5014.65) speed=1.8 stop=0 ready=True constructing=False
+time=393 boss=377 crew=100
+DODGE 1 from=(-4999.28, 0.63, 5015.18) to=(-5000.03, 0.03, 5016.48) speed=1.8 stop=0 ready=True constructing=False
+DODGE 2 from=(-5000.03, 0.63, 5016.48) to=(-5000.03, 0.03, 5024.48) speed=1.8 stop=0 ready=True constructing=False
+DODGE 0 from=(-5000.01, 0.63, 5020.24) to=(-4998.59, 0.03, 5014.93) speed=1.8 stop=0 ready=True constructing=False
+DODGE 1 from=(-4999.13, 0.63, 5015.33) to=(-5000.42, 0.03, 5016.08) speed=1.8 stop=0 ready=True constructing=False
+DODGE 2 from=(-5000.42, 0.63, 5016.08) to=(-5008.42, 0.03, 5016.08) speed=1.8 stop=0 ready=True constructing=False
+time=423 boss=323 crew=79
+DODGE 0 from=(-5004.20, 0.63, 5016.04) to=(-4998.89, 0.03, 5014.62) speed=1.8 stop=0 ready=True constructing=False
+DODGE 1 from=(-4999.37, 0.63, 5015.22) to=(-5000.12, 0.03, 5016.52) speed=1.8 stop=0 ready=True constructing=False
+DODGE 2 from=(-5000.12, 0.63, 5016.52) to=(-5005.78, 0.03, 5022.17) speed=1.8 stop=0 ready=True constructing=False
+DODGE 0 from=(-5002.90, 0.63, 5019.10) to=(-5001.47, 0.03, 5013.78) speed=1.8 stop=0 ready=True constructing=False
+DODGE 1 from=(-5000.56, 0.63, 5015.17) to=(-4999.81, 0.03, 5016.47) speed=1.8 stop=0 ready=True constructing=False
+time=453 boss=281 crew=57
+DODGE 2 from=(-4999.81, 0.63, 5016.47) to=(-4994.15, 0.03, 5022.12) speed=1.8 stop=0 ready=True constructing=False
+DODGE 0 from=(-4997.06, 0.63, 5019.07) to=(-4998.49, 0.03, 5013.76) speed=1.8 stop=0 ready=True constructing=False
+DODGE 1 from=(-4999.47, 0.63, 5015.22) to=(-5000.18, 0.03, 5015.92) speed=1.8 stop=0 ready=True constructing=False
+DODGE 2 from=(-5000.18, 0.63, 5015.92) to=(-4994.17, 0.03, 5009.91) speed=1.8 stop=0 ready=True constructing=False
+time=483 boss=233 crew=36
+DODGE 0 from=(-4997.41, 0.63, 5013.29) to=(-4998.83, 0.03, 5018.60) speed=1.8 stop=0 ready=True constructing=False
+DODGE 1 from=(-4999.58, 0.63, 5016.93) to=(-5000.33, 0.03, 5015.63) speed=1.8 stop=0 ready=True constructing=False
+DODGE 2 from=(-5000.33, 0.63, 5015.63) to=(-5005.99, 0.03, 5009.97) speed=1.8 stop=0 ready=True constructing=False
+DODGE 0 from=(-5002.98, 0.63, 5013.01) to=(-5001.55, 0.03, 5018.32) speed=1.8 stop=0 ready=True constructing=False
+DODGE 1 from=(-5000.57, 0.63, 5016.85) to=(-4999.82, 0.03, 5015.55) speed=1.8 stop=0 ready=True constructing=False
+time=513 boss=191 crew=14
+DODGE 2 from=(-4999.82, 0.63, 5015.55) to=(-4994.16, 0.03, 5009.89) speed=1.8 stop=0 ready=True constructing=False
+DODGE 0 from=(-4997.00, 0.63, 5012.86) to=(-4998.42, 0.03, 5018.17) speed=1.8 stop=0 ready=True constructing=False
+DODGE 1 from=(-4999.37, 0.63, 5016.86) to=(-5000.12, 0.03, 5015.57) speed=1.8 stop=0 ready=True constructing=False
+DODGE 2 from=(-5000.12, 0.63, 5015.57) to=(-5000.12, 0.03, 5007.57) speed=1.8 stop=0 ready=True constructing=False
+FAIL System.Exception: Ordinary combat did not win. Boss remaining=149 crew={"formation":{"selected":0,"affinities":[],"awarded":0,"forward":{"x":0.0,"y":0.0,"z":-1.0},"hitTarget":"","hits":0,"sinceHit":0.0},"work":{"jobs":0,"duty":1,"health":0.0,"quietSeconds":0.0,"recoverySeconds":150.0,"unconsciousSeconds":0.0,"deploymentMealSeconds":0.0,"holdDeployment":true,"bossPickup":-1,"sampleWork":0.0,"rations":{"lots":[{"amount":4,"shelf":3061.5986328125,"cookSkillPlusOne":0,"inspired":false}]},"resting":false,"priorities":[5,5,0,5,5,5,5,5,5,5,5,5,5,5,5,9],"returnPosition":{"x":0.0,"y":0.0,"z":0.0}},"id":"f41572b8db4e43bdb6a625884f00caf1","injuries":[],"moodFactors":[{"reason":"오락 부족","value":-5.0,"remaining":4.949190616607666,"politicalReduction":0.0},{"reason":"위생 불량","value":-3.0,"remaining":5.0,"politicalReduction":0.0}],"relations":[{"otherId":"dcd3ebd957c543f7a050ba882ad281b9","value":0.0,"nearbySeconds":0.0,"quarrelSeconds":0.0,"duelSeconds":0.0,"memorialCooldown":0.0,"spouse":false,"family":false,"lastComfortDay":-1,"widowedAt":-1.0},{"otherId":"cf5ffef50f0e41839e17cfe9e0ece3b8","value":0.0,"nearbySeconds":0.0,"quarrelSeconds":0.0,"duelSeconds":0.0,"memorialCooldown":0.0,"spouse":false,"family":false,"lastComfortDay":-1,"widowedAt":-1.0}],"equipment":[{"id":"2203a77ecddc496a986fae9e02d58fc6","slot":0,"quality":1,"effect":0,"weapon":4,"armor":0,"bossEquipment":0,"durability":0.0,"unique":false,"uniqueEffect":0}],"toolTier":1,"appearanceSeed":1782201814,"ordinaryClothes":"평범한 작업복","carriedRations":{"lots":[{"amount":24,"shelf":3061.5986328125,"cookSkillPlusOne":0,"inspired":false}]},"groundCraft":{"recipe":-1,"work":0.0},"alcohol":{"allowed":false,"seeking":false,"forced":false,"returnDraft":false,"intervalDays":2,"portion":-1,"binges":0,"intoxication":0.0,"hangover":0.0,"sinceDrink":477.2421875,"drinking":0.0,"retry":0.0,"searchSeconds":0.0,"returnPosition":{"x":0.0,"y":0.0,"z":0.0}},"workedSeconds":0.0,"breakCheck":58.31557846069336,"lowMoodSeconds":0.0,"captiveSeconds":0.0,"unsupportedSeconds":0.0,"breakRemaining":0.0,"rageRemaining":0.0,"rewardCooldown":0.0,"lastCombatSeconds":0.0,"homeSeconds":0.0,"wrathRemaining":0.0,"wrathExhaust":0.0,"craftProgress":0.0,"researchProgress":0.0,"beautyExposure":0.0,"ageMonths":265.7932434082031,"lifespanMonths":960.0,"birthRecoverySeconds":0.0,"ageScaleVersion":1,"deathEvents":[],"craftLevel":0,"researchLevel":0,"expectationTier":1,"mentalBreak":0,"dead":false,"treating":false,"infected":false,"moldLoss":0.0,"moldSpread":0.0,"moldTreatment":0.0,"originFaction":"","departure":"","social":{"departure":0,"escapePoint":{"x":0.0,"y":0.0,"z":0.0},"rebellionSeconds":0.0,"attackSeconds":0.0,"rootRemaining":0.0,"captiveDebt":0,"seriousInjuries":0,"breakdowns":0,"expeditions":0,"acidCooldown":0.0,"rallyCooldown":0.0,"diveCooldown":0.0,"rallyRemaining":0.0,"groundedRemaining":0.0,"acidRemaining":0.0,"acidTick":0.0,"acidDamage":0.0,"acidPoint":{"x":0.0,"y":0.0,"z":0.0},"diving":false,"pendingDeparture":false,"injuryTraitChanged":false,"combatSeen":true,"divePoint":{"x":0.0,"y":0.0,"z":0.0}},"sleep":{"fatigue":89.72654724121094,"phaseSeconds":49.96323013305664,"bedSeconds":0.0,"roughNights":0,"inPhase":false,"asleep":false,"rough":false,"interrupted":false,"poorly":true},"meal":{"satiety":0.0,"eatSeconds":0.0,"poisonSeconds":0.0,"retrySeconds":0.0,"pickedFood":0,"pickedType":0,"served":false,"quality":0,"cookSkill":0,"inspired":false,"rotten":false,"diet":-1},"joy":{"joy":10.265912055969239,"playSeconds":0.0,"retrySeconds":0.0,"waitSeconds":0.0,"freeWalk":false,"groupStarted":false,"kind":0,"boredom":[0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0]},"hygiene":{"hygiene":10.265912055969239,"washSeconds":0.0,"retrySeconds":0.0,"kind":0,"temporary":false,"travelDay":-1},"health":{"wounds":[{"part":8,"kind":4,"damage":0.8733640909194946,"age":0.0,"tended":false,"infectionRolled":false,"quality":0.0}],"illnesses":[],"bloodLoss":0.0,"moldImmunityRemaining":0.0,"medicine":3,"selfTend":true,"bedRest":5,"migrated":true,"surgeries":[]}} deadline=False
+  at MothershipFight1115.Run (System.Boolean resume) [0x008c3] in F:\UnityProjects\ant-colony-rts\AgentScripts\MothershipFight1115.cs:45 
+RESTORED settings and save root

@@ -1,0 +1,12 @@
+{
+  "name": "SiegeBrooder",
+  "changed": [
+    "Move"
+  ],
+  "strideSourceUnitsPerSecond": 0.15,
+  "riderBones": [],
+  "clips": [
+    "Move"
+  ],
+  "horizontalExtent": 2.341794967651367
+}

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using AntColony.Buildings;
@@ -43,7 +43,7 @@ namespace AntColony.Save
                         && N(s.fertilizeWork) && s.fertilizeWork <= FarmPlot.FertilizeSeconds
                         && N(s.pestTimer) && s.pestTimer < FarmPlot.PestCheckSeconds, "밭 상태");
                 }
-                if (b.kind == "Workshop")
+                if ((b.kind == "Workshop" || b.kind == "SewingTable"))
                 {
                     var s = b.workshop;
                     Check(s != null && s.materialVersion >= 0 && s.materialVersion <= 1, "제작 재료 형식 버전");
@@ -52,6 +52,10 @@ namespace AntColony.Save
                     foreach (var j in s.jobs)
                     {
                         Check(j != null && (j.makerId == null || j.makerId.Length <= 200), "제작자");
+                        Check((j.repairId == null || j.repairId.Length <= 200)
+                            && (string.IsNullOrEmpty(j.repairId) || b.kind == "SewingTable" && !j.bossJob && EquipmentRecipes.IsClothing(j.recipe)), "의복 수리 예약");
+                        Check(b.kind == "SewingTable" ? !j.bossJob && EquipmentRecipes.IsClothing(j.recipe)
+                            : !EquipmentRecipes.IsClothing(j.recipe), "재봉 품목 시설");
                         // A maker may have died or left the roster; their unfinished work remains cancellable.
                         Check(s.materialVersion == 0 || (j.work == 0 || j.materialsPaid && (!string.IsNullOrEmpty(j.makerId) || j.bossJob))
                             && (string.IsNullOrEmpty(j.makerId) || j.materialsPaid), "제작 재료 소비");
@@ -104,25 +108,16 @@ namespace AntColony.Save
                     + (s.withdrawal?.loads?.Sum(l => (long)l.amount) ?? 0)
                     + (s.withdrawal?.bodies?.Sum(j => { var b = f.corpses.FirstOrDefault(c => c.commanderId == j.bodyId); return b == null ? 0L : AntColony.World.ExpeditionTransport.BodyWeight(b); }) ?? 0)
                     + (parcels == null ? 0 : parcels.Where(p => p.carrier == id).Sum(p => (long)p.count));
-                var crew = f.commanders.Where(c => c.location == 1 && c.transportIndex == i && !c.personalState.dead);
-                // Same weight model as CommanderStartingSupplies / ExpeditionSupplies, evaluated on saved data.
-                int capacity = s.walking ? Mathf.FloorToInt(crew.Sum(WalkingSpace) / .05f)
-                    : Mathf.FloorToInt((s.aircraft ? GameBalance.AircraftCargo : GameBalance.VehicleCargo)
+                // 도보 적재 한도는 운반자의 사망·탈주·부상으로 줄어든다.
+                // 이미 남아 있는 화물은 보존하고, 신규 적재는 런타임 ReturnCargoSpace로 제한한다.
+                int capacity = Mathf.FloorToInt((s.handcart ? 80 : s.aircraft ? GameBalance.AircraftCargo : GameBalance.VehicleCargo)
                         * (f.campaign.completed.Contains((int)ScienceTechnology.EfficientTransport) ? 1.5f : 1f));
-                Check(load <= capacity, "보스 핵심물 포함 적재 한도");
+                Check(s.walking || load <= capacity, "보스 핵심물 포함 적재 한도");
             }
             foreach (var parcel in f.campaign?.bosses?.cargo ?? new List<AntColony.Boss.BossProgress.Parcel>())
                 Check(carriers.Contains(parcel.carrier) || parcel.carrier.StartsWith("commander:", StringComparison.Ordinal)
                     && f.commanders.Any(c => "commander:" + c.personalState.id == parcel.carrier && !c.personalState.dead), "보스 핵심물 운반자");
         }
 
-        private static float WalkingSpace(CommanderDto c)
-        {
-            var p = c.personalState;
-            float weight = (p.carriedRations?.Total ?? 0) * .05f + (p.equipment.Any(e => e.slot == EquipmentSlot.Weapon) ? 1 : 0)
-                + (p.toolTier > 0 ? 1.5f : 0) + (string.IsNullOrEmpty(p.ordinaryClothes) ? 0 : .5f);
-            return Mathf.Max(0, (GameBalance.CarryBase + c.talents.Level(CommanderActivity.Strength) * GameBalance.CarryPerStrength)
-                * SaveCatalog.Traits(c.traits).CarryMultiplier - weight);
-        }
     }
 }

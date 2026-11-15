@@ -1,0 +1,12 @@
+{
+  "name": "ClawHunter",
+  "changed": [
+    "Move"
+  ],
+  "strideSourceUnitsPerSecond": 0.6333333333333334,
+  "riderBones": [],
+  "clips": [
+    "Move"
+  ],
+  "horizontalExtent": 3.2173750400543213
+}

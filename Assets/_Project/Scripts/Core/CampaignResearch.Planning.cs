@@ -17,7 +17,7 @@ namespace AntColony.Core
         {
             get
             {
-                if (Active == null && ActiveResource == null) return "연구를 직접 선택하세요";
+                if (Active == null && ActiveResource == null) return SearchingSignals ? DiscoveryStatus : "연구를 직접 선택하세요";
                 if (Paused) return "정지 · 진행 보존";
                 var rate = ResearchRate;
                 var left = Active != null ? Active.Work - Progress : ResourceResearchWork - ResourceProgress;

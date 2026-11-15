@@ -64,7 +64,8 @@ namespace AntColony.Core
 
         public void RegisterBuilding(BuildingBase building)
         {
-            if (building == null || !building.CountsTowardPlayerDefeat || buildings.Contains(building)) return;
+            if (building == null || !building.CountsTowardPlayerDefeat || buildings.Contains(building)
+                || building is SupplyFacility source && source.Data != null && source.IsNaturalSource) return;
             buildings.Add(building);
         }
 

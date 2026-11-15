@@ -7,7 +7,7 @@ using UnityEngine;
 
 namespace AntColony.World
 {
-    public enum CrewOrderKind { Board, Station, Unload }
+    public enum CrewOrderKind { Board, Station, Unload, Escort, EscortReturn }
 
     [Serializable]
     public sealed class CrewOrderState
@@ -31,7 +31,7 @@ namespace AntColony.World
         }
 
         private readonly List<CrewOrder> crewOrders = new List<CrewOrder>();
-        public int PendingCrewOrderCount => crewOrders.Count;
+        public int PendingCrewOrderCount => crewOrders.Count(o => !EscortOrder(o.kind));
         public string CrewOrderStatus { get; private set; } = "";
 
         public void CancelCrewOrder(CommanderAnt commander)
@@ -49,8 +49,13 @@ namespace AntColony.World
         }
         public static void CancelCrewOrdersFor(CommanderAnt commander)
         {
+            RocketCampaign.CancelMothershipBoarding(commander);
             var world = WorldMapManager.Instance; if (world == null || commander == null) return;
-            foreach (var ship in world.Transports) if (ship != null) ship.CancelCrewOrder(commander);
+            foreach (var ship in world.Transports) if (ship != null)
+            {
+                ship.crewOrders.RemoveAll(o => o.commander == commander && !EscortOrder(o.kind));
+                ship.UpdateCrewOrderStatus();
+            }
             foreach (var ship in world.Transports.Where(t => t != null))
             {
                 if (ship.IsWithdrawing && ship.Crew.Contains(commander)) ship.CancelWithdrawal();
@@ -111,6 +116,8 @@ namespace AntColony.World
         private bool OrderStillHere(CrewOrder order)
         {
             var c = order.commander;
+            if (EscortOrder(order.kind)) return c != null && c.isActiveAndEnabled && !c.IsDead
+                && c.IsColonyMember && !c.IsCaptive && !c.IsDeparting && !c.IsAwayFromHome;
             return c != null && c.isActiveAndEnabled && !c.IsDead && c.IsColonyMember && !c.IsCaptive && !c.IsDeparting
                 && c.ScoutMission == null && State == order.state && Site == order.site
                 && c.Transport == order.sourceTransport && c.Garrison == order.sourceSettlement;
@@ -122,6 +129,7 @@ namespace AntColony.World
             {
                 if (!OrderStillHere(order)) { crewOrders.Remove(order); continue; }
                 var c = order.commander;
+                if (EscortOrder(order.kind)) { TickEscort(order); continue; }
                 if (c.OrderRefusalReason != "" || c.LabUpgradeBusy || c.PersonalState.treating) continue;
                 if (order.kind == CrewOrderKind.Unload)
                 {
@@ -133,7 +141,7 @@ namespace AntColony.World
                     continue;
                 }
                 if (!c.CanChangeAllocation) continue;
-                if (Vector3.Distance(c.Position, Position) > 8)
+                if (Vector3.Distance(c.Position, Position) > (Walking ? 3 : 8))
                 {
                     if (c.TryWorkApproach(Position, out var approach)) c.CommandMove(approach);
                     continue;
@@ -146,7 +154,7 @@ namespace AntColony.World
         private void UpdateCrewOrderStatus()
         {
             CrewOrderStatus = string.Join("\n", crewOrders.Where(o => o.commander != null).Select(o =>
-                o.commander.CommanderName + ": " + o.kind + " 대기 · "
+                o.commander.CommanderName + ": " + (o.kind == CrewOrderKind.Escort ? "출정 호위" : o.kind == CrewOrderKind.EscortReturn ? "호위대 복귀" : o.kind == CrewOrderKind.Board ? "탑승" : o.kind == CrewOrderKind.Station ? "주둔" : "하차") + " · "
                 + (o.commander.OrderRefusalReason != "" ? o.commander.OrderRefusalReason : "이동/안전 지점/작업 종료 대기")));
             AntColony.UI.ToastManager.SetPinned("crew:" + GetEntityId(), CrewOrderStatus == "" ? null : CrewOrderStatus);
         }

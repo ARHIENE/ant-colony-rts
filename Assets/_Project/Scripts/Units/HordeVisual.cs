@@ -42,6 +42,8 @@ namespace AntColony.Units
         private Vector3[] offsets = Array.Empty<Vector3>();
         private readonly Matrix4x4[] matrices = new Matrix4x4[BatchSize];
         private float seedAngle;
+        private float spacingScale = 1;
+        private AntColony.World.OrganicHordeMotion organicMotion;
         public int ExtraBodies { get; private set; }
 
         public static HordeVisual Attach(GameObject host, Func<int> count)
@@ -80,7 +82,7 @@ namespace AntColony.Units
 
         private bool Prepare()
         {
-            if (!SystemInfo.supportsInstancing || GetComponent<AntVisual>() == null)
+            if (!SystemInfo.supportsInstancing || GetComponent<AntVisual>() == null && GetComponent<AntColony.World.OrganicEnemyVisual>() == null)
                 throw new InvalidOperationException("GPU 인스턴싱과 호스트 AntVisual이 필요합니다.");
             var renderers = GetComponentsInChildren<Renderer>();
             Transform root = null;
@@ -129,6 +131,12 @@ namespace AntColony.Units
                 Cache.Add(cacheKey, body);
             }
             body.users++;
+            if (GetComponent<AntColony.World.OrganicEnemyVisual>() != null
+                && (organicMotion != null || Resources.Load<AntColony.World.OrganicMotionBank>("OrganicEnemies1114/" + GetComponent<AntColony.World.WildMonster>().OrganicKind + "/HordeMotion") != null))
+            {
+                var size = Vector3.Scale(body.mesh.bounds.size, new Vector3(Mathf.Abs(scale.x), Mathf.Abs(scale.y), Mathf.Abs(scale.z)));
+                spacingScale = Mathf.Max(1, Mathf.Max(size.x, size.z) / .7f);
+            }
             return true;
         }
 
@@ -157,7 +165,9 @@ namespace AntColony.Units
                         {
                             mesh = new Mesh { name = "무리 몸체 포즈", indexFormat = IndexFormat.UInt32 };
                             temporary.Add(mesh);
-                            skin.BakeMesh(mesh, false);
+                            // 생물형 FBX는 메시 노드에 단위 변환 배율(100)이 있다.
+                            // scale-aware bake로 얻은 로컬 좌표에 아래 localToWorld를 한 번만 적용한다.
+                            skin.BakeMesh(mesh, root.GetComponentInParent<AntColony.World.OrganicEnemyVisual>() != null);
                         }
                         else
                         {
@@ -377,7 +387,7 @@ namespace AntColony.Units
             for (var i = 0; i < capacity; i++)
             {
                 // 바깥쪽부터 줄어드는 고정 나선. 반경 상한 이후에는 같은 원판을 안정된 순서로 채운다.
-                var radius = Mathf.Min(6f, .45f * Mathf.Sqrt(i % 177 + 1));
+                var radius = Mathf.Min(6f, .45f * Mathf.Sqrt(i % 177 + 1)) * spacingScale;
                 var angle = seedAngle + i * 2.39996323f;
                 offsets[i] = new Vector3(Mathf.Cos(angle) * radius,
                     Hash(unchecked((uint)i + (uint)GetEntityId().GetHashCode())) * Mathf.PI * 2, Mathf.Sin(angle) * radius);
@@ -386,6 +396,14 @@ namespace AntColony.Units
 
         private void LateUpdate()
         {
+            if (GetComponent<AntColony.World.OrganicEnemyVisual>() != null
+                && (organicMotion != null || Resources.Load<AntColony.World.OrganicMotionBank>("OrganicEnemies1114/" + GetComponent<AntColony.World.WildMonster>().OrganicKind + "/HordeMotion") != null))
+            {
+                if (organicMotion == null) organicMotion = GetComponent<AntColony.World.OrganicHordeMotion>() ?? gameObject.AddComponent<AntColony.World.OrganicHordeMotion>();
+                ExtraBodies = count == null ? 0 : Mathf.Max(0, count() - 1);
+                organicMotion.Render(ExtraBodies);
+                return;
+            }
             var position = transform.position;
             var delta = position - previousPosition; previousPosition = position; delta.y = 0;
             var moving = Time.deltaTime > 0 && delta.sqrMagnitude > .000001f;
@@ -404,7 +422,7 @@ namespace AntColony.Units
             EnsureOffsets(ExtraBodies);
             var size = Vector3.Scale(body.mesh.bounds.size, new Vector3(Mathf.Abs(scale.x), Mathf.Abs(scale.y), Mathf.Abs(scale.z)));
             var bounds = new Bounds(position + Vector3.up * (size.y * .5f),
-                new Vector3(12 + size.magnitude * 2, size.y + 1, 12 + size.magnitude * 2));
+                new Vector3(12 * spacingScale + size.magnitude * 2, size.y + 1, 12 * spacingScale + size.magnitude * 2));
             for (var start = 0; start < ExtraBodies; start += BatchSize)
             {
                 var amount = Mathf.Min(BatchSize, ExtraBodies - start);

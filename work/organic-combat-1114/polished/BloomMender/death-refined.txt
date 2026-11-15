@@ -1,0 +1,1 @@
+Final roll 2.061670 radians selected for low resting silhouette; grounded per frame. See export-checks.json for validation.

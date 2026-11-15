@@ -320,6 +320,7 @@ namespace AntColony.Map
                     var model = AntColony.World.ProductionProp.Attach(transform, $"Environment1110/Models/{id}/{id}", width, floor);
                     if (model == null) continue;
                     model.name = "Landscape " + id;
+                    NaturalSurface.Attach(model, id != "Rock", id == "Pine");
                     model.transform.RotateAround(floor, Vector3.up, (float)rng.NextDouble() * 360f);
                     // Decorative objects never consume clicks or enter the navigation bake.
                     model.layer = 2;

@@ -1,0 +1,12 @@
+{
+  "name": "HookMaw",
+  "changed": [
+    "Move"
+  ],
+  "strideSourceUnitsPerSecond": 0.46666666666666673,
+  "riderBones": [],
+  "clips": [
+    "Move"
+  ],
+  "horizontalExtent": 1.9671783447265625
+}

@@ -6,7 +6,7 @@ namespace AntColony.Units
     {
         private string suspendedResearchNeed;
         public bool ResearchWorkReady => AtResearchDesk && CivilianWorkReady && AllowsJob(CommanderJobs.Research)
-            && (WorkPriorities.Red || !IsEating && !IsWashing && !IsPlaying && !WorkState.resting)
+            && !SeekingDrink && (WorkPriorities.Red || !IsEating && !IsWashing && !IsPlaying && !WorkState.resting)
             && (IsFlying ? HasReachedDestination() : Agent != null && !Agent.pathPending && !Agent.hasPath);
         // 생활로 잠깐 떠나도 플레이어가 지정한 연구 담당은 유지한다. 직접 정지/다른 명령은 기존대로 해제한다.
         private void SuspendForNeeds(string need)

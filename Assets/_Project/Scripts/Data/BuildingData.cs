@@ -71,7 +71,8 @@ namespace AntColony.Data
         ChemistryBench,
         CharcoalKiln, CokeOven,
         Mill, OilPress, BrewingBarrel, Still,
-        Palisade // 높은 목책. 기존 저장 번호를 유지하도록 끝에 추가.
+        Palisade, SewingTable, // 높은 목책. 기존 저장 번호를 유지하도록 끝에 추가.
+        Quarry, LoggingCamp, SandPit, ClayPit, CultivationGarden, OreMine, DeepMine, Handcart
     }
 
     [CreateAssetMenu(fileName = "BuildingData", menuName = "AntColony/Building Data")]

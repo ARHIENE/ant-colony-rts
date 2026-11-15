@@ -1,0 +1,11 @@
+Isolated ownership/UI regression; temporary fixtures removed, not campaign progress.
+PASS Fixture removes one unit of unclaimed natural soil
+PASS Unclaimed natural quantity does not affect owned wealth
+PASS Player floor cargo at a neutral site still contributes exactly seven
+PASS Annexed resource reserves count as owned stock
+PASS No-order message is explicit
+PASS Add ordinary stock target below existing plank stock
+PASS Satisfied stock target is not reported as missing materials
+PASS Bootstrap research preserves food/work and removes circular soil cost
+PASS Other research retains original soil cost
+PASS Natural partial soil batch preserved through full scene reload

@@ -20,7 +20,7 @@ namespace AntColony.Units
         {
             string key=armor==null?"":armor.id+":"+armor.armor+":"+armor.bossEquipment;
             if(armorKey!=key){Revision++;armorKey=key;Clear(armorParts);
-                if(armor!=null){
+                if(armor!=null && !armor.IsClothing){
                     string model=armor.bossEquipment==BossEquipmentKind.Durable?"Wear_BossA":armor.bossEquipment==BossEquipmentKind.HeatShield?"Wear_BossB":armor.armor==ArmorKind.Wings?"Wear_FlightPack":"Wear_PlateArmor";
                     bool wings=armor.armor==ArmorKind.Wings;
                     var part=Wear(model,"spine_02",wings?new Vector3(0,-.06f,-.18f):new Vector3(0,-.08f,0),wings?new Vector3(.48f,.52f,.15f):new Vector3(.36f,.37f,.27f));

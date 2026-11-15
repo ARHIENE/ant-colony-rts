@@ -31,7 +31,8 @@ namespace AntColony.Units
             SuspendForNeeds("meal");
             PersonalState.carriedRations.Take(RationPortion);
             m.quality = 1; m.cookSkill = CommanderTalents.MaxLevel; m.rotten = false; m.retrySeconds = 0;
-            m.eatSeconds = GameBalance.EatSeconds * (Traits.Has(CommanderTrait.SlowEater) ? 2 : 1);
+            // 소지 식량도 일반 식사처럼 식탁으로 이동한 뒤 먹는다. 꺼낸 몫은 served로 저장된다.
+            m.served = true;
             return false;
         }
 

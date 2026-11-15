@@ -153,13 +153,20 @@ Shader "AntColony/TerrainBlend"
                 color *= lerp(lerp(1, _Tint.rgb, 0.4), _Tint.rgb, grass);
                 if (_Snow > 0 && land > 0)
                 {
-                    half3 snowTex = lerp(SAMPLE_TEXTURE2D(_SnowTex, sampler_SnowTex, uv).rgb, SAMPLE_TEXTURE2D(_SnowTex, sampler_SnowTex, uv2).rgb, mixAmount);
+                    float2 snowUV = world * .32;
+                    half3 snowTex = lerp(SAMPLE_TEXTURE2D(_SnowTex, sampler_SnowTex, snowUV).rgb, SAMPLE_TEXTURE2D(_SnowTex, sampler_SnowTex, snowUV.yx * .77 + .31).rgb, mixAmount);
                     // 눈 텍스처의 흙·마른 풀 얼룩은 밝기만 써서 흰~옅은 푸른 눈으로 바꾼다.
                     half snowLum = dot(snowTex, half3(0.3, 0.59, 0.11));
-                    half3 snow = lerp(half3(0.74, 0.8, 0.9), half3(0.97, 0.98, 1.0), smoothstep(0.25, 0.8, snowLum));
-                    // 한겨울(_Snow=1)엔 땅 전체, 늦가을·초봄엔 얼룩처럼 번진다.
-                    float cover = smoothstep(1.05 - _Snow, 1.2 - _Snow, noise(world * 0.06 + 5.1) * 0.8 + 0.2);
-                    color = lerp(color, snow * lerp(0.93, 1.03, macro), cover); // 겨울 회갈색 색조를 눈에는 입히지 않는다
+                    half3 snow = lerp(half3(0.38, 0.46, 0.55), half3(0.7, 0.76, 0.81), smoothstep(0.2, 0.85, snowLum));
+                    // Keep exposed soil and ground detail even at full accumulation.
+                    // Different scales make drifts, rough edges and small depressions readable.
+                    float drift = noise(world * .22 + 5.1) * .45 + noise(world * 1.2 + 19.4) * .35 + noise(world * 4.1) * .2;
+                    float3 surfaceNormal = normalize(cross(ddy(IN.worldPos), ddx(IN.worldPos)));
+                    float slope = smoothstep(.45, .9, abs(surfaceNormal.y));
+                    float cover = smoothstep(.72 - _Snow * .34, .86 - _Snow * .34, drift) * _Snow * .72 * slope;
+                    half groundGrain = saturate(dot(color, half3(.3, .59, .11)) * 1.7);
+                    snow *= lerp(.72, 1.08, noise(world * 2.8)) * lerp(.84, 1.04, groundGrain);
+                    color = lerp(color, snow, cover);
                 }
                 // 눈·낙엽 뒤에 적용해야 겨울에도 높이와 절벽의 입체감이 남는다.
                 if (terraceStep > 0)
@@ -188,7 +195,7 @@ Shader "AntColony/TerrainBlend"
                     color *= lerp(light, 1, n.y * n.y);
                     // 스타크래프트식 고지대 테두리(2026-11-01): 절벽 위 윗면 가장자리를 밝은 띠로 둘러 높이 경계를 읽히게 한다.
                     float lip = IN.rim * (1 - cliff);
-                    color = lerp(color, color * 1.55 + half3(.09, .08, .06), lip);
+                    color = lerp(color, color * lerp(1.55, 1.18, _Snow) + lerp(half3(.09, .08, .06), half3(.025, .03, .04), _Snow), lip);
                 }
                 // Keep the authored ground palette; receive soft contact/cast shadows
                 // so resources and characters sit on the ground instead of floating.

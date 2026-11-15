@@ -170,7 +170,7 @@ namespace AntColony.Buildings
         }
         public BuildingKind PendingKind => pendingKind;
         // 주재료(2026-10-10): 고를 수 있는 건물이면 이 재료로 재료 몫을 낸다. 부족해도 고를 수는 있고 배치(지시)만 막힌다.
-        private ResourceType pendingMaterial = ResourceType.Soil;
+        private ResourceType pendingMaterial = ResourceType.Wood;
         public ResourceType PendingMaterial { get => Demolition.MaterialSelectable(pendingKind) ? pendingMaterial : ResourceType.Soil; set { if (MaterialInfo.For(value).structural) pendingMaterial = value; } }
         public UnitRole PendingRole => pendingRole;
         public WorkerAnt Builder => builder;
@@ -438,7 +438,10 @@ namespace AntColony.Buildings
                 BuildingKind.DefenseLab => FindTemplate<DefenseLab>() ?? RuntimeBuildingTemplates.Create(kind),
                 BuildingKind.RestRoom => FindTemplate<RestRoom>() ?? RuntimeBuildingTemplates.Create(kind),
                 BuildingKind.ConscriptionPost => FindTemplate<ConscriptionPost>() ?? RuntimeBuildingTemplates.Create(kind),
-                BuildingKind.Workshop => FindTemplate<Workshop>() ?? RuntimeBuildingTemplates.Create(kind),
+                BuildingKind.Workshop => FindTemplate<Workshop>(kind) ?? RuntimeBuildingTemplates.Create(kind),
+                BuildingKind.Handcart => FindTemplate<HandcartAssembly>(kind) ?? RuntimeBuildingTemplates.Create(kind),
+                BuildingKind.SewingTable => RuntimeBuildingTemplates.Create(kind),
+                _ when ResourceIndustry.IsKind(kind) => FindTemplate<Processor>(kind) ?? RuntimeBuildingTemplates.Create(kind),
                 BuildingKind.Dormitory => FindTemplate<Dormitory>(kind) ?? RuntimeBuildingTemplates.Create(kind),
                 BuildingKind.Kitchen => FindTemplate<Kitchen>(kind) ?? RuntimeBuildingTemplates.Create(kind),
                 BuildingKind.FlowerPot or BuildingKind.ShellDecoration or BuildingKind.MarbleMosaic or BuildingKind.BottleMobile or BuildingKind.FireflyLamp

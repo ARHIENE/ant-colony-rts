@@ -1,0 +1,12 @@
+{
+  "name": "VeilWeaver",
+  "changed": [
+    "Move"
+  ],
+  "strideSourceUnitsPerSecond": 0.2,
+  "riderBones": [],
+  "clips": [
+    "Move"
+  ],
+  "horizontalExtent": 3.125577926635742
+}

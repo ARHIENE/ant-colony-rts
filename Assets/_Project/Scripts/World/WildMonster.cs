@@ -129,6 +129,16 @@ namespace AntColony.World
         // 사육 생물 탈출·포획 실패(2026-10-10): 놀라게 하거나(도주형은 달아남) 다룬 장수를 노리게 한다.
         internal void Provoke() => provoked = true;
         internal void Aggro(IDamageable target) { provoked = true; currentTarget = target; }
+        private Vector3 attackNoticePoint;
+        private float attackNoticeRemaining;
+        internal const float AttackNoticeSeconds = 10f;
+        internal void NoticeAttack(Vector3 source)
+        {
+            if (!isRaider || Allied || IsDead || Retreating || !float.IsFinite(source.x)
+                || !float.IsFinite(source.y) || !float.IsFinite(source.z)) return;
+            // 피격 방향은 알지만 시야 밖 공격자를 표적으로 확정하지는 않는다.
+            attackNoticePoint = source; attackNoticeRemaining = AttackNoticeSeconds;
+        }
 
         public bool IsDead => currentHealth <= 0f;
         public float CurrentHealth => currentHealth;
@@ -144,12 +154,13 @@ namespace AntColony.World
         {
             var world = WorldMapManager.Instance;
             var invasion = AntColony.Core.SceneObjects.All<ColonyInvasion>().FirstOrDefault(i => i.Owns(this));
-            var d = new Save.WildMonsterDto { commander = this is EnemyCommander, name = name, raider = isRaider, wasp = eventWasp,
+            var d = new Save.WildMonsterDto { organic = CaptureOrganic(), commander = this is EnemyCommander, name = name, raider = isRaider, wasp = eventWasp,
                 night = nightPredator, flying = IsFlying, allied = Allied, docile = Docile, provoked = provoked, rebel = RebelId,
                 rotationY = transform.eulerAngles.y, scale = new Save.Vec3Dto(transform.localScale),
                 target = Save.SaveReferences.Key(currentTarget), maxHealth = maxHealth, detection = detectionRadius, damage = attackDamage,
                 range = attackRange, interval = attackInterval, hordeBody = hordeBodyHealth, aim = (int)Aim, searchInterval = targetSearchInterval, speed = moveSpeed,
                 attackTimer = attackTimer, searchTimer = targetSearchTimer, siegeCheck = siegeCheck, root = RootRemaining,
+                attackNoticePoint = new Save.Vec3Dto(attackNoticePoint), attackNoticeRemaining = attackNoticeRemaining,
                 parentSite = Save.SaveCatalog.SiteIndex(GetComponentInParent<ExpeditionSite>()), raidSite = Save.SaveCatalog.SiteIndex(raidSite),
                 invasionSite = invasion == null ? -2 : Save.SaveCatalog.SiteIndex(invasion.GetComponentInParent<ExpeditionSite>()),
                 defenseSite = world.Sites.ToList().FindIndex(s => s.Defense != null && s.Defense.Owns(this)),
@@ -159,14 +170,16 @@ namespace AntColony.World
         }
         internal void RestoreRuntime(Save.WildMonsterDto d, bool targets = false)
         {
-            if (targets) { currentTarget = Save.SaveReferences.Get<IDamageable>(d.target); return; }
+            if (targets) { currentTarget = Save.SaveReferences.Get<IDamageable>(d.target); RestoreOrganic(d.organic, true); return; }
             maxHealth = d.maxHealth; detectionRadius = d.detection; attackDamage = d.damage; attackRange = d.range;
             attackInterval = d.interval; targetSearchInterval = d.searchInterval; moveSpeed = d.speed; hordeBodyHealth = d.hordeBody;
             Aim = (EnemyAim)Mathf.Clamp(d.aim, 0, (int)EnemyAim.Wall);
+            RestoreOrganic(d.organic);
             if (IsHorde) AntColony.Units.HordeVisual.Attach(gameObject, () => HordeCount);
             isRaider = d.raider; eventWasp = d.wasp; nightPredator = d.night; IsFlying = d.flying; Allied = d.allied;
             Docile = d.docile; provoked = d.provoked; RebelId = d.rebel; attackTimer = d.attackTimer;
             targetSearchTimer = d.searchTimer; siegeCheck = d.siegeCheck; RootRemaining = d.root;
+            attackNoticePoint = d.attackNoticePoint.ToVector3(); attackNoticeRemaining = d.attackNoticeRemaining;
             raidSite = d.raidSite < 0 ? null : WorldMapManager.Instance.Sites[d.raidSite];
             agent.speed = moveSpeed; agent.stoppingDistance = attackRange; agent.enabled = !IsFlying && !IsDead && gameObject.activeInHierarchy;
         }
@@ -174,7 +187,7 @@ namespace AntColony.World
         private Critter critter;
         private void Start()
         {
-            if (GetComponent<Critter>() == null && GetComponent<AntVisual>() == null)
+            if (!IsOrganic && GetComponent<Critter>() == null && GetComponent<AntVisual>() == null)
                 gameObject.AddComponent<CritterVisual>();
         }
         private void Awake()
@@ -220,6 +233,8 @@ namespace AntColony.World
             if (IsDead || Docile) return;
             if (!Allied && !DiplomacyManager.Hostile(this)) { currentTarget = null; StopMoving(); return; }
             RootRemaining = Mathf.Max(0f, RootRemaining - Time.deltaTime);
+            attackNoticeRemaining = Mathf.Max(0f, attackNoticeRemaining - Time.deltaTime);
+            if (TickOrganic(Time.deltaTime)) return;
 
             if (Huntable && (Temperament == WildlifeTemperament.Timid || Temperament == WildlifeTemperament.Defensive && !provoked))
             {
@@ -294,6 +309,7 @@ namespace AntColony.World
                 return;
             }
 
+            if (IsOrganic) { StopMoving(); BeginOrganicStrike(); return; }
             if (!TryMilitarySpacing(destination, distance)) StopMoving();
             attackTimer -= Time.deltaTime;
             if (attackTimer <= 0f)
@@ -350,6 +366,7 @@ namespace AntColony.World
             AntColony.UI.GameFeel.Hit(this, Mathf.Min(amount, Mathf.Max(1, amount - AIEraProgress.ArmorBonus(AIEraProgress.CombatEra(this)))), Allied);
             GetComponent<AntVisual>()?.Action("Hit");
             GetComponent<CritterVisual>()?.Hurt();
+            OrganicHurt();
             if (currentHealth <= 0f)
             {
                 currentHealth = 0f;
@@ -414,7 +431,7 @@ namespace AntColony.World
             return nearest;
         }
 
-        public void MakeRaider() { isRaider = true; AntVisual.Attach(gameObject); }
+        public void MakeRaider() { isRaider = true; if (IsOrganic) RestoreOrganicVisual(); else AntVisual.Attach(gameObject); }
 
         internal void RaidSettlement(ExpeditionSite site)
         {
@@ -446,6 +463,21 @@ namespace AntColony.World
 
         private void ApproachSettlement()
         {
+            if (isRaider && attackNoticeRemaining > 0f)
+            {
+                if (IsFlying && RootRemaining <= 0f)
+                {
+                    var point = attackNoticePoint; point.y = Position.y;
+                    transform.position = Vector3.MoveTowards(Position, point, moveSpeed * Time.deltaTime);
+                }
+                else if (CanMove())
+                {
+                    // 사거리만큼 떨어져 멈추면 안개 시야 안으로 들어가지 못한다.
+                    agent.stoppingDistance = Mathf.Min(.5f, attackRange);
+                    RequestDestination(attackNoticePoint);
+                }
+                return;
+            }
             if (raidSite != null && CanMove()) RequestDestination(raidSite.Landing);
             else if (isRaider && CanMove()) RequestDestination(HomeReturnPoint.Anchor);
             else StopMoving();

@@ -1,0 +1,18 @@
+AcidSpitter: PASS 25 pairs, layers=1, animators=1, maxActiveClips=2, maxJointStep60fps=14.29
+BloomMender: PASS 36 pairs, layers=1, animators=1, maxActiveClips=2, maxJointStep60fps=23.08
+BreachBeast: PASS 25 pairs, layers=1, animators=1, maxActiveClips=2, maxJointStep60fps=11.89
+BroodAlien: PASS 25 pairs, layers=1, animators=1, maxActiveClips=2, maxJointStep60fps=10.41
+BroodCarrier: PASS 25 pairs, layers=1, animators=1, maxActiveClips=2, maxJointStep60fps=9.31
+Bulwark: PASS 25 pairs, layers=1, animators=1, maxActiveClips=2, maxJointStep60fps=17.43
+BurrowLurker: PASS 25 pairs, layers=1, animators=1, maxActiveClips=2, maxJointStep60fps=9.32
+CarrionReclaimer: PASS 25 pairs, layers=1, animators=1, maxActiveClips=2, maxJointStep60fps=12.17
+ClawHunter: PASS 25 pairs, layers=1, animators=1, maxActiveClips=2, maxJointStep60fps=9.32
+HookMaw: PASS 25 pairs, layers=1, animators=1, maxActiveClips=2, maxJointStep60fps=5.37
+HuntRider: PASS 25 pairs, layers=1, animators=1, maxActiveClips=2, maxJointStep60fps=5.95
+NeedleStalker: PASS 25 pairs, layers=1, animators=1, maxActiveClips=2, maxJointStep60fps=4.55
+SiegeBrooder: PASS 25 pairs, layers=1, animators=1, maxActiveClips=2, maxJointStep60fps=15.04
+SiegeRider: PASS 25 pairs, layers=1, animators=1, maxActiveClips=2, maxJointStep60fps=9.31
+VeilWeaver: PASS 25 pairs, layers=1, animators=1, maxActiveClips=2, maxJointStep60fps=10.28
+WallMelter: PASS 25 pairs, layers=1, animators=1, maxActiveClips=2, maxJointStep60fps=9.04
+WallRam: PASS 25 pairs, layers=1, animators=1, maxActiveClips=2, maxJointStep60fps=15.00
+Total transition pairs: 436. This checks blend ownership/state/finite transforms, not full mesh self-collision or live navigation foot contact.

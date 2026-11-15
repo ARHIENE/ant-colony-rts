@@ -1,0 +1,27 @@
+{
+  "success": true,
+  "command": "command",
+  "data": {
+    "command": "run_script",
+    "parameters": {
+      "file": "AgentScripts/OrganicEnemy1114Checks.cs",
+      "entry": "OrganicEnemy1114Checks.Main",
+      "timeout_ms": "120000"
+    },
+    "result": {
+      "diagnostics": [],
+      "compileMs": 70,
+      "executeMs": 5556,
+      "assemblyName": "PipelineRunScript_OrganicEnemy1114Checks_804806d358254d47ad127449266bdab6",
+      "success": true,
+      "result": "WallRam/Idle: PASS, skin delta 0.0258, loop=True\r\nWallRam/Move: PASS, skin delta 0.4148, loop=True\r\nWallRam/Attack: PASS, skin delta 0.3711, loop=False\r\nWallRam/Hit: PASS, skin delta 0.1454, loop=False\r\nWallRam/Death: PASS, skin delta 2.8224, loop=False\r\nNeedleStalker/Idle: PASS, skin delta 0.0183, loop=True\r\nNeedleStalker/Move: PASS, skin delta 0.2837, loop=True\r\nNeedleStalker/Attack: PASS, skin delta 0.0920, loop=False\r\nNeedleStalker/Hit: PASS, skin delta 0.0677, loop=False\r\nNeedleStalker/Death: PASS, skin delta 1.9303, loop=False\r\nBloomMender/Idle: PASS, skin delta 0.0358, loop=True\r\nBloomMender/Move: PASS, skin delta 0.1673, loop=True\r\nBloomMender/Attack: PASS, skin delta 0.1508, loop=False\r\nBloomMender/Hit: PASS, skin delta 0.0858, loop=False\r\nBloomMender/Death: PASS, skin delta 1.9730, loop=False\r\nBloomMender/Heal: PASS, skin delta 0.1033, loop=False\r\nClawHunter/Idle: PASS, skin delta 0.0460, loop=True\r\nClawHunter/Move: PASS, skin delta 0.4623, loop=True\r\nClawHunter/Attack: PASS, skin delta 1.0052, loop=False\r\nClawHunter/Hit: PASS, skin delta 0.1569, loop=False\r\nClawHunter/Death: PASS, skin delta 2.7765, loop=False\r\nBroodAlien/Idle: PASS, skin delta 0.0288, loop=True\r\nBroodAlien/Move: PASS, skin delta 0.3653, loop=True\r\nBroodAlien/Attack: PASS, skin delta 0.2956, loop=False\r\nBroodAlien/Hit: PASS, skin delta 0.0997, loop=False\r\nBroodAlien/Death: PASS, skin delta 1.5534, loop=False\r\nBreachBeast/Idle: PASS, skin delta 0.0329, loop=True\r\nBreachBeast/Move: PASS, skin delta 0.3396, loop=True\r\nBreachBeast/Attack: PASS, skin delta 0.5812, loop=False\r\nBreachBeast/Hit: PASS, skin delta 0.0982, loop=False\r\nBreachBeast/Death: PASS, skin delta 2.9446, loop=False\r\nAcidSpitter/Idle: PASS, skin delta 0.0389, loop=True\r\nAcidSpitter/Move: PASS, skin delta 0.1729, loop=True\r\nAcidSpitter/Attack: PASS, skin delta 0.1564, loop=False\r\nAcidSpitter/Hit: PASS, skin delta 0.0974, loop=False\r\nAcidSpitter/Death: PASS, skin delta 1.6958, loop=False\r\nHuntRider/Idle: PASS, skin delta 0.0218, loop=True\r\nHuntRider/Move: PASS, skin delta 0.4251, loop=True\r\nHuntRider/Attack: PASS, skin delta 0.3508, loop=False\r\nHuntRider/Hit: PASS, skin delta 0.1962, loop=False\r\nHuntRider/Death: PASS, skin delta 1.7590, loop=False\r\nSiegeRider/Idle: PASS, skin delta 0.0171, loop=True\r\nSiegeRider/Move: PASS, skin delta 0.2104, loop=True\r\nSiegeRider/Attack: PASS, skin delta 0.1225, loop=False\r\nSiegeRider/Hit: PASS, skin delta 0.1413, loop=False\r\nSiegeRider/Death: PASS, skin delta 2.9212, loop=False\r\nWallMelter/Idle: PASS, skin delta 0.0153, loop=True\r\nWallMelter/Move: PASS, skin delta 0.0761, loop=True\r\nWallMelter/Attack: PASS, skin delta 0.1073, loop=False\r\nWallMelter/Hit: PASS, skin delta 0.1655, loop=False\r\nWallMelter/Death: PASS, skin delta 2.4881, loop=False\r\nSiegeBrooder/Idle: PASS, skin delta 0.0609, loop=True\r\nSiegeBrooder/Move: PASS, skin delta 0.1884, loop=True\r\nSiegeBrooder/Attack: PASS, skin delta 0.1740, loop=False\r\nSiegeBrooder/Hit: PASS, skin delta 0.1388, loop=False\r\nSiegeBrooder/Death: PASS, skin delta 2.8821, loop=False\r\nBroodCarrier/Idle: PASS, skin delta 0.0342, loop=True\r\nBroodCarrier/Move: PASS, skin delta 0.1808, loop=True\r\nBroodCarrier/Attack: PASS, skin delta 0.1499, loop=False\r\nBroodCarrier/Hit: PASS, skin delta 0.1742, loop=False\r\nBroodCarrier/Death: PASS, skin delta 2.9078, loop=False\r\nHookMaw/Idle: PASS, skin delta 0.0315, loop=True\r\nHookMaw/Move: PASS, skin delta 0.3266, loop=True\r\nHookMaw/Attack: PASS, skin delta 0.7471, loop=False\r\nHookMaw/Hit: PASS, skin delta 0.1610, loop=False\r\nHookMaw/Death: PASS, skin delta 1.6231, loop=False\r\nBulwark/Idle: PASS, skin delta 0.0216, loop=True\r\nBulwark/Move: PASS, skin delta 0.1977, loop=True\r\nBulwark/Attack: PASS, skin delta 0.1522, loop=False\r\nBulwark/Hit: PASS, skin delta 0.1549, loop=False\r\nBulwark/Death: PASS, skin delta 1.5601, loop=False\r\nBurrowLurker/Idle: PASS, skin delta 0.3151, loop=True\r\nBurrowLurker/Move: PASS, skin delta 2.0746, loop=True\r\nBurrowLurker/Attack: PASS, skin delta 1.1147, loop=False\r\nBurrowLurker/Hit: PASS, skin delta 0.4301, loop=False\r\nBurrowLurker/Death: PASS, skin delta 6.7848, loop=False\r\nCarrionReclaimer/Idle: PASS, skin delta 0.0523, loop=True\r\nCarrionReclaimer/Move: PASS, skin delta 0.1419, loop=True\r\nCarrionReclaimer/Attack: PASS, skin delta 0.4985, loop=False\r\nCarrionReclaimer/Hit: PASS, skin delta 0.0911, loop=False\r\nCarrionReclaimer/Death: PASS, skin delta 2.6157, loop=False\r\nVeilWeaver/Idle: PASS, skin delta 0.0268, loop=True\r\nVeilWeaver/Move: PASS, skin delta 0.2275, loop=True\r\nVeilWeaver/Attack: PASS, skin delta 0.1977, loop=False\r\nVeilWeaver/Hit: PASS, skin delta 0.1329, loop=False\r\nVeilWeaver/Death: PASS, skin delta 3.4333, loop=False\r\n"
+    },
+    "target": {
+      "host": "127.0.0.1",
+      "port": 7800,
+      "projectPath": "F:\\UnityProjects\\ant-colony-rts"
+    }
+  },
+  "errors": [],
+  "warnings": []
+}

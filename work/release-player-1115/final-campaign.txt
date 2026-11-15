@@ -1,0 +1,17 @@
+RUNNING packaged checkpoint regression, not natural campaign playthrough
+PASS Load mothership checkpoint: 
+PASS Final encounter loaded before victory
+PASS Final boss renderer packaged
+PASS Biological final boss packaged
+PASS Crew navigation restored
+PASS Save checkpoint in isolated slot: 
+PASS Reload packaged save: 
+PASS Boss HP survives packaged reload
+PASS Mothership commander model is visible after reload
+PASS Normal attack damages packaged boss
+PASS Boss is framed below the HUD in packaged player
+PASS Final-boss death opens victory
+PASS Save victory: 
+PASS Reload victory: 
+PASS Victory persists in packaged player
+PASS packaged campaign

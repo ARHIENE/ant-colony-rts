@@ -1,0 +1,12 @@
+{
+  "name": "BloomMender",
+  "changed": [
+    "Move"
+  ],
+  "strideSourceUnitsPerSecond": 0.2,
+  "riderBones": [],
+  "clips": [
+    "Move"
+  ],
+  "horizontalExtent": 1.8510428667068481
+}

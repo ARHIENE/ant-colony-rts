@@ -9,9 +9,11 @@ namespace AntColony.Buildings
     {
         public static bool HasFixedCost(BuildingKind kind) => kind is BuildingKind.Palisade or BuildingKind.Carpentry or BuildingKind.ScienceLab
             or BuildingKind.ConscriptionPost or BuildingKind.ScoutPost or BuildingKind.Treadmill or BuildingKind.PowerWire or BuildingKind.Battery or BuildingKind.MedicineBench
-            || kind == BuildingKind.UndergroundScanner || SupplyBuildingTemplates.IsKind(kind);
+            || kind == BuildingKind.Handcart || kind == BuildingKind.UndergroundScanner || SupplyBuildingTemplates.IsKind(kind) || ResourceIndustry.IsKind(kind);
         public static (ResourceType type, int amount)[] Cost(BuildingKind kind) => kind switch
         {
+            _ when ResourceIndustry.IsKind(kind) => ResourceIndustry.Cost(kind),
+            BuildingKind.Handcart => new[] { (ResourceType.Wood, 20), (ResourceType.Plank, 10), (ResourceType.Fiber, 5) },
             BuildingKind.UndergroundScanner => UndergroundScanner.Cost,
             _ when SupplyBuildingTemplates.IsKind(kind) => SupplyBuildingTemplates.Cost(kind),
             BuildingKind.Treadmill => new[] { (AntColony.Data.ResourceType.Wood, 20) },
@@ -27,7 +29,7 @@ namespace AntColony.Buildings
         internal static GameObject Prepare(GameObject template, BuildingKind kind)
         {
             if (template == null || !HasFixedCost(kind)) return template;
-            if (kind == BuildingKind.UndergroundScanner || SupplyBuildingTemplates.IsKind(kind)) return template;
+            if (kind == BuildingKind.Handcart || kind == BuildingKind.UndergroundScanner || SupplyBuildingTemplates.IsKind(kind) || ResourceIndustry.IsKind(kind)) return template;
             var building = template.GetComponent<BuildingBase>();
             var name = kind switch { BuildingKind.Palisade => "높은 목책", BuildingKind.Carpentry => "기초 목공대", BuildingKind.ConscriptionPost => "징집소",
                 BuildingKind.ScoutPost => "정찰 초소", BuildingKind.Treadmill => "쳇바퀴", BuildingKind.PowerWire => "전선", BuildingKind.Battery => "배터리", BuildingKind.MedicineBench => "약제대", _ => "정착지 연구대" };

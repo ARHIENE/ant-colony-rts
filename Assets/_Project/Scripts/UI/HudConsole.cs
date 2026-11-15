@@ -75,6 +75,7 @@ namespace AntColony.UI
         private readonly Text[] filterLabels = new Text[3];
         private float refresh;
         private Texture2D terrainMap;
+        private Texture2D shipMap;
         private Mesh terrainMesh;
 
         public static int DotCount { get; private set; }
@@ -159,6 +160,12 @@ namespace AntColony.UI
             }
             if (Filters[(int)Filter.Units])
             {
+                var ship = AntColony.Core.RocketCampaign.Instance;
+                if (ship?.Mothership?.viewing == true)
+                {
+                    Dot(AntColony.Core.RocketCampaign.ShipLanding, MenuTheme.Accent, 6);
+                    if (ship.MothershipBoss != null && !ship.MothershipBoss.IsDead) Dot(ship.MothershipBoss.Position, MenuTheme.Danger, 8, 45);
+                }
                 if (AntColony.Core.CommanderRoster.Instance != null)
                     foreach (var c in AntColony.Core.CommanderRoster.Instance.Commanders) if (c.isActiveAndEnabled && !c.IsDead) Dot(c.Position, MenuTheme.Hp, 5);
                 foreach (var b in AntColony.Core.SceneObjects.All<AntColony.Buildings.BuildingBase>()) if (b.isActiveAndEnabled) Dot(b.transform.position, MenuTheme.Hex(0xa39880), 6);
@@ -195,6 +202,7 @@ namespace AntColony.UI
         {
             if (mapCamera == null) return;
             if (terrainMap != null) Destroy(terrainMap);
+            if (shipMap != null) Destroy(shipMap);
             Destroy(mapCamera.gameObject);
         }
 
@@ -202,15 +210,17 @@ namespace AntColony.UI
         {
             if (main == null || mapCamera == null) return;
             var bounds = main.PanBounds;
+            bool ship = AntColony.Core.RocketCampaign.Instance?.Mothership?.viewing == true;
             var terrain = AntColony.Map.MapGenerator.Active;
             var mesh = terrain != null ? terrain.GetComponent<MeshFilter>()?.sharedMesh : null;
-            if (mesh != null && mesh != terrainMesh)
+            if (!ship && mesh != null && mesh != terrainMesh)
             {
                 if (terrainMap != null) Destroy(terrainMap);
                 terrainMap = MinimapTerrain.Build(terrain, mesh, bounds);
                 terrainMesh = mesh;
-                terrainImage.GetComponent<RawImage>().texture = terrainMap;
             }
+            if (ship && shipMap == null) shipMap = MinimapTerrain.BuildShip();
+            terrainImage.GetComponent<RawImage>().texture = ship ? shipMap : terrainMap;
             mapCamera.aspect = 1;
             mapCamera.orthographicSize = Mathf.Max(bounds.width, bounds.height) * .5f;
             mapCamera.transform.SetPositionAndRotation(new Vector3(bounds.center.x, 200f, bounds.center.y), Quaternion.Euler(90f, 0f, 0f));

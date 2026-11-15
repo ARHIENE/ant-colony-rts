@@ -1,0 +1,28 @@
+{
+  "success": true,
+  "command": "command",
+  "data": {
+    "command": "run_script",
+    "parameters": {
+      "file": "AgentScripts/OrganicEnemy1114Import.cs",
+      "entry": "OrganicEnemy1114Import.Main",
+      "args": "[\"AcidSpitter\"]",
+      "timeout_ms": "300000"
+    },
+    "result": {
+      "diagnostics": [],
+      "compileMs": 54,
+      "executeMs": 11066,
+      "assemblyName": "PipelineRunScript_OrganicEnemy1114Import_d134d60183854c07aaf89fbfb12eb4de",
+      "success": true,
+      "result": "Idle: 3s, 300 curves\r\nMove: 1s, 300 curves\r\nAttack: 1.4s, 300 curves\r\nHit: 0.6s, 300 curves\r\nDeath: 2s, 300 curves\r\nMaterial textures: BaseColor,MetallicRoughness,Normal\r\nController Action: 0 Idle / 1 Move / 2 Attack / 3 Hit / 4 Death. Gameplay spawning not connected.\r\n"
+    },
+    "target": {
+      "host": "127.0.0.1",
+      "port": 7800,
+      "projectPath": "F:\\UnityProjects\\ant-colony-rts"
+    }
+  },
+  "errors": [],
+  "warnings": []
+}

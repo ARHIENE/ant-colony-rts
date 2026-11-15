@@ -170,7 +170,7 @@ namespace AntColony.World
         public bool SpawnNightPredators()
         {
             state.lastNight = GameCalendar.Day;
-            if (RocketCampaign.SuppressNewCrises || RecoveryGrace) return false;
+            if (RocketCampaign.SuppressNewCrises || RecoveryGrace || Storyteller.Resting || WaveDefense.Instance?.InWave == true) return false;
             if (!TryEdge(out var point)) return false;
             for (int i = 0; i < EventRules.NightPredators; i++) EventActor.Spawn(new EventActor.State { kind = EventActorKind.NightPredator,
                 position = new Vec3Dto(point + Vector3.right * i * 1.5f), amount = EventRules.NightPredatorHealth });

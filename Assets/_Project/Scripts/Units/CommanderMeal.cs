@@ -42,6 +42,9 @@ namespace AntColony.Units
         {
             var m = MealState;
             m.satiety = Mathf.Max(0, m.satiety - GameBalance.SatietyPerSecond * seconds);
+            // 운반·오락 중에도 실패한 식사 재시도의 시간은 흐른다.
+            var retryMeal = m.retrySeconds > 0;
+            m.retrySeconds = Mathf.Max(0, m.retrySeconds - seconds);
             if (m.poisonSeconds > 0) m.poisonSeconds = Mathf.Max(0, m.poisonSeconds - seconds);
             if (IsDeployed || IsAwayFromHome || IsEmbarked || IsCaptive) return false;
             if (m.poisonSeconds > 0)
@@ -59,7 +62,9 @@ namespace AntColony.Units
             }
             if (EatingCorpse) return false;
             if ((m.satiety > GameBalance.EatBelowSatiety && !m.served && m.pickedFood == 0) || IsCarrying || LabUpgradeLab != null || IsPlaying) return false;
-            if (m.retrySeconds > 0) { m.retrySeconds = Mathf.Max(0, m.retrySeconds - seconds); return false; }
+            if (retryMeal && m.retrySeconds > 0 && !HasFoodFor(this)) return false;
+            // 재시도는 음식이 없을 때만 기다린다. 입고된 식사는 즉시 가지러 간다.
+            m.retrySeconds = 0;
             if (IsWorking || ServiceTarget != null || HuntTarget != null || CorpseTarget != null || ScienceAssignment != null || CraftingWorkshop != null) SuspendForNeeds("meal");
             if (!CanReceiveOrders) return false;
             if (!m.served && m.pickedFood == 0 && traits.Has(CommanderTrait.Cannibal) && FindCorpseWork(true)) return true;
@@ -83,6 +88,7 @@ namespace AntColony.Units
             ResetMealSeat();
             var m = MealState;
             m.satiety = 100;
+            personalState.moodFactors.RemoveAll(f => f.reason == "Hunger");
             int felt = m.quality == 0 ? 0 : Mathf.Clamp(m.quality + traits.TasteShift, 0, 3);
             var mood = GameBalance.MealMood[felt];
             if (mood < 0 && (traits.Has(CommanderTrait.IronStomach) || traits.Has(CommanderTrait.DullTaste) && m.quality == 0)) mood = 0;

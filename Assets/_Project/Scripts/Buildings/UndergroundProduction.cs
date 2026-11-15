@@ -34,6 +34,10 @@ namespace AntColony.Buildings
                     && IsSolidDrill(s.Target.Data.kind) && LayerAt(s.Target.Data.kind, s.MoveTo)?.id == layer.id));
         public static string PlacementReason(BuildingKind kind, Vector3 at, BuildingBase ignore = null)
         {
+            if (kind is BuildingKind.ManualWell or BuildingKind.WaterPump)
+                return SupplyFacility.All.Any(source => source.Operational && source.Kind == BuildingKind.WaterSource
+                    && (source.Position - at).sqrMagnitude <= 16)
+                    ? null : "수원에서 4m 이내에 설치하세요. 이 위치에서는 물을 끌어올릴 수 없습니다.";
             if (!IsExtractor(kind)) return null;
             var layer = LayerAt(kind, at);
             if (layer == null && kind == BuildingKind.OilDrill && SurfaceOil(at) is SupplyFacility source)

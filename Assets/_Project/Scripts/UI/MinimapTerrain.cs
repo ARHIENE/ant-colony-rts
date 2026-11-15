@@ -6,6 +6,13 @@ namespace AntColony.UI
     // 장식·날씨 없이 실제 지형 격자의 높이와 절벽만 읽기 쉽게 표시한다.
     public static class MinimapTerrain
     {
+        public static Texture2D BuildShip()
+        {
+            var map = new Texture2D(64,64,TextureFormat.RGBA32,false) { filterMode=FilterMode.Point, wrapMode=TextureWrapMode.Clamp };
+            for(int z=0;z<64;z++) for(int x=0;x<64;x++)
+                map.SetPixel(x,z,x<8 || x>=56 ? MenuTheme.Well : MenuTheme.Hex(x%8==0 || z%8==0 ? 0x263239 : 0x465860));
+            map.Apply(); return map;
+        }
         public static Texture2D Build(MapGenerator terrain, Mesh mesh, Rect bounds)
         {
             const int size = 384;

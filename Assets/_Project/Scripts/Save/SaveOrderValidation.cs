@@ -34,6 +34,11 @@ namespace AntColony.Save
                 }
             }
             foreach (var d in f.monsters) Add(d.key);
+            if (f.rocket?.mothership?.reached == true) {
+                Add("mothership:boss");
+                var members = new HashSet<string>(f.commanders.Select(c => c.personalState?.id));
+                Check(f.rocket.mothership.away.All(members.Contains), "본선 원정대 소속");
+            }
             foreach (var a in f.events.actors) {
                 var key = "event:" + (int)a.kind + ":" + JsonUtility.ToJson(a.position);
                 if (!keys.Contains(key)) Add(key);
@@ -77,6 +82,8 @@ namespace AntColony.Save
                     && m.invasionSite >= -2 && m.invasionSite < f.world.sites.Count && Site(m.defenseSite), "적 소속·체력");
                 Check(new[] { m.detection, m.damage, m.range, m.interval, m.searchInterval, m.speed, m.root }.All(N)
                     && V(m.scale) && F(m.rotationY) && F(m.attackTimer) && F(m.searchTimer) && F(m.siegeCheck) && N(m.captureChance) && m.captureChance <= 1, "적 시간·설정");
+                Check(V(m.attackNoticePoint) && N(m.attackNoticeRemaining)
+                    && m.attackNoticeRemaining <= AntColony.World.WildMonster.AttackNoticeSeconds, "피격 위치 탐색");
                 Check(!m.commander || d.traits != null && m.roles != null && m.roles.Count > 0 && m.roles.Count <= 6
                     && m.roles.All(r => Enum.IsDefined(typeof(UnitRole), r)) && Enum.IsDefined(typeof(CommanderRank), m.rank), "적 장수");
                 Check(d.key.StartsWith("monster:") || d.key.StartsWith("runtime:") || d.key.StartsWith("event:") || d.key.StartsWith("critter:") || d.key.StartsWith("rebel:"), "적 식별자");

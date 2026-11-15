@@ -1,0 +1,58 @@
+[
+  {
+    "name": "BreachBeast",
+    "status": "PASS"
+  },
+  {
+    "name": "Bulwark",
+    "status": "PASS"
+  },
+  {
+    "name": "CarrionReclaimer",
+    "status": "PASS"
+  },
+  {
+    "name": "VeilWeaver",
+    "status": "PASS"
+  },
+  {
+    "name": "ClawHunter",
+    "status": "PASS"
+  },
+  {
+    "name": "BroodAlien",
+    "status": "PASS"
+  },
+  {
+    "name": "BroodCarrier",
+    "status": "PASS"
+  },
+  {
+    "name": "HuntRider",
+    "status": "PASS"
+  },
+  {
+    "name": "SiegeBrooder",
+    "status": "PASS"
+  },
+  {
+    "name": "SiegeRider",
+    "status": "PASS"
+  },
+  {
+    "name": "WallMelter",
+    "status": "PASS"
+  },
+  {
+    "name": "AcidSpitter",
+    "status": "PASS"
+  },
+  {
+    "name": "BurrowLurker",
+    "status": "PASS"
+  },
+  {
+    "name": "HookMaw",
+    "status": "PASS"
+  }
+]

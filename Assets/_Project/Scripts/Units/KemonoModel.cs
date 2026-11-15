@@ -67,8 +67,11 @@ namespace AntColony.Units
         public static void FitCollider(Transform owner)
         {
             if (!owner.TryGetComponent<CapsuleCollider>(out var capsule)) return;
-            var bounds = owner.GetComponentsInChildren<SkinnedMeshRenderer>().Where(r => r.enabled).Select(r => r.bounds)
-                .Aggregate((a, b) => { a.Encapsulate(b); return a; });
+            var visible = owner.GetComponentsInChildren<SkinnedMeshRenderer>().Where(r => r.enabled).ToArray();
+            // Boarding/save restoration can temporarily hide every part. Preserve the fitted capsule.
+            if (visible.Length == 0) return;
+            var bounds = visible[0].bounds;
+            for (int i = 1; i < visible.Length; i++) bounds.Encapsulate(visible[i].bounds);
             var scale = owner.lossyScale;
             capsule.center = owner.InverseTransformPoint(bounds.center);
             capsule.height = bounds.size.y / Mathf.Abs(scale.y);

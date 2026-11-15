@@ -4,11 +4,11 @@ using UnityEngine;
 
 namespace AntColony.Units
 {
-    public enum EquipmentRecipe { Mandible, AcidSprayer, Shield, Pheromone, Coating, Wings, Anklet, Antenna, Scent, Insignia, Sword, ShortBow, SingleRifle, BurstCarbine, Scattergun, Katana, GrandBow, SniperRifle }
+    public enum EquipmentRecipe { Mandible, AcidSprayer, Shield, Pheromone, Coating, Wings, Anklet, Antenna, Scent, Insignia, Sword, ShortBow, SingleRifle, BurstCarbine, Scattergun, Katana, GrandBow, SniperRifle, ClothClothes }
 
     public static class EquipmentRecipes
     {
-        private static readonly string[] Names = { "창", "산 분사기", "방패", "지원 신호기", "보호 갑옷", "비행 장비", "가벼운 발목 띠", "감각 보조 장신구", "향기 주머니", "구 지휘 표식(효과 없음)", "잎날검", "단궁", "사냥 소총", "연발 카빈", "산탄총", "월엽 카타나", "숲의 대궁", "별지기 저격총" };
+        private static readonly string[] Names = { "창", "산 분사기", "방패", "지원 신호기", "보호 갑옷", "비행 장비", "가벼운 발목 띠", "감각 보조 장신구", "향기 주머니", "구 지휘 표식(효과 없음)", "잎날검", "단궁", "사냥 소총", "연발 카빈", "산탄총", "월엽 카타나", "숲의 대궁", "별지기 저격총", "천옷" };
         private static readonly Vector3Int[] Costs = {
             new Vector3Int(0,40,5), new Vector3Int(0,30,10), new Vector3Int(0,60,5), new Vector3Int(20,0,10),
             new Vector3Int(0,40,5), new Vector3Int(30,0,15), new Vector3Int(20,20,0), new Vector3Int(20,20,0),
@@ -23,14 +23,16 @@ namespace AntColony.Units
             EquipmentRecipe.AcidSprayer or EquipmentRecipe.Pheromone or EquipmentRecipe.Wings or EquipmentRecipe.SingleRifle or EquipmentRecipe.BurstCarbine or EquipmentRecipe.Scattergun or EquipmentRecipe.SniperRifle => CommanderActivity.Research,
             _ => CommanderActivity.Art
         };
-        public static Vector3Int Cost(EquipmentRecipe recipe) => Costs[(int)recipe];
-        public static bool Unlocked(EquipmentRecipe recipe) => recipe != EquipmentRecipe.Insignia && Enum.IsDefined(typeof(EquipmentRecipe), recipe)
+        public static Vector3Int Cost(EquipmentRecipe recipe) => IsClothing(recipe) ? Vector3Int.zero : Costs[(int)recipe];
+        public static bool IsClothing(EquipmentRecipe recipe) => recipe == EquipmentRecipe.ClothClothes;
+        public static bool Unlocked(EquipmentRecipe recipe) => IsClothing(recipe) || recipe != EquipmentRecipe.Insignia && Enum.IsDefined(typeof(EquipmentRecipe), recipe)
             && ((int)recipe >= 10 ? ScienceEffects.CanCraft(WeaponFor(recipe)) : (int)recipe < 4 ? ScienceEffects.CanCraft((WeaponKind)recipe)
                 : (int)recipe < 6 ? ScienceEffects.CanCraft((ArmorKind)((int)recipe - 4)) : ScienceEffects.CanCraftTrinkets);
         public static EquipmentItem Create(EquipmentRecipe recipe, int quality) => new EquipmentItem {
-            quality = Mathf.Clamp(quality, 0, 3), slot = (int)recipe >= 10 || (int)recipe < 4 ? EquipmentSlot.Weapon : (int)recipe < 6 ? EquipmentSlot.Armor : EquipmentSlot.Trinket,
+            quality = Mathf.Clamp(quality, 0, 3), slot = IsClothing(recipe) ? EquipmentSlot.Armor : (int)recipe >= 10 || (int)recipe < 4 ? EquipmentSlot.Weapon : (int)recipe < 6 ? EquipmentSlot.Armor : EquipmentSlot.Trinket,
             weapon = WeaponFor(recipe),
-            armor = recipe == EquipmentRecipe.Wings ? ArmorKind.Wings : ArmorKind.Coating,
+            durability = IsClothing(recipe) ? EquipmentItem.ClothingCapacity : 0,
+            armor = IsClothing(recipe) ? ArmorKind.ClothClothes : recipe == EquipmentRecipe.Wings ? ArmorKind.Wings : ArmorKind.Coating,
             effect = (int)recipe >= 6 && (int)recipe < 10 ? (TrinketEffect)((int)recipe - 6) : TrinketEffect.Move };
         public static WeaponKind WeaponFor(EquipmentRecipe recipe) => recipe switch
         {

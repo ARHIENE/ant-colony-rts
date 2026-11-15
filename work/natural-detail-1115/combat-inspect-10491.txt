@@ -1,0 +1,16 @@
+개화 치유체 무리 50 aim=General target=/ pos=(199.42, 9.89, 198.80) targetpos= path=PathComplete remaining=1.34702 range=1.5
+공성 기수 aim=General target=/ pos=(196.00, 9.93, 200.37) targetpos= path=PathComplete remaining=4.020616 range=9
+공성 기수 aim=General target=/ pos=(194.04, 9.85, 198.04) targetpos= path=PathComplete remaining=6.659035 range=9
+공성 기수 무리 5 aim=General target=/ pos=(192.73, 9.93, 199.50) targetpos= path=PathComplete remaining=7.298173 range=9
+공성 기수 무리 50 aim=Defense target=/ pos=(193.33, 9.93, 199.47) targetpos= path=PathComplete remaining=6.699449 range=9
+공성 포낭수 aim=General target=/ pos=(194.95, 9.89, 198.82) targetpos= path=PathComplete remaining=5.502219 range=9
+공성 포낭수 aim=General target=/ pos=(197.89, 9.93, 199.48) targetpos= path=PathComplete remaining=2.175763 range=9
+군체 외계인 무리 50 aim=General target=/ pos=(199.60, 9.94, 199.37) targetpos= path=PathComplete remaining=0.757086 range=1.5
+굴착 잠복체 aim=General target=/ pos=(199.01, 9.92, 200.84) targetpos= path=PathComplete remaining=1.303249 range=1.5
+돌파수 무리 50 aim=Building target=/ pos=(199.08, 10.20, 199.68) targetpos= path=PathComplete remaining=0.9836915 range=1.5
+돌파수 무리 50 aim=Building target=/ pos=(209.36, 9.85, 204.47) targetpos= path=PathComplete remaining=0.7973133 range=1.5
+발톱 사냥꾼 aim=General target=/ pos=(198.75, 10.01, 200.16) targetpos= path=PathComplete remaining=1.263992 range=1.5
+산성 분사체 aim=General target=/ pos=(194.24, 9.90, 198.61) targetpos= path=PathComplete remaining=6.115973 range=7
+산성 분사체 무리 50 aim=General target=/ pos=(194.46, 9.91, 199.16) targetpos= path=PathComplete remaining=5.633389 range=7
+안개 분비체 aim=General target=/ pos=(199.32, 10.09, 200.32) targetpos= path=PathComplete remaining=0.754607 range=1.5
+침사냥꾼 무리 50 aim=General target=/ pos=(194.88, 9.85, 197.64) targetpos= path=PathComplete remaining=6.651627 range=7

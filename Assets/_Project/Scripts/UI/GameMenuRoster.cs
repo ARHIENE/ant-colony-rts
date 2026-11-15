@@ -125,9 +125,11 @@ namespace AntColony.UI
                 L.Label(mood, $"{PersonalDisplayNames.Mood(factors[i].reason)}  <b>{factors[i].value:+0;-0;0}</b>  <color=#b1b3a7>{factors[i].remaining:0}초</color>", 12, 0, 64 + i * 18, 496, 18, MenuTheme.Muted);
 
             // Phase 3: 충성심 대신 탈주 위험 — 기분이 기준 이하로 한 달 이어지면 떠난다.
-            var leave = L.Cell(content, "Departure", 48);
-            L.Label(leave, $"<b>탈주 위험</b>   기분 {c.Traits.DepartureMood} 이하 지속 시 이탈까지 <b>{Mathf.Max(0, SocialRules.Month - c.PersonalState.lowMoodSeconds):0}초</b>", 13, 0, 0, 496, 26);
+            var leave = L.Cell(content, "Departure", 100);
+            L.Label(leave, $"<b>장기 불만</b>   기분 {c.Traits.DepartureMood} 이하 지속 시 이탈까지 <b>{Mathf.Max(0, SocialRules.Month - c.PersonalState.lowMoodSeconds):0}초</b>", 13, 0, 0, 496, 26);
             L.Meter(leave, 0, 30, 496, 8, c.PersonalState.lowMoodSeconds / SocialRules.Month, MenuTheme.DangerInk);
+            L.Label(leave, $"<b>굶주림 이탈</b>   포만 0 · 먹을 식사 없음 · 기분 {SocialRules.StarveMood} 미만이면\n식량 점검 때 별도 판정됩니다. 식량·조리·운반을 확인하세요.", 12, 0, 44, 496, 48,
+                AntColony.Core.UpkeepManager.NeedsMealWarning(c) ? MenuTheme.DangerInk : MenuTheme.Muted);
 
             var skills = L.Cell(content, "Skills", 26 + ((CommanderTalents.ActiveCount + 2) / 3) * 46);
             c.Talents.EnsurePotential();

@@ -1,0 +1,28 @@
+{
+  "success": true,
+  "command": "command",
+  "data": {
+    "command": "run_script",
+    "parameters": {
+      "file": "AgentScripts/OrganicEnemy1114Import.cs",
+      "entry": "OrganicEnemy1114Import.RefreshAnimations",
+      "args": "[\"BloomMender\"]",
+      "timeout_ms": "120000"
+    },
+    "result": {
+      "diagnostics": [],
+      "compileMs": 120,
+      "executeMs": 8849,
+      "assemblyName": "PipelineRunScript_OrganicEnemy1114Import_1e36d33bf9034b278c9d9172b2484555",
+      "success": true,
+      "result": "BloomMender: refreshed 6 clips; existing material/controller metadata preserved."
+    },
+    "target": {
+      "host": "127.0.0.1",
+      "port": 7800,
+      "projectPath": "F:\\UnityProjects\\ant-colony-rts"
+    }
+  },
+  "errors": [],
+  "warnings": []
+}

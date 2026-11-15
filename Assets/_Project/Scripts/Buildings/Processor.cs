@@ -52,13 +52,18 @@ namespace AntColony.Buildings
                 new Recipe("기초 약품", ResourceType.MedicineBasic, 1, 8, null, (ResourceType.Herb, 2)),
                 new Recipe("일반 약품", ResourceType.MedicineNormal, 1, 12, null, (ResourceType.Herb, 2), (ResourceType.Cloth, 1)),
                 new Recipe("고급 약품", ResourceType.MedicineAdvanced, 1, 20, null, (ResourceType.MedicineNormal, 1), (ResourceType.Herb, 2), (ResourceType.Component, 1)) },
+            _ when ResourceIndustry.IsKind(kind) => ResourceIndustry.For(kind),
             _ => Array.Empty<Recipe>()
         };
         public static bool IsKind(BuildingKind kind) => RecipesFor(kind).Length > 0;
         // 약제대는 간호(의료) 작업·의료 능력, 나머지 가공대는 제작 작업·제작 능력(2026-10-11 사용자 확정: 간호 작업 = 기획의 의료 작업).
         public bool IsMedical => Data != null && Data.kind == BuildingKind.MedicineBench;
-        public CommanderJobs Job => IsMedical ? CommanderJobs.Nursing : CommanderJobs.Crafting;
-        public CommanderActivity Skill => IsMedical ? CommanderActivity.Medicine : CommanderActivity.Crafting;
+        public bool IsResourceSite => Data != null && ResourceIndustry.IsKind(Data.kind);
+        public CommanderJobs Job => IsMedical ? CommanderJobs.Nursing : IsResourceSite ? (Data.kind == BuildingKind.CultivationGarden ? CommanderJobs.Farming : CommanderJobs.Gathering) : CommanderJobs.Crafting;
+        public CommanderActivity Skill => IsMedical ? CommanderActivity.Medicine : IsResourceSite ? (Data.kind == BuildingKind.CultivationGarden ? CommanderActivity.Farming : CommanderActivity.Gathering) : CommanderActivity.Crafting;
+        public bool RecipeUnlocked(Recipe recipe) => MedicineResearch.Unlocked(recipe.output) && (!IsResourceSite || ResourceIndustry.Unlocked(recipe.output));
+        private bool ResourceSpace => !IsResourceSite || AntColony.World.ResourceNode.Available.Where(n => n.IsLooseCargo
+            && (n.transform.position - Position).sqrMagnitude <= 16).Sum(n => n.AmountRemaining) < 60;
 
         [Serializable] public class Order { public int recipe; public Workshop.OrderMode mode; public int amount = 1; }
         [Serializable] public class State { public List<Order> orders = new List<Order>(); public int current = -1, pending = -1; public float progress; public string makerId = ""; public bool ruined, paused, gasPaid; public int bufferedOil; public List<ProductionInputs.Stock> staged = new List<ProductionInputs.Stock>(); public bool fermenting, fermented; public float fermentation; }
@@ -89,7 +94,7 @@ namespace AntColony.Buildings
         public Recipe Current => state.current >= 0 && state.current < Recipes.Count ? Recipes[state.current] : null;
         public float Progress => Current == null ? 0 : state.progress / Current.work;
         public string MakerId => state.makerId;
-        public bool CanContinue(CommanderAnt c) => c != null && (Current == null || string.IsNullOrEmpty(state.makerId) || state.makerId == c.PersonalState.id);
+        public bool CanContinue(CommanderAnt c) => c != null && (IsResourceSite ? ResourceIndustry.CanWork(c, Data.kind) && !AntUnitBase.Active.OfType<CommanderAnt>().Any(other => other != c && other.ServiceTarget == this) : Current == null || string.IsNullOrEmpty(state.makerId) || state.makerId == c.PersonalState.id);
         public string WaitReason
         {
             get
@@ -98,20 +103,35 @@ namespace AntColony.Buildings
                 if (Paused) return "일시중지";
                 if (Brewing && (state.fermenting || state.fermented)) return FermentationStatus;
                 if (Industrial && !IndustrialReady) return IndustrialStatus;
+                if (DeepMining && !Powered) return "심부 광산 전력 200W 필요 · 진행 보존";
+                if (!ResourceSpace) return "바닥 출력 공간 부족 · 운반 대기";
+                if (IsResourceSite && Orders.Count > 0 && !Orders.Any(o => RecipeUnlocked(Recipes[o.recipe]))) return "광물 표본 반입·자원 연구 필요";
                 if (NeedsIngredients) return "재료 배송 대기";
-                if (!NeedsWork) return "재료 또는 주문 대기";
+                if (!NeedsWork)
+                {
+                    if (Current == null && Orders.Count == 0) return "생산 주문 없음";
+                    if (Current == null && Orders.Count > 0 && Orders.All(o => !Wants(o, Recipes[o.recipe])))
+                        return "재고 목표 충족 · " + string.Join(" · ", Orders.Select(o =>
+                            Recipes[o.recipe].output.DisplayName() + " " + Kitchen.Stock(Recipes[o.recipe].output) + "/" + o.amount));
+                    var missing = IngredientNeeds.Select(n => (n.type, amount: Mathf.Max(0, n.amount
+                        - inputs.Amount(n.type) - (ResourceManager.Instance?.GetAmount(n.type) ?? 0))))
+                        .Where(n => n.amount > 0).ToArray();
+                    if (missing.Length > 0) return string.Join(" · ", missing.Select(n => n.type.DisplayName() + " " + n.amount + "개 반입 필요"));
+                    return "재료 또는 주문 대기";
+                }
                 var crew = AntUnitBase.Active.OfType<CommanderAnt>().Where(c => c.CivilianWorkReady && CanContinue(c)).ToArray();
                 if (crew.Any(c => c.ServiceTarget == this)) return crew.Any(c => c.ServiceTarget == this && (c.Position - Position).sqrMagnitude <= 49) ? "가공 중" : "작업 지점으로 이동";
-                if (crew.Length == 0) return "담당 없음 · 원제작자 미복귀 시 보관/취소";
+                if (crew.Length == 0) return !IsResourceSite && Current != null && !string.IsNullOrEmpty(state.makerId)
+                    ? "원제작자 작업 재개 대기 · 미복귀 시 보관/취소" : "작업 가능한 장수 대기 · 생활·도구·배정 확인";
                 var allowed = crew.Where(c => c.AllowsJob(Job)).ToArray();
                 if (allowed.Length == 0) return "금지: " + Job;
-                return allowed.Any(c => c.TryWorkApproach(Position, out _)) ? "담당 배정 대기" : "경로 없음";
+                return allowed.Any(c => c.TryServiceApproach(this, out _)) ? "담당 배정 대기" : "경로 없음";
             }
         }
 
         public bool AddOrder(int recipe, Workshop.OrderMode mode, int amount)
         {
-            if (state.orders.Count >= Workshop.MaxOrders || recipe < 0 || recipe >= Recipes.Count || !MedicineResearch.Unlocked(Recipes[recipe].output)) return false;
+            if (state.orders.Count >= Workshop.MaxOrders || recipe < 0 || recipe >= Recipes.Count || !RecipeUnlocked(Recipes[recipe])) return false;
             state.orders.Add(new Order { recipe = recipe, mode = mode, amount = Mathf.Clamp(amount, 1, Workshop.MaxOrderAmount) }); return true;
         }
         public void RemoveOrder(Order order)
@@ -123,10 +143,10 @@ namespace AntColony.Buildings
         private Recipe PlannedOutput => Current ?? (state.pending >= 0 && state.pending < Recipes.Count ? Recipes[state.pending] : null);
         private bool Wants(Order o, Recipe r) => o.mode == Workshop.OrderMode.KeepStock ? Kitchen.Stock(r.output)
             + SceneObjects.All<Processor>().Where(p => p != this && p.PlannedOutput != null && p.PlannedOutput.output == r.output).Sum(p => p.PlannedOutput.amount) < o.amount : o.amount > 0;
-        private bool Affordable(Recipe r) => MedicineResearch.Unlocked(r.output) && (!Industrial || HasIndustrialInputFor(r)) && r.inputs.All(i => (ResourceManager.Instance?.GetAmount(i.type) ?? 0) + inputs.Amount(i.type) >= i.amount);
+        private bool Affordable(Recipe r) => RecipeUnlocked(r) && ResourceSpace && (!Industrial || HasIndustrialInputFor(r)) && r.inputs.All(i => (ResourceManager.Instance?.GetAmount(i.type) ?? 0) + inputs.Amount(i.type) >= i.amount);
         public bool NeedsWork => !Paused && !state.ruined && !IsDead && isActiveAndEnabled && ResourceManager.Instance != null
             && !state.fermenting
-            && IndustrialReady && (Current != null && MedicineResearch.Unlocked(Current.output) || PendingOrder != null && inputs.Ready(Required));
+            && IndustrialReady && ResourceSpace && (Current != null && RecipeUnlocked(Current) || PendingOrder != null && inputs.Ready(Required));
 
         // 목록 위에서부터 원하는 품목 중 재료가 있는 것 하나를 시작한다.
         private bool StartNext()
@@ -149,7 +169,7 @@ namespace AntColony.Buildings
 
         public bool Work(CommanderAnt c, float seconds)
         {
-            if (Chemical && (c == null || c.ServiceTarget != this || !c.AtDrill(this) || (c.Position - Position).sqrMagnitude > 49
+            if ((Chemical || IsResourceSite) && (c == null || c.ServiceTarget != this || !c.AtDrill(this) || (c.Position - Position).sqrMagnitude > 49
                 || c.IsEating || c.IsWashing || c.IsPlaying || c.IsInCombat)) return false;
             if (Industrial && UnityEngine.Time.timeScale <= 0 || !NeedsWork || !(seconds > 0) || float.IsInfinity(seconds) || !CanContinue(c) || !c.CivilianWorkReady || !c.AllowsJob(Job)
                 || Current != null && !MedicineResearch.Unlocked(Current.output)) return false;

@@ -24,6 +24,7 @@ namespace AntColony.Save
         public int mapSize;
         public int difficulty;
         public int commanderDeath = 1;
+        public int startingCount; // 0 = 이 값이 없던 구 저장(종전 기본 3명), 새 저장은 1~3명
         public int seed;
         public int biome; // 옛 저장은 0 = None
         public int climate; // 0 = 온대(구 저장 기본값)
@@ -271,6 +272,8 @@ namespace AntColony.Save
         public World.WithdrawState withdrawal;
         public string bossCarrierId;
         public bool walking;
+        public bool handcart;
+        public World.HandcartPullState cartPull;
         public float foodDebt, dockingRemaining;
         public bool blueprintCargo;
         public List<Units.EquipmentItem> equipmentCargo = new List<Units.EquipmentItem>();
@@ -328,12 +331,13 @@ namespace AntColony.Save
         public Core.RocketCampaign.State rocket;
         public List<ResourceNodeDto> nodes = new List<ResourceNodeDto>();
         public List<MonsterDto> monsters = new List<MonsterDto>();
+        public List<World.OrganicEffectState> organicEffects; // 구저장 null: 진행 중 생체 공격 없음.
         public float upkeepTimer, incursionTimer;
         public World.WaveDefense.State wave; // 2026-11-02 웨이브 수성. 구저장은 saved=false → 첫 평화 남은 시간으로 이관
         public bool loopCompleted, bossDefeated, defeated;
         public string defeatReason; // G11 패배 사유(구저장 없음)
         public string randomState;
-        public const int CurrentVersion = 24; // 전자부품·성휘 자원 배열 확장. 승급 연구는 기존 completed ID 목록 재사용.
+        public const int CurrentVersion = 26; // 인력 손수레와 실제 견인 상태. 기존 자원·건설 번호 보존.
         public List<World.Corpse.State> corpses = new List<World.Corpse.State>();
         public List<ConstructionAttributionDto> constructionAttribution;
         public List<ConstructionDto> construction; // v17 건설·철거·이동·개보수 예정지(옛 저장은 null = 없음)

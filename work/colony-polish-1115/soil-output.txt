@@ -1,0 +1,2 @@
+RUNNING natural quarry at 6460.682, progress=0.06522403, stock=5
+PASS actual new soil output amount=5 pos=(211.08, 10.75, 207.23) gameSeconds=6546.206 stock=0

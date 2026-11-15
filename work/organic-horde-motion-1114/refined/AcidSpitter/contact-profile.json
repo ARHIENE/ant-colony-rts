@@ -1,0 +1,12 @@
+{
+  "name": "AcidSpitter",
+  "changed": [
+    "Move"
+  ],
+  "strideSourceUnitsPerSecond": 0.21666666666666667,
+  "riderBones": [],
+  "clips": [
+    "Move"
+  ],
+  "horizontalExtent": 2.03556227684021
+}

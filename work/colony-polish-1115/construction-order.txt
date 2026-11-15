@@ -1,0 +1,4 @@
+Repair duplicate identity metadata only; work, materials, workers and progression preserved.
+REPAIR AcidTower order 6->7, remaining work 7.707452
+PASS restoring a high construction order advances newly allocated identities
+PASS restoring lower order does not rewind identity sequence

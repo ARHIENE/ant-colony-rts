@@ -94,7 +94,7 @@ namespace AntColony.UI
             expeditionArea = (RectTransform)expeditionList.parent.parent.parent;
             status = L.Label(e, "", 13, 12, 50, 336, 40, MenuTheme.Muted, TextAnchor.UpperLeft);
             status.gameObject.SetActive(false);
-            var k = expeditionControls = L.Place(MenuTheme.Rect("Expedition Controls", e), 0, 50, 360, 320);
+            var k = expeditionControls = L.Place(MenuTheme.Rect("Expedition Controls", e), 0, 50, 360, 358);
             Btn(k, "Board Selected", "선택 장수 탑승", 12, 0, () => ChangeCrew(false));
             Btn(k, "Station Selected", "선택 장수 주둔", 184, 0, () => ChangeCrew(true));
             Btn(k, "Unload Crew", "승무원 내리기", 12, 38, () => Result(selectedShip != null && selectedShip.TryUnloadCrew(), "하차 지시를 내렸습니다."));
@@ -117,6 +117,9 @@ namespace AntColony.UI
                 else routeStops.Add(selectedSite);
             });
             Btn(k, "Clear Route Stops", "경유지 비우기", 184, 282, routeStops.Clear);
+            Btn(k, "Expedition Escort", "출정 호위 · 원군", 12, 320, () => {
+                Toggle(); GameMenuController.Instance.ExpeditionEscort(selectedShip);
+            });
 
             // 왼쪽 아래: 선택 거점 정보와 행동. 지구·이름표를 덜 가리게 다른 모서리 패널과 같은 360폭, 선택이 없으면 숨긴다(Update).
             var site = siteRect = Corner(L.Plate(overlay, "SiteInfo", 0, 0, 360, 248), new Vector2(0, 0), 12, Dock);
@@ -138,17 +141,18 @@ namespace AntColony.UI
             feedback.gameObject.AddComponent<MenuTooltip>();
 
             // 오른쪽 아래: 과학·수송 수단 건조, 범례(버튼으로 펼침, 기본 숨김).
-            science = Corner(L.Plate(overlay, "Science", 0, 0, 360, 200), new Vector2(1, 0), 12, Dock + 44);
+            science = Corner(L.Plate(overlay, "Science", 0, 0, 360, 240), new Vector2(1, 0), 12, Dock + 44);
             L.Label(science, "<b>과학 · 수송 수단</b>", 15, 12, 8, 336, 26);
             scienceStatus = L.Label(science, "", 12, 12, 36, 336, 84, MenuTheme.Muted, TextAnchor.UpperLeft);
             Btn(science, "Build Science Lab", "과학 연구소 건설", 12, 120, () => {
                 if (AntColony.Core.SceneObjects.Any<BuildingPlacementController>().BeginScienceLabPlacement()) Toggle();
-                else feedback.text = "본거지, 시민 60, 낚시, 2단계 병영, 선택한 건설 장수가 필요합니다.";
+                else feedback.text = "본거지에서 연구대의 건설 조건·재료와 건설 장수를 확인하세요.";
             });
             Btn(science, "Science / Researchers", "과학 연구 · 연구원", 184, 120, () => { Toggle(); GameMenuController.Instance.Science(); });
             Btn(science, "Build Vehicle 50F/60 재료", "차량 건조 식량 50 · 재료 60", 12, 158, () => ScienceAction(false, true));
             Btn(science, "Build Aircraft 80F/100 재료", "비행기 건조 식량 80 · 재료 100", 184, 158, () => ScienceAction(true, true));
             science.gameObject.SetActive(false);
+            Btn(science, "Signal Search", "신호 탐색 시작 / 중지", 12, 198, () => AntColony.Core.CampaignResearch.Instance?.ToggleSignalSearch());
             legend = Corner(L.Plate(overlay, "Legend", 0, 0, 360, 210), new Vector2(1, 0), 12, Dock + 44);
             L.Label(legend, "<b>범례</b>  C 정착지 · B 보스 · R 자원 · T 교역", 13, 12, 8, 336, 24);
             L.Label(legend, WorldMapSymbols.Legend + "\n" + WorldMapSymbols.SelectionLegend,
@@ -203,8 +207,8 @@ namespace AntColony.UI
             var lab = FindLab();
             scienceStatus.text = $"과학 연구소: {(lab != null ? lab.Busy ? $"작업 중 {lab.Remaining:0}초" : "대기" : "없음")}\n"
                 + $"차량: {(world.VehicleResearched ? "연구 완료" : "잠김")} · 비행기: {(world.AircraftResearched ? "연구 완료" : "잠김")}\n"
-                + "연구소: 식량 100 / 재료 100 / 시민 8. 연구원을 배정하고, 차량은 2단계·비행기는 3단계로 강화. 건조 10초.";
-            mapTitle.text = world.Unlocked ? $"<b>월드맵</b>  거점 {world.Sites.Count} · 드래그 회전 · 휠 확대" : "<b>월드맵 잠김</b>\n첫 차량이나 비행기를 건조하세요.";
+                + (AntColony.Core.CampaignResearch.Instance?.DiscoveryStatus ?? "연구 담당을 배정해 기술을 발전시키세요.");
+            mapTitle.text = world.Unlocked ? $"<b>지역 지도</b>  발견 {world.Sites.Count(WorldMapManager.SiteRevealed)}/{world.Sites.Count} · 드래그 회전 · 휠 확대" : "<b>지역 지도</b>\n정착지 주변의 흔적을 조사하세요.";
             for (var i = 0; i < markers.Count; i++)
             {
                 var site = world.Sites[i];
@@ -270,7 +274,7 @@ namespace AntColony.UI
             h = empty ? 40 : Mathf.Min(240, h + 8);
             expeditionArea.sizeDelta = new Vector2(expeditionArea.sizeDelta.x, h);
             expeditionControls.anchoredPosition = new Vector2(0, -(50 + h + 8));
-            expeditions.sizeDelta = new Vector2(expeditions.sizeDelta.x, 50 + h + 8 + 320);
+            expeditions.sizeDelta = new Vector2(expeditions.sizeDelta.x, 50 + h + 8 + 358);
         }
 
         private UnityEngine.UI.Text ExpeditionBox(ExpeditionTransport ship)
@@ -335,13 +339,14 @@ namespace AntColony.UI
             if (!ship.Walking)
                 text += ship.IsWreck ? $"\n<color=#e06c5a>잔해{(ship.Salvaged ? " · 해체 완료" : $" · 해체 {ship.SalvageRemaining:0}초 남음")}</color>"
                     : $"\n내구 {ship.CurrentHealth:0}/{ship.MaxHealth:0}{(!ship.CanOperate ? " · <color=#e06c5a>운행 불가</color>" : ship.TravelSpeedMultiplier < 1 ? $" · 속도 ×{ship.TravelSpeedMultiplier:0.##}" : "")}"
-                        + (ship.FieldWorkActive ? " · 현장 작업 중" : "") + (!ship.HasPilot ? " · <color=#e06c5a>조종 장수 없음</color>" : "");
+                        + (ship.FieldWorkActive ? " · 현장 작업 중" : "") + (!ship.HasPilot ? " · <color=#e06c5a>" + (ship.Walking ? "운반 장수 없음" : ship.Handcart ? "견인 장수 없음" : "조종 장수 없음") + "</color>" : "");
             if (ship.IsWithdrawing)
             {
                 var w = ship.WithdrawalProgress;
                 text += $"\n철수 중 · 남은 인원 {w.People} · 짐 {w.Loads} · {(float.IsNaN(w.EstimatedSeconds) ? "이동/구조 대기" : $"약 {w.EstimatedSeconds:0}초")}";
             }
             if (ship.TravelWaitReason != "") text += "\n" + ship.TravelWaitReason;
+            if (ship.Escorts.Any()) text += "\n" + ship.EscortStatus;
             if (!open) return text;
             text += "\n" + ship.FoodComparison + "\n" + ship.CargoSummary;
             foreach (var c in crew)
@@ -456,6 +461,11 @@ namespace AntColony.UI
         }
         private void Depart()
         {
+            if (selectedShip != null && selectedShip.PullingHandcart)
+            {
+                Result(selectedShip.ResumeHandcartPull(), "손수레 견인을 재개합니다.");
+                return;
+            }
             var block = ExpeditionRules.Paused ? ExpeditionRules.PauseReason : selectedShip != null ? selectedShip.DepartureBlock(selectedSite) : "수송 수단을 선택하세요";
             if (block != "") { feedback.text = block; return; }
             var warning = selectedShip.DepartureWarning(selectedSite);

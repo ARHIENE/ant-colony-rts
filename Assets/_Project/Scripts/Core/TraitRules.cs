@@ -20,6 +20,8 @@ namespace AntColony.Core
             ? ((int)t - (int)CommanderTrait.GoldGathering) % diamonds.Length : -1;
         public static TraitGrade Grade(CommanderTrait t)
         {
+            if (t == CommanderTrait.AlcoholDependent || t == CommanderTrait.AlcoholWeak) return TraitGrade.Red;
+            if (t == CommanderTrait.AlcoholStrong) return TraitGrade.Silver;
             if (t >= CommanderTrait.DiamondGathering) return TraitGrade.Diamond;
             if (t >= CommanderTrait.GoldGathering) return TraitGrade.Gold;
             return t switch {
@@ -33,6 +35,7 @@ namespace AntColony.Core
         }
         // 일반 특성 한글 이름(화면에 영어 enum 이름이 그대로 나오던 문제, 2026-10-25).
         private static readonly System.Collections.Generic.Dictionary<CommanderTrait, string> Korean = new System.Collections.Generic.Dictionary<CommanderTrait, string> {
+            [CommanderTrait.AlcoholDependent] = "알코올 의존", [CommanderTrait.AlcoholWeak] = "술에 약함", [CommanderTrait.AlcoholStrong] = "술에 강함",
             [CommanderTrait.Lazy] = "게으름", [CommanderTrait.Relaxed] = "느긋함", [CommanderTrait.Industrious] = "부지런함", [CommanderTrait.Workaholic] = "일중독",
             [CommanderTrait.Depressive] = "우울", [CommanderTrait.Pessimist] = "비관", [CommanderTrait.Optimist] = "낙관", [CommanderTrait.Cheerful] = "명랑",
             [CommanderTrait.Fragile] = "유리 멘탈", [CommanderTrait.Sensitive] = "예민", [CommanderTrait.Easygoing] = "태평", [CommanderTrait.IronWill] = "강철 의지",

@@ -1,0 +1,12 @@
+Isolated fixture, restore natural checkpoint afterward.
+PASS Old checkpoint loads with no invented attack notice
+PASS Zero damage does not trigger investigation
+PASS Actual incoming damage records its origin for ten seconds
+PASS Notice does not assign an unseen target
+PASS Ground investigation routes to the source instead of stopping at weapon range
+PASS Invalid source is rejected
+PASS Runtime snapshot preserves investigation
+PASS Full save accepts notice: 
+PASS Full load starts: 
+PASS Full load completes
+PASS Full reload preserves remaining time and origin

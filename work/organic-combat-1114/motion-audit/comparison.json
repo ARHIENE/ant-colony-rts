@@ -1,0 +1,410 @@
+[
+  {
+    "name": "AcidSpitter",
+    "clip": "Idle",
+    "jointBefore": 4.7495354780305705,
+    "jointAfter": 2.104440283874702,
+    "stretchBefore": 1.0607554912567139,
+    "stretchAfter": 1.0605496168136597
+  },
+  {
+    "name": "AcidSpitter",
+    "clip": "Move",
+    "jointBefore": 19.82297566229069,
+    "jointAfter": 7.424586238343467,
+    "stretchBefore": 1.8204102516174316,
+    "stretchAfter": 1.4354114532470703
+  },
+  {
+    "name": "AcidSpitter",
+    "clip": "Attack",
+    "jointBefore": 25.084120558220018,
+    "jointAfter": 12.795442644596422,
+    "stretchBefore": 1.333503007888794,
+    "stretchAfter": 1.333492398262024
+  },
+  {
+    "name": "AcidSpitter",
+    "clip": "Hit",
+    "jointBefore": 21.413366591385508,
+    "jointAfter": 8.592936498441203,
+    "stretchBefore": 1.2717214822769165,
+    "stretchAfter": 1.1140114068984985
+  },
+  {
+    "name": "AcidSpitter",
+    "clip": "Death",
+    "jointBefore": 3.721469797634819,
+    "jointAfter": 3.721469797634819,
+    "stretchBefore": 1.3119442462921143,
+    "stretchAfter": 1.1518371105194092
+  },
+  {
+    "name": "BloomMender",
+    "clip": "Idle",
+    "jointBefore": 0.9714669431698699,
+    "jointAfter": 0.9633317629241614,
+    "stretchBefore": 1.1128453016281128,
+    "stretchAfter": 1.1123995780944824
+  },
+  {
+    "name": "BloomMender",
+    "clip": "Move",
+    "jointBefore": 16.181615133489498,
+    "jointAfter": 8.184302489201219,
+    "stretchBefore": 1.2005751132965088,
+    "stretchAfter": 1.1912060976028442
+  },
+  {
+    "name": "BloomMender",
+    "clip": "Attack",
+    "jointBefore": 39.74076285956074,
+    "jointAfter": 4.942286971665513,
+    "stretchBefore": 2.131155014038086,
+    "stretchAfter": 1.5866172313690186
+  },
+  {
+    "name": "BloomMender",
+    "clip": "Hit",
+    "jointBefore": 17.287126342204367,
+    "jointAfter": 3.9708007502749783,
+    "stretchBefore": 1.229529857635498,
+    "stretchAfter": 1.1308685541152954
+  },
+  {
+    "name": "BloomMender",
+    "clip": "Death",
+    "jointBefore": 2.6323721482413847,
+    "jointAfter": 4.341789050721967,
+    "stretchBefore": 1.331671118736267,
+    "stretchAfter": 1.1650002002716064
+  },
+  {
+    "name": "BloomMender",
+    "clip": "Heal",
+    "jointBefore": 6.28656252163151,
+    "jointAfter": 3.994441148187613,
+    "stretchBefore": 1.5250874757766724,
+    "stretchAfter": 1.5243536233901978
+  },
+  {
+    "name": "BreachBeast",
+    "clip": "Idle",
+    "jointBefore": 0.18098456513434769,
+    "jointAfter": 0.1772739400542619,
+    "stretchBefore": 1.0266194343566895,
+    "stretchAfter": 1.0265312194824219
+  },
+  {
+    "name": "BreachBeast",
+    "clip": "Move",
+    "jointBefore": 4.168679712543476,
+    "jointAfter": 3.954974466747137,
+    "stretchBefore": 1.1455602645874023,
+    "stretchAfter": 1.1355139017105103
+  },
+  {
+    "name": "BreachBeast",
+    "clip": "Attack",
+    "jointBefore": 21.21368504910357,
+    "jointAfter": 4.855991827360708,
+    "stretchBefore": 2.0357255935668945,
+    "stretchAfter": 1.6029921770095825
+  },
+  {
+    "name": "BreachBeast",
+    "clip": "Hit",
+    "jointBefore": 8.999207483383582,
+    "jointAfter": 2.941155758934114,
+    "stretchBefore": 1.1066868305206299,
+    "stretchAfter": 1.051440715789795
+  },
+  {
+    "name": "BreachBeast",
+    "clip": "Death",
+    "jointBefore": 6.6160566096922935,
+    "jointAfter": 6.6160566096922935,
+    "stretchBefore": 1.4978562593460083,
+    "stretchAfter": 1.4501413106918335
+  },
+  {
+    "name": "BroodAlien",
+    "clip": "Idle",
+    "jointBefore": 0.4332192699059124,
+    "jointAfter": 0.43245085560391583,
+    "stretchBefore": 1.0601671934127808,
+    "stretchAfter": 1.0598829984664917
+  },
+  {
+    "name": "BroodAlien",
+    "clip": "Move",
+    "jointBefore": 15.945420437165021,
+    "jointAfter": 8.597759628150888,
+    "stretchBefore": 1.280730128288269,
+    "stretchAfter": 1.2708983421325684
+  },
+  {
+    "name": "BroodAlien",
+    "clip": "Attack",
+    "jointBefore": 18.329464904093825,
+    "jointAfter": 6.412285197032411,
+    "stretchBefore": 1.6007200479507446,
+    "stretchAfter": 1.4345359802246094
+  },
+  {
+    "name": "BroodAlien",
+    "clip": "Hit",
+    "jointBefore": 24.03522602351661,
+    "jointAfter": 6.400829060784519,
+    "stretchBefore": 1.1475937366485596,
+    "stretchAfter": 1.1159346103668213
+  },
+  {
+    "name": "BroodAlien",
+    "clip": "Death",
+    "jointBefore": 3.3079176278903275,
+    "jointAfter": 3.3079176278903275,
+    "stretchBefore": 1.4142464399337769,
+    "stretchAfter": 1.3188354969024658
+  },
+  {
+    "name": "Bulwark",
+    "clip": "Idle",
+    "jointBefore": 0.2563717811907599,
+    "jointAfter": 0.25602096960093434,
+    "stretchBefore": 1.0534008741378784,
+    "stretchAfter": 1.0532160997390747
+  },
+  {
+    "name": "Bulwark",
+    "clip": "Move",
+    "jointBefore": 7.108618727651789,
+    "jointAfter": 5.811477868495669,
+    "stretchBefore": 1.312454342842102,
+    "stretchAfter": 1.2964531183242798
+  },
+  {
+    "name": "Bulwark",
+    "clip": "Attack",
+    "jointBefore": 29.580126663327587,
+    "jointAfter": 11.331210170946578,
+    "stretchBefore": 1.9510424137115479,
+    "stretchAfter": 1.5740139484405518
+  },
+  {
+    "name": "Bulwark",
+    "clip": "Hit",
+    "jointBefore": 29.089648320779713,
+    "jointAfter": 9.610790701989119,
+    "stretchBefore": 1.8234796524047852,
+    "stretchAfter": 1.323733925819397
+  },
+  {
+    "name": "Bulwark",
+    "clip": "Death",
+    "jointBefore": 3.3079469426794326,
+    "jointAfter": 3.3079469426794326,
+    "stretchBefore": 1.5313900709152222,
+    "stretchAfter": 1.229909062385559
+  },
+  {
+    "name": "CarrionReclaimer",
+    "clip": "Idle",
+    "jointBefore": 0.1586272214250648,
+    "jointAfter": 0.15867119448671474,
+    "stretchBefore": 1.0522122383117676,
+    "stretchAfter": 1.0520459413528442
+  },
+  {
+    "name": "CarrionReclaimer",
+    "clip": "Move",
+    "jointBefore": 2.25125587421242,
+    "jointAfter": 2.1172953602608513,
+    "stretchBefore": 1.172491192817688,
+    "stretchAfter": 1.163426160812378
+  },
+  {
+    "name": "CarrionReclaimer",
+    "clip": "Attack",
+    "jointBefore": 19.96268554213945,
+    "jointAfter": 2.3043665343490938,
+    "stretchBefore": 2.1324069499969482,
+    "stretchAfter": 1.6284222602844238
+  },
+  {
+    "name": "CarrionReclaimer",
+    "clip": "Hit",
+    "jointBefore": 7.787207433346132,
+    "jointAfter": 2.559767041464643,
+    "stretchBefore": 1.1891732215881348,
+    "stretchAfter": 1.0901668071746826
+  },
+  {
+    "name": "CarrionReclaimer",
+    "clip": "Death",
+    "jointBefore": 6.615899204065254,
+    "jointAfter": 6.615899204065254,
+    "stretchBefore": 1.5448057651519775,
+    "stretchAfter": 1.4098697900772095
+  },
+  {
+    "name": "NeedleStalker",
+    "clip": "Idle",
+    "jointBefore": 0.15425861889901163,
+    "jointAfter": 0.15341505120388868,
+    "stretchBefore": 1.0246158838272095,
+    "stretchAfter": 1.0245362520217896
+  },
+  {
+    "name": "NeedleStalker",
+    "clip": "Move",
+    "jointBefore": 6.093767638417801,
+    "jointAfter": 3.3843592933086444,
+    "stretchBefore": 1.3315740823745728,
+    "stretchAfter": 1.1663200855255127
+  },
+  {
+    "name": "NeedleStalker",
+    "clip": "Attack",
+    "jointBefore": 3.6561171840614595,
+    "jointAfter": 4.128385257841791,
+    "stretchBefore": 1.1400409936904907,
+    "stretchAfter": 1.133992314338684
+  },
+  {
+    "name": "NeedleStalker",
+    "clip": "Hit",
+    "jointBefore": 6.86551539288677,
+    "jointAfter": 2.093266224807506,
+    "stretchBefore": 1.1009855270385742,
+    "stretchAfter": 1.0451438426971436
+  },
+  {
+    "name": "NeedleStalker",
+    "clip": "Death",
+    "jointBefore": 2.6318208574352524,
+    "jointAfter": 3.5148176764427688,
+    "stretchBefore": 2.4132776260375977,
+    "stretchAfter": 1.8312158584594727
+  },
+  {
+    "name": "SiegeBrooder",
+    "clip": "Idle",
+    "jointBefore": 1.751928052928966,
+    "jointAfter": 1.3622138565269555,
+    "stretchBefore": 1.214748740196228,
+    "stretchAfter": 1.2135863304138184
+  },
+  {
+    "name": "SiegeBrooder",
+    "clip": "Move",
+    "jointBefore": 19.27092695658172,
+    "jointAfter": 10.289823234773914,
+    "stretchBefore": 1.3067421913146973,
+    "stretchAfter": 1.293121337890625
+  },
+  {
+    "name": "SiegeBrooder",
+    "clip": "Attack",
+    "jointBefore": 17.406842706829515,
+    "jointAfter": 10.225464504435518,
+    "stretchBefore": 1.5618929862976074,
+    "stretchAfter": 1.5514847040176392
+  },
+  {
+    "name": "SiegeBrooder",
+    "clip": "Hit",
+    "jointBefore": 33.53535401323586,
+    "jointAfter": 12.437269439481447,
+    "stretchBefore": 1.534407138824463,
+    "stretchAfter": 1.3478262424468994
+  },
+  {
+    "name": "SiegeBrooder",
+    "clip": "Death",
+    "jointBefore": 6.616141911761966,
+    "jointAfter": 6.616141911761966,
+    "stretchBefore": 1.5394493341445923,
+    "stretchAfter": 1.2184609174728394
+  },
+  {
+    "name": "VeilWeaver",
+    "clip": "Idle",
+    "jointBefore": 0.2406706461113167,
+    "jointAfter": 0.2433314234870629,
+    "stretchBefore": 1.0469075441360474,
+    "stretchAfter": 1.04673433303833
+  },
+  {
+    "name": "VeilWeaver",
+    "clip": "Move",
+    "jointBefore": 8.639731415561064,
+    "jointAfter": 6.077164158704778,
+    "stretchBefore": 1.205850601196289,
+    "stretchAfter": 1.2022662162780762
+  },
+  {
+    "name": "VeilWeaver",
+    "clip": "Attack",
+    "jointBefore": 4.862720201034111,
+    "jointAfter": 3.5554240944377686,
+    "stretchBefore": 1.537661075592041,
+    "stretchAfter": 1.5376596450805664
+  },
+  {
+    "name": "VeilWeaver",
+    "clip": "Hit",
+    "jointBefore": 29.988373415747027,
+    "jointAfter": 8.541302553147244,
+    "stretchBefore": 1.2870724201202393,
+    "stretchAfter": 1.1509852409362793
+  },
+  {
+    "name": "VeilWeaver",
+    "clip": "Death",
+    "jointBefore": 6.616174251330305,
+    "jointAfter": 6.616174251330305,
+    "stretchBefore": 1.3154606819152832,
+    "stretchAfter": 1.1470229625701904
+  },
+  {
+    "name": "WallRam",
+    "clip": "Idle",
+    "jointBefore": 0.333774404922623,
+    "jointAfter": 0.3319617310514212,
+    "stretchBefore": 1.0511642694473267,
+    "stretchAfter": 1.0509554147720337
+  },
+  {
+    "name": "WallRam",
+    "clip": "Move",
+    "jointBefore": 30.385129162076975,
+    "jointAfter": 11.864139006211916,
+    "stretchBefore": 1.370369791984558,
+    "stretchAfter": 1.3648186922073364
+  },
+  {
+    "name": "WallRam",
+    "clip": "Attack",
+    "jointBefore": 24.31868224340437,
+    "jointAfter": 4.819639128689177,
+    "stretchBefore": 1.441673994064331,
+    "stretchAfter": 1.3893303871154785
+  },
+  {
+    "name": "WallRam",
+    "clip": "Hit",
+    "jointBefore": 26.980390114604365,
+    "jointAfter": 9.233904232739173,
+    "stretchBefore": 1.2260456085205078,
+    "stretchAfter": 1.1292352676391602
+  },
+  {
+    "name": "WallRam",
+    "clip": "Death",
+    "jointBefore": 2.632134003154357,
+    "jointAfter": 6.6161438033251,
+    "stretchBefore": 1.5726702213287354,
+    "stretchAfter": 1.3633737564086914
+  }
+]

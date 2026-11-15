@@ -1,0 +1,47 @@
+10 seconds runtime observation; restore natural checkpoint after this probe. Inclusive samples, not additive.
+frames=121 mean=44.71285 max=121.4998
+Main Thread: total=5410.3ms max=121.5ms count=121
+PlayerLoop: total=4610.0ms max=112.1ms count=242
+UpdateScene: total=4016.9ms max=112.1ms count=121
+PreLateUpdate.ScriptRunBehaviourLateUpdate: total=2478.4ms max=37.3ms count=121
+LateBehaviourUpdate: total=2478.2ms max=37.3ms count=121
+Assembly-CSharp.dll!AntColony.World::OrganicEnemyVisual.LateUpdate() [Invoke]: total=897.5ms max=5.2ms count=701
+Update.ScriptRunBehaviourUpdate: total=860.1ms max=88.6ms count=121
+BehaviourUpdate: total=860.0ms max=88.6ms count=121
+EditorLoop: total=597.6ms max=24.8ms count=236
+RenderPlayModeViewCameras: total=593.0ms max=13.8ms count=121
+UnityEngine.CoreModule.dll!UnityEngine.Rendering::RenderPipelineManager.DoRenderLoop_Internal() [Invoke]: total=575.8ms max=13.7ms count=121
+Inl_UniversalRenderTotal: total=571.5ms max=13.7ms count=121
+Inl_RenderCameraStack: total=563.5ms max=13.6ms count=121
+Inl_ScriptableRenderContext.Submit: total=368.5ms max=11.5ms count=121
+UniversalRenderPipeline.RenderSingleCameraInternal: Main Camera: total=307.3ms max=10.8ms count=121
+ExecuteRenderGraph: total=303.6ms max=10.7ms count=121
+DrawScreenSpaceUI: total=208.7ms max=5.4ms count=124
+GUI.Repaint: total=201.4ms max=5.4ms count=121
+Assembly-CSharp.dll!AntColony.Units::CommanderAnt.Update() [Invoke]: total=190.9ms max=76.0ms count=79
+Inl_UniversalRenderPipeline.RenderSingleCameraInternal: Main Camera: total=160.1ms max=6.2ms count=102
+PostLateUpdate.UpdateAllSkinnedMeshes: total=141.0ms max=3.2ms count=99
+MeshSkinning.Update: total=137.2ms max=3.2ms count=97
+PostLateUpdate.UpdateAllRenderers: total=66.7ms max=3.9ms count=47
+FinalizeUpdateRendererBoundingVolumes: total=31.0ms max=3.7ms count=21
+Assembly-CSharp.dll!AntColony.UI::ToastManager.Update() [Invoke]: total=20.7ms max=8.4ms count=3
+PostLateUpdate.PlayerUpdateCanvases: total=19.8ms max=7.0ms count=9
+Assembly-CSharp.dll!AntColony.Units::MeshyNativeMotionPlayer.LateUpdate() [Invoke]: total=19.5ms max=4.3ms count=13
+Assembly-CSharp.dll!AntColony.Units::MeshyNativeTrialDriver.Update() [Invoke]: total=19.1ms max=3.3ms count=10
+UIEvents.WillRenderCanvases: total=18.6ms max=7.0ms count=8
+UGUI.Rendering.UpdateBatches: total=18.6ms max=7.0ms count=8
+PreLateUpdate.DirectorUpdateAnimationBegin: total=18.0ms max=5.0ms count=10
+Assembly-CSharp.dll!AntColony.UI::CommanderAcquisitionPanel.LateUpdate() [Invoke]: total=16.1ms max=2.4ms count=11
+SkinnedMeshFinalizeUpdate: total=15.0ms max=3.1ms count=10
+Assembly-CSharp.dll!AntColony.Core::ColonyPopulation.LateUpdate() [Invoke]: total=14.6ms max=3.2ms count=5
+Profiler.FlushCounters: total=14.5ms max=1.5ms count=12
+WaitForJobGroupID: total=14.0ms max=3.9ms count=8
+FixedUpdate.PhysicsFixedUpdate: total=13.2ms max=5.6ms count=6
+UnityEngine.UIModule.dll!UnityEngine::Canvas.SendWillRenderCanvases() [Invoke]: total=13.2ms max=6.4ms count=6
+Profiler.FlushMemoryCounters: total=11.9ms max=1.5ms count=10
+Physics.RunSimulationStage: total=11.1ms max=5.4ms count=5
+Physics.Simulate: total=11.1ms max=5.4ms count=5
+PxScene.simulate: total=11.1ms max=5.4ms count=5
+Animators.Update: total=10.6ms max=4.0ms count=7
+Director.ProcessFrame: total=10.5ms max=4.0ms count=7
+Assembly-CSharp.dll!AntColony.World::WildMonster.Update() [Invoke]: total=10.1ms max=10.1ms count=1

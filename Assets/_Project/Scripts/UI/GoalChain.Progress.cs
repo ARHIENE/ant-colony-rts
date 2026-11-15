@@ -69,7 +69,7 @@ namespace AntColony.UI
             if (ExpeditionRules.Paused && stage >= 4 && stage < StageCount)
                 return "<b>정착지 운영 · 웨이브 방어</b>\n" + ExpeditionRules.PauseReason
                     + "\n" + (context == "" ? Action(2) : context);
-            if (stage == StageCount) return "<b>탈출 완료</b>\n결과 화면에서 구출·잔류 기록 확인";
+            if (stage == StageCount) return "<b>침공 저지</b>\n결과 화면에서 최종 전투·생존 기록 확인";
             return "<b>현재 목표 · " + Title(stage) + "</b>\n" + Progress(stage)
                 + "\n" + (context == "" ? Action(stage) : context) + "\n<color=#d6d7cb>이후 · " + Reward(stage) + "</color>";
         }
@@ -95,7 +95,7 @@ namespace AntColony.UI
             if (stage == 14) return yard != null && yard.Operating
                 ? $"방어 준비 {(AirshipYard.PreparationSeconds - yard.PreparationRemaining) / GameCalendar.SecondsPerDay:0.0}/15일"
                 : "로켓 가동 0/1";
-            return "발사 0/1 · 탑승자와 남길 인원을 직접 확인";
+            return RocketCampaign.Instance?.Mothership?.reached == true ? $"본선 진입 완료 · 지휘체 {RocketCampaign.Instance.Mothership.bossHp:0} HP" : "본선 진입 0/1 · 로켓에 탑승해 출전";
         }
         private static string ResearchProgress()
         {
@@ -116,6 +116,7 @@ namespace AntColony.UI
                 return b.Revealed(id) ? BossProgress.Hazard(id) + " · 출정은 직접 결정"
                     : (block == "" ? "탐지기 제작·사용 필요" : block) + " · 과학에서 탐지기 확인";
             }
+            if (stage == 15 && RocketCampaign.Instance?.Mothership?.reached == true) return "본선 보기 → 지휘체 공격 · 재정비는 착륙선으로 집결 후 귀환";
             if (stage >= 13)
             {
                 if (yard == null) return "발사대 없음·파괴 · 과학 시설에서 로켓 건설·복구 확인";
@@ -124,7 +125,7 @@ namespace AntColony.UI
                     return !yard.FuelLoaded ? "가동 연료 미적재 · 로켓 화면에서 연료 적재"
                         : "가동 대기 · 로켓 화면에서 핵심물·가동 조건 확인 후 직접 가동";
                 if (yard.Phase == RocketPhase.Preparing) return "방어 준비 중 · 비축·방어 인원 확인 후 탑승 대기";
-                return "로켓 화면에서 시민·장수 탑승 후 직접 발사";
+                return "로켓 화면에서 장수 탑승 후 본선으로 출발";
             }
             var r = CampaignResearch.Instance;
             if (tier == 0) return "B 건설 → 작업 → 정착지 연구대 건설";
@@ -149,3 +150,4 @@ namespace AntColony.UI
         private static int Stock(ResourceType type) => ResourceManager.Instance?.GetAmount(type) ?? 0;
     }
 }
+

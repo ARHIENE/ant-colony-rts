@@ -1,0 +1,1 @@
+Removed exactly two missing script slots; preserved 55 transforms and 268 valid components. Scene written; backup retained.

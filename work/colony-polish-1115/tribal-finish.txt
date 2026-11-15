@@ -1,0 +1,14 @@
+Visual fixture in prior isolated test world.
+PASS Live model attached FoodStoreTemplate(Clone)
+PASS Textured URP materials FoodStoreTemplate(Clone)
+PASS Live model attached HearthTemplate(Clone)
+PASS Textured URP materials HearthTemplate(Clone)
+PASS Live model attached GateTemplate(Clone)
+PASS Textured URP materials GateTemplate(Clone)
+PASS Closed gate blocks navigation
+PASS Both leaves open with passable navigation
+PASS Save open gate: 
+PASS Load open gate: 
+PASS Reload completes
+PASS Open state and animated Meshy model survive full reload
+RESTORED

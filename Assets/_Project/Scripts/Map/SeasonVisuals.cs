@@ -13,6 +13,7 @@ namespace AntColony.Map
         static readonly float[] SnowCover = { 0, 0, 0, 1 }, LeafCover = { 0, 0, 1, 0 }; // 바닥 눈·낙엽(2026-10-04)
         static readonly float[] SpringOn = { 1, 0, 0, 0 };
         static readonly int SpringId = Shader.PropertyToID("_SeasonSpring"), AutumnId = Shader.PropertyToID("_SeasonAutumn"), WinterId = Shader.PropertyToID("_SeasonWinter");
+        static readonly int SnowId = Shader.PropertyToID("_WeatherSnow"), WetId = Shader.PropertyToID("_WeatherWet");
         private MapGenerator terrain;
         private Color biomeTint = Color.white;
         private Precipitation fall;
@@ -46,6 +47,7 @@ namespace AntColony.Map
         {
             DayNightLighting.SeasonTint = Color.white; DayNightLighting.SeasonIntensity = 1;
             Shader.SetGlobalFloat(SpringId, 0); Shader.SetGlobalFloat(AutumnId, 0); Shader.SetGlobalFloat(WinterId, 0);
+            Shader.SetGlobalFloat(SnowId, 0); Shader.SetGlobalFloat(WetId, 0);
         }
 
         private void LateUpdate()
@@ -56,14 +58,15 @@ namespace AntColony.Map
             var climate = GameSession.Exists ? GameSession.Instance.Options.climate : MapClimate.Temperate;
             var leaves = HasSeasonalLeaves(biome, climate);
             var snow = HasSeasonalSnow(biome, climate);
-            terrain.SetTint(biomeTint * GroundSeasonTint(biome, climate));
+            terrain.SetTint(biomeTint * GroundSeasonTint(biome, climate) * Color.Lerp(Color.white, new Color(.72f, .76f, .79f), WeatherSystem.Wetness));
             // 동굴은 땅속이라 눈·낙엽 없음, 사막은 나무가 없어 낙엽 없음.
-            terrain.SetSeasonGround(snow ? Mathf.Lerp(SnowCover[p.season], SnowCover[p.next], p.blend) : 0,
+            terrain.SetSeasonGround(WeatherSystem.SnowCover,
                 leaves ? Mathf.Lerp(LeafCover[p.season], LeafCover[p.next], p.blend) : 0);
             // 나무·풀(SeasonFoliage 셰이더): 잎 색과 겨울 눈. 동굴은 계절 없음.
             float On(float[] t) => Mathf.Lerp(t[p.season], t[p.next], p.blend);
             Shader.SetGlobalFloat(SpringId, HasSpringPetals(biome, climate) ? On(SpringOn) : 0);
             Shader.SetGlobalFloat(AutumnId, leaves ? On(LeafCover) : 0); Shader.SetGlobalFloat(WinterId, snow ? On(SnowCover) : 0);
+            Shader.SetGlobalFloat(SnowId, WeatherSystem.SnowCover); Shader.SetGlobalFloat(WetId, WeatherSystem.Wetness);
             DayNightLighting.SeasonTint = Mix(Sun, p);
             DayNightLighting.SeasonIntensity = Mathf.Lerp(SunPower[p.season], SunPower[p.next], p.blend) * WeatherSystem.Light * (BiomeRules.Current == MapBiome.Cave ? .6f : 1); // 동굴은 어둡다
             // 비·눈 날씨가 오면 계절 입자는 쉰다. 동굴은 땅속이라 없음.
@@ -71,7 +74,7 @@ namespace AntColony.Map
             var season = (Season)p.season;
             if (quiet) fall.Set(0, Color.clear, .1f, 5);
             else if (season == Season.Spring && HasSpringPetals(biome, climate)) fall.Set(5, new Color(1f, .9f, .95f, .5f), .16f, 1.5f, 0, 1, petals: true);
-            else if (season == Season.Autumn && leaves) fall.Set(8, new Color(.95f, .5f, .15f, .65f), .18f, 1.8f, 0, 1.5f);
+            else if (season == Season.Autumn && leaves) fall.Set(8, new Color(.95f, .5f, .15f, .85f), .25f, 1.8f, 0, 1.5f, leaves: true);
             else fall.Set(0, Color.clear, .1f, 5);
         }
     }

@@ -1,0 +1,12 @@
+{
+  "name": "Bulwark",
+  "changed": [
+    "Move"
+  ],
+  "strideSourceUnitsPerSecond": 0.23333333333333336,
+  "riderBones": [],
+  "clips": [
+    "Move"
+  ],
+  "horizontalExtent": 2.134775161743164
+}

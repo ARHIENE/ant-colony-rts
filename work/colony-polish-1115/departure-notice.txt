@@ -1,0 +1,9 @@
+Paused fixture only; no departure commands or gameplay advances. Full checkpoint restored afterward.
+PASS No pending departure means no extra warning
+PASS Warns about named pending departure before embarkation
+PASS Existing supply/home warnings retained
+PASS Warning does not change departure eligibility
+PASS Changed risk invalidates old warning acknowledgement
+PASS Medical wait fixture visible before disable
+PASS Disabling patient clears both medical notices
+PASS Other patient's notice retained

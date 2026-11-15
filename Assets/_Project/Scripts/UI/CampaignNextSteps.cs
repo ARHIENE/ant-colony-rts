@@ -36,8 +36,10 @@ namespace AntColony.UI
                 || c.Health.wounds.Any(w => !w.Permanent && w.damage > 0));
             int damaged = SceneObjects.All<BuildingBase>().Count(b => b.isActiveAndEnabled && !b.IsDead
                 && b.CountsTowardPlayerDefeat && b.CurrentHealth < b.MaxHealth);
-            if (!includeHealthy && injured == 0 && damaged == 0) return "";
-            return $"부상 {injured}명 · 파손 {damaged}곳" + (injured + damaged > 0 ? " · 치료·수리 작업표 확인" : " · 다음 방어 준비");
+            int fires = SceneObjects.All<WallFire>().Count(f => f.Burning && f.Managed);
+            if (!includeHealthy && injured == 0 && damaged == 0 && fires == 0) return "";
+            return (fires > 0 ? $"화재 {fires}곳 · 소화 우선 / " : "")
+                + $"부상 {injured}명 · 파손 {damaged}곳" + (injured + damaged > 0 ? " · 치료·수리 작업표 확인" : " · 다음 방어 준비");
         }
 
         public static string EarlyGoal(int stage)

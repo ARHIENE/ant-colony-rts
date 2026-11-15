@@ -1,0 +1,46 @@
+BIN  usable=True pos=(200.00, 9.77, 200.00) food=0 cap=200 free=200 allowed=True
+BIN Storage usable=True pos=(204.50, 10.37, 200.50) food=3 cap=100 free=97 allowed=True
+FLOOR Soil:nodes=12:amount=1522.976,Food:nodes=14:amount=87.20145,PlantingMaterial:nodes=2:amount=9,Wood:nodes=10:amount=90.03983,RottenFood:nodes=11:amount=1223,SimpleMeal:nodes=1:amount=6,Stone:nodes=2:amount=8.000001
+BIN ROUTE 생존자 1 host= reach=True approach=(200.00, 10.06, 200.00)
+BIN ROUTE 생존자 1 host=Storage reach=True approach=(204.50, 9.85, 200.50)
+BIN ROUTE 생존자 2 host= reach=True approach=(200.00, 10.06, 200.00)
+BIN ROUTE 생존자 2 host=Storage reach=True approach=(204.50, 9.85, 200.50)
+BIN ROUTE 생존자 3 host= reach=True approach=(200.00, 10.06, 200.00)
+BIN ROUTE 생존자 3 host=Storage reach=True approach=(204.50, 9.85, 200.50)
+FOOD ROUTE 생존자 1 canGather=True reach=True jobs=True
+FOOD ROUTE 생존자 2 canGather=True reach=True jobs=True
+FOOD ROUTE 생존자 3 canGather=True reach=True jobs=True
+생존자 1 cargo=0 type=Soil gather=6 build=5 haul=5 sleep=True
+생존자 2 cargo=0 type=Food gather=5 build=8 haul=6 sleep=True
+생존자 3 cargo=0 type=Food gather=8 build=5 haul=7 sleep=True
+DUTY 생존자 1 duty=Civilian hold=False ready=False orders=True combat=False service=None rest=False med=None
+DUTY 생존자 2 duty=Civilian hold=False ready=False orders=True combat=False service=None rest=False med=None
+DUTY 생존자 3 duty=Civilian hold=False ready=False orders=True combat=False service=None rest=False med=None
+AGENT 생존자 1 state=Idle pos=(198.50, 9.85, 204.00) node= destination=(199.45, 9.85, 204.35) left=0 path=PathComplete pending=False velocity=(0.00, 0.00, 0.00)
+AGENT 생존자 2 state=Idle pos=(196.50, 9.86, 202.00) node= destination=(197.66, 9.86, 201.86) left=0 path=PathComplete pending=False velocity=(0.00, 0.00, 0.00)
+AGENT 생존자 3 state=Idle pos=(196.50, 9.90, 199.00) node= destination=(197.85, 9.91, 199.09) left=0 path=PathComplete pending=False velocity=(0.00, 0.00, 0.00)
+HERB STOCK=0
+NODE Saved Loot type=Food amount=2 loose=True designated=False dist=0 pos=(200.22, 10.07, 199.67)
+NODE Dropped Food type=Food amount=2 loose=True designated=False dist=1 pos=(201.30, 10.07, 200.68)
+NODE Dropped Food type=Food amount=2.847844 loose=True designated=False dist=3 pos=(202.03, 10.07, 202.07)
+NODE Dropped Food type=Food amount=16.01345 loose=True designated=False dist=3 pos=(202.03, 10.07, 202.07)
+NODE Dropped Food type=Food amount=3.138706 loose=True designated=False dist=3 pos=(203.05, 10.07, 201.22)
+NODE Saved Loot type=Soil amount=0.7905006 loose=True designated=False dist=4 pos=(203.60, 10.07, 201.04)
+NODE Saved Loot type=Food amount=0.5927793 loose=True designated=False dist=4 pos=(204.48, 10.07, 200.20)
+NODE Dropped Food type=Food amount=0.210103 loose=True designated=False dist=5 pos=(203.94, 10.07, 197.34)
+NODE Dropped Food type=Food amount=4.40722 loose=True designated=False dist=5 pos=(205.04, 10.07, 201.37)
+NODE Saved Loot type=Food amount=0.5451717 loose=True designated=False dist=6 pos=(203.98, 10.07, 203.98)
+NODE FoodNode1 type=Food amount=11.79833 loose=False designated=True dist=6 pos=(204.00, 11.33, 204.00)
+NODE Saved Loot type=Food amount=7.791511 loose=True designated=False dist=6 pos=(204.43, 10.07, 204.03)
+NODE Saved Loot type=Food amount=12 loose=True designated=False dist=6 pos=(204.45, 10.07, 204.03)
+NODE Saved Loot type=Food amount=9.421531 loose=True designated=False dist=6 pos=(204.56, 10.07, 204.02)
+NODE SoilNode1 type=Soil amount=109.364 loose=False designated=True dist=6 pos=(206.00, 11.06, 199.00)
+NODE Dropped Soil type=Soil amount=1.999998 loose=True designated=False dist=6 pos=(206.16, 10.07, 198.00)
+NODE Dropped Soil type=Soil amount=12 loose=True designated=False dist=6 pos=(206.16, 10.07, 198.00)
+NODE Dropped Soil type=Soil amount=12 loose=True designated=False dist=6 pos=(206.16, 10.07, 198.00)
+NODE Dropped Soil type=Soil amount=9.635983 loose=True designated=False dist=6 pos=(206.16, 10.07, 198.00)
+NODE Saved Loot type=Food amount=1 loose=False designated=True dist=7 pos=(204.89, 9.85, 204.31)
+NODE FoodNode2 type=Food amount=320 loose=False designated=True dist=7 pos=(199.00, 13.93, 206.00)
+NODE Saved Loot type=Food amount=20.52765 loose=True designated=False dist=7 pos=(206.02, 10.07, 204.26)
+NODE Dropped Food type=Food amount=5.70548 loose=True designated=False dist=8 pos=(206.52, 10.07, 204.31)
+NODE SoilNode2 type=Soil amount=58.65987 loose=False designated=True dist=10 pos=(207.00, 11.33, 207.00)

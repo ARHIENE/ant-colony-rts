@@ -1,0 +1,27 @@
+{
+  "success": true,
+  "command": "command",
+  "data": {
+    "command": "run_script",
+    "parameters": {
+      "file": "work/organic-combat-1114/OrganicCombat1114Checks.cs",
+      "entry": "OrganicCombat1114Checks.Main",
+      "timeout_ms": "180000"
+    },
+    "result": {
+      "diagnostics": [],
+      "compileMs": 3142,
+      "executeMs": 17671,
+      "assemblyName": "PipelineRunScript_OrganicCombat1114Checks_b867c87d2b0245e48e80821494e578e0",
+      "success": true,
+      "result": "PASS 71 checks\nPASS fixture NavMesh\nPASS single organic visual WallRam\nPASS world size stable across clips WallRam\nPASS single organic visual NeedleStalker\nPASS world size stable across clips NeedleStalker\nPASS single organic visual BloomMender\nPASS world size stable across clips BloomMender\nPASS single organic visual ClawHunter\nPASS world size stable across clips ClawHunter\nPASS single organic visual BroodAlien\nPASS world size stable across clips BroodAlien\nPASS single organic visual BreachBeast\nPASS world size stable across clips BreachBeast\nPASS single organic visual AcidSpitter\nPASS world size stable across clips AcidSpitter\nPASS single organic visual HuntRider\nPASS world size stable across clips HuntRider\nPASS single organic visual SiegeRider\nPASS world size stable across clips SiegeRider\nPASS single organic visual WallMelter\nPASS world size stable across clips WallMelter\nPASS single organic visual SiegeBrooder\nPASS world size stable across clips SiegeBrooder\nPASS single organic visual BroodCarrier\nPASS world size stable across clips BroodCarrier\nPASS single organic visual HookMaw\nPASS world size stable across clips HookMaw\nPASS single organic visual Bulwark\nPASS world size stable across clips Bulwark\nPASS single organic visual BurrowLurker\nPASS world size stable across clips BurrowLurker\nPASS single organic visual CarrionReclaimer\nPASS world size stable across clips CarrionReclaimer\nPASS single organic visual VeilWeaver\nPASS world size stable across clips VeilWeaver\nPASS all 17 species selectable\nPASS early three waves melee preserved\nPASS windup has no premature damage\nPASS melee impact after windup\nPASS hit interrupts prepared strike\nPASS out of range cancels prepared strike\nPASS projectile travels before impact\nPASS launched projectile survives attacker death\nPASS aimed projectile can be dodged\nPASS wall blocks shot line\nPASS projectile does not damage through wall\nPASS corrosion waits for first tick\nPASS corrosion has bounded repeated ticks\nPASS corrosion expires\nPASS splash excludes friendly aliens\nPASS hook pull is bounded and stays on NavMesh\nPASS frontal carapace protection\nPASS rear and splash bypass shield\nPASS carapace protects ally behind\nPASS mist reduces ranged only without immunity\nPASS healing cannot resurrect lost horde bodies\nPASS healing does not stack during target lock\nPASS healers cannot sustain each other indefinitely\nPASS reclaimer consumes corpse without resurrection\nPASS finite brood tracked as wave visitors\nPASS actual save: \nPASS new save passes parser: \nPASS invalid spawn charges rejected before restore\nPASS actual load: \nPASS saved brood charges preserved\nPASS saved windup preserved\nPASS saved projectile preserved\nPASS saved organic corpse model preserved\nPASS load has no duplicate human visual\nPASS live navigation drives Move animation\nPASS live Update approaches and resolves organic attack\n"
+    },
+    "target": {
+      "host": "127.0.0.1",
+      "port": 7801,
+      "projectPath": "F:\\UnityProjects\\ant-colony-rts"
+    }
+  },
+  "errors": [],
+  "warnings": []
+}

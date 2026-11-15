@@ -14,6 +14,9 @@ namespace AntColony.Save
         internal static void FromJson(SaveFileV1 f, string json)
         {
             var root = JObject.Parse(json);
+            // 종류 0은 기존 적이다. JsonUtility가 null/누락 inline 상태를 만든 경우도 동일하게 복원한다.
+            if (f.monsters != null) foreach (var monster in f.monsters)
+                if (monster?.runtime?.organic != null && monster.runtime.organic.kind == 0) monster.runtime.organic = null;
             if (Absent(root["rocket"])) f.rocket = null;
             if (Absent(root["farmSeeds"])) f.farmSeeds = null;
             if (f.farmSeeds != null && (f.farmSeeds.counts == null || f.farmSeeds.counts.Length == 0)
@@ -41,6 +44,10 @@ namespace AntColony.Save
         internal static string ToJson(SaveFileV1 f, bool pretty = false)
         {
             var root = JObject.Parse(JsonUtility.ToJson(f));
+            if (root["monsters"] is JArray monsters)
+                for (int i = 0; i < monsters.Count; i++)
+                    if (f.monsters[i].runtime?.organic == null && monsters[i]?["runtime"] is JObject runtime)
+                        runtime["organic"] = JValue.CreateNull();
             if (f.rocket == null) root["rocket"] = JValue.CreateNull();
             if (f.farmSeeds == null) root["farmSeeds"] = JValue.CreateNull();
             if (f.world?.pause == null && root["world"] is JObject world) world["pause"] = JValue.CreateNull();

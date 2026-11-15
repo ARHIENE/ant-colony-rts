@@ -16,7 +16,7 @@ namespace AntColony.Units
         public Workshop CraftingWorkshop { get; internal set; }
         public bool CanReceiveOrders => isActiveAndEnabled && !IsDead && !IsCaptive && !IsEmbarked
             && PersonalHealth > 0 && !Health.Downed && !IsDeparting && personalState.rageRemaining <= 0 && !Social.diving
-            && CraftingWorkshop == null && !personalState.treating && personalState.mentalBreak == MentalBreak.None;
+            && CraftingWorkshop == null && !personalState.treating && personalState.mentalBreak == MentalBreak.None && !AlcoholBlackout;
         public bool HasTrinket(TrinketEffect effect) => personalState.equipment.Exists(e => e.slot == EquipmentSlot.Trinket && e.effect == effect);
         public float EquipmentBonus(EquipmentSlot slot) => slot == EquipmentSlot.Weapon
             ? (Weapon != null && MeshyEquipmentRules.HasAttackBonus(Weapon.weapon) ? Weapon.Power : 0)
@@ -26,7 +26,7 @@ namespace AntColony.Units
         protected override float MovementSpeed => WrathFactor * base.MovementSpeed * (traits.MoveMultiplier + TrinketBonus(TrinketEffect.Move) + FormationEffect().Move) * AgeMoveMultiplier * BiomeRules.MoveAt(AntColony.Buildings.RoomSystem.IsIndoors(Position)) * AntColony.Map.WeatherSystem.MoveAt(AntColony.Buildings.RoomSystem.IsIndoors(Position)) * (AntColony.Map.MapGenerator.InWater(Position) ? AntColony.Map.MapGenerator.WaterMoveMultiplier : 1f)
             * (1f - .3f * personalState.Severity(InjuryPart.Legs)) * (1f + personalState.equipment.Sum(e => e.UniqueMoveBonus))
             * (Weapon?.weapon == WeaponKind.Shield ? .9f : 1f) * (IsFlying ? 1f + .05f * EquippedArmor.quality : 1f)
-            * AntColony.World.ColonyEvents.MoveMultiplier(this) * (Social.rallyRemaining > 0 ? 1.3f : 1f) * (AntColony.Buildings.FloorTile.At(Position) ? GameBalance.FloorMoveMultiplier : 1f) * AnimalCarryMultiplier * AntColony.World.ExpeditionWithdraw.CarryMultiplier(this);
+            * AntColony.World.ColonyEvents.MoveMultiplier(this) * (Social.rallyRemaining > 0 ? 1.3f : 1f) * (AntColony.Buildings.FloorTile.At(Position) ? GameBalance.FloorMoveMultiplier : 1f) * AnimalCarryMultiplier * AntColony.World.ExpeditionWithdraw.CarryMultiplier(this) * AlcoholFactor;
         public CommanderActivity CurrentActivity => ServiceTarget != null ? SkillFor(ServiceJob) : HuntTarget != null ? CombatActivity : CraftingWorkshop != null ? CommanderActivity.Crafting : LabUpgradeBusy ? CommanderActivity.Research : IsConstructing ? ConstructionTarget.IsArt ? CommanderActivity.Art : CommanderActivity.Building
             : CurrentResourceNode != null ? CurrentResourceNode.RequiresFishing ? CommanderActivity.Fishing
                 : CurrentResourceNode.GetComponent<BuildingBase>() != null ? CommanderActivity.Farming : CommanderActivity.Gathering
@@ -98,6 +98,7 @@ namespace AntColony.Units
         {
             if (!(seconds > 0) || float.IsInfinity(seconds) || IsDead) return;
             TickAge(seconds); if (IsDead) return;
+            TickAlcohol(seconds);
             if (IsInCombat && !IsWorking && CanReceiveOrders && !LabUpgradeBusy)
             {
                 talents.combatSeconds += seconds;
@@ -145,23 +146,30 @@ namespace AntColony.Units
             if (personalState.breakCheck < 60) return;
             personalState.breakCheck %= 60;
             if (Random.value >= BreakChance) return;
-            var choices = new System.Collections.Generic.List<MentalBreak> { MentalBreak.Idle, MentalBreak.Flee,
-                MentalBreak.AttackBuilding, MentalBreak.AttackCommander, MentalBreak.SelfHarm, MentalBreak.Binge };
-            if (traits.Has(CommanderTrait.Coward) || traits.Has(CommanderTrait.Cautious)) choices.AddRange(new[] { MentalBreak.Idle, MentalBreak.Flee, MentalBreak.Flee });
-            if (traits.Has(CommanderTrait.Reckless) || traits.Has(CommanderTrait.Bloodthirsty)) choices.AddRange(new[] { MentalBreak.AttackBuilding, MentalBreak.AttackCommander });
-            if (traits.Has(CommanderTrait.Loyal) || traits.Has(CommanderTrait.Ascetic)) choices.AddRange(new[] { MentalBreak.SelfHarm, MentalBreak.SelfHarm });
+            StartMentalBreak(ChooseMentalBreak());
+        }
+        private MentalBreak ChooseMentalBreak()
+        {
+            var choices = new System.Collections.Generic.List<MentalBreak> { MentalBreak.Idle, MentalBreak.Wander, MentalBreak.Binge };
+            if (BreakSeverity >= 2) choices.AddRange(new[] { MentalBreak.AttackBuilding, MentalBreak.SelfHarm });
+            if (BreakSeverity >= 3) choices.AddRange(new[] { MentalBreak.AttackCommander, MentalBreak.Flee });
+            if (traits.Has(CommanderTrait.Coward) || traits.Has(CommanderTrait.Cautious))
+                choices.AddRange(new[] { MentalBreak.Idle, BreakSeverity >= 3 ? MentalBreak.Flee : MentalBreak.Wander });
+            if (BreakSeverity >= 2 && (traits.Has(CommanderTrait.Reckless) || traits.Has(CommanderTrait.Bloodthirsty)))
+                choices.Add(BreakSeverity >= 3 ? MentalBreak.AttackCommander : MentalBreak.AttackBuilding);
+            if (BreakSeverity >= 2 && (traits.Has(CommanderTrait.Loyal) || traits.Has(CommanderTrait.Ascetic))) choices.AddRange(new[] { MentalBreak.SelfHarm, MentalBreak.SelfHarm });
             if (traits.Has(CommanderTrait.Glutton)) choices.AddRange(new[] { MentalBreak.Binge, MentalBreak.Binge });
-            StartMentalBreak(choices[Random.Range(0, choices.Count)]);
+            return choices[Random.Range(0, choices.Count)];
         }
         // 분당 정신 붕괴 확률(기분 경고에도 같은 값을 보여 준다).
-        public float BreakChance
+        public int BreakSeverity => GameBalanceNeeds.MoodWarning(Mood
+            + (traits.Has(CommanderTrait.IronWill) ? 10 : traits.Has(CommanderTrait.Fragile) ? -10 : 0));
+        public float BreakChance => BreakSeverity switch { 3 => .4f, 2 => .15f, 1 => .05f, _ => 0 };
+        public string BreakRiskDescription => BreakSeverity switch
         {
-            get
-            {
-                var mood = Mood + (traits.Has(CommanderTrait.IronWill) ? 10 : traits.Has(CommanderTrait.Fragile) ? -10 : 0);
-                return mood <= 5 ? .4f : mood <= 20 ? .15f : mood <= 35 ? .05f : 0;
-            }
-        }
+            3 => "동료 공격·이탈까지 발생 가능", 2 => "시설 파괴·자해까지 발생 가능",
+            1 => "작업 중단·배회·폭식 위험", _ => "현재 붕괴 위험 없음"
+        };
         public bool IsViolentBreak => personalState.mentalBreak == MentalBreak.AttackCommander
             || personalState.mentalBreak == MentalBreak.AttackBuilding;
         public void StartMentalBreak(MentalBreak kind)

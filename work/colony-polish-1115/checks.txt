@@ -1,0 +1,27 @@
+Disposable injected regression, NOT natural economy proof
+PASS Unavailable rice bill does not block simple meal ingredients
+PASS Blocked bill names missing rice
+PASS Reserve actual meal input
+PASS Reordering does not duplicate reserved input
+PASS Withdraw real input before delivery
+PASS Reserved delivery remains accepted after reorder
+PASS Cooking resumes after delivery
+PASS Begin normal cooking work
+PASS Blocked-queue fallback produces exactly one real meal
+PASS Player can restore priority order
+PASS Mood severity for 30
+PASS Noncritical mood excludes departure and ally attacks
+PASS Mild mood excludes destructive breakdowns
+PASS Mood severity for 15
+PASS Noncritical mood excludes departure and ally attacks
+PASS Mood severity for 0
+PASS Critical mood retains severe consequences
+PASS Planted crop asset and URP materials connected
+PASS Young crop asset and URP materials connected
+PASS Growing crop asset and URP materials connected
+PASS Mature crop asset and URP materials connected
+PASS Pest crop asset and URP materials connected
+PASS Save queue and colony state: 
+PASS Reload queue and colony state: 
+PASS Full scene reload completed
+PASS Queue order and completed count persist after reload

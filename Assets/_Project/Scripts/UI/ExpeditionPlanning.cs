@@ -14,6 +14,7 @@ namespace AntColony.UI
             System.Math.Max(0, System.Math.Min(System.Math.Max(0, recommended - available), System.Math.Min(space, stock)));
         public static string DepartureText(ExpeditionTransport ship, ExpeditionSite site)
         {
+            if (ship.PullingHandcart) return ship.HandcartStatus + "\n귀환 버튼으로 출정을 취소할 수 있습니다.";
             var block = ship.DepartureBlock(site);
             var time = ship.PlannedRoundTripSeconds(site);
             return (float.IsInfinity(time) ? "이동 불가" : $"왕복 {time / GameCalendar.SecondsPerDay:0.0}일(감속·접안 포함)")

@@ -1,0 +1,10 @@
+Temporary food availability fixtures; natural state restored afterward.
+PASS Unavailable food above warning threshold does not alert
+PASS Early warning occurs before zero satiety
+PASS Existing threat auto-pause preference pauses on new food emergency
+PASS Repeated scan does not duplicate the incident
+PASS Already served meal suppresses warning
+PASS Accessible floor food suppresses warning using actual meal rules
+PASS Disabled auto-pause keeps warning without pausing
+PASS Both departure explanations fit their text area
+PASS Read-only warning does not trigger departure

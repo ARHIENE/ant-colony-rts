@@ -82,6 +82,17 @@ namespace AntColony.Units
             mealBowl.gameObject.SetActive(true);
             mealBowl.SetPositionAndRotation(Palm("Left")+transform.up*.015f,Quaternion.LookRotation(transform.forward,Vector3.up));
         }
+        public void PoseDrink(float seconds)
+        {
+            PoseMeal(seconds);
+            if(!mealBowl || !bones.ContainsKey("mixamorig:Head"))return;
+            var mouth=bones["mixamorig:Head"].position+transform.forward*.16f-transform.up*.08f;
+            float lift=Mathf.SmoothStep(0,1,.5f-.5f*Mathf.Cos(seconds*Mathf.PI*2/3f));
+            var center=Vector3.Lerp(mouth-transform.up*.3f+transform.forward*.08f,mouth-transform.up*.06f,lift);
+            PlacePalm("Left",center-transform.right*.10f,transform.forward,transform.up);
+            PlacePalm("Right",center+transform.right*.10f,transform.forward,transform.up);
+            mealBowl.SetPositionAndRotation(center,Quaternion.LookRotation(transform.forward,Vector3.up)*Quaternion.Euler(-25*lift,0,0));
+        }
         public void SetHandSpan(float span)
         {
             if(Mathf.Abs(span-handSpan)<.0001f)return;

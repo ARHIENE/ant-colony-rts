@@ -75,7 +75,7 @@ namespace AntColony.UI
                 RecentAchievement = Title(last) + " 달성";
                 EmphasisUntil = now + 4f;
                 ToastManager.Show(RecentAchievement + "\n" + Reward(last) + "\n다음: "
-                    + (CurrentStage == StageCount ? "탈출 기록 확인" : AntColony.World.ExpeditionRules.Paused && CurrentStage >= 4
+                    + (CurrentStage == StageCount ? "최종 전투 기록 확인" : AntColony.World.ExpeditionRules.Paused && CurrentStage >= 4
                         ? "정착지 운영 · 웨이브 방어" : Title(CurrentStage)), ToastKind.Achievement);
             }
             state.initialized = true; // 구저장은 현재 사실로 조용히 이관한다. 불러올 때 완료 알림을 재생하지 않는다.
@@ -97,10 +97,10 @@ namespace AntColony.UI
         }
         public static string Title(int stage) => stage switch
         {
-            0 => "불시착 생존", 1 => "첫 생활 안정", 2 => "첫 연구 완료", 3 => "첫 시대 승급",
+            0 => "부족 정착", 1 => "첫 생활 안정", 2 => "첫 연구 완료", 3 => "첫 시대 승급",
             4 => "첫 원정 출발", 5 => "A 핵심물 반입", 6 => "석유 시대 진입", 7 => "전기 시대 진입",
             8 => "B 핵심물 반입", 9 => "C 핵심물 반입", 10 => "원자 시대 진입", 11 => "미래 시대 진입", 12 => "D 핵심물 반입",
-            13 => "로켓 조립", 14 => "최종 방어 완수", 15 => "탑승과 발사", _ => "탈출 완료"
+            13 => "로켓 조립", 14 => "최종 방어 완수", 15 => "본선 지휘체 격파", _ => "침공 저지"
         };
         public static string Reward(int stage) => AntColony.World.ExpeditionRules.Paused && stage >= 3 && stage < StageCount
             ? AntColony.World.ExpeditionRules.PauseReason : stage switch
@@ -111,8 +111,9 @@ namespace AntColony.UI
             5 => "B·C 탐지의 핵심물 조건 충족", 6 => "고급 작물·치수 공사 연구 가능",
             7 => "항공 수송·냉장 물류 연구 가능", 8 => "D 탐지에 필요한 B 핵심물 확보",
             9 => "B·C 반입 시 D 탐지 준비 가능", 10 => "보온·부위 재생 연구 가능",
-            11 => "로켓 연구와 탈출 준비 가능", 12 => "추진기관 연구의 핵심물 조건 충족",
-            13 => "가동·방어 준비를 직접 시작", 14 => "탑승·발사를 직접 결정", 15 => "구출·잔류 기록 확인", _ => "구출·잔류 기록 확인"
+            11 => "로켓 연구와 본선 출전 준비 가능", 12 => "추진기관 연구의 핵심물 조건 충족",
+            13 => "가동·방어 준비를 직접 시작", 14 => "탑승·발사를 직접 결정", 15 => "본선 지휘체를 처치하면 승리", _ => "최종 기록 확인"
         };
     }
 }
+

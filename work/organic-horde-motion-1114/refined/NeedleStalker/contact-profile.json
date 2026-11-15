@@ -1,0 +1,12 @@
+{
+  "name": "NeedleStalker",
+  "changed": [
+    "Move"
+  ],
+  "strideSourceUnitsPerSecond": 0.5,
+  "riderBones": [],
+  "clips": [
+    "Move"
+  ],
+  "horizontalExtent": 2.9525723457336426
+}

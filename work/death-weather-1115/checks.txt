@@ -1,0 +1,87 @@
+PASS Snow accumulates gradually halfway after 45 game seconds
+PASS 90 seconds of snow covers exposed surfaces
+PASS Accumulation serialized and restored
+PASS Rain melts snow and wets natural surfaces
+PASS Surface simulation does not consume gameplay random state
+PASS Live natural props have weather materials
+PASS Natural prop materials use the seasonal shader
+PASS WallRam has collapse animation
+PASS WallRam moves multiple joints rather than only flipping root: 14
+PASS WallRam settled pose does not accumulate rotation
+PASS WallRam visual sampling preserves corpse gameplay state
+PASS NeedleStalker has collapse animation
+PASS NeedleStalker moves multiple joints rather than only flipping root: 8
+PASS NeedleStalker settled pose does not accumulate rotation
+PASS NeedleStalker visual sampling preserves corpse gameplay state
+PASS BloomMender has collapse animation
+PASS BloomMender moves multiple joints rather than only flipping root: 17
+PASS BloomMender settled pose does not accumulate rotation
+PASS BloomMender visual sampling preserves corpse gameplay state
+PASS ClawHunter has collapse animation
+PASS ClawHunter moves multiple joints rather than only flipping root: 8
+PASS ClawHunter settled pose does not accumulate rotation
+PASS ClawHunter visual sampling preserves corpse gameplay state
+PASS BroodAlien has collapse animation
+PASS BroodAlien moves multiple joints rather than only flipping root: 8
+PASS BroodAlien settled pose does not accumulate rotation
+PASS BroodAlien visual sampling preserves corpse gameplay state
+PASS BreachBeast has collapse animation
+PASS BreachBeast moves multiple joints rather than only flipping root: 8
+PASS BreachBeast settled pose does not accumulate rotation
+PASS BreachBeast visual sampling preserves corpse gameplay state
+PASS AcidSpitter has collapse animation
+PASS AcidSpitter moves multiple joints rather than only flipping root: 17
+PASS AcidSpitter settled pose does not accumulate rotation
+PASS AcidSpitter visual sampling preserves corpse gameplay state
+PASS HuntRider has collapse animation
+PASS HuntRider moves multiple joints rather than only flipping root: 14
+PASS HuntRider settled pose does not accumulate rotation
+PASS HuntRider visual sampling preserves corpse gameplay state
+PASS SiegeRider has collapse animation
+PASS SiegeRider moves multiple joints rather than only flipping root: 23
+PASS SiegeRider settled pose does not accumulate rotation
+PASS SiegeRider visual sampling preserves corpse gameplay state
+PASS WallMelter has collapse animation
+PASS WallMelter moves multiple joints rather than only flipping root: 26
+PASS WallMelter settled pose does not accumulate rotation
+PASS WallMelter visual sampling preserves corpse gameplay state
+PASS SiegeBrooder has collapse animation
+PASS SiegeBrooder moves multiple joints rather than only flipping root: 17
+PASS SiegeBrooder settled pose does not accumulate rotation
+PASS SiegeBrooder visual sampling preserves corpse gameplay state
+PASS BroodCarrier has collapse animation
+PASS BroodCarrier moves multiple joints rather than only flipping root: 26
+PASS BroodCarrier settled pose does not accumulate rotation
+PASS BroodCarrier visual sampling preserves corpse gameplay state
+PASS HookMaw has collapse animation
+PASS HookMaw moves multiple joints rather than only flipping root: 8
+PASS HookMaw settled pose does not accumulate rotation
+PASS HookMaw visual sampling preserves corpse gameplay state
+PASS Bulwark has collapse animation
+PASS Bulwark moves multiple joints rather than only flipping root: 14
+PASS Bulwark settled pose does not accumulate rotation
+PASS Bulwark visual sampling preserves corpse gameplay state
+PASS BurrowLurker has collapse animation
+PASS BurrowLurker moves multiple joints rather than only flipping root: 8
+PASS BurrowLurker settled pose does not accumulate rotation
+PASS BurrowLurker visual sampling preserves corpse gameplay state
+PASS CarrionReclaimer has collapse animation
+PASS CarrionReclaimer moves multiple joints rather than only flipping root: 29
+PASS CarrionReclaimer settled pose does not accumulate rotation
+PASS CarrionReclaimer visual sampling preserves corpse gameplay state
+PASS VeilWeaver has collapse animation
+PASS VeilWeaver moves multiple joints rather than only flipping root: 14
+PASS VeilWeaver settled pose does not accumulate rotation
+PASS VeilWeaver visual sampling preserves corpse gameplay state
+PASS Normal save after new weather/corpse state: 
+PASS Save settled corpse and partial snow: 
+PASS Load detail save: 
+PASS Detail save finished loading
+PASS Full reload preserves snow and wetness
+PASS Settled corpse stays grounded after full reload
+PASS Full reload preserves corpse direction and articulated pose
+PASS Corpse lifetime and count preserved
+PASS Actual lethal damage enters fresh multi-joint collapse while paused
+PASS Legacy flip clip no longer drives actual corpse
+PASS Actual horde death emits GPU remains
+PASS All 17 GPU death clips use the new collapse duration and samples

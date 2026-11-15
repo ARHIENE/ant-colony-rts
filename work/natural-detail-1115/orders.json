@@ -1,0 +1,8 @@
+{
+  "seconds": 45,
+  "retreatHealth": 0,
+  "combat": true,
+  "focusLeader": true,
+  "speed": 3,
+  "label": "fog-retaliation-natural"
+}

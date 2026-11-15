@@ -27,7 +27,7 @@ namespace AntColony.UI
         private readonly Dictionary<string, (string message, System.Action action, string label)> pins = new Dictionary<string, (string, System.Action, string)>();
         private RectTransform panel, list;
         private bool hovered, dirty = true;
-        private bool expanded = true;
+        private bool expanded;
         private float railWidth = 220;
 
         public static int Count => instance != null ? instance.toasts.Count : 0;
@@ -66,6 +66,20 @@ namespace AntColony.UI
         private void OnDestroy() { if (instance == this) instance = null; }
 
         public static void Show(string message) => Show(message, ToastKind.Info);
+        // 같은 대상의 상태 변화는 이전 수치 옆에 계속 쌓지 않고 최신 경고로 바꾼다.
+        public static void ShowLatest(string key, string message, ToastKind kind)
+        {
+            if (instance == null || string.IsNullOrWhiteSpace(key) || string.IsNullOrWhiteSpace(message)) return;
+            var same = instance.toasts.Find(t => t.key == key);
+            if (same == null)
+            {
+                same = new Toast { key = key };
+                instance.toasts.Add(same);
+            }
+            same.message = message; same.kind = kind; same.count = 1; same.seen = false;
+            same.remaining = kind == ToastKind.Warning ? WarningSeconds : kind == ToastKind.Hint ? HintSeconds : UserSettings.Current.toastSeconds;
+            instance.dirty = true;
+        }
         public static void Show(string message, ToastKind kind)
         {
             if (instance == null || string.IsNullOrWhiteSpace(message)) return;
@@ -169,6 +183,7 @@ namespace AntColony.UI
                     t.pinned ? null : (System.Action)(() => Dismiss(index)), t.action, t.actionLabel, t.kind == ToastKind.Achievement);
             }
             if (!expanded && all.Count > MaxVisible) Row("Toast More", $"+{all.Count - MaxVisible}건", MenuTheme.Dim, () => Expand(true), () => Expand(true), "전체 알림 보기");
+            else if (expanded && all.Count > MaxVisible) Row("Toast Less", "알림 접기", MenuTheme.Dim, () => Expand(false), () => Expand(false), "중요 알림만 보기");
 
             panel.gameObject.SetActive(all.Count > 0);
             if (all.Count == 0) hovered = false;

@@ -1,0 +1,20 @@
+{
+  "label": "03r-research-supplies",
+  "seconds": 120,
+  "speed": 3,
+  "priorities": [
+    "0,Gathering,8",
+    "1,Hauling,9",
+    "2,Cooking,9"
+  ],
+  "designate": true,
+  "build": [
+    "ManualWell"
+  ],
+  "prioritize": "Food",
+  "directGather": "Soil",
+  "haul": "PlantingMaterial",
+  "production": [
+    "Carpentry,Plank,10"
+  ]
+}

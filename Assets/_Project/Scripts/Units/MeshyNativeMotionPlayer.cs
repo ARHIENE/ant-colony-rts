@@ -196,6 +196,7 @@ namespace AntColony.Units
             }
             rig.equipment.Pose(visual.HeldTool,visual.MotionName,Mathf.Repeat(rig.times[next]/entry.clip.length,1));
             if(visual.MotionName=="ReadBook")rig.equipment.PoseBook(rig.times[next]);
+            if(commander && commander.IsDrinking)rig.equipment.PoseDrink(rig.times[next]);
             if(visual.MotionName=="Saw" && commander && commander.ServiceTarget
                 && AntColony.Buildings.FurnitureUseSurface.TryPoint(commander.ServiceTarget,out _,out var workSurface))
                 rig.equipment.PoseSaw(workSurface,rig.times[next]);

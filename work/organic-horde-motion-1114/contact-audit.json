@@ -1,0 +1,338 @@
+[
+  {
+    "name": "AcidSpitter",
+    "clips": [
+      {
+        "clip": "Move",
+        "stepFraction": 0.01405909298531721,
+        "jointStepDegrees": 10.65319187584329,
+        "edgeStretch999": 1.3783844709396362,
+        "groundAbsolute": 6.263144314289093e-08,
+        "loopGapFraction": 0.0,
+        "riderDegrees": 0,
+        "stanceSlipSpeedMean": 0.010754928440981549,
+        "stanceSlipSpeedMax": 0.1411193390865111
+      }
+    ]
+  },
+  {
+    "name": "BloomMender",
+    "clips": [
+      {
+        "clip": "Move",
+        "stepFraction": 0.007713524460915406,
+        "jointStepDegrees": 11.05946459903593,
+        "edgeStretch999": 1.131799578666687,
+        "groundAbsolute": 4.017886112706037e-08,
+        "loopGapFraction": 0.0,
+        "riderDegrees": 0,
+        "stanceSlipSpeedMean": 0.0016075562661082329,
+        "stanceSlipSpeedMax": 0.03180419674836226
+      }
+    ]
+  },
+  {
+    "name": "BreachBeast",
+    "clips": [
+      {
+        "clip": "Move",
+        "stepFraction": 0.01105028215834088,
+        "jointStepDegrees": 8.003534278272438,
+        "edgeStretch999": 1.1586447954177856,
+        "groundAbsolute": 2.338344131658232e-07,
+        "loopGapFraction": 0.0,
+        "riderDegrees": 0,
+        "stanceSlipSpeedMean": 1.3921942102426227e-05,
+        "stanceSlipSpeedMax": 2.662293353061257e-05
+      }
+    ]
+  },
+  {
+    "name": "BroodAlien",
+    "clips": [
+      {
+        "clip": "Move",
+        "stepFraction": 0.03127546019495303,
+        "jointStepDegrees": 19.065841524219497,
+        "edgeStretch999": 1.236425757408142,
+        "groundAbsolute": 1.287553459405899e-07,
+        "loopGapFraction": 0.0,
+        "riderDegrees": 0,
+        "stanceSlipSpeedMean": 0.007027208777011821,
+        "stanceSlipSpeedMax": 0.051411788989500856
+      }
+    ]
+  },
+  {
+    "name": "BroodCarrier",
+    "clips": [
+      {
+        "clip": "Move",
+        "stepFraction": 0.005843281751777538,
+        "jointStepDegrees": 4.107927230263235,
+        "edgeStretch999": 1.100201964378357,
+        "groundAbsolute": 1.0523945093154907e-07,
+        "loopGapFraction": 0.0,
+        "riderDegrees": 0,
+        "stanceSlipSpeedMean": 8.465209722922259e-06,
+        "stanceSlipSpeedMax": 2.53162308817299e-05
+      }
+    ]
+  },
+  {
+    "name": "Bulwark",
+    "clips": [
+      {
+        "clip": "Move",
+        "stepFraction": 0.01308166522633227,
+        "jointStepDegrees": 4.829651057490032,
+        "edgeStretch999": 1.153615951538086,
+        "groundAbsolute": 1.2200325727462769e-07,
+        "loopGapFraction": 0.0,
+        "riderDegrees": 0,
+        "stanceSlipSpeedMean": 1.0132188184594151e-05,
+        "stanceSlipSpeedMax": 2.5111109497217104e-05
+      }
+    ]
+  },
+  {
+    "name": "BurrowLurker",
+    "clips": []
+  },
+  {
+    "name": "CarrionReclaimer",
+    "clips": [
+      {
+        "clip": "Move",
+        "stepFraction": 0.004795170007519277,
+        "jointStepDegrees": 2.616795753983534,
+        "edgeStretch999": 1.0717709064483643,
+        "groundAbsolute": 2.0217498786223587e-07,
+        "loopGapFraction": 0.0,
+        "riderDegrees": 0,
+        "stanceSlipSpeedMean": 1.1165738671082769e-05,
+        "stanceSlipSpeedMax": 3.398845116650788e-05
+      }
+    ]
+  },
+  {
+    "name": "ClawHunter",
+    "clips": [
+      {
+        "clip": "Move",
+        "stepFraction": 0.014767440570371724,
+        "jointStepDegrees": 5.36075285392251,
+        "edgeStretch999": 1.155678629875183,
+        "groundAbsolute": 1.6205012798309326e-07,
+        "loopGapFraction": 0.0,
+        "riderDegrees": 0,
+        "stanceSlipSpeedMean": 9.425631817088742e-06,
+        "stanceSlipSpeedMax": 2.569229848653353e-05
+      }
+    ]
+  },
+  {
+    "name": "HookMaw",
+    "clips": [
+      {
+        "clip": "Move",
+        "stepFraction": 0.017146946450963624,
+        "jointStepDegrees": 7.184411723168007,
+        "edgeStretch999": 1.206403136253357,
+        "groundAbsolute": 9.778887033462524e-08,
+        "loopGapFraction": 0.0,
+        "riderDegrees": 0,
+        "stanceSlipSpeedMean": 7.459075680900512e-06,
+        "stanceSlipSpeedMax": 1.7747401840442924e-05
+      }
+    ]
+  },
+  {
+    "name": "HuntRider",
+    "clips": [
+      {
+        "clip": "Idle",
+        "stepFraction": 0.0006023045592772269,
+        "jointStepDegrees": 0.15325970764010824,
+        "edgeStretch999": 1.056411862373352,
+        "groundAbsolute": 1.1827796697616577e-07,
+        "loopGapFraction": 0.0,
+        "riderDegrees": 2.1181268255421677,
+        "stanceSlipSpeedMean": null,
+        "stanceSlipSpeedMax": null
+      },
+      {
+        "clip": "Move",
+        "stepFraction": 0.016768541947999666,
+        "jointStepDegrees": 5.67811230455181,
+        "edgeStretch999": 1.2356221675872803,
+        "groundAbsolute": 1.1338852345943451e-07,
+        "loopGapFraction": 6.426762133859738e-08,
+        "riderDegrees": 6.921479344025026,
+        "stanceSlipSpeedMean": 9.13899752972073e-06,
+        "stanceSlipSpeedMax": 3.0881073847029726e-05
+      },
+      {
+        "clip": "Attack",
+        "stepFraction": 0.045689756246383315,
+        "jointStepDegrees": 6.244149131785624,
+        "edgeStretch999": 1.4419810771942139,
+        "groundAbsolute": 1.7881393432617188e-07,
+        "loopGapFraction": 0.0,
+        "riderDegrees": 18.73214213840764,
+        "stanceSlipSpeedMean": null,
+        "stanceSlipSpeedMax": null
+      },
+      {
+        "clip": "Hit",
+        "stepFraction": 0.02984812074299998,
+        "jointStepDegrees": 8.46298058429416,
+        "edgeStretch999": 1.2253360748291016,
+        "groundAbsolute": 8.277129381895065e-08,
+        "loopGapFraction": 3.1628218139567485e-08,
+        "riderDegrees": 9.167370620964395,
+        "stanceSlipSpeedMean": null,
+        "stanceSlipSpeedMax": null
+      },
+      {
+        "clip": "Death",
+        "stepFraction": 0.02644654541736217,
+        "jointStepDegrees": 4.13504816466158,
+        "edgeStretch999": 1.7989407777786255,
+        "groundAbsolute": 2.0954757928848267e-07,
+        "loopGapFraction": 0.4646805157777999,
+        "riderDegrees": 28.64788975654116,
+        "stanceSlipSpeedMean": null,
+        "stanceSlipSpeedMax": null
+      }
+    ]
+  },
+  {
+    "name": "NeedleStalker",
+    "clips": [
+      {
+        "clip": "Move",
+        "stepFraction": 0.014715198342054188,
+        "jointStepDegrees": 7.781801556511742,
+        "edgeStretch999": 1.2446856498718262,
+        "groundAbsolute": 9.476207196712494e-08,
+        "loopGapFraction": 0.0,
+        "riderDegrees": 0,
+        "stanceSlipSpeedMean": 8.57396023855576e-06,
+        "stanceSlipSpeedMax": 2.463294907348799e-05
+      }
+    ]
+  },
+  {
+    "name": "SiegeBrooder",
+    "clips": [
+      {
+        "clip": "Move",
+        "stepFraction": 0.012641647311902338,
+        "jointStepDegrees": 12.200620401180823,
+        "edgeStretch999": 1.2820733785629272,
+        "groundAbsolute": 7.420021574944258e-08,
+        "loopGapFraction": 0.0,
+        "riderDegrees": 0,
+        "stanceSlipSpeedMean": 0.010167411013341482,
+        "stanceSlipSpeedMax": 0.12158283824394309
+      }
+    ]
+  },
+  {
+    "name": "SiegeRider",
+    "clips": [
+      {
+        "clip": "Idle",
+        "stepFraction": 0.0005806061144212085,
+        "jointStepDegrees": 0.14803722348452705,
+        "edgeStretch999": 1.04563307762146,
+        "groundAbsolute": 2.185165612900164e-07,
+        "loopGapFraction": 0.0,
+        "riderDegrees": 2.1184962960875833,
+        "stanceSlipSpeedMean": null,
+        "stanceSlipSpeedMax": null
+      },
+      {
+        "clip": "Move",
+        "stepFraction": 0.008096433498203668,
+        "jointStepDegrees": 4.463010662760393,
+        "edgeStretch999": 1.2863867282867432,
+        "groundAbsolute": 1.1321390047669411e-07,
+        "loopGapFraction": 0.0,
+        "riderDegrees": 6.921479344025026,
+        "stanceSlipSpeedMean": 1.3945145250456033e-05,
+        "stanceSlipSpeedMax": 3.6676235038998205e-05
+      },
+      {
+        "clip": "Attack",
+        "stepFraction": 0.009929684015117915,
+        "jointStepDegrees": 5.070192064961194,
+        "edgeStretch999": 1.256730079650879,
+        "groundAbsolute": 1.4854924756946275e-07,
+        "loopGapFraction": 0.0,
+        "riderDegrees": 9.082105100686894,
+        "stanceSlipSpeedMean": null,
+        "stanceSlipSpeedMax": null
+      },
+      {
+        "clip": "Hit",
+        "stepFraction": 0.02192916757743547,
+        "jointStepDegrees": 10.946242566072849,
+        "edgeStretch999": 1.1961023807525635,
+        "groundAbsolute": 1.0049552656710148e-07,
+        "loopGapFraction": 6.354200952875976e-08,
+        "riderDegrees": 8.11197064418767,
+        "stanceSlipSpeedMean": null,
+        "stanceSlipSpeedMax": null
+      },
+      {
+        "clip": "Death",
+        "stepFraction": 0.047822065852397,
+        "jointStepDegrees": 6.615970877191456,
+        "edgeStretch999": 1.564819574356079,
+        "groundAbsolute": 2.384185791015625e-07,
+        "loopGapFraction": 0.7630313223981771,
+        "riderDegrees": 7.448515096516604,
+        "stanceSlipSpeedMean": null,
+        "stanceSlipSpeedMax": null
+      }
+    ]
+  },
+  {
+    "name": "VeilWeaver",
+    "clips": [
+      {
+        "clip": "Move",
+        "stepFraction": 0.00667717583194382,
+        "jointStepDegrees": 6.277644281773115,
+        "edgeStretch999": 1.1513497829437256,
+        "groundAbsolute": 1.4202669262886047e-07,
+        "loopGapFraction": 0.0,
+        "riderDegrees": 0,
+        "stanceSlipSpeedMean": 1.0870081350133047e-05,
+        "stanceSlipSpeedMax": 3.4610008753454764e-05
+      }
+    ]
+  },
+  {
+    "name": "WallMelter",
+    "clips": []
+  },
+  {
+    "name": "WallRam",
+    "clips": [
+      {
+        "clip": "Move",
+        "stepFraction": 0.01460092056007075,
+        "jointStepDegrees": 15.319474299796214,
+        "edgeStretch999": 1.2584792375564575,
+        "groundAbsolute": 1.9255094230175018e-07,
+        "loopGapFraction": 0.0,
+        "riderDegrees": 0,
+        "stanceSlipSpeedMean": 0.0012759210310808507,
+        "stanceSlipSpeedMax": 0.08098402178066726
+      }
+    ]
+  }
+]

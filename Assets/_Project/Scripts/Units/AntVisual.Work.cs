@@ -36,7 +36,7 @@ namespace AntColony.Units
             if (commander.CorpseTarget != null) return (commander.EatingCorpse ? "Eat" : "GroundWork", null);
             if (commander.ScienceAssignment != null) return ("Inspect", null);
             if (commander.SurveyAssignment != null) { Face(commander.SurveyAssignment.Position - transform.position); return ("ControlPanel", null); }
-            if (commander.CraftingWorkshop != null) return ("SmithRepair", "Tool_Hammer_Stone");
+            if (commander.CraftingWorkshop != null) return commander.CraftingWorkshop.IsSewing ? ("SewRepair", null) : ("SmithRepair", "Tool_Hammer_Stone");
             var target = commander.ServiceTarget;
             if (target != null) Face(target.Position - transform.position);
             if (commander.ServiceJob == CommanderJobs.Firefighting) return ("BeatFire", null);
@@ -44,7 +44,8 @@ namespace AntColony.Units
             if (commander.ServiceJob == CommanderJobs.Cooking) return ((int)(Time.time / 4) % 2 == 0 ? "Stir" : "Knead", null);
             if (commander.ServiceJob == CommanderJobs.Nursing) return (target is Processor ? "Grind" : "Treat", null);
             if (commander.ServiceJob == CommanderJobs.Administration) return ("Stamp", null);
-            if (target is Processor p) return p.Data.kind == AntColony.Data.BuildingKind.Carpentry ? ("Saw", "Tool_Saw") : ("Operate", null);
+            if (target is Processor p) return p.DeepMining ? ("ControlPanel", null) : p.IsResourceSite ? KemonoModel.Gather(p.Current?.output ?? p.Recipes[0].output)
+                : p.Data.kind == AntColony.Data.BuildingKind.Carpentry ? ("Saw", "Tool_Saw") : ("Operate", null);
             if (target is SupplyFacility drill && UndergroundProduction.IsSolidDrill(drill.Kind)) return ("ControlPanel", null);
             if (target is PowerNode) return ("Run", null);
             return ("Operate", null);

@@ -1,0 +1,27 @@
+{
+  "success": true,
+  "command": "command",
+  "data": {
+    "command": "run_script",
+    "parameters": {
+      "file": "AgentScripts/OrganicMotionTransitions1114.cs",
+      "entry": "OrganicMotionTransitions1114.Main",
+      "timeout_ms": "120000"
+    },
+    "result": {
+      "diagnostics": [],
+      "compileMs": 45,
+      "executeMs": 394,
+      "assemblyName": "PipelineRunScript_OrganicMotionTransitions1114_667944b81c0e4a5191e0afcf8beb073a",
+      "success": true,
+      "result": "AcidSpitter: PASS 25 pairs, layers=1, animators=1, maxActiveClips=2, maxJointStep60fps=6.73\r\nBloomMender: PASS 36 pairs, layers=1, animators=1, maxActiveClips=2, maxJointStep60fps=6.23\r\nBreachBeast: PASS 25 pairs, layers=1, animators=1, maxActiveClips=2, maxJointStep60fps=9.31\r\nBroodAlien: PASS 25 pairs, layers=1, animators=1, maxActiveClips=2, maxJointStep60fps=4.78\r\nBroodCarrier: PASS 25 pairs, layers=1, animators=1, maxActiveClips=2, maxJointStep60fps=9.31\r\nBulwark: PASS 25 pairs, layers=1, animators=1, maxActiveClips=2, maxJointStep60fps=7.82\r\nBurrowLurker: PASS 25 pairs, layers=1, animators=1, maxActiveClips=2, maxJointStep60fps=9.32\r\nCarrionReclaimer: PASS 25 pairs, layers=1, animators=1, maxActiveClips=2, maxJointStep60fps=9.31\r\nClawHunter: PASS 25 pairs, layers=1, animators=1, maxActiveClips=2, maxJointStep60fps=9.32\r\nHookMaw: PASS 25 pairs, layers=1, animators=1, maxActiveClips=2, maxJointStep60fps=5.37\r\nHuntRider: PASS 25 pairs, layers=1, animators=1, maxActiveClips=2, maxJointStep60fps=5.95\r\nNeedleStalker: PASS 25 pairs, layers=1, animators=1, maxActiveClips=2, maxJointStep60fps=5.07\r\nSiegeBrooder: PASS 25 pairs, layers=1, animators=1, maxActiveClips=2, maxJointStep60fps=9.31\r\nSiegeRider: PASS 25 pairs, layers=1, animators=1, maxActiveClips=2, maxJointStep60fps=9.31\r\nVeilWeaver: PASS 25 pairs, layers=1, animators=1, maxActiveClips=2, maxJointStep60fps=9.31\r\nWallMelter: PASS 25 pairs, layers=1, animators=1, maxActiveClips=2, maxJointStep60fps=9.04\r\nWallRam: PASS 25 pairs, layers=1, animators=1, maxActiveClips=2, maxJointStep60fps=9.66\r\nTotal transition pairs: 436. This checks blend ownership/state/finite transforms, not full mesh self-collision or live navigation foot contact.\r\n"
+    },
+    "target": {
+      "host": "127.0.0.1",
+      "port": 7800,
+      "projectPath": "F:\\UnityProjects\\ant-colony-rts"
+    }
+  },
+  "errors": [],
+  "warnings": []
+}

@@ -6,7 +6,7 @@ namespace AntColony.Units
     public partial class CommanderAnt
     {
         internal bool AtDrill(BuildingBase drill) => ServiceTarget == drill && HasReachedDestination();
-        bool TryServiceApproach(BuildingBase target, out UnityEngine.Vector3 point)
+        internal bool TryServiceApproach(BuildingBase target, out UnityEngine.Vector3 point)
         {
             if(FurnitureUseSurface.Supported(target))
                 return FurnitureUseSurface.TryPoint(target,out point,out _) && CanReach(point);
@@ -17,6 +17,7 @@ namespace AntColony.Units
         public static bool ManualWellNeedsWork(SupplyFacility well) => well != null && well.Operational
             && well.Kind == AntColony.Data.BuildingKind.ManualWell && well.CountsTowardPlayerDefeat
             && well.NearSource(AntColony.Data.BuildingKind.WaterSource)
-            && FluidNetwork.CanDeliver(well, AntColony.Data.ResourceType.Water, StartSupplyRules.ManualWaterAmount);
+            && (FluidNetwork.CanDeliver(well, AntColony.Data.ResourceType.Water, StartSupplyRules.ManualWaterAmount)
+                || StarterCropBed.NeedsWaterSupply);
     }
 }

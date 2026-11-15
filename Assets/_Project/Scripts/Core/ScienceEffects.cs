@@ -58,6 +58,10 @@ namespace AntColony.Core
 
         public static ScienceTechnology[] BuildingResearch(BuildingKind kind) => kind switch
         {
+            BuildingKind.Handcart or BuildingKind.Quarry or BuildingKind.LoggingCamp or BuildingKind.SandPit or BuildingKind.ClayPit => new[] { ScienceTechnology.ManagedResources },
+            BuildingKind.CultivationGarden => new[] { ScienceTechnology.ManagedCultivation },
+            BuildingKind.OreMine => new[] { ScienceTechnology.MiningIndustry },
+            BuildingKind.DeepMine => new[] { ScienceTechnology.DeepMining },
             BuildingKind.BrewingBarrel or BuildingKind.Still => new[] { ScienceTechnology.Fermentation },
             BuildingKind.ChemistryBench or BuildingKind.AdvancedDeepDrill or BuildingKind.GasSmelter or BuildingKind.GasGenerator or BuildingKind.DeepDrill or BuildingKind.GasExtractor or BuildingKind.GasPipe or BuildingKind.GasTank => new[] { ScienceTechnology.UndergroundSurvey },
             BuildingKind.UndergroundScanner => new[] { ScienceTechnology.UndergroundSurvey },

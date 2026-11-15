@@ -1,0 +1,9 @@
+{
+  "focusLeader": true,
+  "seconds": 90,
+  "combat": true,
+  "retreatHealth": 30,
+  "defendLine": true,
+  "label": "wave-six-finish",
+  "speed": 3
+}

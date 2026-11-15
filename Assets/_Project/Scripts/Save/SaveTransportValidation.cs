@@ -87,7 +87,7 @@ namespace AntColony.Save
                 load += w?.loads?.Sum(l => (long)l.amount) ?? 0;
                 load += t.equipmentCargo.Count;
                 if (!t.walking)
-                    Check(load <= Mathf.FloorToInt((t.aircraft ? GameBalance.AircraftCargo : GameBalance.VehicleCargo)
+                    Check(load <= Mathf.FloorToInt((t.handcart ? 80 : t.aircraft ? GameBalance.AircraftCargo : GameBalance.VehicleCargo)
                         * (f.campaign.completed.Contains((int)ScienceTechnology.EfficientTransport) ? 1.5f : 1)), "예약 적재 한도");
             }
         }

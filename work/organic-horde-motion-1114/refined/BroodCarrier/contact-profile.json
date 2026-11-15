@@ -1,0 +1,12 @@
+{
+  "name": "BroodCarrier",
+  "changed": [
+    "Move"
+  ],
+  "strideSourceUnitsPerSecond": 0.2,
+  "riderBones": [],
+  "clips": [
+    "Move"
+  ],
+  "horizontalExtent": 2.4415740966796875
+}

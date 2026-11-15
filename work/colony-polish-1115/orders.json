@@ -1,0 +1,20 @@
+{
+  "priorities": [
+    "0,Cooking,9",
+    "0,Hauling,8",
+    "0,Gathering,6",
+    "1,Farming,9",
+    "1,Building,8",
+    "2,Building,9",
+    "2,Hauling,8"
+  ],
+  "resetResourcePriorities": true,
+  "build": [
+    "ManualWell",
+    "Farm",
+    "BigTable"
+  ],
+  "label": "food-and-water",
+  "seconds": 100,
+  "speed": 3
+}

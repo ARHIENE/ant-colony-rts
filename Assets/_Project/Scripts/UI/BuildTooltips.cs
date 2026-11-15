@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using AntColony.Buildings;
 using AntColony.Core;
@@ -21,7 +21,8 @@ namespace AntColony.UI
         public static bool Covers(BuildingKind kind) => kind is BuildingKind.Storage or BuildingKind.SleepingMat or BuildingKind.SingleBed
             or BuildingKind.Dormitory or BuildingKind.Toilet or BuildingKind.Farm or BuildingKind.ScienceLab or BuildingKind.AcidTower
             or BuildingKind.Palisade or BuildingKind.SoilWall or BuildingKind.LeafWall or BuildingKind.CapWall or BuildingKind.CastleWall or BuildingKind.Door
-            or BuildingKind.TrapPit or BuildingKind.SpikeTrap or BuildingKind.Workshop;
+            or BuildingKind.TrapPit or BuildingKind.SpikeTrap or BuildingKind.Workshop or BuildingKind.Handcart
+            or BuildingKind.ManualWell or BuildingKind.WaterPump or BuildingKind.StarterMushroomBed || ResourceIndustry.IsKind(kind);
 
         // name·cost·locked는 건설 화면이 이미 계산한 값(메뉴 표기, 비용 글자, 잠금 사유)을 그대로 받는다.
         public static string For(string name, BuildingKind kind, BuildingData data, string cost, string locked, ResourceType material)
@@ -39,8 +40,27 @@ namespace AntColony.UI
 
         private static (string use, string when, string run) Describe(BuildingKind kind, BuildingData data)
         {
+            if (kind == BuildingKind.Handcart) return ("장수 4명·기본 화물 80을 운송하는 인력 손수레.",
+                "도보 원정으로 운반할 수 있는 양이 부족할 때.",
+                "목재 20·판재 10·섬유 5를 배송해 조립. 전력·연료 없음. 지상 장수가 실제 길목까지 견인하며 목재로 수리합니다. " + Research(kind));
+            if (ResourceIndustry.IsKind(kind)) return (
+                "지속 생산: " + string.Join(" · ", Processor.RecipesFor(kind).Select(r=>r.output.DisplayName())),
+                "주변 자원이 줄었거나 생산량을 안정시키고 싶을 때.",
+                (kind == BuildingKind.CultivationGarden ? "농사 담당 · 묶음당 물 1 실물 배송" : "채집 담당 · 원료 없음")
+                + (kind == BuildingKind.Quarry ? " · 돌 도구 필요 · 돌 5/작업 30 또는 흙 5/작업 25 선택" : "")
+                + (kind == BuildingKind.DeepMine ? " · 전력 200W" : " · 전력/연료 없음") + " · 생산 목록 지정 · 바닥 출력 후 별도 운반. " + Research(kind));
             switch (kind)
             {
+                case BuildingKind.ManualWell:
+                    return ("수원 옆에서 장수가 물을 길어 올립니다.", "버섯 배지·재배원에 공급할 물이 필요할 때.",
+                        "수원 4m 이내 · 운반 작업 담당 · 전력/연료 없음. 길어 올린 물은 배관으로 공급하거나 바닥에 내려놓고 창고로 운반합니다.");
+                case BuildingKind.WaterPump:
+                    return ("수원에서 물을 자동으로 공급합니다.", "장수의 물 긷는 작업을 줄이고 싶을 때.",
+                        $"수원 4m 이내 · 전력 {SupplyFacility.PumpWatts:0}W · 배관 연결. " + Research(kind));
+                case BuildingKind.StarterMushroomBed:
+                    return ($"물과 종자로 시작하는 버섯 재배. 기본 {StartSupplyRules.CropSeconds / GameCalendar.SecondsPerDay:0}일마다 식량 {StartSupplyRules.CropFood}개를 바닥에 수확합니다.",
+                        "야생 식량이 떨어지기 전에. 첫 수확까지 식량을 따로 확보하세요.",
+                        $"파종 종자 1개 · 배지당 하루 물 {StartSupplyRules.MushroomWaterPerDay}개. 배관 또는 창고에 입고한 물을 사용하며 물이 없으면 성장을 멈춥니다.");
                 case BuildingKind.Storage:
                     return ($"식량·재료 기본 보관 한도 +{data.foodCapacityBonus}/+{data.soilCapacityBonus}. 창고에 들어간 재고만 연구비와 식량 목표에 집계됩니다.",
                         "채집물이 바닥에 쌓이거나 연구에 쓸 재고가 필요할 때.",
@@ -157,6 +177,11 @@ namespace AntColony.UI
             if (data.buildTimeSeconds > 0) Job(CommanderJobs.Building, "건설");
             switch (kind)
             {
+                case BuildingKind.ManualWell: Job(CommanderJobs.Hauling, "운반"); break;
+                case BuildingKind.StarterMushroomBed:
+                    Job(CommanderJobs.Hauling, "운반");
+                    if (rm == null || rm.GetAmount(ResourceType.PlantingMaterial) < 1) list.Add("파종용 종자 입고 필요");
+                    break;
                 case BuildingKind.Storage: Job(CommanderJobs.Hauling, "운반"); break;
                 case BuildingKind.Farm:
                     Job(CommanderJobs.Farming, "농사");

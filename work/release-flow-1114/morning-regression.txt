@@ -1,0 +1,1 @@
+PASS natural saved state: all three woke and ate without command, food grant or state injection; game time=1539.366

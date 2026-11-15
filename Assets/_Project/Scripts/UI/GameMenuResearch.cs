@@ -47,6 +47,12 @@ namespace AntColony.UI
         // 실제 코드(ScienceEffects 등)에 연결된 해금 효과만 적는다.
         private static string ResearchEffect(ScienceTechnology t) => t switch
         {
+            ScienceTechnology.ManagedResources => "채석장·벌목장·모래 채취장·점토 채취장 · 인력 생산, 전력 불필요",
+            ScienceTechnology.ManagedCultivation => "재배원에서 약초·섬유·잎·수지·파종재 생산",
+            ScienceTechnology.MiningIndustry => "광산에서 연구한 철·구리·주석·석탄·유황을 지속 채굴",
+            ScienceTechnology.SignalSurvey => "지역 지도 → 과학·수송 → 신호 탐색 · 연구 담당의 수신 작업으로 먼 지역 좌표 발견",
+            ScienceTechnology.DeepMining => "심부 광산 · 티타늄 표본 연구 후 인력·200W로 지속 채굴",
+            ScienceTechnology.StellarExtraction => "성휘 광석 표본 연구 후 심부 광산에서 지속 채굴 · 성휘 금속/합금 생산으로 연결",
             ScienceTechnology.FungalFarming => "밭 수확량 +20%, 넓은 밭 건설",
             ScienceTechnology.HoneydewRanch => "감로 작물 재배",
             ScienceTechnology.Resin => "흙벽·버섯벽·성벽·문 건설",
@@ -205,7 +211,7 @@ namespace AntColony.UI
                     else if (!candidates[index - 1].SendToResearch(captured)) ToastManager.Show("지시할 수 없습니다(경로·작업 중·작업표 연구 금지).");
                     Science();
                 });
-                dropdown.interactable = lab.Target != null || r.ActiveResource != null || (r.Active != null && lab.Tier >= r.Active.Tier);
+                dropdown.interactable = lab.Target != null || r.ActiveResource != null || r.SearchingSignals || (r.Active != null && lab.Tier >= r.Active.Tier);
                 var status = L.Label(row, "", 12, 530, 0, 490, 36, MenuTheme.Muted);
                 status.gameObject.AddComponent<MenuTooltip>().Message = $"등급 연구 속도 ×{CampaignResearch.LabMultiplier(lab.Tier):0.00} · 장수 연구 능력·특성·건강/생활 상태 별도\n천기: 동일 장수가 전체 필요량의 75% 이상 기여하면 직접 후속 연구 1개에 20% 통찰. 다음 연구는 직접 선택합니다.";
                 refreshDutyScreen += () => { if (captured == null) { status.text = "연구소 소실"; return; } var why = r.LabWaitReason(captured); status.text = why == "" ? $"기여 {r.LabRate(captured):0.00}/초" : why; };

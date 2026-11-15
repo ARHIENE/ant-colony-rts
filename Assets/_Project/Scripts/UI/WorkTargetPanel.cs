@@ -176,7 +176,8 @@ namespace AntColony.UI
                 action.gameObject.SetActive(true);
                 label.text = crop.Crop.planted ? "파종 완료" : "파종재 1로 심기";
                 action.interactable = !crop.Crop.planted;
-                instruction.text = $"성장 {crop.Crop.growth:0}/{StartSupplyRules.CropSeconds:0}초 · 급수 필요 · 파종재 1 소비";
+                instruction.text = $"성장 {crop.Crop.growth:0}/{StartSupplyRules.CropSeconds:0}초 → 식량 {StartSupplyRules.CropFood}\n"
+                    + (crop.Crop.planted ? crop.Crop.wateredSeconds > 0 ? $"급수 잔여 {crop.Crop.wateredSeconds:0}초" : "물 부족 · 연결한 우물 또는 창고의 물 필요" : "파종재 1 필요 · 수확 후 자동 재성장");
             }
             if (Target is SupplyFacility supply)
             {

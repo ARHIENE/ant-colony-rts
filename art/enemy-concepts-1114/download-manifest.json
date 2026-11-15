@@ -1,0 +1,104 @@
+[
+  {
+    "name": "AcidSpitter_1114_SmartRig",
+    "bytes": 18693176,
+    "sha256": "8A33C08F1FFC9B27C85427B23AB7FEAA83926CC159DE934A0CB3B166D6731B29",
+    "path": "F:\\UnityProjects\\ant-colony-rts\\MESHY\\AcidSpitter_1114_SmartRig.glb"
+  },
+  {
+    "name": "BloomMender_1114_SmartRig",
+    "bytes": 18764004,
+    "sha256": "0C55A3677CCD50888241D4FAC7994CAED811761611E391782E9908A538EDBC6A",
+    "path": "F:\\UnityProjects\\ant-colony-rts\\MESHY\\BloomMender_1114_SmartRig.glb"
+  },
+  {
+    "name": "BreachBeast_1114_SmartRig",
+    "bytes": 19475088,
+    "sha256": "7C4975A2813F7A5918D797322D3F575EDF8C53DB1F591FA6967ADEE8A2283BCF",
+    "path": "F:\\UnityProjects\\ant-colony-rts\\MESHY\\BreachBeast_1114_SmartRig.glb"
+  },
+  {
+    "name": "BroodAlien_1114_SmartRig",
+    "bytes": 19414192,
+    "sha256": "319D2232F8A9BE3F8E0D82EDA70B85C0D002224D9593B0791B26EC63E2EBBF21",
+    "path": "F:\\UnityProjects\\ant-colony-rts\\MESHY\\BroodAlien_1114_SmartRig.glb"
+  },
+  {
+    "name": "BroodCarrier_1114_SmartRig",
+    "bytes": 20810968,
+    "sha256": "541D74E3B238682DF0CB6976E99190C4FBB72837C7DDA0BE3ED3CBDE2C47D59C",
+    "path": "F:\\UnityProjects\\ant-colony-rts\\MESHY\\BroodCarrier_1114_SmartRig.glb"
+  },
+  {
+    "name": "Bulwark_1114_SmartRig",
+    "bytes": 19754552,
+    "sha256": "C40F2E7DD29DB3ADF6B80C161CF0BADCA28FC99E06E013256F5F2465C7975B4D",
+    "path": "F:\\UnityProjects\\ant-colony-rts\\MESHY\\Bulwark_1114_SmartRig.glb"
+  },
+  {
+    "name": "BurrowLurker_1114_SmartRig",
+    "bytes": 18423068,
+    "sha256": "D487E10539AD6F6615C9B3A1346436B1EB8153911B3090F490B312E1FAF0DD35",
+    "path": "F:\\UnityProjects\\ant-colony-rts\\MESHY\\BurrowLurker_1114_SmartRig.glb"
+  },
+  {
+    "name": "CarrionReclaimer_1114_SmartRig",
+    "bytes": 18803464,
+    "sha256": "F299D3566008991E4298E9F10E12150481CB4A31856E4ADB27EC222DD967B131",
+    "path": "F:\\UnityProjects\\ant-colony-rts\\MESHY\\CarrionReclaimer_1114_SmartRig.glb"
+  },
+  {
+    "name": "ClawHunter_1114_SmartRig",
+    "bytes": 18895040,
+    "sha256": "8F765D7BD9056D5129CBB98BE4C1D1249EFED779FACD10DD69D2992D41EBECFD",
+    "path": "F:\\UnityProjects\\ant-colony-rts\\MESHY\\ClawHunter_1114_SmartRig.glb"
+  },
+  {
+    "name": "HookMaw_1114_SmartRig",
+    "bytes": 18916804,
+    "sha256": "84BD74B96C5D7DD0191CA3BB1C5698FD69948FF9CE5A8502FB43ED0B88807248",
+    "path": "F:\\UnityProjects\\ant-colony-rts\\MESHY\\HookMaw_1114_SmartRig.glb"
+  },
+  {
+    "name": "HuntRider_1114_SmartRig",
+    "bytes": 20174748,
+    "sha256": "4201F570942197895F68521035895DD8AB5110996441187BE5ED494659145C97",
+    "path": "F:\\UnityProjects\\ant-colony-rts\\MESHY\\HuntRider_1114_SmartRig.glb"
+  },
+  {
+    "name": "NeedleStalker_1114_SmartRig",
+    "bytes": 18246992,
+    "sha256": "45FD8E8E6D75962FD7A2F07C39809C06393EE64191ACA0C0BEDA86A549FFC293",
+    "path": "F:\\UnityProjects\\ant-colony-rts\\MESHY\\NeedleStalker_1114_SmartRig.glb"
+  },
+  {
+    "name": "SiegeBrooder_1114_SmartRig",
+    "bytes": 20095140,
+    "sha256": "7AE8AB22267542FEB3D2055D6291E179BEFD4FBDD826C575BC47FC8113388AFB",
+    "path": "F:\\UnityProjects\\ant-colony-rts\\MESHY\\SiegeBrooder_1114_SmartRig.glb"
+  },
+  {
+    "name": "SiegeRider_1114_SmartRig",
+    "bytes": 20552936,
+    "sha256": "7D4B47791C2700A6F0D115BAD3D2F0637CE7CD61F4AEB2779620BBF7719F9523",
+    "path": "F:\\UnityProjects\\ant-colony-rts\\MESHY\\SiegeRider_1114_SmartRig.glb"
+  },
+  {
+    "name": "VeilWeaver_1114_SmartRig",
+    "bytes": 17968168,
+    "sha256": "F4D1EB4E55514999C93798C3FF86DA98D6FE7D09BBD7BE3BCD6FBCA5E5C61F30",
+    "path": "F:\\UnityProjects\\ant-colony-rts\\MESHY\\VeilWeaver_1114_SmartRig.glb"
+  },
+  {
+    "name": "WallMelter_1114_SmartRig",
+    "bytes": 17934960,
+    "sha256": "050C1EF83C7BBE52EEE06F1A41DF9A912436C2E6EE24507DF4045249559CA0F9",
+    "path": "F:\\UnityProjects\\ant-colony-rts\\MESHY\\WallMelter_1114_SmartRig.glb"
+  },
+  {
+    "name": "WallRam_1114_SmartRig",
+    "bytes": 19160884,
+    "sha256": "79D2F8F247E49C681BBE09ACF18E68CC5BA6662A9D104C42C8928592DDD22A25",
+    "path": "F:\\UnityProjects\\ant-colony-rts\\MESHY\\WallRam_1114_SmartRig.glb"
+  }
+]

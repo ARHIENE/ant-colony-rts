@@ -1,0 +1,24 @@
+{
+  "name": "SiegeRider",
+  "changed": [
+    "Idle",
+    "Move",
+    "Attack",
+    "Hit",
+    "Death"
+  ],
+  "strideSourceUnitsPerSecond": 0.3,
+  "riderBones": [
+    29,
+    28,
+    27
+  ],
+  "clips": [
+    "Idle",
+    "Move",
+    "Attack",
+    "Hit",
+    "Death"
+  ],
+  "horizontalExtent": 2.367882013320923
+}

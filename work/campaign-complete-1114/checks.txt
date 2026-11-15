@@ -1,0 +1,41 @@
+TRANSITION FIXTURE: supplied late-game rocket state; not natural economy playthrough.
+PASS New game initialization completed
+PASS Three starting commanders spawned
+PASS Fresh campaign has not reached ending
+PASS Disposable fixture active
+PASS Fixture position on NavMesh
+PASS Fixture checkpoint placement
+PASS Empty rocket cannot launch
+PASS Prepared rocket accepts nearby commander
+PASS Launch request accepted
+PASS Launch enters mothership
+PASS Launch does not grant victory
+PASS Arriving commander can walk on deck
+PASS Cannot return before physical boarding
+PASS Living final boss present
+PASS Home and mothership remain separate
+PASS Fixture position on NavMesh
+PASS Fixture checkpoint placement
+PASS Return issues walking order
+PASS Distant commander not instantly boarded
+PASS Commander physically walked to landing craft
+PASS Boarded crew return to Earth
+PASS Returned crew resume home simulation
+PASS Return does not grant personal healing
+PASS Fixture position on NavMesh
+PASS Fixture checkpoint placement
+PASS Same rocket supports re-entry
+PASS Re-entry preserves boss damage
+PASS Round trip still not victory
+PASS Mothership save validates: 
+PASS Save mothership checkpoint: 
+PASS Reload mothership checkpoint: 
+PASS Reload completed
+PASS Boss damage survives full scene reload
+PASS Reloaded commander stands on mothership navigation
+PASS Living boss prevents victory
+PASS Final boss death grants victory
+PASS Victory pauses simulation
+PASS Completed campaign cannot resume
+PASS Victory save: 
+FAIL Final-code checkpoint load accepted: 게임을 이미 불러오는 중입니다.

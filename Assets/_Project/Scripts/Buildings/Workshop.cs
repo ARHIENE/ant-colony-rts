@@ -13,8 +13,9 @@ namespace AntColony.Buildings
         [Serializable] public class Job {
             public EquipmentRecipe recipe; public float work; public string makerId = ""; public bool materialsPaid;
             public bool bossJob, recovery; public int boss;
+            public string repairId = "";
             public float WorkRequired => bossJob ? AntColony.Boss.BossProgress.RecoverySeconds : GameBalance.CraftWork;
-            public string Label => bossJob ? $"{(AntColony.Boss.BossId)boss} {(recovery ? "핵심물 복구" : "탐지기")}" : EquipmentRecipes.Name(recipe);
+            public string Label => bossJob ? $"{(AntColony.Boss.BossId)boss} {(recovery ? "핵심물 복구" : "탐지기")}" : (string.IsNullOrEmpty(repairId) ? "" : "수리: ") + EquipmentRecipes.Name(recipe);
             public Job Copy() => (Job)MemberwiseClone();
         }
         // 생산 목록(2026-10-08 기획): 지정 수량(amount개 만들고 끝) / 재고 유지(보관함 재고가 amount 미만이면 생산) / 계속 생산.
@@ -37,7 +38,7 @@ namespace AntColony.Buildings
         public const int MaxOrders = 10, MaxOrderAmount = 30;
         public bool AddOrder(EquipmentRecipe recipe, OrderMode mode, int amount)
         {
-            if (orders.Count >= MaxOrders || !EquipmentRecipes.Unlocked(recipe)) return false;
+            if (orders.Count >= MaxOrders || !Accepts(recipe)) return false;
             orders.Add(new Order { recipe = recipe, mode = mode, amount = Mathf.Clamp(amount, 1, MaxOrderAmount) }); return true;
         }
         public static int Stock(EquipmentRecipe recipe)
@@ -49,7 +50,7 @@ namespace AntColony.Buildings
                 if (e.slot == sample.slot && (e.slot == EquipmentSlot.Weapon ? e.weapon == sample.weapon : e.slot == EquipmentSlot.Armor ? e.armor == sample.armor : e.effect == sample.effect)) n++;
             n += SceneObjects.All<AntColony.World.EquipmentLoot>().Sum(l => l.Items.Count(e => e.slot == sample.slot
                 && (e.slot == EquipmentSlot.Weapon ? e.weapon == sample.weapon : e.slot == EquipmentSlot.Armor ? e.armor == sample.armor : e.effect == sample.effect)));
-            return n + SceneObjects.All<Workshop>().Where(w => !w.IsDead).Sum(w => w.Jobs.Count(j => j.recipe == recipe));
+            return n + SceneObjects.All<Workshop>().Where(w => !w.IsDead).Sum(w => w.Jobs.Count(j => j.recipe == recipe && string.IsNullOrEmpty(j.repairId)));
         }
         private bool Wants(Order o) => o.mode == OrderMode.Forever || o.mode == OrderMode.Count ? o.amount > 0 : Stock(o.recipe) < o.amount;
         // 대기열이 비었을 때만 채운다: 목록 순서대로, 자원이 모자라면 다음 품목.
@@ -102,7 +103,7 @@ namespace AntColony.Buildings
         public bool TryEnqueue(EquipmentRecipe recipe)
         {
             if (Ruined || IsDead || !isActiveAndEnabled || jobs.Count >= GameBalance.CraftQueueCapacity
-                || !ScienceEffects.BuildingUnlocked(BuildingKind.Workshop) || !EquipmentRecipes.Unlocked(recipe)
+                || !ScienceEffects.BuildingUnlocked(Data != null ? Data.kind : BuildingKind.Workshop) || !Accepts(recipe)
                 || EquipmentInventory.Instance == null || ResourceManager.Instance == null) return false;
             jobs.Add(new Job { recipe = recipe }); return true;
         }
@@ -114,9 +115,8 @@ namespace AntColony.Buildings
             if (index == 0 && !job.materialsPaid) inputs.Drop(Position);
             if (job.materialsPaid)
             {
-                AntColony.World.DiplomacyManager.DropFloor(ResourceType.Food, Mathf.FloorToInt(cost.x * fraction), Position + ResourceManager.Scatter());
-                AntColony.World.DiplomacyManager.DropFloor(ResourceType.Soil, Mathf.FloorToInt(cost.y * fraction), Position + ResourceManager.Scatter());
-                AntColony.World.DiplomacyManager.DropFloor(ResourceType.Special, cost.z, Position + ResourceManager.Scatter());
+                foreach (var material in Materials(job))
+                    AntColony.World.DiplomacyManager.DropFloor(material.type, material.type == ResourceType.Special ? material.amount : Mathf.FloorToInt(material.amount * fraction), Position + ResourceManager.Scatter());
             }
             jobs.RemoveAt(index); if (index == 0) Release(); return true;
         }
@@ -132,6 +132,8 @@ namespace AntColony.Buildings
             var inventory = EquipmentInventory.Instance;
             if (inventory == null) return;
             var job = jobs[0];
+            var repair = string.IsNullOrEmpty(job.repairId) ? null : inventory.Items.Find(e => e.id == job.repairId);
+            if (!string.IsNullOrEmpty(job.repairId) && (repair == null || !repair.IsClothing)) { Cancel(0); return; }
             if (!string.IsNullOrEmpty(job.makerId) && job.makerId != Crafter.PersonalState.id) { Release(); return; }
             if (!job.materialsPaid)
             {
@@ -146,6 +148,12 @@ namespace AntColony.Buildings
             if (job.bossJob) CampaignResearch.Instance?.BossProgress.SetCraftWork(job.work);
             if (job.work < job.WorkRequired) return;
             if (job.bossJob) { jobs.RemoveAt(0); Release(); return; }
+            if (repair != null)
+            {
+                repair.durability = EquipmentItem.ClothingCapacity;
+                jobs.RemoveAt(0); Release();
+                AntColony.UI.ToastManager.Show("수리 완료: " + repair.Label); return;
+            }
             var item = EquipmentRecipes.Create(job.recipe, EquipmentRecipes.Quality(Crafter.Talents.Level(CommanderActivity.Crafting), UnityEngine.Random.value, UnityEngine.Random.value));
             // 다이아 무라마사: 보유 장수가 혼자 만든 걸작은 10% 확률로 유일작.
             if (item.quality == 3 && Crafter.Traits.Has(AntColony.Units.CommanderTrait.DiamondCrafting) && UnityEngine.Random.value < .1f) item.MakeUnique(UnityEngine.Random.value);

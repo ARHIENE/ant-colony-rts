@@ -1,0 +1,22 @@
+Isolated supplied room fixture. Natural campaign checkpoint is untouched.
+PASS Scene ready
+PASS Scene ready
+PASS Find actual terrain
+PASS Nonzero map elevation fixture
+PASS Closed walls form a real sixteen-cell room
+PASS Rectangular room uses imported Meshy roof
+PASS Roof sits on walls above real terrain
+PASS Thatch textures survive runtime fade materials
+PASS Roof does not obstruct navigation or clicks
+PASS Distant view shows roof
+PASS Close view reveals interior
+PASS Shader compilation finishes before visual capture
+PASS Save enclosed room: 
+PASS Load enclosed room: 
+PASS Scene ready
+PASS Enclosure survives full reload
+PASS Meshy roof rebuilds after load
+PASS Concave room retains uncovered corner
+PASS Irregular fallback covers exactly occupied cells above ground
+PASS Opening boundary removes room and roof
+RESTORED

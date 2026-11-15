@@ -44,6 +44,10 @@ namespace AntColony.Core
             foreach (var node in AntColony.Core.SceneObjects.All<ResourceNode>())
             {
                 var site = node.GetComponentInParent<ExpeditionSite>();
+                // 자원 원정지는 채집 호환을 위해 원래 매장량도 LooseCargo로 만든다.
+                // 아직 소유하지 않은 매장량은 현장에 떨어뜨린 플레이어 화물과 구분한다.
+                if (site != null && site.Disposition != ConquestDisposition.Annexed
+                    && site.SiteResourceNodes != null && Array.IndexOf(site.SiteResourceNodes, node) >= 0) continue;
                 // 자연 매장량은 소유 재산이 아니다. 편입 거점 재고와 바닥 실물만 센다.
                 if (!node.IsRaidLocked && (node.IsLooseCargo || node.IsRaidLoot && site != null && site.Disposition == ConquestDisposition.Annexed))
                     wealth += ResourceValue(node.ResourceType, node.AmountRemaining);

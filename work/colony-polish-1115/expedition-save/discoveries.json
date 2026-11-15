@@ -1,0 +1,46 @@
+{
+    "entries": [
+        {
+            "category": "Ants",
+            "key": "weapon:WoodenSword",
+            "title": "나무칼",
+            "body": "모든 장수는 일하고 싸울 수 있습니다. 장비가 전투 방식을, 지휘 기술이 병력 한도를 정합니다."
+        },
+        {
+            "category": "World",
+            "key": "trail:Neutral ResourceSite 2",
+            "title": "중립 자원지 2",
+            "body": "정착지 주변에서 생존 흔적을 찾았습니다 · 중립 자원지 2 발견. 지역 지도에서 원정 가능"
+        },
+        {
+            "category": "Ants",
+            "key": "weapon:Bare mandibles",
+            "title": "맨손",
+            "body": "모든 장수는 일하고 싸울 수 있습니다. 장비가 전투 방식을, 지휘 기술이 병력 한도를 정합니다."
+        },
+        {
+            "category": "World",
+            "key": "trail:Neutral ResourceSite 1",
+            "title": "중립 자원지 1",
+            "body": "원정 현장의 지도 조각 · 중립 자원지 1 발견. 지역 지도에서 원정 가능"
+        },
+        {
+            "category": "World",
+            "key": "trail:Neutral ResourceSite 3",
+            "title": "중립 자원지 3",
+            "body": "원정 현장의 지도 조각 · 중립 자원지 3 발견. 지역 지도에서 원정 가능"
+        },
+        {
+            "category": "World",
+            "key": "trail:Wildlife BossNest 9",
+            "title": "야생 보스 둥지 9",
+            "body": "현장에서 확인한 첫 침공 거점 좌표 · 야생 보스 둥지 9 발견. 지역 지도에서 원정 가능"
+        },
+        {
+            "category": "World",
+            "key": "site:Neutral ResourceSite 2",
+            "title": "중립 자원지 2",
+            "body": "중립 · 자원지 · 고정 위험도 D3"
+        }
+    ]
+}

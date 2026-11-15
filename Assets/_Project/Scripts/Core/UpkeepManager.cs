@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace AntColony.Core
 {
-    // 30초마다 창고 Food를 확인한다. 바닥나면 장수만 굶주림(기분 낮은 장수는 이탈).
+    // 30초마다 개인 포만과 실제 접근 가능한 식사를 확인한다.
     // 2026-10-08: 세금은 ColonyPopulation 주간 납세로 옮김. 시민은 자체 생계라 식량 부족으로 사라지지 않는다.
     public class UpkeepManager : MonoBehaviour
     {
@@ -13,6 +13,12 @@ namespace AntColony.Core
         public int ConsecutiveFailures { get; private set; }
         public void RestoreFailures(int value) => ConsecutiveFailures = Mathf.Max(0, value);
         internal float SavedTimer { get => timer; set => timer = value; }
+
+        // 경고와 실제 기아 판정이 동일한 식단·개인 식량·접근성 기준을 사용한다.
+        public static bool HasMealShortage(CommanderAnt c) => c != null && c.IsColonyMember && !c.IsCaptive
+            && c.CarriedRationMeals <= 0 && !c.HasAccessibleMeal;
+        public static bool NeedsMealWarning(CommanderAnt c) => c != null && !c.IsDead
+            && c.Satiety <= 25 && HasMealShortage(c);
 
         private void Update()
         {
@@ -26,15 +32,12 @@ namespace AntColony.Core
         {
             var rm = ResourceManager.Instance;
             if (rm == null || AntPool.Instance == null) return;
-            if (rm.GetAmount(ResourceType.Food) > 0)
-            {
-                ConsecutiveFailures = 0;
-                return;
-            }
-            ConsecutiveFailures++;
             var hungry = new System.Collections.Generic.List<AntUnitBase>(AntUnitBase.Active);
-            // 창고가 비어도 소지 식량이 있거나 아직 배부른 장수는 굶주림·이탈 대상이 아니다.
-            hungry.RemoveAll(unit => unit is not CommanderAnt c || c.CarriedRationMeals > 0 || c.Satiety > 0 || c.IsEating);
+            // 원식량 창고가 비어도 조리된 식사·바닥 음식·섭취 중인 몫이 있으면
+            // 직접 가지러 가는 시간을 준다. 식단과 경로 판정은 실제 식사 코드와 같다.
+            hungry.RemoveAll(unit => unit is not CommanderAnt c || c.Satiety > 0 || !HasMealShortage(c));
+            if (hungry.Count == 0) { ConsecutiveFailures = 0; return; }
+            ConsecutiveFailures++;
             foreach (var c in hungry)
             {
                 if (c is CommanderAnt commander && commander.IsColonyMember && !commander.IsCaptive)

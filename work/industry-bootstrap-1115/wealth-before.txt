@@ -1,0 +1,7 @@
+Owned reported=8961.826; neutral resource sites=1480; excluding neutral=7481.826; expectation=1 -> 1
+Neutral ResourceSite 1 Soil: 160 Soil
+Neutral ResourceSite 2 Soil: 300 Soil
+Neutral ResourceSite 3 Soil: 300 Soil
+Neutral ResourceSite 4 Soil: 300 Soil
+Neutral ResourceSite 22 Soil: 100 Soil
+Neutral ResourceSite 23 Soil: 320 Soil

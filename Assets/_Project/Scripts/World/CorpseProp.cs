@@ -11,7 +11,7 @@ namespace AntColony.World
         internal void ShowRestored() { born = Time.time - .5f; LateUpdate(); }
         void LateUpdate()
         {
-            if (shown || corpse.Data == null || corpse.Data.kind != CorpseKind.Wildlife && Time.time - born < .5f) return;
+            if (shown || corpse.Data == null || corpse.Data.organicKind > 0 || corpse.Data.kind != CorpseKind.Wildlife && Time.time - born < .5f) return;
             var id = corpse.Remains || corpse.Data.kind == CorpseKind.Wildlife ? "Prop_Remains" : corpse.Data.kind == CorpseKind.Ant ? "Prop_CorpseBundle" : null;
             if (id == null) return;
             var prop = ProductionProp.Attach(transform, id, .9f, corpse.Position);

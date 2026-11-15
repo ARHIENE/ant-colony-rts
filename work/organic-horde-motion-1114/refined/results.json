@@ -1,0 +1,204 @@
+[
+  {
+    "name": "BreachBeast",
+    "changed": [
+      "Move"
+    ],
+    "strideSourceUnitsPerSecond": 0.43333333333333335,
+    "riderBones": [],
+    "clips": [
+      "Move"
+    ]
+  },
+  {
+    "name": "Bulwark",
+    "changed": [
+      "Move"
+    ],
+    "strideSourceUnitsPerSecond": 0.23333333333333336,
+    "riderBones": [],
+    "clips": [
+      "Move"
+    ]
+  },
+  {
+    "name": "BurrowLurker",
+    "changed": [],
+    "strideSourceUnitsPerSecond": 0,
+    "riderBones": [],
+    "clips": []
+  },
+  {
+    "name": "CarrionReclaimer",
+    "changed": [
+      "Move"
+    ],
+    "strideSourceUnitsPerSecond": 0.23333333333333336,
+    "riderBones": [],
+    "clips": [
+      "Move"
+    ]
+  },
+  {
+    "name": "ClawHunter",
+    "changed": [
+      "Move"
+    ],
+    "strideSourceUnitsPerSecond": 0.6333333333333334,
+    "riderBones": [],
+    "clips": [
+      "Move"
+    ]
+  },
+  {
+    "name": "HookMaw",
+    "changed": [
+      "Move"
+    ],
+    "strideSourceUnitsPerSecond": 0.46666666666666673,
+    "riderBones": [],
+    "clips": [
+      "Move"
+    ]
+  },
+  {
+    "name": "HuntRider",
+    "changed": [
+      "Idle",
+      "Move",
+      "Attack",
+      "Hit",
+      "Death"
+    ],
+    "strideSourceUnitsPerSecond": 0.5666666666666668,
+    "riderBones": [
+      25,
+      24
+    ],
+    "clips": [
+      "Idle",
+      "Move",
+      "Attack",
+      "Hit",
+      "Death"
+    ]
+  },
+  {
+    "name": "NeedleStalker",
+    "changed": [
+      "Move"
+    ],
+    "strideSourceUnitsPerSecond": 0.5,
+    "riderBones": [],
+    "clips": [
+      "Move"
+    ]
+  },
+  {
+    "name": "SiegeRider",
+    "changed": [
+      "Idle",
+      "Move",
+      "Attack",
+      "Hit",
+      "Death"
+    ],
+    "strideSourceUnitsPerSecond": 0.3,
+    "riderBones": [
+      29,
+      28,
+      27
+    ],
+    "clips": [
+      "Idle",
+      "Move",
+      "Attack",
+      "Hit",
+      "Death"
+    ]
+  },
+  {
+    "name": "WallMelter",
+    "changed": [],
+    "strideSourceUnitsPerSecond": 0,
+    "riderBones": [],
+    "clips": []
+  },
+  {
+    "name": "AcidSpitter",
+    "changed": [
+      "Move"
+    ],
+    "strideSourceUnitsPerSecond": 0.21666666666666667,
+    "riderBones": [],
+    "clips": [
+      "Move"
+    ]
+  },
+  {
+    "name": "BloomMender",
+    "changed": [
+      "Move"
+    ],
+    "strideSourceUnitsPerSecond": 0.2,
+    "riderBones": [],
+    "clips": [
+      "Move"
+    ]
+  },
+  {
+    "name": "BroodAlien",
+    "changed": [
+      "Move"
+    ],
+    "strideSourceUnitsPerSecond": 0.33333333333333337,
+    "riderBones": [],
+    "clips": [
+      "Move"
+    ]
+  },
+  {
+    "name": "BroodCarrier",
+    "changed": [
+      "Move"
+    ],
+    "strideSourceUnitsPerSecond": 0.2,
+    "riderBones": [],
+    "clips": [
+      "Move"
+    ]
+  },
+  {
+    "name": "SiegeBrooder",
+    "changed": [
+      "Move"
+    ],
+    "strideSourceUnitsPerSecond": 0.15,
+    "riderBones": [],
+    "clips": [
+      "Move"
+    ]
+  },
+  {
+    "name": "VeilWeaver",
+    "changed": [
+      "Move"
+    ],
+    "strideSourceUnitsPerSecond": 0.2,
+    "riderBones": [],
+    "clips": [
+      "Move"
+    ]
+  },
+  {
+    "name": "WallRam",
+    "changed": [
+      "Move"
+    ],
+    "strideSourceUnitsPerSecond": 0.21666666666666667,
+    "riderBones": [],
+    "clips": [
+      "Move"
+    ]
+  }
+]

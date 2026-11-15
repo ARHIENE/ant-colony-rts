@@ -20,10 +20,7 @@ namespace AntColony.Buildings
                         yield return (material.Key, material.Value);
                     yield break;
                 }
-                var cost = EquipmentRecipes.Cost(jobs[0].recipe);
-                if (cost.x > 0) yield return (ResourceType.Food, cost.x);
-                if (cost.y > 0) yield return (ResourceType.Soil, cost.y);
-                if (cost.z > 0) yield return (ResourceType.Special, cost.z);
+                foreach (var material in Materials(jobs[0])) yield return material;
             }
         }
         public bool InputsReady => jobs.Count > 0 && (jobs[0].materialsPaid || inputs.Ready(RequiredInputs));

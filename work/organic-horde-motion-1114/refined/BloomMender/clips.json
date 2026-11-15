@@ -1,0 +1,38 @@
+[
+  {
+    "name": "Idle",
+    "frames": 91,
+    "seconds": 3.0,
+    "loop": true
+  },
+  {
+    "name": "Move",
+    "frames": 31,
+    "seconds": 1.0,
+    "loop": true
+  },
+  {
+    "name": "Attack",
+    "frames": 43,
+    "seconds": 1.4,
+    "loop": false
+  },
+  {
+    "name": "Hit",
+    "frames": 19,
+    "seconds": 0.6,
+    "loop": false
+  },
+  {
+    "name": "Death",
+    "frames": 61,
+    "seconds": 2.0,
+    "loop": false
+  },
+  {
+    "name": "Heal",
+    "frames": 91,
+    "seconds": 3.0,
+    "loop": false
+  }
+]

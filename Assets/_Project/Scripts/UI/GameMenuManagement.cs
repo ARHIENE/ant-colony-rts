@@ -37,6 +37,7 @@ namespace AntColony.UI
         {
             selected ??= ManagementTabNames(group)[0];
             if (selected == "수리") { RepairOverview(); return; }
+            if (selected == "음주") { ShowAlcohol(); return; }
             if (selected == "창고" && ResourceManager.Instance?.Bins.Count > 0) { ShowStorage(ResourceManager.Instance.Bins[0]); return; }
             if (selected == "식단") { ShowDiet(); return; }
             if (selected == "의료" && SortedCommanders().Length > 0) { ShowHealth(SortedCommanders()[0]); return; }

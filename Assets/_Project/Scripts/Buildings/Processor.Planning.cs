@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Linq;
 using AntColony.Core;
 using AntColony.Data;
@@ -24,7 +24,9 @@ namespace AntColony.Buildings
             return $"1묶음 = {recipe.amount}개 · 작업량 {recipe.work:0} · 기준 속도1에서 분당 {60 * recipe.amount / recipe.work:0.0}개\n"
                 + (mode == Workshop.OrderMode.Forever ? "계속 생산 · 아래는 지정 수량 기준 예산" : $"현재 목표 {batches}묶음 → {batches * recipe.amount}개")
                 + $" · 기준 작업 {work:0}초\n{materials}{fluid}"
-                + (missing.Length > 0 ? "\n첫 묶음: " + missing : "\n고체 원료 확보 · 실제 배송 필요")
+                + (missing.Length > 0 ? "\n첫 묶음: " + missing : recipe.inputs.Length == 0 ? (DeepMining ? "\n전력 200W · 현장 채집 노동으로 생산" : "\n원료·전력·연료 없이 현장 노동으로 생산") : "\n고체 원료 확보 · 실제 배송 필요")
+                + (IsResourceSite && !ResourceIndustry.Unlocked(recipe.output) ? "\n필요: 해당 광물 표본 반입 후 자원 연구" : "")
+                + (DeepMining && recipe.output == ResourceType.StellarOre && !ScienceEffects.Has(ScienceTechnology.StellarExtraction) ? "\n추가 기술: 성휘 광맥 추적" : "")
                 + (!MedicineResearch.Unlocked(recipe.output) ? "\n연구 필요: " + (recipe.output == ResourceType.MedicineAdvanced ? "정밀 약제" : "약제") : "")
                 + "\n재고 유지는 바닥·완제품 운반 포함, 원료 배송 제외. 다른 제작대 진행분·이동·전력 대기·발효는 이 예상 시간에서 제외.";
         }

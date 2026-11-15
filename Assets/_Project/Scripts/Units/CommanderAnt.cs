@@ -39,7 +39,7 @@ namespace AntColony.Units
         public ExpeditionSite Captor { get; internal set; }
         public bool IsCaptive => Captor != null;
         public ScoutPost ScoutMission { get; private set; }
-        public bool IsAwayFromHome => Transport != null || Garrison != null || IsCaptive || ScoutMission != null;
+        public bool IsAwayFromHome => Transport != null || Garrison != null || IsCaptive || ScoutMission != null || RocketCampaign.AwayOnMothership(this);
         public bool IsEmbarked { get; private set; }
         // 정찰 동행(2026-10-03): 하던 일을 내려놓고 숨는다. 돌아오면 초소 옆에 나타난다.
         public bool CanScout => isActiveAndEnabled && !IsDead && PersonalHealth > 0 && !IsDeparting && !IsHostile && IsColonyMember
@@ -98,6 +98,7 @@ namespace AntColony.Units
         {
             if (CanReceiveOrders && !LabUpgradeBusy)
             {
+                if (!AntColony.Save.SaveSystem.Busy) CancelDrink();
                 LeavePlay();
                 WorkState.deploymentMealSeconds = 0;
                 WorkState.bossPickup = -1;
@@ -171,7 +172,7 @@ namespace AntColony.Units
             + labAttackLevel * LabAttackBonusPerLevel + EquipmentBonus(EquipmentSlot.Weapon);
         private float AttackAgainst(IDamageable target) => Mathf.Max(1f, FormationRules.Stat(FormationAttackBasis,
             traits.AttackBonus, FormationEffect(target).Attack))
-            * (1f - .25f * PersonalState.Severity(InjuryPart.Arms)) * (PersonalState.rageRemaining > 0 ? 1.3f : 1f) * WrathFactor;
+            * (1f - .25f * PersonalState.Severity(InjuryPart.Arms)) * (PersonalState.rageRemaining > 0 ? 1.3f : 1f) * WrathFactor * AlcoholFactor;
         public override float AttackDamage => AttackAgainst(CombatTarget);
         private float FormationArmorBasis => base.Armor + labArmorLevel * LabArmorBonusPerLevel + EquipmentBonus(EquipmentSlot.Armor)
             + (Role == UnitRole.Melee ? .5f * talents.Level(CommanderActivity.Melee) : Role == UnitRole.Defense ? talents.Level(CommanderActivity.Melee) : 0);
@@ -310,10 +311,11 @@ namespace AntColony.Units
         // G01(2026-10-23): 병력 0은 부대 소진일 뿐이고 장수는 혼자(1인분) 계속 교전한다.
         // 소집된 장수와, 웨이브 중의 싸울 수 있는 장수는 가까운 적과 스스로 교전한다. 평화 중 일하던 장수는 달려들지 않는다.
         protected override bool AutoEngages => IsDeployed || AntColony.World.WaveDefense.Instance?.InWave == true && !traits.Has(CommanderTrait.Pacifist) && !IsChild;
-        public override bool CanAttackTarget(IDamageable target) => CanReceiveOrders && !DeploymentEating && !IsReturning && !LabUpgradeBusy && base.CanAttackTarget(target);
+        public override bool CanAttackTarget(IDamageable target) => CanReceiveOrders && !SeekingDrink && !DeploymentEating && !IsReturning && !LabUpgradeBusy && base.CanAttackTarget(target);
 
         public override void CommandAttack(IDamageable target)
         {
+            if (SeekingDrink && CanReceiveOrders && target != null && base.CanAttackTarget(target)) CancelDrink();
             if (!CanReceiveOrders || LabUpgradeBusy || target == null || !CanAttackTarget(target)) return;
             if (target is Component component && !AntColony.World.DiplomacyManager.TryAttack(component)) return;
             if (IsAttacking(target)) return; // 이미 치고 있는 대상을 다시 지시해도 준비 중인 공격을 끊지 않는다
@@ -341,7 +343,6 @@ namespace AntColony.Units
         {
             if (!CanReceiveOrders || LabUpgradeBusy || IsDeployed && !IsAwayFromHome) return;
             if (Garrison != null && Garrison.DockedTransport == null) return;
-            automaticFacility = null; ScienceAssignment?.ReleaseResearcher();
             if (node == null || !AllowsJob(JobFor(node))) return;
             if (node.NeedsDesignation && !node.RequestWork()) return;
             base.CommandGather(node);
@@ -351,8 +352,7 @@ namespace AntColony.Units
         public override void CommandBuild(BuildingConstructionSite site)
         {
             if (!CanReceiveOrders || LabUpgradeBusy || IsDeployed) return;
-            automaticFacility = null; ScienceAssignment?.ReleaseResearcher();
-            if (site == null || !CanDoJob(site.IsArt ? CommanderJobs.Art : CommanderJobs.Building)) return;
+            if (site == null || !AllowsJob(site.Job)) return;
             base.CommandBuild(site);
             if (ConstructionTarget == site) SetWorkTarget(site);
         }
@@ -397,6 +397,11 @@ namespace AntColony.Units
 
         protected override void OnDisable()
         {
+            if (personalState?.id != null)
+            {
+                AntColony.UI.ToastManager.SetCrisis("med:" + personalState.id, null);
+                AntColony.UI.ToastManager.SetPinned("medwait:" + personalState.id, null);
+            }
             ResetResearchApproach();
             if (IsDead || Social.departure == DepartureState.Left || Social.departure == DepartureState.Imprisoned) LoseBossCargo();
             ReleaseCorpse();

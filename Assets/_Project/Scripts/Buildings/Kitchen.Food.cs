@@ -33,6 +33,12 @@ namespace AntColony.Buildings
         public void AgeIngredients(float seconds)
         {
             inputs.Age(seconds, Position); CaptureIngredients();
+            // Spoiled or lost ingredients must not trap every later, cookable bill.
+            // A courier in flight keeps its reservation and destination until delivery/abort.
+            if (Current == null && meals.pending >= 0 && !inputs.HasIncoming
+                && !inputs.CanSupply(Recipes[meals.pending].inputs)
+                && meals.orders.Any(o => o.recipe != meals.pending && Wants(o) && inputs.CanSupply(Recipes[o.recipe].inputs)))
+                EjectStaged();
         }
         private static bool ValidIngredients(State s) => s.pending >= -1 && s.pending < Recipes.Length
             && (s.pending < 0 || s.current < 0 && s.orders != null && s.orders.Any(o => o != null && o.recipe == s.pending))

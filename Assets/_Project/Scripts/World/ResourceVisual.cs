@@ -71,9 +71,13 @@ namespace AntColony.World
             } : null;
             var path = improved != null ? "Environment1110/Models/" + improved + "/" + improved : null;
             if (path == null || Resources.Load<GameObject>(path) == null) path = Folder + id;
+            if (node.ResourceType is ResourceType.BarleyPorridge or ResourceType.Soup or ResourceType.HoneyBread)
+                path = "MeshyFood1115/" + id;
             var model = ProductionProp.Attach(node.transform, path, width, floor);
             if (model == null) return;
             model.name = "ResourceModel"; box.forceRenderingOff = true;
+            if (!node.IsLooseCargo && !node.RequiresFishing)
+                AntColony.Map.NaturalSurface.Attach(model, node.ResourceType is ResourceType.Wood or ResourceType.Resin or ResourceType.Leaf or ResourceType.Fiber, node.ResourceType == ResourceType.Resin);
             FitHitbox(node, model);
         }
 

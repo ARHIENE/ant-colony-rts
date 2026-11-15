@@ -14,7 +14,7 @@ namespace AntColony.UI
         public void ShowWorkshop(Workshop workshop)
         {
             if (workshop == null) { Science(); return; }
-            var window = V5Window("공방 / 장비 보관함", "생산 방식과 수량을 선택한 뒤 품목을 추가하세요.");
+            var window = V5Window(workshop.IsSewing ? "재봉대 / 의복 제작·수리" : "공방 / 장비 보관함", "생산 방식과 수량을 선택한 뒤 품목을 추가하세요.");
             content = V5Section(window, "생산 품목 / 주문 설정", 20, 104, 520, 544);
             var inventory = EquipmentInventory.Instance;
             MenuTheme.Text(content, $"보관함 {inventory?.Items.Count ?? 0}/{EquipmentInventory.Capacity} · 대기열 {workshop.Jobs.Count}/{GameBalance.CraftQueueCapacity}", 19, 45);
@@ -23,11 +23,19 @@ namespace AntColony.UI
             ProductionControls(() => ShowWorkshop(workshop));
             foreach (EquipmentRecipe recipe in Enum.GetValues(typeof(EquipmentRecipe)))
             {
-                if (!EquipmentRecipes.Unlocked(recipe)) continue;
+                if (!workshop.Accepts(recipe)) continue;
                 var cost = EquipmentRecipes.Cost(recipe);
-                MenuTheme.Button(content, $"목록 추가: {EquipmentRecipes.Name(recipe)} — 식량 {cost.x} / 재료 {cost.y} / 특수 자원 {cost.z} · 재고 {Workshop.Stock(recipe)}", () => {
+                var costLabel = EquipmentRecipes.IsClothing(recipe) ? "직물 4" : $"식량 {cost.x} / 재료 {cost.y} / 특수 자원 {cost.z}";
+                MenuTheme.Button(content, $"목록 추가: {EquipmentRecipes.Name(recipe)} — {costLabel} · 재고 {Workshop.Stock(recipe)}", () => {
                     if (!workshop.AddOrder(recipe, orderMode, orderAmount)) ToastManager.Show($"생산 목록은 최대 {Workshop.MaxOrders}개입니다."); ShowWorkshop(workshop);
                 }).interactable = !workshop.Ruined && workshop.isActiveAndEnabled && workshop.Orders.Count < Workshop.MaxOrders;
+            }
+            if (workshop.IsSewing && inventory != null)
+            {
+                MenuTheme.Text(content, "의복을 보관함에 넣은 뒤 수리하세요. 수리 재료: 직물 1. 예약 중 장착 불가.", 17, 60);
+                foreach (var garment in inventory.Items)
+                    if (garment.IsClothing && garment.durability < EquipmentItem.ClothingCapacity && !Workshop.RepairReserved(garment.id))
+                        MenuTheme.Button(content, "수리 예약: " + garment.Label, () => { workshop.TryRepair(garment); ShowWorkshop(workshop); });
             }
             content = V5Section(window, "생산 목록 / 진행 상태", 554, 104, 526, 544);
             for (int i = 0; i < workshop.Orders.Count; i++)

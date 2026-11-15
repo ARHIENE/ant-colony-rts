@@ -1,0 +1,1 @@
+PASS first-wave 14 organic + original commander; GPU horde 20 bodies (19 instanced); world size=(1.30, 0.85, 1.59); frame prepared

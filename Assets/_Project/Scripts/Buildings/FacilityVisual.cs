@@ -40,28 +40,46 @@ namespace AntColony.Buildings
             // 2026-10-19 새로 만든 기반 시설 5종(DigSite는 쓰이지 않아 제외)
             { BuildingKind.QueenChamber, "CC_Stockpile" }, { BuildingKind.ResearchLab, "CC_ResearchLab" }, { BuildingKind.DefenseLab, "CC_DefenseLab" },
             { BuildingKind.RestRoom, "CC_RestRoom" },
-            { BuildingKind.UndergroundScanner, "CC_ResearchDesk" },
+            { BuildingKind.SewingTable, "SewingTable" }, { BuildingKind.UndergroundScanner, "Prospector" },
             { BuildingKind.OilDrill, "CC_OilDerrick" }, { BuildingKind.OilRefinery, "CC_Refinery" }, { BuildingKind.FluidTank, "CC_LiquidTank" },
             { BuildingKind.FluidPipe, "CC_PipeL_Straight" }, { BuildingKind.OilDeposit, "CC_Deposit_Oil_Normal" }, { BuildingKind.FuelCharger, "CC_FillingStation" },
             { BuildingKind.ManualWell, "CC_ManualWell" }, { BuildingKind.CrashWreck, "CC_CrashWreck" }, { BuildingKind.School, "CC_School" },
             { BuildingKind.CitizenClinic, "CC_CitizenClinic" }, { BuildingKind.CivicPublicService, "CC_CivicPublicService" }, { BuildingKind.PlanterBed, "CC_PlanterBed" },
             { BuildingKind.WaterSource, "CC_WaterSource" }, { BuildingKind.WaterPump, "CC_WaterPump" }, { BuildingKind.SteamGenerator, "CC_SteamGenerator" },
-            { BuildingKind.AdvancedDeepDrill, "CC_OilDerrick" }, { BuildingKind.GasSmelter, "CC_Smelter" },
-            { BuildingKind.GasGenerator, "CC_SteamGenerator" }, { BuildingKind.DeepDrill, "CC_OilDerrick" }, { BuildingKind.GasExtractor, "CC_OilDerrick" },
-            { BuildingKind.GasPipe, "CC_PipeL_Straight" }, { BuildingKind.GasTank, "CC_LiquidTank" },
+            { BuildingKind.AdvancedDeepDrill, "AdvancedDrill" }, { BuildingKind.GasSmelter, "CC_Smelter" },
+            { BuildingKind.GasGenerator, "GasGenerator" }, { BuildingKind.DeepDrill, "DeepDrill" }, { BuildingKind.GasExtractor, "GasExtractor" },
+            { BuildingKind.GasPipe, "CC_PipeL_Straight" }, { BuildingKind.GasTank, "GasTank" },
             { BuildingKind.StarterMushroomBed, "CC_MushroomFarm" },
             { BuildingKind.ChemistryBench, "CC_ChemistryBench" },
             { BuildingKind.CharcoalKiln, "CharcoalKiln" }, { BuildingKind.CokeOven, "CokeOven" },
             { BuildingKind.Mill, "Mill" }, { BuildingKind.OilPress, "OilPress" }, { BuildingKind.BrewingBarrel, "BrewingBarrel" }, { BuildingKind.Still, "Still" },
         };
 
-        public static string ModelFor(BuildingKind kind) => kind == BuildingKind.Palisade ? "Palisade" : Models.TryGetValue(kind, out var id) ? id : null;
+        public static string ModelFor(BuildingKind kind) => ResourceIndustry.IsKind(kind) ? kind.ToString()
+            : kind == BuildingKind.Palisade ? "Palisade" : Models.TryGetValue(kind, out var id) ? id : null;
         private static GameObject LoadModel(BuildingKind kind, ResourceType material = ResourceType.Soil)
         {
+            if (kind == BuildingKind.AcidTower && Resources.Load<GameObject>("AcidTower1115/AcidTower") is GameObject acidTower) return acidTower;
+            if (material == ResourceType.Soil)
+            {
+                var tribal = kind switch { BuildingKind.Hearth => "StoneHearth", BuildingKind.FoodStore => "FoodGranary", BuildingKind.Gate => "PalisadeGate", _ => null };
+                if (tribal != null && Resources.Load<GameObject>("TribalFinish1115/" + tribal) is GameObject ready) return ready;
+            }
+            if (kind == BuildingKind.SleepingMat)
+            {
+                var mat = Resources.Load<GameObject>("MeshyLiving1115/SleepingMat");
+                if (mat != null) return mat;
+            }
+            if (ResourceIndustry.IsKind(kind)) return Resources.Load<GameObject>("Industry1115/" + kind);
+            if (kind == BuildingKind.SoilWall && material == ResourceType.Soil)
+            {
+                var wall = Resources.Load<GameObject>("Tribal1114/Models/TribalWall/TribalWall");
+                if (wall != null) return wall;
+            }
             var furniture = kind switch {
                 BuildingKind.Palisade => "Palisade", BuildingKind.SingleBed => "SingleBed", BuildingKind.Bookshelf => "Bookshelf", BuildingKind.BigTable => "DiningTable",
                 BuildingKind.Carpentry => "Workbench", _ => null };
-            if (furniture != null && (material == ResourceType.Soil || kind == BuildingKind.Palisade))
+            if (furniture != null && (material == ResourceType.Soil || material == ResourceType.Wood || kind == BuildingKind.Palisade))
             {
                 var ready = Resources.Load<GameObject>($"Furniture1113/Models/{furniture}/{furniture}");
                 if (ready != null) return ready;
@@ -74,7 +92,7 @@ namespace AntColony.Buildings
             }
             var release = kind switch {
                 BuildingKind.Campfire => "Campfire", BuildingKind.Carpentry => "Carpentry",
-                BuildingKind.Kitchen => "Kitchen", BuildingKind.ScienceLab => "ResearchDesk",
+                BuildingKind.Kitchen or BuildingKind.Hearth => "Kitchen", BuildingKind.ScienceLab => "ResearchDesk",
                 BuildingKind.SpikeTrap => "SpikeTrap", BuildingKind.QueenChamber => "Stockpile",
                 BuildingKind.Workshop => "Workshop", BuildingKind.Smelter => "Smelter", _ => null };
             if (release != null && material == ResourceType.Soil)
@@ -200,6 +218,16 @@ namespace AntColony.Buildings
                 heightScale.y*=1.02f/Mathf.Max(.01f,bounds.size.y*scale);
                 heightRoot.localScale=heightScale;model=heightRoot;
             }
+            if (KindOf(building) == BuildingKind.Gate && prefab.name == "PalisadeGate")
+            {
+                var heightRoot = new GameObject("Palisade gate height").transform;
+                heightRoot.SetPositionAndRotation(new Vector3(center.x, bottom, center.z), transform.rotation);
+                heightRoot.SetParent(transform, true); model.SetParent(heightRoot, true);
+                var heightScale = heightRoot.localScale;
+                heightScale.y *= 2.4f / Mathf.Max(.01f, bounds.size.y * scale);
+                heightRoot.localScale = heightScale; model = heightRoot;
+                model.gameObject.AddComponent<MeshyGateVisual>();
+            }
             foreach (var c in model.GetComponentsInChildren<Collider>()) Destroy(c);
             // 초가집 지붕이 FBX 내장 CC_Cream(거의 흰색)이라 흰 고깔처럼 보임 → 짚 색으로(2026-11-01 사용자 지적 '초가집이 아님').
             foreach (var r in renderers)
@@ -211,9 +239,12 @@ namespace AntColony.Buildings
             Model = model;
             if (KindOf(building) == BuildingKind.Infirmary && prefab.name == "Infirmary")
                 Model = ArrangeTreatmentBeds(model, center, bottom, size);
-            if (KindOf(building) == BuildingKind.SingleBed && prefab.name == "SingleBed") AddSleepingSurface(model);
+            if (KindOf(building) == BuildingKind.SingleBed && prefab.name == "SingleBed"
+                || KindOf(building) == BuildingKind.SleepingMat && prefab.name == "SleepingMat") AddSleepingSurface(model);
             loadedPrefab = prefab;
+            if (RoomSystem.IsBoundary(building)) RoomSystem.MarkDirty();
             RefreshMainMaterial();
+            CropGrowthVisual.Attach(this);
         }
 
         private static void AddSleepingSurface(Transform model)

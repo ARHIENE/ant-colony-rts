@@ -1,0 +1,25 @@
+Isolated supplied-stock fixture: real walking, construction work, boarding and pulling; not natural campaign proof.
+PASS Wait condition
+PASS Wait condition
+PASS Fixed wood/plank/fiber costs
+PASS Early technology gate
+PASS Construction ground
+PASS Real material delivery and builder completed assembly
+PASS Handcart stats and model
+PASS Board queued
+PASS Wait condition
+PASS Known destination
+PASS Departure allowed: 
+PASS Departure exposes actual puller
+PASS Wait condition
+PASS Actual local movement before world travel
+PASS Save during paused pull: 
+PASS Reload during pull: 
+PASS Wait condition
+PASS Pull state and position restored
+PASS Paused pull remains paused after reload
+PASS Resume pull using player action
+PASS Wait condition
+PASS Gate reached before world travel
+PASS Save outbound cart: 
+RESTORED settings and save root

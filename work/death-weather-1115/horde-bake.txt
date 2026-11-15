@@ -1,0 +1,34 @@
+PASS WallRam: vertices=726 triangles=2071 frames=215 clips=5 bounds=(1.39, 1.08, 0.94)
+PASS WallRam preserves living body scale 1.468647
+PASS NeedleStalker: vertices=734 triangles=2016 frames=215 clips=5 bounds=(0.98, 0.72, 1.32)
+PASS NeedleStalker preserves living body scale 1.252697
+PASS BloomMender: vertices=839 triangles=2271 frames=289 clips=6 bounds=(1.16, 1.24, 0.75)
+PASS BloomMender preserves living body scale 1.224957
+PASS ClawHunter: vertices=778 triangles=2199 frames=215 clips=5 bounds=(0.93, 0.67, 1.36)
+PASS ClawHunter preserves living body scale 1.269714
+PASS BroodAlien: vertices=874 triangles=2358 frames=215 clips=5 bounds=(1.05, 1.11, 0.91)
+PASS BroodAlien preserves living body scale 1.096798
+PASS BreachBeast: vertices=812 triangles=2191 frames=215 clips=5 bounds=(1.06, 0.93, 1.45)
+PASS BreachBeast preserves living body scale 1.43588
+PASS AcidSpitter: vertices=749 triangles=2168 frames=215 clips=5 bounds=(0.73, 0.81, 0.90)
+PASS AcidSpitter preserves living body scale 0.8840132
+PASS HuntRider: vertices=710 triangles=2018 frames=215 clips=5 bounds=(0.75, 0.69, 1.21)
+PASS HuntRider preserves living body scale 1.20854
+PASS SiegeRider: vertices=677 triangles=1991 frames=215 clips=5 bounds=(1.43, 1.21, 1.60)
+PASS SiegeRider preserves living body scale 1.449655
+PASS WallMelter: vertices=809 triangles=2012 frames=215 clips=5 bounds=(1.11, 0.98, 0.88)
+PASS WallMelter preserves living body scale 1.134044
+PASS SiegeBrooder: vertices=787 triangles=2177 frames=215 clips=5 bounds=(1.86, 1.78, 1.68)
+PASS SiegeBrooder preserves living body scale 1.937182
+PASS BroodCarrier: vertices=614 triangles=2076 frames=215 clips=5 bounds=(1.10, 1.07, 1.21)
+PASS BroodCarrier preserves living body scale 1.121354
+PASS HookMaw: vertices=741 triangles=2113 frames=215 clips=5 bounds=(0.87, 0.77, 1.16)
+PASS HookMaw preserves living body scale 1.164625
+PASS Bulwark: vertices=714 triangles=1958 frames=215 clips=5 bounds=(0.95, 0.94, 1.10)
+PASS Bulwark preserves living body scale 0.9931546
+PASS BurrowLurker: vertices=731 triangles=2001 frames=215 clips=5 bounds=(0.98, 0.61, 2.17)
+PASS BurrowLurker preserves living body scale 2.167402
+PASS CarrionReclaimer: vertices=889 triangles=2310 frames=215 clips=5 bounds=(0.80, 0.74, 1.25)
+PASS CarrionReclaimer preserves living body scale 1.171087
+PASS VeilWeaver: vertices=720 triangles=1987 frames=215 clips=5 bounds=(1.07, 0.79, 0.89)
+PASS VeilWeaver preserves living body scale 1.114725

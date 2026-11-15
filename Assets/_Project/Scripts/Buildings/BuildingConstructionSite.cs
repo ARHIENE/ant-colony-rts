@@ -24,7 +24,12 @@ namespace AntColony.Buildings
         public List<Need> Needs { get; } = new List<Need>();
         public bool Started { get; internal set; }
         public bool Paused { get; private set; }
-        public long Order { get; internal set; } = ++orderSeq;
+        private long order = ++orderSeq;
+        public long Order
+        {
+            get => order;
+            internal set { order = value; orderSeq = Math.Max(orderSeq, value); }
+        }
         public GameObject Building => completedBuilding;
         public AntColony.Data.BuildingKind? BuildingKind => completedBuilding != null ? completedBuilding.GetComponent<BuildingBase>()?.Data?.kind : null;
         public bool IsArt => BuildingKind.HasValue && Decoration.IsKind(BuildingKind.Value);

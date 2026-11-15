@@ -128,6 +128,8 @@ namespace AntColony.Units
             var issuedMove = false;
             var issuedAttack = false;
             var gatherers = 0;
+            var builders = 0;
+            string workFailure = null;
             var rejectedAttacks = 0;
 
             foreach (var selectable in selected)
@@ -148,8 +150,8 @@ namespace AntColony.Units
                 }
                 // 직접 우선 작업을 지시하면 들고 있던 짐을 그 자리에 내려놓고 바로 전환한다(2026-10-12). 단순 이동은 짐을 유지한다.
                 if (worker is CommanderAnt carrier && carrier.IsCarrying && !carrier.IsAwayFromHome
-                    && (deposit != null && deposit.CountsTowardPlayerDefeat && !(deposit is Storage || deposit is Stockpile) || target is WildMonster || resourceNode != null && resourceNode.CanGather
-                        || hit.collider.GetComponentInParent<BuildingConstructionSite>() != null)) carrier.DropCargo();
+                    && resourceNode == null && hit.collider.GetComponentInParent<BuildingConstructionSite>() == null
+                    && (deposit != null && deposit.CountsTowardPlayerDefeat && !(deposit is Storage || deposit is Stockpile) || target is WildMonster)) carrier.DropCargo();
                 if (worker is CommanderAnt artisan && deposit != null && deposit.CountsTowardPlayerDefeat)
                 {
                     var job = deposit is Infirmary ? CommanderJobs.Nursing : deposit is Kitchen ? CommanderJobs.Cooking
@@ -160,12 +162,18 @@ namespace AntColony.Units
                 }
                 if (worker is CommanderAnt hunter && !hunter.IsDeployed && target is WildMonster animal && animal.Huntable && animal.HuntDesignated && hunter.StartHunt(animal)) { index++; continue; }
                 if (worker is CommanderAnt builder && !builder.IsDeployed && hit.collider.GetComponentInParent<BuildingConstructionSite>() is BuildingConstructionSite site)
-                { builder.CommandBuild(site); index++; continue; }
+                {
+                    if (builder.TryDirectBuild(site, out var reason)) builders++;
+                    else workFailure = reason;
+                    index++; continue;
+                }
                 // A deployed commander treats resources as movement destinations; forbidden work must not swallow a retreat click.
                 if (worker != null && resourceNode != null && !(worker is CommanderAnt deployedWorker && deployedWorker.IsDeployed))
                 {
-                    worker.CommandGather(resourceNode);
-                    if (worker.CurrentResourceNode == resourceNode && worker.IsWorking)
+                    bool accepted;
+                    if (worker is CommanderAnt directWorker) accepted = directWorker.TryDirectGather(resourceNode, out workFailure);
+                    else { worker.CommandGather(resourceNode); accepted = worker.CurrentResourceNode == resourceNode && worker.IsWorking; }
+                    if (accepted)
                     {
                         GatherOrderFeedback.Show(resourceNode, worker);
                         gatherers++;
@@ -197,6 +205,7 @@ namespace AntColony.Units
             if (resourceNode != null && (gatherers > 0 || !issuedMove && !issuedAttack))
             {
                 AntColony.UI.ToastManager.Show(gatherers > 0 ? $"{resourceNode.ResourceType.DisplayName()} 채집 지시 · {gatherers}명"
+                    : !string.IsNullOrEmpty(workFailure) ? "작업 불가: " + workFailure
                     : resourceNode.IsLooseCargo ? "운반 불가: 보관 가능한 창고·비축더미, 이동 경로와 장수 상태를 확인하세요."
                     : "채집 불가: 연구·도구·작업 가능 여부와 이동 경로를 확인하세요.");
             }
@@ -204,11 +213,13 @@ namespace AntColony.Units
             {
                 MoveMarker.Spawn(hit.point, moveMarkerColor);
             }
+            else if (builders > 0) AntColony.UI.ToastManager.Show($"건설·재료 운반 지시 · {builders}명");
+            else if (!string.IsNullOrEmpty(workFailure)) AntColony.UI.ToastManager.Show("작업 불가: " + workFailure);
             // 지시 확인음. 공격 지시는 대상 위치에 붉은 마커도 남긴다.
             if (issuedAttack) MoveMarker.Spawn(hit.point, new Color(1f, .3f, .25f), .5f, 1.8f, .4f);
             if (issuedAttack) AntColony.UI.GameFeel.Play(AntColony.UI.GameFeel.Sound.Attack);
-            else if (issuedMove || gatherers > 0) AntColony.UI.GameFeel.Play(AntColony.UI.GameFeel.Sound.Move);
-            else if (resourceNode != null) AntColony.UI.GameFeel.Play(AntColony.UI.GameFeel.Sound.Deny);
+            else if (issuedMove || gatherers > 0 || builders > 0) AntColony.UI.GameFeel.Play(AntColony.UI.GameFeel.Sound.Move);
+            else if (resourceNode != null || !string.IsNullOrEmpty(workFailure)) AntColony.UI.GameFeel.Play(AntColony.UI.GameFeel.Sound.Deny);
             if (rejectedAttacks > 0)
                 AntColony.UI.ToastManager.Show($"{rejectedAttacks}명 공격 불가 · " + (CombatTargeting.IsAirborne(target)
                     ? "공중 대상: 원거리·비행 장비가 필요합니다. 이동 지시만 적용했습니다."

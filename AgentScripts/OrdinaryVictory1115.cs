@@ -1,0 +1,6 @@
+using System;using System.IO;using System.Threading.Tasks;using AntColony.Core;using AntColony.Save;using AntColony.UI;using UnityEngine;
+public static class OrdinaryVictory1115
+{
+ public static string Main(){_=Run();return "Checking saved ordinary victory";}
+ static async Task Run(){var root=SaveStorage.RootOverride;var settings=UserSettings.Current.Clone();SaveStorage.RootOverride=Path.Combine(Application.temporaryCachePath,"Victory1115-"+Guid.NewGuid().ToString("N"));try{var q=settings.Clone();q.autoSaveEnabled=false;UserSettings.Apply(q,false);if(!SaveSystem.TryLoad(Path.GetFullPath("work/campaign-complete-1115/ordinary-victory-save.json"),out var error))throw new Exception(error);var end=DateTime.UtcNow.AddSeconds(100);while(SaveSystem.Busy&&DateTime.UtcNow<end)await Task.Delay(100);SimulationPause.UserSpeed(0);if(SaveSystem.Busy||!RocketCampaign.Instance.MothershipVictory||!CampaignResearch.Instance.Departed)throw new Exception("Victory not restored");File.AppendAllText("work/campaign-complete-1115/ordinary-fight.txt","PASS saved normal-combat victory fully reloaded and ending flag retained.\n");}catch(Exception e){File.AppendAllText("work/campaign-complete-1115/ordinary-fight.txt","RELOAD FAIL "+e+"\n");}finally{UserSettings.Apply(settings,false);SaveStorage.RootOverride=root;}}
+}

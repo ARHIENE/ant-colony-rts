@@ -1,0 +1,78 @@
+[
+  {
+    "bundle": "AcidSpitter.tar.xz",
+    "members": 5
+  },
+  {
+    "bundle": "BloomMender.tar.xz",
+    "members": 2
+  },
+  {
+    "bundle": "BreachBeast.tar.xz",
+    "members": 2
+  },
+  {
+    "bundle": "BroodAlien.tar.xz",
+    "members": 2
+  },
+  {
+    "bundle": "BroodCarrier.tar.xz",
+    "members": 5
+  },
+  {
+    "bundle": "Bulwark.tar.xz",
+    "members": 2
+  },
+  {
+    "bundle": "BurrowLurker.tar.xz",
+    "members": 1
+  },
+  {
+    "bundle": "CarrionReclaimer.tar.xz",
+    "members": 2
+  },
+  {
+    "bundle": "ClawHunter.tar.xz",
+    "members": 2
+  },
+  {
+    "bundle": "enemy-art.tar.xz",
+    "members": 50
+  },
+  {
+    "bundle": "graph.tar.xz",
+    "members": 1
+  },
+  {
+    "bundle": "HookMaw.tar.xz",
+    "members": 2
+  },
+  {
+    "bundle": "HuntRider.tar.xz",
+    "members": 9
+  },
+  {
+    "bundle": "NeedleStalker.tar.xz",
+    "members": 2
+  },
+  {
+    "bundle": "SiegeBrooder.tar.xz",
+    "members": 12
+  },
+  {
+    "bundle": "SiegeRider.tar.xz",
+    "members": 12
+  },
+  {
+    "bundle": "VeilWeaver.tar.xz",
+    "members": 12
+  },
+  {
+    "bundle": "WallMelter.tar.xz",
+    "members": 12
+  },
+  {
+    "bundle": "WallRam.tar.xz",
+    "members": 17
+  }
+]

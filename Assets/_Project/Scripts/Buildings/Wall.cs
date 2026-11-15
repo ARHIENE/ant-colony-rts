@@ -43,7 +43,7 @@ namespace AntColony.Buildings
         }
         private BuildingBase wall;
         private State state = new State();
-        private void OnEnable() => AntColony.Core.SceneObjects.Register(this);
+        private void OnEnable() { AntColony.Core.SceneObjects.Register(this); if (!GetComponent<BuildingFireVisual>()) gameObject.AddComponent<BuildingFireVisual>(); }
         private void OnDisable() => AntColony.Core.SceneObjects.Unregister(this);
         public const float ExtinguishSeconds = 5f;
         public bool Burning => state.remaining > 0 && wall != null && !wall.IsDead;

@@ -1,0 +1,196 @@
+BlenderMCP addon registered
+Server thread started
+BlenderMCP server started on localhost:9876
+MCP_PORT 9876
+02:53:39.094  blend            | Saved session recovery to "C:\Users\gusdu\AppData\Local\Temp\quit.blend"
+Connected to client: ('127.0.0.1', 51843)
+Client handler started
+Queued command: get_addon_info
+Executing handler for get_addon_info
+Handler execution complete
+Queued command: get_addon_info
+Executing handler for get_addon_info
+Handler execution complete
+Queued command: get_polyhaven_status
+Queued command: get_sketchfab_status
+Executing handler for get_sketchfab_status
+Handler execution complete
+Queued command: get_polypizza_status
+Executing handler for get_polypizza_status
+Handler execution complete
+Queued command: get_hunyuan3d_status
+Executing handler for get_hunyuan3d_status
+Handler execution complete
+Queued command: get_hyper3d_status
+Executing handler for get_hyper3d_status
+Handler execution complete
+Queued command: get_meshy_status
+Executing handler for get_meshy_status
+Handler execution complete
+Queued command: get_tripo_status
+Executing handler for get_tripo_status
+Handler execution complete
+Queued command: get_telemetry_consent
+Executing handler for get_telemetry_consent
+Handler execution complete
+Queued command: execute_code
+Executing handler for execute_code
+Handler execution complete
+Queued command: get_telemetry_consent
+Executing handler for get_telemetry_consent
+Handler execution complete
+Queued command: execute_code
+Executing handler for execute_code
+Handler execution complete
+Queued command: execute_code
+Executing handler for execute_code
+Handler execution complete
+Queued command: get_viewport_screenshot
+Executing handler for get_viewport_screenshot
+Handler execution complete
+Queued command: get_telemetry_consent
+Executing handler for get_telemetry_consent
+Handler execution complete
+Queued command: execute_code
+Executing handler for execute_code
+Error in handler: {"exception_type": "NameError", "message": "name 'parts' is not defined", "traceback": "Traceback (most recent call last):\n  File \"F:\\Blender\\blender-5.2.3-windows-x64\\portable\\scripts\\addons\\blender_mcp.py\", line 2387, in execute_code\n    exec(code, namespace)\n    ~~~~^^^^^^^^^^^^^^^^^\n  File \"<string>\", line 1, in <module>\nNameError: name 'parts' is not defined. Did you mean: 'vars'?\n"}
+Client disconnected
+Client handler stopped
+Connected to client: ('127.0.0.1', 51340)
+Client handler started
+Queued command: get_viewport_screenshot
+Executing handler for get_viewport_screenshot
+Handler execution complete
+Queued command: execute_code
+Executing handler for execute_code
+Handler execution complete
+Queued command: get_viewport_screenshot
+Executing handler for get_viewport_screenshot
+Handler execution complete
+Queued command: get_telemetry_consent
+Executing handler for get_telemetry_consent
+Handler execution complete
+Queued command: execute_code
+Executing handler for execute_code
+Handler execution complete
+Queued command: get_viewport_screenshot
+Executing handler for get_viewport_screenshot
+Handler execution complete
+Queued command: get_telemetry_consent
+Executing handler for get_telemetry_consent
+Handler execution complete
+Queued command: execute_code
+Executing handler for execute_code
+Handler execution complete
+Queued command: get_viewport_screenshot
+Executing handler for get_viewport_screenshot
+Handler execution complete
+Queued command: execute_code
+Executing handler for execute_code
+Handler execution complete
+Queued command: get_viewport_screenshot
+Executing handler for get_viewport_screenshot
+Handler execution complete
+Queued command: get_telemetry_consent
+Executing handler for get_telemetry_consent
+Handler execution complete
+Queued command: execute_code
+Executing handler for execute_code
+Handler execution complete
+Queued command: get_viewport_screenshot
+Executing handler for get_viewport_screenshot
+Handler execution complete
+Queued command: get_telemetry_consent
+Executing handler for get_telemetry_consent
+Handler execution complete
+Queued command: execute_code
+Executing handler for execute_code
+Handler execution complete
+Queued command: get_viewport_screenshot
+Executing handler for get_viewport_screenshot
+Handler execution complete
+Queued command: get_telemetry_consent
+Executing handler for get_telemetry_consent
+Handler execution complete
+Queued command: execute_code
+Executing handler for execute_code
+Handler execution complete
+Queued command: get_viewport_screenshot
+Executing handler for get_viewport_screenshot
+Handler execution complete
+Queued command: get_telemetry_consent
+Executing handler for get_telemetry_consent
+Handler execution complete
+Queued command: execute_code
+Executing handler for execute_code
+Handler execution complete
+Queued command: get_viewport_screenshot
+Executing handler for get_viewport_screenshot
+Handler execution complete
+Queued command: execute_code
+Executing handler for execute_code
+Handler execution complete
+Queued command: execute_code
+Executing handler for execute_code
+Handler execution complete
+Queued command: get_viewport_screenshot
+Executing handler for get_viewport_screenshot
+Handler execution complete
+Queued command: execute_code
+Executing handler for execute_code
+Handler execution complete
+Queued command: get_telemetry_consent
+Executing handler for get_telemetry_consent
+Handler execution complete
+Queued command: execute_code
+Executing handler for execute_code
+Handler execution complete
+Queued command: get_viewport_screenshot
+Executing handler for get_viewport_screenshot
+Handler execution complete
+Queued command: get_telemetry_consent
+Executing handler for get_telemetry_consent
+Handler execution complete
+Queued command: execute_code
+Executing handler for execute_code
+Handler execution complete
+Queued command: get_viewport_screenshot
+Executing handler for get_viewport_screenshot
+Handler execution complete
+Queued command: get_telemetry_consent
+Executing handler for get_telemetry_consent
+Handler execution complete
+Queued command: execute_code
+Executing handler for execute_code
+Handler execution complete
+Queued command: get_viewport_screenshot
+Executing handler for get_viewport_screenshot
+Handler execution complete
+Connected to client: ('127.0.0.1', 56920)
+Client handler started
+Queued command: get_addon_info
+Executing handler for get_addon_info
+Handler execution complete
+Queued command: get_telemetry_consent
+Executing handler for get_telemetry_consent
+Handler execution complete
+Error receiving data: [WinError 10054] 현재 연결은 원격 호스트에 의해 강제로 끊겼습니다
+Client handler stopped
+Connected to client: ('127.0.0.1', 56928)
+Client handler started
+Queued command: get_addon_info
+Executing handler for get_addon_info
+Handler execution complete
+Queued command: get_telemetry_consent
+Executing handler for get_telemetry_consent
+Handler execution complete
+Error accepting connection: [WinError 10038] 소켓 이외의 개체에 작업을 시도했습니다
+Error receiving data: [WinError 10038] 소켓 이외의 개체에 작업을 시도했습니다
+Client handler stopped
+Error receiving data: [WinError 10038] 소켓 이외의 개체에 작업을 시도했습니다
+Client handler stopped
+Server thread stopped
+BlenderMCP server stopped
+BlenderMCP addon unregistered
+
+Blender quit

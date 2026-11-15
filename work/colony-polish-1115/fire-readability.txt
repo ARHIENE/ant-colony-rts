@@ -1,0 +1,11 @@
+RUNNING isolated Meshy fire, no natural campaign damage or resource changes
+PASS Imported Meshy model hides original renderer
+PASS Normal ignition accepts wooden facility
+PASS One fire effect remains visible while simulation is paused
+PASS Paused presentation does not advance damage or duration
+PASS Managed fire warning is active and deduplicated
+PASS Recovery summary prioritizes firefighting
+RELOAD burning=True remaining=8/8 hp=180/180 particles=30
+PASS Validated full reload preserves fire and restores particles without changing damage
+PASS Extinguishing clears particles and active fire warning
+RESTORED natural checkpoint; fixture discarded

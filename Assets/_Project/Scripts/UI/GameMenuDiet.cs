@@ -54,6 +54,8 @@ namespace AntColony.UI
             var observer = target ?? SortedCommanders().FirstOrDefault(c => c.IsColonyMember && !c.IsDead && !c.IsAwayFromHome);
             var food = FoodAvailability.Read(observer);
             MenuTheme.Text(content, "식량 상태" + (observer != null ? " · " + observer.CommanderName + " 기준" : ""), 18, 32);
+            var colonyFood = ColonyFoodStatus.Read();
+            MenuTheme.Text(content, colonyFood.Summary + "\n" + colonyFood.Bottlenecks, 15, 64);
             MenuTheme.Text(content, food.Summary, 15, 65);
             MenuTheme.Text(content, "가용 = 이 장수의 식단·창고 접근 조건. 건설 배정은 창고 재고에 포함됩니다. 바닥·운반·조리대·수송칸은 서로 다른 실물이며 합산하지 않습니다. 부패 임박은 창고에서 1일 이내 남은 물량입니다.", 14, 80);
             foreach (var f in food.rows.Where(r => r.HasStock))

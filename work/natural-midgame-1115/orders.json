@@ -1,0 +1,10 @@
+{
+  "retreatHealth": 0,
+  "focusLeader": false,
+  "speed": 3,
+  "acceptMigrants": true,
+  "seconds": 120,
+  "combat": true,
+  "defendLine": false,
+  "label": "07-wave11-last-defense"
+}

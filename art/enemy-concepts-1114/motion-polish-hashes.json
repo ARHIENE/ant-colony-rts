@@ -1,0 +1,432 @@
+[
+  {
+    "model": "AcidSpitter",
+    "clip": "Attack",
+    "sha256": "3b292e2afb5de635c8b41e0c5159ee146967fc7a095fce9157a363147712f440"
+  },
+  {
+    "model": "AcidSpitter",
+    "clip": "Death",
+    "sha256": "3f528de8900fdb0f720d28352fc6b30247ffd3672beaac924da1ec65590b3965"
+  },
+  {
+    "model": "AcidSpitter",
+    "clip": "Hit",
+    "sha256": "c6e2c0b21a65a38bae249d35ca0d8f6b773fbd6fede55845979ce44d8dd8122f"
+  },
+  {
+    "model": "AcidSpitter",
+    "clip": "Idle",
+    "sha256": "88b97c166ec59a2d7dae502b8bc07905b5c91061cf44fb1cf93f3044102b34ad"
+  },
+  {
+    "model": "AcidSpitter",
+    "clip": "Move",
+    "sha256": "64c61c04ed2fbcbddafa7156f1b1508905eba3faa9e22bad2da986e155a01ebe"
+  },
+  {
+    "model": "BloomMender",
+    "clip": "Attack",
+    "sha256": "54b6545c508161cb749db86b4b730ce66d51ddeabd1d79b3c15ecf014ac5e074"
+  },
+  {
+    "model": "BloomMender",
+    "clip": "Death",
+    "sha256": "82c0f1931034a101eeb9a12f329e8f065512c03ccc110a1eb7276b45a85557c5"
+  },
+  {
+    "model": "BloomMender",
+    "clip": "Heal",
+    "sha256": "3285ad68bae92f47414a9208105c5cfb2d95e215618564ab4bcd086608a7d0f9"
+  },
+  {
+    "model": "BloomMender",
+    "clip": "Hit",
+    "sha256": "cd97150b055191f5c8319b7421f8d838d4fb13cc418518238552441b86186793"
+  },
+  {
+    "model": "BloomMender",
+    "clip": "Idle",
+    "sha256": "26526692fe5cc681f4004b3d078650706a7dfb754a8c01a3a7d6ee2bfae04fab"
+  },
+  {
+    "model": "BloomMender",
+    "clip": "Move",
+    "sha256": "544d93916fa7def828f104b9d19a14930ca09a44e6cf9560f675ff3066cf6312"
+  },
+  {
+    "model": "BreachBeast",
+    "clip": "Attack",
+    "sha256": "8f9114cb8219cd7d213ac7601043bc488204fd97513de70c1c1a7676b27665ff"
+  },
+  {
+    "model": "BreachBeast",
+    "clip": "Death",
+    "sha256": "e898333bb04504ff866d41f6c6bacc160e95770f9752bf653bb286385609fb65"
+  },
+  {
+    "model": "BreachBeast",
+    "clip": "Hit",
+    "sha256": "e4dd1c599ff793a53694caf876203092ee17577af182f1078fcb1b8d3c6f9d6e"
+  },
+  {
+    "model": "BreachBeast",
+    "clip": "Idle",
+    "sha256": "8e6dc7320d14ce4a7a735767f605a55797e253d9a9d727f63fe258540eef14d2"
+  },
+  {
+    "model": "BreachBeast",
+    "clip": "Move",
+    "sha256": "197813257e8fa1b73e9e6468dde23e54976c2a2f724e0f86db04325f751c3775"
+  },
+  {
+    "model": "BroodAlien",
+    "clip": "Attack",
+    "sha256": "7c20675c8f8e0aca5991ddcf3ec448d0baef9791b59e2dbe10f2889a0e2c8d8f"
+  },
+  {
+    "model": "BroodAlien",
+    "clip": "Death",
+    "sha256": "8e78463e74ec35158698290a888cb6232a5b187eaae75a1d9e4cb88e59509cd0"
+  },
+  {
+    "model": "BroodAlien",
+    "clip": "Hit",
+    "sha256": "0e8efc00126ca8054c6b6fe5b90a85501ab3d89628cfdcef2074b609afc480e0"
+  },
+  {
+    "model": "BroodAlien",
+    "clip": "Idle",
+    "sha256": "347df82ae566aedbedcf5460bf6e36408a5ce673178a96a869c700f31054bab9"
+  },
+  {
+    "model": "BroodAlien",
+    "clip": "Move",
+    "sha256": "41353ccf00fe76dcb2d27c5d39080c0d4711064f7cabdeed0e5816d96fe6376b"
+  },
+  {
+    "model": "BroodCarrier",
+    "clip": "Attack",
+    "sha256": "ee0e440e8ef5224a12dcc4ad17a481308cdd86cdbe3c02532bc112f5c064cfbf"
+  },
+  {
+    "model": "BroodCarrier",
+    "clip": "Death",
+    "sha256": "91dc08fee08b18f26f4813aa9e18f5099d6ce6f582b728b70341f6be48f54824"
+  },
+  {
+    "model": "BroodCarrier",
+    "clip": "Hit",
+    "sha256": "d4dd0de621328b364e912947d71a2449cb0f57af8a712b51e18c73b807d7237c"
+  },
+  {
+    "model": "BroodCarrier",
+    "clip": "Idle",
+    "sha256": "726c25310ee14426bde93dc4573f90f843feb818765c3858b5a9fe39f010d85e"
+  },
+  {
+    "model": "BroodCarrier",
+    "clip": "Move",
+    "sha256": "4f4f855dbda02d2716e12df2d5a75d53bd83f37da131fb18ac8c3f2bd5916c96"
+  },
+  {
+    "model": "Bulwark",
+    "clip": "Attack",
+    "sha256": "7a5fef4cba41c87548d4acf8e66edd492573b66b952a5788055993660521c08a"
+  },
+  {
+    "model": "Bulwark",
+    "clip": "Death",
+    "sha256": "1d133805d3ed2aa10cd9a4dbc84ffeb7c6098a618b435a7fe129f88e58b8ac30"
+  },
+  {
+    "model": "Bulwark",
+    "clip": "Hit",
+    "sha256": "a9e7bd6e12dffd59cb090df223f34bc8ef755998ab9617a14d30ec2f60d158ec"
+  },
+  {
+    "model": "Bulwark",
+    "clip": "Idle",
+    "sha256": "7fd5a4c9666a1a7bc5f68af526e22b8f676beb57c6d2ba53d25253a96c5088e5"
+  },
+  {
+    "model": "Bulwark",
+    "clip": "Move",
+    "sha256": "994f918b7478376e07feb92f18c19d7df1af9305e546c4fa39405a908e803d3e"
+  },
+  {
+    "model": "BurrowLurker",
+    "clip": "Attack",
+    "sha256": "5fd00eec892f2be766557de18a852bd1e82bd38a828cc08e192445a8d5f7cfcd"
+  },
+  {
+    "model": "BurrowLurker",
+    "clip": "Death",
+    "sha256": "0c94184d6a05a32ebff76bb3ff057c83e14f7bfd0e1d955569c989121f0c8b23"
+  },
+  {
+    "model": "BurrowLurker",
+    "clip": "Hit",
+    "sha256": "b0f883058974da28260073f7af70dddec5fc6e71e8ce9d89fccdaf42b4911c2f"
+  },
+  {
+    "model": "BurrowLurker",
+    "clip": "Idle",
+    "sha256": "6d96ed677370fa607c35d2bff8279addf01e174275fc509d80b748152e3536de"
+  },
+  {
+    "model": "BurrowLurker",
+    "clip": "Move",
+    "sha256": "fd9739f2828aafdf758091caef36b27fd3b7d4758f68ff4333f2e358ea367c28"
+  },
+  {
+    "model": "CarrionReclaimer",
+    "clip": "Attack",
+    "sha256": "b54c7e9d4cf476687141a0eb5aae69a902e10c70e88f288d216e55b91c1dc134"
+  },
+  {
+    "model": "CarrionReclaimer",
+    "clip": "Death",
+    "sha256": "17e405cab3de8fa779b6c679c390a347bc7935cdd9262f8baf78136db92b3ce5"
+  },
+  {
+    "model": "CarrionReclaimer",
+    "clip": "Hit",
+    "sha256": "920e7f7ded17a5689ad7e03d6d41d618602a25b88cb834ff768da3ff001a45e1"
+  },
+  {
+    "model": "CarrionReclaimer",
+    "clip": "Idle",
+    "sha256": "aa34774b77c3c9c8b1e0bf9c7909a78416536c9fb51e1d962dfd84aef0a3084a"
+  },
+  {
+    "model": "CarrionReclaimer",
+    "clip": "Move",
+    "sha256": "9926c59ce910332e6e3f41f40dcc0656b30ac11a77d076fa2f64f44bf6dee6b5"
+  },
+  {
+    "model": "ClawHunter",
+    "clip": "Attack",
+    "sha256": "a8694ceaf9476aa1bbb19ee65499ddc3a98e95d4b2bbf7ab190686f4e3b57c7b"
+  },
+  {
+    "model": "ClawHunter",
+    "clip": "Death",
+    "sha256": "6670a112bc9673d72d496b48dfd03af291f44a1fe4b2747c3439ffaf9f367cff"
+  },
+  {
+    "model": "ClawHunter",
+    "clip": "Hit",
+    "sha256": "bf65ce6d2866fc2ec7daf1d2baa5d9af9ae8ccb93bdef50e01830d3064995813"
+  },
+  {
+    "model": "ClawHunter",
+    "clip": "Idle",
+    "sha256": "ee35f9e64bc576344026c9acd10c19d7cadb202c596f34383bdc79d06db6246f"
+  },
+  {
+    "model": "ClawHunter",
+    "clip": "Move",
+    "sha256": "e799cc5c0ce18a0d1cf390f2c7498347817831ca4faa43d38c5f0cf73a972580"
+  },
+  {
+    "model": "HookMaw",
+    "clip": "Attack",
+    "sha256": "877f3a2434f1cbcf44a26ee60c398208e4aae0de98a8847f64ad5b9d4431c729"
+  },
+  {
+    "model": "HookMaw",
+    "clip": "Death",
+    "sha256": "449d070cf5d6ea53529c64c383baaf12bf361c9d9d72a204a6642bfad16ce001"
+  },
+  {
+    "model": "HookMaw",
+    "clip": "Hit",
+    "sha256": "3dfd6c4828f9a5c4c1231a4c9f5cd4490debaa0752a5fa12707aabc47113c23c"
+  },
+  {
+    "model": "HookMaw",
+    "clip": "Idle",
+    "sha256": "5c9766e9f2d3dc01a1274d424a02f6f04edb2f363e4d0d5d37c4ffd2f53d97b6"
+  },
+  {
+    "model": "HookMaw",
+    "clip": "Move",
+    "sha256": "90b72c99fe094fb7bf84e94a0c5bc8d78d3597457559f6098aad49061627f9a1"
+  },
+  {
+    "model": "HuntRider",
+    "clip": "Attack",
+    "sha256": "8aa8c8f51ae62771b8411e921db3b5fc44704380b86676eb922ed172660ab037"
+  },
+  {
+    "model": "HuntRider",
+    "clip": "Death",
+    "sha256": "a5038c1a1d009bc2c6030233287f29cbde92b1a2d1341479f87cd93031785c5e"
+  },
+  {
+    "model": "HuntRider",
+    "clip": "Hit",
+    "sha256": "c6315a759e3213be8ca730e78e1e563e11b6ed8bc0071f07ae0972e9099c9578"
+  },
+  {
+    "model": "HuntRider",
+    "clip": "Idle",
+    "sha256": "6710b04769351615db771c2534727bb89ded0d1a4c57b6a6d6304bcfafd7404c"
+  },
+  {
+    "model": "HuntRider",
+    "clip": "Move",
+    "sha256": "ec77e04a895a97d2467b9ff1ff9c0f01491710cfa5f19942cfb1f47ac0fa9b95"
+  },
+  {
+    "model": "NeedleStalker",
+    "clip": "Attack",
+    "sha256": "d7a86276923d6b4f4ebfa1994e096889967ebfa61c9a7c2c04e8460581369aef"
+  },
+  {
+    "model": "NeedleStalker",
+    "clip": "Death",
+    "sha256": "5f50cbc50314ca748299919bba2b7ca84a9d471695023352ca0121a8bf76c583"
+  },
+  {
+    "model": "NeedleStalker",
+    "clip": "Hit",
+    "sha256": "7199b87610cde4c4cd5ebed13952ae39713130b2a90c7ef1aeb165a7783f4295"
+  },
+  {
+    "model": "NeedleStalker",
+    "clip": "Idle",
+    "sha256": "1647d9f2d0ad18097b5c1671a7f1268c9a7051665c85814a03dca903cbde9124"
+  },
+  {
+    "model": "NeedleStalker",
+    "clip": "Move",
+    "sha256": "eab990d806f7bc0253e4df69b7004dde09bfae23d209657f36a972b0e3e368cb"
+  },
+  {
+    "model": "SiegeBrooder",
+    "clip": "Attack",
+    "sha256": "db0007b8d7f277d883a29d3405f658c574db32bb7c02acca336789a93e32167a"
+  },
+  {
+    "model": "SiegeBrooder",
+    "clip": "Death",
+    "sha256": "1beab969075ea03e50e259ab709146882d350fac2601f5da0ea293ff77ce17db"
+  },
+  {
+    "model": "SiegeBrooder",
+    "clip": "Hit",
+    "sha256": "c119d6f513ccc47b7432001b07804e429a094204ac87bf8b41fdef0d413281fc"
+  },
+  {
+    "model": "SiegeBrooder",
+    "clip": "Idle",
+    "sha256": "a3062c3b1786d48423b9018afaf8781ba89ebe22517c896b9f6e881259e22c87"
+  },
+  {
+    "model": "SiegeBrooder",
+    "clip": "Move",
+    "sha256": "2d985a5f2833ef1b78c5c78727ad9349d3179fc1c6cdbb0441081f5e3324a68c"
+  },
+  {
+    "model": "SiegeRider",
+    "clip": "Attack",
+    "sha256": "932aea699322d6ff36cb09236415b79e1d45950b303fdc0c6037cf1a5c894d4f"
+  },
+  {
+    "model": "SiegeRider",
+    "clip": "Death",
+    "sha256": "8864e669ad190dfccb752a2ba53d8d9508872f9ae9e5354538f05f94b3e35152"
+  },
+  {
+    "model": "SiegeRider",
+    "clip": "Hit",
+    "sha256": "0a55ea7b607ee8a13665881628a78086336ae0d029ee3a8d641e2054ac33e5bc"
+  },
+  {
+    "model": "SiegeRider",
+    "clip": "Idle",
+    "sha256": "e696fd2c835cb9190105068855c9f78c191cb8ec20a8c7239a16785812a62b2f"
+  },
+  {
+    "model": "SiegeRider",
+    "clip": "Move",
+    "sha256": "128b65fa5337075269b38250f97fccd1449fee95cb373c90ebd1cfdce287a6d6"
+  },
+  {
+    "model": "VeilWeaver",
+    "clip": "Attack",
+    "sha256": "7542cc503027db1812ab879c0e6633936446b4f13cb22a1a7c07bf093cf49a4a"
+  },
+  {
+    "model": "VeilWeaver",
+    "clip": "Death",
+    "sha256": "15f09aeae7a4d958ce6530f93c59b0796c120811fc333e1bf6c0198eba6ebb53"
+  },
+  {
+    "model": "VeilWeaver",
+    "clip": "Hit",
+    "sha256": "c264924e1ea6eb11364275601c63800dee15c1c8db61b4f0c8023ca92510b2f4"
+  },
+  {
+    "model": "VeilWeaver",
+    "clip": "Idle",
+    "sha256": "34d4f7c4ef44d4c6a24faf77f2236a073ccc512c06f1cba0b402b6b4650f0cce"
+  },
+  {
+    "model": "VeilWeaver",
+    "clip": "Move",
+    "sha256": "08dd60a3bd7facff3224a77c8beedb1ce6120d73590dda810dc2c5109dec748c"
+  },
+  {
+    "model": "WallMelter",
+    "clip": "Attack",
+    "sha256": "dccc93e22a4028bc14af77c6494ff236ab764f924967d2aedd9df96d69bfda15"
+  },
+  {
+    "model": "WallMelter",
+    "clip": "Death",
+    "sha256": "7a4e6e4e920006ef35dbd5d9814dd2fed7dc113bb2c30de832910bd1e639bb32"
+  },
+  {
+    "model": "WallMelter",
+    "clip": "Hit",
+    "sha256": "fa87c502997514d269900cdadf3e12351f58d73fa88cc7d7f01897b3b91781eb"
+  },
+  {
+    "model": "WallMelter",
+    "clip": "Idle",
+    "sha256": "f92990b99829294b429fe804d8b8b32c12252e47bb3fa43bce6d504d982b000a"
+  },
+  {
+    "model": "WallMelter",
+    "clip": "Move",
+    "sha256": "87a570606d159db8f9627f5c8e217e6128364a271789f3e5b9230240ce1163b9"
+  },
+  {
+    "model": "WallRam",
+    "clip": "Attack",
+    "sha256": "533bfaf7a9a505b703591e809028e54aed6fc64d042089c145a865713189ae3f"
+  },
+  {
+    "model": "WallRam",
+    "clip": "Death",
+    "sha256": "7a65795bde97c050e57c1a167ce1fbdf87daefd0a7488fdd20ff1f144ec16719"
+  },
+  {
+    "model": "WallRam",
+    "clip": "Hit",
+    "sha256": "94e935a660c32cc959d8d031fca6dd5e84dac71149f575e5b1119da10d24a817"
+  },
+  {
+    "model": "WallRam",
+    "clip": "Idle",
+    "sha256": "c9265bb7d7080f539684fade9932a492b1da2cc872c856561838472e2475a43e"
+  },
+  {
+    "model": "WallRam",
+    "clip": "Move",
+    "sha256": "a153d10df7a29c1a6e1406b9d6ac75076601145d031bc695362cae9e64049b47"
+  }
+]

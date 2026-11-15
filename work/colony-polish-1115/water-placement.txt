@@ -1,0 +1,11 @@
+Live natural map; read-only rules and rejected placement. No resources or progress injected.
+PASS ManualWell accepts location within source range
+PASS ManualWell rejects location beyond source range
+PASS WaterPump accepts location within source range
+PASS WaterPump rejects location beyond source range
+PASS Existing misplaced well is identified as outside source range
+PASS Open ordinary well placement
+PASS Commit rechecks source even when supplied preview is valid
+PASS ManualWell tooltip explains operating dependency
+PASS WaterPump tooltip explains operating dependency
+PASS StarterMushroomBed tooltip explains operating dependency

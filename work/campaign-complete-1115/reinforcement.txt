@@ -1,0 +1,10 @@
+RUNNING reinforcement round trip
+PASS Place reinforcement at home checkpoint
+PASS Assign reinforcement after expedition departure
+PASS First tick does not finish reinforcement at its starting home position
+PASS Save reinforcement departure: 
+PASS Reload reinforcement departure: 
+PASS Reinforcement reload completed
+PASS Reinforcement movement survives full scene reload
+PASS Reinforcement physically left home, distance=115.869
+PASS Reinforcement returned home and resumed civilian duty

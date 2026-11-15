@@ -186,6 +186,8 @@ namespace AntColony.Units
             if (moving) Face(delta);
             if (commander != null && (commander.IsCaptive || commander.PersonalHealth <= 0)) Play("Sit");
             else if (commander != null && commander.AtSleepingPlace && !moving) Play("Sleep");
+            else if (commander != null && commander.AlcoholBlackout) Play("Sit");
+            else if (commander != null && commander.IsDrinking && !moving) Play("Eat");
             else if (commander != null && commander.IsEating && !moving)
             { if (commander.MealTable) Face(commander.MealTable.Position-transform.position); Play("Eat"); }
             else if (commander != null && commander.IsWashing) Play("Wash");

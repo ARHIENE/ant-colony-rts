@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using AntColony.Buildings;
@@ -129,6 +129,7 @@ namespace AntColony.Units
             if (!(seconds > 0) || float.IsInfinity(seconds) || IsDead || IsHostile || AntColony.Save.SaveSystem.Busy) return;
             TickCarriedSupplies(seconds);
             if (TickRecovery(seconds)) return;
+            if (TickDrinkAction(seconds,true)) return;
             // A player's defence/retreat order must not be cancelled by automatic self-tending,
             // meals or hauling. Downed recovery above and health damage still run normally.
             if (!IsDeployed && AntColony.World.WaveDefense.Instance?.InWave == true
@@ -142,18 +143,23 @@ namespace AntColony.Units
             WorkState.rations ??= new FoodLots();
             if (IsDeployed) TickDeploymentMeal(seconds);
             if (!IsDeployed && !IsAwayFromHome && !IsEmbarked && !IsCaptive && !WorkPriorities.Red
-                && (Satiety <= GameBalance.EatBelowSatiety && MealState.retrySeconds <= 0
-                    || IsSleepTime || Hygiene < GameBalanceNeeds.TemporaryCap && HygieneState.retrySeconds <= 0))
+                && (Satiety <= GameBalance.EatBelowSatiety && (MealState.retrySeconds <= 0 && !IsCarrying || HasFoodFor(this))
+                    || IsSleepTime))
             {
-                // Failed meals and temporary washing already schedule a retry. Keep hauling
-                // during that interval instead of dropping the same material every frame.
+                // 음식이 없으면 재시도 시각이 와도 배송을 마친다. 빈 식량 창고로
+                // 가려고 재료를 반복해서 내려놓으면 조리·약품 생산까지 멈춘다.
+                // 위생은 TickHygiene의 IsCarrying 판정으로 입고 뒤 처리한다.
+                // 여기서 짐을 버리면 긴 운반이 위생 재시도 주기마다 처음부터 반복된다.
                 if (IsCarrying) { DropCargo(); CommandStop(); }
                 if (IsPlaying) LeavePlay();
             }
             TickCarriedMeal(seconds);
+            // 식량을 가지러 가는 중에는 TickMeal이 반환한다. 먼저 아침의 수면 상태를
+            // 끝내야 침대 접점에 붙잡힌 채 창고 도착을 영원히 기다리지 않는다.
+            if (IsAsleep && !IsSleepTime) TickSleep(0);
             if (TickMeal(seconds)) { LeaveWash(); return; }
             if (TickSleep(seconds)) { LeaveWash(); return; }
-            if (TickHygiene(seconds) || TickCorpseWork(seconds) || TickJoy(seconds)) return;
+            if (TickHygiene(seconds) || TickCorpseWork(seconds) || TickDrinkAction(seconds,false) || TickJoy(seconds)) return;
             if (TickMed(seconds)) return;
             if (TickBossRewardWork()) return;
             if (CanSelfTend && MedicalRules.NeedsDoctor(Health, MedicineAllowed(Health)) && !Taken(this, MedJob.Tend)
@@ -182,7 +188,7 @@ namespace AntColony.Units
             if (!IsWorking && ScienceAssignment == null && CraftingWorkshop == null) SetWorkTarget(null);
             if (ScienceAssignment != null)
             {
-                if ((CampaignResearch.Instance?.Active == null && CampaignResearch.Instance?.ActiveResource == null) || !AllowsJob(CommanderJobs.Research)) ScienceAssignment.ReleaseResearcher();
+                if (CampaignResearch.Instance?.HasResearchTask != true || !AllowsJob(CommanderJobs.Research)) ScienceAssignment.ReleaseResearcher();
                 else { ReturnToResearch(); return; }
             }
             if (WorkState.resting && (IsWorking || !IsFatigued)) WorkState.resting = false;
@@ -304,11 +310,11 @@ namespace AntColony.Units
                         yield return (refinery, () => StartService(refinery, CommanderJobs.Crafting));
                     foreach (var shop in AntColony.Core.SceneObjects.All<Workshop>().Where(w => w.NeedsIngredients))
                         yield return (shop, () => CommandFetchFor(shop));
-                    foreach (var processor in AntColony.Core.SceneObjects.All<Processor>().Where(p => !p.IsMedical && p.NeedsIngredients))
+                    foreach (var processor in AntColony.Core.SceneObjects.All<Processor>().Where(p => p.Job == CommanderJobs.Crafting && p.NeedsIngredients))
                         yield return (processor, () => CommandFetchFor(processor));
                     foreach (var shop in AntColony.Core.SceneObjects.All<Workshop>().Where(w => w.InputsReady))
                         yield return (shop, () => !shop.Ruined && !shop.IsDead && shop.Crafter == null && shop.CanContinue(this) && GoToFacility(shop));
-                    foreach (var processor in AntColony.Core.SceneObjects.All<Processor>().Where(p => !p.IsMedical && p.NeedsWork)) // 약제대는 간호(의료)
+                    foreach (var processor in AntColony.Core.SceneObjects.All<Processor>().Where(p => p.Job == CommanderJobs.Crafting && p.NeedsWork)) // 약제대는 간호(의료)
                         yield return (processor, () => StartService(processor, CommanderJobs.Crafting));
                     yield break;
                 case CommanderJobs.Cooking:
@@ -331,6 +337,12 @@ namespace AntColony.Units
                         yield return (animal, () => !Active.OfType<CommanderAnt>().Any(c => c != this && c.HuntTarget == animal) && StartHunt(animal));
                     yield break;
             }
+            if (job is CommanderJobs.Gathering or CommanderJobs.Farming)
+                foreach (var site in AntColony.Core.SceneObjects.All<Processor>().Where(p => p.IsResourceSite && p.Job == job))
+                {
+                    if (site.NeedsIngredients) yield return (site, () => CommandFetchFor(site));
+                    if (site.NeedsWork) yield return (site, () => StartService(site, job));
+                }
             if (job == CommanderJobs.Gathering)
                 foreach (var drill in SupplyFacility.All.Where(DeepDrillNeedsWork))
                     yield return (drill, () => StartService(drill, CommanderJobs.Gathering));
@@ -402,10 +414,14 @@ namespace AntColony.Units
         // 연구(2026-10-08): 자율로 맡지 않는다. 플레이어가 연구 항목을 고른 뒤 장수를 지정하면 연구소로 가서 맡는다. 완료되면 배정이 풀린다(자동 반복 없음).
         public bool SendToResearch(ScienceLab lab)
         {
-            if (lab == null || lab.IsDead || lab.Busy || lab.Target != null || CampaignResearch.Instance?.Active == null || lab.Tier < CampaignResearch.Instance.Active.Tier
-                || !AllowsJob(CommanderJobs.Research) || !CanTakeCivilianOrder || !CivilianWorkReady || !CanChangeAllocation) return false;
-            CommandStop(); WorkState.resting = false;
-            return GoToFacility(lab);
+            if (lab == null || !lab.isActiveAndEnabled || lab.IsDead || lab.Busy || lab.Target != null || CampaignResearch.Instance?.HasResearchTask != true || lab.Tier < (CampaignResearch.Instance.Active?.Tier ?? 1)
+                || DirectWorkBlock(CommanderJobs.Research).Length > 0 || !CivilianWorkReady || BossCargoCount > 0) return false;
+            // 직접 배정은 운반·건설도 안전하게 전환한다. 거절되는 경로는 기존 작업을 해제하지 않는다.
+            if (Active.OfType<CommanderAnt>().Any(c => c != this && c.automaticFacility == lab)
+                || !TryWorkApproach(lab.Position, out var approach)) return false;
+            LeavePlay(); CommandStop(); DropCargo(); WorkState.resting = false;
+            if ((Position - lab.Position).sqrMagnitude <= 49) return lab.TryAssign(this);
+            automaticFacility = lab; base.CommandMove(approach); return true;
         }
         private bool GoToFacility(BuildingBase facility)
         {
