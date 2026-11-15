@@ -16591,8 +16591,8 @@
     },
     {
       "path": "changelog.md",
-      "bytes": 131808,
-      "sha256": "25c7140ec40b8952db0b9c37f7032bfec2f0fb0e7fd836363a12ceed4f02f504"
+      "bytes": 132427,
+      "sha256": "aa324b7c65a0819846f9e4c8c1b23407118a1281925db1e29ed03aaa395cd880"
     },
     {
       "path": "docs/ASSET_NEEDS_AUDIT_1114.md",
@@ -16701,8 +16701,8 @@
     },
     {
       "path": "docs/SAVE_20261116.md",
-      "bytes": 15839,
-      "sha256": "f70ab29d8293f1c3d1398b3e769e69dc503bfa12a6ced529f765b7185bf2d869"
+      "bytes": 16458,
+      "sha256": "4cc4fe2d897bf708ee504ac744f4eaa85c757ff8e3ceed7cc1481f2102dc529b"
     },
     {
       "path": "docs/STARVATION_WARNING_1116.md",
@@ -16733,8 +16733,8 @@
     },
     {
       "path": "log.md",
-      "bytes": 14189,
-      "sha256": "c8c844d52730543bdc99be4cca284aa07c7124ed78511604e0fb32b39dc3b4c4"
+      "bytes": 14808,
+      "sha256": "1fd609f777fe0c8b7bb3b39a26d60821116017da6ef3bb1ae35fbba4fe1b29a7"
     },
     {
       "path": "work/campaign-complete-1114/before-hashes.json",

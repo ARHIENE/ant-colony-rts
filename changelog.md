@@ -1055,3 +1055,8 @@ ode design/hud/hud-v5.check.cjs`(Playwright 72), 스크린샷 `reports/hud-v5/`(
 
 ## 2026-11-12 통합 SAVE
 - 두 채팅의 원본모션·파지·외형, Meshy시설8종, 첫 방어/운반/명령공격/UI 작업 통합. 검증과 한계는 docs/ANIMATION_NATIVE_1112.md, FIRST_DEFENSE_1112.md, RELEASE_VISUAL_1112.md, PLAYABILITY_1111.md 참조. 원격 및 Notion 결과는 log.md에 후속 기록.
+
+
+## SAVE 원격 반영 확인
+
+구현·에셋 통합 커밋 `aea97ee2199d82aeda6d25bda30c6a70ddf842ae`를 origin/develop에 반영하고 다시 조회했다. 로컬 develop도 같은 커밋으로 동기화했으며 작업 파일은 덮어쓰지 않았다. 텍스트 1,399개와 아카이브 274개 그룹 해시 일치, 백업 원본 699개 검증 통과. 변경 경로 9,925개이며 prefab/prefab.meta 변경은 없다. Notion 사진 7장과 캡처 GIF 1개 첨부 완료. 저장소는 사용자 정정 지시에 따라 Public 유지. 최신 지시에 따라 SAVE 최종 확인 뒤 컴퓨터를 정상 종료한다.
